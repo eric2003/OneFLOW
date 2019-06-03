@@ -164,39 +164,6 @@ void G2LMapping::GetXadjAdjncy( UnsGrid * ggrid, IntField & xadj, IntField & adj
 	}
 }
 
-//void G2LMapping::PartByMetis( int nCell, IntField & xadj, IntField & adjncy )
-//{
-//	int   ncon     = 1;
-//	int   * vwgt   = 0;
-//	int   * vsize  = 0;
-//	int   * adjwgt = 0;
-//	float * tpwgts = 0;
-//	float * ubvec  = 0;
-//	idx_t options[ METIS_NOPTIONS ];
-//	int wgtflag = 0;
-//	int numflag = 0;
-//	int objval;
-//
-//    int nZone = npartproc;
-//
-//	METIS_SetDefaultOptions( options );
-//	cout << "Now begining partition graph!\n";
-//	if ( nZone > 8 )
-//	{
-//		cout << "Using K-way Partitioning!\n";
-//		METIS_PartGraphKway( & nCell, & ncon, & xadj[ 0 ], & adjncy[ 0 ], vwgt, vsize, adjwgt, 
-//							 & nZone, tpwgts, ubvec, options, & objval, & gc2lzone[ 0 ] );
-//    }
-//    else
-//    {
-//        cout << "Using Recursive Partitioning!\n";
-//		METIS_PartGraphRecursive( & nCell, & ncon, & xadj[ 0 ], & adjncy[ 0 ], vwgt, vsize, adjwgt, 
-//								  & nZone, tpwgts, ubvec, options, & objval, & gc2lzone[ 0 ] );
-//    }
-//	cout << "The interface number: " << objval << endl; 
-//	cout << "Partition is finished!\n";
-//}
-
 void G2LMapping::PartByMetis( int nCell, IntField & xadj, IntField & adjncy )
 {
 	int   ncon     = 1;
@@ -210,51 +177,24 @@ void G2LMapping::PartByMetis( int nCell, IntField & xadj, IntField & adjncy )
 	int numflag = 0;
 	int objval;
 
-	int nZone = npartproc;
-	int nadj = xadj.size();
-	int * xx_adj = new int[ nadj ];
-
-	for ( int i = 0; i < nadj; ++i )
-	{
-		xx_adj[ i ]  = xadj[ i ];
-	}
-
-	int n_adjncy = adjncy.size();
-	int * a_adjncy = new int[ n_adjncy ];
-
-	for ( int i = 0; i < n_adjncy; ++i )
-	{
-		a_adjncy[ i ]  = adjncy[ i ];
-	}
-
-	int n_gc2lzone = gc2lzone.size();
-	int * g_gc2lzone = new int[ n_gc2lzone ];
-
-	for ( int i = 0; i < n_gc2lzone; ++i )
-	{
-		g_gc2lzone[ i ]  = gc2lzone[ i ];
-	}
+    int nZone = npartproc;
 
 	METIS_SetDefaultOptions( options );
 	cout << "Now begining partition graph!\n";
 	if ( nZone > 8 )
 	{
 		cout << "Using K-way Partitioning!\n";
-		METIS_PartGraphKway( & nCell, & ncon, xx_adj, a_adjncy, vwgt, vsize, adjwgt, 
-			& nZone, tpwgts, ubvec, options, & objval, g_gc2lzone );
-	}
-	else
-	{
-		cout << "Using Recursive Partitioning!\n";
-		METIS_PartGraphRecursive( & nCell, & ncon, xx_adj, a_adjncy, vwgt, vsize, adjwgt, 
-			& nZone, tpwgts, ubvec, options, & objval, g_gc2lzone );
-	}
+		METIS_PartGraphKway( & nCell, & ncon, & xadj[ 0 ], & adjncy[ 0 ], vwgt, vsize, adjwgt, 
+							 & nZone, tpwgts, ubvec, options, & objval, & gc2lzone[ 0 ] );
+    }
+    else
+    {
+        cout << "Using Recursive Partitioning!\n";
+		METIS_PartGraphRecursive( & nCell, & ncon, & xadj[ 0 ], & adjncy[ 0 ], vwgt, vsize, adjwgt, 
+								  & nZone, tpwgts, ubvec, options, & objval, & gc2lzone[ 0 ] );
+    }
 	cout << "The interface number: " << objval << endl; 
 	cout << "Partition is finished!\n";
-
-	delete [] xx_adj;
-	delete [] a_adjncy;
-	delete [] g_gc2lzone;
 }
 
 void G2LMapping::DumpXadjAdjncy( UnsGrid * grid, IntField & xadj, IntField & adjncy )
