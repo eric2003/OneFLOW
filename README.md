@@ -1,10 +1,11 @@
 # OneFLOW
+-----------------------------------------------------------
 The Open-Source CFD Code
-
+-----------------------------------------------------------
 LargeScale Multiphysics Scientific Simulation Environment
-
-*OneFLOW DEVELOPERS*
-
+-----------------------------------------------------------
+## OneFLOW DEVELOPERS
+-----------------------------------------------------------
 OneFLOW is being developed by individuals and organized teams all around the world.
 
 The current OneFLOW release has been coordinated by the OneFLOW International Developers Society with selected contributions from the open-source community.
