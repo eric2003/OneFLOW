@@ -36,6 +36,7 @@ const int ISCHEME_AUSMDV         = 8;
 const int ISCHEME_AUSMW          = 9;
 const int ISCHEME_AUSMPW         = 10;
 const int ISCHEME_HYBRIDROE      = 11;
+const int ISCHEME_SLAU2          = 12;
 
 
 Real FMSplit1( const Real & mach, const Real & ipn );
@@ -101,6 +102,7 @@ public:
 	void Ausmdv   ();
 	void Ausmw    ();
 	void Ausmpw   ();
+	void Slau2();
 public:
     void ModifyAbsoluteEigenvalue();
 };

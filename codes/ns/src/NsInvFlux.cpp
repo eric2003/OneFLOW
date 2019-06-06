@@ -150,6 +150,10 @@ void NsInvFlux::SetPointer( int schemeId )
     {
         invFluxPointer = & NsInvFlux::LaxFriedrichs;
     }
+    else if ( schemeId == ISCHEME_SLAU2 )
+    {
+        invFluxPointer = & NsInvFlux::Slau2;
+    }
     else
     {
         invFluxPointer = & NsInvFlux::Roe;
@@ -1236,6 +1240,76 @@ void NsInvFlux::Ausmpw()
     for ( int iEqu = nscom.nBEqu; iEqu < nscom.nEqu; ++ iEqu )
     {
         inv.flux[ iEqu ] = inv.cm * ( mpl * inv.rl * inv.prim1[ iEqu ] + mmr * inv.rr * inv.prim2[ iEqu ] );
+    }
+}
+
+void NsInvFlux::Slau2()
+{
+    Extract( inv.prim1, inv.rl, inv.ul, inv.vl, inv.wl, inv.pl );
+    Extract( inv.prim2, inv.rr, inv.ur, inv.vr, inv.wr, inv.pr );
+
+    Real v2l = SQR( inv.ul, inv.vl, inv.wl );
+    Real v2r = SQR( inv.ur, inv.vr, inv.wr );
+
+	Real hint_l, hint_r;
+
+	CmpEnthalpy( inv.prim1, inv.gama1, hint_l );
+	CmpEnthalpy( inv.prim2, inv.gama2, hint_r );
+
+    inv.hl  = hint_l + half * v2l;
+    inv.hr  = hint_r + half * v2r;
+
+    Real vnl  = gcom.fnx * inv.ul + gcom.fny * inv.vl + gcom.fnz * inv.wl - gcom.fvn;
+    Real vnr  = gcom.fnx * inv.ur + gcom.fny * inv.vr + gcom.fnz * inv.wr - gcom.fvn;
+
+    Real orl = 1.0 / ( inv.rl + SMALL );
+    Real orr = 1.0 / ( inv.rr + SMALL );
+
+    Real c2l = inv.gama1 * inv.pl * orl;
+    Real c2r = inv.gama2 * inv.pr * orr;
+
+    inv.cl  = sqrt( c2l );
+    inv.cr  = sqrt( c2r );
+
+    inv.cm  = half * ( inv.cl + inv.cr ); //middle sound speed	
+
+	Real t = inv.rr / inv.rl;
+	Real vna = ( ABS( vnl ) + t * ABS( vnr ) ) / ( 1 + t );
+
+	Real ml = vnl / inv.cm;
+	Real mr = vnr / inv.cm;
+
+	Real g = - MAX( MIN( ml, 0.0), -1.0 ) * MIN( MAX( mr, 0.0), 1.0 );
+
+	Real vnp = ( 1 - g ) * vna + g * ABS( vnl );
+	Real vnn = ( 1 - g ) * vna + g * ABS( vnr );
+
+	Real va = sqrt( half * ( v2l + v2r ) );
+	Real m12 = MIN( 1.0, va / inv.cm );
+	Real ka = SQR( 1 - m12 );
+
+	Real ms = half * ( inv.rl * ( vnl + vnp ) + inv.rr * ( vnr - vnn ) - ka * ( inv.pr - inv.pl ) / inv.cm );
+
+    Real fp5ml = FPSplit5( ml, zero,  one );
+    Real fp5mr = FPSplit5( mr, zero, -one );
+
+	Real ps = 0;
+	ps += half * ( inv.pl + inv.pr );
+	ps += half * ( fp5ml - fp5mr ) * ( inv.pl - inv.pr );
+	ps += va *( fp5ml + fp5mr - 1 ) * sqrt( inv.rl * inv.rr ) * inv.cm;
+
+	Real mp = half * ( ms + ABS( ms ) );
+	Real mn = half * ( ms - ABS( ms ) );
+
+    inv.flux[ IDX::IR  ] = ( mp          + mn          );
+    inv.flux[ IDX::IRU ] = ( mp * inv.ul + mn * inv.ur ) + gcom.fnx * ps;
+    inv.flux[ IDX::IRV ] = ( mp * inv.vl + mn * inv.vr ) + gcom.fny * ps;
+    inv.flux[ IDX::IRW ] = ( mp * inv.wl + mn * inv.wr ) + gcom.fnz * ps;
+    inv.flux[ IDX::IRE ] = ( mp * inv.hl + mn * inv.hr ) + gcom.fvn * ps;
+
+    for ( int iEqu = nscom.nBEqu; iEqu < nscom.nEqu; ++ iEqu )
+    {
+        inv.flux[ iEqu ] = ( mp * inv.prim1[ iEqu ] + mn * inv.prim2[ iEqu ] );
     }
 }
 
