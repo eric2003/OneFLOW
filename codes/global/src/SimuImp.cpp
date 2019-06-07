@@ -36,22 +36,22 @@ BeginNameSpace( ONEFLOW )
 void RunSimu()
 {
     simu_state.Init();
-    if ( simu_state.simutask == SOLVE_FIELD )
+    if ( simu_state.simutask == TaskEnum::SOLVE_FIELD )
     {
         ConstructSystemMap();
         FieldSimu();
     }
-    else if ( simu_state.simutask == CREATE_GRID )
+    else if ( simu_state.simutask == TaskEnum::CREATE_GRID )
     {
         ConstructSystemMap();
         GenerateGrid();
     }
-    else if ( simu_state.simutask == CREATE_WALL_DIST )
+    else if ( simu_state.simutask == TaskEnum::CREATE_WALL_DIST )
     {
         ConstructSystemMap();
         WalldistSimu();
     }
-    else if ( simu_state.simutask == FUN_TEST )
+    else if ( simu_state.simutask == TaskEnum::FUN_TEST )
     {
         FunTest();
     }
