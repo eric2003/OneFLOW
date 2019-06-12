@@ -63,10 +63,7 @@ int CgnsMultiBase::GetSystemZoneType()
 
 void CgnsMultiBase::ReadCgnsGrid()
 {
-	if ( grid_para.filetype == "cgns" )
-	{
-		this->ReadCgnsGrid( grid_para.gridFile );
-	}
+	this->ReadCgnsGrid( grid_para.gridFile );
 }
 
 void CgnsMultiBase::ReadCgnsGrid( const string & fileName )
