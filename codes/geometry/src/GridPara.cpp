@@ -42,22 +42,23 @@ GridPara::~GridPara()
 
 void GridPara::Init()
 {
+	//设置原始网格的文件名称
+	this->gridFile = GetDataValue< string >("sourceGridFileName");
+	//设置原始网格格式
+	this->filetype = GetDataValue< string >("sourceGridType");
+	//设置原始网格的拓扑形式
+	this->topo = GetDataValue< string >("topoType");
+
     this->multiBlock = GetDataValue< int >( "multiBlock" );
+	//设置要进行的网格操作
     this->gridObj = GetDataValue< int >("gridObj");
+	//设置网格缩放比例
 	this->gridScale =  GetDataValue< Real >( "gridScale" );
+	//设置网格平移量
 	this->gridTrans.resize( 3 );
 	CopyArray( this->gridTrans, "gridTrans" );
+
 	this->axis_dir = GetDataValue< int >( "axis_dir" );
-}
-
-string GetSourceGridType()
-{
-    return ONEFLOW::GetDataValue< string >( "sourceGridType" );
-}
-
-string GetTopoType()
-{
-    return ONEFLOW::GetDataValue< string >( "topoType" );
 }
 
 int GetGridTopoType()

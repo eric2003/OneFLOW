@@ -58,8 +58,6 @@ public:
 
 extern GridPara grid_para;
 
-string GetSourceGridType();
-string GetTopoType();
 int GetGridTopoType();
 
 EndNameSpace
