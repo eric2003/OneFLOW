@@ -43,16 +43,11 @@ GridPara::~GridPara()
 void GridPara::Init()
 {
     this->multiBlock = GetDataValue< int >( "multiBlock" );
-    this->gridObj = ONEFLOW::GetGridObj();
+    this->gridObj = GetDataValue< int >("gridObj");
 	this->gridScale =  GetDataValue< Real >( "gridScale" );
 	this->gridTrans.resize( 3 );
 	CopyArray( this->gridTrans, "gridTrans" );
 	this->axis_dir = GetDataValue< int >( "axis_dir" );
-}
-
-int GetGridObj()
-{
-    return ONEFLOW::GetDataValue< int >( "gridObj" );
 }
 
 string GetSourceGridType()

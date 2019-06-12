@@ -36,19 +36,24 @@ BeginNameSpace( ONEFLOW )
 void RunSimu()
 {
     simu_state.Init();
+
+	//设置模拟参数
+	if (simu_state.simutask != TaskEnum::FUN_TEST)
+	{
+		ConstructSystemMap();
+	}
+
+	//根据不同的simutask值，执行不同的求解流程
     if ( simu_state.simutask == TaskEnum::SOLVE_FIELD )
     {
-        ConstructSystemMap();
         FieldSimu();
     }
     else if ( simu_state.simutask == TaskEnum::CREATE_GRID )
     {
-        ConstructSystemMap();
         GenerateGrid();
     }
     else if ( simu_state.simutask == TaskEnum::CREATE_WALL_DIST )
     {
-        ConstructSystemMap();
         WalldistSimu();
     }
     else if ( simu_state.simutask == TaskEnum::FUN_TEST )
