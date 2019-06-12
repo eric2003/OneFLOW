@@ -78,7 +78,11 @@ public:
     void DeAllocateGridElem();
     void PrepareUnsCompGrid();
     void AllocateCmpGrid();
+
+	//转换为oneflow计算所用的网格
     void GenerateCmpGrid();
+
+protected:
     void GenerateStrCmpGrid();
     void GenerateUnsCmpGrid();
 };

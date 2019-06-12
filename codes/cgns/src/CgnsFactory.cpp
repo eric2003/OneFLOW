@@ -99,6 +99,7 @@ void CgnsFactory::ProcessGrid()
 
     this->GenerateCmpGrid();
 
+	//对网格进行处理并输出计算所用的网格文件
 	ONEFLOW::GenerateMultiZoneCmpGrids( cmpGrids );
 }
 

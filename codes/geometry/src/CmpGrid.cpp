@@ -93,7 +93,7 @@ void CmpGrid::BuildInterfaceLink()
 
 void CmpGrid::Dump()
 {
-    cout << "CmpGrid::Dump()\n";
+    cout << __FUNCTION__<<endl;
 	fstream file;
 	OpenPrjFile( file, gridFileName, ios_base::out|ios_base::binary|ios_base::trunc );
     int nZone = grids.size();
