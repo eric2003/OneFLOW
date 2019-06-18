@@ -180,6 +180,8 @@ void CgnsMultiBase::ReadAllCgnsZonesInEachCgnsBase()
 
 		CgnsBase * cgnsBase = baseVector[ id ];
 
+		cgnsBase->ReadFamilySpecifiedBc();
+
 		cgnsBase->ReadAllCgnsZones();
 	}
 }

@@ -24,6 +24,7 @@ License
 #include "CgnsZone.h"
 #include "BasicIO.h"
 #include "Dimension.h"
+#include "CgnsFamilyBc.h"
 
 #include <iostream>
 using namespace std;
@@ -156,5 +157,48 @@ void CgnsBase::ReadAllCgnsZones( CgnsBase * cgnsBaseIn )
 		cgnsZone->ReadCgnsGrid( cgnsZoneIn );
 	}
 }
+
+void CgnsBase::SetFamilyBc( BCType_t & bcType, const string & bcRegionName )
+{
+	if ( bcType == FamilySpecified )
+	{
+		int bcTypeFamily = FamilyBc::GetBcType( bcRegionName );
+		bcType = static_cast< BCType_t >( bcTypeFamily );
+	}
+}
+
+void CgnsBase::ReadFamilySpecifiedBc()
+{
+	if ( FamilyBc::int_flag ) return;
+	FamilyBc::Init();
+    int fileId = this->fileId;
+    int baseId = this->baseId;
+
+	int nFamilies = -1;
+	cg_nfamilies( fileId, baseId, & nFamilies );
+	cout << "\n";
+	cout << "   CGNS nFamilies = " << nFamilies << "\n";
+	CgnsTraits::char33 familyName;
+	int nBoco = -1;
+	int nGeo = -1;
+	for ( int iFam = 1; iFam <= nFamilies; ++ iFam )
+	{
+		cg_family_read( fileId, baseId, iFam, familyName, & nBoco, & nGeo );
+		cout << "   iFam = " << iFam << " familyName = " << familyName << " nBoco = " << nBoco << " nGeo = " << nGeo << "\n";
+		if ( nBoco == 1 )
+		{
+			CgnsTraits::char33 familyBcName;
+			BCType_t familyBcType = BCTypeNull;
+			cg_fambc_read( fileId, baseId, iFam, nBoco, familyBcName, & familyBcType );
+			FamilyBc::Register( familyName, familyBcType );
+			cout << "   familyBcName = " << familyBcName << " Cgns BcType = " << setw( 5 ) << familyBcType;
+			cout << " CGNS BcName = " << setiosflags(ios::left) << setw( 23 ) << GetCgnsBcName( familyBcType ) << "\n";
+		}
+	}
+
+	cout << "\n";
+	cout << "\n";
+}
+
 
 EndNameSpace

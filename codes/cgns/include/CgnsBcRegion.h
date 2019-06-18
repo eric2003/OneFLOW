@@ -39,22 +39,6 @@ class FaceSolver;
 
 class CgnsBcInterface;
 
-class FamilyBc
-{
-public:
-	FamilyBc();
-	~FamilyBc();
-public:
-	static bool int_flag;
-	static map< string, int > * bcMap;
-public:
-	static void Init();
-	static void Free();
-	static void Register( const string & regionName, int bcType );
-	static void Unregister( const string & regionName );
-	static int GetBcType( const string & regionName );
-};
-
 class CgnsBcRegion
 {
 public:
@@ -90,7 +74,7 @@ public:
     void ProcessVertexBc( IntSet & bcVertex );
     void ProcessFaceBc( IntSet & bcVertex );
 public:
-	void ReadFamilySpecifiedBc();
+	//void ReadFamilySpecifiedBc();
     void ReadCgnsOrdinaryBcRegion();
     void ReadCgnsOrdinaryBcRegionInfo();
     void ReadCgnsOrdinaryBcRegionGridLocation();

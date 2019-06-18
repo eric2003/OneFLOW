@@ -24,43 +24,28 @@ License
 #pragma once
 #include "HXDefine.h"
 #include "HXCgns.h"
+#include <vector>
 #include <string>
 #include <map>
 using namespace std;
 
 BeginNameSpace( ONEFLOW )
 
-class CgnsZone;
-
-class CgnsBase
+class FamilyBc
 {
 public:
-	CgnsBase();
-	~CgnsBase();
+	FamilyBc();
+	~FamilyBc();
 public:
-	int fileId, baseId;
-	int nZones;
-	int celldim, phydim;
-	string baseName;
-    HXVector< CgnsZone * > cgnsZones;
+	static bool int_flag;
+	static map< string, int > * bcMap;
 public:
-	CgnsZone * GetCgnsZone( int zoneId );
-	CgnsZone * GetCgnsZone( const string & zoneName );
-	void ConstructZoneNameMap();
-	map< string, int > zoneNameMap;
-public:
-    void SetDefaultCgnsBaseBasicInformation();
-    void AllocateAllCgnsZonesInCurrentCgnsBase();
-    void InitAllCgnsZonesInCurrentCgnsBase();
-    void ReadCgnsBaseBasicInfo();
-    void ReadCgnsBaseBasicInfo( CgnsBase * cgnsBaseIn );
-    void ReadNumberOfCgnsZones();
-    void ReadNumberOfCgnsZones( CgnsBase * cgnsBaseIn );
-    void ReadAllCgnsZones();
-    void ReadAllCgnsZones( CgnsBase * cgnsBaseIn );
-public:
-	void SetFamilyBc( BCType_t & bcType, const string & bcRegionName );
-	void ReadFamilySpecifiedBc();
+	static void Init();
+	static void Free();
+	static void Register( const string & regionName, int bcType );
+	static void Unregister( const string & regionName );
+	static int GetBcType( const string & regionName );
 };
+
 
 EndNameSpace

@@ -20,47 +20,59 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-
-#pragma once
-#include "HXDefine.h"
-#include "HXCgns.h"
-#include <string>
-#include <map>
-using namespace std;
+#include "CgnsFamilyBc.h"
 
 BeginNameSpace( ONEFLOW )
 
-class CgnsZone;
+bool FamilyBc::int_flag = false;
+map< string, int > * FamilyBc::bcMap = 0;
 
-class CgnsBase
+FamilyBc::FamilyBc()
 {
-public:
-	CgnsBase();
-	~CgnsBase();
-public:
-	int fileId, baseId;
-	int nZones;
-	int celldim, phydim;
-	string baseName;
-    HXVector< CgnsZone * > cgnsZones;
-public:
-	CgnsZone * GetCgnsZone( int zoneId );
-	CgnsZone * GetCgnsZone( const string & zoneName );
-	void ConstructZoneNameMap();
-	map< string, int > zoneNameMap;
-public:
-    void SetDefaultCgnsBaseBasicInformation();
-    void AllocateAllCgnsZonesInCurrentCgnsBase();
-    void InitAllCgnsZonesInCurrentCgnsBase();
-    void ReadCgnsBaseBasicInfo();
-    void ReadCgnsBaseBasicInfo( CgnsBase * cgnsBaseIn );
-    void ReadNumberOfCgnsZones();
-    void ReadNumberOfCgnsZones( CgnsBase * cgnsBaseIn );
-    void ReadAllCgnsZones();
-    void ReadAllCgnsZones( CgnsBase * cgnsBaseIn );
-public:
-	void SetFamilyBc( BCType_t & bcType, const string & bcRegionName );
-	void ReadFamilySpecifiedBc();
-};
+	;
+}
+
+FamilyBc::~FamilyBc()
+{
+	;
+}
+
+void FamilyBc::Init()
+{
+	if ( FamilyBc::int_flag ) return;
+	FamilyBc::int_flag = true;
+	FamilyBc::bcMap = new map< string, int >;
+}
+
+void FamilyBc::Free()
+{
+	delete FamilyBc::bcMap;
+}
+
+void FamilyBc::Register( const string & regionName, int bcType )
+{
+	map< string, int >::iterator iter = FamilyBc::bcMap->find( regionName );
+	if ( iter == FamilyBc::bcMap->end() )
+	{
+		( * FamilyBc::bcMap )[ regionName ] = bcType;
+	}
+}
+
+void FamilyBc::Unregister( const string & regionName )
+{
+	FamilyBc::bcMap->erase( regionName );
+}
+
+int FamilyBc::GetBcType( const string & regionName )
+{
+	map< string, int >::iterator iter = FamilyBc::bcMap->find( regionName );
+	if ( iter == FamilyBc::bcMap->end() )
+	{
+		return -1;
+	}
+
+	return iter->second;
+}
+
 
 EndNameSpace
