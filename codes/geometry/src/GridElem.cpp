@@ -226,7 +226,7 @@ void GridElem::ComputeBoundaryType( UnsGrid * grid )
     for ( IntSet::iterator iter = originalBcSet.begin(); iter != originalBcSet.end(); ++ iter )
     {
 		int oriBcType = * iter;
-        cout << " Boundary Type = " << setw( 3 ) << oriBcType << "  Name = " << setw( 20 ) << GetCgnsBcName( oriBcType );
+        cout << " Boundary Type = " << setw( 3 ) << oriBcType << "  Name = " << setiosflags(ios::left) << setw( 23 ) << GetCgnsBcName( oriBcType );
         cout << " Face = " << nBFaceSub[ iCount ] << endl;
         ++ iCount;
     }

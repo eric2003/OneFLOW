@@ -34,56 +34,6 @@ using namespace std;
 
 BeginNameSpace( ONEFLOW )
 
-bool FamilyBc::int_flag = false;
-map< string, int > * FamilyBc::bcMap = 0;
-
-FamilyBc::FamilyBc()
-{
-	;
-}
-
-FamilyBc::~FamilyBc()
-{
-	;
-}
-
-void FamilyBc::Init()
-{
-	if ( FamilyBc::int_flag ) return;
-	FamilyBc::int_flag = true;
-	FamilyBc::bcMap = new map< string, int >;
-}
-
-void FamilyBc::Free()
-{
-	delete FamilyBc::bcMap;
-}
-
-void FamilyBc::Register( const string & regionName, int bcType )
-{
-	map< string, int >::iterator iter = FamilyBc::bcMap->find( regionName );
-	if ( iter == FamilyBc::bcMap->end() )
-	{
-		( * FamilyBc::bcMap )[ regionName ] = bcType;
-	}
-}
-
-void FamilyBc::Unregister( const string & regionName )
-{
-	FamilyBc::bcMap->erase( regionName );
-}
-
-int FamilyBc::GetBcType( const string & regionName )
-{
-	map< string, int >::iterator iter = FamilyBc::bcMap->find( regionName );
-	if ( iter == FamilyBc::bcMap->end() )
-	{
-		return -1;
-	}
-
-	return iter->second;
-}
-
 CgnsBcRegion::CgnsBcRegion( CgnsZone * cgnsZone )
 {
     this->cgnsZone = cgnsZone;
@@ -211,40 +161,6 @@ void CgnsBcRegion::ReadCgnsOrdinaryBcRegion()
 	this->PrintCgnsBcConn();
 }
 
-void CgnsBcRegion::ReadFamilySpecifiedBc()
-{
-	if ( FamilyBc::int_flag ) return;
-	FamilyBc::Init();
-    int fileId = cgnsZone->cgnsBase->fileId;
-    int baseId = cgnsZone->cgnsBase->baseId;
-    //int zId = cgnsZone->zId;
-
-	int nFamilies = -1;
-	cg_nfamilies( fileId, baseId, & nFamilies );
-	cout << "   CGNS nFamilies   = " << nFamilies << "\n";
-	CgnsTraits::char33 famName;
-	int nboco = -1;
-	int ngeo = -1;
-	for ( int iFam = 1; iFam <= nFamilies; ++ iFam )
-	{
-		cg_family_read( fileId, baseId, iFam, famName, & nboco, & ngeo );
-		cout << "    iFam = " << iFam << " famName = " << famName << " nboco = " << nboco << " ngeo = " << ngeo << "\n";
-		if ( nboco == 1 )
-		{
-			CgnsTraits::char33 famNameTmp;
-			BCType_t bcTypeFam = BCTypeNull;
-			cg_fambc_read( fileId, baseId, iFam, nboco, famNameTmp, & bcTypeFam );
-			FamilyBc::Register( famName, bcTypeFam );
-			cout << "   famNameTmp = " << famNameTmp << " bcTypeFam = " << bcTypeFam << "\n";
-			cout << "   CGNS FamilySpecifiedBc Name   = " << GetCgnsBcName( bcTypeFam ) << "\n";
-		}
-	}
-
-	cout << "\n";
-	cout << "\n";
-		
-	int kkk = 1;
-}
 
 void CgnsBcRegion::ReadCgnsOrdinaryBcRegionInfo()
 {
@@ -254,8 +170,6 @@ void CgnsBcRegion::ReadCgnsOrdinaryBcRegionInfo()
     int zId = cgnsZone->zId;
 
 	CgnsTraits::char33 bcRegionName;
-
-	this->ReadFamilySpecifiedBc();
 
     this->gridConnType = GridConnectivityTypeNull;
 
@@ -267,11 +181,7 @@ void CgnsBcRegion::ReadCgnsOrdinaryBcRegionInfo()
 
 	this->name = bcRegionName;
 
-	if ( this->bcType == FamilySpecified )
-	{
-		int bcTypeFamily = FamilyBc::GetBcType( bcRegionName );
-		this->bcType = static_cast< BCType_t >( bcTypeFamily );
-	}
+	cgnsZone->cgnsBase->SetFamilyBc( bcType, bcRegionName );
 
     cout << "   CGNS Boundary Name             = " << bcRegionName << "\n";
     cout << "   CGNS Boundary Condition Name   = " << GetCgnsBcName( this->bcType ) << "\n";

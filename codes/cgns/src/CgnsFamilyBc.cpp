@@ -20,49 +20,57 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-
-#pragma once
-#include "HXDefine.h"
-#include "HXCgns.h"
-#include <string>
-#include <map>
-using namespace std;
+#include "CgnsFamilyBc.h"
 
 BeginNameSpace( ONEFLOW )
 
-class CgnsZone;
-class CgnsFamilyBc;
-
-class CgnsBase
+CgnsFamilyBc::CgnsFamilyBc()
 {
-public:
-	CgnsBase();
-	~CgnsBase();
-public:
-	int fileId, baseId;
-	int nZones;
-	int celldim, phydim;
-	string baseName;
-    HXVector< CgnsZone * > cgnsZones;
-public:
-	CgnsZone * GetCgnsZone( int zoneId );
-	CgnsZone * GetCgnsZone( const string & zoneName );
-	void ConstructZoneNameMap();
-	map< string, int > zoneNameMap;
-	CgnsFamilyBc * familyBc;
-public:
-    void SetDefaultCgnsBaseBasicInformation();
-    void AllocateAllCgnsZonesInCurrentCgnsBase();
-    void InitAllCgnsZonesInCurrentCgnsBase();
-    void ReadCgnsBaseBasicInfo();
-    void ReadCgnsBaseBasicInfo( CgnsBase * cgnsBaseIn );
-    void ReadNumberOfCgnsZones();
-    void ReadNumberOfCgnsZones( CgnsBase * cgnsBaseIn );
-    void ReadAllCgnsZones();
-    void ReadAllCgnsZones( CgnsBase * cgnsBaseIn );
-public:
-	void SetFamilyBc( BCType_t & bcType, const string & bcRegionName );
-	void ReadFamilySpecifiedBc();
-};
+	int_flag = false;
+	Init();
+}
+
+CgnsFamilyBc::~CgnsFamilyBc()
+{
+	Free();
+}
+
+void CgnsFamilyBc::Init()
+{
+	if ( int_flag ) return;
+	int_flag = true;
+	bcMap = new map< string, int >;
+}
+
+void CgnsFamilyBc::Free()
+{
+	delete bcMap;
+}
+
+void CgnsFamilyBc::Register( const string & regionName, int bcType )
+{
+	map< string, int >::iterator iter = bcMap->find( regionName );
+	if ( iter == bcMap->end() )
+	{
+		( * CgnsFamilyBc::bcMap )[ regionName ] = bcType;
+	}
+}
+
+void CgnsFamilyBc::Unregister( const string & regionName )
+{
+	bcMap->erase( regionName );
+}
+
+int CgnsFamilyBc::GetBcType( const string & regionName )
+{
+	map< string, int >::iterator iter = bcMap->find( regionName );
+	if ( iter == bcMap->end() )
+	{
+		return -1;
+	}
+
+	return iter->second;
+}
+
 
 EndNameSpace
