@@ -31,20 +31,20 @@ using namespace std;
 
 BeginNameSpace( ONEFLOW )
 
-class FamilyBc
+class CgnsFamilyBc
 {
 public:
-	FamilyBc();
-	~FamilyBc();
+	CgnsFamilyBc();
+	~CgnsFamilyBc();
 public:
-	static bool int_flag;
-	static map< string, int > * bcMap;
+	bool int_flag;
+	map< string, int > * bcMap;
 public:
-	static void Init();
-	static void Free();
-	static void Register( const string & regionName, int bcType );
-	static void Unregister( const string & regionName );
-	static int GetBcType( const string & regionName );
+	void Init();
+	void Free();
+	void Register( const string & regionName, int bcType );
+	void Unregister( const string & regionName );
+	int GetBcType( const string & regionName );
 };
 
 

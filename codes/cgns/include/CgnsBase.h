@@ -31,6 +31,7 @@ using namespace std;
 BeginNameSpace( ONEFLOW )
 
 class CgnsZone;
+class CgnsFamilyBc;
 
 class CgnsBase
 {
@@ -48,6 +49,7 @@ public:
 	CgnsZone * GetCgnsZone( const string & zoneName );
 	void ConstructZoneNameMap();
 	map< string, int > zoneNameMap;
+	CgnsFamilyBc * familyBc;
 public:
     void SetDefaultCgnsBaseBasicInformation();
     void AllocateAllCgnsZonesInCurrentCgnsBase();

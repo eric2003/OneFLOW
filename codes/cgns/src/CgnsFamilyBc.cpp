@@ -24,49 +24,47 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-bool FamilyBc::int_flag = false;
-map< string, int > * FamilyBc::bcMap = 0;
-
-FamilyBc::FamilyBc()
+CgnsFamilyBc::CgnsFamilyBc()
 {
-	;
+	int_flag = false;
+	Init();
 }
 
-FamilyBc::~FamilyBc()
+CgnsFamilyBc::~CgnsFamilyBc()
 {
-	;
+	Free();
 }
 
-void FamilyBc::Init()
+void CgnsFamilyBc::Init()
 {
-	if ( FamilyBc::int_flag ) return;
-	FamilyBc::int_flag = true;
-	FamilyBc::bcMap = new map< string, int >;
+	if ( int_flag ) return;
+	int_flag = true;
+	bcMap = new map< string, int >;
 }
 
-void FamilyBc::Free()
+void CgnsFamilyBc::Free()
 {
-	delete FamilyBc::bcMap;
+	delete bcMap;
 }
 
-void FamilyBc::Register( const string & regionName, int bcType )
+void CgnsFamilyBc::Register( const string & regionName, int bcType )
 {
-	map< string, int >::iterator iter = FamilyBc::bcMap->find( regionName );
-	if ( iter == FamilyBc::bcMap->end() )
+	map< string, int >::iterator iter = bcMap->find( regionName );
+	if ( iter == bcMap->end() )
 	{
-		( * FamilyBc::bcMap )[ regionName ] = bcType;
+		( * CgnsFamilyBc::bcMap )[ regionName ] = bcType;
 	}
 }
 
-void FamilyBc::Unregister( const string & regionName )
+void CgnsFamilyBc::Unregister( const string & regionName )
 {
-	FamilyBc::bcMap->erase( regionName );
+	bcMap->erase( regionName );
 }
 
-int FamilyBc::GetBcType( const string & regionName )
+int CgnsFamilyBc::GetBcType( const string & regionName )
 {
-	map< string, int >::iterator iter = FamilyBc::bcMap->find( regionName );
-	if ( iter == FamilyBc::bcMap->end() )
+	map< string, int >::iterator iter = bcMap->find( regionName );
+	if ( iter == bcMap->end() )
 	{
 		return -1;
 	}

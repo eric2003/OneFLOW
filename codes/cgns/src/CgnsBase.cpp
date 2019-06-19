@@ -33,10 +33,12 @@ BeginNameSpace( ONEFLOW )
 
 CgnsBase::CgnsBase()
 {
+	this->familyBc = 0;
 }
 
 CgnsBase::~CgnsBase()
 {
+	delete this->familyBc;
 }
 
 CgnsZone * CgnsBase::GetCgnsZone( int zoneId )
@@ -162,15 +164,15 @@ void CgnsBase::SetFamilyBc( BCType_t & bcType, const string & bcRegionName )
 {
 	if ( bcType == FamilySpecified )
 	{
-		int bcTypeFamily = FamilyBc::GetBcType( bcRegionName );
+		int bcTypeFamily = familyBc->GetBcType( bcRegionName );
 		bcType = static_cast< BCType_t >( bcTypeFamily );
 	}
 }
 
 void CgnsBase::ReadFamilySpecifiedBc()
 {
-	if ( FamilyBc::int_flag ) return;
-	FamilyBc::Init();
+	this->familyBc = new CgnsFamilyBc();
+
     int fileId = this->fileId;
     int baseId = this->baseId;
 
@@ -190,7 +192,7 @@ void CgnsBase::ReadFamilySpecifiedBc()
 			CgnsTraits::char33 familyBcName;
 			BCType_t familyBcType = BCTypeNull;
 			cg_fambc_read( fileId, baseId, iFam, nBoco, familyBcName, & familyBcType );
-			FamilyBc::Register( familyName, familyBcType );
+			this->familyBc->Register( familyName, familyBcType );
 			cout << "   familyBcName = " << familyBcName << " Cgns BcType = " << setw( 5 ) << familyBcType;
 			cout << " CGNS BcName = " << setiosflags(ios::left) << setw( 23 ) << GetCgnsBcName( familyBcType ) << "\n";
 		}
