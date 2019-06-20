@@ -44,14 +44,19 @@ const map<string, TaskEnum> TaskFilter =
 };
 
 
+//管理oneflow求解时执行的任务类型
 class SimuState
 {
 public:
     SimuState();
-    ~SimuState();
+    virtual ~SimuState();
 public:
+	//根据数据库的参数，设置simutask对应的值
     void Init();
-public:
+	//返回要执行的任务类型
+	const TaskEnum Task() const;
+
+private:
     TaskEnum simutask;
 };
 

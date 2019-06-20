@@ -21,23 +21,33 @@ along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 \*---------------------------------------------------------------------------*/
 #pragma once
 #include "Configure.h"
+#include <vector>
 
 BeginNameSpace( ONEFLOW )
 
+//调用仿真求解模块，进行求解和后处理的类
 class Simulation
 {
 public:
 	Simulation( int argc, char ** argv );
-	~Simulation();
+	virtual ~Simulation();
 public:
 	void Run();
+
 public:
 	void PreProcess();
 	void MainProcess();
 	void PostProcess();
-public:
-	int argc;
-	char ** argv;
+
+protected:
+	//初始化
+	void InitSimu();
+	//执行求解
+	void RunSimu();
+	
+private:
+	//命令行参数
+	std::vector<std::string> args;
 };
 
 EndNameSpace
