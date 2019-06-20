@@ -43,7 +43,7 @@ public:
 	int eType;
     int startId, endId;
     int connSize;
-	IntField connList;
+	CgnsIntField connList;
 	IntField eTypeList;
 	IntField ePosList;
 	int pos_shift;

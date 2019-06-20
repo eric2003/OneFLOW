@@ -60,7 +60,7 @@ public:
 	int nDataSets;
 
 	cgsize_t nElements;
-	IntField connList;
+	CgnsIntField connList;
 
     CgnsBcInterface * bcInterface;
 
@@ -74,7 +74,6 @@ public:
     void ProcessVertexBc( IntSet & bcVertex );
     void ProcessFaceBc( IntSet & bcVertex );
 public:
-	//void ReadFamilySpecifiedBc();
     void ReadCgnsOrdinaryBcRegion();
     void ReadCgnsOrdinaryBcRegionInfo();
     void ReadCgnsOrdinaryBcRegionGridLocation();

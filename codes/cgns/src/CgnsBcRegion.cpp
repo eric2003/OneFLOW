@@ -186,10 +186,10 @@ void CgnsBcRegion::ReadCgnsOrdinaryBcRegionInfo()
     cout << "   CGNS Boundary Name             = " << bcRegionName << "\n";
     cout << "   CGNS Boundary Condition Name   = " << GetCgnsBcName( this->bcType ) << "\n";
 
-	if ( this->name == "outflow" && this->bcType == BCTypeNull )
-	{
-		this->bcType = BCOutflow;
-	}
+	//if ( this->name == "outflow" && this->bcType == BCTypeNull )
+	//{
+	//	this->bcType = BCOutflow;
+	//}
 }
 
 void CgnsBcRegion::ReadCgnsOrdinaryBcRegionGridLocation()
@@ -248,7 +248,10 @@ void CgnsBcRegion::ReadCgnsBcConn()
 	int cgnsNormalList;
 
     // Read the element ID¡¯s.
+	//cgsize_t connTMp[ 100 ];
 	cg_boco_read( fileId, baseId, zId, this->id, & connList[ 0 ], & cgnsNormalList );
+	//cg_boco_read( fileId, baseId, zId, this->id, connTMp, & cgnsNormalList );
+	int kkk = 1;
 }
 
 void CgnsBcRegion::ProcessCgns1to1BcRegion( int bcId )

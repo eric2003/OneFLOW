@@ -23,12 +23,15 @@ License
 
 #pragma once
 #include "Configure.h"
+#include "HXVector.h"
 #include <string>
 using namespace std;
 
 BeginNameSpace( ONEFLOW )
 
 #include "cgnslib.h"
+
+typedef HXVector< cgsize_t > CgnsIntField;
 
 class CgnsTraits
 {

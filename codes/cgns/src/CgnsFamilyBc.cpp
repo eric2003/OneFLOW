@@ -21,12 +21,16 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "CgnsFamilyBc.h"
+#include "CgnsBase.h"
+#include <iostream>
+#include <iomanip>
+using namespace std;
 
 BeginNameSpace( ONEFLOW )
 
-CgnsFamilyBc::CgnsFamilyBc()
+CgnsFamilyBc::CgnsFamilyBc( CgnsBase * cgnsBase )
 {
-	int_flag = false;
+	this->cgnsBase = cgnsBase;
 	Init();
 }
 
@@ -37,8 +41,6 @@ CgnsFamilyBc::~CgnsFamilyBc()
 
 void CgnsFamilyBc::Init()
 {
-	if ( int_flag ) return;
-	int_flag = true;
 	bcMap = new map< string, int >;
 }
 
@@ -71,6 +73,56 @@ int CgnsFamilyBc::GetBcType( const string & regionName )
 
 	return iter->second;
 }
+
+void CgnsFamilyBc::SetFamilyBc( BCType_t & bcType, const string & bcRegionName )
+{
+	if ( bcType == FamilySpecified )
+	{
+		int bcTypeFamily = this->GetBcType( bcRegionName );
+		bcType = static_cast< BCType_t >( bcTypeFamily );
+	}
+}
+
+void CgnsFamilyBc::ReadFamilySpecifiedBc()
+{
+    int fileId = cgnsBase->fileId;
+    int baseId = cgnsBase->baseId;
+
+	int nFamilies = -1;
+	cg_nfamilies( fileId, baseId, & nFamilies );
+	cout << "\n";
+	cout << "   CGNS nFamilies = " << nFamilies << "\n";
+	CgnsTraits::char33 familyName;
+	int nBoco = -1;
+	int nGeo = -1;
+	for ( int iFam = 1; iFam <= nFamilies; ++ iFam )
+	{
+		cg_family_read( fileId, baseId, iFam, familyName, & nBoco, & nGeo );
+		cout << "   iFam = " << iFam;
+		cout << " FamilyName = " << setiosflags( ios::left ) << setw( 15 ) << familyName << " nBoco = " << nBoco << " nGeo = " << nGeo << "\n";
+	}
+
+	for ( int iFam = 1; iFam <= nFamilies; ++ iFam )
+	{
+		cg_family_read( fileId, baseId, iFam, familyName, & nBoco, & nGeo );
+		if ( nBoco == 1 )
+		{
+			CgnsTraits::char33 familyBcName;
+			BCType_t familyBcType = BCTypeNull;
+			cg_fambc_read( fileId, baseId, iFam, nBoco, familyBcName, & familyBcType );
+			this->Register( familyName, familyBcType );
+			int Width = 10;
+			int stringWidth = 23;
+			cout << "   FamilyBcName = " << setiosflags( ios::left ) << setw( Width ) << familyBcName;
+			cout << " CGNS BcType = " << setiosflags( ios::left ) << setw( 5 ) << familyBcType;
+			cout << " CGNS BcName = " << setiosflags(ios::left) << setw( stringWidth ) << GetCgnsBcName( familyBcType ) << "\n";
+		}
+	}
+
+	cout << "\n";
+	cout << "\n";
+}
+
 
 
 EndNameSpace

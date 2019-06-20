@@ -60,8 +60,8 @@ public:
 	ZoneType_t cgnsZoneType;
 
 	int zId;
-	int irmin[ 3 ], irmax[ 3 ], cellSize[ 3 ];
-	int isize[ 3 ][ 3 ];
+	cgsize_t irmin[ 3 ], irmax[ 3 ], cellSize[ 3 ];
+	cgsize_t isize[ 3 ][ 3 ];
 
 	string coorName;
 	string zoneName;
