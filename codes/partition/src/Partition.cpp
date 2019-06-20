@@ -138,16 +138,16 @@ void G2LMapping::GenerateGC2Z()
     int nFace  = ggrid->nFace;
     int nBFace = ggrid->nBFace;
 
-    IntField xadj  ( ggrid->nCell + 1 );
-    IntField adjncy( 2 * ( nFace - nBFace ) );
+	vector<idx_t> xadj  ( ggrid->nCell + 1 );
+	vector<idx_t> adjncy( 2 * ( nFace - nBFace ) );
 
     this->GetXadjAdjncy( ggrid, xadj, adjncy );
     this->PartByMetis( nCell, xadj, adjncy );
 	//this->DumpGC2Z( gridForPartition );
 	//this->ReadGC2Z( gridForPartition );
 }
-
-void G2LMapping::GetXadjAdjncy( UnsGrid * ggrid, IntField & xadj, IntField & adjncy )
+#ifdef ENABLE_METIS
+void G2LMapping::GetXadjAdjncy( UnsGrid * ggrid, vector<idx_t> & xadj, vector<idx_t>& adjncy )
 {   
     int  nCell = ggrid->nCell;
     CmpC2C( ggrid );
@@ -164,20 +164,19 @@ void G2LMapping::GetXadjAdjncy( UnsGrid * ggrid, IntField & xadj, IntField & adj
 	}
 }
 
-void G2LMapping::PartByMetis( int nCell, IntField & xadj, IntField & adjncy )
+void G2LMapping::PartByMetis( idx_t nCell, vector<idx_t>& xadj, vector<idx_t>& adjncy )
 {
-	int   ncon     = 1;
-	int   * vwgt   = 0;
-	int   * vsize  = 0;
-	int   * adjwgt = 0;
+	idx_t   ncon     = 1;
+	idx_t   * vwgt   = 0;
+	idx_t   * vsize  = 0;
+	idx_t   * adjwgt = 0;
 	float * tpwgts = 0;
 	float * ubvec  = 0;
 	idx_t options[ METIS_NOPTIONS ];
-	int wgtflag = 0;
-	int numflag = 0;
-	int objval;
-
-    int nZone = npartproc;
+	idx_t wgtflag = 0;
+	idx_t numflag = 0;
+	idx_t objval;
+    idx_t nZone = npartproc;
 
 	METIS_SetDefaultOptions( options );
 	cout << "Now begining partition graph!\n";
@@ -196,6 +195,7 @@ void G2LMapping::PartByMetis( int nCell, IntField & xadj, IntField & adjncy )
 	cout << "The interface number: " << objval << endl; 
 	cout << "Partition is finished!\n";
 }
+#endif
 
 void G2LMapping::DumpXadjAdjncy( UnsGrid * grid, IntField & xadj, IntField & adjncy )
 {

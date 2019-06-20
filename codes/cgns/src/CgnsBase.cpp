@@ -30,6 +30,8 @@ using namespace std;
 
 BeginNameSpace( ONEFLOW )
 
+#ifdef ENABLE_CGNS
+
 CgnsBase::CgnsBase()
 {
 	this->familyBc = 0;
@@ -170,5 +172,5 @@ void CgnsBase::ReadFamilySpecifiedBc()
 	this->familyBc->ReadFamilySpecifiedBc();
 }
 
-
+#endif
 EndNameSpace

@@ -51,6 +51,7 @@ License
 using namespace std;
 
 BeginNameSpace( ONEFLOW )
+#ifdef ENABLE_CGNS
 
 CgnsFactory::CgnsFactory()
 {
@@ -99,6 +100,7 @@ void CgnsFactory::ProcessGrid()
 
     this->GenerateCmpGrid();
 
+	//对网格进行处理并输出计算所用的网格文件
 	ONEFLOW::GenerateMultiZoneCmpGrids( cmpGrids );
 }
 
@@ -235,8 +237,7 @@ void CgnsFactory::AllocateGridElem()
 
 void CgnsFactory::DeAllocateGridElem()
 {
-    int nSize = gridElems.size();
-	for ( int iZone = 0; iZone < nSize; ++ iZone )
+	for ( int iZone = 0; iZone < gridElems.size(); ++ iZone )
 	{
         delete gridElems[ iZone ];
 	}
@@ -310,7 +311,7 @@ void CgnsFactory::MergeToSingleZone( Grids & grids, HXVector< Int3D * > & unsIdL
 	PointSearch * point_search = new PointSearch();
 	point_search->Initialize( grids );
 
-    int nZone = grids.size();
+    size_t nZone = grids.size();
 
     unsIdList.resize( nZone );
     nCell = 0;
@@ -413,7 +414,7 @@ void CgnsFactory::FillSection( Grids & grids, HXVector< Int3D * > & unsIdList )
         nTCell += grid->ComputeNumberOfCell();
 
         BcRegionGroup * bcRegionGroup = grid->bcRegionGroup;
-        int nBcRegions = bcRegionGroup->regions->size();
+        size_t nBcRegions = bcRegionGroup->regions->size();
 
         for ( int ir = 0; ir < nBcRegions; ++ ir )
         {
@@ -465,8 +466,8 @@ void CgnsFactory::FillSection( Grids & grids, HXVector< Int3D * > & unsIdList )
     CgnsSection * secV = cgnsZone->multiSection->cgnsSections[ 0 ];
     CgnsSection * secB = cgnsZone->multiSection->cgnsSections[ 1 ];
 
-    CgnsIntField & connList  = secV->connList;
-    CgnsIntField & bConnList = secB->connList;
+	vector<cgsize_t>& connList  = secV->connList;
+	vector<cgsize_t>& bConnList = secB->connList;
 
     int pos = 0;
 
@@ -533,7 +534,7 @@ void CgnsFactory::FillSection( Grids & grids, HXVector< Int3D * > & unsIdList )
         Int3D & unsId = * unsIdList[ iZone ];
 
         BcRegionGroup * bcRegionGroup = grid->bcRegionGroup;
-        int nBcRegions = bcRegionGroup->regions->size();
+        size_t nBcRegions = bcRegionGroup->regions->size();
 
         for ( int ir = 0; ir < nBcRegions; ++ ir )
         {
@@ -633,5 +634,5 @@ int Cgns2OneFlowZoneType( int zoneType )
     }
 }
 
-
+#endif
 EndNameSpace

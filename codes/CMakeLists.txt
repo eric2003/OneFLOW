@@ -28,11 +28,11 @@ if(WIN32)
 message(STATUS "VS_COMPILER is ${VS_COMPILER}")
 endif(WIN32)
 
-if (BIT64_FLAG)
-    set(BITCODE x64)
-else(BIT64_FLAG)
-    set(BITCODE x86)
-endif(BIT64_FLAG)
+#if (BIT64_FLAG)
+#    set(BITCODE x64)
+#else(BIT64_FLAG)
+#    set(BITCODE x86)
+#endif(BIT64_FLAG)
 
 if(WIN32)
 else(WIN32)
@@ -45,11 +45,77 @@ message(STATUS "The CMAKE_CXX_COMPILER is ${CMAKE_CXX_COMPILER}")
 message(STATUS "The CMAKE_C_FLAGS is ${CMAKE_C_FLAGS}")
 message(STATUS "The CMAKE_CXX_FLAGS is ${CMAKE_CXX_FLAGS}")
 
-if(WIN32)
-    link_directories("${PROJECT_SOURCE_DIR}/lib/windows/${VS_COMPILER}/${BITCODE}/")
-else(WIN32)
-    link_directories("${PROJECT_SOURCE_DIR}/lib/linux/${BITCODE}/")
-endif(WIN32)
+#metis库设置
+option(METIS_ENABLE "ON for METIS partitioning" ON)
+
+if(METIS_ENABLE)
+	add_definitions(-DENABLE_METIS)
+	
+	set(METIS_HEADER_DIR "/path/to/metis/headers" CACHE PATH "path to metis headers")
+	include_directories(${METIS_HEADER_DIR})	#头文件目录
+
+	set(METIS_LIBRARY_DIR "/path/to/metis/library" CACHE PATH "path to mpi library")
+	link_directories(${METIS_LIBRARY_DIR})		#库目录
+	
+	set(METIS_LIBRARY_NAME "metis" CACHE STRING "name of metis library")
+	link_libraries(${METIS_LIBRARY_NAME})		#库名称
+endif()
+
+#mpi库设置
+option(MPI_ENABLE "ON for MPI parallel" ON)
+
+if(MPI_ENABLE)
+	add_definitions(-DENABLE_MPI)
+	
+	set(MPI_HEADER_DIR "/path/to/mpi/headers" CACHE PATH "path to mpi headers")
+	include_directories(${MPI_HEADER_DIR})	#头文件目录
+
+	set(MPI_LIBRARY_DIR "/path/to/mpi/library" CACHE PATH "path to mpi library")
+	link_directories(${MPI_LIBRARY_DIR})		#库目录
+	
+	set(MPI_LIBRARY_NAME "mpi" CACHE STRING "name of mpi library")
+	link_libraries(${MPI_LIBRARY_NAME})			#库名称
+endif()
+
+
+#CGNS库设置
+option(CGNS_ENABLE "ON for CGNS" ON)
+
+if(CGNS_ENABLE)
+	add_definitions(-DENABLE_CGNS)
+	
+	set(CGNS_HEADER_DIR "/path/to/cgns/headers" CACHE PATH "path to cgns headers")
+	include_directories(${CGNS_HEADER_DIR})	#头文件目录
+
+	set(CGNS_LIBRARY_DIR "/path/to/cgns/library" CACHE PATH "path to cgns library")
+	link_directories(${CGNS_LIBRARY_DIR})		#库目录
+	
+	set(CGNS_LIBRARY_NAME "cgns" CACHE STRING "name of cgns library")
+	link_libraries(${CGNS_LIBRARY_NAME})		#库名称
+	
+	#HDF5库
+	option(HDF5_ENABLE "ON for HDF5" ON)
+
+	if(HDF5_ENABLE)
+		add_definitions(-DENABLE_HDF5)
+		
+		#头文件目录
+		set(HDF5_HEADER_DIR "/path/to/hdf5/headers" CACHE PATH "path to hdf5 headers")
+		include_directories(${HDF5_HEADER_DIR})	
+		#库目录
+		set(HDF5_LIBRARY_DIR "/path/to/hdf5/library" CACHE PATH "path to hdf5 library")
+		link_directories(${HDF5_LIBRARY_DIR})		
+		#库名称
+		set(HDF5_LIBRARY_NAME "libhdf5" CACHE STRING "name of hdf5 library")
+		link_libraries(${HDF5_LIBRARY_NAME})			
+	endif()
+endif()
+
+#if(WIN32)
+#    link_directories("${PROJECT_SOURCE_DIR}/lib/windows/${VS_COMPILER}/${BITCODE}/")
+#else(WIN32)
+#    link_directories("${PROJECT_SOURCE_DIR}/lib/linux/${BITCODE}/")
+#endif(WIN32)
 
 function(GetALLSUBDIR result curdir)
   FILE(GLOB children RELATIVE ${curdir} ${curdir}/*)
@@ -99,19 +165,19 @@ endif(WIN32)
 #. add an executable to the project using the specified source files and header files:
 add_executable(${EXECUTABLE_TARGET_NAME} ${SRC_LIST} ${HEAD_LIST}) 
 
-if(WIN32)
-  if(HDF_FLAG)
-    target_link_libraries(${EXECUTABLE_TARGET_NAME} msmpi cgns libhdf5 metis)
-  else(HDF_FLAG)
-    target_link_libraries(${EXECUTABLE_TARGET_NAME} msmpi cgns metis)
-  endif(HDF_FLAG)
-else(WIN32)
-    if(HDF_FLAG)
-        target_link_libraries(${EXECUTABLE_TARGET_NAME} libmetis.a libcgns.a libhdf5.a )
-    else(HDF_FLAG)
-         target_link_libraries(${EXECUTABLE_TARGET_NAME} libmetis.a libcgns.a )
-    endif(HDF_FLAG)
-endif(WIN32)   
+#if(WIN32)
+#  if(HDF_FLAG)
+#    target_link_libraries(${EXECUTABLE_TARGET_NAME} msmpi cgns libhdf5 metis)
+#  else(HDF_FLAG)
+#    target_link_libraries(${EXECUTABLE_TARGET_NAME} msmpi cgns metis)
+#  endif(HDF_FLAG)
+#else(WIN32)
+#    if(HDF_FLAG)
+#        target_link_libraries(${EXECUTABLE_TARGET_NAME} libmetis.a libcgns.a libhdf5.a )
+#    else(HDF_FLAG)
+#         target_link_libraries(${EXECUTABLE_TARGET_NAME} libmetis.a libcgns.a )
+#    endif(HDF_FLAG)
+#endif(WIN32)   
                    
 #3. exit:          
 message(STATUS "--- Exit ${CMAKE_CURRENT_LIST_FILE}! ---")

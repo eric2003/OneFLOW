@@ -656,8 +656,6 @@ void DomainInp::Run()
 void DomainInp::GeneInp()
 {
 	CgnsFactory * cgnsFactory = new CgnsFactory();
-    grid_para.filetype = "plot3d";
-    grid_para.topo = ONEFLOW::GetTopoType();
 
 	GridMediator * gridMediator = new GridMediator();
     gridMediator->gridFile = ONEFLOW::GetDataValue< string >( "sourceGridFileName" );

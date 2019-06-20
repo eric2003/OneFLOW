@@ -31,6 +31,8 @@ using namespace std;
 
 BeginNameSpace( ONEFLOW )
 
+#ifdef ENABLE_CGNS
+
 class CgnsZone;
 class CgnsSection;
 class ElemFeature;
@@ -61,5 +63,7 @@ public:
     void FillCgnsSections( CgnsData * cgnsData );
 	void SetElemPosition();
 };
+
+#endif
 
 EndNameSpace

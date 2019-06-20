@@ -31,6 +31,8 @@ using namespace std;
 
 BeginNameSpace( ONEFLOW )
 
+#ifdef ENABLE_CGNS
+
 class CgnsZone;
 class ElemFeature;
 
@@ -41,9 +43,10 @@ public:
 	~CgnsSection();
 public:
 	int eType;
-    int startId, endId;
+    cgsize_t startId, endId;
     int connSize;
-	CgnsIntField connList;
+	vector<cgsize_t> connList;
+
 	IntField eTypeList;
 	IntField ePosList;
 	int pos_shift;
@@ -57,11 +60,11 @@ public:
 
     int nbndry;
     int iparentflag;
-    IntField iparentdata;
+	vector<cgsize_t> iparentdata;
 public:
     void ConvertToInnerDataStandard();
     void SetElementTypeAndNode( ElemFeature * elem_feature );
-    int * GetAddress( int eId );
+    cgsize_t * GetAddress( int eId );
     void GetElementNodeId( int eId, IntField & eNodeId );
 public:
     void ReadCgnsSection();
@@ -76,5 +79,7 @@ public:
 	void SetElemPositionMixed();
 	bool IsMixedSection();
 };
+
+#endif
 
 EndNameSpace

@@ -91,7 +91,7 @@ Thermodynamic::Thermodynamic()
 
 Thermodynamic::~Thermodynamic()
 {
-	int nSize = tfunction.size();
+	size_t nSize = tfunction.size();
 	for ( int i = 0; i < nSize; ++ i )
 	{
 		delete tfunction[ i ];

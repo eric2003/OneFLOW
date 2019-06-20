@@ -118,8 +118,8 @@ public:
 	int zid, nzid;
     IntField idrecv; // using in receiving, interface number in the current zone
     IntField idsend; // using in sending,   interface number in the tagret  zone
-	int GetNSend() { return idsend.size(); };
-	int GetNRecv() { return idrecv.size(); };
+	int GetNSend() { return static_cast<int> (idsend.size()); };
+	int GetNRecv() { return static_cast<int> (idrecv.size()); };
 protected:
     DataStorage * dataSend;
 	DataStorage * dataRecv;

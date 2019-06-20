@@ -29,6 +29,7 @@ using namespace std;
 
 BeginNameSpace( ONEFLOW )
 
+#ifdef ENABLE_CGNS
 #include "cgnslib.h"
 
 typedef HXVector< cgsize_t > CgnsIntField;
@@ -44,4 +45,5 @@ string GetCgnsBcName( int cgnsBcType );
 string GetCgnsGridLocationName     ( int cgnsGridLocation );
 string GetCgnsZoneTypeName         ( int cgnsZoneType );
 
+#endif
 EndNameSpace

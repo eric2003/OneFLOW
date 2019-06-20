@@ -26,6 +26,7 @@ along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 #include "DataField.h"
 #include "DataObject.h"
 #include "DataPointer.h"
+#include <iostream>
 #include <string>
 #include <set>
 using namespace std;
@@ -68,12 +69,22 @@ void SetData( const string & name, T * value, int type, int size );
 template < typename T >
 T GetDataValue( const std::string & varName, DataBase * database = ONEFLOW::GetGlobalDataBase() );
 
+//从数据库中读取参数类型为T，名称为varName的变量的值
 template < typename T >
 T GetDataValue( const std::string & varName, DataBase * database )
 {
 	DataV * datav = database->dataPara->GetDataPointer( varName );
-    DataObject * data = datav->data;
-	return GetDataValue< T >( data );
+
+	if (datav != NULL)
+	{
+		DataObject * data = datav->data;
+		return GetDataValue< T >(data);
+	}
+	else
+	{
+		cerr << "can't find:" << varName << " in database!!" << endl;
+		exit(EXIT_FAILURE);
+	}   
 }
 
 template < typename T >

@@ -51,11 +51,11 @@ public:
 public:
 	void Initialize( int elementType );
 public:
-	IntField & GetElementPhysicsFace( int iFace ) { return compositeFaceList[ iFace ]; };
-	int GetElementPhysicsFaceType( int iFace ) const { return compositeFaceElementType[ iFace ]; }
-	int GetElementFaceNumber       () const { return faceList.size(); }
-	int GetElementPhysicsFaceNumber() const { return compositeFaceList.size(); }
-	int GetElementType           () const { return elementType; };
+	IntField & GetElementPhysicsFace(int iFace);
+	int GetElementPhysicsFaceType(int iFace) const;
+	int GetElementFaceNumber() const;
+	int GetElementPhysicsFaceNumber() const;
+	int GetElementType() const;
 	int GetElementNodeNumbers( int elementType );
 
 	int GetRefinedElementType( int elementType );
@@ -67,14 +67,15 @@ public:
 	bool IsFaceElementTypeAtLeast( int elementType );
 	bool IsBasicVolumeElementType( int elementType );
 
-	IntField & GetElementFace( int iFace ) { return faceList[ iFace ]; };
-	int GetFaceType( int iFace ) const { return faceTypeContainer[ iFace ]; };
+	IntField & GetElementFace(int iFace);
+	int GetFaceType(int iFace) const;
 
-	IntField & GetRelatedPointListForMiddlePointComputation( int iMiddlePoint ) { return middlePointStruct[ iMiddlePoint ]; }
-	IntField & GetChildElementRelativeNodeIndex( int iChildElement ) { return childElementIndex[ iChildElement ]; };
+	IntField & GetRelatedPointListForMiddlePointComputation(int iMiddlePoint);
 
-	int GetChildElementNumbers() const { return childElementType.size(); };
-	int GetChildElementType( int iChild ) { return childElementType[ iChild ]; }
+	IntField & GetChildElementRelativeNodeIndex(int iChildElement);
+
+	int GetChildElementNumbers() const;
+	int GetChildElementType(int iChild);
 public:
 	void PushElementFace( int faceType, int p1 );
 	void PushElementFace( int faceType, int p1, int p2 );

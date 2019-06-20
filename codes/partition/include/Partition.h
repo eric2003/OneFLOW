@@ -28,6 +28,12 @@ License
 #include <vector>
 #include <string>
 #include <fstream>
+
+#ifdef ENABLE_METIS
+#include "metis.h"
+#endif
+
+
 using namespace std;
 
 BeginNameSpace( ONEFLOW )
@@ -64,14 +70,16 @@ public:
     IntField g2l_node;
     IntField g2l_face;
     IntField g2l_cell;
-    IntField gc2lzone;
+	vector<idx_t> gc2lzone;
     UnsGrid * ggrid;
 	int npartproc;
     LinkField c2c;
 public:
     void GenerateGC2Z();
-    void GetXadjAdjncy( UnsGrid * ggrid, IntField & xadj, IntField & adjncy );
-    void PartByMetis( int nCell, IntField & xadj, IntField & adjncy );
+#ifdef ENABLE_METIS
+    void GetXadjAdjncy( UnsGrid * ggrid, vector<idx_t>& xadj, vector<idx_t>& adjncy );
+    void PartByMetis( idx_t nCell, vector<idx_t>& xadj, vector<idx_t>& adjncy );
+#endif
 	void DumpXadjAdjncy( UnsGrid * grid, IntField & xadj, IntField & adjncy );
 	void DumpGC2Z( UnsGrid * grid );
 	void ReadGC2Z( UnsGrid * grid );

@@ -34,6 +34,8 @@ using namespace std;
 
 BeginNameSpace( ONEFLOW )
 
+#ifdef ENABLE_CGNS
+
 CgnsBcRegion::CgnsBcRegion( CgnsZone * cgnsZone )
 {
     this->cgnsZone = cgnsZone;
@@ -332,7 +334,8 @@ void CgnsBcRegion::PrintCgnsBcConn()
 		else
 		{
             cout << "   ";
-			for ( int i = 0; i < MIN( 5, this->nElements ); ++ i )
+			cgsize_t num = 5;
+			for ( int i = 0; i < std::min(num, this->nElements ); ++ i )
 			{
 				cout << connList[ i ] << " ";
 			}
@@ -400,7 +403,7 @@ void CgnsBcRegion::ExtractIJKRegionFromBcConn( IntField & ijkMin, IntField & ijk
     this->ExtractIJKRegionFromBcConn( ijkMin, ijkMax, this->connList );
 }
 
-void CgnsBcRegion::ExtractIJKRegionFromBcConn( IntField & ijkMin, IntField & ijkMax, IntField & bcConn )
+void CgnsBcRegion::ExtractIJKRegionFromBcConn( IntField & ijkMin, IntField & ijkMax, vector<cgsize_t>& bcConn )
 {
 	int imin, imax, jmin, jmax, kmin, kmax;
     int celldim = cgnsZone->cgnsBase->celldim;
@@ -432,7 +435,7 @@ void CgnsBcRegion::ExtractIJKRegionFromBcConn( IntField & ijkMin, IntField & ijk
     ijkMax[ 2 ] = MAX( ABS( kmin ), ABS( kmax ) );
 }
 
-void CgnsBcRegion::CopyStrBcRegion( CgnsBcRegion * strBcRegion, int & startId )
+void CgnsBcRegion::CopyStrBcRegion( CgnsBcRegion * strBcRegion, cgsize_t & startId )
 {
     this->name = strBcRegion->name;
     this->nElements = 2;
@@ -445,15 +448,15 @@ void CgnsBcRegion::CopyStrBcRegion( CgnsBcRegion * strBcRegion, int & startId )
     this->ReadCgnsBcConn( strBcRegion, startId );
 }
 
-void CgnsBcRegion::ReadCgnsBcConn( CgnsBcRegion * strBcRegion, int & startId )
+void CgnsBcRegion::ReadCgnsBcConn( CgnsBcRegion * strBcRegion, cgsize_t& startId )
 {
-    int actualNumberOfBoundaryElement = strBcRegion->GetActualNumberOfBoundaryElements();
+    cgsize_t actualNumberOfBoundaryElement = strBcRegion->GetActualNumberOfBoundaryElements();
     this->connList[ 0 ] = startId;
     this->connList[ 1 ] = actualNumberOfBoundaryElement - 1 + startId;
     startId += actualNumberOfBoundaryElement;
 }
 
-int CgnsBcRegion::GetActualNumberOfBoundaryElements()
+cgsize_t CgnsBcRegion::GetActualNumberOfBoundaryElements()
 {
 	if ( cgnsZone->cgnsZoneType == Unstructured )
 	{
@@ -490,11 +493,11 @@ int CgnsBcRegion::GetActualNumberOfBoundaryElements()
 	}
 }
 
-void SetBcConn( CgnsZone * cgnsZone, IntField & ijkMin, IntField & ijkMax, IntField & conn, int & pos, int & nElem )
+void SetBcConn( CgnsZone * cgnsZone, IntField & ijkMin, IntField & ijkMax, vector<cgsize_t>& conn, int & pos, int & nElem )
 {
-    int ni = cgnsZone->GetNI();
-    int nj = cgnsZone->GetNJ();
-    int nk = cgnsZone->GetNK();
+    int ni = static_cast<int> (cgnsZone->GetNI());
+    int nj = static_cast<int> (cgnsZone->GetNJ());
+    int nk = static_cast<int> (cgnsZone->GetNK());
 
     int ist, jst, kst, ied, jed, ked;
 
@@ -679,6 +682,6 @@ void SetBcConn( CgnsZone * cgnsZone, IntField & ijkMin, IntField & ijkMax, IntFi
     Stop( " error : ist != ied, jst != jed, kst != ked \n" );
 }
 
-
+#endif
 
 EndNameSpace

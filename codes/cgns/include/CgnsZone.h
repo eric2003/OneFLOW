@@ -31,6 +31,8 @@ using namespace std;
 
 BeginNameSpace( ONEFLOW )
 
+#ifdef ENABLE_CGNS
+
 class StrGrid;
 class CgnsZone;
 class CgnsBase;
@@ -54,7 +56,7 @@ public:
     CgnsMultiSection * multiSection;
     CgnsBcRegionProxy * bcRegionProxy;
 
-	int nNode, nCell;
+	cgsize_t nNode, nCell;
     int nCoor;
 
 	ZoneType_t cgnsZoneType;
@@ -110,9 +112,9 @@ public:
 	void SetElemPosition();
     void CreateCgnsBcRegion( CgnsZone * cgnsZoneIn );
     void InitL2g();
-    int GetNI() const { return irmax[ 0 ]; };
-    int GetNJ() const { return irmax[ 1 ]; };
-    int GetNK() const { return irmax[ 2 ]; };
+	cgsize_t GetNI() const;
+	cgsize_t GetNJ() const;
+	cgsize_t GetNK() const;
     void FillCgnsData( CgnsData * cgnsData );
 };
 
@@ -120,5 +122,7 @@ void EncodeIJK( int & index, int i, int j, int k, int ni, int nj, int nk );
 void DecodeIJK( int index, int & i, int & j, int & k, int ni, int nj, int nk );
 void GetRange( int ni, int nj, int nk, int startShift, int endShift, Range & I, Range & J, Range & K );
 void GetIJKRegion( Range & I, Range & J, Range & K, int & ist, int & ied, int & jst, int & jed, int & kst, int & ked );
+
+#endif
 
 EndNameSpace

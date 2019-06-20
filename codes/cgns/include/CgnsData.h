@@ -27,6 +27,8 @@ License
 
 BeginNameSpace( ONEFLOW )
 
+#ifdef ENABLE_CGNS
+
 class CgnsZone;
 
 class CgnsData
@@ -41,5 +43,7 @@ public:
 public:
     void Create( int nSection );
 };
+
+#endif
 
 EndNameSpace

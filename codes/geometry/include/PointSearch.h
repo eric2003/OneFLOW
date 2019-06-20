@@ -49,7 +49,7 @@ public:
 	void InitializeSpecial( Grid * grid, Real toleranceIn );
 	void Initialize( Grids & grids );
 public:
-    int GetNPoint() { return xCoor.size(); }
+    int GetNPoint() { return static_cast<int> (xCoor.size()); }
 	int FindPoint( Real xm, Real ym, Real zm );
 	int AddPoint( Real xm, Real ym, Real zm );
 	void GetPoint( int id, Real & xm, Real & ym, Real & zm );

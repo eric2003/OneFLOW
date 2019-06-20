@@ -32,7 +32,7 @@ License
 using namespace std;
 
 BeginNameSpace( ONEFLOW )
-
+#ifdef ENABLE_CGNS
 
 int AbsoluteDiagonalId( int x, int y )
 {
@@ -217,5 +217,5 @@ void CgnsBcInterface::ShiftBcRegion()
 		}
 	}
 }
-
+#endif
 EndNameSpace

@@ -20,14 +20,11 @@ License
 
 \*---------------------------------------------------------------------------*/
 #include "Simulation.h"
-#include <iostream>
 using namespace std;
 
 int main( int argc, char ** argv )
 {
-	using namespace ONEFLOW;
-	Simulation *simulation = new Simulation( argc, argv );
+	ONEFLOW::Simulation *simulation = new ONEFLOW::Simulation( argc, argv );
 	simulation->Run();
 	delete simulation;
-	return 0;
 }

@@ -27,6 +27,7 @@ License
 using namespace std;
 
 BeginNameSpace( ONEFLOW )
+#ifdef ENABLE_CGNS
 
 CgnsFamilyBc::CgnsFamilyBc( CgnsBase * cgnsBase )
 {
@@ -123,6 +124,6 @@ void CgnsFamilyBc::ReadFamilySpecifiedBc()
 	cout << "\n";
 }
 
-
+#endif
 
 EndNameSpace

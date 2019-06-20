@@ -93,10 +93,10 @@ void CmpGrid::BuildInterfaceLink()
 
 void CmpGrid::Dump()
 {
-    cout << "CmpGrid::Dump()\n";
+    cout << __FUNCTION__<<endl;
 	fstream file;
 	OpenPrjFile( file, gridFileName, ios_base::out|ios_base::binary|ios_base::trunc );
-    int nZone = grids.size();
+    int nZone = static_cast<int>(grids.size());
 
     ZoneState::pid.resize( nZone );
     ZoneState::zoneType.resize( nZone );
@@ -137,7 +137,7 @@ void CmpGrid::GenerateOverset()
 
 void CmpGrid::ReconstructLink()
 {
-    int nZone = grids.size();
+    int nZone = static_cast<int>(grids.size());
     for ( int iZone = 0; iZone < nZone; ++ iZone )
 	{
 		this->ReconstructLink( iZone );
@@ -197,7 +197,7 @@ void CmpGrid::ReconstructInterFace()
 
 void CmpGrid::ResetGridScaleAndTranslate()
 {
-    int nZone = grids.size();
+	int nZone = static_cast<int>(grids.size());
     for ( int iZone = 0; iZone < nZone; ++ iZone )
 	{
 		Grid * grid = grids[ iZone ];
@@ -227,7 +227,7 @@ void CmpGrid::ModifyBcType()
 	if ( ignoreNoBc ) return;
 
 	//change NO_BOUNDARY to INTERFACE
-    int nZone = grids.size();
+	int nZone = static_cast<int>(grids.size());
 	for ( int iZone = 0; iZone < nZone; ++ iZone )
 	{
 		Grid * grid = grids[ iZone ];
@@ -237,7 +237,7 @@ void CmpGrid::ModifyBcType()
 
 void CmpGrid::GenerateLgMapping()
 {
-    int nZone = grids.size();
+	int nZone = static_cast<int>(grids.size());
 	for ( int iZone = 0; iZone < nZone; ++ iZone )
 	{
 		Grid * grid = grids[ iZone ];
@@ -249,7 +249,7 @@ void CmpGrid::ReGenerateLgMapping()
 {
     this->iFaceLink->InitNewLgMapping();
 
-    int nZone = grids.size();
+	int nZone = static_cast<int>(grids.size());
 	for ( int iZone = 0; iZone < nZone; ++ iZone )
 	{
 		Grid * grid = grids[ iZone ];
@@ -267,7 +267,7 @@ void CmpGrid::UpdateLgMapping()
 
 void CmpGrid::UpdateOtherTopologyTerm()
 {
-    int nZone = grids.size();
+	int nZone = static_cast<int>(grids.size());
 	for ( int iZone = 0; iZone < nZone; ++ iZone )
 	{
 		Grid * grid = grids[ iZone ];
@@ -277,7 +277,7 @@ void CmpGrid::UpdateOtherTopologyTerm()
 
 void CmpGrid::MatchInterfaceTopology()
 {
-    int nZone = grids.size();
+	int nZone = static_cast<int>(grids.size());
 	for ( int iZone = 0; iZone < nZone; ++ iZone )
 	{
 		Grid * grid = grids[ iZone ];
@@ -313,7 +313,7 @@ void GenerateMultiZoneCmpGrids( Grids & grids )
 
 void ResetGridScaleAndTranslate( NodeMesh * nodeMesh )
 {
-	int nNode = nodeMesh->GetNumberOfNodes();
+	size_t nNode = nodeMesh->GetNumberOfNodes();
 
     for ( int iNode = 0; iNode < nNode; ++ iNode )
     {
@@ -334,7 +334,7 @@ void ResetGridScaleAndTranslate( NodeMesh * nodeMesh )
 
 void TurnZAxisToYAxis( NodeMesh * nodeMesh )
 {
-    int nNode = nodeMesh->GetNumberOfNodes();
+    size_t nNode = nodeMesh->GetNumberOfNodes();
 
 	RealField & xN = nodeMesh->xN;
 	RealField & yN = nodeMesh->yN;
