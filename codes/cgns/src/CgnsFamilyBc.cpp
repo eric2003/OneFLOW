@@ -23,6 +23,7 @@ License
 #include "CgnsFamilyBc.h"
 
 BeginNameSpace( ONEFLOW )
+#ifdef ENABLE_CGNS
 
 CgnsFamilyBc::CgnsFamilyBc()
 {
@@ -72,5 +73,5 @@ int CgnsFamilyBc::GetBcType( const string & regionName )
 	return iter->second;
 }
 
-
+#endif
 EndNameSpace

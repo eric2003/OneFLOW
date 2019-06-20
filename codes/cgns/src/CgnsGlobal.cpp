@@ -25,6 +25,7 @@ License
 #include "CgnsZone.h"
 
 BeginNameSpace( ONEFLOW )
+#ifdef ENABLE_CGNS
 
 CgnsGlobal cgns_global;
 
@@ -54,4 +55,5 @@ CgnsZone * GetCgnsZone( const string & zoneName )
 	return cgns_global.GetCgnsZone( zoneName );
 }
 
+#endif
 EndNameSpace

@@ -32,6 +32,8 @@ BeginNameSpace( ONEFLOW )
 
 int AbsoluteDiagonalId( int x, int y );
 
+#ifdef ENABLE_CGNS
+
 class CgnsBcRegion;
 class CgnsBcInterface
 {
@@ -39,8 +41,8 @@ public:
     CgnsBcInterface( CgnsBcRegion * bcRegion );
     ~CgnsBcInterface();
 public:
-	int            nConnPoints;
-	int            nConnDonorPoints;
+	cgsize_t	nConnPoints;
+	cgsize_t	nConnDonorPoints;
 	ZoneType_t     donorZoneType;
 	PointSetType_t donorPointSetType;
 	DataType_t     donorDataType;
@@ -65,5 +67,7 @@ public:
 	void AddFacePair();
 	void SetPeriodicBc();
 };
+
+#endif
 
 EndNameSpace

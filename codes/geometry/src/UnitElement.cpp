@@ -1441,6 +1441,22 @@ void UnitElement::PushChildElement( int elementType, int p1, int p2, int p3, int
 }
 
 
+IntField & UnitElement::GetElementPhysicsFace(int iFace) { return compositeFaceList[iFace]; };
+int UnitElement::GetElementPhysicsFaceType(int iFace) const { return compositeFaceElementType[iFace]; }
+int UnitElement::GetElementFaceNumber() const { return faceList.size(); }
+int UnitElement::GetElementPhysicsFaceNumber() const { return compositeFaceList.size(); }
+int UnitElement::GetElementType() const { return elementType; };
+
+
+IntField & UnitElement::GetElementFace(int iFace) { return faceList[iFace]; };
+int UnitElement::GetFaceType(int iFace) const { return faceTypeContainer[iFace]; };
+
+IntField & UnitElement::GetRelatedPointListForMiddlePointComputation(int iMiddlePoint) { return middlePointStruct[iMiddlePoint]; }
+IntField & UnitElement::GetChildElementRelativeNodeIndex(int iChildElement) { return childElementIndex[iChildElement]; };
+
+int UnitElement::GetChildElementNumbers() const { return childElementType.size(); };
+int UnitElement::GetChildElementType(int iChild) { return childElementType[iChild]; }
+
 void UnitElement::PushChildElement( int elementType, int p1, int p2, int p3, int p4, int p5, int p6, int p7, int p8 )
 {
 	childElementType.push_back( elementType );

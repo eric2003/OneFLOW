@@ -39,6 +39,8 @@ class CgnsZone;
 class GridElem;
 class Su2Grid;
 
+#ifdef ENABLE_CGNS
+
 class CgnsFactory
 {
 public:
@@ -95,5 +97,6 @@ void ComputeUnsId( StrGrid * grid, PointSearch * pointSearch, Int3D * unsId );
 int OneFlow2CgnsZoneType( int zoneType );
 int Cgns2OneFlowZoneType( int zoneType );
 
+#endif
 
 EndNameSpace

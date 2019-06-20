@@ -25,6 +25,7 @@ License
 using namespace std;
 
 BeginNameSpace( ONEFLOW )
+#ifdef ENABLE_CGNS
 
 CgnsCoor::CgnsCoor()
 {
@@ -108,4 +109,5 @@ void CgnsCoor::DeAlloc()
 	}
 }
 
+#endif
 EndNameSpace

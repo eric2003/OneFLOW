@@ -26,6 +26,8 @@ License
 
 BeginNameSpace( ONEFLOW )
 
+#ifdef ENABLE_CGNS
+
 class CgnsBase;
 class CgnsZone;
 
@@ -71,5 +73,7 @@ public:
     CgnsZone * GetZone( int iZone );
     int FindBaseId( int iZone );
 };
+
+#endif
 
 EndNameSpace

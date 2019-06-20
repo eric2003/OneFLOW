@@ -170,7 +170,7 @@ void HXWrite( TIO * tio, HXVector< T > & field )
 template < typename T >
 void HXWrite( fstream * file, HXVector< T > & field )
 {
-    Int nElement = field.size();
+    Int nElement = static_cast<int> (field.size());
     HXWrite( file, & field[ 0 ], nElement );
 }
 

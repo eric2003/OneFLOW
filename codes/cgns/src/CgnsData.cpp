@@ -25,6 +25,7 @@ License
 using namespace std;
 
 BeginNameSpace( ONEFLOW )
+#ifdef ENABLE_CGNS
 
 CgnsData::CgnsData()
 {
@@ -41,5 +42,5 @@ void CgnsData::Create( int nSection )
     this->endId.resize( nSection );
     this->elemType.resize( nSection );
 }
-
+#endif
 EndNameSpace

@@ -28,6 +28,8 @@ using namespace std;
 
 BeginNameSpace( ONEFLOW )
 
+#ifdef ENABLE_CGNS
+
 class CgnsCoor
 {
 public:
@@ -46,5 +48,8 @@ public:
 	void SetData( int iCoor, DataType_t data_type, Real * var );
 	void DeAlloc();
 };
+
+
+#endif
 
 EndNameSpace

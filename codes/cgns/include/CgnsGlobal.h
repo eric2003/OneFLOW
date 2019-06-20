@@ -28,6 +28,8 @@ using namespace std;
 
 BeginNameSpace( ONEFLOW )
 
+#ifdef ENABLE_CGNS
+
 class CgnsBase;
 class CgnsZone;
 class CgnsMultiBase;
@@ -46,5 +48,7 @@ public:
 
 CgnsZone * GetCgnsZone( const string & zoneName );
 extern CgnsGlobal cgns_global;
+
+#endif
 
 EndNameSpace

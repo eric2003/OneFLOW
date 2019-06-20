@@ -23,11 +23,7 @@ along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 #pragma once
 
 #ifdef HX_PARALLEL
-#ifdef _WINDOWS
-#include "mpiWindows.h"
-#else
 #include "mpi.h"
-#endif
 #endif
 
 #include "Configure.h"

@@ -34,6 +34,7 @@ License
 using namespace std;
 
 BeginNameSpace( ONEFLOW )
+#ifdef ENABLE_CGNS
 
 CgnsMultiSection::CgnsMultiSection( CgnsZone * cgnsZone )
 {
@@ -139,4 +140,5 @@ void CgnsMultiSection::SetElemPosition()
 	}
 }
 
+#endif
 EndNameSpace

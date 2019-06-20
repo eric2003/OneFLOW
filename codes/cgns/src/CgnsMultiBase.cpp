@@ -31,6 +31,7 @@ License
 using namespace std;
 
 BeginNameSpace( ONEFLOW )
+#ifdef ENABLE_CGNS
 
 CgnsMultiBase::CgnsMultiBase()
 {
@@ -327,5 +328,5 @@ int CgnsMultiBase::FindBaseId( int iZone )
 
 	return - 1;
 }
-
+#endif
 EndNameSpace

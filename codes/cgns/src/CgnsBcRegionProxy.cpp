@@ -37,6 +37,7 @@ License
 using namespace std;
 
 BeginNameSpace( ONEFLOW )
+#ifdef ENABLE_CGNS
 
 CgnsBcRegionProxy::CgnsBcRegionProxy( CgnsZone * cgnsZone )
 {
@@ -241,9 +242,9 @@ void CgnsBcRegionProxy::CreateCgnsBcRegion( CgnsBcRegionProxy * bcRegionProxyIn 
 
 void CgnsBcRegionProxy::ReconstructStrRegion()
 {
-	int ni = this->cgnsZone->GetNI();
-	int nj = this->cgnsZone->GetNJ();
-	int nk = this->cgnsZone->GetNK();
+	int ni = static_cast<int> (this->cgnsZone->GetNI());
+	int nj = static_cast<int> (this->cgnsZone->GetNJ());
+	int nk = static_cast<int> (this->cgnsZone->GetNK());
 
 	if ( nk == 1 ) return;
 
@@ -267,7 +268,7 @@ void CgnsBcRegionProxy::ReconstructStrRegion()
 
 	Int nnr = rfact.bcregions.size();
 
-	nOrdinaryBcRegion += nnr;
+	nOrdinaryBcRegion += static_cast<int> (nnr);
 
 	this->nBcRegion = this->nOrdinaryBcRegion + this->n1To1General;
 
@@ -276,7 +277,7 @@ void CgnsBcRegionProxy::ReconstructStrRegion()
 		CgnsBcRegion * rr = new CgnsBcRegion( this->cgnsZone );
 		MyRegion * r = rfact.bcregions[ i ];
 
-		int id = this->cgnsBcRegions.size() + 1;
+		int id = static_cast<int> (this->cgnsBcRegions.size() + 1);
 		rr->id = id;
 		rr->ReconstructStrRegion( r->ijkmin, r->ijkmax );
 
@@ -286,7 +287,7 @@ void CgnsBcRegionProxy::ReconstructStrRegion()
 
 }
 
-void CgnsBcRegionProxy::GenerateUnsBcElemConn( IntField & bcConn )
+void CgnsBcRegionProxy::GenerateUnsBcElemConn(vector<cgsize_t>& bcConn )
 {
     int nBcElem = 0;
     int pos = 0;
@@ -317,4 +318,5 @@ void CgnsBcRegionProxy::SetPeriodicBc()
     }
 }
 
+#endif
 EndNameSpace

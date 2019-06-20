@@ -24,6 +24,7 @@ License
 using namespace std;
 
 BeginNameSpace( ONEFLOW )
+#ifdef ENABLE_CGNS
 
 string GetCgnsPointSetName( int cgnsPointSetType )
 {
@@ -45,4 +46,5 @@ string GetCgnsZoneTypeName( int cgnsZoneType )
 	return ONEFLOW::ZoneTypeName[ cgnsZoneType ];
 }
 
+#endif
 EndNameSpace
