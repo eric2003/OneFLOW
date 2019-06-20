@@ -34,6 +34,7 @@ License
 using namespace std;
 
 BeginNameSpace( ONEFLOW )
+#ifdef ENABLE_CGNS
 
 CgnsSection::CgnsSection( CgnsZone * cgnsZone )
 {
@@ -66,7 +67,7 @@ void CgnsSection::ConvertToInnerDataStandard()
 	int kkk = 1;
 }
 
-int * CgnsSection::GetAddress( int eId )
+cgsize_t * CgnsSection::GetAddress( int eId )
 {
 	int pos = this->ePosList[ eId ] + this->pos_shift;
 	return & this->connList[ pos ];
@@ -75,7 +76,7 @@ int * CgnsSection::GetAddress( int eId )
 void CgnsSection::GetElementNodeId( int eId, IntField & eNodeId )
 {
 	int eNodeNumber  = ONEFLOW::GetElementNodeNumbers( this->eTypeList[ eId ] );
-	int * eAddress = this->GetAddress( eId );
+	cgsize_t * eAddress = this->GetAddress( eId );
 
 	eNodeId.resize( 0 );
 	for ( int iNode = 0; iNode < eNodeNumber; ++ iNode )
@@ -198,7 +199,7 @@ void CgnsSection::ReadCgnsSectionConnectionList()
 	// of 0 is used ( typical for C-codes ) 1 must be substracted 
 	// from the connectivities read. 
 
-    int * addr = 0;
+    cgsize_t *addr = NULL;
     if ( this->iparentflag )
     {
         addr = & iparentdata[ 0 ];
@@ -253,4 +254,5 @@ bool CgnsSection::IsMixedSection()
 	bool flag = ( eType == MIXED || eType == NGON_n || eType == NFACE_n );
 	return flag;
 }
+#endif
 EndNameSpace

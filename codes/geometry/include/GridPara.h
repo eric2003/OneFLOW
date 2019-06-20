@@ -28,6 +28,7 @@ using namespace std;
 
 BeginNameSpace( ONEFLOW )
 
+//网格参数
 class GridPara
 {
 public:
@@ -39,20 +40,24 @@ public:
     string format; //binary, ascii
     string gridFile;
     string bcFile;
-    int gridObj;
+
+	//对网格执行的转换操作
+    int gridObj;	
+
+	//是否是多块网格
     int multiBlock;
+
 	int axis_dir;
+	//网格缩放因子
 	Real gridScale;
 	RealField gridTrans;
 public:
+	//初始化网格参数
     void Init();
 };
 
 extern GridPara grid_para;
 
-int GetGridObj();
-string GetSourceGridType();
-string GetTopoType();
 int GetGridTopoType();
 
 EndNameSpace

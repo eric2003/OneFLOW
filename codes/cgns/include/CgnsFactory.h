@@ -39,6 +39,8 @@ class CgnsZone;
 class GridElem;
 class Su2Grid;
 
+#ifdef ENABLE_CGNS
+
 class CgnsFactory
 {
 public:
@@ -78,7 +80,11 @@ public:
     void DeAllocateGridElem();
     void PrepareUnsCompGrid();
     void AllocateCmpGrid();
+
+	//转换为oneflow计算所用的网格
     void GenerateCmpGrid();
+
+protected:
     void GenerateStrCmpGrid();
     void GenerateUnsCmpGrid();
 };
@@ -91,5 +97,6 @@ void ComputeUnsId( StrGrid * grid, PointSearch * pointSearch, Int3D * unsId );
 int OneFlow2CgnsZoneType( int zoneType );
 int Cgns2OneFlowZoneType( int zoneType );
 
+#endif
 
 EndNameSpace

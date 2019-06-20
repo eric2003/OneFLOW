@@ -30,6 +30,8 @@ using namespace std;
 
 BeginNameSpace( ONEFLOW )
 
+#ifdef ENABLE_CGNS
+
 class CgnsZone;
 class CgnsFamilyBc;
 
@@ -64,5 +66,7 @@ public:
 	void SetFamilyBc( BCType_t & bcType, const string & bcRegionName );
 	void ReadFamilySpecifiedBc();
 };
+
+#endif
 
 EndNameSpace

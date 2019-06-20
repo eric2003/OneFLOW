@@ -28,7 +28,9 @@ using namespace std;
 
 BeginNameSpace( ONEFLOW )
 
+#ifdef ENABLE_CGNS
 #include "cgnslib.h"
+
 
 class CgnsTraits
 {
@@ -41,4 +43,5 @@ string GetCgnsBcName( int cgnsBcType );
 string GetCgnsGridLocationName     ( int cgnsGridLocation );
 string GetCgnsZoneTypeName         ( int cgnsZoneType );
 
+#endif
 EndNameSpace

@@ -21,6 +21,7 @@ along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 \*---------------------------------------------------------------------------*/
 #include "SimuDef.h"
 #include "DataBase.h"
+#include <iostream>
 
 BeginNameSpace( ONEFLOW )
 
@@ -38,7 +39,21 @@ SimuState::~SimuState()
 
 void SimuState::Init()
 {
-    simutask = ONEFLOW::GetDataValue< int >( "simutask" );
+	const string& taskStr=ONEFLOW::GetDataValue< string >("simutask");
+	try
+	{
+		simutask = TaskFilter.at(taskStr);
+	}
+	catch (...)
+	{
+		cerr << "Bad simutask type:" << taskStr << endl;
+		exit(EXIT_FAILURE);
+	}    
+}
+
+const TaskEnum SimuState::Task() const
+{
+	return simutask;
 }
 
 EndNameSpace

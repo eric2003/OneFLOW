@@ -31,6 +31,8 @@ using namespace std;
 
 BeginNameSpace( ONEFLOW )
 
+#ifdef ENABLE_CGNS
+
 class CgnsZone;
 class CgnsBase;
 class FaceSolver;
@@ -68,9 +70,10 @@ public:
     void CreateCgnsBcRegion( CgnsBcRegionProxy * bcRegionProxyIn );
 public:
 	void ReconstructStrRegion();
-    void GenerateUnsBcElemConn( IntField & bcConn );
+    void GenerateUnsBcElemConn(vector<cgsize_t>& bcConn );
 	void SetPeriodicBc();
 };
 
+#endif
 
 EndNameSpace

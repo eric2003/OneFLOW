@@ -28,6 +28,7 @@ License
 using namespace std;
 
 BeginNameSpace( ONEFLOW )
+#ifdef ENABLE_CGNS
 
 F2FMap f2fmap;
 
@@ -122,4 +123,5 @@ void F2FMap::FindFace( RealField &xList, RealField &yList, RealField &zList, Rea
 	}
 }
 
+#endif
 EndNameSpace

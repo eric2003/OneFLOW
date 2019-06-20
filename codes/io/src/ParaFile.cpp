@@ -193,10 +193,10 @@ void ReadPrjBaseDir()
 {
 	if ( PrjStatus::prjBaseDir != "" ) return;
 
-    string baseDir = "workdir";
+    string baseDir = "./";
 
 	ONEFLOW::StrIO.ClearAll();
-	ONEFLOW::StrIO << "./" << baseDir << "/prjFile.txt";
+	ONEFLOW::StrIO << baseDir << "/prjFile.txt";
 
     string prjFile = ONEFLOW::StrIO.str();
 
@@ -276,7 +276,7 @@ void CompressData( DataBase * dataBase, DataBook *& dataBook )
 	DataPara::DataSET * dataSet = dataBase->dataPara->GetDataSet();
 	DataPara::DataSET::iterator iter;
 
-	int ndata = dataSet->size();
+	int ndata = static_cast<int> (dataSet->size());
 
 	ONEFLOW::HXWrite( dataBook, ndata );
 

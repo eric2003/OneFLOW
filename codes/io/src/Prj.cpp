@@ -44,8 +44,8 @@ PrjStatus::~PrjStatus()
 
 void PrjStatus::SetPrjBaseDir( const string & prjName )
 {
-	string baseDir = "workdir";
-	ONEFLOW::StrIO << "./" << baseDir << "/" << prjName << "/";
+	string baseDir = "./";
+	ONEFLOW::StrIO << baseDir << prjName << "/";
 	PrjStatus::prjBaseDir = ONEFLOW::StrIO.str();
 }
 

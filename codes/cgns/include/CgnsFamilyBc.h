@@ -31,6 +31,8 @@ using namespace std;
 
 BeginNameSpace( ONEFLOW )
 
+#ifdef ENABLE_CGNS
+
 class CgnsFamilyBc
 {
 public:
@@ -47,5 +49,6 @@ public:
 	int GetBcType( const string & regionName );
 };
 
+#endif
 
 EndNameSpace

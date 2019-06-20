@@ -57,23 +57,23 @@ GridFactory::~GridFactory()
 void GridFactory::Run()
 {
     grid_para.Init();
-    
-    if ( grid_para.gridObj == 0 )
-    {
-        this->DataBaseGrid();
-    }
-	else if ( grid_para.gridObj == 1 )
+
+	switch (grid_para.gridObj)
 	{
+	case 0: //生成一些基本外形的网格，如方腔，圆柱，RAE2822翼型等等
+		this->DataBaseGrid();
+		break;
+	case 1:	//转换网格
 		this->ConvertGrid();
-	}
-	else if ( grid_para.gridObj == 2 )
-	{
+		break;
+	case 2:
 		this->GeneInp();
-	}
-	else if ( grid_para.gridObj == 3 )
-	{
-        //partition
+		break;
+	case 3:	//网格分区
 		this->PartGrid();
+		break;
+	default:
+		break;
 	}
 }
 
@@ -93,7 +93,7 @@ void GridFactory::PartGrid()
 
 void GridFactory::ConvertGrid()
 {
-    string sourceGridType = ONEFLOW::GetSourceGridType(); 
+    string sourceGridType = grid_para.filetype; 
 	if ( sourceGridType == "plot3d" )
 	{
 		this->Plot3DProcess();
@@ -118,8 +118,6 @@ void GridFactory::DataBaseGrid()
 void GridFactory::Plot3DProcess()
 {
 	CgnsFactory * cgnsFactory = new CgnsFactory();
-    grid_para.filetype = "plot3d";
-    grid_para.topo = ONEFLOW::GetTopoType();
 
 	cgnsFactory->CommonToOneFlowGrid();
 
@@ -128,9 +126,6 @@ void GridFactory::Plot3DProcess()
 
 void GridFactory::SU2Process()
 {
-    grid_para.filetype = "su2";
-    grid_para.topo = ONEFLOW::GetTopoType();
-
 	Su2Grid * su2Grid = new Su2Grid();
     su2Grid->Su2ToOneFlowGrid();
     delete su2Grid;
@@ -139,9 +134,6 @@ void GridFactory::SU2Process()
 void GridFactory::CGNSProcess()
 {
 	CgnsFactory * cgnsFactory = new CgnsFactory();
-    grid_para.filetype = "cgns";
-    grid_para.topo = ONEFLOW::GetTopoType();
-    grid_para.gridFile = ONEFLOW::GetDataValue< string >( "sourceGridFileName" );
 
     cgnsFactory->GenerateGrid();
 

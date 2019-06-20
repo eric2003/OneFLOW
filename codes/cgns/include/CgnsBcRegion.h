@@ -32,6 +32,8 @@ using namespace std;
 
 BeginNameSpace( ONEFLOW )
 
+#ifdef ENABLE_CGNS
+
 class CgnsZone;
 class CgnsBase;
 class NodeMesh;
@@ -60,7 +62,7 @@ public:
 	int nDataSets;
 
 	cgsize_t nElements;
-	IntField connList;
+	vector<cgsize_t> connList;
 
     CgnsBcInterface * bcInterface;
 
@@ -81,17 +83,19 @@ public:
     void CreateCgnsBcConn();
     void ReadCgnsBcConn();
     void PrintCgnsBcConn();
-    void ExtractIJKRegionFromBcConn( IntField & ijkMin, IntField & ijkMax, IntField & bcConn );
+    void ExtractIJKRegionFromBcConn( IntField & ijkMin, IntField & ijkMax, vector<cgsize_t>& bcConn );
     void ExtractIJKRegionFromBcConn( IntField & ijkMin, IntField & ijkMax );
 public:
     void ProcessCgns1to1BcRegion( int bcId );
     void ReadCgns1to1BoundaryRegion( int iCgns1to1BoundaryRegion );
-    void CopyStrBcRegion( CgnsBcRegion * strBcRegion, int & startId );
-    void ReadCgnsBcConn( CgnsBcRegion * strBcRegion, int & startId );
+    void CopyStrBcRegion( CgnsBcRegion * strBcRegion, cgsize_t& startId );
+    void ReadCgnsBcConn( CgnsBcRegion * strBcRegion, cgsize_t & startId );
 	void ReconstructStrRegion( IntField & ijkMin, IntField & ijkMax );
-    int GetActualNumberOfBoundaryElements();
+    cgsize_t GetActualNumberOfBoundaryElements();
 };
 
-void SetBcConn( CgnsZone * cgnsZone, IntField & ijkMin, IntField & ijkMax, IntField & conn, int & pos, int & nElem );
+void SetBcConn( CgnsZone * cgnsZone, IntField & ijkMin, IntField & ijkMax, vector<cgsize_t>& conn, int & pos, int & nElem );
+
+#endif
 
 EndNameSpace

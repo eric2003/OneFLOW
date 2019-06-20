@@ -29,6 +29,8 @@ using namespace std;
 
 BeginNameSpace(ONEFLOW)
 
+#ifdef ENABLE_CGNS
+
 class PointBasic;
 class FaceSearchBasic;
 class NodeMesh;
@@ -53,4 +55,6 @@ public:
 };
 
 extern F2FMap f2fmap;
+
+#endif
 EndNameSpace

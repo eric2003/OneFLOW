@@ -181,7 +181,7 @@ int BcTypeMap::Cgns2OneFlow( int cgns_bctype )
 	return oneflow_bctype;
 }
 
-void SetUnsBcConn( BcRegion * bcRegion, IntField & conn, int & pos, Int3D & unsId )
+void SetUnsBcConn( BcRegion * bcRegion, vector<cgsize_t>& conn, int & pos, Int3D & unsId )
 {
     int ist, ied, jst, jed, kst, ked;
 	bcRegion->GetNormalizeIJKRegion( ist, ied, jst, jed, kst, ked );

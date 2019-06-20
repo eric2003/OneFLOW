@@ -39,6 +39,7 @@ License
 using namespace std;
 
 BeginNameSpace( ONEFLOW )
+#ifdef ENABLE_CGNS
 
 CgnsZone::CgnsZone( CgnsBase * cgnsBase )
 {
@@ -81,7 +82,7 @@ void CgnsZone::SetPeriodicBc()
 
 void CgnsZone::SetElementTypeAndNode( ElemFeature * elem_feature )
 {
-    int nSection = this->multiSection->cgnsSections.size();
+    size_t nSection = this->multiSection->cgnsSections.size();
 	for ( int iSection = 0; iSection < nSection; ++ iSection )
 	{
 		CgnsSection * section = this->multiSection->cgnsSections[ iSection ];
@@ -123,7 +124,7 @@ void CgnsZone::ConstructCgnsGridPoints( PointFactory * point_factory )
 
     this->InitLgMapping();
 
-    int nNode = this->nodeMesh->GetNumberOfNodes();
+    size_t nNode = this->nodeMesh->GetNumberOfNodes();
 
 	for ( int iNode = 0; iNode < nNode; ++ iNode )
 	{
@@ -339,6 +340,10 @@ void CgnsZone::InitL2g()
     }
 }
 
+cgsize_t CgnsZone::GetNI() const { return irmax[0]; };
+cgsize_t CgnsZone::GetNJ() const { return irmax[1]; };
+cgsize_t CgnsZone::GetNK() const { return irmax[2]; };
+
 void CgnsZone::ReadElementConnectivities()
 {
 	if ( this->cgnsZoneType == Structured ) return;
@@ -431,9 +436,9 @@ void CgnsZone::SetElemPosition()
 
 void CgnsZone::GenerateUnsVolElemConn( CgnsZone * cgnsZoneIn )
 {
-    int ni = cgnsZoneIn->GetNI();
-    int nj = cgnsZoneIn->GetNJ();
-    int nk = cgnsZoneIn->GetNK();
+    int ni = static_cast<int> (cgnsZoneIn->GetNI());
+    int nj = static_cast<int> (cgnsZoneIn->GetNJ());
+    int nk = static_cast<int> (cgnsZoneIn->GetNK());
 
     cout << " ni = " << ni << " nj = " << nj << " nk = " << nk << "\n";
 
@@ -455,7 +460,7 @@ void CgnsZone::GenerateUnsVolElemConn( CgnsZone * cgnsZoneIn )
     if ( cell_dim == TWO_D ) kl1 = 0;
 	if ( cell_dim == ONE_D ) jl1 = 0;
 
-    IntField & connList = cgnsSection->connList;
+	vector<cgsize_t> & connList = cgnsSection->connList;
     int pos = 0;
 
     for ( int k = kst; k <= ked; ++ k )
@@ -514,7 +519,7 @@ void CgnsZone::GenerateUnsBcCondConn( CgnsZone * cgnsZoneIn )
     int iSection = 1;
 	CgnsSection * cgnsSection = multiSection->cgnsSections[ iSection ];
 
-    int startId = cgnsSection->startId;
+    cgsize_t startId = cgnsSection->startId;
 
     for ( int iBcRegion = 0; iBcRegion < nBcRegion; ++ iBcRegion )
     {
@@ -552,7 +557,7 @@ void CgnsZone::ReadCgnsGridCoordinates()
     int baseId = cgnsBase->baseId;
 	cg_ncoords( fileId, baseId, this->zId, & this->nCoor );
 
-	nodeMesh->CreateNodes( this->nNode );
+	nodeMesh->CreateNodes( static_cast<int>(this->nNode));
 
     CgnsCoor * cgnsCoor = new CgnsCoor();
 
@@ -562,7 +567,7 @@ void CgnsZone::ReadCgnsGridCoordinates()
 		CgnsTraits::char33 coorName;
 		cg_coord_info( fileId, baseId, this->zId, coordId, & dataType, coorName );
         int coId = coordId - 1;
-        cgnsCoor->Alloc( coId, this->nNode, dataType );
+        cgnsCoor->Alloc( coId, static_cast<int>(this->nNode), dataType );
 		//Read the x-, y-, z-coordinates.
 		cg_coord_read( fileId, baseId, this->zId, coorName, dataType, this->irmin, this->irmax, cgnsCoor->GetCoor( coId ) );
 		this->coorName = coorName;
@@ -627,4 +632,5 @@ void GetIJKRegion( Range & I, Range & J, Range & K, int & ist, int & ied, int & 
     ked = K.Last();
 }
 
+#endif
 EndNameSpace

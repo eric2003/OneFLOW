@@ -31,6 +31,7 @@ License
 using namespace std;
 
 BeginNameSpace( ONEFLOW )
+#ifdef ENABLE_CGNS
 
 CgnsMultiBase::CgnsMultiBase()
 {
@@ -63,10 +64,7 @@ int CgnsMultiBase::GetSystemZoneType()
 
 void CgnsMultiBase::ReadCgnsGrid()
 {
-	if ( grid_para.filetype == "cgns" )
-	{
-		this->ReadCgnsGrid( grid_para.gridFile );
-	}
+	this->ReadCgnsGrid( grid_para.gridFile );
 }
 
 void CgnsMultiBase::ReadCgnsGrid( const string & fileName )
@@ -330,5 +328,5 @@ int CgnsMultiBase::FindBaseId( int iZone )
 
 	return - 1;
 }
-
+#endif
 EndNameSpace
