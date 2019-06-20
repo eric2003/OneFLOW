@@ -58,7 +58,7 @@ public:
     RealField var1, var2, var;
 public:
     void Init();
-	int  GetNNode() { return x.size(); }
+	int  GetNNode() { return static_cast<int> (x.size()); }
 public:
     void AddPoint( Real xm, Real ym, Real zm );
     void AddVar( RealField & var );

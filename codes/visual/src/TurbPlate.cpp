@@ -86,7 +86,7 @@ void TurbVelCut::Dump()
 		file << title[ i ] << endl;
 	}
 
-    int nSlice = sliceData.size();
+    size_t nSlice = sliceData.size();
     for ( int i = 0; i < nSlice; ++ i )
     {
         LamData * lamData = sliceData[ i ];
@@ -185,7 +185,7 @@ void TurbFriCut::Dump()
 		file << title[ i ] << endl;
 	}
 
-    int nSlice = sliceData.size();
+    size_t nSlice = sliceData.size();
     for ( int i = 0; i < nSlice; ++ i )
     {
         LamData * lamData = sliceData[ i ];

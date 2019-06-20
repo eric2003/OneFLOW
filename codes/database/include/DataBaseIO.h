@@ -120,7 +120,7 @@ void HXRead( fstream * file, T * field, int nElement )
 template < typename TIO, typename T >
 void HXRead( TIO * tio, HXVector< T > & field )
 {
-    int nElement = field.size();
+    size_t nElement = field.size();
     if ( nElement <= 0 ) return;
     tio->Read( & field[ 0 ], nElement * sizeof( T ) );
 }

@@ -117,7 +117,7 @@ void ResidualTask::CmpRes( int sTid, ResData & data )
 
 void ResidualTask::PostDumpResiduals()
 {
-    int nEqu = this->data.resave.res.size();
+    size_t nEqu = this->data.resave.res.size();
 
     this->data.resave.CmpAver( dataList );
     this->data.resmax.CmpMax( dataList );
@@ -144,7 +144,7 @@ void ResidualTask::DumpFile()
         title.push_back( "Variables=" );
         title.push_back( "\"iter\"" );
         title.push_back( "\"sub-iter\"" );
-        int nVar = this->data.resave.res.size();
+        size_t nVar = this->data.resave.res.size();
 	    for ( int iVar = 0; iVar < nVar; ++ iVar )
 	    {
             title.push_back( AddString( "\"res",  iVar + 1, "\"" ) );
@@ -164,7 +164,7 @@ void ResidualTask::DumpFile()
 	oss << Iteration::outerSteps << " ";
 	oss << Iteration::innerSteps << " ";
 
-    int nVar = this->data.resave.res.size();
+    size_t nVar = this->data.resave.res.size();
 	for ( int iVar = 0; iVar < nVar; ++ iVar )
     {
 	    oss << setw( 13 ) << this->data.resave.res[ iVar ] << " ";
