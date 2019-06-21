@@ -24,6 +24,7 @@ License
 #pragma once
 #include "HXDefine.h"
 #include "GridDef.h"
+#include "HXCgns.h"
 #include <vector>
 #include <string>
 #include <fstream>
@@ -96,6 +97,9 @@ void ComputeUnsId( StrGrid * grid, PointSearch * pointSearch, Int3D * unsId );
 
 int OneFlow2CgnsZoneType( int zoneType );
 int Cgns2OneFlowZoneType( int zoneType );
+
+class BcRegion;
+void SetUnsBcConn( BcRegion * bcRegion, vector<cgsize_t>& conn, int & pos, Int3D & unsId );
 
 #endif
 
