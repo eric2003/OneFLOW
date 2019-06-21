@@ -250,9 +250,7 @@ void CgnsBcRegion::ReadCgnsBcConn()
 	int cgnsNormalList;
 
     // Read the element ID¡¯s.
-	//cgsize_t connTMp[ 100 ];
 	cg_boco_read( fileId, baseId, zId, this->id, & connList[ 0 ], & cgnsNormalList );
-	//cg_boco_read( fileId, baseId, zId, this->id, connTMp, & cgnsNormalList );
 	int kkk = 1;
 }
 
@@ -403,7 +401,7 @@ void CgnsBcRegion::ExtractIJKRegionFromBcConn( IntField & ijkMin, IntField & ijk
     this->ExtractIJKRegionFromBcConn( ijkMin, ijkMax, this->connList );
 }
 
-void CgnsBcRegion::ExtractIJKRegionFromBcConn( IntField & ijkMin, IntField & ijkMax, vector<cgsize_t>& bcConn )
+void CgnsBcRegion::ExtractIJKRegionFromBcConn( IntField & ijkMin, IntField & ijkMax, CgIntField& bcConn )
 {
 	int imin, imax, jmin, jmax, kmin, kmax;
     int celldim = cgnsZone->cgnsBase->celldim;
@@ -493,7 +491,7 @@ cgsize_t CgnsBcRegion::GetActualNumberOfBoundaryElements()
 	}
 }
 
-void SetBcConn( CgnsZone * cgnsZone, IntField & ijkMin, IntField & ijkMax, vector<cgsize_t>& conn, int & pos, int & nElem )
+void SetBcConn( CgnsZone * cgnsZone, IntField & ijkMin, IntField & ijkMax, CgIntField& conn, int & pos, int & nElem )
 {
     int ni = static_cast<int> (cgnsZone->GetNI());
     int nj = static_cast<int> (cgnsZone->GetNJ());

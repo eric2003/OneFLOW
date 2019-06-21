@@ -466,8 +466,8 @@ void CgnsFactory::FillSection( Grids & grids, HXVector< Int3D * > & unsIdList )
     CgnsSection * secV = cgnsZone->multiSection->cgnsSections[ 0 ];
     CgnsSection * secB = cgnsZone->multiSection->cgnsSections[ 1 ];
 
-	vector<cgsize_t>& connList  = secV->connList;
-	vector<cgsize_t>& bConnList = secB->connList;
+	CgIntField& connList  = secV->connList;
+	CgIntField& bConnList = secB->connList;
 
     int pos = 0;
 
@@ -635,7 +635,7 @@ int Cgns2OneFlowZoneType( int zoneType )
 }
 
 
-void SetUnsBcConn( BcRegion * bcRegion, vector<cgsize_t>& conn, int & pos, Int3D & unsId )
+void SetUnsBcConn( BcRegion * bcRegion, CgIntField& conn, int & pos, Int3D & unsId )
 {
     int ist, ied, jst, jed, kst, ked;
 	bcRegion->GetNormalizeIJKRegion( ist, ied, jst, jed, kst, ked );

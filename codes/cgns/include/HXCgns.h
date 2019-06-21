@@ -32,7 +32,8 @@ BeginNameSpace( ONEFLOW )
 #ifdef ENABLE_CGNS
 #include "cgnslib.h"
 
-typedef HXVector< cgsize_t > CgnsIntField;
+typedef cgsize_t CgInt;
+typedef HXVector< CgInt > CgIntField;
 
 class CgnsTraits
 {

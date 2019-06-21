@@ -460,7 +460,7 @@ void CgnsZone::GenerateUnsVolElemConn( CgnsZone * cgnsZoneIn )
     if ( cell_dim == TWO_D ) kl1 = 0;
 	if ( cell_dim == ONE_D ) jl1 = 0;
 
-	vector<cgsize_t> & connList = cgnsSection->connList;
+	CgIntField & connList = cgnsSection->connList;
 
     int pos = 0;
 

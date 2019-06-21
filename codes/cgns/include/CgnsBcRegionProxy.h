@@ -70,7 +70,7 @@ public:
     void CreateCgnsBcRegion( CgnsBcRegionProxy * bcRegionProxyIn );
 public:
 	void ReconstructStrRegion();
-    void GenerateUnsBcElemConn(vector<cgsize_t>& bcConn );
+    void GenerateUnsBcElemConn(CgIntField& bcConn );
 	void SetPeriodicBc();
 };
 

@@ -287,7 +287,7 @@ void CgnsBcRegionProxy::ReconstructStrRegion()
 
 }
 
-void CgnsBcRegionProxy::GenerateUnsBcElemConn(vector<cgsize_t>& bcConn )
+void CgnsBcRegionProxy::GenerateUnsBcElemConn(CgIntField& bcConn )
 {
     int nBcElem = 0;
     int pos = 0;
