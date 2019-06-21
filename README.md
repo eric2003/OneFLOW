@@ -14,7 +14,9 @@ LargeScale Multiphysics Scientific Simulation Environment
 git clone --recursive https://github.com/eric2003/OneFLOW
 ```
 The above operation will download the source code together with prebuild thirdparty libraries. You can also build them by yourself.
+
 2. Use cmake to configure and generate project files.
+   
 3. Compile and generate executable file.
    
 ### Linux
@@ -23,9 +25,11 @@ The above operation will download the source code together with prebuild thirdpa
 ```
 git clone https://github.com/eric2003/OneFLOW
 ```
-The above operation will download the source code only(prebuild thirdparty libraries are not provided)ã€‚
-1. Use cmake to configure and generate appropriate project files, for example: Makefile.
-2. Compile and generate executable file.
+The above operation will download the source code only(prebuild thirdparty libraries are not provided)‚
+
+2. Use cmake to configure and generate appropriate project files, for example: Makefile.
+   
+3. Compile and generate executable file.
    
 ## OneFLOW DEVELOPERS
 -----------------------------------------------------------
