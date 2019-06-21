@@ -22,6 +22,7 @@ along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 #pragma once
 #include "Configure.h"
 #include <vector>
+#include <string>
 
 BeginNameSpace( ONEFLOW )
 
