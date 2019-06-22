@@ -56,14 +56,14 @@ public:
     CgnsMultiSection * multiSection;
     CgnsBcRegionProxy * bcRegionProxy;
 
-	cgsize_t nNode, nCell;
+	CgInt nNode, nCell;
     int nCoor;
 
 	ZoneType_t cgnsZoneType;
 
 	int zId;
-	cgsize_t irmin[ 3 ], irmax[ 3 ], cellSize[ 3 ];
-	cgsize_t isize[ 3 ][ 3 ];
+	CgInt irmin[ 3 ], irmax[ 3 ], cellSize[ 3 ];
+	CgInt isize[ 3 ][ 3 ];
 
 	string coorName;
 	string zoneName;
@@ -83,7 +83,7 @@ public:
     void ConvertToInnerDataStandard();
 public:
     void ScanBcFace( FaceSolver * face_solver );
-    void GetElementNodeId( int eId, IntField & eNodeId );
+    void GetElementNodeId( CgInt eId, CgIntField & eNodeId );
     void ReadCgnsGrid();
     void ReadCgnsGrid( CgnsZone * cgnsZoneIn );
     void ReadCgnsZoneAttribute();
@@ -112,9 +112,9 @@ public:
 	void SetElemPosition();
     void CreateCgnsBcRegion( CgnsZone * cgnsZoneIn );
     void InitL2g();
-	cgsize_t GetNI() const;
-	cgsize_t GetNJ() const;
-	cgsize_t GetNK() const;
+	CgInt GetNI() const;
+	CgInt GetNJ() const;
+	CgInt GetNK() const;
     void FillCgnsData( CgnsData * cgnsData );
 };
 

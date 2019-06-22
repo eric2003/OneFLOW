@@ -139,7 +139,7 @@ void CgnsZone::ScanBcFace( FaceSolver * face_solver )
 	this->bcRegionProxy->ScanBcFace( face_solver );
 }
 
-void CgnsZone::GetElementNodeId( int eId, IntField & eNodeId )
+void CgnsZone::GetElementNodeId( CgInt eId, CgIntField & eNodeId )
 {
 	CgnsSection * cgnsSection = this->multiSection->GetSectionByEid( eId );
 	cgnsSection->GetElementNodeId( eId - cgnsSection->startId, eNodeId );
@@ -340,9 +340,9 @@ void CgnsZone::InitL2g()
     }
 }
 
-cgsize_t CgnsZone::GetNI() const { return irmax[0]; };
-cgsize_t CgnsZone::GetNJ() const { return irmax[1]; };
-cgsize_t CgnsZone::GetNK() const { return irmax[2]; };
+CgInt CgnsZone::GetNI() const { return irmax[0]; };
+CgInt CgnsZone::GetNJ() const { return irmax[1]; };
+CgInt CgnsZone::GetNK() const { return irmax[2]; };
 
 void CgnsZone::ReadElementConnectivities()
 {
@@ -370,8 +370,8 @@ void CgnsZone::FillCgnsData( CgnsData * cgnsData )
 
     cgnsData->Create( nSection );
 
-    IntField & startId = cgnsData->startId;
-    IntField & endId = cgnsData->endId;
+    CgIntField & startId = cgnsData->startId;
+    CgIntField & endId = cgnsData->endId;
     IntField & elemType = cgnsData->elemType;
 
     int nBFace        = 0;
@@ -520,7 +520,7 @@ void CgnsZone::GenerateUnsBcCondConn( CgnsZone * cgnsZoneIn )
     int iSection = 1;
 	CgnsSection * cgnsSection = multiSection->cgnsSections[ iSection ];
 
-    cgsize_t startId = cgnsSection->startId;
+    CgInt startId = cgnsSection->startId;
 
     for ( int iBcRegion = 0; iBcRegion < nBcRegion; ++ iBcRegion )
     {

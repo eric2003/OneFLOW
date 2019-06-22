@@ -24,6 +24,7 @@ License
 #pragma once
 #include "HXDefine.h"
 #include "PointFactory.h"
+#include "HXCgns.h"
 #include <map>
 using namespace std;
 
@@ -47,8 +48,8 @@ public:
 	map< int, int > face_pair;
 public:
 	void AddFacePair(int faceId1, int faceId2);
-	void AddFacePoint( IntField & fNodeId1, IntField & fNodeId2, NodeMesh *nodeMesh1, NodeMesh *nodeMesh2 );
-	int AddFacePoint( IntField & fNodeId, NodeMesh *nodeMesh, IntField & newFaceNodeId );
+	void AddFacePoint( CgIntField & fNodeId1, CgIntField & fNodeId2, NodeMesh *nodeMesh1, NodeMesh *nodeMesh2 );
+	int AddFacePoint( CgIntField & fNodeId, NodeMesh *nodeMesh, IntField & newFaceNodeId );
 public:
 	void FindFace( RealField &xList, RealField &yList, RealField &zList, RealField &xxList, RealField &yyList, RealField &zzList );
 	int FindPeriodFace( int faceId );

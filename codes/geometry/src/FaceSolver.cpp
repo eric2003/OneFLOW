@@ -82,7 +82,7 @@ bool FaceSolver::CheckBcFace( IntSet & bcVertex, IntField & nodeId )
 }
 
 
-void FaceSolver::ScanElementFace( IntField & eNodeId, int eType, int eId )
+void FaceSolver::ScanElementFace( CgIntField & eNodeId, int eType, int eId )
 {
     UnitElement * unitElement = ElementHome::GetUnitElement( eType );
 

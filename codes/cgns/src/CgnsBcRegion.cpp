@@ -111,7 +111,7 @@ void CgnsBcRegion::ProcessFaceBc( IntSet & bcVertex )
         cout << " nBcElement = " << this->connList[ 1 ] - this->connList[ 0 ] + 1 << endl;
         for ( int eId = this->connList[ 0 ]; eId <= this->connList[ 1 ]; ++ eId )
         {
-			IntField fNodeId;
+			CgIntField fNodeId;
 			cgnsZone->GetElementNodeId( eId, fNodeId );
 			for ( int iNode = 0; iNode < fNodeId.size(); ++ iNode )
 			{
@@ -123,7 +123,7 @@ void CgnsBcRegion::ProcessFaceBc( IntSet & bcVertex )
     {
         for ( int eId = 0; eId < this->nElements; ++ eId )
         {
-			IntField fNodeId;
+			CgIntField fNodeId;
 			cgnsZone->GetElementNodeId( this->connList[ eId ], fNodeId );
 			for ( int iNode = 0; iNode < fNodeId.size(); ++ iNode )
 			{
@@ -332,7 +332,7 @@ void CgnsBcRegion::PrintCgnsBcConn()
 		else
 		{
             cout << "   ";
-			cgsize_t num = 5;
+			CgInt num = 5;
 			for ( int i = 0; i < std::min(num, this->nElements ); ++ i )
 			{
 				cout << connList[ i ] << " ";
@@ -433,7 +433,7 @@ void CgnsBcRegion::ExtractIJKRegionFromBcConn( IntField & ijkMin, IntField & ijk
     ijkMax[ 2 ] = MAX( ABS( kmin ), ABS( kmax ) );
 }
 
-void CgnsBcRegion::CopyStrBcRegion( CgnsBcRegion * strBcRegion, cgsize_t & startId )
+void CgnsBcRegion::CopyStrBcRegion( CgnsBcRegion * strBcRegion, CgInt & startId )
 {
     this->name = strBcRegion->name;
     this->nElements = 2;
@@ -446,15 +446,15 @@ void CgnsBcRegion::CopyStrBcRegion( CgnsBcRegion * strBcRegion, cgsize_t & start
     this->ReadCgnsBcConn( strBcRegion, startId );
 }
 
-void CgnsBcRegion::ReadCgnsBcConn( CgnsBcRegion * strBcRegion, cgsize_t& startId )
+void CgnsBcRegion::ReadCgnsBcConn( CgnsBcRegion * strBcRegion, CgInt& startId )
 {
-    cgsize_t actualNumberOfBoundaryElement = strBcRegion->GetActualNumberOfBoundaryElements();
+    CgInt actualNumberOfBoundaryElement = strBcRegion->GetActualNumberOfBoundaryElements();
     this->connList[ 0 ] = startId;
     this->connList[ 1 ] = actualNumberOfBoundaryElement - 1 + startId;
     startId += actualNumberOfBoundaryElement;
 }
 
-cgsize_t CgnsBcRegion::GetActualNumberOfBoundaryElements()
+CgInt CgnsBcRegion::GetActualNumberOfBoundaryElements()
 {
 	if ( cgnsZone->cgnsZoneType == Unstructured )
 	{

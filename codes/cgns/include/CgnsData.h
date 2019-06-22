@@ -37,7 +37,7 @@ public:
     CgnsData ();
 	~CgnsData();
 public:
-    IntField startId, endId;
+    CgIntField startId, endId;
     IntField elemType;
     int nSection;
 public:

@@ -23,6 +23,7 @@ License
 
 #pragma once
 #include "HXDefine.h"
+#include "HXCgns.h"
 #include "Mid.h"
 #include <vector>
 #include <set>
@@ -48,7 +49,7 @@ public:
 public:
     int FindFace( Mid & face );
     bool CheckBcFace( IntSet & bcVertex, IntField & nodeId );
-    void ScanElementFace( IntField & eNodeId, int eType, int eId );
+    void ScanElementFace( CgIntField & eNodeId, int eType, int eId );
     void ScanBcFace( IntSet & bcVertex, int bcType, int bcNameId );
 	void ScanBcFaceDetail( IntSet & bcVertex, int bcType, int bcNameId );
     int GetNSimpleFace();

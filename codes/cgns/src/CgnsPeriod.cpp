@@ -61,7 +61,7 @@ int F2FMap::FindPeriodFace( int faceId )
 	return face_id;
 }
 
-void F2FMap::AddFacePoint( IntField & fNodeId1, IntField & fNodeId2, NodeMesh *nodeMesh1, NodeMesh *nodeMesh2 )
+void F2FMap::AddFacePoint( CgIntField & fNodeId1, CgIntField & fNodeId2, NodeMesh *nodeMesh1, NodeMesh *nodeMesh2 )
 {
 	IntField face1, face2;
 	int fId1 = this->AddFacePoint( fNodeId1, nodeMesh1, face1 );
@@ -73,9 +73,9 @@ void F2FMap::AddFacePoint( IntField & fNodeId1, IntField & fNodeId2, NodeMesh *n
 	this->faceList2.push_back( face2 );
 }
 
-int F2FMap::AddFacePoint( IntField & fNodeId, NodeMesh *nodeMesh, IntField & newFaceNodeId )
+int F2FMap::AddFacePoint( CgIntField & fNodeId, NodeMesh *nodeMesh, IntField & newFaceNodeId )
 {
-	IntField face;
+	//IntField face;
 	for ( int i = 0; i < fNodeId.size(); ++ i )
 	{
 		int ip = fNodeId[ i ];

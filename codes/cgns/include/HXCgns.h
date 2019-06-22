@@ -34,6 +34,7 @@ BeginNameSpace( ONEFLOW )
 
 typedef cgsize_t CgInt;
 typedef HXVector< CgInt > CgIntField;
+typedef HXVector< CgIntField > CgLinkField;
 
 class CgnsTraits
 {
