@@ -24,29 +24,34 @@ License
 #pragma once
 #include "HXDefine.h"
 #include "HXCgns.h"
-#include <vector>
 #include <string>
 #include <map>
 using namespace std;
 
 BeginNameSpace( ONEFLOW )
 
+
 #ifdef ENABLE_CGNS
+
+class CgnsBase;
 
 class CgnsFamilyBc
 {
 public:
-	CgnsFamilyBc();
+	CgnsFamilyBc( CgnsBase * cgnsBase );
 	~CgnsFamilyBc();
 public:
-	bool int_flag;
 	map< string, int > * bcMap;
+	CgnsBase * cgnsBase;
 public:
 	void Init();
 	void Free();
 	void Register( const string & regionName, int bcType );
 	void Unregister( const string & regionName );
 	int GetBcType( const string & regionName );
+public:
+	void SetFamilyBc( BCType_t & bcType, const string & bcRegionName );
+	void ReadFamilySpecifiedBc();
 };
 
 #endif

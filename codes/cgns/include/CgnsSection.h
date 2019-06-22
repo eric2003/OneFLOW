@@ -45,7 +45,8 @@ public:
 	int eType;
     cgsize_t startId, endId;
     int connSize;
-	vector<cgsize_t> connList;
+	CgIntField connList;
+
 	IntField eTypeList;
 	IntField ePosList;
 	int pos_shift;
@@ -59,7 +60,7 @@ public:
 
     int nbndry;
     int iparentflag;
-	vector<cgsize_t> iparentdata;
+	CgIntField iparentdata;
 public:
     void ConvertToInnerDataStandard();
     void SetElementTypeAndNode( ElemFeature * elem_feature );

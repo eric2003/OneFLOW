@@ -24,9 +24,6 @@ License
 #pragma once
 #include "HXDefine.h"
 #include <map>
-#ifdef ENABLE_CGNS
-#include "cgnslib.h"
-#endif
 using namespace std;
 BeginNameSpace( ONEFLOW )
 
@@ -120,9 +117,5 @@ public:
 	static int  FindRegionId( const std::string & regionName );
     static void DumpRegion();
 };
-
-class BcRegion;
-void SetUnsBcConn( BcRegion * bcRegion, vector<cgsize_t>& conn, int & pos, Int3D & unsId );
-
 
 EndNameSpace

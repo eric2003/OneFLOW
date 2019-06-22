@@ -23,6 +23,7 @@ License
 
 #pragma once
 #include "Configure.h"
+#include "HXVector.h"
 #include <string>
 using namespace std;
 
@@ -31,6 +32,8 @@ BeginNameSpace( ONEFLOW )
 #ifdef ENABLE_CGNS
 #include "cgnslib.h"
 
+typedef cgsize_t CgInt;
+typedef HXVector< CgInt > CgIntField;
 
 class CgnsTraits
 {

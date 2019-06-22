@@ -32,15 +32,6 @@ using namespace std;
 
 BeginNameSpace( ONEFLOW )
 
-//class PrjStatus
-//{
-//public:
-//    PrjStatus();
-//    ~PrjStatus();
-//public:
-//    static string prjBaseDir;
-//};
-
 class OStream;
 extern OStream StrIO;
 class OStream : public ostringstream

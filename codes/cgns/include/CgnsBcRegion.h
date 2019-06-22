@@ -62,7 +62,8 @@ public:
 	int nDataSets;
 
 	cgsize_t nElements;
-	vector<cgsize_t> connList;
+
+	CgIntField connList;
 
     CgnsBcInterface * bcInterface;
 
@@ -76,14 +77,13 @@ public:
     void ProcessVertexBc( IntSet & bcVertex );
     void ProcessFaceBc( IntSet & bcVertex );
 public:
-	//void ReadFamilySpecifiedBc();
     void ReadCgnsOrdinaryBcRegion();
     void ReadCgnsOrdinaryBcRegionInfo();
     void ReadCgnsOrdinaryBcRegionGridLocation();
     void CreateCgnsBcConn();
     void ReadCgnsBcConn();
     void PrintCgnsBcConn();
-    void ExtractIJKRegionFromBcConn( IntField & ijkMin, IntField & ijkMax, vector<cgsize_t>& bcConn );
+    void ExtractIJKRegionFromBcConn( IntField & ijkMin, IntField & ijkMax, CgIntField& bcConn );
     void ExtractIJKRegionFromBcConn( IntField & ijkMin, IntField & ijkMax );
 public:
     void ProcessCgns1to1BcRegion( int bcId );
@@ -94,7 +94,7 @@ public:
     cgsize_t GetActualNumberOfBoundaryElements();
 };
 
-void SetBcConn( CgnsZone * cgnsZone, IntField & ijkMin, IntField & ijkMax, vector<cgsize_t>& conn, int & pos, int & nElem );
+void SetBcConn( CgnsZone * cgnsZone, IntField & ijkMin, IntField & ijkMax, CgIntField& conn, int & pos, int & nElem );
 
 #endif
 

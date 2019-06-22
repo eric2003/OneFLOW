@@ -47,8 +47,8 @@ public:
 	PointSetType_t donorPointSetType;
 	DataType_t     donorDataType;
 
-	HXVector< cgsize_t > connPoint;
-	HXVector< cgsize_t > connDonorPoint;
+	CgIntField connPoint;
+	CgIntField connDonorPoint;
 
     int itranfrm[ 3 ];
 

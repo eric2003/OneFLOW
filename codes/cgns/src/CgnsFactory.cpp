@@ -466,8 +466,8 @@ void CgnsFactory::FillSection( Grids & grids, HXVector< Int3D * > & unsIdList )
     CgnsSection * secV = cgnsZone->multiSection->cgnsSections[ 0 ];
     CgnsSection * secB = cgnsZone->multiSection->cgnsSections[ 1 ];
 
-	vector<cgsize_t>& connList  = secV->connList;
-	vector<cgsize_t>& bConnList = secB->connList;
+	CgIntField& connList  = secV->connList;
+	CgIntField& bConnList = secB->connList;
 
     int pos = 0;
 
@@ -633,6 +633,143 @@ int Cgns2OneFlowZoneType( int zoneType )
         return SMESH;
     }
 }
+
+
+void SetUnsBcConn( BcRegion * bcRegion, CgIntField& conn, int & pos, Int3D & unsId )
+{
+    int ist, ied, jst, jed, kst, ked;
+	bcRegion->GetNormalizeIJKRegion( ist, ied, jst, jed, kst, ked );
+
+    cout << " ist, ied, jst, jed, kst, ked = " << ist << " " << ied << " " << jst << " " << jed << " " << kst << " " << ked << endl;
+    int numpt = 4;
+    if ( Dim::dimension == TWO_D ) numpt = 2;
+
+    if ( ist == ied )
+    {
+        int i = ist;
+        if ( Dim::dimension == THREE_D )
+        {
+            for ( int k = kst; k <= ked - 1; ++ k )
+            {
+                for ( int j = jst; j <= jed - 1; ++ j )
+                {
+                    if ( i == 1 )
+                    {
+                        conn[ pos + 0 ] = unsId( i, j    , k     ) + 1;
+                        conn[ pos + 1 ] = unsId( i, j    , k + 1 ) + 1;
+                        conn[ pos + 2 ] = unsId( i, j + 1, k + 1 ) + 1;
+                        conn[ pos + 3 ] = unsId( i, j + 1, k     ) + 1;
+                    }
+                    else
+                    {
+                        conn[ pos + 0 ] = unsId( i, j    , k     ) + 1;
+                        conn[ pos + 1 ] = unsId( i, j + 1, k     ) + 1;
+                        conn[ pos + 2 ] = unsId( i, j + 1, k + 1 ) + 1;
+                        conn[ pos + 3 ] = unsId( i, j    , k + 1 ) + 1;
+                    }
+                    pos += numpt;
+                }
+            }
+        }
+        else
+        {
+            int k = kst;
+            for ( int j = jst; j <= jed - 1; ++ j )
+            {
+                if ( i == 1 )
+                {
+                    conn[ pos + 0 ] = unsId( i, j + 1, k  ) + 1;
+                    conn[ pos + 1 ] = unsId( i, j    , k  ) + 1;
+                }
+                else
+                {
+                    conn[ pos + 0 ] = unsId( i, j    , k  ) + 1;
+                    conn[ pos + 1 ] = unsId( i, j + 1, k  ) + 1;
+                }
+                pos += numpt;
+            }
+        }
+        return;
+    }
+
+    if ( jst == jed )
+    {
+        int j = jst;
+        if ( Dim::dimension == THREE_D )
+        {
+            for ( int k = kst; k <= ked - 1; ++ k )
+            {
+                for ( int i = ist; i <= ied - 1; ++ i )
+                {
+                    if ( j == 1 )
+                    {
+                        conn[ pos + 0 ] = unsId( i    , j, k    ) + 1;
+                        conn[ pos + 1 ] = unsId( i + 1, j, k    ) + 1;
+                        conn[ pos + 2 ] = unsId( i + 1, j, k + 1 ) + 1;
+                        conn[ pos + 3 ] = unsId( i    , j, k + 1 ) + 1;
+                    }   
+                    else
+                    {
+                        conn[ pos + 0 ] = unsId( i    , j, k     ) + 1;
+                        conn[ pos + 1 ] = unsId( i    , j, k + 1 ) + 1;
+                        conn[ pos + 2 ] = unsId( i + 1, j, k + 1 ) + 1;
+                        conn[ pos + 3 ] = unsId( i + 1, j, k     ) + 1;
+                    }
+                    pos += numpt;
+                }
+            }
+        }
+        else
+        {
+            int k = kst;
+            for ( int i = ist; i <= ied - 1; ++ i )
+            {
+                if ( j == 1 )
+                {
+                    conn[ pos + 0 ] = unsId( i    , j, k  ) + 1;
+                    conn[ pos + 1 ] = unsId( i + 1, j, k  ) + 1;
+                }   
+                else
+                {
+                    conn[ pos + 0 ] = unsId( i + 1, j, k  ) + 1;
+                    conn[ pos + 1 ] = unsId( i    , j, k  ) + 1;
+                }
+                pos += numpt;
+            }
+        }
+        return;
+    }
+
+    if ( kst == ked )
+    {
+        int k = kst;
+        for ( int j = jst; j <= jed - 1; ++ j )
+        {
+            for ( int i = ist; i <= ied - 1; ++ i )
+            {
+                if ( k == 1 )
+                {
+                    conn[ pos + 0 ] = unsId( i    , j    , k ) + 1;
+                    conn[ pos + 1 ] = unsId( i    , j + 1, k ) + 1;
+                    conn[ pos + 2 ] = unsId( i + 1, j + 1, k ) + 1;
+                    conn[ pos + 3 ] = unsId( i + 1, j    , k ) + 1;
+                }   
+                else
+                {
+                    conn[ pos + 0 ] = unsId( i    , j    , k ) + 1;
+                    conn[ pos + 1 ] = unsId( i + 1, j    , k ) + 1;
+                    conn[ pos + 2 ] = unsId( i + 1, j + 1, k ) + 1;
+                    conn[ pos + 3 ] = unsId( i    , j + 1, k ) + 1;
+                }
+                pos += numpt;
+            }
+        }
+        return;
+    }
+
+    Stop( " error : ist != ied, jst != jed, kst != ked \n" );
+}
+
 
 #endif
 EndNameSpace
