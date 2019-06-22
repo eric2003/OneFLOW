@@ -35,7 +35,7 @@ endif(WIN32)
 #endif(BIT64_FLAG)
 
 if(WIN32)
-else(WIN32)
+else()
   set(CMAKE_CXX_COMPILER  mpicxx)
   set(CMAKE_C_COMPILER      mpicc)
 endif(WIN32)
@@ -45,47 +45,29 @@ message(STATUS "The CMAKE_CXX_COMPILER is ${CMAKE_CXX_COMPILER}")
 message(STATUS "The CMAKE_C_FLAGS is ${CMAKE_C_FLAGS}")
 message(STATUS "The CMAKE_CXX_FLAGS is ${CMAKE_CXX_FLAGS}")
 
-option(USE_PREBUILD_LIB "ON for third party libraries" ON)
+option(USE_PREBUILT_LIB "ON for using prebuilt third party libraries" ON)
 
-if(USE_PREBUILD_LIB)
-	set(THIRD_LIB_DIR "${CMAKE_SOURCE_DIR}/ThirdPartyLib")
+if(BIT64_FLAG)
+	set(ARCH "x64")
+else()
+	set(ARCH "x86")
 endif()
 
-#metis库设置
-option(METIS_ENABLE "ON for METIS partitioning" ON)
-
-if(METIS_ENABLE)
-	add_definitions(-DENABLE_METIS)
-	
-	if(USE_PREBUILD_LIB)
-		set(METIS_HEADER_DIR "${THIRD_LIB_DIR}/metis/include" CACHE PATH "path to metis headers")
-		set(METIS_LIBRARY_DIR "${THIRD_LIB_DIR}/metis/lib" CACHE PATH "path to mpi library")	
-	else()
-		set(METIS_HEADER_DIR "/path/to/metis/headers" CACHE PATH "path to metis headers")
-		set(METIS_LIBRARY_DIR "/path/to/metis/library" CACHE PATH "path to mpi library")		
-	endif()
-
-	set(METIS_LIBRARY_NAME "metis" CACHE STRING "name of metis library")
-
-	link_directories(${METIS_LIBRARY_DIR})		#库目录
-	include_directories(${METIS_HEADER_DIR})	#头文件目录
-	link_libraries(${METIS_LIBRARY_NAME})		#库名称
+#使用已经编译好的库
+if(USE_PREBUILT_LIB)
+	set(THIRD_LIB_BASE_DIR "${CMAKE_SOURCE_DIR}/ThirdPartyLib")
+	set(THIRD_LIB_DIR "${CMAKE_SOURCE_DIR}/ThirdPartyLib/${VS_COMPILER}/${ARCH}")
 endif()
 
-#mpi库设置
-option(MPI_ENABLE "ON for MPI parallel" ON)
+#mpi库设置(不需要区别vs版本)
+option(MPI_ENABLE "ON for using MPI library" ON)
 
 if(MPI_ENABLE)
 	add_definitions(-DENABLE_MPI)
 	
-	if(USE_PREBUILD_LIB AND WIN32)
-		set(MPI_HEADER_DIR "${THIRD_LIB_DIR}/msmpi/include" CACHE PATH "path to mpi headers")
-
-		if(BIT64_FLAG)
-			set(MPI_LIBRARY_DIR "${THIRD_LIB_DIR}/msmpi/lib/x64" CACHE PATH "path to mpi library")
-		else()
-			set(MPI_LIBRARY_DIR "${THIRD_LIB_DIR}/msmpi/lib/x86" CACHE PATH "path to mpi library")
-		endif()
+	if(USE_PREBUILT_LIB AND WIN32)
+		set(MPI_HEADER_DIR "${THIRD_LIB_BASE_DIR}/msmpi/include" CACHE PATH "path to mpi headers")
+		set(MPI_LIBRARY_DIR "${THIRD_LIB_BASE_DIR}/msmpi/lib/${ARCH}" CACHE PATH "path to mpi library")
 	else()
 		set(MPI_HEADER_DIR "/path/to/mpi/headers" CACHE PATH "path to mpi headers")
 		set(MPI_LIBRARY_DIR "/path/to/mpi/library" CACHE PATH "path to mpi library")	
@@ -102,14 +84,34 @@ if(MPI_ENABLE)
 	link_libraries(${MPI_LIBRARY_NAME})			#库名称
 endif()
 
+#metis库设置
+option(METIS_ENABLE "ON for using METIS partitioning library" ON)
+
+if(METIS_ENABLE)
+	add_definitions(-DENABLE_METIS)
+	
+	if(USE_PREBUILT_LIB)
+		set(METIS_HEADER_DIR "${THIRD_LIB_DIR}/metis/include" CACHE PATH "path to metis headers")
+		set(METIS_LIBRARY_DIR "${THIRD_LIB_DIR}/metis/lib" CACHE PATH "path to mpi library")	
+	else()
+		set(METIS_HEADER_DIR "/path/to/metis/headers" CACHE PATH "path to metis headers")
+		set(METIS_LIBRARY_DIR "/path/to/metis/library" CACHE PATH "path to mpi library")		
+	endif()
+
+	set(METIS_LIBRARY_NAME "metis" CACHE STRING "name of metis library")
+
+	link_directories(${METIS_LIBRARY_DIR})		#库目录
+	include_directories(${METIS_HEADER_DIR})	#头文件目录
+	link_libraries(${METIS_LIBRARY_NAME})		#库名称
+endif()
 
 #CGNS库设置
-option(CGNS_ENABLE "ON for CGNS" ON)
+option(CGNS_ENABLE "ON for using CGNS library" ON)
 
 if(CGNS_ENABLE)
 	add_definitions(-DENABLE_CGNS)
 
-	if(USE_PREBUILD_LIB)
+	if(USE_PREBUILT_LIB)
 		set(CGNS_HEADER_DIR "${THIRD_LIB_DIR}/cgns/include" CACHE PATH "path to cgns headers")	
 		set(CGNS_LIBRARY_DIR "${THIRD_LIB_DIR}/cgns/lib" CACHE PATH "path to cgns library")
 	else()
@@ -124,12 +126,12 @@ if(CGNS_ENABLE)
 	link_libraries(${CGNS_LIBRARY_NAME})		#库名称
 	
 	#HDF5库
-	option(HDF5_ENABLE "ON for HDF5" ON)
+	option(HDF5_ENABLE "ON for using HDF5 library" ON)
 
 	if(HDF5_ENABLE)
 		add_definitions(-DENABLE_HDF5)
 
-		if(USE_PREBUILD_LIB)
+		if(USE_PREBUILT_LIB)
 			set(HDF5_HEADER_DIR "${THIRD_LIB_DIR}/hdf5/include" CACHE PATH "path to hdf5 headers")	
 			set(HDF5_LIBRARY_DIR "${THIRD_LIB_DIR}/hdf5/lib" CACHE PATH "path to hdf5 library")
 		else()
