@@ -40,14 +40,13 @@ SimuState::~SimuState()
 void SimuState::Init()
 {
 	const string& taskStr=ONEFLOW::GetDataValue< string >("simutask");
-	try
+	if(TaskFilter.find(taskStr)!= TaskFilter.end())
 	{
 		simutask = TaskFilter.at(taskStr);
 	}
-	catch (...)
+	else
 	{
-		cerr << "Bad simutask type:" << taskStr << endl;
-		exit(EXIT_FAILURE);
+		Stop("Bad simutask type\n");
 	}    
 }
 
