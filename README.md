@@ -1,5 +1,5 @@
 [Toc]
-[English](./README.md) [中文简体 ](./README_zh_CN.md)
+[English](./README.md) [简体中文 ](./README_zh_CN.md)
 # OneFLOW
 -----------------------------------------------------------
 The Open-Source CFD Code
