@@ -25,9 +25,9 @@ git clone --recursive https://github.com/eric2003/OneFLOW
 ```
 上述操作将会下载源代码及编译好的第三方依赖库，也可以自行编译这些库。
 
-2. 使用Cmake设置编译选项，配置并生成相应的项目文件.
+1. 使用Cmake设置编译选项，配置并生成相应的项目文件。如果采用的是Visual Studio进行编译，并且下载了第三方库，则Cmake会自动配置库的路径。否则需要在Cmake的配置界面修改设置。
    
-3. 编译并生成可执行文件.
+2. 编译并生成可执行文件.
    
 ### Linux
 
@@ -37,13 +37,13 @@ git clone https://github.com/eric2003/OneFLOW
 ```
 上述操作将会下载源代码（不包括编译好的第三方依赖库）
 
-2. 使用Cmake设置编译选项，配置并生成相应的项目文件, 如Linux系统常用的Makefile文件.
+2. 使用Cmake设置编译选项，配置并生成相应的项目文件, 如Linux系统常用的Makefile文件。
    
-3. 编译并生成可执行文件.
+3. 编译并生成可执行文件。
    
 ## OneFLOW开发者
 -----------------------------------------------------------
-OneFLOW由分散的团队和个人共同开发.
+OneFLOW由分散的团队和个人共同开发。
 
 The current OneFLOW release has been coordinated by the OneFLOW International Developers Society with selected contributions from the open-source community.
 
