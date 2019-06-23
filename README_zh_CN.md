@@ -13,8 +13,8 @@ LargeScale Multiphysics Scientific Simulation Environment
 ### 第三方依赖库
 
 * [CGNS](https://github.com/CGNS/CGNS "CGNS"): 用于处理CFD网格和数据的一项标准。
-* [HDF5](https://www.hdfgroup.org/downloads/hdf5/ "hdf5"): 用于处理海量数据的文件存储格式, 编译CGNS时需要使用HDF5。
-* [Metis](http://glaros.dtc.umn.edu/gkhome/metis/metis/download "Metis"): 用于对图结构和网格进行分区的程序库。
+* [HDF5](https://www.hdfgroup.org/downloads/hdf5/ "hdf5"): 用于处理海量数据的一种文件存储标准, 编译CGNS时需要使用HDF5。
+* [Metis](http://glaros.dtc.umn.edu/gkhome/metis/metis/download "Metis"): 用于对图结构和网格进行分区的一个程序库。
 * [MPI](https://computing.llnl.gov/tutorials/mpi/ "MPI"): 消息传递接口，一个可移植，高性能的并行计算标准. 开源的实现有 [MS-MPI](https://github.com/Microsoft/Microsoft-MPI "MS-MPI")(适用于Windows平台), [MPICH](https://github.com/pmodels/mpich "MPICH")和[OpenMPI](https://www.open-mpi.org/ "OpenMPI")。
 
 ### Windows
@@ -25,9 +25,9 @@ git clone --recursive https://github.com/eric2003/OneFLOW
 ```
 上述操作将会下载源代码及编译好的第三方依赖库，也可以自行编译这些库。
 
-1. 使用Cmake设置编译选项，配置并生成相应的项目文件。如果采用的是Visual Studio进行编译，并且下载了第三方库，则Cmake会自动配置库的路径。否则需要在Cmake的配置界面修改设置。
+2. 使用Cmake设置编译选项，配置并生成相应的项目文件。如果采用Visual Studio进行编译，并且下载了第三方库，则Cmake会自动配置库的路径。否则需要在Cmake的配置界面修改相应的默认设置。
    
-2. 编译并生成可执行文件.
+3. 编译并生成可执行文件。
    
 ### Linux
 
