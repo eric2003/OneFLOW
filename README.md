@@ -6,6 +6,7 @@ The Open-Source CFD Code
 LargeScale Multiphysics Scientific Simulation Environment
 -----------------------------------------------------------
 ## Build
+Firstly, make sure that c++ compiler has been intalled. For Windows platform, the [Visual Studio IDE](https://visualstudio.microsoft.com/ "Visual Studio IDE") is recommended. Then download and install [Git](https://git-scm.com/ "Git") and [Cmake](https://cmake.org/download/ "cmake") on your system.
 
 ### Windows
 
@@ -40,5 +41,7 @@ The current OneFLOW release has been coordinated by the OneFLOW International De
 The main research teams contributing to the current release are:
 
 Dr He Xin, at Transition technology
+
+Email:<fantasy_2003_@hotmail.com>
 
 Copyright 2017-2019, He Xin, and the OneFLOW contributors.
