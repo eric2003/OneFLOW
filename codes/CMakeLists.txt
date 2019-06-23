@@ -193,6 +193,10 @@ set(EXECUTABLE_TARGET_NAME "${CMAKE_PROJECT_NAME}")
 message(STATUS "The executable name is ${EXECUTABLE_TARGET_NAME}.")
 
 # adds flags to the compiler command line for sources in the current directory and below:
+if ( BIT64_FLAG )
+     add_definitions(-DX64)
+endif( BIT64_FLAG )
+
 if(WIN32)
    add_definitions(-DHX_PARALLEL -DHX_CGNS)
 else(WIN32)

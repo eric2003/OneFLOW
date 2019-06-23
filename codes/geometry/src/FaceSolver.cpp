@@ -39,7 +39,7 @@ FaceSolver::FaceSolver()
     //this->faceType = new IntField();
     this->childFid = new LinkField();
 
-	this->refFaces = new set< Mid >();
+	this->refFaces = new set< Mid<int> >();
     this->faceTopo = new FaceTopo();
 }
 
@@ -57,9 +57,9 @@ FaceSolver::~FaceSolver()
     delete this->faceTopo;
 }
 
-int FaceSolver::FindFace( Mid & face )
+int FaceSolver::FindFace( Mid<int> & face )
 {
-	set< Mid >::iterator iter = this->refFaces->find( face );
+	set< Mid<int> >::iterator iter = this->refFaces->find( face );
 	if ( iter == this->refFaces->end() )
 	{
 		return ONEFLOW::INVALID_INDEX;
@@ -101,7 +101,7 @@ void FaceSolver::ScanElementFace( CgIntField & eNodeId, int eType, int eId )
 			aNodeId.push_back( eNodeId[ rNodeId[ iNode ] ] );
         }                                                              
 
-		Mid fMid( nNode, this->faceTopo->f2n.size() );
+		Mid<int> fMid( nNode, this->faceTopo->f2n.size() );
 		fMid.data = aNodeId;
 		std::sort( fMid.data.begin(), fMid.data.end() );
 		int gFid = this->FindFace( fMid );

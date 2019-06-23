@@ -52,8 +52,8 @@ public:
 	LinkField lineList; 
 	LinkField faceList;
 	LinkField facePosList;
-	set< Mid > refLines;
-	set< Mid > refFaces;
+	set< Mid< int > > refLines;
+	set< Mid< int > > refFaces;
 	IntSet faceset;
 	HXVector< BlkF2C > line2Face;
 	HXVector< BlkF2C > face2Block;
@@ -65,7 +65,7 @@ public:
 	void CreateFaceList();
 	void SetBoundary();
 	int FindLineId( IntField & line );
-	int FindId( IntField & varlist, set< Mid > &refSets );
+	int FindId( IntField & varlist, set< Mid<int> > &refSets );
 	IntField & GetLine( int line_id );
 public:
 	void BuildSDomainList();
@@ -89,7 +89,7 @@ public:
 	MyFaceSolver myFaceSolver;
 public:
 	Face2D * GetBlkFace2D( int blk, int face_id );
-	int  FindFace( Mid & face );
+	int  FindFace( Mid<int> & face );
 	int  FindFaceId( IntField & face );
 public:
 	void Alloc();

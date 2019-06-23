@@ -40,14 +40,14 @@ public:
 	FaceSolver();
 	~FaceSolver();
 public:
-	set< Mid > * refFaces;
+	set< Mid<int> > * refFaces;
     IntField * faceBcKey;
     IntField * faceBcType;
     LinkField * childFid;
 public:
 	FaceTopo * faceTopo;
 public:
-    int FindFace( Mid & face );
+    int FindFace( Mid<int> & face );
     bool CheckBcFace( IntSet & bcVertex, IntField & nodeId );
     void ScanElementFace( CgIntField & eNodeId, int eType, int eId );
     void ScanBcFace( IntSet & bcVertex, int bcType, int bcNameId );

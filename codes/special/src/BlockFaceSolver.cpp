@@ -84,7 +84,7 @@ void MyFaceSolver::Alloc()
 	for ( int i = 0; i < nLine; ++ i )
 	{
 		IntField & face = this->lineList[ i ];
-		Mid fMid( face.size(), i );
+		Mid<int> fMid( face.size(), i );
 		fMid.id = i;
 		fMid.data = face;
 		std::sort( fMid.data.begin(), fMid.data.end() );
@@ -132,7 +132,7 @@ void MyFaceSolver::CreateFaceList()
 	for ( int iFace = 0; iFace < nFace; ++ iFace )
 	{
 		IntField & face = this->faceList[ iFace ];
-		Mid fMid( face.size(), iFace );
+		Mid<int> fMid( face.size(), iFace );
 		fMid.id = iFace;
 		fMid.data = face;
 		std::sort( fMid.data.begin(), fMid.data.end() );
@@ -156,13 +156,13 @@ int MyFaceSolver::FindLineId( IntField & line )
 	return this->FindId( line, this->refLines );
 }
 
-int MyFaceSolver::FindId( IntField & varlist, set< Mid > &refSets )
+int MyFaceSolver::FindId( IntField & varlist, set< Mid<int> > &refSets )
 {
-	Mid fMid( varlist.size(), 0 );
+	Mid<int> fMid( varlist.size(), 0 );
 	fMid.data = varlist;
 	std::sort( fMid.data.begin(), fMid.data.end() );
 
-	set< Mid >::iterator iter = refSets.find( fMid );
+	set< Mid<int> >::iterator iter = refSets.find( fMid );
 	if ( iter == refSets.end() )
 	{
 		return ONEFLOW::INVALID_INDEX;
@@ -252,9 +252,9 @@ Face2D * BlkFaceSolver::GetBlkFace2D( int blk, int face_id )
 	return 0;
 }
 
-int BlkFaceSolver::FindFace( Mid & face )
+int BlkFaceSolver::FindFace( Mid<int> & face )
 {
-	set< Mid >::iterator iter = this->myFaceSolver.refFaces.find( face );
+	set< Mid<int> >::iterator iter = this->myFaceSolver.refFaces.find( face );
 	if ( iter == this->myFaceSolver.refFaces.end() )
 	{
 		return ONEFLOW::INVALID_INDEX;
@@ -264,11 +264,11 @@ int BlkFaceSolver::FindFace( Mid & face )
 
 int BlkFaceSolver::FindFaceId( IntField & face )
 {
-	Mid fMid( face.size(), 0 );
+	Mid<int> fMid( face.size(), 0 );
 	fMid.data = face;
 	std::sort( fMid.data.begin(), fMid.data.end() );
 
-	set< Mid >::iterator iter = this->myFaceSolver.refFaces.find( fMid );
+	set< Mid<int> >::iterator iter = this->myFaceSolver.refFaces.find( fMid );
 	if ( iter == this->myFaceSolver.refFaces.end() )
 	{
 		return ONEFLOW::INVALID_INDEX;
