@@ -379,13 +379,13 @@ void Plot3D::ReadBc( GridMediator * gridMediator )
 
 void Plot3D::ReadCoor( AsciiFileRead * ioFile, RealField & coordinate )
 {
-    Int numberOfNodes = coordinate.size();
-    Int i = 0;
+    UInt numberOfNodes = coordinate.size();
+    UInt i = 0;
     while ( i < numberOfNodes )
     {
         int num = 1;
         Real tmp = ioFile->ReadNextDigit< Real >( num );
-        for ( Int j = 0; j < num; ++ j )
+        for ( UInt j = 0; j < num; ++ j )
         {
             coordinate[ i ] = tmp;
             ++ i;

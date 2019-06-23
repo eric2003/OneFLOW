@@ -264,7 +264,7 @@ void BcVisual::Dump( ostringstream & oss, VisualTool * visualTool, string & bcTi
 {
     UnsGrid * grid = Zone::GetUnsGrid();
 
-    for ( Int i = 0; i < visualTool->title.size(); ++ i )
+    for ( UInt i = 0; i < visualTool->title.size(); ++ i )
     {
         oss << visualTool->title[ i ] << endl;
     }
@@ -513,7 +513,7 @@ void UVisualize::ShowField( ostringstream & oss, VisualTool * visualTool )
     int nCell = grid->nCell;
     int nFace = grid->nFace;
 
-    for ( Int i = 0; i < visualTool->title.size(); ++ i )
+    for ( UInt i = 0; i < visualTool->title.size(); ++ i )
     {
         oss << visualTool->title[ i ] << endl;
     }

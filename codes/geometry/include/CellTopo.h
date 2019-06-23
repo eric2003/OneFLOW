@@ -45,7 +45,7 @@ public:
 	void PushElement( int p1, int p2, int p3, int p4, int elementType );
 public:
     void Alloc( int nCell );
-	Int GetNumberOfCells() { return cellType.size(); }
+	UInt GetNumberOfCells() { return cellType.size(); }
     void CmpC2f( FaceTopo * faceTopo );
     void CmpC2C( FaceTopo * faceTopo );
 };

@@ -50,7 +50,7 @@ void ElementHome::Initialize()
 
 	ONEFLOW::CreatePointer( unitElement, numberOfUnitElement );
 
-	for ( Int iUnitElement = 0; iUnitElement < numberOfUnitElement; ++ iUnitElement )
+	for ( UInt iUnitElement = 0; iUnitElement < numberOfUnitElement; ++ iUnitElement )
 	{
 		unitElement[ iUnitElement ]->Initialize( iUnitElement );
 	}

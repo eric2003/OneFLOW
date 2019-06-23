@@ -33,7 +33,7 @@ inline T SUM( HXVector< T > & a )
 {
 	T sum = 0;
     int nElements = a.size();
-	for ( Int iElement = 0; iElement < nElements; ++ iElement )
+	for ( UInt iElement = 0; iElement < nElements; ++ iElement )
 	{
         sum += a[ iElement ];
 	}
@@ -45,8 +45,8 @@ inline T MaxField( HXVector< T > & field )
 {
 	T maxValue = field[ 0 ];
 
-    Int nElements = field.size();
-	for ( Int iElement = 1; iElement < nElements; ++ iElement )
+    UInt nElements = field.size();
+	for ( UInt iElement = 1; iElement < nElements; ++ iElement )
 	{
 		maxValue = ONEFLOW::MAX( maxValue, field[ iElement ] );
 	}
@@ -58,8 +58,8 @@ inline T MinField( HXVector< T > & field )
 {
 	T minValue = field[ 0 ];
 
-    Int nElements = field.size();
-	for ( Int iElement = 1; iElement < nElements; ++ iElement )
+    UInt nElements = field.size();
+	for ( UInt iElement = 1; iElement < nElements; ++ iElement )
 	{
 		minValue = ONEFLOW::MIN( minValue, field[ iElement ] );
 	}

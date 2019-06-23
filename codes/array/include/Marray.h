@@ -34,10 +34,10 @@ public:
 	{
 	}
 
-	Marray( Int nEqu, int numberOfCells )
+	Marray( UInt nEqu, int numberOfCells )
 	{
         data.resize( nEqu );
-		for ( Int iEqu = 0; iEqu < nEqu; ++ iEqu )
+		for ( UInt iEqu = 0; iEqu < nEqu; ++ iEqu )
 		{
 			data[ iEqu ].resize( numberOfCells );
 		}
@@ -48,7 +48,7 @@ public:
 protected:
 	HXVector< HXVector< T > > data;
 public:
-	Int GetNEqu() { return data.size(); }
+	UInt GetNEqu() { return data.size(); }
 
 	HXVector< T > & operator[]( int iEqu )
 	{
@@ -57,8 +57,8 @@ public:
 
     Marray< T > & operator = ( const T & value )
     {
-        Int nEqu = this->GetNEqu();
-        for ( Int iEqu = 0; iEqu < nEqu; ++ iEqu )
+        UInt nEqu = this->GetNEqu();
+        for ( UInt iEqu = 0; iEqu < nEqu; ++ iEqu )
         {
             data[ iEqu ] = value;
         }

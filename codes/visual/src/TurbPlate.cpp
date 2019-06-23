@@ -81,7 +81,7 @@ void TurbVelCut::Dump()
     title.push_back( "\"y+\"" );
     title.push_back( "\"u+\"" );
 
-	for ( Int i = 0; i < title.size(); ++ i )
+	for ( UInt i = 0; i < title.size(); ++ i )
 	{
 		file << title[ i ] << endl;
 	}
@@ -180,7 +180,7 @@ void TurbFriCut::Dump()
     title.push_back( "\"x\"" );
     title.push_back( "\"cf\"" );
 
-	for ( Int i = 0; i < title.size(); ++ i )
+	for ( UInt i = 0; i < title.size(); ++ i )
 	{
 		file << title[ i ] << endl;
 	}

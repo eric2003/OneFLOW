@@ -157,7 +157,7 @@ void G2LMapping::GetXadjAdjncy( UnsGrid * ggrid, vector<idx_t> & xadj, vector<id
 	for ( int iCell = 0; iCell < nCell; ++ iCell )
 	{
 		xadj[ iCell + 1 ] = xadj[ iCell ] + c2c[ iCell ].size();
-		for ( Int j = 0; j < c2c[ iCell ].size(); ++ j )
+		for ( UInt j = 0; j < c2c[ iCell ].size(); ++ j )
 		{
 			adjncy[ iCount ++ ] = c2c[ iCell ][ j ];
 		}

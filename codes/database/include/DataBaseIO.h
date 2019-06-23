@@ -170,7 +170,7 @@ void HXWrite( TIO * tio, HXVector< T > & field )
 template < typename T >
 void HXWrite( fstream * file, HXVector< T > & field )
 {
-    Int nElement = static_cast<int> (field.size());
+    UInt nElement = static_cast<int> (field.size());
     HXWrite( file, & field[ 0 ], nElement );
 }
 
@@ -178,9 +178,9 @@ void HXWrite( fstream * file, HXVector< T > & field )
 template < typename T >
 void HXRead( DataBook * dataBook, HXVector< HXVector< T > > & field2D )
 {
-    Int nElem = field2D.size();
+    UInt nElem = field2D.size();
 	if ( nElem == 0 ) return;
-    for ( Int iElem = 0; iElem < nElem; ++ iElem )
+    for ( UInt iElem = 0; iElem < nElem; ++ iElem )
 	{
 		HXVector< T > & field = field2D[ iElem ];
 
@@ -195,9 +195,9 @@ void HXRead( DataBook * dataBook, HXVector< HXVector< T > > & field2D )
 template < typename T >
 void HXWrite( DataBook * dataBook, HXVector< HXVector< T > > & field2D )
 {
-    Int nElem = field2D.size();
+    UInt nElem = field2D.size();
 	if ( nElem == 0 ) return;
-    for ( Int iElem = 0; iElem < nElem; ++ iElem )
+    for ( UInt iElem = 0; iElem < nElem; ++ iElem )
 	{
 		HXVector< T > & field = field2D[ iElem ];
 
@@ -224,7 +224,7 @@ void HXAppend( DataBook * dataBook, T * field, int nElement )
 template < typename T >
 void HXAppend( DataBook * dataBook, HXVector< T > & field )
 {
-	Int nElement = field.size();
+	UInt nElement = field.size();
 	if ( nElement <= 0 ) return;
 	dataBook->Append( & field[ 0 ], nElement * sizeof( T ) );
 }
@@ -232,13 +232,13 @@ void HXAppend( DataBook * dataBook, HXVector< T > & field )
 template < typename T >
 void HXAppend( DataBook * dataBook, HXVector< HXVector< T > > & field2D )
 {
-	Int nElem = field2D.size();
+	UInt nElem = field2D.size();
 	if ( nElem == 0 ) return;
-	for ( Int iElem = 0; iElem < nElem; ++ iElem )
+	for ( UInt iElem = 0; iElem < nElem; ++ iElem )
 	{
 		HXVector< T > & field = field2D[ iElem ];
 
-		Int nSubElem = field.size();
+		UInt nSubElem = field.size();
 		HXAppend( dataBook, nSubElem );
 
 		HXAppend( dataBook, field );

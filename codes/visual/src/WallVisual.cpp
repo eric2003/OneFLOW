@@ -123,13 +123,13 @@ void WallVisual::BuildFaceTopo( IntField & faceNodeIndexArray, int loc_Face, int
 	set< HXSort< IntField > >::iterator iter = faceSet->find( faceForSorting );
 	if ( iter == faceSet->end() )
 	{
-		Int oldFaceNumber = faceSet->size();
+		UInt oldFaceNumber = faceSet->size();
 		faceForSorting.index = oldFaceNumber;
 
 		faceSet->insert( faceForSorting );
 
-		Int fId = oldFaceNumber;
-		Int newFaceNumber = fId + 1;
+		UInt fId = oldFaceNumber;
+		UInt newFaceNumber = fId + 1;
 		lCell.resize( newFaceNumber );
 		rCell.resize( newFaceNumber );
 		lPos.resize( newFaceNumber );
@@ -183,11 +183,11 @@ void WallVisual::ConstructTopology2D()
 
 void WallVisual::ConstructTopology3D()
 {
-	Int nCell = this->eLink.size();
+	UInt nCell = this->eLink.size();
 
 	HXSort< IntField > faceForSorting;
 
-	for ( Int iCell = 0; iCell < nCell; ++ iCell )
+	for ( UInt iCell = 0; iCell < nCell; ++ iCell )
 	{
 		IntField & element = this->eLink[ iCell ];
 
@@ -252,7 +252,7 @@ void WallVisual::Visual( fstream & file, StringField & titleOfTecplot, RealField
 void WallVisual::Visual3D( fstream & file, StringField & titleOfTecplot, RealField2D & qNodeField )
 {
     ostringstream oss;
-	for ( Int i = 0; i < titleOfTecplot.size(); ++ i )
+	for ( UInt i = 0; i < titleOfTecplot.size(); ++ i )
 	{
 		oss << titleOfTecplot[ i ] << "\n";
 	}
@@ -278,9 +278,9 @@ void WallVisual::Visual3D( fstream & file, StringField & titleOfTecplot, RealFie
     Plot::DumpField( yN );
     Plot::DumpField( zN );
 
-    Int nEqu = qNodeField.size();
+    UInt nEqu = qNodeField.size();
 
-	for ( Int iEqu = 0; iEqu < nEqu; ++ iEqu )
+	for ( UInt iEqu = 0; iEqu < nEqu; ++ iEqu )
 	{
         Plot::DumpField( qNodeField[ iEqu ] );
 	}
@@ -295,7 +295,7 @@ void WallVisual::Visual3D( fstream & file, StringField & titleOfTecplot, RealFie
 void WallVisual::VisualLine( fstream & file, StringField & titleOfTecplot, RealField2D & qNodeField )
 {
     ostringstream oss;
-	for ( Int i = 0; i < titleOfTecplot.size(); ++ i )
+	for ( UInt i = 0; i < titleOfTecplot.size(); ++ i )
 	{
 		oss << titleOfTecplot[ i ] << "\n";
 	}

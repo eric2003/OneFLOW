@@ -36,17 +36,17 @@ public:
 	~DataBook();
 public:
 	vector< DataPage * > * dataBook;
-	Int currPageId;
+	UInt currPageId;
 	LLong currPos;
 	LLong maxUnitSize;
 public:
 	DataPage * GetCurrentPage();
-	DataPage * GetPage( Int iPage );
+	DataPage * GetPage( UInt iPage );
 	void Destroy( DataPage * dataPage );
-	void Erase( Int startPage, Int endPage );
+	void Erase( UInt startPage, UInt endPage );
 protected:
-	Int  GetNPage();
-	void ResizeNPage( Int newNPage );
+	UInt  GetNPage();
+	void ResizeNPage( UInt newNPage );
 	LLong  GetRemainingSizeOfCurrentPage();
 	void MoveForwardPosition( LLong dataSize );
 public:

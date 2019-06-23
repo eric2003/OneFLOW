@@ -41,8 +41,8 @@ public:
     RealField dist;
     RealField span;
 public:
-    Int GetNumberOfCells();
-    Int GetNumberOfTotalCells() { return vol.size(); }
+    UInt GetNumberOfCells();
+    UInt GetNumberOfTotalCells() { return vol.size(); }
     void AllocateMetrics( FaceMesh * faceMesh );
     void AllocDist();
     void ReadDist();

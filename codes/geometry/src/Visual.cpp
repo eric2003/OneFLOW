@@ -69,17 +69,17 @@ void Visual::DumpTitle( fstream & file, Mesh * mesh )
 	titleOfTecplot.push_back( "\"y\"" );
 	titleOfTecplot.push_back( "\"z\"" );
 
-	for ( Int i = 0; i < titleOfTecplot.size(); ++ i )
+	for ( UInt i = 0; i < titleOfTecplot.size(); ++ i )
 	{
 		file << titleOfTecplot[ i ] << endl;
 	}
 
-	Int totalNumFaceNodes = mesh->faceMesh->ComputeTotalFaceNodes();
-	Int nFace = mesh->faceMesh->GetNFace();
-	Int numberOfNodes = mesh->nodeMesh->GetNumberOfNodes();
-	Int numberOfCells = mesh->cellMesh->GetNumberOfCells();
+	UInt totalNumFaceNodes = mesh->faceMesh->ComputeTotalFaceNodes();
+	UInt nFace = mesh->faceMesh->GetNFace();
+	UInt numberOfNodes = mesh->nodeMesh->GetNumberOfNodes();
+	UInt numberOfCells = mesh->cellMesh->GetNumberOfCells();
 
-	Int numberOfWordsInEachLine = 5;
+	UInt numberOfWordsInEachLine = 5;
 
 	file << "ZONE\n";
 	file << "ZoneType = FEPolygon\n";
@@ -101,8 +101,8 @@ void Visual::DumpCoordinate( fstream & file, Mesh * mesh )
 
 void Visual::DumpCoordinate( fstream & file, RealField & coordinate )
 {
-	Int numberOfNodes = coordinate.size();
-	for ( Int iNode = 0; iNode < numberOfNodes; ++ iNode )
+	UInt numberOfNodes = coordinate.size();
+	for ( UInt iNode = 0; iNode < numberOfNodes; ++ iNode )
 	{
 		file << coordinate[ iNode ] << " ";
 		if ( ( iNode + 1 ) % Visual::numberOfWords == 0 ) file << endl;
@@ -113,9 +113,9 @@ void Visual::DumpCoordinate( fstream & file, RealField & coordinate )
 
 void Visual::DumpFaceNodesLink( fstream & file, Mesh * mesh )
 {
-	Int nodeCount = 0;
-	Int nFace = mesh->faceMesh->GetNFace();
-	for ( Int iFace = 0; iFace < nFace; ++ iFace )
+	UInt nodeCount = 0;
+	UInt nFace = mesh->faceMesh->GetNFace();
+	for ( UInt iFace = 0; iFace < nFace; ++ iFace )
 	{
 		int numberOfNodesOnFace = mesh->faceMesh->faceTopo->f2n[ iFace ].size();
 		for ( int iNodeOfFace = 0; iNodeOfFace < numberOfNodesOnFace; ++ iNodeOfFace )
@@ -130,16 +130,16 @@ void Visual::DumpFaceNodesLink( fstream & file, Mesh * mesh )
 
 void Visual::DumpFaceElementLink( fstream & file, Mesh * mesh )
 {
-	Int nFace = mesh->faceMesh->GetNFace();
-	Int numberOfCells = mesh->cellMesh->GetNumberOfCells();
+	UInt nFace = mesh->faceMesh->GetNFace();
+	UInt numberOfCells = mesh->cellMesh->GetNumberOfCells();
 
 	Visual::DumpFaceElementLink( file, nFace, numberOfCells, mesh->faceMesh->faceTopo->lCell );
 	Visual::DumpFaceElementLink( file, nFace, numberOfCells, mesh->faceMesh->faceTopo->rCell );
 }
 
-void Visual::DumpFaceElementLink( fstream & file, Int nFace, Int numberOfElements, IntField & faceElementIndex )
+void Visual::DumpFaceElementLink( fstream & file, UInt nFace, UInt numberOfElements, IntField & faceElementIndex )
 {
-	for ( Int iFace = 0; iFace < nFace; ++ iFace )
+	for ( UInt iFace = 0; iFace < nFace; ++ iFace )
 	{
 		int elementIndex = faceElementIndex[ iFace ] + 1;
 		if ( elementIndex > numberOfElements || elementIndex < 0 ) elementIndex = 0;

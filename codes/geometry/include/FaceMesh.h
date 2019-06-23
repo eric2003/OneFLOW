@@ -44,10 +44,10 @@ public:
     RealField fvx, fvy, fvz;
     RealField fvn;
 public:
-    Int GetNFace();
-	Int ComputeTotalFaceNodes();
-	Int GetNBFace();
-    void SetNBFace( Int nBFace );
+    UInt GetNFace();
+	UInt ComputeTotalFaceNodes();
+	UInt GetNBFace();
+    void SetNBFace( UInt nBFace );
     void ComputeFaceNormal1D( NodeMesh * nodeMesh, CellMesh * cellMesh );
     void ComputeFaceCenter1D( NodeMesh * nodeMesh );
 	void ComputeFaceNormal2D( NodeMesh * nodeMesh );

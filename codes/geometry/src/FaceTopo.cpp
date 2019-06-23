@@ -46,23 +46,23 @@ FaceTopo::~FaceTopo()
     delete bcManager;
 }
 
-Int FaceTopo::ComputeTotalFaceNodes()
+UInt FaceTopo::ComputeTotalFaceNodes()
 {
-	Int totalNumFaceNodes = 0;
-	Int nFace = this->GetNFace();
-	for ( Int iFace = 0; iFace < nFace; ++ iFace )
+	UInt totalNumFaceNodes = 0;
+	UInt nFace = this->GetNFace();
+	for ( UInt iFace = 0; iFace < nFace; ++ iFace )
 	{
 		totalNumFaceNodes += f2n[ iFace ].size();
 	}
 	return totalNumFaceNodes;
 }
 
-Int FaceTopo::GetNBFace()
+UInt FaceTopo::GetNBFace()
 {
 	return this->bcManager->bcRecord->GetNBFace();
 }
 
-void FaceTopo::SetNBFace( Int nBFace )
+void FaceTopo::SetNBFace( UInt nBFace )
 {
     this->bcManager->bcRecord->Init( nBFace );
 }
