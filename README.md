@@ -41,6 +41,7 @@ The current OneFLOW release has been coordinated by the OneFLOW International De
 The main research teams contributing to the current release are:
 
 Dr He Xin, at Transition technology
+
 Email:<fantasy_2003_@hotmail.com>
 
 Copyright 2017-2019, He Xin, and the OneFLOW contributors.
