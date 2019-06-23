@@ -1,4 +1,5 @@
 [Toc]
+[English](./README.md) [中文简体 ](./README_zh_CN.md)
 # OneFLOW
 -----------------------------------------------------------
 The Open-Source CFD Code
@@ -34,7 +35,7 @@ The above operation will download the source code together with prebuilt thirdpa
 ```
 git clone https://github.com/eric2003/OneFLOW
 ```
-The above operation will download the source code only(prebuilt thirdparty libraries are not provided)�
+The above operation will download the source code only(prebuilt thirdparty libraries are not provided)�
 
 2. Use cmake to configure and generate appropriate project files, for example: Makefile.
    
