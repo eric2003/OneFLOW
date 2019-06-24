@@ -34,6 +34,7 @@ License
 #include "GridState.h"
 #include "CmxTask.h"
 #include "BgField.h"
+#include "TimeSpan.h"
 #include <iostream>
 using namespace std;
 
@@ -108,6 +109,7 @@ void MG::MultigridSolve()
 
 void MG::Run()
 {
+	TimeSpan * timeSpan = new TimeSpan();
 	while ( SimuIterState::Running() )
     {
         Iteration::outerSteps ++;
@@ -121,8 +123,9 @@ void MG::Run()
 
 			this->SolveInnerIter();
 		}
-        this->OuterProcess();
+        this->OuterProcess( timeSpan );
     }
+	delete timeSpan;
 }
 
 void MG::InnerProcess()
@@ -130,7 +133,7 @@ void MG::InnerProcess()
     ONEFLOW::MsMgTask( "POST_PROCESS" );
 }
 
-void MG::OuterProcess()
+void MG::OuterProcess( TimeSpan * timeSpan )
 {
     if ( Iteration::outerSteps % Iteration::nFieldSave == 0 )
 	{
@@ -138,6 +141,7 @@ void MG::OuterProcess()
 		{
             cout << "dumping field...";
 			cout << "  finished " << endl;
+			timeSpan->ShowTimeSpan();
 		}
 	}
 }

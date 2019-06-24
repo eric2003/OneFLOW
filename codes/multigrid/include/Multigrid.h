@@ -25,6 +25,8 @@ License
 #include "HXDefine.h"
 BeginNameSpace( ONEFLOW )
 
+class TimeSpan;
+
 class MG
 {
 public:
@@ -69,7 +71,7 @@ protected:
 	void SolveCoarseGridFlowField( int fgl );
 protected:
 	void InnerProcess();
-	void OuterProcess();
+	void OuterProcess( TimeSpan * timeSpan );
 };
 
 bool DoNotNeedMultigridMethod( int gl );
