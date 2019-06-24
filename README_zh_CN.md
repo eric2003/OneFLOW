@@ -15,7 +15,7 @@ LargeScale Multiphysics Scientific Simulation Environment
 * [CGNS](https://github.com/CGNS/CGNS "CGNS"): 用于处理CFD网格和数据的一项标准。
 * [HDF5](https://www.hdfgroup.org/downloads/hdf5/ "hdf5"): 用于处理海量数据的一种文件存储标准, 编译CGNS时需要使用HDF5。
 * [Metis](http://glaros.dtc.umn.edu/gkhome/metis/metis/download "Metis"): 用于对图结构和网格进行分区的一个程序库。
-* [MPI](https://computing.llnl.gov/tutorials/mpi/ "MPI"): 消息传递接口，一个可移植，高性能的并行计算标准. 开源的实现有 [MS-MPI](https://github.com/Microsoft/Microsoft-MPI "MS-MPI")(适用于Windows平台), [MPICH](https://github.com/pmodels/mpich "MPICH")和[OpenMPI](https://www.open-mpi.org/ "OpenMPI")。
+* [MPI](https://computing.llnl.gov/tutorials/mpi/ "MPI"): 消息传递接口，一个可移植，高性能的并行计算标准. 开源的实现有 [MS-MPI](https://github.com/Microsoft/Microsoft-MPI "MS-MPI")(适用于Windows平台), [MPICH](https://github.com/pmodels/mpich "MPICH")和[OpenMPI](https://github.com/open-mpi/ompi "OpenMPI")。
 
 ### Windows
 
