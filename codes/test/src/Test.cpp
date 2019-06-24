@@ -52,7 +52,7 @@ void Test::Run()
     title.push_back( "\"vencat\"" );
     title.push_back( "\"gvencat\"" );
 
-	for ( Int i = 0; i < title.size(); ++ i )
+	for ( UInt i = 0; i < title.size(); ++ i )
 	{
 		file << title[ i ] << endl;
 	}

@@ -78,11 +78,11 @@ int LineMachine::AddLine( int p1, int p2 )
 
 	int n = this->refLines.size();
 
-	Mid fMid( 2, n + 1 );
+	Mid<int> fMid( 2, n + 1 );
 	fMid.data = line;
 	std::sort( fMid.data.begin(), fMid.data.end() );
 
-	set< Mid >::iterator iter = this->refLines.find( fMid );
+	set< Mid<int> >::iterator iter = this->refLines.find( fMid );
 	if ( iter == this->refLines.end() )
 	{
 		this->refLines.insert( fMid );

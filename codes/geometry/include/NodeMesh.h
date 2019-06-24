@@ -38,7 +38,7 @@ public:
     RealField pmin, pmax;
     bool boxFlag;
 public:
-	Int GetNumberOfNodes() { return xN.size(); }
+	UInt GetNumberOfNodes() { return xN.size(); }
     void CreateNodes( int numberOfNodes );
     void ComputeMinMaxBox();
     void AddPoint( Real xp, Real yp, Real zp );

@@ -150,7 +150,7 @@ void ResidualTask::DumpFile()
             title.push_back( AddString( "\"res",  iVar + 1, "\"" ) );
         }
 
-        for ( Int iTitle = 0; iTitle < title.size(); ++ iTitle )
+        for ( UInt iTitle = 0; iTitle < title.size(); ++ iTitle )
         {
             oss << title[ iTitle ] << endl;
         }

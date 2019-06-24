@@ -22,7 +22,6 @@ License
 
 
 #pragma once
-//#include "Configure.h"
 #include "HXType.h"
 #include <vector>
 using namespace std;
@@ -35,12 +34,12 @@ class HXVector : public vector< T >
 public:
 	HXVector(){};
 	~HXVector(){};
-	HXVector( const Int count )
+	HXVector( const UInt count )
 		: vector< T >( count )
 	{
 		;
 	}
-	HXVector( const Int count, const T& value )
+	HXVector( const UInt count, const T& value )
 		: vector< T >( count, value )
 	{
 		;
@@ -53,7 +52,7 @@ public:
 public:
 	HXVector< T >& operator =( const T& value )
 	{
-		for ( Int i = 0; i < this->size(); ++ i )
+		for ( UInt i = 0; i < this->size(); ++ i )
 		{
 			( *this )[ i ] = value;
 		}

@@ -266,13 +266,13 @@ void CgnsBcRegionProxy::ReconstructStrRegion()
 
 	rfact.Run();
 
-	Int nnr = rfact.bcregions.size();
+	UInt nnr = rfact.bcregions.size();
 
 	nOrdinaryBcRegion += static_cast<int> (nnr);
 
 	this->nBcRegion = this->nOrdinaryBcRegion + this->n1To1General;
 
-	for ( Int i = 0; i < nnr; ++ i )
+	for ( UInt i = 0; i < nnr; ++ i )
 	{
 		CgnsBcRegion * rr = new CgnsBcRegion( this->cgnsZone );
 		MyRegion * r = rfact.bcregions[ i ];

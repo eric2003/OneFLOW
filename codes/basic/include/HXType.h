@@ -28,7 +28,7 @@ using namespace std;
 BeginNameSpace( ONEFLOW )
 
 typedef double Real;
-typedef std::size_t Int;
+typedef std::size_t UInt;
 typedef streamsize LLong;
 
 const double LARGE = 1.0e40;

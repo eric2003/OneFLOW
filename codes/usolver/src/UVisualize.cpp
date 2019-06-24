@@ -126,7 +126,7 @@ void BcVisual::ResolveElementEdge()
 	int nFace = this->f2n.size();
 	int nSize = 2;
 
-	set< Mid > edgeSet;
+	set< Mid<int> > edgeSet;
 
 	for ( int fId = 0; fId < nFace; ++ fId )
 	{
@@ -149,11 +149,11 @@ void BcVisual::ResolveElementEdge()
 			sort( sortedNodeId.begin(), sortedNodeId.end() );
 			
 			int eIdddd = this->e2n.size();
-			Mid edge( nSize, eIdddd );
+			Mid<int> edge( nSize, eIdddd );
 			edge.data = sortedNodeId;
 
 			int  edgeIndex;
-			set< Mid >::iterator iter = edgeSet.find( edge );
+			set< Mid<int> >::iterator iter = edgeSet.find( edge );
 			if ( iter == edgeSet.end() )
 			{
 				edgeIndex = -1;
@@ -264,7 +264,7 @@ void BcVisual::Dump( ostringstream & oss, VisualTool * visualTool, string & bcTi
 {
     UnsGrid * grid = Zone::GetUnsGrid();
 
-    for ( Int i = 0; i < visualTool->title.size(); ++ i )
+    for ( UInt i = 0; i < visualTool->title.size(); ++ i )
     {
         oss << visualTool->title[ i ] << endl;
     }
@@ -513,7 +513,7 @@ void UVisualize::ShowField( ostringstream & oss, VisualTool * visualTool )
     int nCell = grid->nCell;
     int nFace = grid->nFace;
 
-    for ( Int i = 0; i < visualTool->title.size(); ++ i )
+    for ( UInt i = 0; i < visualTool->title.size(); ++ i )
     {
         oss << visualTool->title[ i ] << endl;
     }

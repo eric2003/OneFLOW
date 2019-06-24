@@ -31,18 +31,18 @@ class HXPointer
 {
 public:
 	HXPointer();
-	HXPointer( Int nSize );
+	HXPointer( UInt nSize );
 	~HXPointer();
 protected:
 	HXVector< T * > data;
 	bool del_flag;
 public:
 	void SetDeleteFlag( bool del_flag );
-	T *& operator[] ( Int i );
+	T *& operator[] ( UInt i );
 	HXPointer & operator= ( HXPointer &rhs );
 public:
-	void resize( Int nSize );
-	Int size();
+	void resize( UInt nSize );
+	UInt size();
 	void push_back( T * value );
 };
 
@@ -53,7 +53,7 @@ HXPointer<T>::HXPointer()
 }
 
 template < typename T >
-HXPointer<T>::HXPointer( Int nSize ) :
+HXPointer<T>::HXPointer( UInt nSize ) :
 	data( nSize )
 {
 	del_flag = false;
@@ -75,7 +75,7 @@ void HXPointer<T>::SetDeleteFlag( bool del_flag )
 }
 
 template < typename T >
-T *& HXPointer<T>::operator[] ( Int i )
+T *& HXPointer<T>::operator[] ( UInt i )
 {
 	return this->data[ i ];
 }
@@ -89,13 +89,13 @@ HXPointer<T> & HXPointer<T>::operator= ( HXPointer<T> &rhs )
 }
 
 template < typename T >
-void HXPointer<T>::resize( Int nSize )
+void HXPointer<T>::resize( UInt nSize )
 {
 	this->data.resize( nSize );
 }
 
 template < typename T >
-Int HXPointer<T>::size()
+UInt HXPointer<T>::size()
 {
 	return this->data.size();
 }
@@ -124,7 +124,7 @@ void CreatePointer( HXVector< T * > & pointer, int nSize )
 template < typename T >
 void DeletePointer( HXVector< T * > & pointer )
 {
-	for ( Int i = 0; i < pointer.size(); ++ i )
+	for ( UInt i = 0; i < pointer.size(); ++ i )
 	{
 		delete pointer[ i ];
 	}

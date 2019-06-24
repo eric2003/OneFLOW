@@ -43,7 +43,7 @@ public:
 	~CgnsSection();
 public:
 	int eType;
-    cgsize_t startId, endId;
+    CgInt startId, endId;
     int connSize;
 	CgIntField connList;
 
@@ -56,7 +56,7 @@ public:
 	int id;
 	int nCoor;
     int nElement;
-	cgsize_t elementDataSize;
+	CgInt elementDataSize;
 
     int nbndry;
     int iparentflag;
@@ -64,8 +64,8 @@ public:
 public:
     void ConvertToInnerDataStandard();
     void SetElementTypeAndNode( ElemFeature * elem_feature );
-    cgsize_t * GetAddress( int eId );
-    void GetElementNodeId( int eId, IntField & eNodeId );
+    CgInt * GetAddress( CgInt eId );
+    void GetElementNodeId( CgInt eId, CgIntField & eNodeId );
 public:
     void ReadCgnsSection();
     void ReadCgnsSectionInfo();

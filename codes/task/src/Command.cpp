@@ -35,7 +35,7 @@ Command::Command()
 
 Command::~Command()
 {
-    for ( Int iTask = 0; iTask < tasks->size(); ++ iTask )
+    for ( UInt iTask = 0; iTask < tasks->size(); ++ iTask )
     {
         delete ( * tasks )[ iTask ];
     }
@@ -57,7 +57,7 @@ SimpleCmd::~SimpleCmd()
 
 void SimpleCmd::Execute()
 {
-    for ( Int iTask = 0; iTask < tasks->size(); ++ iTask )
+    for ( UInt iTask = 0; iTask < tasks->size(); ++ iTask )
     {
         Task * task = ( * tasks )[ iTask ];
         TaskState::task = task;
@@ -107,8 +107,8 @@ void CMD::Clear()
 
 void CMD::ExecuteCmd()
 {
-    Int nCmd = CMD::cmdList->size();
-    for ( Int iCmd = 0; iCmd < nCmd; ++ iCmd )
+    UInt nCmd = CMD::cmdList->size();
+    for ( UInt iCmd = 0; iCmd < nCmd; ++ iCmd )
     {
         Command * cmd = ( * CMD::cmdList )[ iCmd ];
         //CMD::ShowCmdInfo( cmd, iCmd );
@@ -121,7 +121,7 @@ void CMD::ExecuteCmd()
 void CMD::ShowCmdInfo( Command * cmd, int iCmd )
 {
     HXVector< Task * > * tasks = cmd->tasks;
-    for ( Int i = 0; i < tasks->size(); ++ i )
+    for ( UInt i = 0; i < tasks->size(); ++ i )
     {
         Task * task = ( * tasks ) [ i ];
         int iTaskGlobal = iCmd + i;

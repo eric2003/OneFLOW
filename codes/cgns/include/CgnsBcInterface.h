@@ -41,8 +41,8 @@ public:
     CgnsBcInterface( CgnsBcRegion * bcRegion );
     ~CgnsBcInterface();
 public:
-	cgsize_t	nConnPoints;
-	cgsize_t	nConnDonorPoints;
+	CgInt	nConnPoints;
+	CgInt	nConnDonorPoints;
 	ZoneType_t     donorZoneType;
 	PointSetType_t donorPointSetType;
 	DataType_t     donorDataType;

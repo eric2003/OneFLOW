@@ -68,8 +68,8 @@ public:
 	void * GetVoidPointer() { return & data[ 0 ]; };
 	void CopyValue( string * valueIn )
 	{
-		Int nSize = this->data.size();
-		for ( Int i = 0; i < nSize; ++ i )
+		UInt nSize = this->data.size();
+		for ( UInt i = 0; i < nSize; ++ i )
 		{
 			data[ i ] = StringToDigit< T >( valueIn[ i ], std::dec );
 		}
@@ -77,8 +77,8 @@ public:
 
 	void CopyValue( T * valueIn )
 	{
-		Int size = this->data.size();
-		for ( Int i = 0; i < size; ++ i )
+		UInt size = this->data.size();
+		for ( UInt i = 0; i < size; ++ i )
 		{
 			data[ i ] = valueIn[ i ];
 		}
@@ -86,8 +86,8 @@ public:
 
 	void Write( DataBook * dataBook )
 	{
-		Int numberOfElements = this->data.size();
-		for ( Int iElement = 0; iElement < numberOfElements; ++ iElement )
+		UInt numberOfElements = this->data.size();
+		for ( UInt iElement = 0; iElement < numberOfElements; ++ iElement )
 		{
 			T & value = this->data[ iElement ];
 			ONEFLOW::HXWrite( dataBook, value );
@@ -105,8 +105,8 @@ public:
 
 	void Copy( DataObject * dataObject )
 	{
-		Int numberOfElements = this->data.size();
-		for ( Int iElement = 0; iElement < numberOfElements; ++ iElement )
+		UInt numberOfElements = this->data.size();
+		for ( UInt iElement = 0; iElement < numberOfElements; ++ iElement )
 		{
 			TDataObject< T > * tDataObject = static_cast<TDataObject< T > *>( dataObject );
 			data[ iElement ] = tDataObject->data[ iElement ];
@@ -130,8 +130,8 @@ public:
 	void * GetVoidPointer() { return & data[ 0 ]; };
 	void CopyValue( string * valueIn )
 	{
-		Int nSize = this->data.size();
-		for ( Int i = 0; i < nSize; ++ i )
+		UInt nSize = this->data.size();
+		for ( UInt i = 0; i < nSize; ++ i )
 		{
 			data[ i ] = valueIn[ i ];
 		}
@@ -139,8 +139,8 @@ public:
 
 	void Write( DataBook * dataBook )
 	{
-		Int numberOfElements = this->data.size();
-		for ( Int iElement = 0; iElement < numberOfElements; ++ iElement )
+		UInt numberOfElements = this->data.size();
+		for ( UInt iElement = 0; iElement < numberOfElements; ++ iElement )
 		{
 			string & value = this->data[ iElement ];
 			ONEFLOW::HXWrite( dataBook, value );
@@ -158,8 +158,8 @@ public:
 
 	void Copy( DataObject * dataObject )
 	{
-		Int numberOfElements = this->data.size();
-		for ( Int iElement = 0; iElement < numberOfElements; ++ iElement )
+		UInt numberOfElements = this->data.size();
+		for ( UInt iElement = 0; iElement < numberOfElements; ++ iElement )
 		{
 			TDataObject< string > * tDataObject = static_cast<TDataObject< string > *>( dataObject );
 			data[ iElement ] = tDataObject->data[ iElement ];

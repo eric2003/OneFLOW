@@ -80,7 +80,7 @@ void LamVelCut::Dump()
     title.push_back( "\"u/U\"" );
 	title.push_back( "\"v/U * sqrt( 2 * Rex )\"" );
 
-	for ( Int i = 0; i < title.size(); ++ i )
+	for ( UInt i = 0; i < title.size(); ++ i )
 	{
 		file << title[ i ] << endl;
 	}
@@ -163,7 +163,7 @@ void LamFriCut::Dump()
     title.push_back( "\"x\"" );
     title.push_back( "\"cf\"" );
 
-	for ( Int i = 0; i < title.size(); ++ i )
+	for ( UInt i = 0; i < title.size(); ++ i )
 	{
 		file << title[ i ] << endl;
 	}

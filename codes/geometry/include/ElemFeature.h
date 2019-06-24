@@ -23,6 +23,7 @@ License
 
 #pragma once
 #include "HXDefine.h"
+#include "HXCgns.h"
 #include <vector>
 #include <set>
 using namespace std;
@@ -54,7 +55,7 @@ public:
 	~ElemFeature();
 public:
 	IntField * eType;       //单元类型
-	LinkField  eNodeId;     //单元index
+	CgLinkField  eNodeId;     //单元index
 public:
 	FaceSolver * face_solver;
     void ScanElements();

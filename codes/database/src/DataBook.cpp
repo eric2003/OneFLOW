@@ -44,14 +44,14 @@ DataBook::DataBook()
 
 DataBook::~DataBook()
 {
-	for ( Int i = 0; i < dataBook->size(); ++ i )
+	for ( UInt i = 0; i < dataBook->size(); ++ i )
 	{
 		delete ( * dataBook )[ i ];
 	}
 	delete dataBook;
 }
 
-Int DataBook::GetNPage()
+UInt DataBook::GetNPage()
 {
 	return dataBook->size();
 }
@@ -62,7 +62,7 @@ DataPage * DataBook::GetCurrentPage()
 	return ( * dataBook )[ currPageId ];
 }
 
-DataPage * DataBook::GetPage( Int iPage )
+DataPage * DataBook::GetPage( UInt iPage )
 {
 	return ( * dataBook )[ iPage ];
 }
@@ -129,8 +129,8 @@ void DataBook::Write( void * data, LLong dataSize )
 
 void DataBook::ReadString( string & cs )
 {
-	Int nLength = 0;
-	this->Read( & nLength, sizeof( Int ) );
+	UInt nLength = 0;
+	this->Read( & nLength, sizeof( UInt ) );
 
 	char * data = new char[ nLength + 1 ];
 
@@ -143,9 +143,9 @@ void DataBook::ReadString( string & cs )
 
 void DataBook::WriteString( string & cs )
 {
-	Int nLength = cs.length();
+	UInt nLength = cs.length();
 
-	this->Write( & nLength, sizeof( Int ) );
+	this->Write( & nLength, sizeof( UInt ) );
 
 	char * data = new char[ nLength + 1 ];
 
@@ -166,7 +166,7 @@ void DataBook::AppendString( string & cs )
 void DataBook::Write( ostringstream * oss )
 {
 	string str = oss->str();
-	Int stringSize = str.size();
+	UInt stringSize = str.size();
 	this->Write( const_cast< char * >( str.c_str() ), stringSize * sizeof( char ) );
 }
 
@@ -186,7 +186,7 @@ void DataBook::ReSize( LLong nLength )
 	{
 		if ( nLength == 0 )
 		{
-			for ( Int iPage = 0; iPage < this->GetNPage(); ++ iPage )
+			for ( UInt iPage = 0; iPage < this->GetNPage(); ++ iPage )
 			{
 				this->GetPage( iPage )->ReSize( 0 );
 			}
@@ -195,19 +195,19 @@ void DataBook::ReSize( LLong nLength )
 	}
 
 	//23 divided by 3 is 7, remainder 2.
-	Int nPage = nLength / maxUnitSize;
+	UInt nPage = nLength / maxUnitSize;
 	LLong remainder = nLength % maxUnitSize;
 
-	Int additionalPage = 0;
+	UInt additionalPage = 0;
 	if ( remainder )
 	{
 		additionalPage = 1;
 	}
 
-	Int newNPage = nPage + additionalPage;
+	UInt newNPage = nPage + additionalPage;
 	this->ResizeNPage( newNPage );
 
-	for ( Int iPage = 0; iPage < this->GetNPage(); ++ iPage )
+	for ( UInt iPage = 0; iPage < this->GetNPage(); ++ iPage )
 	{
 		LLong needSize = maxUnitSize;
 		if ( iPage == nPage )
@@ -218,9 +218,9 @@ void DataBook::ReSize( LLong nLength )
 	}
 }
 
-void DataBook::ResizeNPage( Int newNPage )
+void DataBook::ResizeNPage( UInt newNPage )
 {
-	Int oldNPage = this->GetNPage();
+	UInt oldNPage = this->GetNPage();
 
 	if ( newNPage <= oldNPage )
 	{
@@ -229,10 +229,10 @@ void DataBook::ResizeNPage( Int newNPage )
 	}
 	else
 	{
-		Int iPageStart = oldNPage;
-		Int iPageEnd = newNPage;
+		UInt iPageStart = oldNPage;
+		UInt iPageEnd = newNPage;
 
-		for ( Int iPage = iPageStart; iPage != iPageEnd; ++ iPage )
+		for ( UInt iPage = iPageStart; iPage != iPageEnd; ++ iPage )
 		{
 			dataBook->push_back( new DataPage() );
 		}
@@ -268,7 +268,7 @@ void DataBook::MoveToBegin()
 void DataBook::MoveToEnd()
 {
 	this->currPos = this->GetSize();
-	for ( Int iPage = 0; iPage < this->GetNPage(); ++ iPage )
+	for ( UInt iPage = 0; iPage < this->GetNPage(); ++ iPage )
 	{
 		this->GetPage( iPage )->MoveToEnd();
 	}
@@ -309,7 +309,7 @@ void DataBook::WriteFile( fstream & file )
 		return;
 	}
 
-	for ( Int iPage = 0; iPage < this->GetNPage(); ++ iPage )
+	for ( UInt iPage = 0; iPage < this->GetNPage(); ++ iPage )
 	{
 		this->GetPage( iPage )->WriteFile( file );
 	}
@@ -317,7 +317,7 @@ void DataBook::WriteFile( fstream & file )
 
 void DataBook::ToString( string & str )
 {
-	for ( Int iPage = 0; iPage < this->GetNPage(); ++ iPage )
+	for ( UInt iPage = 0; iPage < this->GetNPage(); ++ iPage )
 	{
 		this->GetPage( iPage )->ToString( str );
 	}
@@ -337,9 +337,9 @@ void DataBook::Destroy( DataPage * dataPage )
 	delete dataPage;
 }
 
-void DataBook::Erase( Int startPage, Int endPage )
+void DataBook::Erase( UInt startPage, UInt endPage )
 {
-	for ( Int iPage = startPage; iPage != endPage; ++ iPage )
+	for ( UInt iPage = startPage; iPage != endPage; ++ iPage )
 	{
 		this->Destroy( GetPage( iPage ) );
 	}
@@ -354,7 +354,7 @@ void DataBook::Send( int pid, int tag )
 	//It is necessary to judge the zero of data length
 	if ( nLength <= 0 ) return;
 
-	for ( Int iPage = 0; iPage < this->GetNPage(); ++ iPage )
+	for ( UInt iPage = 0; iPage < this->GetNPage(); ++ iPage )
 	{
 		this->GetPage( iPage )->Send( pid, tag );
 	}
@@ -373,7 +373,7 @@ void DataBook::Recv( int pid, int tag )
 
 	this->SecureAbsoluteSpace( nLength );
 
-	for ( Int iPage = 0; iPage < this->GetNPage(); ++ iPage )
+	for ( UInt iPage = 0; iPage < this->GetNPage(); ++ iPage )
 	{
 		this->GetPage( iPage )->Recv( pid, tag );
 	}
@@ -409,7 +409,7 @@ void DataBook::Bcast( int rootid )
 		this->SecureAbsoluteSpace( nLength );
 	}
 
-	for ( Int iPage = 0; iPage < this->GetNPage(); ++ iPage )
+	for ( UInt iPage = 0; iPage < this->GetNPage(); ++ iPage )
 	{
 		this->GetPage( iPage )->Bcast( rootid );
 	}

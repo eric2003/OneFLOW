@@ -36,11 +36,11 @@ public:
 public:
 	typedef vector< char > CharMemory;
 public:
-	Int GetSize();
-	void Read ( void * data, Int dataSize );
-	void Read ( void * data, Int dataSize, Int position );
-	void Write( void * data, Int dataSize );
-	void Write( void * data, Int dataSize, Int position );
+	UInt GetSize();
+	void Read ( void * data, UInt dataSize );
+	void Read ( void * data, UInt dataSize, UInt position );
+	void Write( void * data, UInt dataSize );
+	void Write( void * data, UInt dataSize, UInt position );
 	void ReadFile ( fstream & file );
 	void WriteFile( fstream & file );
 	void ToString( string & str );
@@ -50,15 +50,15 @@ public:
 
 	void MoveToBegin() { MoveToPosition( 0 ); };
 	void MoveToEnd  () { currPos = GetSize(); };
-	void ReSize( Int newSize );
+	void ReSize( UInt newSize );
 	void Send( int pId, int tag );
 	void Recv( int pId, int tag );
 	void Bcast( int rootid );
 protected:
-	void MoveToPosition( Int position );
-	void MoveForwardPosition( Int dataSize );
+	void MoveToPosition( UInt position );
+	void MoveForwardPosition( UInt dataSize );
 protected:
-	Int currPos;
+	UInt currPos;
 	CharMemory * dataMemory;
 public:
 	char * GetDataPointer( int begin ) { return &( ( * dataMemory )[ begin ] ); }

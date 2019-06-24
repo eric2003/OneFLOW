@@ -67,16 +67,16 @@ void CgnsSection::ConvertToInnerDataStandard()
 	int kkk = 1;
 }
 
-cgsize_t * CgnsSection::GetAddress( int eId )
+CgInt * CgnsSection::GetAddress( CgInt eId )
 {
 	int pos = this->ePosList[ eId ] + this->pos_shift;
 	return & this->connList[ pos ];
 }
 
-void CgnsSection::GetElementNodeId( int eId, IntField & eNodeId )
+void CgnsSection::GetElementNodeId( CgInt eId, CgIntField & eNodeId )
 {
 	int eNodeNumber  = ONEFLOW::GetElementNodeNumbers( this->eTypeList[ eId ] );
-	cgsize_t * eAddress = this->GetAddress( eId );
+	CgInt * eAddress = this->GetAddress( eId );
 
 	eNodeId.resize( 0 );
 	for ( int iNode = 0; iNode < eNodeNumber; ++ iNode )
@@ -95,7 +95,7 @@ void CgnsSection::SetElementTypeAndNode( ElemFeature * elem_feature )
 
 		elem_feature->eType->push_back( e_type );
 
-		IntField eNodeId;
+		CgIntField eNodeId;
 		this->GetElementNodeId( iElem, eNodeId );
 
 		int eNodeNumber  = ONEFLOW::GetElementNodeNumbers( this->eTypeList[ iElem ] );
@@ -199,7 +199,7 @@ void CgnsSection::ReadCgnsSectionConnectionList()
 	// of 0 is used ( typical for C-codes ) 1 must be substracted 
 	// from the connectivities read. 
 
-    cgsize_t *addr = NULL;
+    CgInt *addr = NULL;
     if ( this->iparentflag )
     {
         addr = & iparentdata[ 0 ];

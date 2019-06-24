@@ -24,11 +24,13 @@ License
 
 BeginNameSpace( ONEFLOW )
 
+template< typename T >
 class Mid
 {
 public:
     int size, id;
-    IntField data;
+    //IntField data;
+	HXVector< T > data;
 public:
     Mid();
     Mid( int size, int id = 0 );
@@ -38,5 +40,72 @@ public:
 public:
     bool operator < ( const Mid & rhs ) const;
 };
+
+template < typename T >
+Mid<T>::Mid()
+{
+    this->size = 0;
+    this->id   = 0;
+}
+
+template < typename T >
+Mid<T>::Mid( int size, int id )
+{
+    this->size = size;
+    this->id   = id;
+	this->data.resize( size );
+}
+
+template < typename T >
+Mid<T>::Mid( const Mid<T> & rhs )
+{
+    this->size = rhs.size;
+    this->id   = rhs.id;
+	this->data.resize( size );
+
+    for ( int i = 0; i < size; ++ i )
+    {
+        this->data[ i ] = rhs.data[ i ];
+    }
+}
+
+template < typename T >
+Mid<T> & Mid<T>::operator = ( const Mid<T> & rhs )
+{
+    if ( this == & rhs ) return * this;
+
+    if ( this->size != rhs.size )
+    {
+        this->size = rhs.size;
+		this->data.resize( this->size );
+    }
+
+    this->id   = rhs.id;
+    for ( int i = 0; i < size; ++ i )
+    {
+        this->data[ i ] = rhs.data[ i ];
+    }
+
+    return * this;
+}
+
+template < typename T >
+Mid<T>::~Mid()
+{
+}
+
+template < typename T >
+bool Mid<T>::operator < ( const Mid<T> & rhs ) const
+{
+    if ( this->size != rhs.size ) return this->size < rhs.size;
+    for ( int i = 0; i < this->size; ++ i )
+    {
+        if ( this->data[ i ] != rhs.data[ i ] )
+        {
+            return this->data[ i ] < rhs.data[ i ];
+        }
+    }
+    return false;
+}
 
 EndNameSpace

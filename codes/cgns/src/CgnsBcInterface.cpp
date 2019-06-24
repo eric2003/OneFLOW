@@ -118,7 +118,7 @@ void CgnsBcInterface::SetPeriodicBc()
 		int id1 = this->connPoint[ i ];
 		int id2 = this->connDonorPoint[ i ];
 
-		IntField fNodeId1, fNodeId2;
+		CgIntField fNodeId1, fNodeId2;
 		sZone->GetElementNodeId( id1, fNodeId1 );
 		tZone->GetElementNodeId( id2, fNodeId2 );
 

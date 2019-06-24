@@ -47,16 +47,16 @@ CellMesh::~CellMesh()
     delete cellTopo;
 }
 
-Int CellMesh::GetNumberOfCells()
+UInt CellMesh::GetNumberOfCells()
 { 
     return cellTopo->GetNumberOfCells(); 
 }
 
 void CellMesh::AllocateMetrics( FaceMesh * faceMesh )
 {
-    Int numberOfCells = this->GetNumberOfCells();
-    Int nBFace = faceMesh->GetNBFace();
-    Int nTCell = numberOfCells + nBFace;
+    UInt numberOfCells = this->GetNumberOfCells();
+    UInt nBFace = faceMesh->GetNBFace();
+    UInt nTCell = numberOfCells + nBFace;
     this->xcc.resize( nTCell );
     this->ycc.resize( nTCell );
     this->zcc.resize( nTCell );
@@ -66,7 +66,7 @@ void CellMesh::AllocateMetrics( FaceMesh * faceMesh )
 
 void CellMesh::AllocDist()
 {
-    Int numberOfCells = this->GetNumberOfCells();
+    UInt numberOfCells = this->GetNumberOfCells();
     dist.resize( numberOfCells );
 }
 

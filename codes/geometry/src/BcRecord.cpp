@@ -102,7 +102,7 @@ int BcRecord::GetNBFace()
     return bcType.size();
 }
 
-void BcRecord::Init( Int nBFace )
+void BcRecord::Init( UInt nBFace )
 {
     this->bcType.resize( nBFace );
     this->bcdtkey.resize( nBFace );

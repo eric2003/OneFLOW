@@ -57,11 +57,11 @@ public:
 	GridLocation_t gridLocation;
     GridConnectivityType_t gridConnType;  //Overset, Abutting, Abutting1to1
 	DataType_t normalDataType;
-	cgsize_t normalListSize;
+	CgInt normalListSize;
 	int normalIndex[ 3 ];
 	int nDataSets;
 
-	cgsize_t nElements;
+	CgInt nElements;
 
 	CgIntField connList;
 
@@ -88,10 +88,10 @@ public:
 public:
     void ProcessCgns1to1BcRegion( int bcId );
     void ReadCgns1to1BoundaryRegion( int iCgns1to1BoundaryRegion );
-    void CopyStrBcRegion( CgnsBcRegion * strBcRegion, cgsize_t& startId );
-    void ReadCgnsBcConn( CgnsBcRegion * strBcRegion, cgsize_t & startId );
+    void CopyStrBcRegion( CgnsBcRegion * strBcRegion, CgInt& startId );
+    void ReadCgnsBcConn( CgnsBcRegion * strBcRegion, CgInt & startId );
 	void ReconstructStrRegion( IntField & ijkMin, IntField & ijkMax );
-    cgsize_t GetActualNumberOfBoundaryElements();
+    CgInt GetActualNumberOfBoundaryElements();
 };
 
 void SetBcConn( CgnsZone * cgnsZone, IntField & ijkMin, IntField & ijkMax, CgIntField& conn, int & pos, int & nElem );
