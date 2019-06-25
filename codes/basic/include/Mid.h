@@ -29,7 +29,6 @@ class Mid
 {
 public:
     int size, id;
-    //IntField data;
 	HXVector< T > data;
 public:
     Mid();
