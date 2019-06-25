@@ -81,7 +81,7 @@ std::string HXGetProcessorName()
 	return procName;
 }
 
-void HXSend( void * data, int size, int dataType, int pid, int tag )
+void HXSend( void * data, int size, PL_Datatype dataType, int pid, int tag )
 {
 #ifdef HX_PARALLEL
     if ( size <= 0 ) return;
@@ -89,7 +89,7 @@ void HXSend( void * data, int size, int dataType, int pid, int tag )
 #endif
 }
 
-void HXRecv( void * data, int size, int dataType, int pid, int tag )
+void HXRecv( void * data, int size, PL_Datatype dataType, int pid, int tag )
 {
 #ifdef HX_PARALLEL
     if ( size <= 0 ) return;
@@ -175,7 +175,7 @@ void HXRecvString( string & cs, int pid, int tag )
 	delete[] data;
 }
 
-void HXReduceInt( void * s, void * t, int nElem, int op )
+void HXReduceInt( void * s, void * t, int nElem, PL_Op op )
 {
 #ifdef HX_PARALLEL
     MPI_Allreduce( s, t, nElem, MPI_INTEGER, op, MPI_COMM_WORLD );
@@ -183,7 +183,7 @@ void HXReduceInt( void * s, void * t, int nElem, int op )
 
 }
 
-void HXReduceReal( void * s, void * t, int nElem, int op )
+void HXReduceReal( void * s, void * t, int nElem, PL_Op op )
 {
 #ifdef HX_PARALLEL
     MPI_Allreduce( s, t, nElem, MPI_DOUBLE, op, MPI_COMM_WORLD );
