@@ -40,7 +40,7 @@ git clone --recursive https://github.com/eric2003/OneFLOW
    sudo apt install libhdf5-dev libcgns-dev libmetis-dev libmpich-dev
    ```
 
-   以ubuntu16.04为例，使用上述命令安装后，各个库的头文件位置为：
+   以ubuntu16.04为例，使用上述命令安装第三方库后，各个库的相应信息为：
 
     cgns  
 
