@@ -36,24 +36,42 @@ git clone --recursive https://github.com/eric2003/OneFLOW
 
 1. 下载或者编译第三方依赖库
    debian/ubuntu系统：
+   ```
    sudo apt install libhdf5-dev libcgns-dev libmetis-dev libmpich-dev
+   ```
 
    以ubuntu16.04为例，各个库的头文件位置为：
+
     cgns  
+
     头文件：/usr/include
+
     库文件：/usr/lib  
+
     库名称：cgns
+
     hdf5 
+
     头文件：/usr/include/hdf5
+
     库文件：/usr/lib/x86_64-linux-gnu/hdf5/serial
+
     库名称：hdf5
+
     metis
+
     头文件：/usr/include
+
     库文件：/usr/lib/x86_64-linux-gnu
+
     库名称：metis
+
     mpich 
+
     头文件：/usr/include/mpich
+
     库文件：/usr/lib
+
     库名称：mpi
 
 2. 从github下载源代码:
