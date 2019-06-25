@@ -24,28 +24,31 @@ else()
 	set(VS_COMPILER vs2019)
 endif(CMAKE_GENERATOR MATCHES "Visual Studio 16 2019" )
 
-if(WIN32)
-message(STATUS "VS_COMPILER is ${VS_COMPILER}")
-endif(WIN32)
-
 #if (BIT64_FLAG)
 #    set(BITCODE x64)
 #else(BIT64_FLAG)
 #    set(BITCODE x86)
 #endif(BIT64_FLAG)
 
-if(WIN32)
-else()
-  set(CMAKE_CXX_COMPILER  mpicxx)
-  set(CMAKE_C_COMPILER      mpicc)
-endif(WIN32)
+#if(WIN32)
+#else()
+#  set(CMAKE_CXX_COMPILER  mpicxx)
+#  set(CMAKE_C_COMPILER      mpicc)
+#endif(WIN32)
+
+if(CMAKE_SYSTEM_NAME MATCHES "Linux")
+	#set(CMAKE_CXX_FLAGS "-std=c++11" CACHE STRING "" FORCE)	
+	option(USE_PREBUILT_LIB "ON for using prebuilt third party libraries" OFF)
+elseif(CMAKE_SYSTEM_NAME MATCHES "Windows")
+	message(STATUS "VS_COMPILER is ${VS_COMPILER}")
+	add_definitions(-D_CRT_SECURE_NO_WARNINGS)  #取消c语言中fopen等函数的警告
+	option(USE_PREBUILT_LIB "ON for using prebuilt third party libraries" ON) #只在windows下使用已编译好的第三方库
+endif()
 
 message(STATUS "The CMAKE_C_COMPILER is ${CMAKE_C_COMPILER}")
 message(STATUS "The CMAKE_CXX_COMPILER is ${CMAKE_CXX_COMPILER}")
 message(STATUS "The CMAKE_C_FLAGS is ${CMAKE_C_FLAGS}")
 message(STATUS "The CMAKE_CXX_FLAGS is ${CMAKE_CXX_FLAGS}")
-
-option(USE_PREBUILT_LIB "ON for using prebuilt third party libraries" ON)
 
 if(BIT64_FLAG)
 	set(ARCH "x64")

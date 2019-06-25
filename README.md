@@ -15,7 +15,7 @@ Firstly, make sure that c++ compiler has been intalled. For Windows platform, th
 * [CGNS](https://github.com/CGNS/CGNS "CGNS"): a general, portable, and extensible standard for the storage and retrieval of CFD analysis data.
 * [HDF5](https://www.hdfgroup.org/downloads/hdf5/ "hdf5"): a set of file formats (HDF4, HDF5) designed to store and organize large amounts of data, needed by CGNS.
 * [Metis](http://glaros.dtc.umn.edu/gkhome/metis/metis/download "Metis"): a set of serial programs for partitioning graphs, partitioning finite element meshes.
-* [MPI](https://computing.llnl.gov/tutorials/mpi/ "MPI"): Massage Passing Interface.A standardized and portable message-passing standard for parallel computing. Some well-known open source implementations are [MS-MPI](https://github.com/Microsoft/Microsoft-MPI "MS-MPI")(recommended in Windows platform), [MPICH](https://github.com/pmodels/mpich "MPICH") and [OpenMPI](https://www.open-mpi.org/ "OpenMPI").
+* [MPI](https://computing.llnl.gov/tutorials/mpi/ "MPI"): Massage Passing Interface.A standardized and portable message-passing standard for parallel computing. Some well-known open source implementations are [MS-MPI](https://github.com/Microsoft/Microsoft-MPI "MS-MPI")(recommended in Windows platform), [MPICH](https://github.com/pmodels/mpich "MPICH") and [OpenMPI](https://github.com/open-mpi/ompi "OpenMPI").
 
 ### Windows
 
