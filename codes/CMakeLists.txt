@@ -45,7 +45,12 @@ message(STATUS "The CMAKE_CXX_COMPILER is ${CMAKE_CXX_COMPILER}")
 message(STATUS "The CMAKE_C_FLAGS is ${CMAKE_C_FLAGS}")
 message(STATUS "The CMAKE_CXX_FLAGS is ${CMAKE_CXX_FLAGS}")
 
-option(USE_PREBUILT_LIB "ON for using prebuilt third party libraries" ON)
+#只在windows下使用已编译好的第三方库
+if(WIN32)
+	option(USE_PREBUILT_LIB "ON for using prebuilt third party libraries" ON)
+else()
+	option(USE_PREBUILT_LIB "ON for using prebuilt third party libraries" OFF)
+endif(WIN32)
 
 if(BIT64_FLAG)
 	set(ARCH "x64")
