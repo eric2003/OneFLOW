@@ -34,7 +34,10 @@ git clone --recursive https://github.com/eric2003/OneFLOW
    
 ### Linux
 
-1. 下载或者编译第三方依赖库
+Linux平台建议使用gcc编译器进行编译。
+
+1. 下载或者编译第三方依赖库。尽管一些Linux发行版的软件源里提供了编译好的第三方库，但强烈建议编译OneFLOW之前自行编译这些库，以保证各个库编译环境和运行环境的一致性。
+   
    debian/ubuntu系统：
    ```
    sudo apt install libhdf5-dev libcgns-dev libmetis-dev libmpich-dev
@@ -73,6 +76,8 @@ git clone --recursive https://github.com/eric2003/OneFLOW
     库文件路径：/usr/lib
 
     库文件名称：mpi
+
+    如果采用自行编译的方式安装第三方库，在编译时可以自行选择安装位置，因此库文件的存放位置通常与上述位置不同。
 
 2. 从github下载源代码:
 ```
