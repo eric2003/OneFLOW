@@ -34,7 +34,7 @@ using namespace std;
 BeginNameSpace( ONEFLOW )
 
 #ifdef HX_PARALLEL
-    typedef  MPI_Request  HXRequest;
+    typedef  MPI_Request  PL_HXRequest;
 	typedef  MPI_Op       PL_Op;
 	typedef  MPI_Datatype PL_Datatype;
 
@@ -46,7 +46,7 @@ BeginNameSpace( ONEFLOW )
     #define PL_INT             MPI_INT
     #define PL_LONG_LONG_INT   MPI_LONG_LONG_INT
 #else
-    typedef  int  HXRequest;
+    typedef  int  PL_HXRequest;
 	typedef  int  PL_Op;
 	typedef  int  PL_Datatype;
 
@@ -74,8 +74,8 @@ void HXRecv( void * data, int size, PL_Datatype dataType, int pid, int tag = 0 )
 void HXSendChar( void * data, int size, int pid, int tag = 0 );
 void HXRecvChar( void * data, int size, int pid, int tag = 0 );
 
-int HXWait( HXRequest * request );
-int HXWait( int count, HXRequest * arrayOfRequests );
+int HXWait( PL_HXRequest * request );
+int HXWait( int count, PL_HXRequest * arrayOfRequests );
 
 void HXSendString( string & cs, int pid, int tag );
 void HXRecvString( string & cs, int pid, int tag );

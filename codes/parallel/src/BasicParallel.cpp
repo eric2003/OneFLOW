@@ -119,7 +119,7 @@ void HXRecvChar( void * data, int size, int pid, int tag )
 #endif
 }
 
-int HXWait( HXRequest * request )
+int HXWait( PL_HXRequest * request )
 {
 	int errorCode = 0;
 
@@ -130,7 +130,7 @@ int HXWait( HXRequest * request )
 	return errorCode;
 }
 
-int HXWait( int count, HXRequest * arrayOfRequests )
+int HXWait( int count, PL_HXRequest * arrayOfRequests )
 {
 	int errorCode = 0;
 
