@@ -21,7 +21,6 @@ along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 \*---------------------------------------------------------------------------*/
 #pragma once
 #include "Configure.h"
-#include "HXDefine.h"
 #include <map>
 #include <string>
 using namespace std;
