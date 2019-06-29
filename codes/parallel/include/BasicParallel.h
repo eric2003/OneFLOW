@@ -34,8 +34,9 @@ using namespace std;
 BeginNameSpace( ONEFLOW )
 
 #ifdef HX_PARALLEL
-    typedef  MPI_Request  HXRequest;
-	typedef  MPI_Op       HXOperator;
+    typedef  MPI_Request  PL_HXRequest;
+	typedef  MPI_Op       PL_Op;
+	typedef  MPI_Datatype PL_Datatype;
 
     #define PL_REQUEST_NULL    MPI_REQUEST_NULL
 	#define PL_MAX             MPI_MAX
@@ -45,8 +46,9 @@ BeginNameSpace( ONEFLOW )
     #define PL_INT             MPI_INT
     #define PL_LONG_LONG_INT   MPI_LONG_LONG_INT
 #else
-    typedef  int  HXRequest;
-	typedef  int  HXOperator;
+    typedef  int  PL_HXRequest;
+	typedef  int  PL_Op;
+	typedef  int  PL_Datatype;
 
 	#define PL_REQUEST_NULL    0
 	#define PL_MAX             0
@@ -66,14 +68,14 @@ int HXSize();
 
 std::string HXGetProcessorName();
 
-void HXSend( void * data, int size, int dataType, int pid, int tag = 0 );
-void HXRecv( void * data, int size, int dataType, int pid, int tag = 0 );
+void HXSend( void * data, int size, PL_Datatype dataType, int pid, int tag = 0 );
+void HXRecv( void * data, int size, PL_Datatype dataType, int pid, int tag = 0 );
 
 void HXSendChar( void * data, int size, int pid, int tag = 0 );
 void HXRecvChar( void * data, int size, int pid, int tag = 0 );
 
-int HXWait( HXRequest * request );
-int HXWait( int count, HXRequest * arrayOfRequests );
+int HXWait( PL_HXRequest * request );
+int HXWait( int count, PL_HXRequest * arrayOfRequests );
 
 void HXSendString( string & cs, int pid, int tag );
 void HXRecvString( string & cs, int pid, int tag );
@@ -93,8 +95,8 @@ void HXSmartRecv( T * field, int nElement, int pid, int tag )
 }
 
 
-void HXReduceInt( void * s, void * t, int nElem, int op );
-void HXReduceReal( void * s, void * t, int nElem, int op );
+void HXReduceInt( void * s, void * t, int nElem, PL_Op op );
+void HXReduceReal( void * s, void * t, int nElem, PL_Op op );
 
 
 EndNameSpace
