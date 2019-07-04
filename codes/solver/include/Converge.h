@@ -22,50 +22,21 @@ License
 
 
 #pragma once
-#include "HXDefine.h"
-#include <iostream>
-using namespace std;
+#include "Task.h"
 
 BeginNameSpace( ONEFLOW )
 
-class SolverP;
-class Solver;
-class LusgsSolver;
-class LusgsPair;
-
-class LusgsState
+class ConvergeTask : public Task
 {
 public:
-    LusgsState();
-    ~LusgsState();
+	ConvergeTask();
+	~ConvergeTask();
 public:
-	static HXVector< LusgsSolver * > str;
-	static HXVector< LusgsSolver * > uns;
-public:
-    static void Init( int nSolver );
-    static void AddSolver( int sid, int gridType, LusgsSolver * solver );
-    static LusgsSolver * GetLusgsSolver();
+	void Run();
+	void CmpBool();
+protected:
+	BoolField boolField;
+	bool flag;
 };
-
-class SolverState
-{
-public:
-    SolverState();
-    ~SolverState();
-public:
-    static int id;
-    static int tid;
-    static int nSolver;
-    static int msgId;
-	static IntField convergeFlag;
-public:
-    static void Init( int nSolver );
-    static void SetTid( int tid );
-    static void SetTidById( int id );
-    static Solver * GetSolver();
-public:
-    static bool Converge();
-};
-
 
 EndNameSpace
