@@ -22,9 +22,11 @@ License
 
 #include "SolverState.h"
 #include "SolverMap.h"
+#include "CmxTask.h"
 #include "Iteration.h"
 #include "Zone.h"
 #include "GridState.h"
+#include "Ctrl.h"
 
 BeginNameSpace( ONEFLOW )
 
@@ -78,6 +80,7 @@ int SolverState::id = 0;
 int SolverState::tid = 0;
 int SolverState::nSolver = 0;
 int SolverState::msgId = -1;
+IntField SolverState::convergeFlag;
 
 SolverState::SolverState()
 {
@@ -92,6 +95,7 @@ SolverState::~SolverState()
 void SolverState::Init( int nSolver )
 {
     SolverState::nSolver = nSolver;
+	SolverState::convergeFlag.resize( nSolver );
 }
 
 void SolverState::SetTid( int tid )
@@ -113,11 +117,15 @@ Solver * SolverState::GetSolver()
 
 bool SolverState::Converge()
 {
+	if ( Iteration::innerSteps == 0 ) return false;
+	if ( ctrl.idualtime == 0 ) return true;
     bool flag = true;
     for ( int iSolver = 0; iSolver < SolverState::nSolver; ++ iSolver )
     {
+		SolverState::id = iSolver;
+		ONEFLOW::SsSgTask( "CMP_UNSTEADY_CRITERION" );
     }
-    if ( Iteration::innerSteps == 0 ) return false;
+    
     return flag;
 }
 

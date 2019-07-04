@@ -20,52 +20,55 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-
-#pragma once
-#include "HXDefine.h"
-#include <iostream>
-using namespace std;
+#include "Converge.h"
+#include "Zone.h"
+#include "DataBook.h"
+#include "ActionState.h"
+#include "SolverState.h"
+#include "BasicParallel.h"
 
 BeginNameSpace( ONEFLOW )
 
-class SolverP;
-class Solver;
-class LusgsSolver;
-class LusgsPair;
-
-class LusgsState
+ConvergeTask::ConvergeTask()
 {
-public:
-    LusgsState();
-    ~LusgsState();
-public:
-	static HXVector< LusgsSolver * > str;
-	static HXVector< LusgsSolver * > uns;
-public:
-    static void Init( int nSolver );
-    static void AddSolver( int sid, int gridType, LusgsSolver * solver );
-    static LusgsSolver * GetLusgsSolver();
-};
+    ;
+}
 
-class SolverState
+ConvergeTask::~ConvergeTask()
 {
-public:
-    SolverState();
-    ~SolverState();
-public:
-    static int id;
-    static int tid;
-    static int nSolver;
-    static int msgId;
-	static IntField convergeFlag;
-public:
-    static void Init( int nSolver );
-    static void SetTid( int tid );
-    static void SetTidById( int id );
-    static Solver * GetSolver();
-public:
-    static bool Converge();
-};
+    ;
+}
 
+void ConvergeTask::Run()
+{
+    ActionState::dataBook = this->dataBook;
+
+	boolField.resize( ZoneState::nLocal, false );
+
+    for ( int zId = 0; zId < ZoneState::nZones; ++ zId )
+    {
+        if (  ! ZoneState::IsValidZone( zId ) ) continue;
+
+        ZoneState::zid = zId;
+		Solver * solver = SolverState::GetSolver();
+
+    }
+
+	this->CmpBool();
+}
+
+void ConvergeTask::CmpBool()
+{
+	this->flag = true;
+	int nSize = boolField.size();
+    for ( int i = 0; i < nSize; ++ i )
+    {
+		this->flag &= boolField[ i ];
+    }
+	int s = this->flag;
+	int t = -1;
+	HXReduceInt( & s, & t, 1, PL_MIN );
+	this->flag = t;
+}
 
 EndNameSpace

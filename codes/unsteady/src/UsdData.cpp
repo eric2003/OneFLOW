@@ -63,6 +63,8 @@ void UsdData::InitSub( int nEqu )
 
     dualtimeRes.resize( nEqu );
     dualtimeSrc.resize( nEqu );
+
+	normList.resize( nEqu );
 }
 
 void UsdData::CmpCellDualTimeResidual()

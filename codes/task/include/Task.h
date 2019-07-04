@@ -58,6 +58,15 @@ public:
 public:
 };
 
+class TaskState
+{
+public:
+    TaskState();
+    ~TaskState();
+public:
+    static Task * task;
+};
+
 class SimpleTask : public Task
 {
 public:
@@ -66,15 +75,6 @@ public:
 public:
 	void Run();
 protected:
-};
-
-class TaskState
-{
-public:
-    TaskState();
-    ~TaskState();
-public:
-    static Task * task;
 };
 
 EndNameSpace
