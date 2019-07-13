@@ -1,22 +1,22 @@
 /*---------------------------------------------------------------------------*\
-OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
-This file is part of OneFLOW.
+    This file is part of OneFLOW.
 
-OneFLOW is free software: you can redistribute it and/or modify it
-under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
+    OneFLOW is free software: you can redistribute it and/or modify it
+    under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
 
-OneFLOW is distributed in the hope that it will be useful, but WITHOUT
-ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
-for more details.
+    OneFLOW is distributed in the hope that it will be useful, but WITHOUT
+    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+    FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+    for more details.
 
-You should have received a copy of the GNU General Public License
-along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
+    You should have received a copy of the GNU General Public License
+    along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 
 \*---------------------------------------------------------------------------*/
 
@@ -38,7 +38,7 @@ int HXInit()
     int err      = 0;
     int argc     = 0;
     char *** argv = 0;
-	return ONEFLOW::HXInit( argc, argv );
+    return ONEFLOW::HXInit( argc, argv );
 }
 
 int HXInit( int & argc, char *** argv )
@@ -52,33 +52,33 @@ int HXInit( int & argc, char *** argv )
 
 int HXRank()
 {
-	int rank = 0;
+    int rank = 0;
 #ifdef HX_PARALLEL
-	MPI_Comm_rank( MPI_COMM_WORLD, & rank );
+    MPI_Comm_rank( MPI_COMM_WORLD, & rank );
 #endif
-	return rank;
+    return rank;
 }
 
 int HXSize()
 {
-	int size = 1;
+    int size = 1;
 #ifdef HX_PARALLEL
     MPI_Comm_size( MPI_COMM_WORLD, & size );
 #endif
-	return size;
+    return size;
 }
 
 std::string HXGetProcessorName()
 {
-	string procName = "";
+    string procName = "";
 #ifdef HX_PARALLEL
-	char cName[ MPI_MAX_PROCESSOR_NAME ];
+    char cName[ MPI_MAX_PROCESSOR_NAME ];
     int nLength = 0;
 
-	MPI_Get_processor_name( cName, & nLength );
+    MPI_Get_processor_name( cName, & nLength );
     procName = cName;
 #endif
-	return procName;
+    return procName;
 }
 
 void HXSend( void * data, int size, PL_Datatype dataType, int pid, int tag )
@@ -121,58 +121,58 @@ void HXRecvChar( void * data, int size, int pid, int tag )
 
 int HXWait( PL_HXRequest * request )
 {
-	int errorCode = 0;
+    int errorCode = 0;
 
 #ifdef HX_PARALLEL
-	errorCode = MPI_Wait( request, MPI_STATUS_IGNORE );
+    errorCode = MPI_Wait( request, MPI_STATUS_IGNORE );
 #endif
 
-	return errorCode;
+    return errorCode;
 }
 
 int HXWait( int count, PL_HXRequest * arrayOfRequests )
 {
-	int errorCode = 0;
+    int errorCode = 0;
 
-	if ( count <= 0 ) return - 1;
+    if ( count <= 0 ) return - 1;
 
 #ifdef HX_PARALLEL
-	errorCode = MPI_Waitall( count, arrayOfRequests, MPI_STATUSES_IGNORE );
+    errorCode = MPI_Waitall( count, arrayOfRequests, MPI_STATUSES_IGNORE );
 #endif
 
-	return errorCode;
+    return errorCode;
 }
 
 void HXSendString( string & cs, int pid, int tag )
 {
-	int nLength = cs.length();
+    int nLength = cs.length();
 
-	ONEFLOW::HXSend( & nLength, 1, PL_INT, pid, tag );
+    ONEFLOW::HXSend( & nLength, 1, PL_INT, pid, tag );
 
-	int nLength1 = nLength + 1;
-	char * data = new char[ nLength1 ];
+    int nLength1 = nLength + 1;
+    char * data = new char[ nLength1 ];
 
-	cs.copy( data, nLength );
-	data[ nLength ] = '\0';
+    cs.copy( data, nLength );
+    data[ nLength ] = '\0';
 
-	ONEFLOW::HXSend( data, nLength1, PL_CHAR, pid, tag );
+    ONEFLOW::HXSend( data, nLength1, PL_CHAR, pid, tag );
 
-	delete[] data;
+    delete[] data;
 }
 
 void HXRecvString( string & cs, int pid, int tag )
 {
-	int nLength = 0;
-	ONEFLOW::HXRecv( & nLength, 1, PL_INT, pid, tag );
+    int nLength = 0;
+    ONEFLOW::HXRecv( & nLength, 1, PL_INT, pid, tag );
 
-	int nLength1 = nLength + 1;
-	char * data = new char[ nLength1 ];
+    int nLength1 = nLength + 1;
+    char * data = new char[ nLength1 ];
 
-	ONEFLOW::HXRecv( data, nLength1, PL_CHAR, pid, tag );
+    ONEFLOW::HXRecv( data, nLength1, PL_CHAR, pid, tag );
 
-	cs = data;
+    cs = data;
 
-	delete[] data;
+    delete[] data;
 }
 
 void HXReduceInt( void * s, void * t, int nElem, PL_Op op )
