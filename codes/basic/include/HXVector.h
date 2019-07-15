@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -32,57 +32,57 @@ template < typename T >
 class HXVector : public vector< T >
 {
 public:
-	HXVector(){};
-	~HXVector(){};
-	HXVector( const UInt count )
-		: vector< T >( count )
-	{
-		;
-	}
-	HXVector( const UInt count, const T& value )
-		: vector< T >( count, value )
-	{
-		;
-	}
-	HXVector( T * first, T * last ) :
-	    vector< T >( first, last )
-	{
+    HXVector(){};
+    ~HXVector(){};
+    HXVector( const UInt count )
+        : vector< T >( count )
+    {
         ;
-	}
+    }
+    HXVector( const UInt count, const T& value )
+        : vector< T >( count, value )
+    {
+        ;
+    }
+    HXVector( T * first, T * last ) :
+        vector< T >( first, last )
+    {
+        ;
+    }
 public:
-	HXVector< T >& operator =( const T& value )
-	{
-		for ( UInt i = 0; i < this->size(); ++ i )
-		{
-			( *this )[ i ] = value;
-		}
-		return *this;
-	}
+    HXVector< T >& operator =( const T& value )
+    {
+        for ( UInt i = 0; i < this->size(); ++ i )
+        {
+            ( *this )[ i ] = value;
+        }
+        return *this;
+    }
 };
 
 template < typename T >
 void AllocateVector( HXVector< HXVector< T > > & data, int ni, int nj )
 {
-	if ( nj <= 0 ) return;
-	data.resize( ni );
-	for ( int i = 0; i < ni; ++ i )
-	{
-		data[ i ].resize( nj );
-	}
+    if ( nj <= 0 ) return;
+    data.resize( ni );
+    for ( int i = 0; i < ni; ++ i )
+    {
+        data[ i ].resize( nj );
+    }
 }
 
 template < typename T >
 void AllocateVector( HXVector< HXVector< HXVector< T > > > & data, int ni, int nj, int nk )
 {
-	data.resize( ni );
-	for ( int i = 0; i < ni; ++ i )
-	{
-		data[ i ].resize( nj );
-		for ( int j = 0; j < nj; ++ j )
-		{
-			data[ i ][ j ].resize( nk );
-		}
-	}
+    data.resize( ni );
+    for ( int i = 0; i < ni; ++ i )
+    {
+        data[ i ].resize( nj );
+        for ( int j = 0; j < nj; ++ j )
+        {
+            data[ i ][ j ].resize( nk );
+        }
+    }
 }
 
 EndNameSpace

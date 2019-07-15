@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -29,7 +29,7 @@ class Mid
 {
 public:
     int size, id;
-	HXVector< T > data;
+    HXVector< T > data;
 public:
     Mid();
     Mid( int size, int id = 0 );
@@ -52,7 +52,7 @@ Mid<T>::Mid( int size, int id )
 {
     this->size = size;
     this->id   = id;
-	this->data.resize( size );
+    this->data.resize( size );
 }
 
 template < typename T >
@@ -60,7 +60,7 @@ Mid<T>::Mid( const Mid<T> & rhs )
 {
     this->size = rhs.size;
     this->id   = rhs.id;
-	this->data.resize( size );
+    this->data.resize( size );
 
     for ( int i = 0; i < size; ++ i )
     {
@@ -76,7 +76,7 @@ Mid<T> & Mid<T>::operator = ( const Mid<T> & rhs )
     if ( this->size != rhs.size )
     {
         this->size = rhs.size;
-		this->data.resize( this->size );
+        this->data.resize( this->size );
     }
 
     this->id   = rhs.id;
