@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -30,80 +30,80 @@ template < typename T >
 class HXPointer
 {
 public:
-	HXPointer();
-	HXPointer( UInt nSize );
-	~HXPointer();
+    HXPointer();
+    HXPointer( UInt nSize );
+    ~HXPointer();
 protected:
-	HXVector< T * > data;
-	bool del_flag;
+    HXVector< T * > data;
+    bool del_flag;
 public:
-	void SetDeleteFlag( bool del_flag );
-	T *& operator[] ( UInt i );
-	HXPointer & operator= ( HXPointer &rhs );
+    void SetDeleteFlag( bool del_flag );
+    T *& operator[] ( UInt i );
+    HXPointer & operator= ( HXPointer &rhs );
 public:
-	void resize( UInt nSize );
-	UInt size();
-	void push_back( T * value );
+    void resize( UInt nSize );
+    UInt size();
+    void push_back( T * value );
 };
 
 template < typename T >
 HXPointer<T>::HXPointer()
 {
-	del_flag = false;
+    del_flag = false;
 }
 
 template < typename T >
 HXPointer<T>::HXPointer( UInt nSize ) :
-	data( nSize )
+    data( nSize )
 {
-	del_flag = false;
+    del_flag = false;
 }
 
 template < typename T >
 HXPointer<T>::~HXPointer()
 {
-	if ( del_flag )
-	{
-		DeletePointer( data );
-	}
+    if ( del_flag )
+    {
+        DeletePointer( data );
+    }
 }
 
 template < typename T >
 void HXPointer<T>::SetDeleteFlag( bool del_flag )
 {
-	this->del_flag = del_flag;
+    this->del_flag = del_flag;
 }
 
 template < typename T >
 T *& HXPointer<T>::operator[] ( UInt i )
 {
-	return this->data[ i ];
+    return this->data[ i ];
 }
 
 template < typename T >
 HXPointer<T> & HXPointer<T>::operator= ( HXPointer<T> &rhs )
 {
-	if ( this == & rhs ) return *this;
-	this->data = rhs.data;
-	return *this;
+    if ( this == & rhs ) return *this;
+    this->data = rhs.data;
+    return *this;
 }
 
 template < typename T >
 void HXPointer<T>::resize( UInt nSize )
 {
-	this->data.resize( nSize );
+    this->data.resize( nSize );
 }
 
 template < typename T >
 UInt HXPointer<T>::size()
 {
-	return this->data.size();
+    return this->data.size();
 }
 
 template < typename T >
 void HXPointer<T>::push_back( T * value )
 {
-	this->data.push_back( value );
+    this->data.push_back( value );
 }
 
 template < typename T >
@@ -114,21 +114,21 @@ void DeletePointer( HXVector< T * > & pointer );
 template < typename T >
 void CreatePointer( HXVector< T * > & pointer, int nSize )
 {
-	pointer.resize( nSize );
-	for ( int i = 0; i < nSize; ++ i )
-	{
-		pointer[ i ] = new T();
-	}
+    pointer.resize( nSize );
+    for ( int i = 0; i < nSize; ++ i )
+    {
+        pointer[ i ] = new T();
+    }
 }
 
 template < typename T >
 void DeletePointer( HXVector< T * > & pointer )
 {
-	for ( UInt i = 0; i < pointer.size(); ++ i )
-	{
-		delete pointer[ i ];
-	}
-	pointer.resize( 0 );
+    for ( UInt i = 0; i < pointer.size(); ++ i )
+    {
+        delete pointer[ i ];
+    }
+    pointer.resize( 0 );
 }
 
 EndNameSpace

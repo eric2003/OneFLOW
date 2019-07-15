@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -31,49 +31,49 @@ template < typename T, typename U >
 class HXAdtNode 
 {
 public:
-	typedef HXAdtNode< T, U >   AdtNode;
-	typedef HXVector< AdtNode * > AdtNodeList;
-	typedef typename AdtNodeList::iterator AdtNodeListIter;
+    typedef HXAdtNode< T, U >   AdtNode;
+    typedef HXVector< AdtNode * > AdtNodeList;
+    typedef typename AdtNodeList::iterator AdtNodeListIter;
 public:
     U            * point;              // the coordinate of the node
-	int          level;                // the level in the tree
-	AdtNode      * left;               // the left tree
-	AdtNode      * right;              // the right tree
-	T            item;                 // any data stored
-	int          dim;
+    int          level;                // the level in the tree
+    AdtNode      * left;               // the left tree
+    AdtNode      * right;              // the right tree
+    T            item;                 // any data stored
+    int          dim;
 public:
-	HXAdtNode( int dim = 3 );
-	HXAdtNode( int dim, U * coordinate, T data );
-	~HXAdtNode();
+    HXAdtNode( int dim = 3 );
+    HXAdtNode( int dim, U * coordinate, T data );
+    ~HXAdtNode();
 
-	// Add an Adt node under the current node 
+    // Add an Adt node under the current node 
     void AddNode( AdtNode * node, U * nwmin, U * nwmax, const int & dim );
-	// is the current node inside region ( pmin, pmax )?
-	bool IsInRegion( U * pmin, U * pmax, const int & dim );
-	// ld carries all the nodes inside region ( pmin, pmax )
+    // is the current node inside region ( pmin, pmax )?
+    bool IsInRegion( U * pmin, U * pmax, const int & dim );
+    // ld carries all the nodes inside region ( pmin, pmax )
     void FindNodesInRegion( U * pmin, U * pmax, U * nwmin, U * nwmax, const int & dim, AdtNodeList & ld );
     int  nCount();
-	T GetData() const { return item; };
+    T GetData() const { return item; };
 };
 
 template < typename T, typename U >
 class HXAdtTree
 {
 public:
-	typedef typename HXAdtNode<T, U>::AdtNode          AdtNode;
-	typedef typename HXAdtNode<T, U>::AdtNodeList      AdtNodeList;
-	typedef typename HXAdtNode<T, U>::AdtNodeListIter  AdtNodeListIter;
-	typedef          HXAdtTree<T, U>                   AdtTree;
+    typedef typename HXAdtNode<T, U>::AdtNode          AdtNode;
+    typedef typename HXAdtNode<T, U>::AdtNodeList      AdtNodeList;
+    typedef typename HXAdtNode<T, U>::AdtNodeListIter  AdtNodeListIter;
+    typedef          HXAdtTree<T, U>                   AdtTree;
 public:
-	HXAdtTree( int dim = 3 );
-	HXAdtTree( int dim, U * pmin, U * pmax );
+    HXAdtTree( int dim = 3 );
+    HXAdtTree( int dim, U * pmin, U * pmax );
     HXAdtTree( int dim, HXVector< U > & pmin, HXVector< U > &pmax );
-	~HXAdtTree();
+    ~HXAdtTree();
 
-	// Add an Adt node to the AdtTree 
-	void AddNode( AdtNode * node );
-	// Find All nodes inside the region ( pmin, pmax ) from the tree
-	void FindNodesInRegion( U * pmin, U * pmax, AdtNodeList & ld );
+    // Add an Adt node to the AdtTree 
+    void AddNode( AdtNode * node );
+    // Find All nodes inside the region ( pmin, pmax ) from the tree
+    void FindNodesInRegion( U * pmin, U * pmax, AdtNodeList & ld );
     int  nCount()
     { 
         if ( root )
@@ -85,14 +85,14 @@ public:
             return 0;
         }
     };
-	// Get the min coordinates of the tree
-	U  * GetMin() const;
-	// Get the max coordinates of the tree
-	U  * GetMax() const;
+    // Get the min coordinates of the tree
+    U  * GetMin() const;
+    // Get the max coordinates of the tree
+    U  * GetMax() const;
 protected:
-	int	    dim;
-    U    	* pmin, * pmax;
-	AdtNode * root;
+    int     dim;
+    U    * pmin, * pmax;
+    AdtNode * root;
 };
 
 EndNameSpace

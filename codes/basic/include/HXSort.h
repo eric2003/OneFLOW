@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -28,24 +28,24 @@ template < typename T >
 class HXSort
 {
 public:
-	T value;
-	UInt index;
+    T value;
+    UInt index;
 public:
-	HXSort() {}
-	HXSort( const T & value, UInt index )
-	{
-		this->value = value;
-		this->index = index;
-	}
+    HXSort() {}
+    HXSort( const T & value, UInt index )
+    {
+        this->value = value;
+        this->index = index;
+    }
 public:
-	bool operator < ( const HXSort & rhs ) const
-	{
-		return value < rhs.value;
-	}
-	bool operator > ( const HXSort & rhs ) const
-	{
-		return value > rhs.value;
-	}
+    bool operator < ( const HXSort & rhs ) const
+    {
+        return value < rhs.value;
+    }
+    bool operator > ( const HXSort & rhs ) const
+    {
+        return value > rhs.value;
+    }
 };
 
 EndNameSpace
