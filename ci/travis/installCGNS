@@ -10,13 +10,17 @@ if [ "$TRAVIS_OS_NAME" == "linux" ]; then
     cd CGNS-3.4.0
     ls
     echo "compiler is $C_COMPILER"
+    echo "compiler is $CXX_COMPILER"
     mkdir build
     cd build
     ls
+    echo "TRAVIS_BUILD_DIR is $TRAVIS_BUILD_DIR"
+    echo "source is $TRAVIS_BUILD_DIR/lib/CGNS-3.4.0"
+    echo "build is $TRAVIS_BUILD_DIR/lib/CGNS-3.4.0/build"
     #cmake -G "Unix Makefiles" -SCGNS-3.4.0 -BCGNS-3.4.0/build -DCGNS_ENABLE_64BIT="ON" -DCGNS_BUILD_SHARED="OFF" -DCMAKE_INSTALL_PREFIX=cgns
     #cmake -G "Unix Makefiles" -DCMAKE_INSTALL_PREFIX=/usr/local/cgns ../
     #cmake -G "Unix Makefiles" -DCGNS_ENABLE_64BIT="ON" -DCMAKE_INSTALL_PREFIX=/usr/local/cgns ../
-    cmake -G "Unix Makefiles" -S$TRAVIS_BUILD_DIR/CGNS-3.4.0 -B$TRAVIS_BUILD_DIR/CGNS-3.4.0/build/ \
+    cmake -G "Unix Makefiles" -S$TRAVIS_BUILD_DIR/lib/CGNS-3.4.0 -B$TRAVIS_BUILD_DIR/lib/CGNS-3.4.0/build/ \
           -DCMAKE_C_COMPILER=$C_COMPILER -DCMAKE_CXX_COMPILER=$CXX_COMPILER -DCGNS_ENABLE_64BIT="ON" \
           -DCGNS_BUILD_SHARED="OFF" -DCMAKE_INSTALL_PREFIX=/usr/local/cgns 
     make -j 8
