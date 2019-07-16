@@ -169,19 +169,6 @@ void SetUpParallelEnvironment()
 
 void HXBcast( DataBook * dataBook, int rootid )
 {
-    //int tag = 0;
- //   if ( Parallel::pid == rootid )
- //   {
- //       for ( int proc = 0; proc < Parallel::nProc; ++ proc )
- //       {
- //           if ( proc == rootid ) continue;
-    //        dataBook->Send( proc, tag );
- //       }
- //   }
- //   else
- //   {
-    //    dataBook->Recv( rootid, tag );
- //   }
     dataBook->Bcast( rootid );
 }
 

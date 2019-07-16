@@ -81,6 +81,7 @@ void Simulation::MainProcess()
 
 void Simulation::PostProcess()
 {
+    HXFinalize();
 }
 
 void Simulation::RunSimu()
