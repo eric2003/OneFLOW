@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -35,17 +35,17 @@ public:
     CellTopo();
     ~CellTopo();
 public:
-	IntField cellType;
+    IntField cellType;
     IntField blank;
-	LinkField cellToNode;
+    LinkField cellToNode;
     LinkField c2f;
     LinkField c2c;
 public:
-	void PushElement( int p1, int p2, int p3, int elementType );
-	void PushElement( int p1, int p2, int p3, int p4, int elementType );
+    void PushElement( int p1, int p2, int p3, int elementType );
+    void PushElement( int p1, int p2, int p3, int p4, int elementType );
 public:
     void Alloc( int nCell );
-	UInt GetNumberOfCells() { return cellType.size(); }
+    UInt GetNumberOfCells() { return cellType.size(); }
     void CmpC2f( FaceTopo * faceTopo );
     void CmpC2C( FaceTopo * faceTopo );
 };

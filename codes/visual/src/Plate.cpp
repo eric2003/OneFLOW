@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -101,10 +101,10 @@ void PlaneData::AddVar( int p1, int p2, Real c1, Real c2 )
         var2[ iEqu ] = ( * nodedata )[ iEqu ][ p2 ];
     }
 
-	for ( int iEqu = 0; iEqu < nEqu; ++ iEqu )
-	{
-		var[ iEqu ] = c1 * var1[ iEqu ] + c2 * var2[ iEqu ];
-	}
+    for ( int iEqu = 0; iEqu < nEqu; ++ iEqu )
+    {
+        var[ iEqu ] = c1 * var1[ iEqu ] + c2 * var2[ iEqu ];
+    }
 
     this->AddVar( var );
 }
@@ -158,80 +158,80 @@ void PlaneData::Read( DataBook * dataBook )
 
 void PlaneData::SortData( RealField & varList )
 {
-	HXVector< HXSort< Real > > sortList;
-	HXSort< Real > svar;
+    HXVector< HXSort< Real > > sortList;
+    HXSort< Real > svar;
 
     int nNode = this->x.size();
     if ( nNode <= 0 ) return;
 
-	for ( int iNode = 0; iNode < nNode; ++ iNode )
-	{
-		svar.value = varList[ iNode ];
-		svar.index = iNode;
-		sortList.push_back( svar );
-	}
-	sort( sortList.begin(), sortList.end() );
+    for ( int iNode = 0; iNode < nNode; ++ iNode )
+    {
+        svar.value = varList[ iNode ];
+        svar.index = iNode;
+        sortList.push_back( svar );
+    }
+    sort( sortList.begin(), sortList.end() );
 
-	IntField indexList;
-	for ( int iNode = 0; iNode < nNode; ++ iNode )
-	{
-		indexList.push_back( sortList[ iNode ].index );
-	}
+    IntField indexList;
+    for ( int iNode = 0; iNode < nNode; ++ iNode )
+    {
+        indexList.push_back( sortList[ iNode ].index );
+    }
 
-	ReorderList( x, indexList );
-	ReorderList( y, indexList );
-	ReorderList( z, indexList );
+    ReorderList( x, indexList );
+    ReorderList( y, indexList );
+    ReorderList( z, indexList );
 
-	int nEqu = slicedata.size();
+    int nEqu = slicedata.size();
 
-	for ( int iEqu = 0; iEqu < nEqu; ++ iEqu )
-	{
-		ReorderList( slicedata[ iEqu ], indexList );
-	}
+    for ( int iEqu = 0; iEqu < nEqu; ++ iEqu )
+    {
+        ReorderList( slicedata[ iEqu ], indexList );
+    }
 }
 
 void PlaneData::SortDataByAxis( int axis )
 {
-	if ( axis == X_DIR )
-	{
-		this->SortData( this->x );
-	}
-	else if ( axis == Y_DIR )
-	{
-		this->SortData( this->y );
-	}
-	else if ( axis == Z_DIR )
-	{
-		this->SortData( this->z );
-	}
+    if ( axis == X_DIR )
+    {
+        this->SortData( this->x );
+    }
+    else if ( axis == Y_DIR )
+    {
+        this->SortData( this->y );
+    }
+    else if ( axis == Z_DIR )
+    {
+        this->SortData( this->z );
+    }
 }
 
 int PlaneData::FindYIndex()
 {
-	//找到壁面第一层的点
+    //找到壁面第一层的点
     RealField yList = this->y;
-	sort( yList.begin(), yList.end() );
+    sort( yList.begin(), yList.end() );
 
-	int yIndex = 1;
-	for ( int iNode = 0; iNode < yList.size(); ++ iNode )
-	{
-		if ( yList[ iNode ] )
-		{
-			yIndex = iNode;
-			break;
-		}
-	}
+    int yIndex = 1;
+    for ( int iNode = 0; iNode < yList.size(); ++ iNode )
+    {
+        if ( yList[ iNode ] )
+        {
+            yIndex = iNode;
+            break;
+        }
+    }
 
-	for ( int iNode = 0; iNode < yList.size(); ++ iNode )
-	{
-		if ( yList[ yIndex ] == this->y[ iNode ] )
-		{
-			yIndex = iNode;
-			break;
-		}
-	}
+    for ( int iNode = 0; iNode < yList.size(); ++ iNode )
+    {
+        if ( yList[ yIndex ] == this->y[ iNode ] )
+        {
+            yIndex = iNode;
+            break;
+        }
+    }
 
-	return yIndex;
+    return yIndex;
 }
 
 LamData::LamData()
@@ -448,56 +448,56 @@ void CuttingClass::CutPlane( Real cutPosition, int cutAxis, LamData * lamData )
     RealField & z = grid->nodeMesh->zN;
 
     PointSearch * point_search = new PointSearch();
-	point_search->InitializeSpecial( grid, 1.0e-8 );
+    point_search->InitializeSpecial( grid, 1.0e-8 );
 
-	Real eps = half * point_search->GetTol();
+    Real eps = half * point_search->GetTol();
 
     RealField & xyz = this->GetCoor( grid, cutAxis );
 
     int nFace = grid->nFace;
     LinkField & f2n = grid->faceTopo->f2n;
 
-	RealField point( 3 );
+    RealField point( 3 );
     for ( int iFace = 0; iFace < nFace; ++ iFace )
     {
-		Real coorMin =   LARGE;
-		Real coorMax = - LARGE;
+        Real coorMin =   LARGE;
+        Real coorMax = - LARGE;
 
-		int nNode = f2n[ iFace ].size();
-		for ( int iNode = 0; iNode < nNode; ++ iNode )
-		{
+        int nNode = f2n[ iFace ].size();
+        for ( int iNode = 0; iNode < nNode; ++ iNode )
+        {
             int nId = f2n[ iFace ][ iNode ];
             coorMin = MIN( xyz[ nId ], coorMin );
             coorMax = MAX( xyz[ nId ], coorMax );
         }
 
-		if ( cutPosition < coorMin - eps || cutPosition > coorMax + eps )
-		{
-			continue;
-		}
+        if ( cutPosition < coorMin - eps || cutPosition > coorMax + eps )
+        {
+            continue;
+        }
 
-		for ( int iNode = 0; iNode < nNode; ++ iNode )
-		{
+        for ( int iNode = 0; iNode < nNode; ++ iNode )
+        {
             int p1 = f2n[ iFace ][ iNode     ];
             int p2 = f2n[ iFace ][ ( iNode + 1 ) % nNode ];
 
             coorMin = MIN( xyz[ p1 ], xyz[ p2 ] );
             coorMax = MAX( xyz[ p1 ], xyz[ p2 ] );
 
-		    if ( cutPosition < coorMin - eps ||
-				 cutPosition > coorMax + eps )
-		    {
-			    continue;
-		    }
+            if ( cutPosition < coorMin - eps ||
+                 cutPosition > coorMax + eps )
+            {
+                continue;
+            }
 
-			Real cr = ( cutPosition - xyz[ p1 ] ) / ( xyz[ p2 ] - xyz[ p1 ] + SMALL );
-			Real cl = 1 - cr;
+            Real cr = ( cutPosition - xyz[ p1 ] ) / ( xyz[ p2 ] - xyz[ p1 ] + SMALL );
+            Real cl = 1 - cr;
 
-			if ( ABS( xyz[ p2 ] - xyz[ p1 ] ) < 1.0e-10 )
-			{
-				cr = 0.5;
-				cl = 0.5;
-			}
+            if ( ABS( xyz[ p2 ] - xyz[ p1 ] ) < 1.0e-10 )
+            {
+                cr = 0.5;
+                cl = 0.5;
+            }
 
             Real xl = x[ p1 ];
             Real yl = y[ p1 ];
@@ -515,14 +515,14 @@ void CuttingClass::CutPlane( Real cutPosition, int cutAxis, LamData * lamData )
             point[ 1 ] = ym;
             point[ 2 ] = zm;
 
-			if ( point_search->FindPoint( xm, ym, zm ) == INVALID_INDEX )
+            if ( point_search->FindPoint( xm, ym, zm ) == INVALID_INDEX )
             {
-				int ptId = point_search->AddPoint( xm, ym, zm );
+                int ptId = point_search->AddPoint( xm, ym, zm );
                 lamData->AddVar( point, p1, p2, cl, cr );
             }
         }
     }
-	delete point_search;
+    delete point_search;
 }
 
 EndNameSpace

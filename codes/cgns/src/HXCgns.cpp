@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -28,22 +28,22 @@ BeginNameSpace( ONEFLOW )
 
 string GetCgnsPointSetName( int cgnsPointSetType )
 {
-	return ONEFLOW::PointSetTypeName[ cgnsPointSetType ];
+    return ONEFLOW::PointSetTypeName[ cgnsPointSetType ];
 }
 
 string GetCgnsBcName( int cgnsBcType )
 {
-	return ONEFLOW::BCTypeName[ cgnsBcType ];
+    return ONEFLOW::BCTypeName[ cgnsBcType ];
 }
 
 string GetCgnsGridLocationName( int cgnsGridLocation )
 {
-	return ONEFLOW::GridLocationName[ cgnsGridLocation ];
+    return ONEFLOW::GridLocationName[ cgnsGridLocation ];
 }
 
 string GetCgnsZoneTypeName( int cgnsZoneType )
 {
-	return ONEFLOW::ZoneTypeName[ cgnsZoneType ];
+    return ONEFLOW::ZoneTypeName[ cgnsZoneType ];
 }
 
 #endif

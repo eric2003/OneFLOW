@@ -30,109 +30,109 @@ BeginNameSpace( ONEFLOW )
 std::string * defaultLine = 0;
 void SetDefaultLine( std::string * defaultLineIn )
 {
-	defaultLine = defaultLineIn;
+    defaultLine = defaultLineIn;
 }
 
 std::string * GetDefaultLine()
 {
-	return defaultLine;
+    return defaultLine;
 }
 
 std::string * separatorOfWord = 0;
 void SetDefaultSeparatorOfWord( std::string * separatorOfWordIn )
 {
-	separatorOfWord = separatorOfWordIn;
+    separatorOfWord = separatorOfWordIn;
 }
 
 std::string * GetDefaultSeparatorOfWord()
 {
-	return separatorOfWord;
+    return separatorOfWord;
 }
 
 AsciiFileRead::AsciiFileRead()
 {
-	line        = new std::string;
-	separator   = new std::string;
-	file        = new fstream;
-	setfileFlag = 0;
+    line        = new std::string;
+    separator   = new std::string;
+    file        = new fstream;
+    setfileFlag = 0;
     //\t is tab key
     string keyWordSeparator = " =\r\n\t#$,;\"";
-	this->SetDefaultSeparator( keyWordSeparator );
+    this->SetDefaultSeparator( keyWordSeparator );
 
-	this->commentLineClass = new CommentLineClass();
-	this->commentLineClass->AddString("#");
-	this->commentLineClass->AddString("//");
+    this->commentLineClass = new CommentLineClass();
+    this->commentLineClass->AddString("#");
+    this->commentLineClass->AddString("//");
 }
 
 AsciiFileRead::~AsciiFileRead()
 {
-	delete line;
-	delete separator;
-	if ( setfileFlag == 0 )
-	{
-		delete file;
-	}
-	delete this->commentLineClass;
+    delete line;
+    delete separator;
+    if ( setfileFlag == 0 )
+    {
+        delete file;
+    }
+    delete this->commentLineClass;
 }
 
 void AsciiFileRead::ResetCommentString(StringField& commentStringList)
 {
-	this->commentLineClass->ResetCommentString(commentStringList);
+    this->commentLineClass->ResetCommentString(commentStringList);
 }
 
 void AsciiFileRead::SetDefaultFile ( std::fstream * defaultFileIn )
 {
-	if ( setfileFlag == 0 )
-	{
-		delete file;
-	}
-	this->file  = defaultFileIn;
-	setfileFlag = 1;
+    if ( setfileFlag == 0 )
+    {
+        delete file;
+    }
+    this->file  = defaultFileIn;
+    setfileFlag = 1;
 }
 
 void AsciiFileRead::OpenFile( const string & fileName, const ios_base::openmode & fileOpenMode )
 {
     this->fileName     = fileName;
-	this->fileOpenMode = fileOpenMode;
-	ONEFLOW::OpenFile( * file, fileName, fileOpenMode );
+    this->fileOpenMode = fileOpenMode;
+    ONEFLOW::OpenFile( * file, fileName, fileOpenMode );
 }
 
 void AsciiFileRead::OpenPrjFile( const string & fileName, const ios_base::openmode & fileOpenMode )
 {
     this->fileName     = fileName;
-	this->fileOpenMode = fileOpenMode;
-	ONEFLOW::OpenPrjFile( * file, fileName, fileOpenMode );
+    this->fileOpenMode = fileOpenMode;
+    ONEFLOW::OpenPrjFile( * file, fileName, fileOpenMode );
 }
 
 void AsciiFileRead::CloseFile()
 {
-	ONEFLOW::CloseFile( * file );
+    ONEFLOW::CloseFile( * file );
 }
 
 void AsciiFileRead::MarkCurrentFilePosition()
 {
-	filePosition = file->tellp();
+    filePosition = file->tellp();
 }
 
 void AsciiFileRead::MoveToPreviousFilePosition()
 {
-	file->seekp( filePosition );
+    file->seekp( filePosition );
 }
 
 bool AsciiFileRead::ReadNextMeaningfulLine()
 {
     while ( ! this->ReachTheEndOfFile() )
     {
-		ONEFLOW::ReadNextLine( * file, * line );
+        ONEFLOW::ReadNextLine( * file, * line );
 
         if ( ONEFLOW::IsEmptyLine  ( * line ) ||
-			 ONEFLOW::IsCommentLine( * line, this->commentLineClass->commentdata ) )
-		{
-			 continue;
-		}
-		return true;
-	}
-	return false;
+             ONEFLOW::IsCommentLine( * line, this->commentLineClass->commentdata ) )
+        {
+             continue;
+        }
+        return true;
+    }
+    return false;
 }
 
 bool AsciiFileRead::ReachTheEndOfFile()
@@ -146,60 +146,60 @@ bool AsciiFileRead::ReachTheEndOfFile()
 
 void AsciiFileRead::SkipLines( int numberOfLinesToSkip )
 {
-	ONEFLOW::SkipLines( * file, numberOfLinesToSkip );
+    ONEFLOW::SkipLines( * file, numberOfLinesToSkip );
 }
 
 bool AsciiFileRead::ReadNextNonEmptyLine()
 {
-	return ONEFLOW::ReadNextNonEmptyLine( * this->file, * this->line );
+    return ONEFLOW::ReadNextNonEmptyLine( * this->file, * this->line );
 }
 
 void AsciiFileRead::DumpLineContentToScreen()
 {
-	cout << * line << endl;
+    cout << * line << endl;
 }
 
 void AsciiFileRead::SkipReadSymbol( const string & stringSymbol )
 {
     while ( ! this->ReachTheEndOfFile() )
     {
-		bool resultFlag = this->ReadNextMeaningfulLine();
-		if ( ! resultFlag ) break;
+        bool resultFlag = this->ReadNextMeaningfulLine();
+        if ( ! resultFlag ) break;
 
-		string word = this->ReadNextWord();
+        string word = this->ReadNextWord();
 
-		if ( word == stringSymbol )
-		{
-			return;
-		}
+        if ( word == stringSymbol )
+        {
+            return;
+        }
     }
 }
 
 void AsciiFileRead::SkipReadWholeBlock()
 {
-	int countOfLeftBrackets  = 0;
-	int countOfRightBrackets = 0;
+    int countOfLeftBrackets  = 0;
+    int countOfRightBrackets = 0;
 
     while ( ! this->ReachTheEndOfFile() )
     {
-		bool resultFlag = this->ReadNextMeaningfulLine();
-		if ( ! resultFlag ) break;
+        bool resultFlag = this->ReadNextMeaningfulLine();
+        if ( ! resultFlag ) break;
 
-		string word = this->ReadNextWord();
+        string word = this->ReadNextWord();
 
-		if ( word == "{" )
-		{
-			++ countOfLeftBrackets;
-		}
-		else if ( word == "}" )
-		{
-			++ countOfRightBrackets;
-		}
+        if ( word == "{" )
+        {
+            ++ countOfLeftBrackets;
+        }
+        else if ( word == "}" )
+        {
+            ++ countOfRightBrackets;
+        }
 
-		if ( countOfLeftBrackets == countOfRightBrackets )
-		{
-			return;
-		}
+        if ( countOfLeftBrackets == countOfRightBrackets )
+        {
+            return;
+        }
     }
 }
 
@@ -220,95 +220,95 @@ std::string AsciiFileRead::ReadNextTrueWord()
         word = ONEFLOW::FindNextWord( * this->line, * this->separator );
     }
 
-	return word;
+    return word;
 }
 
 std::string AsciiFileRead::ReadNextWord()
 {
     string word = ONEFLOW::FindNextWord( * this->line, * this->separator );
 
-	return word;
+    return word;
 }
 
 std::string AsciiFileRead::ReadNextWord( const std::string & separator )
 {
-	string word = ONEFLOW::FindNextWord( * this->line, separator );
-	return word;
+    string word = ONEFLOW::FindNextWord( * this->line, separator );
+    return word;
 }
 
 string AsciiFileRead::ReadNextWordToLowerCase()
 {
     string word = ONEFLOW::FindNextWord( * this->line, * this->separator );
-	ONEFLOW::ToLowerCase( word );
-	return word;
+    ONEFLOW::ToLowerCase( word );
+    return word;
 }
 
 string AsciiFileRead::ReadNextWordToLowerCase( const std::string & separator )
 {
     string word = ONEFLOW::FindNextWord( * this->line, separator );
-	ONEFLOW::ToLowerCase( word );
-	return word;
+    ONEFLOW::ToLowerCase( word );
+    return word;
 }
 
 CommentLineClass::CommentLineClass()
 {
-	;
+    ;
 }
 
 CommentLineClass::~CommentLineClass()
 {
-	;
+    ;
 }
 
 void CommentLineClass::AddString(const string& cs)
 {
-	this->commentdata.push_back(cs);
+    this->commentdata.push_back(cs);
 }
 
 void CommentLineClass::ResetCommentString(StringField& commentStringList)
 {
-	this->commentdata = commentStringList;
+    this->commentdata = commentStringList;
 }
 
 
 string ReadNextWord()
 {
-	std::string * separatorOfWord = ONEFLOW::GetDefaultSeparatorOfWord();
-	std::string * defaultLine     = ONEFLOW::GetDefaultLine();
+    std::string * separatorOfWord = ONEFLOW::GetDefaultSeparatorOfWord();
+    std::string * defaultLine     = ONEFLOW::GetDefaultLine();
     string word = ONEFLOW::FindNextWord( * defaultLine, * separatorOfWord );
-	return word;
+    return word;
 }
 
 string ReadNextWordToLowerCase()
 {
-	std::string * separatorOfWord = ONEFLOW::GetDefaultSeparatorOfWord();
-	std::string * defaultLine     = ONEFLOW::GetDefaultLine();
+    std::string * separatorOfWord = ONEFLOW::GetDefaultSeparatorOfWord();
+    std::string * defaultLine     = ONEFLOW::GetDefaultLine();
 
     string word = ONEFLOW::FindNextWord( * defaultLine, * separatorOfWord );
 
-	ONEFLOW::ToLowerCase( word );
-	return word;
+    ONEFLOW::ToLowerCase( word );
+    return word;
 }
 
 string ReadNextWord( const std::string & separatorOfWord )
 {
-	std::string * defaultLine     = ONEFLOW::GetDefaultLine();
+    std::string * defaultLine     = ONEFLOW::GetDefaultLine();
     string word = ONEFLOW::FindNextWord( * defaultLine, separatorOfWord );
-	return word;
+    return word;
 }
 
 string ReadNextWord( std::string & source, const std::string & separatorOfWord )
 {
     string word = ONEFLOW::FindNextWord( source, separatorOfWord );
-	return word;
+    return word;
 }
 
 string ReadNextWordToLowerCase( const std::string & separatorOfWord )
 {
-	std::string * defaultLine = ONEFLOW::GetDefaultLine();
+    std::string * defaultLine = ONEFLOW::GetDefaultLine();
     string word = ONEFLOW::FindNextWord( * defaultLine, separatorOfWord );
-	ONEFLOW::ToLowerCase( word );
-	return word;
+    ONEFLOW::ToLowerCase( word );
+    return word;
 }
 
 bool IsEmpty( fstream & file )
@@ -322,40 +322,40 @@ bool IsEmpty( fstream & file )
 
 bool IsEmptyLine( const string & line )
 {
-	if ( line == "" )
-	{
-		return true;
-	}
-	else
-	{
-		const string notReadableSeparator = " \r\n\t";
-		string word;
-		FindNextWord( line, word, notReadableSeparator );
-		return word == "";
-	}
+    if ( line == "" )
+    {
+        return true;
+    }
+    else
+    {
+        const string notReadableSeparator = " \r\n\t";
+        string word;
+        FindNextWord( line, word, notReadableSeparator );
+        return word == "";
+    }
 }
 
 bool IsCommentLine( const string & line )
 {
-	const string notReadableSeparator = " \r\n\t";
-	string word;
-	FindNextWord( line, word, notReadableSeparator );
-	return ( word.substr( 0, 1 ) == "#" ||
-		word.substr( 0, 2 ) == "//" );
+    const string notReadableSeparator = " \r\n\t";
+    string word;
+    FindNextWord( line, word, notReadableSeparator );
+    return ( word.substr( 0, 1 ) == "#" ||
+        word.substr( 0, 2 ) == "//" );
 }
 
 bool IsCommentLine(const string& line, StringField &comlist )
 {
-	const string notReadableSeparator = " \r\n\t";
-	string word;
-	FindNextWord(line, word, notReadableSeparator);
-	for (int i = 0; i < comlist.size(); ++ i)
-	{
-		string & t = comlist[ i ];
-		int n = t.length();
-		if ( word.substr(0, n) == t ) return true;
-	}
-	return false;
+    const string notReadableSeparator = " \r\n\t";
+    string word;
+    FindNextWord(line, word, notReadableSeparator);
+    for (int i = 0; i < comlist.size(); ++ i)
+    {
+        string & t = comlist[ i ];
+        int n = t.length();
+        if ( word.substr(0, n) == t ) return true;
+    }
+    return false;
 }
 
 EndNameSpace

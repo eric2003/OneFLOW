@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -43,32 +43,32 @@ void ConvergeTask::Run()
 {
     ActionState::dataBook = this->dataBook;
 
-	boolField.resize( ZoneState::nLocal, false );
+    boolField.resize( ZoneState::nLocal, false );
 
     for ( int zId = 0; zId < ZoneState::nZones; ++ zId )
     {
         if (  ! ZoneState::IsValidZone( zId ) ) continue;
 
         ZoneState::zid = zId;
-		Solver * solver = SolverState::GetSolver();
+        Solver * solver = SolverState::GetSolver();
 
     }
 
-	this->CmpBool();
+    this->CmpBool();
 }
 
 void ConvergeTask::CmpBool()
 {
-	this->flag = true;
-	int nSize = boolField.size();
+    this->flag = true;
+    int nSize = boolField.size();
     for ( int i = 0; i < nSize; ++ i )
     {
-		this->flag &= boolField[ i ];
+        this->flag &= boolField[ i ];
     }
-	int s = this->flag;
-	int t = -1;
-	HXReduceInt( & s, & t, 1, PL_MIN );
-	this->flag = t;
+    int s = this->flag;
+    int t = -1;
+    HXReduceInt( & s, & t, 1, PL_MIN );
+    this->flag = t;
 }
 
 EndNameSpace

@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -38,53 +38,53 @@ BlotterCurve::~BlotterCurve()
 
 void BlotterCurve::Init( int nSpecies )
 {
-	this->nSpecies = nSpecies;
+    this->nSpecies = nSpecies;
 
-	a.resize( nSpecies );
-	b.resize( nSpecies );
-	c.resize( nSpecies );
-	d.resize( nSpecies );
-	e.resize( nSpecies );
+    a.resize( nSpecies );
+    b.resize( nSpecies );
+    c.resize( nSpecies );
+    d.resize( nSpecies );
+    e.resize( nSpecies );
 }
 
 void BlotterCurve::Read( AsciiFileRead * ioFile )
 {
-	string word;
-	string separator = " =\r\n#$,;\"'";
+    string word;
+    string separator = " =\r\n#$,;\"'";
 
-	ioFile->SetDefaultSeparator( separator );
+    ioFile->SetDefaultSeparator( separator );
 
-	ioFile->SkipLines( 2 );
+    ioFile->SkipLines( 2 );
 
-	for ( int iSpecies = 0; iSpecies < nSpecies; ++ iSpecies )
-	{
-		ioFile->SkipLines( 3 );
-		ioFile->ReadNextNonEmptyLine();
+    for ( int iSpecies = 0; iSpecies < nSpecies; ++ iSpecies )
+    {
+        ioFile->SkipLines( 3 );
+        ioFile->ReadNextNonEmptyLine();
 
-		a[ iSpecies ] = ioFile->ReadNextDigit< Real >();
-		b[ iSpecies ] = ioFile->ReadNextDigit< Real >();
-		c[ iSpecies ] = ioFile->ReadNextDigit< Real >();
-		d[ iSpecies ] = ioFile->ReadNextDigit< Real >();
-		e[ iSpecies ] = ioFile->ReadNextDigit< Real >();
-	}
+        a[ iSpecies ] = ioFile->ReadNextDigit< Real >();
+        b[ iSpecies ] = ioFile->ReadNextDigit< Real >();
+        c[ iSpecies ] = ioFile->ReadNextDigit< Real >();
+        d[ iSpecies ] = ioFile->ReadNextDigit< Real >();
+        e[ iSpecies ] = ioFile->ReadNextDigit< Real >();
+    }
 }
 
 void BlotterCurve::Read( DataBook * dataBook )
 {
-	HXRead( dataBook, a );
-	HXRead( dataBook, b );
-	HXRead( dataBook, c );
-	HXRead( dataBook, d );
-	HXRead( dataBook, e );
+    HXRead( dataBook, a );
+    HXRead( dataBook, b );
+    HXRead( dataBook, c );
+    HXRead( dataBook, d );
+    HXRead( dataBook, e );
 }
 
 void BlotterCurve::Write( DataBook * dataBook )
 {
-	HXAppend( dataBook, a );
-	HXAppend( dataBook, b );
-	HXAppend( dataBook, c );
-	HXAppend( dataBook, d );
-	HXAppend( dataBook, e );
+    HXAppend( dataBook, a );
+    HXAppend( dataBook, b );
+    HXAppend( dataBook, c );
+    HXAppend( dataBook, d );
+    HXAppend( dataBook, e );
 }
 
 EndNameSpace

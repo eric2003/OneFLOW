@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -33,13 +33,13 @@ class DataBook;
 class VisualTool
 {
 public:
-	VisualTool();
-	~VisualTool();
+    VisualTool();
+    ~VisualTool();
 public:
-	StringField title;
-	HXVector< MRField * > qNodeField;
+    StringField title;
+    HXVector< MRField * > qNodeField;
 public:
-	void Init();
+    void Init();
     void AddTitle( const string & varName );
     MRField * AddField( RealField & qCellField, const string & varName );
     MRField * AddField( const string & varName );
@@ -56,15 +56,15 @@ public:
     void Cmpf2n( int bcType );
     void ResolveElementEdge();
     void Dump( ostringstream & oss, VisualTool * visualTool, string & bcTitle );
-	void DumpDebug( ostringstream & oss, VisualTool * visualTool, string & bcTitle );
-	void DumpSeveralElement();
+    void DumpDebug( ostringstream & oss, VisualTool * visualTool, string & bcTitle );
+    void DumpSeveralElement();
 public:
-	LinkField f2n;
-	IntField l2g;
+    LinkField f2n;
+    IntField l2g;
 
-	LinkField e2n;
-	IntField lcell;
-	IntField rcell;
+    LinkField e2n;
+    IntField lcell;
+    IntField rcell;
 };
 
 class UVisualize : public Visualize
@@ -78,7 +78,7 @@ public:
     void CmpNodeField( VisualTool * visualTool );
     void ShowField( ostringstream & oss, VisualTool * visualTool );
     void ShowBc( ostringstream & oss, VisualTool * visualTool );
-	void ShowBcDebugTest( ostringstream & oss, VisualTool * visualTool );
+    void ShowBcDebugTest( ostringstream & oss, VisualTool * visualTool );
     void ExtractLinkNum( LinkField & f2n, IntField & fnNumber );
     int  GetTotalNumFaceNodes( LinkField & f2n );
 };

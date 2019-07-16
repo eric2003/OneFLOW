@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -31,28 +31,28 @@ CgnsGlobal cgns_global;
 
 CgnsGlobal::CgnsGlobal()
 {
-	;
+    ;
 }
 
 CgnsGlobal::~CgnsGlobal()
 {
-	;
+    ;
 }
 
 CgnsZone * CgnsGlobal::GetCgnsZone( int zId )
 {
-	return cgnsbases->GetZone( zId - 1 );
+    return cgnsbases->GetZone( zId - 1 );
 }
 
 CgnsZone * CgnsGlobal::GetCgnsZone( const string & zoneName )
 {
-	CgnsBase * cgnsBase = cgnsbases->baseVector[ 0 ];
-	return cgnsBase->GetCgnsZone( zoneName );
+    CgnsBase * cgnsBase = cgnsbases->baseVector[ 0 ];
+    return cgnsBase->GetCgnsZone( zoneName );
 }
 
 CgnsZone * GetCgnsZone( const string & zoneName )
 {
-	return cgns_global.GetCgnsZone( zoneName );
+    return cgns_global.GetCgnsZone( zoneName );
 }
 
 #endif

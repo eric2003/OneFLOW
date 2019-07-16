@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -650,14 +650,14 @@ DomainInp::~DomainInp()
 
 void DomainInp::Run()
 {
-	this->GeneInp();
+    this->GeneInp();
 }
 
 void DomainInp::GeneInp()
 {
-	CgnsFactory * cgnsFactory = new CgnsFactory();
+    CgnsFactory * cgnsFactory = new CgnsFactory();
 
-	GridMediator * gridMediator = new GridMediator();
+    GridMediator * gridMediator = new GridMediator();
     gridMediator->gridFile = ONEFLOW::GetDataValue< string >( "sourceGridFileName" );
     gridMediator->bcFile   = ONEFLOW::GetDataValue< string >( "sourceGridBcName" );
     gridMediator->gridType = "plot3d";
@@ -665,7 +665,7 @@ void DomainInp::GeneInp()
     gridMediator->ReadPlot3DCoor();
     this->OutputInp( gridMediator );
 
-	delete cgnsFactory;
+    delete cgnsFactory;
 }
 
 void DomainInp::GetId( int zid, int i, int j, int k, int & id, GridMediator * gridMediator, PointSearch * pointSearch )
@@ -679,7 +679,7 @@ void DomainInp::GetId( int zid, int i, int j, int k, int & id, GridMediator * gr
     Real ym = ys( i, j, k );
     Real zm = zs( i, j, k );
 
-	id = pointSearch->AddPoint( xm ,ym, zm );
+    id = pointSearch->AddPoint( xm ,ym, zm );
 
     int kkk = 1;
 }
@@ -708,7 +708,7 @@ void DomainInp::FindPhysicalPatch( StrGrid * grid, MultiDomain * md, int zid, Ij
     int nk = grid->nk;
 
     int nSize = md->boxlist1.size();
-	IntSet fidlist;
+    IntSet fidlist;
     for ( int i = 0; i < nSize; ++ i )
     {
         int zzid = md->zoneid1[ i ];
@@ -734,7 +734,7 @@ void DomainInp::FindPhysicalPatch( StrGrid * grid, MultiDomain * md, int zid, Ij
 
 void DomainInp::Dump( MultiDomain * md, GridMediator * gridMediator, PointSearch * pointSearch )
 {
-	fstream file;
+    fstream file;
     string fileName = "test.inp";
     ONEFLOW::OpenPrjFile( file, fileName, ios_base::out );
 
@@ -857,8 +857,8 @@ void DomainInp::OutputInp( GridMediator * gridMediator )
 {
     Grids grids = gridMediator->gridVector;
 
-	PointSearch pointSearch;
-	pointSearch.Initialize( grids );
+    PointSearch pointSearch;
+    pointSearch.Initialize( grids );
     PBlkSet pblkSet;
 
     int nZone = grids.size();
@@ -951,7 +951,7 @@ void DomainInp::CmpFacePoint( StrGrid * grid, PointSearch * pointSearch, IjkBox 
                     Real ym = ys( i, j, k );
                     Real zm = zs( i, j, k );
 
-				    int pid = pointSearch->AddPoint( xm, ym, zm );
+                    int pid = pointSearch->AddPoint( xm, ym, zm );
                     pblkSet->Add( pid, pblk );
                     int kkk = 1;
                 }

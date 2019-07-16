@@ -30,9 +30,9 @@ public:
     Iteration();
     ~Iteration();
 public:
-	static int innerSteps;
-	static int outerSteps;
-	static int maxSteps;
+    static int innerSteps;
+    static int outerSteps;
+    static int maxSteps;
     static int dualtime;
     static int nFieldSave;
     static int nVisualSave;

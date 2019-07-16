@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -35,26 +35,26 @@ PointMachine::PointMachine()
 
 PointMachine::~PointMachine()
 {
-	for ( int i = 0; i < ptList.size(); ++ i )
-	{
-		delete ptList[ i ];
-	}
+    for ( int i = 0; i < ptList.size(); ++ i )
+    {
+        delete ptList[ i ];
+    }
 }
 
 void PointMachine::AddPoint( Real x, Real y, Real z, int id )
 {
-	PointType * pt = new PointType( x, y, z, id );
-	this->ptList.push_back( pt );
-	int idd = ptBasic.AddPoint( x, y, z );
-	//int idd1 = ptBasic.DeletePoint( x, y, z );
-	int kkk = 1;
+    PointType * pt = new PointType( x, y, z, id );
+    this->ptList.push_back( pt );
+    int idd = ptBasic.AddPoint( x, y, z );
+    //int idd1 = ptBasic.DeletePoint( x, y, z );
+    int kkk = 1;
 }
 
 PointType * PointMachine::GetPoint( int id )
 {
-	int ida = id - 1;
-	PointType * pt = this->ptList[ ida ];
-	return pt;
+    int ida = id - 1;
+    PointType * pt = this->ptList[ ida ];
+    return pt;
 }
 
 EndNameSpace

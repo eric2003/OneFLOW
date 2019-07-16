@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -38,18 +38,18 @@ public:
     Real dvdx, dvdy, dvdz;
     Real dwdx, dwdy, dwdz;
     Real dtdx, dtdy, dtdz;
-	Real dtdn;
+    Real dtdn;
 
     Real txx, tyy, tzz;
     Real txy, txz, tyz;
 
-	Real rhok;
+    Real rhok;
 
-	Real b11, b22, b33;
-	Real b12, b13, b23;
+    Real b11, b22, b33;
+    Real b12, b13, b23;
 
     Real qx, qy, qz, qNormal;
-	Real tmid;
+    Real tmid;
     RealField fvis;
     Real um, vm, wm;
 };

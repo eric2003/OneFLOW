@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -30,13 +30,13 @@ BeginNameSpace( ONEFLOW )
 class TimeSpan
 {
 public:
-	TimeSpan();
-	~TimeSpan();
+    TimeSpan();
+    ~TimeSpan();
 public:
-	clock_t t_old, t;
+    clock_t t_old, t;
 public:
-	void ResetTime();
-	void ShowTimeSpan( const string & title = "" );
+    void ResetTime();
+    void ShowTimeSpan( const string & title = "" );
 };
 
 

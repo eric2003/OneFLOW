@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -72,65 +72,65 @@ void UTurbUnstPrepareSrcData( Unsteady * unst )
 {
     UsdData * data = unst->data;
     UsdField * field = unst->field;
-	for ( int iEqu = 0; iEqu < data->nEqu; ++ iEqu )
-	{
-		data->prim [ iEqu ] = ( * field->q  )[ iEqu ][ ug.cId ];
-		data->prim1[ iEqu ] = ( * field->q1 )[ iEqu ][ ug.cId ];
-		data->prim2[ iEqu ] = ( * field->q2 )[ iEqu ][ ug.cId ];
-	}
+    for ( int iEqu = 0; iEqu < data->nEqu; ++ iEqu )
+    {
+        data->prim [ iEqu ] = ( * field->q  )[ iEqu ][ ug.cId ];
+        data->prim1[ iEqu ] = ( * field->q1 )[ iEqu ][ ug.cId ];
+        data->prim2[ iEqu ] = ( * field->q2 )[ iEqu ][ ug.cId ];
+    }
 
     gcom.cvol  = ( * ug.cvol  )[ ug.cId ];
     gcom.cvol1 = ( * ug.cvol1 )[ ug.cId ];
     gcom.cvol2 = ( * ug.cvol2 )[ ug.cId ];
 
-	Real coef = 1.0;
+    Real coef = 1.0;
 
-	if ( data->nEqu >= 2 )
-	{
+    if ( data->nEqu >= 2 )
+    {
         coef  = ( * uturbf.q_ns )[ IDX::IR ][ ug.cId ];
-	}
+    }
 
-	for ( int iEqu = 0; iEqu < data->nEqu; ++ iEqu )
-	{
-		data->q [ iEqu ] = coef * data->prim [ iEqu ];
-		data->q1[ iEqu ] = coef * data->prim1[ iEqu ];
-		data->q2[ iEqu ] = coef * data->prim2[ iEqu ];
-	}
+    for ( int iEqu = 0; iEqu < data->nEqu; ++ iEqu )
+    {
+        data->q [ iEqu ] = coef * data->prim [ iEqu ];
+        data->q1[ iEqu ] = coef * data->prim1[ iEqu ];
+        data->q2[ iEqu ] = coef * data->prim2[ iEqu ];
+    }
 }
 
 void UTurbUnstPrepareCriData( Unsteady * unst )
 {
     UsdData * data = unst->data;
     UsdField * field = unst->field;
-	for ( int iEqu = 0; iEqu < data->nEqu; ++ iEqu )
-	{
-		data->prim [ iEqu ] = ( * field->q  )[ iEqu ][ ug.cId ];
-		data->prim1[ iEqu ] = ( * field->q1 )[ iEqu ][ ug.cId ];
-		data->prim2[ iEqu ] = ( * field->q2 )[ iEqu ][ ug.cId ];
-	}
+    for ( int iEqu = 0; iEqu < data->nEqu; ++ iEqu )
+    {
+        data->prim [ iEqu ] = ( * field->q  )[ iEqu ][ ug.cId ];
+        data->prim1[ iEqu ] = ( * field->q1 )[ iEqu ][ ug.cId ];
+        data->prim2[ iEqu ] = ( * field->q2 )[ iEqu ][ ug.cId ];
+    }
 
     gcom.cvol  = ( * ug.cvol  )[ ug.cId ];
     gcom.cvol1 = ( * ug.cvol1 )[ ug.cId ];
     gcom.cvol2 = ( * ug.cvol2 )[ ug.cId ];
 
-	Real coef = 1.0;
+    Real coef = 1.0;
 
-	if ( data->nEqu >= 2 )
-	{
-		coef  = ( * uturbf.q_ns )[ IDX::IR ][ ug.cId ];
-	}
+    if ( data->nEqu >= 2 )
+    {
+        coef  = ( * uturbf.q_ns )[ IDX::IR ][ ug.cId ];
+    }
 
-	for ( int iEqu = 0; iEqu < data->nEqu; ++ iEqu )
-	{
-		data->q [ iEqu ] = coef * data->prim [ iEqu ];
-		data->q1[ iEqu ] = coef * data->prim1[ iEqu ];
-		data->q2[ iEqu ] = coef * data->prim2[ iEqu ];
-	}
+    for ( int iEqu = 0; iEqu < data->nEqu; ++ iEqu )
+    {
+        data->q [ iEqu ] = coef * data->prim [ iEqu ];
+        data->q1[ iEqu ] = coef * data->prim1[ iEqu ];
+        data->q2[ iEqu ] = coef * data->prim2[ iEqu ];
+    }
 
-	for ( int iEqu = 0; iEqu < data->nEqu; ++ iEqu )
-	{
+    for ( int iEqu = 0; iEqu < data->nEqu; ++ iEqu )
+    {
         data->res [ iEqu ] = ( * field->res  )[ iEqu ][ ug.cId ];
-	}
+    }
 
 }
 

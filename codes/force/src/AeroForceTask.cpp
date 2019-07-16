@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -67,7 +67,7 @@ void AerodynamicForceTask::Run()
         if (  ! ZoneState::IsValidZone( zId ) ) continue;
         ZoneState::zid = zId;
 
-		this->CmpForce();
+        this->CmpForce();
     }
 
     aeroForceInfo.CollectForce();
@@ -83,15 +83,15 @@ void AerodynamicForceTask::Init()
 
 void AerodynamicForceTask::Dump()
 {
-	if ( Parallel::pid != Parallel::serverid ) return;
+    if ( Parallel::pid != Parallel::serverid ) return;
 
     aeroForceInfo.CmpCoef();
 
-	ostringstream oss;
+    ostringstream oss;
 
-	int wordWidth = 16;
-	oss << setiosflags( ios::right );
-	oss << setiosflags( ios::scientific );
+    int wordWidth = 16;
+    oss << setiosflags( ios::right );
+    oss << setiosflags( ios::scientific );
 
     fstream file;
     OpenPrjFile( file, fileName, ios_base::out | ios_base::app );
@@ -103,47 +103,47 @@ void AerodynamicForceTask::Dump()
         title.push_back( "Variables=" );
         title.push_back( "\"iter\"" );
         title.push_back( "\"sub-iter\"" );
-		title.push_back( "\"time\"" );	
-		title.push_back( "\"CL\"" );	
-		title.push_back( "\"CD\"" );	
-		title.push_back( "\"CD_PR\"" );	
-		title.push_back( "\"CD_SF\"" );	
-		title.push_back( "\"CDL2\"" );	
-		title.push_back( "\"Xcp\"" );	
-		title.push_back( "\"Fx\"" );	
-		title.push_back( "\"Fy\"" );
-		title.push_back( "\"Fz\"" );
-		title.push_back( "\"Cmx\"" );
-		title.push_back( "\"Cmy\"" );
-		title.push_back( "\"Cmz\"" );
+        title.push_back( "\"time\"" );    
+        title.push_back( "\"CL\"" );    
+        title.push_back( "\"CD\"" );    
+        title.push_back( "\"CD_PR\"" );    
+        title.push_back( "\"CD_SF\"" );    
+        title.push_back( "\"CDL2\"" );    
+        title.push_back( "\"Xcp\"" );    
+        title.push_back( "\"Fx\"" );    
+        title.push_back( "\"Fy\"" );
+        title.push_back( "\"Fz\"" );
+        title.push_back( "\"Cmx\"" );
+        title.push_back( "\"Cmy\"" );
+        title.push_back( "\"Cmz\"" );
 
         for ( UInt iTitle = 0; iTitle < title.size(); ++ iTitle )
         {
             oss << title[ iTitle ] << endl;
         }
-	}
+    }
 
-	oss << Iteration::outerSteps << "	";
-	oss << Iteration::innerSteps << "	";
-	oss << setprecision( 6 ) << ctrl.currTime << "	";
-	oss << setprecision( 4 );
-	oss << aeroForceInfo.cl << "	";
-	oss << aeroForceInfo.cd << "	";
-	oss << aeroForceInfo.cd_pres << "	";
-	oss << aeroForceInfo.cd_vis << "	";
-	oss << aeroForceInfo.cdl << "	";
-	oss << aeroForceInfo.pres_center << "	";
-	oss << aeroForceInfo.cf.x << "	";
-	oss << aeroForceInfo.cf.y << "	";
-	oss << aeroForceInfo.cf.z << "	";
-	oss << aeroForceInfo.cmom.x << "	";
-	oss << aeroForceInfo.cmom.y << "	";
-	oss << aeroForceInfo.cmom.z << "	";
-	oss << endl;
+    oss << Iteration::outerSteps << "    ";
+    oss << Iteration::innerSteps << "    ";
+    oss << setprecision( 6 ) << ctrl.currTime << "    ";
+    oss << setprecision( 4 );
+    oss << aeroForceInfo.cl << "    ";
+    oss << aeroForceInfo.cd << "    ";
+    oss << aeroForceInfo.cd_pres << "    ";
+    oss << aeroForceInfo.cd_vis << "    ";
+    oss << aeroForceInfo.cdl << "    ";
+    oss << aeroForceInfo.pres_center << "    ";
+    oss << aeroForceInfo.cf.x << "    ";
+    oss << aeroForceInfo.cf.y << "    ";
+    oss << aeroForceInfo.cf.z << "    ";
+    oss << aeroForceInfo.cmom.x << "    ";
+    oss << aeroForceInfo.cmom.y << "    ";
+    oss << aeroForceInfo.cmom.z << "    ";
+    oss << endl;
 
     file << oss.str();
 
-	CloseFile( file );
+    CloseFile( file );
 }
 
 void AerodynamicForceTask::CmpForce()
@@ -161,16 +161,16 @@ int GetNSolidCell( UnsGrid * grid )
 
     int nRegion = bcInfo->bcType.size();
 
-	int nSolidCell = 0;
-	for ( int ir = 0; ir < nRegion; ++ ir )
-	{
+    int nSolidCell = 0;
+    for ( int ir = 0; ir < nRegion; ++ ir )
+    {
         int bcType = bcInfo->bcType[ ir ];
         if ( bcType != BC::SOLID_SURFACE ) continue;
         bcInfo->bcFace.size();
 
-		int nBCFace = bcInfo->bcFace[ ir ].size();
+        int nBCFace = bcInfo->bcFace[ ir ].size();
         nSolidCell += nBCFace;
-	}
+    }
 
     return nSolidCell;
 }
@@ -185,22 +185,22 @@ void CmpAeroForce( int idump_pres )
 
     int nRegion = bcInfo->bcType.size();
 
-	RealField & xcc = grid->cellMesh->xcc ;
-	RealField & ycc = grid->cellMesh->ycc ;
-	RealField & zcc = grid->cellMesh->zcc ;
-	RealField & vol = grid->cellMesh->vol;
+    RealField & xcc = grid->cellMesh->xcc ;
+    RealField & ycc = grid->cellMesh->ycc ;
+    RealField & zcc = grid->cellMesh->zcc ;
+    RealField & vol = grid->cellMesh->vol;
 
-	RealField & xfn = grid->faceMesh->xfn;
-	RealField & yfn = grid->faceMesh->yfn;
-	RealField & zfn = grid->faceMesh->zfn;
+    RealField & xfn = grid->faceMesh->xfn;
+    RealField & yfn = grid->faceMesh->yfn;
+    RealField & zfn = grid->faceMesh->zfn;
 
-	RealField & xfc = grid->faceMesh->xfc;
-	RealField & yfc = grid->faceMesh->yfc;
-	RealField & zfc = grid->faceMesh->zfc;
+    RealField & xfc = grid->faceMesh->xfc;
+    RealField & yfc = grid->faceMesh->yfc;
+    RealField & zfc = grid->faceMesh->zfc;
 
-	RealField & fvx = grid->faceMesh->fvx;
-	RealField & fvy = grid->faceMesh->fvy;
-	RealField & fvz = grid->faceMesh->fvz;
+    RealField & fvx = grid->faceMesh->fvx;
+    RealField & fvy = grid->faceMesh->fvy;
+    RealField & fvz = grid->faceMesh->fvz;
 
     RealField & area = grid->faceMesh->area;
 
@@ -235,95 +235,95 @@ void CmpAeroForce( int idump_pres )
         title.push_back( "\"cf\"" );
         for ( UInt i = 0; i < title.size(); ++ i )
         {
-	        StrIO << title[ i ] << "\n";
+            StrIO << title[ i ] << "\n";
         }
 
         StrIO << "Zone  i = " << nSolidCell << " \n";
     }
 
-	for ( int ir = 0; ir < nRegion; ++ ir )
-	{
+    for ( int ir = 0; ir < nRegion; ++ ir )
+    {
         int bcType = bcInfo->bcType[ ir ];
         if ( bcType != BC::SOLID_SURFACE ) continue;
         bcInfo->bcFace.size();
-		int nBCFace = bcInfo->bcFace[ ir ].size();
+        int nBCFace = bcInfo->bcFace[ ir ].size();
 
         AeroForce aeroForce;
-		for ( int iBCFace = 0; iBCFace < nBCFace; ++ iBCFace )
-		{
-			int fId = bcInfo->bcFace[ ir ][ iBCFace ];
-			int lc = grid->faceTopo->lCell[ fId ];
-			int rc = grid->faceTopo->rCell[ fId ];
-			stress.area = area[ fId ];
-			stress.fnx  = xfn[ fId ];
-			stress.fny  = yfn[ fId ];
-			stress.fnz  = zfn[ fId ];
-			stress.fanx = xfn[ fId ] * area[ fId ];
-			stress.fany = yfn[ fId ] * area[ fId ];
-			stress.fanz = zfn[ fId ] * area[ fId ];
+        for ( int iBCFace = 0; iBCFace < nBCFace; ++ iBCFace )
+        {
+            int fId = bcInfo->bcFace[ ir ][ iBCFace ];
+            int lc = grid->faceTopo->lCell[ fId ];
+            int rc = grid->faceTopo->rCell[ fId ];
+            stress.area = area[ fId ];
+            stress.fnx  = xfn[ fId ];
+            stress.fny  = yfn[ fId ];
+            stress.fnz  = zfn[ fId ];
+            stress.fanx = xfn[ fId ] * area[ fId ];
+            stress.fany = yfn[ fId ] * area[ fId ];
+            stress.fanz = zfn[ fId ] * area[ fId ];
 
-			Real dx  = xfc[ fId ] - xcc[ lc ];
-			Real dy  = yfc[ fId ] - ycc[ lc ];
-			Real dz  = zfc[ fId ] - zcc[ lc ];
+            Real dx  = xfc[ fId ] - xcc[ lc ];
+            Real dy  = yfc[ fId ] - ycc[ lc ];
+            Real dz  = zfc[ fId ] - zcc[ lc ];
 
-			//pressure drag
-			Real wp = ( * q )[ IDX::IP ][ lc ] + dpdx[ fId ] * dx + dpdy[ fId ] * dy + dpdz[ fId ] * dz;
-			if ( wp < 0.0 ) wp = ( * q )[ IDX::IP ][ lc ];
+            //pressure drag
+            Real wp = ( * q )[ IDX::IP ][ lc ] + dpdx[ fId ] * dx + dpdy[ fId ] * dy + dpdz[ fId ] * dz;
+            if ( wp < 0.0 ) wp = ( * q )[ IDX::IP ][ lc ];
             Real pref = nscom.inflow[ IDX::IP ];
-			Real cp = two * ( wp - pref );
+            Real cp = two * ( wp - pref );
 
-			Real dpx = stress.fanx * cp;
-			Real dpy = stress.fany * cp;
-			Real dpz = stress.fanz * cp;
+            Real dpx = stress.fanx * cp;
+            Real dpy = stress.fany * cp;
+            Real dpz = stress.fanz * cp;
 
             aeroForce.pres.x = dpx;
             aeroForce.pres.y = dpy;
             aeroForce.pres.z = dpz;
 
-			if ( vis_model.vismodel > 0 )
-			{
-				stress.dudx = ( * bcdqdx )[ IDX::IU ][ fId ];
-				stress.dudy = ( * bcdqdy )[ IDX::IU ][ fId ];
-				stress.dudz = ( * bcdqdz )[ IDX::IU ][ fId ];
+            if ( vis_model.vismodel > 0 )
+            {
+                stress.dudx = ( * bcdqdx )[ IDX::IU ][ fId ];
+                stress.dudy = ( * bcdqdy )[ IDX::IU ][ fId ];
+                stress.dudz = ( * bcdqdz )[ IDX::IU ][ fId ];
 
-				stress.dvdx = ( * bcdqdx )[ IDX::IV ][ fId ];
-				stress.dvdy = ( * bcdqdy )[ IDX::IV ][ fId ];
-				stress.dvdz = ( * bcdqdz )[ IDX::IV ][ fId ];
+                stress.dvdx = ( * bcdqdx )[ IDX::IV ][ fId ];
+                stress.dvdy = ( * bcdqdy )[ IDX::IV ][ fId ];
+                stress.dvdz = ( * bcdqdz )[ IDX::IV ][ fId ];
 
-				stress.dwdx = ( * bcdqdx )[ IDX::IW ][ fId ];
-				stress.dwdy = ( * bcdqdy )[ IDX::IW ][ fId ];
-				stress.dwdz = ( * bcdqdz )[ IDX::IW ][ fId ];
+                stress.dwdx = ( * bcdqdx )[ IDX::IW ][ fId ];
+                stress.dwdy = ( * bcdqdy )[ IDX::IW ][ fId ];
+                stress.dwdz = ( * bcdqdz )[ IDX::IW ][ fId ];
 
-				//gradient correction
-				dx  = xcc[ rc ] - xcc[ lc ];
-				dy  = ycc[ rc ] - ycc[ lc ];
-				dz  = zcc[ rc ] - zcc[ lc ];
+                //gradient correction
+                dx  = xcc[ rc ] - xcc[ lc ];
+                dy  = ycc[ rc ] - ycc[ lc ];
+                dz  = zcc[ rc ] - zcc[ lc ];
 
-				Real ods = 1.0 / DIST( dx, dy, dz );
-				dx *= ods;
-				dy *= ods;
-				dz *= ods;
+                Real ods = 1.0 / DIST( dx, dy, dz );
+                dx *= ods;
+                dy *= ods;
+                dz *= ods;
 
-				CorrectGrad( ( * q )[ IDX::IU ][ lc ], ( * q )[ IDX::IU ][ rc ], stress.dudx, stress.dudy, stress.dudz, dx, dy, dz, ods );
-				CorrectGrad( ( * q )[ IDX::IV ][ lc ], ( * q )[ IDX::IV ][ rc ], stress.dvdx, stress.dvdy, stress.dvdz, dx, dy, dz, ods );
-				CorrectGrad( ( * q )[ IDX::IW ][ lc ], ( * q )[ IDX::IW ][ rc ], stress.dwdx, stress.dwdy, stress.dwdz, dx, dy, dz, ods );
+                CorrectGrad( ( * q )[ IDX::IU ][ lc ], ( * q )[ IDX::IU ][ rc ], stress.dudx, stress.dudy, stress.dudz, dx, dy, dz, ods );
+                CorrectGrad( ( * q )[ IDX::IV ][ lc ], ( * q )[ IDX::IV ][ rc ], stress.dvdx, stress.dvdy, stress.dvdz, dx, dy, dz, ods );
+                CorrectGrad( ( * q )[ IDX::IW ][ lc ], ( * q )[ IDX::IW ][ rc ], stress.dwdx, stress.dwdy, stress.dwdz, dx, dy, dz, ods );
 
-				stress.viscosity = ( * visl )[ 0 ][ lc ];
+                stress.viscosity = ( * visl )[ 0 ][ lc ];
 
                 stress.CmpForce( & aeroForce.vis );
-			}
+            }
 
             aeroForce.SumForce();
 
-			aeroForce.fvx = fvx[ fId ];
-			aeroForce.fvy = fvy[ fId ];
-			aeroForce.fvz = fvz[ fId ];
+            aeroForce.fvx = fvx[ fId ];
+            aeroForce.fvy = fvy[ fId ];
+            aeroForce.fvz = fvz[ fId ];
 
             aeroForce.CmpPower();
 
-			Real xc = xfc[ fId ];
-			Real yc = yfc[ fId ];
-			Real zc = zfc[ fId ];
+            Real xc = xfc[ fId ];
+            Real yc = yfc[ fId ];
+            Real zc = zfc[ fId ];
 
             aeroForce.CmpMoment( xc, yc, zc );
             aeroForceInfo.totalForce.AddForce( & aeroForce );
@@ -334,17 +334,17 @@ void CmpAeroForce( int idump_pres )
 
                 int wordWidth = 20;
                 StrIO << setiosflags( ios::left );
-	            StrIO << setiosflags( ios::scientific );
-	            StrIO << setprecision( 10 );
-	            StrIO << setw( wordWidth ) << xc;
+                StrIO << setiosflags( ios::scientific );
+                StrIO << setprecision( 10 );
+                StrIO << setw( wordWidth ) << xc;
                 StrIO << setw( wordWidth ) << yc;
                 StrIO << setw( wordWidth ) << zc;
-		        StrIO << setw( wordWidth ) << -cp;
+                StrIO << setw( wordWidth ) << -cp;
                 StrIO << setw( wordWidth ) << cf;
-	            StrIO << endl;
+                StrIO << endl;
             }
-		}
-	}
+        }
+    }
     if ( idump_pres == 1 )
     {
         ToDataBook( ActionState::dataBook, StrIO );

@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -38,78 +38,78 @@ Stoichiometric::~Stoichiometric()
 
 void Stoichiometric::Init( int nSpecies, int nReaction )
 {
-	this->nSpecies  = nSpecies;
-	this->nReaction = nReaction;
+    this->nSpecies  = nSpecies;
+    this->nReaction = nReaction;
 
-	AllocateVector( mf, nReaction, nSpecies );
-	AllocateVector( mb, nReaction, nSpecies );
-	AllocateVector( mt, nReaction, nSpecies );
+    AllocateVector( mf, nReaction, nSpecies );
+    AllocateVector( mb, nReaction, nSpecies );
+    AllocateVector( mt, nReaction, nSpecies );
 }
 
 void Stoichiometric::Read( AsciiFileRead * ioFile )
 {
-	string word;
-	string separator = " =\r\n#$,;\"'";
+    string word;
+    string separator = " =\r\n#$,;\"'";
 
-	ioFile->SetDefaultSeparator( separator );
+    ioFile->SetDefaultSeparator( separator );
 
-	if ( nReaction <= 0 ) return;
+    if ( nReaction <= 0 ) return;
 
-	ioFile->SkipLines( 4 );
-	//forward reaction stoichiometric coefficient matrix
-	for ( int iReaction = 0; iReaction < nReaction; ++ iReaction )
-	{
-		ioFile->ReadNextNonEmptyLine();
-		//¶Áirtmp
-		word = ioFile->ReadNextWord();
+    ioFile->SkipLines( 4 );
+    //forward reaction stoichiometric coefficient matrix
+    for ( int iReaction = 0; iReaction < nReaction; ++ iReaction )
+    {
+        ioFile->ReadNextNonEmptyLine();
+        //¶Áirtmp
+        word = ioFile->ReadNextWord();
 
-		for ( int iSpecies = 0; iSpecies < nSpecies; ++ iSpecies )
-		{
-			mf[ iReaction ][ iSpecies ] = ioFile->ReadNextDigit< int >();
-		}
-	}
+        for ( int iSpecies = 0; iSpecies < nSpecies; ++ iSpecies )
+        {
+            mf[ iReaction ][ iSpecies ] = ioFile->ReadNextDigit< int >();
+        }
+    }
 
-	ioFile->SkipLines( 4 );
-	//bakward reaction stoichiometric coefficient matrix
-	for ( int iReaction = 0; iReaction < nReaction; ++ iReaction )
-	{
-		ioFile->ReadNextNonEmptyLine();
-		//irtmp
-		word = ioFile->ReadNextWord();
+    ioFile->SkipLines( 4 );
+    //bakward reaction stoichiometric coefficient matrix
+    for ( int iReaction = 0; iReaction < nReaction; ++ iReaction )
+    {
+        ioFile->ReadNextNonEmptyLine();
+        //irtmp
+        word = ioFile->ReadNextWord();
 
-		for ( int iSpecies = 0; iSpecies < nSpecies; ++ iSpecies )
-		{
-			mb[ iReaction ][ iSpecies ] = ioFile->ReadNextDigit< int >();
-		}
-	}
+        for ( int iSpecies = 0; iSpecies < nSpecies; ++ iSpecies )
+        {
+            mb[ iReaction ][ iSpecies ] = ioFile->ReadNextDigit< int >();
+        }
+    }
 
-	ioFile->SkipLines( 4 );
-	//third body reaction stoichiometric coefficient matrix
-	for ( int iReaction = 0; iReaction < nReaction; ++ iReaction )
-	{
-		ioFile->ReadNextNonEmptyLine();
-		//irtmp
-		word = ioFile->ReadNextWord();
+    ioFile->SkipLines( 4 );
+    //third body reaction stoichiometric coefficient matrix
+    for ( int iReaction = 0; iReaction < nReaction; ++ iReaction )
+    {
+        ioFile->ReadNextNonEmptyLine();
+        //irtmp
+        word = ioFile->ReadNextWord();
 
-		for ( int iSpecies = 0; iSpecies < nSpecies; ++ iSpecies )
-		{
-			mt[ iReaction ][ iSpecies ] = ioFile->ReadNextDigit< Real >();
-		}
-	}
+        for ( int iSpecies = 0; iSpecies < nSpecies; ++ iSpecies )
+        {
+            mt[ iReaction ][ iSpecies ] = ioFile->ReadNextDigit< Real >();
+        }
+    }
 }
 
 void Stoichiometric::Read( DataBook * dataBook )
 {
-	HXRead( dataBook, mf );
-	HXRead( dataBook, mb );
-	HXRead( dataBook, mt );
+    HXRead( dataBook, mf );
+    HXRead( dataBook, mb );
+    HXRead( dataBook, mt );
 }
 
 void Stoichiometric::Write( DataBook * dataBook )
 {
-	HXAppend( dataBook, mf );
-	HXAppend( dataBook, mb );
-	HXAppend( dataBook, mt );
+    HXAppend( dataBook, mf );
+    HXAppend( dataBook, mb );
+    HXAppend( dataBook, mt );
 }
 
 EndNameSpace

@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -49,46 +49,46 @@ SolverInfoFactory::~SolverInfoFactory()
 
 void SolverInfoFactory::Init()
 {
-	if ( ! SolverInfoFactory::data )
-	{
-		SolverInfoFactory::data = new map< int, SolverInfo * >();
-	}
+    if ( ! SolverInfoFactory::data )
+    {
+        SolverInfoFactory::data = new map< int, SolverInfo * >();
+    }
 }
 
 void SolverInfoFactory::AddSolverInfo( int sTid )
 {
-	SolverInfoFactory::Init();
+    SolverInfoFactory::Init();
 
-	map< int, SolverInfo * >::iterator iter;
+    map< int, SolverInfo * >::iterator iter;
 
-	iter = SolverInfoFactory::data->find( sTid );
-	if ( iter == SolverInfoFactory::data->end() )
-	{
-		SolverInfo * solverInfo = new SolverInfo();
-		( * SolverInfoFactory::data )[ sTid ] = solverInfo;
-	}
+    iter = SolverInfoFactory::data->find( sTid );
+    if ( iter == SolverInfoFactory::data->end() )
+    {
+        SolverInfo * solverInfo = new SolverInfo();
+        ( * SolverInfoFactory::data )[ sTid ] = solverInfo;
+    }
 }
 
 SolverInfo * SolverInfoFactory::GetSolverInfo( int sTid )
 {
-	map< int, SolverInfo * >::iterator iter;
-	iter = SolverInfoFactory::data->find( sTid );
-	return iter->second;
+    map< int, SolverInfo * >::iterator iter;
+    iter = SolverInfoFactory::data->find( sTid );
+    return iter->second;
 }
 
 void SolverInfoFactory::Free()
 {
-	if ( ! SolverInfoFactory::data ) return;
-	map< int, SolverInfo * >::iterator iter;
-	for ( iter = SolverInfoFactory::data->begin(); iter != SolverInfoFactory::data->end(); ++ iter )
-	{
-		delete iter->second;
-	}
+    if ( ! SolverInfoFactory::data ) return;
+    map< int, SolverInfo * >::iterator iter;
+    for ( iter = SolverInfoFactory::data->begin(); iter != SolverInfoFactory::data->end(); ++ iter )
+    {
+        delete iter->second;
+    }
 
-	SolverInfoFactory::data->clear();
+    SolverInfoFactory::data->clear();
 
-	delete SolverInfoFactory::data;
-	SolverInfoFactory::data = 0;
+    delete SolverInfoFactory::data;
+    SolverInfoFactory::data = 0;
 }
 
 

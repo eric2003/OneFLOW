@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -57,9 +57,9 @@ public:
     Real gama2;
 public:
     RealField prim, prim1, prim2;
-	RealField q, q1, q2;
-	RealField dq;
-	RealField flux, flux1, flux2;
+    RealField q, q1, q2;
+    RealField dq;
+    RealField flux, flux1, flux2;
 public:
     Real aeig1, aeig2, aeig3;
     Real meig1, meig2, meig3;
@@ -67,8 +67,8 @@ public:
     Real eig11, eig12, eig13;
     Real eig21, eig22, eig23;
 
-	Real vnrel, vnflow;
-	Real cl, cr, cm;
+    Real vnrel, vnflow;
+    Real cl, cr, cm;
 public:
     Real rl, ul, vl, wl, pl, hl, el;
     Real rr, ur, vr, wr, pr, hr, er;
@@ -83,26 +83,26 @@ public:
     NsInvFlux ();
     ~NsInvFlux();
 public:
-	typedef void ( NsInvFlux:: * InvFluxPointer )();
+    typedef void ( NsInvFlux:: * InvFluxPointer )();
 public:
     void Solve();
 public:
     void SetPointer( int schemeIndex );
-	InvFluxPointer invFluxPointer;
+    InvFluxPointer invFluxPointer;
 public:
-	void Roe      ();
-	void RoeOld   (){};
-	void HybridRoe(){};
-	void Vanleer  ();
-	void Steger   ();
-	void Hlle     ();
+    void Roe      ();
+    void RoeOld   (){};
+    void HybridRoe(){};
+    void Vanleer  ();
+    void Steger   ();
+    void Hlle     ();
     void LaxFriedrichs();
-	void Ausmp    ();
-	void AusmpUp  ();
-	void Ausmdv   ();
-	void Ausmw    ();
-	void Ausmpw   ();
-	void Slau2();
+    void Ausmp    ();
+    void AusmpUp  ();
+    void Ausmdv   ();
+    void Ausmw    ();
+    void Ausmpw   ();
+    void Slau2();
 public:
     void ModifyAbsoluteEigenvalue();
 };

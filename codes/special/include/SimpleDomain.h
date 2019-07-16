@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -39,73 +39,73 @@ class Face2D;
 class BlkF2C
 {
 public:
-	BlkF2C();
-	~BlkF2C();
+    BlkF2C();
+    ~BlkF2C();
 public:
-	int id, type, bctype;
-	IntField cellList;
-	IntField posList;
+    int id, type, bctype;
+    IntField cellList;
+    IntField posList;
 };
 
 class Face2D
 {
 public:
-	Face2D();
-	~Face2D();
+    Face2D();
+    ~Face2D();
 public:
-	int face_id;
-	int bcType;
-	IntField ctrlpoints;
-	CompCoor st, ed;
-	CompCoor p1, p2;
-	Face2D * t;
+    int face_id;
+    int bcType;
+    IntField ctrlpoints;
+    CompCoor st, ed;
+    CompCoor p1, p2;
+    Face2D * t;
 public:
-	void CompRegion();
-	void CompStEd( CoorMap * coorMap );
-	void Set1DRegion( IntField & ctrlpoints );
+    void CompRegion();
+    void CompStEd( CoorMap * coorMap );
+    void Set1DRegion( IntField & ctrlpoints );
 };
 
 class DomDataBasic
 {
 public:
-	DomDataBasic();
-	~DomDataBasic();
+    DomDataBasic();
+    ~DomDataBasic();
 public:
-	IntField candidate_ctrlpoints;
-	IntField candidate_bcpoints;
-	IntField ctrlpoints;
-	IntField original_ctrlpoints;
-	IntField bcpointList;
-	IntField bcdimList;
+    IntField candidate_ctrlpoints;
+    IntField candidate_bcpoints;
+    IntField ctrlpoints;
+    IntField original_ctrlpoints;
+    IntField bcpointList;
+    IntField bcdimList;
 
-	int ni, nj;
+    int ni, nj;
 public:
-	map< int, IntSet > pointToDomainMap;
-	map< int, IntSet > pointToPointMap;
-	map< int, IntSet > lineToDomainMap;
+    map< int, IntSet > pointToDomainMap;
+    map< int, IntSet > pointToPointMap;
+    map< int, IntSet > lineToDomainMap;
 };
 
 class DomData : public DomDataBasic
 {
 public:
-	DomData();
-	~DomData();
+    DomData();
+    ~DomData();
 public:
-	IntField & GetLinePoints( int line_id );
-	void ConstructCtrlPoint();
-	void ConstructBcPoint();
-	void ComputeDimBasic( int closedCurve );
-	void ComputeDim2D();
-	void ComputeDim1D();
-	void ComputeBcCoor( CoorMap * coorMap, int iloop );
-	void Normalize( int &d );
-	void FindBcPointList2D( IntField & bcpointList );
-	void NormalBcPointList2D( IntField & bcpointList );
-	void FindNextPoint2D( IntField & ptList, int prev, int me, int & next, int & flag );
-	bool IsBcPoint( int pt );
-	bool IsCtrlPoint( int pt );
-	void ComputeDomainCtrlPoints( IntField & blkControlpoints, IntField & localpt );
-	void ComputeDomainCtrlPoints( IntField & blk_ctrl_points );
+    IntField & GetLinePoints( int line_id );
+    void ConstructCtrlPoint();
+    void ConstructBcPoint();
+    void ComputeDimBasic( int closedCurve );
+    void ComputeDim2D();
+    void ComputeDim1D();
+    void ComputeBcCoor( CoorMap * coorMap, int iloop );
+    void Normalize( int &d );
+    void FindBcPointList2D( IntField & bcpointList );
+    void NormalBcPointList2D( IntField & bcpointList );
+    void FindNextPoint2D( IntField & ptList, int prev, int me, int & next, int & flag );
+    bool IsBcPoint( int pt );
+    bool IsCtrlPoint( int pt );
+    void ComputeDomainCtrlPoints( IntField & blkControlpoints, IntField & localpt );
+    void ComputeDomainCtrlPoints( IntField & blk_ctrl_points );
 };
 
 

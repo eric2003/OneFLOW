@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -35,19 +35,19 @@ class AsciiFileRead;
 class BlockMachine
 {
 public:
-	BlockMachine();
-	~BlockMachine();
+    BlockMachine();
+    ~BlockMachine();
 public:
-	HXVector< BlockInfo * > blockInfoList;
-	HXVector< BlockMesh * > blockMeshList;
+    HXVector< BlockInfo * > blockInfoList;
+    HXVector< BlockMesh * > blockMeshList;
 public:
-	void AddFaceToBlock( AsciiFileRead * ioFile );
-	void ConstructBlockTopo();
-	void GenerateAllBlockMesh();
-	void DumpStandardGrid();
-	void DumpStandardGrid( Grids & strGridList );
-	void DumpStandardGridBc( Grids & strGridList );
-	void GenerateFaceBlockLink();
+    void AddFaceToBlock( AsciiFileRead * ioFile );
+    void ConstructBlockTopo();
+    void GenerateAllBlockMesh();
+    void DumpStandardGrid();
+    void DumpStandardGrid( Grids & strGridList );
+    void DumpStandardGridBc( Grids & strGridList );
+    void GenerateFaceBlockLink();
 };
 
 extern BlockMachine block_Machine;

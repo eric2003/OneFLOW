@@ -32,51 +32,51 @@ BeginNameSpace( ONEFLOW )
 class DataBook
 {
 public:
-	DataBook();
-	~DataBook();
+    DataBook();
+    ~DataBook();
 public:
-	vector< DataPage * > * dataBook;
-	UInt currPageId;
-	LLong currPos;
-	LLong maxUnitSize;
+    vector< DataPage * > * dataBook;
+    UInt currPageId;
+    LLong currPos;
+    LLong maxUnitSize;
 public:
-	DataPage * GetCurrentPage();
-	DataPage * GetPage( UInt iPage );
-	void Destroy( DataPage * dataPage );
-	void Erase( UInt startPage, UInt endPage );
+    DataPage * GetCurrentPage();
+    DataPage * GetPage( UInt iPage );
+    void Destroy( DataPage * dataPage );
+    void Erase( UInt startPage, UInt endPage );
 protected:
-	UInt  GetNPage();
-	void ResizeNPage( UInt newNPage );
-	LLong  GetRemainingSizeOfCurrentPage();
-	void MoveForwardPosition( LLong dataSize );
+    UInt  GetNPage();
+    void ResizeNPage( UInt newNPage );
+    LLong  GetRemainingSizeOfCurrentPage();
+    void MoveForwardPosition( LLong dataSize );
 public:
-	void Read ( void * data, LLong dataSize );
-	void Write( void * data, LLong dataSize );
-	void ReadFile ( fstream & file );
-	void WriteFile( fstream & file );
+    void Read ( void * data, LLong dataSize );
+    void Write( void * data, LLong dataSize );
+    void ReadFile ( fstream & file );
+    void WriteFile( fstream & file );
 
-	void ReadString ( string & cs );
-	void WriteString( string & cs );
+    void ReadString ( string & cs );
+    void WriteString( string & cs );
 
-	void Write( ostringstream * oss );
+    void Write( ostringstream * oss );
 
-	LLong GetSize();
-	void ReSize( LLong nLength );
+    LLong GetSize();
+    void ReSize( LLong nLength );
 
-	void Send( int pid, int tag );
-	void Recv( int pid, int tag );
-	void Bcast( int rootid );
+    void Send( int pid, int tag );
+    void Recv( int pid, int tag );
+    void Bcast( int rootid );
 
     void SendRecv( int sendpid, int recvpid, int tag );
 
-	void ToString( string & str );
-	void Append( void * data, LLong dataSize );
-	void AppendString( string & cs );
+    void ToString( string & str );
+    void Append( void * data, LLong dataSize );
+    void AppendString( string & cs );
 
-	void SecureRelativeSpace( LLong dataSize );
-	void SecureAbsoluteSpace( LLong needSize );
-	void MoveToBegin();
-	void MoveToEnd();
+    void SecureRelativeSpace( LLong dataSize );
+    void SecureAbsoluteSpace( LLong needSize );
+    void MoveToBegin();
+    void MoveToEnd();
 };
 
 void ToDataBook( DataBook * dataBook, ostringstream & oss );

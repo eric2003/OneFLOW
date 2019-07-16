@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -69,7 +69,7 @@ void InitFirst( StringField & data )
 {
     int sTid = SolverState::tid;
 
-	const string & basicString = data[ 0 ];
+    const string & basicString = data[ 0 ];
 
     FieldAlloc::AllocateAllFields( sTid, basicString );
 }
@@ -107,14 +107,14 @@ void InitFlowField( StringField & data )
 
     int startStrategy = ONEFLOW::GetDataValue< int >( "startStrategy" );
 
-	if ( startStrategy == 0 )
-	{
-		ONEFLOW::AddCmdToList( "INIT_RESTART" );
-	}
-	else
-	{
-		ONEFLOW::AddCmdToList( "READ_RESTART" );
-	}
+    if ( startStrategy == 0 )
+    {
+        ONEFLOW::AddCmdToList( "INIT_RESTART" );
+    }
+    else
+    {
+        ONEFLOW::AddCmdToList( "READ_RESTART" );
+    }
 
     ONEFLOW::AddCmdToList( "INIT_FINAL" );
 }

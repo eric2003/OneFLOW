@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -29,12 +29,12 @@ BeginNameSpace( ONEFLOW )
 class UTimestep : public Timestep
 {
 public:
-	UTimestep();
-	~UTimestep();
+    UTimestep();
+    ~UTimestep();
 public:
-	void Init();
+    void Init();
     void ReadTmp();
-	void CmpTimestep();
+    void CmpTimestep();
     void CmpLocalTimestep();
     void CmpGlobalTimestep();
     void CmpLgTimestep();

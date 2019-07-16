@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -33,14 +33,14 @@ template < typename T >
 class PointCompare
 {
 public:
-	typedef Point< T > point_type;
-	static T tolerance;
-	static void ResetTolerance( const T & toleranceIn );
+    typedef Point< T > point_type;
+    static T tolerance;
+    static void ResetTolerance( const T & toleranceIn );
 public:
-	bool operator()( const point_type & lhs, const point_type & rhs ) const
-	{
-		return lhs.Compare( rhs, PointCompare< T >::tolerance );
-	}
+    bool operator()( const point_type & lhs, const point_type & rhs ) const
+    {
+        return lhs.Compare( rhs, PointCompare< T >::tolerance );
+    }
 };
 
 template < typename T >
@@ -49,31 +49,31 @@ T PointCompare< T >::tolerance = static_cast< T >( 1.0e-10 );
 template < typename T >
 void PointCompare< T >::ResetTolerance( const T & toleranceIn )
 {
-	PointCompare< T >::tolerance = toleranceIn;
+    PointCompare< T >::tolerance = toleranceIn;
 }
 
 class PointBasic
 {
 public:
-	PointBasic();
-	~PointBasic();
+    PointBasic();
+    ~PointBasic();
 public:
-	typedef Point< Real > PointType;
-	typedef set< PointType, PointCompare< Real > > PointSet;
+    typedef Point< Real > PointType;
+    typedef set< PointType, PointCompare< Real > > PointSet;
 public:
-	PointSet pointSet;
-	HXVector< PointType > pointList;
+    PointSet pointSet;
+    HXVector< PointType > pointList;
 public:
-	UInt GetNPoint() { return pointList.size(); }
-	int AddPoint( Real xm, Real ym, Real zm );
-	int DeletePoint( Real xm, Real ym, Real zm );
-	int DeletePoint( PointBasic::PointType & point );
-	int FindPoint( Real xm, Real ym, Real zm );
-	void GetFaceCoorList( IntField & nodeId, RealField &xList, RealField &yList, RealField &zList );
+    UInt GetNPoint() { return pointList.size(); }
+    int AddPoint( Real xm, Real ym, Real zm );
+    int DeletePoint( Real xm, Real ym, Real zm );
+    int DeletePoint( PointBasic::PointType & point );
+    int FindPoint( Real xm, Real ym, Real zm );
+    void GetFaceCoorList( IntField & nodeId, RealField &xList, RealField &yList, RealField &zList );
 protected:
-	int AddPoint( PointBasic::PointType & point );
-	int FindPointId( PointBasic::PointType & point );
-	bool FindPoint( PointBasic::PointType & point, PointBasic::PointSet::iterator & iter );
+    int AddPoint( PointBasic::PointType & point );
+    int FindPointId( PointBasic::PointType & point );
+    bool FindPoint( PointBasic::PointType & point, PointBasic::PointSet::iterator & iter );
 private:
     void AddPointDirectly( PointBasic::PointType & point, int bcType = 0 );
 };
@@ -81,12 +81,12 @@ private:
 class PointFactory : public PointBasic
 {
 public:
-	PointFactory();
-	~PointFactory();
+    PointFactory();
+    ~PointFactory();
 public:
-	IntField c2g;
+    IntField c2g;
 public:
-	void InitC2g();
+    void InitC2g();
 };
 
 EndNameSpace

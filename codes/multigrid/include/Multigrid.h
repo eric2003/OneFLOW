@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -44,34 +44,34 @@ public:
 public:
     static void Init();
 public:
-	void MultigridSolve();
-	void Run();
-	void Allocate();
-	void Deallocate();
+    void MultigridSolve();
+    void Run();
+    void Allocate();
+    void Deallocate();
 public:
-	void SolveInnerIter();
-	void StrongIter();
-	void WeakIter();
+    void SolveInnerIter();
+    void StrongIter();
+    void WeakIter();
 public:
-	void MWrap( FunctionPointer multigridPointer, int gridLevel );
+    void MWrap( FunctionPointer multigridPointer, int gridLevel );
 protected:
-	void ZeroResidualsForAllSolvers();
+    void ZeroResidualsForAllSolvers();
 protected:
-	void PreprocessMultigridFlowField( int gl );
-	void PostRelaxationCycle( int gl );
-	void PreRelaxationCycle( int gl );
-	void InitializeCoarseGridFlowFieldByRestrictFineGridFlowField( int fgl );
-	void StoreCoarseGridFlowFieldToTemporaryStorage( int fgl );
-	void PrepareFineGridResiduals( int fgl );
-	void PrepareCoarseGridResiduals( int fgl );
-	void CorrectFineGridFlowFieldByInterplateCoarseGridFlowField( int fgl );
-	void PostprocessMultigridFlowField( int gl );
-	void SolveMultigridFlowField( int gl );
-	void FastSolveFlowFieldByMultigridMethod( int gl );
-	void SolveCoarseGridFlowField( int fgl );
+    void PreprocessMultigridFlowField( int gl );
+    void PostRelaxationCycle( int gl );
+    void PreRelaxationCycle( int gl );
+    void InitializeCoarseGridFlowFieldByRestrictFineGridFlowField( int fgl );
+    void StoreCoarseGridFlowFieldToTemporaryStorage( int fgl );
+    void PrepareFineGridResiduals( int fgl );
+    void PrepareCoarseGridResiduals( int fgl );
+    void CorrectFineGridFlowFieldByInterplateCoarseGridFlowField( int fgl );
+    void PostprocessMultigridFlowField( int gl );
+    void SolveMultigridFlowField( int gl );
+    void FastSolveFlowFieldByMultigridMethod( int gl );
+    void SolveCoarseGridFlowField( int fgl );
 protected:
-	void InnerProcess();
-	void OuterProcess( TimeSpan * timeSpan );
+    void InnerProcess();
+    void OuterProcess( TimeSpan * timeSpan );
 };
 
 bool DoNotNeedMultigridMethod( int gl );

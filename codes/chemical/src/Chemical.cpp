@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -40,508 +40,508 @@ Chemical chem;
 
 Chemical::Chemical()
 {
-	Alloc();
+    Alloc();
 }
 
 Chemical::~Chemical()
 {
-	DeAlloc();
+    DeAlloc();
 }
 
 void Chemical::Alloc()
 {
-	moleProp = new MolecularProperty();
-	reactionRate = new ReactionRate();
-	stoichiometric = new Stoichiometric();
-	blotterCurve = new BlotterCurve();
-	thermodynamic = new Thermodynamic();
+    moleProp = new MolecularProperty();
+    reactionRate = new ReactionRate();
+    stoichiometric = new Stoichiometric();
+    blotterCurve = new BlotterCurve();
+    thermodynamic = new Thermodynamic();
 }
 
 void Chemical::DeAlloc()
 {
-	delete moleProp;
-	delete reactionRate;
-	delete stoichiometric;
-	delete blotterCurve;
-	delete thermodynamic;
+    delete moleProp;
+    delete reactionRate;
+    delete stoichiometric;
+    delete blotterCurve;
+    delete thermodynamic;
 }
 
 void Chemical::InitGasModel()
 {
-	if ( nscom.chemModel <= 0 ) return;
+    if ( nscom.chemModel <= 0 ) return;
 
-	if ( Parallel::pid == Parallel::serverid )
-	{
-		ReadGasModel();
-	}
-	ONEFLOW::HXBcast( ChemicalCompressData, ChemicalDecompressData, Parallel::GetServerid() );
+    if ( Parallel::pid == Parallel::serverid )
+    {
+        ReadGasModel();
+    }
+    ONEFLOW::HXBcast( ChemicalCompressData, ChemicalDecompressData, Parallel::GetServerid() );
 }
 
 void Chemical::InitWorkingSpace()
 {
-	nscom.nBEqu = nscom.nEqu;
-	if ( nscom.chemModel == 0 )
-	{
-		nscom.nSpecies = 0;
-	}
-	else
-	{
-		nscom.nSpecies = nSpecies;
-	}
+    nscom.nBEqu = nscom.nEqu;
+    if ( nscom.chemModel == 0 )
+    {
+        nscom.nSpecies = 0;
+    }
+    else
+    {
+        nscom.nSpecies = nSpecies;
+    }
 
-	nscom.nTEqu = nscom.nBEqu + MAX( nSpecies - 1, 0 );
+    nscom.nTEqu = nscom.nBEqu + MAX( nSpecies - 1, 0 );
 
-	if ( nscom.chemModel > 0 )
-	{
-		AllocWorkingSpace();
-	}
+    if ( nscom.chemModel > 0 )
+    {
+        AllocWorkingSpace();
+    }
 }
 
 void Chemical::AllocWorkingSpace()
 {
-	xi_s.resize( nSpecies );
-	cs_s.resize( nSpecies );
-	vis_s.resize( nSpecies );
-	vis_phi_s.resize( nSpecies );
-	cp_s.resize( nSpecies );
-	dim_cp_s.resize( nSpecies );
-	hint_s.resize( nSpecies );
-	work_s.resize( nSpecies );
+    xi_s.resize( nSpecies );
+    cs_s.resize( nSpecies );
+    vis_s.resize( nSpecies );
+    vis_phi_s.resize( nSpecies );
+    cp_s.resize( nSpecies );
+    dim_cp_s.resize( nSpecies );
+    hint_s.resize( nSpecies );
+    work_s.resize( nSpecies );
 }
 
 void Chemical::ReadGasModel()
 {
-	AsciiFileRead ioFile;
+    AsciiFileRead ioFile;
 
-	ioFile.OpenPrjFile( nscom.gasModelFile, ios_base::in );
-	string separator = " =\r\n#$,;\"'";
-	ioFile.SetDefaultSeparator( separator );
+    ioFile.OpenPrjFile( nscom.gasModelFile, ios_base::in );
+    string separator = " =\r\n#$,;\"'";
+    ioFile.SetDefaultSeparator( separator );
 
-	ioFile.SkipLines( 2 );
+    ioFile.SkipLines( 2 );
 
-	ioFile.ReadNextNonEmptyLine();
+    ioFile.ReadNextNonEmptyLine();
 
-	nSpecies  = ioFile.ReadNextDigit< int >();
-	nReaction = ioFile.ReadNextDigit< int >();
-	Init( nSpecies, nReaction );
-	ReadChemical( & ioFile );
+    nSpecies  = ioFile.ReadNextDigit< int >();
+    nReaction = ioFile.ReadNextDigit< int >();
+    Init( nSpecies, nReaction );
+    ReadChemical( & ioFile );
 
-	ioFile.CloseFile();
+    ioFile.CloseFile();
 }
 
 void Chemical::Init( int nSpecies, int nReaction )
 {
-	moleProp->Init( nSpecies );
-	reactionRate->Init( nReaction );
-	stoichiometric->Init( nReaction, nSpecies );
-	blotterCurve->Init( nSpecies );
-	thermodynamic->Init( nSpecies );
+    moleProp->Init( nSpecies );
+    reactionRate->Init( nReaction );
+    stoichiometric->Init( nReaction, nSpecies );
+    blotterCurve->Init( nSpecies );
+    thermodynamic->Init( nSpecies );
 }
 
 void Chemical::ReadChemical( AsciiFileRead * ioFile )
 {
-	moleProp->Read( ioFile );
-	reactionRate->Read( ioFile );
-	thermodynamic->Read( ioFile );
-	blotterCurve->Read( ioFile );
-	stoichiometric->Read( ioFile );
+    moleProp->Read( ioFile );
+    reactionRate->Read( ioFile );
+    thermodynamic->Read( ioFile );
+    blotterCurve->Read( ioFile );
+    stoichiometric->Read( ioFile );
 }
 
 void Chemical::Read( DataBook * dataBook )
 {
-	moleProp->Read( dataBook );
-	reactionRate->Read( dataBook );
-	thermodynamic->Read( dataBook );
-	blotterCurve->Read( dataBook );
-	stoichiometric->Read( dataBook );
+    moleProp->Read( dataBook );
+    reactionRate->Read( dataBook );
+    thermodynamic->Read( dataBook );
+    blotterCurve->Read( dataBook );
+    stoichiometric->Read( dataBook );
 }
 
 void Chemical::Write( DataBook * dataBook )
 {
-	moleProp->Write( dataBook );
-	reactionRate->Write( dataBook );
-	thermodynamic->Write( dataBook );
-	blotterCurve->Write( dataBook );
-	stoichiometric->Write( dataBook );
+    moleProp->Write( dataBook );
+    reactionRate->Write( dataBook );
+    thermodynamic->Write( dataBook );
+    blotterCurve->Write( dataBook );
+    stoichiometric->Write( dataBook );
 }
 
 void Chemical::Init()
 {
-	InitRefPara();
+    InitRefPara();
 
-	ComputeRefPara();
+    ComputeRefPara();
 }
 
 void Chemical::InitRefPara()
 {
-	InitGasModel();
+    InitGasModel();
 
-	InitWorkingSpace();
+    InitWorkingSpace();
 }
 
 void Chemical::ComputeRefPara()
 {
-	ComputeRefMolecularInfo();
+    ComputeRefMolecularInfo();
 
-	ComputeRefGasInfo();
+    ComputeRefGasInfo();
 
-	ComputeRefGama();
+    ComputeRefGama();
 
-	ComputeRefSoundSpeed();
+    ComputeRefSoundSpeed();
 
-	ComputeRefMachAndVel();
+    ComputeRefMachAndVel();
 
-	ComputeStateCoef();
+    ComputeStateCoef();
 
-	ComputeRefPrim();
+    ComputeRefPrim();
 
-	ComputeRefReynolds();
+    ComputeRefReynolds();
 }
 
 void Chemical::ComputeRefMolecularInfo()
 {
-	if ( nscom.chemModel > 0 )
-	{
-		ComputeRefMolecularInfoChem();
-	}
-	else
-	{
-		ComputeRefMolecularInfoAir();
-	}
+    if ( nscom.chemModel > 0 )
+    {
+        ComputeRefMolecularInfoChem();
+    }
+    else
+    {
+        ComputeRefMolecularInfoAir();
+    }
 }
 
 void Chemical::ComputeRefMolecularInfoAir()
 {
-	//dimensional average molecular weight
-	Real mair = 28.75481;
-	Real coef = 1.0e-3;
-	nscom.dim_amw  = mair * coef;
-	nscom.amw = 1.0;
+    //dimensional average molecular weight
+    Real mair = 28.75481;
+    Real coef = 1.0e-3;
+    nscom.dim_amw  = mair * coef;
+    nscom.amw = 1.0;
 }
 
 void Chemical::ComputeRefMolecularInfoChem()
 {
-	moleProp->ComputeProperty();
+    moleProp->ComputeProperty();
 
-	nscom.dim_amw = moleProp->dim_amw;
-	nscom.amw = moleProp->amw;
+    nscom.dim_amw = moleProp->dim_amw;
+    nscom.amw = moleProp->amw;
 }
 
 void Chemical::ComputeRefGama()
 {
-	if ( nscom.chemModel <= 0 ) return;
-	Real t_ref = 1.0;
-	ComputeDimCps( t_ref, dim_cp_s );
+    if ( nscom.chemModel <= 0 ) return;
+    Real t_ref = 1.0;
+    ComputeDimCps( t_ref, dim_cp_s );
 
-	RealField & mfrac = moleProp->mfrac;
-	Real dimCp, dimCv;
-	ComputeMixtureByMassFraction( mfrac, dim_cp_s, dimCp );
+    RealField & mfrac = moleProp->mfrac;
+    Real dimCp, dimCv;
+    ComputeMixtureByMassFraction( mfrac, dim_cp_s, dimCp );
 
-	Real dim_oamw = 1.0 / nscom.dim_amw;
+    Real dim_oamw = 1.0 / nscom.dim_amw;
 
-	dimCv = dimCp - rjmk * dim_oamw;
-	nscom.gama_ref = dimCp / dimCv;
+    dimCv = dimCp - rjmk * dim_oamw;
+    nscom.gama_ref = dimCp / dimCv;
 }
 
 void Chemical::ComputeRefSoundSpeed()
 {
-	Real dim_oamw = 1.0 / nscom.dim_amw;
+    Real dim_oamw = 1.0 / nscom.dim_amw;
 
-	nscom.cref_dim = sqrt( nscom.gama_ref * rjmk * dim_oamw * nscom.tref_dim );
+    nscom.cref_dim = sqrt( nscom.gama_ref * rjmk * dim_oamw * nscom.tref_dim );
 }
 
 void Chemical::ComputeRefMachAndVel()
 {
-	if ( nscom.machStrategy == 0 )
-	{
-		nscom.vref_dim = nscom.cref_dim * nscom.mach_ref;
-	}
-	else
-	{
-		nscom.mach_ref = nscom.vref_dim / nscom.cref_dim;
-	}
+    if ( nscom.machStrategy == 0 )
+    {
+        nscom.vref_dim = nscom.cref_dim * nscom.mach_ref;
+    }
+    else
+    {
+        nscom.mach_ref = nscom.vref_dim / nscom.cref_dim;
+    }
 }
 
 void Chemical::ComputeStateCoef()
 {
-	if ( nscom.chemModel > 0 )
-	{
-		ComputeStateCoefChemical();
-	}
-	else
-	{
-		ComputeStateCoefNs();
-	}
+    if ( nscom.chemModel > 0 )
+    {
+        ComputeStateCoefChemical();
+    }
+    else
+    {
+        ComputeStateCoefNs();
+    }
 }
 
 void Chemical::ComputeStateCoefNs()
 {
-	nscom.statecoef = 1.0 / ( nscom.gama_ref * SQR( nscom.mach_ref ) );
+    nscom.statecoef = 1.0 / ( nscom.gama_ref * SQR( nscom.mach_ref ) );
 }
 
 void Chemical::ComputeStateCoefChemical()
 {
-	//这个和NS的计算应该是等价的
-	nscom.statecoef = rjmk * nscom.tref_dim / ( SQR( nscom.vref_dim ) * nscom.dim_amw );
+    //这个和NS的计算应该是等价的
+    nscom.statecoef = rjmk * nscom.tref_dim / ( SQR( nscom.vref_dim ) * nscom.dim_amw );
 }
 
 void Chemical::ComputeRefPrim()
 {
-	nscom.dref = 1.0;
-	nscom.tref = 1.0;
-	nscom.vref = 1.0;
-	nscom.pref = nscom.statecoef * nscom.dref * nscom.tref / nscom.amw;
-		
-	nscom.inflow.resize( nscom.nTEqu );
-	nscom.refns.resize( nscom.nTEqu );
+    nscom.dref = 1.0;
+    nscom.tref = 1.0;
+    nscom.vref = 1.0;
+    nscom.pref = nscom.statecoef * nscom.dref * nscom.tref / nscom.amw;
+        
+    nscom.inflow.resize( nscom.nTEqu );
+    nscom.refns.resize( nscom.nTEqu );
 
-	nscom.refns[ IDX::IR ] = nscom.dref;
-	nscom.refns[ IDX::IU ] = 1.0 * cos( nscom.aoa ) * cos( nscom.aos );
-	nscom.refns[ IDX::IV ] = 1.0 * sin( nscom.aoa ) * cos( nscom.aos );
-	nscom.refns[ IDX::IW ] = 1.0                    * sin( nscom.aos );
-	nscom.refns[ IDX::IP ] = nscom.pref;
+    nscom.refns[ IDX::IR ] = nscom.dref;
+    nscom.refns[ IDX::IU ] = 1.0 * cos( nscom.aoa ) * cos( nscom.aos );
+    nscom.refns[ IDX::IV ] = 1.0 * sin( nscom.aoa ) * cos( nscom.aos );
+    nscom.refns[ IDX::IW ] = 1.0                    * sin( nscom.aos );
+    nscom.refns[ IDX::IP ] = nscom.pref;
 
-	if ( nscom.chemModel > 0 )
-	{
-		for ( int iSpecies = 0; iSpecies < nSpecies; ++ iSpecies )
-		{
-			nscom.refns[ nscom.nBEqu + iSpecies ] = moleProp->mfrac[ iSpecies ];
-		}
-	}
+    if ( nscom.chemModel > 0 )
+    {
+        for ( int iSpecies = 0; iSpecies < nSpecies; ++ iSpecies )
+        {
+            nscom.refns[ nscom.nBEqu + iSpecies ] = moleProp->mfrac[ iSpecies ];
+        }
+    }
 
-	for ( int iEqu = 0; iEqu < nscom.nTEqu; ++ iEqu )
-	{
-		nscom.inflow[ iEqu ] = nscom.refns[ iEqu ];
-	}
+    for ( int iEqu = 0; iEqu < nscom.nTEqu; ++ iEqu )
+    {
+        nscom.inflow[ iEqu ] = nscom.refns[ iEqu ];
+    }
 
-	if ( ctrl.inflowType == 1 )
-	{
-		nscom.inflow[ IDX::IU ] = zero;
-		nscom.inflow[ IDX::IV ] = zero;
-		nscom.inflow[ IDX::IW ] = zero;
-	}
+    if ( ctrl.inflowType == 1 )
+    {
+        nscom.inflow[ IDX::IU ] = zero;
+        nscom.inflow[ IDX::IV ] = zero;
+        nscom.inflow[ IDX::IW ] = zero;
+    }
 }
 
 void Chemical::ComputeRefReynolds()
 {
-	this->ComputeDimRefViscosity();
+    this->ComputeDimRefViscosity();
 
-	if ( nscom.chemModel > 0 || nscom.gasInfoStrategy == 0 )
-	{
-		nscom.reynolds = nscom.dref_dim * nscom.vref_dim * nscom.reylref_dim / nscom.visref_dim;
-	}
+    if ( nscom.chemModel > 0 || nscom.gasInfoStrategy == 0 )
+    {
+        nscom.reynolds = nscom.dref_dim * nscom.vref_dim * nscom.reylref_dim / nscom.visref_dim;
+    }
 
-	nscom.oreynolds = 1.0 / nscom.reynolds;
+    nscom.oreynolds = 1.0 / nscom.reynolds;
 }
 
 void Chemical::ComputeDimRefViscosity()
 {
-	if ( nscom.chemModel > 0 )
-	{
-		ComputeDimRefViscosityChemical();
-	}
-	else
-	{
-		ComputeDimRefViscosityNs();
-	}
+    if ( nscom.chemModel > 0 )
+    {
+        ComputeDimRefViscosityChemical();
+    }
+    else
+    {
+        ComputeDimRefViscosityNs();
+    }
 
-	ComputeSutherlandConstant();
+    ComputeSutherlandConstant();
 }
 
 void Chemical::ComputeDimRefViscosityNs()
 {
-	Real t0 = 273.15; // zero degree celsius temperature(K)
-	Real c = 110.4; //dimensional temperature constant in sutherland formula
-	Real mu0 = 1.715e-5; //dimensional air viscosity at zero celsius degree
+    Real t0 = 273.15; // zero degree celsius temperature(K)
+    Real c = 110.4; //dimensional temperature constant in sutherland formula
+    Real mu0 = 1.715e-5; //dimensional air viscosity at zero celsius degree
 
-	Real t = nscom.tref_dim;
-	Real coef = ( t0 + c ) / ( t + c );
-	nscom.visref_dim = coef * pow( t / t0, 1.5 ) * mu0;
+    Real t = nscom.tref_dim;
+    Real coef = ( t0 + c ) / ( t + c );
+    nscom.visref_dim = coef * pow( t / t0, 1.5 ) * mu0;
 }
 
 void Chemical::ComputeDimRefViscosityChemical()
 {
-	ComputeMoleFractionByMassFraction( moleProp->mfrac, xi_s );
-	ComputeDimSpeciesViscosity( nscom.tref, vis_s );
-	ComputeMixtureByWilkeFormula( xi_s, vis_s, nscom.visref_dim );
+    ComputeMoleFractionByMassFraction( moleProp->mfrac, xi_s );
+    ComputeDimSpeciesViscosity( nscom.tref, vis_s );
+    ComputeMixtureByWilkeFormula( xi_s, vis_s, nscom.visref_dim );
 }
 
 void Chemical::ComputeSutherlandConstant()
 {
-	nscom.csuth_dim = 110.4;
-	nscom.csuth = nscom.csuth_dim / nscom.tref_dim;
+    nscom.csuth_dim = 110.4;
+    nscom.csuth = nscom.csuth_dim / nscom.tref_dim;
 }
 
 void Chemical::ComputeMoleFractionByMassFraction( RealField & massFrac, RealField & moleFrac )
 {
-	Real xiSum = 0.0;
-	for ( int iSpecies = 0; iSpecies < nSpecies; ++ iSpecies )
-	{
-		xiSum += massFrac[ iSpecies ] * moleProp->omw[ iSpecies ];
-	}
-	Real oxiSum = 1.0 / xiSum;
+    Real xiSum = 0.0;
+    for ( int iSpecies = 0; iSpecies < nSpecies; ++ iSpecies )
+    {
+        xiSum += massFrac[ iSpecies ] * moleProp->omw[ iSpecies ];
+    }
+    Real oxiSum = 1.0 / xiSum;
 
-	for ( int iSpecies = 0; iSpecies < nSpecies; ++ iSpecies )
-	{
-		moleFrac[ iSpecies ] = massFrac[ iSpecies ] * moleProp->omw[ iSpecies ] * oxiSum;
-	}
+    for ( int iSpecies = 0; iSpecies < nSpecies; ++ iSpecies )
+    {
+        moleFrac[ iSpecies ] = massFrac[ iSpecies ] * moleProp->omw[ iSpecies ] * oxiSum;
+    }
 }
 
 void Chemical::ComputeDimSpeciesViscosity( Real tm, RealField & vis_s_dim )
 {
-	Real t1, lt1, lt2, lt3, lt4, tmp;
-	t1 = tm * nscom.tref_dim;
+    Real t1, lt1, lt2, lt3, lt4, tmp;
+    t1 = tm * nscom.tref_dim;
 
-	lt1 = log( t1 );
-	lt2 = lt1 * lt1;
-	lt3 = lt1 * lt2;
-	lt4 = lt1 * lt3;
+    lt1 = log( t1 );
+    lt2 = lt1 * lt1;
+    lt3 = lt1 * lt2;
+    lt4 = lt1 * lt3;
 
-	for ( int iSpecies = 0; iSpecies < nSpecies; ++ iSpecies )
-	{
-		tmp = blotterCurve->a[ iSpecies ] * lt4
-			+ blotterCurve->b[ iSpecies ] * lt3
-			+ blotterCurve->c[ iSpecies ] * lt2
-			+ blotterCurve->d[ iSpecies ] * lt1
-			+ blotterCurve->e[ iSpecies ];
-		vis_s_dim[ iSpecies ] = 0.10 * exp( tmp ) + SMALL;
-	}
-	return;
+    for ( int iSpecies = 0; iSpecies < nSpecies; ++ iSpecies )
+    {
+        tmp = blotterCurve->a[ iSpecies ] * lt4
+            + blotterCurve->b[ iSpecies ] * lt3
+            + blotterCurve->c[ iSpecies ] * lt2
+            + blotterCurve->d[ iSpecies ] * lt1
+            + blotterCurve->e[ iSpecies ];
+        vis_s_dim[ iSpecies ] = 0.10 * exp( tmp ) + SMALL;
+    }
+    return;
 }
 
 void Chemical::ComputeMixtureCoefByWilkeFormula( RealField & moleFrac, RealField & var, RealField & phi )
 {
-	RealField & mw = moleProp->mw;
+    RealField & mw = moleProp->mw;
 
-	for ( int is = 0; is < nSpecies; ++ is )
-	{
-		phi[ is ] = 0.0;
-		for ( int js = 0; js < nSpecies; ++ js )
-		{
-			Real tmp1 = 1.0 + sqrt( var[ is ] / var[ js ] ) * pow( mw[ js ] / mw[ is ], 0.25 );
-			Real tmp2 = sqrt( 8.0 * ( 1.0 + mw[ is ] / mw[ js ] ) );
-			phi[ is ] += moleFrac[ js ] * SQR( tmp1 ) / tmp2;
-		}
-	}
+    for ( int is = 0; is < nSpecies; ++ is )
+    {
+        phi[ is ] = 0.0;
+        for ( int js = 0; js < nSpecies; ++ js )
+        {
+            Real tmp1 = 1.0 + sqrt( var[ is ] / var[ js ] ) * pow( mw[ js ] / mw[ is ], 0.25 );
+            Real tmp2 = sqrt( 8.0 * ( 1.0 + mw[ is ] / mw[ js ] ) );
+            phi[ is ] += moleFrac[ js ] * SQR( tmp1 ) / tmp2;
+        }
+    }
 }
 
 void Chemical::ComputeMixtureByWilkeFormula( RealField & moleFrac, RealField & mixs, RealField & phi, Real & mixture )
 {
-	mixture = 0.0;
-	for ( int is = 0; is < nSpecies; ++ is )
-	{
-		mixture += moleFrac[ is ] * mixs[ is ] / phi[ is ];
-	}
+    mixture = 0.0;
+    for ( int is = 0; is < nSpecies; ++ is )
+    {
+        mixture += moleFrac[ is ] * mixs[ is ] / phi[ is ];
+    }
 }
 
 void Chemical::ComputeMixtureByWilkeFormula( RealField & moleFrac, RealField & mixs, Real & mixture )
 {
-	RealField & phi = vis_phi_s;
-	ComputeMixtureCoefByWilkeFormula( moleFrac, mixs, phi );
-	ComputeMixtureByWilkeFormula( moleFrac, mixs, phi, mixture );
+    RealField & phi = vis_phi_s;
+    ComputeMixtureCoefByWilkeFormula( moleFrac, mixs, phi );
+    ComputeMixtureByWilkeFormula( moleFrac, mixs, phi, mixture );
 }
 
 void Chemical::ComputeRefGasInfo()
 {
-	//compute reference pressure and density
-	if ( nscom.gasInfoStrategy == 0 )
-	{
-		SetAirInformationByDataBase();
-	}
-	else if ( nscom.gasInfoStrategy == 1 )
-	{
-		Real odim_amw = 1.0 / nscom.dim_amw;
-		nscom.pref_dim = nscom.dref_dim * rjmk * odim_amw * nscom.tref_dim;
-	}
-	else if ( nscom.gasInfoStrategy == 2 )
-	{
-		Real odim_amw = 1.0 / nscom.dim_amw;
-		nscom.dref_dim = nscom.pref_dim / ( rjmk * odim_amw * nscom.tref_dim );
-	}
+    //compute reference pressure and density
+    if ( nscom.gasInfoStrategy == 0 )
+    {
+        SetAirInformationByDataBase();
+    }
+    else if ( nscom.gasInfoStrategy == 1 )
+    {
+        Real odim_amw = 1.0 / nscom.dim_amw;
+        nscom.pref_dim = nscom.dref_dim * rjmk * odim_amw * nscom.tref_dim;
+    }
+    else if ( nscom.gasInfoStrategy == 2 )
+    {
+        Real odim_amw = 1.0 / nscom.dim_amw;
+        nscom.dref_dim = nscom.pref_dim / ( rjmk * odim_amw * nscom.tref_dim );
+    }
 }
 
 void Chemical::SetAirInformationByDataBase()
 {
-	atmosphere.Init();
-	atmosphere.GetAirPara( nscom.elevation );
-	nscom.tref_dim = atmosphere.tm;
-	nscom.pref_dim = atmosphere.pm;
-	nscom.dref_dim = atmosphere.rm;
-	nscom.cref_dim = atmosphere.cm;
+    atmosphere.Init();
+    atmosphere.GetAirPara( nscom.elevation );
+    nscom.tref_dim = atmosphere.tm;
+    nscom.pref_dim = atmosphere.pm;
+    nscom.dref_dim = atmosphere.rm;
+    nscom.cref_dim = atmosphere.cm;
 
-	NormalizeAirInfo();
+    NormalizeAirInfo();
 }
 
 void Chemical::NormalizeAirInfo()
 {
-	Real odim_amw = 1.0 / nscom.dim_amw;
+    Real odim_amw = 1.0 / nscom.dim_amw;
 
-	nscom.dref_dim = nscom.pref_dim / ( rjmk * odim_amw * nscom.tref_dim );
+    nscom.dref_dim = nscom.pref_dim / ( rjmk * odim_amw * nscom.tref_dim );
 }
 
 void Chemical::ComputeDimCps( Real tm, RealField & dim_cps )
 {
-	Real t1, t2, t3, t4;
+    Real t1, t2, t3, t4;
 
-	t1 = tm * nscom.tref_dim;
-	t2 = t1 * t1;
-	t3 = t1 * t2;
-	t4 = t1 * t3;
+    t1 = tm * nscom.tref_dim;
+    t2 = t1 * t1;
+    t3 = t1 * t2;
+    t4 = t1 * t3;
 
-	int it;
-	thermodynamic->GetTRangeId( t1, it );
+    int it;
+    thermodynamic->GetTRangeId( t1, it );
 
-	RealField & dim_omw = moleProp->dim_omw;
+    RealField & dim_omw = moleProp->dim_omw;
 
-	for ( int iSpecies = 0; iSpecies < nSpecies; ++ iSpecies )
-	{
-		RealField & polyCoef = thermodynamic->GetPolyCoef( iSpecies, it );
+    for ( int iSpecies = 0; iSpecies < nSpecies; ++ iSpecies )
+    {
+        RealField & polyCoef = thermodynamic->GetPolyCoef( iSpecies, it );
 
-		dim_cps[ iSpecies ] = polyCoef[ 0 ] +
-			                  polyCoef[ 1 ] * t1 +
-			                  polyCoef[ 2 ] * t2 +
-			                  polyCoef[ 3 ] * t3 +
-			                  polyCoef[ 4 ] * t4;
-		dim_cps[ iSpecies ] *= rjmk * dim_omw[ iSpecies ];
-	}
+        dim_cps[ iSpecies ] = polyCoef[ 0 ] +
+                              polyCoef[ 1 ] * t1 +
+                              polyCoef[ 2 ] * t2 +
+                              polyCoef[ 3 ] * t3 +
+                              polyCoef[ 4 ] * t4;
+        dim_cps[ iSpecies ] *= rjmk * dim_omw[ iSpecies ];
+    }
 }
 
 void Chemical::ComputeMixtureByMassFraction( RealField & cs, RealField & var, Real & mixture )
 {
-	mixture = 0.0;
-	for ( int iSpecies = 0; iSpecies < nSpecies; ++ iSpecies )
-	{
-		mixture += cs[ iSpecies ] * var[ iSpecies ];
-	}
+    mixture = 0.0;
+    for ( int iSpecies = 0; iSpecies < nSpecies; ++ iSpecies )
+    {
+        mixture += cs[ iSpecies ] * var[ iSpecies ];
+    }
 }
 
 void Chemical::CompressData( DataBook *& dataBook )
 {
-	HXAppend( dataBook, nSpecies );
-	HXAppend( dataBook, nReaction );
+    HXAppend( dataBook, nSpecies );
+    HXAppend( dataBook, nReaction );
 
-	Write( dataBook );
+    Write( dataBook );
 }
 
 void Chemical::DecompressData( DataBook * dataBook )
 {
-	dataBook->MoveToBegin();
+    dataBook->MoveToBegin();
 
-	HXRead( dataBook, nSpecies );
-	HXRead( dataBook, nReaction );
+    HXRead( dataBook, nSpecies );
+    HXRead( dataBook, nReaction );
 
-	Init( nSpecies, nReaction );
-	Read( dataBook );
+    Init( nSpecies, nReaction );
+    Read( dataBook );
 }
 
 void ChemicalCompressData( DataBook *& dataBook )
 {
-	chem.CompressData( dataBook );
+    chem.CompressData( dataBook );
 }
 
 void ChemicalDecompressData( DataBook * dataBook )
 {
-	chem.DecompressData( dataBook );
+    chem.DecompressData( dataBook );
 }
 
 EndNameSpace

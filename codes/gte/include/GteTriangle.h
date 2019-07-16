@@ -29,7 +29,7 @@ public:
 
     // Public member access.
     //std::array<Vector<N, Real>, 3> v;
-	testarray<Vector<N, Real>, 3> v;
+    testarray<Vector<N, Real>, 3> v;
 
 public:
     // Comparisons to support sorted containers.

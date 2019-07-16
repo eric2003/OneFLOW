@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -65,8 +65,8 @@ void L2GMapping::Alloc( UnsGrid * grid )
     int nFace = grid->nFace;
     int nCell = grid->nCell;
 
-	this->l2g_node.resize( nNode );
-	this->l2g_face.resize( nFace );
+    this->l2g_node.resize( nNode );
+    this->l2g_face.resize( nFace );
     this->l2g_cell.resize( nCell );
 }
 
@@ -74,50 +74,50 @@ void L2GMapping::CmpL2GNode( UnsGrid * ggrid, int zid, UnsGrid * grid )
 {
     int nNode = ggrid->nNode;
 
-	for ( int iNode = 0; iNode < nNode; ++ iNode )
-	{
-		if ( g2l->g2l_node[ iNode ] > - 1 )
-		{
-			this->l2g_node[ g2l->g2l_node[ iNode ] ] = iNode;
-		}
-	}
+    for ( int iNode = 0; iNode < nNode; ++ iNode )
+    {
+        if ( g2l->g2l_node[ iNode ] > - 1 )
+        {
+            this->l2g_node[ g2l->g2l_node[ iNode ] ] = iNode;
+        }
+    }
 }
 
 void L2GMapping::CmpL2GFace( UnsGrid * ggrid, int zid, UnsGrid * grid )
 {
     int nFace = ggrid->nFace;
 
-	for ( int iFace = 0; iFace < nFace; ++ iFace )
-	{
+    for ( int iFace = 0; iFace < nFace; ++ iFace )
+    {
         int fid = g2l->g2l_face[ iFace ];
-		if ( fid >= 0 )
-		{
-			this->l2g_face[ fid ] = iFace;
-		}
-	}
+        if ( fid >= 0 )
+        {
+            this->l2g_face[ fid ] = iFace;
+        }
+    }
 }
 
 void L2GMapping::CmpL2GCell( UnsGrid * ggrid, int zid, UnsGrid * grid )
 {
     int nCell = ggrid->nCell;
-	int cid = 0;
-	for ( int gcid = 0; gcid < nCell; ++ gcid )
-	{
-		if ( g2l->gc2lzone[ gcid ] == zid )
-		{
-			this->l2g_cell[ cid ] = gcid;
-			++ cid;
-		}
-	}
+    int cid = 0;
+    for ( int gcid = 0; gcid < nCell; ++ gcid )
+    {
+        if ( g2l->gc2lzone[ gcid ] == zid )
+        {
+            this->l2g_cell[ cid ] = gcid;
+            ++ cid;
+        }
+    }
 }
 
 G2LMapping::G2LMapping( UnsGrid * ggrid )
 {
     this->ggrid = ggrid;
 
-	this->g2l_cell.resize( ggrid->nCell );
-	this->g2l_face.resize( ggrid->nFace );
-	this->g2l_node.resize( ggrid->nNode );
+    this->g2l_cell.resize( ggrid->nCell );
+    this->g2l_face.resize( ggrid->nFace );
+    this->g2l_node.resize( ggrid->nNode );
     this->gc2lzone.resize( ggrid->nCell );
 
     this->npartproc = GetDataValue< int >( "npartproc" );
@@ -129,22 +129,22 @@ G2LMapping::~G2LMapping()
 
 void G2LMapping::GenerateGC2Z()
 {
-	if ( npartproc < 2 )
-	{
-		Stop( "The number of partitions should be greater than 1!\n" );
-	}
+    if ( npartproc < 2 )
+    {
+        Stop( "The number of partitions should be greater than 1!\n" );
+    }
 
     int nCell  = ggrid->nCell;
     int nFace  = ggrid->nFace;
     int nBFace = ggrid->nBFace;
 
-	vector<idx_t> xadj  ( ggrid->nCell + 1 );
-	vector<idx_t> adjncy( 2 * ( nFace - nBFace ) );
+    vector<idx_t> xadj  ( ggrid->nCell + 1 );
+    vector<idx_t> adjncy( 2 * ( nFace - nBFace ) );
 
     this->GetXadjAdjncy( ggrid, xadj, adjncy );
     this->PartByMetis( nCell, xadj, adjncy );
-	//this->DumpGC2Z( gridForPartition );
-	//this->ReadGC2Z( gridForPartition );
+    //this->DumpGC2Z( gridForPartition );
+    //this->ReadGC2Z( gridForPartition );
 }
 #ifdef ENABLE_METIS
 void G2LMapping::GetXadjAdjncy( UnsGrid * ggrid, vector<idx_t> & xadj, vector<idx_t>& adjncy )
@@ -152,48 +152,48 @@ void G2LMapping::GetXadjAdjncy( UnsGrid * ggrid, vector<idx_t> & xadj, vector<id
     int  nCell = ggrid->nCell;
     CmpC2C( ggrid );
     LinkField & c2c = ggrid->cellMesh->cellTopo->c2c;
-	xadj[ 0 ]  = 0;
-	int iCount = 0;
-	for ( int iCell = 0; iCell < nCell; ++ iCell )
-	{
-		xadj[ iCell + 1 ] = xadj[ iCell ] + c2c[ iCell ].size();
-		for ( UInt j = 0; j < c2c[ iCell ].size(); ++ j )
-		{
-			adjncy[ iCount ++ ] = c2c[ iCell ][ j ];
-		}
-	}
+    xadj[ 0 ]  = 0;
+    int iCount = 0;
+    for ( int iCell = 0; iCell < nCell; ++ iCell )
+    {
+        xadj[ iCell + 1 ] = xadj[ iCell ] + c2c[ iCell ].size();
+        for ( UInt j = 0; j < c2c[ iCell ].size(); ++ j )
+        {
+            adjncy[ iCount ++ ] = c2c[ iCell ][ j ];
+        }
+    }
 }
 
 void G2LMapping::PartByMetis( idx_t nCell, vector<idx_t>& xadj, vector<idx_t>& adjncy )
 {
-	idx_t   ncon     = 1;
-	idx_t   * vwgt   = 0;
-	idx_t   * vsize  = 0;
-	idx_t   * adjwgt = 0;
-	float * tpwgts = 0;
-	float * ubvec  = 0;
-	idx_t options[ METIS_NOPTIONS ];
-	idx_t wgtflag = 0;
-	idx_t numflag = 0;
-	idx_t objval;
+    idx_t   ncon     = 1;
+    idx_t   * vwgt   = 0;
+    idx_t   * vsize  = 0;
+    idx_t   * adjwgt = 0;
+    float * tpwgts = 0;
+    float * ubvec  = 0;
+    idx_t options[ METIS_NOPTIONS ];
+    idx_t wgtflag = 0;
+    idx_t numflag = 0;
+    idx_t objval;
     idx_t nZone = npartproc;
 
-	METIS_SetDefaultOptions( options );
-	cout << "Now begining partition graph!\n";
-	if ( nZone > 8 )
-	{
-		cout << "Using K-way Partitioning!\n";
-		METIS_PartGraphKway( & nCell, & ncon, & xadj[ 0 ], & adjncy[ 0 ], vwgt, vsize, adjwgt, 
-							 & nZone, tpwgts, ubvec, options, & objval, & gc2lzone[ 0 ] );
+    METIS_SetDefaultOptions( options );
+    cout << "Now begining partition graph!\n";
+    if ( nZone > 8 )
+    {
+        cout << "Using K-way Partitioning!\n";
+        METIS_PartGraphKway( & nCell, & ncon, & xadj[ 0 ], & adjncy[ 0 ], vwgt, vsize, adjwgt, 
+                             & nZone, tpwgts, ubvec, options, & objval, & gc2lzone[ 0 ] );
     }
     else
     {
         cout << "Using Recursive Partitioning!\n";
-		METIS_PartGraphRecursive( & nCell, & ncon, & xadj[ 0 ], & adjncy[ 0 ], vwgt, vsize, adjwgt, 
-								  & nZone, tpwgts, ubvec, options, & objval, & gc2lzone[ 0 ] );
+        METIS_PartGraphRecursive( & nCell, & ncon, & xadj[ 0 ], & adjncy[ 0 ], vwgt, vsize, adjwgt, 
+                                  & nZone, tpwgts, ubvec, options, & objval, & gc2lzone[ 0 ] );
     }
-	cout << "The interface number: " << objval << endl; 
-	cout << "Partition is finished!\n";
+    cout << "The interface number: " << objval << endl; 
+    cout << "Partition is finished!\n";
 }
 #endif
 
@@ -230,35 +230,35 @@ void Partition::Run()
 {
     this->ReadGrid();
 
-	this->GenerateMultiZoneGrid();
+    this->GenerateMultiZoneGrid();
 
     ONEFLOW::GenerateMultiZoneCmpGrids( grids );
 }
 
 void Partition::ReadGrid()
 {
-	StringField gridFileList;
+    StringField gridFileList;
     string ori_uns_file = GetDataValue< string >( "ori_uns_file" );
-	gridFileList.push_back( ori_uns_file );
+    gridFileList.push_back( ori_uns_file );
 
     Zone::ReadGrid( gridFileList );
 
-	int nZones = ZoneState::nZones;
+    int nZones = ZoneState::nZones;
 
     if ( nZones > 1 )
     {
         cout << " At present, there is no support for multiple blocks such as nZones > 1 !\n";
     }
-	else
-	{
-		Grid * grid = Zone::GetGrid();
+    else
+    {
+        Grid * grid = Zone::GetGrid();
         uns_grid = UnsGridCast( grid );
-	}
+    }
 }
 
 void Partition::GenerateMultiZoneGrid()
 {
-	this->CreatePart();
+    this->CreatePart();
 
     this->AllocPart();
 
@@ -269,7 +269,7 @@ void Partition::CreatePart()
 {
     g2l = new G2LMapping( uns_grid );
     g2l->npartproc = this->npartproc;
-	g2l->GenerateGC2Z();
+    g2l->GenerateGC2Z();
     this->CmpG2lCell();
 
     if ( this->partition_c2n )
@@ -280,9 +280,9 @@ void Partition::CreatePart()
 
 void Partition::AllocPart()
 {
-	grids.resize( npartproc );
-	for ( int pid = 0; pid < npartproc; ++ pid )
-	{
+    grids.resize( npartproc );
+    for ( int pid = 0; pid < npartproc; ++ pid )
+    {
         int gridType = ONEFLOW::UMESH;
         Grid * grid = ONEFLOW::CreateGrid( gridType );
         grid->level = 0;
@@ -290,18 +290,18 @@ void Partition::AllocPart()
         grid->localId = pid;
         grid->type = gridType;
         grids[ pid ] = grid;
-	}
+    }
 }
 
 void Partition::BuildCmpGrid()
 {
     this->PreProcess();
-	for ( int pid = 0; pid < npartproc; ++ pid )
-	{
-		cout << "BuildCmpGrid pid = " << pid << " npartproc = " << npartproc << "\n";
-		//for unstructured grid, each processor only contains one zone, so pid equal to zid
-		this->BuildCmpGrid( pid );
-	}
+    for ( int pid = 0; pid < npartproc; ++ pid )
+    {
+        cout << "BuildCmpGrid pid = " << pid << " npartproc = " << npartproc << "\n";
+        //for unstructured grid, each processor only contains one zone, so pid equal to zid
+        this->BuildCmpGrid( pid );
+    }
     this->PostProcess();
 }
 
@@ -322,11 +322,11 @@ void Partition::CmpG2lCell()
     IntField zCount( npartproc, 0 );
 
     int nCell = uns_grid->nCell;
-	for ( int cid = 0; cid < nCell; ++ cid )
-	{
+    for ( int cid = 0; cid < nCell; ++ cid )
+    {
         int zid = g2l->gc2lzone[ cid ];
-		g2l->g2l_cell[ cid ] = zCount[ zid ] ++;
-	}
+        g2l->g2l_cell[ cid ] = zCount[ zid ] ++;
+    }
 }
 
 void Partition::BuildCmpGrid( int zid )
@@ -335,8 +335,8 @@ void Partition::BuildCmpGrid( int zid )
 
     grid->nCell = this->GetNCell( uns_grid, zid );
 
-	this->CmpG2lFace( uns_grid, zid, grid );
-	this->CmpG2lNode( uns_grid, zid, grid );
+    this->CmpG2lFace( uns_grid, zid, grid );
+    this->CmpG2lNode( uns_grid, zid, grid );
 
     if ( partition_c2n )
     {
@@ -345,7 +345,7 @@ void Partition::BuildCmpGrid( int zid )
     }
 
     this->l2g = new L2GMapping();
-	this->CreateL2g( uns_grid, zid, grid );
+    this->CreateL2g( uns_grid, zid, grid );
     this->SetCoor  ( uns_grid, zid, grid );
     this->SetGeometricRelationship( uns_grid, zid, grid );
     delete this->l2g;
@@ -360,70 +360,70 @@ void Partition::CmpG2lFace( UnsGrid * ggrid, int zid, UnsGrid * grid )
     IntField & glCell = ggrid->faceTopo->lCell;
     IntField & grCell = ggrid->faceTopo->rCell;
 
-	for ( int fid = 0; fid < nFace; ++ fid )
-	{
+    for ( int fid = 0; fid < nFace; ++ fid )
+    {
         g2l->g2l_face[ fid ] = - 2;
-	}
+    }
 
-	//set all face in iZone to -1
-	for ( int fid = 0; fid < nFace; ++ fid )
-	{
-		int glc = glCell[ fid ];
-		int grc = grCell[ fid ];
-		if ( g2l->gc2lzone[ glc ] == zid )
-		{
+    //set all face in iZone to -1
+    for ( int fid = 0; fid < nFace; ++ fid )
+    {
+        int glc = glCell[ fid ];
+        int grc = grCell[ fid ];
+        if ( g2l->gc2lzone[ glc ] == zid )
+        {
             g2l->g2l_face[ fid ] = - 1;
-		}
-		else if ( grc < nCell && g2l->gc2lzone[ grc ] == zid )
-		{
+        }
+        else if ( grc < nCell && g2l->gc2lzone[ grc ] == zid )
+        {
             g2l->g2l_face[ fid ] = - 1;
-		}
-	}
+        }
+    }
 
-	int nFaceNow = 0;
+    int nFaceNow = 0;
 
     //physical boundary
-	for ( int fid = 0; fid < nBFace; ++ fid )
-	{
-		if ( g2l->g2l_face[ fid ] == - 1 )
-		{
+    for ( int fid = 0; fid < nBFace; ++ fid )
+    {
+        if ( g2l->g2l_face[ fid ] == - 1 )
+        {
             g2l->g2l_face[ fid ] = nFaceNow ++;
-		}
-	}
+        }
+    }
 
-	int nIFaceNow = 0;
-	for ( int fid = nBFace; fid < nFace; ++ fid )
-	{
-		if ( g2l->g2l_face[ fid ] == - 1 )
-		{
-		    int glc = glCell[ fid ];
-		    int grc = grCell[ fid ];
-			if ( g2l->gc2lzone[ glc ] != g2l->gc2lzone[ grc ] )
-			{
+    int nIFaceNow = 0;
+    for ( int fid = nBFace; fid < nFace; ++ fid )
+    {
+        if ( g2l->g2l_face[ fid ] == - 1 )
+        {
+            int glc = glCell[ fid ];
+            int grc = grCell[ fid ];
+            if ( g2l->gc2lzone[ glc ] != g2l->gc2lzone[ grc ] )
+            {
                 g2l->g2l_face[ fid ] = nFaceNow ++;
-				nIFaceNow ++;
-			}
-		}
-	}
+                nIFaceNow ++;
+            }
+        }
+    }
 
     //inner boundary
-	int nBFaceNow = nFaceNow;
-	for ( int fid = nBFace; fid < nFace; ++ fid )
-	{
-		if ( g2l->g2l_face[ fid ] == - 1 )
-		{
-		    int glc = glCell[ fid ];
-		    int grc = grCell[ fid ];
+    int nBFaceNow = nFaceNow;
+    for ( int fid = nBFace; fid < nFace; ++ fid )
+    {
+        if ( g2l->g2l_face[ fid ] == - 1 )
+        {
+            int glc = glCell[ fid ];
+            int grc = grCell[ fid ];
 
-			if ( g2l->gc2lzone[ glc ] == g2l->gc2lzone[ grc ] )
-			{
+            if ( g2l->gc2lzone[ glc ] == g2l->gc2lzone[ grc ] )
+            {
                 g2l->g2l_face[ fid ] = nFaceNow ++;
-			}
-		}
-	}
+            }
+        }
+    }
 
     grid->nFace  = nFaceNow;
-	grid->nBFace = nBFaceNow;
+    grid->nBFace = nBFaceNow;
 
     InterFace * interFace = grid->interFace;
     interFace->Set( nIFaceNow );
@@ -437,49 +437,49 @@ void Partition::CmpG2lNode( UnsGrid * ggrid, int zid, UnsGrid * grid )
 
     LinkField & f2n = ggrid->faceTopo->f2n;
 
-	for ( int iNode = 0; iNode < nNode; ++ iNode )
-	{
-		g2l->g2l_node[ iNode ] = - 2;
-	}
+    for ( int iNode = 0; iNode < nNode; ++ iNode )
+    {
+        g2l->g2l_node[ iNode ] = - 2;
+    }
 
     //set iZone g2l->g2l_node to -1
-	int iCount = 0;
-	for ( int iFace = 0; iFace < nFace; ++ iFace )
-	{
-		if ( g2l->g2l_face[ iFace ] > - 1 )
-		{
+    int iCount = 0;
+    for ( int iFace = 0; iFace < nFace; ++ iFace )
+    {
+        if ( g2l->g2l_face[ iFace ] > - 1 )
+        {
             int nFNode = f2n[ iFace ].size();
-			for ( int iNode = 0; iNode < nFNode; ++ iNode )
-			{
-				g2l->g2l_node[ f2n[ iFace ][ iNode ] ] = - 1;
-			}
-		}
-	}
+            for ( int iNode = 0; iNode < nFNode; ++ iNode )
+            {
+                g2l->g2l_node[ f2n[ iFace ][ iNode ] ] = - 1;
+            }
+        }
+    }
 
-	int nLNode = 0;
-	for ( int iNode = 0; iNode < nNode; ++ iNode )
-	{
-		if ( g2l->g2l_node[ iNode ] == - 1 )
-		{
-			g2l->g2l_node[ iNode ] = nLNode ++;
-		}
-	}
+    int nLNode = 0;
+    for ( int iNode = 0; iNode < nNode; ++ iNode )
+    {
+        if ( g2l->g2l_node[ iNode ] == - 1 )
+        {
+            g2l->g2l_node[ iNode ] = nLNode ++;
+        }
+    }
 
-	grid->nNode = nLNode;
+    grid->nNode = nLNode;
 }
 
 int Partition::GetNCell( UnsGrid * ggrid, int zid )
 {
     int nCell = ggrid->nCell;
-	int iCount = 0;
-	for ( int iCell = 0; iCell < nCell; ++ iCell )
-	{
-		if ( g2l->gc2lzone[ iCell ] == zid )
-		{
-			iCount ++;
-		}
-	}
-	return iCount;
+    int iCount = 0;
+    for ( int iCell = 0; iCell < nCell; ++ iCell )
+    {
+        if ( g2l->gc2lzone[ iCell ] == zid )
+        {
+            iCount ++;
+        }
+    }
+    return iCount;
 }
 
 void Partition::CreateL2g( UnsGrid * ggrid, int zid, UnsGrid * grid )
@@ -491,30 +491,30 @@ void Partition::CreateL2g( UnsGrid * ggrid, int zid, UnsGrid * grid )
 void Partition::SetCoor( UnsGrid * ggrid, int zid, UnsGrid * grid )
 {
     int nNode = grid->nNode;
-	grid->nodeMesh->CreateNodes( nNode );
+    grid->nodeMesh->CreateNodes( nNode );
 
-	int iCount = 0;
-	for ( int iNode = 0; iNode < ggrid->nNode; ++ iNode )
-	{
-		if ( g2l->g2l_node[ iNode ] > - 1 )
-		{
-			grid->nodeMesh->xN[ iCount ] = ggrid->nodeMesh->xN[ iNode ];
-			grid->nodeMesh->yN[ iCount ] = ggrid->nodeMesh->yN[ iNode ];
-			grid->nodeMesh->zN[ iCount ] = ggrid->nodeMesh->zN[ iNode ];
-			++ iCount;
-		}
-	}
+    int iCount = 0;
+    for ( int iNode = 0; iNode < ggrid->nNode; ++ iNode )
+    {
+        if ( g2l->g2l_node[ iNode ] > - 1 )
+        {
+            grid->nodeMesh->xN[ iCount ] = ggrid->nodeMesh->xN[ iNode ];
+            grid->nodeMesh->yN[ iCount ] = ggrid->nodeMesh->yN[ iNode ];
+            grid->nodeMesh->zN[ iCount ] = ggrid->nodeMesh->zN[ iNode ];
+            ++ iCount;
+        }
+    }
 
-	if ( iCount != nNode )
-	{
-		cout << "error in Partition::SetCoor\n";
-	}
+    if ( iCount != nNode )
+    {
+        cout << "error in Partition::SetCoor\n";
+    }
 }
 
 void Partition::SetGeometricRelationship( UnsGrid * ggrid, int zid, UnsGrid * grid )
 {
     this->CmpF2N( ggrid, zid, grid );
-	this->SetF2CAndBC( ggrid, zid, grid );
+    this->SetF2CAndBC( ggrid, zid, grid );
     this->SetInterface( ggrid, zid, grid );
 }
 
@@ -526,19 +526,19 @@ void Partition::CmpF2N( UnsGrid * ggrid, int zid, UnsGrid * grid )
     int nFace = grid->nFace;
     f2n.resize( nFace );
 
-	for ( int fid = 0; fid < nFace; ++ fid )
-	{
-		int gfid = l2g->l2g_face[ fid ];
+    for ( int fid = 0; fid < nFace; ++ fid )
+    {
+        int gfid = l2g->l2g_face[ fid ];
 
         int nFNode = gf2n[ gfid ].size();
 
-		for ( int iNode = 0; iNode < nFNode; ++ iNode )
-		{
+        for ( int iNode = 0; iNode < nFNode; ++ iNode )
+        {
             int gnid = gf2n[ gfid ][ iNode ];
             int nid  = g2l->g2l_node[ gnid ];
             f2n[ fid ].push_back( nid );
-		}
-	}
+        }
+    }
 }
 
 void Partition::SetF2CAndBC( UnsGrid * ggrid, int zid, UnsGrid * grid )
@@ -555,66 +555,66 @@ void Partition::SetF2CAndBC( UnsGrid * ggrid, int zid, UnsGrid * grid )
 
     IntField & lCell = grid->faceTopo->lCell;
     IntField & rCell = grid->faceTopo->rCell;
-	lCell.resize( nFace );
-	rCell.resize( nFace );
+    lCell.resize( nFace );
+    rCell.resize( nFace );
 
     grid->faceTopo->SetNBFace( nBFace );
 
     IntField & local_bcType = grid->faceTopo->bcManager->bcRecord->bcType;
 
     for ( int iFace = 0; iFace < nBFace; ++ iFace )
-	{
-		int gfid = this->l2g->l2g_face[ iFace ];
+    {
+        int gfid = this->l2g->l2g_face[ iFace ];
 
-		int glc = glCell[ gfid ];
-		int grc = grCell[ gfid ];
+        int glc = glCell[ gfid ];
+        int grc = grCell[ gfid ];
 
         int lc, rc, bctype;
 
-		if ( gfid < nGBFace )
-		{
-		    rc = - 1;
+        if ( gfid < nGBFace )
+        {
+            rc = - 1;
             lc = this->g2l->g2l_cell[ glc ];
             bctype = gbcType[ gfid ];
- 		}
-		else
-		{
-			bctype = -1;
-			// int face
-			if ( this->g2l->gc2lzone[ glc ] == zid )
-			{
+         }
+        else
+        {
+            bctype = -1;
+            // int face
+            if ( this->g2l->gc2lzone[ glc ] == zid )
+            {
                 lc = this->g2l->g2l_cell[ glc ];
-				rc = - 1;
-			}
-			else if ( this->g2l->gc2lzone[ grc ] == zid )
-			{
+                rc = - 1;
+            }
+            else if ( this->g2l->gc2lzone[ grc ] == zid )
+            {
                 rc = this->g2l->g2l_cell[ grc ];
-				lc = - 1;
-			}
-			else
-			{
-				cout << "error in SetF2CAndBC\n";
-			}
-		}
+                lc = - 1;
+            }
+            else
+            {
+                cout << "error in SetF2CAndBC\n";
+            }
+        }
 
         local_bcType[ iFace ] = bctype;
 
-		lCell[ iFace ] = lc;
-		rCell[ iFace ] = rc;
-	}
+        lCell[ iFace ] = lc;
+        rCell[ iFace ] = rc;
+    }
 
-	for ( int iFace = nBFace; iFace < nFace; ++ iFace )
-	{
-		int gfid = this->l2g->l2g_face[ iFace ];
-		int glc = glCell[ gfid ];
-		int grc = grCell[ gfid ];
+    for ( int iFace = nBFace; iFace < nFace; ++ iFace )
+    {
+        int gfid = this->l2g->l2g_face[ iFace ];
+        int glc = glCell[ gfid ];
+        int grc = grCell[ gfid ];
 
-		int lc = this->g2l->g2l_cell[ glc ];
-		int rc = this->g2l->g2l_cell[ grc ];
+        int lc = this->g2l->g2l_cell[ glc ];
+        int rc = this->g2l->g2l_cell[ grc ];
 
-		lCell[ iFace ] = lc;
-		rCell[ iFace ] = rc;
-	}
+        lCell[ iFace ] = lc;
+        rCell[ iFace ] = rc;
+    }
 }
 
 void Partition::SetInterface( UnsGrid * ggrid, int zid, UnsGrid * grid )
@@ -634,47 +634,47 @@ void Partition::SetInterface( UnsGrid * ggrid, int zid, UnsGrid * grid )
     //number of physical boundary face
     int nPBFace = nBFace - nIFace;
 
-	for ( int gfid = nGBFace; gfid < nGFace; ++ gfid )
-	{
-		int fid = this->g2l->g2l_face[ gfid ];
-		if ( fid < nBFace && fid > - 1 )
-		{
+    for ( int gfid = nGBFace; gfid < nGFace; ++ gfid )
+    {
+        int fid = this->g2l->g2l_face[ gfid ];
+        if ( fid < nBFace && fid > - 1 )
+        {
             //local interface id
-			int ifid = fid - nPBFace;
+            int ifid = fid - nPBFace;
 
-			int glc = glCell[ gfid ];
-			int grc = grCell[ gfid ];
+            int glc = glCell[ gfid ];
+            int grc = grCell[ gfid ];
 
-			int leftZone  = this->g2l->gc2lzone[ glc ];
-			int rightZone = this->g2l->gc2lzone[ grc ];
+            int leftZone  = this->g2l->gc2lzone[ glc ];
+            int rightZone = this->g2l->gc2lzone[ grc ];
 
-			int gcid = -1;
+            int gcid = -1;
 
-			if ( leftZone == zid )
-			{
-				interFace->idir[ ifid ] = 1;
-				gcid = grc;
-			}
-			else if ( rightZone == zid )
-			{
-				interFace->idir[ ifid ] = - 1;
-				gcid = glc;
-			}
-			else
-			{
-				cout << "error\n";
-			}
+            if ( leftZone == zid )
+            {
+                interFace->idir[ ifid ] = 1;
+                gcid = grc;
+            }
+            else if ( rightZone == zid )
+            {
+                interFace->idir[ ifid ] = - 1;
+                gcid = glc;
+            }
+            else
+            {
+                cout << "error\n";
+            }
             //interface
             //   |zone
             //   |face
             //   |cell
             //
-			interFace->zoneId          [ ifid ] = this->g2l->gc2lzone[ gcid ];
+            interFace->zoneId          [ ifid ] = this->g2l->gc2lzone[ gcid ];
             interFace->localInterfaceId[ ifid ] = this->g2l->g2l_cell[ gcid ];
-			interFace->localCellId     [ ifid ] = this->g2l->g2l_cell[ gcid ];
-			interFace->i2b             [ ifid ] = this->g2l->g2l_face[ gfid ];
-		}
-	}
+            interFace->localCellId     [ ifid ] = this->g2l->g2l_cell[ gcid ];
+            interFace->i2b             [ ifid ] = this->g2l->g2l_face[ gfid ];
+        }
+    }
 }
 
 bool FindMatch( UnsGrid * grid, FacePair * facePair )
@@ -698,12 +698,12 @@ bool FindMatch( UnsGrid * grid, FacePair * facePair )
         int rc = rCell[ iFace + nPBFace ];
         int cell_id = MAX( lc, rc );
 
-		if ( ( interFace->zoneId[ iFace ]      == facePair->lf.zone_id ) &&
-			 ( interFace->localCellId[ iFace ] == facePair->lf.cell_id ) && 
-			 ( cell_id                         == facePair->rf.cell_id ) )
+        if ( ( interFace->zoneId[ iFace ]      == facePair->lf.zone_id ) &&
+             ( interFace->localCellId[ iFace ] == facePair->lf.cell_id ) && 
+             ( cell_id                         == facePair->rf.cell_id ) )
         {
             interFace->localInterfaceId[ iFace ] = facePair->lf.face_id;
-			facePair->rf.face_id = iFace;
+            facePair->rf.face_id = iFace;
             found = true;
             break;
         } 

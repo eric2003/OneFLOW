@@ -47,11 +47,11 @@ class DataField;
 class DataBase
 {
 public:
-	DataBase();
-	~DataBase();
+    DataBase();
+    ~DataBase();
 public:
-	DataPara *dataPara;
-	DataField *dataField;
+    DataPara *dataPara;
+    DataField *dataField;
 };
 void HXReadDataV( DataBook * dataBook, DataV * datav );
 void HXWriteDataV( DataBook * dataBook, DataV * datav );
@@ -73,33 +73,33 @@ T GetDataValue( const std::string & varName, DataBase * database = ONEFLOW::GetG
 template < typename T >
 T GetDataValue( const std::string & varName, DataBase * database )
 {
-	DataV * datav = database->dataPara->GetDataPointer( varName );
+    DataV * datav = database->dataPara->GetDataPointer( varName );
 
-	if (datav != NULL)
-	{
-		DataObject * data = datav->data;
-		return GetDataValue< T >(data);
-	}
-	else
-	{
-		cerr << "can't find:" << varName << " in database!!" << endl;
-		exit(EXIT_FAILURE);
-	}   
+    if (datav != NULL)
+    {
+        DataObject * data = datav->data;
+        return GetDataValue< T >(data);
+    }
+    else
+    {
+        cerr << "can't find:" << varName << " in database!!" << endl;
+        exit(EXIT_FAILURE);
+    }   
 }
 
 template < typename T >
 void SetData( const string & name, T * value, int type, int size )
 {
-	DataV * datav = new DataV();
-	datav->name = name;
-	datav->type = type;
-	datav->size = size;
-	TDataObject< T > * o = new TDataObject< T >( size );
-	o->CopyValue( value );
-	datav->data = o;
+    DataV * datav = new DataV();
+    datav->name = name;
+    datav->type = type;
+    datav->size = size;
+    TDataObject< T > * o = new TDataObject< T >( size );
+    o->CopyValue( value );
+    datav->data = o;
 
     DataBase * dataBase = ONEFLOW::GetGlobalDataBase();
-	dataBase->dataPara->UpdateDataPointer( datav );
+    dataBase->dataPara->UpdateDataPointer( datav );
 }
 
 void SetDataInt( const std::string & varName, int & value );
@@ -110,9 +110,9 @@ template < typename T >
 T * GetDataPointer( const std::string & varName )
 {
     DataBase * database = ONEFLOW::GetGlobalDataBase();
-	DataV * datav = database->dataPara->GetDataPointer( varName );
+    DataV * datav = database->dataPara->GetDataPointer( varName );
     DataObject * data = datav->data;
-	return static_cast< T * >( data->GetVoidPointer() );
+    return static_cast< T * >( data->GetVoidPointer() );
 }
 
 class PointerWrap;

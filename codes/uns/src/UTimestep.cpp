@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -130,58 +130,58 @@ void UTimestep::ReadTmp()
 
     unsf.Init();
 
-   	for ( int cId = 0; cId < ug.nTCell; ++ cId )
-	{
-	    for ( int iEqu = 0; iEqu < 5; ++ iEqu )
-	    {
+       for ( int cId = 0; cId < ug.nTCell; ++ cId )
+    {
+        for ( int iEqu = 0; iEqu < 5; ++ iEqu )
+        {
             file.read( reinterpret_cast< char * >( & ( * unsf.q )[ iEqu ][ cId ] ), sizeof( double ) );
-	    }
-	}
+        }
+    }
 
-   	for ( int cId = 0; cId < ug.nTCell; ++ cId )
-	{
+       for ( int cId = 0; cId < ug.nTCell; ++ cId )
+    {
         file.read( reinterpret_cast< char * >( & ( * unsf.visl )[ 0 ][ cId ] ), sizeof( double ) );
     }
 
-   	for ( int cId = 0; cId < ug.nTCell; ++ cId )
-	{
+       for ( int cId = 0; cId < ug.nTCell; ++ cId )
+    {
         file.read( reinterpret_cast< char * >( & ( * unsf.vist )[ 0 ][ cId ] ), sizeof( double ) );
     }
 
     vector< Real > tmp1( ug.nTCell ), tmp2( ug.nTCell );
 
-   	for ( int cId = 0; cId < ug.nTCell; ++ cId )
-	{
+       for ( int cId = 0; cId < ug.nTCell; ++ cId )
+    {
         tmp1[ cId ] = ( * unsf.timestep )[ 0 ][ cId ];
     }
 
-   	for ( int cId = 0; cId < ug.nTCell; ++ cId )
-	{
+       for ( int cId = 0; cId < ug.nTCell; ++ cId )
+    {
         file.read( reinterpret_cast< char * >( & ( * unsf.timestep )[ 0 ][ cId ] ), sizeof( double ) );
     }
 
-   	for ( int cId = 0; cId < ug.nTCell; ++ cId )
-	{
+       for ( int cId = 0; cId < ug.nTCell; ++ cId )
+    {
         tmp2[ cId ] = ( * unsf.timestep )[ 0 ][ cId ];
     }
 
-	for ( int iCell = 0; iCell < ug.nTCell; ++ iCell )
-	{
-	    for ( int iEqu = 0; iEqu < nscom.nTModel; ++ iEqu )
-	    {
+    for ( int iCell = 0; iCell < ug.nTCell; ++ iCell )
+    {
+        for ( int iEqu = 0; iEqu < nscom.nTModel; ++ iEqu )
+        {
             file.read( reinterpret_cast< char * >( & ( * unsf.tempr )[ iEqu ][ iCell ] ), sizeof( double ) );
-	    }
-	}
+        }
+    }
 
     turbcom.Init();
     uturbf.Init();
-	for ( int iCell = 0; iCell < ug.nTCell; ++ iCell )
-	{
-	    for ( int iEqu = 0; iEqu < turbcom.nEqu; ++ iEqu )
-	    {
+    for ( int iCell = 0; iCell < ug.nTCell; ++ iCell )
+    {
+        for ( int iEqu = 0; iEqu < turbcom.nEqu; ++ iEqu )
+        {
             file.read( reinterpret_cast< char * >( & ( * uturbf.q )[ iEqu ][ iCell ] ), sizeof( double ) );
-	    }
-	}
+        }
+    }
     file.close();
     file.clear();
 }
@@ -195,29 +195,29 @@ void UTimestep::CmpTimestep()
 
     this->CmpCfl();
 
-	this->CmpSpectrumField();
+    this->CmpSpectrumField();
 
-	if ( nscom.timestepModel == 0 )
-	{
-		this->CmpLocalTimestep();
-	}
-	else if ( nscom.timestepModel == 1 )
-	{
-		this->CmpGlobalTimestep();
-	}
-	else
-	{
-		this->CmpLgTimestep();
-	}
+    if ( nscom.timestepModel == 0 )
+    {
+        this->CmpLocalTimestep();
+    }
+    else if ( nscom.timestepModel == 1 )
+    {
+        this->CmpGlobalTimestep();
+    }
+    else
+    {
+        this->CmpLgTimestep();
+    }
 }
 
 void UTimestep::CmpLocalTimestep()
 {
-	this->CmpInvTimestep();
+    this->CmpInvTimestep();
 
-	this->CmpVisTimestep();
+    this->CmpVisTimestep();
 
-	this->ModifyTimestep();
+    this->ModifyTimestep();
 }
 
 void UTimestep::CmpInvTimestep()
@@ -225,9 +225,9 @@ void UTimestep::CmpInvTimestep()
     for ( int cId = 0; cId < ug.nCell; ++ cId )
     {
         ug.cId  = cId;
-	    gcom.cvol  = ( * ug.cvol )[ cId ];
-	    nscom.invsr = ( * unsf.invsr )[ 0 ][ cId ];
-		this->CmpCellInvTimestep();
+        gcom.cvol  = ( * ug.cvol )[ cId ];
+        nscom.invsr = ( * unsf.invsr )[ 0 ][ cId ];
+        this->CmpCellInvTimestep();
         ( * unsf.timestep )[ 0 ][ cId ] = nscom.timestep;
     }
 }
@@ -240,10 +240,10 @@ void UTimestep::CmpVisTimestep()
     for ( int cId = 0; cId < ug.nCell; ++ cId )
     {
         ug.cId  = cId;
-	    gcom.cvol  = ( * ug.cvol )[ cId ];
-	    nscom.vissr = ( * unsf.vissr )[ 0 ][ cId ];
+        gcom.cvol  = ( * ug.cvol )[ cId ];
+        nscom.vissr = ( * unsf.vissr )[ 0 ][ cId ];
         nscom.timestep = ( * unsf.timestep )[ 0 ][ cId ];
-		this->CmpCellVisTimestep();
+        this->CmpCellVisTimestep();
         ( * unsf.timestep )[ 0 ][ cId ] = nscom.timestep;
     }
 }
@@ -260,17 +260,17 @@ void UTimestep::CmpInvSpectrumField()
 
     MRField * invsr = ONEFLOW::GetFieldPointer< MRField >( grid, "invsr" );
 
-	ONEFLOW::ZeroField( invsr, 1, grid->nCell );
+    ONEFLOW::ZeroField( invsr, 1, grid->nCell );
 
     for ( int iFace = 0; iFace < grid->nFace; ++ iFace )
     {
-		this->SetId( iFace );
+        this->SetId( iFace );
 
-		this->PrepareData();
+        this->PrepareData();
 
-		this->CmpFaceInvSpec();
+        this->CmpFaceInvSpec();
 
-		this->UpdateInvSpectrumField();
+        this->UpdateInvSpectrumField();
     }
 }
 
@@ -280,97 +280,97 @@ void UTimestep::CmpVisSpectrumField()
 
     MRField * vissr = ONEFLOW::GetFieldPointer< MRField >( grid, "vissr" );
 
-	ONEFLOW::ZeroField( vissr, 1, grid->nCell );
+    ONEFLOW::ZeroField( vissr, 1, grid->nCell );
 
     if ( vis_model.vismodel <= 0 ) return;
 
     for ( int iFace = 0; iFace < grid->nFace; ++ iFace )
     {
-		this->SetId( iFace );
+        this->SetId( iFace );
 
-		this->PrepareVisData();
+        this->PrepareVisData();
 
-		this->CmpFaceVisSpec();
+        this->CmpFaceVisSpec();
 
-		this->UpdateVisSpectrumField();
+        this->UpdateVisSpectrumField();
     }
 }
 
 void UTimestep::SetId( int fId )
 {
-	ug.fId = fId;
+    ug.fId = fId;
     ug.lc = ( * ug.lcf )[ fId ];
     ug.rc = ( * ug.rcf )[ fId ];
 }
 
 void UTimestep::PrepareData()
 {
-	gcom.fnx   = ( * ug.fnx   )[ ug.fId ];
-	gcom.fny   = ( * ug.fny   )[ ug.fId ];
-	gcom.fnz   = ( * ug.fnz   )[ ug.fId ];
-	gcom.fvn   = ( * ug.fvn   )[ ug.fId ];
-	gcom.farea = ( * ug.farea )[ ug.fId ];
+    gcom.fnx   = ( * ug.fnx   )[ ug.fId ];
+    gcom.fny   = ( * ug.fny   )[ ug.fId ];
+    gcom.fnz   = ( * ug.fnz   )[ ug.fId ];
+    gcom.fvn   = ( * ug.fvn   )[ ug.fId ];
+    gcom.farea = ( * ug.farea )[ ug.fId ];
 
-	for ( int iEqu = 0; iEqu < nscom.nTEqu; ++ iEqu )
-	{
-		nscom.q1[ iEqu ] = ( * unsf.q )[ iEqu ][ ug.lc ];
-		nscom.q2[ iEqu ] = ( * unsf.q )[ iEqu ][ ug.rc ];
-	}
+    for ( int iEqu = 0; iEqu < nscom.nTEqu; ++ iEqu )
+    {
+        nscom.q1[ iEqu ] = ( * unsf.q )[ iEqu ][ ug.lc ];
+        nscom.q2[ iEqu ] = ( * unsf.q )[ iEqu ][ ug.rc ];
+    }
 
-	nscom.gama1 = ( * unsf.gama  )[ 0 ][ ug.lc ];
-	nscom.gama2 = ( * unsf.gama  )[ 0 ][ ug.rc ];
+    nscom.gama1 = ( * unsf.gama  )[ 0 ][ ug.lc ];
+    nscom.gama2 = ( * unsf.gama  )[ 0 ][ ug.rc ];
 }
 
 void UTimestep::PrepareVisData()
 {
-	gcom.fnx   = ( * ug.fnx   )[ ug.fId ];
-	gcom.fny   = ( * ug.fny   )[ ug.fId ];
-	gcom.fnz   = ( * ug.fnz   )[ ug.fId ];
-	gcom.fvn   = ( * ug.fvn   )[ ug.fId ];
-	gcom.farea = ( * ug.farea )[ ug.fId ];
+    gcom.fnx   = ( * ug.fnx   )[ ug.fId ];
+    gcom.fny   = ( * ug.fny   )[ ug.fId ];
+    gcom.fnz   = ( * ug.fnz   )[ ug.fId ];
+    gcom.fvn   = ( * ug.fvn   )[ ug.fId ];
+    gcom.farea = ( * ug.farea )[ ug.fId ];
 
-	for ( int iEqu = 0; iEqu < nscom.nTEqu; ++ iEqu )
-	{
-		nscom.q1[ iEqu ] = ( * unsf.q )[ iEqu ][ ug.lc ];
-		nscom.q2[ iEqu ] = ( * unsf.q )[ iEqu ][ ug.rc ];
-	}
+    for ( int iEqu = 0; iEqu < nscom.nTEqu; ++ iEqu )
+    {
+        nscom.q1[ iEqu ] = ( * unsf.q )[ iEqu ][ ug.lc ];
+        nscom.q2[ iEqu ] = ( * unsf.q )[ iEqu ][ ug.rc ];
+    }
 
-	nscom.gama1 = ( * unsf.gama )[ 0 ][ ug.lc ];
-	nscom.gama2 = ( * unsf.gama )[ 0 ][ ug.rc ];
+    nscom.gama1 = ( * unsf.gama )[ 0 ][ ug.lc ];
+    nscom.gama2 = ( * unsf.gama )[ 0 ][ ug.rc ];
 
-	gcom.cvol1 = ( * ug.cvol )[ ug.lc ];
-	gcom.cvol2 = ( * ug.cvol )[ ug.rc ];
+    gcom.cvol1 = ( * ug.cvol )[ ug.lc ];
+    gcom.cvol2 = ( * ug.cvol )[ ug.rc ];
 
-	nscom.visl1   = ( * unsf.visl  )[ 0 ][ ug.lc ];
-	nscom.visl2   = ( * unsf.visl  )[ 0 ][ ug.rc ];
+    nscom.visl1   = ( * unsf.visl  )[ 0 ][ ug.lc ];
+    nscom.visl2   = ( * unsf.visl  )[ 0 ][ ug.rc ];
 
     nscom.visl = half * ( nscom.visl1 + nscom.visl2 );
 
-	nscom.vist1 = ( * unsf.vist )[ 0 ][ ug.lc ];
-	nscom.vist2 = ( * unsf.vist )[ 0 ][ ug.rc ];
+    nscom.vist1 = ( * unsf.vist )[ 0 ][ ug.lc ];
+    nscom.vist2 = ( * unsf.vist )[ 0 ][ ug.rc ];
 
     nscom.vist = half * ( nscom.vist1 + nscom.vist2 );
 
-	gcom.ccx1 = ( * ug.ccx )[ ug.lc ];
-	gcom.ccx2 = ( * ug.ccx )[ ug.rc ];
+    gcom.ccx1 = ( * ug.ccx )[ ug.lc ];
+    gcom.ccx2 = ( * ug.ccx )[ ug.rc ];
 
-	gcom.ccy1 = ( * ug.ccy )[ ug.lc ];
-	gcom.ccy2 = ( * ug.ccy )[ ug.rc ];
+    gcom.ccy1 = ( * ug.ccy )[ ug.lc ];
+    gcom.ccy2 = ( * ug.ccy )[ ug.rc ];
 
-	gcom.ccz1 = ( * ug.ccz )[ ug.lc ];
-	gcom.ccz2 = ( * ug.ccz )[ ug.rc ];
+    gcom.ccz1 = ( * ug.ccz )[ ug.lc ];
+    gcom.ccz2 = ( * ug.ccz )[ ug.rc ];
 }
 
 void UTimestep::UpdateInvSpectrumField()
 {
     ( * unsf.invsr )[ 0 ][ ug.lc ] += nscom.invsr;
-	( * unsf.invsr )[ 0 ][ ug.rc ] += nscom.invsr;
+    ( * unsf.invsr )[ 0 ][ ug.rc ] += nscom.invsr;
 }
 
 void UTimestep::UpdateVisSpectrumField()
 {
     ( * unsf.vissr )[ 0 ][ ug.lc ] += nscom.vissr;
-	( * unsf.vissr )[ 0 ][ ug.rc ] += nscom.vissr;
+    ( * unsf.vissr )[ 0 ][ ug.rc ] += nscom.vissr;
 }
 
 void UTimestep::ModifyTimestep()
@@ -409,7 +409,7 @@ void UTimestep::SetTimestep( Real timestep )
 
 void UTimestep::CmpLgTimestep()
 {
-	this->CmpLocalTimestep();
+    this->CmpLocalTimestep();
     this->SetTimestep( nscom.minTimestep );
     ctrl.pdt = nscom.minTimestep;
 }

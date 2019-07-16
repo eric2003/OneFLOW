@@ -28,19 +28,19 @@ BeginNameSpace( ONEFLOW )
 //求解问题的类型
 enum class TaskEnum
 {
-	SOLVE_FIELD = 0,
-	CREATE_GRID = 1,
-	CREATE_WALL_DIST = 2,
-	PARTITION_GRID = 3,
-	FUN_TEST = 4
+    SOLVE_FIELD = 0,
+    CREATE_GRID = 1,
+    CREATE_WALL_DIST = 2,
+    PARTITION_GRID = 3,
+    FUN_TEST = 4
 };
 const map<string, TaskEnum> TaskFilter = 
 {
-	{"Solve",TaskEnum::SOLVE_FIELD},
-	{"Grid",TaskEnum::CREATE_GRID},
-	{"WallDist",TaskEnum::CREATE_WALL_DIST},
-	{"Partition",TaskEnum::PARTITION_GRID},
-	{"FunTest",TaskEnum::FUN_TEST}
+    {"Solve",TaskEnum::SOLVE_FIELD},
+    {"Grid",TaskEnum::CREATE_GRID},
+    {"WallDist",TaskEnum::CREATE_WALL_DIST},
+    {"Partition",TaskEnum::PARTITION_GRID},
+    {"FunTest",TaskEnum::FUN_TEST}
 };
 
 
@@ -51,10 +51,10 @@ public:
     SimuState();
     virtual ~SimuState();
 public:
-	//根据数据库的参数，设置simutask对应的值
+    //根据数据库的参数，设置simutask对应的值
     void Init();
-	//返回要执行的任务类型
-	const TaskEnum Task() const;
+    //返回要执行的任务类型
+    const TaskEnum Task() const;
 
 private:
     TaskEnum simutask;

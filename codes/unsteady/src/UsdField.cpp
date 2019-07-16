@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -50,13 +50,13 @@ void UsdField::InitBasic( int sTid )
 
     FieldManager * fieldManager = FieldFactory::GetFieldManager( sTid );
     UsdPara * usdPara = fieldManager->usdPara;
-	q  = GetFieldPointer< MRField > ( grid, usdPara->flow[ 0 ] );
-	q1 = GetFieldPointer< MRField > ( grid, usdPara->flow[ 1 ] );
-	q2 = GetFieldPointer< MRField > ( grid, usdPara->flow[ 2 ] );
+    q  = GetFieldPointer< MRField > ( grid, usdPara->flow[ 0 ] );
+    q1 = GetFieldPointer< MRField > ( grid, usdPara->flow[ 1 ] );
+    q2 = GetFieldPointer< MRField > ( grid, usdPara->flow[ 2 ] );
 
-	res  = GetFieldPointer< MRField > ( grid, usdPara->residual[ 0 ] );
-	res1 = GetFieldPointer< MRField > ( grid, usdPara->residual[ 1 ] );
-	res2 = GetFieldPointer< MRField > ( grid, usdPara->residual[ 2 ] );
+    res  = GetFieldPointer< MRField > ( grid, usdPara->residual[ 0 ] );
+    res1 = GetFieldPointer< MRField > ( grid, usdPara->residual[ 1 ] );
+    res2 = GetFieldPointer< MRField > ( grid, usdPara->residual[ 2 ] );
 }
 
 

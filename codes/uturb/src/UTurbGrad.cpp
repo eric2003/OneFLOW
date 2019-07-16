@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -62,13 +62,13 @@ void UTurbGrad::Init()
     dqdy = GetFieldPointer< MRField > ( grid, namey );
     dqdz = GetFieldPointer< MRField > ( grid, namez );
 
-	bdqdx = GetFieldPointer< MRField > ( grid, "turbbcdqdx" );
-	bdqdy = GetFieldPointer< MRField > ( grid, "turbbcdqdy" );
-	bdqdz = GetFieldPointer< MRField > ( grid, "turbbcdqdz" );
+    bdqdx = GetFieldPointer< MRField > ( grid, "turbbcdqdx" );
+    bdqdy = GetFieldPointer< MRField > ( grid, "turbbcdqdy" );
+    bdqdz = GetFieldPointer< MRField > ( grid, "turbbcdqdz" );
 
     this->nEqu = turbcom.nEqu;
 
-	this->istore = 1;
+    this->istore = 1;
 }
 
 EndNameSpace

@@ -27,85 +27,85 @@ BeginNameSpace( ONEFLOW )
 
 DataV::DataV()
 {
-	this->name = "";
-	this->data = 0;
+    this->name = "";
+    this->data = 0;
 }
 
 DataV::DataV( const string & name, int type, int size, DataObject * data )
 {
-	this->name = name;
-	this->type = type;
-	this->size = size;
-	this->data = data;
+    this->name = name;
+    this->type = type;
+    this->size = size;
+    this->data = data;
 }
 
 DataV::~DataV()
 {
-	delete data;
+    delete data;
 }
 
 void DataV::Copy( DataV * inputData )
 {
-	this->data->Copy( inputData->data );
+    this->data->Copy( inputData->data );
 }
 
 DataPara::DataPara()
 {
-	dataSet = new DataSET;
+    dataSet = new DataSET;
 }
 
 DataPara::~DataPara()
 {
-	DataSET::iterator iter;
-	for ( iter = dataSet->begin(); iter != dataSet->end(); ++ iter )
-	{
-		DataObject * dataObject = reinterpret_cast< DataObject * > ( ( * iter )->data );
-		delete dataObject;
-	}
+    DataSET::iterator iter;
+    for ( iter = dataSet->begin(); iter != dataSet->end(); ++ iter )
+    {
+        DataObject * dataObject = reinterpret_cast< DataObject * > ( ( * iter )->data );
+        delete dataObject;
+    }
 
-	dataSet->clear();
+    dataSet->clear();
 
-	delete dataSet;
+    delete dataSet;
 }
 
 void DataPara::UpdateDataPointer( DataV * data )
 {
-	DataV * findData = this->GetDataPointer( data->name );
-	if ( findData )
-	{
-		findData->Copy( data );
-		delete data;
-		return;
-	}
+    DataV * findData = this->GetDataPointer( data->name );
+    if ( findData )
+    {
+        findData->Copy( data );
+        delete data;
+        return;
+    }
 
-	dataSet->insert( data );
+    dataSet->insert( data );
 }
 
 DataV * DataPara::GetDataPointer( const string & name )
 {
-	DataV * data = new DataV( name, 0, 0, 0 );
-	DataSET::iterator iter = dataSet->find( data );
-	delete data;
-	if ( iter != dataSet->end() )
-	{
-		return ( * iter );
-	}
-	else
-	{
-		return 0;
-	}
+    DataV * data = new DataV( name, 0, 0, 0 );
+    DataSET::iterator iter = dataSet->find( data );
+    delete data;
+    if ( iter != dataSet->end() )
+    {
+        return ( * iter );
+    }
+    else
+    {
+        return 0;
+    }
 }
 
 void DataPara::DeleteDataPointer( const string & name )
 {
-	DataV * data = new DataV( name, 0, 0, 0 );
-	DataSET::iterator iter = dataSet->find( data );
-	if ( iter != dataSet->end() )
-	{
-		delete ( * iter );
-		dataSet->erase( iter );
-	}
-	delete data;
+    DataV * data = new DataV( name, 0, 0, 0 );
+    DataSET::iterator iter = dataSet->find( data );
+    if ( iter != dataSet->end() )
+    {
+        delete ( * iter );
+        dataSet->erase( iter );
+    }
+    delete data;
 }
 
 EndNameSpace

@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -40,27 +40,27 @@ class Grid;
 class FaceTopo
 {
 public:
-	FaceTopo();
-	~FaceTopo();
+    FaceTopo();
+    ~FaceTopo();
 public:
     int nCell;
-	IntField faceType;
-	LinkField f2n;
+    IntField faceType;
+    LinkField f2n;
     LinkField c2f;
 
-	IntField lCell, rCell;
-	IntField lPosition, rPosition;
+    IntField lCell, rCell;
+    IntField lPosition, rPosition;
 
-	UInt nBFace;
+    UInt nBFace;
     BcManager * bcManager;
     Grid * grid;
 public:
     LinkField faceToNodeNew;
     IntField lCellNew, rCellNew;
 public:
-	UInt GetNFace() { return faceType.size();  }
-	UInt ComputeTotalFaceNodes();
-	UInt GetNBFace();
+    UInt GetNFace() { return faceType.size();  }
+    UInt ComputeTotalFaceNodes();
+    UInt GetNBFace();
     void SetNBFace( UInt nBFace );
 public:
     void ModifyFaceNodeId( IFaceLink * iFaceLink );

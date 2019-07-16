@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -42,137 +42,137 @@ BeginNameSpace( ONEFLOW )
 
 MDomain::MDomain()
 {
-	;
+    ;
 }
 
 MDomain::~MDomain()
 {
-	int nSDomain = sDomainList.size();
-	for ( int iSDomain = 0; iSDomain < nSDomain; ++ iSDomain )
-	{
-		delete sDomainList[ iSDomain ];
-	}
+    int nSDomain = sDomainList.size();
+    for ( int iSDomain = 0; iSDomain < nSDomain; ++ iSDomain )
+    {
+        delete sDomainList[ iSDomain ];
+    }
 }
 
 void MDomain::ComputeSubDomainCtrlCoor()
 {
-	while ( true )
-	{
-		bool local_flag = true;
-		int nDomain = sDomainList.size();
-		for ( int iDomain = 0; iDomain < nDomain; ++ iDomain )
-		{
-			SDomain * sDomain = sDomainList[ iDomain ];
-			bool flag = sDomain->ComputeSingleDomainCoor();
-			local_flag = ( flag && local_flag );
-		}
-		if ( local_flag ) break;
-	};
+    while ( true )
+    {
+        bool local_flag = true;
+        int nDomain = sDomainList.size();
+        for ( int iDomain = 0; iDomain < nDomain; ++ iDomain )
+        {
+            SDomain * sDomain = sDomainList[ iDomain ];
+            bool flag = sDomain->ComputeSingleDomainCoor();
+            local_flag = ( flag && local_flag );
+        }
+        if ( local_flag ) break;
+    };
 }
 
 void MDomain::AddSubDomain( int fid, IntField & lineList, IntField & posList )
 {
-	SDomain * sdomain = new SDomain();
-	sdomain->coorMap = this->coorMap;
-	sdomain->SetDomain( fid, lineList, posList );
-	sDomainList.push_back( sdomain );
+    SDomain * sdomain = new SDomain();
+    sdomain->coorMap = this->coorMap;
+    sdomain->SetDomain( fid, lineList, posList );
+    sDomainList.push_back( sdomain );
 }
 
 SDomain * MDomain::FindSDomain( int fid )
 {
-	int nSDomain = sDomainList.size();
-	for ( int iSDomain = 0; iSDomain < nSDomain; ++ iSDomain )
-	{
-		SDomain * sDomain = sDomainList[ iSDomain ];
-		if ( sDomain->domain_id == fid )
-		{
-			return sDomain;
-		}
-	}
-	return 0;
+    int nSDomain = sDomainList.size();
+    for ( int iSDomain = 0; iSDomain < nSDomain; ++ iSDomain )
+    {
+        SDomain * sDomain = sDomainList[ iSDomain ];
+        if ( sDomain->domain_id == fid )
+        {
+            return sDomain;
+        }
+    }
+    return 0;
 }
 
 void MDomain::ComputeCoor()
 {
-	int closedLine = 1;
-	this->ComputeBcCoor( this->coorMap, closedLine );
-	this->ComputeSubDomainCtrlCoor();
+    int closedLine = 1;
+    this->ComputeBcCoor( this->coorMap, closedLine );
+    this->ComputeSubDomainCtrlCoor();
 }
 
 int MDomain::GetNsubDomain()
 {
-	return this->sDomainList.size();
+    return this->sDomainList.size();
 }
 
 void MDomain::ConstructMultiDomainTopo()
 {
-	int nSDomain = sDomainList.size();
-	for ( int iSDomain = 0; iSDomain < nSDomain; ++ iSDomain )
-	{
-		SDomain * sDomain = sDomainList[ iSDomain ];
-		sDomain->ConstructSDomainCtrlPoint();
-		sDomain->ConstructDomainTopo();
-	}
+    int nSDomain = sDomainList.size();
+    for ( int iSDomain = 0; iSDomain < nSDomain; ++ iSDomain )
+    {
+        SDomain * sDomain = sDomainList[ iSDomain ];
+        sDomain->ConstructSDomainCtrlPoint();
+        sDomain->ConstructDomainTopo();
+    }
 
-	this->ConstructMultiLineToDomainMap();
-	this->ConstructMultiPointToDomainMap();
-	this->ConstructMultiPointToPointMap();
-	this->ConstructBcPoint();
-	this->ConstructCtrlPoint();
+    this->ConstructMultiLineToDomainMap();
+    this->ConstructMultiPointToDomainMap();
+    this->ConstructMultiPointToPointMap();
+    this->ConstructBcPoint();
+    this->ConstructCtrlPoint();
 }
 
 void MDomain::ConstructMultiLineToDomainMap()
 {
-	for ( int iDomain = 0; iDomain < this->sDomainList.size(); ++ iDomain )
-	{
-		SDomain * sdomain = this->sDomainList[ iDomain ];
-		sdomain->ConstructLineToDomainMap( this->lineToDomainMap );
-	}
+    for ( int iDomain = 0; iDomain < this->sDomainList.size(); ++ iDomain )
+    {
+        SDomain * sdomain = this->sDomainList[ iDomain ];
+        sdomain->ConstructLineToDomainMap( this->lineToDomainMap );
+    }
 
-	int kkk = 1;
+    int kkk = 1;
 }
 
 void MDomain::ConstructMultiPointToDomainMap()
 {
-	for ( int iDomain = 0; iDomain < this->sDomainList.size(); ++ iDomain )
-	{
-		SDomain * sdomain = this->sDomainList[ iDomain ];
-		sdomain->ConstructPointToDomainMap( this->pointToDomainMap );
-	}
+    for ( int iDomain = 0; iDomain < this->sDomainList.size(); ++ iDomain )
+    {
+        SDomain * sdomain = this->sDomainList[ iDomain ];
+        sdomain->ConstructPointToDomainMap( this->pointToDomainMap );
+    }
 }
 
 void MDomain::ConstructMultiPointToPointMap()
 {
-	for ( int iDomain = 0; iDomain < this->sDomainList.size(); ++ iDomain )
-	{
-		SDomain * sdomain = this->sDomainList[ iDomain ];
-		sdomain->ConstructPointToPointMap( this->pointToPointMap );
-	}
+    for ( int iDomain = 0; iDomain < this->sDomainList.size(); ++ iDomain )
+    {
+        SDomain * sdomain = this->sDomainList[ iDomain ];
+        sdomain->ConstructPointToPointMap( this->pointToPointMap );
+    }
 }
 
 void MDomain::CreateInpFaceList( HXVector< Face2D * > &facelist )
 {
-	for ( int iDomain = 0; iDomain < this->sDomainList.size(); ++ iDomain )
-	{
-		SDomain * sDomain = this->sDomainList[ iDomain ];
-		Face2D * face2d = new Face2D();
-		face2d->face_id = sDomain->domain_id;
-		face2d->ctrlpoints = sDomain->ctrlpoints;
-		BlkF2C & face_struct = blkFaceSolver.myFaceSolver.face2Block[ face2d->face_id ];
-		face2d->bcType = face_struct.bctype;
-		face2d->CompStEd( coorMap );
-		facelist.push_back( face2d );
-	}
+    for ( int iDomain = 0; iDomain < this->sDomainList.size(); ++ iDomain )
+    {
+        SDomain * sDomain = this->sDomainList[ iDomain ];
+        Face2D * face2d = new Face2D();
+        face2d->face_id = sDomain->domain_id;
+        face2d->ctrlpoints = sDomain->ctrlpoints;
+        BlkF2C & face_struct = blkFaceSolver.myFaceSolver.face2Block[ face2d->face_id ];
+        face2d->bcType = face_struct.bctype;
+        face2d->CompStEd( coorMap );
+        facelist.push_back( face2d );
+    }
 }
 
 void MDomain::SetBlkBcMesh( Block3D * blk3d )
 {
-	int nSDomain = sDomainList.size();
-	for ( int iSDomain = 0; iSDomain < nSDomain; ++ iSDomain )
-	{
-		SDomain * sDomain = sDomainList[ iSDomain ];
-		sDomain->SetBlkBcMesh( blk3d );
-	}
+    int nSDomain = sDomainList.size();
+    for ( int iSDomain = 0; iSDomain < nSDomain; ++ iSDomain )
+    {
+        SDomain * sDomain = sDomainList[ iSDomain ];
+        sDomain->SetBlkBcMesh( blk3d );
+    }
 }
 
 EndNameSpace

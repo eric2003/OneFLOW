@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -33,7 +33,7 @@ NsCom nscom;
 
 NsCom::NsCom()
 {
-	init_flag = false;
+    init_flag = false;
 }
 
 NsCom::~NsCom()
@@ -43,8 +43,8 @@ NsCom::~NsCom()
 
 void NsCom::Init()
 {
-	if ( init_flag ) return;
-	init_flag = true;
+    if ( init_flag ) return;
+    init_flag = true;
     icmpInv = 1;
     ischeme = GetDataValue< int >( "ischeme" );
     ivischeme = GetDataValue< int >( "ivischeme" );
@@ -66,59 +66,59 @@ void NsCom::Init()
     mach_ref = GetDataValue< Real >( "mach_ref" );
     gama_ref = GetDataValue< Real >( "gama_ref" );
 
-	twall_dim = GetDataValue< Real >( "twall_dim" );
-	tref_dim = GetDataValue< Real >( "tref_dim" );
-	pref_dim = GetDataValue< Real >( "pref_dim" );
-	dref_dim = GetDataValue< Real >( "dref_dim" );
-	vref_dim = GetDataValue< Real >( "vref_dim" );
+    twall_dim = GetDataValue< Real >( "twall_dim" );
+    tref_dim = GetDataValue< Real >( "tref_dim" );
+    pref_dim = GetDataValue< Real >( "pref_dim" );
+    dref_dim = GetDataValue< Real >( "dref_dim" );
+    vref_dim = GetDataValue< Real >( "vref_dim" );
 
-	elevation = GetDataValue< Real >( "elevation" );
-	reylref_dim = GetDataValue< Real >( "reylref_dim" );
+    elevation = GetDataValue< Real >( "elevation" );
+    reylref_dim = GetDataValue< Real >( "reylref_dim" );
 
-	gasInfoStrategy = GetDataValue< int >( "gasInfoStrategy" );
-	gasModelFile = GetDataValue< string >( "gasModelFile" );
-	machStrategy = GetDataValue< int >( "machStrategy" );
+    gasInfoStrategy = GetDataValue< int >( "gasInfoStrategy" );
+    gasModelFile = GetDataValue< string >( "gasModelFile" );
+    machStrategy = GetDataValue< int >( "machStrategy" );
 
-	schmidtl = GetDataValue< Real >( "schmidtl" );
-	schmidtt = GetDataValue< Real >( "schmidtt" );
+    schmidtl = GetDataValue< Real >( "schmidtl" );
+    schmidtt = GetDataValue< Real >( "schmidtt" );
 
-	max_time_ratio = GetDataValue< Real >( "max_time_ratio" );
+    max_time_ratio = GetDataValue< Real >( "max_time_ratio" );
 
-	nEqu = GetDataValue< int >( "nEqu" );
-	nTEqu = GetDataValue< int >( "nTEqu" );
-	chem.Init();
+    nEqu = GetDataValue< int >( "nEqu" );
+    nTEqu = GetDataValue< int >( "nTEqu" );
+    chem.Init();
 
-	oprl = 1.0 / prl;
-	oprt = 1.0 / prt;
+    oprl = 1.0 / prl;
+    oprt = 1.0 / prt;
 
-	twall = twall_dim / tref_dim;
+    twall = twall_dim / tref_dim;
 
     const_cp = 1.0 / ( ( gama_ref - 1.0 ) * SQR( mach_ref ) );
 
-	q1.resize( nTEqu );
-	q2.resize( nTEqu );
+    q1.resize( nTEqu );
+    q2.resize( nTEqu );
 
-	q.resize( nTEqu );
-	q0.resize( nTEqu );
-	dq.resize( nTEqu );
+    q.resize( nTEqu );
+    q0.resize( nTEqu );
+    dq.resize( nTEqu );
 
-	prim.resize( nTEqu );
-	prim0.resize( nTEqu );
+    prim.resize( nTEqu );
+    prim0.resize( nTEqu );
 
-	prims1.resize( nTEqu );
-	prims2.resize( nTEqu );
+    prims1.resize( nTEqu );
+    prims2.resize( nTEqu );
 
-	primt1.resize( nTEqu );
-	primt2.resize( nTEqu );
+    primt1.resize( nTEqu );
+    primt2.resize( nTEqu );
 
-	t.resize( nTModel );
-	t0.resize( nTModel );
+    t.resize( nTModel );
+    t0.resize( nTModel );
 
-	ts1.resize( nTModel );
-	ts2.resize( nTModel );
+    ts1.resize( nTModel );
+    ts2.resize( nTModel );
 
-	tt1.resize( nTModel );
-	tt2.resize( nTModel );
+    tt1.resize( nTModel );
+    tt2.resize( nTModel );
 }
 
 void Extract( RealField & prim, Real & rm, Real & um, Real & vm, Real & wm, Real & pm )

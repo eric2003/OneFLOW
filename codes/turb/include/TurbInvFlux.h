@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -34,8 +34,8 @@ public:
     void Init();
 public:
     RealField prim1, prim2;
-	RealField q1, q2;
-	RealField flux;
+    RealField q1, q2;
+    RealField flux;
 public:
     Real rl, ul, vl, wl;
     Real rr, ur, vr, wr;
@@ -50,7 +50,7 @@ public:
     TurbInvFlux ();
     ~TurbInvFlux();
 public:
-	void RoeFlux();
+    void RoeFlux();
 };
 
 EndNameSpace

@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -60,65 +60,65 @@ void FaceMesh::SetNBFace( UInt nBFace )
 
 void FaceMesh::ComputeFaceCenter1D( NodeMesh * nodeMesh )
 {
-	UInt nFace = this->GetNFace();
-	RealField & xN = nodeMesh->xN;
-	RealField & yN = nodeMesh->yN;
-	RealField & zN = nodeMesh->zN;
+    UInt nFace = this->GetNFace();
+    RealField & xN = nodeMesh->xN;
+    RealField & yN = nodeMesh->yN;
+    RealField & zN = nodeMesh->zN;
 
-	for ( UInt iFace = 0; iFace < nFace; ++ iFace )
-	{
-		IntField & nodeIndex = faceTopo->f2n[ iFace ];
-		int p1 = nodeIndex[ 0 ];
-		int p2 = nodeIndex[ 0 ];
-		xfc[ iFace ] = half * ( xN[ p1 ] + xN[ p2 ] );
-		yfc[ iFace ] = half * ( yN[ p1 ] + yN[ p2 ] );
-		zfc[ iFace ] = half * ( zN[ p1 ] + zN[ p2 ] );
-	}
+    for ( UInt iFace = 0; iFace < nFace; ++ iFace )
+    {
+        IntField & nodeIndex = faceTopo->f2n[ iFace ];
+        int p1 = nodeIndex[ 0 ];
+        int p2 = nodeIndex[ 0 ];
+        xfc[ iFace ] = half * ( xN[ p1 ] + xN[ p2 ] );
+        yfc[ iFace ] = half * ( yN[ p1 ] + yN[ p2 ] );
+        zfc[ iFace ] = half * ( zN[ p1 ] + zN[ p2 ] );
+    }
 }
 
 void FaceMesh::ComputeFaceNormal1D( NodeMesh * nodeMesh, CellMesh * cellMesh )
 {
-	UInt nFace = this->GetNFace();
-	RealField & xN = nodeMesh->xN;
-	RealField & yN = nodeMesh->yN;
-	RealField & zN = nodeMesh->zN;
+    UInt nFace = this->GetNFace();
+    RealField & xN = nodeMesh->xN;
+    RealField & yN = nodeMesh->yN;
+    RealField & zN = nodeMesh->zN;
 
-	RealField & xcc  = cellMesh->xcc ;
-	RealField & ycc  = cellMesh->ycc ;
-	RealField & zcc  = cellMesh->zcc ;
-	RealField & vol = cellMesh->vol;
+    RealField & xcc  = cellMesh->xcc ;
+    RealField & ycc  = cellMesh->ycc ;
+    RealField & zcc  = cellMesh->zcc ;
+    RealField & vol = cellMesh->vol;
 
-	for ( UInt iFace = 0; iFace < nFace; ++ iFace )
-	{
-		int lc  = faceTopo->lCell[ iFace ];
+    for ( UInt iFace = 0; iFace < nFace; ++ iFace )
+    {
+        int lc  = faceTopo->lCell[ iFace ];
 
         Real dx = xfc[ iFace ] - xcc[ lc ];
         Real dy = yfc[ iFace ] - ycc[ lc ];
         Real dz = zfc[ iFace ] - zcc[ lc ];
-		Real ds = ONEFLOW::DIST( dx, dy, dz );
+        Real ds = ONEFLOW::DIST( dx, dy, dz );
         
         Real factor   = 1.0 / ( ds + SMALL );
         xfn[ iFace ] = factor * dx;
         yfn[ iFace ] = factor * dy;
         zfn[ iFace ] = factor * dz;
 
-		area[ iFace ] = 1.0;
+        area[ iFace ] = 1.0;
     }
 }
 
 
 void FaceMesh::ComputeFaceNormal2D( NodeMesh * nodeMesh )
 {
-	RealField & xN = nodeMesh->xN;
-	RealField & yN = nodeMesh->yN;
-	RealField & zN = nodeMesh->zN;
+    RealField & xN = nodeMesh->xN;
+    RealField & yN = nodeMesh->yN;
+    RealField & zN = nodeMesh->zN;
 
-	UInt nFace = this->GetNFace();
+    UInt nFace = this->GetNFace();
 
-	for ( UInt iFace = 0; iFace < nFace; ++ iFace )
-	{
-		IntField & faceIndex = faceTopo->f2n[ iFace ];
-		int p1 = faceIndex[ 0 ];
+    for ( UInt iFace = 0; iFace < nFace; ++ iFace )
+    {
+        IntField & faceIndex = faceTopo->f2n[ iFace ];
+        int p1 = faceIndex[ 0 ];
         int p2 = faceIndex[ 1 ];
 
         xfn[ iFace ]  = yN[ p2 ] - yN[ p1 ];
@@ -128,100 +128,100 @@ void FaceMesh::ComputeFaceNormal2D( NodeMesh * nodeMesh )
         area[ iFace ] = ONEFLOW::DIST( xfn[ iFace ], yfn[ iFace ], zfn[ iFace ] );
     }
 
-	for ( UInt iFace = 0; iFace < nFace; ++ iFace )
-	{
-		Real oArea = 1.0 / ( area[ iFace ] + SMALL );
-		xfn[ iFace ] *= oArea;
-		yfn[ iFace ] *= oArea;
-		zfn[ iFace ] *= oArea;
-	}
+    for ( UInt iFace = 0; iFace < nFace; ++ iFace )
+    {
+        Real oArea = 1.0 / ( area[ iFace ] + SMALL );
+        xfn[ iFace ] *= oArea;
+        yfn[ iFace ] *= oArea;
+        zfn[ iFace ] *= oArea;
+    }
 }
 
 void FaceMesh::ComputeFaceCenter2D( NodeMesh * nodeMesh )
 {
-	UInt nFace = this->GetNFace();
-	RealField & xN = nodeMesh->xN;
-	RealField & yN = nodeMesh->yN;
-	RealField & zN = nodeMesh->zN;
+    UInt nFace = this->GetNFace();
+    RealField & xN = nodeMesh->xN;
+    RealField & yN = nodeMesh->yN;
+    RealField & zN = nodeMesh->zN;
 
-	for ( UInt iFace = 0; iFace < nFace; ++ iFace )
-	{
-		IntField & nodeIndex = faceTopo->f2n[ iFace ];
-		int p1 = nodeIndex[ 0 ];
-		int p2 = nodeIndex[ 1 ];
-		xfc[ iFace ] = half * ( xN[ p1 ] + xN[ p2 ] );
-		yfc[ iFace ] = half * ( yN[ p1 ] + yN[ p2 ] );
-		zfc[ iFace ] = half * ( zN[ p1 ] + zN[ p2 ] );
-		int kkk = 1;
-	}
-	int kkk = 1;
+    for ( UInt iFace = 0; iFace < nFace; ++ iFace )
+    {
+        IntField & nodeIndex = faceTopo->f2n[ iFace ];
+        int p1 = nodeIndex[ 0 ];
+        int p2 = nodeIndex[ 1 ];
+        xfc[ iFace ] = half * ( xN[ p1 ] + xN[ p2 ] );
+        yfc[ iFace ] = half * ( yN[ p1 ] + yN[ p2 ] );
+        zfc[ iFace ] = half * ( zN[ p1 ] + zN[ p2 ] );
+        int kkk = 1;
+    }
+    int kkk = 1;
 }
 
 void FaceMesh::ComputeFaceNormal3D( NodeMesh * nodeMesh )
 {
-	xfn = 0;
-	yfn = 0;
-	zfn = 0;
+    xfn = 0;
+    yfn = 0;
+    zfn = 0;
 
-	RealField & xN = nodeMesh->xN;
-	RealField & yN = nodeMesh->yN;
-	RealField & zN = nodeMesh->zN;
+    RealField & xN = nodeMesh->xN;
+    RealField & yN = nodeMesh->yN;
+    RealField & zN = nodeMesh->zN;
 
-	UInt nFace = this->GetNFace();
+    UInt nFace = this->GetNFace();
 
-	for ( UInt iFace = 0; iFace < nFace; ++ iFace )
-	{
-		IntField & faceIndex = faceTopo->f2n[ iFace ];
+    for ( UInt iFace = 0; iFace < nFace; ++ iFace )
+    {
+        IntField & faceIndex = faceTopo->f2n[ iFace ];
 
-		UInt faceNodeNumber = faceIndex.size();
-		for ( UInt iNodeInFace = 0; iNodeInFace < faceNodeNumber; ++ iNodeInFace )
-		{
-			int index1 = iNodeInFace;
-			int index2 = ( iNodeInFace + 1 ) % faceNodeNumber;
-			int p1 = faceIndex[ index1 ];
-			int p2 = faceIndex[ index2 ];
+        UInt faceNodeNumber = faceIndex.size();
+        for ( UInt iNodeInFace = 0; iNodeInFace < faceNodeNumber; ++ iNodeInFace )
+        {
+            int index1 = iNodeInFace;
+            int index2 = ( iNodeInFace + 1 ) % faceNodeNumber;
+            int p1 = faceIndex[ index1 ];
+            int p2 = faceIndex[ index2 ];
 
-			Real dx1 = xN[ p1 ];
-			Real dy1 = yN[ p1 ];
-			Real dz1 = zN[ p1 ];
+            Real dx1 = xN[ p1 ];
+            Real dy1 = yN[ p1 ];
+            Real dz1 = zN[ p1 ];
 
-			Real dx2 = xN[ p2 ];
-			Real dy2 = yN[ p2 ];
-			Real dz2 = zN[ p2 ];
+            Real dx2 = xN[ p2 ];
+            Real dy2 = yN[ p2 ];
+            Real dz2 = zN[ p2 ];
 
-			xfn[ iFace ] += half * ( dy1 * dz2 - dy2 * dz1 );
-			yfn[ iFace ] += half * ( dz1 * dx2 - dz2 * dx1 );
-			zfn[ iFace ] += half * ( dx1 * dy2 - dx2 * dy1 );
-		}
-		area[ iFace ] = ONEFLOW::DIST( xfn[ iFace ], yfn[ iFace ], zfn[ iFace ] );
-	}
+            xfn[ iFace ] += half * ( dy1 * dz2 - dy2 * dz1 );
+            yfn[ iFace ] += half * ( dz1 * dx2 - dz2 * dx1 );
+            zfn[ iFace ] += half * ( dx1 * dy2 - dx2 * dy1 );
+        }
+        area[ iFace ] = ONEFLOW::DIST( xfn[ iFace ], yfn[ iFace ], zfn[ iFace ] );
+    }
 
-	for ( UInt iFace = 0; iFace < nFace; ++ iFace )
-	{
-		Real oArea = 1.0 / ( area[ iFace ] + SMALL );
-		xfn[ iFace ] *= oArea;
-		yfn[ iFace ] *= oArea;
-		zfn[ iFace ] *= oArea;
-	}
+    for ( UInt iFace = 0; iFace < nFace; ++ iFace )
+    {
+        Real oArea = 1.0 / ( area[ iFace ] + SMALL );
+        xfn[ iFace ] *= oArea;
+        yfn[ iFace ] *= oArea;
+        zfn[ iFace ] *= oArea;
+    }
 }
 
 void FaceMesh::ComputeFaceCenter3D( NodeMesh * nodeMesh )
 {
-	RealField & xN = nodeMesh->xN;
-	RealField & yN = nodeMesh->yN;
-	RealField & zN = nodeMesh->zN;
+    RealField & xN = nodeMesh->xN;
+    RealField & yN = nodeMesh->yN;
+    RealField & zN = nodeMesh->zN;
 
-	UInt nFace = this->GetNFace();
+    UInt nFace = this->GetNFace();
 
-	for ( UInt iFace = 0; iFace < nFace; ++ iFace )
-	{
+    for ( UInt iFace = 0; iFace < nFace; ++ iFace )
+    {
         Real x0 = 0.0;
         Real y0 = 0.0;
         Real z0 = 0.0;
 
-		IntField & faceIndex = faceTopo->f2n[ iFace ];
+        IntField & faceIndex = faceTopo->f2n[ iFace ];
 
-		UInt faceNodeNumber = faceIndex.size();
+        UInt faceNodeNumber = faceIndex.size();
         for ( UInt iNodeInFace = 0; iNodeInFace < faceNodeNumber; ++ iNodeInFace )
         {
             int index = faceIndex[ iNodeInFace ];
@@ -241,8 +241,8 @@ void FaceMesh::ComputeFaceCenter3D( NodeMesh * nodeMesh )
         zfc[ iFace ] = 0.0;
         Real sarea  = 0.0;
 
-		for ( UInt iNodeInFace = 0; iNodeInFace < faceNodeNumber; ++ iNodeInFace )
-		{
+        for ( UInt iNodeInFace = 0; iNodeInFace < faceNodeNumber; ++ iNodeInFace )
+        {
             int index1 = iNodeInFace;
             int index2 = ( iNodeInFace + 1 ) % faceNodeNumber;
             int p1 = faceIndex[ index1 ];

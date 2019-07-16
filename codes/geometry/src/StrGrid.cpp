@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -68,29 +68,29 @@ void StrGrid::Encode( DataBook * databook )
 
 int StrGrid::ComputeNumberOfNode()
 {
-	if ( ONEFLOW::IsTwoD() )
-	{
-		return ONEFLOW::ComputeNumberOfNode( ni, nj );
-	}
-	return ONEFLOW::ComputeNumberOfNode( ni, nj, nk );
+    if ( ONEFLOW::IsTwoD() )
+    {
+        return ONEFLOW::ComputeNumberOfNode( ni, nj );
+    }
+    return ONEFLOW::ComputeNumberOfNode( ni, nj, nk );
 }
 
 int StrGrid::ComputeNumberOfCell()
 {
-	if ( ONEFLOW::IsTwoD() )
-	{
-		return ONEFLOW::ComputeNumberOfCell( ni, nj );
-	}
-	return ONEFLOW::ComputeNumberOfCell( ni, nj, nk );
+    if ( ONEFLOW::IsTwoD() )
+    {
+        return ONEFLOW::ComputeNumberOfCell( ni, nj );
+    }
+    return ONEFLOW::ComputeNumberOfCell( ni, nj, nk );
 }
 
 int StrGrid::ComputeNumberOfFace()
 {
-	if ( ONEFLOW::IsTwoD() )
-	{
-		return ONEFLOW::ComputeNumberOfFace( ni, nj );
-	}
-	return ONEFLOW::ComputeNumberOfFace( ni, nj, nk );
+    if ( ONEFLOW::IsTwoD() )
+    {
+        return ONEFLOW::ComputeNumberOfFace( ni, nj );
+    }
+    return ONEFLOW::ComputeNumberOfFace( ni, nj, nk );
 }
 
 void StrGrid::SetBasicDimension()
@@ -111,7 +111,7 @@ void StrGrid::SetLayout()
    if ( this->nodeMesh->xN.size() != 0 &&
         this->nodeMesh->yN.size() != 0 &&
         this->nodeMesh->zN.size() != 0 )
-	{
+    {
         Range I, J, K;
         I.SetRange( 1, ni );
         J.SetRange( 1, nj );
@@ -120,7 +120,7 @@ void StrGrid::SetLayout()
         this->strx = new Field3D( & this->nodeMesh->xN[ 0 ], I, J, K );
         this->stry = new Field3D( & this->nodeMesh->yN[ 0 ], I, J, K );
         this->strz = new Field3D( & this->nodeMesh->zN[ 0 ], I, J, K );
-	}
+    }
 }
 
 void StrGrid::ReadGrid( DataBook * databook )
@@ -224,7 +224,7 @@ void StrGrid::ComputeMinMaxDis3D( Real & dismin, Real & dismax )
                 for ( int m = 0; m < nEdge; ++ m )
                 {
                     Real ds = ONEFLOW::DIST( dx[ m ], dy[ m ], dz[ m ] );
-					if ( ds <= ptTol ) continue;
+                    if ( ds <= ptTol ) continue;
                     dismin = ONEFLOW::MIN( dismin, ds );
                     dismax = ONEFLOW::MAX( dismax, ds );
                 }
@@ -265,24 +265,24 @@ void StrGrid::ComputeMinMaxDis2D( Real & dismin, Real & dismax )
             {
                 dx[ 0 ]  = xs( i + 1, j    , k ) - xs( i    , j    , k );
                 dy[ 0 ]  = ys( i + 1, j    , k ) - ys( i    , j    , k );
-				dz[ 0 ]  = zs( i + 1, j    , k ) - zs( i    , j    , k );
+                dz[ 0 ]  = zs( i + 1, j    , k ) - zs( i    , j    , k );
 
                 dx[ 1 ]  = xs( i + 1, j + 1, k ) - xs( i + 1, j    , k );
                 dy[ 1 ]  = ys( i + 1, j + 1, k ) - ys( i + 1, j    , k );
-				dz[ 1 ]  = zs( i + 1, j + 1, k ) - zs( i + 1, j    , k );
+                dz[ 1 ]  = zs( i + 1, j + 1, k ) - zs( i + 1, j    , k );
 
                 dx[ 2 ]  = xs( i    , j + 1, k ) - xs( i + 1, j + 1, k );
                 dy[ 2 ]  = ys( i    , j + 1, k ) - ys( i + 1, j + 1, k );
-				dz[ 2 ]  = zs( i    , j + 1, k ) - zs( i + 1, j + 1, k );
+                dz[ 2 ]  = zs( i    , j + 1, k ) - zs( i + 1, j + 1, k );
 
                 dx[ 3 ]  = xs( i    , j    , k ) - xs( i    , j + 1, k );
                 dy[ 3 ]  = ys( i    , j    , k ) - ys( i    , j + 1, k );
-				dz[ 3 ]  = zs( i    , j    , k ) - zs( i    , j + 1, k );
+                dz[ 3 ]  = zs( i    , j    , k ) - zs( i    , j + 1, k );
 
                 for ( int m = 0; m < nEdge; ++ m )
                 {
                     Real ds = ONEFLOW::DIST( dx[ m ], dy[ m ], dz[ m ] );
-					if ( ds <= ptTol ) continue;
+                    if ( ds <= ptTol ) continue;
                     dismin = ONEFLOW::MIN( dismin, ds );
                     dismax = ONEFLOW::MAX( dismax, ds );
                 }
@@ -323,12 +323,12 @@ void StrGrid::ComputeMinMaxDis1D( Real & dismin, Real & dismax )
             {
                 dx[ 0 ]  = xs( i + 1, j    , k ) - xs( i    , j    , k );
                 dy[ 0 ]  = ys( i + 1, j    , k ) - ys( i    , j    , k );
-				dz[ 0 ]  = zs( i + 1, j    , k ) - zs( i    , j    , k );
+                dz[ 0 ]  = zs( i + 1, j    , k ) - zs( i    , j    , k );
 
                 for ( int m = 0; m < nEdge; ++ m )
                 {
                     Real ds = ONEFLOW::DIST( dx[ m ], dy[ m ], dz[ m ] );
-					if ( ds <= ptTol ) continue;
+                    if ( ds <= ptTol ) continue;
                     dismin = ONEFLOW::MIN( dismin, ds );
                     dismax = ONEFLOW::MAX( dismax, ds );
                 }
@@ -370,39 +370,39 @@ int ComputeNumberOfFace( const int & ni, const int & nj, const int & nk )
 
 int ComputeNumberOfNode( const int & ni )
 {
-	return ni;
+    return ni;
 }
 
 int ComputeNumberOfNode( const int & ni, const int & nj )
 {
-	return ni * nj;
+    return ni * nj;
 }
 
 int ComputeNumberOfNode( const int & ni, const int & nj, const int & nk )
 {
-	return ni * nj * nk;
+    return ni * nj * nk;
 }
 
 int ComputeNumberOfCell( const int & ni )
 {
-	return ONEFLOW::COUNT( 1, ni - 1 );
+    return ONEFLOW::COUNT( 1, ni - 1 );
 }
 
 int ComputeNumberOfCell( const int & ni, const int & nj )
 {
-	return ONEFLOW::ComputeNumberOfCell( ni ) * ONEFLOW::ComputeNumberOfCell( nj );
+    return ONEFLOW::ComputeNumberOfCell( ni ) * ONEFLOW::ComputeNumberOfCell( nj );
 }
 
 int ComputeNumberOfCell( const int & ni, const int & nj, const int & nk )
 {
-	return ONEFLOW::ComputeNumberOfCell( ni ) *
+    return ONEFLOW::ComputeNumberOfCell( ni ) *
            ONEFLOW::ComputeNumberOfCell( nj ) *
            ONEFLOW::ComputeNumberOfCell( nk ) ;
 }
 
 StrGrid * StrGridCast( Grid * gridIn )
 {
-	return static_cast< StrGrid * >( gridIn );
+    return static_cast< StrGrid * >( gridIn );
 }
 
 void GetIJKRange( int ni, int nj, int nk, int startShift, int endShift, Range & I, Range & J, Range & K )
@@ -411,8 +411,8 @@ void GetIJKRange( int ni, int nj, int nk, int startShift, int endShift, Range & 
     J.SetRange( 1 + startShift, nj + endShift );
     K.SetRange( 1 + startShift, nk + endShift );
 
-	if ( ni == 1 ) I.SetRange( 1, 1 );
-	if ( nj == 1 ) J.SetRange( 1, 1 );
+    if ( ni == 1 ) I.SetRange( 1, 1 );
+    if ( nj == 1 ) J.SetRange( 1, 1 );
     if ( nk == 1 ) K.SetRange( 1, 1 );
 }
 Range IJKRange::I;
@@ -442,8 +442,8 @@ void IJKRange::Compute( int ni, int nj, int nk, int ss, int es )
     IJKRange::J.SetRange( 1 + ss, nj + es );
     IJKRange::K.SetRange( 1 + ss, nk + es );
 
-	if ( ni == 1 ) IJKRange::I.SetRange( 1, 1 );
-	if ( nj == 1 ) IJKRange::J.SetRange( 1, 1 );
+    if ( ni == 1 ) IJKRange::I.SetRange( 1, 1 );
+    if ( nj == 1 ) IJKRange::J.SetRange( 1, 1 );
     if ( nk == 1 ) IJKRange::K.SetRange( 1, 1 );
 }
 

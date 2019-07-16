@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -33,7 +33,7 @@ class InvFlux;
 class UNsSolver : public NsSolver
 {
 public:
-	UNsSolver();
+    UNsSolver();
     ~UNsSolver();
 public:
     IMPLEMENT_SOLVER_CLONE( UNsSolver )

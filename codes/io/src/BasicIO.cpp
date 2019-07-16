@@ -38,38 +38,38 @@ OStream StrIO;
 
 void OStream::ClearAll()
 {
-	this->str("");
+    this->str("");
 }
 
 void MakeDir( const string & dirName )
 {
-	int flag;
+    int flag;
 #ifdef _WINDOWS
-	flag = _mkdir( dirName.c_str() );
+    flag = _mkdir( dirName.c_str() );
 #else
-	flag = mkdir( dirName.c_str(), S_IRWXU );
+    flag = mkdir( dirName.c_str(), S_IRWXU );
 #endif
 
-	if ( flag == 0 )
-	{
-		cout << dirName << " directory has been created successfully !\n";
-	}
+    if ( flag == 0 )
+    {
+        cout << dirName << " directory has been created successfully !\n";
+    }
 }
 
 void OpenFile( fstream & file, const string & fileName, const ios_base::openmode & openMode )
 {
-	file.open( fileName.c_str(), openMode );
-	if ( ! file )
-	{
-		cout << "could not open " << fileName << endl;
-		Stop( "" );
-	}
+    file.open( fileName.c_str(), openMode );
+    if ( ! file )
+    {
+        cout << "could not open " << fileName << endl;
+        Stop( "" );
+    }
 }
 
 void CloseFile( fstream & file )
 {
-	file.close();
-	file.clear();
+    file.close();
+    file.clear();
 }
 
 void TrimBlanks( string & source )
@@ -77,7 +77,7 @@ void TrimBlanks( string & source )
     string::size_type firstIndex, nextIndex;
 
     firstIndex = source.find_first_not_of( " " );
-	nextIndex  = source.find_last_not_of( " " );
+    nextIndex  = source.find_last_not_of( " " );
 
     source = source.substr( firstIndex, nextIndex - firstIndex + 1 );
 }
@@ -87,7 +87,7 @@ void SkipLines( fstream & file, int numberOfLines )
     string line;
     for ( int iLine = 0; iLine < numberOfLines; ++ iLine )
     {
-		ONEFLOW::ReadNextLine( file, line );
+        ONEFLOW::ReadNextLine( file, line );
         if ( file.eof() ) return;
     }
 }
@@ -137,13 +137,13 @@ string FindNextWord( string & source, const string & separator )
     if ( nextIndex == notFindIndex )
     {
         string word = source.substr( firstIndex );
-		source = emptyString;
+        source = emptyString;
         return word;
     }
     else
     {
         string word = source.substr( firstIndex, nextIndex - firstIndex );
-		source = source.substr( nextIndex );
+        source = source.substr( nextIndex );
         return word;
     }
     return emptyString;
@@ -166,81 +166,81 @@ void GetFileNameExtension( const string & fullName, string & mainName, string & 
 
 void ModifyFileMainName( string & fileName,  const string & newMainName )
 {
-	string mainName, extensionName;
-	ONEFLOW::GetFileNameExtension( fileName, mainName, extensionName, "." );
+    string mainName, extensionName;
+    ONEFLOW::GetFileNameExtension( fileName, mainName, extensionName, "." );
 
-	ostringstream oss;
+    ostringstream oss;
     oss << newMainName << "." << extensionName;
 
-	fileName = oss.str();
+    fileName = oss.str();
 }
 
 void ModifyFileExtensionName( string & fileName,  const string & newExtensionName )
 {
-	string mainName, extensionName;
-	ONEFLOW::GetFileNameExtension( fileName, mainName, extensionName, "." );
+    string mainName, extensionName;
+    ONEFLOW::GetFileNameExtension( fileName, mainName, extensionName, "." );
 
-	ostringstream oss;
+    ostringstream oss;
     oss << mainName << "." << newExtensionName;
 
-	fileName = oss.str();
+    fileName = oss.str();
 }
 
 bool ReadNextNonEmptyLine( fstream & file, string & line )
 {
-	bool isSpaceLine = true;
+    bool isSpaceLine = true;
 
     do
     {
-		ONEFLOW::ReadNextLine( file, line );
+        ONEFLOW::ReadNextLine( file, line );
 
-		for ( string::iterator iter = line.begin(); iter != line.end(); ++ iter )
-		{
-			if ( ! isspace( * iter ) )
-			{
-				isSpaceLine = false;
-				break;
-			}
-		}
+        for ( string::iterator iter = line.begin(); iter != line.end(); ++ iter )
+        {
+            if ( ! isspace( * iter ) )
+            {
+                isSpaceLine = false;
+                break;
+            }
+        }
         if ( file.eof() )
-		{
-			if ( isSpaceLine )
-			{
-				return false;
-			}
-			else
-			{
-				return true;
-			}
-		}
-    } 	while ( isSpaceLine );
+        {
+            if ( isSpaceLine )
+            {
+                return false;
+            }
+            else
+            {
+                return true;
+            }
+        }
+    }     while ( isSpaceLine );
     
-	return true;
+    return true;
 }
 
 void Clear( ostringstream & oss )
 {
-	oss.clear( );
-	oss.str( "" );
+    oss.clear( );
+    oss.str( "" );
 }
 
 
 void StopProgramFunction( const ostringstream & oss, const string & fileName, const int & fileLine, const string & dateName, const string & timeName )
 {
-	ONEFLOW::StopProgramFunction( oss.str(), fileName, fileLine, dateName, timeName );
+    ONEFLOW::StopProgramFunction( oss.str(), fileName, fileLine, dateName, timeName );
 }
 
 void StopProgramFunction( const string & stopInformation, const string & fileName, const int & fileLine, const string & dateName, const string & timeName )
 {
-	ONEFLOW::HXFinalize();
-	cout << endl;
-	cout << "++++++++++++++++++Stop Information  +++++++++++++++++++++++++++++\n";
-	cout <<  stopInformation << endl;
-	cout << " The stop filename is : " << fileName << endl;
-	cout << " at line " << fileLine << endl;
-	cout << " Compiled On line " << dateName << " at " << timeName << endl;
-	cout << "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n";
-	exit( 0 );
+    ONEFLOW::HXFinalize();
+    cout << endl;
+    cout << "++++++++++++++++++Stop Information  +++++++++++++++++++++++++++++\n";
+    cout <<  stopInformation << endl;
+    cout << " The stop filename is : " << fileName << endl;
+    cout << " at line " << fileLine << endl;
+    cout << " Compiled On line " << dateName << " at " << timeName << endl;
+    cout << "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n";
+    exit( 0 );
 }
 
 void ToLowerCase( string & word )
@@ -250,24 +250,24 @@ void ToLowerCase( string & word )
 
 void ToUpperCase( string & word )
 {
-	std::transform( word.begin(), word.end(), word.begin(), StringToUpperCase() );
+    std::transform( word.begin(), word.end(), word.begin(), StringToUpperCase() );
 }
 
 //int GetIntegerDigitWidth( int integerData )
 //{
-//	return 1 + static_cast< int >( floor( log10( static_cast< double > ( ONEFLOW::MAX( 1, integerData ) ) ) ) );
+//    return 1 + static_cast< int >( floor( log10( static_cast< double > ( ONEFLOW::MAX( 1, integerData ) ) ) ) );
 //}
 
 bool IsDigit( const string & word )
 {
-	for ( int i = 0; i < word.size(); ++ i )
-	{
-		if ( ! isdigit( word[ i ] ) )
-		{
-			return false;
-		}
-	}
-	return true;
+    for ( int i = 0; i < word.size(); ++ i )
+    {
+        if ( ! isdigit( word[ i ] ) )
+        {
+            return false;
+        }
+    }
+    return true;
 }
 
 EndNameSpace

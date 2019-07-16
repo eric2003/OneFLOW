@@ -39,69 +39,69 @@ const double rjmk = 8.31434;
 class Chemical
 {
 public:
-	Chemical();
+    Chemical();
     ~Chemical();
 public:
-	MolecularProperty * moleProp;
-	ReactionRate * reactionRate;
-	Stoichiometric * stoichiometric;
-	BlotterCurve * blotterCurve;
-	Thermodynamic * thermodynamic;
-	int nSpecies, nReaction;
+    MolecularProperty * moleProp;
+    ReactionRate * reactionRate;
+    Stoichiometric * stoichiometric;
+    BlotterCurve * blotterCurve;
+    Thermodynamic * thermodynamic;
+    int nSpecies, nReaction;
 public:
-	//working variables
-	RealField xi_s;
-	RealField cs_s;
-	RealField vis_s;
-	RealField vis_phi_s;
-	RealField cp_s;
-	RealField dim_cp_s;
-	RealField hint_s;
-	RealField work_s;
+    //working variables
+    RealField xi_s;
+    RealField cs_s;
+    RealField vis_s;
+    RealField vis_phi_s;
+    RealField cp_s;
+    RealField dim_cp_s;
+    RealField hint_s;
+    RealField work_s;
 public:
-	void Init();
-	void ComputeRefPara();
-	void ComputeRefGasInfo();
-	void ComputeRefGama();
-	void ComputeRefSoundSpeed();
-	void ComputeRefMachAndVel();
-	void ComputeStateCoef();
-	void ComputeStateCoefNs();
-	void ComputeStateCoefChemical();
-	void ComputeRefPrim();
-	void ComputeRefReynolds();
-	void ComputeDimRefViscosity();
-	void ComputeDimRefViscosityNs();
-	void ComputeDimRefViscosityChemical();
-	void ComputeSutherlandConstant();
-	void ComputeMoleFractionByMassFraction( RealField & massFrac, RealField & moleFrac );
-	void ComputeDimSpeciesViscosity( Real tm, RealField & vis_s_dim );
-	void ComputeMixtureCoefByWilkeFormula( RealField & moleFrac, RealField & var, RealField & phi );
-	void ComputeMixtureByWilkeFormula( RealField & moleFrac, RealField & mixs, RealField & phi, Real & mixture );
-	void ComputeMixtureByWilkeFormula( RealField & moleFrac, RealField & mixs, Real & mixture );
-	void SetAirInformationByDataBase();
-	void NormalizeAirInfo();
-	void ComputeRefMolecularInfo();
-	void ComputeRefMolecularInfoAir();
-	void ComputeRefMolecularInfoChem();
+    void Init();
+    void ComputeRefPara();
+    void ComputeRefGasInfo();
+    void ComputeRefGama();
+    void ComputeRefSoundSpeed();
+    void ComputeRefMachAndVel();
+    void ComputeStateCoef();
+    void ComputeStateCoefNs();
+    void ComputeStateCoefChemical();
+    void ComputeRefPrim();
+    void ComputeRefReynolds();
+    void ComputeDimRefViscosity();
+    void ComputeDimRefViscosityNs();
+    void ComputeDimRefViscosityChemical();
+    void ComputeSutherlandConstant();
+    void ComputeMoleFractionByMassFraction( RealField & massFrac, RealField & moleFrac );
+    void ComputeDimSpeciesViscosity( Real tm, RealField & vis_s_dim );
+    void ComputeMixtureCoefByWilkeFormula( RealField & moleFrac, RealField & var, RealField & phi );
+    void ComputeMixtureByWilkeFormula( RealField & moleFrac, RealField & mixs, RealField & phi, Real & mixture );
+    void ComputeMixtureByWilkeFormula( RealField & moleFrac, RealField & mixs, Real & mixture );
+    void SetAirInformationByDataBase();
+    void NormalizeAirInfo();
+    void ComputeRefMolecularInfo();
+    void ComputeRefMolecularInfoAir();
+    void ComputeRefMolecularInfoChem();
 public:
-	void Alloc();
-	void DeAlloc();
-	void InitRefPara();
-	void InitGasModel();
-	void ReadGasModel();
-	void Init( int nSpecies, int nReaction );
-	void ReadChemical( AsciiFileRead * ioFile );
-	void InitWorkingSpace();
-	void AllocWorkingSpace();
+    void Alloc();
+    void DeAlloc();
+    void InitRefPara();
+    void InitGasModel();
+    void ReadGasModel();
+    void Init( int nSpecies, int nReaction );
+    void ReadChemical( AsciiFileRead * ioFile );
+    void InitWorkingSpace();
+    void AllocWorkingSpace();
 public:
-	void Read( DataBook * dataBook );
-	void Write( DataBook * dataBook );
-	void CompressData( DataBook *& dataBook );
-	void DecompressData( DataBook * dataBook );
+    void Read( DataBook * dataBook );
+    void Write( DataBook * dataBook );
+    void CompressData( DataBook *& dataBook );
+    void DecompressData( DataBook * dataBook );
 public:
-	void ComputeDimCps( Real tm, RealField & dim_cps );
-	void ComputeMixtureByMassFraction( RealField & cs, RealField & var, Real & mixture );
+    void ComputeDimCps( Real tm, RealField & dim_cps );
+    void ComputeMixtureByMassFraction( RealField & cs, RealField & var, Real & mixture );
 };
 
 extern Chemical chem;

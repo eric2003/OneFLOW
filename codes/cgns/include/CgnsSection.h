@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -40,27 +40,27 @@ class CgnsSection
 {
 public:
     CgnsSection( CgnsZone * cgnsZone );
-	~CgnsSection();
+    ~CgnsSection();
 public:
-	int eType;
+    int eType;
     CgInt startId, endId;
     int connSize;
-	CgIntField connList;
+    CgIntField connList;
 
-	IntField eTypeList;
-	IntField ePosList;
-	int pos_shift;
+    IntField eTypeList;
+    IntField ePosList;
+    int pos_shift;
 
-	string sectionName;
+    string sectionName;
     CgnsZone * cgnsZone;
-	int id;
-	int nCoor;
+    int id;
+    int nCoor;
     int nElement;
-	CgInt elementDataSize;
+    CgInt elementDataSize;
 
     int nbndry;
     int iparentflag;
-	CgIntField iparentdata;
+    CgIntField iparentdata;
 public:
     void ConvertToInnerDataStandard();
     void SetElementTypeAndNode( ElemFeature * elem_feature );
@@ -74,10 +74,10 @@ public:
     void ComputeCapacityOfCgnsConnectionList();
     void AllocateCgnsConnectionList();
     void ReadCgnsSectionConnectionList();
-	void SetElemPosition();
-	void SetElemPositionOri();
-	void SetElemPositionMixed();
-	bool IsMixedSection();
+    void SetElemPosition();
+    void SetElemPositionOri();
+    void SetElemPositionMixed();
+    bool IsMixedSection();
 };
 
 #endif

@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -50,10 +50,10 @@ void CReadFile::Run()
 
 void CReadFile::ServerRead()
 {
-	fstream file;
+    fstream file;
     ActionState::file = & file;
 
-	PIO::ParallelOpenPrj();
+    PIO::ParallelOpenPrj();
 
     for ( int zId = 0; zId < ZoneState::nZones; ++ zId )
     {
@@ -102,10 +102,10 @@ void CWriteFile::Run()
 
 void CWriteFile::ServerWrite()
 {
-	fstream file;
+    fstream file;
     ActionState::file = & file;
 
-	PIO::ParallelOpenPrj();
+    PIO::ParallelOpenPrj();
 
     for ( int zId = 0; zId < ZoneState::nZones; ++ zId )
     {
@@ -154,12 +154,12 @@ void CUpdateInterface::Run()
 
         int nNei = interFaceTopo.data[ zId ].size();
 
-		for ( int iNei = 0; iNei < nNei; ++ iNei )
+        for ( int iNei = 0; iNei < nNei; ++ iNei )
         {
             int jZone = interFaceTopo.data[ zId ][ iNei ];
 
             this->SwapInterfaceData( zId, jZone );
-		}
+        }
     }
 }
 
@@ -183,7 +183,7 @@ void CUpdateInterface::SwapInterfaceData( int iZone, int jZone )
         ZoneState::zid  = jZone;
         ZoneState::szid = iZone;
 
-		this->recvAction();
+        this->recvAction();
     }
 }
 
@@ -199,20 +199,20 @@ void Client2Server( Task * task, VoidFunc mainAction )
 
     HXSwapData( ActionState::dataBook, sPid, rPid );
 
-	if ( Parallel::pid == rPid )
-	{
+    if ( Parallel::pid == rPid )
+    {
         mainAction();
-	}
+    }
 }
 
 void ReadBinaryFile()
 {
-	ActionState::dataBook->ReadFile( * ActionState::file );
+    ActionState::dataBook->ReadFile( * ActionState::file );
 }
 
 void WriteBinaryFile()
 {
-	ActionState::dataBook->WriteFile( * ActionState::file );
+    ActionState::dataBook->WriteFile( * ActionState::file );
 }
 
 void WriteAsciiFile()

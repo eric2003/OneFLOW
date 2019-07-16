@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -95,7 +95,7 @@ SolverState::~SolverState()
 void SolverState::Init( int nSolver )
 {
     SolverState::nSolver = nSolver;
-	SolverState::convergeFlag.resize( nSolver );
+    SolverState::convergeFlag.resize( nSolver );
 }
 
 void SolverState::SetTid( int tid )
@@ -106,7 +106,7 @@ void SolverState::SetTid( int tid )
 void SolverState::SetTidById( int id )
 {
     SolverState::id  = id;
-	SolverState::tid = SolverMap::GetTid( id );
+    SolverState::tid = SolverMap::GetTid( id );
 }
 
 Solver * SolverState::GetSolver()
@@ -117,13 +117,13 @@ Solver * SolverState::GetSolver()
 
 bool SolverState::Converge()
 {
-	if ( Iteration::innerSteps == 0 ) return false;
-	if ( ctrl.idualtime == 0 ) return true;
+    if ( Iteration::innerSteps == 0 ) return false;
+    if ( ctrl.idualtime == 0 ) return true;
     bool flag = true;
     for ( int iSolver = 0; iSolver < SolverState::nSolver; ++ iSolver )
     {
-		SolverState::id = iSolver;
-		ONEFLOW::SsSgTask( "CMP_UNSTEADY_CRITERION" );
+        SolverState::id = iSolver;
+        ONEFLOW::SsSgTask( "CMP_UNSTEADY_CRITERION" );
     }
     
     return flag;

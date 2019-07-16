@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -39,20 +39,20 @@ UsdPara::~UsdPara()
 
 void UsdPara::Init( StringField & fieldNameList, int nEqu )
 {
-	if ( this->flag ) return;
-	this->flag = true;
+    if ( this->flag ) return;
+    this->flag = true;
 
-	this->flow.push_back( fieldNameList[ 0 ] );
-	this->flow.push_back( fieldNameList[ 1 ] );
-	this->flow.push_back( fieldNameList[ 2 ] );
+    this->flow.push_back( fieldNameList[ 0 ] );
+    this->flow.push_back( fieldNameList[ 1 ] );
+    this->flow.push_back( fieldNameList[ 2 ] );
 
-	this->residual.push_back( fieldNameList[ 3 ] );
-	this->residual.push_back( fieldNameList[ 4 ] );
-	this->residual.push_back( fieldNameList[ 5 ] );
+    this->residual.push_back( fieldNameList[ 3 ] );
+    this->residual.push_back( fieldNameList[ 4 ] );
+    this->residual.push_back( fieldNameList[ 5 ] );
 
-	this->dq.push_back( fieldNameList[ 6 ] );
+    this->dq.push_back( fieldNameList[ 6 ] );
 
-	this->nEqu = nEqu;
+    this->nEqu = nEqu;
 }
 
 EndNameSpace

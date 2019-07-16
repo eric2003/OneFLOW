@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -35,68 +35,68 @@ BeginNameSpace( ONEFLOW )
 class UnitElement
 {
 public:
-	UnitElement();
-	~UnitElement();
+    UnitElement();
+    ~UnitElement();
 public:
-	int elementType;
+    int elementType;
     IntField nodeId;
-	LinkField middlePointStruct; //Midpoint data structure
-	LinkField childElementIndex;
-	IntField childElementType;
-	IntField faceTypeContainer;
-	LinkField faceList;
+    LinkField middlePointStruct; //Midpoint data structure
+    LinkField childElementIndex;
+    IntField childElementType;
+    IntField faceTypeContainer;
+    LinkField faceList;
 
-	IntField compositeFaceElementType;
-	LinkField compositeFaceList;
+    IntField compositeFaceElementType;
+    LinkField compositeFaceList;
 public:
-	void Initialize( int elementType );
+    void Initialize( int elementType );
 public:
-	IntField & GetElementPhysicsFace(int iFace);
-	int GetElementPhysicsFaceType(int iFace) const;
-	int GetElementFaceNumber() const;
-	int GetElementPhysicsFaceNumber() const;
-	int GetElementType() const;
-	int GetElementNodeNumbers( int elementType );
+    IntField & GetElementPhysicsFace(int iFace);
+    int GetElementPhysicsFaceType(int iFace) const;
+    int GetElementFaceNumber() const;
+    int GetElementPhysicsFaceNumber() const;
+    int GetElementType() const;
+    int GetElementNodeNumbers( int elementType );
 
-	int GetRefinedElementType( int elementType );
-	int GetSimpleElementType ( int elementType );
+    int GetRefinedElementType( int elementType );
+    int GetSimpleElementType ( int elementType );
 
-	bool IsUnitElementType  ( int elementType );
-	bool IsFaceElementType   ( int elementType );
+    bool IsUnitElementType  ( int elementType );
+    bool IsFaceElementType   ( int elementType );
 
-	bool IsFaceElementTypeAtLeast( int elementType );
-	bool IsBasicVolumeElementType( int elementType );
+    bool IsFaceElementTypeAtLeast( int elementType );
+    bool IsBasicVolumeElementType( int elementType );
 
-	IntField & GetElementFace(int iFace);
-	int GetFaceType(int iFace) const;
+    IntField & GetElementFace(int iFace);
+    int GetFaceType(int iFace) const;
 
-	IntField & GetRelatedPointListForMiddlePointComputation(int iMiddlePoint);
+    IntField & GetRelatedPointListForMiddlePointComputation(int iMiddlePoint);
 
-	IntField & GetChildElementRelativeNodeIndex(int iChildElement);
+    IntField & GetChildElementRelativeNodeIndex(int iChildElement);
 
-	int GetChildElementNumbers() const;
-	int GetChildElementType(int iChild);
+    int GetChildElementNumbers() const;
+    int GetChildElementType(int iChild);
 public:
-	void PushElementFace( int faceType, int p1 );
-	void PushElementFace( int faceType, int p1, int p2 );
-	void PushElementFace( int faceType, int p1, int p2, int p3 );
-	void PushElementFace( int faceType, int p1, int p2, int p3, int p4 );
+    void PushElementFace( int faceType, int p1 );
+    void PushElementFace( int faceType, int p1, int p2 );
+    void PushElementFace( int faceType, int p1, int p2, int p3 );
+    void PushElementFace( int faceType, int p1, int p2, int p3, int p4 );
 public:
-	void PushMiddlePoint( int pm, int p1, int p2 );
-	void PushMiddlePoint( int pm, int p1, int p2, int p3 );
-	void PushMiddlePoint( int pm, int p1, int p2, int p3, int p4 );
-	void PushMiddlePoint( int pm, int p1, int p2, int p3, int p4, int p5, int p6, int p7, int p8 );
+    void PushMiddlePoint( int pm, int p1, int p2 );
+    void PushMiddlePoint( int pm, int p1, int p2, int p3 );
+    void PushMiddlePoint( int pm, int p1, int p2, int p3, int p4 );
+    void PushMiddlePoint( int pm, int p1, int p2, int p3, int p4, int p5, int p6, int p7, int p8 );
 public:
-	void PushChildElement( int elementType, int p1, int p2 );
-	void PushChildElement( int elementType, int p1, int p2, int p3 );
-	void PushChildElement( int elementType, int p1, int p2, int p3, int p4 );
-	void PushChildElement( int elementType, int p1, int p2, int p3, int p4, int p5 );
-	void PushChildElement( int elementType, int p1, int p2, int p3, int p4, int p5, int p6 );
-	void PushChildElement( int elementType, int p1, int p2, int p3, int p4, int p5, int p6, int p7, int p8 );
+    void PushChildElement( int elementType, int p1, int p2 );
+    void PushChildElement( int elementType, int p1, int p2, int p3 );
+    void PushChildElement( int elementType, int p1, int p2, int p3, int p4 );
+    void PushChildElement( int elementType, int p1, int p2, int p3, int p4, int p5 );
+    void PushChildElement( int elementType, int p1, int p2, int p3, int p4, int p5, int p6 );
+    void PushChildElement( int elementType, int p1, int p2, int p3, int p4, int p5, int p6, int p7, int p8 );
 public:
-	void PushCompositeFace( int faceElementType, int p1, int p2, int p3 );
-	void PushCompositeFace( int faceElementType, int p1, int p2, int p3, int p4, int p5, int p6 );
-	void PushCompositeFace( int faceElementType, int p1, int p2, int p3, int p4, int p5, int p6, int p7, int p8, int p9 );
+    void PushCompositeFace( int faceElementType, int p1, int p2, int p3 );
+    void PushCompositeFace( int faceElementType, int p1, int p2, int p3, int p4, int p5, int p6 );
+    void PushCompositeFace( int faceElementType, int p1, int p2, int p3, int p4, int p5, int p6, int p7, int p8, int p9 );
 };
 
 EndNameSpace

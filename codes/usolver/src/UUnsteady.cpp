@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -40,94 +40,94 @@ UUnsteady::~UUnsteady()
 
 void UUnsteady::UpdateDualTimeStepResidual()
 {
-	for ( int iEqu = 0; iEqu < data->nEqu; ++ iEqu )
-	{
-		( * field->res )[ iEqu ][ ug.cId ] = data->dualtimeRes[ iEqu ];
-	}
+    for ( int iEqu = 0; iEqu < data->nEqu; ++ iEqu )
+    {
+        ( * field->res )[ iEqu ][ ug.cId ] = data->dualtimeRes[ iEqu ];
+    }
 }
 
 void UUnsteady::UpdateDualTimeStepSource()
 {
     for ( int iEqu = 0; iEqu < data->nEqu; ++ iEqu )
-	{
-		( * field->res )[ iEqu ][ ug.cId ] -= data->dualtimeSrc[ iEqu ];
-	}
+    {
+        ( * field->res )[ iEqu ][ ug.cId ] -= data->dualtimeSrc[ iEqu ];
+    }
 }
 
 void UUnsteady::StoreOldResidual()
 {
-	//cxh20140818:首先要知道ResidualN1和ResidualN2（n时刻和n-1时刻的残差）；
-	//双时间步内迭代第一步残差，存储为n时刻残差
-	if ( Iteration::innerSteps != 1 ) return;
+    //cxh20140818:首先要知道ResidualN1和ResidualN2（n时刻和n-1时刻的残差）；
+    //双时间步内迭代第一步残差，存储为n时刻残差
+    if ( Iteration::innerSteps != 1 ) return;
 
-	for ( int cId = 0; cId < ug.nCell; ++ cId )
-	{
-		for ( int iEqu = 0; iEqu < data->nEqu; ++ iEqu )
-		{
-			( * field->res2 )[ iEqu ][ cId ] = ( * field->res1 )[ iEqu ][ cId ];
-			( * field->res1 )[ iEqu ][ cId ] = ( * field->res  )[ iEqu ][ cId ];
-		}
-	}
+    for ( int cId = 0; cId < ug.nCell; ++ cId )
+    {
+        for ( int iEqu = 0; iEqu < data->nEqu; ++ iEqu )
+        {
+            ( * field->res2 )[ iEqu ][ cId ] = ( * field->res1 )[ iEqu ][ cId ];
+            ( * field->res1 )[ iEqu ][ cId ] = ( * field->res  )[ iEqu ][ cId ];
+        }
+    }
 }
 
 void UUnsteady::PrepareResidual()
 {
-	for ( int iEqu = 0; iEqu < data->nEqu; ++ iEqu )
-	{
+    for ( int iEqu = 0; iEqu < data->nEqu; ++ iEqu )
+    {
         data->res [ iEqu ] = ( * field->res  )[ iEqu ][ ug.cId ];
         data->res1[ iEqu ] = ( * field->res1 )[ iEqu ][ ug.cId ];
         data->res2[ iEqu ] = ( * field->res2 )[ iEqu ][ ug.cId ];
-	}
+    }
 }
 
 void UUnsteady::CmpDualTimeResidual()
 {
     data->CmpResCoef();
 
-	for ( int cId = 0; cId < ug.nCell; ++ cId )
-	{
+    for ( int cId = 0; cId < ug.nCell; ++ cId )
+    {
         ug.cId = cId;
 
-		this->PrepareResidual();
+        this->PrepareResidual();
 
         data->CmpCellDualTimeResidual();
 
-		this->UpdateDualTimeStepResidual();
-	}
+        this->UpdateDualTimeStepResidual();
+    }
 }
 
 void UUnsteady::CmpDualTimeSrc()
 {
     ug.Init();
-	this->StoreOldResidual();
+    this->StoreOldResidual();
 
-	this->CmpDualTimeResidual();
+    this->CmpDualTimeResidual();
 
     data->CmpSrcCoeff();
 
-	for ( int cId = 0; cId < ug.nCell; ++ cId )
-	{
+    for ( int cId = 0; cId < ug.nCell; ++ cId )
+    {
         ug.cId = cId;
 
         ( * this->srcFun )( this );
 
         data->CmpCellDualTimeSrc();
 
-		this->UpdateDualTimeStepSource();
+        this->UpdateDualTimeStepSource();
     }
 }
 
 void UUnsteady::CmpUnsteadyCriterion()
 {
-	data->ZeroData();
+    data->ZeroData();
 
-	for ( int cId = 0; cId < ug.nCell; ++ cId )
-	{
+    for ( int cId = 0; cId < ug.nCell; ++ cId )
+    {
         ug.cId = cId;
 
         ( * this->criFun )( this );
-		
-		data->CmpCellUnsteadyCri();
+        
+        data->CmpCellUnsteadyCri();
     }
 
     data->CmpCvg();

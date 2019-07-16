@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -41,11 +41,11 @@ public:
 public:
     void Init();
 public:
-	bool init_flag;
+    bool init_flag;
     int nBEqu;
     int nEqu;
     int nTEqu;
-	int nSpecies;
+    int nSpecies;
     int visSRModel;
     int timestepModel;
     int visTimestepModel;
@@ -78,30 +78,30 @@ public:
     Real twall;
     Real statecoef;
 
-	Real elevation;
-	Real tref_dim;
-	Real pref_dim;
-	Real dref_dim;
-	Real vref_dim;
-	Real cref_dim;
-	Real tref;
-	Real pref;
-	Real dref;
-	Real vref;
-	Real cref;
-	int gasInfoStrategy;
-	int machStrategy;
-	string gasModelFile;
-	Real schmidtl;
-	Real schmidtt;
-	Real reylref_dim;
-	Real aoa, aos;
-	RealField refns;
-	Real visref_dim;
-	Real csuth;
-	Real csuth_dim;
-	Real dim_amw; //dimensional average molecular weight
-	Real amw; //average molecular weight
+    Real elevation;
+    Real tref_dim;
+    Real pref_dim;
+    Real dref_dim;
+    Real vref_dim;
+    Real cref_dim;
+    Real tref;
+    Real pref;
+    Real dref;
+    Real vref;
+    Real cref;
+    int gasInfoStrategy;
+    int machStrategy;
+    string gasModelFile;
+    Real schmidtl;
+    Real schmidtt;
+    Real reylref_dim;
+    Real aoa, aos;
+    RealField refns;
+    Real visref_dim;
+    Real csuth;
+    Real csuth_dim;
+    Real dim_amw; //dimensional average molecular weight
+    Real amw; //average molecular weight
 public:
     RealField q1;
     RealField q2;

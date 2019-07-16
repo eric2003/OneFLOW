@@ -38,8 +38,8 @@ public:
 class FieldNamePair
 {
 public:
-	FieldNamePair();
-	~FieldNamePair();
+    FieldNamePair();
+    ~FieldNamePair();
 public:
     static void SetField( int sTid, NameValuePair & valuePair );
 };
@@ -65,8 +65,8 @@ public:
 class ReadInterfaceVar
 {
 public:
-	ReadInterfaceVar();
-	~ReadInterfaceVar();
+    ReadInterfaceVar();
+    ~ReadInterfaceVar();
 public:
     static void AddFieldName( int sTid, int fieldType, StringField & nameList );
 };
@@ -74,22 +74,22 @@ public:
 class ParaNameDim
 {
 public:
-	ParaNameDim();
-	~ParaNameDim();
+    ParaNameDim();
+    ~ParaNameDim();
 public:
-	StringField nameList;
-	IntField dimList;
+    StringField nameList;
+    IntField dimList;
 };
 
 class ParaNameDimData
 {
 public:
-	ParaNameDimData();
-	~ParaNameDimData();
+    ParaNameDimData();
+    ~ParaNameDimData();
 public:
-	ParaNameDim * comPara;
-	ParaNameDim * strPara;
-	ParaNameDim * unsPara;
+    ParaNameDim * comPara;
+    ParaNameDim * strPara;
+    ParaNameDim * unsPara;
 public:
     ParaNameDim * GetParaNameDim( const string & typeName );
 };
@@ -97,19 +97,19 @@ public:
 class ReadSuperPara
 {
 public:
-	ReadSuperPara();
-	~ReadSuperPara();
+    ReadSuperPara();
+    ~ReadSuperPara();
 public:
     ParaNameDimData * paraNameDimData;
     int sTid;
 public:
-	void Register( const string & fileName, int index );
-	void AddUnsteadyInnerFieldProperty();
-	void AddInnerFieldProperty();
-	void AddFaceFieldProperty();
-	void AddBoundaryFieldProperty();
+    void Register( const string & fileName, int index );
+    void AddUnsteadyInnerFieldProperty();
+    void AddInnerFieldProperty();
+    void AddFaceFieldProperty();
+    void AddBoundaryFieldProperty();
 public:
-	void AddBasicFieldProperty( ParaNameDim * paraNameDim, int fieldType, int type );
+    void AddBasicFieldProperty( ParaNameDim * paraNameDim, int fieldType, int type );
 };
 
 
@@ -120,8 +120,8 @@ public:
     BoolIO();
     ~BoolIO();
 public:
-	StringField boolNameList;
-	BoolField boolValueList;
+    StringField boolNameList;
+    BoolField boolValueList;
     int valueFlag;
     AsciiFileRead * ioFile;
     NameValuePair nameValuePair;

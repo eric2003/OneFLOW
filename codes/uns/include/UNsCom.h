@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -42,7 +42,7 @@ public:
     MRField * gama, * gama1, * gama2;
     MRField * dqdx, * dqdy, * dqdz;
     MRField * dtdx, * dtdy, * dtdz;
-	MRField * bc_q;
+    MRField * bc_q;
     MRField * bcdqdx, * bcdqdy, * bcdqdz;
     MRField * invsr; //inviscid spectrum radius;
     MRField * vissr; //viscous  spectrum radius;

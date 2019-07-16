@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -48,9 +48,9 @@ public:
     L2GMapping();
     ~L2GMapping();
 public:
-	IntField l2g_node;
-	IntField l2g_face;
-	IntField l2g_cell;
+    IntField l2g_node;
+    IntField l2g_face;
+    IntField l2g_cell;
 public:
     G2LMapping * g2l;
 public:
@@ -70,9 +70,9 @@ public:
     IntField g2l_node;
     IntField g2l_face;
     IntField g2l_cell;
-	vector<idx_t> gc2lzone;
+    vector<idx_t> gc2lzone;
     UnsGrid * ggrid;
-	int npartproc;
+    int npartproc;
     LinkField c2c;
 public:
     void GenerateGC2Z();
@@ -80,21 +80,21 @@ public:
     void GetXadjAdjncy( UnsGrid * ggrid, vector<idx_t>& xadj, vector<idx_t>& adjncy );
     void PartByMetis( idx_t nCell, vector<idx_t>& xadj, vector<idx_t>& adjncy );
 #endif
-	void DumpXadjAdjncy( UnsGrid * grid, IntField & xadj, IntField & adjncy );
-	void DumpGC2Z( UnsGrid * grid );
-	void ReadGC2Z( UnsGrid * grid );
+    void DumpXadjAdjncy( UnsGrid * grid, IntField & xadj, IntField & adjncy );
+    void DumpGC2Z( UnsGrid * grid );
+    void ReadGC2Z( UnsGrid * grid );
 };
 
 class Partition
 {
 public:
     Partition();
-	~Partition();
+    ~Partition();
 public:
     Grids grids;
 public:
     UnsGrid * uns_grid;
-	int npartproc;
+    int npartproc;
     int partition_type;
     int partition_c2n;
     G2LMapping * g2l;

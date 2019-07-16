@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -47,15 +47,15 @@ public:
     Real delta, delt1, delt2;
 
     Real dxnl, dynl, dznl;
-	Real dxnr, dynr, dznr;
+    Real dxnr, dynr, dznr;
 
     Real fw1, fw2;
-	Real c1, c2;
-	Real d1, d2, d, od;
-	Real angle1, angle2;
-	Real skewAngle;
+    Real c1, c2;
+    Real d1, d2, d, od;
+    Real angle1, angle2;
+    Real skewAngle;
 
-	Real dx, dy, dz, ods;
+    Real dx, dy, dz, ods;
 };
 
 extern VisGradGeom vgg;
@@ -63,15 +63,15 @@ extern VisGradGeom vgg;
 class VisGrad
 {
 public:
-	VisGrad ();
-	~VisGrad();
+    VisGrad ();
+    ~VisGrad();
 public:
-	int nEqu;
-	void Init( int nEqu );
+    int nEqu;
+    void Init( int nEqu );
 public:
-	void AverGrad();
+    void AverGrad();
     void ZeroNormalGrad();
-	void AverFaceValue ();
+    void AverFaceValue ();
     void CorrectFaceGrad();
     void CmpNormalGrad();
     void CmpTestMethod();
@@ -87,13 +87,13 @@ public:
     void ModifyFaceGrad();
 public:
     RealField q, q1, q2;
-	RealField q11, q22;
+    RealField q11, q22;
 
-	RealField dqdx, dqdy, dqdz, dqdn;
-	RealField dqdx1, dqdy1, dqdz1;
-	RealField dqdx2, dqdy2, dqdz2;
-	RealField dqdn1, dqdn2;
-	RealField dqdt1, dqdt2;
+    RealField dqdx, dqdy, dqdz, dqdn;
+    RealField dqdx1, dqdy1, dqdz1;
+    RealField dqdx2, dqdy2, dqdz2;
+    RealField dqdn1, dqdn2;
+    RealField dqdt1, dqdt2;
 };
 
 void CorrectGrad( Real fl, Real fr, Real & dfdx, Real & dfdy, Real & dfdz, Real dx, Real dy, Real dz, Real ods );

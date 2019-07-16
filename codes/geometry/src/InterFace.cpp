@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -90,16 +90,16 @@ void InterFace::Resize( int nIFace )
 {
     if ( nIFace <= 0 ) nIFace = 0;
     this->nIFace = nIFace;
-	zoneId          .resize( nIFace );
-	localInterfaceId.resize( nIFace );
-	localCellId     .resize( nIFace );
-	i2b .resize( nIFace );
-	idir.resize( nIFace );
+    zoneId          .resize( nIFace );
+    localInterfaceId.resize( nIFace );
+    localCellId     .resize( nIFace );
+    i2b .resize( nIFace );
+    idir.resize( nIFace );
 }
 
 void InterFace::InitNeighborFlag( IntField & flags )
 {
-	flags.resize( ZoneState::nZones, 0 );
+    flags.resize( ZoneState::nZones, 0 );
 
     for ( int iFace = 0; iFace < this->nIFace; ++ iFace )
     {
@@ -129,7 +129,7 @@ void InterFace::InitNeighborZoneInfo()
     int nZone = ZoneState::nZones;
 
     IntField flags;
-	this->InitNeighborFlag( flags );
+    this->InitNeighborFlag( flags );
 
     //The adjacent blocks of this block are calculated
     //interFacePairs.resize( nNeighbor );
@@ -140,9 +140,9 @@ void InterFace::InitNeighborZoneInfo()
     {
         if ( flags[ iZone ] )
         {
-			this->InitNeighborZoneInfo( iNei, iZone );
+            this->InitNeighborZoneInfo( iNei, iZone );
 
-			++ iNei;
+            ++ iNei;
         }
     }
 }
@@ -150,49 +150,49 @@ void InterFace::InitNeighborZoneInfo()
 int InterFace::ComputeNIFace( int iNei )
 {
     int expectedId = this->interFacePairs[ iNei ]->nzid;
-	int nIFaceCount = 0;
+    int nIFaceCount = 0;
 
-	for ( int iFace = 0; iFace < this->nIFace; ++ iFace )
-	{
-		if ( this->zoneId[ iFace ] == expectedId )
-		{
-			++ nIFaceCount;
-		}
-	}
+    for ( int iFace = 0; iFace < this->nIFace; ++ iFace )
+    {
+        if ( this->zoneId[ iFace ] == expectedId )
+        {
+            ++ nIFaceCount;
+        }
+    }
 
-	return nIFaceCount;
+    return nIFaceCount;
 }
 
 void InterFace::InitNeighborZoneInfo( int iNei, int iZone )
 {
     InterfacePair * interfacePair = interFacePairs[ iNei ];
-	interfacePair->nzid = iZone;
+    interfacePair->nzid = iZone;
 
-	this->z2n.insert( pair< int, int >( iZone, iNei ) );
+    this->z2n.insert( pair< int, int >( iZone, iNei ) );
 
-	int nIFaceCount = this->ComputeNIFace( iNei );
+    int nIFaceCount = this->ComputeNIFace( iNei );
 
     interfacePair->nIFace = nIFaceCount;
     interfacePair->idsend.resize( nIFaceCount );
     interfacePair->idrecv.resize( nIFaceCount );
 
-	this->FillRecvId( iNei );
+    this->FillRecvId( iNei );
 }
 
 void InterFace::FillRecvId( int iNei )
 {
     InterfacePair * interfacePair = interFacePairs[ iNei ];
 
-	int iCount = 0;
-	for ( int iFace = 0; iFace < this->nIFace; ++ iFace )
-	{
-		if ( this->zoneId[ iFace ] == interfacePair->nzid )
-		{
+    int iCount = 0;
+    for ( int iFace = 0; iFace < this->nIFace; ++ iFace )
+    {
+        if ( this->zoneId[ iFace ] == interfacePair->nzid )
+        {
             //这说明idrecv是以本块对接边界面局部计数的
-			interfacePair->idrecv[ iCount ] = iFace;
-			++ iCount;
-		}
-	}
+            interfacePair->idrecv[ iCount ] = iFace;
+            ++ iCount;
+        }
+    }
 }
 
 void InterFace::CmpSendId( int iNei, IntField & idsend )
@@ -201,15 +201,15 @@ void InterFace::CmpSendId( int iNei, IntField & idsend )
     idsend.resize( interfacePair->nIFace );
 
     int iCount = 0;
-	for ( int iFace = 0; iFace < this->nIFace; ++ iFace )
-	{
-		if ( this->zoneId[ iFace ] == interfacePair->nzid )
-		{
-			//interfacePair->idsend[ iCount ] = this->localInterfaceId[ iFace ];
+    for ( int iFace = 0; iFace < this->nIFace; ++ iFace )
+    {
+        if ( this->zoneId[ iFace ] == interfacePair->nzid )
+        {
+            //interfacePair->idsend[ iCount ] = this->localInterfaceId[ iFace ];
             idsend[ iCount ] = this->localInterfaceId[ iFace ];
-			++ iCount;
-		}
-	}
+            ++ iCount;
+        }
+    }
 }
 
 void InterFace::SetSendId( int zid, IntField & idsend )
@@ -221,11 +221,11 @@ void InterFace::SetSendId( int zid, IntField & idsend )
 
 IntField & InterFace::GetInterfaceId( int neiId, int iSr )
 {
-	if ( iSr == GREAT_SEND )
-	{
+    if ( iSr == GREAT_SEND )
+    {
         return this->interFacePairs[ neiId ]->idsend;
-	}
-	return this->interFacePairs[ neiId ]->idrecv;
+    }
+    return this->interFacePairs[ neiId ]->idrecv;
 }
 
 
@@ -262,25 +262,25 @@ void InterFaceTopo::InitZoneNeighborsInfo()
 
         Grid * grid = Zone::GetGrid( iZone );
 
-		grid->interFace->InitNeighborZoneInfo();
-	}
+        grid->interFace->InitNeighborZoneInfo();
+    }
 
-	for ( int iZone = 0; iZone < nZone; ++ iZone )
-	{
-		if ( ! ZoneState::IsValidZone( iZone ) ) continue;
+    for ( int iZone = 0; iZone < nZone; ++ iZone )
+    {
+        if ( ! ZoneState::IsValidZone( iZone ) ) continue;
 
         Grid * grid = Zone::GetGrid( iZone );
 
         IntField & t = this->data[ iZone ];
 
-		for ( int iNei = 0; iNei < grid->interFace->nNeighbor; ++ iNei )
-		{
+        for ( int iNei = 0; iNei < grid->interFace->nNeighbor; ++ iNei )
+        {
             InterfacePair * interfacePair = grid->interFace->interFacePairs[ iNei ];
 
             t.push_back( interfacePair->nzid );
-		}
+        }
         std::sort( t.begin(), t.end() );
-	}
+    }
 }
 
 void InterFaceTopo::SwapNeighborZoneInfo()
@@ -292,7 +292,7 @@ void InterFaceTopo::SwapNeighborZoneInfo()
         IntField & t = this->data[ iZone ];
         int nNeighbor = t.size();
 
-		ONEFLOW::HXBcast( & nNeighbor, 1, pid );
+        ONEFLOW::HXBcast( & nNeighbor, 1, pid );
 
         t.resize( nNeighbor );
 
@@ -300,7 +300,7 @@ void InterFaceTopo::SwapNeighborZoneInfo()
 
         ONEFLOW::HXBcast( & t[ 0 ], nNeighbor, pid );
     }
-	this->SwapNeighborsSendContent();
+    this->SwapNeighborsSendContent();
 }
 
 void InterFaceTopo::SwapNeighborsSendContent()
@@ -317,34 +317,34 @@ void InterFaceTopo::SwapNeighborsSendContent()
         {
             int nZid = t[ iNei ];
             int rpid = ZoneState::pid[ nZid ];
-			int nIFace = 0;
+            int nIFace = 0;
             IntField idsend;
 
-			if ( Parallel::pid == spid )
-			{
+            if ( Parallel::pid == spid )
+            {
                 Grid * grid = Zone::GetGrid( iZone );
                 InterfacePair * interfacePair = grid->interFace->interFacePairs[ iNei ];
 
                 nIFace = interfacePair->nIFace;
                 
                 grid->interFace->CmpSendId( iNei, idsend );
-			}
+            }
 
-			ONEFLOW::HXSwapData( & nIFace, 1, spid, rpid, iZone + gl * ZoneState::nZones );
+            ONEFLOW::HXSwapData( & nIFace, 1, spid, rpid, iZone + gl * ZoneState::nZones );
 
-			if ( Parallel::pid  == rpid && 
-				          spid  != rpid )
-			{
-				idsend.resize( nIFace );
-			}
+            if ( Parallel::pid  == rpid && 
+                          spid  != rpid )
+            {
+                idsend.resize( nIFace );
+            }
 
-			ONEFLOW::HXSwapData( & idsend[ 0 ], nIFace, spid, rpid, iZone + gl * ZoneState::nZones );
+            ONEFLOW::HXSwapData( & idsend[ 0 ], nIFace, spid, rpid, iZone + gl * ZoneState::nZones );
 
-			if ( Parallel::pid == rpid )
-			{
+            if ( Parallel::pid == rpid )
+            {
                 Grid * gridN = Zone::GetGrid( nZid );
                 gridN->interFace->SetSendId( iZone, idsend );
-			}
+            }
         }
     }
 }

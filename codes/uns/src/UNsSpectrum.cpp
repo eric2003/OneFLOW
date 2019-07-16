@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -51,46 +51,46 @@ UNsSpectrum::~UNsSpectrum()
 
 void UNsSpectrum::CmpImplicitSpectrum()
 {
-	this->CmpUnsteadySpectrum();
+    this->CmpUnsteadySpectrum();
 
-	this->AddInvSpectrum();
+    this->AddInvSpectrum();
 
-	this->AddVisSpectrum();
+    this->AddVisSpectrum();
 
 }
 
 void UNsSpectrum::CmpUnsteadySpectrum()
 {
-	if ( ctrl.idualtime == 0 )//单时间步，注意:是usd.sp2!
-	{
-		for ( int cId = 0; cId < ug.nCell; ++ cId )
-		{
-			( * unsf.impsr )[ 0 ][ cId ] = ( usd.sp2 /  ( * unsf.timestep )[ 0 ][ cId ] ) * ( * ug.cvol )[ cId ];
-		}
-	}
-	else
-	{
-		for ( int cId = 0; cId < ug.nCell; ++ cId )
-		{
-			( * unsf.impsr )[ 0 ][ cId ] = ( usd.sp1 / ( * unsf.timestep )[ 0 ][ cId ] + usd.sp2 / ctrl.pdt1 ) * ( * ug.cvol )[ cId ];
-		}
-	}
+    if ( ctrl.idualtime == 0 )//单时间步，注意:是usd.sp2!
+    {
+        for ( int cId = 0; cId < ug.nCell; ++ cId )
+        {
+            ( * unsf.impsr )[ 0 ][ cId ] = ( usd.sp2 /  ( * unsf.timestep )[ 0 ][ cId ] ) * ( * ug.cvol )[ cId ];
+        }
+    }
+    else
+    {
+        for ( int cId = 0; cId < ug.nCell; ++ cId )
+        {
+            ( * unsf.impsr )[ 0 ][ cId ] = ( usd.sp1 / ( * unsf.timestep )[ 0 ][ cId ] + usd.sp2 / ctrl.pdt1 ) * ( * ug.cvol )[ cId ];
+        }
+    }
 }
 
 void UNsSpectrum::AddInvSpectrum()
 {
-	for ( int cId = 0; cId < ug.nCell; ++ cId )
-	{
-		( * unsf.impsr )[ 0 ][ cId ] += ( * unsf.invsr )[ 0 ][ cId ];
-	}
+    for ( int cId = 0; cId < ug.nCell; ++ cId )
+    {
+        ( * unsf.impsr )[ 0 ][ cId ] += ( * unsf.invsr )[ 0 ][ cId ];
+    }
 }
 
 void UNsSpectrum::AddVisSpectrum()
 {
-	for ( int cId = 0; cId < ug.nCell; ++ cId )
-	{
-		( * unsf.impsr )[ 0 ][ cId ] += ( * unsf.vissr )[ 0 ][ cId ];
-	}
+    for ( int cId = 0; cId < ug.nCell; ++ cId )
+    {
+        ( * unsf.impsr )[ 0 ][ cId ] += ( * unsf.vissr )[ 0 ][ cId ];
+    }
 }
 
 EndNameSpace

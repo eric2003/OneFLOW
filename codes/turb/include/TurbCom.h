@@ -81,12 +81,12 @@ public:
     Real cdes, cdes_ke, cdes_kw;
 public:
     Real xsi, xsi2, xsi3;
-	Real sac2, sac3;
-	Real karm, karm2, okarm2;
+    Real sac2, sac3;
+    Real karm, karm2, okarm2;
     Real a1;
-	Real cb1, cb2;
-	Real cv1, cv13;
-	Real cw1, cw2, cw3, cw36;
+    Real cb1, cb2;
+    Real cv1, cv13;
+    Real cw1, cw2, cw3, cw36;
     Real fv1, fv2;
     Real xk, xw, xk2, fk, fw, fwStar;
     Real ct3, ct4;

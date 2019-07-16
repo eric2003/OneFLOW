@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -33,12 +33,12 @@ const int PARABOLIC = 2;
 class CurveInfo
 {
 public:
-	CurveInfo();
-	virtual ~CurveInfo();
+    CurveInfo();
+    virtual ~CurveInfo();
 public:
-	int type;
-	int id;
-	int p1, p2;
+    int type;
+    int id;
+    int p1, p2;
 };
 
 

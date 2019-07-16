@@ -39,20 +39,20 @@ SimuState::~SimuState()
 
 void SimuState::Init()
 {
-	const string& taskStr=ONEFLOW::GetDataValue< string >("simutask");
-	if(TaskFilter.find(taskStr)!= TaskFilter.end())
-	{
-		simutask = TaskFilter.at(taskStr);
-	}
-	else
-	{
-		Stop("Bad simutask type\n");
-	}    
+    const string& taskStr=ONEFLOW::GetDataValue< string >("simutask");
+    if(TaskFilter.find(taskStr)!= TaskFilter.end())
+    {
+        simutask = TaskFilter.at(taskStr);
+    }
+    else
+    {
+        Stop("Bad simutask type\n");
+    }    
 }
 
 const TaskEnum SimuState::Task() const
 {
-	return simutask;
+    return simutask;
 }
 
 EndNameSpace

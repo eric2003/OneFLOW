@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -27,37 +27,37 @@ int Dim::dimension = -1;
 
 Dim::Dim()
 {
-	;
+    ;
 }
 
 Dim::~Dim()
 {
-	;
+    ;
 }
 
 int Dim::GetDimension()
 {
-	return Dim::dimension;
+    return Dim::dimension;
 }
 
 void Dim::SetDimension( int dimensionIn )
 {
-	Dim::dimension = dimensionIn;
+    Dim::dimension = dimensionIn;
 }
 
 bool IsOneD()
 {
-	return ONEFLOW::Dim::GetDimension() == ONEFLOW::ONE_D;
+    return ONEFLOW::Dim::GetDimension() == ONEFLOW::ONE_D;
 }
 
 bool IsTwoD()
 {
-	return ONEFLOW::Dim::GetDimension() == ONEFLOW::TWO_D;
+    return ONEFLOW::Dim::GetDimension() == ONEFLOW::TWO_D;
 }
 
 bool IsThreeD()
 {
-	return ONEFLOW::Dim::GetDimension() == ONEFLOW::THREE_D;
+    return ONEFLOW::Dim::GetDimension() == ONEFLOW::THREE_D;
 }
 
 EndNameSpace

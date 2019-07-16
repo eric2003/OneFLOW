@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -73,43 +73,43 @@ void UNsUnstPrepareSrcData( Unsteady * unst )
 {
     UsdData * data = unst->data;
     UsdField * field = unst->field;
-	for ( int iEqu = 0; iEqu < data->nEqu; ++ iEqu )
-	{
-		data->prim [ iEqu ] = ( * field->q  )[ iEqu ][ ug.cId ];
-		data->prim1[ iEqu ] = ( * field->q1 )[ iEqu ][ ug.cId ];
-		data->prim2[ iEqu ] = ( * field->q2 )[ iEqu ][ ug.cId ];
-	}
+    for ( int iEqu = 0; iEqu < data->nEqu; ++ iEqu )
+    {
+        data->prim [ iEqu ] = ( * field->q  )[ iEqu ][ ug.cId ];
+        data->prim1[ iEqu ] = ( * field->q1 )[ iEqu ][ ug.cId ];
+        data->prim2[ iEqu ] = ( * field->q2 )[ iEqu ][ ug.cId ];
+    }
     nscom.gama = ( * unsf.gama  )[ 0 ][ ug.cId ];
     gcom.cvol  = ( * ug.cvol  )[ ug.cId ];
     gcom.cvol1 = ( * ug.cvol1 )[ ug.cId ];
     gcom.cvol2 = ( * ug.cvol2 )[ ug.cId ];
 
-	PrimToQ( data->prim , nscom.gama, data->q  );
-	PrimToQ( data->prim1, nscom.gama, data->q1 );
-	PrimToQ( data->prim2, nscom.gama, data->q2 );
+    PrimToQ( data->prim , nscom.gama, data->q  );
+    PrimToQ( data->prim1, nscom.gama, data->q1 );
+    PrimToQ( data->prim2, nscom.gama, data->q2 );
 }
 
 void UNsUnstPrepareCriData( Unsteady * unst )
 {
     UsdData * data = unst->data;
     UsdField * field = unst->field;
-	for ( int iEqu = 0; iEqu < data->nEqu; ++ iEqu )
-	{
-		data->prim [ iEqu ] = ( * field->q  )[ iEqu ][ ug.cId ];
-		data->prim1[ iEqu ] = ( * field->q1 )[ iEqu ][ ug.cId ];
-		data->prim2[ iEqu ] = ( * field->q2 )[ iEqu ][ ug.cId ];
-	}
+    for ( int iEqu = 0; iEqu < data->nEqu; ++ iEqu )
+    {
+        data->prim [ iEqu ] = ( * field->q  )[ iEqu ][ ug.cId ];
+        data->prim1[ iEqu ] = ( * field->q1 )[ iEqu ][ ug.cId ];
+        data->prim2[ iEqu ] = ( * field->q2 )[ iEqu ][ ug.cId ];
+    }
 
     nscom.gama = ( * unsf.gama  )[ 0 ][ ug.cId ];
 
-	for ( int iEqu = 0; iEqu < data->nEqu; ++ iEqu )
-	{
+    for ( int iEqu = 0; iEqu < data->nEqu; ++ iEqu )
+    {
         data->res [ iEqu ] = ( * field->res  )[ iEqu ][ ug.cId ];
-	}
+    }
 
-	PrimToQ( data->prim , nscom.gama, data->q  );
-	PrimToQ( data->prim1, nscom.gama, data->q1 );
-	PrimToQ( data->prim2, nscom.gama, data->q2 );
+    PrimToQ( data->prim , nscom.gama, data->q  );
+    PrimToQ( data->prim1, nscom.gama, data->q1 );
+    PrimToQ( data->prim2, nscom.gama, data->q2 );
 }
 
 EndNameSpace

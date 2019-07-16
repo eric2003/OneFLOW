@@ -28,10 +28,10 @@ BeginNameSpace( ONEFLOW )
 class Test
 {
 public:
-	Test();
-	~Test();
+    Test();
+    ~Test();
 public:
-	void Run();
+    void Run();
     Real Vencat( Real x );
     Real VencatC( Real x, Real c );
     Real VencatEric( Real x );

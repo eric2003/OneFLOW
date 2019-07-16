@@ -55,7 +55,7 @@ public:
     Real CmpCF( Force * f, Real area );
 public:
     Real aref, lref;
-	Real xref, yref, zref;
+    Real xref, yref, zref;
     Real aoa, aos;
     Real sina, cosa;
     Real sinb, cosb;
@@ -67,8 +67,8 @@ public:
 class AeroForce
 {
 public:
-	AeroForce ();
-	~AeroForce();
+    AeroForce ();
+    ~AeroForce();
 public:
     Force aero;
     Force pres, vis;
@@ -76,7 +76,7 @@ public:
     Force aeromom, mom;
 
     Real cl, cd;
-	Real cp, cf, cdCl2Pa;
+    Real cp, cf, cdCl2Pa;
     Real fvx, fvy, fvz;
     Real power;
 public:

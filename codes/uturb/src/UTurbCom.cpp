@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -76,10 +76,10 @@ void UTurbField::Init()
 
     rhs = res;
 
-	if ( ctrl.time_integral == MULTI_STAGE )
-	{
-		dq = res;
-	}
+    if ( ctrl.time_integral == MULTI_STAGE )
+    {
+        dq = res;
+    }
 }
 
 EndNameSpace

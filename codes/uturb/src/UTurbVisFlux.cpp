@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -68,14 +68,14 @@ void UTurbVisFlux::CmpVisFlux()
     visTurb.Init( turbcom.nEqu );
     this->SetVisPointer();
     Alloc();
-	if ( turbcom.nEqu == 1 )
-	{
-		this->CmpVisFlux1Equ();
-	}
+    if ( turbcom.nEqu == 1 )
+    {
+        this->CmpVisFlux1Equ();
+    }
     else if ( turbcom.nEqu >= 2 )
-	{
-		this->CmpVisFlux2Equ();
-	}
+    {
+        this->CmpVisFlux2Equ();
+    }
     DeAlloc();
 }
 
@@ -101,7 +101,7 @@ void UTurbVisFlux::SetVisPointer()
     {
         this->visPointer = & UTurbVisFlux::AverMethod;
     }
-	else
+    else
     {
         this->visPointer = & UTurbVisFlux::TestMethod;
     }
@@ -109,7 +109,7 @@ void UTurbVisFlux::SetVisPointer()
 
 void UTurbVisFlux::AverGrad()
 {
-	visTurb.AverGrad();
+    visTurb.AverGrad();
 }
 
 void UTurbVisFlux::ZeroNormalGrad()
@@ -119,8 +119,8 @@ void UTurbVisFlux::ZeroNormalGrad()
 
 void UTurbVisFlux::AverFaceValue()
 {
-	visTurb.AverFaceValue();
-	this->AverOtherFaceValue();
+    visTurb.AverFaceValue();
+    this->AverOtherFaceValue();
 }
 
 void UTurbVisFlux::AverOtherFaceValue()
@@ -159,8 +159,8 @@ void UTurbVisFlux::ModifyFaceGrad()
 
 void UTurbVisFlux::AccurateFaceValue()
 {
-	this->AccurateOtherFaceValue();
-	visTurb.AccurateFaceValue();
+    this->AccurateOtherFaceValue();
+    visTurb.AccurateFaceValue();
 }
 
 void UTurbVisFlux::AccurateOtherFaceValue()
@@ -170,37 +170,37 @@ void UTurbVisFlux::AccurateOtherFaceValue()
 
 void UTurbVisFlux::AverMethod()
 {
-	this->ZeroNormalGrad();
+    this->ZeroNormalGrad();
 
-	this->AverFaceValue();
+    this->AverFaceValue();
 
-	this->AverGrad();
+    this->AverGrad();
 
-	this->CmpNormalGrad();
+    this->CmpNormalGrad();
 }
 
 void UTurbVisFlux::StdMethod()
 {
-	this->CmpGradCoef();
+    this->CmpGradCoef();
 
-	this->ZeroNormalGrad();
+    this->ZeroNormalGrad();
 
-	this->AverFaceValue();
+    this->AverFaceValue();
 
-	this->AverGrad();
+    this->AverGrad();
 
     this->CorrectFaceGrad();
 
-	this->CmpNormalGrad();
+    this->CmpNormalGrad();
 }
 
 void UTurbVisFlux::TestMethod()
 {
-	this->ZeroNormalGrad();
+    this->ZeroNormalGrad();
 
-	this->AverFaceValue();
+    this->AverFaceValue();
 
-	this->PrepareCellGeom();
+    this->PrepareCellGeom();
 
     this->CmpTestMethod();
 
@@ -209,11 +209,11 @@ void UTurbVisFlux::TestMethod()
 
 void UTurbVisFlux::New1Method()
 {
-	this->ZeroNormalGrad();
+    this->ZeroNormalGrad();
 
-	this->AccurateFaceValue();
+    this->AccurateFaceValue();
 
-	this->PrepareCellGeom();
+    this->PrepareCellGeom();
 
     this->CmpNew1Method();
 
@@ -222,11 +222,11 @@ void UTurbVisFlux::New1Method()
 
 void UTurbVisFlux::New2Method()
 {
-	this->ZeroNormalGrad();
+    this->ZeroNormalGrad();
 
-	this->AccurateFaceValue();
+    this->AccurateFaceValue();
 
-	this->PrepareCellGeom();
+    this->PrepareCellGeom();
 
     this->CmpNew2Method();
 
@@ -247,22 +247,22 @@ void UTurbVisFlux::PrepareCellGeom()
 void UTurbVisFlux::CmpVisFlux1Equ()
 {
     for ( int fId = 0; fId < ug.nFace; ++ fId )
-	{
-	    ug.fId = fId;
+    {
+        ug.fId = fId;
 
         if ( fId == 866 )
         {
             int kkk = 1;
         }
 
-	    ug.lc = ( * ug.lcf )[ ug.fId ];
-	    ug.rc = ( * ug.rcf )[ ug.fId ];
+        ug.lc = ( * ug.lcf )[ ug.fId ];
+        ug.rc = ( * ug.rcf )[ ug.fId ];
 
-		this->PrepareFaceValue();
+        this->PrepareFaceValue();
 
-		this->CmpFaceVisFlux1Equ();
+        this->CmpFaceVisFlux1Equ();
 
-		this->UpdateFaceVisFlux();
+        this->UpdateFaceVisFlux();
     }
     this->AddVisFlux();
 }
@@ -270,17 +270,17 @@ void UTurbVisFlux::CmpVisFlux1Equ()
 void UTurbVisFlux::CmpVisFlux2Equ()
 {
     for ( int fId = 0; fId < ug.nFace; ++ fId )
-	{
-	    ug.fId = fId;
+    {
+        ug.fId = fId;
 
-	    ug.lc = ( * ug.lcf )[ ug.fId ];
-	    ug.rc = ( * ug.rcf )[ ug.fId ];
+        ug.lc = ( * ug.lcf )[ ug.fId ];
+        ug.rc = ( * ug.rcf )[ ug.fId ];
 
-		this->PrepareFaceValue();
+        this->PrepareFaceValue();
 
-		this->CmpFaceVisFlux2Equ();
+        this->CmpFaceVisFlux2Equ();
 
-		this->UpdateFaceVisFlux();
+        this->UpdateFaceVisFlux();
     }
     this->AddVisFlux();
 }
@@ -295,56 +295,56 @@ void UTurbVisFlux::AddVisFlux()
 
 void UTurbVisFlux::PrepareFaceValue()
 {
-	gcom.fnx   = ( * ug.fnx   )[ ug.fId ];
-	gcom.fny   = ( * ug.fny   )[ ug.fId ];
-	gcom.fnz   = ( * ug.fnz   )[ ug.fId ];
-	gcom.fvn   = ( * ug.fvn   )[ ug.fId ];
-	gcom.farea = ( * ug.farea )[ ug.fId ];
+    gcom.fnx   = ( * ug.fnx   )[ ug.fId ];
+    gcom.fny   = ( * ug.fny   )[ ug.fId ];
+    gcom.fnz   = ( * ug.fnz   )[ ug.fId ];
+    gcom.fvn   = ( * ug.fvn   )[ ug.fId ];
+    gcom.farea = ( * ug.farea )[ ug.fId ];
 
     gcom.CmpTangent();
 
-	for ( int iEqu = 0; iEqu < turbcom.nEqu; ++ iEqu )
-	{
-		visTurb.dqdx1[ iEqu ] = ( * uturbf.dqdx )[ iEqu ][ ug.lc ];
-		visTurb.dqdy1[ iEqu ] = ( * uturbf.dqdy )[ iEqu ][ ug.lc ];
-		visTurb.dqdz1[ iEqu ] = ( * uturbf.dqdz )[ iEqu ][ ug.lc ];
+    for ( int iEqu = 0; iEqu < turbcom.nEqu; ++ iEqu )
+    {
+        visTurb.dqdx1[ iEqu ] = ( * uturbf.dqdx )[ iEqu ][ ug.lc ];
+        visTurb.dqdy1[ iEqu ] = ( * uturbf.dqdy )[ iEqu ][ ug.lc ];
+        visTurb.dqdz1[ iEqu ] = ( * uturbf.dqdz )[ iEqu ][ ug.lc ];
 
-		visTurb.dqdx2[ iEqu ] = ( * uturbf.dqdx )[ iEqu ][ ug.rc ];
-		visTurb.dqdy2[ iEqu ] = ( * uturbf.dqdy )[ iEqu ][ ug.rc ];
-		visTurb.dqdz2[ iEqu ] = ( * uturbf.dqdz )[ iEqu ][ ug.rc ];
-	}
+        visTurb.dqdx2[ iEqu ] = ( * uturbf.dqdx )[ iEqu ][ ug.rc ];
+        visTurb.dqdy2[ iEqu ] = ( * uturbf.dqdy )[ iEqu ][ ug.rc ];
+        visTurb.dqdz2[ iEqu ] = ( * uturbf.dqdz )[ iEqu ][ ug.rc ];
+    }
 
-	for ( int iEqu = 0; iEqu < turbcom.nEqu; ++ iEqu )
-	{
-		visTurb.q1[ iEqu ] = ( * uturbf.q )[ iEqu ][ ug.lc ];
-		visTurb.q2[ iEqu ] = ( * uturbf.q )[ iEqu ][ ug.rc ];
-	}
+    for ( int iEqu = 0; iEqu < turbcom.nEqu; ++ iEqu )
+    {
+        visTurb.q1[ iEqu ] = ( * uturbf.q )[ iEqu ][ ug.lc ];
+        visTurb.q2[ iEqu ] = ( * uturbf.q )[ iEqu ][ ug.rc ];
+    }
 
-	for ( int iEqu = 0; iEqu < turbcom.nEqu; ++ iEqu )
-	{
-		visTurb.q11[ iEqu ] = visTurb.q1[ iEqu ];
-		visTurb.q22[ iEqu ] = visTurb.q2[ iEqu ];
-	}
+    for ( int iEqu = 0; iEqu < turbcom.nEqu; ++ iEqu )
+    {
+        visTurb.q11[ iEqu ] = visTurb.q1[ iEqu ];
+        visTurb.q22[ iEqu ] = visTurb.q2[ iEqu ];
+    }
 
-	turbcom.visl1 = ( * uturbf.visl )[ 0 ][ ug.lc ];
-	turbcom.visl2 = ( * uturbf.visl )[ 0 ][ ug.rc ];
+    turbcom.visl1 = ( * uturbf.visl )[ 0 ][ ug.lc ];
+    turbcom.visl2 = ( * uturbf.visl )[ 0 ][ ug.rc ];
 
-	turbcom.vist1 = ( * uturbf.vist )[ 0 ][ ug.lc ];
-	turbcom.vist2 = ( * uturbf.vist )[ 0 ][ ug.rc ];
+    turbcom.vist1 = ( * uturbf.vist )[ 0 ][ ug.lc ];
+    turbcom.vist2 = ( * uturbf.vist )[ 0 ][ ug.rc ];
 
-	if ( turbcom.sst_type )
-	{
-		turbcom.bld1 = ( * uturbf.bld )[ 0 ][ ug.lc ];
-		turbcom.bld2 = ( * uturbf.bld )[ 0 ][ ug.rc ];
-	}
+    if ( turbcom.sst_type )
+    {
+        turbcom.bld1 = ( * uturbf.bld )[ 0 ][ ug.lc ];
+        turbcom.bld2 = ( * uturbf.bld )[ 0 ][ ug.rc ];
+    }
 
     turbcom.rho1 = ( * uturbf.q_ns )[ IDX::IR ][ ug.lc ];
     turbcom.rho2 = ( * uturbf.q_ns )[ IDX::IR ][ ug.rc ];
 
-	this->AverGrad();
-	this->CmpFaceWeight();
+    this->AverGrad();
+    this->CmpFaceWeight();
 
-	( this->* visPointer )();
+    ( this->* visPointer )();
 }
 
 void UTurbVisFlux::CmpFaceVisFlux1Equ()
@@ -352,11 +352,11 @@ void UTurbVisFlux::CmpFaceVisFlux1Equ()
     Real orl = 1.0 / ( turbcom.rho1 + SMALL );
     Real orr = 1.0 / ( turbcom.rho2 + SMALL );
 
-	Real visl_nv = half * ( turbcom.visl1 * orl  + turbcom.visl2 * orr  );
-	Real vist_nv = half * ( visTurb.q1[ IKE ] + visTurb.q2[ IKE ] );
+    Real visl_nv = half * ( turbcom.visl1 * orl  + turbcom.visl2 * orr  );
+    Real vist_nv = half * ( visTurb.q1[ IKE ] + visTurb.q2[ IKE ] );
 
-	// flux
-	turbcom.comVis[ IKE ] = ( visl_nv  + vist_nv ) * turbcom.osigma;
+    // flux
+    turbcom.comVis[ IKE ] = ( visl_nv  + vist_nv ) * turbcom.osigma;
 
     for ( int iEqu = 0; iEqu < turbcom.nEqu; ++ iEqu )
     {
@@ -364,8 +364,8 @@ void UTurbVisFlux::CmpFaceVisFlux1Equ()
         {
             int kkk = 1;
         }
-		turbcom.flux[ iEqu ] = - turbcom.oreynolds * turbcom.comVis[ iEqu ] * visTurb.dqdn[ iEqu ] * gcom.farea;
-	}
+        turbcom.flux[ iEqu ] = - turbcom.oreynolds * turbcom.comVis[ iEqu ] * visTurb.dqdn[ iEqu ] * gcom.farea;
+    }
 }
 
 void UTurbVisFlux::CmpFaceVisFlux2Equ()
@@ -379,21 +379,21 @@ void UTurbVisFlux::CmpFaceVisFlux2Equ()
     turbcom.comVis[ IKW ] = visl + vist * turbcom.sigw;
 
     //Re-gama transition model
-	if ( turbcom.transition_model == ITReGama )
-	{
+    if ( turbcom.transition_model == ITReGama )
+    {
         turbcom.comVis[ ITGama ] = visl + vist / turbcom.trans_df;
         turbcom.comVis[ ITRect ] = ( visl + vist ) * turbcom.trans_dct;
-	}
+    }
 
     for ( int iEqu = 0; iEqu < turbcom.nEqu; ++ iEqu )
     {
-		turbcom.flux[ iEqu ] = - turbcom.oreynolds * turbcom.comVis[ iEqu ] * visTurb.dqdn[ iEqu ] * gcom.farea;
-	}
+        turbcom.flux[ iEqu ] = - turbcom.oreynolds * turbcom.comVis[ iEqu ] * visTurb.dqdn[ iEqu ] * gcom.farea;
+    }
 }
 
 void UTurbVisFlux::UpdateFaceVisFlux()
 {
-	for ( int iEqu = 0; iEqu < turbcom.nEqu; ++ iEqu )
+    for ( int iEqu = 0; iEqu < turbcom.nEqu; ++ iEqu )
     {
         ( * visflux )[ iEqu ][ ug.fId ] = turbcom.flux[ iEqu ];
     }

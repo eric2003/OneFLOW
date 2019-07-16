@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -64,78 +64,78 @@ void UsdData::InitSub( int nEqu )
     dualtimeRes.resize( nEqu );
     dualtimeSrc.resize( nEqu );
 
-	normList.resize( nEqu );
+    normList.resize( nEqu );
 }
 
 void UsdData::CmpCellDualTimeResidual()
 {
-	for ( int iEqu = 0; iEqu < nEqu; ++ iEqu )
-	{
-		dualtimeRes[ iEqu ] = resc1 * res [ iEqu ] + 
- 					          resc2 * res1[ iEqu ] + 
-							  resc3 * res2[ iEqu ];
-	}
+    for ( int iEqu = 0; iEqu < nEqu; ++ iEqu )
+    {
+        dualtimeRes[ iEqu ] = resc1 * res [ iEqu ] + 
+                               resc2 * res1[ iEqu ] + 
+                              resc3 * res2[ iEqu ];
+    }
 }
 
 void UsdData::CmpCellDualTimeSrc()
 {
     for ( int iEqu = 0; iEqu < nEqu; ++ iEqu )
-	{
-		Real dualSrc0 = sc1 * vol  * q [ iEqu ];
-		Real dualSrc1 = sc2 * vol1 * q1[ iEqu ];
-		Real dualSrc2 = sc3 * vol2 * q2[ iEqu ];
+    {
+        Real dualSrc0 = sc1 * vol  * q [ iEqu ];
+        Real dualSrc1 = sc2 * vol1 * q1[ iEqu ];
+        Real dualSrc2 = sc3 * vol2 * q2[ iEqu ];
 
-		Real dualSrc = dualSrc0 + dualSrc1 + dualSrc2;
+        Real dualSrc = dualSrc0 + dualSrc1 + dualSrc2;
 
-		dualtimeSrc[ iEqu ] = dualSrc;
-	}
+        dualtimeSrc[ iEqu ] = dualSrc;
+    }
 }
 
 void UsdData::ZeroData()
 {
-	sum1      = zero;
-	sum2      = zero;
-	norm0     = zero;
-	totalNorm = zero;
+    sum1      = zero;
+    sum2      = zero;
+    norm0     = zero;
+    totalNorm = zero;
     normList  = zero;
 }
 
 void UsdData::CmpCellUnsteadyCri()
 {
-	for ( int iEqu = 0; iEqu < nEqu; ++ iEqu )
-	{
-		Real dq_p =  res[ iEqu ];             // qn+1, p+1 - qn+1, p
-		Real dq_n =  q1[ iEqu ] - q2[ iEqu ]; // qn+1, p+1 - qn
-		sum1             += SQR( dq_p );
-		sum2             += SQR( dq_n );
+    for ( int iEqu = 0; iEqu < nEqu; ++ iEqu )
+    {
+        Real dq_p =  res[ iEqu ];             // qn+1, p+1 - qn+1, p
+        Real dq_n =  q1[ iEqu ] - q2[ iEqu ]; // qn+1, p+1 - qn
+        sum1             += SQR( dq_p );
+        sum2             += SQR( dq_n );
         normList[ iEqu ] += SQR( dq_p );
-		totalNorm        += SQR( dq_p );
-	}
+        totalNorm        += SQR( dq_p );
+    }
 }
 
 void UsdData::CmpCvg()
 {
-	if ( ctrl.iConv == 0 )
+    if ( ctrl.iConv == 0 )
     {
-		this->conv = sqrt( ABS( sum1 / ( sum2 + SMALL ) ) );
-	}
+        this->conv = sqrt( ABS( sum1 / ( sum2 + SMALL ) ) );
+    }
     else if ( ctrl.iConv == 1 )
     {
-		if ( Iteration::innerSteps == 1 )
+        if ( Iteration::innerSteps == 1 )
         {
-			this->norm0 = this->normList[ 0 ];
-		}
-		
-		this->conv = this->normList[ 0 ] / this->norm0;
-	}
+            this->norm0 = this->normList[ 0 ];
+        }
+        
+        this->conv = this->normList[ 0 ] / this->norm0;
+    }
     else if ( ctrl.iConv == 2 )
     {
-		if ( Iteration::innerSteps == 1 )
+        if ( Iteration::innerSteps == 1 )
         {
-			this->norm0 = this->totalNorm;
-		}
+            this->norm0 = this->totalNorm;
+        }
         this->conv = totalNorm / this->norm0;
-	}
+    }
 }
 
 

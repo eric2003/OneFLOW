@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -38,50 +38,50 @@ CurveMachine::CurveMachine()
 
 CurveMachine::~CurveMachine()
 {
-	for ( int i = 0; i < curveList.size(); ++ i )
-	{
-		delete curveList[ i ];
-	}
+    for ( int i = 0; i < curveList.size(); ++ i )
+    {
+        delete curveList[ i ];
+    }
 }
 
 void CurveMachine::AddLine( int id1, int id2 )
 {
-	CurveLine * curveLine = new CurveLine();
-	curveLine->lineType = LINE;
-	PointType * p1 = point_Machine.GetPoint( id1 );
-	PointType * p2 = point_Machine.GetPoint( id2 );
-	curveLine->start_p = * p1;
-	curveLine->end_p   = * p2;
-	curveList.push_back( curveLine );
+    CurveLine * curveLine = new CurveLine();
+    curveLine->lineType = LINE;
+    PointType * p1 = point_Machine.GetPoint( id1 );
+    PointType * p2 = point_Machine.GetPoint( id2 );
+    curveLine->start_p = * p1;
+    curveLine->end_p   = * p2;
+    curveList.push_back( curveLine );
 }
 
 void CurveMachine::AddCircle( int id1, int id2, int id3 )
 {
-	CurveLine * curveLine = new CurveLine();
-	curveLine->lineType = CIRCLE;
-	PointType * p1 = point_Machine.GetPoint( id1 );
-	PointType * p2 = point_Machine.GetPoint( id2 );
-	PointType * p3 = point_Machine.GetPoint( id3 );
-	curveLine->start_p = * p1;
-	curveLine->end_p = * p2;
-	curveLine->center_p = * p3;
-	curveList.push_back( curveLine );
+    CurveLine * curveLine = new CurveLine();
+    curveLine->lineType = CIRCLE;
+    PointType * p1 = point_Machine.GetPoint( id1 );
+    PointType * p2 = point_Machine.GetPoint( id2 );
+    PointType * p3 = point_Machine.GetPoint( id3 );
+    curveLine->start_p = * p1;
+    curveLine->end_p = * p2;
+    curveLine->center_p = * p3;
+    curveList.push_back( curveLine );
 }
 
 void CurveMachine::AddParabolic( int id1, int id2 )
 {
-	CurveLine * curveLine = new CurveLine();
-	curveLine->lineType = PARABOLIC;
-	PointType * p1 = point_Machine.GetPoint( id1 );
-	PointType * p2 = point_Machine.GetPoint( id2 );
-	curveLine->start_p = * p1;
-	curveLine->end_p = * p2;
-	curveList.push_back( curveLine );
+    CurveLine * curveLine = new CurveLine();
+    curveLine->lineType = PARABOLIC;
+    PointType * p1 = point_Machine.GetPoint( id1 );
+    PointType * p2 = point_Machine.GetPoint( id2 );
+    curveLine->start_p = * p1;
+    curveLine->end_p = * p2;
+    curveList.push_back( curveLine );
 }
 
 CurveLine *  CurveMachine::GetCurve( int curveId )
 {
-	return this->curveList[ curveId ];
+    return this->curveList[ curveId ];
 }
 
 EndNameSpace

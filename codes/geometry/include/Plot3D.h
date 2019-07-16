@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -38,8 +38,8 @@ class AsciiFileRead;
 class Plot3D
 {
 public:
-	Plot3D();
-	~Plot3D();
+    Plot3D();
+    ~Plot3D();
 public:
     static void ReadPlot3D( GridMediator * gridMediator );
     static void ReadCoor( GridMediator * gridMediator );

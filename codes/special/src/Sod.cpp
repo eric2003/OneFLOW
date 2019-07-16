@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -52,8 +52,8 @@ void Sod::Run()
     RealField2D x;
     RealField2D y;
 
-	AllocateVector( x, ni, nj );
-	AllocateVector( y, ni, nj );
+    AllocateVector( x, ni, nj );
+    AllocateVector( y, ni, nj );
 
     Real xl = 0.0;
     Real xr = 1.0;
@@ -252,10 +252,10 @@ void Sod::Theory()
     title.push_back( "\"m\"" );
     title.push_back( "\"p\"" );
 
-	for ( UInt i = 0; i < title.size(); ++ i )
-	{
-		file << title[ i ] << endl;
-	}
+    for ( UInt i = 0; i < title.size(); ++ i )
+    {
+        file << title[ i ] << endl;
+    }
 
     int nxp = 21;
     int nNode = nxp + 8;

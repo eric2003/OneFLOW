@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -42,23 +42,23 @@ void Stress::CmpStress()
 {
     Real divv2p3 = two3rd * ( dudx + dvdy + dwdz );
 
-	txx = viscosity * ( two * dudx - divv2p3 );
-	tyy = viscosity * ( two * dvdy - divv2p3 );
-	tzz = viscosity * ( two * dwdz - divv2p3 );
-	txy = viscosity * ( dudy + dvdx );
-	txz = viscosity * ( dudz + dwdx );
-	tyz = viscosity * ( dvdz + dwdy );
+    txx = viscosity * ( two * dudx - divv2p3 );
+    tyy = viscosity * ( two * dvdy - divv2p3 );
+    tzz = viscosity * ( two * dwdz - divv2p3 );
+    txy = viscosity * ( dudy + dvdx );
+    txz = viscosity * ( dudz + dwdx );
+    tyz = viscosity * ( dvdz + dwdy );
 }
 
 void Stress::CmpForce( Force * force )
 {
-	this->CmpStress();
+    this->CmpStress();
 
     Real coef = - two * area * orey;
 
-	force->x = coef * ( fnx * txx + fny * txy + fnz * txz );
-	force->y = coef * ( fnx * txy + fny * tyy + fnz * tyz );
-	force->z = coef * ( fnx * txz + fny * tyz + fnz * tzz );
+    force->x = coef * ( fnx * txx + fny * txy + fnz * txz );
+    force->y = coef * ( fnx * txy + fny * tyy + fnz * tyz );
+    force->z = coef * ( fnx * txz + fny * tyz + fnz * tzz );
 }
 
 EndNameSpace

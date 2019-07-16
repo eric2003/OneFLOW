@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -193,8 +193,8 @@ void NsInvFlux::Roe()
 
     Real hint_l, hint_r;
 
-	CmpEnthalpy( inv.prim1, inv.gama1, hint_l );
-	CmpEnthalpy( inv.prim2, inv.gama2, hint_r );
+    CmpEnthalpy( inv.prim1, inv.gama1, hint_l );
+    CmpEnthalpy( inv.prim2, inv.gama2, hint_r );
 
     inv.hl  = hint_l + half * v2l;
     inv.hr  = hint_r + half * v2r;
@@ -285,7 +285,7 @@ void NsInvFlux::Roe()
     Real c2dc = c2 * dc;
 
     Real dh;
-	CmpTotalEnthalpyChange( inv.prim, inv.gama, inv.dq, dh );
+    CmpTotalEnthalpyChange( inv.prim, inv.gama, inv.dq, dh );
 
     Real term1 = dh   * xi1 + dc * xi2;
     Real term2 = c2dc * xi1 + dh * xi2;
@@ -317,8 +317,8 @@ void NsInvFlux::Vanleer()
 
     Real hint_l, hint_r;
 
-	CmpEnthalpy( inv.prim1, inv.gama1, hint_l );
-	CmpEnthalpy( inv.prim2, inv.gama2, hint_r );
+    CmpEnthalpy( inv.prim1, inv.gama1, hint_l );
+    CmpEnthalpy( inv.prim2, inv.gama2, hint_r );
 
     inv.hl  = hint_l + half * v2l;
     inv.hr  = hint_r + half * v2r;
@@ -414,8 +414,8 @@ void NsInvFlux::Steger()
 
     Real hint_l, hint_r;
 
-	CmpEnthalpy( inv.prim1, inv.gama1, hint_l );
-	CmpEnthalpy( inv.prim2, inv.gama2, hint_r );
+    CmpEnthalpy( inv.prim1, inv.gama1, hint_l );
+    CmpEnthalpy( inv.prim2, inv.gama2, hint_r );
 
     inv.hl  = hint_l + half * v2l;
     inv.hr  = hint_r + half * v2r;
@@ -526,8 +526,8 @@ void NsInvFlux::Hlle()
 
     Real hint_l, hint_r;
 
-	CmpEnthalpy( inv.prim1, inv.gama1, hint_l );
-	CmpEnthalpy( inv.prim2, inv.gama2, hint_r );
+    CmpEnthalpy( inv.prim1, inv.gama1, hint_l );
+    CmpEnthalpy( inv.prim2, inv.gama2, hint_r );
 
     inv.hl  = hint_l + half * v2l;
     inv.hr  = hint_r + half * v2r;
@@ -603,8 +603,8 @@ void NsInvFlux::LaxFriedrichs()
 
     Real hint_l, hint_r;
 
-	CmpEnthalpy( inv.prim1, inv.gama1, hint_l );
-	CmpEnthalpy( inv.prim2, inv.gama2, hint_r );
+    CmpEnthalpy( inv.prim1, inv.gama1, hint_l );
+    CmpEnthalpy( inv.prim2, inv.gama2, hint_r );
 
     inv.hl  = hint_l + half * v2l;
     inv.hr  = hint_r + half * v2r;
@@ -672,8 +672,8 @@ void NsInvFlux::Ausmp()
 
     Real hint_l, hint_r;
 
-	CmpEnthalpy( inv.prim1, inv.gama1, hint_l );
-	CmpEnthalpy( inv.prim2, inv.gama2, hint_r );
+    CmpEnthalpy( inv.prim1, inv.gama1, hint_l );
+    CmpEnthalpy( inv.prim2, inv.gama2, hint_r );
 
     inv.hl  = hint_l + half * v2l;
     inv.hr  = hint_r + half * v2r;
@@ -740,8 +740,8 @@ void NsInvFlux::AusmpUp()
 
     Real hint_l, hint_r;
 
-	CmpEnthalpy( inv.prim1, inv.gama1, hint_l );
-	CmpEnthalpy( inv.prim2, inv.gama2, hint_r );
+    CmpEnthalpy( inv.prim1, inv.gama1, hint_l );
+    CmpEnthalpy( inv.prim2, inv.gama2, hint_r );
 
     inv.hl  = hint_l + half * v2l;
     inv.hr  = hint_r + half * v2r;
@@ -850,8 +850,8 @@ void NsInvFlux::Ausmdv()
 
     Real hint_l, hint_r;
 
-	CmpEnthalpy( inv.prim1, inv.gama1, hint_l );
-	CmpEnthalpy( inv.prim2, inv.gama2, hint_r );
+    CmpEnthalpy( inv.prim1, inv.gama1, hint_l );
+    CmpEnthalpy( inv.prim2, inv.gama2, hint_r );
 
     inv.hl  = hint_l + half * v2l;
     inv.hr  = hint_r + half * v2r;
@@ -1058,8 +1058,8 @@ void NsInvFlux::Ausmw()
 
     Real hint_l, hint_r;
 
-	CmpEnthalpy( inv.prim1, inv.gama1, hint_l );
-	CmpEnthalpy( inv.prim2, inv.gama2, hint_r );
+    CmpEnthalpy( inv.prim1, inv.gama1, hint_l );
+    CmpEnthalpy( inv.prim2, inv.gama2, hint_r );
 
     inv.hl  = hint_l + half * v2l;
     inv.hr  = hint_r + half * v2r;
@@ -1164,8 +1164,8 @@ void NsInvFlux::Ausmpw()
 
     Real hint_l, hint_r;
 
-	CmpEnthalpy( inv.prim1, inv.gama1, hint_l );
-	CmpEnthalpy( inv.prim2, inv.gama2, hint_r );
+    CmpEnthalpy( inv.prim1, inv.gama1, hint_l );
+    CmpEnthalpy( inv.prim2, inv.gama2, hint_r );
 
     inv.hl  = hint_l + half * v2l;
     inv.hr  = hint_r + half * v2r;
@@ -1251,10 +1251,10 @@ void NsInvFlux::Slau2()
     Real v2l = SQR( inv.ul, inv.vl, inv.wl );
     Real v2r = SQR( inv.ur, inv.vr, inv.wr );
 
-	Real hint_l, hint_r;
+    Real hint_l, hint_r;
 
-	CmpEnthalpy( inv.prim1, inv.gama1, hint_l );
-	CmpEnthalpy( inv.prim2, inv.gama2, hint_r );
+    CmpEnthalpy( inv.prim1, inv.gama1, hint_l );
+    CmpEnthalpy( inv.prim2, inv.gama2, hint_r );
 
     inv.hl  = hint_l + half * v2l;
     inv.hr  = hint_r + half * v2r;
@@ -1271,35 +1271,35 @@ void NsInvFlux::Slau2()
     inv.cl  = sqrt( c2l );
     inv.cr  = sqrt( c2r );
 
-    inv.cm  = half * ( inv.cl + inv.cr ); //middle sound speed	
+    inv.cm  = half * ( inv.cl + inv.cr ); //middle sound speed    
 
-	Real t = inv.rr / inv.rl;
-	Real vna = ( ABS( vnl ) + t * ABS( vnr ) ) / ( 1 + t );
+    Real t = inv.rr / inv.rl;
+    Real vna = ( ABS( vnl ) + t * ABS( vnr ) ) / ( 1 + t );
 
-	Real ml = vnl / inv.cm;
-	Real mr = vnr / inv.cm;
+    Real ml = vnl / inv.cm;
+    Real mr = vnr / inv.cm;
 
-	Real g = - MAX( MIN( ml, 0.0), -1.0 ) * MIN( MAX( mr, 0.0), 1.0 );
+    Real g = - MAX( MIN( ml, 0.0), -1.0 ) * MIN( MAX( mr, 0.0), 1.0 );
 
-	Real vnp = ( 1 - g ) * vna + g * ABS( vnl );
-	Real vnn = ( 1 - g ) * vna + g * ABS( vnr );
+    Real vnp = ( 1 - g ) * vna + g * ABS( vnl );
+    Real vnn = ( 1 - g ) * vna + g * ABS( vnr );
 
-	Real va = sqrt( half * ( v2l + v2r ) );
-	Real m12 = MIN( 1.0, va / inv.cm );
-	Real ka = SQR( 1 - m12 );
+    Real va = sqrt( half * ( v2l + v2r ) );
+    Real m12 = MIN( 1.0, va / inv.cm );
+    Real ka = SQR( 1 - m12 );
 
-	Real ms = half * ( inv.rl * ( vnl + vnp ) + inv.rr * ( vnr - vnn ) - ka * ( inv.pr - inv.pl ) / inv.cm );
+    Real ms = half * ( inv.rl * ( vnl + vnp ) + inv.rr * ( vnr - vnn ) - ka * ( inv.pr - inv.pl ) / inv.cm );
 
     Real fp5ml = FPSplit5( ml, zero,  one );
     Real fp5mr = FPSplit5( mr, zero, -one );
 
-	Real ps = 0;
-	ps += half * ( inv.pl + inv.pr );
-	ps += half * ( fp5ml - fp5mr ) * ( inv.pl - inv.pr );
-	ps += va *( fp5ml + fp5mr - 1 ) * sqrt( inv.rl * inv.rr ) * inv.cm;
+    Real ps = 0;
+    ps += half * ( inv.pl + inv.pr );
+    ps += half * ( fp5ml - fp5mr ) * ( inv.pl - inv.pr );
+    ps += va *( fp5ml + fp5mr - 1 ) * sqrt( inv.rl * inv.rr ) * inv.cm;
 
-	Real mp = half * ( ms + ABS( ms ) );
-	Real mn = half * ( ms - ABS( ms ) );
+    Real mp = half * ( ms + ABS( ms ) );
+    Real mn = half * ( ms - ABS( ms ) );
 
     inv.flux[ IDX::IR  ] = ( mp          + mn          );
     inv.flux[ IDX::IRU ] = ( mp * inv.ul + mn * inv.ur ) + gcom.fnx * ps;
@@ -1371,25 +1371,25 @@ void PrimToQ( RealField & prim, Real gama, RealField & q )
 
 void QToPrim( RealField & q, Real gama, RealField & prim, RealField & temp )
 {
-	Real density = ABS( q[ IDX::IR ] );
-	prim[ IDX::IR ] = density;
+    Real density = ABS( q[ IDX::IR ] );
+    prim[ IDX::IR ] = density;
 
-	Real rd = 1.0 / density;
-	Real um  = q[ IDX::IU ] * rd;
-	Real vm  = q[ IDX::IV ] * rd;
-	Real wm  = q[ IDX::IW ] * rd;
-	Real rem = q[ IDX::IP ];
-	Real v2  = ONEFLOW::SQR( um, vm, wm );
+    Real rd = 1.0 / density;
+    Real um  = q[ IDX::IU ] * rd;
+    Real vm  = q[ IDX::IV ] * rd;
+    Real wm  = q[ IDX::IW ] * rd;
+    Real rem = q[ IDX::IP ];
+    Real v2  = ONEFLOW::SQR( um, vm, wm );
 
-	Real reint = rem - half * density * v2;
+    Real reint = rem - half * density * v2;
 
-	prim[ IDX::IR ] = density;
-	prim[ IDX::IU ] = um;
-	prim[ IDX::IV ] = vm;
-	prim[ IDX::IW ] = wm;
+    prim[ IDX::IR ] = density;
+    prim[ IDX::IU ] = um;
+    prim[ IDX::IV ] = vm;
+    prim[ IDX::IW ] = wm;
 
-	Real pressure = ( gama - one ) * reint;
-	prim[ IDX::IP ] = pressure;
+    Real pressure = ( gama - one ) * reint;
+    prim[ IDX::IP ] = pressure;
 }
 
 

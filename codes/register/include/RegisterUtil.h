@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -32,12 +32,12 @@ BeginNameSpace( ONEFLOW )
 class VarNameSolver
 {
 public:
-	VarNameSolver();
-	~VarNameSolver();
+    VarNameSolver();
+    ~VarNameSolver();
 public:
-	StringField data;
+    StringField data;
 public:
-	void AddFieldName( const string & fieldName );
+    void AddFieldName( const string & fieldName );
 };
 
 class MapIntInt;
@@ -45,25 +45,25 @@ class MapIntInt;
 class VarNameFactory
 {
 public:
-	VarNameFactory();
-	~VarNameFactory();
+    VarNameFactory();
+    ~VarNameFactory();
 public:
-	static map< int, VarNameSolver * > * data;
-	static MapIntInt * mapData;
+    static map< int, VarNameSolver * > * data;
+    static MapIntInt * mapData;
 public:
-	static void Init();
-	static void AddVarNameSolver( int a, int b );
-	static VarNameSolver * GetVarNameSolver( int a, int b );
-	static void FreeVarNameSolver();
+    static void Init();
+    static void AddVarNameSolver( int a, int b );
+    static VarNameSolver * GetVarNameSolver( int a, int b );
+    static void FreeVarNameSolver();
 };
 
 class DataAB
 {
 public:
-	DataAB(){};
-	~DataAB(){};
+    DataAB(){};
+    ~DataAB(){};
 public:
-	int a, b;
+    int a, b;
 };
 
 class CmpDataAB
@@ -75,13 +75,13 @@ public:
 class MapIntInt
 {
 public:
-	MapIntInt();
-	~MapIntInt();
+    MapIntInt();
+    ~MapIntInt();
 public:
-	map< DataAB, int, CmpDataAB > data;
+    map< DataAB, int, CmpDataAB > data;
 public:
-	void AddData( int a, int b );
-	int  GetId( int a, int b );
+    void AddData( int a, int b );
+    int  GetId( int a, int b );
 };
 
 EndNameSpace

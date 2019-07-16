@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -36,145 +36,145 @@ BeginNameSpace( ONEFLOW )
 
 void PointDebug::AddPoint( Real x, Real y, Real z )
 {
-	this->xArray.push_back( x );
-	this->yArray.push_back( y );
-	this->zArray.push_back( z );
+    this->xArray.push_back( x );
+    this->yArray.push_back( y );
+    this->zArray.push_back( z );
 }
 
 void PointDebug::GetPoint( int index, Real & x, Real & y, Real & z )
 {
-	x = this->xArray[ index ];
-	y = this->yArray[ index ];
-	z = this->zArray[ index ];
+    x = this->xArray[ index ];
+    y = this->yArray[ index ];
+    z = this->zArray[ index ];
 }
 
 WallVisual::WallVisual()
 {
-	faceSet = new set< HXSort< IntField > >();
+    faceSet = new set< HXSort< IntField > >();
 }
 
 WallVisual::~WallVisual()
 {
-	delete faceSet;
+    delete faceSet;
 }
 
 void WallVisual::PushElement( int p1, int p2, int elementType )
 {
-	IntField element;
-	element.push_back( p1 );
-	element.push_back( p2 );
+    IntField element;
+    element.push_back( p1 );
+    element.push_back( p2 );
 
-	this->eLink.push_back( element );
-	this->elementType.push_back( elementType );
+    this->eLink.push_back( element );
+    this->elementType.push_back( elementType );
 }
 
 void WallVisual::PushElement( int p1, int p2, int p3, int elementType )
 {
-	IntField element;
-	element.push_back( p1 );
-	element.push_back( p2 );
-	element.push_back( p3 );
+    IntField element;
+    element.push_back( p1 );
+    element.push_back( p2 );
+    element.push_back( p3 );
 
-	this->eLink.push_back( element );
-	this->elementType.push_back( elementType );
+    this->eLink.push_back( element );
+    this->elementType.push_back( elementType );
 }
 
 void WallVisual::PushElement( int p1, int p2, int p3, int p4, int elementType )
 {
-	if ( elementType == TRI_3 )
-	{
-		IntField element1;
-		element1.push_back( p1 );
-		element1.push_back( p2 );
-		element1.push_back( p3 );
+    if ( elementType == TRI_3 )
+    {
+        IntField element1;
+        element1.push_back( p1 );
+        element1.push_back( p2 );
+        element1.push_back( p3 );
 
-		IntField element2;
-		element2.push_back( p3 );
-		element2.push_back( p4 );
-		element2.push_back( p1 );
+        IntField element2;
+        element2.push_back( p3 );
+        element2.push_back( p4 );
+        element2.push_back( p1 );
 
-		this->eLink.push_back( element1 );
-		this->eLink.push_back( element2 );
+        this->eLink.push_back( element1 );
+        this->eLink.push_back( element2 );
 
-		this->elementType.push_back( elementType );
-		this->elementType.push_back( elementType );
-	}
-	else if ( elementType == QUAD_4 )
-	{
-		IntField element;
-		element.push_back( p1 );
-		element.push_back( p2 );
-		element.push_back( p3 );
-		element.push_back( p4 );
+        this->elementType.push_back( elementType );
+        this->elementType.push_back( elementType );
+    }
+    else if ( elementType == QUAD_4 )
+    {
+        IntField element;
+        element.push_back( p1 );
+        element.push_back( p2 );
+        element.push_back( p3 );
+        element.push_back( p4 );
 
-		this->eLink.push_back( element );
-		this->elementType.push_back( elementType );
-	}
+        this->eLink.push_back( element );
+        this->elementType.push_back( elementType );
+    }
 }
 
 void WallVisual::BuildFaceTopo( IntField & faceNodeIndexArray, int loc_Face, int iCell, int face_type )
 {
-	IntField faceNodeIndexArraySort = faceNodeIndexArray;
-	std::sort( faceNodeIndexArraySort.begin(), faceNodeIndexArraySort.end() );
+    IntField faceNodeIndexArraySort = faceNodeIndexArray;
+    std::sort( faceNodeIndexArraySort.begin(), faceNodeIndexArraySort.end() );
 
     HXSort< IntField > faceForSorting;
-	faceForSorting.value = faceNodeIndexArraySort;
+    faceForSorting.value = faceNodeIndexArraySort;
 
-	set< HXSort< IntField > >::iterator iter = faceSet->find( faceForSorting );
-	if ( iter == faceSet->end() )
-	{
-		UInt oldFaceNumber = faceSet->size();
-		faceForSorting.index = oldFaceNumber;
+    set< HXSort< IntField > >::iterator iter = faceSet->find( faceForSorting );
+    if ( iter == faceSet->end() )
+    {
+        UInt oldFaceNumber = faceSet->size();
+        faceForSorting.index = oldFaceNumber;
 
-		faceSet->insert( faceForSorting );
+        faceSet->insert( faceForSorting );
 
-		UInt fId = oldFaceNumber;
-		UInt newFaceNumber = fId + 1;
-		lCell.resize( newFaceNumber );
-		rCell.resize( newFaceNumber );
-		lPos.resize( newFaceNumber );
-		rPos.resize( newFaceNumber );
-		faceType.resize( newFaceNumber );
-		faceType[ fId ] = face_type;
-		lCell[ fId ] = iCell;
-		rCell[ fId ] = INVALID_INDEX;
-		lPos[ fId ] = loc_Face;
-		rPos[ fId ] = INVALID_INDEX;
+        UInt fId = oldFaceNumber;
+        UInt newFaceNumber = fId + 1;
+        lCell.resize( newFaceNumber );
+        rCell.resize( newFaceNumber );
+        lPos.resize( newFaceNumber );
+        rPos.resize( newFaceNumber );
+        faceType.resize( newFaceNumber );
+        faceType[ fId ] = face_type;
+        lCell[ fId ] = iCell;
+        rCell[ fId ] = INVALID_INDEX;
+        lPos[ fId ] = loc_Face;
+        rPos[ fId ] = INVALID_INDEX;
 
-		this->fLink.push_back( faceNodeIndexArray );
-	}
-	else
-	{
-		int fId = iter->index;
-		rCell[ fId ] = iCell;
-		rPos[ fId ] = loc_Face;
-	}
+        this->fLink.push_back( faceNodeIndexArray );
+    }
+    else
+    {
+        int fId = iter->index;
+        rCell[ fId ] = iCell;
+        rPos[ fId ] = loc_Face;
+    }
 }
 
 void WallVisual::CmpOrderMap( int & nBFace, IntField & orderMapping )
 {
     int nFace = rCell.size();
     orderMapping.resize( nFace );
-	int iCount = 0;
-	nBFace = 0;
-	for ( int iFace = 0; iFace < nFace; ++ iFace )
-	{
-		int rc = rCell[ iFace ];
-		if ( rc == INVALID_INDEX )
-		{
-			orderMapping[ iCount ++ ] = iFace;
-			++ nBFace;
-		}
-	}
+    int iCount = 0;
+    nBFace = 0;
+    for ( int iFace = 0; iFace < nFace; ++ iFace )
+    {
+        int rc = rCell[ iFace ];
+        if ( rc == INVALID_INDEX )
+        {
+            orderMapping[ iCount ++ ] = iFace;
+            ++ nBFace;
+        }
+    }
 
-	for ( int iFace = 0; iFace < nFace; ++ iFace )
-	{
-		int rc = rCell[ iFace ];
-		if ( rc != INVALID_INDEX )
-		{
-			orderMapping[ iCount ++ ] = iFace;
-		}
-	}
+    for ( int iFace = 0; iFace < nFace; ++ iFace )
+    {
+        int rc = rCell[ iFace ];
+        if ( rc != INVALID_INDEX )
+        {
+            orderMapping[ iCount ++ ] = iFace;
+        }
+    }
 }
 
 void WallVisual::ConstructTopology2D()
@@ -183,37 +183,37 @@ void WallVisual::ConstructTopology2D()
 
 void WallVisual::ConstructTopology3D()
 {
-	UInt nCell = this->eLink.size();
+    UInt nCell = this->eLink.size();
 
-	HXSort< IntField > faceForSorting;
+    HXSort< IntField > faceForSorting;
 
-	for ( UInt iCell = 0; iCell < nCell; ++ iCell )
-	{
-		IntField & element = this->eLink[ iCell ];
+    for ( UInt iCell = 0; iCell < nCell; ++ iCell )
+    {
+        IntField & element = this->eLink[ iCell ];
 
-		int eType = elementType[ iCell ];
+        int eType = elementType[ iCell ];
 
         UnitElement * unitElement = ElementHome::GetUnitElement( eType );
 
-		int elem_nFace = unitElement->GetElementFaceNumber();
+        int elem_nFace = unitElement->GetElementFaceNumber();
 
-		for ( int loc_Face = 0; loc_Face < elem_nFace; ++ loc_Face )
-		{
-			IntField & local_fn = unitElement->GetElementFace( loc_Face );
-			int face_type = unitElement->GetFaceType( loc_Face );
-			int nNode = local_fn.size();
-			IntField fn;
-			for ( int iFacePoint = 0; iFacePoint < nNode; ++ iFacePoint )
-			{
-				fn.push_back( element[ local_fn[ iFacePoint ] ] );
-			}
+        for ( int loc_Face = 0; loc_Face < elem_nFace; ++ loc_Face )
+        {
+            IntField & local_fn = unitElement->GetElementFace( loc_Face );
+            int face_type = unitElement->GetFaceType( loc_Face );
+            int nNode = local_fn.size();
+            IntField fn;
+            for ( int iFacePoint = 0; iFacePoint < nNode; ++ iFacePoint )
+            {
+                fn.push_back( element[ local_fn[ iFacePoint ] ] );
+            }
 
             BuildFaceTopo( fn, loc_Face, iCell, face_type );
-		}
-	}
+        }
+    }
 
     IntField orderMapping;
-	int nBFace = 0;
+    int nBFace = 0;
     CmpOrderMap( nBFace, orderMapping );
 
     ONEFLOW::Reorder( this->lCell, orderMapping );
@@ -223,10 +223,10 @@ void WallVisual::ConstructTopology3D()
     ONEFLOW::Reorder( this->fLink, orderMapping );
     ONEFLOW::Reorder( this->faceType, orderMapping );
 
-	for ( int iFace = 0; iFace < nBFace; ++ iFace )
-	{
-		rCell[ iFace ] = iFace + nCell;
-	}
+    for ( int iFace = 0; iFace < nBFace; ++ iFace )
+    {
+        rCell[ iFace ] = iFace + nCell;
+    }
 }
 
 void WallVisual::ConstructTopology()
@@ -252,26 +252,26 @@ void WallVisual::Visual( fstream & file, StringField & titleOfTecplot, RealField
 void WallVisual::Visual3D( fstream & file, StringField & titleOfTecplot, RealField2D & qNodeField )
 {
     ostringstream oss;
-	for ( UInt i = 0; i < titleOfTecplot.size(); ++ i )
-	{
-		oss << titleOfTecplot[ i ] << "\n";
-	}
+    for ( UInt i = 0; i < titleOfTecplot.size(); ++ i )
+    {
+        oss << titleOfTecplot[ i ] << "\n";
+    }
 
-	int totalNumFaceNodes = GetTotalNumFaceNodes( this->fLink );
+    int totalNumFaceNodes = GetTotalNumFaceNodes( this->fLink );
     int numberOfFaces = this->fLink.size();
 
     int numberOfNodes = xN.size();
     int numberOfCells = this->eLink.size();
 
-	oss << "ZONE\n";
-	oss << "ZoneType = FEPolygon\n";
+    oss << "ZONE\n";
+    oss << "ZoneType = FEPolygon\n";
 
-	oss << "Nodes    = " << numberOfNodes << "\n";
-	oss << "Faces    = " << numberOfFaces << "\n";
-	oss << "Elements = " << numberOfCells << "\n";
-	oss << "TotalNumFaceNodes = " << totalNumFaceNodes << "\n";
-	oss << "NumConnectedBoundaryFaces = 0\n";
-	oss << "TotalNumBoundaryConnections = 0\n";
+    oss << "Nodes    = " << numberOfNodes << "\n";
+    oss << "Faces    = " << numberOfFaces << "\n";
+    oss << "Elements = " << numberOfCells << "\n";
+    oss << "TotalNumFaceNodes = " << totalNumFaceNodes << "\n";
+    oss << "NumConnectedBoundaryFaces = 0\n";
+    oss << "TotalNumBoundaryConnections = 0\n";
 
     Plot::oss = & oss;
     Plot::DumpField( xN );
@@ -280,10 +280,10 @@ void WallVisual::Visual3D( fstream & file, StringField & titleOfTecplot, RealFie
 
     UInt nEqu = qNodeField.size();
 
-	for ( UInt iEqu = 0; iEqu < nEqu; ++ iEqu )
-	{
+    for ( UInt iEqu = 0; iEqu < nEqu; ++ iEqu )
+    {
         Plot::DumpField( qNodeField[ iEqu ] );
-	}
+    }
 
     Plot::DumpFaceNodeLink( this->fLink );
     Plot::DumpFaceElementLink( lCell, numberOfCells );
@@ -295,16 +295,16 @@ void WallVisual::Visual3D( fstream & file, StringField & titleOfTecplot, RealFie
 void WallVisual::VisualLine( fstream & file, StringField & titleOfTecplot, RealField2D & qNodeField )
 {
     ostringstream oss;
-	for ( UInt i = 0; i < titleOfTecplot.size(); ++ i )
-	{
-		oss << titleOfTecplot[ i ] << "\n";
-	}
+    for ( UInt i = 0; i < titleOfTecplot.size(); ++ i )
+    {
+        oss << titleOfTecplot[ i ] << "\n";
+    }
 
     int numberOfFaces = this->fLink.size();
     int numberOfNodes = xN.size();
     int numberOfCells = this->eLink.size();
 
-	oss << "ZONE I = " << numberOfNodes << " F = BLOCK " << "\n";
+    oss << "ZONE I = " << numberOfNodes << " F = BLOCK " << "\n";
 
     Plot::oss = & oss;
     Plot::DumpField( xN );
@@ -313,10 +313,10 @@ void WallVisual::VisualLine( fstream & file, StringField & titleOfTecplot, RealF
 
     int nEqu = qNodeField.size();
 
-	for ( int iEqu = 0; iEqu < nEqu; ++ iEqu )
-	{
+    for ( int iEqu = 0; iEqu < nEqu; ++ iEqu )
+    {
         Plot::DumpField( qNodeField[ iEqu ] );
-	}
+    }
     file << oss.str();
 }
 

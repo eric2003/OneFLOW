@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -105,14 +105,14 @@ void ResidualTask::CmpRes( int sTid, ResData & data )
 
     data.resmax.zid = grid->id;
 
-	for ( int iEqu = 0; iEqu < nEqu; ++ iEqu )
-	{
+    for ( int iEqu = 0; iEqu < nEqu; ++ iEqu )
+    {
         int id = data.resmax.index[ iEqu ];
         data.resmax.xcc[ iEqu ] = xcc[ id ];
         data.resmax.ycc[ iEqu ] = ycc[ id ];
         data.resmax.zcc[ iEqu ] = zcc[ id ];
         data.resmax.vol[ iEqu ] = vol[ id ];
-	}
+    }
 }
 
 void ResidualTask::PostDumpResiduals()
@@ -122,7 +122,7 @@ void ResidualTask::PostDumpResiduals()
     this->data.resave.CmpAver( dataList );
     this->data.resmax.CmpMax( dataList );
 
-	if ( Parallel::pid != Parallel::serverid ) return;
+    if ( Parallel::pid != Parallel::serverid ) return;
 
     this->DumpScreen();
     this->DumpFile();
@@ -133,9 +133,9 @@ void ResidualTask::DumpFile()
     ostringstream oss;
 
     fstream file;
-	SolverInfo * solverInfo = SolverInfoFactory::GetSolverInfo( SolverState::tid );
-	string & fileName = solverInfo->resFileName;
-	PIO::ParallelOpenPrj( file, fileName, ios_base::out | ios_base::app );
+    SolverInfo * solverInfo = SolverInfoFactory::GetSolverInfo( SolverState::tid );
+    string & fileName = solverInfo->resFileName;
+    PIO::ParallelOpenPrj( file, fileName, ios_base::out | ios_base::app );
 
     if ( IsEmpty( file ) )
     {
@@ -145,8 +145,8 @@ void ResidualTask::DumpFile()
         title.push_back( "\"iter\"" );
         title.push_back( "\"sub-iter\"" );
         size_t nVar = this->data.resave.res.size();
-	    for ( int iVar = 0; iVar < nVar; ++ iVar )
-	    {
+        for ( int iVar = 0; iVar < nVar; ++ iVar )
+        {
             title.push_back( AddString( "\"res",  iVar + 1, "\"" ) );
         }
 
@@ -156,18 +156,18 @@ void ResidualTask::DumpFile()
         }
     }
 
-	oss << setiosflags( ios::left );
-	oss << setprecision( 5 );
-	oss << setiosflags( ios::scientific );
-	oss << setiosflags( ios::showpoint );
+    oss << setiosflags( ios::left );
+    oss << setprecision( 5 );
+    oss << setiosflags( ios::scientific );
+    oss << setiosflags( ios::showpoint );
 
-	oss << Iteration::outerSteps << " ";
-	oss << Iteration::innerSteps << " ";
+    oss << Iteration::outerSteps << " ";
+    oss << Iteration::innerSteps << " ";
 
     size_t nVar = this->data.resave.res.size();
-	for ( int iVar = 0; iVar < nVar; ++ iVar )
+    for ( int iVar = 0; iVar < nVar; ++ iVar )
     {
-	    oss << setw( 13 ) << this->data.resave.res[ iVar ] << " ";
+        oss << setw( 13 ) << this->data.resave.res[ iVar ] << " ";
     }
 
     oss << endl;
@@ -185,18 +185,18 @@ void ResidualTask::DumpScreen()
     if ( ( Iteration::outerSteps - 1 ) % 100 == 0 )
     {
         oss << endl;
-	    oss << "iter initer ave  max zone cell vol  nv \n";
+        oss << "iter initer ave  max zone cell vol  nv \n";
     }
 
     oss << setiosflags( ios::left );
-	oss << setprecision( 5 );
-	oss << setiosflags( ios::scientific );
-	oss << setiosflags( ios::showpoint );
+    oss << setprecision( 5 );
+    oss << setiosflags( ios::scientific );
+    oss << setiosflags( ios::showpoint );
 
-	oss << setw( 7  ) << Iteration::outerSteps;
-	oss << setw( 7  ) << Iteration::innerSteps;
-	oss << setw( 13 ) << this->data.resave.res[ maxId ];
-	oss << setw( 13 ) << this->data.resmax.resmax[ maxId ];
+    oss << setw( 7  ) << Iteration::outerSteps;
+    oss << setw( 7  ) << Iteration::innerSteps;
+    oss << setw( 13 ) << this->data.resave.res[ maxId ];
+    oss << setw( 13 ) << this->data.resmax.resmax[ maxId ];
     oss << setw( 4  ) << this->data.resmax.zid[ maxId ] + 1;
     oss << " ";
     oss << setw( 6  ) << this->data.resmax.index[ maxId ];
@@ -205,8 +205,8 @@ void ResidualTask::DumpScreen()
     oss << setprecision( 3 );
     oss << setw( 11 ) << this->data.resmax.vol[ maxId ];
     oss << " ";
-	oss << setw( 3 )  << maxId + 1;
-	oss << endl;
+    oss << setw( 3 )  << maxId + 1;
+    oss << endl;
 
     cout << oss.str();
 }

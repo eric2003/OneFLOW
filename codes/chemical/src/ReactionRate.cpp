@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -38,62 +38,62 @@ ReactionRate::~ReactionRate()
 
 void ReactionRate::Init( int nReaction )
 {
-	this->nReaction = nReaction;
+    this->nReaction = nReaction;
 
-	f1.resize( nReaction );
-	f2.resize( nReaction );
-	f3.resize( nReaction );
+    f1.resize( nReaction );
+    f2.resize( nReaction );
+    f3.resize( nReaction );
 
-	b1.resize( nReaction );
-	b2.resize( nReaction );
-	b3.resize( nReaction );
+    b1.resize( nReaction );
+    b2.resize( nReaction );
+    b3.resize( nReaction );
 }
 
 void ReactionRate::Read( AsciiFileRead * ioFile )
 {
-	string separator = " =\r\n#$,;\"'";
+    string separator = " =\r\n#$,;\"'";
 
-	ioFile->SetDefaultSeparator( separator );
+    ioFile->SetDefaultSeparator( separator );
 
-	if ( nReaction <= 0 ) return;
+    if ( nReaction <= 0 ) return;
 
-	ioFile->SkipLines( 3 );
-	for ( int iReaction = 0; iReaction < nReaction; ++ iReaction )
-	{
-		ioFile->ReadNextNonEmptyLine();
-		//¶Áirtmp
-		string word = ioFile->ReadNextWord();
+    ioFile->SkipLines( 3 );
+    for ( int iReaction = 0; iReaction < nReaction; ++ iReaction )
+    {
+        ioFile->ReadNextNonEmptyLine();
+        //¶Áirtmp
+        string word = ioFile->ReadNextWord();
 
-		f1[ iReaction ] = ioFile->ReadNextDigit< Real >();
-		f2[ iReaction ] = ioFile->ReadNextDigit< Real >();
-		f3[ iReaction ] = ioFile->ReadNextDigit< Real >();
+        f1[ iReaction ] = ioFile->ReadNextDigit< Real >();
+        f2[ iReaction ] = ioFile->ReadNextDigit< Real >();
+        f3[ iReaction ] = ioFile->ReadNextDigit< Real >();
 
-		b1[ iReaction ] = ioFile->ReadNextDigit< Real >();
-		b2[ iReaction ] = ioFile->ReadNextDigit< Real >();
-		b3[ iReaction ] = ioFile->ReadNextDigit< Real >();
-	}
+        b1[ iReaction ] = ioFile->ReadNextDigit< Real >();
+        b2[ iReaction ] = ioFile->ReadNextDigit< Real >();
+        b3[ iReaction ] = ioFile->ReadNextDigit< Real >();
+    }
 }
 
 void ReactionRate::Read( DataBook * dataBook )
 {
-	HXRead( dataBook, f1 );
-	HXRead( dataBook, f2 );
-	HXRead( dataBook, f3 );
+    HXRead( dataBook, f1 );
+    HXRead( dataBook, f2 );
+    HXRead( dataBook, f3 );
 
-	HXRead( dataBook, b1 );
-	HXRead( dataBook, b2 );
-	HXRead( dataBook, b3 );
+    HXRead( dataBook, b1 );
+    HXRead( dataBook, b2 );
+    HXRead( dataBook, b3 );
 }
 
 void ReactionRate::Write( DataBook * dataBook )
 {
-	HXAppend( dataBook, f1 );
-	HXAppend( dataBook, f2 );
-	HXAppend( dataBook, f3 );
+    HXAppend( dataBook, f1 );
+    HXAppend( dataBook, f2 );
+    HXAppend( dataBook, f3 );
 
-	HXAppend( dataBook, b1 );
-	HXAppend( dataBook, b2 );
-	HXAppend( dataBook, b3 );
+    HXAppend( dataBook, b1 );
+    HXAppend( dataBook, b2 );
+    HXAppend( dataBook, b3 );
 }
 
 EndNameSpace

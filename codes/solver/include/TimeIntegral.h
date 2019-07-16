@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -34,8 +34,8 @@ const int LUSGS = 2;
 class SweepState
 {
 public:
-	SweepState ();
-	~SweepState();
+    SweepState ();
+    ~SweepState();
 public:
     static int nSweeps;
 };
@@ -43,16 +43,16 @@ public:
 class TimeIntegral
 {
 public:
-	TimeIntegral ();
-	~TimeIntegral();
+    TimeIntegral ();
+    ~TimeIntegral();
 public:
     static TIME_INTEGRAL timeIntegral;
 public:
     static void Init();
-	static void Relaxation( int nCycles );
+    static void Relaxation( int nCycles );
 public:
-	static void RungeKutta();
-	static void Lusgs();
+    static void RungeKutta();
+    static void Lusgs();
 };
 
 EndNameSpace

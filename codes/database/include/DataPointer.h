@@ -31,27 +31,27 @@ BeginNameSpace( ONEFLOW )
 class PointerWrap
 {
 public:
-	PointerWrap() {};
-	virtual ~PointerWrap() {};
+    PointerWrap() {};
+    virtual ~PointerWrap() {};
 public:
-	virtual void * GetPointer() { return 0; };
+    virtual void * GetPointer() { return 0; };
 };
 
 template < typename T >
 class DataPointer : public PointerWrap
 {
 public:
-	DataPointer()
+    DataPointer()
     {
-		data = new T ();
-	}
+        data = new T ();
+    }
 
-	DataPointer( T * data )
+    DataPointer( T * data )
     {
         this->data = data;
     }
 
-	~DataPointer()
+    ~DataPointer()
     {
         delete data;
     }

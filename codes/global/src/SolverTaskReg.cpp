@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -44,11 +44,11 @@ void RegisterSolverTask( HXVector< RegData * > & regDataArray )
 
 void RegisterSolverVarMap( int sTid )
 {
-	VarNameFactory::AddVarNameSolver( sTid, ONEFLOW::INTERFACE_DATA );
-	VarNameFactory::AddVarNameSolver( sTid, ONEFLOW::INTERFACE_DQ_DATA );
-	VarNameFactory::AddVarNameSolver( sTid, ONEFLOW::INTERFACE_GRADIENT_DATA );
-	VarNameFactory::AddVarNameSolver( sTid, ONEFLOW::INTERFACE_OVERSET_DATA );
-	SolverInfoFactory::AddSolverInfo( sTid );
+    VarNameFactory::AddVarNameSolver( sTid, ONEFLOW::INTERFACE_DATA );
+    VarNameFactory::AddVarNameSolver( sTid, ONEFLOW::INTERFACE_DQ_DATA );
+    VarNameFactory::AddVarNameSolver( sTid, ONEFLOW::INTERFACE_GRADIENT_DATA );
+    VarNameFactory::AddVarNameSolver( sTid, ONEFLOW::INTERFACE_OVERSET_DATA );
+    SolverInfoFactory::AddSolverInfo( sTid );
 }
 
 void RegisterSolverTask( RegData * regData )
@@ -62,99 +62,99 @@ void RegisterSolverTask( RegData * regData )
     RegisterFactory::AddMRegister( sTid );
     Category::AddCategory( sTid, baseKind );
 
-	if ( dataFlag == ONEFLOW::WITH_DATA )
-	{
+    if ( dataFlag == ONEFLOW::WITH_DATA )
+    {
         RegisterSolverVarMap( sTid );
-	}
+    }
 
-	RegisterSolverFunc( sTid, solverName, func );
+    RegisterSolverFunc( sTid, solverName, func );
 }
 
 void RegisterSolverFunc( int sTid, const string & solverName, VoidFunc func )
 {
-	func();
-	MRegister * mRegister = RegisterFactory::GetMRegister( sTid );
-	SetSolverFileNames( mRegister, solverName );
-	mRegister->RegisterAll();
+    func();
+    MRegister * mRegister = RegisterFactory::GetMRegister( sTid );
+    SetSolverFileNames( mRegister, solverName );
+    mRegister->RegisterAll();
 }
 
 void FreeSolverTask()
 {
-	RegisterFactory::FreeMRegister();
-	Category::Free();
-	VarNameFactory::FreeVarNameSolver();
-	SolverInfoFactory::Free();
+    RegisterFactory::FreeMRegister();
+    Category::Free();
+    VarNameFactory::FreeVarNameSolver();
+    SolverInfoFactory::Free();
 }
 
 void GetMsgFileNameList( StringField & fileNameList )
 {
     //\tÎªtab¼ü
     string separator  = " =\r\n\t#$,;\"()";
-	string fileName = "./system/action/actionFileList.txt";
+    string fileName = "./system/action/actionFileList.txt";
 
-	AsciiFileRead ioFile;
-	ioFile.OpenFile( fileName, ios_base::in );
-	ioFile.SetDefaultSeparator( separator );
+    AsciiFileRead ioFile;
+    ioFile.OpenFile( fileName, ios_base::in );
+    ioFile.SetDefaultSeparator( separator );
 
     while ( ! ioFile.ReachTheEndOfFile()  )
     {
-		bool flag = ioFile.ReadNextNonEmptyLine();
-		if ( ! flag ) break;
-		string fileName = ioFile.ReadNextWord();
+        bool flag = ioFile.ReadNextNonEmptyLine();
+        if ( ! flag ) break;
+        string fileName = ioFile.ReadNextWord();
         fileNameList.push_back( fileName );
-	}
+    }
 
-	ioFile.CloseFile();
+    ioFile.CloseFile();
 }
 
 void CreateMsgMap()
 {
-	StringField fileNameList;
+    StringField fileNameList;
     GetMsgFileNameList( fileNameList );
 
     MessageMap::Init();
 
-	for ( int iFile = 0; iFile < fileNameList.size(); ++ iFile )
-	{
-		MessageMap::ReadFile( fileNameList[ iFile ] );
-	}
+    for ( int iFile = 0; iFile < fileNameList.size(); ++ iFile )
+    {
+        MessageMap::ReadFile( fileNameList[ iFile ] );
+    }
 }
 
 void GetSolverFileNames( const string & solverName, StringField & fileNameList )
 {
-	//\tÎªtab¼ü
-	string separator = " =\r\n\t#$,;\"()";
+    //\tÎªtab¼ü
+    string separator = " =\r\n\t#$,;\"()";
 
     OStream ostr;
     ostr.ClearAll();
     ostr << "./system/" << solverName << "/function/";
     string baseDir = ostr.str();
     ostr << "fileList.txt";
-	string keyFileName = ostr.str();
+    string keyFileName = ostr.str();
 
-	AsciiFileRead ioFile;
-	ioFile.OpenFile( keyFileName, ios_base::in );
-	ioFile.SetDefaultSeparator( separator );
+    AsciiFileRead ioFile;
+    ioFile.OpenFile( keyFileName, ios_base::in );
+    ioFile.SetDefaultSeparator( separator );
 
     while ( ! ioFile.ReachTheEndOfFile()  )
     {
-		bool flag = ioFile.ReadNextNonEmptyLine();
-		if ( ! flag ) break;
-		string fileName = ioFile.ReadNextWord();
+        bool flag = ioFile.ReadNextNonEmptyLine();
+        if ( ! flag ) break;
+        string fileName = ioFile.ReadNextWord();
 
         fileName = AddString( baseDir, fileName );
 
         fileNameList.push_back( fileName );
-	}
+    }
 
-	ioFile.CloseFile();
+    ioFile.CloseFile();
 }
 
 void SetSolverFileNames( MRegister * mRegister, const string & solverName )
 {
-	StringField fileNameList;
-	ONEFLOW::GetSolverFileNames( solverName, fileNameList );
-	mRegister->SetSolverFileNames( fileNameList );
+    StringField fileNameList;
+    ONEFLOW::GetSolverFileNames( solverName, fileNameList );
+    mRegister->SetSolverFileNames( fileNameList );
 }
 
 

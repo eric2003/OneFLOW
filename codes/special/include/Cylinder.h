@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -34,17 +34,17 @@ typedef Point< Real > PointType;
 class DomainData
 {
 public:
-	DomainData();
-	~DomainData();
+    DomainData();
+    ~DomainData();
 public:
-	RealField2D x;
-	RealField2D y;
-	RealField2D z;
-	int ni, nj;
+    RealField2D x;
+    RealField2D y;
+    RealField2D z;
+    int ni, nj;
 public:
-	void Alloc();
-	void Symmetry( DomainData * datain );
-	void Join( DomainData * d1, DomainData * d2 );
+    void Alloc();
+    void Symmetry( DomainData * datain );
+    void Join( DomainData * d1, DomainData * d2 );
 };
 
 class StrCurveLoop;
@@ -52,31 +52,31 @@ class StrCurveLoop;
 class Cylinder
 {
 public:
-	Cylinder();
-	~Cylinder();
+    Cylinder();
+    ~Cylinder();
 public:
-	DomainData domain_data;
-	DomainData symm_domain;
-	DomainData final_domain;
-	int nZone;
+    DomainData domain_data;
+    DomainData symm_domain;
+    DomainData final_domain;
+    int nZone;
 
-	StrCurveLoop * strCurveLoop;
+    StrCurveLoop * strCurveLoop;
 public:
-	Real beta;
+    Real beta;
 public:
-	void Run( int igene );
-	void HalfCylinder();
-	void QuarterCylinder();
-	void GenePlate();
+    void Run( int igene );
+    void HalfCylinder();
+    void QuarterCylinder();
+    void GenePlate();
 public:
-	void SetBoundaryGrid();
-	void GeneDomain();
+    void SetBoundaryGrid();
+    void GeneDomain();
 public:
-	void ComputeCircleCenter( PointType & p1, PointType & p2, PointType & p0, PointType & pcenter );
+    void ComputeCircleCenter( PointType & p1, PointType & p2, PointType & p0, PointType & pcenter );
 public:
-	void DumpGrid( const string & fileName, DomainData * domain );
-	void DumpBcFile( const string & fileName, DomainData * domain, IntField & bcList );
-	void ToTecplot( const string & fileName, DomainData * domain );
+    void DumpGrid( const string & fileName, DomainData * domain );
+    void DumpBcFile( const string & fileName, DomainData * domain, IntField & bcList );
+    void ToTecplot( const string & fileName, DomainData * domain );
 };
 
 void ToTecplot( fstream & file, RealField2D & coor, int ni, int nj, int nk );

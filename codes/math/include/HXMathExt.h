@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -31,39 +31,39 @@ BeginNameSpace( ONEFLOW )
 template < typename T >
 inline T SUM( HXVector< T > & a )
 {
-	T sum = 0;
+    T sum = 0;
     int nElements = a.size();
-	for ( UInt iElement = 0; iElement < nElements; ++ iElement )
-	{
+    for ( UInt iElement = 0; iElement < nElements; ++ iElement )
+    {
         sum += a[ iElement ];
-	}
+    }
     return sum;
 }
 
 template < typename T >
 inline T MaxField( HXVector< T > & field )
 {
-	T maxValue = field[ 0 ];
+    T maxValue = field[ 0 ];
 
     UInt nElements = field.size();
-	for ( UInt iElement = 1; iElement < nElements; ++ iElement )
-	{
-		maxValue = ONEFLOW::MAX( maxValue, field[ iElement ] );
-	}
-	return maxValue;
+    for ( UInt iElement = 1; iElement < nElements; ++ iElement )
+    {
+        maxValue = ONEFLOW::MAX( maxValue, field[ iElement ] );
+    }
+    return maxValue;
 }
 
 template < typename T >
 inline T MinField( HXVector< T > & field )
 {
-	T minValue = field[ 0 ];
+    T minValue = field[ 0 ];
 
     UInt nElements = field.size();
-	for ( UInt iElement = 1; iElement < nElements; ++ iElement )
-	{
-		minValue = ONEFLOW::MIN( minValue, field[ iElement ] );
-	}
-	return minValue;
+    for ( UInt iElement = 1; iElement < nElements; ++ iElement )
+    {
+        minValue = ONEFLOW::MIN( minValue, field[ iElement ] );
+    }
+    return minValue;
 }
 
 EndNameSpace

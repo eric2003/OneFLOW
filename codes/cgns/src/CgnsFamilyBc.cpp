@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -31,57 +31,57 @@ BeginNameSpace( ONEFLOW )
 
 CgnsFamilyBc::CgnsFamilyBc( CgnsBase * cgnsBase )
 {
-	this->cgnsBase = cgnsBase;
-	Init();
+    this->cgnsBase = cgnsBase;
+    Init();
 }
 
 CgnsFamilyBc::~CgnsFamilyBc()
 {
-	Free();
+    Free();
 }
 
 void CgnsFamilyBc::Init()
 {
-	bcMap = new map< string, int >;
+    bcMap = new map< string, int >;
 }
 
 void CgnsFamilyBc::Free()
 {
-	delete bcMap;
+    delete bcMap;
 }
 
 void CgnsFamilyBc::Register( const string & regionName, int bcType )
 {
-	map< string, int >::iterator iter = bcMap->find( regionName );
-	if ( iter == bcMap->end() )
-	{
-		( * CgnsFamilyBc::bcMap )[ regionName ] = bcType;
-	}
+    map< string, int >::iterator iter = bcMap->find( regionName );
+    if ( iter == bcMap->end() )
+    {
+        ( * CgnsFamilyBc::bcMap )[ regionName ] = bcType;
+    }
 }
 
 void CgnsFamilyBc::Unregister( const string & regionName )
 {
-	bcMap->erase( regionName );
+    bcMap->erase( regionName );
 }
 
 int CgnsFamilyBc::GetBcType( const string & regionName )
 {
-	map< string, int >::iterator iter = bcMap->find( regionName );
-	if ( iter == bcMap->end() )
-	{
-		return -1;
-	}
+    map< string, int >::iterator iter = bcMap->find( regionName );
+    if ( iter == bcMap->end() )
+    {
+        return -1;
+    }
 
-	return iter->second;
+    return iter->second;
 }
 
 void CgnsFamilyBc::SetFamilyBc( BCType_t & bcType, const string & bcRegionName )
 {
-	if ( bcType == FamilySpecified )
-	{
-		int bcTypeFamily = this->GetBcType( bcRegionName );
-		bcType = static_cast< BCType_t >( bcTypeFamily );
-	}
+    if ( bcType == FamilySpecified )
+    {
+        int bcTypeFamily = this->GetBcType( bcRegionName );
+        bcType = static_cast< BCType_t >( bcTypeFamily );
+    }
 }
 
 void CgnsFamilyBc::ReadFamilySpecifiedBc()
@@ -89,39 +89,39 @@ void CgnsFamilyBc::ReadFamilySpecifiedBc()
     int fileId = cgnsBase->fileId;
     int baseId = cgnsBase->baseId;
 
-	int nFamilies = -1;
-	cg_nfamilies( fileId, baseId, & nFamilies );
-	cout << "\n";
-	cout << "   CGNS nFamilies = " << nFamilies << "\n";
-	CgnsTraits::char33 familyName;
-	int nBoco = -1;
-	int nGeo = -1;
-	for ( int iFam = 1; iFam <= nFamilies; ++ iFam )
-	{
-		cg_family_read( fileId, baseId, iFam, familyName, & nBoco, & nGeo );
-		cout << "   iFam = " << iFam;
-		cout << " FamilyName = " << setiosflags( ios::left ) << setw( 15 ) << familyName << " nBoco = " << nBoco << " nGeo = " << nGeo << "\n";
-	}
+    int nFamilies = -1;
+    cg_nfamilies( fileId, baseId, & nFamilies );
+    cout << "\n";
+    cout << "   CGNS nFamilies = " << nFamilies << "\n";
+    CgnsTraits::char33 familyName;
+    int nBoco = -1;
+    int nGeo = -1;
+    for ( int iFam = 1; iFam <= nFamilies; ++ iFam )
+    {
+        cg_family_read( fileId, baseId, iFam, familyName, & nBoco, & nGeo );
+        cout << "   iFam = " << iFam;
+        cout << " FamilyName = " << setiosflags( ios::left ) << setw( 15 ) << familyName << " nBoco = " << nBoco << " nGeo = " << nGeo << "\n";
+    }
 
-	for ( int iFam = 1; iFam <= nFamilies; ++ iFam )
-	{
-		cg_family_read( fileId, baseId, iFam, familyName, & nBoco, & nGeo );
-		if ( nBoco == 1 )
-		{
-			CgnsTraits::char33 familyBcName;
-			BCType_t familyBcType = BCTypeNull;
-			cg_fambc_read( fileId, baseId, iFam, nBoco, familyBcName, & familyBcType );
-			this->Register( familyName, familyBcType );
-			int Width = 10;
-			int stringWidth = 23;
-			cout << "   FamilyBcName = " << setiosflags( ios::left ) << setw( Width ) << familyBcName;
-			cout << " CGNS BcType = " << setiosflags( ios::left ) << setw( 5 ) << familyBcType;
-			cout << " CGNS BcName = " << setiosflags(ios::left) << setw( stringWidth ) << GetCgnsBcName( familyBcType ) << "\n";
-		}
-	}
+    for ( int iFam = 1; iFam <= nFamilies; ++ iFam )
+    {
+        cg_family_read( fileId, baseId, iFam, familyName, & nBoco, & nGeo );
+        if ( nBoco == 1 )
+        {
+            CgnsTraits::char33 familyBcName;
+            BCType_t familyBcType = BCTypeNull;
+            cg_fambc_read( fileId, baseId, iFam, nBoco, familyBcName, & familyBcType );
+            this->Register( familyName, familyBcType );
+            int Width = 10;
+            int stringWidth = 23;
+            cout << "   FamilyBcName = " << setiosflags( ios::left ) << setw( Width ) << familyBcName;
+            cout << " CGNS BcType = " << setiosflags( ios::left ) << setw( 5 ) << familyBcType;
+            cout << " CGNS BcName = " << setiosflags(ios::left) << setw( stringWidth ) << GetCgnsBcName( familyBcType ) << "\n";
+        }
+    }
 
-	cout << "\n";
-	cout << "\n";
+    cout << "\n";
+    cout << "\n";
 }
 
 #endif

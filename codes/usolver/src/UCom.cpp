@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -55,7 +55,7 @@ void UGeom::Init()
     ug.nFace = grid->nFace;
 
     this->SetStEd( F_TOTAL );
-	this->CreateBcRegion();
+    this->CreateBcRegion();
 
     FaceTopo * faceTopo = grid->faceTopo;
     ug.lcf = & faceTopo->lCell;
@@ -93,8 +93,8 @@ void UGeom::Init()
 
     ug.c2f = & cellTopo->c2f;
 
-	//ug.ireconface = 0;
-	ug.ireconface = 1;
+    //ug.ireconface = 0;
+    ug.ireconface = 1;
 }
 
 void UGeom::CreateBcRegion()
@@ -141,21 +141,21 @@ void AddF2CField( MRField * cellField, MRField * faceField )
     for ( int fId = 0; fId < ug.nBFace; ++ fId )
     {
         ug.fId = fId;
-		ug.lc = ( * ug.lcf )[ ug.fId ];
-		ug.rc = ( * ug.rcf )[ ug.fId ];
+        ug.lc = ( * ug.lcf )[ ug.fId ];
+        ug.rc = ( * ug.rcf )[ ug.fId ];
         //if ( ug.lc == 0 ) cout << fId << endl;
 
         for ( int iEqu = 0; iEqu < nEqu; ++ iEqu )
         {
-			( * cellField )[ iEqu ][ ug.lc ] -= ( * faceField )[ iEqu ][ ug.fId ];
+            ( * cellField )[ iEqu ][ ug.lc ] -= ( * faceField )[ iEqu ][ ug.fId ];
         }
     }
 
     for ( int fId = ug.nBFace; fId < ug.nFace; ++ fId )
     {
         ug.fId = fId;
-		ug.lc = ( * ug.lcf )[ ug.fId ];
-		ug.rc = ( * ug.rcf )[ ug.fId ];
+        ug.lc = ( * ug.lcf )[ ug.fId ];
+        ug.rc = ( * ug.rcf )[ ug.fId ];
 
         //if ( ug.lc == 0 || ug.rc == 0 ) cout << fId << endl;
 
@@ -173,20 +173,20 @@ void AddF2CFieldDebug( MRField * cellField, MRField * faceField )
     for ( int fId = 0; fId < ug.nBFace; ++ fId )
     {
         ug.fId = fId;
-		ug.lc = ( * ug.lcf )[ ug.fId ];
-		ug.rc = ( * ug.rcf )[ ug.fId ];
+        ug.lc = ( * ug.lcf )[ ug.fId ];
+        ug.rc = ( * ug.rcf )[ ug.fId ];
 
         for ( int iEqu = 0; iEqu < nEqu; ++ iEqu )
         {
-			( * cellField )[ iEqu ][ ug.lc ] -= ( * faceField )[ iEqu ][ ug.fId ];
+            ( * cellField )[ iEqu ][ ug.lc ] -= ( * faceField )[ iEqu ][ ug.fId ];
         }
     }
 
     for ( int fId = ug.nBFace; fId < ug.nFace; ++ fId )
     {
         ug.fId = fId;
-		ug.lc = ( * ug.lcf )[ ug.fId ];
-		ug.rc = ( * ug.rcf )[ ug.fId ];
+        ug.lc = ( * ug.lcf )[ ug.fId ];
+        ug.rc = ( * ug.rcf )[ ug.fId ];
 
         for ( int iEqu = 0; iEqu < nEqu; ++ iEqu )
         {

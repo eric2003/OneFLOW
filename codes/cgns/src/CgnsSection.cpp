@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -40,7 +40,7 @@ CgnsSection::CgnsSection( CgnsZone * cgnsZone )
 {
     this->cgnsZone = cgnsZone;
     this->connSize = 0;
-	this->pos_shift = 0;
+    this->pos_shift = 0;
 }
 
 CgnsSection::~CgnsSection()
@@ -49,74 +49,74 @@ CgnsSection::~CgnsSection()
 
 void CgnsSection::ConvertToInnerDataStandard()
 {
-	this->startId -= 1;
-	this->endId   -= 1;
+    this->startId -= 1;
+    this->endId   -= 1;
 
-	for ( int iElem = 0; iElem < this->nElement; ++ iElem )
-	{
-		int e_type = this->eTypeList[ iElem ];
-		int npe;
-		cg_npe( static_cast< ElementType_t >( e_type ), & npe );
-		int pos = ePosList[ iElem ] + this->pos_shift;
-		for ( int iNode = 0; iNode < npe; ++ iNode )
-		{
-			int id = pos + iNode;
-			this->connList[ id ] -= 1;
-		}
-	}
-	int kkk = 1;
+    for ( int iElem = 0; iElem < this->nElement; ++ iElem )
+    {
+        int e_type = this->eTypeList[ iElem ];
+        int npe;
+        cg_npe( static_cast< ElementType_t >( e_type ), & npe );
+        int pos = ePosList[ iElem ] + this->pos_shift;
+        for ( int iNode = 0; iNode < npe; ++ iNode )
+        {
+            int id = pos + iNode;
+            this->connList[ id ] -= 1;
+        }
+    }
+    int kkk = 1;
 }
 
 CgInt * CgnsSection::GetAddress( CgInt eId )
 {
-	int pos = this->ePosList[ eId ] + this->pos_shift;
-	return & this->connList[ pos ];
+    int pos = this->ePosList[ eId ] + this->pos_shift;
+    return & this->connList[ pos ];
 }
 
 void CgnsSection::GetElementNodeId( CgInt eId, CgIntField & eNodeId )
 {
-	int eNodeNumber  = ONEFLOW::GetElementNodeNumbers( this->eTypeList[ eId ] );
-	CgInt * eAddress = this->GetAddress( eId );
+    int eNodeNumber  = ONEFLOW::GetElementNodeNumbers( this->eTypeList[ eId ] );
+    CgInt * eAddress = this->GetAddress( eId );
 
-	eNodeId.resize( 0 );
-	for ( int iNode = 0; iNode < eNodeNumber; ++ iNode )
-	{
-		eNodeId.push_back( eAddress[ iNode ] );
-	}
+    eNodeId.resize( 0 );
+    for ( int iNode = 0; iNode < eNodeNumber; ++ iNode )
+    {
+        eNodeId.push_back( eAddress[ iNode ] );
+    }
 }
 
 void CgnsSection::SetElementTypeAndNode( ElemFeature * elem_feature )
 {
-	for ( int iElem = 0; iElem < this->nElement; ++ iElem )
-	{
-		int e_type = this->eTypeList[ iElem ];
+    for ( int iElem = 0; iElem < this->nElement; ++ iElem )
+    {
+        int e_type = this->eTypeList[ iElem ];
 
-		if ( ! ONEFLOW::IsBasicVolumeElementType( e_type ) ) continue;
+        if ( ! ONEFLOW::IsBasicVolumeElementType( e_type ) ) continue;
 
-		elem_feature->eType->push_back( e_type );
+        elem_feature->eType->push_back( e_type );
 
-		CgIntField eNodeId;
-		this->GetElementNodeId( iElem, eNodeId );
+        CgIntField eNodeId;
+        this->GetElementNodeId( iElem, eNodeId );
 
-		int eNodeNumber  = ONEFLOW::GetElementNodeNumbers( this->eTypeList[ iElem ] );
+        int eNodeNumber  = ONEFLOW::GetElementNodeNumbers( this->eTypeList[ iElem ] );
 
         for ( int iNode = 0; iNode < eNodeNumber; ++ iNode )
         {
             eNodeId[ iNode ] = this->cgnsZone->l2g[ eNodeId[ iNode ] ];
         }
-		elem_feature->eNodeId.push_back( eNodeId );
-	}
+        elem_feature->eNodeId.push_back( eNodeId );
+    }
 }
 
 void CgnsSection::ReadCgnsSection()
 {
-	this->ReadCgnsSectionInfo();
+    this->ReadCgnsSectionInfo();
 
-	this->CreateConnList();
+    this->CreateConnList();
 
-	this->ReadCgnsSectionConnectionList();
+    this->ReadCgnsSectionConnectionList();
 
-	this->SetElemPosition();
+    this->SetElemPosition();
 }
 
 void CgnsSection::ReadCgnsSectionInfo()
@@ -126,23 +126,23 @@ void CgnsSection::ReadCgnsSectionInfo()
     int zId = cgnsZone->zId;
 
     ElementType_t elementType;
-	CgnsTraits::char33 cgnsSectionName;
+    CgnsTraits::char33 cgnsSectionName;
 
-	cg_section_read( fileId, baseId, zId, this->id, cgnsSectionName, & elementType, & this->startId, & this->endId, & nbndry, & iparentflag );
+    cg_section_read( fileId, baseId, zId, this->id, cgnsSectionName, & elementType, & this->startId, & this->endId, & nbndry, & iparentflag );
 
-	this->sectionName = cgnsSectionName;
+    this->sectionName = cgnsSectionName;
 
-	cout << "   Section Name = " << cgnsSectionName << "\n";
-	cout << "   Section Type = " << ElementTypeName[ elementType ] << "\n";
-	cout << "   startId, endId = " << this->startId << " " << this->endId << "\n";
+    cout << "   Section Name = " << cgnsSectionName << "\n";
+    cout << "   Section Type = " << ElementTypeName[ elementType ] << "\n";
+    cout << "   startId, endId = " << this->startId << " " << this->endId << "\n";
     this->eType = elementType;
 
-	if ( IsMixedSection() )
-	{
-		elementDataSize = -1;
-		cg_ElementDataSize( fileId, baseId, zId, this->id, & elementDataSize );
-		this->pos_shift = 1;
-	}
+    if ( IsMixedSection() )
+    {
+        elementDataSize = -1;
+        cg_ElementDataSize( fileId, baseId, zId, this->id, & elementDataSize );
+        this->pos_shift = 1;
+    }
 }
 
 void CgnsSection::CreateConnList()
@@ -161,20 +161,20 @@ void CgnsSection::ComputeNumberOfSectionElements()
 
 void CgnsSection::ComputeCapacityOfCgnsConnectionList()
 {
-	if ( eType == MIXED ||
-		 eType == NGON_n ||
-		 eType == NFACE_n )
-	{
-		this->connSize = this->elementDataSize;
+    if ( eType == MIXED ||
+         eType == NGON_n ||
+         eType == NFACE_n )
+    {
+        this->connSize = this->elementDataSize;
 
-	}
-	else
-	{
-		UnitElement * unitElement = ElementHome::GetUnitElement( this->eType );
-		int nodeNumber = unitElement->GetElementNodeNumbers( this->eType );
+    }
+    else
+    {
+        UnitElement * unitElement = ElementHome::GetUnitElement( this->eType );
+        int nodeNumber = unitElement->GetElementNodeNumbers( this->eType );
 
-		this->connSize = this->nElement * nodeNumber;
-	}
+        this->connSize = this->nElement * nodeNumber;
+    }
 }
 
 void CgnsSection::AllocateCgnsConnectionList()
@@ -184,8 +184,8 @@ void CgnsSection::AllocateCgnsConnectionList()
     {
         this->iparentdata.resize( this->nElement * 4 );
     }
-	this->ePosList.resize( this->nElement + 1 );
-	this->eTypeList.resize( this->nElement, this->eType );
+    this->ePosList.resize( this->nElement + 1 );
+    this->eTypeList.resize( this->nElement, this->eType );
 }
 
 void CgnsSection::ReadCgnsSectionConnectionList()
@@ -194,10 +194,10 @@ void CgnsSection::ReadCgnsSectionConnectionList()
     int baseId = cgnsZone->cgnsBase->baseId;
     int zId = cgnsZone->zId;
 
-	// Read the connectivity. Again, the node numbering of the 
-	// connectivities start at 1. If internally a starting index 
-	// of 0 is used ( typical for C-codes ) 1 must be substracted 
-	// from the connectivities read. 
+    // Read the connectivity. Again, the node numbering of the 
+    // connectivities start at 1. If internally a starting index 
+    // of 0 is used ( typical for C-codes ) 1 must be substracted 
+    // from the connectivities read. 
 
     CgInt *addr = NULL;
     if ( this->iparentflag )
@@ -209,50 +209,50 @@ void CgnsSection::ReadCgnsSectionConnectionList()
 
 void CgnsSection::SetElemPosition()
 {
-	if ( IsMixedSection() )
-	{
-		this->SetElemPositionMixed();
-	}
-	else
-	{
-		this->SetElemPositionOri();
-	}
+    if ( IsMixedSection() )
+    {
+        this->SetElemPositionMixed();
+    }
+    else
+    {
+        this->SetElemPositionOri();
+    }
 }
 
 void CgnsSection::SetElemPositionOri()
 {
-	int pos = 0;
-	ePosList[ 0 ] = pos;
-	for ( int iElem = 0; iElem < this->nElement; ++ iElem )
-	{
-		int npe;
-		cg_npe( static_cast< ElementType_t >( this->eType ), & npe );
-		pos += npe + this->pos_shift;
-		ePosList[ iElem + 1 ] = pos;
-	}
+    int pos = 0;
+    ePosList[ 0 ] = pos;
+    for ( int iElem = 0; iElem < this->nElement; ++ iElem )
+    {
+        int npe;
+        cg_npe( static_cast< ElementType_t >( this->eType ), & npe );
+        pos += npe + this->pos_shift;
+        ePosList[ iElem + 1 ] = pos;
+    }
 }
 
 void CgnsSection::SetElemPositionMixed()
 {
-	//ePosList.resize( this->nElement + 1 );
-	//eTypeList.resize( this->nElement );
-	int pos = 0;
-	ePosList[ 0 ] = pos;
-	for ( int iElem = 0; iElem < this->nElement; ++ iElem )
-	{
-		int e_type = this->connList[ pos ];
-		eTypeList[ iElem ] = e_type;
-		int npe;
-		cg_npe( static_cast< ElementType_t >( e_type ), & npe );
-		pos += npe + this->pos_shift;
-		ePosList[ iElem + 1 ] = pos;
-	}
+    //ePosList.resize( this->nElement + 1 );
+    //eTypeList.resize( this->nElement );
+    int pos = 0;
+    ePosList[ 0 ] = pos;
+    for ( int iElem = 0; iElem < this->nElement; ++ iElem )
+    {
+        int e_type = this->connList[ pos ];
+        eTypeList[ iElem ] = e_type;
+        int npe;
+        cg_npe( static_cast< ElementType_t >( e_type ), & npe );
+        pos += npe + this->pos_shift;
+        ePosList[ iElem + 1 ] = pos;
+    }
 }
 
 bool CgnsSection::IsMixedSection()
 {
-	bool flag = ( eType == MIXED || eType == NGON_n || eType == NFACE_n );
-	return flag;
+    bool flag = ( eType == MIXED || eType == NGON_n || eType == NFACE_n );
+    return flag;
 }
 #endif
 EndNameSpace

@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -38,80 +38,80 @@ class DataBase;
 class HXRandomClass
 {
 public:
-	HXRandomClass();
-	~HXRandomClass();
+    HXRandomClass();
+    ~HXRandomClass();
 public:
-	static void Initialize();
-	static int Random( int rangeMin, int rangeMax );
-	static void RangeRandom( int rangeMin, int rangeMax, vector< int > & results );
+    static void Initialize();
+    static int Random( int rangeMin, int rangeMax );
+    static void RangeRandom( int rangeMin, int rangeMax, vector< int > & results );
 };
 
 class SimpleMesh2D
 {
 public:
-	SimpleMesh2D();
-	~SimpleMesh2D();
+    SimpleMesh2D();
+    ~SimpleMesh2D();
 public:
-	int ni, nj;
-	RealField2D xx;
-	RealField2D yy;
-	RealField2D zz;
-	LinkField ijkNodeMapping;
-	Mesh * mesh;
+    int ni, nj;
+    RealField2D xx;
+    RealField2D yy;
+    RealField2D zz;
+    LinkField ijkNodeMapping;
+    Mesh * mesh;
 public:
-	void SetMesh( Mesh * mesh ) { this->mesh = mesh; }
-	void GenerateMesh();
+    void SetMesh( Mesh * mesh ) { this->mesh = mesh; }
+    void GenerateMesh();
 public:
-	void GenerateCircleMesh();
-	void GenerateExtrapolationMesh();
-	void GenerateRectangleMesh();
-	void PushElement( IntField & nodeArray1, IntField & nodeArray2, int shift = 0 );
+    void GenerateCircleMesh();
+    void GenerateExtrapolationMesh();
+    void GenerateRectangleMesh();
+    void PushElement( IntField & nodeArray1, IntField & nodeArray2, int shift = 0 );
 private:
-	void ConstructElement();
+    void ConstructElement();
 protected:
-	void GenerateCircleSurface( RealField & xArray, RealField & yArray, int ni );
-	void ComputeX2Y2Array( RealField & x1Array, RealField & y1Array, RealField & x2Array, RealField & y2Array );
-	void ComputeX2Y2ArrayNoLoop( RealField & x1Array, RealField & y1Array, RealField & x2Array, RealField & y2Array );
-	void PushCircleNode( RealField & xArray, RealField & yArray, IntField & nodeArray );
+    void GenerateCircleSurface( RealField & xArray, RealField & yArray, int ni );
+    void ComputeX2Y2Array( RealField & x1Array, RealField & y1Array, RealField & x2Array, RealField & y2Array );
+    void ComputeX2Y2ArrayNoLoop( RealField & x1Array, RealField & y1Array, RealField & x2Array, RealField & y2Array );
+    void PushCircleNode( RealField & xArray, RealField & yArray, IntField & nodeArray );
 };
 
 class NodeMesh;
 class Mesh
 {
 public:
-	Mesh();
-	~Mesh();
+    Mesh();
+    ~Mesh();
 public:
-	NodeMesh * nodeMesh;
-	FaceMesh * faceMesh;
-	CellMesh * cellMesh;
+    NodeMesh * nodeMesh;
+    FaceMesh * faceMesh;
+    CellMesh * cellMesh;
     DataBase * dataBase;
 public:
-	void CreateMesh();
+    void CreateMesh();
 public:
     DataBase * GetDataBase() { return dataBase;  };
 public:
-	void ConstructTopology();
-	void SwapBoundary();
-	void ComputeMetrics();
+    void ConstructTopology();
+    void SwapBoundary();
+    void ComputeMetrics();
     void AllocateMetrics();
 private:
-	void ComputeMetrics1D();
-	void ComputeMetrics2D();
-	void ComputeMetrics3D();
+    void ComputeMetrics1D();
+    void ComputeMetrics2D();
+    void ComputeMetrics3D();
 private:
-	void ComputeFaceCenter1D();
-	void ComputeCellCenterVol1D();
-	void ComputeFaceNormal1D();
+    void ComputeFaceCenter1D();
+    void ComputeCellCenterVol1D();
+    void ComputeFaceNormal1D();
     void ComputeGhostCellCenterVol1D();
 private:
-	void ComputeFaceNormal2D();
-	void ComputeFaceCenter2D();
-	void ComputeCellCenterVol2D();
+    void ComputeFaceNormal2D();
+    void ComputeFaceCenter2D();
+    void ComputeCellCenterVol2D();
 private:
-	void ComputeFaceNormal3D();
-	void ComputeFaceCenter3D();
-	void ComputeCellCenterVol3D();
+    void ComputeFaceNormal3D();
+    void ComputeFaceCenter3D();
+    void ComputeCellCenterVol3D();
 };
 
 EndNameSpace

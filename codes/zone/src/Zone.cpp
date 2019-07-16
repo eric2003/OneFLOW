@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -65,11 +65,11 @@ bool ZoneState::IsValidZone( int zoneId )
 
 int ZoneState::GetZid( int iSr )
 {
-	if ( iSr == GREAT_SEND )
-	{
-		return ZoneState::szid;
-	}
-	return ZoneState::rzid;
+    if ( iSr == GREAT_SEND )
+    {
+        return ZoneState::szid;
+    }
+    return ZoneState::rzid;
 }
 
 HXVector< Grids * > Zone::globalGrids;
@@ -85,10 +85,10 @@ Zone::~Zone()
 
 void Zone::AddGrid( int zid, Grid * grid )
 {
-	if ( Zone::globalGrids.size() == 0 )
-	{
-		Zone::globalGrids.resize( ZoneState::nZones, 0 );
-	}
+    if ( Zone::globalGrids.size() == 0 )
+    {
+        Zone::globalGrids.resize( ZoneState::nZones, 0 );
+    }
     Grids * grids = Zone::globalGrids[ zid ];
     if ( ! grids )
     {
@@ -130,21 +130,21 @@ Grid * Zone::GetFGrid( Grid * grid )
 
 void Zone::InitLayout( StringField & fileNameList )
 {
-	int nTZones = 0;
-	for ( int iFile = 0; iFile < fileNameList.size(); ++ iFile )
-	{
+    int nTZones = 0;
+    for ( int iFile = 0; iFile < fileNameList.size(); ++ iFile )
+    {
         fstream file;
         PIO::ParallelOpenPrj( file, fileNameList[ iFile ], ios_base::in|ios_base::binary );
 
         int nZones = 0;
 
-	    ONEFLOW::HXReadBcast( file, & nZones, 1, Parallel::GetFid() );
+        ONEFLOW::HXReadBcast( file, & nZones, 1, Parallel::GetFid() );
 
-	    nTZones += nZones;
+        nTZones += nZones;
 
         PIO::ParallelClose( file );
-	}
-	cout << " nTZones = " << nTZones << endl;
+    }
+    cout << " nTZones = " << nTZones << endl;
 
     ZoneState::nZones = nTZones;
     ZoneState::pid.resize( ZoneState::nZones );
@@ -163,15 +163,15 @@ void Zone::NormalizeLayout()
 
 void Zone::ReadGrid( StringField & fileNameList )
 {
-	Zone::InitLayout( fileNameList );
-	int zid = 0;
-	for ( int iFile = 0; iFile < fileNameList.size(); ++ iFile )
-	{
-		GridGroup * gridGroup = new GridGroup( zid );
-		gridGroup->ReadGrid( fileNameList[ iFile ] );
+    Zone::InitLayout( fileNameList );
+    int zid = 0;
+    for ( int iFile = 0; iFile < fileNameList.size(); ++ iFile )
+    {
+        GridGroup * gridGroup = new GridGroup( zid );
+        gridGroup->ReadGrid( fileNameList[ iFile ] );
         zid += gridGroup->nZones;
-		delete gridGroup;
-	}
+        delete gridGroup;
+    }
     Zone::NormalizeLayout();
 }
 
@@ -189,19 +189,19 @@ void PIO::ParallelOpen( fstream & file, const string & fileName, const ios_base:
 {
     if ( Parallel::pid != Parallel::GetFid() ) return;
 
-	PIO::Open( file, fileName, openMode );
+    PIO::Open( file, fileName, openMode );
 }
 
 void PIO::ParallelOpenPrj( fstream & file, const string & fileName, const ios_base::openmode & openMode )
 {
     if ( Parallel::pid != Parallel::GetFid() ) return;
 
-	ONEFLOW::StrIO.ClearAll();
+    ONEFLOW::StrIO.ClearAll();
     ONEFLOW::StrIO << PrjStatus::prjBaseDir << fileName;
 
     string prjFileName = ONEFLOW::StrIO.str();
 
-	PIO::Open( file, prjFileName, openMode );
+    PIO::Open( file, prjFileName, openMode );
 }
 
 void PIO::ParallelOpenPrj()
@@ -223,7 +223,7 @@ void PIO::ParallelClose( fstream & file )
 
 void PIO::Open( fstream & file, const string & fileName, const ios_base::openmode & openMode )
 {
-	file.open( fileName.c_str(), openMode );
+    file.open( fileName.c_str(), openMode );
     if ( ! file )
     {
         cout << "could not open " << fileName << endl;
@@ -233,8 +233,8 @@ void PIO::Open( fstream & file, const string & fileName, const ios_base::openmod
 
 void PIO::Close( fstream & file )
 {
-	file.close();
-	file.clear();
+    file.close();
+    file.clear();
 }
 
 IntField GridGroup::pid;
@@ -251,65 +251,65 @@ GridGroup::~GridGroup()
 
 void GridGroup::InitZoneLayout( const string & fileName )
 {
-	fstream file;
-	PIO::ParallelOpenPrj( file, fileName, ios_base::in|ios_base::binary );
+    fstream file;
+    PIO::ParallelOpenPrj( file, fileName, ios_base::in|ios_base::binary );
 
-	this->InitZoneLayout( file );
-	this->SetMultiZoneLayout();
+    this->InitZoneLayout( file );
+    this->SetMultiZoneLayout();
 
-	PIO::ParallelClose( file );
+    PIO::ParallelClose( file );
 }
 
 void GridGroup::InitZoneLayout( fstream & file )
 {
     int fid = Parallel::GetFid();
 
-	ONEFLOW::HXReadBcast( file, & nZones, 1, fid );
+    ONEFLOW::HXReadBcast( file, & nZones, 1, fid );
 
     pid.resize( nZones );
     zoneType.resize( nZones );
 
     pid = 0;
 
-	ONEFLOW::HXReadBcast( file, & pid[ 0 ], nZones, fid );
+    ONEFLOW::HXReadBcast( file, & pid[ 0 ], nZones, fid );
 
-	if ( Parallel::zoneMode == 0 )
-	{
-		for ( int iZone = 0; iZone < nZones; ++ iZone )
-		{
-			pid[ iZone ] = ( zoneStart + iZone ) % Parallel::nProc;
-		}
-	}
+    if ( Parallel::zoneMode == 0 )
+    {
+        for ( int iZone = 0; iZone < nZones; ++ iZone )
+        {
+            pid[ iZone ] = ( zoneStart + iZone ) % Parallel::nProc;
+        }
+    }
 
     ONEFLOW::HXReadBcast( file, & zoneType[ 0 ], nZones, fid );
 }
 
 void GridGroup::SetMultiZoneLayout()
 {
-	for ( int iZone = 0; iZone < nZones; ++ iZone )
-	{
-		int ig = zoneStart + iZone;
-		ZoneState::pid     [ ig ] = this->pid     [ iZone ];
-		ZoneState::zoneType[ ig ] = this->zoneType[ iZone ];
-	}
+    for ( int iZone = 0; iZone < nZones; ++ iZone )
+    {
+        int ig = zoneStart + iZone;
+        ZoneState::pid     [ ig ] = this->pid     [ iZone ];
+        ZoneState::zoneType[ ig ] = this->zoneType[ iZone ];
+    }
 }
 
 void GridGroup::ReadGrid( const string & fileName )
 {
-	fstream file;
+    fstream file;
 
-	PIO::ParallelOpenPrj( file, fileName, ios_base::in|ios_base::binary );
+    PIO::ParallelOpenPrj( file, fileName, ios_base::in|ios_base::binary );
 
-	this->InitZoneLayout( file );
-	this->SetMultiZoneLayout();
+    this->InitZoneLayout( file );
+    this->SetMultiZoneLayout();
 
     for ( int iZone = 0; iZone < this->nZones; ++ iZone )
     {
         int zid = this->zoneStart + iZone;
-	    this->ReadGrid( file, zid );
+        this->ReadGrid( file, zid );
     }
 
-	PIO::ParallelClose( file );
+    PIO::ParallelClose( file );
 }
 
 void GridGroup::ReadGrid( fstream & file, int zid )
@@ -328,13 +328,13 @@ void GridGroup::ReadGrid( fstream & file, int zid )
         grid->localId = Zone::nLocalZones ++;
         grid->type = gridType;
         Zone::AddGrid( zid, grid );
-	}
+    }
 
     DataBook * dataBook = new DataBook();
 
     ONEFLOW::ReadAbstractData( file, dataBook, spid, rpid );
 
-	ONEFLOW::DataToGrid( dataBook, zid );
+    ONEFLOW::DataToGrid( dataBook, zid );
 
     delete dataBook;
 
@@ -357,7 +357,7 @@ void DataToGrid( DataBook * dataBook, int zid )
 
     Parallel::GetSrPid( zid, spid, rpid );
 
-	if ( Parallel::pid != rpid ) return;
+    if ( Parallel::pid != rpid ) return;
 
     Grid * grid = Zone::GetGrid( zid, 0 );
 

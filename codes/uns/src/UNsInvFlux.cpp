@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -66,7 +66,7 @@ void UNsInvFlux::CmpInvFace()
 
     this->CmpLimiter();
 
-	this->GetQlQrField();
+    this->GetQlQrField();
 
     this->ReconstructFaceValueField();
 
@@ -81,7 +81,7 @@ void UNsInvFlux::GetQlQrField()
 void UNsInvFlux::ReconstructFaceValueField()
 {
     limf->CmpFaceValue();
-	//limf->CmpFaceValueWeighted();
+    //limf->CmpFaceValueWeighted();
 }
 
 void UNsInvFlux::BoundaryQlQrFixField()
@@ -100,9 +100,9 @@ void UNsInvFlux::CmpFlux()
     this->SetPointer( nscom.ischeme );
 
     //ReadTmp();
-	this->CmpInvFace();
+    this->CmpInvFace();
     this->CmpInvFlux();
-	this->AddInvFlux();
+    this->AddInvFlux();
 
     DeAlloc();
 }
@@ -115,44 +115,44 @@ void UNsInvFlux::CmpInvFlux()
     }
 
     for ( int fId = 0; fId < ug.nFace; ++ fId )
-	{
-	    ug.fId = fId;
+    {
+        ug.fId = fId;
 
-	    ug.lc = ( * ug.lcf )[ ug.fId ];
-	    ug.rc = ( * ug.rcf )[ ug.fId ];
+        ug.lc = ( * ug.lcf )[ ug.fId ];
+        ug.rc = ( * ug.rcf )[ ug.fId ];
 
-		this->PrepareFaceValue();
+        this->PrepareFaceValue();
 
-		( this->*invFluxPointer )();
+        ( this->*invFluxPointer )();
 
-		this->UpdateFaceInvFlux();
-	}
+        this->UpdateFaceInvFlux();
+    }
 }
 
 void UNsInvFlux::PrepareFaceValue()
 {
-	gcom.fnx   = ( * ug.fnx   )[ ug.fId ];
-	gcom.fny   = ( * ug.fny   )[ ug.fId ];
-	gcom.fnz   = ( * ug.fnz   )[ ug.fId ];
-	gcom.fvn   = ( * ug.fvn   )[ ug.fId ];
-	gcom.farea = ( * ug.farea )[ ug.fId ];
+    gcom.fnx   = ( * ug.fnx   )[ ug.fId ];
+    gcom.fny   = ( * ug.fny   )[ ug.fId ];
+    gcom.fnz   = ( * ug.fnz   )[ ug.fId ];
+    gcom.fvn   = ( * ug.fvn   )[ ug.fId ];
+    gcom.farea = ( * ug.farea )[ ug.fId ];
 
-	nscom.gama1 = ( * unsf.gama )[ 0 ][ ug.lc ];
-	nscom.gama2 = ( * unsf.gama )[ 0 ][ ug.rc ];
+    nscom.gama1 = ( * unsf.gama )[ 0 ][ ug.lc ];
+    nscom.gama2 = ( * unsf.gama )[ 0 ][ ug.rc ];
 
     inv.gama1 = nscom.gama1;
     inv.gama2 = nscom.gama2;
 
-	for ( int iEqu = 0; iEqu < limf->nEqu; ++ iEqu )
-	{
-		inv.prim1[ iEqu ] = ( * limf->qf1 )[ iEqu ][ ug.fId ];
-		inv.prim2[ iEqu ] = ( * limf->qf2 )[ iEqu ][ ug.fId ];
-	}
+    for ( int iEqu = 0; iEqu < limf->nEqu; ++ iEqu )
+    {
+        inv.prim1[ iEqu ] = ( * limf->qf1 )[ iEqu ][ ug.fId ];
+        inv.prim2[ iEqu ] = ( * limf->qf2 )[ iEqu ][ ug.fId ];
+    }
 }
 
 void UNsInvFlux::UpdateFaceInvFlux()
 {
-	for ( int iEqu = 0; iEqu < nscom.nTEqu; ++ iEqu )
+    for ( int iEqu = 0; iEqu < nscom.nTEqu; ++ iEqu )
     {
         ( * invflux )[ iEqu ][ ug.fId ] = gcom.farea * inv.flux[ iEqu ];
     }
@@ -187,50 +187,50 @@ void UNsInvFlux::ReadTmp()
 
     unsf.Init();
 
-   	for ( int cId = 0; cId < ug.nTCell; ++ cId )
-	{
-	    for ( int iEqu = 0; iEqu < 5; ++ iEqu )
-	    {
+       for ( int cId = 0; cId < ug.nTCell; ++ cId )
+    {
+        for ( int iEqu = 0; iEqu < 5; ++ iEqu )
+        {
             file.read( reinterpret_cast< char * >( & ( * unsf.q )[ iEqu ][ cId ] ), sizeof( double ) );
-	    }
-	}
+        }
+    }
 
-   	for ( int cId = 0; cId < ug.nTCell; ++ cId )
-	{
+       for ( int cId = 0; cId < ug.nTCell; ++ cId )
+    {
         file.read( reinterpret_cast< char * >( & ( * unsf.visl )[ 0 ][ cId ] ), sizeof( double ) );
     }
 
-   	for ( int cId = 0; cId < ug.nTCell; ++ cId )
-	{
+       for ( int cId = 0; cId < ug.nTCell; ++ cId )
+    {
         file.read( reinterpret_cast< char * >( & ( * unsf.vist )[ 0 ][ cId ] ), sizeof( double ) );
     }
 
     vector< Real > tmp1( ug.nTCell ), tmp2( ug.nTCell );
 
-   	for ( int cId = 0; cId < ug.nTCell; ++ cId )
-	{
+       for ( int cId = 0; cId < ug.nTCell; ++ cId )
+    {
         tmp1[ cId ] = ( * unsf.timestep )[ 0 ][ cId ];
     }
 
-   	for ( int cId = 0; cId < ug.nTCell; ++ cId )
-	{
+       for ( int cId = 0; cId < ug.nTCell; ++ cId )
+    {
         file.read( reinterpret_cast< char * >( & ( * unsf.timestep )[ 0 ][ cId ] ), sizeof( double ) );
     }
 
-   	for ( int cId = 0; cId < ug.nTCell; ++ cId )
-	{
+       for ( int cId = 0; cId < ug.nTCell; ++ cId )
+    {
         tmp2[ cId ] = ( * unsf.timestep )[ 0 ][ cId ];
     }
 
     turbcom.Init();
     uturbf.Init();
-	for ( int iCell = 0; iCell < ug.nTCell; ++ iCell )
-	{
-	    for ( int iEqu = 0; iEqu < turbcom.nEqu; ++ iEqu )
-	    {
+    for ( int iCell = 0; iCell < ug.nTCell; ++ iCell )
+    {
+        for ( int iEqu = 0; iEqu < turbcom.nEqu; ++ iEqu )
+        {
             file.read( reinterpret_cast< char * >( & ( * uturbf.q )[ iEqu ][ iCell ] ), sizeof( double ) );
-	    }
-	}
+        }
+    }
     file.close();
     file.clear();
 }

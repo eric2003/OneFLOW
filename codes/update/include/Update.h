@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -37,8 +37,8 @@ public:
     FieldWrap *dq;
 public:
     virtual void UpdateFlowField( int sTid ){};
-	virtual void DumpProbeInfo() {};
-	virtual void SolutionFix() {};
+    virtual void DumpProbeInfo() {};
+    virtual void SolutionFix() {};
 };
 
 Update * CreateUpdate( int sTid );

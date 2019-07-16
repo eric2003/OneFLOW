@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -45,8 +45,8 @@ TurbSolver::~TurbSolver()
 
 void TurbSolver::StaticInit()
 {
-	if ( TurbSolver::initFlag ) return;
-	TurbSolver::initFlag = true;
+    if ( TurbSolver::initFlag ) return;
+    TurbSolver::initFlag = true;
 
     this->sTid = ONEFLOW::TURB_SOLVER;
     SolverInfo * solverInfo = SolverInfoFactory::GetSolverInfo( this->sTid );
@@ -66,14 +66,14 @@ void TurbSolver::StaticInit()
 
     solverInfo->registerInterface = 0;
     solverInfo->residualName = "turbres";
-	solverInfo->resFileName = GetDataValue< string >( "turbresFile" );
-	solverInfo->gradString.push_back( "turbq"    );
-	solverInfo->gradString.push_back( "turbdqdx" );
-	solverInfo->gradString.push_back( "turbdqdy" );
-	solverInfo->gradString.push_back( "turbdqdz" );
+    solverInfo->resFileName = GetDataValue< string >( "turbresFile" );
+    solverInfo->gradString.push_back( "turbq"    );
+    solverInfo->gradString.push_back( "turbdqdx" );
+    solverInfo->gradString.push_back( "turbdqdy" );
+    solverInfo->gradString.push_back( "turbdqdz" );
 
-	solverInfo->implicitString.push_back( "turbq"  );
-	solverInfo->implicitString.push_back( "turbdq" );
+    solverInfo->implicitString.push_back( "turbq"  );
+    solverInfo->implicitString.push_back( "turbdq" );
 
     int nTurbEqu = solverInfo->nEqu;
     SetDataInt( "nTurbEqu", nTurbEqu );

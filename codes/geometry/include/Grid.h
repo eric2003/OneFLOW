@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -36,8 +36,8 @@ Grid * Clone() const { return new TYPE(); }
 //Grid * Clone() const { return new TYPE( * this ); }
 
 #define REGISTER_GRID( TYPE ) \
-	Grid * TYPE ## _myClass = \
-		Grid::Register( #TYPE, new TYPE() );
+    Grid * TYPE ## _myClass = \
+        Grid::Register( #TYPE, new TYPE() );
 
 class DataBook;
 class NodeMesh;
@@ -52,11 +52,11 @@ public:
     Grid();
     virtual ~Grid();
 public:
-	virtual Grid * Clone() const = 0;
+    virtual Grid * Clone() const = 0;
 public:
-	static Grid * SafeClone( const string & type );
-	static Grid * Register( const string & type, Grid * clone );
-	static map < string, Grid * > * classMap;
+    static Grid * SafeClone( const string & type );
+    static Grid * Register( const string & type, Grid * clone );
+    static map < string, Grid * > * classMap;
 public:
     int type, level;
     int id, localId;
@@ -64,20 +64,20 @@ public:
     int nFace, nCell;
     int nBFace;
     int nIFace;
-	int volBcType;
+    int volBcType;
     NodeMesh * nodeMesh;
     InterFace * interFace;
-	SlipFace * slipFace;
+    SlipFace * slipFace;
     DataBase * dataBase;
 public:
     DataBase * GetDataBase() { return dataBase; };
 public:
     void BasicInit();
-	void Free();
+    void Free();
     virtual void Init();
 public:
-	virtual void ReadGrid ( fstream & file ) {};
-	virtual void WriteGrid( fstream & file ) {};
+    virtual void ReadGrid ( fstream & file ) {};
+    virtual void WriteGrid( fstream & file ) {};
     virtual void Decode( DataBook * databook ){};
     virtual void Encode( DataBook * databook ){};
     virtual void ModifyBcType( int bcType1, int bcType2 ) {};

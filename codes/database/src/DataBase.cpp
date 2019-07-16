@@ -32,20 +32,20 @@ DataBase * globalDataBase = 0;
 
 DataBase * GetGlobalDataBase()
 {
-	return globalDataBase;
+    return globalDataBase;
 }
 
 class HXInitGlobalDataBase
 {
 public:
-	HXInitGlobalDataBase()
-	{
-		globalDataBase = new DataBase();
-	};
-	~HXInitGlobalDataBase()
-	{
-		delete globalDataBase;
-	}
+    HXInitGlobalDataBase()
+    {
+        globalDataBase = new DataBase();
+    };
+    ~HXInitGlobalDataBase()
+    {
+        delete globalDataBase;
+    }
 };
 
 HXInitGlobalDataBase initGlobalDataBase;
@@ -53,98 +53,98 @@ HXInitGlobalDataBase initGlobalDataBase;
 
 DataBase::DataBase()
 {
-	dataPara = new DataPara();
-	dataField = new DataField();
+    dataPara = new DataPara();
+    dataField = new DataField();
 }
 
 DataBase::~DataBase()
 {
-	delete dataPara;
-	delete dataField;
+    delete dataPara;
+    delete dataField;
 }
 
 void HXWriteVoid( DataBook * dataBook, DataV * datav )
 {
-	datav->data->Write( dataBook );
+    datav->data->Write( dataBook );
 }
 
 void HXWriteDataV( DataBook * dataBook, DataV * datav )
 {
-	ONEFLOW::HXWrite( dataBook, datav->name );
-	ONEFLOW::HXWrite( dataBook, datav->type );
-	ONEFLOW::HXWrite( dataBook, datav->size );
-	ONEFLOW::HXWriteVoid( dataBook, datav );
+    ONEFLOW::HXWrite( dataBook, datav->name );
+    ONEFLOW::HXWrite( dataBook, datav->type );
+    ONEFLOW::HXWrite( dataBook, datav->size );
+    ONEFLOW::HXWriteVoid( dataBook, datav );
 }
 
 void HXReadDataV( DataBook * dataBook, DataV * datav )
 {
-	ONEFLOW::HXRead( dataBook, datav->name );
-	ONEFLOW::HXRead( dataBook, datav->type );
-	ONEFLOW::HXRead( dataBook, datav->size );
-	ONEFLOW::HXReadVoid( dataBook, datav );
+    ONEFLOW::HXRead( dataBook, datav->name );
+    ONEFLOW::HXRead( dataBook, datav->type );
+    ONEFLOW::HXRead( dataBook, datav->size );
+    ONEFLOW::HXReadVoid( dataBook, datav );
 }
 
 void HXReadVoid( DataBook * dataBook, DataV * datav )
 {
     DataObject * o = CreateDataObject( datav->type, datav->size );
     datav->data = o;
-	datav->data->Read( dataBook, datav->size );
+    datav->data->Read( dataBook, datav->size );
 }
 
 void ProcessData( const string & name, string * value, int type, int size )
 {
-	DataV * datav = new DataV();
-	datav->name = name;
-	datav->type = type;
-	datav->size = size;
-	if ( type == ONEFLOW::HX_STRING )
-	{
-		TDataObject< string > * stringObject = new TDataObject< string >( size );
-		stringObject->CopyValue( value );
-		datav->data = stringObject;
-	}
-	else if ( type == HX_INT )
-	{
-		TDataObject< int > * intObject = new TDataObject< int >( size );
-		intObject->CopyValue( value );
-		datav->data = intObject;
-	}
-	else if ( type == HX_REAL )
-	{
-		TDataObject< Real > * realObject = new TDataObject< Real >( size );
-		realObject->CopyValue( value );
-		datav->data = realObject;
-	}
-	else
-	{
-		Stop( " Parameter Type Error \n" );
-	}
-	DataBase * dataBase = ONEFLOW::GetGlobalDataBase();
-	dataBase->dataPara->UpdateDataPointer( datav );
+    DataV * datav = new DataV();
+    datav->name = name;
+    datav->type = type;
+    datav->size = size;
+    if ( type == ONEFLOW::HX_STRING )
+    {
+        TDataObject< string > * stringObject = new TDataObject< string >( size );
+        stringObject->CopyValue( value );
+        datav->data = stringObject;
+    }
+    else if ( type == HX_INT )
+    {
+        TDataObject< int > * intObject = new TDataObject< int >( size );
+        intObject->CopyValue( value );
+        datav->data = intObject;
+    }
+    else if ( type == HX_REAL )
+    {
+        TDataObject< Real > * realObject = new TDataObject< Real >( size );
+        realObject->CopyValue( value );
+        datav->data = realObject;
+    }
+    else
+    {
+        Stop( " Parameter Type Error \n" );
+    }
+    DataBase * dataBase = ONEFLOW::GetGlobalDataBase();
+    dataBase->dataPara->UpdateDataPointer( datav );
 }
 
 DataObject * CreateDataObject( int type, int size )
 {
-	if ( type == ONEFLOW::HX_STRING )
-	{
-		TDataObject< string > * stringObject = new TDataObject< string >( size );
-		return stringObject;
-	}
-	else if ( type == HX_INT )
-	{
-		TDataObject< int > * intObject = new TDataObject< int >( size );
-		return intObject;
-	}
-	else if ( type == HX_REAL )
-	{
-		TDataObject< Real > * realObject = new TDataObject< Real >( size );
-		return realObject;
-	}
-	else
-	{
-		Stop( " Parameter Type Error In CreateDataObject\n" );
+    if ( type == ONEFLOW::HX_STRING )
+    {
+        TDataObject< string > * stringObject = new TDataObject< string >( size );
+        return stringObject;
+    }
+    else if ( type == HX_INT )
+    {
+        TDataObject< int > * intObject = new TDataObject< int >( size );
+        return intObject;
+    }
+    else if ( type == HX_REAL )
+    {
+        TDataObject< Real > * realObject = new TDataObject< Real >( size );
+        return realObject;
+    }
+    else
+    {
+        Stop( " Parameter Type Error In CreateDataObject\n" );
         return 0;
-	}
+    }
 }
 
 void SetDataInt( const std::string & varName, int & value )

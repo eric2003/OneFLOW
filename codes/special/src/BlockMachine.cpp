@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -53,65 +53,65 @@ BlockMachine::~BlockMachine()
 
 void BlockMachine::AddFaceToBlock( AsciiFileRead * ioFile )
 {
-	string word = ioFile->ReadNextWord();
-	if ( word == "L2F" )
-	{
-		int faceid = ioFile->ReadNextDigit< int >();
-		int pos = ioFile->ReadNextDigit< int >();
-		int lineid = ioFile->ReadNextDigit< int >();
-		
-		if ( Dim::dimension == ONEFLOW::THREE_D )
-		{
-			blkFaceSolver.AddLineToFace( faceid, pos, lineid );
-		}
-		else
-		{
-			blkFaceSolver.AddLineToFace( faceid, pos, lineid );
-		}
-	}
-	else if ( word == "F2B" )
-	{
-		int blockid = ioFile->ReadNextDigit< int >();
-		int pos = ioFile->ReadNextDigit< int >();
-		int faceid = ioFile->ReadNextDigit< int >();
+    string word = ioFile->ReadNextWord();
+    if ( word == "L2F" )
+    {
+        int faceid = ioFile->ReadNextDigit< int >();
+        int pos = ioFile->ReadNextDigit< int >();
+        int lineid = ioFile->ReadNextDigit< int >();
+        
+        if ( Dim::dimension == ONEFLOW::THREE_D )
+        {
+            blkFaceSolver.AddLineToFace( faceid, pos, lineid );
+        }
+        else
+        {
+            blkFaceSolver.AddLineToFace( faceid, pos, lineid );
+        }
+    }
+    else if ( word == "F2B" )
+    {
+        int blockid = ioFile->ReadNextDigit< int >();
+        int pos = ioFile->ReadNextDigit< int >();
+        int faceid = ioFile->ReadNextDigit< int >();
 
-		if ( Dim::dimension == ONEFLOW::THREE_D )
-		{
-			blkFaceSolver.AddFace2Block( blockid, pos, faceid );
-		}
-		else
-		{
-			blkFaceSolver.AddFace2Block( blockid, pos, faceid );
-		}
-	}
+        if ( Dim::dimension == ONEFLOW::THREE_D )
+        {
+            blkFaceSolver.AddFace2Block( blockid, pos, faceid );
+        }
+        else
+        {
+            blkFaceSolver.AddFace2Block( blockid, pos, faceid );
+        }
+    }
 }
 
 void BlockMachine::GenerateFaceBlockLink()
 {
-	if ( Dim::dimension == ONEFLOW::THREE_D )
-	{
-		blkFaceSolver.DumpBlkScript();
-		blkFaceSolver.SetBoundary();
-		blkFaceSolver.BuildBlkFace();
-		blkFaceSolver.ConstructBlockInfo();
-		blkFaceSolver.DumpBcInp();
-		blkFaceSolver.GenerateLineMesh();
-		blkFaceSolver.GenerateFaceMesh();
-		blkFaceSolver.GenerateBlkMesh();
-		blkFaceSolver.DumpStandardGrid();
-	}
-	else
-	{
-		blkFaceSolver.SetBoundary();
-		blkFaceSolver.BuildBlkFace();
-		blkFaceSolver.ConstructBlockInfo();
-		blkFaceSolver.DumpBcInp();
-		blkFaceSolver.GenerateLineMesh();
-		blkFaceSolver.GenerateFaceMesh();
-		blkFaceSolver.GenerateBlkMesh();
-		blkFaceSolver.DumpStandardGrid();
+    if ( Dim::dimension == ONEFLOW::THREE_D )
+    {
+        blkFaceSolver.DumpBlkScript();
+        blkFaceSolver.SetBoundary();
+        blkFaceSolver.BuildBlkFace();
+        blkFaceSolver.ConstructBlockInfo();
+        blkFaceSolver.DumpBcInp();
+        blkFaceSolver.GenerateLineMesh();
+        blkFaceSolver.GenerateFaceMesh();
+        blkFaceSolver.GenerateBlkMesh();
+        blkFaceSolver.DumpStandardGrid();
+    }
+    else
+    {
+        blkFaceSolver.SetBoundary();
+        blkFaceSolver.BuildBlkFace();
+        blkFaceSolver.ConstructBlockInfo();
+        blkFaceSolver.DumpBcInp();
+        blkFaceSolver.GenerateLineMesh();
+        blkFaceSolver.GenerateFaceMesh();
+        blkFaceSolver.GenerateBlkMesh();
+        blkFaceSolver.DumpStandardGrid();
 
-	}
+    }
 }
 
 void BlockMachine::ConstructBlockTopo()
@@ -128,127 +128,127 @@ void BlockMachine::DumpStandardGrid()
 
 void BlockMachine::DumpStandardGrid( Grids & strGridList )
 {
-	fstream file;
-	OpenPrjFile( file, "grid/strplot3d.grd", ios_base::out | ios_base::binary );
+    fstream file;
+    OpenPrjFile( file, "grid/strplot3d.grd", ios_base::out | ios_base::binary );
 
-	int nZone = strGridList.size();
-	HXWrite( & file, nZone );
-	for ( int iBlock = 0; iBlock < nZone; ++ iBlock )
-	{
-		Grid * gridstr = strGridList[ iBlock ];
-		StrGrid * grid = ONEFLOW::StrGridCast( gridstr );
-		int ni = grid->ni;
-		int nj = grid->nj;
-		int nk = grid->nk;
-		HXWrite( & file, ni );
-		HXWrite( & file, nj );
-		HXWrite( & file, nk );
-	}
+    int nZone = strGridList.size();
+    HXWrite( & file, nZone );
+    for ( int iBlock = 0; iBlock < nZone; ++ iBlock )
+    {
+        Grid * gridstr = strGridList[ iBlock ];
+        StrGrid * grid = ONEFLOW::StrGridCast( gridstr );
+        int ni = grid->ni;
+        int nj = grid->nj;
+        int nk = grid->nk;
+        HXWrite( & file, ni );
+        HXWrite( & file, nj );
+        HXWrite( & file, nk );
+    }
 
-	for ( int iBlock = 0; iBlock < nZone; ++ iBlock )
-	{
-		Grid * gridstr = strGridList[ iBlock ];
-		StrGrid * grid = ONEFLOW::StrGridCast( gridstr );
-		HXWrite( & file, grid->nodeMesh->xN );
-		HXWrite( & file, grid->nodeMesh->yN );
-		HXWrite( & file, grid->nodeMesh->zN );
-	}
+    for ( int iBlock = 0; iBlock < nZone; ++ iBlock )
+    {
+        Grid * gridstr = strGridList[ iBlock ];
+        StrGrid * grid = ONEFLOW::StrGridCast( gridstr );
+        HXWrite( & file, grid->nodeMesh->xN );
+        HXWrite( & file, grid->nodeMesh->yN );
+        HXWrite( & file, grid->nodeMesh->zN );
+    }
 
-	CloseFile( file );
+    CloseFile( file );
 }
 
 void BlockMachine::DumpStandardGridBc( Grids & strGridList )
 {
-	fstream file;
-	OpenPrjFile( file, "grid/strplot3d.inp", ios_base::out );
+    fstream file;
+    OpenPrjFile( file, "grid/strplot3d.inp", ios_base::out );
 
-	int nZone = strGridList.size();
-	int flowSolverIndex = 1;
+    int nZone = strGridList.size();
+    int flowSolverIndex = 1;
 
-	int width = 5;
+    int width = 5;
 
-	file << setw( width ) << flowSolverIndex << endl;
-	file << setw( width ) << nZone << endl;
+    file << setw( width ) << flowSolverIndex << endl;
+    file << setw( width ) << nZone << endl;
 
-	for ( int iBlock = 0; iBlock < nZone; ++ iBlock )
-	{
-		Grid * gridstr = strGridList[ iBlock ];
-		StrGrid * grid = ONEFLOW::StrGridCast( gridstr );
-		int ni = grid->ni;
-		int nj = grid->nj;
-		int nk = grid->nk;
+    for ( int iBlock = 0; iBlock < nZone; ++ iBlock )
+    {
+        Grid * gridstr = strGridList[ iBlock ];
+        StrGrid * grid = ONEFLOW::StrGridCast( gridstr );
+        int ni = grid->ni;
+        int nj = grid->nj;
+        int nk = grid->nk;
 
-		file << setw( width ) << ni;
-		file << setw( width ) << nj;
-		if ( Dim::dimension == ONEFLOW::THREE_D )
-		{
-			file << setw( width ) << nk;
-		}
-		file << endl;
+        file << setw( width ) << ni;
+        file << setw( width ) << nj;
+        if ( Dim::dimension == ONEFLOW::THREE_D )
+        {
+            file << setw( width ) << nk;
+        }
+        file << endl;
 
-		string blockName = "zone";
+        string blockName = "zone";
 
-		BcRegionGroup * bcRegionGroup = grid->bcRegionGroup;
-		
-		HXVector< BcRegion * > & regions = * bcRegionGroup->regions;
+        BcRegionGroup * bcRegionGroup = grid->bcRegionGroup;
+        
+        HXVector< BcRegion * > & regions = * bcRegionGroup->regions;
 
-		int nBcRegions = regions.size();
+        int nBcRegions = regions.size();
 
-		for ( int ir = 0; ir < nBcRegions; ++ ir )
-		{
-			int imin, imax, jmin, jmax, kmin, kmax;
+        for ( int ir = 0; ir < nBcRegions; ++ ir )
+        {
+            int imin, imax, jmin, jmax, kmin, kmax;
 
-			BcRegion * region = regions[ ir ];
-			imin = region->s->start[ 0 ];
-			jmin = region->s->start[ 1 ];
-			kmin = region->s->start[ 2 ];
+            BcRegion * region = regions[ ir ];
+            imin = region->s->start[ 0 ];
+            jmin = region->s->start[ 1 ];
+            kmin = region->s->start[ 2 ];
 
-			imax = region->s->end[ 0 ];
-			jmax = region->s->end[ 1 ];
-			kmax = region->s->end[ 2 ];
+            imax = region->s->end[ 0 ];
+            jmax = region->s->end[ 1 ];
+            kmax = region->s->end[ 2 ];
 
-			int bcType = region->bcType;
+            int bcType = region->bcType;
 
-			file << setw( width ) << imin;
-			file << setw( width ) << imax;
-			file << setw( width ) << jmin;
-			file << setw( width ) << jmax;
-			if ( Dim::dimension == ONEFLOW::THREE_D )
-			{
-				file << setw( width ) << kmin;
-				file << setw( width ) << kmax;
-			}
-			file << setw( width ) << bcType;
-			file << "\n";
+            file << setw( width ) << imin;
+            file << setw( width ) << imax;
+            file << setw( width ) << jmin;
+            file << setw( width ) << jmax;
+            if ( Dim::dimension == ONEFLOW::THREE_D )
+            {
+                file << setw( width ) << kmin;
+                file << setw( width ) << kmax;
+            }
+            file << setw( width ) << bcType;
+            file << "\n";
 
-			if ( bcType < 0 )
-			{
-				imin = region->t->start[ 0 ];
-				jmin = region->t->start[ 1 ];
-				kmin = region->t->start[ 2 ];
+            if ( bcType < 0 )
+            {
+                imin = region->t->start[ 0 ];
+                jmin = region->t->start[ 1 ];
+                kmin = region->t->start[ 2 ];
 
-				imax = region->t->end[ 0 ];
-				jmax = region->t->end[ 1 ];
-				kmax = region->t->end[ 2 ];
+                imax = region->t->end[ 0 ];
+                jmax = region->t->end[ 1 ];
+                kmax = region->t->end[ 2 ];
 
-				int zid = region->t->zid;
+                int zid = region->t->zid;
 
-				file << setw( width ) << imin;
-				file << setw( width ) << imax;
-				file << setw( width ) << jmin;
-				file << setw( width ) << jmax;
-				if ( Dim::dimension == ONEFLOW::THREE_D )
-				{
-					file << setw( width ) << kmin;
-					file << setw( width ) << kmax;
-				}
-				file << setw( width ) << bcType;
-				file << "\n";
-			}
-		}
-	}
+                file << setw( width ) << imin;
+                file << setw( width ) << imax;
+                file << setw( width ) << jmin;
+                file << setw( width ) << jmax;
+                if ( Dim::dimension == ONEFLOW::THREE_D )
+                {
+                    file << setw( width ) << kmin;
+                    file << setw( width ) << kmax;
+                }
+                file << setw( width ) << bcType;
+                file << "\n";
+            }
+        }
+    }
 
-	CloseFile( file );
+    CloseFile( file );
 }
 
 EndNameSpace

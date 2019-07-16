@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -38,146 +38,146 @@ BlkElem::~BlkElem()
 
 void BlkElem::Init( int eType )
 {
-	this->eType = eType;
-	int nNode = 4;
-	if ( eType == ONEFLOW::QUAD_4 )
-	{
-		nNode = 4;
-	}
-	else if ( eType == ONEFLOW::HEXA_8 )
-	{
-		nNode = 8;
-	}
+    this->eType = eType;
+    int nNode = 4;
+    if ( eType == ONEFLOW::QUAD_4 )
+    {
+        nNode = 4;
+    }
+    else if ( eType == ONEFLOW::HEXA_8 )
+    {
+        nNode = 8;
+    }
 
-	nodeId.resize( nNode );
+    nodeId.resize( nNode );
 
-	for ( int iNode = 0; iNode < nNode; ++ iNode )
-	{
-		nodeId[ iNode ] = iNode;
-	}
+    for ( int iNode = 0; iNode < nNode; ++ iNode )
+    {
+        nodeId[ iNode ] = iNode;
+    }
 
-	if ( eType == ONEFLOW::QUAD_4 )
-	{
-		// QUAD_4
-		// 1....2....3 ...4....1
+    if ( eType == ONEFLOW::QUAD_4 )
+    {
+        // QUAD_4
+        // 1....2....3 ...4....1
 
-		// Face 4
-		// 1 2
-		// 2 3
-		// 3 4
-		// 4 1
-		this->PushElementFace( ONEFLOW::BAR_2, 1, 2 );
-		this->PushElementFace( ONEFLOW::BAR_2, 2, 3 );
-		this->PushElementFace( ONEFLOW::BAR_2, 3, 4 );
-		this->PushElementFace( ONEFLOW::BAR_2, 4, 1 );
-	}
-	else if ( eType == ONEFLOW::HEXA_8 )
-	{
-		// HEXA_8
+        // Face 4
+        // 1 2
+        // 2 3
+        // 3 4
+        // 4 1
+        this->PushElementFace( ONEFLOW::BAR_2, 1, 2 );
+        this->PushElementFace( ONEFLOW::BAR_2, 2, 3 );
+        this->PushElementFace( ONEFLOW::BAR_2, 3, 4 );
+        this->PushElementFace( ONEFLOW::BAR_2, 4, 1 );
+    }
+    else if ( eType == ONEFLOW::HEXA_8 )
+    {
+        // HEXA_8
 
-		// 1 2 3 4 5 6 7 8
-		// Face 6
-		// 1, 4, 8, 5 //0
-		// 2, 3, 7, 6 //1
-		// 1, 2, 6, 5 //2
-		// 4, 3, 7, 8 //3
-		// 1, 2, 3, 4 //4
-		// 5, 6, 7, 8 //5
-		this->PushElementFace( ONEFLOW::QUAD_4, 1, 4, 8, 5 );
-		this->PushElementFace( ONEFLOW::QUAD_4, 2, 3, 7, 6 );
-		this->PushElementFace( ONEFLOW::QUAD_4, 1, 2, 6, 5 );
-		this->PushElementFace( ONEFLOW::QUAD_4, 4, 3, 7, 8 );
-		this->PushElementFace( ONEFLOW::QUAD_4, 1, 2, 3, 4 );
-		this->PushElementFace( ONEFLOW::QUAD_4, 5, 6, 7, 8 );
-	}
+        // 1 2 3 4 5 6 7 8
+        // Face 6
+        // 1, 4, 8, 5 //0
+        // 2, 3, 7, 6 //1
+        // 1, 2, 6, 5 //2
+        // 4, 3, 7, 8 //3
+        // 1, 2, 3, 4 //4
+        // 5, 6, 7, 8 //5
+        this->PushElementFace( ONEFLOW::QUAD_4, 1, 4, 8, 5 );
+        this->PushElementFace( ONEFLOW::QUAD_4, 2, 3, 7, 6 );
+        this->PushElementFace( ONEFLOW::QUAD_4, 1, 2, 6, 5 );
+        this->PushElementFace( ONEFLOW::QUAD_4, 4, 3, 7, 8 );
+        this->PushElementFace( ONEFLOW::QUAD_4, 1, 2, 3, 4 );
+        this->PushElementFace( ONEFLOW::QUAD_4, 5, 6, 7, 8 );
+    }
 }
 
 void BlkElem::PushElementFace( int faceType, int p1, int p2 )
 {
-	faceTypeList.push_back( faceType );
+    faceTypeList.push_back( faceType );
 
-	IntField face;
-	face.push_back( p1 );
-	face.push_back( p2 );
-	for ( int i = 0; i < face.size(); ++ i )
-	{
-		face[ i ] -= 1;
-	}
-	faceList.push_back( face );
+    IntField face;
+    face.push_back( p1 );
+    face.push_back( p2 );
+    for ( int i = 0; i < face.size(); ++ i )
+    {
+        face[ i ] -= 1;
+    }
+    faceList.push_back( face );
 }
 
 void BlkElem::PushElementFace( int faceType, int p1, int p2, int p3, int p4 )
 {
-	faceTypeList.push_back( faceType );
+    faceTypeList.push_back( faceType );
 
-	IntField face;
-	face.push_back( p1 );
-	face.push_back( p2 );
-	face.push_back( p3 );
-	face.push_back( p4 );
-	for ( int i = 0; i < face.size(); ++ i )
-	{
-		face[ i ] -= 1;
-	}
+    IntField face;
+    face.push_back( p1 );
+    face.push_back( p2 );
+    face.push_back( p3 );
+    face.push_back( p4 );
+    for ( int i = 0; i < face.size(); ++ i )
+    {
+        face[ i ] -= 1;
+    }
 
-	faceList.push_back( face );
+    faceList.push_back( face );
 }
 
 BlkElemHome::BlkElemHome()
 {
-	initFlag = false;
+    initFlag = false;
 }
 
 BlkElemHome::~BlkElemHome()
 {
-	Free();
+    Free();
 }
 
 void BlkElemHome::Init()
 {
-	if ( initFlag ) return;
-	initFlag = true;
+    if ( initFlag ) return;
+    initFlag = true;
 
-	int n1 = ONEFLOW::QUAD_4;
-	int n2 = ONEFLOW::HEXA_8;
-	int nSize = MAX( n1, n2 ) + 1;
+    int n1 = ONEFLOW::QUAD_4;
+    int n2 = ONEFLOW::HEXA_8;
+    int nSize = MAX( n1, n2 ) + 1;
 
-	elems.resize( nSize );
-	IntField a;
-	a.push_back( n1 );
-	a.push_back( n2 );
+    elems.resize( nSize );
+    IntField a;
+    a.push_back( n1 );
+    a.push_back( n2 );
 
-	for ( int i = 0; i < a.size(); ++ i )
-	{
-		int eType = a[ i ];
-		BlkElem * elem = new BlkElem();
-		elem->Init( eType );
-		elems[ eType ] = elem;
-	}
+    for ( int i = 0; i < a.size(); ++ i )
+    {
+        int eType = a[ i ];
+        BlkElem * elem = new BlkElem();
+        elem->Init( eType );
+        elems[ eType ] = elem;
+    }
 }
 
 void BlkElemHome::Free()
 {
-	int nSize = elems.size();
-	for ( int i = 0; i < nSize; ++ i )
-	{
-		delete elems[ i ];
-	}
+    int nSize = elems.size();
+    for ( int i = 0; i < nSize; ++ i )
+    {
+        delete elems[ i ];
+    }
 }
 
 BlkElem * BlkElemHome::GetBlkElem( int eType )
 {
-	return elems[ eType ];
+    return elems[ eType ];
 }
 
 BlkFace::BlkFace()
 {
-	;
+    ;
 }
 
 BlkFace::~BlkFace()
 {
-	;
+    ;
 }
 
 EndNameSpace

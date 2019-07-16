@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -43,20 +43,20 @@ VisGradGeom::~VisGradGeom()
 
 void VisGradGeom::CmpFaceWeight()
 {
-	dxl = ( * ug.fcx )[ ug.fId ] - ( * ug.ccx )[ ug.lc ];
-	dyl = ( * ug.fcy )[ ug.fId ] - ( * ug.ccy )[ ug.lc ];
-	dzl = ( * ug.fcz )[ ug.fId ] - ( * ug.ccz )[ ug.lc ];
+    dxl = ( * ug.fcx )[ ug.fId ] - ( * ug.ccx )[ ug.lc ];
+    dyl = ( * ug.fcy )[ ug.fId ] - ( * ug.ccy )[ ug.lc ];
+    dzl = ( * ug.fcz )[ ug.fId ] - ( * ug.ccz )[ ug.lc ];
 
-	dxr = ( * ug.fcx )[ ug.fId ] - ( * ug.ccx )[ ug.rc ];
-	dyr = ( * ug.fcy )[ ug.fId ] - ( * ug.ccy )[ ug.rc ];
-	dzr = ( * ug.fcz )[ ug.fId ] - ( * ug.ccz )[ ug.rc ];
+    dxr = ( * ug.fcx )[ ug.fId ] - ( * ug.ccx )[ ug.rc ];
+    dyr = ( * ug.fcy )[ ug.fId ] - ( * ug.ccy )[ ug.rc ];
+    dzr = ( * ug.fcz )[ ug.fId ] - ( * ug.ccz )[ ug.rc ];
 
-	delt1 = DIST( dxl, dyl, dzl );
-	delt2 = DIST( dxr, dyr, dzr );
-	delta = 1.0 / ( delt1 + delt2 + SMALL );
+    delt1 = DIST( dxl, dyl, dzl );
+    delt2 = DIST( dxr, dyr, dzr );
+    delta = 1.0 / ( delt1 + delt2 + SMALL );
 
-	fw1 = delt2 * delta;
-	fw2 = delt1 * delta;
+    fw1 = delt2 * delta;
+    fw2 = delt1 * delta;
 }
 
 void VisGradGeom::CmpAngle( Real dx, Real dy, Real dz, Real dist, Real & angle )
@@ -69,13 +69,13 @@ void VisGradGeom::CmpAngle( Real dx, Real dy, Real dz, Real dist, Real & angle )
 
 void VisGradGeom::PrepareCellGeom()
 {
-	this->dxl = ( * ug.ccx )[ ug.lc ] - ( * ug.fcx )[ ug.fId ];
-	this->dyl = ( * ug.ccy )[ ug.lc ] - ( * ug.fcy )[ ug.fId ];
-	this->dzl = ( * ug.ccz )[ ug.lc ] - ( * ug.fcz )[ ug.fId ];
+    this->dxl = ( * ug.ccx )[ ug.lc ] - ( * ug.fcx )[ ug.fId ];
+    this->dyl = ( * ug.ccy )[ ug.lc ] - ( * ug.fcy )[ ug.fId ];
+    this->dzl = ( * ug.ccz )[ ug.lc ] - ( * ug.fcz )[ ug.fId ];
 
-	this->dxr = ( * ug.ccx )[ ug.rc ] - ( * ug.fcx )[ ug.fId ];
-	this->dyr = ( * ug.ccy )[ ug.rc ] - ( * ug.fcy )[ ug.fId ];
-	this->dzr = ( * ug.ccz )[ ug.rc ] - ( * ug.fcz )[ ug.fId ];
+    this->dxr = ( * ug.ccx )[ ug.rc ] - ( * ug.fcx )[ ug.fId ];
+    this->dyr = ( * ug.ccy )[ ug.rc ] - ( * ug.fcy )[ ug.fId ];
+    this->dzr = ( * ug.ccz )[ ug.rc ] - ( * ug.fcz )[ ug.fId ];
 
     this->d1  = gcom.fnx * this->dxl + gcom.fny * this->dyl + gcom.fnz * this->dzl;
     this->d2  = gcom.fnx * this->dxr + gcom.fny * this->dyr + gcom.fnz * this->dzr;
@@ -92,21 +92,21 @@ void VisGradGeom::PrepareCellGeom()
     //( r1x, r1y ) - ( rLx, rLy ) = ( dr1x, dr1y ) - ( drLx, drLy )
     //( dr1x, dr1y ) - ( drLx, drLy ) = d1 * ( fnx, fny ) - ( dxl, dyl )
 
-	this->CmpAngle( this->dxl, this->dyl, this->dzl, - this->d1, this->angle1 );
-	this->CmpAngle( this->dxr, this->dyr, this->dzr,   this->d2, this->angle2 );
+    this->CmpAngle( this->dxl, this->dyl, this->dzl, - this->d1, this->angle1 );
+    this->CmpAngle( this->dxr, this->dyr, this->dzr,   this->d2, this->angle2 );
 }
 
 void VisGradGeom::CmpGradCoef()
 {
-	this->dx  = ( * ug.ccx )[ ug.rc ] - ( * ug.ccx )[ ug.lc ];
-	this->dy  = ( * ug.ccy )[ ug.rc ] - ( * ug.ccy )[ ug.lc ];
-	this->dz  = ( * ug.ccz )[ ug.rc ] - ( * ug.ccz )[ ug.lc ];
+    this->dx  = ( * ug.ccx )[ ug.rc ] - ( * ug.ccx )[ ug.lc ];
+    this->dy  = ( * ug.ccy )[ ug.rc ] - ( * ug.ccy )[ ug.lc ];
+    this->dz  = ( * ug.ccz )[ ug.rc ] - ( * ug.ccz )[ ug.lc ];
 
-	this->ods = 1.0 / DIST( this->dx, this->dy, this->dz );
+    this->ods = 1.0 / DIST( this->dx, this->dy, this->dz );
 
-	this->dx *= this->ods;
-	this->dy *= this->ods;
-	this->dz *= this->ods;
+    this->dx *= this->ods;
+    this->dy *= this->ods;
+    this->dz *= this->ods;
 }
 
 
@@ -152,82 +152,82 @@ void VisGrad::Init( int nEqu )
 
 void VisGrad::AverGrad()
 {
-	for ( int iEqu = 0; iEqu < nEqu; ++ iEqu )
-	{
-		dqdx[ iEqu ] = half * ( dqdx1[ iEqu ] + dqdx2[ iEqu ] );
-		dqdy[ iEqu ] = half * ( dqdy1[ iEqu ] + dqdy2[ iEqu ] );
-		dqdz[ iEqu ] = half * ( dqdz1[ iEqu ] + dqdz2[ iEqu ] );
-	}
+    for ( int iEqu = 0; iEqu < nEqu; ++ iEqu )
+    {
+        dqdx[ iEqu ] = half * ( dqdx1[ iEqu ] + dqdx2[ iEqu ] );
+        dqdy[ iEqu ] = half * ( dqdy1[ iEqu ] + dqdy2[ iEqu ] );
+        dqdz[ iEqu ] = half * ( dqdz1[ iEqu ] + dqdz2[ iEqu ] );
+    }
 }
 
 void VisGrad::ZeroNormalGrad()
 {
-	for ( int iEqu = 0; iEqu < nEqu; ++ iEqu )
-	{
-		dqdn[ iEqu ] = 0.0;
-	}
+    for ( int iEqu = 0; iEqu < nEqu; ++ iEqu )
+    {
+        dqdn[ iEqu ] = 0.0;
+    }
 }
 
 void VisGrad::AverFaceValue()
 {
-	for ( int iEqu = 0; iEqu < nEqu; ++ iEqu )
-	{
+    for ( int iEqu = 0; iEqu < nEqu; ++ iEqu )
+    {
         q[ iEqu ] = half * ( q1[ iEqu ] + q2[ iEqu ] );
     }
 }
 
 void VisGrad::CorrectFaceGrad()
 {
-	for ( int iEqu = 0; iEqu < nEqu; ++ iEqu )
-	{
-		CorrectGrad( q1[ iEqu ], q2[ iEqu ], dqdx[ iEqu ], dqdy[ iEqu ], dqdz[ iEqu ], vgg.dx, vgg.dy, vgg.dz, vgg.ods );
-	}
+    for ( int iEqu = 0; iEqu < nEqu; ++ iEqu )
+    {
+        CorrectGrad( q1[ iEqu ], q2[ iEqu ], dqdx[ iEqu ], dqdy[ iEqu ], dqdz[ iEqu ], vgg.dx, vgg.dy, vgg.dz, vgg.ods );
+    }
 }
 
 void VisGrad::CmpNormalGrad()
 {
-	for ( int iEqu = 0; iEqu < nEqu; ++ iEqu )
-	{
-		dqdn[ iEqu ] = gcom.fnx * dqdx[ iEqu ] + gcom.fny * dqdy[ iEqu ] + gcom.fnz * dqdz[ iEqu ];
-	}
+    for ( int iEqu = 0; iEqu < nEqu; ++ iEqu )
+    {
+        dqdn[ iEqu ] = gcom.fnx * dqdx[ iEqu ] + gcom.fny * dqdy[ iEqu ] + gcom.fnz * dqdz[ iEqu ];
+    }
 }
 
 bool VisGrad::FaceAngleIsValid()
 {
-	// Theoretically, more accurate to include the following terms
-	bool result =  vgg.angle1 > vgg.skewAngle && vgg.angle2 > vgg.skewAngle;
-	return result;
+    // Theoretically, more accurate to include the following terms
+    bool result =  vgg.angle1 > vgg.skewAngle && vgg.angle2 > vgg.skewAngle;
+    return result;
 }
 
 bool VisGrad::TestSatisfied()
 {
-	bool result = vgg.angle1 > 0.0 && vgg.angle2 > 0.0 && ABS( vgg.d1 ) > SMALL && ABS( vgg.d2 ) > SMALL;
-	if ( result )
-	{
-		this->ComputeC1C2();
-	}
-	return result;
+    bool result = vgg.angle1 > 0.0 && vgg.angle2 > 0.0 && ABS( vgg.d1 ) > SMALL && ABS( vgg.d2 ) > SMALL;
+    if ( result )
+    {
+        this->ComputeC1C2();
+    }
+    return result;
 }
 
 bool VisGrad::New1Satisfied()
 {
-	bool result =  vgg.d1 * vgg.d2 < 0.0 && ABS( vgg.d1 ) > SMALL && ABS( vgg.d2 ) > SMALL;
-	if ( result )
-	{
-		vgg.d  = - two * vgg.d1 * vgg.d2 / ( SQR( vgg.d1, vgg.d2 ) + SMALL );
-		vgg.od = vgg.d / ( vgg.d2 - vgg.d1 );
-	}
+    bool result =  vgg.d1 * vgg.d2 < 0.0 && ABS( vgg.d1 ) > SMALL && ABS( vgg.d2 ) > SMALL;
+    if ( result )
+    {
+        vgg.d  = - two * vgg.d1 * vgg.d2 / ( SQR( vgg.d1, vgg.d2 ) + SMALL );
+        vgg.od = vgg.d / ( vgg.d2 - vgg.d1 );
+    }
 
-	return result;
+    return result;
 }
 
 bool VisGrad::New2Satisfied()
 {
-	vgg.d = - two *  vgg.d1 *  vgg.d2 / ( SQR(  vgg.d1,  vgg.d2 ) + SMALL );
+    vgg.d = - two *  vgg.d1 *  vgg.d2 / ( SQR(  vgg.d1,  vgg.d2 ) + SMALL );
 
-	bool result =  vgg.d > 0.1;
+    bool result =  vgg.d > 0.1;
 
-	return result;
+    return result;
 }
 
 void VisGrad::ComputeC1C2()
@@ -236,16 +236,16 @@ void VisGrad::ComputeC1C2()
     vgg.c1 = SQR( vgg.d1 ) / dtmp;
     vgg.c2 = 1.0 - vgg.c1;
 
-	if ( ug.fId < ug.nBFace )
-	{
+    if ( ug.fId < ug.nBFace )
+    {
         int bcType = ug.bcRecord->bcType[ ug.fId ];
 
-		if ( bcType != BC::INTERFACE )
-		{
-			vgg.c1 = 1.0;
-			vgg.c2 = 0.0;
-		}
-	}
+        if ( bcType != BC::INTERFACE )
+        {
+            vgg.c1 = 1.0;
+            vgg.c2 = 0.0;
+        }
+    }
 }
 
 void VisGrad::AccurateSideValue()
@@ -293,10 +293,10 @@ void VisGrad::CmpTestMethod()
     if ( this->FaceAngleIsValid() )
     {
         this->AccurateSideValue();
-		this->AccurateFaceValue();
+        this->AccurateFaceValue();
     }
 
-	if ( ! this->TestSatisfied() ) return;
+    if ( ! this->TestSatisfied() ) return;
 
     for ( int iEqu = 0; iEqu < nEqu; ++ iEqu )
     {
@@ -316,7 +316,7 @@ void VisGrad::CmpTestMethod()
 
 void VisGrad::CmpNew1Method()
 {
-	if ( ! this->New1Satisfied() ) return;
+    if ( ! this->New1Satisfied() ) return;
 
     this->AccurateSideValue();
 
@@ -328,7 +328,7 @@ void VisGrad::CmpNew1Method()
 
 void VisGrad::CmpNew2Method()
 {
-	if ( ! this->New2Satisfied() ) return;
+    if ( ! this->New2Satisfied() ) return;
 
     // Theoretically, more accurate to include the following terms
     this->AccurateSideValue();

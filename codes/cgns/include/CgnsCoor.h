@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -33,20 +33,20 @@ BeginNameSpace( ONEFLOW )
 class CgnsCoor
 {
 public:
-	CgnsCoor();
-	~CgnsCoor();
+    CgnsCoor();
+    ~CgnsCoor();
 public:
     int ndim;
     IntField nNodeList;
-	HXVector< DataType_t > typeList;
-	HXVector< void * > coor;
+    HXVector< DataType_t > typeList;
+    HXVector< void * > coor;
 public:
-	void * GetCoor( int iCoor ) { return coor[ iCoor ]; };
-	void SetAllData( RealField & x, RealField & y, RealField & z );
-	void Alloc( int iCoor, int nNode, DataType_t data_type );
+    void * GetCoor( int iCoor ) { return coor[ iCoor ]; };
+    void SetAllData( RealField & x, RealField & y, RealField & z );
+    void Alloc( int iCoor, int nNode, DataType_t data_type );
 public:
-	void SetData( int iCoor, DataType_t data_type, Real * var );
-	void DeAlloc();
+    void SetData( int iCoor, DataType_t data_type, Real * var );
+    void DeAlloc();
 };
 
 

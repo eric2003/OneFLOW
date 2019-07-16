@@ -34,7 +34,7 @@ public:
     ~PrjStatus();
 public:
     static string prjBaseDir;
-	static void SetPrjBaseDir( const string & prjName );
+    static void SetPrjBaseDir( const string & prjName );
 };
 
 void MakePrjDir( const string & dirName );

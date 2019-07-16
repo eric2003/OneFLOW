@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -36,7 +36,7 @@ public:
     int  nEqu;
 
     RealField matrix1, matrix2;
-	RealField radius1, radius2;
+    RealField radius1, radius2;
     RealField work;
     RealField q1, q2;
     RealField q1_ns, q2_ns;
@@ -49,8 +49,8 @@ extern TurbSpecData turbsp;
 class TurbSpectrum
 {
 public:
-	TurbSpectrum();
-	~TurbSpectrum();
+    TurbSpectrum();
+    ~TurbSpectrum();
 public:
     void CmpFaceSpectrum1Equ();
     void CmpFaceSpectrum2Equ();

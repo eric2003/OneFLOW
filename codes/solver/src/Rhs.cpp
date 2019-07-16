@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -70,32 +70,32 @@ void NSCmpGamaT( int flag )
     unsf.Init();
     ug.SetStEd( flag );
 
-	if ( nscom.chemModel == 1 )
-	{
-	}
-	else
-	{
+    if ( nscom.chemModel == 1 )
+    {
+    }
+    else
+    {
         //if ( ZoneState::zid == 0 )
         //{
         //    cout << " ug.ist = " << ug.ist  << " ug.ied = " << ug.ied << "\n";
         //    int kkk = 1;
         //}
-		Real oamw = one;
-		for ( int cId = ug.ist; cId < ug.ied; ++ cId )
-		{
-			Real & density  = ( * unsf.q )[ IDX::IR ][ cId ];
-			Real & pressure = ( * unsf.q )[ IDX::IP ][ cId ];
-			( * unsf.gama )[ 0 ][ cId ] = nscom.gama_ref;
-			( * unsf.tempr )[ IDX::ITT ][ cId ] = pressure / ( nscom.statecoef * density * oamw );
-		}
-	}
+        Real oamw = one;
+        for ( int cId = ug.ist; cId < ug.ied; ++ cId )
+        {
+            Real & density  = ( * unsf.q )[ IDX::IR ][ cId ];
+            Real & pressure = ( * unsf.q )[ IDX::IP ][ cId ];
+            ( * unsf.gama )[ 0 ][ cId ] = nscom.gama_ref;
+            ( * unsf.tempr )[ IDX::ITT ][ cId ] = pressure / ( nscom.statecoef * density * oamw );
+        }
+    }
 }
 
 void NsCmpRHS()
 {
     NsCmpInvFlux();
 
-	NsCmpVisFlux();
+    NsCmpVisFlux();
 
     NsCmpSrcFlux();
 }
@@ -118,13 +118,13 @@ void NsCmpVisFlux()
 void NsCmpSrcFlux()
 {
     if ( nscom.chemModel == 1 )
-	{
-		NsCmpChemSrc();
-	}
+    {
+        NsCmpChemSrc();
+    }
 
     NsCmpTurbEnergy();
 
-	//dual time step source
+    //dual time step source
     if ( ctrl.idualtime == 1 )
     {
         NsCmpDualTimeStepSrc();

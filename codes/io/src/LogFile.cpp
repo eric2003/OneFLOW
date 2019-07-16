@@ -33,30 +33,30 @@ LogFile logFile;
 
 void OpenLogFile( int logFileIndex, fstream & file )
 {
-	static int ifReWrite = 0;
+    static int ifReWrite = 0;
 
-	ONEFLOW::StrIO.ClearAll();
-	ONEFLOW::StrIO << "log/log" << logFileIndex << ".log";
-	string fileName = ONEFLOW::StrIO.str();
+    ONEFLOW::StrIO.ClearAll();
+    ONEFLOW::StrIO << "log/log" << logFileIndex << ".log";
+    string fileName = ONEFLOW::StrIO.str();
 
-	if ( ifReWrite == 0 )
-	{
-	    ONEFLOW::MakePrjDir( "log" );
+    if ( ifReWrite == 0 )
+    {
+        ONEFLOW::MakePrjDir( "log" );
 
-		ONEFLOW::OpenPrjFile( file, fileName, ios_base::out | ios_base::trunc );
+        ONEFLOW::OpenPrjFile( file, fileName, ios_base::out | ios_base::trunc );
 
-		ifReWrite = 1;
-	}
-	else
-	{
-		ONEFLOW::OpenPrjFile( file, fileName, ios_base::out | ios_base::app );
-	}
+        ifReWrite = 1;
+    }
+    else
+    {
+        ONEFLOW::OpenPrjFile( file, fileName, ios_base::out | ios_base::app );
+    }
 }
 
 void CloseLogFile( fstream & file )
 {
-	file.close();
-	file.clear();
+    file.close();
+    file.clear();
 }
 
 LogFile::LogFile()
@@ -69,7 +69,7 @@ LogFile::~LogFile()
 
 void LogFile::Open()
 {
-	int pid = ONEFLOW::Parallel::GetPid();
+    int pid = ONEFLOW::Parallel::GetPid();
     ONEFLOW::OpenLogFile( pid, this->my_fstream );
 }
 

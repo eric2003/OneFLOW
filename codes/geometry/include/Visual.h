@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -36,20 +36,20 @@ class Mesh;
 class Visual
 {
 public:
-	Visual();
-	~Visual();
+    Visual();
+    ~Visual();
 public:
-	static int numberOfWords;
+    static int numberOfWords;
 public:
-	static void SetNumberOfWords( int numberOfWords );
-	static void Show( Mesh * mesh );
+    static void SetNumberOfWords( int numberOfWords );
+    static void Show( Mesh * mesh );
 public:
-	static void DumpTitle( fstream & file, Mesh * mesh );
-	static void DumpCoordinate( fstream & file, Mesh * mesh );
-	static void DumpCoordinate( fstream & file, RealField & coordinate );
-	static void DumpFaceNodesLink( fstream & file, Mesh * mesh );
-	static void DumpFaceElementLink( fstream & file, Mesh * mesh );
-	static void DumpFaceElementLink( fstream & file, UInt nFace, UInt numberOfElements, IntField & faceElementIndex );
+    static void DumpTitle( fstream & file, Mesh * mesh );
+    static void DumpCoordinate( fstream & file, Mesh * mesh );
+    static void DumpCoordinate( fstream & file, RealField & coordinate );
+    static void DumpFaceNodesLink( fstream & file, Mesh * mesh );
+    static void DumpFaceElementLink( fstream & file, Mesh * mesh );
+    static void DumpFaceElementLink( fstream & file, UInt nFace, UInt numberOfElements, IntField & faceElementIndex );
 };
 
 

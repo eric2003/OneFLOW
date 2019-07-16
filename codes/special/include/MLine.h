@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -34,48 +34,48 @@ class SDomain;
 class SLine
 {
 public:
-	SLine();
-	~SLine();
+    SLine();
+    ~SLine();
 public:
-	int line_id;
-	int ni;
-	RealField x1d, y1d, z1d;
-	IntField ctrlpoints;
+    int line_id;
+    int ni;
+    RealField x1d, y1d, z1d;
+    IntField ctrlpoints;
 public:
-	void SetDomainBcMesh( SDomain * sDomain );
-	void ConstructCtrlPoints();
-	void Alloc();
-	void CopyMesh();
+    void SetDomainBcMesh( SDomain * sDomain );
+    void ConstructCtrlPoints();
+    void Alloc();
+    void CopyMesh();
 
 };
 
 class MLine : public DomData
 {
 public:
-	MLine();
-	~MLine();
+    MLine();
+    ~MLine();
 public:
-	int pos;
-	IntField lineList;
-	HXVector< SLine * > slineList;
-	CoorMap * coorMap;
+    int pos;
+    IntField lineList;
+    HXVector< SLine * > slineList;
+    CoorMap * coorMap;
 public:
-	map< int, IntSet > pointToLine;
+    map< int, IntSet > pointToLine;
 public:
-	void ConstructLineToDomainMap();
-	void ConstructLineToDomainMap( int domain_id, map< int, IntSet > & lineToDomainMap );
-	void ConstructPointToDomainMap();
-	void ConstructPointToDomainMap( int domain_id, map< int, IntSet > & pointToDomainMap );
-	void ConstructPointToPointMap();
-	void ConstructPointToPointMap( map< int, IntSet > & pointToPointMap );
+    void ConstructLineToDomainMap();
+    void ConstructLineToDomainMap( int domain_id, map< int, IntSet > & lineToDomainMap );
+    void ConstructPointToDomainMap();
+    void ConstructPointToDomainMap( int domain_id, map< int, IntSet > & pointToDomainMap );
+    void ConstructPointToPointMap();
+    void ConstructPointToPointMap( map< int, IntSet > & pointToPointMap );
 public:
-	void AddSubLine( int line_id );
-	void ConstructDomainTopo();
-	void ConstructCtrlPoint();
-	void ConstructSLineCtrlPoint();
-	void ComputeCoor( CoorMap * localCoorMap );
-	void SetDomainBcMesh( SDomain * sDomain );
-	void CreateInpFaceList( HXVector< Face2D * > &facelist );
+    void AddSubLine( int line_id );
+    void ConstructDomainTopo();
+    void ConstructCtrlPoint();
+    void ConstructSLineCtrlPoint();
+    void ComputeCoor( CoorMap * localCoorMap );
+    void SetDomainBcMesh( SDomain * sDomain );
+    void CreateInpFaceList( HXVector< Face2D * > &facelist );
 };
 
 

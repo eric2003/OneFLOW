@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -39,27 +39,27 @@ GCom::~GCom()
 
 void GCom::SetGeometry()
 {
-	this->fnx   = ( * ug.fnx   )[ ug.fId ];
-	this->fny   = ( * ug.fny   )[ ug.fId ];
-	this->fnz   = ( * ug.fnz   )[ ug.fId ];
-	this->fvn   = ( * ug.fvn   )[ ug.fId ];
-	this->farea = ( * ug.farea )[ ug.fId ];
+    this->fnx   = ( * ug.fnx   )[ ug.fId ];
+    this->fny   = ( * ug.fny   )[ ug.fId ];
+    this->fnz   = ( * ug.fnz   )[ ug.fId ];
+    this->fvn   = ( * ug.fvn   )[ ug.fId ];
+    this->farea = ( * ug.farea )[ ug.fId ];
 
     this->swapflag = false;
 
-	if ( ug.rc == ug.cId )
-	{
+    if ( ug.rc == ug.cId )
+    {
         this->swapflag = true;
 
-		SWAP( ug.lc, ug.rc );
-		this->Reverse();
-	}
+        SWAP( ug.lc, ug.rc );
+        this->Reverse();
+    }
 
-	this->ccx2   = ( * ug.ccx )[ ug.rc ];
+    this->ccx2   = ( * ug.ccx )[ ug.rc ];
     this->ccy2   = ( * ug.ccy )[ ug.rc ];
     this->ccz2   = ( * ug.ccz )[ ug.rc ];
 
-	this->ccx1   = ( * ug.ccx )[ ug.lc ];
+    this->ccx1   = ( * ug.ccx )[ ug.lc ];
     this->ccy1   = ( * ug.ccy )[ ug.lc ];
     this->ccz1   = ( * ug.ccz )[ ug.lc ];
 }
@@ -70,7 +70,7 @@ void GCom::Reverse()
     this->fny = - this->fny;
     this->fnz = - this->fnz;
     this->fvn = - this->fvn;
-	//faceArea unchanged
+    //faceArea unchanged
 }
 
 void GCom::CmpTangent()
@@ -97,15 +97,15 @@ void GCom::CmpTangent()
     }
     else
     {
-		this->t1x = 0.0;
-		this->t1y = 0.0;
-		this->t1z = 0.0;
+        this->t1x = 0.0;
+        this->t1y = 0.0;
+        this->t1z = 0.0;
 
-		this->t2x = 0.0;
-		this->t2y = 0.0;
-		this->t2z = 0.0;
+        this->t2x = 0.0;
+        this->t2y = 0.0;
+        this->t2z = 0.0;
         this->idegenerate = true;
-		return;
+        return;
     }
 
     //normalize the tangential vector

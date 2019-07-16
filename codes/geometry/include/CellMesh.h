@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -32,12 +32,12 @@ class UnsGrid;
 class CellMesh
 {
 public:
-	CellMesh();
-	~CellMesh();
+    CellMesh();
+    ~CellMesh();
 public:
     CellTopo * cellTopo;
-	RealField xcc, ycc, zcc;
-	RealField vol;
+    RealField xcc, ycc, zcc;
+    RealField vol;
     RealField dist;
     RealField span;
 public:

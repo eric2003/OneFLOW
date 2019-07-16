@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -37,21 +37,21 @@ class FaceTopo;
 class FaceSolver
 {
 public:
-	FaceSolver();
-	~FaceSolver();
+    FaceSolver();
+    ~FaceSolver();
 public:
-	set< Mid<int> > * refFaces;
+    set< Mid<int> > * refFaces;
     IntField * faceBcKey;
     IntField * faceBcType;
     LinkField * childFid;
 public:
-	FaceTopo * faceTopo;
+    FaceTopo * faceTopo;
 public:
     int FindFace( Mid<int> & face );
     bool CheckBcFace( IntSet & bcVertex, IntField & nodeId );
     void ScanElementFace( CgIntField & eNodeId, int eType, int eId );
     void ScanBcFace( IntSet & bcVertex, int bcType, int bcNameId );
-	void ScanBcFaceDetail( IntSet & bcVertex, int bcType, int bcNameId );
+    void ScanBcFaceDetail( IntSet & bcVertex, int bcType, int bcNameId );
     int GetNSimpleFace();
 };
 

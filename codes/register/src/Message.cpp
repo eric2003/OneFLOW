@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -38,76 +38,76 @@ MessageMap::~MessageMap()
 void MessageMap::Init()
 {
     if ( MessageMap::nameMap ) return;
-	MessageMap::nameMap = new map< string, int >();
-	MessageMap::idMap = new map< int, string >();
+    MessageMap::nameMap = new map< string, int >();
+    MessageMap::idMap = new map< int, string >();
 }
 
 void MessageMap::Free()
 {
-	delete MessageMap::nameMap;
-	delete MessageMap::idMap;
-	MessageMap::nameMap = 0;
+    delete MessageMap::nameMap;
+    delete MessageMap::idMap;
+    MessageMap::nameMap = 0;
     MessageMap::idMap = 0;
 }
 
 void MessageMap::Register( const string & msgName )
 {
-	map< string, int >::iterator iter = MessageMap::nameMap->find( msgName );
-	if ( iter == MessageMap::nameMap->end() )
-	{
-		int msgId = MessageMap::nameMap->size();
-		( * MessageMap::nameMap )[ msgName ] = msgId;
-		( * MessageMap::idMap   )[ msgId   ] = msgName;
-	}
+    map< string, int >::iterator iter = MessageMap::nameMap->find( msgName );
+    if ( iter == MessageMap::nameMap->end() )
+    {
+        int msgId = MessageMap::nameMap->size();
+        ( * MessageMap::nameMap )[ msgName ] = msgId;
+        ( * MessageMap::idMap   )[ msgId   ] = msgName;
+    }
 }
 
 void MessageMap::Unregister( const string & msgName )
 {
-	MessageMap::nameMap->erase( msgName );
+    MessageMap::nameMap->erase( msgName );
 }
 
 int MessageMap::GetMsgId( const string & msgName )
 {
-	map< string, int >::iterator iter = MessageMap::nameMap->find( msgName );
-	if ( iter == MessageMap::nameMap->end() )
-	{
-		return -1;
-	}
+    map< string, int >::iterator iter = MessageMap::nameMap->find( msgName );
+    if ( iter == MessageMap::nameMap->end() )
+    {
+        return -1;
+    }
 
-	int actionIndex = iter->second;
-	return actionIndex;
+    int actionIndex = iter->second;
+    return actionIndex;
 }
 
 string MessageMap::GetMsgName( int msgId )
 {
-	map< int, string >::iterator iter = MessageMap::idMap->find( msgId );
-	if ( iter == MessageMap::idMap->end() )
-	{
-		return "";
-	}
+    map< int, string >::iterator iter = MessageMap::idMap->find( msgId );
+    if ( iter == MessageMap::idMap->end() )
+    {
+        return "";
+    }
 
-	return iter->second;
+    return iter->second;
 }
 
 void MessageMap::ReadFile( const string & fileName )
 {
-	string word;
+    string word;
 
-	//\tÎªtab¼ü
-	string separator = " =\r\n\t#$,;\"";
+    //\tÎªtab¼ü
+    string separator = " =\r\n\t#$,;\"";
 
-	AsciiFileRead ioFile;
-	ioFile.OpenFile( fileName, ios_base::in );
-	ioFile.SetDefaultSeparator( separator );
+    AsciiFileRead ioFile;
+    ioFile.OpenFile( fileName, ios_base::in );
+    ioFile.SetDefaultSeparator( separator );
 
-	while ( ! ioFile.ReachTheEndOfFile() )
-	{
-		ioFile.ReadNextNonEmptyLine();
-		string msgName = ioFile.ReadNextWord();
-		MessageMap::Register( msgName );
-	}
+    while ( ! ioFile.ReachTheEndOfFile() )
+    {
+        ioFile.ReadNextNonEmptyLine();
+        string msgName = ioFile.ReadNextWord();
+        MessageMap::Register( msgName );
+    }
 
-	ioFile.CloseFile();
+    ioFile.CloseFile();
 }
 
 EndNameSpace

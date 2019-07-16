@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -89,8 +89,8 @@ void CmpMetricsTask::Run()
     {
         ZoneState::zid = zId;
 
-		Client2Server( this, WriteScreen );
-	}
+        Client2Server( this, WriteScreen );
+    }
 }
 
 void SwapCellCenter( StringField & data )
@@ -114,8 +114,8 @@ void SwapCellCenter( StringField & data )
     RealField & vol = cellMesh->vol;
 
     for ( int iLocalFace = 0; iLocalFace < nIFace; ++ iLocalFace )
-	{
-		int s1;
+    {
+        int s1;
         int iFace = interfaceId[ iLocalFace ];
 
         grid->faceTopo->GetSId( iFace, 1, s1 );
@@ -124,7 +124,7 @@ void SwapCellCenter( StringField & data )
         HXWrite( ActionState::dataBook, ycc[ s1 ] );
         HXWrite( ActionState::dataBook, zcc[ s1 ] );
         HXWrite( ActionState::dataBook, vol[ s1 ] );
-	}
+    }
 }
 
 void DecodeCellCenter( StringField & data )
@@ -147,16 +147,16 @@ void DecodeCellCenter( StringField & data )
     RealField & vol = cellMesh->vol;
 
     for ( int iLocalFace = 0; iLocalFace < nIFace; ++ iLocalFace )
-	{
+    {
         int iFace = interfaceId[ iLocalFace ];
-		int t1;
+        int t1;
         grid->faceTopo->GetTId( iFace, 1, t1 );
 
         HXRead( ActionState::dataBook, xcc[ t1 ] );
         HXRead( ActionState::dataBook, ycc[ t1 ] );
         HXRead( ActionState::dataBook, zcc[ t1 ] );
         HXRead( ActionState::dataBook, vol[ t1 ] );
-	}
+    }
 }
 
 RegData gridReg;

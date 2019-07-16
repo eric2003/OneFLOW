@@ -27,13 +27,13 @@ BeginNameSpace( ONEFLOW )
 class FieldRecord
 {
 public:
-	FieldRecord();
-	~FieldRecord();
+    FieldRecord();
+    ~FieldRecord();
 public:
-	HXVector< MRField * > fields;
-	IntField nEquList;
+    HXVector< MRField * > fields;
+    IntField nEquList;
 public:
-	void AddField( MRField * field, int nEqu );
+    void AddField( MRField * field, int nEqu );
     MRField * GetField( int id );
 };
 

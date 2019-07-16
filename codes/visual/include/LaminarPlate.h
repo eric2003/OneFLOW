@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -58,13 +58,13 @@ public:
 class LaminarFlatPlateTask : public Task
 {
 public:
-	LaminarFlatPlateTask();
-	~LaminarFlatPlateTask();
+    LaminarFlatPlateTask();
+    ~LaminarFlatPlateTask();
 public:
     CuttingClass * velCut;
     CuttingClass * friCut;
 public:
-	void Run();
+    void Run();
     void OutProfile( CuttingClass * cut );
 };
 

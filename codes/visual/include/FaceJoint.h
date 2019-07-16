@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -34,11 +34,11 @@ class FaceJoint;
 class FaceJointManager
 {
 public:
-	FaceJointManager();
-	~FaceJointManager();
+    FaceJointManager();
+    ~FaceJointManager();
 public:
-	HXVector< FaceJoint * > patch;
-	FaceJoint * global;
+    HXVector< FaceJoint * > patch;
+    FaceJoint * global;
 public:
     void ConstructPointIndex();
     void CmpNodeValue();
@@ -50,37 +50,37 @@ class FaceJoint
 {
 public:
     typedef Point< Real > PointType;
-	typedef HXVector< PointType > PointField;
-	typedef HXVector< PointField > PointLink;
+    typedef HXVector< PointType > PointField;
+    typedef HXVector< PointField > PointLink;
 public:
-	FaceJoint();
-	~FaceJoint();
+    FaceJoint();
+    ~FaceJoint();
 public:
-	bool isValid;
-	IntField l2g;
+    bool isValid;
+    IntField l2g;
 public:
-	PointLink fvp; //face vertex point;
-	LinkField fLink; //face link
-	IntField  weightId;
-	RealField fcv; //face center value
-	RealField fnv; //face node value
+    PointLink fvp; //face vertex point;
+    LinkField fLink; //face link
+    IntField  weightId;
+    RealField fcv; //face center value
+    RealField fnv; //face node value
 public:
-	RealField pmin, pmax;
-	Real dismin, dismax;
-	PointSearch * ps;
-	WallVisual * wallVisual;
+    RealField pmin, pmax;
+    Real dismin, dismax;
+    PointSearch * ps;
+    WallVisual * wallVisual;
 public:
-	void CmpBoundBox();
-	void ConstructPointIndex();
-	void ConstructPointIndexMap( FaceJoint * globalBasicWall );
-	void ComputeNodeValue();
-	void RemapNodeValue( FaceJoint * globalBasicWall );
+    void CmpBoundBox();
+    void ConstructPointIndex();
+    void ConstructPointIndexMap( FaceJoint * globalBasicWall );
+    void ComputeNodeValue();
+    void RemapNodeValue( FaceJoint * globalBasicWall );
 public:
-	int GetSize() { return fvp.size(); }
+    int GetSize() { return fvp.size(); }
 public:
     void AddFacePoint( int nSolidCell, FaceJoint::PointLink & ptLink );
-	void AddFaceCenterValue( int nSolidCell, RealField & fcvIn );
-	void Visual( fstream & file );
+    void AddFaceCenterValue( int nSolidCell, RealField & fcvIn );
+    void Visual( fstream & file );
 };
 
 EndNameSpace

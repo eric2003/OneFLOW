@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -43,15 +43,15 @@ class CgnsBcRegion;
 class CgnsBcRegionProxy
 {
 public:
-	CgnsBcRegionProxy( CgnsZone * cgnsZone );
-	~CgnsBcRegionProxy();
+    CgnsBcRegionProxy( CgnsZone * cgnsZone );
+    ~CgnsBcRegionProxy();
 public:
-	int nBcRegion, n1To1, nOrdinaryBcRegion;
-	int n1To1General;
-	int nConn;
-	HXVector< CgnsBcRegion * > cgnsBcRegions;
-	HXVector< CgnsBcRegion * > bcRegion1To1;
-	CgnsZone * cgnsZone;
+    int nBcRegion, n1To1, nOrdinaryBcRegion;
+    int n1To1General;
+    int nConn;
+    HXVector< CgnsBcRegion * > cgnsBcRegions;
+    HXVector< CgnsBcRegion * > bcRegion1To1;
+    CgnsZone * cgnsZone;
 public:
     void ScanBcFace( FaceSolver * face_solver );
 public:
@@ -69,9 +69,9 @@ public:
     void ReadNumberOfCgnsConn();
     void CreateCgnsBcRegion( CgnsBcRegionProxy * bcRegionProxyIn );
 public:
-	void ReconstructStrRegion();
+    void ReconstructStrRegion();
     void GenerateUnsBcElemConn(CgIntField& bcConn );
-	void SetPeriodicBc();
+    void SetPeriodicBc();
 };
 
 #endif

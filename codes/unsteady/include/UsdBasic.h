@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -32,10 +32,10 @@ public:
     UsdBasic();
     ~UsdBasic();
 public:
-	Real bsc1, bsc2, bsc3;
-	Real sc1, sc2, sc3;
-	Real sp1, sp2;
-	Real resc1, resc2, resc3;
+    Real bsc1, bsc2, bsc3;
+    Real sc1, sc2, sc3;
+    Real sp1, sp2;
+    Real resc1, resc2, resc3;
     RealField coeff;
 public:
     void InitCoef();

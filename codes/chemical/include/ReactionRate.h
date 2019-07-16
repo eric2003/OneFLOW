@@ -30,19 +30,19 @@ class DataBook;
 class ReactionRate
 {
 public:
-	ReactionRate();
+    ReactionRate();
     ~ReactionRate();
 public:
-	int nReaction;
-	//forward reaction rate coefficient
-	RealField f1, f2, f3;
-	// bakward reaction rate coefficient
-	RealField b1, b2, b3;
+    int nReaction;
+    //forward reaction rate coefficient
+    RealField f1, f2, f3;
+    // bakward reaction rate coefficient
+    RealField b1, b2, b3;
 public:
-	void Init( int nReaction );
-	void Read( AsciiFileRead * ioFile );
-	void Read ( DataBook * dataBook );
-	void Write( DataBook * dataBook );
+    void Init( int nReaction );
+    void Read( AsciiFileRead * ioFile );
+    void Read ( DataBook * dataBook );
+    void Write( DataBook * dataBook );
 };
 
 EndNameSpace

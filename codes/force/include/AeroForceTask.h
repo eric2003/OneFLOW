@@ -27,8 +27,8 @@ BeginNameSpace( ONEFLOW )
 class AerodynamicForceTask : public Task
 {
 public:
-	AerodynamicForceTask ();
-	~AerodynamicForceTask();
+    AerodynamicForceTask ();
+    ~AerodynamicForceTask();
 public:
     void Run();
     void Init();

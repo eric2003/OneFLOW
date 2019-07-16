@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -42,7 +42,7 @@ Grid::Grid()
 
 Grid::~Grid()
 {
-	this->Free();
+    this->Free();
 }
 
 Grid * Grid::SafeClone( const string & type )
@@ -54,15 +54,15 @@ Grid * Grid::SafeClone( const string & type )
         exit( 0 );
     }
 
-	return iter->second->Clone();
+    return iter->second->Clone();
 }
 
 Grid * Grid::Register( const string & type, Grid * clone )
 {
-	if ( ! Grid::classMap )
-	{
-		Grid::classMap = new map < string, Grid * >();
-	}
+    if ( ! Grid::classMap )
+    {
+        Grid::classMap = new map < string, Grid * >();
+    }
 
     map < string, Grid * >::iterator iter = Grid::classMap->find( type );
     if ( iter == Grid::classMap->end() )
@@ -81,7 +81,7 @@ void Grid::BasicInit()
 {
     nodeMesh  = new NodeMesh();
     interFace = new InterFace();
-	slipFace  = new SlipFace();
+    slipFace  = new SlipFace();
     dataBase  = new DataBase();
 }
 
@@ -89,7 +89,7 @@ void Grid::Free()
 {
     delete nodeMesh;
     delete interFace;
-	delete slipFace;
+    delete slipFace;
     delete dataBase;
 }
 

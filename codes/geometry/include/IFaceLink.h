@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -36,8 +36,8 @@ class NodeMesh;
 class IFaceLink
 {
 public:
-	IFaceLink( Grids & grids );
-	~IFaceLink();
+    IFaceLink( Grids & grids );
+    ~IFaceLink();
 public:
     //faceListis used primarily as a search list for global face
     set < HXSort< IntField > > inFaceList;
@@ -47,29 +47,29 @@ public:
     LinkField g2l;
     LinkField l2g;
 
-	LinkField gI2ZidNew;
-	LinkField g2lNew;
+    LinkField gI2ZidNew;
+    LinkField g2lNew;
     LinkField l2gNew;
 
     LinkField nChild;
 
-	FaceSearch * face_search;
+    FaceSearch * face_search;
 
-	PointSearch * point_search;
+    PointSearch * point_search;
 
-	Grids grids;
+    Grids grids;
 public:
     void Init( Grid * grid );
-	Grid * GetGrid( int zoneIndex ) { return grids[ zoneIndex ]; }
+    Grid * GetGrid( int zoneIndex ) { return grids[ zoneIndex ]; }
 public:
     void CreateLink( IntField & faceNode, int zid, int lCount );
     void MatchInterfaceTopology( Grid * grid );
-	void MatchPeoridicInterface( Grid * grid );
-	void ReconstructInterFace();
+    void MatchPeoridicInterface( Grid * grid );
+    void ReconstructInterFace();
 protected:
-	void AddFace( const IntField & facePointIndexes );
+    void AddFace( const IntField & facePointIndexes );
 public:
-	void UpdateLgMapping();
+    void UpdateLgMapping();
     void InitNewLgMapping();
 };
 

@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -37,55 +37,55 @@ BasicBgField::BasicBgField()
 
 BasicBgField::~BasicBgField()
 {
-	this->Free();
+    this->Free();
 }
 
 void BasicBgField::Init()
 {
-	int numberOfFields  = 2; //FIELD_FLOW = 0, FIELD_RHS = 1
-	this->data.resize( SolverState::nSolver );
+    int numberOfFields  = 2; //FIELD_FLOW = 0, FIELD_RHS = 1
+    this->data.resize( SolverState::nSolver );
 
-	for ( int sid = 0; sid < SolverState::nSolver; ++ sid )
-	{
-		this->data[ sid ].resize( numberOfFields );
+    for ( int sid = 0; sid < SolverState::nSolver; ++ sid )
+    {
+        this->data[ sid ].resize( numberOfFields );
 
         SolverState::id = sid;
         SolverState::SetTidById( sid );
 
-		for ( int fid = 0; fid < numberOfFields; ++ fid )
-		{
-			this->data[ sid ][ fid ].resize( MG::nMulti );
-		
-			for ( int gl = 0; gl < MG::nMulti; ++ gl )
-			{
+        for ( int fid = 0; fid < numberOfFields; ++ fid )
+        {
+            this->data[ sid ][ fid ].resize( MG::nMulti );
+        
+            for ( int gl = 0; gl < MG::nMulti; ++ gl )
+            {
                 GridState::gridLevel = gl;
-				
-				FieldWrap * fieldWrap = FieldHome::CreateField();
-				this->data[ sid ][ fid ][ gl ] = fieldWrap;
-			}
-		}
-	}
+                
+                FieldWrap * fieldWrap = FieldHome::CreateField();
+                this->data[ sid ][ fid ][ gl ] = fieldWrap;
+            }
+        }
+    }
 
 }
 
 void BasicBgField::Free()
 {
-	int numberOfSolvers = this->data.size();
+    int numberOfSolvers = this->data.size();
 
-	for ( int sid = 0; sid < numberOfSolvers; ++ sid )
-	{
-		int nFields = this->data[ sid ].size();
+    for ( int sid = 0; sid < numberOfSolvers; ++ sid )
+    {
+        int nFields = this->data[ sid ].size();
 
-		for ( int fid = 0; fid < nFields; ++ fid )
-		{
-			int nGrids = this->data[ sid ][ fid ].size();
+        for ( int fid = 0; fid < nFields; ++ fid )
+        {
+            int nGrids = this->data[ sid ][ fid ].size();
 
-			for ( int gl = 0; gl < nGrids; ++ gl )
-			{
-				delete this->data[ sid ][ fid ][ gl ];
-			}
-		}
-	}
+            for ( int gl = 0; gl < nGrids; ++ gl )
+            {
+                delete this->data[ sid ][ fid ][ gl ];
+            }
+        }
+    }
 }
 
 HXVector< BasicBgField * > BgField::data;
@@ -101,19 +101,19 @@ BgField::~BgField()
 
 void BgField::Init()
 {
-	if ( BgField::flag ) return;
-	BgField::flag = true;
+    if ( BgField::flag ) return;
+    BgField::flag = true;
 
-	BgField::data.resize( ZoneState::nZones );
+    BgField::data.resize( ZoneState::nZones );
 
     for ( int iZone = 0; iZone < ZoneState::nZones; ++ iZone )
     {
         if ( ! ZoneState::IsValidZone( iZone ) ) continue;
 
         ZoneState::zid = iZone;
-		BasicBgField * bbgField = new BasicBgField();
-		bbgField->Init();
-		BgField::data[ iZone ] = bbgField;
+        BasicBgField * bbgField = new BasicBgField();
+        bbgField->Init();
+        BgField::data[ iZone ] = bbgField;
     }
 }
 
@@ -121,7 +121,7 @@ void BgField::Free()
 {
     for ( int iZone = 0; iZone < BgField::data.size(); ++ iZone )
     {
-		delete BgField::data[ iZone ];
+        delete BgField::data[ iZone ];
     }
 }
 

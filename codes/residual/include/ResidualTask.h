@@ -28,10 +28,10 @@ BeginNameSpace( ONEFLOW )
 class ResidualTask : public Task
 {
 public:
-	ResidualTask ();
-	~ResidualTask();
+    ResidualTask ();
+    ~ResidualTask();
 public:
-	void Run();
+    void Run();
 public:
     void CmpRes( int sTid, ResData & data );
     void PostDumpResiduals();

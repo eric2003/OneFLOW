@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -30,40 +30,40 @@ BeginNameSpace( ONEFLOW )
 class SolverInfo
 {
 public:
-	SolverInfo();
-	~SolverInfo();
+    SolverInfo();
+    ~SolverInfo();
 public:
-	int nEqu;
-	int nTEqu;
-	int registerInterface;
-	int numberOfImplicitSweeps;
-	StringField gradString;
-	StringField implicitString;
-	string residualName;
-	string resFileName;
+    int nEqu;
+    int nTEqu;
+    int registerInterface;
+    int numberOfImplicitSweeps;
+    StringField gradString;
+    StringField implicitString;
+    string residualName;
+    string resFileName;
     Real residual;
     Real conver;
 public:
-	Real relaxationFactorOfProlongation;
-	IntField positiveFlag;
-	StringField restrictVariableNames;
-	IntField restrictDimensions;
+    Real relaxationFactorOfProlongation;
+    IntField positiveFlag;
+    StringField restrictVariableNames;
+    IntField restrictDimensions;
 };
 
 
 class SolverInfoFactory
 {
 public:
-	SolverInfoFactory();
-	~SolverInfoFactory();
+    SolverInfoFactory();
+    ~SolverInfoFactory();
 public:
-	static map< int, SolverInfo * > * data;
+    static map< int, SolverInfo * > * data;
 public:
-	static void Init();
-	static void Free();
+    static void Init();
+    static void Free();
 public:
-	static void AddSolverInfo( int sTid );
-	static SolverInfo * GetSolverInfo( int sTid );
+    static void AddSolverInfo( int sTid );
+    static SolverInfo * GetSolverInfo( int sTid );
 };
 
 EndNameSpace

@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -82,19 +82,19 @@ void TurbInvFlux::RoeFlux()
     Real vnl  = gcom.fnx * inv.ul + gcom.fny * inv.vl + gcom.fnz * inv.wl - gcom.fvn;
     Real vnr  = gcom.fnx * inv.ur + gcom.fny * inv.vr + gcom.fnz * inv.wr - gcom.fvn;
 
-	Real vnl_p = half * ( vnl + ABS( vnl ) );
-	Real vnr_n = half * ( vnr - ABS( vnr ) );
+    Real vnl_p = half * ( vnl + ABS( vnl ) );
+    Real vnr_n = half * ( vnr - ABS( vnr ) );
 
-	Real rho_coef_l = inv.rho_coef * one + ( one - inv.rho_coef ) * inv.rl;
-	Real rho_coef_r = inv.rho_coef * one + ( one - inv.rho_coef ) * inv.rr;
+    Real rho_coef_l = inv.rho_coef * one + ( one - inv.rho_coef ) * inv.rl;
+    Real rho_coef_r = inv.rho_coef * one + ( one - inv.rho_coef ) * inv.rr;
 
     Real coef_l = vnl_p * rho_coef_l;
     Real coef_r = vnr_n * rho_coef_r;
 
-	for ( int iEqu = 0; iEqu < nEqu; ++ iEqu )
-	{
-		inv.flux[ iEqu ] = coef_l * inv.prim1[ iEqu ] + coef_r * inv.prim2[ iEqu ];
-	}
+    for ( int iEqu = 0; iEqu < nEqu; ++ iEqu )
+    {
+        inv.flux[ iEqu ] = coef_l * inv.prim1[ iEqu ] + coef_r * inv.prim2[ iEqu ];
+    }
 }
 
 

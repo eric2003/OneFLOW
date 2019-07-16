@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -48,7 +48,7 @@ MRField * CreateNodeVar( const string & name )
     MRField * nf = AllocNodeVar( nEqu );
     for ( int iEqu = 0; iEqu < nEqu; ++ iEqu )
     {
-		CmpNodeVar( ( * nf )[ iEqu ], ( * cf )[ iEqu ] );
+        CmpNodeVar( ( * nf )[ iEqu ], ( * cf )[ iEqu ] );
     }
     return nf;
 }
@@ -57,7 +57,7 @@ MRField * CreateNodeVar( RealField & qc )
 {
     UnsGrid * grid = Zone::GetUnsGrid();
     MRField * fn = AllocNodeVar( 1 );
-	CmpNodeVar( ( * fn )[ 0 ], qc );
+    CmpNodeVar( ( * fn )[ 0 ], qc );
     return fn;
 }
 
@@ -78,9 +78,9 @@ void CmpNodeVar( RealField & qNodeField, RealField & qField )
         int lc = faceTopo->lCell[ iFace ];
         int rc = faceTopo->rCell[ iFace ];
 
-		int fnNode = f2c[ iFace ].size();
-		for ( int iNode = 0; iNode < fnNode; ++ iNode )
-		{
+        int fnNode = f2c[ iFace ].size();
+        for ( int iNode = 0; iNode < fnNode; ++ iNode )
+        {
             int nodeId = f2c[ iFace ][ iNode ];
 
             qNodeField[ nodeId ] += qField[ lc ];
@@ -119,9 +119,9 @@ void FixBcNodeVar( RealField & qNodeField, RealField & qField, RealField & nCoun
         int lc = faceTopo->lCell[ iFace ];
         int rc = faceTopo->rCell[ iFace ];
 
-		int fnNode = f2c[ iFace ].size();
-		for ( int iNode = 0; iNode < fnNode; ++ iNode )
-		{
+        int fnNode = f2c[ iFace ].size();
+        for ( int iNode = 0; iNode < fnNode; ++ iNode )
+        {
             int nodeIndex = f2c[ iFace ][ iNode ];
             qNodeField [ nodeIndex ] = 0.0;
             nCount[ nodeIndex ] = 0;
@@ -135,9 +135,9 @@ void FixBcNodeVar( RealField & qNodeField, RealField & qField, RealField & nCoun
         int lc = faceTopo->lCell[ iFace ];
         int rc = faceTopo->rCell[ iFace ];
 
-		int fnNode = f2c[ iFace ].size();
-		for ( int iNode = 0; iNode < fnNode; ++ iNode )
-		{
+        int fnNode = f2c[ iFace ].size();
+        for ( int iNode = 0; iNode < fnNode; ++ iNode )
+        {
             int nodeIndex = f2c[ iFace ][ iNode ];
             qNodeField [ nodeIndex ] += qField[ lc ];
             nCount[ nodeIndex ] += 1;

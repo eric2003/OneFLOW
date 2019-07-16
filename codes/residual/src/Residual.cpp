@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -66,8 +66,8 @@ void ResAver::CmpAver( HXVector< ResData > & dataList )
 
     this->nCell = nCellSum;
 
-	for ( int iEqu = 0; iEqu < nEqu; ++ iEqu )
-	{
+    for ( int iEqu = 0; iEqu < nEqu; ++ iEqu )
+    {
         this->res[ iEqu ] = sqrt( resSum[ iEqu ] / nCellSum );
     }
 }

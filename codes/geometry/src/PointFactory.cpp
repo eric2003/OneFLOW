@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -40,91 +40,91 @@ PointBasic::~PointBasic()
 
 bool PointBasic::FindPoint( PointBasic::PointType & point, PointBasic::PointSet::iterator & iter )
 {
-	iter = this->pointSet.find( point );
-	if ( iter == this->pointSet.end() )
-	{
-		return false;
-	}
-	return true;
+    iter = this->pointSet.find( point );
+    if ( iter == this->pointSet.end() )
+    {
+        return false;
+    }
+    return true;
 }
 
 int PointBasic::FindPoint( Real xm, Real ym, Real zm )
 {
-	PointBasic::PointType pt( xm, ym, zm );
-	return this->FindPointId( pt );
+    PointBasic::PointType pt( xm, ym, zm );
+    return this->FindPointId( pt );
 }
 
 int PointBasic::FindPointId( PointBasic::PointType & point )
 {
-	PointBasic::PointSet::iterator iter = this->pointSet.find( point );
-	if ( iter == this->pointSet.end() )
-	{
-		return -1;
-	}
-	return iter->id;
+    PointBasic::PointSet::iterator iter = this->pointSet.find( point );
+    if ( iter == this->pointSet.end() )
+    {
+        return -1;
+    }
+    return iter->id;
 }
 
 int PointBasic::AddPoint( Real xm, Real ym, Real zm )
 {
-	PointBasic::PointType pt( xm, ym, zm );
-	return this->AddPoint( pt );
+    PointBasic::PointType pt( xm, ym, zm );
+    return this->AddPoint( pt );
 }
 
 int PointBasic::DeletePoint( Real xm, Real ym, Real zm )
 {
-	PointBasic::PointType pt( xm, ym, zm );
-	return this->DeletePoint( pt );
+    PointBasic::PointType pt( xm, ym, zm );
+    return this->DeletePoint( pt );
 }
 
 int PointBasic::DeletePoint( PointBasic::PointType & point )
 {
-	PointSet::iterator iter;
-	int pid = -1;
-	if ( this->FindPoint( point, iter ) )
-	{
-		pid = iter->id;
-		pointSet.erase( point );
-		int kkk = 1;
-	}
+    PointSet::iterator iter;
+    int pid = -1;
+    if ( this->FindPoint( point, iter ) )
+    {
+        pid = iter->id;
+        pointSet.erase( point );
+        int kkk = 1;
+    }
 
     return pid;
 }
 
 int PointBasic::AddPoint( PointBasic::PointType & point )
 {
-	PointSet::iterator iter;
-	int pid;
-	if ( this->FindPoint( point, iter ) )
-	{
-		pid = iter->id;
-	}
-	else
-	{
-		int index = this->pointList.size();
-		point.id = index;
-		this->AddPointDirectly( point );
-		pid = index;
-	}
+    PointSet::iterator iter;
+    int pid;
+    if ( this->FindPoint( point, iter ) )
+    {
+        pid = iter->id;
+    }
+    else
+    {
+        int index = this->pointList.size();
+        point.id = index;
+        this->AddPointDirectly( point );
+        pid = index;
+    }
 
-	return pid;
+    return pid;
 }
 
 void PointBasic::AddPointDirectly( PointBasic::PointType & point, int bcType )
 {
-	this->pointSet.insert( point );
-	this->pointList.push_back( point );
+    this->pointSet.insert( point );
+    this->pointList.push_back( point );
 }
 
 void PointBasic::GetFaceCoorList( IntField & nodeId, RealField &xList, RealField &yList, RealField &zList )
 {
-	for ( int i = 0; i < nodeId.size(); ++ i )
-	{
-		int ip = nodeId[ i ];
-		PointBasic::PointType & pt = pointList[ ip ];
-		xList.push_back( pt.x );
-		yList.push_back( pt.y );
-		zList.push_back( pt.z );
-	}
+    for ( int i = 0; i < nodeId.size(); ++ i )
+    {
+        int ip = nodeId[ i ];
+        PointBasic::PointType & pt = pointList[ ip ];
+        xList.push_back( pt.x );
+        yList.push_back( pt.y );
+        zList.push_back( pt.z );
+    }
 }
 
 
@@ -138,12 +138,12 @@ PointFactory::~PointFactory()
 
 void PointFactory::InitC2g()
 {
-	int nPoint = this->pointList.size();
-	this->c2g.resize( nPoint );
-	for ( int iNode = 0; iNode < nPoint; ++ iNode )
-	{
-		this->c2g[ iNode ] = iNode;
-	}
+    int nPoint = this->pointList.size();
+    this->c2g.resize( nPoint );
+    for ( int iNode = 0; iNode < nPoint; ++ iNode )
+    {
+        this->c2g[ iNode ] = iNode;
+    }
 }
 
 EndNameSpace

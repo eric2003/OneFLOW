@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -31,13 +31,13 @@ const int RHS_FLOW_ORDER = 1;
 class FieldWrap
 {
 public:
-	FieldWrap();
-	~FieldWrap();
+    FieldWrap();
+    ~FieldWrap();
 protected:
-	MRField * unsField;
-	bool deleteFlag;
+    MRField * unsField;
+    bool deleteFlag;
 public:
-	MRField * GetUnsField();
+    MRField * GetUnsField();
     void SetUnsField( MRField * unsField, bool deleteFlag = false );
 };
 
@@ -46,13 +46,13 @@ class Grid;
 class FieldHome
 {
 public:
-	FieldHome();
-	~FieldHome();
+    FieldHome();
+    ~FieldHome();
 public:
     static FieldWrap * CreateField();
-	static FieldWrap * CreateField( int sTid );
+    static FieldWrap * CreateField( int sTid );
     static FieldWrap * CreateField( int sTid, int level );
-	static FieldWrap * GetFieldWrap( const string & fieldName );
+    static FieldWrap * GetFieldWrap( const string & fieldName );
 public:
     static void SetField( const string & fieldName, Real value );
     static void SetField( int fieldId, const string & fieldName, int orderFlag );

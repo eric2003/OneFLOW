@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -26,23 +26,23 @@ BeginNameSpace( ONEFLOW )
 
 LineInfo::LineInfo()
 {
-	this->p1 = 0;
-	this->p2 = 0;
-	this->id = 1;
-	this->type = LINE;
+    this->p1 = 0;
+    this->p2 = 0;
+    this->id = 1;
+    this->type = LINE;
 }
 
 LineInfo::LineInfo( int p1, int p2, int id )
 {
-	this->p1 = p1;
-	this->p2 = p2;
-	this->id = id;
-	this->type = LINE;
+    this->p1 = p1;
+    this->p2 = p2;
+    this->id = id;
+    this->type = LINE;
 }
 
 LineInfo::~LineInfo()
 {
-	;
+    ;
 }
 
 EndNameSpace

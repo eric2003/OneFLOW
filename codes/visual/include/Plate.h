@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -49,16 +49,16 @@ public:
 class PlaneData
 {
 public:
-	PlaneData();
-	~PlaneData();
+    PlaneData();
+    ~PlaneData();
 public:
     MRField * nodedata;
-	RealField2D slicedata;
+    RealField2D slicedata;
     RealField x, y, z;
     RealField var1, var2, var;
 public:
     void Init();
-	int  GetNNode() { return static_cast<int> (x.size()); }
+    int  GetNNode() { return static_cast<int> (x.size()); }
 public:
     void AddPoint( Real xm, Real ym, Real zm );
     void AddVar( RealField & var );
@@ -92,8 +92,8 @@ class UnsGrid;
 class CuttingClass
 {
 public:
-	CuttingClass();
-	~CuttingClass();
+    CuttingClass();
+    ~CuttingClass();
 public:
     StringField nameList;
     SliceInfo sliceInfo;

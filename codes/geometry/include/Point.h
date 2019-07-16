@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -35,26 +35,26 @@ template < typename T >
 class Point
 {
 public:
-	typedef Point< T > point_type;
+    typedef Point< T > point_type;
 public:
-	T x, y, z;
-	int id;
+    T x, y, z;
+    int id;
 public:
     Point();
-	Point( const T & x, const T & y, const T & z, int id = 0 );
-	Point( const point_type & rhs );
-	Point & operator = ( const point_type & rhs );
-	~Point();
+    Point( const T & x, const T & y, const T & z, int id = 0 );
+    Point( const point_type & rhs );
+    Point & operator = ( const point_type & rhs );
+    ~Point();
 public:
     void SetPoint( const T & x );
-	void SetPoint( const T & x, const T & y );
-	void SetPoint( const T & x, const T & y, const T & z );
-	void SetPoint( const T & x, const T & y, const T & z, int id );
+    void SetPoint( const T & x, const T & y );
+    void SetPoint( const T & x, const T & y, const T & z );
+    void SetPoint( const T & x, const T & y, const T & z, int id );
     void MoveRelatively( const T & dx, const T & dy, const T & dz );
     void MoveTo( const T & newX, const T & newY, const T & newZ );
 public:
-	bool operator < ( const point_type & rhs ) const;
-	bool Compare( const point_type & rhs, const T & tolerance ) const;
+    bool operator < ( const point_type & rhs ) const;
+    bool Compare( const point_type & rhs, const T & tolerance ) const;
 };
 
 EndNameSpace

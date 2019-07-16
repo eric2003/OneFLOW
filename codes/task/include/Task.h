@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -52,7 +52,7 @@ public:
 public:
     int taskId;
     string taskName;
-	TaskFunction action, sendAction, recvAction;
+    TaskFunction action, sendAction, recvAction;
     DataBook * dataBook;
     FileInfo * fileInfo;
 public:
@@ -70,10 +70,10 @@ public:
 class SimpleTask : public Task
 {
 public:
-	SimpleTask() {};
-	~SimpleTask(){};
+    SimpleTask() {};
+    ~SimpleTask(){};
 public:
-	void Run();
+    void Run();
 protected:
 };
 

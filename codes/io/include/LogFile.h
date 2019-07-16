@@ -35,12 +35,12 @@ extern LogFile logFile;
 class LogFile
 {
 public:
-	LogFile();
-	~LogFile();
+    LogFile();
+    ~LogFile();
     fstream my_fstream;
 public:
-	void Open();
-	void Close();
+    void Open();
+    void Close();
 };
 
 template< typename T >

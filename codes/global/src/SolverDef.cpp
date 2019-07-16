@@ -58,14 +58,14 @@ void CreateSysMap()
 
 int GetOppositeSendRecv( int iSr )
 {
-	if ( iSr == GREAT_SEND )
-	{
-		return GREAT_RECV;
-	}
-	else
-	{
-		return GREAT_SEND;
-	}
+    if ( iSr == GREAT_SEND )
+    {
+        return GREAT_RECV;
+    }
+    else
+    {
+        return GREAT_SEND;
+    }
 }
 
 RegData::RegData()

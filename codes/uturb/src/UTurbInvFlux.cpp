@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -59,7 +59,7 @@ void UTurbInvFlux::CmpLimiter()
 void UTurbInvFlux::CmpInvFace()
 {
     this->CmpLimiter();
-	this->GetQlQrField();
+    this->GetQlQrField();
 
     this->ReconstructFaceValueField();
 
@@ -132,9 +132,9 @@ void UTurbInvFlux::CmpFlux()
     ug.Init();
     Alloc();
 
-	this->CmpInvFace();
+    this->CmpInvFace();
     this->CmpInvFlux();
-	this->AddInvFlux();
+    this->AddInvFlux();
 
     DeAlloc();
 }
@@ -142,55 +142,55 @@ void UTurbInvFlux::CmpFlux()
 void UTurbInvFlux::CmpInvFlux()
 {
     for ( int fId = 0; fId < ug.nFace; ++ fId )
-	{
-	    ug.fId = fId;
+    {
+        ug.fId = fId;
 
         if ( fId == 384 )
         {
             int kkk = 1;
         }
 
-	    ug.lc = ( * ug.lcf )[ ug.fId ];
-	    ug.rc = ( * ug.rcf )[ ug.fId ];
+        ug.lc = ( * ug.lcf )[ ug.fId ];
+        ug.rc = ( * ug.rcf )[ ug.fId ];
 
-		this->PrepareFaceValue();
+        this->PrepareFaceValue();
         this->RoeFlux();
-		this->UpdateFaceInvFlux();
-	}
+        this->UpdateFaceInvFlux();
+    }
 }
 
 void UTurbInvFlux::PrepareFaceValue()
 {
     TurbInv & inv = turbInv;
 
-	gcom.fnx   = ( * ug.fnx   )[ ug.fId ];
-	gcom.fny   = ( * ug.fny   )[ ug.fId ];
-	gcom.fnz   = ( * ug.fnz   )[ ug.fId ];
-	gcom.fvn   = ( * ug.fvn   )[ ug.fId ];
-	gcom.farea = ( * ug.farea )[ ug.fId ];
+    gcom.fnx   = ( * ug.fnx   )[ ug.fId ];
+    gcom.fny   = ( * ug.fny   )[ ug.fId ];
+    gcom.fnz   = ( * ug.fnz   )[ ug.fId ];
+    gcom.fvn   = ( * ug.fvn   )[ ug.fId ];
+    gcom.farea = ( * ug.farea )[ ug.fId ];
 
-	for ( int iEqu = 0; iEqu < limf->nEqu; ++ iEqu )
-	{
-		inv.prim1[ iEqu ] = ( * limf->qf1 )[ iEqu ][ ug.fId ];
-		inv.prim2[ iEqu ] = ( * limf->qf2 )[ iEqu ][ ug.fId ];
-	}
+    for ( int iEqu = 0; iEqu < limf->nEqu; ++ iEqu )
+    {
+        inv.prim1[ iEqu ] = ( * limf->qf1 )[ iEqu ][ ug.fId ];
+        inv.prim2[ iEqu ] = ( * limf->qf2 )[ iEqu ][ ug.fId ];
+    }
 
-	inv.rl = ( * nslimiter->limf->qf1 )[ IDX::IR ][ ug.fId ];
-	inv.ul = ( * nslimiter->limf->qf1 )[ IDX::IU ][ ug.fId ];
-	inv.vl = ( * nslimiter->limf->qf1 )[ IDX::IV ][ ug.fId ];
-	inv.wl = ( * nslimiter->limf->qf1 )[ IDX::IW ][ ug.fId ];
+    inv.rl = ( * nslimiter->limf->qf1 )[ IDX::IR ][ ug.fId ];
+    inv.ul = ( * nslimiter->limf->qf1 )[ IDX::IU ][ ug.fId ];
+    inv.vl = ( * nslimiter->limf->qf1 )[ IDX::IV ][ ug.fId ];
+    inv.wl = ( * nslimiter->limf->qf1 )[ IDX::IW ][ ug.fId ];
 
-	inv.rr = ( * nslimiter->limf->qf2 )[ IDX::IR ][ ug.fId ];
-	inv.ur = ( * nslimiter->limf->qf2 )[ IDX::IU ][ ug.fId ];
-	inv.vr = ( * nslimiter->limf->qf2 )[ IDX::IV ][ ug.fId ];
-	inv.wr = ( * nslimiter->limf->qf2 )[ IDX::IW ][ ug.fId ];
+    inv.rr = ( * nslimiter->limf->qf2 )[ IDX::IR ][ ug.fId ];
+    inv.ur = ( * nslimiter->limf->qf2 )[ IDX::IU ][ ug.fId ];
+    inv.vr = ( * nslimiter->limf->qf2 )[ IDX::IV ][ ug.fId ];
+    inv.wr = ( * nslimiter->limf->qf2 )[ IDX::IW ][ ug.fId ];
 }
 
 void UTurbInvFlux::UpdateFaceInvFlux()
 {
     TurbInv & inv = turbInv;
 
-	for ( int iEqu = 0; iEqu < limf->nEqu; ++ iEqu )
+    for ( int iEqu = 0; iEqu < limf->nEqu; ++ iEqu )
     {
         ( * invflux )[ iEqu ][ ug.fId ] = gcom.farea * inv.flux[ iEqu ];
     }

@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -55,9 +55,9 @@ public:
     static int OVERSET         ;
 public:
     static bool IsInterfaceBc( int bcType );
-	static bool IsSlipfaceBc( int bcType );
+    static bool IsSlipfaceBc( int bcType );
     static bool IsPoleBc( int bcType );
-	static bool IsNotNormalBc( int bcType );
+    static bool IsNotNormalBc( int bcType );
     static bool IsWallBc( int bcType );
 };
 
@@ -68,13 +68,13 @@ public:
     ~BcTypeMap();
 //public:
 private:
-	int numberOfMaxBoundaryConditions;
+    int numberOfMaxBoundaryConditions;
     map< int, int > cgns2OneFlow;
     map< int, int > oneFlow2Cgns;
 public:
-	void Init();
-	int OneFlow2Cgns( int oneflow_bctype );
-	int Cgns2OneFlow( int cgns_bctype );
+    void Init();
+    int OneFlow2Cgns( int oneflow_bctype );
+    int Cgns2OneFlow( int cgns_bctype );
 };
 
 class CommonNameMap
@@ -83,11 +83,11 @@ public:
     CommonNameMap();
     ~CommonNameMap();
 protected:
-	std::set< HXSort< std::string > > stringMap;
+    std::set< HXSort< std::string > > stringMap;
 public:
-	void AddName( const std::string & name );
-	int  FindNameId( const std::string & name );
-	set< HXSort< std::string > > & GetNameMap() { return stringMap; }
+    void AddName( const std::string & name );
+    int  FindNameId( const std::string & name );
+    set< HXSort< std::string > > & GetNameMap() { return stringMap; }
 };
 
 void DumpRegion( const string & fileName, CommonNameMap & nameMap );
@@ -98,10 +98,10 @@ public:
     RegionNameMap();
     ~RegionNameMap();
 public:
-	static CommonNameMap nameMap;
+    static CommonNameMap nameMap;
 public:
-	static void AddRegion( const std::string & regionName );
-	static int  FindRegionId( const std::string & regionName );
+    static void AddRegion( const std::string & regionName );
+    static int  FindRegionId( const std::string & regionName );
     static void DumpRegion();
 };
 
@@ -111,10 +111,10 @@ public:
     VolumeNameMap();
     ~VolumeNameMap();
 public:
-	static CommonNameMap nameMap;
+    static CommonNameMap nameMap;
 public:
-	static void AddRegion( const std::string & regionName );
-	static int  FindRegionId( const std::string & regionName );
+    static void AddRegion( const std::string & regionName );
+    static int  FindRegionId( const std::string & regionName );
     static void DumpRegion();
 };
 

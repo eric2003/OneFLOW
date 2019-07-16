@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -52,7 +52,7 @@ void UTurbRestart::InitRestart( int sTid )
 
     UnsGrid * grid = Zone::GetUnsGrid();
 
-	MRField * q  = GetFieldPointer< MRField > ( grid, "turbq" );
+    MRField * q  = GetFieldPointer< MRField > ( grid, "turbq" );
 
     int nEqu = turbcom.inflow.size();
 

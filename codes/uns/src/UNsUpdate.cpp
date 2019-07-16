@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -58,41 +58,41 @@ void UNsUpdate::UpdateFlowField( int sTid )
             int kkk = 1;
         }
 
-		this->PrepareData();
+        this->PrepareData();
 
-		this->CmpFlowField();
-		//this->CmpFlowFieldHyperSonic();
-		//this->CmpFlowFieldHyperSonic_Temperature();
+        this->CmpFlowField();
+        //this->CmpFlowFieldHyperSonic();
+        //this->CmpFlowFieldHyperSonic_Temperature();
 
-		this->UpdateFlowFieldValue();
+        this->UpdateFlowFieldValue();
     }
 }
 
 void UNsUpdate::PrepareData()
 {
-	for ( int iEqu = 0; iEqu < nscom.nTEqu; ++ iEqu )
-	{
-		nscom.prim [ iEqu ] = ( * unsf.q )[ iEqu ][ ug.cId ];
-		nscom.prim0[ iEqu ] = ( * unsf.q )[ iEqu ][ ug.cId ];
-	}
+    for ( int iEqu = 0; iEqu < nscom.nTEqu; ++ iEqu )
+    {
+        nscom.prim [ iEqu ] = ( * unsf.q )[ iEqu ][ ug.cId ];
+        nscom.prim0[ iEqu ] = ( * unsf.q )[ iEqu ][ ug.cId ];
+    }
 
-	for ( int iEqu = 0; iEqu < nscom.nTModel; ++ iEqu )
-	{
-		nscom.t [ iEqu ] = ( * unsf.tempr )[ iEqu ][ ug.cId ];
-		nscom.t0[ iEqu ] = ( * unsf.tempr )[ iEqu ][ ug.cId ];
-	}
+    for ( int iEqu = 0; iEqu < nscom.nTModel; ++ iEqu )
+    {
+        nscom.t [ iEqu ] = ( * unsf.tempr )[ iEqu ][ ug.cId ];
+        nscom.t0[ iEqu ] = ( * unsf.tempr )[ iEqu ][ ug.cId ];
+    }
 
-	for ( int iEqu = 0; iEqu < nscom.nTEqu; ++ iEqu )
-	{
-		nscom.dq[ iEqu ] = ( * unsf.dq )[ iEqu ][ ug.cId ];
-	}
+    for ( int iEqu = 0; iEqu < nscom.nTEqu; ++ iEqu )
+    {
+        nscom.dq[ iEqu ] = ( * unsf.dq )[ iEqu ][ ug.cId ];
+    }
 
     nscom.gama = ( * unsf.gama )[ 0 ][ ug.cId ];
 }
 
 void UNsUpdate::DumpProbeInfo()
 {
-	cout << setprecision( 3 );
+    cout << setprecision( 3 );
     cout << "Warning : p = " << nscom.prim[ IDX::IP ] << ", r = " << nscom.prim[ IDX::IR ];
     cout << " <-> zid = " << ZoneState::zid << ", cid = " << ug.cId << endl;
 }
@@ -101,9 +101,9 @@ void UNsUpdate::SolutionFix()
 {
     nscom.prim = 0;
 
-	Real sumV = 0.0;
+    Real sumV = 0.0;
 
-	int fn = ( * ug.c2f )[ ug.cId ].size();
+    int fn = ( * ug.c2f )[ ug.cId ].size();
 
     for ( int iFace = 0; iFace < fn; ++ iFace )
     {
@@ -115,27 +115,27 @@ void UNsUpdate::SolutionFix()
         int iNei = ug.lc;
         if ( ug.cId == ug.lc  ) iNei = ug.rc;
 
-		Real volN = one;
+        Real volN = one;
 
-		sumV += volN;
+        sumV += volN;
 
-		for ( int iEqu = 0; iEqu < nscom.nTEqu; ++ iEqu )
-		{
-			Real f = ( * unsf.q )[ iEqu ][ iNei ];
-			if ( iEqu == IDX::IR || iEqu == IDX::IP )
-			{
-				f = ABS( f );
-			}
-			nscom.prim[ iEqu ] += f * volN;
-		}
-	}
+        for ( int iEqu = 0; iEqu < nscom.nTEqu; ++ iEqu )
+        {
+            Real f = ( * unsf.q )[ iEqu ][ iNei ];
+            if ( iEqu == IDX::IR || iEqu == IDX::IP )
+            {
+                f = ABS( f );
+            }
+            nscom.prim[ iEqu ] += f * volN;
+        }
+    }
 
-	Real rVol = 1.0 / sumV;
+    Real rVol = 1.0 / sumV;
 
-	for ( int iEqu = 0; iEqu < nscom.nTEqu; ++ iEqu )
-	{
-		nscom.prim[ iEqu ] *= rVol;
-	}
+    for ( int iEqu = 0; iEqu < nscom.nTEqu; ++ iEqu )
+    {
+        nscom.prim[ iEqu ] *= rVol;
+    }
 }
 
 void UNsUpdate::UpdateFlowFieldValue()
@@ -145,10 +145,10 @@ void UNsUpdate::UpdateFlowFieldValue()
         ( * unsf.q )[ iEqu ][ ug.cId ] = nscom.prim[ iEqu ];
     }
 
-	for ( int iEqu = 0; iEqu < nscom.nTModel; ++ iEqu )
-	{
-		( * unsf.tempr )[ iEqu ][ ug.cId ] = nscom.t[ iEqu ];
-	}
+    for ( int iEqu = 0; iEqu < nscom.nTModel; ++ iEqu )
+    {
+        ( * unsf.tempr )[ iEqu ][ ug.cId ] = nscom.t[ iEqu ];
+    }
 }
 
 EndNameSpace

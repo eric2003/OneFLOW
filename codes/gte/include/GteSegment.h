@@ -33,7 +33,7 @@ public:
     Segment();
     Segment(Vector<N, Real> const& p0, Vector<N, Real> const& p1);
     //Segment(std::array<Vector<N, Real>, 2> const& inP);
-	Segment(testarray<Vector<N, Real>, 2> const& inP);
+    Segment(testarray<Vector<N, Real>, 2> const& inP);
     Segment(Vector<N, Real> const& center, Vector<N, Real> const& direction,
         Real extent);
 
@@ -46,8 +46,8 @@ public:
 
     // Public member access.
     //std::array<Vector<N, Real>, 2> p;
-	testarray<Vector<N, Real>, 2> p;
-	
+    testarray<Vector<N, Real>, 2> p;
+    
 
 public:
     // Comparisons to support sorted containers.
@@ -91,7 +91,7 @@ Segment<N, Real>::Segment(Vector<N, Real> const& p0,
 template <int N, typename Real>
 Segment<N, Real>::Segment(testarray<Vector<N, Real>, 2> const& inP)
 {
-	p = inP;
+    p = inP;
 }
 
 template <int N, typename Real>

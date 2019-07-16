@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -39,8 +39,8 @@ public:
     LusgsState();
     ~LusgsState();
 public:
-	static HXVector< LusgsSolver * > str;
-	static HXVector< LusgsSolver * > uns;
+    static HXVector< LusgsSolver * > str;
+    static HXVector< LusgsSolver * > uns;
 public:
     static void Init( int nSolver );
     static void AddSolver( int sid, int gridType, LusgsSolver * solver );
@@ -57,7 +57,7 @@ public:
     static int tid;
     static int nSolver;
     static int msgId;
-	static IntField convergeFlag;
+    static IntField convergeFlag;
 public:
     static void Init( int nSolver );
     static void SetTid( int tid );

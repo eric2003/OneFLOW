@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -33,22 +33,22 @@ class SegmentCtrl;
 class CurveMesh
 {
 public:
-	CurveMesh();
-	virtual ~CurveMesh();
+    CurveMesh();
+    virtual ~CurveMesh();
 public:
-	CurveInfo * curveInfo;
-	SegmentCtrl * segmentCtrl;
-	HXVector< PointType * > ptList;
-	int state;
+    CurveInfo * curveInfo;
+    SegmentCtrl * segmentCtrl;
+    HXVector< PointType * > ptList;
+    int state;
 public:
-	bool IsValidState();
-	void GenerateCurveMesh();
-	PointType & GetPoint( int id, int signFlag );
+    bool IsValidState();
+    void GenerateCurveMesh();
+    PointType & GetPoint( int id, int signFlag );
 public:
-	int GetDim() { return ptList.size(); };
-	virtual void GenerateLineMesh() {};
-	virtual void ComputeCurveGeometry() {};
-	virtual void ComputeCoor( Real s, Real & xt, Real & yt, Real & zt ) {};
+    int GetDim() { return ptList.size(); };
+    virtual void GenerateLineMesh() {};
+    virtual void ComputeCurveGeometry() {};
+    virtual void ComputeCoor( Real s, Real & xt, Real & yt, Real & zt ) {};
 };
 
 void Alloc( RealField2D & field, int ni, int nj );

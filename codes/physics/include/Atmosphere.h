@@ -1,22 +1,22 @@
 /*---------------------------------------------------------------------------*\
-	OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
-	This file is part of OneFLOW.
+    This file is part of OneFLOW.
 
-	OneFLOW is free software: you can redistribute it and/or modify it
-	under the terms of the GNU General Public License as published by
-	the Free Software Foundation, either version 3 of the License, or
-	(at your option) any later version.
+    OneFLOW is free software: you can redistribute it and/or modify it
+    under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
 
-	OneFLOW is distributed in the hope that it will be useful, but WITHOUT
-	ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-	FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
-	for more details.
+    OneFLOW is distributed in the hope that it will be useful, but WITHOUT
+    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+    FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+    for more details.
 
-	You should have received a copy of the GNU General Public License
-	along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
+    You should have received a copy of the GNU General Public License
+    along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 
 \*---------------------------------------------------------------------------*/
 
@@ -27,20 +27,20 @@ BeginNameSpace( ONEFLOW )
 class Atmosphere
 {
 public:
-	Atmosphere();
-	~Atmosphere();
+    Atmosphere();
+    ~Atmosphere();
 public:
-	RealField tList;
-	RealField pList;
-	RealField rList;
-	RealField hList;
-	bool flag;
-	Real tm, pm, rm, cm;
+    RealField tList;
+    RealField pList;
+    RealField rList;
+    RealField hList;
+    bool flag;
+    Real tm, pm, rm, cm;
 public:
-	void Init();
-	void GetAirPara( const Real & hKm, Real & temperature, Real & pressure, Real & density, Real & soundSpeed );
-	void GetAirPara( const Real & hKm );
-	int FindIndex( Real hMeter );
+    void Init();
+    void GetAirPara( const Real & hKm, Real & temperature, Real & pressure, Real & density, Real & soundSpeed );
+    void GetAirPara( const Real & hKm );
+    int FindIndex( Real hMeter );
 };
 
 extern Atmosphere atmosphere;

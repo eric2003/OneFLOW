@@ -35,168 +35,168 @@ BeginNameSpace( ONEFLOW )
 
 bool IsArrayParameter( const string & lineOfName )
 {
-	const string::size_type npos = - 1;
+    const string::size_type npos = - 1;
 
-	if ( lineOfName.find_first_of( "[" ) == npos )
-	{
-		return false;
-	}
+    if ( lineOfName.find_first_of( "[" ) == npos )
+    {
+        return false;
+    }
 
-	if ( lineOfName.find_first_of( "]" ) == npos )
-	{
-		return false;
-	}
+    if ( lineOfName.find_first_of( "]" ) == npos )
+    {
+        return false;
+    }
 
-	return true;
+    return true;
 }
 
 void ReadBasicData( AsciiFileRead & asciiFileRead )
 {
-	//string name, word;
+    //string name, word;
 
-	//\t为tab键
-	string keyWordSeparator = " =\r\n\t#$,;\"";
+    //\t为tab键
+    string keyWordSeparator = " =\r\n\t#$,;\"";
 
-	asciiFileRead.SetDefaultSeparator( keyWordSeparator );
+    asciiFileRead.SetDefaultSeparator( keyWordSeparator );
 
-	map < string, int > keyWordMap;
+    map < string, int > keyWordMap;
 
-	keyWordMap.insert( pair< string, int >( "int", HX_INT ) );
-	keyWordMap.insert( pair< string, int >( "float", HX_FLOAT ) );
-	keyWordMap.insert( pair< string, int >( "double", HX_DOUBLE ) );
-	keyWordMap.insert( pair< string, int >( "Real", HX_REAL ) );
-	keyWordMap.insert( pair< string, int >( "string", HX_STRING ) );
-	keyWordMap.insert( pair< string, int >( "bool", HX_BOOL ) );
+    keyWordMap.insert( pair< string, int >( "int", HX_INT ) );
+    keyWordMap.insert( pair< string, int >( "float", HX_FLOAT ) );
+    keyWordMap.insert( pair< string, int >( "double", HX_DOUBLE ) );
+    keyWordMap.insert( pair< string, int >( "Real", HX_REAL ) );
+    keyWordMap.insert( pair< string, int >( "string", HX_STRING ) );
+    keyWordMap.insert( pair< string, int >( "bool", HX_BOOL ) );
 
-	while ( ! asciiFileRead.ReachTheEndOfFile() )
-	{
-		bool resultFlag = asciiFileRead.ReadNextMeaningfulLine();
-		if ( ! resultFlag ) break;
+    while ( ! asciiFileRead.ReachTheEndOfFile() )
+    {
+        bool resultFlag = asciiFileRead.ReadNextMeaningfulLine();
+        if ( ! resultFlag ) break;
 
-		string keyWord = asciiFileRead.ReadNextWord();
+        string keyWord = asciiFileRead.ReadNextWord();
 
-		if ( keyWord == "" ) continue;
+        if ( keyWord == "" ) continue;
 
-		int keyWordIndex = keyWordMap[ keyWord ];
+        int keyWordIndex = keyWordMap[ keyWord ];
 
-		if ( ONEFLOW::IsArrayParameter( asciiFileRead.GetCurrentLine() ) )
-		{
-			ONEFLOW::AnalysisArrayParameter( asciiFileRead, keyWordIndex );
-		}
-		else
-		{
-			ONEFLOW::AnalysisScalarParameter( asciiFileRead, keyWordIndex );
-		}
-	}
+        if ( ONEFLOW::IsArrayParameter( asciiFileRead.GetCurrentLine() ) )
+        {
+            ONEFLOW::AnalysisArrayParameter( asciiFileRead, keyWordIndex );
+        }
+        else
+        {
+            ONEFLOW::AnalysisScalarParameter( asciiFileRead, keyWordIndex );
+        }
+    }
 }
 
 void AnalysisArrayParameter( AsciiFileRead & asciiFileRead, int keyWordIndex )
 {
-	string errorMessage = "error in parameter file";
-	string arrayParameterSeparator = "=\r\n\t#$,;\"";
+    string errorMessage = "error in parameter file";
+    string arrayParameterSeparator = "=\r\n\t#$,;\"";
 
-	string compositeArrayParameterNameInformation = asciiFileRead.ReadNextWord( arrayParameterSeparator );
+    string compositeArrayParameterNameInformation = asciiFileRead.ReadNextWord( arrayParameterSeparator );
 
-	//Array pattern
-	string compositeArrayParameterSeparator = " =\r\n\t#$,;\"[]";
-	string arrayParameterName, arraySizeInformation;
+    //Array pattern
+    string compositeArrayParameterSeparator = " =\r\n\t#$,;\"[]";
+    string arrayParameterName, arraySizeInformation;
 
-	arrayParameterName = ONEFLOW::FindNextWord( compositeArrayParameterNameInformation, compositeArrayParameterSeparator );
-	arraySizeInformation = ONEFLOW::FindNextWord( compositeArrayParameterNameInformation, compositeArrayParameterSeparator );
+    arrayParameterName = ONEFLOW::FindNextWord( compositeArrayParameterNameInformation, compositeArrayParameterSeparator );
+    arraySizeInformation = ONEFLOW::FindNextWord( compositeArrayParameterNameInformation, compositeArrayParameterSeparator );
 
-	int arraySize = ONEFLOW::GetParameterArraySize( arraySizeInformation );
+    int arraySize = ONEFLOW::GetParameterArraySize( arraySizeInformation );
 
-	string * valueContainer = new string[ arraySize ];
+    string * valueContainer = new string[ arraySize ];
 
-	for ( int i = 0; i < arraySize; ++ i )
-	{
-		valueContainer[ i ] = asciiFileRead.ReadNextWord( compositeArrayParameterSeparator );
-		//It shows that these contents can't be written within 1 lines
-		if ( valueContainer[ i ] == "" )
-		{
-			asciiFileRead.ReadNextNonEmptyLine();
-			valueContainer[ i ] = asciiFileRead.ReadNextWord( compositeArrayParameterSeparator );
-			if ( valueContainer[ i ] == "" )
-			{
-				Stop( errorMessage );
-			}
-		}
-	}
-	ONEFLOW::ProcessData( arrayParameterName, valueContainer, keyWordIndex, arraySize );
+    for ( int i = 0; i < arraySize; ++ i )
+    {
+        valueContainer[ i ] = asciiFileRead.ReadNextWord( compositeArrayParameterSeparator );
+        //It shows that these contents can't be written within 1 lines
+        if ( valueContainer[ i ] == "" )
+        {
+            asciiFileRead.ReadNextNonEmptyLine();
+            valueContainer[ i ] = asciiFileRead.ReadNextWord( compositeArrayParameterSeparator );
+            if ( valueContainer[ i ] == "" )
+            {
+                Stop( errorMessage );
+            }
+        }
+    }
+    ONEFLOW::ProcessData( arrayParameterName, valueContainer, keyWordIndex, arraySize );
 
-	delete[] valueContainer;
+    delete[] valueContainer;
 }
 
 int AnalysisScalarParameter( AsciiFileRead & asciiFileRead, int keyWordIndex )
 {
-	string errorMessage = "error in parameter file";
-	string separator = " =\r\n\t#$,;\"";  //\t为tab键
+    string errorMessage = "error in parameter file";
+    string separator = " =\r\n\t#$,;\"";  //\t为tab键
 
-	string name = asciiFileRead.ReadNextWord( separator );
+    string name = asciiFileRead.ReadNextWord( separator );
 
-	int arraySize = 1;
-	string * value = new string[ arraySize ];
+    int arraySize = 1;
+    string * value = new string[ arraySize ];
 
-	value[ 0 ] = asciiFileRead.ReadNextWord( separator );
+    value[ 0 ] = asciiFileRead.ReadNextWord( separator );
 
-	ONEFLOW::ProcessData( name, value, keyWordIndex, arraySize );
+    ONEFLOW::ProcessData( name, value, keyWordIndex, arraySize );
 
-	delete[] value;
+    delete[] value;
 
-	return arraySize;
+    return arraySize;
 }
 
 int GetParameterArraySize( const string & word )
 {
-	int arraySize = - 1;
-	if ( ONEFLOW::IsDigit( word ) )
-	{
-		arraySize = StringToDigit< int >( word );
-	}
-	else
-	{
-		arraySize = GetDataValue< int >( word );
-	}
-	return arraySize;
+    int arraySize = - 1;
+    if ( ONEFLOW::IsDigit( word ) )
+    {
+        arraySize = StringToDigit< int >( word );
+    }
+    else
+    {
+        arraySize = GetDataValue< int >( word );
+    }
+    return arraySize;
 }
 
 void ReadHXFile( const std::string & fileName )
 {
-	AsciiFileRead asciiFileRead;
+    AsciiFileRead asciiFileRead;
 
-	asciiFileRead.OpenFile( fileName, ios_base::in );
+    asciiFileRead.OpenFile( fileName, ios_base::in );
 
-	ONEFLOW::ReadBasicData( asciiFileRead );
+    ONEFLOW::ReadBasicData( asciiFileRead );
 
-	asciiFileRead.CloseFile();
+    asciiFileRead.CloseFile();
 }
 
 void ReadControlInformation()
 {
-	if ( Parallel::IsServer() )
-	{
+    if ( Parallel::IsServer() )
+    {
         ONEFLOW::ReadPrjBaseDir();
-	}
+    }
 
     HXBcastString( PrjStatus::prjBaseDir, Parallel::serverid );
 
-	if ( Parallel::IsServer() )
-	{
-		ONEFLOW::ReadHXScript();
-	}
+    if ( Parallel::IsServer() )
+    {
+        ONEFLOW::ReadHXScript();
+    }
 
     Parallel::TestSayHelloFromEveryProcess();
-	ONEFLOW::BroadcastControlParameterToAllProcessors();
+    ONEFLOW::BroadcastControlParameterToAllProcessors();
 }
 
 void ReadPrjBaseDir()
 {
-	if ( PrjStatus::prjBaseDir != "" ) return;
+    if ( PrjStatus::prjBaseDir != "" ) return;
 
     string baseDir = "./";
 
-	ONEFLOW::StrIO.ClearAll();
-	ONEFLOW::StrIO << baseDir << "/prjFile.txt";
+    ONEFLOW::StrIO.ClearAll();
+    ONEFLOW::StrIO << baseDir << "/prjFile.txt";
 
     string prjFile = ONEFLOW::StrIO.str();
 
@@ -204,7 +204,7 @@ void ReadPrjBaseDir()
 
     string prjName = ONEFLOW::GetDataValue< string >( "prjName" );
 
-	ONEFLOW::StrIO.ClearAll();
+    ONEFLOW::StrIO.ClearAll();
     ONEFLOW::StrIO << "./" << baseDir << "/" << prjName << "/";
 
     PrjStatus::prjBaseDir = ONEFLOW::StrIO.str();
@@ -212,50 +212,50 @@ void ReadPrjBaseDir()
 
 void ReadHXScript()
 {
-	ONEFLOW::StrIO.ClearAll();
+    ONEFLOW::StrIO.ClearAll();
     ONEFLOW::StrIO << PrjStatus::prjBaseDir << "script/control.txt";
 
-	string fileName = ONEFLOW::StrIO.str();
-	ONEFLOW::ReadHXFile( fileName );
-	ONEFLOW::ReadMultiFile();
+    string fileName = ONEFLOW::StrIO.str();
+    ONEFLOW::ReadHXFile( fileName );
+    ONEFLOW::ReadMultiFile();
 }
 
 int GetNumberOfParameterFiles()
 {
-	return ONEFLOW::GetDataValue< int >( "numberOfParameterFiles" );
+    return ONEFLOW::GetDataValue< int >( "numberOfParameterFiles" );
 }
 
 void ReadMultiFile()
 {
-	int numberOfParameterFiles = ONEFLOW::GetNumberOfParameterFiles();
+    int numberOfParameterFiles = ONEFLOW::GetNumberOfParameterFiles();
 
-	for ( int iFile = 0; iFile < numberOfParameterFiles; ++ iFile )
-	{
-		string fileName = ONEFLOW::GetParameterFileName( iFile );
+    for ( int iFile = 0; iFile < numberOfParameterFiles; ++ iFile )
+    {
+        string fileName = ONEFLOW::GetParameterFileName( iFile );
 
-	    ONEFLOW::StrIO.ClearAll();
+        ONEFLOW::StrIO.ClearAll();
         ONEFLOW::StrIO << PrjStatus::prjBaseDir << fileName;
 
-	    fileName = ONEFLOW::StrIO.str();
+        fileName = ONEFLOW::StrIO.str();
 
-		ONEFLOW::ReadHXFile( fileName );
-	}
+        ONEFLOW::ReadHXFile( fileName );
+    }
 }
 
 std::string GetParameterFileName( int iFile )
 {
-	ONEFLOW::StrIO.ClearAll();
-	ONEFLOW::StrIO << "parameterFileName" << iFile;
-	std::string fileNameString = ONEFLOW::StrIO.str();
+    ONEFLOW::StrIO.ClearAll();
+    ONEFLOW::StrIO << "parameterFileName" << iFile;
+    std::string fileNameString = ONEFLOW::StrIO.str();
 
-	return ONEFLOW::GetDataValue< std::string >( fileNameString );
+    return ONEFLOW::GetDataValue< std::string >( fileNameString );
 }
 
 void BroadcastControlParameterToAllProcessors()
 {
-	ONEFLOW::logFile << "Broadcast Control Parameter To All Processors\n";
+    ONEFLOW::logFile << "Broadcast Control Parameter To All Processors\n";
 
-	ONEFLOW::HXBcast( ONEFLOW::CompressData, ONEFLOW::DecompressData, Parallel::GetServerid() );
+    ONEFLOW::HXBcast( ONEFLOW::CompressData, ONEFLOW::DecompressData, Parallel::GetServerid() );
 }
 
 void CompressData( DataBook *& dataBook )
@@ -273,36 +273,36 @@ void DecompressData( DataBook * dataBook )
 
 void CompressData( DataBase * dataBase, DataBook *& dataBook )
 {
-	DataPara::DataSET * dataSet = dataBase->dataPara->GetDataSet();
-	DataPara::DataSET::iterator iter;
+    DataPara::DataSET * dataSet = dataBase->dataPara->GetDataSet();
+    DataPara::DataSET::iterator iter;
 
-	int ndata = static_cast<int> (dataSet->size());
+    int ndata = static_cast<int> (dataSet->size());
 
-	ONEFLOW::HXWrite( dataBook, ndata );
+    ONEFLOW::HXWrite( dataBook, ndata );
 
-	for ( iter = dataSet->begin(); iter != dataSet->end(); ++ iter )
-	{
-		DataV * datav = ( * iter );
+    for ( iter = dataSet->begin(); iter != dataSet->end(); ++ iter )
+    {
+        DataV * datav = ( * iter );
         ONEFLOW::HXWriteDataV( dataBook, datav );
-	}
+    }
 }
 
 void DecompressData( DataBase * dataBase, DataBook * dataBook )
 {
-	DataPara::DataSET * dataSet = dataBase->dataPara->GetDataSet();
-	DataPara::DataSET::iterator iter;
+    DataPara::DataSET * dataSet = dataBase->dataPara->GetDataSet();
+    DataPara::DataSET::iterator iter;
 
     dataBook->MoveToBegin();
 
-	int ndata = 0;
-	ONEFLOW::HXRead( dataBook, ndata );
+    int ndata = 0;
+    ONEFLOW::HXRead( dataBook, ndata );
 
-	for ( int i = 0; i < ndata; ++ i )
-	{
-		DataV * datav = new DataV();
+    for ( int i = 0; i < ndata; ++ i )
+    {
+        DataV * datav = new DataV();
         ONEFLOW::HXReadDataV( dataBook, datav );
-		dataBase->dataPara->UpdateDataPointer( datav );
-	}
+        dataBase->dataPara->UpdateDataPointer( datav );
+    }
 }
 
 EndNameSpace
