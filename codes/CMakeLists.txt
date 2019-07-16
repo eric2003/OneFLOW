@@ -87,15 +87,18 @@ if(MPI_ENABLE)
             set (CMAKE_PREFIX_PATH ${MPI_DIR})
         endif ()
 
-        find_package (MPI REQUIRED)
-        include_directories (SYSTEM "${MPI_INCLUDE_PATH}")
+        set(MPI_HEADER_DIR "${MPI_DIR}/include" CACHE PATH "path to mpi headers")
+        set(MPI_LIBRARY_DIR "${MPI_DIR}/lib" CACHE PATH "path to mpi library")
 
-        message( STATUS "MPI_DIR is ${MPI_DIR}" )
-        message( STATUS "MPI_INCLUDE_PATH is ${MPI_INCLUDE_PATH}" )
-        message( STATUS "MPI_C_LIBRARIES is ${MPI_C_LIBRARIES}" )
+        #find_package (MPI REQUIRED)
+        #include_directories (SYSTEM "${MPI_INCLUDE_PATH}")
 
-        message( STATUS "MPI_HEADER_DIR is ${MPI_HEADER_DIR}" )
-        message( STATUS "MPI_LIBRARY_DIR is ${MPI_LIBRARY_DIR}" )
+        #message( STATUS "MPI_DIR is ${MPI_DIR}" )
+        #message( STATUS "MPI_INCLUDE_PATH is ${MPI_INCLUDE_PATH}" )
+        #message( STATUS "MPI_C_LIBRARIES is ${MPI_C_LIBRARIES}" )
+
+        #message( STATUS "MPI_HEADER_DIR is ${MPI_HEADER_DIR}" )
+        #message( STATUS "MPI_LIBRARY_DIR is ${MPI_LIBRARY_DIR}" )
     endif ()
 
     if(WIN32)
