@@ -6,12 +6,15 @@ if [ "$TRAVIS_OS_NAME" == "linux" ]; then
     ls
     echo "Compile CGNS Source"
     tar xzvf CGNS-3.4.0.tar.gz
+    ls
     cd CGNS-3.4.0
     ls
     echo "compiler is $C_COMPILER"
     mkdir build
-    cmake -G "Unix Makefiles" -SCGNS-3.4.0 -BCGNS-3.4.0/build -DCGNS_ENABLE_64BIT="ON" -DCGNS_BUILD_SHARED="OFF" -DCMAKE_INSTALL_PREFIX=cgns
     cd build
+    ls
+    #cmake -G "Unix Makefiles" -SCGNS-3.4.0 -BCGNS-3.4.0/build -DCGNS_ENABLE_64BIT="ON" -DCGNS_BUILD_SHARED="OFF" -DCMAKE_INSTALL_PREFIX=cgns
+    cmake -G "Unix Makefiles" ../
     make -j 8
     sudo make install
     ls /usr/local
