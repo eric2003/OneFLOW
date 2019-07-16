@@ -3,6 +3,7 @@ language: cpp
 branches:
   only:
     - master
+    - eric
 
 cache:
   directories:
