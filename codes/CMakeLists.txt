@@ -79,6 +79,25 @@ if(MPI_ENABLE)
         set(MPI_LIBRARY_DIR "/usr/local/mpich/lib" CACHE PATH "path to mpi library")
     endif()
 
+    if( AUTO_CI_TEST )
+        # determine if MPI_DIR has been set
+        #-DMPI_DIR=$TRAVIS_BUILD_DIR/openmpi
+        if (MPI_DIR)
+            message (STATUS "Looking for MPI here: ${MPI_DIR}")
+            set (CMAKE_PREFIX_PATH ${MPI_DIR})
+        endif ()
+
+        find_package (MPI REQUIRED)
+        include_directories (SYSTEM "${MPI_INCLUDE_PATH}")
+
+        message( STATUS "MPI_DIR is ${MPI_DIR}" )
+        message( STATUS "MPI_INCLUDE_PATH is ${MPI_INCLUDE_PATH}" )
+        message( STATUS "MPI_C_LIBRARIES is ${MPI_C_LIBRARIES}" )
+
+        message( STATUS "MPI_HEADER_DIR is ${MPI_HEADER_DIR}" )
+        message( STATUS "MPI_LIBRARY_DIR is ${MPI_LIBRARY_DIR}" )
+    endif ()
+
     if(WIN32)
         set(MPI_LIBRARY_NAME "msmpi" CACHE STRING "name of mpi library")
     else()
