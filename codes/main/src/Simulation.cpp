@@ -36,26 +36,26 @@ BeginNameSpace( ONEFLOW )
 
 Simulation::Simulation( int argc, char ** argv )
 {
-    args.resize(argc);
+    args.resize( argc );
 
     cout << " args.size() = " << args.size() << "\n";
 
     for ( int i = 0; i < argc; ++ i )
     {   
-        args[i] = argv[i];
-        cout<<"arguments["<<i<<"] is: " << args[ i ] << endl;
+        args[ i ] = argv[ i ];
+        cout << "arguments[ " << i << " ] is: " << args[ i ] << endl;
     }
 
     if ( args.size() > 1 )
     {
-        string prjName = args[1];
+        string prjName = args[ 1 ];
         PrjStatus::SetPrjBaseDir( prjName );
     }
 }
 
 Simulation::~Simulation()
 {
-    if (!args.empty()) 
+    if ( ! args.empty() ) 
     {
         args.clear();
         args.shrink_to_fit();
