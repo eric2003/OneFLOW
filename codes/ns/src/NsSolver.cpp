@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -47,26 +47,26 @@ NsSolver::~NsSolver()
 
 void NsSolver::StaticInit()
 {
-	if ( NsSolver::initFlag ) return;
-	NsSolver::initFlag = true;
+    if ( NsSolver::initFlag ) return;
+    NsSolver::initFlag = true;
     this->sTid = ONEFLOW::NS_SOLVER;
 
-	ns_ctrl.Init();
-	nscom.Init();
+    ns_ctrl.Init();
+    nscom.Init();
 
     SolverInfo * solverInfo = SolverInfoFactory::GetSolverInfo( this->sTid );
     solverInfo->nEqu  = nscom.nEqu;
-	solverInfo->nTEqu = nscom.nTEqu;
+    solverInfo->nTEqu = nscom.nTEqu;
     solverInfo->registerInterface = 0;
     solverInfo->residualName = "res";
-	solverInfo->resFileName = GetDataValue< string >( "resFile" );
-	solverInfo->gradString.push_back( "q"    );
-	solverInfo->gradString.push_back( "dqdx" );
-	solverInfo->gradString.push_back( "dqdy" );
-	solverInfo->gradString.push_back( "dqdz" );
+    solverInfo->resFileName = GetDataValue< string >( "resFile" );
+    solverInfo->gradString.push_back( "q"    );
+    solverInfo->gradString.push_back( "dqdx" );
+    solverInfo->gradString.push_back( "dqdy" );
+    solverInfo->gradString.push_back( "dqdz" );
 
-	solverInfo->implicitString.push_back( "q"  );
-	solverInfo->implicitString.push_back( "dq" );
+    solverInfo->implicitString.push_back( "q"  );
+    solverInfo->implicitString.push_back( "dq" );
 }
 
 EndNameSpace

@@ -21,25 +21,25 @@ template <class T, size_t N >
 class testarray
 {
 public:
-	testarray() {};
-	testarray(testarray<T,N> const &rhs)
-	{
-		for (size_t i = 0; i < N; ++i)
-		{
-			this->data[i] = rhs.data[i];
-		}
-	};
-	~testarray() {};
-	inline T const& operator[](int i) const
-	{
-		return data[i];
-	};
-	inline T& operator[](int i)
-	{
-		return data[i];
-	}
+    testarray() {};
+    testarray(testarray<T,N> const &rhs)
+    {
+        for (size_t i = 0; i < N; ++i)
+        {
+            this->data[i] = rhs.data[i];
+        }
+    };
+    ~testarray() {};
+    inline T const& operator[](int i) const
+    {
+        return data[i];
+    };
+    inline T& operator[](int i)
+    {
+        return data[i];
+    }
 public:
-	T data[N];
+    T data[N];
 
 };
 
@@ -55,8 +55,8 @@ public:
 
     // The tuple is fully initialized by the inputs.
    // Vector(std::array<Real, N> const& values);
-	Vector(testarray<Real, N> const& values);
-	
+    Vector(testarray<Real, N> const& values);
+    
 
     // At most N elements are copied from the initializer list, setting any
     // remaining elements to zero.  Create the zero vector using the syntax
@@ -102,7 +102,7 @@ protected:
     // This data structure takes advantage of the built-in operator[],
     // range checking, and visualizers in MSVS.
     //std::array<Real, N> mTuple;
-	testarray<Real, N> mTuple;
+    testarray<Real, N> mTuple;
 };
 
 // Unary operations.
@@ -232,8 +232,8 @@ Vector<N, Real>::Vector()
 
 template <int N, typename Real>
 Vector<N, Real>::Vector(testarray<Real, N> const& values)
-	:
-	mTuple(values)
+    :
+    mTuple(values)
 {
 }
 

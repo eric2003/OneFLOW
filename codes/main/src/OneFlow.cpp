@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -24,7 +24,7 @@ using namespace std;
 
 int main( int argc, char ** argv )
 {
-	ONEFLOW::Simulation *simulation = new ONEFLOW::Simulation( argc, argv );
-	simulation->Run();
-	delete simulation;
+    ONEFLOW::Simulation *simulation = new ONEFLOW::Simulation( argc, argv );
+    simulation->Run();
+    delete simulation;
 }

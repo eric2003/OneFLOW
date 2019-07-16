@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -61,17 +61,17 @@ void BcData::ReadRegion()
 
 void BcData::ReadList()
 {
-	//\tÎªtab¼ü
-	string separator = " =\r\n\t#$,;\"";
+    //\tÎªtab¼ü
+    string separator = " =\r\n\t#$,;\"";
 
-	AsciiFileRead ioFile;
+    AsciiFileRead ioFile;
     string fileName = "script/bc.txt";
-	ioFile.OpenPrjFile( fileName, ios_base::in );
-	ioFile.SetDefaultSeparator( separator );
+    ioFile.OpenPrjFile( fileName, ios_base::in );
+    ioFile.SetDefaultSeparator( separator );
 
-	while ( ! ioFile.ReachTheEndOfFile() )
-	{
-		bool flag = ioFile.ReadNextNonEmptyLine();
+    while ( ! ioFile.ReachTheEndOfFile() )
+    {
+        bool flag = ioFile.ReadNextNonEmptyLine();
         if ( ! flag ) break;
         int regionId = ioFile.ReadNextDigit< int >();
         int num = ioFile.ReadNextDigit< int >();
@@ -83,9 +83,9 @@ void BcData::ReadList()
             f.push_back( value );
         }
         this->dataList.push_back( f );
-	}
+    }
 
-	ioFile.CloseFile();
+    ioFile.CloseFile();
 }
 
 EndNameSpace

@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -30,15 +30,15 @@ BeginNameSpace( ONEFLOW )
 class NodeMesh
 {
 public:
-	NodeMesh();
+    NodeMesh();
     NodeMesh( const NodeMesh & rhs );
-	~NodeMesh();
+    ~NodeMesh();
 public:
-	RealField xN, yN, zN;
+    RealField xN, yN, zN;
     RealField pmin, pmax;
     bool boxFlag;
 public:
-	UInt GetNumberOfNodes() { return xN.size(); }
+    UInt GetNumberOfNodes() { return xN.size(); }
     void CreateNodes( int numberOfNodes );
     void ComputeMinMaxBox();
     void AddPoint( Real xp, Real yp, Real zp );

@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -36,11 +36,11 @@ BeginNameSpace( ONEFLOW )
 
 int AbsoluteDiagonalId( int x, int y )
 {
-	if ( ABS( x ) == ABS( y ) )
-	{
-		return 1;
-	}
-	return 0;
+    if ( ABS( x ) == ABS( y ) )
+    {
+        return 1;
+    }
+    return 0;
 }
 
 CgnsBcInterface::CgnsBcInterface( CgnsBcRegion * bcRegion )
@@ -59,15 +59,15 @@ void CgnsBcInterface::ReadCgnsBcConnInfo()
     int baseId = this->bcRegion->cgnsZone->cgnsBase->baseId;
     int zId = this->bcRegion->cgnsZone->zId;
 
-	CgnsTraits::char33 connName;
-	CgnsTraits::char33 donorZoneName;
+    CgnsTraits::char33 connName;
+    CgnsTraits::char33 donorZoneName;
 
     cg_conn_info( fileId, baseId, zId, this->bcRegion->id,
-		          connName, & this->bcRegion->gridLocation, & this->bcRegion->gridConnType, & this->bcRegion->pointSetType,
-		          & nConnPoints, donorZoneName, & donorZoneType, & donorPointSetType, & donorDataType, & nConnDonorPoints );
+                  connName, & this->bcRegion->gridLocation, & this->bcRegion->gridConnType, & this->bcRegion->pointSetType,
+                  & nConnPoints, donorZoneName, & donorZoneType, & donorPointSetType, & donorDataType, & nConnDonorPoints );
 
-	this->bcRegion->name = connName;
-	this->donorZoneName  = donorZoneName;
+    this->bcRegion->name = connName;
+    this->donorZoneName  = donorZoneName;
 
     cout << "\n";
     cout << "   connName = " << connName << " donorZoneName = " << donorZoneName << "\n";
@@ -85,46 +85,46 @@ void CgnsBcInterface::ReadCgnsBcConnData()
     int baseId = this->bcRegion->cgnsZone->cgnsBase->baseId;
     int zId = this->bcRegion->cgnsZone->zId;
 
-	this->connPoint.resize( nConnPoints );
-	this->connDonorPoint.resize( nConnDonorPoints );
+    this->connPoint.resize( nConnPoints );
+    this->connDonorPoint.resize( nConnDonorPoints );
 
-	cg_conn_read( fileId, baseId, zId, this->bcRegion->id, & this->connPoint[ 0 ], this->donorDataType, & this->connDonorPoint[ 0 ] );
+    cg_conn_read( fileId, baseId, zId, this->bcRegion->id, & this->connPoint[ 0 ], this->donorDataType, & this->connDonorPoint[ 0 ] );
 }
 
 void CgnsBcInterface::AddFacePair()
 {
-	for (int i = 0; i < nConnPoints; ++ i)
-	{
-		int id1 = this->connPoint[ i ];
-		int id2 = this->connDonorPoint[ i ];
-		f2fmap.AddFacePair( id1, id2 );
-	}
-	int kkk = 1;
+    for (int i = 0; i < nConnPoints; ++ i)
+    {
+        int id1 = this->connPoint[ i ];
+        int id2 = this->connDonorPoint[ i ];
+        f2fmap.AddFacePair( id1, id2 );
+    }
+    int kkk = 1;
 }
 
 void CgnsBcInterface::SetPeriodicBc()
 {
-	CgnsZone * sZone = this->bcRegion->cgnsZone;
-	CgnsZone * tZone = ONEFLOW::GetCgnsZone( this->donorZoneName );
-	NodeMesh * nodeMesh1 = sZone->nodeMesh;
-	NodeMesh * nodeMesh2 = tZone->nodeMesh;
+    CgnsZone * sZone = this->bcRegion->cgnsZone;
+    CgnsZone * tZone = ONEFLOW::GetCgnsZone( this->donorZoneName );
+    NodeMesh * nodeMesh1 = sZone->nodeMesh;
+    NodeMesh * nodeMesh2 = tZone->nodeMesh;
 
-	for ( int i = 0; i < nConnPoints; ++ i )
-	{
-		if ( i == 40 && tZone->zId == 30  )
-		{
-			int kkk = 1;
-		}
-		int id1 = this->connPoint[ i ];
-		int id2 = this->connDonorPoint[ i ];
+    for ( int i = 0; i < nConnPoints; ++ i )
+    {
+        if ( i == 40 && tZone->zId == 30  )
+        {
+            int kkk = 1;
+        }
+        int id1 = this->connPoint[ i ];
+        int id2 = this->connDonorPoint[ i ];
 
-		CgIntField fNodeId1, fNodeId2;
-		sZone->GetElementNodeId( id1, fNodeId1 );
-		tZone->GetElementNodeId( id2, fNodeId2 );
+        CgIntField fNodeId1, fNodeId2;
+        sZone->GetElementNodeId( id1, fNodeId1 );
+        tZone->GetElementNodeId( id2, fNodeId2 );
 
-		f2fmap.AddFacePoint(fNodeId1, fNodeId2, nodeMesh1, nodeMesh2 );
-		int kkk = 1;
-	}
+        f2fmap.AddFacePoint(fNodeId1, fNodeId2, nodeMesh1, nodeMesh2 );
+        int kkk = 1;
+    }
 }
 
 void CgnsBcInterface::ReadCgnsBc1To1()
@@ -136,27 +136,27 @@ void CgnsBcInterface::ReadCgnsBc1To1()
     this->nConnPoints = 6;
     this->nConnDonorPoints = 6;
 
-	this->connPoint.resize( nConnPoints );
-	this->connDonorPoint.resize( nConnDonorPoints );
+    this->connPoint.resize( nConnPoints );
+    this->connDonorPoint.resize( nConnDonorPoints );
 
     this->bcRegion->gridConnType = CGNS_ENUMV( Abutting1to1 );
-	this->bcRegion->bcType       = CGNS_ENUMV( BCTypeNull );
-	this->bcRegion->pointSetType = CGNS_ENUMV( PointRange );
-	this->bcRegion->gridLocation = CGNS_ENUMV( FaceCenter );
+    this->bcRegion->bcType       = CGNS_ENUMV( BCTypeNull );
+    this->bcRegion->pointSetType = CGNS_ENUMV( PointRange );
+    this->bcRegion->gridLocation = CGNS_ENUMV( FaceCenter );
 
     this->donorPointSetType = CGNS_ENUMV( PointRange );
     this->donorDataType     = CGNS_ENUMV( Integer );
 
-	CgnsTraits::char33 connName;
-	CgnsTraits::char33 donorZoneName;
+    CgnsTraits::char33 connName;
+    CgnsTraits::char33 donorZoneName;
 
     //Zone Connectivity
-	cg_goto( fileId, baseId, "Zone_t", zId, "ZoneGridConnectivity_t", 1, "GridConnectivity1to1_t", 1, "end" );
+    cg_goto( fileId, baseId, "Zone_t", zId, "ZoneGridConnectivity_t", 1, "GridConnectivity1to1_t", 1, "end" );
 
-	cg_1to1_read( fileId, baseId, zId, this->bcRegion->id, connName, donorZoneName, & this->connPoint[ 0 ], & this->connDonorPoint[ 0 ], itranfrm );
+    cg_1to1_read( fileId, baseId, zId, this->bcRegion->id, connName, donorZoneName, & this->connPoint[ 0 ], & this->connDonorPoint[ 0 ], itranfrm );
 
-	this->bcRegion->name = connName;
-	this->donorZoneName  = donorZoneName;
+    this->bcRegion->name = connName;
+    this->donorZoneName  = donorZoneName;
 
     cout << "\n";
     cout << "   connName = " << connName << " donorZoneName = " << donorZoneName << "\n";
@@ -168,54 +168,54 @@ void CgnsBcInterface::ReadCgnsBc1To1()
     cout << "   nConnPoints = " << nConnPoints << " nConnDonorPoints = " << nConnDonorPoints << "\n";
 
 
-	int transform[ 3 ][ 3 ];
+    int transform[ 3 ][ 3 ];
 
-	//For 3-D, the
-	//transformation matrix T is constructed from Transform = [¡Àa, ¡Àb, ¡Àc ] as follows:
-	//T =
-	//[ sgn( a ) del( a ? 1 ) sgn( b ) del( b ? 1 ) sgn( c ) del( c ? 1 )]
-	//[ sgn( a ) del( a ? 2 ) sgn( b ) del( b ? 2 ) sgn( c ) del( c ? 2 )]
-	//[ sgn( a ) del( a ? 3 ) sgn( b ) del( b ? 3 ) sgn( c ) del( c ? 3 )]
+    //For 3-D, the
+    //transformation matrix T is constructed from Transform = [¡Àa, ¡Àb, ¡Àc ] as follows:
+    //T =
+    //[ sgn( a ) del( a ? 1 ) sgn( b ) del( b ? 1 ) sgn( c ) del( c ? 1 )]
+    //[ sgn( a ) del( a ? 2 ) sgn( b ) del( b ? 2 ) sgn( c ) del( c ? 2 )]
+    //[ sgn( a ) del( a ? 3 ) sgn( b ) del( b ? 3 ) sgn( c ) del( c ? 3 )]
 
     int celldim = this->bcRegion->cgnsZone->cgnsBase->celldim;
 
-	for ( int i = 0; i < celldim; ++ i )
-	{
-		for ( int j = 0; j < celldim; ++ j )
-		{
-			transform[ i ][ j ] = SIGN( 1, itranfrm[ j ] ) * AbsoluteDiagonalId( itranfrm[ j ], i + 1 );
-		}
-	}
+    for ( int i = 0; i < celldim; ++ i )
+    {
+        for ( int j = 0; j < celldim; ++ j )
+        {
+            transform[ i ][ j ] = SIGN( 1, itranfrm[ j ] ) * AbsoluteDiagonalId( itranfrm[ j ], i + 1 );
+        }
+    }
 }
 
 void CgnsBcInterface::ConvertToInnerDataStandard()
 {
-	for ( int eId = 0; eId < this->nConnPoints; ++ eId )
-	{
-		this->connPoint[ eId ] -= 1;
-	}
+    for ( int eId = 0; eId < this->nConnPoints; ++ eId )
+    {
+        this->connPoint[ eId ] -= 1;
+    }
 
-	for ( int eId = 0; eId < this->nConnDonorPoints; ++ eId )
-	{
-		this->connDonorPoint[ eId ] -= 1;
-	}
+    for ( int eId = 0; eId < this->nConnDonorPoints; ++ eId )
+    {
+        this->connDonorPoint[ eId ] -= 1;
+    }
 }
 
 void CgnsBcInterface::ShiftBcRegion()
 {
-	int nTCell = this->bcRegion->cgnsZone->nCell;
-	if ( this->bcRegion->gridLocation != Vertex )
-	{
-		for ( int eId = 0; eId < this->nConnPoints; ++ eId )
-		{
-			this->connPoint[ eId ] += nTCell;
-		}
+    int nTCell = this->bcRegion->cgnsZone->nCell;
+    if ( this->bcRegion->gridLocation != Vertex )
+    {
+        for ( int eId = 0; eId < this->nConnPoints; ++ eId )
+        {
+            this->connPoint[ eId ] += nTCell;
+        }
 
-		for ( int eId = 0; eId < this->nConnDonorPoints; ++ eId )
-		{
-			this->connDonorPoint[ eId ] += nTCell;
-		}
-	}
+        for ( int eId = 0; eId < this->nConnDonorPoints; ++ eId )
+        {
+            this->connDonorPoint[ eId ] += nTCell;
+        }
+    }
 }
 #endif
 EndNameSpace

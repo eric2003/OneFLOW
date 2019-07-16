@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -35,31 +35,31 @@ public:
 public:
     int  nEqu;
     int  nBEqu;
-	int  numberOfSweeps;
-	int  numberOfRealSweeps;
+    int  numberOfSweeps;
+    int  numberOfRealSweeps;
     bool keyPrim;
-	Real tol;
-	Real norm0, dqSweep, dmax;
+    Real tol;
+    Real norm0, dqSweep, dmax;
     Real norm;
-	Real gama, rad;
+    Real gama, rad;
 
-	Real lmdOnFace1;
-	Real lmdOnFace2;
-	Real lmdOnFace3;
+    Real lmdOnFace1;
+    Real lmdOnFace2;
+    Real lmdOnFace3;
 
-	Real visrad;
+    Real visrad;
 
-	RealField radius;
-	RealField dqj;    //dq of neighbor cell
-	RealField dqi;    //dq of this unit
-	RealField dqi0;   //The previous DQ of this unit (used for normal)
-	RealField primj;   //邻居单元的原始变量
-	RealField primF;   //面元上的原始变量
-	RealField rhs0;   //隐式残差增量
-	RealField dfj;   //临时数组，用于求隐式残差增量
-	RealField drhs;   //用于nsweep>1的情况
-	RealField rhs ;   //方程n时刻的右端项
-	RealField tmp; //临时数组
+    RealField radius;
+    RealField dqj;    //dq of neighbor cell
+    RealField dqi;    //dq of this unit
+    RealField dqi0;   //The previous DQ of this unit (used for normal)
+    RealField primj;   //邻居单元的原始变量
+    RealField primF;   //面元上的原始变量
+    RealField rhs0;   //隐式残差增量
+    RealField dfj;   //临时数组，用于求隐式残差增量
+    RealField drhs;   //用于nsweep>1的情况
+    RealField rhs ;   //方程n时刻的右端项
+    RealField tmp; //临时数组
 };
 
 extern LusgsData nslu;
@@ -67,26 +67,26 @@ extern LusgsData nslu;
 class NsLusgs : public LusgsSolver
 {
 public:
-	NsLusgs ();
-	~NsLusgs();
+    NsLusgs ();
+    ~NsLusgs();
 public:
-	void InitializeSub();
+    void InitializeSub();
 public:
-	void DumpSweepInformation();
-	void ZeroFluxIncrement   ();
-	void AddViscousTerm      ();
-	void AddFluxIncrement    ();
-	void AddFluxIncrement( const Real & coef );
-	void GetFluxIncrement( int signOfMatrix );
+    void DumpSweepInformation();
+    void ZeroFluxIncrement   ();
+    void AddViscousTerm      ();
+    void AddFluxIncrement    ();
+    void AddFluxIncrement( const Real & coef );
+    void GetFluxIncrement( int signOfMatrix );
     void CmpFaceEigenValue( RealField & prim );
-	void GetStandardFluxIncrement( int signOfMatrix );
-	void InitializeSweep( int iSweep );
-	bool UpdateSweep    ( int iSweep );
+    void GetStandardFluxIncrement( int signOfMatrix );
+    void InitializeSweep( int iSweep );
+    bool UpdateSweep    ( int iSweep );
 public:
-	void CmpLowerChange();
-	void CmpUpperChange();
-	bool IsOversetCell  ();
-	void ZeroOversetCell();
+    void CmpLowerChange();
+    void CmpUpperChange();
+    bool IsOversetCell  ();
+    void ZeroOversetCell();
 };
 
 void CmpDH( RealField & prim, Real & gama, RealField & dq, Real & dh, Real & totalEnthalpy );

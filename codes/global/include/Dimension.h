@@ -31,13 +31,13 @@ const int THREE_D = 3;
 class Dim
 {
 public:
-	Dim();
-	~Dim();
+    Dim();
+    ~Dim();
 public:
-	static int dimension;
+    static int dimension;
 public:
-	static int GetDimension();
-	static void SetDimension( int dimensionIn );
+    static int GetDimension();
+    static void SetDimension( int dimensionIn );
 };
 
 bool IsOneD();

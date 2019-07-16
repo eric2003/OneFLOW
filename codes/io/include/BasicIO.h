@@ -37,10 +37,10 @@ extern OStream StrIO;
 class OStream : public ostringstream
 {
 public:
-	OStream() {}
-	~OStream() {}
+    OStream() {}
+    ~OStream() {}
 public:
-	void ClearAll();
+    void ClearAll();
 };
 
 void MakeDir( const string & dirName );
@@ -72,80 +72,80 @@ void StopProgramFunction( const string & stopInformation, const string & fileNam
 template < typename T >
 string AddSymbolToFileName( const string & fileName, const T & symbol )
 {
-	string mainName, extensionName;
-	ONEFLOW::GetFileNameExtension( fileName, mainName, extensionName, "." );
+    string mainName, extensionName;
+    ONEFLOW::GetFileNameExtension( fileName, mainName, extensionName, "." );
 
-	ostringstream oss;
-	oss << mainName << symbol << "." << extensionName;
-	return oss.str();
+    ostringstream oss;
+    oss << mainName << symbol << "." << extensionName;
+    return oss.str();
 }
 
 template < typename T1, typename T2 >
 string AddSymbolToFileName( const string & fileName, const T1 & v1, const T2 & v2 )
 {
-	string mainName, extensionName;
-	ONEFLOW::GetFileNameExtension( fileName, mainName, extensionName, "." );
+    string mainName, extensionName;
+    ONEFLOW::GetFileNameExtension( fileName, mainName, extensionName, "." );
 
-	ostringstream oss;
-	oss << mainName << v1 << v2 << "." << extensionName;
-	return oss.str();
+    ostringstream oss;
+    oss << mainName << v1 << v2 << "." << extensionName;
+    return oss.str();
 }
 
 template < typename T1, typename T2, typename T3 >
 string AddSymbolToFileName( const string & fileName, const T1 & v1, const T2 & v2, const T3 & v3 )
 {
-	string mainName, extensionName;
-	ONEFLOW::GetFileNameExtension( fileName, mainName, extensionName, "." );
+    string mainName, extensionName;
+    ONEFLOW::GetFileNameExtension( fileName, mainName, extensionName, "." );
 
-	ostringstream oss;
-	oss << mainName << v1 << v2 << v3 << "." << extensionName;
-	return oss.str();
+    ostringstream oss;
+    oss << mainName << v1 << v2 << v3 << "." << extensionName;
+    return oss.str();
 }
 
 template < typename T >
 T & GetReference( T * x )
 {
-	return * x;
+    return * x;
 }
 
 template < typename T1, typename T2 >
 string AddString( const T1 & v1, const T2 & v2 )
 {
-	ostringstream oss;
-	oss << v1 << v2;
-	return oss.str();
+    ostringstream oss;
+    oss << v1 << v2;
+    return oss.str();
 }
 
 template < typename T1, typename T2, typename T3 >
 string AddString( const T1 & v1, const T2 & v2, const T3 & v3 )
 {
-	ostringstream oss;
-	oss << v1 << v2 << v3;
-	return oss.str();
+    ostringstream oss;
+    oss << v1 << v2 << v3;
+    return oss.str();
 }
 
 template < typename T1, typename T2, typename T3, typename T4 >
 string AddString( const T1 & v1, const T2 & v2, const T3 & v3, const T4 & v4 )
 {
-	ostringstream oss;
-	oss << v1 << v2 << v3 << v4;
-	return oss.str();
+    ostringstream oss;
+    oss << v1 << v2 << v3 << v4;
+    return oss.str();
 }
 
 template < typename T1, typename T2, typename T3, typename T4, typename T5>
 string AddString( const T1 & v1, const T2 & v2, const T3 & v3, const T4 & v4, const T5 & v5 )
 {
-	ostringstream oss;
-	oss << v1 << v2 << v3 << v4 << v5;
-	return oss.str();
+    ostringstream oss;
+    oss << v1 << v2 << v3 << v4 << v5;
+    return oss.str();
 }
 
 template < typename T1, typename T2, typename T3, typename T4, typename T5, typename T6 >
 string AddString( const T1 & v1, const T2 & v2, const T3 & v3, const T4 & v4, const T5 & v5, const T6 & v6 )
 {
-	ostringstream oss;
-	oss << v1 << v2 << v3 << v4 << v5 << v6;
-	return oss.str();
+    ostringstream oss;
+    oss << v1 << v2 << v3 << v4 << v5 << v6;
+    return oss.str();
 }
 
 ////Character conversion to numeric value
@@ -153,55 +153,55 @@ string AddString( const T1 & v1, const T2 & v2, const T3 & v3, const T4 & v4, co
 //inline bool StringToDigit( T & Value, const string & str, ios_base & ( * f )( ios_base & ) )
 //// converts string to streamable value, and returns true on success and false otherwise.
 //{
-//	istringstream stream( str );
-//	stream >> f >> Value;
-//	return ( ! stream.fail() ) && stream.get() == istringstream::traits_type::eof();
+//    istringstream stream( str );
+//    stream >> f >> Value;
+//    return ( ! stream.fail() ) && stream.get() == istringstream::traits_type::eof();
 //}
 
 //Character conversion to numeric value
 template < typename T >
 inline T StringToDigit( const string & str, ios_base & ( * f )( ios_base & ) = std::dec )
 {
-	T value;
-	istringstream stream( str );
-	stream >> f >> value;
-	return value;
+    T value;
+    istringstream stream( str );
+    stream >> f >> value;
+    return value;
 }
 
 //template < typename T >
 //inline T StringToDigit( const string & str )
 //{
-//	T value;
-//	istringstream stream( str );
-//	stream >> std::dec >> value;
-//	return value;
+//    T value;
+//    istringstream stream( str );
+//    stream >> std::dec >> value;
+//    return value;
 //}
 
 //Convert numeric to character
 template < typename T >
 inline string DigitToString( T t, ios_base & ( * f )( ios_base & ) = std::dec )
 {
-	ostringstream oss;
-	oss << f << t;
-	return oss.str();
+    ostringstream oss;
+    oss << f << t;
+    return oss.str();
 }
 
 class StringToLowerCase
 {
 public:
-	char operator()( char val )
-	{
-		return tolower( val );
-	}
+    char operator()( char val )
+    {
+        return tolower( val );
+    }
 };
 
 class StringToUpperCase
 {
 public:
-	char operator()( char val )
-	{
-		return toupper( val );
-	}
+    char operator()( char val )
+    {
+        return toupper( val );
+    }
 };
 
 void ToLowerCase( string & word );

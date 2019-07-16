@@ -28,46 +28,46 @@ BeginNameSpace( ONEFLOW )
 
 DataF::DataF()
 {
-	this->name = "";
-	this->data = 0;
+    this->name = "";
+    this->data = 0;
 }
 
 DataF::DataF( const string & name, PointerWrap * data )
 {
-	this->name = name;
-	this->data = data;
+    this->name = name;
+    this->data = data;
 }
 
 DataF::~DataF()
 {
-	delete data;
+    delete data;
 }
 
 DataField::DataField()
 {
-	dataSet = new DataSET;
+    dataSet = new DataSET;
 }
 
 DataField::~DataField()
 {
-	DataSET::iterator iter;
-	for ( iter = dataSet->begin(); iter != dataSet->end(); ++ iter )
-	{
-		DataObject * dataObject = reinterpret_cast< DataObject * > ( ( * iter )->data );
-		delete dataObject;
-	}
+    DataSET::iterator iter;
+    for ( iter = dataSet->begin(); iter != dataSet->end(); ++ iter )
+    {
+        DataObject * dataObject = reinterpret_cast< DataObject * > ( ( * iter )->data );
+        delete dataObject;
+    }
 
-	dataSet->clear();
+    dataSet->clear();
 
-	delete dataSet;
+    delete dataSet;
 }
 
 void DataField::UpdateDataF( DataF * dataf )
 {
-	DataF * findData = this->GetDataF( dataf->name );
-	if ( ! findData )
-	{
-	    dataSet->insert( dataf );
+    DataF * findData = this->GetDataF( dataf->name );
+    if ( ! findData )
+    {
+        dataSet->insert( dataf );
     }
     else
     {
@@ -80,29 +80,29 @@ void DataField::UpdateDataF( DataF * dataf )
 
 DataF * DataField::GetDataF( const string & name )
 {
-	DataF * data = new DataF( name, 0 );
-	DataSET::iterator iter = dataSet->find( data );
-	delete data;
-	if ( iter != dataSet->end() )
-	{
-		return ( * iter );
-	}
-	else
-	{
-		return 0;
-	}
+    DataF * data = new DataF( name, 0 );
+    DataSET::iterator iter = dataSet->find( data );
+    delete data;
+    if ( iter != dataSet->end() )
+    {
+        return ( * iter );
+    }
+    else
+    {
+        return 0;
+    }
 }
 
 void DataField::DeleteDataF( const string & name )
 {
-	DataF * data = new DataF( name, 0 );
-	DataSET::iterator iter = dataSet->find( data );
-	if ( iter != dataSet->end() )
-	{
-		delete ( * iter );
-		dataSet->erase( iter );
-	}
-	delete data;
+    DataF * data = new DataF( name, 0 );
+    DataSET::iterator iter = dataSet->find( data );
+    if ( iter != dataSet->end() )
+    {
+        delete ( * iter );
+        dataSet->erase( iter );
+    }
+    delete data;
 }
 
 EndNameSpace

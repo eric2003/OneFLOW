@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -36,15 +36,15 @@ class VirtualFile;
 class UnsGrid : public Grid
 {
 public:
-	IMPLEMENT_GRID_CLONE( UnsGrid )
+    IMPLEMENT_GRID_CLONE( UnsGrid )
 public:
     UnsGrid();
     ~UnsGrid();
 public:
     void Init();
     FaceTopo * faceTopo;
-	FaceMesh * faceMesh;
-	CellMesh * cellMesh;
+    FaceMesh * faceMesh;
+    CellMesh * cellMesh;
 public:
     void Decode( DataBook * databook );
     void Encode( DataBook * databook );
@@ -75,18 +75,18 @@ public:
     void CmpMetrics3D();
     void AllocMetrics();
 private:
-	void ComputeFaceCenter1D();
-	void ComputeCellCenterVol1D();
-	void ComputeFaceNormal1D();
+    void ComputeFaceCenter1D();
+    void ComputeCellCenterVol1D();
+    void ComputeFaceNormal1D();
     void ComputeGhostCellCenterVol1D();
 private:
-	void ComputeFaceNormal2D();
-	void ComputeFaceCenter2D();
-	void ComputeCellCenterVol2D();
+    void ComputeFaceNormal2D();
+    void ComputeFaceCenter2D();
+    void ComputeCellCenterVol2D();
 private:
-	void ComputeFaceNormal3D();
-	void ComputeFaceCenter3D();
-	void ComputeCellCenterVol3D();
+    void ComputeFaceNormal3D();
+    void ComputeFaceCenter3D();
+    void ComputeCellCenterVol3D();
 };
 
 UnsGrid * UnsGridCast( Grid * gridIn );

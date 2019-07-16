@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -100,22 +100,22 @@ SimuIterState::~SimuIterState()
 
 bool SimuIterState::Running()
 {
-	if ( ctrl.iexitflag == 0 )
-	{
-		if ( Iteration::outerSteps >= Iteration::maxSteps )
-		{
-			return false;
-		}
-		return true;
-	}
-	else if ( ctrl.currTime >= ctrl.maxTime )
-	{
-		return false;
-	}
-	else
-	{
-		return true;
-	}
+    if ( ctrl.iexitflag == 0 )
+    {
+        if ( Iteration::outerSteps >= Iteration::maxSteps )
+        {
+            return false;
+        }
+        return true;
+    }
+    else if ( ctrl.currTime >= ctrl.maxTime )
+    {
+        return false;
+    }
+    else
+    {
+        return true;
+    }
 }
 
 bool SimuIterState::InnerRunning()

@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -84,7 +84,7 @@ void UploadInterfaceData( StringField & data )
 
 void DownloadInterfaceData( StringField & data )
 {
-	int sTid = SolverState::tid;
+    int sTid = SolverState::tid;
 
     FieldManager * fieldManager = FieldFactory::GetFieldManager( sTid );
     fieldManager->iFieldProperty->DownloadInterfaceValue();
@@ -96,7 +96,7 @@ void PrepareInterfaceField( StringField & data )
     InterFace * interFace = grid->interFace;
     if ( ! ONEFLOW::IsValid( interFace ) ) return;
 
-	int sTid = SolverState::tid;
+    int sTid = SolverState::tid;
     int iFk  = ( * interfaceMap )[ data[ 0 ] ];
     int iSr  = ( * sendRecvMap )[ data[ 1 ] ];
 
@@ -104,9 +104,9 @@ void PrepareInterfaceField( StringField & data )
 
     PrepareInterfaceFieldRecord( sTid, iFk, iSr, fieldRecord );
 
-	SetInterfaceFieldData( iSr, fieldRecord );
+    SetInterfaceFieldData( iSr, fieldRecord );
 
-	delete fieldRecord;
+    delete fieldRecord;
 }
 
 void PrepareOversetInterfaceField( StringField & data )

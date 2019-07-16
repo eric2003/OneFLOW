@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -56,7 +56,7 @@ CmpGrid::~CmpGrid()
 void CmpGrid::Init( Grids & grids )
 {
     this->grids = grids;
-	this->grids.SetDeleteFlag( true );
+    this->grids.SetDeleteFlag( true );
     int gridObj = GetDataValue< int >( "gridObj" );
     if ( gridObj == 3 )
     {
@@ -75,7 +75,7 @@ void CmpGrid::BuildInterfaceLink()
 
     if ( gridObj == 3 )
     {
-	    int partition_type = GetDataValue< int >( "partition_type" );
+        int partition_type = GetDataValue< int >( "partition_type" );
         if ( partition_type == 1 )
         {
             this->ReconstructLink();
@@ -94,8 +94,8 @@ void CmpGrid::BuildInterfaceLink()
 void CmpGrid::Dump()
 {
     cout << __FUNCTION__<<endl;
-	fstream file;
-	OpenPrjFile( file, gridFileName, ios_base::out|ios_base::binary|ios_base::trunc );
+    fstream file;
+    OpenPrjFile( file, gridFileName, ios_base::out|ios_base::binary|ios_base::trunc );
     int nZone = static_cast<int>(grids.size());
 
     ZoneState::pid.resize( nZone );
@@ -117,17 +117,17 @@ void CmpGrid::Dump()
         grids[ iZone ]->WriteGrid( file );
     }
 
-	ONEFLOW::CloseFile( file );
+    ONEFLOW::CloseFile( file );
 }
 
 void CmpGrid::Post()
 {
     logFile << "GenerateOverset\n";
-	this->GenerateOverset();
+    this->GenerateOverset();
     logFile << "BuildInterfaceLink\n";
     this->BuildInterfaceLink();
     logFile << "ResetGridScaleAndTranslate\n";
-	this->ResetGridScaleAndTranslate();
+    this->ResetGridScaleAndTranslate();
     logFile << "CmpGrid::Post() Final \n";
 }
 
@@ -139,14 +139,14 @@ void CmpGrid::ReconstructLink()
 {
     int nZone = static_cast<int>(grids.size());
     for ( int iZone = 0; iZone < nZone; ++ iZone )
-	{
-		this->ReconstructLink( iZone );
-	}
+    {
+        this->ReconstructLink( iZone );
+    }
 }
 
 void CmpGrid::ReconstructLink( int iZone )
 {
-	UnsGrid * grid = UnsGridCast( grids[ iZone ] );
+    UnsGrid * grid = UnsGridCast( grids[ iZone ] );
 
     InterFace * interFace = grid->interFace;
     grid->nIFace = grid->interFace->nIFace;
@@ -160,34 +160,34 @@ void CmpGrid::ReconstructLink( int iZone )
     IntField & lCell = grid->faceTopo->lCell;
     IntField & rCell = grid->faceTopo->rCell;
 
-	FacePair facePair;
-	for ( int iFace = 0; iFace < nIFace; ++ iFace )
-	{
+    FacePair facePair;
+    for ( int iFace = 0; iFace < nIFace; ++ iFace )
+    {
         int nei_zone_id = interFace->zoneId[ iFace ];
         int lc = lCell[ iFace + nPBFace ];
         int rc = rCell[ iFace + nPBFace ];
         int cellIndex  = MAX( lc, rc );
-		facePair.lf.zone_id = iZone;
-		facePair.lf.face_id = iFace;
-		facePair.lf.cell_id = cellIndex;
+        facePair.lf.zone_id = iZone;
+        facePair.lf.face_id = iFace;
+        facePair.lf.cell_id = cellIndex;
 
-		facePair.rf.zone_id = nei_zone_id;
-		facePair.rf.cell_id = interFace->localCellId[ iFace ];
+        facePair.rf.zone_id = nei_zone_id;
+        facePair.rf.cell_id = interFace->localCellId[ iFace ];
 
         if ( nei_zone_id >= iZone )
         {
             UnsGrid * nei_Grid = UnsGridCast( grids[ nei_zone_id ] );
 
             if ( FindMatch( nei_Grid, & facePair ) )
-			{
+            {
                 interFace->localInterfaceId[ iFace ] = facePair.rf.face_id;
-			}
-			else
+            }
+            else
             {
                 Stop("");
             }
         }
-	}
+    }
 }
 
 void CmpGrid::ReconstructInterFace()
@@ -197,10 +197,10 @@ void CmpGrid::ReconstructInterFace()
 
 void CmpGrid::ResetGridScaleAndTranslate()
 {
-	int nZone = static_cast<int>(grids.size());
+    int nZone = static_cast<int>(grids.size());
     for ( int iZone = 0; iZone < nZone; ++ iZone )
-	{
-		Grid * grid = grids[ iZone ];
+    {
+        Grid * grid = grids[ iZone ];
         ONEFLOW::ResetGridScaleAndTranslate( grid->nodeMesh );
     }
 }
@@ -209,55 +209,55 @@ void CmpGrid::GenerateLink()
 {
     this->iFaceLink = new IFaceLink( grids );
 
-	this->ModifyBcType();
+    this->ModifyBcType();
 
-	this->GenerateLgMapping();
+    this->GenerateLgMapping();
 
-	this->ReconstructInterFace();
+    this->ReconstructInterFace();
 
-	this->ReGenerateLgMapping();
+    this->ReGenerateLgMapping();
 
-	this->MatchInterfaceTopology();
+    this->MatchInterfaceTopology();
 }
 
 void CmpGrid::ModifyBcType()
 {
-	int ignoreNoBc = ONEFLOW::GetIgnoreNoBc();
+    int ignoreNoBc = ONEFLOW::GetIgnoreNoBc();
 
-	if ( ignoreNoBc ) return;
+    if ( ignoreNoBc ) return;
 
-	//change NO_BOUNDARY to INTERFACE
-	int nZone = static_cast<int>(grids.size());
-	for ( int iZone = 0; iZone < nZone; ++ iZone )
-	{
-		Grid * grid = grids[ iZone ];
-		grid->ModifyBcType( BC::NO_BOUNDARY, BC::INTERFACE );
-	}
+    //change NO_BOUNDARY to INTERFACE
+    int nZone = static_cast<int>(grids.size());
+    for ( int iZone = 0; iZone < nZone; ++ iZone )
+    {
+        Grid * grid = grids[ iZone ];
+        grid->ModifyBcType( BC::NO_BOUNDARY, BC::INTERFACE );
+    }
 }
 
 void CmpGrid::GenerateLgMapping()
 {
-	int nZone = static_cast<int>(grids.size());
-	for ( int iZone = 0; iZone < nZone; ++ iZone )
-	{
-		Grid * grid = grids[ iZone ];
-		grid->GenerateLgMapping( this->iFaceLink );
-	}
+    int nZone = static_cast<int>(grids.size());
+    for ( int iZone = 0; iZone < nZone; ++ iZone )
+    {
+        Grid * grid = grids[ iZone ];
+        grid->GenerateLgMapping( this->iFaceLink );
+    }
 }
 
 void CmpGrid::ReGenerateLgMapping()
 {
     this->iFaceLink->InitNewLgMapping();
 
-	int nZone = static_cast<int>(grids.size());
-	for ( int iZone = 0; iZone < nZone; ++ iZone )
-	{
-		Grid * grid = grids[ iZone ];
-		grid->ReGenerateLgMapping( this->iFaceLink );
-	}
+    int nZone = static_cast<int>(grids.size());
+    for ( int iZone = 0; iZone < nZone; ++ iZone )
+    {
+        Grid * grid = grids[ iZone ];
+        grid->ReGenerateLgMapping( this->iFaceLink );
+    }
 
-	this->UpdateLgMapping();
-	this->UpdateOtherTopologyTerm();
+    this->UpdateLgMapping();
+    this->UpdateOtherTopologyTerm();
 }
 
 void CmpGrid::UpdateLgMapping()
@@ -267,78 +267,78 @@ void CmpGrid::UpdateLgMapping()
 
 void CmpGrid::UpdateOtherTopologyTerm()
 {
-	int nZone = static_cast<int>(grids.size());
-	for ( int iZone = 0; iZone < nZone; ++ iZone )
-	{
-		Grid * grid = grids[ iZone ];
-		grid->UpdateOtherTopologyTerm( this->iFaceLink );
-	}
+    int nZone = static_cast<int>(grids.size());
+    for ( int iZone = 0; iZone < nZone; ++ iZone )
+    {
+        Grid * grid = grids[ iZone ];
+        grid->UpdateOtherTopologyTerm( this->iFaceLink );
+    }
 }
 
 void CmpGrid::MatchInterfaceTopology()
 {
-	int nZone = static_cast<int>(grids.size());
-	for ( int iZone = 0; iZone < nZone; ++ iZone )
-	{
-		Grid * grid = grids[ iZone ];
+    int nZone = static_cast<int>(grids.size());
+    for ( int iZone = 0; iZone < nZone; ++ iZone )
+    {
+        Grid * grid = grids[ iZone ];
         this->iFaceLink->MatchInterfaceTopology( grid );
-	}
+    }
 }
 
 int GetIgnoreNoBc()
 {
-	return ONEFLOW::GetDataValue< int >( "ignoreNoBc" );
+    return ONEFLOW::GetDataValue< int >( "ignoreNoBc" );
 }
 
 string GetTargetGridFileName()
 {
-	return ONEFLOW::GetDataValue< string >( "targetGridFileName" );
+    return ONEFLOW::GetDataValue< string >( "targetGridFileName" );
 }
 
 void GenerateMultiZoneCmpGrids( Grids & grids )
 {
-	CmpGrid * cmpGrid = new CmpGrid();
+    CmpGrid * cmpGrid = new CmpGrid();
     cmpGrid->Init( grids );
     //cmpGrid->grids = grids;
     //cmpGrid->gridFileName = ONEFLOW::GetTargetGridFileName();
     //string part_uns_file = GetDataValue< string >( "part_uns_file" );
-	logFile << "Post\n";
+    logFile << "Post\n";
 
-	cmpGrid->Post();
+    cmpGrid->Post();
     logFile << "Post 1\n";
-	cmpGrid->Dump();
+    cmpGrid->Dump();
     logFile << "Dump\n";
-	delete cmpGrid;
+    delete cmpGrid;
 }
 
 void ResetGridScaleAndTranslate( NodeMesh * nodeMesh )
 {
-	size_t nNode = nodeMesh->GetNumberOfNodes();
+    size_t nNode = nodeMesh->GetNumberOfNodes();
 
     for ( int iNode = 0; iNode < nNode; ++ iNode )
     {
-		nodeMesh->xN[ iNode ] *= grid_para.gridScale;
-		nodeMesh->yN[ iNode ] *= grid_para.gridScale;
-		nodeMesh->zN[ iNode ] *= grid_para.gridScale;
+        nodeMesh->xN[ iNode ] *= grid_para.gridScale;
+        nodeMesh->yN[ iNode ] *= grid_para.gridScale;
+        nodeMesh->zN[ iNode ] *= grid_para.gridScale;
 
-		nodeMesh->xN[ iNode ] += grid_para.gridTrans[ 0 ];
-		nodeMesh->yN[ iNode ] += grid_para.gridTrans[ 1 ];
-		nodeMesh->zN[ iNode ] += grid_para.gridTrans[ 2 ];
-	}
+        nodeMesh->xN[ iNode ] += grid_para.gridTrans[ 0 ];
+        nodeMesh->yN[ iNode ] += grid_para.gridTrans[ 1 ];
+        nodeMesh->zN[ iNode ] += grid_para.gridTrans[ 2 ];
+    }
 
-	if ( grid_para.axis_dir == 1 )
-	{
-		TurnZAxisToYAxis( nodeMesh );
-	}
+    if ( grid_para.axis_dir == 1 )
+    {
+        TurnZAxisToYAxis( nodeMesh );
+    }
 }
 
 void TurnZAxisToYAxis( NodeMesh * nodeMesh )
 {
     size_t nNode = nodeMesh->GetNumberOfNodes();
 
-	RealField & xN = nodeMesh->xN;
-	RealField & yN = nodeMesh->yN;
-	RealField & zN = nodeMesh->zN;
+    RealField & xN = nodeMesh->xN;
+    RealField & yN = nodeMesh->yN;
+    RealField & zN = nodeMesh->zN;
 
     Real tmp;
     for ( int iNode = 0; iNode < nNode; ++ iNode )

@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -53,11 +53,11 @@ void TurbCom::Init()
     else if ( vis_model.vismodel == 4 )
     {
         this->nEqu = 2;
-		if ( vis_model.visname.substr( 0, 13 ) == "2eq-kw-menter" ||
+        if ( vis_model.visname.substr( 0, 13 ) == "2eq-kw-menter" ||
              vis_model.visname.substr( 0, 12 ) == "easm-kw-2005" )
-		{
-			sst_type = 1;
-		}
+        {
+            sst_type = 1;
+        }
     }
     turb_ilim = GetDataValue< int >( "turb_ilim" );
     tns_ilim = GetDataValue< int >( "tns_ilim" );
@@ -107,22 +107,22 @@ void TurbCom::InitConst()
 {
     this->pklim = 20.0;
 
-	if ( nscom.mach_ref > 1.0 )
-	{
-		this->pklim = 5.0;
-	}
-	else
-	{
-		if ( iprod_sst == 0 )
-		{
-			// Boussinesq approximation, full production
-			this->pklim = 20.0;
-		}
-		else if ( iprod_sst == 1 ) //SST-2003
-		{
-			this->pklim = 10.0;
-		}
-	}
+    if ( nscom.mach_ref > 1.0 )
+    {
+        this->pklim = 5.0;
+    }
+    else
+    {
+        if ( iprod_sst == 0 )
+        {
+            // Boussinesq approximation, full production
+            this->pklim = 20.0;
+        }
+        else if ( iprod_sst == 1 ) //SST-2003
+        {
+            this->pklim = 10.0;
+        }
+    }
 
     kelim = 1.0e-16;
     kwlim = 1.0e-8;
@@ -156,24 +156,24 @@ void TurbCom::InitConst()
     sigd2   = 0.4;
 
     sigma   = 2.0 / 3.0;
-	osigma  = one / sigma;
+    osigma  = one / sigma;
 
     if ( vis_model.visname.substr( 0, 6 ) == "1eq-sa" )
     {
         karm   = 0.41;
-		karm2  = SQR( karm );
-		okarm2 = one / karm2;
+        karm2  = SQR( karm );
+        okarm2 = one / karm2;
         cb1    = 0.1355;
         cb2    = 0.622;
         cv1    = 7.1;
         cv13   = POWER3( cv1 );
         cw2    = 0.3;
         cw3    = 2.0;
-		cw36   = pow( cw3, 6 );
+        cw36   = pow( cw3, 6 );
         cdes   = - 1.0;
-		ct3    = 1.2;
-		ct4    = 0.5;
-		cw1  = cb1 * okarm2 + ( one + cb2 ) / sigma;
+        ct3    = 1.2;
+        ct4    = 0.5;
+        cw1  = cb1 * okarm2 + ( one + cb2 ) / sigma;
     }
     else if ( vis_model.visname.substr( 0, 6 ) == "2eq-kw" )
     {
@@ -332,16 +332,16 @@ void TurbCom::InitConst()
     }
 
 
-	sac2 = 0.7;
-	sac3 = 0.9;
+    sac2 = 0.7;
+    sac3 = 0.9;
 
     cb2s = osigma * cb2;
     cw1k = cw1 * karm2;
 
     fwStar  = 0.424;
     cdes    = 0.65;
-	cdes_ke = 0.61;
-	cdes_kw = 0.78;
+    cdes_ke = 0.61;
+    cdes_kw = 0.78;
 }
 
 void TurbCom::InitInflow()
@@ -349,73 +349,73 @@ void TurbCom::InitInflow()
     Real ref_density = nscom.inflow[ IDX::IR ];
     if ( this->nEqu == 1 )
     {
-		if ( vis_model.vismodel == 3 )
-		{
-		    inflow[ ISA ] = ref_sa;
-		}
-		else
-		{
-			inflow[ ISA ] = 0.1 / ( ref_density * cmu + SMALL );
-		}
+        if ( vis_model.vismodel == 3 )
+        {
+            inflow[ ISA ] = ref_sa;
+        }
+        else
+        {
+            inflow[ ISA ] = 0.1 / ( ref_density * cmu + SMALL );
+        }
     }
     else if ( this->nEqu >= 2 )
     {
         Real kwoo = 1.0;
-		Real mutoo = 0.001;
+        Real mutoo = 0.001;
 
-		if ( vis_model.vismodel == 4 )
-		{
+        if ( vis_model.vismodel == 4 )
+        {
             mutoo = ref_sst;
-		}
+        }
 
         Real keoo = mutoo * kwoo / ( cmu * reynolds * ref_density );
         inflow[ IKE ] = keoo;
         inflow[ IKW ] = kwoo;
     }
 
-	if ( transition_model == ITReGama ) 
-	{
-	    trans.ce1 = 1.0;
-	    trans.ca1 = 2.0;
-	    trans.ce2 = 50.0;
+    if ( transition_model == ITReGama ) 
+    {
+        trans.ce1 = 1.0;
+        trans.ca1 = 2.0;
+        trans.ce2 = 50.0;
         trans.ca2 = 0.06;
-	    trans.dct = 2.0;
-	    trans.df  = 1.0;
-	    trans.cct = 0.03;
-	    trans.s1  = 2.0;
+        trans.dct = 2.0;
+        trans.df  = 1.0;
+        trans.cct = 0.03;
+        trans.s1  = 2.0;
 
         Real kwoo = 1.0;
         Real mutoo = inflow_viscosity;
         Real keoo = mutoo * kwoo / ( cmu * reynolds * ref_density );
-	    
+        
         inflow[ IKE ] = keoo;
         inflow[ IKW ] = kwoo;
-	    
+        
         inflow[ ITGama ] = 1.0;
 
-	    Real TUoo = 0.18;
-	    Real Fcta = 1.0;
+        Real TUoo = 0.18;
+        Real Fcta = 1.0;
 
-		if ( inflow_intensity <= 0.0 )
-		{
-			TUoo = trans.CmpIntensity( 1.0, keoo );
-		}
-		else
-		{
+        if ( inflow_intensity <= 0.0 )
+        {
+            TUoo = trans.CmpIntensity( 1.0, keoo );
+        }
+        else
+        {
             keoo = 1.5 * SQR( 0.01 * inflow_intensity );
-			kwoo = keoo * ( cmu * reynolds * ref_density ) / mutoo;
-			inflow[ IKE ] = keoo;
-	        inflow[ IKW ] = kwoo;
-	    }
-	    
+            kwoo = keoo * ( cmu * reynolds * ref_density ) / mutoo;
+            inflow[ IKE ] = keoo;
+            inflow[ IKW ] = kwoo;
+        }
+        
         inflow[ ITRect ] = trans.EmpiricalCorrelationOfRectat( TUoo, Fcta );
-	}
+    }
 
 }
 
 void TurbCom::CmpSigkw()
 {
-	if ( sst_type == 0 ) return;
+    if ( sst_type == 0 ) return;
 
     bld = half * ( bld1 + bld2 );
     sigk = bld * sigk1 + ( 1.0 - bld ) * sigk2;
@@ -471,7 +471,7 @@ void TurbCom::CmpVGrad()
     w12 = half * ( dudy - dvdx );
     w13 = half * ( dudz - dwdx );
     w23 = half * ( dvdz - dwdy );
-                        	               
+                                           
     sij2 = two * ( SQR( s11, s22, s33 ) + two * SQR( s12, s13, s23 ) );
     divv = s11 + s22 + s33;
 }
@@ -483,10 +483,10 @@ void TurbCom::CmpProdk()
         // Boussinesq approximation, full production
         prodk = vist * ( sij2 - two3rd * SQR( divv ) ) * oreynolds - two3rd * rho * ke * divv;
     }
-	else if ( iprod_sst == 1 ) //SST-2003
-	{
-		prodk = vist * sij2 * oreynolds;
-	}
+    else if ( iprod_sst == 1 ) //SST-2003
+    {
+        prodk = vist * sij2 * oreynolds;
+    }
     else //Vorticity Source Term (SST-V) 
     {
         Real vort2 = four * SQR( w12, w13, w23 );
@@ -496,36 +496,36 @@ void TurbCom::CmpProdk()
 
 void TurbCom::CmpDissk()
 {
-	if ( des_model ) 
-	{
-		dissk = fbetas * rho * ke * sqrt( ke ) / len_scale;
-	}
-	else
-	{
+    if ( des_model ) 
+    {
+        dissk = fbetas * rho * ke * sqrt( ke ) / len_scale;
+    }
+    else
+    {
         dissk = fbetas * betas * rho * ke * kw;
-	} 
+    } 
 }
 
 void TurbCom::LimitProdk()
 {
-	prodk = MIN( prodk, pklim * dissk );
+    prodk = MIN( prodk, pklim * dissk );
 }
 
 void TurbCom::CmpProdwKwMenter()
 {
-	beta   = bld * beta1  + ( 1.0 - bld ) * beta2;
-	alphaw = bld * alphaw1 + ( 1.0 - bld ) * alphaw2;
+    beta   = bld * beta1  + ( 1.0 - bld ) * beta2;
+    alphaw = bld * alphaw1 + ( 1.0 - bld ) * alphaw2;
 
-	prodw = alphaw * rho / ( vist + SMALL ) * prodk * reynolds;
-	dissw = fbeta * beta * rho * SQR( kw );
-	cdkww = two * ( one - bld ) * rho * sigw2 * cross_term / ( kw + SMALL );
+    prodw = alphaw * rho / ( vist + SMALL ) * prodk * reynolds;
+    dissw = fbeta * beta * rho * SQR( kw );
+    cdkww = two * ( one - bld ) * rho * sigw2 * cross_term / ( kw + SMALL );
 }
 
 void TurbCom::CmpProdwKwWilcox1998()
 {
-	prodw = alphaw * kw / ( ke + SMALL ) * prodk;
-	dissw = fbeta * beta * rho * SQR( kw );
-	cdkww = sigd * rho * MAX( cross_term, zero ) / ( kw + SMALL );
+    prodw = alphaw * kw / ( ke + SMALL ) * prodk;
+    dissw = fbeta * beta * rho * SQR( kw );
+    cdkww = sigd * rho * MAX( cross_term, zero ) / ( kw + SMALL );
 }
 
 void TurbCom::CmpProdwKwWilcox2006()
@@ -537,16 +537,16 @@ void TurbCom::CmpProdwKwWilcox2006()
         sigd = 0.125;
     }
 
-	prodw = alphaw * kw / ( ke + SMALL ) * prodk;
-	dissw = fbeta * beta * rho * SQR( kw );
-	cdkww = sigd * rho * MAX( cross_term, zero ) / ( kw + SMALL );
+    prodw = alphaw * kw / ( ke + SMALL ) * prodk;
+    dissw = fbeta * beta * rho * SQR( kw );
+    cdkww = sigd * rho * MAX( cross_term, zero ) / ( kw + SMALL );
 }
 
 void TurbCom::CmpProdwKwDefault()
 {
-	prodw = alphaw * kw / ( ke + SMALL ) * prodk;
-	dissw = fbeta * beta * rho * SQR( kw );
-	cdkww = sigd * rho * MAX( cross_term, zero ) / ( kw + SMALL );
+    prodw = alphaw * kw / ( ke + SMALL ) * prodk;
+    dissw = fbeta * beta * rho * SQR( kw );
+    cdkww = sigd * rho * MAX( cross_term, zero ) / ( kw + SMALL );
 }
 
 void TurbCom::CmpProdwEasmKw2003()
@@ -570,9 +570,9 @@ void TurbCom::CmpProdwEasmKw2005()
 void TurbCom::ModifyPd()
 {
     if ( transition_model == ITReGama ) 
-    {		            
-	    prodk = turb_trans.CorrectionOfProductionInKEquation ( gmeff, prodk );
-	    dissk = turb_trans.CorrectionOfDestructionInKEquation( gmeff, dissk );
+    {                    
+        prodk = turb_trans.CorrectionOfProductionInKEquation ( gmeff, prodk );
+        dissk = turb_trans.CorrectionOfDestructionInKEquation( gmeff, dissk );
     }
 }
 
@@ -581,7 +581,7 @@ void TurbCom::CmpSrc()
     srck  = prodk - dissk;
     srcw  = prodw - dissw + cdkww;
 
-	// The linearization proposed by Menter is used.
+    // The linearization proposed by Menter is used.
     diak = - two * fbetas * betas * kw;
     diaw = - two * fbeta  * beta  * kw - ABS( cdkww ) / ( rho * kw + SMALL );
 
@@ -609,29 +609,29 @@ void TurbCom::CmpCdkwmin()
 
 void TurbCom::CmpCellBlendingTerm()
 {
-	//calculate cd_kw
-	crossdiff = 2.0 * rho * sigw2 * cross_term / ( kw + SMALL );
-	Real cdkw;
+    //calculate cd_kw
+    crossdiff = 2.0 * rho * sigw2 * cross_term / ( kw + SMALL );
+    Real cdkw;
 
-	if ( iprod_sst == 1 )
-	{
-		cdkw = MAX( crossdiff, 1.0e-10 );
-	}
-	else //Original Menter CD_kw calculation
-	{
-		cdkw = MAX( crossdiff, 1.0e-20 );
-	}
+    if ( iprod_sst == 1 )
+    {
+        cdkw = MAX( crossdiff, 1.0e-10 );
+    }
+    else //Original Menter CD_kw calculation
+    {
+        cdkw = MAX( crossdiff, 1.0e-20 );
+    }
 
-	Real dist2  = SQR( dist );
+    Real dist2  = SQR( dist );
 
-	//calculate arg1
-	Real term1 = sqrt( ABS( ke ) )/( betas * dist * kw + SMALL );
-	Real term2 = 500.0 * visl / ( rho * kw * dist2 * reynolds + SMALL );
-	Real term3 = MAX( term1, term2 );
-	Real term4 = 4.0 * rho * sigw2 * ke / ( cdkw * dist2 + SMALL );
-	Real arg1  = MIN( term3, term4 );
+    //calculate arg1
+    Real term1 = sqrt( ABS( ke ) )/( betas * dist * kw + SMALL );
+    Real term2 = 500.0 * visl / ( rho * kw * dist2 * reynolds + SMALL );
+    Real term3 = MAX( term1, term2 );
+    Real term4 = 4.0 * rho * sigw2 * ke / ( cdkw * dist2 + SMALL );
+    Real arg1  = MIN( term3, term4 );
 
-	bld = tanh( POWER4( arg1 ) );
+    bld = tanh( POWER4( arg1 ) );
 }
 
 void TurbCom::CmpCrossing()
@@ -641,26 +641,26 @@ void TurbCom::CmpCrossing()
 
 void TurbCom::CmpFbetaOfKwWilcox1998()
 {
-	xk = cross_term / ( pow( kw, 3 ) + SMALL );
-	if ( xk <= 0.0 )
-	{
-		fk = 1.0;
-	}
-	else
-	{
+    xk = cross_term / ( pow( kw, 3 ) + SMALL );
+    if ( xk <= 0.0 )
+    {
+        fk = 1.0;
+    }
+    else
+    {
         xk2 = SQR( xk );
-		// Bounded crossing_term diffusion function( 1<fk<1.7 )
-		fk  = ( one + 680.0 * xk2 ) / ( one + 400.0 * xk2 );
-	}
+        // Bounded crossing_term diffusion function( 1<fk<1.7 )
+        fk  = ( one + 680.0 * xk2 ) / ( one + 400.0 * xk2 );
+    }
                 
-	xw = - ( w12 * w12 * ( s11 + s22 ) + w13 * w13 * ( s11 + s33 ) + w23 * w23 * ( s22 + s33 ) )
-		 + two * ( - w13 * w23 * s12 + w12 * w23 * s13 - w12 * w13 * s23 );
-	xw = ABS( xw /( pow( betas * kw, 3 ) + SMALL ) );
-	// Bounded vortex stretching function( 7/8<fw<1 )
-	fw = ( one + 70.0 * xw ) / ( one + 80.0 * xw );
+    xw = - ( w12 * w12 * ( s11 + s22 ) + w13 * w13 * ( s11 + s33 ) + w23 * w23 * ( s22 + s33 ) )
+         + two * ( - w13 * w23 * s12 + w12 * w23 * s13 - w12 * w13 * s23 );
+    xw = ABS( xw /( pow( betas * kw, 3 ) + SMALL ) );
+    // Bounded vortex stretching function( 7/8<fw<1 )
+    fw = ( one + 70.0 * xw ) / ( one + 80.0 * xw );
                 
-	fbetas = fk;
-	fbeta  = fw;
+    fbetas = fk;
+    fbeta  = fw;
 }
 
 void TurbCom::CmpFbetaOfKwWilcox2006()
@@ -668,9 +668,9 @@ void TurbCom::CmpFbetaOfKwWilcox2006()
     Real sh11 = s11 - half * divv;
     Real sh22 = s22 - half * divv;
     Real sh33 = s33 - half * divv;
-	Real sh12 = s12;
-	Real sh13 = s13;
-	Real sh23 = s23;
+    Real sh12 = s12;
+    Real sh13 = s13;
+    Real sh23 = s23;
                 
     fk = 1.0;
     xw = - ( w12 * w12 * ( sh11 + sh22 ) + w13 * w13 * ( sh11 + sh33 ) + w23 * w23 * ( sh22 + sh33 ) )
@@ -685,16 +685,16 @@ void TurbCom::CmpFbetaOfKwWilcox2006()
 
 void TurbCom::CmpFbetaOfEasmKw2003()
 {
-	xk = cmu * cmu * cross_term / ( pow( kw, 3 ) + SMALL );
-	fk = 1.0;
-	if ( xk > 0.0 )
-	{
-		xk2 = xk * xk;
-		// Bounded crossingTermField diffusion function( 1<fk<1.7 )
-		fk  = ( one + 680.0 * xk2 )/( one + 400.0 * xk2 );
-	}
+    xk = cmu * cmu * cross_term / ( pow( kw, 3 ) + SMALL );
+    fk = 1.0;
+    if ( xk > 0.0 )
+    {
+        xk2 = xk * xk;
+        // Bounded crossingTermField diffusion function( 1<fk<1.7 )
+        fk  = ( one + 680.0 * xk2 )/( one + 400.0 * xk2 );
+    }
 
-	fw = 1.0;
+    fw = 1.0;
                         
     fbetas = fk;
     fbeta  = fw;
@@ -704,29 +704,29 @@ void TurbCom::RGamaTransition()
 {
     if ( transition_model != ITReGama ) return;
 
-	Real vorx   = dvdz - dwdy;
-	Real vory   = dudz - dwdx;
-	Real vorz   = dudy - dvdx;
-				            
-	Real vorticity  = DIST( vorx, vory, vorz );
-	Real strainRate = sqrt( sij2 );
-				            
-	Real absU    = MAX( DIST( um, vm, wm ), SMALL );
-				            
-	Real RT      = turb_trans.ViscosityRatio( rho, visl, ke, kw, reynolds );
-	Real Rev     = turb_trans.ReynoldsNumberBasedOnStrainRate( rho, dist, visl, strainRate, reynolds );
-	Real Rectac  = turb_trans.TransitionOnsetMomentumThicknessReynolds( rectabar );
+    Real vorx   = dvdz - dwdy;
+    Real vory   = dudz - dwdx;
+    Real vorz   = dudy - dvdx;
+                            
+    Real vorticity  = DIST( vorx, vory, vorz );
+    Real strainRate = sqrt( sij2 );
+                            
+    Real absU    = MAX( DIST( um, vm, wm ), SMALL );
+                            
+    Real RT      = turb_trans.ViscosityRatio( rho, visl, ke, kw, reynolds );
+    Real Rev     = turb_trans.ReynoldsNumberBasedOnStrainRate( rho, dist, visl, strainRate, reynolds );
+    Real Rectac  = turb_trans.TransitionOnsetMomentumThicknessReynolds( rectabar );
 
-	Real Rew     = turb_trans.ReynoldsNumberBasedOnDissipation( rho, rectabar, visl, kw, reynolds );
-	Real Flength = turb_trans.HighReynoldsCorrectionOfFlength( Rew, turb_trans.FlengthGivenByLangtry( rectabar ) );
-	Real Fonset  = turb_trans.TransitionOnsetFunction( Rev, Rectac, RT );
-	Real Fturb   = turb_trans.ControlFunctionFturb( RT );
-				            
-	Real production1OfGama = turb_trans.ca1 * Flength * rho * strainRate * sqrt( intermittency * Fonset );
-	Real production2OfGama = production1OfGama * ( - turb_trans.ce1 * intermittency );
+    Real Rew     = turb_trans.ReynoldsNumberBasedOnDissipation( rho, rectabar, visl, kw, reynolds );
+    Real Flength = turb_trans.HighReynoldsCorrectionOfFlength( Rew, turb_trans.FlengthGivenByLangtry( rectabar ) );
+    Real Fonset  = turb_trans.TransitionOnsetFunction( Rev, Rectac, RT );
+    Real Fturb   = turb_trans.ControlFunctionFturb( RT );
+                            
+    Real production1OfGama = turb_trans.ca1 * Flength * rho * strainRate * sqrt( intermittency * Fonset );
+    Real production2OfGama = production1OfGama * ( - turb_trans.ce1 * intermittency );
                             
     Real productionOfGama  = production1OfGama + production2OfGama;
-				            
+                            
     Real specGamap = MIN( 0.0, 1.5 * production2OfGama + 0.5 * production1OfGama ) / ( rho * intermittency );
                             
     Real destruction2OfGama = - turb_trans.ca2 * Fturb * rho * vorticity * intermittency;
@@ -735,39 +735,39 @@ void TurbCom::RGamaTransition()
     Real destructionOfGama = destruction1OfGama + destruction2OfGama;
     Real specGamad = MAX( 0.0, 2.0 * destruction1OfGama + destruction2OfGama ) / ( rho * intermittency );
 
-	srcg = ( productionOfGama - destructionOfGama );
-	speg = ( specGamad - specGamap );
-				            
-	Real Fctat = turb_trans.BlendingFunctionOfFctat( intermittency, Rew, rectabar, vorticity, visl, rho, absU, dist, reynolds );
-	Real tscl  = turb_trans.TimeScaleInSourceTerm(  rho, absU, visl, reynolds ); 
+    srcg = ( productionOfGama - destructionOfGama );
+    speg = ( specGamad - specGamap );
+                            
+    Real Fctat = turb_trans.BlendingFunctionOfFctat( intermittency, Rew, rectabar, vorticity, visl, rho, absU, dist, reynolds );
+    Real tscl  = turb_trans.TimeScaleInSourceTerm(  rho, absU, visl, reynolds ); 
     Real TU    = turb_trans.CmpIntensity( absU, ke );
-	gmeff = turb_trans.SeparationCorrectionOfIntermittency( intermittency, Rev, Rectac, RT, Fctat );
-				            
+    gmeff = turb_trans.SeparationCorrectionOfIntermittency( intermittency, Rev, Rectac, RT, Fctat );
+                            
     Real dUds  = turb_trans.AccelerationAlongStreamline( um, vm, wm, dudx, dudy, dudz, dvdx, dvdy, dvdz, dwdx, dwdy, dwdz );
-				            
-	Real momentumThickness = 0.0;
-	Real Rectat;
-	for ( int iter = 0; iter < 10; ++ iter )
-	{
+                            
+    Real momentumThickness = 0.0;
+    Real Rectat;
+    for ( int iter = 0; iter < 10; ++ iter )
+    {
         Real lamdacta  = turb_trans.PressureGradientFunction( rho, momentumThickness, visl, dUds, reynolds );
         Real Flamdacta = turb_trans.EmpiricalCorrelationOfFlamdacta( TU, lamdacta );
         Rectat = turb_trans.EmpiricalCorrelationOfRectat( TU, Flamdacta );
         momentumThickness = turb_trans.MomentumThickness( rho, absU, visl, Rectat, reynolds );
-	}
-				            
+    }
+                            
     Real coecommon = turb_trans.cct * ( 1.0 - Fctat ) / MAX( tscl, 1.0e-20 );
                             
     Real prodRe    = coecommon * rho * Rectat;
     Real destRe    = coecommon * rho * rectabar;
 
-	srcr = ( prodRe - destRe );
-	sper = destRe / ( rho * rectabar );
+    srcr = ( prodRe - destRe );
+    sper = destRe / ( rho * rectabar );
 }
 
 void TurbCom::CmpSrcSa()
 {
     Real olam = rho / ( visl + SMALL );
-	Real d2   = SQR( len_scale );
+    Real d2   = SQR( len_scale );
     Real od2  = one / d2;
 
     CmpWorkVar();
@@ -786,21 +786,21 @@ void TurbCom::CmpSrcSa()
     Real rs = nuet * okarm2 * od2 * oreynolds;
     Real nuetRs = nuet * rs;
 
-	Real sBar    = rs * fv2;
-	Real omega   = str;
+    Real sBar    = rs * fv2;
+    Real omega   = str;
 
-	Real std;
+    Real std;
 
-	if ( sBar >= - sac2 * omega )
-	{
-		std = omega + sBar;
-	}
-	else
-	{
+    if ( sBar >= - sac2 * omega )
+    {
+        std = omega + sBar;
+    }
+    else
+    {
         Real term1 = ( sac2 * sac2 * omega + sac3 * sBar );
         Real term2 = ( sac3 - 2 * sac2 ) * omega - sBar;
-		std = omega + omega * term1 / term2;
-	}
+        std = omega + omega * term1 / term2;
+    }
 
     Real ostd   = one / ( std + SMALL );
     Real r      = rs * ostd;
@@ -816,25 +816,25 @@ void TurbCom::CmpSrcSa()
     //solution in the laminar region
     ftrans  = zero;
     xsi2 = SQR( xsi );
-	ft2  = 0.0;
+    ft2  = 0.0;
 
-	if ( ft2_flag )
-	{
-		ftrans = one;
-		ft2 = ct3 * exp( - ct4 * xsi2 ) * ftrans;
-	}
+    if ( ft2_flag )
+    {
+        ftrans = one;
+        ft2 = ct3 * exp( - ct4 * xsi2 ) * ftrans;
+    }
 
     Real grd2 = SQR( dqdxSa, dqdySa, dqdzSa );
 
     Real prod = cb1 * ( one - ft2 ) * std * nuet;    //cb1  * omega * muet + cb1 * muetRs * fv2;
-    Real diff = cb2s * grd2 * oreynolds;		     //cb2s * density * gradnue2;
-    Real dest = ( cw1k * fw - cb1 * ft2 ) * nuetRs;	 //cw1k * muetRs * fw
+    Real diff = cb2s * grd2 * oreynolds;             //cb2s * density * gradnue2;
+    Real dest = ( cw1k * fw - cb1 * ft2 ) * nuetRs;     //cw1k * muetRs * fw
 
     diff = MIN( rprod * prod, diff );
 
     Real srcTerm  = prod - dest;
 
-	srcTerm += diff; 
+    srcTerm += diff; 
         
     Real dfv2dk = ( three * cv13 * pow( fv1 / ( xsi + SMALL ), 2 ) - one ) / pow( one + xsi * fv1, 2 );
     Real dsdnu  = oreynolds * okarm2 * od2 * ( fv2 + xsi * dfv2dk );
@@ -844,12 +844,12 @@ void TurbCom::CmpSrcSa()
     Real drdnu   = oreynolds * okarm2 * od2 * ostd * ( one - nuet * ostd * dsdnu );
     Real dfwdnu  = dfwdg * dgdr * drdnu;
 
-	Real dft2dnu = 0.0;
+    Real dft2dnu = 0.0;
 
-	if ( ABS( ft2 ) > 1.0e-5 )
-	{
-		dft2dnu = - two * ct3 * ct4 * xsi * exp( - ct4 * xsi2 ) * olam;
-	}
+    if ( ABS( ft2 ) > 1.0e-5 )
+    {
+        dft2dnu = - two * ct3 * ct4 * xsi * exp( - ct4 * xsi2 ) * olam;
+    }
 
     Real prod0 = cb1 * ( one - ft2 ) * std;
     Real dest0 = ( cw1 * fw - cb1 * ft2 * okarm2 ) * nuet * od2 * oreynolds;
@@ -863,8 +863,8 @@ void TurbCom::CmpSrcSa()
     Real part1 = - half * ( prde0 - ABS( prde0 ) );
     Real part2 = - half * ( prdep - ABS( prdep ) ) * nuet;
 
-	spec_sa = part1 + part2;
-	res_sa  = srcTerm;
+    spec_sa = part1 + part2;
+    res_sa  = srcTerm;
 }
 
 EndNameSpace

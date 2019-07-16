@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -28,16 +28,16 @@ BeginNameSpace( ONEFLOW )
 class UsdPara
 {
 public:
-	UsdPara();
-	~UsdPara();
+    UsdPara();
+    ~UsdPara();
 public:
-	bool flag;
-	int  nEqu;
+    bool flag;
+    int  nEqu;
     StringField residual;
     StringField flow;
     StringField dq;
 public:
-	void Init( StringField & fieldNameList, int nEqu );
+    void Init( StringField & fieldNameList, int nEqu );
 };
 
 EndNameSpace

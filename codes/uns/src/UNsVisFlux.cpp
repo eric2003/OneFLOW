@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -75,7 +75,7 @@ void UNsVisFlux::SetVisPointer()
     {
         this->visPointer = & UNsVisFlux::AverMethod;
     }
-	else
+    else
     {
         this->visPointer = & UNsVisFlux::TestMethod;
     }
@@ -95,9 +95,9 @@ void UNsVisFlux::CmpFlux()
 
     this->SetVisPointer();
 
-	this->PrepareField();
+    this->PrepareField();
     this->CmpVisFlux();
-	this->AddVisFlux();
+    this->AddVisFlux();
 
     DeAlloc();
 }
@@ -122,11 +122,11 @@ void UNsVisFlux::PrepareField()
 void UNsVisFlux::CmpVisFlux()
 {
     for ( int fId = 0; fId < ug.nFace; ++ fId )
-	{
-	    ug.fId = fId;
+    {
+        ug.fId = fId;
 
-	    ug.lc = ( * ug.lcf )[ ug.fId ];
-	    ug.rc = ( * ug.rcf )[ ug.fId ];
+        ug.lc = ( * ug.lcf )[ ug.fId ];
+        ug.rc = ( * ug.rcf )[ ug.fId ];
 
         if ( fId == 147489 )
         {
@@ -137,30 +137,30 @@ void UNsVisFlux::CmpVisFlux()
         {
         }
 
-		this->PrepareFaceValue();
+        this->PrepareFaceValue();
 
-		this->CmpFaceVisFlux();
+        this->CmpFaceVisFlux();
 
-		this->UpdateFaceVisFlux();
+        this->UpdateFaceVisFlux();
     }
 }
 
 void UNsVisFlux::CmpFaceVisFlux()
 {
-	this->CmpHeatFlux();
+    this->CmpHeatFlux();
 
-	this->CmpStress();
+    this->CmpStress();
 
-	this->CmpNsVisFlux();
+    this->CmpNsVisFlux();
 }
 
 void UNsVisFlux::CmpHeatFlux()
 {
-	this->ZeroHeatFlux();
+    this->ZeroHeatFlux();
 
-	this->AddChemHeatFlux();
+    this->AddChemHeatFlux();
 
-	this->AddHeatFlux();
+    this->AddHeatFlux();
 
     SaveHeatFlux();
 }
@@ -170,7 +170,7 @@ void UNsVisFlux::SaveHeatFlux()
     if ( ug.fId >= ug.nBFace ) return;
     if ( ug.bcRecord->bcType[ ug.fId ] != BC::SOLID_SURFACE ) return;
     SurfaceValue * heat_sur = heat_flux.heatflux[ ZoneState::zid ];
-	Real non_dim_heatflux = - nscom.oreynolds * vis.qNormal;
+    Real non_dim_heatflux = - nscom.oreynolds * vis.qNormal;
     heat_sur->var->push_back( non_dim_heatflux );
 }
 
@@ -178,20 +178,20 @@ void UNsVisFlux::CmpStress()
 {
     Real divv2p3 = two3rd * ( vis.dudx + vis.dvdy + vis.dwdz );
 
-	vis.txx = nscom.vis * ( two * vis.dudx - divv2p3 );
-	vis.tyy = nscom.vis * ( two * vis.dvdy - divv2p3 );
-	vis.tzz = nscom.vis * ( two * vis.dwdz - divv2p3 );
-	vis.txy = nscom.vis * ( vis.dudy + vis.dvdx );
-	vis.txz = nscom.vis * ( vis.dudz + vis.dwdx );
-	vis.tyz = nscom.vis * ( vis.dvdz + vis.dwdy );
+    vis.txx = nscom.vis * ( two * vis.dudx - divv2p3 );
+    vis.tyy = nscom.vis * ( two * vis.dvdy - divv2p3 );
+    vis.tzz = nscom.vis * ( two * vis.dwdz - divv2p3 );
+    vis.txy = nscom.vis * ( vis.dudy + vis.dvdx );
+    vis.txz = nscom.vis * ( vis.dudz + vis.dwdx );
+    vis.tyz = nscom.vis * ( vis.dvdz + vis.dwdy );
 
-	this->CmpAniStress();
+    this->CmpAniStress();
 }
 
 void UNsVisFlux::CmpAniStress()
 {
-	if ( ctrl.nrokplus <= 0 ) return;
-	Real two3rdRhok = two3rd * vis.rhok;
+    if ( ctrl.nrokplus <= 0 ) return;
+    Real two3rdRhok = two3rd * vis.rhok;
     vis.txx += vis.b11 - two3rdRhok;
     vis.tyy += vis.b22 - two3rdRhok;
     vis.tzz += vis.b33 - two3rdRhok;
@@ -202,40 +202,40 @@ void UNsVisFlux::CmpAniStress()
 
 void UNsVisFlux::CmpNsVisFlux()
 {
-	vis.fvis[ IDX::IR  ] = 0.0;
-	vis.fvis[ IDX::IRU ] = gcom.fnx * vis.txx + gcom.fny * vis.txy + gcom.fnz * vis.txz;
-	vis.fvis[ IDX::IRV ] = gcom.fnx * vis.txy + gcom.fny * vis.tyy + gcom.fnz * vis.tyz;
-	vis.fvis[ IDX::IRW ] = gcom.fnx * vis.txz + gcom.fny * vis.tyz + gcom.fnz * vis.tzz;
-	vis.fvis[ IDX::IRE ] = vis.um * vis.fvis[ IDX::IRU ] + 
+    vis.fvis[ IDX::IR  ] = 0.0;
+    vis.fvis[ IDX::IRU ] = gcom.fnx * vis.txx + gcom.fny * vis.txy + gcom.fnz * vis.txz;
+    vis.fvis[ IDX::IRV ] = gcom.fnx * vis.txy + gcom.fny * vis.tyy + gcom.fnz * vis.tyz;
+    vis.fvis[ IDX::IRW ] = gcom.fnx * vis.txz + gcom.fny * vis.tyz + gcom.fnz * vis.tzz;
+    vis.fvis[ IDX::IRE ] = vis.um * vis.fvis[ IDX::IRU ] + 
                            vis.vm * vis.fvis[ IDX::IRV ] + 
                            vis.wm * vis.fvis[ IDX::IRW ] + vis.qNormal;
 }
 
 void UNsVisFlux::ZeroHeatFlux()
 {
-	vis.qNormal = 0.0;
-	vis.qx      = 0.0;
-	vis.qy      = 0.0;
-	vis.qz      = 0.0;
+    vis.qNormal = 0.0;
+    vis.qx      = 0.0;
+    vis.qy      = 0.0;
+    vis.qz      = 0.0;
 }
 
 void UNsVisFlux::AddChemHeatFlux()
 {
-	if ( nscom.chemModel == 1 )
-	{
-	}
+    if ( nscom.chemModel == 1 )
+    {
+    }
 }
 
 void UNsVisFlux::AddHeatFlux()
 {
-	vis.qNormal = 0.0;
-	vis.qx      = 0.0;
-	vis.qy      = 0.0;
-	vis.qz      = 0.0;
+    vis.qNormal = 0.0;
+    vis.qx      = 0.0;
+    vis.qy      = 0.0;
+    vis.qz      = 0.0;
 
     nscom.kcp = ( nscom.visl * nscom.oprl + nscom.vist * nscom.oprt ) * nscom.const_cp;
-	vis.qNormal += gcom.fnx * vis.qx + gcom.fny * vis.qy + gcom.fnz * vis.qz;
-	vis.qNormal += nscom.kcp * vis.dtdn;
+    vis.qNormal += gcom.fnx * vis.qx + gcom.fny * vis.qy + gcom.fnz * vis.qz;
+    vis.qNormal += nscom.kcp * vis.dtdn;
 }
 
 void UNsVisFlux::AddVisFlux()
@@ -248,91 +248,91 @@ void UNsVisFlux::AddVisFlux()
 
 void UNsVisFlux::PrepareFaceValue()
 {
-	gcom.fnx   = ( * ug.fnx   )[ ug.fId ];
-	gcom.fny   = ( * ug.fny   )[ ug.fId ];
-	gcom.fnz   = ( * ug.fnz   )[ ug.fId ];
-	gcom.fvn   = ( * ug.fvn   )[ ug.fId ];
-	gcom.farea = ( * ug.farea )[ ug.fId ];
+    gcom.fnx   = ( * ug.fnx   )[ ug.fId ];
+    gcom.fny   = ( * ug.fny   )[ ug.fId ];
+    gcom.fnz   = ( * ug.fnz   )[ ug.fId ];
+    gcom.fvn   = ( * ug.fvn   )[ ug.fId ];
+    gcom.farea = ( * ug.farea )[ ug.fId ];
 
     gcom.CmpTangent();
 
-	for ( int iEqu = 0; iEqu < nscom.nTEqu; ++ iEqu )
-	{
-		visQ.dqdx1[ iEqu ] = ( * unsf.dqdx )[ iEqu ][ ug.lc ];
-		visQ.dqdy1[ iEqu ] = ( * unsf.dqdy )[ iEqu ][ ug.lc ];
-		visQ.dqdz1[ iEqu ] = ( * unsf.dqdz )[ iEqu ][ ug.lc ];
+    for ( int iEqu = 0; iEqu < nscom.nTEqu; ++ iEqu )
+    {
+        visQ.dqdx1[ iEqu ] = ( * unsf.dqdx )[ iEqu ][ ug.lc ];
+        visQ.dqdy1[ iEqu ] = ( * unsf.dqdy )[ iEqu ][ ug.lc ];
+        visQ.dqdz1[ iEqu ] = ( * unsf.dqdz )[ iEqu ][ ug.lc ];
 
-		visQ.dqdx2[ iEqu ] = ( * unsf.dqdx )[ iEqu ][ ug.rc ];
-		visQ.dqdy2[ iEqu ] = ( * unsf.dqdy )[ iEqu ][ ug.rc ];
-		visQ.dqdz2[ iEqu ] = ( * unsf.dqdz )[ iEqu ][ ug.rc ];
-	}
+        visQ.dqdx2[ iEqu ] = ( * unsf.dqdx )[ iEqu ][ ug.rc ];
+        visQ.dqdy2[ iEqu ] = ( * unsf.dqdy )[ iEqu ][ ug.rc ];
+        visQ.dqdz2[ iEqu ] = ( * unsf.dqdz )[ iEqu ][ ug.rc ];
+    }
 
-	for ( int iEqu = 0; iEqu < nscom.nTModel; ++ iEqu )
-	{
-		visT.dqdx1[ iEqu ] = ( * unsf.dtdx )[ iEqu ][ ug.lc ];
-		visT.dqdy1[ iEqu ] = ( * unsf.dtdy )[ iEqu ][ ug.lc ];
-		visT.dqdz1[ iEqu ] = ( * unsf.dtdz )[ iEqu ][ ug.lc ];
+    for ( int iEqu = 0; iEqu < nscom.nTModel; ++ iEqu )
+    {
+        visT.dqdx1[ iEqu ] = ( * unsf.dtdx )[ iEqu ][ ug.lc ];
+        visT.dqdy1[ iEqu ] = ( * unsf.dtdy )[ iEqu ][ ug.lc ];
+        visT.dqdz1[ iEqu ] = ( * unsf.dtdz )[ iEqu ][ ug.lc ];
 
-		visT.dqdx2[ iEqu ] = ( * unsf.dtdx )[ iEqu ][ ug.rc ];
-		visT.dqdy2[ iEqu ] = ( * unsf.dtdy )[ iEqu ][ ug.rc ];
-		visT.dqdz2[ iEqu ] = ( * unsf.dtdz )[ iEqu ][ ug.rc ];
-	}
+        visT.dqdx2[ iEqu ] = ( * unsf.dtdx )[ iEqu ][ ug.rc ];
+        visT.dqdy2[ iEqu ] = ( * unsf.dtdy )[ iEqu ][ ug.rc ];
+        visT.dqdz2[ iEqu ] = ( * unsf.dtdz )[ iEqu ][ ug.rc ];
+    }
 
-	nscom.visl1 = ( * unsf.visl )[ 0 ][ ug.lc ];
-	nscom.visl2 = ( * unsf.visl )[ 0 ][ ug.rc ];
+    nscom.visl1 = ( * unsf.visl )[ 0 ][ ug.lc ];
+    nscom.visl2 = ( * unsf.visl )[ 0 ][ ug.rc ];
 
-	nscom.vist1 = ( * unsf.vist )[ 0 ][ ug.lc ];
-	nscom.vist2 = ( * unsf.vist )[ 0 ][ ug.rc ];
+    nscom.vist1 = ( * unsf.vist )[ 0 ][ ug.lc ];
+    nscom.vist2 = ( * unsf.vist )[ 0 ][ ug.rc ];
 
     nscom.visl = half * ( nscom.visl1 + nscom.visl2 );
     nscom.vist = half * ( nscom.vist1 + nscom.vist2 );
     nscom.vis  = nscom.visl + nscom.vist;
 
-	for ( int iEqu = 0; iEqu < nscom.nTEqu; ++ iEqu )
-	{
-		visQ.q1[ iEqu ] = ( * unsf.q )[ iEqu ][ ug.lc ];
-		visQ.q2[ iEqu ] = ( * unsf.q )[ iEqu ][ ug.rc ];
-	}
+    for ( int iEqu = 0; iEqu < nscom.nTEqu; ++ iEqu )
+    {
+        visQ.q1[ iEqu ] = ( * unsf.q )[ iEqu ][ ug.lc ];
+        visQ.q2[ iEqu ] = ( * unsf.q )[ iEqu ][ ug.rc ];
+    }
 
-	for ( int iEqu = 0; iEqu < nscom.nTEqu; ++ iEqu )
-	{
-		visQ.q11[ iEqu ] = visQ.q1[ iEqu ];
-		visQ.q22[ iEqu ] = visQ.q2[ iEqu ];
-	}
+    for ( int iEqu = 0; iEqu < nscom.nTEqu; ++ iEqu )
+    {
+        visQ.q11[ iEqu ] = visQ.q1[ iEqu ];
+        visQ.q22[ iEqu ] = visQ.q2[ iEqu ];
+    }
 
-	for ( int iEqu = 0; iEqu < nscom.nTModel; ++ iEqu )
-	{
-		visT.q1[ iEqu ] = ( * unsf.tempr )[ iEqu ][ ug.lc ];
-		visT.q2[ iEqu ] = ( * unsf.tempr )[ iEqu ][ ug.rc ];
-	}
+    for ( int iEqu = 0; iEqu < nscom.nTModel; ++ iEqu )
+    {
+        visT.q1[ iEqu ] = ( * unsf.tempr )[ iEqu ][ ug.lc ];
+        visT.q2[ iEqu ] = ( * unsf.tempr )[ iEqu ][ ug.rc ];
+    }
 
-	for ( int iEqu = 0; iEqu < nscom.nTModel; ++ iEqu )
-	{
-		visT.q11[ iEqu ] = visT.q1[ iEqu ];
-		visT.q22[ iEqu ] = visT.q2[ iEqu ];
-	}
+    for ( int iEqu = 0; iEqu < nscom.nTModel; ++ iEqu )
+    {
+        visT.q11[ iEqu ] = visT.q1[ iEqu ];
+        visT.q22[ iEqu ] = visT.q2[ iEqu ];
+    }
 
-	this->AverGrad();
-	this->CmpFaceWeight();
+    this->AverGrad();
+    this->CmpFaceWeight();
 
-	( this->* visPointer )();
+    ( this->* visPointer )();
 
-	this->SaveFacePara();
+    this->SaveFacePara();
 }
 
 void UNsVisFlux::SaveFacePara()
 {
-	vis.dudx  = visQ.dqdx[ IDX::IU ];
-	vis.dudy  = visQ.dqdy[ IDX::IU ];
-	vis.dudz  = visQ.dqdz[ IDX::IU ];
+    vis.dudx  = visQ.dqdx[ IDX::IU ];
+    vis.dudy  = visQ.dqdy[ IDX::IU ];
+    vis.dudz  = visQ.dqdz[ IDX::IU ];
 
-	vis.dvdx  = visQ.dqdx[ IDX::IV ];
-	vis.dvdy  = visQ.dqdy[ IDX::IV ];
-	vis.dvdz  = visQ.dqdz[ IDX::IV ];
+    vis.dvdx  = visQ.dqdx[ IDX::IV ];
+    vis.dvdy  = visQ.dqdy[ IDX::IV ];
+    vis.dvdz  = visQ.dqdz[ IDX::IV ];
 
-	vis.dwdx  = visQ.dqdx[ IDX::IW ];
-	vis.dwdy  = visQ.dqdy[ IDX::IW ];
-	vis.dwdz  = visQ.dqdz[ IDX::IW ];
+    vis.dwdx  = visQ.dqdx[ IDX::IW ];
+    vis.dwdy  = visQ.dqdy[ IDX::IW ];
+    vis.dwdz  = visQ.dqdz[ IDX::IW ];
 
     vis.um  = visQ.q[ IDX::IU ];
     vis.vm  = visQ.q[ IDX::IV ];
@@ -349,37 +349,37 @@ void UNsVisFlux::CmpFaceWeight()
 
 void UNsVisFlux::AverMethod()
 {
-	this->ZeroNormalGrad();
+    this->ZeroNormalGrad();
 
-	this->AverFaceValue();
+    this->AverFaceValue();
 
-	this->AverGrad();
+    this->AverGrad();
 
-	this->CmpNormalGrad();
+    this->CmpNormalGrad();
 }
 
 void UNsVisFlux::StdMethod()
 {
-	this->CmpGradCoef();
+    this->CmpGradCoef();
 
-	this->ZeroNormalGrad();
+    this->ZeroNormalGrad();
 
-	this->AverFaceValue();
+    this->AverFaceValue();
 
-	this->AverGrad();
+    this->AverGrad();
 
     this->CorrectFaceGrad();
 
-	this->CmpNormalGrad();
+    this->CmpNormalGrad();
 }
 
 void UNsVisFlux::TestMethod()
 {
-	this->ZeroNormalGrad();
+    this->ZeroNormalGrad();
 
-	this->AverFaceValue();
+    this->AverFaceValue();
 
-	this->PrepareCellGeom();
+    this->PrepareCellGeom();
 
     this->CmpTestMethod();
 
@@ -388,11 +388,11 @@ void UNsVisFlux::TestMethod()
 
 void UNsVisFlux::New1Method()
 {
-	this->ZeroNormalGrad();
+    this->ZeroNormalGrad();
 
-	this->AccurateFaceValue();
+    this->AccurateFaceValue();
 
-	this->PrepareCellGeom();
+    this->PrepareCellGeom();
 
     this->CmpNew1Method();
 
@@ -401,11 +401,11 @@ void UNsVisFlux::New1Method()
 
 void UNsVisFlux::New2Method()
 {
-	this->ZeroNormalGrad();
+    this->ZeroNormalGrad();
 
-	this->AccurateFaceValue();
+    this->AccurateFaceValue();
 
-	this->PrepareCellGeom();
+    this->PrepareCellGeom();
 
     this->CmpNew2Method();
 
@@ -426,7 +426,7 @@ void UNsVisFlux::PrepareCellGeom()
 void UNsVisFlux::UpdateFaceVisFlux()
 {
     Real coeff = - nscom.oreynolds * gcom.farea;
-	for ( int iEqu = 0; iEqu < nscom.nTEqu; ++ iEqu )
+    for ( int iEqu = 0; iEqu < nscom.nTEqu; ++ iEqu )
     {
         ( * visflux )[ iEqu ][ ug.fId ] = coeff * vis.fvis[ iEqu ];
     }
@@ -440,12 +440,12 @@ void CmpLaminarViscosity( int flag )
 
     Real minLimit = 0.0;
 
-	for ( int cId = ug.ist; cId < ug.ied; ++ cId )
-	{
+    for ( int cId = ug.ist; cId < ug.ied; ++ cId )
+    {
         Real temperature = ( * unsf.tempr )[ IDX::ITT ][ cId ];
-		Real visl = Sutherland::CmpViscosity( temperature );
-		( * unsf.visl )[ 0 ][ cId ] = MAX( minLimit, visl );
-	}
+        Real visl = Sutherland::CmpViscosity( temperature );
+        ( * unsf.visl )[ 0 ][ cId ] = MAX( minLimit, visl );
+    }
 }
 
 EndNameSpace

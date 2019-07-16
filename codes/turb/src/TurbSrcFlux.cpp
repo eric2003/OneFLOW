@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -46,7 +46,7 @@ void TurbSrcFlux::SetSrcFluxPointer()
         this->cmpBeta = & TurbSrcFlux::CmpFbetaDefault;
         if ( vis_model.visname.substr( 0, 13 ) == "2eq-kw-menter"  )
         {
-			this->srcFlux = & TurbSrcFlux::CmpSrc2EquKwMenter;
+            this->srcFlux = & TurbSrcFlux::CmpSrc2EquKwMenter;
             this->cmpBeta = & TurbSrcFlux::CmpFbetaDefault;
             this->cmpProd = & TurbSrcFlux::CmpProdwKwMenter;
         }
@@ -105,89 +105,89 @@ void TurbSrcFlux::CmpProdW()
 
 void TurbSrcFlux::CmpSrc2Equ()
 {
-	this->CmpVGrad();
-	this->CmpTransition();
-	this->CmpProdk();
+    this->CmpVGrad();
+    this->CmpTransition();
+    this->CmpProdk();
     this->CmpFbetaCoef();
-	this->CmpDissk();
-	this->LimitProdk();
-	this->CmpProdW();
-	this->ModifyPd();
+    this->CmpDissk();
+    this->LimitProdk();
+    this->CmpProdW();
+    this->ModifyPd();
     this->CmpSrc();
 }
 
 void TurbSrcFlux::CmpSrc2EquKwMenter()
 {
-	this->CmpVGrad();
-	this->CmpTransition();
-	this->CmpProdk();
-	this->CmpDissk();
-	this->LimitProdk();
-	this->CmpProdwKwMenter();
-	this->ModifyPd();
+    this->CmpVGrad();
+    this->CmpTransition();
+    this->CmpProdk();
+    this->CmpDissk();
+    this->LimitProdk();
+    this->CmpProdwKwMenter();
+    this->ModifyPd();
     this->CmpSrc();
 }
 
 void TurbSrcFlux::CmpSrc2EquKwWilcox1998()
 {
-	this->CmpVGrad();
-	this->CmpTransition();
-	this->CmpProdk();
+    this->CmpVGrad();
+    this->CmpTransition();
+    this->CmpProdk();
     this->CmpFbetaOfKwWilcox1998();
-	this->CmpDissk();
-	this->LimitProdk();
-	this->CmpProdwKwWilcox1998();
-	this->ModifyPd();
+    this->CmpDissk();
+    this->LimitProdk();
+    this->CmpProdwKwWilcox1998();
+    this->ModifyPd();
     this->CmpSrc();
 }
 
 void TurbSrcFlux::CmpSrc2EquKwWilcox2006()
 {
-	this->CmpVGrad();
-	this->CmpTransition();
-	this->CmpProdk();
+    this->CmpVGrad();
+    this->CmpTransition();
+    this->CmpProdk();
     this->CmpFbetaOfKwWilcox2006();
-	this->CmpDissk();
-	this->LimitProdk();
-	this->CmpProdwKwWilcox2006();
-	this->ModifyPd();
+    this->CmpDissk();
+    this->LimitProdk();
+    this->CmpProdwKwWilcox2006();
+    this->ModifyPd();
     this->CmpSrc();
 }
 
 void TurbSrcFlux::CmpSrc2EquKwDefault()
 {
-	this->CmpVGrad();
-	this->CmpTransition();
-	this->CmpProdk();
-	this->CmpDissk();
-	this->LimitProdk();
-	this->CmpProdwKwDefault();
-	this->ModifyPd();
+    this->CmpVGrad();
+    this->CmpTransition();
+    this->CmpProdk();
+    this->CmpDissk();
+    this->LimitProdk();
+    this->CmpProdwKwDefault();
+    this->ModifyPd();
     this->CmpSrc();
 }
 
 void TurbSrcFlux::CmpSrc2EquEasmKw2003()
 {
-	this->CmpVGrad();
-	this->CmpTransition();
-	this->CmpProdk();
+    this->CmpVGrad();
+    this->CmpTransition();
+    this->CmpProdk();
     this->CmpFbetaOfEasmKw2003();
-	this->CmpDissk();
-	this->LimitProdk();
-	this->CmpProdwEasmKw2003();
-	this->ModifyPd();
+    this->CmpDissk();
+    this->LimitProdk();
+    this->CmpProdwEasmKw2003();
+    this->ModifyPd();
     this->CmpSrc();
 }
 
 void TurbSrcFlux::CmpSrc2EquEasmKw2005()
 {
-	this->CmpVGrad();
-	this->CmpTransition();
-	this->CmpProdk();
-	this->CmpDissk();
-	this->LimitProdk();
-	this->CmpProdwEasmKw2005();
-	this->ModifyPd();
+    this->CmpVGrad();
+    this->CmpTransition();
+    this->CmpProdk();
+    this->CmpDissk();
+    this->LimitProdk();
+    this->CmpProdwEasmKw2005();
+    this->ModifyPd();
     this->CmpSrc();
 }
 
@@ -218,7 +218,7 @@ void TurbSrcFlux::CmpVGrad()
 
 void TurbSrcFlux::CmpTransition()
 {
-	turbcom.RGamaTransition();
+    turbcom.RGamaTransition();
 }
 
 void TurbSrcFlux::CmpProdk()
@@ -282,39 +282,39 @@ void TurbSrcFlux::CmpCellVist1Equ()
     turbcom.xsi  = turbcom.nuet * olam;
     turbcom.xsi3 = POWER3( turbcom.xsi );
 
-	turbcom.fv1  = turbcom.xsi3 / ( turbcom.xsi3 + turbcom.cv13 );
+    turbcom.fv1  = turbcom.xsi3 / ( turbcom.xsi3 + turbcom.cv13 );
 
-	turbcom.vist = turbcom.fv1 * turbcom.rho * turbcom.nuet;
+    turbcom.vist = turbcom.fv1 * turbcom.rho * turbcom.nuet;
 
-	turbcom.vist = MIN( turbcom.visl * turbcom.max_vis_ratio, turbcom.vist );
+    turbcom.vist = MIN( turbcom.visl * turbcom.max_vis_ratio, turbcom.vist );
 }
 
 void TurbSrcFlux::CmpCellVist2Equ()
 {
     Real dist2 = SQR( turbcom.dist );
-	Real part1 = 2.0   * sqrt( turbcom.ke ) / ( turbcom.betas * turbcom.kw * turbcom.dist );
-	Real part2 = 500.0 * turbcom.visl  / ( turbcom.rho  * turbcom.kw * dist2 * turbcom.reynolds );
-	Real arg2  = MAX( part1 , part2 );
-	Real f2    = tanh( arg2 * arg2 );
+    Real part1 = 2.0   * sqrt( turbcom.ke ) / ( turbcom.betas * turbcom.kw * turbcom.dist );
+    Real part2 = 500.0 * turbcom.visl  / ( turbcom.rho  * turbcom.kw * dist2 * turbcom.reynolds );
+    Real arg2  = MAX( part1 , part2 );
+    Real f2    = tanh( arg2 * arg2 );
 
     Real vort = 0.0;
 
-	if ( turbcom.iprod_sst == 1 )
-	{
-		Real s11 = turbcom.dudx;
-		Real s22 = turbcom.dvdy;
-		Real s33 = turbcom.dwdz;
-		Real s12 = half * ( turbcom.dudy + turbcom.dvdx );
-		Real s13 = half * ( turbcom.dudz + turbcom.dwdx );
-		Real s23 = half * ( turbcom.dvdz + turbcom.dwdy );
-		Real sij2         = two * ( SQR( s11, s22, s33 ) + two * SQR( s12, s13, s23 ) );
-		Real magnitudeSij = sqrt( sij2 );
+    if ( turbcom.iprod_sst == 1 )
+    {
+        Real s11 = turbcom.dudx;
+        Real s22 = turbcom.dvdy;
+        Real s33 = turbcom.dwdz;
+        Real s12 = half * ( turbcom.dudy + turbcom.dvdx );
+        Real s13 = half * ( turbcom.dudz + turbcom.dwdx );
+        Real s23 = half * ( turbcom.dvdz + turbcom.dwdy );
+        Real sij2         = two * ( SQR( s11, s22, s33 ) + two * SQR( s12, s13, s23 ) );
+        Real magnitudeSij = sqrt( sij2 );
         vort = magnitudeSij;
-	}
-	else
-	{
-		vort = DIST(  turbcom.dwdy - turbcom.dvdz,  turbcom.dudz - turbcom.dwdx,  turbcom.dvdx - turbcom.dudy );
-	}
+    }
+    else
+    {
+        vort = DIST(  turbcom.dwdy - turbcom.dvdz,  turbcom.dudz - turbcom.dwdx,  turbcom.dvdx - turbcom.dudy );
+    }
 
     turbcom.vist = turbcom.rho * turbcom.ke / MAX( turbcom.kw, vort * f2 / turbcom.a1 ) * turbcom.reynolds;
     turbcom.vist = MIN( turbcom.visl * turbcom.max_vis_ratio, turbcom.vist );

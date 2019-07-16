@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -32,17 +32,17 @@ template < typename T >
 class ArrayPointer
 {
 public:
-	ArrayPointer()
-	{
+    ArrayPointer()
+    {
         shareMem = 0;
-		data1 = 0;
-		data2 = 0;
-		data3 = 0;
-		data4 = 0;
-	}
+        data1 = 0;
+        data2 = 0;
+        data3 = 0;
+        data4 = 0;
+    }
 
-	~ArrayPointer()
-	{
+    ~ArrayPointer()
+    {
         if ( ! shareMem )
         {
             delete[] data1;
@@ -51,18 +51,18 @@ public:
         delete[] data2;
         delete[] data3;
         delete[] data4;
-	}
+    }
 public:
     T * shareMem;
-	T *    data1;
-	T **   data2;
-	T ***  data3;
-	T **** data4;
+    T *    data1;
+    T **   data2;
+    T ***  data3;
+    T **** data4;
 
-	T *    datap1;
-	T **   datap2;
-	T ***  datap3;
-	T **** datap4;
+    T *    datap1;
+    T **   datap2;
+    T ***  datap3;
+    T **** datap4;
 public:
 
     void Allocate( Range r0 )
@@ -115,7 +115,7 @@ public:
 
     void AllocateArray( Range r0, T * objects )
     {
-	    int bound0 = r0.Length();
+        int bound0 = r0.Length();
 
         if ( ! shareMem )
         {
@@ -128,13 +128,13 @@ public:
 
         int st1 = r0.First();
 
-	    this->datap1 = this->data1 - st1;
+        this->datap1 = this->data1 - st1;
     }
 
     void AllocateArray( Range r0, Range r1 )
     {
-	    int bound0 = r0.Length();
-	    int bound1 = r1.Length();
+        int bound0 = r0.Length();
+        int bound1 = r1.Length();
 
         int bound01 = bound0 * bound1;
         this->data2 = new T * [ bound1  ];
@@ -148,10 +148,10 @@ public:
             this->data1 = shareMem;
         }
 
-	    int st1 = r0.First();
-	    int st2 = r1.First();
+        int st1 = r0.First();
+        int st2 = r1.First();
 
-	    this->datap2 = this->data2 - st2;
+        this->datap2 = this->data2 - st2;
 
         for ( int i1 = 1; i1 < bound1; ++ i1 )
         {
@@ -162,14 +162,14 @@ public:
 
     void AllocateArray( Range r0, Range r1, Range r2 )
     {
-	    int bound0 = r0.Length();
-	    int bound1 = r1.Length();
-	    int bound2 = r2.Length();
+        int bound0 = r0.Length();
+        int bound1 = r1.Length();
+        int bound2 = r2.Length();
 
-	    int bound12  = bound1 * bound2;
-	    int bound012 = bound0 * bound12;
-	    this->data3  = new T ** [ bound2   ];
-	    this->data2  = new T *  [ bound12  ];
+        int bound12  = bound1 * bound2;
+        int bound012 = bound0 * bound12;
+        this->data3  = new T ** [ bound2   ];
+        this->data2  = new T *  [ bound12  ];
 
         if ( ! shareMem )
         {
@@ -180,30 +180,30 @@ public:
             this->data1 = shareMem;
         }
 
-	    int st1 = r0.First();
-	    int st2 = r1.First();
-	    int st3 = r2.First();
+        int st1 = r0.First();
+        int st2 = r1.First();
+        int st3 = r2.First();
 
-	    this->datap3 = this->data3 - st3;
+        this->datap3 = this->data3 - st3;
 
-	    for ( int i2 = 0; i2 < bound2; ++ i2 )
-	    {
-		    int j1 = bound1 * ( i2 );  // = bound1*(i2 + j2) where j2 = 0
-		    this->datap3[ i2 + st3 ] = & this->data2[ j1 ] - st2;
-		    for ( int i1 = 0; i1 < bound1; ++ i1 )
-		    {
-			    int j0 = bound0 * ( i1 + j1 );
-			    this->datap3[ i2 + st3 ][ i1 + st2 ] = & this->data1[ j0 ] - st1;
-		    }
-	    }
+        for ( int i2 = 0; i2 < bound2; ++ i2 )
+        {
+            int j1 = bound1 * ( i2 );  // = bound1*(i2 + j2) where j2 = 0
+            this->datap3[ i2 + st3 ] = & this->data2[ j1 ] - st2;
+            for ( int i1 = 0; i1 < bound1; ++ i1 )
+            {
+                int j0 = bound0 * ( i1 + j1 );
+                this->datap3[ i2 + st3 ][ i1 + st2 ] = & this->data1[ j0 ] - st1;
+            }
+        }
     }
 
     void AllocateArray( Range r0, Range r1, Range r2, Range r3 )
     {
-	    int bound0 = r0.Length();
-	    int bound1 = r1.Length();
-	    int bound2 = r2.Length();
-	    int bound3 = r3.Length();
+        int bound0 = r0.Length();
+        int bound1 = r1.Length();
+        int bound2 = r2.Length();
+        int bound3 = r3.Length();
 
         int bound23   = bound2 * bound3;
         int bound123  = bound1 * bound23;
@@ -221,12 +221,12 @@ public:
             this->data1 = shareMem;
         }
 
-	    int st1 = r0.First();
-	    int st2 = r1.First();
-	    int st3 = r2.First();
-	    int st4 = r3.First();
+        int st1 = r0.First();
+        int st2 = r1.First();
+        int st3 = r2.First();
+        int st4 = r3.First();
 
-	    this->datap4 = this->data4 - st4;
+        this->datap4 = this->data4 - st4;
 
         for ( int i3 = 0; i3 < bound3; ++ i3 )
         {

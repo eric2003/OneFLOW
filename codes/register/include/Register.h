@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -33,32 +33,32 @@ class HXClone;
 class HXRegister
 {
 public:
-	HXRegister();
-	~HXRegister();
+    HXRegister();
+    ~HXRegister();
 public:
-	map< string, HXClone * > data;
+    map< string, HXClone * > data;
 public:
-	void FreeAll();
-	void Register( const string & cmdName, const string & className );
-	HXClone * GetClass( const string & cmdName );
+    void FreeAll();
+    void Register( const string & cmdName, const string & className );
+    HXClone * GetClass( const string & cmdName );
 };
 
 class MRegister
 {
 public:
-	MRegister();
-	~MRegister();
+    MRegister();
+    ~MRegister();
 public:
-	vector< HXRegister * > data;
-	StringField fileNames;
+    vector< HXRegister * > data;
+    StringField fileNames;
 public:
-	void SetSolverFileNames( StringField & fileNames );
+    void SetSolverFileNames( StringField & fileNames );
 public:
-	HXRegister * GetRegister( int index );
-	HXRegister * GetRegister();
-	void RegisterAll();
+    HXRegister * GetRegister( int index );
+    HXRegister * GetRegister();
+    void RegisterAll();
 private:
-	void AllocateData();
+    void AllocateData();
     void Register( const string & fileName, HXRegister * fRegister );
 };
 
@@ -66,15 +66,15 @@ private:
 class RegisterFactory
 {
 public:
-	RegisterFactory();
-	~RegisterFactory();
+    RegisterFactory();
+    ~RegisterFactory();
 public:
-	static map< int, MRegister * > * data;
+    static map< int, MRegister * > * data;
 public:
-	static void Init();
-	static void AddMRegister( int registerId );
-	static MRegister * GetMRegister( int registerId );
-	static void FreeMRegister();
+    static void Init();
+    static void AddMRegister( int registerId );
+    static MRegister * GetMRegister( int registerId );
+    static void FreeMRegister();
 public:
     static HXRegister * GetRegister( int mRegisterId, int registerId );
 };

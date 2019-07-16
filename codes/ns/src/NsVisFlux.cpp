@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -62,8 +62,8 @@ NsVisFlux::~NsVisFlux()
 
 void NsVisFlux::AverGrad()
 {
-	visQ.AverGrad();
-	visT.AverGrad();
+    visQ.AverGrad();
+    visT.AverGrad();
 }
 
 void NsVisFlux::ZeroNormalGrad()
@@ -74,27 +74,27 @@ void NsVisFlux::ZeroNormalGrad()
 
 void NsVisFlux::AverFaceValue()
 {
-	visQ.AverFaceValue();
-	visT.AverFaceValue();
-	this->AverOtherFaceValue();
+    visQ.AverFaceValue();
+    visT.AverFaceValue();
+    this->AverOtherFaceValue();
 }
 
 void NsVisFlux::AverOtherFaceValue()
 {
-	nscom.visl   = half * ( nscom.visl1 + nscom.visl2 );
+    nscom.visl   = half * ( nscom.visl1 + nscom.visl2 );
     nscom.vist   = half * ( nscom.vist1 + nscom.vist2 );
 }
 
 void NsVisFlux::AccurateFaceValue()
 {
-	this->AccurateOtherFaceValue();
-	visQ.AccurateFaceValue();
-	visT.AccurateFaceValue();
+    this->AccurateOtherFaceValue();
+    visQ.AccurateFaceValue();
+    visT.AccurateFaceValue();
 }
 
 void NsVisFlux::AccurateOtherFaceValue()
 {
-	nscom.visl   = half * ( nscom.visl1 + nscom.visl2 );
+    nscom.visl   = half * ( nscom.visl1 + nscom.visl2 );
     nscom.vist   = half * ( nscom.vist1 + nscom.vist2 );
 }
 

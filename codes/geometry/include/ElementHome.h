@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -29,16 +29,16 @@ BeginNameSpace( ONEFLOW )
 class ElementHome
 {
 public:
-	ElementHome();
-	~ElementHome();
+    ElementHome();
+    ~ElementHome();
 public:
-	static HXVector< UnitElement * > unitElement;
-	static int numberOfUnitElement;
+    static HXVector< UnitElement * > unitElement;
+    static int numberOfUnitElement;
 public:
-	static UnitElement * GetUnitElement( int elementType );
+    static UnitElement * GetUnitElement( int elementType );
 public:
-	static void Initialize();
-	static void Free();
+    static void Initialize();
+    static void Free();
 };
 
 int GetElementNodeNumbers( int eType );

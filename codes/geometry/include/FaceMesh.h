@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -34,26 +34,26 @@ class CellMesh;
 class FaceMesh
 {
 public:
-	FaceMesh();
-	~FaceMesh();
+    FaceMesh();
+    ~FaceMesh();
 public:
     FaceTopo * faceTopo;
-	RealField xfc, yfc, zfc;
-	RealField xfn, yfn, zfn;
-	RealField area;
+    RealField xfc, yfc, zfc;
+    RealField xfn, yfn, zfn;
+    RealField area;
     RealField fvx, fvy, fvz;
     RealField fvn;
 public:
     UInt GetNFace();
-	UInt ComputeTotalFaceNodes();
-	UInt GetNBFace();
+    UInt ComputeTotalFaceNodes();
+    UInt GetNBFace();
     void SetNBFace( UInt nBFace );
     void ComputeFaceNormal1D( NodeMesh * nodeMesh, CellMesh * cellMesh );
     void ComputeFaceCenter1D( NodeMesh * nodeMesh );
-	void ComputeFaceNormal2D( NodeMesh * nodeMesh );
-	void ComputeFaceCenter2D( NodeMesh * nodeMesh );
-	void ComputeFaceNormal3D( NodeMesh * nodeMesh );
-	void ComputeFaceCenter3D( NodeMesh * nodeMesh );
+    void ComputeFaceNormal2D( NodeMesh * nodeMesh );
+    void ComputeFaceCenter2D( NodeMesh * nodeMesh );
+    void ComputeFaceNormal3D( NodeMesh * nodeMesh );
+    void ComputeFaceCenter3D( NodeMesh * nodeMesh );
 
     void AllocateMetrics();
 };

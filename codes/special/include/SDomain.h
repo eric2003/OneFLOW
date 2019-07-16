@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -43,37 +43,37 @@ class MLine;
 class SDomain : public DomData
 {
 public:
-	SDomain();
-	~SDomain();
+    SDomain();
+    ~SDomain();
 public:
-	int domain_id;
-	HXVector< MLine * > mLineList;
-	CoorMap * localCoorMap;
-	CoorMap * coorMap;
-	RealField2D x2d, y2d, z2d;
+    int domain_id;
+    HXVector< MLine * > mLineList;
+    CoorMap * localCoorMap;
+    CoorMap * coorMap;
+    RealField2D x2d, y2d, z2d;
 public:
-	void Alloc();
-	void SetDomain( int fid, IntField & lineList, IntField & posList );
-	void ConstructSDomainCtrlPoint();
-	void GetCommonPoint( MLine * mLine1, MLine * mLine2, int & pt );
-	bool ComputeSingleDomainCoor();
-	void SetRemainingCtrlPoint( IntField & idxList );
+    void Alloc();
+    void SetDomain( int fid, IntField & lineList, IntField & posList );
+    void ConstructSDomainCtrlPoint();
+    void GetCommonPoint( MLine * mLine1, MLine * mLine2, int & pt );
+    bool ComputeSingleDomainCoor();
+    void SetRemainingCtrlPoint( IntField & idxList );
 public:
-	void ConstructLineToDomainMap();
-	void ConstructLineToDomainMap( map< int, IntSet > & lineToDomainMap );
-	void ConstructPointToDomainMap();
-	void ConstructPointToDomainMap( map< int, IntSet > & pointToDomainMap );
-	void ConstructPointToPointMap();
-	void ConstructPointToPointMap( map< int, IntSet > & pointToPointMap );
-	void ConstructDomainTopo();
-	void GetPointIdLink( IntField & lineList, LinkField & pointIdLink );
+    void ConstructLineToDomainMap();
+    void ConstructLineToDomainMap( map< int, IntSet > & lineToDomainMap );
+    void ConstructPointToDomainMap();
+    void ConstructPointToDomainMap( map< int, IntSet > & pointToDomainMap );
+    void ConstructPointToPointMap();
+    void ConstructPointToPointMap( map< int, IntSet > & pointToPointMap );
+    void ConstructDomainTopo();
+    void GetPointIdLink( IntField & lineList, LinkField & pointIdLink );
 public:
-	void Add( IntField &iList, IntField &jList, IntField &kList, int i, int j, int k );
-	void ConstructLocalTopoAsBlk2D();
-	void SetBlkBcMesh( Block3D * blk3d );
-	void SetDomainBcMesh();
-	void GenerateSDomainMesh();
-	void GenerateSDomainMesh( fstream & file );
+    void Add( IntField &iList, IntField &jList, IntField &kList, int i, int j, int k );
+    void ConstructLocalTopoAsBlk2D();
+    void SetBlkBcMesh( Block3D * blk3d );
+    void SetDomainBcMesh();
+    void GenerateSDomainMesh();
+    void GenerateSDomainMesh( fstream & file );
 };
 
 

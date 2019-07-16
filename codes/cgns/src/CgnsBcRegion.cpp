@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -49,40 +49,40 @@ CgnsBcRegion::~CgnsBcRegion()
 
 void CgnsBcRegion::ConvertToInnerDataStandard()
 {
-	//对于各种情况均成立
-	for ( int eId = 0; eId < this->nElements; ++ eId )
-	{
-		this->connList[ eId ] -= 1;
-	}
+    //对于各种情况均成立
+    for ( int eId = 0; eId < this->nElements; ++ eId )
+    {
+        this->connList[ eId ] -= 1;
+    }
 
-	if ( bcInterface )
-	{
-		bcInterface->ConvertToInnerDataStandard();
-	}
+    if ( bcInterface )
+    {
+        bcInterface->ConvertToInnerDataStandard();
+    }
 
 }
 
 int CgnsBcRegion::ComputeBase()
 {
-	for ( int eId = 0; eId < this->nElements; ++ eId )
-	{
-		if ( this->connList[ eId ] < this->cgnsZone->nCell )
-		{
-			return 0;
-		}
-	}
-	return 1;
+    for ( int eId = 0; eId < this->nElements; ++ eId )
+    {
+        if ( this->connList[ eId ] < this->cgnsZone->nCell )
+        {
+            return 0;
+        }
+    }
+    return 1;
 }
 
 void CgnsBcRegion::ShiftBcRegion()
 {
-	if ( this->gridLocation != Vertex )
-	{
-		for ( int eId = 0; eId < this->nElements; ++ eId )
-		{
-			this->connList[ eId ] += this->cgnsZone->nCell; //此处增加了偏移量，则相应的单元编号也应增加偏移量
-		}
-	}
+    if ( this->gridLocation != Vertex )
+    {
+        for ( int eId = 0; eId < this->nElements; ++ eId )
+        {
+            this->connList[ eId ] += this->cgnsZone->nCell; //此处增加了偏移量，则相应的单元编号也应增加偏移量
+        }
+    }
 }
 
 void CgnsBcRegion::ProcessVertexBc( IntSet & bcVertex )
@@ -111,24 +111,24 @@ void CgnsBcRegion::ProcessFaceBc( IntSet & bcVertex )
         cout << " nBcElement = " << this->connList[ 1 ] - this->connList[ 0 ] + 1 << endl;
         for ( int eId = this->connList[ 0 ]; eId <= this->connList[ 1 ]; ++ eId )
         {
-			CgIntField fNodeId;
-			cgnsZone->GetElementNodeId( eId, fNodeId );
-			for ( int iNode = 0; iNode < fNodeId.size(); ++ iNode )
-			{
-				bcVertex.insert( this->cgnsZone->l2g[ fNodeId[ iNode ] ] );
-			}
+            CgIntField fNodeId;
+            cgnsZone->GetElementNodeId( eId, fNodeId );
+            for ( int iNode = 0; iNode < fNodeId.size(); ++ iNode )
+            {
+                bcVertex.insert( this->cgnsZone->l2g[ fNodeId[ iNode ] ] );
+            }
         }
     }
     else // if (  this->pointSetType == ElementList ||  this->pointSetType == PointList )
     {
         for ( int eId = 0; eId < this->nElements; ++ eId )
         {
-			CgIntField fNodeId;
-			cgnsZone->GetElementNodeId( this->connList[ eId ], fNodeId );
-			for ( int iNode = 0; iNode < fNodeId.size(); ++ iNode )
-			{
-				bcVertex.insert( this->cgnsZone->l2g[ fNodeId[ iNode ] ] );
-			}
+            CgIntField fNodeId;
+            cgnsZone->GetElementNodeId( this->connList[ eId ], fNodeId );
+            for ( int iNode = 0; iNode < fNodeId.size(); ++ iNode )
+            {
+                bcVertex.insert( this->cgnsZone->l2g[ fNodeId[ iNode ] ] );
+            }
         }
     }
 }
@@ -136,62 +136,62 @@ void CgnsBcRegion::ProcessFaceBc( IntSet & bcVertex )
 
 void CgnsBcRegion::ScanBcFace( FaceSolver * face_solver )
 {
-	IntSet bcVertex;
+    IntSet bcVertex;
     if ( this->gridLocation == Vertex )
     {
-		this->ProcessVertexBc( bcVertex );
+        this->ProcessVertexBc( bcVertex );
         //this->ProcessFaceBc( bcVertex );
     }
     else
     {
-		this->ProcessFaceBc( bcVertex );
-	}
-	//face_solver->ScanBcFace( bcVertex, this->bcType, this->nameId );
-	face_solver->ScanBcFaceDetail( bcVertex, this->bcType, this->nameId );
+        this->ProcessFaceBc( bcVertex );
+    }
+    //face_solver->ScanBcFace( bcVertex, this->bcType, this->nameId );
+    face_solver->ScanBcFaceDetail( bcVertex, this->bcType, this->nameId );
 }
 
 void CgnsBcRegion::ReadCgnsOrdinaryBcRegion()
 {
-	this->ReadCgnsOrdinaryBcRegionInfo();
+    this->ReadCgnsOrdinaryBcRegionInfo();
 
-	this->ReadCgnsOrdinaryBcRegionGridLocation();
+    this->ReadCgnsOrdinaryBcRegionGridLocation();
 
-	this->CreateCgnsBcConn();
+    this->CreateCgnsBcConn();
 
-	this->ReadCgnsBcConn();
+    this->ReadCgnsBcConn();
 
-	this->PrintCgnsBcConn();
+    this->PrintCgnsBcConn();
 }
 
 
 void CgnsBcRegion::ReadCgnsOrdinaryBcRegionInfo()
 {
-	// Read the info for this boundary condition.
+    // Read the info for this boundary condition.
     int fileId = cgnsZone->cgnsBase->fileId;
     int baseId = cgnsZone->cgnsBase->baseId;
     int zId = cgnsZone->zId;
 
-	CgnsTraits::char33 bcRegionName;
+    CgnsTraits::char33 bcRegionName;
 
     this->gridConnType = GridConnectivityTypeNull;
 
-	cg_boco_id( fileId, baseId, zId, this->id, & this->bc_double_id );
+    cg_boco_id( fileId, baseId, zId, this->id, & this->bc_double_id );
 
     cg_boco_info( fileId, baseId, zId, this->id,
-		          bcRegionName, & this->bcType, & this->pointSetType, & this->nElements,
-				  normalIndex,  & normalListSize, & this->normalDataType, & this->nDataSets );
+                  bcRegionName, & this->bcType, & this->pointSetType, & this->nElements,
+                  normalIndex,  & normalListSize, & this->normalDataType, & this->nDataSets );
 
-	this->name = bcRegionName;
+    this->name = bcRegionName;
 
-	cgnsZone->cgnsBase->SetFamilyBc( bcType, bcRegionName );
+    cgnsZone->cgnsBase->SetFamilyBc( bcType, bcRegionName );
 
     cout << "   CGNS Boundary Name             = " << bcRegionName << "\n";
     cout << "   CGNS Boundary Condition Name   = " << GetCgnsBcName( this->bcType ) << "\n";
 
-	//if ( this->name == "outflow" && this->bcType == BCTypeNull )
-	//{
-	//	this->bcType = BCOutflow;
-	//}
+    //if ( this->name == "outflow" && this->bcType == BCTypeNull )
+    //{
+    //    this->bcType = BCOutflow;
+    //}
 }
 
 void CgnsBcRegion::ReadCgnsOrdinaryBcRegionGridLocation()
@@ -200,13 +200,13 @@ void CgnsBcRegion::ReadCgnsOrdinaryBcRegionGridLocation()
     int baseId = cgnsZone->cgnsBase->baseId;
     int zId = cgnsZone->zId;
 
-	cg_goto( fileId, baseId, "Zone_t", zId, "ZoneBC_t", 1, "BC_t", this->id, "end" );
+    cg_goto( fileId, baseId, "Zone_t", zId, "ZoneBC_t", 1, "BC_t", this->id, "end" );
 
-	GridLocation_t bcGridLocation;
+    GridLocation_t bcGridLocation;
     cg_gridlocation_read( & bcGridLocation );
     this->gridLocation = bcGridLocation;
 
-	cout << "   CGNS Grid Location Name        = " << GetCgnsGridLocationName( bcGridLocation ) << "\n";
+    cout << "   CGNS Grid Location Name        = " << GetCgnsGridLocationName( bcGridLocation ) << "\n";
     if ( bcGridLocation == CGNS_ENUMV( FaceCenter ) )
     {
         //cout << "   GridLocation == CGNS_ENUMV( FaceCenter ) means BC data refers to elements, not nodes\n";
@@ -223,20 +223,20 @@ void CgnsBcRegion::ReadCgnsOrdinaryBcRegionGridLocation()
 
 void CgnsBcRegion::CreateCgnsBcConn()
 {
-	//cout << "   CGNS Zone Type Name            = " << GetCgnsZoneTypeName( cgnsZone->cgnsZoneType ) << "\n";
+    //cout << "   CGNS Zone Type Name            = " << GetCgnsZoneTypeName( cgnsZone->cgnsZoneType ) << "\n";
 
-	if ( cgnsZone->cgnsZoneType == Unstructured )
-	{
-		this->connList.resize( nElements );
-	}
-	else
-	{
-		if ( this->nElements == 2 )
-		{
-			this->nElements = 6;
-		}
-		this->connList.resize( nElements );
-	}
+    if ( cgnsZone->cgnsZoneType == Unstructured )
+    {
+        this->connList.resize( nElements );
+    }
+    else
+    {
+        if ( this->nElements == 2 )
+        {
+            this->nElements = 6;
+        }
+        this->connList.resize( nElements );
+    }
 }
 
 void CgnsBcRegion::ReadCgnsBcConn()
@@ -247,11 +247,11 @@ void CgnsBcRegion::ReadCgnsBcConn()
 
     cout << "   CGNS PointSet Type Name        = " << GetCgnsPointSetName( this->pointSetType ) << "\n";
 
-	int cgnsNormalList;
+    int cgnsNormalList;
 
     // Read the element ID’s.
-	cg_boco_read( fileId, baseId, zId, this->id, & connList[ 0 ], & cgnsNormalList );
-	int kkk = 1;
+    cg_boco_read( fileId, baseId, zId, this->id, & connList[ 0 ], & cgnsNormalList );
+    int kkk = 1;
 }
 
 void CgnsBcRegion::ProcessCgns1to1BcRegion( int bcId )
@@ -262,21 +262,21 @@ void CgnsBcRegion::ProcessCgns1to1BcRegion( int bcId )
     this->bcInterface->ReadCgnsBcConnData();
 
     this->nElements = this->bcInterface->nConnPoints;
-	this->bcType = CGNS_ENUMV( BCTypeNull );
+    this->bcType = CGNS_ENUMV( BCTypeNull );
     //this->bcType = CGNS_ENUMV( BCSymmetryPlane );
 
     cout << "   CGNS Boundary Name             = " << this->name << "\n";
     cout << "   CGNS Boundary Condition Name   = " << GetCgnsBcName( CGNS_ENUMV( BCTypeNull ) ) << "\n";
 
-	this->CreateCgnsBcConn();
+    this->CreateCgnsBcConn();
 
-	cout << "   CGNS PointSet Type Name        = " << GetCgnsPointSetName( this->pointSetType ) << "\n";
+    cout << "   CGNS PointSet Type Name        = " << GetCgnsPointSetName( this->pointSetType ) << "\n";
 
-	// Read the element ID’s.
-	for ( int iBCElement = 0; iBCElement < this->nElements; ++ iBCElement )
-	{
-		this->connList[ iBCElement ] = this->bcInterface->connPoint[ iBCElement ];
-	}
+    // Read the element ID’s.
+    for ( int iBCElement = 0; iBCElement < this->nElements; ++ iBCElement )
+    {
+        this->connList[ iBCElement ] = this->bcInterface->connPoint[ iBCElement ];
+    }
 
     this->PrintCgnsBcConn();
 }
@@ -288,24 +288,24 @@ void CgnsBcRegion::ReadCgns1to1BoundaryRegion( int i1to1 )
     this->bcInterface->ReadCgnsBc1To1();
 
     this->nElements = this->bcInterface->nConnPoints;
-	this->bcType       = CGNS_ENUMV( BCTypeNull );
-	this->pointSetType = CGNS_ENUMV( PointRange );
-	this->gridLocation = CGNS_ENUMV( FaceCenter );
+    this->bcType       = CGNS_ENUMV( BCTypeNull );
+    this->pointSetType = CGNS_ENUMV( PointRange );
+    this->gridLocation = CGNS_ENUMV( FaceCenter );
     this->CreateCgnsBcConn();
 
-	// Read the element ID’s.
-	for ( int iBCElement = 0; iBCElement < this->nElements; ++ iBCElement )
-	{
-		this->connList[ iBCElement ] = this->bcInterface->connPoint[ iBCElement ];
-	}
+    // Read the element ID’s.
+    for ( int iBCElement = 0; iBCElement < this->nElements; ++ iBCElement )
+    {
+        this->connList[ iBCElement ] = this->bcInterface->connPoint[ iBCElement ];
+    }
 
     this->PrintCgnsBcConn();
 }
 
 void CgnsBcRegion::PrintCgnsBcConn()
 {
-	if ( cgnsZone->cgnsZoneType == Unstructured )
-	{
+    if ( cgnsZone->cgnsZoneType == Unstructured )
+    {
         if ( this->gridLocation == CGNS_ENUMV( Vertex ) )
         {
             cout << "   CGNS Boundary Point's Number   = ";
@@ -325,24 +325,24 @@ void CgnsBcRegion::PrintCgnsBcConn()
             cout << this->nElements << "\n";
         }
 
-		if ( this->nElements == 2 )
-		{
-			cout << "   " << connList[ 0 ] << " " << connList[ 1 ] << "\n";
-		}
-		else
-		{
+        if ( this->nElements == 2 )
+        {
+            cout << "   " << connList[ 0 ] << " " << connList[ 1 ] << "\n";
+        }
+        else
+        {
             cout << "   ";
-			CgInt num = 5;
-			for ( int i = 0; i < std::min(num, this->nElements ); ++ i )
-			{
-				cout << connList[ i ] << " ";
-			}
-			cout << "\n";
-		}
+            CgInt num = 5;
+            for ( int i = 0; i < std::min(num, this->nElements ); ++ i )
+            {
+                cout << connList[ i ] << " ";
+            }
+            cout << "\n";
+        }
 
-	}
-	else
-	{
+    }
+    else
+    {
         int celldim = cgnsZone->cgnsBase->celldim;
 
         cout << "   The Boundary Range is :\n";
@@ -355,45 +355,45 @@ void CgnsBcRegion::PrintCgnsBcConn()
 
         this->ExtractIJKRegionFromBcConn( ijkMin, ijkMax );
 
-		for ( int iDimension = 0; iDimension < celldim; ++ iDimension )
-		{
+        for ( int iDimension = 0; iDimension < celldim; ++ iDimension )
+        {
             cout << rangeTitle[ iDimension ] << setw( 10 ) << ijkMin[ iDimension ] << setw( 10 ) <<  ijkMax[ iDimension ] << "\n";
-		}
-		cout << "\n";
-	}
+        }
+        cout << "\n";
+    }
 }
 
 void CgnsBcRegion::ReconstructStrRegion( IntField & ijkMin, IntField & ijkMax )
 {
-	this->bcType       = CGNS_ENUMV( BCInflow );
-	this->pointSetType = CGNS_ENUMV( PointRange );
-	this->gridLocation = CGNS_ENUMV( FaceCenter );
-	this->nElements = 6;
-	this->connList.resize( this->nElements );
+    this->bcType       = CGNS_ENUMV( BCInflow );
+    this->pointSetType = CGNS_ENUMV( PointRange );
+    this->gridLocation = CGNS_ENUMV( FaceCenter );
+    this->nElements = 6;
+    this->connList.resize( this->nElements );
 
     string bcName = GetCgnsBcName( this->bcType );
     this->name = AddString( this->cgnsZone->zoneName, bcName, this->id );
 
-	int celldim = cgnsZone->cgnsBase->celldim;
+    int celldim = cgnsZone->cgnsBase->celldim;
 
-	if ( celldim == TWO_D )
-	{
-		this->connList[ 0 ] = ijkMin[ 0 ];
-		this->connList[ 1 ] = ijkMin[ 1 ];
+    if ( celldim == TWO_D )
+    {
+        this->connList[ 0 ] = ijkMin[ 0 ];
+        this->connList[ 1 ] = ijkMin[ 1 ];
 
-		this->connList[ 2 ] = ijkMax[ 0 ];
-		this->connList[ 3 ] = ijkMax[ 1 ];
-	}
-	else
-	{
-		this->connList[ 0 ] = ijkMin[ 0 ];
-		this->connList[ 1 ] = ijkMin[ 1 ];
-		this->connList[ 2 ] = ijkMin[ 2 ];
+        this->connList[ 2 ] = ijkMax[ 0 ];
+        this->connList[ 3 ] = ijkMax[ 1 ];
+    }
+    else
+    {
+        this->connList[ 0 ] = ijkMin[ 0 ];
+        this->connList[ 1 ] = ijkMin[ 1 ];
+        this->connList[ 2 ] = ijkMin[ 2 ];
 
-		this->connList[ 3 ] = ijkMax[ 0 ];
-		this->connList[ 4 ] = ijkMax[ 1 ];
-		this->connList[ 5 ] = ijkMax[ 2 ];
-	}
+        this->connList[ 3 ] = ijkMax[ 0 ];
+        this->connList[ 4 ] = ijkMax[ 1 ];
+        this->connList[ 5 ] = ijkMax[ 2 ];
+    }
  }
 
 void CgnsBcRegion::ExtractIJKRegionFromBcConn( IntField & ijkMin, IntField & ijkMax )
@@ -403,26 +403,26 @@ void CgnsBcRegion::ExtractIJKRegionFromBcConn( IntField & ijkMin, IntField & ijk
 
 void CgnsBcRegion::ExtractIJKRegionFromBcConn( IntField & ijkMin, IntField & ijkMax, CgIntField& bcConn )
 {
-	int imin, imax, jmin, jmax, kmin, kmax;
+    int imin, imax, jmin, jmax, kmin, kmax;
     int celldim = cgnsZone->cgnsBase->celldim;
-	if ( celldim == TWO_D )
-	{
-		imin = bcConn[ 0 ];
-		jmin = bcConn[ 1 ];
-		kmin = 1;
-		imax = bcConn[ 2 ];
-		jmax = bcConn[ 3 ];
-		kmax = 1;
-	}
-	else
-	{
-		imin = bcConn[ 0 ];
-		jmin = bcConn[ 1 ];
-		kmin = bcConn[ 2 ];
-		imax = bcConn[ 3 ];
-		jmax = bcConn[ 4 ];
-		kmax = bcConn[ 5 ];
-	}
+    if ( celldim == TWO_D )
+    {
+        imin = bcConn[ 0 ];
+        jmin = bcConn[ 1 ];
+        kmin = 1;
+        imax = bcConn[ 2 ];
+        jmax = bcConn[ 3 ];
+        kmax = 1;
+    }
+    else
+    {
+        imin = bcConn[ 0 ];
+        jmin = bcConn[ 1 ];
+        kmin = bcConn[ 2 ];
+        imax = bcConn[ 3 ];
+        jmax = bcConn[ 4 ];
+        kmax = bcConn[ 5 ];
+    }
 
     ijkMin[ 0 ] = MIN( ABS( imin ), ABS( imax ) );
     ijkMin[ 1 ] = MIN( ABS( jmin ), ABS( jmax ) );
@@ -441,7 +441,7 @@ void CgnsBcRegion::CopyStrBcRegion( CgnsBcRegion * strBcRegion, CgInt & startId 
     this->pointSetType = CGNS_ENUMV( ElementRange );
     this->gridLocation = CGNS_ENUMV( CellCenter   );
 
-	this->CreateCgnsBcConn();
+    this->CreateCgnsBcConn();
 
     this->ReadCgnsBcConn( strBcRegion, startId );
 }
@@ -456,8 +456,8 @@ void CgnsBcRegion::ReadCgnsBcConn( CgnsBcRegion * strBcRegion, CgInt& startId )
 
 CgInt CgnsBcRegion::GetActualNumberOfBoundaryElements()
 {
-	if ( cgnsZone->cgnsZoneType == Unstructured )
-	{
+    if ( cgnsZone->cgnsZoneType == Unstructured )
+    {
         if ( this->gridLocation == CGNS_ENUMV( Vertex ) )
         {
             cout << "   Can't Get Element Number For cgnsBoundaryGridLocation == Vertex Case \n";
@@ -473,9 +473,9 @@ CgInt CgnsBcRegion::GetActualNumberOfBoundaryElements()
         {
             return this->nElements;
         }
-	}
-	else
-	{
+    }
+    else
+    {
         int celldim = cgnsZone->cgnsBase->celldim;
 
         IntField ijkMin( 3 ), ijkMax( 3 );
@@ -483,12 +483,12 @@ CgInt CgnsBcRegion::GetActualNumberOfBoundaryElements()
 
         int actualNumberOfBoundaryElements = 1;
 
-		for ( int idim = 0; idim < celldim; ++ idim )
-		{
+        for ( int idim = 0; idim < celldim; ++ idim )
+        {
             actualNumberOfBoundaryElements *= MAX( ijkMax[ idim ] - ijkMin[ idim ], 1 );
         }
         return actualNumberOfBoundaryElements;
-	}
+    }
 }
 
 void SetBcConn( CgnsZone * cgnsZone, IntField & ijkMin, IntField & ijkMax, CgIntField& conn, int & pos, int & nElem )
@@ -512,20 +512,20 @@ void SetBcConn( CgnsZone * cgnsZone, IntField & ijkMin, IntField & ijkMax, CgInt
     int celldim = cgnsZone->cgnsBase->celldim;
     int numpt = 4;
     if ( celldim == TWO_D ) numpt = 2;
-	if ( celldim == ONE_D ) numpt = 1;
+    if ( celldim == ONE_D ) numpt = 1;
 
     int index1, index2, index3, index4;
 
-	if ( celldim == ONE_D )
-	{
-		int i = ist;
+    if ( celldim == ONE_D )
+    {
+        int i = ist;
         int j = jst;
-		int k = kst;
+        int k = kst;
         EncodeIJK( index1, i, j, k, ni, nj, nk );
         conn[ pos + 0 ] = index1 + 1;
         pos += numpt;
-		return;
-	}
+        return;
+    }
 
     if ( ist == ied )
     {

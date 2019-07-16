@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -47,18 +47,18 @@ TurbLusgsData::~TurbLusgsData()
 void TurbLusgsData::Init()
 {
     nEqu = turbcom.nEqu;
-	radius.resize( nEqu );
+    radius.resize( nEqu );
     matrix.resize( nEqu );
     dqj.resize( nEqu );
-	dqi.resize( nEqu );
-	dqi0.resize( nEqu );
-	primj.resize( nEqu );
-	primF.resize( nEqu );
-	rhs0.resize( nEqu );
-	dfj.resize( nEqu );
-	drhs.resize( nEqu );
-	rhs.resize( nEqu );
-	tmp.resize( nEqu );
+    dqi.resize( nEqu );
+    dqi0.resize( nEqu );
+    primj.resize( nEqu );
+    primF.resize( nEqu );
+    rhs0.resize( nEqu );
+    dfj.resize( nEqu );
+    drhs.resize( nEqu );
+    rhs.resize( nEqu );
+    tmp.resize( nEqu );
 }
 
 TurbLusgs::TurbLusgs()
@@ -86,7 +86,7 @@ void TurbLusgs::ZeroFluxIncrement()
 {
     for ( int iEqu = 0; iEqu < turbcom.nEqu; ++ iEqu )
     {
-		turblu.rhs0[ iEqu ] = 0.0;
+        turblu.rhs0[ iEqu ] = 0.0;
     }
 }
 
@@ -94,7 +94,7 @@ void TurbLusgs::AddFluxIncrement()
 {
     for ( int iEqu = 0; iEqu < turbcom.nEqu; ++ iEqu )
     {
-		turblu.rhs0[ iEqu ] += turblu.dfj[ iEqu ];
+        turblu.rhs0[ iEqu ] += turblu.dfj[ iEqu ];
     }
 
     //if ( ug.cId == 22 )
@@ -111,26 +111,26 @@ void TurbLusgs::AddFluxIncrement( const Real & coef )
 {
     for ( int iEqu = 0; iEqu < turbcom.nEqu; ++ iEqu )
     {
-		turblu.rhs0[ iEqu ] += coef * turblu.dfj[ iEqu ];
+        turblu.rhs0[ iEqu ] += coef * turblu.dfj[ iEqu ];
     }
 }
 
 void TurbLusgs::GetFluxIncrement( int signOfMatrix )
 {
-	this->GetStandardFluxIncrement( signOfMatrix );
+    this->GetStandardFluxIncrement( signOfMatrix );
 }
 
 void TurbLusgs::GetStandardFluxIncrement( int signOfMatrix )
 {
     for ( int iEqu = 0; iEqu < turbcom.nEqu; ++ iEqu )
     {
-		turblu.dfj[ iEqu ] = turblu.matrix[ iEqu ] * turblu.dqj[ iEqu ];
+        turblu.dfj[ iEqu ] = turblu.matrix[ iEqu ] * turblu.dqj[ iEqu ];
     }
 }
 
 void TurbLusgs::InitializeSweep( int iSweep )
 {
-	turblu.norm = 0.0;
+    turblu.norm = 0.0;
 }
 
 bool TurbLusgs::UpdateSweep( int iSweep )
@@ -148,126 +148,126 @@ bool TurbLusgs::UpdateSweep( int iSweep )
 
     if ( turblu.dmax < turblu.tol )
     {
-		return true;
+        return true;
     }
-	return false;
+    return false;
 }
 
 void TurbLusgs::CmpLowerChange()
 {
-	if ( turblu.numberOfSweeps > 1 )
-	{
-		for ( int iEqu = 0; iEqu < turbcom.nEqu; ++ iEqu )
-		{
-			turblu.tmp[ iEqu ] = turblu.dqi[ iEqu ] - turblu.rhs0[ iEqu ];
-		}
+    if ( turblu.numberOfSweeps > 1 )
+    {
+        for ( int iEqu = 0; iEqu < turbcom.nEqu; ++ iEqu )
+        {
+            turblu.tmp[ iEqu ] = turblu.dqi[ iEqu ] - turblu.rhs0[ iEqu ];
+        }
 
-	    for ( int iEqu = 0; iEqu < turbcom.nEqu; ++ iEqu )
-	    {
-		    turblu.tmp[ iEqu ] /=  turblu.radius[ iEqu ];
-	    }
+        for ( int iEqu = 0; iEqu < turbcom.nEqu; ++ iEqu )
+        {
+            turblu.tmp[ iEqu ] /=  turblu.radius[ iEqu ];
+        }
 
-		for ( int iEqu = 0; iEqu < turbcom.nEqu; ++ iEqu )
-		{
-			turblu.dqi[ iEqu ] = turblu.tmp[ iEqu ];
-		}
+        for ( int iEqu = 0; iEqu < turbcom.nEqu; ++ iEqu )
+        {
+            turblu.dqi[ iEqu ] = turblu.tmp[ iEqu ];
+        }
 
-		for ( int iEqu = 0; iEqu < turbcom.nEqu; ++ iEqu )
-		{
-			turblu.drhs[ iEqu ] += turblu.rhs0[ iEqu ];
-		}
+        for ( int iEqu = 0; iEqu < turbcom.nEqu; ++ iEqu )
+        {
+            turblu.drhs[ iEqu ] += turblu.rhs0[ iEqu ];
+        }
 
-		for ( int iEqu = 0; iEqu < turbcom.nEqu; ++ iEqu )
-		{
+        for ( int iEqu = 0; iEqu < turbcom.nEqu; ++ iEqu )
+        {
             turblu.dqSweep =  turblu.dqi[ iEqu ] - turblu.dqi0[ iEqu ];
             turblu.norm   += SQR( turblu.dqSweep );
-		}
-	}
-	else
-	{
+        }
+    }
+    else
+    {
 
-		for ( int iEqu = 0; iEqu < turbcom.nEqu; ++ iEqu )
-		{
-			turblu.tmp[ iEqu ] = turblu.rhs[ iEqu ] - turblu.rhs0[ iEqu ];
-		}
+        for ( int iEqu = 0; iEqu < turbcom.nEqu; ++ iEqu )
+        {
+            turblu.tmp[ iEqu ] = turblu.rhs[ iEqu ] - turblu.rhs0[ iEqu ];
+        }
 
-	    for ( int iEqu = 0; iEqu < turbcom.nEqu; ++ iEqu )
-	    {
-		    turblu.tmp[ iEqu ] /=  turblu.radius[ iEqu ];
-	    }
+        for ( int iEqu = 0; iEqu < turbcom.nEqu; ++ iEqu )
+        {
+            turblu.tmp[ iEqu ] /=  turblu.radius[ iEqu ];
+        }
 
-		for ( int iEqu = 0; iEqu < turbcom.nEqu; ++ iEqu )
-		{
-			turblu.dqi[ iEqu ] = turblu.tmp[ iEqu ];
-		}
-	}
+        for ( int iEqu = 0; iEqu < turbcom.nEqu; ++ iEqu )
+        {
+            turblu.dqi[ iEqu ] = turblu.tmp[ iEqu ];
+        }
+    }
 }
 
 void TurbLusgs::CmpUpperChange()
 {
-	if ( turblu.numberOfSweeps > 1 )
-	{
-		for ( int iEqu = 0; iEqu < turbcom.nEqu; ++ iEqu )
-		{
-			turblu.tmp[ iEqu ] = turblu.dqi[ iEqu ] - turblu.rhs0[ iEqu ];
-		}
-
-	    for ( int iEqu = 0; iEqu < turbcom.nEqu; ++ iEqu )
-	    {
-		    turblu.tmp[ iEqu ] /=  turblu.radius[ iEqu ];
-	    }
-
-		for ( int iEqu = 0; iEqu < turbcom.nEqu; ++ iEqu )
-		{
-			turblu.dqi[ iEqu ] = turblu.tmp[ iEqu ];
-		}
+    if ( turblu.numberOfSweeps > 1 )
+    {
+        for ( int iEqu = 0; iEqu < turbcom.nEqu; ++ iEqu )
+        {
+            turblu.tmp[ iEqu ] = turblu.dqi[ iEqu ] - turblu.rhs0[ iEqu ];
+        }
 
         for ( int iEqu = 0; iEqu < turbcom.nEqu; ++ iEqu )
-        {			
-			turblu.drhs[ iEqu ] += turblu.rhs0[ iEqu ];
+        {
+            turblu.tmp[ iEqu ] /=  turblu.radius[ iEqu ];
+        }
+
+        for ( int iEqu = 0; iEqu < turbcom.nEqu; ++ iEqu )
+        {
+            turblu.dqi[ iEqu ] = turblu.tmp[ iEqu ];
+        }
+
+        for ( int iEqu = 0; iEqu < turbcom.nEqu; ++ iEqu )
+        {            
+            turblu.drhs[ iEqu ] += turblu.rhs0[ iEqu ];
         }
 
         for ( int iEqu = 0; iEqu < turbcom.nEqu; ++ iEqu )
         {
             turblu.dqSweep     = turblu.dqi[ iEqu ] - turblu.dqi0[ iEqu ];
             turblu.norm       += SQR( turblu.dqSweep );
-		}
-	}
-	else
-	{
-		for ( int iEqu = 0; iEqu < turbcom.nEqu; ++ iEqu )
-		{
-			turblu.tmp[ iEqu ] = - turblu.rhs0[ iEqu ];
-		}
+        }
+    }
+    else
+    {
+        for ( int iEqu = 0; iEqu < turbcom.nEqu; ++ iEqu )
+        {
+            turblu.tmp[ iEqu ] = - turblu.rhs0[ iEqu ];
+        }
 
-	    for ( int iEqu = 0; iEqu < turbcom.nEqu; ++ iEqu )
-	    {
-		    turblu.tmp[ iEqu ] /=  turblu.radius[ iEqu ];
-	    }
+        for ( int iEqu = 0; iEqu < turbcom.nEqu; ++ iEqu )
+        {
+            turblu.tmp[ iEqu ] /=  turblu.radius[ iEqu ];
+        }
 
-		for ( int iEqu = 0; iEqu < turbcom.nEqu; ++ iEqu )
-		{
-			turblu.dqi[ iEqu ] += turblu.tmp[ iEqu ];
-		}
-	}
+        for ( int iEqu = 0; iEqu < turbcom.nEqu; ++ iEqu )
+        {
+            turblu.dqi[ iEqu ] += turblu.tmp[ iEqu ];
+        }
+    }
 }
 
 bool TurbLusgs::IsOversetCell()
 {
-	return ( gcom.blank <= 0 );
+    return ( gcom.blank <= 0 );
 }
 
 void TurbLusgs::ZeroOversetCell()
 {
-	for ( int iEqu = 0; iEqu < turbcom.nEqu; ++ iEqu )
-	{
-		turblu.dqi[ iEqu ] = 0.0;
-	}
+    for ( int iEqu = 0; iEqu < turbcom.nEqu; ++ iEqu )
+    {
+        turblu.dqi[ iEqu ] = 0.0;
+    }
 
-	for ( int iEqu = 0; iEqu < turbcom.nEqu; ++ iEqu )
-	{
-		turblu.drhs[ iEqu ] = 0.0;
-	}
+    for ( int iEqu = 0; iEqu < turbcom.nEqu; ++ iEqu )
+    {
+        turblu.drhs[ iEqu ] = 0.0;
+    }
 }
 
 

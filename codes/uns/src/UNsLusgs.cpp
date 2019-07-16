@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -49,8 +49,8 @@ UNsLusgs::~UNsLusgs()
 
 void UNsLusgs::SingleSweep()
 {
-	this->LowerSweep();
-	this->UpperSweep();
+    this->LowerSweep();
+    this->UpperSweep();
 }
 
 void UNsLusgs::Init()
@@ -86,89 +86,89 @@ void UNsLusgs::LowerSweep()
 
         gcom.blank = ( * ug.blankf )[ ug.cId ];
 
-		if ( this->IsOversetCell() )
-		{
-			this->ZeroOversetCell();
-		}
-		else
-		{
-			this->PrepareSweep();
+        if ( this->IsOversetCell() )
+        {
+            this->ZeroOversetCell();
+        }
+        else
+        {
+            this->PrepareSweep();
 
-			this->ZeroFluxIncrement();
-		
-			this->SolveLowerCell();
+            this->ZeroFluxIncrement();
+        
+            this->SolveLowerCell();
 
-			this->CmpLowerChange();
-		}
+            this->CmpLowerChange();
+        }
 
-		this->Update();
+        this->Update();
     }
 
-	//UploadInterfaceValue( grid, dqField, "dqField",  numberOfTotalEquations );
+    //UploadInterfaceValue( grid, dqField, "dqField",  numberOfTotalEquations );
 }
 
 void UNsLusgs::UpperSweep()
 {
     this->Init();
-	//this->LusgsBoundary();
-	//DownloadInterfaceValue( grid, dqField, "dqField",  numberOfTotalEquations );
-	
+    //this->LusgsBoundary();
+    //DownloadInterfaceValue( grid, dqField, "dqField",  numberOfTotalEquations );
+    
     for ( int cId = ug.nCell - 1; cId >= 0; -- cId )
     {
         ug.cId = cId;
         gcom.blank = ( * ug.blankf )[ ug.cId ];
 
-		if ( this->IsOversetCell() )
-		{
-			this->ZeroOversetCell();
-		}
-		else
-		{
-			this->PrepareSweep();
+        if ( this->IsOversetCell() )
+        {
+            this->ZeroOversetCell();
+        }
+        else
+        {
+            this->PrepareSweep();
 
-			this->ZeroFluxIncrement();
+            this->ZeroFluxIncrement();
 
-			this->SolveUpperCell();
+            this->SolveUpperCell();
 
-			this->CmpUpperChange();
-		}
+            this->CmpUpperChange();
+        }
 
-		this->Update();
+        this->Update();
     }
 }
 
 void UNsLusgs::SolveLowerCell()
 {
-	int fn = ( * ug.c2f )[ ug.cId ].size();
-	for ( int iFace = 0; iFace < fn; ++ iFace )
-	{
-		int fId = ( * ug.c2f )[ ug.cId ][ iFace ];
-		this->SolveLower( fId );
-	}
+    int fn = ( * ug.c2f )[ ug.cId ].size();
+    for ( int iFace = 0; iFace < fn; ++ iFace )
+    {
+        int fId = ( * ug.c2f )[ ug.cId ][ iFace ];
+        this->SolveLower( fId );
+    }
 }
 
 void UNsLusgs::SolveUpperCell()
 {
-	int fn = ( * ug.c2f )[ ug.cId ].size();
-	for ( int iFace = 0; iFace < fn; ++ iFace )
-	{
-		int fId = ( * ug.c2f )[ ug.cId ][ iFace ];
-		this->SolveUpper( fId );
-	}
+    int fn = ( * ug.c2f )[ ug.cId ].size();
+    for ( int iFace = 0; iFace < fn; ++ iFace )
+    {
+        int fId = ( * ug.c2f )[ ug.cId ][ iFace ];
+        this->SolveUpper( fId );
+    }
 }
 
 void UNsLusgs::SolveLower( int fId )
 {
-	if ( this->CanNotLowerSolve( fId ) ) return;
+    if ( this->CanNotLowerSolve( fId ) ) return;
 
-	this->Solve( fId, - 1 );
+    this->Solve( fId, - 1 );
 }
 
 void UNsLusgs::SolveUpper( int fId )
 {
-	if ( this->CanNotUpperSolve( fId ) ) return;
+    if ( this->CanNotUpperSolve( fId ) ) return;
 
-	this->Solve( fId, - 1 );
+    this->Solve( fId, - 1 );
 }
 
 bool UNsLusgs::CanNotLowerSolve( int fId )
@@ -207,15 +207,15 @@ void UNsLusgs::Solve( int fId, int signValue )
     ug.lc = ( * ug.lcf )[ ug.fId ];
     ug.rc = ( * ug.rcf )[ ug.fId ];
 
-	this->SetMeshGeometry();
+    this->SetMeshGeometry();
 
-	this->PrepareData();
+    this->PrepareData();
 
-	this->GetStandardFluxIncrement( signValue );
+    this->GetStandardFluxIncrement( signValue );
 
-	this->ComputeViscousTerm();
+    this->ComputeViscousTerm();
 
-	this->AddFluxIncrement();
+    this->AddFluxIncrement();
 }
 
 void UNsLusgs::SetMeshGeometry()
@@ -225,45 +225,45 @@ void UNsLusgs::SetMeshGeometry()
 
 void UNsLusgs::PrepareData()
 {
-	for ( int iEqu = 0; iEqu < nslu.nEqu; ++ iEqu )
-	{
-		nslu.primj[ iEqu ] = ( * unsf.q )[ iEqu ][ ug.rc ]; //qField存的是原始变量！
-	}
+    for ( int iEqu = 0; iEqu < nslu.nEqu; ++ iEqu )
+    {
+        nslu.primj[ iEqu ] = ( * unsf.q )[ iEqu ][ ug.rc ]; //qField存的是原始变量！
+    }
 
-	for ( int iEqu = 0; iEqu < nslu.nEqu; ++ iEqu )
-	{
-		nslu.dqj[ iEqu ] = ( * unsf.dq )[ iEqu ][ ug.rc ];
-	}
+    for ( int iEqu = 0; iEqu < nslu.nEqu; ++ iEqu )
+    {
+        nslu.dqj[ iEqu ] = ( * unsf.dq )[ iEqu ][ ug.rc ];
+    }
 
-	this->PrepareDataFacePrim();
+    this->PrepareDataFacePrim();
 
     nslu.gama = ( * unsf.gama )[ 0 ][ ug.rc ];
     nscom.visl = ( * unsf.visl )[ 0 ][ ug.rc ];
     nscom.vist = ( * unsf.vist )[ 0 ][ ug.rc ];
 
-	for ( int iEqu = 0; iEqu < nslu.nEqu; ++ iEqu )
-	{
-		nscom.q1[ iEqu ] = ( * unsf.q )[ iEqu ][ ug.lc ];
+    for ( int iEqu = 0; iEqu < nslu.nEqu; ++ iEqu )
+    {
+        nscom.q1[ iEqu ] = ( * unsf.q )[ iEqu ][ ug.lc ];
         nscom.q2[ iEqu ] = ( * unsf.q )[ iEqu ][ ug.rc ];
-	}
+    }
 }
 
 void UNsLusgs::PrepareDataFacePrim()
 {
-	Real rl = ( * unsf.q )[ IDX::IR ][ ug.lc ];
-	Real ul = ( * unsf.q )[ IDX::IU ][ ug.lc ];
-	Real vl = ( * unsf.q )[ IDX::IV ][ ug.lc ];
-	Real wl = ( * unsf.q )[ IDX::IW ][ ug.lc ];
-	Real pl = ( * unsf.q )[ IDX::IP ][ ug.lc ];
+    Real rl = ( * unsf.q )[ IDX::IR ][ ug.lc ];
+    Real ul = ( * unsf.q )[ IDX::IU ][ ug.lc ];
+    Real vl = ( * unsf.q )[ IDX::IV ][ ug.lc ];
+    Real wl = ( * unsf.q )[ IDX::IW ][ ug.lc ];
+    Real pl = ( * unsf.q )[ IDX::IP ][ ug.lc ];
 
-	Real rr = ( * unsf.q )[ IDX::IR ][ ug.rc ];
-	Real ur = ( * unsf.q )[ IDX::IU ][ ug.rc ];
-	Real vr = ( * unsf.q )[ IDX::IV ][ ug.rc ];
-	Real wr = ( * unsf.q )[ IDX::IW ][ ug.rc ];
-	Real pr = ( * unsf.q )[ IDX::IP ][ ug.rc ];
+    Real rr = ( * unsf.q )[ IDX::IR ][ ug.rc ];
+    Real ur = ( * unsf.q )[ IDX::IU ][ ug.rc ];
+    Real vr = ( * unsf.q )[ IDX::IV ][ ug.rc ];
+    Real wr = ( * unsf.q )[ IDX::IW ][ ug.rc ];
+    Real pr = ( * unsf.q )[ IDX::IP ][ ug.rc ];
 
-	Real gl = ( * unsf.gama )[ 0 ][ ug.lc ];
-	Real gr = ( * unsf.gama )[ 0 ][ ug.rc ];
+    Real gl = ( * unsf.gama )[ 0 ][ ug.lc ];
+    Real gr = ( * unsf.gama )[ 0 ][ ug.rc ];
 
     Real hl = gl / ( gl - 1.0 ) * pl / rl + half * SQR( ul, vl, wl );
     Real hr = gr / ( gr - 1.0 ) * pr / rr + half * SQR( ur, vr, wr );
@@ -275,106 +275,106 @@ void UNsLusgs::PrepareDataFacePrim()
     Real um = ( ul + ur * tmp0 ) * tmp1;
     Real vm = ( vl + vr * tmp0 ) * tmp1;
     Real wm = ( wl + wr * tmp0 ) * tmp1;
-	Real hm = ( hl + hr * tmp0 ) * tmp1;
-	Real pm = rm * ( hm - half * SQR( um, vm, wm ) ) * ( gl - 1.0 ) / gl;
+    Real hm = ( hl + hr * tmp0 ) * tmp1;
+    Real pm = rm * ( hm - half * SQR( um, vm, wm ) ) * ( gl - 1.0 ) / gl;
 
     if ( pm <= 0.0 ) cout << "pm = " << pm << endl;
 
-	nslu.primF[ IDX::IR ] = rm;
-	nslu.primF[ IDX::IU ] = um;
-	nslu.primF[ IDX::IV ] = vm;
-	nslu.primF[ IDX::IW ] = wm;
-	nslu.primF[ IDX::IP ] = pm;
+    nslu.primF[ IDX::IR ] = rm;
+    nslu.primF[ IDX::IU ] = um;
+    nslu.primF[ IDX::IV ] = vm;
+    nslu.primF[ IDX::IW ] = wm;
+    nslu.primF[ IDX::IP ] = pm;
 
-	for ( int iEqu = nslu.nBEqu; iEqu < nslu.nEqu; ++ iEqu ) 
-	{
-		nslu.primF[ iEqu ] = half * ( ( * unsf.q )[ iEqu ][ ug.lc ] + ( * unsf.q )[ iEqu ][ ug.rc ] ); 
-	}
+    for ( int iEqu = nslu.nBEqu; iEqu < nslu.nEqu; ++ iEqu ) 
+    {
+        nslu.primF[ iEqu ] = half * ( ( * unsf.q )[ iEqu ][ ug.lc ] + ( * unsf.q )[ iEqu ][ ug.rc ] ); 
+    }
 }
 
 void UNsLusgs::ComputeViscousTerm()
 {
     if ( vis_model.vismodel == 0 ) return;
 
-	if ( nscom.visSRModel == 1 )
-	{
-		Real density = half * ( nscom.q1[ IDX::IR ] + nscom.q2[ IDX::IR ] );
+    if ( nscom.visSRModel == 1 )
+    {
+        Real density = half * ( nscom.q1[ IDX::IR ] + nscom.q2[ IDX::IR ] );
 
-		Real c1 = 4.0 / 3.0 * ( nscom.visl + nscom.vist );
-		Real c2 = nscom.gama * ( nscom.visl * nscom.oprl + nscom.vist * nscom.oprt );
-		Real c3 = two * MAX( c1, c2 ) / ( nscom.reynolds * density );
-		Real farea2 = SQR( gcom.farea );
+        Real c1 = 4.0 / 3.0 * ( nscom.visl + nscom.vist );
+        Real c2 = nscom.gama * ( nscom.visl * nscom.oprl + nscom.vist * nscom.oprt );
+        Real c3 = two * MAX( c1, c2 ) / ( nscom.reynolds * density );
+        Real farea2 = SQR( gcom.farea );
 
-		nscom.vissr = farea2 * c3;
+        nscom.vissr = farea2 * c3;
 
-		nslu.visrad = nscom.vissr / ( * ug.cvol )[ ug.rc ];
-	}
-	else
-	{
-		Real dist = ABS(  gcom.fnx * ( gcom.ccx2 - gcom.ccx1 )
-					    + gcom.fny * ( gcom.ccy2 - gcom.ccy1 )
-					    + gcom.fnz * ( gcom.ccz2 - gcom.ccz1 ) );
+        nslu.visrad = nscom.vissr / ( * ug.cvol )[ ug.rc ];
+    }
+    else
+    {
+        Real dist = ABS(  gcom.fnx * ( gcom.ccx2 - gcom.ccx1 )
+                        + gcom.fny * ( gcom.ccy2 - gcom.ccy1 )
+                        + gcom.fnz * ( gcom.ccz2 - gcom.ccz1 ) );
 
-		Real viscosity = nscom.visl + nscom.vist;
-		Real density   = half * ( nscom.q1[ IDX::IR ] + nscom.q2[ IDX::IR ] );
+        Real viscosity = nscom.visl + nscom.vist;
+        Real density   = half * ( nscom.q1[ IDX::IR ] + nscom.q2[ IDX::IR ] );
 
-		Real c1  = 2.0 * viscosity / ( density * dist * nscom.reynolds + SMALL );
-		nscom.vissr = half * c1 * gcom.farea;
+        Real c1  = 2.0 * viscosity / ( density * dist * nscom.reynolds + SMALL );
+        nscom.vissr = half * c1 * gcom.farea;
         nslu.visrad = nscom.vissr;
-	}
+    }
 
-	for ( int iEqu = 0; iEqu < nslu.nEqu; ++ iEqu )
-	{
-		nslu.rhs0[ iEqu ] -= nslu.visrad * nslu.dqj[ iEqu ];
-	}
+    for ( int iEqu = 0; iEqu < nslu.nEqu; ++ iEqu )
+    {
+        nslu.rhs0[ iEqu ] -= nslu.visrad * nslu.dqj[ iEqu ];
+    }
 }
 
 void UNsLusgs::PrepareSweep()
 {
-	for ( int iEqu = 0; iEqu < nslu.nEqu; ++ iEqu )
-	{
+    for ( int iEqu = 0; iEqu < nslu.nEqu; ++ iEqu )
+    {
         gcom.blank = ( * ug.blankf )[ ug.cId ];
 
-		nslu.dqi[ iEqu ] = ( * unsf.dq  )[ iEqu ][ ug.cId ]; //dqField的初值为0（守恒或者原始变量）
-		nslu.rhs[ iEqu ] = ( * unsf.rhs )[ iEqu ][ ug.cId ]; //RHS还是存在RHS里面比较好
-	}
+        nslu.dqi[ iEqu ] = ( * unsf.dq  )[ iEqu ][ ug.cId ]; //dqField的初值为0（守恒或者原始变量）
+        nslu.rhs[ iEqu ] = ( * unsf.rhs )[ iEqu ][ ug.cId ]; //RHS还是存在RHS里面比较好
+    }
 
-	if ( nslu.numberOfSweeps > 1 )
-	{
-		for ( int iEqu = 0; iEqu < nslu.nEqu; ++ iEqu )
-		{
-			nslu.dqi0[ iEqu ] = nslu.dqi[ iEqu ];
-			nslu.drhs[ iEqu ] = ( * unsf.drhs )[ iEqu ][ ug.cId ];
+    if ( nslu.numberOfSweeps > 1 )
+    {
+        for ( int iEqu = 0; iEqu < nslu.nEqu; ++ iEqu )
+        {
+            nslu.dqi0[ iEqu ] = nslu.dqi[ iEqu ];
+            nslu.drhs[ iEqu ] = ( * unsf.drhs )[ iEqu ][ ug.cId ];
 
-			nslu.dqi[ iEqu ] = ( * unsf.rhs )[ iEqu ][ ug.cId ] - nslu.drhs[ iEqu ];
-			( * unsf.dq )[ iEqu ][ ug.cId ] = nslu.dqi[ iEqu ];
-			nslu.drhs[ iEqu ] = 0.0;
-		}
-	}
+            nslu.dqi[ iEqu ] = ( * unsf.rhs )[ iEqu ][ ug.cId ] - nslu.drhs[ iEqu ];
+            ( * unsf.dq )[ iEqu ][ ug.cId ] = nslu.dqi[ iEqu ];
+            nslu.drhs[ iEqu ] = 0.0;
+        }
+    }
 
-	for ( int iEqu = 0; iEqu < nslu.nEqu; ++ iEqu )
-	{
-		nslu.radius[ iEqu ] = ( * unsf.impsr )[ 0 ][ ug.cId ];
-	}
+    for ( int iEqu = 0; iEqu < nslu.nEqu; ++ iEqu )
+    {
+        nslu.radius[ iEqu ] = ( * unsf.impsr )[ 0 ][ ug.cId ];
+    }
 }
 
 void UNsLusgs::Update()
 {
-	if ( nslu.numberOfSweeps > 1 )
-	{
+    if ( nslu.numberOfSweeps > 1 )
+    {
         for ( int iEqu = 0; iEqu < nslu.nEqu; ++ iEqu )
         {
             ( * unsf.dq   )[ iEqu ][ ug.cId ]  = nslu.dqi[ iEqu ];
             ( * unsf.drhs )[ iEqu ][ ug.cId ]  = nslu.drhs[ iEqu ];
         }
-	}
-	else
-	{
-		for ( int iEqu = 0; iEqu < nslu.nEqu; ++ iEqu )
-		{
+    }
+    else
+    {
+        for ( int iEqu = 0; iEqu < nslu.nEqu; ++ iEqu )
+        {
             ( * unsf.dq   )[ iEqu ][ ug.cId ]  = nslu.dqi[ iEqu ];
-		}
-	}
+        }
+    }
 }
 
 EndNameSpace

@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -49,9 +49,9 @@ void Unsteady::UpdateUnsteady( int sTid )
 
     Grid * grid = Zone::GetGrid();
 
-	MRField * q  = GetFieldPointer< MRField > ( grid, usdPara->flow[ 0 ] );
-	MRField * q1 = GetFieldPointer< MRField > ( grid, usdPara->flow[ 1 ] );
-	MRField * q2 = GetFieldPointer< MRField > ( grid, usdPara->flow[ 2 ] );
+    MRField * q  = GetFieldPointer< MRField > ( grid, usdPara->flow[ 0 ] );
+    MRField * q1 = GetFieldPointer< MRField > ( grid, usdPara->flow[ 1 ] );
+    MRField * q2 = GetFieldPointer< MRField > ( grid, usdPara->flow[ 2 ] );
 
     SetField( q2, q1 );
     SetField( q1, q  );

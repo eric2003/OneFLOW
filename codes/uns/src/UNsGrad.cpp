@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -61,13 +61,13 @@ void UNsGrad::Init()
     dqdx = GetFieldPointer< MRField > ( grid, namex );
     dqdy = GetFieldPointer< MRField > ( grid, namey );
     dqdz = GetFieldPointer< MRField > ( grid, namez );
-	bdqdx = GetFieldPointer< MRField > ( grid, "bcdqdx" );
-	bdqdy = GetFieldPointer< MRField > ( grid, "bcdqdy" );
-	bdqdz = GetFieldPointer< MRField > ( grid, "bcdqdz" );
+    bdqdx = GetFieldPointer< MRField > ( grid, "bcdqdx" );
+    bdqdy = GetFieldPointer< MRField > ( grid, "bcdqdy" );
+    bdqdz = GetFieldPointer< MRField > ( grid, "bcdqdz" );
 
     this->nEqu = nscom.nTEqu;
 
-	this->istore = 1;
+    this->istore = 1;
 }
 
 UTGrad::UTGrad()
@@ -96,7 +96,7 @@ void UTGrad::Init()
 
     this->nEqu = nscom.nTModel;
 
-	this->istore = 0;
+    this->istore = 0;
 }
 
 EndNameSpace

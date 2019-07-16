@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -45,32 +45,32 @@ class SLine;
 class MyFaceSolver
 {
 public:
-	MyFaceSolver();
-	~MyFaceSolver();
+    MyFaceSolver();
+    ~MyFaceSolver();
 public:
-	bool init_flag;
-	LinkField lineList; 
-	LinkField faceList;
-	LinkField facePosList;
-	set< Mid< int > > refLines;
-	set< Mid< int > > refFaces;
-	IntSet faceset;
-	HXVector< BlkF2C > line2Face;
-	HXVector< BlkF2C > face2Block;
-	HXVector< SDomain * > sDomainList;
-	HXVector< SLine * > slineList;
+    bool init_flag;
+    LinkField lineList; 
+    LinkField faceList;
+    LinkField facePosList;
+    set< Mid< int > > refLines;
+    set< Mid< int > > refFaces;
+    IntSet faceset;
+    HXVector< BlkF2C > line2Face;
+    HXVector< BlkF2C > face2Block;
+    HXVector< SDomain * > sDomainList;
+    HXVector< SLine * > slineList;
 public:
-	void Alloc();
-	void AddLineToFace( int faceid, int pos, int lineid );
-	void CreateFaceList();
-	void SetBoundary();
-	int FindLineId( IntField & line );
-	int FindId( IntField & varlist, set< Mid<int> > &refSets );
-	IntField & GetLine( int line_id );
+    void Alloc();
+    void AddLineToFace( int faceid, int pos, int lineid );
+    void CreateFaceList();
+    void SetBoundary();
+    int FindLineId( IntField & line );
+    int FindId( IntField & varlist, set< Mid<int> > &refSets );
+    IntField & GetLine( int line_id );
 public:
-	void BuildSDomainList();
-	void GenerateFaceMesh();
-	void GenerateLineMesh();
+    void BuildSDomainList();
+    void GenerateFaceMesh();
+    void GenerateLineMesh();
 };
 
 class Block2D;
@@ -79,36 +79,36 @@ class BlkElem;
 class BlkFaceSolver
 {
 public:
-	BlkFaceSolver();
-	~BlkFaceSolver();
+    BlkFaceSolver();
+    ~BlkFaceSolver();
 public:
-	IntSet blkset;
-	HXVector< Block3D * > blkList;
-	HXVector< Block2D * > blk2dList;
-	bool flag;
-	MyFaceSolver myFaceSolver;
+    IntSet blkset;
+    HXVector< Block3D * > blkList;
+    HXVector< Block2D * > blk2dList;
+    bool flag;
+    MyFaceSolver myFaceSolver;
 public:
-	Face2D * GetBlkFace2D( int blk, int face_id );
-	int  FindFace( Mid<int> & face );
-	int  FindFaceId( IntField & face );
+    Face2D * GetBlkFace2D( int blk, int face_id );
+    int  FindFace( Mid<int> & face );
+    int  FindFaceId( IntField & face );
 public:
-	void Alloc();
-	void AddLineToFace( int faceid, int pos, int lineid );
-	void AddFace2Block( int blockid, int pos, int faceid );
-	void BuildBlkFace();
-	void SetBoundary();
-	void DumpBcInp();
-	void ConstructBlockInfo();
-	void GenerateBlkMesh();
-	void GenerateFaceMesh();
-	void GenerateLineMesh();
-	void BuildSDomainList();
-	void DumpStandardGrid();
-	void DumpStandardGrid( Grids & strGridList );
+    void Alloc();
+    void AddLineToFace( int faceid, int pos, int lineid );
+    void AddFace2Block( int blockid, int pos, int faceid );
+    void BuildBlkFace();
+    void SetBoundary();
+    void DumpBcInp();
+    void ConstructBlockInfo();
+    void GenerateBlkMesh();
+    void GenerateFaceMesh();
+    void GenerateLineMesh();
+    void BuildSDomainList();
+    void DumpStandardGrid();
+    void DumpStandardGrid( Grids & strGridList );
 public:
-	void DumpBlkScript();
-	void DumpBlkScript( fstream & file, BlkElem * blkHexa, IntField & ctrlpoints );
-	void DumpBlkScript( fstream & file, IntField & localid, IntField & ctrlpoints );
+    void DumpBlkScript();
+    void DumpBlkScript( fstream & file, BlkElem * blkHexa, IntField & ctrlpoints );
+    void DumpBlkScript( fstream & file, IntField & localid, IntField & ctrlpoints );
 };
 
 extern BlkFaceSolver blkFaceSolver;

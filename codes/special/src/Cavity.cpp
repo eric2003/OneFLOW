@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -52,8 +52,8 @@ void Cavity::Run()
     RealField2D x;
     RealField2D y;
 
-	AllocateVector( x, ni, nj );
-	AllocateVector( y, ni, nj );
+    AllocateVector( x, ni, nj );
+    AllocateVector( y, ni, nj );
 
     Real xl = 0.0;
     Real xr = 1.0;

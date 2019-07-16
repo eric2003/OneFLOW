@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -33,16 +33,16 @@ void RegisterFileTask()
 
 void SetFile( StringField & data )
 {
-	string & fileNameVar = data[ 0 ];
+    string & fileNameVar = data[ 0 ];
 
     string fileName = GetDataValue< string >( fileNameVar );
 
-	ios_base::openmode openMode = GetOpenMode( data[ 1 ] );
+    ios_base::openmode openMode = GetOpenMode( data[ 1 ] );
 
-	for ( int i = 2; i < data.size(); ++ i )
-	{
-		openMode |= GetOpenMode( data[ i ] );
-	}
+    for ( int i = 2; i < data.size(); ++ i )
+    {
+        openMode |= GetOpenMode( data[ i ] );
+    }
 
     TaskState::task->fileInfo->fileName = fileName;
     TaskState::task->fileInfo->openMode = openMode;
@@ -50,26 +50,26 @@ void SetFile( StringField & data )
 
 ios_base::openmode GetOpenMode( const string & openModeName )
 {
-	if ( openModeName == "in" )
-	{
-		return ios_base::in;
-	}
-	else if ( openModeName == "out" )
-	{
-		return ios_base::out;
-	}
-	else if ( openModeName == "binary" )
-	{
-		return ios_base::binary;
-	}
-	else if ( openModeName == "trunc" )
-	{
-		return ios_base::trunc;
-	}
-	else
-	{
-		return ios_base::app;
-	}
+    if ( openModeName == "in" )
+    {
+        return ios_base::in;
+    }
+    else if ( openModeName == "out" )
+    {
+        return ios_base::out;
+    }
+    else if ( openModeName == "binary" )
+    {
+        return ios_base::binary;
+    }
+    else if ( openModeName == "trunc" )
+    {
+        return ios_base::trunc;
+    }
+    else
+    {
+        return ios_base::app;
+    }
 }
 
 EndNameSpace

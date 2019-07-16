@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -38,7 +38,7 @@ BeginNameSpace( ONEFLOW )
 
 Grad::Grad()
 {
-	istore = 0;
+    istore = 0;
 }
 
 Grad::~Grad()
@@ -48,21 +48,21 @@ Grad::~Grad()
 
 void Grad::CmpGrad()
 {
-	for ( int iEqu = 0; iEqu < nEqu; ++ iEqu )
-	{
-		//ONEFLOW::CmpGrad( ( * q )[ iEqu ], ( * dqdx )[ iEqu ], ( * dqdy )[ iEqu ], ( * dqdz )[ iEqu ] );
-		ONEFLOW::CmpGradGGCellWeight( ( * q )[ iEqu ], ( * dqdx )[ iEqu ], ( * dqdy )[ iEqu ], ( * dqdz )[ iEqu ] );
-	}
+    for ( int iEqu = 0; iEqu < nEqu; ++ iEqu )
+    {
+        //ONEFLOW::CmpGrad( ( * q )[ iEqu ], ( * dqdx )[ iEqu ], ( * dqdy )[ iEqu ], ( * dqdz )[ iEqu ] );
+        ONEFLOW::CmpGradGGCellWeight( ( * q )[ iEqu ], ( * dqdx )[ iEqu ], ( * dqdy )[ iEqu ], ( * dqdz )[ iEqu ] );
+    }
 
     this->SwapBcGrad();
 }
 
 void Grad::CmpGradDebug()
 {
-	for ( int iEqu = 0; iEqu < nEqu; ++ iEqu )
-	{
+    for ( int iEqu = 0; iEqu < nEqu; ++ iEqu )
+    {
         ONEFLOW::CmpGradDebug( ( * q )[ iEqu ], ( * dqdx )[ iEqu ], ( * dqdy )[ iEqu ], ( * dqdz )[ iEqu ] );
-	}
+    }
 
     this->SwapBcGrad();
 }
@@ -78,36 +78,36 @@ void Grad::SwapBcGrad()
     DownloadInterfaceValue( grid, dqdx, namex, nEqu );
     DownloadInterfaceValue( grid, dqdy, namey, nEqu );
     DownloadInterfaceValue( grid, dqdz, namez, nEqu );
-	if ( istore == 1 )
-	{
-		this->StoreBcGrad();
-	}
+    if ( istore == 1 )
+    {
+        this->StoreBcGrad();
+    }
 }
 
 void Grad::StoreBcGrad()
 {
-	UnsGrid * grid = Zone::GetUnsGrid();
+    UnsGrid * grid = Zone::GetUnsGrid();
 
-	FaceTopo * faceTopo = grid->faceTopo;
+    FaceTopo * faceTopo = grid->faceTopo;
 
-	IntField & bcType = faceTopo->bcManager->bcRecord->bcType;
+    IntField & bcType = faceTopo->bcManager->bcRecord->bcType;
 
-	int nBFace = bcType.size();
+    int nBFace = bcType.size();
 
-	for ( int iFace = 0; iFace < nBFace; ++ iFace )
-	{
-		int bc_type = bcType[ iFace ];
+    for ( int iFace = 0; iFace < nBFace; ++ iFace )
+    {
+        int bc_type = bcType[ iFace ];
 
-		int lc = faceTopo->lCell[ iFace ];
-		int rc = faceTopo->rCell[ iFace ];
+        int lc = faceTopo->lCell[ iFace ];
+        int rc = faceTopo->rCell[ iFace ];
 
-		for ( int iEqu = 0; iEqu < nEqu; ++ iEqu )
-		{
-			( * bdqdx )[ iEqu ][ iFace ] = ( * dqdx )[ iEqu ][ lc ];
-			( * bdqdy )[ iEqu ][ iFace ] = ( * dqdy )[ iEqu ][ lc ];
-			( * bdqdz )[ iEqu ][ iFace ] = ( * dqdz )[ iEqu ][ lc ];
-		}
-	}
+        for ( int iEqu = 0; iEqu < nEqu; ++ iEqu )
+        {
+            ( * bdqdx )[ iEqu ][ iFace ] = ( * dqdx )[ iEqu ][ lc ];
+            ( * bdqdy )[ iEqu ][ iFace ] = ( * dqdy )[ iEqu ][ lc ];
+            ( * bdqdz )[ iEqu ][ iFace ] = ( * dqdz )[ iEqu ][ lc ];
+        }
+    }
 
 }
 

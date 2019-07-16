@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -38,20 +38,20 @@ class CgnsBase;
 class CgnsFamilyBc
 {
 public:
-	CgnsFamilyBc( CgnsBase * cgnsBase );
-	~CgnsFamilyBc();
+    CgnsFamilyBc( CgnsBase * cgnsBase );
+    ~CgnsFamilyBc();
 public:
-	map< string, int > * bcMap;
-	CgnsBase * cgnsBase;
+    map< string, int > * bcMap;
+    CgnsBase * cgnsBase;
 public:
-	void Init();
-	void Free();
-	void Register( const string & regionName, int bcType );
-	void Unregister( const string & regionName );
-	int GetBcType( const string & regionName );
+    void Init();
+    void Free();
+    void Register( const string & regionName, int bcType );
+    void Unregister( const string & regionName );
+    int GetBcType( const string & regionName );
 public:
-	void SetFamilyBc( BCType_t & bcType, const string & bcRegionName );
-	void ReadFamilySpecifiedBc();
+    void SetFamilyBc( BCType_t & bcType, const string & bcRegionName );
+    void ReadFamilySpecifiedBc();
 };
 
 #endif

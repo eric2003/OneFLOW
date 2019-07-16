@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -29,8 +29,8 @@ BeginNameSpace( ONEFLOW )
 class TurbBcSolver
 {
 public:
-	TurbBcSolver();
-	~TurbBcSolver();
+    TurbBcSolver();
+    ~TurbBcSolver();
 public:
     typedef void ( TurbBcSolver:: * BcPointer )();
 public:
@@ -38,15 +38,15 @@ public:
     BcPointer bcPointer;
     bool updateFlag;
 public:
-	void InFlowBc     ();
-	void OutFlowBc    ();
-	void FarFieldBc   ();
+    void InFlowBc     ();
+    void OutFlowBc    ();
+    void FarFieldBc   ();
     void VisWallBc    ();
-	void SymmetryBc   ();
+    void SymmetryBc   ();
     void PoleBc       ();
-	void OversetBc    ();
-	void InterfaceBc  ();
-	void NoBc         ();
+    void OversetBc    ();
+    void InterfaceBc  ();
+    void NoBc         ();
     void UserDefinedBc();
     void PeriodicBc   ();
 public:

@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -29,7 +29,7 @@ BeginNameSpace( ONEFLOW )
 void TransfiniteInterpolation( RealField2D & coor, int ni, int nj );
 void TransfiniteInterpolation( RealField3D & coor, int ni, int nj, int nk );
 void AlgebraInterpolation( RealField2D & x, RealField2D & y, RealField2D & z, int ni, int nj,
-	RealField & nbx, RealField & nby, RealField & nbz, Real beta );
+    RealField & nbx, RealField & nby, RealField & nbz, Real beta );
 
 
 EndNameSpace

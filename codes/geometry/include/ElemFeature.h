@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -51,13 +51,13 @@ public:
 class ElemFeature
 {
 public:
-	ElemFeature();
-	~ElemFeature();
+    ElemFeature();
+    ~ElemFeature();
 public:
-	IntField * eType;       //单元类型
-	CgLinkField  eNodeId;     //单元index
+    IntField * eType;       //单元类型
+    CgLinkField  eNodeId;     //单元index
 public:
-	FaceSolver * face_solver;
+    FaceSolver * face_solver;
     void ScanElements();
 
 };

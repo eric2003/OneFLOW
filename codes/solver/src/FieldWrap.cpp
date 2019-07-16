@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -40,16 +40,16 @@ BeginNameSpace( ONEFLOW )
 
 FieldWrap::FieldWrap()
 {
-	unsField   = 0;
-	deleteFlag = false;
+    unsField   = 0;
+    deleteFlag = false;
 }
 
 FieldWrap::~FieldWrap()
 {
-	if ( deleteFlag )
-	{
-		delete unsField;
-	}
+    if ( deleteFlag )
+    {
+        delete unsField;
+    }
 }
 
 MRField * FieldWrap::GetUnsField()
@@ -59,8 +59,8 @@ MRField * FieldWrap::GetUnsField()
 
 void FieldWrap::SetUnsField( MRField * unsField, bool deleteFlag )
 {
-	this->unsField = unsField;
-	this->deleteFlag = deleteFlag;
+    this->unsField = unsField;
+    this->deleteFlag = deleteFlag;
 }
 
 FieldHome::FieldHome()
@@ -97,35 +97,35 @@ FieldWrap * FieldHome::CreateField( int sTid, int level )
 
     MRField * field = new MRField( info->nTEqu, nTCell );
 
-	FieldWrap * fieldWrap = new FieldWrap();
+    FieldWrap * fieldWrap = new FieldWrap();
 
-	fieldWrap->SetUnsField( field, true );
+    fieldWrap->SetUnsField( field, true );
 
-	return fieldWrap;
+    return fieldWrap;
 }
 
 FieldWrap * FieldHome::GetFieldWrap( const string & fieldName )
 {
-	Grid * grid = Zone::GetGrid();
+    Grid * grid = Zone::GetGrid();
 
     MRField * field = ONEFLOW::GetFieldPointer< MRField >( grid, fieldName );
 
-	FieldWrap * fieldWrap = new FieldWrap();
+    FieldWrap * fieldWrap = new FieldWrap();
 
-	fieldWrap->SetUnsField( field );
+    fieldWrap->SetUnsField( field );
 
-	return fieldWrap;
+    return fieldWrap;
 }
 
 void FieldHome::SetField( const string & fieldName, Real value )
 {
     Grid * gridIn = Zone::GetGrid();
 
-	UnsGrid * grid = ONEFLOW::UnsGridCast( gridIn );
+    UnsGrid * grid = ONEFLOW::UnsGridCast( gridIn );
 
     FieldWrap * fieldWrap = FieldHome::GetFieldWrap( fieldName );
 
-	ONEFLOW::SetField( fieldWrap, value );
+    ONEFLOW::SetField( fieldWrap, value );
 }
 
 void FieldHome::SetField( int fieldId, const string & fieldName, int orderFlag )
@@ -136,45 +136,45 @@ void FieldHome::SetField( int fieldId, const string & fieldName, int orderFlag )
 void FieldHome::SetUnsField( int fieldId, const string & fieldName, int orderFlag )
 {
     Grid * gridIn = Zone::GetGrid();
-	UnsGrid * grid = ONEFLOW::UnsGridCast( gridIn );
+    UnsGrid * grid = ONEFLOW::UnsGridCast( gridIn );
 
-	MRField * sField, * tField;
+    MRField * sField, * tField;
     FieldHome::GetSourceTargetField( grid, fieldId, fieldName, sField, tField, orderFlag );
 
-	ONEFLOW::SetField( tField, sField );
+    ONEFLOW::SetField( tField, sField );
 }
 
 FieldWrap * FieldHome::GetFieldWrap( int fieldId )
 {
     FieldWrap * fieldWrap = BgField::GetFieldWrap( ZoneState::zid, SolverState::id, fieldId, GridState::gridLevel );
-	return fieldWrap;
+    return fieldWrap;
 }
 
 MRField * FieldHome::GetUnsField( int fieldId )
 {
     FieldWrap * fieldWrap = FieldHome::GetFieldWrap( fieldId );
-	MRField * field = fieldWrap->GetUnsField();
-	return field;
+    MRField * field = fieldWrap->GetUnsField();
+    return field;
 }
 
 MRField * FieldHome::GetUnsField( Grid * grid, const string & fieldName )
 {
     MRField * field = ONEFLOW::GetFieldPointer< MRField >( grid, fieldName );
-	return field;
+    return field;
 }
 
 void FieldHome::GetSourceTargetField( Grid * grid, int fieldId, const string & fieldName, MRField *& sField, MRField *& tField, int orderFlag )
 {
-	if ( orderFlag == FLOW_RHS_ORDER )
-	{
-		sField = FieldHome::GetUnsField( grid, fieldName );
-		tField = FieldHome::GetUnsField( fieldId );
-	}
-	else
-	{
-		tField = FieldHome::GetUnsField( grid, fieldName );
-		sField = FieldHome::GetUnsField( fieldId );
-	}
+    if ( orderFlag == FLOW_RHS_ORDER )
+    {
+        sField = FieldHome::GetUnsField( grid, fieldName );
+        tField = FieldHome::GetUnsField( fieldId );
+    }
+    else
+    {
+        tField = FieldHome::GetUnsField( grid, fieldName );
+        sField = FieldHome::GetUnsField( fieldId );
+    }
 }
 
 void SetField( FieldWrap * fieldWrap, Real value )
@@ -186,10 +186,10 @@ void SetField( FieldWrap * fieldWrap, Real value )
 void SetField( MRField * field, Real value )
 {
     int nTEqu = field->GetNEqu();
-	for ( int iEqu = 0; iEqu < nTEqu; ++ iEqu )
-	{
+    for ( int iEqu = 0; iEqu < nTEqu; ++ iEqu )
+    {
         ( * field )[ iEqu ] = value;
-	}
+    }
 }
 
 void SetField( RealField & field, Real value )
@@ -200,28 +200,28 @@ void SetField( RealField & field, Real value )
 void SetField( MRField * field1, MRField * field2 )
 {
     int nTEqu = field1->GetNEqu();
-	for ( int iEqu = 0; iEqu < nTEqu; ++ iEqu )
-	{
+    for ( int iEqu = 0; iEqu < nTEqu; ++ iEqu )
+    {
         int nElements = ( * field1 )[ iEqu ].size();
-		for ( int iElement = 0; iElement < nElements; ++ iElement )
-		{
-			( * field1 )[ iEqu ][ iElement ] = ( * field2 )[ iEqu ][ iElement ];
-		}
-	}
+        for ( int iElement = 0; iElement < nElements; ++ iElement )
+        {
+            ( * field1 )[ iEqu ][ iElement ] = ( * field2 )[ iEqu ][ iElement ];
+        }
+    }
 }
 
 void NegField( MRField * field1, MRField * field2 )
 {
     int nTEqu = field1->GetNEqu();
-	for ( int iEqu = 0; iEqu < nTEqu; ++ iEqu )
-	{
+    for ( int iEqu = 0; iEqu < nTEqu; ++ iEqu )
+    {
         int nElements = ( * field1 )[ iEqu ].size();
 
-		for ( int iElement = 0; iElement < nElements; ++ iElement )
-		{
-			( * field1 )[ iEqu ][ iElement ] = - ( * field2 )[ iEqu ][ iElement ];
-		}
-	}
+        for ( int iElement = 0; iElement < nElements; ++ iElement )
+        {
+            ( * field1 )[ iEqu ][ iElement ] = - ( * field2 )[ iEqu ][ iElement ];
+        }
+    }
 }
 
 

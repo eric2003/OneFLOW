@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -33,52 +33,52 @@ class AsciiFileRead;
 class SegmentCtrl
 {
 public:
-	SegmentCtrl();
-	~SegmentCtrl();
+    SegmentCtrl();
+    ~SegmentCtrl();
 public:
-	int id;
-	int nPoint;
-	Real ds1, ds2, lenth;
-	int distribution;
-	int c1, c2;
-	SegmentCopy * segmentCopy;
+    int id;
+    int nPoint;
+    Real ds1, ds2, lenth;
+    int distribution;
+    int c1, c2;
+    SegmentCopy * segmentCopy;
 public:
-	Real cA1, cA2, cA3, cA4;
-	Real expCoeff, ratio1, ratio2, ratio;
+    Real cA1, cA2, cA3, cA4;
+    Real expCoeff, ratio1, ratio2, ratio;
 public:
-	RealField factorList;
-	IntField pidxList;
+    RealField factorList;
+    IntField pidxList;
 public:
-	void Read( AsciiFileRead * ioFile );
-	void ComputeFactor();
-	Real ComputeFactor( Real compCoor );
-	Real ComputeDFactor( Real compCoor );
-	Real ComputeSFactor( Real compCoor );
-	void InitDExp();
-	void InitCoef();
-	void Init();
-	Real CalDExp();
-	void SetPara( Real diff, Real & v_min, Real & v_max );
-	void ComputeEffectiveRatioTest();
-	void ComputeEffectiveRatio();
-	void ComputeEffectiveFactor();
-	void CopyFactor();
+    void Read( AsciiFileRead * ioFile );
+    void ComputeFactor();
+    Real ComputeFactor( Real compCoor );
+    Real ComputeDFactor( Real compCoor );
+    Real ComputeSFactor( Real compCoor );
+    void InitDExp();
+    void InitCoef();
+    void Init();
+    Real CalDExp();
+    void SetPara( Real diff, Real & v_min, Real & v_max );
+    void ComputeEffectiveRatioTest();
+    void ComputeEffectiveRatio();
+    void ComputeEffectiveFactor();
+    void CopyFactor();
 };
 
 class SegmentCopy
 {
 public:
-	SegmentCopy();
-	~SegmentCopy();
+    SegmentCopy();
+    ~SegmentCopy();
 public:
-	IntField lineList;
-	IntField lowerIdList, upperIdList;
+    IntField lineList;
+    IntField lowerIdList, upperIdList;
 public:
-	void Read( AsciiFileRead * ioFile );
-	int GetNSegment() { return lineList.size(); }
-	int GetNPoint();
-	PointType & GetPoint( int id, int signFlag = 1 );
-	void FindSegmentAndLocalId( int id, int signFlag, int & segmentId, int & localId );
+    void Read( AsciiFileRead * ioFile );
+    int GetNSegment() { return lineList.size(); }
+    int GetNPoint();
+    PointType & GetPoint( int id, int signFlag = 1 );
+    void FindSegmentAndLocalId( int id, int signFlag, int & segmentId, int & localId );
 };
 
 void GetExponentialCoeff( Real targetRatio, Real cc, Real & coef );

@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -39,20 +39,20 @@ class NodeMesh;
 class F2FMap
 {
 public:
-	F2FMap();
-	~F2FMap();
+    F2FMap();
+    ~F2FMap();
 public:
-	PointBasic * pointBasic;
-	FaceSearchBasic * faceSearchBasic;
-	LinkField faceList1, faceList2;
-	map< int, int > face_pair;
+    PointBasic * pointBasic;
+    FaceSearchBasic * faceSearchBasic;
+    LinkField faceList1, faceList2;
+    map< int, int > face_pair;
 public:
-	void AddFacePair(int faceId1, int faceId2);
-	void AddFacePoint( CgIntField & fNodeId1, CgIntField & fNodeId2, NodeMesh *nodeMesh1, NodeMesh *nodeMesh2 );
-	int AddFacePoint( CgIntField & fNodeId, NodeMesh *nodeMesh, IntField & newFaceNodeId );
+    void AddFacePair(int faceId1, int faceId2);
+    void AddFacePoint( CgIntField & fNodeId1, CgIntField & fNodeId2, NodeMesh *nodeMesh1, NodeMesh *nodeMesh2 );
+    int AddFacePoint( CgIntField & fNodeId, NodeMesh *nodeMesh, IntField & newFaceNodeId );
 public:
-	void FindFace( RealField &xList, RealField &yList, RealField &zList, RealField &xxList, RealField &yyList, RealField &zzList );
-	int FindPeriodFace( int faceId );
+    void FindFace( RealField &xList, RealField &yList, RealField &zList, RealField &xxList, RealField &yyList, RealField &zzList );
+    int FindPeriodFace( int faceId );
 };
 
 extern F2FMap f2fmap;

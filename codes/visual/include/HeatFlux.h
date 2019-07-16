@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -29,27 +29,27 @@ BeginNameSpace( ONEFLOW )
 class SurfaceValue
 {
 public:
-	SurfaceValue();
-	~SurfaceValue();
+    SurfaceValue();
+    ~SurfaceValue();
 public:
-	RealField * var;
+    RealField * var;
 };
 
 class HeatFlux
 {
 public:
-	HeatFlux ();
-	~HeatFlux();
+    HeatFlux ();
+    ~HeatFlux();
 public:
-	HXVector< SurfaceValue * > heatflux;
-	HXVector< SurfaceValue * > fricflux;
-	IntField flag;
+    HXVector< SurfaceValue * > heatflux;
+    HXVector< SurfaceValue * > fricflux;
+    IntField flag;
     bool init_flag;
 public:
-	void Init();
+    void Init();
     void InitGlobal();
-	void Allocate();
-	void DeAllocate();
+    void Allocate();
+    void DeAllocate();
 };
 
 extern HeatFlux heat_flux;

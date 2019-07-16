@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -36,17 +36,17 @@ BeginNameSpace( ONEFLOW )
 Grid * CreateGrid( int gridType )
 {
     if ( gridType == ONEFLOW::UMESH )
-	{
-		Grid * grid = Grid::SafeClone( "UnsGrid" );
+    {
+        Grid * grid = Grid::SafeClone( "UnsGrid" );
         grid->Init();
         return grid;
-	}
-	else if ( gridType == ONEFLOW::SMESH )
-	{
+    }
+    else if ( gridType == ONEFLOW::SMESH )
+    {
         Grid * grid = Grid::SafeClone( "StrGrid" );
         grid->Init();
         return grid;
-	}
+    }
     cout << "No grid of this type\n";
     return 0;
 }

@@ -36,37 +36,37 @@ BeginNameSpace( ONEFLOW )
 
 Simulation::Simulation( int argc, char ** argv )
 {
-	args.resize(argc);
+    args.resize(argc);
 
-	cout << " args.size() = " << args.size() << "\n";
+    cout << " args.size() = " << args.size() << "\n";
 
     for ( int i = 0; i < argc; ++ i )
     {   
-		args[i] = argv[i];
+        args[i] = argv[i];
         cout<<"arguments["<<i<<"] is: " << args[ i ] << endl;
     }
 
-	if ( args.size() > 1 )
-	{
-		string prjName = args[1];
-		PrjStatus::SetPrjBaseDir( prjName );
-	}
+    if ( args.size() > 1 )
+    {
+        string prjName = args[1];
+        PrjStatus::SetPrjBaseDir( prjName );
+    }
 }
 
 Simulation::~Simulation()
 {
-	if (!args.empty()) 
-	{
-		args.clear();
-		args.shrink_to_fit();
-	};
+    if (!args.empty()) 
+    {
+        args.clear();
+        args.shrink_to_fit();
+    };
 }
 
 void Simulation::Run()
 {
-	this->PreProcess();
-	this->MainProcess();
-	this->PostProcess();
+    this->PreProcess();
+    this->MainProcess();
+    this->PostProcess();
 }
 
 void Simulation::PreProcess()
@@ -85,46 +85,46 @@ void Simulation::PostProcess()
 
 void Simulation::RunSimu()
 {
-	//设置oneflow需要执行的操作类型
-	simu_state.Init();
+    //设置oneflow需要执行的操作类型
+    simu_state.Init();
 
-	//根据任务类型调用不同的求解模块
-	const TaskEnum task = simu_state.Task();
+    //根据任务类型调用不同的求解模块
+    const TaskEnum task = simu_state.Task();
 
-	if (task != TaskEnum::FUN_TEST)
-	{
-		ConstructSystemMap();
-	}
+    if (task != TaskEnum::FUN_TEST)
+    {
+        ConstructSystemMap();
+    }
 
-	//根据不同的simutask值，执行不同的求解流程
-	switch (task)
-	{
-	case TaskEnum::SOLVE_FIELD:
-		FieldSimu();
-		break;
-	case TaskEnum::CREATE_GRID:
-		GenerateGrid();
-		break;
-	case TaskEnum::CREATE_WALL_DIST:
-		WalldistSimu();
-		break;
-	case TaskEnum::FUN_TEST:
-		FunTest();
-		break;
-	default:
-	{
-		cerr << "unknown simutask value!!" << endl;
-		exit(EXIT_FAILURE);
-	}
-	break;
-	}
+    //根据不同的simutask值，执行不同的求解流程
+    switch (task)
+    {
+    case TaskEnum::SOLVE_FIELD:
+        FieldSimu();
+        break;
+    case TaskEnum::CREATE_GRID:
+        GenerateGrid();
+        break;
+    case TaskEnum::CREATE_WALL_DIST:
+        WalldistSimu();
+        break;
+    case TaskEnum::FUN_TEST:
+        FunTest();
+        break;
+    default:
+    {
+        cerr << "unknown simutask value!!" << endl;
+        exit(EXIT_FAILURE);
+    }
+    break;
+    }
 }
 
 void Simulation::InitSimu()
 {
-	cout << "OneFlow running\n";
-	ONEFLOW::SetUpParallelEnvironment();
-	ONEFLOW::ReadControlInformation();
+    cout << "OneFlow running\n";
+    ONEFLOW::SetUpParallelEnvironment();
+    ONEFLOW::ReadControlInformation();
 }
 
 EndNameSpace

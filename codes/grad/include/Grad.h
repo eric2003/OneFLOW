@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -35,15 +35,15 @@ public:
     int nEqu;
     MRField * q;
     MRField * dqdx, * dqdy, * dqdz;
-	MRField * bdqdx, * bdqdy, * bdqdz;
+    MRField * bdqdx, * bdqdy, * bdqdz;
     string name, namex, namey, namez;
-	int istore;
+    int istore;
 public:
     virtual void Init(){};
     void CmpGrad();
     void CmpGradDebug();
     void SwapBcGrad();
-	void StoreBcGrad();
+    void StoreBcGrad();
 };
 
 EndNameSpace

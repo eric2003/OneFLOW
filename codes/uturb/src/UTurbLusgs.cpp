@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -53,8 +53,8 @@ UTurbLusgs::~UTurbLusgs()
 
 void UTurbLusgs::SingleSweep()
 {
-	this->LowerSweep();
-	this->UpperSweep();
+    this->LowerSweep();
+    this->UpperSweep();
 }
 
 void UTurbLusgs::Init()
@@ -77,12 +77,12 @@ void UTurbLusgs::ReadTmp()
     file.open( "turbtmpres.dat", ios_base::in | ios_base::binary );
 
     for ( int iCell = 0; iCell < ug.nTCell; ++ iCell )
-	{
-	    for ( int iEqu = 0; iEqu < turbcom.nEqu; ++ iEqu )
-	    {
+    {
+        for ( int iEqu = 0; iEqu < turbcom.nEqu; ++ iEqu )
+        {
             file.read( reinterpret_cast< char * >( & ( * uturbf.res )[ iEqu ][ iCell ] ), sizeof( double ) );
-	    }
-	}
+        }
+    }
     file.close();
     file.clear();
 }
@@ -99,54 +99,54 @@ void UTurbLusgs::LowerSweep()
 
         gcom.blank = ( * ug.blankf )[ ug.cId ];
 
-		if ( this->IsOversetCell() )
-		{
-			this->ZeroOversetCell();
-		}
-		else
-		{
-			this->PrepareSweep();
+        if ( this->IsOversetCell() )
+        {
+            this->ZeroOversetCell();
+        }
+        else
+        {
+            this->PrepareSweep();
 
-			this->ZeroFluxIncrement();
-		
-			this->SolveLowerCell();
+            this->ZeroFluxIncrement();
+        
+            this->SolveLowerCell();
 
-			this->CmpLowerChange();
-		}
+            this->CmpLowerChange();
+        }
 
-		this->Update();
+        this->Update();
     }
-	
-	//UploadInterfaceValue( grid, dqField, "dqField",  numberOfTotalEquations );
+    
+    //UploadInterfaceValue( grid, dqField, "dqField",  numberOfTotalEquations );
 }
 
 void UTurbLusgs::UpperSweep()
 {
     this->Init();
-	//this->LusgsBoundary();
-	//DownloadInterfaceValue( grid, dqField, "dqField",  numberOfTotalEquations );
-	
+    //this->LusgsBoundary();
+    //DownloadInterfaceValue( grid, dqField, "dqField",  numberOfTotalEquations );
+    
     for ( int cId = ug.nCell - 1; cId >= 0; -- cId )
     {
         ug.cId = cId;
         gcom.blank = ( * ug.blankf )[ ug.cId ];
 
-		if ( this->IsOversetCell() )
-		{
-			this->ZeroOversetCell();
-		}
-		else
-		{
-			this->PrepareSweep();
+        if ( this->IsOversetCell() )
+        {
+            this->ZeroOversetCell();
+        }
+        else
+        {
+            this->PrepareSweep();
 
-			this->ZeroFluxIncrement();
+            this->ZeroFluxIncrement();
 
-			this->SolveUpperCell();
+            this->SolveUpperCell();
 
-			this->CmpUpperChange();
-		}
+            this->CmpUpperChange();
+        }
 
-		this->Update();
+        this->Update();
     }
 
     //CmpTurbulentViscosity();
@@ -154,36 +154,36 @@ void UTurbLusgs::UpperSweep()
 
 void UTurbLusgs::SolveLowerCell()
 {
-	int fn = ( * ug.c2f )[ ug.cId ].size();
-	for ( int iFace = 0; iFace < fn; ++ iFace )
-	{
-		int fId = ( * ug.c2f )[ ug.cId ][ iFace ];
-		this->SolveLower( fId );
-	}
+    int fn = ( * ug.c2f )[ ug.cId ].size();
+    for ( int iFace = 0; iFace < fn; ++ iFace )
+    {
+        int fId = ( * ug.c2f )[ ug.cId ][ iFace ];
+        this->SolveLower( fId );
+    }
 }
 
 void UTurbLusgs::SolveUpperCell()
 {
-	int fn = ( * ug.c2f )[ ug.cId ].size();
-	for ( int iFace = 0; iFace < fn; ++ iFace )
-	{
-		int fId = ( * ug.c2f )[ ug.cId ][ iFace ];
-		this->SolveUpper( fId );
-	}
+    int fn = ( * ug.c2f )[ ug.cId ].size();
+    for ( int iFace = 0; iFace < fn; ++ iFace )
+    {
+        int fId = ( * ug.c2f )[ ug.cId ][ iFace ];
+        this->SolveUpper( fId );
+    }
 }
 
 void UTurbLusgs::SolveLower( int fId )
 {
-	if ( this->CanNotLowerSolve( fId ) ) return;
+    if ( this->CanNotLowerSolve( fId ) ) return;
 
-	this->Solve( fId, - 1 );
+    this->Solve( fId, - 1 );
 }
 
 void UTurbLusgs::SolveUpper( int fId )
 {
-	if ( this->CanNotUpperSolve( fId ) ) return;
+    if ( this->CanNotUpperSolve( fId ) ) return;
 
-	this->Solve( fId, - 1 );
+    this->Solve( fId, - 1 );
 }
 
 bool UTurbLusgs::CanNotLowerSolve( int fId )
@@ -217,13 +217,13 @@ void UTurbLusgs::Solve( int fId, int signValue )
     ug.lc = ( * ug.lcf )[ ug.fId ];
     ug.rc = ( * ug.rcf )[ ug.fId ];
 
-	this->SetMeshGeometry();
+    this->SetMeshGeometry();
 
-	this->PrepareData();
+    this->PrepareData();
 
-	this->GetStandardFluxIncrement( signValue );
+    this->GetStandardFluxIncrement( signValue );
 
-	this->AddFluxIncrement();
+    this->AddFluxIncrement();
 }
 
 void UTurbLusgs::SetMeshGeometry()
@@ -233,74 +233,74 @@ void UTurbLusgs::SetMeshGeometry()
 
 void UTurbLusgs::PrepareData()
 {
-	if ( gcom.swapflag )
-	{
-	    for ( int iEqu = 0; iEqu < turbcom.nEqu; ++ iEqu )
-	    {
-		    turblu.matrix[ iEqu ] = ( * uturbf.matrix_l )[ iEqu ][ ug.fId ];
-	    }
-	}
-	else
-	{
-	    for ( int iEqu = 0; iEqu < turbcom.nEqu; ++ iEqu )
-	    {
-		    turblu.matrix[ iEqu ] = ( * uturbf.matrix_r )[ iEqu ][ ug.fId ];
-	    }
-	}
+    if ( gcom.swapflag )
+    {
+        for ( int iEqu = 0; iEqu < turbcom.nEqu; ++ iEqu )
+        {
+            turblu.matrix[ iEqu ] = ( * uturbf.matrix_l )[ iEqu ][ ug.fId ];
+        }
+    }
+    else
+    {
+        for ( int iEqu = 0; iEqu < turbcom.nEqu; ++ iEqu )
+        {
+            turblu.matrix[ iEqu ] = ( * uturbf.matrix_r )[ iEqu ][ ug.fId ];
+        }
+    }
 
-	for ( int iEqu = 0; iEqu < turbcom.nEqu; ++ iEqu )
-	{
-		turblu.dqj[ iEqu ] = ( * uturbf.dq )[ iEqu ][ ug.rc ];
-	}
+    for ( int iEqu = 0; iEqu < turbcom.nEqu; ++ iEqu )
+    {
+        turblu.dqj[ iEqu ] = ( * uturbf.dq )[ iEqu ][ ug.rc ];
+    }
 
 }
 
 void UTurbLusgs::PrepareSweep()
 {
-	for ( int iEqu = 0; iEqu < turbcom.nEqu; ++ iEqu )
-	{
+    for ( int iEqu = 0; iEqu < turbcom.nEqu; ++ iEqu )
+    {
         gcom.blank = ( * ug.blankf )[ ug.cId ];
 
-		turblu.dqi[ iEqu ] = ( * uturbf.dq  )[ iEqu ][ ug.cId ]; //dqField的初值为0（守恒或者原始变量）
-		turblu.rhs[ iEqu ] = ( * uturbf.rhs )[ iEqu ][ ug.cId ]; //RHS还是存在RHS里面比较好
-	}
+        turblu.dqi[ iEqu ] = ( * uturbf.dq  )[ iEqu ][ ug.cId ]; //dqField的初值为0（守恒或者原始变量）
+        turblu.rhs[ iEqu ] = ( * uturbf.rhs )[ iEqu ][ ug.cId ]; //RHS还是存在RHS里面比较好
+    }
 
-	if ( turblu.numberOfSweeps > 1 )
-	{
-		for ( int iEqu = 0; iEqu < turbcom.nEqu; ++ iEqu )
-		{
-			turblu.dqi0[ iEqu ] = turblu.dqi[ iEqu ];
-			turblu.drhs[ iEqu ] = ( * uturbf.drhs )[ iEqu ][ ug.cId ];
+    if ( turblu.numberOfSweeps > 1 )
+    {
+        for ( int iEqu = 0; iEqu < turbcom.nEqu; ++ iEqu )
+        {
+            turblu.dqi0[ iEqu ] = turblu.dqi[ iEqu ];
+            turblu.drhs[ iEqu ] = ( * uturbf.drhs )[ iEqu ][ ug.cId ];
 
-			turblu.dqi[ iEqu ] = ( * uturbf.rhs )[ iEqu ][ ug.cId ] - turblu.drhs[ iEqu ];
-			( * unsf.dq )[ iEqu ][ ug.cId ] = turblu.dqi[ iEqu ];
-			turblu.drhs[ iEqu ] = 0.0;
-		}
-	}
+            turblu.dqi[ iEqu ] = ( * uturbf.rhs )[ iEqu ][ ug.cId ] - turblu.drhs[ iEqu ];
+            ( * unsf.dq )[ iEqu ][ ug.cId ] = turblu.dqi[ iEqu ];
+            turblu.drhs[ iEqu ] = 0.0;
+        }
+    }
 
-	for ( int iEqu = 0; iEqu < turbcom.nEqu; ++ iEqu )
-	{
-		turblu.radius[ iEqu ] = ( * uturbf.impsr )[ iEqu ][ ug.cId ];
-	}
+    for ( int iEqu = 0; iEqu < turbcom.nEqu; ++ iEqu )
+    {
+        turblu.radius[ iEqu ] = ( * uturbf.impsr )[ iEqu ][ ug.cId ];
+    }
 }
 
 void UTurbLusgs::Update()
 {
-	if ( turblu.numberOfSweeps > 1 )
-	{
+    if ( turblu.numberOfSweeps > 1 )
+    {
         for ( int iEqu = 0; iEqu < turbcom.nEqu; ++ iEqu )
         {
             ( * uturbf.dq   )[ iEqu ][ ug.cId ]  = turblu.dqi[ iEqu ];
             ( * uturbf.drhs )[ iEqu ][ ug.cId ]  = turblu.drhs[ iEqu ];
         }
-	}
-	else
-	{
-		for ( int iEqu = 0; iEqu < turbcom.nEqu; ++ iEqu )
-		{
+    }
+    else
+    {
+        for ( int iEqu = 0; iEqu < turbcom.nEqu; ++ iEqu )
+        {
             ( * uturbf.dq   )[ iEqu ][ ug.cId ]  = turblu.dqi[ iEqu ];
-		}
-	}
+        }
+    }
 }
 
 

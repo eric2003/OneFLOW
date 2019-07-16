@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -33,53 +33,53 @@ template < typename T, int N >
 class Multiarray
 {
 public:
-	typedef Multiarray< T, N > TArray;
+    typedef Multiarray< T, N > TArray;
 public:
     ArrayPointer< T > arrayPointer;
 public:
-	~Multiarray()
-	{
-	}
+    ~Multiarray()
+    {
+    }
 
-	Multiarray( const Range & r0 )
-	{
+    Multiarray( const Range & r0 )
+    {
         arrayPointer.Allocate( r0 );
-	}
+    }
 
-	Multiarray( const Range & r0, const Range & r1 )
-	{
+    Multiarray( const Range & r0, const Range & r1 )
+    {
         arrayPointer.Allocate( r0, r1 );
-	}
+    }
 
-	Multiarray( const Range & r0, const Range & r1, const Range & r2 )
-	{
+    Multiarray( const Range & r0, const Range & r1, const Range & r2 )
+    {
         arrayPointer.Allocate( r0, r1, r2 );
-	}
+    }
 
-	Multiarray( const Range & r0, const Range & r1, const Range & r2, const Range & r3 )
-	{
+    Multiarray( const Range & r0, const Range & r1, const Range & r2, const Range & r3 )
+    {
         arrayPointer.Allocate( r0, r1, r2, r3 );
-	}
+    }
 
-	Multiarray( T * dataPointer, const Range & r0 )
-	{
+    Multiarray( T * dataPointer, const Range & r0 )
+    {
         arrayPointer.Allocate( dataPointer, r0 );
-	}
+    }
 
-	Multiarray( T * dataPointer, const Range & r0, const Range & r1 )
-	{
+    Multiarray( T * dataPointer, const Range & r0, const Range & r1 )
+    {
         arrayPointer.Allocate( dataPointer, r0, r1 );
-	}
+    }
 
-	Multiarray( T * dataPointer, const Range & r0, const Range & r1, const Range & r2 )
-	{
+    Multiarray( T * dataPointer, const Range & r0, const Range & r1, const Range & r2 )
+    {
         arrayPointer.Allocate( dataPointer, r0, r1, r2 );
-	}
+    }
 
-	Multiarray( T * dataPointer, const Range & r0, const Range & r1, const Range & r2, const Range & r3 )
-	{
+    Multiarray( T * dataPointer, const Range & r0, const Range & r1, const Range & r2, const Range & r3 )
+    {
         arrayPointer.Allocate( dataPointer, r0, r1, r2, r3 );
-	}
+    }
 public:
     const T & operator()( int i0 ) const
     { 
@@ -88,17 +88,17 @@ public:
 
     T & operator()( int i0 )
     {
-		return arrayPointer.datap1[ i0 ];
-	}
-	
-	const T & operator()( int i0, int i1 ) const
+        return arrayPointer.datap1[ i0 ];
+    }
+    
+    const T & operator()( int i0, int i1 ) const
     { 
-		return arrayPointer.datap2[ i1 ][ i0 ];
+        return arrayPointer.datap2[ i1 ][ i0 ];
     }
 
     T & operator()( int i0, int i1 )
     {
-		return arrayPointer.datap2[ i1 ][ i0 ];
+        return arrayPointer.datap2[ i1 ][ i0 ];
     }
 
     const T & operator()( int i0, int i1, int i2 ) const
@@ -108,17 +108,17 @@ public:
 
     T & operator()( int i0, int i1, int i2 ) 
     {
-		return arrayPointer.datap3[ i2 ][ i1 ][ i0 ];
+        return arrayPointer.datap3[ i2 ][ i1 ][ i0 ];
     }
 
     const T & operator()( int i0, int i1, int i2, int i3 ) const
     {
-		return arrayPointer.datap4[ i3 ][ i2 ][ i1 ][ i0 ];
+        return arrayPointer.datap4[ i3 ][ i2 ][ i1 ][ i0 ];
     }
 
     T & operator()( int i0, int i1, int i2, int i3 ) 
     {
-		return arrayPointer.datap4[ i3 ][ i2 ][ i1 ][ i0 ];
+        return arrayPointer.datap4[ i3 ][ i2 ][ i1 ][ i0 ];
     }
 };
 

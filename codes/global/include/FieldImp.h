@@ -29,12 +29,12 @@ BeginNameSpace( ONEFLOW )
 class FieldProperty
 {
 public:
-	FieldProperty();
-	~FieldProperty();
+    FieldProperty();
+    ~FieldProperty();
 public:
-	std::map< string, int > data;
+    std::map< string, int > data;
 public:
-	void AddField( const string & fieldName, int nEqu );
+    void AddField( const string & fieldName, int nEqu );
     int GetNEqu( const string & fileName );
 };
 
@@ -43,38 +43,38 @@ class DataStorage;
 class IFieldProperty : public FieldProperty
 {
 public:
-	IFieldProperty();
-	~IFieldProperty();
+    IFieldProperty();
+    ~IFieldProperty();
 public:
-	void AllocateInterfaceField( int nIFace, DataStorage * dataStorage );
-	void DeAllocateInterfaceField( DataStorage * dataStorage );
-	void UploadInterfaceValue();
-	void DownloadInterfaceValue();
-	void UploadOversetInterfaceValue();
-	void DownloadOversetInterfaceValue();
+    void AllocateInterfaceField( int nIFace, DataStorage * dataStorage );
+    void DeAllocateInterfaceField( DataStorage * dataStorage );
+    void UploadInterfaceValue();
+    void DownloadInterfaceValue();
+    void UploadOversetInterfaceValue();
+    void DownloadOversetInterfaceValue();
 };
 
 class GFieldProperty
 {
 public:
-	GFieldProperty();
-	~GFieldProperty();
+    GFieldProperty();
+    ~GFieldProperty();
 public:
-	static std::map< string, int > data;
+    static std::map< string, int > data;
 public:
-	static void AddField( const string & fieldName, int nEqu );
-	static int GetNEqu( const string & fieldName );
+    static void AddField( const string & fieldName, int nEqu );
+    static int GetNEqu( const string & fieldName );
 };
 
 class FieldPropertyData
 {
 public:
-	FieldPropertyData();
-	~FieldPropertyData();
+    FieldPropertyData();
+    ~FieldPropertyData();
 public:
-	FieldProperty * bcField;
-	FieldProperty * faceField;
-	FieldProperty * innerField;
+    FieldProperty * bcField;
+    FieldProperty * faceField;
+    FieldProperty * innerField;
 };
 
 class FieldManager;
@@ -84,22 +84,22 @@ class UnsGrid;
 class FieldManager
 {
 public:
-	FieldManager();
-	~FieldManager();
+    FieldManager();
+    ~FieldManager();
 public:
-	IFieldProperty * iFieldProperty;
-	UsdPara  * usdPara;
+    IFieldProperty * iFieldProperty;
+    UsdPara  * usdPara;
 
-	FieldPropertyData * commManager;
-	FieldPropertyData * strManager;
-	FieldPropertyData * unsManager;
+    FieldPropertyData * commManager;
+    FieldPropertyData * strManager;
+    FieldPropertyData * unsManager;
 public:
-	void AddFaceField( const string & fieldName, int nEqu );
-	void AddInnerField( const string & fieldName, int nEqu );
-	void AddBcField( const string & fieldName, int nEqu );
-	void AddInnerField( const string & fieldName, int nEqu, int type );
-	void AddFaceField( const string & fieldName, int nEqu, int type );
-	void AddBcField( const string & fieldName, int nEqu, int type );
+    void AddFaceField( const string & fieldName, int nEqu );
+    void AddInnerField( const string & fieldName, int nEqu );
+    void AddBcField( const string & fieldName, int nEqu );
+    void AddInnerField( const string & fieldName, int nEqu, int type );
+    void AddFaceField( const string & fieldName, int nEqu, int type );
+    void AddBcField( const string & fieldName, int nEqu, int type );
 public:
     void SetField( const string & fieldName, Real value );
     void AllocateInnerAndBcField();
@@ -113,15 +113,15 @@ public:
 class FieldFactory
 {
 public:
-	FieldFactory();
-	~FieldFactory();
+    FieldFactory();
+    ~FieldFactory();
 public:
-	static map< int, FieldManager * > * data;
+    static map< int, FieldManager * > * data;
 public:
-	static void Init();
-	static void AddFieldManager( int sTid );
-	static FieldManager * GetFieldManager( int sTid );
-	static void FreeFieldManager();
+    static void Init();
+    static void AddFieldManager( int sTid );
+    static FieldManager * GetFieldManager( int sTid );
+    static void FreeFieldManager();
 };
 
 class UnsGrid;

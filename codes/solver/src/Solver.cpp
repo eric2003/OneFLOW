@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -47,15 +47,15 @@ Solver * Solver::SafeClone( const string & type )
         exit( 0 );
     }
 
-	return iter->second->Clone();
+    return iter->second->Clone();
 }
 
 Solver * Solver::Register( const string & type, Solver * clone )
 {
-	if ( ! Solver::classMap )
-	{
-		Solver::classMap = new map < string, Solver * >();
-	}
+    if ( ! Solver::classMap )
+    {
+        Solver::classMap = new map < string, Solver * >();
+    }
 
     map < string, Solver * >::iterator iter = Solver::classMap->find( type );
     if ( iter == Solver::classMap->end() )

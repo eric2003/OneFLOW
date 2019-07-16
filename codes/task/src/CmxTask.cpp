@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -43,10 +43,10 @@ void CmdBasicAction( int funcType )
 {
     SolverState::msgId = TaskState::task->taskId;
     HXClone * cloneClass = ONEFLOW::GetClass( SolverState::msgId, SolverState::tid, funcType );
-	if ( cloneClass )
-	{
+    if ( cloneClass )
+    {
         cloneClass->Solve();
-	}
+    }
 }
 
 void CmdAction()
@@ -63,38 +63,38 @@ void GenerateCmdList( int msgId )
 {
     int sTid = SolverState::tid;
 
-	HXRegister * hxRegister = RegisterFactory::GetRegister( sTid, MESG_FUNC );
+    HXRegister * hxRegister = RegisterFactory::GetRegister( sTid, MESG_FUNC );
 
-	string msgName = MessageMap::GetMsgName( msgId );
+    string msgName = MessageMap::GetMsgName( msgId );
 
-	HXClone * cloneClass = hxRegister->GetClass( msgName );
+    HXClone * cloneClass = hxRegister->GetClass( msgName );
 
-	if ( cloneClass )
-	{
+    if ( cloneClass )
+    {
         cloneClass->Solve();
-	}
-	else
-	{
-		ONEFLOW::AddCmdToList( msgName );
-	}
+    }
+    else
+    {
+        ONEFLOW::AddCmdToList( msgName );
+    }
 }
 
 void AddCmdToList( const string & msgName )
 {
-	int msgId = MessageMap::GetMsgId( msgName );
+    int msgId = MessageMap::GetMsgId( msgName );
 
-	ONEFLOW::AddCmdToList( msgId, SolverState::tid );
+    ONEFLOW::AddCmdToList( msgId, SolverState::tid );
 }
 
 void AddCmdToList( int msgId, int sTid )
 {
-	ONEFLOW::CreateTask( msgId, sTid );
+    ONEFLOW::CreateTask( msgId, sTid );
 
     ONEFLOW::SetFile( msgId, sTid );
 
-	SimpleCmd * cmd = new SimpleCmd();
+    SimpleCmd * cmd = new SimpleCmd();
 
-	cmd->AddTask( TaskState::task );
+    cmd->AddTask( TaskState::task );
 
     CMD::AddCmd( cmd );
 }
@@ -102,7 +102,7 @@ void AddCmdToList( int msgId, int sTid )
 void SetTaskAction()
 {
     TaskState::task->action     = & ONEFLOW::CmdAction;
-	TaskState::task->sendAction = & ONEFLOW::CmdAction;
+    TaskState::task->sendAction = & ONEFLOW::CmdAction;
     TaskState::task->recvAction = & ONEFLOW::CmdActionNext;
 }
 
@@ -110,14 +110,14 @@ void CreateTask( int msgId, int sTid )
 {
     HXClone * cloneClass = ONEFLOW::GetClass( msgId, sTid, TASK_FUNC );
 
-	if ( cloneClass )
-	{
+    if ( cloneClass )
+    {
         cloneClass->Solve();
-	}
-	else
-	{
+    }
+    else
+    {
         TaskState::task = new SimpleTask();
-	}
+    }
 
     TaskState::task->taskId = msgId;
     TaskState::task->taskName = MessageMap::GetMsgName( msgId );
@@ -140,34 +140,34 @@ HXClone * GetClass( int msgId, int sTid, int msgType )
 {
     HXRegister * hxRegister = RegisterFactory::GetRegister( sTid, msgType );
 
-	string msgName = MessageMap::GetMsgName( msgId );
+    string msgName = MessageMap::GetMsgName( msgId );
 
-	HXClone * cloneClass = hxRegister->GetClass( msgName );
+    HXClone * cloneClass = hxRegister->GetClass( msgName );
 
     return cloneClass;
 }
 
 void SsSgTask( const string & taskName )
 {
-	int taskCode = MessageMap::GetMsgId( taskName );
+    int taskCode = MessageMap::GetMsgId( taskName );
 
-	ONEFLOW::GenerateCmdList( taskCode );
+    ONEFLOW::GenerateCmdList( taskCode );
 
     CMD::ExecuteCmd();
 }
 
 void MsMgTask( const string & taskname )
 {
-	for ( int sid = 0; sid < SolverState::nSolver; ++ sid )
-	{
+    for ( int sid = 0; sid < SolverState::nSolver; ++ sid )
+    {
         SolverState::SetTidById( sid );
 
-		for ( int gl = 0; gl < GridState::nGrids; ++ gl )
-		{
+        for ( int gl = 0; gl < GridState::nGrids; ++ gl )
+        {
             GridState::SetGridLevel( gl );
-			ONEFLOW::SsSgTask( taskname );
-		}
-	}
+            ONEFLOW::SsSgTask( taskname );
+        }
+    }
 }
 
 

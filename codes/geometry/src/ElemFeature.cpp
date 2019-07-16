@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -50,7 +50,7 @@ EState::~EState()
 
 ElemFeature::ElemFeature()
 {
-	this->eType = new IntField();
+    this->eType = new IntField();
 }
 
 ElemFeature::~ElemFeature()
@@ -62,30 +62,30 @@ void ElemFeature::ScanElements()
 {
     int nElement = this->eType->size();
 
-	cout << " nElement = " << nElement << endl;
+    cout << " nElement = " << nElement << endl;
 
     int nIo = 200000;
 
-	int iCount = 0;
-	for ( int eId = 0; eId < nElement; ++ eId )
-	{
-		int eType = ( * this->eType )[ eId ];
-		++ iCount;
-		if ( ! ONEFLOW::IsBasicVolumeElementType( eType ) )
-		{
-			continue;
-		}
-		//cout << "eId = " << eId << "\n";
+    int iCount = 0;
+    for ( int eId = 0; eId < nElement; ++ eId )
+    {
+        int eType = ( * this->eType )[ eId ];
+        ++ iCount;
+        if ( ! ONEFLOW::IsBasicVolumeElementType( eType ) )
+        {
+            continue;
+        }
+        //cout << "eId = " << eId << "\n";
 
-		if ( eId % nIo == 0 ) 
+        if ( eId % nIo == 0 ) 
         {
             cout << " eId = " << eId << " Total Element Number = " << nElement << endl;
         }
 
-		this->face_solver->ScanElementFace( this->eNodeId[ eId ], eType, eId );
-	}
+        this->face_solver->ScanElementFace( this->eNodeId[ eId ], eType, eId );
+    }
 
-	cout << " ScanElements Face number = " << this->face_solver->GetNSimpleFace() << endl;
+    cout << " ScanElements Face number = " << this->face_solver->GetNSimpleFace() << endl;
 }
 
 

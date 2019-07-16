@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -32,22 +32,22 @@ class Solver;
 class SolverMap
 {
 public:
-	SolverMap();
-	~SolverMap();
+    SolverMap();
+    ~SolverMap();
 public:
     static IntField tid;
-	static map< int, int > tid2Id;
-	static map< int, int > id2Tid;
-	static HXVector< Solver * > strSolver;
-	static HXVector< Solver * > unsSolver;
+    static map< int, int > tid2Id;
+    static map< int, int > id2Tid;
+    static HXVector< Solver * > strSolver;
+    static HXVector< Solver * > unsSolver;
 public:
-	static void CreateSolvers();
-	static void CreateSolvers( int gridType );
-	static void FreeSolverMap();
-	static void FreeSolverMap( int gridType );
-	static int GetId( int sTid );
-	static int GetTid( int sid );
-	static void AddSolverInfo( int sTid, int sid );
+    static void CreateSolvers();
+    static void CreateSolvers( int gridType );
+    static void FreeSolverMap();
+    static void FreeSolverMap( int gridType );
+    static int GetId( int sTid );
+    static int GetTid( int sid );
+    static void AddSolverInfo( int sTid, int sid );
     static Solver * GetSolver( int id, int gridType );
 protected:
     static void AddTid2Id( int sTid, int sid );
@@ -57,17 +57,17 @@ protected:
 class SolverNameClass
 {
 public:
-	SolverNameClass();
-	~SolverNameClass();
+    SolverNameClass();
+    ~SolverNameClass();
 public:
-	static StringField unsSolverNameList;
-	static StringField strSolverNameList;
-	static bool flag;
+    static StringField unsSolverNameList;
+    static StringField strSolverNameList;
+    static bool flag;
 public:
-	static void Init();
-	static void ReadSolverNames();
-	static void ReadSolverNames( StringField & solverNameList );
-	static StringField & GetSolverNames( int gridType );
+    static void Init();
+    static void ReadSolverNames();
+    static void ReadSolverNames( StringField & solverNameList );
+    static StringField & GetSolverNames( int gridType );
 };
 
 EndNameSpace

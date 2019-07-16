@@ -32,33 +32,33 @@ class ActionMapImp;
 class ActionMap
 {
 public:
-	ActionMap();
-	~ActionMap();
+    ActionMap();
+    ~ActionMap();
 public:
-	static ActionMapImp * imp;
+    static ActionMapImp * imp;
 public:
-	static int    GetActionId( const string & name );
-	static string GetActionName( int id );
-	static void ReadFile( const string & fileName );
+    static int    GetActionId( const string & name );
+    static string GetActionName( int id );
+    static void ReadFile( const string & fileName );
 public:
-	static void Init();
+    static void Init();
     static void Free();
 };
 
 class ActionMapImp
 {
 public:
-	ActionMapImp();
-	~ActionMapImp();
+    ActionMapImp();
+    ~ActionMapImp();
 public:
-	map< string, int > * nameMap;
-	map< int, string > * idMap;
+    map< string, int > * nameMap;
+    map< int, string > * idMap;
 public:
-	void Register( const string & name );
-	void Unregister( const string & name );
-	int    GetActionId( const string & name );
-	string GetActionName( int id );
-	void ReadFile( const string & fileName );
+    void Register( const string & name );
+    void Unregister( const string & name );
+    int    GetActionId( const string & name );
+    string GetActionName( int id );
+    void ReadFile( const string & fileName );
 };
 
 EndNameSpace

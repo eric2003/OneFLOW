@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -68,17 +68,17 @@ void RegisterFieldTask()
 void LoadResiduals( StringField & data )
 {
     int sTid = SolverState::tid;
-	int fieldId = ( * fieldIdMap )[ data[ 0 ] ];
+    int fieldId = ( * fieldIdMap )[ data[ 0 ] ];
 
     UnsGrid * grid = Zone::GetUnsGrid();
 
-	SolverInfo * solverInfo = SolverInfoFactory::GetSolverInfo( sTid );
-	string & residualName = solverInfo->residualName;
+    SolverInfo * solverInfo = SolverInfoFactory::GetSolverInfo( sTid );
+    string & residualName = solverInfo->residualName;
 
     MRField * resField = ONEFLOW::GetFieldPointer< MRField >( grid, residualName );
     MRField * rhsField = FieldHome::GetUnsField( fieldId );
 
-	NegField( resField, rhsField );
+    NegField( resField, rhsField );
 
 }
 
@@ -86,49 +86,49 @@ void ZeroResiduals( StringField & data )
 {
     int sTid = SolverState::tid;
 
-	SolverInfo * solverInfo = SolverInfoFactory::GetSolverInfo( sTid );
-	string & fieldName = solverInfo->residualName;
+    SolverInfo * solverInfo = SolverInfoFactory::GetSolverInfo( sTid );
+    string & fieldName = solverInfo->residualName;
 
-	FieldHome::SetField( fieldName, zero );
+    FieldHome::SetField( fieldName, zero );
 }
 
 void LoadQ( StringField & data )
 {
     string & fName = data[ 0 ];
 
-	int sTid = SolverState::tid;
+    int sTid = SolverState::tid;
     int fieldId = ( * fieldIdMap )[ fName ];
 
-	SolverInfo * solverInfo = SolverInfoFactory::GetSolverInfo( sTid );
+    SolverInfo * solverInfo = SolverInfoFactory::GetSolverInfo( sTid );
 
-	string & fieldName = solverInfo->gradString[ 0 ];
+    string & fieldName = solverInfo->gradString[ 0 ];
 
-	FieldHome::SetField( fieldId, fieldName, FLOW_RHS_ORDER );
+    FieldHome::SetField( fieldId, fieldName, FLOW_RHS_ORDER );
 }
 
 void SetField( StringField & data )
 {
-	int sTid = SolverState::tid;
-	string & fieldName   = data[ 0 ];
-	string & valueString = data[ 1 ];
+    int sTid = SolverState::tid;
+    string & fieldName   = data[ 0 ];
+    string & valueString = data[ 1 ];
 
-	Real value = StringToDigit< Real >( valueString );
+    Real value = StringToDigit< Real >( valueString );
     SolverInfo * solverInfo = SolverInfoFactory::GetSolverInfo( sTid );
 
-	FieldHome::SetField( fieldName, value );
+    FieldHome::SetField( fieldName, value );
 }
 
 void StoreRHS( StringField & data )
 {
     string & fName = data[ 0 ];
 
-	int sTid = SolverState::tid;
+    int sTid = SolverState::tid;
     int fieldId = ( * fieldIdMap )[ fName ];
 
     SolverInfo * solverInfo = SolverInfoFactory::GetSolverInfo( sTid );
-	string & residualName = solverInfo->residualName;
+    string & residualName = solverInfo->residualName;
 
-	FieldHome::SetField( fieldId, residualName, FLOW_RHS_ORDER );
+    FieldHome::SetField( fieldId, residualName, FLOW_RHS_ORDER );
 }
 
 EndNameSpace

@@ -48,42 +48,42 @@ void HXBcast( T * field, int nElement, int pid );
 class Parallel
 {
 public:
-	Parallel();
-	~Parallel();
+    Parallel();
+    ~Parallel();
 public:
-	static void SetDefaultParallelParameter();
-	static void SetServerid( int serverid );
-	static int GetServerid();
-	static void SetPid( int pid );
-	static int GetPid();
-	static void SetNProc( int nProc );
-	static int GetNProc();
-	static void TestSayHelloFromEveryProcess();
-	static void SetDefaultTag( int defaultTagIn );
-	static int GetDefaultTag();
-	static void CollectString( string & cs, int rootId, int tag );
-	static bool IsServer();
+    static void SetDefaultParallelParameter();
+    static void SetServerid( int serverid );
+    static int GetServerid();
+    static void SetPid( int pid );
+    static int GetPid();
+    static void SetNProc( int nProc );
+    static int GetNProc();
+    static void TestSayHelloFromEveryProcess();
+    static void SetDefaultTag( int defaultTagIn );
+    static int GetDefaultTag();
+    static void CollectString( string & cs, int rootId, int tag );
+    static bool IsServer();
     static int GetFid();
     static void GetSrPid( int zid, int & sPid, int & rPid );
 public:
     static int zoneMode;
     static int mode;
-	static int pid;
-	static int nProc;
-	static int serverid;
-	static int numberOfZones;
+    static int pid;
+    static int nProc;
+    static int serverid;
+    static int numberOfZones;
 protected:
-	static int defaultTag;
+    static int defaultTag;
 };
 
 template< typename T >
 void HXReadBcast( fstream & file, T * field, int nElement, int pid )
 {
-	if ( nElement <= 0 ) return;
+    if ( nElement <= 0 ) return;
 
     if ( Parallel::pid == pid )
     {
-		ONEFLOW::HXRead( & file, field, nElement );
+        ONEFLOW::HXRead( & file, field, nElement );
     }
 
     if ( Parallel::mode == 0 )
@@ -96,9 +96,9 @@ void HXReadBcast( fstream & file, T * field, int nElement, int pid )
 template< typename T >
 void HXBcast( T * field, int nElement, int pid )
 {
-	if ( nElement <= 0 ) return;
+    if ( nElement <= 0 ) return;
 #ifdef HX_PARALLEL
-	int bufferSize = nElement * sizeof( T );
+    int bufferSize = nElement * sizeof( T );
     MPI_Bcast( field, bufferSize, MPI_CHAR, pid, MPI_COMM_WORLD );
 #endif
 }
@@ -108,7 +108,7 @@ void HXBcastString( string & cs, int pid );
 template< typename T >
 void HXSwapData( T * field, int nElement, int spid, int rpid, int tag = 0 )
 {
-	if ( nElement <= 0 ) return;
+    if ( nElement <= 0 ) return;
 
     if ( spid == rpid ) return;
 

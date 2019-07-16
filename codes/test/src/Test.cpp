@@ -30,12 +30,12 @@ BeginNameSpace( ONEFLOW )
 
 Test::Test()
 {
-	;
+    ;
 }
 
 Test::~Test()
 {
-	;
+    ;
 }
 
 void Test::Run()
@@ -52,10 +52,10 @@ void Test::Run()
     title.push_back( "\"vencat\"" );
     title.push_back( "\"gvencat\"" );
 
-	for ( UInt i = 0; i < title.size(); ++ i )
-	{
-		file << title[ i ] << endl;
-	}
+    for ( UInt i = 0; i < title.size(); ++ i )
+    {
+        file << title[ i ] << endl;
+    }
     int nj = 10;
     for ( int j = 0; j < nj; ++ j )
     {

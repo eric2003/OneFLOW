@@ -31,37 +31,37 @@ BeginNameSpace( ONEFLOW )
 class DataPage
 {
 public:
-	DataPage();
-	~DataPage();
+    DataPage();
+    ~DataPage();
 public:
-	typedef vector< char > CharMemory;
+    typedef vector< char > CharMemory;
 public:
-	UInt GetSize();
-	void Read ( void * data, UInt dataSize );
-	void Read ( void * data, UInt dataSize, UInt position );
-	void Write( void * data, UInt dataSize );
-	void Write( void * data, UInt dataSize, UInt position );
-	void ReadFile ( fstream & file );
-	void WriteFile( fstream & file );
-	void ToString( string & str );
+    UInt GetSize();
+    void Read ( void * data, UInt dataSize );
+    void Read ( void * data, UInt dataSize, UInt position );
+    void Write( void * data, UInt dataSize );
+    void Write( void * data, UInt dataSize, UInt position );
+    void ReadFile ( fstream & file );
+    void WriteFile( fstream & file );
+    void ToString( string & str );
 
-	char * GetBeginDataPointer();
-	char * GetCurrentDataPointer();
+    char * GetBeginDataPointer();
+    char * GetCurrentDataPointer();
 
-	void MoveToBegin() { MoveToPosition( 0 ); };
-	void MoveToEnd  () { currPos = GetSize(); };
-	void ReSize( UInt newSize );
-	void Send( int pId, int tag );
-	void Recv( int pId, int tag );
-	void Bcast( int rootid );
+    void MoveToBegin() { MoveToPosition( 0 ); };
+    void MoveToEnd  () { currPos = GetSize(); };
+    void ReSize( UInt newSize );
+    void Send( int pId, int tag );
+    void Recv( int pId, int tag );
+    void Bcast( int rootid );
 protected:
-	void MoveToPosition( UInt position );
-	void MoveForwardPosition( UInt dataSize );
+    void MoveToPosition( UInt position );
+    void MoveForwardPosition( UInt dataSize );
 protected:
-	UInt currPos;
-	CharMemory * dataMemory;
+    UInt currPos;
+    CharMemory * dataMemory;
 public:
-	char * GetDataPointer( int begin ) { return &( ( * dataMemory )[ begin ] ); }
+    char * GetDataPointer( int begin ) { return &( ( * dataMemory )[ begin ] ); }
 };
 
 EndNameSpace

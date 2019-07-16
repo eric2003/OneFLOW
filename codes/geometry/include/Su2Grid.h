@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -69,8 +69,8 @@ public:
     ~Marker(){};
 public:
     string name;
-	string bcName;
-	int cgns_bcType;
+    string bcName;
+    int cgns_bcType;
     LinkField elems;
     IntField eTypes;
     int nElem;
@@ -136,30 +136,30 @@ public:
 class Su2Bc
 {
 public:
-	Su2Bc();
-	~Su2Bc();
+    Su2Bc();
+    ~Su2Bc();
 public:
-	set< string > bcList;
-	map<string, string> bcMap;
-	map<string, int> bcNameToValueMap;
+    set< string > bcList;
+    map<string, string> bcMap;
+    map<string, int> bcNameToValueMap;
 public:
-	void Init();
-	void AddBc( string &geoName, string &bcName);
-	void Process(StringField& markerBCNameList, StringField& markerNameList);
-	string GetBcName( string& geoName );
-	int GetCgnsBc(string& geoName);
+    void Init();
+    void AddBc( string &geoName, string &bcName);
+    void Process(StringField& markerBCNameList, StringField& markerNameList);
+    string GetBcName( string& geoName );
+    int GetCgnsBc(string& geoName);
 };
 
 class Su2Grid
 {
 public:
-	Su2Grid();
-	~Su2Grid();
+    Su2Grid();
+    ~Su2Grid();
 public:
     void ReadSu2Grid( GridMediator * gridMediator );
     void ReadSu2GridAscii( string & fileName );
     void Su2ToOneFlowGrid();
-	void MarkBoundary(string& su2cfgFile);
+    void MarkBoundary(string& su2cfgFile);
 public:
     int ndim;
     int nPoin, nElem;
@@ -170,7 +170,7 @@ public:
     RealField xN, yN, zN;
     MarkerManager mmark;
     VolumeSecManager volSec;
-	Su2Bc su2Bc;
+    Su2Bc su2Bc;
 public:
     int nZone;
 };

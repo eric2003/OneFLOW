@@ -47,11 +47,11 @@ MultiBlock::~MultiBlock()
 
 void MultiBlock::ReadMultiBlockGrid()
 {
-	StringField gridFileList;
+    StringField gridFileList;
 
     string gridFileName = ONEFLOW::GetGridFileName();
 
-	gridFileList.push_back( gridFileName );
+    gridFileList.push_back( gridFileName );
 
     Zone::ReadGrid( gridFileList );
 }
@@ -125,7 +125,7 @@ void MultiBlock::AllocWallDist()
 void MultiBlock::InitMultiZoneTopo()
 {
     ONEFLOW::InitInterfaceTopo();
-	ONEFLOW::InitSlipFaceTopo();
+    ONEFLOW::InitSlipFaceTopo();
     MultiBlock::InitOversetTopo();
 }
 
@@ -135,7 +135,7 @@ void MultiBlock::InitOversetTopo()
 
 string GetGridFileName()
 {
-	return ONEFLOW::GetDataValue< string >( "gridFileName" );
+    return ONEFLOW::GetDataValue< string >( "gridFileName" );
 }
 
 void WalldistSimu()

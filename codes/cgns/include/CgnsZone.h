@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -48,34 +48,34 @@ class CgnsBase;
 class CgnsZone
 {
 public:
-	CgnsZone( CgnsBase * cgnsBase );
-	~CgnsZone();
+    CgnsZone( CgnsBase * cgnsBase );
+    ~CgnsZone();
 public:
     CgnsBase * cgnsBase;
     NodeMesh * nodeMesh;
     CgnsMultiSection * multiSection;
     CgnsBcRegionProxy * bcRegionProxy;
 
-	CgInt nNode, nCell;
+    CgInt nNode, nCell;
     int nCoor;
 
-	ZoneType_t cgnsZoneType;
+    ZoneType_t cgnsZoneType;
 
-	int zId;
-	CgInt irmin[ 3 ], irmax[ 3 ], cellSize[ 3 ];
-	CgInt isize[ 3 ][ 3 ];
+    int zId;
+    CgInt irmin[ 3 ], irmax[ 3 ], cellSize[ 3 ];
+    CgInt isize[ 3 ][ 3 ];
 
-	string coorName;
-	string zoneName;
+    string coorName;
+    string zoneName;
 
     IntField l2g;
 
     Real minLen, maxLen;
 public:
-	void FreeMesh();
+    void FreeMesh();
 public:
     void Create();
-	void SetPeriodicBc();
+    void SetPeriodicBc();
     void InitElement( GridElem * ge );
     void ConstructCgnsGridPoints( PointFactory * point_factory );
     void SetElementTypeAndNode( ElemFeature  * elem_feature );
@@ -103,18 +103,18 @@ public:
     void ReadCgnsGridCoordinates();
     void ReadCgnsGridCoordinates( CgnsZone * cgnsZoneIn );
     void ReadCgnsGridBoundary();
-	void ProcessPeriodicBc();
+    void ProcessPeriodicBc();
 public:
     void AllocateUnsElemConn( CgnsZone * cgnsZoneIn );
     void GenerateUnsVolElemConn( CgnsZone * cgnsZoneIn );
     void GenerateUnsBcElemConn ( CgnsZone * cgnsZoneIn );
     void GenerateUnsBcCondConn ( CgnsZone * cgnsZoneIn );
-	void SetElemPosition();
+    void SetElemPosition();
     void CreateCgnsBcRegion( CgnsZone * cgnsZoneIn );
     void InitL2g();
-	CgInt GetNI() const;
-	CgInt GetNJ() const;
-	CgInt GetNK() const;
+    CgInt GetNI() const;
+    CgInt GetNJ() const;
+    CgInt GetNK() const;
     void FillCgnsData( CgnsData * cgnsData );
 };
 

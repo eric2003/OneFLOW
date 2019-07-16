@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -31,16 +31,16 @@ class CurveLine;
 class CurveMachine
 {
 public:
-	CurveMachine();
-	~CurveMachine();
+    CurveMachine();
+    ~CurveMachine();
 public:
-	HXVector< CurveLine * > curveList;
+    HXVector< CurveLine * > curveList;
 public:
-	void AddLine( int p1, int p2 );
-	void AddCircle( int id1, int id2, int id3 );
-	void AddParabolic( int id1, int id2 );
+    void AddLine( int p1, int p2 );
+    void AddCircle( int id1, int id2, int id3 );
+    void AddParabolic( int id1, int id2 );
 public:
-	CurveLine * GetCurve( int curveId );
+    CurveLine * GetCurve( int curveId );
 };
 
 extern CurveMachine curve_Machine;

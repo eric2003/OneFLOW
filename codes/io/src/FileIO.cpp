@@ -42,124 +42,124 @@ VirtualFile::VirtualFile( DataBook * databook )
 
 void VirtualFile::Read( void * data, streamsize size )
 {
-	char * charData = reinterpret_cast< char * > ( data );
-	if ( this->type == 0 )
-	{
+    char * charData = reinterpret_cast< char * > ( data );
+    if ( this->type == 0 )
+    {
         ONEFLOW::HXRead( this->file, charData, size );
-	}
-	else
-	{
+    }
+    else
+    {
         ONEFLOW::HXRead( this->databook, charData, size );
-	}
+    }
 }
 
 void VirtualFile::Write( void * data, streamsize size )
 {
-	char * charData = reinterpret_cast< char * > ( data );
+    char * charData = reinterpret_cast< char * > ( data );
 
-	if ( this->type == 0 )
-	{
+    if ( this->type == 0 )
+    {
         ONEFLOW::HXWrite( this->file, charData, size );
-	}
-	else
-	{
+    }
+    else
+    {
         ONEFLOW::HXWrite( this->databook, charData, size );
-	}
+    }
 }
 
 void VirtualFile::MarkSectionBegin()
 {
-	this->sectionBegin = this->GetCurrentPosition();
+    this->sectionBegin = this->GetCurrentPosition();
 }
 
 void VirtualFile::MarkSectionEnd()
 {
-	this->sectionEnd = this->GetCurrentPosition();
+    this->sectionEnd = this->GetCurrentPosition();
 }
 
 void VirtualFile::MoveToPosition( streamsize sectionPosition )
 {
-	file->seekp( sectionPosition );
+    file->seekp( sectionPosition );
 }
 
 void VirtualFile::MoveToSectionBegin()
 {
-	this->MoveToPosition( this->GetSectionBegin() );
+    this->MoveToPosition( this->GetSectionBegin() );
 }
 
 void VirtualFile::MoveToSectionEnd()
 {
-	this->MoveToPosition( this->GetSectionEnd() );
+    this->MoveToPosition( this->GetSectionEnd() );
 }
 
 void VirtualFile::BeginWriteWork()
 {
-	if ( this->type == 0 )
-	{
-		this->MarkSectionBegin();
-		this->ReservePlaceholder();
-	}
+    if ( this->type == 0 )
+    {
+        this->MarkSectionBegin();
+        this->ReservePlaceholder();
+    }
 }
 
 void VirtualFile::EndWriteWork()
 {
-	if ( this->type == 0 )
-	{
-		this->MarkSectionEnd();
-		this->MoveToSectionBegin();
-		this->WriteDataLength();
-		this->MoveToSectionEnd();
-	}
+    if ( this->type == 0 )
+    {
+        this->MarkSectionEnd();
+        this->MoveToSectionBegin();
+        this->WriteDataLength();
+        this->MoveToSectionEnd();
+    }
 }
 
 void VirtualFile::BeginReadWork()
 {
-	if ( this->type == 0 )
-	{
-		this->MarkSectionBegin();
-		this->ReadDataLength();
-	}
-	else
-	{
-		this->databook->MoveToBegin();
-	}
+    if ( this->type == 0 )
+    {
+        this->MarkSectionBegin();
+        this->ReadDataLength();
+    }
+    else
+    {
+        this->databook->MoveToBegin();
+    }
 }
 
 void VirtualFile::EndReadWork()
 {
-	if ( this->type == 0 )
-	{
-		this->MarkSectionEnd();
-	}
+    if ( this->type == 0 )
+    {
+        this->MarkSectionEnd();
+    }
 }
 
 void VirtualFile::ReadDataLength()
 {
-	this->Read( & dataLength, sizeof( streamsize ) );
+    this->Read( & dataLength, sizeof( streamsize ) );
 }
 
 void VirtualFile::WriteDataLength()
 {
-	dataLength = GetSectionEnd() - GetSectionBegin() - sizeof( streamsize );
+    dataLength = GetSectionEnd() - GetSectionBegin() - sizeof( streamsize );
 
-	this->Write( & dataLength, sizeof( streamsize ) );
+    this->Write( & dataLength, sizeof( streamsize ) );
 }
 
 void VirtualFile::ReservePlaceholder()
 {
-	this->Write( & sectionBegin, sizeof( streamsize ) );
+    this->Write( & sectionBegin, sizeof( streamsize ) );
 }
 
 streamsize VirtualFile::GetCurrentPosition()
 {
-	if ( this->type == 0 )
-	{
-		return file->tellp();
-	}
-	else
-	{
-		return 0;
-	}
+    if ( this->type == 0 )
+    {
+        return file->tellp();
+    }
+    else
+    {
+        return 0;
+    }
 }
 
 

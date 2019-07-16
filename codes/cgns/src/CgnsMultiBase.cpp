@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -45,14 +45,14 @@ CgnsMultiBase::~CgnsMultiBase()
 
 int CgnsMultiBase::GetSystemZoneType()
 {
-	IntSet zoneTypeSet;
+    IntSet zoneTypeSet;
 
-	for ( int iZone = 0; iZone < nTZones; ++ iZone )
-	{
-		CgnsZone * cgnsZone = this->GetZone( iZone );
+    for ( int iZone = 0; iZone < nTZones; ++ iZone )
+    {
+        CgnsZone * cgnsZone = this->GetZone( iZone );
         int zoneType = cgnsZone->cgnsZoneType;
         zoneTypeSet.insert( zoneType );
-	}
+    }
 
     if ( zoneTypeSet.size() == 1 )
     {
@@ -64,7 +64,7 @@ int CgnsMultiBase::GetSystemZoneType()
 
 void CgnsMultiBase::ReadCgnsGrid()
 {
-	this->ReadCgnsGrid( grid_para.gridFile );
+    this->ReadCgnsGrid( grid_para.gridFile );
 }
 
 void CgnsMultiBase::ReadCgnsGrid( const string & fileName )
@@ -78,9 +78,9 @@ void CgnsMultiBase::ReadCgnsGrid( const string & fileName )
 
 void CgnsMultiBase::OpenCgnsFile( const string & fileName, int cgnsOpenMode )
 {
-	//Open the CGNS for reading and check if the file was found.
+    //Open the CGNS for reading and check if the file was found.
     string prjFileName = GetPrjFileName( fileName );
-	if ( cg_open( prjFileName.c_str(), cgnsOpenMode, & this->fileId ) != CG_OK )
+    if ( cg_open( prjFileName.c_str(), cgnsOpenMode, & this->fileId ) != CG_OK )
     {
         Stop( cg_get_error() );
     }
@@ -95,9 +95,9 @@ void CgnsMultiBase::CloseCgnsFile()
 
 void CgnsMultiBase::ReadNumCgnsBase()
 {
-	//Determine the of bases in the grid
-	cg_nbases( this->fileId, & this->nBases );
-	cout << "   Total number of CGNS Base = " << this->nBases << "\n";
+    //Determine the of bases in the grid
+    cg_nbases( this->fileId, & this->nBases );
+    cout << "   Total number of CGNS Base = " << this->nBases << "\n";
 }
 
 void CgnsMultiBase::ReadNumCgnsBase( CgnsMultiBase * strCgnsMultiBase )
@@ -109,109 +109,109 @@ void CgnsMultiBase::ReadNumCgnsBase( CgnsMultiBase * strCgnsMultiBase )
 void CgnsMultiBase::ReadGeneralizedCgnsZoneScale()
 {
     for ( int bId = 1; bId <= this->nBases; ++ bId )
-	{
+    {
         CgnsBase * cgnsBase = baseVector[ bId - 1 ];
 
-		cgnsBase->ReadCgnsBaseBasicInfo();
+        cgnsBase->ReadCgnsBaseBasicInfo();
 
-		cgnsBase->ReadNumberOfCgnsZones();
-	}
+        cgnsBase->ReadNumberOfCgnsZones();
+    }
 }
 
 void CgnsMultiBase::ReadGeneralizedCgnsZoneScale( CgnsMultiBase * strCgnsMultiBase )
 {
     for ( int bId = 1; bId <= this->nBases; ++ bId )
-	{
+    {
         CgnsBase * cgnsBase = this->baseVector[ bId - 1 ];
         CgnsBase * cgnsBaseIn = strCgnsMultiBase->baseVector[ bId - 1 ];
 
-		cgnsBase->ReadCgnsBaseBasicInfo( cgnsBaseIn );
+        cgnsBase->ReadCgnsBaseBasicInfo( cgnsBaseIn );
 
-		cgnsBase->ReadNumberOfCgnsZones( cgnsBaseIn );
-	}
+        cgnsBase->ReadNumberOfCgnsZones( cgnsBaseIn );
+    }
 }
 
 void CgnsMultiBase::ReadCgnsMultiBase()
 {
-	this->ReadNumCgnsBase();
+    this->ReadNumCgnsBase();
 
-	this->AllocateCgnsBase();
+    this->AllocateCgnsBase();
 
-	this->InitCgnsBase();
+    this->InitCgnsBase();
 
-	this->ReadGeneralizedCgnsZoneScale();
+    this->ReadGeneralizedCgnsZoneScale();
 
-	this->ComputeNumberOfTotalZones();
+    this->ComputeNumberOfTotalZones();
 
-	this->AllocateCgnsZonesInEachCgnsBase();
+    this->AllocateCgnsZonesInEachCgnsBase();
 
-	this->InitAllCgnsZonesInEachCgnsBase();
+    this->InitAllCgnsZonesInEachCgnsBase();
 
-	this->ReadAllCgnsZonesInEachCgnsBase();
+    this->ReadAllCgnsZonesInEachCgnsBase();
 }
 
 void CgnsMultiBase::ReadCgnsMultiBase( CgnsMultiBase * strCgnsMultiBase )
 {
-	this->ReadNumCgnsBase( strCgnsMultiBase );
+    this->ReadNumCgnsBase( strCgnsMultiBase );
 
-	this->AllocateCgnsBase();
+    this->AllocateCgnsBase();
 
-	this->InitCgnsBase();
+    this->InitCgnsBase();
 
-	this->ReadGeneralizedCgnsZoneScale( strCgnsMultiBase );
+    this->ReadGeneralizedCgnsZoneScale( strCgnsMultiBase );
 
-	this->ComputeNumberOfTotalZones();
+    this->ComputeNumberOfTotalZones();
 
-	this->AllocateCgnsZonesInEachCgnsBase();
+    this->AllocateCgnsZonesInEachCgnsBase();
 
-	this->InitAllCgnsZonesInEachCgnsBase();
+    this->InitAllCgnsZonesInEachCgnsBase();
 
-	this->ReadAllCgnsZonesInEachCgnsBase( strCgnsMultiBase );
+    this->ReadAllCgnsZonesInEachCgnsBase( strCgnsMultiBase );
 
 }
 
 void CgnsMultiBase::ReadAllCgnsZonesInEachCgnsBase()
 {
-	for ( int bId = 1; bId <= this->nBases; ++ bId )
-	{
+    for ( int bId = 1; bId <= this->nBases; ++ bId )
+    {
         int id = bId - 1;
 
-		CgnsBase * cgnsBase = baseVector[ id ];
+        CgnsBase * cgnsBase = baseVector[ id ];
 
-		cgnsBase->ReadFamilySpecifiedBc();
+        cgnsBase->ReadFamilySpecifiedBc();
 
-		cgnsBase->ReadAllCgnsZones();
-	}
+        cgnsBase->ReadAllCgnsZones();
+    }
 }
 
 void CgnsMultiBase::ReadAllCgnsZonesInEachCgnsBase( CgnsMultiBase * strCgnsMultiBase )
 {
-	for ( int bId = 1; bId <= this->nBases; ++ bId )
-	{
+    for ( int bId = 1; bId <= this->nBases; ++ bId )
+    {
         int id = bId - 1;
 
-		CgnsBase * cgnsBase = baseVector[ id ];
+        CgnsBase * cgnsBase = baseVector[ id ];
         CgnsBase * cgnsBaseIn = strCgnsMultiBase->baseVector[ id ];
 
-		cgnsBase->ReadAllCgnsZones( cgnsBaseIn );
-	}
+        cgnsBase->ReadAllCgnsZones( cgnsBaseIn );
+    }
 }
 
 void CgnsMultiBase::Create( int nZones )
 {
-	this->InitDefaultCgnsBase();
+    this->InitDefaultCgnsBase();
 
-	this->AllocateCgnsBase();
+    this->AllocateCgnsBase();
 
-	this->InitCgnsBase();
+    this->InitCgnsBase();
 
-	this->SetGeneralizedCgnsZoneScale( nZones );
+    this->SetGeneralizedCgnsZoneScale( nZones );
 
-	this->ComputeNumberOfTotalZones();
+    this->ComputeNumberOfTotalZones();
 
-	this->AllocateCgnsZonesInEachCgnsBase();
+    this->AllocateCgnsZonesInEachCgnsBase();
 
-	this->InitAllCgnsZonesInEachCgnsBase();
+    this->InitAllCgnsZonesInEachCgnsBase();
 }
 
 void CgnsMultiBase::InitDefaultCgnsBase()
@@ -222,23 +222,23 @@ void CgnsMultiBase::InitDefaultCgnsBase()
 
 void CgnsMultiBase::AllocateCgnsBase()
 {
-	zid1.resize( this->nBases );
-	zid2.resize( this->nBases );
+    zid1.resize( this->nBases );
+    zid2.resize( this->nBases );
 
-	baseVector.resize( this->nBases );
+    baseVector.resize( this->nBases );
 
-	for ( int bId = 1; bId <= this->nBases; ++ bId )
-	{
-		CgnsBase * cgnsBase = new CgnsBase();
+    for ( int bId = 1; bId <= this->nBases; ++ bId )
+    {
+        CgnsBase * cgnsBase = new CgnsBase();
 
-		baseVector[ bId - 1 ] = cgnsBase;
-	}
+        baseVector[ bId - 1 ] = cgnsBase;
+    }
 }
 
 void CgnsMultiBase::InitCgnsBase()
 {
-	for ( int bId = 1; bId <= this->nBases; ++ bId )
-	{
+    for ( int bId = 1; bId <= this->nBases; ++ bId )
+    {
         CgnsBase * cgnsBase = baseVector[ bId - 1 ];
         cgnsBase->fileId = this->fileId;
         cgnsBase->baseId = bId;
@@ -247,54 +247,54 @@ void CgnsMultiBase::InitCgnsBase()
 
 void CgnsMultiBase::SetGeneralizedCgnsZoneScale( int nZones )
 {
-	for ( int bId = 1; bId <= this->nBases; ++ bId )
-	{
+    for ( int bId = 1; bId <= this->nBases; ++ bId )
+    {
         CgnsBase * cgnsBase = baseVector[ bId - 1 ];
 
-		cgnsBase->SetDefaultCgnsBaseBasicInformation();
+        cgnsBase->SetDefaultCgnsBaseBasicInformation();
 
         cgnsBase->nZones = nZones;
-	}
+    }
 }
 
 void CgnsMultiBase::ComputeNumberOfTotalZones()
 {
-	this->nTZones = 0;
+    this->nTZones = 0;
 
-	for ( int bId = 1; bId <= this->nBases; ++ bId )
-	{
+    for ( int bId = 1; bId <= this->nBases; ++ bId )
+    {
         int id = bId - 1;
-		CgnsBase * cgnsBase = baseVector[ id ];
+        CgnsBase * cgnsBase = baseVector[ id ];
 
-	    this->zid1[ id ] = this->nTZones;
-	    this->zid2[ id ] = this->nTZones + cgnsBase->nZones - 1;
+        this->zid1[ id ] = this->nTZones;
+        this->zid2[ id ] = this->nTZones + cgnsBase->nZones - 1;
 
-		this->nTZones += cgnsBase->nZones;
-	}
+        this->nTZones += cgnsBase->nZones;
+    }
 }
 
 void CgnsMultiBase::AllocateCgnsZonesInEachCgnsBase()
 {
-	for ( int bId = 1; bId <= this->nBases; ++ bId )
-	{
+    for ( int bId = 1; bId <= this->nBases; ++ bId )
+    {
         int id = bId - 1;
 
-		CgnsBase * cgnsBase = baseVector[ id ];
+        CgnsBase * cgnsBase = baseVector[ id ];
 
-		cgnsBase->AllocateAllCgnsZonesInCurrentCgnsBase();
-	}
+        cgnsBase->AllocateAllCgnsZonesInCurrentCgnsBase();
+    }
 }
 
 void CgnsMultiBase::InitAllCgnsZonesInEachCgnsBase()
 {
-	for ( int bId = 1; bId <= this->nBases; ++ bId )
-	{
+    for ( int bId = 1; bId <= this->nBases; ++ bId )
+    {
         int id = bId - 1;
 
-		CgnsBase * cgnsBase = baseVector[ id ];
+        CgnsBase * cgnsBase = baseVector[ id ];
 
-		cgnsBase->InitAllCgnsZonesInCurrentCgnsBase();
-	}
+        cgnsBase->InitAllCgnsZonesInCurrentCgnsBase();
+    }
 }
 
 void CgnsMultiBase::ConvertStrCgns2UnsCgnsGrid( CgnsMultiBase * strCgnsMultiBase )
@@ -304,29 +304,29 @@ void CgnsMultiBase::ConvertStrCgns2UnsCgnsGrid( CgnsMultiBase * strCgnsMultiBase
 
 CgnsZone * CgnsMultiBase::GetZone( int iZone )
 {
-	int bId = this->FindBaseId( iZone );
+    int bId = this->FindBaseId( iZone );
 
-	int z1 = zid1[ bId - 1 ];
+    int z1 = zid1[ bId - 1 ];
 
     CgnsZone * cgnsZone = baseVector[ bId - 1 ]->cgnsZones[ iZone - z1 ]; 
 
-	return cgnsZone;
+    return cgnsZone;
 }
 
 int CgnsMultiBase::FindBaseId( int iZone )
 {
-	for ( int bId = 1; bId <= this->nBases; ++ bId )
-	{
-		int z1 = zid1[ bId - 1 ];
-		int z2 = zid2[ bId - 1 ];
+    for ( int bId = 1; bId <= this->nBases; ++ bId )
+    {
+        int z1 = zid1[ bId - 1 ];
+        int z2 = zid2[ bId - 1 ];
 
-		if ( ( z1 <= iZone ) && ( iZone <= z2 ) )
-		{
-			return bId;
-		}
-	}
+        if ( ( z1 <= iZone ) && ( iZone <= z2 ) )
+        {
+            return bId;
+        }
+    }
 
-	return - 1;
+    return - 1;
 }
 #endif
 EndNameSpace

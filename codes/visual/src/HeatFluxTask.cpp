@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -61,13 +61,13 @@ HeatFluxTask::~HeatFluxTask()
 
 void HeatFluxTask::Run()
 {
-	if ( ns_ctrl.isowallbc == 0 ) return;
-	this->AllocVariable();
-	this->CollectWallFaceNode();
-	this->ConstructPointIndex();
-	this->CollectWallFaceValue();
-	this->CmpNodeValue();
-	this->VisualizeWallNodeValue();
+    if ( ns_ctrl.isowallbc == 0 ) return;
+    this->AllocVariable();
+    this->CollectWallFaceNode();
+    this->ConstructPointIndex();
+    this->CollectWallFaceValue();
+    this->CmpNodeValue();
+    this->VisualizeWallNodeValue();
 }
 
 void HeatFluxTask::AllocVariable()
@@ -83,38 +83,38 @@ void HeatFluxTask::CollectWallFaceNode()
 {
     ActionState::dataBook = this->dataBook;
 
-	for ( int zId = 0; zId < ZoneState::nZones; ++ zId )
-	{
+    for ( int zId = 0; zId < ZoneState::nZones; ++ zId )
+    {
         ZoneState::zid = zId;
 
-		if ( ZoneState::pid[ zId ] == Parallel::pid )
-		{
-			ONEFLOW::CollectWallFaceNode();
-		}
+        if ( ZoneState::pid[ zId ] == Parallel::pid )
+        {
+            ONEFLOW::CollectWallFaceNode();
+        }
 
         HXBcast( ActionState::dataBook, ZoneState::pid[ zId ] );
 
-		AddWallFaceNode( wallManager, zId );
-	}
+        AddWallFaceNode( wallManager, zId );
+    }
 }
 
 void HeatFluxTask::CollectWallFaceValue()
 {
     ActionState::dataBook = this->dataBook;
 
-	for ( int zId = 0; zId < ZoneState::nZones; ++ zId )
-	{
+    for ( int zId = 0; zId < ZoneState::nZones; ++ zId )
+    {
         ZoneState::zid = zId;
 
-		if ( ZoneState::pid[ zId ] == Parallel::pid )
-		{
-			ONEFLOW::CollectWallFaceValue();
-		}
+        if ( ZoneState::pid[ zId ] == Parallel::pid )
+        {
+            ONEFLOW::CollectWallFaceValue();
+        }
 
         HXBcast( ActionState::dataBook, ZoneState::pid[ zId ] );
 
-		AddWallFaceValue( wallManager, zId );
-	}
+        AddWallFaceValue( wallManager, zId );
+    }
 }
 
 void HeatFluxTask::ConstructPointIndex()
@@ -129,17 +129,17 @@ void HeatFluxTask::CmpNodeValue()
 
 void HeatFluxTask::VisualizeWallNodeValue()
 {
-	fstream file;
+    fstream file;
     ONEFLOW::OpenPrjFile( file, ctrl.heatfluxFile, ios_base::out );
 
-	int numberOfSubData = wallManager->patch.size();
-	int iCount = 0;
-	for ( int iData = 0; iData < numberOfSubData; ++ iData )
-	{
-		FaceJoint * basicWall = wallManager->patch[ iData ];
-		if ( basicWall->isValid ) iCount ++;
-		basicWall->Visual( file );
-	}
+    int numberOfSubData = wallManager->patch.size();
+    int iCount = 0;
+    for ( int iData = 0; iData < numberOfSubData; ++ iData )
+    {
+        FaceJoint * basicWall = wallManager->patch[ iData ];
+        if ( basicWall->isValid ) iCount ++;
+        basicWall->Visual( file );
+    }
     CloseFile( file );
 }
 
@@ -152,87 +152,87 @@ void CollectWallFaceNode()
 
     ActionState::dataBook->MoveToBegin();
 
-	HXWrite( ActionState::dataBook, nSolidCell );
+    HXWrite( ActionState::dataBook, nSolidCell );
 
-	if ( nSolidCell <= 0 ) return;
+    if ( nSolidCell <= 0 ) return;
 
     WallStructure::PointLink ptLink;
 
     RealField & x = grid->nodeMesh->xN;
-	RealField & y = grid->nodeMesh->yN;
-	RealField & z = grid->nodeMesh->zN;
+    RealField & y = grid->nodeMesh->yN;
+    RealField & z = grid->nodeMesh->zN;
 
     LinkField & f2n = grid->faceTopo->f2n;
     IntField & bcType = grid->faceTopo->bcManager->bcRecord->bcType;
 
-	int nBFace = bcType.size();
+    int nBFace = bcType.size();
 
-	for ( int iFace = 0; iFace < nBFace; ++ iFace )
-	{
-		int bc_type = bcType[ iFace ];
+    for ( int iFace = 0; iFace < nBFace; ++ iFace )
+    {
+        int bc_type = bcType[ iFace ];
 
-		if ( bc_type == BC::SOLID_SURFACE )
-		{
-			WallStructure::PointField ptList;
+        if ( bc_type == BC::SOLID_SURFACE )
+        {
+            WallStructure::PointField ptList;
             int nNode = f2n[ iFace ].size();
-			for ( int iNode = 0; iNode < nNode; ++ iNode )
-			{
-				int index = f2n[ iFace ][ iNode ];
-				Real x0 = x[ index ];
-				Real y0 = y[ index ];
-				Real z0 = z[ index ];
+            for ( int iNode = 0; iNode < nNode; ++ iNode )
+            {
+                int index = f2n[ iFace ][ iNode ];
+                Real x0 = x[ index ];
+                Real y0 = y[ index ];
+                Real z0 = z[ index ];
 
-				WallStructure::PointType pt( x0, y0, z0 );
-				ptList.push_back( pt );
-			}
-			ptLink.push_back( ptList );
-		}
-	}
+                WallStructure::PointType pt( x0, y0, z0 );
+                ptList.push_back( pt );
+            }
+            ptLink.push_back( ptList );
+        }
+    }
 
-	HXWrite( ActionState::dataBook, ptLink );
+    HXWrite( ActionState::dataBook, ptLink );
 }
 
 void AddWallFaceNode( FaceJointManager * walldata, int iZone )
 {
     ActionState::dataBook->MoveToBegin();
-	int nSolidCell;
-	HXRead( ActionState::dataBook, nSolidCell );
+    int nSolidCell;
+    HXRead( ActionState::dataBook, nSolidCell );
     
-	WallStructure::PointLink ptLink;
+    WallStructure::PointLink ptLink;
 
-	ptLink.resize( nSolidCell );
-	HXRead( ActionState::dataBook, ptLink );
+    ptLink.resize( nSolidCell );
+    HXRead( ActionState::dataBook, ptLink );
 
-	if ( nSolidCell > 0 )
-	{
-		FaceJoint * global = walldata->global;
-		FaceJoint * local = walldata->patch[ iZone ];
-		local->isValid = true;
-		global->isValid = true;
-		local->AddFacePoint( nSolidCell, ptLink );
-		global->AddFacePoint( nSolidCell, ptLink );
-	}
+    if ( nSolidCell > 0 )
+    {
+        FaceJoint * global = walldata->global;
+        FaceJoint * local = walldata->patch[ iZone ];
+        local->isValid = true;
+        global->isValid = true;
+        local->AddFacePoint( nSolidCell, ptLink );
+        global->AddFacePoint( nSolidCell, ptLink );
+    }
 }
 
 void AddWallFaceValue( FaceJointManager * walldata, int iZone )
 {
     ActionState::dataBook->MoveToBegin();
-	int nSolidCell;
-	HXRead( ActionState::dataBook, nSolidCell );
+    int nSolidCell;
+    HXRead( ActionState::dataBook, nSolidCell );
 
-	RealField fcv;
+    RealField fcv;
 
-	fcv.resize( nSolidCell );
-	HXRead( ActionState::dataBook, fcv );
+    fcv.resize( nSolidCell );
+    HXRead( ActionState::dataBook, fcv );
 
-	if ( nSolidCell > 0 )
-	{
-		FaceJoint * global = walldata->global;
-		FaceJoint * local  = walldata->patch[ iZone ];
+    if ( nSolidCell > 0 )
+    {
+        FaceJoint * global = walldata->global;
+        FaceJoint * local  = walldata->patch[ iZone ];
 
-		global->AddFaceCenterValue( nSolidCell, fcv );
-		local->AddFaceCenterValue( nSolidCell, fcv );
-	}
+        global->AddFaceCenterValue( nSolidCell, fcv );
+        local->AddFaceCenterValue( nSolidCell, fcv );
+    }
 }
 
 void CollectWallFaceValue()
@@ -247,16 +247,16 @@ void CollectWallFaceValue()
 
     HXWrite( ActionState::dataBook, nSolidCell );
 
-	if ( nSolidCell == 0 ) return;
+    if ( nSolidCell == 0 ) return;
 
     int zId = ZoneState::zid;
 
     SurfaceValue * heat_sur = heat_flux.heatflux[ zId ];
-	SurfaceValue * fric_sur = heat_flux.fricflux[ zId ];
+    SurfaceValue * fric_sur = heat_flux.fricflux[ zId ];
 
     RealField & hf = * heat_sur->var;
 
-	HXWrite( ActionState::dataBook, hf );
+    HXWrite( ActionState::dataBook, hf );
 }
 
 

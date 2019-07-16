@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -40,69 +40,69 @@ TurbUpdate::~TurbUpdate()
 
 void TurbUpdate::CmpFlowField2Equ()
 {
-	for ( int iEqu = 0; iEqu < turbcom.nEqu; ++ iEqu )
-	{
-		turbcom.q[ iEqu ] = turbcom.q0[ iEqu ] + turbcom.dq[ iEqu ] / turbcom.rho;
-	}
+    for ( int iEqu = 0; iEqu < turbcom.nEqu; ++ iEqu )
+    {
+        turbcom.q[ iEqu ] = turbcom.q0[ iEqu ] + turbcom.dq[ iEqu ] / turbcom.rho;
+    }
 
-	turbcom.q[ IKE ] = MAX( turbcom.q [ IKE ], turbcom.kelim );
-	turbcom.q[ IKW ] = MAX( turbcom.q [ IKW ], turbcom.kwlim );
+    turbcom.q[ IKE ] = MAX( turbcom.q [ IKE ], turbcom.kelim );
+    turbcom.q[ IKW ] = MAX( turbcom.q [ IKW ], turbcom.kwlim );
 
-	if ( turbcom.transition_model == ITReGama ) 
-	{
-		turbcom.q[ ITGama ] = MIN( turbcom.q [ ITGama ], turbcom.kGamaLim );
-		turbcom.q[ ITRect ] = MAX( turbcom.q [ ITRect ], turbcom.kRectLim );
-	}
+    if ( turbcom.transition_model == ITReGama ) 
+    {
+        turbcom.q[ ITGama ] = MIN( turbcom.q [ ITGama ], turbcom.kGamaLim );
+        turbcom.q[ ITRect ] = MAX( turbcom.q [ ITRect ], turbcom.kRectLim );
+    }
 }
 
 void TurbUpdate::CmpFlowField1Equ()
 {
-	for ( int iEqu = 0; iEqu < turbcom.nEqu; ++ iEqu )
-	{
+    for ( int iEqu = 0; iEqu < turbcom.nEqu; ++ iEqu )
+    {
         Real qOld  = turbcom.q0[ iEqu ];
-		Real dqNew = turbcom.dq[ iEqu ];
-		Real qNew  = qOld + dqNew;
-		qNew = ( one - turbcom.crelax ) * qOld + turbcom.crelax * qNew;
+        Real dqNew = turbcom.dq[ iEqu ];
+        Real qNew  = qOld + dqNew;
+        qNew = ( one - turbcom.crelax ) * qOld + turbcom.crelax * qNew;
 
-		turbcom.q[ iEqu ] = qNew;
-	}
+        turbcom.q[ iEqu ] = qNew;
+    }
 }
 
 void TurbUpdate::ModifyValue1Equ()
 {
-	if ( turbcom.q[ ISA ] < 0.0 )
-	{
+    if ( turbcom.q[ ISA ] < 0.0 )
+    {
         ++ turbcom.nneg;
 
-		this->SmoothTurbulencePoint();
+        this->SmoothTurbulencePoint();
 
-		if ( turbcom.q[ ISA ] < 0.0 )
-		{
-			turbcom.q[ ISA ] = turbcom.inflow[ ISA ];
-		}
-	}
+        if ( turbcom.q[ ISA ] < 0.0 )
+        {
+            turbcom.q[ ISA ] = turbcom.inflow[ ISA ];
+        }
+    }
 
-	turbcom.xsi   = ABS( turbcom.q[ ISA ] ) / ( turbcom.visl / turbcom.rho + SMALL );
-	turbcom.xsi3  = POWER3( turbcom.xsi );
-	turbcom.fv1  = turbcom.xsi3 / ( turbcom.xsi3 + turbcom.cv13 );
+    turbcom.xsi   = ABS( turbcom.q[ ISA ] ) / ( turbcom.visl / turbcom.rho + SMALL );
+    turbcom.xsi3  = POWER3( turbcom.xsi );
+    turbcom.fv1  = turbcom.xsi3 / ( turbcom.xsi3 + turbcom.cv13 );
 
-	Real nuMax =  turbcom.maxvistratio * turbcom.visl / ( turbcom.rho * turbcom.fv1 );
+    Real nuMax =  turbcom.maxvistratio * turbcom.visl / ( turbcom.rho * turbcom.fv1 );
 
-	if ( turbcom.q[ ISA ] > nuMax )
-	{
-		this->SmoothTurbulencePoint();
+    if ( turbcom.q[ ISA ] > nuMax )
+    {
+        this->SmoothTurbulencePoint();
 
-		if ( turbcom.q[ ISA ] > nuMax )
-		{
-			turbcom.q[ ISA ] = nuMax;
-		}
+        if ( turbcom.q[ ISA ] > nuMax )
+        {
+            turbcom.q[ ISA ] = nuMax;
+        }
 
-		++ turbcom.npos;
-	}
+        ++ turbcom.npos;
+    }
 
     if ( turbcom.maxvist < turbcom.q[ ISA ] )
     {
-		turbcom.maxvist = turbcom.q[ ISA ];
+        turbcom.maxvist = turbcom.q[ ISA ];
     }
 }
 

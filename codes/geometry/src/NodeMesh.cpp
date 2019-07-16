@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -94,9 +94,9 @@ void NodeMesh::ComputeMinMaxBox()
 
 void NodeMesh::AddPoint( Real xp, Real yp, Real zp )
 {
-	this->xN.push_back( xp );
-	this->yN.push_back( yp );
-	this->zN.push_back( zp );
+    this->xN.push_back( xp );
+    this->yN.push_back( yp );
+    this->zN.push_back( zp );
 }
 
 

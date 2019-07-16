@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -54,82 +54,82 @@ void UTurbUpdate::UpdateFlowField( int sTid )
 
     if ( turbcom.nEqu == 1 )
     {
-		this->UpdateFlowField1Equ();
+        this->UpdateFlowField1Equ();
     }
-	else if ( turbcom.nEqu >= 2 )
+    else if ( turbcom.nEqu >= 2 )
     {
-		this->UpdateFlowField2Equ();
+        this->UpdateFlowField2Equ();
     }
 }
 
 void UTurbUpdate::UpdateFlowField1Equ()
 {
-	this->UpdateFlowField1EquStd();
+    this->UpdateFlowField1EquStd();
 }
 
 void UTurbUpdate::UpdateFlowField2Equ()
 {
     for ( int cId = 0; cId < ug.nCell; ++ cId )
-	{
+    {
         ug.cId = cId;
 
-		this->PrepareData2Equ();
+        this->PrepareData2Equ();
 
-		this->CmpFlowField2Equ();
+        this->CmpFlowField2Equ();
 
-		this->UpdateValue();
-	}
+        this->UpdateValue();
+    }
 }
 
 void UTurbUpdate::UpdateFlowField1EquStd()
 {
     for ( int cId = 0; cId < ug.nCell; ++ cId )
-	{
+    {
         ug.cId = cId;
 
-		this->PrepareData1Equ();
+        this->PrepareData1Equ();
 
-		this->CmpFlowField1Equ();
+        this->CmpFlowField1Equ();
 
-		this->UpdateValue();
-	}
+        this->UpdateValue();
+    }
 
 }
 
 void UTurbUpdate::UpdateFlowField2EquStd()
 {
     for ( int cId = 0; cId < ug.nCell; ++ cId )
-	{
+    {
         ug.cId = cId;
 
-		this->PrepareData2Equ();
+        this->PrepareData2Equ();
 
-		this->CmpFlowField2Equ();
+        this->CmpFlowField2Equ();
 
-		this->UpdateValue();
-	}
+        this->UpdateValue();
+    }
 }
 
 void UTurbUpdate::UpdateValue()
 {
-	for ( int iEqu = 0; iEqu < turbcom.nEqu; ++ iEqu )
-	{
-		( * uturbf.q )[ iEqu ][ ug.cId  ] = turbcom.q [ iEqu ];
-	}
+    for ( int iEqu = 0; iEqu < turbcom.nEqu; ++ iEqu )
+    {
+        ( * uturbf.q )[ iEqu ][ ug.cId  ] = turbcom.q [ iEqu ];
+    }
 }
 
 void UTurbUpdate::PrepareData1Equ()
 {
-	for ( int iEqu = 0; iEqu < turbcom.nEqu; ++ iEqu )
-	{
-		turbcom.q [ iEqu ] = ( * uturbf.q )[ iEqu ][ ug.cId ];
-		turbcom.q0[ iEqu ] = ( * uturbf.q )[ iEqu ][ ug.cId ];
-	}
+    for ( int iEqu = 0; iEqu < turbcom.nEqu; ++ iEqu )
+    {
+        turbcom.q [ iEqu ] = ( * uturbf.q )[ iEqu ][ ug.cId ];
+        turbcom.q0[ iEqu ] = ( * uturbf.q )[ iEqu ][ ug.cId ];
+    }
 
-	for ( int iEqu = 0; iEqu < turbcom.nEqu; ++ iEqu )
-	{
-		turbcom.dq[ iEqu ] = ( * uturbf.dq )[ iEqu ][ ug.cId ];
-	}
+    for ( int iEqu = 0; iEqu < turbcom.nEqu; ++ iEqu )
+    {
+        turbcom.dq[ iEqu ] = ( * uturbf.dq )[ iEqu ][ ug.cId ];
+    }
 
     turbcom.rho = ABS( ( * uturbf.q_ns )[ IDX::IR ][ ug.cId ] ) + SMALL;
     turbcom.visl = ( * uturbf.visl )[ 0 ][ ug.cId ];
@@ -137,16 +137,16 @@ void UTurbUpdate::PrepareData1Equ()
 
 void UTurbUpdate::PrepareData2Equ()
 {
-	for ( int iEqu = 0; iEqu < turbcom.nEqu; ++ iEqu )
-	{
-		turbcom.q [ iEqu ] = ( * uturbf.q )[ iEqu ][ ug.cId ];
-		turbcom.q0[ iEqu ] = ( * uturbf.q )[ iEqu ][ ug.cId ];
-	}
+    for ( int iEqu = 0; iEqu < turbcom.nEqu; ++ iEqu )
+    {
+        turbcom.q [ iEqu ] = ( * uturbf.q )[ iEqu ][ ug.cId ];
+        turbcom.q0[ iEqu ] = ( * uturbf.q )[ iEqu ][ ug.cId ];
+    }
 
-	for ( int iEqu = 0; iEqu < turbcom.nEqu; ++ iEqu )
-	{
-		turbcom.dq[ iEqu ] = ( * uturbf.dq )[ iEqu ][ ug.cId ];
-	}
+    for ( int iEqu = 0; iEqu < turbcom.nEqu; ++ iEqu )
+    {
+        turbcom.dq[ iEqu ] = ( * uturbf.dq )[ iEqu ][ ug.cId ];
+    }
 
     turbcom.rho = ABS( ( * uturbf.q_ns )[ IDX::IR ][ ug.cId ] ) + SMALL;
     turbcom.visl = ( * uturbf.visl )[ 0 ][ ug.cId ];
@@ -154,7 +154,7 @@ void UTurbUpdate::PrepareData2Equ()
 
 void UTurbUpdate::DumpProbeInfo()
 {
-	cout << setprecision( 3 );
+    cout << setprecision( 3 );
     cout << "Warning : p = " << nscom.prim[ IDX::IP ] << ", r = " << nscom.prim[ IDX::IR ];
     cout << " <-> zid = " << ZoneState::zid << ", cid = " << ug.cId << endl;
 }
@@ -163,9 +163,9 @@ void UTurbUpdate::SmoothTurbulentPoint()
 {
     turbcom.q = 0;
 
-	Real sumV = 0.0;
+    Real sumV = 0.0;
 
-	int fn = ( * ug.c2f )[ ug.cId ].size();
+    int fn = ( * ug.c2f )[ ug.cId ].size();
 
     for ( int iFace = 0; iFace < fn; ++ iFace )
     {
@@ -177,23 +177,23 @@ void UTurbUpdate::SmoothTurbulentPoint()
         int iNei = ug.lc;
         if ( ug.cId == ug.lc  ) iNei = ug.rc;
 
-		Real volN = one;
+        Real volN = one;
 
-		sumV += volN;
+        sumV += volN;
 
-		for ( int iEqu = 0; iEqu < turbcom.nEqu; ++ iEqu )
-		{
-			Real f = ( * unsf.q )[ iEqu ][ iNei ];
-			turbcom.q[ iEqu ] += f * volN;
-		}
-	}
+        for ( int iEqu = 0; iEqu < turbcom.nEqu; ++ iEqu )
+        {
+            Real f = ( * unsf.q )[ iEqu ][ iNei ];
+            turbcom.q[ iEqu ] += f * volN;
+        }
+    }
 
-	Real rVol = 1.0 / sumV;
+    Real rVol = 1.0 / sumV;
 
-	for ( int iEqu = 0; iEqu < turbcom.nEqu; ++ iEqu )
-	{
-		turbcom.q[ iEqu ] *= rVol;
-	}
+    for ( int iEqu = 0; iEqu < turbcom.nEqu; ++ iEqu )
+    {
+        turbcom.q[ iEqu ] *= rVol;
+    }
 }
 
 EndNameSpace

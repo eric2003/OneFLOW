@@ -35,27 +35,27 @@ BeginNameSpace( ONEFLOW )
 
 #ifdef HX_PARALLEL
     typedef  MPI_Request  PL_HXRequest;
-	typedef  MPI_Op       PL_Op;
-	typedef  MPI_Datatype PL_Datatype;
+    typedef  MPI_Op       PL_Op;
+    typedef  MPI_Datatype PL_Datatype;
 
     #define PL_REQUEST_NULL    MPI_REQUEST_NULL
-	#define PL_MAX             MPI_MAX
-	#define PL_MIN             MPI_MIN
-	#define PL_SUM             MPI_SUM
-	#define PL_CHAR            MPI_CHAR
+    #define PL_MAX             MPI_MAX
+    #define PL_MIN             MPI_MIN
+    #define PL_SUM             MPI_SUM
+    #define PL_CHAR            MPI_CHAR
     #define PL_INT             MPI_INT
     #define PL_LONG_LONG_INT   MPI_LONG_LONG_INT
 #else
     typedef  int  PL_HXRequest;
-	typedef  int  PL_Op;
-	typedef  int  PL_Datatype;
+    typedef  int  PL_Op;
+    typedef  int  PL_Datatype;
 
-	#define PL_REQUEST_NULL    0
-	#define PL_MAX             0
-	#define PL_MIN             0
-	#define PL_SUM             0
-	#define PL_CHAR            0
-	#define PL_INT             0
+    #define PL_REQUEST_NULL    0
+    #define PL_MAX             0
+    #define PL_MIN             0
+    #define PL_SUM             0
+    #define PL_CHAR            0
+    #define PL_INT             0
     #define PL_LONG_LONG_INT   0
 #endif
 
@@ -83,14 +83,14 @@ void HXRecvString( string & cs, int pid, int tag );
 template< typename T >
 void HXSmartSend( T * field, int nElement, int pid, int tag )
 {
-	int bufferSize = nElement * sizeof( T );
+    int bufferSize = nElement * sizeof( T );
     HXSendChar( field, bufferSize, pid, tag );
 }
 
 template< typename T >
 void HXSmartRecv( T * field, int nElement, int pid, int tag )
 {
-	int bufferSize = nElement * sizeof( T );
+    int bufferSize = nElement * sizeof( T );
     HXRecvChar( field, bufferSize, pid, tag );
 }
 

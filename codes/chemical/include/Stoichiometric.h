@@ -30,19 +30,19 @@ class DataBook;
 class Stoichiometric
 {
 public:
-	Stoichiometric();
+    Stoichiometric();
     ~Stoichiometric();
 public:
-	int nSpecies, nReaction;
-	//forward and bakward reaction stoichiometric coefficient matrix
-	LinkField mf, mb;
-	//third body reaction stoichiometric coefficient matrix;
-	RealField2D mt;
+    int nSpecies, nReaction;
+    //forward and bakward reaction stoichiometric coefficient matrix
+    LinkField mf, mb;
+    //third body reaction stoichiometric coefficient matrix;
+    RealField2D mt;
 public:
-	void Init( int nSpecies, int nReaction );
-	void Read( AsciiFileRead * ioFile );
-	void Read ( DataBook * dataBook );
-	void Write( DataBook * dataBook );
+    void Init( int nSpecies, int nReaction );
+    void Read( AsciiFileRead * ioFile );
+    void Read ( DataBook * dataBook );
+    void Write( DataBook * dataBook );
 };
 
 EndNameSpace

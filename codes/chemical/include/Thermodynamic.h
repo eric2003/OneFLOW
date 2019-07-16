@@ -30,39 +30,39 @@ class DataBook;
 class ThermodynamicFunction
 {
 public:
-	ThermodynamicFunction();
+    ThermodynamicFunction();
     ~ThermodynamicFunction();
 public:
-	int nTSpan, nPolyCoef;
-	RealField2D polyCoef;
+    int nTSpan, nPolyCoef;
+    RealField2D polyCoef;
 public:
-	void Init( int nTSpan, int nPolyCoef );
-	void ReadPolynomialCoefficient( AsciiFileRead * ioFile );
-	void ReadPolynomialCoefficient( DataBook * dataBook );
-	void WritePolynomialCoefficient( DataBook * dataBook );
+    void Init( int nTSpan, int nPolyCoef );
+    void ReadPolynomialCoefficient( AsciiFileRead * ioFile );
+    void ReadPolynomialCoefficient( DataBook * dataBook );
+    void WritePolynomialCoefficient( DataBook * dataBook );
 };
 
 class Thermodynamic
 {
 public:
-	Thermodynamic();
-	~Thermodynamic();
+    Thermodynamic();
+    ~Thermodynamic();
 public:
-	int nSpecies;
-	int nTSpan, nPolyCoef;
-	HXVector< ThermodynamicFunction * > tfunction;
-	RealField trange;
+    int nSpecies;
+    int nTSpan, nPolyCoef;
+    HXVector< ThermodynamicFunction * > tfunction;
+    RealField trange;
 public:
-	void Init( int nSpecies );
-	void Read( AsciiFileRead * ioFile );
+    void Init( int nSpecies );
+    void Read( AsciiFileRead * ioFile );
 public:
-	void Read( DataBook * dataBook );
-	void Write( DataBook * dataBook );
+    void Read( DataBook * dataBook );
+    void Write( DataBook * dataBook );
 public:
-	RealField & GetPolyCoef( int is, int it );
-	void GetTRangeId( const Real & dimt, int & itr );
-//	Real GetTemperatureMin();
-//	Real GetTemperatureMax();
+    RealField & GetPolyCoef( int is, int it );
+    void GetTRangeId( const Real & dimt, int & itr );
+//    Real GetTemperatureMin();
+//    Real GetTemperatureMax();
 };
 
 EndNameSpace

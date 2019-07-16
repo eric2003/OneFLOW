@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -36,22 +36,22 @@ class InterFace;
 class BcInfo
 {
 public:
-	BcInfo();
-	~BcInfo();
+    BcInfo();
+    ~BcInfo();
 public:
-	LinkField bcFace;
-	LinkField bcRegion;
+    LinkField bcFace;
+    LinkField bcRegion;
     LinkField bcdtkey;
-	IntField bcType;
+    IntField bcType;
 public:
-	UInt GetNBcRegion() { return bcType.size(); }
+    UInt GetNBcRegion() { return bcType.size(); }
 };
 
 class BcRecord
 {
 public:
-	BcRecord();
-	~BcRecord();
+    BcRecord();
+    ~BcRecord();
 public:
     IntField bcType;
     IntField bcdtkey;
@@ -73,20 +73,20 @@ class BcManager
 {
 public:
     BcManager();
-	~BcManager();
+    ~BcManager();
 public:
-	bool deleteBoundaryCondition;
-	BcRecord * bcRecord;
+    bool deleteBoundaryCondition;
+    BcRecord * bcRecord;
     BcRecord * bcRecordNew;
-	IntField l2gNew;
+    IntField l2gNew;
 
-	IntField bcKeyVector;
+    IntField bcKeyVector;
 
-	LinkField childFaceId;
-	IntField numberOfChildFacesOfInterface;
-	IntField newBoundaryLeftCellIndex;
+    LinkField childFaceId;
+    IntField numberOfChildFacesOfInterface;
+    IntField newBoundaryLeftCellIndex;
 
-	IntField bcFlag;
+    IntField bcFlag;
 public:
     void PreProcess();
     bool ExistInterface();
@@ -100,7 +100,7 @@ public:
     int zid;
     int dir;         //边界面方向:0, 1, 2对应于i, j, k
     int outerNormal; //左右边界-1, 1对应于左右边界
-	int start[ 3 ], end[ 3 ];
+    int start[ 3 ], end[ 3 ];
     int lr[ 3 ];     //左右边界-1, 1对应于左右边界
 public:
     void SetRegion( int ist, int ied, int jst, int jed, int kst, int ked );
@@ -109,12 +109,12 @@ public:
 class BcRegion
 {
 public:
-	BcRegion( int zid, int rid );
-	~BcRegion();
+    BcRegion( int zid, int rid );
+    ~BcRegion();
 public:
     int rid;                         //region id
-    int	bcType;		                 //boundary type
-	string regionName;               //boundary name
+    int    bcType;                         //boundary type
+    string regionName;               //boundary name
 public:
     BasicRegion * s;
     BasicRegion * t;
@@ -130,9 +130,9 @@ public:
     ~BcRegionGroup();
 public:
     int zoneIndex;
-	int nBFace, nIFace;
-	HXVector< BcRegion * > * regions;
-	void Create( int nBcRegions );
+    int nBFace, nIFace;
+    HXVector< BcRegion * > * regions;
+    void Create( int nBcRegions );
     void SetBcRegion( int ir, BcRegion * bcRegion );
 };
 

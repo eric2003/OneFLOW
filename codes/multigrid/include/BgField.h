@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -30,29 +30,29 @@ class FieldWrap;
 class BasicBgField
 {
 public:
-	BasicBgField ();
-	~BasicBgField();
+    BasicBgField ();
+    ~BasicBgField();
 public:
     typedef HXVector< HXVector< HXVector< FieldWrap * > > > Field3DType;
 public:
-	Field3DType data;
+    Field3DType data;
 public:
-	void Init();
-	void Free();
+    void Init();
+    void Free();
 };
 
 class BgField
 {
 public:
-	BgField ();
-	~BgField();
+    BgField ();
+    ~BgField();
 protected:
-	static HXVector< BasicBgField * > data;
+    static HXVector< BasicBgField * > data;
 public:
-	static bool flag;
-	static void Init();
-	static void Free();
-	static FieldWrap * GetFieldWrap( int zid, int sid, int fid, int gl );
+    static bool flag;
+    static void Init();
+    static void Free();
+    static FieldWrap * GetFieldWrap( int zid, int sid, int fid, int gl );
 };
 
 

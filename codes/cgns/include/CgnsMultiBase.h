@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -34,15 +34,15 @@ class CgnsZone;
 class CgnsMultiBase
 {
 public:
-	CgnsMultiBase ();
-	~CgnsMultiBase();
+    CgnsMultiBase ();
+    ~CgnsMultiBase();
 public:
-	int fileId, nBases;
-	int nTZones;
+    int fileId, nBases;
+    int nTZones;
 
     int volBcType;
 
-	HXVector< CgnsBase * > baseVector;
+    HXVector< CgnsBase * > baseVector;
     IntField zid1, zid2;
 public:
     int GetSystemZoneType();

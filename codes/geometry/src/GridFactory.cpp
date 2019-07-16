@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -58,23 +58,23 @@ void GridFactory::Run()
 {
     grid_para.Init();
 
-	switch (grid_para.gridObj)
-	{
-	case 0: //生成一些基本外形的网格，如方腔，圆柱，RAE2822翼型等等
-		this->DataBaseGrid();
-		break;
-	case 1:	//转换网格
-		this->ConvertGrid();
-		break;
-	case 2:
-		this->GeneInp();
-		break;
-	case 3:	//网格分区
-		this->PartGrid();
-		break;
-	default:
-		break;
-	}
+    switch (grid_para.gridObj)
+    {
+    case 0: //生成一些基本外形的网格，如方腔，圆柱，RAE2822翼型等等
+        this->DataBaseGrid();
+        break;
+    case 1:    //转换网格
+        this->ConvertGrid();
+        break;
+    case 2:
+        this->GeneInp();
+        break;
+    case 3:    //网格分区
+        this->PartGrid();
+        break;
+    default:
+        break;
+    }
 }
 
 void GridFactory::GeneInp()
@@ -94,10 +94,10 @@ void GridFactory::PartGrid()
 void GridFactory::ConvertGrid()
 {
     string sourceGridType = grid_para.filetype; 
-	if ( sourceGridType == "plot3d" )
-	{
-		this->Plot3DProcess();
-	}
+    if ( sourceGridType == "plot3d" )
+    {
+        this->Plot3DProcess();
+    }
     else if ( sourceGridType == "su2" )
     {
         this->SU2Process();
@@ -117,27 +117,27 @@ void GridFactory::DataBaseGrid()
 
 void GridFactory::Plot3DProcess()
 {
-	CgnsFactory * cgnsFactory = new CgnsFactory();
+    CgnsFactory * cgnsFactory = new CgnsFactory();
 
-	cgnsFactory->CommonToOneFlowGrid();
+    cgnsFactory->CommonToOneFlowGrid();
 
-	delete cgnsFactory;
+    delete cgnsFactory;
 }
 
 void GridFactory::SU2Process()
 {
-	Su2Grid * su2Grid = new Su2Grid();
+    Su2Grid * su2Grid = new Su2Grid();
     su2Grid->Su2ToOneFlowGrid();
     delete su2Grid;
 }
 
 void GridFactory::CGNSProcess()
 {
-	CgnsFactory * cgnsFactory = new CgnsFactory();
+    CgnsFactory * cgnsFactory = new CgnsFactory();
 
     cgnsFactory->GenerateGrid();
 
-	delete cgnsFactory;
+    delete cgnsFactory;
 }
 
 EndNameSpace

@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -40,16 +40,16 @@ DomainMachine::~DomainMachine()
 
 void DomainMachine::AddBcType( AsciiFileRead * ioFile )
 {
-	int id = ioFile->ReadNextDigit< int >();
-	int bctype = ioFile->ReadNextDigit< int >();
-	bctypeList.push_back( bctype );
+    int id = ioFile->ReadNextDigit< int >();
+    int bctype = ioFile->ReadNextDigit< int >();
+    bctypeList.push_back( bctype );
 }
 
 
 int DomainMachine::GetBcType( int id )
 {
-	int ida = ABS( id ) - 1;
-	return this->bctypeList[ ida ];
+    int ida = ABS( id ) - 1;
+    return this->bctypeList[ ida ];
 }
 
 

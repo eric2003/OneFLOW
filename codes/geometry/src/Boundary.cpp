@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -65,44 +65,44 @@ BC::~BC()
 
 bool BC::IsInterfaceBc( int bcType )
 {
-	if ( bcType == BC::INTERFACE || bcType < 0 )
-	{
-		return true;
-	}
-	return false;
+    if ( bcType == BC::INTERFACE || bcType < 0 )
+    {
+        return true;
+    }
+    return false;
 }
 
 bool BC::IsSlipfaceBc( int bcType )
 {
-	if ( bcType == BC::GENERIC_2 )
-	{
-		return true;
-	}
-	return false;
+    if ( bcType == BC::GENERIC_2 )
+    {
+        return true;
+    }
+    return false;
 }
 
 bool BC::IsPoleBc( int bcType )
 {
-	int bc10 = ( bcType / 10 );
-	if ( ( bcType == BC::POLE ) || ( bc10 == BC::POLE ) )
-	{
-		return true;
-	}
-	return false;
+    int bc10 = ( bcType / 10 );
+    if ( ( bcType == BC::POLE ) || ( bc10 == BC::POLE ) )
+    {
+        return true;
+    }
+    return false;
 }
 
 bool BC::IsNotNormalBc( int bcType )
 {
-	return BC::IsInterfaceBc( bcType ) || BC::IsPoleBc( bcType );
+    return BC::IsInterfaceBc( bcType ) || BC::IsPoleBc( bcType );
 }
 
 bool BC::IsWallBc( int bcType )
 {
-	if ( bcType == BC::SOLID_SURFACE )
-	{
-		return true;
-	}
-	return false;
+    if ( bcType == BC::SOLID_SURFACE )
+    {
+        return true;
+    }
+    return false;
 }
 
 BcTypeMap::BcTypeMap()
@@ -117,68 +117,68 @@ BcTypeMap::~BcTypeMap()
 
 void BcTypeMap::Init()
 {
-	typedef pair< int, int > IntPair;
+    typedef pair< int, int > IntPair;
 
-	cgns2OneFlow.insert( IntPair( CGNS_ENUMV( BCTypeUserDefined       ), BC::GENERIC_2       ) );
+    cgns2OneFlow.insert( IntPair( CGNS_ENUMV( BCTypeUserDefined       ), BC::GENERIC_2       ) );
     cgns2OneFlow.insert( IntPair( CGNS_ENUMV( BCSymmetryPlane         ), BC::SYMMETRY        ) );
     cgns2OneFlow.insert( IntPair( CGNS_ENUMV( BCInflow                ), BC::INFLOW          ) );
-	cgns2OneFlow.insert( IntPair( CGNS_ENUMV( BCInflowSubsonic        ), BC::INFLOW          ) );
-	cgns2OneFlow.insert( IntPair( CGNS_ENUMV( BCInflowSupersonic      ), BC::INFLOW          ) );
-	cgns2OneFlow.insert( IntPair( CGNS_ENUMV( BCTunnelInflow          ), BC::INFLOW          ) );
+    cgns2OneFlow.insert( IntPair( CGNS_ENUMV( BCInflowSubsonic        ), BC::INFLOW          ) );
+    cgns2OneFlow.insert( IntPair( CGNS_ENUMV( BCInflowSupersonic      ), BC::INFLOW          ) );
+    cgns2OneFlow.insert( IntPair( CGNS_ENUMV( BCTunnelInflow          ), BC::INFLOW          ) );
     cgns2OneFlow.insert( IntPair( CGNS_ENUMV( BCOutflow               ), BC::OUTFLOW         ) );
-	cgns2OneFlow.insert( IntPair( CGNS_ENUMV( BCOutflowSubsonic       ), BC::OUTFLOW         ) );
-	cgns2OneFlow.insert( IntPair( CGNS_ENUMV( BCOutflowSupersonic     ), BC::OUTFLOW         ) );
-	cgns2OneFlow.insert( IntPair( CGNS_ENUMV( BCTunnelOutflow         ), BC::OUTFLOW         ) );
+    cgns2OneFlow.insert( IntPair( CGNS_ENUMV( BCOutflowSubsonic       ), BC::OUTFLOW         ) );
+    cgns2OneFlow.insert( IntPair( CGNS_ENUMV( BCOutflowSupersonic     ), BC::OUTFLOW         ) );
+    cgns2OneFlow.insert( IntPair( CGNS_ENUMV( BCTunnelOutflow         ), BC::OUTFLOW         ) );
     cgns2OneFlow.insert( IntPair( CGNS_ENUMV( BCWall                  ), BC::SOLID_SURFACE   ) );
     cgns2OneFlow.insert( IntPair( CGNS_ENUMV( BCWallInviscid          ), BC::SOLID_SURFACE   ) );
     cgns2OneFlow.insert( IntPair( CGNS_ENUMV( BCWallViscous           ), BC::SOLID_SURFACE   ) );
-	cgns2OneFlow.insert( IntPair( CGNS_ENUMV( BCWallViscousHeatFlux   ), BC::SOLID_SURFACE   ) );
-	cgns2OneFlow.insert( IntPair( CGNS_ENUMV( BCWallViscousIsothermal ), BC::SOLID_SURFACE   ) );
+    cgns2OneFlow.insert( IntPair( CGNS_ENUMV( BCWallViscousHeatFlux   ), BC::SOLID_SURFACE   ) );
+    cgns2OneFlow.insert( IntPair( CGNS_ENUMV( BCWallViscousIsothermal ), BC::SOLID_SURFACE   ) );
     cgns2OneFlow.insert( IntPair( CGNS_ENUMV( BCDegenerateLine        ), BC::POLE            ) );
     cgns2OneFlow.insert( IntPair( CGNS_ENUMV( BCTypeNull              ), BC::INTERFACE       ) );
     cgns2OneFlow.insert( IntPair( CGNS_ENUMV( BCFarfield              ), BC::FARFIELD        ) );
     cgns2OneFlow.insert( IntPair( CGNS_ENUMV( BCGeneral               ), BC::OVERSET         ) );
 
-	oneFlow2Cgns.insert( IntPair( BC::INTERFACE    , CGNS_ENUMV( BCTypeNull        ) ) );
-	oneFlow2Cgns.insert( IntPair( BC::EXTRAPOLATION, CGNS_ENUMV( BCExtrapolate     ) ) );
+    oneFlow2Cgns.insert( IntPair( BC::INTERFACE    , CGNS_ENUMV( BCTypeNull        ) ) );
+    oneFlow2Cgns.insert( IntPair( BC::EXTRAPOLATION, CGNS_ENUMV( BCExtrapolate     ) ) );
     oneFlow2Cgns.insert( IntPair( BC::SYMMETRY     , CGNS_ENUMV( BCSymmetryPlane   ) ) );
     oneFlow2Cgns.insert( IntPair( BC::INFLOW       , CGNS_ENUMV( BCInflow          ) ) );
     oneFlow2Cgns.insert( IntPair( BC::OUTFLOW      , CGNS_ENUMV( BCOutflow         ) ) );
     oneFlow2Cgns.insert( IntPair( BC::SOLID_SURFACE, CGNS_ENUMV( BCWall            ) ) );
     oneFlow2Cgns.insert( IntPair( BC::POLE         , CGNS_ENUMV( BCDegenerateLine  ) ) );
-	oneFlow2Cgns.insert( IntPair( BC::POLE1        , CGNS_ENUMV( BCDegenerateLine  ) ) );
-	oneFlow2Cgns.insert( IntPair( BC::POLE2        , CGNS_ENUMV( BCDegenerateLine  ) ) );
-	oneFlow2Cgns.insert( IntPair( BC::POLE3        , CGNS_ENUMV( BCDegenerateLine  ) ) );
+    oneFlow2Cgns.insert( IntPair( BC::POLE1        , CGNS_ENUMV( BCDegenerateLine  ) ) );
+    oneFlow2Cgns.insert( IntPair( BC::POLE2        , CGNS_ENUMV( BCDegenerateLine  ) ) );
+    oneFlow2Cgns.insert( IntPair( BC::POLE3        , CGNS_ENUMV( BCDegenerateLine  ) ) );
     oneFlow2Cgns.insert( IntPair( BC::NO_BOUNDARY  , CGNS_ENUMV( BCTypeNull        ) ) );
     oneFlow2Cgns.insert( IntPair( BC::FARFIELD     , CGNS_ENUMV( BCFarfield        ) ) );
-	oneFlow2Cgns.insert( IntPair( BC::OVERSET      , CGNS_ENUMV( BCGeneral         ) ) );
+    oneFlow2Cgns.insert( IntPair( BC::OVERSET      , CGNS_ENUMV( BCGeneral         ) ) );
     oneFlow2Cgns.insert( IntPair( BC::GENERIC_1    , CGNS_ENUMV( BCGeneral         ) ) );
-	oneFlow2Cgns.insert( IntPair( BC::GENERIC_2    , CGNS_ENUMV( BCTypeUserDefined ) ) );
+    oneFlow2Cgns.insert( IntPair( BC::GENERIC_2    , CGNS_ENUMV( BCTypeUserDefined ) ) );
     oneFlow2Cgns.insert( IntPair( BC::GENERIC_3    , CGNS_ENUMV( BCTypeUserDefined ) ) );
 }
 
 int BcTypeMap::OneFlow2Cgns( int oneflow_bctype )
 {
-	map< int, int >::iterator iter;
-	iter = oneFlow2Cgns.find( oneflow_bctype );
-	int cgns_bctype = BCTypeUserDefined;
-	if ( iter != oneFlow2Cgns.end() )
-	{
-		cgns_bctype = iter->second;
-	}
-	return cgns_bctype;
+    map< int, int >::iterator iter;
+    iter = oneFlow2Cgns.find( oneflow_bctype );
+    int cgns_bctype = BCTypeUserDefined;
+    if ( iter != oneFlow2Cgns.end() )
+    {
+        cgns_bctype = iter->second;
+    }
+    return cgns_bctype;
 }
 
 int BcTypeMap::Cgns2OneFlow( int cgns_bctype )
 {
-	map< int, int >::iterator iter;
-	iter = cgns2OneFlow.find( cgns_bctype );
-	int oneflow_bctype = BC::GENERIC_2;
-	if ( iter != cgns2OneFlow.end() )
-	{
-		oneflow_bctype = iter->second;
-	}
-	return oneflow_bctype;
+    map< int, int >::iterator iter;
+    iter = cgns2OneFlow.find( cgns_bctype );
+    int oneflow_bctype = BC::GENERIC_2;
+    if ( iter != cgns2OneFlow.end() )
+    {
+        oneflow_bctype = iter->second;
+    }
+    return oneflow_bctype;
 }
 
 CommonNameMap::CommonNameMap()
@@ -191,50 +191,50 @@ CommonNameMap::~CommonNameMap()
 
 void CommonNameMap::AddName( const std::string & name )
 {
-	HXSort< std::string > data;
-	data.value = name;
-	data.index = 0;
+    HXSort< std::string > data;
+    data.value = name;
+    data.index = 0;
 
-	set< HXSort< std::string > >::iterator iter = this->stringMap.find( data );
+    set< HXSort< std::string > >::iterator iter = this->stringMap.find( data );
 
     if ( iter == this->stringMap.end() )
     {
-		data.index = this->stringMap.size();
+        data.index = this->stringMap.size();
         stringMap.insert( data );
     }
 }
 
 int CommonNameMap::FindNameId( const std::string & name )
 {
-	HXSort< std::string > data;
-	data.value = name;
-	data.index = 0;
+    HXSort< std::string > data;
+    data.value = name;
+    data.index = 0;
 
-	set< HXSort< std::string > >::iterator iter = this->stringMap.find( data );
+    set< HXSort< std::string > >::iterator iter = this->stringMap.find( data );
 
     if ( iter == this->stringMap.end() )
     {
-		return - 1;
+        return - 1;
     }
-	else
-	{
-		return iter->index;
-	}
+    else
+    {
+        return iter->index;
+    }
 }
 
 void DumpRegion( const string & fileName, CommonNameMap & nameMap )
 {
-	fstream file;
+    fstream file;
     ONEFLOW::OpenPrjFile( file, fileName, ios_base::out );
 
-	set< HXSort< std::string > > & stringMap = nameMap.GetNameMap();
+    set< HXSort< std::string > > & stringMap = nameMap.GetNameMap();
 
     file << stringMap.size() << endl;
 
-	for ( std::set< HXSort< std::string > >::iterator iter = stringMap.begin(); iter != stringMap.end(); ++ iter )
-	{
-		file << iter->index << " " << iter->value << endl;
-	}
+    for ( std::set< HXSort< std::string > >::iterator iter = stringMap.begin(); iter != stringMap.end(); ++ iter )
+    {
+        file << iter->index << " " << iter->value << endl;
+    }
     CloseFile( file );
 }
 
@@ -250,12 +250,12 @@ RegionNameMap::~RegionNameMap()
 
 void RegionNameMap::AddRegion( const std::string & regionName )
 {
-	RegionNameMap::nameMap.AddName( regionName );
+    RegionNameMap::nameMap.AddName( regionName );
 }
 
 int RegionNameMap::FindRegionId( const std::string & regionName )
 {
-	return RegionNameMap::nameMap.FindNameId( regionName );
+    return RegionNameMap::nameMap.FindNameId( regionName );
 }
 
 void RegionNameMap::DumpRegion()
@@ -276,12 +276,12 @@ VolumeNameMap::~VolumeNameMap()
 
 void VolumeNameMap::AddRegion( const std::string & regionName )
 {
-	VolumeNameMap::nameMap.AddName( regionName );
+    VolumeNameMap::nameMap.AddName( regionName );
 }
 
 int VolumeNameMap::FindRegionId( const std::string & regionName )
 {
-	return VolumeNameMap::nameMap.FindNameId( regionName );
+    return VolumeNameMap::nameMap.FindNameId( regionName );
 }
 
 void VolumeNameMap::DumpRegion()

@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -30,11 +30,11 @@ BeginNameSpace( ONEFLOW )
 class CircleInfo : public CurveInfo
 {
 public:
-	CircleInfo( int p1, int p2, int p3, int id = 1 );
-	CircleInfo();
-	~CircleInfo();
+    CircleInfo( int p1, int p2, int p3, int id = 1 );
+    CircleInfo();
+    ~CircleInfo();
 public:
-	int center;
+    int center;
 };
 
 EndNameSpace

@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -29,17 +29,17 @@ BeginNameSpace( ONEFLOW )
 class GridMachine
 {
 public:
-	GridMachine();
-	~GridMachine();
+    GridMachine();
+    ~GridMachine();
 public:
-	void ReadScript();
-	void GeneGrid();
+    void ReadScript();
+    void GeneGrid();
 public:
-	void GenerateFaceBlockLink();
-	void GenerateAllLineMesh();
+    void GenerateFaceBlockLink();
+    void GenerateAllLineMesh();
 public:
-	void DumpStandardGrid();
-	void ConstructBlockTopo();
+    void DumpStandardGrid();
+    void ConstructBlockTopo();
 };
 
 extern GridMachine grid_Machine;

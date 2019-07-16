@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -63,7 +63,7 @@ void Plot::DumpField( IntField & l2g, RealField & field )
     int nNode = l2g.size();
     for ( int iNode = 0; iNode < nNode; ++ iNode )
     {
-		int id = l2g[ iNode ];
+        int id = l2g[ iNode ];
         ( * Plot::oss ) << field[ id ] << " ";
         if ( ( iNode + 1 ) % Plot::nWords == 0 ) ( * Plot::oss ) << endl;
     }
@@ -72,19 +72,19 @@ void Plot::DumpField( IntField & l2g, RealField & field )
 
 void Plot::DumpFaceNodeLink( LinkField & f2n )
 {
-	int nFace = f2n.size();
-	int iCount = 0;
+    int nFace = f2n.size();
+    int iCount = 0;
     for ( int iFace = 0; iFace < nFace; ++ iFace )
     {
-		int nNode = f2n[ iFace ].size();
+        int nNode = f2n[ iFace ].size();
         for ( int iNode = 0; iNode < nNode; ++ iNode )
         {
             ( * Plot::oss ) << f2n[ iFace ][ iNode ] + 1 << " ";
-			if ( ( iCount + 1 ) % Plot::nWords == 0 ) ( * Plot::oss ) << endl;
-			iCount ++;
+            if ( ( iCount + 1 ) % Plot::nWords == 0 ) ( * Plot::oss ) << endl;
+            iCount ++;
         }
     }
-	if ( iCount % Plot::nWords != 0 ) ( * Plot::oss ) << endl;
+    if ( iCount % Plot::nWords != 0 ) ( * Plot::oss ) << endl;
 }
 
 void Plot::DumpFaceElementLink( IntField & elementId, int nElem )
@@ -95,7 +95,7 @@ void Plot::DumpFaceElementLink( IntField & elementId, int nElem )
         int eId = elementId[ iFace ] + 1;
         if ( eId > nElem || eId < 0 ) eId = 0;
 
-		( * Plot::oss ) << eId << " ";
+        ( * Plot::oss ) << eId << " ";
         if ( ( iFace + 1 ) % Plot::nWords == 0 ) ( * Plot::oss ) << endl;
     }
     if ( nFace % Plot::nWords != 0 ) ( * Plot::oss ) << endl;
@@ -103,13 +103,13 @@ void Plot::DumpFaceElementLink( IntField & elementId, int nElem )
 
 void Plot::DumpFaceNodeNumber( LinkField & f2n )
 {
-	int nFace = f2n.size();
+    int nFace = f2n.size();
     for ( int iFace = 0; iFace < nFace; ++ iFace )
     {
-		( * Plot::oss ) << f2n[ iFace ].size() << " ";
-		if ( ( iFace + 1 ) % Plot::nWords == 0 ) ( * Plot::oss ) << endl;
+        ( * Plot::oss ) << f2n[ iFace ].size() << " ";
+        if ( ( iFace + 1 ) % Plot::nWords == 0 ) ( * Plot::oss ) << endl;
     }
-	if ( nFace % Plot::nWords == 0 ) ( * Plot::oss ) << endl;
+    if ( nFace % Plot::nWords == 0 ) ( * Plot::oss ) << endl;
 }
 
 int GetTotalNumFaceNodes( LinkField & f2n )

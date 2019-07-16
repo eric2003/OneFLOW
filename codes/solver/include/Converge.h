@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -29,14 +29,14 @@ BeginNameSpace( ONEFLOW )
 class ConvergeTask : public Task
 {
 public:
-	ConvergeTask();
-	~ConvergeTask();
+    ConvergeTask();
+    ~ConvergeTask();
 public:
-	void Run();
-	void CmpBool();
+    void Run();
+    void CmpBool();
 protected:
-	BoolField boolField;
-	bool flag;
+    BoolField boolField;
+    bool flag;
 };
 
 EndNameSpace

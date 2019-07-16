@@ -30,25 +30,25 @@ BeginNameSpace( ONEFLOW )
 class Simulation
 {
 public:
-	Simulation( int argc, char ** argv );
-	virtual ~Simulation();
+    Simulation( int argc, char ** argv );
+    virtual ~Simulation();
 public:
-	void Run();
+    void Run();
 
 public:
-	void PreProcess();
-	void MainProcess();
-	void PostProcess();
+    void PreProcess();
+    void MainProcess();
+    void PostProcess();
 
 protected:
-	//初始化
-	void InitSimu();
-	//执行求解
-	void RunSimu();
-	
+    //初始化
+    void InitSimu();
+    //执行求解
+    void RunSimu();
+    
 private:
-	//命令行参数
-	std::vector<std::string> args;
+    //命令行参数
+    std::vector<std::string> args;
 };
 
 EndNameSpace

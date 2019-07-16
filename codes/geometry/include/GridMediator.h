@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -35,19 +35,19 @@ class Grid;
 class GridMediator
 {
 public:
-	GridMediator ();
-	~GridMediator();
+    GridMediator ();
+    ~GridMediator();
 public:
-	Grids gridVector;
-	int numberOfZones;
-	int readGridType;
+    Grids gridVector;
+    int numberOfZones;
+    int readGridType;
     string gridFile;
     string bcFile;
     string gridType;
 public:
     void ReadGrid();
     void ReadGridgen();
-	void ReadPlot3D();
+    void ReadPlot3D();
     void ReadPlot3DCoor();
 };
 

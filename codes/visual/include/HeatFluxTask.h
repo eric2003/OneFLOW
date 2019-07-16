@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -32,19 +32,19 @@ class FaceJointManager;
 class HeatFluxTask : public Task
 {
 public:
-	HeatFluxTask ();
-	~HeatFluxTask();
+    HeatFluxTask ();
+    ~HeatFluxTask();
 public:
-	FaceJointManager * wallManager;
+    FaceJointManager * wallManager;
 public:
-	void Run();
+    void Run();
 public:
-	void AllocVariable();
-	void CollectWallFaceNode();
-	void CollectWallFaceValue();
-	void VisualizeWallNodeValue();
-	void ConstructPointIndex();
-	void CmpNodeValue();
+    void AllocVariable();
+    void CollectWallFaceNode();
+    void CollectWallFaceValue();
+    void VisualizeWallNodeValue();
+    void ConstructPointIndex();
+    void CmpNodeValue();
 };
 
 class PointSearch;

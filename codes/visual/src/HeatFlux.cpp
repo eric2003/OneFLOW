@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -63,32 +63,32 @@ void HeatFlux::InitGlobal()
 {
     if ( init_flag ) return;
     init_flag = true;
-	this->heatflux.resize( ZoneState::nZones, 0 );
-	this->fricflux.resize( ZoneState::nZones, 0 );
-	this->flag.resize( ZoneState::nZones, 0 );
+    this->heatflux.resize( ZoneState::nZones, 0 );
+    this->fricflux.resize( ZoneState::nZones, 0 );
+    this->flag.resize( ZoneState::nZones, 0 );
 }
 
 void HeatFlux::Allocate()
 {
-	int zId = ZoneState::zid;
-	if ( ! this->flag[ zId ] )
-	{
-		this->flag[ zId ] = 1;
-		SurfaceValue * heat = new SurfaceValue();
-		SurfaceValue * fric = new SurfaceValue();
-		this->heatflux[ zId ] = heat;
-		this->fricflux[ zId ] = fric;
-	}
+    int zId = ZoneState::zid;
+    if ( ! this->flag[ zId ] )
+    {
+        this->flag[ zId ] = 1;
+        SurfaceValue * heat = new SurfaceValue();
+        SurfaceValue * fric = new SurfaceValue();
+        this->heatflux[ zId ] = heat;
+        this->fricflux[ zId ] = fric;
+    }
 }
 
 void HeatFlux::DeAllocate()
 {
-	int nSize = this->heatflux.size();
-	for ( int i = 0; i < nSize; ++ i )
-	{
-		delete this->heatflux[ i ];
-		delete this->fricflux[ i ];
-	}
+    int nSize = this->heatflux.size();
+    for ( int i = 0; i < nSize; ++ i )
+    {
+        delete this->heatflux[ i ];
+        delete this->fricflux[ i ];
+    }
 }
 
 

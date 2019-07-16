@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -35,33 +35,33 @@ class NodeMesh;
 class CmpGrid
 {
 public:
-	CmpGrid();
-	~CmpGrid();
+    CmpGrid();
+    ~CmpGrid();
 public:
-	Grids grids;
-	string gridFileName;
-	IFaceLink * iFaceLink;
+    Grids grids;
+    string gridFileName;
+    IFaceLink * iFaceLink;
 public:
-	void BuildInterfaceLink();
-	void Dump();
-	void Post();
+    void BuildInterfaceLink();
+    void Dump();
+    void Post();
 public:
-	void Init( Grids & grids );
+    void Init( Grids & grids );
 public:
     void GenerateOverset();
     void GenerateLink();
-	void ResetGridScaleAndTranslate();
+    void ResetGridScaleAndTranslate();
 public:
-	void ReconstructLink();
+    void ReconstructLink();
 public:
     void ModifyBcType();
     void GenerateLgMapping();
-	void ReGenerateLgMapping();
-	void UpdateLgMapping();
-	void UpdateOtherTopologyTerm();
-	void ReconstructInterFace();
-	void MatchInterfaceTopology();
-	void ReconstructLink( int iZone );
+    void ReGenerateLgMapping();
+    void UpdateLgMapping();
+    void UpdateOtherTopologyTerm();
+    void ReconstructInterFace();
+    void MatchInterfaceTopology();
+    void ReconstructLink( int iZone );
 };
 
 string GetTargetGridFileName();

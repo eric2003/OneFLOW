@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -88,9 +88,9 @@ VTK_CgnsMap::~VTK_CgnsMap()
 
 void VTK_CgnsMap::Init()
 {
-	typedef pair< int, int > IntPair;
+    typedef pair< int, int > IntPair;
 
-	vtk2Cgns.insert( IntPair( VTK_TYPE::VERTEX       , NODE    ) );
+    vtk2Cgns.insert( IntPair( VTK_TYPE::VERTEX       , NODE    ) );
     vtk2Cgns.insert( IntPair( VTK_TYPE::LINE         , BAR_2   ) );
     vtk2Cgns.insert( IntPair( VTK_TYPE::TRIANGLE     , TRI_3   ) );
     vtk2Cgns.insert( IntPair( VTK_TYPE::QUADRILATERAL, QUAD_4  ) );
@@ -172,7 +172,7 @@ void MarkerManager::CreateMarkerList( int nMarker )
 void MarkerManager::CmpSecMarker( SecMarkerManager * secMarkerManager )
 {
     int nMarker = this->markerList.size();
-	IntSet typeSet;
+    IntSet typeSet;
     for ( int iMarker = 0; iMarker < nMarker; ++ iMarker )
     {
         Marker * marker = this->markerList[ iMarker ];
@@ -235,7 +235,7 @@ VolumeSecManager::~VolumeSecManager()
 
 void VolumeSecManager::CmpVolSec( Su2Grid* su2Grid, SecMarkerManager * secMarkerManager )
 {
-	IntSet typeSet;
+    IntSet typeSet;
 
     for ( int iElem = 0; iElem < su2Grid->nElem; ++ iElem )
     {
@@ -274,65 +274,65 @@ void VolumeSecManager::CmpVolSec( Su2Grid* su2Grid, SecMarkerManager * secMarker
 
 Su2Bc::Su2Bc()
 {
-	Init();
+    Init();
 }
 
 Su2Bc::~Su2Bc()
 {
-	;
+    ;
 }
 
 void Su2Bc::Init()
 {
-	bcList.insert("HEATFLUX");
-	bcList.insert("FAR");
-	typedef pair< string, int > String2IntPair;
-	bcNameToValueMap.insert(String2IntPair("HEATFLUX", BCWall));
-	bcNameToValueMap.insert(String2IntPair("FAR", BCFarfield));
+    bcList.insert("HEATFLUX");
+    bcList.insert("FAR");
+    typedef pair< string, int > String2IntPair;
+    bcNameToValueMap.insert(String2IntPair("HEATFLUX", BCWall));
+    bcNameToValueMap.insert(String2IntPair("FAR", BCFarfield));
 }
 
 void Su2Bc::AddBc(string& geoName, string& bcName)
 {
-	typedef pair< string, string > StringPair;
-	bcMap.insert(StringPair(geoName, bcName));
+    typedef pair< string, string > StringPair;
+    bcMap.insert(StringPair(geoName, bcName));
 }
 
 void Su2Bc::Process( StringField &markerBCNameList, StringField& markerNameList)
 {
-	for ( int i = 0; i < markerBCNameList.size(); ++ i )
-	{
-		string &bcName = markerBCNameList[i];
-		if (bcList.find(bcName) != bcList.end())
-		{
-			string& geoName = markerNameList[i];
-			this->AddBc(geoName, bcName);
-		}
-	}
+    for ( int i = 0; i < markerBCNameList.size(); ++ i )
+    {
+        string &bcName = markerBCNameList[i];
+        if (bcList.find(bcName) != bcList.end())
+        {
+            string& geoName = markerNameList[i];
+            this->AddBc(geoName, bcName);
+        }
+    }
 }
 
 string Su2Bc::GetBcName(string& geoName)
 {
-	map<string, string>::iterator iter;
-	iter = bcMap.find(geoName);
-	if (iter!= bcMap.end())
-	{
-		return iter->second;
-	}
-	return "";
+    map<string, string>::iterator iter;
+    iter = bcMap.find(geoName);
+    if (iter!= bcMap.end())
+    {
+        return iter->second;
+    }
+    return "";
 }
 
 int Su2Bc::GetCgnsBc(string& geoName)
 {
-	string bcName = this->GetBcName(geoName);
-	return bcNameToValueMap.find(bcName)->second;
+    string bcName = this->GetBcName(geoName);
+    return bcNameToValueMap.find(bcName)->second;
 }
 
 Su2Grid::Su2Grid()
 {
-	ndim = 0;
-	nPoin = 0;
-	nElem = 0;
-	nZone = 1;
+    ndim = 0;
+    nPoin = 0;
+    nElem = 0;
+    nZone = 1;
     vtkmap.resize( MAX_VTK_TYPE, 0 );
     vtkmap[ VTK_TYPE::VERTEX ] = 1;
     vtkmap[ VTK_TYPE::LINE ] = 2;
@@ -354,18 +354,18 @@ void Su2Grid::ReadSu2Grid( GridMediator * gridMediator )
 
 void Su2Grid::ReadSu2GridAscii( string & fileName )
 {
-	AsciiFileRead ioFile;
+    AsciiFileRead ioFile;
     string separator  = " =\r\n\t#$,;";
-	ioFile.OpenPrjFile( fileName, ios_base::in );
-	ioFile.SetDefaultSeparator( separator );
+    ioFile.OpenPrjFile( fileName, ios_base::in );
+    ioFile.SetDefaultSeparator( separator );
 
     this->nZone = 1;
 
-	for ( int iZone = 0; iZone < this->nZone; ++ iZone )
-	{
-	    while ( ! ioFile.ReachTheEndOfFile() )
-	    {
-		    ioFile.ReadNextNonEmptyLine();
+    for ( int iZone = 0; iZone < this->nZone; ++ iZone )
+    {
+        while ( ! ioFile.ReachTheEndOfFile() )
+        {
+            ioFile.ReadNextNonEmptyLine();
             string word = ioFile.ReadNextWord();
 
             if ( word == "NDIME" )
@@ -389,8 +389,8 @@ void Su2Grid::ReadSu2GridAscii( string & fileName )
                         elem.push_back( ip );
                     }
                     this->elems.push_back( elem );
-					int id = ioFile.ReadNextDigit< int >();
-					elemId.push_back( id );
+                    int id = ioFile.ReadNextDigit< int >();
+                    elemId.push_back( id );
                 }
                 continue;
             }
@@ -422,8 +422,8 @@ void Su2Grid::ReadSu2GridAscii( string & fileName )
                     string name = ioFile.ReadNextWord();
                     Marker * marker = mmark.markerList[ im ];
                     marker->name = name;
-					marker->bcName = su2Bc.GetBcName( name );
-					marker->cgns_bcType = su2Bc.GetCgnsBc(name);
+                    marker->bcName = su2Bc.GetBcName( name );
+                    marker->cgns_bcType = su2Bc.GetCgnsBc(name);
                     ioFile.ReadNextNonEmptyLine();
                     string marker_elems = ioFile.ReadNextWord();
                     marker->nElem = ioFile.ReadNextDigit< int >();
@@ -452,7 +452,7 @@ void Su2Grid::ReadSu2GridAscii( string & fileName )
             }
 
             int kkk = 1;
-	    }
+        }
     }
 
     ioFile.CloseFile();
@@ -460,57 +460,57 @@ void Su2Grid::ReadSu2GridAscii( string & fileName )
 
 void Su2Grid::MarkBoundary( string & su2cfgFile)
 {
-	AsciiFileRead ioFile;
-	string separator = " =\r\n\t#$,;()";
-	ioFile.OpenPrjFile(su2cfgFile, ios_base::in);
-	ioFile.SetDefaultSeparator(separator);
+    AsciiFileRead ioFile;
+    string separator = " =\r\n\t#$,;()";
+    ioFile.OpenPrjFile(su2cfgFile, ios_base::in);
+    ioFile.SetDefaultSeparator(separator);
 
-	StringField su2Comment;
-	su2Comment.push_back("%");
-	ioFile.ResetCommentString( su2Comment );
+    StringField su2Comment;
+    su2Comment.push_back("%");
+    ioFile.ResetCommentString( su2Comment );
 
-	StringField markerBCNameList;
-	StringField markerNameList;
+    StringField markerBCNameList;
+    StringField markerNameList;
 
-	while (!ioFile.ReachTheEndOfFile())
-	{
-		ioFile.ReadNextNonEmptyLine();
-		string word = ioFile.ReadNextWord();
+    while (!ioFile.ReachTheEndOfFile())
+    {
+        ioFile.ReadNextNonEmptyLine();
+        string word = ioFile.ReadNextWord();
 
-		if (word.substr(0, 7) != "MARKER_") continue;
-		string bcName = word.substr(7);
-		markerBCNameList.push_back(bcName);
-		word = ioFile.ReadNextWord();
-		markerNameList.push_back(word);
-		int kkk = 1;
-	}
+        if (word.substr(0, 7) != "MARKER_") continue;
+        string bcName = word.substr(7);
+        markerBCNameList.push_back(bcName);
+        word = ioFile.ReadNextWord();
+        markerNameList.push_back(word);
+        int kkk = 1;
+    }
 
-	su2Bc.Process(markerBCNameList, markerNameList);
+    su2Bc.Process(markerBCNameList, markerNameList);
 
-	ioFile.CloseFile();
+    ioFile.CloseFile();
 }
 
 void Su2Grid::Su2ToOneFlowGrid()
 {
     string gridFile = ONEFLOW::GetDataValue< string >( "sourceGridFileName" );
-	string su2cfgFile = ONEFLOW::GetDataValue< string >("sourceGridBcName");
-	this->MarkBoundary(su2cfgFile);
+    string su2cfgFile = ONEFLOW::GetDataValue< string >("sourceGridBcName");
+    this->MarkBoundary(su2cfgFile);
     this->ReadSu2GridAscii( gridFile );
 
     Grids grids( nZone );
 
     for ( int iZone = 0; iZone < nZone; ++ iZone )
     {
-		CgnsFactory * cgnsFactory = new CgnsFactory();
+        CgnsFactory * cgnsFactory = new CgnsFactory();
 
         FillSU2Section( this, iZone, cgnsFactory );
 
-		cgnsFactory->CgnsStr2Uns( grids[ iZone ], iZone );
+        cgnsFactory->CgnsStr2Uns( grids[ iZone ], iZone );
 
-		delete cgnsFactory;
-	}
+        delete cgnsFactory;
+    }
 
-	ONEFLOW::GenerateMultiZoneCmpGrids( grids );
+    ONEFLOW::GenerateMultiZoneCmpGrids( grids );
 }
 
 void FillSU2Section( Su2Grid* su2Grid, int zId, CgnsFactory * cgnsFactory )
@@ -520,17 +520,17 @@ void FillSU2Section( Su2Grid* su2Grid, int zId, CgnsFactory * cgnsFactory )
     cgnsFactory->GetCreateZone( zId );
 
     int iZone = 0;
-	CgnsZone * cgnsZone = cgnsMultiBase->GetZone( iZone );
+    CgnsZone * cgnsZone = cgnsMultiBase->GetZone( iZone );
     cgnsZone->cgnsZoneType = ONEFLOW::Unstructured;
     int nNode = su2Grid->xN.size();
-	int nCell = su2Grid->nElem;
+    int nCell = su2Grid->nElem;
     cgnsZone->nodeMesh->CreateNodes( nNode );
     cgnsZone->nNode = nNode;
-	cgnsZone->nCell = nCell;
+    cgnsZone->nCell = nCell;
     cgnsZone->nodeMesh->xN = su2Grid->xN;
     cgnsZone->nodeMesh->yN = su2Grid->yN;
     cgnsZone->nodeMesh->zN = su2Grid->zN;
-	
+    
     SecMarkerManager volSec;
 
     su2Grid->volSec.CmpVolSec( su2Grid, & volSec );
@@ -545,7 +545,7 @@ void FillSU2Section( Su2Grid* su2Grid, int zId, CgnsFactory * cgnsFactory )
     CgnsMultiSection * multiSection = cgnsZone->multiSection;
 
     multiSection->nSection = nSection;
-	multiSection->Create();
+    multiSection->Create();
 
     int nVolCell = volSec.CmpTotalElem();
  
@@ -586,11 +586,11 @@ void FillSU2Section( Su2Grid* su2Grid, int zId, CgnsFactory * cgnsFactory )
         int kkk = 1;
     }
 
-	for ( int iSection = 0; iSection < nSection; ++ iSection )
-	{
-		CgnsSection* cgnsSection = multiSection->cgnsSections[ iSection ];
-		cgnsSection->SetElemPosition();
-	}
+    for ( int iSection = 0; iSection < nSection; ++ iSection )
+    {
+        CgnsSection* cgnsSection = multiSection->cgnsSections[ iSection ];
+        cgnsSection->SetElemPosition();
+    }
 
     CgnsBcRegionProxy * bcRegionProxy = cgnsZone->bcRegionProxy;
     bcRegionProxy->nOrdinaryBcRegion = su2Grid->mmark.nMarker;
@@ -602,13 +602,13 @@ void FillSU2Section( Su2Grid* su2Grid, int zId, CgnsFactory * cgnsFactory )
     {
         Marker * marker = su2Grid->mmark.markerList[ iMarker ];
         string & name = marker->name;
-		string& bcName = marker->bcName;
+        string& bcName = marker->bcName;
 
         CgnsBcRegion * cgnsBcRegion = bcRegionProxy->cgnsBcRegions[ iMarker ];
         cgnsBcRegion->name = name;
         cgnsBcRegion->gridLocation = CellCenter;
         cgnsBcRegion->nElements    = marker->nElem;
-		cgnsBcRegion->bcType = static_cast< BCType_t >( marker->cgns_bcType );
+        cgnsBcRegion->bcType = static_cast< BCType_t >( marker->cgns_bcType );
         cgnsBcRegion->pointSetType = PointList;
         cgnsBcRegion->CreateCgnsBcConn();
 
@@ -641,7 +641,7 @@ void FillSU2Section( Su2Grid* su2Grid, int zId, CgnsFactory * cgnsFactory )
         //string bcName = GetCgnsBcName( cgnsBcRegion->bcType );
     }
 
-	cgnsZone->ConvertToInnerDataStandard();
+    cgnsZone->ConvertToInnerDataStandard();
     int kkk = 1;
 }
 

@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -42,17 +42,17 @@ CgnsCoor::~CgnsCoor()
 
 void CgnsCoor::Alloc( int iCoor, int nNode, DataType_t data_type )
 {
-	this->typeList[ iCoor ] = data_type;
+    this->typeList[ iCoor ] = data_type;
     this->nNodeList[ iCoor ] = nNode;
 
-	if ( data_type == RealSingle )
-	{
-		this->coor[ iCoor ] = new float [ nNode ];
-	}
-	else
-	{
-		this->coor[ iCoor ] = new double [ nNode ];
-	}
+    if ( data_type == RealSingle )
+    {
+        this->coor[ iCoor ] = new float [ nNode ];
+    }
+    else
+    {
+        this->coor[ iCoor ] = new double [ nNode ];
+    }
 }
 
 void CgnsCoor::SetAllData( RealField & x, RealField & y, RealField & z )
@@ -63,11 +63,11 @@ void CgnsCoor::SetAllData( RealField & x, RealField & y, RealField & z )
     xyz[ 1 ] = & y[ 0 ];
     xyz[ 2 ] = & z[ 0 ];
 
-	for ( int iCoor = 0; iCoor < this->ndim; ++ iCoor )
-	{
-		DataType_t data_type = this->typeList[ iCoor ];
+    for ( int iCoor = 0; iCoor < this->ndim; ++ iCoor )
+    {
+        DataType_t data_type = this->typeList[ iCoor ];
         SetData( iCoor, data_type, xyz[ iCoor ] );
-	}
+    }
 }
 
 void CgnsCoor::SetData( int iCoor, DataType_t data_type, Real * var )
@@ -93,20 +93,20 @@ void CgnsCoor::SetData( int iCoor, DataType_t data_type, Real * var )
 
 void CgnsCoor::DeAlloc()
 {
-	for ( int iCoor = 0; iCoor < this->ndim; ++ iCoor )
-	{
-		int data_type = this->typeList[ iCoor ];
-		if ( data_type == RealSingle )
-		{
-			float * data  = static_cast< float * >( this->coor[ iCoor ] );
-			delete [] data;
-		}
-		else
-		{
-			double * data = static_cast< double * >( this->coor[ iCoor ] );
-			delete [] data;
-		}
-	}
+    for ( int iCoor = 0; iCoor < this->ndim; ++ iCoor )
+    {
+        int data_type = this->typeList[ iCoor ];
+        if ( data_type == RealSingle )
+        {
+            float * data  = static_cast< float * >( this->coor[ iCoor ] );
+            delete [] data;
+        }
+        else
+        {
+            double * data = static_cast< double * >( this->coor[ iCoor ] );
+            delete [] data;
+        }
+    }
 }
 
 #endif

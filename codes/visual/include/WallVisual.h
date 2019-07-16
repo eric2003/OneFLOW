@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -29,59 +29,59 @@ BeginNameSpace( ONEFLOW )
 template < typename T >
 void Reorder( T & field, IntField & order_map )
 {
-	T t_swap = field;
+    T t_swap = field;
     int nElem = field.size();
-	for ( int iElem = 0; iElem < nElem; ++ iElem )
-	{
-		int id = order_map[ iElem ];
-		field[ iElem ] = t_swap[ id ];
-	}
+    for ( int iElem = 0; iElem < nElem; ++ iElem )
+    {
+        int id = order_map[ iElem ];
+        field[ iElem ] = t_swap[ id ];
+    }
 }
 
 class PointDebug
 {
 public:
-	PointDebug() {}
-	~PointDebug() {}
+    PointDebug() {}
+    ~PointDebug() {}
 public:
-	RealField xArray, yArray, zArray;
-	Real tolerance;
+    RealField xArray, yArray, zArray;
+    Real tolerance;
 public:
-	void AddPoint( Real x, Real y, Real z );
-	void GetPoint( int index, Real & x, Real & y, Real & z );
+    void AddPoint( Real x, Real y, Real z );
+    void GetPoint( int index, Real & x, Real & y, Real & z );
 };
 
 class WallVisual
 {
 public:
-	WallVisual();
-	~WallVisual();
+    WallVisual();
+    ~WallVisual();
 public:
-	IntField lCell;
-	IntField rCell;
+    IntField lCell;
+    IntField rCell;
 
-	IntField lPos;
-	IntField rPos;
+    IntField lPos;
+    IntField rPos;
 
-	LinkField fLink;
-	LinkField eLink;
+    LinkField fLink;
+    LinkField eLink;
 
-	IntField faceType;
-	IntField elementType;
-	set< HXSort< IntField > > * faceSet;
+    IntField faceType;
+    IntField elementType;
+    set< HXSort< IntField > > * faceSet;
 public:
-	RealField xN, yN, zN;
+    RealField xN, yN, zN;
 public:
     void CmpOrderMap( int & nBFace, IntField & orderMapping );
-	void ConstructTopology();
+    void ConstructTopology();
     void ConstructTopology2D();
     void ConstructTopology3D();
     void BuildFaceTopo( IntField & faceNodeIndexArray, int loc_Face, int iCell, int face_type );
     void PushElement( int p1, int p2, int elementType );
-	void PushElement( int p1, int p2, int p3, int elementType );
-	void PushElement( int p1, int p2, int p3, int p4, int elementType );
+    void PushElement( int p1, int p2, int p3, int elementType );
+    void PushElement( int p1, int p2, int p3, int p4, int elementType );
 public:
-	void Visual( fstream & file, StringField & titleOfTecplot, RealField2D & qNodeField );
+    void Visual( fstream & file, StringField & titleOfTecplot, RealField2D & qNodeField );
     void Visual3D( fstream & file, StringField & titleOfTecplot, RealField2D & qNodeField );
     void VisualLine( fstream & file, StringField & titleOfTecplot, RealField2D & qNodeField );
 };

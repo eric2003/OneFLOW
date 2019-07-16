@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -44,26 +44,26 @@ class CgnsBcInterface;
 class CgnsBcRegion
 {
 public:
-	CgnsBcRegion( CgnsZone * cgnsZone );
-	~CgnsBcRegion();
+    CgnsBcRegion( CgnsZone * cgnsZone );
+    ~CgnsBcRegion();
 public:
     int id;
     int nameId;
-	string name;
+    string name;
     double bc_double_id;
 
-	BCType_t bcType;
-	PointSetType_t pointSetType;
-	GridLocation_t gridLocation;
+    BCType_t bcType;
+    PointSetType_t pointSetType;
+    GridLocation_t gridLocation;
     GridConnectivityType_t gridConnType;  //Overset, Abutting, Abutting1to1
-	DataType_t normalDataType;
-	CgInt normalListSize;
-	int normalIndex[ 3 ];
-	int nDataSets;
+    DataType_t normalDataType;
+    CgInt normalListSize;
+    int normalIndex[ 3 ];
+    int nDataSets;
 
-	CgInt nElements;
+    CgInt nElements;
 
-	CgIntField connList;
+    CgIntField connList;
 
     CgnsBcInterface * bcInterface;
 
@@ -90,7 +90,7 @@ public:
     void ReadCgns1to1BoundaryRegion( int iCgns1to1BoundaryRegion );
     void CopyStrBcRegion( CgnsBcRegion * strBcRegion, CgInt& startId );
     void ReadCgnsBcConn( CgnsBcRegion * strBcRegion, CgInt & startId );
-	void ReconstructStrRegion( IntField & ijkMin, IntField & ijkMax );
+    void ReconstructStrRegion( IntField & ijkMin, IntField & ijkMax );
     CgInt GetActualNumberOfBoundaryElements();
 };
 

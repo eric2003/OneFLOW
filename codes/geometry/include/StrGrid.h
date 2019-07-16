@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -34,12 +34,12 @@ class BcRegionGroup;
 class StrGrid : public Grid
 {
 public:
-	IMPLEMENT_GRID_CLONE( StrGrid )
+    IMPLEMENT_GRID_CLONE( StrGrid )
 public:
     StrGrid();
     ~StrGrid();
 public:
-	int  ni, nj, nk;
+    int  ni, nj, nk;
     FaceTopo * faceTopo;
     BcRegionGroup * bcRegionGroup;
     Field3D * strx, * stry, * strz;

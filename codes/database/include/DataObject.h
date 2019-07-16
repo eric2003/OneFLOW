@@ -34,13 +34,13 @@ BeginNameSpace( ONEFLOW )
 class DataObject
 {
 public:
-	DataObject() {};
-	virtual ~DataObject() {};
+    DataObject() {};
+    virtual ~DataObject() {};
 public:
-	virtual void * GetVoidPointer() { return 0; };
-	virtual void Write( DataBook * dataBook ) {};
-	virtual void Read( DataBook * dataBook, int numberOfElements ) {};
-	virtual void Copy( DataObject * dataObject ) {};
+    virtual void * GetVoidPointer() { return 0; };
+    virtual void Write( DataBook * dataBook ) {};
+    virtual void Read( DataBook * dataBook, int numberOfElements ) {};
+    virtual void Copy( DataObject * dataObject ) {};
 };
 
 template < typename T >
@@ -49,69 +49,69 @@ T GetDataValue( DataObject * dataObject, int iElement = 0 );
 template < typename T >
 T GetDataValue( DataObject * dataObject, int iElement )
 {
-	T * data = static_cast< T *>( dataObject->GetVoidPointer() );
-	return data[ iElement ];
+    T * data = static_cast< T *>( dataObject->GetVoidPointer() );
+    return data[ iElement ];
 }
 
 template < typename T >
 class TDataObject : public DataObject
 {
 public:
-	TDataObject( int nSize )
-	{
-		this->data.resize( nSize );
-	}
-	~TDataObject(){}
+    TDataObject( int nSize )
+    {
+        this->data.resize( nSize );
+    }
+    ~TDataObject(){}
 public:
-	vector< T > data;
+    vector< T > data;
 public:
-	void * GetVoidPointer() { return & data[ 0 ]; };
-	void CopyValue( string * valueIn )
-	{
-		UInt nSize = this->data.size();
-		for ( UInt i = 0; i < nSize; ++ i )
-		{
-			data[ i ] = StringToDigit< T >( valueIn[ i ], std::dec );
-		}
-	}
+    void * GetVoidPointer() { return & data[ 0 ]; };
+    void CopyValue( string * valueIn )
+    {
+        UInt nSize = this->data.size();
+        for ( UInt i = 0; i < nSize; ++ i )
+        {
+            data[ i ] = StringToDigit< T >( valueIn[ i ], std::dec );
+        }
+    }
 
-	void CopyValue( T * valueIn )
-	{
-		UInt size = this->data.size();
-		for ( UInt i = 0; i < size; ++ i )
-		{
-			data[ i ] = valueIn[ i ];
-		}
-	}
+    void CopyValue( T * valueIn )
+    {
+        UInt size = this->data.size();
+        for ( UInt i = 0; i < size; ++ i )
+        {
+            data[ i ] = valueIn[ i ];
+        }
+    }
 
-	void Write( DataBook * dataBook )
-	{
-		UInt numberOfElements = this->data.size();
-		for ( UInt iElement = 0; iElement < numberOfElements; ++ iElement )
-		{
-			T & value = this->data[ iElement ];
-			ONEFLOW::HXWrite( dataBook, value );
-		}
-	}
+    void Write( DataBook * dataBook )
+    {
+        UInt numberOfElements = this->data.size();
+        for ( UInt iElement = 0; iElement < numberOfElements; ++ iElement )
+        {
+            T & value = this->data[ iElement ];
+            ONEFLOW::HXWrite( dataBook, value );
+        }
+    }
 
-	void Read( DataBook * dataBook, int numberOfElements )
-	{
-		this->data.resize( numberOfElements );
-		for ( int iElement = 0; iElement < numberOfElements; ++ iElement )
-		{
-			ONEFLOW::HXRead( dataBook, this->data[ iElement ] );
-		}
-	}
+    void Read( DataBook * dataBook, int numberOfElements )
+    {
+        this->data.resize( numberOfElements );
+        for ( int iElement = 0; iElement < numberOfElements; ++ iElement )
+        {
+            ONEFLOW::HXRead( dataBook, this->data[ iElement ] );
+        }
+    }
 
-	void Copy( DataObject * dataObject )
-	{
-		UInt numberOfElements = this->data.size();
-		for ( UInt iElement = 0; iElement < numberOfElements; ++ iElement )
-		{
-			TDataObject< T > * tDataObject = static_cast<TDataObject< T > *>( dataObject );
-			data[ iElement ] = tDataObject->data[ iElement ];
-		}
-	}
+    void Copy( DataObject * dataObject )
+    {
+        UInt numberOfElements = this->data.size();
+        for ( UInt iElement = 0; iElement < numberOfElements; ++ iElement )
+        {
+            TDataObject< T > * tDataObject = static_cast<TDataObject< T > *>( dataObject );
+            data[ iElement ] = tDataObject->data[ iElement ];
+        }
+    }
 };
 
 
@@ -119,52 +119,52 @@ template <>
 class TDataObject< string > : public DataObject
 {
 public:
-	TDataObject( int nSize )
-	{
-		this->data.resize( nSize );
-	}
-	~TDataObject() {}
+    TDataObject( int nSize )
+    {
+        this->data.resize( nSize );
+    }
+    ~TDataObject() {}
 public:
-	vector< string > data;
+    vector< string > data;
 public:
-	void * GetVoidPointer() { return & data[ 0 ]; };
-	void CopyValue( string * valueIn )
-	{
-		UInt nSize = this->data.size();
-		for ( UInt i = 0; i < nSize; ++ i )
-		{
-			data[ i ] = valueIn[ i ];
-		}
-	}
+    void * GetVoidPointer() { return & data[ 0 ]; };
+    void CopyValue( string * valueIn )
+    {
+        UInt nSize = this->data.size();
+        for ( UInt i = 0; i < nSize; ++ i )
+        {
+            data[ i ] = valueIn[ i ];
+        }
+    }
 
-	void Write( DataBook * dataBook )
-	{
-		UInt numberOfElements = this->data.size();
-		for ( UInt iElement = 0; iElement < numberOfElements; ++ iElement )
-		{
-			string & value = this->data[ iElement ];
-			ONEFLOW::HXWrite( dataBook, value );
-		}
-	}
+    void Write( DataBook * dataBook )
+    {
+        UInt numberOfElements = this->data.size();
+        for ( UInt iElement = 0; iElement < numberOfElements; ++ iElement )
+        {
+            string & value = this->data[ iElement ];
+            ONEFLOW::HXWrite( dataBook, value );
+        }
+    }
 
-	void Read( DataBook * dataBook, int numberOfElements )
-	{
-		this->data.resize( numberOfElements );
-		for ( int iElement = 0; iElement < numberOfElements; ++ iElement )
-		{
-			ONEFLOW::HXRead( dataBook, this->data[ iElement ] );
-		}
-	}
+    void Read( DataBook * dataBook, int numberOfElements )
+    {
+        this->data.resize( numberOfElements );
+        for ( int iElement = 0; iElement < numberOfElements; ++ iElement )
+        {
+            ONEFLOW::HXRead( dataBook, this->data[ iElement ] );
+        }
+    }
 
-	void Copy( DataObject * dataObject )
-	{
-		UInt numberOfElements = this->data.size();
-		for ( UInt iElement = 0; iElement < numberOfElements; ++ iElement )
-		{
-			TDataObject< string > * tDataObject = static_cast<TDataObject< string > *>( dataObject );
-			data[ iElement ] = tDataObject->data[ iElement ];
-		}
-	}
+    void Copy( DataObject * dataObject )
+    {
+        UInt numberOfElements = this->data.size();
+        for ( UInt iElement = 0; iElement < numberOfElements; ++ iElement )
+        {
+            TDataObject< string > * tDataObject = static_cast<TDataObject< string > *>( dataObject );
+            data[ iElement ] = tDataObject->data[ iElement ];
+        }
+    }
 };
 
 EndNameSpace

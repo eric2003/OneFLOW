@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -32,8 +32,8 @@ class Solver;
 Solver * Clone() const { return new TYPE( * this ); }
 
 #define REGISTER_SOLVER( TYPE ) \
-	Solver * TYPE ## _myClass = \
-		Solver::Register( #TYPE, new TYPE() );
+    Solver * TYPE ## _myClass = \
+        Solver::Register( #TYPE, new TYPE() );
 
 class SolverInfo;
 
@@ -43,11 +43,11 @@ public:
     Solver();
     virtual ~Solver();
 public:
-	virtual Solver * Clone() const = 0;
+    virtual Solver * Clone() const = 0;
 public:
-	static Solver * SafeClone( const string & type );
-	static Solver * Register( const string & type, Solver * clone );
-	static map < string, Solver * > * classMap;
+    static Solver * SafeClone( const string & type );
+    static Solver * Register( const string & type, Solver * clone );
+    static map < string, Solver * > * classMap;
 public:
     int sid, sTid;
     int gridType;

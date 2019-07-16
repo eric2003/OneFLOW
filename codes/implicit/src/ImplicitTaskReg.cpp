@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -71,14 +71,14 @@ void LusgsInit( StringField & data )
 
 void LusgsLowerSweep( StringField & data )
 {
-	LusgsSolver * lusgsSolver = LusgsState::GetLusgsSolver();
-	lusgsSolver->LowerSweep();
+    LusgsSolver * lusgsSolver = LusgsState::GetLusgsSolver();
+    lusgsSolver->LowerSweep();
 }
 
 void LusgsUpperSweep( StringField & data )
 {
-	LusgsSolver * lusgsSolver = LusgsState::GetLusgsSolver();
-	lusgsSolver->UpperSweep();
+    LusgsSolver * lusgsSolver = LusgsState::GetLusgsSolver();
+    lusgsSolver->UpperSweep();
 }
 
 EndNameSpace

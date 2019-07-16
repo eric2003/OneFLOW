@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -127,7 +127,7 @@ void CMD::ShowCmdInfo( Command * cmd, int iCmd )
         int iTaskGlobal = iCmd + i;
 
         cout << " iTaskGlobal = " << iTaskGlobal << " iTaskLocal = " << i << " ";
-		cout << " TaskCode = " << task->taskId << " Task Name = " << task->taskName << endl;
+        cout << " TaskCode = " << task->taskId << " Task Name = " << task->taskName << endl;
     }
 }
 

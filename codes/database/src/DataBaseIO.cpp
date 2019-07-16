@@ -27,30 +27,30 @@ BeginNameSpace( ONEFLOW )
 
 void HXRead( DataBook * dataBook, string & cs )
 {
-	int nLength = 0;
-	ONEFLOW::HXRead( dataBook, nLength );
+    int nLength = 0;
+    ONEFLOW::HXRead( dataBook, nLength );
 
-	char * data = new char[ nLength + 1 ];
-	dataBook->Read( data, nLength + 1 );
+    char * data = new char[ nLength + 1 ];
+    dataBook->Read( data, nLength + 1 );
 
-	cs = data;
+    cs = data;
 
-	delete[] data;
+    delete[] data;
 }
 
 void HXWrite( DataBook * dataBook, string & cs )
 {
-	int nLength = cs.length();
-	ONEFLOW::HXWrite( dataBook, nLength );
+    int nLength = cs.length();
+    ONEFLOW::HXWrite( dataBook, nLength );
 
-	char * data = new char[ nLength + 1 ];
+    char * data = new char[ nLength + 1 ];
 
-	cs.copy( data, nLength );
-	data[ nLength ] = '\0';
+    cs.copy( data, nLength );
+    data[ nLength ] = '\0';
 
-	dataBook->Write( data, nLength + 1 );
+    dataBook->Write( data, nLength + 1 );
 
-	delete[] data;
+    delete[] data;
 }
 
 void HXRead( DataBook * dataBook, MRField * field )

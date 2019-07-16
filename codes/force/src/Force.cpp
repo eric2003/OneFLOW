@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -130,17 +130,17 @@ void AeroCom::Init()
 {
     this->aref = GetDataValue< Real >( "aref" );
     this->lref = GetDataValue< Real >( "lref" );
-	this->xref = GetDataValue< Real >( "xref" );
-	this->yref = GetDataValue< Real >( "yref" );
-	this->zref = GetDataValue< Real >( "zref" );
+    this->xref = GetDataValue< Real >( "xref" );
+    this->yref = GetDataValue< Real >( "yref" );
+    this->zref = GetDataValue< Real >( "zref" );
     this->aoa  = GetDataValue< Real >( "aoa_degree" ) * PI / 180.0;
     this->aos  = GetDataValue< Real >( "sideslip_degree" ) * PI / 180.0;
-	this->sina = sin( aoa );
-	this->cosa = cos( aoa );
-	this->sinb = sin( aos );
-	this->cosb = cos( aos );
-	this->cForce  = aref;
-	this->cMoment = aref * lref;
+    this->sina = sin( aoa );
+    this->cosa = cos( aoa );
+    this->sinb = sin( aos );
+    this->cosb = cos( aos );
+    this->cForce  = aref;
+    this->cMoment = aref * lref;
 }
 
 Real AeroCom::CmpCL( Force * f )
@@ -157,8 +157,8 @@ Real AeroCom::CmpCD( Force * f )
 
 Real AeroCom::CmpCF( Force * f, Real area )
 {
-	Real dir = cosa * f->x + sina * f->y;
-	Real cf = DIST( f->x, f->y, f->z ) / area * SIGN( 1.0, dir );
+    Real dir = cosa * f->x + sina * f->y;
+    Real cf = DIST( f->x, f->y, f->z ) / area * SIGN( 1.0, dir );
     return cf;
 }
 
@@ -187,14 +187,14 @@ void AeroForce::SumForce()
 
 void AeroForce::CmpPower()
 {
-	power = - 1.0 * ( fvx * total.x + fvy * total.y + fvz * total.z );
+    power = - 1.0 * ( fvx * total.x + fvy * total.y + fvz * total.z );
 }
 
 void AeroForce::CmpMoment( Real xc, Real yc, Real zc )
 {
-	mom.x = ( yc - aeroCom.yref ) * total.z - ( zc - aeroCom.zref ) * total.y;
-	mom.y = ( zc - aeroCom.zref ) * total.x - ( xc - aeroCom.xref ) * total.z;
-	mom.z = ( xc - aeroCom.xref ) * total.y - ( yc - aeroCom.yref ) * total.x;
+    mom.x = ( yc - aeroCom.yref ) * total.z - ( zc - aeroCom.zref ) * total.y;
+    mom.y = ( zc - aeroCom.zref ) * total.x - ( xc - aeroCom.xref ) * total.z;
+    mom.z = ( xc - aeroCom.xref ) * total.y - ( yc - aeroCom.yref ) * total.x;
 }
 
 void AeroForce::AddForce( AeroForce * rhs )
@@ -254,7 +254,7 @@ void AeroForceInfo::CmpCoef()
     cf = totalForce.total / aeroCom.cForce;
     cpres = totalForce.pres / aeroCom.cForce;
     cmom = totalForce.mom / aeroCom.cMoment;
-	cpower = totalForce.power / aeroCom.cForce;
+    cpower = totalForce.power / aeroCom.cForce;
 
     const Real AR = 9.5;
     cl      = aeroCom.CmpCL( & cf );
@@ -263,7 +263,7 @@ void AeroForceInfo::CmpCoef()
     cd_vis  = cd - cd_pres;
     cdl     = cd - SQR( cl ) / ( PI * AR );
 
-	pres_center = SIGN( 1.0, cf.y ) * cmom.z / ( ABS( cf.y ) + SMALL );
+    pres_center = SIGN( 1.0, cf.y ) * cmom.z / ( ABS( cf.y ) + SMALL );
 }
 
 

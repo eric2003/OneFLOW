@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -31,13 +31,13 @@ BeginNameSpace( ONEFLOW )
 class CompCoor
 {
 public:
-	CompCoor();
-	~CompCoor();
+    CompCoor();
+    ~CompCoor();
 public:
-	int i, j, k;
+    int i, j, k;
 public:
-	bool operator < ( const CompCoor & rhs ) const;
-	void SetCoor( int i, int j, int k );
+    bool operator < ( const CompCoor & rhs ) const;
+    void SetCoor( int i, int j, int k );
 };
 
 typedef map< int, CompCoor > CoorMap;

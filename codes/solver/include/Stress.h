@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -30,8 +30,8 @@ class Force;
 class Stress
 {
 public:
-	Stress();
-	~Stress();
+    Stress();
+    ~Stress();
 public:
     void CmpStress();
     void CmpForce( Force * force );
@@ -39,17 +39,17 @@ public:
     Real dudx, dudy, dudz;
     Real dvdx, dvdy, dvdz;
     Real dwdx, dwdy, dwdz;
-	Real viscosity;
-	Real um, vm, wm;
-	Real fnx, fny, fnz;
+    Real viscosity;
+    Real um, vm, wm;
+    Real fnx, fny, fnz;
     Real area;
-	Real qn;
+    Real qn;
 
     Real txx, tyy, tzz;
     Real txy, txz, tyz;
 
-	Real fanx, fany, fanz;
-	Real rey, orey;
+    Real fanx, fany, fanz;
+    Real rey, orey;
 };
 
 extern Stress stress;

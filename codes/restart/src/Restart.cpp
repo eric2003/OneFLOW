@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -43,16 +43,16 @@ BeginNameSpace( ONEFLOW )
 
 Restart * CreateRestart( int sTid )
 {
-	if ( sTid == NS_SOLVER )
-	{
-		return CreateNsRestart();
-	}
-	else if ( sTid == TURB_SOLVER )
-	{
-		return CreateTurbRestart();
-	}
+    if ( sTid == NS_SOLVER )
+    {
+        return CreateNsRestart();
+    }
+    else if ( sTid == TURB_SOLVER )
+    {
+        return CreateTurbRestart();
+    }
 
-	return 0;
+    return 0;
 }
 
 Restart::Restart()
@@ -73,17 +73,17 @@ void Restart::ReadUnsteady( int sTid )
 
     Grid * grid = Zone::GetGrid();
 
-	MRField * q  = GetFieldPointer< MRField > ( grid, usdPara->flow[ 0 ] );
-	MRField * q1 = GetFieldPointer< MRField > ( grid, usdPara->flow[ 1 ] );
-	MRField * q2 = GetFieldPointer< MRField > ( grid, usdPara->flow[ 2 ] );
+    MRField * q  = GetFieldPointer< MRField > ( grid, usdPara->flow[ 0 ] );
+    MRField * q1 = GetFieldPointer< MRField > ( grid, usdPara->flow[ 1 ] );
+    MRField * q2 = GetFieldPointer< MRField > ( grid, usdPara->flow[ 2 ] );
 
     HXRead( ActionState::dataBook, q1 );
     HXRead( ActionState::dataBook, q2 );
     SetField( q, q1 );
 
-	MRField * res  = GetFieldPointer< MRField > ( grid, usdPara->residual[ 0 ] );
-	MRField * res1 = GetFieldPointer< MRField > ( grid, usdPara->residual[ 1 ] );
-	MRField * res2 = GetFieldPointer< MRField > ( grid, usdPara->residual[ 2 ] );
+    MRField * res  = GetFieldPointer< MRField > ( grid, usdPara->residual[ 0 ] );
+    MRField * res1 = GetFieldPointer< MRField > ( grid, usdPara->residual[ 1 ] );
+    MRField * res2 = GetFieldPointer< MRField > ( grid, usdPara->residual[ 2 ] );
 
     HXRead( ActionState::dataBook, res1 );
     HXRead( ActionState::dataBook, res2 );
@@ -98,16 +98,16 @@ void Restart::DumpUnsteady( int sTid )
 
     Grid * grid = Zone::GetGrid();
 
-	MRField * q  = GetFieldPointer< MRField > ( grid, usdPara->flow[ 0 ] );
-	MRField * q1 = GetFieldPointer< MRField > ( grid, usdPara->flow[ 1 ] );
-	MRField * q2 = GetFieldPointer< MRField > ( grid, usdPara->flow[ 2 ] );
+    MRField * q  = GetFieldPointer< MRField > ( grid, usdPara->flow[ 0 ] );
+    MRField * q1 = GetFieldPointer< MRField > ( grid, usdPara->flow[ 1 ] );
+    MRField * q2 = GetFieldPointer< MRField > ( grid, usdPara->flow[ 2 ] );
 
     HXWrite( ActionState::dataBook, q1 );
     HXWrite( ActionState::dataBook, q2 );
 
-	MRField * res  = GetFieldPointer< MRField > ( grid, usdPara->residual[ 0 ] );
-	MRField * res1 = GetFieldPointer< MRField > ( grid, usdPara->residual[ 1 ] );
-	MRField * res2 = GetFieldPointer< MRField > ( grid, usdPara->residual[ 2 ] );
+    MRField * res  = GetFieldPointer< MRField > ( grid, usdPara->residual[ 0 ] );
+    MRField * res1 = GetFieldPointer< MRField > ( grid, usdPara->residual[ 1 ] );
+    MRField * res2 = GetFieldPointer< MRField > ( grid, usdPara->residual[ 2 ] );
 
     HXWrite( ActionState::dataBook, res1 );
     HXWrite( ActionState::dataBook, res2 );
@@ -119,16 +119,16 @@ void Restart::InitUnsteady( int sTid )
     UsdPara * usdPara = fieldManager->usdPara;
     Grid * grid = Zone::GetGrid();
 
-	MRField * q  = GetFieldPointer< MRField > ( grid, usdPara->flow[ 0 ] );
-	MRField * q1 = GetFieldPointer< MRField > ( grid, usdPara->flow[ 1 ] );
-	MRField * q2 = GetFieldPointer< MRField > ( grid, usdPara->flow[ 2 ] );
+    MRField * q  = GetFieldPointer< MRField > ( grid, usdPara->flow[ 0 ] );
+    MRField * q1 = GetFieldPointer< MRField > ( grid, usdPara->flow[ 1 ] );
+    MRField * q2 = GetFieldPointer< MRField > ( grid, usdPara->flow[ 2 ] );
 
     SetField( q1, q );
     SetField( q2, q );
 
-	MRField * res  = GetFieldPointer< MRField > ( grid, usdPara->residual[ 0 ] );
-	MRField * res1 = GetFieldPointer< MRField > ( grid, usdPara->residual[ 1 ] );
-	MRField * res2 = GetFieldPointer< MRField > ( grid, usdPara->residual[ 2 ] );
+    MRField * res  = GetFieldPointer< MRField > ( grid, usdPara->residual[ 0 ] );
+    MRField * res1 = GetFieldPointer< MRField > ( grid, usdPara->residual[ 1 ] );
+    MRField * res2 = GetFieldPointer< MRField > ( grid, usdPara->residual[ 2 ] );
 
     SetField( res , 0.0 );
     SetField( res1, res );
@@ -139,7 +139,7 @@ void Restart::Read( int sTid )
 {
     ActionState::dataBook->MoveToBegin();
 
-	ReadRestartHeader();
+    ReadRestartHeader();
 
     this->ReadUnsteady( sTid );
 
@@ -150,7 +150,7 @@ void Restart::Dump( int sTid )
 {
     ActionState::dataBook->MoveToBegin();
 
-	DumpRestartHeader();
+    DumpRestartHeader();
 
     this->DumpUnsteady( sTid );
 
@@ -177,13 +177,13 @@ void DumpRestartHeader()
 
 void RwInterface( int sTid, int readOrWrite )
 {
-	Grid * grid = Zone::GetGrid();
+    Grid * grid = Zone::GetGrid();
     InterFace * interFace = grid->interFace;
 
     if ( ! IsValid( interFace ) ) return;
 
- 	VarNameSolver * varNameSolver = VarNameFactory::GetVarNameSolver( sTid, INTERFACE_GRADIENT_DATA );
-	StringField fieldNameList = varNameSolver->data;
+     VarNameSolver * varNameSolver = VarNameFactory::GetVarNameSolver( sTid, INTERFACE_GRADIENT_DATA );
+    StringField fieldNameList = varNameSolver->data;
 
     for ( int ghostId = MAX_GHOST_LEVELS - 1; ghostId >= 0; -- ghostId )
     {
@@ -198,51 +198,51 @@ void RwInterface( int sTid, int readOrWrite )
 
 void RwInterfaceRecord( DataStorage * storage, StringField & fieldNameList, int readOrWrite )
 {
-	if ( readOrWrite == GREAT_READ )
-	{
-		ReadFieldRecord( storage, fieldNameList );
-	}
-	else if ( readOrWrite == GREAT_WRITE )
-	{
-		WriteFieldRecord( storage, fieldNameList );
-	}
-	else if ( readOrWrite == GREAT_ZERO )
-	{
-		ZeroFieldRecord( storage, fieldNameList );
-	}
+    if ( readOrWrite == GREAT_READ )
+    {
+        ReadFieldRecord( storage, fieldNameList );
+    }
+    else if ( readOrWrite == GREAT_WRITE )
+    {
+        WriteFieldRecord( storage, fieldNameList );
+    }
+    else if ( readOrWrite == GREAT_ZERO )
+    {
+        ZeroFieldRecord( storage, fieldNameList );
+    }
 }
 
 void ReadFieldRecord( DataStorage * storage, StringField & fieldNameList )
 {
-	for ( int iField = 0; iField < fieldNameList.size(); ++ iField )
-	{
-		string & filedName = fieldNameList[ iField ];
+    for ( int iField = 0; iField < fieldNameList.size(); ++ iField )
+    {
+        string & filedName = fieldNameList[ iField ];
         MRField * field = ONEFLOW::GetFieldPointer< MRField >( storage, filedName );
 
-		HXRead( ActionState::dataBook, field );
-	}
+        HXRead( ActionState::dataBook, field );
+    }
 }
 
 void WriteFieldRecord( DataStorage * storage, StringField & fieldNameList )
 {
-	for ( int iField = 0; iField < fieldNameList.size(); ++ iField )
-	{
-		string & filedName = fieldNameList[ iField ];
+    for ( int iField = 0; iField < fieldNameList.size(); ++ iField )
+    {
+        string & filedName = fieldNameList[ iField ];
         MRField * field = ONEFLOW::GetFieldPointer< MRField >( storage, filedName );
 
-		HXWrite( ActionState::dataBook, field );
-	}
+        HXWrite( ActionState::dataBook, field );
+    }
 }
 
 void ZeroFieldRecord( DataStorage * storage, StringField & fieldNameList )
 {
-	for ( int iField = 0; iField < fieldNameList.size(); ++ iField )
-	{
-		string & filedName = fieldNameList[ iField ];
+    for ( int iField = 0; iField < fieldNameList.size(); ++ iField )
+    {
+        string & filedName = fieldNameList[ iField ];
         MRField * field = ONEFLOW::GetFieldPointer< MRField >( storage, filedName );
 
         SetField( field, 0.0 );
-	}
+    }
 }
 
 

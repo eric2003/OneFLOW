@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -33,20 +33,20 @@ BeginNameSpace( ONEFLOW )
 class MessageMap
 {
 public:
-	MessageMap();
-	~MessageMap();
+    MessageMap();
+    ~MessageMap();
 public:
-	static map< string, int > * nameMap;
-	static map< int, string > * idMap;
+    static map< string, int > * nameMap;
+    static map< int, string > * idMap;
 public:
-	static void Register( const string & msgName );
-	static void Unregister( const string & msgName );
-	static int    GetMsgId( const string & msgName );
-	static string GetMsgName( int msgId );
-	static void ReadFile( const string & fileName );
+    static void Register( const string & msgName );
+    static void Unregister( const string & msgName );
+    static int    GetMsgId( const string & msgName );
+    static string GetMsgName( int msgId );
+    static void ReadFile( const string & fileName );
 public:
-	static void Init();
-	static void Free();
+    static void Init();
+    static void Free();
 };
 
 EndNameSpace

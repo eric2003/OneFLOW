@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -33,14 +33,14 @@ typedef Point< Real > PointType;
 class PointMachine
 {
 public:
-	PointMachine();
-	~PointMachine();
+    PointMachine();
+    ~PointMachine();
 public:
-	HXVector< PointType * > ptList;
-	PointBasic ptBasic;
+    HXVector< PointType * > ptList;
+    PointBasic ptBasic;
 public:
-	void AddPoint( Real x, Real y, Real z, int id = 0 );
-	PointType * GetPoint( int id );
+    void AddPoint( Real x, Real y, Real z, int id = 0 );
+    PointType * GetPoint( int id );
 };
 
 extern PointMachine point_Machine;

@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -31,47 +31,47 @@ int ElementHome::numberOfUnitElement = 0;
 
 ElementHome::ElementHome()
 {
-	;
+    ;
 }
 
 ElementHome::~ElementHome()
 {
-	;
+    ;
 }
 
 UnitElement * ElementHome::GetUnitElement( int elementType )
 {
-	return unitElement[ elementType ];
+    return unitElement[ elementType ];
 }
 
 void ElementHome::Initialize()
 {
-	ElementHome::numberOfUnitElement = NofValidElementTypes;
+    ElementHome::numberOfUnitElement = NofValidElementTypes;
 
-	ONEFLOW::CreatePointer( unitElement, numberOfUnitElement );
+    ONEFLOW::CreatePointer( unitElement, numberOfUnitElement );
 
-	for ( UInt iUnitElement = 0; iUnitElement < numberOfUnitElement; ++ iUnitElement )
-	{
-		unitElement[ iUnitElement ]->Initialize( iUnitElement );
-	}
+    for ( UInt iUnitElement = 0; iUnitElement < numberOfUnitElement; ++ iUnitElement )
+    {
+        unitElement[ iUnitElement ]->Initialize( iUnitElement );
+    }
 }
 
 void ElementHome::Free()
 {
-	ONEFLOW::DeletePointer( unitElement );
+    ONEFLOW::DeletePointer( unitElement );
 }
 
 class ElementHomeInit
 {
 public:
-	ElementHomeInit()
-	{
-		ElementHome::Initialize();
-	}
-	~ElementHomeInit()
-	{
-		ElementHome::Free();
-	}
+    ElementHomeInit()
+    {
+        ElementHome::Initialize();
+    }
+    ~ElementHomeInit()
+    {
+        ElementHome::Free();
+    }
 };
 ElementHomeInit elementHomeInit;
 

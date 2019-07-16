@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -36,29 +36,29 @@ typedef HXAdtNode< int, Real > AdtNode;
 class PointSearch
 {
 public:
-	PointSearch();
-	~PointSearch();
+    PointSearch();
+    ~PointSearch();
 protected:
     int id;
-	AdtTree * coorTree;
-	Real tolerance;
-	RealField xCoor, yCoor, zCoor;
+    AdtTree * coorTree;
+    Real tolerance;
+    RealField xCoor, yCoor, zCoor;
 public:
-	void Initialize( RealField & pmin, RealField & pmax, Real toleranceIn );
-	void Initialize( Grid * grid );
-	void InitializeSpecial( Grid * grid, Real toleranceIn );
-	void Initialize( Grids & grids );
+    void Initialize( RealField & pmin, RealField & pmax, Real toleranceIn );
+    void Initialize( Grid * grid );
+    void InitializeSpecial( Grid * grid, Real toleranceIn );
+    void Initialize( Grids & grids );
 public:
     int GetNPoint() { return static_cast<int> (xCoor.size()); }
-	int FindPoint( Real xm, Real ym, Real zm );
-	int AddPoint( Real xm, Real ym, Real zm );
-	void GetPoint( int id, Real & xm, Real & ym, Real & zm );
-	Real GetTol() { return tolerance; }
+    int FindPoint( Real xm, Real ym, Real zm );
+    int AddPoint( Real xm, Real ym, Real zm );
+    void GetPoint( int id, Real & xm, Real & ym, Real & zm );
+    Real GetTol() { return tolerance; }
 protected:
-	int AddPoint( RealField & coordinate );
-	int FindPoint( RealField & coordinate );
+    int AddPoint( RealField & coordinate );
+    int FindPoint( RealField & coordinate );
 public:
-	void GetFaceCoorList( IntField & nodeId, RealField &xList, RealField &yList, RealField &zList );
+    void GetFaceCoorList( IntField & nodeId, RealField &xList, RealField &yList, RealField &zList );
 };
 
 void CreateStandardADT( RealField & ptmin, RealField & ptmax, AdtTree *& adtTree, Real & tolerance );

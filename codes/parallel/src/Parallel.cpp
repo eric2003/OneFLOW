@@ -43,95 +43,95 @@ int Parallel::defaultTag = 0;
 
 Parallel::Parallel()
 {
-	;
+    ;
 }
 
 Parallel::~Parallel()
 {
-	;
+    ;
 }
 
 void Parallel::SetDefaultParallelParameter()
 {
-	ONEFLOW::HXInit();
-	Parallel::SetServerid( 0 );
-	Parallel::SetPid( ONEFLOW::HXRank() );
-	Parallel::SetNProc( ONEFLOW::HXSize() );
+    ONEFLOW::HXInit();
+    Parallel::SetServerid( 0 );
+    Parallel::SetPid( ONEFLOW::HXRank() );
+    Parallel::SetNProc( ONEFLOW::HXSize() );
 }
 
 void Parallel::SetServerid( int serverid )
 {
-	Parallel::serverid = serverid;
+    Parallel::serverid = serverid;
 }
 
 int Parallel::GetServerid()
 {
-	return Parallel::serverid;
+    return Parallel::serverid;
 }
 
 void Parallel::SetPid( int pid )
 {
-	Parallel::pid = pid;
+    Parallel::pid = pid;
 }
 
 int Parallel::GetPid()
 {
-	return Parallel::pid;
+    return Parallel::pid;
 }
 
 void Parallel::SetNProc( int nProc )
 {
-	Parallel::nProc = nProc;
+    Parallel::nProc = nProc;
 }
 
 int Parallel::GetNProc()
 {
-	return Parallel::nProc;
+    return Parallel::nProc;
 }
 
 void Parallel::SetDefaultTag( int defaultTagIn )
 {
-	Parallel::defaultTag = defaultTagIn;
+    Parallel::defaultTag = defaultTagIn;
 }
 
 int Parallel::GetDefaultTag()
 {
-	return Parallel::defaultTag;
+    return Parallel::defaultTag;
 }
 
 void Parallel::TestSayHelloFromEveryProcess()
 {
-	int serverid = Parallel::GetServerid();
-	ONEFLOW::StrIO.ClearAll();
-	ONEFLOW::StrIO << "Hello from process " << pid << " name = " << ONEFLOW::HXGetProcessorName();
-	string cs = ONEFLOW::StrIO.str();
+    int serverid = Parallel::GetServerid();
+    ONEFLOW::StrIO.ClearAll();
+    ONEFLOW::StrIO << "Hello from process " << pid << " name = " << ONEFLOW::HXGetProcessorName();
+    string cs = ONEFLOW::StrIO.str();
 
-	Parallel::CollectString( cs, serverid, Parallel::GetDefaultTag() );
+    Parallel::CollectString( cs, serverid, Parallel::GetDefaultTag() );
 }
 
 void Parallel::CollectString( string & cs, int rootId, int tag )
 {
-	if ( Parallel::GetPid() != rootId )
-	{
-		ONEFLOW::HXSendString( cs, rootId, tag );
-	}
-	else
-	{
-		int nProc = Parallel::GetNProc();
-		for ( int pid = 0; pid < nProc; ++ pid )
-		{
-			if ( pid != rootId )
-			{
-				ONEFLOW::HXRecvString( cs, pid, tag );
-			}
-			ONEFLOW::logFile << cs << "\n";
-		}
-	}
+    if ( Parallel::GetPid() != rootId )
+    {
+        ONEFLOW::HXSendString( cs, rootId, tag );
+    }
+    else
+    {
+        int nProc = Parallel::GetNProc();
+        for ( int pid = 0; pid < nProc; ++ pid )
+        {
+            if ( pid != rootId )
+            {
+                ONEFLOW::HXRecvString( cs, pid, tag );
+            }
+            ONEFLOW::logFile << cs << "\n";
+        }
+    }
 }
 
 bool Parallel::IsServer()
 {
-	return Parallel::GetPid() == Parallel::GetServerid();
+    return Parallel::GetPid() == Parallel::GetServerid();
 }
 
 int Parallel::GetFid()
@@ -164,51 +164,51 @@ void Parallel::GetSrPid( int zid, int & sPid, int & rPid )
 
 void SetUpParallelEnvironment()
 {
-	Parallel::SetDefaultParallelParameter();
+    Parallel::SetDefaultParallelParameter();
 }
 
 void HXBcast( DataBook * dataBook, int rootid )
 {
-	//int tag = 0;
+    //int tag = 0;
  //   if ( Parallel::pid == rootid )
  //   {
  //       for ( int proc = 0; proc < Parallel::nProc; ++ proc )
  //       {
  //           if ( proc == rootid ) continue;
-	//		dataBook->Send( proc, tag );
+    //        dataBook->Send( proc, tag );
  //       }
  //   }
  //   else
  //   {
-	//	dataBook->Recv( rootid, tag );
+    //    dataBook->Recv( rootid, tag );
  //   }
-	dataBook->Bcast( rootid );
+    dataBook->Bcast( rootid );
 }
 
 void HXBcast( DATA_COMPRESS dataCompression, DATA_DECOMPRESS dataDecompression, int rootid )
 {
-	int nProc = Parallel::GetNProc();
+    int nProc = Parallel::GetNProc();
 
-	if ( nProc <= 1 ) return;
+    if ( nProc <= 1 ) return;
 
-	DataBook * dataBook = new DataBook();
+    DataBook * dataBook = new DataBook();
 
-	if ( Parallel::GetPid() == rootid )
-	{
-		//Compress data, or store data to dataBook
-		dataCompression( dataBook );
-	}
+    if ( Parallel::GetPid() == rootid )
+    {
+        //Compress data, or store data to dataBook
+        dataCompression( dataBook );
+    }
 
-	//Pass the dataBook to the required processes
-	ONEFLOW::HXBcast( dataBook, rootid );
+    //Pass the dataBook to the required processes
+    ONEFLOW::HXBcast( dataBook, rootid );
 
-	if ( Parallel::GetPid() != rootid )
-	{
-		//Extract the data from dataBook to obtain the required information
-		dataDecompression( dataBook );
-	}
+    if ( Parallel::GetPid() != rootid )
+    {
+        //Extract the data from dataBook to obtain the required information
+        dataDecompression( dataBook );
+    }
 
-	delete dataBook;
+    delete dataBook;
 }
 
 void HXSwapData( DataBook * dataBook, int spid, int rpid, int tag )
@@ -217,11 +217,11 @@ void HXSwapData( DataBook * dataBook, int spid, int rpid, int tag )
 
     if ( Parallel::pid == spid )
     {
-		dataBook->Send( rpid, tag );
+        dataBook->Send( rpid, tag );
     }
     else if ( Parallel::pid == rpid )
     {
-		dataBook->Recv( spid, tag );
+        dataBook->Recv( spid, tag );
     }
 }
 
@@ -234,11 +234,11 @@ void HXBcastString( string & cs, int pid )
     }
     HXBcast( & nlen, 1, pid );
 
-	int nlen1 = nlen + 1;
+    int nlen1 = nlen + 1;
 
-	char * data = new char[ nlen1 ];
+    char * data = new char[ nlen1 ];
 
-	cs.copy( data, nlen );
+    cs.copy( data, nlen );
 
     HXBcast( data, nlen, pid );
 
@@ -248,7 +248,7 @@ void HXBcastString( string & cs, int pid )
         cs = data;
     }
 
-	delete[] data;
+    delete[] data;
 }
 
 EndNameSpace

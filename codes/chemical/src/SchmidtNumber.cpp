@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -39,58 +39,58 @@ SchmidtNumber::~SchmidtNumber()
 
 void SchmidtNumber::Init( int nSpecies )
 {
-	this->nSpecies = nSpecies;
+    this->nSpecies = nSpecies;
 
-	lamSchmidt.resize( nSpecies );
-	turbSchmidt.resize( nSpecies );
-	olamSchmidt.resize( nSpecies );
-	oturbSchmidt.resize( nSpecies );
+    lamSchmidt.resize( nSpecies );
+    turbSchmidt.resize( nSpecies );
+    olamSchmidt.resize( nSpecies );
+    oturbSchmidt.resize( nSpecies );
 }
 
 void SchmidtNumber::ComputeSchmidtNumber( IntField & ionType )
 {
-	for ( int iSpecies = 0; iSpecies < nSpecies; ++ iSpecies )
-	{
-		if ( ionType[ iSpecies ] != 0 && ABS( ionType[ iSpecies ] ) < 100 )
-		{
-			//if ( ionType[ iSpecies ] > 0 )
-			//{
-			lamSchmidt [ iSpecies ] = half * nscom.schmidtl;
-			turbSchmidt[ iSpecies ] = half * nscom.schmidtt;
-			//}
-			//else
-			//{
-			//    lamSchmidt [ iSpecies ] = half * nscom.schmidtl;
-			//    turbSchmidt[ iSpecies ] = half * nscom.schmidtt;
-			//}
-		}
-		else
-		{
-			lamSchmidt [ iSpecies ] = 1.0 * nscom.schmidtl;
-			turbSchmidt[ iSpecies ] = 1.0 * nscom.schmidtt;
-		}
+    for ( int iSpecies = 0; iSpecies < nSpecies; ++ iSpecies )
+    {
+        if ( ionType[ iSpecies ] != 0 && ABS( ionType[ iSpecies ] ) < 100 )
+        {
+            //if ( ionType[ iSpecies ] > 0 )
+            //{
+            lamSchmidt [ iSpecies ] = half * nscom.schmidtl;
+            turbSchmidt[ iSpecies ] = half * nscom.schmidtt;
+            //}
+            //else
+            //{
+            //    lamSchmidt [ iSpecies ] = half * nscom.schmidtl;
+            //    turbSchmidt[ iSpecies ] = half * nscom.schmidtt;
+            //}
+        }
+        else
+        {
+            lamSchmidt [ iSpecies ] = 1.0 * nscom.schmidtl;
+            turbSchmidt[ iSpecies ] = 1.0 * nscom.schmidtt;
+        }
 
-		olamSchmidt [ iSpecies ] = 1.0 / lamSchmidt [ iSpecies ];
-		oturbSchmidt[ iSpecies ] = 1.0 / turbSchmidt[ iSpecies ];
-	}
+        olamSchmidt [ iSpecies ] = 1.0 / lamSchmidt [ iSpecies ];
+        oturbSchmidt[ iSpecies ] = 1.0 / turbSchmidt[ iSpecies ];
+    }
 }
 
 void SchmidtNumber::Read( DataBook * dataBook )
 {
-	HXRead( dataBook, lamSchmidt );
-	HXRead( dataBook, turbSchmidt );
+    HXRead( dataBook, lamSchmidt );
+    HXRead( dataBook, turbSchmidt );
 
-	HXRead( dataBook, olamSchmidt );
-	HXRead( dataBook, oturbSchmidt );
+    HXRead( dataBook, olamSchmidt );
+    HXRead( dataBook, oturbSchmidt );
 }
 
 void SchmidtNumber::Write( DataBook * dataBook )
 {
-	HXAppend( dataBook, lamSchmidt );
-	HXAppend( dataBook, turbSchmidt );
+    HXAppend( dataBook, lamSchmidt );
+    HXAppend( dataBook, turbSchmidt );
 
-	HXAppend( dataBook, olamSchmidt );
-	HXAppend( dataBook, oturbSchmidt );
+    HXAppend( dataBook, olamSchmidt );
+    HXAppend( dataBook, oturbSchmidt );
 }
 
 

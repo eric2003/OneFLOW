@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -36,13 +36,13 @@ public:
     ZoneState();
     ~ZoneState();
 public:
-	static int nZones;
+    static int nZones;
     static int nLocal;
     static int zid;
     static int szid;
     static int rzid;
-	static IntField pid;
-	static IntField zoneType;
+    static IntField pid;
+    static IntField zoneType;
     static IntField localZid;
 public:
     static bool IsValidZone( int zoneId );
@@ -92,21 +92,21 @@ public:
 class GridGroup
 {
 public:
-	GridGroup( int zoneStart = 0 );
-	~GridGroup();
+    GridGroup( int zoneStart = 0 );
+    ~GridGroup();
 public:
-	int   nZones;
-	static IntField pid;
-	static IntField zoneType;
-	int zoneStart;
+    int   nZones;
+    static IntField pid;
+    static IntField zoneType;
+    int zoneStart;
 protected:
-	void ReadGrid( fstream & file, int iZone );
+    void ReadGrid( fstream & file, int iZone );
 public:
-	void ReadGrid( const string & fileName );
-	void InitZoneLayout( const string & fileName );
+    void ReadGrid( const string & fileName );
+    void InitZoneLayout( const string & fileName );
 protected:
-	void InitZoneLayout( fstream & file );
-	void SetMultiZoneLayout();
+    void InitZoneLayout( fstream & file );
+    void SetMultiZoneLayout();
 };
 
 class DataBook;

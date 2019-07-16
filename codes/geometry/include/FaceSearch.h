@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -30,13 +30,13 @@ BeginNameSpace( ONEFLOW )
 class FaceSort
 {
 public:
-	FaceSort();
-	FaceSort( const IntField & nodeId, int fId = 0 );
-	~FaceSort();
+    FaceSort();
+    FaceSort( const IntField & nodeId, int fId = 0 );
+    ~FaceSort();
 public:
-	int fId;
-	IntField nodeId;
-	IntField sortedNodeId;
+    int fId;
+    IntField nodeId;
+    IntField sortedNodeId;
 };
 
 class CompareFace
@@ -51,14 +51,14 @@ public:
 class FaceSearchBasic
 {
 public:
-	FaceSearchBasic();
-	~FaceSearchBasic();
+    FaceSearchBasic();
+    ~FaceSearchBasic();
 public:
-	HXVector< FaceSort * > faceArray;
-	set< FaceSort * , CompareFace > faceSet;
+    HXVector< FaceSort * > faceArray;
+    set< FaceSort * , CompareFace > faceSet;
 public:
     int AddFace( const IntField & faceNode );
-	int FindFace( const IntField & faceNode );
+    int FindFace( const IntField & faceNode );
 };
 
 class IFaceLink;
@@ -66,15 +66,15 @@ class IFaceLink;
 class FaceSearch : public FaceSearchBasic
 {
 public:
-	FaceSearch();
-	~FaceSearch();
+    FaceSearch();
+    ~FaceSearch();
 public:
-	IntField status;
-	LinkField cFaceId;
-	LinkField rCNodeId;
-	LinkField rCNodeFlag;
-	IFaceLink * iFaceLink;
-	int gFid;
+    IntField status;
+    LinkField cFaceId;
+    LinkField rCNodeId;
+    LinkField rCNodeFlag;
+    IFaceLink * iFaceLink;
+    int gFid;
 public:
     void ComputeNewFaceId( IFaceLink * iFaceLink );
     void SplitQuad2Tri( FaceSort * pFaceSort );

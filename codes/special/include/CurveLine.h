@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -34,47 +34,47 @@ class CurveLine;
 class StrCurveLoop
 {
 public:
-	StrCurveLoop();
-	~StrCurveLoop();
+    StrCurveLoop();
+    ~StrCurveLoop();
 public:
-	int ni, nj;
-	IntField curveIdList;
+    int ni, nj;
+    IntField curveIdList;
 public:
-	void AddCurve( int curveId );
-	CurveLine * GetCurve( int curveId );
-	void SetDimension();
+    void AddCurve( int curveId );
+    CurveLine * GetCurve( int curveId );
+    void SetDimension();
 };
 
 class CurveLine
 {
 public:
-	CurveLine();
-	~CurveLine();
+    CurveLine();
+    ~CurveLine();
 public:
-	RealField x;
-	RealField y;
-	RealField z;
-	int nNode;
+    RealField x;
+    RealField y;
+    RealField z;
+    int nNode;
 public:
-	PointType start_p, end_p;
-	PointType center_p;
-	Real totalCurveLength;
-	Real ds1, ds2;
-	int lineType;
+    PointType start_p, end_p;
+    PointType center_p;
+    Real totalCurveLength;
+    Real ds1, ds2;
+    int lineType;
 public:
-	void Alloc( int nNode );
-	void MakeLine( PointType & p1, PointType & p2 );
-	void MakeCircle();
-	void MakeCircle( PointType & p1, PointType & p2, PointType & p0 );
-	void GenerateCurveLine();
-	void GenerateCircleLine();
-	void GenerateParabolicLine();
-	void ComputeTotalLength();
-	Real ComputeParabolicLength(Real x, Real p);
-	void FindXByLength(Real & x, Real p, Real maxX, Real length);
+    void Alloc( int nNode );
+    void MakeLine( PointType & p1, PointType & p2 );
+    void MakeCircle();
+    void MakeCircle( PointType & p1, PointType & p2, PointType & p0 );
+    void GenerateCurveLine();
+    void GenerateCircleLine();
+    void GenerateParabolicLine();
+    void ComputeTotalLength();
+    Real ComputeParabolicLength(Real x, Real p);
+    void FindXByLength(Real & x, Real p, Real maxX, Real length);
 public:
-	void ComputeLineLength();
-	void ComputeNormal( RealField & nbx, RealField & nby, RealField & nbz );
+    void ComputeLineLength();
+    void ComputeNormal( RealField & nbx, RealField & nby, RealField & nbz );
 };
 
 Real ComputeDist( PointType & p1, PointType & p2 );

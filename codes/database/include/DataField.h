@@ -32,12 +32,12 @@ class PointerWrap;
 class DataF
 {
 public:
-	DataF();
-	DataF( const string & name, PointerWrap * data );
-	~DataF();
+    DataF();
+    DataF( const string & name, PointerWrap * data );
+    ~DataF();
 public:
-	string  name;
-	PointerWrap * data;
+    string  name;
+    PointerWrap * data;
 public:
     string & GetName() { return name;  }
     PointerWrap * GetPointerWrap() { return data;  }
@@ -46,10 +46,10 @@ public:
 class CompareDataF
 {
 public:
-	bool operator()( const DataF * lhs, const DataF * rhs ) const
-	{
-		return lhs->name < rhs->name;
-	}
+    bool operator()( const DataF * lhs, const DataF * rhs ) const
+    {
+        return lhs->name < rhs->name;
+    }
 };
 
 class DataField
@@ -57,16 +57,16 @@ class DataField
 public:
     typedef set < DataF *, CompareDataF > DataSET;
 public:
-	DataField();
-	~DataField();
+    DataField();
+    ~DataField();
 protected:
-	DataSET * dataSet;
+    DataSET * dataSet;
 public:
-	void UpdateDataF( DataF * dataf );
-	DataF * GetDataF( const string & name );
-	void DeleteDataF( const string & name );
+    void UpdateDataF( DataF * dataf );
+    DataF * GetDataF( const string & name );
+    void DeleteDataF( const string & name );
 
-	DataSET * GetDataSet() { return dataSet; }
+    DataSET * GetDataSet() { return dataSet; }
 };
 
 EndNameSpace

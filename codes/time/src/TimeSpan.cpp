@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -29,26 +29,26 @@ BeginNameSpace( ONEFLOW )
 
 TimeSpan::TimeSpan()
 {
-	ResetTime();
+    ResetTime();
 }
 
 TimeSpan::~TimeSpan()
 {
-	;
+    ;
 }
 
 void TimeSpan::ShowTimeSpan( const string & title )
 {
-	t = clock();
-	clock_t timeSpan = t - t_old;
-	t_old = t;
-	cout << title << " Time elapsed : " << static_cast< Real >( timeSpan ) / CLOCKS_PER_SEC << " seconds" << "\n";
+    t = clock();
+    clock_t timeSpan = t - t_old;
+    t_old = t;
+    cout << title << " Time elapsed : " << static_cast< Real >( timeSpan ) / CLOCKS_PER_SEC << " seconds" << "\n";
 }
 
 void TimeSpan::ResetTime()
 {
-	t_old = clock();
-	t = t_old;
+    t_old = clock();
+    t = t_old;
 }
 
 EndNameSpace

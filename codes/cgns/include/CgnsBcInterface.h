@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -41,19 +41,19 @@ public:
     CgnsBcInterface( CgnsBcRegion * bcRegion );
     ~CgnsBcInterface();
 public:
-	CgInt	nConnPoints;
-	CgInt	nConnDonorPoints;
-	ZoneType_t     donorZoneType;
-	PointSetType_t donorPointSetType;
-	DataType_t     donorDataType;
+    CgInt    nConnPoints;
+    CgInt    nConnDonorPoints;
+    ZoneType_t     donorZoneType;
+    PointSetType_t donorPointSetType;
+    DataType_t     donorDataType;
 
-	CgIntField connPoint;
-	CgIntField connDonorPoint;
+    CgIntField connPoint;
+    CgIntField connDonorPoint;
 
     int itranfrm[ 3 ];
 
-	//string connName;
-	string donorZoneName;
+    //string connName;
+    string donorZoneName;
 
     CgnsBcRegion * bcRegion;
 public:
@@ -61,11 +61,11 @@ public:
     void ReadCgnsBcConnData();
     void ReadCgnsBc1To1();
 public:
-	void ConvertToInnerDataStandard();
-	void ShiftBcRegion();
+    void ConvertToInnerDataStandard();
+    void ShiftBcRegion();
 public:
-	void AddFacePair();
-	void SetPeriodicBc();
+    void AddFacePair();
+    void SetPeriodicBc();
 };
 
 #endif

@@ -35,32 +35,32 @@ public:
     VirtualFile( fstream * file );
     VirtualFile( DataBook * databook );
 public:
-	int type;
-	fstream * file;
+    int type;
+    fstream * file;
     DataBook * databook;
 public:
-	streamsize sectionBegin, sectionEnd, dataLength;
+    streamsize sectionBegin, sectionEnd, dataLength;
 public:
-	void Read ( void * data, streamsize size );
-	void Write( void * data, streamsize size );
+    void Read ( void * data, streamsize size );
+    void Write( void * data, streamsize size );
 protected:
-	void MarkSectionBegin();
-	void MarkSectionEnd  ();
-	streamsize GetSectionBegin() { return sectionBegin; };
-	streamsize GetSectionEnd() { return sectionEnd; };
-	void MoveToPosition( streamsize sectionPosition );
-	void MoveToSectionBegin();
-	void MoveToSectionEnd();
-	void WriteDataLength();
+    void MarkSectionBegin();
+    void MarkSectionEnd  ();
+    streamsize GetSectionBegin() { return sectionBegin; };
+    streamsize GetSectionEnd() { return sectionEnd; };
+    void MoveToPosition( streamsize sectionPosition );
+    void MoveToSectionBegin();
+    void MoveToSectionEnd();
+    void WriteDataLength();
 public:
-	void BeginWriteWork();
-	void EndWriteWork();
-	void BeginReadWork();
-	void EndReadWork();
+    void BeginWriteWork();
+    void EndWriteWork();
+    void BeginReadWork();
+    void EndReadWork();
 
-	void ReadDataLength();
-	void ReservePlaceholder();
-	streamsize GetCurrentPosition();
+    void ReadDataLength();
+    void ReservePlaceholder();
+    streamsize GetCurrentPosition();
 };
 
 EndNameSpace

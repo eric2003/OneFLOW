@@ -30,16 +30,16 @@ class DataBook;
 class BlotterCurve
 {
 public:
-	BlotterCurve();
+    BlotterCurve();
     ~BlotterCurve();
 public:
-	int nSpecies;
-	RealField a, b, c, d, e;
+    int nSpecies;
+    RealField a, b, c, d, e;
 public:
-	void Init( int nSpecies );
-	void Read( AsciiFileRead * ioFile );
-	void Read( DataBook * dataBook );
-	void Write( DataBook * dataBook );
+    void Init( int nSpecies );
+    void Read( AsciiFileRead * ioFile );
+    void Read( DataBook * dataBook );
+    void Write( DataBook * dataBook );
 };
 
 EndNameSpace

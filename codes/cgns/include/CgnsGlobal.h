@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -37,13 +37,13 @@ class CgnsMultiBase;
 class CgnsGlobal
 {
 public:
-	CgnsGlobal();
-	~CgnsGlobal();
+    CgnsGlobal();
+    ~CgnsGlobal();
 public:
-	CgnsMultiBase * cgnsbases;
+    CgnsMultiBase * cgnsbases;
 public:
-	CgnsZone * GetCgnsZone( int zId );
-	CgnsZone * GetCgnsZone( const string & zoneName );
+    CgnsZone * GetCgnsZone( int zId );
+    CgnsZone * GetCgnsZone( const string & zoneName );
 };
 
 CgnsZone * GetCgnsZone( const string & zoneName );

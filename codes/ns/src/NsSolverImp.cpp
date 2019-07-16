@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -65,7 +65,7 @@ void NsInitFinal( StringField & data )
 
     if ( Zone::GetCGrid( grid ) )
     {
-		//RestrictAllQ( NS_SOLVER, FLOW_FIELD_INDEX );
+        //RestrictAllQ( NS_SOLVER, FLOW_FIELD_INDEX );
 
         GridState::gridLevel += 1;
 
@@ -110,34 +110,34 @@ void NsImplicitMethod( StringField & data )
 
 void NsPostprocess( StringField & data )
 {
-	//After every Iter, the first thing to consider is communication.
-	CommInterfaceData();
+    //After every Iter, the first thing to consider is communication.
+    CommInterfaceData();
 
-	//The solution and output of residuals need to be judged logically.
+    //The solution and output of residuals need to be judged logically.
     if ( Iteration::ResOk() )
     {
         ONEFLOW::AddCmdToList( "DUMP_RESIDUAL" );
-	}
+    }
 
-	//The solution and output of aerodynamic force need to be judged logically.
+    //The solution and output of aerodynamic force need to be judged logically.
     if ( Iteration::ForceOk() )
     {
-		ONEFLOW::AddCmdToList( "DUMP_AERODYNAMIC" );
-	}
+        ONEFLOW::AddCmdToList( "DUMP_AERODYNAMIC" );
+    }
 
-	if ( ! Iteration::InnerOk() ) return;
+    if ( ! Iteration::InnerOk() ) return;
 
-	ONEFLOW::AddCmdToList( "UPDATE_UNSTEADY_FLOW" );
+    ONEFLOW::AddCmdToList( "UPDATE_UNSTEADY_FLOW" );
 
     if ( Iteration::outerSteps % Iteration::nVisualSave == 0 )
     {
-		ONEFLOW::AddCmdToList( "VISUALIZATION"       );
-		ONEFLOW::AddCmdToList( "DUMP_PRESSURE_COEFF" );
-		ONEFLOW::AddCmdToList( "DUMP_HEATFLUX_COEFF" );
-		if ( ctrl.idump == 1 )
-		{
-		    ONEFLOW::AddCmdToList( "DUMP_LAMINAR_PLATE" );
-		}
+        ONEFLOW::AddCmdToList( "VISUALIZATION"       );
+        ONEFLOW::AddCmdToList( "DUMP_PRESSURE_COEFF" );
+        ONEFLOW::AddCmdToList( "DUMP_HEATFLUX_COEFF" );
+        if ( ctrl.idump == 1 )
+        {
+            ONEFLOW::AddCmdToList( "DUMP_LAMINAR_PLATE" );
+        }
         else if ( ctrl.idump == 2 )
         {
             ONEFLOW::AddCmdToList( "DUMP_TURB_PLATE" );
@@ -146,7 +146,7 @@ void NsPostprocess( StringField & data )
 
     if ( Iteration::outerSteps % Iteration::nFieldSave == 0 )
     {
-		ONEFLOW::AddCmdToList( "DUMP_RESTART" );
+        ONEFLOW::AddCmdToList( "DUMP_RESTART" );
     }
 
 }
@@ -158,11 +158,11 @@ void DumpHeatFluxCoeff( StringField & data )
 
 void NsFinalPostprocess( StringField & data )
 {
-	ONEFLOW::AddCmdToList( "DUMP_RESTART"        );
-	ONEFLOW::AddCmdToList( "DUMP_AERODYNAMIC"    );
-	ONEFLOW::AddCmdToList( "DUMP_PRESSURE_COEFF" );
-	ONEFLOW::AddCmdToList( "DUMP_HEATFLUX_COEFF" );
-	ONEFLOW::AddCmdToList( "VISUALIZATION"       );
+    ONEFLOW::AddCmdToList( "DUMP_RESTART"        );
+    ONEFLOW::AddCmdToList( "DUMP_AERODYNAMIC"    );
+    ONEFLOW::AddCmdToList( "DUMP_PRESSURE_COEFF" );
+    ONEFLOW::AddCmdToList( "DUMP_HEATFLUX_COEFF" );
+    ONEFLOW::AddCmdToList( "VISUALIZATION"       );
 }
 
 void NsInitSolver( StringField & data )

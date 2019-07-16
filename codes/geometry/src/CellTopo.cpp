@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -31,12 +31,12 @@ BeginNameSpace( ONEFLOW )
 
 CellTopo::CellTopo()
 {
-	;
+    ;
 }
 
 CellTopo::~CellTopo()
 {
-	;
+    ;
 }
 
 void CellTopo::Alloc( int nCell )
@@ -50,46 +50,46 @@ void CellTopo::Alloc( int nCell )
 
 void CellTopo::PushElement( int p1, int p2, int p3, int elementType )
 {
-	IntField element;
-	element.push_back( p1 );
-	element.push_back( p2 );
-	element.push_back( p3 );
+    IntField element;
+    element.push_back( p1 );
+    element.push_back( p2 );
+    element.push_back( p3 );
 
-	cellToNode.push_back( element );
-	cellType.push_back( elementType );
+    cellToNode.push_back( element );
+    cellType.push_back( elementType );
 }
 
 void CellTopo::PushElement( int p1, int p2, int p3, int p4, int elementType )
 {
-	if ( elementType == ONEFLOW::TRI_3 )
-	{
-		IntField element1;
-		element1.push_back( p1 );
-		element1.push_back( p2 );
-		element1.push_back( p3 );
+    if ( elementType == ONEFLOW::TRI_3 )
+    {
+        IntField element1;
+        element1.push_back( p1 );
+        element1.push_back( p2 );
+        element1.push_back( p3 );
 
-		IntField element2;
-		element2.push_back( p3 );
-		element2.push_back( p4 );
-		element2.push_back( p1 );
+        IntField element2;
+        element2.push_back( p3 );
+        element2.push_back( p4 );
+        element2.push_back( p1 );
 
-		cellToNode.push_back( element1 );
-		cellToNode.push_back( element2 );
+        cellToNode.push_back( element1 );
+        cellToNode.push_back( element2 );
 
-		cellType.push_back( elementType );
-		cellType.push_back( elementType );
-	}
-	else if ( elementType == ONEFLOW::QUAD_4 )
-	{
-		IntField element;
-		element.push_back( p1 );
-		element.push_back( p2 );
-		element.push_back( p3 );
-		element.push_back( p4 );
+        cellType.push_back( elementType );
+        cellType.push_back( elementType );
+    }
+    else if ( elementType == ONEFLOW::QUAD_4 )
+    {
+        IntField element;
+        element.push_back( p1 );
+        element.push_back( p2 );
+        element.push_back( p3 );
+        element.push_back( p4 );
 
-		cellToNode.push_back( element );
-		cellType.push_back( elementType );
-	}
+        cellToNode.push_back( element );
+        cellType.push_back( elementType );
+    }
 }
 
 void CellTopo::CmpC2f( FaceTopo * faceTopo )

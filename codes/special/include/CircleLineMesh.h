@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -29,16 +29,16 @@ BeginNameSpace( ONEFLOW )
 class CircleLineMesh : public CurveMesh
 {
 public:
-	CircleLineMesh();
-	~CircleLineMesh();
+    CircleLineMesh();
+    ~CircleLineMesh();
 public:
-	int center;
-	Real radius;
-	Real alpha0, alpha1;
+    int center;
+    Real radius;
+    Real alpha0, alpha1;
 public:
-	void ComputeCurveGeometry();
-	void GenerateLineMesh();
-	void ComputeCoor( Real s, Real & xt, Real & yt, Real & zt );
+    void ComputeCurveGeometry();
+    void GenerateLineMesh();
+    void ComputeCoor( Real s, Real & xt, Real & yt, Real & zt );
 };
 
 

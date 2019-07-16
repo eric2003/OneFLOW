@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -34,13 +34,13 @@ using namespace std;
 BeginNameSpace( ONEFLOW )
 IFaceLink::IFaceLink( Grids & grids )
 {
-	this->grids = grids;
+    this->grids = grids;
 
     int nZone = grids.size();
     this->l2g.resize( nZone );
 
-	this->face_search = new FaceSearch();
-	this->point_search = new PointSearch();
+    this->face_search = new FaceSearch();
+    this->point_search = new PointSearch();
     this->point_search->Initialize( grids );
 }
 
@@ -59,22 +59,22 @@ void IFaceLink::Init( Grid * grid )
 
 void IFaceLink::AddFace( const IntField & facePointIndexes )
 {
-	this->face_search->AddFace( facePointIndexes );
+    this->face_search->AddFace( facePointIndexes );
 }
 
 void IFaceLink::CreateLink( IntField & faceNode, int zid, int lCount )
 {
-	int nTIFace = this->gI2Zid.size();
+    int nTIFace = this->gI2Zid.size();
 
-	this->AddFace( faceNode );
+    this->AddFace( faceNode );
 
-	std::sort( faceNode.begin(), faceNode.end() );
+    std::sort( faceNode.begin(), faceNode.end() );
     HXSort< IntField > face( faceNode, nTIFace );
     set < HXSort< IntField > >::iterator iter = this->inFaceList.find( face );
 
-	if ( iter == this->inFaceList.end() )
-	{
-		this->inFaceList.insert( face );
+    if ( iter == this->inFaceList.end() )
+    {
+        this->inFaceList.insert( face );
         this->l2g[ zid ][ lCount ] = nTIFace;
         IntField zids;
         IntField lIid;
@@ -83,145 +83,145 @@ void IFaceLink::CreateLink( IntField & faceNode, int zid, int lCount )
 
         this->gI2Zid.push_back( zids );
         this->g2l.push_back( lIid );
-	}
-	else
-	{
-		int gIid = iter->index;
+    }
+    else
+    {
+        int gIid = iter->index;
         this->l2g[ zid ][ lCount ] = gIid;
         this->gI2Zid[ gIid ].push_back( zid );
         this->g2l[ gIid ].push_back( lCount );
-		//this->inFaceList.erase( iter ); //??
-	}
+        //this->inFaceList.erase( iter ); //??
+    }
 }
 
 void IFaceLink::ReconstructInterFace()
 {
-	this->face_search->ComputeNewFaceId( this );
+    this->face_search->ComputeNewFaceId( this );
 }
 
 void IFaceLink::InitNewLgMapping()
 {
-	this->gI2ZidNew = this->gI2Zid;
-	this->g2lNew = this->g2l;
+    this->gI2ZidNew = this->gI2Zid;
+    this->g2lNew = this->g2l;
 }
 
 void IFaceLink::UpdateLgMapping()
 {
-	this->gI2Zid = this->gI2ZidNew;
-	this->g2l = this->g2lNew;
+    this->gI2Zid = this->gI2ZidNew;
+    this->g2l = this->g2lNew;
 }
 
 void IFaceLink::MatchInterfaceTopology( Grid * grid )
 {
     InterFace * interFace = grid->interFace;
-	if ( ! interFace ) return;
+    if ( ! interFace ) return;
 
-	int nPeoridic = 0;
+    int nPeoridic = 0;
 
-	int nIFace = this->l2g[ grid->id ].size();
+    int nIFace = this->l2g[ grid->id ].size();
 
-	for ( int iIFace = 0; iIFace < nIFace; ++ iIFace )
-	{
+    for ( int iIFace = 0; iIFace < nIFace; ++ iIFace )
+    {
         int gIFace = this->l2g[ grid->id ][ iIFace ];
-		bool flag = false;
+        bool flag = false;
         int nIZone = this->gI2Zid[ gIFace ].size();
 
         if ( nIZone != 2 )
         {
-			if ( nIZone > 2 )
-			{
-				//cout << " More than two faces coincide\n";
-			}
-			else
-			{
-				++nPeoridic;
-				//cout << " Less than two faces coincide\n";
-			}
+            if ( nIZone > 2 )
+            {
+                //cout << " More than two faces coincide\n";
+            }
+            else
+            {
+                ++nPeoridic;
+                //cout << " Less than two faces coincide\n";
+            }
             //cout << " Current ZoneIndex  = " << grid->id << endl;
             //cout << " nIZone = " << nIZone << endl;
             //cout << " LocalInterface Index = " << iIFace << " nIFace = " << nIFace << endl;
         }
 
-		for ( int iIZone = 0; iIZone < nIZone; ++ iIZone )
-		{
+        for ( int iIZone = 0; iIZone < nIZone; ++ iIZone )
+        {
             int nZid = this->gI2Zid [ gIFace ][ iIZone ];
             int lId  = this->g2l[ gIFace ][ iIZone ];
-		    if ( ( nZid != grid->id ) ||
+            if ( ( nZid != grid->id ) ||
                  ( lId  != iIFace   ) )
-			{
-				interFace->zoneId[ iIFace ] = nZid;
-				interFace->localInterfaceId[ iIFace ] = lId;
-				flag = true;
-				break;
-			}
-		}
+            {
+                interFace->zoneId[ iIFace ] = nZid;
+                interFace->localInterfaceId[ iIFace ] = lId;
+                flag = true;
+                break;
+            }
+        }
 
-		//if ( ! flag )
-		//{
+        //if ( ! flag )
+        //{
         //    cout << "LocalInterface Index = " << iIFace << " There is a problem in the input grid. Please check it carefully!\n";
-		//}
-	}
-	cout << " Total peoridic boundary faces = " << nPeoridic << "\n";
-	if ( nPeoridic != 0 )
-	{
-		//this->MatchPeoridicInterface( grid );
-	}
-	int kkk = 1;
+        //}
+    }
+    cout << " Total peoridic boundary faces = " << nPeoridic << "\n";
+    if ( nPeoridic != 0 )
+    {
+        //this->MatchPeoridicInterface( grid );
+    }
+    int kkk = 1;
 }
 
 void IFaceLink::MatchPeoridicInterface( Grid * grid )
 {
     InterFace * interFace = grid->interFace;
-	if ( ! interFace ) return;
+    if ( ! interFace ) return;
 
-	int nPeoridic = 0;
+    int nPeoridic = 0;
 
-	int nIFace = this->l2g[ grid->id ].size();
+    int nIFace = this->l2g[ grid->id ].size();
 
-	for ( int iIFace = 0; iIFace < nIFace; ++ iIFace )
-	{
+    for ( int iIFace = 0; iIFace < nIFace; ++ iIFace )
+    {
         int gIFace = this->l2g[ grid->id ][ iIFace ];
-		bool flag = false;
+        bool flag = false;
         int nIZone = this->gI2Zid[ gIFace ].size();
 
-		if (nIZone == 2) continue;
+        if (nIZone == 2) continue;
 
-		int iIZone = 0;
+        int iIZone = 0;
 
         int nZid = this->gI2Zid [ gIFace ][ iIZone ];
         int lId  = this->g2l[ gIFace ][ iIZone ];
 
-		FaceSort * faceSort = this->face_search->faceArray[ gIFace ];
-		IntField & nodeId = faceSort->nodeId;
+        FaceSort * faceSort = this->face_search->faceArray[ gIFace ];
+        IntField & nodeId = faceSort->nodeId;
 
-		RealField xList, yList, zList;
-		this->point_search->GetFaceCoorList( nodeId, xList, yList, zList );
+        RealField xList, yList, zList;
+        this->point_search->GetFaceCoorList( nodeId, xList, yList, zList );
 
-		RealField xxList, yyList, zzList;
-		f2fmap.FindFace( xList, yList, zList, xxList, yyList, zzList );
+        RealField xxList, yyList, zzList;
+        f2fmap.FindFace( xList, yList, zList, xxList, yyList, zzList );
 
-		int nNode = xxList.size( );
-		IntField faceNode_period;
+        int nNode = xxList.size( );
+        IntField faceNode_period;
 
-		for ( int i = 0; i < nNode; ++ i )
-		{
-			Real xm = xxList[ i ];
-			Real ym = yyList[ i ];
-			Real zm = zzList[ i ];
-			int id = this->point_search->FindPoint( xm, ym, zm );
-			faceNode_period.push_back( id );
-		}
+        for ( int i = 0; i < nNode; ++ i )
+        {
+            Real xm = xxList[ i ];
+            Real ym = yyList[ i ];
+            Real zm = zzList[ i ];
+            int id = this->point_search->FindPoint( xm, ym, zm );
+            faceNode_period.push_back( id );
+        }
 
-		int faceId_period = this->face_search->FindFace( faceNode_period );
+        int faceId_period = this->face_search->FindFace( faceNode_period );
 
         int nZid_period = this->gI2Zid [ faceId_period ][ iIZone ];
         int lId_period  = this->g2l[ faceId_period ][ iIZone ];
 
-		interFace->zoneId[ iIFace ] = nZid_period;
-		interFace->localInterfaceId[ iIFace ] = lId_period;
-		int kkk = 1;
-	}
-	int kkk = 1;
+        interFace->zoneId[ iIFace ] = nZid_period;
+        interFace->localInterfaceId[ iIFace ] = lId_period;
+        int kkk = 1;
+    }
+    int kkk = 1;
 }
 
 void GetFaceCoorList( IntField & faceNode, RealField & xList, RealField & yList, RealField & zList, NodeMesh * nodeMesh )
@@ -230,22 +230,22 @@ void GetFaceCoorList( IntField & faceNode, RealField & xList, RealField & yList,
     for ( int iNode = 0; iNode < nPoint; ++ iNode )
     {
         int gN = faceNode[ iNode ];
-		xList[ iNode ] = nodeMesh->xN[ gN ];
-		yList[ iNode ] = nodeMesh->yN[ gN ];
-		zList[ iNode ] = nodeMesh->zN[ gN ];
+        xList[ iNode ] = nodeMesh->xN[ gN ];
+        yList[ iNode ] = nodeMesh->yN[ gN ];
+        zList[ iNode ] = nodeMesh->zN[ gN ];
     }
 }
 
 void GetCoorIdList( IFaceLink * iFaceLink, RealField & xList, RealField & yList, RealField & zList, int nPoint, IntField & pointId )
 {
-	for ( int iNode = 0; iNode < nPoint; ++ iNode )
-	{
+    for ( int iNode = 0; iNode < nPoint; ++ iNode )
+    {
         Real xm = xList[ iNode ];
         Real ym = yList[ iNode ];
         Real zm = zList[ iNode ];
 
-		pointId[ iNode ] = iFaceLink->point_search->AddPoint( xm, ym, zm );
-	}
+        pointId[ iNode ] = iFaceLink->point_search->AddPoint( xm, ym, zm );
+    }
 }
 
 EndNameSpace

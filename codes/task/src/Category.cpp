@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -38,33 +38,33 @@ Category::~Category()
 
 void Category::Init()
 {
-	if ( ! Category::data )
-	{
-		Category::data = new map< int, int >();
-	}
+    if ( ! Category::data )
+    {
+        Category::data = new map< int, int >();
+    }
 }
 
 void Category::Free()
 {
-	if ( ! Category::data ) return;
-	delete Category::data;
-	Category::data = 0;
+    if ( ! Category::data ) return;
+    delete Category::data;
+    Category::data = 0;
 }
 
 void Category::AddCategory( int sTid, int category )
 {
-	Category::Init();
-	map< int, int >::iterator iter = Category::data->find( sTid );
-	if ( iter == Category::data->end() )
-	{
-		( * Category::data )[ sTid ] = category;
-	}
+    Category::Init();
+    map< int, int >::iterator iter = Category::data->find( sTid );
+    if ( iter == Category::data->end() )
+    {
+        ( * Category::data )[ sTid ] = category;
+    }
 }
 
 int Category::GetCategory( int sTid )
 {
-	map< int, int >::iterator iter = Category::data->find( sTid );
-	return iter->second;
+    map< int, int >::iterator iter = Category::data->find( sTid );
+    return iter->second;
 }
 
 EndNameSpace

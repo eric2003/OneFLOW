@@ -42,71 +42,71 @@ class CommentLineClass;
 class AsciiFileRead
 {
 public:
-	AsciiFileRead();
-	~AsciiFileRead();
+    AsciiFileRead();
+    ~AsciiFileRead();
 protected:
-	std::string * line, * separator;
-	fstream * file;
-	int setfileFlag;
+    std::string * line, * separator;
+    fstream * file;
+    int setfileFlag;
 protected:
-	std::string fileName;
-	ios_base::openmode fileOpenMode;
-	StreamSize filePosition;
-	CommentLineClass * commentLineClass;
+    std::string fileName;
+    ios_base::openmode fileOpenMode;
+    StreamSize filePosition;
+    CommentLineClass * commentLineClass;
 public:
-	void OpenFile( const string & fileName, const ios_base::openmode & fileOpenMode );
+    void OpenFile( const string & fileName, const ios_base::openmode & fileOpenMode );
     void OpenPrjFile( const string & fileName, const ios_base::openmode & fileOpenMode );
-	void CloseFile();
-	void MarkCurrentFilePosition();
-	void MoveToPreviousFilePosition();
-	string & GetCurrentLine() { return * this->line; };
+    void CloseFile();
+    void MarkCurrentFilePosition();
+    void MoveToPreviousFilePosition();
+    string & GetCurrentLine() { return * this->line; };
 public:
-	void ResetCommentString( StringField &commentStringList );
-	void SetDefaultFile     ( std::fstream * defaultFileIn   );
-	void SetDefaultSeparator( const std::string & separatorIn   ) { * this->separator = separatorIn; };
+    void ResetCommentString( StringField &commentStringList );
+    void SetDefaultFile     ( std::fstream * defaultFileIn   );
+    void SetDefaultSeparator( const std::string & separatorIn   ) { * this->separator = separatorIn; };
 
-	std::string  * GetDefaultLine     () { return line; }
-	std::fstream * GetDefaultFile     () { return file; }
-	std::string  * GetDefaultSeparator() { return separator; }
+    std::string  * GetDefaultLine     () { return line; }
+    std::fstream * GetDefaultFile     () { return file; }
+    std::string  * GetDefaultSeparator() { return separator; }
 public:
-	void SetLineContent( const std::string & lineContent ) { * this->line = lineContent; };
-	void ShiftLineContent( int numberOfChars ) { * this->line = ( * this->line ).substr( numberOfChars ); }
+    void SetLineContent( const std::string & lineContent ) { * this->line = lineContent; };
+    void ShiftLineContent( int numberOfChars ) { * this->line = ( * this->line ).substr( numberOfChars ); }
 
-	bool ReadNextMeaningfulLine();
-	bool ReachTheEndOfFile();
+    bool ReadNextMeaningfulLine();
+    bool ReachTheEndOfFile();
 public:
-	void SkipLines( int numberOfLinesToSkip );
-	bool ReadNextNonEmptyLine();
+    void SkipLines( int numberOfLinesToSkip );
+    bool ReadNextNonEmptyLine();
     bool NextWordIsEmpty();
-	void DumpLineContentToScreen();
-	std::string ReadNextWord();
-	std::string ReadNextWord( const std::string & separator );
+    void DumpLineContentToScreen();
+    std::string ReadNextWord();
+    std::string ReadNextWord( const std::string & separator );
     std::string ReadNextTrueWord();
-	std::string ReadNextWordToLowerCase();
-	std::string ReadNextWordToLowerCase( const std::string & separator );
+    std::string ReadNextWordToLowerCase();
+    std::string ReadNextWordToLowerCase( const std::string & separator );
 public:
-	void SkipReadSymbol( const string & stringSymbol );
-	void SkipReadWholeBlock();
+    void SkipReadSymbol( const string & stringSymbol );
+    void SkipReadWholeBlock();
 public:
-	template < typename T >
+    template < typename T >
     friend inline AsciiFileRead & operator >> ( AsciiFileRead & textFileRead, T & value )
     {
-		fstream & file = * textFileRead.GetDefaultFile();
+        fstream & file = * textFileRead.GetDefaultFile();
         file >> value;
         return textFileRead;
     }
 
-	template < typename T >
-	T ReadNextDigit( ios_base & ( * f )( ios_base & ) = & std::dec )
-	{
+    template < typename T >
+    T ReadNextDigit( ios_base & ( * f )( ios_base & ) = & std::dec )
+    {
         std::string word = AsciiFileRead::ReadNextTrueWord();
-		T value = StringToDigit< T >( word, f );
-		return value;
-	}
+        T value = StringToDigit< T >( word, f );
+        return value;
+    }
 
-	template < typename T >
-	T ReadNextDigit( int & num, ios_base & ( * f )( ios_base & ) = & std::dec )
-	{
+    template < typename T >
+    T ReadNextDigit( int & num, ios_base & ( * f )( ios_base & ) = & std::dec )
+    {
         std::string word = AsciiFileRead::ReadNextTrueWord();
         num = 1;
         bool flag = FindString( word, "*" );
@@ -116,22 +116,22 @@ public:
             num = StringToDigit< int >( word_num, f );
             word = FindNextWord( word, "*" );
         }
-		T value = StringToDigit< T >( word, f );
-		return value;
-	}
+        T value = StringToDigit< T >( word, f );
+        return value;
+    }
 
 };
 
 class CommentLineClass
 {
 public:
-	CommentLineClass();
-	~CommentLineClass();
+    CommentLineClass();
+    ~CommentLineClass();
 public:
-	StringField commentdata;
+    StringField commentdata;
 public:
-	void AddString( const string & cs );
-	void ResetCommentString(StringField& commentStringList);
+    void AddString( const string & cs );
+    void ResetCommentString(StringField& commentStringList);
 };
 
 string  ReadNextWord();
@@ -144,20 +144,20 @@ string  ReadNextWordToLowerCase( const std::string & separatorOfWord );
 template < typename T >
 inline T ReadNextDigit( ios_base & ( * f )( ios_base & ) = & std::dec )
 {
-	std::string * separatorOfWord = ONEFLOW::GetDefaultSeparatorOfWord();
-	std::string * defaultLine     = ONEFLOW::GetDefaultLine();
+    std::string * separatorOfWord = ONEFLOW::GetDefaultSeparatorOfWord();
+    std::string * defaultLine     = ONEFLOW::GetDefaultLine();
 
     string word = ONEFLOW::FindNextWord( * defaultLine, * separatorOfWord );
-	T value = ONEFLOW::StringToDigit< T >( word, f );
-	return value;
+    T value = ONEFLOW::StringToDigit< T >( word, f );
+    return value;
 }
 
 template < typename T >
 inline T ReadNextDigit( std::string & source, const std::string & separatorOfWord, ios_base & ( * f )( ios_base & ) = & std::dec )
 {
     string word = ONEFLOW::FindNextWord( source, separatorOfWord );
-	T value = ONEFLOW::StringToDigit< T >( word, f );
-	return value;
+    T value = ONEFLOW::StringToDigit< T >( word, f );
+    return value;
 }
 
 bool IsEmpty( fstream & file );

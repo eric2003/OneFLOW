@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -65,9 +65,9 @@ void Visualization( StringField & data )
 {
     Visualize * visualize = new UVisualize();
 
-	visualize->Visual();
+    visualize->Visual();
 
-	delete visualize;
+    delete visualize;
 }
 
 EndNameSpace

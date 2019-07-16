@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -41,24 +41,24 @@ GridMediator::~GridMediator()
 
 void GridMediator::ReadGrid()
 {
-	if ( this->gridType == "gridgen" )
-	{
-		this->ReadGridgen();
-	}
-	else if ( this->gridType == "plot3d" )
-	{
-		this->ReadPlot3D();
-	}
+    if ( this->gridType == "gridgen" )
+    {
+        this->ReadGridgen();
+    }
+    else if ( this->gridType == "plot3d" )
+    {
+        this->ReadPlot3D();
+    }
 }
 
 void GridMediator::ReadPlot3D()
 {
-	Plot3D::ReadPlot3D( this );
+    Plot3D::ReadPlot3D( this );
 }
 
 void GridMediator::ReadPlot3DCoor()
 {
-	Plot3D::ReadCoor( this );
+    Plot3D::ReadCoor( this );
 }
 
 void GridMediator::ReadGridgen()

@@ -44,14 +44,14 @@ PrjStatus::~PrjStatus()
 
 void PrjStatus::SetPrjBaseDir( const string & prjName )
 {
-	string baseDir = "./";
-	ONEFLOW::StrIO << baseDir << prjName << "/";
-	PrjStatus::prjBaseDir = ONEFLOW::StrIO.str();
+    string baseDir = "./";
+    ONEFLOW::StrIO << baseDir << prjName << "/";
+    PrjStatus::prjBaseDir = ONEFLOW::StrIO.str();
 }
 
 void MakePrjDir( const string & dirName )
 {
-	ONEFLOW::StrIO.ClearAll();
+    ONEFLOW::StrIO.ClearAll();
     ONEFLOW::StrIO << PrjStatus::prjBaseDir << dirName;
 
     string prjDirName = ONEFLOW::StrIO.str();
@@ -62,7 +62,7 @@ void MakePrjDir( const string & dirName )
 
 void OpenPrjFile( fstream & file, const string & fileName, const ios_base::openmode & openMode )
 {
-	ONEFLOW::StrIO.ClearAll();
+    ONEFLOW::StrIO.ClearAll();
     ONEFLOW::StrIO << PrjStatus::prjBaseDir << fileName;
 
     string prjFileName = ONEFLOW::StrIO.str();
@@ -72,7 +72,7 @@ void OpenPrjFile( fstream & file, const string & fileName, const ios_base::openm
 
 string GetPrjFileName( const string & fileName )
 {
-	ONEFLOW::StrIO.ClearAll();
+    ONEFLOW::StrIO.ClearAll();
     ONEFLOW::StrIO << PrjStatus::prjBaseDir << fileName;
 
     string prjFileName = ONEFLOW::StrIO.str();

@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -37,45 +37,45 @@ class StrGrid;
 class BlkBasic
 {
 public:
-	BlkBasic();
-	virtual ~BlkBasic();
+    BlkBasic();
+    virtual ~BlkBasic();
 public:
-	int blk_id;
-	int ni, nj, nk;
-	LinkField localpt;
-	IntField controlpoints;
-	HXVector< Face2D * > facelist;
-	IntField dimList;
-	CoorMap coorMap;
+    int blk_id;
+    int ni, nj, nk;
+    LinkField localpt;
+    IntField controlpoints;
+    HXVector< Face2D * > facelist;
+    IntField dimList;
+    CoorMap coorMap;
 public:
-	void AddLocalPt( int p1, int p2 );
-	void AddLocalPt( int p1, int p2, int p3, int p4 );
-	void DumpInp( fstream & file );
-	virtual int GetNSubDomain() { return 1;  };
+    void AddLocalPt( int p1, int p2 );
+    void AddLocalPt( int p1, int p2, int p3, int p4 );
+    void DumpInp( fstream & file );
+    virtual int GetNSubDomain() { return 1;  };
 public:
-	void Add( IntField &iList, IntField &jList, IntField &kList, int i, int j, int k );
+    void Add( IntField &iList, IntField &jList, IntField &kList, int i, int j, int k );
 };
 
 class Block3D : public BlkBasic
 {
 public:
-	Block3D();
-	~Block3D();
+    Block3D();
+    ~Block3D();
 public:
-	RealField3D x3d, y3d, z3d;
-	HXVector< MDomain * > mDomainList;
+    RealField3D x3d, y3d, z3d;
+    HXVector< MDomain * > mDomainList;
 public:
-	void Alloc();
-	int GetNSubDomain();
-	void ConstructTopo();
-	void SetInterfaceBc();
-	void GetCornerPoint( int & pt, int id1, int id2, int id3 );
-	void ComputeBlkDim();
-	void CreateFaceList();
+    void Alloc();
+    int GetNSubDomain();
+    void ConstructTopo();
+    void SetInterfaceBc();
+    void GetCornerPoint( int & pt, int id1, int id2, int id3 );
+    void ComputeBlkDim();
+    void CreateFaceList();
 public:
-	void CreateBlockMesh();
-	void GenerateBlockMesh();
-	void FillStrGrid( Grid * gridIn, int iZone );
+    void CreateBlockMesh();
+    void GenerateBlockMesh();
+    void FillStrGrid( Grid * gridIn, int iZone );
 };
 
 class MLine;
@@ -83,18 +83,18 @@ class MLine;
 class Block2D : public BlkBasic
 {
 public:
-	Block2D();
-	~Block2D();
+    Block2D();
+    ~Block2D();
 public:
-	RealField2D x2d, y2d, z2d;
-	HXVector< MLine * > mLineList;
+    RealField2D x2d, y2d, z2d;
+    HXVector< MLine * > mLineList;
 public:
-	int GetNSubDomain();
-	void ConstructTopo();
-	void SetInterfaceBc();
-	void GetCornerPoint( int & pt, int id1, int id2 );
-	void ComputeBlkDim();
-	void CreateFaceList();
+    int GetNSubDomain();
+    void ConstructTopo();
+    void SetInterfaceBc();
+    void GetCornerPoint( int & pt, int id1, int id2 );
+    void ComputeBlkDim();
+    void CreateFaceList();
 };
 
 void SetGridXYZ3D( StrGrid * grid, RealField3D & x3d, RealField3D & y3d, RealField3D & z3d );

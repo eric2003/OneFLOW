@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -41,18 +41,18 @@ public:
     string gridFile;
     string bcFile;
 
-	//对网格执行的转换操作
-    int gridObj;	
+    //对网格执行的转换操作
+    int gridObj;    
 
-	//是否是多块网格
+    //是否是多块网格
     int multiBlock;
 
-	int axis_dir;
-	//网格缩放因子
-	Real gridScale;
-	RealField gridTrans;
+    int axis_dir;
+    //网格缩放因子
+    Real gridScale;
+    RealField gridTrans;
 public:
-	//初始化网格参数
+    //初始化网格参数
     void Init();
 };
 

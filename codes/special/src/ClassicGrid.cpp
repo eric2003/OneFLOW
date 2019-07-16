@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -66,18 +66,18 @@ void ClassicGrid::Run()
         rae2822->Run();
         delete rae2822;
     }
-	else if ( igene == 3 )
+    else if ( igene == 3 )
     {
         Cylinder * cylinder = new Cylinder();
         cylinder->Run( igene );
         delete cylinder;
     }
-	else if ( igene == 4 )
-	{
-		Cylinder * cylinder = new Cylinder();
-		cylinder->Run( igene );
-		delete cylinder;
-	}
+    else if ( igene == 4 )
+    {
+        Cylinder * cylinder = new Cylinder();
+        cylinder->Run( igene );
+        delete cylinder;
+    }
 }
 
 EndNameSpace

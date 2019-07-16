@@ -33,147 +33,147 @@ using namespace std;
 BeginNameSpace( ONEFLOW )
 DataPage::DataPage()
 {
-	this->dataMemory = new CharMemory();
-	this->currPos = 0;
+    this->dataMemory = new CharMemory();
+    this->currPos = 0;
 }
 
 DataPage::~DataPage()
 {
-	delete this->dataMemory;
+    delete this->dataMemory;
 }
 
 void DataPage::MoveToPosition( UInt position )
 {
-	if ( ( 0 < position ) && ( position < GetSize() ) )
-	{
-		this->currPos = position;
-	}
-	else if ( 0 == position )
-	{
-		this->currPos = position;
-	}
-	else
-	{
-		Stop( "Out of Range: position \n" );
-	}
+    if ( ( 0 < position ) && ( position < GetSize() ) )
+    {
+        this->currPos = position;
+    }
+    else if ( 0 == position )
+    {
+        this->currPos = position;
+    }
+    else
+    {
+        Stop( "Out of Range: position \n" );
+    }
 }
 
 void DataPage::MoveForwardPosition( UInt dataSize )
 {
-	this->currPos += dataSize;
+    this->currPos += dataSize;
 }
 
 UInt DataPage::GetSize()
 {
-	return dataMemory->size();
+    return dataMemory->size();
 }
 
 char * DataPage::GetBeginDataPointer()
 {
-	if ( this->GetSize() == 0 )
-	{
-		return 0;
-	}
-	return &( ( * dataMemory )[ 0 ] );
+    if ( this->GetSize() == 0 )
+    {
+        return 0;
+    }
+    return &( ( * dataMemory )[ 0 ] );
 }
 
 char * DataPage::GetCurrentDataPointer()
 {
-	if ( this->GetSize() == 0 )
-	{
-		return 0;
-	}
-	return &( ( * dataMemory )[ currPos ] );
+    if ( this->GetSize() == 0 )
+    {
+        return 0;
+    }
+    return &( ( * dataMemory )[ currPos ] );
 }
 
 void DataPage::ToString( string & str )
 {
-	if ( this->GetSize() )
-	{
-		str.append( this->GetBeginDataPointer(), this->GetSize() );
-	}
+    if ( this->GetSize() )
+    {
+        str.append( this->GetBeginDataPointer(), this->GetSize() );
+    }
 }
 
 void DataPage::Write( void * data, UInt dataSize )
 {
-	if ( dataSize <= 0 ) return;
+    if ( dataSize <= 0 ) return;
 
-	memcpy( this->GetCurrentDataPointer(), data, dataSize );
-	this->MoveForwardPosition( dataSize );
+    memcpy( this->GetCurrentDataPointer(), data, dataSize );
+    this->MoveForwardPosition( dataSize );
 }
 
 void DataPage::Read( void * data, UInt dataSize )
 {
-	if ( dataSize <= 0 ) return;
-	memcpy( data, this->GetCurrentDataPointer(), dataSize );
-	this->MoveForwardPosition( dataSize );
+    if ( dataSize <= 0 ) return;
+    memcpy( data, this->GetCurrentDataPointer(), dataSize );
+    this->MoveForwardPosition( dataSize );
 }
 
 void DataPage::Write( void * data, UInt dataSize, UInt position )
 {
-	this->MoveToPosition( position );
-	this->Write( data, dataSize );
+    this->MoveToPosition( position );
+    this->Write( data, dataSize );
 }
 
 void DataPage::Read( void * data, UInt dataSize, UInt position )
 {
-	this->MoveToPosition( position );
-	this->Read( data, dataSize );
+    this->MoveToPosition( position );
+    this->Read( data, dataSize );
 }
 
 void DataPage::ReSize( UInt newSize )
 {
-	this->dataMemory->resize( newSize );
+    this->dataMemory->resize( newSize );
 }
 
 void DataPage::Send( int pId, int tag )
 {
-	UInt nLength = this->GetSize();
+    UInt nLength = this->GetSize();
 
-	if ( nLength <= 0 ) return;
-	ONEFLOW::HXSend( this->GetBeginDataPointer(), nLength, PL_CHAR, pId, tag );
+    if ( nLength <= 0 ) return;
+    ONEFLOW::HXSend( this->GetBeginDataPointer(), nLength, PL_CHAR, pId, tag );
 }
 
 void DataPage::Recv( int pId, int tag )
 {
-	UInt nLength = this->GetSize();
+    UInt nLength = this->GetSize();
 
-	if ( nLength <= 0 ) return;
+    if ( nLength <= 0 ) return;
 
-	ONEFLOW::HXRecv( this->GetBeginDataPointer(), nLength, PL_CHAR, pId, tag );
+    ONEFLOW::HXRecv( this->GetBeginDataPointer(), nLength, PL_CHAR, pId, tag );
 }
 
 void DataPage::Bcast( int rootid )
 {
-	UInt nLength = this->GetSize();
+    UInt nLength = this->GetSize();
 
-	if ( nLength <= 0 ) return;
-	HXBcast( this->GetBeginDataPointer(), nLength, rootid );
+    if ( nLength <= 0 ) return;
+    HXBcast( this->GetBeginDataPointer(), nLength, rootid );
 }
 
 void DataPage::ReadFile( fstream & file )
 {
-	UInt nLength = this->GetSize();
+    UInt nLength = this->GetSize();
 
-	if ( nLength <= 0 ) return;
+    if ( nLength <= 0 ) return;
 
-	char * data = this->GetBeginDataPointer();
+    char * data = this->GetBeginDataPointer();
 
-	file.read( data, nLength );
+    file.read( data, nLength );
 }
 
 void DataPage::WriteFile( fstream & file )
 {
-	UInt nLength = this->GetSize();
+    UInt nLength = this->GetSize();
 
-	if ( nLength <= 0 )
-	{
-		return;
-	}
+    if ( nLength <= 0 )
+    {
+        return;
+    }
 
-	char * data = this->GetBeginDataPointer();
+    char * data = this->GetBeginDataPointer();
 
-	file.write( data, nLength );
+    file.write( data, nLength );
 }
 
 EndNameSpace

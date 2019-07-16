@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -44,13 +44,13 @@ class CgnsData;
 class CgnsMultiSection
 {
 public:
-	CgnsMultiSection( CgnsZone * cgnsZone );
-	~CgnsMultiSection();
+    CgnsMultiSection( CgnsZone * cgnsZone );
+    ~CgnsMultiSection();
 public:
-	int nSection;
+    int nSection;
 
-	HXVector< CgnsSection * > cgnsSections;
-	CgnsZone * cgnsZone;
+    HXVector< CgnsSection * > cgnsSections;
+    CgnsZone * cgnsZone;
     CgnsBcRegionProxy * cgnsBcRegionProxy;
 public:
     void Create();
@@ -61,7 +61,7 @@ public:
     void ReadNumberOfCgnsSections();
     void ReadCgnsSections();
     void FillCgnsSections( CgnsData * cgnsData );
-	void SetElemPosition();
+    void SetElemPosition();
 };
 
 #endif

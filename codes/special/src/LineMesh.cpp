@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -40,63 +40,63 @@ LineMesh::~LineMesh()
 
 void LineMesh::GenerateLineMesh()
 {
-	if ( ! this->IsValidState() ) return;
-	this->GenerateCurveMesh();
+    if ( ! this->IsValidState() ) return;
+    this->GenerateCurveMesh();
 }
 
 void LineMesh::ComputeCurveGeometry()
 {
-	PointType * pt1 = point_Machine.GetPoint( this->curveInfo->p1 );
-	PointType * pt2 = point_Machine.GetPoint( this->curveInfo->p2 );
+    PointType * pt1 = point_Machine.GetPoint( this->curveInfo->p1 );
+    PointType * pt2 = point_Machine.GetPoint( this->curveInfo->p2 );
 
-	Real x0 = pt1->x;
-	Real y0 = pt1->y;
-	Real z0 = pt1->z;
+    Real x0 = pt1->x;
+    Real y0 = pt1->y;
+    Real z0 = pt1->z;
 
-	Real x1 = pt2->x;
-	Real y1 = pt2->y;
-	Real z1 = pt2->z;
+    Real x1 = pt2->x;
+    Real y1 = pt2->y;
+    Real z1 = pt2->z;
 
-	Real dx = ( x1 - x0 );
-	Real dy = ( y1 - y0 );
-	Real dz = ( z1 - z0 );
+    Real dx = ( x1 - x0 );
+    Real dy = ( y1 - y0 );
+    Real dz = ( z1 - z0 );
 
-	this->segmentCtrl->lenth = DIST( dx, dy, dz );
+    this->segmentCtrl->lenth = DIST( dx, dy, dz );
 }
 
 void LineMesh::ComputeCoor( Real s, Real & xt, Real & yt, Real & zt )
 {
-	PointType * pt1 = 0;
-	PointType * pt2 = 0;
+    PointType * pt1 = 0;
+    PointType * pt2 = 0;
 
-	if ( this->segmentCtrl->c1 != 0 )
-	{
-		pt1 = point_Machine.GetPoint( this->curveInfo->p1 );
-		pt2 = point_Machine.GetPoint( this->curveInfo->p2 );
-	}
-	else
-	{
-		pt1 = point_Machine.GetPoint( this->curveInfo->p2 );
-		pt2 = point_Machine.GetPoint( this->curveInfo->p1 );
-	}
+    if ( this->segmentCtrl->c1 != 0 )
+    {
+        pt1 = point_Machine.GetPoint( this->curveInfo->p1 );
+        pt2 = point_Machine.GetPoint( this->curveInfo->p2 );
+    }
+    else
+    {
+        pt1 = point_Machine.GetPoint( this->curveInfo->p2 );
+        pt2 = point_Machine.GetPoint( this->curveInfo->p1 );
+    }
 
-	Real x0 = pt1->x;
-	Real y0 = pt1->y;
-	Real z0 = pt1->z;
+    Real x0 = pt1->x;
+    Real y0 = pt1->y;
+    Real z0 = pt1->z;
 
-	Real x1 = pt2->x;
-	Real y1 = pt2->y;
-	Real z1 = pt2->z;
+    Real x1 = pt2->x;
+    Real y1 = pt2->y;
+    Real z1 = pt2->z;
 
-	Real dx = ( x1 - x0 );
-	Real dy = ( y1 - y0 );
-	Real dz = ( z1 - z0 );
+    Real dx = ( x1 - x0 );
+    Real dy = ( y1 - y0 );
+    Real dz = ( z1 - z0 );
 
-	Real ratio = s / this->segmentCtrl->lenth;
+    Real ratio = s / this->segmentCtrl->lenth;
 
-	xt = pt1->x + ratio * dx;
-	yt = pt1->y + ratio * dy;
-	zt = pt1->z + ratio * dz;
+    xt = pt1->x + ratio * dx;
+    yt = pt1->y + ratio * dy;
+    zt = pt1->z + ratio * dz;
 }
 
 EndNameSpace

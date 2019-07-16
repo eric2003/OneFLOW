@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -36,13 +36,13 @@ class UnsGrid;
 class GridElem
 {
 public:
-	GridElem( HXVector< CgnsZone * > & cgnsZones );
-	~GridElem();
+    GridElem( HXVector< CgnsZone * > & cgnsZones );
+    ~GridElem();
 public:
     ElemFeature  * elem_feature;
-	PointFactory * point_factory;
-	FaceSolver   * face_solver;
-	HXVector< CgnsZone * > cgnsZones;
+    PointFactory * point_factory;
+    FaceSolver   * face_solver;
+    HXVector< CgnsZone * > cgnsZones;
 
     Real minLen, maxLen;
 public:

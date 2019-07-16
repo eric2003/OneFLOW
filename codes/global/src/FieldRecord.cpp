@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -33,8 +33,8 @@ FieldRecord::~FieldRecord()
 
 void FieldRecord::AddField( MRField * field, int nEqu )
 {
-	this->nEquList.push_back( nEqu );
-	this->fields.push_back( field );
+    this->nEquList.push_back( nEqu );
+    this->fields.push_back( field );
 }
 
 MRField * FieldRecord::GetField( int id )

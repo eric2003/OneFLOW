@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -71,20 +71,20 @@ TurbVelCut::~TurbVelCut()
 
 void TurbVelCut::Dump()
 {
-	string velocityFile = "results/turbplateflow.dat";
+    string velocityFile = "results/turbplateflow.dat";
 
-	fstream file;
-	PIO::ParallelOpenPrj( file, velocityFile, ios_base::out );
+    fstream file;
+    PIO::ParallelOpenPrj( file, velocityFile, ios_base::out );
     StringField title;
     title.push_back( "title=\"THE FLOW FIELD OF ONEFLOW\"" );
     title.push_back( "variables=" );
     title.push_back( "\"y+\"" );
     title.push_back( "\"u+\"" );
 
-	for ( UInt i = 0; i < title.size(); ++ i )
-	{
-		file << title[ i ] << endl;
-	}
+    for ( UInt i = 0; i < title.size(); ++ i )
+    {
+        file << title[ i ] << endl;
+    }
 
     size_t nSlice = sliceData.size();
     for ( int i = 0; i < nSlice; ++ i )
@@ -93,16 +93,16 @@ void TurbVelCut::Dump()
         this->Dump( lamData, file, sliceInfo.dir2[ i ] );
     }
 
-	PIO::Close( file );
+    PIO::Close( file );
 }
 
 void TurbVelCut::Dump( LamData * lamData, fstream & file, int axis )
 {
     int nNode = lamData->GetNNode();
 
-	file << "zone  i = " << nNode << " \n";
+    file << "zone  i = " << nNode << " \n";
 
-	int wordWidth = 20;
+    int wordWidth = 20;
 
     RealField & x = lamData->data[ 0 ]->x;
     RealField & y = lamData->data[ 0 ]->y;
@@ -114,46 +114,46 @@ void TurbVelCut::Dump( LamData * lamData, fstream & file, int axis )
     RealField2D & visdata = lamData->data[ 1 ]->slicedata;
 
     int ywId = lamData->FindYIndex();
-	Real xw = x[ ywId ];
-	Real yw = y[ ywId ];
-	Real zw = z[ ywId ];
+    Real xw = x[ ywId ];
+    Real yw = y[ ywId ];
+    Real zw = z[ ywId ];
 
-	Real rw = qdata[ 0 ][ ywId ];
-	Real uw = qdata[ 1 ][ ywId ];
-	Real vw = qdata[ 2 ][ ywId ];
-	Real ww = qdata[ 3 ][ ywId ];
-	Real pw = qdata[ 4 ][ ywId ];
+    Real rw = qdata[ 0 ][ ywId ];
+    Real uw = qdata[ 1 ][ ywId ];
+    Real vw = qdata[ 2 ][ ywId ];
+    Real ww = qdata[ 3 ][ ywId ];
+    Real pw = qdata[ 4 ][ ywId ];
 
     Real visw = visdata[ 0 ][ ywId ];
 
-	for ( int iNode = 0; iNode < nNode; ++ iNode )
-	{
-		Real xm = x[ iNode ];
-		Real ym = y[ iNode ];
-		Real zm = z[ iNode ];
+    for ( int iNode = 0; iNode < nNode; ++ iNode )
+    {
+        Real xm = x[ iNode ];
+        Real ym = y[ iNode ];
+        Real zm = z[ iNode ];
 
-		Real rm = qdata[ 0 ][ iNode ];
-		Real um = qdata[ 1 ][ iNode ];
-		Real vm = qdata[ 2 ][ iNode ];
-		Real wm = qdata[ 3 ][ iNode ];
-		Real pm = qdata[ 4 ][ iNode ];
+        Real rm = qdata[ 0 ][ iNode ];
+        Real um = qdata[ 1 ][ iNode ];
+        Real vm = qdata[ 2 ][ iNode ];
+        Real wm = qdata[ 3 ][ iNode ];
+        Real pm = qdata[ 4 ][ iNode ];
 
-		Real vis = visdata[ 0 ][ iNode ];
+        Real vis = visdata[ 0 ][ iNode ];
 
-		Real dudy = uw / yw;
-		Real tauw = visw * dudy;
+        Real dudy = uw / yw;
+        Real tauw = visw * dudy;
 
-		Real utau = sqrt( tauw / ( rw * nscom.reynolds ) );
+        Real utau = sqrt( tauw / ( rw * nscom.reynolds ) );
 
-		//注意这里的定义
-		Real up = um / utau;
-		Real yp = utau * ym * nscom.reynolds / ( vis / rm );
+        //注意这里的定义
+        Real up = um / utau;
+        Real yp = utau * ym * nscom.reynolds / ( vis / rm );
 
-		file << setiosflags( ios::left );
-		file << setiosflags( ios::scientific );
-		file << setprecision( 10 );
-		file << setw( wordWidth ) << yp << setw( wordWidth ) << up << endl;
-	}
+        file << setiosflags( ios::left );
+        file << setiosflags( ios::scientific );
+        file << setprecision( 10 );
+        file << setw( wordWidth ) << yp << setw( wordWidth ) << up << endl;
+    }
 }
 
 TurbFriCut::TurbFriCut()
@@ -170,20 +170,20 @@ TurbFriCut::~TurbFriCut()
 
 void TurbFriCut::Dump()
 {
-	string frictionFile = "results/turbplate_cf.dat";
+    string frictionFile = "results/turbplate_cf.dat";
 
-	fstream file;
-	PIO::ParallelOpenPrj( file, frictionFile, ios_base::out );
+    fstream file;
+    PIO::ParallelOpenPrj( file, frictionFile, ios_base::out );
     StringField title;
     title.push_back( "title=\"THE FLOW FIELD OF ONEFLOW\"" );
     title.push_back( "variables=" );
     title.push_back( "\"x\"" );
     title.push_back( "\"cf\"" );
 
-	for ( UInt i = 0; i < title.size(); ++ i )
-	{
-		file << title[ i ] << endl;
-	}
+    for ( UInt i = 0; i < title.size(); ++ i )
+    {
+        file << title[ i ] << endl;
+    }
 
     size_t nSlice = sliceData.size();
     for ( int i = 0; i < nSlice; ++ i )
@@ -192,16 +192,16 @@ void TurbFriCut::Dump()
         this->Dump( lamData, file, sliceInfo.dir2[ i ] );
     }
 
-	PIO::Close( file );
+    PIO::Close( file );
 }
 
 void TurbFriCut::Dump( LamData * lamData, fstream & file, int axis )
 {
     int nNode = lamData->GetNNode();
 
-	file << "zone  i = " << nNode << " \n";
+    file << "zone  i = " << nNode << " \n";
 
-	int wordWidth = 20;
+    int wordWidth = 20;
 
     RealField & x = lamData->data[ 0 ]->x;
     RealField & y = lamData->data[ 0 ]->y;
@@ -212,31 +212,31 @@ void TurbFriCut::Dump( LamData * lamData, fstream & file, int axis )
     RealField2D & qdata   = lamData->data[ 0 ]->slicedata;
     RealField2D & visdata = lamData->data[ 1 ]->slicedata;
 
-	Real vel_inf = 1.0;
+    Real vel_inf = 1.0;
 
-	for ( int iNode = 0; iNode < nNode; ++ iNode )
-	{
-		Real xm = x[ iNode ];
-		Real ym = y[ iNode ];
-		Real zm = z[ iNode ];
+    for ( int iNode = 0; iNode < nNode; ++ iNode )
+    {
+        Real xm = x[ iNode ];
+        Real ym = y[ iNode ];
+        Real zm = z[ iNode ];
 
-		Real rm = qdata[ 0 ][ iNode ];
-		Real um = qdata[ 1 ][ iNode ];
-		Real vm = qdata[ 2 ][ iNode ];
-		Real wm = qdata[ 3 ][ iNode ];
-		Real pm = qdata[ 4 ][ iNode ];
+        Real rm = qdata[ 0 ][ iNode ];
+        Real um = qdata[ 1 ][ iNode ];
+        Real vm = qdata[ 2 ][ iNode ];
+        Real wm = qdata[ 3 ][ iNode ];
+        Real pm = qdata[ 4 ][ iNode ];
 
-		Real vis = visdata[ 0 ][ iNode ];
+        Real vis = visdata[ 0 ][ iNode ];
 
-		Real dudy = um / ym;
-		Real xf = rm * vel_inf * xm / vis * nscom.reynolds;
-		Real cf = 2 * vis * dudy / nscom.reynolds;
+        Real dudy = um / ym;
+        Real xf = rm * vel_inf * xm / vis * nscom.reynolds;
+        Real cf = 2 * vis * dudy / nscom.reynolds;
 
-		file << setiosflags( ios::left );
-		file << setiosflags( ios::scientific );
-		file << setprecision( 10 );
-		file << setw( wordWidth ) << xf << setw( wordWidth ) << cf << endl;
-	}
+        file << setiosflags( ios::left );
+        file << setiosflags( ios::scientific );
+        file << setprecision( 10 );
+        file << setw( wordWidth ) << xf << setw( wordWidth ) << cf << endl;
+    }
 }
 
 TurbFlatPlateTask::TurbFlatPlateTask()
@@ -266,9 +266,9 @@ void TurbFlatPlateTask::OutProfile( CuttingClass * cut )
         cut->Slice();
     }
 
-	cut->Swap();
+    cut->Swap();
 
-	if ( Parallel::pid != Parallel::serverid ) return;
+    if ( Parallel::pid != Parallel::serverid ) return;
 
     cut->Dump();
 }

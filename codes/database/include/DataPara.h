@@ -32,42 +32,42 @@ class DataObject;
 class DataV
 {
 public:
-	DataV();
-	DataV( const string & name, int type, int size, DataObject * data );
-	~DataV();
+    DataV();
+    DataV( const string & name, int type, int size, DataObject * data );
+    ~DataV();
 public:
-	string  name;
-	int     type;
-	int     size;
-	DataObject * data;
+    string  name;
+    int     type;
+    int     size;
+    DataObject * data;
 public:
-	void Copy( DataV * inputData );
+    void Copy( DataV * inputData );
 };
 
 class CompareDataV
 {
 public:
-	bool operator()( const DataV * lhs, const DataV * rhs ) const
-	{
-		return lhs->name < rhs->name;
-	}
+    bool operator()( const DataV * lhs, const DataV * rhs ) const
+    {
+        return lhs->name < rhs->name;
+    }
 };
 
 class DataPara
 {
 public:
-	DataPara();
-	~DataPara();
+    DataPara();
+    ~DataPara();
 public:
     typedef set < DataV *, CompareDataV > DataSET;
 protected:
-	DataSET * dataSet;
+    DataSET * dataSet;
 public:
-	void UpdateDataPointer( DataV * data );
-	DataV * GetDataPointer( const string & name );
-	void DeleteDataPointer( const string & name );
+    void UpdateDataPointer( DataV * data );
+    DataV * GetDataPointer( const string & name );
+    void DeleteDataPointer( const string & name );
 
-	DataSET * GetDataSet() { return dataSet; }
+    DataSET * GetDataSet() { return dataSet; }
 };
 
 EndNameSpace

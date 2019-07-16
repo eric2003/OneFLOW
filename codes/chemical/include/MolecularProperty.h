@@ -31,28 +31,28 @@ class DataBook;
 class MolecularProperty
 {
 public:
-	MolecularProperty();
+    MolecularProperty();
     ~MolecularProperty();
 public:
-	int      nSpecies;
-	RealField dim_mw;//dimensional molecular weight
-	RealField mw; //molecular weight
-	RealField dim_omw; 
-	RealField omw;
-	RealField ct; //characteristic temperature Of species;
-	RealField mfrac; //reference mass fraction;
-	StringField species_name;
-	IntField ion_type;
-	RealField cs; //collision cross section
-	SchmidtNumber * schmidtNumber;
-	Real dim_amw; //dimensional average molecular weight
-	Real amw; //average molecular weight
+    int      nSpecies;
+    RealField dim_mw;//dimensional molecular weight
+    RealField mw; //molecular weight
+    RealField dim_omw; 
+    RealField omw;
+    RealField ct; //characteristic temperature Of species;
+    RealField mfrac; //reference mass fraction;
+    StringField species_name;
+    IntField ion_type;
+    RealField cs; //collision cross section
+    SchmidtNumber * schmidtNumber;
+    Real dim_amw; //dimensional average molecular weight
+    Real amw; //average molecular weight
 public:
-	void ComputeProperty();
-	void Init( int nSpecies );
-	void Read( AsciiFileRead * ioFile );
-	void Read( DataBook * dataBook );
-	void Write( DataBook * dataBook );
+    void ComputeProperty();
+    void Init( int nSpecies );
+    void Read( AsciiFileRead * ioFile );
+    void Read( DataBook * dataBook );
+    void Write( DataBook * dataBook );
 };
 
 EndNameSpace

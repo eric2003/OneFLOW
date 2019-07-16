@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -33,12 +33,12 @@ class SegmentCtrl;
 class LineMesh : public CurveMesh
 {
 public:
-	LineMesh();
-	~LineMesh();
+    LineMesh();
+    ~LineMesh();
 public:
-	void GenerateLineMesh();
-	void ComputeCurveGeometry();
-	void ComputeCoor( Real s, Real & xt, Real & yt, Real & zt );
+    void GenerateLineMesh();
+    void ComputeCurveGeometry();
+    void ComputeCoor( Real s, Real & xt, Real & yt, Real & zt );
 };
 
 EndNameSpace

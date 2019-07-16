@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -35,31 +35,31 @@ class AsciiFileRead;
 class LineMachine
 {
 public:
-	LineMachine();
-	~LineMachine();
+    LineMachine();
+    ~LineMachine();
 public:
-	HXVector< SegmentCtrl * > segmentCtrlList;
-	HXVector< CurveInfo * > curveInfoList;
-	HXVector< CurveMesh * > curveMeshList;
-	IntField dimList;
-	RealField ds1List, ds2List;
+    HXVector< SegmentCtrl * > segmentCtrlList;
+    HXVector< CurveInfo * > curveInfoList;
+    HXVector< CurveMesh * > curveMeshList;
+    IntField dimList;
+    RealField ds1List, ds2List;
 public:
-	set< Mid<int> > refLines;
-	LinkField lineList; 
+    set< Mid<int> > refLines;
+    LinkField lineList; 
 public:
-	int AddLine( int p1, int p2 );
-	void AddLine( int p1, int p2, int id );
-	void AddDimension( AsciiFileRead * ioFile );
-	void AddDs( AsciiFileRead * ioFile );
-	void GenerateAllLineMesh();
-	void CreateAllLineMesh();
+    int AddLine( int p1, int p2 );
+    void AddLine( int p1, int p2, int id );
+    void AddDimension( AsciiFileRead * ioFile );
+    void AddDs( AsciiFileRead * ioFile );
+    void GenerateAllLineMesh();
+    void CreateAllLineMesh();
 public:
-	SegmentCtrl * GetSegmentCtrl( int id );
-	CurveMesh * GetCurveMesh( int id );
-	CurveInfo * GetCurveInfo( int id );
+    SegmentCtrl * GetSegmentCtrl( int id );
+    CurveMesh * GetCurveMesh( int id );
+    CurveInfo * GetCurveInfo( int id );
 public:
-	CurveMesh * GetLineMeshByTwoPoint( const int & p1, const int & p2, int & direction );
-	int GetLineIdByTwoPoint( const int & p1, const int & p2 );
+    CurveMesh * GetLineMeshByTwoPoint( const int & p1, const int & p2, int & direction );
+    int GetLineIdByTwoPoint( const int & p1, const int & p2 );
 };
 
 extern LineMachine line_Machine;

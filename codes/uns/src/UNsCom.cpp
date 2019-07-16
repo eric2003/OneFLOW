@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -60,7 +60,7 @@ void UNsField::Init()
     dtdx  = GetFieldPointer< MRField > ( grid, "dtdx" );
     dtdy  = GetFieldPointer< MRField > ( grid, "dtdy" );
     dtdz  = GetFieldPointer< MRField > ( grid, "dtdz" );
-	bc_q    = GetFieldPointer< MRField > ( grid, "bc_q" );
+    bc_q    = GetFieldPointer< MRField > ( grid, "bc_q" );
     bcdqdx  = GetFieldPointer< MRField > ( grid, "bcdqdx" );
     bcdqdy  = GetFieldPointer< MRField > ( grid, "bcdqdy" );
     bcdqdz  = GetFieldPointer< MRField > ( grid, "bcdqdz" );
@@ -82,10 +82,10 @@ void UNsField::Init()
 
     rhs = res;
 
-	if ( ctrl.time_integral == MULTI_STAGE )
-	{
-		dq = res;
-	}
+    if ( ctrl.time_integral == MULTI_STAGE )
+    {
+        dq = res;
+    }
 }
 
 EndNameSpace

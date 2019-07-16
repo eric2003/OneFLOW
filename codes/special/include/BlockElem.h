@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -29,32 +29,32 @@ BeginNameSpace( ONEFLOW )
 class BlkElem
 {
 public:
-	BlkElem();
-	~BlkElem();
+    BlkElem();
+    ~BlkElem();
 public:
-	int eType;
-	IntField nodeId;
-	IntField faceTypeList;
-	LinkField faceList;
+    int eType;
+    IntField nodeId;
+    IntField faceTypeList;
+    LinkField faceList;
 public:
-	void Init( int eType );
-	int GetFaceType( int iFace ) const { return faceTypeList[ iFace ]; };
-	void PushElementFace( int faceType, int p1, int p2 );
-	void PushElementFace( int faceType, int p1, int p2, int p3, int p4 );
+    void Init( int eType );
+    int GetFaceType( int iFace ) const { return faceTypeList[ iFace ]; };
+    void PushElementFace( int faceType, int p1, int p2 );
+    void PushElementFace( int faceType, int p1, int p2, int p3, int p4 );
 };
 
 class BlkElemHome
 {
 public:
-	BlkElemHome();
-	~BlkElemHome();
+    BlkElemHome();
+    ~BlkElemHome();
 public:
-	HXVector< BlkElem * > elems;
-	bool initFlag;
+    HXVector< BlkElem * > elems;
+    bool initFlag;
 public:
-	void Init();
-	void Free();
-	BlkElem * GetBlkElem( int eType );
+    void Init();
+    void Free();
+    BlkElem * GetBlkElem( int eType );
 };
 
 extern BlkElemHome bbElemHome;
@@ -63,11 +63,11 @@ extern BlkElemHome bbElemHome;
 class BlkFace
 {
 public:
-	BlkFace();
-	~BlkFace();
+    BlkFace();
+    ~BlkFace();
 public:
-	IntField lblk, rblk;
-	IntField lloc, rloc;
+    IntField lblk, rblk;
+    IntField lloc, rloc;
 };
 
 

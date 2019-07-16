@@ -28,15 +28,15 @@ BeginNameSpace( ONEFLOW )
 class Tolerence
 {
 public:
-	Tolerence();
-	~Tolerence();
+    Tolerence();
+    ~Tolerence();
 public:
-	static Real tol;
+    static Real tol;
     static bool flag;
 public:
     static void Init();
-	static Real GetTol();
-	static void SetTol( Real tolIn );
+    static Real GetTol();
+    static void SetTol( Real tolIn );
 };
 
 

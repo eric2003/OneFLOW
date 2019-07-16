@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -38,20 +38,20 @@ class CgnsFamilyBc;
 class CgnsBase
 {
 public:
-	CgnsBase();
-	~CgnsBase();
+    CgnsBase();
+    ~CgnsBase();
 public:
-	int fileId, baseId;
-	int nZones;
-	int celldim, phydim;
-	string baseName;
+    int fileId, baseId;
+    int nZones;
+    int celldim, phydim;
+    string baseName;
     HXVector< CgnsZone * > cgnsZones;
 public:
-	CgnsZone * GetCgnsZone( int zoneId );
-	CgnsZone * GetCgnsZone( const string & zoneName );
-	void ConstructZoneNameMap();
-	map< string, int > zoneNameMap;
-	CgnsFamilyBc * familyBc;
+    CgnsZone * GetCgnsZone( int zoneId );
+    CgnsZone * GetCgnsZone( const string & zoneName );
+    void ConstructZoneNameMap();
+    map< string, int > zoneNameMap;
+    CgnsFamilyBc * familyBc;
 public:
     void SetDefaultCgnsBaseBasicInformation();
     void AllocateAllCgnsZonesInCurrentCgnsBase();
@@ -63,8 +63,8 @@ public:
     void ReadAllCgnsZones();
     void ReadAllCgnsZones( CgnsBase * cgnsBaseIn );
 public:
-	void SetFamilyBc( BCType_t & bcType, const string & bcRegionName );
-	void ReadFamilySpecifiedBc();
+    void SetFamilyBc( BCType_t & bcType, const string & bcRegionName );
+    void ReadFamilySpecifiedBc();
 };
 
 #endif

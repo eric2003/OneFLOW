@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -43,24 +43,24 @@ class MLine;
 class MDomain : public DomData
 {
 public:
-	MDomain();
-	~MDomain();
+    MDomain();
+    ~MDomain();
 public:
-	int pos;
-	HXVector< SDomain * > sDomainList;
-	CoorMap * coorMap;
+    int pos;
+    HXVector< SDomain * > sDomainList;
+    CoorMap * coorMap;
 public:
-	SDomain * FindSDomain( int fid );
-	void AddSubDomain( int fid, IntField & lineList, IntField & posList );
-	void ComputeSubDomainCtrlCoor();
-	void ComputeCoor();
-	int GetNsubDomain();
-	void ConstructMultiDomainTopo();
-	void ConstructMultiLineToDomainMap();
-	void ConstructMultiPointToDomainMap();
-	void ConstructMultiPointToPointMap();
-	void CreateInpFaceList( HXVector< Face2D * > &facelist );
-	void SetBlkBcMesh( Block3D * blk3d );
+    SDomain * FindSDomain( int fid );
+    void AddSubDomain( int fid, IntField & lineList, IntField & posList );
+    void ComputeSubDomainCtrlCoor();
+    void ComputeCoor();
+    int GetNsubDomain();
+    void ConstructMultiDomainTopo();
+    void ConstructMultiLineToDomainMap();
+    void ConstructMultiPointToDomainMap();
+    void ConstructMultiPointToPointMap();
+    void CreateInpFaceList( HXVector< Face2D * > &facelist );
+    void SetBlkBcMesh( Block3D * blk3d );
 };
 
 EndNameSpace

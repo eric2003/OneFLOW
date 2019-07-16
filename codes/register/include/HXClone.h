@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -35,8 +35,8 @@ class HXClone;
 HXClone * Clone() const { return new TYPE( * this ); }
 
 #define REGISTER_CLASS( TYPE ) \
-	HXClone * TYPE ## _myClass = \
-		HXClone::Register( #TYPE, new TYPE() );
+    HXClone * TYPE ## _myClass = \
+        HXClone::Register( #TYPE, new TYPE() );
 
 #define C_CLASS( TYPE ) C##TYPE
 
@@ -46,16 +46,16 @@ HXClone * Clone() const { return new TYPE( * this ); }
 class HXClone
 {
 public:
-	virtual ~HXClone() {}
+    virtual ~HXClone() {}
 public:
-	virtual HXClone * Clone() const = 0;
+    virtual HXClone * Clone() const = 0;
 public:
-	static HXClone * SafeClone( const string & type );
-	static HXClone * Register( const string & type, HXClone * clone );
-	static map < string, HXClone * > * classMap;
-	StringField data;
+    static HXClone * SafeClone( const string & type );
+    static HXClone * Register( const string & type, HXClone * clone );
+    static map < string, HXClone * > * classMap;
+    StringField data;
 public:
-	virtual void Solve(){};
+    virtual void Solve(){};
 };
 
 #define DEFINE_CLASS( TYPE ) \
@@ -63,9 +63,9 @@ void HX##TYPE(); \
 class TYPE : public HXClone \
 { \
 public: \
-	IMPLEMENT_CLASS_CLONE( TYPE ) \
+    IMPLEMENT_CLASS_CLONE( TYPE ) \
 public: \
-	void Solve() \
+    void Solve() \
     { \
         HX##TYPE();\
     } \
@@ -77,9 +77,9 @@ void TYPE( StringField & data ); \
 class C##TYPE : public HXClone \
 { \
 public: \
-	IMPLEMENT_CLASS_CLONE( C##TYPE ) \
+    IMPLEMENT_CLASS_CLONE( C##TYPE ) \
 public: \
-	void Solve() \
+    void Solve() \
     { \
         TYPE( this->data );\
     } \

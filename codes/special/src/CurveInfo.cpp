@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -26,8 +26,8 @@ BeginNameSpace( ONEFLOW )
 
 CurveInfo::CurveInfo()
 {
-	this->id = 0;
-	this->type = 0;
+    this->id = 0;
+    this->type = 0;
 }
 
 CurveInfo::~CurveInfo()

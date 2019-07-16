@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -34,28 +34,28 @@ CompCoor::~CompCoor()
 
 void CompCoor::SetCoor( int i, int j, int k )
 {
-	this->i = i;
-	this->j = j;
-	this->k = k;
+    this->i = i;
+    this->j = j;
+    this->k = k;
 }
 
 bool CompCoor::operator < ( const CompCoor & rhs ) const
 {
-	if ( this->i == rhs.i )
-	{
-		if ( this->j == rhs.j )
-		{
-			return ( this->k < rhs.k );
-		}
-		else
-		{
-			return ( this->j < rhs.j );
-		}
-	}
-	else
-	{
-		return ( this->i < rhs.i );
-	}
+    if ( this->i == rhs.i )
+    {
+        if ( this->j == rhs.j )
+        {
+            return ( this->k < rhs.k );
+        }
+        else
+        {
+            return ( this->j < rhs.j );
+        }
+    }
+    else
+    {
+        return ( this->i < rhs.i );
+    }
 }
 
 EndNameSpace

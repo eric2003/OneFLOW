@@ -28,17 +28,17 @@ class DataBook;
 class SchmidtNumber
 {
 public:
-	SchmidtNumber();
+    SchmidtNumber();
     ~SchmidtNumber();
 public:
-	int nSpecies;
-	RealField lamSchmidt, olamSchmidt;
-	RealField turbSchmidt, oturbSchmidt;
+    int nSpecies;
+    RealField lamSchmidt, olamSchmidt;
+    RealField turbSchmidt, oturbSchmidt;
 public:
-	void Init( int nSpecies );
-	void ComputeSchmidtNumber( IntField & ionType );
-	void Read ( DataBook * dataBook );
-	void Write( DataBook * dataBook );
+    void Init( int nSpecies );
+    void ComputeSchmidtNumber( IntField & ionType );
+    void Read ( DataBook * dataBook );
+    void Write( DataBook * dataBook );
 };
 
 EndNameSpace

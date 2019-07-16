@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -54,8 +54,8 @@ public:
 class BcSolver
 {
 public:
-	BcSolver();
-	~BcSolver();
+    BcSolver();
+    ~BcSolver();
 };
 
 

@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -94,10 +94,10 @@ void CellMesh::CmpCellSpan( UnsGrid * grid )
     IntField & lcf = faceTopo->lCell;
     IntField & rcf = faceTopo->rCell;
 
-	for ( int ic = 0; ic < nCell; ++ ic )
-	{
-		Real delta  = - LARGE;
-		Real deltaj = 0.0;
+    for ( int ic = 0; ic < nCell; ++ ic )
+    {
+        Real delta  = - LARGE;
+        Real deltaj = 0.0;
 
         int fn = c2f[ ic ].size();
 
@@ -111,12 +111,12 @@ void CellMesh::CmpCellSpan( UnsGrid * grid )
             Real dx = xcc[ rc ] - xcc[ lc ];
             Real dy = ycc[ rc ] - ycc[ lc ];
             Real dz = zcc[ rc ] - zcc[ lc ];
-			deltaj = DIST( dx, dy, dz );
-			delta  = MAX( deltaj , delta );
-		}
+            deltaj = DIST( dx, dy, dz );
+            delta  = MAX( deltaj , delta );
+        }
 
-		span[ ic ] = delta;
-	}
+        span[ ic ] = delta;
+    }
 }
 
 void CmpCellSpan( UnsGrid * grid )

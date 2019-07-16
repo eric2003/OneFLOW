@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -40,12 +40,12 @@ BeginNameSpace( ONEFLOW )
 
 GridElem::GridElem( HXVector< CgnsZone * > & cgnsZones )
 {
-	this->minLen = LARGE;
-	this->maxLen = -LARGE;
+    this->minLen = LARGE;
+    this->maxLen = -LARGE;
     this->cgnsZones = cgnsZones;
     this->point_factory = new PointFactory();
     this->elem_feature = new ElemFeature();
-	this->face_solver = new FaceSolver();
+    this->face_solver = new FaceSolver();
     this->elem_feature->face_solver = face_solver;
 }
 
@@ -62,17 +62,17 @@ GridElem::~GridElem()
 
 void GridElem::PrepareUnsCompGrid()
 {
-	cout << " InitCgnsElements()\n";
+    cout << " InitCgnsElements()\n";
     this->InitCgnsElements();
-	cout << " ScanElements()\n";
+    cout << " ScanElements()\n";
     this->elem_feature->ScanElements();
-	cout << " ScanBcFace()\n";
-	this->ScanBcFace();
+    cout << " ScanBcFace()\n";
+    this->ScanBcFace();
 
-	//Continue to parse
-	cout << " ScanElements()\n";
-	this->elem_feature->ScanElements();
-	this->GenerateCmpElement();
+    //Continue to parse
+    cout << " ScanElements()\n";
+    this->elem_feature->ScanElements();
+    this->GenerateCmpElement();
 }
 
 void GridElem::ComputeMinMaxInfo()
@@ -103,57 +103,57 @@ void GridElem::ScanBcFace()
     int nZone = this->cgnsZones.size();
     for ( int iZone = 0; iZone < nZone; ++ iZone )
     {
-	    this->cgnsZones[ iZone ]->ScanBcFace( this->elem_feature->face_solver );
+        this->cgnsZones[ iZone ]->ScanBcFace( this->elem_feature->face_solver );
     }
 }
 
 void GridElem::GenerateCmpElement()
 {
-	int nElement =  this->elem_feature->eType->size();
+    int nElement =  this->elem_feature->eType->size();
 
     FaceTopo * faceTopo = this->face_solver->faceTopo;
 
     int nFace = this->face_solver->faceTopo->f2n.size();
 
-	int nBFace = 0;
+    int nBFace = 0;
 
-	//cout << " nFace = " << nFace << "\n";
+    //cout << " nFace = " << nFace << "\n";
 
-	for ( int iFace = 0; iFace < nFace; ++ iFace )
-	{
-		if ( iFace % 200000 == 0 ) 
-		{
-			cout << " iFace = " << iFace << " numberOfTotalFaces = " << nFace << endl;
-		}
+    for ( int iFace = 0; iFace < nFace; ++ iFace )
+    {
+        if ( iFace % 200000 == 0 ) 
+        {
+            cout << " iFace = " << iFace << " numberOfTotalFaces = " << nFace << endl;
+        }
 
-		int rc = ( faceTopo->rCell )[ iFace ];
+        int rc = ( faceTopo->rCell )[ iFace ];
 
-		if ( rc == INVALID_INDEX )
-		{
+        if ( rc == INVALID_INDEX )
+        {
             faceTopo->bcManager->bcRecord->bcType.push_back( ( * this->face_solver->faceBcType )[ iFace ] );
             faceTopo->bcManager->bcRecord->bcRegion.push_back( ( * this->face_solver->faceBcKey )[ iFace ] );
-			++ nBFace;
-		}
-	}
+            ++ nBFace;
+        }
+    }
 
-	this->point_factory->InitC2g();
+    this->point_factory->InitC2g();
 
 }
 
 void GridElem::GenerateCmpGrid( Grid * gridIn )
 {
-	UnsGrid * grid = UnsGridCast ( gridIn );
+    UnsGrid * grid = UnsGridCast ( gridIn );
 
     grid->nCell = this->elem_feature->eType->size();
     cout << "   nCell = " << grid->nCell << endl;
 
     int nNode = this->point_factory->c2g.size();
-	grid->nodeMesh->CreateNodes( nNode );
+    grid->nodeMesh->CreateNodes( nNode );
     grid->nNode = nNode;
 
-	for ( int iNode = 0; iNode < nNode; ++ iNode )
+    for ( int iNode = 0; iNode < nNode; ++ iNode )
     {
-		int nodeIndex = this->point_factory->c2g[ iNode ];
+        int nodeIndex = this->point_factory->c2g[ iNode ];
 
         grid->nodeMesh->xN[ iNode ] = this->point_factory->pointList[ nodeIndex ].x;
         grid->nodeMesh->yN[ iNode ] = this->point_factory->pointList[ nodeIndex ].y;
@@ -169,41 +169,41 @@ void GridElem::GenerateCmpGrid( Grid * gridIn )
 void GridElem::ComputeBoundaryType( UnsGrid * grid )
 {
     cout << "\n-->Set boundary condition......\n";
-	delete grid->faceTopo;
-	grid->faceTopo = this->face_solver->faceTopo;
-	grid->faceTopo->grid = grid;
-	this->face_solver->faceTopo = 0;
-	int nFace = grid->faceTopo->f2n.size();
-	cout << " nFace = " << nFace << "\n";
-	 
+    delete grid->faceTopo;
+    grid->faceTopo = this->face_solver->faceTopo;
+    grid->faceTopo->grid = grid;
+    this->face_solver->faceTopo = 0;
+    int nFace = grid->faceTopo->f2n.size();
+    cout << " nFace = " << nFace << "\n";
+     
     BcRecord * bcRecord = grid->faceTopo->bcManager->bcRecord;
     int nBFace = bcRecord->bcType.size();
 
     grid->nBFace = nBFace;
 
-	cout << " nBFace = " << nBFace << "\n";
+    cout << " nBFace = " << nBFace << "\n";
 
-	BcTypeMap * bcTypeMap = new BcTypeMap();
+    BcTypeMap * bcTypeMap = new BcTypeMap();
     bcTypeMap->Init();
 
     IntField cgnsBcArray = bcRecord->bcType;
 
-	IntSet originalBcSet, finalBcSet;
-	int iCount = 0;
+    IntSet originalBcSet, finalBcSet;
+    int iCount = 0;
     for ( int iFace = 0; iFace < nBFace; ++ iFace )
     {
         int cgnsBcType = bcRecord->bcType[ iFace ];
         int bcNameId = bcRecord->bcRegion[ iFace ];
-		int bcType = bcTypeMap->Cgns2OneFlow( cgnsBcType );
+        int bcType = bcTypeMap->Cgns2OneFlow( cgnsBcType );
 
         bcRecord->bcType[ iCount ] = bcType;
 
-		originalBcSet.insert( cgnsBcType );
-		finalBcSet.insert( bcType );
-		++ iCount;
+        originalBcSet.insert( cgnsBcType );
+        finalBcSet.insert( bcType );
+        ++ iCount;
     }
 
-	delete bcTypeMap;
+    delete bcTypeMap;
 
     IntField nBFaceSub;
 
@@ -215,7 +215,7 @@ void GridElem::ComputeBoundaryType( UnsGrid * grid )
             int cgnsBcType = cgnsBcArray[ iFace ];
             if ( cgnsBcType == * iter )
             {
-		        ++ iCount;
+                ++ iCount;
             }
         }
         nBFaceSub.push_back( iCount );
@@ -225,7 +225,7 @@ void GridElem::ComputeBoundaryType( UnsGrid * grid )
     iCount = 0;
     for ( IntSet::iterator iter = originalBcSet.begin(); iter != originalBcSet.end(); ++ iter )
     {
-		int oriBcType = * iter;
+        int oriBcType = * iter;
         cout << " Boundary Type = " << setw( 3 ) << oriBcType << "  Name = " << setiosflags(ios::left) << setw( 23 ) << GetCgnsBcName( oriBcType );
         cout << " Face = " << nBFaceSub[ iCount ] << endl;
         ++ iCount;
@@ -250,7 +250,7 @@ void GridElem::ReorderLink( UnsGrid * grid )
     int iCount = 0;
     for ( int iFace = 0; iFace < nFace; ++ iFace )
     {
-		int rc = faceTopo->rCell[ iFace ];
+        int rc = faceTopo->rCell[ iFace ];
         if ( rc == INVALID_INDEX )
         {
             f1map[ iFace ] = iCount;
@@ -261,7 +261,7 @@ void GridElem::ReorderLink( UnsGrid * grid )
 
     for ( int iFace = 0; iFace < nFace; ++ iFace )
     {
-		int rc = faceTopo->rCell[ iFace ];
+        int rc = faceTopo->rCell[ iFace ];
         if ( rc != INVALID_INDEX )
         {
             f1map[ iFace ] = iCount;

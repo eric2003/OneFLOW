@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -34,19 +34,19 @@ class StrGrid;
 class StrBcSetting
 {
 public:
-	StrBcSetting();
-	~StrBcSetting();
+    StrBcSetting();
+    ~StrBcSetting();
 public:
-	IntField iminList, imaxList, jminList, jmaxList, kminList, kmaxList, bcTypeList;
+    IntField iminList, imaxList, jminList, jmaxList, kminList, kmaxList, bcTypeList;
 public:
-	map< string, int > boundaryMap;
+    map< string, int > boundaryMap;
 public:
-	void ConstructBcMap();
-	int GetBcType( const string & bcTypeName );
+    void ConstructBcMap();
+    int GetBcType( const string & bcTypeName );
 public:
-	void PushBc( int imin, int imax, int jmin, int jmax, int kmin, int kmax, int bcType );
-	void SetBcRegion( StrGrid * grid );
-	int ComputeNBcRegion();
+    void PushBc( int imin, int imax, int jmin, int jmax, int kmin, int kmax, int bcType );
+    void SetBcRegion( StrGrid * grid );
+    int ComputeNBcRegion();
 };
 
 

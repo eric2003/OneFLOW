@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-	Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -32,35 +32,35 @@ BeginNameSpace( ONEFLOW )
 
 CurveMesh * CreateLineMesh( int lineType )
 {
-	CurveMesh * lineMesh = 0;
+    CurveMesh * lineMesh = 0;
 
-	if ( lineType == 0 )
-	{
-		lineMesh = new LineMesh();
-	}
-	else if ( lineType == 1 )
-	{
-		lineMesh = new CircleLineMesh();
-	}
+    if ( lineType == 0 )
+    {
+        lineMesh = new LineMesh();
+    }
+    else if ( lineType == 1 )
+    {
+        lineMesh = new CircleLineMesh();
+    }
 
-	return lineMesh;
+    return lineMesh;
 }
 
 CurveMesh * CreateLineMesh( CurveInfo * curveInfo )
 {
-	CurveMesh * lineMesh = 0;
+    CurveMesh * lineMesh = 0;
 
-	if ( curveInfo->type == 0 )
-	{
-		lineMesh = new LineMesh();
-	}
-	else if ( curveInfo->type == 1 )
-	{
-		lineMesh = new CircleLineMesh();
-	}
+    if ( curveInfo->type == 0 )
+    {
+        lineMesh = new LineMesh();
+    }
+    else if ( curveInfo->type == 1 )
+    {
+        lineMesh = new CircleLineMesh();
+    }
 
-	lineMesh->curveInfo = curveInfo;
-	return lineMesh;
+    lineMesh->curveInfo = curveInfo;
+    return lineMesh;
 
 }
 
