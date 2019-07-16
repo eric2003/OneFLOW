@@ -1,0 +1,57 @@
+language: cpp
+
+branches:
+  only:
+    - master
+
+cache:
+  directories:
+    - openmpi
+    - openmpi-2.0.1
+
+# setup build matrix
+matrix:
+  include:
+    - os: linux
+      dist: trusty
+      sudo: required
+      compiler: gcc
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - g++-5 gcc-5 libstdc++-5-dev
+      env:
+        - CXX_COMPILER=g++-5
+        - C_COMPILER=gcc-5
+        - BUILD_TYPE=release
+
+# upgrade packages
+before_install:
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo apt-get update -qq; fi
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo apt-get install -y python3; fi
+  - test -n $CC && unset CC
+  - test -n $CXX && unset CXX
+  - which $CXX_COMPILER
+
+# install mpi
+install:
+  - bash ci/travis/installMPI 
+  - bash ci/travis/installMETIS 
+
+before_script:
+  - mkdir build
+  - cd build
+
+# build instructions
+script:
+  - cmake -G "Unix Makefiles" -DCMAKE_CXX_COMPILER=$CXX_COMPILER -DCMAKE_C_COMPILER=$C_COMPILER -DMPI_DIR=$TRAVIS_BUILD_DIR/openmpi ../
+  - make -j 4
+  - sudo make install
+  - cd ../testcases
+  - ls
+  - ldd /usr/local/bin/OneFLOW
+  - export LD_LIBRARY_PATH=$TRAVIS_BUILD_DIR/openmpi/lib:$LD_LIBRARY_PATH
+  - sudo ldconfig
+  - ldd /usr/local/bin/OneFLOW
