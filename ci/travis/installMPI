@@ -7,17 +7,18 @@ if [ "$TRAVIS_OS_NAME" == "linux" ]; then
     cd openmpi-2.0.1
     #./configure --prefix=$TRAVIS_BUILD_DIR/openmpi CC=$C_COMPILER CXX=$CXX_COMPILER &> openmpi.configure
     ./configure --prefix=/usr/local/openmpi CC=$C_COMPILER CXX=$CXX_COMPILER &> openmpi.configure
-    make
+    #make
     sudo make install
     cd ..
     ls
     echo "----------------------------"
+    echo "TRAVIS_BUILD_DIRis $TRAVIS_BUILD_DIR"
     ls $TRAVIS_BUILD_DIR/openmpi/lib
-    echo "----------------------------"
+    echo "-------show show /usr/local/openmpi/---------"
     ls /usr/local/openmpi
-    echo "----show openmpi/include--------------"
+    echo "----show show /usr/local/openmpi/include--------------"
     ls /usr/local/openmpi/include
-    echo "----show openmpi/lib--------------"
+    echo "----show /usr/local/openmpi/lib--------------"
     ls /usr/local/openmpi/lib
     else
     echo "Downloading OpenMPI Source"
