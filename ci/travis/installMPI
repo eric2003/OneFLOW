@@ -6,7 +6,9 @@ if [ "$TRAVIS_OS_NAME" == "linux" ]; then
     echo "Configuring OpenMPI"
     cd openmpi-2.0.1
     #./configure --prefix=$TRAVIS_BUILD_DIR/openmpi CC=$C_COMPILER CXX=$CXX_COMPILER &> openmpi.configure
-    sudo./configure --prefix=/usr/local/openmpi CC=$C_COMPILER CXX=$CXX_COMPILER &> openmpi.configure
+    ./configure --prefix=/usr/local/openmpi CC=$C_COMPILER CXX=$CXX_COMPILER &> openmpi.configure
+    make
+    sudo make install
     cd ..
     ls
     echo "----------------------------"
