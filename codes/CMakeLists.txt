@@ -87,11 +87,14 @@ if(MPI_ENABLE)
             set (CMAKE_PREFIX_PATH ${MPI_DIR})
         endif ()
 
-        set(MPI_HEADER_DIR "${MPI_DIR}/include" CACHE PATH "path to mpi headers")
-        set(MPI_LIBRARY_DIR "${MPI_DIR}/lib" CACHE PATH "path to mpi library")
+        #set(MPI_HEADER_DIR "${MPI_DIR}/include" CACHE PATH "path to mpi headers")
+        #set(MPI_LIBRARY_DIR "${MPI_DIR}/lib" CACHE PATH "path to mpi library")
 
-        #find_package (MPI REQUIRED)
+        set(MPI_HEADER_DIR "/usr/local/openmpi/include" CACHE PATH "path to mpi headers")
+        set(MPI_LIBRARY_DIR "/usr/local/openmpi/lib" CACHE PATH "path to mpi library")
+
         #include_directories (SYSTEM "${MPI_INCLUDE_PATH}")
+        include_directories ("${MPI_HEADER_DIR}")
 
         #message( STATUS "MPI_DIR is ${MPI_DIR}" )
         #message( STATUS "MPI_INCLUDE_PATH is ${MPI_INCLUDE_PATH}" )
@@ -105,6 +108,9 @@ if(MPI_ENABLE)
         set(MPI_LIBRARY_NAME "msmpi" CACHE STRING "name of mpi library")
     else()
         set(MPI_LIBRARY_NAME "mpi" CACHE STRING "name of mpi library")
+        if( AUTO_CI_TEST )
+            set(MPI_LIBRARY_NAME "libmpi" CACHE STRING "name of mpi library")
+        endif()
     endif()
 
     include_directories(${MPI_HEADER_DIR})  #头文件目录

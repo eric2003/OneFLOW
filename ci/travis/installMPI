@@ -5,13 +5,18 @@ if [ "$TRAVIS_OS_NAME" == "linux" ]; then
     echo "Using cached OpenMPI"
     echo "Configuring OpenMPI"
     cd openmpi-2.0.1
-    ./configure --prefix=$TRAVIS_BUILD_DIR/openmpi CC=$C_COMPILER CXX=$CXX_COMPILER &> openmpi.configure
+    #./configure --prefix=$TRAVIS_BUILD_DIR/openmpi CC=$C_COMPILER CXX=$CXX_COMPILER &> openmpi.configure
+    ./configure --prefix=/usr/local/openmpi CC=$C_COMPILER CXX=$CXX_COMPILER &> openmpi.configure
     cd ..
     ls
-    cd $TRAVIS_BUILD_DIR/openmpi/lib
-    ls
-    cd ../../..
-    ls
+    echo "----------------------------"
+    ls $TRAVIS_BUILD_DIR/openmpi/lib
+    echo "----------------------------"
+    ls /usr/local/openmpi
+    echo "----show openmpi/include--------------"
+    ls /usr/local/openmpi/include
+    echo "----show openmpi/lib--------------"
+    ls /usr/local/openmpi/lib
     else
     echo "Downloading OpenMPI Source"
     wget https://www.open-mpi.org/software/ompi/v2.0/downloads/openmpi-2.0.1.tar.gz
