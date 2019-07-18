@@ -10,4 +10,5 @@ if [ "$TRAVIS_OS_NAME" == "linux" ]; then
     sudo mv cmake-3.14.4-Linux-x86_64 /usr/local/cmake-3.14.4
     sudo ln -sf /usr/local/cmake-3.14.4/bin/* /usr/bin/
     ls /usr/local
+    cmake --version
 fi
