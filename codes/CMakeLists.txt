@@ -169,13 +169,14 @@ if(CGNS_ENABLE)
     link_libraries(${CGNS_LIBRARY_NAME})     #库名称
     
     #HDF5库
-    option(HDF5_ENABLE "ON for using HDF5 library" ON)
+    #option(HDF5_ENABLE "ON for using HDF5 library" ON)
+    set( HDF5_ENABLE TRUE CACHE BOOL "TRUE for using HDF5 library")
     if( AUTO_CI_TEST )
-        option(HDF5_ENABLE "ON for using HDF5 library" OFF)
-
+        set( HDF5_ENABLE FALSE CACHE BOOL "FALSE for using HDF5 library" FORCE )
     endif()
 
     if(HDF5_ENABLE)
+        message(STATUS "The HDF5_ENABLE is ${HDF5_ENABLE}")
         add_definitions(-DENABLE_HDF5)
 
         if(USE_PREBUILT_LIB)
