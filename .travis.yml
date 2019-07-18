@@ -36,10 +36,11 @@ before_install:
   - test -n $CXX && unset CXX
   - which $CXX_COMPILER
 
-# install mpi
+# install
 install:
   - bash ci/travis/installMPI 
   - bash ci/travis/installMETIS 
+  - bash ci/travis/installHDF5 
   - bash ci/travis/installCGNS 
 
 before_script:
