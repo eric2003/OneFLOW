@@ -79,7 +79,7 @@ if(MPI_ENABLE)
         set(MPI_LIBRARY_DIR "/usr/local/mpich/lib" CACHE PATH "path to mpi library")
     endif()
 
-    message(STATUS "${AUTO_CI_TEST} value is ${AUTO_CI_TEST}")
+    message(STATUS "AUTO_CI_TEST value is ${AUTO_CI_TEST}")
 
     if( AUTO_CI_TEST )
         # determine if MPI_DIR has been set
@@ -94,6 +94,9 @@ if(MPI_ENABLE)
 
         set(MPI_HEADER_DIR "/home/travis/build/eric2003/OneFLOW/openmpi/include" CACHE PATH "path to mpi headers")
         set(MPI_LIBRARY_DIR "/home/travis/build/eric2003/OneFLOW/openmpi/lib" CACHE PATH "path to mpi library")
+
+        message(STATUS "MPI_HEADER_DIR is ${MPI_HEADER_DIR}")
+        message(STATUS "MPI_LIBRARY_DIR is ${MPI_LIBRARY_DIR}")
 
         #include_directories (SYSTEM "${MPI_INCLUDE_PATH}")
         #include_directories ("${MPI_HEADER_DIR}")
@@ -118,6 +121,10 @@ if(MPI_ENABLE)
     include_directories(${MPI_HEADER_DIR})  #头文件目录
     link_directories(${MPI_LIBRARY_DIR})    #库目录
     link_libraries(${MPI_LIBRARY_NAME})     #库名称
+
+    message(STATUS "MPI_HEADER_DIR is ${MPI_HEADER_DIR}")
+    message(STATUS "MPI_LIBRARY_DIR is ${MPI_LIBRARY_DIR}")
+    message(STATUS "MPI_LIBRARY_NAME is ${MPI_LIBRARY_NAME}")
 endif()
 
 #metis库设置
