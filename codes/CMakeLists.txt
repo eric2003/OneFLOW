@@ -79,6 +79,8 @@ if(MPI_ENABLE)
         set(MPI_LIBRARY_DIR "/usr/local/mpich/lib" CACHE PATH "path to mpi library")
     endif()
 
+    message(STATUS "${AUTO_CI_TEST} value is ${AUTO_CI_TEST}")
+
     if( AUTO_CI_TEST )
         # determine if MPI_DIR has been set
         #-DMPI_DIR=$TRAVIS_BUILD_DIR/openmpi
