@@ -135,13 +135,13 @@ if(METIS_ENABLE)
     add_definitions(-DENABLE_METIS)
     
     if(USE_PREBUILT_LIB)
-        set(METIS_HEADER_DIR "${THIRD_LIB_DIR}/metis/include" CACHE PATH "path to metis headers")
-        set(METIS_LIBRARY_DIR "${THIRD_LIB_DIR}/metis/lib" CACHE PATH "path to mpi library")
+        set(METIS_DIR "${THIRD_LIB_DIR}/metis")
     else()
-        set(METIS_HEADER_DIR "/usr/local/metis/include" CACHE PATH "path to metis headers")
-        set(METIS_LIBRARY_DIR "/usr/local/metis/lib" CACHE PATH "path to mpi library")
+        set(METIS_DIR "/usr/local/metis")
     endif()
 
+    set(METIS_HEADER_DIR "${METIS_DIR}/include" CACHE PATH "path to metis headers")
+    set(METIS_LIBRARY_DIR "${METIS_DIR}/lib" CACHE PATH "path to mpi library")
     set(METIS_LIBRARY_NAME "metis" CACHE STRING "name of metis library")
 
     link_directories(${METIS_LIBRARY_DIR})      #库目录
@@ -156,13 +156,13 @@ if(CGNS_ENABLE)
     add_definitions(-DENABLE_CGNS)
 
     if(USE_PREBUILT_LIB)
-        set(CGNS_HEADER_DIR "${THIRD_LIB_DIR}/cgns/include" CACHE PATH "path to cgns headers")
-        set(CGNS_LIBRARY_DIR "${THIRD_LIB_DIR}/cgns/lib" CACHE PATH "path to cgns library")
+        set(CGNS_DIR "${THIRD_LIB_DIR}/cgns")
     else()
-        set(CGNS_HEADER_DIR "/usr/local/cgns/include" CACHE PATH "path to cgns headers")
-        set(CGNS_LIBRARY_DIR "/usr/local/cgns/lib" CACHE PATH "path to cgns library")
+        set(CGNS_DIR "/usr/local/cgns")
     endif()
-    
+
+    set(CGNS_HEADER_DIR "${CGNS_DIR}/include" CACHE PATH "path to cgns headers")
+    set(CGNS_LIBRARY_DIR "${CGNS_DIR}/lib" CACHE PATH "path to cgns library")
     set(CGNS_LIBRARY_NAME "cgns" CACHE STRING "name of cgns library")
 
     include_directories(${CGNS_HEADER_DIR})  #头文件目录
@@ -181,14 +181,15 @@ if(CGNS_ENABLE)
         add_definitions(-DENABLE_HDF5)
 
         if(USE_PREBUILT_LIB)
-            set(HDF5_HEADER_DIR "${THIRD_LIB_DIR}/hdf5/include" CACHE PATH "path to hdf5 headers")
-            set(HDF5_LIBRARY_DIR "${THIRD_LIB_DIR}/hdf5/lib" CACHE PATH "path to hdf5 library")
+            set(HDF5_DIR "${THIRD_LIB_DIR}/hdf5")
             set(HDF5_LIBRARY_NAME "libhdf5" CACHE STRING "name of hdf5 library")
         else()
-            set(HDF5_HEADER_DIR "/usr/local/HDF_Group/HDF5/1.10.5/include" CACHE PATH "path to hdf5 headers")
-            set(HDF5_LIBRARY_DIR "/usr/local/HDF_Group/HDF5/1.10.5/lib" CACHE PATH "path to hdf5 library")
+            set(HDF5_DIR "/usr/local/HDF_Group/HDF5/1.10.5")
             set(HDF5_LIBRARY_NAME "hdf5" CACHE STRING "name of hdf5 library")
         endif()
+
+        set(HDF5_HEADER_DIR "${HDF5_DIR}/include" CACHE PATH "path to hdf5 headers")
+        set(HDF5_LIBRARY_DIR "${HDF5_DIR}/lib" CACHE PATH "path to hdf5 library")
 
         include_directories(${HDF5_HEADER_DIR})
         link_directories(${HDF5_LIBRARY_DIR})
