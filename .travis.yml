@@ -38,6 +38,7 @@ before_install:
 
 # install
 install:
+  - bash ci/travis/installCMAKE 
   - bash ci/travis/installMPI 
   - bash ci/travis/installMETIS 
   - bash ci/travis/installHDF5 
