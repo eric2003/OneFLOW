@@ -260,6 +260,8 @@ endif(WIN32)
 #. add an executable to the project using the specified source files and header files:
 add_executable(${EXECUTABLE_TARGET_NAME} ${SRC_LIST} ${HEAD_LIST}) 
 
+install (TARGETS ${EXECUTABLE_TARGET_NAME} RUNTIME DESTINATION bin)
+
 #message(STATUS "The INCLUDE_DIRECTORIES name is ${INCLUDE_DIRECTORIES}.")
 get_property( reqs TARGET ${EXECUTABLE_TARGET_NAME} PROPERTY INCLUDE_DIRECTORIES)
 message(STATUS "${EXECUTABLE_TARGET_NAME} requires ${reqs}")
