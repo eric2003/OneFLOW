@@ -170,6 +170,10 @@ if(CGNS_ENABLE)
     
     #HDF5库
     option(HDF5_ENABLE "ON for using HDF5 library" ON)
+    if( AUTO_CI_TEST )
+        option(HDF5_ENABLE "ON for using HDF5 library" OFF)
+
+    endif()
 
     if(HDF5_ENABLE)
         add_definitions(-DENABLE_HDF5)
