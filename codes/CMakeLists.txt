@@ -114,7 +114,7 @@ if(MPI_ENABLE)
     else()
         set(MPI_LIBRARY_NAME "mpi" CACHE STRING "name of mpi library")
         if( AUTO_CI_TEST )
-            set(MPI_LIBRARY_NAME "libmpi" CACHE STRING "name of mpi library" FORCE)
+            set(MPI_LIBRARY_NAME "libmpi.so" CACHE STRING "name of mpi library" FORCE)
         endif()
     endif()
 
