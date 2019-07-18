@@ -6,10 +6,10 @@ if [ "$TRAVIS_OS_NAME" == "linux" ]; then
         echo "Configuring OpenMPI"
         cd openmpi-2.0.1
         ./configure --prefix=$TRAVIS_BUILD_DIR/openmpi CC=$C_COMPILER CXX=$CXX_COMPILER &> openmpi.configure
-        export LIBRARY_PATH=$TRAVIS_BUILD_DIR/openmpi/lib/:$LIBRARY_PATH
-        export LD_LIBRARY_PATH=$TRAVIS_BUILD_DIR/openmpi/lib/:$LD_LIBRARY_PATH
+        export LIBRARY_PATH="$TRAVIS_BUILD_DIR/openmpi/lib/":$LIBRARY_PATH
+        export LD_LIBRARY_PATH="$TRAVIS_BUILD_DIR/openmpi/lib/":$LD_LIBRARY_PATH
         echo "LIBRARY_PATH is $LIBRARY_PATH"
-        echo "LD_LIBRARY_PATH is LD_LIBRARY_PATH"
+        echo "LD_LIBRARY_PATH is $LD_LIBRARY_PATH"
         cd ..
         ls
         echo "TRAVIS_BUILD_DIR is $TRAVIS_BUILD_DIR"
