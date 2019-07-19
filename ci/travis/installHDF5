@@ -31,5 +31,8 @@ if [ "$TRAVIS_OS_NAME" == "linux" ]; then
     echo "----------------------------------------"
     make -j 8
     sudo make install
+    HDF5_DIR=/usr/local/HDF_Group/HDF5/1.10.5/share/cmake
+    export HDF5_DIR
+    printenv HDF5_DIR
     ls /usr/local
 fi
