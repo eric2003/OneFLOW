@@ -111,7 +111,7 @@ void CMD::ExecuteCmd()
     for ( UInt iCmd = 0; iCmd < nCmd; ++ iCmd )
     {
         Command * cmd = ( * CMD::cmdList )[ iCmd ];
-        //CMD::ShowCmdInfo( cmd, iCmd );
+        CMD::ShowCmdInfo( cmd, iCmd );
         cmd->Execute();
         delete cmd;
     }
