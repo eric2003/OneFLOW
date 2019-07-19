@@ -63,3 +63,4 @@ script:
   - sudo ldconfig
   - ldd /usr/local/bin/OneFLOW
   - OneFLOW
+  - OneFLOW workdir/plateuns2dslau2/
