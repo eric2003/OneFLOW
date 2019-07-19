@@ -54,7 +54,9 @@ script:
   - make -j 4
   - sudo make install
   - pwd
-  - cd ../testcases
+  - cd ..
+  - ls
+  - cd test
   - ls
   - ldd /usr/local/bin/OneFLOW
   - export LD_LIBRARY_PATH=$TRAVIS_BUILD_DIR/openmpi/lib:$LD_LIBRARY_PATH
