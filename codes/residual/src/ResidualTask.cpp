@@ -56,7 +56,7 @@ void ResidualTask::Run()
     SolverInfo * solverInfo = SolverInfoFactory::GetSolverInfo( SolverState::tid );
     data.Init( solverInfo->nEqu );
     cout << "ResidualTask::Run  2 \n";
-
+    cout << " ZoneState::nLocal = " << ZoneState::nLocal << "\n";
     dataList.resize( ZoneState::nLocal );
     int iCount = 0;
     for ( int zId = 0; zId < ZoneState::nZones; ++ zId )
