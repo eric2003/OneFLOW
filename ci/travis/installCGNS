@@ -6,8 +6,11 @@ if [ "$TRAVIS_OS_NAME" == "linux" ]; then
     ls
     echo "Compile CGNS Source"
     echo "HDF5_DIR is " $HDF5_DIR
-    echo "print env "
+    echo "print env start------------------ "
     env|sort
+    echo "print env end------------------ "
+    export HDF5_DIR=/usr/local/HDF_Group/HDF5/1.10.5/share/cmake
+    echo "now HDF5_DIR is " $HDF5_DIR
     tar xzvf CGNS-3.4.0.tar.gz
     ls
     cd CGNS-3.4.0
