@@ -50,10 +50,12 @@ ResidualTask::~ResidualTask()
 
 void ResidualTask::Run()
 {
+    cout << "ResidualTask::Run\n";
     ActionState::dataBook = this->dataBook;
-
+    cout << "ResidualTask::Run  1 \n";
     SolverInfo * solverInfo = SolverInfoFactory::GetSolverInfo( SolverState::tid );
     data.Init( solverInfo->nEqu );
+    cout << "ResidualTask::Run  2 \n";
 
     dataList.resize( ZoneState::nLocal );
     int iCount = 0;
@@ -66,13 +68,19 @@ void ResidualTask::Run()
         ++ iCount;
     }
 
+    cout << "ResidualTask::Run  3 \n";
+
     PostDumpResiduals();
+    cout << "ResidualTask::Run  4 \n";
 }
 
 void ResidualTask::CmpRes( int sTid, ResData & data )
 {
+    cout << "ResidualTask::CmpRes 1 \n";
     UnsGrid * grid = Zone::GetUnsGrid();
     SolverInfo * solverInfo = SolverInfoFactory::GetSolverInfo( sTid );
+
+    cout << "ResidualTask::CmpRes 2 \n";
 
     int nEqu = solverInfo->nEqu;
 
@@ -83,6 +91,8 @@ void ResidualTask::CmpRes( int sTid, ResData & data )
 
     data.resmax.index = 0;
     data.resmax.resmax = 0;
+
+    cout << "ResidualTask::CmpRes 3 \n";
 
     for ( int iEqu = 0; iEqu < nEqu; ++ iEqu )
     {
@@ -97,6 +107,8 @@ void ResidualTask::CmpRes( int sTid, ResData & data )
             }
         }
     }
+
+    cout << "ResidualTask::CmpRes 4 \n";
 
     RealField & xcc = grid->cellMesh->xcc;
     RealField & ycc = grid->cellMesh->ycc;
@@ -113,6 +125,8 @@ void ResidualTask::CmpRes( int sTid, ResData & data )
         data.resmax.zcc[ iEqu ] = zcc[ id ];
         data.resmax.vol[ iEqu ] = vol[ id ];
     }
+
+    cout << "ResidualTask::CmpRes 5 \n";
 }
 
 void ResidualTask::PostDumpResiduals()

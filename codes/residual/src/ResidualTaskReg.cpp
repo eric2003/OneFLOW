@@ -34,17 +34,26 @@ void RegisterRedisualTask()
 
 void CreateResidualTask( StringField & data )
 {
+    cout << "CreateResidualTask( StringField & data )\n";
     ResidualTask * task = new ResidualTask();
+    cout << "CreateResidualTask 1\n";
     TaskState::task = task;
+    cout << "CreateResidualTask 2\n";
 }
 
 void DumpResidual( StringField & data )
 {
+    cout << " DumpResidual ( StringField & data ) \n";
     int sTid = SolverState::tid;
 
+    cout << " sTid = " << sTid << "\n";
+
     Residual * residual = new UResidual();
+    cout << " DumpResidual 1 \n";
     residual->Dump( sTid );
+    cout << " DumpResidual 2 \n";
     delete residual;
+    cout << " DumpResidual 3 \n";
 }
 
 EndNameSpace
