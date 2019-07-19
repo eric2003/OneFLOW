@@ -5,6 +5,7 @@ if [ "$TRAVIS_OS_NAME" == "linux" ]; then
     cd  lib
     ls
     echo "Compile CGNS Source"
+    echo "HDF5_DIR is " $HDF5_DIR
     tar xzvf CGNS-3.4.0.tar.gz
     ls
     cd CGNS-3.4.0
