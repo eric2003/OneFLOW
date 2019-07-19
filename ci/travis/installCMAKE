@@ -14,7 +14,12 @@ if [ "$TRAVIS_OS_NAME" == "linux" ]; then
     ls /usr/bin/
     echo "/usr/local/cmake"
     ls /usr/local/cmake
+    echo "/usr/local/cmake-3.9.2"
+    ls /usr/local/cmake-3.9.2
     echo "/usr/local/cmake-3.14.4"
     ls /usr/local/cmake-3.14.4/bin
+    echo "/usr/local/cmake-3.14.4/bin"
+    ls /usr/local/cmake-3.14.4/bin
     cmake --version
+    which cmake
 fi
