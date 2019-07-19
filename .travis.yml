@@ -62,4 +62,4 @@ script:
   - export LD_LIBRARY_PATH=$TRAVIS_BUILD_DIR/openmpi/lib:$LD_LIBRARY_PATH
   - sudo ldconfig
   - ldd /usr/local/bin/OneFLOW
-  - mpirun -np 1 OneFLOW ./workdir/plateuns2dslau2/
+  - $TRAVIS_BUILD_DIR/openmpi/bin/mpirun -np 1 OneFLOW ./workdir/plateuns2dslau2/
