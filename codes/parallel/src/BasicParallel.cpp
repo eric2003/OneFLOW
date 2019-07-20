@@ -178,7 +178,9 @@ void HXRecvString( string & cs, int pid, int tag )
 void HXReduceInt( void * s, void * t, int nElem, PL_Op op )
 {
 #ifdef HX_PARALLEL
-    MPI_Allreduce( s, t, nElem, MPI_INTEGER, op, MPI_COMM_WORLD );
+    //MPI_INTEGER error !!!!!!!!!!!!!!!!!!!!!
+    //MPI_Allreduce( s, t, nElem, MPI_INTEGER, op, MPI_COMM_WORLD );
+    MPI_Allreduce( s, t, nElem, MPI_INT, op, MPI_COMM_WORLD );
 #endif
 
 }
