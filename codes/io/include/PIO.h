@@ -30,27 +30,22 @@ using namespace std;
 
 BeginNameSpace( ONEFLOW )
 
-class Grid;
-class UnsGrid;
-
-class Zone
+class PIO
 {
 public:
-    Zone();
-    ~Zone();
+    PIO();
+    ~PIO();
 public:
-    static HXVector< Grids * > globalGrids;
-    static int nLocalZones;
-    static void AddGrid( int zid, Grid * grid );
-    static void InitLayout( StringField & fileNameList );
-    static void ReadGrid( StringField & fileNameList );
-    static void NormalizeLayout();
-public:
-    static Grid * GetGrid( int zid, int gl = 0 );
-    static Grid * GetGrid();
-    static Grid * GetCGrid( Grid * grid );
-    static Grid * GetFGrid( Grid * grid );
-    static UnsGrid * GetUnsGrid();
+    static string GetDirName( const string & fileName );
+    static void ParallelOpenPrj();
+    static void ParallelOpen( fstream & file, const string & fileName, const ios_base::openmode & openMode );
+    static void ParallelOpenPrj( fstream & file, const string & fileName, const ios_base::openmode & openMode );
+    static void Open( fstream & file, const string & fileName, const ios_base::openmode & openMode );
+
+    static void ParallelClose( fstream & file );
+    static void ParallelClose();
+    static void Close( fstream & file );
 };
+
 
 EndNameSpace

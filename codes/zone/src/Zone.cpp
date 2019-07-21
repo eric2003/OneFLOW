@@ -23,6 +23,7 @@ License
 #include "Zone.h"
 #include "ZoneState.h"
 #include "GridGroup.h"
+#include "PIO.h"
 #include "Parallel.h"
 #include "SolverDef.h"
 #include "BasicIO.h"
@@ -144,87 +145,5 @@ void Zone::ReadGrid( StringField & fileNameList )
     }
     Zone::NormalizeLayout();
 }
-
-PIO::PIO()
-{
-    ;
-}
-
-PIO::~PIO()
-{
-    ;
-}
-
-string PIO::GetDirName( const string & fileName )
-{
-    size_t pos = fileName.find_last_of("\\/");
-    if ( string::npos == pos )
-    {
-        return "";
-    }
-    else
-    {
-        return fileName.substr(0, pos);
-    }
-}
-
-void PIO::ParallelOpen( fstream & file, const string & fileName, const ios_base::openmode & openMode )
-{
-    if ( Parallel::pid != Parallel::GetFid() ) return;
-
-    PIO::Open( file, fileName, openMode );
-}
-
-void PIO::ParallelOpenPrj( fstream & file, const string & fileName, const ios_base::openmode & openMode )
-{
-    if ( Parallel::pid != Parallel::GetFid() ) return;
-
-    ONEFLOW::StrIO.ClearAll();
-    ONEFLOW::StrIO << PrjStatus::prjBaseDir << fileName;
-
-    string prjFileName = ONEFLOW::StrIO.str();
-    string prj_dir = PIO::GetDirName( prjFileName );
-    //cout << " prj_dir = " << prj_dir << " prjFileName = " << prjFileName << " fileName = " << fileName << "\n";
-    //cout << " PrjStatus::prjBaseDir = " << PrjStatus::prjBaseDir << "\n";
-    if ( ! DirExist( prj_dir ) )
-    {
-        MakeDir( prj_dir );
-    }
-    PIO::Open( file, prjFileName, openMode );
-}
-
-void PIO::ParallelOpenPrj()
-{
-    PIO::ParallelOpenPrj( * ActionState::file, TaskState::task->fileInfo->fileName, TaskState::task->fileInfo->openMode );
-}
-
-void PIO::ParallelClose()
-{
-    PIO::ParallelClose( * ActionState::file );
-}
-
-void PIO::ParallelClose( fstream & file )
-{
-    if ( Parallel::pid != Parallel::GetFid() ) return;
-
-    PIO::Close( file );
-}
-
-void PIO::Open( fstream & file, const string & fileName, const ios_base::openmode & openMode )
-{
-    file.open( fileName.c_str(), openMode );
-    if ( ! file )
-    {
-        cout << "could not open " << fileName << endl;
-        Stop("");
-    }
-}
-
-void PIO::Close( fstream & file )
-{
-    file.close();
-    file.clear();
-}
-
 
 EndNameSpace
