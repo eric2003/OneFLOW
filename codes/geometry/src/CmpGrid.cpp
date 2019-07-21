@@ -31,6 +31,7 @@ License
 #include "InterFace.h"
 #include "FaceTopo.h"
 #include "Zone.h"
+#include "ZoneState.h"
 #include "Partition.h"
 #include "DataBase.h"
 #include "DataBaseIO.h"

@@ -25,6 +25,7 @@ License
 #include "UnsGrid.h"
 #include "FaceMesh.h"
 #include "Zone.h"
+#include "ZoneState.h"
 #include "FaceTopo.h"
 #include "BcRecord.h"
 #include "Boundary.h"

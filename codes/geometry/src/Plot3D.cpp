@@ -32,6 +32,7 @@ License
 #include "Dimension.h"
 #include "HXMath.h"
 #include "Zone.h"
+#include "ZoneState.h"
 #include "BcRecord.h"
 #include "DataBase.h"
 #include <iostream>

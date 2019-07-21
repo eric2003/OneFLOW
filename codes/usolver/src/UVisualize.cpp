@@ -33,6 +33,7 @@ License
 #include "Dimension.h"
 #include "NsIdx.h"
 #include "Zone.h"
+#include "ZoneState.h"
 #include "BasicIO.h"
 #include "Prj.h"
 #include "Mid.h"

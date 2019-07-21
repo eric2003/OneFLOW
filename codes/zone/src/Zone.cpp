@@ -21,6 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "Zone.h"
+#include "ZoneState.h"
 #include "Parallel.h"
 #include "SolverDef.h"
 #include "BasicIO.h"
@@ -39,39 +40,6 @@ using namespace std;
 
 BeginNameSpace( ONEFLOW )
 
-int ZoneState::nLocal = 0;
-int ZoneState::nZones = 0;
-int ZoneState::zid = 0;
-int ZoneState::szid = 0;
-int ZoneState::rzid = 0;
-
-IntField ZoneState::pid;
-IntField ZoneState::zoneType;
-IntField ZoneState::localZid;
-
-ZoneState::ZoneState()
-{
-    ;
-}
-
-ZoneState::~ZoneState()
-{
-    ;
-}
-
-bool ZoneState::IsValidZone( int zoneId )
-{
-    return ZoneState::pid[ zoneId ] == Parallel::GetPid();
-}
-
-int ZoneState::GetZid( int iSr )
-{
-    if ( iSr == GREAT_SEND )
-    {
-        return ZoneState::szid;
-    }
-    return ZoneState::rzid;
-}
 
 HXVector< Grids * > Zone::globalGrids;
 int Zone::nLocalZones = 0;

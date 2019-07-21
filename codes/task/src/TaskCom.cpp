@@ -23,6 +23,7 @@ License
 #include "TaskCom.h"
 #include "Parallel.h"
 #include "Zone.h"
+#include "ZoneState.h"
 #include "ActionState.h"
 #include "DataBook.h"
 #include "InterFace.h"

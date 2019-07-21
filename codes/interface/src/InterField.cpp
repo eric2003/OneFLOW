@@ -23,6 +23,7 @@ License
 #include "InterField.h"
 #include "Grid.h"
 #include "Zone.h"
+#include "ZoneState.h"
 #include "SolverDef.h"
 #include "SolverState.h"
 #include "InterFace.h"

@@ -22,6 +22,7 @@ License
 #include "ResidualTask.h"
 #include "ActionState.h"
 #include "Zone.h"
+#include "ZoneState.h"
 #include "Parallel.h"
 #include "SolverState.h"
 #include "SolverInfo.h"

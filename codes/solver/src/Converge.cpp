@@ -22,6 +22,7 @@ License
 
 #include "Converge.h"
 #include "Zone.h"
+#include "ZoneState.h"
 #include "DataBook.h"
 #include "ActionState.h"
 #include "SolverState.h"

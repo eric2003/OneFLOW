@@ -20,60 +20,30 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "Task.h"
-#include "Register.h"
-#include "Message.h"
-#include "Zone.h"
-#include "ZoneState.h"
-#include "HXClone.h"
-#include "ActionState.h"
-#include "DataBook.h"
+
+#pragma once
+#include "HXDefine.h"
 
 BeginNameSpace( ONEFLOW )
 
-FileInfo::FileInfo()
+class ZoneState
 {
-    ;
-}
+public:
+    ZoneState();
+    ~ZoneState();
+public:
+    static int nZones;
+    static int nLocal;
+    static int zid;
+    static int szid;
+    static int rzid;
+    static IntField pid;
+    static IntField zoneType;
+    static IntField localZid;
+public:
+    static bool IsValidZone( int zoneId );
+    static int GetZid( int iSr );
+};
 
-FileInfo::~FileInfo()
-{
-    ;
-}
-
-Task::Task()
-{
-    dataBook = new DataBook();
-    fileInfo = new FileInfo();
-}
-
-Task::~Task()
-{
-    delete dataBook;
-    delete fileInfo;
-}
-
-Task * TaskState::task = 0;
-
-TaskState::TaskState()
-{
-}
-
-TaskState::~TaskState()
-{
-}
-    
-void SimpleTask::Run()
-{
-    ActionState::dataBook = this->dataBook;
-    for ( int zId = 0; zId < ZoneState::nZones; ++ zId )
-    {
-        if ( ! ZoneState::IsValidZone( zId ) ) continue;
-
-        ZoneState::zid = zId;
-
-        this->action();
-    }
-}
 
 EndNameSpace

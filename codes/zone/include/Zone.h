@@ -30,25 +30,6 @@ using namespace std;
 
 BeginNameSpace( ONEFLOW )
 
-class ZoneState
-{
-public:
-    ZoneState();
-    ~ZoneState();
-public:
-    static int nZones;
-    static int nLocal;
-    static int zid;
-    static int szid;
-    static int rzid;
-    static IntField pid;
-    static IntField zoneType;
-    static IntField localZid;
-public:
-    static bool IsValidZone( int zoneId );
-    static int GetZid( int iSr );
-};
-
 class Grid;
 class UnsGrid;
 

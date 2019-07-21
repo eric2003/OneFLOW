@@ -22,6 +22,7 @@ License
 
 #include "BgField.h"
 #include "Zone.h"
+#include "ZoneState.h"
 #include "SolverState.h"
 #include "GridState.h"
 #include "Multigrid.h"

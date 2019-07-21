@@ -29,6 +29,7 @@ License
 #include "DataBase.h"
 #include "UnsGrid.h"
 #include "Zone.h"
+#include "ZoneState.h"
 #include "InterFace.h"
 #include "FaceTopo.h"
 #include "UNsCom.h"

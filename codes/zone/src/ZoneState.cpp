@@ -20,60 +20,44 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "Task.h"
-#include "Register.h"
-#include "Message.h"
-#include "Zone.h"
 #include "ZoneState.h"
-#include "HXClone.h"
-#include "ActionState.h"
-#include "DataBook.h"
+#include "Parallel.h"
+#include "SolverDef.h"
 
 BeginNameSpace( ONEFLOW )
 
-FileInfo::FileInfo()
+int ZoneState::nLocal = 0;
+int ZoneState::nZones = 0;
+int ZoneState::zid = 0;
+int ZoneState::szid = 0;
+int ZoneState::rzid = 0;
+
+IntField ZoneState::pid;
+IntField ZoneState::zoneType;
+IntField ZoneState::localZid;
+
+ZoneState::ZoneState()
 {
     ;
 }
 
-FileInfo::~FileInfo()
+ZoneState::~ZoneState()
 {
     ;
 }
 
-Task::Task()
+bool ZoneState::IsValidZone( int zoneId )
 {
-    dataBook = new DataBook();
-    fileInfo = new FileInfo();
+    return ZoneState::pid[ zoneId ] == Parallel::GetPid();
 }
 
-Task::~Task()
+int ZoneState::GetZid( int iSr )
 {
-    delete dataBook;
-    delete fileInfo;
-}
-
-Task * TaskState::task = 0;
-
-TaskState::TaskState()
-{
-}
-
-TaskState::~TaskState()
-{
-}
-    
-void SimpleTask::Run()
-{
-    ActionState::dataBook = this->dataBook;
-    for ( int zId = 0; zId < ZoneState::nZones; ++ zId )
+    if ( iSr == GREAT_SEND )
     {
-        if ( ! ZoneState::IsValidZone( zId ) ) continue;
-
-        ZoneState::zid = zId;
-
-        this->action();
+        return ZoneState::szid;
     }
+    return ZoneState::rzid;
 }
 
 EndNameSpace

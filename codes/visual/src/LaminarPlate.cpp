@@ -23,6 +23,7 @@ License
 #include "LaminarPlate.h"
 #include "NodeField.h"
 #include "Zone.h"
+#include "ZoneState.h"
 #include "UnsGrid.h"
 #include "NodeMesh.h"
 #include "FaceTopo.h"

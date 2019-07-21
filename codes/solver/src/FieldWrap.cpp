@@ -29,6 +29,7 @@ License
 #include "GridState.h"
 #include "BgGrid.h"
 #include "Zone.h"
+#include "ZoneState.h"
 #include "Mesh.h"
 #include "Grid.h"
 #include "UnsGrid.h"
