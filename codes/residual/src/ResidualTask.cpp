@@ -50,13 +50,10 @@ ResidualTask::~ResidualTask()
 
 void ResidualTask::Run()
 {
-    cout << "ResidualTask::Run\n";
     ActionState::dataBook = this->dataBook;
-    cout << "ResidualTask::Run  1 \n";
     SolverInfo * solverInfo = SolverInfoFactory::GetSolverInfo( SolverState::tid );
     data.Init( solverInfo->nEqu );
-    cout << "ResidualTask::Run  2 \n";
-    cout << " ZoneState::nLocal = " << ZoneState::nLocal << "\n";
+
     dataList.resize( ZoneState::nLocal );
     int iCount = 0;
     for ( int zId = 0; zId < ZoneState::nZones; ++ zId )
@@ -68,19 +65,13 @@ void ResidualTask::Run()
         ++ iCount;
     }
 
-    cout << "ResidualTask::Run  3 \n";
-
     PostDumpResiduals();
-    cout << "ResidualTask::Run  4 \n";
 }
 
 void ResidualTask::CmpRes( int sTid, ResData & data )
 {
-    cout << "ResidualTask::CmpRes 1 \n";
     UnsGrid * grid = Zone::GetUnsGrid();
     SolverInfo * solverInfo = SolverInfoFactory::GetSolverInfo( sTid );
-
-    cout << "ResidualTask::CmpRes 2 \n";
 
     int nEqu = solverInfo->nEqu;
 
@@ -91,8 +82,6 @@ void ResidualTask::CmpRes( int sTid, ResData & data )
 
     data.resmax.index = 0;
     data.resmax.resmax = 0;
-
-    cout << "ResidualTask::CmpRes 3 \n";
 
     for ( int iEqu = 0; iEqu < nEqu; ++ iEqu )
     {
@@ -107,8 +96,6 @@ void ResidualTask::CmpRes( int sTid, ResData & data )
             }
         }
     }
-
-    cout << "ResidualTask::CmpRes 4 \n";
 
     RealField & xcc = grid->cellMesh->xcc;
     RealField & ycc = grid->cellMesh->ycc;
@@ -126,42 +113,31 @@ void ResidualTask::CmpRes( int sTid, ResData & data )
         data.resmax.vol[ iEqu ] = vol[ id ];
     }
 
-    cout << "ResidualTask::CmpRes 5 \n";
 }
 
 void ResidualTask::PostDumpResiduals()
 {
-    cout << "PostDumpResiduals 1 \n";
     size_t nEqu = this->data.resave.res.size();
-    cout << "PostDumpResiduals 2 \n";
     this->data.resave.CmpAver( dataList );
     this->data.resmax.CmpMax( dataList );
-    cout << "PostDumpResiduals 3 \n";
 
     if ( Parallel::pid != Parallel::serverid ) return;
-    cout << "PostDumpResiduals 4 \n";
 
     this->DumpScreen();
-    cout << "PostDumpResiduals 5 \n";
     this->DumpFile();
-    cout << "PostDumpResiduals 6 \n";
 }
 
 void ResidualTask::DumpFile()
 {
-    cout << "DumpFile 1 \n";
     ostringstream oss;
 
     fstream file;
     SolverInfo * solverInfo = SolverInfoFactory::GetSolverInfo( SolverState::tid );
     string & fileName = solverInfo->resFileName;
-    cout << "DumpFile 2 \n";
     PIO::ParallelOpenPrj( file, fileName, ios_base::out | ios_base::app );
-    cout << "DumpFile 3 \n";
 
     if ( IsEmpty( file ) )
     {
-        cout << "DumpFile 4 \n";
         StringField title;
         title.push_back( "Title=\"THE RESIDUAL OF ONEFLOW\"" );
         title.push_back( "Variables=" );
@@ -172,15 +148,12 @@ void ResidualTask::DumpFile()
         {
             title.push_back( AddString( "\"res",  iVar + 1, "\"" ) );
         }
-        cout << "DumpFile 5 \n";
 
         for ( UInt iTitle = 0; iTitle < title.size(); ++ iTitle )
         {
             oss << title[ iTitle ] << endl;
         }
-        cout << "DumpFile 6 \n";
     }
-    cout << "DumpFile 7 \n";
 
     oss << setiosflags( ios::left );
     oss << setprecision( 5 );
@@ -190,33 +163,23 @@ void ResidualTask::DumpFile()
     oss << Iteration::outerSteps << " ";
     oss << Iteration::innerSteps << " ";
 
-    cout << "DumpFile 8 \n";
-
     size_t nVar = this->data.resave.res.size();
     for ( int iVar = 0; iVar < nVar; ++ iVar )
     {
         oss << setw( 13 ) << this->data.resave.res[ iVar ] << " ";
     }
 
-    cout << "DumpFile 9 \n";
-
     oss << endl;
 
     file << oss.str();
 
-    cout << "DumpFile 10 \n";
-
     PIO::ParallelClose( file );
 
-    cout << "DumpFile 11 \n";
 }
 
 void ResidualTask::DumpScreen()
 {
-    cout << "DumpScreen 1 \n";
     int maxId = this->data.resmax.CmpMaxId();
-
-    cout << "DumpScreen 2 \n";
 
     ostringstream oss;
     if ( ( Iteration::outerSteps - 1 ) % 100 == 0 )
@@ -224,7 +187,7 @@ void ResidualTask::DumpScreen()
         oss << endl;
         oss << "iter initer ave  max zone cell vol  nv \n";
     }
-    cout << "DumpScreen 3 \n";
+
     oss << setiosflags( ios::left );
     oss << setprecision( 5 );
     oss << setiosflags( ios::scientific );
@@ -244,10 +207,8 @@ void ResidualTask::DumpScreen()
     oss << " ";
     oss << setw( 3 )  << maxId + 1;
     oss << endl;
-    cout << "DumpScreen 4 \n";
 
     cout << oss.str();
-    cout << "DumpScreen 5 \n";
 }
 
 

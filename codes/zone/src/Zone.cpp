@@ -215,8 +215,8 @@ void PIO::ParallelOpenPrj( fstream & file, const string & fileName, const ios_ba
 
     string prjFileName = ONEFLOW::StrIO.str();
     string prj_dir = PIO::GetDirName( prjFileName );
-    cout << " prj_dir = " << prj_dir << " prjFileName = " << prjFileName << " fileName = " << fileName << "\n";
-    cout << " PrjStatus::prjBaseDir = " << PrjStatus::prjBaseDir << "\n";
+    //cout << " prj_dir = " << prj_dir << " prjFileName = " << prjFileName << " fileName = " << fileName << "\n";
+    //cout << " PrjStatus::prjBaseDir = " << PrjStatus::prjBaseDir << "\n";
     if ( ! DirExist( prj_dir ) )
     {
         MakeDir( prj_dir );
