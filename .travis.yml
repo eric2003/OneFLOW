@@ -63,5 +63,5 @@ script:
   - sudo ldconfig
   - ldd /usr/local/bin/OneFLOW
   #- $TRAVIS_BUILD_DIR/openmpi/bin/mpirun -np 1 OneFLOW ./workdir/plateuns2dslau2/
-  #- $TRAVIS_BUILD_DIR/openmpi/bin/mpirun -np 1 OneFLOW workdir/plateuns2dslau2
-  - mpirun -np 1 OneFLOW workdir/plateuns2dslau2
+  - $TRAVIS_BUILD_DIR/openmpi/bin/mpirun -np 1 OneFLOW workdir/plateuns2dslau2
+  #- mpirun -np 1 OneFLOW workdir/plateuns2dslau2
