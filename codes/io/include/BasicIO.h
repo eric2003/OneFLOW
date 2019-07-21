@@ -43,6 +43,7 @@ public:
     void ClearAll();
 };
 
+bool DirExist( const string & dirName );
 void MakeDir( const string & dirName );
 
 void OpenFile( fstream & file, const string & fileName, const ios_base::openmode & openMode );
