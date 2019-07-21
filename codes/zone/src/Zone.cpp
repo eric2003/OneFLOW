@@ -22,6 +22,7 @@ License
 
 #include "Zone.h"
 #include "ZoneState.h"
+#include "GridGroup.h"
 #include "Parallel.h"
 #include "SolverDef.h"
 #include "BasicIO.h"
@@ -225,131 +226,5 @@ void PIO::Close( fstream & file )
     file.clear();
 }
 
-IntField GridGroup::pid;
-IntField GridGroup::zoneType;
-
-GridGroup::GridGroup( int zoneStart )
-{
-    this->zoneStart = zoneStart;
-}
-
-GridGroup::~GridGroup()
-{
-}
-
-void GridGroup::InitZoneLayout( const string & fileName )
-{
-    fstream file;
-    PIO::ParallelOpenPrj( file, fileName, ios_base::in|ios_base::binary );
-
-    this->InitZoneLayout( file );
-    this->SetMultiZoneLayout();
-
-    PIO::ParallelClose( file );
-}
-
-void GridGroup::InitZoneLayout( fstream & file )
-{
-    int fid = Parallel::GetFid();
-
-    ONEFLOW::HXReadBcast( file, & nZones, 1, fid );
-
-    pid.resize( nZones );
-    zoneType.resize( nZones );
-
-    pid = 0;
-
-    ONEFLOW::HXReadBcast( file, & pid[ 0 ], nZones, fid );
-
-    if ( Parallel::zoneMode == 0 )
-    {
-        for ( int iZone = 0; iZone < nZones; ++ iZone )
-        {
-            pid[ iZone ] = ( zoneStart + iZone ) % Parallel::nProc;
-        }
-    }
-
-    ONEFLOW::HXReadBcast( file, & zoneType[ 0 ], nZones, fid );
-}
-
-void GridGroup::SetMultiZoneLayout()
-{
-    for ( int iZone = 0; iZone < nZones; ++ iZone )
-    {
-        int ig = zoneStart + iZone;
-        ZoneState::pid     [ ig ] = this->pid     [ iZone ];
-        ZoneState::zoneType[ ig ] = this->zoneType[ iZone ];
-    }
-}
-
-void GridGroup::ReadGrid( const string & fileName )
-{
-    fstream file;
-
-    PIO::ParallelOpenPrj( file, fileName, ios_base::in|ios_base::binary );
-
-    this->InitZoneLayout( file );
-    this->SetMultiZoneLayout();
-
-    for ( int iZone = 0; iZone < this->nZones; ++ iZone )
-    {
-        int zid = this->zoneStart + iZone;
-        this->ReadGrid( file, zid );
-    }
-
-    PIO::ParallelClose( file );
-}
-
-void GridGroup::ReadGrid( fstream & file, int zid )
-{
-    int spid = 0;
-    int rpid = 0;
-
-    Parallel::GetSrPid( zid, spid, rpid );
-
-    if ( Parallel::pid == rpid )
-    {
-        int gridType = ZoneState::zoneType[ zid ];
-        Grid * grid = ONEFLOW::CreateGrid( gridType );
-        grid->level = 0;
-        grid->id = zid;
-        grid->localId = Zone::nLocalZones ++;
-        grid->type = gridType;
-        Zone::AddGrid( zid, grid );
-    }
-
-    DataBook * dataBook = new DataBook();
-
-    ONEFLOW::ReadAbstractData( file, dataBook, spid, rpid );
-
-    ONEFLOW::DataToGrid( dataBook, zid );
-
-    delete dataBook;
-
-}
-
-void ReadAbstractData( fstream & file, DataBook * dataBook, int sendpid, int recvpid, int tag )
-{
-    if ( Parallel::pid == sendpid )
-    {
-        dataBook->ReadFile( file );
-    }
-
-    dataBook->SendRecv( sendpid, recvpid, tag );
-}
-
-void DataToGrid( DataBook * dataBook, int zid )
-{
-    int spid = 0;
-    int rpid = 0;
-
-    Parallel::GetSrPid( zid, spid, rpid );
-
-    if ( Parallel::pid != rpid ) return;
-
-    Grid * grid = Zone::GetGrid( zid, 0 );
-
-    grid->Decode( dataBook );
-}
 
 EndNameSpace

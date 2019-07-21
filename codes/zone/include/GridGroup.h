@@ -33,42 +33,29 @@ BeginNameSpace( ONEFLOW )
 class Grid;
 class UnsGrid;
 
-class Zone
+class GridGroup
 {
 public:
-    Zone();
-    ~Zone();
+    GridGroup( int zoneStart = 0 );
+    ~GridGroup();
 public:
-    static HXVector< Grids * > globalGrids;
-    static int nLocalZones;
-    static void AddGrid( int zid, Grid * grid );
-    static void InitLayout( StringField & fileNameList );
-    static void ReadGrid( StringField & fileNameList );
-    static void NormalizeLayout();
+    int   nZones;
+    static IntField pid;
+    static IntField zoneType;
+    int zoneStart;
+protected:
+    void ReadGrid( fstream & file, int iZone );
 public:
-    static Grid * GetGrid( int zid, int gl = 0 );
-    static Grid * GetGrid();
-    static Grid * GetCGrid( Grid * grid );
-    static Grid * GetFGrid( Grid * grid );
-    static UnsGrid * GetUnsGrid();
+    void ReadGrid( const string & fileName );
+    void InitZoneLayout( const string & fileName );
+protected:
+    void InitZoneLayout( fstream & file );
+    void SetMultiZoneLayout();
 };
 
-class PIO
-{
-public:
-    PIO();
-    ~PIO();
-public:
-    static string GetDirName( const string & fileName );
-    static void ParallelOpenPrj();
-    static void ParallelOpen( fstream & file, const string & fileName, const ios_base::openmode & openMode );
-    static void ParallelOpenPrj( fstream & file, const string & fileName, const ios_base::openmode & openMode );
-    static void Open( fstream & file, const string & fileName, const ios_base::openmode & openMode );
-
-    static void ParallelClose( fstream & file );
-    static void ParallelClose();
-    static void Close( fstream & file );
-};
+class DataBook;
+void ReadAbstractData( fstream & file, DataBook * dataBook, int sendpid, int recvpid, int tag = 0 );
+void DataToGrid( DataBook * dataBook, int zid );
 
 
 EndNameSpace
