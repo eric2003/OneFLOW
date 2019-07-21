@@ -23,6 +23,8 @@ License
 #include "Residual.h"
 #include "Parallel.h"
 #include "HXMath.h"
+#include <iostream>
+using namespace std;
 
 BeginNameSpace( ONEFLOW )
 
@@ -50,7 +52,6 @@ void ResAver::Zero()
 void ResAver::CmpAver( HXVector< ResData > & dataList )
 {
     this->Zero();
-
     for ( int i = 0; i < dataList.size(); ++ i )
     {
         ResData & t = dataList[ i ];
@@ -59,13 +60,11 @@ void ResAver::CmpAver( HXVector< ResData > & dataList )
 
     int nEqu = this->res.size();
     RealField resSum( nEqu );
-
     int nCellSum = 0;
     HXReduceInt( & this->nCell, & nCellSum, 1, PL_SUM );
     HXReduceReal( & this->res[ 0 ], & resSum[ 0 ], nEqu, PL_SUM );
 
     this->nCell = nCellSum;
-
     for ( int iEqu = 0; iEqu < nEqu; ++ iEqu )
     {
         this->res[ iEqu ] = sqrt( resSum[ iEqu ] / nCellSum );

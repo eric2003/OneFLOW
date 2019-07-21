@@ -25,7 +25,7 @@ License
 #include "HXDefine.h"
 #include "GridDef.h"
 #include <fstream>
-
+#include <string>
 using namespace std;
 
 BeginNameSpace( ONEFLOW )
@@ -78,6 +78,7 @@ public:
     PIO();
     ~PIO();
 public:
+    static string GetDirName( const string & fileName );
     static void ParallelOpenPrj();
     static void ParallelOpen( fstream & file, const string & fileName, const ios_base::openmode & openMode );
     static void ParallelOpenPrj( fstream & file, const string & fileName, const ios_base::openmode & openMode );

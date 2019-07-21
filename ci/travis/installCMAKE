@@ -1,0 +1,27 @@
+#!/bin/bash
+
+if [ "$TRAVIS_OS_NAME" == "linux" ]; then
+    ls
+    cd  lib
+    ls
+    echo "Install CMake"
+    wget https://github.com/Kitware/CMake/releases/download/v3.14.4/cmake-3.14.4-Linux-x86_64.tar.gz
+    tar -zxvf cmake-3.14.4-Linux-x86_64.tar.gz
+    sudo mv cmake-3.14.4-Linux-x86_64 /usr/local/cmake-3.14.4
+    sudo ln -sf /usr/local/cmake-3.14.4/bin/* /usr/bin/
+    ls /usr/local
+    echo "/usr/bin/"
+    ls /usr/bin/
+    echo "/usr/local/cmake"
+    ls /usr/local/cmake
+    echo "/usr/local/cmake-3.9.2"
+    ls /usr/local/cmake-3.9.2
+    echo "/usr/local/cmake-3.14.4"
+    ls /usr/local/cmake-3.14.4/bin
+    echo "/usr/local/cmake-3.14.4/bin"
+    ls /usr/local/cmake-3.14.4/bin
+    cmake --version
+    which cmake
+    echo "the path is SPATH"
+    echo $PATH
+fi

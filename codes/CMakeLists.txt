@@ -24,7 +24,7 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
     else()
         set(VS_COMPILER vs2019)
     endif(CMAKE_GENERATOR MATCHES "Visual Studio 16 2019" )
-	message(STATUS "The current VS_COMPILER is ${VS_COMPILER}")
+    message(STATUS "The current VS_COMPILER is ${VS_COMPILER}")
 endif()
 
 #if (BIT64_FLAG)
@@ -53,6 +53,17 @@ message(STATUS "The CMAKE_CXX_COMPILER is ${CMAKE_CXX_COMPILER}")
 message(STATUS "The CMAKE_C_FLAGS is ${CMAKE_C_FLAGS}")
 message(STATUS "The CMAKE_CXX_FLAGS is ${CMAKE_CXX_FLAGS}")
 
+message(STATUS "The CFLAGS is ${CFLAGS}")
+message(STATUS "The CXXFLAGS is ${CXXFLAGS}")
+message(STATUS "The LDFLAGS is ${LDFLAGS}")
+
+message(STATUS "The CMAKE_C_FLAGS is ${CMAKE_C_FLAGS}")
+message(STATUS "The CMAKE_CXX_FLAGS is ${CMAKE_CXX_FLAGS}")
+message(STATUS "The CMAKE_EXE_LINKER_FLAGS is ${CMAKE_EXE_LINKER_FLAGS}")
+#set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -lpthread -lrt")
+Set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,--no-as-needed -ldl")
+message(STATUS "The CMAKE_EXE_LINKER_FLAGS is ${CMAKE_EXE_LINKER_FLAGS}")
+
 if(BIT64_FLAG)
     set(ARCH "x64")
 else()
@@ -70,24 +81,67 @@ option(MPI_ENABLE "ON for using MPI library" ON)
 
 if(MPI_ENABLE)
     add_definitions(-DENABLE_MPI)
-    
-    if(USE_PREBUILT_LIB AND WIN32)
-        set(MPI_HEADER_DIR "${THIRD_LIB_BASE_DIR}/msmpi/include" CACHE PATH "path to mpi headers")
-        set(MPI_LIBRARY_DIR "${THIRD_LIB_BASE_DIR}/msmpi/lib/${ARCH}" CACHE PATH "path to mpi library")
+
+    if (MPI_DIR)
     else()
-        set(MPI_HEADER_DIR "/usr/local/mpich/include" CACHE PATH "path to mpi headers")
-        set(MPI_LIBRARY_DIR "/usr/local/mpich/lib" CACHE PATH "path to mpi library")
+        if(WIN32)
+            set(MPI_DIR "${THIRD_LIB_BASE_DIR}/msmpi")
+        else()
+            set(MPI_DIR "/usr/local/mpich")
+            if ( AUTO_CI_TEST )
+                set(MPI_DIR "/home/travis/build/eric2003/OneFLOW/openmpi")
+            endif()
+        endif()
     endif()
+
+    if(USE_PREBUILT_LIB AND WIN32)
+        set(MPI_HEADER_DIR "${MPI_DIR}/include" CACHE PATH "path to mpi headers")
+        set(MPI_LIBRARY_DIR "${MPI_DIR}/lib/${ARCH}" CACHE PATH "path to mpi library")
+    else()
+        set(MPI_HEADER_DIR "${MPI_DIR}/include" CACHE PATH "path to mpi headers")
+        set(MPI_LIBRARY_DIR "${MPI_DIR}/lib" CACHE PATH "path to mpi library")
+    endif()
+
+    message(STATUS "AUTO_CI_TEST value is ${AUTO_CI_TEST}")
+
+    if( AUTO_CI_TEST )
+        # determine if MPI_DIR has been set
+        #-DMPI_DIR=$TRAVIS_BUILD_DIR/openmpi
+        if (MPI_DIR)
+            message (STATUS "Looking for MPI here: ${MPI_DIR}")
+            set (CMAKE_PREFIX_PATH ${MPI_DIR})
+        endif ()
+
+        message(STATUS "MPI_HEADER_DIR is ${MPI_HEADER_DIR}")
+        message(STATUS "MPI_LIBRARY_DIR is ${MPI_LIBRARY_DIR}")
+
+        #include_directories (SYSTEM "${MPI_INCLUDE_PATH}")
+        #include_directories ("${MPI_HEADER_DIR}")
+
+        #message( STATUS "MPI_DIR is ${MPI_DIR}" )
+        #message( STATUS "MPI_INCLUDE_PATH is ${MPI_INCLUDE_PATH}" )
+        #message( STATUS "MPI_C_LIBRARIES is ${MPI_C_LIBRARIES}" )
+
+        #message( STATUS "MPI_HEADER_DIR is ${MPI_HEADER_DIR}" )
+        #message( STATUS "MPI_LIBRARY_DIR is ${MPI_LIBRARY_DIR}" )
+    endif ()
 
     if(WIN32)
         set(MPI_LIBRARY_NAME "msmpi" CACHE STRING "name of mpi library")
     else()
         set(MPI_LIBRARY_NAME "mpi" CACHE STRING "name of mpi library")
+        if( AUTO_CI_TEST )
+            set(MPI_LIBRARY_NAME "libmpi.so" CACHE STRING "name of mpi library" FORCE)
+        endif()
     endif()
 
     include_directories(${MPI_HEADER_DIR})  #头文件目录
     link_directories(${MPI_LIBRARY_DIR})    #库目录
     link_libraries(${MPI_LIBRARY_NAME})     #库名称
+
+    message(STATUS "MPI_HEADER_DIR is ${MPI_HEADER_DIR}")
+    message(STATUS "MPI_LIBRARY_DIR is ${MPI_LIBRARY_DIR}")
+    message(STATUS "MPI_LIBRARY_NAME is ${MPI_LIBRARY_NAME}")
 endif()
 
 #metis库设置
@@ -97,13 +151,13 @@ if(METIS_ENABLE)
     add_definitions(-DENABLE_METIS)
     
     if(USE_PREBUILT_LIB)
-        set(METIS_HEADER_DIR "${THIRD_LIB_DIR}/metis/include" CACHE PATH "path to metis headers")
-        set(METIS_LIBRARY_DIR "${THIRD_LIB_DIR}/metis/lib" CACHE PATH "path to mpi library")
+        set(METIS_DIR "${THIRD_LIB_DIR}/metis")
     else()
-        set(METIS_HEADER_DIR "/usr/local/metis/include" CACHE PATH "path to metis headers")
-        set(METIS_LIBRARY_DIR "/usr/local/metis/lib" CACHE PATH "path to mpi library")
+        set(METIS_DIR "/usr/local/metis")
     endif()
 
+    set(METIS_HEADER_DIR "${METIS_DIR}/include" CACHE PATH "path to metis headers")
+    set(METIS_LIBRARY_DIR "${METIS_DIR}/lib" CACHE PATH "path to mpi library")
     set(METIS_LIBRARY_NAME "metis" CACHE STRING "name of metis library")
 
     link_directories(${METIS_LIBRARY_DIR})      #库目录
@@ -118,13 +172,13 @@ if(CGNS_ENABLE)
     add_definitions(-DENABLE_CGNS)
 
     if(USE_PREBUILT_LIB)
-        set(CGNS_HEADER_DIR "${THIRD_LIB_DIR}/cgns/include" CACHE PATH "path to cgns headers")
-        set(CGNS_LIBRARY_DIR "${THIRD_LIB_DIR}/cgns/lib" CACHE PATH "path to cgns library")
+        set(CGNS_DIR "${THIRD_LIB_DIR}/cgns")
     else()
-        set(CGNS_HEADER_DIR "/usr/local/cgns/include" CACHE PATH "path to cgns headers")
-        set(CGNS_LIBRARY_DIR "/usr/local/cgns/lib" CACHE PATH "path to cgns library")
+        set(CGNS_DIR "/usr/local/cgns")
     endif()
-    
+
+    set(CGNS_HEADER_DIR "${CGNS_DIR}/include" CACHE PATH "path to cgns headers")
+    set(CGNS_LIBRARY_DIR "${CGNS_DIR}/lib" CACHE PATH "path to cgns library")
     set(CGNS_LIBRARY_NAME "cgns" CACHE STRING "name of cgns library")
 
     include_directories(${CGNS_HEADER_DIR})  #头文件目录
@@ -132,20 +186,27 @@ if(CGNS_ENABLE)
     link_libraries(${CGNS_LIBRARY_NAME})     #库名称
     
     #HDF5库
-    option(HDF5_ENABLE "ON for using HDF5 library" ON)
+    #option(HDF5_ENABLE "ON for using HDF5 library" ON)
+    set( HDF5_ENABLE TRUE CACHE BOOL "TRUE for using HDF5 library")
+    if( AUTO_CI_TEST )
+        #set( HDF5_ENABLE FALSE CACHE BOOL "FALSE for using HDF5 library" FORCE )
+        set( HDF5_ENABLE TRUE CACHE BOOL "FALSE for using HDF5 library" FORCE )
+    endif()
 
     if(HDF5_ENABLE)
+        message(STATUS "The HDF5_ENABLE is ${HDF5_ENABLE}")
         add_definitions(-DENABLE_HDF5)
 
         if(USE_PREBUILT_LIB)
-            set(HDF5_HEADER_DIR "${THIRD_LIB_DIR}/hdf5/include" CACHE PATH "path to hdf5 headers")
-            set(HDF5_LIBRARY_DIR "${THIRD_LIB_DIR}/hdf5/lib" CACHE PATH "path to hdf5 library")
+            set(HDF5_DIR "${THIRD_LIB_DIR}/hdf5")
             set(HDF5_LIBRARY_NAME "libhdf5" CACHE STRING "name of hdf5 library")
         else()
-            set(HDF5_HEADER_DIR "/usr/local/HDF_Group/HDF5/1.10.5/include" CACHE PATH "path to hdf5 headers")
-            set(HDF5_LIBRARY_DIR "/usr/local/HDF_Group/HDF5/1.10.5/lib" CACHE PATH "path to hdf5 library")
+            set(HDF5_DIR "/usr/local/HDF_Group/HDF5/1.10.5")
             set(HDF5_LIBRARY_NAME "hdf5" CACHE STRING "name of hdf5 library")
         endif()
+
+        set(HDF5_HEADER_DIR "${HDF5_DIR}/include" CACHE PATH "path to hdf5 headers")
+        set(HDF5_LIBRARY_DIR "${HDF5_DIR}/lib" CACHE PATH "path to hdf5 library")
 
         include_directories(${HDF5_HEADER_DIR})
         link_directories(${HDF5_LIBRARY_DIR})
@@ -210,6 +271,12 @@ endif(WIN32)
 
 #. add an executable to the project using the specified source files and header files:
 add_executable(${EXECUTABLE_TARGET_NAME} ${SRC_LIST} ${HEAD_LIST}) 
+
+install (TARGETS ${EXECUTABLE_TARGET_NAME} RUNTIME DESTINATION bin)
+
+#message(STATUS "The INCLUDE_DIRECTORIES name is ${INCLUDE_DIRECTORIES}.")
+get_property( reqs TARGET ${EXECUTABLE_TARGET_NAME} PROPERTY INCLUDE_DIRECTORIES)
+message(STATUS "${EXECUTABLE_TARGET_NAME} requires ${reqs}")
 
 #if(WIN32)
 #  if(HDF_FLAG)

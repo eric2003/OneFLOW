@@ -37,6 +37,8 @@ public:
     static void SetPrjBaseDir( const string & prjName );
 };
 
+bool EndWithForwardSlash( const string & fileName );
+
 void MakePrjDir( const string & dirName );
 
 void OpenPrjFile( fstream & file, const string & fileName, const ios_base::openmode & openMode );

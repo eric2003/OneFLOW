@@ -105,6 +105,7 @@ void Parallel::TestSayHelloFromEveryProcess()
     ONEFLOW::StrIO.ClearAll();
     ONEFLOW::StrIO << "Hello from process " << pid << " name = " << ONEFLOW::HXGetProcessorName();
     string cs = ONEFLOW::StrIO.str();
+    //cout << cs << "\n";
 
     Parallel::CollectString( cs, serverid, Parallel::GetDefaultTag() );
 }

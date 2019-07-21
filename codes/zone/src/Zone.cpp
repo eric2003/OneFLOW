@@ -34,6 +34,7 @@ License
 #include "DataBook.h"
 #include "Task.h"
 #include <iostream>
+#include <string>
 using namespace std;
 
 BeginNameSpace( ONEFLOW )
@@ -185,6 +186,19 @@ PIO::~PIO()
     ;
 }
 
+string PIO::GetDirName( const string & fileName )
+{
+    size_t pos = fileName.find_last_of("\\/");
+    if ( string::npos == pos )
+    {
+        return "";
+    }
+    else
+    {
+        return fileName.substr(0, pos);
+    }
+}
+
 void PIO::ParallelOpen( fstream & file, const string & fileName, const ios_base::openmode & openMode )
 {
     if ( Parallel::pid != Parallel::GetFid() ) return;
@@ -200,7 +214,13 @@ void PIO::ParallelOpenPrj( fstream & file, const string & fileName, const ios_ba
     ONEFLOW::StrIO << PrjStatus::prjBaseDir << fileName;
 
     string prjFileName = ONEFLOW::StrIO.str();
-
+    string prj_dir = PIO::GetDirName( prjFileName );
+    //cout << " prj_dir = " << prj_dir << " prjFileName = " << prjFileName << " fileName = " << fileName << "\n";
+    //cout << " PrjStatus::prjBaseDir = " << PrjStatus::prjBaseDir << "\n";
+    if ( ! DirExist( prj_dir ) )
+    {
+        MakeDir( prj_dir );
+    }
     PIO::Open( file, prjFileName, openMode );
 }
 

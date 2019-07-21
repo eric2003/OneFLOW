@@ -51,7 +51,6 @@ ResidualTask::~ResidualTask()
 void ResidualTask::Run()
 {
     ActionState::dataBook = this->dataBook;
-
     SolverInfo * solverInfo = SolverInfoFactory::GetSolverInfo( SolverState::tid );
     data.Init( solverInfo->nEqu );
 
@@ -113,12 +112,12 @@ void ResidualTask::CmpRes( int sTid, ResData & data )
         data.resmax.zcc[ iEqu ] = zcc[ id ];
         data.resmax.vol[ iEqu ] = vol[ id ];
     }
+
 }
 
 void ResidualTask::PostDumpResiduals()
 {
     size_t nEqu = this->data.resave.res.size();
-
     this->data.resave.CmpAver( dataList );
     this->data.resmax.CmpMax( dataList );
 
@@ -175,6 +174,7 @@ void ResidualTask::DumpFile()
     file << oss.str();
 
     PIO::ParallelClose( file );
+
 }
 
 void ResidualTask::DumpScreen()

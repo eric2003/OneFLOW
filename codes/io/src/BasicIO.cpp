@@ -25,8 +25,10 @@ License
 #include "LogFile.h"
 #ifdef _WINDOWS
 #include <direct.h>
+#include <io.h>
 #else
 #include <sys/stat.h>
+#include <unistd.h>
 #endif
 
 #include <iostream>
@@ -39,6 +41,17 @@ OStream StrIO;
 void OStream::ClearAll()
 {
     this->str("");
+}
+
+bool DirExist( const string & dirName )
+{
+#ifdef _WINDOWS
+    bool flag = ( _access( dirName.c_str(), 0 ) == 0 );
+    return flag;
+#else
+    bool flag = ( access( dirName.c_str(), 0 ) == 0 );
+    return flag;
+#endif
 }
 
 void MakeDir( const string & dirName )
