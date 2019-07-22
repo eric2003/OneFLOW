@@ -17,6 +17,8 @@ test_script:
 - cmd: >-
     ECHO this is batch
     
+    dir
+    
     cd testcase
     
     ECHO %PATH%
