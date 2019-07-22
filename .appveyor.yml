@@ -1,0 +1,21 @@
+version: 1.0.{build}
+branches:
+  only:
+  - master
+image: Visual Studio 2015
+configuration: release
+platform: x64
+environment:
+  PYTHON: C:/Python37-x64
+  PATH: C:/Program Files/OneFLOW/bin;C:/Program Files/OneFLOW;C:/Program Files/Microsoft MPI/Bin;%PATH%
+build_script:
+- ps: >-
+    powershell ci/appveyor/installMPI.ps1
+    
+test_script:
+- cmd: >-
+    ECHO this is batch
+    
+    cd testcase
+    
+    ECHO %PATH%
