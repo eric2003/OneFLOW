@@ -19,6 +19,6 @@ test_script:
     
     dir
     
-    cd testcase
+    cd test
     
     ECHO %PATH%
