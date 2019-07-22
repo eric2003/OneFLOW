@@ -2,6 +2,7 @@ version: 1.0.{build}
 branches:
   only:
   - master
+  - eric
 image: Visual Studio 2015
 configuration: release
 platform: x64
