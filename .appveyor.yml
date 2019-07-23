@@ -13,6 +13,7 @@ build_script:
 - ps: >-
     powershell ci/appveyor/installMPI.ps1
     
+    powershell ci/appveyor/installCMAKE.ps1
 test_script:
 - cmd: >-
     ECHO this is batch
