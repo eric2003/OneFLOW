@@ -1,4 +1,4 @@
-function InstallCMAKE() {
+function InstallCMAKEOld() {
     Write-Host "Installing CMake 3.4.0 ..." -ForegroundColor Cyan
     $exePath = "$($env:USERPROFILE)\cmake-3.4.0-rc2-win32-x86.exe"
     Write-Host "Downloading..."
@@ -7,6 +7,17 @@ function InstallCMAKE() {
     cmd /c start /wait $exePath /S
     cmake --version
     Write-Host "CMake 3.4.0 installed" -ForegroundColor Green
+}
+
+function InstallCMAKE() {
+    md CMake_DIR
+    cd CMake_DIR
+    # install CMake
+    Write-Host "Installing CMake 3.15.0..." -ForegroundColor Cyan
+    appveyor DownloadFile https://github.com/Kitware/CMake/releases/download/v3.15.0/cmake-3.15.0-win64-x64.msi
+    Start-Process -FilePath msiexec.exe -ArgumentList "/quiet /qn /i cmake-3.15.0-win64-x64.msi" -Wait
+    cmake --version
+    Write-Host "CMake 3.15.0 installed" -ForegroundColor Green
 }
 
 
