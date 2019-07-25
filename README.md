@@ -4,7 +4,7 @@
 
 | Branch  | Linux Build | Windows Build |
 |---      |---    |---    |
-| Master  | [![Build Status](https://travis-ci.org/eric2003/OneFLOW.svg?branch=master)](https://travis-ci.org/eric2003/OneFLOW) | [![Build status]] |
+| Master  | [![Build Status](https://travis-ci.org/eric2003/OneFLOW.svg?branch=master)](https://travis-ci.org/eric2003/OneFLOW) | [![Build status](https://ci.appveyor.com/api/projects/status/o7fc231lp9jxlsib/branch/master?svg=true)](https://ci.appveyor.com/project/eric2003/OneFLOW/branch/master)  |
 -----------------------------------------------------------
 The Open-Source CFD Code
 -----------------------------------------------------------
