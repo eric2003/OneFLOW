@@ -17,6 +17,8 @@ build_script:
     
     powershell ci/appveyor/installHDF5.ps1
     
+    powershell ci/appveyor/installCGNS.ps1
+    
     powershell ci/appveyor/buildOneFLOW.ps1
 test_script:
 - cmd: >-
