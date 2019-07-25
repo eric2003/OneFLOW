@@ -19,6 +19,8 @@ function InstallCMAKE() {
     Start-Process msiexec.exe -Wait -ArgumentList '/I cmake-3.15.0-win64-x64.msi /quiet /qn /l*v log.txt'
     #cmake --version
     &"C:/Program Files/CMake/bin/cmake.exe" --version
+    $env:Path += ";C:\Program Files\CMake\bin\"
+    cmake --version
     ls "C:/"
     ls "C:/Program Files"
     ls "C:/Program Files (x86)"
