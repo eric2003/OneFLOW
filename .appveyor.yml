@@ -14,16 +14,12 @@ build_script:
     powershell ci/appveyor/installMPI.ps1
     
     powershell ci/appveyor/installCMAKE.ps1
+
+    powershell ci/appveyor/buildOneFLOW.ps1
 test_script:
 - cmd: >-
     ECHO this is batch
-    
-    mkdir build
-    
-    cd build
-    
-    cmake -G "Visual Studio 14 2015"  ../
-    
+   
     dir
     
     cd test
