@@ -17,7 +17,9 @@ function InstallCMAKE() {
     appveyor DownloadFile https://github.com/Kitware/CMake/releases/download/v3.15.0/cmake-3.15.0-win64-x64.msi
     #Start-Process -FilePath msiexec.exe -ArgumentList "/quiet /qn /i cmake-3.15.0-win64-x64.msi" -Wait
     Start-Process msiexec.exe -Wait -ArgumentList '/I cmake-3.15.0-win64-x64.msi /quiet /qn /l*v log.txt'
-    cmake --version
+    #cmake --version
+    &"c:/Program Files/CMake/bin/cmake.exe" --version
+    ls "c:/Program Files/CMake/bin"
     Write-Host "CMake 3.15.0 installed" -ForegroundColor Green
 }
 
