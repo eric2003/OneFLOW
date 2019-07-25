@@ -22,15 +22,9 @@ test_script:
    
     dir
     
-    ECHO "------------dir C:/Program Files---------------"
+    dir "C:/Program Files"
     
-    dir C:/Program Files
-    
-    ECHO "------------dir C:/Program Files (x86)---------------"
-    
-    dir C:/Program Files (x86)
-    
-    ECHO "------------running OneFLOW---------------"
+    dir "C:/Program Files (x86)"
     
     OneFLOW
     
