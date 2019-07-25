@@ -10,6 +10,7 @@ function InstallHDF5() {
     ls
     cd hdf5-1.10.5
     md build
+    cd build
     $env:Path += ";C:/Program Files/CMake/bin/"
     cmake --version
     cmake -G "Visual Studio 14 2015 Win64" -SC:/projects/OneFLOW/lib/hdf5-1.10.5 -BC:/projects/OneFLOW/lib/hdf5-1.10.5/build/ `
