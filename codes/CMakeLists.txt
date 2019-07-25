@@ -241,10 +241,10 @@ endfunction()
 GetALLSUBDIR( dirList ${CMAKE_CURRENT_SOURCE_DIR})
 
 message(STATUS "The executable name is ${dirList}" )
-message(STATUS "           haha                  " )
+message(STATUS "--------------- haha--------------" )
 
 foreach(dir ${dirList})
-    message( ${dir} )
+    message( STATUS " The dir is ${dir} " )
     file(GLOB headerFile "${dir}/include/*.h" )
     file(GLOB srcFile "${dir}/src/*.cpp" )
     file(GLOB hppFile "${dir}/src/*.hpp" )
