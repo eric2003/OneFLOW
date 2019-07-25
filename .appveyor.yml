@@ -8,7 +8,7 @@ configuration: release
 platform: x64
 environment:
   PYTHON: C:/Python37-x64
-  PATH: C:/Program Files/OneFLOW/bin;C:/Program Files/OneFLOW;C:/Program Files/Microsoft MPI/Bin;%PATH%
+  PATH: C:/Program Files/OneFLOW/bin;C:/Program Files/OneFLOW;"C:/Program Files/CMake/bin/";C:/Program Files/Microsoft MPI/Bin;%PATH%
 build_script:
 - ps: >-
     powershell ci/appveyor/installMPI.ps1
