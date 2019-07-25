@@ -9,7 +9,7 @@ function InstallMETIS() {
     Start-Process "C:/Program Files/7-zip/7z.exe" -Wait -ArgumentList 'x .\metis-5.1.0eric.tar'
     ls
     cd metis-5.1.0eric
-    md build
+    #md build
     cd build
     $env:Path += ";C:/Program Files/CMake/bin/"
     cmake --version

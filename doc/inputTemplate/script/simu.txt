@@ -1,2 +1,0 @@
-//取值为"Solve","Grid","WallDist","Partition","FunTest"
-string simutask = "Solve";
