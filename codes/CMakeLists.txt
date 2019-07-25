@@ -241,6 +241,7 @@ endfunction()
 GetALLSUBDIR( dirList ${CMAKE_CURRENT_SOURCE_DIR})
 
 message(STATUS "The executable name is ${dirList}" )
+message(STATUS "           haha                  " )
 
 foreach(dir ${dirList})
     message( ${dir} )
