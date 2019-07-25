@@ -9,7 +9,9 @@ function BuildOneFLOW() {
     cmake --help
     cmake -G "Visual Studio 14 2015 Win64" -SC:/projects/OneFLOW/ -BC:/projects/OneFLOW/build/ `
     -DAUTO_CI_TEST=ON
+    Write-Host "cmake -G finished..."
     cmake --build . --target INSTALL --config release
+    Write-Host "  cmake --build . --target INSTALL --config release..."
 }
 
 function main() {

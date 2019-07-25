@@ -24,10 +24,6 @@ test_script:
     
     dir "C:/Program Files"
 
-    #dir "C:/Program Files/Microsoft SDKs"
-    
-    #dir "C:/Program Files (x86)/Microsoft SDKs"
-    
     dir "C:/"
     
     OneFLOW
