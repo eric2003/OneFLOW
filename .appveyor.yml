@@ -15,6 +15,8 @@ build_script:
     
     powershell ci/appveyor/installCMAKE.ps1
     
+    powershell ci/appveyor/InstallMETIS.ps1
+    
     powershell ci/appveyor/installHDF5.ps1
     
     powershell ci/appveyor/installCGNS.ps1

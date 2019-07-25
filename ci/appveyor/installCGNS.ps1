@@ -16,7 +16,7 @@ function InstallCGNS() {
     $env:HDF5_DIR="C:/Program Files/HDF_Group/HDF5/1.10.5/cmake"
     $env:HDF5_DIR
     cmake -G "Visual Studio 14 2015 Win64" -SC:/projects/OneFLOW/lib/cgns-3.4.0 -BC:/projects/OneFLOW/lib/cgns-3.4.0/build/ `
-    -DCGNS_ENABLE_64BIT="ON" -DCGNS_ENABLE_HDF5="ON" -DCGNS_BUILD_SHARED="OFF"
+    -DCGNS_ENABLE_64BIT="ON" -DCGNS_ENABLE_HDF5="ON" -DCGNS_BUILD_SHARED="OFF" -DCMAKE_INSTALL_PREFIX="C:/Program Files/cgns"
 
     Write-Host "cmake -G finished"
     cmake --build . --target INSTALL --config release
