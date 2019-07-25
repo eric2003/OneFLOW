@@ -17,8 +17,11 @@ build_script:
 test_script:
 - cmd: >-
     ECHO this is batch
+    
     mkdir build
+    
     cd build
+    
     cmake -G "Visual Studio 14 2015"  ../
     
     dir
