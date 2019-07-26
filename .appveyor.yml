@@ -24,18 +24,8 @@ build_script:
     powershell ci/appveyor/buildOneFLOW.ps1
 test_script:
 - cmd: >-
-    ECHO this is batch
-   
-    dir
-    
-    dir "C:/Program Files"
-
-    dir "C:/Tools"
-    
-    OneFLOW
-    
     cd test
-
+    
     mpiexec -n 1 OneFLOW workdir/plateuns2dslau2
     
     ECHO %PATH%
