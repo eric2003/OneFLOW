@@ -36,6 +36,6 @@ test_script:
     
     cd test
 
-    - mpiexec -n 1 OneFLOW workdir/plateuns2dslau2
+    mpiexec -n 1 OneFLOW workdir/plateuns2dslau2
     
     ECHO %PATH%
