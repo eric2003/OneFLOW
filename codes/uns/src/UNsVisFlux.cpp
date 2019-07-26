@@ -23,6 +23,7 @@ License
 #include "UNsVisFlux.h"
 #include "HeatFlux.h"
 #include "Zone.h"
+#include "ZoneState.h"
 #include "UnsGrid.h"
 #include "DataBase.h"
 #include "NsCtrl.h"

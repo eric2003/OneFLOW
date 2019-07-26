@@ -23,6 +23,7 @@ License
 #include "AeroForce.h"
 #include "ActionState.h"
 #include "Zone.h"
+#include "ZoneState.h"
 #include "Prj.h"
 #include "UnsGrid.h"
 #include "BcRecord.h"

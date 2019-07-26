@@ -22,6 +22,7 @@ License
 
 #include "HeatFlux.h"
 #include "Zone.h"
+#include "ZoneState.h"
 
 BeginNameSpace( ONEFLOW )
 

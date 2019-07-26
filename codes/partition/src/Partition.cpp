@@ -23,6 +23,7 @@ License
 #include "Partition.h"
 #include "metis.h"
 #include "Zone.h"
+#include "ZoneState.h"
 #include "UnsGrid.h"
 #include "HXMath.h"
 #include "BasicIO.h"

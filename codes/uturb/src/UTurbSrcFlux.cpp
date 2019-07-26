@@ -32,6 +32,7 @@ License
 #include "DataBase.h"
 #include "UnsGrid.h"
 #include "Zone.h"
+#include "ZoneState.h"
 #include "HXMath.h"
 #include "CellMesh.h"
 #include "BcRecord.h"

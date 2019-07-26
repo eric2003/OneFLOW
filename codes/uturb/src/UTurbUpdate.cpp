@@ -29,6 +29,7 @@ License
 #include "UNsCom.h"
 #include "NsIdx.h"
 #include "Zone.h"
+#include "ZoneState.h"
 #include "HXMath.h"
 #include "Iteration.h"
 #include <iostream>

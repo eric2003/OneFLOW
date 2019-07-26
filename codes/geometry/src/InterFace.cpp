@@ -24,6 +24,7 @@ License
 #include "Grid.h"
 #include "BgGrid.h"
 #include "Zone.h"
+#include "ZoneState.h"
 #include "DataStorage.h"
 #include "Parallel.h"
 #include "SolverDef.h"

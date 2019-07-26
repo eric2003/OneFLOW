@@ -30,25 +30,6 @@ using namespace std;
 
 BeginNameSpace( ONEFLOW )
 
-class ZoneState
-{
-public:
-    ZoneState();
-    ~ZoneState();
-public:
-    static int nZones;
-    static int nLocal;
-    static int zid;
-    static int szid;
-    static int rzid;
-    static IntField pid;
-    static IntField zoneType;
-    static IntField localZid;
-public:
-    static bool IsValidZone( int zoneId );
-    static int GetZid( int iSr );
-};
-
 class Grid;
 class UnsGrid;
 
@@ -71,48 +52,5 @@ public:
     static Grid * GetFGrid( Grid * grid );
     static UnsGrid * GetUnsGrid();
 };
-
-class PIO
-{
-public:
-    PIO();
-    ~PIO();
-public:
-    static string GetDirName( const string & fileName );
-    static void ParallelOpenPrj();
-    static void ParallelOpen( fstream & file, const string & fileName, const ios_base::openmode & openMode );
-    static void ParallelOpenPrj( fstream & file, const string & fileName, const ios_base::openmode & openMode );
-    static void Open( fstream & file, const string & fileName, const ios_base::openmode & openMode );
-
-    static void ParallelClose( fstream & file );
-    static void ParallelClose();
-    static void Close( fstream & file );
-};
-
-
-class GridGroup
-{
-public:
-    GridGroup( int zoneStart = 0 );
-    ~GridGroup();
-public:
-    int   nZones;
-    static IntField pid;
-    static IntField zoneType;
-    int zoneStart;
-protected:
-    void ReadGrid( fstream & file, int iZone );
-public:
-    void ReadGrid( const string & fileName );
-    void InitZoneLayout( const string & fileName );
-protected:
-    void InitZoneLayout( fstream & file );
-    void SetMultiZoneLayout();
-};
-
-class DataBook;
-void ReadAbstractData( fstream & file, DataBook * dataBook, int sendpid, int recvpid, int tag = 0 );
-void DataToGrid( DataBook * dataBook, int zid );
-
 
 EndNameSpace

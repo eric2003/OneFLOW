@@ -28,6 +28,7 @@ License
 #include "SolverState.h"
 #include "Parallel.h"
 #include "Zone.h"
+#include "ZoneState.h"
 #include "UnsGrid.h"
 #include "FaceTopo.h"
 #include "CellMesh.h"

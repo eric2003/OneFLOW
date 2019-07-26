@@ -26,6 +26,7 @@ License
 #include "DataBook.h"
 #include "BasicIO.h"
 #include "Zone.h"
+#include "ZoneState.h"
 #include <iostream>
 using namespace std;
 

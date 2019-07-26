@@ -33,6 +33,7 @@ License
 #include "NsCtrl.h"
 #include "PointSearch.h"
 #include "Zone.h"
+#include "ZoneState.h"
 #include "HXMath.h"
 #include "Tolerence.h"
 #include "HXCgns.h"

@@ -25,6 +25,7 @@ License
 #include "CmxTask.h"
 #include "Iteration.h"
 #include "Zone.h"
+#include "ZoneState.h"
 #include "GridState.h"
 #include "Ctrl.h"
 
