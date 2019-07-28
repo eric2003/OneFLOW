@@ -76,7 +76,8 @@ def RunTest(testprjdir):
         print("i=", i, " var=", testFileListPath[i], "file=", fileNameListPath[i])
 
     exedir = '"c:/Program Files (x86)/OneFLOW/bin/"'
-    cmd = exedir +"OneFLOW" + " " + testprjdir
+    #cmd = exedir +"OneFLOW" + " " + testprjdir
+    cmd = "mpiexec -n 1 " + exedir +"OneFLOW" + " " + testprjdir
     print(cmd)
     process = subprocess.Popen(cmd, shell=True)
     while process.poll() is None:
