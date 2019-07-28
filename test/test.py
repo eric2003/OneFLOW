@@ -35,6 +35,21 @@ def my_dir_cmd( file_dir ):
     dirs = os.listdir( file_dir )
     for file in dirs:
        print( file )
+def CmpFile(fileName1, fileName2):
+    print(fileName1)
+    print(fileName2)
+    f1 = open(fileName1, 'r', encoding='utf-8-sig')
+    f2 = open(fileName2, 'r', encoding='utf-8-sig')
+    while True:
+        str1 = f1.readline()
+        str2 = f2.readline()
+        if not str1:
+            break
+        if str1 != str2:
+            print('line1=', str1)
+            print('line2=', str2)
+    f1.close()
+    f2.close()
 
 def RunTest(testprjdir):
     print("testprjdir=",testprjdir)
@@ -75,9 +90,9 @@ def RunTest(testprjdir):
     for i in range(0, len(testFileListPath)):
         print("i=", i, " var=", testFileListPath[i], "file=", fileNameListPath[i])
 
-    #exedir = '"c:/Program Files (x86)/OneFLOW/bin/"'
-    
-    exedir = ''
+    exedir = '"c:/Program Files (x86)/OneFLOW/bin/"'
+
+    #exedir = ''
     #cmd = exedir +"OneFLOW" + " " + testprjdir
     cmd = "mpiexec -n 1 " + exedir +"OneFLOW" + " " + testprjdir
     print(cmd)
@@ -88,10 +103,11 @@ def RunTest(testprjdir):
     returnCode = process.poll()
     for i in range(0, len(testFileListPath)):
         print("i=", i)
-        print(" file1=", testFileListPath[i])
-        print(" file2=", fileNameListPath[i])
+        #print(" file1=", testFileListPath[i])
+        #print(" file2=", fileNameListPath[i])
         flag = filecmp.cmp(testFileListPath[i], fileNameListPath[i])
         print("flag=", flag)
+        CmpFile(testFileListPath[i], fileNameListPath[i])
     print("returnCode=",returnCode)
 
 def RunAllTest(filename):
@@ -109,29 +125,7 @@ def main():
     location = os.getcwd()
     print( " location = ", location )
     my_dir_cmd( location )
-
     RunAllTest("test.txt")
-    # print( 'number of param = ', len(sys.argv) )
-    # print( 'list of param = ', str(sys.argv) )
-    # nargv = len(sys.argv);
-    # if nargv > 2 :
-    #     name = sys.argv[ 1 ];
-    #     ccc  = sys.argv[ 2 ];
-    #     print( "name = ", name )
-    #     os.chdir( name )
-    #     print(" current dir is = ", os.getcwd())
-    #     dd = os.getcwd()
-    #     my_dir_cmd( dd )
-    #     ee = dd + "/"
-    #     ff = dd + "/" + ccc
-    #     print(ee)
-    #     print(ff)
-    #     my_dir_cmd(ff)
-    # print( " ccc = ", ccc )
-    # path = "tmp/" + ccc;
-    # #os.makedirs(path)
-    #
-    # shutil.copytree(ccc, path)
 
     errorCode = 0
     if totalPass:
@@ -140,7 +134,6 @@ def main():
         print("ERROR: Some tests failed")
         errorCode = 1
     sys.exit(errorCode)
-
 
 if __name__ == "__main__":
     main()
