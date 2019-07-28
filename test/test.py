@@ -75,7 +75,8 @@ def RunTest(testprjdir):
     for i in range(0, len(testFileListPath)):
         print("i=", i, " var=", testFileListPath[i], "file=", fileNameListPath[i])
 
-    exedir = '"c:/Program Files (x86)/OneFLOW/bin/"'
+    #exedir = '"c:/Program Files (x86)/OneFLOW/bin/"'
+    exedir = ''
     #cmd = exedir +"OneFLOW" + " " + testprjdir
     cmd = "mpiexec -n 1 " + exedir +"OneFLOW" + " " + testprjdir
     print(cmd)
