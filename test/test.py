@@ -40,19 +40,29 @@ def CmpFile(fileName1, fileName2):
     print(fileName2)
     f1 = open(fileName1, 'r', encoding='utf-8-sig')
     f2 = open(fileName2, 'r', encoding='utf-8-sig')
+    cmpflag = True
     while True:
         str1 = f1.readline()
         str2 = f2.readline()
         if not str1:
             break
-        # if str1 != str2:
-        #     print('line1=', str1)
-        #     print('line2=', str2)
-        print('line1=', str1)
-        print('line2=', str2)
+        if str1 != str2:
+            print('line1=', str1)
+            print('line2=', str2)
+            cmpflag = False
+            break
     f1.close()
     f2.close()
+    return cmpflag
 
+def GetFileNameList(filename, filename_list):
+    with open(filename, 'r', encoding='utf-8-sig') as f:
+        for line in f.readlines():
+            print('line=', line)
+            ll = line.replace("\r", "")
+            ll = ll.replace("\n", "")
+            filename_list.append(ll)
+    f.close()
 def RunTest(testprjdir):
     print("testprjdir=",testprjdir)
     testScript = testprjdir + "/autotest/test.txt"
@@ -60,13 +70,7 @@ def RunTest(testprjdir):
     print("testScript =", testScript)
     print("absTestScript =", absTestScript)
     fileNameList = []
-    with open(absTestScript, 'r', encoding='utf-8-sig') as f:
-        for line in f.readlines():
-            print('line=', line)
-            ll = line.replace("\r", "")
-            ll = ll.replace("\n", "")
-            fileNameList.append(ll)
-    f.close()
+    GetFileNameList(absTestScript,fileNameList)
     print(fileNameList)
     ffList = []
     for file in fileNameList:
@@ -93,7 +97,6 @@ def RunTest(testprjdir):
         print("i=", i, " var=", testFileListPath[i], "file=", fileNameListPath[i])
 
     #exedir = '"c:/Program Files (x86)/OneFLOW/bin/"'
-
     exedir = ''
     #cmd = exedir +"OneFLOW" + " " + testprjdir
     cmd = "mpiexec -n 1 " + exedir +"OneFLOW" + " " + testprjdir
@@ -103,39 +106,62 @@ def RunTest(testprjdir):
         current = datetime.datetime.now()
         time.sleep(0.5)
     returnCode = process.poll()
+    totalPass = True
     for i in range(0, len(testFileListPath)):
         print("i=", i)
         #print(" file1=", testFileListPath[i])
         #print(" file2=", fileNameListPath[i])
-        flag = filecmp.cmp(testFileListPath[i], fileNameListPath[i])
-        print("flag=", flag)
-        CmpFile(testFileListPath[i], fileNameListPath[i])
+        #flag = filecmp.cmp(testFileListPath[i], fileNameListPath[i])
+        #print("flag=", flag)
+        cmpflag = CmpFile(testFileListPath[i], fileNameListPath[i])
+        print("cmpflag=", cmpflag)
+        if not cmpflag:
+            totalPass = False
+            break;
     print("returnCode=",returnCode)
+    print("totalPass=", totalPass)
+    return totalPass
 
 def RunAllTest(filename):
+    passFlag =[]
     with open(filename, 'r', encoding='utf-8-sig') as f:
         for line in f.readlines():
             print(os.getcwd())
             print('line=', line)
             dir = "workdir/" + line
             print("dir=",dir)
-            RunTest(dir)
+            flag = RunTest(dir)
+            passFlag.append( flag )
     f.close()
+    return passFlag
 
 def main():
-    totalPass = True
     location = os.getcwd()
     print( " location = ", location )
     my_dir_cmd( location )
-    RunAllTest("test.txt")
-
     errorCode = 0
-    if totalPass:
-        print("All tests passed!")
+    passFlag = RunAllTest("test.txt")
+    numTest = len(passFlag)
+    npass = 0
+    nfail = 0
+    for i in range(0, numTest):
+        if passFlag[i]:
+            npass = npass + 1
+        else:
+            nfail = nfail + 1
+    if npass == numTest:
+        print("Total tests passed!")
     else:
         print("ERROR: Some tests failed")
-        errorCode = 1
-    sys.exit(errorCode)
+        print(npass, " tests passed! ", nfail, " tests failed!")
+
+    # print("Total tests passed!")
+    # if totalPass:
+    #     print("All tests passed!")
+    # else:
+    #     print("ERROR: Some tests failed")
+    #     errorCode = 1
+    # sys.exit(errorCode)
 
 if __name__ == "__main__":
     main()
