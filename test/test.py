@@ -45,9 +45,11 @@ def CmpFile(fileName1, fileName2):
         str2 = f2.readline()
         if not str1:
             break
-        if str1 != str2:
-            print('line1=', str1)
-            print('line2=', str2)
+        # if str1 != str2:
+        #     print('line1=', str1)
+        #     print('line2=', str2)
+        print('line1=', str1)
+        print('line2=', str2)
     f1.close()
     f2.close()
 
