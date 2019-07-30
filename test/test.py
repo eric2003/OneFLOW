@@ -41,16 +41,21 @@ def CmpFile(fileName1, fileName2):
     f1 = open(fileName1, 'r', encoding='utf-8-sig')
     f2 = open(fileName2, 'r', encoding='utf-8-sig')
     cmpflag = True
+    line_id = 0
     while True:
         str1 = f1.readline()
         str2 = f2.readline()
         if not str1:
             break
         if str1 != str2:
+            print(fileName1)
+            print(fileName2)
+            print("Line", line_id)
             print('line1=', str1)
             print('line2=', str2)
             cmpflag = False
             break
+        line_id += 1
     f1.close()
     f2.close()
     return cmpflag
