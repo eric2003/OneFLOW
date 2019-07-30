@@ -179,13 +179,6 @@ def main():
     location = os.getcwd()
     print( " location = ", location )
     my_dir_cmd( location )
-    aa = "1.6314388738e-01    0.0000000000e+00    0.0000000000e+00    -5.4567471311e-03   1.2158854693e-01    "
-    bb = aa.split()
-    print("aa=", aa)
-    print("bb=", bb)
-    for b in bb:
-        flag = is_number(b)
-        print("b is", b, "flag is ", flag)
     errorCode = 0
     passFlag = RunAllTest("test.txt")
     numTest = len(passFlag)
