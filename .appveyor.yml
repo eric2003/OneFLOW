@@ -26,6 +26,6 @@ test_script:
 - cmd: >-
     cd test
     
-    %PYTHON%/python.exe test.py
+    %PYTHON%/python.exe test.py "" windows
     
     ECHO %PATH%

@@ -94,10 +94,19 @@ def RunTest(testprjdir):
     # for i in range(0, len(testFileListPath)):
     #     print("i=", i, " var=", testFileListPath[i], "file=", fileNameListPath[i])
 
-    #exedir = '"c:/Program Files (x86)/OneFLOW/bin/"'
-    exedir = ''
+    exedir = '"c:/Program Files (x86)/OneFLOW/bin/"'
+    #exedir = ''
     #cmd = exedir +"OneFLOW" + " " + testprjdir
-    cmd = "mpiexec -n 1 " + exedir +"OneFLOW" + " " + testprjdir
+    lenth = len(sys.argv)
+    print("lenth=", lenth)
+    for i in range(0, lenth):
+        print("i=", i, "var=", sys.argv[i])
+    mpiPath = '"' + sys.argv[1] + '"'
+    opsys = sys.argv[2]
+    mpiCmd = "mpiexec -n 1 "
+    if opsys == "linux":
+        mpiCmd = "mpirun -np 1 "
+    cmd = mpiPath + mpiCmd + exedir +"OneFLOW" + " " + testprjdir
     print(cmd)
     process = subprocess.Popen(cmd, shell=True)
     while process.poll() is None:
@@ -153,14 +162,6 @@ def main():
     else:
         print("ERROR: Some tests failed")
     print(npass, " tests passed! ", nfail, " tests failed!")
-
-    # print("Total tests passed!")
-    # if totalPass:
-    #     print("All tests passed!")
-    # else:
-    #     print("ERROR: Some tests failed")
-    #     errorCode = 1
-    # sys.exit(errorCode)
 
 if __name__ == "__main__":
     main()
