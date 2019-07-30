@@ -36,8 +36,8 @@ def my_dir_cmd( file_dir ):
     for file in dirs:
        print( file )
 def CmpFile(fileName1, fileName2):
-    print(fileName1)
-    print(fileName2)
+    #print(fileName1)
+    #print(fileName2)
     f1 = open(fileName1, 'r', encoding='utf-8-sig')
     f2 = open(fileName2, 'r', encoding='utf-8-sig')
     cmpflag = True
@@ -58,10 +58,8 @@ def CmpFile(fileName1, fileName2):
 def GetFileNameList(filename, filename_list):
     with open(filename, 'r', encoding='utf-8-sig') as f:
         for line in f.readlines():
-            print('line=', line)
-            ll = line.replace("\r", "")
-            ll = ll.replace("\n", "")
-            filename_list.append(ll)
+            fname = line.strip()
+            filename_list.append(fname)
     f.close()
 def RunTest(testprjdir):
     print("testprjdir=",testprjdir)
@@ -71,13 +69,13 @@ def RunTest(testprjdir):
     print("absTestScript =", absTestScript)
     fileNameList = []
     GetFileNameList(absTestScript,fileNameList)
-    print(fileNameList)
+    #print(fileNameList)
     ffList = []
     for file in fileNameList:
-        print(file)
+        #print("file=", file)
         ff = file.split("/")[-1]
         ffList.append(ff)
-    print(ffList)
+    #print(ffList)
     testFileList = []
     testFileListPath=[]
     for ff in ffList:
@@ -85,16 +83,16 @@ def RunTest(testprjdir):
         testFileList.append(ffNew)
         ffNewPath = os.path.normpath(os.path.abspath(ffNew))
         testFileListPath.append(ffNewPath)
-    print(testFileListPath)
+    #print(testFileListPath)
     fileNameListPath = []
     for file in fileNameList:
         fileNew = testprjdir + "/" + file
         fileNewPath = os.path.normpath(os.path.abspath(fileNew))
         fileNameListPath.append(fileNewPath)
-    print(fileNameListPath)
+    #print(fileNameListPath)
 
-    for i in range(0, len(testFileListPath)):
-        print("i=", i, " var=", testFileListPath[i], "file=", fileNameListPath[i])
+    # for i in range(0, len(testFileListPath)):
+    #     print("i=", i, " var=", testFileListPath[i], "file=", fileNameListPath[i])
 
     #exedir = '"c:/Program Files (x86)/OneFLOW/bin/"'
     exedir = ''
@@ -108,13 +106,13 @@ def RunTest(testprjdir):
     returnCode = process.poll()
     totalPass = True
     for i in range(0, len(testFileListPath)):
-        print("i=", i)
+        #print("i=", i)
         #print(" file1=", testFileListPath[i])
         #print(" file2=", fileNameListPath[i])
         #flag = filecmp.cmp(testFileListPath[i], fileNameListPath[i])
         #print("flag=", flag)
         cmpflag = CmpFile(testFileListPath[i], fileNameListPath[i])
-        print("cmpflag=", cmpflag)
+        #print("cmpflag=", cmpflag)
         if not cmpflag:
             totalPass = False
             break;
@@ -127,8 +125,9 @@ def RunAllTest(filename):
     with open(filename, 'r', encoding='utf-8-sig') as f:
         for line in f.readlines():
             print(os.getcwd())
-            print('line=', line)
-            dir = "workdir/" + line
+            prjname = line.strip()
+            print('prjname=', prjname)
+            dir = "workdir/" + prjname
             print("dir=",dir)
             flag = RunTest(dir)
             passFlag.append( flag )
@@ -153,7 +152,7 @@ def main():
         print("Total tests passed!")
     else:
         print("ERROR: Some tests failed")
-        print(npass, " tests passed! ", nfail, " tests failed!")
+    print(npass, " tests passed! ", nfail, " tests failed!")
 
     # print("Total tests passed!")
     # if totalPass:
