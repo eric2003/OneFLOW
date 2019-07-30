@@ -31,13 +31,27 @@ import subprocess
 import time
 import filecmp
 
-def my_dir_cmd( file_dir ):
-    dirs = os.listdir( file_dir )
+def my_dir_cmd(file_dir):
+    dirs = os.listdir(file_dir)
     for file in dirs:
-       print( file )
+       print(file)
+def CmpFloatStr(str1, str2):
+    ss1 = str1.split()
+    ss2 = str2.split()
+    passflag = True
+    for i in range(0, len(ss1)):
+        a = ss1[i]
+        b = ss2[i]
+        flag = is_number(a)
+        if not flag:
+            continue
+        fa = float(a)
+        fb = float(b)
+        if abs(fa-fb) > 1.0e-8:
+            passflag = False
+            return passflag
+    return passflag
 def CmpFile(fileName1, fileName2):
-    #print(fileName1)
-    #print(fileName2)
     f1 = open(fileName1, 'r', encoding='utf-8-sig')
     f2 = open(fileName2, 'r', encoding='utf-8-sig')
     cmpflag = True
@@ -47,14 +61,18 @@ def CmpFile(fileName1, fileName2):
         str2 = f2.readline()
         if not str1:
             break
+        # aa = str1.split()
+        # print(aa)
         if str1 != str2:
-            print(fileName1)
-            print(fileName2)
-            print("Line", line_id)
-            print('line1=', str1)
-            print('line2=', str2)
-            cmpflag = False
-            break
+            flag = CmpFloatStr(str1, str2)
+            if not flag:
+                print(fileName1)
+                print(fileName2)
+                print("Line", line_id)
+                print('line1=', str1)
+                print('line2=', str2)
+                cmpflag = False
+                break
         line_id += 1
     f1.close()
     f2.close()
@@ -148,10 +166,26 @@ def RunAllTest(filename):
     f.close()
     return passFlag
 
+
+def is_number(s):
+    try:
+        float(s)
+        return True
+    except ValueError:
+        pass
+    return False
+
 def main():
     location = os.getcwd()
     print( " location = ", location )
     my_dir_cmd( location )
+    aa = "1.6314388738e-01    0.0000000000e+00    0.0000000000e+00    -5.4567471311e-03   1.2158854693e-01    "
+    bb = aa.split()
+    print("aa=", aa)
+    print("bb=", bb)
+    for b in bb:
+        flag = is_number(b)
+        print("b is", b, "flag is ", flag)
     errorCode = 0
     passFlag = RunAllTest("test.txt")
     numTest = len(passFlag)
