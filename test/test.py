@@ -94,19 +94,19 @@ def RunTest(testprjdir):
     # for i in range(0, len(testFileListPath)):
     #     print("i=", i, " var=", testFileListPath[i], "file=", fileNameListPath[i])
 
-    exedir = '"c:/Program Files (x86)/OneFLOW/bin/"'
-    #exedir = ''
+    #exePath = '"c:/Program Files (x86)/OneFLOW/bin/"'
     #cmd = exedir +"OneFLOW" + " " + testprjdir
     lenth = len(sys.argv)
     print("lenth=", lenth)
     for i in range(0, lenth):
         print("i=", i, "var=", sys.argv[i])
     mpiPath = '"' + sys.argv[1] + '"'
-    opsys = sys.argv[2]
+    exePath = '"' + sys.argv[2] + '"'
+    opsys = sys.argv[3]
     mpiCmd = "mpiexec -n 1 "
     if opsys == "linux":
         mpiCmd = "mpirun -np 1 "
-    cmd = mpiPath + mpiCmd + exedir +"OneFLOW" + " " + testprjdir
+    cmd = mpiPath + mpiCmd + exePath +"OneFLOW" + " " + testprjdir
     print(cmd)
     process = subprocess.Popen(cmd, shell=True)
     while process.poll() is None:
