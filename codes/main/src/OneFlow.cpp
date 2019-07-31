@@ -27,4 +27,5 @@ int main( int argc, char ** argv )
     ONEFLOW::Simulation *simulation = new ONEFLOW::Simulation( argc, argv );
     simulation->Run();
     delete simulation;
+    return 0;
 }
