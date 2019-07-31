@@ -34,12 +34,11 @@ public:
     virtual ~Simulation();
 public:
     void Run();
-
 public:
+    void ProcessCmdLineArgs( int argc, char ** argv );
     void PreProcess();
     void MainProcess();
     void PostProcess();
-
 protected:
     //≥ı ºªØ
     void InitSimu();

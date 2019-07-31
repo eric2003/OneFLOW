@@ -36,6 +36,20 @@ BeginNameSpace( ONEFLOW )
 
 Simulation::Simulation( int argc, char ** argv )
 {
+    this->ProcessCmdLineArgs( argc, argv );
+}
+
+Simulation::~Simulation()
+{
+    if ( ! args.empty() ) 
+    {
+        args.clear();
+        args.shrink_to_fit();
+    };
+}
+
+void Simulation::ProcessCmdLineArgs( int argc, char ** argv )
+{
     args.resize( argc );
 
     cout << " args.size() = " << args.size() << "\n";
@@ -51,15 +65,6 @@ Simulation::Simulation( int argc, char ** argv )
         string prjName = args[ 1 ];
         PrjStatus::SetPrjBaseDir( prjName );
     }
-}
-
-Simulation::~Simulation()
-{
-    if ( ! args.empty() ) 
-    {
-        args.clear();
-        args.shrink_to_fit();
-    };
 }
 
 void Simulation::Run()
@@ -92,32 +97,32 @@ void Simulation::RunSimu()
     //根据任务类型调用不同的求解模块
     const TaskEnum task = simu_state.Task();
 
-    if (task != TaskEnum::FUN_TEST)
+    if ( task != TaskEnum::FUN_TEST )
     {
         ConstructSystemMap();
     }
 
     //根据不同的simutask值，执行不同的求解流程
-    switch (task)
+    switch ( task )
     {
-    case TaskEnum::SOLVE_FIELD:
-        FieldSimu();
+        case TaskEnum::SOLVE_FIELD:
+            FieldSimu();
+            break;
+        case TaskEnum::CREATE_GRID:
+            GenerateGrid();
+            break;
+        case TaskEnum::CREATE_WALL_DIST:
+            WalldistSimu();
+            break;
+        case TaskEnum::FUN_TEST:
+            FunTest();
+            break;
+        default:
+        {
+            cerr << "unknown simutask value!!" << endl;
+            exit(EXIT_FAILURE);
+        }
         break;
-    case TaskEnum::CREATE_GRID:
-        GenerateGrid();
-        break;
-    case TaskEnum::CREATE_WALL_DIST:
-        WalldistSimu();
-        break;
-    case TaskEnum::FUN_TEST:
-        FunTest();
-        break;
-    default:
-    {
-        cerr << "unknown simutask value!!" << endl;
-        exit(EXIT_FAILURE);
-    }
-    break;
     }
 }
 
