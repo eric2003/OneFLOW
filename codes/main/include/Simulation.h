@@ -36,15 +36,6 @@ public:
     void Run();
 public:
     void ProcessCmdLineArgs( int argc, char ** argv );
-    void PreProcess();
-    void MainProcess();
-    void PostProcess();
-protected:
-    //初始化
-    void InitSimu();
-    //执行求解
-    void RunSimu();
-    
 private:
     //命令行参数
     std::vector<std::string> args;
