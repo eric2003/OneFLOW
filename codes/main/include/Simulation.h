@@ -26,7 +26,6 @@ along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 
 BeginNameSpace( ONEFLOW )
 
-//调用仿真求解模块，进行求解和后处理的类
 class Simulation
 {
 public:

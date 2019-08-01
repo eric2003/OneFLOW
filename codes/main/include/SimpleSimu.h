@@ -19,62 +19,24 @@ You should have received a copy of the GNU General Public License
 along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 
 \*---------------------------------------------------------------------------*/
-#include "Simulation.h"
-#include "SimuImp.h"
-#include "SimpleSimu.h"
-#include <iostream>
-using namespace std;
+#pragma once
+#include "Configure.h"
+#include <vector>
+#include <string>
 
 BeginNameSpace( ONEFLOW )
 
-Simulation::Simulation( int argc, char ** argv )
+class SimpleSimu
 {
-    this->ProcessCmdLineArgs( argc, argv );
-}
-
-Simulation::~Simulation()
-{
-    if ( ! args.empty() ) 
-    {
-        args.clear();
-        args.shrink_to_fit();
-    };
-}
-
-void Simulation::ProcessCmdLineArgs( int argc, char ** argv )
-{
-    args.resize( argc );
-
-    cout << " args.size() = " << args.size() << "\n";
-
-    for ( int i = 0; i < argc; ++ i )
-    {   
-        args[ i ] = argv[ i ];
-        cout << "arguments[ " << i << " ] is: " << args[ i ] << endl;
-    }
-
-    if ( args.size() <= 2 )
-    {
-        cout << " argument number should be 3\n";
-        exit( 0 );
-    }
-}
-
-void Simulation::Run()
-{
-    if ( args[ 1 ] == "0" )
-    {
-        SimuImp * simu = new SimuImp( args );
-        simu->Run();
-        delete simu;
-    }
-    else
-    {
-        SimpleSimu * simu = new SimpleSimu( args );
-        simu->Run();
-        delete simu;
-    }
-}
-
+public:
+    SimpleSimu( std::vector<std::string> &args );
+    ~SimpleSimu();
+public:
+    void Run();
+protected:
+    void ProcessCmdLineArgs( std::vector<std::string> & args );
+public:
+    std::vector<std::string> args;
+};
 
 EndNameSpace
