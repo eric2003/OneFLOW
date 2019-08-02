@@ -143,16 +143,4 @@ inline T ReadNextDigit( std::string & source, const std::string & separatorOfWor
 
 bool IsEmpty( fstream & file );
 
-class Word
-{
-public:
-    Word();
-    ~Word();
-public:
-    static bool IsEmptyLine  ( const string & line );
-    static bool IsCommentLine( const string & line );
-    static bool IsCommentLine( const string & line, StringField & comlist );
-
-};
-
 EndNameSpace

@@ -21,6 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "FileIO.h"
+#include "Word.h"
 #include "CommentLine.h"
 #include "Prj.h"
 #include <iostream>
@@ -258,55 +259,6 @@ bool IsEmpty( fstream & file )
     //cout << "ONEFLOW::IsEmpty( fstream & file ) = " << i << endl;
     if ( i ) return false;
     return true;
-}
-
-
-Word::Word()
-{
-    ;
-}
-
-Word::~Word()
-{
-    ;
-}
-
-bool Word::IsEmptyLine( const string & line )
-{
-    if ( line == "" )
-    {
-        return true;
-    }
-    else
-    {
-        const string notReadableSeparator = " \r\n\t";
-        string word;
-        TMP_FindNextWord( line, word, notReadableSeparator );
-        return word == "";
-    }
-}
-
-bool Word::IsCommentLine( const string & line )
-{
-    const string notReadableSeparator = " \r\n\t";
-    string word;
-    TMP_FindNextWord( line, word, notReadableSeparator );
-    return ( word.substr( 0, 1 ) == "#" ||
-        word.substr( 0, 2 ) == "//" );
-}
-
-bool Word::IsCommentLine(const string& line, StringField &comlist )
-{
-    const string notReadableSeparator = " \r\n\t";
-    string word;
-    TMP_FindNextWord(line, word, notReadableSeparator);
-    for (int i = 0; i < comlist.size(); ++ i)
-    {
-        string & t = comlist[ i ];
-        int n = t.length();
-        if ( word.substr(0, n) == t ) return true;
-    }
-    return false;
 }
 
 EndNameSpace
