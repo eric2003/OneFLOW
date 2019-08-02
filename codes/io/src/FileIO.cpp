@@ -126,8 +126,8 @@ bool FileIO::ReadNextMeaningfulLine()
     {
         ONEFLOW::ReadNextLine( * file, * line );
 
-        if ( ONEFLOW::IsEmptyLine  ( * line ) ||
-             ONEFLOW::IsCommentLine( * line, this->commentLine->commentdata ) )
+        if ( Word::IsEmptyLine  ( * line ) ||
+             Word::IsCommentLine( * line, this->commentLine->commentdata ) )
         {
              continue;
         }
@@ -260,7 +260,18 @@ bool IsEmpty( fstream & file )
     return true;
 }
 
-bool IsEmptyLine( const string & line )
+
+Word::Word()
+{
+    ;
+}
+
+Word::~Word()
+{
+    ;
+}
+
+bool Word::IsEmptyLine( const string & line )
 {
     if ( line == "" )
     {
@@ -270,25 +281,25 @@ bool IsEmptyLine( const string & line )
     {
         const string notReadableSeparator = " \r\n\t";
         string word;
-        FindNextWord( line, word, notReadableSeparator );
+        TMP_FindNextWord( line, word, notReadableSeparator );
         return word == "";
     }
 }
 
-bool IsCommentLine( const string & line )
+bool Word::IsCommentLine( const string & line )
 {
     const string notReadableSeparator = " \r\n\t";
     string word;
-    FindNextWord( line, word, notReadableSeparator );
+    TMP_FindNextWord( line, word, notReadableSeparator );
     return ( word.substr( 0, 1 ) == "#" ||
         word.substr( 0, 2 ) == "//" );
 }
 
-bool IsCommentLine(const string& line, StringField &comlist )
+bool Word::IsCommentLine(const string& line, StringField &comlist )
 {
     const string notReadableSeparator = " \r\n\t";
     string word;
-    FindNextWord(line, word, notReadableSeparator);
+    TMP_FindNextWord(line, word, notReadableSeparator);
     for (int i = 0; i < comlist.size(); ++ i)
     {
         string & t = comlist[ i ];

@@ -52,7 +52,7 @@ void CloseFile( fstream & file );
 void   TrimBlanks( string & source );
 void   SkipLines( fstream & file, int numberOfLines );
 void   ReadNextLine( fstream & file, string & line );
-string FindNextWord( const string & source, string & word, const string & separator );
+string TMP_FindNextWord( const string & source, string & word, const string & separator );
 string FindNextWord( string & source, const string & separator );
 
 bool   FindString( const string & source, const string & word );

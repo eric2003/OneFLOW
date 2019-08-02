@@ -110,7 +110,7 @@ void ReadNextLine( fstream & file, string & line )
     std::getline( file, line );
 }
 
-string FindNextWord( const string & source, string & word, const string & separator )
+string TMP_FindNextWord( const string & source, string & word, const string & separator )
 {
     string::size_type firstIndex, nextIndex, notFindIndex = - 1;
     string emptyString = "";
