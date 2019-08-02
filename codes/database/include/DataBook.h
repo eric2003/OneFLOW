@@ -29,6 +29,11 @@ using namespace std;
 
 BeginNameSpace( ONEFLOW )
 
+class DataBook;
+
+typedef void ( * DATA_COMPRESS )( DataBook *& dataBook );
+typedef void ( * DATA_DECOMPRESS )( DataBook *  dataBook );
+
 class DataBook
 {
 public:
