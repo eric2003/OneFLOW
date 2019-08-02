@@ -122,10 +122,6 @@ public:
 
 };
 
-string  ReadNextWord();
-string  ReadNextWord( const std::string & separatorOfWord );
-string  ReadNextWord( std::string & source, const std::string & separatorOfWord );
-
 string  ReadNextWordToLowerCase();
 string  ReadNextWordToLowerCase( const std::string & separatorOfWord );
 
