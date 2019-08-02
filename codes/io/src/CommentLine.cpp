@@ -21,7 +21,6 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "CommentLine.h"
-#include "Prj.h"
 #include <iostream>
 using namespace std;
 
