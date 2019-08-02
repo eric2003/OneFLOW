@@ -20,7 +20,7 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "FileIO.h"
+#include "VirtualFile.h"
 #include "DataBaseIO.h"
 #include "DataBook.h"
 #include <iostream>

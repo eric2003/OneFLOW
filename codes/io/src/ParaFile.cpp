@@ -130,7 +130,7 @@ void AnalysisArrayParameter( AsciiFileRead & asciiFileRead, int keyWordIndex )
 int AnalysisScalarParameter( AsciiFileRead & asciiFileRead, int keyWordIndex )
 {
     string errorMessage = "error in parameter file";
-    string separator = " =\r\n\t#$,;\"";  //\tÎªtab¼ü
+    string separator = " =\r\n\t#$,;\"";  //\t is tab key
 
     string name = asciiFileRead.ReadNextWord( separator );
 
