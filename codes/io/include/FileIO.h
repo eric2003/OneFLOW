@@ -38,7 +38,7 @@ void SetDefaultSeparatorOfWord( std::string * separatorOfWordIn );
 std::string * GetDefaultSeparatorOfWord();
 typedef streamsize StreamSize;
 
-class CommentLineClass;
+class CommentLine;
 class FileIO
 {
 public:
@@ -52,7 +52,7 @@ protected:
     std::string fileName;
     ios_base::openmode fileOpenMode;
     StreamSize filePosition;
-    CommentLineClass * commentLineClass;
+    CommentLine * commentLine;
 public:
     void OpenFile( const string & fileName, const ios_base::openmode & fileOpenMode );
     void OpenPrjFile( const string & fileName, const ios_base::openmode & fileOpenMode );
@@ -120,18 +120,6 @@ public:
         return value;
     }
 
-};
-
-class CommentLineClass
-{
-public:
-    CommentLineClass();
-    ~CommentLineClass();
-public:
-    StringField commentdata;
-public:
-    void AddString( const string & cs );
-    void ResetCommentString(StringField& commentStringList);
 };
 
 string  ReadNextWord();

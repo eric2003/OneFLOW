@@ -21,6 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "FileIO.h"
+#include "CommentLine.h"
 #include "Prj.h"
 #include <iostream>
 using namespace std;
@@ -59,9 +60,9 @@ FileIO::FileIO()
     string keyWordSeparator = " =\r\n\t#$,;\"";
     this->SetDefaultSeparator( keyWordSeparator );
 
-    this->commentLineClass = new CommentLineClass();
-    this->commentLineClass->AddString("#");
-    this->commentLineClass->AddString("//");
+    this->commentLine = new CommentLine();
+    this->commentLine->AddString("#");
+    this->commentLine->AddString("//");
 }
 
 FileIO::~FileIO()
@@ -72,12 +73,12 @@ FileIO::~FileIO()
     {
         delete file;
     }
-    delete this->commentLineClass;
+    delete this->commentLine;
 }
 
 void FileIO::ResetCommentString(StringField& commentStringList)
 {
-    this->commentLineClass->ResetCommentString(commentStringList);
+    this->commentLine->ResetCommentString(commentStringList);
 }
 
 void FileIO::SetDefaultFile ( std::fstream * defaultFileIn )
@@ -126,7 +127,7 @@ bool FileIO::ReadNextMeaningfulLine()
         ONEFLOW::ReadNextLine( * file, * line );
 
         if ( ONEFLOW::IsEmptyLine  ( * line ) ||
-             ONEFLOW::IsCommentLine( * line, this->commentLineClass->commentdata ) )
+             ONEFLOW::IsCommentLine( * line, this->commentLine->commentdata ) )
         {
              continue;
         }
@@ -249,27 +250,6 @@ string FileIO::ReadNextWordToLowerCase( const std::string & separator )
     ONEFLOW::ToLowerCase( word );
     return word;
 }
-
-CommentLineClass::CommentLineClass()
-{
-    ;
-}
-
-CommentLineClass::~CommentLineClass()
-{
-    ;
-}
-
-void CommentLineClass::AddString(const string& cs)
-{
-    this->commentdata.push_back(cs);
-}
-
-void CommentLineClass::ResetCommentString(StringField& commentStringList)
-{
-    this->commentdata = commentStringList;
-}
-
 
 string ReadNextWord()
 {
