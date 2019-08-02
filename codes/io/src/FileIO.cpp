@@ -251,25 +251,6 @@ string FileIO::ReadNextWordToLowerCase( const std::string & separator )
     return word;
 }
 
-string ReadNextWordToLowerCase()
-{
-    std::string * separatorOfWord = ONEFLOW::GetDefaultSeparatorOfWord();
-    std::string * defaultLine     = ONEFLOW::GetDefaultLine();
-
-    string word = ONEFLOW::FindNextWord( * defaultLine, * separatorOfWord );
-
-    ONEFLOW::ToLowerCase( word );
-    return word;
-}
-
-string ReadNextWordToLowerCase( const std::string & separatorOfWord )
-{
-    std::string * defaultLine = ONEFLOW::GetDefaultLine();
-    string word = ONEFLOW::FindNextWord( * defaultLine, separatorOfWord );
-    ONEFLOW::ToLowerCase( word );
-    return word;
-}
-
 bool IsEmpty( fstream & file )
 {
     file.seekp( 0, ios::end );

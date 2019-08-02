@@ -93,36 +93,36 @@ void ReadBasicData( FileIO & fileIO )
 void AnalysisArrayParameter( FileIO & fileIO, int keyWordIndex )
 {
     string errorMessage = "error in parameter file";
-    string arrayParameterSeparator = "=\r\n\t#$,;\"";
+    string commSeparator = "=\r\n\t#$,;\"";
 
-    string compositeArrayParameterNameInformation = fileIO.ReadNextWord( arrayParameterSeparator );
+    string ayrrayInfo = fileIO.ReadNextWord( commSeparator );
 
     //Array pattern
-    string compositeArrayParameterSeparator = " =\r\n\t#$,;\"[]";
-    string arrayParameterName, arraySizeInformation;
+    string arraySeparator = " =\r\n\t#$,;\"[]";
+    string arrayName, arraySizeName;
 
-    arrayParameterName = ONEFLOW::FindNextWord( compositeArrayParameterNameInformation, compositeArrayParameterSeparator );
-    arraySizeInformation = ONEFLOW::FindNextWord( compositeArrayParameterNameInformation, compositeArrayParameterSeparator );
+    arrayName = ONEFLOW::FindNextWord( ayrrayInfo, arraySeparator );
+    arraySizeName = ONEFLOW::FindNextWord( ayrrayInfo, arraySeparator );
 
-    int arraySize = ONEFLOW::GetParameterArraySize( arraySizeInformation );
+    int arraySize = ONEFLOW::GetParameterArraySize( arraySizeName );
 
     string * valueContainer = new string[ arraySize ];
 
     for ( int i = 0; i < arraySize; ++ i )
     {
-        valueContainer[ i ] = fileIO.ReadNextWord( compositeArrayParameterSeparator );
+        valueContainer[ i ] = fileIO.ReadNextWord( arraySeparator );
         //It shows that these contents can't be written within 1 lines
         if ( valueContainer[ i ] == "" )
         {
             fileIO.ReadNextNonEmptyLine();
-            valueContainer[ i ] = fileIO.ReadNextWord( compositeArrayParameterSeparator );
+            valueContainer[ i ] = fileIO.ReadNextWord( arraySeparator );
             if ( valueContainer[ i ] == "" )
             {
                 Stop( errorMessage );
             }
         }
     }
-    ONEFLOW::ProcessData( arrayParameterName, valueContainer, keyWordIndex, arraySize );
+    ONEFLOW::ProcessData( arrayName, valueContainer, keyWordIndex, arraySize );
 
     delete[] valueContainer;
 }

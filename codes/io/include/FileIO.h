@@ -122,9 +122,6 @@ public:
 
 };
 
-string  ReadNextWordToLowerCase();
-string  ReadNextWordToLowerCase( const std::string & separatorOfWord );
-
 template < typename T >
 inline T ReadNextDigit( ios_base & ( * f )( ios_base & ) = & std::dec )
 {
