@@ -67,7 +67,6 @@ public:
     static int pid;
     static int nProc;
     static int serverid;
-    static int numberOfZones;
 protected:
     static int defaultTag;
 };
