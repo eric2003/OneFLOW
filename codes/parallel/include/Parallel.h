@@ -30,10 +30,6 @@ using namespace std;
 
 BeginNameSpace( ONEFLOW )
 
-class DataBook;
-typedef void ( * DATA_COMPRESS )( DataBook *& dataBook );
-typedef void ( * DATA_DECOMPRESS )( DataBook *  dataBook );
-
 void SetUpParallelEnvironment();
 
 void HXBcast( DataBook * dataBook, int rootid );
@@ -71,7 +67,6 @@ public:
     static int pid;
     static int nProc;
     static int serverid;
-    static int numberOfZones;
 protected:
     static int defaultTag;
 };

@@ -25,7 +25,7 @@ License
 #include "Category.h"
 #include "SolverInfo.h"
 #include "HXClone.h"
-#include "AsciiFileIO.h"
+#include "FileIO.h"
 #include <iostream>
 using namespace std;
 
@@ -128,7 +128,7 @@ void MRegister::Register( const string & fileName, HXRegister * fRegister )
     //\tÎªtab¼ü
     string separator  = " =\r\n\t#$,;\"()";
 
-    AsciiFileRead ioFile;
+    FileIO ioFile;
     ioFile.OpenFile( fileName, ios_base::in );
     ioFile.SetDefaultSeparator( separator );
 

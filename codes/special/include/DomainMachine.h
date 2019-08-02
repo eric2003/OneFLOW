@@ -26,7 +26,7 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-class AsciiFileRead;
+class FileIO;
 class Domain;
 
 class DomainMachine
@@ -37,7 +37,7 @@ public:
 public:
     IntField bctypeList, bcLineList;
 public:
-    void AddBcType( AsciiFileRead * ioFile );
+    void AddBcType( FileIO * ioFile );
     int GetBcType( int id );
 };
 

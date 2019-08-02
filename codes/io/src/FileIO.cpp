@@ -21,146 +21,244 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "FileIO.h"
-#include "DataBaseIO.h"
-#include "DataBook.h"
+#include "Word.h"
+#include "CommentLine.h"
+#include "Prj.h"
 #include <iostream>
 using namespace std;
 
 BeginNameSpace( ONEFLOW )
 
-VirtualFile::VirtualFile( fstream * file )
+std::string * defaultLine = 0;
+void SetDefaultLine( std::string * defaultLineIn )
 {
-    this->file = file;
-    this->type = 0;
+    defaultLine = defaultLineIn;
 }
 
-VirtualFile::VirtualFile( DataBook * databook )
+std::string * GetDefaultLine()
 {
-    this->databook = databook;
-    this->type = 1;
+    return defaultLine;
 }
 
-void VirtualFile::Read( void * data, streamsize size )
+std::string * separatorOfWord = 0;
+void SetDefaultSeparatorOfWord( std::string * separatorOfWordIn )
 {
-    char * charData = reinterpret_cast< char * > ( data );
-    if ( this->type == 0 )
+    separatorOfWord = separatorOfWordIn;
+}
+
+std::string * GetDefaultSeparatorOfWord()
+{
+    return separatorOfWord;
+}
+
+FileIO::FileIO()
+{
+    line        = new std::string;
+    separator   = new std::string;
+    file        = new fstream;
+    setfileFlag = 0;
+    //\t is tab key
+    string keyWordSeparator = " =\r\n\t#$,;\"";
+    this->SetDefaultSeparator( keyWordSeparator );
+
+    this->commentLine = new CommentLine();
+    this->commentLine->AddString("#");
+    this->commentLine->AddString("//");
+}
+
+FileIO::~FileIO()
+{
+    delete line;
+    delete separator;
+    if ( setfileFlag == 0 )
     {
-        ONEFLOW::HXRead( this->file, charData, size );
+        delete file;
     }
-    else
+    delete this->commentLine;
+}
+
+void FileIO::ResetCommentString(StringField& commentStringList)
+{
+    this->commentLine->ResetCommentString(commentStringList);
+}
+
+void FileIO::SetDefaultFile ( std::fstream * defaultFileIn )
+{
+    if ( setfileFlag == 0 )
     {
-        ONEFLOW::HXRead( this->databook, charData, size );
+        delete file;
     }
+    this->file  = defaultFileIn;
+    setfileFlag = 1;
 }
 
-void VirtualFile::Write( void * data, streamsize size )
+void FileIO::OpenFile( const string & fileName, const ios_base::openmode & fileOpenMode )
 {
-    char * charData = reinterpret_cast< char * > ( data );
+    this->fileName     = fileName;
+    this->fileOpenMode = fileOpenMode;
+    ONEFLOW::OpenFile( * file, fileName, fileOpenMode );
+}
 
-    if ( this->type == 0 )
+void FileIO::OpenPrjFile( const string & fileName, const ios_base::openmode & fileOpenMode )
+{
+    this->fileName     = fileName;
+    this->fileOpenMode = fileOpenMode;
+    ONEFLOW::OpenPrjFile( * file, fileName, fileOpenMode );
+}
+
+void FileIO::CloseFile()
+{
+    ONEFLOW::CloseFile( * file );
+}
+
+void FileIO::MarkCurrentFilePosition()
+{
+    filePosition = file->tellp();
+}
+
+void FileIO::MoveToPreviousFilePosition()
+{
+    file->seekp( filePosition );
+}
+
+bool FileIO::ReadNextMeaningfulLine()
+{
+    while ( ! this->ReachTheEndOfFile() )
     {
-        ONEFLOW::HXWrite( this->file, charData, size );
+        ONEFLOW::ReadNextLine( * file, * line );
+
+        if ( Word::IsEmptyLine  ( * line ) ||
+             Word::IsCommentLine( * line, this->commentLine->commentdata ) )
+        {
+             continue;
+        }
+        return true;
     }
-    else
+    return false;
+}
+
+bool FileIO::ReachTheEndOfFile()
+{
+    if ( ( * file ).eof() )
     {
-        ONEFLOW::HXWrite( this->databook, charData, size );
+        return true;
     }
+    return false;
 }
 
-void VirtualFile::MarkSectionBegin()
+void FileIO::SkipLines( int numberOfLinesToSkip )
 {
-    this->sectionBegin = this->GetCurrentPosition();
+    ONEFLOW::SkipLines( * file, numberOfLinesToSkip );
 }
 
-void VirtualFile::MarkSectionEnd()
+bool FileIO::ReadNextNonEmptyLine()
 {
-    this->sectionEnd = this->GetCurrentPosition();
+    return ONEFLOW::ReadNextNonEmptyLine( * this->file, * this->line );
 }
 
-void VirtualFile::MoveToPosition( streamsize sectionPosition )
+void FileIO::DumpLineContentToScreen()
 {
-    file->seekp( sectionPosition );
+    cout << * line << endl;
 }
 
-void VirtualFile::MoveToSectionBegin()
+void FileIO::SkipReadSymbol( const string & stringSymbol )
 {
-    this->MoveToPosition( this->GetSectionBegin() );
-}
-
-void VirtualFile::MoveToSectionEnd()
-{
-    this->MoveToPosition( this->GetSectionEnd() );
-}
-
-void VirtualFile::BeginWriteWork()
-{
-    if ( this->type == 0 )
+    while ( ! this->ReachTheEndOfFile() )
     {
-        this->MarkSectionBegin();
-        this->ReservePlaceholder();
+        bool resultFlag = this->ReadNextMeaningfulLine();
+        if ( ! resultFlag ) break;
+
+        string word = this->ReadNextWord();
+
+        if ( word == stringSymbol )
+        {
+            return;
+        }
     }
 }
 
-void VirtualFile::EndWriteWork()
+void FileIO::SkipReadWholeBlock()
 {
-    if ( this->type == 0 )
+    int countOfLeftBrackets  = 0;
+    int countOfRightBrackets = 0;
+
+    while ( ! this->ReachTheEndOfFile() )
     {
-        this->MarkSectionEnd();
-        this->MoveToSectionBegin();
-        this->WriteDataLength();
-        this->MoveToSectionEnd();
+        bool resultFlag = this->ReadNextMeaningfulLine();
+        if ( ! resultFlag ) break;
+
+        string word = this->ReadNextWord();
+
+        if ( word == "{" )
+        {
+            ++ countOfLeftBrackets;
+        }
+        else if ( word == "}" )
+        {
+            ++ countOfRightBrackets;
+        }
+
+        if ( countOfLeftBrackets == countOfRightBrackets )
+        {
+            return;
+        }
     }
 }
 
-void VirtualFile::BeginReadWork()
+bool FileIO::NextWordIsEmpty()
 {
-    if ( this->type == 0 )
+    std::string lineLeft = * this->line;
+    string word = ONEFLOW::FindNextWord( lineLeft, * this->separator );
+    return word == "";
+}
+
+std::string FileIO::ReadNextTrueWord()
+{
+    string word = ONEFLOW::FindNextWord( * this->line, * this->separator );
+
+    if ( word == "" )
     {
-        this->MarkSectionBegin();
-        this->ReadDataLength();
+        ReadNextNonEmptyLine();
+        word = ONEFLOW::FindNextWord( * this->line, * this->separator );
     }
-    else
-    {
-        this->databook->MoveToBegin();
-    }
+
+    return word;
 }
 
-void VirtualFile::EndReadWork()
+std::string FileIO::ReadNextWord()
 {
-    if ( this->type == 0 )
-    {
-        this->MarkSectionEnd();
-    }
+    string word = ONEFLOW::FindNextWord( * this->line, * this->separator );
+
+    return word;
 }
 
-void VirtualFile::ReadDataLength()
+std::string FileIO::ReadNextWord( const std::string & separator )
 {
-    this->Read( & dataLength, sizeof( streamsize ) );
+    string word = ONEFLOW::FindNextWord( * this->line, separator );
+    return word;
 }
 
-void VirtualFile::WriteDataLength()
+string FileIO::ReadNextWordToLowerCase()
 {
-    dataLength = GetSectionEnd() - GetSectionBegin() - sizeof( streamsize );
-
-    this->Write( & dataLength, sizeof( streamsize ) );
+    string word = ONEFLOW::FindNextWord( * this->line, * this->separator );
+    ONEFLOW::ToLowerCase( word );
+    return word;
 }
 
-void VirtualFile::ReservePlaceholder()
+string FileIO::ReadNextWordToLowerCase( const std::string & separator )
 {
-    this->Write( & sectionBegin, sizeof( streamsize ) );
+    string word = ONEFLOW::FindNextWord( * this->line, separator );
+    ONEFLOW::ToLowerCase( word );
+    return word;
 }
 
-streamsize VirtualFile::GetCurrentPosition()
+bool IsEmpty( fstream & file )
 {
-    if ( this->type == 0 )
-    {
-        return file->tellp();
-    }
-    else
-    {
-        return 0;
-    }
+    file.seekp( 0, ios::end );
+    streamoff i = file.tellp();
+    //cout << "ONEFLOW::IsEmpty( fstream & file ) = " << i << endl;
+    if ( i ) return false;
+    return true;
 }
-
 
 EndNameSpace

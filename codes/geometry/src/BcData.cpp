@@ -21,7 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "BcData.h"
-#include "AsciiFileIO.h"
+#include "FileIO.h"
 #include "Prj.h"
 
 BeginNameSpace( ONEFLOW )
@@ -64,7 +64,7 @@ void BcData::ReadList()
     //\tÎªtab¼ü
     string separator = " =\r\n\t#$,;\"";
 
-    AsciiFileRead ioFile;
+    FileIO ioFile;
     string fileName = "script/bc.txt";
     ioFile.OpenPrjFile( fileName, ios_base::in );
     ioFile.SetDefaultSeparator( separator );

@@ -25,7 +25,7 @@ along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 BeginNameSpace( ONEFLOW )
 
 class SchmidtNumber;
-class AsciiFileRead;
+class FileIO;
 class DataBook;
 
 class MolecularProperty
@@ -50,7 +50,7 @@ public:
 public:
     void ComputeProperty();
     void Init( int nSpecies );
-    void Read( AsciiFileRead * ioFile );
+    void Read( FileIO * ioFile );
     void Read( DataBook * dataBook );
     void Write( DataBook * dataBook );
 };

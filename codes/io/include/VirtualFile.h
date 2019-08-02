@@ -19,34 +19,48 @@ License
     along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 
 \*---------------------------------------------------------------------------*/
-
 #pragma once
-#include "FileIO.h"
-#include "DataBase.h"
-#include "DataBook.h"
+#include "Configure.h"
+#include "HXDefine.h"
+#include <fstream>
+using namespace std;
 
 BeginNameSpace( ONEFLOW )
 
-bool IsArrayParameter( const string & lineOfName );
-void ReadBasicData( FileIO & fileIO );
-void AnalysisArrayParameter( FileIO & fileIO, int keyWordIndex );
-int AnalysisScalarParameter( FileIO & fileIO, int keyWordIndex );
-int GetParameterArraySize( const string & word );
-void ReadHXFile( const std::string & fileName );
+class DataBook;
 
-void ReadControlInfo();
-void ReadPrjBaseDir();
-void ReadHXScript();
-void ReadMultiFile();
-void BroadcastControlParameterToAllProcessors();
+class VirtualFile
+{
+public:
+    VirtualFile( fstream * file );
+    VirtualFile( DataBook * databook );
+public:
+    int type;
+    fstream * file;
+    DataBook * databook;
+public:
+    streamsize sectionBegin, sectionEnd, dataLength;
+public:
+    void Read ( void * data, streamsize size );
+    void Write( void * data, streamsize size );
+protected:
+    void MarkSectionBegin();
+    void MarkSectionEnd  ();
+    streamsize GetSectionBegin() { return sectionBegin; };
+    streamsize GetSectionEnd() { return sectionEnd; };
+    void MoveToPosition( streamsize sectionPosition );
+    void MoveToSectionBegin();
+    void MoveToSectionEnd();
+    void WriteDataLength();
+public:
+    void BeginWriteWork();
+    void EndWriteWork();
+    void BeginReadWork();
+    void EndReadWork();
 
-int GetNumberOfParameterFiles();
-std::string GetParameterFileName( int iFile = 0 );
-
-void CompressData( DataBase * dataBase, DataBook *& dataBook );
-void DecompressData( DataBase * dataBase, DataBook * dataBook );
-
-void CompressData( DataBook *& dataBook );
-void DecompressData( DataBook * dataBook );
+    void ReadDataLength();
+    void ReservePlaceholder();
+    streamsize GetCurrentPosition();
+};
 
 EndNameSpace

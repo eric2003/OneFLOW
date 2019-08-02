@@ -20,7 +20,7 @@ License
 
 \*---------------------------------------------------------------------------*/
 #include "ReactionRate.h"
-#include "AsciiFileIO.h"
+#include "FileIO.h"
 #include "DataBook.h"
 #include "DataBaseIO.h"
 
@@ -49,7 +49,7 @@ void ReactionRate::Init( int nReaction )
     b3.resize( nReaction );
 }
 
-void ReactionRate::Read( AsciiFileRead * ioFile )
+void ReactionRate::Read( FileIO * ioFile )
 {
     string separator = " =\r\n#$,;\"'";
 

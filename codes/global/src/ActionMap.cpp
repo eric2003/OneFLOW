@@ -21,7 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 #include "ActionMap.h"
 #include "DataBase.h"
-#include "AsciiFileIO.h"
+#include "FileIO.h"
 
 BeginNameSpace( ONEFLOW )
 
@@ -121,7 +121,7 @@ void ActionMapImp::ReadFile( const string & fileName )
     //\tÎªtab¼ü
     string separator = " =\r\n\t#$,;\"";
 
-    AsciiFileRead ioFile;
+    FileIO ioFile;
     ioFile.OpenFile( fileName, ios_base::in );
     ioFile.SetDefaultSeparator( separator );
 

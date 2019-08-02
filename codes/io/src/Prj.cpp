@@ -22,7 +22,6 @@ License
 
 #include "Prj.h"
 #include "BasicIO.h"
-#include "BasicParallel.h"
 #include "LogFile.h"
 
 #include <iostream>

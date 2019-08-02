@@ -113,7 +113,7 @@ public:
 };
 
 
-class AsciiFileRead;
+class FileIO;
 class BoolIO
 {
 public:
@@ -123,13 +123,13 @@ public:
     StringField boolNameList;
     BoolField boolValueList;
     int valueFlag;
-    AsciiFileRead * ioFile;
+    FileIO * ioFile;
     NameValuePair nameValuePair;
     ParaNameDimData * paraNameDimData;
 public:
     void Add( const string & name, bool value );
-    void ReadBool( AsciiFileRead * ioFile );
-    void ReadSuperBool( AsciiFileRead * ioFile );
+    void ReadBool( FileIO * ioFile );
+    void ReadSuperBool( FileIO * ioFile );
     bool CmpVarValue( const string & varName );
     void Read();
     void ReadFile( const string & fileName, int valueFlag = 0 );

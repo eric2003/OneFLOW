@@ -19,48 +19,128 @@ License
     along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 
 \*---------------------------------------------------------------------------*/
+
 #pragma once
-#include "Configure.h"
-#include "HXDefine.h"
 #include <fstream>
+#include <sstream>
+#include "BasicIO.h"
+#include "HXDefine.h"
 using namespace std;
 
 BeginNameSpace( ONEFLOW )
 
-class DataBook;
+const string whiteSpace = " ";
 
-class VirtualFile
+void SetDefaultLine( std::string * defaultLineIn );
+std::string * GetDefaultLine();
+
+void SetDefaultSeparatorOfWord( std::string * separatorOfWordIn );
+std::string * GetDefaultSeparatorOfWord();
+typedef streamsize StreamSize;
+
+class CommentLine;
+class FileIO
 {
 public:
-    VirtualFile( fstream * file );
-    VirtualFile( DataBook * databook );
-public:
-    int type;
-    fstream * file;
-    DataBook * databook;
-public:
-    streamsize sectionBegin, sectionEnd, dataLength;
-public:
-    void Read ( void * data, streamsize size );
-    void Write( void * data, streamsize size );
+    FileIO();
+    ~FileIO();
 protected:
-    void MarkSectionBegin();
-    void MarkSectionEnd  ();
-    streamsize GetSectionBegin() { return sectionBegin; };
-    streamsize GetSectionEnd() { return sectionEnd; };
-    void MoveToPosition( streamsize sectionPosition );
-    void MoveToSectionBegin();
-    void MoveToSectionEnd();
-    void WriteDataLength();
+    std::string * line, * separator;
+    fstream * file;
+    int setfileFlag;
+protected:
+    std::string fileName;
+    ios_base::openmode fileOpenMode;
+    StreamSize filePosition;
+    CommentLine * commentLine;
 public:
-    void BeginWriteWork();
-    void EndWriteWork();
-    void BeginReadWork();
-    void EndReadWork();
+    void OpenFile( const string & fileName, const ios_base::openmode & fileOpenMode );
+    void OpenPrjFile( const string & fileName, const ios_base::openmode & fileOpenMode );
+    void CloseFile();
+    void MarkCurrentFilePosition();
+    void MoveToPreviousFilePosition();
+    string & GetCurrentLine() { return * this->line; };
+public:
+    void ResetCommentString( StringField &commentStringList );
+    void SetDefaultFile     ( std::fstream * defaultFileIn   );
+    void SetDefaultSeparator( const std::string & separatorIn   ) { * this->separator = separatorIn; };
 
-    void ReadDataLength();
-    void ReservePlaceholder();
-    streamsize GetCurrentPosition();
+    std::string  * GetDefaultLine     () { return line; }
+    std::fstream * GetDefaultFile     () { return file; }
+    std::string  * GetDefaultSeparator() { return separator; }
+public:
+    void SetLineContent( const std::string & lineContent ) { * this->line = lineContent; };
+    void ShiftLineContent( int numberOfChars ) { * this->line = ( * this->line ).substr( numberOfChars ); }
+
+    bool ReadNextMeaningfulLine();
+    bool ReachTheEndOfFile();
+public:
+    void SkipLines( int numberOfLinesToSkip );
+    bool ReadNextNonEmptyLine();
+    bool NextWordIsEmpty();
+    void DumpLineContentToScreen();
+    std::string ReadNextWord();
+    std::string ReadNextWord( const std::string & separator );
+    std::string ReadNextTrueWord();
+    std::string ReadNextWordToLowerCase();
+    std::string ReadNextWordToLowerCase( const std::string & separator );
+public:
+    void SkipReadSymbol( const string & stringSymbol );
+    void SkipReadWholeBlock();
+public:
+    template < typename T >
+    friend inline FileIO & operator >> ( FileIO & textFileRead, T & value )
+    {
+        fstream & file = * textFileRead.GetDefaultFile();
+        file >> value;
+        return textFileRead;
+    }
+
+    template < typename T >
+    T ReadNextDigit( ios_base & ( * f )( ios_base & ) = & std::dec )
+    {
+        std::string word = FileIO::ReadNextTrueWord();
+        T value = StringToDigit< T >( word, f );
+        return value;
+    }
+
+    template < typename T >
+    T ReadNextDigit( int & num, ios_base & ( * f )( ios_base & ) = & std::dec )
+    {
+        std::string word = FileIO::ReadNextTrueWord();
+        num = 1;
+        bool flag = FindString( word, "*" );
+        if ( flag )
+        {
+            string word_num = FindNextWord( word, "*" );
+            num = StringToDigit< int >( word_num, f );
+            word = FindNextWord( word, "*" );
+        }
+        T value = StringToDigit< T >( word, f );
+        return value;
+    }
+
 };
+
+template < typename T >
+inline T ReadNextDigit( ios_base & ( * f )( ios_base & ) = & std::dec )
+{
+    std::string * separatorOfWord = ONEFLOW::GetDefaultSeparatorOfWord();
+    std::string * defaultLine     = ONEFLOW::GetDefaultLine();
+
+    string word = ONEFLOW::FindNextWord( * defaultLine, * separatorOfWord );
+    T value = ONEFLOW::StringToDigit< T >( word, f );
+    return value;
+}
+
+template < typename T >
+inline T ReadNextDigit( std::string & source, const std::string & separatorOfWord, ios_base & ( * f )( ios_base & ) = & std::dec )
+{
+    string word = ONEFLOW::FindNextWord( source, separatorOfWord );
+    T value = ONEFLOW::StringToDigit< T >( word, f );
+    return value;
+}
+
+bool IsEmpty( fstream & file );
 
 EndNameSpace

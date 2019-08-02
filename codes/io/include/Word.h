@@ -21,32 +21,21 @@ License
 \*---------------------------------------------------------------------------*/
 
 #pragma once
-#include "FileIO.h"
-#include "DataBase.h"
-#include "DataBook.h"
+#include "HXDefine.h"
+using namespace std;
 
 BeginNameSpace( ONEFLOW )
 
-bool IsArrayParameter( const string & lineOfName );
-void ReadBasicData( FileIO & fileIO );
-void AnalysisArrayParameter( FileIO & fileIO, int keyWordIndex );
-int AnalysisScalarParameter( FileIO & fileIO, int keyWordIndex );
-int GetParameterArraySize( const string & word );
-void ReadHXFile( const std::string & fileName );
+class Word
+{
+public:
+    Word();
+    ~Word();
+public:
+    static bool IsEmptyLine  ( const string & line );
+    static bool IsCommentLine( const string & line );
+    static bool IsCommentLine( const string & line, StringField & comlist );
 
-void ReadControlInfo();
-void ReadPrjBaseDir();
-void ReadHXScript();
-void ReadMultiFile();
-void BroadcastControlParameterToAllProcessors();
-
-int GetNumberOfParameterFiles();
-std::string GetParameterFileName( int iFile = 0 );
-
-void CompressData( DataBase * dataBase, DataBook *& dataBook );
-void DecompressData( DataBase * dataBase, DataBook * dataBook );
-
-void CompressData( DataBook *& dataBook );
-void DecompressData( DataBook * dataBook );
+};
 
 EndNameSpace

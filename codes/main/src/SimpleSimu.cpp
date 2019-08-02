@@ -19,34 +19,30 @@ License
     along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 
 \*---------------------------------------------------------------------------*/
-
-#pragma once
-#include "FileIO.h"
-#include "DataBase.h"
-#include "DataBook.h"
+#include "SimpleSimu.h"
+#include <iostream>
+using namespace std;
 
 BeginNameSpace( ONEFLOW )
 
-bool IsArrayParameter( const string & lineOfName );
-void ReadBasicData( FileIO & fileIO );
-void AnalysisArrayParameter( FileIO & fileIO, int keyWordIndex );
-int AnalysisScalarParameter( FileIO & fileIO, int keyWordIndex );
-int GetParameterArraySize( const string & word );
-void ReadHXFile( const std::string & fileName );
+SimpleSimu::SimpleSimu( std::vector<std::string> &args )
+{
+    this->args = args;
+    this->ProcessCmdLineArgs( args );
+}
 
-void ReadControlInfo();
-void ReadPrjBaseDir();
-void ReadHXScript();
-void ReadMultiFile();
-void BroadcastControlParameterToAllProcessors();
+SimpleSimu::~SimpleSimu()
+{
+}
 
-int GetNumberOfParameterFiles();
-std::string GetParameterFileName( int iFile = 0 );
+void SimpleSimu::ProcessCmdLineArgs( std::vector<std::string> &args )
+{
+}
 
-void CompressData( DataBase * dataBase, DataBook *& dataBook );
-void DecompressData( DataBase * dataBase, DataBook * dataBook );
+void SimpleSimu::Run()
+{
+    cout << "SimpleSimu::Run\n";
+}
 
-void CompressData( DataBook *& dataBook );
-void DecompressData( DataBook * dataBook );
 
 EndNameSpace

@@ -30,7 +30,7 @@ class Stoichiometric;
 class BlotterCurve;
 class Thermodynamic;
 
-class AsciiFileRead;
+class FileIO;
 class DataBook;
 
 //通用气体常数，单位为J/( Mol * K )
@@ -91,7 +91,7 @@ public:
     void InitGasModel();
     void ReadGasModel();
     void Init( int nSpecies, int nReaction );
-    void ReadChemical( AsciiFileRead * ioFile );
+    void ReadChemical( FileIO * ioFile );
     void InitWorkingSpace();
     void AllocWorkingSpace();
 public:

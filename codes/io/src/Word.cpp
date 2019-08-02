@@ -20,33 +20,57 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#pragma once
-#include "FileIO.h"
-#include "DataBase.h"
-#include "DataBook.h"
+#include "Word.h"
+#include "BasicIO.h"
 
 BeginNameSpace( ONEFLOW )
 
-bool IsArrayParameter( const string & lineOfName );
-void ReadBasicData( FileIO & fileIO );
-void AnalysisArrayParameter( FileIO & fileIO, int keyWordIndex );
-int AnalysisScalarParameter( FileIO & fileIO, int keyWordIndex );
-int GetParameterArraySize( const string & word );
-void ReadHXFile( const std::string & fileName );
+Word::Word()
+{
+    ;
+}
 
-void ReadControlInfo();
-void ReadPrjBaseDir();
-void ReadHXScript();
-void ReadMultiFile();
-void BroadcastControlParameterToAllProcessors();
+Word::~Word()
+{
+    ;
+}
 
-int GetNumberOfParameterFiles();
-std::string GetParameterFileName( int iFile = 0 );
+bool Word::IsEmptyLine( const string & line )
+{
+    if ( line == "" )
+    {
+        return true;
+    }
+    else
+    {
+        const string notReadableSeparator = " \r\n\t";
+        string word;
+        TMP_FindNextWord( line, word, notReadableSeparator );
+        return word == "";
+    }
+}
 
-void CompressData( DataBase * dataBase, DataBook *& dataBook );
-void DecompressData( DataBase * dataBase, DataBook * dataBook );
+bool Word::IsCommentLine( const string & line )
+{
+    const string notReadableSeparator = " \r\n\t";
+    string word;
+    TMP_FindNextWord( line, word, notReadableSeparator );
+    return ( word.substr( 0, 1 ) == "#" ||
+        word.substr( 0, 2 ) == "//" );
+}
 
-void CompressData( DataBook *& dataBook );
-void DecompressData( DataBook * dataBook );
+bool Word::IsCommentLine(const string& line, StringField &comlist )
+{
+    const string notReadableSeparator = " \r\n\t";
+    string word;
+    TMP_FindNextWord(line, word, notReadableSeparator);
+    for (int i = 0; i < comlist.size(); ++ i)
+    {
+        string & t = comlist[ i ];
+        int n = t.length();
+        if ( word.substr(0, n) == t ) return true;
+    }
+    return false;
+}
 
 EndNameSpace

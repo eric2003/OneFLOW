@@ -24,7 +24,7 @@ License
 #include "UsdPara.h"
 #include "SolverInfo.h"
 #include "SolverDef.h"
-#include "AsciiFileIO.h"
+#include "FileIO.h"
 #include "DataBase.h"
 #include "RegisterUtil.h"
 #include "Zone.h"
@@ -291,7 +291,7 @@ void BoolIO::Add( const string & name, bool value )
     this->boolValueList.push_back( value );
 }
 
-void BoolIO::ReadBool( AsciiFileRead * ioFile )
+void BoolIO::ReadBool( FileIO * ioFile )
 {
     string varName = ioFile->ReadNextWord();
     string word    = ioFile->ReadNextWord(); //"="
@@ -304,7 +304,7 @@ void BoolIO::ReadBool( AsciiFileRead * ioFile )
     this->Add( varName, boolValue );
 }
 
-void BoolIO::ReadSuperBool( AsciiFileRead * ioFile )
+void BoolIO::ReadSuperBool( FileIO * ioFile )
 {
     string varName = ioFile->ReadNextWord();
     string word    = ioFile->ReadNextWord(); //"="
@@ -362,7 +362,7 @@ void BoolIO::ReadFile( const string & fileName, int valueFlag )
     //string separator  = " =\r\n\t#$,;\"()";
     string separator  = " \r\n\t#$,;\"()";
 
-    AsciiFileRead ioFile;
+    FileIO ioFile;
     ioFile.OpenFile( fileName, ios_base::in );
     ioFile.SetDefaultSeparator( separator );
 

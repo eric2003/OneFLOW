@@ -19,34 +19,24 @@ License
     along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 
 \*---------------------------------------------------------------------------*/
-
 #pragma once
-#include "FileIO.h"
-#include "DataBase.h"
-#include "DataBook.h"
+#include "Configure.h"
+#include <vector>
+#include <string>
 
 BeginNameSpace( ONEFLOW )
 
-bool IsArrayParameter( const string & lineOfName );
-void ReadBasicData( FileIO & fileIO );
-void AnalysisArrayParameter( FileIO & fileIO, int keyWordIndex );
-int AnalysisScalarParameter( FileIO & fileIO, int keyWordIndex );
-int GetParameterArraySize( const string & word );
-void ReadHXFile( const std::string & fileName );
-
-void ReadControlInfo();
-void ReadPrjBaseDir();
-void ReadHXScript();
-void ReadMultiFile();
-void BroadcastControlParameterToAllProcessors();
-
-int GetNumberOfParameterFiles();
-std::string GetParameterFileName( int iFile = 0 );
-
-void CompressData( DataBase * dataBase, DataBook *& dataBook );
-void DecompressData( DataBase * dataBase, DataBook * dataBook );
-
-void CompressData( DataBook *& dataBook );
-void DecompressData( DataBook * dataBook );
+class SimpleSimu
+{
+public:
+    SimpleSimu( std::vector<std::string> &args );
+    ~SimpleSimu();
+public:
+    void Run();
+protected:
+    void ProcessCmdLineArgs( std::vector<std::string> & args );
+public:
+    std::vector<std::string> args;
+};
 
 EndNameSpace

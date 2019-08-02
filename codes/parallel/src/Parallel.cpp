@@ -39,7 +39,6 @@ int Parallel::mode = 0;
 int Parallel::pid;
 int Parallel::nProc;
 int Parallel::serverid;
-int Parallel::numberOfZones;
 int Parallel::defaultTag = 0;
 
 Parallel::Parallel()

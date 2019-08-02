@@ -21,7 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 #include "SolverTaskReg.h"
 #include "DataBase.h"
-#include "AsciiFileIO.h"
+#include "FileIO.h"
 #include "BasicIO.h"
 #include "ActionMap.h"
 #include "Message.h"
@@ -92,7 +92,7 @@ void GetMsgFileNameList( StringField & fileNameList )
     string separator  = " =\r\n\t#$,;\"()";
     string fileName = "./system/action/actionFileList.txt";
 
-    AsciiFileRead ioFile;
+    FileIO ioFile;
     ioFile.OpenFile( fileName, ios_base::in );
     ioFile.SetDefaultSeparator( separator );
 
@@ -132,7 +132,7 @@ void GetSolverFileNames( const string & solverName, StringField & fileNameList )
     ostr << "fileList.txt";
     string keyFileName = ostr.str();
 
-    AsciiFileRead ioFile;
+    FileIO ioFile;
     ioFile.OpenFile( keyFileName, ios_base::in );
     ioFile.SetDefaultSeparator( separator );
 

@@ -22,7 +22,7 @@ License
 
 #include "Atmosphere.h"
 #include "HXMath.h"
-#include "AsciiFileIO.h"
+#include "FileIO.h"
 #include <cmath>
 #include <iostream>
 using namespace std;
@@ -45,7 +45,7 @@ void Atmosphere::Init()
 {
     if ( flag ) return;
     flag = true;
-    AsciiFileRead ioFile;
+    FileIO ioFile;
     string fileName = "./system/physics/atmosphere.txt";
     ioFile.OpenFile( fileName, ios_base::in );
 

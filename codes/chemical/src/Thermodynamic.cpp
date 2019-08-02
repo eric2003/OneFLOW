@@ -20,7 +20,7 @@ License
 
 \*---------------------------------------------------------------------------*/
 #include "Thermodynamic.h"
-#include "AsciiFileIO.h"
+#include "FileIO.h"
 #include "DataBook.h"
 #include "DataBaseIO.h"
 
@@ -43,7 +43,7 @@ void ThermodynamicFunction::Init( int nTSpan, int nPolyCoef )
     AllocateVector( polyCoef, nTSpan, nPolyCoef );
 }
 
-void ThermodynamicFunction::ReadPolynomialCoefficient( AsciiFileRead * ioFile )
+void ThermodynamicFunction::ReadPolynomialCoefficient( FileIO * ioFile )
 {
     string word;
     string separator = " =\r\n#$,;\"'";
@@ -108,7 +108,7 @@ void Thermodynamic::Init( int nSpecies )
     }
 }
 
-void Thermodynamic::Read( AsciiFileRead * ioFile )
+void Thermodynamic::Read( FileIO * ioFile )
 {
     string word;
     string separator = " =\r\n#$,;\"'";

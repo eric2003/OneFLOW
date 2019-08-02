@@ -26,7 +26,7 @@ License
 #include "LineInfo.h"
 #include "LineMesh.h"
 #include "LineMeshImp.h"
-#include "AsciiFileIO.h"
+#include "FileIO.h"
 #include "HXMath.h"
 #include <iostream>
 using namespace std;
@@ -107,7 +107,7 @@ void LineMachine::AddLine( int p1, int p2, int id )
     this->segmentCtrlList.push_back( segmentCtrl );
 }
 
-void LineMachine::AddDimension( AsciiFileRead * ioFile )
+void LineMachine::AddDimension( FileIO * ioFile )
 {
     int id = ioFile->ReadNextDigit< int >();
     int dim = ioFile->ReadNextDigit< int >();
@@ -116,7 +116,7 @@ void LineMachine::AddDimension( AsciiFileRead * ioFile )
     segmentCtrl->nPoint = dim;
 }
 
-void LineMachine::AddDs( AsciiFileRead * ioFile )
+void LineMachine::AddDs( FileIO * ioFile )
 {
     int id = ioFile->ReadNextDigit< int >();
     SegmentCtrl * segmentCtrl = this->GetSegmentCtrl( id );
