@@ -21,7 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "DomainMachine.h"
-#include "AsciiFileIO.h"
+#include "FileIO.h"
 #include "HXMath.h"
 #include <iostream>
 using namespace std;
@@ -38,7 +38,7 @@ DomainMachine::~DomainMachine()
 {
 }
 
-void DomainMachine::AddBcType( AsciiFileRead * ioFile )
+void DomainMachine::AddBcType( FileIO * ioFile )
 {
     int id = ioFile->ReadNextDigit< int >();
     int bctype = ioFile->ReadNextDigit< int >();

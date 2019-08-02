@@ -24,7 +24,7 @@ along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 
 BeginNameSpace( ONEFLOW )
 
-class AsciiFileRead;
+class FileIO;
 class DataBook;
 
 class ReactionRate
@@ -40,7 +40,7 @@ public:
     RealField b1, b2, b3;
 public:
     void Init( int nReaction );
-    void Read( AsciiFileRead * ioFile );
+    void Read( FileIO * ioFile );
     void Read ( DataBook * dataBook );
     void Write( DataBook * dataBook );
 };

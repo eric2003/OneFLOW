@@ -43,7 +43,7 @@ License
 #include "NodeMesh.h"
 #include "BgGrid.h"
 #include "GridState.h"
-#include "AsciiFileIO.h"
+#include "FileIO.h"
 #include "Dimension.h"
 #include "HXMath.h"
 #include "Zone.h"
@@ -354,7 +354,7 @@ void Su2Grid::ReadSu2Grid( GridMediator * gridMediator )
 
 void Su2Grid::ReadSu2GridAscii( string & fileName )
 {
-    AsciiFileRead ioFile;
+    FileIO ioFile;
     string separator  = " =\r\n\t#$,;";
     ioFile.OpenPrjFile( fileName, ios_base::in );
     ioFile.SetDefaultSeparator( separator );
@@ -460,7 +460,7 @@ void Su2Grid::ReadSu2GridAscii( string & fileName )
 
 void Su2Grid::MarkBoundary( string & su2cfgFile)
 {
-    AsciiFileRead ioFile;
+    FileIO ioFile;
     string separator = " =\r\n\t#$,;()";
     ioFile.OpenPrjFile(su2cfgFile, ios_base::in);
     ioFile.SetDefaultSeparator(separator);

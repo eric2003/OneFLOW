@@ -21,7 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 #include "MolecularProperty.h"
 #include "SchmidtNumber.h"
-#include "AsciiFileIO.h"
+#include "FileIO.h"
 #include "DataBook.h"
 #include "DataBaseIO.h"
 
@@ -57,7 +57,7 @@ void MolecularProperty::Init( int nSpecies )
     schmidtNumber->Init( nSpecies );
 }
 
-void MolecularProperty::Read( AsciiFileRead * ioFile )
+void MolecularProperty::Read( FileIO * ioFile )
 {
     //string word;
     string separator = " =\r\n#$,;\"'";

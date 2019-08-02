@@ -20,7 +20,7 @@ License
 
 \*---------------------------------------------------------------------------*/
 #include "Stoichiometric.h"
-#include "AsciiFileIO.h"
+#include "FileIO.h"
 #include "DataBook.h"
 #include "DataBaseIO.h"
 
@@ -46,7 +46,7 @@ void Stoichiometric::Init( int nSpecies, int nReaction )
     AllocateVector( mt, nReaction, nSpecies );
 }
 
-void Stoichiometric::Read( AsciiFileRead * ioFile )
+void Stoichiometric::Read( FileIO * ioFile )
 {
     string word;
     string separator = " =\r\n#$,;\"'";

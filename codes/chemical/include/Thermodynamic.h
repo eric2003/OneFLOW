@@ -24,7 +24,7 @@ along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 
 BeginNameSpace( ONEFLOW )
 
-class AsciiFileRead;
+class FileIO;
 class DataBook;
 
 class ThermodynamicFunction
@@ -37,7 +37,7 @@ public:
     RealField2D polyCoef;
 public:
     void Init( int nTSpan, int nPolyCoef );
-    void ReadPolynomialCoefficient( AsciiFileRead * ioFile );
+    void ReadPolynomialCoefficient( FileIO * ioFile );
     void ReadPolynomialCoefficient( DataBook * dataBook );
     void WritePolynomialCoefficient( DataBook * dataBook );
 };
@@ -54,7 +54,7 @@ public:
     RealField trange;
 public:
     void Init( int nSpecies );
-    void Read( AsciiFileRead * ioFile );
+    void Read( FileIO * ioFile );
 public:
     void Read( DataBook * dataBook );
     void Write( DataBook * dataBook );

@@ -23,7 +23,7 @@ License
 
 #pragma once
 #include "HXDefine.h"
-#include "AsciiFileIO.h"
+#include "FileIO.h"
 #include <map>
 using namespace std;
 BeginNameSpace( ONEFLOW )

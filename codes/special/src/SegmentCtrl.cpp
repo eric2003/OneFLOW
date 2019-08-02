@@ -23,7 +23,7 @@ License
 #include "SegmentCtrl.h"
 #include "LineMachine.h"
 #include "LineMesh.h"
-#include "AsciiFileIO.h"
+#include "FileIO.h"
 #include "HXMath.h"
 #include <iostream>
 using namespace std;
@@ -42,7 +42,7 @@ SegmentCtrl::~SegmentCtrl()
     delete segmentCopy;
 }
 
-void SegmentCtrl::Read( AsciiFileRead * ioFile )
+void SegmentCtrl::Read( FileIO * ioFile )
 {
     string distributionString = ioFile->ReadNextWord();
 
@@ -390,7 +390,7 @@ SegmentCopy::~SegmentCopy()
     ;
 }
 
-void SegmentCopy::Read( AsciiFileRead * ioFile )
+void SegmentCopy::Read( FileIO * ioFile )
 {
     while ( true )
     {

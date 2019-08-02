@@ -31,7 +31,7 @@ using namespace std;
 BeginNameSpace( ONEFLOW )
 
 class GridMediator;
-class AsciiFileRead;
+class FileIO;
 const int MAX_VTK_TYPE = 100;
 class VTK_TYPE
 {

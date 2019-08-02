@@ -50,7 +50,7 @@ bool IsArrayParameter( const string & lineOfName )
     return true;
 }
 
-void ReadBasicData( AsciiFileRead & asciiFileRead )
+void ReadBasicData( FileIO & asciiFileRead )
 {
     //string name, word;
 
@@ -90,7 +90,7 @@ void ReadBasicData( AsciiFileRead & asciiFileRead )
     }
 }
 
-void AnalysisArrayParameter( AsciiFileRead & asciiFileRead, int keyWordIndex )
+void AnalysisArrayParameter( FileIO & asciiFileRead, int keyWordIndex )
 {
     string errorMessage = "error in parameter file";
     string arrayParameterSeparator = "=\r\n\t#$,;\"";
@@ -127,7 +127,7 @@ void AnalysisArrayParameter( AsciiFileRead & asciiFileRead, int keyWordIndex )
     delete[] valueContainer;
 }
 
-int AnalysisScalarParameter( AsciiFileRead & asciiFileRead, int keyWordIndex )
+int AnalysisScalarParameter( FileIO & asciiFileRead, int keyWordIndex )
 {
     string errorMessage = "error in parameter file";
     string separator = " =\r\n\t#$,;\"";  //\t is tab key
@@ -162,7 +162,7 @@ int GetParameterArraySize( const string & word )
 
 void ReadHXFile( const std::string & fileName )
 {
-    AsciiFileRead asciiFileRead;
+    FileIO asciiFileRead;
 
     asciiFileRead.OpenFile( fileName, ios_base::in );
 

@@ -21,16 +21,16 @@ License
 \*---------------------------------------------------------------------------*/
 
 #pragma once
-#include "AsciiFileIO.h"
+#include "FileIO.h"
 #include "DataBase.h"
 #include "DataBook.h"
 
 BeginNameSpace( ONEFLOW )
 
 bool IsArrayParameter( const string & lineOfName );
-void ReadBasicData( AsciiFileRead & asciiFileRead );
-void AnalysisArrayParameter( AsciiFileRead & asciiFileRead, int keyWordIndex );
-int AnalysisScalarParameter( AsciiFileRead & asciiFileRead, int keyWordIndex );
+void ReadBasicData( FileIO & asciiFileRead );
+void AnalysisArrayParameter( FileIO & asciiFileRead, int keyWordIndex );
+int AnalysisScalarParameter( FileIO & asciiFileRead, int keyWordIndex );
 int GetParameterArraySize( const string & word );
 void ReadHXFile( const std::string & fileName );
 

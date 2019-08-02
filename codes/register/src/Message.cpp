@@ -21,7 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "Message.h"
-#include "AsciiFileIO.h"
+#include "FileIO.h"
 
 BeginNameSpace( ONEFLOW )
 map< string, int > * MessageMap::nameMap = 0;
@@ -96,7 +96,7 @@ void MessageMap::ReadFile( const string & fileName )
     //\tÎªtab¼ü
     string separator = " =\r\n\t#$,;\"";
 
-    AsciiFileRead ioFile;
+    FileIO ioFile;
     ioFile.OpenFile( fileName, ios_base::in );
     ioFile.SetDefaultSeparator( separator );
 

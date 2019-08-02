@@ -27,7 +27,7 @@ License
 #include "Thermodynamic.h"
 #include "NsCom.h"
 #include "Parallel.h"
-#include "AsciiFileIO.h"
+#include "FileIO.h"
 #include "DataBook.h"
 #include "Atmosphere.h"
 #include "HXMath.h"
@@ -111,7 +111,7 @@ void Chemical::AllocWorkingSpace()
 
 void Chemical::ReadGasModel()
 {
-    AsciiFileRead ioFile;
+    FileIO ioFile;
 
     ioFile.OpenPrjFile( nscom.gasModelFile, ios_base::in );
     string separator = " =\r\n#$,;\"'";
@@ -138,7 +138,7 @@ void Chemical::Init( int nSpecies, int nReaction )
     thermodynamic->Init( nSpecies );
 }
 
-void Chemical::ReadChemical( AsciiFileRead * ioFile )
+void Chemical::ReadChemical( FileIO * ioFile )
 {
     moleProp->Read( ioFile );
     reactionRate->Read( ioFile );

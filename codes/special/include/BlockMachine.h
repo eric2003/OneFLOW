@@ -30,7 +30,7 @@ BeginNameSpace( ONEFLOW )
 class BlockInfo;
 class BlockMesh;
 class Grid;
-class AsciiFileRead;
+class FileIO;
 
 class BlockMachine
 {
@@ -41,7 +41,7 @@ public:
     HXVector< BlockInfo * > blockInfoList;
     HXVector< BlockMesh * > blockMeshList;
 public:
-    void AddFaceToBlock( AsciiFileRead * ioFile );
+    void AddFaceToBlock( FileIO * ioFile );
     void ConstructBlockTopo();
     void GenerateAllBlockMesh();
     void DumpStandardGrid();

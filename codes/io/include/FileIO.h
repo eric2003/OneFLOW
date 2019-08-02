@@ -39,11 +39,11 @@ std::string * GetDefaultSeparatorOfWord();
 typedef streamsize StreamSize;
 
 class CommentLineClass;
-class AsciiFileRead
+class FileIO
 {
 public:
-    AsciiFileRead();
-    ~AsciiFileRead();
+    FileIO();
+    ~FileIO();
 protected:
     std::string * line, * separator;
     fstream * file;
@@ -89,7 +89,7 @@ public:
     void SkipReadWholeBlock();
 public:
     template < typename T >
-    friend inline AsciiFileRead & operator >> ( AsciiFileRead & textFileRead, T & value )
+    friend inline FileIO & operator >> ( FileIO & textFileRead, T & value )
     {
         fstream & file = * textFileRead.GetDefaultFile();
         file >> value;
@@ -99,7 +99,7 @@ public:
     template < typename T >
     T ReadNextDigit( ios_base & ( * f )( ios_base & ) = & std::dec )
     {
-        std::string word = AsciiFileRead::ReadNextTrueWord();
+        std::string word = FileIO::ReadNextTrueWord();
         T value = StringToDigit< T >( word, f );
         return value;
     }
@@ -107,7 +107,7 @@ public:
     template < typename T >
     T ReadNextDigit( int & num, ios_base & ( * f )( ios_base & ) = & std::dec )
     {
-        std::string word = AsciiFileRead::ReadNextTrueWord();
+        std::string word = FileIO::ReadNextTrueWord();
         num = 1;
         bool flag = FindString( word, "*" );
         if ( flag )

@@ -20,7 +20,7 @@ License
 
 \*---------------------------------------------------------------------------*/
 #include "BlotterCurve.h"
-#include "AsciiFileIO.h"
+#include "FileIO.h"
 #include "DataBook.h"
 #include "DataBaseIO.h"
 
@@ -47,7 +47,7 @@ void BlotterCurve::Init( int nSpecies )
     e.resize( nSpecies );
 }
 
-void BlotterCurve::Read( AsciiFileRead * ioFile )
+void BlotterCurve::Read( FileIO * ioFile )
 {
     string word;
     string separator = " =\r\n#$,;\"'";

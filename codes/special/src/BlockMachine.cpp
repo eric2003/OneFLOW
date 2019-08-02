@@ -23,7 +23,7 @@ License
 #include "BlockMachine.h"
 #include "LineMachine.h"
 #include "CurveInfo.h"
-#include "AsciiFileIO.h"
+#include "FileIO.h"
 #include "BgGrid.h"
 #include "StrGrid.h"
 #include "GridState.h"
@@ -51,7 +51,7 @@ BlockMachine::~BlockMachine()
 {
 }
 
-void BlockMachine::AddFaceToBlock( AsciiFileRead * ioFile )
+void BlockMachine::AddFaceToBlock( FileIO * ioFile )
 {
     string word = ioFile->ReadNextWord();
     if ( word == "L2F" )

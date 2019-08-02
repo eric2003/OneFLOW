@@ -34,7 +34,7 @@ License
 #include "Boundary.h"
 #include "HXMath.h"
 #include "DataBase.h"
-#include "AsciiFileIO.h"
+#include "FileIO.h"
 #include <iostream>
 using namespace std;
 
@@ -294,7 +294,7 @@ void Cylinder::SetBoundaryGrid()
     string fileName = GetDataValue< string >( "gridLayoutFileName" );
     string separator = " =\r\n\t#$,;\"";
 
-    AsciiFileRead ioFile;
+    FileIO ioFile;
 
     ioFile.OpenPrjFile( fileName, ios_base::in );
     ioFile.SetDefaultSeparator( separator );

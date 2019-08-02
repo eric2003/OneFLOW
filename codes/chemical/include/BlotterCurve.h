@@ -24,7 +24,7 @@ along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 
 BeginNameSpace( ONEFLOW )
 
-class AsciiFileRead;
+class FileIO;
 class DataBook;
 
 class BlotterCurve
@@ -37,7 +37,7 @@ public:
     RealField a, b, c, d, e;
 public:
     void Init( int nSpecies );
-    void Read( AsciiFileRead * ioFile );
+    void Read( FileIO * ioFile );
     void Read( DataBook * dataBook );
     void Write( DataBook * dataBook );
 };

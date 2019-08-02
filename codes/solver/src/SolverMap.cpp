@@ -202,7 +202,7 @@ void SolverNameClass::ReadSolverNames()
 
 void SolverNameClass::ReadSolverNames( StringField & solverNameList )
 {
-    AsciiFileRead ioFile;
+    FileIO ioFile;
 
     ioFile.OpenPrjFile( "script/solver.txt", ios_base::in );
 

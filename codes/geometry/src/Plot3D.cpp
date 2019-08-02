@@ -28,7 +28,7 @@ License
 #include "NodeMesh.h"
 #include "BgGrid.h"
 #include "GridState.h"
-#include "AsciiFileIO.h"
+#include "FileIO.h"
 #include "Dimension.h"
 #include "HXMath.h"
 #include "Zone.h"
@@ -146,7 +146,7 @@ void Plot3D::ReadCoorAscii( GridMediator * gridMediator )
 {
     string & fileName = gridMediator->gridFile;
 
-    AsciiFileRead ioFile;
+    FileIO ioFile;
     string separator  = " =\r\n\t#$,;";
     ioFile.OpenPrjFile( fileName, ios_base::in );
     ioFile.SetDefaultSeparator( separator );
@@ -249,7 +249,7 @@ void Plot3D::ReadBc( GridMediator * gridMediator )
     //\tÎªtab¼ü
     string separator = " =\r\n#$,;";
 
-    AsciiFileRead ioFile;
+    FileIO ioFile;
     ioFile.OpenPrjFile( bcName, ios_base::in );
     ioFile.SetDefaultSeparator( separator );
 
@@ -378,7 +378,7 @@ void Plot3D::ReadBc( GridMediator * gridMediator )
     ioFile.CloseFile();
 }
 
-void Plot3D::ReadCoor( AsciiFileRead * ioFile, RealField & coordinate )
+void Plot3D::ReadCoor( FileIO * ioFile, RealField & coordinate )
 {
     UInt numberOfNodes = coordinate.size();
     UInt i = 0;
@@ -400,7 +400,7 @@ void Plot3D::ReadCoor( AsciiFileRead * ioFile, RealField & coordinate )
     }
 }
 
-void Plot3D::ReadCoor( AsciiFileRead * ioFile, RealField & coor, int total_size )
+void Plot3D::ReadCoor( FileIO * ioFile, RealField & coor, int total_size )
 {
     while ( coor.size() < total_size )
     {

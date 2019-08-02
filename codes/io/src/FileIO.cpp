@@ -20,7 +20,7 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "AsciiFileIO.h"
+#include "FileIO.h"
 #include "Prj.h"
 #include <iostream>
 using namespace std;
@@ -49,7 +49,7 @@ std::string * GetDefaultSeparatorOfWord()
     return separatorOfWord;
 }
 
-AsciiFileRead::AsciiFileRead()
+FileIO::FileIO()
 {
     line        = new std::string;
     separator   = new std::string;
@@ -64,7 +64,7 @@ AsciiFileRead::AsciiFileRead()
     this->commentLineClass->AddString("//");
 }
 
-AsciiFileRead::~AsciiFileRead()
+FileIO::~FileIO()
 {
     delete line;
     delete separator;
@@ -75,12 +75,12 @@ AsciiFileRead::~AsciiFileRead()
     delete this->commentLineClass;
 }
 
-void AsciiFileRead::ResetCommentString(StringField& commentStringList)
+void FileIO::ResetCommentString(StringField& commentStringList)
 {
     this->commentLineClass->ResetCommentString(commentStringList);
 }
 
-void AsciiFileRead::SetDefaultFile ( std::fstream * defaultFileIn )
+void FileIO::SetDefaultFile ( std::fstream * defaultFileIn )
 {
     if ( setfileFlag == 0 )
     {
@@ -90,36 +90,36 @@ void AsciiFileRead::SetDefaultFile ( std::fstream * defaultFileIn )
     setfileFlag = 1;
 }
 
-void AsciiFileRead::OpenFile( const string & fileName, const ios_base::openmode & fileOpenMode )
+void FileIO::OpenFile( const string & fileName, const ios_base::openmode & fileOpenMode )
 {
     this->fileName     = fileName;
     this->fileOpenMode = fileOpenMode;
     ONEFLOW::OpenFile( * file, fileName, fileOpenMode );
 }
 
-void AsciiFileRead::OpenPrjFile( const string & fileName, const ios_base::openmode & fileOpenMode )
+void FileIO::OpenPrjFile( const string & fileName, const ios_base::openmode & fileOpenMode )
 {
     this->fileName     = fileName;
     this->fileOpenMode = fileOpenMode;
     ONEFLOW::OpenPrjFile( * file, fileName, fileOpenMode );
 }
 
-void AsciiFileRead::CloseFile()
+void FileIO::CloseFile()
 {
     ONEFLOW::CloseFile( * file );
 }
 
-void AsciiFileRead::MarkCurrentFilePosition()
+void FileIO::MarkCurrentFilePosition()
 {
     filePosition = file->tellp();
 }
 
-void AsciiFileRead::MoveToPreviousFilePosition()
+void FileIO::MoveToPreviousFilePosition()
 {
     file->seekp( filePosition );
 }
 
-bool AsciiFileRead::ReadNextMeaningfulLine()
+bool FileIO::ReadNextMeaningfulLine()
 {
     while ( ! this->ReachTheEndOfFile() )
     {
@@ -135,7 +135,7 @@ bool AsciiFileRead::ReadNextMeaningfulLine()
     return false;
 }
 
-bool AsciiFileRead::ReachTheEndOfFile()
+bool FileIO::ReachTheEndOfFile()
 {
     if ( ( * file ).eof() )
     {
@@ -144,22 +144,22 @@ bool AsciiFileRead::ReachTheEndOfFile()
     return false;
 }
 
-void AsciiFileRead::SkipLines( int numberOfLinesToSkip )
+void FileIO::SkipLines( int numberOfLinesToSkip )
 {
     ONEFLOW::SkipLines( * file, numberOfLinesToSkip );
 }
 
-bool AsciiFileRead::ReadNextNonEmptyLine()
+bool FileIO::ReadNextNonEmptyLine()
 {
     return ONEFLOW::ReadNextNonEmptyLine( * this->file, * this->line );
 }
 
-void AsciiFileRead::DumpLineContentToScreen()
+void FileIO::DumpLineContentToScreen()
 {
     cout << * line << endl;
 }
 
-void AsciiFileRead::SkipReadSymbol( const string & stringSymbol )
+void FileIO::SkipReadSymbol( const string & stringSymbol )
 {
     while ( ! this->ReachTheEndOfFile() )
     {
@@ -175,7 +175,7 @@ void AsciiFileRead::SkipReadSymbol( const string & stringSymbol )
     }
 }
 
-void AsciiFileRead::SkipReadWholeBlock()
+void FileIO::SkipReadWholeBlock()
 {
     int countOfLeftBrackets  = 0;
     int countOfRightBrackets = 0;
@@ -203,14 +203,14 @@ void AsciiFileRead::SkipReadWholeBlock()
     }
 }
 
-bool AsciiFileRead::NextWordIsEmpty()
+bool FileIO::NextWordIsEmpty()
 {
     std::string lineLeft = * this->line;
     string word = ONEFLOW::FindNextWord( lineLeft, * this->separator );
     return word == "";
 }
 
-std::string AsciiFileRead::ReadNextTrueWord()
+std::string FileIO::ReadNextTrueWord()
 {
     string word = ONEFLOW::FindNextWord( * this->line, * this->separator );
 
@@ -223,27 +223,27 @@ std::string AsciiFileRead::ReadNextTrueWord()
     return word;
 }
 
-std::string AsciiFileRead::ReadNextWord()
+std::string FileIO::ReadNextWord()
 {
     string word = ONEFLOW::FindNextWord( * this->line, * this->separator );
 
     return word;
 }
 
-std::string AsciiFileRead::ReadNextWord( const std::string & separator )
+std::string FileIO::ReadNextWord( const std::string & separator )
 {
     string word = ONEFLOW::FindNextWord( * this->line, separator );
     return word;
 }
 
-string AsciiFileRead::ReadNextWordToLowerCase()
+string FileIO::ReadNextWordToLowerCase()
 {
     string word = ONEFLOW::FindNextWord( * this->line, * this->separator );
     ONEFLOW::ToLowerCase( word );
     return word;
 }
 
-string AsciiFileRead::ReadNextWordToLowerCase( const std::string & separator )
+string FileIO::ReadNextWordToLowerCase( const std::string & separator )
 {
     string word = ONEFLOW::FindNextWord( * this->line, separator );
     ONEFLOW::ToLowerCase( word );
