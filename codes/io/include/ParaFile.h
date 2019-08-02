@@ -34,7 +34,7 @@ int AnalysisScalarParameter( AsciiFileRead & asciiFileRead, int keyWordIndex );
 int GetParameterArraySize( const string & word );
 void ReadHXFile( const std::string & fileName );
 
-void ReadControlInformation();
+void ReadControlInfo();
 void ReadPrjBaseDir();
 void ReadHXScript();
 void ReadMultiFile();

@@ -115,7 +115,7 @@ void SimuImp::InitSimu()
 {
     cout << "OneFlow running\n";
     ONEFLOW::SetUpParallelEnvironment();
-    ONEFLOW::ReadControlInformation();
+    ONEFLOW::ReadControlInfo();
 }
 
 

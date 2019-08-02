@@ -171,7 +171,7 @@ void ReadHXFile( const std::string & fileName )
     asciiFileRead.CloseFile();
 }
 
-void ReadControlInformation()
+void ReadControlInfo()
 {
     if ( Parallel::IsServer() )
     {
