@@ -50,14 +50,14 @@ bool IsArrayParameter( const string & lineOfName )
     return true;
 }
 
-void ReadBasicData( FileIO & asciiFileRead )
+void ReadBasicData( FileIO & fileIO )
 {
     //string name, word;
 
     //\tÎªtab¼ü
     string keyWordSeparator = " =\r\n\t#$,;\"";
 
-    asciiFileRead.SetDefaultSeparator( keyWordSeparator );
+    fileIO.SetDefaultSeparator( keyWordSeparator );
 
     map < string, int > keyWordMap;
 
@@ -68,34 +68,34 @@ void ReadBasicData( FileIO & asciiFileRead )
     keyWordMap.insert( pair< string, int >( "string", HX_STRING ) );
     keyWordMap.insert( pair< string, int >( "bool", HX_BOOL ) );
 
-    while ( ! asciiFileRead.ReachTheEndOfFile() )
+    while ( ! fileIO.ReachTheEndOfFile() )
     {
-        bool resultFlag = asciiFileRead.ReadNextMeaningfulLine();
+        bool resultFlag = fileIO.ReadNextMeaningfulLine();
         if ( ! resultFlag ) break;
 
-        string keyWord = asciiFileRead.ReadNextWord();
+        string keyWord = fileIO.ReadNextWord();
 
         if ( keyWord == "" ) continue;
 
         int keyWordIndex = keyWordMap[ keyWord ];
 
-        if ( ONEFLOW::IsArrayParameter( asciiFileRead.GetCurrentLine() ) )
+        if ( ONEFLOW::IsArrayParameter( fileIO.GetCurrentLine() ) )
         {
-            ONEFLOW::AnalysisArrayParameter( asciiFileRead, keyWordIndex );
+            ONEFLOW::AnalysisArrayParameter( fileIO, keyWordIndex );
         }
         else
         {
-            ONEFLOW::AnalysisScalarParameter( asciiFileRead, keyWordIndex );
+            ONEFLOW::AnalysisScalarParameter( fileIO, keyWordIndex );
         }
     }
 }
 
-void AnalysisArrayParameter( FileIO & asciiFileRead, int keyWordIndex )
+void AnalysisArrayParameter( FileIO & fileIO, int keyWordIndex )
 {
     string errorMessage = "error in parameter file";
     string arrayParameterSeparator = "=\r\n\t#$,;\"";
 
-    string compositeArrayParameterNameInformation = asciiFileRead.ReadNextWord( arrayParameterSeparator );
+    string compositeArrayParameterNameInformation = fileIO.ReadNextWord( arrayParameterSeparator );
 
     //Array pattern
     string compositeArrayParameterSeparator = " =\r\n\t#$,;\"[]";
@@ -110,12 +110,12 @@ void AnalysisArrayParameter( FileIO & asciiFileRead, int keyWordIndex )
 
     for ( int i = 0; i < arraySize; ++ i )
     {
-        valueContainer[ i ] = asciiFileRead.ReadNextWord( compositeArrayParameterSeparator );
+        valueContainer[ i ] = fileIO.ReadNextWord( compositeArrayParameterSeparator );
         //It shows that these contents can't be written within 1 lines
         if ( valueContainer[ i ] == "" )
         {
-            asciiFileRead.ReadNextNonEmptyLine();
-            valueContainer[ i ] = asciiFileRead.ReadNextWord( compositeArrayParameterSeparator );
+            fileIO.ReadNextNonEmptyLine();
+            valueContainer[ i ] = fileIO.ReadNextWord( compositeArrayParameterSeparator );
             if ( valueContainer[ i ] == "" )
             {
                 Stop( errorMessage );
@@ -127,17 +127,17 @@ void AnalysisArrayParameter( FileIO & asciiFileRead, int keyWordIndex )
     delete[] valueContainer;
 }
 
-int AnalysisScalarParameter( FileIO & asciiFileRead, int keyWordIndex )
+int AnalysisScalarParameter( FileIO & fileIO, int keyWordIndex )
 {
     string errorMessage = "error in parameter file";
     string separator = " =\r\n\t#$,;\"";  //\t is tab key
 
-    string name = asciiFileRead.ReadNextWord( separator );
+    string name = fileIO.ReadNextWord( separator );
 
     int arraySize = 1;
     string * value = new string[ arraySize ];
 
-    value[ 0 ] = asciiFileRead.ReadNextWord( separator );
+    value[ 0 ] = fileIO.ReadNextWord( separator );
 
     ONEFLOW::ProcessData( name, value, keyWordIndex, arraySize );
 
@@ -162,13 +162,13 @@ int GetParameterArraySize( const string & word )
 
 void ReadHXFile( const std::string & fileName )
 {
-    FileIO asciiFileRead;
+    FileIO fileIO;
 
-    asciiFileRead.OpenFile( fileName, ios_base::in );
+    fileIO.OpenFile( fileName, ios_base::in );
 
-    ONEFLOW::ReadBasicData( asciiFileRead );
+    ONEFLOW::ReadBasicData( fileIO );
 
-    asciiFileRead.CloseFile();
+    fileIO.CloseFile();
 }
 
 void ReadControlInfo()

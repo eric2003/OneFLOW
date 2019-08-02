@@ -28,9 +28,9 @@ License
 BeginNameSpace( ONEFLOW )
 
 bool IsArrayParameter( const string & lineOfName );
-void ReadBasicData( FileIO & asciiFileRead );
-void AnalysisArrayParameter( FileIO & asciiFileRead, int keyWordIndex );
-int AnalysisScalarParameter( FileIO & asciiFileRead, int keyWordIndex );
+void ReadBasicData( FileIO & fileIO );
+void AnalysisArrayParameter( FileIO & fileIO, int keyWordIndex );
+int AnalysisScalarParameter( FileIO & fileIO, int keyWordIndex );
 int GetParameterArraySize( const string & word );
 void ReadHXFile( const std::string & fileName );
 
