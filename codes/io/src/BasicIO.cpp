@@ -21,6 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "BasicIO.h"
+#include "Word.h"
 #include "BasicParallel.h"
 #include "LogFile.h"
 #ifdef _WINDOWS
@@ -85,88 +86,6 @@ void CloseFile( fstream & file )
     file.clear();
 }
 
-void TrimBlanks( string & source )
-{
-    string::size_type firstIndex, nextIndex;
-
-    firstIndex = source.find_first_not_of( " " );
-    nextIndex  = source.find_last_not_of( " " );
-
-    source = source.substr( firstIndex, nextIndex - firstIndex + 1 );
-}
-
-void SkipLines( fstream & file, int numberOfLines )
-{
-    string line;
-    for ( int iLine = 0; iLine < numberOfLines; ++ iLine )
-    {
-        ONEFLOW::ReadNextLine( file, line );
-        if ( file.eof() ) return;
-    }
-}
-
-void ReadNextLine( fstream & file, string & line )
-{
-    std::getline( file, line );
-}
-
-string TMP_FindNextWord( const string & source, string & word, const string & separator )
-{
-    string::size_type firstIndex, nextIndex, notFindIndex = - 1;
-    string emptyString = "";
-    firstIndex = source.find_first_not_of( separator, 0 );
-
-    if ( firstIndex == notFindIndex )
-    {
-        word = emptyString;
-        return emptyString;
-    }
-    nextIndex = source.find_first_of( separator, firstIndex );
-    if ( nextIndex == notFindIndex )
-    {
-        word = source.substr( firstIndex );
-        return emptyString;
-    }
-    else
-    {
-        word = source.substr( firstIndex, nextIndex - firstIndex );
-        return source.substr( nextIndex );
-    }
-    return emptyString;
-}
-
-string FindNextWord( string & source, const string & separator )
-{
-    string::size_type firstIndex, nextIndex, notFindIndex = - 1;
-    string emptyString = "";
-    firstIndex = source.find_first_not_of( separator, 0 );
-
-    if ( firstIndex == notFindIndex )
-    {
-        return emptyString;
-    }
-
-    nextIndex = source.find_first_of( separator, firstIndex );
-    if ( nextIndex == notFindIndex )
-    {
-        string word = source.substr( firstIndex );
-        source = emptyString;
-        return word;
-    }
-    else
-    {
-        string word = source.substr( firstIndex, nextIndex - firstIndex );
-        source = source.substr( nextIndex );
-        return word;
-    }
-    return emptyString;
-}
-
-bool FindString( const string & source, const string & word )
-{
-    return source.find( word ) != string::npos;
-
-}
 
 void GetFileNameExtension( const string & fullName, string & mainName, string & extensionName, const string & fileNameSeparator )
 {
@@ -205,7 +124,7 @@ bool ReadNextNonEmptyLine( fstream & file, string & line )
 
     do
     {
-        ONEFLOW::ReadNextLine( file, line );
+        Word::ReadNextLine( file, line );
 
         for ( string::iterator iter = line.begin(); iter != line.end(); ++ iter )
         {

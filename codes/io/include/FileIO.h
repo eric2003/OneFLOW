@@ -24,6 +24,7 @@ License
 #include <fstream>
 #include <sstream>
 #include "BasicIO.h"
+#include "Word.h"
 #include "HXDefine.h"
 using namespace std;
 
@@ -109,12 +110,12 @@ public:
     {
         std::string word = FileIO::ReadNextTrueWord();
         num = 1;
-        bool flag = FindString( word, "*" );
+        bool flag = Word::FindString( word, "*" );
         if ( flag )
         {
-            string word_num = FindNextWord( word, "*" );
+            string word_num = Word::FindNextWord( word, "*" );
             num = StringToDigit< int >( word_num, f );
-            word = FindNextWord( word, "*" );
+            word = Word::FindNextWord( word, "*" );
         }
         T value = StringToDigit< T >( word, f );
         return value;

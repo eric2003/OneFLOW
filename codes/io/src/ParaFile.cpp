@@ -101,8 +101,8 @@ void AnalysisArrayParameter( FileIO & fileIO, int keyWordIndex )
     string arraySeparator = " =\r\n\t#$,;\"[]";
     string arrayName, arraySizeName;
 
-    arrayName = ONEFLOW::FindNextWord( ayrrayInfo, arraySeparator );
-    arraySizeName = ONEFLOW::FindNextWord( ayrrayInfo, arraySeparator );
+    arrayName = Word::FindNextWord( ayrrayInfo, arraySeparator );
+    arraySizeName = Word::FindNextWord( ayrrayInfo, arraySeparator );
 
     int arraySize = ONEFLOW::GetParameterArraySize( arraySizeName );
 

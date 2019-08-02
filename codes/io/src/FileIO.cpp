@@ -125,7 +125,7 @@ bool FileIO::ReadNextMeaningfulLine()
 {
     while ( ! this->ReachTheEndOfFile() )
     {
-        ONEFLOW::ReadNextLine( * file, * line );
+         Word::ReadNextLine( * file, * line );
 
         if ( Word::IsEmptyLine  ( * line ) ||
              Word::IsCommentLine( * line, this->commentLine->commentdata ) )
@@ -148,7 +148,7 @@ bool FileIO::ReachTheEndOfFile()
 
 void FileIO::SkipLines( int numberOfLinesToSkip )
 {
-    ONEFLOW::SkipLines( * file, numberOfLinesToSkip );
+     Word::SkipLines( * file, numberOfLinesToSkip );
 }
 
 bool FileIO::ReadNextNonEmptyLine()
@@ -208,18 +208,18 @@ void FileIO::SkipReadWholeBlock()
 bool FileIO::NextWordIsEmpty()
 {
     std::string lineLeft = * this->line;
-    string word = ONEFLOW::FindNextWord( lineLeft, * this->separator );
+    string word = Word::FindNextWord( lineLeft, * this->separator );
     return word == "";
 }
 
 std::string FileIO::ReadNextTrueWord()
 {
-    string word = ONEFLOW::FindNextWord( * this->line, * this->separator );
+    string word = Word::FindNextWord( * this->line, * this->separator );
 
     if ( word == "" )
     {
         ReadNextNonEmptyLine();
-        word = ONEFLOW::FindNextWord( * this->line, * this->separator );
+        word = Word::FindNextWord( * this->line, * this->separator );
     }
 
     return word;
@@ -227,27 +227,27 @@ std::string FileIO::ReadNextTrueWord()
 
 std::string FileIO::ReadNextWord()
 {
-    string word = ONEFLOW::FindNextWord( * this->line, * this->separator );
+    string word = Word::FindNextWord( * this->line, * this->separator );
 
     return word;
 }
 
 std::string FileIO::ReadNextWord( const std::string & separator )
 {
-    string word = ONEFLOW::FindNextWord( * this->line, separator );
+    string word = Word::FindNextWord( * this->line, separator );
     return word;
 }
 
 string FileIO::ReadNextWordToLowerCase()
 {
-    string word = ONEFLOW::FindNextWord( * this->line, * this->separator );
+    string word = Word::FindNextWord( * this->line, * this->separator );
     ONEFLOW::ToLowerCase( word );
     return word;
 }
 
 string FileIO::ReadNextWordToLowerCase( const std::string & separator )
 {
-    string word = ONEFLOW::FindNextWord( * this->line, separator );
+    string word = Word::FindNextWord( * this->line, separator );
     ONEFLOW::ToLowerCase( word );
     return word;
 }

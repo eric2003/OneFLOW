@@ -32,9 +32,16 @@ public:
     Word();
     ~Word();
 public:
+    static void ReadNextLine( fstream & file, string & line );
+    static void SkipLines( fstream & file, int numberOfLines );
+    static void TrimBlanks( string & source );
+    static bool FindString( const string & source, const string & word );
     static bool IsEmptyLine  ( const string & line );
     static bool IsCommentLine( const string & line );
     static bool IsCommentLine( const string & line, StringField & comlist );
+public:
+    static string TMP_FindNextWord( const string & source, string & word, const string & separator );
+    static string FindNextWord( string & source, const string & separator );
 
 };
 

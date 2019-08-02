@@ -49,14 +49,6 @@ void MakeDir( const string & dirName );
 void OpenFile( fstream & file, const string & fileName, const ios_base::openmode & openMode );
 void CloseFile( fstream & file );
 
-void   TrimBlanks( string & source );
-void   SkipLines( fstream & file, int numberOfLines );
-void   ReadNextLine( fstream & file, string & line );
-string TMP_FindNextWord( const string & source, string & word, const string & separator );
-string FindNextWord( string & source, const string & separator );
-
-bool   FindString( const string & source, const string & word );
-
 void   GetFileNameExtension( const string & fullName, string & mainName, string & extensionName, const string & fileNameSeparator );
 
 void   ModifyFileMainName     ( string & fileName, const string & newMainName );
