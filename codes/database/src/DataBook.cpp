@@ -24,7 +24,6 @@ along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 #include "DataBaseIO.h"
 #include "BasicParallel.h"
 #include "Parallel.h"
-#include "VirtualFile.h"
 #include <sstream>
 using namespace std;
 
