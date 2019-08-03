@@ -21,22 +21,6 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "BasicIO.h"
-#include "OStream.h"
-#include "Word.h"
-#include "Stop.h"
-#include "BasicParallel.h"
-#include "LogFile.h"
-#ifdef _WINDOWS
-#include <direct.h>
-#include <io.h>
-#else
-#include <sys/stat.h>
-#include <unistd.h>
-#endif
-
-#include <iostream>
-using namespace std;
-
 BeginNameSpace( ONEFLOW )
 
 EndNameSpace

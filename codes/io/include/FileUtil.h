@@ -43,5 +43,38 @@ void   GetFileNameExtension( const string & fullName, string & mainName, string 
 void   ModifyFileMainName     ( string & fileName, const string & newMainName );
 void   ModifyFileExtensionName( string & fileName, const string & newExtensionName );
 
+template < typename T >
+string AddSymbolToFileName( const string & fileName, const T & symbol )
+{
+    string mainName, extensionName;
+    ONEFLOW::GetFileNameExtension( fileName, mainName, extensionName, "." );
+
+    ostringstream oss;
+    oss << mainName << symbol << "." << extensionName;
+    return oss.str();
+}
+
+template < typename T1, typename T2 >
+string AddSymbolToFileName( const string & fileName, const T1 & v1, const T2 & v2 )
+{
+    string mainName, extensionName;
+    ONEFLOW::GetFileNameExtension( fileName, mainName, extensionName, "." );
+
+    ostringstream oss;
+    oss << mainName << v1 << v2 << "." << extensionName;
+    return oss.str();
+}
+
+template < typename T1, typename T2, typename T3 >
+string AddSymbolToFileName( const string & fileName, const T1 & v1, const T2 & v2, const T3 & v3 )
+{
+    string mainName, extensionName;
+    ONEFLOW::GetFileNameExtension( fileName, mainName, extensionName, "." );
+
+    ostringstream oss;
+    oss << mainName << v1 << v2 << v3 << "." << extensionName;
+    return oss.str();
+}
+
 
 EndNameSpace

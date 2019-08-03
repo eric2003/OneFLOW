@@ -22,45 +22,10 @@ License
 #pragma once
 #include "Configure.h"
 #include <string>
-#include <iomanip>
 #include <sstream>
-#include "FileUtil.h"
 using namespace std;
 
 BeginNameSpace( ONEFLOW )
-
-template < typename T >
-string AddSymbolToFileName( const string & fileName, const T & symbol )
-{
-    string mainName, extensionName;
-    ONEFLOW::GetFileNameExtension( fileName, mainName, extensionName, "." );
-
-    ostringstream oss;
-    oss << mainName << symbol << "." << extensionName;
-    return oss.str();
-}
-
-template < typename T1, typename T2 >
-string AddSymbolToFileName( const string & fileName, const T1 & v1, const T2 & v2 )
-{
-    string mainName, extensionName;
-    ONEFLOW::GetFileNameExtension( fileName, mainName, extensionName, "." );
-
-    ostringstream oss;
-    oss << mainName << v1 << v2 << "." << extensionName;
-    return oss.str();
-}
-
-template < typename T1, typename T2, typename T3 >
-string AddSymbolToFileName( const string & fileName, const T1 & v1, const T2 & v2, const T3 & v3 )
-{
-    string mainName, extensionName;
-    ONEFLOW::GetFileNameExtension( fileName, mainName, extensionName, "." );
-
-    ostringstream oss;
-    oss << mainName << v1 << v2 << v3 << "." << extensionName;
-    return oss.str();
-}
 
 template < typename T >
 T & GetReference( T * x )
