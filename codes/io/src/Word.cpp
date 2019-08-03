@@ -155,4 +155,14 @@ string Word::FindNextWord( string & source, const string & separator )
     return emptyString;
 }
 
+void Word::ToLowerCase( string & word )
+{
+    std::transform( word.begin(), word.end(), word.begin(), StringToLowerCase() );
+}
+
+void Word::ToUpperCase( string & word )
+{
+    std::transform( word.begin(), word.end(), word.begin(), StringToUpperCase() );
+}
+
 EndNameSpace
