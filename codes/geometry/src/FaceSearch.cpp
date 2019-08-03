@@ -27,6 +27,7 @@ License
 #include "IFaceLink.h"
 #include "Dimension.h"
 #include "BasicIO.h"
+#include "Stop.h"
 #include <algorithm>
 using namespace std;
 

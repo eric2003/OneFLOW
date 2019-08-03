@@ -22,6 +22,7 @@ License
 
 #include "BasicIO.h"
 #include "Word.h"
+#include "Stop.h"
 #include "BasicParallel.h"
 #include "LogFile.h"
 #ifdef _WINDOWS
@@ -126,23 +127,23 @@ void Clear( ostringstream & oss )
 }
 
 
-void StopProgramFunction( const ostringstream & oss, const string & fileName, const int & fileLine, const string & dateName, const string & timeName )
-{
-    ONEFLOW::StopProgramFunction( oss.str(), fileName, fileLine, dateName, timeName );
-}
-
-void StopProgramFunction( const string & stopInformation, const string & fileName, const int & fileLine, const string & dateName, const string & timeName )
-{
-    ONEFLOW::HXFinalize();
-    cout << endl;
-    cout << "++++++++++++++++++Stop Information  +++++++++++++++++++++++++++++\n";
-    cout <<  stopInformation << endl;
-    cout << " The stop filename is : " << fileName << endl;
-    cout << " at line " << fileLine << endl;
-    cout << " Compiled On line " << dateName << " at " << timeName << endl;
-    cout << "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n";
-    exit( 0 );
-}
+//void StopProgramFunction( const ostringstream & oss, const string & fileName, const int & fileLine, const string & dateName, const string & timeName )
+//{
+//    ONEFLOW::StopProgramFunction( oss.str(), fileName, fileLine, dateName, timeName );
+//}
+//
+//void StopProgramFunction( const string & stopInformation, const string & fileName, const int & fileLine, const string & dateName, const string & timeName )
+//{
+//    ONEFLOW::HXFinalize();
+//    cout << endl;
+//    cout << "++++++++++++++++++Stop Information  +++++++++++++++++++++++++++++\n";
+//    cout <<  stopInformation << endl;
+//    cout << " The stop filename is : " << fileName << endl;
+//    cout << " at line " << fileLine << endl;
+//    cout << " Compiled On line " << dateName << " at " << timeName << endl;
+//    cout << "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n";
+//    exit( 0 );
+//}
 
 
 EndNameSpace

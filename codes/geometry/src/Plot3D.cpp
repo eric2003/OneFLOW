@@ -23,6 +23,7 @@ License
 #include "Plot3D.h"
 #include "GridMediator.h"
 #include "BasicIO.h"
+#include "Stop.h"
 #include "Prj.h"
 #include "StrGrid.h"
 #include "NodeMesh.h"

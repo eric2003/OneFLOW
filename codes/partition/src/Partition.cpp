@@ -27,6 +27,7 @@ License
 #include "UnsGrid.h"
 #include "HXMath.h"
 #include "BasicIO.h"
+#include "Stop.h"
 #include "BcRecord.h"
 #include "FaceTopo.h"
 #include "CellTopo.h"

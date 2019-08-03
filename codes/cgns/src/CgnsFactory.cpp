@@ -26,6 +26,7 @@ License
 #include "CgnsBcRegionProxy.h"
 #include "GridPara.h"
 #include "LogFile.h"
+#include "Stop.h"
 #include "BasicIO.h"
 #include "GridState.h"
 #include "GridMediator.h"

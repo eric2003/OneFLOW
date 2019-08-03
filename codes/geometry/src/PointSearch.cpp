@@ -25,6 +25,7 @@ License
 #include "NodeMesh.h"
 #include "HXMath.h"
 #include "BasicIO.h"
+#include "Stop.h"
 #include <iostream>
 using namespace std;
 

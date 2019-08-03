@@ -23,6 +23,7 @@ License
 #include "FaceSolver.h"
 #include "ElementHome.h"
 #include "BasicIO.h"
+#include "Stop.h"
 #include "FaceTopo.h"
 #include <iostream>
 using namespace std;

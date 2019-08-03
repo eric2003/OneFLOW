@@ -19,41 +19,16 @@ License
     along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 
 \*---------------------------------------------------------------------------*/
-#include "SimuDef.h"
-#include "DataBase.h"
-#include "Stop.h"
-#include <iostream>
+#pragma once
+#include "Configure.h"
+#include <string>
+using namespace std;
 
 BeginNameSpace( ONEFLOW )
 
-SimuState simu_state;
+#define Stop( _Expression ) ( ONEFLOW::StopProgramFunction( _Expression, __FILE__, __LINE__, __DATE__, __TIME__ ) )
 
-SimuState::SimuState()
-{
-    ;
-}
+void StopProgramFunction( const string & stopInformation, const string & fileName, const int & fileLine, const string & dateName, const string & timeName );
 
-SimuState::~SimuState()
-{
-    ;
-}
-
-void SimuState::Init()
-{
-    const string& taskStr = ONEFLOW::GetDataValue< string >("simutask");
-    if ( TaskFilter.find(taskStr)!= TaskFilter.end() )
-    {
-        simutask = TaskFilter.at(taskStr);
-    }
-    else
-    {
-        Stop("Bad simutask type\n");
-    }    
-}
-
-const TaskEnum SimuState::Task() const
-{
-    return simutask;
-}
 
 EndNameSpace

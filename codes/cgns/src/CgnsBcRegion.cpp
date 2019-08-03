@@ -26,6 +26,7 @@ License
 #include "CgnsBase.h"
 #include "Boundary.h"
 #include "BasicIO.h"
+#include "Stop.h"
 #include "Dimension.h"
 #include "HXMath.h"
 #include "FaceSolver.h"

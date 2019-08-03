@@ -24,6 +24,7 @@ License
 #include "CgnsBase.h"
 #include "CgnsZone.h"
 #include "BasicIO.h"
+#include "Stop.h"
 #include "Prj.h"
 #include "Dimension.h"
 #include "GridPara.h"
