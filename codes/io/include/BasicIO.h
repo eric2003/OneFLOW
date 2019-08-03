@@ -43,23 +43,18 @@ public:
     void ClearAll();
 };
 
-bool DirExist( const string & dirName );
-void MakeDir( const string & dirName );
-
-void OpenFile( fstream & file, const string & fileName, const ios_base::openmode & openMode );
-void CloseFile( fstream & file );
-
-void   GetFileNameExtension( const string & fullName, string & mainName, string & extensionName, const string & fileNameSeparator );
-
-void   ModifyFileMainName     ( string & fileName, const string & newMainName );
-void   ModifyFileExtensionName( string & fileName, const string & newExtensionName );
+//bool DirExist( const string & dirName );
+//void MakeDir( const string & dirName );
+//
+//void OpenFile( fstream & file, const string & fileName, const ios_base::openmode & openMode );
+//void CloseFile( fstream & file );
+//
+//void   GetFileNameExtension( const string & fullName, string & mainName, string & extensionName, const string & fileNameSeparator );
+//
+//void   ModifyFileMainName     ( string & fileName, const string & newMainName );
+//void   ModifyFileExtensionName( string & fileName, const string & newExtensionName );
 
 void   Clear( ostringstream & oss );
-
-//#define Stop( _Expression ) ( ONEFLOW::StopProgramFunction( _Expression, __FILE__, __LINE__, __DATE__, __TIME__ ) )
-//
-//void StopProgramFunction( const ostringstream & oss, const string & fileName, const int & fileLine, const string & dateName, const string & timeName );
-//void StopProgramFunction( const string & stopInformation, const string & fileName, const int & fileLine, const string & dateName, const string & timeName );
 
 template < typename T >
 string AddSymbolToFileName( const string & fileName, const T & symbol )

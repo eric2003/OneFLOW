@@ -38,6 +38,7 @@ License
 #include "SegmentCtrl.h"
 #include "BlockElem.h"
 #include "BasicIO.h"
+#include "FileUtil.h"
 #include "Prj.h"
 #include "HXCgns.h"
 #include "Dimension.h"

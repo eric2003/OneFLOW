@@ -45,79 +45,79 @@ void OStream::ClearAll()
     this->str("");
 }
 
-bool DirExist( const string & dirName )
-{
-#ifdef _WINDOWS
-    bool flag = ( _access( dirName.c_str(), 0 ) == 0 );
-    return flag;
-#else
-    bool flag = ( access( dirName.c_str(), 0 ) == 0 );
-    return flag;
-#endif
-}
-
-void MakeDir( const string & dirName )
-{
-    int flag;
-#ifdef _WINDOWS
-    flag = _mkdir( dirName.c_str() );
-#else
-    flag = mkdir( dirName.c_str(), S_IRWXU );
-#endif
-
-    if ( flag == 0 )
-    {
-        cout << dirName << " directory has been created successfully !\n";
-    }
-}
-
-void OpenFile( fstream & file, const string & fileName, const ios_base::openmode & openMode )
-{
-    file.open( fileName.c_str(), openMode );
-    if ( ! file )
-    {
-        cout << "could not open " << fileName << endl;
-        Stop( "" );
-    }
-}
-
-void CloseFile( fstream & file )
-{
-    file.close();
-    file.clear();
-}
-
-
-void GetFileNameExtension( const string & fullName, string & mainName, string & extensionName, const string & fileNameSeparator )
-{
-    basic_string <char>::size_type index;
-
-    index         = fullName.find_last_of( fileNameSeparator );
-    mainName      = fullName.substr( 0, index );
-    extensionName = fullName.substr( index+1, fullName.length() - index - 1 );
-}
-
-void ModifyFileMainName( string & fileName,  const string & newMainName )
-{
-    string mainName, extensionName;
-    ONEFLOW::GetFileNameExtension( fileName, mainName, extensionName, "." );
-
-    ostringstream oss;
-    oss << newMainName << "." << extensionName;
-
-    fileName = oss.str();
-}
-
-void ModifyFileExtensionName( string & fileName,  const string & newExtensionName )
-{
-    string mainName, extensionName;
-    ONEFLOW::GetFileNameExtension( fileName, mainName, extensionName, "." );
-
-    ostringstream oss;
-    oss << mainName << "." << newExtensionName;
-
-    fileName = oss.str();
-}
+//bool DirExist( const string & dirName )
+//{
+//#ifdef _WINDOWS
+//    bool flag = ( _access( dirName.c_str(), 0 ) == 0 );
+//    return flag;
+//#else
+//    bool flag = ( access( dirName.c_str(), 0 ) == 0 );
+//    return flag;
+//#endif
+//}
+//
+//void MakeDir( const string & dirName )
+//{
+//    int flag;
+//#ifdef _WINDOWS
+//    flag = _mkdir( dirName.c_str() );
+//#else
+//    flag = mkdir( dirName.c_str(), S_IRWXU );
+//#endif
+//
+//    if ( flag == 0 )
+//    {
+//        cout << dirName << " directory has been created successfully !\n";
+//    }
+//}
+//
+//void OpenFile( fstream & file, const string & fileName, const ios_base::openmode & openMode )
+//{
+//    file.open( fileName.c_str(), openMode );
+//    if ( ! file )
+//    {
+//        cout << "could not open " << fileName << endl;
+//        Stop( "" );
+//    }
+//}
+//
+//void CloseFile( fstream & file )
+//{
+//    file.close();
+//    file.clear();
+//}
+//
+//
+//void GetFileNameExtension( const string & fullName, string & mainName, string & extensionName, const string & fileNameSeparator )
+//{
+//    basic_string <char>::size_type index;
+//
+//    index         = fullName.find_last_of( fileNameSeparator );
+//    mainName      = fullName.substr( 0, index );
+//    extensionName = fullName.substr( index+1, fullName.length() - index - 1 );
+//}
+//
+//void ModifyFileMainName( string & fileName,  const string & newMainName )
+//{
+//    string mainName, extensionName;
+//    ONEFLOW::GetFileNameExtension( fileName, mainName, extensionName, "." );
+//
+//    ostringstream oss;
+//    oss << newMainName << "." << extensionName;
+//
+//    fileName = oss.str();
+//}
+//
+//void ModifyFileExtensionName( string & fileName,  const string & newExtensionName )
+//{
+//    string mainName, extensionName;
+//    ONEFLOW::GetFileNameExtension( fileName, mainName, extensionName, "." );
+//
+//    ostringstream oss;
+//    oss << mainName << "." << newExtensionName;
+//
+//    fileName = oss.str();
+//}
 
 
 void Clear( ostringstream & oss )

@@ -24,6 +24,7 @@ License
 #include "HeatFlux.h"
 #include "FaceJoint.h"
 #include "BasicIO.h"
+#include "FileUtil.h"
 #include "Prj.h"
 #include "WallVisual.h"
 #include "AeroForceTask.h"
