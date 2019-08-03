@@ -26,6 +26,7 @@ License
 #include "Parallel.h"
 #include "SolverDef.h"
 #include "BasicIO.h"
+#include "OStream.h"
 #include "FileUtil.h"
 #include "Stop.h"
 #include "Prj.h"

@@ -25,6 +25,7 @@ License
 #include "SolverInfo.h"
 #include "SolverDef.h"
 #include "FileIO.h"
+#include "OStream.h"
 #include "DataBase.h"
 #include "RegisterUtil.h"
 #include "Zone.h"

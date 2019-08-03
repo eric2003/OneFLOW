@@ -25,6 +25,7 @@ License
 #include "Zone.h"
 #include "ZoneState.h"
 #include "Prj.h"
+#include "OStream.h"
 #include "UnsGrid.h"
 #include "BcRecord.h"
 #include "FaceTopo.h"

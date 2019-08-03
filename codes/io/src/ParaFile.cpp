@@ -24,6 +24,7 @@ License
 #include "DataBase.h"
 #include "Parallel.h"
 #include "LogFile.h"
+#include "OStream.h"
 #include "BasicIO.h"
 #include "Stop.h"
 #include "Prj.h"

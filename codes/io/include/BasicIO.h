@@ -21,40 +21,13 @@ License
 \*---------------------------------------------------------------------------*/
 #pragma once
 #include "Configure.h"
-#include <fstream>
 #include <string>
 #include <iomanip>
 #include <sstream>
-#include <set>
-#include <vector>
-#include <algorithm>
+#include "FileUtil.h"
 using namespace std;
 
 BeginNameSpace( ONEFLOW )
-
-class OStream;
-extern OStream StrIO;
-class OStream : public ostringstream
-{
-public:
-    OStream() {}
-    ~OStream() {}
-public:
-    void ClearAll();
-};
-
-//bool DirExist( const string & dirName );
-//void MakeDir( const string & dirName );
-//
-//void OpenFile( fstream & file, const string & fileName, const ios_base::openmode & openMode );
-//void CloseFile( fstream & file );
-//
-//void   GetFileNameExtension( const string & fullName, string & mainName, string & extensionName, const string & fileNameSeparator );
-//
-//void   ModifyFileMainName     ( string & fileName, const string & newMainName );
-//void   ModifyFileExtensionName( string & fileName, const string & newExtensionName );
-
-void   Clear( ostringstream & oss );
 
 template < typename T >
 string AddSymbolToFileName( const string & fileName, const T & symbol )

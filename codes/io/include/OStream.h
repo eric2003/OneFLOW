@@ -19,24 +19,26 @@ License
     along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 
 \*---------------------------------------------------------------------------*/
-
-#include "BasicIO.h"
-#include "OStream.h"
-#include "Word.h"
-#include "Stop.h"
-#include "BasicParallel.h"
-#include "LogFile.h"
-#ifdef _WINDOWS
-#include <direct.h>
-#include <io.h>
-#else
-#include <sys/stat.h>
-#include <unistd.h>
-#endif
-
-#include <iostream>
+#pragma once
+#include "Configure.h"
+#include <iomanip>
+#include <sstream>
 using namespace std;
 
 BeginNameSpace( ONEFLOW )
+
+class OStream;
+extern OStream StrIO;
+class OStream : public ostringstream
+{
+public:
+    OStream() {}
+    ~OStream() {}
+public:
+    void ClearAll();
+};
+
+void Clear( ostringstream & oss );
+
 
 EndNameSpace

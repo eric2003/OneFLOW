@@ -41,6 +41,7 @@ License
 #include "NsCtrl.h"
 #include <sstream>
 #include <iostream>
+#include <algorithm>
 using namespace std;
 
 

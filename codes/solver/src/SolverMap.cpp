@@ -24,6 +24,7 @@ License
 #include "Solver.h"
 #include "GridState.h"
 #include "SolverState.h"
+#include "OStream.h"
 #include <map>
 #include <iostream>
 using namespace std;
