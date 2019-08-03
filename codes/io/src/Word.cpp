@@ -21,7 +21,6 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "Word.h"
-#include "BasicIO.h"
 #include <algorithm>
 using namespace std;
 

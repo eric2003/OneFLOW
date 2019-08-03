@@ -23,7 +23,6 @@ License
 #include "Sod.h"
 #include "CurveLine.h"
 #include "CurveMesh.h"
-#include "BasicIO.h"
 #include "FileUtil.h"
 #include "Prj.h"
 #include "DataBaseIO.h"

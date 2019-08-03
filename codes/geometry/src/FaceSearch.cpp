@@ -26,7 +26,7 @@ License
 #include "NodeMesh.h"
 #include "IFaceLink.h"
 #include "Dimension.h"
-#include "BasicIO.h"
+#include "StrUtil.h"
 #include "Stop.h"
 #include <algorithm>
 using namespace std;

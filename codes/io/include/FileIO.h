@@ -23,10 +23,8 @@ License
 #pragma once
 #include <fstream>
 #include <sstream>
-#include "BasicIO.h"
 #include "FileUtil.h"
 #include "Word.h"
-#include "HXDefine.h"
 using namespace std;
 
 BeginNameSpace( ONEFLOW )

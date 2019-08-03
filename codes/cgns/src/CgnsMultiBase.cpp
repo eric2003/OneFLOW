@@ -23,7 +23,7 @@ License
 #include "CgnsMultiBase.h"
 #include "CgnsBase.h"
 #include "CgnsZone.h"
-#include "BasicIO.h"
+#include "StrUtil.h"
 #include "Stop.h"
 #include "Prj.h"
 #include "Dimension.h"

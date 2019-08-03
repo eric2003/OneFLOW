@@ -27,7 +27,7 @@ License
 #include "GridPara.h"
 #include "LogFile.h"
 #include "Stop.h"
-#include "BasicIO.h"
+#include "StrUtil.h"
 #include "GridState.h"
 #include "GridMediator.h"
 #include "DataBase.h"

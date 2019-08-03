@@ -32,7 +32,7 @@ License
 #include "PointSearch.h"
 #include "BcRecord.h"
 #include "HXMath.h"
-#include "BasicIO.h"
+#include "StrUtil.h"
 #include "Partition.h"
 #include <iostream>
 using namespace std;

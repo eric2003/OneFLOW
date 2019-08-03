@@ -25,7 +25,7 @@ License
 #include "Parallel.h"
 #include "LogFile.h"
 #include "OStream.h"
-#include "BasicIO.h"
+#include "StrUtil.h"
 #include "Stop.h"
 #include "Prj.h"
 #include <iostream>

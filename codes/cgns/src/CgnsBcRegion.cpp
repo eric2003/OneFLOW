@@ -25,7 +25,7 @@ License
 #include "CgnsZone.h"
 #include "CgnsBase.h"
 #include "Boundary.h"
-#include "BasicIO.h"
+#include "StrUtil.h"
 #include "Stop.h"
 #include "Dimension.h"
 #include "HXMath.h"

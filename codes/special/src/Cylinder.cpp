@@ -28,7 +28,6 @@ License
 #include "CurveMachine.h"
 #include "GridMachine.h"
 #include "LineMachine.h"
-#include "BasicIO.h"
 #include "Prj.h"
 #include "DataBaseIO.h"
 #include "Boundary.h"

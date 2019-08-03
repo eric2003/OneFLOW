@@ -23,6 +23,7 @@ License
 #include "DataBase.h"
 #include "FileIO.h"
 #include "OStream.h"
+#include "StrUtil.h"
 #include "ActionMap.h"
 #include "Message.h"
 #include "Register.h"

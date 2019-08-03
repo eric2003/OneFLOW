@@ -29,7 +29,7 @@ License
 #include "CgnsBcRegion.h"
 #include "CgnsBcRegionProxy.h"
 #include "NodeMesh.h"
-#include "BasicIO.h"
+#include "StrUtil.h"
 #include "Dimension.h"
 #include "GridElem.h"
 #include "ElemFeature.h"
