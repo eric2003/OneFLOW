@@ -65,6 +65,7 @@ public:
     static void ToUpperCase( string & word );
 public:
     static bool ReadNextNonEmptyLine( fstream & file, string & line );
+    static bool IsDigit( const string & word );
 
 };
 

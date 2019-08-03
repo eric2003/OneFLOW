@@ -149,7 +149,7 @@ int AnalysisScalarParameter( FileIO & fileIO, int keyWordIndex )
 int GetParameterArraySize( const string & word )
 {
     int arraySize = - 1;
-    if ( ONEFLOW::IsDigit( word ) )
+    if ( Word::IsDigit( word ) )
     {
         arraySize = StringToDigit< int >( word );
     }

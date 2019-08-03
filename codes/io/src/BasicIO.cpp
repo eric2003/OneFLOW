@@ -149,16 +149,4 @@ void StopProgramFunction( const string & stopInformation, const string & fileNam
 //    return 1 + static_cast< int >( floor( log10( static_cast< double > ( ONEFLOW::MAX( 1, integerData ) ) ) ) );
 //}
 
-bool IsDigit( const string & word )
-{
-    for ( int i = 0; i < word.size(); ++ i )
-    {
-        if ( ! isdigit( word[ i ] ) )
-        {
-            return false;
-        }
-    }
-    return true;
-}
-
 EndNameSpace

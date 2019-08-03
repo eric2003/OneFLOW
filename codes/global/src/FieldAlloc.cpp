@@ -266,7 +266,7 @@ bool CmpVarValue( const string & varName, StringField & boolName, BoolField & bo
 
 int GetVarDimension( const string & dimName )
 {
-    if ( ONEFLOW::IsDigit( dimName ) )
+    if ( Word::IsDigit( dimName ) )
     {
         return StringToDigit< int >( dimName );
     }

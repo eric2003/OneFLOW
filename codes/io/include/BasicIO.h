@@ -178,8 +178,6 @@ inline string DigitToString( T t, ios_base & ( * f )( ios_base & ) = std::dec )
     return oss.str();
 }
 
-bool IsDigit( const string & word );
-
 //int GetIntegerDigitWidth( int integerData );
 
 EndNameSpace

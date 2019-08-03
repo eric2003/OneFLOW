@@ -197,4 +197,17 @@ bool Word::ReadNextNonEmptyLine( fstream & file, string & line )
     return true;
 }
 
+bool Word::IsDigit( const string & word )
+{
+    for ( int i = 0; i < word.size(); ++ i )
+    {
+        if ( ! isdigit( word[ i ] ) )
+        {
+            return false;
+        }
+    }
+    return true;
+}
+
+
 EndNameSpace
