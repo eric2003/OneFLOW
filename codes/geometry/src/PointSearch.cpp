@@ -24,7 +24,6 @@ License
 #include "Grid.h"
 #include "NodeMesh.h"
 #include "HXMath.h"
-#include "StrUtil.h"
 #include "Stop.h"
 #include <iostream>
 using namespace std;

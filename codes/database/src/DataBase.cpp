@@ -20,7 +20,6 @@ along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 
 \*---------------------------------------------------------------------------*/
 #include "DataBase.h"
-#include "StrUtil.h"
 #include "Stop.h"
 #include "DataPara.h"
 #include "DataObject.h"

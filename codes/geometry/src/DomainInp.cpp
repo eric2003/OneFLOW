@@ -31,7 +31,6 @@ License
 #include "PointSearch.h"
 #include "BcRecord.h"
 #include "HXMath.h"
-//#include "StrUtil.h"
 #include "FileUtil.h"
 #include "Prj.h"
 #include "Partition.h"

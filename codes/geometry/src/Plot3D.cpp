@@ -22,7 +22,6 @@ License
 
 #include "Plot3D.h"
 #include "GridMediator.h"
-#include "StrUtil.h"
 #include "Stop.h"
 #include "Prj.h"
 #include "StrGrid.h"
