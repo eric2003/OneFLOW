@@ -153,7 +153,7 @@ void FileIO::SkipLines( int numberOfLinesToSkip )
 
 bool FileIO::ReadNextNonEmptyLine()
 {
-    return ONEFLOW::ReadNextNonEmptyLine( * this->file, * this->line );
+    return Word::ReadNextNonEmptyLine( * this->file, * this->line );
 }
 
 void FileIO::DumpLineContentToScreen()

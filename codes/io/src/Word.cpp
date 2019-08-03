@@ -165,4 +165,36 @@ void Word::ToUpperCase( string & word )
     std::transform( word.begin(), word.end(), word.begin(), StringToUpperCase() );
 }
 
+bool Word::ReadNextNonEmptyLine( fstream & file, string & line )
+{
+    bool isSpaceLine = true;
+
+    do
+    {
+        Word::ReadNextLine( file, line );
+
+        for ( string::iterator iter = line.begin(); iter != line.end(); ++ iter )
+        {
+            if ( ! isspace( * iter ) )
+            {
+                isSpaceLine = false;
+                break;
+            }
+        }
+        if ( file.eof() )
+        {
+            if ( isSpaceLine )
+            {
+                return false;
+            }
+            else
+            {
+                return true;
+            }
+        }
+    }     while ( isSpaceLine );
+    
+    return true;
+}
+
 EndNameSpace

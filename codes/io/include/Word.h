@@ -63,6 +63,8 @@ public:
 public:
     static void ToLowerCase( string & word );
     static void ToUpperCase( string & word );
+public:
+    static bool ReadNextNonEmptyLine( fstream & file, string & line );
 
 };
 

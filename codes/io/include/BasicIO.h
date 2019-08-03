@@ -54,7 +54,6 @@ void   GetFileNameExtension( const string & fullName, string & mainName, string 
 void   ModifyFileMainName     ( string & fileName, const string & newMainName );
 void   ModifyFileExtensionName( string & fileName, const string & newExtensionName );
 
-bool   ReadNextNonEmptyLine( fstream & file, string & line );
 void   Clear( ostringstream & oss );
 
 #define Stop( _Expression ) ( ONEFLOW::StopProgramFunction( _Expression, __FILE__, __LINE__, __DATE__, __TIME__ ) )
