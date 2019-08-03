@@ -241,14 +241,14 @@ std::string FileIO::ReadNextWord( const std::string & separator )
 string FileIO::ReadNextWordToLowerCase()
 {
     string word = Word::FindNextWord( * this->line, * this->separator );
-    ONEFLOW::ToLowerCase( word );
+    Word::ToLowerCase( word );
     return word;
 }
 
 string FileIO::ReadNextWordToLowerCase( const std::string & separator )
 {
     string word = Word::FindNextWord( * this->line, separator );
-    ONEFLOW::ToLowerCase( word );
+    Word::ToLowerCase( word );
     return word;
 }
 

@@ -175,16 +175,6 @@ void StopProgramFunction( const string & stopInformation, const string & fileNam
     exit( 0 );
 }
 
-void ToLowerCase( string & word )
-{
-    std::transform( word.begin(), word.end(), word.begin(), StringToLowerCase() );
-}
-
-void ToUpperCase( string & word )
-{
-    std::transform( word.begin(), word.end(), word.begin(), StringToUpperCase() );
-}
-
 //int GetIntegerDigitWidth( int integerData )
 //{
 //    return 1 + static_cast< int >( floor( log10( static_cast< double > ( ONEFLOW::MAX( 1, integerData ) ) ) ) );

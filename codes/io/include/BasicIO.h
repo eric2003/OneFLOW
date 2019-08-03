@@ -179,27 +179,6 @@ inline string DigitToString( T t, ios_base & ( * f )( ios_base & ) = std::dec )
     return oss.str();
 }
 
-class StringToLowerCase
-{
-public:
-    char operator()( char val )
-    {
-        return tolower( val );
-    }
-};
-
-class StringToUpperCase
-{
-public:
-    char operator()( char val )
-    {
-        return toupper( val );
-    }
-};
-
-void ToLowerCase( string & word );
-void ToUpperCase( string & word );
-
 bool IsDigit( const string & word );
 
 //int GetIntegerDigitWidth( int integerData );

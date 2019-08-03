@@ -67,7 +67,7 @@ bool Word::FindString( const string & source, const string & word )
 
 string Word::TMP_FindNextWord( const string & source, string & word, const string & separator )
 {
-    string::size_type firstIndex, nextIndex, notFindIndex = - 1;
+    string::size_type firstIndex, nextIndex, notFindIndex = string::npos;
     string emptyString = "";
     firstIndex = source.find_first_not_of( separator, 0 );
 
@@ -130,7 +130,7 @@ bool Word::IsCommentLine(const string& line, StringField &comlist )
 
 string Word::FindNextWord( string & source, const string & separator )
 {
-    string::size_type firstIndex, nextIndex, notFindIndex = - 1;
+    string::size_type firstIndex, nextIndex, notFindIndex = string::npos;
     string emptyString = "";
     firstIndex = source.find_first_not_of( separator, 0 );
 
