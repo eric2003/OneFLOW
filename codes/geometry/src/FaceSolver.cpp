@@ -22,10 +22,10 @@ License
 
 #include "FaceSolver.h"
 #include "ElementHome.h"
-#include "BasicIO.h"
 #include "Stop.h"
 #include "FaceTopo.h"
 #include <iostream>
+#include <algorithm>
 using namespace std;
 
 BeginNameSpace( ONEFLOW )

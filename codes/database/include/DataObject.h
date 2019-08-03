@@ -21,7 +21,6 @@ along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 \*---------------------------------------------------------------------------*/
 #pragma once
 #include "Configure.h"
-#include "BasicIO.h"
 #include "Word.h"
 #include "DataBook.h"
 #include "DataBaseIO.h"

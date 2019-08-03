@@ -30,7 +30,9 @@ License
 #include "Dimension.h"
 #include "HXMath.h"
 #include "FaceSolver.h"
+#include "HXMath.h"
 #include <iostream>
+#include <iomanip>
 using namespace std;
 
 BeginNameSpace( ONEFLOW )
@@ -334,7 +336,7 @@ void CgnsBcRegion::PrintCgnsBcConn()
         {
             cout << "   ";
             CgInt num = 5;
-            for ( int i = 0; i < std::min(num, this->nElements ); ++ i )
+            for ( int i = 0; i < MIN(num, this->nElements ); ++ i )
             {
                 cout << connList[ i ] << " ";
             }
