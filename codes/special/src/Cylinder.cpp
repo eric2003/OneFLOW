@@ -34,6 +34,7 @@ License
 #include "HXMath.h"
 #include "DataBase.h"
 #include "FileIO.h"
+#include "FileUtil.h"
 #include <iostream>
 using namespace std;
 

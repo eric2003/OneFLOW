@@ -29,6 +29,7 @@ License
 #include "BgGrid.h"
 #include "GridState.h"
 #include "FileIO.h"
+#include "FileUtil.h"
 #include "Dimension.h"
 #include "HXMath.h"
 #include "Zone.h"
