@@ -209,5 +209,9 @@ bool Word::IsDigit( const string & word )
     return true;
 }
 
+//int GetIntegerDigitWidth( int integerData )
+//{
+//    return 1 + static_cast< int >( floor( log10( static_cast< double > ( ONEFLOW::MAX( 1, integerData ) ) ) ) );
+//}
 
 EndNameSpace

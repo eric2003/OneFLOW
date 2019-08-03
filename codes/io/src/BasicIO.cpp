@@ -144,9 +144,5 @@ void StopProgramFunction( const string & stopInformation, const string & fileNam
     exit( 0 );
 }
 
-//int GetIntegerDigitWidth( int integerData )
-//{
-//    return 1 + static_cast< int >( floor( log10( static_cast< double > ( ONEFLOW::MAX( 1, integerData ) ) ) ) );
-//}
 
 EndNameSpace

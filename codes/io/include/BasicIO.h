@@ -140,44 +140,5 @@ string AddString( const T1 & v1, const T2 & v2, const T3 & v3, const T4 & v4, co
     return oss.str();
 }
 
-////Character conversion to numeric value
-//template < typename T >
-//inline bool StringToDigit( T & Value, const string & str, ios_base & ( * f )( ios_base & ) )
-//// converts string to streamable value, and returns true on success and false otherwise.
-//{
-//    istringstream stream( str );
-//    stream >> f >> Value;
-//    return ( ! stream.fail() ) && stream.get() == istringstream::traits_type::eof();
-//}
-
-//Character conversion to numeric value
-template < typename T >
-inline T StringToDigit( const string & str, ios_base & ( * f )( ios_base & ) = std::dec )
-{
-    T value;
-    istringstream stream( str );
-    stream >> f >> value;
-    return value;
-}
-
-//template < typename T >
-//inline T StringToDigit( const string & str )
-//{
-//    T value;
-//    istringstream stream( str );
-//    stream >> std::dec >> value;
-//    return value;
-//}
-
-//Convert numeric to character
-template < typename T >
-inline string DigitToString( T t, ios_base & ( * f )( ios_base & ) = std::dec )
-{
-    ostringstream oss;
-    oss << f << t;
-    return oss.str();
-}
-
-//int GetIntegerDigitWidth( int integerData );
 
 EndNameSpace
