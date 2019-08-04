@@ -20,31 +20,26 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-
-#pragma once
-#include "HXDefine.h"
-using namespace std;
+#include "FileInfo.h"
+#include "Register.h"
+#include "Message.h"
+#include "Zone.h"
+#include "ZoneState.h"
+#include "HXClone.h"
+#include "ActionState.h"
+#include "DataBook.h"
 
 BeginNameSpace( ONEFLOW )
 
-typedef void ( * TaskFunction )();
-
-class DataBook;
-class FileInfo;
-
-class Task
+FileInfo::FileInfo()
 {
-public:
-    Task();
-    virtual ~Task();
-public:
-    virtual void Run(){};
-public:
-    int taskId;
-    string taskName;
-    TaskFunction action, sendAction, recvAction;
-    DataBook * dataBook;
-    FileInfo * fileInfo;
-};
+    ;
+}
+
+FileInfo::~FileInfo()
+{
+    ;
+}
+
 
 EndNameSpace

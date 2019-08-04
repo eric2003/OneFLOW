@@ -20,6 +20,7 @@ License
 
 \*---------------------------------------------------------------------------*/
 #include "FileMap.h"
+#include "FileInfo.h"
 #include "ActionState.h"
 #include "DataBase.h"
 #include "Task.h"

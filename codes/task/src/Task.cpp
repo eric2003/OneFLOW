@@ -21,6 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "Task.h"
+#include "FileInfo.h"
 #include "Register.h"
 #include "Message.h"
 #include "Zone.h"
@@ -30,16 +31,6 @@ License
 #include "DataBook.h"
 
 BeginNameSpace( ONEFLOW )
-
-FileInfo::FileInfo()
-{
-    ;
-}
-
-FileInfo::~FileInfo()
-{
-    ;
-}
 
 Task::Task()
 {
@@ -52,18 +43,5 @@ Task::~Task()
     delete dataBook;
     delete fileInfo;
 }
-
-//void SimpleTask::Run()
-//{
-//    ActionState::dataBook = this->dataBook;
-//    for ( int zId = 0; zId < ZoneState::nZones; ++ zId )
-//    {
-//        if ( ! ZoneState::IsValidZone( zId ) ) continue;
-//
-//        ZoneState::zid = zId;
-//
-//        this->action();
-//    }
-//}
 
 EndNameSpace

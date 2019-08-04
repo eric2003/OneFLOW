@@ -25,6 +25,7 @@ License
 #include "Parallel.h"
 #include "OStream.h"
 #include "FileUtil.h"
+#include "FileInfo.h"
 #include "Stop.h"
 #include "Prj.h"
 #include "ActionState.h"

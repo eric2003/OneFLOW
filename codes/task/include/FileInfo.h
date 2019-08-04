@@ -23,28 +23,19 @@ License
 
 #pragma once
 #include "HXDefine.h"
+#include <ios>
 using namespace std;
 
 BeginNameSpace( ONEFLOW )
 
-typedef void ( * TaskFunction )();
-
-class DataBook;
-class FileInfo;
-
-class Task
+class FileInfo
 {
 public:
-    Task();
-    virtual ~Task();
+    FileInfo();
+    ~FileInfo();
 public:
-    virtual void Run(){};
-public:
-    int taskId;
-    string taskName;
-    TaskFunction action, sendAction, recvAction;
-    DataBook * dataBook;
-    FileInfo * fileInfo;
+    string fileName;
+    ios_base::openmode openMode;
 };
 
 EndNameSpace
