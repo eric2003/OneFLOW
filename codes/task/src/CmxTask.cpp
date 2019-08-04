@@ -29,6 +29,7 @@ License
 #include "GridState.h"
 #include "HXClone.h"
 #include "Task.h"
+#include "TaskState.h"
 #include "Solver.h"
 #include "Category.h"
 #include "SolverMap.h"

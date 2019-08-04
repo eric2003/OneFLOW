@@ -58,15 +58,6 @@ public:
 public:
 };
 
-class TaskState
-{
-public:
-    TaskState();
-    ~TaskState();
-public:
-    static Task * task;
-};
-
 class SimpleTask : public Task
 {
 public:

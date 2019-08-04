@@ -19,58 +19,23 @@ License
     along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 
 \*---------------------------------------------------------------------------*/
-#include "FileMap.h"
-#include "ActionState.h"
-#include "DataBase.h"
-#include "Task.h"
-#include "TaskState.h"
+
+
+#pragma once
+#include "HXDefine.h"
+using namespace std;
 
 BeginNameSpace( ONEFLOW )
 
-void RegisterFileTask()
+class Task;
+
+class TaskState
 {
-    REGISTER_DATA_CLASS( SetFile );
-}
-
-void SetFile( StringField & data )
-{
-    string & fileNameVar = data[ 0 ];
-
-    string fileName = GetDataValue< string >( fileNameVar );
-
-    ios_base::openmode openMode = GetOpenMode( data[ 1 ] );
-
-    for ( int i = 2; i < data.size(); ++ i )
-    {
-        openMode |= GetOpenMode( data[ i ] );
-    }
-
-    TaskState::task->fileInfo->fileName = fileName;
-    TaskState::task->fileInfo->openMode = openMode;
-}
-
-ios_base::openmode GetOpenMode( const string & openModeName )
-{
-    if ( openModeName == "in" )
-    {
-        return ios_base::in;
-    }
-    else if ( openModeName == "out" )
-    {
-        return ios_base::out;
-    }
-    else if ( openModeName == "binary" )
-    {
-        return ios_base::binary;
-    }
-    else if ( openModeName == "trunc" )
-    {
-        return ios_base::trunc;
-    }
-    else
-    {
-        return ios_base::app;
-    }
-}
+public:
+    TaskState();
+    ~TaskState();
+public:
+    static Task * task;
+};
 
 EndNameSpace

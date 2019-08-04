@@ -22,6 +22,7 @@ License
 
 #include "AeroForceTaskReg.h"
 #include "AeroForceTask.h"
+#include "TaskState.h"
 
 BeginNameSpace( ONEFLOW )
 

@@ -29,6 +29,7 @@ License
 #include "Prj.h"
 #include "ActionState.h"
 #include "Task.h"
+#include "TaskState.h"
 #include <iostream>
 #include <string>
 using namespace std;

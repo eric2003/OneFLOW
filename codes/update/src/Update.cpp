@@ -26,6 +26,7 @@ License
 #include "SolverDef.h"
 #include "SolverInfo.h"
 #include "Task.h"
+#include "TaskState.h"
 #include "FieldWrap.h"
 
 BeginNameSpace( ONEFLOW )

@@ -53,16 +53,6 @@ Task::~Task()
     delete fileInfo;
 }
 
-Task * TaskState::task = 0;
-
-TaskState::TaskState()
-{
-}
-
-TaskState::~TaskState()
-{
-}
-    
 void SimpleTask::Run()
 {
     ActionState::dataBook = this->dataBook;

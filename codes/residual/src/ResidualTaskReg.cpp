@@ -23,6 +23,7 @@ License
 #include "ResidualTask.h"
 #include "SolverState.h"
 #include "UResidual.h"
+#include "TaskState.h"
 
 BeginNameSpace( ONEFLOW )
 
