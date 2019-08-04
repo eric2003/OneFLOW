@@ -23,8 +23,11 @@ License
 #include "LhsTaskReg.h"
 #include "Lhs.h"
 #include "SolverState.h"
+#include "TaskRegister.h"
 
 BeginNameSpace( ONEFLOW )
+
+REGISTER_TASK( RegisterLhsTask )
 
 void RegisterLhsTask()
 {

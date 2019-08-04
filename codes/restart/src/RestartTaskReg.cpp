@@ -49,11 +49,14 @@ License
 #include "UVisualize.h"
 #include "UResidual.h"
 #include "UNsCom.h"
+#include "TaskRegister.h"
 #include <map>
 #include <iostream>
 using namespace std;
 
 BeginNameSpace( ONEFLOW )
+
+REGISTER_TASK( RegisterRestartTask )
 
 void RegisterRestartTask()
 {

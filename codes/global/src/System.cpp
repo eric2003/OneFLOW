@@ -55,13 +55,13 @@ void ConstructSystemMap()
     //ONEFLOW::RegisterHeatFluxTask();
     //ONEFLOW::RegisterMultigridTask();
     //ONEFLOW::RegisterUnsteadyTask();
-    ONEFLOW::RegisterRestartTask();
-    ONEFLOW::RegisterImplicitTask();
-    ONEFLOW::RegisterInterfaceTask();
-    ONEFLOW::RegisterVisualTask();
-    ONEFLOW::RegisterUpdateTask();
-    ONEFLOW::RegisterLhsTask();
-    ONEFLOW::RegisterFieldTask();
+    //ONEFLOW::RegisterRestartTask();
+    //ONEFLOW::RegisterImplicitTask();
+    //ONEFLOW::RegisterInterfaceTask();
+    //ONEFLOW::RegisterVisualTask();
+    //ONEFLOW::RegisterUpdateTask();
+    //ONEFLOW::RegisterLhsTask();
+    //ONEFLOW::RegisterFieldTask();
     ONEFLOW::CreateSysMap();
 
     CreateMsgMap();

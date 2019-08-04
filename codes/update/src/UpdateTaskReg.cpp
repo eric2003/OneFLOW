@@ -23,8 +23,11 @@ License
 #include "UpdateTaskReg.h"
 #include "Update.h"
 #include "SolverState.h"
+#include "TaskRegister.h"
 
 BeginNameSpace( ONEFLOW )
+
+REGISTER_TASK( RegisterUpdateTask )
 
 void RegisterUpdateTask()
 {
