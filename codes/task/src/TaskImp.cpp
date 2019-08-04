@@ -43,18 +43,6 @@ void RegisterComTask()
 
 REGISTER_TASK( RegisterComTask )
 
-//class tmpppp
-//{
-//public:
-//    tmpppp()
-//    { 
-//        TaskRegister::Register( RegisterComTask );
-//    }
-//    ;
-//};
-//
-//tmpppp tmpppp_init;
-
 void ReadBinaryFileTask( StringField & data )
 {
     CReadFile * task = new CReadFile();

@@ -23,8 +23,11 @@ License
 #include "AeroForceTaskReg.h"
 #include "AeroForceTask.h"
 #include "TaskState.h"
+#include "TaskRegister.h"
 
 BeginNameSpace( ONEFLOW )
+
+REGISTER_TASK( RegisterForceTask )
 
 void RegisterForceTask()
 {

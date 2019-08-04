@@ -49,12 +49,12 @@ void ConstructSystemMap()
     ONEFLOW::SetDimension();
     TaskRegister::Run();
     //ONEFLOW::RegisterComTask();
-    ONEFLOW::RegisterFileTask();
-    ONEFLOW::RegisterRedisualTask();
-    ONEFLOW::RegisterForceTask();
-    ONEFLOW::RegisterHeatFluxTask();
-    ONEFLOW::RegisterMultigridTask();
-    ONEFLOW::RegisterUnsteadyTask();
+    //ONEFLOW::RegisterFileTask();
+    //ONEFLOW::RegisterRedisualTask();
+    //ONEFLOW::RegisterForceTask();
+    //ONEFLOW::RegisterHeatFluxTask();
+    //ONEFLOW::RegisterMultigridTask();
+    //ONEFLOW::RegisterUnsteadyTask();
     ONEFLOW::RegisterRestartTask();
     ONEFLOW::RegisterImplicitTask();
     ONEFLOW::RegisterInterfaceTask();

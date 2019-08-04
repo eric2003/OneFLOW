@@ -25,8 +25,10 @@ License
 #include "DataBase.h"
 #include "Task.h"
 #include "TaskState.h"
-
+#include "TaskRegister.h"
 BeginNameSpace( ONEFLOW )
+
+REGISTER_TASK( RegisterFileTask )
 
 void RegisterFileTask()
 {

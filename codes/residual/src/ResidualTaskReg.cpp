@@ -24,8 +24,11 @@ License
 #include "SolverState.h"
 #include "UResidual.h"
 #include "TaskState.h"
+#include "TaskRegister.h"
 
 BeginNameSpace( ONEFLOW )
+
+REGISTER_TASK( RegisterRedisualTask )
 
 void RegisterRedisualTask()
 {
