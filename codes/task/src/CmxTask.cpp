@@ -21,6 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "CmxTask.h"
+#include "SimpleTask.h"
 #include "Command.h"
 #include "Register.h"
 #include "Message.h"

@@ -20,52 +20,28 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-
-#pragma once
-#include "HXDefine.h"
-#include <ios>
-using namespace std;
+#include "SimpleTask.h"
+#include "Task.h"
+#include "Message.h"
+#include "Zone.h"
+#include "ZoneState.h"
+#include "HXClone.h"
+#include "ActionState.h"
+#include "DataBook.h"
 
 BeginNameSpace( ONEFLOW )
 
-typedef void ( * TaskFunction )();
-
-class DataBook;
-
-class FileInfo
+void SimpleTask::Run()
 {
-public:
-    FileInfo();
-    ~FileInfo();
-public:
-    string fileName;
-    ios_base::openmode openMode;
-};
+    ActionState::dataBook = this->dataBook;
+    for ( int zId = 0; zId < ZoneState::nZones; ++ zId )
+    {
+        if ( ! ZoneState::IsValidZone( zId ) ) continue;
 
-class Task
-{
-public:
-    Task();
-    virtual ~Task();
-public:
-    virtual void Run(){};
-public:
-    int taskId;
-    string taskName;
-    TaskFunction action, sendAction, recvAction;
-    DataBook * dataBook;
-    FileInfo * fileInfo;
-public:
-};
+        ZoneState::zid = zId;
 
-//class SimpleTask : public Task
-//{
-//public:
-//    SimpleTask() {};
-//    ~SimpleTask(){};
-//public:
-//    void Run();
-//protected:
-//};
+        this->action();
+    }
+}
 
 EndNameSpace

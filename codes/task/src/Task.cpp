@@ -53,17 +53,17 @@ Task::~Task()
     delete fileInfo;
 }
 
-void SimpleTask::Run()
-{
-    ActionState::dataBook = this->dataBook;
-    for ( int zId = 0; zId < ZoneState::nZones; ++ zId )
-    {
-        if ( ! ZoneState::IsValidZone( zId ) ) continue;
-
-        ZoneState::zid = zId;
-
-        this->action();
-    }
-}
+//void SimpleTask::Run()
+//{
+//    ActionState::dataBook = this->dataBook;
+//    for ( int zId = 0; zId < ZoneState::nZones; ++ zId )
+//    {
+//        if ( ! ZoneState::IsValidZone( zId ) ) continue;
+//
+//        ZoneState::zid = zId;
+//
+//        this->action();
+//    }
+//}
 
 EndNameSpace
