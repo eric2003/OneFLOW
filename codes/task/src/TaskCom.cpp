@@ -33,58 +33,6 @@ using namespace std;
 
 BeginNameSpace( ONEFLOW )
 
-CReadFile::CReadFile()
-{
-}
-
-CReadFile::~CReadFile()
-{
-}
-
-void CReadFile::Run()
-{
-    ActionState::dataBook = this->dataBook;
-    if ( Parallel::mode == 0 )
-    {
-        this->ServerRead();
-    }
-}
-
-void CReadFile::ServerRead()
-{
-    fstream file;
-    ActionState::file = & file;
-
-    PIO::ParallelOpenPrj();
-
-    for ( int zId = 0; zId < ZoneState::nZones; ++ zId )
-    {
-        ZoneState::zid = zId;
-
-        this->ServerRead( this->mainAction );
-    }
-
-    PIO::ParallelClose();
-}
-
-void CReadFile::ServerRead( VoidFunc mainAction )
-{
-    int sPid = Parallel::serverid;
-    int rPid = ZoneState::pid[ ZoneState::zid ];
-
-    if ( Parallel::pid == sPid )
-    {
-        mainAction();
-    }
-
-    HXSwapData( ActionState::dataBook, sPid, rPid );
-
-    if ( Parallel::pid == rPid )
-    {
-        this->action();
-    }
-}
-
 CWriteFile::CWriteFile()
 {
 }

@@ -22,39 +22,23 @@ License
 
 
 #pragma once
+
+#include "HXDefine.h"
 #include "Task.h"
+
 BeginNameSpace( ONEFLOW )
 
-class CWriteFile : public Task
+class CReadFile : public Task
 {
 public:
-    CWriteFile();
-    ~CWriteFile();
+    CReadFile();
+    ~CReadFile();
 public:
     void Run();
     VoidFunc mainAction;
 public:
-    void ServerWrite();
-    void ServerWrite( VoidFunc mainAction );
+    void ServerRead();
+    void ServerRead( VoidFunc mainAction );
 };
-
-class CUpdateInterface : public Task
-{
-public:
-    CUpdateInterface ();
-    ~CUpdateInterface();
-public:
-    void Run();
-protected:
-    void SwapInterfaceData( int iZone, int jZone );
-};
-
-void ReadBinaryFile();
-void WriteBinaryFile();
-void WriteAsciiFile();
-void WriteScreen();
-
-void Client2Server( Task * task, VoidFunc mainAction );
-
 
 EndNameSpace
