@@ -20,28 +20,70 @@ License
 
 \*---------------------------------------------------------------------------*/
 
+#include "WriteTask.h"
+#include "Parallel.h"
+#include "Zone.h"
+#include "ZoneState.h"
+#include "PIO.h"
+#include "ActionState.h"
+#include "DataBook.h"
+#include "InterFace.h"
+#include <iostream>
+using namespace std;
 
-#pragma once
-#include "Task.h"
 BeginNameSpace( ONEFLOW )
 
-class CUpdateInterface : public Task
+CWriteFile::CWriteFile()
 {
-public:
-    CUpdateInterface ();
-    ~CUpdateInterface();
-public:
-    void Run();
-protected:
-    void SwapInterfaceData( int iZone, int jZone );
-};
+}
 
-void ReadBinaryFile();
-void WriteBinaryFile();
-void WriteAsciiFile();
-void WriteScreen();
+CWriteFile::~CWriteFile()
+{
+}
 
-void Client2Server( Task * task, VoidFunc mainAction );
+void CWriteFile::Run()
+{
+    ActionState::dataBook = this->dataBook;
+    if ( Parallel::mode == 0 )
+    {
+        this->ServerWrite();
+    }
+}
+
+void CWriteFile::ServerWrite()
+{
+    fstream file;
+    ActionState::file = & file;
+
+    PIO::ParallelOpenPrj();
+
+    for ( int zId = 0; zId < ZoneState::nZones; ++ zId )
+    {
+        ZoneState::zid = zId;
+
+        this->ServerWrite( this->mainAction );
+    }
+
+    PIO::ParallelClose();
+}
+
+void CWriteFile::ServerWrite( VoidFunc mainAction )
+{
+    int sPid = ZoneState::pid[ ZoneState::zid ];
+    int rPid = Parallel::serverid;
+
+    if ( Parallel::pid == sPid )
+    {
+        this->action();
+    }
+
+    HXSwapData( ActionState::dataBook, sPid, rPid );
+
+    if ( Parallel::pid == rPid )
+    {
+        mainAction();
+    }
+}
 
 
 EndNameSpace

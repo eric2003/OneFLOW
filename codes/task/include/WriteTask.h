@@ -25,23 +25,17 @@ License
 #include "Task.h"
 BeginNameSpace( ONEFLOW )
 
-class CUpdateInterface : public Task
+class CWriteFile : public Task
 {
 public:
-    CUpdateInterface ();
-    ~CUpdateInterface();
+    CWriteFile();
+    ~CWriteFile();
 public:
     void Run();
-protected:
-    void SwapInterfaceData( int iZone, int jZone );
+    VoidFunc mainAction;
+public:
+    void ServerWrite();
+    void ServerWrite( VoidFunc mainAction );
 };
-
-void ReadBinaryFile();
-void WriteBinaryFile();
-void WriteAsciiFile();
-void WriteScreen();
-
-void Client2Server( Task * task, VoidFunc mainAction );
-
 
 EndNameSpace

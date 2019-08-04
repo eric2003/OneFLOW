@@ -24,6 +24,7 @@ License
 #include "TaskCom.h"
 #include "TaskState.h"
 #include "ReadTask.h"
+#include "WriteTask.h"
 
 BeginNameSpace( ONEFLOW )
 
