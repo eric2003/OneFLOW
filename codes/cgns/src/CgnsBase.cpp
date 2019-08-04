@@ -22,7 +22,7 @@ License
 
 #include "CgnsBase.h"
 #include "CgnsZone.h"
-#include "BasicIO.h"
+#include "StrUtil.h"
 #include "Dimension.h"
 #include "CgnsFamilyBc.h"
 #include <iostream>

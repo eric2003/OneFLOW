@@ -33,6 +33,7 @@ License
 #include "CellMesh.h"
 #include "Iteration.h"
 #include "FileIO.h"
+#include "StrUtil.h"
 #include "UNsCom.h"
 #include <sstream>
 #include <iomanip>

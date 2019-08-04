@@ -22,6 +22,7 @@ License
 
 #include "Command.h"
 #include "Task.h"
+#include "TaskState.h"
 #include <iostream>
 #include <string>
 using namespace std;

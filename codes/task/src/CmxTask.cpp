@@ -21,6 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "CmxTask.h"
+#include "SimpleTask.h"
 #include "Command.h"
 #include "Register.h"
 #include "Message.h"
@@ -29,6 +30,7 @@ License
 #include "GridState.h"
 #include "HXClone.h"
 #include "Task.h"
+#include "TaskState.h"
 #include "Solver.h"
 #include "Category.h"
 #include "SolverMap.h"

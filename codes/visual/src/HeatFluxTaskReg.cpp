@@ -22,6 +22,7 @@ License
 #include "HeatFluxTaskReg.h"
 #include "HeatFluxTask.h"
 #include "SolverState.h"
+#include "TaskState.h"
 
 BeginNameSpace( ONEFLOW )
 

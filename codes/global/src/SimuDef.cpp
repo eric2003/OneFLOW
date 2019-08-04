@@ -21,6 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 #include "SimuDef.h"
 #include "DataBase.h"
+#include "Stop.h"
 #include <iostream>
 
 BeginNameSpace( ONEFLOW )

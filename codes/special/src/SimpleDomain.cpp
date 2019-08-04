@@ -26,7 +26,6 @@ License
 #include "CurveInfo.h"
 #include "SegmentCtrl.h"
 #include "BlockElem.h"
-#include "BasicIO.h"
 #include "HXCgns.h"
 #include "Dimension.h"
 #include <algorithm>

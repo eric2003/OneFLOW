@@ -23,8 +23,7 @@ License
 #pragma once
 #include <fstream>
 #include <sstream>
-#include "BasicIO.h"
-#include "HXDefine.h"
+#include "Word.h"
 using namespace std;
 
 BeginNameSpace( ONEFLOW )
@@ -109,12 +108,12 @@ public:
     {
         std::string word = FileIO::ReadNextTrueWord();
         num = 1;
-        bool flag = FindString( word, "*" );
+        bool flag = Word::FindString( word, "*" );
         if ( flag )
         {
-            string word_num = FindNextWord( word, "*" );
+            string word_num = Word::FindNextWord( word, "*" );
             num = StringToDigit< int >( word_num, f );
-            word = FindNextWord( word, "*" );
+            word = Word::FindNextWord( word, "*" );
         }
         T value = StringToDigit< T >( word, f );
         return value;
@@ -128,7 +127,7 @@ inline T ReadNextDigit( ios_base & ( * f )( ios_base & ) = & std::dec )
     std::string * separatorOfWord = ONEFLOW::GetDefaultSeparatorOfWord();
     std::string * defaultLine     = ONEFLOW::GetDefaultLine();
 
-    string word = ONEFLOW::FindNextWord( * defaultLine, * separatorOfWord );
+    string word = Word::FindNextWord( * defaultLine, * separatorOfWord );
     T value = ONEFLOW::StringToDigit< T >( word, f );
     return value;
 }
@@ -136,7 +135,7 @@ inline T ReadNextDigit( ios_base & ( * f )( ios_base & ) = & std::dec )
 template < typename T >
 inline T ReadNextDigit( std::string & source, const std::string & separatorOfWord, ios_base & ( * f )( ios_base & ) = & std::dec )
 {
-    string word = ONEFLOW::FindNextWord( source, separatorOfWord );
+    string word = Word::FindNextWord( source, separatorOfWord );
     T value = ONEFLOW::StringToDigit< T >( word, f );
     return value;
 }

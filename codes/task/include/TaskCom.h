@@ -25,43 +25,6 @@ License
 #include "Task.h"
 BeginNameSpace( ONEFLOW )
 
-class CReadFile : public Task
-{
-public:
-    CReadFile();
-    ~CReadFile();
-public:
-    void Run();
-    VoidFunc mainAction;
-public:
-    void ServerRead();
-    void ServerRead( VoidFunc mainAction );
-};
-
-class CWriteFile : public Task
-{
-public:
-    CWriteFile();
-    ~CWriteFile();
-public:
-    void Run();
-    VoidFunc mainAction;
-public:
-    void ServerWrite();
-    void ServerWrite( VoidFunc mainAction );
-};
-
-class CUpdateInterface : public Task
-{
-public:
-    CUpdateInterface ();
-    ~CUpdateInterface();
-public:
-    void Run();
-protected:
-    void SwapInterfaceData( int iZone, int jZone );
-};
-
 void ReadBinaryFile();
 void WriteBinaryFile();
 void WriteAsciiFile();

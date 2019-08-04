@@ -25,6 +25,7 @@ License
 #include "Zone.h"
 #include "ZoneState.h"
 #include "Prj.h"
+#include "OStream.h"
 #include "UnsGrid.h"
 #include "BcRecord.h"
 #include "FaceTopo.h"
@@ -40,6 +41,7 @@ License
 #include "NsCom.h"
 #include "Parallel.h"
 #include "Iteration.h"
+#include "FileUtil.h"
 #include "FileIO.h"
 #include "UNsCom.h"
 #include <sstream>

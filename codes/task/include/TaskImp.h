@@ -34,13 +34,4 @@ DEFINE_DATA_CLASS( ServerUpdateOversetInterfaceTask );
 
 void RegisterComTask();
 
-class TmpTask : public Task
-{
-public:
-    TmpTask() {};
-    ~TmpTask() {};
-public:
-    void Run() {};
-};
-
 EndNameSpace

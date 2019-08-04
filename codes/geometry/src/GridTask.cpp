@@ -23,6 +23,7 @@ License
 #include "GridTask.h"
 #include "CmxTask.h"
 #include "TaskCom.h"
+#include "TaskState.h"
 #include "Ctrl.h"
 #include "SolverDef.h"
 #include "SolverState.h"

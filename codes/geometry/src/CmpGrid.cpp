@@ -36,7 +36,8 @@ License
 #include "DataBase.h"
 #include "DataBaseIO.h"
 #include "Boundary.h"
-#include "BasicIO.h"
+#include "FileUtil.h"
+#include "Stop.h"
 #include "Prj.h"
 #include "HXPointer.h"
 #include <iostream>

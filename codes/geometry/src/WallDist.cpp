@@ -22,6 +22,7 @@ License
 
 #include "WallDist.h"
 #include "CmxTask.h"
+#include "TaskState.h"
 #include "NsCtrl.h"
 #include "SimuDef.h"
 #include "SolverDef.h"

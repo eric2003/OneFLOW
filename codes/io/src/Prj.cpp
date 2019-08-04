@@ -21,7 +21,8 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "Prj.h"
-#include "BasicIO.h"
+#include "OStream.h"
+#include "FileUtil.h"
 #include "LogFile.h"
 
 #include <iostream>

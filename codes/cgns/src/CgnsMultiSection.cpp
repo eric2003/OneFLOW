@@ -25,7 +25,7 @@ License
 #include "CgnsBase.h"
 #include "CgnsZone.h"
 #include "CgnsData.h"
-#include "BasicIO.h"
+#include "StrUtil.h"
 #include "Dimension.h"
 #include "UnitElement.h"
 #include "ElementHome.h"

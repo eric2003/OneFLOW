@@ -25,6 +25,7 @@ License
 #include "SolverInfo.h"
 #include "SolverDef.h"
 #include "FileIO.h"
+#include "OStream.h"
 #include "DataBase.h"
 #include "RegisterUtil.h"
 #include "Zone.h"
@@ -266,7 +267,7 @@ bool CmpVarValue( const string & varName, StringField & boolName, BoolField & bo
 
 int GetVarDimension( const string & dimName )
 {
-    if ( ONEFLOW::IsDigit( dimName ) )
+    if ( Word::IsDigit( dimName ) )
     {
         return StringToDigit< int >( dimName );
     }

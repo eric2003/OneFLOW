@@ -22,6 +22,7 @@ License
 
 #include "BcData.h"
 #include "FileIO.h"
+#include "FileUtil.h"
 #include "Prj.h"
 
 BeginNameSpace( ONEFLOW )

@@ -24,7 +24,8 @@ License
 #include "DataBase.h"
 #include "Parallel.h"
 #include "LogFile.h"
-#include "BasicIO.h"
+#include "OStream.h"
+#include "Stop.h"
 #include "Prj.h"
 #include <iostream>
 #include <string>
@@ -101,8 +102,8 @@ void AnalysisArrayParameter( FileIO & fileIO, int keyWordIndex )
     string arraySeparator = " =\r\n\t#$,;\"[]";
     string arrayName, arraySizeName;
 
-    arrayName = ONEFLOW::FindNextWord( ayrrayInfo, arraySeparator );
-    arraySizeName = ONEFLOW::FindNextWord( ayrrayInfo, arraySeparator );
+    arrayName = Word::FindNextWord( ayrrayInfo, arraySeparator );
+    arraySizeName = Word::FindNextWord( ayrrayInfo, arraySeparator );
 
     int arraySize = ONEFLOW::GetParameterArraySize( arraySizeName );
 
@@ -149,7 +150,7 @@ int AnalysisScalarParameter( FileIO & fileIO, int keyWordIndex )
 int GetParameterArraySize( const string & word )
 {
     int arraySize = - 1;
-    if ( ONEFLOW::IsDigit( word ) )
+    if ( Word::IsDigit( word ) )
     {
         arraySize = StringToDigit< int >( word );
     }

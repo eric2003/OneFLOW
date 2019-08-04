@@ -23,7 +23,8 @@ along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 #include "DataPage.h"
 #include "BasicParallel.h"
 #include "Parallel.h"
-#include "BasicIO.h"
+#include "Stop.h"
+
 #ifndef _WINDOWS
    #include <string.h>
 #endif
