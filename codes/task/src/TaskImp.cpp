@@ -26,6 +26,7 @@ License
 #include "ReadTask.h"
 #include "WriteTask.h"
 #include "InterfaceTask.h"
+#include "OversetTask.h"
 
 BeginNameSpace( ONEFLOW )
 
@@ -68,7 +69,7 @@ void ServerUpdateInterfaceTask( StringField & data )
 
 void ServerUpdateOversetInterfaceTask( StringField & data )
 {
-    TmpTask * task = new TmpTask();
+    OversetTask * task = new OversetTask();
     TaskState::task = task;
 }
 

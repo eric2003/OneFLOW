@@ -20,18 +20,10 @@ License
 
 \*---------------------------------------------------------------------------*/
 
+#include "OversetTask.h"
 
-#pragma once
-#include "HXClone.h"
-#include "Task.h"
 BeginNameSpace( ONEFLOW )
 
-DEFINE_DATA_CLASS( ReadBinaryFileTask  );
-DEFINE_DATA_CLASS( WriteBinaryFileTask );
-DEFINE_DATA_CLASS( ServerUpdateInterfaceTask  );
-DEFINE_DATA_CLASS( WriteAsciiFileTask );
-DEFINE_DATA_CLASS( ServerUpdateOversetInterfaceTask );
 
-void RegisterComTask();
 
 EndNameSpace
