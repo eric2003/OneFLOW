@@ -22,20 +22,12 @@ License
 
 #include "PIO.h"
 #include "ZoneState.h"
-#include "GridGroup.h"
 #include "Parallel.h"
-#include "SolverDef.h"
 #include "OStream.h"
 #include "FileUtil.h"
 #include "Stop.h"
 #include "Prj.h"
-#include "BgGrid.h"
-#include "Grid.h"
-#include "UnsGrid.h"
-#include "GridState.h"
 #include "ActionState.h"
-#include "HXMath.h"
-#include "DataBook.h"
 #include "Task.h"
 #include <iostream>
 #include <string>
