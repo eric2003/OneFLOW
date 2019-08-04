@@ -27,6 +27,17 @@ using namespace std;
 
 BeginNameSpace( ONEFLOW )
 
+#define REGISTER_TASK( TASK ) \
+class Init_Register##TASK \
+{ \
+public: \
+    Init_Register##TASK() \
+    {  \
+        TaskRegister::Register( TASK ); \
+    } \
+};  \
+Init_Register##TASK init_Register##TASK;
+
 class TaskRegister
 {
 public:

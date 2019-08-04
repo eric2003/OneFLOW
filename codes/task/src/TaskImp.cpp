@@ -41,17 +41,19 @@ void RegisterComTask()
     REGISTER_DATA_CLASS( ServerUpdateOversetInterfaceTask );
 }
 
-class tmpppp
-{
-public:
-    tmpppp()
-    { 
-        TaskRegister::Register( RegisterComTask );
-    }
-    ;
-};
+REGISTER_TASK( RegisterComTask )
 
-tmpppp tmpppp_init;
+//class tmpppp
+//{
+//public:
+//    tmpppp()
+//    { 
+//        TaskRegister::Register( RegisterComTask );
+//    }
+//    ;
+//};
+//
+//tmpppp tmpppp_init;
 
 void ReadBinaryFileTask( StringField & data )
 {
