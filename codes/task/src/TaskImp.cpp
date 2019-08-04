@@ -27,6 +27,7 @@ License
 #include "WriteTask.h"
 #include "InterfaceTask.h"
 #include "OversetTask.h"
+#include "TaskRegister.h"
 
 BeginNameSpace( ONEFLOW )
 
@@ -39,6 +40,18 @@ void RegisterComTask()
     REGISTER_DATA_CLASS( WriteAsciiFileTask );
     REGISTER_DATA_CLASS( ServerUpdateOversetInterfaceTask );
 }
+
+class tmpppp
+{
+public:
+    tmpppp()
+    { 
+        TaskRegister::Register( RegisterComTask );
+    }
+    ;
+};
+
+tmpppp tmpppp_init;
 
 void ReadBinaryFileTask( StringField & data )
 {

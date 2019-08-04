@@ -40,13 +40,15 @@ License
 #include "GridTask.h"
 #include "NsSolverImp.h"
 #include "TurbSolverImp.h"
+#include "TaskRegister.h"
 
 BeginNameSpace( ONEFLOW )
 
 void ConstructSystemMap()
 {
     ONEFLOW::SetDimension();
-    ONEFLOW::RegisterComTask();
+    TaskRegister::Run();
+    //ONEFLOW::RegisterComTask();
     ONEFLOW::RegisterFileTask();
     ONEFLOW::RegisterRedisualTask();
     ONEFLOW::RegisterForceTask();
