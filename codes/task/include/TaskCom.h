@@ -25,17 +25,6 @@ License
 #include "Task.h"
 BeginNameSpace( ONEFLOW )
 
-class CUpdateInterface : public Task
-{
-public:
-    CUpdateInterface ();
-    ~CUpdateInterface();
-public:
-    void Run();
-protected:
-    void SwapInterfaceData( int iZone, int jZone );
-};
-
 void ReadBinaryFile();
 void WriteBinaryFile();
 void WriteAsciiFile();

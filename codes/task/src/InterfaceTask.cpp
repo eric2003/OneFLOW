@@ -20,7 +20,7 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "TaskCom.h"
+#include "InterfaceTask.h"
 #include "Parallel.h"
 #include "Zone.h"
 #include "ZoneState.h"
@@ -34,46 +34,56 @@ using namespace std;
 BeginNameSpace( ONEFLOW )
 
 
-void Client2Server( Task * task, VoidFunc mainAction )
+CUpdateInterface::CUpdateInterface()
 {
-    int sPid = ZoneState::pid[ ZoneState::zid ];
-    int rPid = Parallel::serverid;
+    ;
+}
+
+CUpdateInterface::~CUpdateInterface()
+{
+    ;
+}
+
+void CUpdateInterface::Run()
+{
+    ActionState::dataBook = this->dataBook;
+    for ( int zId = 0; zId < ZoneState::nZones; ++ zId )
+    {
+        ZoneState::zid = zId;
+
+        int nNei = interFaceTopo.data[ zId ].size();
+
+        for ( int iNei = 0; iNei < nNei; ++ iNei )
+        {
+            int jZone = interFaceTopo.data[ zId ][ iNei ];
+
+            this->SwapInterfaceData( zId, jZone );
+        }
+    }
+}
+
+void CUpdateInterface::SwapInterfaceData( int iZone, int jZone )
+{
+    int sPid = ZoneState::pid[ iZone ];
+    int rPid = ZoneState::pid[ jZone ];
 
     if ( Parallel::pid == sPid )
     {
-        task->action();
+        ZoneState::zid  = iZone;
+        ZoneState::rzid = jZone;
+
+        this->sendAction();
     }
 
     HXSwapData( ActionState::dataBook, sPid, rPid );
 
     if ( Parallel::pid == rPid )
     {
-        mainAction();
+        ZoneState::zid  = jZone;
+        ZoneState::szid = iZone;
+
+        this->recvAction();
     }
-}
-
-void ReadBinaryFile()
-{
-    ActionState::dataBook->ReadFile( * ActionState::file );
-}
-
-void WriteBinaryFile()
-{
-    ActionState::dataBook->WriteFile( * ActionState::file );
-}
-
-void WriteAsciiFile()
-{
-    string str;
-    ActionState::dataBook->ToString( str );
-    * ActionState::file << str;
-}
-
-void WriteScreen()
-{
-    string str;
-    ActionState::dataBook->ToString( str );
-    cout << str;
 }
 
 EndNameSpace
