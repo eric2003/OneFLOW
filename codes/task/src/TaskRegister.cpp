@@ -46,7 +46,7 @@ void TaskRegister::Register( VoidFunc taskfun )
     cout << " (VoidFunc)taskfun = " << (VoidFunc)taskfun << "\n";
     cout << " static_cast<VoidFunc>(taskfun) = " << static_cast<VoidFunc>(taskfun) << "\n";
     cout << " (void *)(taskfun) = " << (void *)(taskfun) << "\n";
-    cout << " static_cast<void *>(taskfun) = " << static_cast<void *>(taskfun) << "\n";
+    cout << " reinterpret_cast<void *>(taskfun) = " << reinterpret_cast<void *>(taskfun) << "\n";
     TaskRegister::taskList->push_back( taskfun );
 }
 
