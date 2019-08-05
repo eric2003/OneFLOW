@@ -19,47 +19,46 @@ License
     along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 
 \*---------------------------------------------------------------------------*/
-#pragma once
-#include "HXDefine.h"
+
+#include "MsgMapImp.h"
+#include "Message.h"
+#include "FileIO.h"
 
 BeginNameSpace( ONEFLOW )
 
-class RegData;
-typedef RegData * ( * RegDataFun )( void );
-
-#define REGISTER_REG_DATA( FUN ) \
-class Init_RegDataRegister##FUN \
-{ \
-public: \
-    Init_RegDataRegister##FUN() \
-    {  \
-        RegDataRegister::Register( FUN ); \
-    } \
-};  \
-Init_RegDataRegister##FUN init_RegDataRegister##FUN;
-
-class RegDataRegister
+void CreateMsgMap()
 {
-public:
-    RegDataRegister();
-    ~RegDataRegister();
-public:
-    static HXVector< RegDataFun > * regDataFunList;
-public:
-    static void Register( RegDataFun regDataFun );
-    static void Run();
-};
+    StringField fileNameList;
+    GetMsgFileNameList( fileNameList );
 
+    MessageMap::Init();
 
-void RegisterSolverTask( RegData * regData );
-void RegisterSolverVarMap( int sTid );
-void RegisterSolverFunc( int sTid, const string & solverName, VoidFunc func );
+    for ( int iFile = 0; iFile < fileNameList.size(); ++ iFile )
+    {
+        MessageMap::ReadFile( fileNameList[ iFile ] );
+    }
+}
 
-void FreeSolverTask();
+void GetMsgFileNameList( StringField & fileNameList )
+{
+    //\tÎªtab¼ü
+    string separator  = " =\r\n\t#$,;\"()";
+    string fileName = "./system/action/actionFileList.txt";
 
-class MRegister;
-void GetSolverFileNames( const string & solverName, StringField & fileNameList );
-void SetSolverFileNames( MRegister * mRegister, const string & solverName );
+    FileIO ioFile;
+    ioFile.OpenFile( fileName, ios_base::in );
+    ioFile.SetDefaultSeparator( separator );
+
+    while ( ! ioFile.ReachTheEndOfFile()  )
+    {
+        bool flag = ioFile.ReadNextNonEmptyLine();
+        if ( ! flag ) break;
+        string fileName = ioFile.ReadNextWord();
+        fileNameList.push_back( fileName );
+    }
+
+    ioFile.CloseFile();
+}
 
 
 EndNameSpace

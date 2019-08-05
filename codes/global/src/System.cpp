@@ -29,6 +29,7 @@ License
 #include "NsSolverImp.h"
 #include "TurbSolverImp.h"
 #include "TaskRegister.h"
+#include "MsgMapImp.h"
 
 BeginNameSpace( ONEFLOW )
 

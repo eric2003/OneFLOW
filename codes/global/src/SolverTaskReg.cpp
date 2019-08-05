@@ -108,40 +108,6 @@ void FreeSolverTask()
     SolverInfoFactory::Free();
 }
 
-void GetMsgFileNameList( StringField & fileNameList )
-{
-    //\tÎªtab¼ü
-    string separator  = " =\r\n\t#$,;\"()";
-    string fileName = "./system/action/actionFileList.txt";
-
-    FileIO ioFile;
-    ioFile.OpenFile( fileName, ios_base::in );
-    ioFile.SetDefaultSeparator( separator );
-
-    while ( ! ioFile.ReachTheEndOfFile()  )
-    {
-        bool flag = ioFile.ReadNextNonEmptyLine();
-        if ( ! flag ) break;
-        string fileName = ioFile.ReadNextWord();
-        fileNameList.push_back( fileName );
-    }
-
-    ioFile.CloseFile();
-}
-
-void CreateMsgMap()
-{
-    StringField fileNameList;
-    GetMsgFileNameList( fileNameList );
-
-    MessageMap::Init();
-
-    for ( int iFile = 0; iFile < fileNameList.size(); ++ iFile )
-    {
-        MessageMap::ReadFile( fileNameList[ iFile ] );
-    }
-}
-
 void GetSolverFileNames( const string & solverName, StringField & fileNameList )
 {
     //\tÎªtab¼ü
