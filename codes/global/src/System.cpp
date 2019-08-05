@@ -22,12 +22,7 @@ License
 #include "System.h"
 #include "DimensionImp.h"
 #include "SolverRegister.h"
-#include "FileMap.h"
-#include "TaskImp.h"
 #include "SolverDef.h"
-#include "GridTask.h"
-#include "NsSolverImp.h"
-#include "TurbSolverImp.h"
 #include "TaskRegister.h"
 #include "MsgMapImp.h"
 
@@ -39,7 +34,7 @@ void ConstructSystemMap()
 
     TaskRegister::Run();
 
-    ONEFLOW::CreateSysMap();
+    CreateSysMap();
 
     CreateMsgMap();
 
