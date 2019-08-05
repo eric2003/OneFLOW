@@ -21,48 +21,46 @@ License
 \*---------------------------------------------------------------------------*/
 #include "SolverTaskReg.h"
 #include "RegData.h"
-#include "DataBase.h"
 #include "FileIO.h"
 #include "OStream.h"
 #include "StrUtil.h"
-#include "ActionMap.h"
-#include "Message.h"
 #include "Register.h"
 #include "SolverDef.h"
 #include "Category.h"
 #include "RegisterUtil.h"
 #include "SolverInfo.h"
+#include "SolverName.h"
 
 BeginNameSpace( ONEFLOW )
 
-HXVector< RegDataFun > * RegDataRegister::regDataFunList = 0;
-
-RegDataRegister::RegDataRegister()
-{
-}
-
-RegDataRegister::~RegDataRegister()
-{
-}
-
-void RegDataRegister::Register( RegDataFun regDataFun )
-{
-    if ( ! RegDataRegister::regDataFunList )
-    {
-        RegDataRegister::regDataFunList = new HXVector< RegDataFun >;
-    }
-    RegDataRegister::regDataFunList->push_back( regDataFun );
-}
-
-void RegDataRegister::Run()
-{
-    int n = RegDataRegister::regDataFunList->size();
-    for ( int i = 0; i < n; ++ i )
-    {
-        RegDataFun regDataFun = ( * RegDataRegister::regDataFunList )[ i ];
-        RegisterSolverTask( regDataFun() );
-    }
-}
+//HXVector< RegDataFun > * RegDataRegister::regDataFunList = 0;
+//
+//RegDataRegister::RegDataRegister()
+//{
+//}
+//
+//RegDataRegister::~RegDataRegister()
+//{
+//}
+//
+//void RegDataRegister::Register( RegDataFun regDataFun )
+//{
+//    if ( ! RegDataRegister::regDataFunList )
+//    {
+//        RegDataRegister::regDataFunList = new HXVector< RegDataFun >;
+//    }
+//    RegDataRegister::regDataFunList->push_back( regDataFun );
+//}
+//
+//void RegDataRegister::Run()
+//{
+//    int n = RegDataRegister::regDataFunList->size();
+//    for ( int i = 0; i < n; ++ i )
+//    {
+//        RegDataFun regDataFun = ( * RegDataRegister::regDataFunList )[ i ];
+//        RegisterSolverTask( regDataFun() );
+//    }
+//}
 
 void RegisterSolverVarMap( int sTid )
 {
@@ -106,36 +104,6 @@ void FreeSolverTask()
     Category::Free();
     VarNameFactory::FreeVarNameSolver();
     SolverInfoFactory::Free();
-}
-
-void GetSolverFileNames( const string & solverName, StringField & fileNameList )
-{
-    //\tÎªtab¼ü
-    string separator = " =\r\n\t#$,;\"()";
-
-    OStream ostr;
-    ostr.ClearAll();
-    ostr << "./system/" << solverName << "/function/";
-    string baseDir = ostr.str();
-    ostr << "fileList.txt";
-    string keyFileName = ostr.str();
-
-    FileIO ioFile;
-    ioFile.OpenFile( keyFileName, ios_base::in );
-    ioFile.SetDefaultSeparator( separator );
-
-    while ( ! ioFile.ReachTheEndOfFile()  )
-    {
-        bool flag = ioFile.ReadNextNonEmptyLine();
-        if ( ! flag ) break;
-        string fileName = ioFile.ReadNextWord();
-
-        fileName = AddString( baseDir, fileName );
-
-        fileNameList.push_back( fileName );
-    }
-
-    ioFile.CloseFile();
 }
 
 void SetSolverFileNames( MRegister * mRegister, const string & solverName )

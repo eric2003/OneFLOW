@@ -19,32 +19,35 @@ License
     along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 
 \*---------------------------------------------------------------------------*/
-#include "System.h"
-#include "DimensionImp.h"
-//#include "SolverTaskReg.h"
-#include "SolverRegister.h"
-#include "FileMap.h"
-#include "TaskImp.h"
-#include "SolverDef.h"
-#include "GridTask.h"
-#include "NsSolverImp.h"
-#include "TurbSolverImp.h"
-#include "TaskRegister.h"
-#include "MsgMapImp.h"
+#pragma once
+#include "HXDefine.h"
 
 BeginNameSpace( ONEFLOW )
 
-void ConstructSystemMap()
+class RegData;
+typedef RegData * ( * RegDataFun )( void );
+
+#define REGISTER_REG_DATA( FUN ) \
+class Init_RegDataRegister##FUN \
+{ \
+public: \
+    Init_RegDataRegister##FUN() \
+    {  \
+        RegDataRegister::Register( FUN ); \
+    } \
+};  \
+Init_RegDataRegister##FUN init_RegDataRegister##FUN;
+
+class RegDataRegister
 {
-    ONEFLOW::SetDimension();
-
-    TaskRegister::Run();
-
-    ONEFLOW::CreateSysMap();
-
-    CreateMsgMap();
-
-    RegDataRegister::Run();
-}
+public:
+    RegDataRegister();
+    ~RegDataRegister();
+public:
+    static HXVector< RegDataFun > * regDataFunList;
+public:
+    static void Register( RegDataFun regDataFun );
+    static void Run();
+};
 
 EndNameSpace

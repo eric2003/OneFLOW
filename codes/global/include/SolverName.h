@@ -19,32 +19,12 @@ License
     along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 
 \*---------------------------------------------------------------------------*/
-#include "System.h"
-#include "DimensionImp.h"
-//#include "SolverTaskReg.h"
-#include "SolverRegister.h"
-#include "FileMap.h"
-#include "TaskImp.h"
-#include "SolverDef.h"
-#include "GridTask.h"
-#include "NsSolverImp.h"
-#include "TurbSolverImp.h"
-#include "TaskRegister.h"
-#include "MsgMapImp.h"
+#pragma once
+#include "HXDefine.h"
 
 BeginNameSpace( ONEFLOW )
 
-void ConstructSystemMap()
-{
-    ONEFLOW::SetDimension();
+void GetSolverFileNames( const string & solverName, StringField & fileNameList );
 
-    TaskRegister::Run();
-
-    ONEFLOW::CreateSysMap();
-
-    CreateMsgMap();
-
-    RegDataRegister::Run();
-}
 
 EndNameSpace

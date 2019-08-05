@@ -38,7 +38,7 @@ License
 #include "InterFace.h"
 #include "WallDist.h"
 #include "FaceTopo.h"
-#include "SolverTaskReg.h"
+#include "SolverRegister.h"
 #include "RegData.h"
 
 BeginNameSpace( ONEFLOW )

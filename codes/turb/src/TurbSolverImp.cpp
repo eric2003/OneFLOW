@@ -26,7 +26,7 @@ License
 #include "TurbRhs.h"
 #include "CmxTask.h"
 #include "Iteration.h"
-#include "SolverTaskReg.h"
+#include "SolverRegister.h"
 #include "RegData.h"
 
 BeginNameSpace( ONEFLOW )

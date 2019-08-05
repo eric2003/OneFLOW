@@ -19,32 +19,43 @@ License
     along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 
 \*---------------------------------------------------------------------------*/
-#include "System.h"
-#include "DimensionImp.h"
-//#include "SolverTaskReg.h"
-#include "SolverRegister.h"
-#include "FileMap.h"
-#include "TaskImp.h"
-#include "SolverDef.h"
-#include "GridTask.h"
-#include "NsSolverImp.h"
-#include "TurbSolverImp.h"
-#include "TaskRegister.h"
-#include "MsgMapImp.h"
+#include "SolverName.h"
+#include "OStream.h"
+#include "FileIO.h"
+#include "StrUtil.h"
 
 BeginNameSpace( ONEFLOW )
 
-void ConstructSystemMap()
+
+void GetSolverFileNames( const string & solverName, StringField & fileNameList )
 {
-    ONEFLOW::SetDimension();
+    //\tÎªtab¼ü
+    string separator = " =\r\n\t#$,;\"()";
 
-    TaskRegister::Run();
+    OStream ostr;
+    ostr.ClearAll();
+    ostr << "./system/" << solverName << "/function/";
+    string baseDir = ostr.str();
+    ostr << "fileList.txt";
+    string keyFileName = ostr.str();
 
-    ONEFLOW::CreateSysMap();
+    FileIO ioFile;
+    ioFile.OpenFile( keyFileName, ios_base::in );
+    ioFile.SetDefaultSeparator( separator );
 
-    CreateMsgMap();
+    while ( ! ioFile.ReachTheEndOfFile()  )
+    {
+        bool flag = ioFile.ReadNextNonEmptyLine();
+        if ( ! flag ) break;
+        string fileName = ioFile.ReadNextWord();
 
-    RegDataRegister::Run();
+        fileName = AddString( baseDir, fileName );
+
+        fileNameList.push_back( fileName );
+    }
+
+    ioFile.CloseFile();
 }
+
 
 EndNameSpace

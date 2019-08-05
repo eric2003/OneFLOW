@@ -50,9 +50,6 @@ License
 #include "UResidual.h"
 #include "UNsCom.h"
 #include "TaskRegister.h"
-#include <map>
-#include <iostream>
-using namespace std;
 
 BeginNameSpace( ONEFLOW )
 

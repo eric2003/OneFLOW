@@ -26,6 +26,5 @@ BeginNameSpace( ONEFLOW )
 
 class RegData;
 void ConstructSystemMap();
-//void GetRegData( HXVector< RegData * > & regDataArray );
 
 EndNameSpace
