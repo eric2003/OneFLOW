@@ -43,6 +43,8 @@ void TaskRegister::Register( VoidFunc taskfun )
         TaskRegister::taskList = new HXVector< VoidFunc >;
     }
     cout << " taskfun = " << taskfun << "\n";
+    cout << " (VoidFunc)taskfun = " << (VoidFunc)taskfun << "\n";
+    cout << " static_cast<VoidFunc>(taskfun) = " << static_cast<VoidFunc>(taskfun) << "\n";
     TaskRegister::taskList->push_back( taskfun );
 }
 

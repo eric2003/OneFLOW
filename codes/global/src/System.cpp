@@ -21,18 +21,6 @@ License
 \*---------------------------------------------------------------------------*/
 #include "System.h"
 #include "DimensionImp.h"
-#include "ResidualTaskReg.h"
-#include "AeroForceTaskReg.h"
-#include "HeatFluxTaskReg.h"
-#include "MultigridTaskReg.h"
-#include "UnsteadyTaskReg.h"
-#include "RestartTaskReg.h"
-#include "ImplicitTaskReg.h"
-#include "InterfaceTaskReg.h"
-#include "VisualTaskReg.h"
-#include "UpdateTaskReg.h"
-#include "LhsTaskReg.h"
-#include "FieldTaskReg.h"
 #include "SolverTaskReg.h"
 #include "FileMap.h"
 #include "TaskImp.h"
@@ -47,21 +35,9 @@ BeginNameSpace( ONEFLOW )
 void ConstructSystemMap()
 {
     ONEFLOW::SetDimension();
+
     TaskRegister::Run();
-    //ONEFLOW::RegisterComTask();
-    //ONEFLOW::RegisterFileTask();
-    //ONEFLOW::RegisterRedisualTask();
-    //ONEFLOW::RegisterForceTask();
-    //ONEFLOW::RegisterHeatFluxTask();
-    //ONEFLOW::RegisterMultigridTask();
-    //ONEFLOW::RegisterUnsteadyTask();
-    //ONEFLOW::RegisterRestartTask();
-    //ONEFLOW::RegisterImplicitTask();
-    //ONEFLOW::RegisterInterfaceTask();
-    //ONEFLOW::RegisterVisualTask();
-    //ONEFLOW::RegisterUpdateTask();
-    //ONEFLOW::RegisterLhsTask();
-    //ONEFLOW::RegisterFieldTask();
+
     ONEFLOW::CreateSysMap();
 
     CreateMsgMap();
