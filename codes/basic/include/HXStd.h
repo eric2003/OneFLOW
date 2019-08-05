@@ -21,7 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #pragma once
-#include "HXDefine.h"
+#include "HXVector.h"
 #include <set>
 using namespace std;
 

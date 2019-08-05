@@ -20,7 +20,7 @@ License
 
 \*---------------------------------------------------------------------------*/
 #pragma once
-#include "Configure.h"
+#include "HXType.h"
 
 BeginNameSpace( ONEFLOW )
 
