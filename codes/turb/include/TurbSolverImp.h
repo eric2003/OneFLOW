@@ -36,7 +36,7 @@ DEFINE_DATA_CLASS( TurbCmpBoundary );
 
 void SetTurbFunc();
 
-class RegData;
-RegData * GetTurbReg();
+class SolverRegData;
+SolverRegData * GetTurbReg();
 
 EndNameSpace

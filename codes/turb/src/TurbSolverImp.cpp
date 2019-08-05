@@ -27,7 +27,6 @@ License
 #include "CmxTask.h"
 #include "Iteration.h"
 #include "SolverRegister.h"
-#include "RegData.h"
 
 BeginNameSpace( ONEFLOW )
 
@@ -99,8 +98,8 @@ void TurbInitSolver( StringField & data )
 }
 
 
-RegData turbReg;
-RegData * GetTurbReg()
+SolverRegData turbReg;
+SolverRegData * GetTurbReg()
 {
     turbReg.sTid = TURB_SOLVER;
     turbReg.func = & SetTurbFunc;

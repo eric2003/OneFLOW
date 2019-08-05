@@ -45,7 +45,7 @@ public:
     void Run();
 };
 
-class RegData;
-RegData * GetGridReg();
+class SolverRegData;
+SolverRegData * GetGridReg();
 
 EndNameSpace

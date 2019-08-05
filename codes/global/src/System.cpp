@@ -21,7 +21,6 @@ License
 \*---------------------------------------------------------------------------*/
 #include "System.h"
 #include "DimensionImp.h"
-//#include "SolverTaskReg.h"
 #include "SolverRegister.h"
 #include "FileMap.h"
 #include "TaskImp.h"
@@ -44,7 +43,7 @@ void ConstructSystemMap()
 
     CreateMsgMap();
 
-    RegDataRegister::Run();
+    SolverRegister::Run();
 }
 
 EndNameSpace

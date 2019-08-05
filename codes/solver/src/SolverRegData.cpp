@@ -19,16 +19,16 @@ License
     along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 
 \*---------------------------------------------------------------------------*/
-#include "RegData.h"
+#include "SolverRegData.h"
 
 BeginNameSpace( ONEFLOW )
 
-RegData::RegData()
+SolverRegData::SolverRegData()
 {
     ;
 }
 
-RegData::~RegData()
+SolverRegData::~SolverRegData()
 {
     ;
 }

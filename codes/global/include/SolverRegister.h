@@ -21,32 +21,33 @@ License
 \*---------------------------------------------------------------------------*/
 #pragma once
 #include "HXDefine.h"
+#include "SolverRegData.h"
 
 BeginNameSpace( ONEFLOW )
 
-class RegData;
-typedef RegData * ( * RegDataFun )( void );
+class SolverRegData;
+typedef SolverRegData * ( * SolverRegFun )( void );
 
 #define REGISTER_REG_DATA( FUN ) \
-class Init_RegDataRegister##FUN \
+class Init_SolverRegDataRegister##FUN \
 { \
 public: \
-    Init_RegDataRegister##FUN() \
+    Init_SolverRegDataRegister##FUN() \
     {  \
-        RegDataRegister::Register( FUN ); \
+        SolverRegister::Register( FUN ); \
     } \
 };  \
-Init_RegDataRegister##FUN init_RegDataRegister##FUN;
+Init_SolverRegDataRegister##FUN init_SolverRegDataRegister##FUN;
 
-class RegDataRegister
+class SolverRegister
 {
 public:
-    RegDataRegister();
-    ~RegDataRegister();
+    SolverRegister();
+    ~SolverRegister();
 public:
-    static HXVector< RegDataFun > * regDataFunList;
+    static HXVector< SolverRegFun > * solverRegFunList;
 public:
-    static void Register( RegDataFun regDataFun );
+    static void Register( SolverRegFun solverRegFun );
     static void Run();
 };
 

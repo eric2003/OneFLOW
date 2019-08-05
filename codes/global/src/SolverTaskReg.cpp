@@ -20,10 +20,7 @@ License
 
 \*---------------------------------------------------------------------------*/
 #include "SolverTaskReg.h"
-#include "RegData.h"
-#include "FileIO.h"
-#include "OStream.h"
-#include "StrUtil.h"
+#include "SolverRegData.h"
 #include "Register.h"
 #include "SolverDef.h"
 #include "Category.h"
@@ -32,35 +29,6 @@ License
 #include "SolverName.h"
 
 BeginNameSpace( ONEFLOW )
-
-//HXVector< RegDataFun > * RegDataRegister::regDataFunList = 0;
-//
-//RegDataRegister::RegDataRegister()
-//{
-//}
-//
-//RegDataRegister::~RegDataRegister()
-//{
-//}
-//
-//void RegDataRegister::Register( RegDataFun regDataFun )
-//{
-//    if ( ! RegDataRegister::regDataFunList )
-//    {
-//        RegDataRegister::regDataFunList = new HXVector< RegDataFun >;
-//    }
-//    RegDataRegister::regDataFunList->push_back( regDataFun );
-//}
-//
-//void RegDataRegister::Run()
-//{
-//    int n = RegDataRegister::regDataFunList->size();
-//    for ( int i = 0; i < n; ++ i )
-//    {
-//        RegDataFun regDataFun = ( * RegDataRegister::regDataFunList )[ i ];
-//        RegisterSolverTask( regDataFun() );
-//    }
-//}
 
 void RegisterSolverVarMap( int sTid )
 {
@@ -71,7 +39,7 @@ void RegisterSolverVarMap( int sTid )
     SolverInfoFactory::AddSolverInfo( sTid );
 }
 
-void RegisterSolverTask( RegData * regData )
+void RegisterSolverTask( SolverRegData * regData )
 {
     int sTid = regData->sTid;
     string &solverName = regData->solverName;

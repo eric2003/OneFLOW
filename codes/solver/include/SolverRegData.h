@@ -24,11 +24,11 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-class RegData
+class SolverRegData
 {
 public:
-    RegData();
-    ~RegData();
+    SolverRegData();
+    ~SolverRegData();
 public:
     int sTid;
     string solverName;

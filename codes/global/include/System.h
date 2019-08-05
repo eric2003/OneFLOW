@@ -24,7 +24,7 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-class RegData;
+class SolverRegData;
 void ConstructSystemMap();
 
 EndNameSpace

@@ -39,7 +39,7 @@ DEFINE_DATA_CLASS( DumpHeatFluxCoeff );
 
 void RegisterNsFunc();
 
-class RegData;
-RegData * GetNsReg();
+class SolverRegData;
+SolverRegData * GetNsReg();
 
 EndNameSpace

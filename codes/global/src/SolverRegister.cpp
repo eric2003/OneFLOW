@@ -20,37 +20,37 @@ License
 
 \*---------------------------------------------------------------------------*/
 #include "SolverRegister.h"
-#include "RegData.h"
+#include "SolverRegData.h"
 #include "SolverTaskReg.h"
 
 BeginNameSpace( ONEFLOW )
 
-HXVector< RegDataFun > * RegDataRegister::regDataFunList = 0;
+HXVector< SolverRegFun > * SolverRegister::solverRegFunList = 0;
 
-RegDataRegister::RegDataRegister()
+SolverRegister::SolverRegister()
 {
 }
 
-RegDataRegister::~RegDataRegister()
+SolverRegister::~SolverRegister()
 {
 }
 
-void RegDataRegister::Register( RegDataFun regDataFun )
+void SolverRegister::Register( SolverRegFun solverRegFun )
 {
-    if ( ! RegDataRegister::regDataFunList )
+    if ( ! SolverRegister::solverRegFunList )
     {
-        RegDataRegister::regDataFunList = new HXVector< RegDataFun >;
+        SolverRegister::solverRegFunList = new HXVector< SolverRegFun >;
     }
-    RegDataRegister::regDataFunList->push_back( regDataFun );
+    SolverRegister::solverRegFunList->push_back( solverRegFun );
 }
 
-void RegDataRegister::Run()
+void SolverRegister::Run()
 {
-    int n = RegDataRegister::regDataFunList->size();
+    int n = SolverRegister::solverRegFunList->size();
     for ( int i = 0; i < n; ++ i )
     {
-        RegDataFun regDataFun = ( * RegDataRegister::regDataFunList )[ i ];
-        RegisterSolverTask( regDataFun() );
+        SolverRegFun solverRegFun = ( * SolverRegister::solverRegFunList )[ i ];
+        RegisterSolverTask( solverRegFun() );
     }
 }
 
