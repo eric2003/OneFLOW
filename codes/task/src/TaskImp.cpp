@@ -31,6 +31,7 @@ License
 
 BeginNameSpace( ONEFLOW )
 
+REGISTER_TASK( RegisterComTask )
 
 void RegisterComTask()
 {
@@ -40,8 +41,6 @@ void RegisterComTask()
     REGISTER_DATA_CLASS( WriteAsciiFileTask );
     REGISTER_DATA_CLASS( ServerUpdateOversetInterfaceTask );
 }
-
-REGISTER_TASK( RegisterComTask )
 
 void ReadBinaryFileTask( StringField & data )
 {

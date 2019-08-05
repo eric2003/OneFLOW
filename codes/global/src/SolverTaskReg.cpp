@@ -34,6 +34,35 @@ License
 
 BeginNameSpace( ONEFLOW )
 
+HXVector< RegDataFun > * RegDataRegister::regDataFunList = 0;
+
+RegDataRegister::RegDataRegister()
+{
+}
+
+RegDataRegister::~RegDataRegister()
+{
+}
+
+void RegDataRegister::Register( RegDataFun regDataFun )
+{
+    if ( ! RegDataRegister::regDataFunList )
+    {
+        RegDataRegister::regDataFunList = new HXVector< RegDataFun >;
+    }
+    RegDataRegister::regDataFunList->push_back( regDataFun );
+}
+
+void RegDataRegister::Run()
+{
+    int n = RegDataRegister::regDataFunList->size();
+    for ( int i = 0; i < n; ++ i )
+    {
+        RegDataFun regDataFun = ( * RegDataRegister::regDataFunList )[ i ];
+        RegisterSolverTask( regDataFun() );
+    }
+}
+
 void RegisterSolverTask( HXVector< RegData * > & regDataArray )
 {
     for ( int i = 0; i < regDataArray.size(); ++ i )

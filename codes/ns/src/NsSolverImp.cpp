@@ -34,6 +34,7 @@ License
 #include "Ctrl.h"
 #include "LaminarPlate.h"
 #include "TurbPlate.h"
+#include "SolverTaskReg.h"
 
 BeginNameSpace( ONEFLOW )
 
@@ -180,5 +181,7 @@ RegData * GetNsReg()
     nsReg.dataFlag = WITH_DATA;
     return & nsReg;
 }
+
+REGISTER_REG_DATA( GetNsReg );
 
 EndNameSpace

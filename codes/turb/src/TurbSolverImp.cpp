@@ -26,6 +26,7 @@ License
 #include "TurbRhs.h"
 #include "CmxTask.h"
 #include "Iteration.h"
+#include "SolverTaskReg.h"
 
 BeginNameSpace( ONEFLOW )
 
@@ -107,5 +108,7 @@ RegData * GetTurbReg()
     turbReg.dataFlag = WITH_DATA;
     return & turbReg;
 }
+
+REGISTER_REG_DATA( GetTurbReg );
 
 EndNameSpace

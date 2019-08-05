@@ -42,17 +42,14 @@ void ConstructSystemMap()
 
     CreateMsgMap();
 
-    HXVector< RegData * > regDataArray;
-    GetRegData( regDataArray );
-
-    RegisterSolverTask( regDataArray );
+    RegDataRegister::Run();
 }
 
-void GetRegData( HXVector< RegData * > & regDataArray )
-{
-    regDataArray.push_back( GetGridReg() );
-    regDataArray.push_back( GetNsReg() );
-    regDataArray.push_back( GetTurbReg() );
-}
+//void GetRegData( HXVector< RegData * > & regDataArray )
+//{
+//    regDataArray.push_back( GetGridReg() );
+//    regDataArray.push_back( GetNsReg() );
+//    regDataArray.push_back( GetTurbReg() );
+//}
 
 EndNameSpace

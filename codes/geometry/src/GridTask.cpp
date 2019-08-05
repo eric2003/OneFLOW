@@ -38,6 +38,7 @@ License
 #include "InterFace.h"
 #include "WallDist.h"
 #include "FaceTopo.h"
+#include "SolverTaskReg.h"
 
 BeginNameSpace( ONEFLOW )
 
@@ -172,5 +173,7 @@ RegData * GetGridReg()
 
     return & gridReg;
 }
+
+REGISTER_REG_DATA( GetGridReg );
 
 EndNameSpace
