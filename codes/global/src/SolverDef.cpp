@@ -68,14 +68,4 @@ int GetOppositeSendRecv( int iSr )
     }
 }
 
-RegData::RegData()
-{
-    ;
-}
-
-RegData::~RegData()
-{
-    ;
-}
-
 EndNameSpace

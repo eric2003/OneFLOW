@@ -35,6 +35,7 @@ License
 #include "LaminarPlate.h"
 #include "TurbPlate.h"
 #include "SolverTaskReg.h"
+#include "RegData.h"
 
 BeginNameSpace( ONEFLOW )
 

@@ -27,6 +27,7 @@ License
 #include "CmxTask.h"
 #include "Iteration.h"
 #include "SolverTaskReg.h"
+#include "RegData.h"
 
 BeginNameSpace( ONEFLOW )
 

@@ -20,6 +20,7 @@ License
 
 \*---------------------------------------------------------------------------*/
 #include "SolverTaskReg.h"
+#include "RegData.h"
 #include "DataBase.h"
 #include "FileIO.h"
 #include "OStream.h"
@@ -60,15 +61,6 @@ void RegDataRegister::Run()
     {
         RegDataFun regDataFun = ( * RegDataRegister::regDataFunList )[ i ];
         RegisterSolverTask( regDataFun() );
-    }
-}
-
-void RegisterSolverTask( HXVector< RegData * > & regDataArray )
-{
-    for ( int i = 0; i < regDataArray.size(); ++ i )
-    {
-        RegData * regData = regDataArray[ i ];
-        RegisterSolverTask( regData );
     }
 }
 

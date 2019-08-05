@@ -19,50 +19,18 @@ License
     along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 
 \*---------------------------------------------------------------------------*/
-#pragma once
-#include "HXDefine.h"
+#include "RegData.h"
 
 BeginNameSpace( ONEFLOW )
 
-class RegData;
-typedef RegData * ( * RegDataFun )( void );
-
-#define REGISTER_REG_DATA( FUN ) \
-class Init_RegDataRegister##FUN \
-{ \
-public: \
-    Init_RegDataRegister##FUN() \
-    {  \
-        RegDataRegister::Register( FUN ); \
-    } \
-};  \
-Init_RegDataRegister##FUN init_RegDataRegister##FUN;
-
-class RegDataRegister
+RegData::RegData()
 {
-public:
-    RegDataRegister();
-    ~RegDataRegister();
-public:
-    static HXVector< RegDataFun > * regDataFunList;
-public:
-    static void Register( RegDataFun regDataFun );
-    static void Run();
-};
+    ;
+}
 
-
-void RegisterSolverTask( RegData * regData );
-void RegisterSolverVarMap( int sTid );
-void RegisterSolverFunc( int sTid, const string & solverName, VoidFunc func );
-
-void FreeSolverTask();
-
-void GetMsgFileNameList( StringField & fileNameList );
-void CreateMsgMap();
-
-class MRegister;
-void GetSolverFileNames( const string & solverName, StringField & fileNameList );
-void SetSolverFileNames( MRegister * mRegister, const string & solverName );
-
+RegData::~RegData()
+{
+    ;
+}
 
 EndNameSpace

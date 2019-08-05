@@ -21,53 +21,20 @@ License
 \*---------------------------------------------------------------------------*/
 #pragma once
 #include "HXDefine.h"
-#include <map>
-#include <string>
-using namespace std;
 
 BeginNameSpace( ONEFLOW )
 
-const int CFD_SOLVER         = 0;
-const int NS_SOLVER          = 1;
-const int TURB_SOLVER        = 2;
-const int INC_NS_SOLVER      = 3;
-const int HIGH_ORDER_SOLVER  = 4;
-const int SCALAR_SOLVER      = 5;
-const int GRID_SOLVER        = 6;
-const int SIMU_SOLVER        = 7;
-const int SOLVER_CAPACITY    = 8;
-
-const int INTERFACE_DATA          = 0;
-const int INTERFACE_DQ_DATA       = 1;
-const int INTERFACE_GRADIENT_DATA = 2;
-const int INTERFACE_OVERSET_DATA  = 3;
-
-const int SOLVER_BASED = 0;
-const int GRID_BASED   = 1;
-
-const int NO_DATA   = 0;
-const int WITH_DATA = 1;
-
-const int FIELD_FLOW = 0;
-const int FIELD_RHS  = 1;
-
-const int GREAT_SEND = 0;
-const int GREAT_RECV = 1;
-
-const int SEND_STORAGE = 0;
-const int RECV_STORAGE = 1;
-
-const int GREAT_READ  = 0;
-const int GREAT_WRITE = 1;
-const int GREAT_ZERO  = 2;
-
-int GetOppositeSendRecv( int iSr );
-
-extern map< string, int > * solverTypeMap;
-extern map< string, int > * interfaceMap;
-extern map< string, int > * sendRecvMap;
-extern map< string, int > * fieldIdMap;
-
-void CreateSysMap();
+class RegData
+{
+public:
+    RegData();
+    ~RegData();
+public:
+    int sTid;
+    string solverName;
+    VoidFunc func;
+    int baseKind;
+    int dataFlag;
+};
 
 EndNameSpace
