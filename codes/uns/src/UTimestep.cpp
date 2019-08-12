@@ -351,14 +351,14 @@ void UTimestep::PrepareVisData()
 
     nscom.vist = half * ( nscom.vist1 + nscom.vist2 );
 
-    gcom.ccx1 = ( * ug.xcc )[ ug.lc ];
-    gcom.ccx2 = ( * ug.xcc )[ ug.rc ];
+    gcom.xcc1 = ( * ug.xcc )[ ug.lc ];
+    gcom.xcc2 = ( * ug.xcc )[ ug.rc ];
 
-    gcom.ccy1 = ( * ug.ycc )[ ug.lc ];
-    gcom.ccy2 = ( * ug.ycc )[ ug.rc ];
+    gcom.ycc1 = ( * ug.ycc )[ ug.lc ];
+    gcom.ycc2 = ( * ug.ycc )[ ug.rc ];
 
-    gcom.ccz1 = ( * ug.zcc )[ ug.lc ];
-    gcom.ccz2 = ( * ug.zcc )[ ug.rc ];
+    gcom.zcc1 = ( * ug.zcc )[ ug.lc ];
+    gcom.zcc2 = ( * ug.zcc )[ ug.rc ];
 }
 
 void UTimestep::UpdateInvSpectrumField()

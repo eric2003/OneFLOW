@@ -498,13 +498,13 @@ void Limiter::CmpVencatLimiter()
 
 void Limiter::PrepareData()
 {
-    gcom.ccx1 = ( * ug.xcc )[ ug.lc ];
-    gcom.ccy1 = ( * ug.ycc )[ ug.lc ];
-    gcom.ccz1 = ( * ug.zcc )[ ug.lc ];
+    gcom.xcc1 = ( * ug.xcc )[ ug.lc ];
+    gcom.ycc1 = ( * ug.ycc )[ ug.lc ];
+    gcom.zcc1 = ( * ug.zcc )[ ug.lc ];
 
-    gcom.ccx2 = ( * ug.xcc )[ ug.rc ];
-    gcom.ccy2 = ( * ug.ycc )[ ug.rc ];
-    gcom.ccz2 = ( * ug.zcc )[ ug.rc ];
+    gcom.xcc2 = ( * ug.xcc )[ ug.rc ];
+    gcom.ycc2 = ( * ug.ycc )[ ug.rc ];
+    gcom.zcc2 = ( * ug.zcc )[ ug.rc ];
 
     gcom.cvol1 = ( * ug.cvol )[ ug.lc ];
     gcom.cvol2 = ( * ug.cvol )[ ug.rc ];
@@ -513,9 +513,9 @@ void Limiter::PrepareData()
     gcom.yfn   = ( * ug.yfn )[ ug.fId ];
     gcom.zfn   = ( * ug.zfn )[ ug.fId ];
 
-    gcom.fcx   = ( * ug.xfc )[ ug.fId ];
-    gcom.fcy   = ( * ug.yfc )[ ug.fId ];
-    gcom.fcz   = ( * ug.zfc )[ ug.fId ];
+    gcom.xfc   = ( * ug.xfc )[ ug.fId ];
+    gcom.yfc   = ( * ug.yfc )[ ug.fId ];
+    gcom.zfc   = ( * ug.zfc )[ ug.fId ];
 
     lim->minv1 = ( * lim->minvf )[ ug.lc ];
     lim->minv2 = ( * lim->minvf )[ ug.rc ];
@@ -537,9 +537,9 @@ void Limiter::PrepareData()
 
 void Limiter::CmpLocalBarthLimiter()
 {
-    Real dx1 = gcom.fcx - gcom.ccx1;
-    Real dy1 = gcom.fcy - gcom.ccy1;
-    Real dz1 = gcom.fcz - gcom.ccz1;
+    Real dx1 = gcom.xfc - gcom.xcc1;
+    Real dy1 = gcom.yfc - gcom.ycc1;
+    Real dz1 = gcom.zfc - gcom.zcc1;
 
     Real dqFace1  = lim->dqdx1 * dx1 + lim->dqdy1 * dy1 + lim->dqdz1 * dz1;
 
@@ -549,9 +549,9 @@ void Limiter::CmpLocalBarthLimiter()
     Real limv1 = BarthFunction( dqFace1, lim->minv1, lim->maxv1, dot1 );
     lim->lim1 = MIN( lim->lim1, limv1 );
 
-    Real dx2 = gcom.fcx - gcom.ccx2;
-    Real dy2 = gcom.fcy - gcom.ccy2;
-    Real dz2 = gcom.fcz - gcom.ccz2;
+    Real dx2 = gcom.xfc - gcom.xcc2;
+    Real dy2 = gcom.yfc - gcom.ycc2;
+    Real dz2 = gcom.zfc - gcom.zcc2;
 
     Real dqFace2  = lim->dqdx2 * dx2 + lim->dqdy2 * dy2 + lim->dqdz2 * dz2;
 
@@ -568,18 +568,18 @@ void Limiter::CmpLocalVencatLimiter()
     Real eps1 = SQR( eps ) + SMALL;
     Real eps2 = eps1;
 
-    Real dx1 = gcom.fcx - gcom.ccx1;
-    Real dy1 = gcom.fcy - gcom.ccy1;
-    Real dz1 = gcom.fcz - gcom.ccz1;
+    Real dx1 = gcom.xfc - gcom.xcc1;
+    Real dy1 = gcom.yfc - gcom.ycc1;
+    Real dz1 = gcom.zfc - gcom.zcc1;
 
     Real dqFace1  = lim->dqdx1 * dx1 + lim->dqdy1 * dy1 + lim->dqdz1 * dz1;
 
     Real limv1 = VencatFunction( dqFace1, lim->minv1, lim->maxv1, eps1 );
     lim->lim1 = MIN( lim->lim1, limv1 );
 
-    Real dx2 = gcom.fcx - gcom.ccx2;
-    Real dy2 = gcom.fcy - gcom.ccy2;
-    Real dz2 = gcom.fcz - gcom.ccz2;
+    Real dx2 = gcom.xfc - gcom.xcc2;
+    Real dy2 = gcom.yfc - gcom.ycc2;
+    Real dz2 = gcom.zfc - gcom.zcc2;
 
     Real dqFace2  = lim->dqdx2 * dx2 + lim->dqdy2 * dy2 + lim->dqdz2 * dz2;
     Real limv2 = VencatFunction( dqFace2, lim->minv2, lim->maxv2, eps2 );

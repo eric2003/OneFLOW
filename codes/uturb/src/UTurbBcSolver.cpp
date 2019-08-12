@@ -133,17 +133,17 @@ void UTurbBcSolver::PrepareData()
     gcom.vfn   = ( * ug.vfn   )[ ug.fId ];
     gcom.farea = ( * ug.farea )[ ug.fId ];
 
-    gcom.ccx1 = ( * ug.xcc )[ ug.lc ];
-    gcom.ccy1 = ( * ug.ycc )[ ug.lc ];
-    gcom.ccz1 = ( * ug.zcc )[ ug.lc ];
+    gcom.xcc1 = ( * ug.xcc )[ ug.lc ];
+    gcom.ycc1 = ( * ug.ycc )[ ug.lc ];
+    gcom.zcc1 = ( * ug.zcc )[ ug.lc ];
 
-    gcom.ccx2 = ( * ug.xcc )[ ug.rc ];
-    gcom.ccy2 = ( * ug.ycc )[ ug.rc ];
-    gcom.ccz2 = ( * ug.zcc )[ ug.rc ];
+    gcom.xcc2 = ( * ug.xcc )[ ug.rc ];
+    gcom.ycc2 = ( * ug.ycc )[ ug.rc ];
+    gcom.zcc2 = ( * ug.zcc )[ ug.rc ];
 
-    gcom.fcx =  ( * ug.xfc )[ ug.fId ];
-    gcom.fcy =  ( * ug.yfc )[ ug.fId ];
-    gcom.fcz =  ( * ug.zfc )[ ug.fId ];
+    gcom.xfc =  ( * ug.xfc )[ ug.fId ];
+    gcom.yfc =  ( * ug.yfc )[ ug.fId ];
+    gcom.zfc =  ( * ug.zfc )[ ug.fId ];
 
     turbcom.dist  = ( * uturbf.dist )[ ug.lc ];
 

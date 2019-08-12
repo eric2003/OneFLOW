@@ -55,13 +55,13 @@ void GCom::SetGeometry()
         this->Reverse();
     }
 
-    this->ccx2   = ( * ug.xcc )[ ug.rc ];
-    this->ccy2   = ( * ug.ycc )[ ug.rc ];
-    this->ccz2   = ( * ug.zcc )[ ug.rc ];
+    this->xcc2   = ( * ug.xcc )[ ug.rc ];
+    this->ycc2   = ( * ug.ycc )[ ug.rc ];
+    this->zcc2   = ( * ug.zcc )[ ug.rc ];
 
-    this->ccx1   = ( * ug.xcc )[ ug.lc ];
-    this->ccy1   = ( * ug.ycc )[ ug.lc ];
-    this->ccz1   = ( * ug.zcc )[ ug.lc ];
+    this->xcc1   = ( * ug.xcc )[ ug.lc ];
+    this->ycc1   = ( * ug.ycc )[ ug.lc ];
+    this->zcc1   = ( * ug.zcc )[ ug.lc ];
 }
 
 void GCom::Reverse()
