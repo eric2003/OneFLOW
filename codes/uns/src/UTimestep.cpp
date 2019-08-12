@@ -89,9 +89,9 @@ void InitTimeStepUns()
     ug.vfy = & faceMesh->vfy;
     ug.vfz = & faceMesh->vfz;
 
-    ug.fcx = & faceMesh->xfc;
-    ug.fcy = & faceMesh->yfc;
-    ug.fcz = & faceMesh->zfc;
+    ug.xfc = & faceMesh->xfc;
+    ug.yfc = & faceMesh->yfc;
+    ug.zfc = & faceMesh->zfc;
 
     ug.ccx = & cellMesh->xcc;
     ug.ccy = & cellMesh->ycc;

@@ -187,9 +187,9 @@ void LimField::CmpFaceValue()
             int kkk = 1;
         }
 
-        Real dx = ( * ug.fcx )[ ug.fId ] - ( * ug.ccx )[ ug.lc ];
-        Real dy = ( * ug.fcy )[ ug.fId ] - ( * ug.ccy )[ ug.lc ];
-        Real dz = ( * ug.fcz )[ ug.fId ] - ( * ug.ccz )[ ug.lc ];
+        Real dx = ( * ug.xfc )[ ug.fId ] - ( * ug.ccx )[ ug.lc ];
+        Real dy = ( * ug.yfc )[ ug.fId ] - ( * ug.ccy )[ ug.lc ];
+        Real dz = ( * ug.zfc )[ ug.fId ] - ( * ug.ccz )[ ug.lc ];
 
         for ( int iEqu = 0; iEqu < this->nEqu; ++ iEqu )
         {
@@ -217,9 +217,9 @@ void LimField::CmpFaceValue()
             }
         }
 
-        dx = ( * ug.fcx )[ ug.fId ] - ( * ug.ccx )[ ug.rc ];
-        dy = ( * ug.fcy )[ ug.fId ] - ( * ug.ccy )[ ug.rc ];
-        dz = ( * ug.fcz )[ ug.fId ] - ( * ug.ccz )[ ug.rc ];
+        dx = ( * ug.xfc )[ ug.fId ] - ( * ug.ccx )[ ug.rc ];
+        dy = ( * ug.yfc )[ ug.fId ] - ( * ug.ccy )[ ug.rc ];
+        dz = ( * ug.zfc )[ ug.fId ] - ( * ug.ccz )[ ug.rc ];
 
         for ( int iEqu = 0; iEqu < this->nEqu; ++ iEqu )
         {
@@ -259,13 +259,13 @@ void LimField::CmpFaceValueWeighted()
         ug.lc = ( * ug.lcf )[ ug.fId ];
         ug.rc = ( * ug.rcf )[ ug.fId ];
 
-        Real dxl = ( * ug.fcx )[ ug.fId ] - ( * ug.ccx )[ ug.lc ];
-        Real dyl = ( * ug.fcy )[ ug.fId ] - ( * ug.ccy )[ ug.lc ];
-        Real dzl = ( * ug.fcz )[ ug.fId ] - ( * ug.ccz )[ ug.lc ];
+        Real dxl = ( * ug.xfc )[ ug.fId ] - ( * ug.ccx )[ ug.lc ];
+        Real dyl = ( * ug.yfc )[ ug.fId ] - ( * ug.ccy )[ ug.lc ];
+        Real dzl = ( * ug.zfc )[ ug.fId ] - ( * ug.ccz )[ ug.lc ];
 
-        Real dxr = ( * ug.fcx )[ ug.fId ] - ( * ug.ccx )[ ug.rc ];
-        Real dyr = ( * ug.fcy )[ ug.fId ] - ( * ug.ccy )[ ug.rc ];
-        Real dzr = ( * ug.fcz )[ ug.fId ] - ( * ug.ccz )[ ug.rc ];
+        Real dxr = ( * ug.xfc )[ ug.fId ] - ( * ug.ccx )[ ug.rc ];
+        Real dyr = ( * ug.yfc )[ ug.fId ] - ( * ug.ccy )[ ug.rc ];
+        Real dzr = ( * ug.zfc )[ ug.fId ] - ( * ug.ccz )[ ug.rc ];
 
         Real delt1  = DIST( dxl, dyl, dzl );
         Real delt2  = DIST( dxr, dyr, dzr );
@@ -274,9 +274,9 @@ void LimField::CmpFaceValueWeighted()
         Real cl = delt2 * delta;
         Real cr = delt1 * delta;
 
-        Real dx = ( * ug.fcx )[ ug.fId ] - ( * ug.ccx )[ ug.lc ];
-        Real dy = ( * ug.fcy )[ ug.fId ] - ( * ug.ccy )[ ug.lc ];
-        Real dz = ( * ug.fcz )[ ug.fId ] - ( * ug.ccz )[ ug.lc ];
+        Real dx = ( * ug.xfc )[ ug.fId ] - ( * ug.ccx )[ ug.lc ];
+        Real dy = ( * ug.yfc )[ ug.fId ] - ( * ug.ccy )[ ug.lc ];
+        Real dz = ( * ug.zfc )[ ug.fId ] - ( * ug.ccz )[ ug.lc ];
 
         for ( int iEqu = 0; iEqu < this->nEqu; ++ iEqu )
         {
@@ -315,9 +315,9 @@ void LimField::CmpFaceValueWeighted()
             }
         }
 
-        dx = ( * ug.fcx )[ ug.fId ] - ( * ug.ccx )[ ug.rc ];
-        dy = ( * ug.fcy )[ ug.fId ] - ( * ug.ccy )[ ug.rc ];
-        dz = ( * ug.fcz )[ ug.fId ] - ( * ug.ccz )[ ug.rc ];
+        dx = ( * ug.xfc )[ ug.fId ] - ( * ug.ccx )[ ug.rc ];
+        dy = ( * ug.yfc )[ ug.fId ] - ( * ug.ccy )[ ug.rc ];
+        dz = ( * ug.zfc )[ ug.fId ] - ( * ug.ccz )[ ug.rc ];
 
         for ( int iEqu = 0; iEqu < this->nEqu; ++ iEqu )
         {
@@ -513,9 +513,9 @@ void Limiter::PrepareData()
     gcom.fny   = ( * ug.fny )[ ug.fId ];
     gcom.fnz   = ( * ug.fnz )[ ug.fId ];
 
-    gcom.fcx   = ( * ug.fcx )[ ug.fId ];
-    gcom.fcy   = ( * ug.fcy )[ ug.fId ];
-    gcom.fcz   = ( * ug.fcz )[ ug.fId ];
+    gcom.fcx   = ( * ug.xfc )[ ug.fId ];
+    gcom.fcy   = ( * ug.yfc )[ ug.fId ];
+    gcom.fcz   = ( * ug.zfc )[ ug.fId ];
 
     lim->minv1 = ( * lim->minvf )[ ug.lc ];
     lim->minv2 = ( * lim->minvf )[ ug.rc ];

@@ -68,9 +68,9 @@ public:
     RealField * vfn;
     RealField * farea;
 
-    RealField * fcx;
-    RealField * fcy;
-    RealField * fcz;
+    RealField * xfc;
+    RealField * yfc;
+    RealField * zfc;
 
     RealField * vfx;
     RealField * vfy;

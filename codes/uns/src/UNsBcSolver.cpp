@@ -151,9 +151,9 @@ void UNsBcSolver::PrepareData()
     gcom.ccy2 = ( * ug.ccy )[ ug.rc ];
     gcom.ccz2 = ( * ug.ccz )[ ug.rc ];
 
-    gcom.fcx =  ( * ug.fcx )[ ug.fId ];
-    gcom.fcy =  ( * ug.fcy )[ ug.fId ];
-    gcom.fcz =  ( * ug.fcz )[ ug.fId ];
+    gcom.fcx =  ( * ug.xfc )[ ug.fId ];
+    gcom.fcy =  ( * ug.yfc )[ ug.fId ];
+    gcom.fcz =  ( * ug.zfc )[ ug.fId ];
 
     for ( int iEqu = 0; iEqu < nscom.nTEqu; ++ iEqu )
     {

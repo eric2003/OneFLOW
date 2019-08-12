@@ -100,13 +100,13 @@ void CmpGradGGCellWeight( RealField & q, RealField & dqdx, RealField & dqdy, Rea
         ug.lc = ( * ug.lcf )[ ug.fId ];
         ug.rc = ( * ug.rcf )[ ug.fId ];
 
-        Real dxl = ( * ug.fcx )[ ug.fId ] - ( * ug.ccx )[ ug.lc ];
-        Real dyl = ( * ug.fcy )[ ug.fId ] - ( * ug.ccy )[ ug.lc ];
-        Real dzl = ( * ug.fcz )[ ug.fId ] - ( * ug.ccz )[ ug.lc ];
+        Real dxl = ( * ug.xfc )[ ug.fId ] - ( * ug.ccx )[ ug.lc ];
+        Real dyl = ( * ug.yfc )[ ug.fId ] - ( * ug.ccy )[ ug.lc ];
+        Real dzl = ( * ug.zfc )[ ug.fId ] - ( * ug.ccz )[ ug.lc ];
 
-        Real dxr = ( * ug.fcx )[ ug.fId ] - ( * ug.ccx )[ ug.rc ];
-        Real dyr = ( * ug.fcy )[ ug.fId ] - ( * ug.ccy )[ ug.rc ];
-        Real dzr = ( * ug.fcz )[ ug.fId ] - ( * ug.ccz )[ ug.rc ];
+        Real dxr = ( * ug.xfc )[ ug.fId ] - ( * ug.ccx )[ ug.rc ];
+        Real dyr = ( * ug.yfc )[ ug.fId ] - ( * ug.ccy )[ ug.rc ];
+        Real dzr = ( * ug.zfc )[ ug.fId ] - ( * ug.ccz )[ ug.rc ];
 
         Real delt1  = DIST( dxl, dyl, dzl );
         Real delt2  = DIST( dxr, dyr, dzr );
