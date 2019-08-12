@@ -202,8 +202,8 @@ void CmpAeroForce( int idump_pres )
     RealField & zfc = grid->faceMesh->zfc;
 
     RealField & fvx = grid->faceMesh->vfx;
-    RealField & fvy = grid->faceMesh->fvy;
-    RealField & fvz = grid->faceMesh->fvz;
+    RealField & fvy = grid->faceMesh->vfy;
+    RealField & fvz = grid->faceMesh->vfz;
 
     RealField & area = grid->faceMesh->area;
 

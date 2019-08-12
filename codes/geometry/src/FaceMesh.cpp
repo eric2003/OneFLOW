@@ -294,12 +294,12 @@ void FaceMesh::AllocateMetrics()
     this->zfn.resize( nFace );
     this->area.resize( nFace );
     this->vfx.resize( nFace );
-    this->fvy.resize( nFace );
-    this->fvz.resize( nFace );
+    this->vfy.resize( nFace );
+    this->vfz.resize( nFace );
     this->fvn.resize( nFace );
     this->vfx = 0;
-    this->fvy = 0;
-    this->fvz = 0;
+    this->vfy = 0;
+    this->vfz = 0;
     this->fvn = 0;
     UInt nBFace = this->GetNBFace();
     this->faceTopo->bcManager->bcRecord->bcType.resize( nBFace );

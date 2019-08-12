@@ -41,7 +41,7 @@ public:
     RealField xfc, yfc, zfc;
     RealField xfn, yfn, zfn;
     RealField area;
-    RealField vfx, fvy, fvz;
+    RealField vfx, vfy, vfz;
     RealField fvn;
 public:
     UInt GetNFace();
