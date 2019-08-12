@@ -40,7 +40,7 @@ public:
     bool swapflag;
 public:
     Real xfn, yfn, zfn;
-    Real fvx, fvy, fvz, vfn, farea;
+    Real vfx, vfy, vfz, vfn, farea;
     Real t1x, t1y, t1z;
     Real t2x, t2y, t2z;
     Real cvol, cvol1, cvol2;

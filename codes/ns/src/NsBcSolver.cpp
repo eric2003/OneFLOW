@@ -328,13 +328,13 @@ void NsBcSolver::VelocityBc()
 {
     if ( nscom.bcdtkey == 0 )
     {
-        nscom.primt1[ IDX::IU ] = - nscom.primt1[ IDX::IU ] + two * gcom.fvx;
-        nscom.primt1[ IDX::IV ] = - nscom.primt1[ IDX::IV ] + two * gcom.fvy;
-        nscom.primt1[ IDX::IW ] = - nscom.primt1[ IDX::IW ] + two * gcom.fvz;
+        nscom.primt1[ IDX::IU ] = - nscom.primt1[ IDX::IU ] + two * gcom.vfx;
+        nscom.primt1[ IDX::IV ] = - nscom.primt1[ IDX::IV ] + two * gcom.vfy;
+        nscom.primt1[ IDX::IW ] = - nscom.primt1[ IDX::IW ] + two * gcom.vfz;
 
-        nscom.primt2[ IDX::IU ] = - nscom.primt2[ IDX::IU ] + two * gcom.fvx;
-        nscom.primt2[ IDX::IV ] = - nscom.primt2[ IDX::IV ] + two * gcom.fvy;
-        nscom.primt2[ IDX::IW ] = - nscom.primt2[ IDX::IW ] + two * gcom.fvz;
+        nscom.primt2[ IDX::IU ] = - nscom.primt2[ IDX::IU ] + two * gcom.vfx;
+        nscom.primt2[ IDX::IV ] = - nscom.primt2[ IDX::IV ] + two * gcom.vfy;
+        nscom.primt2[ IDX::IW ] = - nscom.primt2[ IDX::IW ] + two * gcom.vfz;
     }
     else
     {

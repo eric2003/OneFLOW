@@ -187,7 +187,7 @@ void AeroForce::SumForce()
 
 void AeroForce::CmpPower()
 {
-    power = - 1.0 * ( fvx * total.x + fvy * total.y + fvz * total.z );
+    power = - 1.0 * ( vfx * total.x + vfy * total.y + vfz * total.z );
 }
 
 void AeroForce::CmpMoment( Real xc, Real yc, Real zc )
