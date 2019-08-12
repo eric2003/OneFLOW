@@ -42,7 +42,7 @@ void GCom::SetGeometry()
     this->fnx   = ( * ug.fnx   )[ ug.fId ];
     this->fny   = ( * ug.fny   )[ ug.fId ];
     this->fnz   = ( * ug.fnz   )[ ug.fId ];
-    this->fvn   = ( * ug.vfn   )[ ug.fId ];
+    this->vfn   = ( * ug.vfn   )[ ug.fId ];
     this->farea = ( * ug.farea )[ ug.fId ];
 
     this->swapflag = false;
@@ -69,7 +69,7 @@ void GCom::Reverse()
     this->fnx = - this->fnx;
     this->fny = - this->fny;
     this->fnz = - this->fnz;
-    this->fvn = - this->fvn;
+    this->vfn = - this->vfn;
     //faceArea unchanged
 }
 

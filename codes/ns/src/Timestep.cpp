@@ -74,8 +74,8 @@ void Timestep::CmpFaceInvSpec()
     Real pr = nscom.q2[ IDX::IP ];
     Real cr = sqrt( nscom.gama2 * pr / rr );
         
-    Real vnl  = gcom.fnx * ul + gcom.fny * vl + gcom.fnz * wl - gcom.fvn;
-    Real vnr  = gcom.fnx * ur + gcom.fny * vr + gcom.fnz * wr - gcom.fvn;
+    Real vnl  = gcom.fnx * ul + gcom.fny * vl + gcom.fnz * wl - gcom.vfn;
+    Real vnr  = gcom.fnx * ur + gcom.fny * vr + gcom.fnz * wr - gcom.vfn;
 
     nscom.gama = half * ( nscom.gama1 + nscom.gama2 );
 

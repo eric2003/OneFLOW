@@ -130,7 +130,7 @@ void UTurbBcSolver::PrepareData()
     gcom.fvy   = ( * ug.vfy   )[ ug.fId ];
     gcom.fvz   = ( * ug.vfz   )[ ug.fId ];
 
-    gcom.fvn   = ( * ug.vfn   )[ ug.fId ];
+    gcom.vfn   = ( * ug.vfn   )[ ug.fId ];
     gcom.farea = ( * ug.farea )[ ug.fId ];
 
     gcom.ccx1 = ( * ug.ccx )[ ug.lc ];

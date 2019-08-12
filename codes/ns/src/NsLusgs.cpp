@@ -131,7 +131,7 @@ void NsLusgs::CmpFaceEigenValue( RealField & prim )
     Real cm = sqrt( c2 );
 
     Real vn_fluid = gcom.fnx * um + gcom.fny * vm + gcom.fnz * wm;
-    Real vn_rel   = vn_fluid - gcom.fvn;
+    Real vn_rel   = vn_fluid - gcom.vfn;
 
     //Real lmd1 = vn_rel;
     //Real lmd2 = vn_rel + cm;
@@ -158,7 +158,7 @@ void NsLusgs::GetStandardFluxIncrement( int signOfMatrix )
     Real cm = sqrt( c2 );
 
     Real vn_fluid = gcom.fnx * um + gcom.fny * vm + gcom.fnz * wm;
-    Real vn_rel   = vn_fluid - gcom.fvn;
+    Real vn_rel   = vn_fluid - gcom.vfn;
 
     Real lmd1 = vn_rel;
     Real lmd2 = vn_rel + cm;

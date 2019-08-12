@@ -176,8 +176,8 @@ void NsBcSolver::FarFieldBc()
     Real wref = nscom.inflow[ IDX::IW ];
     Real pref = nscom.inflow[ IDX::IP ];
 
-    Real vnref = gcom.fnx * uref + gcom.fny * vref + gcom.fnz * wref - gcom.fvn;
-    Real vnin  = gcom.fnx * uin  + gcom.fny * vin  + gcom.fnz * win  - gcom.fvn;
+    Real vnref = gcom.fnx * uref + gcom.fny * vref + gcom.fnz * wref - gcom.vfn;
+    Real vnin  = gcom.fnx * uin  + gcom.fny * vin  + gcom.fnz * win  - gcom.vfn;
 
     Real cref = sqrt( ABS( nscom.gama_ref * pref / rref ) );
     Real cin  = sqrt( ABS( nscom.gama    * pin  / rin  ) );
@@ -374,8 +374,8 @@ void NsBcSolver::SymmetryBc()
     Real vy2 = nscom.prims2[ IDX::IV ];
     Real vz2 = nscom.prims2[ IDX::IW ];
 
-    Real vnRelative1 = gcom.fnx * vx1 + gcom.fny * vy1 + gcom.fnz * vz1 - gcom.fvn;
-    Real vnRelative2 = gcom.fnx * vx2 + gcom.fny * vy2 + gcom.fnz * vz2 - gcom.fvn;
+    Real vnRelative1 = gcom.fnx * vx1 + gcom.fny * vy1 + gcom.fnz * vz1 - gcom.vfn;
+    Real vnRelative2 = gcom.fnx * vx2 + gcom.fny * vy2 + gcom.fnz * vz2 - gcom.vfn;
 
     for ( int iEqu = 0; iEqu < nscom.nTEqu; ++ iEqu )
     {

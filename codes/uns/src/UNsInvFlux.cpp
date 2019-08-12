@@ -134,7 +134,7 @@ void UNsInvFlux::PrepareFaceValue()
     gcom.fnx   = ( * ug.fnx   )[ ug.fId ];
     gcom.fny   = ( * ug.fny   )[ ug.fId ];
     gcom.fnz   = ( * ug.fnz   )[ ug.fId ];
-    gcom.fvn   = ( * ug.vfn   )[ ug.fId ];
+    gcom.vfn   = ( * ug.vfn   )[ ug.fId ];
     gcom.farea = ( * ug.farea )[ ug.fId ];
 
     nscom.gama1 = ( * unsf.gama )[ 0 ][ ug.lc ];
