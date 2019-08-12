@@ -43,13 +43,13 @@ VisGradGeom::~VisGradGeom()
 
 void VisGradGeom::CmpFaceWeight()
 {
-    dxl = ( * ug.xfc )[ ug.fId ] - ( * ug.ccx )[ ug.lc ];
-    dyl = ( * ug.yfc )[ ug.fId ] - ( * ug.ccy )[ ug.lc ];
-    dzl = ( * ug.zfc )[ ug.fId ] - ( * ug.ccz )[ ug.lc ];
+    dxl = ( * ug.xfc )[ ug.fId ] - ( * ug.xcc )[ ug.lc ];
+    dyl = ( * ug.yfc )[ ug.fId ] - ( * ug.ycc )[ ug.lc ];
+    dzl = ( * ug.zfc )[ ug.fId ] - ( * ug.zcc )[ ug.lc ];
 
-    dxr = ( * ug.xfc )[ ug.fId ] - ( * ug.ccx )[ ug.rc ];
-    dyr = ( * ug.yfc )[ ug.fId ] - ( * ug.ccy )[ ug.rc ];
-    dzr = ( * ug.zfc )[ ug.fId ] - ( * ug.ccz )[ ug.rc ];
+    dxr = ( * ug.xfc )[ ug.fId ] - ( * ug.xcc )[ ug.rc ];
+    dyr = ( * ug.yfc )[ ug.fId ] - ( * ug.ycc )[ ug.rc ];
+    dzr = ( * ug.zfc )[ ug.fId ] - ( * ug.zcc )[ ug.rc ];
 
     delt1 = DIST( dxl, dyl, dzl );
     delt2 = DIST( dxr, dyr, dzr );
@@ -69,13 +69,13 @@ void VisGradGeom::CmpAngle( Real dx, Real dy, Real dz, Real dist, Real & angle )
 
 void VisGradGeom::PrepareCellGeom()
 {
-    this->dxl = ( * ug.ccx )[ ug.lc ] - ( * ug.xfc )[ ug.fId ];
-    this->dyl = ( * ug.ccy )[ ug.lc ] - ( * ug.yfc )[ ug.fId ];
-    this->dzl = ( * ug.ccz )[ ug.lc ] - ( * ug.zfc )[ ug.fId ];
+    this->dxl = ( * ug.xcc )[ ug.lc ] - ( * ug.xfc )[ ug.fId ];
+    this->dyl = ( * ug.ycc )[ ug.lc ] - ( * ug.yfc )[ ug.fId ];
+    this->dzl = ( * ug.zcc )[ ug.lc ] - ( * ug.zfc )[ ug.fId ];
 
-    this->dxr = ( * ug.ccx )[ ug.rc ] - ( * ug.xfc )[ ug.fId ];
-    this->dyr = ( * ug.ccy )[ ug.rc ] - ( * ug.yfc )[ ug.fId ];
-    this->dzr = ( * ug.ccz )[ ug.rc ] - ( * ug.zfc )[ ug.fId ];
+    this->dxr = ( * ug.xcc )[ ug.rc ] - ( * ug.xfc )[ ug.fId ];
+    this->dyr = ( * ug.ycc )[ ug.rc ] - ( * ug.yfc )[ ug.fId ];
+    this->dzr = ( * ug.zcc )[ ug.rc ] - ( * ug.zfc )[ ug.fId ];
 
     this->d1  = gcom.fnx * this->dxl + gcom.fny * this->dyl + gcom.fnz * this->dzl;
     this->d2  = gcom.fnx * this->dxr + gcom.fny * this->dyr + gcom.fnz * this->dzr;
@@ -98,9 +98,9 @@ void VisGradGeom::PrepareCellGeom()
 
 void VisGradGeom::CmpGradCoef()
 {
-    this->dx  = ( * ug.ccx )[ ug.rc ] - ( * ug.ccx )[ ug.lc ];
-    this->dy  = ( * ug.ccy )[ ug.rc ] - ( * ug.ccy )[ ug.lc ];
-    this->dz  = ( * ug.ccz )[ ug.rc ] - ( * ug.ccz )[ ug.lc ];
+    this->dx  = ( * ug.xcc )[ ug.rc ] - ( * ug.xcc )[ ug.lc ];
+    this->dy  = ( * ug.ycc )[ ug.rc ] - ( * ug.ycc )[ ug.lc ];
+    this->dz  = ( * ug.zcc )[ ug.rc ] - ( * ug.zcc )[ ug.lc ];
 
     this->ods = 1.0 / DIST( this->dx, this->dy, this->dz );
 

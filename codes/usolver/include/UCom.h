@@ -77,9 +77,9 @@ public:
     RealField * vfz;
 
     RealField * cvol, * cvol1, * cvol2;
-    RealField * ccx;
-    RealField * ccy;
-    RealField * ccz;
+    RealField * xcc;
+    RealField * ycc;
+    RealField * zcc;
     BcRecord * bcRecord;
 };
 

@@ -93,9 +93,9 @@ void InitTimeStepUns()
     ug.yfc = & faceMesh->yfc;
     ug.zfc = & faceMesh->zfc;
 
-    ug.ccx = & cellMesh->xcc;
-    ug.ccy = & cellMesh->ycc;
-    ug.ccz = & cellMesh->zcc;
+    ug.xcc = & cellMesh->xcc;
+    ug.ycc = & cellMesh->ycc;
+    ug.zcc = & cellMesh->zcc;
 
     ug.cvol  = & cellMesh->vol;
     ug.cvol1 = & cellMesh->vol;
@@ -351,14 +351,14 @@ void UTimestep::PrepareVisData()
 
     nscom.vist = half * ( nscom.vist1 + nscom.vist2 );
 
-    gcom.ccx1 = ( * ug.ccx )[ ug.lc ];
-    gcom.ccx2 = ( * ug.ccx )[ ug.rc ];
+    gcom.ccx1 = ( * ug.xcc )[ ug.lc ];
+    gcom.ccx2 = ( * ug.xcc )[ ug.rc ];
 
-    gcom.ccy1 = ( * ug.ccy )[ ug.lc ];
-    gcom.ccy2 = ( * ug.ccy )[ ug.rc ];
+    gcom.ccy1 = ( * ug.ycc )[ ug.lc ];
+    gcom.ccy2 = ( * ug.ycc )[ ug.rc ];
 
-    gcom.ccz1 = ( * ug.ccz )[ ug.lc ];
-    gcom.ccz2 = ( * ug.ccz )[ ug.rc ];
+    gcom.ccz1 = ( * ug.zcc )[ ug.lc ];
+    gcom.ccz2 = ( * ug.zcc )[ ug.rc ];
 }
 
 void UTimestep::UpdateInvSpectrumField()

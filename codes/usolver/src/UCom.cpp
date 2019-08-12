@@ -79,9 +79,9 @@ void UGeom::Init()
     ug.yfc = & faceMesh->yfc;
     ug.zfc = & faceMesh->zfc;
 
-    ug.ccx = & cellMesh->xcc;
-    ug.ccy = & cellMesh->ycc;
-    ug.ccz = & cellMesh->zcc;
+    ug.xcc = & cellMesh->xcc;
+    ug.ycc = & cellMesh->ycc;
+    ug.zcc = & cellMesh->zcc;
 
     ug.cvol  = & cellMesh->vol;
     ug.cvol1 = & cellMesh->vol;

@@ -143,13 +143,13 @@ void UNsBcSolver::PrepareData()
     nscom.gama1 = ( * unsf.gama )[ 0 ][ ug.lc ];
     nscom.gama2 = ( * unsf.gama )[ 0 ][ ug.lc ];
 
-    gcom.ccx1 = ( * ug.ccx )[ ug.lc ];
-    gcom.ccy1 = ( * ug.ccy )[ ug.lc ];
-    gcom.ccz1 = ( * ug.ccz )[ ug.lc ];
+    gcom.ccx1 = ( * ug.xcc )[ ug.lc ];
+    gcom.ccy1 = ( * ug.ycc )[ ug.lc ];
+    gcom.ccz1 = ( * ug.zcc )[ ug.lc ];
 
-    gcom.ccx2 = ( * ug.ccx )[ ug.rc ];
-    gcom.ccy2 = ( * ug.ccy )[ ug.rc ];
-    gcom.ccz2 = ( * ug.ccz )[ ug.rc ];
+    gcom.ccx2 = ( * ug.xcc )[ ug.rc ];
+    gcom.ccy2 = ( * ug.ycc )[ ug.rc ];
+    gcom.ccz2 = ( * ug.zcc )[ ug.rc ];
 
     gcom.fcx =  ( * ug.xfc )[ ug.fId ];
     gcom.fcy =  ( * ug.yfc )[ ug.fId ];
