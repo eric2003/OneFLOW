@@ -21,6 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "Mesh.h"
+#include "HXSort.h"
 #include "CellMesh.h"
 #include "CellTopo.h"
 #include "NodeMesh.h"
@@ -376,9 +377,8 @@ void Mesh::ConstructTopology()
 {
     UInt numberOfNodes = this->nodeMesh->GetNumberOfNodes();
     UInt numberOfCells = this->cellMesh->GetNumberOfCells();
-
-    set< SortIntField > faceSet;
-    SortIntField faceForSorting;
+    set< HXSort< IntField > > faceSet;
+    HXSort< IntField > faceForSorting;
 
     CellTopo * cellTopo = this->cellMesh->cellTopo;
     FaceTopo * faceTopo = this->faceMesh->faceTopo;
@@ -407,7 +407,7 @@ void Mesh::ConstructTopology()
             std::sort( faceNodeIndexArraySort.begin(), faceNodeIndexArraySort.end() );
             faceForSorting.value = faceNodeIndexArraySort;
 
-            set< SortIntField >::iterator iter = faceSet.find( faceForSorting );
+            set< HXSort< IntField > >::iterator iter = faceSet.find( faceForSorting );
             if ( iter == faceSet.end() )
             {
                 faceForSorting.index = faceSet.size();

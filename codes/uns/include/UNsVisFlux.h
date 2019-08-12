@@ -23,6 +23,8 @@ License
 
 #pragma once
 #include "NsVisFlux.h"
+#include "HXArray.h"
+
 BeginNameSpace( ONEFLOW )
 
 class UNsVisFlux : public NsVisFlux

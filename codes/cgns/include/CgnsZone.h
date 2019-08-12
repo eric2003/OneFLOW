@@ -27,6 +27,7 @@ License
 #include <string>
 #include <fstream>
 #include "HXCgns.h"
+#include "HXArray.h"
 using namespace std;
 
 BeginNameSpace( ONEFLOW )

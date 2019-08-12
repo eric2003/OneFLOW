@@ -22,6 +22,7 @@ License
 
 #pragma once
 #include "HXDefine.h"
+#include "HXArray.h"
 #include "DataBook.h"
 #include <string>
 #include <fstream>

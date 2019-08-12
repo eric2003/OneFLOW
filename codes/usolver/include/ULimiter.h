@@ -23,6 +23,8 @@ License
 
 #pragma once
 #include "HXDefine.h"
+#include "HXArray.h"
+
 BeginNameSpace( ONEFLOW )
 
 const int ILMT_ZERO   = -1;

@@ -20,27 +20,17 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-
 #pragma once
-#include "HXDefine.h"
-#include "HXArray.h"
+#include "Marray.h"
+#include "Multiarray.h"
+using namespace std;
+
 BeginNameSpace( ONEFLOW )
 
-MRField * AllocNodeVar( int nEqu = 1 );
-MRField * CreateNodeVar( const string & name );
-MRField * CreateNodeVar( RealField & qc );
-void CmpNodeVar( RealField & qNodeField, RealField & qField );
-void FixBcNodeVar( RealField & qNodeField, RealField & qField, RealField & nCount, int bcType, bool twoSide );
+typedef Marray< Real > MRField;
 
-template < typename T >
-void ReorderList( HXVector< T > & x, IntField & indexList )
-{
-    HXVector< T > tmp = x;
+typedef Multiarray< Real, 3 > Field3D;
+typedef Multiarray< int, 3 > Int3D;
 
-    for ( UInt i = 0; i < indexList.size(); ++ i )
-    {
-        x[ i ] = tmp[ indexList[ i ] ];
-    }
-}
 
 EndNameSpace

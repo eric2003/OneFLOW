@@ -22,6 +22,7 @@ License
 
 #pragma once
 #include "HXDefine.h"
+#include "HXSort.h"
 #include "GridDef.h"
 #include <set>
 using namespace std;

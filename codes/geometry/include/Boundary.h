@@ -22,8 +22,11 @@ License
 
 
 #pragma once
-#include "HXDefine.h"
+//#include "HXDefine.h"
+#include "HXSort.h"
+#include <string>
 #include <map>
+#include <set>
 using namespace std;
 BeginNameSpace( ONEFLOW )
 
