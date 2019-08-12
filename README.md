@@ -12,7 +12,7 @@ LargeScale Multiphysics Scientific Simulation Environment
 -----------------------------------------------------------
 
 ## Build
-Firstly, make sure that c++ compiler has been intalled. For Windows platform, the [Visual Studio IDE](https://visualstudio.microsoft.com/ "Visual Studio IDE") is recommended. Then download and install [Git](https://git-scm.com/ "Git") and [Cmake](https://cmake.org/download/ "cmake") on your system.
+Firstly, make sure that c++ compiler has been installed. For Windows platform, the [Visual Studio IDE](https://visualstudio.microsoft.com/ "Visual Studio IDE") is recommended. Then download and install [Git](https://git-scm.com/ "Git") and [Cmake](https://cmake.org/download/ "cmake") on your system.
 
 ### Dependencies
 
