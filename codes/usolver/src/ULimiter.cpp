@@ -509,9 +509,9 @@ void Limiter::PrepareData()
     gcom.cvol1 = ( * ug.cvol )[ ug.lc ];
     gcom.cvol2 = ( * ug.cvol )[ ug.rc ];
 
-    gcom.fnx   = ( * ug.fnx )[ ug.fId ];
-    gcom.fny   = ( * ug.fny )[ ug.fId ];
-    gcom.fnz   = ( * ug.fnz )[ ug.fId ];
+    gcom.fnx   = ( * ug.xfn )[ ug.fId ];
+    gcom.fny   = ( * ug.yfn )[ ug.fId ];
+    gcom.fnz   = ( * ug.zfn )[ ug.fId ];
 
     gcom.fcx   = ( * ug.xfc )[ ug.fId ];
     gcom.fcy   = ( * ug.yfc )[ ug.fId ];

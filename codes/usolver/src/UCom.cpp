@@ -65,9 +65,9 @@ void UGeom::Init()
     CellMesh * cellMesh = grid->cellMesh;
     CellTopo * cellTopo = grid->cellMesh->cellTopo;
 
-    ug.fnx = & faceMesh->xfn;
-    ug.fny = & faceMesh->yfn;
-    ug.fnz = & faceMesh->zfn;
+    ug.xfn = & faceMesh->xfn;
+    ug.yfn = & faceMesh->yfn;
+    ug.zfn = & faceMesh->zfn;
     ug.vfn = & faceMesh->vfn;
     ug.farea = & faceMesh->area;
 

@@ -295,9 +295,9 @@ void UTurbVisFlux::AddVisFlux()
 
 void UTurbVisFlux::PrepareFaceValue()
 {
-    gcom.fnx   = ( * ug.fnx   )[ ug.fId ];
-    gcom.fny   = ( * ug.fny   )[ ug.fId ];
-    gcom.fnz   = ( * ug.fnz   )[ ug.fId ];
+    gcom.fnx   = ( * ug.xfn   )[ ug.fId ];
+    gcom.fny   = ( * ug.yfn   )[ ug.fId ];
+    gcom.fnz   = ( * ug.zfn   )[ ug.fId ];
     gcom.vfn   = ( * ug.vfn   )[ ug.fId ];
     gcom.farea = ( * ug.farea )[ ug.fId ];
 

@@ -79,9 +79,9 @@ void InitTimeStepUns()
     FaceMesh * faceMesh = grid->faceMesh;
     CellMesh * cellMesh = grid->cellMesh;
 
-    ug.fnx = & faceMesh->xfn;
-    ug.fny = & faceMesh->yfn;
-    ug.fnz = & faceMesh->zfn;
+    ug.xfn = & faceMesh->xfn;
+    ug.yfn = & faceMesh->yfn;
+    ug.zfn = & faceMesh->zfn;
     ug.vfn = & faceMesh->vfn;
     ug.farea = & faceMesh->area;
 
@@ -305,9 +305,9 @@ void UTimestep::SetId( int fId )
 
 void UTimestep::PrepareData()
 {
-    gcom.fnx   = ( * ug.fnx   )[ ug.fId ];
-    gcom.fny   = ( * ug.fny   )[ ug.fId ];
-    gcom.fnz   = ( * ug.fnz   )[ ug.fId ];
+    gcom.fnx   = ( * ug.xfn   )[ ug.fId ];
+    gcom.fny   = ( * ug.yfn   )[ ug.fId ];
+    gcom.fnz   = ( * ug.zfn   )[ ug.fId ];
     gcom.vfn   = ( * ug.vfn   )[ ug.fId ];
     gcom.farea = ( * ug.farea )[ ug.fId ];
 
@@ -323,9 +323,9 @@ void UTimestep::PrepareData()
 
 void UTimestep::PrepareVisData()
 {
-    gcom.fnx   = ( * ug.fnx   )[ ug.fId ];
-    gcom.fny   = ( * ug.fny   )[ ug.fId ];
-    gcom.fnz   = ( * ug.fnz   )[ ug.fId ];
+    gcom.fnx   = ( * ug.xfn   )[ ug.fId ];
+    gcom.fny   = ( * ug.yfn   )[ ug.fId ];
+    gcom.fnz   = ( * ug.zfn   )[ ug.fId ];
     gcom.vfn   = ( * ug.vfn   )[ ug.fId ];
     gcom.farea = ( * ug.farea )[ ug.fId ];
 

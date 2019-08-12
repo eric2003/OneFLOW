@@ -39,9 +39,9 @@ GCom::~GCom()
 
 void GCom::SetGeometry()
 {
-    this->fnx   = ( * ug.fnx   )[ ug.fId ];
-    this->fny   = ( * ug.fny   )[ ug.fId ];
-    this->fnz   = ( * ug.fnz   )[ ug.fId ];
+    this->fnx   = ( * ug.xfn   )[ ug.fId ];
+    this->fny   = ( * ug.yfn   )[ ug.fId ];
+    this->fnz   = ( * ug.zfn   )[ ug.fId ];
     this->vfn   = ( * ug.vfn   )[ ug.fId ];
     this->farea = ( * ug.farea )[ ug.fId ];
 

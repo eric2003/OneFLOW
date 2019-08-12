@@ -62,9 +62,9 @@ public:
     IntField * blankf;
     LinkField * c2f;
 
-    RealField * fnx;
-    RealField * fny;
-    RealField * fnz;
+    RealField * xfn;
+    RealField * yfn;
+    RealField * zfn;
     RealField * vfn;
     RealField * farea;
 
