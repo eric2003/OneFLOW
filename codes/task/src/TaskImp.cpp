@@ -27,9 +27,11 @@ License
 #include "WriteTask.h"
 #include "InterfaceTask.h"
 #include "OversetTask.h"
+#include "TaskRegister.h"
 
 BeginNameSpace( ONEFLOW )
 
+REGISTER_TASK( RegisterComTask )
 
 void RegisterComTask()
 {

@@ -20,28 +20,15 @@ License
 
 \*---------------------------------------------------------------------------*/
 #include "SolverTaskReg.h"
-#include "DataBase.h"
-#include "FileIO.h"
-#include "OStream.h"
-#include "StrUtil.h"
-#include "ActionMap.h"
-#include "Message.h"
+#include "SolverRegData.h"
 #include "Register.h"
 #include "SolverDef.h"
 #include "Category.h"
 #include "RegisterUtil.h"
 #include "SolverInfo.h"
+#include "SolverName.h"
 
 BeginNameSpace( ONEFLOW )
-
-void RegisterSolverTask( HXVector< RegData * > & regDataArray )
-{
-    for ( int i = 0; i < regDataArray.size(); ++ i )
-    {
-        RegData * regData = regDataArray[ i ];
-        RegisterSolverTask( regData );
-    }
-}
 
 void RegisterSolverVarMap( int sTid )
 {
@@ -52,7 +39,7 @@ void RegisterSolverVarMap( int sTid )
     SolverInfoFactory::AddSolverInfo( sTid );
 }
 
-void RegisterSolverTask( RegData * regData )
+void RegisterSolverTask( SolverRegData * regData )
 {
     int sTid = regData->sTid;
     string &solverName = regData->solverName;
@@ -85,70 +72,6 @@ void FreeSolverTask()
     Category::Free();
     VarNameFactory::FreeVarNameSolver();
     SolverInfoFactory::Free();
-}
-
-void GetMsgFileNameList( StringField & fileNameList )
-{
-    //\tÎªtab¼ü
-    string separator  = " =\r\n\t#$,;\"()";
-    string fileName = "./system/action/actionFileList.txt";
-
-    FileIO ioFile;
-    ioFile.OpenFile( fileName, ios_base::in );
-    ioFile.SetDefaultSeparator( separator );
-
-    while ( ! ioFile.ReachTheEndOfFile()  )
-    {
-        bool flag = ioFile.ReadNextNonEmptyLine();
-        if ( ! flag ) break;
-        string fileName = ioFile.ReadNextWord();
-        fileNameList.push_back( fileName );
-    }
-
-    ioFile.CloseFile();
-}
-
-void CreateMsgMap()
-{
-    StringField fileNameList;
-    GetMsgFileNameList( fileNameList );
-
-    MessageMap::Init();
-
-    for ( int iFile = 0; iFile < fileNameList.size(); ++ iFile )
-    {
-        MessageMap::ReadFile( fileNameList[ iFile ] );
-    }
-}
-
-void GetSolverFileNames( const string & solverName, StringField & fileNameList )
-{
-    //\tÎªtab¼ü
-    string separator = " =\r\n\t#$,;\"()";
-
-    OStream ostr;
-    ostr.ClearAll();
-    ostr << "./system/" << solverName << "/function/";
-    string baseDir = ostr.str();
-    ostr << "fileList.txt";
-    string keyFileName = ostr.str();
-
-    FileIO ioFile;
-    ioFile.OpenFile( keyFileName, ios_base::in );
-    ioFile.SetDefaultSeparator( separator );
-
-    while ( ! ioFile.ReachTheEndOfFile()  )
-    {
-        bool flag = ioFile.ReadNextNonEmptyLine();
-        if ( ! flag ) break;
-        string fileName = ioFile.ReadNextWord();
-
-        fileName = AddString( baseDir, fileName );
-
-        fileNameList.push_back( fileName );
-    }
-
-    ioFile.CloseFile();
 }
 
 void SetSolverFileNames( MRegister * mRegister, const string & solverName )

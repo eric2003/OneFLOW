@@ -34,6 +34,7 @@ License
 #include "Ctrl.h"
 #include "LaminarPlate.h"
 #include "TurbPlate.h"
+#include "SolverRegister.h"
 
 BeginNameSpace( ONEFLOW )
 
@@ -170,8 +171,8 @@ void NsInitSolver( StringField & data )
     ONEFLOW::CommInterfaceData();
 }
 
-RegData nsReg;
-RegData * GetNsReg()
+SolverRegData nsReg;
+SolverRegData * GetNsReg()
 {
     nsReg.sTid = NS_SOLVER;
     nsReg.func = & RegisterNsFunc;
@@ -180,5 +181,7 @@ RegData * GetNsReg()
     nsReg.dataFlag = WITH_DATA;
     return & nsReg;
 }
+
+REGISTER_REG_DATA( GetNsReg );
 
 EndNameSpace

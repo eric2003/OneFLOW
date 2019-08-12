@@ -21,7 +21,6 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "Category.h"
-#include "SolverMap.h"
 
 BeginNameSpace( ONEFLOW )
 

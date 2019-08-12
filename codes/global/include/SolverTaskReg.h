@@ -24,19 +24,15 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-class RegData;
-void RegisterSolverTask( HXVector< RegData * > & regDataArray );
-void RegisterSolverTask( RegData * regData );
+class SolverRegData;
+
+void RegisterSolverTask( SolverRegData * regData );
 void RegisterSolverVarMap( int sTid );
 void RegisterSolverFunc( int sTid, const string & solverName, VoidFunc func );
 
 void FreeSolverTask();
 
-void GetMsgFileNameList( StringField & fileNameList );
-void CreateMsgMap();
-
 class MRegister;
-void GetSolverFileNames( const string & solverName, StringField & fileNameList );
 void SetSolverFileNames( MRegister * mRegister, const string & solverName );
 
 

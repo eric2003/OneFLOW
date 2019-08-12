@@ -19,4 +19,4 @@ License
     along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 
 \*---------------------------------------------------------------------------*/
-#include "Configure.h"
+#include "HXDefine.h"

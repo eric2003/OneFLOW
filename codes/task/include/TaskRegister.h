@@ -20,59 +20,34 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "TaskCom.h"
-#include "Parallel.h"
-#include "Zone.h"
-#include "ZoneState.h"
-#include "PIO.h"
-#include "ActionState.h"
-#include "DataBook.h"
-#include <iostream>
+
+#pragma once
+#include "HXDefine.h"
 using namespace std;
 
 BeginNameSpace( ONEFLOW )
 
+#define REGISTER_TASK( TASK ) \
+class Init_Register##TASK \
+{ \
+public: \
+    Init_Register##TASK() \
+    {  \
+        TaskRegister::Register( TASK ); \
+    } \
+};  \
+Init_Register##TASK init_Register##TASK;
 
-void Client2Server( Task * task, VoidFunc mainAction )
+class TaskRegister
 {
-    int sPid = ZoneState::pid[ ZoneState::zid ];
-    int rPid = Parallel::serverid;
-
-    if ( Parallel::pid == sPid )
-    {
-        task->action();
-    }
-
-    HXSwapData( ActionState::dataBook, sPid, rPid );
-
-    if ( Parallel::pid == rPid )
-    {
-        mainAction();
-    }
-}
-
-void ReadBinaryFile()
-{
-    ActionState::dataBook->ReadFile( * ActionState::file );
-}
-
-void WriteBinaryFile()
-{
-    ActionState::dataBook->WriteFile( * ActionState::file );
-}
-
-void WriteAsciiFile()
-{
-    string str;
-    ActionState::dataBook->ToString( str );
-    * ActionState::file << str;
-}
-
-void WriteScreen()
-{
-    string str;
-    ActionState::dataBook->ToString( str );
-    cout << str;
-}
+public:
+    TaskRegister();
+    ~TaskRegister();
+public:
+    static HXVector< VoidFunc > * taskList;
+public:
+    static void Register( VoidFunc taskfun );
+    static void Run();
+};
 
 EndNameSpace

@@ -19,60 +19,36 @@ License
     along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 
 \*---------------------------------------------------------------------------*/
-
-#include "TaskCom.h"
-#include "Parallel.h"
-#include "Zone.h"
-#include "ZoneState.h"
-#include "PIO.h"
-#include "ActionState.h"
-#include "DataBook.h"
-#include <iostream>
-using namespace std;
+#pragma once
+#include "HXDefine.h"
+#include "SolverRegData.h"
 
 BeginNameSpace( ONEFLOW )
 
+class SolverRegData;
+typedef SolverRegData * ( * SolverRegFun )( void );
 
-void Client2Server( Task * task, VoidFunc mainAction )
+#define REGISTER_REG_DATA( FUN ) \
+class Init_SolverRegDataRegister##FUN \
+{ \
+public: \
+    Init_SolverRegDataRegister##FUN() \
+    {  \
+        SolverRegister::Register( FUN ); \
+    } \
+};  \
+Init_SolverRegDataRegister##FUN init_SolverRegDataRegister##FUN;
+
+class SolverRegister
 {
-    int sPid = ZoneState::pid[ ZoneState::zid ];
-    int rPid = Parallel::serverid;
-
-    if ( Parallel::pid == sPid )
-    {
-        task->action();
-    }
-
-    HXSwapData( ActionState::dataBook, sPid, rPid );
-
-    if ( Parallel::pid == rPid )
-    {
-        mainAction();
-    }
-}
-
-void ReadBinaryFile()
-{
-    ActionState::dataBook->ReadFile( * ActionState::file );
-}
-
-void WriteBinaryFile()
-{
-    ActionState::dataBook->WriteFile( * ActionState::file );
-}
-
-void WriteAsciiFile()
-{
-    string str;
-    ActionState::dataBook->ToString( str );
-    * ActionState::file << str;
-}
-
-void WriteScreen()
-{
-    string str;
-    ActionState::dataBook->ToString( str );
-    cout << str;
-}
+public:
+    SolverRegister();
+    ~SolverRegister();
+public:
+    static HXVector< SolverRegFun > * solverRegFunList;
+public:
+    static void Register( SolverRegFun solverRegFun );
+    static void Run();
+};
 
 EndNameSpace

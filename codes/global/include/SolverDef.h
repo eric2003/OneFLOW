@@ -70,17 +70,4 @@ extern map< string, int > * fieldIdMap;
 
 void CreateSysMap();
 
-class RegData
-{
-public:
-    RegData();
-    ~RegData();
-public:
-    int sTid;
-    string solverName;
-    VoidFunc func;
-    int baseKind;
-    int dataFlag;
-};
-
 EndNameSpace

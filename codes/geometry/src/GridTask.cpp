@@ -38,6 +38,7 @@ License
 #include "InterFace.h"
 #include "WallDist.h"
 #include "FaceTopo.h"
+#include "SolverRegister.h"
 
 BeginNameSpace( ONEFLOW )
 
@@ -160,9 +161,9 @@ void DecodeCellCenter( StringField & data )
     }
 }
 
-RegData gridReg;
+SolverRegData gridReg;
 
-RegData * GetGridReg()
+SolverRegData * GetGridReg()
 {
     gridReg.sTid = GRID_SOLVER;
     gridReg.func = & SetGridFunc;
@@ -172,5 +173,7 @@ RegData * GetGridReg()
 
     return & gridReg;
 }
+
+REGISTER_REG_DATA( GetGridReg );
 
 EndNameSpace

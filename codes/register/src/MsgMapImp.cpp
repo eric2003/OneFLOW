@@ -20,59 +20,45 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "TaskCom.h"
-#include "Parallel.h"
-#include "Zone.h"
-#include "ZoneState.h"
-#include "PIO.h"
-#include "ActionState.h"
-#include "DataBook.h"
-#include <iostream>
-using namespace std;
+#include "MsgMapImp.h"
+#include "Message.h"
+#include "FileIO.h"
 
 BeginNameSpace( ONEFLOW )
 
-
-void Client2Server( Task * task, VoidFunc mainAction )
+void CreateMsgMap()
 {
-    int sPid = ZoneState::pid[ ZoneState::zid ];
-    int rPid = Parallel::serverid;
+    StringField fileNameList;
+    GetMsgFileNameList( fileNameList );
 
-    if ( Parallel::pid == sPid )
+    MessageMap::Init();
+
+    for ( int iFile = 0; iFile < fileNameList.size(); ++ iFile )
     {
-        task->action();
-    }
-
-    HXSwapData( ActionState::dataBook, sPid, rPid );
-
-    if ( Parallel::pid == rPid )
-    {
-        mainAction();
+        MessageMap::ReadFile( fileNameList[ iFile ] );
     }
 }
 
-void ReadBinaryFile()
+void GetMsgFileNameList( StringField & fileNameList )
 {
-    ActionState::dataBook->ReadFile( * ActionState::file );
+    //\tÎªtab¼ü
+    string separator  = " =\r\n\t#$,;\"()";
+    string fileName = "./system/action/actionFileList.txt";
+
+    FileIO ioFile;
+    ioFile.OpenFile( fileName, ios_base::in );
+    ioFile.SetDefaultSeparator( separator );
+
+    while ( ! ioFile.ReachTheEndOfFile()  )
+    {
+        bool flag = ioFile.ReadNextNonEmptyLine();
+        if ( ! flag ) break;
+        string fileName = ioFile.ReadNextWord();
+        fileNameList.push_back( fileName );
+    }
+
+    ioFile.CloseFile();
 }
 
-void WriteBinaryFile()
-{
-    ActionState::dataBook->WriteFile( * ActionState::file );
-}
-
-void WriteAsciiFile()
-{
-    string str;
-    ActionState::dataBook->ToString( str );
-    * ActionState::file << str;
-}
-
-void WriteScreen()
-{
-    string str;
-    ActionState::dataBook->ToString( str );
-    cout << str;
-}
 
 EndNameSpace

@@ -21,60 +21,24 @@ License
 \*---------------------------------------------------------------------------*/
 #include "System.h"
 #include "DimensionImp.h"
-#include "ResidualTaskReg.h"
-#include "AeroForceTaskReg.h"
-#include "HeatFluxTaskReg.h"
-#include "MultigridTaskReg.h"
-#include "UnsteadyTaskReg.h"
-#include "RestartTaskReg.h"
-#include "ImplicitTaskReg.h"
-#include "InterfaceTaskReg.h"
-#include "VisualTaskReg.h"
-#include "UpdateTaskReg.h"
-#include "LhsTaskReg.h"
-#include "FieldTaskReg.h"
-#include "SolverTaskReg.h"
-#include "FileMap.h"
-#include "TaskImp.h"
+#include "SolverRegister.h"
 #include "SolverDef.h"
-#include "GridTask.h"
-#include "NsSolverImp.h"
-#include "TurbSolverImp.h"
+#include "TaskRegister.h"
+#include "MsgMapImp.h"
 
 BeginNameSpace( ONEFLOW )
 
 void ConstructSystemMap()
 {
     ONEFLOW::SetDimension();
-    ONEFLOW::RegisterComTask();
-    ONEFLOW::RegisterFileTask();
-    ONEFLOW::RegisterRedisualTask();
-    ONEFLOW::RegisterForceTask();
-    ONEFLOW::RegisterHeatFluxTask();
-    ONEFLOW::RegisterMultigridTask();
-    ONEFLOW::RegisterUnsteadyTask();
-    ONEFLOW::RegisterRestartTask();
-    ONEFLOW::RegisterImplicitTask();
-    ONEFLOW::RegisterInterfaceTask();
-    ONEFLOW::RegisterVisualTask();
-    ONEFLOW::RegisterUpdateTask();
-    ONEFLOW::RegisterLhsTask();
-    ONEFLOW::RegisterFieldTask();
-    ONEFLOW::CreateSysMap();
+
+    TaskRegister::Run();
+
+    CreateSysMap();
 
     CreateMsgMap();
 
-    HXVector< RegData * > regDataArray;
-    GetRegData( regDataArray );
-
-    RegisterSolverTask( regDataArray );
-}
-
-void GetRegData( HXVector< RegData * > & regDataArray )
-{
-    regDataArray.push_back( GetGridReg() );
-    regDataArray.push_back( GetNsReg() );
-    regDataArray.push_back( GetTurbReg() );
+    SolverRegister::Run();
 }
 
 EndNameSpace

@@ -19,60 +19,43 @@ License
     along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 
 \*---------------------------------------------------------------------------*/
-
-#include "TaskCom.h"
-#include "Parallel.h"
-#include "Zone.h"
-#include "ZoneState.h"
-#include "PIO.h"
-#include "ActionState.h"
-#include "DataBook.h"
-#include <iostream>
-using namespace std;
+#include "SolverName.h"
+#include "OStream.h"
+#include "FileIO.h"
+#include "StrUtil.h"
 
 BeginNameSpace( ONEFLOW )
 
 
-void Client2Server( Task * task, VoidFunc mainAction )
+void GetSolverFileNames( const string & solverName, StringField & fileNameList )
 {
-    int sPid = ZoneState::pid[ ZoneState::zid ];
-    int rPid = Parallel::serverid;
+    //\tÎªtab¼ü
+    string separator = " =\r\n\t#$,;\"()";
 
-    if ( Parallel::pid == sPid )
+    OStream ostr;
+    ostr.ClearAll();
+    ostr << "./system/" << solverName << "/function/";
+    string baseDir = ostr.str();
+    ostr << "fileList.txt";
+    string keyFileName = ostr.str();
+
+    FileIO ioFile;
+    ioFile.OpenFile( keyFileName, ios_base::in );
+    ioFile.SetDefaultSeparator( separator );
+
+    while ( ! ioFile.ReachTheEndOfFile()  )
     {
-        task->action();
+        bool flag = ioFile.ReadNextNonEmptyLine();
+        if ( ! flag ) break;
+        string fileName = ioFile.ReadNextWord();
+
+        fileName = AddString( baseDir, fileName );
+
+        fileNameList.push_back( fileName );
     }
 
-    HXSwapData( ActionState::dataBook, sPid, rPid );
-
-    if ( Parallel::pid == rPid )
-    {
-        mainAction();
-    }
+    ioFile.CloseFile();
 }
 
-void ReadBinaryFile()
-{
-    ActionState::dataBook->ReadFile( * ActionState::file );
-}
-
-void WriteBinaryFile()
-{
-    ActionState::dataBook->WriteFile( * ActionState::file );
-}
-
-void WriteAsciiFile()
-{
-    string str;
-    ActionState::dataBook->ToString( str );
-    * ActionState::file << str;
-}
-
-void WriteScreen()
-{
-    string str;
-    ActionState::dataBook->ToString( str );
-    cout << str;
-}
 
 EndNameSpace

@@ -24,8 +24,7 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-class RegData;
+class SolverRegData;
 void ConstructSystemMap();
-void GetRegData( HXVector< RegData * > & regDataArray );
 
 EndNameSpace

@@ -49,11 +49,11 @@ License
 #include "UVisualize.h"
 #include "UResidual.h"
 #include "UNsCom.h"
-#include <map>
-#include <iostream>
-using namespace std;
+#include "TaskRegister.h"
 
 BeginNameSpace( ONEFLOW )
+
+REGISTER_TASK( RegisterInterfaceTask )
 
 void RegisterInterfaceTask()
 {

@@ -19,60 +19,18 @@ License
     along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 
 \*---------------------------------------------------------------------------*/
-
-#include "TaskCom.h"
-#include "Parallel.h"
-#include "Zone.h"
-#include "ZoneState.h"
-#include "PIO.h"
-#include "ActionState.h"
-#include "DataBook.h"
-#include <iostream>
-using namespace std;
+#include "SolverRegData.h"
 
 BeginNameSpace( ONEFLOW )
 
-
-void Client2Server( Task * task, VoidFunc mainAction )
+SolverRegData::SolverRegData()
 {
-    int sPid = ZoneState::pid[ ZoneState::zid ];
-    int rPid = Parallel::serverid;
-
-    if ( Parallel::pid == sPid )
-    {
-        task->action();
-    }
-
-    HXSwapData( ActionState::dataBook, sPid, rPid );
-
-    if ( Parallel::pid == rPid )
-    {
-        mainAction();
-    }
+    ;
 }
 
-void ReadBinaryFile()
+SolverRegData::~SolverRegData()
 {
-    ActionState::dataBook->ReadFile( * ActionState::file );
-}
-
-void WriteBinaryFile()
-{
-    ActionState::dataBook->WriteFile( * ActionState::file );
-}
-
-void WriteAsciiFile()
-{
-    string str;
-    ActionState::dataBook->ToString( str );
-    * ActionState::file << str;
-}
-
-void WriteScreen()
-{
-    string str;
-    ActionState::dataBook->ToString( str );
-    cout << str;
+    ;
 }
 
 EndNameSpace
