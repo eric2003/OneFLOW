@@ -23,8 +23,7 @@ License
 
 #pragma once
 #include "Solver.h"
-#include "HXClone.h"
-using namespace std;
+
 BeginNameSpace( ONEFLOW )
 
 class TurbSolver : public Solver

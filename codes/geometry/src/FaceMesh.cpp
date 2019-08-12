@@ -293,11 +293,11 @@ void FaceMesh::AllocateMetrics()
     this->yfn.resize( nFace );
     this->zfn.resize( nFace );
     this->area.resize( nFace );
-    this->fvx.resize( nFace );
+    this->vfx.resize( nFace );
     this->fvy.resize( nFace );
     this->fvz.resize( nFace );
     this->fvn.resize( nFace );
-    this->fvx = 0;
+    this->vfx = 0;
     this->fvy = 0;
     this->fvz = 0;
     this->fvn = 0;

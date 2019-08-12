@@ -71,7 +71,7 @@ void UGeom::Init()
     ug.fvn = & faceMesh->fvn;
     ug.farea = & faceMesh->area;
 
-    ug.fvx = & faceMesh->fvx;
+    ug.fvx = & faceMesh->vfx;
     ug.fvy = & faceMesh->fvy;
     ug.fvz = & faceMesh->fvz;
 
