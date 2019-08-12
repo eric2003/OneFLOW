@@ -82,12 +82,12 @@ void InitTimeStepUns()
     ug.fnx = & faceMesh->xfn;
     ug.fny = & faceMesh->yfn;
     ug.fnz = & faceMesh->zfn;
-    ug.fvn = & faceMesh->fvn;
+    ug.vfn = & faceMesh->vfn;
     ug.farea = & faceMesh->area;
 
-    ug.fvx = & faceMesh->vfx;
-    ug.fvy = & faceMesh->vfy;
-    ug.fvz = & faceMesh->vfz;
+    ug.vfx = & faceMesh->vfx;
+    ug.vfy = & faceMesh->vfy;
+    ug.vfz = & faceMesh->vfz;
 
     ug.fcx = & faceMesh->xfc;
     ug.fcy = & faceMesh->yfc;
@@ -308,7 +308,7 @@ void UTimestep::PrepareData()
     gcom.fnx   = ( * ug.fnx   )[ ug.fId ];
     gcom.fny   = ( * ug.fny   )[ ug.fId ];
     gcom.fnz   = ( * ug.fnz   )[ ug.fId ];
-    gcom.fvn   = ( * ug.fvn   )[ ug.fId ];
+    gcom.fvn   = ( * ug.vfn   )[ ug.fId ];
     gcom.farea = ( * ug.farea )[ ug.fId ];
 
     for ( int iEqu = 0; iEqu < nscom.nTEqu; ++ iEqu )
@@ -326,7 +326,7 @@ void UTimestep::PrepareVisData()
     gcom.fnx   = ( * ug.fnx   )[ ug.fId ];
     gcom.fny   = ( * ug.fny   )[ ug.fId ];
     gcom.fnz   = ( * ug.fnz   )[ ug.fId ];
-    gcom.fvn   = ( * ug.fvn   )[ ug.fId ];
+    gcom.fvn   = ( * ug.vfn   )[ ug.fId ];
     gcom.farea = ( * ug.farea )[ ug.fId ];
 
     for ( int iEqu = 0; iEqu < nscom.nTEqu; ++ iEqu )

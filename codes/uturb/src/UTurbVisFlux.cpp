@@ -298,7 +298,7 @@ void UTurbVisFlux::PrepareFaceValue()
     gcom.fnx   = ( * ug.fnx   )[ ug.fId ];
     gcom.fny   = ( * ug.fny   )[ ug.fId ];
     gcom.fnz   = ( * ug.fnz   )[ ug.fId ];
-    gcom.fvn   = ( * ug.fvn   )[ ug.fId ];
+    gcom.fvn   = ( * ug.vfn   )[ ug.fId ];
     gcom.farea = ( * ug.farea )[ ug.fId ];
 
     gcom.CmpTangent();

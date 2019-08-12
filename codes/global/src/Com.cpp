@@ -42,7 +42,7 @@ void GCom::SetGeometry()
     this->fnx   = ( * ug.fnx   )[ ug.fId ];
     this->fny   = ( * ug.fny   )[ ug.fId ];
     this->fnz   = ( * ug.fnz   )[ ug.fId ];
-    this->fvn   = ( * ug.fvn   )[ ug.fId ];
+    this->fvn   = ( * ug.vfn   )[ ug.fId ];
     this->farea = ( * ug.farea )[ ug.fId ];
 
     this->swapflag = false;

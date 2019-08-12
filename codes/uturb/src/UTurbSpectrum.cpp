@@ -244,7 +244,7 @@ void UTurbSpectrum::PrepareFaceValue1Equ()
     gcom.fnx   = ( * ug.fnx   )[ ug.fId ];
     gcom.fny   = ( * ug.fny   )[ ug.fId ];
     gcom.fnz   = ( * ug.fnz   )[ ug.fId ];
-    gcom.fvn   = ( * ug.fvn   )[ ug.fId ];
+    gcom.fvn   = ( * ug.vfn   )[ ug.fId ];
     gcom.farea = ( * ug.farea )[ ug.fId ];
 
     gcom.cvol1 = ( * ug.cvol )[ ug.lc ];
@@ -271,7 +271,7 @@ void UTurbSpectrum::PrepareFaceValue2Equ()
     gcom.fnx   = ( * ug.fnx   )[ ug.fId ];
     gcom.fny   = ( * ug.fny   )[ ug.fId ];
     gcom.fnz   = ( * ug.fnz   )[ ug.fId ];
-    gcom.fvn   = ( * ug.fvn   )[ ug.fId ];
+    gcom.fvn   = ( * ug.vfn   )[ ug.fId ];
     gcom.farea = ( * ug.farea )[ ug.fId ];
 
     gcom.cvol1 = ( * ug.cvol )[ ug.lc ];

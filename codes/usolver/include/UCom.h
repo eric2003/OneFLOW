@@ -65,16 +65,16 @@ public:
     RealField * fnx;
     RealField * fny;
     RealField * fnz;
-    RealField * fvn;
+    RealField * vfn;
     RealField * farea;
 
     RealField * fcx;
     RealField * fcy;
     RealField * fcz;
 
-    RealField * fvx;
-    RealField * fvy;
-    RealField * fvz;
+    RealField * vfx;
+    RealField * vfy;
+    RealField * vfz;
 
     RealField * cvol, * cvol1, * cvol2;
     RealField * ccx;

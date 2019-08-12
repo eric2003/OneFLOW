@@ -296,11 +296,11 @@ void FaceMesh::AllocateMetrics()
     this->vfx.resize( nFace );
     this->vfy.resize( nFace );
     this->vfz.resize( nFace );
-    this->fvn.resize( nFace );
+    this->vfn.resize( nFace );
     this->vfx = 0;
     this->vfy = 0;
     this->vfz = 0;
-    this->fvn = 0;
+    this->vfn = 0;
     UInt nBFace = this->GetNBFace();
     this->faceTopo->bcManager->bcRecord->bcType.resize( nBFace );
 }
