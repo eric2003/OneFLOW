@@ -149,9 +149,9 @@ void TurbBcSolver::FarFieldBc()
     Real rin, uin, vin, win, pin;
     ONEFLOW::Extract( turbcom.ns_prims1, rin, uin, vin, win, pin );
 
-    gcom.fnx *= gcom.faceOuterNormal;
-    gcom.fny *= gcom.faceOuterNormal;
-    gcom.fnz *= gcom.faceOuterNormal;
+    gcom.xfn *= gcom.faceOuterNormal;
+    gcom.yfn *= gcom.faceOuterNormal;
+    gcom.zfn *= gcom.faceOuterNormal;
 
     Real rref = nscom.inflow[ IDX::IR ];
     Real uref = nscom.inflow[ IDX::IU ];
@@ -159,8 +159,8 @@ void TurbBcSolver::FarFieldBc()
     Real wref = nscom.inflow[ IDX::IW ];
     Real pref = nscom.inflow[ IDX::IP ];
 
-    Real vnref = gcom.fnx * uref + gcom.fny * vref + gcom.fnz * wref - gcom.vfn;
-    Real vnin  = gcom.fnx * uin  + gcom.fny * vin  + gcom.fnz * win  - gcom.vfn;
+    Real vnref = gcom.xfn * uref + gcom.yfn * vref + gcom.zfn * wref - gcom.vfn;
+    Real vnin  = gcom.xfn * uin  + gcom.yfn * vin  + gcom.zfn * win  - gcom.vfn;
 
     Real cref = sqrt( ABS( nscom.gama_ref * pref / rref ) );
     Real cin  = sqrt( ABS( nscom.gama    * pin  / rin  ) );

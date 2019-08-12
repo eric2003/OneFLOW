@@ -130,7 +130,7 @@ void NsLusgs::CmpFaceEigenValue( RealField & prim )
     Real c2 = ABS( nslu.gama * pm / rm );
     Real cm = sqrt( c2 );
 
-    Real vn_fluid = gcom.fnx * um + gcom.fny * vm + gcom.fnz * wm;
+    Real vn_fluid = gcom.xfn * um + gcom.yfn * vm + gcom.zfn * wm;
     Real vn_rel   = vn_fluid - gcom.vfn;
 
     //Real lmd1 = vn_rel;
@@ -157,7 +157,7 @@ void NsLusgs::GetStandardFluxIncrement( int signOfMatrix )
     Real c2 = ABS( nslu.gama * pm / rm );
     Real cm = sqrt( c2 );
 
-    Real vn_fluid = gcom.fnx * um + gcom.fny * vm + gcom.fnz * wm;
+    Real vn_fluid = gcom.xfn * um + gcom.yfn * vm + gcom.zfn * wm;
     Real vn_rel   = vn_fluid - gcom.vfn;
 
     Real lmd1 = vn_rel;
@@ -172,9 +172,9 @@ void NsLusgs::GetStandardFluxIncrement( int signOfMatrix )
     Real x2 = ( lmd2 - lmd3 ) / ( cm + cm );
 
     Real dc =   vn_fluid * nslu.dqj[ IDX::IR  ]
-              - gcom.fnx * nslu.dqj[ IDX::IRU ]
-              - gcom.fny * nslu.dqj[ IDX::IRV ]
-              - gcom.fnz * nslu.dqj[ IDX::IRW ];
+              - gcom.xfn * nslu.dqj[ IDX::IRU ]
+              - gcom.yfn * nslu.dqj[ IDX::IRV ]
+              - gcom.zfn * nslu.dqj[ IDX::IRW ];
     Real c2dc = c2 * dc;
 
     Real dh, hm;
@@ -185,9 +185,9 @@ void NsLusgs::GetStandardFluxIncrement( int signOfMatrix )
     Real term2 =  c2dc * x1 + dh * x2;
 
     nslu.dfj[ IDX::IR  ] = lmd1 * nslu.dqj[ IDX::IR  ] -      term1                    ;
-    nslu.dfj[ IDX::IRU ] = lmd1 * nslu.dqj[ IDX::IRU ] - um * term1 + gcom.fnx * term2;
-    nslu.dfj[ IDX::IRV ] = lmd1 * nslu.dqj[ IDX::IRV ] - vm * term1 + gcom.fny * term2;
-    nslu.dfj[ IDX::IRW ] = lmd1 * nslu.dqj[ IDX::IRW ] - wm * term1 + gcom.fnz * term2;
+    nslu.dfj[ IDX::IRU ] = lmd1 * nslu.dqj[ IDX::IRU ] - um * term1 + gcom.xfn * term2;
+    nslu.dfj[ IDX::IRV ] = lmd1 * nslu.dqj[ IDX::IRV ] - vm * term1 + gcom.yfn * term2;
+    nslu.dfj[ IDX::IRW ] = lmd1 * nslu.dqj[ IDX::IRW ] - wm * term1 + gcom.zfn * term2;
     nslu.dfj[ IDX::IRE ] = lmd1 * nslu.dqj[ IDX::IRE ] - hm * term1 + vn_fluid * term2;
 
     for ( int iEqu = nslu.nBEqu; iEqu < nslu.nEqu; ++ iEqu )

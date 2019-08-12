@@ -509,9 +509,9 @@ void Limiter::PrepareData()
     gcom.cvol1 = ( * ug.cvol )[ ug.lc ];
     gcom.cvol2 = ( * ug.cvol )[ ug.rc ];
 
-    gcom.fnx   = ( * ug.xfn )[ ug.fId ];
-    gcom.fny   = ( * ug.yfn )[ ug.fId ];
-    gcom.fnz   = ( * ug.zfn )[ ug.fId ];
+    gcom.xfn   = ( * ug.xfn )[ ug.fId ];
+    gcom.yfn   = ( * ug.yfn )[ ug.fId ];
+    gcom.zfn   = ( * ug.zfn )[ ug.fId ];
 
     gcom.fcx   = ( * ug.xfc )[ ug.fId ];
     gcom.fcy   = ( * ug.yfc )[ ug.fId ];
@@ -544,7 +544,7 @@ void Limiter::CmpLocalBarthLimiter()
     Real dqFace1  = lim->dqdx1 * dx1 + lim->dqdy1 * dy1 + lim->dqdz1 * dz1;
 
     Real ds1  = DIST( dx1, dy1, dz1 );
-    Real dot1 = ( gcom.fnx * dx1 + gcom.fny * dy1 + gcom.fnz * dz1 ) / ( ds1 + SMALL );
+    Real dot1 = ( gcom.xfn * dx1 + gcom.yfn * dy1 + gcom.zfn * dz1 ) / ( ds1 + SMALL );
 
     Real limv1 = BarthFunction( dqFace1, lim->minv1, lim->maxv1, dot1 );
     lim->lim1 = MIN( lim->lim1, limv1 );
@@ -556,7 +556,7 @@ void Limiter::CmpLocalBarthLimiter()
     Real dqFace2  = lim->dqdx2 * dx2 + lim->dqdy2 * dy2 + lim->dqdz2 * dz2;
 
     Real ds2  = DIST( dx2, dy2, dz2 );
-    Real dot2 = - ( gcom.fnx * dx2 + gcom.fny * dy2 + gcom.fnz * dz2 ) / ( ds2 + SMALL );
+    Real dot2 = - ( gcom.xfn * dx2 + gcom.yfn * dy2 + gcom.zfn * dz2 ) / ( ds2 + SMALL );
 
     Real limv2 = BarthFunction( dqFace2, lim->minv2, lim->maxv2, dot2 );
     lim->lim2 = MIN( lim->lim2, limv2 );

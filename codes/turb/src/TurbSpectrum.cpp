@@ -94,8 +94,8 @@ void TurbSpectrum::CmpFaceSpectrum1Equ()
     Real wr = turbsp.q2_ns[ IDX::IW ];
 
     //calculate velocity at the cell interface
-    Real vnl  = gcom.fnx * ul + gcom.fny * vl + gcom.fnz * wl - gcom.vfn;
-    Real vnr  = gcom.fnx * ur + gcom.fny * vr + gcom.fnz * wr - gcom.vfn;
+    Real vnl  = gcom.xfn * ul + gcom.yfn * vl + gcom.zfn * wl - gcom.vfn;
+    Real vnr  = gcom.xfn * ur + gcom.yfn * vr + gcom.zfn * wr - gcom.vfn;
 
     Real absVnl = ABS( vnl );
     Real absVnr = ABS( vnr );
@@ -155,8 +155,8 @@ void TurbSpectrum::CmpFaceSpectrum2Equ()
     Real wr = turbsp.q2_ns[ IDX::IW ];
 
     //calculate velocity at the cell interface
-    Real vnl  = gcom.fnx * ul + gcom.fny * vl + gcom.fnz * wl - gcom.vfn;
-    Real vnr  = gcom.fnx * ur + gcom.fny * vr + gcom.fnz * wr - gcom.vfn;
+    Real vnl  = gcom.xfn * ul + gcom.yfn * vl + gcom.zfn * wl - gcom.vfn;
+    Real vnr  = gcom.xfn * ur + gcom.yfn * vr + gcom.zfn * wr - gcom.vfn;
 
     Real absVnl = ABS( vnl );
     Real absVnr = ABS( vnr );

@@ -74,8 +74,8 @@ void Timestep::CmpFaceInvSpec()
     Real pr = nscom.q2[ IDX::IP ];
     Real cr = sqrt( nscom.gama2 * pr / rr );
         
-    Real vnl  = gcom.fnx * ul + gcom.fny * vl + gcom.fnz * wl - gcom.vfn;
-    Real vnr  = gcom.fnx * ur + gcom.fny * vr + gcom.fnz * wr - gcom.vfn;
+    Real vnl  = gcom.xfn * ul + gcom.yfn * vl + gcom.zfn * wl - gcom.vfn;
+    Real vnr  = gcom.xfn * ur + gcom.yfn * vr + gcom.zfn * wr - gcom.vfn;
 
     nscom.gama = half * ( nscom.gama1 + nscom.gama2 );
 
@@ -102,9 +102,9 @@ void Timestep::CmpFaceVisSpec()
     }
     else if ( nscom.visSRModel == 2 )
     {
-        Real dist = ABS(  gcom.fnx * ( gcom.ccx2 - gcom.ccx1 )
-                        + gcom.fny * ( gcom.ccy2 - gcom.ccy1 )
-                        + gcom.fnz * ( gcom.ccz2 - gcom.ccz1 ) );
+        Real dist = ABS(  gcom.xfn * ( gcom.ccx2 - gcom.ccx1 )
+                        + gcom.yfn * ( gcom.ccy2 - gcom.ccy1 )
+                        + gcom.zfn * ( gcom.ccz2 - gcom.ccz1 ) );
 
         Real viscosity = nscom.visl + nscom.vist;
         Real density   = half * ( nscom.q1[ IDX::IR ] + nscom.q2[ IDX::IR ] );

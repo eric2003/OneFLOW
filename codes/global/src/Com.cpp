@@ -39,9 +39,9 @@ GCom::~GCom()
 
 void GCom::SetGeometry()
 {
-    this->fnx   = ( * ug.xfn   )[ ug.fId ];
-    this->fny   = ( * ug.yfn   )[ ug.fId ];
-    this->fnz   = ( * ug.zfn   )[ ug.fId ];
+    this->xfn   = ( * ug.xfn   )[ ug.fId ];
+    this->yfn   = ( * ug.yfn   )[ ug.fId ];
+    this->zfn   = ( * ug.zfn   )[ ug.fId ];
     this->vfn   = ( * ug.vfn   )[ ug.fId ];
     this->farea = ( * ug.farea )[ ug.fId ];
 
@@ -66,9 +66,9 @@ void GCom::SetGeometry()
 
 void GCom::Reverse()
 {
-    this->fnx = - this->fnx;
-    this->fny = - this->fny;
-    this->fnz = - this->fnz;
+    this->xfn = - this->xfn;
+    this->yfn = - this->yfn;
+    this->zfn = - this->zfn;
     this->vfn = - this->vfn;
     //faceArea unchanged
 }
@@ -77,23 +77,23 @@ void GCom::CmpTangent()
 {
     // Get first tangential
     this->idegenerate = false;
-    if ( this->fnx != 0.0 )
+    if ( this->xfn != 0.0 )
     {
-        this->t1x =   this->fny;
-        this->t1y = - this->fnx;
+        this->t1x =   this->yfn;
+        this->t1y = - this->xfn;
         this->t1z =   0.0;
     }
-    else if ( this->fny != 0.0 )
+    else if ( this->yfn != 0.0 )
     {
-        this->t1x = - this->fny;
-        this->t1y =   this->fnx;
+        this->t1x = - this->yfn;
+        this->t1y =   this->xfn;
         this->t1z =   0.0;
     }
-    else if ( this->fnz != 0.0 )
+    else if ( this->zfn != 0.0 )
     {
         this->t1x =   0.0;
-        this->t1y = - this->fnz;
-        this->t1z =   this->fny;
+        this->t1y = - this->zfn;
+        this->t1z =   this->yfn;
     }
     else
     {
@@ -115,9 +115,9 @@ void GCom::CmpTangent()
     this->t1z *= dtmp;
 
     //Get second tangential vector by cross dot t1 to normal
-    gcom.t2x = gcom.fny * gcom.t1z - gcom.fnz * gcom.t1y;
-    gcom.t2y = gcom.fnz * gcom.t1x - gcom.fnx * gcom.t1z;
-    gcom.t2z = gcom.fnx * gcom.t1y - gcom.fny * gcom.t1x;
+    gcom.t2x = gcom.yfn * gcom.t1z - gcom.zfn * gcom.t1y;
+    gcom.t2y = gcom.zfn * gcom.t1x - gcom.xfn * gcom.t1z;
+    gcom.t2z = gcom.xfn * gcom.t1y - gcom.yfn * gcom.t1x;
 }
 
 EndNameSpace

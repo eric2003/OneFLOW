@@ -39,7 +39,7 @@ public:
     int idegenerate;
     bool swapflag;
 public:
-    Real fnx, fny, fnz;
+    Real xfn, yfn, zfn;
     Real fvx, fvy, fvz, vfn, farea;
     Real t1x, t1y, t1z;
     Real t2x, t2y, t2z;

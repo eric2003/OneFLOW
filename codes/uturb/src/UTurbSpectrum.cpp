@@ -241,9 +241,9 @@ void UTurbSpectrum::UpdateSpectrumRadius()
 
 void UTurbSpectrum::PrepareFaceValue1Equ()
 {
-    gcom.fnx   = ( * ug.xfn   )[ ug.fId ];
-    gcom.fny   = ( * ug.yfn   )[ ug.fId ];
-    gcom.fnz   = ( * ug.zfn   )[ ug.fId ];
+    gcom.xfn   = ( * ug.xfn   )[ ug.fId ];
+    gcom.yfn   = ( * ug.yfn   )[ ug.fId ];
+    gcom.zfn   = ( * ug.zfn   )[ ug.fId ];
     gcom.vfn   = ( * ug.vfn   )[ ug.fId ];
     gcom.farea = ( * ug.farea )[ ug.fId ];
 
@@ -268,9 +268,9 @@ void UTurbSpectrum::PrepareFaceValue1Equ()
 
 void UTurbSpectrum::PrepareFaceValue2Equ()
 {
-    gcom.fnx   = ( * ug.xfn   )[ ug.fId ];
-    gcom.fny   = ( * ug.yfn   )[ ug.fId ];
-    gcom.fnz   = ( * ug.zfn   )[ ug.fId ];
+    gcom.xfn   = ( * ug.xfn   )[ ug.fId ];
+    gcom.yfn   = ( * ug.yfn   )[ ug.fId ];
+    gcom.zfn   = ( * ug.zfn   )[ ug.fId ];
     gcom.vfn   = ( * ug.vfn   )[ ug.fId ];
     gcom.farea = ( * ug.farea )[ ug.fId ];
 

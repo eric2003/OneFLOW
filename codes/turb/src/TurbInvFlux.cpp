@@ -79,8 +79,8 @@ void TurbInvFlux::RoeFlux()
 {
     TurbInv & inv = turbInv;
     int nEqu = inv.prim1.size();
-    Real vnl  = gcom.fnx * inv.ul + gcom.fny * inv.vl + gcom.fnz * inv.wl - gcom.vfn;
-    Real vnr  = gcom.fnx * inv.ur + gcom.fny * inv.vr + gcom.fnz * inv.wr - gcom.vfn;
+    Real vnl  = gcom.xfn * inv.ul + gcom.yfn * inv.vl + gcom.zfn * inv.wl - gcom.vfn;
+    Real vnr  = gcom.xfn * inv.ur + gcom.yfn * inv.vr + gcom.zfn * inv.wr - gcom.vfn;
 
     Real vnl_p = half * ( vnl + ABS( vnl ) );
     Real vnr_n = half * ( vnr - ABS( vnr ) );

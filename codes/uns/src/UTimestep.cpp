@@ -305,9 +305,9 @@ void UTimestep::SetId( int fId )
 
 void UTimestep::PrepareData()
 {
-    gcom.fnx   = ( * ug.xfn   )[ ug.fId ];
-    gcom.fny   = ( * ug.yfn   )[ ug.fId ];
-    gcom.fnz   = ( * ug.zfn   )[ ug.fId ];
+    gcom.xfn   = ( * ug.xfn   )[ ug.fId ];
+    gcom.yfn   = ( * ug.yfn   )[ ug.fId ];
+    gcom.zfn   = ( * ug.zfn   )[ ug.fId ];
     gcom.vfn   = ( * ug.vfn   )[ ug.fId ];
     gcom.farea = ( * ug.farea )[ ug.fId ];
 
@@ -323,9 +323,9 @@ void UTimestep::PrepareData()
 
 void UTimestep::PrepareVisData()
 {
-    gcom.fnx   = ( * ug.xfn   )[ ug.fId ];
-    gcom.fny   = ( * ug.yfn   )[ ug.fId ];
-    gcom.fnz   = ( * ug.zfn   )[ ug.fId ];
+    gcom.xfn   = ( * ug.xfn   )[ ug.fId ];
+    gcom.yfn   = ( * ug.yfn   )[ ug.fId ];
+    gcom.zfn   = ( * ug.zfn   )[ ug.fId ];
     gcom.vfn   = ( * ug.vfn   )[ ug.fId ];
     gcom.farea = ( * ug.farea )[ ug.fId ];
 

@@ -77,16 +77,16 @@ void VisGradGeom::PrepareCellGeom()
     this->dyr = ( * ug.ycc )[ ug.rc ] - ( * ug.yfc )[ ug.fId ];
     this->dzr = ( * ug.zcc )[ ug.rc ] - ( * ug.zfc )[ ug.fId ];
 
-    this->d1  = gcom.fnx * this->dxl + gcom.fny * this->dyl + gcom.fnz * this->dzl;
-    this->d2  = gcom.fnx * this->dxr + gcom.fny * this->dyr + gcom.fnz * this->dzr;
+    this->d1  = gcom.xfn * this->dxl + gcom.yfn * this->dyl + gcom.zfn * this->dzl;
+    this->d2  = gcom.xfn * this->dxr + gcom.yfn * this->dyr + gcom.zfn * this->dzr;
 
-    this->dxnl  = gcom.fnx * this->d1 - this->dxl;
-    this->dynl  = gcom.fny * this->d1 - this->dyl;
-    this->dznl  = gcom.fnz * this->d1 - this->dzl;
+    this->dxnl  = gcom.xfn * this->d1 - this->dxl;
+    this->dynl  = gcom.yfn * this->d1 - this->dyl;
+    this->dznl  = gcom.zfn * this->d1 - this->dzl;
 
-    this->dxnr  = gcom.fnx * this->d2 - this->dxr;
-    this->dynr  = gcom.fny * this->d2 - this->dyr;
-    this->dznr  = gcom.fnz * this->d2 - this->dzr;
+    this->dxnr  = gcom.xfn * this->d2 - this->dxr;
+    this->dynr  = gcom.yfn * this->d2 - this->dyr;
+    this->dznr  = gcom.zfn * this->d2 - this->dzr;
 
     //d1=( d1x, d1y ) = d1 * ( fnx, fny )
     //( r1x, r1y ) - ( rLx, rLy ) = ( dr1x, dr1y ) - ( drLx, drLy )
@@ -188,7 +188,7 @@ void VisGrad::CmpNormalGrad()
 {
     for ( int iEqu = 0; iEqu < nEqu; ++ iEqu )
     {
-        dqdn[ iEqu ] = gcom.fnx * dqdx[ iEqu ] + gcom.fny * dqdy[ iEqu ] + gcom.fnz * dqdz[ iEqu ];
+        dqdn[ iEqu ] = gcom.xfn * dqdx[ iEqu ] + gcom.yfn * dqdy[ iEqu ] + gcom.zfn * dqdz[ iEqu ];
     }
 }
 
@@ -282,9 +282,9 @@ void VisGrad::ModifyFaceGrad()
 
     for ( int iEqu = 0; iEqu < nEqu; ++ iEqu )
     {
-        dqdx[ iEqu ] = gcom.fnx * dqdn[ iEqu ] + gcom.t1x * dqdt1[ iEqu ] + gcom.t2x * dqdt2[ iEqu ];
-        dqdy[ iEqu ] = gcom.fny * dqdn[ iEqu ] + gcom.t1y * dqdt1[ iEqu ] + gcom.t2y * dqdt2[ iEqu ];
-        dqdz[ iEqu ] = gcom.fnz * dqdn[ iEqu ] + gcom.t1z * dqdt1[ iEqu ] + gcom.t2z * dqdt2[ iEqu ];
+        dqdx[ iEqu ] = gcom.xfn * dqdn[ iEqu ] + gcom.t1x * dqdt1[ iEqu ] + gcom.t2x * dqdt2[ iEqu ];
+        dqdy[ iEqu ] = gcom.yfn * dqdn[ iEqu ] + gcom.t1y * dqdt1[ iEqu ] + gcom.t2y * dqdt2[ iEqu ];
+        dqdz[ iEqu ] = gcom.zfn * dqdn[ iEqu ] + gcom.t1z * dqdt1[ iEqu ] + gcom.t2z * dqdt2[ iEqu ];
     }
 }
 

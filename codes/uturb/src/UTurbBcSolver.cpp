@@ -122,9 +122,9 @@ void UTurbBcSolver::UpdateBc()
 
 void UTurbBcSolver::PrepareData()
 {
-    gcom.fnx   = ( * ug.xfn   )[ ug.fId ];
-    gcom.fny   = ( * ug.yfn   )[ ug.fId ];
-    gcom.fnz   = ( * ug.zfn   )[ ug.fId ];
+    gcom.xfn   = ( * ug.xfn   )[ ug.fId ];
+    gcom.yfn   = ( * ug.yfn   )[ ug.fId ];
+    gcom.zfn   = ( * ug.zfn   )[ ug.fId ];
 
     gcom.fvx   = ( * ug.vfx   )[ ug.fId ];
     gcom.fvy   = ( * ug.vfy   )[ ug.fId ];
