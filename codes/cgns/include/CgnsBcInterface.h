@@ -52,7 +52,6 @@ public:
 
     int itranfrm[ 3 ];
 
-    //string connName;
     string donorZoneName;
 
     CgnsBcRegion * bcRegion;
