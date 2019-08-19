@@ -23,6 +23,7 @@ License
 
 #pragma once
 #include "HXDefine.h"
+#include "HXArray.h"
 
 BeginNameSpace( ONEFLOW )
 
@@ -61,24 +62,24 @@ public:
     IntField * blankf;
     LinkField * c2f;
 
-    RealField * fnx;
-    RealField * fny;
-    RealField * fnz;
-    RealField * fvn;
+    RealField * xfn;
+    RealField * yfn;
+    RealField * zfn;
+    RealField * vfn;
     RealField * farea;
 
-    RealField * fcx;
-    RealField * fcy;
-    RealField * fcz;
+    RealField * xfc;
+    RealField * yfc;
+    RealField * zfc;
 
-    RealField * fvx;
-    RealField * fvy;
-    RealField * fvz;
+    RealField * vfx;
+    RealField * vfy;
+    RealField * vfz;
 
     RealField * cvol, * cvol1, * cvol2;
-    RealField * ccx;
-    RealField * ccy;
-    RealField * ccz;
+    RealField * xcc;
+    RealField * ycc;
+    RealField * zcc;
     BcRecord * bcRecord;
 };
 

@@ -65,23 +65,23 @@ void UGeom::Init()
     CellMesh * cellMesh = grid->cellMesh;
     CellTopo * cellTopo = grid->cellMesh->cellTopo;
 
-    ug.fnx = & faceMesh->xfn;
-    ug.fny = & faceMesh->yfn;
-    ug.fnz = & faceMesh->zfn;
-    ug.fvn = & faceMesh->fvn;
+    ug.xfn = & faceMesh->xfn;
+    ug.yfn = & faceMesh->yfn;
+    ug.zfn = & faceMesh->zfn;
+    ug.vfn = & faceMesh->vfn;
     ug.farea = & faceMesh->area;
 
-    ug.fvx = & faceMesh->fvx;
-    ug.fvy = & faceMesh->fvy;
-    ug.fvz = & faceMesh->fvz;
+    ug.vfx = & faceMesh->vfx;
+    ug.vfy = & faceMesh->vfy;
+    ug.vfz = & faceMesh->vfz;
 
-    ug.fcx = & faceMesh->xfc;
-    ug.fcy = & faceMesh->yfc;
-    ug.fcz = & faceMesh->zfc;
+    ug.xfc = & faceMesh->xfc;
+    ug.yfc = & faceMesh->yfc;
+    ug.zfc = & faceMesh->zfc;
 
-    ug.ccx = & cellMesh->xcc;
-    ug.ccy = & cellMesh->ycc;
-    ug.ccz = & cellMesh->zcc;
+    ug.xcc = & cellMesh->xcc;
+    ug.ycc = & cellMesh->ycc;
+    ug.zcc = & cellMesh->zcc;
 
     ug.cvol  = & cellMesh->vol;
     ug.cvol1 = & cellMesh->vol;

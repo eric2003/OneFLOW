@@ -24,6 +24,7 @@ License
 #pragma once
 #include "HXClone.h"
 #include "Task.h"
+#include "HXArray.h"
 #include <sstream>
 #include <fstream>
 using namespace std;

@@ -166,9 +166,9 @@ void NsBcSolver::FarFieldBc()
     Real rin, uin, vin, win, pin;
     ONEFLOW::Extract( nscom.prims1, rin, uin, vin, win, pin );
 
-    gcom.fnx *= nscom.faceOuterNormal;
-    gcom.fny *= nscom.faceOuterNormal;
-    gcom.fnz *= nscom.faceOuterNormal;
+    gcom.xfn *= nscom.faceOuterNormal;
+    gcom.yfn *= nscom.faceOuterNormal;
+    gcom.zfn *= nscom.faceOuterNormal;
 
     Real rref = nscom.inflow[ IDX::IR ];
     Real uref = nscom.inflow[ IDX::IU ];
@@ -176,8 +176,8 @@ void NsBcSolver::FarFieldBc()
     Real wref = nscom.inflow[ IDX::IW ];
     Real pref = nscom.inflow[ IDX::IP ];
 
-    Real vnref = gcom.fnx * uref + gcom.fny * vref + gcom.fnz * wref - gcom.fvn;
-    Real vnin  = gcom.fnx * uin  + gcom.fny * vin  + gcom.fnz * win  - gcom.fvn;
+    Real vnref = gcom.xfn * uref + gcom.yfn * vref + gcom.zfn * wref - gcom.vfn;
+    Real vnin  = gcom.xfn * uin  + gcom.yfn * vin  + gcom.zfn * win  - gcom.vfn;
 
     Real cref = sqrt( ABS( nscom.gama_ref * pref / rref ) );
     Real cin  = sqrt( ABS( nscom.gama    * pin  / rin  ) );
@@ -232,23 +232,23 @@ void NsBcSolver::FarFieldBc()
             // exit
             entr = pin / pow( rin, nscom.gama );
 
-            vtx = uin - gcom.fnx * vnin;
-            vty = vin - gcom.fny * vnin;
-            vtz = win - gcom.fnz * vnin;
+            vtx = uin - gcom.xfn * vnin;
+            vty = vin - gcom.yfn * vnin;
+            vtz = win - gcom.zfn * vnin;
         }
         else
         {
             //inlet
             entr = pref / pow( rref, nscom.gama );
-            vtx = uref - gcom.fnx * vnref;
-            vty = vref - gcom.fny * vnref;
-            vtz = wref - gcom.fnz * vnref;
+            vtx = uref - gcom.xfn * vnref;
+            vty = vref - gcom.yfn * vnref;
+            vtz = wref - gcom.zfn * vnref;
         }
 
         Real rb  = pow( ( cb * cb / ( entr * nscom.gama ) ), one / gamm1 );
-        Real ub  = vtx + gcom.fnx * vnb;
-        Real vb  = vty + gcom.fny * vnb;
-        Real wb  = vtz + gcom.fnz * vnb;
+        Real ub  = vtx + gcom.xfn * vnb;
+        Real vb  = vty + gcom.yfn * vnb;
+        Real wb  = vtz + gcom.zfn * vnb;
         Real pb  = cb * cb * rb / nscom.gama;
 
         nscom.primt1[ IDX::IR ] = rb;
@@ -328,13 +328,13 @@ void NsBcSolver::VelocityBc()
 {
     if ( nscom.bcdtkey == 0 )
     {
-        nscom.primt1[ IDX::IU ] = - nscom.primt1[ IDX::IU ] + two * gcom.fvx;
-        nscom.primt1[ IDX::IV ] = - nscom.primt1[ IDX::IV ] + two * gcom.fvy;
-        nscom.primt1[ IDX::IW ] = - nscom.primt1[ IDX::IW ] + two * gcom.fvz;
+        nscom.primt1[ IDX::IU ] = - nscom.primt1[ IDX::IU ] + two * gcom.vfx;
+        nscom.primt1[ IDX::IV ] = - nscom.primt1[ IDX::IV ] + two * gcom.vfy;
+        nscom.primt1[ IDX::IW ] = - nscom.primt1[ IDX::IW ] + two * gcom.vfz;
 
-        nscom.primt2[ IDX::IU ] = - nscom.primt2[ IDX::IU ] + two * gcom.fvx;
-        nscom.primt2[ IDX::IV ] = - nscom.primt2[ IDX::IV ] + two * gcom.fvy;
-        nscom.primt2[ IDX::IW ] = - nscom.primt2[ IDX::IW ] + two * gcom.fvz;
+        nscom.primt2[ IDX::IU ] = - nscom.primt2[ IDX::IU ] + two * gcom.vfx;
+        nscom.primt2[ IDX::IV ] = - nscom.primt2[ IDX::IV ] + two * gcom.vfy;
+        nscom.primt2[ IDX::IW ] = - nscom.primt2[ IDX::IW ] + two * gcom.vfz;
     }
     else
     {
@@ -374,8 +374,8 @@ void NsBcSolver::SymmetryBc()
     Real vy2 = nscom.prims2[ IDX::IV ];
     Real vz2 = nscom.prims2[ IDX::IW ];
 
-    Real vnRelative1 = gcom.fnx * vx1 + gcom.fny * vy1 + gcom.fnz * vz1 - gcom.fvn;
-    Real vnRelative2 = gcom.fnx * vx2 + gcom.fny * vy2 + gcom.fnz * vz2 - gcom.fvn;
+    Real vnRelative1 = gcom.xfn * vx1 + gcom.yfn * vy1 + gcom.zfn * vz1 - gcom.vfn;
+    Real vnRelative2 = gcom.xfn * vx2 + gcom.yfn * vy2 + gcom.zfn * vz2 - gcom.vfn;
 
     for ( int iEqu = 0; iEqu < nscom.nTEqu; ++ iEqu )
     {
@@ -383,13 +383,13 @@ void NsBcSolver::SymmetryBc()
         nscom.primt2[ iEqu ] = nscom.prims2[ iEqu ];
     }
 
-    nscom.primt1[ IDX::IU ] = nscom.prims1[ IDX::IU ] - two * gcom.fnx * vnRelative1;
-    nscom.primt1[ IDX::IV ] = nscom.prims1[ IDX::IV ] - two * gcom.fny * vnRelative1;
-    nscom.primt1[ IDX::IW ] = nscom.prims1[ IDX::IW ] - two * gcom.fnz * vnRelative1;
+    nscom.primt1[ IDX::IU ] = nscom.prims1[ IDX::IU ] - two * gcom.xfn * vnRelative1;
+    nscom.primt1[ IDX::IV ] = nscom.prims1[ IDX::IV ] - two * gcom.yfn * vnRelative1;
+    nscom.primt1[ IDX::IW ] = nscom.prims1[ IDX::IW ] - two * gcom.zfn * vnRelative1;
 
-    nscom.primt2[ IDX::IU ] = nscom.prims2[ IDX::IU ] - two * gcom.fnx * vnRelative2;
-    nscom.primt2[ IDX::IV ] = nscom.prims2[ IDX::IV ] - two * gcom.fny * vnRelative2;
-    nscom.primt2[ IDX::IW ] = nscom.prims2[ IDX::IW ] - two * gcom.fnz * vnRelative2;
+    nscom.primt2[ IDX::IU ] = nscom.prims2[ IDX::IU ] - two * gcom.xfn * vnRelative2;
+    nscom.primt2[ IDX::IV ] = nscom.prims2[ IDX::IV ] - two * gcom.yfn * vnRelative2;
+    nscom.primt2[ IDX::IW ] = nscom.prims2[ IDX::IW ] - two * gcom.zfn * vnRelative2;
 }
 
 void NsBcSolver::OversetBc()

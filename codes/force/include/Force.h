@@ -78,7 +78,7 @@ public:
 
     Real cl, cd;
     Real cp, cf, cdCl2Pa;
-    Real fvx, fvy, fvz;
+    Real vfx, vfy, vfz;
     Real power;
 public:
     void SumForce();

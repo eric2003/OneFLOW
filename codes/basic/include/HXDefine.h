@@ -23,9 +23,6 @@ License
 #pragma once
 #include "HXVector.h"
 #include "HXType.h"
-#include "HXSort.h"
-#include "Marray.h"
-#include "Multiarray.h"
 #include <set>
 #include <string>
 using namespace std;
@@ -39,15 +36,9 @@ typedef HXVector< int > IntField;
 typedef HXVector< IntField > LinkField;
 typedef HXVector< string > StringField;
 typedef HXVector< bool > BoolField;
-typedef HXSort< IntField > SortIntField;
 
 typedef set< int > IntSet;
 typedef HXVector< IntSet > LinkSet;
-
-typedef Marray< Real > MRField;
-
-typedef Multiarray< Real, 3 > Field3D;
-typedef Multiarray< int, 3 > Int3D;
 
 typedef void( * VoidFunc )();
 

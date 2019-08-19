@@ -23,6 +23,7 @@ License
 
 #pragma once
 #include "Grid.h"
+#include "HXArray.h"
 #include "Multiarray.h"
 
 BeginNameSpace( ONEFLOW )

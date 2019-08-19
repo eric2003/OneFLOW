@@ -39,14 +39,14 @@ public:
     int idegenerate;
     bool swapflag;
 public:
-    Real fnx, fny, fnz;
-    Real fvx, fvy, fvz, fvn, farea;
+    Real xfn, yfn, zfn;
+    Real vfx, vfy, vfz, vfn, farea;
     Real t1x, t1y, t1z;
     Real t2x, t2y, t2z;
     Real cvol, cvol1, cvol2;
-    Real ccx1, ccy1, ccz1;
-    Real ccx2, ccy2, ccz2;
-    Real fcx, fcy, fcz;
+    Real xcc1, ycc1, zcc1;
+    Real xcc2, ycc2, zcc2;
+    Real xfc, yfc, zfc;
 };
 
 extern GCom gcom;

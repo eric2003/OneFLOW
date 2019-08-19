@@ -23,6 +23,7 @@ License
 
 #pragma once
 #include "HXDefine.h"
+#include "HXArray.h"
 BeginNameSpace( ONEFLOW )
 
 const int ISCHEME_ROE            = 1;

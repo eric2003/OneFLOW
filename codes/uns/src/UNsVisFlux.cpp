@@ -204,9 +204,9 @@ void UNsVisFlux::CmpAniStress()
 void UNsVisFlux::CmpNsVisFlux()
 {
     vis.fvis[ IDX::IR  ] = 0.0;
-    vis.fvis[ IDX::IRU ] = gcom.fnx * vis.txx + gcom.fny * vis.txy + gcom.fnz * vis.txz;
-    vis.fvis[ IDX::IRV ] = gcom.fnx * vis.txy + gcom.fny * vis.tyy + gcom.fnz * vis.tyz;
-    vis.fvis[ IDX::IRW ] = gcom.fnx * vis.txz + gcom.fny * vis.tyz + gcom.fnz * vis.tzz;
+    vis.fvis[ IDX::IRU ] = gcom.xfn * vis.txx + gcom.yfn * vis.txy + gcom.zfn * vis.txz;
+    vis.fvis[ IDX::IRV ] = gcom.xfn * vis.txy + gcom.yfn * vis.tyy + gcom.zfn * vis.tyz;
+    vis.fvis[ IDX::IRW ] = gcom.xfn * vis.txz + gcom.yfn * vis.tyz + gcom.zfn * vis.tzz;
     vis.fvis[ IDX::IRE ] = vis.um * vis.fvis[ IDX::IRU ] + 
                            vis.vm * vis.fvis[ IDX::IRV ] + 
                            vis.wm * vis.fvis[ IDX::IRW ] + vis.qNormal;
@@ -235,7 +235,7 @@ void UNsVisFlux::AddHeatFlux()
     vis.qz      = 0.0;
 
     nscom.kcp = ( nscom.visl * nscom.oprl + nscom.vist * nscom.oprt ) * nscom.const_cp;
-    vis.qNormal += gcom.fnx * vis.qx + gcom.fny * vis.qy + gcom.fnz * vis.qz;
+    vis.qNormal += gcom.xfn * vis.qx + gcom.yfn * vis.qy + gcom.zfn * vis.qz;
     vis.qNormal += nscom.kcp * vis.dtdn;
 }
 
@@ -249,10 +249,10 @@ void UNsVisFlux::AddVisFlux()
 
 void UNsVisFlux::PrepareFaceValue()
 {
-    gcom.fnx   = ( * ug.fnx   )[ ug.fId ];
-    gcom.fny   = ( * ug.fny   )[ ug.fId ];
-    gcom.fnz   = ( * ug.fnz   )[ ug.fId ];
-    gcom.fvn   = ( * ug.fvn   )[ ug.fId ];
+    gcom.xfn   = ( * ug.xfn   )[ ug.fId ];
+    gcom.yfn   = ( * ug.yfn   )[ ug.fId ];
+    gcom.zfn   = ( * ug.zfn   )[ ug.fId ];
+    gcom.vfn   = ( * ug.vfn   )[ ug.fId ];
     gcom.farea = ( * ug.farea )[ ug.fId ];
 
     gcom.CmpTangent();

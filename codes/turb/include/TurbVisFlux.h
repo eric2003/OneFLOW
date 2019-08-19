@@ -23,6 +23,7 @@ License
 
 #pragma once
 #include "HXDefine.h"
+#include "HXArray.h"
 BeginNameSpace( ONEFLOW )
 
 class TurbVisFlux

@@ -41,8 +41,8 @@ public:
     RealField xfc, yfc, zfc;
     RealField xfn, yfn, zfn;
     RealField area;
-    RealField fvx, fvy, fvz;
-    RealField fvn;
+    RealField vfx, vfy, vfz;
+    RealField vfn;
 public:
     UInt GetNFace();
     UInt ComputeTotalFaceNodes();

@@ -22,8 +22,7 @@ License
 
 
 #pragma once
-#include "Configure.h"
-#include "HXDefine.h"
+#include "HXVector.h"
 BeginNameSpace( ONEFLOW )
 
 class FieldWrap;

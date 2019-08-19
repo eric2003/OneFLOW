@@ -201,9 +201,9 @@ void CmpAeroForce( int idump_pres )
     RealField & yfc = grid->faceMesh->yfc;
     RealField & zfc = grid->faceMesh->zfc;
 
-    RealField & fvx = grid->faceMesh->fvx;
-    RealField & fvy = grid->faceMesh->fvy;
-    RealField & fvz = grid->faceMesh->fvz;
+    RealField & vfx = grid->faceMesh->vfx;
+    RealField & vfy = grid->faceMesh->vfy;
+    RealField & vfz = grid->faceMesh->vfz;
 
     RealField & area = grid->faceMesh->area;
 
@@ -318,9 +318,9 @@ void CmpAeroForce( int idump_pres )
 
             aeroForce.SumForce();
 
-            aeroForce.fvx = fvx[ fId ];
-            aeroForce.fvy = fvy[ fId ];
-            aeroForce.fvz = fvz[ fId ];
+            aeroForce.vfx = vfx[ fId ];
+            aeroForce.vfy = vfy[ fId ];
+            aeroForce.vfz = vfz[ fId ];
 
             aeroForce.CmpPower();
 

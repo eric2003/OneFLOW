@@ -123,15 +123,15 @@ void UNsBcSolver::UpdateBc()
 
 void UNsBcSolver::PrepareData()
 {
-    gcom.fnx   = ( * ug.fnx   )[ ug.fId ];
-    gcom.fny   = ( * ug.fny   )[ ug.fId ];
-    gcom.fnz   = ( * ug.fnz   )[ ug.fId ];
+    gcom.xfn   = ( * ug.xfn   )[ ug.fId ];
+    gcom.yfn   = ( * ug.yfn   )[ ug.fId ];
+    gcom.zfn   = ( * ug.zfn   )[ ug.fId ];
 
-    gcom.fvx   = ( * ug.fvx   )[ ug.fId ];
-    gcom.fvy   = ( * ug.fvy   )[ ug.fId ];
-    gcom.fvz   = ( * ug.fvz   )[ ug.fId ];
+    gcom.vfx   = ( * ug.vfx   )[ ug.fId ];
+    gcom.vfy   = ( * ug.vfy   )[ ug.fId ];
+    gcom.vfz   = ( * ug.vfz   )[ ug.fId ];
 
-    gcom.fvn   = ( * ug.fvn   )[ ug.fId ];
+    gcom.vfn   = ( * ug.vfn   )[ ug.fId ];
     gcom.farea = ( * ug.farea )[ ug.fId ];
 
     for ( int iEqu = 0; iEqu < nscom.nTEqu; ++ iEqu )
@@ -143,17 +143,17 @@ void UNsBcSolver::PrepareData()
     nscom.gama1 = ( * unsf.gama )[ 0 ][ ug.lc ];
     nscom.gama2 = ( * unsf.gama )[ 0 ][ ug.lc ];
 
-    gcom.ccx1 = ( * ug.ccx )[ ug.lc ];
-    gcom.ccy1 = ( * ug.ccy )[ ug.lc ];
-    gcom.ccz1 = ( * ug.ccz )[ ug.lc ];
+    gcom.xcc1 = ( * ug.xcc )[ ug.lc ];
+    gcom.ycc1 = ( * ug.ycc )[ ug.lc ];
+    gcom.zcc1 = ( * ug.zcc )[ ug.lc ];
 
-    gcom.ccx2 = ( * ug.ccx )[ ug.rc ];
-    gcom.ccy2 = ( * ug.ccy )[ ug.rc ];
-    gcom.ccz2 = ( * ug.ccz )[ ug.rc ];
+    gcom.xcc2 = ( * ug.xcc )[ ug.rc ];
+    gcom.ycc2 = ( * ug.ycc )[ ug.rc ];
+    gcom.zcc2 = ( * ug.zcc )[ ug.rc ];
 
-    gcom.fcx =  ( * ug.fcx )[ ug.fId ];
-    gcom.fcy =  ( * ug.fcy )[ ug.fId ];
-    gcom.fcz =  ( * ug.fcz )[ ug.fId ];
+    gcom.xfc =  ( * ug.xfc )[ ug.fId ];
+    gcom.yfc =  ( * ug.yfc )[ ug.fId ];
+    gcom.zfc =  ( * ug.zfc )[ ug.fId ];
 
     for ( int iEqu = 0; iEqu < nscom.nTEqu; ++ iEqu )
     {

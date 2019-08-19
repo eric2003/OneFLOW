@@ -311,9 +311,9 @@ void UNsLusgs::ComputeViscousTerm()
     }
     else
     {
-        Real dist = ABS(  gcom.fnx * ( gcom.ccx2 - gcom.ccx1 )
-                        + gcom.fny * ( gcom.ccy2 - gcom.ccy1 )
-                        + gcom.fnz * ( gcom.ccz2 - gcom.ccz1 ) );
+        Real dist = ABS(  gcom.xfn * ( gcom.xcc2 - gcom.xcc1 )
+                        + gcom.yfn * ( gcom.ycc2 - gcom.ycc1 )
+                        + gcom.zfn * ( gcom.zcc2 - gcom.zcc1 ) );
 
         Real viscosity = nscom.visl + nscom.vist;
         Real density   = half * ( nscom.q1[ IDX::IR ] + nscom.q2[ IDX::IR ] );

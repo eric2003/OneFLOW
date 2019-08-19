@@ -21,8 +21,6 @@ License
 \*---------------------------------------------------------------------------*/
 #pragma once
 #include "HXVector.h"
-#include <vector>
-using namespace std;
 
 BeginNameSpace( ONEFLOW )
 

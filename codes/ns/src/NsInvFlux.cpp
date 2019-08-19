@@ -199,8 +199,8 @@ void NsInvFlux::Roe()
     inv.hl  = hint_l + half * v2l;
     inv.hr  = hint_r + half * v2r;
 
-    Real vnl  = gcom.fnx * inv.ul + gcom.fny * inv.vl + gcom.fnz * inv.wl - gcom.fvn;
-    Real vnr  = gcom.fnx * inv.ur + gcom.fny * inv.vr + gcom.fnz * inv.wr - gcom.fvn;
+    Real vnl  = gcom.xfn * inv.ul + gcom.yfn * inv.vl + gcom.zfn * inv.wl - gcom.vfn;
+    Real vnr  = gcom.xfn * inv.ur + gcom.yfn * inv.vr + gcom.zfn * inv.wr - gcom.vfn;
 
     Real rvnl = inv.rl * vnl;
     Real rvnr = inv.rr * vnr;
@@ -218,9 +218,9 @@ void NsInvFlux::Roe()
 
     Real v2 = ONEFLOW::SQR( inv.um, inv.vm, inv.wm );
 
-    inv.vnflow = gcom.fnx * inv.um + gcom.fny * inv.vm + gcom.fnz * inv.wm;
+    inv.vnflow = gcom.xfn * inv.um + gcom.yfn * inv.vm + gcom.zfn * inv.wm;
                  
-    inv.vnrel = inv.vnflow - gcom.fvn;
+    inv.vnrel = inv.vnflow - gcom.vfn;
                 
     Real gamm1 = inv.gama - one;
 
@@ -232,16 +232,16 @@ void NsInvFlux::Roe()
     inv.aeig3 = ABS( inv.vnrel - inv.cm );
 
     inv.flux1[ IDX::IR  ] = rvnl                            ;
-    inv.flux1[ IDX::IRU ] = rvnl * inv.ul + gcom.fnx * inv.pl;
-    inv.flux1[ IDX::IRV ] = rvnl * inv.vl + gcom.fny * inv.pl;
-    inv.flux1[ IDX::IRW ] = rvnl * inv.wl + gcom.fnz * inv.pl;
-    inv.flux1[ IDX::IRE ] = rvnl * inv.hl + gcom.fvn * inv.pl;
+    inv.flux1[ IDX::IRU ] = rvnl * inv.ul + gcom.xfn * inv.pl;
+    inv.flux1[ IDX::IRV ] = rvnl * inv.vl + gcom.yfn * inv.pl;
+    inv.flux1[ IDX::IRW ] = rvnl * inv.wl + gcom.zfn * inv.pl;
+    inv.flux1[ IDX::IRE ] = rvnl * inv.hl + gcom.vfn * inv.pl;
 
     inv.flux2[ IDX::IR  ] = rvnr                            ;
-    inv.flux2[ IDX::IRU ] = rvnr * inv.ur + gcom.fnx * inv.pr;
-    inv.flux2[ IDX::IRV ] = rvnr * inv.vr + gcom.fny * inv.pr;
-    inv.flux2[ IDX::IRW ] = rvnr * inv.wr + gcom.fnz * inv.pr;
-    inv.flux2[ IDX::IRE ] = rvnr * inv.hr + gcom.fvn * inv.pr;
+    inv.flux2[ IDX::IRU ] = rvnr * inv.ur + gcom.xfn * inv.pr;
+    inv.flux2[ IDX::IRV ] = rvnr * inv.vr + gcom.yfn * inv.pr;
+    inv.flux2[ IDX::IRW ] = rvnr * inv.wr + gcom.zfn * inv.pr;
+    inv.flux2[ IDX::IRE ] = rvnr * inv.hr + gcom.vfn * inv.pr;
 
     for ( int iEqu = nscom.nBEqu; iEqu < nscom.nEqu; ++ iEqu )
     {
@@ -279,9 +279,9 @@ void NsInvFlux::Roe()
     }
 
     Real dc   = inv.vnflow * inv.dq[ IDX::IR  ] - 
-                gcom.fnx   * inv.dq[ IDX::IRU ] - 
-                gcom.fny   * inv.dq[ IDX::IRV ] - 
-                gcom.fnz   * inv.dq[ IDX::IRW ];
+                gcom.xfn   * inv.dq[ IDX::IRU ] - 
+                gcom.yfn   * inv.dq[ IDX::IRV ] - 
+                gcom.zfn   * inv.dq[ IDX::IRW ];
     Real c2dc = c2 * dc;
 
     Real dh;
@@ -291,9 +291,9 @@ void NsInvFlux::Roe()
     Real term2 = c2dc * xi1 + dh * xi2;
 
     inv.flux[ IDX::IR  ] -= ( inv.meig1 * inv.dq[ IDX::IR  ] -          term1                      );
-    inv.flux[ IDX::IRU ] -= ( inv.meig1 * inv.dq[ IDX::IRU ] - inv.um * term1 + gcom.fnx   * term2 );
-    inv.flux[ IDX::IRV ] -= ( inv.meig1 * inv.dq[ IDX::IRV ] - inv.vm * term1 + gcom.fny   * term2 );
-    inv.flux[ IDX::IRW ] -= ( inv.meig1 * inv.dq[ IDX::IRW ] - inv.wm * term1 + gcom.fnz   * term2 );
+    inv.flux[ IDX::IRU ] -= ( inv.meig1 * inv.dq[ IDX::IRU ] - inv.um * term1 + gcom.xfn   * term2 );
+    inv.flux[ IDX::IRV ] -= ( inv.meig1 * inv.dq[ IDX::IRV ] - inv.vm * term1 + gcom.yfn   * term2 );
+    inv.flux[ IDX::IRW ] -= ( inv.meig1 * inv.dq[ IDX::IRW ] - inv.wm * term1 + gcom.zfn   * term2 );
     inv.flux[ IDX::IRE ] -= ( inv.meig1 * inv.dq[ IDX::IRE ] - inv.hm * term1 + inv.vnflow * term2 );
 
     for ( int iEqu = nscom.nBEqu; iEqu < nscom.nEqu; ++ iEqu )
@@ -323,8 +323,8 @@ void NsInvFlux::Vanleer()
     inv.hl  = hint_l + half * v2l;
     inv.hr  = hint_r + half * v2r;
 
-    Real vnl  = gcom.fnx * inv.ul + gcom.fny * inv.vl + gcom.fnz * inv.wl - gcom.fvn;
-    Real vnr  = gcom.fnx * inv.ur + gcom.fny * inv.vr + gcom.fnz * inv.wr - gcom.fvn;
+    Real vnl  = gcom.xfn * inv.ul + gcom.yfn * inv.vl + gcom.zfn * inv.wl - gcom.vfn;
+    Real vnr  = gcom.xfn * inv.ur + gcom.yfn * inv.vr + gcom.zfn * inv.wr - gcom.vfn;
 
     Real rvnl = inv.rl * vnl;
     Real rvnr = inv.rr * vnr;
@@ -340,10 +340,10 @@ void NsInvFlux::Vanleer()
     if ( machl > one )
     {
         inv.flux1[ IDX::IR  ] = rvnl;
-        inv.flux1[ IDX::IRU ] = rvnl * inv.ul + gcom.fnx * inv.pl;
-        inv.flux1[ IDX::IRV ] = rvnl * inv.vl + gcom.fny * inv.pl;
-        inv.flux1[ IDX::IRW ] = rvnl * inv.wl + gcom.fnz * inv.pl;
-        inv.flux1[ IDX::IRE ] = rvnl * inv.hl + gcom.fvn * inv.pl;
+        inv.flux1[ IDX::IRU ] = rvnl * inv.ul + gcom.xfn * inv.pl;
+        inv.flux1[ IDX::IRV ] = rvnl * inv.vl + gcom.yfn * inv.pl;
+        inv.flux1[ IDX::IRW ] = rvnl * inv.wl + gcom.zfn * inv.pl;
+        inv.flux1[ IDX::IRE ] = rvnl * inv.hl + gcom.vfn * inv.pl;
     }
     else if ( machl < - one )
     {
@@ -358,10 +358,10 @@ void NsInvFlux::Vanleer()
         Real fmass     = 0.25 * inv.rl * cl * SQR( machl + 1.0 );
         Real tmp       = ( - vnl + 2.0 * cl ) / inv.gama1;
         inv.flux1[ IDX::IR  ] = fmass;
-        inv.flux1[ IDX::IRU ] = fmass * ( inv.ul + gcom.fnx * tmp );
-        inv.flux1[ IDX::IRV ] = fmass * ( inv.vl + gcom.fny * tmp );
-        inv.flux1[ IDX::IRW ] = fmass * ( inv.wl + gcom.fnz * tmp );
-        inv.flux1[ IDX::IRE ] = fmass * ( inv.hl + gcom.fvn * tmp );
+        inv.flux1[ IDX::IRU ] = fmass * ( inv.ul + gcom.xfn * tmp );
+        inv.flux1[ IDX::IRV ] = fmass * ( inv.vl + gcom.yfn * tmp );
+        inv.flux1[ IDX::IRW ] = fmass * ( inv.wl + gcom.zfn * tmp );
+        inv.flux1[ IDX::IRE ] = fmass * ( inv.hl + gcom.vfn * tmp );
     }
 
     for ( int iEqu = nscom.nBEqu; iEqu < nscom.nEqu; ++ iEqu )
@@ -373,10 +373,10 @@ void NsInvFlux::Vanleer()
     if ( machr < - one )
     {
         inv.flux2[ IDX::IR  ] = rvnr;
-        inv.flux2[ IDX::IRU ] = rvnr * inv.ur + gcom.fnx * inv.pr;
-        inv.flux2[ IDX::IRV ] = rvnr * inv.vr + gcom.fny * inv.pr;
-        inv.flux2[ IDX::IRW ] = rvnr * inv.wr + gcom.fnz * inv.pr;
-        inv.flux2[ IDX::IRE ] = rvnr * inv.hr + gcom.fvn * inv.pr;
+        inv.flux2[ IDX::IRU ] = rvnr * inv.ur + gcom.xfn * inv.pr;
+        inv.flux2[ IDX::IRV ] = rvnr * inv.vr + gcom.yfn * inv.pr;
+        inv.flux2[ IDX::IRW ] = rvnr * inv.wr + gcom.zfn * inv.pr;
+        inv.flux2[ IDX::IRE ] = rvnr * inv.hr + gcom.vfn * inv.pr;
     }
     else if ( machr > one )
     {
@@ -387,10 +387,10 @@ void NsInvFlux::Vanleer()
         Real fmass     = - 0.25 * inv.rr * cr * SQR( machr - 1.0 );
         Real tmp       = ( - vnr - 2.0 * cr ) / inv.gama2;
         inv.flux2[ IDX::IR  ] = fmass;
-        inv.flux2[ IDX::IRU ] = fmass * ( inv.ur + gcom.fnx * tmp );
-        inv.flux2[ IDX::IRV ] = fmass * ( inv.vr + gcom.fny * tmp );
-        inv.flux2[ IDX::IRW ] = fmass * ( inv.wr + gcom.fnz * tmp );
-        inv.flux2[ IDX::IRE ] = fmass * ( inv.hr + gcom.fvn * tmp );
+        inv.flux2[ IDX::IRU ] = fmass * ( inv.ur + gcom.xfn * tmp );
+        inv.flux2[ IDX::IRV ] = fmass * ( inv.vr + gcom.yfn * tmp );
+        inv.flux2[ IDX::IRW ] = fmass * ( inv.wr + gcom.zfn * tmp );
+        inv.flux2[ IDX::IRE ] = fmass * ( inv.hr + gcom.vfn * tmp );
     }
 
     for ( int iEqu = nscom.nBEqu; iEqu < nscom.nEqu; ++ iEqu )
@@ -420,8 +420,8 @@ void NsInvFlux::Steger()
     inv.hl  = hint_l + half * v2l;
     inv.hr  = hint_r + half * v2r;
 
-    Real vnl  = gcom.fnx * inv.ul + gcom.fny * inv.vl + gcom.fnz * inv.wl - gcom.fvn;
-    Real vnr  = gcom.fnx * inv.ur + gcom.fny * inv.vr + gcom.fnz * inv.wr - gcom.fvn;
+    Real vnl  = gcom.xfn * inv.ul + gcom.yfn * inv.vl + gcom.zfn * inv.wl - gcom.vfn;
+    Real vnr  = gcom.xfn * inv.ur + gcom.yfn * inv.vr + gcom.zfn * inv.wr - gcom.vfn;
 
     Real rvnl = inv.rl * vnl;
     Real rvnr = inv.rr * vnr;
@@ -489,19 +489,19 @@ void NsInvFlux::Steger()
     Real term21 = c2gamr * ( two * inv.eig21 - inv.eig22 - inv.eig23 ) / ( c2r + c2r );
     Real term22 = c2gamr * ( inv.eig22 - inv.eig23 ) / ( cr + cr );
 
-    Real vnFluid1 = vnl + gcom.fvn;
-    Real vnFluid2 = vnr + gcom.fvn;
+    Real vnFluid1 = vnl + gcom.vfn;
+    Real vnFluid2 = vnr + gcom.vfn;
 
     inv.flux1[ IDX::IR  ] = inv.rl * ( inv.eig11          - term11                              );
-    inv.flux1[ IDX::IRU ] = inv.rl * ( inv.eig11 * inv.ul - term11 * inv.ul + term12 * gcom.fnx );
-    inv.flux1[ IDX::IRV ] = inv.rl * ( inv.eig11 * inv.vl - term11 * inv.vl + term12 * gcom.fny );
-    inv.flux1[ IDX::IRW ] = inv.rl * ( inv.eig11 * inv.wl - term11 * inv.wl + term12 * gcom.fnz );
+    inv.flux1[ IDX::IRU ] = inv.rl * ( inv.eig11 * inv.ul - term11 * inv.ul + term12 * gcom.xfn );
+    inv.flux1[ IDX::IRV ] = inv.rl * ( inv.eig11 * inv.vl - term11 * inv.vl + term12 * gcom.yfn );
+    inv.flux1[ IDX::IRW ] = inv.rl * ( inv.eig11 * inv.wl - term11 * inv.wl + term12 * gcom.zfn );
     inv.flux1[ IDX::IRE ] = inv.rl * ( inv.eig11 * inv.el - term11 * inv.hl + term12 * vnFluid1 );
 
     inv.flux2[ IDX::IR  ] = inv.rr * ( inv.eig21          - term21                              );
-    inv.flux2[ IDX::IRU ] = inv.rr * ( inv.eig21 * inv.ur - term21 * inv.ur + term22 * gcom.fnx );
-    inv.flux2[ IDX::IRV ] = inv.rr * ( inv.eig21 * inv.vr - term21 * inv.vr + term22 * gcom.fny );
-    inv.flux2[ IDX::IRW ] = inv.rr * ( inv.eig21 * inv.wr - term21 * inv.wr + term22 * gcom.fnz );
+    inv.flux2[ IDX::IRU ] = inv.rr * ( inv.eig21 * inv.ur - term21 * inv.ur + term22 * gcom.xfn );
+    inv.flux2[ IDX::IRV ] = inv.rr * ( inv.eig21 * inv.vr - term21 * inv.vr + term22 * gcom.yfn );
+    inv.flux2[ IDX::IRW ] = inv.rr * ( inv.eig21 * inv.wr - term21 * inv.wr + term22 * gcom.zfn );
     inv.flux2[ IDX::IRE ] = inv.rr * ( inv.eig21 * inv.er - term21 * inv.hr + term22 * vnFluid2 );
 
     for ( int iEqu = nscom.nBEqu; iEqu < nscom.nEqu; ++ iEqu )
@@ -545,30 +545,30 @@ void NsInvFlux::Hlle()
                
     Real gamm1 = inv.gama - one;
 
-    Real vnl  = gcom.fnx * inv.ul + gcom.fny * inv.vl + gcom.fnz * inv.wl - gcom.fvn;
-    Real vnr  = gcom.fnx * inv.ur + gcom.fny * inv.vr + gcom.fnz * inv.wr - gcom.fvn;
+    Real vnl  = gcom.xfn * inv.ul + gcom.yfn * inv.vl + gcom.zfn * inv.wl - gcom.vfn;
+    Real vnr  = gcom.xfn * inv.ur + gcom.yfn * inv.vr + gcom.zfn * inv.wr - gcom.vfn;
 
     Real rvnl = inv.rl * vnl;
     Real rvnr = inv.rr * vnr;
 
-    inv.vnflow = gcom.fnx * inv.um + gcom.fny * inv.vm + gcom.fnz * inv.wm;
-    inv.vnrel = inv.vnflow - gcom.fvn;
+    inv.vnflow = gcom.xfn * inv.um + gcom.yfn * inv.vm + gcom.zfn * inv.wm;
+    inv.vnrel = inv.vnflow - gcom.vfn;
 
     inv.cl  = sqrt( inv.gama1 * inv.pl / ( inv.rl + SMALL ) );
     inv.cr  = sqrt( inv.gama2 * inv.pr / ( inv.rr + SMALL ) );
     inv.cm  = sqrt( inv.gama * inv.pm / ( inv.rm + SMALL ) );
 
     inv.flux1[ IDX::IR  ] = rvnl                             ;
-    inv.flux1[ IDX::IRU ] = rvnl * inv.ul + gcom.fnx * inv.pl;
-    inv.flux1[ IDX::IRV ] = rvnl * inv.vl + gcom.fny * inv.pl;
-    inv.flux1[ IDX::IRW ] = rvnl * inv.wl + gcom.fnz * inv.pl;
-    inv.flux1[ IDX::IRE ] = rvnl * inv.hl + gcom.fvn * inv.pl;
+    inv.flux1[ IDX::IRU ] = rvnl * inv.ul + gcom.xfn * inv.pl;
+    inv.flux1[ IDX::IRV ] = rvnl * inv.vl + gcom.yfn * inv.pl;
+    inv.flux1[ IDX::IRW ] = rvnl * inv.wl + gcom.zfn * inv.pl;
+    inv.flux1[ IDX::IRE ] = rvnl * inv.hl + gcom.vfn * inv.pl;
 
     inv.flux2[ IDX::IR  ] = rvnr                             ;
-    inv.flux2[ IDX::IRU ] = rvnr * inv.ur + gcom.fnx * inv.pr;
-    inv.flux2[ IDX::IRV ] = rvnr * inv.vr + gcom.fny * inv.pr;
-    inv.flux2[ IDX::IRW ] = rvnr * inv.wr + gcom.fnz * inv.pr;
-    inv.flux2[ IDX::IRE ] = rvnr * inv.hr + gcom.fvn * inv.pr;
+    inv.flux2[ IDX::IRU ] = rvnr * inv.ur + gcom.xfn * inv.pr;
+    inv.flux2[ IDX::IRV ] = rvnr * inv.vr + gcom.yfn * inv.pr;
+    inv.flux2[ IDX::IRW ] = rvnr * inv.wr + gcom.zfn * inv.pr;
+    inv.flux2[ IDX::IRE ] = rvnr * inv.hr + gcom.vfn * inv.pr;
 
     PrimToQ( inv.prim1, inv.gama1, inv.q1 );
     PrimToQ( inv.prim2, inv.gama2, inv.q2 );
@@ -621,27 +621,27 @@ void NsInvFlux::LaxFriedrichs()
 
     Real gamm1 = inv.gama - one;
 
-    Real vnl  = gcom.fnx * inv.ul + gcom.fny * inv.vl + gcom.fnz * inv.wl - gcom.fvn;
-    Real vnr  = gcom.fnx * inv.ur + gcom.fny * inv.vr + gcom.fnz * inv.wr - gcom.fvn;
+    Real vnl  = gcom.xfn * inv.ul + gcom.yfn * inv.vl + gcom.zfn * inv.wl - gcom.vfn;
+    Real vnr  = gcom.xfn * inv.ur + gcom.yfn * inv.vr + gcom.zfn * inv.wr - gcom.vfn;
 
     Real rvnl = inv.rl * vnl;
     Real rvnr = inv.rr * vnr;
 
-    inv.vnflow = gcom.fnx * inv.um + gcom.fny * inv.vm + gcom.fnz * inv.wm;
-    inv.vnrel = inv.vnflow - gcom.fvn;
+    inv.vnflow = gcom.xfn * inv.um + gcom.yfn * inv.vm + gcom.zfn * inv.wm;
+    inv.vnrel = inv.vnflow - gcom.vfn;
     inv.cm  = sqrt( inv.gama * inv.pm / ( inv.rm + SMALL ) );
 
     inv.flux1[ IDX::IR  ] = rvnl                             ;
-    inv.flux1[ IDX::IRU ] = rvnl * inv.ul + gcom.fnx * inv.pl;
-    inv.flux1[ IDX::IRV ] = rvnl * inv.vl + gcom.fny * inv.pl;
-    inv.flux1[ IDX::IRW ] = rvnl * inv.wl + gcom.fnz * inv.pl;
-    inv.flux1[ IDX::IRE ] = rvnl * inv.hl + gcom.fvn * inv.pl;
+    inv.flux1[ IDX::IRU ] = rvnl * inv.ul + gcom.xfn * inv.pl;
+    inv.flux1[ IDX::IRV ] = rvnl * inv.vl + gcom.yfn * inv.pl;
+    inv.flux1[ IDX::IRW ] = rvnl * inv.wl + gcom.zfn * inv.pl;
+    inv.flux1[ IDX::IRE ] = rvnl * inv.hl + gcom.vfn * inv.pl;
 
     inv.flux2[ IDX::IR  ] = rvnr                             ;
-    inv.flux2[ IDX::IRU ] = rvnr * inv.ur + gcom.fnx * inv.pr;
-    inv.flux2[ IDX::IRV ] = rvnr * inv.vr + gcom.fny * inv.pr;
-    inv.flux2[ IDX::IRW ] = rvnr * inv.wr + gcom.fnz * inv.pr;
-    inv.flux2[ IDX::IRE ] = rvnr * inv.hr + gcom.fvn * inv.pr;
+    inv.flux2[ IDX::IRU ] = rvnr * inv.ur + gcom.xfn * inv.pr;
+    inv.flux2[ IDX::IRV ] = rvnr * inv.vr + gcom.yfn * inv.pr;
+    inv.flux2[ IDX::IRW ] = rvnr * inv.wr + gcom.zfn * inv.pr;
+    inv.flux2[ IDX::IRE ] = rvnr * inv.hr + gcom.vfn * inv.pr;
 
     for ( int iEqu = nscom.nBEqu; iEqu < nscom.nEqu; ++ iEqu )
     {
@@ -678,8 +678,8 @@ void NsInvFlux::Ausmp()
     inv.hl  = hint_l + half * v2l;
     inv.hr  = hint_r + half * v2r;
 
-    Real vnl  = gcom.fnx * inv.ul + gcom.fny * inv.vl + gcom.fnz * inv.wl - gcom.fvn;
-    Real vnr  = gcom.fnx * inv.ur + gcom.fny * inv.vr + gcom.fnz * inv.wr - gcom.fvn;
+    Real vnl  = gcom.xfn * inv.ul + gcom.yfn * inv.vl + gcom.zfn * inv.wl - gcom.vfn;
+    Real vnr  = gcom.xfn * inv.ur + gcom.yfn * inv.vr + gcom.zfn * inv.wr - gcom.vfn;
 
     Real orl = 1.0 / ( inv.rl + SMALL );
     Real orr = 1.0 / ( inv.rr + SMALL );
@@ -713,10 +713,10 @@ void NsInvFlux::Ausmp()
 
     //AUSM + 
     inv.flux[ IDX::IR  ] = inv.cm * ( mpi * inv.rl          + mmi * inv.rr          );
-    inv.flux[ IDX::IRU ] = inv.cm * ( mpi * inv.rl * inv.ul + mmi * inv.rr * inv.ur ) + gcom.fnx * p12;
-    inv.flux[ IDX::IRV ] = inv.cm * ( mpi * inv.rl * inv.vl + mmi * inv.rr * inv.vr ) + gcom.fny * p12;
-    inv.flux[ IDX::IRW ] = inv.cm * ( mpi * inv.rl * inv.wl + mmi * inv.rr * inv.wr ) + gcom.fnz * p12;
-    inv.flux[ IDX::IRE ] = inv.cm * ( mpi * inv.rl * inv.hl + mmi * inv.rr * inv.hr ) + gcom.fvn * p12;
+    inv.flux[ IDX::IRU ] = inv.cm * ( mpi * inv.rl * inv.ul + mmi * inv.rr * inv.ur ) + gcom.xfn * p12;
+    inv.flux[ IDX::IRV ] = inv.cm * ( mpi * inv.rl * inv.vl + mmi * inv.rr * inv.vr ) + gcom.yfn * p12;
+    inv.flux[ IDX::IRW ] = inv.cm * ( mpi * inv.rl * inv.wl + mmi * inv.rr * inv.wr ) + gcom.zfn * p12;
+    inv.flux[ IDX::IRE ] = inv.cm * ( mpi * inv.rl * inv.hl + mmi * inv.rr * inv.hr ) + gcom.vfn * p12;
 
     for ( int iEqu = nscom.nBEqu; iEqu < nscom.nEqu; ++ iEqu )
     {
@@ -746,8 +746,8 @@ void NsInvFlux::AusmpUp()
     inv.hl  = hint_l + half * v2l;
     inv.hr  = hint_r + half * v2r;
 
-    Real vnl  = gcom.fnx * inv.ul + gcom.fny * inv.vl + gcom.fnz * inv.wl - gcom.fvn;
-    Real vnr  = gcom.fnx * inv.ur + gcom.fny * inv.vr + gcom.fnz * inv.wr - gcom.fvn;
+    Real vnl  = gcom.xfn * inv.ul + gcom.yfn * inv.vl + gcom.zfn * inv.wl - gcom.vfn;
+    Real vnr  = gcom.xfn * inv.ur + gcom.yfn * inv.vr + gcom.zfn * inv.wr - gcom.vfn;
 
     inv.gama = half * ( inv.gama1 + inv.gama2 );
 
@@ -811,10 +811,10 @@ void NsInvFlux::AusmpUp()
     if ( rvn > zero )
     {
         inv.flux[ IDX::IR  ] = rvn                          ;
-        inv.flux[ IDX::IRU ] = rvn * inv.ul + gcom.fnx * p12;
-        inv.flux[ IDX::IRV ] = rvn * inv.vl + gcom.fny * p12;
-        inv.flux[ IDX::IRW ] = rvn * inv.wl + gcom.fnz * p12;
-        inv.flux[ IDX::IRE ] = rvn * inv.hl + gcom.fvn * p12;
+        inv.flux[ IDX::IRU ] = rvn * inv.ul + gcom.xfn * p12;
+        inv.flux[ IDX::IRV ] = rvn * inv.vl + gcom.yfn * p12;
+        inv.flux[ IDX::IRW ] = rvn * inv.wl + gcom.zfn * p12;
+        inv.flux[ IDX::IRE ] = rvn * inv.hl + gcom.vfn * p12;
 
         for ( int iEqu = nscom.nBEqu; iEqu < nscom.nEqu; ++ iEqu )
         {
@@ -824,10 +824,10 @@ void NsInvFlux::AusmpUp()
     else
     {
         inv.flux[ IDX::IR  ] = rvn                          ;
-        inv.flux[ IDX::IRU ] = rvn * inv.ur + gcom.fnx * p12;
-        inv.flux[ IDX::IRV ] = rvn * inv.vr + gcom.fny * p12;
-        inv.flux[ IDX::IRW ] = rvn * inv.wr + gcom.fnz * p12;
-        inv.flux[ IDX::IRE ] = rvn * inv.hr + gcom.fvn * p12;
+        inv.flux[ IDX::IRU ] = rvn * inv.ur + gcom.xfn * p12;
+        inv.flux[ IDX::IRV ] = rvn * inv.vr + gcom.yfn * p12;
+        inv.flux[ IDX::IRW ] = rvn * inv.wr + gcom.zfn * p12;
+        inv.flux[ IDX::IRE ] = rvn * inv.hr + gcom.vfn * p12;
 
         for ( int iEqu = nscom.nBEqu; iEqu < nscom.nEqu; ++ iEqu )
         {
@@ -856,8 +856,8 @@ void NsInvFlux::Ausmdv()
     inv.hl  = hint_l + half * v2l;
     inv.hr  = hint_r + half * v2r;
 
-    Real vnl  = gcom.fnx * inv.ul + gcom.fny * inv.vl + gcom.fnz * inv.wl - gcom.fvn;
-    Real vnr  = gcom.fnx * inv.ur + gcom.fny * inv.vr + gcom.fnz * inv.wr - gcom.fvn;
+    Real vnl  = gcom.xfn * inv.ul + gcom.yfn * inv.vl + gcom.zfn * inv.wl - gcom.vfn;
+    Real vnr  = gcom.xfn * inv.ur + gcom.yfn * inv.vr + gcom.zfn * inv.wr - gcom.vfn;
 
     inv.gama = half * ( inv.gama1 + inv.gama2 );
 
@@ -870,8 +870,8 @@ void NsInvFlux::Ausmdv()
     //这个公式应该参照文献好好对一下，很可能在运动网格下有问题！！！！！！！eric 20140126
     //这里的vn_l和vn_r是惯性坐标系下的法向速度
     //而vnl和vnr是相对于运动界面的法向速度
-    Real vn_l  = vnl + gcom.fvn;
-    Real vn_r  = vnr + gcom.fvn;
+    Real vn_l  = vnl + gcom.vfn;
+    Real vn_r  = vnr + gcom.vfn;
 
     //fourth speed interface
     inv.cl  = sqrt( c2l );
@@ -1019,13 +1019,13 @@ void NsInvFlux::Ausmdv()
         }
     }
 
-    Real dul = inv.ul - gcom.fnx * vn_l;
-    Real dvl = inv.vl - gcom.fny * vn_l;
-    Real dwl = inv.wl - gcom.fnz * vn_l;
+    Real dul = inv.ul - gcom.xfn * vn_l;
+    Real dvl = inv.vl - gcom.yfn * vn_l;
+    Real dwl = inv.wl - gcom.zfn * vn_l;
 
-    Real dur = inv.ur - gcom.fnx * vn_r;
-    Real dvr = inv.vr - gcom.fny * vn_r;
-    Real dwr = inv.wr - gcom.fnz * vn_r;
+    Real dur = inv.ur - gcom.xfn * vn_r;
+    Real dvr = inv.vr - gcom.yfn * vn_r;
+    Real dwr = inv.wr - gcom.zfn * vn_r;
 
     inv.flux[ IDX::IR  ] = rvnl           + rvnr      ;
     inv.flux[ IDX::IRU ] = rvnl * dul     + rvnr * dur;
@@ -1040,10 +1040,10 @@ void NsInvFlux::Ausmdv()
 
     rvvn += p12;
 
-    inv.flux[ IDX::IRU ] += rvvn * gcom.fnx;
-    inv.flux[ IDX::IRV ] += rvvn * gcom.fny;
-    inv.flux[ IDX::IRW ] += rvvn * gcom.fnz;
-    inv.flux[ IDX::IRE ] += p12  * gcom.fvn;
+    inv.flux[ IDX::IRU ] += rvvn * gcom.xfn;
+    inv.flux[ IDX::IRV ] += rvvn * gcom.yfn;
+    inv.flux[ IDX::IRW ] += rvvn * gcom.zfn;
+    inv.flux[ IDX::IRE ] += p12  * gcom.vfn;
 }
 
 void NsInvFlux::Ausmw()
@@ -1064,8 +1064,8 @@ void NsInvFlux::Ausmw()
     inv.hl  = hint_l + half * v2l;
     inv.hr  = hint_r + half * v2r;
 
-    Real vnl  = gcom.fnx * inv.ul + gcom.fny * inv.vl + gcom.fnz * inv.wl - gcom.fvn;
-    Real vnr  = gcom.fnx * inv.ur + gcom.fny * inv.vr + gcom.fnz * inv.wr - gcom.fvn;
+    Real vnl  = gcom.xfn * inv.ul + gcom.yfn * inv.vl + gcom.zfn * inv.wl - gcom.vfn;
+    Real vnr  = gcom.xfn * inv.ur + gcom.yfn * inv.vr + gcom.zfn * inv.wr - gcom.vfn;
 
     inv.gama = half * ( inv.gama1 + inv.gama2 );
 
@@ -1143,10 +1143,10 @@ void NsInvFlux::Ausmw()
     Real ccr = sm * mmr + ( one - sm ) * mmi;
 
     inv.flux[ IDX::IR  ] = ai * ( mpi * inv.rl          + mmi * inv.rr          );
-    inv.flux[ IDX::IRU ] = ai * ( ccl * inv.rl * inv.ul + ccr * inv.rr * inv.ur ) + gcom.fnx * presi;
-    inv.flux[ IDX::IRV ] = ai * ( ccl * inv.rl * inv.vl + ccr * inv.rr * inv.vr ) + gcom.fny * presi;
-    inv.flux[ IDX::IRW ] = ai * ( ccl * inv.rl * inv.wl + ccr * inv.rr * inv.wr ) + gcom.fnz * presi;
-    inv.flux[ IDX::IRE ] = ai * ( mpi * inv.rl * inv.hl + mmi * inv.rr * inv.hr ) + gcom.fvn * presi;
+    inv.flux[ IDX::IRU ] = ai * ( ccl * inv.rl * inv.ul + ccr * inv.rr * inv.ur ) + gcom.xfn * presi;
+    inv.flux[ IDX::IRV ] = ai * ( ccl * inv.rl * inv.vl + ccr * inv.rr * inv.vr ) + gcom.yfn * presi;
+    inv.flux[ IDX::IRW ] = ai * ( ccl * inv.rl * inv.wl + ccr * inv.rr * inv.wr ) + gcom.zfn * presi;
+    inv.flux[ IDX::IRE ] = ai * ( mpi * inv.rl * inv.hl + mmi * inv.rr * inv.hr ) + gcom.vfn * presi;
 
     for ( int iEqu = nscom.nBEqu; iEqu < nscom.nEqu; ++ iEqu )
     {
@@ -1170,8 +1170,8 @@ void NsInvFlux::Ausmpw()
     inv.hl  = hint_l + half * v2l;
     inv.hr  = hint_r + half * v2r;
 
-    Real vnl  = gcom.fnx * inv.ul + gcom.fny * inv.vl + gcom.fnz * inv.wl - gcom.fvn;
-    Real vnr  = gcom.fnx * inv.ur + gcom.fny * inv.vr + gcom.fnz * inv.wr - gcom.fvn;
+    Real vnl  = gcom.xfn * inv.ul + gcom.yfn * inv.vl + gcom.zfn * inv.wl - gcom.vfn;
+    Real vnr  = gcom.xfn * inv.ur + gcom.yfn * inv.vr + gcom.zfn * inv.wr - gcom.vfn;
 
     Real orl = 1.0 / ( inv.rl + SMALL );
     Real orr = 1.0 / ( inv.rr + SMALL );
@@ -1232,10 +1232,10 @@ void NsInvFlux::Ausmpw()
     }
 
     inv.flux[ IDX::IR  ] = inv.cm * ( mpl * inv.rl          + mmr * inv.rr          );
-    inv.flux[ IDX::IRU ] = inv.cm * ( mpl * inv.rl * inv.ul + mmr * inv.rr * inv.ur ) + gcom.fnx * p12;
-    inv.flux[ IDX::IRV ] = inv.cm * ( mpl * inv.rl * inv.vl + mmr * inv.rr * inv.vr ) + gcom.fny * p12;
-    inv.flux[ IDX::IRW ] = inv.cm * ( mpl * inv.rl * inv.wl + mmr * inv.rr * inv.wr ) + gcom.fnz * p12;
-    inv.flux[ IDX::IRE ] = inv.cm * ( mpl * inv.rl * inv.hl + mmr * inv.rr * inv.hr ) + gcom.fvn * p12;
+    inv.flux[ IDX::IRU ] = inv.cm * ( mpl * inv.rl * inv.ul + mmr * inv.rr * inv.ur ) + gcom.xfn * p12;
+    inv.flux[ IDX::IRV ] = inv.cm * ( mpl * inv.rl * inv.vl + mmr * inv.rr * inv.vr ) + gcom.yfn * p12;
+    inv.flux[ IDX::IRW ] = inv.cm * ( mpl * inv.rl * inv.wl + mmr * inv.rr * inv.wr ) + gcom.zfn * p12;
+    inv.flux[ IDX::IRE ] = inv.cm * ( mpl * inv.rl * inv.hl + mmr * inv.rr * inv.hr ) + gcom.vfn * p12;
 
     for ( int iEqu = nscom.nBEqu; iEqu < nscom.nEqu; ++ iEqu )
     {
@@ -1259,8 +1259,8 @@ void NsInvFlux::Slau2()
     inv.hl  = hint_l + half * v2l;
     inv.hr  = hint_r + half * v2r;
 
-    Real vnl  = gcom.fnx * inv.ul + gcom.fny * inv.vl + gcom.fnz * inv.wl - gcom.fvn;
-    Real vnr  = gcom.fnx * inv.ur + gcom.fny * inv.vr + gcom.fnz * inv.wr - gcom.fvn;
+    Real vnl  = gcom.xfn * inv.ul + gcom.yfn * inv.vl + gcom.zfn * inv.wl - gcom.vfn;
+    Real vnr  = gcom.xfn * inv.ur + gcom.yfn * inv.vr + gcom.zfn * inv.wr - gcom.vfn;
 
     Real orl = 1.0 / ( inv.rl + SMALL );
     Real orr = 1.0 / ( inv.rr + SMALL );
@@ -1302,10 +1302,10 @@ void NsInvFlux::Slau2()
     Real mn = half * ( ms - ABS( ms ) );
 
     inv.flux[ IDX::IR  ] = ( mp          + mn          );
-    inv.flux[ IDX::IRU ] = ( mp * inv.ul + mn * inv.ur ) + gcom.fnx * ps;
-    inv.flux[ IDX::IRV ] = ( mp * inv.vl + mn * inv.vr ) + gcom.fny * ps;
-    inv.flux[ IDX::IRW ] = ( mp * inv.wl + mn * inv.wr ) + gcom.fnz * ps;
-    inv.flux[ IDX::IRE ] = ( mp * inv.hl + mn * inv.hr ) + gcom.fvn * ps;
+    inv.flux[ IDX::IRU ] = ( mp * inv.ul + mn * inv.ur ) + gcom.xfn * ps;
+    inv.flux[ IDX::IRV ] = ( mp * inv.vl + mn * inv.vr ) + gcom.yfn * ps;
+    inv.flux[ IDX::IRW ] = ( mp * inv.wl + mn * inv.wr ) + gcom.zfn * ps;
+    inv.flux[ IDX::IRE ] = ( mp * inv.hl + mn * inv.hr ) + gcom.vfn * ps;
 
     for ( int iEqu = nscom.nBEqu; iEqu < nscom.nEqu; ++ iEqu )
     {

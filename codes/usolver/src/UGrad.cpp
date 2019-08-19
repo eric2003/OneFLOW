@@ -50,9 +50,9 @@ void CmpGrad( RealField & q, RealField & dqdx, RealField & dqdy, RealField & dqd
 
         Real value = half * ( q[ ug.lc ] + q[ ug.rc ] );
 
-        Real fnxa = ( * ug.fnx )[ ug.fId ] * ( * ug.farea )[ ug.fId ];
-        Real fnya = ( * ug.fny )[ ug.fId ] * ( * ug.farea )[ ug.fId ];
-        Real fnza = ( * ug.fnz )[ ug.fId ] * ( * ug.farea )[ ug.fId ];
+        Real fnxa = ( * ug.xfn )[ ug.fId ] * ( * ug.farea )[ ug.fId ];
+        Real fnya = ( * ug.yfn )[ ug.fId ] * ( * ug.farea )[ ug.fId ];
+        Real fnza = ( * ug.zfn )[ ug.fId ] * ( * ug.farea )[ ug.fId ];
 
         dqdx[ ug.lc ] += fnxa * value;
         dqdy[ ug.lc ] += fnya * value;
@@ -100,13 +100,13 @@ void CmpGradGGCellWeight( RealField & q, RealField & dqdx, RealField & dqdy, Rea
         ug.lc = ( * ug.lcf )[ ug.fId ];
         ug.rc = ( * ug.rcf )[ ug.fId ];
 
-        Real dxl = ( * ug.fcx )[ ug.fId ] - ( * ug.ccx )[ ug.lc ];
-        Real dyl = ( * ug.fcy )[ ug.fId ] - ( * ug.ccy )[ ug.lc ];
-        Real dzl = ( * ug.fcz )[ ug.fId ] - ( * ug.ccz )[ ug.lc ];
+        Real dxl = ( * ug.xfc )[ ug.fId ] - ( * ug.xcc )[ ug.lc ];
+        Real dyl = ( * ug.yfc )[ ug.fId ] - ( * ug.ycc )[ ug.lc ];
+        Real dzl = ( * ug.zfc )[ ug.fId ] - ( * ug.zcc )[ ug.lc ];
 
-        Real dxr = ( * ug.fcx )[ ug.fId ] - ( * ug.ccx )[ ug.rc ];
-        Real dyr = ( * ug.fcy )[ ug.fId ] - ( * ug.ccy )[ ug.rc ];
-        Real dzr = ( * ug.fcz )[ ug.fId ] - ( * ug.ccz )[ ug.rc ];
+        Real dxr = ( * ug.xfc )[ ug.fId ] - ( * ug.xcc )[ ug.rc ];
+        Real dyr = ( * ug.yfc )[ ug.fId ] - ( * ug.ycc )[ ug.rc ];
+        Real dzr = ( * ug.zfc )[ ug.fId ] - ( * ug.zcc )[ ug.rc ];
 
         Real delt1  = DIST( dxl, dyl, dzl );
         Real delt2  = DIST( dxr, dyr, dzr );
@@ -117,9 +117,9 @@ void CmpGradGGCellWeight( RealField & q, RealField & dqdx, RealField & dqdy, Rea
 
         Real value = cl * q[ ug.lc ] + cr * q[ ug.rc ];
 
-        Real fnxa = ( * ug.fnx )[ ug.fId ] * ( * ug.farea )[ ug.fId ];
-        Real fnya = ( * ug.fny )[ ug.fId ] * ( * ug.farea )[ ug.fId ];
-        Real fnza = ( * ug.fnz )[ ug.fId ] * ( * ug.farea )[ ug.fId ];
+        Real fnxa = ( * ug.xfn )[ ug.fId ] * ( * ug.farea )[ ug.fId ];
+        Real fnya = ( * ug.yfn )[ ug.fId ] * ( * ug.farea )[ ug.fId ];
+        Real fnza = ( * ug.zfn )[ ug.fId ] * ( * ug.farea )[ ug.fId ];
 
         dqdx[ ug.lc ] += fnxa * value;
         dqdy[ ug.lc ] += fnya * value;
@@ -170,9 +170,9 @@ void CmpGradDebug( RealField & q, RealField & dqdx, RealField & dqdy, RealField 
 
         Real value = half * ( q[ ug.lc ] + q[ ug.rc ] );
 
-        Real fnxa = ( * ug.fnx )[ ug.fId ] * ( * ug.farea )[ ug.fId ];
-        Real fnya = ( * ug.fny )[ ug.fId ] * ( * ug.farea )[ ug.fId ];
-        Real fnza = ( * ug.fnz )[ ug.fId ] * ( * ug.farea )[ ug.fId ];
+        Real fnxa = ( * ug.xfn )[ ug.fId ] * ( * ug.farea )[ ug.fId ];
+        Real fnya = ( * ug.yfn )[ ug.fId ] * ( * ug.farea )[ ug.fId ];
+        Real fnza = ( * ug.zfn )[ ug.fId ] * ( * ug.farea )[ ug.fId ];
 
         dqdx[ ug.lc ] += fnxa * value;
         dqdy[ ug.lc ] += fnya * value;
