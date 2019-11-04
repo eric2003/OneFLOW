@@ -1,0 +1,32 @@
+int gridObj   =  1; //0: generate  1: convert 2 geneinp, 3 partition
+string topoType  =  "u"; //  u, s
+int multiBlock    =  0; // 0: single; 1: multi
+
+int fileFormat       =  0;   // File Format:   0 -- ASCII; 1 -- Binary
+Real gridScale     =  1.0;
+Real gridTrans[3]  =  0, 0, 0;
+int axis_dir = 0;  // 0 : y 1:z->y
+
+int ignoreNoBc = 0;
+
+string gridLayoutFileName      =  "gridbase/laminarPlate2dLayout.txt";
+int igene = 2; //0 sod; 1 cavity, 2 rea2822
+
+int    codeOfOversetGrid     =  0;
+string oversetGridFileName   =  "grid/iBlank.ovs";
+int    parallelStrategy           =  1; //  0: specified; 1: system
+
+string sourceGridType        =  "cgns";  //plot3d, su2,cgns
+string targetGridType        =  "oneflow"; 
+
+int iplot3d = 1; //0: gridgen 1 standard;
+
+string boundaryRegionNameMapFileName   =  "grid/boundaryRegionNameMapFileName.dat";
+string volumeBoundaryNameMapFileName   =  "grid/volumeBoundaryNameMapFileName.dat";
+
+string sourceGridFileName   =  "grid/DBRL1.cgns";
+string sourceGridBcName     =  "grid/DBRL1.inp"
+string targetGridFileName   =  "grid/DBRL1.ofl";
+string patchFileName        =  "grid/DBRL1.patch";
+
+

@@ -1,0 +1,4 @@
+3
+0 in-velocity-inlet
+2 wall-wall
+1 wall_out-outflow

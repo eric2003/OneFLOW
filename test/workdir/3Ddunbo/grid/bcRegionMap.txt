@@ -1,0 +1,6 @@
+5
+1 geom-symmetry
+2 geom_2-symmetry
+3 in-pressure-farfield
+0 out-outflow
+4 wall-wall
