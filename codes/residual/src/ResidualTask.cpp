@@ -91,6 +91,11 @@ void ResidualTask::CmpRes( int sTid, ResData & data )
         for ( int cId = 0; cId < grid->nCell; ++ cId )
         {
             Real ress = ( * res )[ iEqu ][ cId ];
+            if ( NotANumber( ress ) )
+            {
+                cout << " iEqu = " << iEqu << " cId = " << cId << " grid->nCell = " << grid->nCell << "\n";
+                cout << " ress = " << ress << "\n";
+            }
             data.resave.res[ iEqu ] += SQR( ress );
             if ( data.resmax.resmax[ iEqu ] < ABS( ress ) )
             {
