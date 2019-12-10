@@ -21,6 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "UNsRestart.h"
+#include "HXMath.h"
 #include "SolverDef.h"
 #include "Iteration.h"
 #include "DataBase.h"
@@ -98,6 +99,87 @@ void UNsRestart::InitRestart( int sTid )
             }
         }
     }
+    else if ( ctrl.inflowType == 4 )
+    {
+        RealField & xcc = grid->cellMesh->xcc;
+        RealField & ycc = grid->cellMesh->ycc;
+        RealField & zcc = grid->cellMesh->zcc;
+
+        int nTCell = xcc.size();
+
+        for ( int cId = 0; cId < nTCell; ++ cId )
+        {
+            Real x = xcc[ cId ];
+            Real y = ycc[ cId ];
+            Real z = zcc[ cId ];
+        }
+    }
+}
+
+ShockVertex::ShockVertex()
+{
+    this->Init();
+}
+
+ShockVertex::~ShockVertex()
+{
+    ;
+}
+
+void ShockVertex::Init()
+{
+    this->xc = 0.25;
+    this->yc = 0.5;
+    this->gama = 1.4;
+    this->Ms = 1.5;
+    this->ru = 1.0;
+    this->uu = Ms * sqrt( gama );
+    this->vu = 0.0;
+    this->pu = 1.0;
+    Real Ms2 = SQR( Ms );
+    Real coef = 2 + ( gama - 1.0 ) * Ms2;
+}
+
+Real ShockVertex::vortexfun( Real x, Real y, Real gama )
+{
+    Real a = 0.075;
+    Real b = 0.175;
+
+    Real mv = 0.9;
+    Real vm = mv * sqrt( gama );
+
+    Real r = DIST( x - xc, y - yc );
+    Real vcit;
+    if ( r <= a )
+    {
+        vcit = vm * r / a;
+    }
+    else if ( a < r && r <= b )
+    {
+        Real a2 = SQR( a );
+        Real b2 = SQR( b );
+        vcit = vm * ( a / ( a2 - b2 ) * ( r - b2 / r ) );
+    }
+    else
+    {
+        vcit = 0.0;
+    }
+    return vcit;
+}
+
+void ShockVertex::Cal( Real x, Real y, Real gama, Real & vx, Real & vy )
+{
+    Real rx = x - xc;
+    Real ry = y - yc;
+    Real r = DIST( rx, ry );
+    Real sinc = ry / r;
+    Real cosc = rx / r;
+
+    Real vcit = this->vortexfun( x, y, gama );
+    Real vcitx = - vcit * sinc;
+    Real vcity =   vcit * cosc;
+    vx = this->uu + vcitx;
+    vy = this->vu + vcity;
 }
 
 

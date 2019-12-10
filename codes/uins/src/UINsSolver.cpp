@@ -20,34 +20,46 @@ License
 
 \*---------------------------------------------------------------------------*/
 
+#include "UINsSolver.h"
+#include "Mesh.h"
+#include "FaceMesh.h"
+#include "CellMesh.h"
+#include "SolverInfo.h"
+#include "SolverState.h"
+#include "FaceTopo.h"
+#include "Boundary.h"
+#include "BcRecord.h"
+#include "DataBase.h"
+#include "NsIdx.h"
+#include "HXMath.h"
+#include "UNsLusgs.h"
+#include <iostream>
+using namespace std;
 
-#pragma once
-#include "Restart.h"
 BeginNameSpace( ONEFLOW )
 
-class UNsRestart : public Restart
-{
-public:
-    UNsRestart();
-    ~UNsRestart();
-public:
-    void InitRestart( int sTid );
-};
+REGISTER_SOLVER( UINsSolver )
 
-class ShockVertex
+UINsSolver::UINsSolver()
 {
-public:
-    ShockVertex();
-    ~ShockVertex();
-public:
-    Real xc, yc;
-    Real Ms, gama;
-    Real ru, uu, vu, pu;
-    Real rd, ud, vd, pd;
-public:
-    void Init();
-    Real vortexfun( Real x, Real y, Real gama );
-    void Cal( Real x, Real y, Real gama, Real & vx, Real & vy );
-};
+}
+
+UINsSolver::~UINsSolver()
+{
+}
+
+void UINsSolver::StaticInit()
+{
+    INsSolver::StaticInit();
+    LusgsState::AddSolver( this->sid, this->gridType, new UNsLusgs() );
+}
+
+void UINsSolver::Init()
+{
+}
+
+void UINsSolver::Run()
+{
+}
 
 EndNameSpace

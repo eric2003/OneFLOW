@@ -176,9 +176,24 @@ void AddF2CFieldDebug( MRField * cellField, MRField * faceField )
         ug.lc = ( * ug.lcf )[ ug.fId ];
         ug.rc = ( * ug.rcf )[ ug.fId ];
 
+        if ( ug.lc == 9 || ug.rc == 9 )
+        {
+            cout << " fId = " << fId << "\n";
+            int iEqu = 0;
+            cout << ( * faceField )[ iEqu ][ ug.fId ] << "\n";
+        }
+
         for ( int iEqu = 0; iEqu < nEqu; ++ iEqu )
         {
             ( * cellField )[ iEqu ][ ug.lc ] -= ( * faceField )[ iEqu ][ ug.fId ];
+        }
+        if ( ug.lc == 9 || ug.rc == 9 )
+        {
+            for ( int iEqu = 0; iEqu < nEqu; ++ iEqu )
+            {
+                int cc = 9;
+                cout << ( * cellField )[ iEqu ][ cc ] << "\n";
+            }
         }
     }
 
@@ -187,13 +202,34 @@ void AddF2CFieldDebug( MRField * cellField, MRField * faceField )
         ug.fId = fId;
         ug.lc = ( * ug.lcf )[ ug.fId ];
         ug.rc = ( * ug.rcf )[ ug.fId ];
+        if ( ug.lc == 9 || ug.rc == 9 )
+        {
+            cout << " fId = " << fId << "\n";
+            int iEqu = 0;
+            cout << ( * faceField )[ iEqu ][ ug.fId ] << "\n";
+        }
 
         for ( int iEqu = 0; iEqu < nEqu; ++ iEqu )
         {
             ( * cellField )[ iEqu ][ ug.lc ] -= ( * faceField )[ iEqu ][ ug.fId ];
             ( * cellField )[ iEqu ][ ug.rc ] += ( * faceField )[ iEqu ][ ug.fId ];
         }
+        if ( ug.lc == 9 || ug.rc == 9 )
+        {
+            for ( int iEqu = 0; iEqu < nEqu; ++ iEqu )
+            {
+                int cc = 9;
+                cout << ( * cellField )[ iEqu ][ cc ] << "\n";
+            }
+        }
     }
+
+    for ( int iEqu = 0; iEqu < nEqu; ++ iEqu )
+    {
+        int cc = 9;
+        cout << ( * cellField )[ iEqu ][ cc ] << "\n";
+    }
+    int kkk = 1;
 }
 
 EndNameSpace

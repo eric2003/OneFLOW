@@ -20,7 +20,7 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "UNsUpdate.h"
+#include "UINsUpdate.h"
 #include "UCom.h"
 #include "NsCom.h"
 #include "UNsCom.h"
@@ -35,15 +35,15 @@ using namespace std;
 
 BeginNameSpace( ONEFLOW )
 
-UNsUpdate::UNsUpdate()
+UINsUpdate::UINsUpdate()
 {
 }
 
-UNsUpdate::~UNsUpdate()
+UINsUpdate::~UINsUpdate()
 {
 }
 
-void UNsUpdate::UpdateFlowField( int sTid )
+void UINsUpdate::UpdateFlowField( int sTid )
 {
     GetUpdateField( sTid, this->q, this->dq );
 
@@ -69,7 +69,7 @@ void UNsUpdate::UpdateFlowField( int sTid )
     }
 }
 
-void UNsUpdate::PrepareData()
+void UINsUpdate::PrepareData()
 {
     for ( int iEqu = 0; iEqu < nscom.nTEqu; ++ iEqu )
     {
@@ -91,14 +91,14 @@ void UNsUpdate::PrepareData()
     nscom.gama = ( * unsf.gama )[ 0 ][ ug.cId ];
 }
 
-void UNsUpdate::DumpProbeInfo()
+void UINsUpdate::DumpProbeInfo()
 {
     cout << setprecision( 3 );
     cout << "Warning : p = " << nscom.prim[ IDX::IP ] << ", r = " << nscom.prim[ IDX::IR ];
     cout << " <-> zid = " << ZoneState::zid << ", cid = " << ug.cId << endl;
 }
 
-void UNsUpdate::SolutionFix()
+void UINsUpdate::SolutionFix()
 {
     nscom.prim = 0;
 
@@ -139,7 +139,7 @@ void UNsUpdate::SolutionFix()
     }
 }
 
-void UNsUpdate::UpdateFlowFieldValue()
+void UINsUpdate::UpdateFlowFieldValue()
 {
     for ( int iEqu = 0; iEqu < nscom.nTEqu; ++ iEqu )
     {
