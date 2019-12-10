@@ -20,63 +20,46 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "Update.h"
-#include "NsUpdate.h"
-#include "INsUpdate.h"
-#include "TurbUpdate.h"
-#include "SolverDef.h"
+#include "UINsSolver.h"
+#include "Mesh.h"
+#include "FaceMesh.h"
+#include "CellMesh.h"
 #include "SolverInfo.h"
-#include "Task.h"
-#include "TaskState.h"
-#include "FieldWrap.h"
+#include "SolverState.h"
+#include "FaceTopo.h"
+#include "Boundary.h"
+#include "BcRecord.h"
+#include "DataBase.h"
+#include "NsIdx.h"
+#include "HXMath.h"
+#include "UNsLusgs.h"
+#include <iostream>
+using namespace std;
 
 BeginNameSpace( ONEFLOW )
 
-Update::Update()
+REGISTER_SOLVER( UINsSolver )
+
+UINsSolver::UINsSolver()
 {
-    q = 0;
-    dq = 0;
 }
 
-Update::~Update()
+UINsSolver::~UINsSolver()
 {
-    delete q;
-    delete dq;
 }
 
-Update * CreateUpdate( int sTid )
+void UINsSolver::StaticInit()
 {
-    if ( sTid == NS_SOLVER )
-    {
-        return CreateNsUpdate();
-    }
-    else if ( sTid == INC_NS_SOLVER )
-    {
-        return CreateINsUpdate();
-    }
-    else if ( sTid == TURB_SOLVER )
-    {
-        return CreateTurbUpdate();
-    }
-    return 0;
+    INsSolver::StaticInit();
+    LusgsState::AddSolver( this->sid, this->gridType, new UNsLusgs() );
 }
 
-void GetUpdateField( int sTid, FieldWrap *q, FieldWrap *dq )
+void UINsSolver::Init()
 {
-    SolverInfo * solverInfo = SolverInfoFactory::GetSolverInfo( sTid );
+}
 
-    if ( TaskState::task->taskName == "UPDATE_FLOWFIELD_LUSGS" )
-    {
-        string & qFieldString  = solverInfo->implicitString[ 0 ];
-        string & dQFieldString = solverInfo->implicitString[ 1 ];
-        q  = FieldHome::GetFieldWrap( qFieldString  );
-        dq = FieldHome::GetFieldWrap( dQFieldString );
-    }
-    else
-    {
-        q  = FieldHome::GetFieldWrap( FIELD_FLOW );
-        dq = FieldHome::GetFieldWrap( solverInfo->residualName );
-    }
+void UINsSolver::Run()
+{
 }
 
 EndNameSpace

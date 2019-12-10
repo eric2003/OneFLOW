@@ -47,6 +47,10 @@ Restart * CreateRestart( int sTid )
     {
         return CreateNsRestart();
     }
+    else if ( sTid == INC_NS_SOLVER )
+    {
+        return CreateNsRestart();
+    }
     else if ( sTid == TURB_SOLVER )
     {
         return CreateTurbRestart();
