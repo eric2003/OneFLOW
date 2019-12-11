@@ -7,7 +7,7 @@ project (OneFLOW)
 
 #set working directory:
 set(MY_WORKING_DIR OneFLOW)
-#set(HDF5_LIBRARY_DIR "/usr/lib/x86_64-linux-gnu/hdf5/serial" FORCE)
+set(HDF5_LIBRARY_DIR "/usr/lib/x86_64-linux-gnu/hdf5/serial" FORCE)
 
 #output message:
 message(STATUS "Welcome to Build Project ${CMAKE_PROJECT_NAME}.")
