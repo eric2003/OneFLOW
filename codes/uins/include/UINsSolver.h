@@ -23,69 +23,25 @@ License
 
 #pragma once
 #include "HXDefine.h"
-#include "HXArray.h"
-
+#include "INsSolver.h"
+#include <map>
+using namespace std;
 BeginNameSpace( ONEFLOW )
 
-class BcRecord;
+class InvFlux;
 
-const int F_INNER = 0;
-const int F_GHOST = 1;
-const int F_TOTAL = 2;
-
-class UGeom
+class UINsSolver : public INsSolver
 {
 public:
-    UGeom();
-    ~UGeom();
+    UINsSolver();
+    ~UINsSolver();
 public:
+    IMPLEMENT_SOLVER_CLONE( UINsSolver )
+public:
+    void Run();
     void Init();
-    void CreateBcRegion();
-    void SetStEd( int flag );
-    void DumpCellFace( int cId );
 public:
-    int fId;
-    int cId;
-    int bcfId;
-    int nFace;
-    int nBFace;
-    int nCell;
-    int nTCell;
-    int ist, ied;
-    int lc;
-    int rc;
-    int ir, bcr, bcdtkey, bctype, nRegion, nRBFace;
-    int ireconface;
-public:
-    IntField * lcf;
-    IntField * rcf;
-    IntField * blankf;
-    LinkField * c2f;
-
-    RealField * xfn;
-    RealField * yfn;
-    RealField * zfn;
-    RealField * vfn;
-    RealField * farea;
-
-    RealField * xfc;
-    RealField * yfc;
-    RealField * zfc;
-
-    RealField * vfx;
-    RealField * vfy;
-    RealField * vfz;
-
-    RealField * cvol, * cvol1, * cvol2;
-    RealField * xcc;
-    RealField * ycc;
-    RealField * zcc;
-    BcRecord * bcRecord;
+    void StaticInit();
 };
-
-extern UGeom ug;
-
-void AddF2CField( MRField * cellField, MRField * faceField );
-void AddF2CFieldDebug( MRField * cellField, MRField * faceField );
 
 EndNameSpace

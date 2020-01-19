@@ -22,32 +22,24 @@ License
 
 
 #pragma once
-#include "Restart.h"
+#include "HXClone.h"
+
 BeginNameSpace( ONEFLOW )
 
-class UNsRestart : public Restart
-{
-public:
-    UNsRestart();
-    ~UNsRestart();
-public:
-    void InitRestart( int sTid );
-};
+DEFINE_DATA_CLASS( INsInitFinal );
+DEFINE_DATA_CLASS( INsVisual );
+DEFINE_DATA_CLASS( INsCmpTimeStep );
+DEFINE_DATA_CLASS( INsUpdateResiduals );
+DEFINE_DATA_CLASS( INsImplicitMethod );
+DEFINE_DATA_CLASS( INsPostprocess );
+DEFINE_DATA_CLASS( INsFinalPostprocess );
+DEFINE_DATA_CLASS( INsInitSolver );
+DEFINE_DATA_CLASS( INsCmpBoundary );
+DEFINE_DATA_CLASS( IDumpHeatFluxCoeff );
 
-class ShockVertex
-{
-public:
-    ShockVertex();
-    ~ShockVertex();
-public:
-    Real xc, yc;
-    Real Ms, gama;
-    Real ru, uu, vu, pu;
-    Real rd, ud, vd, pd;
-public:
-    void Init();
-    Real vortexfun( Real x, Real y, Real gama );
-    void Cal( Real x, Real y, Real gama, Real & vx, Real & vy );
-};
+void RegisterINsFunc();
+
+class SolverRegData;
+SolverRegData * GetINsReg();
 
 EndNameSpace

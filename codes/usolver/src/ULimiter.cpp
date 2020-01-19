@@ -182,7 +182,7 @@ void LimField::CmpFaceValue()
         ug.lc = ( * ug.lcf )[ ug.fId ];
         ug.rc = ( * ug.rcf )[ ug.fId ];
 
-        if ( fId == 432 )
+        if ( fId == 10127 )
         {
             int kkk = 1;
         }

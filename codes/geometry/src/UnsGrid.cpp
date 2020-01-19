@@ -797,6 +797,11 @@ void UnsGrid::ComputeCellCenterVol3D()
             triy *= tmp;
             triz *= tmp;
 
+            if ( lc == 1174 || rc == 1174 )
+            {
+                int kkk = 1;
+            }
+
             xcc[ lc ] += trix;
             ycc[ lc ] += triy;
             zcc[ lc ] += triz;
