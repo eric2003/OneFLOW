@@ -40,6 +40,7 @@ class CgnsMultiBase;
 class CgnsZone;
 class GridElem;
 class Su2Grid;
+class GridMediator;
 
 #ifdef ENABLE_CGNS
 
@@ -59,12 +60,14 @@ public:
 public:
     void GenerateGrid();
     void ReadCgnsGrid();
+    void DumpCgnsGrid( GridMediator * gridMediator );
     void ProcessGrid();
 public:
     void CommonToOneFlowGrid();
     void CommonToUnsGrid();
     void CommonToStrGrid();
 public:
+    void CreateDefaultZone();
     CgnsZone * GetCreateZone( int cgnsZoneId = 0 );
     void MergeToSingleZone( Grids & grids, HXVector< Int3D * > & unsIdList, NodeMesh * nodeMesh, int & nNode, int & nCell );
     void PrepareSection( Grids & grids, int cgnsZoneId );
@@ -85,7 +88,6 @@ public:
 
     //转换为oneflow计算所用的网格
     void GenerateCmpGrid();
-
 protected:
     void GenerateStrCmpGrid();
     void GenerateUnsCmpGrid();

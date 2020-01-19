@@ -95,7 +95,7 @@ void Plot3D::ReadCoorBinary( GridMediator * gridMediator )
         }
 
         Grid * gridstr = ONEFLOW::CreateGrid( ONEFLOW::SMESH );
-         StrGrid * grid = ONEFLOW::StrGridCast( gridstr );
+        StrGrid * grid = ONEFLOW::StrGridCast( gridstr );
         gridMediator->gridVector[ iZone ] = grid;
         grid->id = iZone;
         grid->ni = ni;
@@ -170,7 +170,7 @@ void Plot3D::ReadCoorAscii( GridMediator * gridMediator )
         }
 
         Grid * gridstr = ONEFLOW::CreateGrid( ONEFLOW::SMESH );
-         StrGrid * grid = ONEFLOW::StrGridCast( gridstr );
+        StrGrid * grid = ONEFLOW::StrGridCast( gridstr );
         gridMediator->gridVector[ zCount ] = grid;
         grid->id = zCount;
         grid->ni = ni;

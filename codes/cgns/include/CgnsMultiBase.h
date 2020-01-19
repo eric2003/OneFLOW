@@ -30,6 +30,7 @@ BeginNameSpace( ONEFLOW )
 
 class CgnsBase;
 class CgnsZone;
+class GridMediator;
 
 class CgnsMultiBase
 {
@@ -47,10 +48,12 @@ public:
 public:
     int GetSystemZoneType();
     void ReadCgnsGrid();
+    void DumpCgnsGrid( GridMediator * gridMediator );
     void ReadCgnsGrid( const string & fileName );
     void OpenCgnsFile( const string & fileName, int cgnsOpenMode );
     void CloseCgnsFile();
     void ReadCgnsMultiBase();
+    void DumpCgnsMultiBase( GridMediator * gridMediator );
     void ReadNumCgnsBase();
 
     void ReadCgnsMultiBase( CgnsMultiBase * strCgnsMultiBase );

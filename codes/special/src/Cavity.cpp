@@ -28,6 +28,13 @@ License
 #include "DataBaseIO.h"
 #include "Boundary.h"
 #include "HXMath.h"
+#include "CgnsFactory.h"
+#include "CgnsZone.h"
+#include "GridMediator.h"
+#include "BgGrid.h"
+#include "StrGrid.h"
+#include "StrUtil.h"
+#include "NodeMesh.h"
 #include <iostream>
 using namespace std;
 
@@ -47,7 +54,25 @@ void Cavity::Run()
 {
     int ni = 101;
     int nj = 51;
-    int nNode = ni * nj;
+    int nk = 1;
+
+    int nZone = 1;
+    GridMediator * gridMediator = new GridMediator();
+    gridMediator->numberOfZones = nZone;
+    gridMediator->gridVector.resize( nZone );
+
+    Grid * gridstr = ONEFLOW::CreateStrGrid();
+    StrGrid * grid = ONEFLOW::StrGridCast( gridstr );
+    int iZone = 0;
+    gridMediator->gridVector[ iZone ] = grid;
+    grid->name = AddString( "Zone", iZone );
+    grid->id = iZone;
+    grid->ni = ni;
+    grid->nj = nj;
+    grid->nk = nk;
+    grid->SetBasicDimension();
+    grid->nodeMesh->CreateNodes( grid->nNode );
+    grid->SetLayout();
 
     RealField2D x;
     RealField2D y;
@@ -79,10 +104,31 @@ void Cavity::Run()
         }
     }
 
+    Field3D & xs = * grid->strx;
+    Field3D & ys = * grid->stry;
+    Field3D & zs = * grid->strz;
+
+    for ( int k = 1; k <= nk; ++ k )
+    {
+        for ( int j = 1; j <= nj; ++ j )
+        {
+            for ( int i = 1; i <= ni; ++ i )
+            {
+                int ii = i - 1;
+                int jj = j - 1;
+                Real xx = x[ ii ][ jj ];
+                Real yy = y[ ii ][ jj ];
+                Real zz = 0.0;
+
+                xs( i, j, k ) = xx;
+                ys( i, j, k ) = yy;
+                zs( i, j, k ) = zz;
+            }
+        }
+    }
+
     fstream file;
     OpenPrjFile( file, "/grid/cavity2d.grd", ios_base::out|ios_base::binary );
-    int nZone = 1;
-    int nk = 1;
     HXWrite( & file, nZone );
     HXWrite( & file, ni );
     HXWrite( & file, nj );
@@ -108,6 +154,19 @@ void Cavity::Run()
     file << 1  << " " << 1  << " " << 1  << " " << nj  << " " << BC::SOLID_SURFACE << endl;
     file << ni  << " " << ni  << " " << 1  << " " << nj  << " " << BC::SOLID_SURFACE << endl;
     CloseFile( file );
+
+    this->DumpCgnsGrid( gridMediator );
+
+    delete gridMediator;
+}
+
+void Cavity::DumpCgnsGrid( GridMediator * gridMediator )
+{
+    CgnsFactory * cgnsFactory = new CgnsFactory();
+
+    cgnsFactory->DumpCgnsGrid( gridMediator );
+
+    delete cgnsFactory;
 }
 
 

@@ -77,6 +77,12 @@ void CgnsFactory::ReadCgnsGrid()
     cgnsMultiBase->ReadCgnsGrid();
 }
 
+void CgnsFactory::DumpCgnsGrid( GridMediator * gridMediator )
+{
+    cgns_global.cgnsbases = cgnsMultiBase;
+    cgnsMultiBase->DumpCgnsGrid( gridMediator );
+}
+
 void CgnsFactory::ProcessGrid()
 {
     int systemZoneType = cgnsMultiBase->GetSystemZoneType();
@@ -374,6 +380,14 @@ void CgnsFactory::PrepareSectionBasic( Grids & grids, CgnsZone * cgnsZone )
 
 void CgnsFactory::PrepareSU2SectionBasic( Su2Grid* su2Grid, CgnsZone * cgnsZone )
 {
+}
+
+void CgnsFactory::CreateDefaultZone()
+{
+    this->nZone = 1;
+
+    cgnsMultiBase->Create( this->nZone );
+
 }
 
 CgnsZone * CgnsFactory::GetCreateZone( int cgnsZoneId )

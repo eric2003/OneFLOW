@@ -26,6 +26,7 @@ License
 
 BeginNameSpace( ONEFLOW )
 
+class GridMediator;
 class Cavity
 {
 public:
@@ -33,6 +34,7 @@ public:
     ~Cavity();
 public:
     void Run();
+    void DumpCgnsGrid( GridMediator * gridMediator );
 };
 
 

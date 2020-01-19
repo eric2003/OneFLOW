@@ -34,6 +34,7 @@ map< string, Grid * > * Grid::classMap = 0;
 
 Grid::Grid()
 {
+    name = "grid";
     volBcType = -1;
     this->nodeMesh = 0;
     this->interFace = 0;

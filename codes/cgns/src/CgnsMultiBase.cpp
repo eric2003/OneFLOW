@@ -28,6 +28,7 @@ License
 #include "Prj.h"
 #include "Dimension.h"
 #include "GridPara.h"
+#include "GridMediator.h"
 #include <iostream>
 using namespace std;
 
@@ -66,6 +67,14 @@ int CgnsMultiBase::GetSystemZoneType()
 void CgnsMultiBase::ReadCgnsGrid()
 {
     this->ReadCgnsGrid( grid_para.gridFile );
+}
+
+void CgnsMultiBase::DumpCgnsGrid( GridMediator * gridMediator )
+{
+    string fileName = "grid/cavity2d.cgns";
+    this->OpenCgnsFile( fileName, CG_MODE_WRITE );
+    this->DumpCgnsMultiBase( gridMediator );
+    this->CloseCgnsFile();
 }
 
 void CgnsMultiBase::ReadCgnsGrid( const string & fileName )
@@ -149,6 +158,19 @@ void CgnsMultiBase::ReadCgnsMultiBase()
     this->InitAllCgnsZonesInEachCgnsBase();
 
     this->ReadAllCgnsZonesInEachCgnsBase();
+}
+
+void CgnsMultiBase::DumpCgnsMultiBase( GridMediator * gridMediator )
+{
+    int nZone = gridMediator->numberOfZones;
+    this->Create( nZone );
+
+    for ( int bId = 1; bId <= this->nBases; ++ bId )
+    {
+        CgnsBase * cgnsBase = baseVector[ bId - 1 ];
+
+        cgnsBase->DumpBase( gridMediator );
+    }
 }
 
 void CgnsMultiBase::ReadCgnsMultiBase( CgnsMultiBase * strCgnsMultiBase )

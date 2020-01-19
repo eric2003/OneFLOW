@@ -34,6 +34,7 @@ BeginNameSpace( ONEFLOW )
 
 #ifdef ENABLE_CGNS
 
+class Grid;
 class StrGrid;
 class CgnsZone;
 class CgnsBase;
@@ -105,6 +106,8 @@ public:
     void ReadCgnsGridCoordinates( CgnsZone * cgnsZoneIn );
     void ReadCgnsGridBoundary();
     void ProcessPeriodicBc();
+    void DumpCgnsZone( Grid * grid );
+    void FillISize( int ni, int nj, int nk, int dimension );
 public:
     void AllocateUnsElemConn( CgnsZone * cgnsZoneIn );
     void GenerateUnsVolElemConn( CgnsZone * cgnsZoneIn );
