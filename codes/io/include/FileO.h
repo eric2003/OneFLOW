@@ -59,7 +59,7 @@ public:
     template< typename T >
     void WriteFormat( const T & value )
     {
-        ( * file ) << setwidth( nWidth ) << value;
+        ( * file ) << setw( nWidth ) << value;
     }
 
     template< typename T >
