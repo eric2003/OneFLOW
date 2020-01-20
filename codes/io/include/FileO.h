@@ -20,23 +20,56 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-
 #pragma once
+#include "Configure.h"
 #include "HXDefine.h"
+#include <fstream>
+#include <iomanip>
+using namespace std;
 
 BeginNameSpace( ONEFLOW )
 
-class GridMediator;
-class Cavity
+class FileO
 {
 public:
-    Cavity();
-    ~Cavity();
+    FileO();
+    ~FileO();
 public:
-    void Run();
-    void DumpPlot3DGrid( GridMediator * gridMediator );
-    void DumpCgnsGrid( GridMediator * gridMediator );
-};
+    int nWord;
+    int nWidth;
+    int nCount;
+    std::string fileName;
+    ios_base::openmode fileOpenMode;
+    fstream * file;
+    string sep;
+public:
+    void OpenPrjFile( const string & fileName, const ios_base::openmode & fileOpenMode );
+    void CloseFile();
 
+    void WriteEndLine()
+    {
+        ( * file ) << "\n";
+    }
+
+    template< typename T >
+    void Write( const T & value )
+    {
+        ( * file ) << value << sep;
+    }
+
+    template< typename T >
+    void WriteFormat( const T & value )
+    {
+        ( * file ) << setw( nWidth ) << value;
+    }
+
+    template< typename T >
+    void WriteLine( const T & value )
+    {
+        ( * file ) << value << "\n";
+    }
+
+    void DumpCoorAscii( RealField & coor );
+};
 
 EndNameSpace

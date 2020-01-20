@@ -25,6 +25,7 @@ License
 #include "StrUtil.h"
 #include "Dimension.h"
 #include "CgnsFamilyBc.h"
+#include "GridMediator.h"
 #include <iostream>
 using namespace std;
 
@@ -61,6 +62,9 @@ void CgnsBase::SetDefaultCgnsBaseBasicInformation()
     this->celldim = Dim::dimension;
     this->phydim  = Dim::dimension;
 
+    //this->celldim = THREE_D;
+    //this->phydim  = THREE_D;
+    
     this->baseName = ONEFLOW::AddString( "Base", this->baseId );
 }
 
@@ -95,6 +99,20 @@ void CgnsBase::ReadCgnsBaseBasicInfo()
     cg_base_read( this->fileId, this->baseId, cgnsBaseName, & this->celldim, & this->phydim );
     this->baseName = cgnsBaseName;
     cout << "   baseId = " << this->baseId << " baseName = " << cgnsBaseName << "\n";
+}
+
+void CgnsBase::DumpBase( GridMediator * gridMediator )
+{
+    cg_base_write( this->fileId, this->baseName.c_str(), this->celldim, this->phydim, &this->baseId );
+    cout << " baseId = " << this->baseId << " baseName = " << this->baseName << "\n";
+    cout << " nZones = " << nZones << "\n";
+
+    for ( int iZone = 0; iZone < nZones; ++ iZone )
+    {
+        CgnsZone * cgnsZone = cgnsZones[ iZone ];
+        Grid * grid = gridMediator->gridVector[ iZone ];
+        cgnsZone->DumpCgnsZone( grid );
+    }
 }
 
 void CgnsBase::ReadCgnsBaseBasicInfo( CgnsBase * cgnsBaseIn )

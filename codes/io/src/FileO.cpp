@@ -20,23 +20,54 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-
-#pragma once
-#include "HXDefine.h"
+#include "FileO.h"
+#include "FileUtil.h"
+#include "Prj.h"
 
 BeginNameSpace( ONEFLOW )
 
-class GridMediator;
-class Cavity
+FileO::FileO()
 {
-public:
-    Cavity();
-    ~Cavity();
-public:
-    void Run();
-    void DumpPlot3DGrid( GridMediator * gridMediator );
-    void DumpCgnsGrid( GridMediator * gridMediator );
-};
+    file = new fstream();
+    sep = " ";
+    nWord = 5;
+    nWidth = 5;
+    nCount = 0;
+}
+
+FileO::~FileO()
+{
+    delete file;
+}
+
+void FileO::OpenPrjFile( const string & fileName, const ios_base::openmode & fileOpenMode )
+{
+    this->fileName     = fileName;
+    this->fileOpenMode = fileOpenMode;
+    ONEFLOW::OpenPrjFile( * file, fileName, fileOpenMode );
+}
+
+void FileO::CloseFile()
+{
+    ONEFLOW::CloseFile( * file );
+}
+
+void FileO::DumpCoorAscii( RealField & coor )
+{
+    int nCountMax = 10000;
+    int nPoint = coor.size();
+    nWidth = 15;
+    for ( int i = 0; i < nPoint; ++ i )
+    {
+        ( * file ) << setw( nWidth ) << coor[ i ];
+        nCount ++;
+        if ( nCount % nWord == 0 )
+        {
+            if ( nCount >= nCountMax ) nCount = 0;
+            ( * file ) << "\n";
+        }
+    }
+}
 
 
 EndNameSpace

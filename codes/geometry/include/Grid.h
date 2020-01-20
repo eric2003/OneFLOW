@@ -58,6 +58,7 @@ public:
     static Grid * Register( const string & type, Grid * clone );
     static map < string, Grid * > * classMap;
 public:
+    string name;
     int type, level;
     int id, localId;
     int nNode;
