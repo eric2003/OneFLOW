@@ -117,7 +117,7 @@ void Cavity::Run()
     int nBcRegions = 4;
     grid->bcRegionGroup->Create( nBcRegions );
 
-    BcRegion* bcRegion = 0;
+    BcRegion * bcRegion = 0;
     int ir = 0;
     bcRegion = new BcRegion( iZone, ir );
     bcRegion->s->SetRegion( 1, ni, 1, 1 );

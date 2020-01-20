@@ -24,6 +24,7 @@ License
 #include "Configure.h"
 #include "HXDefine.h"
 #include <fstream>
+#include <iomanip>
 using namespace std;
 
 BeginNameSpace( ONEFLOW )
