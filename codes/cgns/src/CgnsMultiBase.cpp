@@ -71,7 +71,7 @@ void CgnsMultiBase::ReadCgnsGrid()
 
 void CgnsMultiBase::DumpCgnsGrid( GridMediator * gridMediator )
 {
-    string fileName = "grid/cavity2d.cgns";
+    string fileName = gridMediator->targetFile;
     this->OpenCgnsFile( fileName, CG_MODE_WRITE );
     this->DumpCgnsMultiBase( gridMediator );
     this->CloseCgnsFile();

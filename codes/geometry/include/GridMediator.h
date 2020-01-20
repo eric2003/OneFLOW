@@ -43,6 +43,7 @@ public:
     int readGridType;
     string gridFile;
     string bcFile;
+    string targetFile;
     string gridType;
 public:
     void ReadGrid();

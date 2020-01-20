@@ -64,6 +64,7 @@ void Cavity::Run()
     GridMediator * gridMediator = new GridMediator();
     gridMediator->gridFile = ONEFLOW::GetDataValue< string >( "sourceGridFileName" );
     gridMediator->bcFile   = ONEFLOW::GetDataValue< string >( "sourceGridBcName" );
+    gridMediator->targetFile = ONEFLOW::GetDataValue< string >( "targetGridFileName" );
 
     gridMediator->numberOfZones = nZone;
     gridMediator->gridVector.resize( nZone );

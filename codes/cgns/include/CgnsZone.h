@@ -103,8 +103,10 @@ public:
     void CreateCgnsSections();
     void ReadCgnsSections();
     void ReadCgnsGridCoordinates();
+    void DumpCgnsGridCoordinates( Grid * gridIn );
     void ReadCgnsGridCoordinates( CgnsZone * cgnsZoneIn );
     void ReadCgnsGridBoundary();
+    void DumpCgnsGridBoundary();
     void ProcessPeriodicBc();
     void DumpCgnsZone( Grid * grid );
     void FillISize( int ni, int nj, int nk, int dimension );

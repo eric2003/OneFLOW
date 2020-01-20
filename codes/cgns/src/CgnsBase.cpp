@@ -61,10 +61,7 @@ void CgnsBase::SetDefaultCgnsBaseBasicInformation()
 {
     this->celldim = Dim::dimension;
     this->phydim  = Dim::dimension;
-
-    //this->celldim = THREE_D;
-    //this->phydim  = THREE_D;
-    
+  
     this->baseName = ONEFLOW::AddString( "Base", this->baseId );
 }
 
