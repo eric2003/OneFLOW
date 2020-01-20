@@ -37,6 +37,8 @@ License
 #include "NodeMesh.h"
 #include "BcRecord.h"
 #include "Dimension.h"
+#include "Plot3D.h"
+#include "DataBase.h"
 #include <iostream>
 using namespace std;
 
@@ -60,6 +62,9 @@ void Cavity::Run()
 
     int nZone = 1;
     GridMediator * gridMediator = new GridMediator();
+    gridMediator->gridFile = ONEFLOW::GetDataValue< string >( "sourceGridFileName" );
+    gridMediator->bcFile   = ONEFLOW::GetDataValue< string >( "sourceGridBcName" );
+
     gridMediator->numberOfZones = nZone;
     gridMediator->gridVector.resize( nZone );
 
@@ -155,91 +160,9 @@ void Cavity::Run()
 
 void Cavity::DumpPlot3DGrid( GridMediator * gridMediator )
 {
-    fstream file;
-    OpenPrjFile( file, "/grid/cavity2d.grd", ios_base::out|ios_base::binary );
-    int nZone = gridMediator->numberOfZones;
-    HXWrite( & file, nZone );
-    for ( int iZone = 0; iZone < nZone; ++ iZone )
-    {
-        Grid * gridIn = gridMediator->gridVector[ iZone ];
-        StrGrid * grid = ONEFLOW::StrGridCast( gridIn );
+    Plot3D::DumpCoor( gridMediator );
+    Plot3D::DumpBc( gridMediator );
 
-        int ni = grid->ni;
-        int nj = grid->nj;
-        int nk = grid->nk;
-        HXWrite( & file, ni );
-        HXWrite( & file, nj );
-        HXWrite( & file, nk );
-
-        HXWrite( & file, grid->nodeMesh->xN );
-        HXWrite( & file, grid->nodeMesh->yN );
-        HXWrite( & file, grid->nodeMesh->zN );
-    }
-
-    CloseFile( file );
-
-    OpenPrjFile( file, "/grid/cavity2d.inp", ios_base::out );
-    int solver = 1;
-    file << solver << "\n";
-    file << nZone << "\n";
-    for ( int iZone = 0; iZone < nZone; ++ iZone )
-    {
-        Grid * gridIn = gridMediator->gridVector[ iZone ];
-        StrGrid * grid = ONEFLOW::StrGridCast( gridIn );
-
-        int ni = grid->ni;
-        int nj = grid->nj;
-        int nk = grid->nk;
-
-        file << ni << " " << nj;
-        if ( ONEFLOW::IsThreeD() )
-        {
-            file << nk;
-        }
-        file << "\n";
-        file << grid->name << "\n";
-        BcRegionGroup * bcRegionGroup = grid->bcRegionGroup;
-        int nBcRegions = bcRegionGroup->regions->size();
-
-        file << nBcRegions << "\n";
-
-        for ( int ir = 0; ir < nBcRegions; ++ ir )
-        {
-            BcRegion * bcRegion = bcRegionGroup->GetBcRegion( ir );
-            int bcType = bcRegion->bcType;
-            BasicRegion * s = bcRegion->s;
-            int imin = s->start[ 0 ];
-            int imax = s->end[ 0 ];
-            int jmin = s->start[ 1 ];
-            int jmax = s->end[ 1 ];
-            int kmin = s->start[ 2 ];
-            int kmax = s->end[ 2 ];
-            file << imin << " " << imax << " " << jmin << " " << jmax << " ";
-            if ( ONEFLOW::IsThreeD() )
-            {
-                file << kmin << " " << kmax << " ";
-            }
-            file << bcType << "\n";
-            if ( bcType < 0 )
-            {
-                BasicRegion * t = bcRegion->t;
-                int imin = t->start[ 0 ];
-                int imax = t->end[ 0 ];
-                int jmin = t->start[ 1 ];
-                int jmax = t->end[ 1 ];
-                int kmin = t->start[ 2 ];
-                int kmax = t->end[ 2 ];
-                file << imin << " " << imax << " " << jmin << " " << jmax << " ";
-                if ( ONEFLOW::IsThreeD() )
-                {
-                    file << kmin << " " << kmax << " ";
-                }
-                file << t->zid << "\n";
-            }
-        }
-
-    }
-    CloseFile( file );
 }
 
 void Cavity::DumpCgnsGrid( GridMediator * gridMediator )

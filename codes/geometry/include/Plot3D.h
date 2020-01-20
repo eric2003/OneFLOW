@@ -48,6 +48,10 @@ public:
     static void ReadCoor( FileIO * ioFile, RealField & coordinate );
     static void ReadCoor( FileIO * ioFile, RealField & coor, int total_size );
     static void ReadBc( GridMediator * gridMediator );
+public:
+    static void DumpCoor( GridMediator * gridMediator );
+    static void DumpCoorBinary( GridMediator * gridMediator );
+    static void DumpBc( GridMediator * gridMediator );
 };
 
 bool GetPlot3D_NKFlag();
