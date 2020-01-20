@@ -20,42 +20,54 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-
-#pragma once
-#include "HXDefine.h"
-#include <vector>
-#include <string>
-#include <fstream>
-using namespace std;
+#include "FileO.h"
+#include "FileUtil.h"
+#include "Prj.h"
 
 BeginNameSpace( ONEFLOW )
 
-const int ASCII  = 0;
-const int BINARY = 1;
-class GridMediator;
-class FileIO;
-
-class Plot3D
+FileO::FileO()
 {
-public:
-    Plot3D();
-    ~Plot3D();
-public:
-    static void ReadPlot3D( GridMediator * gridMediator );
-    static void ReadCoor( GridMediator * gridMediator );
-    static void ReadCoorBinary( GridMediator * gridMediator );
-    static void ReadCoorAscii ( GridMediator * gridMediator );
-    static void ReadCoor( FileIO * ioFile, RealField & coordinate );
-    static void ReadCoor( FileIO * ioFile, RealField & coor, int total_size );
-    static void ReadBc( GridMediator * gridMediator );
-public:
-    static void DumpCoor( GridMediator * gridMediator );
-    static void DumpCoorBinary( GridMediator * gridMediator );
-    static void DumpCoorAscii( GridMediator * gridMediator );
-    static void DumpCoorAscii( fstream & file, RealField & coor );
-    static void DumpBc( GridMediator * gridMediator );
-};
+    file = new fstream();
+    sep = " ";
+    nWord = 5;
+    nWidth = 5;
+    nCount = 0;
+}
 
-bool GetPlot3D_NKFlag();
+FileO::~FileO()
+{
+    delete file;
+}
+
+void FileO::OpenPrjFile( const string & fileName, const ios_base::openmode & fileOpenMode )
+{
+    this->fileName     = fileName;
+    this->fileOpenMode = fileOpenMode;
+    ONEFLOW::OpenPrjFile( * file, fileName, fileOpenMode );
+}
+
+void FileO::CloseFile()
+{
+    ONEFLOW::CloseFile( * file );
+}
+
+void FileO::DumpCoorAscii( RealField & coor )
+{
+    int nCountMax = 10000;
+    int nPoint = coor.size();
+    nWidth = 15;
+    for ( int i = 0; i < nPoint; ++ i )
+    {
+        ( * file ) << setw( nWidth ) << coor[ i ];
+        nCount ++;
+        if ( nCount % nWord == 0 )
+        {
+            if ( nCount >= nCountMax ) nCount = 0;
+            ( * file ) << "\n";
+        }
+    }
+}
+
 
 EndNameSpace

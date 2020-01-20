@@ -20,42 +20,55 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-
 #pragma once
+#include "Configure.h"
 #include "HXDefine.h"
-#include <vector>
-#include <string>
 #include <fstream>
 using namespace std;
 
 BeginNameSpace( ONEFLOW )
 
-const int ASCII  = 0;
-const int BINARY = 1;
-class GridMediator;
-class FileIO;
-
-class Plot3D
+class FileO
 {
 public:
-    Plot3D();
-    ~Plot3D();
+    FileO();
+    ~FileO();
 public:
-    static void ReadPlot3D( GridMediator * gridMediator );
-    static void ReadCoor( GridMediator * gridMediator );
-    static void ReadCoorBinary( GridMediator * gridMediator );
-    static void ReadCoorAscii ( GridMediator * gridMediator );
-    static void ReadCoor( FileIO * ioFile, RealField & coordinate );
-    static void ReadCoor( FileIO * ioFile, RealField & coor, int total_size );
-    static void ReadBc( GridMediator * gridMediator );
+    int nWord;
+    int nWidth;
+    int nCount;
+    std::string fileName;
+    ios_base::openmode fileOpenMode;
+    fstream * file;
+    string sep;
 public:
-    static void DumpCoor( GridMediator * gridMediator );
-    static void DumpCoorBinary( GridMediator * gridMediator );
-    static void DumpCoorAscii( GridMediator * gridMediator );
-    static void DumpCoorAscii( fstream & file, RealField & coor );
-    static void DumpBc( GridMediator * gridMediator );
-};
+    void OpenPrjFile( const string & fileName, const ios_base::openmode & fileOpenMode );
+    void CloseFile();
 
-bool GetPlot3D_NKFlag();
+    void WriteEndLine()
+    {
+        ( * file ) << "\n";
+    }
+
+    template< typename T >
+    void Write( const T & value )
+    {
+        ( * file ) << value << sep;
+    }
+
+    template< typename T >
+    void WriteFormat( const T & value )
+    {
+        ( * file ) << setwidth( nWidth ) << value;
+    }
+
+    template< typename T >
+    void WriteLine( const T & value )
+    {
+        ( * file ) << value << "\n";
+    }
+
+    void DumpCoorAscii( RealField & coor );
+};
 
 EndNameSpace

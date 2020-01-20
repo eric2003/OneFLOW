@@ -29,6 +29,7 @@ License
 #include "BgGrid.h"
 #include "GridState.h"
 #include "FileIO.h"
+#include "FileO.h"
 #include "FileUtil.h"
 #include "Dimension.h"
 #include "HXMath.h"
@@ -80,7 +81,7 @@ void Plot3D::DumpCoor( GridMediator * gridMediator )
     }
     else
     {
-        //Plot3D::DumpCoorAscii( gridMediator );
+        Plot3D::DumpCoorAscii( gridMediator );
     }
 }
 
@@ -229,7 +230,7 @@ void Plot3D::ReadCoorAscii( GridMediator * gridMediator )
     gridMediator->numberOfZones = ioFile.ReadNextDigit< int >();
     gridMediator->gridVector.resize( gridMediator->numberOfZones );
 
-    bool readnkflag = GetPlot3D_NKFlag();
+    bool nkflag = GetPlot3D_NKFlag();
 
     int zCount = 0;
     while ( zCount < gridMediator->numberOfZones )
@@ -238,7 +239,7 @@ void Plot3D::ReadCoorAscii( GridMediator * gridMediator )
         ni = ioFile.ReadNextDigit< int >();
         nj = ioFile.ReadNextDigit< int >();
 
-        if ( readnkflag )
+        if ( nkflag )
         {
             nk = ioFile.ReadNextDigit< int >();
         }
@@ -278,8 +279,8 @@ void Plot3D::ReadCoorAscii( GridMediator * gridMediator )
         int nk = grid->nk;
 
         int total_size = 2 * numberOfNodes;
-        //if ( Dim::dimension == ONEFLOW::THREE_D )
-        if ( readnkflag )
+
+        if ( nkflag )
         {
             total_size = 3 * numberOfNodes;
         }
@@ -300,8 +301,7 @@ void Plot3D::ReadCoorAscii( GridMediator * gridMediator )
         }
         pos += numberOfNodes;
 
-        //if ( Dim::dimension == ONEFLOW::THREE_D )
-        if ( readnkflag )
+        if ( nkflag )
         {
             for ( int i = 0; i < numberOfNodes; ++ i )
             {
@@ -316,6 +316,82 @@ void Plot3D::ReadCoorAscii( GridMediator * gridMediator )
     }
 
     ioFile.CloseFile();
+}
+
+void Plot3D::DumpCoorAscii( GridMediator * gridMediator )
+{
+    string & fileName = gridMediator->gridFile;
+
+    FileO fileO;
+    fileO.OpenPrjFile( fileName, ios_base::out );
+
+    int numberOfZones = gridMediator->numberOfZones;
+    fileO.WriteLine( numberOfZones );
+
+    bool nkflag = GetPlot3D_NKFlag();
+
+    for ( int iZone = 0; iZone < gridMediator->numberOfZones; ++ iZone )
+    {
+        StrGrid * grid = ONEFLOW::StrGridCast( gridMediator->gridVector[ iZone ] );
+
+        int ni = grid->ni;
+        int nj = grid->nj;
+        int nk = grid->nk;
+
+        fileO.Write( ni );
+        fileO.Write( nj );
+        if ( nkflag )
+        {
+            fileO.Write( nk );
+        }
+        fileO.WriteEndLine();
+
+        int wordWidth = 8;
+        cout << setiosflags( ios::right );
+        cout << " iZone = " << setw( wordWidth ) << iZone;
+        cout << " nZone = " << setw( wordWidth ) << gridMediator->numberOfZones;
+        cout << " ni, nj, nk = ";
+        cout << setw( wordWidth ) << ni;
+        cout << setw( wordWidth ) << nj;
+        cout << setw( wordWidth ) << nk;
+        cout << "\n";
+    }
+
+    for ( int iZone = 0; iZone < gridMediator->numberOfZones; ++ iZone )
+    {
+        StrGrid * grid = ONEFLOW::StrGridCast( gridMediator->gridVector[ iZone ] );
+
+        int ni = grid->ni;
+        int nj = grid->nj;
+        int nk = grid->nk;
+
+        fileO.DumpCoorAscii( grid->nodeMesh->xN );
+        fileO.DumpCoorAscii( grid->nodeMesh->yN );
+
+        if ( nkflag )
+        {
+            fileO.DumpCoorAscii( grid->nodeMesh->yN );
+        }
+    }
+
+    fileO.CloseFile();
+}
+
+void Plot3D::DumpCoorAscii( fstream & file, RealField & coor )
+{
+    int wordWidth = 15;
+    int nWord = 5;
+    int nPoint = coor.size();
+    int nCount = 0;
+    for ( int i = 0; i < nPoint; ++ i )
+    {
+        file << setw( wordWidth ) << coor[ i ];
+        nCount ++;
+        if ( nCount % nWord == 0 )
+        {
+            file << "\n";
+        }
+    }
 }
 
 void Plot3D::ReadBc( GridMediator * gridMediator )
