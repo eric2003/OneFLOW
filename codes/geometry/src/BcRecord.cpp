@@ -219,6 +219,16 @@ void BcManager::CmpBcType( IntField & bcTypeList )
     }
 }
 
+void BasicRegion::SetRegion( int ist, int ied, int jst, int jed )
+{
+    this->start[ 0 ] = ist;
+    this->end  [ 0 ] = ied;
+    this->start[ 1 ] = jst;
+    this->end  [ 1 ] = jed;
+    this->start[ 2 ] = 1;
+    this->end  [ 2 ] = 1;
+}
+
 void BasicRegion::SetRegion( int ist, int ied, int jst, int jed, int kst, int ked )
 {
     this->start[ 0 ] = ist;
@@ -294,6 +304,11 @@ void BcRegionGroup::Create( int nBcRegions )
 void BcRegionGroup::SetBcRegion( int ir, BcRegion * bcRegion )
 {
     ( * regions )[ ir ] = bcRegion;
+}
+
+BcRegion *  BcRegionGroup::GetBcRegion( int ir )
+{
+    return ( * regions )[ ir ];
 }
 
 EndNameSpace

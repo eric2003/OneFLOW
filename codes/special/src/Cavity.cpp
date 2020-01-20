@@ -35,6 +35,8 @@ License
 #include "StrGrid.h"
 #include "StrUtil.h"
 #include "NodeMesh.h"
+#include "BcRecord.h"
+#include "Dimension.h"
 #include <iostream>
 using namespace std;
 
@@ -74,12 +76,6 @@ void Cavity::Run()
     grid->nodeMesh->CreateNodes( grid->nNode );
     grid->SetLayout();
 
-    RealField2D x;
-    RealField2D y;
-
-    AllocateVector( x, ni, nj );
-    AllocateVector( y, ni, nj );
-
     Real xl = 0.0;
     Real xr = 1.0;
     Real yl = 0.0;
@@ -88,22 +84,7 @@ void Cavity::Run()
     Real dx = ( xr - xl ) / ( ni - 1 );
     Real dy = ( yr - yl ) / ( nj - 1 );
 
-    RealField xN;
-    RealField yN;
-    RealField zN;
     //Generate an evenly spaced, planar grid.
-    for ( int j = 0; j < nj; ++ j )
-    {
-        for ( int i = 0; i < ni; ++ i )
-        {
-            x[ i ][ j ] = xl + i * dx;
-            y[ i ][ j ] = yl + j * dy;
-            xN.push_back( x[ i ][ j ] );
-            yN.push_back( y[ i ][ j ] );
-            zN.push_back( 0 );
-        }
-    }
-
     Field3D & xs = * grid->strx;
     Field3D & ys = * grid->stry;
     Field3D & zs = * grid->strz;
@@ -116,8 +97,8 @@ void Cavity::Run()
             {
                 int ii = i - 1;
                 int jj = j - 1;
-                Real xx = x[ ii ][ jj ];
-                Real yy = y[ ii ][ jj ];
+                Real xx = xl + ii * dx;
+                Real yy = yl + jj * dy;
                 Real zz = 0.0;
 
                 xs( i, j, k ) = xx;
@@ -127,37 +108,138 @@ void Cavity::Run()
         }
     }
 
+    BcRegionGroup * bcRegionGroup = grid->bcRegionGroup;
+    int nBcRegions = 4;
+    grid->bcRegionGroup->Create( nBcRegions );
+
+    BcRegion* bcRegion = 0;
+    int ir = 0;
+    bcRegion = new BcRegion( iZone, ir );
+    bcRegion->s->SetRegion( 1, ni, 1, 1 );
+    bcRegion->s->zid = iZone;
+    bcRegion->regionName = "lower";
+    bcRegion->bcType = BC::SOLID_SURFACE;
+    bcRegionGroup->SetBcRegion( ir, bcRegion );
+    ++ ir;
+
+    bcRegion = new BcRegion( iZone, ir );
+    bcRegion->s->SetRegion( 1, ni, nj, nj );
+    bcRegion->s->zid = iZone;
+    bcRegion->regionName = "upper";
+    bcRegion->bcType = BC::SOLID_SURFACE;
+    bcRegionGroup->SetBcRegion( ir, bcRegion );
+    ++ ir;
+
+    bcRegion = new BcRegion( iZone, ir );
+    bcRegion->s->SetRegion( 1, 1, 1, nj );
+    bcRegion->s->zid = iZone;
+    bcRegion->regionName = "left";
+    bcRegion->bcType = BC::SOLID_SURFACE;
+    bcRegionGroup->SetBcRegion( ir, bcRegion );
+    ++ ir;
+
+    bcRegion = new BcRegion( iZone, ir );
+    bcRegion->s->SetRegion( ni, ni, 1, nj );
+    bcRegion->s->zid = iZone;
+    bcRegion->regionName = "right";
+    bcRegion->bcType = BC::SOLID_SURFACE;
+    bcRegionGroup->SetBcRegion( ir, bcRegion );
+    ++ ir;
+
+    this->DumpPlot3DGrid( gridMediator );
+
+    this->DumpCgnsGrid( gridMediator );
+
+    delete gridMediator;
+}
+
+void Cavity::DumpPlot3DGrid( GridMediator * gridMediator )
+{
     fstream file;
     OpenPrjFile( file, "/grid/cavity2d.grd", ios_base::out|ios_base::binary );
+    int nZone = gridMediator->numberOfZones;
     HXWrite( & file, nZone );
-    HXWrite( & file, ni );
-    HXWrite( & file, nj );
-    HXWrite( & file, nk );
+    for ( int iZone = 0; iZone < nZone; ++ iZone )
+    {
+        Grid * gridIn = gridMediator->gridVector[ iZone ];
+        StrGrid * grid = ONEFLOW::StrGridCast( gridIn );
 
-    HXWrite( & file, xN );
-    HXWrite( & file, yN );
-    HXWrite( & file, zN );
+        int ni = grid->ni;
+        int nj = grid->nj;
+        int nk = grid->nk;
+        HXWrite( & file, ni );
+        HXWrite( & file, nj );
+        HXWrite( & file, nk );
+
+        HXWrite( & file, grid->nodeMesh->xN );
+        HXWrite( & file, grid->nodeMesh->yN );
+        HXWrite( & file, grid->nodeMesh->zN );
+    }
 
     CloseFile( file );
 
     OpenPrjFile( file, "/grid/cavity2d.inp", ios_base::out );
     int solver = 1;
-    string zName = "A";
-    int nBc = 4;
-    file << solver << endl;
-    file << nZone << endl;
-    file << ni << " " << nj << endl;
-    file << zName << endl;
-    file << nBc << endl;
-    file << 1 << " " << ni  << " " << 1  << " " << 1  << " " << BC::SOLID_SURFACE << endl;
-    file << 1  << " " << ni  << " " << nj  << " " << nj  << " " << BC::SOLID_SURFACE << endl;
-    file << 1  << " " << 1  << " " << 1  << " " << nj  << " " << BC::SOLID_SURFACE << endl;
-    file << ni  << " " << ni  << " " << 1  << " " << nj  << " " << BC::SOLID_SURFACE << endl;
+    file << solver << "\n";
+    file << nZone << "\n";
+    for ( int iZone = 0; iZone < nZone; ++ iZone )
+    {
+        Grid * gridIn = gridMediator->gridVector[ iZone ];
+        StrGrid * grid = ONEFLOW::StrGridCast( gridIn );
+
+        int ni = grid->ni;
+        int nj = grid->nj;
+        int nk = grid->nk;
+
+        file << ni << " " << nj;
+        if ( ONEFLOW::IsThreeD() )
+        {
+            file << nk;
+        }
+        file << "\n";
+        file << grid->name << "\n";
+        BcRegionGroup * bcRegionGroup = grid->bcRegionGroup;
+        int nBcRegions = bcRegionGroup->regions->size();
+
+        file << nBcRegions << "\n";
+
+        for ( int ir = 0; ir < nBcRegions; ++ ir )
+        {
+            BcRegion * bcRegion = bcRegionGroup->GetBcRegion( ir );
+            int bcType = bcRegion->bcType;
+            BasicRegion * s = bcRegion->s;
+            int imin = s->start[ 0 ];
+            int imax = s->end[ 0 ];
+            int jmin = s->start[ 1 ];
+            int jmax = s->end[ 1 ];
+            int kmin = s->start[ 2 ];
+            int kmax = s->end[ 2 ];
+            file << imin << " " << imax << " " << jmin << " " << jmax << " ";
+            if ( ONEFLOW::IsThreeD() )
+            {
+                file << kmin << " " << kmax << " ";
+            }
+            file << bcType << "\n";
+            if ( bcType < 0 )
+            {
+                BasicRegion * t = bcRegion->t;
+                int imin = t->start[ 0 ];
+                int imax = t->end[ 0 ];
+                int jmin = t->start[ 1 ];
+                int jmax = t->end[ 1 ];
+                int kmin = t->start[ 2 ];
+                int kmax = t->end[ 2 ];
+                file << imin << " " << imax << " " << jmin << " " << jmax << " ";
+                if ( ONEFLOW::IsThreeD() )
+                {
+                    file << kmin << " " << kmax << " ";
+                }
+                file << t->zid << "\n";
+            }
+        }
+
+    }
     CloseFile( file );
-
-    this->DumpCgnsGrid( gridMediator );
-
-    delete gridMediator;
 }
 
 void Cavity::DumpCgnsGrid( GridMediator * gridMediator )

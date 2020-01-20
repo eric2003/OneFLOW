@@ -103,6 +103,7 @@ public:
     int start[ 3 ], end[ 3 ];
     int lr[ 3 ];     //左右边界-1, 1对应于左右边界
 public:
+    void SetRegion( int ist, int ied, int jst, int jed );
     void SetRegion( int ist, int ied, int jst, int jed, int kst, int ked );
 };
 
@@ -113,7 +114,7 @@ public:
     ~BcRegion();
 public:
     int rid;                         //region id
-    int    bcType;                         //boundary type
+    int bcType;                      //boundary type
     string regionName;               //boundary name
 public:
     BasicRegion * s;
@@ -134,6 +135,7 @@ public:
     HXVector< BcRegion * > * regions;
     void Create( int nBcRegions );
     void SetBcRegion( int ir, BcRegion * bcRegion );
+    BcRegion * GetBcRegion( int ir );
 };
 
 EndNameSpace
