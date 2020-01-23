@@ -65,7 +65,8 @@ public:
 
     int zId;
     CgInt irmin[ 3 ], irmax[ 3 ], cellSize[ 3 ];
-    CgInt isize[ 3 ][ 3 ];
+    //CgInt isize[ 3 ][ 3 ];
+    CgInt iisize[ 9 ];
 
     string coorName;
     string zoneName;
