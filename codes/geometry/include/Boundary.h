@@ -22,7 +22,6 @@ License
 
 
 #pragma once
-//#include "HXDefine.h"
 #include "HXSort.h"
 #include <string>
 #include <map>
@@ -69,7 +68,6 @@ class BcTypeMap
 public:
     BcTypeMap();
     ~BcTypeMap();
-//public:
 private:
     int numberOfMaxBoundaryConditions;
     map< int, int > cgns2OneFlow;

@@ -36,6 +36,7 @@ class FaceSolver;
 
 class FaceSolver;
 class CgnsBcRegion;
+class Grid;
 
 class CgnsBcRegionProxy
 {
@@ -59,6 +60,9 @@ public:
     void ReadCgnsOrdinaryBcRegion();
     void ReadCgnsGridBoundary();
     void ReadCgnsInterfaceBcRegion();
+
+    void FillBcPoints( int * start, int * end, cgsize_t * bcpnts, int dimension );
+    void DumpCgnsGridBoundary( Grid * gridIn );
 public:
     void ReadNumberCgnsConnBcInfo();
     void ReadNumberOfCgnsOrdinaryBcRegions();

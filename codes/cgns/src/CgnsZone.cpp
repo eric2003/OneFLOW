@@ -150,6 +150,15 @@ void CgnsZone::GetElementNodeId( CgInt eId, CgIntField & eNodeId )
     cgnsSection->GetElementNodeId( eId - cgnsSection->startId, eNodeId );
 }
 
+void CgnsZone::FillISize( Grid * gridIn )
+{
+    StrGrid * grid = ONEFLOW::StrGridCast( gridIn );
+    int ni = grid->ni;
+    int nj = grid->nj;
+    int nk = grid->nk;
+    this->FillISize( ni, nj, nk, this->cgnsBase->celldim );
+}
+
 void CgnsZone::FillISize( int ni, int nj, int nk, int dimension )
 {
     if ( dimension == THREE_D )
@@ -187,13 +196,11 @@ void CgnsZone::FillISize( int ni, int nj, int nk, int dimension )
 
 void CgnsZone::DumpCgnsZone( Grid * grid )
 {
-    this->cgnsZoneType = Structured;
-
-    //this->ReadCgnsZoneAttribute();
+    this->DumpCgnsZoneAttribute( grid );
 
     //this->ReadElementConnectivities();
 
-    this->DumpCgnsGridBoundary();
+    this->DumpCgnsGridBoundary( grid );
 
     this->DumpCgnsGridCoordinates( grid );
 
@@ -233,6 +240,13 @@ void CgnsZone::ReadCgnsZoneAttribute()
     this->SetDimension();
 }
 
+void CgnsZone::DumpCgnsZoneAttribute( Grid * grid )
+{
+    this->DumpCgnsZoneType( grid );
+
+    this->DumpCgnsZoneNameAndGeneralizedDimension( grid );
+}
+
 void CgnsZone::ReadCgnsZoneAttribute( CgnsZone * cgnsZoneIn )
 {
     this->ReadCgnsZoneType( cgnsZoneIn );
@@ -246,6 +260,20 @@ void CgnsZone::ReadCgnsZoneType()
 {
     //Check the zone type
     cg_zone_type( cgnsBase->fileId, cgnsBase->baseId, this->zId, & cgnsZoneType );
+
+    cout << "   The Zone Type is " << GetCgnsZoneTypeName( cgnsZoneType ) << " Zone" << "\n";
+}
+
+void CgnsZone::DumpCgnsZoneType( Grid * grid )
+{
+    if ( IsUnsGrid( grid->type ) )
+    {
+        this->cgnsZoneType = Unstructured;
+    }
+    else
+    {
+        this->cgnsZoneType = Structured;
+    }
 
     cout << "   The Zone Type is " << GetCgnsZoneTypeName( cgnsZoneType ) << " Zone" << "\n";
 }
@@ -267,6 +295,20 @@ void CgnsZone::ReadCgnsZoneNameAndGeneralizedDimension()
     this->zoneName = cgnsZoneName;
 
     cout << "   CGNS Zone Name = " << cgnsZoneName << "\n";
+}
+
+void CgnsZone::DumpCgnsZoneNameAndGeneralizedDimension( Grid * gridIn )
+{
+    this->FillISize( gridIn );
+
+    this->zoneName = gridIn->name;
+    this->zId = -1;
+    cout << " cell dim = " << this->cgnsBase->celldim << " physics dim = " << this->cgnsBase->phydim << "\n";
+    //create zone
+    cg_zone_write(cgnsBase->fileId, cgnsBase->baseId, this->zoneName.c_str(), this->isize[ 0 ], this->cgnsZoneType, &this->zId );
+    cout << " Zone Id = " << this->zId << "\n";
+
+    cout << "   CGNS Zone Name = " << zoneName << "\n";
 }
 
 void CgnsZone::ReadCgnsZoneNameAndGeneralizedDimension( CgnsZone * cgnsZoneIn )
@@ -634,58 +676,18 @@ void CgnsZone::ReadCgnsGridCoordinates()
     delete cgnsCoor;
 }
 
-void CgnsZone::DumpCgnsGridCoordinates( Grid * gridIn )
+void CgnsZone::DumpCgnsGridCoordinates( Grid * grid )
 {
-    ////Determine the number and names of the coordinates.
-    //int fileId = cgnsBase->fileId;
-    //int baseId = cgnsBase->baseId;
-    //cg_ncoords( fileId, baseId, this->zId, & this->nCoor );
-
-    //nodeMesh->CreateNodes( static_cast<int>(this->nNode));
-
-    //CgnsCoor * cgnsCoor = new CgnsCoor();
-
-    //for ( int coordId = 1; coordId <= this->nCoor; ++ coordId )
-    //{
-    //    DataType_t dataType;
-    //    CgnsTraits::char33 coorName;
-    //    cg_coord_info( fileId, baseId, this->zId, coordId, & dataType, coorName );
-    //    int coId = coordId - 1;
-    //    cgnsCoor->Alloc( coId, static_cast<int>(this->nNode), dataType );
-    //    //Read the x-, y-, z-coordinates.
-    //    cg_coord_read( fileId, baseId, this->zId, coorName, dataType, this->irmin, this->irmax, cgnsCoor->GetCoor( coId ) );
-    //    this->coorName = coorName;
-    //}
-
-    //cgnsCoor->SetAllData( nodeMesh->xN, nodeMesh->yN, nodeMesh->zN );
-
-    //delete cgnsCoor;
-
-    StrGrid * grid = ONEFLOW::StrGridCast( gridIn );
-    this->zId = grid->id + 1;
-    this->zoneName = grid->name;
-    int ni = grid->ni;
-    int nj = grid->nj;
-    int nk = grid->nk;
-    this->FillISize( ni, nj, nk, this->cgnsBase->celldim );
-
-    cout << " cell dim = " << this->cgnsBase->celldim << " physics dim = " << this->cgnsBase->phydim << "\n";
-    cout << " Zone Id = " << this->zId << " Zone Name = " << this->zoneName << "\n";
-    cg_zone_write( cgnsBase->fileId, cgnsBase->baseId, this->zoneName.c_str(), * this->isize, this->cgnsZoneType, & this->zId );
-    cout << " cg_zone_write Zone Id = " << this->zId << "\n";
-
     // write grid coordinates (user must use SIDS-standard names here)
-    int index_x, index_y, index_z;
-    index_x = -1;
-    index_y = -2;
-    index_z = -3;
+    int index_x = -1;
+    int index_y = -2;
+    int index_z = -3;
     cg_coord_write( cgnsBase->fileId, cgnsBase->baseId, this->zId, RealDouble, "CoordinateX", &grid->nodeMesh->xN[0], &index_x );
     cg_coord_write( cgnsBase->fileId, cgnsBase->baseId, this->zId, RealDouble, "CoordinateY", &grid->nodeMesh->yN[0], &index_y );
     cg_coord_write( cgnsBase->fileId, cgnsBase->baseId, this->zId, RealDouble, "CoordinateZ", &grid->nodeMesh->zN[0], &index_z );
     cout << " index_x = " << index_x << "\n";
     cout << " index_y = " << index_y << "\n";
     cout << " index_z = " << index_z << "\n";
-
 }
 
 void CgnsZone::ReadCgnsGridCoordinates( CgnsZone * cgnsZoneIn )
@@ -698,9 +700,9 @@ void CgnsZone::ReadCgnsGridBoundary()
     bcRegionProxy->ReadCgnsGridBoundary();
 }
 
-void CgnsZone::DumpCgnsGridBoundary()
+void CgnsZone::DumpCgnsGridBoundary( Grid * grid )
 {
-    //bcRegionProxy->ReadCgnsGridBoundary();
+    bcRegionProxy->DumpCgnsGridBoundary( grid );
 }
 
 void CgnsZone::ProcessPeriodicBc()

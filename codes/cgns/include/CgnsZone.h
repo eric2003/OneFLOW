@@ -89,10 +89,13 @@ public:
     void ReadCgnsGrid();
     void ReadCgnsGrid( CgnsZone * cgnsZoneIn );
     void ReadCgnsZoneAttribute();
+    void DumpCgnsZoneAttribute( Grid * grid );
     void ReadCgnsZoneAttribute( CgnsZone * cgnsZoneIn );
     void ReadCgnsZoneType();
+    void DumpCgnsZoneType( Grid * grid );
     void ReadCgnsZoneType( CgnsZone * cgnsZoneIn );
     void ReadCgnsZoneNameAndGeneralizedDimension();
+    void DumpCgnsZoneNameAndGeneralizedDimension( Grid * gridIn );
     void ReadCgnsZoneNameAndGeneralizedDimension( CgnsZone * cgnsZoneIn );
     void SetDimension();
     void SetDimension( CgnsZone * cgnsZoneIn );
@@ -103,12 +106,13 @@ public:
     void CreateCgnsSections();
     void ReadCgnsSections();
     void ReadCgnsGridCoordinates();
-    void DumpCgnsGridCoordinates( Grid * gridIn );
+    void DumpCgnsGridCoordinates( Grid * grid );
     void ReadCgnsGridCoordinates( CgnsZone * cgnsZoneIn );
     void ReadCgnsGridBoundary();
-    void DumpCgnsGridBoundary();
+    void DumpCgnsGridBoundary( Grid * grid );
     void ProcessPeriodicBc();
     void DumpCgnsZone( Grid * grid );
+    void FillISize( Grid * gridIn );
     void FillISize( int ni, int nj, int nk, int dimension );
 public:
     void AllocateUnsElemConn( CgnsZone * cgnsZoneIn );

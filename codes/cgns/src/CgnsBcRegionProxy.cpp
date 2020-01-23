@@ -31,7 +31,9 @@ License
 #include "HXMath.h"
 #include "HXStd.h"
 #include "StrRegion.h"
+#include "StrGrid.h"
 #include "FaceSolver.h"
+#include "BcRecord.h"
 #include <iostream>
 
 using namespace std;
@@ -74,7 +76,7 @@ void CgnsBcRegionProxy::CreateCgnsBcRegion()
 
     for ( int ir = 0; ir < this->nOrdinaryBcRegion; ++ ir )
     {
-        cgnsBcRegions[ ir ] = new CgnsBcRegion( this->cgnsZone );
+cgnsBcRegions[ ir ] = new CgnsBcRegion( this->cgnsZone );
     }
 
     bcRegion1To1.resize( this->n1To1General );
@@ -158,6 +160,71 @@ void CgnsBcRegionProxy::ReadCgnsGridBoundary()
 
     //this->ReconstructStrRegion();
 }
+
+void CgnsBcRegionProxy::FillBcPoints( int * start, int * end, cgsize_t * bcpnts, int dimension )
+{
+    int icount = 0;
+    // lower point of range
+    bcpnts[ icount ++ ] = start[ 0 ];
+    bcpnts[ icount ++ ] = start[ 1 ];
+    if ( dimension == THREE_D )
+    {
+        bcpnts[ icount ++ ] = start[ 2 ];
+    }
+
+    // upper point of range
+    bcpnts[ icount ++ ] = end[ 0 ];
+    bcpnts[ icount ++ ] = end[ 1 ];
+    if ( dimension == THREE_D )
+    {
+        bcpnts[ icount ++ ] = end[ 2 ];
+    }
+}
+
+void CgnsBcRegionProxy::DumpCgnsGridBoundary( Grid * gridIn )
+{
+    //this->ReadNumberCgnsConnBcInfo();
+    //this->CreateCgnsBcRegion();
+
+    //this->ReadCgnsOrdinaryBcRegion();
+    //this->ReadCgnsInterfaceBcRegion();
+
+    StrGrid * grid = StrGridCast( gridIn );
+
+    BcRegionGroup * bcRegionGroup = grid->bcRegionGroup;
+
+    int nBcRegions = bcRegionGroup->regions->size();
+
+    int fileId = cgnsZone->cgnsBase->fileId;
+    int baseId = cgnsZone->cgnsBase->baseId;
+    int zoneId = cgnsZone->zId;
+
+    cout << " fildId = " << fileId << " baseId = " << baseId << " zoneId = " << zoneId << "\n";
+
+    BcTypeMap * bcTypeMap = new BcTypeMap();
+    bcTypeMap->Init();
+
+    cgsize_t bcpnts[ 6 ];
+
+    for ( int ir = 0; ir < nBcRegions; ++ ir )
+    {
+        BcRegion * bcRegion = bcRegionGroup->GetBcRegion( ir );
+
+        BasicRegion * s = bcRegion->s;
+
+        int dimension = cgnsZone->cgnsBase->celldim;
+        FillBcPoints( s->start, s->end, bcpnts, dimension );
+        cout << s->start[ 0 ] << " " << s->end[ 0 ] << " " << s->start[ 1 ] << " " << s->end[ 1 ] << "\n";
+
+        BCType_t bctype = static_cast< BCType_t >( bcTypeMap->OneFlow2Cgns( bcRegion->bcType ) );
+        int bcId = -1;
+        cg_boco_write( fileId, baseId, zoneId, bcRegion->regionName.c_str(), bctype, PointRange, 2, bcpnts, &bcId );
+        cout << " bcId = " << bcId << " regionName = " << bcRegion->regionName << "\n";
+    }
+
+    delete bcTypeMap;
+}
+
 
 void CgnsBcRegionProxy::ReadCgnsInterfaceBcRegion()
 {
