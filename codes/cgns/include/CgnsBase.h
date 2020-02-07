@@ -44,6 +44,7 @@ public:
 public:
     int fileId, baseId;
     int nZones;
+    int zst, zed;
     int celldim, phydim;
     string baseName;
     HXVector< CgnsZone * > cgnsZones;
@@ -68,6 +69,7 @@ public:
 public:
     void SetFamilyBc( BCType_t & bcType, const string & bcRegionName );
     void ReadFamilySpecifiedBc();
+    CgnsZone * FindGlobalCgnsZone( int globalZoneId );
 };
 
 #endif

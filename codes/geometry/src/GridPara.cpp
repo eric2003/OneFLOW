@@ -44,8 +44,13 @@ void GridPara::Init()
 {
     //设置原始网格的文件名称
     this->gridFile = GetDataValue< string >("sourceGridFileName");
+    this->bcFile   = GetDataValue< string >("sourceGridBcName");
+    //set target grid file name
+    this->targetFile = ONEFLOW::GetDataValue< string >( "targetGridFileName" );
     //设置原始网格格式
     this->filetype = GetDataValue< string >("sourceGridType");
+    //设置target grid type
+    this->target_filetype = GetDataValue< string >("targetGridType");
     //设置原始网格的拓扑形式
     this->topo = GetDataValue< string >("topoType");
 

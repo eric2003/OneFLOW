@@ -43,12 +43,26 @@ public:
     int readGridType;
     string gridFile;
     string bcFile;
+    string targetFile;
     string gridType;
 public:
     void ReadGrid();
     void ReadGridgen();
     void ReadPlot3D();
     void ReadPlot3DCoor();
+public:
+    void AddDefaultName();
+};
+
+class GlobalGrid
+{
+public:
+    GlobalGrid();
+    ~GlobalGrid();
+public:
+    static GridMediator * gridMediator;
+    static Grid * GetGrid( int zoneId );
+    static void SetCurrentGridMediator( GridMediator * gridMediatorIn );
 };
 
 EndNameSpace

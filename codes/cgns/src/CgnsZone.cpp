@@ -52,6 +52,7 @@ CgnsZone::CgnsZone( CgnsBase * cgnsBase )
     this->nodeMesh = 0;
     this->multiSection = 0;
     this->bcRegionProxy = 0;
+    this->volBcType = -1;
 }
 
 CgnsZone::~CgnsZone()
@@ -65,6 +66,16 @@ void CgnsZone::FreeMesh()
 {
     delete this->nodeMesh;
     this->nodeMesh = 0;
+}
+
+void CgnsZone::SetVolBcType( int volBcType )
+{
+    this->volBcType = volBcType;
+}
+
+int CgnsZone::GetVolBcType()
+{
+    return this->volBcType;
 }
 
 void CgnsZone::Create()
@@ -150,69 +161,61 @@ void CgnsZone::GetElementNodeId( CgInt eId, CgIntField & eNodeId )
     cgnsSection->GetElementNodeId( eId - cgnsSection->startId, eNodeId );
 }
 
-void CgnsZone::FillISize( int ni, int nj, int nk, int dimension )
+void CgnsZone::FillISize( Grid * gridIn )
 {
-    if ( dimension == THREE_D )
-    {
-        // vertex size
-        isize[ 0 ][ 0 ] = ni;
-        isize[ 0 ][ 1 ] = nj;
-        isize[ 0 ][ 2 ] = nk;
-        // cell size
-        isize[ 1 ][ 0 ] = MAX( ni - 1, 1 );
-        isize[ 1 ][ 1 ] = MAX( nj - 1, 1 );
-        isize[ 1 ][ 2 ] = MAX( nk - 1, 1 );
-        // boundary vertex size (always zero for structured grids)
-        isize[ 2 ][ 0 ] = 0;
-        isize[ 2 ][ 1 ] = 0;
-        isize[ 2 ][ 2 ] = 0;
-    }
-    else if ( dimension == TWO_D )
-    {
-        // vertex size
-        isize[ 0 ][ 0 ] = ni;
-        isize[ 0 ][ 1 ] = nj;
-        // cell size
-        isize[ 0 ][ 2 ] = MAX( ni - 1, 1 );
-        isize[ 1 ][ 0 ] = MAX( nj - 1, 1 );
-        // boundary vertex size (always zero for structured grids)
-        isize[ 1 ][ 1 ] = 0;
-        isize[ 1 ][ 2 ] = 0;
-
-        isize[ 2 ][ 0 ] = 0;
-        isize[ 2 ][ 1 ] = 0;
-        isize[ 2 ][ 2 ] = 0;
-    }
-}
-
-void CgnsZone::DumpCgnsZone( Grid * gridstr )
-{
-    this->cgnsZoneType = Structured;
-    StrGrid * grid = ONEFLOW::StrGridCast( gridstr );
-    this->zId = grid->id + 1;
-    this->zoneName = grid->name;
+    StrGrid * grid = ONEFLOW::StrGridCast( gridIn );
     int ni = grid->ni;
     int nj = grid->nj;
     int nk = grid->nk;
-    this->FillISize( ni, nj, nk, this->cgnsBase->celldim );
- 
-    cout << " cell dim = " << this->cgnsBase->celldim << " physics dim = " << this->cgnsBase->phydim << "\n";
-    cout << " Zone Id = " << this->zId << " Zone Name = " << this->zoneName << "\n";
-    cg_zone_write( cgnsBase->fileId, cgnsBase->baseId, this->zoneName.c_str(), * this->isize, this->cgnsZoneType, & this->zId );
-    cout << " cg_zone_write Zone Id = " << this->zId << "\n";
+    this->FillISize( ni, nj, nk, THREE_D );
+    //if ( Dim::dimension == THREE_D )
+    //{
+    //    this->FillISize( ni, nj, nk, THREE_D );
+    //}
+    //else
+    //{
+    //    this->FillISize( ni, nj, nk, Dim::dimension );
+    //}
+}
 
-     // write grid coordinates (user must use SIDS-standard names here)
-    int index_x, index_y, index_z;
-    index_x = -1;
-    index_y = -2;
-    index_z = -3;
-    cg_coord_write( cgnsBase->fileId, cgnsBase->baseId, this->zId, RealDouble, "CoordinateX", &grid->nodeMesh->xN[0], &index_x );
-    cg_coord_write( cgnsBase->fileId, cgnsBase->baseId, this->zId, RealDouble, "CoordinateY", &grid->nodeMesh->yN[0], &index_y );
-    cg_coord_write( cgnsBase->fileId, cgnsBase->baseId, this->zId, RealDouble, "CoordinateZ", &grid->nodeMesh->zN[0], &index_z );
-    cout << " index_x = " << index_x << "\n";
-    cout << " index_y = " << index_y << "\n";
-    cout << " index_z = " << index_z << "\n";
-        
+void CgnsZone::FillISize( int ni, int nj, int nk, int dimension )
+{
+    int j = 0;
+    // vertex size
+    isize[ j ++ ] = ni;
+    isize[ j ++ ] = nj;
+    if ( dimension == THREE_D )
+    {
+        isize[ j ++ ] = nk;
+    }
+    // cell size
+    isize[ j ++ ] = ni - 1;
+    isize[ j ++ ] = nj - 1;
+    if ( dimension == THREE_D )
+    {
+        //isize[ j ++ ] = MAX( nk - 1, 1 );
+        isize[ j ++ ] = nk - 1;
+    }
+    // boundary vertex size (always zero for structured grids)
+    isize[ j ++ ] = 0;
+    isize[ j ++ ] = 0;
+    if ( dimension == THREE_D )
+    {
+        isize[ j ++ ] = 0;
+    }
+}
+
+void CgnsZone::DumpCgnsZone( Grid * grid )
+{
+    this->DumpCgnsZoneAttribute( grid );
+
+    //this->ReadElementConnectivities();
+
+    this->DumpCgnsGridBoundary( grid );
+
+    this->DumpCgnsGridCoordinates( grid );
+
+    //this->ConvertToInnerDataStandard();
 }
 
 void CgnsZone::ReadCgnsGrid()
@@ -248,6 +251,13 @@ void CgnsZone::ReadCgnsZoneAttribute()
     this->SetDimension();
 }
 
+void CgnsZone::DumpCgnsZoneAttribute( Grid * grid )
+{
+    this->DumpCgnsZoneType( grid );
+
+    this->DumpCgnsZoneNameAndGeneralizedDimension( grid );
+}
+
 void CgnsZone::ReadCgnsZoneAttribute( CgnsZone * cgnsZoneIn )
 {
     this->ReadCgnsZoneType( cgnsZoneIn );
@@ -265,6 +275,20 @@ void CgnsZone::ReadCgnsZoneType()
     cout << "   The Zone Type is " << GetCgnsZoneTypeName( cgnsZoneType ) << " Zone" << "\n";
 }
 
+void CgnsZone::DumpCgnsZoneType( Grid * grid )
+{
+    if ( IsUnsGrid( grid->type ) )
+    {
+        this->cgnsZoneType = Unstructured;
+    }
+    else
+    {
+        this->cgnsZoneType = Structured;
+    }
+
+    cout << "   The Zone Type is " << GetCgnsZoneTypeName( cgnsZoneType ) << " Zone" << "\n";
+}
+
 void CgnsZone::ReadCgnsZoneType( CgnsZone * cgnsZoneIn )
 {
     this->cgnsZoneType = Unstructured;
@@ -277,11 +301,25 @@ void CgnsZone::ReadCgnsZoneNameAndGeneralizedDimension()
     CgnsTraits::char33 cgnsZoneName;
 
     //Determine the number of vertices and cellVolume elements in this zone
-    cg_zone_read( cgnsBase->fileId, cgnsBase->baseId, this->zId, cgnsZoneName, this->isize[ 0 ] );
+    cg_zone_read( cgnsBase->fileId, cgnsBase->baseId, this->zId, cgnsZoneName, this->isize );
 
     this->zoneName = cgnsZoneName;
 
     cout << "   CGNS Zone Name = " << cgnsZoneName << "\n";
+}
+
+void CgnsZone::DumpCgnsZoneNameAndGeneralizedDimension( Grid * gridIn )
+{
+    this->FillISize( gridIn );
+
+    this->zoneName = gridIn->name;
+    this->zId = -1;
+    cout << " cell dim = " << this->cgnsBase->celldim << " physics dim = " << this->cgnsBase->phydim << "\n";
+    //create zone
+    cg_zone_write(cgnsBase->fileId, cgnsBase->baseId, this->zoneName.c_str(), this->isize, this->cgnsZoneType, &this->zId );
+    cout << " Zone Id = " << this->zId << "\n";
+
+    cout << "   CGNS Zone Name = " << zoneName << "\n";
 }
 
 void CgnsZone::ReadCgnsZoneNameAndGeneralizedDimension( CgnsZone * cgnsZoneIn )
@@ -291,19 +329,6 @@ void CgnsZone::ReadCgnsZoneNameAndGeneralizedDimension( CgnsZone * cgnsZoneIn )
 
 void CgnsZone::SetDimension()
 {
-    // vertex size
-    //isize[ 0 ][ 0 ] = 21;
-    //isize[ 0 ][ 1 ] = 17;
-    //isize[ 0 ][ 2 ] = 9;
-    // cell size
-    //isize[ 1 ][ 0 ] = isize[ 0 ][ 0 ] - 1;
-    //isize[ 1 ][ 1 ] = isize[ 0 ][ 1 ] - 1;
-    //isize[ 1 ][ 2 ] = isize[ 0 ][ 2 ] - 1;
-    // boundary vertex size ( always zero for structured grids )
-    //isize[ 2 ][ 0 ] = 0;
-    //isize[ 2 ][ 1 ] = 0;
-    //isize[ 2 ][ 2 ] = 0;
-
     if ( this->cgnsZoneType == Structured )
     {
         // lower range index
@@ -322,28 +347,19 @@ void CgnsZone::SetDimension()
 
         // upper range index of vertices
         // vertex size
-        if ( this->cgnsBase->celldim == TWO_D )
+        int j = 0;
+        irmax[ 0 ] = isize[ j ++ ];
+        irmax[ 1 ] = isize[ j ++ ];
+        if ( this->cgnsBase->celldim == THREE_D )
         {
-            irmax[ 0 ] = isize[ 0 ][ 0 ];
-            irmax[ 1 ] = isize[ 0 ][ 1 ];
-
-            // cell size
-            //cellSize[ 0 ] = isize[ 1 ][ 0 ];
-            //cellSize[ 1 ] = isize[ 1 ][ 1 ];
-
-            cellSize[ 0 ] = isize[ 0 ][ 2 ];
-            cellSize[ 1 ] = isize[ 1 ][ 0 ];
+            irmax[ 2 ] = isize[ j ++ ];
         }
-        else
+        // cell size
+        cellSize[ 0 ] = isize[ j ++ ];
+        cellSize[ 1 ] = isize[ j ++ ];
+        if ( this->cgnsBase->celldim == THREE_D )
         {
-            irmax[ 0 ] = isize[ 0 ][ 0 ];
-            irmax[ 1 ] = isize[ 0 ][ 1 ];
-            irmax[ 2 ] = isize[ 0 ][ 2 ];
-
-            // cell size
-            cellSize[ 0 ] = isize[ 1 ][ 0 ];
-            cellSize[ 1 ] = isize[ 1 ][ 1 ];
-            cellSize[ 2 ] = isize[ 1 ][ 2 ];
+            cellSize[ 2 ] = isize[ j ++ ];
         }
         cout << "   The Dimension Of Grid is : \n";
         cout << "   I Direction " << setw( 10 ) << irmin[ 0 ] << setw( 10 ) << irmax[ 0 ] << "\n";
@@ -358,14 +374,11 @@ void CgnsZone::SetDimension()
         irmin[ 1 ] = 0;
         irmin[ 2 ] = 0;
 
-        irmax[ 0 ] = isize[ 0 ][ 0 ]; //isize地址数可多于读取变量数
+        irmax[ 0 ] = isize[ 0 ];
         irmax[ 1 ] = 0;
         irmax[ 2 ] = 0;
 
-        //注意，下面和一般的isize[ 1 ][ 0 ] 有所区别，因为这里我们定义isize[ 3 ][ 3 ]
-        //通常对于非结构定义isize[ 3 ][ 1 ]，我们这样定义是为了统一处理
-
-        cellSize[ 0 ] = isize[ 0 ][ 1 ];
+        cellSize[ 0 ] = isize[ 1 ];
 
         this->nNode = irmax[ 0 ];
         this->nCell = cellSize[ 0 ];
@@ -376,21 +389,18 @@ void CgnsZone::SetDimension()
 
 void CgnsZone::SetDimension( CgnsZone * cgnsZoneIn )
 {
-    isize[ 0 ][ 0 ] = cgnsZoneIn->nNode;
-    isize[ 0 ][ 1 ] = cgnsZoneIn->nCell;
+    isize[ 0 ] = cgnsZoneIn->nNode;
+    isize[ 1 ] = cgnsZoneIn->nCell;
 
     irmin[ 0 ] = 1;
     irmin[ 1 ] = 0;
     irmin[ 2 ] = 0;
 
-    irmax[ 0 ] = isize[ 0 ][ 0 ];
+    irmax[ 0 ] = isize[ 0 ];
     irmax[ 1 ] = 0;
     irmax[ 2 ] = 0;
 
-    //注意，下面和一般的cgnsIsize[ 1 ][ 0 ] 有所区别，因为这里我们定义cgnsIsize[ 3 ][ 3 ]
-    //通常对于非结构定义cgnsIsize[ 3 ][ 1 ]，我们这样定义是为了统一处理
-
-    cellSize[ 0 ] = isize[ 0 ][ 1 ];
+    cellSize[ 0 ] = isize[ 1 ];
 
     this->nNode = irmax[ 0 ];
     this->nCell = cellSize[ 0 ];
@@ -641,12 +651,25 @@ void CgnsZone::ReadCgnsGridCoordinates()
         cgnsCoor->Alloc( coId, static_cast<int>(this->nNode), dataType );
         //Read the x-, y-, z-coordinates.
         cg_coord_read( fileId, baseId, this->zId, coorName, dataType, this->irmin, this->irmax, cgnsCoor->GetCoor( coId ) );
-        this->coorName = coorName;
     }
 
     cgnsCoor->SetAllData( nodeMesh->xN, nodeMesh->yN, nodeMesh->zN );
 
     delete cgnsCoor;
+}
+
+void CgnsZone::DumpCgnsGridCoordinates( Grid * grid )
+{
+    // write grid coordinates (user must use SIDS-standard names here)
+    int index_x = -1;
+    int index_y = -2;
+    int index_z = -3;
+    cg_coord_write( cgnsBase->fileId, cgnsBase->baseId, this->zId, RealDouble, "CoordinateX", &grid->nodeMesh->xN[0], &index_x );
+    cg_coord_write( cgnsBase->fileId, cgnsBase->baseId, this->zId, RealDouble, "CoordinateY", &grid->nodeMesh->yN[0], &index_y );
+    cg_coord_write( cgnsBase->fileId, cgnsBase->baseId, this->zId, RealDouble, "CoordinateZ", &grid->nodeMesh->zN[0], &index_z );
+    cout << " index_x = " << index_x << "\n";
+    cout << " index_y = " << index_y << "\n";
+    cout << " index_z = " << index_z << "\n";
 }
 
 void CgnsZone::ReadCgnsGridCoordinates( CgnsZone * cgnsZoneIn )
@@ -657,6 +680,11 @@ void CgnsZone::ReadCgnsGridCoordinates( CgnsZone * cgnsZoneIn )
 void CgnsZone::ReadCgnsGridBoundary()
 {
     bcRegionProxy->ReadCgnsGridBoundary();
+}
+
+void CgnsZone::DumpCgnsGridBoundary( Grid * grid )
+{
+    bcRegionProxy->DumpCgnsGridBoundary( grid );
 }
 
 void CgnsZone::ProcessPeriodicBc()

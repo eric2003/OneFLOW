@@ -22,6 +22,7 @@ License
 
 #include "BcRecord.h"
 #include "Boundary.h"
+#include "Dimension.h"
 #include "InterFace.h"
 #include "IFaceLink.h"
 #include "FaceSearch.h"
@@ -237,6 +238,103 @@ void BasicRegion::SetRegion( int ist, int ied, int jst, int jed, int kst, int ke
     this->end  [ 1 ] = jed;
     this->start[ 2 ] = kst;
     this->end  [ 2 ] = ked;
+}
+
+TestRegion::TestRegion()
+{
+    ;
+}
+
+TestRegion::~TestRegion()
+{
+    ;
+}
+
+void TestRegion::Run( BasicRegion * r, int dimension ) 
+{
+    int n = dimension;
+    for ( int i = 0; i < n; ++ i )
+    {
+        p1[ i ] = r->start[ i ];
+        p2[ i ] = r->end[ i ];
+    }
+
+    for ( int i = 0; i < n; ++ i )
+    {
+        if ( p1[ i ] == p2[ i ] )
+        {
+            a[ i ] = 0;
+        }
+        else
+        {
+            if ( dimension == THREE_D )
+            {
+                if ( p1[ i ] > 0 )
+                {
+                    a[ i ] = 1;
+                }
+                else
+                {
+                    a[ i ] = 2;
+                }
+            }
+            else
+            {
+                a[ i ] = 1;
+            }
+        }
+    }
+
+    for ( int i = 0; i < n; ++ i )
+    {
+        sign[ i ] = 1;
+        if ( ABS( p1[ i ] ) > ABS( p2[ i ] ) )
+        {
+            sign[ i ] = - 1;
+        }
+    }
+
+    for ( int m = 0; m < n; ++ m )
+    {
+        int aa = MIN( ABS( p1[ m ] ), ABS( p2[ m ] ) );
+        int bb = MAX( ABS( p1[ m ] ), ABS( p2[ m ] ) );
+        p1[ m ] = aa;
+        p2[ m ] = bb;
+    }
+}
+
+TestRegionM::TestRegionM()
+{
+    ;
+}
+
+TestRegionM::~TestRegionM()
+{
+    ;
+}
+
+void TestRegionM::Run( BcRegion * bcRegion, int dimension )
+{
+    s.Run( bcRegion->s, dimension );
+    t.Run( bcRegion->t, dimension );
+
+    for ( int i = 0; i < 3; ++ i )
+    {
+        itransform[ i ] = ( i + 1 );
+    }
+
+    for ( int i = 0; i < dimension; ++ i )
+    {
+        int v = s.a[ i ];
+        for ( int j = 0; j < dimension; ++ j )
+        {
+            if ( s.a[ i ] == t.a[ j ] )
+            {
+                int sign = s.sign[ i ] * t.sign[ j ];
+                itransform[ i ] = ( j + 1 ) * sign;
+            }
+        }
+    }
 }
 
 BcRegion::BcRegion( int zid, int rid )

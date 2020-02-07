@@ -62,12 +62,12 @@ public:
     int nCoor;
 
     ZoneType_t cgnsZoneType;
+    int volBcType;
 
     int zId;
     CgInt irmin[ 3 ], irmax[ 3 ], cellSize[ 3 ];
-    CgInt isize[ 3 ][ 3 ];
+    CgInt isize[ 9 ];
 
-    string coorName;
     string zoneName;
 
     IntField l2g;
@@ -75,6 +75,8 @@ public:
     Real minLen, maxLen;
 public:
     void FreeMesh();
+    void SetVolBcType( int volBcType );
+    int GetVolBcType();
 public:
     void Create();
     void SetPeriodicBc();
@@ -89,10 +91,13 @@ public:
     void ReadCgnsGrid();
     void ReadCgnsGrid( CgnsZone * cgnsZoneIn );
     void ReadCgnsZoneAttribute();
+    void DumpCgnsZoneAttribute( Grid * grid );
     void ReadCgnsZoneAttribute( CgnsZone * cgnsZoneIn );
     void ReadCgnsZoneType();
+    void DumpCgnsZoneType( Grid * grid );
     void ReadCgnsZoneType( CgnsZone * cgnsZoneIn );
     void ReadCgnsZoneNameAndGeneralizedDimension();
+    void DumpCgnsZoneNameAndGeneralizedDimension( Grid * gridIn );
     void ReadCgnsZoneNameAndGeneralizedDimension( CgnsZone * cgnsZoneIn );
     void SetDimension();
     void SetDimension( CgnsZone * cgnsZoneIn );
@@ -103,10 +108,13 @@ public:
     void CreateCgnsSections();
     void ReadCgnsSections();
     void ReadCgnsGridCoordinates();
+    void DumpCgnsGridCoordinates( Grid * grid );
     void ReadCgnsGridCoordinates( CgnsZone * cgnsZoneIn );
     void ReadCgnsGridBoundary();
+    void DumpCgnsGridBoundary( Grid * grid );
     void ProcessPeriodicBc();
     void DumpCgnsZone( Grid * grid );
+    void FillISize( Grid * gridIn );
     void FillISize( int ni, int nj, int nk, int dimension );
 public:
     void AllocateUnsElemConn( CgnsZone * cgnsZoneIn );

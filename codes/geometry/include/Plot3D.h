@@ -54,6 +54,8 @@ public:
     static void DumpCoorAscii( GridMediator * gridMediator );
     static void DumpCoorAscii( fstream & file, RealField & coor );
     static void DumpBc( GridMediator * gridMediator );
+    static void Plot3DToCgns();
+
 };
 
 bool GetPlot3D_NKFlag();

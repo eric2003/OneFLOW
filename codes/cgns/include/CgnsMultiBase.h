@@ -41,10 +41,7 @@ public:
     int fileId, nBases;
     int nTZones;
 
-    int volBcType;
-
     HXVector< CgnsBase * > baseVector;
-    IntField zid1, zid2;
 public:
     int GetSystemZoneType();
     void ReadCgnsGrid();
@@ -58,8 +55,12 @@ public:
 
     void ReadCgnsMultiBase( CgnsMultiBase * strCgnsMultiBase );
     void ReadNumCgnsBase( CgnsMultiBase * strCgnsMultiBase );
-    void ReadGeneralizedCgnsZoneScale();
-    void ReadGeneralizedCgnsZoneScale( CgnsMultiBase * strCgnsMultiBase );
+    void ReadCgnsBaseBasicInfo();
+    void ReadNumberOfCgnsZones();
+
+    void ReadCgnsBaseBasicInfo( CgnsMultiBase * strCgnsMultiBase );
+    void ReadNumberOfCgnsZones( CgnsMultiBase * strCgnsMultiBase );
+
     void ReadAllCgnsZonesInEachCgnsBase();
     void ReadAllCgnsZonesInEachCgnsBase( CgnsMultiBase * strCgnsMultiBase );
 public:
@@ -73,8 +74,9 @@ public:
     void InitAllCgnsZonesInEachCgnsBase();
     void ConvertStrCgns2UnsCgnsGrid( CgnsMultiBase * strCgnsMultiBase );
 public:
-    CgnsZone * GetZone( int iZone );
-    int FindBaseId( int iZone );
+    CgnsBase * GetCgnsBase( int baseId );
+    CgnsZone * GetCgnsZone( int globalZoneId );
+    CgnsZone * FindGlobalCgnsZone( int globalZoneId );
 };
 
 #endif

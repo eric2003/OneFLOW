@@ -21,6 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "Plot3D.h"
+#include "CgnsFactory.h"
 #include "GridMediator.h"
 #include "Stop.h"
 #include "Prj.h"
@@ -37,6 +38,7 @@ License
 #include "ZoneState.h"
 #include "BcRecord.h"
 #include "DataBase.h"
+#include "GridPara.h"
 #include <iostream>
 
 using namespace std;
@@ -664,6 +666,29 @@ void Plot3D::ReadCoor( FileIO * ioFile, RealField & coor, int total_size )
             coor.push_back( tmp );
         }
     }
+}
+
+void Plot3D::Plot3DToCgns()
+{
+    cout << "plot3d to cgns\n";
+    GridMediator * gridMediator = new GridMediator();
+    gridMediator->gridFile = grid_para.gridFile;
+    gridMediator->bcFile = grid_para.bcFile;
+    gridMediator->targetFile = grid_para.targetFile;
+
+    gridMediator->gridType = grid_para.filetype;
+    gridMediator->ReadGrid();
+    gridMediator->AddDefaultName();
+
+    GlobalGrid::SetCurrentGridMediator( gridMediator );
+
+    CgnsFactory * cgnsFactory = new CgnsFactory();
+
+    cgnsFactory->DumpCgnsGrid( gridMediator );
+
+    delete cgnsFactory;
+
+    delete gridMediator;
 }
 
 bool GetPlot3D_NKFlag()

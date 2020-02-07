@@ -64,6 +64,7 @@ void Cavity::Run()
     GridMediator * gridMediator = new GridMediator();
     gridMediator->gridFile = ONEFLOW::GetDataValue< string >( "sourceGridFileName" );
     gridMediator->bcFile   = ONEFLOW::GetDataValue< string >( "sourceGridBcName" );
+    gridMediator->targetFile = ONEFLOW::GetDataValue< string >( "targetGridFileName" );
 
     gridMediator->numberOfZones = nZone;
     gridMediator->gridVector.resize( nZone );
@@ -131,7 +132,8 @@ void Cavity::Run()
     bcRegion->s->SetRegion( 1, ni, nj, nj );
     bcRegion->s->zid = iZone;
     bcRegion->regionName = "upper";
-    bcRegion->bcType = BC::SOLID_SURFACE;
+    //bcRegion->bcType = BC::SOLID_SURFACE;
+    bcRegion->bcType = BC::INTERFACE;
     bcRegionGroup->SetBcRegion( ir, bcRegion );
     ++ ir;
 
