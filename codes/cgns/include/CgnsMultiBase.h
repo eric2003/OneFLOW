@@ -58,8 +58,12 @@ public:
 
     void ReadCgnsMultiBase( CgnsMultiBase * strCgnsMultiBase );
     void ReadNumCgnsBase( CgnsMultiBase * strCgnsMultiBase );
-    void ReadGeneralizedCgnsZoneScale();
-    void ReadGeneralizedCgnsZoneScale( CgnsMultiBase * strCgnsMultiBase );
+    void ReadCgnsBaseBasicInfo();
+    void ReadNumberOfCgnsZones();
+
+    void ReadCgnsBaseBasicInfo( CgnsMultiBase * strCgnsMultiBase );
+    void ReadNumberOfCgnsZones( CgnsMultiBase * strCgnsMultiBase );
+
     void ReadAllCgnsZonesInEachCgnsBase();
     void ReadAllCgnsZonesInEachCgnsBase( CgnsMultiBase * strCgnsMultiBase );
 public:
