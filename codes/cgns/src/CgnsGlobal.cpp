@@ -41,7 +41,7 @@ CgnsGlobal::~CgnsGlobal()
 
 CgnsZone * CgnsGlobal::GetCgnsZone( int zId )
 {
-    return cgnsbases->GetZone( zId - 1 );
+    return cgnsbases->GetCgnsZone( zId - 1 );
 }
 
 CgnsZone * CgnsGlobal::GetCgnsZone( const string & zoneName )

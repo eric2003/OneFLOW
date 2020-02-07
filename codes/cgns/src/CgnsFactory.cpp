@@ -215,7 +215,7 @@ void CgnsFactory::AllocateGridElem()
 
         for ( int iZone = 0; iZone < this->nOriZone; ++ iZone )
         {
-            cgnsZones.push_back( cgnsMultiBase->GetZone( iZone ) );
+            cgnsZones.push_back( cgnsMultiBase->GetCgnsZone( iZone ) );
         }
 
         this->nZone = 1;
@@ -236,7 +236,7 @@ void CgnsFactory::AllocateGridElem()
         for ( int iZone = 0; iZone < this->nZone; ++ iZone )
         {
             HXVector< CgnsZone * > cgnsZones;
-            cgnsZones.push_back( cgnsMultiBase->GetZone( iZone ) );
+            cgnsZones.push_back( cgnsMultiBase->GetCgnsZone( iZone ) );
             gridElems[ iZone ] = new GridElem( cgnsZones );
         }
     }
@@ -271,7 +271,7 @@ void CgnsFactory::AllocateCmpGrid()
 
     for ( int iZone = 0; iZone < this->nZone; ++ iZone )
     {
-        int cgnsZoneType = this->cgnsMultiBase->GetZone( iZone )->cgnsZoneType;
+        int cgnsZoneType = this->cgnsMultiBase->GetCgnsZone( iZone )->cgnsZoneType;
         int gridType = Cgns2OneFlowZoneType( cgnsZoneType );
         Grid * grid = ONEFLOW::CreateGrid( gridType );
         grid->level = 0;
@@ -395,7 +395,7 @@ CgnsZone * CgnsFactory::GetCreateZone( int cgnsZoneId )
     this->CreateDefaultZone();
 
     int iZone = 0;
-    CgnsZone * cgnsZone = cgnsMultiBase->GetZone( iZone );
+    CgnsZone * cgnsZone = cgnsMultiBase->GetCgnsZone( iZone );
     cgnsZone->zId = cgnsZoneId;
     return cgnsZone;
 }
@@ -444,7 +444,7 @@ void CgnsFactory::FillSection( Grids & grids, HXVector< Int3D * > & unsIdList )
 
     int iZone = 0;
 
-    CgnsZone * cgnsZone = cgnsMultiBase->GetZone( iZone );
+    CgnsZone * cgnsZone = cgnsMultiBase->GetCgnsZone( iZone );
     
     cgnsZone->nCell = nTCell;
 

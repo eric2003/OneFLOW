@@ -51,7 +51,7 @@ int CgnsMultiBase::GetSystemZoneType()
 
     for ( int iZone = 0; iZone < nTZones; ++ iZone )
     {
-        CgnsZone * cgnsZone = this->GetZone( iZone );
+        CgnsZone * cgnsZone = this->GetCgnsZone( iZone );
         int zoneType = cgnsZone->cgnsZoneType;
         zoneTypeSet.insert( zoneType );
     }
@@ -342,7 +342,7 @@ CgnsBase * CgnsMultiBase::GetCgnsBase( int baseId )
     return baseVector[ baseId - 1 ];
 }
 
-CgnsZone * CgnsMultiBase::GetZone( int iZone )
+CgnsZone * CgnsMultiBase::GetCgnsZone( int iZone )
 {
     int bId = this->FindBaseId( iZone );
 
