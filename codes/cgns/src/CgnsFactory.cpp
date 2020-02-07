@@ -392,9 +392,7 @@ void CgnsFactory::CreateDefaultZone()
 
 CgnsZone * CgnsFactory::GetCreateZone( int cgnsZoneId )
 {
-    this->nZone = 1;
-
-    cgnsMultiBase->Create( this->nZone );
+    this->CreateDefaultZone();
 
     int iZone = 0;
     CgnsZone * cgnsZone = cgnsMultiBase->GetZone( iZone );

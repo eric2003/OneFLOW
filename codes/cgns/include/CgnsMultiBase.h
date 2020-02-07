@@ -73,6 +73,7 @@ public:
     void InitAllCgnsZonesInEachCgnsBase();
     void ConvertStrCgns2UnsCgnsGrid( CgnsMultiBase * strCgnsMultiBase );
 public:
+    CgnsBase * GetCgnsBase( int baseId );
     CgnsZone * GetZone( int iZone );
     int FindBaseId( int iZone );
 };

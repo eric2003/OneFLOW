@@ -156,7 +156,15 @@ void CgnsZone::FillISize( Grid * gridIn )
     int ni = grid->ni;
     int nj = grid->nj;
     int nk = grid->nk;
-    this->FillISize( ni, nj, nk, this->cgnsBase->celldim );
+    this->FillISize( ni, nj, nk, THREE_D );
+    //if ( Dim::dimension == THREE_D )
+    //{
+    //    this->FillISize( ni, nj, nk, THREE_D );
+    //}
+    //else
+    //{
+    //    this->FillISize( ni, nj, nk, Dim::dimension );
+    //}
 }
 
 void CgnsZone::FillISize( int ni, int nj, int nk, int dimension )
@@ -170,11 +178,12 @@ void CgnsZone::FillISize( int ni, int nj, int nk, int dimension )
         isize[ j ++ ] = nk;
     }
     // cell size
-    isize[ j ++ ] = MAX( ni - 1, 1 );
-    isize[ j ++ ] = MAX( nj - 1, 1 );
+    isize[ j ++ ] = ni - 1;
+    isize[ j ++ ] = nj - 1;
     if ( dimension == THREE_D )
     {
-        isize[ j ++ ] = MAX( nk - 1, 1 );
+        //isize[ j ++ ] = MAX( nk - 1, 1 );
+        isize[ j ++ ] = nk - 1;
     }
     // boundary vertex size (always zero for structured grids)
     isize[ j ++ ] = 0;

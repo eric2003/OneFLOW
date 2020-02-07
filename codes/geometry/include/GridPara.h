@@ -37,9 +37,11 @@ public:
 public:
     string topo;
     string filetype; //plot3d, cgns...
+    string target_filetype;
     string format; //binary, ascii
     string gridFile;
     string bcFile;
+    string targetFile;
 
     //对网格执行的转换操作
     int gridObj;    

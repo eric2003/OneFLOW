@@ -50,6 +50,19 @@ public:
     void ReadGridgen();
     void ReadPlot3D();
     void ReadPlot3DCoor();
+public:
+    void AddDefaultName();
+};
+
+class GlobalGrid
+{
+public:
+    GlobalGrid();
+    ~GlobalGrid();
+public:
+    static GridMediator * gridMediator;
+    static Grid * GetGrid( int zoneId );
+    static void SetCurrentGridMediator( GridMediator * gridMediatorIn );
 };
 
 EndNameSpace

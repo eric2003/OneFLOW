@@ -31,6 +31,7 @@ License
 #include "StrGrid.h"
 #include "PointSearch.h"
 #include "BcRecord.h"
+#include "Plot3D.h"
 #include "HXMath.h"
 #include "Partition.h"
 #include <iostream>
@@ -116,11 +117,19 @@ void GridFactory::DataBaseGrid()
 
 void GridFactory::Plot3DProcess()
 {
-    CgnsFactory * cgnsFactory = new CgnsFactory();
+    if ( grid_para.target_filetype == "oneflow" )
+    {
+        CgnsFactory * cgnsFactory = new CgnsFactory();
 
-    cgnsFactory->CommonToOneFlowGrid();
+        cgnsFactory->CommonToOneFlowGrid();
 
-    delete cgnsFactory;
+        delete cgnsFactory;
+    }
+    else if ( grid_para.target_filetype == "cgns" )
+    {
+        Plot3D::Plot3DToCgns();
+    }
+
 }
 
 void GridFactory::SU2Process()

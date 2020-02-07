@@ -23,6 +23,9 @@ License
 #include "GridMediator.h"
 #include "Plot3D.h"
 #include "Su2Grid.h"
+#include "StrGrid.h"
+#include "StrUtil.h"
+#include "BcRecord.h"
 
 using namespace std;
 
@@ -51,6 +54,40 @@ void GridMediator::ReadGrid()
     }
 }
 
+void GridMediator::AddDefaultName()
+{
+    int numberOfZones = this->numberOfZones;
+
+    for ( int iZone = 0; iZone < numberOfZones; ++ iZone )
+    {
+        StrGrid * grid = ONEFLOW::StrGridCast( this->gridVector[ iZone ] );
+
+        int ni = grid->ni;
+        int nj = grid->nj;
+        int nk = grid->nk;
+
+        grid->name = AddString( "Zone", iZone + 1 );
+
+        BcRegionGroup * bcRegionGroup = grid->bcRegionGroup;
+        int nBcRegions = bcRegionGroup->regions->size();
+        int icount = 0;
+        for ( int ir = 0; ir < nBcRegions; ++ ir )
+        {
+            BcRegion * bcRegion = bcRegionGroup->GetBcRegion( ir );
+            bcRegion->regionName = AddString( "R", ir + 1 );
+
+            int bcType = bcRegion->bcType;
+            if ( bcType < 0 )
+            {
+                int sz = iZone + 1;
+                int tz = bcRegion->t->zid + 1;
+                bcRegion->regionName = AddString( "I", icount + 1 );
+                icount ++;
+            }
+        }
+    }
+}
+
 void GridMediator::ReadPlot3D()
 {
     Plot3D::ReadPlot3D( this );
@@ -63,6 +100,28 @@ void GridMediator::ReadPlot3DCoor()
 
 void GridMediator::ReadGridgen()
 {
+}
+
+GridMediator * GlobalGrid::gridMediator = 0;
+
+GlobalGrid::GlobalGrid()
+{
+    ;
+}
+
+GlobalGrid::~GlobalGrid()
+{
+    ;
+}
+
+void GlobalGrid::SetCurrentGridMediator( GridMediator * gridMediatorIn )
+{
+    GlobalGrid::gridMediator = gridMediatorIn;
+}
+
+Grid * GlobalGrid::GetGrid( int zoneId )
+{
+    return GlobalGrid::gridMediator->gridVector[ zoneId ];
 }
 
 EndNameSpace

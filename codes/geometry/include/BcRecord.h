@@ -107,6 +107,33 @@ public:
     void SetRegion( int ist, int ied, int jst, int jed, int kst, int ked );
 };
 
+class BasicRegion;
+class TestRegion
+{
+public:
+    TestRegion();
+    ~TestRegion();
+    int p1[ 3 ], p2[ 3 ];
+    int a[ 3 ];
+    int sign[ 3 ];
+public:
+    void Run( BasicRegion * r, int dimension );
+};
+
+class BcRegion;
+class TestRegionM
+{
+public:
+    TestRegionM();
+    ~TestRegionM();
+public:
+    int dimension;
+    TestRegion s, t;
+    int itransform[ 3 ];
+public:
+    void Run( BcRegion * bcRegion, int dimension );
+};
+
 class BcRegion
 {
 public:

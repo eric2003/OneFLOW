@@ -59,8 +59,11 @@ CgnsZone * CgnsBase::GetCgnsZone( const string & zoneName )
 
 void CgnsBase::SetDefaultCgnsBaseBasicInformation()
 {
-    this->celldim = Dim::dimension;
-    this->phydim  = Dim::dimension;
+    //this->celldim = Dim::dimension;
+    //this->phydim  = Dim::dimension;
+
+    this->celldim = THREE_D;
+    this->phydim  = THREE_D;
   
     this->baseName = ONEFLOW::AddString( "Base", this->baseId );
 }
@@ -96,6 +99,7 @@ void CgnsBase::ReadCgnsBaseBasicInfo()
     cg_base_read( this->fileId, this->baseId, cgnsBaseName, & this->celldim, & this->phydim );
     this->baseName = cgnsBaseName;
     cout << "   baseId = " << this->baseId << " baseName = " << cgnsBaseName << "\n";
+    cout << "   cell dim = " << this->celldim << " physical dim = " << this->phydim << "\n";
 }
 
 void CgnsBase::DumpBase( GridMediator * gridMediator )
