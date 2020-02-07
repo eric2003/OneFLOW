@@ -44,7 +44,6 @@ public:
     int volBcType;
 
     HXVector< CgnsBase * > baseVector;
-    IntField zid1, zid2;
 public:
     int GetSystemZoneType();
     void ReadCgnsGrid();
