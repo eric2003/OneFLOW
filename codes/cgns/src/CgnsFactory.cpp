@@ -271,14 +271,15 @@ void CgnsFactory::AllocateCmpGrid()
 
     for ( int iZone = 0; iZone < this->nZone; ++ iZone )
     {
-        int cgnsZoneType = this->cgnsMultiBase->GetCgnsZone( iZone )->cgnsZoneType;
+        CgnsZone * cgnsZone = this->cgnsMultiBase->GetCgnsZone( iZone );
+        int cgnsZoneType = cgnsZone->cgnsZoneType;
         int gridType = Cgns2OneFlowZoneType( cgnsZoneType );
         Grid * grid = ONEFLOW::CreateGrid( gridType );
         grid->level = 0;
         grid->id = iZone;
         grid->localId = iZone;
         grid->type = gridType;
-        grid->volBcType = this->cgnsMultiBase->volBcType;
+        grid->volBcType = cgnsZone->GetVolBcType();
         this->cmpGrids[ iZone ] = grid;
     }
 }

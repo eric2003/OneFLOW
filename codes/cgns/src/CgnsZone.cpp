@@ -52,6 +52,7 @@ CgnsZone::CgnsZone( CgnsBase * cgnsBase )
     this->nodeMesh = 0;
     this->multiSection = 0;
     this->bcRegionProxy = 0;
+    this->volBcType = -1;
 }
 
 CgnsZone::~CgnsZone()
@@ -65,6 +66,16 @@ void CgnsZone::FreeMesh()
 {
     delete this->nodeMesh;
     this->nodeMesh = 0;
+}
+
+void CgnsZone::SetVolBcType( int volBcType )
+{
+    this->volBcType = volBcType;
+}
+
+int CgnsZone::GetVolBcType()
+{
+    return this->volBcType;
 }
 
 void CgnsZone::Create()
@@ -640,7 +651,6 @@ void CgnsZone::ReadCgnsGridCoordinates()
         cgnsCoor->Alloc( coId, static_cast<int>(this->nNode), dataType );
         //Read the x-, y-, z-coordinates.
         cg_coord_read( fileId, baseId, this->zId, coorName, dataType, this->irmin, this->irmax, cgnsCoor->GetCoor( coId ) );
-        this->coorName = coorName;
     }
 
     cgnsCoor->SetAllData( nodeMesh->xN, nodeMesh->yN, nodeMesh->zN );

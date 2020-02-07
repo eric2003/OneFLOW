@@ -62,12 +62,12 @@ public:
     int nCoor;
 
     ZoneType_t cgnsZoneType;
+    int volBcType;
 
     int zId;
     CgInt irmin[ 3 ], irmax[ 3 ], cellSize[ 3 ];
     CgInt isize[ 9 ];
 
-    string coorName;
     string zoneName;
 
     IntField l2g;
@@ -75,6 +75,8 @@ public:
     Real minLen, maxLen;
 public:
     void FreeMesh();
+    void SetVolBcType( int volBcType );
+    int GetVolBcType();
 public:
     void Create();
     void SetPeriodicBc();

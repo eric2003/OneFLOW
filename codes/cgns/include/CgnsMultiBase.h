@@ -41,8 +41,6 @@ public:
     int fileId, nBases;
     int nTZones;
 
-    int volBcType;
-
     HXVector< CgnsBase * > baseVector;
 public:
     int GetSystemZoneType();

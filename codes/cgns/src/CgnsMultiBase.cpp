@@ -37,7 +37,6 @@ BeginNameSpace( ONEFLOW )
 
 CgnsMultiBase::CgnsMultiBase()
 {
-    volBcType = -1;
 }
 
 CgnsMultiBase::~CgnsMultiBase()
@@ -342,7 +341,6 @@ CgnsZone * CgnsMultiBase::GetCgnsZone( int globalZoneId )
     CgnsZone * cgnsZone = this->FindGlobalCgnsZone( globalZoneId );
     return cgnsZone;
 }
-
 
 CgnsZone * CgnsMultiBase::FindGlobalCgnsZone( int globalZoneId )
 {
