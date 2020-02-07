@@ -44,6 +44,7 @@ public:
 public:
     int fileId, baseId;
     int nZones;
+    int zst, zed;
     int celldim, phydim;
     string baseName;
     HXVector< CgnsZone * > cgnsZones;

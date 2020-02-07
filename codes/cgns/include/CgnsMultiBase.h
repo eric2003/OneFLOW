@@ -78,7 +78,7 @@ public:
     void ConvertStrCgns2UnsCgnsGrid( CgnsMultiBase * strCgnsMultiBase );
 public:
     CgnsBase * GetCgnsBase( int baseId );
-    CgnsZone * GetCgnsZone( int iZone );
+    CgnsZone * GetCgnsZone( int globalZoneId );
     int FindBaseId( int iZone );
 };
 

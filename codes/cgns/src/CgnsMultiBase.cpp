@@ -303,10 +303,11 @@ void CgnsMultiBase::ComputeNumberOfTotalZones()
     for ( int bId = 1; bId <= this->nBases; ++ bId )
     {
         CgnsBase * cgnsBase = this->GetCgnsBase( bId );
-
+        cgnsBase->zst = this->nTZones;
+        cgnsBase->zed = this->nTZones + cgnsBase->nZones - 1;
         int id = bId - 1;
-        this->zid1[ id ] = this->nTZones;
-        this->zid2[ id ] = this->nTZones + cgnsBase->nZones - 1;
+        this->zid1[ id ] = cgnsBase->zst;
+        this->zid2[ id ] = cgnsBase->zed;
 
         this->nTZones += cgnsBase->nZones;
     }
@@ -342,15 +343,16 @@ CgnsBase * CgnsMultiBase::GetCgnsBase( int baseId )
     return baseVector[ baseId - 1 ];
 }
 
-CgnsZone * CgnsMultiBase::GetCgnsZone( int iZone )
+CgnsZone * CgnsMultiBase::GetCgnsZone( int globalZoneId )
 {
-    int bId = this->FindBaseId( iZone );
+    int bId = this->FindBaseId( globalZoneId );
 
-    int z1 = zid1[ bId - 1 ];
+    //int zst = zid1[ bId - 1 ];
 
     CgnsBase * cgnsBase = this->GetCgnsBase( bId );
-
-    CgnsZone * cgnsZone = cgnsBase->cgnsZones[ iZone - z1 ]; 
+    int zst = cgnsBase->zst;
+    int localZoneId = globalZoneId - zst;
+    CgnsZone * cgnsZone = cgnsBase->cgnsZones[ localZoneId ]; 
 
     return cgnsZone;
 }
@@ -359,10 +361,14 @@ int CgnsMultiBase::FindBaseId( int iZone )
 {
     for ( int bId = 1; bId <= this->nBases; ++ bId )
     {
-        int z1 = zid1[ bId - 1 ];
-        int z2 = zid2[ bId - 1 ];
+        CgnsBase * cgnsBase = this->GetCgnsBase( bId );
+        //int zst = zid1[ bId - 1 ];
+        //int z2 = zid2[ bId - 1 ];
 
-        if ( ( z1 <= iZone ) && ( iZone <= z2 ) )
+        int zst = cgnsBase->zst;
+        int zed = cgnsBase->zed;
+
+        if ( ( zst <= iZone ) && ( iZone <= zed ) )
         {
             return bId;
         }
