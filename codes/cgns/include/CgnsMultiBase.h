@@ -78,7 +78,7 @@ public:
 public:
     CgnsBase * GetCgnsBase( int baseId );
     CgnsZone * GetCgnsZone( int globalZoneId );
-    int FindBaseId( int iZone );
+    CgnsZone * FindGlobalCgnsZone( int globalZoneId );
 };
 
 #endif

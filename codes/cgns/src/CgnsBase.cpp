@@ -191,5 +191,16 @@ void CgnsBase::ReadFamilySpecifiedBc()
     this->familyBc->ReadFamilySpecifiedBc();
 }
 
+CgnsZone * CgnsBase::FindGlobalCgnsZone( int globalZoneId )
+{
+    if ( ( this->zst <= globalZoneId ) && ( globalZoneId <= this->zed ) )
+    {
+        int localZoneId = globalZoneId - this->zst;
+        CgnsZone * cgnsZone = this->cgnsZones[ localZoneId ]; 
+        return cgnsZone;
+    }
+    return 0;
+}
+
 #endif
 EndNameSpace

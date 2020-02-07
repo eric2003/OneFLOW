@@ -69,6 +69,7 @@ public:
 public:
     void SetFamilyBc( BCType_t & bcType, const string & bcRegionName );
     void ReadFamilySpecifiedBc();
+    CgnsZone * FindGlobalCgnsZone( int globalZoneId );
 };
 
 #endif

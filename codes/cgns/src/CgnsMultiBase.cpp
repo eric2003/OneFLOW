@@ -339,32 +339,25 @@ CgnsBase * CgnsMultiBase::GetCgnsBase( int baseId )
 
 CgnsZone * CgnsMultiBase::GetCgnsZone( int globalZoneId )
 {
-    int bId = this->FindBaseId( globalZoneId );
-
-    CgnsBase * cgnsBase = this->GetCgnsBase( bId );
-    int zst = cgnsBase->zst;
-    int localZoneId = globalZoneId - zst;
-    CgnsZone * cgnsZone = cgnsBase->cgnsZones[ localZoneId ]; 
-
+    CgnsZone * cgnsZone = this->FindGlobalCgnsZone( globalZoneId );
     return cgnsZone;
 }
 
-int CgnsMultiBase::FindBaseId( int iZone )
+
+CgnsZone * CgnsMultiBase::FindGlobalCgnsZone( int globalZoneId )
 {
     for ( int bId = 1; bId <= this->nBases; ++ bId )
     {
         CgnsBase * cgnsBase = this->GetCgnsBase( bId );
-
-        int zst = cgnsBase->zst;
-        int zed = cgnsBase->zed;
-
-        if ( ( zst <= iZone ) && ( iZone <= zed ) )
+        CgnsZone * cgnsZone = cgnsBase->FindGlobalCgnsZone( globalZoneId );
+        if ( cgnsZone )
         {
-            return bId;
+            return cgnsZone;
         }
     }
 
-    return - 1;
+    return 0;
 }
+
 #endif
 EndNameSpace
