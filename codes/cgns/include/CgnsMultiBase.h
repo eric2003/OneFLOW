@@ -64,11 +64,10 @@ public:
     void ReadAllCgnsZonesInEachCgnsBase();
     void ReadAllCgnsZonesInEachCgnsBase( CgnsMultiBase * strCgnsMultiBase );
 public:
-    void Create( int nZones );
+    void CreateDefaultCgnsZones( int nZones );
     void InitDefaultCgnsBase();
     void AllocateCgnsBase();
     void InitCgnsBase();
-    void SetGeneralizedCgnsZoneScale( int nZones );
     void ComputeNumberOfTotalZones();
     void AllocateCgnsZonesInEachCgnsBase();
     void InitAllCgnsZonesInEachCgnsBase();

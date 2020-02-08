@@ -387,7 +387,7 @@ void CgnsFactory::CreateDefaultZone()
 {
     this->nZone = 1;
 
-    cgnsMultiBase->Create( this->nZone );
+    cgnsMultiBase->CreateDefaultCgnsZones( this->nZone );
 
 }
 

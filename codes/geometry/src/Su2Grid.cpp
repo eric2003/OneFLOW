@@ -516,10 +516,8 @@ void FillSU2Section( Su2Grid* su2Grid, int zId, CgnsFactory * cgnsFactory )
 {
     CgnsMultiBase * cgnsMultiBase = cgnsFactory->cgnsMultiBase;
 
-    cgnsFactory->GetCreateZone( zId );
+    CgnsZone * cgnsZone = cgnsFactory->GetCreateZone( zId );
 
-    int iZone = 0;
-    CgnsZone * cgnsZone = cgnsMultiBase->GetCgnsZone( iZone );
     cgnsZone->cgnsZoneType = ONEFLOW::Unstructured;
     int nNode = su2Grid->xN.size();
     int nCell = su2Grid->nElem;
