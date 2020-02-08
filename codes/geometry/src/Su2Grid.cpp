@@ -502,7 +502,7 @@ void Su2Grid::Su2ToOneFlowGrid()
     {
         CgnsFactory * cgnsFactory = new CgnsFactory();
         int cgnsZoneId = iZone + 1;
-        CgnsZone * cgnsZone = cgnsFactory->GetCreateCgnsZone( cgnsZoneId );
+        CgnsZone * cgnsZone = cgnsFactory->CreateOneUnsCgnsZone( cgnsZoneId );
 
         FillSU2CgnsZone( this, cgnsZone );
 
@@ -516,7 +516,6 @@ void Su2Grid::Su2ToOneFlowGrid()
 
 void FillSU2CgnsZone( Su2Grid* su2Grid, CgnsZone * cgnsZone )
 {
-    cgnsZone->cgnsZoneType = ONEFLOW::Unstructured;
     int nNode = su2Grid->xN.size();
     int nCell = su2Grid->nElem;
     cgnsZone->nodeMesh->CreateNodes( nNode );

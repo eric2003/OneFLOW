@@ -163,6 +163,9 @@ void CgnsFactory::CommonToUnsGrid()
     for ( int iZone = 0; iZone < nZones; ++ iZone )
     {
         CgnsFactory * cgnsFactory = new CgnsFactory();
+        int cgnsZoneId = iZone + 1;
+        CgnsZone * cgnsZone = cgnsFactory->CreateOneUnsCgnsZone( cgnsZoneId );
+
         Grids grid_array;
 
         if ( grid_para.multiBlock )
@@ -173,9 +176,6 @@ void CgnsFactory::CommonToUnsGrid()
         {
             grid_array = gridMediator->gridVector;
         }
-
-        int cgnsZoneId = iZone + 1;
-        CgnsZone * cgnsZone = this->GetCreateCgnsZone( cgnsZoneId );
 
         cgnsFactory->PrepareCgnsZone( grid_array, cgnsZone );
         
@@ -369,7 +369,6 @@ void CgnsFactory::PrepareCgnsZone( Grids & grids, CgnsZone * cgnsZone )
 
     cgnsZone->nNode = nNode;
     cgnsZone->nCell = nCell;
-    cgnsZone->cgnsZoneType = Unstructured;
 
     this->FillSection( grids, unsIdList );
 
@@ -386,12 +385,13 @@ void CgnsFactory::CreateDefaultZone()
 
 }
 
-CgnsZone * CgnsFactory::GetCreateCgnsZone( int cgnsZoneId )
+CgnsZone * CgnsFactory::CreateOneUnsCgnsZone( int cgnsZoneId )
 {
     this->CreateDefaultZone();
 
     int iZone = 0;
     CgnsZone * cgnsZone = cgnsMultiBase->GetCgnsZone( iZone );
+    cgnsZone->cgnsZoneType = ONEFLOW::Unstructured;
     cgnsZone->zId = cgnsZoneId;
     return cgnsZone;
 }
