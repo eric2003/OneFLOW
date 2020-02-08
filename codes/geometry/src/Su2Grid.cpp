@@ -502,7 +502,9 @@ void Su2Grid::Su2ToOneFlowGrid()
     {
         CgnsFactory * cgnsFactory = new CgnsFactory();
         int cgnsZoneId = iZone + 1;
-        FillSU2CgnsSection( this, cgnsZoneId, cgnsFactory );
+        CgnsZone * cgnsZone = cgnsFactory->GetCreateCgnsZone( cgnsZoneId );
+
+        FillSU2CgnsZone( this, cgnsZone );
 
         cgnsFactory->CgnsStr2Uns( grids[ iZone ], iZone );
 
@@ -512,10 +514,8 @@ void Su2Grid::Su2ToOneFlowGrid()
     ONEFLOW::GenerateMultiZoneCmpGrids( grids );
 }
 
-void FillSU2CgnsSection( Su2Grid* su2Grid, int cgnsZoneId, CgnsFactory * cgnsFactory )
+void FillSU2CgnsZone( Su2Grid* su2Grid, CgnsZone * cgnsZone )
 {
-    CgnsZone * cgnsZone = cgnsFactory->GetCreateCgnsZone( cgnsZoneId );
-
     cgnsZone->cgnsZoneType = ONEFLOW::Unstructured;
     int nNode = su2Grid->xN.size();
     int nCell = su2Grid->nElem;
@@ -607,26 +607,6 @@ void FillSU2CgnsSection( Su2Grid* su2Grid, int cgnsZoneId, CgnsFactory * cgnsFac
         cgnsBcRegion->pointSetType = PointList;
         cgnsBcRegion->CreateCgnsBcConn();
 
-        //if ( name == "airfoil" ||
-        //    name == "lower_wall" ||
-        //    name == "upper_wall" )
-        //{
-        //    cgnsBcRegion->bcType = ONEFLOW::BCWall;
-        //}
-        //else if ( name == "inlet" )
-        //{
-        //    cgnsBcRegion->bcType = ONEFLOW::BCFarfield;
-        //}
-        //else if ( name == "outlet" )
-        //{
-        //    cgnsBcRegion->bcType = ONEFLOW::BCFarfield;
-        //}
-        //else
-        //{
-        //    cgnsBcRegion->bcType = ONEFLOW::BCFarfield;
-        //}
-
-        
         for ( int iElem = 0; iElem < marker->nElem; ++ iElem )
         {
             int elemId = su2Grid->mmark.l2g[ iMarker ][ iElem ];
