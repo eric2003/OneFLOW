@@ -502,7 +502,7 @@ void Su2Grid::Su2ToOneFlowGrid()
     {
         CgnsFactory * cgnsFactory = new CgnsFactory();
         int cgnsZoneId = iZone + 1;
-        FillSU2Section( this, cgnsZoneId, cgnsFactory );
+        FillSU2CgnsSection( this, cgnsZoneId, cgnsFactory );
 
         cgnsFactory->CgnsStr2Uns( grids[ iZone ], iZone );
 
@@ -512,10 +512,8 @@ void Su2Grid::Su2ToOneFlowGrid()
     ONEFLOW::GenerateMultiZoneCmpGrids( grids );
 }
 
-void FillSU2Section( Su2Grid* su2Grid, int cgnsZoneId, CgnsFactory * cgnsFactory )
+void FillSU2CgnsSection( Su2Grid* su2Grid, int cgnsZoneId, CgnsFactory * cgnsFactory )
 {
-    CgnsMultiBase * cgnsMultiBase = cgnsFactory->cgnsMultiBase;
-
     CgnsZone * cgnsZone = cgnsFactory->GetCreateCgnsZone( cgnsZoneId );
 
     cgnsZone->cgnsZoneType = ONEFLOW::Unstructured;

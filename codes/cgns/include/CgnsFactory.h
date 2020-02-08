@@ -70,8 +70,8 @@ public:
     void CreateDefaultZone();
     CgnsZone * GetCreateCgnsZone( int cgnsZoneId );
     void MergeToSingleZone( Grids & grids, HXVector< Int3D * > & unsIdList, NodeMesh * nodeMesh, int & nNode, int & nCell );
-    void PrepareSection( Grids & grids, int cgnsZoneId );
-    void PrepareSectionBasic( Grids & grids, CgnsZone * cgnsZone );
+    void PrepareCgnsSection( Grids & grids, int cgnsZoneId );
+    void PrepareCgnsSectionBasic( Grids & grids, CgnsZone * cgnsZone );
     void FillSection( Grids & grids, HXVector< Int3D * > & unsIdList );
 public:
     void CgnsStr2Uns( Grid *& grid, int zId );

@@ -176,7 +176,7 @@ void CgnsFactory::CommonToUnsGrid()
 
         int cgnsZoneId = iZone + 1;
 
-        cgnsFactory->PrepareSection( grid_array, cgnsZoneId );
+        cgnsFactory->PrepareCgnsSection( grid_array, cgnsZoneId );
 
         cgnsFactory->CgnsStr2Uns( grids[ iZone ], iZone );
 
@@ -356,7 +356,7 @@ void CgnsFactory::MergeToSingleZone( Grids & grids, HXVector< Int3D * > & unsIdL
     delete point_search;
 }
 
-void CgnsFactory::PrepareSectionBasic( Grids & grids, CgnsZone * cgnsZone )
+void CgnsFactory::PrepareCgnsSectionBasic( Grids & grids, CgnsZone * cgnsZone )
 {
     NodeMesh * nodeMesh = cgnsZone->nodeMesh;
 
@@ -395,10 +395,10 @@ CgnsZone * CgnsFactory::GetCreateCgnsZone( int cgnsZoneId )
     return cgnsZone;
 }
 
-void CgnsFactory::PrepareSection( Grids & grids, int cgnsZoneId )
+void CgnsFactory::PrepareCgnsSection( Grids & grids, int cgnsZoneId )
 {
     CgnsZone * cgnsZone = this->GetCreateCgnsZone( cgnsZoneId );
-    PrepareSectionBasic( grids, cgnsZone );
+    PrepareCgnsSectionBasic( grids, cgnsZone );
 }
 
 void CgnsFactory::FillSection( Grids & grids, HXVector< Int3D * > & unsIdList )
