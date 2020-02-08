@@ -174,7 +174,9 @@ void CgnsFactory::CommonToUnsGrid()
             grid_array = gridMediator->gridVector;
         }
 
-        cgnsFactory->PrepareSection( grid_array, iZone );
+        int cgnsZoneId = iZone + 1;
+
+        cgnsFactory->PrepareSection( grid_array, cgnsZoneId );
 
         cgnsFactory->CgnsStr2Uns( grids[ iZone ], iZone );
 
@@ -383,7 +385,7 @@ void CgnsFactory::CreateDefaultZone()
 
 }
 
-CgnsZone * CgnsFactory::GetCreateZone( int cgnsZoneId )
+CgnsZone * CgnsFactory::GetCreateCgnsZone( int cgnsZoneId )
 {
     this->CreateDefaultZone();
 
@@ -395,7 +397,7 @@ CgnsZone * CgnsFactory::GetCreateZone( int cgnsZoneId )
 
 void CgnsFactory::PrepareSection( Grids & grids, int cgnsZoneId )
 {
-    CgnsZone * cgnsZone = GetCreateZone( cgnsZoneId );
+    CgnsZone * cgnsZone = this->GetCreateCgnsZone( cgnsZoneId );
     PrepareSectionBasic( grids, cgnsZone );
 }
 

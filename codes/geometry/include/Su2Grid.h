@@ -177,6 +177,6 @@ public:
 
 class Grid;
 class CgnsFactory;
-void FillSU2Section( Su2Grid* su2Grid, int zId, CgnsFactory * cgnsFactory );
+void FillSU2Section( Su2Grid* su2Grid, int cgnsZoneId, CgnsFactory * cgnsFactory );
 
 EndNameSpace
