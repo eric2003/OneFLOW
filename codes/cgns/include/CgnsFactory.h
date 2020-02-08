@@ -74,11 +74,6 @@ public:
     void PrepareSectionBasic( Grids & grids, CgnsZone * cgnsZone );
     void FillSection( Grids & grids, HXVector< Int3D * > & unsIdList );
 public:
-    void PrepareSU2Section( Su2Grid* su2Grid, int cgnsZoneId );
-    void PrepareSU2SectionBasic( Su2Grid* su2Grid, CgnsZone * cgnsZone );
-    void MergeSU2ToSingleZone( Su2Grid* su2Grid, HXVector< Int3D * > & unsIdList, NodeMesh * nodeMesh, int & nNode, int & nCell );
-    void FillSU2Section( Su2Grid* su2Grid );
-public:
     void CgnsStr2Uns( Grid *& grid, int zId );
     void ConvertStrCgns2UnsCgnsGrid();
     void AllocateGridElem();

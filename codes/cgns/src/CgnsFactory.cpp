@@ -354,10 +354,6 @@ void CgnsFactory::MergeToSingleZone( Grids & grids, HXVector< Int3D * > & unsIdL
     delete point_search;
 }
 
-void CgnsFactory::MergeSU2ToSingleZone( Su2Grid* su2Grid, HXVector< Int3D * > & unsIdList, NodeMesh * nodeMesh, int & nNode, int & nCell )
-{
-}
-
 void CgnsFactory::PrepareSectionBasic( Grids & grids, CgnsZone * cgnsZone )
 {
     NodeMesh * nodeMesh = cgnsZone->nodeMesh;
@@ -377,10 +373,6 @@ void CgnsFactory::PrepareSectionBasic( Grids & grids, CgnsZone * cgnsZone )
     cgnsZone->ConvertToInnerDataStandard();
 
     ONEFLOW::DeletePointer( unsIdList );
-}
-
-void CgnsFactory::PrepareSU2SectionBasic( Su2Grid* su2Grid, CgnsZone * cgnsZone )
-{
 }
 
 void CgnsFactory::CreateDefaultZone()
@@ -405,12 +397,6 @@ void CgnsFactory::PrepareSection( Grids & grids, int cgnsZoneId )
 {
     CgnsZone * cgnsZone = GetCreateZone( cgnsZoneId );
     PrepareSectionBasic( grids, cgnsZone );
-}
-
-void CgnsFactory::PrepareSU2Section( Su2Grid* su2Grid, int cgnsZoneId )
-{
-    CgnsZone * cgnsZone = GetCreateZone( cgnsZoneId );
-    PrepareSU2SectionBasic( su2Grid, cgnsZone );
 }
 
 void CgnsFactory::FillSection( Grids & grids, HXVector< Int3D * > & unsIdList )
@@ -579,10 +565,6 @@ void CgnsFactory::FillSection( Grids & grids, HXVector< Int3D * > & unsIdList )
     }
 
     delete bcTypeMap;
-}
-
-void CgnsFactory::FillSU2Section( Su2Grid* su2Grid )
-{
 }
 
 void ComputeUnsId( StrGrid * grid, PointSearch * pointSearch, Int3D * unsId )
