@@ -124,9 +124,9 @@ void CgnsMultiBase::ReadCgnsMultiBase()
 
     this->InitCgnsBase();
 
-    for ( int bId = 1; bId <= this->nBases; ++ bId )
+    for ( int iBase = 0; iBase < this->nBases; ++ iBase )
     {
-        CgnsBase * cgnsBase = this->GetCgnsBase( bId );
+        CgnsBase * cgnsBase = this->GetCgnsBase( iBase );
 
         cgnsBase->ReadCgnsBaseBasicInfo();
         cgnsBase->ReadNumberOfCgnsZones();
@@ -145,9 +145,9 @@ void CgnsMultiBase::DumpCgnsMultiBase( GridMediator * gridMediator )
     int nZone = gridMediator->numberOfZones;
     this->CreateDefaultCgnsZones( nZone );
 
-    for ( int bId = 1; bId <= this->nBases; ++ bId )
+    for ( int iBase = 0; iBase < this->nBases; ++ iBase )
     {
-        CgnsBase * cgnsBase = this->GetCgnsBase( bId );
+        CgnsBase * cgnsBase = this->GetCgnsBase( iBase );
 
         cgnsBase->DumpBase( gridMediator );
     }
@@ -161,10 +161,10 @@ void CgnsMultiBase::ReadCgnsMultiBase( CgnsMultiBase * strCgnsMultiBase )
 
     this->InitCgnsBase();
 
-    for ( int bId = 1; bId <= this->nBases; ++ bId )
+    for ( int iBase = 0; iBase < this->nBases; ++ iBase )
     {
-        CgnsBase * cgnsBase = this->GetCgnsBase( bId );
-        CgnsBase * cgnsBaseIn = strCgnsMultiBase->GetCgnsBase( bId );
+        CgnsBase * cgnsBase = this->GetCgnsBase( iBase );
+        CgnsBase * cgnsBaseIn = strCgnsMultiBase->GetCgnsBase( iBase );
 
         cgnsBase->ReadCgnsBaseBasicInfo( cgnsBaseIn );
         cgnsBase->ReadNumberOfCgnsZones( cgnsBaseIn );
@@ -186,9 +186,9 @@ void CgnsMultiBase::CreateDefaultCgnsZones( int nZones )
 
     this->InitCgnsBase();
 
-    for ( int bId = 1; bId <= this->nBases; ++ bId )
+    for ( int iBase = 0; iBase < this->nBases; ++ iBase )
     {
-        CgnsBase * cgnsBase = this->GetCgnsBase( bId );
+        CgnsBase * cgnsBase = this->GetCgnsBase( iBase );
 
         cgnsBase->SetDefaultCgnsBaseBasicInformation();
         cgnsBase->nZones = nZones;
@@ -208,7 +208,7 @@ void CgnsMultiBase::InitDefaultCgnsBase()
 
 void CgnsMultiBase::AllocateCgnsBase()
 {
-    for ( int bId = 1; bId <= this->nBases; ++ bId )
+    for ( int iBase = 0; iBase < this->nBases; ++ iBase )
     {
         CgnsBase * cgnsBase = new CgnsBase();
 
@@ -218,11 +218,11 @@ void CgnsMultiBase::AllocateCgnsBase()
 
 void CgnsMultiBase::InitCgnsBase()
 {
-    for ( int bId = 1; bId <= this->nBases; ++ bId )
+    for ( int iBase = 0; iBase < this->nBases; ++ iBase )
     {
-        CgnsBase * cgnsBase = this->GetCgnsBase( bId );
+        CgnsBase * cgnsBase = this->GetCgnsBase( iBase );
         cgnsBase->fileId = this->fileId;
-        cgnsBase->baseId = bId;
+        cgnsBase->baseId = iBase + 1;
     }
 }
 
@@ -230,9 +230,9 @@ void CgnsMultiBase::ComputeNumberOfTotalZones()
 {
     this->nTZones = 0;
 
-    for ( int bId = 1; bId <= this->nBases; ++ bId )
+    for ( int iBase = 0; iBase < this->nBases; ++ iBase )
     {
-        CgnsBase * cgnsBase = this->GetCgnsBase( bId );
+        CgnsBase * cgnsBase = this->GetCgnsBase( iBase );
         cgnsBase->zst = this->nTZones;
         cgnsBase->zed = this->nTZones + cgnsBase->nZones - 1;
 
@@ -245,9 +245,9 @@ void CgnsMultiBase::ConvertStrCgns2UnsCgnsGrid( CgnsMultiBase * strCgnsMultiBase
     this->ReadCgnsMultiBase( strCgnsMultiBase );
 }
 
-CgnsBase * CgnsMultiBase::GetCgnsBase( int baseId )
+CgnsBase * CgnsMultiBase::GetCgnsBase( int iBase )
 {
-    return baseVector[ baseId - 1 ];
+    return baseVector[ iBase ];
 }
 
 CgnsZone * CgnsMultiBase::GetCgnsZone( int globalZoneId )
@@ -258,9 +258,9 @@ CgnsZone * CgnsMultiBase::GetCgnsZone( int globalZoneId )
 
 CgnsZone * CgnsMultiBase::FindGlobalCgnsZone( int globalZoneId )
 {
-    for ( int bId = 1; bId <= this->nBases; ++ bId )
+    for ( int iBase = 0; iBase < this->nBases; ++ iBase )
     {
-        CgnsBase * cgnsBase = this->GetCgnsBase( bId );
+        CgnsBase * cgnsBase = this->GetCgnsBase( iBase );
         CgnsZone * cgnsZone = cgnsBase->FindGlobalCgnsZone( globalZoneId );
         if ( cgnsZone )
         {

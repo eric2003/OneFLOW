@@ -63,7 +63,7 @@ public:
     void ComputeNumberOfTotalZones();
     void ConvertStrCgns2UnsCgnsGrid( CgnsMultiBase * strCgnsMultiBase );
 public:
-    CgnsBase * GetCgnsBase( int baseId );
+    CgnsBase * GetCgnsBase( int iBase );
     CgnsZone * GetCgnsZone( int globalZoneId );
     CgnsZone * FindGlobalCgnsZone( int globalZoneId );
 };
