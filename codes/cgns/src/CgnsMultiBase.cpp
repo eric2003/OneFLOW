@@ -220,10 +220,7 @@ void CgnsMultiBase::ComputeNumberOfTotalZones()
     for ( int iBase = 0; iBase < this->nBases; ++ iBase )
     {
         CgnsBase * cgnsBase = this->GetCgnsBase( iBase );
-        cgnsBase->zst = this->nTZones;
-        cgnsBase->zed = this->nTZones + cgnsBase->nZones - 1;
-
-        this->nTZones += cgnsBase->nZones;
+        cgnsBase->ComputeZoneRange( this->nTZones );
     }
 }
 
