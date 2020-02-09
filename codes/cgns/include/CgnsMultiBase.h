@@ -55,22 +55,12 @@ public:
 
     void ReadCgnsMultiBase( CgnsMultiBase * strCgnsMultiBase );
     void ReadNumCgnsBase( CgnsMultiBase * strCgnsMultiBase );
-    //void ReadCgnsBaseBasicInfo();
-    //void ReadNumberOfCgnsZones();
-
-    //void ReadCgnsBaseBasicInfo( CgnsMultiBase * strCgnsMultiBase );
-    //void ReadNumberOfCgnsZones( CgnsMultiBase * strCgnsMultiBase );
-
-    //void ReadAllCgnsZonesInEachCgnsBase();
-    //void ReadAllCgnsZonesInEachCgnsBase( CgnsMultiBase * strCgnsMultiBase );
 public:
     void CreateDefaultCgnsZones( int nZones );
     void InitDefaultCgnsBase();
     void AllocateCgnsBase();
     void InitCgnsBase();
     void ComputeNumberOfTotalZones();
-    void AllocateCgnsZonesInEachCgnsBase();
-    void InitAllCgnsZonesInEachCgnsBase();
     void ConvertStrCgns2UnsCgnsGrid( CgnsMultiBase * strCgnsMultiBase );
 public:
     CgnsBase * GetCgnsBase( int baseId );
