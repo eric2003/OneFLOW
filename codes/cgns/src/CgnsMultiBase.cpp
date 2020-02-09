@@ -120,8 +120,6 @@ void CgnsMultiBase::ReadCgnsMultiBase()
 {
     this->ReadNumCgnsBase();
 
-    this->AllocateCgnsBase();
-
     this->InitCgnsBase();
 
     for ( int iBase = 0; iBase < this->nBases; ++ iBase )
@@ -157,7 +155,6 @@ void CgnsMultiBase::ReadCgnsMultiBase( CgnsMultiBase * strCgnsMultiBase )
 {
     this->ReadNumCgnsBase( strCgnsMultiBase );
 
-    this->AllocateCgnsBase();
 
     this->InitCgnsBase();
 
@@ -182,15 +179,13 @@ void CgnsMultiBase::CreateDefaultCgnsZones( int nZones )
 {
     this->InitDefaultCgnsBase();
 
-    this->AllocateCgnsBase();
-
     this->InitCgnsBase();
 
     for ( int iBase = 0; iBase < this->nBases; ++ iBase )
     {
         CgnsBase * cgnsBase = this->GetCgnsBase( iBase );
 
-        cgnsBase->SetDefaultCgnsBaseBasicInformation();
+        cgnsBase->SetDefaultCgnsBaseBasicInfo();
         cgnsBase->nZones = nZones;
 
         cgnsBase->AllocateAllCgnsZonesInCurrentCgnsBase();
@@ -206,21 +201,13 @@ void CgnsMultiBase::InitDefaultCgnsBase()
     this->nBases = 1;
 }
 
-void CgnsMultiBase::AllocateCgnsBase()
-{
-    for ( int iBase = 0; iBase < this->nBases; ++ iBase )
-    {
-        CgnsBase * cgnsBase = new CgnsBase();
-
-        baseVector.push_back( cgnsBase );
-    }
-}
-
 void CgnsMultiBase::InitCgnsBase()
 {
     for ( int iBase = 0; iBase < this->nBases; ++ iBase )
     {
-        CgnsBase * cgnsBase = this->GetCgnsBase( iBase );
+        CgnsBase * cgnsBase = new CgnsBase();
+        baseVector.push_back( cgnsBase );
+
         cgnsBase->fileId = this->fileId;
         cgnsBase->baseId = iBase + 1;
     }

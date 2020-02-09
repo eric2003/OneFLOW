@@ -57,7 +57,7 @@ CgnsZone * CgnsBase::GetCgnsZone( const string & zoneName )
     return this->GetCgnsZone( zoneId );
 }
 
-void CgnsBase::SetDefaultCgnsBaseBasicInformation()
+void CgnsBase::SetDefaultCgnsBaseBasicInfo()
 {
     //this->celldim = Dim::dimension;
     //this->phydim  = Dim::dimension;

@@ -55,7 +55,7 @@ public:
     map< string, int > zoneNameMap;
     CgnsFamilyBc * familyBc;
 public:
-    void SetDefaultCgnsBaseBasicInformation();
+    void SetDefaultCgnsBaseBasicInfo();
     void AllocateAllCgnsZonesInCurrentCgnsBase();
     void InitAllCgnsZonesInCurrentCgnsBase();
     void ReadCgnsBaseBasicInfo();

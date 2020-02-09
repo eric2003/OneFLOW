@@ -58,7 +58,6 @@ public:
 public:
     void CreateDefaultCgnsZones( int nZones );
     void InitDefaultCgnsBase();
-    void AllocateCgnsBase();
     void InitCgnsBase();
     void ComputeNumberOfTotalZones();
     void ConvertStrCgns2UnsCgnsGrid( CgnsMultiBase * strCgnsMultiBase );
