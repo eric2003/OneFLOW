@@ -35,6 +35,7 @@ using namespace std;
 BeginNameSpace( ONEFLOW )
 #ifdef ENABLE_CGNS
 
+
 CgnsMultiBase::CgnsMultiBase()
 {
 }
@@ -207,13 +208,11 @@ void CgnsMultiBase::InitDefaultCgnsBase()
 
 void CgnsMultiBase::AllocateCgnsBase()
 {
-    baseVector.resize( this->nBases );
-
     for ( int bId = 1; bId <= this->nBases; ++ bId )
     {
         CgnsBase * cgnsBase = new CgnsBase();
 
-        baseVector[ bId - 1 ] = cgnsBase;
+        baseVector.push_back( cgnsBase );
     }
 }
 
