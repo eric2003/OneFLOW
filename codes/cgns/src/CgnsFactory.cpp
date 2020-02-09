@@ -163,6 +163,9 @@ void CgnsFactory::CommonToUnsGrid()
     for ( int iZone = 0; iZone < nZones; ++ iZone )
     {
         CgnsFactory * cgnsFactory = new CgnsFactory();
+        int cgnsZoneId = iZone + 1;
+        CgnsZone * cgnsZone = cgnsFactory->CreateOneUnsCgnsZone( cgnsZoneId );
+
         Grids grid_array;
 
         if ( grid_para.multiBlock )
@@ -174,8 +177,8 @@ void CgnsFactory::CommonToUnsGrid()
             grid_array = gridMediator->gridVector;
         }
 
-        cgnsFactory->PrepareSection( grid_array, iZone );
-
+        cgnsFactory->PrepareCgnsZone( grid_array, cgnsZone );
+        
         cgnsFactory->CgnsStr2Uns( grids[ iZone ], iZone );
 
         delete cgnsFactory;
@@ -354,11 +357,7 @@ void CgnsFactory::MergeToSingleZone( Grids & grids, HXVector< Int3D * > & unsIdL
     delete point_search;
 }
 
-void CgnsFactory::MergeSU2ToSingleZone( Su2Grid* su2Grid, HXVector< Int3D * > & unsIdList, NodeMesh * nodeMesh, int & nNode, int & nCell )
-{
-}
-
-void CgnsFactory::PrepareSectionBasic( Grids & grids, CgnsZone * cgnsZone )
+void CgnsFactory::PrepareCgnsZone( Grids & grids, CgnsZone * cgnsZone )
 {
     NodeMesh * nodeMesh = cgnsZone->nodeMesh;
 
@@ -370,7 +369,6 @@ void CgnsFactory::PrepareSectionBasic( Grids & grids, CgnsZone * cgnsZone )
 
     cgnsZone->nNode = nNode;
     cgnsZone->nCell = nCell;
-    cgnsZone->cgnsZoneType = Unstructured;
 
     this->FillSection( grids, unsIdList );
 
@@ -379,38 +377,23 @@ void CgnsFactory::PrepareSectionBasic( Grids & grids, CgnsZone * cgnsZone )
     ONEFLOW::DeletePointer( unsIdList );
 }
 
-void CgnsFactory::PrepareSU2SectionBasic( Su2Grid* su2Grid, CgnsZone * cgnsZone )
-{
-}
-
 void CgnsFactory::CreateDefaultZone()
 {
     this->nZone = 1;
 
-    cgnsMultiBase->Create( this->nZone );
+    cgnsMultiBase->CreateDefaultCgnsZones( this->nZone );
 
 }
 
-CgnsZone * CgnsFactory::GetCreateZone( int cgnsZoneId )
+CgnsZone * CgnsFactory::CreateOneUnsCgnsZone( int cgnsZoneId )
 {
     this->CreateDefaultZone();
 
     int iZone = 0;
     CgnsZone * cgnsZone = cgnsMultiBase->GetCgnsZone( iZone );
+    cgnsZone->cgnsZoneType = ONEFLOW::Unstructured;
     cgnsZone->zId = cgnsZoneId;
     return cgnsZone;
-}
-
-void CgnsFactory::PrepareSection( Grids & grids, int cgnsZoneId )
-{
-    CgnsZone * cgnsZone = GetCreateZone( cgnsZoneId );
-    PrepareSectionBasic( grids, cgnsZone );
-}
-
-void CgnsFactory::PrepareSU2Section( Su2Grid* su2Grid, int cgnsZoneId )
-{
-    CgnsZone * cgnsZone = GetCreateZone( cgnsZoneId );
-    PrepareSU2SectionBasic( su2Grid, cgnsZone );
 }
 
 void CgnsFactory::FillSection( Grids & grids, HXVector< Int3D * > & unsIdList )
@@ -579,10 +562,6 @@ void CgnsFactory::FillSection( Grids & grids, HXVector< Int3D * > & unsIdList )
     }
 
     delete bcTypeMap;
-}
-
-void CgnsFactory::FillSU2Section( Su2Grid* su2Grid )
-{
 }
 
 void ComputeUnsId( StrGrid * grid, PointSearch * pointSearch, Int3D * unsId )
