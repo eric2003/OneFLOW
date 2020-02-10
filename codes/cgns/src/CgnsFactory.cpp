@@ -77,12 +77,6 @@ void CgnsFactory::ReadCgnsGrid()
     cgnsMultiBase->ReadCgnsGrid();
 }
 
-//void CgnsFactory::DumpCgnsGrid( GridMediator * gridMediator )
-//{
-//    cgns_global.cgnsbases = cgnsMultiBase;
-//    cgnsMultiBase->DumpCgnsGrid( gridMediator );
-//}
-
 void CgnsFactory::DumpCgnsGrid( GridMediatorS * gridMediators )
 {
     cgns_global.cgnsbases = cgnsMultiBase;
@@ -387,7 +381,15 @@ void CgnsFactory::CreateDefaultZone()
 {
     this->nZone = 1;
 
-    cgnsMultiBase->CreateDefaultCgnsZones( this->nZone );
+    GridMediatorS * gridMediatorS = new GridMediatorS();
+    GridMediator * gridMediator = new GridMediator();
+    gridMediatorS->AddGridMediator( gridMediator );
+    gridMediator->numberOfZones = this->nZone;
+
+    cgnsMultiBase->CreateDefaultCgnsZones( gridMediatorS );
+
+    delete gridMediator;
+    delete gridMediatorS;
 
 }
 

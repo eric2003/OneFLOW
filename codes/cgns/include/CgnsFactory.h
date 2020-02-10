@@ -61,7 +61,6 @@ public:
 public:
     void GenerateGrid();
     void ReadCgnsGrid();
-    //void DumpCgnsGrid( GridMediator * gridMediator );
     void DumpCgnsGrid( GridMediatorS * gridMediators );
     void ProcessGrid();
 public:
