@@ -41,6 +41,7 @@ class CgnsZone;
 class GridElem;
 class Su2Grid;
 class GridMediator;
+class GridMediatorS;
 
 #ifdef ENABLE_CGNS
 
@@ -60,7 +61,8 @@ public:
 public:
     void GenerateGrid();
     void ReadCgnsGrid();
-    void DumpCgnsGrid( GridMediator * gridMediator );
+    //void DumpCgnsGrid( GridMediator * gridMediator );
+    void DumpCgnsGrid( GridMediatorS * gridMediators );
     void ProcessGrid();
 public:
     void CommonToOneFlowGrid();

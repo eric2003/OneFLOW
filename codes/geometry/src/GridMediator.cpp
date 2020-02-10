@@ -102,6 +102,38 @@ void GridMediator::ReadGridgen()
 {
 }
 
+GridMediatorS::GridMediatorS()
+{
+    ;
+}
+
+GridMediatorS::~GridMediatorS()
+{
+    ;
+}
+
+void GridMediatorS::AddGridMediator( GridMediator * gridMediator )
+{
+    this->gm.push_back( gridMediator );
+}
+
+GridMediator * GridMediatorS::GetGridMediator( int iGridMediator )
+{
+    return this->gm[ iGridMediator ];
+}
+
+int GridMediatorS::GetSize()
+{
+    return this->gm.size();
+}
+
+string GridMediatorS::GetTargetFile()
+{
+    int index = 0;
+    GridMediator * gridMediator = this->gm[ index ];
+    return gridMediator->targetFile;
+}
+
 GridMediator * GlobalGrid::gridMediator = 0;
 
 GlobalGrid::GlobalGrid()

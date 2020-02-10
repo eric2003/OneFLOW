@@ -54,6 +54,20 @@ public:
     void AddDefaultName();
 };
 
+class GridMediatorS
+{
+public:
+    GridMediatorS();
+    ~GridMediatorS();
+public:
+    HXVector< GridMediator * > gm;
+public:
+    void AddGridMediator( GridMediator * gridMediator );
+    GridMediator * GetGridMediator( int iGridMediator );
+    int GetSize();
+    string GetTargetFile();
+};
+
 class GlobalGrid
 {
 public:

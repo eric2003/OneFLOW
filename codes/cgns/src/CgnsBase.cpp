@@ -112,6 +112,8 @@ void CgnsBase::ReadCgnsBaseBasicInfo()
 
 void CgnsBase::DumpBase( GridMediator * gridMediator )
 {
+    GlobalGrid::SetCurrentGridMediator( gridMediator );
+
     cg_base_write( this->fileId, this->baseName.c_str(), this->celldim, this->phydim, &this->baseId );
     cout << " baseId = " << this->baseId << " baseName = " << this->baseName << "\n";
     cout << " nZones = " << nZones << "\n";

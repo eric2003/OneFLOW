@@ -38,6 +38,8 @@ BeginNameSpace( ONEFLOW )
 
 CgnsMultiBase::CgnsMultiBase()
 {
+    this->fileId = 1;
+    this->nBases = 0;
 }
 
 CgnsMultiBase::~CgnsMultiBase()
@@ -69,14 +71,21 @@ void CgnsMultiBase::ReadCgnsGrid()
     this->ReadCgnsGrid( grid_para.gridFile );
 }
 
-void CgnsMultiBase::DumpCgnsGrid( GridMediator * gridMediator )
+//void CgnsMultiBase::DumpCgnsGrid( GridMediator * gridMediator )
+//{
+//    string fileName = gridMediator->targetFile;
+//    this->OpenCgnsFile( fileName, CG_MODE_WRITE );
+//    this->DumpCgnsMultiBase( gridMediator );
+//    this->CloseCgnsFile();
+//}
+
+void CgnsMultiBase::DumpCgnsGrid( GridMediatorS * gridMediators )
 {
-    string fileName = gridMediator->targetFile;
+    string fileName = gridMediators->GetTargetFile();
     this->OpenCgnsFile( fileName, CG_MODE_WRITE );
-    this->DumpCgnsMultiBase( gridMediator );
+    this->DumpCgnsMultiBase( gridMediators );
     this->CloseCgnsFile();
 }
-
 void CgnsMultiBase::ReadCgnsGrid( const string & fileName )
 {
     this->OpenCgnsFile( fileName, CG_MODE_READ );
@@ -138,15 +147,27 @@ void CgnsMultiBase::ReadCgnsMultiBase()
 }
 
 
-void CgnsMultiBase::DumpCgnsMultiBase( GridMediator * gridMediator )
+//void CgnsMultiBase::DumpCgnsMultiBase( GridMediator * gridMediator )
+//{
+//    int nZone = gridMediator->numberOfZones;
+//    this->CreateDefaultCgnsZones( nZone );
+//
+//    for ( int iBase = 0; iBase < this->nBases; ++ iBase )
+//    {
+//        CgnsBase * cgnsBase = this->GetCgnsBase( iBase );
+//
+//        cgnsBase->DumpBase( gridMediator );
+//    }
+//}
+
+void CgnsMultiBase::DumpCgnsMultiBase( GridMediatorS * gridMediatorS )
 {
-    int nZone = gridMediator->numberOfZones;
-    this->CreateDefaultCgnsZones( nZone );
+    this->CreateDefaultCgnsZones( gridMediatorS );
 
     for ( int iBase = 0; iBase < this->nBases; ++ iBase )
     {
         CgnsBase * cgnsBase = this->GetCgnsBase( iBase );
-
+        GridMediator * gridMediator = gridMediatorS->GetGridMediator( iBase );
         cgnsBase->DumpBase( gridMediator );
     }
 }
@@ -154,7 +175,6 @@ void CgnsMultiBase::DumpCgnsMultiBase( GridMediator * gridMediator )
 void CgnsMultiBase::ReadCgnsMultiBase( CgnsMultiBase * strCgnsMultiBase )
 {
     this->ReadNumCgnsBase( strCgnsMultiBase );
-
 
     this->InitCgnsBase();
 
@@ -173,6 +193,28 @@ void CgnsMultiBase::ReadCgnsMultiBase( CgnsMultiBase * strCgnsMultiBase )
 
     this->ComputeNumberOfTotalZones();
 
+}
+
+void CgnsMultiBase::CreateDefaultCgnsZones( GridMediatorS * gridMediatorS )
+{
+    this->fileId = 1;
+    this->nBases = gridMediatorS->GetSize();
+
+    this->InitCgnsBase();
+
+    for ( int iBase = 0; iBase < this->nBases; ++ iBase )
+    {
+        CgnsBase * cgnsBase = this->GetCgnsBase( iBase );
+        GridMediator * gridMediator = gridMediatorS->GetGridMediator( iBase );
+
+        cgnsBase->SetDefaultCgnsBaseBasicInfo();
+        cgnsBase->nZones = gridMediator->numberOfZones;
+
+        cgnsBase->AllocateAllCgnsZonesInCurrentCgnsBase();
+        cgnsBase->InitAllCgnsZonesInCurrentCgnsBase();
+    }
+
+    this->ComputeNumberOfTotalZones();
 }
 
 void CgnsMultiBase::CreateDefaultCgnsZones( int nZones )

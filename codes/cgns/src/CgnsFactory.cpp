@@ -77,10 +77,16 @@ void CgnsFactory::ReadCgnsGrid()
     cgnsMultiBase->ReadCgnsGrid();
 }
 
-void CgnsFactory::DumpCgnsGrid( GridMediator * gridMediator )
+//void CgnsFactory::DumpCgnsGrid( GridMediator * gridMediator )
+//{
+//    cgns_global.cgnsbases = cgnsMultiBase;
+//    cgnsMultiBase->DumpCgnsGrid( gridMediator );
+//}
+
+void CgnsFactory::DumpCgnsGrid( GridMediatorS * gridMediators )
 {
     cgns_global.cgnsbases = cgnsMultiBase;
-    cgnsMultiBase->DumpCgnsGrid( gridMediator );
+    cgnsMultiBase->DumpCgnsGrid( gridMediators );
 }
 
 void CgnsFactory::ProcessGrid()
