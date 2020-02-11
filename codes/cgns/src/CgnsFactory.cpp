@@ -382,13 +382,14 @@ void CgnsFactory::CreateDefaultZone()
     this->nZone = 1;
 
     GridMediatorS * gridMediatorS = new GridMediatorS();
-    GridMediator * gridMediator = new GridMediator();
-    gridMediatorS->AddGridMediator( gridMediator );
-    gridMediator->numberOfZones = this->nZone;
+    gridMediatorS->CreateSimple(this->nZone );
+    //GridMediator * gridMediator = new GridMediator();
+    //gridMediatorS->AddGridMediator( gridMediator );
+    //gridMediator->numberOfZones = this->nZone;
 
     cgnsMultiBase->CreateDefaultCgnsZones( gridMediatorS );
 
-    delete gridMediator;
+    //delete gridMediator;
     delete gridMediatorS;
 
 }

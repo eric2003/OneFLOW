@@ -104,12 +104,18 @@ void GridMediator::ReadGridgen()
 
 GridMediatorS::GridMediatorS()
 {
-    ;
+    this->flag = false;
 }
 
 GridMediatorS::~GridMediatorS()
 {
-    ;
+    if ( this->flag )
+    {
+        for ( int i = 0; i < this->gm.size(); ++ i )
+        {
+            delete this->gm[ i ];
+        }
+    }
 }
 
 void GridMediatorS::AddGridMediator( GridMediator * gridMediator )
@@ -125,6 +131,14 @@ GridMediator * GridMediatorS::GetGridMediator( int iGridMediator )
 int GridMediatorS::GetSize()
 {
     return this->gm.size();
+}
+
+void GridMediatorS::CreateSimple( int nZone )
+{
+    GridMediator * gridMediator = new GridMediator();
+    gridMediator->numberOfZones = nZone;
+    this->AddGridMediator( gridMediator );
+    this->flag = true;
 }
 
 string GridMediatorS::GetTargetFile()

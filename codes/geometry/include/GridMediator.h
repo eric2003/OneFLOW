@@ -61,11 +61,14 @@ public:
     ~GridMediatorS();
 public:
     HXVector< GridMediator * > gm;
+    bool flag;
 public:
     void AddGridMediator( GridMediator * gridMediator );
     GridMediator * GetGridMediator( int iGridMediator );
     int GetSize();
     string GetTargetFile();
+public:
+    void CreateSimple( int nZone );
 };
 
 class GlobalGrid
