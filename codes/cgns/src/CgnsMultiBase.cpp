@@ -129,7 +129,7 @@ void CgnsMultiBase::ReadCgnsMultiBase()
 
         cgnsBase->ReadCgnsBaseBasicInfo();
         cgnsBase->ReadNumberOfCgnsZones();
-        cgnsBase->AllocateAllCgnsZonesInCurrentCgnsBase();
+        cgnsBase->AllocateAllCgnsZones();
         cgnsBase->ReadFamilySpecifiedBc();
         cgnsBase->ReadAllCgnsZones();
     }
@@ -162,7 +162,7 @@ void CgnsMultiBase::ReadCgnsMultiBase( CgnsMultiBase * strCgnsMultiBase )
 
         cgnsBase->ReadCgnsBaseBasicInfo( cgnsBaseIn );
         cgnsBase->ReadNumberOfCgnsZones( cgnsBaseIn );
-        cgnsBase->AllocateAllCgnsZonesInCurrentCgnsBase();
+        cgnsBase->AllocateAllCgnsZones();
         cgnsBase->ReadAllCgnsZones( cgnsBaseIn );
 
     }
@@ -186,7 +186,7 @@ void CgnsMultiBase::CreateDefaultCgnsZones( GridMediatorS * gridMediatorS )
         cgnsBase->SetDefaultCgnsBaseBasicInfo();
         cgnsBase->nZones = gridMediator->numberOfZones;
 
-        cgnsBase->AllocateAllCgnsZonesInCurrentCgnsBase();
+        cgnsBase->AllocateAllCgnsZones();
      }
 
     this->ComputeNumberOfTotalZones();

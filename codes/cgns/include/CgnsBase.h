@@ -57,7 +57,8 @@ public:
 public:
     void ComputeZoneRange( int & nTZones );
     void SetDefaultCgnsBaseBasicInfo();
-    void AllocateAllCgnsZonesInCurrentCgnsBase();
+    void AddCgnsZone( CgnsZone * cgnsZone );
+    void AllocateAllCgnsZones();
     void ReadCgnsBaseBasicInfo();
     void ReadCgnsBaseBasicInfo( CgnsBase * cgnsBaseIn );
     void ReadNumberOfCgnsZones();

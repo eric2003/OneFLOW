@@ -76,17 +76,20 @@ void CgnsBase::SetDefaultCgnsBaseBasicInfo()
     this->baseName = ONEFLOW::AddString( "Base", this->baseId );
 }
 
-void CgnsBase::AllocateAllCgnsZonesInCurrentCgnsBase()
+void CgnsBase::AddCgnsZone( CgnsZone * cgnsZone )
 {
-    cgnsZones.resize( nZones );
+    cgnsZones.push_back( cgnsZone );
+    int zId = cgnsZones.size();
+    cgnsZone->zId = zId;
+}
 
+void CgnsBase::AllocateAllCgnsZones()
+{
     for ( int iZone = 0; iZone < nZones; ++ iZone )
     {
         CgnsZone * cgnsZone = new CgnsZone( this );
 
-        cgnsZone->zId = iZone + 1;
-
-        cgnsZones[ iZone ] = cgnsZone;
+        this->AddCgnsZone( cgnsZone );
 
         cgnsZone->Create();
     }
