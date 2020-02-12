@@ -68,7 +68,7 @@ public:
     void CommonToUnsGrid();
     void CommonToStrGrid();
 public:
-    void CreateDefaultZone();
+    void CreateDefaultZone( int nZone );
     CgnsZone * CreateOneUnsCgnsZone( int cgnsZoneId );
     void MergeToSingleZone( Grids & grids, HXVector< Int3D * > & unsIdList, NodeMesh * nodeMesh, int & nNode, int & nCell );
     void PrepareCgnsZone( Grids & grids, CgnsZone * cgnsZone );

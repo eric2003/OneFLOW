@@ -377,26 +377,19 @@ void CgnsFactory::PrepareCgnsZone( Grids & grids, CgnsZone * cgnsZone )
     ONEFLOW::DeletePointer( unsIdList );
 }
 
-void CgnsFactory::CreateDefaultZone()
+void CgnsFactory::CreateDefaultZone( int nZone )
 {
-    this->nZone = 1;
-
     GridMediatorS * gridMediatorS = new GridMediatorS();
-    gridMediatorS->CreateSimple(this->nZone );
-    //GridMediator * gridMediator = new GridMediator();
-    //gridMediatorS->AddGridMediator( gridMediator );
-    //gridMediator->numberOfZones = this->nZone;
-
+    gridMediatorS->CreateSimple( this->nZone );
     cgnsMultiBase->CreateDefaultCgnsZones( gridMediatorS );
-
-    //delete gridMediator;
     delete gridMediatorS;
 
 }
 
 CgnsZone * CgnsFactory::CreateOneUnsCgnsZone( int cgnsZoneId )
 {
-    this->CreateDefaultZone();
+    int nZone = 1;
+    this->CreateDefaultZone( nZone );
 
     int iZone = 0;
     CgnsZone * cgnsZone = cgnsMultiBase->GetCgnsZone( iZone );

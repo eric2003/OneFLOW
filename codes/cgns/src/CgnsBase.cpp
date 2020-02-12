@@ -84,18 +84,11 @@ void CgnsBase::AllocateAllCgnsZonesInCurrentCgnsBase()
     {
         CgnsZone * cgnsZone = new CgnsZone( this );
 
+        cgnsZone->zId = iZone + 1;
+
         cgnsZones[ iZone ] = cgnsZone;
 
         cgnsZone->Create();
-    }
-}
-
-void CgnsBase::InitAllCgnsZonesInCurrentCgnsBase()
-{
-    for ( int iZone = 0; iZone < nZones; ++ iZone )
-    {
-        CgnsZone * cgnsZone = cgnsZones[ iZone ];
-        cgnsZone->zId = iZone + 1;
     }
 }
 
