@@ -44,7 +44,6 @@ public:
 public:
     int fileId, baseId;
     int nZones;
-    int zst, zed;
     int celldim, phydim;
     string baseName;
     HXVector< CgnsZone * > cgnsZones;
@@ -57,7 +56,6 @@ public:
     CgnsFamilyBc * familyBc;
 public:
     int GetNZone();
-    void ComputeZoneRange( int & nTZones );
     void SetDefaultCgnsBaseBasicInfo();
     void AddCgnsZone( CgnsZone * cgnsZone );
     void AllocateAllCgnsZones();

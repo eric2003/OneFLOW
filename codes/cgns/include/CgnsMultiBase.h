@@ -40,7 +40,6 @@ public:
     ~CgnsMultiBase();
 public:
     int fileId, nBases;
-    //int nTZones;
  
     HXVector< CgnsBase * > baseVector;
 public:
@@ -60,7 +59,6 @@ public:
     void CreateDefaultCgnsZones( GridMediatorS * gridMediatorS );
     void AddCgnsBase( CgnsBase * cgnsBase );
     void InitCgnsBase();
-    void ComputeNumberOfTotalZones();
     void ConvertStrCgns2UnsCgnsGrid( CgnsMultiBase * strCgnsMultiBase );
 public:
     int GetNZone();

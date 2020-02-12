@@ -149,8 +149,6 @@ void CgnsMultiBase::ReadCgnsMultiBase()
         cgnsBase->AllocateAllCgnsZones();
         cgnsBase->ReadAllCgnsZones();
     }
-
-    this->ComputeNumberOfTotalZones();
 }
 
 void CgnsMultiBase::DumpCgnsMultiBase( GridMediatorS * gridMediatorS )
@@ -182,9 +180,6 @@ void CgnsMultiBase::ReadCgnsMultiBase( CgnsMultiBase * strCgnsMultiBase )
         cgnsBase->ReadAllCgnsZones( cgnsBaseIn );
 
     }
-
-    this->ComputeNumberOfTotalZones();
-
 }
 
 void CgnsMultiBase::CreateDefaultCgnsZones( GridMediatorS * gridMediatorS )
@@ -204,8 +199,6 @@ void CgnsMultiBase::CreateDefaultCgnsZones( GridMediatorS * gridMediatorS )
 
         cgnsBase->AllocateAllCgnsZones();
      }
-
-    this->ComputeNumberOfTotalZones();
 }
 
 void CgnsMultiBase::AddCgnsBase( CgnsBase * cgnsBase )
@@ -222,17 +215,6 @@ void CgnsMultiBase::InitCgnsBase()
     {
         CgnsBase * cgnsBase = new CgnsBase();
         this->AddCgnsBase( cgnsBase );
-    }
-}
-
-void CgnsMultiBase::ComputeNumberOfTotalZones()
-{
-    int nTZones = 0;
-
-    for ( int iBase = 0; iBase < this->nBases; ++ iBase )
-    {
-        CgnsBase * cgnsBase = this->GetCgnsBase( iBase );
-        cgnsBase->ComputeZoneRange( nTZones );
     }
 }
 

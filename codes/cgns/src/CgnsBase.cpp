@@ -68,14 +68,6 @@ int CgnsBase::GetNZone()
     return this->cgnsZones.size();
 }
 
-void CgnsBase::ComputeZoneRange( int & nTZones )
-{
-    this->zst = nTZones;
-    this->zed = nTZones + this->nZones - 1;
-
-    nTZones += this->nZones;
-}
-
 void CgnsBase::SetDefaultCgnsBaseBasicInfo()
 {
     //this->celldim = Dim::dimension;
