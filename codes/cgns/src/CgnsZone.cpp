@@ -98,11 +98,11 @@ void CgnsZone::SetPeriodicBc()
 
 void CgnsZone::SetElementTypeAndNode( ElemFeature * elem_feature )
 {
-    size_t nSection = this->multiSection->cgnsSections.size();
+    size_t nSection = this->multiSection->nSection;
     for ( int iSection = 0; iSection < nSection; ++ iSection )
     {
-        CgnsSection * section = this->multiSection->cgnsSections[ iSection ];
-        section->SetElementTypeAndNode( elem_feature );
+        CgnsSection * cgnsSection = this->multiSection->GetCgnsSection( iSection );
+        cgnsSection->SetElementTypeAndNode( elem_feature );
     }
     cout << "\n";
     cout << " iZone = " << this->zId << " nCell = " << nCell << "\n";
@@ -523,7 +523,7 @@ void CgnsZone::GenerateUnsVolElemConn( CgnsZone * cgnsZoneIn )
     cout << " ni = " << ni << " nj = " << nj << " nk = " << nk << "\n";
 
     int iSection = 0;
-    CgnsSection * cgnsSection = multiSection->cgnsSections[ iSection ];
+    CgnsSection * cgnsSection = this->multiSection->GetCgnsSection( iSection );
 
     Range I, J, K;
     GetRange( ni, nj, nk, 0, -1, I, J, K );
@@ -585,7 +585,7 @@ void CgnsZone::GenerateUnsVolElemConn( CgnsZone * cgnsZoneIn )
 void CgnsZone::GenerateUnsBcElemConn( CgnsZone * cgnsZoneIn )
 {
     int iSection = 1;
-    CgnsSection * cgnsSection = multiSection->cgnsSections[ iSection ];
+    CgnsSection * cgnsSection = this->multiSection->GetCgnsSection( iSection );
 
     this->CreateCgnsBcRegion( cgnsZoneIn );
 
@@ -598,7 +598,7 @@ void CgnsZone::GenerateUnsBcCondConn( CgnsZone * cgnsZoneIn )
     int nBcRegion = cgnsZoneIn->bcRegionProxy->nBcRegion;
 
     int iSection = 1;
-    CgnsSection * cgnsSection = multiSection->cgnsSections[ iSection ];
+    CgnsSection * cgnsSection = this->multiSection->GetCgnsSection( iSection );
 
     CgInt startId = cgnsSection->startId;
 

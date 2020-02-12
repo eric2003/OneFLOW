@@ -546,7 +546,7 @@ void FillSU2CgnsZone( Su2Grid* su2Grid, CgnsZone * cgnsZone )
     int sumElem = 0;
     for ( int iSection = 0; iSection < nSection; ++ iSection )
     {
-        CgnsSection * cgnsSection = multiSection->cgnsSections[ iSection ];
+        CgnsSection * cgnsSection = multiSection->GetCgnsSection( iSection );
         SecMarker * sec = 0;
         if ( iSection < nVolSec )
         {
@@ -582,7 +582,7 @@ void FillSU2CgnsZone( Su2Grid* su2Grid, CgnsZone * cgnsZone )
 
     for ( int iSection = 0; iSection < nSection; ++ iSection )
     {
-        CgnsSection* cgnsSection = multiSection->cgnsSections[ iSection ];
+        CgnsSection * cgnsSection = multiSection->GetCgnsSection( iSection );
         cgnsSection->SetElemPosition();
     }
 

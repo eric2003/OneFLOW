@@ -462,8 +462,8 @@ void CgnsFactory::FillSection( Grids & grids, HXVector< Int3D * > & unsIdList )
     bcRegionProxy->nConn = 0;
     bcRegionProxy->CreateCgnsBcRegion();
 
-    CgnsSection * secV = cgnsZone->multiSection->cgnsSections[ 0 ];
-    CgnsSection * secB = cgnsZone->multiSection->cgnsSections[ 1 ];
+    CgnsSection * secV = cgnsZone->multiSection->GetCgnsSection( 0 );
+    CgnsSection * secB = cgnsZone->multiSection->GetCgnsSection( 1 );
 
     CgIntField& connList  = secV->connList;
     CgIntField& bConnList = secB->connList;
