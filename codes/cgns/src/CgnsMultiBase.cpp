@@ -47,10 +47,21 @@ CgnsMultiBase::~CgnsMultiBase()
     ;
 }
 
+int CgnsMultiBase::GetNZone()
+{
+    int nZone = 0;
+    for ( int iBase = 0; iBase < this->nBases; ++ iBase )
+    {
+        CgnsBase * cgnsBase = this->GetCgnsBase( iBase );
+        nZone += cgnsBase->GetNZone();
+    }
+    return nZone;
+}
+
 int CgnsMultiBase::GetSystemZoneType()
 {
     IntSet zoneTypeSet;
-
+    int nTZones = this->GetNZone();
     for ( int iZone = 0; iZone < nTZones; ++ iZone )
     {
         CgnsZone * cgnsZone = this->GetCgnsZone( iZone );
@@ -61,11 +72,6 @@ int CgnsMultiBase::GetSystemZoneType()
     //for ( int iBase = 0; iBase < this->nBases; ++ iBase )
     //{
     //    CgnsBase * cgnsBase = this->GetCgnsBase( iBase );
-    //    CgnsZone * cgnsZone = cgnsBase->FindGlobalCgnsZone( globalZoneId );
-    //    if ( cgnsZone )
-    //    {
-    //        return cgnsZone;
-    //    }
     //}
 
     if ( zoneTypeSet.size() == 1 )
@@ -221,12 +227,12 @@ void CgnsMultiBase::InitCgnsBase()
 
 void CgnsMultiBase::ComputeNumberOfTotalZones()
 {
-    this->nTZones = 0;
+    int nTZones = 0;
 
     for ( int iBase = 0; iBase < this->nBases; ++ iBase )
     {
         CgnsBase * cgnsBase = this->GetCgnsBase( iBase );
-        cgnsBase->ComputeZoneRange( this->nTZones );
+        cgnsBase->ComputeZoneRange( nTZones );
     }
 }
 
@@ -242,9 +248,6 @@ CgnsBase * CgnsMultiBase::GetCgnsBase( int iBase )
 
 CgnsZone * CgnsMultiBase::GetCgnsZone( int globalZoneId )
 {
-    //CgnsZone * cgnsZone = this->FindGlobalCgnsZone( globalZoneId );
-    //return cgnsZone;
-
     CgnsZone * cgnsZone = this->GetMultiBaseCgnsZone( 0, globalZoneId );
     return cgnsZone;
 }
@@ -255,21 +258,6 @@ CgnsZone * CgnsMultiBase::GetMultiBaseCgnsZone( int iBase, int iZone )
     CgnsZone * cgnsZone = cgnsBase->GetCgnsZone( iZone );
     return cgnsZone;
 }
-
-//CgnsZone * CgnsMultiBase::FindGlobalCgnsZone( int globalZoneId )
-//{
-//    for ( int iBase = 0; iBase < this->nBases; ++ iBase )
-//    {
-//        CgnsBase * cgnsBase = this->GetCgnsBase( iBase );
-//        CgnsZone * cgnsZone = cgnsBase->FindGlobalCgnsZone( globalZoneId );
-//        if ( cgnsZone )
-//        {
-//            return cgnsZone;
-//        }
-//    }
-//
-//    return 0;
-//}
 
 #endif
 EndNameSpace

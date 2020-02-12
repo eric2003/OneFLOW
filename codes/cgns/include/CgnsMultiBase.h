@@ -40,8 +40,8 @@ public:
     ~CgnsMultiBase();
 public:
     int fileId, nBases;
-    int nTZones;
-
+    //int nTZones;
+ 
     HXVector< CgnsBase * > baseVector;
 public:
     int GetSystemZoneType();
@@ -63,9 +63,9 @@ public:
     void ComputeNumberOfTotalZones();
     void ConvertStrCgns2UnsCgnsGrid( CgnsMultiBase * strCgnsMultiBase );
 public:
+    int GetNZone();
     CgnsBase * GetCgnsBase( int iBase );
     CgnsZone * GetCgnsZone( int globalZoneId );
-    //CgnsZone * FindGlobalCgnsZone( int globalZoneId );
     CgnsZone * GetMultiBaseCgnsZone( int iBase, int iZone );
 };
 

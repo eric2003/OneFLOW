@@ -63,6 +63,11 @@ CgnsZone * CgnsBase::GetCgnsZoneByName( const string & zoneName )
     return this->GetCgnsZoneBasedOn1( zoneId );
 }
 
+int CgnsBase::GetNZone()
+{
+    return this->cgnsZones.size();
+}
+
 void CgnsBase::ComputeZoneRange( int & nTZones )
 {
     this->zst = nTZones;
@@ -204,17 +209,6 @@ void CgnsBase::ReadFamilySpecifiedBc()
     this->familyBc = new CgnsFamilyBc( this );
     this->familyBc->ReadFamilySpecifiedBc();
 }
-
-//CgnsZone * CgnsBase::FindGlobalCgnsZone( int globalZoneId )
-//{
-//    if ( ( this->zst <= globalZoneId ) && ( globalZoneId <= this->zed ) )
-//    {
-//        int localZoneId = globalZoneId - this->zst;
-//        CgnsZone * cgnsZone = this->cgnsZones[ localZoneId ]; 
-//        return cgnsZone;
-//    }
-//    return 0;
-//}
 
 #endif
 EndNameSpace

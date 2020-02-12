@@ -210,7 +210,7 @@ void CgnsFactory::CgnsStr2Uns( Grid *& grid, int zId )
 
 void CgnsFactory::AllocateGridElem()
 {
-    this->nOriZone = this->cgnsMultiBase->nTZones;
+    this->nOriZone = this->cgnsMultiBase->GetNZone();
 
     if ( grid_para.multiBlock == 0 )
     {
@@ -266,7 +266,7 @@ void CgnsFactory::AllocateCmpGrid()
 {
     if ( ONEFLOW::IsStrGrid( grid_para.topo ) )
     {
-        this->nOriZone = this->cgnsMultiBase->nTZones;
+        this->nOriZone = this->cgnsMultiBase->GetNZone();
         this->nZone    = this->nOriZone;
     }
 

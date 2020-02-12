@@ -56,6 +56,7 @@ public:
     map< string, int > zoneNameMap;
     CgnsFamilyBc * familyBc;
 public:
+    int GetNZone();
     void ComputeZoneRange( int & nTZones );
     void SetDefaultCgnsBaseBasicInfo();
     void AddCgnsZone( CgnsZone * cgnsZone );
@@ -71,7 +72,6 @@ public:
 public:
     void SetFamilyBc( BCType_t & bcType, const string & bcRegionName );
     void ReadFamilySpecifiedBc();
-    //CgnsZone * FindGlobalCgnsZone( int globalZoneId );
 };
 
 #endif
