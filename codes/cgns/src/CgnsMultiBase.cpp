@@ -58,6 +58,16 @@ int CgnsMultiBase::GetSystemZoneType()
         zoneTypeSet.insert( zoneType );
     }
 
+    //for ( int iBase = 0; iBase < this->nBases; ++ iBase )
+    //{
+    //    CgnsBase * cgnsBase = this->GetCgnsBase( iBase );
+    //    CgnsZone * cgnsZone = cgnsBase->FindGlobalCgnsZone( globalZoneId );
+    //    if ( cgnsZone )
+    //    {
+    //        return cgnsZone;
+    //    }
+    //}
+
     if ( zoneTypeSet.size() == 1 )
     {
         return * zoneTypeSet.begin();
@@ -206,11 +216,6 @@ void CgnsMultiBase::InitCgnsBase()
     {
         CgnsBase * cgnsBase = new CgnsBase();
         this->AddCgnsBase( cgnsBase );
-
-        //baseVector.push_back( cgnsBase );
-
-        //cgnsBase->fileId = this->fileId;
-        //cgnsBase->baseId = iBase + 1;
     }
 }
 
@@ -240,6 +245,13 @@ CgnsZone * CgnsMultiBase::GetCgnsZone( int globalZoneId )
     CgnsZone * cgnsZone = this->FindGlobalCgnsZone( globalZoneId );
     return cgnsZone;
 }
+
+//CgnsZone * CgnsMultiBase::GetBaseCgnsZone( int baseId, int zoneId )
+//{
+//    CgnsBase * cgnsBase = this->GetCgnsBase( iBase );
+//    CgnsZone * cgnsZone = cgnsBase->FindGlobalCgnsZone( globalZoneId );
+//    return cgnsZone;
+//}
 
 CgnsZone * CgnsMultiBase::FindGlobalCgnsZone( int globalZoneId )
 {

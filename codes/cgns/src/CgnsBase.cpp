@@ -43,18 +43,18 @@ CgnsBase::~CgnsBase()
     delete this->familyBc;
 }
 
-CgnsZone * CgnsBase::GetCgnsZone( int zoneId )
+CgnsZone * CgnsBase::GetCgnsZoneBasedOn1( int zoneId )
 {
     int id = zoneId - 1;
     return this->cgnsZones[ id ];
 }
 
-CgnsZone * CgnsBase::GetCgnsZone( const string & zoneName )
+CgnsZone * CgnsBase::GetCgnsZoneByName( const string & zoneName )
 {
     map< string, int >::iterator iter;
     iter = zoneNameMap.find( zoneName );
     int zoneId = iter->second;
-    return this->GetCgnsZone( zoneId );
+    return this->GetCgnsZoneBasedOn1( zoneId );
 }
 
 void CgnsBase::ComputeZoneRange( int & nTZones )

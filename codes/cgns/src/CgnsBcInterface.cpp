@@ -105,7 +105,7 @@ void CgnsBcInterface::AddFacePair()
 void CgnsBcInterface::SetPeriodicBc()
 {
     CgnsZone * sZone = this->bcRegion->cgnsZone;
-    CgnsZone * tZone = ONEFLOW::GetCgnsZone( this->donorZoneName );
+    CgnsZone * tZone = ONEFLOW::GetCgnsZoneByName( this->donorZoneName );
     NodeMesh * nodeMesh1 = sZone->nodeMesh;
     NodeMesh * nodeMesh2 = tZone->nodeMesh;
 
