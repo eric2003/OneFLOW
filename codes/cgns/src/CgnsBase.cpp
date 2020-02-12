@@ -43,12 +43,6 @@ CgnsBase::~CgnsBase()
     delete this->familyBc;
 }
 
-CgnsZone * CgnsBase::GetCgnsZoneBasedOn1( int zoneId )
-{
-    int id = zoneId - 1;
-    return this->cgnsZones[ id ];
-}
-
 CgnsZone * CgnsBase::GetCgnsZone( int iZone )
 {
     //iZone base on 0
@@ -59,8 +53,8 @@ CgnsZone * CgnsBase::GetCgnsZoneByName( const string & zoneName )
 {
     map< string, int >::iterator iter;
     iter = zoneNameMap.find( zoneName );
-    int zoneId = iter->second;
-    return this->GetCgnsZoneBasedOn1( zoneId );
+    int iZone = iter->second - 1;
+    return this->GetCgnsZone( iZone );
 }
 
 int CgnsBase::GetNZone()
@@ -119,7 +113,7 @@ void CgnsBase::DumpBase( GridMediator * gridMediator )
 
     for ( int iZone = 0; iZone < nZones; ++ iZone )
     {
-        CgnsZone * cgnsZone = cgnsZones[ iZone ];
+        CgnsZone * cgnsZone = this->GetCgnsZone( iZone );
         Grid * grid = gridMediator->gridVector[ iZone ];
         cgnsZone->DumpCgnsZone( grid );
     }
@@ -147,7 +141,7 @@ void CgnsBase::ConstructZoneNameMap()
 {
     for ( int iZone = 0; iZone < nZones; ++ iZone )
     {
-        CgnsZone * cgnsZone = this->cgnsZones[ iZone ];
+        CgnsZone * cgnsZone = this->GetCgnsZone( iZone );
         zoneNameMap[ cgnsZone->zoneName ] = cgnsZone->zId;
     }
 }
@@ -162,7 +156,7 @@ void CgnsBase::ReadAllCgnsZones()
     for ( int iZone = 0; iZone < nZones; ++ iZone )
     {
         cout << "==>iZone = " << iZone << " numberOfCgnsZones = " << this->nZones << "\n";
-        CgnsZone * cgnsZone = this->cgnsZones[ iZone ];
+        CgnsZone * cgnsZone = this->GetCgnsZone( iZone );
         cgnsZone->ReadCgnsGrid();
     }
 
@@ -172,7 +166,7 @@ void CgnsBase::ReadAllCgnsZones()
     {
         cout << "==>iZone = " << iZone << " numberOfCgnsZones = " << this->nZones << "\n";
         cout << "cgnsZone->SetPeriodicBc\n";
-        CgnsZone * cgnsZone = this->cgnsZones[ iZone ];
+        CgnsZone * cgnsZone = this->GetCgnsZone( iZone );
         cgnsZone->SetPeriodicBc();
     }
 }
@@ -185,8 +179,8 @@ void CgnsBase::ReadAllCgnsZones( CgnsBase * cgnsBaseIn )
     for ( int iZone = 0; iZone < nZones; ++ iZone )
     {
         cout << "==>iZone = " << iZone << " numberOfCgnsZones = " << this->nZones << "\n";
-        CgnsZone * cgnsZone = this->cgnsZones[ iZone ];
-        CgnsZone * cgnsZoneIn = cgnsBaseIn->cgnsZones[ iZone ];
+        CgnsZone * cgnsZone = this->GetCgnsZone( iZone );
+        CgnsZone * cgnsZoneIn = cgnsBaseIn->GetCgnsZone( iZone );
         cgnsZone->ReadCgnsGrid( cgnsZoneIn );
     }
 }

@@ -48,7 +48,6 @@ public:
     string baseName;
     HXVector< CgnsZone * > cgnsZones;
 public:
-    CgnsZone * GetCgnsZoneBasedOn1( int zoneId );
     CgnsZone * GetCgnsZoneByName( const string & zoneName );
     CgnsZone * GetCgnsZone( int iZone );
     void ConstructZoneNameMap();
