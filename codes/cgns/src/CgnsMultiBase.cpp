@@ -242,31 +242,34 @@ CgnsBase * CgnsMultiBase::GetCgnsBase( int iBase )
 
 CgnsZone * CgnsMultiBase::GetCgnsZone( int globalZoneId )
 {
-    CgnsZone * cgnsZone = this->FindGlobalCgnsZone( globalZoneId );
+    //CgnsZone * cgnsZone = this->FindGlobalCgnsZone( globalZoneId );
+    //return cgnsZone;
+
+    CgnsZone * cgnsZone = this->GetMultiBaseCgnsZone( 0, globalZoneId );
     return cgnsZone;
 }
 
-//CgnsZone * CgnsMultiBase::GetBaseCgnsZone( int baseId, int zoneId )
-//{
-//    CgnsBase * cgnsBase = this->GetCgnsBase( iBase );
-//    CgnsZone * cgnsZone = cgnsBase->FindGlobalCgnsZone( globalZoneId );
-//    return cgnsZone;
-//}
-
-CgnsZone * CgnsMultiBase::FindGlobalCgnsZone( int globalZoneId )
+CgnsZone * CgnsMultiBase::GetMultiBaseCgnsZone( int iBase, int iZone )
 {
-    for ( int iBase = 0; iBase < this->nBases; ++ iBase )
-    {
-        CgnsBase * cgnsBase = this->GetCgnsBase( iBase );
-        CgnsZone * cgnsZone = cgnsBase->FindGlobalCgnsZone( globalZoneId );
-        if ( cgnsZone )
-        {
-            return cgnsZone;
-        }
-    }
-
-    return 0;
+    CgnsBase * cgnsBase = this->GetCgnsBase( iBase );
+    CgnsZone * cgnsZone = cgnsBase->GetCgnsZone( iZone );
+    return cgnsZone;
 }
+
+//CgnsZone * CgnsMultiBase::FindGlobalCgnsZone( int globalZoneId )
+//{
+//    for ( int iBase = 0; iBase < this->nBases; ++ iBase )
+//    {
+//        CgnsBase * cgnsBase = this->GetCgnsBase( iBase );
+//        CgnsZone * cgnsZone = cgnsBase->FindGlobalCgnsZone( globalZoneId );
+//        if ( cgnsZone )
+//        {
+//            return cgnsZone;
+//        }
+//    }
+//
+//    return 0;
+//}
 
 #endif
 EndNameSpace

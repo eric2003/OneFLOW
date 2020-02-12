@@ -65,7 +65,8 @@ public:
 public:
     CgnsBase * GetCgnsBase( int iBase );
     CgnsZone * GetCgnsZone( int globalZoneId );
-    CgnsZone * FindGlobalCgnsZone( int globalZoneId );
+    //CgnsZone * FindGlobalCgnsZone( int globalZoneId );
+    CgnsZone * GetMultiBaseCgnsZone( int iBase, int iZone );
 };
 
 #endif
