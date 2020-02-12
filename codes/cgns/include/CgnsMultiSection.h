@@ -53,6 +53,7 @@ public:
     CgnsZone * cgnsZone;
     CgnsBcRegionProxy * cgnsBcRegionProxy;
 public:
+    void AddCgnsSection( CgnsSection * cgnsSection );
     void Create();
     void CreateConnList();
     void ConvertToInnerDataStandard();

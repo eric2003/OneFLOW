@@ -45,13 +45,24 @@ CgnsMultiSection::~CgnsMultiSection()
 {
 }
 
+void CgnsMultiSection::AddCgnsSection( CgnsSection * cgnsSection )
+{
+    this->cgnsSections.push_back( cgnsSection );
+    int secId = cgnsSections.size();
+    cgnsSection->id = secId;
+
+}
+
 void CgnsMultiSection::Create()
 {
-    this->cgnsSections.resize( this->nSection );
+    //this->cgnsSections.resize( this->nSection );
 
     for ( int iSection = 0; iSection < this->nSection; ++ iSection )
     {
-        this->cgnsSections[ iSection ] = new CgnsSection( cgnsZone );
+        CgnsSection * cgnsSection = new CgnsSection( cgnsZone );
+        this->AddCgnsSection( cgnsSection );
+
+        //this->cgnsSections[ iSection ] = new CgnsSection( cgnsZone );
         this->cgnsSections[ iSection ]->id = iSection + 1;
     }
     int kkk = 1;
