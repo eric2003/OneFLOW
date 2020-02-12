@@ -152,6 +152,8 @@ void CgnsBase::ConstructZoneNameMap()
 void CgnsBase::ReadAllCgnsZones()
 {
     cout << "** Reading CGNS Grid In Base " << this->baseId << "\n";
+    cout << "   Reading CGNS Family Specified BC \n";
+    this->ReadFamilySpecifiedBc();
     cout << "   numberOfCgnsZones       = " << this->nZones << "\n\n";
 
     for ( int iZone = 0; iZone < nZones; ++ iZone )
