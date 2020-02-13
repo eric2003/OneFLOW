@@ -44,7 +44,7 @@ public:
 public:
     void Create( int nSection );
     void SetDefaultSectionName();
-    void FillCgnsData( CgnsZone * cgnsZone );
+    //void FillCgnsData( CgnsZone * cgnsZone );
 };
 
 #endif

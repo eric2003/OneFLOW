@@ -446,13 +446,18 @@ void CgnsZone::ReadElementConnectivities( CgnsZone * cgnsZoneIn )
 
 void CgnsZone::AllocateUnsElemConn( CgnsZone * cgnsZoneIn )
 {
-    CgnsData * cgnsData = new CgnsData();
+    this->multiSection->nSection = 2;
+    this->multiSection->CreateCgnsSection();
 
-    cgnsData->FillCgnsData( cgnsZoneIn );
+    int s1, e1, s2, e2, etype1, etype2;
+    cgnsZoneIn->GetStrZonePara( s1, e1, s2, e2, etype1, etype2 );
 
-    this->multiSection->FillCgnsSections( cgnsData );
+    CgnsSection * cgnsSection1 = this->multiSection->GetCgnsSection( 0 );
+    CgnsSection * cgnsSection2 = this->multiSection->GetCgnsSection( 1 );
+    cgnsSection1->SetSectionInfo( "Section1", etype1, s1, e1 );
+    cgnsSection2->SetSectionInfo( "Section2", etype2, s2, e2 );
 
-    delete cgnsData;
+    this->multiSection->CreateConnList();
 }
 
 void CgnsZone::GetStrZonePara( int & s1, int & e1, int & s2, int & e2, int & etype1, int & etype2  )
@@ -489,38 +494,15 @@ void CgnsZone::GetStrZonePara( int & s1, int & e1, int & s2, int & e2, int & ety
 //    this->multiSection->nSection = 2;
 //    this->multiSection->CreateCgnsSection();
 //
-//    this->SetDefaultSectionName();
+//    int s1, e1, s2, e2, etype1, etype2;
+//    cgnsZoneIn->GetStrZonePara( s1, e1, s2, e2, etype1, etype2 );
 //
-//    CgIntField & startId = this->startId;
-//    CgIntField & endId = this->endId;
-//    IntField & elemType = this->elemType;
+//    CgnsSection * cgnsSection1 = this->multiSection->GetCgnsSection( 0 );
+//    CgnsSection * cgnsSection2 = this->multiSection->GetCgnsSection( 1 );
+//    cgnsSection1->SetSectionInfo( "Section1", etype1, s1, e1 );
+//    cgnsSection2->SetSectionInfo( "Section2", etype2, s2, e2 );
 //
-//    int nActualBcFace = cgnsZone->bcRegionProxy->GetNumberOfActualBcElements();
-//
-//    startId[ 0 ] = 1;
-//    endId[ 0 ] = cgnsZone->nCell;
-//
-//    startId[ 1 ] = cgnsZone->nCell + 1;
-//    endId  [ 1 ] = cgnsZone->nCell + nActualBcFace;
-//
-//    int celldim = cgnsZone->cgnsBase->celldim;
-//    GetEType( etype1, etype2 );
-//
-//    if ( celldim == ONE_D )
-//    {
-//        elemType[ 0 ]  = CGNS_ENUMV( BAR_2 );
-//        elemType[ 1 ]  = CGNS_ENUMV( NODE );
-//    }
-//    else if ( celldim == TWO_D )
-//    {
-//        elemType[ 0 ]  = CGNS_ENUMV( QUAD_4 );
-//        elemType[ 1 ]  = CGNS_ENUMV( BAR_2  );
-//    }
-//    else if ( celldim == THREE_D )
-//    {
-//        elemType[ 0 ]  = CGNS_ENUMV( HEXA_8 );
-//        elemType[ 1 ]  = CGNS_ENUMV( QUAD_4 );
-//    }
+//    this->multiSection->CreateConnList();
 //}
 
 void CgnsZone::SetElemPosition()

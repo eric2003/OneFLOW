@@ -128,7 +128,7 @@ public:
     CgInt GetNJ() const;
     CgInt GetNK() const;
 
-    void FillCgnsData( CgnsZone * cgnsZoneIn );
+    //void FillCgnsData( CgnsZone * cgnsZoneIn );
     void GetStrZonePara( int & s1, int & e1, int & s2, int & e2, int & etype1, int & etype2 );
 };
 
