@@ -39,20 +39,15 @@ CgnsGlobal::~CgnsGlobal()
     ;
 }
 
-CgnsZone * CgnsGlobal::GetCgnsZone( int zId )
-{
-    return cgnsbases->GetCgnsZone( zId - 1 );
-}
-
-CgnsZone * CgnsGlobal::GetCgnsZone( const string & zoneName )
+CgnsZone * CgnsGlobal::GetCgnsZoneByName( const string & zoneName )
 {
     CgnsBase * cgnsBase = cgnsbases->baseVector[ 0 ];
-    return cgnsBase->GetCgnsZone( zoneName );
+    return cgnsBase->GetCgnsZoneByName( zoneName );
 }
 
-CgnsZone * GetCgnsZone( const string & zoneName )
+CgnsZone * GetCgnsZoneByName( const string & zoneName )
 {
-    return cgns_global.GetCgnsZone( zoneName );
+    return cgns_global.GetCgnsZoneByName( zoneName );
 }
 
 #endif

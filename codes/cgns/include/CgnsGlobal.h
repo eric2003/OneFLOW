@@ -42,11 +42,10 @@ public:
 public:
     CgnsMultiBase * cgnsbases;
 public:
-    CgnsZone * GetCgnsZone( int zId );
-    CgnsZone * GetCgnsZone( const string & zoneName );
+    CgnsZone * GetCgnsZoneByName( const string & zoneName );
 };
 
-CgnsZone * GetCgnsZone( const string & zoneName );
+CgnsZone * GetCgnsZoneByName( const string & zoneName );
 extern CgnsGlobal cgns_global;
 
 #endif

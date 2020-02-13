@@ -69,6 +69,7 @@ public:
 public:
     void ReadCgnsSection();
     void ReadCgnsSectionInfo();
+    void SetSectionInfo( const string & sectionName, int elemType, int startId, int endId );
     void CreateConnList();
     void ComputeNumberOfSectionElements();
     void ComputeCapacityOfCgnsConnectionList();

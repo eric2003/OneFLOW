@@ -76,7 +76,8 @@ public:
     void CreateCgnsBcRegion( CgnsBcRegionProxy * bcRegionProxyIn );
 public:
     void ReconstructStrRegion();
-    void GenerateUnsBcElemConn(CgIntField& bcConn );
+    void GenerateUnsBcElemConn( CgIntField& bcConn );
+    int GetNumberOfActualBcElements();
     void SetPeriodicBc();
 };
 

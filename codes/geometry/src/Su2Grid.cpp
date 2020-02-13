@@ -539,14 +539,14 @@ void FillSU2CgnsZone( Su2Grid* su2Grid, CgnsZone * cgnsZone )
     CgnsMultiSection * multiSection = cgnsZone->multiSection;
 
     multiSection->nSection = nSection;
-    multiSection->Create();
+    multiSection->CreateCgnsSection();
 
     int nVolCell = volSec.CmpTotalElem();
  
     int sumElem = 0;
     for ( int iSection = 0; iSection < nSection; ++ iSection )
     {
-        CgnsSection * cgnsSection = multiSection->cgnsSections[ iSection ];
+        CgnsSection * cgnsSection = multiSection->GetCgnsSection( iSection );
         SecMarker * sec = 0;
         if ( iSection < nVolSec )
         {
@@ -560,10 +560,11 @@ void FillSU2CgnsZone( Su2Grid* su2Grid, CgnsZone * cgnsZone )
             
 
         int nElem = sec->nElem;
-        cgnsSection->sectionName = sec->name;
-        cgnsSection->startId = sumElem + 1;
-        cgnsSection->endId   = sumElem + nElem;
-        cgnsSection->eType = sec->cgns_type;
+        //cgnsSection->sectionName = sec->name;
+        //cgnsSection->startId = sumElem + 1;
+        //cgnsSection->endId   = sumElem + nElem;
+        //cgnsSection->eType = sec->cgns_type;
+        cgnsSection->SetSectionInfo( sec->name, sec->cgns_type, sumElem + 1, sumElem + nElem );
         cgnsSection->CreateConnList();
         sumElem += nElem;
 
@@ -582,7 +583,7 @@ void FillSU2CgnsZone( Su2Grid* su2Grid, CgnsZone * cgnsZone )
 
     for ( int iSection = 0; iSection < nSection; ++ iSection )
     {
-        CgnsSection* cgnsSection = multiSection->cgnsSections[ iSection ];
+        CgnsSection * cgnsSection = multiSection->GetCgnsSection( iSection );
         cgnsSection->SetElemPosition();
     }
 

@@ -684,7 +684,10 @@ void Plot3D::Plot3DToCgns()
 
     CgnsFactory * cgnsFactory = new CgnsFactory();
 
-    cgnsFactory->DumpCgnsGrid( gridMediator );
+    GridMediatorS gridMediators;
+    gridMediators.AddGridMediator( gridMediator );
+
+    cgnsFactory->DumpCgnsGrid( & gridMediators );
 
     delete cgnsFactory;
 

@@ -119,6 +119,15 @@ void CgnsSection::ReadCgnsSection()
     this->SetElemPosition();
 }
 
+
+void CgnsSection::SetSectionInfo( const string & sectionName, int elemType, int startId, int endId )
+{
+    this->sectionName = sectionName;
+    this->eType = elemType;
+    this->startId = startId;
+    this->endId = endId;
+}
+
 void CgnsSection::ReadCgnsSectionInfo()
 {
     int fileId = cgnsZone->cgnsBase->fileId;

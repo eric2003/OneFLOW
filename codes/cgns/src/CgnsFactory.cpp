@@ -77,10 +77,10 @@ void CgnsFactory::ReadCgnsGrid()
     cgnsMultiBase->ReadCgnsGrid();
 }
 
-void CgnsFactory::DumpCgnsGrid( GridMediator * gridMediator )
+void CgnsFactory::DumpCgnsGrid( GridMediatorS * gridMediators )
 {
     cgns_global.cgnsbases = cgnsMultiBase;
-    cgnsMultiBase->DumpCgnsGrid( gridMediator );
+    cgnsMultiBase->DumpCgnsGrid( gridMediators );
 }
 
 void CgnsFactory::ProcessGrid()
@@ -210,7 +210,7 @@ void CgnsFactory::CgnsStr2Uns( Grid *& grid, int zId )
 
 void CgnsFactory::AllocateGridElem()
 {
-    this->nOriZone = this->cgnsMultiBase->nTZones;
+    this->nOriZone = this->cgnsMultiBase->GetNZone();
 
     if ( grid_para.multiBlock == 0 )
     {
@@ -266,7 +266,7 @@ void CgnsFactory::AllocateCmpGrid()
 {
     if ( ONEFLOW::IsStrGrid( grid_para.topo ) )
     {
-        this->nOriZone = this->cgnsMultiBase->nTZones;
+        this->nOriZone = this->cgnsMultiBase->GetNZone();
         this->nZone    = this->nOriZone;
     }
 
@@ -377,17 +377,19 @@ void CgnsFactory::PrepareCgnsZone( Grids & grids, CgnsZone * cgnsZone )
     ONEFLOW::DeletePointer( unsIdList );
 }
 
-void CgnsFactory::CreateDefaultZone()
+void CgnsFactory::CreateDefaultZone( int nZone )
 {
-    this->nZone = 1;
-
-    cgnsMultiBase->CreateDefaultCgnsZones( this->nZone );
+    GridMediatorS * gridMediatorS = new GridMediatorS();
+    gridMediatorS->CreateSimple( this->nZone );
+    cgnsMultiBase->CreateDefaultCgnsZones( gridMediatorS );
+    delete gridMediatorS;
 
 }
 
 CgnsZone * CgnsFactory::CreateOneUnsCgnsZone( int cgnsZoneId )
 {
-    this->CreateDefaultZone();
+    int nZone = 1;
+    this->CreateDefaultZone( nZone );
 
     int iZone = 0;
     CgnsZone * cgnsZone = cgnsMultiBase->GetCgnsZone( iZone );
@@ -433,7 +435,7 @@ void CgnsFactory::FillSection( Grids & grids, HXVector< Int3D * > & unsIdList )
     cgnsZone->nCell = nTCell;
 
     cgnsZone->multiSection->nSection = 2;
-    cgnsZone->multiSection->Create();
+    cgnsZone->multiSection->CreateCgnsSection();
 
     cgnsZone->multiSection->cgnsSections[ 0 ]->startId = 1;
     cgnsZone->multiSection->cgnsSections[ 0 ]->endId   = nTCell;
@@ -460,8 +462,8 @@ void CgnsFactory::FillSection( Grids & grids, HXVector< Int3D * > & unsIdList )
     bcRegionProxy->nConn = 0;
     bcRegionProxy->CreateCgnsBcRegion();
 
-    CgnsSection * secV = cgnsZone->multiSection->cgnsSections[ 0 ];
-    CgnsSection * secB = cgnsZone->multiSection->cgnsSections[ 1 ];
+    CgnsSection * secV = cgnsZone->multiSection->GetCgnsSection( 0 );
+    CgnsSection * secB = cgnsZone->multiSection->GetCgnsSection( 1 );
 
     CgIntField& connList  = secV->connList;
     CgIntField& bConnList = secB->connList;

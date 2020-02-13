@@ -41,6 +41,7 @@ class CgnsZone;
 class GridElem;
 class Su2Grid;
 class GridMediator;
+class GridMediatorS;
 
 #ifdef ENABLE_CGNS
 
@@ -60,14 +61,14 @@ public:
 public:
     void GenerateGrid();
     void ReadCgnsGrid();
-    void DumpCgnsGrid( GridMediator * gridMediator );
+    void DumpCgnsGrid( GridMediatorS * gridMediators );
     void ProcessGrid();
 public:
     void CommonToOneFlowGrid();
     void CommonToUnsGrid();
     void CommonToStrGrid();
 public:
-    void CreateDefaultZone();
+    void CreateDefaultZone( int nZone );
     CgnsZone * CreateOneUnsCgnsZone( int cgnsZoneId );
     void MergeToSingleZone( Grids & grids, HXVector< Int3D * > & unsIdList, NodeMesh * nodeMesh, int & nNode, int & nCell );
     void PrepareCgnsZone( Grids & grids, CgnsZone * cgnsZone );

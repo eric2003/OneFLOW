@@ -132,8 +132,8 @@ void Cavity::Run()
     bcRegion->s->SetRegion( 1, ni, nj, nj );
     bcRegion->s->zid = iZone;
     bcRegion->regionName = "upper";
-    //bcRegion->bcType = BC::SOLID_SURFACE;
-    bcRegion->bcType = BC::INTERFACE;
+    bcRegion->bcType = BC::SOLID_SURFACE;
+    //bcRegion->bcType = BC::INTERFACE;
     bcRegionGroup->SetBcRegion( ir, bcRegion );
     ++ ir;
 
@@ -171,7 +171,10 @@ void Cavity::DumpCgnsGrid( GridMediator * gridMediator )
 {
     CgnsFactory * cgnsFactory = new CgnsFactory();
 
-    cgnsFactory->DumpCgnsGrid( gridMediator );
+    GridMediatorS gridMediators;
+    gridMediators.AddGridMediator( gridMediator );
+
+    cgnsFactory->DumpCgnsGrid( & gridMediators );
 
     delete cgnsFactory;
 }

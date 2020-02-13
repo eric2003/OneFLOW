@@ -44,22 +44,22 @@ public:
 public:
     int fileId, baseId;
     int nZones;
-    int zst, zed;
     int celldim, phydim;
     string baseName;
     HXVector< CgnsZone * > cgnsZones;
 public:
-    CgnsZone * GetCgnsZone( int zoneId );
-    CgnsZone * GetCgnsZone( const string & zoneName );
+    CgnsZone * GetCgnsZoneByName( const string & zoneName );
+    CgnsZone * GetCgnsZone( int iZone );
     void ConstructZoneNameMap();
     map< string, int > zoneNameMap;
     CgnsFamilyBc * familyBc;
 public:
-    void ComputeZoneRange( int & nTZones );
+    int GetNZone();
     void SetDefaultCgnsBaseBasicInfo();
-    void AllocateAllCgnsZonesInCurrentCgnsBase();
-    void InitAllCgnsZonesInCurrentCgnsBase();
+    void AddCgnsZone( CgnsZone * cgnsZone );
+    void AllocateAllCgnsZones();
     void ReadCgnsBaseBasicInfo();
+    void DumpCgnsBaseBasicInfo();
     void ReadCgnsBaseBasicInfo( CgnsBase * cgnsBaseIn );
     void ReadNumberOfCgnsZones();
     void ReadNumberOfCgnsZones( CgnsBase * cgnsBaseIn );
@@ -70,7 +70,6 @@ public:
 public:
     void SetFamilyBc( BCType_t & bcType, const string & bcRegionName );
     void ReadFamilySpecifiedBc();
-    CgnsZone * FindGlobalCgnsZone( int globalZoneId );
 };
 
 #endif

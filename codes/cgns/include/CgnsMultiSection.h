@@ -39,7 +39,6 @@ class ElemFeature;
 
 class CgnsZone;
 class CgnsBcRegionProxy;
-class CgnsData;
 
 class CgnsMultiSection
 {
@@ -53,14 +52,15 @@ public:
     CgnsZone * cgnsZone;
     CgnsBcRegionProxy * cgnsBcRegionProxy;
 public:
-    void Create();
+    void AddCgnsSection( CgnsSection * cgnsSection );
+    CgnsSection * GetCgnsSection( int iSection );
+    void CreateCgnsSection();
     void CreateConnList();
     void ConvertToInnerDataStandard();
     CgnsSection * GetSectionByEid( int eId );
 public:
     void ReadNumberOfCgnsSections();
     void ReadCgnsSections();
-    void FillCgnsSections( CgnsData * cgnsData );
     void SetElemPosition();
 };
 
