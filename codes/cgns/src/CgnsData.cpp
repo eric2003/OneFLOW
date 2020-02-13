@@ -57,8 +57,6 @@ void CgnsData::SetDefaultSectionName()
         string sectionName = AddString( "Section", iSection + 1 );
         this->sectionNameList[ iSection ] = sectionName;
     }
-
-
 }
 
 void CgnsData::FillCgnsData( CgnsZone * cgnsZone )
@@ -72,24 +70,24 @@ void CgnsData::FillCgnsData( CgnsZone * cgnsZone )
     CgIntField & endId = this->endId;
     IntField & elemType = this->elemType;
 
-    int nBFace        = 0;
-    int nActualBcFace = 0;
+    //int nBFace        = 0;
+    int nActualBcFace = cgnsZone->bcRegionProxy->GetNumberOfActualBcElements();
 
-    int nBcRegion = cgnsZone->bcRegionProxy->nBcRegion;
+    //int nBcRegion = cgnsZone->bcRegionProxy->nBcRegion;
 
-    for ( int iBcRegion = 0; iBcRegion < nBcRegion; ++ iBcRegion )
-    {
-        CgnsBcRegion * cgnsBcRegion = cgnsZone->bcRegionProxy->GetBcRegion( iBcRegion );
-        int nBcElement       = cgnsBcRegion->nElements;
-        int nActualBcElement = cgnsBcRegion->GetActualNumberOfBoundaryElements();
-        nBFace        += nBcElement;
-        nActualBcFace += nActualBcElement;
+    //for ( int iBcRegion = 0; iBcRegion < nBcRegion; ++ iBcRegion )
+    //{
+    //    CgnsBcRegion * cgnsBcRegion = cgnsZone->bcRegionProxy->GetBcRegion( iBcRegion );
+    //    int nBcElement       = cgnsBcRegion->nElements;
+    //    int nActualBcElement = cgnsBcRegion->GetActualNumberOfBoundaryElements();
+    //    nBFace        += nBcElement;
+    //    nActualBcFace += nActualBcElement;
 
-        cout << " iBcRegion  = " << iBcRegion << " numberOfBoundaryElements       = " << nBcElement << "\n";
-        cout << " iBcRegion  = " << iBcRegion << " numberOfActualBoundaryElements = " << nActualBcElement << "\n";
-    }
-    cout << " numberOfBoundaryFaces       = " << nBFace       << "\n";
-    cout << " numberOfActualBoundaryFaces = " << nActualBcFace << "\n";
+    //    cout << " iBcRegion  = " << iBcRegion << " numberOfBoundaryElements       = " << nBcElement << "\n";
+    //    cout << " iBcRegion  = " << iBcRegion << " numberOfActualBoundaryElements = " << nActualBcElement << "\n";
+    //}
+    //cout << " numberOfBoundaryFaces       = " << nBFace       << "\n";
+    //cout << " numberOfActualBoundaryFaces = " << nActualBcFace << "\n";
     
     startId[ 0 ] = 1;
     endId[ 0 ] = cgnsZone->nCell;

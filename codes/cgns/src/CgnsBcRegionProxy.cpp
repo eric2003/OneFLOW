@@ -430,7 +430,29 @@ void CgnsBcRegionProxy::ReconstructStrRegion()
         this->cgnsBcRegions.push_back( rr );
     }
     int kkk = 1;
+}
 
+int CgnsBcRegionProxy::GetNumberOfActualBcElements()
+{
+    int nBFace = 0;
+    int nActualBcFace = 0;
+
+    int nBcRegion = this->nBcRegion;
+
+    for ( int iBcRegion = 0; iBcRegion < nBcRegion; ++ iBcRegion )
+    {
+        CgnsBcRegion * cgnsBcRegion = this->GetBcRegion( iBcRegion );
+        int nBcElement = cgnsBcRegion->nElements;
+        int nActualBcElement = cgnsBcRegion->GetActualNumberOfBoundaryElements();
+        nBFace += nBcElement;
+        nActualBcFace += nActualBcElement;
+
+        cout << " iBcRegion  = " << iBcRegion << " numberOfBoundaryElements       = " << nBcElement << "\n";
+        cout << " iBcRegion  = " << iBcRegion << " numberOfActualBoundaryElements = " << nActualBcElement << "\n";
+    }
+    cout << " numberOfBoundaryFaces       = " << nBFace << "\n";
+    cout << " numberOfActualBoundaryFaces = " << nActualBcFace << "\n";
+    return nActualBcFace;
 }
 
 void CgnsBcRegionProxy::GenerateUnsBcElemConn(CgIntField& bcConn )
