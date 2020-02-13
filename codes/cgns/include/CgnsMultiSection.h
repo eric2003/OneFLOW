@@ -39,7 +39,6 @@ class ElemFeature;
 
 class CgnsZone;
 class CgnsBcRegionProxy;
-class CgnsData;
 
 class CgnsMultiSection
 {
@@ -62,8 +61,6 @@ public:
 public:
     void ReadNumberOfCgnsSections();
     void ReadCgnsSections();
-    //void FillCgnsSections( CgnsData * cgnsData );
-    //void FillCgnsSections( CgnsZone * cgnsZoneIn );
     void SetElemPosition();
 };
 

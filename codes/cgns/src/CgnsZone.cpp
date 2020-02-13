@@ -22,7 +22,6 @@ License
 
 #include "CgnsZone.h"
 #include "CgnsBase.h"
-#include "CgnsData.h"
 #include "CgnsCoor.h"
 #include "CgnsSection.h"
 #include "CgnsMultiSection.h"
@@ -488,22 +487,6 @@ void CgnsZone::GetStrZonePara( int & s1, int & e1, int & s2, int & e2, int & ety
         etype2  = CGNS_ENUMV( QUAD_4 );
     }
 }
-
-//void CgnsZone::FillCgnsData( CgnsZone * cgnsZoneIn )
-//{
-//    this->multiSection->nSection = 2;
-//    this->multiSection->CreateCgnsSection();
-//
-//    int s1, e1, s2, e2, etype1, etype2;
-//    cgnsZoneIn->GetStrZonePara( s1, e1, s2, e2, etype1, etype2 );
-//
-//    CgnsSection * cgnsSection1 = this->multiSection->GetCgnsSection( 0 );
-//    CgnsSection * cgnsSection2 = this->multiSection->GetCgnsSection( 1 );
-//    cgnsSection1->SetSectionInfo( "Section1", etype1, s1, e1 );
-//    cgnsSection2->SetSectionInfo( "Section2", etype2, s2, e2 );
-//
-//    this->multiSection->CreateConnList();
-//}
 
 void CgnsZone::SetElemPosition()
 {

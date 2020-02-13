@@ -24,7 +24,6 @@ License
 #include "CgnsSection.h"
 #include "CgnsBase.h"
 #include "CgnsZone.h"
-#include "CgnsData.h"
 #include "StrUtil.h"
 #include "Dimension.h"
 #include "UnitElement.h"
@@ -126,40 +125,6 @@ void CgnsMultiSection::ReadCgnsSections()
         cgnsSection->ReadCgnsSection();
     }
 }
-
-//void CgnsMultiSection::FillCgnsSections( CgnsData * cgnsData )
-//{
-//    this->nSection = cgnsData->nSection;
-//    this->CreateCgnsSection();
-//
-//    for ( int iSection = 0; iSection < this->nSection; ++ iSection )
-//    {
-//        CgnsSection * cgnsSection = this->GetCgnsSection( iSection );
-//        cgnsSection->sectionName = cgnsData->sectionNameList[ iSection ];
-//        cgnsSection->startId = cgnsData->startId[ iSection ];
-//        cgnsSection->endId   = cgnsData->endId[ iSection ];
-//        cgnsSection->eType   = cgnsData->elemType[ iSection ];
-//        //cgnsSection->SetSectionInfo( sec->name, sec->cgns_type, sumElem + 1, sumElem + nElem );
-//        cgnsSection->CreateConnList();
-//    }
-//}
-
-//void CgnsMultiSection::FillCgnsSections( CgnsZone * cgnsZoneIn )
-//{
-//    this->nSection = cgnsData->nSection;
-//    this->CreateCgnsSection();
-//
-//    for ( int iSection = 0; iSection < this->nSection; ++ iSection )
-//    {
-//        CgnsSection * cgnsSection = this->GetCgnsSection( iSection );
-//        cgnsSection->sectionName = cgnsData->sectionNameList[ iSection ];
-//        cgnsSection->startId = cgnsData->startId[ iSection ];
-//        cgnsSection->endId   = cgnsData->endId[ iSection ];
-//        cgnsSection->eType   = cgnsData->elemType[ iSection ];
-//        //cgnsSection->SetSectionInfo( sec->name, sec->cgns_type, sumElem + 1, sumElem + nElem );
-//        cgnsSection->CreateConnList();
-//    }
-//}
 
 void CgnsMultiSection::SetElemPosition()
 {
