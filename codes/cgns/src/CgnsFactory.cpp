@@ -435,7 +435,7 @@ void CgnsFactory::FillSection( Grids & grids, HXVector< Int3D * > & unsIdList )
     cgnsZone->nCell = nTCell;
 
     cgnsZone->multiSection->nSection = 2;
-    cgnsZone->multiSection->Create();
+    cgnsZone->multiSection->CreateCgnsSection();
 
     cgnsZone->multiSection->cgnsSections[ 0 ]->startId = 1;
     cgnsZone->multiSection->cgnsSections[ 0 ]->endId   = nTCell;

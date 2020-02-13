@@ -57,7 +57,7 @@ CgnsSection * CgnsMultiSection::GetCgnsSection( int iSection )
     return this->cgnsSections[ iSection ];
 }
 
-void CgnsMultiSection::Create()
+void CgnsMultiSection::CreateCgnsSection()
 {
     for ( int iSection = 0; iSection < this->nSection; ++ iSection )
     {
@@ -130,7 +130,7 @@ void CgnsMultiSection::ReadCgnsSections()
 void CgnsMultiSection::FillCgnsSections( CgnsData * cgnsData )
 {
     this->nSection = cgnsData->nSection;
-    this->Create();
+    this->CreateCgnsSection();
 
     for ( int iSection = 0; iSection < this->nSection; ++ iSection )
     {
@@ -138,6 +138,7 @@ void CgnsMultiSection::FillCgnsSections( CgnsData * cgnsData )
         cgnsSection->startId = cgnsData->startId[ iSection ];
         cgnsSection->endId   = cgnsData->endId[ iSection ];
         cgnsSection->eType   = cgnsData->elemType[ iSection ];
+        //cgnsSection->SetSectionInfo( sec->name, sec->cgns_type, sumElem + 1, sumElem + nElem );
         cgnsSection->CreateConnList();
     }
 }

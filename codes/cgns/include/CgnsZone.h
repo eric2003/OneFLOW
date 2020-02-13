@@ -127,7 +127,7 @@ public:
     CgInt GetNI() const;
     CgInt GetNJ() const;
     CgInt GetNK() const;
-    void FillCgnsData( CgnsData * cgnsData );
+    //void FillCgnsData( CgnsData * cgnsData );
 };
 
 void EncodeIJK( int & index, int i, int j, int k, int ni, int nj, int nk );

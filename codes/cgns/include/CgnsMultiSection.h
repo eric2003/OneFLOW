@@ -55,7 +55,7 @@ public:
 public:
     void AddCgnsSection( CgnsSection * cgnsSection );
     CgnsSection * GetCgnsSection( int iSection );
-    void Create();
+    void CreateCgnsSection();
     void CreateConnList();
     void ConvertToInnerDataStandard();
     CgnsSection * GetSectionByEid( int eId );

@@ -59,6 +59,7 @@ public:
     void AddCgnsZone( CgnsZone * cgnsZone );
     void AllocateAllCgnsZones();
     void ReadCgnsBaseBasicInfo();
+    void DumpCgnsBaseBasicInfo();
     void ReadCgnsBaseBasicInfo( CgnsBase * cgnsBaseIn );
     void ReadNumberOfCgnsZones();
     void ReadNumberOfCgnsZones( CgnsBase * cgnsBaseIn );

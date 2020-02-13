@@ -103,12 +103,20 @@ void CgnsBase::ReadCgnsBaseBasicInfo()
     cout << "   cell dim = " << this->celldim << " physical dim = " << this->phydim << "\n";
 }
 
+void CgnsBase::DumpCgnsBaseBasicInfo()
+{
+    cg_base_write( this->fileId, this->baseName.c_str(), this->celldim, this->phydim, &this->baseId );
+    cout << " baseId = " << this->baseId << " baseName = " << this->baseName << "\n";
+}
+
 void CgnsBase::DumpBase( GridMediator * gridMediator )
 {
     GlobalGrid::SetCurrentGridMediator( gridMediator );
 
-    cg_base_write( this->fileId, this->baseName.c_str(), this->celldim, this->phydim, &this->baseId );
-    cout << " baseId = " << this->baseId << " baseName = " << this->baseName << "\n";
+    this->DumpCgnsBaseBasicInfo();
+
+    //cg_base_write( this->fileId, this->baseName.c_str(), this->celldim, this->phydim, &this->baseId );
+    //cout << " baseId = " << this->baseId << " baseName = " << this->baseName << "\n";
     cout << " nZones = " << nZones << "\n";
 
     for ( int iZone = 0; iZone < nZones; ++ iZone )

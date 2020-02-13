@@ -40,8 +40,10 @@ public:
     CgIntField startId, endId;
     IntField elemType;
     int nSection;
+    StringField sectionNameList;
 public:
     void Create( int nSection );
+    void FillCgnsData( CgnsZone * cgnsZone );
 };
 
 #endif
