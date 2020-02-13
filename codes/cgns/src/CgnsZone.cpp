@@ -455,6 +455,74 @@ void CgnsZone::AllocateUnsElemConn( CgnsZone * cgnsZoneIn )
     delete cgnsData;
 }
 
+void CgnsZone::GetStrZonePara( int & s1, int & e1, int & s2, int & e2, int & etype1, int & etype2  )
+{
+   int nActualBcFace = this->bcRegionProxy->GetNumberOfActualBcElements();
+
+    s1 = 1;
+    e1 = this->nCell;
+
+    s2 = e1 + 1;
+    e2 = e1 + nActualBcFace;
+
+    int celldim = this->cgnsBase->celldim;
+
+    if ( celldim == ONE_D )
+    {
+        etype1  = CGNS_ENUMV( BAR_2 );
+        etype2  = CGNS_ENUMV( NODE );
+    }
+    else if ( celldim == TWO_D )
+    {
+        etype1  = CGNS_ENUMV( QUAD_4 );
+        etype2  = CGNS_ENUMV( BAR_2  );
+    }
+    else if ( celldim == THREE_D )
+    {
+        etype1  = CGNS_ENUMV( HEXA_8 );
+        etype2  = CGNS_ENUMV( QUAD_4 );
+    }
+}
+
+//void CgnsZone::FillCgnsData( CgnsZone * cgnsZoneIn )
+//{
+//    this->multiSection->nSection = 2;
+//    this->multiSection->CreateCgnsSection();
+//
+//    this->SetDefaultSectionName();
+//
+//    CgIntField & startId = this->startId;
+//    CgIntField & endId = this->endId;
+//    IntField & elemType = this->elemType;
+//
+//    int nActualBcFace = cgnsZone->bcRegionProxy->GetNumberOfActualBcElements();
+//
+//    startId[ 0 ] = 1;
+//    endId[ 0 ] = cgnsZone->nCell;
+//
+//    startId[ 1 ] = cgnsZone->nCell + 1;
+//    endId  [ 1 ] = cgnsZone->nCell + nActualBcFace;
+//
+//    int celldim = cgnsZone->cgnsBase->celldim;
+//    GetEType( etype1, etype2 );
+//
+//    if ( celldim == ONE_D )
+//    {
+//        elemType[ 0 ]  = CGNS_ENUMV( BAR_2 );
+//        elemType[ 1 ]  = CGNS_ENUMV( NODE );
+//    }
+//    else if ( celldim == TWO_D )
+//    {
+//        elemType[ 0 ]  = CGNS_ENUMV( QUAD_4 );
+//        elemType[ 1 ]  = CGNS_ENUMV( BAR_2  );
+//    }
+//    else if ( celldim == THREE_D )
+//    {
+//        elemType[ 0 ]  = CGNS_ENUMV( HEXA_8 );
+//        elemType[ 1 ]  = CGNS_ENUMV( QUAD_4 );
+//    }
+//}
+
 void CgnsZone::SetElemPosition()
 {
     this->multiSection->SetElemPosition();

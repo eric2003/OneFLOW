@@ -70,48 +70,43 @@ void CgnsData::FillCgnsData( CgnsZone * cgnsZone )
     CgIntField & endId = this->endId;
     IntField & elemType = this->elemType;
 
-    //int nBFace        = 0;
-    int nActualBcFace = cgnsZone->bcRegionProxy->GetNumberOfActualBcElements();
+    int s1, e1, s2, e2, etype1, etype2;
+    cgnsZone->GetStrZonePara( s1, e1, s2, e2, etype1, etype2 );
 
-    //int nBcRegion = cgnsZone->bcRegionProxy->nBcRegion;
+    startId[ 0 ] = s1;
+    endId[ 0 ] = e1;
 
-    //for ( int iBcRegion = 0; iBcRegion < nBcRegion; ++ iBcRegion )
+    startId[ 1 ] = s2;
+    endId[ 1 ] = e2;
+
+    elemType[ 0 ] = etype1;
+    elemType[ 1 ] = etype2;
+
+    //int nActualBcFace = cgnsZone->bcRegionProxy->GetNumberOfActualBcElements();
+
+    //startId[ 0 ] = 1;
+    //endId[ 0 ] = cgnsZone->nCell;
+
+    //startId[ 1 ] = cgnsZone->nCell + 1;
+    //endId  [ 1 ] = cgnsZone->nCell + nActualBcFace;
+
+    //int celldim = cgnsZone->cgnsBase->celldim;
+
+    //if ( celldim == ONE_D )
     //{
-    //    CgnsBcRegion * cgnsBcRegion = cgnsZone->bcRegionProxy->GetBcRegion( iBcRegion );
-    //    int nBcElement       = cgnsBcRegion->nElements;
-    //    int nActualBcElement = cgnsBcRegion->GetActualNumberOfBoundaryElements();
-    //    nBFace        += nBcElement;
-    //    nActualBcFace += nActualBcElement;
-
-    //    cout << " iBcRegion  = " << iBcRegion << " numberOfBoundaryElements       = " << nBcElement << "\n";
-    //    cout << " iBcRegion  = " << iBcRegion << " numberOfActualBoundaryElements = " << nActualBcElement << "\n";
+    //    elemType[ 0 ]  = CGNS_ENUMV( BAR_2 );
+    //    elemType[ 1 ]  = CGNS_ENUMV( NODE );
     //}
-    //cout << " numberOfBoundaryFaces       = " << nBFace       << "\n";
-    //cout << " numberOfActualBoundaryFaces = " << nActualBcFace << "\n";
-    
-    startId[ 0 ] = 1;
-    endId[ 0 ] = cgnsZone->nCell;
-
-    startId[ 1 ] = cgnsZone->nCell + 1;
-    endId  [ 1 ] = cgnsZone->nCell + nActualBcFace;
-
-    int celldim = cgnsZone->cgnsBase->celldim;
-
-    if ( celldim == ONE_D )
-    {
-        elemType[ 0 ]  = CGNS_ENUMV( BAR_2 );
-        elemType[ 1 ]  = CGNS_ENUMV( NODE );
-    }
-    else if ( celldim == TWO_D )
-    {
-        elemType[ 0 ]  = CGNS_ENUMV( QUAD_4 );
-        elemType[ 1 ]  = CGNS_ENUMV( BAR_2  );
-    }
-    else if ( celldim == THREE_D )
-    {
-        elemType[ 0 ]  = CGNS_ENUMV( HEXA_8 );
-        elemType[ 1 ]  = CGNS_ENUMV( QUAD_4 );
-    }
+    //else if ( celldim == TWO_D )
+    //{
+    //    elemType[ 0 ]  = CGNS_ENUMV( QUAD_4 );
+    //    elemType[ 1 ]  = CGNS_ENUMV( BAR_2  );
+    //}
+    //else if ( celldim == THREE_D )
+    //{
+    //    elemType[ 0 ]  = CGNS_ENUMV( HEXA_8 );
+    //    elemType[ 1 ]  = CGNS_ENUMV( QUAD_4 );
+    //}
 }
 
 #endif
