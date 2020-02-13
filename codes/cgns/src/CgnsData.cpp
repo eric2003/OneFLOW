@@ -26,6 +26,7 @@ License
 #include "CgnsBase.h"
 #include "CgnsBcRegion.h"
 #include "CgnsBcRegionProxy.h"
+#include "StrUtil.h"
 #include <iostream>
 using namespace std;
 
@@ -49,11 +50,23 @@ void CgnsData::Create( int nSection )
     this->sectionNameList.resize( nSection );
 }
 
+void CgnsData::SetDefaultSectionName()
+{
+    for ( int iSection = 0; iSection < nSection; ++ iSection )
+    {
+        string sectionName = AddString( "Section", iSection + 1 );
+        this->sectionNameList[ iSection ] = sectionName;
+    }
+
+
+}
+
 void CgnsData::FillCgnsData( CgnsZone * cgnsZone )
 {
     int nSection = 2;
 
     this->Create( nSection );
+    this->SetDefaultSectionName();
 
     CgIntField & startId = this->startId;
     CgIntField & endId = this->endId;

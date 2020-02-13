@@ -43,6 +43,7 @@ public:
     StringField sectionNameList;
 public:
     void Create( int nSection );
+    void SetDefaultSectionName();
     void FillCgnsData( CgnsZone * cgnsZone );
 };
 

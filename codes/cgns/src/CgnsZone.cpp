@@ -444,65 +444,9 @@ void CgnsZone::ReadElementConnectivities( CgnsZone * cgnsZoneIn )
     this->GenerateUnsBcCondConn ( cgnsZoneIn );
 }
 
-//void CgnsZone::FillCgnsData( CgnsData * cgnsData )
-//{
-//    int nSection = 2;
-//
-//    cgnsData->Create( nSection );
-//
-//    CgIntField & startId = cgnsData->startId;
-//    CgIntField & endId = cgnsData->endId;
-//    IntField & elemType = cgnsData->elemType;
-//
-//    int nBFace        = 0;
-//    int nActualBcFace = 0;
-//
-//    int nBcRegion = this->bcRegionProxy->nBcRegion;
-//
-//    for ( int iBcRegion = 0; iBcRegion < nBcRegion; ++ iBcRegion )
-//    {
-//        CgnsBcRegion * cgnsBcRegion = this->bcRegionProxy->GetBcRegion( iBcRegion );
-//        int nBcElement       = cgnsBcRegion->nElements;
-//        int nActualBcElement = cgnsBcRegion->GetActualNumberOfBoundaryElements();
-//        nBFace        += nBcElement;
-//        nActualBcFace += nActualBcElement;
-//
-//        cout << " iBcRegion  = " << iBcRegion << " numberOfBoundaryElements       = " << nBcElement << "\n";
-//        cout << " iBcRegion  = " << iBcRegion << " numberOfActualBoundaryElements = " << nActualBcElement << "\n";
-//    }
-//    cout << " numberOfBoundaryFaces       = " << nBFace       << "\n";
-//    cout << " numberOfActualBoundaryFaces = " << nActualBcFace << "\n";
-//    
-//    startId[ 0 ] = 1;
-//    endId[ 0 ] = this->nCell;
-//
-//    startId[ 1 ] = this->nCell + 1;
-//    endId  [ 1 ] = this->nCell + nActualBcFace;
-//
-//    int celldim = this->cgnsBase->celldim;
-//
-//    if ( celldim == ONE_D )
-//    {
-//        elemType[ 0 ]  = CGNS_ENUMV( BAR_2 );
-//        elemType[ 1 ]  = CGNS_ENUMV( NODE );
-//    }
-//    else if ( celldim == TWO_D )
-//    {
-//        elemType[ 0 ]  = CGNS_ENUMV( QUAD_4 );
-//        elemType[ 1 ]  = CGNS_ENUMV( BAR_2  );
-//    }
-//    else if ( celldim == THREE_D )
-//    {
-//        elemType[ 0 ]  = CGNS_ENUMV( HEXA_8 );
-//        elemType[ 1 ]  = CGNS_ENUMV( QUAD_4 );
-//    }
-//}
-
 void CgnsZone::AllocateUnsElemConn( CgnsZone * cgnsZoneIn )
 {
     CgnsData * cgnsData = new CgnsData();
-
-    //cgnsZoneIn->FillCgnsData( cgnsData );
 
     cgnsData->FillCgnsData( cgnsZoneIn );
 
