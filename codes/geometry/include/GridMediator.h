@@ -67,6 +67,7 @@ public:
     GridMediator * GetGridMediator( int iGridMediator );
     int GetSize();
     string GetTargetFile();
+    void SetDeleteFlag( bool flag );
 public:
     void CreateSimple( int nZone );
 };

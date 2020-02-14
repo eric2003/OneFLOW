@@ -148,6 +148,11 @@ string GridMediatorS::GetTargetFile()
     return gridMediator->targetFile;
 }
 
+void GridMediatorS::SetDeleteFlag( bool flag )
+{
+    this->flag = flag;
+}
+
 GridMediator * GlobalGrid::gridMediator = 0;
 
 GlobalGrid::GlobalGrid()

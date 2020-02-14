@@ -668,6 +668,22 @@ void Plot3D::ReadCoor( FileIO * ioFile, RealField & coor, int total_size )
     }
 }
 
+void Plot3D::Plot3DToCgns( GridMediatorS * gridMediators )
+{
+    cout << "plot3d to cgns\n";
+    GridMediator * gridMediator = new GridMediator();
+    gridMediator->gridFile = grid_para.gridFile;
+    gridMediator->bcFile = grid_para.bcFile;
+    gridMediator->targetFile = grid_para.targetFile;
+
+    gridMediator->gridType = grid_para.filetype;
+    gridMediator->ReadGrid();
+    gridMediator->AddDefaultName();
+
+    gridMediators->SetDeleteFlag( true );
+    gridMediators->AddGridMediator( gridMediator );
+}
+
 void Plot3D::Plot3DToCgns()
 {
     cout << "plot3d to cgns\n";
