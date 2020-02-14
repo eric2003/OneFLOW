@@ -46,7 +46,7 @@ License
 #include "CgnsBcRegion.h"
 #include "ElementHome.h"
 #include "HXPointer.h"
-#include "CmpGrid.h"
+#include "CompGrid.h"
 #include "GridElem.h"
 #include "BgGrid.h"
 using namespace std;

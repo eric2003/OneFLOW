@@ -37,7 +37,7 @@ License
 #include "StrGrid.h"
 #include "UnsGrid.h"
 #include "BgGrid.h"
-#include "CmpGrid.h"
+#include "CompGrid.h"
 #include "HXPointer.h"
 #include "NodeMesh.h"
 #include "BgGrid.h"

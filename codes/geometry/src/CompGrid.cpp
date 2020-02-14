@@ -20,7 +20,7 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "CmpGrid.h"
+#include "CompGrid.h"
 #include "UnsGrid.h"
 #include "Grid.h"
 #include "GridPara.h"
@@ -45,17 +45,17 @@ using namespace std;
 
 BeginNameSpace( ONEFLOW )
 
-CmpGrid::CmpGrid()
+CompGrid::CompGrid()
 {
     iFaceLink = 0;
 }
 
-CmpGrid::~CmpGrid()
+CompGrid::~CompGrid()
 {
     delete iFaceLink;
 }
 
-void CmpGrid::Init( Grids & grids )
+void CompGrid::Init( Grids & grids )
 {
     this->grids = grids;
     this->grids.SetDeleteFlag( true );
@@ -71,7 +71,7 @@ void CmpGrid::Init( Grids & grids )
     }
 }
 
-void CmpGrid::BuildInterfaceLink()
+void CompGrid::BuildInterfaceLink()
 {
     int gridObj = GetDataValue< int >( "gridObj" );
 
@@ -93,7 +93,7 @@ void CmpGrid::BuildInterfaceLink()
     }
 }
 
-void CmpGrid::Dump()
+void CompGrid::Dump()
 {
     cout << __FUNCTION__ << endl;
     fstream file;
@@ -122,7 +122,7 @@ void CmpGrid::Dump()
     ONEFLOW::CloseFile( file );
 }
 
-void CmpGrid::Post()
+void CompGrid::Post()
 {
     logFile << "GenerateOverset\n";
     this->GenerateOverset();
@@ -130,14 +130,14 @@ void CmpGrid::Post()
     this->BuildInterfaceLink();
     logFile << "ResetGridScaleAndTranslate\n";
     this->ResetGridScaleAndTranslate();
-    logFile << "CmpGrid::Post() Final \n";
+    logFile << "CompGrid::Post() Final \n";
 }
 
-void CmpGrid::GenerateOverset()
+void CompGrid::GenerateOverset()
 {
 }
 
-void CmpGrid::ReconstructLink()
+void CompGrid::ReconstructLink()
 {
     int nZone = static_cast<int>(grids.size());
     for ( int iZone = 0; iZone < nZone; ++ iZone )
@@ -146,7 +146,7 @@ void CmpGrid::ReconstructLink()
     }
 }
 
-void CmpGrid::ReconstructLink( int iZone )
+void CompGrid::ReconstructLink( int iZone )
 {
     UnsGrid * grid = UnsGridCast( grids[ iZone ] );
 
@@ -192,12 +192,12 @@ void CmpGrid::ReconstructLink( int iZone )
     }
 }
 
-void CmpGrid::ReconstructInterFace()
+void CompGrid::ReconstructInterFace()
 {
     this->iFaceLink->ReconstructInterFace();
 }
 
-void CmpGrid::ResetGridScaleAndTranslate()
+void CompGrid::ResetGridScaleAndTranslate()
 {
     int nZone = static_cast<int>(grids.size());
     for ( int iZone = 0; iZone < nZone; ++ iZone )
@@ -207,7 +207,7 @@ void CmpGrid::ResetGridScaleAndTranslate()
     }
 }
 
-void CmpGrid::GenerateLink()
+void CompGrid::GenerateLink()
 {
     this->iFaceLink = new IFaceLink( grids );
 
@@ -222,7 +222,7 @@ void CmpGrid::GenerateLink()
     this->MatchInterfaceTopology();
 }
 
-void CmpGrid::ModifyBcType()
+void CompGrid::ModifyBcType()
 {
     int ignoreNoBc = ONEFLOW::GetIgnoreNoBc();
 
@@ -237,7 +237,7 @@ void CmpGrid::ModifyBcType()
     }
 }
 
-void CmpGrid::GenerateLgMapping()
+void CompGrid::GenerateLgMapping()
 {
     int nZone = static_cast<int>(grids.size());
     for ( int iZone = 0; iZone < nZone; ++ iZone )
@@ -247,7 +247,7 @@ void CmpGrid::GenerateLgMapping()
     }
 }
 
-void CmpGrid::ReGenerateLgMapping()
+void CompGrid::ReGenerateLgMapping()
 {
     this->iFaceLink->InitNewLgMapping();
 
@@ -262,12 +262,12 @@ void CmpGrid::ReGenerateLgMapping()
     this->UpdateOtherTopologyTerm();
 }
 
-void CmpGrid::UpdateLgMapping()
+void CompGrid::UpdateLgMapping()
 {
     iFaceLink->UpdateLgMapping();
 }
 
-void CmpGrid::UpdateOtherTopologyTerm()
+void CompGrid::UpdateOtherTopologyTerm()
 {
     int nZone = static_cast<int>(grids.size());
     for ( int iZone = 0; iZone < nZone; ++ iZone )
@@ -277,7 +277,7 @@ void CmpGrid::UpdateOtherTopologyTerm()
     }
 }
 
-void CmpGrid::MatchInterfaceTopology()
+void CompGrid::MatchInterfaceTopology()
 {
     int nZone = static_cast<int>(grids.size());
     for ( int iZone = 0; iZone < nZone; ++ iZone )
@@ -299,11 +299,8 @@ string GetTargetGridFileName()
 
 void GenerateMultiZoneCompGrids( Grids & grids )
 {
-    CmpGrid * cmpGrid = new CmpGrid();
+    CompGrid * cmpGrid = new CompGrid();
     cmpGrid->Init( grids );
-    //cmpGrid->grids = grids;
-    //cmpGrid->gridFileName = ONEFLOW::GetTargetGridFileName();
-    //string part_uns_file = GetDataValue< string >( "part_uns_file" );
     logFile << "Post\n";
 
     cmpGrid->Post();

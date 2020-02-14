@@ -684,31 +684,6 @@ void Plot3D::Plot3DToCgns( GridMediatorS * gridMediators )
     gridMediators->AddGridMediator( gridMediator );
 }
 
-void Plot3D::Plot3DToCgns()
-{
-    cout << "plot3d to cgns\n";
-    GridMediator * gridMediator = new GridMediator();
-    gridMediator->gridFile = grid_para.gridFile;
-    gridMediator->bcFile = grid_para.bcFile;
-    gridMediator->targetFile = grid_para.targetFile;
-
-    gridMediator->gridType = grid_para.filetype;
-    gridMediator->ReadGrid();
-    gridMediator->AddDefaultName();
-
-    GlobalGrid::SetCurrentGridMediator( gridMediator );
-
-    CgnsFactory * cgnsFactory = new CgnsFactory();
-
-    GridMediatorS gridMediators;
-    gridMediators.AddGridMediator( gridMediator );
-
-    cgnsFactory->DumpCgnsGrid( & gridMediators );
-
-    delete cgnsFactory;
-
-    delete gridMediator;
-}
 
 bool GetPlot3D_NKFlag()
 {

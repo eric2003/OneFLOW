@@ -55,7 +55,6 @@ public:
     static void DumpCoorAscii( GridMediator * gridMediator );
     static void DumpCoorAscii( fstream & file, RealField & coor );
     static void DumpBc( GridMediator * gridMediator );
-    static void Plot3DToCgns();
     static void Plot3DToCgns( GridMediatorS * gridMediators );
 
 };

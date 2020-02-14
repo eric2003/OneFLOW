@@ -32,11 +32,11 @@ class Grid;
 class IFaceLink;
 class NodeMesh;
 
-class CmpGrid
+class CompGrid
 {
 public:
-    CmpGrid();
-    ~CmpGrid();
+    CompGrid();
+    ~CompGrid();
 public:
     Grids grids;
     string gridFileName;
