@@ -108,7 +108,7 @@ void CgnsFactory::ProcessGrid()
     this->GenerateCompGrid();
 
     //对网格进行处理并输出计算所用的网格文件
-    ONEFLOW::GenerateMultiZoneCompGrids( cmpGrids );
+    ONEFLOW::GenerateMultiZoneCompGrids( compGrids );
 }
 
 void CgnsFactory::ConvertStrCgns2UnsCgnsGrid()
@@ -179,7 +179,7 @@ void CgnsFactory::CommonToUnsGrid()
 
         cgnsFactory->PrepareCgnsZone( grid_array, cgnsZone );
         
-        cgnsFactory->CgnsStr2Uns( grids[ iZone ], iZone );
+        cgnsFactory->CgnsToOneFlowGrid( grids[ iZone ], iZone );
 
         delete cgnsFactory;
     }
@@ -188,7 +188,7 @@ void CgnsFactory::CommonToUnsGrid()
     delete gridMediator;
 }
 
-void CgnsFactory::CgnsStr2Uns( Grid *& grid, int zId )
+void CgnsFactory::CgnsToOneFlowGrid( Grid *& grid, int zId )
 {
     this->AllocateGridElem();
 
@@ -200,7 +200,7 @@ void CgnsFactory::CgnsStr2Uns( Grid *& grid, int zId )
 
     this->GenerateCompGrid();
 
-    grid = this->cmpGrids[ 0 ];
+    grid = this->compGrids[ 0 ];
 
     grid->id = zId;
 
@@ -270,7 +270,7 @@ void CgnsFactory::AllocateCompGrid()
         this->nZone    = this->nOriZone;
     }
 
-    this->cmpGrids.resize( this->nZone );
+    this->compGrids.resize( this->nZone );
 
     for ( int iZone = 0; iZone < this->nZone; ++ iZone )
     {
@@ -283,7 +283,7 @@ void CgnsFactory::AllocateCompGrid()
         grid->localId = iZone;
         grid->type = gridType;
         grid->volBcType = cgnsZone->GetVolBcType();
-        this->cmpGrids[ iZone ] = grid;
+        this->compGrids[ iZone ] = grid;
     }
 }
 
@@ -313,7 +313,7 @@ void CgnsFactory::GenerateUnsCmpGrid()
     {
         GridElem * ge = gridElems[ iZone ];
 
-        ge->GenerateCompGrid( cmpGrids[ iZone ] );
+        ge->GenerateCompGrid( compGrids[ iZone ] );
     }
 }
 

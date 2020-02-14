@@ -506,7 +506,7 @@ void Su2Grid::Su2ToOneFlowGrid()
 
         FillSU2CgnsZone( this, cgnsZone );
 
-        cgnsFactory->CgnsStr2Uns( grids[ iZone ], iZone );
+        cgnsFactory->CgnsToOneFlowGrid( grids[ iZone ], iZone );
 
         delete cgnsFactory;
     }

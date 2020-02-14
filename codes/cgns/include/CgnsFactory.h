@@ -53,7 +53,7 @@ public:
 public:
     CgnsMultiBase * cgnsMultiBase;
 
-    Grids cmpGrids;
+    Grids compGrids;
     HXVector< GridElem * > gridElems;
 
     int nZone;
@@ -74,7 +74,7 @@ public:
     void PrepareCgnsZone( Grids & grids, CgnsZone * cgnsZone );
     void FillSection( Grids & grids, HXVector< Int3D * > & unsIdList );
 public:
-    void CgnsStr2Uns( Grid *& grid, int zId );
+    void CgnsToOneFlowGrid( Grid *& grid, int zId );
     void ConvertStrCgns2UnsCgnsGrid();
     void AllocateGridElem();
     void DeAllocateGridElem();

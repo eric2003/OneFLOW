@@ -299,15 +299,15 @@ string GetTargetGridFileName()
 
 void GenerateMultiZoneCompGrids( Grids & grids )
 {
-    CompGrid * cmpGrid = new CompGrid();
-    cmpGrid->Init( grids );
+    CompGrid * compGrid = new CompGrid();
+    compGrid->Init( grids );
     logFile << "Post\n";
 
-    cmpGrid->Post();
+    compGrid->Post();
     logFile << "Post 1\n";
-    cmpGrid->Dump();
+    compGrid->Dump();
     logFile << "Dump\n";
-    delete cmpGrid;
+    delete compGrid;
 }
 
 void ResetGridScaleAndTranslate( NodeMesh * nodeMesh )
