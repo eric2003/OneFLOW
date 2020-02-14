@@ -103,12 +103,12 @@ void CgnsFactory::ProcessGrid()
 
     RegionNameMap::DumpRegion();
 
-    this->AllocateCmpGrid();
+    this->AllocateCompGrid();
 
-    this->GenerateCmpGrid();
+    this->GenerateCompGrid();
 
     //对网格进行处理并输出计算所用的网格文件
-    ONEFLOW::GenerateMultiZoneCmpGrids( cmpGrids );
+    ONEFLOW::GenerateMultiZoneCompGrids( cmpGrids );
 }
 
 void CgnsFactory::ConvertStrCgns2UnsCgnsGrid()
@@ -184,7 +184,7 @@ void CgnsFactory::CommonToUnsGrid()
         delete cgnsFactory;
     }
 
-    ONEFLOW::GenerateMultiZoneCmpGrids( grids );
+    ONEFLOW::GenerateMultiZoneCompGrids( grids );
     delete gridMediator;
 }
 
@@ -192,13 +192,13 @@ void CgnsFactory::CgnsStr2Uns( Grid *& grid, int zId )
 {
     this->AllocateGridElem();
 
-    this->AllocateCmpGrid();
+    this->AllocateCompGrid();
 
     this->PrepareUnsCompGrid();
 
     RegionNameMap::DumpRegion();
 
-    this->GenerateCmpGrid();
+    this->GenerateCompGrid();
 
     grid = this->cmpGrids[ 0 ];
 
@@ -262,7 +262,7 @@ void CgnsFactory::PrepareUnsCompGrid()
     }
 }
 
-void CgnsFactory::AllocateCmpGrid()
+void CgnsFactory::AllocateCompGrid()
 {
     if ( ONEFLOW::IsStrGrid( grid_para.topo ) )
     {
@@ -287,7 +287,7 @@ void CgnsFactory::AllocateCmpGrid()
     }
 }
 
-void CgnsFactory::GenerateCmpGrid()
+void CgnsFactory::GenerateCompGrid()
 {
     if ( ONEFLOW::IsStrGrid( grid_para.topo ) )
     {
@@ -313,7 +313,7 @@ void CgnsFactory::GenerateUnsCmpGrid()
     {
         GridElem * ge = gridElems[ iZone ];
 
-        ge->GenerateCmpGrid( cmpGrids[ iZone ] );
+        ge->GenerateCompGrid( cmpGrids[ iZone ] );
     }
 }
 

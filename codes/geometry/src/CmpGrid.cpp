@@ -297,7 +297,7 @@ string GetTargetGridFileName()
     return ONEFLOW::GetDataValue< string >( "targetGridFileName" );
 }
 
-void GenerateMultiZoneCmpGrids( Grids & grids )
+void GenerateMultiZoneCompGrids( Grids & grids )
 {
     CmpGrid * cmpGrid = new CmpGrid();
     cmpGrid->Init( grids );

@@ -51,7 +51,7 @@ public:
     void InitCgnsElements();
     void ScanBcFace();
     void GenerateCmpElement();
-    void GenerateCmpGrid( Grid * grid );
+    void GenerateCompGrid( Grid * grid );
     void ComputeBoundaryType( UnsGrid * grid );
     void ReorderLink( UnsGrid * grid );
 };

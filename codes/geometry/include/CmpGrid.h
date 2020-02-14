@@ -67,7 +67,7 @@ public:
 string GetTargetGridFileName();
 int GetIgnoreNoBc();
 
-void GenerateMultiZoneCmpGrids( Grids & grids );
+void GenerateMultiZoneCompGrids( Grids & grids );
 void ResetGridScaleAndTranslate( NodeMesh * nodeMesh );
 void TurnZAxisToYAxis( NodeMesh * nodeMesh );
 

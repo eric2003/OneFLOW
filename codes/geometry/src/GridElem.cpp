@@ -140,7 +140,7 @@ void GridElem::GenerateCmpElement()
 
 }
 
-void GridElem::GenerateCmpGrid( Grid * gridIn )
+void GridElem::GenerateCompGrid( Grid * gridIn )
 {
     UnsGrid * grid = UnsGridCast ( gridIn );
 

@@ -511,7 +511,7 @@ void Su2Grid::Su2ToOneFlowGrid()
         delete cgnsFactory;
     }
 
-    ONEFLOW::GenerateMultiZoneCmpGrids( grids );
+    ONEFLOW::GenerateMultiZoneCompGrids( grids );
 }
 
 void FillSU2CgnsZone( Su2Grid* su2Grid, CgnsZone * cgnsZone )

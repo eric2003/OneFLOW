@@ -208,13 +208,9 @@ void CgnsZone::DumpCgnsZone( Grid * grid )
 {
     this->DumpCgnsZoneAttribute( grid );
 
-    //this->ReadElementConnectivities();
-
     this->DumpCgnsGridBoundary( grid );
 
     this->DumpCgnsGridCoordinates( grid );
-
-    //this->ConvertToInnerDataStandard();
 }
 
 void CgnsZone::ReadCgnsGrid()
