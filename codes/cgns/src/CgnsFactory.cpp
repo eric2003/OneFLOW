@@ -317,45 +317,45 @@ void CgnsFactory::GenerateUnsCmpGrid()
     }
 }
 
-void CgnsFactory::MergeToSingleZone( Grids & grids, HXVector< Int3D * > & unsIdList, NodeMesh * nodeMesh, int & nNode, int & nCell )
-{
-    PointSearch * point_search = new PointSearch();
-    point_search->Initialize( grids );
-
-    size_t nZone = grids.size();
-
-    unsIdList.resize( nZone );
-    nCell = 0;
-    for ( int iZone = 0; iZone < nZone; ++ iZone )
-    {
-        StrGrid * grid = ONEFLOW::StrGridCast( grids[ iZone ] );
-        int ni = grid->ni;
-        int nj = grid->nj;
-        int nk = grid->nk;
-        nCell += grid->nCell;
-        unsIdList[ iZone ] = new Int3D( Range( 1, ni ), Range( 1, nj ), Range( 1, nk ) );
-        Int3D & unsId = * unsIdList[ iZone ];
-        cout << " block = " << iZone + 1 << "\n";
-        ComputeUnsId( grid, point_search, & unsId );
-    }
-
-    nNode = point_search->GetNPoint();
-
-    cout << " First nNode = " << nNode << "\n";
-    nodeMesh->xN.resize( nNode );
-    nodeMesh->yN.resize( nNode );
-    nodeMesh->zN.resize( nNode );
-    for ( int i = 0; i < nNode; ++ i )
-    {
-        Real xm, ym, zm;
-        point_search->GetPoint( i, xm, ym, zm );
-
-        nodeMesh->xN[ i ] = xm;
-        nodeMesh->yN[ i ] = ym;
-        nodeMesh->zN[ i ] = zm;
-    }
-    delete point_search;
-}
+//void CgnsFactory::MergeToSingleZone( Grids & grids, HXVector< Int3D * > & unsIdList, NodeMesh * nodeMesh, int & nNode, int & nCell )
+//{
+//    PointSearch * point_search = new PointSearch();
+//    point_search->Initialize( grids );
+//
+//    size_t nZone = grids.size();
+//
+//    unsIdList.resize( nZone );
+//    nCell = 0;
+//    for ( int iZone = 0; iZone < nZone; ++ iZone )
+//    {
+//        StrGrid * grid = ONEFLOW::StrGridCast( grids[ iZone ] );
+//        int ni = grid->ni;
+//        int nj = grid->nj;
+//        int nk = grid->nk;
+//        nCell += grid->nCell;
+//        unsIdList[ iZone ] = new Int3D( Range( 1, ni ), Range( 1, nj ), Range( 1, nk ) );
+//        Int3D & unsId = * unsIdList[ iZone ];
+//        cout << " block = " << iZone + 1 << "\n";
+//        ComputeUnsId( grid, point_search, & unsId );
+//    }
+//
+//    nNode = point_search->GetNPoint();
+//
+//    cout << " First nNode = " << nNode << "\n";
+//    nodeMesh->xN.resize( nNode );
+//    nodeMesh->yN.resize( nNode );
+//    nodeMesh->zN.resize( nNode );
+//    for ( int i = 0; i < nNode; ++ i )
+//    {
+//        Real xm, ym, zm;
+//        point_search->GetPoint( i, xm, ym, zm );
+//
+//        nodeMesh->xN[ i ] = xm;
+//        nodeMesh->yN[ i ] = ym;
+//        nodeMesh->zN[ i ] = zm;
+//    }
+//    delete point_search;
+//}
 
 void CgnsFactory::PrepareCgnsZone( Grids & grids, CgnsZone * cgnsZone )
 {
@@ -365,7 +365,8 @@ void CgnsFactory::PrepareCgnsZone( Grids & grids, CgnsZone * cgnsZone )
 
     HXVector< Int3D * > unsIdList;
 
-    this->MergeToSingleZone( grids, unsIdList, nodeMesh, nNode, nCell );
+    //this->MergeToSingleZone( grids, unsIdList, nodeMesh, nNode, nCell );
+    MergeToSingleZone( grids, unsIdList, nodeMesh, nNode, nCell );
 
     cgnsZone->nNode = nNode;
     cgnsZone->nCell = nCell;
@@ -763,6 +764,46 @@ void SetUnsBcConn( BcRegion * bcRegion, CgIntField& conn, int & pos, Int3D & uns
     }
 
     Stop( " error : ist != ied, jst != jed, kst != ked \n" );
+}
+
+void MergeToSingleZone( Grids & grids, HXVector< Int3D * > & unsIdList, NodeMesh * nodeMesh, int & nNode, int & nCell )
+{
+    PointSearch * point_search = new PointSearch();
+    point_search->Initialize( grids );
+
+    size_t nZone = grids.size();
+
+    unsIdList.resize( nZone );
+    nCell = 0;
+    for ( int iZone = 0; iZone < nZone; ++ iZone )
+    {
+        StrGrid * grid = ONEFLOW::StrGridCast( grids[ iZone ] );
+        int ni = grid->ni;
+        int nj = grid->nj;
+        int nk = grid->nk;
+        nCell += grid->nCell;
+        unsIdList[ iZone ] = new Int3D( Range( 1, ni ), Range( 1, nj ), Range( 1, nk ) );
+        Int3D & unsId = * unsIdList[ iZone ];
+        cout << " block = " << iZone + 1 << "\n";
+        ComputeUnsId( grid, point_search, & unsId );
+    }
+
+    nNode = point_search->GetNPoint();
+
+    cout << " First nNode = " << nNode << "\n";
+    nodeMesh->xN.resize( nNode );
+    nodeMesh->yN.resize( nNode );
+    nodeMesh->zN.resize( nNode );
+    for ( int i = 0; i < nNode; ++ i )
+    {
+        Real xm, ym, zm;
+        point_search->GetPoint( i, xm, ym, zm );
+
+        nodeMesh->xN[ i ] = xm;
+        nodeMesh->yN[ i ] = ym;
+        nodeMesh->zN[ i ] = zm;
+    }
+    delete point_search;
 }
 
 
