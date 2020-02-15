@@ -70,8 +70,7 @@ public:
 public:
     void CreateDefaultZone( int nZone );
     CgnsZone * CreateOneUnsCgnsZone( int cgnsZoneId );
-    void PrepareCgnsZone( Grids & grids, CgnsZone * cgnsZone );
-    //void FillSection( Grids & grids, HXVector< Int3D * > & unsIdList );
+    //void PrepareCgnsZone( Grids & grids, CgnsZone * cgnsZone );
 public:
     void CgnsToOneFlowGrid( Grid *& grid, int zId );
     void ConvertStrCgns2UnsCgnsGrid();
@@ -99,6 +98,7 @@ class BcRegion;
 void SetUnsBcConn( BcRegion * bcRegion, CgIntField& conn, int & pos, Int3D & unsId );
 void MergeToSingleZone( Grids & grids, HXVector< Int3D * > & unsIdList, NodeMesh * nodeMesh, int & nNode, int & nCell );
 void FillSection( Grids & grids, HXVector< Int3D * > & unsIdList, CgnsZone * cgnsZone );
+void PrepareCgnsZone( Grids & grids, CgnsZone * cgnsZone );
 
 #endif
 
