@@ -97,7 +97,7 @@ void CgnsFactory::CgnsToOneFlowGrid()
 
     this->PrepareUnsCompGrid();
 
-    RegionNameMap::DumpRegion();
+    //RegionNameMap::DumpRegion();
 
     this->AllocateCompGrid();
 
@@ -192,7 +192,7 @@ void CgnsFactory::CgnsToOneFlowGrid( Grid *& grid, int zId )
 
     this->PrepareUnsCompGrid();
 
-    RegionNameMap::DumpRegion();
+    //RegionNameMap::DumpRegion();
 
     this->AllocateCompGrid();
 

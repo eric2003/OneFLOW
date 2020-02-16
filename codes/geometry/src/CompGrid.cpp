@@ -299,6 +299,8 @@ string GetTargetGridFileName()
 
 void GenerateMultiZoneCompGrids( Grids & grids )
 {
+    RegionNameMap::DumpRegion();
+
     CompGrid * compGrid = new CompGrid();
     compGrid->Init( grids );
     logFile << "Post\n";
