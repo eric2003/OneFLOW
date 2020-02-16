@@ -68,7 +68,7 @@ CgnsFactory::~CgnsFactory()
 void CgnsFactory::GenerateGrid()
 {
     this->ReadCgnsGrid();
-    this->ProcessGrid();
+    this->CgnsToOneFlowGrid();
 }
 
 void CgnsFactory::ReadCgnsGrid()
@@ -83,7 +83,7 @@ void CgnsFactory::DumpCgnsGrid( GridMediatorS * gridMediators )
     cgnsMultiBase->DumpCgnsGrid( gridMediators );
 }
 
-void CgnsFactory::ProcessGrid()
+void CgnsFactory::CgnsToOneFlowGrid()
 {
     if ( ! ONEFLOW::IsUnsGrid( grid_para.topo ) ) return;
 
@@ -102,6 +102,8 @@ void CgnsFactory::ProcessGrid()
     this->AllocateCompGrid();
 
     this->GenerateCompGrid();
+
+    this->DeAllocateGridElem();
 
     //对网格进行处理并输出计算所用的网格文件
     ONEFLOW::GenerateMultiZoneCompGrids( compGrids );
@@ -188,11 +190,11 @@ void CgnsFactory::CgnsToOneFlowGrid( Grid *& grid, int zId )
 {
     this->AllocateGridElem();
 
-    this->AllocateCompGrid();
-
     this->PrepareUnsCompGrid();
 
     RegionNameMap::DumpRegion();
+
+    this->AllocateCompGrid();
 
     this->GenerateCompGrid();
 

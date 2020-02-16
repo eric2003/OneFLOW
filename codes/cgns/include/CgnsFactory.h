@@ -62,7 +62,6 @@ public:
     void GenerateGrid();
     void ReadCgnsGrid();
     void DumpCgnsGrid( GridMediatorS * gridMediators );
-    void ProcessGrid();
 public:
     void CommonToOneFlowGrid();
     void CommonToUnsGrid();
@@ -71,6 +70,7 @@ public:
     void CreateDefaultZone( int nZone );
     CgnsZone * CreateOneUnsCgnsZone( int cgnsZoneId );
 public:
+    void CgnsToOneFlowGrid();
     void CgnsToOneFlowGrid( Grid *& grid, int zId );
     void ConvertStrCgns2UnsCgnsGrid();
     void AllocateGridElem();
