@@ -70,7 +70,6 @@ public:
 public:
     void CreateDefaultZone( int nZone );
     CgnsZone * CreateOneUnsCgnsZone( int cgnsZoneId );
-    //void PrepareCgnsZone( Grids & grids, CgnsZone * cgnsZone );
 public:
     void CgnsToOneFlowGrid( Grid *& grid, int zId );
     void ConvertStrCgns2UnsCgnsGrid();

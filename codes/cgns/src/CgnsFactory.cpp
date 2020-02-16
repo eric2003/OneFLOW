@@ -85,21 +85,17 @@ void CgnsFactory::DumpCgnsGrid( GridMediatorS * gridMediators )
 
 void CgnsFactory::ProcessGrid()
 {
+    if ( ! ONEFLOW::IsUnsGrid( grid_para.topo ) ) return;
+
     int systemZoneType = cgnsMultiBase->GetSystemZoneType();
-    if ( ! ( systemZoneType == Unstructured ) &&
-         ONEFLOW::IsUnsGrid( grid_para.topo )  )
+    if ( ! ( systemZoneType == Unstructured ) )
     {
         this->ConvertStrCgns2UnsCgnsGrid();
     }
 
-    if ( ONEFLOW::IsUnsGrid( grid_para.topo ) )
-    {
-        this->AllocateGridElem();
+    this->AllocateGridElem();
 
-        //From the standard grid information (CGNS) that we read,
-        //we can get the grid information needed for the actual calculation.
-        this->PrepareUnsCompGrid();
-    }
+    this->PrepareUnsCompGrid();
 
     RegionNameMap::DumpRegion();
 
@@ -177,7 +173,6 @@ void CgnsFactory::CommonToUnsGrid()
             grid_array = gridMediator->gridVector;
         }
 
-        //cgnsFactory->PrepareCgnsZone( grid_array, cgnsZone );
         PrepareCgnsZone( grid_array, cgnsZone );
         
         cgnsFactory->CgnsToOneFlowGrid( grids[ iZone ], iZone );
@@ -317,26 +312,6 @@ void CgnsFactory::GenerateUnsCmpGrid()
         ge->GenerateCompGrid( compGrids[ iZone ] );
     }
 }
-
-//void CgnsFactory::PrepareCgnsZone( Grids & grids, CgnsZone * cgnsZone )
-//{
-//    NodeMesh * nodeMesh = cgnsZone->nodeMesh;
-//
-//    int nNode, nCell;
-//
-//    HXVector< Int3D * > unsIdList;
-//
-//    MergeToSingleZone( grids, unsIdList, nodeMesh, nNode, nCell );
-//
-//    cgnsZone->nNode = nNode;
-//    cgnsZone->nCell = nCell;
-//
-//    FillSection( grids, unsIdList, cgnsZone );
-//
-//    cgnsZone->ConvertToInnerDataStandard();
-//
-//    ONEFLOW::DeletePointer( unsIdList );
-//}
 
 void CgnsFactory::CreateDefaultZone( int nZone )
 {

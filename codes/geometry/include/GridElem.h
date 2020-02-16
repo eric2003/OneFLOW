@@ -50,7 +50,7 @@ public:
     void ComputeMinMaxInfo();
     void InitCgnsElements();
     void ScanBcFace();
-    void GenerateCmpElement();
+    void GenerateCompElement();
     void GenerateCompGrid( Grid * grid );
     void ComputeBoundaryType( UnsGrid * grid );
     void ReorderLink( UnsGrid * grid );

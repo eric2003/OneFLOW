@@ -72,7 +72,7 @@ void GridElem::PrepareUnsCompGrid()
     //Continue to parse
     cout << " ScanElements()\n";
     this->elem_feature->ScanElements();
-    this->GenerateCmpElement();
+    this->GenerateCompElement();
 }
 
 void GridElem::ComputeMinMaxInfo()
@@ -107,7 +107,7 @@ void GridElem::ScanBcFace()
     }
 }
 
-void GridElem::GenerateCmpElement()
+void GridElem::GenerateCompElement()
 {
     int nElement =  this->elem_feature->eType->size();
 
