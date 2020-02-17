@@ -218,13 +218,12 @@ void CgnsFactory::AllocateGridElem()
         }
 
         this->nZone = 1;
-        //gridElems.resize( this->nZone );
 
         for ( int iZone = 0; iZone < this->nZone; ++ iZone )
         {
-            //gridElems[ iZone ] = new GridElem( cgnsZones );
-            GridElem * gridElem = new GridElem( cgnsZones );
-            gridElemS->AddGridElem( gridElem );
+            //GridElem * gridElem = new GridElem( cgnsZones );
+            //gridElemS->AddGridElem( gridElem );
+            gridElemS->AddGridElem( cgnsZones, iZone );
         }
 
     }
@@ -232,35 +231,26 @@ void CgnsFactory::AllocateGridElem()
     {
         this->nZone = this->nOriZone;
 
-        //gridElems.resize( this->nZone );
-
         for ( int iZone = 0; iZone < this->nZone; ++ iZone )
         {
             HXVector< CgnsZone * > cgnsZones;
             cgnsZones.push_back( cgnsMultiBase->GetCgnsZone( iZone ) );
-            //gridElems[ iZone ] = new GridElem( cgnsZones );
 
-            GridElem * gridElem = new GridElem( cgnsZones );
-            gridElemS->AddGridElem( gridElem );
+            //GridElem * gridElem = new GridElem( cgnsZones );
+            //gridElemS->AddGridElem( gridElem );
+            gridElemS->AddGridElem( cgnsZones, iZone );
         }
     }
 }
 
 void CgnsFactory::DeAllocateGridElem()
 {
-    //for ( int iZone = 0; iZone < gridElems.size(); ++ iZone )
-    //{
-    //    delete gridElems[ iZone ];
-    //}
 }
 
 void CgnsFactory::PrepareUnsCompGrid()
 {
     for ( int iZone = 0; iZone < this->nZone; ++ iZone )
     {
-        //GridElem * ge = gridElems[ iZone ];
-        //ge->PrepareUnsCompGrid();
-
         GridElem * gridElem = gridElemS->GetGridElem( iZone );
         gridElem->PrepareUnsCompGrid();
     }
@@ -309,10 +299,6 @@ void CgnsFactory::GenerateUnsCompGrid()
 {
     for ( int iZone = 0; iZone < this->nZone; ++ iZone )
     {
-        //GridElem * ge = gridElems[ iZone ];
-
-        //ge->GenerateCompGrid( compGrids[ iZone ] );
-
         GridElem * gridElem = gridElemS->GetGridElem( iZone );
         gridElem->GenerateCompGrid( compGrids[ iZone ] );
     }

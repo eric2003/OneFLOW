@@ -64,6 +64,7 @@ public:
     HXVector< GridElem * > data;
 public:
     void AddGridElem( GridElem * gridElem );
+    void AddGridElem( HXVector< CgnsZone * > cgnsZones, int iZone );
     GridElem * GetGridElem( int iGridElem );
 };
 

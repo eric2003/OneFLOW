@@ -55,7 +55,6 @@ public:
     CgnsMultiBase * cgnsMultiBase;
 
     Grids compGrids;
-    //HXVector< GridElem * > gridElems;
     GridElemS * gridElemS;
     int nZone;
     int nOriZone;

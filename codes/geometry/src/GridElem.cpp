@@ -302,6 +302,12 @@ void GridElemS::AddGridElem( GridElem * gridElem )
     this->data.push_back( gridElem );
 }
 
+void GridElemS::AddGridElem( HXVector< CgnsZone * > cgnsZones, int iZone )
+{
+    GridElem * gridElem = new GridElem( cgnsZones );
+    this->AddGridElem( gridElem );
+}
+
 GridElem * GridElemS::GetGridElem( int iGridElem )
 {
     return this->data[ iGridElem ];
