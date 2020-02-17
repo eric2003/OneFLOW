@@ -39,6 +39,7 @@ class Grid;
 class CgnsMultiBase;
 class CgnsZone;
 class GridElem;
+class GridElemS;
 class Su2Grid;
 class GridMediator;
 class GridMediatorS;
@@ -54,8 +55,8 @@ public:
     CgnsMultiBase * cgnsMultiBase;
 
     Grids compGrids;
-    HXVector< GridElem * > gridElems;
-
+    //HXVector< GridElem * > gridElems;
+    GridElemS * gridElemS;
     int nZone;
     int nOriZone;
 public:

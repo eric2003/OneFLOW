@@ -57,12 +57,14 @@ BeginNameSpace( ONEFLOW )
 CgnsFactory::CgnsFactory()
 {
     this->cgnsMultiBase = new CgnsMultiBase();
+    this->gridElemS = new GridElemS();
     this->nZone = 0;
 }
 
 CgnsFactory::~CgnsFactory()
 {
-    delete cgnsMultiBase;
+    delete this->cgnsMultiBase;
+    delete this->gridElemS;
 }
 
 void CgnsFactory::GenerateGrid()
@@ -216,11 +218,13 @@ void CgnsFactory::AllocateGridElem()
         }
 
         this->nZone = 1;
-        gridElems.resize( this->nZone );
+        //gridElems.resize( this->nZone );
 
         for ( int iZone = 0; iZone < this->nZone; ++ iZone )
         {
-            gridElems[ iZone ] = new GridElem( cgnsZones );
+            //gridElems[ iZone ] = new GridElem( cgnsZones );
+            GridElem * gridElem = new GridElem( cgnsZones );
+            gridElemS->AddGridElem( gridElem );
         }
 
     }
@@ -228,42 +232,42 @@ void CgnsFactory::AllocateGridElem()
     {
         this->nZone = this->nOriZone;
 
-        gridElems.resize( this->nZone );
+        //gridElems.resize( this->nZone );
 
         for ( int iZone = 0; iZone < this->nZone; ++ iZone )
         {
             HXVector< CgnsZone * > cgnsZones;
             cgnsZones.push_back( cgnsMultiBase->GetCgnsZone( iZone ) );
-            gridElems[ iZone ] = new GridElem( cgnsZones );
+            //gridElems[ iZone ] = new GridElem( cgnsZones );
+
+            GridElem * gridElem = new GridElem( cgnsZones );
+            gridElemS->AddGridElem( gridElem );
         }
     }
 }
 
 void CgnsFactory::DeAllocateGridElem()
 {
-    for ( int iZone = 0; iZone < gridElems.size(); ++ iZone )
-    {
-        delete gridElems[ iZone ];
-    }
+    //for ( int iZone = 0; iZone < gridElems.size(); ++ iZone )
+    //{
+    //    delete gridElems[ iZone ];
+    //}
 }
 
 void CgnsFactory::PrepareUnsCompGrid()
 {
     for ( int iZone = 0; iZone < this->nZone; ++ iZone )
     {
-        GridElem * ge = gridElems[ iZone ];
-        ge->PrepareUnsCompGrid();
+        //GridElem * ge = gridElems[ iZone ];
+        //ge->PrepareUnsCompGrid();
+
+        GridElem * gridElem = gridElemS->GetGridElem( iZone );
+        gridElem->PrepareUnsCompGrid();
     }
 }
 
 void CgnsFactory::AllocateCompGrid()
 {
-    if ( ONEFLOW::IsStrGrid( grid_para.topo ) )
-    {
-        this->nOriZone = this->cgnsMultiBase->GetNZone();
-        this->nZone    = this->nOriZone;
-    }
-
     this->compGrids.resize( this->nZone );
 
     for ( int iZone = 0; iZone < this->nZone; ++ iZone )
@@ -305,9 +309,12 @@ void CgnsFactory::GenerateUnsCompGrid()
 {
     for ( int iZone = 0; iZone < this->nZone; ++ iZone )
     {
-        GridElem * ge = gridElems[ iZone ];
+        //GridElem * ge = gridElems[ iZone ];
 
-        ge->GenerateCompGrid( compGrids[ iZone ] );
+        //ge->GenerateCompGrid( compGrids[ iZone ] );
+
+        GridElem * gridElem = gridElemS->GetGridElem( iZone );
+        gridElem->GenerateCompGrid( compGrids[ iZone ] );
     }
 }
 

@@ -284,4 +284,27 @@ void GridElem::ReorderLink( UnsGrid * grid )
     faceTopo->rCell = faceTopo->rCellNew;
 }
 
+GridElemS::GridElemS()
+{
+    ;
+}
+
+GridElemS::~GridElemS()
+{
+    for ( int i = 0; i < this->data.size(); ++ i )
+    {
+        delete this->data[ i ];
+    }
+}
+
+void GridElemS::AddGridElem( GridElem * gridElem )
+{
+    this->data.push_back( gridElem );
+}
+
+GridElem * GridElemS::GetGridElem( int iGridElem )
+{
+    return this->data[ iGridElem ];
+}
+
 EndNameSpace

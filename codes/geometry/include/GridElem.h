@@ -56,4 +56,15 @@ public:
     void ReorderLink( UnsGrid * grid );
 };
 
+class GridElemS
+{
+public:
+    GridElemS();
+    ~GridElemS();
+    HXVector< GridElem * > data;
+public:
+    void AddGridElem( GridElem * gridElem );
+    GridElem * GetGridElem( int iGridElem );
+};
+
 EndNameSpace
