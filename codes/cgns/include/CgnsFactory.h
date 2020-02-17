@@ -54,7 +54,7 @@ public:
 public:
     CgnsMultiBase * cgnsMultiBase;
 
-    Grids compGrids;
+    //Grids compGrids;
     GridElemS * gridElemS;
     int nZone;
     int nOriZone;
@@ -74,9 +74,7 @@ public:
     void CgnsToOneFlowGrid( Grid *& grid, int zId );
     void ConvertStrCgns2UnsCgnsGrid();
     void AllocateGridElem();
-    void DeAllocateGridElem();
     void PrepareUnsCompGrid();
-    void AllocateCompGrid();
 
     //转换为oneflow计算所用的网格
     void GenerateCompGrid();
@@ -89,9 +87,6 @@ class Grid;
 class PointSearch;
 class NodeMesh;
 void ComputeUnsId( StrGrid * grid, PointSearch * pointSearch, Int3D * unsId );
-
-int OneFlow2CgnsZoneType( int zoneType );
-int Cgns2OneFlowZoneType( int zoneType );
 
 class BcRegion;
 void SetUnsBcConn( BcRegion * bcRegion, CgIntField& conn, int & pos, Int3D & unsId );

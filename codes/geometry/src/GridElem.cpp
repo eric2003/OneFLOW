@@ -32,17 +32,48 @@ License
 #include "Boundary.h"
 #include "PointFactory.h"
 #include "NodeMesh.h"
+#include "GridState.h"
+#include "BgGrid.h"
 #include <iostream>
 #include <iomanip>
 using namespace std;
 
 BeginNameSpace( ONEFLOW )
 
-GridElem::GridElem( HXVector< CgnsZone * > & cgnsZones )
+int OneFlow2CgnsZoneType( int zoneType )
 {
+    if ( zoneType == UMESH )
+    {
+        return Unstructured;
+    }
+    else
+    {
+        return Structured;
+    }
+}
+
+int Cgns2OneFlowZoneType( int zoneType )
+{
+    if ( zoneType == Unstructured )
+    {
+        return UMESH;
+    }
+    else
+    {
+        return SMESH;
+    }
+}
+
+GridElem::GridElem( HXVector< CgnsZone * > & cgnsZones, int iZone )
+{
+    this->cgnsZones = cgnsZones;
+    this->CreateGrid( cgnsZones, iZone );
+
     this->minLen = LARGE;
     this->maxLen = -LARGE;
-    this->cgnsZones = cgnsZones;
+
+    this->delFlag = false;
+
     this->point_factory = new PointFactory();
     this->elem_feature = new ElemFeature();
     this->face_solver = new FaceSolver();
@@ -57,7 +88,25 @@ GridElem::~GridElem()
     delete this->elem_feature;
     cout << "delete this->face_solver;\n";
     delete this->face_solver;
+    if ( this->delFlag )
+    {
+        delete this->grid;
+    }
+    
     cout << "GridElem::~GridElem()\n";
+}
+
+void GridElem::CreateGrid( HXVector< CgnsZone * > cgnsZones, int iZone )
+{
+    CgnsZone * cgnsZone = cgnsZones[ 0 ];
+    int cgnsZoneType = cgnsZone->cgnsZoneType;
+    int gridType = Cgns2OneFlowZoneType( cgnsZoneType );
+    this->grid = ONEFLOW::CreateGrid( gridType );
+    grid->level = 0;
+    grid->id = iZone;
+    grid->localId = iZone;
+    grid->type = gridType;
+    grid->volBcType = cgnsZone->GetVolBcType();
 }
 
 void GridElem::PrepareUnsCompGrid()
@@ -138,6 +187,11 @@ void GridElem::GenerateCompElement()
 
     this->point_factory->InitC2g();
 
+}
+
+void GridElem::GenerateCompGrid()
+{
+    this->GenerateCompGrid( this->grid );
 }
 
 void GridElem::GenerateCompGrid( Grid * gridIn )
@@ -304,7 +358,7 @@ void GridElemS::AddGridElem( GridElem * gridElem )
 
 void GridElemS::AddGridElem( HXVector< CgnsZone * > cgnsZones, int iZone )
 {
-    GridElem * gridElem = new GridElem( cgnsZones );
+    GridElem * gridElem = new GridElem( cgnsZones, iZone );
     this->AddGridElem( gridElem );
 }
 
@@ -312,5 +366,18 @@ GridElem * GridElemS::GetGridElem( int iGridElem )
 {
     return this->data[ iGridElem ];
 }
+
+//void GridElemS::CreateGrid( HXVector< CgnsZone * > cgnsZones, int iZone )
+//{
+//    CgnsZone * cgnsZone = cgnsZones[ 0 ];
+//    int cgnsZoneType = cgnsZone->cgnsZoneType;
+//    int gridType = Cgns2OneFlowZoneType( cgnsZoneType );
+//    Grid * grid = ONEFLOW::CreateGrid( gridType );
+//    grid->level = 0;
+//    grid->id = iZone;
+//    grid->localId = iZone;
+//    grid->type = gridType;
+//    grid->volBcType = cgnsZone->GetVolBcType();
+//}
 
 EndNameSpace

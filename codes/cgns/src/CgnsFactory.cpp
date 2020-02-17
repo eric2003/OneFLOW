@@ -99,11 +99,17 @@ void CgnsFactory::CgnsToOneFlowGrid()
 
     this->PrepareUnsCompGrid();
 
-    this->AllocateCompGrid();
-
     this->GenerateCompGrid();
 
-    this->DeAllocateGridElem();
+    Grids compGrids;
+
+    for ( int iZone = 0; iZone < this->nZone; ++ iZone )
+    {
+        GridElem * gridElem = gridElemS->GetGridElem( iZone );
+        Grid * grid = gridElem->grid;
+        compGrids.push_back( grid );
+    }
+
 
     //对网格进行处理并输出计算所用的网格文件
     ONEFLOW::GenerateMultiZoneCompGrids( compGrids );
@@ -192,15 +198,14 @@ void CgnsFactory::CgnsToOneFlowGrid( Grid *& grid, int zId )
 
     this->PrepareUnsCompGrid();
 
-    this->AllocateCompGrid();
-
     this->GenerateCompGrid();
 
-    this->DeAllocateGridElem();
-
-    grid = this->compGrids[ 0 ];
-
+    GridElem * gridElem = gridElemS->GetGridElem( 0 );
+    grid = gridElem->grid;
     grid->id = zId;
+
+    //grid = this->compGrids[ 0 ];
+    //grid->id = zId;
 
 }
 
@@ -221,9 +226,7 @@ void CgnsFactory::AllocateGridElem()
 
         for ( int iZone = 0; iZone < this->nZone; ++ iZone )
         {
-            //GridElem * gridElem = new GridElem( cgnsZones );
-            //gridElemS->AddGridElem( gridElem );
-            gridElemS->AddGridElem( cgnsZones, iZone );
+             gridElemS->AddGridElem( cgnsZones, iZone );
         }
 
     }
@@ -236,15 +239,9 @@ void CgnsFactory::AllocateGridElem()
             HXVector< CgnsZone * > cgnsZones;
             cgnsZones.push_back( cgnsMultiBase->GetCgnsZone( iZone ) );
 
-            //GridElem * gridElem = new GridElem( cgnsZones );
-            //gridElemS->AddGridElem( gridElem );
             gridElemS->AddGridElem( cgnsZones, iZone );
         }
     }
-}
-
-void CgnsFactory::DeAllocateGridElem()
-{
 }
 
 void CgnsFactory::PrepareUnsCompGrid()
@@ -253,25 +250,6 @@ void CgnsFactory::PrepareUnsCompGrid()
     {
         GridElem * gridElem = gridElemS->GetGridElem( iZone );
         gridElem->PrepareUnsCompGrid();
-    }
-}
-
-void CgnsFactory::AllocateCompGrid()
-{
-    this->compGrids.resize( this->nZone );
-
-    for ( int iZone = 0; iZone < this->nZone; ++ iZone )
-    {
-        CgnsZone * cgnsZone = this->cgnsMultiBase->GetCgnsZone( iZone );
-        int cgnsZoneType = cgnsZone->cgnsZoneType;
-        int gridType = Cgns2OneFlowZoneType( cgnsZoneType );
-        Grid * grid = ONEFLOW::CreateGrid( gridType );
-        grid->level = 0;
-        grid->id = iZone;
-        grid->localId = iZone;
-        grid->type = gridType;
-        grid->volBcType = cgnsZone->GetVolBcType();
-        this->compGrids[ iZone ] = grid;
     }
 }
 
@@ -300,7 +278,8 @@ void CgnsFactory::GenerateUnsCompGrid()
     for ( int iZone = 0; iZone < this->nZone; ++ iZone )
     {
         GridElem * gridElem = gridElemS->GetGridElem( iZone );
-        gridElem->GenerateCompGrid( compGrids[ iZone ] );
+        //gridElem->GenerateCompGrid( compGrids[ iZone ] );
+        gridElem->GenerateCompGrid();
     }
 }
 
@@ -363,31 +342,6 @@ void ComputeUnsId( StrGrid * grid, PointSearch * pointSearch, Int3D * unsId )
         }
     }
 }
-
-int OneFlow2CgnsZoneType( int zoneType )
-{
-    if ( zoneType == UMESH )
-    {
-        return Unstructured;
-    }
-    else
-    {
-        return Structured;
-    }
-}
-
-int Cgns2OneFlowZoneType( int zoneType )
-{
-    if ( zoneType == Unstructured )
-    {
-        return UMESH;
-    }
-    else
-    {
-        return SMESH;
-    }
-}
-
 
 void SetUnsBcConn( BcRegion * bcRegion, CgIntField& conn, int & pos, Int3D & unsId )
 {

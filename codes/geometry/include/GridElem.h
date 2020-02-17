@@ -33,24 +33,30 @@ class FaceSolver;
 class Grid;
 class UnsGrid;
 
+int OneFlow2CgnsZoneType( int zoneType );
+int Cgns2OneFlowZoneType( int zoneType );
+
 class GridElem
 {
 public:
-    GridElem( HXVector< CgnsZone * > & cgnsZones );
+    GridElem( HXVector< CgnsZone * > & cgnsZones, int iZone );
     ~GridElem();
 public:
     ElemFeature  * elem_feature;
     PointFactory * point_factory;
     FaceSolver   * face_solver;
     HXVector< CgnsZone * > cgnsZones;
-
+    Grid * grid;
+    bool delFlag;
     Real minLen, maxLen;
 public:
+    void CreateGrid( HXVector< CgnsZone * > cgnsZones, int iZone );
     void PrepareUnsCompGrid();
     void ComputeMinMaxInfo();
     void InitCgnsElements();
     void ScanBcFace();
     void GenerateCompElement();
+    void GenerateCompGrid();
     void GenerateCompGrid( Grid * grid );
     void ComputeBoundaryType( UnsGrid * grid );
     void ReorderLink( UnsGrid * grid );
@@ -61,11 +67,12 @@ class GridElemS
 public:
     GridElemS();
     ~GridElemS();
+public:
     HXVector< GridElem * > data;
 public:
+    GridElem * GetGridElem( int iGridElem );
     void AddGridElem( GridElem * gridElem );
     void AddGridElem( HXVector< CgnsZone * > cgnsZones, int iZone );
-    GridElem * GetGridElem( int iGridElem );
 };
 
 EndNameSpace
