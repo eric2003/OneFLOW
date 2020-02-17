@@ -97,8 +97,6 @@ void CgnsFactory::CgnsToOneFlowGrid()
 
     this->PrepareUnsCompGrid();
 
-    //RegionNameMap::DumpRegion();
-
     this->AllocateCompGrid();
 
     this->GenerateCompGrid();
@@ -192,17 +190,15 @@ void CgnsFactory::CgnsToOneFlowGrid( Grid *& grid, int zId )
 
     this->PrepareUnsCompGrid();
 
-    //RegionNameMap::DumpRegion();
-
     this->AllocateCompGrid();
 
     this->GenerateCompGrid();
 
+    this->DeAllocateGridElem();
+
     grid = this->compGrids[ 0 ];
 
     grid->id = zId;
-
-    this->DeAllocateGridElem();
 
 }
 
@@ -289,11 +285,11 @@ void CgnsFactory::GenerateCompGrid()
 {
     if ( ONEFLOW::IsStrGrid( grid_para.topo ) )
     {
-        this->GenerateStrCmpGrid();
+        this->GenerateStrCompGrid();
     }
     else if ( ONEFLOW::IsUnsGrid( grid_para.topo ) )
     {
-        this->GenerateUnsCmpGrid();
+        this->GenerateUnsCompGrid();
     }
     else
     {
@@ -301,11 +297,11 @@ void CgnsFactory::GenerateCompGrid()
     }
 }
 
-void CgnsFactory::GenerateStrCmpGrid()
+void CgnsFactory::GenerateStrCompGrid()
 {
 }
 
-void CgnsFactory::GenerateUnsCmpGrid()
+void CgnsFactory::GenerateUnsCompGrid()
 {
     for ( int iZone = 0; iZone < this->nZone; ++ iZone )
     {

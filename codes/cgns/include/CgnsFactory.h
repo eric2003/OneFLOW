@@ -81,8 +81,8 @@ public:
     //转换为oneflow计算所用的网格
     void GenerateCompGrid();
 protected:
-    void GenerateStrCmpGrid();
-    void GenerateUnsCmpGrid();
+    void GenerateStrCompGrid();
+    void GenerateUnsCompGrid();
 };
 
 class Grid;
