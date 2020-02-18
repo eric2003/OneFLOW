@@ -117,6 +117,7 @@ public:
     void DumpCgnsZone( Grid * grid );
     void FillISize( Grid * gridIn );
     void FillISize( int ni, int nj, int nk, int dimension );
+    void PrepareCgnsZone( Grid * grid );
 public:
     void AllocateUnsElemConn( CgnsZone * cgnsZoneIn );
     void GenerateUnsVolElemConn( CgnsZone * cgnsZoneIn );

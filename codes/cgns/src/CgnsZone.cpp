@@ -677,6 +677,13 @@ void CgnsZone::CreateCgnsBcRegion( CgnsZone * cgnsZoneIn )
     bcRegionProxy->CreateCgnsBcRegion( cgnsZoneIn->bcRegionProxy );
 }
 
+void CgnsZone::PrepareCgnsZone( Grid * grid )
+{
+    Grids grids;
+    grids.push_back( grid );
+    ONEFLOW::PrepareCgnsZone( grids, this );
+}
+
 void EncodeIJK( int & index, int i, int j, int k, int ni, int nj, int nk )
 {
     index = ( i - 1 ) + ( j - 1 ) * ni + ( k - 1 ) * ( ni * nj ) ;

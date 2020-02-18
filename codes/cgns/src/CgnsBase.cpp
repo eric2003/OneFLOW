@@ -137,7 +137,7 @@ void CgnsBase::PrepareCgnsZone( GridMediator * gridMediator )
     {
         CgnsZone * cgnsZone = this->GetCgnsZone( iZone );
         Grid * grid = gridMediator->gridVector[ iZone ];
-        //cgnsZone->PrepareCgnsZone( grid );
+        cgnsZone->PrepareCgnsZone( grid );
     }
 }
 
