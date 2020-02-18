@@ -53,8 +53,6 @@ public:
     ~CgnsFactory();
 public:
     CgnsMultiBase * cgnsMultiBase;
-
-    //Grids compGrids;
     GridElemS * gridElemS;
     int nZone;
     int nOriZone;
@@ -66,7 +64,10 @@ public:
     void CommonToOneFlowGrid();
     void CommonToUnsGrid();
     void CommonToStrGrid();
+    void CommonToUnsGridTEST();
 public:
+    void CreateCgnsZone( GridMediatorS * gridMediators );
+    void PrepareCgnsZone( GridMediatorS * gridMediators );
     void CreateDefaultZone( int nZone );
     CgnsZone * CreateOneUnsCgnsZone( int cgnsZoneId );
 public:
@@ -86,13 +87,13 @@ protected:
 class Grid;
 class PointSearch;
 class NodeMesh;
-void ComputeUnsId( StrGrid * grid, PointSearch * pointSearch, Int3D * unsId );
+//void ComputeUnsId( StrGrid * grid, PointSearch * pointSearch, Int3D * unsId );
 
 class BcRegion;
-void SetUnsBcConn( BcRegion * bcRegion, CgIntField& conn, int & pos, Int3D & unsId );
-void MergeToSingleZone( Grids & grids, HXVector< Int3D * > & unsIdList, NodeMesh * nodeMesh, int & nNode, int & nCell );
-void FillSection( Grids & grids, HXVector< Int3D * > & unsIdList, CgnsZone * cgnsZone );
-void PrepareCgnsZone( Grids & grids, CgnsZone * cgnsZone );
+//void SetUnsBcConn( BcRegion * bcRegion, CgIntField& conn, int & pos, Int3D & unsId );
+//void MergeToSingleZone( Grids & grids, HXVector< Int3D * > & unsIdList, NodeMesh * nodeMesh, int & nNode, int & nCell );
+//void FillSection( Grids & grids, HXVector< Int3D * > & unsIdList, CgnsZone * cgnsZone );
+//void PrepareCgnsZone( Grids & grids, CgnsZone * cgnsZone );
 
 #endif
 

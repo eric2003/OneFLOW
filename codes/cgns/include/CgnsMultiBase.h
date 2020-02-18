@@ -57,6 +57,7 @@ public:
     void ReadNumCgnsBase( CgnsMultiBase * strCgnsMultiBase );
 public:
     void CreateDefaultCgnsZones( GridMediatorS * gridMediatorS );
+    void PrepareCgnsZone( GridMediatorS * gridMediatorS );
     void AddCgnsBase( CgnsBase * cgnsBase );
     void InitCgnsBase();
     void ConvertStrCgns2UnsCgnsGrid( CgnsMultiBase * strCgnsMultiBase );

@@ -69,11 +69,6 @@ int CgnsMultiBase::GetSystemZoneType()
         zoneTypeSet.insert( zoneType );
     }
 
-    //for ( int iBase = 0; iBase < this->nBases; ++ iBase )
-    //{
-    //    CgnsBase * cgnsBase = this->GetCgnsBase( iBase );
-    //}
-
     if ( zoneTypeSet.size() == 1 )
     {
         return * zoneTypeSet.begin();
@@ -199,6 +194,17 @@ void CgnsMultiBase::CreateDefaultCgnsZones( GridMediatorS * gridMediatorS )
 
         cgnsBase->AllocateAllCgnsZones();
      }
+}
+
+void CgnsMultiBase::PrepareCgnsZone( GridMediatorS * gridMediatorS )
+{
+    for ( int iBase = 0; iBase < this->nBases; ++ iBase )
+    {
+        CgnsBase * cgnsBase = this->GetCgnsBase( iBase );
+        GridMediator * gridMediator = gridMediatorS->GetGridMediator( iBase );
+
+        cgnsBase->PrepareCgnsZone( gridMediator );
+    }
 }
 
 void CgnsMultiBase::AddCgnsBase( CgnsBase * cgnsBase )
