@@ -70,6 +70,7 @@ public:
     void SetDeleteFlag( bool flag );
 public:
     void CreateSimple( int nZone );
+    void ReadGrid();
 };
 
 class GlobalGrid
