@@ -50,6 +50,9 @@ public:
     bool delFlag;
     Real minLen, maxLen;
 public:
+    CgnsZone * GetCgnsZone( int iZone );
+    int GetNZone();
+public:
     void CreateGrid( HXVector< CgnsZone * > cgnsZones, int iZone );
     void PrepareUnsCompGrid();
     void ComputeMinMaxInfo();

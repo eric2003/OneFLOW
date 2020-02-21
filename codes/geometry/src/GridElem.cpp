@@ -96,6 +96,16 @@ GridElem::~GridElem()
     cout << "GridElem::~GridElem()\n";
 }
 
+CgnsZone * GridElem::GetCgnsZone( int iZone )
+{
+    return this->cgnsZones[ iZone ];
+}
+
+int GridElem::GetNZone()
+{
+    return this->cgnsZones.size();
+}
+
 void GridElem::CreateGrid( HXVector< CgnsZone * > cgnsZones, int iZone )
 {
     CgnsZone * cgnsZone = cgnsZones[ 0 ];
@@ -128,9 +138,11 @@ void GridElem::ComputeMinMaxInfo()
 {
     this->minLen =   LARGE;
     this->maxLen = - LARGE;
-    for ( int iZone = 0; iZone < cgnsZones.size(); ++ iZone )
+
+    int nZone = this->GetNZone();
+    for ( int iZone = 0; iZone < nZone; ++ iZone )
     {
-        CgnsZone * cgnsZone = cgnsZones[ iZone ];
+        CgnsZone * cgnsZone = this->GetCgnsZone( iZone );
 
         this->minLen = MIN( this->minLen, cgnsZone->minLen );
         this->maxLen = MAX( this->maxLen, cgnsZone->maxLen );
@@ -140,19 +152,22 @@ void GridElem::ComputeMinMaxInfo()
 
 void GridElem::InitCgnsElements()
 {
-    for ( int iZone = 0; iZone < cgnsZones.size(); ++ iZone )
+    int nZone = this->GetNZone();
+    for ( int iZone = 0; iZone < nZone; ++ iZone )
     {
-        CgnsZone * cgnsZone = cgnsZones[ iZone ];
+        CgnsZone * cgnsZone = this->GetCgnsZone( iZone );
+        
         cgnsZone->InitElement( this );
     }
 }
 
 void GridElem::ScanBcFace()
 {
-    int nZone = this->cgnsZones.size();
+    int nZone = this->GetNZone();
     for ( int iZone = 0; iZone < nZone; ++ iZone )
     {
-        this->cgnsZones[ iZone ]->ScanBcFace( this->elem_feature->face_solver );
+        CgnsZone * cgnsZone = this->GetCgnsZone( iZone );
+        cgnsZone->ScanBcFace( this->elem_feature->face_solver );
     }
 }
 
@@ -366,18 +381,5 @@ GridElem * GridElemS::GetGridElem( int iGridElem )
 {
     return this->data[ iGridElem ];
 }
-
-//void GridElemS::CreateGrid( HXVector< CgnsZone * > cgnsZones, int iZone )
-//{
-//    CgnsZone * cgnsZone = cgnsZones[ 0 ];
-//    int cgnsZoneType = cgnsZone->cgnsZoneType;
-//    int gridType = Cgns2OneFlowZoneType( cgnsZoneType );
-//    Grid * grid = ONEFLOW::CreateGrid( gridType );
-//    grid->level = 0;
-//    grid->id = iZone;
-//    grid->localId = iZone;
-//    grid->type = gridType;
-//    grid->volBcType = cgnsZone->GetVolBcType();
-//}
 
 EndNameSpace
