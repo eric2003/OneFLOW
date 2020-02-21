@@ -681,6 +681,7 @@ void CgnsZone::PrepareCgnsZone( Grid * grid )
 {
     Grids grids;
     grids.push_back( grid );
+    this->cgnsZoneType = Unstructured;
     ONEFLOW::PrepareCgnsZone( grids, this );
 }
 

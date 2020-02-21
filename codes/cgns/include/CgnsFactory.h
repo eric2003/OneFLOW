@@ -65,6 +65,7 @@ public:
     void CommonToUnsGrid();
     void CommonToStrGrid();
     void CommonToUnsGridTEST();
+    void ReadGridAndConvertToUnsCgnsZone();
 public:
     void CreateCgnsZone( GridMediatorS * gridMediators );
     void PrepareCgnsZone( GridMediatorS * gridMediators );

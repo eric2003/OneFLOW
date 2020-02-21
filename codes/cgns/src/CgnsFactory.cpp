@@ -100,7 +100,8 @@ void CgnsFactory::CommonToOneFlowGrid()
 {
     if ( ONEFLOW::IsUnsGrid( grid_para.topo ) )
     {
-        this->CommonToUnsGrid();
+        //this->CommonToUnsGrid();
+        this->CommonToUnsGridTEST();
     }
     else if ( ONEFLOW::IsStrGrid( grid_para.topo ) )
     {
@@ -202,24 +203,19 @@ void CgnsFactory::CommonToUnsGrid()
     delete gridMediator;
 }
 
-void CgnsFactory::CommonToUnsGridTEST()
+void CgnsFactory::ReadGridAndConvertToUnsCgnsZone()
 {
-    //GridMediator * gridMediator = new GridMediator();
-    //gridMediator->gridFile = ONEFLOW::GetDataValue< string >( "sourceGridFileName" );
-    //gridMediator->bcFile   = ONEFLOW::GetDataValue< string >( "sourceGridBcName" );
-
-    //gridMediator->gridType = grid_para.filetype;
-    //gridMediator->ReadGrid();
-
     GridMediatorS gridMediators;
     gridMediators.ReadGrid();
-    //gridMediators.AddGridMediator( gridMediator );
 
     //create multi cgns zone
     this->CreateCgnsZone( & gridMediators );
     this->PrepareCgnsZone( & gridMediators );
+}
 
-    //delete gridMediator;
+void CgnsFactory::CommonToUnsGridTEST()
+{
+    this->ReadGridAndConvertToUnsCgnsZone();
 
     this->AllocateGridElem();
 
