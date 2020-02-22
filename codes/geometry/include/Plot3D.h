@@ -34,6 +34,7 @@ const int ASCII  = 0;
 const int BINARY = 1;
 class GridMediator;
 class FileIO;
+class GridMediatorS;
 
 class Plot3D
 {
@@ -54,7 +55,7 @@ public:
     static void DumpCoorAscii( GridMediator * gridMediator );
     static void DumpCoorAscii( fstream & file, RealField & coor );
     static void DumpBc( GridMediator * gridMediator );
-    static void Plot3DToCgns();
+    static void Plot3DToCgns( GridMediatorS * gridMediators );
 
 };
 

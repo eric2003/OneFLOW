@@ -28,6 +28,7 @@ License
 #include <fstream>
 #include "HXCgns.h"
 #include "HXArray.h"
+#include "GridDef.h"
 using namespace std;
 
 BeginNameSpace( ONEFLOW )
@@ -116,6 +117,7 @@ public:
     void DumpCgnsZone( Grid * grid );
     void FillISize( Grid * gridIn );
     void FillISize( int ni, int nj, int nk, int dimension );
+    void PrepareCgnsZone( Grid * grid );
 public:
     void AllocateUnsElemConn( CgnsZone * cgnsZoneIn );
     void GenerateUnsVolElemConn( CgnsZone * cgnsZoneIn );
@@ -135,6 +137,14 @@ void EncodeIJK( int & index, int i, int j, int k, int ni, int nj, int nk );
 void DecodeIJK( int index, int & i, int & j, int & k, int ni, int nj, int nk );
 void GetRange( int ni, int nj, int nk, int startShift, int endShift, Range & I, Range & J, Range & K );
 void GetIJKRegion( Range & I, Range & J, Range & K, int & ist, int & ied, int & jst, int & jed, int & kst, int & ked );
+
+class PointSearch;
+class BcRegion;
+void PrepareCgnsZone( Grids & grids, CgnsZone * cgnsZone );
+void MergeToSingleZone( Grids & grids, HXVector< Int3D * > & unsIdList, NodeMesh * nodeMesh, int & nNode, int & nCell );
+void FillSection( Grids & grids, HXVector< Int3D * > & unsIdList, CgnsZone * cgnsZone );
+void ComputeUnsId( StrGrid * grid, PointSearch * pointSearch, Int3D * unsId );
+void SetUnsBcConn( BcRegion * bcRegion, CgIntField& conn, int & pos, Int3D & unsId );
 
 #endif
 

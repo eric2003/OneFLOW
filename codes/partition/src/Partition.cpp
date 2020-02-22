@@ -35,7 +35,7 @@ License
 #include "GridState.h"
 #include "NodeMesh.h"
 #include "InterFace.h"
-#include "CmpGrid.h"
+#include "CompGrid.h"
 #include "DataBase.h"
 #include <iostream>
 using namespace std;
@@ -233,7 +233,7 @@ void Partition::Run()
 
     this->GenerateMultiZoneGrid();
 
-    ONEFLOW::GenerateMultiZoneCmpGrids( grids );
+    ONEFLOW::GenerateMultiZoneCompGrids( grids );
 }
 
 void Partition::ReadGrid()

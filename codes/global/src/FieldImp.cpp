@@ -368,7 +368,6 @@ void FieldManager::AllocateBcField( UnsGrid * grid, FieldPropertyData * fieldPro
     for ( std::map< string, int >::iterator iter = data.begin(); iter != data.end(); ++ iter )
     {
         int nTEqu = iter->second;
-
         ONEFLOW::CreateMRField( grid, nTEqu, nBFace, iter->first );
 
         MRField * field = ONEFLOW::GetFieldPointer< MRField >( grid, iter->first );

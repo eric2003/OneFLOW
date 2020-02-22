@@ -37,7 +37,7 @@ License
 #include "StrGrid.h"
 #include "UnsGrid.h"
 #include "BgGrid.h"
-#include "CmpGrid.h"
+#include "CompGrid.h"
 #include "HXPointer.h"
 #include "NodeMesh.h"
 #include "BgGrid.h"
@@ -506,12 +506,12 @@ void Su2Grid::Su2ToOneFlowGrid()
 
         FillSU2CgnsZone( this, cgnsZone );
 
-        cgnsFactory->CgnsStr2Uns( grids[ iZone ], iZone );
+        cgnsFactory->CgnsToOneFlowGrid( grids[ iZone ], iZone );
 
         delete cgnsFactory;
     }
 
-    ONEFLOW::GenerateMultiZoneCmpGrids( grids );
+    ONEFLOW::GenerateMultiZoneCompGrids( grids );
 }
 
 void FillSU2CgnsZone( Su2Grid* su2Grid, CgnsZone * cgnsZone )
@@ -560,10 +560,6 @@ void FillSU2CgnsZone( Su2Grid* su2Grid, CgnsZone * cgnsZone )
             
 
         int nElem = sec->nElem;
-        //cgnsSection->sectionName = sec->name;
-        //cgnsSection->startId = sumElem + 1;
-        //cgnsSection->endId   = sumElem + nElem;
-        //cgnsSection->eType = sec->cgns_type;
         cgnsSection->SetSectionInfo( sec->name, sec->cgns_type, sumElem + 1, sumElem + nElem );
         cgnsSection->CreateConnList();
         sumElem += nElem;

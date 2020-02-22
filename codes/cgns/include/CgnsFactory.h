@@ -39,6 +39,7 @@ class Grid;
 class CgnsMultiBase;
 class CgnsZone;
 class GridElem;
+class GridElemS;
 class Su2Grid;
 class GridMediator;
 class GridMediatorS;
@@ -52,52 +53,37 @@ public:
     ~CgnsFactory();
 public:
     CgnsMultiBase * cgnsMultiBase;
-
-    Grids cmpGrids;
-    HXVector< GridElem * > gridElems;
-
+    GridElemS * gridElemS;
     int nZone;
     int nOriZone;
 public:
     void GenerateGrid();
     void ReadCgnsGrid();
     void DumpCgnsGrid( GridMediatorS * gridMediators );
-    void ProcessGrid();
 public:
     void CommonToOneFlowGrid();
     void CommonToUnsGrid();
     void CommonToStrGrid();
+    void CommonToUnsGridTEST();
+    void ReadGridAndConvertToUnsCgnsZone();
 public:
+    void CreateCgnsZone( GridMediatorS * gridMediators );
+    void PrepareCgnsZone( GridMediatorS * gridMediators );
     void CreateDefaultZone( int nZone );
     CgnsZone * CreateOneUnsCgnsZone( int cgnsZoneId );
-    void MergeToSingleZone( Grids & grids, HXVector< Int3D * > & unsIdList, NodeMesh * nodeMesh, int & nNode, int & nCell );
-    void PrepareCgnsZone( Grids & grids, CgnsZone * cgnsZone );
-    void FillSection( Grids & grids, HXVector< Int3D * > & unsIdList );
 public:
-    void CgnsStr2Uns( Grid *& grid, int zId );
+    void CgnsToOneFlowGrid();
+    void CgnsToOneFlowGrid( Grid *& grid, int zId );
     void ConvertStrCgns2UnsCgnsGrid();
     void AllocateGridElem();
-    void DeAllocateGridElem();
     void PrepareUnsCompGrid();
-    void AllocateCmpGrid();
 
     //转换为oneflow计算所用的网格
-    void GenerateCmpGrid();
+    void GenerateCompGrid();
 protected:
-    void GenerateStrCmpGrid();
-    void GenerateUnsCmpGrid();
+    void GenerateStrCompGrid();
+    void GenerateUnsCompGrid();
 };
-
-class Grid;
-class PointSearch;
-class NodeMesh;
-void ComputeUnsId( StrGrid * grid, PointSearch * pointSearch, Int3D * unsId );
-
-int OneFlow2CgnsZoneType( int zoneType );
-int Cgns2OneFlowZoneType( int zoneType );
-
-class BcRegion;
-void SetUnsBcConn( BcRegion * bcRegion, CgIntField& conn, int & pos, Int3D & unsId );
 
 #endif
 

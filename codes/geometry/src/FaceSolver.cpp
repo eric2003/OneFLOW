@@ -238,6 +238,27 @@ void FaceSolver::ScanBcFaceDetail( IntSet& bcVertex, int bcType, int bcNameId )
     int kkk = 1;
 }
 
+void FaceSolver::ScanInterfaceBc()
+{
+    int nFace = this->faceTopo->lCell.size();
+
+    int bcNameId = -1;
+    int nInterFace = 0;
+    for ( int iFace = 0; iFace < nFace; ++ iFace )
+    {
+        int originalBcType = ( * this->faceBcType )[ iFace ];
+
+        if ( originalBcType == ONEFLOW::INVALID_INDEX )
+        {
+            nInterFace ++;
+            ( * this->faceBcType )[ iFace ] = BCTypeNull;
+            ( * this->faceBcKey  )[ iFace ] = bcNameId;
+        }
+    }
+
+    cout << " nInterFace = " << nInterFace << endl;
+}
+
 int FaceSolver::GetNSimpleFace()
 {
     int nSimpleFace = 0;

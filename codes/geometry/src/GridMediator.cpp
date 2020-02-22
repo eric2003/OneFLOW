@@ -26,6 +26,8 @@ License
 #include "StrGrid.h"
 #include "StrUtil.h"
 #include "BcRecord.h"
+#include "GridPara.h"
+
 
 using namespace std;
 
@@ -141,11 +143,28 @@ void GridMediatorS::CreateSimple( int nZone )
     this->flag = true;
 }
 
+void GridMediatorS::ReadGrid()
+{
+    GridMediator * gridMediator = new GridMediator();
+    gridMediator->gridFile = grid_para.gridFile;
+    gridMediator->bcFile = grid_para.bcFile;
+
+    gridMediator->gridType = grid_para.filetype;
+    gridMediator->ReadGrid();
+    this->AddGridMediator( gridMediator );
+    this->flag = true;
+}
+
 string GridMediatorS::GetTargetFile()
 {
     int index = 0;
     GridMediator * gridMediator = this->gm[ index ];
     return gridMediator->targetFile;
+}
+
+void GridMediatorS::SetDeleteFlag( bool flag )
+{
+    this->flag = flag;
 }
 
 GridMediator * GlobalGrid::gridMediator = 0;

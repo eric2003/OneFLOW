@@ -32,6 +32,8 @@ License
 #include "UnsGrid.h"
 #include "DataBase.h"
 #include "UCom.h"
+#include "UTurbCom.h"
+#include "UNsCom.h"
 
 BeginNameSpace( ONEFLOW )
 
@@ -130,6 +132,9 @@ void UTurbInvFlux::CmpFlux()
     TurbInv & inv = turbInv;
     inv.Init();
     ug.Init();
+    unsf.Init();
+    uturbf.Init();
+
     Alloc();
 
     this->CmpInvFace();

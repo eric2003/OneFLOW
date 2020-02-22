@@ -127,6 +127,20 @@ void CgnsBase::DumpBase( GridMediator * gridMediator )
     }
 }
 
+void CgnsBase::PrepareCgnsZone( GridMediator * gridMediator )
+{
+    GlobalGrid::SetCurrentGridMediator( gridMediator );
+
+    cout << " nZones = " << nZones << "\n";
+
+    for ( int iZone = 0; iZone < nZones; ++ iZone )
+    {
+        CgnsZone * cgnsZone = this->GetCgnsZone( iZone );
+        Grid * grid = gridMediator->gridVector[ iZone ];
+        cgnsZone->PrepareCgnsZone( grid );
+    }
+}
+
 void CgnsBase::ReadCgnsBaseBasicInfo( CgnsBase * cgnsBaseIn )
 {
     this->baseName = cgnsBaseIn->baseName;

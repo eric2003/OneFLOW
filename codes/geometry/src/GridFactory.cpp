@@ -127,7 +127,16 @@ void GridFactory::Plot3DProcess()
     }
     else if ( grid_para.target_filetype == "cgns" )
     {
-        Plot3D::Plot3DToCgns();
+        CgnsFactory * cgnsFactory = new CgnsFactory();
+
+        GridMediatorS gridMediators;
+        gridMediators.SetDeleteFlag( true );
+
+        Plot3D::Plot3DToCgns( & gridMediators );
+
+        cgnsFactory->DumpCgnsGrid( & gridMediators );
+
+        delete cgnsFactory;
     }
 
 }

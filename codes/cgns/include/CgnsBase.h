@@ -67,6 +67,7 @@ public:
     void ReadAllCgnsZones( CgnsBase * cgnsBaseIn );
 public:
     void DumpBase( GridMediator * gridMediator );
+    void PrepareCgnsZone( GridMediator * gridMediator );
 public:
     void SetFamilyBc( BCType_t & bcType, const string & bcRegionName );
     void ReadFamilySpecifiedBc();
