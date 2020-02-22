@@ -64,29 +64,6 @@ CgnsBcRegionProxy::~CgnsBcRegionProxy()
     }
 }
 
-//void CgnsBcRegionProxy::CreateCgnsBcRegion()
-//{
-//    this->n1To1General = MAX( this->nConn, this->n1To1 );
-//
-//    cout << "   nConn        = " << this->nConn << endl;
-//    cout << "   n1To1        = " << this->n1To1 << endl;
-//    cout << "   n1To1General = " << this->n1To1General << endl;
-//
-//    this->nBcRegion = this->nOrdinaryBcRegion + this->n1To1General;
-//    this->cgnsBcRegions.resize( this->nOrdinaryBcRegion );
-//
-//    for ( int ir = 0; ir < this->nOrdinaryBcRegion; ++ ir )
-//    {
-//        cgnsBcRegions[ ir ] = new CgnsBcRegion( this->cgnsZone );
-//    }
-//
-//    bcRegion1To1.resize( this->n1To1General );
-//
-//    for ( int i1To1 = 0; i1To1 < this->n1To1General; ++ i1To1 )
-//    {
-//        bcRegion1To1[ i1To1 ] = new CgnsBcRegion( this->cgnsZone );
-//    }
-//}
 
 void CgnsBcRegionProxy::CreateCgnsBcRegion()
 {
@@ -179,7 +156,7 @@ void CgnsBcRegionProxy::ScanBcFace( FaceSolver * face_solver )
         RegionNameMap::AddRegion( cgnsBcRegion->name );
         int bcNameId = RegionNameMap::FindRegionId( cgnsBcRegion->name );
         cgnsBcRegion->nameId = bcNameId;
-        cgnsBcRegion->id = ir;
+        cgnsBcRegion->bcId = ir + 1;
         cgnsBcRegion->ScanBcFace( face_solver );
     }
     face_solver->ScanInterfaceBc();
@@ -366,7 +343,7 @@ void CgnsBcRegionProxy::ReadCgnsOrdinaryBcRegion()
         cout << "\n-->iBcRegion  = " << iBcRegion;
         cout << " nOrdinaryBcRegion = " << nOrdinaryBcRegion << "\n";
         CgnsBcRegion * cgnsBcRegion = this->GetBcRegion( iBcRegion - 1 );
-        cgnsBcRegion->id = iBcRegion;
+        cgnsBcRegion->bcId = iBcRegion;
         cgnsBcRegion->ReadCgnsOrdinaryBcRegion();
     }
 }
@@ -452,7 +429,7 @@ void CgnsBcRegionProxy::ReconstructStrRegion()
         MyRegion * r = rfact.bcregions[ i ];
 
         int id = static_cast<int> (this->cgnsBcRegions.size() + 1);
-        rr->id = id;
+        rr->bcId = id;
         rr->ReconstructStrRegion( r->ijkmin, r->ijkmax );
 
         this->cgnsBcRegions.push_back( rr );

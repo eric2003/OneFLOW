@@ -178,9 +178,9 @@ void CgnsBcRegion::ReadCgnsOrdinaryBcRegionInfo()
 
     this->gridConnType = GridConnectivityTypeNull;
 
-    cg_boco_id( fileId, baseId, zId, this->id, & this->bc_double_id );
+    cg_boco_id( fileId, baseId, zId, this->bcId, & this->bc_double_id );
 
-    cg_boco_info( fileId, baseId, zId, this->id,
+    cg_boco_info( fileId, baseId, zId, this->bcId,
                   bcRegionName, & this->bcType, & this->pointSetType, & this->nElements,
                   normalIndex,  & normalListSize, & this->normalDataType, & this->nDataSets );
 
@@ -203,7 +203,7 @@ void CgnsBcRegion::ReadCgnsOrdinaryBcRegionGridLocation()
     int baseId = cgnsZone->cgnsBase->baseId;
     int zId = cgnsZone->zId;
 
-    cg_goto( fileId, baseId, "Zone_t", zId, "ZoneBC_t", 1, "BC_t", this->id, "end" );
+    cg_goto( fileId, baseId, "Zone_t", zId, "ZoneBC_t", 1, "BC_t", this->bcId, "end" );
 
     GridLocation_t bcGridLocation;
     cg_gridlocation_read( & bcGridLocation );
@@ -253,13 +253,13 @@ void CgnsBcRegion::ReadCgnsBcConn()
     int cgnsNormalList;
 
     // Read the element ID¡¯s.
-    cg_boco_read( fileId, baseId, zId, this->id, & connList[ 0 ], & cgnsNormalList );
+    cg_boco_read( fileId, baseId, zId, this->bcId, & connList[ 0 ], & cgnsNormalList );
     int kkk = 1;
 }
 
 void CgnsBcRegion::ProcessCgns1to1BcRegion( int bcId )
 {
-    this->id = bcId;
+    this->bcId = bcId;
     this->bcInterface = new CgnsBcInterface( this );
     this->bcInterface->ReadCgnsBcConnInfo();
     this->bcInterface->ReadCgnsBcConnData();
@@ -286,7 +286,7 @@ void CgnsBcRegion::ProcessCgns1to1BcRegion( int bcId )
 
 void CgnsBcRegion::ReadCgns1to1BoundaryRegion( int i1to1 )
 {
-    this->id = i1to1;
+    this->bcId = i1to1;
     this->bcInterface = new CgnsBcInterface( this );
     this->bcInterface->ReadCgnsBc1To1();
 
@@ -375,7 +375,7 @@ void CgnsBcRegion::ReconstructStrRegion( IntField & ijkMin, IntField & ijkMax )
     this->connList.resize( this->nElements );
 
     string bcName = GetCgnsBcName( this->bcType );
-    this->name = AddString( this->cgnsZone->zoneName, bcName, this->id );
+    this->name = AddString( this->cgnsZone->zoneName, bcName, this->bcId );
 
     int celldim = cgnsZone->cgnsBase->celldim;
 

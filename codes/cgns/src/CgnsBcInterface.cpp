@@ -62,7 +62,7 @@ void CgnsBcInterface::ReadCgnsBcConnInfo()
     CgnsTraits::char33 connName;
     CgnsTraits::char33 donorZoneName;
 
-    cg_conn_info( fileId, baseId, zId, this->bcRegion->id,
+    cg_conn_info( fileId, baseId, zId, this->bcRegion->bcId,
                   connName, & this->bcRegion->gridLocation, & this->bcRegion->gridConnType, & this->bcRegion->pointSetType,
                   & nConnPoints, donorZoneName, & donorZoneType, & donorPointSetType, & donorDataType, & nConnDonorPoints );
 
@@ -88,7 +88,7 @@ void CgnsBcInterface::ReadCgnsBcConnData()
     this->connPoint.resize( nConnPoints );
     this->connDonorPoint.resize( nConnDonorPoints );
 
-    cg_conn_read( fileId, baseId, zId, this->bcRegion->id, & this->connPoint[ 0 ], this->donorDataType, & this->connDonorPoint[ 0 ] );
+    cg_conn_read( fileId, baseId, zId, this->bcRegion->bcId, & this->connPoint[ 0 ], this->donorDataType, & this->connDonorPoint[ 0 ] );
 }
 
 void CgnsBcInterface::AddFacePair()
@@ -153,7 +153,7 @@ void CgnsBcInterface::ReadCgnsBc1To1()
     //Zone Connectivity
     cg_goto( fileId, baseId, "Zone_t", zId, "ZoneGridConnectivity_t", 1, "GridConnectivity1to1_t", 1, "end" );
 
-    cg_1to1_read( fileId, baseId, zId, this->bcRegion->id, connName, donorZoneName, & this->connPoint[ 0 ], & this->connDonorPoint[ 0 ], itranfrm );
+    cg_1to1_read( fileId, baseId, zId, this->bcRegion->bcId, connName, donorZoneName, & this->connPoint[ 0 ], & this->connDonorPoint[ 0 ], itranfrm );
 
     this->bcRegion->name = connName;
     this->donorZoneName  = donorZoneName;

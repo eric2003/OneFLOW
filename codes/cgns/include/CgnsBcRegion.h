@@ -47,7 +47,7 @@ public:
     CgnsBcRegion( CgnsZone * cgnsZone );
     ~CgnsBcRegion();
 public:
-    int id;
+    int bcId;
     int nameId;
     string name;
     double bc_double_id;
