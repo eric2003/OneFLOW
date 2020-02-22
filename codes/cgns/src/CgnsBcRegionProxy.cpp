@@ -64,6 +64,30 @@ CgnsBcRegionProxy::~CgnsBcRegionProxy()
     }
 }
 
+//void CgnsBcRegionProxy::CreateCgnsBcRegion()
+//{
+//    this->n1To1General = MAX( this->nConn, this->n1To1 );
+//
+//    cout << "   nConn        = " << this->nConn << endl;
+//    cout << "   n1To1        = " << this->n1To1 << endl;
+//    cout << "   n1To1General = " << this->n1To1General << endl;
+//
+//    this->nBcRegion = this->nOrdinaryBcRegion + this->n1To1General;
+//    this->cgnsBcRegions.resize( this->nOrdinaryBcRegion );
+//
+//    for ( int ir = 0; ir < this->nOrdinaryBcRegion; ++ ir )
+//    {
+//        cgnsBcRegions[ ir ] = new CgnsBcRegion( this->cgnsZone );
+//    }
+//
+//    bcRegion1To1.resize( this->n1To1General );
+//
+//    for ( int i1To1 = 0; i1To1 < this->n1To1General; ++ i1To1 )
+//    {
+//        bcRegion1To1[ i1To1 ] = new CgnsBcRegion( this->cgnsZone );
+//    }
+//}
+
 void CgnsBcRegionProxy::CreateCgnsBcRegion()
 {
     this->n1To1General = MAX( this->nConn, this->n1To1 );
@@ -73,18 +97,17 @@ void CgnsBcRegionProxy::CreateCgnsBcRegion()
     cout << "   n1To1General = " << this->n1To1General << endl;
 
     this->nBcRegion = this->nOrdinaryBcRegion + this->n1To1General;
-    this->cgnsBcRegions.resize( this->nOrdinaryBcRegion );
 
     for ( int ir = 0; ir < this->nOrdinaryBcRegion; ++ ir )
     {
-        cgnsBcRegions[ ir ] = new CgnsBcRegion( this->cgnsZone );
+        CgnsBcRegion * cgnsBcRegion = new CgnsBcRegion( this->cgnsZone );
+        this->AddCgnsBcRegion( cgnsBcRegion );
     }
-
-    bcRegion1To1.resize( this->n1To1General );
 
     for ( int i1To1 = 0; i1To1 < this->n1To1General; ++ i1To1 )
     {
-        bcRegion1To1[ i1To1 ] = new CgnsBcRegion( this->cgnsZone );
+        CgnsBcRegion * cgnsBcRegion = new CgnsBcRegion( this->cgnsZone );
+        this->AddCgns1To1BcRegion( cgnsBcRegion );
     }
 }
 
@@ -99,6 +122,16 @@ CgnsBcRegion * CgnsBcRegionProxy::GetBcRegion( int ir )
         int irr = ir - this->nOrdinaryBcRegion;
         return this->bcRegion1To1[ irr ];
     }
+}
+
+void CgnsBcRegionProxy::AddCgnsBcRegion( CgnsBcRegion * cgnsBcRegion )
+{
+    this->cgnsBcRegions.push_back( cgnsBcRegion );
+}
+
+void CgnsBcRegionProxy::AddCgns1To1BcRegion( CgnsBcRegion * cgnsBcRegion )
+{
+    this->bcRegion1To1.push_back( cgnsBcRegion );
 }
 
 void CgnsBcRegionProxy::ConvertToInnerDataStandard()
@@ -250,12 +283,6 @@ void CgnsBcRegionProxy::FillInterface( BcRegion * bcRegion, cgsize_t * ipnts, cg
 
 void CgnsBcRegionProxy::DumpCgnsGridBoundary( Grid * gridIn )
 {
-    //this->ReadNumberCgnsConnBcInfo();
-    //this->CreateCgnsBcRegion();
-
-    //this->ReadCgnsOrdinaryBcRegion();
-    //this->ReadCgnsInterfaceBcRegion();
-
     StrGrid * grid = StrGridCast( gridIn );
 
     BcRegionGroup * bcRegionGroup = grid->bcRegionGroup;
