@@ -190,11 +190,6 @@ void CgnsBcRegion::ReadCgnsOrdinaryBcRegionInfo()
 
     cout << "   CGNS Boundary Name             = " << bcRegionName << "\n";
     cout << "   CGNS Boundary Condition Name   = " << GetCgnsBcName( this->bcType ) << "\n";
-
-    //if ( this->name == "outflow" && this->bcType == BCTypeNull )
-    //{
-    //    this->bcType = BCOutflow;
-    //}
 }
 
 void CgnsBcRegion::ReadCgnsOrdinaryBcRegionGridLocation()
