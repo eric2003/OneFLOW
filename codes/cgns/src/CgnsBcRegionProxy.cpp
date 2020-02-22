@@ -149,6 +149,7 @@ void CgnsBcRegionProxy::ScanBcFace( FaceSolver * face_solver )
         cgnsBcRegion->id = ir;
         cgnsBcRegion->ScanBcFace( face_solver );
     }
+    face_solver->ScanInterfaceBc();
 }
 
 void CgnsBcRegionProxy::ReadCgnsGridBoundary()

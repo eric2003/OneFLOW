@@ -47,7 +47,8 @@ UGeom::~UGeom()
 
 void UGeom::Init()
 {
-    UnsGrid * grid = Zone::GetUnsGrid();
+    //UnsGrid * grid = Zone::GetUnsGrid();
+    grid = Zone::GetUnsGrid();
 
     ug.nBFace = grid->nBFace;
     ug.nCell = grid->nCell;

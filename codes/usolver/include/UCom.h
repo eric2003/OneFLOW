@@ -33,6 +33,7 @@ const int F_INNER = 0;
 const int F_GHOST = 1;
 const int F_TOTAL = 2;
 
+class UnsGrid;
 class UGeom
 {
 public:
@@ -44,6 +45,7 @@ public:
     void SetStEd( int flag );
     void DumpCellFace( int cId );
 public:
+    UnsGrid * grid;
     int fId;
     int cId;
     int bcfId;

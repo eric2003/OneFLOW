@@ -799,8 +799,8 @@ void FillSection( Grids & grids, HXVector< Int3D * > & unsIdList, CgnsZone * cgn
         for ( int ir = 0; ir < nBcRegions; ++ ir )
         {
             BcRegion * bcRegion = ( * bcRegionGroup->regions )[ ir ];
-            if ( BC::IsPoleBc( bcRegion->bcType ) ) continue;
-            //if ( BC::IsNotNormalBc( bcRegion->bcType ) ) continue;
+            //if ( BC::IsPoleBc( bcRegion->bcType ) ) continue;
+            if ( BC::IsNotNormalBc( bcRegion->bcType ) ) continue;
             
             nBFace += bcRegion->ComputeRegionCells();
             nTBcRegion ++;
@@ -920,8 +920,8 @@ void FillSection( Grids & grids, HXVector< Int3D * > & unsIdList, CgnsZone * cgn
         {
             BcRegion * bcRegion = ( * bcRegionGroup->regions )[ ir ];
 
-            if ( BC::IsPoleBc( bcRegion->bcType ) ) continue;
-            //if ( BC::IsNotNormalBc( bcRegion->bcType ) ) continue;
+            //if ( BC::IsPoleBc( bcRegion->bcType ) ) continue;
+            if ( BC::IsNotNormalBc( bcRegion->bcType ) ) continue;
             int nRegionCell = bcRegion->ComputeRegionCells();
 
             CgnsBcRegion * cgnsBcRegion = bcRegionProxy->cgnsBcRegions[ irc ];

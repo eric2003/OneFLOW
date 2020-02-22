@@ -52,6 +52,7 @@ public:
     void ScanElementFace( CgIntField & eNodeId, int eType, int eId );
     void ScanBcFace( IntSet & bcVertex, int bcType, int bcNameId );
     void ScanBcFaceDetail( IntSet & bcVertex, int bcType, int bcNameId );
+    void ScanInterfaceBc();
     int GetNSimpleFace();
 };
 
