@@ -55,6 +55,8 @@ public:
     string donorZoneName;
 
     CgnsBcRegion * bcRegion;
+
+    bool flag1To1;
 public:
     void ReadCgnsBcConnInfo();
     void ReadCgnsBcConnData();

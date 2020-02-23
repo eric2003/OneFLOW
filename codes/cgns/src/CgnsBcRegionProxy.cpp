@@ -490,7 +490,7 @@ void CgnsBcRegionProxy::SetPeriodicBc()
     for ( int iBcRegion = 0; iBcRegion < this->nBcRegion; ++ iBcRegion )
     {
         CgnsBcRegion * bcRegion = this->GetBcRegion( iBcRegion );
-        if (bcRegion->bcInterface)
+        if ( bcRegion->bcInterface )
         {
             bcRegion->bcInterface->SetPeriodicBc();
         }

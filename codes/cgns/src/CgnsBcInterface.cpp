@@ -47,6 +47,7 @@ int AbsoluteDiagonalId( int x, int y )
 CgnsBcInterface::CgnsBcInterface( CgnsBcRegion * bcRegion )
 {
     this->bcRegion = bcRegion;
+    this->flag1To1 = false;
 }
 
 CgnsBcInterface::~CgnsBcInterface()
@@ -106,6 +107,8 @@ void CgnsBcInterface::AddFacePair()
 
 void CgnsBcInterface::SetPeriodicBc()
 {
+    if ( this->flag1To1 ) return;
+
     CgnsZone * sZone = this->bcRegion->cgnsZone;
     CgnsZone * tZone = ONEFLOW::GetCgnsZoneByName( this->donorZoneName );
     NodeMesh * nodeMesh1 = sZone->nodeMesh;
@@ -134,6 +137,8 @@ void CgnsBcInterface::ReadCgnsBc1To1()
     int fileId = this->bcRegion->cgnsZone->cgnsBase->fileId;
     int baseId = this->bcRegion->cgnsZone->cgnsBase->baseId;
     int zId = this->bcRegion->cgnsZone->zId;
+
+    this->flag1To1 = true;
 
     this->nConnPoints = 6;
     this->nConnDonorPoints = 6;
