@@ -143,7 +143,6 @@ void CgnsBcRegion::ScanBcFace( FaceSolver * face_solver )
     if ( this->gridLocation == Vertex )
     {
         this->ProcessVertexBc( bcVertex );
-        //this->ProcessFaceBc( bcVertex );
     }
     else
     {
@@ -202,6 +201,7 @@ void CgnsBcRegion::ReadCgnsOrdinaryBcRegionGridLocation()
 
     GridLocation_t bcGridLocation;
     cg_gridlocation_read( & bcGridLocation );
+
     this->gridLocation = bcGridLocation;
 
     cout << "   CGNS Grid Location Name        = " << GetCgnsGridLocationName( bcGridLocation ) << "\n";
@@ -217,6 +217,11 @@ void CgnsBcRegion::ReadCgnsOrdinaryBcRegionGridLocation()
         //iGridLocation = CGNS_ENUMV( FaceCenter );
     }
     //cout << "\n";
+}
+
+void CgnsBcRegion::SetCgnsBcRegionGridLocation( const GridLocation_t & bcGridLocation )
+{
+    this->gridLocation = bcGridLocation;
 }
 
 void CgnsBcRegion::CreateCgnsBcConn()

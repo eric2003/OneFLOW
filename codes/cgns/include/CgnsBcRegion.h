@@ -80,6 +80,7 @@ public:
     void ReadCgnsOrdinaryBcRegion();
     void ReadCgnsOrdinaryBcRegionInfo();
     void ReadCgnsOrdinaryBcRegionGridLocation();
+    void SetCgnsBcRegionGridLocation( const GridLocation_t & bcGridLocation );
     void CreateCgnsBcConn();
     void ReadCgnsBcConn();
     void PrintCgnsBcConn();

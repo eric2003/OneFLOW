@@ -58,6 +58,8 @@ public:
     void CreateCgnsBcRegion();
     void ConvertToInnerDataStandard();
     CgnsBcRegion * GetBcRegion( int ir );
+    CgnsBcRegion * GetBcRegion1To1( int i1To1 );
+
     void AddCgnsBcRegion( CgnsBcRegion * cgnsBcRegion );
     void AddCgns1To1BcRegion( CgnsBcRegion * cgnsBcRegion );
 

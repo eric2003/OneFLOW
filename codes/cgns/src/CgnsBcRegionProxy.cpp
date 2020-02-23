@@ -101,6 +101,11 @@ CgnsBcRegion * CgnsBcRegionProxy::GetBcRegion( int ir )
     }
 }
 
+CgnsBcRegion * CgnsBcRegionProxy::GetBcRegion1To1( int i1To1 )
+{
+    return this->bcRegion1To1[ i1To1 ];
+}
+
 void CgnsBcRegionProxy::AddCgnsBcRegion( CgnsBcRegion * cgnsBcRegion )
 {
     this->cgnsBcRegions.push_back( cgnsBcRegion );
@@ -313,16 +318,17 @@ void CgnsBcRegionProxy::DumpCgnsGridBoundary( Grid * gridIn )
 void CgnsBcRegionProxy::ReadCgnsInterfaceBcRegion()
 {
     int nInterBc = MAX( this->nConn, this->n1To1 );
-     for ( int iInterBc = 1; iInterBc <= nInterBc; ++ iInterBc )
+     for ( int iInterBc = 0; iInterBc < nInterBc; ++ iInterBc )
     {
-        CgnsBcRegion * cgnsBcRegion = this->bcRegion1To1[ iInterBc - 1 ];
+        CgnsBcRegion * cgnsBcRegion = this->GetBcRegion1To1( iInterBc );
+
         if ( this->nConn > 0 )
         {
-            cgnsBcRegion->ProcessCgns1to1BcRegion( iInterBc );
+            cgnsBcRegion->ProcessCgns1to1BcRegion( iInterBc + 1 );
         }
         else
         {
-            cgnsBcRegion->ReadCgns1to1BoundaryRegion( iInterBc );
+            cgnsBcRegion->ReadCgns1to1BoundaryRegion( iInterBc + 1 );
         }
     }
 }

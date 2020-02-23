@@ -808,10 +808,6 @@ void FillSection( Grids & grids, HXVector< Int3D * > & unsIdList, CgnsZone * cgn
 
     cout << " nBFace = " << nBFace << "\n";
 
-    int iZone = 0;
-
-    //CgnsZone * cgnsZone = cgnsMultiBase->GetCgnsZone( iZone );
-    
     cgnsZone->nCell = nTCell;
 
     cgnsZone->multiSection->nSection = 2;
@@ -918,18 +914,19 @@ void FillSection( Grids & grids, HXVector< Int3D * > & unsIdList, CgnsZone * cgn
         for ( int ir = 0; ir < nBcRegions; ++ ir )
         {
             BcRegion * bcRegion = ( * bcRegionGroup->regions )[ ir ];
-
-            //if ( BC::IsPoleBc( bcRegion->bcType ) ) continue;
             if ( BC::IsNotNormalBc( bcRegion->bcType ) ) continue;
             int nRegionCell = bcRegion->ComputeRegionCells();
 
-            //CgnsBcRegion * cgnsBcRegion = bcRegionProxy->cgnsBcRegions[ irc ];
             CgnsBcRegion * cgnsBcRegion = bcRegionProxy->GetBcRegion( irc );
             
-            cgnsBcRegion->gridLocation = CellCenter;
+            //cgnsBcRegion->gridLocation = CellCenter;
+            cgnsBcRegion->SetCgnsBcRegionGridLocation( CellCenter );
             cgnsBcRegion->nElements    = 2;
             cgnsBcRegion->bcType       = static_cast< BCType_t >( bcTypeMap->OneFlow2Cgns( bcRegion->bcType ) );
             cgnsBcRegion->pointSetType = PointRange;
+
+            //cgnsBcRegion->SetCgnsBcRegion( nElements, bcType, );
+
             cgnsBcRegion->CreateCgnsBcConn();
             cgnsBcRegion->connList[ 0 ] = eIdPos + 1;
             cgnsBcRegion->connList[ 1 ] = eIdPos + nRegionCell;
