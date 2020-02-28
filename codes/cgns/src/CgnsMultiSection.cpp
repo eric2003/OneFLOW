@@ -56,6 +56,16 @@ CgnsSection * CgnsMultiSection::GetCgnsSection( int iSection )
     return this->cgnsSections[ iSection ];
 }
 
+bool CgnsMultiSection::ExistSection( const string & sectionName )
+{
+    for ( int iSection = 0; iSection < this->nSection; ++ iSection )
+    {
+        CgnsSection * cgnsSection = this->GetCgnsSection( iSection );
+        if ( cgnsSection->sectionName == sectionName ) return true;
+    }
+    return false;
+}
+
 void CgnsMultiSection::CreateCgnsSection()
 {
     for ( int iSection = 0; iSection < this->nSection; ++ iSection )

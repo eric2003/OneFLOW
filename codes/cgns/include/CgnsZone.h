@@ -131,6 +131,8 @@ public:
     CgInt GetNK() const;
 
     void GetStrZonePara( int & s1, int & e1, int & s2, int & e2, int & etype1, int & etype2 );
+public:
+    bool ExistSection( const string & sectionName );
 };
 
 void EncodeIJK( int & index, int i, int j, int k, int ni, int nj, int nk );

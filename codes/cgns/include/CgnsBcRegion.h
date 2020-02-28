@@ -54,7 +54,7 @@ public:
 
     BCType_t bcType;
     PointSetType_t pointSetType;
-    GridLocation_t gridLocation;
+    GridLocation_t gridLocation, modifiedLocation;
     GridConnectivityType_t gridConnType;  //Overset, Abutting, Abutting1to1
     DataType_t normalDataType;
     CgInt normalListSize;

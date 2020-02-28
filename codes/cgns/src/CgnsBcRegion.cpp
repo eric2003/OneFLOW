@@ -79,7 +79,7 @@ int CgnsBcRegion::ComputeBase()
 
 void CgnsBcRegion::ShiftBcRegion()
 {
-    if ( this->gridLocation != Vertex )
+    if ( this->modifiedLocation != Vertex )
     {
         for ( int eId = 0; eId < this->nElements; ++ eId )
         {
@@ -140,10 +140,9 @@ void CgnsBcRegion::ProcessFaceBc( IntSet & bcVertex )
 void CgnsBcRegion::ScanBcFace( FaceSolver * face_solver )
 {
     IntSet bcVertex;
-    if ( this->gridLocation == Vertex )
+    if ( this->modifiedLocation == Vertex )
     {
         this->ProcessVertexBc( bcVertex );
-        //this->ProcessFaceBc( bcVertex );
     }
     else
     {
@@ -198,38 +197,24 @@ void CgnsBcRegion::ReadCgnsOrdinaryBcRegionGridLocation()
     int baseId = cgnsZone->cgnsBase->baseId;
     int zId = cgnsZone->zId;
 
-    //cg_goto( fileId, baseId, "Zone_t", zId, "ZoneBC_t", 1, "BC_t", this->bcId, "end" );
-
-    //GridLocation_t bcGridLocation;
-    //cg_gridlocation_read( & bcGridLocation );
-
     GridLocation_t bcGridLocation;
     cg_boco_gridlocation_read( fileId, baseId, zId, this->bcId, &bcGridLocation );
 
-    //cout << "bcGridLocation = " << GridLocationName[bcGridLocation] << "\n";
-    //cout << "gridlocationname = " << GridLocationName[location] << "\n";
-        
-
     this->gridLocation = bcGridLocation;
+    this->modifiedLocation = bcGridLocation;
+
+    if ( cgnsZone->ExistSection( this->name ) )
+    {
+        this->modifiedLocation = CGNS_ENUMV( FaceCenter );
+    }
 
     cout << "   CGNS Grid Location Name        = " << GetCgnsGridLocationName( bcGridLocation ) << "\n";
-    if ( bcGridLocation == CGNS_ENUMV( FaceCenter ) )
-    {
-        //cout << "   GridLocation == CGNS_ENUMV( FaceCenter ) means BC data refers to elements, not nodes\n";
-    }
-    else if ( bcGridLocation == CGNS_ENUMV( Vertex ) )
-    {
-        //cout << "   GridLocation == Vertex means BC data refers to nodes, not elements\n";
-
-        //cout << " Now Change Vertex to FaceCenter for incompatible reasons\n";
-        //iGridLocation = CGNS_ENUMV( FaceCenter );
-    }
-    //cout << "\n";
 }
 
 void CgnsBcRegion::SetCgnsBcRegionGridLocation( const GridLocation_t & bcGridLocation )
 {
     this->gridLocation = bcGridLocation;
+    this->modifiedLocation = bcGridLocation;
 }
 
 void CgnsBcRegion::CreateCgnsBcConn()
@@ -302,6 +287,7 @@ void CgnsBcRegion::ReadCgns1to1BoundaryRegion( int i1to1 )
     this->bcType       = CGNS_ENUMV( BCTypeNull );
     this->pointSetType = CGNS_ENUMV( PointRange );
     this->gridLocation = CGNS_ENUMV( FaceCenter );
+    this->modifiedLocation = this->gridLocation;
     this->CreateCgnsBcConn();
 
     // Read the element ID¡¯s.
@@ -317,7 +303,7 @@ void CgnsBcRegion::PrintCgnsBcConn()
 {
     if ( cgnsZone->cgnsZoneType == Unstructured )
     {
-        if ( this->gridLocation == CGNS_ENUMV( Vertex ) )
+        if ( this->modifiedLocation == CGNS_ENUMV( Vertex ) )
         {
             cout << "   CGNS Boundary Point's Number   = ";
         }
@@ -379,6 +365,7 @@ void CgnsBcRegion::ReconstructStrRegion( IntField & ijkMin, IntField & ijkMax )
     this->bcType       = CGNS_ENUMV( BCInflow );
     this->pointSetType = CGNS_ENUMV( PointRange );
     this->gridLocation = CGNS_ENUMV( FaceCenter );
+    this->modifiedLocation = this->gridLocation;
     this->nElements = 6;
     this->connList.resize( this->nElements );
 
@@ -451,6 +438,7 @@ void CgnsBcRegion::CopyStrBcRegion( CgnsBcRegion * strBcRegion, CgInt & startId 
     this->bcType = strBcRegion->bcType;
     this->pointSetType = CGNS_ENUMV( ElementRange );
     this->gridLocation = CGNS_ENUMV( CellCenter   );
+    this->modifiedLocation = this->gridLocation;
 
     this->CreateCgnsBcConn();
 
@@ -469,7 +457,7 @@ CgInt CgnsBcRegion::GetActualNumberOfBoundaryElements()
 {
     if ( cgnsZone->cgnsZoneType == Unstructured )
     {
-        if ( this->gridLocation == CGNS_ENUMV( Vertex ) )
+        if ( this->modifiedLocation == CGNS_ENUMV( Vertex ) )
         {
             cout << "   Can't Get Element Number For cgnsBoundaryGridLocation == Vertex Case \n";
             return INVALID_INDEX;

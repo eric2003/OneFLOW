@@ -113,6 +113,11 @@ void CgnsZone::SetElementTypeAndNode( ElemFeature * elem_feature )
     cout << " elem_feature->eType->size = " << elem_feature->eType->size() << endl;
 }
 
+bool CgnsZone::ExistSection( const string & sectionName )
+{
+    return this->multiSection->ExistSection( sectionName );
+}
+
 void CgnsZone::InitLgMapping()
 {
     this->l2g.resize( this->nNode );
