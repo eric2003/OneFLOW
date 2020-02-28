@@ -143,6 +143,7 @@ void CgnsBcRegion::ScanBcFace( FaceSolver * face_solver )
     if ( this->gridLocation == Vertex )
     {
         this->ProcessVertexBc( bcVertex );
+        //this->ProcessFaceBc( bcVertex );
     }
     else
     {
@@ -197,10 +198,17 @@ void CgnsBcRegion::ReadCgnsOrdinaryBcRegionGridLocation()
     int baseId = cgnsZone->cgnsBase->baseId;
     int zId = cgnsZone->zId;
 
-    cg_goto( fileId, baseId, "Zone_t", zId, "ZoneBC_t", 1, "BC_t", this->bcId, "end" );
+    //cg_goto( fileId, baseId, "Zone_t", zId, "ZoneBC_t", 1, "BC_t", this->bcId, "end" );
+
+    //GridLocation_t bcGridLocation;
+    //cg_gridlocation_read( & bcGridLocation );
 
     GridLocation_t bcGridLocation;
-    cg_gridlocation_read( & bcGridLocation );
+    cg_boco_gridlocation_read( fileId, baseId, zId, this->bcId, &bcGridLocation );
+
+    //cout << "bcGridLocation = " << GridLocationName[bcGridLocation] << "\n";
+    //cout << "gridlocationname = " << GridLocationName[location] << "\n";
+        
 
     this->gridLocation = bcGridLocation;
 
