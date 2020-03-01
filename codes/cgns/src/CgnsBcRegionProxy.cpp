@@ -344,12 +344,12 @@ void CgnsBcRegionProxy::ReadNumberCgnsConnBcInfo()
 
 void CgnsBcRegionProxy::ReadCgnsOrdinaryBcRegion()
 {
-    for ( int iBcRegion = 1; iBcRegion <= nOrdinaryBcRegion; ++ iBcRegion )
+    for ( int iBcRegion = 0; iBcRegion < nOrdinaryBcRegion; ++ iBcRegion )
     {
         cout << "\n-->iBcRegion  = " << iBcRegion;
         cout << " nOrdinaryBcRegion = " << nOrdinaryBcRegion << "\n";
-        CgnsBcRegion * cgnsBcRegion = this->GetBcRegion( iBcRegion - 1 );
-        cgnsBcRegion->bcId = iBcRegion;
+        CgnsBcRegion * cgnsBcRegion = this->GetBcRegion( iBcRegion );
+        cgnsBcRegion->bcId = iBcRegion + 1;
         cgnsBcRegion->ReadCgnsOrdinaryBcRegion();
     }
 }
