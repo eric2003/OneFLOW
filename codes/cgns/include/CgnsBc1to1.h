@@ -32,12 +32,37 @@ BeginNameSpace( ONEFLOW )
 
 #ifdef ENABLE_CGNS
 
+int AbsoluteDiagonalId( int x, int y );
+
 class CgnsBcRegion;
+class CgnsZone;
+
 class CgnsBc1to1
 {
 public:
-    CgnsBc1to1( CgnsBcRegion * bcRegion );
+    CgnsBc1to1( CgnsZone * cgnsZone );
     ~CgnsBc1to1();
+public:
+    void ConvertToInnerDataStandard();
+public:
+    CgInt    nConnPoints;
+    CgInt    nConnDonorPoints;
+    ZoneType_t     donorZoneType;
+    PointSetType_t donorPointSetType;
+    DataType_t     donorDataType;
+
+    CgIntField connPoint;
+    CgIntField connDonorPoint;
+
+    int itranfrm[ 3 ];
+
+    string donorZoneName;
+
+    CgnsBcRegion * bcRegion;
+
+    bool flag1To1;
+public:
+    void ReadCgnsBc1To1();
 };
 
 #endif

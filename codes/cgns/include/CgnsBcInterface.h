@@ -30,8 +30,6 @@ using namespace std;
 
 BeginNameSpace( ONEFLOW )
 
-int AbsoluteDiagonalId( int x, int y );
-
 #ifdef ENABLE_CGNS
 
 class CgnsBcRegion;

@@ -22,6 +22,7 @@ License
 
 #include "CgnsBcInterface.h"
 #include "CgnsBcRegion.h"
+#include "CgnsBc1to1.h"
 #include "CgnsZone.h"
 #include "CgnsBase.h"
 #include "CgnsPeriod.h"
@@ -35,14 +36,6 @@ using namespace std;
 BeginNameSpace( ONEFLOW )
 #ifdef ENABLE_CGNS
 
-int AbsoluteDiagonalId( int x, int y )
-{
-    if ( ABS( x ) == ABS( y ) )
-    {
-        return 1;
-    }
-    return 0;
-}
 
 CgnsBcInterface::CgnsBcInterface( CgnsBcRegion * bcRegion )
 {

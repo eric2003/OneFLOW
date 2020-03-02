@@ -36,13 +36,119 @@ BeginNameSpace( ONEFLOW )
 
 #ifdef ENABLE_CGNS
 
-CgnsBc1to1::CgnsBc1to1( CgnsBcRegion * bcRegion )
+int AbsoluteDiagonalId( int x, int y )
 {
+    if ( ABS( x ) == ABS( y ) )
+    {
+        return 1;
+    }
+    return 0;
+}
+
+CgnsBc1to1::CgnsBc1to1( CgnsZone * cgnsZone )
+{
+    this->bcRegion = new CgnsBcRegion( cgnsZone );
 }
 
 CgnsBc1to1::~CgnsBc1to1()
 {
-    ;
+    delete this->bcRegion;
+}
+
+void CgnsBc1to1::ConvertToInnerDataStandard()
+{
+    //for ( int eId = 0; eId < this->nConnPoints; ++ eId )
+    //{
+    //    this->connPoint[ eId ] -= 1;
+    //}
+
+    //for ( int eId = 0; eId < this->nConnDonorPoints; ++ eId )
+    //{
+    //    this->connDonorPoint[ eId ] -= 1;
+    //}
+
+}
+
+void CgnsBc1to1::ReadCgnsBc1To1()
+{
+    int fileId = this->bcRegion->cgnsZone->cgnsBase->fileId;
+    int baseId = this->bcRegion->cgnsZone->cgnsBase->baseId;
+    int zId = this->bcRegion->cgnsZone->zId;
+
+    this->flag1To1 = true;
+
+    this->nConnPoints = 6;
+    this->nConnDonorPoints = 6;
+
+    this->connPoint.resize( nConnPoints );
+    this->connDonorPoint.resize( nConnDonorPoints );
+
+    this->bcRegion->gridConnType = CGNS_ENUMV( Abutting1to1 );
+    this->bcRegion->bcType       = CGNS_ENUMV( BCTypeNull );
+    this->bcRegion->pointSetType = CGNS_ENUMV( PointRange );
+    this->bcRegion->gridLocation = CGNS_ENUMV( FaceCenter );
+
+    this->donorPointSetType = CGNS_ENUMV( PointRange );
+    this->donorDataType     = CGNS_ENUMV( Integer );
+
+    CgnsTraits::char33 connName;
+    CgnsTraits::char33 donorZoneName;
+
+    //Zone Connectivity
+    cg_goto( fileId, baseId, "Zone_t", zId, "ZoneGridConnectivity_t", 1, "GridConnectivity1to1_t", 1, "end" );
+
+    cg_1to1_read( fileId, baseId, zId, this->bcRegion->bcId, connName, donorZoneName, & this->connPoint[ 0 ], & this->connDonorPoint[ 0 ], itranfrm );
+
+    this->bcRegion->name = connName;
+    this->donorZoneName  = donorZoneName;
+
+    cout << "\n";
+    cout << "   connName      = " << connName << " donorZoneName = " << donorZoneName << "\n";
+    cout << "   gridLocation  = " << GridLocationName[ this->bcRegion->gridLocation ] << "\n";
+    cout << "   donorDataType = " << DataTypeName[ this->donorDataType ] << "\n";
+    cout << "   gridConnType  = " << GridConnectivityTypeName[ this->bcRegion->gridConnType ] << "\n";
+    cout << "   pointSetType  = " << PointSetTypeName[ this->bcRegion->pointSetType ];
+    cout << "   donorPointSetType = " << PointSetTypeName[ this->donorPointSetType ] << "\n";
+    cout << "   nConnPoints      = " << nConnPoints << "\n";
+    cout << "   nConnDonorPoints = " << nConnDonorPoints << "\n";
+
+    cout << "   range (this zone )= ";
+    int width = 5;
+    cout << setw( width ) << connPoint[ 0 ];
+    cout << setw( width ) << connPoint[ 1 ];
+    cout << setw( width ) << connPoint[ 2 ] << "\n";
+    cout << "                       ";
+    cout << setw( width ) << connPoint[ 3 ];
+    cout << setw( width ) << connPoint[ 4 ];
+    cout << setw( width ) << connPoint[ 5 ] << "\n";
+    cout << "   range (donor zone)= ";
+    cout << setw( width ) << connDonorPoint[ 0 ];
+    cout << setw( width ) << connDonorPoint[ 1 ];
+    cout << setw( width ) << connDonorPoint[ 2 ] << "\n";
+    cout << "                       ";
+    cout << setw( width ) << connDonorPoint[ 3 ];
+    cout << setw( width ) << connDonorPoint[ 4 ];
+    cout << setw( width ) << connDonorPoint[ 5 ] << "\n";
+    cout << "   transform = " << itranfrm[ 0 ] << " " << itranfrm[ 1 ] << " " << itranfrm[ 2 ] << "\n";
+
+    int transform[ 3 ][ 3 ];
+
+    //For 3-D, the
+    //transformation matrix T is constructed from Transform = [¡Àa, ¡Àb, ¡Àc ] as follows:
+    //T =
+    //[ sgn( a ) del( a ? 1 ) sgn( b ) del( b ? 1 ) sgn( c ) del( c ? 1 )]
+    //[ sgn( a ) del( a ? 2 ) sgn( b ) del( b ? 2 ) sgn( c ) del( c ? 2 )]
+    //[ sgn( a ) del( a ? 3 ) sgn( b ) del( b ? 3 ) sgn( c ) del( c ? 3 )]
+
+    int celldim = this->bcRegion->cgnsZone->cgnsBase->celldim;
+
+    for ( int i = 0; i < celldim; ++ i )
+    {
+        for ( int j = 0; j < celldim; ++ j )
+        {
+            transform[ i ][ j ] = SIGN( 1, itranfrm[ j ] ) * AbsoluteDiagonalId( itranfrm[ j ], i + 1 );
+        }
+    }
 }
 
 #endif
