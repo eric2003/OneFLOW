@@ -29,6 +29,7 @@ License
 #include "NodeMesh.h"
 #include "HXMath.h"
 #include <iostream>
+#include <iomanip>
 using namespace std;
 
 BeginNameSpace( ONEFLOW )
@@ -46,6 +47,7 @@ int AbsoluteDiagonalId( int x, int y )
 CgnsBcInterface::CgnsBcInterface( CgnsBcRegion * bcRegion )
 {
     this->bcRegion = bcRegion;
+    this->flag1To1 = false;
 }
 
 CgnsBcInterface::~CgnsBcInterface()
@@ -62,7 +64,7 @@ void CgnsBcInterface::ReadCgnsBcConnInfo()
     CgnsTraits::char33 connName;
     CgnsTraits::char33 donorZoneName;
 
-    cg_conn_info( fileId, baseId, zId, this->bcRegion->id,
+    cg_conn_info( fileId, baseId, zId, this->bcRegion->bcId,
                   connName, & this->bcRegion->gridLocation, & this->bcRegion->gridConnType, & this->bcRegion->pointSetType,
                   & nConnPoints, donorZoneName, & donorZoneType, & donorPointSetType, & donorDataType, & nConnDonorPoints );
 
@@ -70,13 +72,14 @@ void CgnsBcInterface::ReadCgnsBcConnInfo()
     this->donorZoneName  = donorZoneName;
 
     cout << "\n";
-    cout << "   connName = " << connName << " donorZoneName = " << donorZoneName << "\n";
-    cout << "   gridLocation = " << GridLocationName[ this->bcRegion->gridLocation ] << "\n";
+    cout << "   connName      = " << connName << " donorZoneName = " << donorZoneName << "\n";
+    cout << "   gridLocation  = " << GridLocationName[ this->bcRegion->gridLocation ] << "\n";
     cout << "   donorDataType = " << DataTypeName[ donorDataType ] << "\n";
-    cout << "   gridConnType = " << GridConnectivityTypeName[ this->bcRegion->gridConnType ] << "\n";
-    cout << "   pointSetType = " << PointSetTypeName[ this->bcRegion->pointSetType ];
+    cout << "   gridConnType  = " << GridConnectivityTypeName[ this->bcRegion->gridConnType ] << "\n";
+    cout << "   pointSetType  = " << PointSetTypeName[ this->bcRegion->pointSetType ];
     cout << "   donorPointSetType = " << PointSetTypeName[ donorPointSetType ] << "\n";
-    cout << "   nConnPoints = " << nConnPoints << " nConnDonorPoints = " << nConnDonorPoints << "\n";
+    cout << "   nConnPoints      = " << nConnPoints << "\n";
+    cout << "   nConnDonorPoints = " << nConnDonorPoints << "\n";
 }
 
 void CgnsBcInterface::ReadCgnsBcConnData()
@@ -88,7 +91,7 @@ void CgnsBcInterface::ReadCgnsBcConnData()
     this->connPoint.resize( nConnPoints );
     this->connDonorPoint.resize( nConnDonorPoints );
 
-    cg_conn_read( fileId, baseId, zId, this->bcRegion->id, & this->connPoint[ 0 ], this->donorDataType, & this->connDonorPoint[ 0 ] );
+    cg_conn_read( fileId, baseId, zId, this->bcRegion->bcId, & this->connPoint[ 0 ], this->donorDataType, & this->connDonorPoint[ 0 ] );
 }
 
 void CgnsBcInterface::AddFacePair()
@@ -104,6 +107,8 @@ void CgnsBcInterface::AddFacePair()
 
 void CgnsBcInterface::SetPeriodicBc()
 {
+    if ( this->flag1To1 ) return;
+
     CgnsZone * sZone = this->bcRegion->cgnsZone;
     CgnsZone * tZone = ONEFLOW::GetCgnsZoneByName( this->donorZoneName );
     NodeMesh * nodeMesh1 = sZone->nodeMesh;
@@ -133,6 +138,8 @@ void CgnsBcInterface::ReadCgnsBc1To1()
     int baseId = this->bcRegion->cgnsZone->cgnsBase->baseId;
     int zId = this->bcRegion->cgnsZone->zId;
 
+    this->flag1To1 = true;
+
     this->nConnPoints = 6;
     this->nConnDonorPoints = 6;
 
@@ -153,20 +160,39 @@ void CgnsBcInterface::ReadCgnsBc1To1()
     //Zone Connectivity
     cg_goto( fileId, baseId, "Zone_t", zId, "ZoneGridConnectivity_t", 1, "GridConnectivity1to1_t", 1, "end" );
 
-    cg_1to1_read( fileId, baseId, zId, this->bcRegion->id, connName, donorZoneName, & this->connPoint[ 0 ], & this->connDonorPoint[ 0 ], itranfrm );
+    cg_1to1_read( fileId, baseId, zId, this->bcRegion->bcId, connName, donorZoneName, & this->connPoint[ 0 ], & this->connDonorPoint[ 0 ], itranfrm );
 
     this->bcRegion->name = connName;
     this->donorZoneName  = donorZoneName;
 
     cout << "\n";
-    cout << "   connName = " << connName << " donorZoneName = " << donorZoneName << "\n";
-    cout << "   gridLocation = " << GridLocationName[ this->bcRegion->gridLocation ] << "\n";
+    cout << "   connName      = " << connName << " donorZoneName = " << donorZoneName << "\n";
+    cout << "   gridLocation  = " << GridLocationName[ this->bcRegion->gridLocation ] << "\n";
     cout << "   donorDataType = " << DataTypeName[ this->donorDataType ] << "\n";
-    cout << "   gridConnType = " << GridConnectivityTypeName[ this->bcRegion->gridConnType ] << "\n";
-    cout << "   pointSetType = " << PointSetTypeName[ this->bcRegion->pointSetType ];
+    cout << "   gridConnType  = " << GridConnectivityTypeName[ this->bcRegion->gridConnType ] << "\n";
+    cout << "   pointSetType  = " << PointSetTypeName[ this->bcRegion->pointSetType ];
     cout << "   donorPointSetType = " << PointSetTypeName[ this->donorPointSetType ] << "\n";
-    cout << "   nConnPoints = " << nConnPoints << " nConnDonorPoints = " << nConnDonorPoints << "\n";
+    cout << "   nConnPoints      = " << nConnPoints << "\n";
+    cout << "   nConnDonorPoints = " << nConnDonorPoints << "\n";
 
+    cout << "   range (this zone )= ";
+    int width = 5;
+    cout << setw( width ) << connPoint[ 0 ];
+    cout << setw( width ) << connPoint[ 1 ];
+    cout << setw( width ) << connPoint[ 2 ] << "\n";
+    cout << "                       ";
+    cout << setw( width ) << connPoint[ 3 ];
+    cout << setw( width ) << connPoint[ 4 ];
+    cout << setw( width ) << connPoint[ 5 ] << "\n";
+    cout << "   range (donor zone)= ";
+    cout << setw( width ) << connDonorPoint[ 0 ];
+    cout << setw( width ) << connDonorPoint[ 1 ];
+    cout << setw( width ) << connDonorPoint[ 2 ] << "\n";
+    cout << "                       ";
+    cout << setw( width ) << connDonorPoint[ 3 ];
+    cout << setw( width ) << connDonorPoint[ 4 ];
+    cout << setw( width ) << connDonorPoint[ 5 ] << "\n";
+    cout << "   transform = " << itranfrm[ 0 ] << " " << itranfrm[ 1 ] << " " << itranfrm[ 2 ] << "\n";
 
     int transform[ 3 ][ 3 ];
 

@@ -62,6 +62,8 @@ public:
     void ReadNumberOfCgnsSections();
     void ReadCgnsSections();
     void SetElemPosition();
+public:
+    bool ExistSection( const string & sectionName );
 };
 
 #endif

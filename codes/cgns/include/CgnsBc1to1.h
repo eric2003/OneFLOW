@@ -30,43 +30,14 @@ using namespace std;
 
 BeginNameSpace( ONEFLOW )
 
-int AbsoluteDiagonalId( int x, int y );
-
 #ifdef ENABLE_CGNS
 
 class CgnsBcRegion;
-class CgnsBcInterface
+class CgnsBc1to1
 {
 public:
-    CgnsBcInterface( CgnsBcRegion * bcRegion );
-    ~CgnsBcInterface();
-public:
-    CgInt    nConnPoints;
-    CgInt    nConnDonorPoints;
-    ZoneType_t     donorZoneType;
-    PointSetType_t donorPointSetType;
-    DataType_t     donorDataType;
-
-    CgIntField connPoint;
-    CgIntField connDonorPoint;
-
-    int itranfrm[ 3 ];
-
-    string donorZoneName;
-
-    CgnsBcRegion * bcRegion;
-
-    bool flag1To1;
-public:
-    void ReadCgnsBcConnInfo();
-    void ReadCgnsBcConnData();
-    void ReadCgnsBc1To1();
-public:
-    void ConvertToInnerDataStandard();
-    void ShiftBcRegion();
-public:
-    void AddFacePair();
-    void SetPeriodicBc();
+    CgnsBc1to1( CgnsBcRegion * bcRegion );
+    ~CgnsBc1to1();
 };
 
 #endif

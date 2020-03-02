@@ -47,14 +47,14 @@ public:
     CgnsBcRegion( CgnsZone * cgnsZone );
     ~CgnsBcRegion();
 public:
-    int id;
+    int bcId;
     int nameId;
     string name;
     double bc_double_id;
 
     BCType_t bcType;
     PointSetType_t pointSetType;
-    GridLocation_t gridLocation;
+    GridLocation_t gridLocation, modifiedLocation;
     GridConnectivityType_t gridConnType;  //Overset, Abutting, Abutting1to1
     DataType_t normalDataType;
     CgInt normalListSize;
@@ -80,14 +80,15 @@ public:
     void ReadCgnsOrdinaryBcRegion();
     void ReadCgnsOrdinaryBcRegionInfo();
     void ReadCgnsOrdinaryBcRegionGridLocation();
+    void SetCgnsBcRegionGridLocation( const GridLocation_t & bcGridLocation );
     void CreateCgnsBcConn();
     void ReadCgnsBcConn();
     void PrintCgnsBcConn();
     void ExtractIJKRegionFromBcConn( IntField & ijkMin, IntField & ijkMax, CgIntField& bcConn );
     void ExtractIJKRegionFromBcConn( IntField & ijkMin, IntField & ijkMax );
 public:
-    void ProcessCgns1to1BcRegion( int bcId );
-    void ReadCgns1to1BoundaryRegion( int iCgns1to1BoundaryRegion );
+    void ReadCgnsConnBcRegion( int bcId );
+    void ReadCgns1to1BcRegion( int i1to1 );
     void CopyStrBcRegion( CgnsBcRegion * strBcRegion, CgInt& startId );
     void ReadCgnsBcConn( CgnsBcRegion * strBcRegion, CgInt & startId );
     void ReconstructStrRegion( IntField & ijkMin, IntField & ijkMax );

@@ -46,23 +46,32 @@ public:
     CgnsBcRegionProxy( CgnsZone * cgnsZone );
     ~CgnsBcRegionProxy();
 public:
-    int nBcRegion, n1To1, nOrdinaryBcRegion;
+    int nBcRegion, nOrdinaryBcRegion;
     int n1To1General;
-    int nConn;
+    int n1To1, nConn;
     HXVector< CgnsBcRegion * > cgnsBcRegions;
     HXVector< CgnsBcRegion * > bcRegion1To1;
+    HXVector< CgnsBcRegion * > bcRegionConn;
     CgnsZone * cgnsZone;
 public:
     void ScanBcFace( FaceSolver * face_solver );
 public:
     void CreateCgnsBcRegion();
     void ConvertToInnerDataStandard();
-    CgnsBcRegion * GetBcRegion( int ir );
+    void ShiftBcRegion();
+    CgnsBcRegion * GetCgnsBcRegion( int ir );
+    CgnsBcRegion * GetBcRegion1To1( int i1To1 );
+    CgnsBcRegion * GetBcRegionConn( int iConn );
+
+    void AddCgnsBcRegion( CgnsBcRegion * cgnsBcRegion );
+    void AddCgns1To1BcRegion( CgnsBcRegion * cgnsBcRegion );
+    void AddCgnsConnBcRegion( CgnsBcRegion * cgnsBcRegion );
+
+    void ReadCgnsGridBoundary();
 
     void ReadCgnsOrdinaryBcRegion();
-    void ReadCgnsGridBoundary();
-    void ReadCgnsInterfaceBcRegion();
-
+    void ReadCgnsConnBcRegion();
+    void ReadCgns1to1BcRegion();
     void FillBcPoints( int * start, int * end, cgsize_t * bcpnts, int dimension );
     void FillBcPoints3D( int * start, int * end, cgsize_t * bcpnts );
     void FillInterface( BcRegion * bcRegion, cgsize_t * ipnts, cgsize_t * ipntsdonor, int * itranfrm, int dimension );

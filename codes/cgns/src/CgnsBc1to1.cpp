@@ -20,54 +20,30 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-
-#pragma once
-#include "HXDefine.h"
-#include "HXCgns.h"
-#include <string>
-#include <map>
+#include "CgnsBc1to1.h"
+#include "CgnsBcRegion.h"
+#include "CgnsZone.h"
+#include "CgnsBase.h"
+#include "CgnsPeriod.h"
+#include "CgnsGlobal.h"
+#include "NodeMesh.h"
+#include "HXMath.h"
+#include <iostream>
+#include <iomanip>
 using namespace std;
 
 BeginNameSpace( ONEFLOW )
 
-int AbsoluteDiagonalId( int x, int y );
-
 #ifdef ENABLE_CGNS
 
-class CgnsBcRegion;
-class CgnsBcInterface
+CgnsBc1to1::CgnsBc1to1( CgnsBcRegion * bcRegion )
 {
-public:
-    CgnsBcInterface( CgnsBcRegion * bcRegion );
-    ~CgnsBcInterface();
-public:
-    CgInt    nConnPoints;
-    CgInt    nConnDonorPoints;
-    ZoneType_t     donorZoneType;
-    PointSetType_t donorPointSetType;
-    DataType_t     donorDataType;
+}
 
-    CgIntField connPoint;
-    CgIntField connDonorPoint;
-
-    int itranfrm[ 3 ];
-
-    string donorZoneName;
-
-    CgnsBcRegion * bcRegion;
-
-    bool flag1To1;
-public:
-    void ReadCgnsBcConnInfo();
-    void ReadCgnsBcConnData();
-    void ReadCgnsBc1To1();
-public:
-    void ConvertToInnerDataStandard();
-    void ShiftBcRegion();
-public:
-    void AddFacePair();
-    void SetPeriodicBc();
-};
+CgnsBc1to1::~CgnsBc1to1()
+{
+    ;
+}
 
 #endif
 

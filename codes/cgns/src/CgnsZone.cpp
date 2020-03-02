@@ -113,6 +113,11 @@ void CgnsZone::SetElementTypeAndNode( ElemFeature * elem_feature )
     cout << " elem_feature->eType->size = " << elem_feature->eType->size() << endl;
 }
 
+bool CgnsZone::ExistSection( const string & sectionName )
+{
+    return this->multiSection->ExistSection( sectionName );
+}
+
 void CgnsZone::InitLgMapping()
 {
     this->l2g.resize( this->nNode );
@@ -329,6 +334,16 @@ void CgnsZone::ReadCgnsZoneNameAndGeneralizedDimension( CgnsZone * cgnsZoneIn )
 
 void CgnsZone::SetDimension()
 {
+    int rind[ 6 ];
+    int result = cg_rind_read( rind );
+    if ( result != CG_OK )
+    {
+        for ( int i = 0; i < 6; ++ i )
+        {
+            rind[i] = 0;
+        }
+    }
+
     if ( this->cgnsZoneType == Structured )
     {
         // lower range index
@@ -584,8 +599,8 @@ void CgnsZone::GenerateUnsBcCondConn( CgnsZone * cgnsZoneIn )
 
     for ( int iBcRegion = 0; iBcRegion < nBcRegion; ++ iBcRegion )
     {
-        CgnsBcRegion * bcRegion    = this      ->bcRegionProxy->GetBcRegion( iBcRegion );
-        CgnsBcRegion * strBcRegion = cgnsZoneIn->bcRegionProxy->GetBcRegion( iBcRegion );
+        CgnsBcRegion * bcRegion    = this      ->bcRegionProxy->GetCgnsBcRegion( iBcRegion );
+        CgnsBcRegion * strBcRegion = cgnsZoneIn->bcRegionProxy->GetCgnsBcRegion( iBcRegion );
         bcRegion->CopyStrBcRegion( strBcRegion, startId );
     }
 }
@@ -622,15 +637,14 @@ void CgnsZone::ReadCgnsGridCoordinates()
 
     CgnsCoor * cgnsCoor = new CgnsCoor();
 
-    for ( int coordId = 1; coordId <= this->nCoor; ++ coordId )
+    for ( int coordId = 0; coordId < this->nCoor; ++ coordId )
     {
         DataType_t dataType;
         CgnsTraits::char33 coorName;
-        cg_coord_info( fileId, baseId, this->zId, coordId, & dataType, coorName );
-        int coId = coordId - 1;
-        cgnsCoor->Alloc( coId, static_cast<int>(this->nNode), dataType );
+        cg_coord_info( fileId, baseId, this->zId, coordId + 1, & dataType, coorName );
+        cgnsCoor->Alloc( coordId, static_cast<int>(this->nNode), dataType );
         //Read the x-, y-, z-coordinates.
-        cg_coord_read( fileId, baseId, this->zId, coorName, dataType, this->irmin, this->irmax, cgnsCoor->GetCoor( coId ) );
+        cg_coord_read( fileId, baseId, this->zId, coorName, dataType, this->irmin, this->irmax, cgnsCoor->GetCoor( coordId ) );
     }
 
     cgnsCoor->SetAllData( nodeMesh->xN, nodeMesh->yN, nodeMesh->zN );
@@ -799,7 +813,6 @@ void FillSection( Grids & grids, HXVector< Int3D * > & unsIdList, CgnsZone * cgn
         for ( int ir = 0; ir < nBcRegions; ++ ir )
         {
             BcRegion * bcRegion = ( * bcRegionGroup->regions )[ ir ];
-            //if ( BC::IsPoleBc( bcRegion->bcType ) ) continue;
             if ( BC::IsNotNormalBc( bcRegion->bcType ) ) continue;
             
             nBFace += bcRegion->ComputeRegionCells();
@@ -809,10 +822,6 @@ void FillSection( Grids & grids, HXVector< Int3D * > & unsIdList, CgnsZone * cgn
 
     cout << " nBFace = " << nBFace << "\n";
 
-    int iZone = 0;
-
-    //CgnsZone * cgnsZone = cgnsMultiBase->GetCgnsZone( iZone );
-    
     cgnsZone->nCell = nTCell;
 
     cgnsZone->multiSection->nSection = 2;
@@ -919,17 +928,19 @@ void FillSection( Grids & grids, HXVector< Int3D * > & unsIdList, CgnsZone * cgn
         for ( int ir = 0; ir < nBcRegions; ++ ir )
         {
             BcRegion * bcRegion = ( * bcRegionGroup->regions )[ ir ];
-
-            //if ( BC::IsPoleBc( bcRegion->bcType ) ) continue;
             if ( BC::IsNotNormalBc( bcRegion->bcType ) ) continue;
             int nRegionCell = bcRegion->ComputeRegionCells();
 
-            CgnsBcRegion * cgnsBcRegion = bcRegionProxy->cgnsBcRegions[ irc ];
+            CgnsBcRegion * cgnsBcRegion = bcRegionProxy->GetCgnsBcRegion( irc );
             
-            cgnsBcRegion->gridLocation = CellCenter;
+            //cgnsBcRegion->gridLocation = CellCenter;
+            cgnsBcRegion->SetCgnsBcRegionGridLocation( CellCenter );
             cgnsBcRegion->nElements    = 2;
             cgnsBcRegion->bcType       = static_cast< BCType_t >( bcTypeMap->OneFlow2Cgns( bcRegion->bcType ) );
             cgnsBcRegion->pointSetType = PointRange;
+
+            //cgnsBcRegion->SetCgnsBcRegion( nElements, bcType, );
+
             cgnsBcRegion->CreateCgnsBcConn();
             cgnsBcRegion->connList[ 0 ] = eIdPos + 1;
             cgnsBcRegion->connList[ 1 ] = eIdPos + nRegionCell;
