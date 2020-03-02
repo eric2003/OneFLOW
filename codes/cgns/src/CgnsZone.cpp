@@ -334,6 +334,16 @@ void CgnsZone::ReadCgnsZoneNameAndGeneralizedDimension( CgnsZone * cgnsZoneIn )
 
 void CgnsZone::SetDimension()
 {
+    int rind[ 6 ];
+    int result = cg_rind_read( rind );
+    if ( result != CG_OK )
+    {
+        for ( int i = 0; i < 6; ++ i )
+        {
+            rind[i] = 0;
+        }
+    }
+
     if ( this->cgnsZoneType == Structured )
     {
         // lower range index
