@@ -595,7 +595,7 @@ void FillSU2CgnsZone( Su2Grid* su2Grid, CgnsZone * cgnsZone )
         string & name = marker->name;
         string& bcName = marker->bcName;
 
-        CgnsBcRegion * cgnsBcRegion = bcRegionProxy->cgnsBcRegions[ iMarker ];
+        CgnsBcRegion * cgnsBcRegion = bcRegionProxy->GetCgnsBcRegionBoco( iMarker );
         cgnsBcRegion->name = name;
         cgnsBcRegion->gridLocation = CellCenter;
         cgnsBcRegion->nElements    = marker->nElem;

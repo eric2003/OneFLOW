@@ -59,10 +59,11 @@ public:
     void CreateCgnsBcRegion();
     void ConvertToInnerDataStandard();
     void ShiftBcRegion();
-    CgnsBcRegion * CgnsBcRegionBoco( int iBoco );
+    CgnsBcRegion * GetCgnsBcRegionBoco( int iBoco );
     CgnsBcRegion * GetBcRegion1To1( int i1To1 );
     CgnsBcRegion * GetBcRegionConn( int iConn );
 
+    int GetNBocoDynamic();
     void AddCgnsBocoBcRegion( CgnsBcRegion * cgnsBcRegion );
     void AddCgns1To1BcRegion( CgnsBcRegion * cgnsBcRegion );
     void AddCgnsConnBcRegion( CgnsBcRegion * cgnsBcRegion );
