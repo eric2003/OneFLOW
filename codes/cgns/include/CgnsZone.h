@@ -124,7 +124,7 @@ public:
     void GenerateUnsBcElemConn ( CgnsZone * cgnsZoneIn );
     void GenerateUnsBcCondConn ( CgnsZone * cgnsZoneIn );
     void SetElemPosition();
-    void CreateCgnsBcRegion( CgnsZone * cgnsZoneIn );
+
     void InitL2g();
     CgInt GetNI() const;
     CgInt GetNJ() const;

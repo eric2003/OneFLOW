@@ -82,7 +82,6 @@ public:
     void FillRegion( TestRegion * r, cgsize_t * ipnts, int dimension );
     void DumpCgnsGridBoundary( Grid * gridIn );
 public:
-    void ReadNumberCgnsConnBcInfo();
     void ReadNumberOfCgnsOrdinaryBcRegions();
     void ReadNumberOfCgns1To1BcRegions();
     void ReadNumberOfCgnsConn();

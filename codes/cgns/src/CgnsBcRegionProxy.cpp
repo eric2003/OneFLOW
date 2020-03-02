@@ -103,26 +103,6 @@ void CgnsBcRegionProxy::CreateCgnsBcRegion()
     this->CreateCgnsBocoBcRegion();
     this->CreateCgns1To1BcRegion();
     this->CreateCgnsConnBcRegion();
-    //for ( int iBoco = 0; iBoco < this->nBoco; ++ iBoco )
-    //{
-    //    CgnsBcRegion * cgnsBcRegion = new CgnsBcRegion( this->cgnsZone );
-    //    this->AddCgnsBocoBcRegion( cgnsBcRegion );
-    //}
-
-    //cout << "   n1To1        = " << this->n1To1 << endl;
-
-    //for ( int i1To1 = 0; i1To1 < this->n1To1; ++ i1To1 )
-    //{
-    //    CgnsBcRegion * cgnsBcRegion = new CgnsBcRegion( this->cgnsZone );
-    //    this->AddCgns1To1BcRegion( cgnsBcRegion );
-    //}
-
-    //cout << "   nConn        = " << this->nConn << endl;
-    //for ( int iConn = 0; iConn < this->nConn; ++ iConn )
-    //{
-    //    CgnsBcRegion * cgnsBcRegion = new CgnsBcRegion( this->cgnsZone );
-    //    this->AddCgnsConnBcRegion( cgnsBcRegion );
-    //}
 }
 
 CgnsBcRegion * CgnsBcRegionProxy::GetCgnsBcRegionBoco( int iBoco )
@@ -230,9 +210,6 @@ void CgnsBcRegionProxy::ScanBcFace( FaceSolver * face_solver )
 
 void CgnsBcRegionProxy::ReadCgnsGridBoundary()
 {
-    //this->ReadNumberCgnsConnBcInfo();
-    //this->CreateCgnsBcRegion();
-
     this->ReadCgnsOrdinaryBcRegion();
     this->ReadCgnsConnBcRegion();
     this->ReadCgns1to1BcRegion();
@@ -419,14 +396,6 @@ void CgnsBcRegionProxy::ReadCgns1to1BcRegion()
     }
 }
 
-void CgnsBcRegionProxy::ReadNumberCgnsConnBcInfo()
-{
-    //this->ReadNumberOfCgnsOrdinaryBcRegions();
-
-    //this->ReadNumberOfCgns1To1BcRegions();
-
-    //this->ReadNumberOfCgnsConn();
-}
 
 void CgnsBcRegionProxy::ReadCgnsOrdinaryBcRegion()
 {

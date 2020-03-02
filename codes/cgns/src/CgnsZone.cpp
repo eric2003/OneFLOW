@@ -582,7 +582,7 @@ void CgnsZone::GenerateUnsBcElemConn( CgnsZone * cgnsZoneIn )
     int iSection = 1;
     CgnsSection * cgnsSection = this->multiSection->GetCgnsSection( iSection );
 
-    this->CreateCgnsBcRegion( cgnsZoneIn );
+    this->bcRegionProxy->CreateCgnsBcRegion( cgnsZoneIn->bcRegionProxy );
 
     cout << " ConnectionList Size = " << cgnsSection->connSize << "\n";
     cgnsZoneIn->bcRegionProxy->GenerateUnsBcElemConn( cgnsSection->connList );
@@ -684,11 +684,6 @@ void CgnsZone::DumpCgnsGridBoundary( Grid * grid )
 void CgnsZone::ProcessPeriodicBc()
 {
     ;
-}
-
-void CgnsZone::CreateCgnsBcRegion( CgnsZone * cgnsZoneIn )
-{
-    bcRegionProxy->CreateCgnsBcRegion( cgnsZoneIn->bcRegionProxy );
 }
 
 void CgnsZone::PrepareCgnsZone( Grid * grid )
