@@ -144,17 +144,11 @@ void CgnsBcRegionProxy::AddCgnsConnBcRegion( CgnsBcRegion * cgnsBcRegion )
     this->bcRegionConn.push_back( cgnsBcRegion );
 }
 
-void CgnsBcRegionProxy::ConvertToInnerDataStandard()
+void CgnsBcRegionProxy::ShiftBcRegion()
 {
-    for ( int ir = 0; ir < nBcRegion; ++ ir )
-    {
-        CgnsBcRegion * cgnsBcRegion = this->GetCgnsBcRegion( ir );
-        cgnsBcRegion->ConvertToInnerDataStandard();
-    }
-
     int baseFlag = 1;
 
-    for ( int ir = 0; ir < nBcRegion; ++ ir )
+    for ( int ir = 0; ir < this->nBcRegion; ++ ir )
     {
         CgnsBcRegion * cgnsBcRegion = this->GetCgnsBcRegion( ir );
         if ( ! cgnsBcRegion->ComputeBase() )
@@ -166,12 +160,23 @@ void CgnsBcRegionProxy::ConvertToInnerDataStandard()
 
     if ( baseFlag == 0 )
     {
-        for ( int ir = 0; ir < nBcRegion; ++ ir )
+        for ( int ir = 0; ir < this->nBcRegion; ++ ir )
         {
             CgnsBcRegion * cgnsBcRegion = this->GetCgnsBcRegion( ir );
             cgnsBcRegion->ShiftBcRegion();
         }
     }
+}
+
+void CgnsBcRegionProxy::ConvertToInnerDataStandard()
+{
+    for ( int ir = 0; ir < this->nBcRegion; ++ ir )
+    {
+        CgnsBcRegion * cgnsBcRegion = this->GetCgnsBcRegion( ir );
+        cgnsBcRegion->ConvertToInnerDataStandard();
+    }
+
+    this->ShiftBcRegion();
 }
 
 void CgnsBcRegionProxy::ScanBcFace( FaceSolver * face_solver )
