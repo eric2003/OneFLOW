@@ -54,17 +54,17 @@ CgnsBcRegionProxy::~CgnsBcRegionProxy()
 {
     for ( int ir = 0; ir < this->nBoco; ++ ir )
     {
-        delete cgnsBcRegions[ ir ];
+        delete this->cgnsBcRegionBoco[ ir ];
     }
 
     for ( int i1To1 = 0; i1To1 < this->n1To1; ++ i1To1 )
     {
-        delete bcRegion1To1[ i1To1 ];
+        delete this->cgnsBcRegion1To1[ i1To1 ];
     }
 
     for ( int i1To1 = 0; i1To1 < this->nConn; ++ i1To1 )
     {
-        delete bcRegionConn[ i1To1 ];
+        delete this->cgnsBcRegionConn[ i1To1 ];
     }
 }
 
@@ -98,37 +98,37 @@ void CgnsBcRegionProxy::CreateCgnsBcRegion()
 
 CgnsBcRegion * CgnsBcRegionProxy::GetCgnsBcRegionBoco( int iBoco )
 {
-    return this->cgnsBcRegions[ iBoco ];
+    return this->cgnsBcRegionBoco[ iBoco ];
 }
 
-CgnsBcRegion * CgnsBcRegionProxy::GetBcRegion1To1( int i1To1 )
+CgnsBcRegion * CgnsBcRegionProxy::GetCgnsBcRegion1To1( int i1To1 )
 {
-    return this->bcRegion1To1[ i1To1 ];
+    return this->cgnsBcRegion1To1[ i1To1 ];
 }
 
-CgnsBcRegion * CgnsBcRegionProxy::GetBcRegionConn( int iConn )
+CgnsBcRegion * CgnsBcRegionProxy::GetCgnsBcRegionConn( int iConn )
 {
-    return this->bcRegionConn[ iConn ];
+    return this->cgnsBcRegionConn[ iConn ];
 }
 
 int CgnsBcRegionProxy::GetNBocoDynamic()
 {
-    return this->cgnsBcRegions.size();
+    return this->cgnsBcRegionBoco.size();
 }
 
 void CgnsBcRegionProxy::AddCgnsBocoBcRegion( CgnsBcRegion * cgnsBcRegion )
 {
-    this->cgnsBcRegions.push_back( cgnsBcRegion );
+    this->cgnsBcRegionBoco.push_back( cgnsBcRegion );
 }
 
 void CgnsBcRegionProxy::AddCgns1To1BcRegion( CgnsBcRegion * cgnsBcRegion )
 {
-    this->bcRegion1To1.push_back( cgnsBcRegion );
+    this->cgnsBcRegion1To1.push_back( cgnsBcRegion );
 }
 
 void CgnsBcRegionProxy::AddCgnsConnBcRegion( CgnsBcRegion * cgnsBcRegion )
 {
-    this->bcRegionConn.push_back( cgnsBcRegion );
+    this->cgnsBcRegionConn.push_back( cgnsBcRegion );
 }
 
 void CgnsBcRegionProxy::ShiftBcRegion()
@@ -165,13 +165,13 @@ void CgnsBcRegionProxy::ConvertToInnerDataStandard()
 
     for ( int iConn = 0; iConn < this->nConn; ++ iConn )
     {
-        CgnsBcRegion * cgnsBcRegion = this->GetBcRegionConn( iConn );
+        CgnsBcRegion * cgnsBcRegion = this->GetCgnsBcRegionConn( iConn );
         cgnsBcRegion->ConvertToInnerDataStandard();
     }
 
     for ( int i1To1 = 0; i1To1 < this->n1To1; ++ i1To1 )
     {
-        CgnsBcRegion * cgnsBcRegion = this->GetBcRegion1To1( i1To1 );
+        CgnsBcRegion * cgnsBcRegion = this->GetCgnsBcRegion1To1( i1To1 );
         cgnsBcRegion->ConvertToInnerDataStandard();
     }
 
@@ -352,7 +352,7 @@ void CgnsBcRegionProxy::ReadCgnsConnBcRegion()
 {
     for ( int iConn = 0; iConn < this->nConn; ++ iConn )
     {
-        CgnsBcRegion * cgnsBcRegion = this->GetBcRegionConn( iConn );
+        CgnsBcRegion * cgnsBcRegion = this->GetCgnsBcRegionConn( iConn );
         cgnsBcRegion->ReadCgnsConnBcRegion( iConn + 1 );
     }
 }
@@ -361,7 +361,7 @@ void CgnsBcRegionProxy::ReadCgns1to1BcRegion()
 {
     for ( int i1To1 = 0; i1To1 < this->n1To1; ++ i1To1 )
     {
-        CgnsBcRegion * cgnsBcRegion = this->GetBcRegion1To1( i1To1 );
+        CgnsBcRegion * cgnsBcRegion = this->GetCgnsBcRegion1To1( i1To1 );
         cgnsBcRegion->ReadCgns1to1BcRegion( i1To1 + 1 );
     }
 }
@@ -517,13 +517,13 @@ void CgnsBcRegionProxy::SetPeriodicBc()
 {
     for ( int iConn = 0; iConn < this->nConn; ++ iConn )
     {
-        CgnsBcRegion * cgnsBcRegion = this->GetBcRegionConn( iConn );
+        CgnsBcRegion * cgnsBcRegion = this->GetCgnsBcRegionConn( iConn );
         cgnsBcRegion->bcInterface->SetPeriodicBc();
     }
 
     for ( int i1To1 = 0; i1To1 < this->n1To1; ++ i1To1 )
     {
-        CgnsBcRegion * cgnsBcRegion = this->GetBcRegion1To1( i1To1 );
+        CgnsBcRegion * cgnsBcRegion = this->GetCgnsBcRegion1To1( i1To1 );
         cgnsBcRegion->bcInterface->SetPeriodicBc();
     }
 }

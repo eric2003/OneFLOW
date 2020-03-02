@@ -49,9 +49,9 @@ public:
     int nBoco;
     int n1To1General;
     int n1To1, nConn;
-    HXVector< CgnsBcRegion * > cgnsBcRegions;
-    HXVector< CgnsBcRegion * > bcRegion1To1;
-    HXVector< CgnsBcRegion * > bcRegionConn;
+    HXVector< CgnsBcRegion * > cgnsBcRegionBoco;
+    HXVector< CgnsBcRegion * > cgnsBcRegion1To1;
+    HXVector< CgnsBcRegion * > cgnsBcRegionConn;
     CgnsZone * cgnsZone;
 public:
     void ScanBcFace( FaceSolver * face_solver );
@@ -60,8 +60,8 @@ public:
     void ConvertToInnerDataStandard();
     void ShiftBcRegion();
     CgnsBcRegion * GetCgnsBcRegionBoco( int iBoco );
-    CgnsBcRegion * GetBcRegion1To1( int i1To1 );
-    CgnsBcRegion * GetBcRegionConn( int iConn );
+    CgnsBcRegion * GetCgnsBcRegion1To1( int i1To1 );
+    CgnsBcRegion * GetCgnsBcRegionConn( int iConn );
 
     int GetNBocoDynamic();
     void AddCgnsBocoBcRegion( CgnsBcRegion * cgnsBcRegion );
