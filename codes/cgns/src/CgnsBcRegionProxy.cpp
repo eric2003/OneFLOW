@@ -324,7 +324,7 @@ void CgnsBcRegionProxy::ReadCgnsInterfaceBcRegion()
 
         if ( this->nConn > 0 )
         {
-            cgnsBcRegion->ProcessCgns1to1BcRegion( iInterBc + 1 );
+            cgnsBcRegion->ReadCgnsConnBcRegion( iInterBc + 1 );
         }
         else
         {

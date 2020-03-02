@@ -250,7 +250,7 @@ void CgnsBcRegion::ReadCgnsBcConn()
     int kkk = 1;
 }
 
-void CgnsBcRegion::ProcessCgns1to1BcRegion( int bcId )
+void CgnsBcRegion::ReadCgnsConnBcRegion( int bcId )
 {
     this->bcId = bcId;
     this->bcInterface = new CgnsBcInterface( this );
