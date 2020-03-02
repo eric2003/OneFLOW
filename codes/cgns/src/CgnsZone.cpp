@@ -590,17 +590,17 @@ void CgnsZone::GenerateUnsBcElemConn( CgnsZone * cgnsZoneIn )
 
 void CgnsZone::GenerateUnsBcCondConn( CgnsZone * cgnsZoneIn )
 {
-    int nBcRegion = cgnsZoneIn->bcRegionProxy->nBcRegion;
+    int nBoco = cgnsZoneIn->bcRegionProxy->nBoco;
 
     int iSection = 1;
     CgnsSection * cgnsSection = this->multiSection->GetCgnsSection( iSection );
 
     CgInt startId = cgnsSection->startId;
 
-    for ( int iBcRegion = 0; iBcRegion < nBcRegion; ++ iBcRegion )
+    for ( int iBcRegion = 0; iBcRegion < nBoco; ++ iBcRegion )
     {
-        CgnsBcRegion * bcRegion    = this      ->bcRegionProxy->GetCgnsBcRegion( iBcRegion );
-        CgnsBcRegion * strBcRegion = cgnsZoneIn->bcRegionProxy->GetCgnsBcRegion( iBcRegion );
+        CgnsBcRegion * bcRegion    = this      ->bcRegionProxy->CgnsBcRegionBoco( iBcRegion );
+        CgnsBcRegion * strBcRegion = cgnsZoneIn->bcRegionProxy->CgnsBcRegionBoco( iBcRegion );
         bcRegion->CopyStrBcRegion( strBcRegion, startId );
     }
 }
