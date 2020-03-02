@@ -277,7 +277,7 @@ void CgnsBcRegion::ReadCgnsConnBcRegion( int bcId )
     this->PrintCgnsBcConn();
 }
 
-void CgnsBcRegion::ReadCgns1to1BoundaryRegion( int i1to1 )
+void CgnsBcRegion::ReadCgns1to1BcRegion( int i1to1 )
 {
     this->bcId = i1to1;
     this->bcInterface = new CgnsBcInterface( this );

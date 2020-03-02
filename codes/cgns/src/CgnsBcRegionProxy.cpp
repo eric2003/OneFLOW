@@ -173,7 +173,9 @@ void CgnsBcRegionProxy::ReadCgnsGridBoundary()
     this->CreateCgnsBcRegion();
 
     this->ReadCgnsOrdinaryBcRegion();
-    this->ReadCgnsInterfaceBcRegion();
+    //this->ReadCgnsInterfaceBcRegion();
+    this->ReadCgnsConnBcRegion();
+    this->ReadCgns1to1BcRegion();
 
     //this->ReconstructStrRegion();
 }
@@ -315,23 +317,42 @@ void CgnsBcRegionProxy::DumpCgnsGridBoundary( Grid * gridIn )
 }
 
 
-void CgnsBcRegionProxy::ReadCgnsInterfaceBcRegion()
-{
-    int nInterBc = MAX( this->nConn, this->n1To1 );
-     for ( int iInterBc = 0; iInterBc < nInterBc; ++ iInterBc )
-    {
-        CgnsBcRegion * cgnsBcRegion = this->GetBcRegion1To1( iInterBc );
+//void CgnsBcRegionProxy::ReadCgnsInterfaceBcRegion()
+//{
+//    int nInterBc = MAX( this->nConn, this->n1To1 );
+//    for ( int iInterBc = 0; iInterBc < nInterBc; ++ iInterBc )
+//    {
+//        CgnsBcRegion * cgnsBcRegion = this->GetBcRegion1To1( iInterBc );
+//
+//        if ( this->nConn > 0 )
+//        {
+//            cgnsBcRegion->ReadCgnsConnBcRegion( iInterBc + 1 );
+//        }
+//        else
+//        {
+//            cgnsBcRegion->ReadCgns1to1BoundaryRegion( iInterBc + 1 );
+//        }
+//    }
+//}
 
-        if ( this->nConn > 0 )
-        {
-            cgnsBcRegion->ReadCgnsConnBcRegion( iInterBc + 1 );
-        }
-        else
-        {
-            cgnsBcRegion->ReadCgns1to1BoundaryRegion( iInterBc + 1 );
-        }
+void CgnsBcRegionProxy::ReadCgnsConnBcRegion()
+{
+    for ( int iConn = 0; iConn < this->nConn; ++ iConn )
+    {
+        CgnsBcRegion * cgnsBcRegion = this->GetBcRegion1To1( iConn );
+        cgnsBcRegion->ReadCgnsConnBcRegion( iConn + 1 );
     }
 }
+
+void CgnsBcRegionProxy::ReadCgns1to1BcRegion()
+{
+    for ( int i1To1 = 0; i1To1 < this->n1To1; ++ i1To1 )
+    {
+        CgnsBcRegion * cgnsBcRegion = this->GetBcRegion1To1( i1To1 );
+        cgnsBcRegion->ReadCgns1to1BcRegion( i1To1 + 1 );
+    }
+}
+
 
 void CgnsBcRegionProxy::ReadNumberCgnsConnBcInfo()
 {

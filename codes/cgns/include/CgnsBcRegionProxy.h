@@ -63,10 +63,12 @@ public:
     void AddCgnsBcRegion( CgnsBcRegion * cgnsBcRegion );
     void AddCgns1To1BcRegion( CgnsBcRegion * cgnsBcRegion );
 
-    void ReadCgnsOrdinaryBcRegion();
     void ReadCgnsGridBoundary();
-    void ReadCgnsInterfaceBcRegion();
 
+    void ReadCgnsOrdinaryBcRegion();
+    //void ReadCgnsInterfaceBcRegion();
+    void ReadCgnsConnBcRegion();
+    void ReadCgns1to1BcRegion();
     void FillBcPoints( int * start, int * end, cgsize_t * bcpnts, int dimension );
     void FillBcPoints3D( int * start, int * end, cgsize_t * bcpnts );
     void FillInterface( BcRegion * bcRegion, cgsize_t * ipnts, cgsize_t * ipntsdonor, int * itranfrm, int dimension );
