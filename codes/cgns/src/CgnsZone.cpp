@@ -627,15 +627,14 @@ void CgnsZone::ReadCgnsGridCoordinates()
 
     CgnsCoor * cgnsCoor = new CgnsCoor();
 
-    for ( int coordId = 1; coordId <= this->nCoor; ++ coordId )
+    for ( int coordId = 0; coordId < this->nCoor; ++ coordId )
     {
         DataType_t dataType;
         CgnsTraits::char33 coorName;
-        cg_coord_info( fileId, baseId, this->zId, coordId, & dataType, coorName );
-        int coId = coordId - 1;
-        cgnsCoor->Alloc( coId, static_cast<int>(this->nNode), dataType );
+        cg_coord_info( fileId, baseId, this->zId, coordId + 1, & dataType, coorName );
+        cgnsCoor->Alloc( coordId, static_cast<int>(this->nNode), dataType );
         //Read the x-, y-, z-coordinates.
-        cg_coord_read( fileId, baseId, this->zId, coorName, dataType, this->irmin, this->irmax, cgnsCoor->GetCoor( coId ) );
+        cg_coord_read( fileId, baseId, this->zId, coorName, dataType, this->irmin, this->irmax, cgnsCoor->GetCoor( coordId ) );
     }
 
     cgnsCoor->SetAllData( nodeMesh->xN, nodeMesh->yN, nodeMesh->zN );
