@@ -88,7 +88,7 @@ void CgnsBcRegionProxy::CreateCgnsBcRegion()
     }
 }
 
-CgnsBcRegion * CgnsBcRegionProxy::GetBcRegion( int ir )
+CgnsBcRegion * CgnsBcRegionProxy::GetCgnsBcRegion( int ir )
 {
     if ( ir < this->nOrdinaryBcRegion )
     {
@@ -120,7 +120,7 @@ void CgnsBcRegionProxy::ConvertToInnerDataStandard()
 {
     for ( int ir = 0; ir < nBcRegion; ++ ir )
     {
-        CgnsBcRegion * cgnsBcRegion = this->GetBcRegion( ir );
+        CgnsBcRegion * cgnsBcRegion = this->GetCgnsBcRegion( ir );
         cgnsBcRegion->ConvertToInnerDataStandard();
     }
 
@@ -128,7 +128,7 @@ void CgnsBcRegionProxy::ConvertToInnerDataStandard()
 
     for ( int ir = 0; ir < nBcRegion; ++ ir )
     {
-        CgnsBcRegion * cgnsBcRegion = this->GetBcRegion( ir );
+        CgnsBcRegion * cgnsBcRegion = this->GetCgnsBcRegion( ir );
         if ( ! cgnsBcRegion->ComputeBase() )
         {
             baseFlag = 0;
@@ -140,7 +140,7 @@ void CgnsBcRegionProxy::ConvertToInnerDataStandard()
     {
         for ( int ir = 0; ir < nBcRegion; ++ ir )
         {
-            CgnsBcRegion * cgnsBcRegion = this->GetBcRegion( ir );
+            CgnsBcRegion * cgnsBcRegion = this->GetCgnsBcRegion( ir );
             cgnsBcRegion->ShiftBcRegion();
         }
     }
@@ -154,7 +154,7 @@ void CgnsBcRegionProxy::ScanBcFace( FaceSolver * face_solver )
     for ( int ir = 0; ir < nBcRegion; ++ ir )
     {
         cout << " ir = " << ir << " ";
-        CgnsBcRegion * cgnsBcRegion = this->GetBcRegion( ir );
+        CgnsBcRegion * cgnsBcRegion = this->GetCgnsBcRegion( ir );
         cout << " BCTypeName = " << ONEFLOW::GetCgnsBcName( cgnsBcRegion->bcType ) << endl;
         cout << " BCRegion Name = " << cgnsBcRegion->name << endl;
 
@@ -173,7 +173,6 @@ void CgnsBcRegionProxy::ReadCgnsGridBoundary()
     this->CreateCgnsBcRegion();
 
     this->ReadCgnsOrdinaryBcRegion();
-    //this->ReadCgnsInterfaceBcRegion();
     this->ReadCgnsConnBcRegion();
     this->ReadCgns1to1BcRegion();
 
@@ -317,24 +316,6 @@ void CgnsBcRegionProxy::DumpCgnsGridBoundary( Grid * gridIn )
 }
 
 
-//void CgnsBcRegionProxy::ReadCgnsInterfaceBcRegion()
-//{
-//    int nInterBc = MAX( this->nConn, this->n1To1 );
-//    for ( int iInterBc = 0; iInterBc < nInterBc; ++ iInterBc )
-//    {
-//        CgnsBcRegion * cgnsBcRegion = this->GetBcRegion1To1( iInterBc );
-//
-//        if ( this->nConn > 0 )
-//        {
-//            cgnsBcRegion->ReadCgnsConnBcRegion( iInterBc + 1 );
-//        }
-//        else
-//        {
-//            cgnsBcRegion->ReadCgns1to1BoundaryRegion( iInterBc + 1 );
-//        }
-//    }
-//}
-
 void CgnsBcRegionProxy::ReadCgnsConnBcRegion()
 {
     for ( int iConn = 0; iConn < this->nConn; ++ iConn )
@@ -369,7 +350,7 @@ void CgnsBcRegionProxy::ReadCgnsOrdinaryBcRegion()
     {
         cout << "\n-->iBcRegion  = " << iBcRegion;
         cout << " nOrdinaryBcRegion = " << nOrdinaryBcRegion << "\n";
-        CgnsBcRegion * cgnsBcRegion = this->GetBcRegion( iBcRegion );
+        CgnsBcRegion * cgnsBcRegion = this->GetCgnsBcRegion( iBcRegion );
         cgnsBcRegion->bcId = iBcRegion + 1;
         cgnsBcRegion->ReadCgnsOrdinaryBcRegion();
     }
@@ -434,7 +415,7 @@ void CgnsBcRegionProxy::ReconstructStrRegion()
 
     for ( int iBcRegion = 0; iBcRegion < this->nBcRegion; ++ iBcRegion )
     {
-        CgnsBcRegion * bcRegion = this->GetBcRegion( iBcRegion );
+        CgnsBcRegion * bcRegion = this->GetCgnsBcRegion( iBcRegion );
 
         IntField ijkMin( 3 ), ijkMax( 3 );
         bcRegion->ExtractIJKRegionFromBcConn( ijkMin, ijkMax );
@@ -473,7 +454,7 @@ int CgnsBcRegionProxy::GetNumberOfActualBcElements()
 
     for ( int iBcRegion = 0; iBcRegion < nBcRegion; ++ iBcRegion )
     {
-        CgnsBcRegion * cgnsBcRegion = this->GetBcRegion( iBcRegion );
+        CgnsBcRegion * cgnsBcRegion = this->GetCgnsBcRegion( iBcRegion );
         int nBcElement = cgnsBcRegion->nElements;
         int nActualBcElement = cgnsBcRegion->GetActualNumberOfBoundaryElements();
         nBFace += nBcElement;
@@ -496,7 +477,7 @@ void CgnsBcRegionProxy::GenerateUnsBcElemConn(CgIntField& bcConn )
 
     for ( int iBcRegion = 0; iBcRegion < this->nBcRegion; ++ iBcRegion )
     {
-        CgnsBcRegion * bcRegion = this->GetBcRegion( iBcRegion );
+        CgnsBcRegion * bcRegion = this->GetCgnsBcRegion( iBcRegion );
 
         IntField ijkMin( 3 ), ijkMax( 3 );
         bcRegion->ExtractIJKRegionFromBcConn( ijkMin, ijkMax );
@@ -510,7 +491,7 @@ void CgnsBcRegionProxy::SetPeriodicBc()
 {
     for ( int iBcRegion = 0; iBcRegion < this->nBcRegion; ++ iBcRegion )
     {
-        CgnsBcRegion * bcRegion = this->GetBcRegion( iBcRegion );
+        CgnsBcRegion * bcRegion = this->GetCgnsBcRegion( iBcRegion );
         if ( bcRegion->bcInterface )
         {
             bcRegion->bcInterface->SetPeriodicBc();

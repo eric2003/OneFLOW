@@ -46,18 +46,19 @@ public:
     CgnsBcRegionProxy( CgnsZone * cgnsZone );
     ~CgnsBcRegionProxy();
 public:
-    int nBcRegion, n1To1, nOrdinaryBcRegion;
+    int nBcRegion, nOrdinaryBcRegion;
     int n1To1General;
-    int nConn;
+    int n1To1, nConn;
     HXVector< CgnsBcRegion * > cgnsBcRegions;
     HXVector< CgnsBcRegion * > bcRegion1To1;
+    HXVector< CgnsBcRegion * > bcRegionConn;
     CgnsZone * cgnsZone;
 public:
     void ScanBcFace( FaceSolver * face_solver );
 public:
     void CreateCgnsBcRegion();
     void ConvertToInnerDataStandard();
-    CgnsBcRegion * GetBcRegion( int ir );
+    CgnsBcRegion * GetCgnsBcRegion( int ir );
     CgnsBcRegion * GetBcRegion1To1( int i1To1 );
 
     void AddCgnsBcRegion( CgnsBcRegion * cgnsBcRegion );
@@ -66,7 +67,6 @@ public:
     void ReadCgnsGridBoundary();
 
     void ReadCgnsOrdinaryBcRegion();
-    //void ReadCgnsInterfaceBcRegion();
     void ReadCgnsConnBcRegion();
     void ReadCgns1to1BcRegion();
     void FillBcPoints( int * start, int * end, cgsize_t * bcpnts, int dimension );

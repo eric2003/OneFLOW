@@ -599,8 +599,8 @@ void CgnsZone::GenerateUnsBcCondConn( CgnsZone * cgnsZoneIn )
 
     for ( int iBcRegion = 0; iBcRegion < nBcRegion; ++ iBcRegion )
     {
-        CgnsBcRegion * bcRegion    = this      ->bcRegionProxy->GetBcRegion( iBcRegion );
-        CgnsBcRegion * strBcRegion = cgnsZoneIn->bcRegionProxy->GetBcRegion( iBcRegion );
+        CgnsBcRegion * bcRegion    = this      ->bcRegionProxy->GetCgnsBcRegion( iBcRegion );
+        CgnsBcRegion * strBcRegion = cgnsZoneIn->bcRegionProxy->GetCgnsBcRegion( iBcRegion );
         bcRegion->CopyStrBcRegion( strBcRegion, startId );
     }
 }
@@ -931,7 +931,7 @@ void FillSection( Grids & grids, HXVector< Int3D * > & unsIdList, CgnsZone * cgn
             if ( BC::IsNotNormalBc( bcRegion->bcType ) ) continue;
             int nRegionCell = bcRegion->ComputeRegionCells();
 
-            CgnsBcRegion * cgnsBcRegion = bcRegionProxy->GetBcRegion( irc );
+            CgnsBcRegion * cgnsBcRegion = bcRegionProxy->GetCgnsBcRegion( irc );
             
             //cgnsBcRegion->gridLocation = CellCenter;
             cgnsBcRegion->SetCgnsBcRegionGridLocation( CellCenter );
