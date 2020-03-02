@@ -933,7 +933,6 @@ void FillSection( Grids & grids, HXVector< Int3D * > & unsIdList, CgnsZone * cgn
 
             CgnsBcRegion * cgnsBcRegion = bcRegionProxy->GetCgnsBcRegionBoco( irc );
             
-            //cgnsBcRegion->gridLocation = CellCenter;
             cgnsBcRegion->SetCgnsBcRegionGridLocation( CellCenter );
             cgnsBcRegion->nElements    = 2;
             cgnsBcRegion->bcType       = static_cast< BCType_t >( bcTypeMap->OneFlow2Cgns( bcRegion->bcType ) );
