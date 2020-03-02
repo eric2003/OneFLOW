@@ -845,7 +845,7 @@ void FillSection( Grids & grids, HXVector< Int3D * > & unsIdList, CgnsZone * cgn
     bcRegionProxy->nBoco = nTBcRegion;
     bcRegionProxy->n1To1 = 0;
     bcRegionProxy->nConn = 0;
-    bcRegionProxy->CreateCgnsBcRegion();
+    bcRegionProxy->CreateCgnsBcRegion( bcRegionProxy );
 
     CgnsSection * secV = cgnsZone->multiSection->GetCgnsSection( 0 );
     CgnsSection * secB = cgnsZone->multiSection->GetCgnsSection( 1 );

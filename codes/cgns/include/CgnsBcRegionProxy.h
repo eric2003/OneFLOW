@@ -55,7 +55,6 @@ public:
 public:
     void ScanBcFace( FaceSolver * face_solver );
 public:
-    void CreateCgnsBcRegion();
     void CreateCgnsBocoBcRegion();
     void CreateCgns1To1BcRegion();
     void CreateCgnsConnBcRegion();

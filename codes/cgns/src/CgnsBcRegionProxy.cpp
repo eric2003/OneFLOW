@@ -97,14 +97,6 @@ void CgnsBcRegionProxy::CreateCgnsConnBcRegion()
     }
 }
 
-
-void CgnsBcRegionProxy::CreateCgnsBcRegion()
-{
-    this->CreateCgnsBocoBcRegion();
-    this->CreateCgns1To1BcRegion();
-    this->CreateCgnsConnBcRegion();
-}
-
 CgnsBcRegion * CgnsBcRegionProxy::GetCgnsBcRegionBoco( int iBoco )
 {
     return this->cgnsBcRegionBoco[ iBoco ];
@@ -427,7 +419,9 @@ void CgnsBcRegionProxy::CreateCgnsBcRegion( CgnsBcRegionProxy * bcRegionProxyIn 
     this->n1To1 = bcRegionProxyIn->n1To1;
     this->nConn = bcRegionProxyIn->nConn;
 
-    this->CreateCgnsBcRegion();
+    this->CreateCgnsBocoBcRegion();
+    this->CreateCgns1To1BcRegion();
+    this->CreateCgnsConnBcRegion();
 }
 
 void CgnsBcRegionProxy::ReconstructStrRegion()
