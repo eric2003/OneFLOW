@@ -931,7 +931,7 @@ void FillSection( Grids & grids, HXVector< Int3D * > & unsIdList, CgnsZone * cgn
             if ( BC::IsNotNormalBc( bcRegion->bcType ) ) continue;
             int nRegionCell = bcRegion->ComputeRegionCells();
 
-            CgnsBcRegion * cgnsBcRegion = bcRegionProxy->GetCgnsBcRegion( irc );
+            CgnsBcRegion * cgnsBcRegion = bcRegionProxy->CgnsBcRegionBoco( irc );
             
             //cgnsBcRegion->gridLocation = CellCenter;
             cgnsBcRegion->SetCgnsBcRegionGridLocation( CellCenter );

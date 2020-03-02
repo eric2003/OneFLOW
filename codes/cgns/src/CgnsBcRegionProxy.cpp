@@ -80,7 +80,7 @@ void CgnsBcRegionProxy::CreateCgnsBcRegion()
 
     this->nBcRegion = this->nBoco + this->n1To1General;
 
-    for ( int ir = 0; ir < this->nBoco; ++ ir )
+    for ( int iBoco = 0; iBoco < this->nBoco; ++ iBoco )
     {
         CgnsBcRegion * cgnsBcRegion = new CgnsBcRegion( this->cgnsZone );
         this->AddCgnsBcRegion( cgnsBcRegion );
@@ -102,26 +102,6 @@ void CgnsBcRegionProxy::CreateCgnsBcRegion()
 CgnsBcRegion * CgnsBcRegionProxy::CgnsBcRegionBoco( int iBoco )
 {
     return this->cgnsBcRegions[ iBoco ];
-}
-
-CgnsBcRegion * CgnsBcRegionProxy::GetCgnsBcRegion( int ir )
-{
-    if ( ir < this->nBoco )
-    {
-        return this->cgnsBcRegions[ ir ];
-    }
-    else
-    {
-        int irr = ir - this->nBoco;
-        if ( this->n1To1 )
-        {
-            return this->bcRegion1To1[ irr ];
-        }
-        else
-        {
-            return this->bcRegionConn[ irr ];
-        }
-    }
 }
 
 CgnsBcRegion * CgnsBcRegionProxy::GetBcRegion1To1( int i1To1 )
@@ -153,9 +133,9 @@ void CgnsBcRegionProxy::ShiftBcRegion()
 {
     int baseFlag = 1;
 
-    for ( int ir = 0; ir < this->nBoco; ++ ir )
+    for ( int iBoco = 0; iBoco < this->nBoco; ++ iBoco )
     {
-        CgnsBcRegion * cgnsBcRegion = this->CgnsBcRegionBoco( ir );
+        CgnsBcRegion * cgnsBcRegion = this->CgnsBcRegionBoco( iBoco );
         if ( ! cgnsBcRegion->ComputeBase() )
         {
             baseFlag = 0;
@@ -165,9 +145,9 @@ void CgnsBcRegionProxy::ShiftBcRegion()
 
     if ( baseFlag == 0 )
     {
-        for ( int ir = 0; ir < this->nBoco; ++ ir )
+        for ( int iBoco = 0; iBoco < this->nBoco; ++ iBoco )
         {
-            CgnsBcRegion * cgnsBcRegion = this->CgnsBcRegionBoco( ir );
+            CgnsBcRegion * cgnsBcRegion = this->CgnsBcRegionBoco( iBoco );
             cgnsBcRegion->ShiftBcRegion();
         }
     }
@@ -175,9 +155,21 @@ void CgnsBcRegionProxy::ShiftBcRegion()
 
 void CgnsBcRegionProxy::ConvertToInnerDataStandard()
 {
-    for ( int ir = 0; ir < this->nBcRegion; ++ ir )
+    for ( int iBoco = 0; iBoco < this->nBoco; ++ iBoco )
     {
-        CgnsBcRegion * cgnsBcRegion = this->GetCgnsBcRegion( ir );
+        CgnsBcRegion * cgnsBcRegion = this->CgnsBcRegionBoco( iBoco );
+        cgnsBcRegion->ConvertToInnerDataStandard();
+    }
+
+    for ( int iConn = 0; iConn < this->nConn; ++ iConn )
+    {
+        CgnsBcRegion * cgnsBcRegion = this->GetBcRegionConn( iConn );
+        cgnsBcRegion->ConvertToInnerDataStandard();
+    }
+
+    for ( int i1To1 = 0; i1To1 < this->n1To1; ++ i1To1 )
+    {
+        CgnsBcRegion * cgnsBcRegion = this->GetBcRegion1To1( i1To1 );
         cgnsBcRegion->ConvertToInnerDataStandard();
     }
 
@@ -190,17 +182,17 @@ void CgnsBcRegionProxy::ScanBcFace( FaceSolver * face_solver )
     //cout << " nBcRegion = " << this->nBcRegion << endl;
     cout << " nBoco = " << this->nBoco << endl;
 
-    for ( int ir = 0; ir < this->nBoco; ++ ir )
+    for ( int iBoco = 0; iBoco < this->nBoco; ++ iBoco )
     {
-        cout << " ir = " << ir << " ";
-        CgnsBcRegion * cgnsBcRegion = this->CgnsBcRegionBoco( ir );
+        cout << " iBoco = " << iBoco << " ";
+        CgnsBcRegion * cgnsBcRegion = this->CgnsBcRegionBoco( iBoco );
         cout << " BCTypeName = " << ONEFLOW::GetCgnsBcName( cgnsBcRegion->bcType ) << endl;
         cout << " BCRegion Name = " << cgnsBcRegion->name << endl;
 
         RegionNameMap::AddRegion( cgnsBcRegion->name );
         int bcNameId = RegionNameMap::FindRegionId( cgnsBcRegion->name );
         cgnsBcRegion->nameId = bcNameId;
-        cgnsBcRegion->bcId = ir + 1;
+        cgnsBcRegion->bcId = iBoco + 1;
         cgnsBcRegion->ScanBcFace( face_solver );
     }
     face_solver->ScanInterfaceBc();
