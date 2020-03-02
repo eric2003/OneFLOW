@@ -58,6 +58,8 @@ public:
     void CreateCgnsBocoBcRegion();
     void CreateCgns1To1BcRegion();
     void CreateCgnsConnBcRegion();
+
+    void CreateCgnsBocoBcRegion( int nBoco );
     
     void ConvertToInnerDataStandard();
     void ShiftBcRegion();
@@ -72,7 +74,7 @@ public:
 
     void ReadCgnsGridBoundary();
 
-    void ReadCgnsOrdinaryBcRegion();
+    void ReadCgnsBocoBcRegion();
     void ReadCgnsConnBcRegion();
     void ReadCgns1to1BcRegion();
     void FillBcPoints( int * start, int * end, cgsize_t * bcpnts, int dimension );
@@ -81,8 +83,8 @@ public:
     void FillRegion( TestRegion * r, cgsize_t * ipnts, int dimension );
     void DumpCgnsGridBoundary( Grid * gridIn );
 public:
-    void ReadNumberOfCgnsOrdinaryBcRegions();
-    void ReadNumberOfCgns1To1BcRegions();
+    void ReadNumberOfCgnsBoco();
+    void ReadNumberOfCgns1To1();
     void ReadNumberOfCgnsConn();
     void CreateCgnsBcRegion( CgnsBcRegionProxy * bcRegionProxyIn );
 public:

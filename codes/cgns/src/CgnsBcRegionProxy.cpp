@@ -67,6 +67,12 @@ CgnsBcRegionProxy::~CgnsBcRegionProxy()
     }
 }
 
+void CgnsBcRegionProxy::CreateCgnsBocoBcRegion( int nBoco )
+{
+    this->nBoco = nBoco;
+    this->CreateCgnsBocoBcRegion();
+}
+
 void CgnsBcRegionProxy::CreateCgnsBocoBcRegion()
 {
     for ( int iBoco = 0; iBoco < this->nBoco; ++ iBoco )
@@ -202,7 +208,7 @@ void CgnsBcRegionProxy::ScanBcFace( FaceSolver * face_solver )
 
 void CgnsBcRegionProxy::ReadCgnsGridBoundary()
 {
-    this->ReadCgnsOrdinaryBcRegion();
+    this->ReadCgnsBocoBcRegion();
     this->ReadCgnsConnBcRegion();
     this->ReadCgns1to1BcRegion();
 
@@ -354,18 +360,7 @@ void CgnsBcRegionProxy::ReadNumberOfCgnsConn()
     cg_nconns( fileId, baseId, zId, & this->nConn );
 }
 
-void CgnsBcRegionProxy::ReadCgnsConnBcRegion()
-{
-    this->ReadNumberOfCgnsConn();
-    this->CreateCgnsConnBcRegion();
-    for ( int iConn = 0; iConn < this->nConn; ++ iConn )
-    {
-        CgnsBcRegion * cgnsBcRegion = this->GetCgnsBcRegionConn( iConn );
-        cgnsBcRegion->ReadCgnsConnBcRegion( iConn + 1 );
-    }
-}
-
-void CgnsBcRegionProxy::ReadNumberOfCgns1To1BcRegions()
+void CgnsBcRegionProxy::ReadNumberOfCgns1To1()
 {
     int fileId = cgnsZone->cgnsBase->fileId;
     int baseId = cgnsZone->cgnsBase->baseId;
@@ -378,7 +373,7 @@ void CgnsBcRegionProxy::ReadNumberOfCgns1To1BcRegions()
 
 void CgnsBcRegionProxy::ReadCgns1to1BcRegion()
 {
-    this->ReadNumberOfCgns1To1BcRegions();
+    this->ReadNumberOfCgns1To1();
     this->CreateCgns1To1BcRegion();
 
     for ( int i1To1 = 0; i1To1 < this->n1To1; ++ i1To1 )
@@ -388,9 +383,20 @@ void CgnsBcRegionProxy::ReadCgns1to1BcRegion()
     }
 }
 
-
-void CgnsBcRegionProxy::ReadCgnsOrdinaryBcRegion()
+void CgnsBcRegionProxy::ReadCgnsConnBcRegion()
 {
+    this->ReadNumberOfCgnsConn();
+    this->CreateCgnsConnBcRegion();
+    for ( int iConn = 0; iConn < this->nConn; ++ iConn )
+    {
+        CgnsBcRegion * cgnsBcRegion = this->GetCgnsBcRegionConn( iConn );
+        cgnsBcRegion->ReadCgnsConnBcRegion( iConn + 1 );
+    }
+}
+
+void CgnsBcRegionProxy::ReadCgnsBocoBcRegion()
+{
+    this->ReadNumberOfCgnsBoco();
     this->CreateCgnsBocoBcRegion();
 
     for ( int iBcRegion = 0; iBcRegion < nBoco; ++ iBcRegion )
@@ -399,11 +405,11 @@ void CgnsBcRegionProxy::ReadCgnsOrdinaryBcRegion()
         cout << " nOrdinaryBcRegion = " << nBoco << "\n";
         CgnsBcRegion * cgnsBcRegion = this->GetCgnsBcRegionBoco( iBcRegion );
         cgnsBcRegion->bcId = iBcRegion + 1;
-        cgnsBcRegion->ReadCgnsOrdinaryBcRegion();
+        cgnsBcRegion->ReadCgnsBocoBcRegion();
     }
 }
 
-void CgnsBcRegionProxy::ReadNumberOfCgnsOrdinaryBcRegions()
+void CgnsBcRegionProxy::ReadNumberOfCgnsBoco()
 {
     int fileId = cgnsZone->cgnsBase->fileId;
     int baseId = cgnsZone->cgnsBase->baseId;
@@ -416,11 +422,12 @@ void CgnsBcRegionProxy::ReadNumberOfCgnsOrdinaryBcRegions()
 void CgnsBcRegionProxy::CreateCgnsBcRegion( CgnsBcRegionProxy * bcRegionProxyIn )
 {
     this->nBoco = bcRegionProxyIn->nBoco;
-    this->n1To1 = bcRegionProxyIn->n1To1;
-    this->nConn = bcRegionProxyIn->nConn;
-
     this->CreateCgnsBocoBcRegion();
+
+    this->n1To1 = bcRegionProxyIn->n1To1;
     this->CreateCgns1To1BcRegion();
+
+    this->nConn = bcRegionProxyIn->nConn;
     this->CreateCgnsConnBcRegion();
 }
 

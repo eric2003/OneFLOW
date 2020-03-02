@@ -152,7 +152,7 @@ void CgnsBcRegion::ScanBcFace( FaceSolver * face_solver )
     face_solver->ScanBcFaceDetail( bcVertex, this->bcType, this->nameId );
 }
 
-void CgnsBcRegion::ReadCgnsOrdinaryBcRegion()
+void CgnsBcRegion::ReadCgnsBocoBcRegion()
 {
     this->ReadCgnsOrdinaryBcRegionInfo();
 

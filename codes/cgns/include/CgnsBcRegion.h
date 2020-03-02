@@ -77,7 +77,7 @@ public:
     void ProcessVertexBc( IntSet & bcVertex );
     void ProcessFaceBc( IntSet & bcVertex );
 public:
-    void ReadCgnsOrdinaryBcRegion();
+    void ReadCgnsBocoBcRegion();
     void ReadCgnsOrdinaryBcRegionInfo();
     void ReadCgnsOrdinaryBcRegionGridLocation();
     void SetCgnsBcRegionGridLocation( const GridLocation_t & bcGridLocation );
