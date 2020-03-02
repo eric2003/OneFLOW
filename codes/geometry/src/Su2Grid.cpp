@@ -585,8 +585,6 @@ void FillSU2CgnsZone( Su2Grid* su2Grid, CgnsZone * cgnsZone )
 
     CgnsBcRegionProxy * bcRegionProxy = cgnsZone->bcRegionProxy;
     bcRegionProxy->nBoco = su2Grid->mmark.nMarker;
-    bcRegionProxy->n1To1 = 0;
-    bcRegionProxy->nConn = 0;
     bcRegionProxy->CreateCgnsBcRegion( bcRegionProxy );
 
     for ( int iMarker = 0; iMarker < su2Grid->mmark.nMarker; ++ iMarker )

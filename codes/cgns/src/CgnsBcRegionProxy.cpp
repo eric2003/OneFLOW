@@ -46,6 +46,7 @@ CgnsBcRegionProxy::CgnsBcRegionProxy( CgnsZone * cgnsZone )
 {
     this->cgnsZone = cgnsZone;
     this->n1To1 = 0;
+    this->nConn = 0;
     this->nBoco = 0;
 }
 
