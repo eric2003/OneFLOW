@@ -46,7 +46,7 @@ public:
     CgnsBcRegionProxy( CgnsZone * cgnsZone );
     ~CgnsBcRegionProxy();
 public:
-    int nBcRegion, nBoco;
+    int nBoco;
     int n1To1General;
     int n1To1, nConn;
     HXVector< CgnsBcRegion * > cgnsBcRegions;
@@ -63,7 +63,7 @@ public:
     CgnsBcRegion * GetBcRegion1To1( int i1To1 );
     CgnsBcRegion * GetBcRegionConn( int iConn );
 
-    void AddCgnsBcRegion( CgnsBcRegion * cgnsBcRegion );
+    void AddCgnsBocoBcRegion( CgnsBcRegion * cgnsBcRegion );
     void AddCgns1To1BcRegion( CgnsBcRegion * cgnsBcRegion );
     void AddCgnsConnBcRegion( CgnsBcRegion * cgnsBcRegion );
 

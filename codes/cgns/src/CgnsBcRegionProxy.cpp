@@ -48,7 +48,6 @@ CgnsBcRegionProxy::CgnsBcRegionProxy( CgnsZone * cgnsZone )
     this->n1To1     = 0;
     this->nBoco = 0;
     this->n1To1General = 0;
-    this->nBcRegion = 0;
 }
 
 CgnsBcRegionProxy::~CgnsBcRegionProxy()
@@ -78,12 +77,10 @@ void CgnsBcRegionProxy::CreateCgnsBcRegion()
     cout << "   n1To1        = " << this->n1To1 << endl;
     cout << "   n1To1General = " << this->n1To1General << endl;
 
-    this->nBcRegion = this->nBoco + this->n1To1General;
-
     for ( int iBoco = 0; iBoco < this->nBoco; ++ iBoco )
     {
         CgnsBcRegion * cgnsBcRegion = new CgnsBcRegion( this->cgnsZone );
-        this->AddCgnsBcRegion( cgnsBcRegion );
+        this->AddCgnsBocoBcRegion( cgnsBcRegion );
     }
 
     for ( int i1To1 = 0; i1To1 < this->n1To1; ++ i1To1 )
@@ -114,7 +111,7 @@ CgnsBcRegion * CgnsBcRegionProxy::GetBcRegionConn( int iConn )
     return this->bcRegionConn[ iConn ];
 }
 
-void CgnsBcRegionProxy::AddCgnsBcRegion( CgnsBcRegion * cgnsBcRegion )
+void CgnsBcRegionProxy::AddCgnsBocoBcRegion( CgnsBcRegion * cgnsBcRegion )
 {
     this->cgnsBcRegions.push_back( cgnsBcRegion );
 }
@@ -179,7 +176,6 @@ void CgnsBcRegionProxy::ConvertToInnerDataStandard()
 void CgnsBcRegionProxy::ScanBcFace( FaceSolver * face_solver )
 {
     cout << " Now ScanBcFace......\n\n";
-    //cout << " nBcRegion = " << this->nBcRegion << endl;
     cout << " nBoco = " << this->nBoco << endl;
 
     for ( int iBoco = 0; iBoco < this->nBoco; ++ iBoco )
@@ -442,9 +438,9 @@ void CgnsBcRegionProxy::ReconstructStrRegion()
     rfact.nk = nk;
     rfact.CreateRegion();
 
-    for ( int iBcRegion = 0; iBcRegion < this->nBcRegion; ++ iBcRegion )
+    for ( int iBoco = 0; iBoco < this->nBoco; ++ iBoco )
     {
-        CgnsBcRegion * bcRegion = this->CgnsBcRegionBoco( iBcRegion );
+        CgnsBcRegion * bcRegion = this->CgnsBcRegionBoco( iBoco );
 
         IntField ijkMin( 3 ), ijkMax( 3 );
         bcRegion->ExtractIJKRegionFromBcConn( ijkMin, ijkMax );
@@ -457,8 +453,6 @@ void CgnsBcRegionProxy::ReconstructStrRegion()
     UInt nnr = rfact.bcregions.size();
 
     nBoco += static_cast<int> (nnr);
-
-    this->nBcRegion = this->nBoco + this->n1To1General;
 
     for ( UInt i = 0; i < nnr; ++ i )
     {
