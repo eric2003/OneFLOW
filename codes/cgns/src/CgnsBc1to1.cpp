@@ -98,10 +98,7 @@ void CgnsBc1to1::ReadCgnsBc1To1()
 
     cout << "\n";
     cout << "   connName      = " << connName << " donorZoneName = " << donorZoneName << "\n";
-    //cout << "   gridLocation  = " << GridLocationName[ this->bcRegion->gridLocation ] << "\n";
     cout << "   donorDataType = " << DataTypeName[ this->donorDataType ] << "\n";
-    //cout << "   gridConnType  = " << GridConnectivityTypeName[ this->bcRegion->gridConnType ] << "\n";
-    //cout << "   pointSetType  = " << PointSetTypeName[ this->bcRegion->pointSetType ];
     cout << "   donorPointSetType = " << PointSetTypeName[ this->donorPointSetType ] << "\n";
     cout << "   nConnPoints      = " << nConnPoints << "\n";
     cout << "   nConnDonorPoints = " << nConnDonorPoints << "\n";

@@ -89,9 +89,6 @@ public:
     void ExtractIJKRegionFromBcConn( IntField & ijkMin, IntField & ijkMax, CgIntField& bcConn );
     void ExtractIJKRegionFromBcConn( IntField & ijkMin, IntField & ijkMax );
 public:
-    void ReadCgnsConnBcRegion( int bcId );
-    void ReadCgns1to1BcRegion( int i1to1 );
-    
     void ReadCgns1to1BcRegion( CgnsBc1to1 * cgnsBc1to1 );
     void ReadCgnsConnBcRegion( CgnsBcConn * cgnsBcConn );
     void CopyStrBcRegion( CgnsBcRegion * strBcRegion, CgInt& startId );

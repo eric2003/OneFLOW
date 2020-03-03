@@ -57,23 +57,12 @@ CgnsZbcConn::~CgnsZbcConn()
     }
 }
 
-//void CgnsZbcConn::AddCgnsConnBcRegion( CgnsBcRegion * cgnsBcRegion )
-//{
-//    this->cgnsBcRegionConn.push_back( cgnsBcRegion );
-//}
-
-
 void CgnsZbcConn::AddCgnsConnBcRegion( CgnsBcConn * cgnsBcConn )
 {
     this->cgnsBcConns.push_back( cgnsBcConn );
     int id = this->cgnsBcConns.size();
     cgnsBcConn->bcId = id;
 }
-
-//CgnsBcRegion * CgnsZbcConn::GetCgnsBcRegionConn( int iConn )
-//{
-//    return this->cgnsBcRegionConn[ iConn ];
-//}
 
 CgnsBcConn * CgnsZbcConn::GetCgnsBcRegionConn( int iConn )
 {

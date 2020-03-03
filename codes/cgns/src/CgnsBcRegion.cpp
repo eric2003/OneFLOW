@@ -252,33 +252,6 @@ void CgnsBcRegion::ReadCgnsBcConn()
     int kkk = 1;
 }
 
-void CgnsBcRegion::ReadCgnsConnBcRegion( int bcId )
-{
-    this->bcId = bcId;
-    this->bcInterface = new CgnsBcInterface( this );
-    this->bcInterface->ReadCgnsBcConnInfo();
-    this->bcInterface->ReadCgnsBcConnData();
-
-    this->nElements = this->bcInterface->nConnPoints;
-    this->bcType = CGNS_ENUMV( BCTypeNull );
-    //this->bcType = CGNS_ENUMV( BCSymmetryPlane );
-
-    cout << "   CGNS Boundary Name             = " << this->name << "\n";
-    cout << "   CGNS Boundary Condition Name   = " << GetCgnsBcName( CGNS_ENUMV( BCTypeNull ) ) << "\n";
-
-    this->CreateCgnsBcConn();
-
-    cout << "   CGNS PointSet Type Name        = " << GetCgnsPointSetName( this->pointSetType ) << "\n";
-
-    // Read the element ID¡¯s.
-    for ( int iBCElement = 0; iBCElement < this->nElements; ++ iBCElement )
-    {
-        this->connList[ iBCElement ] = this->bcInterface->connPoint[ iBCElement ];
-    }
-
-    this->PrintCgnsBcConn();
-}
-
 void CgnsBcRegion::ReadCgns1to1BcRegion( CgnsBc1to1 * cgnsBc1to1 )
 {
     this->bcId = cgnsBc1to1->bcId;
@@ -319,28 +292,6 @@ void CgnsBcRegion::ReadCgnsConnBcRegion( CgnsBcConn * cgnsBcConn )
     for ( int iBCElement = 0; iBCElement < this->nElements; ++ iBCElement )
     {
         this->connList[ iBCElement ] = cgnsBcConn->connPoint[ iBCElement ];
-    }
-
-    this->PrintCgnsBcConn();
-}
-
-void CgnsBcRegion::ReadCgns1to1BcRegion( int i1to1 )
-{
-    this->bcId = i1to1;
-    this->bcInterface = new CgnsBcInterface( this );
-    this->bcInterface->ReadCgnsBc1To1();
-
-    this->nElements = this->bcInterface->nConnPoints;
-    this->bcType       = CGNS_ENUMV( BCTypeNull );
-    this->pointSetType = CGNS_ENUMV( PointRange );
-    this->gridLocation = CGNS_ENUMV( FaceCenter );
-    this->modifiedLocation = this->gridLocation;
-    this->CreateCgnsBcConn();
-
-    // Read the element ID¡¯s.
-    for ( int iBCElement = 0; iBCElement < this->nElements; ++ iBCElement )
-    {
-        this->connList[ iBCElement ] = this->bcInterface->connPoint[ iBCElement ];
     }
 
     this->PrintCgnsBcConn();

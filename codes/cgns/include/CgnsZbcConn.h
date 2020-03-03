@@ -49,14 +49,11 @@ public:
     ~CgnsZbcConn();
 public:
     int nConn;
-    //HXVector< CgnsBcRegion * > cgnsBcRegionConn;
     HXVector< CgnsBcConn * > cgnsBcConns;
     
     CgnsZone * cgnsZone;
 public:
-    //void AddCgnsConnBcRegion( CgnsBcRegion * cgnsBcRegion );
     void AddCgnsConnBcRegion( CgnsBcConn * cgnsBcConn );
-    //CgnsBcRegion * GetCgnsBcRegionConn( int iConn );
     CgnsBcConn * GetCgnsBcRegionConn( int iConn );
     void CreateCgnsConnBcRegion();
     void ReadNumberOfCgnsConn();
