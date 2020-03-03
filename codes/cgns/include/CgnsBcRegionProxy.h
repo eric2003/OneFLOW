@@ -70,6 +70,21 @@ public:
     void CreateCgns1To1BcRegion();
 };
 
+class CgnsZbcBoco
+{
+public:
+    CgnsZbcBoco( CgnsZone * cgnsZone );
+    ~CgnsZbcBoco();
+public:
+    int nBoco;
+    HXVector< CgnsBcRegion * > cgnsBcRegionBoco;
+    CgnsZone * cgnsZone;
+public:
+    void AddCgnsBocoBcRegion( CgnsBcRegion * cgnsBcRegion );
+    CgnsBcRegion * GetCgnsBcRegionBoco( int iBoco );
+    void CreateCgnsBocoBcRegion();
+};
+
 class CgnsBcRegionProxy
 {
 public:
@@ -82,6 +97,7 @@ public:
     HXVector< CgnsBcRegion * > cgnsBcRegionConn;
     CgnsZbcConn * cgnsZbcConn;
     CgnsZbc1to1 * cgnsZbc1to1;
+    CgnsZbcBoco * cgnsZbcBoco;
     CgnsZone * cgnsZone;
 public:
     void ScanBcFace( FaceSolver * face_solver );

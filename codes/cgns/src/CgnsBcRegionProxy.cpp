@@ -110,6 +110,39 @@ void CgnsZbc1to1::CreateCgns1To1BcRegion()
     }
 }
 
+CgnsZbcBoco::CgnsZbcBoco( CgnsZone * cgnsZone )
+{
+    this->cgnsZone = cgnsZone;
+    this->nBoco = 0;
+}
+
+CgnsZbcBoco::~CgnsZbcBoco()
+{
+    for ( int iBoco = 0; iBoco < this->nBoco; ++ iBoco )
+    {
+        delete this->cgnsBcRegionBoco[ iBoco ];
+    }
+}
+
+void CgnsZbcBoco::AddCgnsBocoBcRegion( CgnsBcRegion * cgnsBcRegion )
+{
+    this->cgnsBcRegionBoco.push_back( cgnsBcRegion );
+}
+
+CgnsBcRegion * CgnsZbcBoco::GetCgnsBcRegionBoco( int iBoco )
+{
+    return this->cgnsBcRegionBoco[ iBoco ];
+}
+
+void CgnsZbcBoco::CreateCgnsBocoBcRegion()
+{
+    cout << "   nBoco        = " << this->nBoco << endl;
+    for ( int iBoco = 0; iBoco < this->nBoco; ++ iBoco )
+    {
+        CgnsBcRegion * cgnsBcRegion = new CgnsBcRegion( this->cgnsZone );
+        this->AddCgnsBocoBcRegion( cgnsBcRegion );
+    }
+}
 
 CgnsBcRegionProxy::CgnsBcRegionProxy( CgnsZone * cgnsZone )
 {
@@ -120,13 +153,15 @@ CgnsBcRegionProxy::CgnsBcRegionProxy( CgnsZone * cgnsZone )
 
     this->cgnsZbcConn = new CgnsZbcConn( cgnsZone );
     this->cgnsZbc1to1 = new CgnsZbc1to1( cgnsZone );
+    this->cgnsZbcBoco = new CgnsZbcBoco( cgnsZone );
+
 }
 
 CgnsBcRegionProxy::~CgnsBcRegionProxy()
 {
-    for ( int ir = 0; ir < this->nBoco; ++ ir )
+    for ( int iBoco = 0; iBoco < this->nBoco; ++ iBoco )
     {
-        delete this->cgnsBcRegionBoco[ ir ];
+        delete this->cgnsBcRegionBoco[ iBoco ];
     }
 
     for ( int i1To1 = 0; i1To1 < this->n1To1; ++ i1To1 )
@@ -141,6 +176,7 @@ CgnsBcRegionProxy::~CgnsBcRegionProxy()
 
     delete this->cgnsZbcConn;
     delete this->cgnsZbc1to1;
+    delete this->cgnsZbcBoco;
 }
 
 void CgnsBcRegionProxy::CreateCgnsBocoBcRegion()
