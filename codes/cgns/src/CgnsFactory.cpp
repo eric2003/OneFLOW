@@ -118,7 +118,7 @@ void CgnsFactory::CgnsToOneFlowGrid()
     if ( ! ONEFLOW::IsUnsGrid( grid_para.topo ) ) return;
 
     int systemZoneType = cgnsMultiBase->GetSystemZoneType();
-    if ( ! ( systemZoneType == Unstructured ) )
+    if ( ! ( systemZoneType == CGNS_ENUMV( Unstructured ) ) )
     {
         this->ConvertStrCgns2UnsCgnsGrid();
     }
@@ -337,7 +337,7 @@ CgnsZone * CgnsFactory::CreateOneUnsCgnsZone( int cgnsZoneId )
 
     int iZone = 0;
     CgnsZone * cgnsZone = cgnsMultiBase->GetCgnsZone( iZone );
-    cgnsZone->cgnsZoneType = ONEFLOW::Unstructured;
+    cgnsZone->cgnsZoneType = ONEFLOW::CGNS_ENUMV( Unstructured );
     cgnsZone->zId = cgnsZoneId;
     return cgnsZone;
 }

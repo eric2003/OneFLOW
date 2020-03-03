@@ -221,7 +221,7 @@ void CgnsBcRegion::CreateCgnsBcConn()
 {
     //cout << "   CGNS Zone Type Name            = " << GetCgnsZoneTypeName( cgnsZone->cgnsZoneType ) << "\n";
 
-    if ( cgnsZone->cgnsZoneType == Unstructured )
+    if ( cgnsZone->cgnsZoneType == CGNS_ENUMV( Unstructured ) )
     {
         this->connList.resize( nElements );
     }
@@ -301,7 +301,7 @@ void CgnsBcRegion::ReadCgns1to1BcRegion( int i1to1 )
 
 void CgnsBcRegion::PrintCgnsBcConn()
 {
-    if ( cgnsZone->cgnsZoneType == Unstructured )
+    if ( cgnsZone->cgnsZoneType == CGNS_ENUMV( Unstructured ) )
     {
         if ( this->modifiedLocation == CGNS_ENUMV( Vertex ) )
         {
@@ -455,7 +455,7 @@ void CgnsBcRegion::ReadCgnsBcConn( CgnsBcRegion * strBcRegion, CgInt& startId )
 
 CgInt CgnsBcRegion::GetActualNumberOfBoundaryElements()
 {
-    if ( cgnsZone->cgnsZoneType == Unstructured )
+    if ( cgnsZone->cgnsZoneType == CGNS_ENUMV( Unstructured ) )
     {
         if ( this->modifiedLocation == CGNS_ENUMV( Vertex ) )
         {

@@ -27,7 +27,7 @@ License
 #include "CgnsMultiSection.h"
 #include "CgnsBcRegion.h"
 #include "CgnsBcRegionProxy.h"
-#include "cgnsZbcBoco.h"
+#include "CgnsZbcBoco.h"
 #include "BcRecord.h"
 #include "Boundary.h"
 #include "NodeMesh.h"
@@ -131,7 +131,7 @@ void CgnsZone::InitLgMapping()
 
 void CgnsZone::ConvertToInnerDataStandard()
 {
-    if ( this->cgnsZoneType == Structured )
+    if ( this->cgnsZoneType == CGNS_ENUMV( Structured ) )
     {
         //this->SetStructuredSectionInformation();
         return;
@@ -285,11 +285,11 @@ void CgnsZone::DumpCgnsZoneType( Grid * grid )
 {
     if ( IsUnsGrid( grid->type ) )
     {
-        this->cgnsZoneType = Unstructured;
+        this->cgnsZoneType = CGNS_ENUMV( Unstructured );
     }
     else
     {
-        this->cgnsZoneType = Structured;
+        this->cgnsZoneType = CGNS_ENUMV( Structured );
     }
 
     cout << "   The Zone Type is " << GetCgnsZoneTypeName( cgnsZoneType ) << " Zone" << "\n";
@@ -297,7 +297,7 @@ void CgnsZone::DumpCgnsZoneType( Grid * grid )
 
 void CgnsZone::ReadCgnsZoneType( CgnsZone * cgnsZoneIn )
 {
-    this->cgnsZoneType = Unstructured;
+    this->cgnsZoneType = CGNS_ENUMV( Unstructured );
 
     cout << "   The Zone Type is " << GetCgnsZoneTypeName( cgnsZoneType ) << " Zone" << "\n";
 }
@@ -345,7 +345,7 @@ void CgnsZone::SetDimension()
         }
     }
 
-    if ( this->cgnsZoneType == Structured )
+    if ( this->cgnsZoneType == CGNS_ENUMV( Structured ) )
     {
         // lower range index
         irmin[ 0 ] = 1;
@@ -442,7 +442,7 @@ CgInt CgnsZone::GetNK() const { return irmax[2]; };
 
 void CgnsZone::ReadElementConnectivities()
 {
-    if ( this->cgnsZoneType == Structured ) return;
+    if ( this->cgnsZoneType == CGNS_ENUMV( Structured ) ) return;
 
     this->ReadNumberOfCgnsSections();
 
@@ -691,7 +691,7 @@ void CgnsZone::PrepareCgnsZone( Grid * grid )
 {
     Grids grids;
     grids.push_back( grid );
-    this->cgnsZoneType = Unstructured;
+    this->cgnsZoneType = CGNS_ENUMV( Unstructured );
     ONEFLOW::PrepareCgnsZone( grids, this );
 }
 

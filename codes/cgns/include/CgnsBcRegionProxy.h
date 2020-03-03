@@ -40,68 +40,6 @@ class Grid;
 class BcRegion;
 class TestRegion;
 
-//class CgnsZbcConn
-//{
-//public:
-//    CgnsZbcConn( CgnsZone * cgnsZone );
-//    ~CgnsZbcConn();
-//public:
-//    int nConn;
-//    HXVector< CgnsBcRegion * > cgnsBcRegionConn;
-//    CgnsZone * cgnsZone;
-//public:
-//    void AddCgnsConnBcRegion( CgnsBcRegion * cgnsBcRegion );
-//    CgnsBcRegion * GetCgnsBcRegionConn( int iConn );
-//    void CreateCgnsConnBcRegion();
-//    void ReadNumberOfCgnsConn();
-//    void ReadCgnsConnBcRegion();
-//    void SetPeriodicBc();
-//    void ConvertToInnerDataStandard();
-//};
-
-//class CgnsZbc1to1
-//{
-//public:
-//    CgnsZbc1to1( CgnsZone * cgnsZone );
-//    ~CgnsZbc1to1();
-//public:
-//    int n1To1;
-//    HXVector< CgnsBcRegion * > cgnsBcRegion1To1;
-//    CgnsZone * cgnsZone;
-//public:
-//    void AddCgns1To1BcRegion( CgnsBcRegion * cgnsBcRegion );
-//    CgnsBcRegion * GetCgnsBcRegion1To1( int i1To1 );
-//    void CreateCgns1To1BcRegion();
-//    void ConvertToInnerDataStandard();
-//    void ReadNumberOfCgns1To1();
-//    void ReadCgns1to1BcRegion();
-//    void SetPeriodicBc();
-//};
-
-//class CgnsZbcBoco
-//{
-//public:
-//    CgnsZbcBoco( CgnsZone * cgnsZone );
-//    ~CgnsZbcBoco();
-//public:
-//    int nBoco;
-//    HXVector< CgnsBcRegion * > cgnsBcRegionBoco;
-//    CgnsZone * cgnsZone;
-//public:
-//    void AddCgnsBocoBcRegion( CgnsBcRegion * cgnsBcRegion );
-//    CgnsBcRegion * GetCgnsBcRegionBoco( int iBoco );
-//    void CreateCgnsBocoBcRegion();
-//    void ShiftBcRegion();
-//    void ConvertToInnerDataStandard();
-//    void ScanBcFace( FaceSolver * face_solver );
-//    void ReadNumberOfCgnsBoco();
-//    void ReadCgnsBocoBcRegion();
-//    void ReconstructStrRegion();
-//    int GetNBocoDynamic();
-//    int GetNumberOfActualBcElements();
-//    void GenerateUnsBcElemConn( CgIntField& bcConn );
-//};
-
 class CgnsZbcConn;
 class CgnsZbc1to1;
 class CgnsZbcBoco;
