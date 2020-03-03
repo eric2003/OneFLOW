@@ -40,11 +40,11 @@ class ElemFeature;
 class CgnsZone;
 class CgnsZbc;
 
-class CgnsMultiSection
+class CgnsZsection
 {
 public:
-    CgnsMultiSection( CgnsZone * cgnsZone );
-    ~CgnsMultiSection();
+    CgnsZsection( CgnsZone * cgnsZone );
+    ~CgnsZsection();
 public:
     int nSection;
 

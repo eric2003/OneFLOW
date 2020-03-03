@@ -36,7 +36,7 @@ License
 #include "CgnsMultiBase.h"
 #include "CgnsZone.h"
 #include "CgnsSection.h"
-#include "CgnsMultiSection.h"
+#include "CgnsZsection.h"
 #include "NodeMesh.h"
 #include "PointSearch.h"
 #include "BcRecord.h"

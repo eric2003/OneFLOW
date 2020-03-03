@@ -24,7 +24,7 @@ License
 #include "CgnsBase.h"
 #include "CgnsCoor.h"
 #include "CgnsSection.h"
-#include "CgnsMultiSection.h"
+#include "CgnsZsection.h"
 #include "CgnsBcBoco.h"
 #include "CgnsZbc.h"
 #include "CgnsZbcBoco.h"
@@ -86,7 +86,7 @@ int CgnsZone::GetVolBcType()
 void CgnsZone::Create()
 {
     this->nodeMesh = new NodeMesh();
-    this->multiSection = new CgnsMultiSection( this );
+    this->multiSection = new CgnsZsection( this );
     this->cgnsZbc = new CgnsZbc( this );
 }
 

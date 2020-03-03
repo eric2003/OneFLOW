@@ -25,7 +25,7 @@ License
 #include "ElementHome.h"
 #include "CgnsFactory.h"
 #include "CgnsMultiBase.h"
-#include "CgnsMultiSection.h"
+#include "CgnsZsection.h"
 #include "CgnsZbc.h"
 #include "CgnsZbcBoco.h"
 #include "CgnsBcBoco.h"
@@ -537,7 +537,7 @@ void FillSU2CgnsZone( Su2Grid* su2Grid, CgnsZone * cgnsZone )
 
     int nSection = nVolSec + nBcSec;
 
-    CgnsMultiSection * multiSection = cgnsZone->multiSection;
+    CgnsZsection * multiSection = cgnsZone->multiSection;
 
     multiSection->nSection = nSection;
     multiSection->CreateCgnsSection();

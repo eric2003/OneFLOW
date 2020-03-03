@@ -40,7 +40,7 @@ class StrGrid;
 class CgnsZone;
 class CgnsBase;
 class NodeMesh;
-class CgnsMultiSection;
+class CgnsZsection;
 class CgnsZbc;
 class GridElem;
 class PointFactory;
@@ -56,7 +56,7 @@ public:
 public:
     CgnsBase * cgnsBase;
     NodeMesh * nodeMesh;
-    CgnsMultiSection * multiSection;
+    CgnsZsection * multiSection;
     CgnsZbc * cgnsZbc;
 
     CgInt nNode, nCell;
