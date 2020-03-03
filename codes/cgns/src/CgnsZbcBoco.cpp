@@ -22,7 +22,6 @@ License
 
 #include "CgnsZbcBoco.h"
 #include "CgnsBcRegion.h"
-#include "CgnsBcInterface.h"
 #include "CgnsZone.h"
 #include "CgnsBase.h"
 #include "Boundary.h"

@@ -87,16 +87,6 @@ void CgnsBcInterface::ReadCgnsBcConnData()
     cg_conn_read( fileId, baseId, zId, this->bcRegion->bcId, & this->connPoint[ 0 ], this->donorDataType, & this->connDonorPoint[ 0 ] );
 }
 
-void CgnsBcInterface::AddFacePair()
-{
-    for (int i = 0; i < nConnPoints; ++ i)
-    {
-        int id1 = this->connPoint[ i ];
-        int id2 = this->connDonorPoint[ i ];
-        f2fmap.AddFacePair( id1, id2 );
-    }
-    int kkk = 1;
-}
 
 void CgnsBcInterface::SetPeriodicBc()
 {

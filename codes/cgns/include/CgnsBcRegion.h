@@ -39,7 +39,6 @@ class CgnsBase;
 class NodeMesh;
 class FaceSolver;
 
-class CgnsBcInterface;
 class CgnsBc1to1;
 class CgnsBcConn;
 
@@ -67,8 +66,6 @@ public:
 
     CgIntField connList;
 
-    CgnsBcInterface * bcInterface;
-
     CgnsZone * cgnsZone;
 public:
     void ConvertToInnerDataStandard();
@@ -81,7 +78,7 @@ public:
 public:
     void ReadCgnsBocoBcRegion();
     void ReadCgnsOrdinaryBcRegionInfo();
-    void ReadCgnsOrdinaryBcRegionGridLocation();
+    void ReadCgnsBocoGridLocation();
     void SetCgnsBcRegionGridLocation( const GridLocation_t & bcGridLocation );
     void CreateCgnsBcConn();
     void ReadCgnsBcConn();

@@ -21,7 +21,6 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "CgnsBcRegion.h"
-#include "CgnsBcInterface.h"
 #include "CgnsBc1to1.h"
 #include "CgnsBcConn.h"
 #include "CgnsZone.h"
@@ -44,12 +43,10 @@ BeginNameSpace( ONEFLOW )
 CgnsBcRegion::CgnsBcRegion( CgnsZone * cgnsZone )
 {
     this->cgnsZone = cgnsZone;
-    this->bcInterface = 0;
 }
 
 CgnsBcRegion::~CgnsBcRegion()
 {
-    delete this->bcInterface;
 }
 
 void CgnsBcRegion::ConvertToInnerDataStandard()
@@ -59,12 +56,6 @@ void CgnsBcRegion::ConvertToInnerDataStandard()
     {
         this->connList[ eId ] -= 1;
     }
-
-    if ( bcInterface )
-    {
-        bcInterface->ConvertToInnerDataStandard();
-    }
-
 }
 
 int CgnsBcRegion::ComputeBase()
@@ -158,7 +149,7 @@ void CgnsBcRegion::ReadCgnsBocoBcRegion()
 {
     this->ReadCgnsOrdinaryBcRegionInfo();
 
-    this->ReadCgnsOrdinaryBcRegionGridLocation();
+    this->ReadCgnsBocoGridLocation();
 
     this->CreateCgnsBcConn();
 
@@ -193,7 +184,7 @@ void CgnsBcRegion::ReadCgnsOrdinaryBcRegionInfo()
     cout << "   CGNS Boundary Condition Name   = " << GetCgnsBcName( this->bcType ) << "\n";
 }
 
-void CgnsBcRegion::ReadCgnsOrdinaryBcRegionGridLocation()
+void CgnsBcRegion::ReadCgnsBocoGridLocation()
 {
     int fileId = cgnsZone->cgnsBase->fileId;
     int baseId = cgnsZone->cgnsBase->baseId;

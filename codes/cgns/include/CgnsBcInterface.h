@@ -63,7 +63,6 @@ public:
     void ConvertToInnerDataStandard();
     void ShiftBcRegion();
 public:
-    void AddFacePair();
     void SetPeriodicBc();
 };
 
