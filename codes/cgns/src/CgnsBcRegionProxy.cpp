@@ -61,6 +61,11 @@ void CgnsZbcConn::AddCgnsConnBcRegion( CgnsBcRegion * cgnsBcRegion )
     this->cgnsBcRegionConn.push_back( cgnsBcRegion );
 }
 
+CgnsBcRegion * CgnsZbcConn::GetCgnsBcRegionConn( int iConn )
+{
+    return this->cgnsBcRegionConn[ iConn ];
+}
+
 void CgnsZbcConn::CreateCgnsConnBcRegion()
 {
     cout << "   nConn        = " << this->nConn << endl;
@@ -71,6 +76,41 @@ void CgnsZbcConn::CreateCgnsConnBcRegion()
     }
 }
 
+CgnsZbc1to1::CgnsZbc1to1( CgnsZone * cgnsZone )
+{
+    this->cgnsZone = cgnsZone;
+    this->n1To1 = 0;
+}
+
+CgnsZbc1to1::~CgnsZbc1to1()
+{
+    for ( int i1To1 = 0; i1To1 < this->n1To1; ++ i1To1 )
+    {
+        delete this->cgnsBcRegion1To1[ i1To1 ];
+    }
+}
+
+void CgnsZbc1to1::AddCgns1To1BcRegion( CgnsBcRegion * cgnsBcRegion )
+{
+    this->cgnsBcRegion1To1.push_back( cgnsBcRegion );
+}
+
+CgnsBcRegion * CgnsZbc1to1::GetCgnsBcRegion1To1( int i1To1 )
+{
+    return this->cgnsBcRegion1To1[ i1To1 ];
+}
+
+void CgnsZbc1to1::CreateCgns1To1BcRegion()
+{
+    cout << "   n1To1        = " << this->n1To1 << endl;
+    for ( int i1To1 = 0; i1To1 < this->n1To1; ++ i1To1 )
+    {
+        CgnsBcRegion * cgnsBcRegion = new CgnsBcRegion( this->cgnsZone );
+        this->AddCgns1To1BcRegion( cgnsBcRegion );
+    }
+}
+
+
 CgnsBcRegionProxy::CgnsBcRegionProxy( CgnsZone * cgnsZone )
 {
     this->cgnsZone = cgnsZone;
@@ -79,6 +119,7 @@ CgnsBcRegionProxy::CgnsBcRegionProxy( CgnsZone * cgnsZone )
     this->nBoco = 0;
 
     this->cgnsZbcConn = new CgnsZbcConn( cgnsZone );
+    this->cgnsZbc1to1 = new CgnsZbc1to1( cgnsZone );
 }
 
 CgnsBcRegionProxy::~CgnsBcRegionProxy()
@@ -99,6 +140,7 @@ CgnsBcRegionProxy::~CgnsBcRegionProxy()
     }
 
     delete this->cgnsZbcConn;
+    delete this->cgnsZbc1to1;
 }
 
 void CgnsBcRegionProxy::CreateCgnsBocoBcRegion()

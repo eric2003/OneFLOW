@@ -51,7 +51,23 @@ public:
     CgnsZone * cgnsZone;
 public:
     void AddCgnsConnBcRegion( CgnsBcRegion * cgnsBcRegion );
+    CgnsBcRegion * GetCgnsBcRegionConn( int iConn );
     void CreateCgnsConnBcRegion();
+};
+
+class CgnsZbc1to1
+{
+public:
+    CgnsZbc1to1( CgnsZone * cgnsZone );
+    ~CgnsZbc1to1();
+public:
+    int n1To1;
+    HXVector< CgnsBcRegion * > cgnsBcRegion1To1;
+    CgnsZone * cgnsZone;
+public:
+    void AddCgns1To1BcRegion( CgnsBcRegion * cgnsBcRegion );
+    CgnsBcRegion * GetCgnsBcRegion1To1( int i1To1 );
+    void CreateCgns1To1BcRegion();
 };
 
 class CgnsBcRegionProxy
@@ -65,6 +81,7 @@ public:
     HXVector< CgnsBcRegion * > cgnsBcRegion1To1;
     HXVector< CgnsBcRegion * > cgnsBcRegionConn;
     CgnsZbcConn * cgnsZbcConn;
+    CgnsZbc1to1 * cgnsZbc1to1;
     CgnsZone * cgnsZone;
 public:
     void ScanBcFace( FaceSolver * face_solver );
