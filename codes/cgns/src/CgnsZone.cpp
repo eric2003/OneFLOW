@@ -27,6 +27,7 @@ License
 #include "CgnsMultiSection.h"
 #include "CgnsBcRegion.h"
 #include "CgnsBcRegionProxy.h"
+#include "cgnsZbcBoco.h"
 #include "BcRecord.h"
 #include "Boundary.h"
 #include "NodeMesh.h"

@@ -78,32 +78,33 @@ class TestRegion;
 //    void SetPeriodicBc();
 //};
 
-class CgnsZbcBoco
-{
-public:
-    CgnsZbcBoco( CgnsZone * cgnsZone );
-    ~CgnsZbcBoco();
-public:
-    int nBoco;
-    HXVector< CgnsBcRegion * > cgnsBcRegionBoco;
-    CgnsZone * cgnsZone;
-public:
-    void AddCgnsBocoBcRegion( CgnsBcRegion * cgnsBcRegion );
-    CgnsBcRegion * GetCgnsBcRegionBoco( int iBoco );
-    void CreateCgnsBocoBcRegion();
-    void ShiftBcRegion();
-    void ConvertToInnerDataStandard();
-    void ScanBcFace( FaceSolver * face_solver );
-    void ReadNumberOfCgnsBoco();
-    void ReadCgnsBocoBcRegion();
-    void ReconstructStrRegion();
-    int GetNBocoDynamic();
-    int GetNumberOfActualBcElements();
-    void GenerateUnsBcElemConn( CgIntField& bcConn );
-};
+//class CgnsZbcBoco
+//{
+//public:
+//    CgnsZbcBoco( CgnsZone * cgnsZone );
+//    ~CgnsZbcBoco();
+//public:
+//    int nBoco;
+//    HXVector< CgnsBcRegion * > cgnsBcRegionBoco;
+//    CgnsZone * cgnsZone;
+//public:
+//    void AddCgnsBocoBcRegion( CgnsBcRegion * cgnsBcRegion );
+//    CgnsBcRegion * GetCgnsBcRegionBoco( int iBoco );
+//    void CreateCgnsBocoBcRegion();
+//    void ShiftBcRegion();
+//    void ConvertToInnerDataStandard();
+//    void ScanBcFace( FaceSolver * face_solver );
+//    void ReadNumberOfCgnsBoco();
+//    void ReadCgnsBocoBcRegion();
+//    void ReconstructStrRegion();
+//    int GetNBocoDynamic();
+//    int GetNumberOfActualBcElements();
+//    void GenerateUnsBcElemConn( CgIntField& bcConn );
+//};
 
 class CgnsZbcConn;
 class CgnsZbc1to1;
+class CgnsZbcBoco;
 
 class CgnsBcRegionProxy
 {

@@ -27,6 +27,7 @@ License
 #include "CgnsMultiBase.h"
 #include "CgnsMultiSection.h"
 #include "CgnsBcRegionProxy.h"
+#include "CgnsZbcBoco.h"
 #include "CgnsBcRegion.h"
 #include "CgnsSection.h"
 #include "CgnsZone.h"
