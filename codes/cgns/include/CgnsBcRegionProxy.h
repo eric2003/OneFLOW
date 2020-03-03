@@ -68,6 +68,10 @@ public:
     void AddCgns1To1BcRegion( CgnsBcRegion * cgnsBcRegion );
     CgnsBcRegion * GetCgnsBcRegion1To1( int i1To1 );
     void CreateCgns1To1BcRegion();
+    void ConvertToInnerDataStandard();
+    void ReadNumberOfCgns1To1();
+    void ReadCgns1to1BcRegion();
+    void SetPeriodicBc();
 };
 
 class CgnsZbcBoco
@@ -91,9 +95,10 @@ public:
     CgnsBcRegionProxy( CgnsZone * cgnsZone );
     ~CgnsBcRegionProxy();
 public:
-    int nBoco, n1To1, nConn;
+    //int nBoco, n1To1, nConn;
+    int nBoco, nConn;
     HXVector< CgnsBcRegion * > cgnsBcRegionBoco;
-    HXVector< CgnsBcRegion * > cgnsBcRegion1To1;
+    //HXVector< CgnsBcRegion * > cgnsBcRegion1To1;
     HXVector< CgnsBcRegion * > cgnsBcRegionConn;
     CgnsZbcConn * cgnsZbcConn;
     CgnsZbc1to1 * cgnsZbc1to1;
@@ -103,7 +108,7 @@ public:
     void ScanBcFace( FaceSolver * face_solver );
 public:
     void CreateCgnsBocoBcRegion();
-    void CreateCgns1To1BcRegion();
+    //void CreateCgns1To1BcRegion();
     void CreateCgnsConnBcRegion();
 
     void ConvertToInnerDataStandard();
@@ -114,14 +119,14 @@ public:
 
     int GetNBocoDynamic();
     void AddCgnsBocoBcRegion( CgnsBcRegion * cgnsBcRegion );
-    void AddCgns1To1BcRegion( CgnsBcRegion * cgnsBcRegion );
+    //void AddCgns1To1BcRegion( CgnsBcRegion * cgnsBcRegion );
     void AddCgnsConnBcRegion( CgnsBcRegion * cgnsBcRegion );
 
     void ReadCgnsGridBoundary();
 
     void ReadCgnsBocoBcRegion();
     void ReadCgnsConnBcRegion();
-    void ReadCgns1to1BcRegion();
+    //void ReadCgns1to1BcRegion();
     void FillBcPoints( int * start, int * end, cgsize_t * bcpnts, int dimension );
     void FillBcPoints3D( int * start, int * end, cgsize_t * bcpnts );
     void FillInterface( BcRegion * bcRegion, cgsize_t * ipnts, cgsize_t * ipntsdonor, int * itranfrm, int dimension );
@@ -129,7 +134,7 @@ public:
     void DumpCgnsGridBoundary( Grid * gridIn );
 public:
     void ReadNumberOfCgnsBoco();
-    void ReadNumberOfCgns1To1();
+    //void ReadNumberOfCgns1To1();
     void ReadNumberOfCgnsConn();
     void CreateCgnsBcRegion( CgnsBcRegionProxy * bcRegionProxyIn );
 public:
