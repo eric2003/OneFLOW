@@ -22,6 +22,7 @@ License
 
 #include "CgnsBcRegion.h"
 #include "CgnsBcInterface.h"
+#include "CgnsBc1to1.h"
 #include "CgnsZone.h"
 #include "CgnsBase.h"
 #include "Boundary.h"
@@ -272,6 +273,28 @@ void CgnsBcRegion::ReadCgnsConnBcRegion( int bcId )
     for ( int iBCElement = 0; iBCElement < this->nElements; ++ iBCElement )
     {
         this->connList[ iBCElement ] = this->bcInterface->connPoint[ iBCElement ];
+    }
+
+    this->PrintCgnsBcConn();
+}
+
+void CgnsBcRegion::ReadCgns1to1BcRegion( CgnsBc1to1 * cgnsBc1to1 )
+{
+    this->bcId = cgnsBc1to1->bcId;
+
+    this->name             = cgnsBc1to1->connName;
+    this->nElements        = cgnsBc1to1->nConnPoints;
+    this->bcType           = CGNS_ENUMV( BCTypeNull );
+    this->gridConnType     = CGNS_ENUMV( Abutting1to1 );
+    this->pointSetType     = CGNS_ENUMV( PointRange );
+    this->gridLocation     = CGNS_ENUMV( FaceCenter );
+    this->modifiedLocation = this->gridLocation;
+    this->CreateCgnsBcConn();
+
+    // Read the element ID¡¯s.
+    for ( int iBCElement = 0; iBCElement < this->nElements; ++ iBCElement )
+    {
+        this->connList[ iBCElement ] = cgnsBc1to1->connPoint[ iBCElement ];
     }
 
     this->PrintCgnsBcConn();

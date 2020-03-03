@@ -40,6 +40,7 @@ class NodeMesh;
 class FaceSolver;
 
 class CgnsBcInterface;
+class CgnsBc1to1;
 
 class CgnsBcRegion
 {
@@ -89,6 +90,7 @@ public:
 public:
     void ReadCgnsConnBcRegion( int bcId );
     void ReadCgns1to1BcRegion( int i1to1 );
+    void ReadCgns1to1BcRegion( CgnsBc1to1 * cgnsBc1to1 );
     void CopyStrBcRegion( CgnsBcRegion * strBcRegion, CgInt& startId );
     void ReadCgnsBcConn( CgnsBcRegion * strBcRegion, CgInt & startId );
     void ReconstructStrRegion( IntField & ijkMin, IntField & ijkMax );

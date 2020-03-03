@@ -47,6 +47,7 @@ int AbsoluteDiagonalId( int x, int y )
 
 CgnsBc1to1::CgnsBc1to1( CgnsZone * cgnsZone )
 {
+    this->cgnsZone = cgnsZone;
     this->bcRegion = new CgnsBcRegion( cgnsZone );
 }
 
@@ -57,23 +58,23 @@ CgnsBc1to1::~CgnsBc1to1()
 
 void CgnsBc1to1::ConvertToInnerDataStandard()
 {
-    //for ( int eId = 0; eId < this->nConnPoints; ++ eId )
-    //{
-    //    this->connPoint[ eId ] -= 1;
-    //}
+    for ( int eId = 0; eId < this->nConnPoints; ++ eId )
+    {
+        this->connPoint[ eId ] -= 1;
+    }
 
-    //for ( int eId = 0; eId < this->nConnDonorPoints; ++ eId )
-    //{
-    //    this->connDonorPoint[ eId ] -= 1;
-    //}
+    for ( int eId = 0; eId < this->nConnDonorPoints; ++ eId )
+    {
+        this->connDonorPoint[ eId ] -= 1;
+    }
 
 }
 
 void CgnsBc1to1::ReadCgnsBc1To1()
 {
-    int fileId = this->bcRegion->cgnsZone->cgnsBase->fileId;
-    int baseId = this->bcRegion->cgnsZone->cgnsBase->baseId;
-    int zId = this->bcRegion->cgnsZone->zId;
+    int fileId = this->cgnsZone->cgnsBase->fileId;
+    int baseId = this->cgnsZone->cgnsBase->baseId;
+    int zId = this->cgnsZone->zId;
 
     this->flag1To1 = true;
 
@@ -82,11 +83,6 @@ void CgnsBc1to1::ReadCgnsBc1To1()
 
     this->connPoint.resize( nConnPoints );
     this->connDonorPoint.resize( nConnDonorPoints );
-
-    this->bcRegion->gridConnType = CGNS_ENUMV( Abutting1to1 );
-    this->bcRegion->bcType       = CGNS_ENUMV( BCTypeNull );
-    this->bcRegion->pointSetType = CGNS_ENUMV( PointRange );
-    this->bcRegion->gridLocation = CGNS_ENUMV( FaceCenter );
 
     this->donorPointSetType = CGNS_ENUMV( PointRange );
     this->donorDataType     = CGNS_ENUMV( Integer );
@@ -97,17 +93,17 @@ void CgnsBc1to1::ReadCgnsBc1To1()
     //Zone Connectivity
     cg_goto( fileId, baseId, "Zone_t", zId, "ZoneGridConnectivity_t", 1, "GridConnectivity1to1_t", 1, "end" );
 
-    cg_1to1_read( fileId, baseId, zId, this->bcRegion->bcId, connName, donorZoneName, & this->connPoint[ 0 ], & this->connDonorPoint[ 0 ], itranfrm );
+    cg_1to1_read( fileId, baseId, zId, this->bcId, connName, donorZoneName, & this->connPoint[ 0 ], & this->connDonorPoint[ 0 ], itranfrm );
 
-    this->bcRegion->name = connName;
+    this->connName = connName;
     this->donorZoneName  = donorZoneName;
 
     cout << "\n";
     cout << "   connName      = " << connName << " donorZoneName = " << donorZoneName << "\n";
-    cout << "   gridLocation  = " << GridLocationName[ this->bcRegion->gridLocation ] << "\n";
+    //cout << "   gridLocation  = " << GridLocationName[ this->bcRegion->gridLocation ] << "\n";
     cout << "   donorDataType = " << DataTypeName[ this->donorDataType ] << "\n";
-    cout << "   gridConnType  = " << GridConnectivityTypeName[ this->bcRegion->gridConnType ] << "\n";
-    cout << "   pointSetType  = " << PointSetTypeName[ this->bcRegion->pointSetType ];
+    //cout << "   gridConnType  = " << GridConnectivityTypeName[ this->bcRegion->gridConnType ] << "\n";
+    //cout << "   pointSetType  = " << PointSetTypeName[ this->bcRegion->pointSetType ];
     cout << "   donorPointSetType = " << PointSetTypeName[ this->donorPointSetType ] << "\n";
     cout << "   nConnPoints      = " << nConnPoints << "\n";
     cout << "   nConnDonorPoints = " << nConnDonorPoints << "\n";
@@ -149,6 +145,13 @@ void CgnsBc1to1::ReadCgnsBc1To1()
             transform[ i ][ j ] = SIGN( 1, itranfrm[ j ] ) * AbsoluteDiagonalId( itranfrm[ j ], i + 1 );
         }
     }
+}
+
+void CgnsBc1to1::ReadCgnsBc1To1( int i1To1 )
+{
+    this->bcId = i1To1;
+    this->ReadCgnsBc1To1();
+    this->bcRegion->ReadCgns1to1BcRegion( this );
 }
 
 #endif

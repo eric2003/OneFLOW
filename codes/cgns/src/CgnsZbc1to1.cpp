@@ -21,6 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "CgnsZbc1to1.h"
+#include "CgnsBc1to1.h"
 #include "CgnsBcRegion.h"
 #include "CgnsBcInterface.h"
 #include "CgnsZone.h"
@@ -52,18 +53,31 @@ CgnsZbc1to1::~CgnsZbc1to1()
 {
     for ( int i1To1 = 0; i1To1 < this->n1To1; ++ i1To1 )
     {
-        delete this->cgnsBcRegion1To1[ i1To1 ];
+        //delete this->cgnsBcRegion1To1[ i1To1 ];
+        delete this->cgnsBc1to1s[ i1To1 ];
     }
 }
 
-void CgnsZbc1to1::AddCgns1To1BcRegion( CgnsBcRegion * cgnsBcRegion )
+//void CgnsZbc1to1::AddCgns1To1BcRegion( CgnsBcRegion * cgnsBcRegion )
+//{
+//    this->cgnsBcRegion1To1.push_back( cgnsBcRegion );
+//}
+
+void CgnsZbc1to1::AddCgns1To1BcRegion( CgnsBc1to1 * cgnsBc1to1 )
 {
-    this->cgnsBcRegion1To1.push_back( cgnsBcRegion );
+    this->cgnsBc1to1s.push_back( cgnsBc1to1 );
+    int id = this->cgnsBc1to1s.size();
+    cgnsBc1to1->bcId = id;
 }
 
-CgnsBcRegion * CgnsZbc1to1::GetCgnsBcRegion1To1( int i1To1 )
+//CgnsBcRegion * CgnsZbc1to1::GetCgnsBcRegion1To1( int i1To1 )
+//{
+//    return this->cgnsBcRegion1To1[ i1To1 ];
+//}
+
+CgnsBc1to1 * CgnsZbc1to1::GetCgnsBcRegion1To1( int i1To1 )
 {
-    return this->cgnsBcRegion1To1[ i1To1 ];
+    return this->cgnsBc1to1s[ i1To1 ];
 }
 
 void CgnsZbc1to1::CreateCgns1To1BcRegion()
@@ -71,8 +85,10 @@ void CgnsZbc1to1::CreateCgns1To1BcRegion()
     cout << "   n1To1        = " << this->n1To1 << endl;
     for ( int i1To1 = 0; i1To1 < this->n1To1; ++ i1To1 )
     {
-        CgnsBcRegion * cgnsBcRegion = new CgnsBcRegion( this->cgnsZone );
-        this->AddCgns1To1BcRegion( cgnsBcRegion );
+        //CgnsBcRegion * cgnsBcRegion = new CgnsBcRegion( this->cgnsZone );
+        //this->AddCgns1To1BcRegion( cgnsBcRegion );
+        CgnsBc1to1 * cgnsBc1to1 = new CgnsBc1to1( this->cgnsZone );
+        this->AddCgns1To1BcRegion( cgnsBc1to1 );
     }
 }
 
@@ -80,8 +96,10 @@ void CgnsZbc1to1::ConvertToInnerDataStandard()
 {
     for ( int i1To1 = 0; i1To1 < this->n1To1; ++ i1To1 )
     {
-        CgnsBcRegion * cgnsBcRegion = this->GetCgnsBcRegion1To1( i1To1 );
-        cgnsBcRegion->ConvertToInnerDataStandard();
+        //CgnsBcRegion * cgnsBcRegion = this->GetCgnsBcRegion1To1( i1To1 );
+        //cgnsBcRegion->ConvertToInnerDataStandard();
+        CgnsBc1to1 * cgnsBc1to1 = this->GetCgnsBcRegion1To1( i1To1 );
+        cgnsBc1to1->ConvertToInnerDataStandard();
     }
 }
 
@@ -103,20 +121,16 @@ void CgnsZbc1to1::ReadCgns1to1BcRegion()
 
     for ( int i1To1 = 0; i1To1 < this->n1To1; ++ i1To1 )
     {
-        CgnsBcRegion * cgnsBcRegion = this->GetCgnsBcRegion1To1( i1To1 );
-        cgnsBcRegion->ReadCgns1to1BcRegion( i1To1 + 1 );
+        //CgnsBcRegion * cgnsBcRegion = this->GetCgnsBcRegion1To1( i1To1 );
+        //cgnsBcRegion->ReadCgns1to1BcRegion( i1To1 + 1 );
+        CgnsBc1to1 * cgnsBc1to1 = this->GetCgnsBcRegion1To1( i1To1 );
+        cgnsBc1to1->ReadCgnsBc1To1( i1To1 + 1 );
     }
 }
 
 void CgnsZbc1to1::SetPeriodicBc()
 {
-    for ( int i1To1 = 0; i1To1 < this->n1To1; ++ i1To1 )
-    {
-        CgnsBcRegion * cgnsBcRegion = this->GetCgnsBcRegion1To1( i1To1 );
-        cgnsBcRegion->bcInterface->SetPeriodicBc();
-    }
 }
-
 
 
 #endif

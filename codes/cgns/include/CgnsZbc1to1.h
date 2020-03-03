@@ -39,6 +39,7 @@ class CgnsBcRegion;
 class Grid;
 class BcRegion;
 class TestRegion;
+class CgnsBc1to1;
 
 class CgnsZbc1to1
 {
@@ -47,11 +48,14 @@ public:
     ~CgnsZbc1to1();
 public:
     int n1To1;
-    HXVector< CgnsBcRegion * > cgnsBcRegion1To1;
+    //HXVector< CgnsBcRegion * > cgnsBcRegion1To1;
+    HXVector< CgnsBc1to1 * > cgnsBc1to1s;
     CgnsZone * cgnsZone;
 public:
-    void AddCgns1To1BcRegion( CgnsBcRegion * cgnsBcRegion );
-    CgnsBcRegion * GetCgnsBcRegion1To1( int i1To1 );
+    //void AddCgns1To1BcRegion( CgnsBcRegion * cgnsBcRegion );
+    void AddCgns1To1BcRegion( CgnsBc1to1 * cgnsBc1to1 );
+    //CgnsBcRegion * GetCgnsBcRegion1To1( int i1To1 );
+    CgnsBc1to1 * GetCgnsBcRegion1To1( int i1To1 );
     void CreateCgns1To1BcRegion();
     void ConvertToInnerDataStandard();
     void ReadNumberOfCgns1To1();
