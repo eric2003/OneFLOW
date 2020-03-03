@@ -23,7 +23,7 @@ License
 #include "CgnsFactory.h"
 #include "GridFactory.h"
 #include "CgnsGlobal.h"
-#include "CgnsBcRegionProxy.h"
+#include "CgnsZbc.h"
 #include "GridPara.h"
 #include "LogFile.h"
 #include "Stop.h"

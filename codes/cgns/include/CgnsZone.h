@@ -41,7 +41,7 @@ class CgnsZone;
 class CgnsBase;
 class NodeMesh;
 class CgnsMultiSection;
-class CgnsBcRegionProxy;
+class CgnsZbc;
 class GridElem;
 class PointFactory;
 class ElemFeature;
@@ -57,7 +57,7 @@ public:
     CgnsBase * cgnsBase;
     NodeMesh * nodeMesh;
     CgnsMultiSection * multiSection;
-    CgnsBcRegionProxy * bcRegionProxy;
+    CgnsZbc * bcRegionProxy;
 
     CgInt nNode, nCell;
     int nCoor;

@@ -26,7 +26,7 @@ License
 #include "CgnsSection.h"
 #include "CgnsMultiSection.h"
 #include "CgnsBcBoco.h"
-#include "CgnsBcRegionProxy.h"
+#include "CgnsZbc.h"
 #include "CgnsZbcBoco.h"
 #include "BcRecord.h"
 #include "Boundary.h"
@@ -87,7 +87,7 @@ void CgnsZone::Create()
 {
     this->nodeMesh = new NodeMesh();
     this->multiSection = new CgnsMultiSection( this );
-    this->bcRegionProxy = new CgnsBcRegionProxy( this );
+    this->bcRegionProxy = new CgnsZbc( this );
 }
 
 void CgnsZone::InitElement( GridElem * ge )
@@ -178,14 +178,6 @@ void CgnsZone::FillISize( Grid * gridIn )
     int nj = grid->nj;
     int nk = grid->nk;
     this->FillISize( ni, nj, nk, THREE_D );
-    //if ( Dim::dimension == THREE_D )
-    //{
-    //    this->FillISize( ni, nj, nk, THREE_D );
-    //}
-    //else
-    //{
-    //    this->FillISize( ni, nj, nk, Dim::dimension );
-    //}
 }
 
 void CgnsZone::FillISize( int ni, int nj, int nk, int dimension )
@@ -842,7 +834,7 @@ void FillSection( Grids & grids, HXVector< Int3D * > & unsIdList, CgnsZone * cgn
 
     cgnsZone->multiSection->CreateConnList();
 
-    CgnsBcRegionProxy * bcRegionProxy = cgnsZone->bcRegionProxy;
+    CgnsZbc * bcRegionProxy = cgnsZone->bcRegionProxy;
     bcRegionProxy->cgnsZbcBoco->nBoco = nTBcRegion;
     bcRegionProxy->CreateCgnsBcRegion( bcRegionProxy );
 

@@ -44,11 +44,11 @@ class CgnsZbcConn;
 class CgnsZbc1to1;
 class CgnsZbcBoco;
 
-class CgnsBcRegionProxy
+class CgnsZbc
 {
 public:
-    CgnsBcRegionProxy( CgnsZone * cgnsZone );
-    ~CgnsBcRegionProxy();
+    CgnsZbc( CgnsZone * cgnsZone );
+    ~CgnsZbc();
 public:
     CgnsZbcConn * cgnsZbcConn;
     CgnsZbc1to1 * cgnsZbc1to1;
@@ -66,7 +66,7 @@ public:
     void FillRegion( TestRegion * r, cgsize_t * ipnts, int dimension );
     void DumpCgnsGridBoundary( Grid * gridIn );
 public:
-    void CreateCgnsBcRegion( CgnsBcRegionProxy * bcRegionProxyIn );
+    void CreateCgnsBcRegion( CgnsZbc * bcRegionProxyIn );
 public:
     void GenerateUnsBcElemConn( CgIntField& bcConn );
     int GetNumberOfActualBcElements();

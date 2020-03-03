@@ -26,7 +26,7 @@ License
 #include "CgnsFactory.h"
 #include "CgnsMultiBase.h"
 #include "CgnsMultiSection.h"
-#include "CgnsBcRegionProxy.h"
+#include "CgnsZbc.h"
 #include "CgnsZbcBoco.h"
 #include "CgnsBcBoco.h"
 #include "CgnsSection.h"
@@ -584,7 +584,7 @@ void FillSU2CgnsZone( Su2Grid* su2Grid, CgnsZone * cgnsZone )
         cgnsSection->SetElemPosition();
     }
 
-    CgnsBcRegionProxy * bcRegionProxy = cgnsZone->bcRegionProxy;
+    CgnsZbc * bcRegionProxy = cgnsZone->bcRegionProxy;
     bcRegionProxy->cgnsZbcBoco->nBoco = su2Grid->mmark.nMarker;
     bcRegionProxy->CreateCgnsBcRegion( bcRegionProxy );
 

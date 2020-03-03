@@ -20,7 +20,7 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "CgnsBcRegionProxy.h"
+#include "CgnsZbc.h"
 #include "CgnsBcBoco.h"
 #include "CgnsZbc1to1.h"
 #include "CgnsZbcConn.h"
@@ -44,7 +44,7 @@ using namespace std;
 BeginNameSpace( ONEFLOW )
 #ifdef ENABLE_CGNS
 
-CgnsBcRegionProxy::CgnsBcRegionProxy( CgnsZone * cgnsZone )
+CgnsZbc::CgnsZbc( CgnsZone * cgnsZone )
 {
     this->cgnsZone = cgnsZone;
 
@@ -54,14 +54,14 @@ CgnsBcRegionProxy::CgnsBcRegionProxy( CgnsZone * cgnsZone )
 
 }
 
-CgnsBcRegionProxy::~CgnsBcRegionProxy()
+CgnsZbc::~CgnsZbc()
 {
     delete this->cgnsZbcConn;
     delete this->cgnsZbc1to1;
     delete this->cgnsZbcBoco;
 }
 
-void CgnsBcRegionProxy::ConvertToInnerDataStandard()
+void CgnsZbc::ConvertToInnerDataStandard()
 {
     this->cgnsZbcBoco->ConvertToInnerDataStandard();
 
@@ -72,19 +72,19 @@ void CgnsBcRegionProxy::ConvertToInnerDataStandard()
     this->cgnsZbcBoco->ShiftBcRegion();
 }
 
-void CgnsBcRegionProxy::ScanBcFace( FaceSolver * face_solver )
+void CgnsZbc::ScanBcFace( FaceSolver * face_solver )
 {
     this->cgnsZbcBoco->ScanBcFace( face_solver );
 }
 
-void CgnsBcRegionProxy::ReadCgnsGridBoundary()
+void CgnsZbc::ReadCgnsGridBoundary()
 {
     this->cgnsZbcBoco->ReadCgnsBocoBcRegion();
     this->cgnsZbcConn->ReadCgnsConnBcRegion();
     this->cgnsZbc1to1->ReadCgns1to1BcRegion();
 }
 
-void CgnsBcRegionProxy::FillBcPoints( int * start, int * end, cgsize_t * bcpnts, int dimension )
+void CgnsZbc::FillBcPoints( int * start, int * end, cgsize_t * bcpnts, int dimension )
 {
     int icount = 0;
     // lower point of range
@@ -112,7 +112,7 @@ void CgnsBcRegionProxy::FillBcPoints( int * start, int * end, cgsize_t * bcpnts,
     cout << "\n";
 }
 
-void CgnsBcRegionProxy::FillBcPoints3D( int * start, int * end, cgsize_t * bcpnts )
+void CgnsZbc::FillBcPoints3D( int * start, int * end, cgsize_t * bcpnts )
 {
     int icount = 0;
     // lower point of range
@@ -131,7 +131,7 @@ void CgnsBcRegionProxy::FillBcPoints3D( int * start, int * end, cgsize_t * bcpnt
     cout << "\n";
 }
 
-void CgnsBcRegionProxy::FillRegion( TestRegion * r, cgsize_t * ipnts, int dimension )
+void CgnsZbc::FillRegion( TestRegion * r, cgsize_t * ipnts, int dimension )
 {
     //int dimension = cgnsZone->cgnsBase->celldim;
     int icount = 0;
@@ -151,7 +151,7 @@ void CgnsBcRegionProxy::FillRegion( TestRegion * r, cgsize_t * ipnts, int dimens
     }
 }
 
-void CgnsBcRegionProxy::FillInterface( BcRegion * bcRegion, cgsize_t * ipnts, cgsize_t * ipntsdonor, int * itranfrm, int dimension )
+void CgnsZbc::FillInterface( BcRegion * bcRegion, cgsize_t * ipnts, cgsize_t * ipntsdonor, int * itranfrm, int dimension )
 {
     TestRegionM trm;
     trm.Run( bcRegion, dimension );
@@ -169,7 +169,7 @@ void CgnsBcRegionProxy::FillInterface( BcRegion * bcRegion, cgsize_t * ipnts, cg
     cout << "\n";
 }
 
-void CgnsBcRegionProxy::DumpCgnsGridBoundary( Grid * gridIn )
+void CgnsZbc::DumpCgnsGridBoundary( Grid * gridIn )
 {
     StrGrid * grid = StrGridCast( gridIn );
 
@@ -220,7 +220,7 @@ void CgnsBcRegionProxy::DumpCgnsGridBoundary( Grid * gridIn )
     delete bcTypeMap;
 }
 
-void CgnsBcRegionProxy::CreateCgnsBcRegion( CgnsBcRegionProxy * bcRegionProxyIn )
+void CgnsZbc::CreateCgnsBcRegion( CgnsZbc * bcRegionProxyIn )
 {
     this->cgnsZbcBoco->nBoco = bcRegionProxyIn->cgnsZbcBoco->nBoco;
     this->cgnsZbcBoco->CreateCgnsBocoBcRegion();
@@ -232,17 +232,17 @@ void CgnsBcRegionProxy::CreateCgnsBcRegion( CgnsBcRegionProxy * bcRegionProxyIn 
     this->cgnsZbcConn->CreateCgnsConnBcRegion();
 }
 
-int CgnsBcRegionProxy::GetNumberOfActualBcElements()
+int CgnsZbc::GetNumberOfActualBcElements()
 {
     return this->cgnsZbcBoco->GetNumberOfActualBcElements();
 }
 
-void CgnsBcRegionProxy::GenerateUnsBcElemConn( CgIntField& bcConn )
+void CgnsZbc::GenerateUnsBcElemConn( CgIntField& bcConn )
 {
     this->cgnsZbcBoco->GenerateUnsBcElemConn( bcConn );
 }
 
-void CgnsBcRegionProxy::SetPeriodicBc()
+void CgnsZbc::SetPeriodicBc()
 {
     this->cgnsZbcConn->SetPeriodicBc();
 

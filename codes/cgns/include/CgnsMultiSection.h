@@ -38,7 +38,7 @@ class CgnsSection;
 class ElemFeature;
 
 class CgnsZone;
-class CgnsBcRegionProxy;
+class CgnsZbc;
 
 class CgnsMultiSection
 {
@@ -50,7 +50,7 @@ public:
 
     HXVector< CgnsSection * > cgnsSections;
     CgnsZone * cgnsZone;
-    CgnsBcRegionProxy * cgnsBcRegionProxy;
+    CgnsZbc * cgnsBcRegionProxy;
 public:
     void AddCgnsSection( CgnsSection * cgnsSection );
     CgnsSection * GetCgnsSection( int iSection );
