@@ -39,9 +39,6 @@ class CgnsBase;
 class NodeMesh;
 class FaceSolver;
 
-class CgnsBc1to1;
-class CgnsBcConn;
-
 class CgnsBcBoco
 {
 public:
@@ -86,8 +83,6 @@ public:
     void ExtractIJKRegionFromBcConn( IntField & ijkMin, IntField & ijkMax, CgIntField& bcConn );
     void ExtractIJKRegionFromBcConn( IntField & ijkMin, IntField & ijkMax );
 public:
-    void ReadCgns1to1BcRegion( CgnsBc1to1 * cgnsBc1to1 );
-    void ReadCgnsConnBcRegion( CgnsBcConn * cgnsBcConn );
     void CopyStrBcRegion( CgnsBcBoco * strBcRegion, CgInt& startId );
     void ReadCgnsBcConn( CgnsBcBoco * strBcRegion, CgInt & startId );
     void ReconstructStrRegion( IntField & ijkMin, IntField & ijkMax );

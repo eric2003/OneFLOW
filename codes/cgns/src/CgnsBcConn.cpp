@@ -92,8 +92,6 @@ void CgnsBcConn::ReadCgnsConnBcRegion( int iConn )
     this->bcId = iConn;
     this->ReadCgnsBcConnInfo();
     this->ReadCgnsBcConnData();
-
-    this->bcRegion->ReadCgnsConnBcRegion( this );
 }
 
 void CgnsBcConn::ConvertToInnerDataStandard()

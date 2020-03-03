@@ -21,8 +21,6 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "CgnsBcBoco.h"
-#include "CgnsBc1to1.h"
-#include "CgnsBcConn.h"
 #include "CgnsZone.h"
 #include "CgnsBase.h"
 #include "Boundary.h"
@@ -243,50 +241,6 @@ void CgnsBcBoco::ReadCgnsBcConn()
     int kkk = 1;
 }
 
-void CgnsBcBoco::ReadCgns1to1BcRegion( CgnsBc1to1 * cgnsBc1to1 )
-{
-    this->bcId = cgnsBc1to1->bcId;
-
-    this->name             = cgnsBc1to1->connName;
-    this->nElements        = cgnsBc1to1->nConnPoints;
-    this->bcType           = CGNS_ENUMV( BCTypeNull );
-    this->gridConnType     = CGNS_ENUMV( Abutting1to1 );
-    this->pointSetType     = CGNS_ENUMV( PointRange );
-    this->gridLocation     = CGNS_ENUMV( FaceCenter );
-    this->modifiedLocation = this->gridLocation;
-    this->CreateCgnsBcConn();
-
-    // Read the element ID¡¯s.
-    for ( int iBCElement = 0; iBCElement < this->nElements; ++ iBCElement )
-    {
-        this->connList[ iBCElement ] = cgnsBc1to1->connPoint[ iBCElement ];
-    }
-
-    this->PrintCgnsBcConn();
-}
-
-void CgnsBcBoco::ReadCgnsConnBcRegion( CgnsBcConn * cgnsBcConn )
-{
-    this->bcId = cgnsBcConn->bcId;
-
-    this->nElements = cgnsBcConn->nConnPoints;
-    this->bcType = CGNS_ENUMV( BCTypeNull );
-
-    cout << "   CGNS Boundary Name             = " << this->name << "\n";
-    cout << "   CGNS Boundary Condition Name   = " << GetCgnsBcName( CGNS_ENUMV( BCTypeNull ) ) << "\n";
-
-    this->CreateCgnsBcConn();
-
-    cout << "   CGNS PointSet Type Name        = " << GetCgnsPointSetName( this->pointSetType ) << "\n";
-
-    // Read the element ID¡¯s.
-    for ( int iBCElement = 0; iBCElement < this->nElements; ++ iBCElement )
-    {
-        this->connList[ iBCElement ] = cgnsBcConn->connPoint[ iBCElement ];
-    }
-
-    this->PrintCgnsBcConn();
-}
 
 void CgnsBcBoco::PrintCgnsBcConn()
 {

@@ -146,7 +146,7 @@ void CgnsBc1to1::ReadCgnsBc1To1( int i1To1 )
 {
     this->bcId = i1To1;
     this->ReadCgnsBc1To1();
-    this->bcRegion->ReadCgns1to1BcRegion( this );
+    //this->bcRegion->ReadCgns1to1BcRegion( this );
 }
 
 #endif
