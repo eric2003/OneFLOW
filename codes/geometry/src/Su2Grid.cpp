@@ -584,9 +584,9 @@ void FillSU2CgnsZone( Su2Grid* su2Grid, CgnsZone * cgnsZone )
         cgnsSection->SetElemPosition();
     }
 
-    CgnsZbc * bcRegionProxy = cgnsZone->bcRegionProxy;
-    bcRegionProxy->cgnsZbcBoco->nBoco = su2Grid->mmark.nMarker;
-    bcRegionProxy->CreateCgnsBcRegion( bcRegionProxy );
+    CgnsZbc * cgnsZbc = cgnsZone->cgnsZbc;
+    cgnsZbc->cgnsZbcBoco->nBoco = su2Grid->mmark.nMarker;
+    cgnsZbc->CreateCgnsBcRegion( cgnsZbc );
 
     for ( int iMarker = 0; iMarker < su2Grid->mmark.nMarker; ++ iMarker )
     {
@@ -594,7 +594,7 @@ void FillSU2CgnsZone( Su2Grid* su2Grid, CgnsZone * cgnsZone )
         string & name = marker->name;
         string& bcName = marker->bcName;
 
-        CgnsBcBoco * cgnsBcRegion = bcRegionProxy->cgnsZbcBoco->GetCgnsBcRegionBoco( iMarker );
+        CgnsBcBoco * cgnsBcRegion = cgnsZbc->cgnsZbcBoco->GetCgnsBcRegionBoco( iMarker );
         cgnsBcRegion->name = name;
         cgnsBcRegion->gridLocation = CellCenter;
         cgnsBcRegion->nElements    = marker->nElem;

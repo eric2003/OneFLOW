@@ -50,7 +50,6 @@ public:
 
     HXVector< CgnsSection * > cgnsSections;
     CgnsZone * cgnsZone;
-    CgnsZbc * cgnsBcRegionProxy;
 public:
     void AddCgnsSection( CgnsSection * cgnsSection );
     CgnsSection * GetCgnsSection( int iSection );

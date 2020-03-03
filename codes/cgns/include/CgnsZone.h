@@ -57,7 +57,7 @@ public:
     CgnsBase * cgnsBase;
     NodeMesh * nodeMesh;
     CgnsMultiSection * multiSection;
-    CgnsZbc * bcRegionProxy;
+    CgnsZbc * cgnsZbc;
 
     CgInt nNode, nCell;
     int nCoor;
