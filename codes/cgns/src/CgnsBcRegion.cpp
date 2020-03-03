@@ -147,7 +147,7 @@ void CgnsBcRegion::ScanBcFace( FaceSolver * face_solver )
 
 void CgnsBcRegion::ReadCgnsBocoBcRegion()
 {
-    this->ReadCgnsOrdinaryBcRegionInfo();
+    this->ReadCgnsBocoInfo();
 
     this->ReadCgnsBocoGridLocation();
 
@@ -159,7 +159,7 @@ void CgnsBcRegion::ReadCgnsBocoBcRegion()
 }
 
 
-void CgnsBcRegion::ReadCgnsOrdinaryBcRegionInfo()
+void CgnsBcRegion::ReadCgnsBocoInfo()
 {
     // Read the info for this boundary condition.
     int fileId = cgnsZone->cgnsBase->fileId;
