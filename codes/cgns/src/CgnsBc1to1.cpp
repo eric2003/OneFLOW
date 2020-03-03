@@ -90,8 +90,6 @@ void CgnsBc1to1::ReadCgnsBc1To1()
     CgnsTraits::char33 connName;
     CgnsTraits::char33 donorZoneName;
 
-    //Zone Connectivity
-    cg_goto( fileId, baseId, "Zone_t", zId, "ZoneGridConnectivity_t", 1, "GridConnectivity1to1_t", 1, "end" );
 
     cg_1to1_read( fileId, baseId, zId, this->bcId, connName, donorZoneName, & this->connPoint[ 0 ], & this->connDonorPoint[ 0 ], itranfrm );
 

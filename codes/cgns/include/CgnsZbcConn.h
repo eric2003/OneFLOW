@@ -35,10 +35,12 @@ class CgnsBase;
 class FaceSolver;
 
 class FaceSolver;
-class CgnsBcRegion;
 class Grid;
 class BcRegion;
 class TestRegion;
+
+class CgnsBcRegion;
+class CgnsBcConn;
 
 class CgnsZbcConn
 {
@@ -47,11 +49,15 @@ public:
     ~CgnsZbcConn();
 public:
     int nConn;
-    HXVector< CgnsBcRegion * > cgnsBcRegionConn;
+    //HXVector< CgnsBcRegion * > cgnsBcRegionConn;
+    HXVector< CgnsBcConn * > cgnsBcConns;
+    
     CgnsZone * cgnsZone;
 public:
-    void AddCgnsConnBcRegion( CgnsBcRegion * cgnsBcRegion );
-    CgnsBcRegion * GetCgnsBcRegionConn( int iConn );
+    //void AddCgnsConnBcRegion( CgnsBcRegion * cgnsBcRegion );
+    void AddCgnsConnBcRegion( CgnsBcConn * cgnsBcConn );
+    //CgnsBcRegion * GetCgnsBcRegionConn( int iConn );
+    CgnsBcConn * GetCgnsBcRegionConn( int iConn );
     void CreateCgnsConnBcRegion();
     void ReadNumberOfCgnsConn();
     void ReadCgnsConnBcRegion();

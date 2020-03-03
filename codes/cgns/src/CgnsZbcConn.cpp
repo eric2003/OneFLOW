@@ -21,6 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "CgnsZbcConn.h"
+#include "CgnsBcConn.h"
 #include "CgnsBcRegion.h"
 #include "CgnsBcInterface.h"
 #include "CgnsZone.h"
@@ -52,18 +53,31 @@ CgnsZbcConn::~CgnsZbcConn()
 {
     for ( int iConn = 0; iConn < this->nConn; ++ iConn )
     {
-        delete this->cgnsBcRegionConn[ iConn ];
+        delete this->cgnsBcConns[ iConn ];
     }
 }
 
-void CgnsZbcConn::AddCgnsConnBcRegion( CgnsBcRegion * cgnsBcRegion )
+//void CgnsZbcConn::AddCgnsConnBcRegion( CgnsBcRegion * cgnsBcRegion )
+//{
+//    this->cgnsBcRegionConn.push_back( cgnsBcRegion );
+//}
+
+
+void CgnsZbcConn::AddCgnsConnBcRegion( CgnsBcConn * cgnsBcConn )
 {
-    this->cgnsBcRegionConn.push_back( cgnsBcRegion );
+    this->cgnsBcConns.push_back( cgnsBcConn );
+    int id = this->cgnsBcConns.size();
+    cgnsBcConn->bcId = id;
 }
 
-CgnsBcRegion * CgnsZbcConn::GetCgnsBcRegionConn( int iConn )
+//CgnsBcRegion * CgnsZbcConn::GetCgnsBcRegionConn( int iConn )
+//{
+//    return this->cgnsBcRegionConn[ iConn ];
+//}
+
+CgnsBcConn * CgnsZbcConn::GetCgnsBcRegionConn( int iConn )
 {
-    return this->cgnsBcRegionConn[ iConn ];
+    return this->cgnsBcConns[ iConn ];
 }
 
 void CgnsZbcConn::CreateCgnsConnBcRegion()
@@ -71,8 +85,8 @@ void CgnsZbcConn::CreateCgnsConnBcRegion()
     cout << "   nConn        = " << this->nConn << endl;
     for ( int iConn = 0; iConn < this->nConn; ++ iConn )
     {
-        CgnsBcRegion * cgnsBcRegion = new CgnsBcRegion( this->cgnsZone );
-        this->AddCgnsConnBcRegion( cgnsBcRegion );
+        CgnsBcConn * cgnsBcConn = new CgnsBcConn( this->cgnsZone );
+        this->AddCgnsConnBcRegion( cgnsBcConn );
     }
 }
 
@@ -91,8 +105,8 @@ void CgnsZbcConn::ReadCgnsConnBcRegion()
     this->CreateCgnsConnBcRegion();
     for ( int iConn = 0; iConn < this->nConn; ++ iConn )
     {
-        CgnsBcRegion * cgnsBcRegion = this->GetCgnsBcRegionConn( iConn );
-        cgnsBcRegion->ReadCgnsConnBcRegion( iConn + 1 );
+        CgnsBcConn * cgnsBcConn = this->GetCgnsBcRegionConn( iConn );
+        cgnsBcConn->ReadCgnsConnBcRegion( iConn + 1 );
     }
 }
 
@@ -100,8 +114,8 @@ void CgnsZbcConn::SetPeriodicBc()
 {
     for ( int iConn = 0; iConn < this->nConn; ++ iConn )
     {
-        CgnsBcRegion * cgnsBcRegion = this->GetCgnsBcRegionConn( iConn );
-        cgnsBcRegion->bcInterface->SetPeriodicBc();
+        CgnsBcConn * cgnsBcConn = this->GetCgnsBcRegionConn( iConn );
+        cgnsBcConn->SetPeriodicBc();
     }
 }
 
@@ -109,8 +123,8 @@ void CgnsZbcConn::ConvertToInnerDataStandard()
 {
     for ( int iConn = 0; iConn < this->nConn; ++ iConn )
     {
-        CgnsBcRegion * cgnsBcRegion = this->GetCgnsBcRegionConn( iConn );
-        cgnsBcRegion->ConvertToInnerDataStandard();
+        CgnsBcConn * cgnsBcConn = this->GetCgnsBcRegionConn( iConn );
+        cgnsBcConn->ConvertToInnerDataStandard();
     }
 }
 
