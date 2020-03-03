@@ -40,24 +40,24 @@ class Grid;
 class BcRegion;
 class TestRegion;
 
-class CgnsZbcConn
-{
-public:
-    CgnsZbcConn( CgnsZone * cgnsZone );
-    ~CgnsZbcConn();
-public:
-    int nConn;
-    HXVector< CgnsBcRegion * > cgnsBcRegionConn;
-    CgnsZone * cgnsZone;
-public:
-    void AddCgnsConnBcRegion( CgnsBcRegion * cgnsBcRegion );
-    CgnsBcRegion * GetCgnsBcRegionConn( int iConn );
-    void CreateCgnsConnBcRegion();
-    void ReadNumberOfCgnsConn();
-    void ReadCgnsConnBcRegion();
-    void SetPeriodicBc();
-    void ConvertToInnerDataStandard();
-};
+//class CgnsZbcConn
+//{
+//public:
+//    CgnsZbcConn( CgnsZone * cgnsZone );
+//    ~CgnsZbcConn();
+//public:
+//    int nConn;
+//    HXVector< CgnsBcRegion * > cgnsBcRegionConn;
+//    CgnsZone * cgnsZone;
+//public:
+//    void AddCgnsConnBcRegion( CgnsBcRegion * cgnsBcRegion );
+//    CgnsBcRegion * GetCgnsBcRegionConn( int iConn );
+//    void CreateCgnsConnBcRegion();
+//    void ReadNumberOfCgnsConn();
+//    void ReadCgnsConnBcRegion();
+//    void SetPeriodicBc();
+//    void ConvertToInnerDataStandard();
+//};
 
 //class CgnsZbc1to1
 //{
@@ -102,6 +102,7 @@ public:
     void GenerateUnsBcElemConn( CgIntField& bcConn );
 };
 
+class CgnsZbcConn;
 class CgnsZbc1to1;
 
 class CgnsBcRegionProxy
