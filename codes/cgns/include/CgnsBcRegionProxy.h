@@ -40,6 +40,20 @@ class Grid;
 class BcRegion;
 class TestRegion;
 
+class CgnsZbcConn
+{
+public:
+    CgnsZbcConn( CgnsZone * cgnsZone );
+    ~CgnsZbcConn();
+public:
+    int nConn;
+    HXVector< CgnsBcRegion * > cgnsBcRegionConn;
+    CgnsZone * cgnsZone;
+public:
+    void AddCgnsConnBcRegion( CgnsBcRegion * cgnsBcRegion );
+    void CreateCgnsConnBcRegion();
+};
+
 class CgnsBcRegionProxy
 {
 public:
@@ -50,6 +64,7 @@ public:
     HXVector< CgnsBcRegion * > cgnsBcRegionBoco;
     HXVector< CgnsBcRegion * > cgnsBcRegion1To1;
     HXVector< CgnsBcRegion * > cgnsBcRegionConn;
+    CgnsZbcConn * cgnsZbcConn;
     CgnsZone * cgnsZone;
 public:
     void ScanBcFace( FaceSolver * face_solver );
@@ -58,8 +73,6 @@ public:
     void CreateCgns1To1BcRegion();
     void CreateCgnsConnBcRegion();
 
-    void CreateCgnsBocoBcRegion( int nBoco );
-    
     void ConvertToInnerDataStandard();
     void ShiftBcRegion();
     CgnsBcRegion * GetCgnsBcRegionBoco( int iBoco );

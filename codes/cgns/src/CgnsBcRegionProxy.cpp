@@ -42,12 +42,43 @@ using namespace std;
 BeginNameSpace( ONEFLOW )
 #ifdef ENABLE_CGNS
 
+CgnsZbcConn::CgnsZbcConn( CgnsZone * cgnsZone )
+{
+    this->cgnsZone = cgnsZone;
+    this->nConn = 0;
+}
+
+CgnsZbcConn::~CgnsZbcConn()
+{
+    for ( int i1To1 = 0; i1To1 < this->nConn; ++ i1To1 )
+    {
+        delete this->cgnsBcRegionConn[ i1To1 ];
+    }
+}
+
+void CgnsZbcConn::AddCgnsConnBcRegion( CgnsBcRegion * cgnsBcRegion )
+{
+    this->cgnsBcRegionConn.push_back( cgnsBcRegion );
+}
+
+void CgnsZbcConn::CreateCgnsConnBcRegion()
+{
+    cout << "   nConn        = " << this->nConn << endl;
+    for ( int iConn = 0; iConn < this->nConn; ++ iConn )
+    {
+        CgnsBcRegion * cgnsBcRegion = new CgnsBcRegion( this->cgnsZone );
+        this->AddCgnsConnBcRegion( cgnsBcRegion );
+    }
+}
+
 CgnsBcRegionProxy::CgnsBcRegionProxy( CgnsZone * cgnsZone )
 {
     this->cgnsZone = cgnsZone;
     this->n1To1 = 0;
     this->nConn = 0;
     this->nBoco = 0;
+
+    this->cgnsZbcConn = new CgnsZbcConn( cgnsZone );
 }
 
 CgnsBcRegionProxy::~CgnsBcRegionProxy()
@@ -66,12 +97,8 @@ CgnsBcRegionProxy::~CgnsBcRegionProxy()
     {
         delete this->cgnsBcRegionConn[ i1To1 ];
     }
-}
 
-void CgnsBcRegionProxy::CreateCgnsBocoBcRegion( int nBoco )
-{
-    this->nBoco = nBoco;
-    this->CreateCgnsBocoBcRegion();
+    delete this->cgnsZbcConn;
 }
 
 void CgnsBcRegionProxy::CreateCgnsBocoBcRegion()
