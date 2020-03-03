@@ -76,6 +76,45 @@ void CgnsZbcConn::CreateCgnsConnBcRegion()
     }
 }
 
+void CgnsZbcConn::ReadNumberOfCgnsConn()
+{
+    int fileId = cgnsZone->cgnsBase->fileId;
+    int baseId = cgnsZone->cgnsBase->baseId;
+    int zId = cgnsZone->zId;
+
+    cg_nconns( fileId, baseId, zId, & this->nConn );
+}
+
+void CgnsZbcConn::ReadCgnsConnBcRegion()
+{
+    this->ReadNumberOfCgnsConn();
+    this->CreateCgnsConnBcRegion();
+    for ( int iConn = 0; iConn < this->nConn; ++ iConn )
+    {
+        CgnsBcRegion * cgnsBcRegion = this->GetCgnsBcRegionConn( iConn );
+        cgnsBcRegion->ReadCgnsConnBcRegion( iConn + 1 );
+    }
+}
+
+void CgnsZbcConn::SetPeriodicBc()
+{
+    for ( int iConn = 0; iConn < this->nConn; ++ iConn )
+    {
+        CgnsBcRegion * cgnsBcRegion = this->GetCgnsBcRegionConn( iConn );
+        cgnsBcRegion->bcInterface->SetPeriodicBc();
+    }
+}
+
+void CgnsZbcConn::ConvertToInnerDataStandard()
+{
+    for ( int iConn = 0; iConn < this->nConn; ++ iConn )
+    {
+        CgnsBcRegion * cgnsBcRegion = this->GetCgnsBcRegionConn( iConn );
+        cgnsBcRegion->ConvertToInnerDataStandard();
+    }
+}
+
+
 CgnsZbc1to1::CgnsZbc1to1( CgnsZone * cgnsZone )
 {
     this->cgnsZone = cgnsZone;
@@ -189,8 +228,7 @@ void CgnsZbcBoco::CreateCgnsBocoBcRegion()
 CgnsBcRegionProxy::CgnsBcRegionProxy( CgnsZone * cgnsZone )
 {
     this->cgnsZone = cgnsZone;
-    //this->n1To1 = 0;
-    this->nConn = 0;
+    //this->nConn = 0;
     this->nBoco = 0;
 
     this->cgnsZbcConn = new CgnsZbcConn( cgnsZone );
@@ -206,15 +244,10 @@ CgnsBcRegionProxy::~CgnsBcRegionProxy()
         delete this->cgnsBcRegionBoco[ iBoco ];
     }
 
-    //for ( int i1To1 = 0; i1To1 < this->n1To1; ++ i1To1 )
+    //for ( int iConn = 0; iConn < this->nConn; ++ iConn )
     //{
-    //    delete this->cgnsBcRegion1To1[ i1To1 ];
+    //    delete this->cgnsBcRegionConn[ iConn ];
     //}
-
-    for ( int iConn = 0; iConn < this->nConn; ++ iConn )
-    {
-        delete this->cgnsBcRegionConn[ iConn ];
-    }
 
     delete this->cgnsZbcConn;
     delete this->cgnsZbc1to1;
@@ -230,27 +263,15 @@ void CgnsBcRegionProxy::CreateCgnsBocoBcRegion()
     }
 }
 
-//void CgnsBcRegionProxy::CreateCgns1To1BcRegion()
+//void CgnsBcRegionProxy::CreateCgnsConnBcRegion()
 //{
-//    this->cgnsZbc1to1->CreateCgns1To1BcRegion();
-//    //cout << "   n1To1        = " << this->n1To1 << endl;
-//
-//    //for ( int i1To1 = 0; i1To1 < this->n1To1; ++ i1To1 )
-//    //{
-//    //    CgnsBcRegion * cgnsBcRegion = new CgnsBcRegion( this->cgnsZone );
-//    //    this->AddCgns1To1BcRegion( cgnsBcRegion );
-//    //}
+//    cout << "   nConn        = " << this->nConn << endl;
+//    for ( int iConn = 0; iConn < this->nConn; ++ iConn )
+//    {
+//        CgnsBcRegion * cgnsBcRegion = new CgnsBcRegion( this->cgnsZone );
+//        this->AddCgnsConnBcRegion( cgnsBcRegion );
+//    }
 //}
-
-void CgnsBcRegionProxy::CreateCgnsConnBcRegion()
-{
-    cout << "   nConn        = " << this->nConn << endl;
-    for ( int iConn = 0; iConn < this->nConn; ++ iConn )
-    {
-        CgnsBcRegion * cgnsBcRegion = new CgnsBcRegion( this->cgnsZone );
-        this->AddCgnsConnBcRegion( cgnsBcRegion );
-    }
-}
 
 CgnsBcRegion * CgnsBcRegionProxy::GetCgnsBcRegionBoco( int iBoco )
 {
@@ -259,14 +280,13 @@ CgnsBcRegion * CgnsBcRegionProxy::GetCgnsBcRegionBoco( int iBoco )
 
 CgnsBcRegion * CgnsBcRegionProxy::GetCgnsBcRegion1To1( int i1To1 )
 {
-    //return this->cgnsBcRegion1To1[ i1To1 ];
     return this->cgnsZbc1to1->GetCgnsBcRegion1To1( i1To1 );
 }
 
-CgnsBcRegion * CgnsBcRegionProxy::GetCgnsBcRegionConn( int iConn )
-{
-    return this->cgnsBcRegionConn[ iConn ];
-}
+//CgnsBcRegion * CgnsBcRegionProxy::GetCgnsBcRegionConn( int iConn )
+//{
+//    return this->cgnsBcRegionConn[ iConn ];
+//}
 
 int CgnsBcRegionProxy::GetNBocoDynamic()
 {
@@ -278,15 +298,10 @@ void CgnsBcRegionProxy::AddCgnsBocoBcRegion( CgnsBcRegion * cgnsBcRegion )
     this->cgnsBcRegionBoco.push_back( cgnsBcRegion );
 }
 
-//void CgnsBcRegionProxy::AddCgns1To1BcRegion( CgnsBcRegion * cgnsBcRegion )
+//void CgnsBcRegionProxy::AddCgnsConnBcRegion( CgnsBcRegion * cgnsBcRegion )
 //{
-//    this->cgnsBcRegion1To1.push_back( cgnsBcRegion );
+//    this->cgnsBcRegionConn.push_back( cgnsBcRegion );
 //}
-
-void CgnsBcRegionProxy::AddCgnsConnBcRegion( CgnsBcRegion * cgnsBcRegion )
-{
-    this->cgnsBcRegionConn.push_back( cgnsBcRegion );
-}
 
 void CgnsBcRegionProxy::ShiftBcRegion()
 {
@@ -320,17 +335,13 @@ void CgnsBcRegionProxy::ConvertToInnerDataStandard()
         cgnsBcRegion->ConvertToInnerDataStandard();
     }
 
-    for ( int iConn = 0; iConn < this->nConn; ++ iConn )
-    {
-        CgnsBcRegion * cgnsBcRegion = this->GetCgnsBcRegionConn( iConn );
-        cgnsBcRegion->ConvertToInnerDataStandard();
-    }
-
-    //for ( int i1To1 = 0; i1To1 < this->n1To1; ++ i1To1 )
+    //for ( int iConn = 0; iConn < this->nConn; ++ iConn )
     //{
-    //    CgnsBcRegion * cgnsBcRegion = this->GetCgnsBcRegion1To1( i1To1 );
+    //    CgnsBcRegion * cgnsBcRegion = this->GetCgnsBcRegionConn( iConn );
     //    cgnsBcRegion->ConvertToInnerDataStandard();
     //}
+
+    this->cgnsZbcConn->ConvertToInnerDataStandard();
 
     this->cgnsZbc1to1->ConvertToInnerDataStandard();
 
@@ -361,9 +372,8 @@ void CgnsBcRegionProxy::ScanBcFace( FaceSolver * face_solver )
 void CgnsBcRegionProxy::ReadCgnsGridBoundary()
 {
     this->ReadCgnsBocoBcRegion();
-    this->ReadCgnsConnBcRegion();
-    //this->ReadCgns1to1BcRegion();
-
+    //this->ReadCgnsConnBcRegion();
+    this->cgnsZbcConn->ReadCgnsConnBcRegion();
     this->cgnsZbc1to1->ReadCgns1to1BcRegion();
 
     //this->ReconstructStrRegion();
@@ -505,48 +515,25 @@ void CgnsBcRegionProxy::DumpCgnsGridBoundary( Grid * gridIn )
     delete bcTypeMap;
 }
 
-void CgnsBcRegionProxy::ReadNumberOfCgnsConn()
-{
-    int fileId = cgnsZone->cgnsBase->fileId;
-    int baseId = cgnsZone->cgnsBase->baseId;
-    int zId = cgnsZone->zId;
-
-    cg_nconns( fileId, baseId, zId, & this->nConn );
-}
-
-//void CgnsBcRegionProxy::ReadNumberOfCgns1To1()
+//void CgnsBcRegionProxy::ReadNumberOfCgnsConn()
 //{
 //    int fileId = cgnsZone->cgnsBase->fileId;
 //    int baseId = cgnsZone->cgnsBase->baseId;
 //    int zId = cgnsZone->zId;
 //
-//    // find out how many general interfaces there are in this zone
-//    // the following is the number of structured grid interface
-//    cg_n1to1( fileId, baseId, zId, & this->n1To1 );
+//    cg_nconns( fileId, baseId, zId, & this->nConn );
 //}
 
-//void CgnsBcRegionProxy::ReadCgns1to1BcRegion()
+//void CgnsBcRegionProxy::ReadCgnsConnBcRegion()
 //{
-//    this->ReadNumberOfCgns1To1();
-//    this->CreateCgns1To1BcRegion();
-//
-//    for ( int i1To1 = 0; i1To1 < this->n1To1; ++ i1To1 )
+//    this->ReadNumberOfCgnsConn();
+//    this->CreateCgnsConnBcRegion();
+//    for ( int iConn = 0; iConn < this->nConn; ++ iConn )
 //    {
-//        CgnsBcRegion * cgnsBcRegion = this->GetCgnsBcRegion1To1( i1To1 );
-//        cgnsBcRegion->ReadCgns1to1BcRegion( i1To1 + 1 );
+//        CgnsBcRegion * cgnsBcRegion = this->GetCgnsBcRegionConn( iConn );
+//        cgnsBcRegion->ReadCgnsConnBcRegion( iConn + 1 );
 //    }
 //}
-
-void CgnsBcRegionProxy::ReadCgnsConnBcRegion()
-{
-    this->ReadNumberOfCgnsConn();
-    this->CreateCgnsConnBcRegion();
-    for ( int iConn = 0; iConn < this->nConn; ++ iConn )
-    {
-        CgnsBcRegion * cgnsBcRegion = this->GetCgnsBcRegionConn( iConn );
-        cgnsBcRegion->ReadCgnsConnBcRegion( iConn + 1 );
-    }
-}
 
 void CgnsBcRegionProxy::ReadCgnsBocoBcRegion()
 {
@@ -578,13 +565,11 @@ void CgnsBcRegionProxy::CreateCgnsBcRegion( CgnsBcRegionProxy * bcRegionProxyIn 
     this->nBoco = bcRegionProxyIn->nBoco;
     this->CreateCgnsBocoBcRegion();
 
-    //this->n1To1 = bcRegionProxyIn->n1To1;
-    //this->CreateCgns1To1BcRegion();
     this->cgnsZbc1to1->n1To1 = bcRegionProxyIn->cgnsZbc1to1->n1To1;
     this->cgnsZbc1to1->CreateCgns1To1BcRegion();
 
-    this->nConn = bcRegionProxyIn->nConn;
-    this->CreateCgnsConnBcRegion();
+    this->cgnsZbcConn->nConn = bcRegionProxyIn->cgnsZbcConn->nConn;
+    this->cgnsZbcConn->CreateCgnsConnBcRegion();
 }
 
 void CgnsBcRegionProxy::ReconstructStrRegion()
@@ -673,18 +658,14 @@ void CgnsBcRegionProxy::GenerateUnsBcElemConn( CgIntField& bcConn )
 
 void CgnsBcRegionProxy::SetPeriodicBc()
 {
-    for ( int iConn = 0; iConn < this->nConn; ++ iConn )
-    {
-        CgnsBcRegion * cgnsBcRegion = this->GetCgnsBcRegionConn( iConn );
-        cgnsBcRegion->bcInterface->SetPeriodicBc();
-    }
-
-
-    //for ( int i1To1 = 0; i1To1 < this->n1To1; ++ i1To1 )
+    //for ( int iConn = 0; iConn < this->nConn; ++ iConn )
     //{
-    //    CgnsBcRegion * cgnsBcRegion = this->GetCgnsBcRegion1To1( i1To1 );
+    //    CgnsBcRegion * cgnsBcRegion = this->GetCgnsBcRegionConn( iConn );
     //    cgnsBcRegion->bcInterface->SetPeriodicBc();
     //}
+
+    this->cgnsZbcConn->SetPeriodicBc();
+
     this->cgnsZbc1to1->SetPeriodicBc();
 }
 

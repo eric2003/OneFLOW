@@ -53,6 +53,10 @@ public:
     void AddCgnsConnBcRegion( CgnsBcRegion * cgnsBcRegion );
     CgnsBcRegion * GetCgnsBcRegionConn( int iConn );
     void CreateCgnsConnBcRegion();
+    void ReadNumberOfCgnsConn();
+    void ReadCgnsConnBcRegion();
+    void SetPeriodicBc();
+    void ConvertToInnerDataStandard();
 };
 
 class CgnsZbc1to1
@@ -95,11 +99,10 @@ public:
     CgnsBcRegionProxy( CgnsZone * cgnsZone );
     ~CgnsBcRegionProxy();
 public:
-    //int nBoco, n1To1, nConn;
-    int nBoco, nConn;
+    //int nBoco, nConn;
+    int nBoco;
     HXVector< CgnsBcRegion * > cgnsBcRegionBoco;
-    //HXVector< CgnsBcRegion * > cgnsBcRegion1To1;
-    HXVector< CgnsBcRegion * > cgnsBcRegionConn;
+    //HXVector< CgnsBcRegion * > cgnsBcRegionConn;
     CgnsZbcConn * cgnsZbcConn;
     CgnsZbc1to1 * cgnsZbc1to1;
     CgnsZbcBoco * cgnsZbcBoco;
@@ -108,25 +111,22 @@ public:
     void ScanBcFace( FaceSolver * face_solver );
 public:
     void CreateCgnsBocoBcRegion();
-    //void CreateCgns1To1BcRegion();
-    void CreateCgnsConnBcRegion();
+    //void CreateCgnsConnBcRegion();
 
     void ConvertToInnerDataStandard();
     void ShiftBcRegion();
     CgnsBcRegion * GetCgnsBcRegionBoco( int iBoco );
     CgnsBcRegion * GetCgnsBcRegion1To1( int i1To1 );
-    CgnsBcRegion * GetCgnsBcRegionConn( int iConn );
+    //CgnsBcRegion * GetCgnsBcRegionConn( int iConn );
 
     int GetNBocoDynamic();
     void AddCgnsBocoBcRegion( CgnsBcRegion * cgnsBcRegion );
-    //void AddCgns1To1BcRegion( CgnsBcRegion * cgnsBcRegion );
-    void AddCgnsConnBcRegion( CgnsBcRegion * cgnsBcRegion );
+    //void AddCgnsConnBcRegion( CgnsBcRegion * cgnsBcRegion );
 
     void ReadCgnsGridBoundary();
 
     void ReadCgnsBocoBcRegion();
-    void ReadCgnsConnBcRegion();
-    //void ReadCgns1to1BcRegion();
+    //void ReadCgnsConnBcRegion();
     void FillBcPoints( int * start, int * end, cgsize_t * bcpnts, int dimension );
     void FillBcPoints3D( int * start, int * end, cgsize_t * bcpnts );
     void FillInterface( BcRegion * bcRegion, cgsize_t * ipnts, cgsize_t * ipntsdonor, int * itranfrm, int dimension );
@@ -134,8 +134,7 @@ public:
     void DumpCgnsGridBoundary( Grid * gridIn );
 public:
     void ReadNumberOfCgnsBoco();
-    //void ReadNumberOfCgns1To1();
-    void ReadNumberOfCgnsConn();
+    //void ReadNumberOfCgnsConn();
     void CreateCgnsBcRegion( CgnsBcRegionProxy * bcRegionProxyIn );
 public:
     void ReconstructStrRegion();
