@@ -23,6 +23,7 @@ License
 #include "CgnsBcRegionProxy.h"
 #include "CgnsBcRegion.h"
 #include "CgnsBcInterface.h"
+#include "CgnsZbc1to1.h"
 #include "CgnsZone.h"
 #include "CgnsBase.h"
 #include "Boundary.h"
@@ -115,80 +116,80 @@ void CgnsZbcConn::ConvertToInnerDataStandard()
 }
 
 
-CgnsZbc1to1::CgnsZbc1to1( CgnsZone * cgnsZone )
-{
-    this->cgnsZone = cgnsZone;
-    this->n1To1 = 0;
-}
-
-CgnsZbc1to1::~CgnsZbc1to1()
-{
-    for ( int i1To1 = 0; i1To1 < this->n1To1; ++ i1To1 )
-    {
-        delete this->cgnsBcRegion1To1[ i1To1 ];
-    }
-}
-
-void CgnsZbc1to1::AddCgns1To1BcRegion( CgnsBcRegion * cgnsBcRegion )
-{
-    this->cgnsBcRegion1To1.push_back( cgnsBcRegion );
-}
-
-CgnsBcRegion * CgnsZbc1to1::GetCgnsBcRegion1To1( int i1To1 )
-{
-    return this->cgnsBcRegion1To1[ i1To1 ];
-}
-
-void CgnsZbc1to1::CreateCgns1To1BcRegion()
-{
-    cout << "   n1To1        = " << this->n1To1 << endl;
-    for ( int i1To1 = 0; i1To1 < this->n1To1; ++ i1To1 )
-    {
-        CgnsBcRegion * cgnsBcRegion = new CgnsBcRegion( this->cgnsZone );
-        this->AddCgns1To1BcRegion( cgnsBcRegion );
-    }
-}
-
-void CgnsZbc1to1::ConvertToInnerDataStandard()
-{
-    for ( int i1To1 = 0; i1To1 < this->n1To1; ++ i1To1 )
-    {
-        CgnsBcRegion * cgnsBcRegion = this->GetCgnsBcRegion1To1( i1To1 );
-        cgnsBcRegion->ConvertToInnerDataStandard();
-    }
-}
-
-void CgnsZbc1to1::ReadNumberOfCgns1To1()
-{
-    int fileId = cgnsZone->cgnsBase->fileId;
-    int baseId = cgnsZone->cgnsBase->baseId;
-    int zId = cgnsZone->zId;
-
-    // find out how many general interfaces there are in this zone
-    // the following is the number of structured grid interface
-    cg_n1to1( fileId, baseId, zId, & this->n1To1 );
-}
-
-void CgnsZbc1to1::ReadCgns1to1BcRegion()
-{
-    this->ReadNumberOfCgns1To1();
-    this->CreateCgns1To1BcRegion();
-
-    for ( int i1To1 = 0; i1To1 < this->n1To1; ++ i1To1 )
-    {
-        CgnsBcRegion * cgnsBcRegion = this->GetCgnsBcRegion1To1( i1To1 );
-        cgnsBcRegion->ReadCgns1to1BcRegion( i1To1 + 1 );
-    }
-}
-
-void CgnsZbc1to1::SetPeriodicBc()
-{
-    for ( int i1To1 = 0; i1To1 < this->n1To1; ++ i1To1 )
-    {
-        CgnsBcRegion * cgnsBcRegion = this->GetCgnsBcRegion1To1( i1To1 );
-        cgnsBcRegion->bcInterface->SetPeriodicBc();
-    }
-}
+//CgnsZbc1to1::CgnsZbc1to1( CgnsZone * cgnsZone )
+//{
+//    this->cgnsZone = cgnsZone;
+//    this->n1To1 = 0;
+//}
+//
+//CgnsZbc1to1::~CgnsZbc1to1()
+//{
+//    for ( int i1To1 = 0; i1To1 < this->n1To1; ++ i1To1 )
+//    {
+//        delete this->cgnsBcRegion1To1[ i1To1 ];
+//    }
+//}
+//
+//void CgnsZbc1to1::AddCgns1To1BcRegion( CgnsBcRegion * cgnsBcRegion )
+//{
+//    this->cgnsBcRegion1To1.push_back( cgnsBcRegion );
+//}
+//
+//CgnsBcRegion * CgnsZbc1to1::GetCgnsBcRegion1To1( int i1To1 )
+//{
+//    return this->cgnsBcRegion1To1[ i1To1 ];
+//}
+//
+//void CgnsZbc1to1::CreateCgns1To1BcRegion()
+//{
+//    cout << "   n1To1        = " << this->n1To1 << endl;
+//    for ( int i1To1 = 0; i1To1 < this->n1To1; ++ i1To1 )
+//    {
+//        CgnsBcRegion * cgnsBcRegion = new CgnsBcRegion( this->cgnsZone );
+//        this->AddCgns1To1BcRegion( cgnsBcRegion );
+//    }
+//}
+//
+//void CgnsZbc1to1::ConvertToInnerDataStandard()
+//{
+//    for ( int i1To1 = 0; i1To1 < this->n1To1; ++ i1To1 )
+//    {
+//        CgnsBcRegion * cgnsBcRegion = this->GetCgnsBcRegion1To1( i1To1 );
+//        cgnsBcRegion->ConvertToInnerDataStandard();
+//    }
+//}
+//
+//void CgnsZbc1to1::ReadNumberOfCgns1To1()
+//{
+//    int fileId = cgnsZone->cgnsBase->fileId;
+//    int baseId = cgnsZone->cgnsBase->baseId;
+//    int zId = cgnsZone->zId;
+//
+//    // find out how many general interfaces there are in this zone
+//    // the following is the number of structured grid interface
+//    cg_n1to1( fileId, baseId, zId, & this->n1To1 );
+//}
+//
+//void CgnsZbc1to1::ReadCgns1to1BcRegion()
+//{
+//    this->ReadNumberOfCgns1To1();
+//    this->CreateCgns1To1BcRegion();
+//
+//    for ( int i1To1 = 0; i1To1 < this->n1To1; ++ i1To1 )
+//    {
+//        CgnsBcRegion * cgnsBcRegion = this->GetCgnsBcRegion1To1( i1To1 );
+//        cgnsBcRegion->ReadCgns1to1BcRegion( i1To1 + 1 );
+//    }
+//}
+//
+//void CgnsZbc1to1::SetPeriodicBc()
+//{
+//    for ( int i1To1 = 0; i1To1 < this->n1To1; ++ i1To1 )
+//    {
+//        CgnsBcRegion * cgnsBcRegion = this->GetCgnsBcRegion1To1( i1To1 );
+//        cgnsBcRegion->bcInterface->SetPeriodicBc();
+//    }
+//}
 
 
 CgnsZbcBoco::CgnsZbcBoco( CgnsZone * cgnsZone )
@@ -398,7 +399,6 @@ void CgnsZbcBoco::GenerateUnsBcElemConn( CgIntField& bcConn )
 CgnsBcRegionProxy::CgnsBcRegionProxy( CgnsZone * cgnsZone )
 {
     this->cgnsZone = cgnsZone;
-    //this->nBoco = 0;
 
     this->cgnsZbcConn = new CgnsZbcConn( cgnsZone );
     this->cgnsZbc1to1 = new CgnsZbc1to1( cgnsZone );
@@ -408,71 +408,13 @@ CgnsBcRegionProxy::CgnsBcRegionProxy( CgnsZone * cgnsZone )
 
 CgnsBcRegionProxy::~CgnsBcRegionProxy()
 {
-    //for ( int iBoco = 0; iBoco < this->nBoco; ++ iBoco )
-    //{
-    //    delete this->cgnsBcRegionBoco[ iBoco ];
-    //}
-
     delete this->cgnsZbcConn;
     delete this->cgnsZbc1to1;
     delete this->cgnsZbcBoco;
 }
 
-//void CgnsBcRegionProxy::CreateCgnsBocoBcRegion()
-//{
-//    for ( int iBoco = 0; iBoco < this->nBoco; ++ iBoco )
-//    {
-//        CgnsBcRegion * cgnsBcRegion = new CgnsBcRegion( this->cgnsZone );
-//        this->AddCgnsBocoBcRegion( cgnsBcRegion );
-//    }
-//}
-
-//CgnsBcRegion * CgnsBcRegionProxy::GetCgnsBcRegionBoco( int iBoco )
-//{
-//    return this->cgnsBcRegionBoco[ iBoco ];
-//}
-
-//int CgnsBcRegionProxy::GetNBocoDynamic()
-//{
-//    return this->cgnsBcRegionBoco.size();
-//}
-
-//void CgnsBcRegionProxy::AddCgnsBocoBcRegion( CgnsBcRegion * cgnsBcRegion )
-//{
-//    this->cgnsBcRegionBoco.push_back( cgnsBcRegion );
-//}
-
-//void CgnsBcRegionProxy::ShiftBcRegion()
-//{
-//    int baseFlag = 1;
-//
-//    for ( int iBoco = 0; iBoco < this->nBoco; ++ iBoco )
-//    {
-//        CgnsBcRegion * cgnsBcRegion = this->GetCgnsBcRegionBoco( iBoco );
-//        if ( ! cgnsBcRegion->ComputeBase() )
-//        {
-//            baseFlag = 0;
-//            break;
-//        }
-//    }
-//
-//    if ( baseFlag == 0 )
-//    {
-//        for ( int iBoco = 0; iBoco < this->nBoco; ++ iBoco )
-//        {
-//            CgnsBcRegion * cgnsBcRegion = this->GetCgnsBcRegionBoco( iBoco );
-//            cgnsBcRegion->ShiftBcRegion();
-//        }
-//    }
-//}
-
 void CgnsBcRegionProxy::ConvertToInnerDataStandard()
 {
-    //for ( int iBoco = 0; iBoco < this->nBoco; ++ iBoco )
-    //{
-    //    CgnsBcRegion * cgnsBcRegion = this->GetCgnsBcRegionBoco( iBoco );
-    //    cgnsBcRegion->ConvertToInnerDataStandard();
-    //}
     this->cgnsZbcBoco->ConvertToInnerDataStandard();
 
     this->cgnsZbcConn->ConvertToInnerDataStandard();
@@ -485,23 +427,6 @@ void CgnsBcRegionProxy::ConvertToInnerDataStandard()
 void CgnsBcRegionProxy::ScanBcFace( FaceSolver * face_solver )
 {
     this->cgnsZbcBoco->ScanBcFace( face_solver );
-    //cout << " Now ScanBcFace......\n\n";
-    //cout << " nBoco = " << this->nBoco << endl;
-
-    //for ( int iBoco = 0; iBoco < this->nBoco; ++ iBoco )
-    //{
-    //    cout << " iBoco = " << iBoco << " ";
-    //    CgnsBcRegion * cgnsBcRegion = this->GetCgnsBcRegionBoco( iBoco );
-    //    cout << " BCTypeName = " << ONEFLOW::GetCgnsBcName( cgnsBcRegion->bcType ) << endl;
-    //    cout << " BCRegion Name = " << cgnsBcRegion->name << endl;
-
-    //    RegionNameMap::AddRegion( cgnsBcRegion->name );
-    //    int bcNameId = RegionNameMap::FindRegionId( cgnsBcRegion->name );
-    //    cgnsBcRegion->nameId = bcNameId;
-    //    cgnsBcRegion->bcId = iBoco + 1;
-    //    cgnsBcRegion->ScanBcFace( face_solver );
-    //}
-    //face_solver->ScanInterfaceBc();
 }
 
 void CgnsBcRegionProxy::ReadCgnsGridBoundary()
@@ -509,8 +434,6 @@ void CgnsBcRegionProxy::ReadCgnsGridBoundary()
     this->cgnsZbcBoco->ReadCgnsBocoBcRegion();
     this->cgnsZbcConn->ReadCgnsConnBcRegion();
     this->cgnsZbc1to1->ReadCgns1to1BcRegion();
-
-    //this->ReconstructStrRegion();
 }
 
 void CgnsBcRegionProxy::FillBcPoints( int * start, int * end, cgsize_t * bcpnts, int dimension )
@@ -649,31 +572,6 @@ void CgnsBcRegionProxy::DumpCgnsGridBoundary( Grid * gridIn )
     delete bcTypeMap;
 }
 
-//void CgnsBcRegionProxy::ReadCgnsBocoBcRegion()
-//{
-//    this->ReadNumberOfCgnsBoco();
-//    this->CreateCgnsBocoBcRegion();
-//
-//    for ( int iBcRegion = 0; iBcRegion < nBoco; ++ iBcRegion )
-//    {
-//        cout << "\n-->iBcRegion  = " << iBcRegion;
-//        cout << " nOrdinaryBcRegion = " << nBoco << "\n";
-//        CgnsBcRegion * cgnsBcRegion = this->GetCgnsBcRegionBoco( iBcRegion );
-//        cgnsBcRegion->bcId = iBcRegion + 1;
-//        cgnsBcRegion->ReadCgnsBocoBcRegion();
-//    }
-//}
-
-//void CgnsBcRegionProxy::ReadNumberOfCgnsBoco()
-//{
-//    int fileId = cgnsZone->cgnsBase->fileId;
-//    int baseId = cgnsZone->cgnsBase->baseId;
-//    int zId = cgnsZone->zId;
-//
-//    // Determine the number of boundary conditions for this zone.
-//    cg_nbocos( fileId, baseId, zId, & this->nBoco );
-//}
-
 void CgnsBcRegionProxy::CreateCgnsBcRegion( CgnsBcRegionProxy * bcRegionProxyIn )
 {
     this->cgnsZbcBoco->nBoco = bcRegionProxyIn->cgnsZbcBoco->nBoco;
@@ -686,90 +584,14 @@ void CgnsBcRegionProxy::CreateCgnsBcRegion( CgnsBcRegionProxy * bcRegionProxyIn 
     this->cgnsZbcConn->CreateCgnsConnBcRegion();
 }
 
-//void CgnsBcRegionProxy::ReconstructStrRegion()
-//{
-//    int ni = static_cast<int> (this->cgnsZone->GetNI());
-//    int nj = static_cast<int> (this->cgnsZone->GetNJ());
-//    int nk = static_cast<int> (this->cgnsZone->GetNK());
-//
-//    if ( nk == 1 ) return;
-//
-//    MyRegionFactory rfact;
-//    rfact.ni = ni;
-//    rfact.nj = nj;
-//    rfact.nk = nk;
-//    rfact.CreateRegion();
-//
-//    for ( int iBoco = 0; iBoco < this->nBoco; ++ iBoco )
-//    {
-//        CgnsBcRegion * bcRegion = this->GetCgnsBcRegionBoco( iBoco );
-//
-//        IntField ijkMin( 3 ), ijkMax( 3 );
-//        bcRegion->ExtractIJKRegionFromBcConn( ijkMin, ijkMax );
-//
-//        rfact.AddRefBcRegion( ijkMin, ijkMax );
-//    }
-//
-//    rfact.Run();
-//
-//    UInt nnr = rfact.bcregions.size();
-//
-//    nBoco += static_cast<int> (nnr);
-//
-//    for ( UInt i = 0; i < nnr; ++ i )
-//    {
-//        CgnsBcRegion * rr = new CgnsBcRegion( this->cgnsZone );
-//        MyRegion * r = rfact.bcregions[ i ];
-//
-//        int id = static_cast<int> ( this->GetNBocoDynamic() + 1 );
-//        rr->bcId = id;
-//        rr->ReconstructStrRegion( r->ijkmin, r->ijkmax );
-//
-//        this->AddCgnsBocoBcRegion( rr );
-//    }
-//    int kkk = 1;
-//}
-
 int CgnsBcRegionProxy::GetNumberOfActualBcElements()
 {
     return this->cgnsZbcBoco->GetNumberOfActualBcElements();
-    //int nBFace = 0;
-    //int nActualBcFace = 0;
-
-    //for ( int iBcRegion = 0; iBcRegion < this->nBoco; ++ iBcRegion )
-    //{
-    //    CgnsBcRegion * cgnsBcRegion = this->GetCgnsBcRegionBoco( iBcRegion );
-    //    int nBcElement = cgnsBcRegion->nElements;
-    //    int nActualBcElement = cgnsBcRegion->GetActualNumberOfBoundaryElements();
-    //    nBFace += nBcElement;
-    //    nActualBcFace += nActualBcElement;
-
-    //    cout << " iBcRegion  = " << iBcRegion << " numberOfBoundaryElements       = " << nBcElement << "\n";
-    //    cout << " iBcRegion  = " << iBcRegion << " numberOfActualBoundaryElements = " << nActualBcElement << "\n";
-    //}
-    //cout << " numberOfBoundaryFaces       = " << nBFace << "\n";
-    //cout << " numberOfActualBoundaryFaces = " << nActualBcFace << "\n";
-    //return nActualBcFace;
 }
 
 void CgnsBcRegionProxy::GenerateUnsBcElemConn( CgIntField& bcConn )
 {
     this->cgnsZbcBoco->GenerateUnsBcElemConn( bcConn );
-    //int nBcElem = 0;
-    //int pos = 0;
-
-    //cout << " pos = " << pos << "\n";
-
-    //for ( int iBcRegion = 0; iBcRegion < this->nBoco; ++ iBcRegion )
-    //{
-    //    CgnsBcRegion * bcRegion = this->GetCgnsBcRegionBoco( iBcRegion );
-
-    //    IntField ijkMin( 3 ), ijkMax( 3 );
-    //    bcRegion->ExtractIJKRegionFromBcConn( ijkMin, ijkMax );
-    //    SetBcConn( this->cgnsZone, ijkMin, ijkMax, bcConn, pos, nBcElem );
-    //    cout << " pos = " << pos << "\n";
-    //    cout << " nBcElem = " << nBcElem << " boundaryElementSize = " << nBcElem * 4 << "\n";
-    //}
 }
 
 void CgnsBcRegionProxy::SetPeriodicBc()
