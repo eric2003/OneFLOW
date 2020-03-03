@@ -56,7 +56,7 @@ public:
 public:
     CgnsBase * cgnsBase;
     NodeMesh * nodeMesh;
-    CgnsZsection * multiSection;
+    CgnsZsection * cgnsZsection;
     CgnsZbc * cgnsZbc;
 
     CgInt nNode, nCell;

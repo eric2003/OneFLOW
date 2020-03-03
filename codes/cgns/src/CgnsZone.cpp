@@ -55,7 +55,7 @@ CgnsZone::CgnsZone( CgnsBase * cgnsBase )
 {
     this->cgnsBase = cgnsBase;
     this->nodeMesh = 0;
-    this->multiSection = 0;
+    this->cgnsZsection = 0;
     this->cgnsZbc = 0;
     this->volBcType = -1;
 }
@@ -63,7 +63,7 @@ CgnsZone::CgnsZone( CgnsBase * cgnsBase )
 CgnsZone::~CgnsZone()
 {
     delete this->nodeMesh;
-    delete this->multiSection;
+    delete this->cgnsZsection;
     delete this->cgnsZbc;
 }
 
@@ -86,7 +86,7 @@ int CgnsZone::GetVolBcType()
 void CgnsZone::Create()
 {
     this->nodeMesh = new NodeMesh();
-    this->multiSection = new CgnsZsection( this );
+    this->cgnsZsection = new CgnsZsection( this );
     this->cgnsZbc = new CgnsZbc( this );
 }
 
@@ -103,10 +103,10 @@ void CgnsZone::SetPeriodicBc()
 
 void CgnsZone::SetElementTypeAndNode( ElemFeature * elem_feature )
 {
-    size_t nSection = this->multiSection->nSection;
+    size_t nSection = this->cgnsZsection->nSection;
     for ( int iSection = 0; iSection < nSection; ++ iSection )
     {
-        CgnsSection * cgnsSection = this->multiSection->GetCgnsSection( iSection );
+        CgnsSection * cgnsSection = this->cgnsZsection->GetCgnsSection( iSection );
         cgnsSection->SetElementTypeAndNode( elem_feature );
     }
     cout << "\n";
@@ -116,7 +116,7 @@ void CgnsZone::SetElementTypeAndNode( ElemFeature * elem_feature )
 
 bool CgnsZone::ExistSection( const string & sectionName )
 {
-    return this->multiSection->ExistSection( sectionName );
+    return this->cgnsZsection->ExistSection( sectionName );
 }
 
 void CgnsZone::InitLgMapping()
@@ -137,7 +137,7 @@ void CgnsZone::ConvertToInnerDataStandard()
         return;
     }
 
-    this->multiSection->ConvertToInnerDataStandard();
+    this->cgnsZsection->ConvertToInnerDataStandard();
     this->cgnsZbc->ConvertToInnerDataStandard();
 
 }
@@ -167,7 +167,7 @@ void CgnsZone::ScanBcFace( FaceSolver * face_solver )
 
 void CgnsZone::GetElementNodeId( CgInt eId, CgIntField & eNodeId )
 {
-    CgnsSection * cgnsSection = this->multiSection->GetSectionByEid( eId );
+    CgnsSection * cgnsSection = this->cgnsZsection->GetSectionByEid( eId );
     cgnsSection->GetElementNodeId( eId - cgnsSection->startId, eNodeId );
 }
 
@@ -454,18 +454,18 @@ void CgnsZone::ReadElementConnectivities( CgnsZone * cgnsZoneIn )
 
 void CgnsZone::AllocateUnsElemConn( CgnsZone * cgnsZoneIn )
 {
-    this->multiSection->nSection = 2;
-    this->multiSection->CreateCgnsSection();
+    this->cgnsZsection->nSection = 2;
+    this->cgnsZsection->CreateCgnsSection();
 
     int s1, e1, s2, e2, etype1, etype2;
     cgnsZoneIn->GetStrZonePara( s1, e1, s2, e2, etype1, etype2 );
 
-    CgnsSection * cgnsSection1 = this->multiSection->GetCgnsSection( 0 );
-    CgnsSection * cgnsSection2 = this->multiSection->GetCgnsSection( 1 );
+    CgnsSection * cgnsSection1 = this->cgnsZsection->GetCgnsSection( 0 );
+    CgnsSection * cgnsSection2 = this->cgnsZsection->GetCgnsSection( 1 );
     cgnsSection1->SetSectionInfo( "Section1", etype1, s1, e1 );
     cgnsSection2->SetSectionInfo( "Section2", etype2, s2, e2 );
 
-    this->multiSection->CreateConnList();
+    this->cgnsZsection->CreateConnList();
 }
 
 void CgnsZone::GetStrZonePara( int & s1, int & e1, int & s2, int & e2, int & etype1, int & etype2  )
@@ -499,7 +499,7 @@ void CgnsZone::GetStrZonePara( int & s1, int & e1, int & s2, int & e2, int & ety
 
 void CgnsZone::SetElemPosition()
 {
-    this->multiSection->SetElemPosition();
+    this->cgnsZsection->SetElemPosition();
 }
 
 void CgnsZone::GenerateUnsVolElemConn( CgnsZone * cgnsZoneIn )
@@ -511,7 +511,7 @@ void CgnsZone::GenerateUnsVolElemConn( CgnsZone * cgnsZoneIn )
     cout << " ni = " << ni << " nj = " << nj << " nk = " << nk << "\n";
 
     int iSection = 0;
-    CgnsSection * cgnsSection = this->multiSection->GetCgnsSection( iSection );
+    CgnsSection * cgnsSection = this->cgnsZsection->GetCgnsSection( iSection );
 
     Range I, J, K;
     GetRange( ni, nj, nk, 0, -1, I, J, K );
@@ -573,7 +573,7 @@ void CgnsZone::GenerateUnsVolElemConn( CgnsZone * cgnsZoneIn )
 void CgnsZone::GenerateUnsBcElemConn( CgnsZone * cgnsZoneIn )
 {
     int iSection = 1;
-    CgnsSection * cgnsSection = this->multiSection->GetCgnsSection( iSection );
+    CgnsSection * cgnsSection = this->cgnsZsection->GetCgnsSection( iSection );
 
     this->cgnsZbc->CreateCgnsBcRegion( cgnsZoneIn->cgnsZbc );
 
@@ -586,7 +586,7 @@ void CgnsZone::GenerateUnsBcCondConn( CgnsZone * cgnsZoneIn )
     int nBoco = cgnsZoneIn->cgnsZbc->cgnsZbcBoco->nBoco;
 
     int iSection = 1;
-    CgnsSection * cgnsSection = this->multiSection->GetCgnsSection( iSection );
+    CgnsSection * cgnsSection = this->cgnsZsection->GetCgnsSection( iSection );
 
     CgInt startId = cgnsSection->startId;
 
@@ -600,23 +600,23 @@ void CgnsZone::GenerateUnsBcCondConn( CgnsZone * cgnsZoneIn )
 
 void CgnsZone::ReadNumberOfCgnsSections()
 {
-    this->multiSection->ReadNumberOfCgnsSections();
+    this->cgnsZsection->ReadNumberOfCgnsSections();
 }
 
 void CgnsZone::ReadNumberOfCgnsSections( CgnsZone * cgnsZoneIn )
 {
-    this->multiSection->nSection = cgnsZoneIn->multiSection->nSection;
-    cout << "   numberOfCgnsSections = " << this->multiSection->nSection << "\n";
+    this->cgnsZsection->nSection = cgnsZoneIn->cgnsZsection->nSection;
+    cout << "   numberOfCgnsSections = " << this->cgnsZsection->nSection << "\n";
 }
 
 void CgnsZone::CreateCgnsSections()
 {
-    this->multiSection->CreateCgnsSection();
+    this->cgnsZsection->CreateCgnsSection();
 }
 
 void CgnsZone::ReadCgnsSections()
 {
-    this->multiSection->ReadCgnsSections();
+    this->cgnsZsection->ReadCgnsSections();
 }
 
 void CgnsZone::ReadCgnsGridCoordinates()
@@ -812,34 +812,34 @@ void FillSection( Grids & grids, HXVector< Int3D * > & unsIdList, CgnsZone * cgn
 
     cgnsZone->nCell = nTCell;
 
-    cgnsZone->multiSection->nSection = 2;
-    cgnsZone->multiSection->CreateCgnsSection();
+    cgnsZone->cgnsZsection->nSection = 2;
+    cgnsZone->cgnsZsection->CreateCgnsSection();
 
-    cgnsZone->multiSection->cgnsSections[ 0 ]->startId = 1;
-    cgnsZone->multiSection->cgnsSections[ 0 ]->endId   = nTCell;
+    cgnsZone->cgnsZsection->cgnsSections[ 0 ]->startId = 1;
+    cgnsZone->cgnsZsection->cgnsSections[ 0 ]->endId   = nTCell;
 
-    cgnsZone->multiSection->cgnsSections[ 1 ]->startId = nTCell + 1;
-    cgnsZone->multiSection->cgnsSections[ 1 ]->endId   = nTCell + 1 + nBFace;
+    cgnsZone->cgnsZsection->cgnsSections[ 1 ]->startId = nTCell + 1;
+    cgnsZone->cgnsZsection->cgnsSections[ 1 ]->endId   = nTCell + 1 + nBFace;
 
     if ( Dim::dimension == ONEFLOW::THREE_D )
     {
-        cgnsZone->multiSection->cgnsSections[ 0 ]->eType = HEXA_8;
-        cgnsZone->multiSection->cgnsSections[ 1 ]->eType = QUAD_4;
+        cgnsZone->cgnsZsection->cgnsSections[ 0 ]->eType = HEXA_8;
+        cgnsZone->cgnsZsection->cgnsSections[ 1 ]->eType = QUAD_4;
     }
     else
     {
-        cgnsZone->multiSection->cgnsSections[ 0 ]->eType = QUAD_4;
-        cgnsZone->multiSection->cgnsSections[ 1 ]->eType = BAR_2;
+        cgnsZone->cgnsZsection->cgnsSections[ 0 ]->eType = QUAD_4;
+        cgnsZone->cgnsZsection->cgnsSections[ 1 ]->eType = BAR_2;
     }
 
-    cgnsZone->multiSection->CreateConnList();
+    cgnsZone->cgnsZsection->CreateConnList();
 
     CgnsZbc * cgnsZbc = cgnsZone->cgnsZbc;
     cgnsZbc->cgnsZbcBoco->nBoco = nTBcRegion;
     cgnsZbc->CreateCgnsBcRegion( cgnsZbc );
 
-    CgnsSection * secV = cgnsZone->multiSection->GetCgnsSection( 0 );
-    CgnsSection * secB = cgnsZone->multiSection->GetCgnsSection( 1 );
+    CgnsSection * secV = cgnsZone->cgnsZsection->GetCgnsSection( 0 );
+    CgnsSection * secB = cgnsZone->cgnsZsection->GetCgnsSection( 1 );
 
     CgIntField& connList  = secV->connList;
     CgIntField& bConnList = secB->connList;

@@ -33,11 +33,11 @@ class CgnsZone;
 class GridMediator;
 class GridMediatorS;
 
-class CgnsMultiBase
+class CgnsZbase
 {
 public:
-    CgnsMultiBase ();
-    ~CgnsMultiBase();
+    CgnsZbase ();
+    ~CgnsZbase();
 public:
     int fileId, nBases;
  
@@ -53,14 +53,14 @@ public:
     void DumpCgnsMultiBase( GridMediatorS * gridMediatorS );
     void ReadNumCgnsBase();
 
-    void ReadCgnsMultiBase( CgnsMultiBase * strCgnsMultiBase );
-    void ReadNumCgnsBase( CgnsMultiBase * strCgnsMultiBase );
+    void ReadCgnsMultiBase( CgnsZbase * strCgnsMultiBase );
+    void ReadNumCgnsBase( CgnsZbase * strCgnsMultiBase );
 public:
     void CreateDefaultCgnsZones( GridMediatorS * gridMediatorS );
     void PrepareCgnsZone( GridMediatorS * gridMediatorS );
     void AddCgnsBase( CgnsBase * cgnsBase );
     void InitCgnsBase();
-    void ConvertStrCgns2UnsCgnsGrid( CgnsMultiBase * strCgnsMultiBase );
+    void ConvertStrCgns2UnsCgnsGrid( CgnsZbase * strCgnsMultiBase );
 public:
     int GetNZone();
     CgnsBase * GetCgnsBase( int iBase );

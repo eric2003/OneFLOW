@@ -36,7 +36,7 @@ BeginNameSpace( ONEFLOW )
 class StrGrid;
 class NodeMesh;
 class Grid;
-class CgnsMultiBase;
+class CgnsZbase;
 class CgnsZone;
 class GridElem;
 class GridElemS;
@@ -52,7 +52,7 @@ public:
     CgnsFactory();
     ~CgnsFactory();
 public:
-    CgnsMultiBase * cgnsMultiBase;
+    CgnsZbase * cgnsZbase;
     GridElemS * gridElemS;
     int nZone;
     int nOriZone;

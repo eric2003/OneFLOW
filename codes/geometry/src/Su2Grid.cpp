@@ -24,7 +24,7 @@ License
 #include "HXStd.h"
 #include "ElementHome.h"
 #include "CgnsFactory.h"
-#include "CgnsMultiBase.h"
+#include "CgnsZbase.h"
 #include "CgnsZsection.h"
 #include "CgnsZbc.h"
 #include "CgnsZbcBoco.h"
@@ -537,17 +537,17 @@ void FillSU2CgnsZone( Su2Grid* su2Grid, CgnsZone * cgnsZone )
 
     int nSection = nVolSec + nBcSec;
 
-    CgnsZsection * multiSection = cgnsZone->multiSection;
+    CgnsZsection * cgnsZsection = cgnsZone->cgnsZsection;
 
-    multiSection->nSection = nSection;
-    multiSection->CreateCgnsSection();
+    cgnsZsection->nSection = nSection;
+    cgnsZsection->CreateCgnsSection();
 
     int nVolCell = volSec.CmpTotalElem();
  
     int sumElem = 0;
     for ( int iSection = 0; iSection < nSection; ++ iSection )
     {
-        CgnsSection * cgnsSection = multiSection->GetCgnsSection( iSection );
+        CgnsSection * cgnsSection = cgnsZsection->GetCgnsSection( iSection );
         SecMarker * sec = 0;
         if ( iSection < nVolSec )
         {
@@ -580,7 +580,7 @@ void FillSU2CgnsZone( Su2Grid* su2Grid, CgnsZone * cgnsZone )
 
     for ( int iSection = 0; iSection < nSection; ++ iSection )
     {
-        CgnsSection * cgnsSection = multiSection->GetCgnsSection( iSection );
+        CgnsSection * cgnsSection = cgnsZsection->GetCgnsSection( iSection );
         cgnsSection->SetElemPosition();
     }
 

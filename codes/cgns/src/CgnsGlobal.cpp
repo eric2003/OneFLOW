@@ -20,7 +20,7 @@ License
 
 \*---------------------------------------------------------------------------*/
 #include "CgnsGlobal.h"
-#include "CgnsMultiBase.h"
+#include "CgnsZbase.h"
 #include "CgnsBase.h"
 #include "CgnsZone.h"
 
