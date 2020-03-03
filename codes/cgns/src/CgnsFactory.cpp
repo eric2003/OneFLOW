@@ -43,7 +43,7 @@ License
 #include "Boundary.h"
 #include "HXMath.h"
 #include "Dimension.h"
-#include "CgnsBcRegion.h"
+#include "CgnsBcBoco.h"
 #include "ElementHome.h"
 #include "HXPointer.h"
 #include "CompGrid.h"

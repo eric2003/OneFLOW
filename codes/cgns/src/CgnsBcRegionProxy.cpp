@@ -21,7 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "CgnsBcRegionProxy.h"
-#include "CgnsBcRegion.h"
+#include "CgnsBcBoco.h"
 #include "CgnsZbc1to1.h"
 #include "CgnsZbcConn.h"
 #include "CgnsZbcBoco.h"

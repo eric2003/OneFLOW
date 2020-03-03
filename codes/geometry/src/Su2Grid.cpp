@@ -28,7 +28,7 @@ License
 #include "CgnsMultiSection.h"
 #include "CgnsBcRegionProxy.h"
 #include "CgnsZbcBoco.h"
-#include "CgnsBcRegion.h"
+#include "CgnsBcBoco.h"
 #include "CgnsSection.h"
 #include "CgnsZone.h"
 #include "GridMediator.h"
@@ -594,7 +594,7 @@ void FillSU2CgnsZone( Su2Grid* su2Grid, CgnsZone * cgnsZone )
         string & name = marker->name;
         string& bcName = marker->bcName;
 
-        CgnsBcRegion * cgnsBcRegion = bcRegionProxy->cgnsZbcBoco->GetCgnsBcRegionBoco( iMarker );
+        CgnsBcBoco * cgnsBcRegion = bcRegionProxy->cgnsZbcBoco->GetCgnsBcRegionBoco( iMarker );
         cgnsBcRegion->name = name;
         cgnsBcRegion->gridLocation = CellCenter;
         cgnsBcRegion->nElements    = marker->nElem;

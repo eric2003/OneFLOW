@@ -25,7 +25,7 @@ License
 #include "CgnsCoor.h"
 #include "CgnsSection.h"
 #include "CgnsMultiSection.h"
-#include "CgnsBcRegion.h"
+#include "CgnsBcBoco.h"
 #include "CgnsBcRegionProxy.h"
 #include "CgnsZbcBoco.h"
 #include "BcRecord.h"
@@ -600,8 +600,8 @@ void CgnsZone::GenerateUnsBcCondConn( CgnsZone * cgnsZoneIn )
 
     for ( int iBcRegion = 0; iBcRegion < nBoco; ++ iBcRegion )
     {
-        CgnsBcRegion * bcRegion    = this      ->bcRegionProxy->cgnsZbcBoco->GetCgnsBcRegionBoco( iBcRegion );
-        CgnsBcRegion * strBcRegion = cgnsZoneIn->bcRegionProxy->cgnsZbcBoco->GetCgnsBcRegionBoco( iBcRegion );
+        CgnsBcBoco * bcRegion    = this      ->bcRegionProxy->cgnsZbcBoco->GetCgnsBcRegionBoco( iBcRegion );
+        CgnsBcBoco * strBcRegion = cgnsZoneIn->bcRegionProxy->cgnsZbcBoco->GetCgnsBcRegionBoco( iBcRegion );
         bcRegion->CopyStrBcRegion( strBcRegion, startId );
     }
 }
@@ -925,7 +925,7 @@ void FillSection( Grids & grids, HXVector< Int3D * > & unsIdList, CgnsZone * cgn
             if ( BC::IsNotNormalBc( bcRegion->bcType ) ) continue;
             int nRegionCell = bcRegion->ComputeRegionCells();
 
-            CgnsBcRegion * cgnsBcRegion = bcRegionProxy->cgnsZbcBoco->GetCgnsBcRegionBoco( irc );
+            CgnsBcBoco * cgnsBcRegion = bcRegionProxy->cgnsZbcBoco->GetCgnsBcRegionBoco( irc );
             
             cgnsBcRegion->SetCgnsBcRegionGridLocation( CellCenter );
             cgnsBcRegion->nElements    = 2;

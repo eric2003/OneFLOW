@@ -35,7 +35,7 @@ class CgnsBase;
 class FaceSolver;
 
 class FaceSolver;
-class CgnsBcRegion;
+class CgnsBcBoco;
 class Grid;
 class BcRegion;
 class TestRegion;
@@ -47,11 +47,11 @@ public:
     ~CgnsZbcBoco();
 public:
     int nBoco;
-    HXVector< CgnsBcRegion * > cgnsBcRegionBoco;
+    HXVector< CgnsBcBoco * > cgnsBcRegionBoco;
     CgnsZone * cgnsZone;
 public:
-    void AddCgnsBocoBcRegion( CgnsBcRegion * cgnsBcRegion );
-    CgnsBcRegion * GetCgnsBcRegionBoco( int iBoco );
+    void AddCgnsBocoBcRegion( CgnsBcBoco * cgnsBcRegion );
+    CgnsBcBoco * GetCgnsBcRegionBoco( int iBoco );
     void CreateCgnsBocoBcRegion();
     void ShiftBcRegion();
     void ConvertToInnerDataStandard();

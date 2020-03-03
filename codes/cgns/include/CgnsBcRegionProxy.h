@@ -35,7 +35,7 @@ class CgnsBase;
 class FaceSolver;
 
 class FaceSolver;
-class CgnsBcRegion;
+class CgnsBcBoco;
 class Grid;
 class BcRegion;
 class TestRegion;

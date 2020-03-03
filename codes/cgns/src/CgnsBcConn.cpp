@@ -21,7 +21,7 @@ along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 \*---------------------------------------------------------------------------*/
 
 #include "CgnsBcConn.h"
-#include "CgnsBcRegion.h"
+#include "CgnsBcBoco.h"
 #include "CgnsZone.h"
 #include "CgnsBase.h"
 #include "CgnsPeriod.h"
@@ -39,7 +39,7 @@ BeginNameSpace( ONEFLOW )
 CgnsBcConn::CgnsBcConn( CgnsZone * cgnsZone )
 {
     this->cgnsZone = cgnsZone;
-    this->bcRegion = new CgnsBcRegion( cgnsZone );
+    this->bcRegion = new CgnsBcBoco( cgnsZone );
     this->flag1To1 = false;
 }
 

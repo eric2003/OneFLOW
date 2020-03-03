@@ -32,7 +32,7 @@ BeginNameSpace( ONEFLOW )
 
 #ifdef ENABLE_CGNS
 
-class CgnsBcRegion;
+class CgnsBcBoco;
 class CgnsZone;
 
 class CgnsBcConn
@@ -55,7 +55,7 @@ public:
     string connName;
     string donorZoneName;
 
-    CgnsBcRegion * bcRegion;
+    CgnsBcBoco * bcRegion;
     CgnsZone * cgnsZone;
     int bcId;
 

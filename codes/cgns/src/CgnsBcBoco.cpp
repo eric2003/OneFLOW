@@ -20,7 +20,7 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "CgnsBcRegion.h"
+#include "CgnsBcBoco.h"
 #include "CgnsBc1to1.h"
 #include "CgnsBcConn.h"
 #include "CgnsZone.h"
@@ -40,16 +40,16 @@ BeginNameSpace( ONEFLOW )
 
 #ifdef ENABLE_CGNS
 
-CgnsBcRegion::CgnsBcRegion( CgnsZone * cgnsZone )
+CgnsBcBoco::CgnsBcBoco( CgnsZone * cgnsZone )
 {
     this->cgnsZone = cgnsZone;
 }
 
-CgnsBcRegion::~CgnsBcRegion()
+CgnsBcBoco::~CgnsBcBoco()
 {
 }
 
-void CgnsBcRegion::ConvertToInnerDataStandard()
+void CgnsBcBoco::ConvertToInnerDataStandard()
 {
     //对于各种情况均成立
     for ( int eId = 0; eId < this->nElements; ++ eId )
@@ -58,7 +58,7 @@ void CgnsBcRegion::ConvertToInnerDataStandard()
     }
 }
 
-int CgnsBcRegion::ComputeBase()
+int CgnsBcBoco::ComputeBase()
 {
     for ( int eId = 0; eId < this->nElements; ++ eId )
     {
@@ -70,7 +70,7 @@ int CgnsBcRegion::ComputeBase()
     return 1;
 }
 
-void CgnsBcRegion::ShiftBcRegion()
+void CgnsBcBoco::ShiftBcRegion()
 {
     if ( this->modifiedLocation != Vertex )
     {
@@ -81,7 +81,7 @@ void CgnsBcRegion::ShiftBcRegion()
     }
 }
 
-void CgnsBcRegion::ProcessVertexBc( IntSet & bcVertex )
+void CgnsBcBoco::ProcessVertexBc( IntSet & bcVertex )
 {
     if ( this->pointSetType == ElementRange || this->pointSetType == PointRange )
     {
@@ -99,7 +99,7 @@ void CgnsBcRegion::ProcessVertexBc( IntSet & bcVertex )
     }
 }
 
-void CgnsBcRegion::ProcessFaceBc( IntSet & bcVertex )
+void CgnsBcBoco::ProcessFaceBc( IntSet & bcVertex )
 {
     if ( this->pointSetType == ElementRange ||
          this->pointSetType == PointRange )
@@ -130,7 +130,7 @@ void CgnsBcRegion::ProcessFaceBc( IntSet & bcVertex )
 }
 
 
-void CgnsBcRegion::ScanBcFace( FaceSolver * face_solver )
+void CgnsBcBoco::ScanBcFace( FaceSolver * face_solver )
 {
     IntSet bcVertex;
     if ( this->modifiedLocation == Vertex )
@@ -145,7 +145,7 @@ void CgnsBcRegion::ScanBcFace( FaceSolver * face_solver )
     face_solver->ScanBcFaceDetail( bcVertex, this->bcType, this->nameId );
 }
 
-void CgnsBcRegion::ReadCgnsBocoBcRegion()
+void CgnsBcBoco::ReadCgnsBocoBcRegion()
 {
     this->ReadCgnsBocoInfo();
 
@@ -159,7 +159,7 @@ void CgnsBcRegion::ReadCgnsBocoBcRegion()
 }
 
 
-void CgnsBcRegion::ReadCgnsBocoInfo()
+void CgnsBcBoco::ReadCgnsBocoInfo()
 {
     // Read the info for this boundary condition.
     int fileId = cgnsZone->cgnsBase->fileId;
@@ -184,7 +184,7 @@ void CgnsBcRegion::ReadCgnsBocoInfo()
     cout << "   CGNS Boundary Condition Name   = " << GetCgnsBcName( this->bcType ) << "\n";
 }
 
-void CgnsBcRegion::ReadCgnsBocoGridLocation()
+void CgnsBcBoco::ReadCgnsBocoGridLocation()
 {
     int fileId = cgnsZone->cgnsBase->fileId;
     int baseId = cgnsZone->cgnsBase->baseId;
@@ -204,13 +204,13 @@ void CgnsBcRegion::ReadCgnsBocoGridLocation()
     cout << "   CGNS Grid Location Name        = " << GetCgnsGridLocationName( bcGridLocation ) << "\n";
 }
 
-void CgnsBcRegion::SetCgnsBcRegionGridLocation( const GridLocation_t & bcGridLocation )
+void CgnsBcBoco::SetCgnsBcRegionGridLocation( const GridLocation_t & bcGridLocation )
 {
     this->gridLocation = bcGridLocation;
     this->modifiedLocation = bcGridLocation;
 }
 
-void CgnsBcRegion::CreateCgnsBcConn()
+void CgnsBcBoco::CreateCgnsBcConn()
 {
     //cout << "   CGNS Zone Type Name            = " << GetCgnsZoneTypeName( cgnsZone->cgnsZoneType ) << "\n";
 
@@ -228,7 +228,7 @@ void CgnsBcRegion::CreateCgnsBcConn()
     }
 }
 
-void CgnsBcRegion::ReadCgnsBcConn()
+void CgnsBcBoco::ReadCgnsBcConn()
 {
     int fileId = cgnsZone->cgnsBase->fileId;
     int baseId = cgnsZone->cgnsBase->baseId;
@@ -243,7 +243,7 @@ void CgnsBcRegion::ReadCgnsBcConn()
     int kkk = 1;
 }
 
-void CgnsBcRegion::ReadCgns1to1BcRegion( CgnsBc1to1 * cgnsBc1to1 )
+void CgnsBcBoco::ReadCgns1to1BcRegion( CgnsBc1to1 * cgnsBc1to1 )
 {
     this->bcId = cgnsBc1to1->bcId;
 
@@ -265,7 +265,7 @@ void CgnsBcRegion::ReadCgns1to1BcRegion( CgnsBc1to1 * cgnsBc1to1 )
     this->PrintCgnsBcConn();
 }
 
-void CgnsBcRegion::ReadCgnsConnBcRegion( CgnsBcConn * cgnsBcConn )
+void CgnsBcBoco::ReadCgnsConnBcRegion( CgnsBcConn * cgnsBcConn )
 {
     this->bcId = cgnsBcConn->bcId;
 
@@ -288,7 +288,7 @@ void CgnsBcRegion::ReadCgnsConnBcRegion( CgnsBcConn * cgnsBcConn )
     this->PrintCgnsBcConn();
 }
 
-void CgnsBcRegion::PrintCgnsBcConn()
+void CgnsBcBoco::PrintCgnsBcConn()
 {
     if ( cgnsZone->cgnsZoneType == CGNS_ENUMV( Unstructured ) )
     {
@@ -349,7 +349,7 @@ void CgnsBcRegion::PrintCgnsBcConn()
     }
 }
 
-void CgnsBcRegion::ReconstructStrRegion( IntField & ijkMin, IntField & ijkMax )
+void CgnsBcBoco::ReconstructStrRegion( IntField & ijkMin, IntField & ijkMax )
 {
     this->bcType       = CGNS_ENUMV( BCInflow );
     this->pointSetType = CGNS_ENUMV( PointRange );
@@ -383,12 +383,12 @@ void CgnsBcRegion::ReconstructStrRegion( IntField & ijkMin, IntField & ijkMax )
     }
  }
 
-void CgnsBcRegion::ExtractIJKRegionFromBcConn( IntField & ijkMin, IntField & ijkMax )
+void CgnsBcBoco::ExtractIJKRegionFromBcConn( IntField & ijkMin, IntField & ijkMax )
 {
     this->ExtractIJKRegionFromBcConn( ijkMin, ijkMax, this->connList );
 }
 
-void CgnsBcRegion::ExtractIJKRegionFromBcConn( IntField & ijkMin, IntField & ijkMax, CgIntField& bcConn )
+void CgnsBcBoco::ExtractIJKRegionFromBcConn( IntField & ijkMin, IntField & ijkMax, CgIntField& bcConn )
 {
     int imin, imax, jmin, jmax, kmin, kmax;
     int celldim = cgnsZone->cgnsBase->celldim;
@@ -420,7 +420,7 @@ void CgnsBcRegion::ExtractIJKRegionFromBcConn( IntField & ijkMin, IntField & ijk
     ijkMax[ 2 ] = MAX( ABS( kmin ), ABS( kmax ) );
 }
 
-void CgnsBcRegion::CopyStrBcRegion( CgnsBcRegion * strBcRegion, CgInt & startId )
+void CgnsBcBoco::CopyStrBcRegion( CgnsBcBoco * strBcRegion, CgInt & startId )
 {
     this->name = strBcRegion->name;
     this->nElements = 2;
@@ -434,7 +434,7 @@ void CgnsBcRegion::CopyStrBcRegion( CgnsBcRegion * strBcRegion, CgInt & startId 
     this->ReadCgnsBcConn( strBcRegion, startId );
 }
 
-void CgnsBcRegion::ReadCgnsBcConn( CgnsBcRegion * strBcRegion, CgInt& startId )
+void CgnsBcBoco::ReadCgnsBcConn( CgnsBcBoco * strBcRegion, CgInt& startId )
 {
     CgInt actualNumberOfBoundaryElement = strBcRegion->GetActualNumberOfBoundaryElements();
     this->connList[ 0 ] = startId;
@@ -442,7 +442,7 @@ void CgnsBcRegion::ReadCgnsBcConn( CgnsBcRegion * strBcRegion, CgInt& startId )
     startId += actualNumberOfBoundaryElement;
 }
 
-CgInt CgnsBcRegion::GetActualNumberOfBoundaryElements()
+CgInt CgnsBcBoco::GetActualNumberOfBoundaryElements()
 {
     if ( cgnsZone->cgnsZoneType == CGNS_ENUMV( Unstructured ) )
     {

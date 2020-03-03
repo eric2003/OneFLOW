@@ -34,7 +34,7 @@ BeginNameSpace( ONEFLOW )
 
 int AbsoluteDiagonalId( int x, int y );
 
-class CgnsBcRegion;
+class CgnsBcBoco;
 class CgnsZone;
 
 class CgnsBc1to1
@@ -59,7 +59,7 @@ public:
     string connName;
     string donorZoneName;
 
-    CgnsBcRegion * bcRegion;
+    CgnsBcBoco * bcRegion;
     CgnsZone * cgnsZone;
     int bcId;
 

@@ -21,7 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "CgnsBc1to1.h"
-#include "CgnsBcRegion.h"
+#include "CgnsBcBoco.h"
 #include "CgnsZone.h"
 #include "CgnsBase.h"
 #include "CgnsPeriod.h"
@@ -48,7 +48,7 @@ int AbsoluteDiagonalId( int x, int y )
 CgnsBc1to1::CgnsBc1to1( CgnsZone * cgnsZone )
 {
     this->cgnsZone = cgnsZone;
-    this->bcRegion = new CgnsBcRegion( cgnsZone );
+    this->bcRegion = new CgnsBcBoco( cgnsZone );
 }
 
 CgnsBc1to1::~CgnsBc1to1()

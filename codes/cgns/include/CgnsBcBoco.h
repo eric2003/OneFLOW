@@ -42,11 +42,11 @@ class FaceSolver;
 class CgnsBc1to1;
 class CgnsBcConn;
 
-class CgnsBcRegion
+class CgnsBcBoco
 {
 public:
-    CgnsBcRegion( CgnsZone * cgnsZone );
-    ~CgnsBcRegion();
+    CgnsBcBoco( CgnsZone * cgnsZone );
+    ~CgnsBcBoco();
 public:
     int bcId;
     int nameId;
@@ -88,8 +88,8 @@ public:
 public:
     void ReadCgns1to1BcRegion( CgnsBc1to1 * cgnsBc1to1 );
     void ReadCgnsConnBcRegion( CgnsBcConn * cgnsBcConn );
-    void CopyStrBcRegion( CgnsBcRegion * strBcRegion, CgInt& startId );
-    void ReadCgnsBcConn( CgnsBcRegion * strBcRegion, CgInt & startId );
+    void CopyStrBcRegion( CgnsBcBoco * strBcRegion, CgInt& startId );
+    void ReadCgnsBcConn( CgnsBcBoco * strBcRegion, CgInt & startId );
     void ReconstructStrRegion( IntField & ijkMin, IntField & ijkMax );
     CgInt GetActualNumberOfBoundaryElements();
 };

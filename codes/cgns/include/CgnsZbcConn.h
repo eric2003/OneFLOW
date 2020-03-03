@@ -39,7 +39,7 @@ class Grid;
 class BcRegion;
 class TestRegion;
 
-class CgnsBcRegion;
+class CgnsBcBoco;
 class CgnsBcConn;
 
 class CgnsZbcConn
