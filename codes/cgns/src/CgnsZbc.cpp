@@ -222,7 +222,7 @@ void CgnsZbc::DumpCgnsGridBoundary( Grid * gridIn )
 
 void CgnsZbc::CreateCgnsZbc( CgnsZbc * cgnsZbcIn )
 {
-    this->cgnsZbcBoco->nBoco = cgnsZbcIn->cgnsZbcBoco->nBoco;
+    this->cgnsZbcBoco->ReadZnboco( cgnsZbcIn->cgnsZbcBoco->nBoco );
     this->cgnsZbcBoco->CreateCgnsZbc();
 
     this->cgnsZbc1to1->n1to1 = cgnsZbcIn->cgnsZbc1to1->n1to1;

@@ -835,7 +835,7 @@ void FillSection( Grids & grids, HXVector< Int3D * > & unsIdList, CgnsZone * cgn
     cgnsZone->cgnsZsection->CreateConnList();
 
     CgnsZbc * cgnsZbc = cgnsZone->cgnsZbc;
-    cgnsZbc->cgnsZbcBoco->nBoco = nTBcRegion;
+    cgnsZbc->cgnsZbcBoco->ReadZnboco( nTBcRegion );
     cgnsZbc->CreateCgnsZbc( cgnsZbc );
 
     CgnsSection * secV = cgnsZone->cgnsZsection->GetCgnsSection( 0 );

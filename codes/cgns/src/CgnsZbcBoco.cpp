@@ -130,6 +130,11 @@ void CgnsZbcBoco::ScanBcFace( FaceSolver * face_solver )
     face_solver->ScanInterfaceBc();
 }
 
+void CgnsZbcBoco::PrintZnboco()
+{
+    cout << "   nBoco        = " << this->nBoco << endl;
+}
+
 void CgnsZbcBoco::ReadZnboco()
 {
     int fileId = cgnsZone->cgnsBase->fileId;
@@ -138,6 +143,13 @@ void CgnsZbcBoco::ReadZnboco()
 
     // Determine the number of boundary conditions for this zone.
     cg_nbocos( fileId, baseId, zId, & this->nBoco );
+    this->PrintZnboco();
+}
+
+void CgnsZbcBoco::ReadZnboco( int nBoco )
+{
+    this->nBoco = nBoco;
+    this->PrintZnboco();
 }
 
 void CgnsZbcBoco::ReadCgnsZbcBoco()
@@ -147,8 +159,8 @@ void CgnsZbcBoco::ReadCgnsZbcBoco()
 
     for ( int iBoco = 0; iBoco < nBoco; ++ iBoco )
     {
-        cout << "\n-->iBoco  = " << iBoco;
-        cout << " nOrdinaryBcRegion = " << nBoco << "\n";
+        cout << "\n";
+        cout << "-->iBoco  = " << iBoco << " nBoco = " << nBoco << "\n";
         CgnsBcBoco * cgnsBcBoco = this->GetCgnsBcRegionBoco( iBoco );
         cgnsBcBoco->ReadCgnsBcBoco();
     }
