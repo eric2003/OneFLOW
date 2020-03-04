@@ -917,20 +917,20 @@ void FillSection( Grids & grids, HXVector< Int3D * > & unsIdList, CgnsZone * cgn
             if ( BC::IsNotNormalBc( bcRegion->bcType ) ) continue;
             int nRegionCell = bcRegion->ComputeRegionCells();
 
-            CgnsBcBoco * cgnsBcRegion = cgnsZbc->cgnsZbcBoco->GetCgnsBcRegionBoco( irc );
+            CgnsBcBoco * cgnsBcBoco = cgnsZbc->cgnsZbcBoco->GetCgnsBcRegionBoco( irc );
             
-            cgnsBcRegion->SetCgnsBcRegionGridLocation( CellCenter );
-            cgnsBcRegion->nElements    = 2;
-            cgnsBcRegion->bcType       = static_cast< BCType_t >( bcTypeMap->OneFlow2Cgns( bcRegion->bcType ) );
-            cgnsBcRegion->pointSetType = PointRange;
+            cgnsBcBoco->SetCgnsBcRegionGridLocation( CellCenter );
+            cgnsBcBoco->nElements    = 2;
+            cgnsBcBoco->bcType       = static_cast< BCType_t >( bcTypeMap->OneFlow2Cgns( bcRegion->bcType ) );
+            cgnsBcBoco->pointSetType = PointRange;
 
-            //cgnsBcRegion->SetCgnsBcRegion( nElements, bcType, );
+            //cgnsBcBoco->SetCgnsBcRegion( nElements, bcType, );
 
-            cgnsBcRegion->CreateCgnsBcConn();
-            cgnsBcRegion->connList[ 0 ] = eIdPos + 1;
-            cgnsBcRegion->connList[ 1 ] = eIdPos + nRegionCell;
-            string bcName = GetCgnsBcName( cgnsBcRegion->bcType );
-            cgnsBcRegion->name = AddString( bcName, ir );
+            cgnsBcBoco->CreateCgnsBcConn();
+            cgnsBcBoco->connList[ 0 ] = eIdPos + 1;
+            cgnsBcBoco->connList[ 1 ] = eIdPos + nRegionCell;
+            string bcName = GetCgnsBcName( cgnsBcBoco->bcType );
+            cgnsBcBoco->name = AddString( bcName, ir );
 
             eIdPos += nRegionCell;
 

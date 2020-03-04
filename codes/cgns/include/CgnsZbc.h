@@ -53,6 +53,7 @@ public:
     CgnsZbcConn * cgnsZbcConn;
     CgnsZbc1to1 * cgnsZbc1to1;
     CgnsZbcBoco * cgnsZbcBoco;
+
     CgnsZone * cgnsZone;
 public:
     void ScanBcFace( FaceSolver * face_solver );

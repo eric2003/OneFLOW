@@ -594,21 +594,21 @@ void FillSU2CgnsZone( Su2Grid* su2Grid, CgnsZone * cgnsZone )
         string & name = marker->name;
         string& bcName = marker->bcName;
 
-        CgnsBcBoco * cgnsBcRegion = cgnsZbc->cgnsZbcBoco->GetCgnsBcRegionBoco( iMarker );
-        cgnsBcRegion->name = name;
-        cgnsBcRegion->gridLocation = CellCenter;
-        cgnsBcRegion->nElements    = marker->nElem;
-        cgnsBcRegion->bcType = static_cast< BCType_t >( marker->cgns_bcType );
-        cgnsBcRegion->pointSetType = PointList;
-        cgnsBcRegion->CreateCgnsBcConn();
+        CgnsBcBoco * cgnsBcBoco = cgnsZbc->cgnsZbcBoco->GetCgnsBcRegionBoco( iMarker );
+        cgnsBcBoco->name = name;
+        cgnsBcBoco->gridLocation = CellCenter;
+        cgnsBcBoco->nElements    = marker->nElem;
+        cgnsBcBoco->bcType = static_cast< BCType_t >( marker->cgns_bcType );
+        cgnsBcBoco->pointSetType = PointList;
+        cgnsBcBoco->CreateCgnsBcConn();
 
         for ( int iElem = 0; iElem < marker->nElem; ++ iElem )
         {
             int elemId = su2Grid->mmark.l2g[ iMarker ][ iElem ];
-            cgnsBcRegion->connList[ iElem ] = elemId + 1 + nVolCell;
+            cgnsBcBoco->connList[ iElem ] = elemId + 1 + nVolCell;
         }
         
-        //string bcName = GetCgnsBcName( cgnsBcRegion->bcType );
+        //string bcName = GetCgnsBcName( cgnsBcBoco->bcType );
     }
 
     cgnsZone->ConvertToInnerDataStandard();
