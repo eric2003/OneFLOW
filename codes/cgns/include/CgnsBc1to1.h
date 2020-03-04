@@ -34,7 +34,6 @@ BeginNameSpace( ONEFLOW )
 
 int AbsoluteDiagonalId( int x, int y );
 
-class CgnsBcBoco;
 class CgnsZone;
 
 class CgnsBc1to1
@@ -45,14 +44,15 @@ public:
 public:
     void ConvertToInnerDataStandard();
 public:
-    CgInt    nConnPoints;
-    CgInt    nConnDonorPoints;
+    CgInt          nConnPoints;
+    CgIntField     connPoint;
+
+    CgInt          nConnDonorPoints;
+    CgIntField     connDonorPoint;
+
     ZoneType_t     donorZoneType;
     PointSetType_t donorPointSetType;
     DataType_t     donorDataType;
-
-    CgIntField connPoint;
-    CgIntField connDonorPoint;
 
     int itranfrm[ 3 ];
 
@@ -61,8 +61,6 @@ public:
 
     CgnsZone * cgnsZone;
     int bcId;
-
-    bool flag1To1;
 public:
     void ReadCgnsBc1To1();
 };

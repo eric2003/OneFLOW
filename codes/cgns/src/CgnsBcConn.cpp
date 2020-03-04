@@ -39,7 +39,6 @@ BeginNameSpace( ONEFLOW )
 CgnsBcConn::CgnsBcConn( CgnsZone * cgnsZone )
 {
     this->cgnsZone = cgnsZone;
-    this->flag1To1 = false;
 }
 
 CgnsBcConn::~CgnsBcConn()
@@ -107,8 +106,6 @@ void CgnsBcConn::ConvertToInnerDataStandard()
 
 void CgnsBcConn::SetPeriodicBc()
 {
-    if ( this->flag1To1 ) return;
-
     CgnsZone * sZone = this->cgnsZone;
     CgnsZone * tZone = ONEFLOW::GetCgnsZoneByName( this->donorZoneName );
     NodeMesh * nodeMesh1 = sZone->nodeMesh;

@@ -32,7 +32,6 @@ BeginNameSpace( ONEFLOW )
 
 #ifdef ENABLE_CGNS
 
-class CgnsBcBoco;
 class CgnsZone;
 
 class CgnsBcConn
@@ -41,24 +40,21 @@ public:
     CgnsBcConn( CgnsZone * cgnsZone );
     ~CgnsBcConn();
 public:
-    CgInt    nConnPoints;
-    CgInt    nConnDonorPoints;
+    CgInt          nConnPoints;
+    CgIntField     connPoint;
+
+    CgInt          nConnDonorPoints;
+    CgIntField     connDonorPoint;
+
     ZoneType_t     donorZoneType;
     PointSetType_t donorPointSetType;
     DataType_t     donorDataType;
-
-    CgIntField connPoint;
-    CgIntField connDonorPoint;
-
-    int itranfrm[ 3 ];
 
     string connName;
     string donorZoneName;
 
     CgnsZone * cgnsZone;
     int bcId;
-
-    bool flag1To1;
 public:
     PointSetType_t pointSetType;
     GridLocation_t gridLocation;
