@@ -225,8 +225,8 @@ void CgnsZbc::CreateCgnsBcRegion( CgnsZbc * cgnsZbcIn )
     this->cgnsZbcBoco->nBoco = cgnsZbcIn->cgnsZbcBoco->nBoco;
     this->cgnsZbcBoco->CreateCgnsBocoBcRegion();
 
-    this->cgnsZbc1to1->n1To1 = cgnsZbcIn->cgnsZbc1to1->n1To1;
-    this->cgnsZbc1to1->CreateCgns1To1BcRegion();
+    this->cgnsZbc1to1->n1to1 = cgnsZbcIn->cgnsZbc1to1->n1to1;
+    this->cgnsZbc1to1->CreateCgns1to1BcRegion();
 
     this->cgnsZbcConn->nConn = cgnsZbcIn->cgnsZbcConn->nConn;
     this->cgnsZbcConn->CreateCgnsConnBcRegion();

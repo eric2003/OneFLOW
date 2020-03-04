@@ -56,7 +56,7 @@ public:
     void ShiftBcRegion();
     void ConvertToInnerDataStandard();
     void ScanBcFace( FaceSolver * face_solver );
-    void ReadNumberOfCgnsBoco();
+    void ReadZnboco();
     void ReadCgnsBocoBcRegion();
     void ReconstructStrRegion();
     int GetNBocoDynamic();

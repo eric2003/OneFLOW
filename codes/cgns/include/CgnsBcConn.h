@@ -22,11 +22,7 @@ along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 
 
 #pragma once
-#include "HXDefine.h"
-#include "HXCgns.h"
-#include <string>
-#include <map>
-using namespace std;
+#include "CgnsBcLink.h"
 
 BeginNameSpace( ONEFLOW )
 
@@ -34,27 +30,11 @@ BeginNameSpace( ONEFLOW )
 
 class CgnsZone;
 
-class CgnsBcConn
+class CgnsBcConn : public CgnsBcLink
 {
 public:
     CgnsBcConn( CgnsZone * cgnsZone );
     ~CgnsBcConn();
-public:
-    CgInt          nConnPoints;
-    CgIntField     connPoint;
-
-    CgInt          nConnDonorPoints;
-    CgIntField     connDonorPoint;
-
-    ZoneType_t     donorZoneType;
-    PointSetType_t donorPointSetType;
-    DataType_t     donorDataType;
-
-    string connName;
-    string donorZoneName;
-
-    CgnsZone * cgnsZone;
-    int bcId;
 public:
     PointSetType_t pointSetType;
     GridLocation_t gridLocation;
@@ -64,7 +44,6 @@ public:
     void ReadCgnsBcConnData();
 
     void ReadCgnsConnBcRegion();
-    void ConvertToInnerDataStandard();
 public:
     void SetPeriodicBc();
 };

@@ -21,7 +21,6 @@ along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 \*---------------------------------------------------------------------------*/
 
 #include "CgnsBcConn.h"
-#include "CgnsBcBoco.h"
 #include "CgnsZone.h"
 #include "CgnsBase.h"
 #include "CgnsPeriod.h"
@@ -37,8 +36,8 @@ BeginNameSpace( ONEFLOW )
 #ifdef ENABLE_CGNS
 
 CgnsBcConn::CgnsBcConn( CgnsZone * cgnsZone )
+    : CgnsBcLink( cgnsZone )
 {
-    this->cgnsZone = cgnsZone;
 }
 
 CgnsBcConn::~CgnsBcConn()
@@ -88,20 +87,6 @@ void CgnsBcConn::ReadCgnsConnBcRegion()
 {
     this->ReadCgnsBcConnInfo();
     this->ReadCgnsBcConnData();
-}
-
-
-void CgnsBcConn::ConvertToInnerDataStandard()
-{
-    for ( int eId = 0; eId < this->nConnPoints; ++ eId )
-    {
-        this->connPoint[ eId ] -= 1;
-    }
-
-    for ( int eId = 0; eId < this->nConnDonorPoints; ++ eId )
-    {
-        this->connDonorPoint[ eId ] -= 1;
-    }
 }
 
 void CgnsBcConn::SetPeriodicBc()

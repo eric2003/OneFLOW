@@ -78,7 +78,7 @@ void CgnsZbcConn::CreateCgnsConnBcRegion()
     }
 }
 
-void CgnsZbcConn::ReadNumberOfCgnsConn()
+void CgnsZbcConn::ReadZnconn()
 {
     int fileId = cgnsZone->cgnsBase->fileId;
     int baseId = cgnsZone->cgnsBase->baseId;
@@ -89,7 +89,7 @@ void CgnsZbcConn::ReadNumberOfCgnsConn()
 
 void CgnsZbcConn::ReadCgnsConnBcRegion()
 {
-    this->ReadNumberOfCgnsConn();
+    this->ReadZnconn();
     this->CreateCgnsConnBcRegion();
     for ( int iConn = 0; iConn < this->nConn; ++ iConn )
     {

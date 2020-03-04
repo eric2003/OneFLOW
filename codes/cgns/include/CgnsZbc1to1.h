@@ -47,15 +47,15 @@ public:
     CgnsZbc1to1( CgnsZone * cgnsZone );
     ~CgnsZbc1to1();
 public:
-    int n1To1;
+    int n1to1;
     HXVector< CgnsBc1to1 * > cgnsBc1to1s;
     CgnsZone * cgnsZone;
 public:
     void AddCgns1To1BcRegion( CgnsBc1to1 * cgnsBc1to1 );
-    CgnsBc1to1 * GetCgnsBcRegion1To1( int i1To1 );
-    void CreateCgns1To1BcRegion();
+    CgnsBc1to1 * GetCgnsBcRegion1to1( int i1to1 );
+    void CreateCgns1to1BcRegion();
     void ConvertToInnerDataStandard();
-    void ReadNumberOfCgns1To1();
+    void ReadZn1to1();
     void ReadCgns1to1BcRegion();
     void SetPeriodicBc();
 };

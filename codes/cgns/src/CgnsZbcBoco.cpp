@@ -130,7 +130,7 @@ void CgnsZbcBoco::ScanBcFace( FaceSolver * face_solver )
     face_solver->ScanInterfaceBc();
 }
 
-void CgnsZbcBoco::ReadNumberOfCgnsBoco()
+void CgnsZbcBoco::ReadZnboco()
 {
     int fileId = cgnsZone->cgnsBase->fileId;
     int baseId = cgnsZone->cgnsBase->baseId;
@@ -142,7 +142,7 @@ void CgnsZbcBoco::ReadNumberOfCgnsBoco()
 
 void CgnsZbcBoco::ReadCgnsBocoBcRegion()
 {
-    this->ReadNumberOfCgnsBoco();
+    this->ReadZnboco();
     this->CreateCgnsBocoBcRegion();
 
     for ( int iBoco = 0; iBoco < nBoco; ++ iBoco )
