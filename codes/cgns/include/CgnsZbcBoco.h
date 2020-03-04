@@ -51,7 +51,7 @@ public:
     CgnsZone * cgnsZone;
 public:
     void AddCgnsBcBoco( CgnsBcBoco * cgnsBcBoco );
-    CgnsBcBoco * GetCgnsBcRegionBoco( int iBoco );
+    CgnsBcBoco * GetCgnsBc( int iBoco );
     void CreateCgnsZbc();
     void ShiftBcRegion();
     void ConvertToInnerDataStandard();

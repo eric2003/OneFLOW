@@ -321,7 +321,7 @@ string Su2Bc::GetBcName(string& geoName)
     return "";
 }
 
-int Su2Bc::GetCgnsBc(string& geoName)
+int Su2Bc::GetCgnsBcType(string& geoName)
 {
     string bcName = this->GetBcName(geoName);
     return bcNameToValueMap.find(bcName)->second;
@@ -423,7 +423,7 @@ void Su2Grid::ReadSu2GridAscii( string & fileName )
                     Marker * marker = mmark.markerList[ im ];
                     marker->name = name;
                     marker->bcName = su2Bc.GetBcName( name );
-                    marker->cgns_bcType = su2Bc.GetCgnsBc(name);
+                    marker->cgns_bcType = su2Bc.GetCgnsBcType(name);
                     ioFile.ReadNextNonEmptyLine();
                     string marker_elems = ioFile.ReadNextWord();
                     marker->nElem = ioFile.ReadNextDigit< int >();
@@ -594,7 +594,7 @@ void FillSU2CgnsZone( Su2Grid* su2Grid, CgnsZone * cgnsZone )
         string & name = marker->name;
         string& bcName = marker->bcName;
 
-        CgnsBcBoco * cgnsBcBoco = cgnsZbc->cgnsZbcBoco->GetCgnsBcRegionBoco( iMarker );
+        CgnsBcBoco * cgnsBcBoco = cgnsZbc->cgnsZbcBoco->GetCgnsBc( iMarker );
         cgnsBcBoco->name = name;
         cgnsBcBoco->gridLocation = CellCenter;
         cgnsBcBoco->nElements    = marker->nElem;
