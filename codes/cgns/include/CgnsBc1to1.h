@@ -59,13 +59,11 @@ public:
     string connName;
     string donorZoneName;
 
-    CgnsBcBoco * bcRegion;
     CgnsZone * cgnsZone;
     int bcId;
 
     bool flag1To1;
 public:
-    void ReadCgnsBc1To1( int i1To1 );
     void ReadCgnsBc1To1();
 };
 

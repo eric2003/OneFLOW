@@ -94,7 +94,7 @@ void CgnsZbcConn::ReadCgnsConnBcRegion()
     for ( int iConn = 0; iConn < this->nConn; ++ iConn )
     {
         CgnsBcConn * cgnsBcConn = this->GetCgnsBcRegionConn( iConn );
-        cgnsBcConn->ReadCgnsConnBcRegion( iConn + 1 );
+        cgnsBcConn->ReadCgnsConnBcRegion();
     }
 }
 

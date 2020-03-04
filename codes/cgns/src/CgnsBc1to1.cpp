@@ -48,12 +48,10 @@ int AbsoluteDiagonalId( int x, int y )
 CgnsBc1to1::CgnsBc1to1( CgnsZone * cgnsZone )
 {
     this->cgnsZone = cgnsZone;
-    this->bcRegion = new CgnsBcBoco( cgnsZone );
 }
 
 CgnsBc1to1::~CgnsBc1to1()
 {
-    delete this->bcRegion;
 }
 
 void CgnsBc1to1::ConvertToInnerDataStandard()
@@ -131,7 +129,7 @@ void CgnsBc1to1::ReadCgnsBc1To1()
     //[ sgn( a ) del( a ? 2 ) sgn( b ) del( b ? 2 ) sgn( c ) del( c ? 2 )]
     //[ sgn( a ) del( a ? 3 ) sgn( b ) del( b ? 3 ) sgn( c ) del( c ? 3 )]
 
-    int celldim = this->bcRegion->cgnsZone->cgnsBase->celldim;
+    int celldim = this->cgnsZone->cgnsBase->celldim;
 
     for ( int i = 0; i < celldim; ++ i )
     {
@@ -142,12 +140,6 @@ void CgnsBc1to1::ReadCgnsBc1To1()
     }
 }
 
-void CgnsBc1to1::ReadCgnsBc1To1( int i1To1 )
-{
-    this->bcId = i1To1;
-    this->ReadCgnsBc1To1();
-    //this->bcRegion->ReadCgns1to1BcRegion( this );
-}
 
 #endif
 

@@ -125,7 +125,6 @@ void CgnsZbcBoco::ScanBcFace( FaceSolver * face_solver )
         RegionNameMap::AddRegion( cgnsBcBoco->name );
         int bcNameId = RegionNameMap::FindRegionId( cgnsBcBoco->name );
         cgnsBcBoco->nameId = bcNameId;
-        //cgnsBcBoco->bcId = iBoco + 1;
         cgnsBcBoco->ScanBcFace( face_solver );
     }
     face_solver->ScanInterfaceBc();
@@ -151,7 +150,6 @@ void CgnsZbcBoco::ReadCgnsBocoBcRegion()
         cout << "\n-->iBoco  = " << iBoco;
         cout << " nOrdinaryBcRegion = " << nBoco << "\n";
         CgnsBcBoco * cgnsBcBoco = this->GetCgnsBcRegionBoco( iBoco );
-        //cgnsBcBoco->bcId = iBoco + 1;
         cgnsBcBoco->ReadCgnsBocoBcRegion();
     }
 }
@@ -191,8 +189,6 @@ void CgnsZbcBoco::ReconstructStrRegion()
         CgnsBcBoco * rr = new CgnsBcBoco( this->cgnsZone );
         MyRegion * r = rfact.bcregions[ i ];
 
-        int id = static_cast<int> ( this->GetNBocoDynamic() + 1 );
-        rr->bcId = id;
         rr->ReconstructStrRegion( r->ijkmin, r->ijkmax );
 
         this->AddCgnsBocoBcRegion( rr );

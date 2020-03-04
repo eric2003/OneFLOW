@@ -39,13 +39,11 @@ BeginNameSpace( ONEFLOW )
 CgnsBcConn::CgnsBcConn( CgnsZone * cgnsZone )
 {
     this->cgnsZone = cgnsZone;
-    this->bcRegion = new CgnsBcBoco( cgnsZone );
     this->flag1To1 = false;
 }
 
 CgnsBcConn::~CgnsBcConn()
 {
-    delete this->bcRegion;
 }
 
 void CgnsBcConn::ReadCgnsBcConnInfo()
@@ -87,12 +85,12 @@ void CgnsBcConn::ReadCgnsBcConnData()
     cg_conn_read( fileId, baseId, zId, this->bcId, & this->connPoint[ 0 ], this->donorDataType, & this->connDonorPoint[ 0 ] );
 }
 
-void CgnsBcConn::ReadCgnsConnBcRegion( int iConn )
+void CgnsBcConn::ReadCgnsConnBcRegion()
 {
-    this->bcId = iConn;
     this->ReadCgnsBcConnInfo();
     this->ReadCgnsBcConnData();
 }
+
 
 void CgnsBcConn::ConvertToInnerDataStandard()
 {

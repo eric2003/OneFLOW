@@ -55,7 +55,6 @@ public:
     string connName;
     string donorZoneName;
 
-    CgnsBcBoco * bcRegion;
     CgnsZone * cgnsZone;
     int bcId;
 
@@ -68,7 +67,7 @@ public:
     void ReadCgnsBcConnInfo();
     void ReadCgnsBcConnData();
 
-    void ReadCgnsConnBcRegion( int iConn );
+    void ReadCgnsConnBcRegion();
     void ConvertToInnerDataStandard();
 public:
     void SetPeriodicBc();

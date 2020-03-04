@@ -106,7 +106,7 @@ void CgnsZbc1to1::ReadCgns1to1BcRegion()
     for ( int i1To1 = 0; i1To1 < this->n1To1; ++ i1To1 )
     {
         CgnsBc1to1 * cgnsBc1to1 = this->GetCgnsBcRegion1To1( i1To1 );
-        cgnsBc1to1->ReadCgnsBc1To1( i1To1 + 1 );
+        cgnsBc1to1->ReadCgnsBc1To1();
     }
 }
 
