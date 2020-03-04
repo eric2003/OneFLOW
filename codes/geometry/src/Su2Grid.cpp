@@ -586,7 +586,7 @@ void FillSU2CgnsZone( Su2Grid* su2Grid, CgnsZone * cgnsZone )
 
     CgnsZbc * cgnsZbc = cgnsZone->cgnsZbc;
     cgnsZbc->cgnsZbcBoco->nBoco = su2Grid->mmark.nMarker;
-    cgnsZbc->CreateCgnsBcRegion( cgnsZbc );
+    cgnsZbc->CreateCgnsZbc( cgnsZbc );
 
     for ( int iMarker = 0; iMarker < su2Grid->mmark.nMarker; ++ iMarker )
     {

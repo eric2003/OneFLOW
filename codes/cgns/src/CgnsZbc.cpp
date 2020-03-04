@@ -220,7 +220,7 @@ void CgnsZbc::DumpCgnsGridBoundary( Grid * gridIn )
     delete bcTypeMap;
 }
 
-void CgnsZbc::CreateCgnsBcRegion( CgnsZbc * cgnsZbcIn )
+void CgnsZbc::CreateCgnsZbc( CgnsZbc * cgnsZbcIn )
 {
     this->cgnsZbcBoco->nBoco = cgnsZbcIn->cgnsZbcBoco->nBoco;
     this->cgnsZbcBoco->CreateCgnsZbc();

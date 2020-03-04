@@ -575,7 +575,7 @@ void CgnsZone::GenerateUnsBcElemConn( CgnsZone * cgnsZoneIn )
     int iSection = 1;
     CgnsSection * cgnsSection = this->cgnsZsection->GetCgnsSection( iSection );
 
-    this->cgnsZbc->CreateCgnsBcRegion( cgnsZoneIn->cgnsZbc );
+    this->cgnsZbc->CreateCgnsZbc( cgnsZoneIn->cgnsZbc );
 
     cout << " ConnectionList Size = " << cgnsSection->connSize << "\n";
     cgnsZoneIn->cgnsZbc->GenerateUnsBcElemConn( cgnsSection->connList );
@@ -836,7 +836,7 @@ void FillSection( Grids & grids, HXVector< Int3D * > & unsIdList, CgnsZone * cgn
 
     CgnsZbc * cgnsZbc = cgnsZone->cgnsZbc;
     cgnsZbc->cgnsZbcBoco->nBoco = nTBcRegion;
-    cgnsZbc->CreateCgnsBcRegion( cgnsZbc );
+    cgnsZbc->CreateCgnsZbc( cgnsZbc );
 
     CgnsSection * secV = cgnsZone->cgnsZsection->GetCgnsSection( 0 );
     CgnsSection * secB = cgnsZone->cgnsZsection->GetCgnsSection( 1 );
