@@ -56,7 +56,7 @@ public:
     void CreateCgns1to1BcRegion();
     void ConvertToInnerDataStandard();
     void ReadZn1to1();
-    void ReadCgns1to1BcRegion();
+    void ReadCgnsZbc1to1();
     void SetPeriodicBc();
 };
 

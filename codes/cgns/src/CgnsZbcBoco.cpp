@@ -140,7 +140,7 @@ void CgnsZbcBoco::ReadZnboco()
     cg_nbocos( fileId, baseId, zId, & this->nBoco );
 }
 
-void CgnsZbcBoco::ReadCgnsBocoBcRegion()
+void CgnsZbcBoco::ReadCgnsZbcBoco()
 {
     this->ReadZnboco();
     this->CreateCgnsBocoBcRegion();
@@ -150,7 +150,7 @@ void CgnsZbcBoco::ReadCgnsBocoBcRegion()
         cout << "\n-->iBoco  = " << iBoco;
         cout << " nOrdinaryBcRegion = " << nBoco << "\n";
         CgnsBcBoco * cgnsBcBoco = this->GetCgnsBcRegionBoco( iBoco );
-        cgnsBcBoco->ReadCgnsBocoBcRegion();
+        cgnsBcBoco->ReadCgnsBcBoco();
     }
 }
 

@@ -57,7 +57,7 @@ public:
     void ConvertToInnerDataStandard();
     void ScanBcFace( FaceSolver * face_solver );
     void ReadZnboco();
-    void ReadCgnsBocoBcRegion();
+    void ReadCgnsZbcBoco();
     void ReconstructStrRegion();
     int GetNBocoDynamic();
     int GetNumberOfActualBcElements();

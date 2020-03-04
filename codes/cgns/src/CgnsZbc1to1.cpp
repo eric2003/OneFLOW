@@ -98,7 +98,7 @@ void CgnsZbc1to1::ReadZn1to1()
     cg_n1to1( fileId, baseId, zId, & this->n1to1 );
 }
 
-void CgnsZbc1to1::ReadCgns1to1BcRegion()
+void CgnsZbc1to1::ReadCgnsZbc1to1()
 {
     this->ReadZn1to1();
     this->CreateCgns1to1BcRegion();

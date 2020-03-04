@@ -87,14 +87,14 @@ void CgnsZbcConn::ReadZnconn()
     cg_nconns( fileId, baseId, zId, & this->nConn );
 }
 
-void CgnsZbcConn::ReadCgnsConnBcRegion()
+void CgnsZbcConn::ReadCgnsZbcConn()
 {
     this->ReadZnconn();
     this->CreateCgnsConnBcRegion();
     for ( int iConn = 0; iConn < this->nConn; ++ iConn )
     {
         CgnsBcConn * cgnsBcConn = this->GetCgnsBcRegionConn( iConn );
-        cgnsBcConn->ReadCgnsConnBcRegion();
+        cgnsBcConn->ReadCgnsBcConn();
     }
 }
 

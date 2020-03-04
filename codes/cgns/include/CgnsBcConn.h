@@ -43,7 +43,7 @@ public:
     void ReadCgnsBcConnInfo();
     void ReadCgnsBcConnData();
 
-    void ReadCgnsConnBcRegion();
+    void ReadCgnsBcConn();
 public:
     void SetPeriodicBc();
 };

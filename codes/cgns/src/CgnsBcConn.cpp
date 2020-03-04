@@ -83,7 +83,7 @@ void CgnsBcConn::ReadCgnsBcConnData()
     cg_conn_read( fileId, baseId, zId, this->bcId, & this->connPoint[ 0 ], this->donorDataType, & this->connDonorPoint[ 0 ] );
 }
 
-void CgnsBcConn::ReadCgnsConnBcRegion()
+void CgnsBcConn::ReadCgnsBcConn()
 {
     this->ReadCgnsBcConnInfo();
     this->ReadCgnsBcConnData();

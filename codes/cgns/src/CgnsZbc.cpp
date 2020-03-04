@@ -79,9 +79,9 @@ void CgnsZbc::ScanBcFace( FaceSolver * face_solver )
 
 void CgnsZbc::ReadCgnsGridBoundary()
 {
-    this->cgnsZbcBoco->ReadCgnsBocoBcRegion();
-    this->cgnsZbcConn->ReadCgnsConnBcRegion();
-    this->cgnsZbc1to1->ReadCgns1to1BcRegion();
+    this->cgnsZbcBoco->ReadCgnsZbcBoco();
+    this->cgnsZbcConn->ReadCgnsZbcConn();
+    this->cgnsZbc1to1->ReadCgnsZbc1to1();
 }
 
 void CgnsZbc::FillBcPoints( int * start, int * end, cgsize_t * bcpnts, int dimension )
