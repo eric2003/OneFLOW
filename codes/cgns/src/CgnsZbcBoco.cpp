@@ -58,6 +58,8 @@ CgnsZbcBoco::~CgnsZbcBoco()
 void CgnsZbcBoco::AddCgnsBocoBcRegion( CgnsBcBoco * cgnsBcBoco )
 {
     this->cgnsBcRegionBoco.push_back( cgnsBcBoco );
+    int id = this->cgnsBcRegionBoco.size();
+    cgnsBcBoco->bcId = id;
 }
 
 CgnsBcBoco * CgnsZbcBoco::GetCgnsBcRegionBoco( int iBoco )
@@ -123,7 +125,7 @@ void CgnsZbcBoco::ScanBcFace( FaceSolver * face_solver )
         RegionNameMap::AddRegion( cgnsBcBoco->name );
         int bcNameId = RegionNameMap::FindRegionId( cgnsBcBoco->name );
         cgnsBcBoco->nameId = bcNameId;
-        cgnsBcBoco->bcId = iBoco + 1;
+        //cgnsBcBoco->bcId = iBoco + 1;
         cgnsBcBoco->ScanBcFace( face_solver );
     }
     face_solver->ScanInterfaceBc();
@@ -144,12 +146,12 @@ void CgnsZbcBoco::ReadCgnsBocoBcRegion()
     this->ReadNumberOfCgnsBoco();
     this->CreateCgnsBocoBcRegion();
 
-    for ( int iBcRegion = 0; iBcRegion < nBoco; ++ iBcRegion )
+    for ( int iBoco = 0; iBoco < nBoco; ++ iBoco )
     {
-        cout << "\n-->iBcRegion  = " << iBcRegion;
+        cout << "\n-->iBoco  = " << iBoco;
         cout << " nOrdinaryBcRegion = " << nBoco << "\n";
-        CgnsBcBoco * cgnsBcBoco = this->GetCgnsBcRegionBoco( iBcRegion );
-        cgnsBcBoco->bcId = iBcRegion + 1;
+        CgnsBcBoco * cgnsBcBoco = this->GetCgnsBcRegionBoco( iBoco );
+        //cgnsBcBoco->bcId = iBoco + 1;
         cgnsBcBoco->ReadCgnsBocoBcRegion();
     }
 }
@@ -208,16 +210,16 @@ int CgnsZbcBoco::GetNumberOfActualBcElements()
     int nBFace = 0;
     int nActualBcFace = 0;
 
-    for ( int iBcRegion = 0; iBcRegion < this->nBoco; ++ iBcRegion )
+    for ( int iBoco = 0; iBoco < this->nBoco; ++ iBoco )
     {
-        CgnsBcBoco * cgnsBcBoco = this->GetCgnsBcRegionBoco( iBcRegion );
+        CgnsBcBoco * cgnsBcBoco = this->GetCgnsBcRegionBoco( iBoco );
         int nBcElement = cgnsBcBoco->nElements;
         int nActualBcElement = cgnsBcBoco->GetActualNumberOfBoundaryElements();
         nBFace += nBcElement;
         nActualBcFace += nActualBcElement;
 
-        cout << " iBcRegion  = " << iBcRegion << " numberOfBoundaryElements       = " << nBcElement << "\n";
-        cout << " iBcRegion  = " << iBcRegion << " numberOfActualBoundaryElements = " << nActualBcElement << "\n";
+        cout << " iBoco  = " << iBoco << " numberOfBoundaryElements       = " << nBcElement << "\n";
+        cout << " iBoco  = " << iBoco << " numberOfActualBoundaryElements = " << nActualBcElement << "\n";
     }
     cout << " numberOfBoundaryFaces       = " << nBFace << "\n";
     cout << " numberOfActualBoundaryFaces = " << nActualBcFace << "\n";
@@ -231,9 +233,9 @@ void CgnsZbcBoco::GenerateUnsBcElemConn( CgIntField& bcConn )
 
     cout << " pos = " << pos << "\n";
 
-    for ( int iBcRegion = 0; iBcRegion < this->nBoco; ++ iBcRegion )
+    for ( int iBoco = 0; iBoco < this->nBoco; ++ iBoco )
     {
-        CgnsBcBoco * bcRegion = this->GetCgnsBcRegionBoco( iBcRegion );
+        CgnsBcBoco * bcRegion = this->GetCgnsBcRegionBoco( iBoco );
 
         IntField ijkMin( 3 ), ijkMax( 3 );
         bcRegion->ExtractIJKRegionFromBcConn( ijkMin, ijkMax );
