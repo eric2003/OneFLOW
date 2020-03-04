@@ -23,49 +23,46 @@ License
 
 #pragma once
 #include "HXDefine.h"
+#include <vector>
+#include <string>
+#include <fstream>
+#include "HXCgns.h"
+using namespace std;
 
 BeginNameSpace( ONEFLOW )
 
 #ifdef ENABLE_CGNS
 
-class CgnsBase;
 class CgnsZone;
-class GridMediator;
-class GridMediatorS;
+class CgnsSection;
+class ElemFeature;
 
-class CgnsMultiBase
+class CgnsZone;
+class CgnsZbc;
+
+class CgnsZsection
 {
 public:
-    CgnsMultiBase ();
-    ~CgnsMultiBase();
+    CgnsZsection( CgnsZone * cgnsZone );
+    ~CgnsZsection();
 public:
-    int fileId, nBases;
- 
-    HXVector< CgnsBase * > baseVector;
-public:
-    int GetSystemZoneType();
-    void ReadCgnsGrid();
-    void DumpCgnsGrid( GridMediatorS * gridMediators );
-    void ReadCgnsGrid( const string & fileName );
-    void OpenCgnsFile( const string & fileName, int cgnsOpenMode );
-    void CloseCgnsFile();
-    void ReadCgnsMultiBase();
-    void DumpCgnsMultiBase( GridMediatorS * gridMediatorS );
-    void ReadNumCgnsBase();
+    int nSection;
 
-    void ReadCgnsMultiBase( CgnsMultiBase * strCgnsMultiBase );
-    void ReadNumCgnsBase( CgnsMultiBase * strCgnsMultiBase );
+    HXVector< CgnsSection * > cgnsSections;
+    CgnsZone * cgnsZone;
 public:
-    void CreateDefaultCgnsZones( GridMediatorS * gridMediatorS );
-    void PrepareCgnsZone( GridMediatorS * gridMediatorS );
-    void AddCgnsBase( CgnsBase * cgnsBase );
-    void InitCgnsBase();
-    void ConvertStrCgns2UnsCgnsGrid( CgnsMultiBase * strCgnsMultiBase );
+    void AddCgnsSection( CgnsSection * cgnsSection );
+    CgnsSection * GetCgnsSection( int iSection );
+    void CreateCgnsSection();
+    void CreateConnList();
+    void ConvertToInnerDataStandard();
+    CgnsSection * GetSectionByEid( int eId );
 public:
-    int GetNZone();
-    CgnsBase * GetCgnsBase( int iBase );
-    CgnsZone * GetCgnsZone( int globalZoneId );
-    CgnsZone * GetMultiBaseCgnsZone( int iBase, int iZone );
+    void ReadNumberOfCgnsSections();
+    void ReadCgnsSections();
+    void SetElemPosition();
+public:
+    bool ExistSection( const string & sectionName );
 };
 
 #endif

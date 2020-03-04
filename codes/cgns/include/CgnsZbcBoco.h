@@ -23,9 +23,6 @@ License
 
 #pragma once
 #include "HXDefine.h"
-#include <vector>
-#include <string>
-#include <fstream>
 #include "HXCgns.h"
 using namespace std;
 
@@ -34,36 +31,37 @@ BeginNameSpace( ONEFLOW )
 #ifdef ENABLE_CGNS
 
 class CgnsZone;
-class CgnsSection;
-class ElemFeature;
+class CgnsBase;
+class FaceSolver;
 
-class CgnsZone;
-class CgnsBcRegionProxy;
+class FaceSolver;
+class CgnsBcBoco;
+class Grid;
+class BcRegion;
+class TestRegion;
 
-class CgnsMultiSection
+class CgnsZbcBoco
 {
 public:
-    CgnsMultiSection( CgnsZone * cgnsZone );
-    ~CgnsMultiSection();
+    CgnsZbcBoco( CgnsZone * cgnsZone );
+    ~CgnsZbcBoco();
 public:
-    int nSection;
-
-    HXVector< CgnsSection * > cgnsSections;
+    int nBoco;
+    HXVector< CgnsBcBoco * > cgnsBcRegionBoco;
     CgnsZone * cgnsZone;
-    CgnsBcRegionProxy * cgnsBcRegionProxy;
 public:
-    void AddCgnsSection( CgnsSection * cgnsSection );
-    CgnsSection * GetCgnsSection( int iSection );
-    void CreateCgnsSection();
-    void CreateConnList();
+    void AddCgnsBocoBcRegion( CgnsBcBoco * cgnsBcBoco );
+    CgnsBcBoco * GetCgnsBcRegionBoco( int iBoco );
+    void CreateCgnsBocoBcRegion();
+    void ShiftBcRegion();
     void ConvertToInnerDataStandard();
-    CgnsSection * GetSectionByEid( int eId );
-public:
-    void ReadNumberOfCgnsSections();
-    void ReadCgnsSections();
-    void SetElemPosition();
-public:
-    bool ExistSection( const string & sectionName );
+    void ScanBcFace( FaceSolver * face_solver );
+    void ReadNumberOfCgnsBoco();
+    void ReadCgnsBocoBcRegion();
+    void ReconstructStrRegion();
+    int GetNBocoDynamic();
+    int GetNumberOfActualBcElements();
+    void GenerateUnsBcElemConn( CgIntField& bcConn );
 };
 
 #endif

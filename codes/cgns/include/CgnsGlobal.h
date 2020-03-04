@@ -32,7 +32,7 @@ BeginNameSpace( ONEFLOW )
 
 class CgnsBase;
 class CgnsZone;
-class CgnsMultiBase;
+class CgnsZbase;
 
 class CgnsGlobal
 {
@@ -40,7 +40,7 @@ public:
     CgnsGlobal();
     ~CgnsGlobal();
 public:
-    CgnsMultiBase * cgnsbases;
+    CgnsZbase * cgnsbases;
 public:
     CgnsZone * GetCgnsZoneByName( const string & zoneName );
 };

@@ -24,49 +24,42 @@ License
 #pragma once
 #include "HXDefine.h"
 #include "HXCgns.h"
-#include <string>
-#include <map>
 using namespace std;
 
 BeginNameSpace( ONEFLOW )
 
-int AbsoluteDiagonalId( int x, int y );
-
 #ifdef ENABLE_CGNS
 
-class CgnsBcRegion;
-class CgnsBcInterface
+class CgnsZone;
+class CgnsBase;
+class FaceSolver;
+
+class FaceSolver;
+class Grid;
+class BcRegion;
+class TestRegion;
+
+class CgnsBcBoco;
+class CgnsBcConn;
+
+class CgnsZbcConn
 {
 public:
-    CgnsBcInterface( CgnsBcRegion * bcRegion );
-    ~CgnsBcInterface();
+    CgnsZbcConn( CgnsZone * cgnsZone );
+    ~CgnsZbcConn();
 public:
-    CgInt    nConnPoints;
-    CgInt    nConnDonorPoints;
-    ZoneType_t     donorZoneType;
-    PointSetType_t donorPointSetType;
-    DataType_t     donorDataType;
-
-    CgIntField connPoint;
-    CgIntField connDonorPoint;
-
-    int itranfrm[ 3 ];
-
-    string donorZoneName;
-
-    CgnsBcRegion * bcRegion;
-
-    bool flag1To1;
+    int nConn;
+    HXVector< CgnsBcConn * > cgnsBcConns;
+    
+    CgnsZone * cgnsZone;
 public:
-    void ReadCgnsBcConnInfo();
-    void ReadCgnsBcConnData();
-    void ReadCgnsBc1To1();
-public:
-    void ConvertToInnerDataStandard();
-    void ShiftBcRegion();
-public:
-    void AddFacePair();
+    void AddCgnsConnBcRegion( CgnsBcConn * cgnsBcConn );
+    CgnsBcConn * GetCgnsBcRegionConn( int iConn );
+    void CreateCgnsConnBcRegion();
+    void ReadNumberOfCgnsConn();
+    void ReadCgnsConnBcRegion();
     void SetPeriodicBc();
+    void ConvertToInnerDataStandard();
 };
 
 #endif

@@ -44,17 +44,17 @@ int OneFlow2CgnsZoneType( int zoneType )
 {
     if ( zoneType == UMESH )
     {
-        return Unstructured;
+        return CGNS_ENUMV( Unstructured );
     }
     else
     {
-        return Structured;
+        return CGNS_ENUMV( Structured );
     }
 }
 
 int Cgns2OneFlowZoneType( int zoneType )
 {
-    if ( zoneType == Unstructured )
+    if ( zoneType == CGNS_ENUMV( Unstructured ) )
     {
         return UMESH;
     }

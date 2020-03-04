@@ -24,9 +24,10 @@ License
 #include "CgnsBase.h"
 #include "CgnsCoor.h"
 #include "CgnsSection.h"
-#include "CgnsMultiSection.h"
-#include "CgnsBcRegion.h"
-#include "CgnsBcRegionProxy.h"
+#include "CgnsZsection.h"
+#include "CgnsBcBoco.h"
+#include "CgnsZbc.h"
+#include "CgnsZbcBoco.h"
 #include "BcRecord.h"
 #include "Boundary.h"
 #include "NodeMesh.h"
@@ -54,16 +55,16 @@ CgnsZone::CgnsZone( CgnsBase * cgnsBase )
 {
     this->cgnsBase = cgnsBase;
     this->nodeMesh = 0;
-    this->multiSection = 0;
-    this->bcRegionProxy = 0;
+    this->cgnsZsection = 0;
+    this->cgnsZbc = 0;
     this->volBcType = -1;
 }
 
 CgnsZone::~CgnsZone()
 {
     delete this->nodeMesh;
-    delete this->multiSection;
-    delete this->bcRegionProxy;
+    delete this->cgnsZsection;
+    delete this->cgnsZbc;
 }
 
 void CgnsZone::FreeMesh()
@@ -85,8 +86,8 @@ int CgnsZone::GetVolBcType()
 void CgnsZone::Create()
 {
     this->nodeMesh = new NodeMesh();
-    this->multiSection = new CgnsMultiSection( this );
-    this->bcRegionProxy = new CgnsBcRegionProxy( this );
+    this->cgnsZsection = new CgnsZsection( this );
+    this->cgnsZbc = new CgnsZbc( this );
 }
 
 void CgnsZone::InitElement( GridElem * ge )
@@ -97,15 +98,15 @@ void CgnsZone::InitElement( GridElem * ge )
 
 void CgnsZone::SetPeriodicBc()
 {
-    this->bcRegionProxy->SetPeriodicBc();
+    this->cgnsZbc->SetPeriodicBc();
 }
 
 void CgnsZone::SetElementTypeAndNode( ElemFeature * elem_feature )
 {
-    size_t nSection = this->multiSection->nSection;
+    size_t nSection = this->cgnsZsection->nSection;
     for ( int iSection = 0; iSection < nSection; ++ iSection )
     {
-        CgnsSection * cgnsSection = this->multiSection->GetCgnsSection( iSection );
+        CgnsSection * cgnsSection = this->cgnsZsection->GetCgnsSection( iSection );
         cgnsSection->SetElementTypeAndNode( elem_feature );
     }
     cout << "\n";
@@ -115,7 +116,7 @@ void CgnsZone::SetElementTypeAndNode( ElemFeature * elem_feature )
 
 bool CgnsZone::ExistSection( const string & sectionName )
 {
-    return this->multiSection->ExistSection( sectionName );
+    return this->cgnsZsection->ExistSection( sectionName );
 }
 
 void CgnsZone::InitLgMapping()
@@ -130,14 +131,14 @@ void CgnsZone::InitLgMapping()
 
 void CgnsZone::ConvertToInnerDataStandard()
 {
-    if ( this->cgnsZoneType == Structured )
+    if ( this->cgnsZoneType == CGNS_ENUMV( Structured ) )
     {
         //this->SetStructuredSectionInformation();
         return;
     }
 
-    this->multiSection->ConvertToInnerDataStandard();
-    this->bcRegionProxy->ConvertToInnerDataStandard();
+    this->cgnsZsection->ConvertToInnerDataStandard();
+    this->cgnsZbc->ConvertToInnerDataStandard();
 
 }
 
@@ -161,12 +162,12 @@ void CgnsZone::ConstructCgnsGridPoints( PointFactory * point_factory )
 
 void CgnsZone::ScanBcFace( FaceSolver * face_solver )
 {
-    this->bcRegionProxy->ScanBcFace( face_solver );
+    this->cgnsZbc->ScanBcFace( face_solver );
 }
 
 void CgnsZone::GetElementNodeId( CgInt eId, CgIntField & eNodeId )
 {
-    CgnsSection * cgnsSection = this->multiSection->GetSectionByEid( eId );
+    CgnsSection * cgnsSection = this->cgnsZsection->GetSectionByEid( eId );
     cgnsSection->GetElementNodeId( eId - cgnsSection->startId, eNodeId );
 }
 
@@ -177,14 +178,6 @@ void CgnsZone::FillISize( Grid * gridIn )
     int nj = grid->nj;
     int nk = grid->nk;
     this->FillISize( ni, nj, nk, THREE_D );
-    //if ( Dim::dimension == THREE_D )
-    //{
-    //    this->FillISize( ni, nj, nk, THREE_D );
-    //}
-    //else
-    //{
-    //    this->FillISize( ni, nj, nk, Dim::dimension );
-    //}
 }
 
 void CgnsZone::FillISize( int ni, int nj, int nk, int dimension )
@@ -284,11 +277,11 @@ void CgnsZone::DumpCgnsZoneType( Grid * grid )
 {
     if ( IsUnsGrid( grid->type ) )
     {
-        this->cgnsZoneType = Unstructured;
+        this->cgnsZoneType = CGNS_ENUMV( Unstructured );
     }
     else
     {
-        this->cgnsZoneType = Structured;
+        this->cgnsZoneType = CGNS_ENUMV( Structured );
     }
 
     cout << "   The Zone Type is " << GetCgnsZoneTypeName( cgnsZoneType ) << " Zone" << "\n";
@@ -296,7 +289,7 @@ void CgnsZone::DumpCgnsZoneType( Grid * grid )
 
 void CgnsZone::ReadCgnsZoneType( CgnsZone * cgnsZoneIn )
 {
-    this->cgnsZoneType = Unstructured;
+    this->cgnsZoneType = CGNS_ENUMV( Unstructured );
 
     cout << "   The Zone Type is " << GetCgnsZoneTypeName( cgnsZoneType ) << " Zone" << "\n";
 }
@@ -344,7 +337,7 @@ void CgnsZone::SetDimension()
         }
     }
 
-    if ( this->cgnsZoneType == Structured )
+    if ( this->cgnsZoneType == CGNS_ENUMV( Structured ) )
     {
         // lower range index
         irmin[ 0 ] = 1;
@@ -441,7 +434,7 @@ CgInt CgnsZone::GetNK() const { return irmax[2]; };
 
 void CgnsZone::ReadElementConnectivities()
 {
-    if ( this->cgnsZoneType == Structured ) return;
+    if ( this->cgnsZoneType == CGNS_ENUMV( Structured ) ) return;
 
     this->ReadNumberOfCgnsSections();
 
@@ -461,23 +454,23 @@ void CgnsZone::ReadElementConnectivities( CgnsZone * cgnsZoneIn )
 
 void CgnsZone::AllocateUnsElemConn( CgnsZone * cgnsZoneIn )
 {
-    this->multiSection->nSection = 2;
-    this->multiSection->CreateCgnsSection();
+    this->cgnsZsection->nSection = 2;
+    this->cgnsZsection->CreateCgnsSection();
 
     int s1, e1, s2, e2, etype1, etype2;
     cgnsZoneIn->GetStrZonePara( s1, e1, s2, e2, etype1, etype2 );
 
-    CgnsSection * cgnsSection1 = this->multiSection->GetCgnsSection( 0 );
-    CgnsSection * cgnsSection2 = this->multiSection->GetCgnsSection( 1 );
+    CgnsSection * cgnsSection1 = this->cgnsZsection->GetCgnsSection( 0 );
+    CgnsSection * cgnsSection2 = this->cgnsZsection->GetCgnsSection( 1 );
     cgnsSection1->SetSectionInfo( "Section1", etype1, s1, e1 );
     cgnsSection2->SetSectionInfo( "Section2", etype2, s2, e2 );
 
-    this->multiSection->CreateConnList();
+    this->cgnsZsection->CreateConnList();
 }
 
 void CgnsZone::GetStrZonePara( int & s1, int & e1, int & s2, int & e2, int & etype1, int & etype2  )
 {
-   int nActualBcFace = this->bcRegionProxy->GetNumberOfActualBcElements();
+   int nActualBcFace = this->cgnsZbc->GetNumberOfActualBcElements();
 
     s1 = 1;
     e1 = this->nCell;
@@ -506,7 +499,7 @@ void CgnsZone::GetStrZonePara( int & s1, int & e1, int & s2, int & e2, int & ety
 
 void CgnsZone::SetElemPosition()
 {
-    this->multiSection->SetElemPosition();
+    this->cgnsZsection->SetElemPosition();
 }
 
 void CgnsZone::GenerateUnsVolElemConn( CgnsZone * cgnsZoneIn )
@@ -518,7 +511,7 @@ void CgnsZone::GenerateUnsVolElemConn( CgnsZone * cgnsZoneIn )
     cout << " ni = " << ni << " nj = " << nj << " nk = " << nk << "\n";
 
     int iSection = 0;
-    CgnsSection * cgnsSection = this->multiSection->GetCgnsSection( iSection );
+    CgnsSection * cgnsSection = this->cgnsZsection->GetCgnsSection( iSection );
 
     Range I, J, K;
     GetRange( ni, nj, nk, 0, -1, I, J, K );
@@ -580,50 +573,50 @@ void CgnsZone::GenerateUnsVolElemConn( CgnsZone * cgnsZoneIn )
 void CgnsZone::GenerateUnsBcElemConn( CgnsZone * cgnsZoneIn )
 {
     int iSection = 1;
-    CgnsSection * cgnsSection = this->multiSection->GetCgnsSection( iSection );
+    CgnsSection * cgnsSection = this->cgnsZsection->GetCgnsSection( iSection );
 
-    this->CreateCgnsBcRegion( cgnsZoneIn );
+    this->cgnsZbc->CreateCgnsBcRegion( cgnsZoneIn->cgnsZbc );
 
     cout << " ConnectionList Size = " << cgnsSection->connSize << "\n";
-    cgnsZoneIn->bcRegionProxy->GenerateUnsBcElemConn( cgnsSection->connList );
+    cgnsZoneIn->cgnsZbc->GenerateUnsBcElemConn( cgnsSection->connList );
 }
 
 void CgnsZone::GenerateUnsBcCondConn( CgnsZone * cgnsZoneIn )
 {
-    int nBcRegion = cgnsZoneIn->bcRegionProxy->nBcRegion;
+    int nBoco = cgnsZoneIn->cgnsZbc->cgnsZbcBoco->nBoco;
 
     int iSection = 1;
-    CgnsSection * cgnsSection = this->multiSection->GetCgnsSection( iSection );
+    CgnsSection * cgnsSection = this->cgnsZsection->GetCgnsSection( iSection );
 
     CgInt startId = cgnsSection->startId;
 
-    for ( int iBcRegion = 0; iBcRegion < nBcRegion; ++ iBcRegion )
+    for ( int iBoco = 0; iBoco < nBoco; ++ iBoco )
     {
-        CgnsBcRegion * bcRegion    = this      ->bcRegionProxy->GetCgnsBcRegion( iBcRegion );
-        CgnsBcRegion * strBcRegion = cgnsZoneIn->bcRegionProxy->GetCgnsBcRegion( iBcRegion );
+        CgnsBcBoco * bcRegion    = this      ->cgnsZbc->cgnsZbcBoco->GetCgnsBcRegionBoco( iBoco );
+        CgnsBcBoco * strBcRegion = cgnsZoneIn->cgnsZbc->cgnsZbcBoco->GetCgnsBcRegionBoco( iBoco );
         bcRegion->CopyStrBcRegion( strBcRegion, startId );
     }
 }
 
 void CgnsZone::ReadNumberOfCgnsSections()
 {
-    this->multiSection->ReadNumberOfCgnsSections();
+    this->cgnsZsection->ReadNumberOfCgnsSections();
 }
 
 void CgnsZone::ReadNumberOfCgnsSections( CgnsZone * cgnsZoneIn )
 {
-    this->multiSection->nSection = cgnsZoneIn->multiSection->nSection;
-    cout << "   numberOfCgnsSections = " << this->multiSection->nSection << "\n";
+    this->cgnsZsection->nSection = cgnsZoneIn->cgnsZsection->nSection;
+    cout << "   numberOfCgnsSections = " << this->cgnsZsection->nSection << "\n";
 }
 
 void CgnsZone::CreateCgnsSections()
 {
-    this->multiSection->CreateCgnsSection();
+    this->cgnsZsection->CreateCgnsSection();
 }
 
 void CgnsZone::ReadCgnsSections()
 {
-    this->multiSection->ReadCgnsSections();
+    this->cgnsZsection->ReadCgnsSections();
 }
 
 void CgnsZone::ReadCgnsGridCoordinates()
@@ -673,12 +666,12 @@ void CgnsZone::ReadCgnsGridCoordinates( CgnsZone * cgnsZoneIn )
 
 void CgnsZone::ReadCgnsGridBoundary()
 {
-    bcRegionProxy->ReadCgnsGridBoundary();
+    cgnsZbc->ReadCgnsGridBoundary();
 }
 
 void CgnsZone::DumpCgnsGridBoundary( Grid * grid )
 {
-    bcRegionProxy->DumpCgnsGridBoundary( grid );
+    cgnsZbc->DumpCgnsGridBoundary( grid );
 }
 
 void CgnsZone::ProcessPeriodicBc()
@@ -686,16 +679,11 @@ void CgnsZone::ProcessPeriodicBc()
     ;
 }
 
-void CgnsZone::CreateCgnsBcRegion( CgnsZone * cgnsZoneIn )
-{
-    bcRegionProxy->CreateCgnsBcRegion( cgnsZoneIn->bcRegionProxy );
-}
-
 void CgnsZone::PrepareCgnsZone( Grid * grid )
 {
     Grids grids;
     grids.push_back( grid );
-    this->cgnsZoneType = Unstructured;
+    this->cgnsZoneType = CGNS_ENUMV( Unstructured );
     ONEFLOW::PrepareCgnsZone( grids, this );
 }
 
@@ -824,36 +812,34 @@ void FillSection( Grids & grids, HXVector< Int3D * > & unsIdList, CgnsZone * cgn
 
     cgnsZone->nCell = nTCell;
 
-    cgnsZone->multiSection->nSection = 2;
-    cgnsZone->multiSection->CreateCgnsSection();
+    cgnsZone->cgnsZsection->nSection = 2;
+    cgnsZone->cgnsZsection->CreateCgnsSection();
 
-    cgnsZone->multiSection->cgnsSections[ 0 ]->startId = 1;
-    cgnsZone->multiSection->cgnsSections[ 0 ]->endId   = nTCell;
+    cgnsZone->cgnsZsection->cgnsSections[ 0 ]->startId = 1;
+    cgnsZone->cgnsZsection->cgnsSections[ 0 ]->endId   = nTCell;
 
-    cgnsZone->multiSection->cgnsSections[ 1 ]->startId = nTCell + 1;
-    cgnsZone->multiSection->cgnsSections[ 1 ]->endId   = nTCell + 1 + nBFace;
+    cgnsZone->cgnsZsection->cgnsSections[ 1 ]->startId = nTCell + 1;
+    cgnsZone->cgnsZsection->cgnsSections[ 1 ]->endId   = nTCell + 1 + nBFace;
 
     if ( Dim::dimension == ONEFLOW::THREE_D )
     {
-        cgnsZone->multiSection->cgnsSections[ 0 ]->eType = HEXA_8;
-        cgnsZone->multiSection->cgnsSections[ 1 ]->eType = QUAD_4;
+        cgnsZone->cgnsZsection->cgnsSections[ 0 ]->eType = HEXA_8;
+        cgnsZone->cgnsZsection->cgnsSections[ 1 ]->eType = QUAD_4;
     }
     else
     {
-        cgnsZone->multiSection->cgnsSections[ 0 ]->eType = QUAD_4;
-        cgnsZone->multiSection->cgnsSections[ 1 ]->eType = BAR_2;
+        cgnsZone->cgnsZsection->cgnsSections[ 0 ]->eType = QUAD_4;
+        cgnsZone->cgnsZsection->cgnsSections[ 1 ]->eType = BAR_2;
     }
 
-    cgnsZone->multiSection->CreateConnList();
+    cgnsZone->cgnsZsection->CreateConnList();
 
-    CgnsBcRegionProxy * bcRegionProxy = cgnsZone->bcRegionProxy;
-    bcRegionProxy->nOrdinaryBcRegion = nTBcRegion;
-    bcRegionProxy->n1To1 = 0;
-    bcRegionProxy->nConn = 0;
-    bcRegionProxy->CreateCgnsBcRegion();
+    CgnsZbc * cgnsZbc = cgnsZone->cgnsZbc;
+    cgnsZbc->cgnsZbcBoco->nBoco = nTBcRegion;
+    cgnsZbc->CreateCgnsBcRegion( cgnsZbc );
 
-    CgnsSection * secV = cgnsZone->multiSection->GetCgnsSection( 0 );
-    CgnsSection * secB = cgnsZone->multiSection->GetCgnsSection( 1 );
+    CgnsSection * secV = cgnsZone->cgnsZsection->GetCgnsSection( 0 );
+    CgnsSection * secB = cgnsZone->cgnsZsection->GetCgnsSection( 1 );
 
     CgIntField& connList  = secV->connList;
     CgIntField& bConnList = secB->connList;
@@ -931,21 +917,20 @@ void FillSection( Grids & grids, HXVector< Int3D * > & unsIdList, CgnsZone * cgn
             if ( BC::IsNotNormalBc( bcRegion->bcType ) ) continue;
             int nRegionCell = bcRegion->ComputeRegionCells();
 
-            CgnsBcRegion * cgnsBcRegion = bcRegionProxy->GetCgnsBcRegion( irc );
+            CgnsBcBoco * cgnsBcBoco = cgnsZbc->cgnsZbcBoco->GetCgnsBcRegionBoco( irc );
             
-            //cgnsBcRegion->gridLocation = CellCenter;
-            cgnsBcRegion->SetCgnsBcRegionGridLocation( CellCenter );
-            cgnsBcRegion->nElements    = 2;
-            cgnsBcRegion->bcType       = static_cast< BCType_t >( bcTypeMap->OneFlow2Cgns( bcRegion->bcType ) );
-            cgnsBcRegion->pointSetType = PointRange;
+            cgnsBcBoco->SetCgnsBcRegionGridLocation( CellCenter );
+            cgnsBcBoco->nElements    = 2;
+            cgnsBcBoco->bcType       = static_cast< BCType_t >( bcTypeMap->OneFlow2Cgns( bcRegion->bcType ) );
+            cgnsBcBoco->pointSetType = PointRange;
 
-            //cgnsBcRegion->SetCgnsBcRegion( nElements, bcType, );
+            //cgnsBcBoco->SetCgnsBcRegion( nElements, bcType, );
 
-            cgnsBcRegion->CreateCgnsBcConn();
-            cgnsBcRegion->connList[ 0 ] = eIdPos + 1;
-            cgnsBcRegion->connList[ 1 ] = eIdPos + nRegionCell;
-            string bcName = GetCgnsBcName( cgnsBcRegion->bcType );
-            cgnsBcRegion->name = AddString( bcName, ir );
+            cgnsBcBoco->CreateCgnsBcConn();
+            cgnsBcBoco->connList[ 0 ] = eIdPos + 1;
+            cgnsBcBoco->connList[ 1 ] = eIdPos + nRegionCell;
+            string bcName = GetCgnsBcName( cgnsBcBoco->bcType );
+            cgnsBcBoco->name = AddString( bcName, ir );
 
             eIdPos += nRegionCell;
 

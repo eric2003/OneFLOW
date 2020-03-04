@@ -32,12 +32,41 @@ BeginNameSpace( ONEFLOW )
 
 #ifdef ENABLE_CGNS
 
-class CgnsBcRegion;
+class CgnsZone;
+
 class CgnsBcConn
 {
 public:
-    CgnsBcConn( CgnsBcRegion * bcRegion );
+    CgnsBcConn( CgnsZone * cgnsZone );
     ~CgnsBcConn();
+public:
+    CgInt          nConnPoints;
+    CgIntField     connPoint;
+
+    CgInt          nConnDonorPoints;
+    CgIntField     connDonorPoint;
+
+    ZoneType_t     donorZoneType;
+    PointSetType_t donorPointSetType;
+    DataType_t     donorDataType;
+
+    string connName;
+    string donorZoneName;
+
+    CgnsZone * cgnsZone;
+    int bcId;
+public:
+    PointSetType_t pointSetType;
+    GridLocation_t gridLocation;
+    GridConnectivityType_t gridConnType;  //Overset, Abutting, Abutting1to1
+public:
+    void ReadCgnsBcConnInfo();
+    void ReadCgnsBcConnData();
+
+    void ReadCgnsConnBcRegion();
+    void ConvertToInnerDataStandard();
+public:
+    void SetPeriodicBc();
 };
 
 #endif

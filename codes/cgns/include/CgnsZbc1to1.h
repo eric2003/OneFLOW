@@ -19,36 +19,47 @@ License
     along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 
 \*---------------------------------------------------------------------------*/
-#include "CgnsGlobal.h"
-#include "CgnsZbase.h"
-#include "CgnsBase.h"
-#include "CgnsZone.h"
+
+
+#pragma once
+#include "HXDefine.h"
+#include "HXCgns.h"
+using namespace std;
 
 BeginNameSpace( ONEFLOW )
+
 #ifdef ENABLE_CGNS
 
-CgnsGlobal cgns_global;
+class CgnsZone;
+class CgnsBase;
+class FaceSolver;
 
-CgnsGlobal::CgnsGlobal()
-{
-    ;
-}
+class FaceSolver;
+class CgnsBcBoco;
+class Grid;
+class BcRegion;
+class TestRegion;
+class CgnsBc1to1;
 
-CgnsGlobal::~CgnsGlobal()
+class CgnsZbc1to1
 {
-    ;
-}
-
-CgnsZone * CgnsGlobal::GetCgnsZoneByName( const string & zoneName )
-{
-    CgnsBase * cgnsBase = cgnsbases->baseVector[ 0 ];
-    return cgnsBase->GetCgnsZoneByName( zoneName );
-}
-
-CgnsZone * GetCgnsZoneByName( const string & zoneName )
-{
-    return cgns_global.GetCgnsZoneByName( zoneName );
-}
+public:
+    CgnsZbc1to1( CgnsZone * cgnsZone );
+    ~CgnsZbc1to1();
+public:
+    int n1To1;
+    HXVector< CgnsBc1to1 * > cgnsBc1to1s;
+    CgnsZone * cgnsZone;
+public:
+    void AddCgns1To1BcRegion( CgnsBc1to1 * cgnsBc1to1 );
+    CgnsBc1to1 * GetCgnsBcRegion1To1( int i1To1 );
+    void CreateCgns1To1BcRegion();
+    void ConvertToInnerDataStandard();
+    void ReadNumberOfCgns1To1();
+    void ReadCgns1to1BcRegion();
+    void SetPeriodicBc();
+};
 
 #endif
+
 EndNameSpace

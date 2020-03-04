@@ -24,10 +24,11 @@ License
 #include "HXStd.h"
 #include "ElementHome.h"
 #include "CgnsFactory.h"
-#include "CgnsMultiBase.h"
-#include "CgnsMultiSection.h"
-#include "CgnsBcRegionProxy.h"
-#include "CgnsBcRegion.h"
+#include "CgnsZbase.h"
+#include "CgnsZsection.h"
+#include "CgnsZbc.h"
+#include "CgnsZbcBoco.h"
+#include "CgnsBcBoco.h"
 #include "CgnsSection.h"
 #include "CgnsZone.h"
 #include "GridMediator.h"
@@ -536,17 +537,17 @@ void FillSU2CgnsZone( Su2Grid* su2Grid, CgnsZone * cgnsZone )
 
     int nSection = nVolSec + nBcSec;
 
-    CgnsMultiSection * multiSection = cgnsZone->multiSection;
+    CgnsZsection * cgnsZsection = cgnsZone->cgnsZsection;
 
-    multiSection->nSection = nSection;
-    multiSection->CreateCgnsSection();
+    cgnsZsection->nSection = nSection;
+    cgnsZsection->CreateCgnsSection();
 
     int nVolCell = volSec.CmpTotalElem();
  
     int sumElem = 0;
     for ( int iSection = 0; iSection < nSection; ++ iSection )
     {
-        CgnsSection * cgnsSection = multiSection->GetCgnsSection( iSection );
+        CgnsSection * cgnsSection = cgnsZsection->GetCgnsSection( iSection );
         SecMarker * sec = 0;
         if ( iSection < nVolSec )
         {
@@ -579,15 +580,13 @@ void FillSU2CgnsZone( Su2Grid* su2Grid, CgnsZone * cgnsZone )
 
     for ( int iSection = 0; iSection < nSection; ++ iSection )
     {
-        CgnsSection * cgnsSection = multiSection->GetCgnsSection( iSection );
+        CgnsSection * cgnsSection = cgnsZsection->GetCgnsSection( iSection );
         cgnsSection->SetElemPosition();
     }
 
-    CgnsBcRegionProxy * bcRegionProxy = cgnsZone->bcRegionProxy;
-    bcRegionProxy->nOrdinaryBcRegion = su2Grid->mmark.nMarker;
-    bcRegionProxy->n1To1 = 0;
-    bcRegionProxy->nConn = 0;
-    bcRegionProxy->CreateCgnsBcRegion();
+    CgnsZbc * cgnsZbc = cgnsZone->cgnsZbc;
+    cgnsZbc->cgnsZbcBoco->nBoco = su2Grid->mmark.nMarker;
+    cgnsZbc->CreateCgnsBcRegion( cgnsZbc );
 
     for ( int iMarker = 0; iMarker < su2Grid->mmark.nMarker; ++ iMarker )
     {
@@ -595,21 +594,21 @@ void FillSU2CgnsZone( Su2Grid* su2Grid, CgnsZone * cgnsZone )
         string & name = marker->name;
         string& bcName = marker->bcName;
 
-        CgnsBcRegion * cgnsBcRegion = bcRegionProxy->cgnsBcRegions[ iMarker ];
-        cgnsBcRegion->name = name;
-        cgnsBcRegion->gridLocation = CellCenter;
-        cgnsBcRegion->nElements    = marker->nElem;
-        cgnsBcRegion->bcType = static_cast< BCType_t >( marker->cgns_bcType );
-        cgnsBcRegion->pointSetType = PointList;
-        cgnsBcRegion->CreateCgnsBcConn();
+        CgnsBcBoco * cgnsBcBoco = cgnsZbc->cgnsZbcBoco->GetCgnsBcRegionBoco( iMarker );
+        cgnsBcBoco->name = name;
+        cgnsBcBoco->gridLocation = CellCenter;
+        cgnsBcBoco->nElements    = marker->nElem;
+        cgnsBcBoco->bcType = static_cast< BCType_t >( marker->cgns_bcType );
+        cgnsBcBoco->pointSetType = PointList;
+        cgnsBcBoco->CreateCgnsBcConn();
 
         for ( int iElem = 0; iElem < marker->nElem; ++ iElem )
         {
             int elemId = su2Grid->mmark.l2g[ iMarker ][ iElem ];
-            cgnsBcRegion->connList[ iElem ] = elemId + 1 + nVolCell;
+            cgnsBcBoco->connList[ iElem ] = elemId + 1 + nVolCell;
         }
         
-        //string bcName = GetCgnsBcName( cgnsBcRegion->bcType );
+        //string bcName = GetCgnsBcName( cgnsBcBoco->bcType );
     }
 
     cgnsZone->ConvertToInnerDataStandard();

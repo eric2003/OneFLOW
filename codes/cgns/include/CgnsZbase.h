@@ -23,66 +23,49 @@ License
 
 #pragma once
 #include "HXDefine.h"
-#include "HXArray.h"
-#include "GridDef.h"
-#include "HXCgns.h"
-#include <vector>
-#include <string>
-#include <fstream>
-using namespace std;
 
 BeginNameSpace( ONEFLOW )
 
-class StrGrid;
-class NodeMesh;
-class Grid;
-class CgnsZbase;
+#ifdef ENABLE_CGNS
+
+class CgnsBase;
 class CgnsZone;
-class GridElem;
-class GridElemS;
-class Su2Grid;
 class GridMediator;
 class GridMediatorS;
 
-#ifdef ENABLE_CGNS
-
-class CgnsFactory
+class CgnsZbase
 {
 public:
-    CgnsFactory();
-    ~CgnsFactory();
+    CgnsZbase ();
+    ~CgnsZbase();
 public:
-    CgnsZbase * cgnsZbase;
-    GridElemS * gridElemS;
-    int nZone;
-    int nOriZone;
+    int fileId, nBases;
+ 
+    HXVector< CgnsBase * > baseVector;
 public:
-    void GenerateGrid();
+    int GetSystemZoneType();
     void ReadCgnsGrid();
     void DumpCgnsGrid( GridMediatorS * gridMediators );
-public:
-    void CommonToOneFlowGrid();
-    void CommonToUnsGrid();
-    void CommonToStrGrid();
-    void CommonToUnsGridTEST();
-    void ReadGridAndConvertToUnsCgnsZone();
-public:
-    void CreateCgnsZone( GridMediatorS * gridMediators );
-    void PrepareCgnsZone( GridMediatorS * gridMediators );
-    void CreateDefaultZone( int nZone );
-    CgnsZone * CreateOneUnsCgnsZone( int cgnsZoneId );
-public:
-    void CgnsToOneFlowGrid();
-    void CgnsToOneFlowGrid( Grid *& grid, int zId );
-    void ConvertStrCgns2UnsCgnsGrid();
-    void AllocateGridElem();
-    void PrepareUnsCompGrid();
+    void ReadCgnsGrid( const string & fileName );
+    void OpenCgnsFile( const string & fileName, int cgnsOpenMode );
+    void CloseCgnsFile();
+    void ReadCgnsMultiBase();
+    void DumpCgnsMultiBase( GridMediatorS * gridMediatorS );
+    void ReadNumCgnsBase();
 
-    //转换为oneflow计算所用的网格
-    void GenerateCompGrid();
-protected:
-    void GenerateStrCompGrid();
-    void GenerateUnsCompGrid();
+    void ReadCgnsMultiBase( CgnsZbase * strCgnsMultiBase );
+    void ReadNumCgnsBase( CgnsZbase * strCgnsMultiBase );
+public:
+    void CreateDefaultCgnsZones( GridMediatorS * gridMediatorS );
+    void PrepareCgnsZone( GridMediatorS * gridMediatorS );
+    void AddCgnsBase( CgnsBase * cgnsBase );
+    void InitCgnsBase();
+    void ConvertStrCgns2UnsCgnsGrid( CgnsZbase * strCgnsMultiBase );
+public:
+    int GetNZone();
+    CgnsBase * GetCgnsBase( int iBase );
+    CgnsZone * GetCgnsZone( int globalZoneId );
+    CgnsZone * GetMultiBaseCgnsZone( int iBase, int iZone );
 };
 
 #endif

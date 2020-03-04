@@ -39,13 +39,11 @@ class CgnsBase;
 class NodeMesh;
 class FaceSolver;
 
-class CgnsBcInterface;
-
-class CgnsBcRegion
+class CgnsBcBoco
 {
 public:
-    CgnsBcRegion( CgnsZone * cgnsZone );
-    ~CgnsBcRegion();
+    CgnsBcBoco( CgnsZone * cgnsZone );
+    ~CgnsBcBoco();
 public:
     int bcId;
     int nameId;
@@ -65,8 +63,6 @@ public:
 
     CgIntField connList;
 
-    CgnsBcInterface * bcInterface;
-
     CgnsZone * cgnsZone;
 public:
     void ConvertToInnerDataStandard();
@@ -77,9 +73,9 @@ public:
     void ProcessVertexBc( IntSet & bcVertex );
     void ProcessFaceBc( IntSet & bcVertex );
 public:
-    void ReadCgnsOrdinaryBcRegion();
-    void ReadCgnsOrdinaryBcRegionInfo();
-    void ReadCgnsOrdinaryBcRegionGridLocation();
+    void ReadCgnsBocoBcRegion();
+    void ReadCgnsBocoInfo();
+    void ReadCgnsBocoGridLocation();
     void SetCgnsBcRegionGridLocation( const GridLocation_t & bcGridLocation );
     void CreateCgnsBcConn();
     void ReadCgnsBcConn();
@@ -87,10 +83,8 @@ public:
     void ExtractIJKRegionFromBcConn( IntField & ijkMin, IntField & ijkMax, CgIntField& bcConn );
     void ExtractIJKRegionFromBcConn( IntField & ijkMin, IntField & ijkMax );
 public:
-    void ReadCgnsConnBcRegion( int bcId );
-    void ReadCgns1to1BcRegion( int i1to1 );
-    void CopyStrBcRegion( CgnsBcRegion * strBcRegion, CgInt& startId );
-    void ReadCgnsBcConn( CgnsBcRegion * strBcRegion, CgInt & startId );
+    void CopyStrBcRegion( CgnsBcBoco * strBcRegion, CgInt& startId );
+    void ReadCgnsBcConn( CgnsBcBoco * strBcRegion, CgInt & startId );
     void ReconstructStrRegion( IntField & ijkMin, IntField & ijkMax );
     CgInt GetActualNumberOfBoundaryElements();
 };

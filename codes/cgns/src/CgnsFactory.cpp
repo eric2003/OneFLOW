@@ -23,7 +23,7 @@ License
 #include "CgnsFactory.h"
 #include "GridFactory.h"
 #include "CgnsGlobal.h"
-#include "CgnsBcRegionProxy.h"
+#include "CgnsZbc.h"
 #include "GridPara.h"
 #include "LogFile.h"
 #include "Stop.h"
@@ -33,17 +33,17 @@ License
 #include "DataBase.h"
 #include "StrGrid.h"
 #include "CgnsBase.h"
-#include "CgnsMultiBase.h"
+#include "CgnsZbase.h"
 #include "CgnsZone.h"
 #include "CgnsSection.h"
-#include "CgnsMultiSection.h"
+#include "CgnsZsection.h"
 #include "NodeMesh.h"
 #include "PointSearch.h"
 #include "BcRecord.h"
 #include "Boundary.h"
 #include "HXMath.h"
 #include "Dimension.h"
-#include "CgnsBcRegion.h"
+#include "CgnsBcBoco.h"
 #include "ElementHome.h"
 #include "HXPointer.h"
 #include "CompGrid.h"
@@ -56,14 +56,14 @@ BeginNameSpace( ONEFLOW )
 
 CgnsFactory::CgnsFactory()
 {
-    this->cgnsMultiBase = new CgnsMultiBase();
+    this->cgnsZbase = new CgnsZbase();
     this->gridElemS = new GridElemS();
     this->nZone = 0;
 }
 
 CgnsFactory::~CgnsFactory()
 {
-    delete this->cgnsMultiBase;
+    delete this->cgnsZbase;
     delete this->gridElemS;
 }
 
@@ -75,25 +75,25 @@ void CgnsFactory::GenerateGrid()
 
 void CgnsFactory::ReadCgnsGrid()
 {
-    cgns_global.cgnsbases = cgnsMultiBase;
-    cgnsMultiBase->ReadCgnsGrid();
+    cgns_global.cgnsbases = cgnsZbase;
+    cgnsZbase->ReadCgnsGrid();
 }
 
 void CgnsFactory::DumpCgnsGrid( GridMediatorS * gridMediators )
 {
-    cgns_global.cgnsbases = cgnsMultiBase;
-    cgnsMultiBase->DumpCgnsGrid( gridMediators );
+    cgns_global.cgnsbases = cgnsZbase;
+    cgnsZbase->DumpCgnsGrid( gridMediators );
 }
 
 void CgnsFactory::ConvertStrCgns2UnsCgnsGrid()
 {
-    CgnsMultiBase * unsCgnsMultiBase = new CgnsMultiBase();
+    CgnsZbase * unsCgnsMultiBase = new CgnsZbase();
 
-    unsCgnsMultiBase->ConvertStrCgns2UnsCgnsGrid( cgnsMultiBase );
+    unsCgnsMultiBase->ConvertStrCgns2UnsCgnsGrid( cgnsZbase );
 
-    delete cgnsMultiBase;
+    delete cgnsZbase;
 
-    cgnsMultiBase = unsCgnsMultiBase;
+    cgnsZbase = unsCgnsMultiBase;
 }
 
 void CgnsFactory::CommonToOneFlowGrid()
@@ -117,8 +117,8 @@ void CgnsFactory::CgnsToOneFlowGrid()
 {
     if ( ! ONEFLOW::IsUnsGrid( grid_para.topo ) ) return;
 
-    int systemZoneType = cgnsMultiBase->GetSystemZoneType();
-    if ( ! ( systemZoneType == Unstructured ) )
+    int systemZoneType = cgnsZbase->GetSystemZoneType();
+    if ( ! ( systemZoneType == CGNS_ENUMV( Unstructured ) ) )
     {
         this->ConvertStrCgns2UnsCgnsGrid();
     }
@@ -145,12 +145,12 @@ void CgnsFactory::CgnsToOneFlowGrid()
 
 void CgnsFactory::CreateCgnsZone( GridMediatorS * gridMediators )
 {
-    cgnsMultiBase->CreateDefaultCgnsZones( gridMediators );
+    cgnsZbase->CreateDefaultCgnsZones( gridMediators );
 }
 
 void CgnsFactory::PrepareCgnsZone( GridMediatorS * gridMediators )
 {
-    cgnsMultiBase->PrepareCgnsZone( gridMediators );
+    cgnsZbase->PrepareCgnsZone( gridMediators );
 }
 
 void CgnsFactory::CommonToUnsGrid()
@@ -250,7 +250,7 @@ void CgnsFactory::CgnsToOneFlowGrid( Grid *& grid, int zId )
 
 void CgnsFactory::AllocateGridElem()
 {
-    this->nOriZone = this->cgnsMultiBase->GetNZone();
+    this->nOriZone = this->cgnsZbase->GetNZone();
 
     if ( grid_para.multiBlock == 0 )
     {
@@ -258,7 +258,7 @@ void CgnsFactory::AllocateGridElem()
 
         for ( int iZone = 0; iZone < this->nOriZone; ++ iZone )
         {
-            cgnsZones.push_back( cgnsMultiBase->GetCgnsZone( iZone ) );
+            cgnsZones.push_back( cgnsZbase->GetCgnsZone( iZone ) );
         }
 
         this->nZone = 1;
@@ -276,7 +276,7 @@ void CgnsFactory::AllocateGridElem()
         for ( int iZone = 0; iZone < this->nZone; ++ iZone )
         {
             HXVector< CgnsZone * > cgnsZones;
-            cgnsZones.push_back( cgnsMultiBase->GetCgnsZone( iZone ) );
+            cgnsZones.push_back( cgnsZbase->GetCgnsZone( iZone ) );
 
             gridElemS->AddGridElem( cgnsZones, iZone );
         }
@@ -325,7 +325,7 @@ void CgnsFactory::CreateDefaultZone( int nZone )
 {
     GridMediatorS * gridMediatorS = new GridMediatorS();
     gridMediatorS->CreateSimple( nZone );
-    cgnsMultiBase->CreateDefaultCgnsZones( gridMediatorS );
+    cgnsZbase->CreateDefaultCgnsZones( gridMediatorS );
     delete gridMediatorS;
 
 }
@@ -336,8 +336,8 @@ CgnsZone * CgnsFactory::CreateOneUnsCgnsZone( int cgnsZoneId )
     this->CreateDefaultZone( nZone );
 
     int iZone = 0;
-    CgnsZone * cgnsZone = cgnsMultiBase->GetCgnsZone( iZone );
-    cgnsZone->cgnsZoneType = ONEFLOW::Unstructured;
+    CgnsZone * cgnsZone = cgnsZbase->GetCgnsZone( iZone );
+    cgnsZone->cgnsZoneType = ONEFLOW::CGNS_ENUMV( Unstructured );
     cgnsZone->zId = cgnsZoneId;
     return cgnsZone;
 }

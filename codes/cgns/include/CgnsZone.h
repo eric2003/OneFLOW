@@ -40,8 +40,8 @@ class StrGrid;
 class CgnsZone;
 class CgnsBase;
 class NodeMesh;
-class CgnsMultiSection;
-class CgnsBcRegionProxy;
+class CgnsZsection;
+class CgnsZbc;
 class GridElem;
 class PointFactory;
 class ElemFeature;
@@ -56,8 +56,8 @@ public:
 public:
     CgnsBase * cgnsBase;
     NodeMesh * nodeMesh;
-    CgnsMultiSection * multiSection;
-    CgnsBcRegionProxy * bcRegionProxy;
+    CgnsZsection * cgnsZsection;
+    CgnsZbc * cgnsZbc;
 
     CgInt nNode, nCell;
     int nCoor;
@@ -124,7 +124,7 @@ public:
     void GenerateUnsBcElemConn ( CgnsZone * cgnsZoneIn );
     void GenerateUnsBcCondConn ( CgnsZone * cgnsZoneIn );
     void SetElemPosition();
-    void CreateCgnsBcRegion( CgnsZone * cgnsZoneIn );
+
     void InitL2g();
     CgInt GetNI() const;
     CgInt GetNJ() const;

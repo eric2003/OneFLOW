@@ -21,7 +21,7 @@ along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 \*---------------------------------------------------------------------------*/
 
 #include "CgnsBcConn.h"
-#include "CgnsBcRegion.h"
+#include "CgnsBcBoco.h"
 #include "CgnsZone.h"
 #include "CgnsBase.h"
 #include "CgnsPeriod.h"
@@ -36,13 +36,97 @@ BeginNameSpace( ONEFLOW )
 
 #ifdef ENABLE_CGNS
 
-CgnsBcConn::CgnsBcConn( CgnsBcRegion * bcRegion )
+CgnsBcConn::CgnsBcConn( CgnsZone * cgnsZone )
 {
+    this->cgnsZone = cgnsZone;
 }
 
 CgnsBcConn::~CgnsBcConn()
 {
-    ;
+}
+
+void CgnsBcConn::ReadCgnsBcConnInfo()
+{
+    int fileId = this->cgnsZone->cgnsBase->fileId;
+    int baseId = this->cgnsZone->cgnsBase->baseId;
+    int zId = this->cgnsZone->zId;
+
+    CgnsTraits::char33 connName;
+    CgnsTraits::char33 donorZoneName;
+
+    cg_conn_info( fileId, baseId, zId, this->bcId,
+        connName, & this->gridLocation, & this->gridConnType, & this->pointSetType,
+        & nConnPoints, donorZoneName, & donorZoneType, & donorPointSetType, & donorDataType, & nConnDonorPoints );
+
+    this->connName = connName;
+    this->donorZoneName  = donorZoneName;
+
+    cout << "\n";
+    cout << "   connName      = " << connName << " donorZoneName = " << donorZoneName << "\n";
+    cout << "   gridLocation  = " << GridLocationName[ this->gridLocation ] << "\n";
+    cout << "   donorDataType = " << DataTypeName[ donorDataType ] << "\n";
+    cout << "   gridConnType  = " << GridConnectivityTypeName[ this->gridConnType ] << "\n";
+    cout << "   pointSetType  = " << PointSetTypeName[ this->pointSetType ];
+    cout << "   donorPointSetType = " << PointSetTypeName[ donorPointSetType ] << "\n";
+    cout << "   nConnPoints      = " << nConnPoints << "\n";
+    cout << "   nConnDonorPoints = " << nConnDonorPoints << "\n";
+}
+
+void CgnsBcConn::ReadCgnsBcConnData()
+{
+    int fileId = this->cgnsZone->cgnsBase->fileId;
+    int baseId = this->cgnsZone->cgnsBase->baseId;
+    int zId = this->cgnsZone->zId;
+
+    this->connPoint.resize( nConnPoints );
+    this->connDonorPoint.resize( nConnDonorPoints );
+
+    cg_conn_read( fileId, baseId, zId, this->bcId, & this->connPoint[ 0 ], this->donorDataType, & this->connDonorPoint[ 0 ] );
+}
+
+void CgnsBcConn::ReadCgnsConnBcRegion()
+{
+    this->ReadCgnsBcConnInfo();
+    this->ReadCgnsBcConnData();
+}
+
+
+void CgnsBcConn::ConvertToInnerDataStandard()
+{
+    for ( int eId = 0; eId < this->nConnPoints; ++ eId )
+    {
+        this->connPoint[ eId ] -= 1;
+    }
+
+    for ( int eId = 0; eId < this->nConnDonorPoints; ++ eId )
+    {
+        this->connDonorPoint[ eId ] -= 1;
+    }
+}
+
+void CgnsBcConn::SetPeriodicBc()
+{
+    CgnsZone * sZone = this->cgnsZone;
+    CgnsZone * tZone = ONEFLOW::GetCgnsZoneByName( this->donorZoneName );
+    NodeMesh * nodeMesh1 = sZone->nodeMesh;
+    NodeMesh * nodeMesh2 = tZone->nodeMesh;
+
+    for ( int i = 0; i < nConnPoints; ++ i )
+    {
+        if ( i == 40 && tZone->zId == 30  )
+        {
+            int kkk = 1;
+        }
+        int id1 = this->connPoint[ i ];
+        int id2 = this->connDonorPoint[ i ];
+
+        CgIntField fNodeId1, fNodeId2;
+        sZone->GetElementNodeId( id1, fNodeId1 );
+        tZone->GetElementNodeId( id2, fNodeId2 );
+
+        f2fmap.AddFacePoint(fNodeId1, fNodeId2, nodeMesh1, nodeMesh2 );
+        int kkk = 1;
+    }
 }
 
 #endif

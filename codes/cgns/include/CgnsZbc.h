@@ -35,56 +35,40 @@ class CgnsBase;
 class FaceSolver;
 
 class FaceSolver;
-class CgnsBcRegion;
+class CgnsBcBoco;
 class Grid;
 class BcRegion;
 class TestRegion;
 
-class CgnsBcRegionProxy
+class CgnsZbcConn;
+class CgnsZbc1to1;
+class CgnsZbcBoco;
+
+class CgnsZbc
 {
 public:
-    CgnsBcRegionProxy( CgnsZone * cgnsZone );
-    ~CgnsBcRegionProxy();
+    CgnsZbc( CgnsZone * cgnsZone );
+    ~CgnsZbc();
 public:
-    int nBcRegion, nOrdinaryBcRegion;
-    int n1To1General;
-    int n1To1, nConn;
-    HXVector< CgnsBcRegion * > cgnsBcRegions;
-    HXVector< CgnsBcRegion * > bcRegion1To1;
-    HXVector< CgnsBcRegion * > bcRegionConn;
+    CgnsZbcConn * cgnsZbcConn;
+    CgnsZbc1to1 * cgnsZbc1to1;
+    CgnsZbcBoco * cgnsZbcBoco;
+
     CgnsZone * cgnsZone;
 public:
     void ScanBcFace( FaceSolver * face_solver );
 public:
-    void CreateCgnsBcRegion();
     void ConvertToInnerDataStandard();
-    void ShiftBcRegion();
-    CgnsBcRegion * GetCgnsBcRegion( int ir );
-    CgnsBcRegion * GetBcRegion1To1( int i1To1 );
-    CgnsBcRegion * GetBcRegionConn( int iConn );
-
-    void AddCgnsBcRegion( CgnsBcRegion * cgnsBcRegion );
-    void AddCgns1To1BcRegion( CgnsBcRegion * cgnsBcRegion );
-    void AddCgnsConnBcRegion( CgnsBcRegion * cgnsBcRegion );
-
     void ReadCgnsGridBoundary();
 
-    void ReadCgnsOrdinaryBcRegion();
-    void ReadCgnsConnBcRegion();
-    void ReadCgns1to1BcRegion();
     void FillBcPoints( int * start, int * end, cgsize_t * bcpnts, int dimension );
     void FillBcPoints3D( int * start, int * end, cgsize_t * bcpnts );
     void FillInterface( BcRegion * bcRegion, cgsize_t * ipnts, cgsize_t * ipntsdonor, int * itranfrm, int dimension );
     void FillRegion( TestRegion * r, cgsize_t * ipnts, int dimension );
     void DumpCgnsGridBoundary( Grid * gridIn );
 public:
-    void ReadNumberCgnsConnBcInfo();
-    void ReadNumberOfCgnsOrdinaryBcRegions();
-    void ReadNumberOfCgns1To1BcRegions();
-    void ReadNumberOfCgnsConn();
-    void CreateCgnsBcRegion( CgnsBcRegionProxy * bcRegionProxyIn );
+    void CreateCgnsBcRegion( CgnsZbc * cgnsZbcIn );
 public:
-    void ReconstructStrRegion();
     void GenerateUnsBcElemConn( CgIntField& bcConn );
     int GetNumberOfActualBcElements();
     void SetPeriodicBc();
