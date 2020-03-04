@@ -52,7 +52,7 @@ public:
 public:
     void AddCgnsBocoBcRegion( CgnsBcBoco * cgnsBcBoco );
     CgnsBcBoco * GetCgnsBcRegionBoco( int iBoco );
-    void CreateCgnsBocoBcRegion();
+    void CreateCgnsZbc();
     void ShiftBcRegion();
     void ConvertToInnerDataStandard();
     void ScanBcFace( FaceSolver * face_solver );

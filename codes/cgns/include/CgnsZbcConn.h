@@ -55,7 +55,7 @@ public:
 public:
     void AddCgnsConnBcRegion( CgnsBcConn * cgnsBcConn );
     CgnsBcConn * GetCgnsBcRegionConn( int iConn );
-    void CreateCgnsConnBcRegion();
+    void CreateCgnsZbc();
     void ReadZnconn();
     void ReadCgnsZbcConn();
     void SetPeriodicBc();

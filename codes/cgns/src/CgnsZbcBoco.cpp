@@ -67,7 +67,7 @@ CgnsBcBoco * CgnsZbcBoco::GetCgnsBcRegionBoco( int iBoco )
     return this->cgnsBcRegionBoco[ iBoco ];
 }
 
-void CgnsZbcBoco::CreateCgnsBocoBcRegion()
+void CgnsZbcBoco::CreateCgnsZbc()
 {
     cout << "   nBoco        = " << this->nBoco << endl;
     for ( int iBoco = 0; iBoco < this->nBoco; ++ iBoco )
@@ -143,7 +143,7 @@ void CgnsZbcBoco::ReadZnboco()
 void CgnsZbcBoco::ReadCgnsZbcBoco()
 {
     this->ReadZnboco();
-    this->CreateCgnsBocoBcRegion();
+    this->CreateCgnsZbc();
 
     for ( int iBoco = 0; iBoco < nBoco; ++ iBoco )
     {

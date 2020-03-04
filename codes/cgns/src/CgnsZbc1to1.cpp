@@ -68,7 +68,7 @@ CgnsBc1to1 * CgnsZbc1to1::GetCgnsBcRegion1to1( int i1to1 )
     return this->cgnsBc1to1s[ i1to1 ];
 }
 
-void CgnsZbc1to1::CreateCgns1to1BcRegion()
+void CgnsZbc1to1::CreateCgnsZbc()
 {
     cout << "   n1to1        = " << this->n1to1 << endl;
     for ( int i1to1 = 0; i1to1 < this->n1to1; ++ i1to1 )
@@ -101,7 +101,7 @@ void CgnsZbc1to1::ReadZn1to1()
 void CgnsZbc1to1::ReadCgnsZbc1to1()
 {
     this->ReadZn1to1();
-    this->CreateCgns1to1BcRegion();
+    this->CreateCgnsZbc();
 
     for ( int i1to1 = 0; i1to1 < this->n1to1; ++ i1to1 )
     {

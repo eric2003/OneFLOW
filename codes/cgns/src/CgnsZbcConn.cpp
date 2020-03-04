@@ -68,9 +68,8 @@ CgnsBcConn * CgnsZbcConn::GetCgnsBcRegionConn( int iConn )
     return this->cgnsBcConns[ iConn ];
 }
 
-void CgnsZbcConn::CreateCgnsConnBcRegion()
+void CgnsZbcConn::CreateCgnsZbc()
 {
-    cout << "   nConn        = " << this->nConn << endl;
     for ( int iConn = 0; iConn < this->nConn; ++ iConn )
     {
         CgnsBcConn * cgnsBcConn = new CgnsBcConn( this->cgnsZone );
@@ -85,12 +84,13 @@ void CgnsZbcConn::ReadZnconn()
     int zId = cgnsZone->zId;
 
     cg_nconns( fileId, baseId, zId, & this->nConn );
+    cout << "   nConn        = " << this->nConn << endl;
 }
 
 void CgnsZbcConn::ReadCgnsZbcConn()
 {
     this->ReadZnconn();
-    this->CreateCgnsConnBcRegion();
+    this->CreateCgnsZbc();
     for ( int iConn = 0; iConn < this->nConn; ++ iConn )
     {
         CgnsBcConn * cgnsBcConn = this->GetCgnsBcRegionConn( iConn );
