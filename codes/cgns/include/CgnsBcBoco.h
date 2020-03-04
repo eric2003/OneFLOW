@@ -85,7 +85,6 @@ public:
 public:
     void CopyStrBcRegion( CgnsBcBoco * strBcRegion, CgInt& startId );
     void ReadCgnsBcConn( CgnsBcBoco * strBcRegion, CgInt & startId );
-    void ReconstructStrRegion( IntField & ijkMin, IntField & ijkMax );
     CgInt GetActualNumberOfBoundaryElements();
 };
 

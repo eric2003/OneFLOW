@@ -47,7 +47,7 @@ public:
     ~CgnsZbcBoco();
 public:
     int nBoco;
-    HXVector< CgnsBcBoco * > cgnsBcRegionBoco;
+    HXVector< CgnsBcBoco * > cgnsBcBocos;
     CgnsZone * cgnsZone;
 public:
     void AddCgnsBcBoco( CgnsBcBoco * cgnsBcBoco );
@@ -60,8 +60,6 @@ public:
     void ReadZnboco();
     void ReadZnboco( int nBoco );
     void ReadCgnsZbcBoco();
-    void ReconstructStrRegion();
-    int GetNBocoDynamic();
     int GetNumberOfActualBcElements();
     void GenerateUnsBcElemConn( CgIntField& bcConn );
 };

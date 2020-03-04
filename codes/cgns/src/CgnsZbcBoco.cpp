@@ -51,20 +51,20 @@ CgnsZbcBoco::~CgnsZbcBoco()
 {
     for ( int iBoco = 0; iBoco < this->nBoco; ++ iBoco )
     {
-        delete this->cgnsBcRegionBoco[ iBoco ];
+        delete this->cgnsBcBocos[ iBoco ];
     }
 }
 
 void CgnsZbcBoco::AddCgnsBcBoco( CgnsBcBoco * cgnsBcBoco )
 {
-    this->cgnsBcRegionBoco.push_back( cgnsBcBoco );
-    int id = this->cgnsBcRegionBoco.size();
+    this->cgnsBcBocos.push_back( cgnsBcBoco );
+    int id = this->cgnsBcBocos.size();
     cgnsBcBoco->bcId = id;
 }
 
 CgnsBcBoco * CgnsZbcBoco::GetCgnsBcRegionBoco( int iBoco )
 {
-    return this->cgnsBcRegionBoco[ iBoco ];
+    return this->cgnsBcBocos[ iBoco ];
 }
 
 void CgnsZbcBoco::CreateCgnsZbc()
@@ -163,53 +163,6 @@ void CgnsZbcBoco::ReadCgnsZbcBoco()
         CgnsBcBoco * cgnsBcBoco = this->GetCgnsBcRegionBoco( iBoco );
         cgnsBcBoco->ReadCgnsBcBoco();
     }
-}
-
-void CgnsZbcBoco::ReconstructStrRegion()
-{
-    int ni = static_cast<int> (this->cgnsZone->GetNI());
-    int nj = static_cast<int> (this->cgnsZone->GetNJ());
-    int nk = static_cast<int> (this->cgnsZone->GetNK());
-
-    if ( nk == 1 ) return;
-
-    MyRegionFactory rfact;
-    rfact.ni = ni;
-    rfact.nj = nj;
-    rfact.nk = nk;
-    rfact.CreateRegion();
-
-    for ( int iBoco = 0; iBoco < this->nBoco; ++ iBoco )
-    {
-        CgnsBcBoco * bcRegion = this->GetCgnsBcRegionBoco( iBoco );
-
-        IntField ijkMin( 3 ), ijkMax( 3 );
-        bcRegion->ExtractIJKRegionFromBcConn( ijkMin, ijkMax );
-
-        rfact.AddRefBcRegion( ijkMin, ijkMax );
-    }
-
-    rfact.Run();
-
-    UInt nnr = rfact.bcregions.size();
-
-    nBoco += static_cast<int> (nnr);
-
-    for ( UInt i = 0; i < nnr; ++ i )
-    {
-        CgnsBcBoco * rr = new CgnsBcBoco( this->cgnsZone );
-        this->AddCgnsBcBoco( rr );
-
-        MyRegion * r = rfact.bcregions[ i ];
-        rr->ReconstructStrRegion( r->ijkmin, r->ijkmax );
-
-    }
-    int kkk = 1;
-}
-
-int CgnsZbcBoco::GetNBocoDynamic()
-{
-    return this->cgnsBcRegionBoco.size();
 }
 
 int CgnsZbcBoco::GetNumberOfActualBcElements()
