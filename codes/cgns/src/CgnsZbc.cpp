@@ -225,10 +225,10 @@ void CgnsZbc::CreateCgnsZbc( CgnsZbc * cgnsZbcIn )
     this->cgnsZbcBoco->ReadZnboco( cgnsZbcIn->cgnsZbcBoco->nBoco );
     this->cgnsZbcBoco->CreateCgnsZbc();
 
-    this->cgnsZbc1to1->n1to1 = cgnsZbcIn->cgnsZbc1to1->n1to1;
+    this->cgnsZbc1to1->ReadZn1to1( cgnsZbcIn->cgnsZbc1to1->n1to1 );
     this->cgnsZbc1to1->CreateCgnsZbc();
 
-    this->cgnsZbcConn->nConn = cgnsZbcIn->cgnsZbcConn->nConn;
+    this->cgnsZbcConn->ReadZnconn( cgnsZbcIn->cgnsZbcConn->nConn );
     this->cgnsZbcConn->CreateCgnsZbc();
 }
 

@@ -55,7 +55,9 @@ public:
     CgnsBc1to1 * GetCgnsBcRegion1to1( int i1to1 );
     void CreateCgnsZbc();
     void ConvertToInnerDataStandard();
+    void ReadZn1to1( int n1to1 );
     void ReadZn1to1();
+    void PrintZn1to1();
     void ReadCgnsZbc1to1();
     void SetPeriodicBc();
 };

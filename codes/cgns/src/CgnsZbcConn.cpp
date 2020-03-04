@@ -77,6 +77,17 @@ void CgnsZbcConn::CreateCgnsZbc()
     }
 }
 
+void CgnsZbcConn::PrintZnconn()
+{
+    cout << "   nConn        = " << this->nConn << endl;
+}
+
+void CgnsZbcConn::ReadZnconn( int nConn )
+{
+    this->nConn = nConn;
+    this->PrintZnconn();
+}
+
 void CgnsZbcConn::ReadZnconn()
 {
     int fileId = cgnsZone->cgnsBase->fileId;
@@ -84,7 +95,7 @@ void CgnsZbcConn::ReadZnconn()
     int zId = cgnsZone->zId;
 
     cg_nconns( fileId, baseId, zId, & this->nConn );
-    cout << "   nConn        = " << this->nConn << endl;
+    this->PrintZnconn();
 }
 
 void CgnsZbcConn::ReadCgnsZbcConn()

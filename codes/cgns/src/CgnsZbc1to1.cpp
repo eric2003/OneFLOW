@@ -68,9 +68,13 @@ CgnsBc1to1 * CgnsZbc1to1::GetCgnsBcRegion1to1( int i1to1 )
     return this->cgnsBc1to1s[ i1to1 ];
 }
 
-void CgnsZbc1to1::CreateCgnsZbc()
+void CgnsZbc1to1::PrintZn1to1()
 {
     cout << "   n1to1        = " << this->n1to1 << endl;
+}
+
+void CgnsZbc1to1::CreateCgnsZbc()
+{
     for ( int i1to1 = 0; i1to1 < this->n1to1; ++ i1to1 )
     {
         CgnsBc1to1 * cgnsBc1to1 = new CgnsBc1to1( this->cgnsZone );
@@ -87,6 +91,12 @@ void CgnsZbc1to1::ConvertToInnerDataStandard()
     }
 }
 
+void CgnsZbc1to1::ReadZn1to1( int n1to1 )
+{
+    this->n1to1 = n1to1;
+    this->PrintZn1to1();
+}
+
 void CgnsZbc1to1::ReadZn1to1()
 {
     int fileId = cgnsZone->cgnsBase->fileId;
@@ -96,6 +106,8 @@ void CgnsZbc1to1::ReadZn1to1()
     // find out how many general interfaces there are in this zone
     // the following is the number of structured grid interface
     cg_n1to1( fileId, baseId, zId, & this->n1to1 );
+
+    this->PrintZn1to1();
 }
 
 void CgnsZbc1to1::ReadCgnsZbc1to1()
