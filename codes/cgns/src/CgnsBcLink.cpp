@@ -20,28 +20,42 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-
-#pragma once
 #include "CgnsBcLink.h"
+#include "CgnsZone.h"
+#include "CgnsBase.h"
+#include "CgnsPeriod.h"
+#include "NodeMesh.h"
+#include "HXMath.h"
+#include <iostream>
+#include <iomanip>
+using namespace std;
 
 BeginNameSpace( ONEFLOW )
 
 #ifdef ENABLE_CGNS
 
-int AbsoluteDiagonalId( int x, int y );
-
-class CgnsZone;
-
-class CgnsBc1to1 : public CgnsBcLink
+CgnsBcLink::CgnsBcLink( CgnsZone * cgnsZone )
 {
-public:
-    CgnsBc1to1( CgnsZone * cgnsZone );
-    ~CgnsBc1to1();
-public:
-    int itranfrm[ 3 ];
-public:
-    void ReadCgnsBc1To1();
-};
+    this->cgnsZone = cgnsZone;
+}
+
+CgnsBcLink::~CgnsBcLink()
+{
+}
+
+void CgnsBcLink::ConvertToInnerDataStandard()
+{
+    for ( int eId = 0; eId < this->nConnPoints; ++ eId )
+    {
+        this->connPoint[ eId ] -= 1;
+    }
+
+    for ( int eId = 0; eId < this->nConnDonorPoints; ++ eId )
+    {
+        this->connDonorPoint[ eId ] -= 1;
+    }
+
+}
 
 #endif
 

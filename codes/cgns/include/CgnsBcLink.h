@@ -22,25 +22,40 @@ License
 
 
 #pragma once
-#include "CgnsBcLink.h"
+#include "HXDefine.h"
+#include "HXCgns.h"
+#include <string>
+using namespace std;
 
 BeginNameSpace( ONEFLOW )
 
 #ifdef ENABLE_CGNS
 
-int AbsoluteDiagonalId( int x, int y );
-
 class CgnsZone;
 
-class CgnsBc1to1 : public CgnsBcLink
+class CgnsBcLink
 {
 public:
-    CgnsBc1to1( CgnsZone * cgnsZone );
-    ~CgnsBc1to1();
+    CgnsBcLink( CgnsZone * cgnsZone );
+    ~CgnsBcLink();
 public:
-    int itranfrm[ 3 ];
+    void ConvertToInnerDataStandard();
 public:
-    void ReadCgnsBc1To1();
+    CgInt          nConnPoints;
+    CgIntField     connPoint;
+
+    CgInt          nConnDonorPoints;
+    CgIntField     connDonorPoint;
+
+    ZoneType_t     donorZoneType;
+    PointSetType_t donorPointSetType;
+    DataType_t     donorDataType;
+
+    string connName;
+    string donorZoneName;
+
+    CgnsZone * cgnsZone;
+    int bcId;
 };
 
 #endif

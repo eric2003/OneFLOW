@@ -44,26 +44,12 @@ int AbsoluteDiagonalId( int x, int y )
 }
 
 CgnsBc1to1::CgnsBc1to1( CgnsZone * cgnsZone )
+    : CgnsBcLink( cgnsZone )
 {
-    this->cgnsZone = cgnsZone;
 }
 
 CgnsBc1to1::~CgnsBc1to1()
 {
-}
-
-void CgnsBc1to1::ConvertToInnerDataStandard()
-{
-    for ( int eId = 0; eId < this->nConnPoints; ++ eId )
-    {
-        this->connPoint[ eId ] -= 1;
-    }
-
-    for ( int eId = 0; eId < this->nConnDonorPoints; ++ eId )
-    {
-        this->connDonorPoint[ eId ] -= 1;
-    }
-
 }
 
 void CgnsBc1to1::ReadCgnsBc1To1()
