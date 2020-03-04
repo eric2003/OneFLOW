@@ -50,7 +50,7 @@ public:
     HXVector< CgnsBcBoco * > cgnsBcRegionBoco;
     CgnsZone * cgnsZone;
 public:
-    void AddCgnsBocoBcRegion( CgnsBcBoco * cgnsBcBoco );
+    void AddCgnsBcBoco( CgnsBcBoco * cgnsBcBoco );
     CgnsBcBoco * GetCgnsBcRegionBoco( int iBoco );
     void CreateCgnsZbc();
     void ShiftBcRegion();

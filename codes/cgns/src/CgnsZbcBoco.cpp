@@ -55,7 +55,7 @@ CgnsZbcBoco::~CgnsZbcBoco()
     }
 }
 
-void CgnsZbcBoco::AddCgnsBocoBcRegion( CgnsBcBoco * cgnsBcBoco )
+void CgnsZbcBoco::AddCgnsBcBoco( CgnsBcBoco * cgnsBcBoco )
 {
     this->cgnsBcRegionBoco.push_back( cgnsBcBoco );
     int id = this->cgnsBcRegionBoco.size();
@@ -69,11 +69,10 @@ CgnsBcBoco * CgnsZbcBoco::GetCgnsBcRegionBoco( int iBoco )
 
 void CgnsZbcBoco::CreateCgnsZbc()
 {
-    cout << "   nBoco        = " << this->nBoco << endl;
     for ( int iBoco = 0; iBoco < this->nBoco; ++ iBoco )
     {
         CgnsBcBoco * cgnsBcBoco = new CgnsBcBoco( this->cgnsZone );
-        this->AddCgnsBocoBcRegion( cgnsBcBoco );
+        this->AddCgnsBcBoco( cgnsBcBoco );
     }
 }
 
@@ -199,11 +198,11 @@ void CgnsZbcBoco::ReconstructStrRegion()
     for ( UInt i = 0; i < nnr; ++ i )
     {
         CgnsBcBoco * rr = new CgnsBcBoco( this->cgnsZone );
-        MyRegion * r = rfact.bcregions[ i ];
+        this->AddCgnsBcBoco( rr );
 
+        MyRegion * r = rfact.bcregions[ i ];
         rr->ReconstructStrRegion( r->ijkmin, r->ijkmax );
 
-        this->AddCgnsBocoBcRegion( rr );
     }
     int kkk = 1;
 }
