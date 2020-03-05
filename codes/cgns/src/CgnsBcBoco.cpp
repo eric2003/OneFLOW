@@ -60,7 +60,7 @@ int CgnsBcBoco::ComputeBase()
 {
     for ( int eId = 0; eId < this->nElements; ++ eId )
     {
-        if ( this->connList[ eId ] < this->cgnsZone->nCell )
+        if ( this->connList[ eId ] < this->cgnsZone->GetNCell() )
         {
             return 0;
         }
@@ -74,7 +74,7 @@ void CgnsBcBoco::ShiftBcRegion()
     {
         for ( int eId = 0; eId < this->nElements; ++ eId )
         {
-            this->connList[ eId ] += this->cgnsZone->nCell; //此处增加了偏移量，则相应的单元编号也应增加偏移量
+            this->connList[ eId ] += this->cgnsZone->GetNCell(); //此处增加了偏移量，则相应的单元编号也应增加偏移量
         }
     }
 }

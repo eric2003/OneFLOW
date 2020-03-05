@@ -21,14 +21,16 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "CgnsCoor.h"
+#include "CgnsZone.h"
 #include <iostream>
 using namespace std;
 
 BeginNameSpace( ONEFLOW )
 #ifdef ENABLE_CGNS
 
-CgnsCoor::CgnsCoor()
+CgnsCoor::CgnsCoor( CgnsZone * cgnsZone )
 {
+    this->cgnsZone = cgnsZone;
     this->ndim = 3;
     this->typeList.resize( this->ndim );
     this->coor.resize( this->ndim );

@@ -60,8 +60,9 @@ public:
     CgnsCoor * cgnsCoor;
     CgnsZsection * cgnsZsection;
     CgnsZbc * cgnsZbc;
-
+protected:
     CgInt nNode, nCell;
+public:
     int nCoor;
 
     ZoneType_t cgnsZoneType;
@@ -129,6 +130,11 @@ public:
     CgInt GetNI() const;
     CgInt GetNJ() const;
     CgInt GetNK() const;
+
+    CgInt GetNNode();
+    CgInt GetNCell();
+    void SetNNode( CgInt nNode );
+    void SetNCell( CgInt nCell );
 
     void GetStrZonePara( int & s1, int & e1, int & s2, int & e2, int & etype1, int & etype2 );
 public:

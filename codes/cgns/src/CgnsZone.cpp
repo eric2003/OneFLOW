@@ -90,6 +90,7 @@ void CgnsZone::Create()
     this->nodeMesh = new NodeMesh();
     this->cgnsZsection = new CgnsZsection( this );
     this->cgnsZbc = new CgnsZbc( this );
+    this->cgnsCoor = new CgnsCoor( this );
 }
 
 void CgnsZone::InitElement( GridElem * ge )
@@ -434,6 +435,26 @@ CgInt CgnsZone::GetNI() const { return irmax[0]; };
 CgInt CgnsZone::GetNJ() const { return irmax[1]; };
 CgInt CgnsZone::GetNK() const { return irmax[2]; };
 
+CgInt CgnsZone::GetNNode()
+{
+    return this->nNode;
+}
+
+CgInt CgnsZone::GetNCell()
+{
+    return this->nCell;
+}
+
+void CgnsZone::SetNNode( CgInt nNode )
+{
+    this->nNode = nNode;
+}
+
+void CgnsZone::SetNCell( CgInt nCell )
+{
+    this->nCell = nCell;
+}
+
 void CgnsZone::ReadElementConnectivities()
 {
     if ( this->cgnsZoneType == CGNS_ENUMV( Structured ) ) return;
@@ -629,12 +650,6 @@ void CgnsZone::ReadCgnsGridCoordinates()
 
     nodeMesh->CreateNodes( static_cast<int>(this->nNode));
 
-    if ( !this->cgnsCoor )
-    {
-        this->cgnsCoor = new CgnsCoor();
-    }
-
-
     for ( int coordId = 0; coordId < this->nCoor; ++ coordId )
     {
         DataType_t dataType;
@@ -646,8 +661,6 @@ void CgnsZone::ReadCgnsGridCoordinates()
     }
 
     cgnsCoor->SetAllData( nodeMesh->xN, nodeMesh->yN, nodeMesh->zN );
-
-    //delete cgnsCoor;
 }
 
 void CgnsZone::DumpCgnsGridCoordinates( Grid * grid )
@@ -736,8 +749,8 @@ void PrepareCgnsZone( Grids & grids, CgnsZone * cgnsZone )
 
     MergeToSingleZone( grids, unsIdList, nodeMesh, nNode, nCell );
 
-    cgnsZone->nNode = nNode;
-    cgnsZone->nCell = nCell;
+    cgnsZone->SetNNode( nNode );
+    cgnsZone->SetNCell( nCell );
 
     FillSection( grids, unsIdList, cgnsZone );
 
@@ -815,7 +828,7 @@ void FillSection( Grids & grids, HXVector< Int3D * > & unsIdList, CgnsZone * cgn
 
     cout << " nBFace = " << nBFace << "\n";
 
-    cgnsZone->nCell = nTCell;
+    cgnsZone->SetNCell( nTCell );
 
     cgnsZone->cgnsZsection->nSection = 2;
     cgnsZone->cgnsZsection->CreateCgnsSection();
