@@ -30,6 +30,7 @@ BeginNameSpace( ONEFLOW )
 #ifdef ENABLE_CGNS
 
 class CgnsZone;
+class NodeMesh;
 
 class CgnsCoor
 {
@@ -43,6 +44,7 @@ public:
     HXVector< DataType_t > typeList;
     HXVector< void * > coor;
     CgnsZone * cgnsZone;
+    NodeMesh * nodeMesh;
 public:
     void * GetCoor( int iCoor ) { return coor[ iCoor ]; };
     void SetAllData( RealField & x, RealField & y, RealField & z );
@@ -52,6 +54,7 @@ public:
     void DeAlloc();
 public:
     void ReadCgnsGridCoordinates();
+    void FreeMesh();
 };
 
 

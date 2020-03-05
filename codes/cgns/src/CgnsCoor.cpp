@@ -23,6 +23,7 @@ License
 #include "CgnsCoor.h"
 #include "CgnsZone.h"
 #include "CgnsBase.h"
+#include "NodeMesh.h"
 #include <iostream>
 using namespace std;
 
@@ -36,11 +37,13 @@ CgnsCoor::CgnsCoor( CgnsZone * cgnsZone )
     this->typeList.resize( this->ndim );
     this->coor.resize( this->ndim );
     this->nNodeList.resize( this->ndim );
+    this->nodeMesh = new NodeMesh();
 }
 
 CgnsCoor::~CgnsCoor()
 {
     DeAlloc();
+    delete this->nodeMesh;
 }
 
 void CgnsCoor::Alloc( int iCoor, int nNode, DataType_t data_type )
@@ -133,6 +136,13 @@ void CgnsCoor::ReadCgnsGridCoordinates()
         cg_coord_read( fileId, baseId, zoneId, coorName, dataType, this->cgnsZone->irmin, this->cgnsZone->irmax, this->GetCoor( coordId ) );
     }
 }
+
+void CgnsCoor::FreeMesh()
+{
+    delete this->nodeMesh;
+    this->nodeMesh = 0;
+}
+
 
 #endif
 EndNameSpace

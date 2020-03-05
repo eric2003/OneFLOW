@@ -61,7 +61,7 @@ public:
     CgnsZbc * cgnsZbc;
 protected:
     CgInt nNode, nCell;
-    NodeMesh * nodeMesh;
+    //NodeMesh * nodeMesh;
 public:
     ZoneType_t cgnsZoneType;
     int volBcType;
@@ -74,7 +74,7 @@ public:
 
     IntField l2g;
 public:
-    void FreeMesh();
+    //void FreeMesh();
     void SetVolBcType( int volBcType );
     int GetVolBcType();
 public:

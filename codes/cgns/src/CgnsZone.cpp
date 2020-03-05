@@ -54,7 +54,7 @@ BeginNameSpace( ONEFLOW )
 CgnsZone::CgnsZone( CgnsBase * cgnsBase )
 {
     this->cgnsBase = cgnsBase;
-    this->nodeMesh = 0;
+    //this->nodeMesh = 0;
     this->cgnsZsection = 0;
     this->cgnsZbc = 0;
     this->volBcType = -1;
@@ -63,17 +63,17 @@ CgnsZone::CgnsZone( CgnsBase * cgnsBase )
 
 CgnsZone::~CgnsZone()
 {
-    delete this->nodeMesh;
+    //delete this->nodeMesh;
     delete this->cgnsZsection;
     delete this->cgnsZbc;
     delete this->cgnsCoor;
 }
 
-void CgnsZone::FreeMesh()
-{
-    delete this->nodeMesh;
-    this->nodeMesh = 0;
-}
+//void CgnsZone::FreeMesh()
+//{
+//    delete this->nodeMesh;
+//    this->nodeMesh = 0;
+//}
 
 void CgnsZone::SetVolBcType( int volBcType )
 {
@@ -87,7 +87,7 @@ int CgnsZone::GetVolBcType()
 
 void CgnsZone::Create()
 {
-    this->nodeMesh = new NodeMesh();
+    //this->nodeMesh = new NodeMesh();
     this->cgnsZsection = new CgnsZsection( this );
     this->cgnsZbc = new CgnsZbc( this );
     this->cgnsCoor = new CgnsCoor( this );
@@ -147,13 +147,14 @@ void CgnsZone::ConvertToInnerDataStandard()
 
 void CgnsZone::ConstructCgnsGridPoints( PointFactory * point_factory )
 {
-    RealField & x = this->nodeMesh->xN;
-    RealField & y = this->nodeMesh->yN;
-    RealField & z = this->nodeMesh->zN;
+    NodeMesh * nodeMesh = this->GetNodeMesh();
+    RealField & x = nodeMesh->xN;
+    RealField & y = nodeMesh->yN;
+    RealField & z = nodeMesh->zN;
 
     this->InitLgMapping();
 
-    size_t nNode = this->nodeMesh->GetNumberOfNodes();
+    size_t nNode = nodeMesh->GetNumberOfNodes();
 
     for ( int iNode = 0; iNode < nNode; ++ iNode )
     {
@@ -457,7 +458,7 @@ void CgnsZone::SetNCell( CgInt nCell )
 
 NodeMesh * CgnsZone::GetNodeMesh()
 {
-    return this->nodeMesh;
+    return this->cgnsCoor->nodeMesh;
 }
 
 void CgnsZone::ReadElementConnectivities()
@@ -648,6 +649,7 @@ void CgnsZone::ReadCgnsSections()
 
 void CgnsZone::ReadCgnsGridCoordinates()
 {
+    NodeMesh * nodeMesh = this->GetNodeMesh();
     nodeMesh->CreateNodes( static_cast<int>(this->nNode));
 
     cgnsCoor->ReadCgnsGridCoordinates();
@@ -671,7 +673,11 @@ void CgnsZone::DumpCgnsGridCoordinates( Grid * grid )
 
 void CgnsZone::ReadCgnsGridCoordinates( CgnsZone * cgnsZoneIn )
 {
-    * this->nodeMesh = * cgnsZoneIn->nodeMesh;
+    NodeMesh * nodeMesh1 = this->GetNodeMesh();
+    NodeMesh * nodeMesh2 = cgnsZoneIn->GetNodeMesh();
+
+    //* this->nodeMesh = * cgnsZoneIn->nodeMesh;
+    * nodeMesh1 = * nodeMesh2;
 }
 
 void CgnsZone::ReadCgnsGridBoundary()
