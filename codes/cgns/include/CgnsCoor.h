@@ -45,6 +45,14 @@ public:
     HXVector< void * > coor;
     CgnsZone * cgnsZone;
     NodeMesh * nodeMesh;
+protected:
+    CgInt nNode, nCell;
+public:
+    CgInt GetNNode();
+    CgInt GetNCell();
+
+    void SetNNode( CgInt nNode );
+    void SetNCell( CgInt nCell );
 public:
     void * GetCoor( int iCoor ) { return coor[ iCoor ]; };
     void SetAllData( RealField & x, RealField & y, RealField & z );

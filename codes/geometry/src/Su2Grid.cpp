@@ -521,8 +521,8 @@ void FillSU2CgnsZone( Su2Grid* su2Grid, CgnsZone * cgnsZone )
     int nNode = su2Grid->xN.size();
     int nCell = su2Grid->nElem;
 
-    cgnsZone->SetNNode( nNode );
-    cgnsZone->SetNCell( nCell );
+    cgnsZone->cgnsCoor->SetNNode( nNode );
+    cgnsZone->cgnsCoor->SetNCell( nCell );
 
     NodeMesh * nodeMesh = cgnsZone->cgnsCoor->GetNodeMesh();
 

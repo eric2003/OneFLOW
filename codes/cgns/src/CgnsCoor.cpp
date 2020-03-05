@@ -46,6 +46,26 @@ CgnsCoor::~CgnsCoor()
     delete this->nodeMesh;
 }
 
+CgInt CgnsCoor::GetNNode()
+{
+    return this->nNode;
+}
+
+CgInt CgnsCoor::GetNCell()
+{
+    return this->nCell;
+}
+
+void CgnsCoor::SetNNode( CgInt nNode )
+{
+    this->nNode = nNode;
+}
+
+void CgnsCoor::SetNCell( CgInt nCell )
+{
+    this->nCell = nCell;
+}
+
 void CgnsCoor::Alloc( int iCoor, int nNode, DataType_t data_type )
 {
     this->typeList[ iCoor ] = data_type;
@@ -124,7 +144,7 @@ void CgnsCoor::ReadCgnsGridCoordinates()
 
     cg_ncoords( fileId, baseId, zoneId, & this->nCoor );
 
-    int nNode = this->cgnsZone->GetNNode();
+    int nNode = this->GetNNode();
 
     for ( int coordId = 0; coordId < this->nCoor; ++ coordId )
     {

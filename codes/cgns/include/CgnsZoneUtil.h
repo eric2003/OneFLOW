@@ -23,12 +23,10 @@ License
 
 #pragma once
 #include "HXDefine.h"
-#include <vector>
-#include <string>
-#include <fstream>
 #include "HXCgns.h"
 #include "HXArray.h"
 #include "GridDef.h"
+#include <vector>
 using namespace std;
 
 BeginNameSpace( ONEFLOW )
@@ -38,16 +36,7 @@ BeginNameSpace( ONEFLOW )
 class Grid;
 class StrGrid;
 class CgnsZone;
-class CgnsBase;
-class CgnsCoor;
 class NodeMesh;
-class CgnsZsection;
-class CgnsZbc;
-class GridElem;
-class PointFactory;
-class ElemFeature;
-class FaceSolver;
-class CgnsBase;
 
 void EncodeIJK( int & index, int i, int j, int k, int ni, int nj, int nk );
 void DecodeIJK( int index, int & i, int & j, int & k, int ni, int nj, int nk );

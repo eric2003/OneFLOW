@@ -96,8 +96,8 @@ void PrepareCgnsZone( Grids & grids, CgnsZone * cgnsZone )
 
     MergeToSingleZone( grids, unsIdList, nodeMesh, nNode, nCell );
 
-    cgnsZone->SetNNode( nNode );
-    cgnsZone->SetNCell( nCell );
+    cgnsZone->cgnsCoor->SetNNode( nNode );
+    cgnsZone->cgnsCoor->SetNCell( nCell );
 
     FillSection( grids, unsIdList, cgnsZone );
 
@@ -175,7 +175,7 @@ void FillSection( Grids & grids, HXVector< Int3D * > & unsIdList, CgnsZone * cgn
 
     cout << " nBFace = " << nBFace << "\n";
 
-    cgnsZone->SetNCell( nTCell );
+    cgnsZone->cgnsCoor->SetNCell( nTCell );
 
     cgnsZone->cgnsZsection->nSection = 2;
     cgnsZone->cgnsZsection->CreateCgnsSection();

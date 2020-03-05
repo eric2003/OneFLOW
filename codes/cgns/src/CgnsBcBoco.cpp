@@ -22,6 +22,7 @@ License
 
 #include "CgnsBcBoco.h"
 #include "CgnsZone.h"
+#include "CgnsCoor.h"
 #include "CgnsZoneUtil.h"
 #include "CgnsBase.h"
 #include "Boundary.h"
@@ -61,7 +62,7 @@ int CgnsBcBoco::ComputeBase()
 {
     for ( int eId = 0; eId < this->nElements; ++ eId )
     {
-        if ( this->connList[ eId ] < this->cgnsZone->GetNCell() )
+        if ( this->connList[ eId ] < this->cgnsZone->cgnsCoor->GetNCell() )
         {
             return 0;
         }
@@ -75,7 +76,7 @@ void CgnsBcBoco::ShiftBcRegion()
     {
         for ( int eId = 0; eId < this->nElements; ++ eId )
         {
-            this->connList[ eId ] += this->cgnsZone->GetNCell(); //此处增加了偏移量，则相应的单元编号也应增加偏移量
+            this->connList[ eId ] += this->cgnsZone->cgnsCoor->GetNCell(); //此处增加了偏移量，则相应的单元编号也应增加偏移量
         }
     }
 }
