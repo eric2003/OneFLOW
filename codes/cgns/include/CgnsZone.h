@@ -63,8 +63,6 @@ protected:
     CgInt nNode, nCell;
     NodeMesh * nodeMesh;
 public:
-    int nCoor;
-
     ZoneType_t cgnsZoneType;
     int volBcType;
 

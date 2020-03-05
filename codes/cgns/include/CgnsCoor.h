@@ -38,6 +38,7 @@ public:
     ~CgnsCoor();
 public:
     int ndim;
+    int nCoor;
     IntField nNodeList;
     HXVector< DataType_t > typeList;
     HXVector< void * > coor;

@@ -118,11 +118,12 @@ void CgnsCoor::ReadCgnsGridCoordinates()
     int fileId = this->cgnsZone->cgnsBase->fileId;
     int baseId = this->cgnsZone->cgnsBase->baseId;
     int zoneId = this->cgnsZone->zId;
-    cg_ncoords( fileId, baseId, zoneId, & this->cgnsZone->nCoor );
+
+    cg_ncoords( fileId, baseId, zoneId, & this->nCoor );
 
     int nNode = this->cgnsZone->GetNNode();
 
-    for ( int coordId = 0; coordId < this->cgnsZone->nCoor; ++ coordId )
+    for ( int coordId = 0; coordId < this->nCoor; ++ coordId )
     {
         DataType_t dataType;
         CgnsTraits::char33 coorName;
