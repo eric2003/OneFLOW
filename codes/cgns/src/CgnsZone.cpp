@@ -447,11 +447,6 @@ void CgnsZone::SetNCell( CgInt nCell )
     this->nCell = nCell;
 }
 
-//NodeMesh * CgnsZone::GetNodeMesh()
-//{
-//    return this->cgnsCoor->nodeMesh;
-//}
-
 void CgnsZone::ReadElementConnectivities()
 {
     if ( this->cgnsZoneType == CGNS_ENUMV( Structured ) ) return;
@@ -640,12 +635,12 @@ void CgnsZone::ReadCgnsSections()
 
 void CgnsZone::ReadCgnsGridCoordinates()
 {
-    NodeMesh * nodeMesh = this->cgnsCoor->GetNodeMesh();
-    nodeMesh->CreateNodes( static_cast<int>(this->nNode));
+    //NodeMesh * nodeMesh = this->cgnsCoor->GetNodeMesh();
+    //nodeMesh->CreateNodes( static_cast<int>(this->nNode));
 
     cgnsCoor->ReadCgnsGridCoordinates();
 
-    cgnsCoor->SetAllData( nodeMesh->xN, nodeMesh->yN, nodeMesh->zN );
+    //cgnsCoor->SetAllData( nodeMesh->xN, nodeMesh->yN, nodeMesh->zN );
 }
 
 void CgnsZone::DumpCgnsGridCoordinates( Grid * grid )

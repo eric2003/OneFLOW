@@ -135,6 +135,11 @@ void CgnsCoor::ReadCgnsGridCoordinates()
         //Read the x-, y-, z-coordinates.
         cg_coord_read( fileId, baseId, zoneId, coorName, dataType, this->cgnsZone->irmin, this->cgnsZone->irmax, this->GetCoor( coordId ) );
     }
+
+    NodeMesh * nodeMesh = this->GetNodeMesh();
+    nodeMesh->CreateNodes( static_cast<int>( nNode ) );
+
+    this->SetAllData( nodeMesh->xN, nodeMesh->yN, nodeMesh->zN );
 }
 
 void CgnsCoor::FreeMesh()
