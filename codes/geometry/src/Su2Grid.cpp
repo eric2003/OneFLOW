@@ -519,12 +519,16 @@ void FillSU2CgnsZone( Su2Grid* su2Grid, CgnsZone * cgnsZone )
 {
     int nNode = su2Grid->xN.size();
     int nCell = su2Grid->nElem;
-    cgnsZone->nodeMesh->CreateNodes( nNode );
+
     cgnsZone->SetNNode( nNode );
     cgnsZone->SetNCell( nCell );
-    cgnsZone->nodeMesh->xN = su2Grid->xN;
-    cgnsZone->nodeMesh->yN = su2Grid->yN;
-    cgnsZone->nodeMesh->zN = su2Grid->zN;
+
+    NodeMesh * nodeMesh = cgnsZone->GetNodeMesh();
+
+    nodeMesh->CreateNodes( nNode );
+    nodeMesh->xN = su2Grid->xN;
+    nodeMesh->yN = su2Grid->yN;
+    nodeMesh->zN = su2Grid->zN;
     
     SecMarkerManager volSec;
 

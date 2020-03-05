@@ -93,8 +93,8 @@ void CgnsBcConn::SetPeriodicBc()
 {
     CgnsZone * sZone = this->cgnsZone;
     CgnsZone * tZone = ONEFLOW::GetCgnsZoneByName( this->donorZoneName );
-    NodeMesh * nodeMesh1 = sZone->nodeMesh;
-    NodeMesh * nodeMesh2 = tZone->nodeMesh;
+    NodeMesh * nodeMesh1 = sZone->GetNodeMesh();
+    NodeMesh * nodeMesh2 = tZone->GetNodeMesh();
 
     for ( int i = 0; i < nConnPoints; ++ i )
     {

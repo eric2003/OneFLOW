@@ -455,6 +455,11 @@ void CgnsZone::SetNCell( CgInt nCell )
     this->nCell = nCell;
 }
 
+NodeMesh * CgnsZone::GetNodeMesh()
+{
+    return this->nodeMesh;
+}
+
 void CgnsZone::ReadElementConnectivities()
 {
     if ( this->cgnsZoneType == CGNS_ENUMV( Structured ) ) return;
@@ -728,7 +733,7 @@ void GetIJKRegion( Range & I, Range & J, Range & K, int & ist, int & ied, int & 
 
 void PrepareCgnsZone( Grids & grids, CgnsZone * cgnsZone )
 {
-    NodeMesh * nodeMesh = cgnsZone->nodeMesh;
+    NodeMesh * nodeMesh = cgnsZone->GetNodeMesh();
 
     int nNode, nCell;
 
