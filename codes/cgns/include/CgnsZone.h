@@ -72,8 +72,6 @@ public:
     string zoneName;
 
     IntField l2g;
-
-    Real minLen, maxLen;
 public:
     void FreeMesh();
     void SetVolBcType( int volBcType );

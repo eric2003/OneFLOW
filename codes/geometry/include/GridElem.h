@@ -55,7 +55,6 @@ public:
 public:
     void CreateGrid( HXVector< CgnsZone * > cgnsZones, int iZone );
     void PrepareUnsCompGrid();
-    void ComputeMinMaxInfo();
     void InitCgnsElements();
     void ScanBcFace();
     void GenerateCompElement();
