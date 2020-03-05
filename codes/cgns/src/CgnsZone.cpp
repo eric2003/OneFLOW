@@ -643,22 +643,9 @@ void CgnsZone::ReadCgnsSections()
 
 void CgnsZone::ReadCgnsGridCoordinates()
 {
-    //Determine the number and names of the coordinates.
-    int fileId = cgnsBase->fileId;
-    int baseId = cgnsBase->baseId;
-    cg_ncoords( fileId, baseId, this->zId, & this->nCoor );
-
     nodeMesh->CreateNodes( static_cast<int>(this->nNode));
 
-    for ( int coordId = 0; coordId < this->nCoor; ++ coordId )
-    {
-        DataType_t dataType;
-        CgnsTraits::char33 coorName;
-        cg_coord_info( fileId, baseId, this->zId, coordId + 1, & dataType, coorName );
-        cgnsCoor->Alloc( coordId, static_cast<int>(this->nNode), dataType );
-        //Read the x-, y-, z-coordinates.
-        cg_coord_read( fileId, baseId, this->zId, coorName, dataType, this->irmin, this->irmax, cgnsCoor->GetCoor( coordId ) );
-    }
+    cgnsCoor->ReadCgnsGridCoordinates();
 
     cgnsCoor->SetAllData( nodeMesh->xN, nodeMesh->yN, nodeMesh->zN );
 }

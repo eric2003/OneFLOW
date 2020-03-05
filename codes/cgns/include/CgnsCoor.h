@@ -49,6 +49,8 @@ public:
 public:
     void SetData( int iCoor, DataType_t data_type, Real * var );
     void DeAlloc();
+public:
+    void ReadCgnsGridCoordinates();
 };
 
 

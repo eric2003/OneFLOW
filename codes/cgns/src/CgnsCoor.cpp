@@ -22,6 +22,7 @@ License
 
 #include "CgnsCoor.h"
 #include "CgnsZone.h"
+#include "CgnsBase.h"
 #include <iostream>
 using namespace std;
 
@@ -108,6 +109,27 @@ void CgnsCoor::DeAlloc()
             double * data = static_cast< double * >( this->coor[ iCoor ] );
             delete [] data;
         }
+    }
+}
+
+void CgnsCoor::ReadCgnsGridCoordinates()
+{
+    //Determine the number and names of the coordinates.
+    int fileId = this->cgnsZone->cgnsBase->fileId;
+    int baseId = this->cgnsZone->cgnsBase->baseId;
+    int zoneId = this->cgnsZone->zId;
+    cg_ncoords( fileId, baseId, zoneId, & this->cgnsZone->nCoor );
+
+    int nNode = this->cgnsZone->GetNNode();
+
+    for ( int coordId = 0; coordId < this->cgnsZone->nCoor; ++ coordId )
+    {
+        DataType_t dataType;
+        CgnsTraits::char33 coorName;
+        cg_coord_info( fileId, baseId, zoneId, coordId + 1, & dataType, coorName );
+        this->Alloc( coordId, static_cast<int>( nNode ), dataType );
+        //Read the x-, y-, z-coordinates.
+        cg_coord_read( fileId, baseId, zoneId, coorName, dataType, this->cgnsZone->irmin, this->cgnsZone->irmax, this->GetCoor( coordId ) );
     }
 }
 
