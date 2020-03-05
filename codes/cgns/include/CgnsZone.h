@@ -39,6 +39,7 @@ class Grid;
 class StrGrid;
 class CgnsZone;
 class CgnsBase;
+class CgnsCoor;
 class NodeMesh;
 class CgnsZsection;
 class CgnsZbc;
@@ -56,6 +57,7 @@ public:
 public:
     CgnsBase * cgnsBase;
     NodeMesh * nodeMesh;
+    CgnsCoor * cgnsCoor;
     CgnsZsection * cgnsZsection;
     CgnsZbc * cgnsZbc;
 

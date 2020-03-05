@@ -58,6 +58,7 @@ CgnsZone::CgnsZone( CgnsBase * cgnsBase )
     this->cgnsZsection = 0;
     this->cgnsZbc = 0;
     this->volBcType = -1;
+    this->cgnsCoor = 0;
 }
 
 CgnsZone::~CgnsZone()
@@ -65,6 +66,7 @@ CgnsZone::~CgnsZone()
     delete this->nodeMesh;
     delete this->cgnsZsection;
     delete this->cgnsZbc;
+    delete this->cgnsCoor;
 }
 
 void CgnsZone::FreeMesh()
@@ -627,7 +629,11 @@ void CgnsZone::ReadCgnsGridCoordinates()
 
     nodeMesh->CreateNodes( static_cast<int>(this->nNode));
 
-    CgnsCoor * cgnsCoor = new CgnsCoor();
+    if ( !this->cgnsCoor )
+    {
+        this->cgnsCoor = new CgnsCoor();
+    }
+
 
     for ( int coordId = 0; coordId < this->nCoor; ++ coordId )
     {
@@ -641,7 +647,7 @@ void CgnsZone::ReadCgnsGridCoordinates()
 
     cgnsCoor->SetAllData( nodeMesh->xN, nodeMesh->yN, nodeMesh->zN );
 
-    delete cgnsCoor;
+    //delete cgnsCoor;
 }
 
 void CgnsZone::DumpCgnsGridCoordinates( Grid * grid )
