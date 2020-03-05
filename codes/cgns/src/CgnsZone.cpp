@@ -54,7 +54,6 @@ BeginNameSpace( ONEFLOW )
 CgnsZone::CgnsZone( CgnsBase * cgnsBase )
 {
     this->cgnsBase = cgnsBase;
-    //this->nodeMesh = 0;
     this->cgnsZsection = 0;
     this->cgnsZbc = 0;
     this->volBcType = -1;
@@ -63,17 +62,10 @@ CgnsZone::CgnsZone( CgnsBase * cgnsBase )
 
 CgnsZone::~CgnsZone()
 {
-    //delete this->nodeMesh;
     delete this->cgnsZsection;
     delete this->cgnsZbc;
     delete this->cgnsCoor;
 }
-
-//void CgnsZone::FreeMesh()
-//{
-//    delete this->nodeMesh;
-//    this->nodeMesh = 0;
-//}
 
 void CgnsZone::SetVolBcType( int volBcType )
 {
@@ -87,7 +79,6 @@ int CgnsZone::GetVolBcType()
 
 void CgnsZone::Create()
 {
-    //this->nodeMesh = new NodeMesh();
     this->cgnsZsection = new CgnsZsection( this );
     this->cgnsZbc = new CgnsZbc( this );
     this->cgnsCoor = new CgnsCoor( this );
@@ -147,7 +138,7 @@ void CgnsZone::ConvertToInnerDataStandard()
 
 void CgnsZone::ConstructCgnsGridPoints( PointFactory * point_factory )
 {
-    NodeMesh * nodeMesh = this->GetNodeMesh();
+    NodeMesh * nodeMesh = this->cgnsCoor->GetNodeMesh();
     RealField & x = nodeMesh->xN;
     RealField & y = nodeMesh->yN;
     RealField & z = nodeMesh->zN;
@@ -456,10 +447,10 @@ void CgnsZone::SetNCell( CgInt nCell )
     this->nCell = nCell;
 }
 
-NodeMesh * CgnsZone::GetNodeMesh()
-{
-    return this->cgnsCoor->nodeMesh;
-}
+//NodeMesh * CgnsZone::GetNodeMesh()
+//{
+//    return this->cgnsCoor->nodeMesh;
+//}
 
 void CgnsZone::ReadElementConnectivities()
 {
@@ -649,7 +640,7 @@ void CgnsZone::ReadCgnsSections()
 
 void CgnsZone::ReadCgnsGridCoordinates()
 {
-    NodeMesh * nodeMesh = this->GetNodeMesh();
+    NodeMesh * nodeMesh = this->cgnsCoor->GetNodeMesh();
     nodeMesh->CreateNodes( static_cast<int>(this->nNode));
 
     cgnsCoor->ReadCgnsGridCoordinates();
@@ -673,10 +664,9 @@ void CgnsZone::DumpCgnsGridCoordinates( Grid * grid )
 
 void CgnsZone::ReadCgnsGridCoordinates( CgnsZone * cgnsZoneIn )
 {
-    NodeMesh * nodeMesh1 = this->GetNodeMesh();
-    NodeMesh * nodeMesh2 = cgnsZoneIn->GetNodeMesh();
+    NodeMesh * nodeMesh1 = this->cgnsCoor->GetNodeMesh();
+    NodeMesh * nodeMesh2 = cgnsZoneIn->cgnsCoor->GetNodeMesh();
 
-    //* this->nodeMesh = * cgnsZoneIn->nodeMesh;
     * nodeMesh1 = * nodeMesh2;
 }
 
@@ -739,7 +729,7 @@ void GetIJKRegion( Range & I, Range & J, Range & K, int & ist, int & ied, int & 
 
 void PrepareCgnsZone( Grids & grids, CgnsZone * cgnsZone )
 {
-    NodeMesh * nodeMesh = cgnsZone->GetNodeMesh();
+    NodeMesh * nodeMesh = cgnsZone->cgnsCoor->GetNodeMesh();
 
     int nNode, nCell;
 

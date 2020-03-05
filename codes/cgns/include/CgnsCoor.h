@@ -55,6 +55,8 @@ public:
 public:
     void ReadCgnsGridCoordinates();
     void FreeMesh();
+public:
+    NodeMesh * GetNodeMesh();
 };
 
 

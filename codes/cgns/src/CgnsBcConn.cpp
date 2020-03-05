@@ -23,6 +23,7 @@ along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 #include "CgnsBcConn.h"
 #include "CgnsZone.h"
 #include "CgnsBase.h"
+#include "CgnsCoor.h"
 #include "CgnsPeriod.h"
 #include "CgnsGlobal.h"
 #include "NodeMesh.h"
@@ -93,8 +94,8 @@ void CgnsBcConn::SetPeriodicBc()
 {
     CgnsZone * sZone = this->cgnsZone;
     CgnsZone * tZone = ONEFLOW::GetCgnsZoneByName( this->donorZoneName );
-    NodeMesh * nodeMesh1 = sZone->GetNodeMesh();
-    NodeMesh * nodeMesh2 = tZone->GetNodeMesh();
+    NodeMesh * nodeMesh1 = sZone->cgnsCoor->GetNodeMesh();
+    NodeMesh * nodeMesh2 = tZone->cgnsCoor->GetNodeMesh();
 
     for ( int i = 0; i < nConnPoints; ++ i )
     {

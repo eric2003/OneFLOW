@@ -143,6 +143,11 @@ void CgnsCoor::FreeMesh()
     this->nodeMesh = 0;
 }
 
+NodeMesh * CgnsCoor::GetNodeMesh()
+{
+    return this->nodeMesh;
+}
+
 
 #endif
 EndNameSpace

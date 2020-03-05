@@ -31,6 +31,7 @@ License
 #include "CgnsBcBoco.h"
 #include "CgnsSection.h"
 #include "CgnsZone.h"
+#include "CgnsCoor.h"
 #include "GridMediator.h"
 #include "Boundary.h"
 #include "GridPara.h"
@@ -523,7 +524,7 @@ void FillSU2CgnsZone( Su2Grid* su2Grid, CgnsZone * cgnsZone )
     cgnsZone->SetNNode( nNode );
     cgnsZone->SetNCell( nCell );
 
-    NodeMesh * nodeMesh = cgnsZone->GetNodeMesh();
+    NodeMesh * nodeMesh = cgnsZone->cgnsCoor->GetNodeMesh();
 
     nodeMesh->CreateNodes( nNode );
     nodeMesh->xN = su2Grid->xN;
