@@ -644,6 +644,11 @@ void ReadCgnsZoneNameAndGeneralizedDimension( CgnsZone * myZone, CgnsZone * cgns
     myZone->zoneName = cgnsZoneIn->zoneName;
 }
 
+void SetDimension( CgnsZone * myZone, CgnsZone * cgnsZoneIn )
+{
+    CgnsCoor * cgnsCoorIn = cgnsZoneIn->cgnsCoor;
+    myZone->cgnsCoor->SetDimension( cgnsCoorIn );
+}
 
 #endif
 EndNameSpace
