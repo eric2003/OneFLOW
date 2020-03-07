@@ -70,9 +70,6 @@ public:
     IntField l2g;
 
     CgInt isize[ 9 ];
-
-//public:
-//    CgInt irmin[ 3 ], irmax[ 3 ], cellSize[ 3 ];
 public:
     void SetVolBcType( int volBcType );
     int GetVolBcType();
@@ -122,8 +119,6 @@ public:
     void GenerateUnsBcElemConn ( CgnsZone * cgnsZoneIn );
     void GenerateUnsBcCondConn ( CgnsZone * cgnsZoneIn );
     void SetElemPosition();
-
-    void InitL2g();
 public:
     CgInt GetNI() const;
     CgInt GetNJ() const;

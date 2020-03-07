@@ -69,6 +69,8 @@ public:
     NodeMesh * GetNodeMesh();
     void SetDimension();
     void SetDimension( CgnsCoor * cgnsCoorIn );
+    void SetDimensionStr();
+    void SetDimensionUns();
 };
 
 

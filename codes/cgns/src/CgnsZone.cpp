@@ -325,113 +325,12 @@ void CgnsZone::ReadCgnsZoneNameAndGeneralizedDimension( CgnsZone * cgnsZoneIn )
 void CgnsZone::SetDimension()
 {
     this->cgnsCoor->SetDimension();
-    //int rind[ 6 ];
-    //int result = cg_rind_read( rind );
-    //if ( result != CG_OK )
-    //{
-    //    for ( int i = 0; i < 6; ++ i )
-    //    {
-    //        rind[i] = 0;
-    //    }
-    //}
-
-    //if ( this->cgnsZoneType == CGNS_ENUMV( Structured ) )
-    //{
-    //    // lower range index
-    //    irmin[ 0 ] = 1;
-    //    irmin[ 1 ] = 1;
-    //    irmin[ 2 ] = 1;
-
-    //    // upper range index of vertices
-    //    irmax[ 0 ] = 1;
-    //    irmax[ 1 ] = 1;
-    //    irmax[ 2 ] = 1;
-
-    //    cellSize[ 0 ] = 1;
-    //    cellSize[ 1 ] = 1;
-    //    cellSize[ 2 ] = 1;
-
-    //    // upper range index of vertices
-    //    // vertex size
-    //    int j = 0;
-    //    irmax[ 0 ] = isize[ j ++ ];
-    //    irmax[ 1 ] = isize[ j ++ ];
-    //    if ( this->cgnsBase->celldim == THREE_D )
-    //    {
-    //        irmax[ 2 ] = isize[ j ++ ];
-    //    }
-    //    // cell size
-    //    cellSize[ 0 ] = isize[ j ++ ];
-    //    cellSize[ 1 ] = isize[ j ++ ];
-    //    if ( this->cgnsBase->celldim == THREE_D )
-    //    {
-    //        cellSize[ 2 ] = isize[ j ++ ];
-    //    }
-    //    cout << "   The Dimension Of Grid is : \n";
-    //    cout << "   I Direction " << setw( 10 ) << irmin[ 0 ] << setw( 10 ) << irmax[ 0 ] << "\n";
-    //    cout << "   J Direction " << setw( 10 ) << irmin[ 1 ] << setw( 10 ) << irmax[ 1 ] << "\n";
-    //    cout << "   K Direction " << setw( 10 ) << irmin[ 2 ] << setw( 10 ) << irmax[ 2 ] << "\n";
-    //    int nNode = irmax[ 0 ] * irmax[ 1 ] * irmax[ 2 ];
-    //    int nCell = cellSize[ 0 ] * cellSize[ 1 ] * cellSize[ 2 ];
-    //    this->cgnsCoor->SetNNode( nNode );
-    //    this->cgnsCoor->SetNCell( nCell );
-    //}
-    //else
-    //{
-    //    irmin[ 0 ] = 1;
-    //    irmin[ 1 ] = 0;
-    //    irmin[ 2 ] = 0;
-
-    //    irmax[ 0 ] = isize[ 0 ];
-    //    irmax[ 1 ] = 0;
-    //    irmax[ 2 ] = 0;
-
-    //    cellSize[ 0 ] = isize[ 1 ];
-
-    //    int nNode = irmax[ 0 ];
-    //    int nCell = cellSize[ 0 ];
-    //    this->cgnsCoor->SetNNode( nNode );
-    //    this->cgnsCoor->SetNCell( nCell );
-
-    //}
-
-    //cout << "   numberOfNodes = " << this->cgnsCoor->GetNNode() << " numberOfCells = " << this->cgnsCoor->GetNCell() << "\n";
 }
 
 void CgnsZone::SetDimension( CgnsZone * cgnsZoneIn )
 {
     CgnsCoor * cgnsCoorIn = cgnsZoneIn->cgnsCoor;
     this->cgnsCoor->SetDimension( cgnsCoorIn );
-    //isize[ 0 ] = cgnsZoneIn->cgnsCoor->GetNNode();
-    //isize[ 1 ] = cgnsZoneIn->cgnsCoor->GetNCell();
-
-    //irmin[ 0 ] = 1;
-    //irmin[ 1 ] = 0;
-    //irmin[ 2 ] = 0;
-
-    //irmax[ 0 ] = isize[ 0 ];
-    //irmax[ 1 ] = 0;
-    //irmax[ 2 ] = 0;
-
-    //cellSize[ 0 ] = isize[ 1 ];
-
-    //this->cgnsCoor->SetNNode( irmax[ 0 ] );
-    //this->cgnsCoor->SetNCell( cellSize[ 0 ] );
-
-    //this->InitL2g();
-
-    //cout << "   numberOfNodes = " << this->cgnsCoor->GetNNode() << " numberOfCells = " << this->cgnsCoor->GetNCell() << "\n";
-}
-
-void CgnsZone::InitL2g()
-{
-    int nNode = this->cgnsCoor->GetNNode();
-    l2g.resize( nNode );
-
-    for ( int iNode = 0; iNode < nNode; ++ iNode )
-    {
-        l2g[ iNode ] = iNode;
-    }
 }
 
 CgInt CgnsZone::GetNI() const { return this->cgnsCoor->irmax[0]; };
