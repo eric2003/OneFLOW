@@ -593,6 +593,15 @@ void AllocateUnsElemConn( CgnsZone * myZone, CgnsZone * cgnsZoneIn )
     myZone->cgnsZsection->CreateConnList();
 }
 
+void ReadElementConnectivities( CgnsZone * myZone, CgnsZone * cgnsZoneIn )
+{
+    ONEFLOW::AllocateUnsElemConn( myZone, cgnsZoneIn );
+    ONEFLOW::GenerateUnsVolElemConn( myZone, cgnsZoneIn );
+    ONEFLOW::GenerateUnsBcElemConn( myZone, cgnsZoneIn );
+    myZone->SetElemPosition();
+    ONEFLOW::GenerateUnsBcCondConn( myZone, cgnsZoneIn );
+}
+
 
 #endif
 EndNameSpace

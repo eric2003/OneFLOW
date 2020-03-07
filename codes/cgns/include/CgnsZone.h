@@ -114,10 +114,6 @@ public:
     void FillISize( int ni, int nj, int nk, int dimension );
     void PrepareCgnsZone( Grid * grid );
 public:
-    void AllocateUnsElemConn( CgnsZone * cgnsZoneIn );
-    void GenerateUnsVolElemConn( CgnsZone * cgnsZoneIn );
-    void GenerateUnsBcElemConn ( CgnsZone * cgnsZoneIn );
-    void GenerateUnsBcCondConn ( CgnsZone * cgnsZoneIn );
     void SetElemPosition();
 public:
     CgInt GetNI() const;

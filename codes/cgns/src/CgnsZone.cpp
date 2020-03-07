@@ -350,16 +350,7 @@ void CgnsZone::ReadElementConnectivities()
 
 void CgnsZone::ReadElementConnectivities( CgnsZone * cgnsZoneIn )
 {
-    this->AllocateUnsElemConn   ( cgnsZoneIn );
-    this->GenerateUnsVolElemConn( cgnsZoneIn );
-    this->GenerateUnsBcElemConn ( cgnsZoneIn );
-    this->SetElemPosition();
-    this->GenerateUnsBcCondConn ( cgnsZoneIn );
-}
-
-void CgnsZone::AllocateUnsElemConn( CgnsZone * cgnsZoneIn )
-{
-    ONEFLOW::AllocateUnsElemConn( this, cgnsZoneIn );
+    ONEFLOW::ReadElementConnectivities( this, cgnsZoneIn );
 }
 
 void CgnsZone::GetStrZonePara( int & s1, int & e1, int & s2, int & e2, int & etype1, int & etype2  )
@@ -394,21 +385,6 @@ void CgnsZone::GetStrZonePara( int & s1, int & e1, int & s2, int & e2, int & ety
 void CgnsZone::SetElemPosition()
 {
     this->cgnsZsection->SetElemPosition();
-}
-
-void CgnsZone::GenerateUnsVolElemConn( CgnsZone * cgnsZoneIn )
-{
-    ONEFLOW::GenerateUnsVolElemConn( this, cgnsZoneIn );
-}
-
-void CgnsZone::GenerateUnsBcElemConn( CgnsZone * cgnsZoneIn )
-{
-    ONEFLOW::GenerateUnsBcElemConn( this, cgnsZoneIn );
-}
-
-void CgnsZone::GenerateUnsBcCondConn( CgnsZone * cgnsZoneIn )
-{
-    ONEFLOW::GenerateUnsBcCondConn( this, cgnsZoneIn );
 }
 
 void CgnsZone::ReadNumberOfCgnsSections()
