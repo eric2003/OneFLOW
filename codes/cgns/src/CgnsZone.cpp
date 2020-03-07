@@ -409,70 +409,7 @@ void CgnsZone::SetElemPosition()
 
 void CgnsZone::GenerateUnsVolElemConn( CgnsZone * cgnsZoneIn )
 {
-    int ni = static_cast<int> (cgnsZoneIn->GetNI());
-    int nj = static_cast<int> (cgnsZoneIn->GetNJ());
-    int nk = static_cast<int> (cgnsZoneIn->GetNK());
-
-    cout << " ni = " << ni << " nj = " << nj << " nk = " << nk << "\n";
-
-    int iSection = 0;
-    CgnsSection * cgnsSection = this->cgnsZsection->GetCgnsSection( iSection );
-
-    Range I, J, K;
-    GetRange( ni, nj, nk, 0, -1, I, J, K );
-
-    int ist, ied, jst, jed, kst, ked;
-    GetIJKRegion( I, J, K, ist, ied, jst, jed, kst, ked );
-
-    int il1 = 1;
-    int jl1 = 1;
-    int kl1 = 1;
-
-    int cell_dim = this->cgnsBase->celldim;
-
-    if ( cell_dim == TWO_D ) kl1 = 0;
-    if ( cell_dim == ONE_D ) jl1 = 0;
-
-    CgIntField & connList = cgnsSection->connList;
-
-    int pos = 0;
-
-    for ( int k = kst; k <= ked; ++ k )
-    {
-        for ( int j = jst; j <= jed; ++ j )
-        {
-            for ( int i = ist; i <= ied; ++ i )
-            {
-                int index1, index2, index3, index4;
-                EncodeIJK( index1,  i      , j      , k,  ni,  nj,  nk );
-                EncodeIJK( index2,  i + il1, j      , k,  ni,  nj,  nk );
-
-                connList[ pos ++ ] = this->l2g[ index1 ] + 1;
-                connList[ pos ++ ] = this->l2g[ index2 ] + 1;
-
-                if ( cell_dim == ONE_D ) continue;
-
-                EncodeIJK( index3,  i + il1, j + jl1, k,  ni,  nj,  nk );
-                EncodeIJK( index4,  i      , j + jl1, k,  ni,  nj,  nk );
-
-                connList[ pos ++ ] = this->l2g[ index3 ] + 1;
-                connList[ pos ++ ] = this->l2g[ index4 ] + 1;
-
-                if ( cell_dim == TWO_D ) continue;
-
-                int index5, index6, index7, index8;
-                EncodeIJK( index5,  i      , j      , k + kl1,  ni,  nj,  nk );
-                EncodeIJK( index6,  i + il1, j      , k + kl1,  ni,  nj,  nk );
-                EncodeIJK( index7,  i + il1, j + jl1, k + kl1,  ni,  nj,  nk );
-                EncodeIJK( index8,  i      , j + jl1, k + kl1,  ni,  nj,  nk );
-
-                connList[ pos ++ ] = this->l2g[ index5 ] + 1;
-                connList[ pos ++ ] = this->l2g[ index6 ] + 1;
-                connList[ pos ++ ] = this->l2g[ index7 ] + 1;
-                connList[ pos ++ ] = this->l2g[ index8 ] + 1;
-            }
-        }
-    }
+    ONEFLOW::GenerateUnsVolElemConn( this, cgnsZoneIn );
 }
 
 void CgnsZone::GenerateUnsBcElemConn( CgnsZone * cgnsZoneIn )

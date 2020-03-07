@@ -53,6 +53,7 @@ void SetUnsBcConn( BcRegion * bcRegion, CgIntField& conn, int & pos, Int3D & uns
 
 void GenerateUnsBcElemConn( CgnsZone * myZone, CgnsZone * cgnsZoneIn );
 void GenerateUnsBcCondConn( CgnsZone * myZone, CgnsZone * cgnsZoneIn );
+void GenerateUnsVolElemConn( CgnsZone * myZone, CgnsZone * cgnsZoneIn );
 
 #endif
 
