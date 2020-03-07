@@ -192,62 +192,10 @@ void CgnsCoor::SetDimension()
     if ( this->cgnsZone->cgnsZoneType == CGNS_ENUMV( Structured ) )
     {
         this->SetDimensionStr();
-        //// lower range index
-        //irmin[ 0 ] = 1;
-        //irmin[ 1 ] = 1;
-        //irmin[ 2 ] = 1;
-
-        //// upper range index of vertices
-        //irmax[ 0 ] = 1;
-        //irmax[ 1 ] = 1;
-        //irmax[ 2 ] = 1;
-
-        //cellSize[ 0 ] = 1;
-        //cellSize[ 1 ] = 1;
-        //cellSize[ 2 ] = 1;
-
-        //// upper range index of vertices
-        //// vertex size
-        //int j = 0;
-        //irmax[ 0 ] = isize[ j ++ ];
-        //irmax[ 1 ] = isize[ j ++ ];
-        //if ( this->cgnsZone->cgnsBase->celldim == THREE_D )
-        //{
-        //    irmax[ 2 ] = isize[ j ++ ];
-        //}
-        //// cell size
-        //cellSize[ 0 ] = isize[ j ++ ];
-        //cellSize[ 1 ] = isize[ j ++ ];
-        //if ( this->cgnsZone->cgnsBase->celldim == THREE_D )
-        //{
-        //    cellSize[ 2 ] = isize[ j ++ ];
-        //}
-        //cout << "   The Dimension Of Grid is : \n";
-        //cout << "   I Direction " << setw( 10 ) << irmin[ 0 ] << setw( 10 ) << irmax[ 0 ] << "\n";
-        //cout << "   J Direction " << setw( 10 ) << irmin[ 1 ] << setw( 10 ) << irmax[ 1 ] << "\n";
-        //cout << "   K Direction " << setw( 10 ) << irmin[ 2 ] << setw( 10 ) << irmax[ 2 ] << "\n";
-        //int nNode = irmax[ 0 ] * irmax[ 1 ] * irmax[ 2 ];
-        //int nCell = cellSize[ 0 ] * cellSize[ 1 ] * cellSize[ 2 ];
-        //this->SetNNode( nNode );
-        //this->SetNCell( nCell );
     }
     else
     {
         this->SetDimensionUns();
-        //irmin[ 0 ] = 1;
-        //irmin[ 1 ] = 0;
-        //irmin[ 2 ] = 0;
-
-        //irmax[ 0 ] = isize[ 0 ];
-        //irmax[ 1 ] = 0;
-        //irmax[ 2 ] = 0;
-
-        //cellSize[ 0 ] = isize[ 1 ];
-
-        //int nNode = irmax[ 0 ];
-        //int nCell = cellSize[ 0 ];
-        //this->SetNNode( nNode );
-        //this->SetNCell( nCell );
     }
 
     cout << "   numberOfNodes = " << this->GetNNode() << " numberOfCells = " << this->GetNCell() << "\n";
