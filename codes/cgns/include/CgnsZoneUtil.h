@@ -51,6 +51,8 @@ void FillSection( Grids & grids, HXVector< Int3D * > & unsIdList, CgnsZone * cgn
 void ComputeUnsId( StrGrid * grid, PointSearch * pointSearch, Int3D * unsId );
 void SetUnsBcConn( BcRegion * bcRegion, CgIntField& conn, int & pos, Int3D & unsId );
 
+void GenerateUnsBcElemConn( CgnsZone * myZone, CgnsZone * cgnsZoneIn );
+
 #endif
 
 EndNameSpace

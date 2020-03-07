@@ -482,6 +482,17 @@ void SetUnsBcConn( BcRegion * bcRegion, CgIntField& conn, int & pos, Int3D & uns
     Stop( " error : ist != ied, jst != jed, kst != ked \n" );
 }
 
+void GenerateUnsBcElemConn( CgnsZone * myZone, CgnsZone * cgnsZoneIn )
+{
+    int iSection = 1;
+    CgnsSection * cgnsSection = myZone->cgnsZsection->GetCgnsSection( iSection );
+
+    myZone->cgnsZbc->CreateCgnsZbc( cgnsZoneIn->cgnsZbc );
+
+    cout << " ConnectionList Size = " << cgnsSection->connSize << "\n";
+    cgnsZoneIn->cgnsZbc->GenerateUnsBcElemConn( cgnsSection->connList );
+}
+
 
 #endif
 EndNameSpace

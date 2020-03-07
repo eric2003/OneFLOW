@@ -477,13 +477,14 @@ void CgnsZone::GenerateUnsVolElemConn( CgnsZone * cgnsZoneIn )
 
 void CgnsZone::GenerateUnsBcElemConn( CgnsZone * cgnsZoneIn )
 {
-    int iSection = 1;
-    CgnsSection * cgnsSection = this->cgnsZsection->GetCgnsSection( iSection );
+    ONEFLOW::GenerateUnsBcElemConn( this, cgnsZoneIn );
+    //int iSection = 1;
+    //CgnsSection * cgnsSection = this->cgnsZsection->GetCgnsSection( iSection );
 
-    this->cgnsZbc->CreateCgnsZbc( cgnsZoneIn->cgnsZbc );
+    //this->cgnsZbc->CreateCgnsZbc( cgnsZoneIn->cgnsZbc );
 
-    cout << " ConnectionList Size = " << cgnsSection->connSize << "\n";
-    cgnsZoneIn->cgnsZbc->GenerateUnsBcElemConn( cgnsSection->connList );
+    //cout << " ConnectionList Size = " << cgnsSection->connSize << "\n";
+    //cgnsZoneIn->cgnsZbc->GenerateUnsBcElemConn( cgnsSection->connList );
 }
 
 void CgnsZone::GenerateUnsBcCondConn( CgnsZone * cgnsZoneIn )
