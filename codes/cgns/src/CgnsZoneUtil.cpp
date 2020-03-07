@@ -577,6 +577,22 @@ void GenerateUnsVolElemConn( CgnsZone * myZone, CgnsZone * cgnsZoneIn )
     }
 }
 
+void AllocateUnsElemConn( CgnsZone * myZone, CgnsZone * cgnsZoneIn )
+{
+    myZone->cgnsZsection->nSection = 2;
+    myZone->cgnsZsection->CreateCgnsSection();
+
+    int s1, e1, s2, e2, etype1, etype2;
+    cgnsZoneIn->GetStrZonePara( s1, e1, s2, e2, etype1, etype2 );
+
+    CgnsSection * cgnsSection1 = myZone->cgnsZsection->GetCgnsSection( 0 );
+    CgnsSection * cgnsSection2 = myZone->cgnsZsection->GetCgnsSection( 1 );
+    cgnsSection1->SetSectionInfo( "Section1", etype1, s1, e1 );
+    cgnsSection2->SetSectionInfo( "Section2", etype2, s2, e2 );
+
+    myZone->cgnsZsection->CreateConnList();
+}
+
 
 #endif
 EndNameSpace

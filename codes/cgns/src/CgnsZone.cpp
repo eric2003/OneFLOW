@@ -359,18 +359,7 @@ void CgnsZone::ReadElementConnectivities( CgnsZone * cgnsZoneIn )
 
 void CgnsZone::AllocateUnsElemConn( CgnsZone * cgnsZoneIn )
 {
-    this->cgnsZsection->nSection = 2;
-    this->cgnsZsection->CreateCgnsSection();
-
-    int s1, e1, s2, e2, etype1, etype2;
-    cgnsZoneIn->GetStrZonePara( s1, e1, s2, e2, etype1, etype2 );
-
-    CgnsSection * cgnsSection1 = this->cgnsZsection->GetCgnsSection( 0 );
-    CgnsSection * cgnsSection2 = this->cgnsZsection->GetCgnsSection( 1 );
-    cgnsSection1->SetSectionInfo( "Section1", etype1, s1, e1 );
-    cgnsSection2->SetSectionInfo( "Section2", etype2, s2, e2 );
-
-    this->cgnsZsection->CreateConnList();
+    ONEFLOW::AllocateUnsElemConn( this, cgnsZoneIn );
 }
 
 void CgnsZone::GetStrZonePara( int & s1, int & e1, int & s2, int & e2, int & etype1, int & etype2  )
