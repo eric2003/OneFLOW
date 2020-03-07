@@ -45,6 +45,8 @@ public:
     HXVector< void * > coor;
     CgnsZone * cgnsZone;
     NodeMesh * nodeMesh;
+public:
+    CgInt irmin[ 3 ], irmax[ 3 ], cellSize[ 3 ];
 protected:
     CgInt nNode, nCell;
 public:
@@ -65,6 +67,8 @@ public:
     void FreeMesh();
 public:
     NodeMesh * GetNodeMesh();
+    void SetDimension();
+    void SetDimension( CgnsCoor * cgnsCoorIn );
 };
 
 

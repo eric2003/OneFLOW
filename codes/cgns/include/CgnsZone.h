@@ -59,19 +59,20 @@ public:
     CgnsCoor * cgnsCoor;
     CgnsZsection * cgnsZsection;
     CgnsZbc * cgnsZbc;
-//protected:
-//    CgInt nNode, nCell;
 public:
+    string zoneName;
+    int zId;
+
     ZoneType_t cgnsZoneType;
+
     int volBcType;
 
-    int zId;
-    CgInt irmin[ 3 ], irmax[ 3 ], cellSize[ 3 ];
+    IntField l2g;
+
     CgInt isize[ 9 ];
 
-    string zoneName;
-
-    IntField l2g;
+//public:
+//    CgInt irmin[ 3 ], irmax[ 3 ], cellSize[ 3 ];
 public:
     void SetVolBcType( int volBcType );
     int GetVolBcType();
@@ -128,12 +129,6 @@ public:
     CgInt GetNJ() const;
     CgInt GetNK() const;
 public:
-    //CgInt GetNNode();
-    //CgInt GetNCell();
-
-    //void SetNNode( CgInt nNode );
-    //void SetNCell( CgInt nCell );
-
     void GetStrZonePara( int & s1, int & e1, int & s2, int & e2, int & etype1, int & etype2 );
 public:
     bool ExistSection( const string & sectionName );
