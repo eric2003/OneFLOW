@@ -22,6 +22,8 @@ if [ "$TRAVIS_OS_NAME" == "linux" ]; then
     ls /usr/local/cmake-3.17.0-rc2/bin
     cmake --version
     which cmake
+    echo "/usr/local/bin/cmake --version"
+    /usr/local/bin/cmake --version
     echo "the path is SPATH"
     echo $PATH
 fi
