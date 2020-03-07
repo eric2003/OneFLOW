@@ -632,6 +632,18 @@ void GetStrZonePara( CgnsZone * myZone, int & s1, int & e1, int & s2, int & e2, 
     }
 }
 
+void ReadCgnsZoneType( CgnsZone * myZone, CgnsZone * cgnsZoneIn )
+{
+    myZone->cgnsZoneType = CGNS_ENUMV( Unstructured );
+
+    cout << "   The Zone Type is " << GetCgnsZoneTypeName( myZone->cgnsZoneType ) << " Zone" << "\n";
+}
+
+void ReadCgnsZoneNameAndGeneralizedDimension( CgnsZone * myZone, CgnsZone * cgnsZoneIn )
+{
+    myZone->zoneName = cgnsZoneIn->zoneName;
+}
+
 
 #endif
 EndNameSpace

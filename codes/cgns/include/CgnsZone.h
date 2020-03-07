@@ -91,10 +91,8 @@ public:
     void ReadCgnsZoneAttribute( CgnsZone * cgnsZoneIn );
     void ReadCgnsZoneType();
     void DumpCgnsZoneType( Grid * grid );
-    void ReadCgnsZoneType( CgnsZone * cgnsZoneIn );
     void ReadCgnsZoneNameAndGeneralizedDimension();
     void DumpCgnsZoneNameAndGeneralizedDimension( Grid * gridIn );
-    void ReadCgnsZoneNameAndGeneralizedDimension( CgnsZone * cgnsZoneIn );
     void SetDimension();
     void SetDimension( CgnsZone * cgnsZoneIn );
     void ReadElementConnectivities();
@@ -119,8 +117,6 @@ public:
     CgInt GetNI() const;
     CgInt GetNJ() const;
     CgInt GetNK() const;
-public:
-    //void GetStrZonePara( int & s1, int & e1, int & s2, int & e2, int & etype1, int & etype2 );
 public:
     bool ExistSection( const string & sectionName );
 };

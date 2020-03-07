@@ -255,9 +255,9 @@ void CgnsZone::DumpCgnsZoneAttribute( Grid * grid )
 
 void CgnsZone::ReadCgnsZoneAttribute( CgnsZone * cgnsZoneIn )
 {
-    this->ReadCgnsZoneType( cgnsZoneIn );
+    ONEFLOW::ReadCgnsZoneType( this, cgnsZoneIn );
 
-    this->ReadCgnsZoneNameAndGeneralizedDimension( cgnsZoneIn );
+    ONEFLOW::ReadCgnsZoneNameAndGeneralizedDimension( this, cgnsZoneIn );
 
     this->SetDimension( cgnsZoneIn );
 }
@@ -280,13 +280,6 @@ void CgnsZone::DumpCgnsZoneType( Grid * grid )
     {
         this->cgnsZoneType = CGNS_ENUMV( Structured );
     }
-
-    cout << "   The Zone Type is " << GetCgnsZoneTypeName( cgnsZoneType ) << " Zone" << "\n";
-}
-
-void CgnsZone::ReadCgnsZoneType( CgnsZone * cgnsZoneIn )
-{
-    this->cgnsZoneType = CGNS_ENUMV( Unstructured );
 
     cout << "   The Zone Type is " << GetCgnsZoneTypeName( cgnsZoneType ) << " Zone" << "\n";
 }
@@ -315,11 +308,6 @@ void CgnsZone::DumpCgnsZoneNameAndGeneralizedDimension( Grid * gridIn )
     cout << " Zone Id = " << this->zId << "\n";
 
     cout << "   CGNS Zone Name = " << zoneName << "\n";
-}
-
-void CgnsZone::ReadCgnsZoneNameAndGeneralizedDimension( CgnsZone * cgnsZoneIn )
-{
-    this->zoneName = cgnsZoneIn->zoneName;
 }
 
 void CgnsZone::SetDimension()
@@ -352,35 +340,6 @@ void CgnsZone::ReadElementConnectivities( CgnsZone * cgnsZoneIn )
 {
     ONEFLOW::ReadElementConnectivities( this, cgnsZoneIn );
 }
-
-//void CgnsZone::GetStrZonePara( int & s1, int & e1, int & s2, int & e2, int & etype1, int & etype2  )
-//{
-//   int nActualBcFace = this->cgnsZbc->GetNumberOfActualBcElements();
-//
-//    s1 = 1;
-//    e1 = this->cgnsCoor->GetNCell();
-//
-//    s2 = e1 + 1;
-//    e2 = e1 + nActualBcFace;
-//
-//    int celldim = this->cgnsBase->celldim;
-//
-//    if ( celldim == ONE_D )
-//    {
-//        etype1  = CGNS_ENUMV( BAR_2 );
-//        etype2  = CGNS_ENUMV( NODE );
-//    }
-//    else if ( celldim == TWO_D )
-//    {
-//        etype1  = CGNS_ENUMV( QUAD_4 );
-//        etype2  = CGNS_ENUMV( BAR_2  );
-//    }
-//    else if ( celldim == THREE_D )
-//    {
-//        etype1  = CGNS_ENUMV( HEXA_8 );
-//        etype2  = CGNS_ENUMV( QUAD_4 );
-//    }
-//}
 
 void CgnsZone::SetElemPosition()
 {
