@@ -1,14 +1,24 @@
 cmake_minimum_required(VERSION 3.2)
-#set cmake environment:
-set(CMAKE_USE_RELATIVE_PATHS ON)
 
-#build the project:
-project (OneFLOW)
+project( OneFLOW
+         VERSION 1.0.0.0
+         DESCRIPTION "OneFLOW opensource CFD"
+         HOMEPAGE_URL "https://github.com/eric2003/OneFLOW"
+         LANGUAGES CXX
+        )
+
+message( STATUS "CMAKE_PROJECT_NAME    = ${CMAKE_PROJECT_NAME}" )
+message( STATUS "PROJECT_VERSION_MAJOR = ${PROJECT_VERSION_MAJOR}" )
+message( STATUS "PROJECT_VERSION_MINOR = ${PROJECT_VERSION_MINOR}" )
+message( STATUS "PROJECT_VERSION_PATCH = ${PROJECT_VERSION_PATCH}" )
+message( STATUS "PROJECT_VERSION_TWEAK = ${PROJECT_VERSION_TWEAK}" )
+message( STATUS "PROJECT_HOMEPAGE_URL = ${PROJECT_HOMEPAGE_URL}")
+message( STATUS "CMAKE_PROJECT_DESCRIPTION = ${CMAKE_PROJECT_DESCRIPTION}" )
+
+set(CMAKE_USE_RELATIVE_PATHS ON)
 
 #set working directory:
 set(MY_WORKING_DIR OneFLOW)
-#set(HDF5_LIBRARY_DIR "/usr/lib/x86_64-linux-gnu/hdf5/serial"
-#        CACHE STRING "HDF5_LIBRARY_PATH" FORCE)
 
 #output message:
 message(STATUS "Welcome to Build Project ${CMAKE_PROJECT_NAME}.")
