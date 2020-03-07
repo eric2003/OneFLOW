@@ -583,7 +583,8 @@ void AllocateUnsElemConn( CgnsZone * myZone, CgnsZone * cgnsZoneIn )
     myZone->cgnsZsection->CreateCgnsSection();
 
     int s1, e1, s2, e2, etype1, etype2;
-    cgnsZoneIn->GetStrZonePara( s1, e1, s2, e2, etype1, etype2 );
+    //cgnsZoneIn->GetStrZonePara( s1, e1, s2, e2, etype1, etype2 );
+    ONEFLOW::GetStrZonePara( cgnsZoneIn, s1, e1, s2, e2, etype1, etype2 );
 
     CgnsSection * cgnsSection1 = myZone->cgnsZsection->GetCgnsSection( 0 );
     CgnsSection * cgnsSection2 = myZone->cgnsZsection->GetCgnsSection( 1 );
@@ -600,6 +601,35 @@ void ReadElementConnectivities( CgnsZone * myZone, CgnsZone * cgnsZoneIn )
     ONEFLOW::GenerateUnsBcElemConn( myZone, cgnsZoneIn );
     myZone->SetElemPosition();
     ONEFLOW::GenerateUnsBcCondConn( myZone, cgnsZoneIn );
+}
+
+void GetStrZonePara( CgnsZone * myZone, int & s1, int & e1, int & s2, int & e2, int & etype1, int & etype2  )
+{
+    int nActualBcFace = myZone->cgnsZbc->GetNumberOfActualBcElements();
+
+    s1 = 1;
+    e1 = myZone->cgnsCoor->GetNCell();
+
+    s2 = e1 + 1;
+    e2 = e1 + nActualBcFace;
+
+    int celldim = myZone->cgnsBase->celldim;
+
+    if ( celldim == ONE_D )
+    {
+        etype1  = CGNS_ENUMV( BAR_2 );
+        etype2  = CGNS_ENUMV( NODE );
+    }
+    else if ( celldim == TWO_D )
+    {
+        etype1  = CGNS_ENUMV( QUAD_4 );
+        etype2  = CGNS_ENUMV( BAR_2  );
+    }
+    else if ( celldim == THREE_D )
+    {
+        etype1  = CGNS_ENUMV( HEXA_8 );
+        etype2  = CGNS_ENUMV( QUAD_4 );
+    }
 }
 
 

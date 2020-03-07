@@ -56,6 +56,7 @@ void GenerateUnsBcCondConn( CgnsZone * myZone, CgnsZone * cgnsZoneIn );
 void GenerateUnsVolElemConn( CgnsZone * myZone, CgnsZone * cgnsZoneIn );
 void AllocateUnsElemConn( CgnsZone * myZone, CgnsZone * cgnsZoneIn );
 void ReadElementConnectivities( CgnsZone * myZone, CgnsZone * cgnsZoneIn );
+void GetStrZonePara( CgnsZone * myZone, int & s1, int & e1, int & s2, int & e2, int & etype1, int & etype2 );
 
 #endif
 
