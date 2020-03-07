@@ -493,6 +493,22 @@ void GenerateUnsBcElemConn( CgnsZone * myZone, CgnsZone * cgnsZoneIn )
     cgnsZoneIn->cgnsZbc->GenerateUnsBcElemConn( cgnsSection->connList );
 }
 
+void GenerateUnsBcCondConn( CgnsZone * myZone, CgnsZone * cgnsZoneIn )
+{
+    int iSection = 1;
+    CgnsSection * cgnsSection = myZone->cgnsZsection->GetCgnsSection( iSection );
+
+    CgInt startId = cgnsSection->startId;
+
+    int nBoco = cgnsZoneIn->cgnsZbc->cgnsZbcBoco->nBoco;
+    for ( int iBoco = 0; iBoco < nBoco; ++ iBoco )
+    {
+        CgnsBcBoco * bcRegion    = myZone    ->cgnsZbc->cgnsZbcBoco->GetCgnsBc( iBoco );
+        CgnsBcBoco * strBcRegion = cgnsZoneIn->cgnsZbc->cgnsZbcBoco->GetCgnsBc( iBoco );
+        bcRegion->CopyStrBcRegion( strBcRegion, startId );
+    }
+}
+
 
 #endif
 EndNameSpace

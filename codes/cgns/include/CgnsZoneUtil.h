@@ -52,6 +52,7 @@ void ComputeUnsId( StrGrid * grid, PointSearch * pointSearch, Int3D * unsId );
 void SetUnsBcConn( BcRegion * bcRegion, CgIntField& conn, int & pos, Int3D & unsId );
 
 void GenerateUnsBcElemConn( CgnsZone * myZone, CgnsZone * cgnsZoneIn );
+void GenerateUnsBcCondConn( CgnsZone * myZone, CgnsZone * cgnsZoneIn );
 
 #endif
 

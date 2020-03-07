@@ -478,29 +478,11 @@ void CgnsZone::GenerateUnsVolElemConn( CgnsZone * cgnsZoneIn )
 void CgnsZone::GenerateUnsBcElemConn( CgnsZone * cgnsZoneIn )
 {
     ONEFLOW::GenerateUnsBcElemConn( this, cgnsZoneIn );
-    //int iSection = 1;
-    //CgnsSection * cgnsSection = this->cgnsZsection->GetCgnsSection( iSection );
-
-    //this->cgnsZbc->CreateCgnsZbc( cgnsZoneIn->cgnsZbc );
-
-    //cout << " ConnectionList Size = " << cgnsSection->connSize << "\n";
-    //cgnsZoneIn->cgnsZbc->GenerateUnsBcElemConn( cgnsSection->connList );
 }
 
 void CgnsZone::GenerateUnsBcCondConn( CgnsZone * cgnsZoneIn )
 {
-    int iSection = 1;
-    CgnsSection * cgnsSection = this->cgnsZsection->GetCgnsSection( iSection );
-
-    CgInt startId = cgnsSection->startId;
-
-    int nBoco = cgnsZoneIn->cgnsZbc->cgnsZbcBoco->nBoco;
-    for ( int iBoco = 0; iBoco < nBoco; ++ iBoco )
-    {
-        CgnsBcBoco * bcRegion    = this      ->cgnsZbc->cgnsZbcBoco->GetCgnsBc( iBoco );
-        CgnsBcBoco * strBcRegion = cgnsZoneIn->cgnsZbc->cgnsZbcBoco->GetCgnsBc( iBoco );
-        bcRegion->CopyStrBcRegion( strBcRegion, startId );
-    }
+    ONEFLOW::GenerateUnsBcCondConn( this, cgnsZoneIn );
 }
 
 void CgnsZone::ReadNumberOfCgnsSections()
