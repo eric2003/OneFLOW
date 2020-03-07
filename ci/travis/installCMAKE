@@ -22,7 +22,9 @@ if [ "$TRAVIS_OS_NAME" == "linux" ]; then
     ls /usr/local/cmake-3.17.0-rc2/bin
     echo "/usr/local/cmake-3.17.0-rc2/bin"
     ls /usr/local/cmake-3.17.0-rc2/bin
+    echo "cmake --version"
     cmake --version
+    echo "which cmake"
     which cmake
     echo "/usr/bin/cmake --version"
     /usr/bin/cmake --version
