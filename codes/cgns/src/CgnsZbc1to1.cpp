@@ -45,14 +45,14 @@ BeginNameSpace( ONEFLOW )
 CgnsZbc1to1::CgnsZbc1to1( CgnsZone * cgnsZone )
 {
     this->cgnsZone = cgnsZone;
-    this->n1To1 = 0;
+    this->n1to1 = 0;
 }
 
 CgnsZbc1to1::~CgnsZbc1to1()
 {
-    for ( int i1To1 = 0; i1To1 < this->n1To1; ++ i1To1 )
+    for ( int i1to1 = 0; i1to1 < this->n1to1; ++ i1to1 )
     {
-        delete this->cgnsBc1to1s[ i1To1 ];
+        delete this->cgnsBc1to1s[ i1to1 ];
     }
 }
 
@@ -63,15 +63,19 @@ void CgnsZbc1to1::AddCgns1To1BcRegion( CgnsBc1to1 * cgnsBc1to1 )
     cgnsBc1to1->bcId = id;
 }
 
-CgnsBc1to1 * CgnsZbc1to1::GetCgnsBcRegion1To1( int i1To1 )
+CgnsBc1to1 * CgnsZbc1to1::GetCgnsBcRegion1to1( int i1to1 )
 {
-    return this->cgnsBc1to1s[ i1To1 ];
+    return this->cgnsBc1to1s[ i1to1 ];
 }
 
-void CgnsZbc1to1::CreateCgns1To1BcRegion()
+void CgnsZbc1to1::PrintZn1to1()
 {
-    cout << "   n1To1        = " << this->n1To1 << endl;
-    for ( int i1To1 = 0; i1To1 < this->n1To1; ++ i1To1 )
+    cout << "   n1to1        = " << this->n1to1 << endl;
+}
+
+void CgnsZbc1to1::CreateCgnsZbc()
+{
+    for ( int i1to1 = 0; i1to1 < this->n1to1; ++ i1to1 )
     {
         CgnsBc1to1 * cgnsBc1to1 = new CgnsBc1to1( this->cgnsZone );
         this->AddCgns1To1BcRegion( cgnsBc1to1 );
@@ -80,14 +84,20 @@ void CgnsZbc1to1::CreateCgns1To1BcRegion()
 
 void CgnsZbc1to1::ConvertToInnerDataStandard()
 {
-    for ( int i1To1 = 0; i1To1 < this->n1To1; ++ i1To1 )
+    for ( int i1to1 = 0; i1to1 < this->n1to1; ++ i1to1 )
     {
-        CgnsBc1to1 * cgnsBc1to1 = this->GetCgnsBcRegion1To1( i1To1 );
+        CgnsBc1to1 * cgnsBc1to1 = this->GetCgnsBcRegion1to1( i1to1 );
         cgnsBc1to1->ConvertToInnerDataStandard();
     }
 }
 
-void CgnsZbc1to1::ReadNumberOfCgns1To1()
+void CgnsZbc1to1::ReadZn1to1( int n1to1 )
+{
+    this->n1to1 = n1to1;
+    this->PrintZn1to1();
+}
+
+void CgnsZbc1to1::ReadZn1to1()
 {
     int fileId = cgnsZone->cgnsBase->fileId;
     int baseId = cgnsZone->cgnsBase->baseId;
@@ -95,17 +105,19 @@ void CgnsZbc1to1::ReadNumberOfCgns1To1()
 
     // find out how many general interfaces there are in this zone
     // the following is the number of structured grid interface
-    cg_n1to1( fileId, baseId, zId, & this->n1To1 );
+    cg_n1to1( fileId, baseId, zId, & this->n1to1 );
+
+    this->PrintZn1to1();
 }
 
-void CgnsZbc1to1::ReadCgns1to1BcRegion()
+void CgnsZbc1to1::ReadCgnsZbc1to1()
 {
-    this->ReadNumberOfCgns1To1();
-    this->CreateCgns1To1BcRegion();
+    this->ReadZn1to1();
+    this->CreateCgnsZbc();
 
-    for ( int i1To1 = 0; i1To1 < this->n1To1; ++ i1To1 )
+    for ( int i1to1 = 0; i1to1 < this->n1to1; ++ i1to1 )
     {
-        CgnsBc1to1 * cgnsBc1to1 = this->GetCgnsBcRegion1To1( i1To1 );
+        CgnsBc1to1 * cgnsBc1to1 = this->GetCgnsBcRegion1to1( i1to1 );
         cgnsBc1to1->ReadCgnsBc1To1();
     }
 }

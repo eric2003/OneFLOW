@@ -24,6 +24,7 @@ License
 #pragma once
 #include "HXDefine.h"
 #include "HXCgns.h"
+#include <string>
 using namespace std;
 
 BeginNameSpace( ONEFLOW )
@@ -31,35 +32,30 @@ BeginNameSpace( ONEFLOW )
 #ifdef ENABLE_CGNS
 
 class CgnsZone;
-class CgnsBase;
-class FaceSolver;
 
-class FaceSolver;
-class CgnsBcBoco;
-class Grid;
-class BcRegion;
-class TestRegion;
-class CgnsBc1to1;
-
-class CgnsZbc1to1
+class CgnsBcLink
 {
 public:
-    CgnsZbc1to1( CgnsZone * cgnsZone );
-    ~CgnsZbc1to1();
+    CgnsBcLink( CgnsZone * cgnsZone );
+    ~CgnsBcLink();
 public:
-    int n1to1;
-    HXVector< CgnsBc1to1 * > cgnsBc1to1s;
-    CgnsZone * cgnsZone;
-public:
-    void AddCgns1To1BcRegion( CgnsBc1to1 * cgnsBc1to1 );
-    CgnsBc1to1 * GetCgnsBcRegion1to1( int i1to1 );
-    void CreateCgnsZbc();
     void ConvertToInnerDataStandard();
-    void ReadZn1to1( int n1to1 );
-    void ReadZn1to1();
-    void PrintZn1to1();
-    void ReadCgnsZbc1to1();
-    void SetPeriodicBc();
+public:
+    CgInt          nConnPoints;
+    CgIntField     connPoint;
+
+    CgInt          nConnDonorPoints;
+    CgIntField     connDonorPoint;
+
+    ZoneType_t     donorZoneType;
+    PointSetType_t donorPointSetType;
+    DataType_t     donorDataType;
+
+    string connName;
+    string donorZoneName;
+
+    CgnsZone * cgnsZone;
+    int bcId;
 };
 
 #endif

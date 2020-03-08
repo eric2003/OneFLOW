@@ -20,47 +20,42 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-
-#pragma once
-#include "HXDefine.h"
-#include "HXCgns.h"
+#include "CgnsBcLink.h"
+#include "CgnsZone.h"
+#include "CgnsBase.h"
+#include "CgnsPeriod.h"
+#include "NodeMesh.h"
+#include "HXMath.h"
+#include <iostream>
+#include <iomanip>
 using namespace std;
 
 BeginNameSpace( ONEFLOW )
 
 #ifdef ENABLE_CGNS
 
-class CgnsZone;
-class CgnsBase;
-class FaceSolver;
-
-class FaceSolver;
-class CgnsBcBoco;
-class Grid;
-class BcRegion;
-class TestRegion;
-class CgnsBc1to1;
-
-class CgnsZbc1to1
+CgnsBcLink::CgnsBcLink( CgnsZone * cgnsZone )
 {
-public:
-    CgnsZbc1to1( CgnsZone * cgnsZone );
-    ~CgnsZbc1to1();
-public:
-    int n1to1;
-    HXVector< CgnsBc1to1 * > cgnsBc1to1s;
-    CgnsZone * cgnsZone;
-public:
-    void AddCgns1To1BcRegion( CgnsBc1to1 * cgnsBc1to1 );
-    CgnsBc1to1 * GetCgnsBcRegion1to1( int i1to1 );
-    void CreateCgnsZbc();
-    void ConvertToInnerDataStandard();
-    void ReadZn1to1( int n1to1 );
-    void ReadZn1to1();
-    void PrintZn1to1();
-    void ReadCgnsZbc1to1();
-    void SetPeriodicBc();
-};
+    this->cgnsZone = cgnsZone;
+}
+
+CgnsBcLink::~CgnsBcLink()
+{
+}
+
+void CgnsBcLink::ConvertToInnerDataStandard()
+{
+    for ( int eId = 0; eId < this->nConnPoints; ++ eId )
+    {
+        this->connPoint[ eId ] -= 1;
+    }
+
+    for ( int eId = 0; eId < this->nConnDonorPoints; ++ eId )
+    {
+        this->connDonorPoint[ eId ] -= 1;
+    }
+
+}
 
 #endif
 

@@ -134,22 +134,6 @@ void GridElem::PrepareUnsCompGrid()
     this->GenerateCompElement();
 }
 
-void GridElem::ComputeMinMaxInfo()
-{
-    this->minLen =   LARGE;
-    this->maxLen = - LARGE;
-
-    int nZone = this->GetNZone();
-    for ( int iZone = 0; iZone < nZone; ++ iZone )
-    {
-        CgnsZone * cgnsZone = this->GetCgnsZone( iZone );
-
-        this->minLen = MIN( this->minLen, cgnsZone->minLen );
-        this->maxLen = MAX( this->maxLen, cgnsZone->maxLen );
-    }
-    cout << "   minLen = " << this->minLen << " maxLen = " << this->maxLen << endl;
-}
-
 void GridElem::InitCgnsElements()
 {
     int nZone = this->GetNZone();

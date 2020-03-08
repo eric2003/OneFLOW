@@ -21,9 +21,9 @@ along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 \*---------------------------------------------------------------------------*/
 
 #include "CgnsBcConn.h"
-#include "CgnsBcBoco.h"
 #include "CgnsZone.h"
 #include "CgnsBase.h"
+#include "CgnsCoor.h"
 #include "CgnsPeriod.h"
 #include "CgnsGlobal.h"
 #include "NodeMesh.h"
@@ -37,8 +37,8 @@ BeginNameSpace( ONEFLOW )
 #ifdef ENABLE_CGNS
 
 CgnsBcConn::CgnsBcConn( CgnsZone * cgnsZone )
+    : CgnsBcLink( cgnsZone )
 {
-    this->cgnsZone = cgnsZone;
 }
 
 CgnsBcConn::~CgnsBcConn()
@@ -84,32 +84,18 @@ void CgnsBcConn::ReadCgnsBcConnData()
     cg_conn_read( fileId, baseId, zId, this->bcId, & this->connPoint[ 0 ], this->donorDataType, & this->connDonorPoint[ 0 ] );
 }
 
-void CgnsBcConn::ReadCgnsConnBcRegion()
+void CgnsBcConn::ReadCgnsBcConn()
 {
     this->ReadCgnsBcConnInfo();
     this->ReadCgnsBcConnData();
-}
-
-
-void CgnsBcConn::ConvertToInnerDataStandard()
-{
-    for ( int eId = 0; eId < this->nConnPoints; ++ eId )
-    {
-        this->connPoint[ eId ] -= 1;
-    }
-
-    for ( int eId = 0; eId < this->nConnDonorPoints; ++ eId )
-    {
-        this->connDonorPoint[ eId ] -= 1;
-    }
 }
 
 void CgnsBcConn::SetPeriodicBc()
 {
     CgnsZone * sZone = this->cgnsZone;
     CgnsZone * tZone = ONEFLOW::GetCgnsZoneByName( this->donorZoneName );
-    NodeMesh * nodeMesh1 = sZone->nodeMesh;
-    NodeMesh * nodeMesh2 = tZone->nodeMesh;
+    NodeMesh * nodeMesh1 = sZone->cgnsCoor->GetNodeMesh();
+    NodeMesh * nodeMesh2 = tZone->cgnsCoor->GetNodeMesh();
 
     for ( int i = 0; i < nConnPoints; ++ i )
     {

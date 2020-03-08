@@ -39,6 +39,7 @@ class Grid;
 class StrGrid;
 class CgnsZone;
 class CgnsBase;
+class CgnsCoor;
 class NodeMesh;
 class CgnsZsection;
 class CgnsZbc;
@@ -55,27 +56,21 @@ public:
     ~CgnsZone();
 public:
     CgnsBase * cgnsBase;
-    NodeMesh * nodeMesh;
+    CgnsCoor * cgnsCoor;
     CgnsZsection * cgnsZsection;
     CgnsZbc * cgnsZbc;
-
-    CgInt nNode, nCell;
-    int nCoor;
+public:
+    string zoneName;
+    int zId;
 
     ZoneType_t cgnsZoneType;
+
     int volBcType;
-
-    int zId;
-    CgInt irmin[ 3 ], irmax[ 3 ], cellSize[ 3 ];
-    CgInt isize[ 9 ];
-
-    string zoneName;
 
     IntField l2g;
 
-    Real minLen, maxLen;
+    CgInt isize[ 9 ];
 public:
-    void FreeMesh();
     void SetVolBcType( int volBcType );
     int GetVolBcType();
 public:
@@ -90,27 +85,19 @@ public:
     void ScanBcFace( FaceSolver * face_solver );
     void GetElementNodeId( CgInt eId, CgIntField & eNodeId );
     void ReadCgnsGrid();
-    void ReadCgnsGrid( CgnsZone * cgnsZoneIn );
     void ReadCgnsZoneAttribute();
     void DumpCgnsZoneAttribute( Grid * grid );
-    void ReadCgnsZoneAttribute( CgnsZone * cgnsZoneIn );
     void ReadCgnsZoneType();
     void DumpCgnsZoneType( Grid * grid );
-    void ReadCgnsZoneType( CgnsZone * cgnsZoneIn );
     void ReadCgnsZoneNameAndGeneralizedDimension();
     void DumpCgnsZoneNameAndGeneralizedDimension( Grid * gridIn );
-    void ReadCgnsZoneNameAndGeneralizedDimension( CgnsZone * cgnsZoneIn );
     void SetDimension();
-    void SetDimension( CgnsZone * cgnsZoneIn );
     void ReadElementConnectivities();
-    void ReadElementConnectivities( CgnsZone * cgnsZoneIn );
     void ReadNumberOfCgnsSections();
-    void ReadNumberOfCgnsSections( CgnsZone * cgnsZoneIn );
     void CreateCgnsSections();
     void ReadCgnsSections();
     void ReadCgnsGridCoordinates();
     void DumpCgnsGridCoordinates( Grid * grid );
-    void ReadCgnsGridCoordinates( CgnsZone * cgnsZoneIn );
     void ReadCgnsGridBoundary();
     void DumpCgnsGridBoundary( Grid * grid );
     void ProcessPeriodicBc();
@@ -119,34 +106,14 @@ public:
     void FillISize( int ni, int nj, int nk, int dimension );
     void PrepareCgnsZone( Grid * grid );
 public:
-    void AllocateUnsElemConn( CgnsZone * cgnsZoneIn );
-    void GenerateUnsVolElemConn( CgnsZone * cgnsZoneIn );
-    void GenerateUnsBcElemConn ( CgnsZone * cgnsZoneIn );
-    void GenerateUnsBcCondConn ( CgnsZone * cgnsZoneIn );
     void SetElemPosition();
-
-    void InitL2g();
+public:
     CgInt GetNI() const;
     CgInt GetNJ() const;
     CgInt GetNK() const;
-
-    void GetStrZonePara( int & s1, int & e1, int & s2, int & e2, int & etype1, int & etype2 );
 public:
     bool ExistSection( const string & sectionName );
 };
-
-void EncodeIJK( int & index, int i, int j, int k, int ni, int nj, int nk );
-void DecodeIJK( int index, int & i, int & j, int & k, int ni, int nj, int nk );
-void GetRange( int ni, int nj, int nk, int startShift, int endShift, Range & I, Range & J, Range & K );
-void GetIJKRegion( Range & I, Range & J, Range & K, int & ist, int & ied, int & jst, int & jed, int & kst, int & ked );
-
-class PointSearch;
-class BcRegion;
-void PrepareCgnsZone( Grids & grids, CgnsZone * cgnsZone );
-void MergeToSingleZone( Grids & grids, HXVector< Int3D * > & unsIdList, NodeMesh * nodeMesh, int & nNode, int & nCell );
-void FillSection( Grids & grids, HXVector< Int3D * > & unsIdList, CgnsZone * cgnsZone );
-void ComputeUnsId( StrGrid * grid, PointSearch * pointSearch, Int3D * unsId );
-void SetUnsBcConn( BcRegion * bcRegion, CgIntField& conn, int & pos, Int3D & unsId );
 
 #endif
 

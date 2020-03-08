@@ -35,6 +35,7 @@ License
 #include "CgnsBase.h"
 #include "CgnsZbase.h"
 #include "CgnsZone.h"
+#include "CgnsZoneUtil.h"
 #include "CgnsSection.h"
 #include "CgnsZsection.h"
 #include "NodeMesh.h"

@@ -22,6 +22,8 @@ License
 
 #include "CgnsBcBoco.h"
 #include "CgnsZone.h"
+#include "CgnsCoor.h"
+#include "CgnsZoneUtil.h"
 #include "CgnsBase.h"
 #include "Boundary.h"
 #include "StrUtil.h"
@@ -60,7 +62,7 @@ int CgnsBcBoco::ComputeBase()
 {
     for ( int eId = 0; eId < this->nElements; ++ eId )
     {
-        if ( this->connList[ eId ] < this->cgnsZone->nCell )
+        if ( this->connList[ eId ] < this->cgnsZone->cgnsCoor->GetNCell() )
         {
             return 0;
         }
@@ -74,7 +76,7 @@ void CgnsBcBoco::ShiftBcRegion()
     {
         for ( int eId = 0; eId < this->nElements; ++ eId )
         {
-            this->connList[ eId ] += this->cgnsZone->nCell; //此处增加了偏移量，则相应的单元编号也应增加偏移量
+            this->connList[ eId ] += this->cgnsZone->cgnsCoor->GetNCell(); //此处增加了偏移量，则相应的单元编号也应增加偏移量
         }
     }
 }
@@ -143,7 +145,7 @@ void CgnsBcBoco::ScanBcFace( FaceSolver * face_solver )
     face_solver->ScanBcFaceDetail( bcVertex, this->bcType, this->nameId );
 }
 
-void CgnsBcBoco::ReadCgnsBocoBcRegion()
+void CgnsBcBoco::ReadCgnsBcBoco()
 {
     this->ReadCgnsBocoInfo();
 
@@ -302,40 +304,6 @@ void CgnsBcBoco::PrintCgnsBcConn()
         cout << "\n";
     }
 }
-
-void CgnsBcBoco::ReconstructStrRegion( IntField & ijkMin, IntField & ijkMax )
-{
-    this->bcType       = CGNS_ENUMV( BCInflow );
-    this->pointSetType = CGNS_ENUMV( PointRange );
-    this->gridLocation = CGNS_ENUMV( FaceCenter );
-    this->modifiedLocation = this->gridLocation;
-    this->nElements = 6;
-    this->connList.resize( this->nElements );
-
-    string bcName = GetCgnsBcName( this->bcType );
-    this->name = AddString( this->cgnsZone->zoneName, bcName, this->bcId );
-
-    int celldim = cgnsZone->cgnsBase->celldim;
-
-    if ( celldim == TWO_D )
-    {
-        this->connList[ 0 ] = ijkMin[ 0 ];
-        this->connList[ 1 ] = ijkMin[ 1 ];
-
-        this->connList[ 2 ] = ijkMax[ 0 ];
-        this->connList[ 3 ] = ijkMax[ 1 ];
-    }
-    else
-    {
-        this->connList[ 0 ] = ijkMin[ 0 ];
-        this->connList[ 1 ] = ijkMin[ 1 ];
-        this->connList[ 2 ] = ijkMin[ 2 ];
-
-        this->connList[ 3 ] = ijkMax[ 0 ];
-        this->connList[ 4 ] = ijkMax[ 1 ];
-        this->connList[ 5 ] = ijkMax[ 2 ];
-    }
- }
 
 void CgnsBcBoco::ExtractIJKRegionFromBcConn( IntField & ijkMin, IntField & ijkMax )
 {

@@ -63,14 +63,13 @@ void CgnsZbcConn::AddCgnsConnBcRegion( CgnsBcConn * cgnsBcConn )
     cgnsBcConn->bcId = id;
 }
 
-CgnsBcConn * CgnsZbcConn::GetCgnsBcRegionConn( int iConn )
+CgnsBcConn * CgnsZbcConn::GetCgnsBc( int iConn )
 {
     return this->cgnsBcConns[ iConn ];
 }
 
-void CgnsZbcConn::CreateCgnsConnBcRegion()
+void CgnsZbcConn::CreateCgnsZbc()
 {
-    cout << "   nConn        = " << this->nConn << endl;
     for ( int iConn = 0; iConn < this->nConn; ++ iConn )
     {
         CgnsBcConn * cgnsBcConn = new CgnsBcConn( this->cgnsZone );
@@ -78,23 +77,35 @@ void CgnsZbcConn::CreateCgnsConnBcRegion()
     }
 }
 
-void CgnsZbcConn::ReadNumberOfCgnsConn()
+void CgnsZbcConn::PrintZnconn()
+{
+    cout << "   nConn        = " << this->nConn << endl;
+}
+
+void CgnsZbcConn::ReadZnconn( int nConn )
+{
+    this->nConn = nConn;
+    this->PrintZnconn();
+}
+
+void CgnsZbcConn::ReadZnconn()
 {
     int fileId = cgnsZone->cgnsBase->fileId;
     int baseId = cgnsZone->cgnsBase->baseId;
     int zId = cgnsZone->zId;
 
     cg_nconns( fileId, baseId, zId, & this->nConn );
+    this->PrintZnconn();
 }
 
-void CgnsZbcConn::ReadCgnsConnBcRegion()
+void CgnsZbcConn::ReadCgnsZbcConn()
 {
-    this->ReadNumberOfCgnsConn();
-    this->CreateCgnsConnBcRegion();
+    this->ReadZnconn();
+    this->CreateCgnsZbc();
     for ( int iConn = 0; iConn < this->nConn; ++ iConn )
     {
-        CgnsBcConn * cgnsBcConn = this->GetCgnsBcRegionConn( iConn );
-        cgnsBcConn->ReadCgnsConnBcRegion();
+        CgnsBcConn * cgnsBcConn = this->GetCgnsBc( iConn );
+        cgnsBcConn->ReadCgnsBcConn();
     }
 }
 
@@ -102,7 +113,7 @@ void CgnsZbcConn::SetPeriodicBc()
 {
     for ( int iConn = 0; iConn < this->nConn; ++ iConn )
     {
-        CgnsBcConn * cgnsBcConn = this->GetCgnsBcRegionConn( iConn );
+        CgnsBcConn * cgnsBcConn = this->GetCgnsBc( iConn );
         cgnsBcConn->SetPeriodicBc();
     }
 }
@@ -111,7 +122,7 @@ void CgnsZbcConn::ConvertToInnerDataStandard()
 {
     for ( int iConn = 0; iConn < this->nConn; ++ iConn )
     {
-        CgnsBcConn * cgnsBcConn = this->GetCgnsBcRegionConn( iConn );
+        CgnsBcConn * cgnsBcConn = this->GetCgnsBc( iConn );
         cgnsBcConn->ConvertToInnerDataStandard();
     }
 }

@@ -31,6 +31,7 @@ License
 #include "CgnsBcBoco.h"
 #include "CgnsSection.h"
 #include "CgnsZone.h"
+#include "CgnsCoor.h"
 #include "GridMediator.h"
 #include "Boundary.h"
 #include "GridPara.h"
@@ -321,7 +322,7 @@ string Su2Bc::GetBcName(string& geoName)
     return "";
 }
 
-int Su2Bc::GetCgnsBc(string& geoName)
+int Su2Bc::GetCgnsBcType(string& geoName)
 {
     string bcName = this->GetBcName(geoName);
     return bcNameToValueMap.find(bcName)->second;
@@ -423,7 +424,7 @@ void Su2Grid::ReadSu2GridAscii( string & fileName )
                     Marker * marker = mmark.markerList[ im ];
                     marker->name = name;
                     marker->bcName = su2Bc.GetBcName( name );
-                    marker->cgns_bcType = su2Bc.GetCgnsBc(name);
+                    marker->cgns_bcType = su2Bc.GetCgnsBcType(name);
                     ioFile.ReadNextNonEmptyLine();
                     string marker_elems = ioFile.ReadNextWord();
                     marker->nElem = ioFile.ReadNextDigit< int >();
@@ -519,12 +520,16 @@ void FillSU2CgnsZone( Su2Grid* su2Grid, CgnsZone * cgnsZone )
 {
     int nNode = su2Grid->xN.size();
     int nCell = su2Grid->nElem;
-    cgnsZone->nodeMesh->CreateNodes( nNode );
-    cgnsZone->nNode = nNode;
-    cgnsZone->nCell = nCell;
-    cgnsZone->nodeMesh->xN = su2Grid->xN;
-    cgnsZone->nodeMesh->yN = su2Grid->yN;
-    cgnsZone->nodeMesh->zN = su2Grid->zN;
+
+    cgnsZone->cgnsCoor->SetNNode( nNode );
+    cgnsZone->cgnsCoor->SetNCell( nCell );
+
+    NodeMesh * nodeMesh = cgnsZone->cgnsCoor->GetNodeMesh();
+
+    nodeMesh->CreateNodes( nNode );
+    nodeMesh->xN = su2Grid->xN;
+    nodeMesh->yN = su2Grid->yN;
+    nodeMesh->zN = su2Grid->zN;
     
     SecMarkerManager volSec;
 
@@ -585,8 +590,8 @@ void FillSU2CgnsZone( Su2Grid* su2Grid, CgnsZone * cgnsZone )
     }
 
     CgnsZbc * cgnsZbc = cgnsZone->cgnsZbc;
-    cgnsZbc->cgnsZbcBoco->nBoco = su2Grid->mmark.nMarker;
-    cgnsZbc->CreateCgnsBcRegion( cgnsZbc );
+    cgnsZbc->cgnsZbcBoco->ReadZnboco( su2Grid->mmark.nMarker );
+    cgnsZbc->cgnsZbcBoco->CreateCgnsZbc();
 
     for ( int iMarker = 0; iMarker < su2Grid->mmark.nMarker; ++ iMarker )
     {
@@ -594,7 +599,7 @@ void FillSU2CgnsZone( Su2Grid* su2Grid, CgnsZone * cgnsZone )
         string & name = marker->name;
         string& bcName = marker->bcName;
 
-        CgnsBcBoco * cgnsBcBoco = cgnsZbc->cgnsZbcBoco->GetCgnsBcRegionBoco( iMarker );
+        CgnsBcBoco * cgnsBcBoco = cgnsZbc->cgnsZbcBoco->GetCgnsBc( iMarker );
         cgnsBcBoco->name = name;
         cgnsBcBoco->gridLocation = CellCenter;
         cgnsBcBoco->nElements    = marker->nElem;

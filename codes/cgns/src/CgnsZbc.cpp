@@ -79,9 +79,9 @@ void CgnsZbc::ScanBcFace( FaceSolver * face_solver )
 
 void CgnsZbc::ReadCgnsGridBoundary()
 {
-    this->cgnsZbcBoco->ReadCgnsBocoBcRegion();
-    this->cgnsZbcConn->ReadCgnsConnBcRegion();
-    this->cgnsZbc1to1->ReadCgns1to1BcRegion();
+    this->cgnsZbcBoco->ReadCgnsZbcBoco();
+    this->cgnsZbcConn->ReadCgnsZbcConn();
+    this->cgnsZbc1to1->ReadCgnsZbc1to1();
 }
 
 void CgnsZbc::FillBcPoints( int * start, int * end, cgsize_t * bcpnts, int dimension )
@@ -220,16 +220,16 @@ void CgnsZbc::DumpCgnsGridBoundary( Grid * gridIn )
     delete bcTypeMap;
 }
 
-void CgnsZbc::CreateCgnsBcRegion( CgnsZbc * cgnsZbcIn )
+void CgnsZbc::CreateCgnsZbc( CgnsZbc * cgnsZbcIn )
 {
-    this->cgnsZbcBoco->nBoco = cgnsZbcIn->cgnsZbcBoco->nBoco;
-    this->cgnsZbcBoco->CreateCgnsBocoBcRegion();
+    this->cgnsZbcBoco->ReadZnboco( cgnsZbcIn->cgnsZbcBoco->nBoco );
+    this->cgnsZbcBoco->CreateCgnsZbc();
 
-    this->cgnsZbc1to1->n1To1 = cgnsZbcIn->cgnsZbc1to1->n1To1;
-    this->cgnsZbc1to1->CreateCgns1To1BcRegion();
+    this->cgnsZbc1to1->ReadZn1to1( cgnsZbcIn->cgnsZbc1to1->n1to1 );
+    this->cgnsZbc1to1->CreateCgnsZbc();
 
-    this->cgnsZbcConn->nConn = cgnsZbcIn->cgnsZbcConn->nConn;
-    this->cgnsZbcConn->CreateCgnsConnBcRegion();
+    this->cgnsZbcConn->ReadZnconn( cgnsZbcIn->cgnsZbcConn->nConn );
+    this->cgnsZbcConn->CreateCgnsZbc();
 }
 
 int CgnsZbc::GetNumberOfActualBcElements()

@@ -73,7 +73,7 @@ public:
     void ProcessVertexBc( IntSet & bcVertex );
     void ProcessFaceBc( IntSet & bcVertex );
 public:
-    void ReadCgnsBocoBcRegion();
+    void ReadCgnsBcBoco();
     void ReadCgnsBocoInfo();
     void ReadCgnsBocoGridLocation();
     void SetCgnsBcRegionGridLocation( const GridLocation_t & bcGridLocation );
@@ -85,7 +85,6 @@ public:
 public:
     void CopyStrBcRegion( CgnsBcBoco * strBcRegion, CgInt& startId );
     void ReadCgnsBcConn( CgnsBcBoco * strBcRegion, CgInt & startId );
-    void ReconstructStrRegion( IntField & ijkMin, IntField & ijkMax );
     CgInt GetActualNumberOfBoundaryElements();
 };
 

@@ -147,7 +147,7 @@ public:
     void AddBc( string &geoName, string &bcName);
     void Process(StringField& markerBCNameList, StringField& markerNameList);
     string GetBcName( string& geoName );
-    int GetCgnsBc(string& geoName);
+    int GetCgnsBcType(string& geoName);
 };
 
 class Su2Grid

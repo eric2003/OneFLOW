@@ -19,6 +19,7 @@ if [ "$TRAVIS_OS_NAME" == "linux" ]; then
     echo "CXX_COMPILER is $CXX_COMPILER"
     mkdir build
     cd build
+    export PATH=/usr/bin/:$PATH
     pwd
     ls
     echo "TRAVIS_BUILD_DIR is $TRAVIS_BUILD_DIR"

@@ -29,16 +29,32 @@ BeginNameSpace( ONEFLOW )
 
 #ifdef ENABLE_CGNS
 
+class CgnsZone;
+class NodeMesh;
+
 class CgnsCoor
 {
 public:
-    CgnsCoor();
+    CgnsCoor( CgnsZone * cgnsZone );
     ~CgnsCoor();
 public:
     int ndim;
+    int nCoor;
     IntField nNodeList;
     HXVector< DataType_t > typeList;
     HXVector< void * > coor;
+    CgnsZone * cgnsZone;
+    NodeMesh * nodeMesh;
+public:
+    CgInt irmin[ 3 ], irmax[ 3 ], cellSize[ 3 ];
+protected:
+    CgInt nNode, nCell;
+public:
+    CgInt GetNNode();
+    CgInt GetNCell();
+
+    void SetNNode( CgInt nNode );
+    void SetNCell( CgInt nCell );
 public:
     void * GetCoor( int iCoor ) { return coor[ iCoor ]; };
     void SetAllData( RealField & x, RealField & y, RealField & z );
@@ -46,6 +62,15 @@ public:
 public:
     void SetData( int iCoor, DataType_t data_type, Real * var );
     void DeAlloc();
+public:
+    void ReadCgnsGridCoordinates();
+    void FreeMesh();
+public:
+    NodeMesh * GetNodeMesh();
+    void SetDimension();
+    void SetDimension( CgnsCoor * cgnsCoorIn );
+    void SetDimensionStr();
+    void SetDimensionUns();
 };
 
 

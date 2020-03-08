@@ -47,19 +47,19 @@ public:
     ~CgnsZbcBoco();
 public:
     int nBoco;
-    HXVector< CgnsBcBoco * > cgnsBcRegionBoco;
+    HXVector< CgnsBcBoco * > cgnsBcBocos;
     CgnsZone * cgnsZone;
 public:
-    void AddCgnsBocoBcRegion( CgnsBcBoco * cgnsBcBoco );
-    CgnsBcBoco * GetCgnsBcRegionBoco( int iBoco );
-    void CreateCgnsBocoBcRegion();
+    void AddCgnsBcBoco( CgnsBcBoco * cgnsBcBoco );
+    CgnsBcBoco * GetCgnsBc( int iBoco );
+    void CreateCgnsZbc();
     void ShiftBcRegion();
     void ConvertToInnerDataStandard();
     void ScanBcFace( FaceSolver * face_solver );
-    void ReadNumberOfCgnsBoco();
-    void ReadCgnsBocoBcRegion();
-    void ReconstructStrRegion();
-    int GetNBocoDynamic();
+    void PrintZnboco();
+    void ReadZnboco();
+    void ReadZnboco( int nBoco );
+    void ReadCgnsZbcBoco();
     int GetNumberOfActualBcElements();
     void GenerateUnsBcElemConn( CgIntField& bcConn );
 };
