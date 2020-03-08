@@ -204,7 +204,7 @@ void CgnsZbase::PrepareCgnsZone( GridMediatorS * gridMediatorS )
         CgnsBase * cgnsBase = this->GetCgnsBase( iBase );
         GridMediator * gridMediator = gridMediatorS->GetGridMediator( iBase );
 
-        cgnsBase->PrepareCgnsZone( gridMediator );
+        ONEFLOW::PrepareCgnsZone( cgnsBase, gridMediator );
     }
 }
 

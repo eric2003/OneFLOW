@@ -26,7 +26,6 @@ License
 #include "StrUtil.h"
 #include "Dimension.h"
 #include "CgnsFamilyBc.h"
-#include "GridMediator.h"
 #include <iostream>
 using namespace std;
 
@@ -108,20 +107,6 @@ void CgnsBase::DumpCgnsBaseBasicInfo()
 {
     cg_base_write( this->fileId, this->baseName.c_str(), this->celldim, this->phydim, &this->baseId );
     cout << " baseId = " << this->baseId << " baseName = " << this->baseName << "\n";
-}
-
-void CgnsBase::PrepareCgnsZone( GridMediator * gridMediator )
-{
-    GlobalGrid::SetCurrentGridMediator( gridMediator );
-
-    cout << " nZones = " << nZones << "\n";
-
-    for ( int iZone = 0; iZone < nZones; ++ iZone )
-    {
-        CgnsZone * cgnsZone = this->GetCgnsZone( iZone );
-        Grid * grid = gridMediator->gridVector[ iZone ];
-        ONEFLOW::PrepareCgnsZone( cgnsZone, grid );
-    }
 }
 
 void CgnsBase::ReadNumberOfCgnsZones()

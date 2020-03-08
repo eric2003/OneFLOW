@@ -41,6 +41,7 @@ void ReadAllCgnsZones( CgnsBase * myCgnsBase, CgnsBase * cgnsBaseIn );
 void ReadNumberOfCgnsZones( CgnsBase * myCgnsBase, CgnsBase * cgnsBaseIn );
 void ReadCgnsBaseBasicInfo( CgnsBase * myCgnsBase, CgnsBase * cgnsBaseIn );
 void DumpBase( CgnsBase * myCgnsBase, GridMediator * gridMediator );
+void PrepareCgnsZone( CgnsBase * myCgnsBase, GridMediator * gridMediator );
 
 #endif
 

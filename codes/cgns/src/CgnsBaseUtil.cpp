@@ -77,5 +77,19 @@ void DumpBase( CgnsBase * myCgnsBase, GridMediator * gridMediator )
     }
 }
 
+void PrepareCgnsZone( CgnsBase * myCgnsBase, GridMediator * gridMediator )
+{
+    GlobalGrid::SetCurrentGridMediator( gridMediator );
+
+    cout << " nZones = " << myCgnsBase->nZones << "\n";
+
+    for ( int iZone = 0; iZone < myCgnsBase->nZones; ++ iZone )
+    {
+        CgnsZone * cgnsZone = myCgnsBase->GetCgnsZone( iZone );
+        Grid * grid = gridMediator->gridVector[ iZone ];
+        ONEFLOW::PrepareCgnsZone( cgnsZone, grid );
+    }
+}
+
 #endif
 EndNameSpace
