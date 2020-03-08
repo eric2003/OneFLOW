@@ -155,7 +155,7 @@ void CgnsZbase::DumpCgnsMultiBase( GridMediatorS * gridMediatorS )
     {
         CgnsBase * cgnsBase = this->GetCgnsBase( iBase );
         GridMediator * gridMediator = gridMediatorS->GetGridMediator( iBase );
-        cgnsBase->DumpBase( gridMediator );
+        ONEFLOW::DumpBase( cgnsBase, gridMediator );
     }
 }
 

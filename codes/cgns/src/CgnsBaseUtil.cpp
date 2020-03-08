@@ -61,5 +61,21 @@ void ReadCgnsBaseBasicInfo( CgnsBase * myCgnsBase, CgnsBase * cgnsBaseIn )
     myCgnsBase->phydim   = cgnsBaseIn->phydim;
 }
 
+void DumpBase( CgnsBase * myCgnsBase, GridMediator * gridMediator )
+{
+    GlobalGrid::SetCurrentGridMediator( gridMediator );
+
+    myCgnsBase->DumpCgnsBaseBasicInfo();
+
+    cout << " nZones = " << myCgnsBase->nZones << "\n";
+
+    for ( int iZone = 0; iZone < myCgnsBase->nZones; ++ iZone )
+    {
+        CgnsZone * cgnsZone = myCgnsBase->GetCgnsZone( iZone );
+        Grid * grid = gridMediator->gridVector[ iZone ];
+        ONEFLOW::DumpCgnsZone( cgnsZone, grid );
+    }
+}
+
 #endif
 EndNameSpace
