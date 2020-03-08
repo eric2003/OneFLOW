@@ -125,12 +125,6 @@ void CgnsZbase::ReadNumCgnsBase()
     cout << "   Total number of CGNS Base = " << this->nBases << "\n";
 }
 
-//void CgnsZbase::ReadNumCgnsBase( CgnsZbase * strCgnsMultiBase )
-//{
-//    this->fileId = strCgnsMultiBase->fileId;
-//    this->nBases = strCgnsMultiBase->nBases;
-//}
-
 void CgnsZbase::ReadCgnsMultiBase()
 {
     this->ReadNumCgnsBase();
@@ -157,25 +151,6 @@ void CgnsZbase::DumpCgnsMultiBase( GridMediatorS * gridMediatorS )
         CgnsBase * cgnsBase = this->GetCgnsBase( iBase );
         GridMediator * gridMediator = gridMediatorS->GetGridMediator( iBase );
         ONEFLOW::DumpBase( cgnsBase, gridMediator );
-    }
-}
-
-void CgnsZbase::ReadCgnsMultiBase( CgnsZbase * strCgnsMultiBase )
-{
-    ONEFLOW::ReadNumCgnsBase( this, strCgnsMultiBase );
-
-    this->InitCgnsBase();
-
-    for ( int iBase = 0; iBase < this->nBases; ++ iBase )
-    {
-        CgnsBase * cgnsBase = this->GetCgnsBase( iBase );
-        CgnsBase * cgnsBaseIn = strCgnsMultiBase->GetCgnsBase( iBase );
-
-        ONEFLOW::ReadCgnsBaseBasicInfo( cgnsBase, cgnsBaseIn );
-        ONEFLOW::ReadNumberOfCgnsZones( cgnsBase, cgnsBaseIn );
-        cgnsBase->AllocateAllCgnsZones();
-        ONEFLOW::ReadAllCgnsZones( cgnsBase, cgnsBaseIn );
-
     }
 }
 
@@ -228,7 +203,7 @@ void CgnsZbase::InitCgnsBase()
 
 void CgnsZbase::ConvertStrCgns2UnsCgnsGrid( CgnsZbase * strCgnsMultiBase )
 {
-    this->ReadCgnsMultiBase( strCgnsMultiBase );
+    ONEFLOW::ReadCgnsMultiBase( this, strCgnsMultiBase );
 }
 
 CgnsBase * CgnsZbase::GetCgnsBase( int iBase )

@@ -44,5 +44,25 @@ void ReadNumCgnsBase( CgnsZbase * myCgnsZbase, CgnsZbase * strCgnsMultiBase )
     myCgnsZbase->nBases = strCgnsMultiBase->nBases;
 }
 
+void ReadCgnsMultiBase( CgnsZbase * myCgnsZbase, CgnsZbase * strCgnsMultiBase )
+{
+    ONEFLOW::ReadNumCgnsBase( myCgnsZbase, strCgnsMultiBase );
+
+    myCgnsZbase->InitCgnsBase();
+
+    for ( int iBase = 0; iBase < myCgnsZbase->nBases; ++ iBase )
+    {
+        CgnsBase * cgnsBase = myCgnsZbase->GetCgnsBase( iBase );
+        CgnsBase * cgnsBaseIn = strCgnsMultiBase->GetCgnsBase( iBase );
+
+        ONEFLOW::ReadCgnsBaseBasicInfo( cgnsBase, cgnsBaseIn );
+        ONEFLOW::ReadNumberOfCgnsZones( cgnsBase, cgnsBaseIn );
+        cgnsBase->AllocateAllCgnsZones();
+        ONEFLOW::ReadAllCgnsZones( cgnsBase, cgnsBaseIn );
+
+    }
+}
+
+
 #endif
 EndNameSpace

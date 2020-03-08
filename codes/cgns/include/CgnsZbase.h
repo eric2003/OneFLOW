@@ -52,8 +52,6 @@ public:
     void ReadCgnsMultiBase();
     void DumpCgnsMultiBase( GridMediatorS * gridMediatorS );
     void ReadNumCgnsBase();
-
-    void ReadCgnsMultiBase( CgnsZbase * strCgnsMultiBase );
 public:
     void CreateDefaultCgnsZones( GridMediatorS * gridMediatorS );
     void PrepareCgnsZone( GridMediatorS * gridMediatorS );

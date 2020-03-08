@@ -31,6 +31,7 @@ class CgnsZbase;
 #ifdef ENABLE_CGNS
 
 void ReadNumCgnsBase( CgnsZbase * myCgnsZbase, CgnsZbase * strCgnsMultiBase );
+void ReadCgnsMultiBase( CgnsZbase * myCgnsZbase, CgnsZbase * strCgnsMultiBase );
 
 #endif
 
