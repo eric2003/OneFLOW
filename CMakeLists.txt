@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.15)
 
-set(CMAKE_USE_RELATIVE_PATHS ON)
+message(STATUS "The CMAKE_VERSION is ${CMAKE_VERSION}.")
 
 project( OneFLOW
          VERSION 1.0.0.0
@@ -34,7 +34,6 @@ message(STATUS "The CMAKE_GENERATOR is ${CMAKE_GENERATOR}")
 message(STATUS "The CMAKE_CXX_COMPILER_VERSION is ${CMAKE_CXX_COMPILER_VERSION}")
 
 message(STATUS "The CMAKE_CXX_FLAGS is ${CMAKE_CXX_FLAGS}")
-#message(STATUS "The CMAKE_CXX_STANDARD is ${CMAKE_CXX_STANDARD}")
  
 if(WIN32)
    #add_compile_options(/std:c++11)

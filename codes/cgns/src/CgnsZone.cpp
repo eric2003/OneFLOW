@@ -315,12 +315,6 @@ void CgnsZone::SetDimension()
     this->cgnsCoor->SetDimension();
 }
 
-//void CgnsZone::SetDimension( CgnsZone * cgnsZoneIn )
-//{
-//    CgnsCoor * cgnsCoorIn = cgnsZoneIn->cgnsCoor;
-//    this->cgnsCoor->SetDimension( cgnsCoorIn );
-//}
-
 CgInt CgnsZone::GetNI() const { return this->cgnsCoor->irmax[0]; };
 CgInt CgnsZone::GetNJ() const { return this->cgnsCoor->irmax[1]; };
 CgInt CgnsZone::GetNK() const { return this->cgnsCoor->irmax[2]; };

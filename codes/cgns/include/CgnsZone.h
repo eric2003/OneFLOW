@@ -94,7 +94,6 @@ public:
     void ReadCgnsZoneNameAndGeneralizedDimension();
     void DumpCgnsZoneNameAndGeneralizedDimension( Grid * gridIn );
     void SetDimension();
-    //void SetDimension( CgnsZone * cgnsZoneIn );
     void ReadElementConnectivities();
     void ReadElementConnectivities( CgnsZone * cgnsZoneIn );
     void ReadNumberOfCgnsSections();
