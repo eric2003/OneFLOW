@@ -749,5 +749,10 @@ void DumpCgnsZoneAttribute( CgnsZone * myZone, Grid * grid )
     ONEFLOW::DumpCgnsZoneNameAndGeneralizedDimension( myZone, grid );
 }
 
+void DumpCgnsGridBoundary( CgnsZone * myZone, Grid * grid )
+{
+    myZone->cgnsZbc->DumpCgnsGridBoundary( grid );
+}
+
 #endif
 EndNameSpace

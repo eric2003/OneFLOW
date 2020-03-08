@@ -96,7 +96,6 @@ public:
     void ReadCgnsGridCoordinates();
     void DumpCgnsGridCoordinates( Grid * grid );
     void ReadCgnsGridBoundary();
-    void DumpCgnsGridBoundary( Grid * grid );
     void ProcessPeriodicBc();
     void DumpCgnsZone( Grid * grid );
     void PrepareCgnsZone( Grid * grid );

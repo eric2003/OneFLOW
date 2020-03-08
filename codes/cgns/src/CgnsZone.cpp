@@ -172,7 +172,7 @@ void CgnsZone::DumpCgnsZone( Grid * grid )
 {
     ONEFLOW::DumpCgnsZoneAttribute( this, grid );
 
-    this->DumpCgnsGridBoundary( grid );
+    ONEFLOW::DumpCgnsGridBoundary( this, grid );
 
     this->DumpCgnsGridCoordinates( grid );
 }
@@ -282,11 +282,6 @@ void CgnsZone::DumpCgnsGridCoordinates( Grid * grid )
 void CgnsZone::ReadCgnsGridBoundary()
 {
     cgnsZbc->ReadCgnsGridBoundary();
-}
-
-void CgnsZone::DumpCgnsGridBoundary( Grid * grid )
-{
-    cgnsZbc->DumpCgnsGridBoundary( grid );
 }
 
 void CgnsZone::ProcessPeriodicBc()
