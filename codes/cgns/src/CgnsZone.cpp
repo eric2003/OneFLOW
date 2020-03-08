@@ -168,15 +168,6 @@ void CgnsZone::GetElementNodeId( CgInt eId, CgIntField & eNodeId )
     cgnsSection->GetElementNodeId( eId - cgnsSection->startId, eNodeId );
 }
 
-void CgnsZone::DumpCgnsZone( Grid * grid )
-{
-    ONEFLOW::DumpCgnsZoneAttribute( this, grid );
-
-    ONEFLOW::DumpCgnsGridBoundary( this, grid );
-
-    this->DumpCgnsGridCoordinates( grid );
-}
-
 void CgnsZone::ReadCgnsGrid()
 {
     this->ReadCgnsZoneAttribute();
@@ -265,20 +256,6 @@ void CgnsZone::ReadCgnsGridCoordinates()
     cgnsCoor->ReadCgnsGridCoordinates();
 }
 
-void CgnsZone::DumpCgnsGridCoordinates( Grid * grid )
-{
-    // write grid coordinates (user must use SIDS-standard names here)
-    int index_x = -1;
-    int index_y = -2;
-    int index_z = -3;
-    cg_coord_write( cgnsBase->fileId, cgnsBase->baseId, this->zId, RealDouble, "CoordinateX", &grid->nodeMesh->xN[0], &index_x );
-    cg_coord_write( cgnsBase->fileId, cgnsBase->baseId, this->zId, RealDouble, "CoordinateY", &grid->nodeMesh->yN[0], &index_y );
-    cg_coord_write( cgnsBase->fileId, cgnsBase->baseId, this->zId, RealDouble, "CoordinateZ", &grid->nodeMesh->zN[0], &index_z );
-    cout << " index_x = " << index_x << "\n";
-    cout << " index_y = " << index_y << "\n";
-    cout << " index_z = " << index_z << "\n";
-}
-
 void CgnsZone::ReadCgnsGridBoundary()
 {
     cgnsZbc->ReadCgnsGridBoundary();
@@ -288,15 +265,6 @@ void CgnsZone::ProcessPeriodicBc()
 {
     ;
 }
-
-void CgnsZone::PrepareCgnsZone( Grid * grid )
-{
-    Grids grids;
-    grids.push_back( grid );
-    this->cgnsZoneType = CGNS_ENUMV( Unstructured );
-    ONEFLOW::PrepareCgnsZone( grids, this );
-}
-
 
 #endif
 EndNameSpace

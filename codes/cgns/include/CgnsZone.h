@@ -94,11 +94,8 @@ public:
     void CreateCgnsSections();
     void ReadCgnsSections();
     void ReadCgnsGridCoordinates();
-    void DumpCgnsGridCoordinates( Grid * grid );
     void ReadCgnsGridBoundary();
     void ProcessPeriodicBc();
-    void DumpCgnsZone( Grid * grid );
-    void PrepareCgnsZone( Grid * grid );
 public:
     void SetElemPosition();
 public:

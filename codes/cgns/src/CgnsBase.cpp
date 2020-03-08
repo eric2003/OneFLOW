@@ -124,7 +124,7 @@ void CgnsBase::DumpBase( GridMediator * gridMediator )
     {
         CgnsZone * cgnsZone = this->GetCgnsZone( iZone );
         Grid * grid = gridMediator->gridVector[ iZone ];
-        cgnsZone->DumpCgnsZone( grid );
+        ONEFLOW::DumpCgnsZone( cgnsZone, grid );
     }
 }
 
@@ -138,7 +138,7 @@ void CgnsBase::PrepareCgnsZone( GridMediator * gridMediator )
     {
         CgnsZone * cgnsZone = this->GetCgnsZone( iZone );
         Grid * grid = gridMediator->gridVector[ iZone ];
-        cgnsZone->PrepareCgnsZone( grid );
+        ONEFLOW::PrepareCgnsZone( cgnsZone, grid );
     }
 }
 

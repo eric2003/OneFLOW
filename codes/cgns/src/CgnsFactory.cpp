@@ -193,7 +193,7 @@ void CgnsFactory::CommonToUnsGrid()
             grid_array = gridMediator->gridVector;
         }
 
-        ONEFLOW::PrepareCgnsZone( grid_array, cgnsZone );
+        ONEFLOW::PrepareCgnsZoneSub( grid_array, cgnsZone );
         
         cgnsFactory->CgnsToOneFlowGrid( grids[ iZone ], iZone );
 

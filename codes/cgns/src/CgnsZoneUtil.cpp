@@ -86,7 +86,7 @@ void GetIJKRegion( Range & I, Range & J, Range & K, int & ist, int & ied, int & 
     ked = K.Last();
 }
 
-void PrepareCgnsZone( Grids & grids, CgnsZone * cgnsZone )
+void PrepareCgnsZoneSub( Grids & grids, CgnsZone * cgnsZone )
 {
     NodeMesh * nodeMesh = cgnsZone->cgnsCoor->GetNodeMesh();
 
@@ -753,6 +753,39 @@ void DumpCgnsGridBoundary( CgnsZone * myZone, Grid * grid )
 {
     myZone->cgnsZbc->DumpCgnsGridBoundary( grid );
 }
+
+void DumpCgnsGridCoordinates( CgnsZone * myZone, Grid * grid )
+{
+    // write grid coordinates (user must use SIDS-standard names here)
+    int index_x = -1;
+    int index_y = -2;
+    int index_z = -3;
+    cg_coord_write( myZone->cgnsBase->fileId, myZone->cgnsBase->baseId, myZone->zId, RealDouble, "CoordinateX", &grid->nodeMesh->xN[0], &index_x );
+    cg_coord_write( myZone->cgnsBase->fileId, myZone->cgnsBase->baseId, myZone->zId, RealDouble, "CoordinateY", &grid->nodeMesh->yN[0], &index_y );
+    cg_coord_write( myZone->cgnsBase->fileId, myZone->cgnsBase->baseId, myZone->zId, RealDouble, "CoordinateZ", &grid->nodeMesh->zN[0], &index_z );
+    cout << " index_x = " << index_x << "\n";
+    cout << " index_y = " << index_y << "\n";
+    cout << " index_z = " << index_z << "\n";
+}
+
+void DumpCgnsZone( CgnsZone * myZone, Grid * grid )
+{
+    ONEFLOW::DumpCgnsZoneAttribute( myZone, grid );
+
+    ONEFLOW::DumpCgnsGridBoundary( myZone, grid );
+
+    ONEFLOW::DumpCgnsGridCoordinates( myZone, grid );
+}
+
+void PrepareCgnsZone( CgnsZone * myZone, Grid * grid )
+{
+    Grids grids;
+    grids.push_back( grid );
+    myZone->cgnsZoneType = CGNS_ENUMV( Unstructured );
+    ONEFLOW::PrepareCgnsZoneSub( grids, myZone );
+}
+
+
 
 #endif
 EndNameSpace
