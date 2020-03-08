@@ -228,11 +228,11 @@ void CgnsZone::ReadCgnsGrid()
 
 void CgnsZone::ReadCgnsGrid( CgnsZone * cgnsZoneIn )
 {
-    this->ReadCgnsZoneAttribute( cgnsZoneIn );
+    ONEFLOW::ReadCgnsZoneAttribute( this, cgnsZoneIn );
 
-    this->ReadElementConnectivities( cgnsZoneIn );
+    ONEFLOW::ReadElementConnectivities( this, cgnsZoneIn );
 
-    this->ReadCgnsGridCoordinates( cgnsZoneIn );
+    ONEFLOW::ReadCgnsGridCoordinates( this, cgnsZoneIn );
 
     this->ConvertToInnerDataStandard();
 }
@@ -253,14 +253,14 @@ void CgnsZone::DumpCgnsZoneAttribute( Grid * grid )
     this->DumpCgnsZoneNameAndGeneralizedDimension( grid );
 }
 
-void CgnsZone::ReadCgnsZoneAttribute( CgnsZone * cgnsZoneIn )
-{
-    ONEFLOW::ReadCgnsZoneType( this, cgnsZoneIn );
-
-    ONEFLOW::ReadCgnsZoneNameAndGeneralizedDimension( this, cgnsZoneIn );
-
-    ONEFLOW::SetDimension( this, cgnsZoneIn );
-}
+//void CgnsZone::ReadCgnsZoneAttribute( CgnsZone * cgnsZoneIn )
+//{
+//    ONEFLOW::ReadCgnsZoneType( this, cgnsZoneIn );
+//
+//    ONEFLOW::ReadCgnsZoneNameAndGeneralizedDimension( this, cgnsZoneIn );
+//
+//    ONEFLOW::SetDimension( this, cgnsZoneIn );
+//}
 
 void CgnsZone::ReadCgnsZoneType()
 {
@@ -378,14 +378,6 @@ void CgnsZone::DumpCgnsGridCoordinates( Grid * grid )
     cout << " index_x = " << index_x << "\n";
     cout << " index_y = " << index_y << "\n";
     cout << " index_z = " << index_z << "\n";
-}
-
-void CgnsZone::ReadCgnsGridCoordinates( CgnsZone * cgnsZoneIn )
-{
-    NodeMesh * nodeMesh1 = this->cgnsCoor->GetNodeMesh();
-    NodeMesh * nodeMesh2 = cgnsZoneIn->cgnsCoor->GetNodeMesh();
-
-    * nodeMesh1 = * nodeMesh2;
 }
 
 void CgnsZone::ReadCgnsGridBoundary()

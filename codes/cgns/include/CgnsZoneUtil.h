@@ -60,6 +60,8 @@ void GetStrZonePara( CgnsZone * myZone, int & s1, int & e1, int & s2, int & e2, 
 void ReadCgnsZoneType( CgnsZone * myZone, CgnsZone * cgnsZoneIn );
 void ReadCgnsZoneNameAndGeneralizedDimension( CgnsZone * myZone, CgnsZone * cgnsZoneIn );
 void SetDimension( CgnsZone * myZone, CgnsZone * cgnsZoneIn );
+void ReadCgnsGridCoordinates( CgnsZone * myZone, CgnsZone * cgnsZoneIn );
+void ReadCgnsZoneAttribute( CgnsZone * myZone, CgnsZone * cgnsZoneIn );
 
 #endif
 

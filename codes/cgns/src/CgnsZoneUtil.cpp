@@ -650,5 +650,22 @@ void SetDimension( CgnsZone * myZone, CgnsZone * cgnsZoneIn )
     myZone->cgnsCoor->SetDimension( cgnsCoorIn );
 }
 
+void ReadCgnsGridCoordinates( CgnsZone * myZone, CgnsZone * cgnsZoneIn )
+{
+    NodeMesh * nodeMesh1 = myZone->cgnsCoor->GetNodeMesh();
+    NodeMesh * nodeMesh2 = cgnsZoneIn->cgnsCoor->GetNodeMesh();
+
+    * nodeMesh1 = * nodeMesh2;
+}
+
+void ReadCgnsZoneAttribute( CgnsZone * myZone, CgnsZone * cgnsZoneIn )
+{
+    ONEFLOW::ReadCgnsZoneType( myZone, cgnsZoneIn );
+
+    ONEFLOW::ReadCgnsZoneNameAndGeneralizedDimension( myZone, cgnsZoneIn );
+
+    ONEFLOW::SetDimension( myZone, cgnsZoneIn );
+}
+
 #endif
 EndNameSpace

@@ -88,7 +88,7 @@ public:
     void ReadCgnsGrid( CgnsZone * cgnsZoneIn );
     void ReadCgnsZoneAttribute();
     void DumpCgnsZoneAttribute( Grid * grid );
-    void ReadCgnsZoneAttribute( CgnsZone * cgnsZoneIn );
+    //void ReadCgnsZoneAttribute( CgnsZone * cgnsZoneIn );
     void ReadCgnsZoneType();
     void DumpCgnsZoneType( Grid * grid );
     void ReadCgnsZoneNameAndGeneralizedDimension();
@@ -102,7 +102,6 @@ public:
     void ReadCgnsSections();
     void ReadCgnsGridCoordinates();
     void DumpCgnsGridCoordinates( Grid * grid );
-    void ReadCgnsGridCoordinates( CgnsZone * cgnsZoneIn );
     void ReadCgnsGridBoundary();
     void DumpCgnsGridBoundary( Grid * grid );
     void ProcessPeriodicBc();
