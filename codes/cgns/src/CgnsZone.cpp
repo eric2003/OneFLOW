@@ -168,41 +168,13 @@ void CgnsZone::GetElementNodeId( CgInt eId, CgIntField & eNodeId )
     cgnsSection->GetElementNodeId( eId - cgnsSection->startId, eNodeId );
 }
 
-void CgnsZone::FillISize( Grid * gridIn )
-{
-    StrGrid * grid = ONEFLOW::StrGridCast( gridIn );
-    int ni = grid->ni;
-    int nj = grid->nj;
-    int nk = grid->nk;
-    //this->FillISize( ni, nj, nk, THREE_D );
-    ONEFLOW::FillISize( this->isize, ni, nj, nk, THREE_D );
-}
-
-//void CgnsZone::FillISize( int ni, int nj, int nk, int dimension )
+//void CgnsZone::FillISize( Grid * gridIn )
 //{
-//    int j = 0;
-//    // vertex size
-//    isize[ j ++ ] = ni;
-//    isize[ j ++ ] = nj;
-//    if ( dimension == THREE_D )
-//    {
-//        isize[ j ++ ] = nk;
-//    }
-//    // cell size
-//    isize[ j ++ ] = ni - 1;
-//    isize[ j ++ ] = nj - 1;
-//    if ( dimension == THREE_D )
-//    {
-//        //isize[ j ++ ] = MAX( nk - 1, 1 );
-//        isize[ j ++ ] = nk - 1;
-//    }
-//    // boundary vertex size (always zero for structured grids)
-//    isize[ j ++ ] = 0;
-//    isize[ j ++ ] = 0;
-//    if ( dimension == THREE_D )
-//    {
-//        isize[ j ++ ] = 0;
-//    }
+//    StrGrid * grid = ONEFLOW::StrGridCast( gridIn );
+//    int ni = grid->ni;
+//    int nj = grid->nj;
+//    int nk = grid->nk;
+//    ONEFLOW::FillISize( this->isize, ni, nj, nk, THREE_D );
 //}
 
 void CgnsZone::DumpCgnsZone( Grid * grid )
@@ -279,7 +251,8 @@ void CgnsZone::ReadCgnsZoneNameAndGeneralizedDimension()
 
 void CgnsZone::DumpCgnsZoneNameAndGeneralizedDimension( Grid * gridIn )
 {
-    this->FillISize( gridIn );
+    //this->FillISize( gridIn );
+    ONEFLOW::FillISize( this, gridIn );
 
     this->zoneName = gridIn->name;
     this->zId = -1;

@@ -102,8 +102,7 @@ public:
     void DumpCgnsGridBoundary( Grid * grid );
     void ProcessPeriodicBc();
     void DumpCgnsZone( Grid * grid );
-    void FillISize( Grid * gridIn );
-    //void FillISize( int ni, int nj, int nk, int dimension );
+    //void FillISize( Grid * gridIn );
     void PrepareCgnsZone( Grid * grid );
 public:
     void SetElemPosition();

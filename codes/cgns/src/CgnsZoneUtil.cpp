@@ -719,5 +719,14 @@ void FillISize( CgInt *isize, int ni, int nj, int nk, int dimension )
     }
 }
 
+void FillISize( CgnsZone * myZone, Grid * gridIn )
+{
+    StrGrid * grid = ONEFLOW::StrGridCast( gridIn );
+    int ni = grid->ni;
+    int nj = grid->nj;
+    int nk = grid->nk;
+    ONEFLOW::FillISize( myZone->isize, ni, nj, nk, THREE_D );
+}
+
 #endif
 EndNameSpace
