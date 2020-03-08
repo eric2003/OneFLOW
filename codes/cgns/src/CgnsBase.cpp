@@ -22,6 +22,7 @@ License
 
 #include "CgnsBase.h"
 #include "CgnsZone.h"
+#include "CgnsZoneUtil.h"
 #include "StrUtil.h"
 #include "Dimension.h"
 #include "CgnsFamilyBc.h"
@@ -203,7 +204,8 @@ void CgnsBase::ReadAllCgnsZones( CgnsBase * cgnsBaseIn )
         cout << "==>iZone = " << iZone << " numberOfCgnsZones = " << this->nZones << "\n";
         CgnsZone * cgnsZone = this->GetCgnsZone( iZone );
         CgnsZone * cgnsZoneIn = cgnsBaseIn->GetCgnsZone( iZone );
-        cgnsZone->ReadCgnsGrid( cgnsZoneIn );
+        //cgnsZone->ReadCgnsGrid( cgnsZoneIn );
+        ONEFLOW::ReadCgnsGrid( cgnsZone, cgnsZoneIn );
     }
 }
 

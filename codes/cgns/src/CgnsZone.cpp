@@ -226,17 +226,6 @@ void CgnsZone::ReadCgnsGrid()
     this->ConvertToInnerDataStandard();
 }
 
-void CgnsZone::ReadCgnsGrid( CgnsZone * cgnsZoneIn )
-{
-    ONEFLOW::ReadCgnsZoneAttribute( this, cgnsZoneIn );
-
-    ONEFLOW::ReadElementConnectivities( this, cgnsZoneIn );
-
-    ONEFLOW::ReadCgnsGridCoordinates( this, cgnsZoneIn );
-
-    this->ConvertToInnerDataStandard();
-}
-
 void CgnsZone::ReadCgnsZoneAttribute()
 {
     this->ReadCgnsZoneType();
@@ -252,15 +241,6 @@ void CgnsZone::DumpCgnsZoneAttribute( Grid * grid )
 
     this->DumpCgnsZoneNameAndGeneralizedDimension( grid );
 }
-
-//void CgnsZone::ReadCgnsZoneAttribute( CgnsZone * cgnsZoneIn )
-//{
-//    ONEFLOW::ReadCgnsZoneType( this, cgnsZoneIn );
-//
-//    ONEFLOW::ReadCgnsZoneNameAndGeneralizedDimension( this, cgnsZoneIn );
-//
-//    ONEFLOW::SetDimension( this, cgnsZoneIn );
-//}
 
 void CgnsZone::ReadCgnsZoneType()
 {
@@ -330,11 +310,6 @@ void CgnsZone::ReadElementConnectivities()
     this->ReadCgnsSections();
 }
 
-void CgnsZone::ReadElementConnectivities( CgnsZone * cgnsZoneIn )
-{
-    ONEFLOW::ReadElementConnectivities( this, cgnsZoneIn );
-}
-
 void CgnsZone::SetElemPosition()
 {
     this->cgnsZsection->SetElemPosition();
@@ -343,12 +318,6 @@ void CgnsZone::SetElemPosition()
 void CgnsZone::ReadNumberOfCgnsSections()
 {
     this->cgnsZsection->ReadNumberOfCgnsSections();
-}
-
-void CgnsZone::ReadNumberOfCgnsSections( CgnsZone * cgnsZoneIn )
-{
-    this->cgnsZsection->nSection = cgnsZoneIn->cgnsZsection->nSection;
-    cout << "   numberOfCgnsSections = " << this->cgnsZsection->nSection << "\n";
 }
 
 void CgnsZone::CreateCgnsSections()

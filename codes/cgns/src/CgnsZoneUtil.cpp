@@ -667,5 +667,16 @@ void ReadCgnsZoneAttribute( CgnsZone * myZone, CgnsZone * cgnsZoneIn )
     ONEFLOW::SetDimension( myZone, cgnsZoneIn );
 }
 
+void ReadCgnsGrid( CgnsZone * myZone, CgnsZone * cgnsZoneIn )
+{
+    ONEFLOW::ReadCgnsZoneAttribute( myZone, cgnsZoneIn );
+
+    ONEFLOW::ReadElementConnectivities( myZone, cgnsZoneIn );
+
+    ONEFLOW::ReadCgnsGridCoordinates( myZone, cgnsZoneIn );
+
+    myZone->ConvertToInnerDataStandard();
+}
+
 #endif
 EndNameSpace
