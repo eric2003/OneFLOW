@@ -34,6 +34,7 @@ License
 #include "StrGrid.h"
 #include "CgnsBase.h"
 #include "CgnsZbase.h"
+#include "CgnsZbaseUtil.h"
 #include "CgnsZone.h"
 #include "CgnsZoneUtil.h"
 #include "CgnsSection.h"
@@ -90,7 +91,7 @@ void CgnsFactory::ConvertStrCgns2UnsCgnsGrid()
 {
     CgnsZbase * unsCgnsMultiBase = new CgnsZbase();
 
-    unsCgnsMultiBase->ConvertStrCgns2UnsCgnsGrid( cgnsZbase );
+    ONEFLOW::ConvertStrCgns2UnsCgnsGrid( unsCgnsMultiBase, cgnsZbase );
 
     delete cgnsZbase;
 

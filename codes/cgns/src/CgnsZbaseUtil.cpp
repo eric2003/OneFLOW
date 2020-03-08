@@ -63,6 +63,10 @@ void ReadCgnsMultiBase( CgnsZbase * myCgnsZbase, CgnsZbase * strCgnsMultiBase )
     }
 }
 
+void ConvertStrCgns2UnsCgnsGrid( CgnsZbase * myCgnsZbase, CgnsZbase * strCgnsMultiBase )
+{
+    ONEFLOW::ReadCgnsMultiBase( myCgnsZbase, strCgnsMultiBase );
+}
 
 #endif
 EndNameSpace

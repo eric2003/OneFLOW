@@ -201,11 +201,6 @@ void CgnsZbase::InitCgnsBase()
     }
 }
 
-void CgnsZbase::ConvertStrCgns2UnsCgnsGrid( CgnsZbase * strCgnsMultiBase )
-{
-    ONEFLOW::ReadCgnsMultiBase( this, strCgnsMultiBase );
-}
-
 CgnsBase * CgnsZbase::GetCgnsBase( int iBase )
 {
     return baseVector[ iBase ];
