@@ -194,21 +194,6 @@ void CgnsBase::ReadAllCgnsZones()
     }
 }
 
-void CgnsBase::ReadAllCgnsZones( CgnsBase * cgnsBaseIn )
-{
-    cout << "** Reading CGNS Grid In Base " << this->baseId << "\n";
-    cout << "   numberOfCgnsZones       = " << this->nZones << "\n\n";
-
-    for ( int iZone = 0; iZone < nZones; ++ iZone )
-    {
-        cout << "==>iZone = " << iZone << " numberOfCgnsZones = " << this->nZones << "\n";
-        CgnsZone * cgnsZone = this->GetCgnsZone( iZone );
-        CgnsZone * cgnsZoneIn = cgnsBaseIn->GetCgnsZone( iZone );
-        //cgnsZone->ReadCgnsGrid( cgnsZoneIn );
-        ONEFLOW::ReadCgnsGrid( cgnsZone, cgnsZoneIn );
-    }
-}
-
 void CgnsBase::SetFamilyBc( BCType_t & bcType, const string & bcRegionName )
 {
     this->familyBc->SetFamilyBc( bcType, bcRegionName );

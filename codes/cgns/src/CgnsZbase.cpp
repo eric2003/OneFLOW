@@ -22,6 +22,7 @@ License
 
 #include "CgnsZbase.h"
 #include "CgnsBase.h"
+#include "CgnsBaseUtil.h"
 #include "CgnsZone.h"
 #include "StrUtil.h"
 #include "Stop.h"
@@ -172,7 +173,7 @@ void CgnsZbase::ReadCgnsMultiBase( CgnsZbase * strCgnsMultiBase )
         cgnsBase->ReadCgnsBaseBasicInfo( cgnsBaseIn );
         cgnsBase->ReadNumberOfCgnsZones( cgnsBaseIn );
         cgnsBase->AllocateAllCgnsZones();
-        cgnsBase->ReadAllCgnsZones( cgnsBaseIn );
+        ONEFLOW::ReadAllCgnsZones( cgnsBase, cgnsBaseIn );
 
     }
 }

@@ -36,41 +36,7 @@ class CgnsZone;
 class CgnsFamilyBc;
 class GridMediator;
 
-class CgnsBase
-{
-public:
-    CgnsBase();
-    ~CgnsBase();
-public:
-    int fileId, baseId;
-    int nZones;
-    int celldim, phydim;
-    string baseName;
-    HXVector< CgnsZone * > cgnsZones;
-public:
-    CgnsZone * GetCgnsZoneByName( const string & zoneName );
-    CgnsZone * GetCgnsZone( int iZone );
-    void ConstructZoneNameMap();
-    map< string, int > zoneNameMap;
-    CgnsFamilyBc * familyBc;
-public:
-    int GetNZone();
-    void SetDefaultCgnsBaseBasicInfo();
-    void AddCgnsZone( CgnsZone * cgnsZone );
-    void AllocateAllCgnsZones();
-    void ReadCgnsBaseBasicInfo();
-    void DumpCgnsBaseBasicInfo();
-    void ReadCgnsBaseBasicInfo( CgnsBase * cgnsBaseIn );
-    void ReadNumberOfCgnsZones();
-    void ReadNumberOfCgnsZones( CgnsBase * cgnsBaseIn );
-    void ReadAllCgnsZones();
-public:
-    void DumpBase( GridMediator * gridMediator );
-    void PrepareCgnsZone( GridMediator * gridMediator );
-public:
-    void SetFamilyBc( BCType_t & bcType, const string & bcRegionName );
-    void ReadFamilySpecifiedBc();
-};
+void ReadAllCgnsZones( CgnsBase * myCgnsBase, CgnsBase * cgnsBaseIn );
 
 #endif
 

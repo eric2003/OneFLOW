@@ -35,8 +35,6 @@ BeginNameSpace( ONEFLOW )
 
 #ifdef ENABLE_CGNS
 
-class Grid;
-class StrGrid;
 class CgnsZone;
 class CgnsBase;
 class CgnsCoor;
