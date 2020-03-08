@@ -49,5 +49,17 @@ void ReadAllCgnsZones( CgnsBase * myCgnsBase, CgnsBase * cgnsBaseIn )
     }
 }
 
+void ReadNumberOfCgnsZones( CgnsBase * myCgnsBase, CgnsBase * cgnsBaseIn )
+{
+    myCgnsBase->nZones = cgnsBaseIn->nZones;
+}
+
+void ReadCgnsBaseBasicInfo( CgnsBase * myCgnsBase, CgnsBase * cgnsBaseIn )
+{
+    myCgnsBase->baseName = cgnsBaseIn->baseName;
+    myCgnsBase->celldim  = cgnsBaseIn->celldim;
+    myCgnsBase->phydim   = cgnsBaseIn->phydim;
+}
+
 #endif
 EndNameSpace

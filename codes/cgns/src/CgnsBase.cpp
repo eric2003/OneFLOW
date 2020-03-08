@@ -142,22 +142,10 @@ void CgnsBase::PrepareCgnsZone( GridMediator * gridMediator )
     }
 }
 
-void CgnsBase::ReadCgnsBaseBasicInfo( CgnsBase * cgnsBaseIn )
-{
-    this->baseName = cgnsBaseIn->baseName;
-    this->celldim  = cgnsBaseIn->celldim;
-    this->phydim   = cgnsBaseIn->phydim;
-}
-
 void CgnsBase::ReadNumberOfCgnsZones()
 {
     //Read the number of zones in the grid.
     cg_nzones( this->fileId, this->baseId, & this->nZones );
-}
-
-void CgnsBase::ReadNumberOfCgnsZones( CgnsBase * cgnsBaseIn )
-{
-    this->nZones = cgnsBaseIn->nZones;
 }
 
 void CgnsBase::ConstructZoneNameMap()

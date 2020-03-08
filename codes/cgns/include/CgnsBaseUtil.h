@@ -33,10 +33,13 @@ BeginNameSpace( ONEFLOW )
 #ifdef ENABLE_CGNS
 
 class CgnsZone;
+class CgnsBase;
 class CgnsFamilyBc;
 class GridMediator;
 
 void ReadAllCgnsZones( CgnsBase * myCgnsBase, CgnsBase * cgnsBaseIn );
+void ReadNumberOfCgnsZones( CgnsBase * myCgnsBase, CgnsBase * cgnsBaseIn );
+void ReadCgnsBaseBasicInfo( CgnsBase * myCgnsBase, CgnsBase * cgnsBaseIn );
 
 #endif
 

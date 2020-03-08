@@ -60,9 +60,7 @@ public:
     void AllocateAllCgnsZones();
     void ReadCgnsBaseBasicInfo();
     void DumpCgnsBaseBasicInfo();
-    void ReadCgnsBaseBasicInfo( CgnsBase * cgnsBaseIn );
     void ReadNumberOfCgnsZones();
-    void ReadNumberOfCgnsZones( CgnsBase * cgnsBaseIn );
     void ReadAllCgnsZones();
 public:
     void DumpBase( GridMediator * gridMediator );

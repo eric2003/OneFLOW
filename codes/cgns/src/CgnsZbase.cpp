@@ -170,8 +170,8 @@ void CgnsZbase::ReadCgnsMultiBase( CgnsZbase * strCgnsMultiBase )
         CgnsBase * cgnsBase = this->GetCgnsBase( iBase );
         CgnsBase * cgnsBaseIn = strCgnsMultiBase->GetCgnsBase( iBase );
 
-        cgnsBase->ReadCgnsBaseBasicInfo( cgnsBaseIn );
-        cgnsBase->ReadNumberOfCgnsZones( cgnsBaseIn );
+        ONEFLOW::ReadCgnsBaseBasicInfo( cgnsBase, cgnsBaseIn );
+        ONEFLOW::ReadNumberOfCgnsZones( cgnsBase, cgnsBaseIn );
         cgnsBase->AllocateAllCgnsZones();
         ONEFLOW::ReadAllCgnsZones( cgnsBase, cgnsBaseIn );
 
