@@ -692,5 +692,32 @@ void DumpCgnsZoneType( CgnsZone * myZone, Grid * grid )
     cout << "   The Zone Type is " << GetCgnsZoneTypeName( myZone->cgnsZoneType ) << " Zone" << "\n";
 }
 
+void FillISize( CgInt *isize, int ni, int nj, int nk, int dimension )
+{
+    int j = 0;
+    // vertex size
+    isize[ j ++ ] = ni;
+    isize[ j ++ ] = nj;
+    if ( dimension == THREE_D )
+    {
+        isize[ j ++ ] = nk;
+    }
+    // cell size
+    isize[ j ++ ] = ni - 1;
+    isize[ j ++ ] = nj - 1;
+    if ( dimension == THREE_D )
+    {
+        //isize[ j ++ ] = MAX( nk - 1, 1 );
+        isize[ j ++ ] = nk - 1;
+    }
+    // boundary vertex size (always zero for structured grids)
+    isize[ j ++ ] = 0;
+    isize[ j ++ ] = 0;
+    if ( dimension == THREE_D )
+    {
+        isize[ j ++ ] = 0;
+    }
+}
+
 #endif
 EndNameSpace

@@ -103,7 +103,7 @@ public:
     void ProcessPeriodicBc();
     void DumpCgnsZone( Grid * grid );
     void FillISize( Grid * gridIn );
-    void FillISize( int ni, int nj, int nk, int dimension );
+    //void FillISize( int ni, int nj, int nk, int dimension );
     void PrepareCgnsZone( Grid * grid );
 public:
     void SetElemPosition();
