@@ -26,46 +26,11 @@ License
 
 BeginNameSpace( ONEFLOW )
 
+class CgnsZbase;
+
 #ifdef ENABLE_CGNS
 
-class CgnsBase;
-class CgnsZone;
-class GridMediator;
-class GridMediatorS;
-
-class CgnsZbase
-{
-public:
-    CgnsZbase ();
-    ~CgnsZbase();
-public:
-    int fileId, nBases;
- 
-    HXVector< CgnsBase * > baseVector;
-public:
-    int GetSystemZoneType();
-    void ReadCgnsGrid();
-    void DumpCgnsGrid( GridMediatorS * gridMediators );
-    void ReadCgnsGrid( const string & fileName );
-    void OpenCgnsFile( const string & fileName, int cgnsOpenMode );
-    void CloseCgnsFile();
-    void ReadCgnsMultiBase();
-    void DumpCgnsMultiBase( GridMediatorS * gridMediatorS );
-    void ReadNumCgnsBase();
-
-    void ReadCgnsMultiBase( CgnsZbase * strCgnsMultiBase );
-public:
-    void CreateDefaultCgnsZones( GridMediatorS * gridMediatorS );
-    void PrepareCgnsZone( GridMediatorS * gridMediatorS );
-    void AddCgnsBase( CgnsBase * cgnsBase );
-    void InitCgnsBase();
-    void ConvertStrCgns2UnsCgnsGrid( CgnsZbase * strCgnsMultiBase );
-public:
-    int GetNZone();
-    CgnsBase * GetCgnsBase( int iBase );
-    CgnsZone * GetCgnsZone( int globalZoneId );
-    CgnsZone * GetMultiBaseCgnsZone( int iBase, int iZone );
-};
+void ReadNumCgnsBase( CgnsZbase * myCgnsZbase, CgnsZbase * strCgnsMultiBase );
 
 #endif
 

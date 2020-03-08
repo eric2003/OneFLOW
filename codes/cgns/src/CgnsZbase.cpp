@@ -21,6 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "CgnsZbase.h"
+#include "CgnsZbaseUtil.h"
 #include "CgnsBase.h"
 #include "CgnsBaseUtil.h"
 #include "CgnsZone.h"
@@ -124,11 +125,11 @@ void CgnsZbase::ReadNumCgnsBase()
     cout << "   Total number of CGNS Base = " << this->nBases << "\n";
 }
 
-void CgnsZbase::ReadNumCgnsBase( CgnsZbase * strCgnsMultiBase )
-{
-    this->fileId = strCgnsMultiBase->fileId;
-    this->nBases = strCgnsMultiBase->nBases;
-}
+//void CgnsZbase::ReadNumCgnsBase( CgnsZbase * strCgnsMultiBase )
+//{
+//    this->fileId = strCgnsMultiBase->fileId;
+//    this->nBases = strCgnsMultiBase->nBases;
+//}
 
 void CgnsZbase::ReadCgnsMultiBase()
 {
@@ -161,7 +162,7 @@ void CgnsZbase::DumpCgnsMultiBase( GridMediatorS * gridMediatorS )
 
 void CgnsZbase::ReadCgnsMultiBase( CgnsZbase * strCgnsMultiBase )
 {
-    this->ReadNumCgnsBase( strCgnsMultiBase );
+    ONEFLOW::ReadNumCgnsBase( this, strCgnsMultiBase );
 
     this->InitCgnsBase();
 
