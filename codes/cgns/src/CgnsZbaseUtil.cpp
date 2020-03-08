@@ -99,5 +99,13 @@ void DumpCgnsMultiBase( CgnsZbase * myCgnsZbase, GridMediatorS * gridMediatorS )
     }
 }
 
+void DumpCgnsGrid( CgnsZbase * myCgnsZbase, GridMediatorS * gridMediators )
+{
+    string fileName = gridMediators->GetTargetFile();
+    myCgnsZbase->OpenCgnsFile( fileName, CG_MODE_WRITE );
+    ONEFLOW::DumpCgnsMultiBase( myCgnsZbase, gridMediators );
+    myCgnsZbase->CloseCgnsFile();
+}
+
 #endif
 EndNameSpace

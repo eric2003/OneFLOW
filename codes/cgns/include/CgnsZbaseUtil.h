@@ -35,6 +35,7 @@ void ReadCgnsMultiBase( CgnsZbase * myCgnsZbase, CgnsZbase * strCgnsMultiBase );
 void ConvertStrCgns2UnsCgnsGrid( CgnsZbase * myCgnsZbase, CgnsZbase * strCgnsMultiBase );
 void CreateDefaultCgnsZones( CgnsZbase * myCgnsZbase, GridMediatorS * gridMediatorS );
 void DumpCgnsMultiBase( CgnsZbase * myCgnsZbase, GridMediatorS * gridMediatorS );
+void DumpCgnsGrid( CgnsZbase * myCgnsZbase, GridMediatorS * gridMediators );
 
 #endif
 

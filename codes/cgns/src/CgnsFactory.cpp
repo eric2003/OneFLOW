@@ -84,7 +84,7 @@ void CgnsFactory::ReadCgnsGrid()
 void CgnsFactory::DumpCgnsGrid( GridMediatorS * gridMediators )
 {
     cgns_global.cgnsbases = cgnsZbase;
-    cgnsZbase->DumpCgnsGrid( gridMediators );
+    ONEFLOW::DumpCgnsGrid( cgnsZbase, gridMediators );
 }
 
 void CgnsFactory::ConvertStrCgns2UnsCgnsGrid()

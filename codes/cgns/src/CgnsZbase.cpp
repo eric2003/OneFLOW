@@ -84,14 +84,6 @@ void CgnsZbase::ReadCgnsGrid()
     this->ReadCgnsGrid( grid_para.gridFile );
 }
 
-void CgnsZbase::DumpCgnsGrid( GridMediatorS * gridMediators )
-{
-    string fileName = gridMediators->GetTargetFile();
-    this->OpenCgnsFile( fileName, CG_MODE_WRITE );
-    ONEFLOW::DumpCgnsMultiBase( this, gridMediators );
-    this->CloseCgnsFile();
-}
-
 void CgnsZbase::ReadCgnsGrid( const string & fileName )
 {
     this->OpenCgnsFile( fileName, CG_MODE_READ );

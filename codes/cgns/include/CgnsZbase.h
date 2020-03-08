@@ -45,7 +45,6 @@ public:
 public:
     int GetSystemZoneType();
     void ReadCgnsGrid();
-    void DumpCgnsGrid( GridMediatorS * gridMediators );
     void ReadCgnsGrid( const string & fileName );
     void OpenCgnsFile( const string & fileName, int cgnsOpenMode );
     void CloseCgnsFile();
