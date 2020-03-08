@@ -237,7 +237,7 @@ void CgnsZone::ReadCgnsZoneAttribute()
 
 void CgnsZone::DumpCgnsZoneAttribute( Grid * grid )
 {
-    this->DumpCgnsZoneType( grid );
+    ONEFLOW::DumpCgnsZoneType( this, grid );
 
     this->DumpCgnsZoneNameAndGeneralizedDimension( grid );
 }
@@ -250,19 +250,19 @@ void CgnsZone::ReadCgnsZoneType()
     cout << "   The Zone Type is " << GetCgnsZoneTypeName( cgnsZoneType ) << " Zone" << "\n";
 }
 
-void CgnsZone::DumpCgnsZoneType( Grid * grid )
-{
-    if ( IsUnsGrid( grid->type ) )
-    {
-        this->cgnsZoneType = CGNS_ENUMV( Unstructured );
-    }
-    else
-    {
-        this->cgnsZoneType = CGNS_ENUMV( Structured );
-    }
-
-    cout << "   The Zone Type is " << GetCgnsZoneTypeName( cgnsZoneType ) << " Zone" << "\n";
-}
+//void CgnsZone::DumpCgnsZoneType( Grid * grid )
+//{
+//    if ( IsUnsGrid( grid->type ) )
+//    {
+//        this->cgnsZoneType = CGNS_ENUMV( Unstructured );
+//    }
+//    else
+//    {
+//        this->cgnsZoneType = CGNS_ENUMV( Structured );
+//    }
+//
+//    cout << "   The Zone Type is " << GetCgnsZoneTypeName( cgnsZoneType ) << " Zone" << "\n";
+//}
 
 void CgnsZone::ReadCgnsZoneNameAndGeneralizedDimension()
 {

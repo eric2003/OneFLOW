@@ -88,7 +88,7 @@ public:
     void ReadCgnsZoneAttribute();
     void DumpCgnsZoneAttribute( Grid * grid );
     void ReadCgnsZoneType();
-    void DumpCgnsZoneType( Grid * grid );
+    //void DumpCgnsZoneType( Grid * grid );
     void ReadCgnsZoneNameAndGeneralizedDimension();
     void DumpCgnsZoneNameAndGeneralizedDimension( Grid * gridIn );
     void SetDimension();

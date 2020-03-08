@@ -63,6 +63,7 @@ void SetDimension( CgnsZone * myZone, CgnsZone * cgnsZoneIn );
 void ReadCgnsGridCoordinates( CgnsZone * myZone, CgnsZone * cgnsZoneIn );
 void ReadCgnsZoneAttribute( CgnsZone * myZone, CgnsZone * cgnsZoneIn );
 void ReadCgnsGrid( CgnsZone * myZone, CgnsZone * cgnsZoneIn );
+void DumpCgnsZoneType( CgnsZone * myZone, Grid * grid );
 
 #endif
 

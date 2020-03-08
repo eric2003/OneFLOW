@@ -678,5 +678,19 @@ void ReadCgnsGrid( CgnsZone * myZone, CgnsZone * cgnsZoneIn )
     myZone->ConvertToInnerDataStandard();
 }
 
+void DumpCgnsZoneType( CgnsZone * myZone, Grid * grid )
+{
+    if ( IsUnsGrid( grid->type ) )
+    {
+        myZone->cgnsZoneType = CGNS_ENUMV( Unstructured );
+    }
+    else
+    {
+        myZone->cgnsZoneType = CGNS_ENUMV( Structured );
+    }
+
+    cout << "   The Zone Type is " << GetCgnsZoneTypeName( myZone->cgnsZoneType ) << " Zone" << "\n";
+}
+
 #endif
 EndNameSpace
