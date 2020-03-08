@@ -728,5 +728,26 @@ void FillISize( CgnsZone * myZone, Grid * gridIn )
     ONEFLOW::FillISize( myZone->isize, ni, nj, nk, THREE_D );
 }
 
+void DumpCgnsZoneNameAndGeneralizedDimension( CgnsZone * myZone, Grid * gridIn )
+{
+    ONEFLOW::FillISize( myZone, gridIn );
+
+    myZone->zoneName = gridIn->name;
+    myZone->zId = -1;
+    cout << " cell dim = " << myZone->cgnsBase->celldim << " physics dim = " << myZone->cgnsBase->phydim << "\n";
+    //create zone
+    cg_zone_write( myZone->cgnsBase->fileId, myZone->cgnsBase->baseId, myZone->zoneName.c_str(), myZone->isize, myZone->cgnsZoneType, &myZone->zId );
+    cout << " Zone Id = " << myZone->zId << "\n";
+
+    cout << "   CGNS Zone Name = " << myZone->zoneName << "\n";
+}
+
+void DumpCgnsZoneAttribute( CgnsZone * myZone, Grid * grid )
+{
+    ONEFLOW::DumpCgnsZoneType( myZone, grid );
+
+    ONEFLOW::DumpCgnsZoneNameAndGeneralizedDimension( myZone, grid );
+}
+
 #endif
 EndNameSpace

@@ -168,18 +168,9 @@ void CgnsZone::GetElementNodeId( CgInt eId, CgIntField & eNodeId )
     cgnsSection->GetElementNodeId( eId - cgnsSection->startId, eNodeId );
 }
 
-//void CgnsZone::FillISize( Grid * gridIn )
-//{
-//    StrGrid * grid = ONEFLOW::StrGridCast( gridIn );
-//    int ni = grid->ni;
-//    int nj = grid->nj;
-//    int nk = grid->nk;
-//    ONEFLOW::FillISize( this->isize, ni, nj, nk, THREE_D );
-//}
-
 void CgnsZone::DumpCgnsZone( Grid * grid )
 {
-    this->DumpCgnsZoneAttribute( grid );
+    ONEFLOW::DumpCgnsZoneAttribute( this, grid );
 
     this->DumpCgnsGridBoundary( grid );
 
@@ -208,13 +199,6 @@ void CgnsZone::ReadCgnsZoneAttribute()
     this->SetDimension();
 }
 
-void CgnsZone::DumpCgnsZoneAttribute( Grid * grid )
-{
-    ONEFLOW::DumpCgnsZoneType( this, grid );
-
-    this->DumpCgnsZoneNameAndGeneralizedDimension( grid );
-}
-
 void CgnsZone::ReadCgnsZoneType()
 {
     //Check the zone type
@@ -222,20 +206,6 @@ void CgnsZone::ReadCgnsZoneType()
 
     cout << "   The Zone Type is " << GetCgnsZoneTypeName( cgnsZoneType ) << " Zone" << "\n";
 }
-
-//void CgnsZone::DumpCgnsZoneType( Grid * grid )
-//{
-//    if ( IsUnsGrid( grid->type ) )
-//    {
-//        this->cgnsZoneType = CGNS_ENUMV( Unstructured );
-//    }
-//    else
-//    {
-//        this->cgnsZoneType = CGNS_ENUMV( Structured );
-//    }
-//
-//    cout << "   The Zone Type is " << GetCgnsZoneTypeName( cgnsZoneType ) << " Zone" << "\n";
-//}
 
 void CgnsZone::ReadCgnsZoneNameAndGeneralizedDimension()
 {
@@ -249,20 +219,6 @@ void CgnsZone::ReadCgnsZoneNameAndGeneralizedDimension()
     cout << "   CGNS Zone Name = " << cgnsZoneName << "\n";
 }
 
-void CgnsZone::DumpCgnsZoneNameAndGeneralizedDimension( Grid * gridIn )
-{
-    //this->FillISize( gridIn );
-    ONEFLOW::FillISize( this, gridIn );
-
-    this->zoneName = gridIn->name;
-    this->zId = -1;
-    cout << " cell dim = " << this->cgnsBase->celldim << " physics dim = " << this->cgnsBase->phydim << "\n";
-    //create zone
-    cg_zone_write(cgnsBase->fileId, cgnsBase->baseId, this->zoneName.c_str(), this->isize, this->cgnsZoneType, &this->zId );
-    cout << " Zone Id = " << this->zId << "\n";
-
-    cout << "   CGNS Zone Name = " << zoneName << "\n";
-}
 
 void CgnsZone::SetDimension()
 {

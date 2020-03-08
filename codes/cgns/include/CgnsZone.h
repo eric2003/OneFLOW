@@ -86,11 +86,8 @@ public:
     void GetElementNodeId( CgInt eId, CgIntField & eNodeId );
     void ReadCgnsGrid();
     void ReadCgnsZoneAttribute();
-    void DumpCgnsZoneAttribute( Grid * grid );
     void ReadCgnsZoneType();
-    //void DumpCgnsZoneType( Grid * grid );
     void ReadCgnsZoneNameAndGeneralizedDimension();
-    void DumpCgnsZoneNameAndGeneralizedDimension( Grid * gridIn );
     void SetDimension();
     void ReadElementConnectivities();
     void ReadNumberOfCgnsSections();
@@ -102,7 +99,6 @@ public:
     void DumpCgnsGridBoundary( Grid * grid );
     void ProcessPeriodicBc();
     void DumpCgnsZone( Grid * grid );
-    //void FillISize( Grid * gridIn );
     void PrepareCgnsZone( Grid * grid );
 public:
     void SetElemPosition();
