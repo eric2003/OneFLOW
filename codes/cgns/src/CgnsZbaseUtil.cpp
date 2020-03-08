@@ -68,5 +68,36 @@ void ConvertStrCgns2UnsCgnsGrid( CgnsZbase * myCgnsZbase, CgnsZbase * strCgnsMul
     ONEFLOW::ReadCgnsMultiBase( myCgnsZbase, strCgnsMultiBase );
 }
 
+void CreateDefaultCgnsZones( CgnsZbase * myCgnsZbase, GridMediatorS * gridMediatorS )
+{
+    myCgnsZbase->fileId = 1;
+    myCgnsZbase->nBases = gridMediatorS->GetSize();
+
+    myCgnsZbase->InitCgnsBase();
+
+    for ( int iBase = 0; iBase < myCgnsZbase->nBases; ++ iBase )
+    {
+        CgnsBase * cgnsBase = myCgnsZbase->GetCgnsBase( iBase );
+        GridMediator * gridMediator = gridMediatorS->GetGridMediator( iBase );
+
+        cgnsBase->SetDefaultCgnsBaseBasicInfo();
+        cgnsBase->nZones = gridMediator->numberOfZones;
+
+        cgnsBase->AllocateAllCgnsZones();
+    }
+}
+
+void DumpCgnsMultiBase( CgnsZbase * myCgnsZbase, GridMediatorS * gridMediatorS )
+{
+    ONEFLOW::CreateDefaultCgnsZones( myCgnsZbase, gridMediatorS );
+
+    for ( int iBase = 0; iBase < myCgnsZbase->nBases; ++ iBase )
+    {
+        CgnsBase * cgnsBase = myCgnsZbase->GetCgnsBase( iBase );
+        GridMediator * gridMediator = gridMediatorS->GetGridMediator( iBase );
+        ONEFLOW::DumpBase( cgnsBase, gridMediator );
+    }
+}
+
 #endif
 EndNameSpace

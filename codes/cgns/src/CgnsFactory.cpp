@@ -147,7 +147,7 @@ void CgnsFactory::CgnsToOneFlowGrid()
 
 void CgnsFactory::CreateCgnsZone( GridMediatorS * gridMediators )
 {
-    cgnsZbase->CreateDefaultCgnsZones( gridMediators );
+   ONEFLOW::CreateDefaultCgnsZones( cgnsZbase, gridMediators );
 }
 
 void CgnsFactory::PrepareCgnsZone( GridMediatorS * gridMediators )
@@ -327,7 +327,7 @@ void CgnsFactory::CreateDefaultZone( int nZone )
 {
     GridMediatorS * gridMediatorS = new GridMediatorS();
     gridMediatorS->CreateSimple( nZone );
-    cgnsZbase->CreateDefaultCgnsZones( gridMediatorS );
+    ONEFLOW::CreateDefaultCgnsZones( cgnsZbase, gridMediatorS );
     delete gridMediatorS;
 
 }

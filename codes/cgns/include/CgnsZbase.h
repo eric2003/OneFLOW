@@ -50,10 +50,8 @@ public:
     void OpenCgnsFile( const string & fileName, int cgnsOpenMode );
     void CloseCgnsFile();
     void ReadCgnsMultiBase();
-    void DumpCgnsMultiBase( GridMediatorS * gridMediatorS );
     void ReadNumCgnsBase();
 public:
-    void CreateDefaultCgnsZones( GridMediatorS * gridMediatorS );
     void PrepareCgnsZone( GridMediatorS * gridMediatorS );
     void AddCgnsBase( CgnsBase * cgnsBase );
     void InitCgnsBase();
