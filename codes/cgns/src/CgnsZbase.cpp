@@ -24,7 +24,6 @@ License
 #include "CgnsBase.h"
 #include "CgnsZone.h"
 #include "Stop.h"
-#include "Prj.h"
 #include <iostream>
 using namespace std;
 
@@ -84,8 +83,7 @@ void CgnsZbase::ReadCgnsGrid( const string & fileName )
 void CgnsZbase::OpenCgnsFile( const string & fileName, int cgnsOpenMode )
 {
     //Open the CGNS for reading and check if the file was found.
-    string prjFileName = GetPrjFileName( fileName );
-    if ( cg_open( prjFileName.c_str(), cgnsOpenMode, & this->fileId ) != CG_OK )
+    if ( cg_open( fileName.c_str(), cgnsOpenMode, & this->fileId ) != CG_OK )
     {
         Stop( cg_get_error() );
     }

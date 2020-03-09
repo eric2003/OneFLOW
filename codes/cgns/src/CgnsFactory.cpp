@@ -26,6 +26,7 @@ License
 #include "CgnsZbc.h"
 #include "GridPara.h"
 #include "LogFile.h"
+#include "Prj.h"
 #include "Stop.h"
 #include "StrUtil.h"
 #include "GridState.h"
@@ -78,7 +79,8 @@ void CgnsFactory::GenerateGrid()
 void CgnsFactory::ReadCgnsGrid()
 {
     cgns_global.cgnsbases = cgnsZbase;
-    cgnsZbase->ReadCgnsGrid( grid_para.gridFile );
+    string prjFileName = ONEFLOW::GetPrjFileName( grid_para.gridFile );
+    cgnsZbase->ReadCgnsGrid( prjFileName );
 }
 
 void CgnsFactory::DumpCgnsGrid( GridMediatorS * gridMediators )
