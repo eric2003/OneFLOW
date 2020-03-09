@@ -30,8 +30,6 @@ BeginNameSpace( ONEFLOW )
 
 class CgnsBase;
 class CgnsZone;
-class GridMediator;
-class GridMediatorS;
 
 class CgnsZbase
 {
@@ -44,14 +42,12 @@ public:
     HXVector< CgnsBase * > baseVector;
 public:
     int GetSystemZoneType();
-    void ReadCgnsGrid();
     void ReadCgnsGrid( const string & fileName );
     void OpenCgnsFile( const string & fileName, int cgnsOpenMode );
     void CloseCgnsFile();
     void ReadCgnsMultiBase();
     void ReadNumCgnsBase();
 public:
-    void PrepareCgnsZone( GridMediatorS * gridMediatorS );
     void AddCgnsBase( CgnsBase * cgnsBase );
     void InitCgnsBase();
 public:

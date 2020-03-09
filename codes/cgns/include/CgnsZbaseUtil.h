@@ -27,6 +27,7 @@ License
 BeginNameSpace( ONEFLOW )
 
 class CgnsZbase;
+class GridMediatorS;
 
 #ifdef ENABLE_CGNS
 
@@ -36,6 +37,7 @@ void ConvertStrCgns2UnsCgnsGrid( CgnsZbase * myCgnsZbase, CgnsZbase * strCgnsMul
 void CreateDefaultCgnsZones( CgnsZbase * myCgnsZbase, GridMediatorS * gridMediatorS );
 void DumpCgnsMultiBase( CgnsZbase * myCgnsZbase, GridMediatorS * gridMediatorS );
 void DumpCgnsGrid( CgnsZbase * myCgnsZbase, GridMediatorS * gridMediators );
+void PrepareCgnsZone( CgnsZbase * myCgnsZbase, GridMediatorS * gridMediatorS );
 
 #endif
 

@@ -107,5 +107,16 @@ void DumpCgnsGrid( CgnsZbase * myCgnsZbase, GridMediatorS * gridMediators )
     myCgnsZbase->CloseCgnsFile();
 }
 
+void PrepareCgnsZone( CgnsZbase * myCgnsZbase, GridMediatorS * gridMediatorS )
+{
+    for ( int iBase = 0; iBase < myCgnsZbase->nBases; ++ iBase )
+    {
+        CgnsBase * cgnsBase = myCgnsZbase->GetCgnsBase( iBase );
+        GridMediator * gridMediator = gridMediatorS->GetGridMediator( iBase );
+
+        ONEFLOW::PrepareCgnsZone( cgnsBase, gridMediator );
+    }
+}
+
 #endif
 EndNameSpace

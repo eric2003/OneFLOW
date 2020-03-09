@@ -21,16 +21,10 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "CgnsZbase.h"
-#include "CgnsZbaseUtil.h"
 #include "CgnsBase.h"
-#include "CgnsBaseUtil.h"
 #include "CgnsZone.h"
-#include "StrUtil.h"
 #include "Stop.h"
 #include "Prj.h"
-#include "Dimension.h"
-#include "GridPara.h"
-#include "GridMediator.h"
 #include <iostream>
 using namespace std;
 
@@ -76,12 +70,6 @@ int CgnsZbase::GetSystemZoneType()
         return * zoneTypeSet.begin();
     }
     return ZoneTypeUserDefined;
-}
-
-
-void CgnsZbase::ReadCgnsGrid()
-{
-    this->ReadCgnsGrid( grid_para.gridFile );
 }
 
 void CgnsZbase::ReadCgnsGrid( const string & fileName )
@@ -131,29 +119,6 @@ void CgnsZbase::ReadCgnsMultiBase()
         cgnsBase->ReadNumberOfCgnsZones();
         cgnsBase->AllocateAllCgnsZones();
         cgnsBase->ReadAllCgnsZones();
-    }
-}
-
-//void CgnsZbase::DumpCgnsMultiBase( GridMediatorS * gridMediatorS )
-//{
-//    ONEFLOW::CreateDefaultCgnsZones( this, gridMediatorS );
-//
-//    for ( int iBase = 0; iBase < this->nBases; ++ iBase )
-//    {
-//        CgnsBase * cgnsBase = this->GetCgnsBase( iBase );
-//        GridMediator * gridMediator = gridMediatorS->GetGridMediator( iBase );
-//        ONEFLOW::DumpBase( cgnsBase, gridMediator );
-//    }
-//}
-
-void CgnsZbase::PrepareCgnsZone( GridMediatorS * gridMediatorS )
-{
-    for ( int iBase = 0; iBase < this->nBases; ++ iBase )
-    {
-        CgnsBase * cgnsBase = this->GetCgnsBase( iBase );
-        GridMediator * gridMediator = gridMediatorS->GetGridMediator( iBase );
-
-        ONEFLOW::PrepareCgnsZone( cgnsBase, gridMediator );
     }
 }
 

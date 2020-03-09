@@ -78,7 +78,7 @@ void CgnsFactory::GenerateGrid()
 void CgnsFactory::ReadCgnsGrid()
 {
     cgns_global.cgnsbases = cgnsZbase;
-    cgnsZbase->ReadCgnsGrid();
+    cgnsZbase->ReadCgnsGrid( grid_para.gridFile );
 }
 
 void CgnsFactory::DumpCgnsGrid( GridMediatorS * gridMediators )
@@ -147,12 +147,12 @@ void CgnsFactory::CgnsToOneFlowGrid()
 
 void CgnsFactory::CreateCgnsZone( GridMediatorS * gridMediators )
 {
-   ONEFLOW::CreateDefaultCgnsZones( cgnsZbase, gridMediators );
+    ONEFLOW::CreateDefaultCgnsZones( cgnsZbase, gridMediators );
 }
 
 void CgnsFactory::PrepareCgnsZone( GridMediatorS * gridMediators )
 {
-    cgnsZbase->PrepareCgnsZone( gridMediators );
+    ONEFLOW::PrepareCgnsZone( cgnsZbase, gridMediators );
 }
 
 void CgnsFactory::CommonToUnsGrid()
