@@ -83,10 +83,10 @@ void CgnsFactory::ReadCgnsGrid()
     cgnsZbase->ReadCgnsGrid( prjFileName );
 }
 
-void CgnsFactory::DumpCgnsGrid( GridMediatorS * gridMediators )
+void CgnsFactory::DumpCgnsGrid( ZgridMediator * zgridMediator )
 {
     cgns_global.cgnsbases = cgnsZbase;
-    ONEFLOW::DumpCgnsGrid( cgnsZbase, gridMediators );
+    ONEFLOW::DumpCgnsGrid( cgnsZbase, zgridMediator );
 }
 
 void CgnsFactory::ConvertStrCgns2UnsCgnsGrid()
@@ -147,14 +147,14 @@ void CgnsFactory::CgnsToOneFlowGrid()
     ONEFLOW::GenerateMultiZoneCompGrids( grids );
 }
 
-void CgnsFactory::CreateCgnsZone( GridMediatorS * gridMediators )
+void CgnsFactory::CreateCgnsZone( ZgridMediator * zgridMediator )
 {
-    ONEFLOW::CreateDefaultCgnsZones( cgnsZbase, gridMediators );
+    ONEFLOW::CreateDefaultCgnsZones( cgnsZbase, zgridMediator );
 }
 
-void CgnsFactory::PrepareCgnsZone( GridMediatorS * gridMediators )
+void CgnsFactory::PrepareCgnsZone( ZgridMediator * zgridMediator )
 {
-    ONEFLOW::PrepareCgnsZone( cgnsZbase, gridMediators );
+    ONEFLOW::PrepareCgnsZone( cgnsZbase, zgridMediator );
 }
 
 void CgnsFactory::CommonToUnsGrid()
@@ -209,12 +209,12 @@ void CgnsFactory::CommonToUnsGrid()
 
 void CgnsFactory::ReadGridAndConvertToUnsCgnsZone()
 {
-    GridMediatorS gridMediators;
-    gridMediators.ReadGrid();
+    ZgridMediator zgridMediator;
+    zgridMediator.ReadGrid();
 
     //create multi cgns zone
-    this->CreateCgnsZone( & gridMediators );
-    this->PrepareCgnsZone( & gridMediators );
+    this->CreateCgnsZone( & zgridMediator );
+    this->PrepareCgnsZone( & zgridMediator );
 }
 
 void CgnsFactory::CommonToUnsGridTEST()
@@ -327,7 +327,7 @@ void CgnsFactory::GenerateUnsCompGrid()
 
 void CgnsFactory::CreateDefaultZone( int nZone )
 {
-    GridMediatorS * gridMediatorS = new GridMediatorS();
+    ZgridMediator * gridMediatorS = new ZgridMediator();
     gridMediatorS->CreateSimple( nZone );
     ONEFLOW::CreateDefaultCgnsZones( cgnsZbase, gridMediatorS );
     delete gridMediatorS;

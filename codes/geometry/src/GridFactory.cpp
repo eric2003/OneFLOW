@@ -129,12 +129,12 @@ void GridFactory::Plot3DProcess()
     {
         CgnsFactory * cgnsFactory = new CgnsFactory();
 
-        GridMediatorS gridMediators;
-        gridMediators.SetDeleteFlag( true );
+        ZgridMediator zgridMediator;
+        zgridMediator.SetDeleteFlag( true );
 
-        Plot3D::Plot3DToCgns( & gridMediators );
+        Plot3D::Plot3DToCgns( & zgridMediator );
 
-        cgnsFactory->DumpCgnsGrid( & gridMediators );
+        cgnsFactory->DumpCgnsGrid( & zgridMediator );
 
         delete cgnsFactory;
     }

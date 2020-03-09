@@ -42,7 +42,7 @@ class GridElem;
 class GridElemS;
 class Su2Grid;
 class GridMediator;
-class GridMediatorS;
+class ZgridMediator;
 
 #ifdef ENABLE_CGNS
 
@@ -59,7 +59,7 @@ public:
 public:
     void GenerateGrid();
     void ReadCgnsGrid();
-    void DumpCgnsGrid( GridMediatorS * gridMediators );
+    void DumpCgnsGrid( ZgridMediator * zgridMediator );
 public:
     void CommonToOneFlowGrid();
     void CommonToUnsGrid();
@@ -67,8 +67,8 @@ public:
     void CommonToUnsGridTEST();
     void ReadGridAndConvertToUnsCgnsZone();
 public:
-    void CreateCgnsZone( GridMediatorS * gridMediators );
-    void PrepareCgnsZone( GridMediatorS * gridMediators );
+    void CreateCgnsZone( ZgridMediator * zgridMediator );
+    void PrepareCgnsZone( ZgridMediator * zgridMediator );
     void CreateDefaultZone( int nZone );
     CgnsZone * CreateOneUnsCgnsZone( int cgnsZoneId );
 public:
