@@ -39,8 +39,7 @@ class Grid;
 class CgnsZbase;
 class CgnsZone;
 class GridElem;
-class GridElemS;
-class Su2Grid;
+class ZgridElem;
 class GridMediator;
 class ZgridMediator;
 
@@ -53,7 +52,7 @@ public:
     ~CgnsFactory();
 public:
     CgnsZbase * cgnsZbase;
-    GridElemS * gridElemS;
+    ZgridElem * zgridElem;
     int nZone;
     int nOriZone;
 public:

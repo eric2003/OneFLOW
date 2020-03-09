@@ -337,12 +337,12 @@ void GridElem::ReorderLink( UnsGrid * grid )
     faceTopo->rCell = faceTopo->rCellNew;
 }
 
-GridElemS::GridElemS()
+ZgridElem::ZgridElem()
 {
     ;
 }
 
-GridElemS::~GridElemS()
+ZgridElem::~ZgridElem()
 {
     for ( int i = 0; i < this->data.size(); ++ i )
     {
@@ -350,18 +350,18 @@ GridElemS::~GridElemS()
     }
 }
 
-void GridElemS::AddGridElem( GridElem * gridElem )
+void ZgridElem::AddGridElem( GridElem * gridElem )
 {
     this->data.push_back( gridElem );
 }
 
-void GridElemS::AddGridElem( HXVector< CgnsZone * > cgnsZones, int iZone )
+void ZgridElem::AddGridElem( HXVector< CgnsZone * > cgnsZones, int iZone )
 {
     GridElem * gridElem = new GridElem( cgnsZones, iZone );
     this->AddGridElem( gridElem );
 }
 
-GridElem * GridElemS::GetGridElem( int iGridElem )
+GridElem * ZgridElem::GetGridElem( int iGridElem )
 {
     return this->data[ iGridElem ];
 }

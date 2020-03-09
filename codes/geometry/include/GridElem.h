@@ -64,11 +64,11 @@ public:
     void ReorderLink( UnsGrid * grid );
 };
 
-class GridElemS
+class ZgridElem
 {
 public:
-    GridElemS();
-    ~GridElemS();
+    ZgridElem();
+    ~ZgridElem();
 public:
     HXVector< GridElem * > data;
 public:

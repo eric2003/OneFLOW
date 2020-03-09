@@ -60,14 +60,14 @@ BeginNameSpace( ONEFLOW )
 CgnsFactory::CgnsFactory()
 {
     this->cgnsZbase = new CgnsZbase();
-    this->gridElemS = new GridElemS();
+    this->zgridElem = new ZgridElem();
     this->nZone = 0;
 }
 
 CgnsFactory::~CgnsFactory()
 {
     delete this->cgnsZbase;
-    delete this->gridElemS;
+    delete this->zgridElem;
 }
 
 void CgnsFactory::GenerateGrid()
@@ -137,7 +137,7 @@ void CgnsFactory::CgnsToOneFlowGrid()
 
     for ( int iZone = 0; iZone < this->nZone; ++ iZone )
     {
-        GridElem * gridElem = gridElemS->GetGridElem( iZone );
+        GridElem * gridElem = zgridElem->GetGridElem( iZone );
         Grid * grid = gridElem->grid;
         grids.push_back( grid );
     }
@@ -231,7 +231,7 @@ void CgnsFactory::CommonToUnsGridTEST()
 
     for ( int iZone = 0; iZone < this->nZone; ++ iZone )
     {
-        GridElem * gridElem = gridElemS->GetGridElem( iZone );
+        GridElem * gridElem = zgridElem->GetGridElem( iZone );
         Grid * grid = gridElem->grid;
         grids.push_back( grid );
     }
@@ -247,7 +247,7 @@ void CgnsFactory::CgnsToOneFlowGrid( Grid *& grid, int zId )
 
     this->GenerateCompGrid();
 
-    GridElem * gridElem = gridElemS->GetGridElem( 0 );
+    GridElem * gridElem = zgridElem->GetGridElem( 0 );
     grid = gridElem->grid;
     grid->id = zId;
 }
@@ -269,7 +269,7 @@ void CgnsFactory::AllocateGridElem()
 
         for ( int iZone = 0; iZone < this->nZone; ++ iZone )
         {
-            gridElemS->AddGridElem( cgnsZones, iZone );
+            zgridElem->AddGridElem( cgnsZones, iZone );
         }
 
     }
@@ -282,7 +282,7 @@ void CgnsFactory::AllocateGridElem()
             HXVector< CgnsZone * > cgnsZones;
             cgnsZones.push_back( cgnsZbase->GetCgnsZone( iZone ) );
 
-            gridElemS->AddGridElem( cgnsZones, iZone );
+            zgridElem->AddGridElem( cgnsZones, iZone );
         }
     }
 }
@@ -291,7 +291,7 @@ void CgnsFactory::PrepareUnsCompGrid()
 {
     for ( int iZone = 0; iZone < this->nZone; ++ iZone )
     {
-        GridElem * gridElem = gridElemS->GetGridElem( iZone );
+        GridElem * gridElem = zgridElem->GetGridElem( iZone );
         gridElem->PrepareUnsCompGrid();
     }
 }
@@ -320,7 +320,7 @@ void CgnsFactory::GenerateUnsCompGrid()
 {
     for ( int iZone = 0; iZone < this->nZone; ++ iZone )
     {
-        GridElem * gridElem = gridElemS->GetGridElem( iZone );
+        GridElem * gridElem = zgridElem->GetGridElem( iZone );
         gridElem->GenerateCompGrid();
     }
 }
