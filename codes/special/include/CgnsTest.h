@@ -23,6 +23,8 @@ License
 
 #pragma once
 #include "HXDefine.h"
+#include <string>
+using namespace std;
 
 BeginNameSpace( ONEFLOW )
 
@@ -33,13 +35,29 @@ public:
     ~CgnsTest();
 public:
     string fileName;
+    int index_file;
+    int curr_base_id;
 public:
+    void Init();
     void Run();
     void Test();
+public:
+    void SetDefaultGridName();
     void ReadNondimensionalParameter();
     void WriteNondimensionalParameter();
-
     void WriteDescriptor();
+    void WriteSimpleMultiBaseTest();
+    void WriteBase( const string & baseName );
+    void WriteBase( const string & baseName, int celldim, int physdim );
+public:
+    void OpenCgnsFile( int cgnsOpenMode );
+    void OpenCgnsFile( const string & fileName, int cgnsOpenMode );
+    void CloseCgnsFile();
+    string GetCgnsFileTypeName( int file_type );
+public:
+    void ReadEmptyCgnsFile();
+    void WriteEmptyCgnsFile();
+
 };
 
 

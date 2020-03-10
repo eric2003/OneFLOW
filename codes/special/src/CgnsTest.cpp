@@ -1,4 +1,4 @@
-/*---------------------------------------------------------------------------*\
+/*-----------------------this->----------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
     Copyright (C) 2017-2020 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
@@ -25,6 +25,7 @@ License
 #include "Prj.h"
 #include "CgnsZone.h"
 #include <iostream>
+#include <iomanip>
 using namespace std;
 
 BeginNameSpace( ONEFLOW )
@@ -39,17 +40,20 @@ CgnsTest::~CgnsTest()
     ;
 }
 
+void CgnsTest::Init()
+{
+    this->SetDefaultGridName();
+}
+
 void CgnsTest::Run()
 {
-    //CgnsFactory * cgnsFactory = new CgnsFactory();
+    this->Init();
 
-    //string filename = "test";
-    //delete cgnsFactory;
-
-    //this->Test();
-
-    this->ReadNondimensionalParameter();
+    //this->ReadNondimensionalParameter();
     //this->WriteDescriptor();
+    //this->WriteSimpleMultiBaseTest();
+    //this->WriteEmptyCgnsFile();
+    this->ReadEmptyCgnsFile();
  }
 
 void CgnsTest::Test()
@@ -58,11 +62,7 @@ void CgnsTest::Test()
 
 void CgnsTest::ReadNondimensionalParameter()
 {
-    string gridName = "/grid/grid_c.cgns";
-    string prjFileName = ONEFLOW::GetPrjFileName( gridName );
-    cout << " prjFileName = " << prjFileName << "\n";
-
-    int index_file, index_base;
+    int index_base;
 
     double data;
     int narrays, n, idim;
@@ -71,7 +71,7 @@ void CgnsTest::ReadNondimensionalParameter()
     CGNS_ENUMT(DataType_t) idata;
     cgsize_t idimvec;
 
-    if ( cg_open( prjFileName.c_str(), CG_MODE_READ, &index_file ) != CG_OK )
+    if ( cg_open( this->fileName.c_str(), CG_MODE_READ, &index_file ) != CG_OK )
     {
         cg_error_exit();
     }
@@ -129,6 +129,30 @@ void CgnsTest::ReadNondimensionalParameter()
     cg_close(index_file);
 }
 
+void CgnsTest::SetDefaultGridName()
+{
+    string gridName = "/grid/oneflow.cgns";
+    string prjFileName = ONEFLOW::GetPrjFileName( gridName );
+    cout << " CGNS file name = " << prjFileName << "\n";
+
+    this->fileName = prjFileName;
+}
+
+void CgnsTest::WriteBase( const string & baseName )
+{
+    int celldim = 3;
+    int physdim = 3;
+    this->WriteBase(baseName, celldim, physdim );
+}
+
+void CgnsTest::WriteBase( const string & baseName, int celldim, int physdim )
+{
+    int index_base = -1;
+    cg_base_write( index_file, baseName.c_str(), celldim, physdim, & index_base );
+    cout << " index_base = " << index_base << "\n";
+    curr_base_id = index_base;
+}
+
 void CgnsTest::WriteNondimensionalParameter()
 {
     double xmach,reue,xmv,xmc,rev,rel,renu,rho0;
@@ -161,11 +185,8 @@ void CgnsTest::WriteNondimensionalParameter()
     nuse=1;
     // WRITE NONDIMENSIONAL INFO
     /* open CGNS file for modify */
-    string gridName = "/grid/grid_c.cgns";
-    string prjFileName = ONEFLOW::GetPrjFileName( gridName );
-    cout << " prjFileName = " << prjFileName << "\n";
 
-    if ( cg_open( prjFileName.c_str(), CG_MODE_WRITE, &index_file ) != CG_OK )
+    if ( cg_open( this->fileName.c_str(), CG_MODE_WRITE, &index_file ) != CG_OK )
     {
         cg_error_exit();
     }
@@ -228,37 +249,130 @@ void CgnsTest::WriteNondimensionalParameter()
 
 }
 
+void CgnsTest::WriteSimpleMultiBaseTest()
+{
+    if ( cg_open( this->fileName.c_str(), CG_MODE_WRITE, & index_file ) )
+    {
+        cg_error_exit();
+    }
+
+    //this->WriteBase( "base1" );
+    //this->WriteBase( "base2" );
+    //this->WriteBase( "base3" );
+    //this->WriteBase( "base4" );
+
+    this->WriteBase( "base1" );
+    this->WriteBase( "base2", 2, 3 );
+    this->WriteBase( "base3", 3, 2 );
+    this->WriteBase( "base4", 1, 3 );
+
+    cg_close( index_file );
+}
+
 void CgnsTest::WriteDescriptor()
 {
-    string gridName = "/grid/grid_c.cgns";
-    string prjFileName = ONEFLOW::GetPrjFileName( gridName );
-    cout << " prjFileName = " << prjFileName << "\n";
-
-    this->fileName = prjFileName;
-
-    int index_file,index_base;
-    char textstring[74];
-
     cout << "Program write_descriptor\n";
 
-    //if ( cg_open( this->fileName.c_str(), CG_MODE_MODIFY, &index_file ) )
     if ( cg_open( this->fileName.c_str(), CG_MODE_WRITE, &index_file ) )
     {
         cg_error_exit();
     }
-    index_base = 1;
-    cg_goto( index_file, index_base, "end" );
 
-    /* write descriptor node (user can give any name) */
-    string a = "Supersonic vehicle with landing gear\n";
-    string b = "M=4.6, Re=6 million";
-    string c = a + b;
+    this->WriteBase( "base1" );
+    cout << " curr_base_id = " << curr_base_id << "\n";
+    cg_goto( index_file, curr_base_id, "end" );
+    cg_descriptor_write("Information","info1");
+    this->WriteBase( "base2" );
+    cout << " curr_base_id = " << curr_base_id << "\n";
+    cg_goto( index_file, curr_base_id, "end" );
+    cg_descriptor_write("Information","info2");
+    this->WriteBase( "base3" );
+    cout << " curr_base_id = " << curr_base_id << "\n";
+    cg_goto( index_file, curr_base_id, "end" );
+    cg_descriptor_write("Test","info3");
 
-    //cg_descriptor_write("Information",textstring);
-    cg_descriptor_write("Information",c.c_str());
+    //int index_base = 1;
+    //cg_goto( index_file, index_base, "end" );
+
+    //string a = "Supersonic vehicle with landing gear\n";
+    //string b = "M=4.6, Re=6 million";
+    //string c = a + b;
+
+    //cg_descriptor_write("Information",c.c_str());
     cg_close(index_file);
 
     cout << "Successfully wrote descriptor node to file " << this->fileName << "\n";
+}
+
+string CgnsTest::GetCgnsFileTypeName( int file_type )
+{
+    string fileTypeName;
+    if ( file_type == CG_FILE_ADF )
+    {
+        fileTypeName = "CG_FILE_ADF";
+    }
+    else if ( file_type == CG_FILE_HDF5 )
+    {
+        fileTypeName = "CG_FILE_HDF5";
+    }
+    else if ( file_type == CG_FILE_ADF2 )
+    {
+        fileTypeName = "CG_FILE_ADF2";
+    }
+    else
+    {
+        fileTypeName = "CG_FILE_NONE";
+    }
+    return fileTypeName;
+}
+
+
+void CgnsTest::OpenCgnsFile( int cgnsOpenMode )
+{
+    this->OpenCgnsFile( this->fileName, cgnsOpenMode );
+}
+
+void CgnsTest::OpenCgnsFile( const string & fileName, int cgnsOpenMode )
+{
+    int result = cg_open( fileName.c_str(), cgnsOpenMode, & index_file );
+    cout << " Cgns file index = " << index_file << "\n";
+    if ( result != CG_OK )
+    {
+        cg_error_exit();
+    }
+}
+
+void CgnsTest::CloseCgnsFile()
+{
+    cg_close( index_file );
+}
+
+void CgnsTest::WriteEmptyCgnsFile()
+{
+    this->OpenCgnsFile( CG_MODE_WRITE );
+    this->CloseCgnsFile();
+}
+
+void CgnsTest::ReadEmptyCgnsFile()
+{
+    this->OpenCgnsFile( CG_MODE_READ );
+
+    float fileVersion = -1;
+    cg_version( index_file, & fileVersion );
+
+    cout << " CGNS File Version = " << setiosflags( ios::fixed ) << setprecision( 4 ) << fileVersion << "\n";
+
+    int precision = -1;
+    cg_precision( index_file, & precision );
+
+    cout << " CGNS precision = " << precision << "\n";
+
+    int file_type = -1;
+    cg_get_file_type( index_file, & file_type );
+
+    cout << " CGNS file_type = " << file_type << " file_type name = " << GetCgnsFileTypeName( file_type ) << "\n";
+
+    this->CloseCgnsFile();
 }
 
 
