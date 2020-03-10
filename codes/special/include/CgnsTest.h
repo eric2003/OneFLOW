@@ -37,6 +37,7 @@ public:
     void Run();
     void Test();
     void ReadNondimensionalParameter();
+    void WriteNondimensionalParameter();
 
     void WriteDescriptor();
 };

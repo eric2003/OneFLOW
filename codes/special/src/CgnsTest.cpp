@@ -46,11 +46,15 @@ void CgnsTest::Run()
     //string filename = "test";
     //delete cgnsFactory;
 
-    this->Test();
+    //this->Test();
 
-    //this->ReadNondimensionalParameter();
+    this->ReadNondimensionalParameter();
     //this->WriteDescriptor();
  }
+
+void CgnsTest::Test()
+{
+}
 
 void CgnsTest::ReadNondimensionalParameter()
 {
@@ -125,7 +129,7 @@ void CgnsTest::ReadNondimensionalParameter()
     cg_close(index_file);
 }
 
-void CgnsTest::Test()
+void CgnsTest::WriteNondimensionalParameter()
 {
     double xmach,reue,xmv,xmc,rev,rel,renu,rho0;
     double p0,c0,vm0,xlength0,vx,vy,vz;
@@ -246,10 +250,12 @@ void CgnsTest::WriteDescriptor()
     cg_goto( index_file, index_base, "end" );
 
     /* write descriptor node (user can give any name) */
+    string a = "Supersonic vehicle with landing gear\n";
+    string b = "M=4.6, Re=6 million";
+    string c = a + b;
 
-    strcpy(textstring,"Supersonic vehicle with landing gear\n");
-    strcat(textstring,"M=4.6, Re=6 million");
-    cg_descriptor_write("Information",textstring);
+    //cg_descriptor_write("Information",textstring);
+    cg_descriptor_write("Information",c.c_str());
     cg_close(index_file);
 
     cout << "Successfully wrote descriptor node to file " << this->fileName << "\n";
