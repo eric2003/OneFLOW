@@ -19,31 +19,27 @@ License
     along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 
 \*---------------------------------------------------------------------------*/
+
+
 #pragma once
-#include "Configure.h"
-#include <fstream>
-#include <string>
-using namespace std;
+#include "HXDefine.h"
 
 BeginNameSpace( ONEFLOW )
 
-class PrjStatus
+class CgnsTest
 {
 public:
-    PrjStatus();
-    ~PrjStatus();
+    CgnsTest();
+    ~CgnsTest();
 public:
-    static string prjBaseDir;
-    static void SetPrjBaseDir( const string & prjName );
+    string fileName;
+public:
+    void Run();
+    void Test();
+    void ReadNondimensionalParameter();
+
+    void WriteDescriptor();
 };
 
-bool EndWithForwardSlash( const string & fileName );
-bool StartWithForwardSlash( const string & fileName );
-
-void MakePrjDir( const string & dirName );
-
-void OpenPrjFile( fstream & file, const string & fileName, const ios_base::openmode & openMode );
-
-string GetPrjFileName( const string & fileName );
 
 EndNameSpace

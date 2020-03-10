@@ -51,6 +51,7 @@ void PrjStatus::SetPrjBaseDir( const string & prjName )
         ONEFLOW::StrIO << "/";
     }
     PrjStatus::prjBaseDir = ONEFLOW::StrIO.str();
+    cout << " PrjStatus::prjBaseDir =  " << PrjStatus::prjBaseDir << "\n";
 }
 
 bool EndWithForwardSlash( const string & fileName )
@@ -68,6 +69,20 @@ bool EndWithForwardSlash( const string & fileName )
     }
 }
 
+bool StartWithForwardSlash( const string & fileName )
+{
+    size_t pos = fileName.find_first_of("/");
+    if ( fileName.size() == 0 )
+    {
+        return false;
+    }
+
+    if ( fileName.substr( 0,1 ) == "/" )
+    {
+        return true;
+    }
+    return false;
+}
 
 void MakePrjDir( const string & dirName )
 {
@@ -90,10 +105,23 @@ void OpenPrjFile( fstream & file, const string & fileName, const ios_base::openm
     ONEFLOW::OpenFile( file, prjFileName, openMode );
 }
 
+string RemoveFirstSlash( const string & fileName )
+{
+    if ( StartWithForwardSlash( fileName ) )
+    {
+        int len = fileName.size();
+        return fileName.substr( 1, len - 1 );
+    }
+    return fileName;
+}
+
 string GetPrjFileName( const string & fileName )
 {
     ONEFLOW::StrIO.ClearAll();
-    ONEFLOW::StrIO << PrjStatus::prjBaseDir << fileName;
+
+    string fileNameNew = RemoveFirstSlash( fileName );
+
+    ONEFLOW::StrIO << PrjStatus::prjBaseDir << fileNameNew;
 
     string prjFileName = ONEFLOW::StrIO.str();
 

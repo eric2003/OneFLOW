@@ -29,6 +29,7 @@ License
 #include "Cavity.h"
 #include "Rae2822.h"
 #include "Cylinder.h"
+#include "CgnsTest.h"
 #include <iostream>
 using namespace std;
 
@@ -76,6 +77,12 @@ void ClassicGrid::Run()
         Cylinder * cylinder = new Cylinder();
         cylinder->Run( igene );
         delete cylinder;
+    }
+    else if ( igene == 5 )
+    {
+        CgnsTest * cgnsTest = new CgnsTest();
+        cgnsTest->Run();
+        delete cgnsTest;
     }
 }
 

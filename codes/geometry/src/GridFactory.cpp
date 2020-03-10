@@ -58,7 +58,7 @@ void GridFactory::Run()
 {
     grid_para.Init();
 
-    switch (grid_para.gridObj)
+    switch ( grid_para.gridObj )
     {
     case 0: //生成一些基本外形的网格，如方腔，圆柱，RAE2822翼型等等
         this->DataBaseGrid();
