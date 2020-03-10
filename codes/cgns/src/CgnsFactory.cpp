@@ -327,10 +327,10 @@ void CgnsFactory::GenerateUnsCompGrid()
 
 void CgnsFactory::CreateDefaultZone( int nZone )
 {
-    ZgridMediator * gridMediatorS = new ZgridMediator();
-    gridMediatorS->CreateSimple( nZone );
-    ONEFLOW::CreateDefaultCgnsZones( cgnsZbase, gridMediatorS );
-    delete gridMediatorS;
+    ZgridMediator * zgridMediator = new ZgridMediator();
+    zgridMediator->CreateSimple( nZone );
+    ONEFLOW::CreateDefaultCgnsZones( cgnsZbase, zgridMediator );
+    delete zgridMediator;
 
 }
 

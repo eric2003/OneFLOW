@@ -34,10 +34,10 @@ class ZgridMediator;
 void ReadNumCgnsBase( CgnsZbase * myCgnsZbase, CgnsZbase * strCgnsMultiBase );
 void ReadCgnsMultiBase( CgnsZbase * myCgnsZbase, CgnsZbase * strCgnsMultiBase );
 void ConvertStrCgns2UnsCgnsGrid( CgnsZbase * myCgnsZbase, CgnsZbase * strCgnsMultiBase );
-void CreateDefaultCgnsZones( CgnsZbase * myCgnsZbase, ZgridMediator * gridMediatorS );
-void DumpCgnsMultiBase( CgnsZbase * myCgnsZbase, ZgridMediator * gridMediatorS );
+void CreateDefaultCgnsZones( CgnsZbase * myCgnsZbase, ZgridMediator * zgridMediator );
+void DumpCgnsMultiBase( CgnsZbase * myCgnsZbase, ZgridMediator * zgridMediator );
 void DumpCgnsGrid( CgnsZbase * myCgnsZbase, ZgridMediator * zgridMediator );
-void PrepareCgnsZone( CgnsZbase * myCgnsZbase, ZgridMediator * gridMediatorS );
+void PrepareCgnsZone( CgnsZbase * myCgnsZbase, ZgridMediator * zgridMediator );
 
 #endif
 
