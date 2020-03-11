@@ -28,6 +28,8 @@ using namespace std;
 
 BeginNameSpace( ONEFLOW )
 
+class CgnsBase;
+
 class CgnsTest
 {
 public:
@@ -37,6 +39,8 @@ public:
     string fileName;
     int index_file;
     int curr_base_id;
+    int nBases;
+    HXVector< CgnsBase * > baseList;
 public:
     void Init();
     void Run();
@@ -46,14 +50,20 @@ public:
     void ReadNondimensionalParameter();
     void WriteNondimensionalParameter();
     void WriteDescriptor();
+    void ReadDescriptor();
+    void ReadBaseDescriptor( int baseIndex );
     void WriteSimpleMultiBaseTest();
-    void WriteBase( const string & baseName );
-    void WriteBase( const string & baseName, int celldim, int physdim );
+    void ReadSimpleMultiBaseTest();
 public:
     void OpenCgnsFile( int cgnsOpenMode );
     void OpenCgnsFile( const string & fileName, int cgnsOpenMode );
     void CloseCgnsFile();
     string GetCgnsFileTypeName( int file_type );
+    void WriteBase( const string & baseName );
+    void WriteBase( const string & baseName, int celldim, int physdim );
+public:
+    void WriteDouble( const string & varName, const double & varValue );
+    void GotoBaseBegin( int baseIndex );
 public:
     void ReadEmptyCgnsFile();
     void WriteEmptyCgnsFile();

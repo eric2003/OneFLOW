@@ -49,91 +49,25 @@ void CgnsTest::Run()
 {
     this->Init();
 
-    //this->ReadNondimensionalParameter();
-    //this->WriteDescriptor();
     //this->WriteSimpleMultiBaseTest();
+    //this->ReadSimpleMultiBaseTest();
     //this->WriteEmptyCgnsFile();
-    this->ReadEmptyCgnsFile();
+    //this->ReadEmptyCgnsFile();
+    //this->WriteDescriptor();
+    //this->ReadDescriptor();
+    //this->WriteNondimensionalParameter();
+    this->ReadNondimensionalParameter();
  }
 
 void CgnsTest::Test()
 {
 }
 
-void CgnsTest::ReadNondimensionalParameter()
-{
-    int index_base;
-
-    double data;
-    int narrays, n, idim;
-    char *state,arrayname[33];
-    CGNS_ENUMT(DataClass_t) id;
-    CGNS_ENUMT(DataType_t) idata;
-    cgsize_t idimvec;
-
-    if ( cg_open( this->fileName.c_str(), CG_MODE_READ, &index_file ) != CG_OK )
-    {
-        cg_error_exit();
-    }
-
-    float fileVersion = -1;
-
-    cg_version( index_file, & fileVersion );
-
-    int precision = -1;
-    cg_precision( index_file, & precision );
-
-    int file_type = -1;
-    cg_get_file_type( index_file, & file_type );
-
-    int ndescriptors = -1;
-    cg_ndescriptors( & ndescriptors );
-
-    //#define CG_FILE_NONE  0
-    //#define CG_FILE_ADF   1
-    //#define CG_FILE_HDF5  2
-    //#define CG_FILE_ADF2  3
-
-    index_base=1;
-    /* read DataClass under Base */
-    cg_goto(index_file,index_base,"end");
-    cg_dataclass_read( & id );
-
-    cout << "DataClass = " << DataClassName[ id ] << "\n";
-    if ( id != CGNS_ENUMV( NormalizedByUnknownDimensional ) )
-    {
-        cout << "Error!  Expecting NormalizedByUnknownDimensional\n";
-        return;
-    }
-    /* read ReferenceState under Base */
-    cg_state_read( & state );
-    cout << "ReferenceState = " << state << "\n";
-    /* Go to ReferenceState node, read Mach array and its dataclass */
-    cg_goto(index_file,index_base,"ReferenceState_t",1,"end");
-    /* find out how many data arrays */
-    cg_narrays( &narrays );
-    for ( n=1; n <= narrays; n ++ )
-    {
-        cg_array_info(n,arrayname,&idata,&idim,&idimvec);
-        if (idim != 1 || idimvec != 1)
-        {
-            cout << "Error! expecting idim,idimvec=1,1\n";
-            cout << "   they are idim,idimvec= " << idim << "," << (int)(idimvec) << "\n";
-            return;
-        }
-        cg_array_read_as(n,CGNS_ENUMV(RealDouble),&data);
-        cout << "Variable = " << arrayname << "\n";
-        cout << "   data = " << data << "\n";
-    }
-
-    cg_close(index_file);
-}
-
 void CgnsTest::SetDefaultGridName()
 {
     string gridName = "/grid/oneflow.cgns";
     string prjFileName = ONEFLOW::GetPrjFileName( gridName );
-    cout << " CGNS file name = " << prjFileName << "\n";
+    cout << " CGNS File Name = " << prjFileName << "\n";
 
     this->fileName = prjFileName;
 }
@@ -142,166 +76,125 @@ void CgnsTest::WriteBase( const string & baseName )
 {
     int celldim = 3;
     int physdim = 3;
-    this->WriteBase(baseName, celldim, physdim );
+    this->WriteBase( baseName, celldim, physdim );
 }
 
 void CgnsTest::WriteBase( const string & baseName, int celldim, int physdim )
 {
     int index_base = -1;
     cg_base_write( index_file, baseName.c_str(), celldim, physdim, & index_base );
-    cout << " index_base = " << index_base << "\n";
+    cout << " CGNS Base index = " << index_base << "\n";
     curr_base_id = index_base;
-}
-
-void CgnsTest::WriteNondimensionalParameter()
-{
-    double xmach,reue,xmv,xmc,rev,rel,renu,rho0;
-    double p0,c0,vm0,xlength0,vx,vy,vz;
-    double gamma;
-    int index_file,index_base;
-    CGNS_ENUMT(DataClass_t) idata;
-    cgsize_t nuse;
-
-    cout << "\n";
-    cout << "Program write_nondimensional\n";
-
-    //define nondimensional parameters
-    xmach=4.6;
-    reue=6000000.;
-    xmv=xmach;
-    xmc=1.;
-    rev=xmach;
-    rel=1.;
-    renu=xmach/reue;
-    rho0=1.;
-    gamma=1.4;
-    p0=1./gamma;
-    c0=1.;
-    vm0=xmach/reue;
-    xlength0=1.;
-    vx=xmach;
-    vy=0.;
-    vz=0.;
-    nuse=1;
-    // WRITE NONDIMENSIONAL INFO
-    /* open CGNS file for modify */
-
-    if ( cg_open( this->fileName.c_str(), CG_MODE_WRITE, &index_file ) != CG_OK )
-    {
-        cg_error_exit();
-    }
-    string baseName = "base";
-    int celldim = 3;
-    int phydim = 3;
-    index_base = -1;
-    cg_base_write( index_file, baseName.c_str(), celldim, phydim, & index_base );
-    //put DataClass under Base
-    cg_goto(index_file,index_base,"end");
-    cg_dataclass_write( CGNS_ENUMV( NormalizedByUnknownDimensional ) );
-
-    //put ReferenceState under Base
-    cg_state_write("ReferenceQuantities");
-    //Go to ReferenceState node, write Mach array and its dataclass
-    cg_goto(index_file,index_base,"ReferenceState_t",1,"end");
-    cg_array_write("Mach",CGNS_ENUMV(RealDouble),1,&nuse,&xmach);
-    cg_goto(index_file,index_base,"ReferenceState_t",1,"DataArray_t",1,"end");
-    cg_dataclass_write(CGNS_ENUMV(NondimensionalParameter));
-    //Go to ReferenceState node, write Reynolds array and its dataclass
-    cg_goto(index_file,index_base,"ReferenceState_t",1,"end");
-    cg_array_write("Reynolds",CGNS_ENUMV(RealDouble),1,&nuse,&reue);
-    cg_goto(index_file,index_base,"ReferenceState_t",1,"DataArray_t",2,"end");
-    cg_dataclass_write(CGNS_ENUMV(NondimensionalParameter));
-    //Go to ReferenceState node to write reference quantities
-    cg_goto(index_file,index_base,"ReferenceState_t",1,"end");
-    // First, write reference quantities that make up Mach and Reynolds:
-    //Mach_Velocity
-    cg_array_write("Mach_Velocity",CGNS_ENUMV(RealDouble),1,&nuse,&xmv);
-    //Mach_VelocitySound
-    cg_array_write("Mach_VelocitySound",CGNS_ENUMV(RealDouble),1,&nuse,&xmc);
-    //Reynolds_Velocity
-    cg_array_write("Reynolds_Velocity",CGNS_ENUMV(RealDouble),1,&nuse,&rev);
-    //Reynolds_Length
-    cg_array_write("Reynolds_Length",CGNS_ENUMV(RealDouble),1,&nuse,&rel);
-    //Reynolds_ViscosityKinematic
-    cg_array_write("Reynolds_ViscosityKinematic",CGNS_ENUMV(RealDouble),1,&nuse,&renu);
-
-    /* Next, write flow field reference quantities: */
-    /* Density */
-    cg_array_write("Density",CGNS_ENUMV(RealDouble),1,&nuse,&rho0);
-    /* Pressure */
-    cg_array_write("Pressure",CGNS_ENUMV(RealDouble),1,&nuse,&p0);
-    /* VelocitySound */
-    cg_array_write("VelocitySound",CGNS_ENUMV(RealDouble),1,&nuse,&c0);
-    /* ViscosityMolecular */
-    cg_array_write("ViscosityMolecular",CGNS_ENUMV(RealDouble),1,&nuse,&vm0);
-    /* LengthReference */
-    cg_array_write("LengthReference",CGNS_ENUMV(RealDouble),1,&nuse,&xlength0);
-    /* VelocityX */
-    cg_array_write("VelocityX",CGNS_ENUMV(RealDouble),1,&nuse,&vx);
-    /* VelocityY */
-    //cg_array_write("VelocityY",CGNS_ENUMV(RealDouble),1,&nuse,&vy);
-    /* VelocityZ */
-    cg_array_write("VelocityZ",CGNS_ENUMV(RealDouble),1,&nuse,&vz);
-    /* close CGNS file */
-    cg_close(index_file);
-    cout << "\n";
-    cout <<"Successfully wrote nondimensional info to file grid_c.cgns\n";
-
 }
 
 void CgnsTest::WriteSimpleMultiBaseTest()
 {
-    if ( cg_open( this->fileName.c_str(), CG_MODE_WRITE, & index_file ) )
-    {
-        cg_error_exit();
-    }
+    this->OpenCgnsFile( CG_MODE_WRITE );
 
     //this->WriteBase( "base1" );
     //this->WriteBase( "base2" );
     //this->WriteBase( "base3" );
     //this->WriteBase( "base4" );
 
-    this->WriteBase( "base1" );
-    this->WriteBase( "base2", 2, 3 );
-    this->WriteBase( "base3", 3, 2 );
-    this->WriteBase( "base4", 1, 3 );
+    //this->WriteBase( "base1" );
+    //this->WriteBase( "base2", 2, 3 );
+    //this->WriteBase( "base3", 3, 2 );
+    //this->WriteBase( "base4", 1, 3 );
 
-    cg_close( index_file );
+    this->WriteBase( "OneFLOW1" );
+    this->WriteBase( "OneFLOW 2" );
+    this->WriteBase( "CGNS base 3" );
+    this->WriteBase( "Fluid" );
+    this->WriteBase( "CAE library" );
+
+    this->CloseCgnsFile();
+}
+
+void CgnsTest::ReadSimpleMultiBaseTest()
+{
+    this->OpenCgnsFile( CG_MODE_READ );
+
+    //Determine the of bases in the grid
+    cg_nbases( this->index_file, & this->nBases );
+    cout << " Total number of CGNS Base = " << this->nBases << "\n";
+
+    for ( int iBase = 0; iBase < this->nBases; ++ iBase )
+    {
+        double double_base_id;
+        int baseId = iBase + 1;
+        char basename[ 33 ];
+        int cell_dim, phys_dim;
+        cg_base_id( this->index_file, baseId, & double_base_id );
+        cg_base_read( this->index_file, baseId, basename, & cell_dim, & phys_dim );
+        cout << " baseId = " << baseId << " double_base_id = " << double_base_id << " basename = " << basename << "\n";
+    }
+
+    this->CloseCgnsFile();
 }
 
 void CgnsTest::WriteDescriptor()
 {
+    this->OpenCgnsFile( CG_MODE_WRITE );
+
     cout << "Program write_descriptor\n";
-
-    if ( cg_open( this->fileName.c_str(), CG_MODE_WRITE, &index_file ) )
-    {
-        cg_error_exit();
-    }
-
     this->WriteBase( "base1" );
     cout << " curr_base_id = " << curr_base_id << "\n";
+
+    //cg_goto must be called or an error will occur
     cg_goto( index_file, curr_base_id, "end" );
     cg_descriptor_write("Information","info1");
+    cg_descriptor_write("hello world","haha ! hello world!");
+
     this->WriteBase( "base2" );
     cout << " curr_base_id = " << curr_base_id << "\n";
     cg_goto( index_file, curr_base_id, "end" );
-    cg_descriptor_write("Information","info2");
+    cg_descriptor_write("descript1","des1");
+    cg_descriptor_write("descript2","des1");
+    cg_descriptor_write("descript3","des1");
+
     this->WriteBase( "base3" );
     cout << " curr_base_id = " << curr_base_id << "\n";
     cg_goto( index_file, curr_base_id, "end" );
-    cg_descriptor_write("Test","info3");
+    cg_descriptor_write("mydes","mydes1");
+    cg_descriptor_write("mydes","mydes2");
+    cg_descriptor_write("mydes","mydes3");
 
-    //int index_base = 1;
-    //cg_goto( index_file, index_base, "end" );
+    this->CloseCgnsFile();
+}
 
-    //string a = "Supersonic vehicle with landing gear\n";
-    //string b = "M=4.6, Re=6 million";
-    //string c = a + b;
+void CgnsTest::ReadBaseDescriptor( int baseIndex )
+{
+    //go to base node
+    cg_goto( this->index_file, baseIndex, "end" );
 
-    //cg_descriptor_write("Information",c.c_str());
-    cg_close(index_file);
+    //find out how many descriptors are here:
+    int ndescriptors = -1;
+    cg_ndescriptors( & ndescriptors );
+    cout << " ndescriptors = " << ndescriptors << "\n";
+    for ( int n = 1; n <= ndescriptors; ++ n )
+    {
+        //read descriptor
+        char *text, name[33];
+        cg_descriptor_read( n, name, &text );
+        cout << "The descriptor is : " << name << "," << text << "\n";
+    }
+}
 
-    cout << "Successfully wrote descriptor node to file " << this->fileName << "\n";
+void CgnsTest::ReadDescriptor()
+{
+    this->OpenCgnsFile( CG_MODE_READ );
+
+    //Determine the of bases in the grid
+    cg_nbases( this->index_file, & this->nBases );
+    cout << " Total number of CGNS Base = " << this->nBases << "\n";
+
+    for ( int iBase = 0; iBase < this->nBases; ++ iBase )
+    {
+        int baseId = iBase + 1;
+        ReadBaseDescriptor( baseId );
+    }
+
+    this->CloseCgnsFile();
 }
 
 string CgnsTest::GetCgnsFileTypeName( int file_type )
@@ -335,7 +228,7 @@ void CgnsTest::OpenCgnsFile( int cgnsOpenMode )
 void CgnsTest::OpenCgnsFile( const string & fileName, int cgnsOpenMode )
 {
     int result = cg_open( fileName.c_str(), cgnsOpenMode, & index_file );
-    cout << " Cgns file index = " << index_file << "\n";
+    cout << " CGNS File Index = " << index_file << "\n";
     if ( result != CG_OK )
     {
         cg_error_exit();
@@ -365,7 +258,7 @@ void CgnsTest::ReadEmptyCgnsFile()
     int precision = -1;
     cg_precision( index_file, & precision );
 
-    cout << " CGNS precision = " << precision << "\n";
+    cout << " CGNS Precision = " << precision << "\n";
 
     int file_type = -1;
     cg_get_file_type( index_file, & file_type );
@@ -374,6 +267,147 @@ void CgnsTest::ReadEmptyCgnsFile()
 
     this->CloseCgnsFile();
 }
+
+void CgnsTest::WriteDouble( const string & varName, const double & varValue )
+{
+    int nDim = 1;
+    cgsize_t ndims[ 1 ] = { 1 };
+    cg_array_write( varName.c_str(), CGNS_ENUMV(RealDouble), nDim ,ndims, &varValue );
+}
+
+void CgnsTest::WriteNondimensionalParameter()
+{
+    double xmach,reue,xmv,xmc,rev,rel,renu,rho0;
+    double p0,c0,vm0,xlength0,vx,vy,vz;
+    double gamma;
+    //int index_file,index_base;
+    CGNS_ENUMT(DataClass_t) idata;
+
+    cout << "\n";
+    cout << "Program write_nondimensional\n";
+
+    //define nondimensional parameters
+    xmach    = 4.6;
+    reue     = 6000000.;
+    xmv      = xmach;
+    xmc      = 1.;
+    rev      = xmach;
+    rel      = 1.;
+    renu     = xmach / reue;
+    rho0     = 1.;
+    gamma    = 1.4;
+    p0       = 1./gamma;
+    c0       = 1.;
+    vm0      = xmach/reue;
+    xlength0 = 1.;
+    vx       = xmach;
+    vy       = 0.0;
+    vz       = 0.0;
+
+    this->OpenCgnsFile( CG_MODE_WRITE );
+
+    this->WriteBase( "base1" );
+
+    int index_base = this->curr_base_id;
+
+    //put DataClass under Base
+    cg_goto(index_file,index_base,"end");
+    cg_dataclass_write( CGNS_ENUMV( NormalizedByUnknownDimensional ) );
+
+    //put ReferenceState under Base
+    cg_state_write("ReferenceQuantities");
+
+    //Go to ReferenceState node, write Mach array and its dataclass
+    cg_goto(index_file,index_base,"ReferenceState_t",1,"end");
+
+    WriteDouble("Mach", xmach );
+
+    cg_goto(index_file,index_base,"ReferenceState_t",1,"DataArray_t",1,"end");
+
+    cg_dataclass_write( CGNS_ENUMV(NondimensionalParameter) );
+
+    //Go to ReferenceState node, write Reynolds array and its dataclass
+    cg_goto(index_file,index_base,"ReferenceState_t",1,"end");
+    WriteDouble("Reynolds", reue );
+    cg_goto(index_file,index_base,"ReferenceState_t",1,"DataArray_t",2,"end");
+    cg_dataclass_write( CGNS_ENUMV(NondimensionalParameter) );
+    //Go to ReferenceState node to write reference quantities
+    cg_goto(index_file,index_base,"ReferenceState_t",1,"end");
+
+    // First, write reference quantities that make up Mach and Reynolds:
+    WriteDouble("Mach_Velocity", xmv );
+    WriteDouble("Mach_VelocitySound", xmc );
+    WriteDouble("Reynolds_Velocity", rev );
+    WriteDouble("Reynolds_Length", rel );
+    WriteDouble("Reynolds_ViscosityKinematic", renu );
+
+    //Next, write flow field reference quantities:
+    WriteDouble("Density", rho0 );
+    WriteDouble("Pressure", p0 );
+    WriteDouble("VelocitySound", c0 );
+    WriteDouble("ViscosityMolecular", vm0 );
+    WriteDouble("LengthReference", xlength0 );
+
+    WriteDouble("VelocityX", vx );
+    WriteDouble("VelocityY", vy );
+    WriteDouble("VelocityZ", vz );
+
+    WriteDouble("aoa", 5.0 );
+
+    this->CloseCgnsFile();
+}
+
+void CgnsTest::GotoBaseBegin( int baseIndex )
+{
+    cg_goto(index_file,baseIndex,"end");
+}
+
+void CgnsTest::ReadNondimensionalParameter()
+{
+    int narrays, idim;
+    char *state, arrayname[33];
+    
+    this->OpenCgnsFile( CG_MODE_READ );
+
+    //Determine the of bases in the grid
+    cg_nbases( this->index_file, & this->nBases );
+
+    cout << " Total number of CGNS Base = " << this->nBases << "\n";
+
+    for ( int iBase = 0; iBase < this->nBases; ++ iBase )
+    {
+        int baseId = iBase + 1;
+        int index_base = 1;
+        this->GotoBaseBegin( index_base );
+
+        CGNS_ENUMT(DataClass_t) id;
+        cg_dataclass_read( & id );
+        cout << "DataClass = " << DataClassName[ id ] << "\n";
+
+        cg_state_read( & state );
+        cout << "ReferenceState = " << state << "\n";
+
+        //Go to ReferenceState node, read Mach array and its dataclass
+        cg_goto( index_file, index_base, "ReferenceState_t", 1, "end");
+        //find out how many data arrays 
+        cg_narrays( & narrays );
+        cout << " narrays = " << narrays << "\n";
+        for ( int n = 1; n <= narrays; ++ n )
+        {
+            CGNS_ENUMT(DataType_t) idata;
+            cgsize_t idimvec;
+            cg_array_info( n, arrayname, & idata, & idim, & idimvec );
+            //cout << " DataTypeName = " << DataTypeName[ idata ] << "\n";
+            double data;
+            cg_array_read_as( n, CGNS_ENUMV(RealDouble), & data );
+            cout << "Variable = " << arrayname << "\n";
+            cout << "   data = " << data << "\n";
+        }
+    }
+
+    this->CloseCgnsFile();
+}
+
 
 
 EndNameSpace
