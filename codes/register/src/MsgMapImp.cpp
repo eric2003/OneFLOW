@@ -60,7 +60,6 @@ void GetMsgFileNameList( StringField & fileNameList )
     {
         msgFileName = exePath + "/system/action/actionFileList.txt";
     }
-    //string fileName = "./system/action/actionFileList.txt";
 
     FileIO ioFile;
     ioFile.OpenFile( msgFileName, ios_base::in );

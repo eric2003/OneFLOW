@@ -1,7 +1,0 @@
-FILL_WALL_STRUCT    ,  CFillWallStruct, 0
-CMP_WALL_DIST        ,  CCmpWallDist, 0
-READ_WALL_DIST       ,  CReadWallDist, 0
-WRITE_WALL_DIST      ,  CDumpWallDist, 0
-CMP_METRICS           ,  CCmpMetrics, 0
-SWAP_CELLCENTER     , CSwapCellCenter, 0
-ALLOCATE_WALL_DIST , CAllocWallDist, 0
