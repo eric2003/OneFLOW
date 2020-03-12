@@ -50,15 +50,16 @@ void GetMsgFileNameList( StringField & fileNameList )
     string exePath = HX_GetExePath();
     cout << " exe path = " << exePath << "\n";
     string msgFileName;
+    string local_root = "/system/action/";
     if ( SimuCtrl::run_from_ide )
     {
         string curr_dir = HX_GetCurrentDir();
         cout << " curr_dir = " << curr_dir << "\n";
-        msgFileName = curr_dir + "/system/action/actionFileList.txt";
+        msgFileName = curr_dir + local_root + "actionFileList.txt";
     }
     else
     {
-        msgFileName = exePath + "/system/action/actionFileList.txt";
+        msgFileName = exePath + local_root + "actionFileList.txt";
     }
 
     FileIO ioFile;
