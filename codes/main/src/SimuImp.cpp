@@ -21,6 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 #include "SimuImp.h"
 #include "SimuDef.h"
+#include "SimuCtrl.h"
 #include "System.h"
 #include "FieldSimu.h"
 #include "MultiBlock.h"
@@ -47,8 +48,13 @@ SimuImp::~SimuImp()
 void SimuImp::ProcessCmdLineArgs( std::vector<std::string> &args )
 {
     this->args = args;
-
+    string choise = args[ 1 ];
     string prjName = args[ 2 ];
+    if ( choise == "d" )
+    {
+        SimuCtrl::hx_debug = true;
+        SimuCtrl::run_from_ide = true;
+    }
     PrjStatus::SetPrjBaseDir( prjName );
 }
 

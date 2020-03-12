@@ -67,7 +67,7 @@ void MakeDir( const string & dirName )
 
 string HX_GetExePath()
 {
-    char buffer[FILENAME_MAX] = { 0 };
+    char buffer[ FILENAME_MAX ] = { 0 };
 #ifdef _WIN32
     GetModuleFileName( NULL, buffer, FILENAME_MAX );
 #else
@@ -75,6 +75,18 @@ string HX_GetExePath()
 #endif
     string::size_type pos = string( buffer ).find_last_of( "\\/" );
     return string( buffer ).substr( 0, pos);
+}
+
+string HX_GetCurrentDir()
+{
+#ifdef _WINDOWS
+    char * cwd = _getcwd( 0, 0 );
+#else
+    char * cwd = getcwd( 0, 0 ); 
+#endif
+    std::string working_dir( cwd ) ;
+    std::free( cwd ) ;
+    return working_dir ;
 }
 
 void OpenFile( fstream & file, const string & fileName, const ios_base::openmode & openMode )

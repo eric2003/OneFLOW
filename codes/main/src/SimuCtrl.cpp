@@ -19,26 +19,20 @@ License
     along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 
 \*---------------------------------------------------------------------------*/
-#pragma once
-#include "Configure.h"
-#include <vector>
-#include <string>
+#include "SimuCtrl.h"
 
 BeginNameSpace( ONEFLOW )
 
-class Simulation
+bool SimuCtrl::hx_debug = false;
+bool SimuCtrl::run_from_ide = false;
+
+SimuCtrl::SimuCtrl()
 {
-public:
-    Simulation( int argc, char ** argv );
-    virtual ~Simulation();
-public:
-    void Run();
-public:
-    void ProcessCmdLineArgs( int argc, char ** argv );
-    void RunDefaultSimu();
-private:
-    //√¸¡Ó––≤Œ ˝
-    std::vector<std::string> args;
-};
+
+}
+
+SimuCtrl::~SimuCtrl()
+{
+}
 
 EndNameSpace

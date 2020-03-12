@@ -26,19 +26,15 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-class Simulation
+class SimuCtrl
 {
 public:
-    Simulation( int argc, char ** argv );
-    virtual ~Simulation();
+    SimuCtrl();
+    ~SimuCtrl();
 public:
-    void Run();
-public:
-    void ProcessCmdLineArgs( int argc, char ** argv );
-    void RunDefaultSimu();
-private:
-    //√¸¡Ó––≤Œ ˝
-    std::vector<std::string> args;
+    static bool hx_debug;
+    static bool run_from_ide;
+
 };
 
 EndNameSpace
