@@ -47,20 +47,21 @@ void GetMsgFileNameList( StringField & fileNameList )
 {
     //\tÎªtab¼ü
     string separator  = " =\r\n\t#$,;\"()";
-    string exePath = HX_GetExePath();
-    cout << " exe path = " << exePath << "\n";
-    string msgFileName;
-    string local_root = "/system/action/";
-    if ( SimuCtrl::run_from_ide )
-    {
-        string curr_dir = HX_GetCurrentDir();
-        cout << " curr_dir = " << curr_dir << "\n";
-        msgFileName = curr_dir + local_root + "actionFileList.txt";
-    }
-    else
-    {
-        msgFileName = exePath + local_root + "actionFileList.txt";
-    }
+    //string exePath = HX_GetExePath();
+    //cout << " exe path = " << exePath << "\n";
+    //string msgFileName;
+    //string local_root = "/system/action/";
+    //if ( SimuCtrl::run_from_ide )
+    //{
+    //    string curr_dir = HX_GetCurrentDir();
+    //    cout << " curr_dir = " << curr_dir << "\n";
+    //    msgFileName = curr_dir + local_root + "actionFileList.txt";
+    //}
+    //else
+    //{
+    //    msgFileName = exePath + local_root + "actionFileList.txt";
+    //}
+    string msgFileName = SimuCtrl::system_root + "action/" + "actionFileList.txt";
 
     FileIO ioFile;
     ioFile.OpenFile( msgFileName, ios_base::in );

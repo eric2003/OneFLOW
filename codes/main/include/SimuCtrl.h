@@ -23,6 +23,7 @@ License
 #include "Configure.h"
 #include <vector>
 #include <string>
+using namespace std;
 
 BeginNameSpace( ONEFLOW )
 
@@ -34,6 +35,9 @@ public:
 public:
     static bool hx_debug;
     static bool run_from_ide;
+    static string system_root;
+public:
+    static void Init();
 
 };
 

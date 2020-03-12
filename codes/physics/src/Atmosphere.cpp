@@ -21,6 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "Atmosphere.h"
+#include "SimuCtrl.h"
 #include "HXMath.h"
 #include "FileIO.h"
 #include <cmath>
@@ -46,7 +47,8 @@ void Atmosphere::Init()
     if ( flag ) return;
     flag = true;
     FileIO ioFile;
-    string fileName = "./system/physics/atmosphere.txt";
+    //string fileName = "./system/physics/atmosphere.txt";
+    string fileName = SimuCtrl::system_root +"physics/atmosphere.txt";
     ioFile.OpenFile( fileName, ios_base::in );
 
     //\tÎªtab¼ü

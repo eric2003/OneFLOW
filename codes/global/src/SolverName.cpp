@@ -20,6 +20,7 @@ License
 
 \*---------------------------------------------------------------------------*/
 #include "SolverName.h"
+#include "SimuCtrl.h"
 #include "OStream.h"
 #include "FileIO.h"
 #include "StrUtil.h"
@@ -34,7 +35,8 @@ void GetSolverFileNames( const string & solverName, StringField & fileNameList )
 
     OStream ostr;
     ostr.ClearAll();
-    ostr << "./system/" << solverName << "/function/";
+    //ostr << "./system/" << solverName << "/function/";
+    ostr << SimuCtrl::system_root << solverName << "/function/";
     string baseDir = ostr.str();
     ostr << "fileList.txt";
     string keyFileName = ostr.str();

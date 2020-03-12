@@ -55,6 +55,7 @@ void SimuImp::ProcessCmdLineArgs( std::vector<std::string> &args )
         SimuCtrl::hx_debug = true;
         SimuCtrl::run_from_ide = true;
     }
+    SimuCtrl::Init();
     PrjStatus::SetPrjBaseDir( prjName );
 }
 
