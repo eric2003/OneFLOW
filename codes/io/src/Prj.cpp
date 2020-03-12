@@ -46,8 +46,6 @@ PrjStatus::~PrjStatus()
 
 void PrjStatus::SetPrjBaseDir( const string & prjName )
 {
-    //string baseDir = "./";
-    //ONEFLOW::StrIO << baseDir << prjName;
     ONEFLOW::StrIO << SimuCtrl::current_dir << "/" << prjName;
     if ( ! EndWithForwardSlash( prjName ) )
     {

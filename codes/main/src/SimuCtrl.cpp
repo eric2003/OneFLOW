@@ -52,8 +52,6 @@ void SimuCtrl::Init()
     string local_root = "/system/";
     if ( SimuCtrl::run_from_ide )
     {
-        //string curr_dir = HX_GetCurrentDir();
-        //cout << " curr_dir = " << curr_dir << "\n";
         SimuCtrl::system_root = SimuCtrl::current_dir + local_root;
     }
     else

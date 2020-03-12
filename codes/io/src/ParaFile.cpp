@@ -174,11 +174,6 @@ void ReadHXFile( const std::string & fileName )
 
 void ReadControlInfo()
 {
-    //if ( Parallel::IsServer() )
-    //{
-    //    ONEFLOW::ReadPrjBaseDir();
-    //}
-
     HXBcastString( PrjStatus::prjBaseDir, Parallel::serverid );
 
     if ( Parallel::IsServer() )
@@ -188,27 +183,6 @@ void ReadControlInfo()
 
     Parallel::TestSayHelloFromEveryProcess();
     ONEFLOW::BroadcastControlParameterToAllProcessors();
-}
-
-void ReadPrjBaseDir()
-{
-    if ( PrjStatus::prjBaseDir != "" ) return;
-
-    string baseDir = "./";
-
-    ONEFLOW::StrIO.ClearAll();
-    ONEFLOW::StrIO << baseDir << "/prjFile.txt";
-
-    string prjFile = ONEFLOW::StrIO.str();
-
-    ONEFLOW::ReadHXFile( prjFile );
-
-    string prjName = ONEFLOW::GetDataValue< string >( "prjName" );
-
-    ONEFLOW::StrIO.ClearAll();
-    ONEFLOW::StrIO << "./" << baseDir << "/" << prjName << "/";
-
-    PrjStatus::prjBaseDir = ONEFLOW::StrIO.str();
 }
 
 void ReadHXScript()

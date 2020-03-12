@@ -35,7 +35,6 @@ int GetParameterArraySize( const string & word );
 void ReadHXFile( const std::string & fileName );
 
 void ReadControlInfo();
-void ReadPrjBaseDir();
 void ReadHXScript();
 void ReadMultiFile();
 void BroadcastControlParameterToAllProcessors();
