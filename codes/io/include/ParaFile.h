@@ -31,21 +31,18 @@ using namespace std;
 BeginNameSpace( ONEFLOW )
 
 bool IsArrayParameter( const string & lineOfName );
-void ReadBasicData( FileIO & fileIO );
+void ReadOneFLOWScriptFile( FileIO & fileIO );
+void ReadOneFLOWScriptFile( const std::string & fileName );
+
 void AnalysisArrayParameter( FileIO & fileIO, int keyWordIndex );
 int AnalysisScalarParameter( FileIO & fileIO, int keyWordIndex );
 int GetParameterArraySize( const string & word );
-void ReadHXFile( const std::string & fileName );
 
 void ReadControlInfo();
-void ReadHXScript();
-void ReadCtrlFile( vector< string > & scriptFileNameList );
+void ReadPrjScript();
+void ReadScriptFileNameList( vector< string > & scriptFileNameList );
 void ReadMultiScriptFiles( vector< string > & scriptFileNameList );
-void ReadMultiScriptFiles();
 void BroadcastControlParameterToAllProcessors();
-
-int GetNumberOfParameterFiles();
-std::string GetParameterFileName( int iFile = 0 );
 
 void CompressData( DataBase * dataBase, DataBook *& dataBook );
 void DecompressData( DataBase * dataBase, DataBook * dataBook );

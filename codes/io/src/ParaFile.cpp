@@ -52,7 +52,7 @@ bool IsArrayParameter( const string & lineOfName )
     return true;
 }
 
-void ReadBasicData( FileIO & fileIO )
+void ReadOneFLOWScriptFile( FileIO & fileIO )
 {
     //string name, word;
 
@@ -162,13 +162,13 @@ int GetParameterArraySize( const string & word )
     return arraySize;
 }
 
-void ReadHXFile( const std::string & fileName )
+void ReadOneFLOWScriptFile( const std::string & fileName )
 {
     FileIO fileIO;
 
     fileIO.OpenFile( fileName, ios_base::in );
 
-    ONEFLOW::ReadBasicData( fileIO );
+    ONEFLOW::ReadOneFLOWScriptFile( fileIO );
 
     fileIO.CloseFile();
 }
@@ -179,31 +179,21 @@ void ReadControlInfo()
 
     if ( Parallel::IsServer() )
     {
-        ONEFLOW::ReadHXScript();
+        ONEFLOW::ReadPrjScript();
     }
 
     Parallel::TestSayHelloFromEveryProcess();
     ONEFLOW::BroadcastControlParameterToAllProcessors();
 }
 
-void ReadHXScript()
+void ReadPrjScript()
 {
-    //ONEFLOW::StrIO.ClearAll();
-    //ONEFLOW::StrIO << PrjStatus::prjBaseDir << "script/control.txt";
-
-    //string fileName = ONEFLOW::StrIO.str();
-
-    //ONEFLOW::ReadHXFile( fileName );
-
     vector< string > scriptFileNameList;
-    ONEFLOW::ReadCtrlFile( scriptFileNameList );
-
+    ONEFLOW::ReadScriptFileNameList( scriptFileNameList );
     ONEFLOW::ReadMultiScriptFiles( scriptFileNameList );
-
-    //ONEFLOW::ReadMultiScriptFiles();
 }
 
-void ReadCtrlFile( vector< string > & scriptFileNameList )
+void ReadScriptFileNameList( vector< string > & scriptFileNameList )
 {
     FileIO ioFile;
 
@@ -235,39 +225,8 @@ void ReadMultiScriptFiles( vector< string > & scriptFileNameList )
     {
         string & scriptFileName = scriptFileNameList[ iFile ];
 
-        ONEFLOW::ReadHXFile( scriptFileName );
+        ONEFLOW::ReadOneFLOWScriptFile( scriptFileName );
     }
-}
-
-int GetNumberOfParameterFiles()
-{
-    return ONEFLOW::GetDataValue< int >( "numberOfParameterFiles" );
-}
-
-void ReadMultiScriptFiles()
-{
-    int numberOfParameterFiles = ONEFLOW::GetNumberOfParameterFiles();
-
-    for ( int iFile = 0; iFile < numberOfParameterFiles; ++ iFile )
-    {
-        string fileName = ONEFLOW::GetParameterFileName( iFile );
-
-        ONEFLOW::StrIO.ClearAll();
-        ONEFLOW::StrIO << PrjStatus::prjBaseDir << fileName;
-
-        fileName = ONEFLOW::StrIO.str();
-
-        ONEFLOW::ReadHXFile( fileName );
-    }
-}
-
-std::string GetParameterFileName( int iFile )
-{
-    ONEFLOW::StrIO.ClearAll();
-    ONEFLOW::StrIO << "parameterFileName" << iFile;
-    std::string fileNameString = ONEFLOW::StrIO.str();
-
-    return ONEFLOW::GetDataValue< std::string >( fileNameString );
 }
 
 void BroadcastControlParameterToAllProcessors()
