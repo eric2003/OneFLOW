@@ -24,6 +24,9 @@ License
 #include "FileIO.h"
 #include "DataBase.h"
 #include "DataBook.h"
+#include <vector>
+#include <string>
+using namespace std;
 
 BeginNameSpace( ONEFLOW )
 
@@ -36,7 +39,9 @@ void ReadHXFile( const std::string & fileName );
 
 void ReadControlInfo();
 void ReadHXScript();
-void ReadMultiFile();
+void ReadCtrlFile( vector< string > & scriptFileNameList );
+void ReadMultiScriptFiles( vector< string > & scriptFileNameList );
+void ReadMultiScriptFiles();
 void BroadcastControlParameterToAllProcessors();
 
 int GetNumberOfParameterFiles();

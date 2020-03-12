@@ -29,6 +29,7 @@ License
 #include "Prj.h"
 #include <iostream>
 #include <string>
+#include <vector>
 #include <map>
 using namespace std;
 
@@ -187,12 +188,55 @@ void ReadControlInfo()
 
 void ReadHXScript()
 {
-    ONEFLOW::StrIO.ClearAll();
-    ONEFLOW::StrIO << PrjStatus::prjBaseDir << "script/control.txt";
+    //ONEFLOW::StrIO.ClearAll();
+    //ONEFLOW::StrIO << PrjStatus::prjBaseDir << "script/control.txt";
 
-    string fileName = ONEFLOW::StrIO.str();
-    ONEFLOW::ReadHXFile( fileName );
-    ONEFLOW::ReadMultiFile();
+    //string fileName = ONEFLOW::StrIO.str();
+
+    //ONEFLOW::ReadHXFile( fileName );
+
+    vector< string > scriptFileNameList;
+    ONEFLOW::ReadCtrlFile( scriptFileNameList );
+
+    ONEFLOW::ReadMultiScriptFiles( scriptFileNameList );
+
+    //ONEFLOW::ReadMultiScriptFiles();
+}
+
+void ReadCtrlFile( vector< string > & scriptFileNameList )
+{
+    FileIO ioFile;
+
+    ioFile.OpenPrjFile( "script/control.txt", ios_base::in );
+
+    //\t is Tab Key
+    string keyWordSeparator = " ()\r\n\t#$,;\"";
+    ioFile.SetDefaultSeparator( keyWordSeparator );
+
+    while ( ! ioFile.ReachTheEndOfFile()  )
+    {
+        bool flag = ioFile.ReadNextNonEmptyLine();
+        if ( ! flag ) break;
+        string scriptFileName = ioFile.ReadNextWord();
+        ONEFLOW::StrIO.ClearAll();
+        ONEFLOW::StrIO << PrjStatus::prjBaseDir << "script/" << scriptFileName;
+        string fullScriptFileName = ONEFLOW::StrIO.str();
+        scriptFileNameList.push_back( fullScriptFileName );
+    }
+
+    ioFile.CloseFile();
+}
+
+void ReadMultiScriptFiles( vector< string > & scriptFileNameList )
+{
+    int numberOfParameterFiles = scriptFileNameList.size();
+
+    for ( int iFile = 0; iFile < numberOfParameterFiles; ++ iFile )
+    {
+        string & scriptFileName = scriptFileNameList[ iFile ];
+
+        ONEFLOW::ReadHXFile( scriptFileName );
+    }
 }
 
 int GetNumberOfParameterFiles()
@@ -200,7 +244,7 @@ int GetNumberOfParameterFiles()
     return ONEFLOW::GetDataValue< int >( "numberOfParameterFiles" );
 }
 
-void ReadMultiFile()
+void ReadMultiScriptFiles()
 {
     int numberOfParameterFiles = ONEFLOW::GetNumberOfParameterFiles();
 
