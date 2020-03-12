@@ -1,0 +1,8 @@
+DUMP_RESIDUAL         , CSetFile, 3, resFile, ( out, app )
+READ_RESTART          , CSetFile, 3, flowFile, ( in , binary )
+DUMP_RESTART          , CSetFile, 4, flowFile, ( out, binary, trunc )
+DUMP_HEATFLUX_COEFF   , CSetFile, 3, heatfluxFile, ( out, trunc )
+DUMP_AERODYNAMIC_INNER, CSetFile, 3, subIterAerodynamicCoefficientFileName, ( out, app )
+DUMP_AERODYNAMIC      , CSetFile, 3, aeroFile, ( out, app )
+DUMP_PRESSURE_COEFF   , CSetFile, 3, wallaeroFile, ( out, trunc )
+VISUALIZATION         , CSetFile, 3, visualFile, ( out, trunc )

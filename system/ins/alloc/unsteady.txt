@@ -1,0 +1,7 @@
+true, q   , nTEqu, all
+true, q1  , nTEqu, all
+true, q2  , nTEqu, all
+true, res , nTEqu, all
+true, res1, nTEqu, all
+true, res2, nTEqu, all
+true, dq  , nTEqu, all

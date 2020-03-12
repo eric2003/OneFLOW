@@ -35,6 +35,8 @@ BeginNameSpace( ONEFLOW )
 bool DirExist( const string & dirName );
 void MakeDir( const string & dirName );
 
+string HX_GetExePath();
+
 void OpenFile( fstream & file, const string & fileName, const ios_base::openmode & openMode );
 void CloseFile( fstream & file );
 

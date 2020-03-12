@@ -26,6 +26,7 @@ License
 #include "BasicParallel.h"
 #include "LogFile.h"
 #ifdef _WINDOWS
+#include <windows.h>
 #include <direct.h>
 #include <io.h>
 #else
@@ -62,6 +63,18 @@ void MakeDir( const string & dirName )
     {
         cout << dirName << " directory has been created successfully !\n";
     }
+}
+
+string HX_GetExePath()
+{
+    char buffer[FILENAME_MAX] = { 0 };
+#ifdef _WIN32
+    GetModuleFileName( NULL, buffer, FILENAME_MAX );
+#else
+    ssize_t count = readlink( "/proc/self/exe", buffer, FILENAME_MAX );
+#endif
+    string::size_type pos = string( buffer ).find_last_of( "\\/" );
+    return string( buffer ).substr( 0, pos);
 }
 
 void OpenFile( fstream & file, const string & fileName, const ios_base::openmode & openMode )

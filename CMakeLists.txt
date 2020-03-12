@@ -20,10 +20,18 @@ message( STATUS "CMAKE_PROJECT_DESCRIPTION = ${CMAKE_PROJECT_DESCRIPTION}" )
 #set working directory:
 set(MY_WORKING_DIR OneFLOW)
 
+set(PRJ_ROOT_DIR ${CMAKE_SOURCE_DIR})
+message(STATUS "PRJ_ROOT_DIR is ${PRJ_ROOT_DIR}.")
+
 #output message:
 message(STATUS "Welcome to Build Project ${CMAKE_PROJECT_NAME}.")
 message(STATUS "The OS is ${CMAKE_SYSTEM_NAME}, version ${CMAKE_SYSTEM_VERSION}.")
-message(STATUS "The working directory is ${CMAKE_BINARY_DIR}/${MY_WORKING_DIR}.")
+
+message(STATUS "The CMAKE_SOURCE_DIR is ${CMAKE_SOURCE_DIR}.")
+message(STATUS "The CMAKE_BINARY_DIR is ${CMAKE_BINARY_DIR}.") 
+
+message(STATUS "The working directory is ${CMAKE_BINARY_DIR}${MY_WORKING_DIR}.")
+
 message(STATUS "--- Start to call ${CMAKE_CURRENT_LIST_FILE} ---") 
 message(STATUS "This current binary directory is ${CMAKE_CURRENT_BINARY_DIR}.")
 message(STATUS "This current source directory is ${CMAKE_CURRENT_SOURCE_DIR}.")

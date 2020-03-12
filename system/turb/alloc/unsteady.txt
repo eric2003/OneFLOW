@@ -1,0 +1,7 @@
+true, turbq   , nTurbEqu, all
+true, turbq1  , nTurbEqu, all
+true, turbq2  , nTurbEqu, all
+true, turbres , nTurbEqu, all
+true, turbres1, nTurbEqu, all
+true, turbres2, nTurbEqu, all
+true, turbdq  , nTurbEqu, all
