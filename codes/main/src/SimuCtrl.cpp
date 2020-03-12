@@ -29,6 +29,8 @@ BeginNameSpace( ONEFLOW )
 bool SimuCtrl::hx_debug = false;
 bool SimuCtrl::run_from_ide = false;
 string SimuCtrl::system_root = "";
+string SimuCtrl::execute_dir = "";
+string SimuCtrl::current_dir = "";
 
 SimuCtrl::SimuCtrl()
 {
@@ -41,18 +43,22 @@ SimuCtrl::~SimuCtrl()
 
 void SimuCtrl::Init()
 {
-    string exePath = HX_GetExePath();
-    cout << " exe path = " << exePath << "\n";
+    SimuCtrl::execute_dir = HX_GetExePath();
+    SimuCtrl::current_dir = HX_GetCurrentDir();
+
+    cout << " SimuCtrl::execute_dir = " << SimuCtrl::execute_dir << "\n";
+    cout << " SimuCtrl::current_dir = " << SimuCtrl::current_dir << "\n";
+
     string local_root = "/system/";
     if ( SimuCtrl::run_from_ide )
     {
-        string curr_dir = HX_GetCurrentDir();
-        cout << " curr_dir = " << curr_dir << "\n";
-        SimuCtrl::system_root = curr_dir + local_root;
+        //string curr_dir = HX_GetCurrentDir();
+        //cout << " curr_dir = " << curr_dir << "\n";
+        SimuCtrl::system_root = SimuCtrl::current_dir + local_root;
     }
     else
     {
-        SimuCtrl::system_root = exePath + local_root;
+        SimuCtrl::system_root = SimuCtrl::execute_dir + local_root;
     }
     cout << "SimuCtrl::system_root = " << SimuCtrl::system_root << "\n";
 }

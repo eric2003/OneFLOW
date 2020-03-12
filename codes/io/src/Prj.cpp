@@ -24,6 +24,8 @@ License
 #include "OStream.h"
 #include "FileUtil.h"
 #include "LogFile.h"
+#include "SimuCtrl.h"
+
 
 #include <iostream>
 using namespace std;
@@ -44,8 +46,9 @@ PrjStatus::~PrjStatus()
 
 void PrjStatus::SetPrjBaseDir( const string & prjName )
 {
-    string baseDir = "./";
-    ONEFLOW::StrIO << baseDir << prjName;
+    //string baseDir = "./";
+    //ONEFLOW::StrIO << baseDir << prjName;
+    ONEFLOW::StrIO << SimuCtrl::current_dir << "/" << prjName;
     if ( ! EndWithForwardSlash( prjName ) )
     {
         ONEFLOW::StrIO << "/";

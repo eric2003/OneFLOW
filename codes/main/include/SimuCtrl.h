@@ -36,6 +36,8 @@ public:
     static bool hx_debug;
     static bool run_from_ide;
     static string system_root;
+    static string current_dir;
+    static string execute_dir;
 public:
     static void Init();
 

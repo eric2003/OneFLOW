@@ -174,10 +174,10 @@ void ReadHXFile( const std::string & fileName )
 
 void ReadControlInfo()
 {
-    if ( Parallel::IsServer() )
-    {
-        ONEFLOW::ReadPrjBaseDir();
-    }
+    //if ( Parallel::IsServer() )
+    //{
+    //    ONEFLOW::ReadPrjBaseDir();
+    //}
 
     HXBcastString( PrjStatus::prjBaseDir, Parallel::serverid );
 
