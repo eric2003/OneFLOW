@@ -1,1 +1,1 @@
-./system/action/actionName.txt
+actionName.txt

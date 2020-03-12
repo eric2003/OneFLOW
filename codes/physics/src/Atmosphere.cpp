@@ -47,7 +47,6 @@ void Atmosphere::Init()
     if ( flag ) return;
     flag = true;
     FileIO ioFile;
-    //string fileName = "./system/physics/atmosphere.txt";
     string fileName = SimuCtrl::system_root +"physics/atmosphere.txt";
     ioFile.OpenFile( fileName, ios_base::in );
 

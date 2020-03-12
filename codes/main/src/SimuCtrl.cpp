@@ -54,6 +54,7 @@ void SimuCtrl::Init()
     {
         SimuCtrl::system_root = exePath + local_root;
     }
+    cout << "SimuCtrl::system_root = " << SimuCtrl::system_root << "\n";
 }
 
 EndNameSpace

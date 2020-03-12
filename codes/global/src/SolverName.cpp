@@ -35,7 +35,6 @@ void GetSolverFileNames( const string & solverName, StringField & fileNameList )
 
     OStream ostr;
     ostr.ClearAll();
-    //ostr << "./system/" << solverName << "/function/";
     ostr << SimuCtrl::system_root << solverName << "/function/";
     string baseDir = ostr.str();
     ostr << "fileList.txt";
