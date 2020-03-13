@@ -38,6 +38,7 @@ public:
 };
 
 bool EndWithForwardSlash( const string & fileName );
+bool StartWithForwardSlash( const string & fileName );
 
 void MakePrjDir( const string & dirName );
 

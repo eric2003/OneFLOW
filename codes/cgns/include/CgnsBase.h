@@ -34,7 +34,6 @@ BeginNameSpace( ONEFLOW )
 
 class CgnsZone;
 class CgnsFamilyBc;
-class GridMediator;
 
 class CgnsBase
 {
@@ -60,14 +59,8 @@ public:
     void AllocateAllCgnsZones();
     void ReadCgnsBaseBasicInfo();
     void DumpCgnsBaseBasicInfo();
-    void ReadCgnsBaseBasicInfo( CgnsBase * cgnsBaseIn );
     void ReadNumberOfCgnsZones();
-    void ReadNumberOfCgnsZones( CgnsBase * cgnsBaseIn );
     void ReadAllCgnsZones();
-    void ReadAllCgnsZones( CgnsBase * cgnsBaseIn );
-public:
-    void DumpBase( GridMediator * gridMediator );
-    void PrepareCgnsZone( GridMediator * gridMediator );
 public:
     void SetFamilyBc( BCType_t & bcType, const string & bcRegionName );
     void ReadFamilySpecifiedBc();

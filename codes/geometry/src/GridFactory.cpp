@@ -58,7 +58,7 @@ void GridFactory::Run()
 {
     grid_para.Init();
 
-    switch (grid_para.gridObj)
+    switch ( grid_para.gridObj )
     {
     case 0: //生成一些基本外形的网格，如方腔，圆柱，RAE2822翼型等等
         this->DataBaseGrid();
@@ -129,12 +129,12 @@ void GridFactory::Plot3DProcess()
     {
         CgnsFactory * cgnsFactory = new CgnsFactory();
 
-        GridMediatorS gridMediators;
-        gridMediators.SetDeleteFlag( true );
+        ZgridMediator zgridMediator;
+        zgridMediator.SetDeleteFlag( true );
 
-        Plot3D::Plot3DToCgns( & gridMediators );
+        Plot3D::Plot3DToCgns( & zgridMediator );
 
-        cgnsFactory->DumpCgnsGrid( & gridMediators );
+        cgnsFactory->DumpCgnsGrid( & zgridMediator );
 
         delete cgnsFactory;
     }

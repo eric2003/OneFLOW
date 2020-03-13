@@ -45,35 +45,46 @@ void Simulation::ProcessCmdLineArgs( int argc, char ** argv )
 {
     args.resize( argc );
 
-    cout << " args.size() = " << args.size() << "\n";
+    cout << "nPara = " << args.size() << "\n";
 
     for ( int i = 0; i < argc; ++ i )
     {   
         args[ i ] = argv[ i ];
-        cout << "arguments[ " << i << " ] is: " << args[ i ] << endl;
+        //cout << "arguments[ " << i << " ] = " << args[ i ] << endl;
+        cout << "argv[" << i << "] = " << args[ i ] << endl;
     }
 
-    if ( args.size() <= 2 )
-    {
-        cout << " argument number should be 3\n";
-        exit( 0 );
-    }
+    //if ( args.size() <= 2 )
+    //{
+    //    cout << " argument number should be 3\n";
+    //    exit( 0 );
+    //}
 }
 
 void Simulation::Run()
 {
-    if ( args[ 1 ] == "0" )
+    int nPara = args.size();
+    if ( nPara == 1 )
     {
-        SimuImp * simu = new SimuImp( args );
-        simu->Run();
-        delete simu;
+        this->RunDefaultSimu();
     }
-    else
+    else if ( nPara == 2 )
     {
         SimpleSimu * simu = new SimpleSimu( args );
         simu->Run();
         delete simu;
     }
+    else
+    {
+        SimuImp * simu = new SimuImp( args );
+        simu->Run();
+        delete simu;
+    }
+}
+
+void Simulation::RunDefaultSimu()
+{
+    cout << "Running default simulation\n";
 }
 
 

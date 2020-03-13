@@ -23,12 +23,7 @@ License
 #include "CgnsZbase.h"
 #include "CgnsBase.h"
 #include "CgnsZone.h"
-#include "StrUtil.h"
 #include "Stop.h"
-#include "Prj.h"
-#include "Dimension.h"
-#include "GridPara.h"
-#include "GridMediator.h"
 #include <iostream>
 using namespace std;
 
@@ -76,20 +71,6 @@ int CgnsZbase::GetSystemZoneType()
     return ZoneTypeUserDefined;
 }
 
-
-void CgnsZbase::ReadCgnsGrid()
-{
-    this->ReadCgnsGrid( grid_para.gridFile );
-}
-
-void CgnsZbase::DumpCgnsGrid( GridMediatorS * gridMediators )
-{
-    string fileName = gridMediators->GetTargetFile();
-    this->OpenCgnsFile( fileName, CG_MODE_WRITE );
-    this->DumpCgnsMultiBase( gridMediators );
-    this->CloseCgnsFile();
-}
-
 void CgnsZbase::ReadCgnsGrid( const string & fileName )
 {
     this->OpenCgnsFile( fileName, CG_MODE_READ );
@@ -102,8 +83,7 @@ void CgnsZbase::ReadCgnsGrid( const string & fileName )
 void CgnsZbase::OpenCgnsFile( const string & fileName, int cgnsOpenMode )
 {
     //Open the CGNS for reading and check if the file was found.
-    string prjFileName = GetPrjFileName( fileName );
-    if ( cg_open( prjFileName.c_str(), cgnsOpenMode, & this->fileId ) != CG_OK )
+    if ( cg_open( fileName.c_str(), cgnsOpenMode, & this->fileId ) != CG_OK )
     {
         Stop( cg_get_error() );
     }
@@ -123,12 +103,6 @@ void CgnsZbase::ReadNumCgnsBase()
     cout << "   Total number of CGNS Base = " << this->nBases << "\n";
 }
 
-void CgnsZbase::ReadNumCgnsBase( CgnsZbase * strCgnsMultiBase )
-{
-    this->fileId = strCgnsMultiBase->fileId;
-    this->nBases = strCgnsMultiBase->nBases;
-}
-
 void CgnsZbase::ReadCgnsMultiBase()
 {
     this->ReadNumCgnsBase();
@@ -143,67 +117,6 @@ void CgnsZbase::ReadCgnsMultiBase()
         cgnsBase->ReadNumberOfCgnsZones();
         cgnsBase->AllocateAllCgnsZones();
         cgnsBase->ReadAllCgnsZones();
-    }
-}
-
-void CgnsZbase::DumpCgnsMultiBase( GridMediatorS * gridMediatorS )
-{
-    this->CreateDefaultCgnsZones( gridMediatorS );
-
-    for ( int iBase = 0; iBase < this->nBases; ++ iBase )
-    {
-        CgnsBase * cgnsBase = this->GetCgnsBase( iBase );
-        GridMediator * gridMediator = gridMediatorS->GetGridMediator( iBase );
-        cgnsBase->DumpBase( gridMediator );
-    }
-}
-
-void CgnsZbase::ReadCgnsMultiBase( CgnsZbase * strCgnsMultiBase )
-{
-    this->ReadNumCgnsBase( strCgnsMultiBase );
-
-    this->InitCgnsBase();
-
-    for ( int iBase = 0; iBase < this->nBases; ++ iBase )
-    {
-        CgnsBase * cgnsBase = this->GetCgnsBase( iBase );
-        CgnsBase * cgnsBaseIn = strCgnsMultiBase->GetCgnsBase( iBase );
-
-        cgnsBase->ReadCgnsBaseBasicInfo( cgnsBaseIn );
-        cgnsBase->ReadNumberOfCgnsZones( cgnsBaseIn );
-        cgnsBase->AllocateAllCgnsZones();
-        cgnsBase->ReadAllCgnsZones( cgnsBaseIn );
-
-    }
-}
-
-void CgnsZbase::CreateDefaultCgnsZones( GridMediatorS * gridMediatorS )
-{
-    this->fileId = 1;
-    this->nBases = gridMediatorS->GetSize();
-
-    this->InitCgnsBase();
-
-    for ( int iBase = 0; iBase < this->nBases; ++ iBase )
-    {
-        CgnsBase * cgnsBase = this->GetCgnsBase( iBase );
-        GridMediator * gridMediator = gridMediatorS->GetGridMediator( iBase );
-
-        cgnsBase->SetDefaultCgnsBaseBasicInfo();
-        cgnsBase->nZones = gridMediator->numberOfZones;
-
-        cgnsBase->AllocateAllCgnsZones();
-     }
-}
-
-void CgnsZbase::PrepareCgnsZone( GridMediatorS * gridMediatorS )
-{
-    for ( int iBase = 0; iBase < this->nBases; ++ iBase )
-    {
-        CgnsBase * cgnsBase = this->GetCgnsBase( iBase );
-        GridMediator * gridMediator = gridMediatorS->GetGridMediator( iBase );
-
-        cgnsBase->PrepareCgnsZone( gridMediator );
     }
 }
 
@@ -222,11 +135,6 @@ void CgnsZbase::InitCgnsBase()
         CgnsBase * cgnsBase = new CgnsBase();
         this->AddCgnsBase( cgnsBase );
     }
-}
-
-void CgnsZbase::ConvertStrCgns2UnsCgnsGrid( CgnsZbase * strCgnsMultiBase )
-{
-    this->ReadCgnsMultiBase( strCgnsMultiBase );
 }
 
 CgnsBase * CgnsZbase::GetCgnsBase( int iBase )

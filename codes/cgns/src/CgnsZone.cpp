@@ -33,10 +33,6 @@ License
 #include "Boundary.h"
 #include "NodeMesh.h"
 #include "StrUtil.h"
-#include "Grid.h"
-#include "BgGrid.h"
-#include "StrGrid.h"
-#include "GridState.h"
 #include "Dimension.h"
 #include "GridElem.h"
 #include "ElemFeature.h"
@@ -168,51 +164,6 @@ void CgnsZone::GetElementNodeId( CgInt eId, CgIntField & eNodeId )
     cgnsSection->GetElementNodeId( eId - cgnsSection->startId, eNodeId );
 }
 
-void CgnsZone::FillISize( Grid * gridIn )
-{
-    StrGrid * grid = ONEFLOW::StrGridCast( gridIn );
-    int ni = grid->ni;
-    int nj = grid->nj;
-    int nk = grid->nk;
-    this->FillISize( ni, nj, nk, THREE_D );
-}
-
-void CgnsZone::FillISize( int ni, int nj, int nk, int dimension )
-{
-    int j = 0;
-    // vertex size
-    isize[ j ++ ] = ni;
-    isize[ j ++ ] = nj;
-    if ( dimension == THREE_D )
-    {
-        isize[ j ++ ] = nk;
-    }
-    // cell size
-    isize[ j ++ ] = ni - 1;
-    isize[ j ++ ] = nj - 1;
-    if ( dimension == THREE_D )
-    {
-        //isize[ j ++ ] = MAX( nk - 1, 1 );
-        isize[ j ++ ] = nk - 1;
-    }
-    // boundary vertex size (always zero for structured grids)
-    isize[ j ++ ] = 0;
-    isize[ j ++ ] = 0;
-    if ( dimension == THREE_D )
-    {
-        isize[ j ++ ] = 0;
-    }
-}
-
-void CgnsZone::DumpCgnsZone( Grid * grid )
-{
-    this->DumpCgnsZoneAttribute( grid );
-
-    this->DumpCgnsGridBoundary( grid );
-
-    this->DumpCgnsGridCoordinates( grid );
-}
-
 void CgnsZone::ReadCgnsGrid()
 {
     this->ReadCgnsZoneAttribute();
@@ -235,31 +186,10 @@ void CgnsZone::ReadCgnsZoneAttribute()
     this->SetDimension();
 }
 
-void CgnsZone::DumpCgnsZoneAttribute( Grid * grid )
-{
-    this->DumpCgnsZoneType( grid );
-
-    this->DumpCgnsZoneNameAndGeneralizedDimension( grid );
-}
-
 void CgnsZone::ReadCgnsZoneType()
 {
     //Check the zone type
     cg_zone_type( cgnsBase->fileId, cgnsBase->baseId, this->zId, & cgnsZoneType );
-
-    cout << "   The Zone Type is " << GetCgnsZoneTypeName( cgnsZoneType ) << " Zone" << "\n";
-}
-
-void CgnsZone::DumpCgnsZoneType( Grid * grid )
-{
-    if ( IsUnsGrid( grid->type ) )
-    {
-        this->cgnsZoneType = CGNS_ENUMV( Unstructured );
-    }
-    else
-    {
-        this->cgnsZoneType = CGNS_ENUMV( Structured );
-    }
 
     cout << "   The Zone Type is " << GetCgnsZoneTypeName( cgnsZoneType ) << " Zone" << "\n";
 }
@@ -276,19 +206,6 @@ void CgnsZone::ReadCgnsZoneNameAndGeneralizedDimension()
     cout << "   CGNS Zone Name = " << cgnsZoneName << "\n";
 }
 
-void CgnsZone::DumpCgnsZoneNameAndGeneralizedDimension( Grid * gridIn )
-{
-    this->FillISize( gridIn );
-
-    this->zoneName = gridIn->name;
-    this->zId = -1;
-    cout << " cell dim = " << this->cgnsBase->celldim << " physics dim = " << this->cgnsBase->phydim << "\n";
-    //create zone
-    cg_zone_write(cgnsBase->fileId, cgnsBase->baseId, this->zoneName.c_str(), this->isize, this->cgnsZoneType, &this->zId );
-    cout << " Zone Id = " << this->zId << "\n";
-
-    cout << "   CGNS Zone Name = " << zoneName << "\n";
-}
 
 void CgnsZone::SetDimension()
 {
@@ -335,43 +252,15 @@ void CgnsZone::ReadCgnsGridCoordinates()
     cgnsCoor->ReadCgnsGridCoordinates();
 }
 
-void CgnsZone::DumpCgnsGridCoordinates( Grid * grid )
-{
-    // write grid coordinates (user must use SIDS-standard names here)
-    int index_x = -1;
-    int index_y = -2;
-    int index_z = -3;
-    cg_coord_write( cgnsBase->fileId, cgnsBase->baseId, this->zId, RealDouble, "CoordinateX", &grid->nodeMesh->xN[0], &index_x );
-    cg_coord_write( cgnsBase->fileId, cgnsBase->baseId, this->zId, RealDouble, "CoordinateY", &grid->nodeMesh->yN[0], &index_y );
-    cg_coord_write( cgnsBase->fileId, cgnsBase->baseId, this->zId, RealDouble, "CoordinateZ", &grid->nodeMesh->zN[0], &index_z );
-    cout << " index_x = " << index_x << "\n";
-    cout << " index_y = " << index_y << "\n";
-    cout << " index_z = " << index_z << "\n";
-}
-
 void CgnsZone::ReadCgnsGridBoundary()
 {
     cgnsZbc->ReadCgnsGridBoundary();
-}
-
-void CgnsZone::DumpCgnsGridBoundary( Grid * grid )
-{
-    cgnsZbc->DumpCgnsGridBoundary( grid );
 }
 
 void CgnsZone::ProcessPeriodicBc()
 {
     ;
 }
-
-void CgnsZone::PrepareCgnsZone( Grid * grid )
-{
-    Grids grids;
-    grids.push_back( grid );
-    this->cgnsZoneType = CGNS_ENUMV( Unstructured );
-    ONEFLOW::PrepareCgnsZone( grids, this );
-}
-
 
 #endif
 EndNameSpace

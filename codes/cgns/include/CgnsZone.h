@@ -35,8 +35,6 @@ BeginNameSpace( ONEFLOW )
 
 #ifdef ENABLE_CGNS
 
-class Grid;
-class StrGrid;
 class CgnsZone;
 class CgnsBase;
 class CgnsCoor;
@@ -86,25 +84,16 @@ public:
     void GetElementNodeId( CgInt eId, CgIntField & eNodeId );
     void ReadCgnsGrid();
     void ReadCgnsZoneAttribute();
-    void DumpCgnsZoneAttribute( Grid * grid );
     void ReadCgnsZoneType();
-    void DumpCgnsZoneType( Grid * grid );
     void ReadCgnsZoneNameAndGeneralizedDimension();
-    void DumpCgnsZoneNameAndGeneralizedDimension( Grid * gridIn );
     void SetDimension();
     void ReadElementConnectivities();
     void ReadNumberOfCgnsSections();
     void CreateCgnsSections();
     void ReadCgnsSections();
     void ReadCgnsGridCoordinates();
-    void DumpCgnsGridCoordinates( Grid * grid );
     void ReadCgnsGridBoundary();
-    void DumpCgnsGridBoundary( Grid * grid );
     void ProcessPeriodicBc();
-    void DumpCgnsZone( Grid * grid );
-    void FillISize( Grid * gridIn );
-    void FillISize( int ni, int nj, int nk, int dimension );
-    void PrepareCgnsZone( Grid * grid );
 public:
     void SetElemPosition();
 public:

@@ -86,7 +86,7 @@ void GetIJKRegion( Range & I, Range & J, Range & K, int & ist, int & ied, int & 
     ked = K.Last();
 }
 
-void PrepareCgnsZone( Grids & grids, CgnsZone * cgnsZone )
+void PrepareCgnsZoneSub( Grids & grids, CgnsZone * cgnsZone )
 {
     NodeMesh * nodeMesh = cgnsZone->cgnsCoor->GetNodeMesh();
 
@@ -677,6 +677,115 @@ void ReadCgnsGrid( CgnsZone * myZone, CgnsZone * cgnsZoneIn )
 
     myZone->ConvertToInnerDataStandard();
 }
+
+void DumpCgnsZoneType( CgnsZone * myZone, Grid * grid )
+{
+    if ( IsUnsGrid( grid->type ) )
+    {
+        myZone->cgnsZoneType = CGNS_ENUMV( Unstructured );
+    }
+    else
+    {
+        myZone->cgnsZoneType = CGNS_ENUMV( Structured );
+    }
+
+    cout << "   The Zone Type is " << GetCgnsZoneTypeName( myZone->cgnsZoneType ) << " Zone" << "\n";
+}
+
+void FillISize( CgInt *isize, int ni, int nj, int nk, int dimension )
+{
+    int j = 0;
+    // vertex size
+    isize[ j ++ ] = ni;
+    isize[ j ++ ] = nj;
+    if ( dimension == THREE_D )
+    {
+        isize[ j ++ ] = nk;
+    }
+    // cell size
+    isize[ j ++ ] = ni - 1;
+    isize[ j ++ ] = nj - 1;
+    if ( dimension == THREE_D )
+    {
+        //isize[ j ++ ] = MAX( nk - 1, 1 );
+        isize[ j ++ ] = nk - 1;
+    }
+    // boundary vertex size (always zero for structured grids)
+    isize[ j ++ ] = 0;
+    isize[ j ++ ] = 0;
+    if ( dimension == THREE_D )
+    {
+        isize[ j ++ ] = 0;
+    }
+}
+
+void FillISize( CgnsZone * myZone, Grid * gridIn )
+{
+    StrGrid * grid = ONEFLOW::StrGridCast( gridIn );
+    int ni = grid->ni;
+    int nj = grid->nj;
+    int nk = grid->nk;
+    ONEFLOW::FillISize( myZone->isize, ni, nj, nk, THREE_D );
+}
+
+void DumpCgnsZoneNameAndGeneralizedDimension( CgnsZone * myZone, Grid * gridIn )
+{
+    ONEFLOW::FillISize( myZone, gridIn );
+
+    myZone->zoneName = gridIn->name;
+    myZone->zId = -1;
+    cout << " cell dim = " << myZone->cgnsBase->celldim << " physics dim = " << myZone->cgnsBase->phydim << "\n";
+    //create zone
+    cg_zone_write( myZone->cgnsBase->fileId, myZone->cgnsBase->baseId, myZone->zoneName.c_str(), myZone->isize, myZone->cgnsZoneType, &myZone->zId );
+    cout << " Zone Id = " << myZone->zId << "\n";
+
+    cout << "   CGNS Zone Name = " << myZone->zoneName << "\n";
+}
+
+void DumpCgnsZoneAttribute( CgnsZone * myZone, Grid * grid )
+{
+    ONEFLOW::DumpCgnsZoneType( myZone, grid );
+
+    ONEFLOW::DumpCgnsZoneNameAndGeneralizedDimension( myZone, grid );
+}
+
+void DumpCgnsGridBoundary( CgnsZone * myZone, Grid * grid )
+{
+    myZone->cgnsZbc->DumpCgnsGridBoundary( grid );
+}
+
+void DumpCgnsGridCoordinates( CgnsZone * myZone, Grid * grid )
+{
+    // write grid coordinates (user must use SIDS-standard names here)
+    int index_x = -1;
+    int index_y = -2;
+    int index_z = -3;
+    cg_coord_write( myZone->cgnsBase->fileId, myZone->cgnsBase->baseId, myZone->zId, RealDouble, "CoordinateX", &grid->nodeMesh->xN[0], &index_x );
+    cg_coord_write( myZone->cgnsBase->fileId, myZone->cgnsBase->baseId, myZone->zId, RealDouble, "CoordinateY", &grid->nodeMesh->yN[0], &index_y );
+    cg_coord_write( myZone->cgnsBase->fileId, myZone->cgnsBase->baseId, myZone->zId, RealDouble, "CoordinateZ", &grid->nodeMesh->zN[0], &index_z );
+    cout << " index_x = " << index_x << "\n";
+    cout << " index_y = " << index_y << "\n";
+    cout << " index_z = " << index_z << "\n";
+}
+
+void DumpCgnsZone( CgnsZone * myZone, Grid * grid )
+{
+    ONEFLOW::DumpCgnsZoneAttribute( myZone, grid );
+
+    ONEFLOW::DumpCgnsGridBoundary( myZone, grid );
+
+    ONEFLOW::DumpCgnsGridCoordinates( myZone, grid );
+}
+
+void PrepareCgnsZone( CgnsZone * myZone, Grid * grid )
+{
+    Grids grids;
+    grids.push_back( grid );
+    myZone->cgnsZoneType = CGNS_ENUMV( Unstructured );
+    ONEFLOW::PrepareCgnsZoneSub( grids, myZone );
+}
+
+
 
 #endif
 EndNameSpace

@@ -35,6 +35,7 @@ public:
     void Run();
 public:
     void ProcessCmdLineArgs( int argc, char ** argv );
+    void RunDefaultSimu();
 private:
     //ÃüÁîĞĞ²ÎÊı
     std::vector<std::string> args;

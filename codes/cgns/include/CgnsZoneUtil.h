@@ -45,7 +45,7 @@ void GetIJKRegion( Range & I, Range & J, Range & K, int & ist, int & ied, int & 
 
 class PointSearch;
 class BcRegion;
-void PrepareCgnsZone( Grids & grids, CgnsZone * cgnsZone );
+void PrepareCgnsZoneSub( Grids & grids, CgnsZone * cgnsZone );
 void MergeToSingleZone( Grids & grids, HXVector< Int3D * > & unsIdList, NodeMesh * nodeMesh, int & nNode, int & nCell );
 void FillSection( Grids & grids, HXVector< Int3D * > & unsIdList, CgnsZone * cgnsZone );
 void ComputeUnsId( StrGrid * grid, PointSearch * pointSearch, Int3D * unsId );
@@ -63,6 +63,15 @@ void SetDimension( CgnsZone * myZone, CgnsZone * cgnsZoneIn );
 void ReadCgnsGridCoordinates( CgnsZone * myZone, CgnsZone * cgnsZoneIn );
 void ReadCgnsZoneAttribute( CgnsZone * myZone, CgnsZone * cgnsZoneIn );
 void ReadCgnsGrid( CgnsZone * myZone, CgnsZone * cgnsZoneIn );
+void DumpCgnsZoneType( CgnsZone * myZone, Grid * grid );
+void FillISize( CgInt *isize, int ni, int nj, int nk, int dimension );
+void FillISize( CgnsZone * myZone, Grid * gridIn );
+void DumpCgnsZoneNameAndGeneralizedDimension( CgnsZone * myZone, Grid * gridIn );
+void DumpCgnsZoneAttribute( CgnsZone * myZone, Grid * grid );
+void DumpCgnsGridBoundary( CgnsZone * myZone, Grid * grid );
+void DumpCgnsGridCoordinates( CgnsZone * myZone, Grid * grid );
+void DumpCgnsZone( CgnsZone * myZone, Grid * grid );
+void PrepareCgnsZone( CgnsZone * myZone, Grid * grid );
 
 #endif
 

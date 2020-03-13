@@ -26,6 +26,7 @@ License
 #include "CgnsZbc.h"
 #include "GridPara.h"
 #include "LogFile.h"
+#include "Prj.h"
 #include "Stop.h"
 #include "StrUtil.h"
 #include "GridState.h"
@@ -34,6 +35,7 @@ License
 #include "StrGrid.h"
 #include "CgnsBase.h"
 #include "CgnsZbase.h"
+#include "CgnsZbaseUtil.h"
 #include "CgnsZone.h"
 #include "CgnsZoneUtil.h"
 #include "CgnsSection.h"
@@ -58,14 +60,14 @@ BeginNameSpace( ONEFLOW )
 CgnsFactory::CgnsFactory()
 {
     this->cgnsZbase = new CgnsZbase();
-    this->gridElemS = new GridElemS();
+    this->zgridElem = new ZgridElem();
     this->nZone = 0;
 }
 
 CgnsFactory::~CgnsFactory()
 {
     delete this->cgnsZbase;
-    delete this->gridElemS;
+    delete this->zgridElem;
 }
 
 void CgnsFactory::GenerateGrid()
@@ -77,20 +79,21 @@ void CgnsFactory::GenerateGrid()
 void CgnsFactory::ReadCgnsGrid()
 {
     cgns_global.cgnsbases = cgnsZbase;
-    cgnsZbase->ReadCgnsGrid();
+    string prjFileName = ONEFLOW::GetPrjFileName( grid_para.gridFile );
+    cgnsZbase->ReadCgnsGrid( prjFileName );
 }
 
-void CgnsFactory::DumpCgnsGrid( GridMediatorS * gridMediators )
+void CgnsFactory::DumpCgnsGrid( ZgridMediator * zgridMediator )
 {
     cgns_global.cgnsbases = cgnsZbase;
-    cgnsZbase->DumpCgnsGrid( gridMediators );
+    ONEFLOW::DumpCgnsGrid( cgnsZbase, zgridMediator );
 }
 
 void CgnsFactory::ConvertStrCgns2UnsCgnsGrid()
 {
     CgnsZbase * unsCgnsMultiBase = new CgnsZbase();
 
-    unsCgnsMultiBase->ConvertStrCgns2UnsCgnsGrid( cgnsZbase );
+    ONEFLOW::ConvertStrCgns2UnsCgnsGrid( unsCgnsMultiBase, cgnsZbase );
 
     delete cgnsZbase;
 
@@ -134,7 +137,7 @@ void CgnsFactory::CgnsToOneFlowGrid()
 
     for ( int iZone = 0; iZone < this->nZone; ++ iZone )
     {
-        GridElem * gridElem = gridElemS->GetGridElem( iZone );
+        GridElem * gridElem = zgridElem->GetGridElem( iZone );
         Grid * grid = gridElem->grid;
         grids.push_back( grid );
     }
@@ -144,14 +147,14 @@ void CgnsFactory::CgnsToOneFlowGrid()
     ONEFLOW::GenerateMultiZoneCompGrids( grids );
 }
 
-void CgnsFactory::CreateCgnsZone( GridMediatorS * gridMediators )
+void CgnsFactory::CreateCgnsZone( ZgridMediator * zgridMediator )
 {
-    cgnsZbase->CreateDefaultCgnsZones( gridMediators );
+    ONEFLOW::CreateDefaultCgnsZones( cgnsZbase, zgridMediator );
 }
 
-void CgnsFactory::PrepareCgnsZone( GridMediatorS * gridMediators )
+void CgnsFactory::PrepareCgnsZone( ZgridMediator * zgridMediator )
 {
-    cgnsZbase->PrepareCgnsZone( gridMediators );
+    ONEFLOW::PrepareCgnsZone( cgnsZbase, zgridMediator );
 }
 
 void CgnsFactory::CommonToUnsGrid()
@@ -193,7 +196,7 @@ void CgnsFactory::CommonToUnsGrid()
             grid_array = gridMediator->gridVector;
         }
 
-        ONEFLOW::PrepareCgnsZone( grid_array, cgnsZone );
+        ONEFLOW::PrepareCgnsZoneSub( grid_array, cgnsZone );
         
         cgnsFactory->CgnsToOneFlowGrid( grids[ iZone ], iZone );
 
@@ -206,12 +209,12 @@ void CgnsFactory::CommonToUnsGrid()
 
 void CgnsFactory::ReadGridAndConvertToUnsCgnsZone()
 {
-    GridMediatorS gridMediators;
-    gridMediators.ReadGrid();
+    ZgridMediator zgridMediator;
+    zgridMediator.ReadGrid();
 
     //create multi cgns zone
-    this->CreateCgnsZone( & gridMediators );
-    this->PrepareCgnsZone( & gridMediators );
+    this->CreateCgnsZone( & zgridMediator );
+    this->PrepareCgnsZone( & zgridMediator );
 }
 
 void CgnsFactory::CommonToUnsGridTEST()
@@ -228,7 +231,7 @@ void CgnsFactory::CommonToUnsGridTEST()
 
     for ( int iZone = 0; iZone < this->nZone; ++ iZone )
     {
-        GridElem * gridElem = gridElemS->GetGridElem( iZone );
+        GridElem * gridElem = zgridElem->GetGridElem( iZone );
         Grid * grid = gridElem->grid;
         grids.push_back( grid );
     }
@@ -244,7 +247,7 @@ void CgnsFactory::CgnsToOneFlowGrid( Grid *& grid, int zId )
 
     this->GenerateCompGrid();
 
-    GridElem * gridElem = gridElemS->GetGridElem( 0 );
+    GridElem * gridElem = zgridElem->GetGridElem( 0 );
     grid = gridElem->grid;
     grid->id = zId;
 }
@@ -266,7 +269,7 @@ void CgnsFactory::AllocateGridElem()
 
         for ( int iZone = 0; iZone < this->nZone; ++ iZone )
         {
-            gridElemS->AddGridElem( cgnsZones, iZone );
+            zgridElem->AddGridElem( cgnsZones, iZone );
         }
 
     }
@@ -279,7 +282,7 @@ void CgnsFactory::AllocateGridElem()
             HXVector< CgnsZone * > cgnsZones;
             cgnsZones.push_back( cgnsZbase->GetCgnsZone( iZone ) );
 
-            gridElemS->AddGridElem( cgnsZones, iZone );
+            zgridElem->AddGridElem( cgnsZones, iZone );
         }
     }
 }
@@ -288,7 +291,7 @@ void CgnsFactory::PrepareUnsCompGrid()
 {
     for ( int iZone = 0; iZone < this->nZone; ++ iZone )
     {
-        GridElem * gridElem = gridElemS->GetGridElem( iZone );
+        GridElem * gridElem = zgridElem->GetGridElem( iZone );
         gridElem->PrepareUnsCompGrid();
     }
 }
@@ -317,17 +320,17 @@ void CgnsFactory::GenerateUnsCompGrid()
 {
     for ( int iZone = 0; iZone < this->nZone; ++ iZone )
     {
-        GridElem * gridElem = gridElemS->GetGridElem( iZone );
+        GridElem * gridElem = zgridElem->GetGridElem( iZone );
         gridElem->GenerateCompGrid();
     }
 }
 
 void CgnsFactory::CreateDefaultZone( int nZone )
 {
-    GridMediatorS * gridMediatorS = new GridMediatorS();
-    gridMediatorS->CreateSimple( nZone );
-    cgnsZbase->CreateDefaultCgnsZones( gridMediatorS );
-    delete gridMediatorS;
+    ZgridMediator * zgridMediator = new ZgridMediator();
+    zgridMediator->CreateSimple( nZone );
+    ONEFLOW::CreateDefaultCgnsZones( cgnsZbase, zgridMediator );
+    delete zgridMediator;
 
 }
 

@@ -25,7 +25,7 @@ License
 #include "HXDefine.h"
 #include <vector>
 #include <string>
-#include <fstream>
+//#include <fstream>
 #include "HXCgns.h"
 using namespace std;
 
@@ -35,10 +35,10 @@ BeginNameSpace( ONEFLOW )
 
 class CgnsZone;
 class CgnsSection;
-class ElemFeature;
+//class ElemFeature;
 
-class CgnsZone;
-class CgnsZbc;
+//class CgnsZone;
+//class CgnsZbc;
 
 class CgnsZsection
 {

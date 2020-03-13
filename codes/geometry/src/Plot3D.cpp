@@ -668,7 +668,7 @@ void Plot3D::ReadCoor( FileIO * ioFile, RealField & coor, int total_size )
     }
 }
 
-void Plot3D::Plot3DToCgns( GridMediatorS * gridMediators )
+void Plot3D::Plot3DToCgns( ZgridMediator * zgridMediator )
 {
     cout << "plot3d to cgns\n";
     GridMediator * gridMediator = new GridMediator();
@@ -680,8 +680,8 @@ void Plot3D::Plot3DToCgns( GridMediatorS * gridMediators )
     gridMediator->ReadGrid();
     gridMediator->AddDefaultName();
 
-    gridMediators->SetDeleteFlag( true );
-    gridMediators->AddGridMediator( gridMediator );
+    zgridMediator->SetDeleteFlag( true );
+    zgridMediator->AddGridMediator( gridMediator );
 }
 
 

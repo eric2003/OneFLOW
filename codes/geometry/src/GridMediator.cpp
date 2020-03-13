@@ -104,12 +104,12 @@ void GridMediator::ReadGridgen()
 {
 }
 
-GridMediatorS::GridMediatorS()
+ZgridMediator::ZgridMediator()
 {
     this->flag = false;
 }
 
-GridMediatorS::~GridMediatorS()
+ZgridMediator::~ZgridMediator()
 {
     if ( this->flag )
     {
@@ -120,22 +120,22 @@ GridMediatorS::~GridMediatorS()
     }
 }
 
-void GridMediatorS::AddGridMediator( GridMediator * gridMediator )
+void ZgridMediator::AddGridMediator( GridMediator * gridMediator )
 {
     this->gm.push_back( gridMediator );
 }
 
-GridMediator * GridMediatorS::GetGridMediator( int iGridMediator )
+GridMediator * ZgridMediator::GetGridMediator( int iGridMediator )
 {
     return this->gm[ iGridMediator ];
 }
 
-int GridMediatorS::GetSize()
+int ZgridMediator::GetSize()
 {
     return this->gm.size();
 }
 
-void GridMediatorS::CreateSimple( int nZone )
+void ZgridMediator::CreateSimple( int nZone )
 {
     GridMediator * gridMediator = new GridMediator();
     gridMediator->numberOfZones = nZone;
@@ -143,7 +143,7 @@ void GridMediatorS::CreateSimple( int nZone )
     this->flag = true;
 }
 
-void GridMediatorS::ReadGrid()
+void ZgridMediator::ReadGrid()
 {
     GridMediator * gridMediator = new GridMediator();
     gridMediator->gridFile = grid_para.gridFile;
@@ -155,14 +155,14 @@ void GridMediatorS::ReadGrid()
     this->flag = true;
 }
 
-string GridMediatorS::GetTargetFile()
+string ZgridMediator::GetTargetFile()
 {
     int index = 0;
     GridMediator * gridMediator = this->gm[ index ];
     return gridMediator->targetFile;
 }
 
-void GridMediatorS::SetDeleteFlag( bool flag )
+void ZgridMediator::SetDeleteFlag( bool flag )
 {
     this->flag = flag;
 }

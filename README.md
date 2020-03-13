@@ -39,7 +39,7 @@ The above operation will download the source code together with prebuilt thirdpa
 ```
 git clone https://github.com/eric2003/OneFLOW
 ```
-The above operation will download the source code only(prebuilt thirdparty libraries are not provided)�
+The above operation will download the source code only(prebuilt thirdparty libraries are not provided)
 
 2. Use cmake to configure and generate appropriate project files, for example: Makefile.
    

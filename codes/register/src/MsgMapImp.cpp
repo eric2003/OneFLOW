@@ -23,6 +23,10 @@ License
 #include "MsgMapImp.h"
 #include "Message.h"
 #include "FileIO.h"
+#include "FileUtil.h"
+#include "SimuCtrl.h"
+#include <iostream>
+using namespace std;
 
 BeginNameSpace( ONEFLOW )
 
@@ -43,10 +47,10 @@ void GetMsgFileNameList( StringField & fileNameList )
 {
     //\tÎªtab¼ü
     string separator  = " =\r\n\t#$,;\"()";
-    string fileName = "./system/action/actionFileList.txt";
+    string msgFileName = SimuCtrl::system_root + "action/" + "actionFileList.txt";
 
     FileIO ioFile;
-    ioFile.OpenFile( fileName, ios_base::in );
+    ioFile.OpenFile( msgFileName, ios_base::in );
     ioFile.SetDefaultSeparator( separator );
 
     while ( ! ioFile.ReachTheEndOfFile()  )
@@ -54,7 +58,8 @@ void GetMsgFileNameList( StringField & fileNameList )
         bool flag = ioFile.ReadNextNonEmptyLine();
         if ( ! flag ) break;
         string fileName = ioFile.ReadNextWord();
-        fileNameList.push_back( fileName );
+        string fullPathFileName = SimuCtrl::system_root + "action/" + fileName;
+        fileNameList.push_back( fullPathFileName );
     }
 
     ioFile.CloseFile();

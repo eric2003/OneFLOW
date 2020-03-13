@@ -54,11 +54,11 @@ public:
     void AddDefaultName();
 };
 
-class GridMediatorS
+class ZgridMediator
 {
 public:
-    GridMediatorS();
-    ~GridMediatorS();
+    ZgridMediator();
+    ~ZgridMediator();
 public:
     HXVector< GridMediator * > gm;
     bool flag;

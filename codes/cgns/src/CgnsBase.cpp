@@ -26,7 +26,6 @@ License
 #include "StrUtil.h"
 #include "Dimension.h"
 #include "CgnsFamilyBc.h"
-#include "GridMediator.h"
 #include <iostream>
 using namespace std;
 
@@ -110,54 +109,10 @@ void CgnsBase::DumpCgnsBaseBasicInfo()
     cout << " baseId = " << this->baseId << " baseName = " << this->baseName << "\n";
 }
 
-void CgnsBase::DumpBase( GridMediator * gridMediator )
-{
-    GlobalGrid::SetCurrentGridMediator( gridMediator );
-
-    this->DumpCgnsBaseBasicInfo();
-
-    //cg_base_write( this->fileId, this->baseName.c_str(), this->celldim, this->phydim, &this->baseId );
-    //cout << " baseId = " << this->baseId << " baseName = " << this->baseName << "\n";
-    cout << " nZones = " << nZones << "\n";
-
-    for ( int iZone = 0; iZone < nZones; ++ iZone )
-    {
-        CgnsZone * cgnsZone = this->GetCgnsZone( iZone );
-        Grid * grid = gridMediator->gridVector[ iZone ];
-        cgnsZone->DumpCgnsZone( grid );
-    }
-}
-
-void CgnsBase::PrepareCgnsZone( GridMediator * gridMediator )
-{
-    GlobalGrid::SetCurrentGridMediator( gridMediator );
-
-    cout << " nZones = " << nZones << "\n";
-
-    for ( int iZone = 0; iZone < nZones; ++ iZone )
-    {
-        CgnsZone * cgnsZone = this->GetCgnsZone( iZone );
-        Grid * grid = gridMediator->gridVector[ iZone ];
-        cgnsZone->PrepareCgnsZone( grid );
-    }
-}
-
-void CgnsBase::ReadCgnsBaseBasicInfo( CgnsBase * cgnsBaseIn )
-{
-    this->baseName = cgnsBaseIn->baseName;
-    this->celldim  = cgnsBaseIn->celldim;
-    this->phydim   = cgnsBaseIn->phydim;
-}
-
 void CgnsBase::ReadNumberOfCgnsZones()
 {
     //Read the number of zones in the grid.
     cg_nzones( this->fileId, this->baseId, & this->nZones );
-}
-
-void CgnsBase::ReadNumberOfCgnsZones( CgnsBase * cgnsBaseIn )
-{
-    this->nZones = cgnsBaseIn->nZones;
 }
 
 void CgnsBase::ConstructZoneNameMap()
@@ -191,21 +146,6 @@ void CgnsBase::ReadAllCgnsZones()
         cout << "cgnsZone->SetPeriodicBc\n";
         CgnsZone * cgnsZone = this->GetCgnsZone( iZone );
         cgnsZone->SetPeriodicBc();
-    }
-}
-
-void CgnsBase::ReadAllCgnsZones( CgnsBase * cgnsBaseIn )
-{
-    cout << "** Reading CGNS Grid In Base " << this->baseId << "\n";
-    cout << "   numberOfCgnsZones       = " << this->nZones << "\n\n";
-
-    for ( int iZone = 0; iZone < nZones; ++ iZone )
-    {
-        cout << "==>iZone = " << iZone << " numberOfCgnsZones = " << this->nZones << "\n";
-        CgnsZone * cgnsZone = this->GetCgnsZone( iZone );
-        CgnsZone * cgnsZoneIn = cgnsBaseIn->GetCgnsZone( iZone );
-        //cgnsZone->ReadCgnsGrid( cgnsZoneIn );
-        ONEFLOW::ReadCgnsGrid( cgnsZone, cgnsZoneIn );
     }
 }
 

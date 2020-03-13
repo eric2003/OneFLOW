@@ -159,9 +159,9 @@ def RunAllTest(filename):
             print(os.getcwd())
             prjname = line.strip()
             print('prjname=', prjname)
-            dir = "workdir/" + prjname
-            print("dir=",dir)
-            flag = RunTest(dir)
+            prjdir = prjname
+            print("prjdir=",prjdir)
+            flag = RunTest(prjdir)
             passFlag.append( flag )
     f.close()
     return passFlag
