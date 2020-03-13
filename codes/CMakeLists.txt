@@ -288,12 +288,12 @@ endif(WIN32)
 #. add an executable to the project using the specified source files and header files:
 add_executable(${EXECUTABLE_TARGET_NAME} ${SRC_LIST} ${HEAD_LIST}) 
 
-install(TARGETS ${EXECUTABLE_TARGET_NAME} RUNTIME DESTINATION bin)
-
-message(STATUS "PRJ_ROOT_DIR final is ${PRJ_ROOT_DIR}.")
 set(PRJ_SYSTEM_DIR ${PRJ_ROOT_DIR}/system/)
-message(STATUS "PRJ_SYSTEM_DIR is ${PRJ_SYSTEM_DIR}.")
+set(PRJ_DOCUMENT_DIR ${PRJ_ROOT_DIR}/doc/)
+
+install(TARGETS ${EXECUTABLE_TARGET_NAME} RUNTIME DESTINATION bin)
 install(DIRECTORY "${PRJ_SYSTEM_DIR}" DESTINATION "bin/system")
+install(DIRECTORY "${PRJ_DOCUMENT_DIR}" DESTINATION "doc")
 
 #message(STATUS "The INCLUDE_DIRECTORIES name is ${INCLUDE_DIRECTORIES}.")
 get_property( reqs TARGET ${EXECUTABLE_TARGET_NAME} PROPERTY INCLUDE_DIRECTORIES)
