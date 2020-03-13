@@ -54,9 +54,9 @@ void CgnsTest::Run()
     //this->WriteEmptyCgnsFile();
     //this->ReadEmptyCgnsFile();
     //this->WriteDescriptor();
-    //this->ReadDescriptor();
+    this->ReadDescriptor();
     //this->WriteNondimensionalParameter();
-    this->ReadNondimensionalParameter();
+    //this->ReadNondimensionalParameter();
  }
 
 void CgnsTest::Test()
