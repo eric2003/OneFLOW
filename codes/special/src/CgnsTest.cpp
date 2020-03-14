@@ -21,8 +21,10 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "CgnsTest.h"
+#include "CgnsFile.h"
 #include "CgnsFactory.h"
 #include "Prj.h"
+#include "StrUtil.h"
 #include "CgnsZone.h"
 #include <iostream>
 #include <iomanip>
@@ -54,13 +56,16 @@ void CgnsTest::Run()
     //this->WriteEmptyCgnsFile();
     //this->ReadEmptyCgnsFile();
     //this->WriteDescriptor();
-    this->ReadDescriptor();
+    //this->ReadDescriptor();
     //this->WriteNondimensionalParameter();
     //this->ReadNondimensionalParameter();
- }
+    this->TestCgnsLink();
+    //this->Test();
+}
 
 void CgnsTest::Test()
 {
+   this->TestCgnsLink();
 }
 
 void CgnsTest::SetDefaultGridName()
@@ -240,6 +245,11 @@ void CgnsTest::CloseCgnsFile()
     cg_close( index_file );
 }
 
+void CgnsTest::CloseCgnsFile( int index_file )
+{
+    cg_close( index_file );
+}
+
 void CgnsTest::WriteEmptyCgnsFile()
 {
     this->OpenCgnsFile( CG_MODE_WRITE );
@@ -408,6 +418,25 @@ void CgnsTest::ReadNondimensionalParameter()
     this->CloseCgnsFile();
 }
 
+void CgnsTest::TestCgnsLink()
+{
+    string fname    = "zones.cgns";
+    string linkname = "zones_link.cgns";
 
+    CgnsFile * fileZone = new CgnsFile( fname, CG_MODE_WRITE );
+    fileZone->WriteBase( "Base" );
+    fileZone->WriteCoor();
+    delete fileZone;
+
+    CgnsFile * fileZoneM = new CgnsFile( fname, CG_MODE_MODIFY );
+    fileZoneM->currBaseId = 1;
+    fileZoneM->WriteCoor();
+    delete fileZoneM;
+
+    CgnsFile * fileLink = new CgnsFile( linkname, CG_MODE_WRITE );
+    fileLink->WriteBase( "Base1" );
+    fileLink->WriteLink( fname );
+    delete fileLink;
+}
 
 EndNameSpace
