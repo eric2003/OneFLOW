@@ -21,6 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "CgnsFile.h"
+#include "CgnsBase.h"
 #include "CgnsFactory.h"
 #include "Prj.h"
 #include "StrUtil.h"
@@ -45,6 +46,8 @@ CgnsFile::CgnsFile( const string & fileName, int openMode )
 
 CgnsFile::~CgnsFile()
 {
+    FreeBaseList();
+
     if ( this->openStatus != CG_OK ) return;
     this->CloseCgnsFile();
 }
@@ -64,61 +67,40 @@ void CgnsFile::CloseCgnsFile()
     cg_close( this->fileId );
 }
 
-void CgnsFile::WriteBase( const string & baseName )
+CgnsBase *  CgnsFile::WriteBase( const string & baseName )
 {
     int celldim = 3;
     int physdim = 3;
-    this->WriteBase( baseName, celldim, physdim );
+    return this->WriteBase( baseName, celldim, physdim );
 }
 
-void CgnsFile::WriteBase( const string & baseName, int celldim, int physdim )
+CgnsBase * CgnsFile::WriteBase( const string & baseName, int celldim, int physdim )
 {
     int baseId = -1;
     cg_base_write( fileId, baseName.c_str(), celldim, physdim, & baseId );
     cout << " CGNS Base index = " << baseId << "\n";
     this->currBaseId = baseId;
+    return this->AddBase( fileId, baseName, celldim, physdim, baseId );
 }
 
-void CgnsFile::WriteCoor()
+void CgnsFile::FreeBaseList()
 {
-    #define NUM_SIDE 5
-    float coord[ NUM_SIDE * NUM_SIDE * NUM_SIDE ];
-
-    cgsize_t size[ 9 ];
-
-    for ( int n = 0; n < 3; n ++ )
+    for ( int i = 0; i < baseList.size(); ++ i )
     {
-        size[ n     ] = NUM_SIDE;
-        size[ n + 3 ] = NUM_SIDE - 1;
-        size[ n + 6 ] = 0;
-    }
-
-    int nzones = 250;
-
-    for ( int nz = 1; nz <= nzones; nz ++ )
-    {
-        string name = AddString( "Zone", nz );
-        int cgzone = -1;
-        int cgcoord = -1;
-        cg_zone_write( this->fileId, this->currBaseId, name.c_str(), size, CGNS_ENUMV( Structured ), &cgzone );
-        //cg_coord_write( this->fileId, this->currBaseId, cgzone, CGNS_ENUMV( RealSingle ), "CoordinateX", coord, &cgcoord );
-        //cg_coord_write( this->fileId, this->currBaseId, cgzone, CGNS_ENUMV( RealSingle ), "CoordinateY", coord, &cgcoord );
-        //cg_coord_write( this->fileId, this->currBaseId, cgzone, CGNS_ENUMV( RealSingle ), "CoordinateZ", coord, &cgcoord );
+        delete baseList[ i ];
     }
 }
 
-void CgnsFile::WriteLink( const string & linkFileName )
+CgnsBase * CgnsFile::AddBase( int fileId, const string & baseName, int celldim, int physdim, int baseId )
 {
-    int nzones = 250;
-    int curr_base_id = 1;
-    for ( int nz = 1; nz <= nzones; nz ++ )
-    {
-        string name     = AddString( "Link to Zone", nz );
-        string linkpath = AddString( "/Base/Zone", nz );
-
-        cg_goto( this->fileId, curr_base_id, "end" );
-        cg_link_write( name.c_str(), linkFileName.c_str(), linkpath.c_str() );
-    }
+    CgnsBase * base = new CgnsBase();
+    base->fileId = fileId;
+    base->baseName = baseName;
+    base->celldim = celldim;
+    base->phydim = physdim;
+    base->baseId = baseId;
+    baseList.push_back( base );
+    return base;
 }
 
 

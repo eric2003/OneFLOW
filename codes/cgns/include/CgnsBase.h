@@ -64,6 +64,9 @@ public:
 public:
     void SetFamilyBc( BCType_t & bcType, const string & bcRegionName );
     void ReadFamilySpecifiedBc();
+public:
+    void WriteCoorTest();
+    void WriteLinkTest( const string & linkFileName );
 };
 
 #endif

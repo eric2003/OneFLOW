@@ -160,5 +160,47 @@ void CgnsBase::ReadFamilySpecifiedBc()
     this->familyBc->ReadFamilySpecifiedBc();
 }
 
+void CgnsBase::WriteCoorTest()
+{
+#define NUM_SIDE 5
+    float coord[ NUM_SIDE * NUM_SIDE * NUM_SIDE ];
+
+    cgsize_t size[ 9 ];
+
+    for ( int n = 0; n < 3; n ++ )
+    {
+        size[ n     ] = NUM_SIDE;
+        size[ n + 3 ] = NUM_SIDE - 1;
+        size[ n + 6 ] = 0;
+    }
+
+    int nzones = 5;
+
+    for ( int nz = 1; nz <= nzones; nz ++ )
+    {
+        string name = AddString( "Zone", nz );
+        int cgzone = -1;
+        int cgcoord = -1;
+        cg_zone_write( this->fileId, this->baseId, name.c_str(), size, CGNS_ENUMV( Structured ), &cgzone );
+        //cg_coord_write( this->fileId, this->currBaseId, cgzone, CGNS_ENUMV( RealSingle ), "CoordinateX", coord, &cgcoord );
+        //cg_coord_write( this->fileId, this->currBaseId, cgzone, CGNS_ENUMV( RealSingle ), "CoordinateY", coord, &cgcoord );
+        //cg_coord_write( this->fileId, this->currBaseId, cgzone, CGNS_ENUMV( RealSingle ), "CoordinateZ", coord, &cgcoord );
+    }
+}
+
+void CgnsBase::WriteLinkTest( const string & linkFileName )
+{
+    int nzones = 5;
+    for ( int nz = 1; nz <= nzones; nz ++ )
+    {
+        string name     = AddString( "Link to Zone", nz );
+        string linkpath = AddString( "/Base/Zone", nz );
+
+        cg_goto( this->fileId, this->baseId, "end" );
+        cg_link_write( name.c_str(), linkFileName.c_str(), linkpath.c_str() );
+    }
+}
+
+
 #endif
 EndNameSpace

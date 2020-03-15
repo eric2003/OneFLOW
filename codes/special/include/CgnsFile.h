@@ -24,6 +24,7 @@ License
 #pragma once
 #include "HXDefine.h"
 #include <string>
+#include <vector>
 using namespace std;
 
 BeginNameSpace( ONEFLOW )
@@ -41,16 +42,17 @@ public:
     int fileId;
     int openMode;
     int openStatus;
+    vector< CgnsBase * > baseList;
 public:
     int currBaseId;
 public:
     void OpenCgnsFile( const string & fileName, int cgnsOpenMode );
     void CloseCgnsFile();
-    void WriteBase( const string & baseName );
-    void WriteBase( const string & baseName, int celldim, int physdim );
-public:
-    void WriteCoor();
-    void WriteLink( const string & linkFileName );
+    CgnsBase * WriteBase( const string & baseName );
+    CgnsBase * WriteBase( const string & baseName, int celldim, int physdim );
+private:
+    CgnsBase * AddBase( int fileId, const string & baseName, int celldim, int physdim, int baseId );
+    void FreeBaseList();
 };
 
 

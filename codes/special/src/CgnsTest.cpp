@@ -22,6 +22,7 @@ License
 
 #include "CgnsTest.h"
 #include "CgnsFile.h"
+#include "CgnsBase.h"
 #include "CgnsFactory.h"
 #include "Prj.h"
 #include "StrUtil.h"
@@ -424,18 +425,18 @@ void CgnsTest::TestCgnsLink()
     string linkname = "zones_link.cgns";
 
     CgnsFile * fileZone = new CgnsFile( fname, CG_MODE_WRITE );
-    fileZone->WriteBase( "Base" );
-    fileZone->WriteCoor();
+    CgnsBase * cgnsBase = fileZone->WriteBase( "Base" );
+    cgnsBase->WriteCoorTest();
     delete fileZone;
 
     CgnsFile * fileZoneM = new CgnsFile( fname, CG_MODE_MODIFY );
-    fileZoneM->currBaseId = 1;
-    fileZoneM->WriteCoor();
+    CgnsBase * cgnsBaseM = fileZoneM->WriteBase( "Base" );
+    cgnsBaseM->WriteCoorTest();
     delete fileZoneM;
 
     CgnsFile * fileLink = new CgnsFile( linkname, CG_MODE_WRITE );
-    fileLink->WriteBase( "Base1" );
-    fileLink->WriteLink( fname );
+    CgnsBase * cgnsBaseLink = fileLink->WriteBase( "Base2" );
+    cgnsBaseLink->WriteLinkTest( fname );
     delete fileLink;
 }
 
