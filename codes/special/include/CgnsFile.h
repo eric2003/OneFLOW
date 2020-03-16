@@ -42,6 +42,7 @@ public:
     int fileId;
     int openMode;
     int openStatus;
+    int nBases;
     vector< CgnsBase * > baseList;
 public:
     int currBaseId;
@@ -53,6 +54,11 @@ public:
 private:
     CgnsBase * AddBase( int fileId, const string & baseName, int celldim, int physdim, int baseId );
     void FreeBaseList();
+public:
+    void GoPath( const string & path );
+    void ReadNumberOfBases();
+    void ReadBases();
+    void ReadArray();
 };
 
 

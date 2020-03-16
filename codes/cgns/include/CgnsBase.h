@@ -68,8 +68,10 @@ public:
     void ReadFamilySpecifiedBc();
 public:
     void GoToBase();
-    void WriteZoneTest( const string & zoneName, ZoneType_t zoneType, cgsize_t * isize );
+    void GoToNode( const string & nodeName, int ith );
+public:
     void WriteZoneInfo( const string & zoneName, ZoneType_t zoneType, cgsize_t * isize );
+    void ReadArray();
 };
 
 #endif

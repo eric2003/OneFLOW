@@ -192,6 +192,47 @@ void CgnsBase::GoToBase()
     cg_goto( this->fileId, this->baseId, "end" );
 }
 
+void CgnsBase::GoToNode( const string & nodeName, int ith )
+{
+    cg_goto( this->fileId, this->baseId, nodeName.c_str(), ith, NULL );
+}
+
+void CgnsBase::ReadArray()
+{
+    this->GoToBase();
+    int nUserData = -1;
+    cg_nuser_data( & nUserData );
+
+    cout << " nUserData = " << nUserData << "\n";
+
+    for ( int iData = 0; iData < nUserData; ++ iData )
+    {
+        int iDataId = iData + 1;
+        this->GoToBase();
+
+        char name[ 33 ];
+        cg_user_data_read( iDataId, name );
+
+        cout << " iData = " << iData << " user data name = " << name << "\n";
+
+        this->GoToNode( "UserDefinedData_t", iDataId );
+        int narrays = -1;
+        cg_narrays( & narrays );
+
+        cout << " narrays = " << narrays << "\n";
+        for ( int iArray = 0; iArray < narrays; ++ iArray )
+        {
+            int A = iArray + 1;
+            char arrayName[ 33 ];
+            CGNS_ENUMT( DataType_t ) dataType;
+            int dataDimension;
+            cgsize_t dimensionVector;
+            cg_array_info( A, arrayName, &dataType, & dataDimension, &dimensionVector );
+            cout << " iArray = " << iArray << " arrayName = " << arrayName << "\n";
+        }
+    }
+}
+
 
 #endif
 EndNameSpace

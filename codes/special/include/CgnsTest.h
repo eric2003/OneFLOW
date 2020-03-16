@@ -25,11 +25,13 @@ License
 #include "HXDefine.h"
 #include "HXCgns.h"
 #include <string>
+#include <vector>
 using namespace std;
 
 BeginNameSpace( ONEFLOW )
 
 class CgnsBase;
+class CgnsFile;
 
 class CgnsTest
 {
@@ -72,7 +74,11 @@ public:
 public:
     void ReadEmptyCgnsFile();
     void WriteEmptyCgnsFile();
-
+public:
+    void WriteArray();
+    void WriteArray( CgnsFile * cgnsFile, CgnsBase * cgnsBase );
+    void ReadArray();
+    void GetArray( vector< vector< float > > & myfloat2d );
 };
 
 

@@ -103,5 +103,39 @@ CgnsBase * CgnsFile::AddBase( int fileId, const string & baseName, int celldim, 
     return base;
 }
 
+void CgnsFile::GoPath( const string & path )
+{
+    cg_gopath( this->fileId, path.c_str() );
+}
+
+void CgnsFile::ReadNumberOfBases()
+{
+    cg_nbases( this->fileId, & this->nBases );
+    cout << " Total number of CGNS Base = " << this->nBases << "\n";
+}
+
+void CgnsFile::ReadBases()
+{
+    for ( int iBase = 0; iBase < this->nBases; ++ iBase )
+    {
+        int baseId = iBase + 1;
+        CgnsBase * cgnsBase = new CgnsBase();
+        this->baseList.push_back( cgnsBase );
+        cgnsBase->fileId = this->fileId;
+        cgnsBase->baseId = baseId;
+        cgnsBase->ReadCgnsBaseBasicInfo();
+    }
+}
+
+void CgnsFile::ReadArray()
+{
+    for ( int iBase = 0; iBase < this->nBases; ++ iBase )
+    {
+        CgnsBase * cgnsBase = this->baseList[ iBase ];
+        cgnsBase->ReadArray();
+    }
+}
+
+
 
 EndNameSpace

@@ -60,8 +60,10 @@ void CgnsTest::Run()
     //this->ReadDescriptor();
     //this->WriteNondimensionalParameter();
     //this->ReadNondimensionalParameter();
-    this->TestCgnsLink();
     //this->Test();
+    //this->TestCgnsLink();
+    //this->WriteArray();
+    this->ReadArray();
 }
 
 void CgnsTest::Test()
@@ -475,5 +477,137 @@ void CgnsTest::TestCgnsLink()
 
     delete fileLink;
 }
+
+void CgnsTest::GetArray( vector< vector< float > > & myfloat2d )
+{
+    vector< float > a1, a2, a3;
+    a1.push_back( 1 );
+    a1.push_back( 2 );
+    a1.push_back( 3 );
+
+    a2.push_back( 10 );
+    a2.push_back( 20 );
+    a2.push_back( 30 );
+    a2.push_back( 40 );
+
+    a3.push_back( 100 );
+    a3.push_back( 200 );
+    a3.push_back( 300 );
+    a3.push_back( 400 );
+    a3.push_back( 500 );
+
+    myfloat2d.push_back( a1 );
+    myfloat2d.push_back( a2 );
+    myfloat2d.push_back( a3 );
+}
+
+//void CgnsTest::WriteArray()
+//{
+//    vector< vector< float > > myarray;
+//    this->GetArray( myarray );
+//
+//    CgnsFile * cgnsFile = new CgnsFile( "array.cgns", CG_MODE_WRITE );
+//    CgnsBase * cgnsBase = cgnsFile->WriteBase( "BaseXXX" );
+//    cgnsBase->GoToBase();
+//    cg_user_data_write( "DataYYY" );
+//    cgnsBase->GoToNode( "UserDefinedData_t", 1 );
+//
+//    for ( int i = 0; i < myarray.size(); ++ i )
+//    {
+//        string name = AddString( "MyArray", i + 1 );
+//        cgsize_t arraysize = myarray[ i ].size();
+//        cg_array_write( name.c_str(), CGNS_ENUMV( RealSingle ), 1, &arraysize, &myarray[ i ][ 0 ] );
+//        cgnsFile->GoPath( name );
+//        cgnsFile->GoPath( ".." );
+//    }
+//
+//    delete cgnsFile;
+//}
+
+void CgnsTest::WriteArray()
+{
+    vector< vector< float > > myarray;
+    this->GetArray( myarray );
+
+    CgnsFile * cgnsFile = new CgnsFile( "array.cgns", CG_MODE_WRITE );
+    CgnsBase * cgnsBase = cgnsFile->WriteBase( "BaseXXX" );
+    this->WriteArray( cgnsFile, cgnsBase );
+    //CgnsBase * cgnsBase = cgnsFile->WriteBase( "BaseYYY" );
+    cgnsBase = cgnsFile->WriteBase( "BaseYYY" );
+    this->WriteArray( cgnsFile, cgnsBase );
+    //cgnsBase->GoToBase();
+    //cg_user_data_write( "DataYYY" );
+    //cgnsBase->GoToNode( "UserDefinedData_t", 1 );
+
+    //for ( int i = 0; i < myarray.size(); ++ i )
+    //{
+    //    string name = AddString( "MyArray", i + 1 );
+    //    cgsize_t arraysize = myarray[ i ].size();
+    //    cg_array_write( name.c_str(), CGNS_ENUMV( RealSingle ), 1, &arraysize, &myarray[ i ][ 0 ] );
+    //    cgnsFile->GoPath( name );
+    //    cgnsFile->GoPath( ".." );
+    //}
+
+    //cgnsBase->GoToBase();
+    //cg_user_data_write( "DataZZZ" );
+    //cgnsBase->GoToNode( "UserDefinedData_t", 2 );
+
+    //for ( int i = 0; i < myarray.size(); ++ i )
+    //{
+    //    string name = AddString( "MyArray", i + 1 );
+    //    cgsize_t arraysize = myarray[ i ].size();
+    //    cg_array_write( name.c_str(), CGNS_ENUMV( RealSingle ), 1, &arraysize, &myarray[ i ][ 0 ] );
+    //    cgnsFile->GoPath( name );
+    //    cgnsFile->GoPath( ".." );
+    //}
+
+    delete cgnsFile;
+}
+
+void CgnsTest::WriteArray( CgnsFile * cgnsFile, CgnsBase * cgnsBase )
+{
+    vector< vector< float > > myarray;
+    this->GetArray( myarray );
+
+    cgnsBase->GoToBase();
+    cg_user_data_write( "DataYYY" );
+    cgnsBase->GoToNode( "UserDefinedData_t", 1 );
+
+    for ( int i = 0; i < myarray.size(); ++ i )
+    {
+        string name = AddString( "MyArray", i + 1 );
+        cgsize_t arraysize = myarray[ i ].size();
+        cg_array_write( name.c_str(), CGNS_ENUMV( RealSingle ), 1, &arraysize, &myarray[ i ][ 0 ] );
+        cgnsFile->GoPath( name );
+        cgnsFile->GoPath( ".." );
+    }
+
+    cgnsBase->GoToBase();
+    cg_user_data_write( "DataZZZ" );
+    cgnsBase->GoToNode( "UserDefinedData_t", 2 );
+
+    for ( int i = 0; i < myarray.size(); ++ i )
+    {
+        string name = AddString( "MyArray", i + 1 );
+        cgsize_t arraysize = myarray[ i ].size();
+        cg_array_write( name.c_str(), CGNS_ENUMV( RealSingle ), 1, &arraysize, &myarray[ i ][ 0 ] );
+        cgnsFile->GoPath( name );
+        cgnsFile->GoPath( ".." );
+    }
+}
+
+void CgnsTest::ReadArray()
+{
+    vector< vector< float > > myarray;
+    this->GetArray( myarray );
+
+    CgnsFile * cgnsFile = new CgnsFile( "array.cgns", CG_MODE_READ );
+    cgnsFile->ReadNumberOfBases();
+    cgnsFile->ReadBases();
+    cgnsFile->ReadArray();
+
+    delete cgnsFile;
+}
+
 
 EndNameSpace
