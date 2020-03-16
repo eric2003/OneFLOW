@@ -21,8 +21,11 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "CgnsTest.h"
+#include "CgnsFile.h"
+#include "CgnsBase.h"
 #include "CgnsFactory.h"
 #include "Prj.h"
+#include "StrUtil.h"
 #include "CgnsZone.h"
 #include <iostream>
 #include <iomanip>
@@ -56,11 +59,14 @@ void CgnsTest::Run()
     //this->WriteDescriptor();
     //this->ReadDescriptor();
     //this->WriteNondimensionalParameter();
-    this->ReadNondimensionalParameter();
- }
+    //this->ReadNondimensionalParameter();
+    this->TestCgnsLink();
+    //this->Test();
+}
 
 void CgnsTest::Test()
 {
+   this->TestCgnsLink();
 }
 
 void CgnsTest::SetDefaultGridName()
@@ -240,6 +246,11 @@ void CgnsTest::CloseCgnsFile()
     cg_close( index_file );
 }
 
+void CgnsTest::CloseCgnsFile( int index_file )
+{
+    cg_close( index_file );
+}
+
 void CgnsTest::WriteEmptyCgnsFile()
 {
     this->OpenCgnsFile( CG_MODE_WRITE );
@@ -408,6 +419,61 @@ void CgnsTest::ReadNondimensionalParameter()
     this->CloseCgnsFile();
 }
 
+void CgnsTest::SetISize( cgsize_t * isize )
+{
+    int nijk = 5;
+    for ( int n = 0; n < 3; n ++ )
+    {
+        isize[ n     ] = nijk;
+        isize[ n + 3 ] = nijk - 1;
+        isize[ n + 6 ] = 0;
+    }
+}
 
+
+void CgnsTest::TestCgnsLink()
+{
+    string fname    = "zones.cgns";
+    string linkname = "zones_link.cgns";
+
+    cgsize_t isize[ 9 ];
+    this->SetISize( isize );
+    int nZones = 5;
+
+    CgnsFile * fileZone = new CgnsFile( fname, CG_MODE_WRITE );
+    CgnsBase * cgnsBase = fileZone->WriteBase( "Base" );
+
+    for ( int iZone = 0; iZone < nZones; ++ iZone )
+    {
+        string name = AddString( "Zone", iZone + 1 );
+        cgnsBase->WriteZoneInfo( name, CGNS_ENUMV( Structured ), isize );
+    }
+    delete fileZone;
+
+    CgnsFile * fileZoneM = new CgnsFile( fname, CG_MODE_MODIFY );
+    CgnsBase * cgnsBaseM = fileZoneM->WriteBase( "Base" );
+
+    for ( int iZone = 0; iZone < nZones; ++ iZone )
+    {
+        string name = AddString( "Zone", iZone + 1 );
+        cgnsBaseM->WriteZoneInfo( name, CGNS_ENUMV( Structured ), isize );
+    }
+
+    delete fileZoneM;
+
+    CgnsFile * fileLink = new CgnsFile( linkname, CG_MODE_WRITE );
+    CgnsBase * cgnsBaseLink = fileLink->WriteBase( "Base2" );
+    cgnsBaseLink->GoToBase();
+
+    for ( int iZone = 0; iZone < nZones; ++ iZone )
+    {
+        string name     = AddString( "Link to Zone", iZone + 1 );
+        string linkpath = AddString( "/Base/Zone", iZone + 1 );
+
+        cg_link_write( name.c_str(), fname.c_str(), linkpath.c_str() );
+    }
+
+    delete fileLink;
+}
 
 EndNameSpace

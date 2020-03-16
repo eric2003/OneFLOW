@@ -22,6 +22,7 @@ License
 #include "Simulation.h"
 #include "SimuImp.h"
 #include "SimpleSimu.h"
+#include "MpiTest.h"
 #include <iostream>
 using namespace std;
 
@@ -84,7 +85,9 @@ void Simulation::Run()
 
 void Simulation::RunDefaultSimu()
 {
-    cout << "Running default simulation\n";
+    MpiTest * mpiTest = new MpiTest();
+    mpiTest->Run();
+    delete mpiTest;
 }
 
 

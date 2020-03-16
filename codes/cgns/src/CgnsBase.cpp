@@ -36,12 +36,26 @@ BeginNameSpace( ONEFLOW )
 CgnsBase::CgnsBase()
 {
     this->familyBc = 0;
+    this->freeFlag = false;
 }
 
 CgnsBase::~CgnsBase()
 {
     delete this->familyBc;
+    if ( this->freeFlag )
+    {
+        this->FreeZoneList();
+    }
 }
+
+void CgnsBase::FreeZoneList()
+{
+    for ( int i = 0; i < cgnsZones.size(); ++ i )
+    {
+        delete cgnsZones[ i ];
+    }
+}
+
 
 CgnsZone * CgnsBase::GetCgnsZone( int iZone )
 {
@@ -159,6 +173,25 @@ void CgnsBase::ReadFamilySpecifiedBc()
     this->familyBc = new CgnsFamilyBc( this );
     this->familyBc->ReadFamilySpecifiedBc();
 }
+
+void CgnsBase::WriteZoneInfo( const string & zoneName, ZoneType_t zoneType, cgsize_t * isize )
+{
+    int cgzone;
+    cg_zone_write( this->fileId, this->baseId, zoneName.c_str(), isize, zoneType, & cgzone );
+    this->freeFlag = true;
+
+    CgnsZone * cgnsZone = new CgnsZone( this );
+    cgnsZone->zoneName = zoneName;
+    cgnsZone->cgnsZoneType = zoneType;
+    cgnsZone->CopyISize( isize );
+    this->cgnsZones.push_back( cgnsZone );    ;
+}
+
+void CgnsBase::GoToBase()
+{
+    cg_goto( this->fileId, this->baseId, "end" );
+}
+
 
 #endif
 EndNameSpace

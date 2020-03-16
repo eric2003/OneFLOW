@@ -69,6 +69,7 @@ public:
 
     CgInt isize[ 9 ];
 public:
+    void CopyISize( CgInt * isize );
     void SetVolBcType( int volBcType );
     int GetVolBcType();
 public:

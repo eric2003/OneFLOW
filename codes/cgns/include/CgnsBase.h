@@ -46,7 +46,9 @@ public:
     int celldim, phydim;
     string baseName;
     HXVector< CgnsZone * > cgnsZones;
+    bool freeFlag;
 public:
+    void FreeZoneList();
     CgnsZone * GetCgnsZoneByName( const string & zoneName );
     CgnsZone * GetCgnsZone( int iZone );
     void ConstructZoneNameMap();
@@ -64,6 +66,10 @@ public:
 public:
     void SetFamilyBc( BCType_t & bcType, const string & bcRegionName );
     void ReadFamilySpecifiedBc();
+public:
+    void GoToBase();
+    void WriteZoneTest( const string & zoneName, ZoneType_t zoneType, cgsize_t * isize );
+    void WriteZoneInfo( const string & zoneName, ZoneType_t zoneType, cgsize_t * isize );
 };
 
 #endif

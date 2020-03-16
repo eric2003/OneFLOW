@@ -22,57 +22,27 @@ License
 
 
 #pragma once
-#include "HXDefine.h"
-#include "HXCgns.h"
+#include "Configure.h"
+
 #include <string>
 using namespace std;
 
 BeginNameSpace( ONEFLOW )
 
-class CgnsBase;
-
-class CgnsTest
+class MpiTest
 {
 public:
-    CgnsTest();
-    ~CgnsTest();
-public:
-    string fileName;
-    int index_file;
-    int curr_base_id;
-    int nBases;
-    HXVector< CgnsBase * > baseList;
+    MpiTest();
+    ~MpiTest();
 public:
     void Init();
     void Run();
     void Test();
 public:
-    void SetDefaultGridName();
-    void ReadNondimensionalParameter();
-    void WriteNondimensionalParameter();
-    void WriteDescriptor();
-    void ReadDescriptor();
-    void ReadBaseDescriptor( int baseIndex );
-    void WriteSimpleMultiBaseTest();
-    void ReadSimpleMultiBaseTest();
-    void TestCgnsLink();
-private:
-    void SetISize( cgsize_t * isize );
+    void HX_MPI_Init();
+    void HX_MPI_Final();
 public:
-    void OpenCgnsFile( int cgnsOpenMode );
-    void OpenCgnsFile( const string & fileName, int cgnsOpenMode );
-    void CloseCgnsFile();
-    void CloseCgnsFile( int index_file );
-    string GetCgnsFileTypeName( int file_type );
-    void WriteBase( const string & baseName );
-    void WriteBase( const string & baseName, int celldim, int physdim );
-public:
-    void WriteDouble( const string & varName, const double & varValue );
-    void GotoBaseBegin( int baseIndex );
-public:
-    void ReadEmptyCgnsFile();
-    void WriteEmptyCgnsFile();
-
+    int myrank, nprocs;
 };
 
 

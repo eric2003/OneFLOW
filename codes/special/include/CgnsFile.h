@@ -23,56 +23,36 @@ License
 
 #pragma once
 #include "HXDefine.h"
-#include "HXCgns.h"
 #include <string>
+#include <vector>
 using namespace std;
 
 BeginNameSpace( ONEFLOW )
 
 class CgnsBase;
 
-class CgnsTest
+class CgnsFile
 {
 public:
-    CgnsTest();
-    ~CgnsTest();
+    CgnsFile();
+    CgnsFile( const string & fileName, int openMode );
+    ~CgnsFile();
 public:
     string fileName;
-    int index_file;
-    int curr_base_id;
-    int nBases;
-    HXVector< CgnsBase * > baseList;
+    int fileId;
+    int openMode;
+    int openStatus;
+    vector< CgnsBase * > baseList;
 public:
-    void Init();
-    void Run();
-    void Test();
+    int currBaseId;
 public:
-    void SetDefaultGridName();
-    void ReadNondimensionalParameter();
-    void WriteNondimensionalParameter();
-    void WriteDescriptor();
-    void ReadDescriptor();
-    void ReadBaseDescriptor( int baseIndex );
-    void WriteSimpleMultiBaseTest();
-    void ReadSimpleMultiBaseTest();
-    void TestCgnsLink();
-private:
-    void SetISize( cgsize_t * isize );
-public:
-    void OpenCgnsFile( int cgnsOpenMode );
     void OpenCgnsFile( const string & fileName, int cgnsOpenMode );
     void CloseCgnsFile();
-    void CloseCgnsFile( int index_file );
-    string GetCgnsFileTypeName( int file_type );
-    void WriteBase( const string & baseName );
-    void WriteBase( const string & baseName, int celldim, int physdim );
-public:
-    void WriteDouble( const string & varName, const double & varValue );
-    void GotoBaseBegin( int baseIndex );
-public:
-    void ReadEmptyCgnsFile();
-    void WriteEmptyCgnsFile();
-
+    CgnsBase * WriteBase( const string & baseName );
+    CgnsBase * WriteBase( const string & baseName, int celldim, int physdim );
+private:
+    CgnsBase * AddBase( int fileId, const string & baseName, int celldim, int physdim, int baseId );
+    void FreeBaseList();
 };
 
 
