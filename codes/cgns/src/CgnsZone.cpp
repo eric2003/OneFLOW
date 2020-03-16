@@ -64,6 +64,14 @@ CgnsZone::~CgnsZone()
     delete this->cgnsCoor;
 }
 
+void CgnsZone::CopyISize( CgInt * isize )
+{
+    for ( int i = 0; i < 9; ++ i )
+    {
+        this->isize[ i ] = isize[ i ];
+    }
+}
+
 void CgnsZone::SetVolBcType( int volBcType )
 {
     this->volBcType = volBcType;

@@ -67,7 +67,7 @@ void CgnsFile::CloseCgnsFile()
     cg_close( this->fileId );
 }
 
-CgnsBase *  CgnsFile::WriteBase( const string & baseName )
+CgnsBase * CgnsFile::WriteBase( const string & baseName )
 {
     int celldim = 3;
     int physdim = 3;

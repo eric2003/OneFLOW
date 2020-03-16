@@ -23,6 +23,7 @@ License
 
 #pragma once
 #include "HXDefine.h"
+#include "HXCgns.h"
 #include <string>
 using namespace std;
 
@@ -55,6 +56,8 @@ public:
     void WriteSimpleMultiBaseTest();
     void ReadSimpleMultiBaseTest();
     void TestCgnsLink();
+private:
+    void SetISize( cgsize_t * isize );
 public:
     void OpenCgnsFile( int cgnsOpenMode );
     void OpenCgnsFile( const string & fileName, int cgnsOpenMode );

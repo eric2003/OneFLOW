@@ -36,12 +36,26 @@ BeginNameSpace( ONEFLOW )
 CgnsBase::CgnsBase()
 {
     this->familyBc = 0;
+    this->freeFlag = false;
 }
 
 CgnsBase::~CgnsBase()
 {
     delete this->familyBc;
+    if ( this->freeFlag )
+    {
+        this->FreeZoneList();
+    }
 }
+
+void CgnsBase::FreeZoneList()
+{
+    for ( int i = 0; i < cgnsZones.size(); ++ i )
+    {
+        delete cgnsZones[ i ];
+    }
+}
+
 
 CgnsZone * CgnsBase::GetCgnsZone( int iZone )
 {
@@ -160,45 +174,22 @@ void CgnsBase::ReadFamilySpecifiedBc()
     this->familyBc->ReadFamilySpecifiedBc();
 }
 
-void CgnsBase::WriteCoorTest()
+void CgnsBase::WriteZoneInfo( const string & zoneName, ZoneType_t zoneType, cgsize_t * isize )
 {
-#define NUM_SIDE 5
-    float coord[ NUM_SIDE * NUM_SIDE * NUM_SIDE ];
+    int cgzone;
+    cg_zone_write( this->fileId, this->baseId, zoneName.c_str(), isize, zoneType, & cgzone );
+    this->freeFlag = true;
 
-    cgsize_t size[ 9 ];
-
-    for ( int n = 0; n < 3; n ++ )
-    {
-        size[ n     ] = NUM_SIDE;
-        size[ n + 3 ] = NUM_SIDE - 1;
-        size[ n + 6 ] = 0;
-    }
-
-    int nzones = 5;
-
-    for ( int nz = 1; nz <= nzones; nz ++ )
-    {
-        string name = AddString( "Zone", nz );
-        int cgzone = -1;
-        int cgcoord = -1;
-        cg_zone_write( this->fileId, this->baseId, name.c_str(), size, CGNS_ENUMV( Structured ), &cgzone );
-        //cg_coord_write( this->fileId, this->currBaseId, cgzone, CGNS_ENUMV( RealSingle ), "CoordinateX", coord, &cgcoord );
-        //cg_coord_write( this->fileId, this->currBaseId, cgzone, CGNS_ENUMV( RealSingle ), "CoordinateY", coord, &cgcoord );
-        //cg_coord_write( this->fileId, this->currBaseId, cgzone, CGNS_ENUMV( RealSingle ), "CoordinateZ", coord, &cgcoord );
-    }
+    CgnsZone * cgnsZone = new CgnsZone( this );
+    cgnsZone->zoneName = zoneName;
+    cgnsZone->cgnsZoneType = zoneType;
+    cgnsZone->CopyISize( isize );
+    this->cgnsZones.push_back( cgnsZone );    ;
 }
 
-void CgnsBase::WriteLinkTest( const string & linkFileName )
+void CgnsBase::GoToBase()
 {
-    int nzones = 5;
-    for ( int nz = 1; nz <= nzones; nz ++ )
-    {
-        string name     = AddString( "Link to Zone", nz );
-        string linkpath = AddString( "/Base/Zone", nz );
-
-        cg_goto( this->fileId, this->baseId, "end" );
-        cg_link_write( name.c_str(), linkFileName.c_str(), linkpath.c_str() );
-    }
+    cg_goto( this->fileId, this->baseId, "end" );
 }
 
 
