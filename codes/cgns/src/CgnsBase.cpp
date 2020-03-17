@@ -26,6 +26,8 @@ License
 #include "StrUtil.h"
 #include "Dimension.h"
 #include "CgnsFamilyBc.h"
+#include "CgnsVariable.h"
+
 #include <iostream>
 using namespace std;
 
@@ -220,16 +222,9 @@ void CgnsBase::ReadArray()
         cg_narrays( & narrays );
 
         cout << " narrays = " << narrays << "\n";
-        for ( int iArray = 0; iArray < narrays; ++ iArray )
-        {
-            int A = iArray + 1;
-            char arrayName[ 33 ];
-            CGNS_ENUMT( DataType_t ) dataType;
-            int dataDimension;
-            cgsize_t dimensionVector;
-            cg_array_info( A, arrayName, &dataType, & dataDimension, &dimensionVector );
-            cout << " iArray = " << iArray << " arrayName = " << arrayName << "\n";
-        }
+
+        CgnsZVector cgnsZVector;
+        cgnsZVector.ReadArray( narrays );
     }
 }
 
