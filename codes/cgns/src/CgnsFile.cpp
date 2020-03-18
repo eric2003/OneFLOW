@@ -93,7 +93,7 @@ void CgnsFile::FreeBaseList()
 
 CgnsBase * CgnsFile::AddBase( int fileId, const string & baseName, int celldim, int physdim, int baseId )
 {
-    CgnsBase * base = new CgnsBase();
+    CgnsBase * base = new CgnsBase( this );
     base->fileId = fileId;
     base->baseName = baseName;
     base->celldim = celldim;
@@ -101,6 +101,48 @@ CgnsBase * CgnsFile::AddBase( int fileId, const string & baseName, int celldim, 
     base->baseId = baseId;
     baseList.push_back( base );
     return base;
+}
+
+void CgnsFile::GoPath( const string & path )
+{
+    cg_gopath( this->fileId, path.c_str() );
+}
+
+void CgnsFile::ReadNumberOfBases()
+{
+    cg_nbases( this->fileId, & this->nBases );
+    cout << " Total number of CGNS Base = " << this->nBases << "\n";
+}
+
+void CgnsFile::ReadBases()
+{
+    for ( int iBase = 0; iBase < this->nBases; ++ iBase )
+    {
+        int baseId = iBase + 1;
+        CgnsBase * cgnsBase = new CgnsBase( this );
+        this->baseList.push_back( cgnsBase );
+        cgnsBase->fileId = this->fileId;
+        cgnsBase->baseId = baseId;
+        cgnsBase->ReadCgnsBaseBasicInfo();
+    }
+}
+
+void CgnsFile::ReadArray()
+{
+    for ( int iBase = 0; iBase < this->nBases; ++ iBase )
+    {
+        CgnsBase * cgnsBase = this->baseList[ iBase ];
+        cgnsBase->ReadArray();
+    }
+}
+
+void CgnsFile::ReadReferenceState()
+{
+    for ( int iBase = 0; iBase < this->nBases; ++ iBase )
+    {
+        CgnsBase * cgnsBase = this->baseList[ iBase ];
+        cgnsBase->ReadReferenceState();
+    }
 }
 
 

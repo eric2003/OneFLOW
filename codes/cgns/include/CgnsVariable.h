@@ -23,37 +23,80 @@ License
 
 #pragma once
 #include "HXDefine.h"
+#include "HXCgns.h"
 #include <string>
 #include <vector>
 using namespace std;
 
 BeginNameSpace( ONEFLOW )
 
-class CgnsBase;
+typedef double VEC_DATA;
 
-class CgnsFile
+class CgnsVector
 {
 public:
-    CgnsFile();
-    CgnsFile( const string & fileName, int openMode );
-    ~CgnsFile();
+    CgnsVector();
+    ~CgnsVector();
 public:
-    string fileName;
-    int fileId;
-    int openMode;
-    int openStatus;
-    vector< CgnsBase * > baseList;
+    CGNS_ENUMT( DataType_t ) dataType;
+    char name[ 33 ];
+    int arrayId;
+    int ndim;
+    cgsize_t dims[ 12 ];
+    VEC_DATA * data;
 public:
-    int currBaseId;
+    void ReadArray();
+    void ReadArrayInfo( int arrayId );
+    void ReadArrayContent();
+    void PrintData();
 public:
-    void OpenCgnsFile( const string & fileName, int cgnsOpenMode );
-    void CloseCgnsFile();
-    CgnsBase * WriteBase( const string & baseName );
-    CgnsBase * WriteBase( const string & baseName, int celldim, int physdim );
-private:
-    CgnsBase * AddBase( int fileId, const string & baseName, int celldim, int physdim, int baseId );
-    void FreeBaseList();
+    void Create();
 };
 
+class CgnsZVector
+{
+public:
+    CgnsZVector();
+    ~CgnsZVector();
+public:
+    vector< CgnsVector * > cgnsVectorList;
+    void ReadArray( int nArrays );
+    void ReadArray();
+};
+
+class CgnsBase;
+class CgnsUserData
+{
+public:
+    CgnsUserData( CgnsBase * cgnsBase );
+    ~CgnsUserData();
+public:
+    CgnsBase * cgnsBase;
+    vector< CgnsZVector * > cgnsZVectorList;
+public:
+    void ReadUserData();
+};
+
+//class CgnsVariable
+//{
+//public:
+//    CgnsVariable();
+//    ~CgnsVariable();
+//public:
+//    char name[33];
+//    int type;
+//    int id;
+//    int valid;
+//    int len;
+//    int datatype;
+//    int dataclass;
+//    int hasunits;
+//    int units[5];
+//    int hasconv;
+//    double dataconv[2];
+//    int hasexp;
+//    double exponent[5];
+//    CgnsVector *vd;
+//};
 
 EndNameSpace

@@ -21,11 +21,14 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "CgnsBase.h"
+#include "CgnsFile.h"
 #include "CgnsZone.h"
 #include "CgnsZoneUtil.h"
 #include "StrUtil.h"
 #include "Dimension.h"
 #include "CgnsFamilyBc.h"
+#include "CgnsVariable.h"
+
 #include <iostream>
 using namespace std;
 
@@ -35,6 +38,14 @@ BeginNameSpace( ONEFLOW )
 
 CgnsBase::CgnsBase()
 {
+    this->cgnsFile = 0;
+    this->familyBc = 0;
+    this->freeFlag = false;
+}
+
+CgnsBase::CgnsBase( CgnsFile * cgnsFile )
+{
+    this->cgnsFile = cgnsFile;
     this->familyBc = 0;
     this->freeFlag = false;
 }
@@ -190,6 +201,50 @@ void CgnsBase::WriteZoneInfo( const string & zoneName, ZoneType_t zoneType, cgsi
 void CgnsBase::GoToBase()
 {
     cg_goto( this->fileId, this->baseId, "end" );
+}
+
+void CgnsBase::GoToNode( const string & nodeName, int ith )
+{
+    cg_goto( this->fileId, this->baseId, nodeName.c_str(), ith, NULL );
+}
+
+void CgnsBase::ReadArray()
+{
+    CgnsUserData cgnsUserData( this );
+    cgnsUserData.ReadUserData();
+}
+
+void CgnsBase::ReadReferenceState()
+{
+    this->GoToBase();
+
+    //CGNS_ENUMT(DataClass_t) id;
+    //cg_dataclass_read( & id );
+    //cout << "DataClass id = " << id << "\n";
+    //cout << "DataClass = " << DataClassName[ id ] << "\n";
+
+    char * state;
+    cg_state_read( & state );
+    cout << "ReferenceState = " << state << "\n";
+
+    this->GoToNode( "ReferenceState_t", 1 );
+    int narrays = -1;
+    cg_narrays( & narrays );
+    cout << " narrays = " << narrays << "\n";
+
+    for ( int n = 1; n <= narrays; ++ n )
+    {
+        CGNS_ENUMT(DataType_t) idata;
+        int idim;
+        cgsize_t idimvec;
+        char arrayname[33];
+        cg_array_info( n, arrayname, & idata, & idim, & idimvec );
+        cout << " DataTypeName = " << DataTypeName[ idata ] << "\n";
+        double data;
+        cg_array_read_as( n, CGNS_ENUMV(RealDouble), & data );
+        cout << "Variable = " << arrayname << "\n";
+        cout << "   data = " << data << "\n";
+    }
 }
 
 

@@ -32,15 +32,18 @@ BeginNameSpace( ONEFLOW )
 
 #ifdef ENABLE_CGNS
 
+class CgnsFile;
 class CgnsZone;
 class CgnsFamilyBc;
 
 class CgnsBase
 {
 public:
+    CgnsBase( CgnsFile * cgnsFile );
     CgnsBase();
     ~CgnsBase();
 public:
+    CgnsFile * cgnsFile;
     int fileId, baseId;
     int nZones;
     int celldim, phydim;
@@ -68,8 +71,11 @@ public:
     void ReadFamilySpecifiedBc();
 public:
     void GoToBase();
-    void WriteZoneTest( const string & zoneName, ZoneType_t zoneType, cgsize_t * isize );
+    void GoToNode( const string & nodeName, int ith );
+public:
     void WriteZoneInfo( const string & zoneName, ZoneType_t zoneType, cgsize_t * isize );
+    void ReadArray();
+    void ReadReferenceState();
 };
 
 #endif

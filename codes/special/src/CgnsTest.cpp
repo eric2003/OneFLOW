@@ -60,8 +60,12 @@ void CgnsTest::Run()
     //this->ReadDescriptor();
     //this->WriteNondimensionalParameter();
     //this->ReadNondimensionalParameter();
-    this->TestCgnsLink();
     //this->Test();
+    //this->TestCgnsLink();
+    //this->WriteArray();
+    //this->ReadArray();
+    //this->WriteReferenceState();
+    this->ReadReferenceState();
 }
 
 void CgnsTest::Test()
@@ -286,88 +290,6 @@ void CgnsTest::WriteDouble( const string & varName, const double & varValue )
     cg_array_write( varName.c_str(), CGNS_ENUMV(RealDouble), nDim ,ndims, &varValue );
 }
 
-void CgnsTest::WriteNondimensionalParameter()
-{
-    double xmach,reue,xmv,xmc,rev,rel,renu,rho0;
-    double p0,c0,vm0,xlength0,vx,vy,vz;
-    double gamma;
-    //int index_file,index_base;
-    CGNS_ENUMT(DataClass_t) idata;
-
-    cout << "\n";
-    cout << "Program write_nondimensional\n";
-
-    //define nondimensional parameters
-    xmach    = 4.6;
-    reue     = 6000000.;
-    xmv      = xmach;
-    xmc      = 1.;
-    rev      = xmach;
-    rel      = 1.;
-    renu     = xmach / reue;
-    rho0     = 1.;
-    gamma    = 1.4;
-    p0       = 1./gamma;
-    c0       = 1.;
-    vm0      = xmach/reue;
-    xlength0 = 1.;
-    vx       = xmach;
-    vy       = 0.0;
-    vz       = 0.0;
-
-    this->OpenCgnsFile( CG_MODE_WRITE );
-
-    this->WriteBase( "base1" );
-
-    int index_base = this->curr_base_id;
-
-    //put DataClass under Base
-    cg_goto(index_file,index_base,"end");
-    cg_dataclass_write( CGNS_ENUMV( NormalizedByUnknownDimensional ) );
-
-    //put ReferenceState under Base
-    cg_state_write("ReferenceQuantities");
-
-    //Go to ReferenceState node, write Mach array and its dataclass
-    cg_goto(index_file,index_base,"ReferenceState_t",1,"end");
-
-    WriteDouble("Mach", xmach );
-
-    cg_goto(index_file,index_base,"ReferenceState_t",1,"DataArray_t",1,"end");
-
-    cg_dataclass_write( CGNS_ENUMV(NondimensionalParameter) );
-
-    //Go to ReferenceState node, write Reynolds array and its dataclass
-    cg_goto(index_file,index_base,"ReferenceState_t",1,"end");
-    WriteDouble("Reynolds", reue );
-    cg_goto(index_file,index_base,"ReferenceState_t",1,"DataArray_t",2,"end");
-    cg_dataclass_write( CGNS_ENUMV(NondimensionalParameter) );
-    //Go to ReferenceState node to write reference quantities
-    cg_goto(index_file,index_base,"ReferenceState_t",1,"end");
-
-    // First, write reference quantities that make up Mach and Reynolds:
-    WriteDouble("Mach_Velocity", xmv );
-    WriteDouble("Mach_VelocitySound", xmc );
-    WriteDouble("Reynolds_Velocity", rev );
-    WriteDouble("Reynolds_Length", rel );
-    WriteDouble("Reynolds_ViscosityKinematic", renu );
-
-    //Next, write flow field reference quantities:
-    WriteDouble("Density", rho0 );
-    WriteDouble("Pressure", p0 );
-    WriteDouble("VelocitySound", c0 );
-    WriteDouble("ViscosityMolecular", vm0 );
-    WriteDouble("LengthReference", xlength0 );
-
-    WriteDouble("VelocityX", vx );
-    WriteDouble("VelocityY", vy );
-    WriteDouble("VelocityZ", vz );
-
-    WriteDouble("aoa", 5.0 );
-
-    this->CloseCgnsFile();
-}
-
 void CgnsTest::GotoBaseBegin( int baseIndex )
 {
     cg_goto(index_file,baseIndex,"end");
@@ -474,6 +396,172 @@ void CgnsTest::TestCgnsLink()
     }
 
     delete fileLink;
+}
+
+void CgnsTest::GetArray( vector< vector< float > > & myfloat2d )
+{
+    vector< float > a1, a2, a3;
+    a1.push_back( 1 );
+    a1.push_back( 2 );
+    a1.push_back( 3 );
+
+    a2.push_back( 10 );
+    a2.push_back( 20 );
+    a2.push_back( 30 );
+    a2.push_back( 40 );
+
+    a3.push_back( 100 );
+    a3.push_back( 200 );
+    a3.push_back( 300 );
+    a3.push_back( 400 );
+    a3.push_back( 500 );
+
+    myfloat2d.push_back( a1 );
+    myfloat2d.push_back( a2 );
+    myfloat2d.push_back( a3 );
+}
+
+void CgnsTest::WriteArray()
+{
+    vector< vector< float > > myarray;
+    this->GetArray( myarray );
+
+    CgnsFile * cgnsFile = new CgnsFile( "array.cgns", CG_MODE_WRITE );
+    CgnsBase * cgnsBase = cgnsFile->WriteBase( "BaseXXX" );
+    this->WriteArray( cgnsFile, cgnsBase );
+    cgnsBase = cgnsFile->WriteBase( "BaseYYY" );
+    this->WriteArray( cgnsFile, cgnsBase );
+
+    delete cgnsFile;
+}
+
+void CgnsTest::WriteArray( CgnsFile * cgnsFile, CgnsBase * cgnsBase )
+{
+    vector< vector< float > > myarray;
+    this->GetArray( myarray );
+
+    cgnsBase->GoToBase();
+    cg_user_data_write( "DataYYY" );
+    cgnsBase->GoToNode( "UserDefinedData_t", 1 );
+
+    for ( int i = 0; i < myarray.size(); ++ i )
+    {
+        string name = AddString( "MyArray", i + 1 );
+        cgsize_t arraysize = myarray[ i ].size();
+        cg_array_write( name.c_str(), CGNS_ENUMV( RealSingle ), 1, &arraysize, &myarray[ i ][ 0 ] );
+        cgnsFile->GoPath( name );
+        cgnsFile->GoPath( ".." );
+    }
+
+    cgnsBase->GoToBase();
+    cg_user_data_write( "DataZZZ" );
+    cgnsBase->GoToNode( "UserDefinedData_t", 2 );
+
+    for ( int i = 0; i < myarray.size(); ++ i )
+    {
+        string name = AddString( "MyArray", i + 1 );
+        cgsize_t arraysize = myarray[ i ].size();
+        cg_array_write( name.c_str(), CGNS_ENUMV( RealSingle ), 1, &arraysize, &myarray[ i ][ 0 ] );
+        cgnsFile->GoPath( name );
+        cgnsFile->GoPath( ".." );
+    }
+}
+
+void CgnsTest::ReadArray()
+{
+    vector< vector< float > > myarray;
+    this->GetArray( myarray );
+
+    CgnsFile * cgnsFile = new CgnsFile( "array.cgns", CG_MODE_READ );
+    cgnsFile->ReadNumberOfBases();
+    cgnsFile->ReadBases();
+    cgnsFile->ReadArray();
+
+    delete cgnsFile;
+}
+
+void CgnsTest::WriteNondimensionalParameter()
+{
+    CgnsFile * cgnsFile = new CgnsFile( "param.cgns", CG_MODE_WRITE );
+
+    CgnsBase * cgnsBase1 = cgnsFile->WriteBase( "Base1" );
+
+    cgnsBase1->GoToBase();
+    cg_state_write("ReferenceQuantities");
+    cgnsBase1->GoToBase();
+    cg_state_write("Test");
+
+    CgnsBase * cgnsBase2 = cgnsFile->WriteBase( "Base2" );
+    cgnsBase2->GoToBase();
+    cg_state_write("Test1");
+
+
+    delete cgnsFile; 
+}
+
+void CgnsTest::WriteReferenceState()
+{
+    //define nondimensional parameters
+    double xmach    = 4.6;
+    double reue     = 6000000.;
+    double xmv      = xmach;
+    double xmc      = 1.;
+    double rev      = xmach;
+    double rel      = 1.;
+    double renu     = xmach / reue;
+    double rho0     = 1.;
+    double gamma    = 1.4;
+    double p0       = 1./gamma;
+    double c0       = 1.;
+    double vm0      = xmach/reue;
+    double xlength0 = 1.;
+    double vx       = xmach;
+    double vy       = 0.0;
+    double vz       = 0.0;
+
+    CgnsFile * cgnsFile = new CgnsFile( "refstate.cgns", CG_MODE_WRITE );
+    CgnsBase * cgnsBase1 = cgnsFile->WriteBase( "Base1" );
+
+    cgnsBase1->GoToBase();
+    cg_state_write("ReferenceQuantities");
+    cgnsBase1->GoToNode( "ReferenceState_t", 1 );
+
+    WriteDouble("Mach", xmach );
+    WriteDouble("Reynolds", reue );
+
+    WriteDouble("Mach_Velocity", xmv );
+    WriteDouble("Mach_VelocitySound", xmc );
+    WriteDouble("Reynolds_Velocity", rev );
+    WriteDouble("Reynolds_Length", rel );
+    WriteDouble("Reynolds_ViscosityKinematic", renu );
+    
+    //Next, write flow field reference quantities:
+    WriteDouble("Density", rho0 );
+    WriteDouble("Pressure", p0 );
+    WriteDouble("VelocitySound", c0 );
+    WriteDouble("ViscosityMolecular", vm0 );
+    WriteDouble("LengthReference", xlength0 );
+
+    CgnsBase * cgnsBase2 = cgnsFile->WriteBase( "Base2" );
+    cgnsBase2->GoToBase();
+    cg_state_write("Test1");
+
+    CgnsBase * cgnsBase3 = cgnsFile->WriteBase( "Base3" );
+    cgnsBase3->GoToBase();
+    cg_state_write("Test2");
+
+    delete cgnsFile; 
+}
+
+void CgnsTest::ReadReferenceState()
+{
+    CgnsFile * cgnsFile = new CgnsFile( "refstate.cgns", CG_MODE_READ );
+
+    cgnsFile->ReadNumberOfBases();
+    cgnsFile->ReadBases();
+    cgnsFile->ReadReferenceState();
+
+    delete cgnsFile; 
 }
 
 EndNameSpace

@@ -23,7 +23,6 @@ License
 
 #pragma once
 #include "HXDefine.h"
-#include "HXCgns.h"
 #include <string>
 #include <vector>
 using namespace std;
@@ -31,56 +30,36 @@ using namespace std;
 BeginNameSpace( ONEFLOW )
 
 class CgnsBase;
-class CgnsFile;
 
-class CgnsTest
+class CgnsFile
 {
 public:
-    CgnsTest();
-    ~CgnsTest();
+    CgnsFile();
+    CgnsFile( const string & fileName, int openMode );
+    ~CgnsFile();
 public:
     string fileName;
-    int index_file;
-    int curr_base_id;
+    int fileId;
+    int openMode;
+    int openStatus;
     int nBases;
-    HXVector< CgnsBase * > baseList;
+    vector< CgnsBase * > baseList;
 public:
-    void Init();
-    void Run();
-    void Test();
+    int currBaseId;
 public:
-    void SetDefaultGridName();
-    void ReadNondimensionalParameter();
-    void WriteNondimensionalParameter();
-    void WriteReferenceState();
-    void ReadReferenceState();
-    void WriteDescriptor();
-    void ReadDescriptor();
-    void ReadBaseDescriptor( int baseIndex );
-    void WriteSimpleMultiBaseTest();
-    void ReadSimpleMultiBaseTest();
-    void TestCgnsLink();
-private:
-    void SetISize( cgsize_t * isize );
-public:
-    void OpenCgnsFile( int cgnsOpenMode );
     void OpenCgnsFile( const string & fileName, int cgnsOpenMode );
     void CloseCgnsFile();
-    void CloseCgnsFile( int index_file );
-    string GetCgnsFileTypeName( int file_type );
-    void WriteBase( const string & baseName );
-    void WriteBase( const string & baseName, int celldim, int physdim );
+    CgnsBase * WriteBase( const string & baseName );
+    CgnsBase * WriteBase( const string & baseName, int celldim, int physdim );
+private:
+    CgnsBase * AddBase( int fileId, const string & baseName, int celldim, int physdim, int baseId );
+    void FreeBaseList();
 public:
-    void WriteDouble( const string & varName, const double & varValue );
-    void GotoBaseBegin( int baseIndex );
-public:
-    void ReadEmptyCgnsFile();
-    void WriteEmptyCgnsFile();
-public:
-    void WriteArray();
-    void WriteArray( CgnsFile * cgnsFile, CgnsBase * cgnsBase );
+    void GoPath( const string & path );
+    void ReadNumberOfBases();
+    void ReadBases();
     void ReadArray();
-    void GetArray( vector< vector< float > > & myfloat2d );
+    void ReadReferenceState();
 };
 
 
