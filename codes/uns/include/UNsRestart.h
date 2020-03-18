@@ -34,4 +34,20 @@ public:
     void InitRestart( int sTid );
 };
 
+class ShockVertex
+{
+public:
+    ShockVertex();
+    ~ShockVertex();
+public:
+    Real xc, yc;
+    Real Ms, gama;
+    Real ru, uu, vu, pu;
+    Real rd, ud, vd, pd;
+public:
+    void Init();
+    Real vortexfun( Real x, Real y, Real gama );
+    void Cal( Real x, Real y, Real gama, Real & vx, Real & vy );
+};
+
 EndNameSpace

@@ -33,6 +33,8 @@ License
 #include "HXMath.h"
 #include "NsIdx.h"
 #include "Ctrl.h"
+#include "INsCom.h"
+#include "INsIdx.h"
 
 BeginNameSpace( ONEFLOW )
 
@@ -543,5 +545,514 @@ void ChemicalDecompressData( DataBook * dataBook )
 {
     chem.DecompressData( dataBook );
 }
+
+
+
+
+//Chemical::Chemical()
+//{
+	//INsAlloc();
+//}
+
+//Chemical::~Chemical()
+//{
+	//INsDeAlloc();
+//}
+
+//void Chemical::INsAlloc()
+//{
+	//moleProp = new MolecularProperty();
+	//reactionRate = new ReactionRate();
+	//stoichiometric = new Stoichiometric();
+	//blotterCurve = new BlotterCurve();
+	//thermodynamic = new Thermodynamic();
+//}
+
+//void Chemical::INsDeAlloc()
+//{
+	//delete moleProp;
+	//delete reactionRate;
+	//delete stoichiometric;
+	//delete blotterCurve;
+	//delete thermodynamic;
+//}
+
+void Chemical::INsInitGasModel()
+{
+	if (inscom.chemModel <= 0) return;
+
+	if (Parallel::pid == Parallel::serverid)
+	{
+		INsReadGasModel();
+	}
+	ONEFLOW::HXBcast(ChemicalCompressData, ChemicalDecompressData, Parallel::GetServerid());
+}
+
+void Chemical::INsInitWorkingSpace()
+{
+	inscom.nBEqu = inscom.nEqu;
+	if (inscom.chemModel == 0)
+	{
+		inscom.nSpecies = 0;
+	}
+	else
+	{
+		inscom.nSpecies = nSpecies;
+	}
+
+	inscom.nTEqu = inscom.nBEqu + MAX(nSpecies - 1, 0);
+
+	if (inscom.chemModel > 0)
+	{
+		INsAllocWorkingSpace();
+	}
+}
+
+void Chemical::INsAllocWorkingSpace()
+{
+	xi_s.resize(nSpecies);
+	cs_s.resize(nSpecies);
+	vis_s.resize(nSpecies);
+	vis_phi_s.resize(nSpecies);
+	cp_s.resize(nSpecies);
+	dim_cp_s.resize(nSpecies);
+	hint_s.resize(nSpecies);
+	work_s.resize(nSpecies);
+}
+
+void Chemical::INsReadGasModel()
+{
+	FileIO ioFile;
+
+	ioFile.OpenPrjFile(inscom.gasModelFile, ios_base::in);
+	string separator = " =\r\n#$,;\"'";
+	ioFile.SetDefaultSeparator(separator);
+
+	ioFile.SkipLines(2);
+
+	ioFile.ReadNextNonEmptyLine();
+
+	nSpecies = ioFile.ReadNextDigit< int >();
+	nReaction = ioFile.ReadNextDigit< int >();
+	Init(nSpecies, nReaction);
+	ReadChemical(&ioFile);
+
+	ioFile.CloseFile();
+}
+
+void Chemical::INsInit(int nSpecies, int nReaction)
+{
+	moleProp->Init(nSpecies);
+	reactionRate->Init(nReaction);
+	stoichiometric->Init(nReaction, nSpecies);
+	blotterCurve->Init(nSpecies);
+	thermodynamic->Init(nSpecies);
+}
+
+void Chemical::INsReadChemical(FileIO * ioFile)
+{
+	moleProp->Read(ioFile);
+	reactionRate->Read(ioFile);
+	thermodynamic->Read(ioFile);
+	blotterCurve->Read(ioFile);
+	stoichiometric->Read(ioFile);
+}
+
+void Chemical::INsRead(DataBook * dataBook)
+{
+	moleProp->Read(dataBook);
+	reactionRate->Read(dataBook);
+	thermodynamic->Read(dataBook);
+	blotterCurve->Read(dataBook);
+	stoichiometric->Read(dataBook);
+}
+
+void Chemical::INsWrite(DataBook * dataBook)
+{
+	moleProp->Write(dataBook);
+	reactionRate->Write(dataBook);
+	thermodynamic->Write(dataBook);
+	blotterCurve->Write(dataBook);
+	stoichiometric->Write(dataBook);
+}
+
+void Chemical::INsInit()
+{
+	INsInitRefPara();
+
+	INsComputeRefPara();
+}
+
+void Chemical::INsInitRefPara()
+{
+	INsInitGasModel();
+
+	INsInitWorkingSpace();
+}
+
+void Chemical::INsComputeRefPara()
+{
+	INsComputeRefMolecularInfo();
+
+	INsComputeRefGasInfo();
+
+	INsComputeRefGama();
+
+	INsComputeRefSoundSpeed();
+
+	INsComputeRefMachAndVel();
+
+	INsComputeStateCoef();
+
+	INsComputeRefPrim();
+
+	INsComputeRefReynolds();
+}
+
+void Chemical::INsComputeRefMolecularInfo()
+{
+	if (inscom.chemModel > 0)
+	{
+		INsComputeRefMolecularInfoChem();
+	}
+	else
+	{
+		INsComputeRefMolecularInfoAir();
+	}
+}
+
+void Chemical::INsComputeRefMolecularInfoAir()
+{
+	//dimensional average molecular weight
+	Real mair = 28.75481;
+	Real coef = 1.0e-3;
+	inscom.dim_amw = mair * coef;
+	inscom.amw = 1.0;
+}
+
+void Chemical::INsComputeRefMolecularInfoChem()
+{
+	moleProp->ComputeProperty();
+
+	inscom.dim_amw = moleProp->dim_amw;
+	inscom.amw = moleProp->amw;
+}
+
+void Chemical::INsComputeRefGama()
+{
+	if (inscom.chemModel <= 0) return;
+	Real t_ref = 1.0;
+	INsComputeDimCps(t_ref, dim_cp_s);
+
+	RealField & mfrac = moleProp->mfrac;
+	Real dimCp, dimCv;
+	INsComputeMixtureByMassFraction(mfrac, dim_cp_s, dimCp);
+
+	Real dim_oamw = 1.0 / inscom.dim_amw;
+
+	dimCv = dimCp - rjmk * dim_oamw;
+	inscom.gama_ref = dimCp / dimCv;
+}
+
+void Chemical::INsComputeRefSoundSpeed()
+{
+	Real dim_oamw = 1.0 / inscom.dim_amw;
+
+	inscom.cref_dim = sqrt(inscom.gama_ref * rjmk * dim_oamw * inscom.tref_dim);
+}
+
+void Chemical::INsComputeRefMachAndVel()
+{
+	if (inscom.machStrategy == 0)
+	{
+		inscom.vref_dim = inscom.cref_dim * inscom.mach_ref;
+	}
+	else
+	{
+		inscom.mach_ref = inscom.vref_dim / inscom.cref_dim;
+	}
+}
+
+void Chemical::INsComputeStateCoef()
+{
+	if (inscom.chemModel > 0)
+	{
+		INsComputeStateCoefChemical();
+	}
+	else
+	{
+		INsComputeStateCoefNs();
+	}
+}
+
+void Chemical::INsComputeStateCoefNs()
+{
+	inscom.statecoef = 1.0 / (inscom.gama_ref * SQR(inscom.mach_ref));
+}
+
+void Chemical::INsComputeStateCoefChemical()
+{
+	//这个和NS的计算应该是等价的
+	inscom.statecoef = rjmk * inscom.tref_dim / (SQR(inscom.vref_dim) * inscom.dim_amw);
+}
+
+void Chemical::INsComputeRefPrim()
+{
+	inscom.dref = 1.0;
+	inscom.tref = 1.0;
+	inscom.vref = 1.0;
+	inscom.pref = inscom.statecoef * inscom.dref * inscom.tref / inscom.amw;
+
+	inscom.inflow.resize(inscom.nTEqu);
+	inscom.refns.resize(inscom.nTEqu);
+
+	inscom.refns[IIDX::IIR] = inscom.dref;
+	inscom.refns[IIDX::IIU] = 1.0 * cos(inscom.aoa) * cos(inscom.aos);
+	inscom.refns[IIDX::IIV] = 1.0 * sin(inscom.aoa) * cos(inscom.aos);
+	inscom.refns[IIDX::IIW] = 1.0                    * sin(inscom.aos);
+	inscom.refns[IIDX::IIP] = inscom.pref;
+
+	if (inscom.chemModel > 0)
+	{
+		for (int iSpecies = 0; iSpecies < nSpecies; ++iSpecies)
+		{
+			inscom.refns[inscom.nBEqu + iSpecies] = moleProp->mfrac[iSpecies];
+		}
+	}
+
+	for (int iEqu = 0; iEqu < inscom.nTEqu; ++iEqu)
+	{
+		inscom.inflow[iEqu] = inscom.refns[iEqu];
+	}
+
+	if (ctrl.inflowType == 1)
+	{
+		inscom.inflow[IIDX::IIU] = zero;
+		inscom.inflow[IIDX::IIV] = zero;
+		inscom.inflow[IIDX::IIW] = zero;
+	}
+}
+
+void Chemical::INsComputeRefReynolds()
+{
+	this->INsComputeDimRefViscosity();
+
+	if (inscom.chemModel > 0 || inscom.gasInfoStrategy == 0)
+	{
+		inscom.reynolds = inscom.dref_dim * inscom.vref_dim * inscom.reylref_dim / inscom.visref_dim;
+	}
+
+	inscom.oreynolds = 1.0 / inscom.reynolds;
+}
+
+void Chemical::INsComputeDimRefViscosity()
+{
+	if (inscom.chemModel > 0)
+	{
+		INsComputeDimRefViscosityChemical();
+	}
+	else
+	{
+		INsComputeDimRefViscosityNs();
+	}
+
+	INsComputeSutherlandConstant();
+}
+
+void Chemical::INsComputeDimRefViscosityNs()
+{
+	Real t0 = 273.15; // zero degree celsius temperature(K)
+	Real c = 110.4; //dimensional temperature constant in sutherland formula
+	Real mu0 = 1.715e-5; //dimensional air viscosity at zero celsius degree
+
+	Real t = inscom.tref_dim;
+	Real coef = (t0 + c) / (t + c);
+	inscom.visref_dim = coef * pow(t / t0, 1.5) * mu0;
+}
+
+void Chemical::INsComputeDimRefViscosityChemical()
+{
+	INsComputeMoleFractionByMassFraction(moleProp->mfrac, xi_s);
+	INsComputeDimSpeciesViscosity(inscom.tref, vis_s);
+	INsComputeMixtureByWilkeFormula(xi_s, vis_s, inscom.visref_dim);
+}
+
+void Chemical::INsComputeSutherlandConstant()
+{
+	inscom.csuth_dim = 110.4;
+	inscom.csuth = inscom.csuth_dim / inscom.tref_dim;
+}
+
+void Chemical::INsComputeMoleFractionByMassFraction(RealField & massFrac, RealField & moleFrac)
+{
+	Real xiSum = 0.0;
+	for (int iSpecies = 0; iSpecies < nSpecies; ++iSpecies)
+	{
+		xiSum += massFrac[iSpecies] * moleProp->omw[iSpecies];
+	}
+	Real oxiSum = 1.0 / xiSum;
+
+	for (int iSpecies = 0; iSpecies < nSpecies; ++iSpecies)
+	{
+		moleFrac[iSpecies] = massFrac[iSpecies] * moleProp->omw[iSpecies] * oxiSum;
+	}
+}
+
+void Chemical::INsComputeDimSpeciesViscosity(Real tm, RealField & vis_s_dim)
+{
+	Real t1, lt1, lt2, lt3, lt4, tmp;
+	t1 = tm * inscom.tref_dim;
+
+	lt1 = log(t1);
+	lt2 = lt1 * lt1;
+	lt3 = lt1 * lt2;
+	lt4 = lt1 * lt3;
+
+	for (int iSpecies = 0; iSpecies < nSpecies; ++iSpecies)
+	{
+		tmp = blotterCurve->a[iSpecies] * lt4
+			+ blotterCurve->b[iSpecies] * lt3
+			+ blotterCurve->c[iSpecies] * lt2
+			+ blotterCurve->d[iSpecies] * lt1
+			+ blotterCurve->e[iSpecies];
+		vis_s_dim[iSpecies] = 0.10 * exp(tmp) + SMALL;
+	}
+	return;
+}
+
+void Chemical::INsComputeMixtureCoefByWilkeFormula(RealField & moleFrac, RealField & var, RealField & phi)
+{
+	RealField & mw = moleProp->mw;
+
+	for (int is = 0; is < nSpecies; ++is)
+	{
+		phi[is] = 0.0;
+		for (int js = 0; js < nSpecies; ++js)
+		{
+			Real tmp1 = 1.0 + sqrt(var[is] / var[js]) * pow(mw[js] / mw[is], 0.25);
+			Real tmp2 = sqrt(8.0 * (1.0 + mw[is] / mw[js]));
+			phi[is] += moleFrac[js] * SQR(tmp1) / tmp2;
+		}
+	}
+}
+
+void Chemical::INsComputeMixtureByWilkeFormula(RealField & moleFrac, RealField & mixs, RealField & phi, Real & mixture)
+{
+	mixture = 0.0;
+	for (int is = 0; is < nSpecies; ++is)
+	{
+		mixture += moleFrac[is] * mixs[is] / phi[is];
+	}
+}
+
+void Chemical::INsComputeMixtureByWilkeFormula(RealField & moleFrac, RealField & mixs, Real & mixture)
+{
+	RealField & phi = vis_phi_s;
+	INsComputeMixtureCoefByWilkeFormula(moleFrac, mixs, phi);
+	INsComputeMixtureByWilkeFormula(moleFrac, mixs, phi, mixture);
+}
+
+void Chemical::INsComputeRefGasInfo()
+{
+	//compute reference pressure and density
+	if (inscom.gasInfoStrategy == 0)
+	{
+		INsSetAirInformationByDataBase();
+	}
+	else if (inscom.gasInfoStrategy == 1)
+	{
+		Real odim_amw = 1.0 / inscom.dim_amw;
+		inscom.pref_dim = inscom.dref_dim * rjmk * odim_amw * inscom.tref_dim;
+	}
+	else if (inscom.gasInfoStrategy == 2)
+	{
+		Real odim_amw = 1.0 / inscom.dim_amw;
+		inscom.dref_dim = inscom.pref_dim / (rjmk * odim_amw * inscom.tref_dim);
+	}
+}
+
+void Chemical::INsSetAirInformationByDataBase()
+{
+	atmosphere.Init();
+	atmosphere.GetAirPara(inscom.elevation);
+	inscom.tref_dim = atmosphere.tm;
+	inscom.pref_dim = atmosphere.pm;
+	inscom.dref_dim = atmosphere.rm;
+	inscom.cref_dim = atmosphere.cm;
+
+	INsNormalizeAirInfo();
+}
+
+void Chemical::INsNormalizeAirInfo()
+{
+	Real odim_amw = 1.0 / inscom.dim_amw;
+
+	inscom.dref_dim = inscom.pref_dim / (rjmk * odim_amw * inscom.tref_dim);
+}
+
+void Chemical::INsComputeDimCps(Real tm, RealField & dim_cps)
+{
+	Real t1, t2, t3, t4;
+
+	t1 = tm * inscom.tref_dim;
+	t2 = t1 * t1;
+	t3 = t1 * t2;
+	t4 = t1 * t3;
+
+	int it;
+	thermodynamic->GetTRangeId(t1, it);
+
+	RealField & dim_omw = moleProp->dim_omw;
+
+	for (int iSpecies = 0; iSpecies < nSpecies; ++iSpecies)
+	{
+		RealField & polyCoef = thermodynamic->GetPolyCoef(iSpecies, it);
+
+		dim_cps[iSpecies] = polyCoef[0] +
+			polyCoef[1] * t1 +
+			polyCoef[2] * t2 +
+			polyCoef[3] * t3 +
+			polyCoef[4] * t4;
+		dim_cps[iSpecies] *= rjmk * dim_omw[iSpecies];
+	}
+}
+
+void Chemical::INsComputeMixtureByMassFraction(RealField & cs, RealField & var, Real & mixture)
+{
+	mixture = 0.0;
+	for (int iSpecies = 0; iSpecies < nSpecies; ++iSpecies)
+	{
+		mixture += cs[iSpecies] * var[iSpecies];
+	}
+}
+
+void Chemical::INsCompressData(DataBook *& dataBook)
+{
+	HXAppend(dataBook, nSpecies);
+	HXAppend(dataBook, nReaction);
+
+	INsWrite(dataBook);
+}
+
+void Chemical::INsDecompressData(DataBook * dataBook)
+{
+	dataBook->MoveToBegin();
+
+	HXRead(dataBook, nSpecies);
+	HXRead(dataBook, nReaction);
+
+	INsInit(nSpecies, nReaction);
+	INsRead(dataBook);
+}
+
+//void INsChemicalCompressData(DataBook *& dataBook)
+//{
+	//chem.INsCompressData(dataBook);
+//}
+
+//void INsChemicalDecompressData(DataBook * dataBook)
+//{
+//	chem.INsDecompressData(dataBook);
+//}
 
 EndNameSpace

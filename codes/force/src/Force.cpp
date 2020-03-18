@@ -37,6 +37,8 @@ License
 #include "Parallel.h"
 #include "Iteration.h"
 #include "FileIO.h"
+#include "INsIdx.h"
+#include "INsCom.h"
 #include <sstream>
 #include <iomanip>
 using namespace std;

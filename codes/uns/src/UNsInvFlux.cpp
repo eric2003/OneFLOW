@@ -61,8 +61,8 @@ void UNsInvFlux::CmpLimiter()
 
 void UNsInvFlux::CmpInvFace()
 {
-    uns_grad.Init();
-    uns_grad.CmpGrad();
+    //uns_grad.Init();
+    //uns_grad.CmpGrad();
 
     this->CmpLimiter();
 
@@ -118,6 +118,11 @@ void UNsInvFlux::CmpInvFlux()
     {
         ug.fId = fId;
 
+        if ( fId == 10127 )
+        {
+            int kkk = 1;
+        }
+
         ug.lc = ( * ug.lcf )[ ug.fId ];
         ug.rc = ( * ug.rcf )[ ug.fId ];
 
@@ -164,6 +169,7 @@ void UNsInvFlux::AddInvFlux()
     MRField * res = GetFieldPointer< MRField >( grid, "res" );
 
     ONEFLOW::AddF2CField( res, invflux );
+    //ONEFLOW::AddF2CFieldDebug( res, invflux );
 }
 
 void UNsInvFlux::Alloc()

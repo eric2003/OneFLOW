@@ -86,5 +86,6 @@ public:
 extern UGeom ug;
 
 void AddF2CField( MRField * cellField, MRField * faceField );
+void AddF2CFieldDebug( MRField * cellField, MRField * faceField );
 
 EndNameSpace

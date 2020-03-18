@@ -44,6 +44,13 @@ License
 #include "FileUtil.h"
 #include "FileIO.h"
 #include "UNsCom.h"
+
+#include "Ctrl.h"
+#include "INsIdx.h"
+#include "INsCtrl.h"
+#include "INsCom.h"
+#include "UINsCom.h"
+#include "SolverDef.h"
 #include <sstream>
 #include <iomanip>
 #include <iostream>
@@ -178,181 +185,272 @@ int GetNSolidCell( UnsGrid * grid )
     return nSolidCell;
 }
 
-void CmpAeroForce( int idump_pres )
+void CmpAeroForce(int idump_pres)
 {
-    UnsGrid * grid = Zone::GetUnsGrid();
-    BcRecord * bcRecord = grid->faceTopo->bcManager->bcRecord;
-    bcRecord->CreateBcRegion();
+	UnsGrid * grid = Zone::GetUnsGrid();
+	BcRecord * bcRecord = grid->faceTopo->bcManager->bcRecord;
+	bcRecord->CreateBcRegion();
 
-    BcInfo * bcInfo = bcRecord->bcInfo;
+	BcInfo * bcInfo = bcRecord->bcInfo;
 
-    int nRegion = bcInfo->bcType.size();
+	int nRegion = bcInfo->bcType.size();
 
-    RealField & xcc = grid->cellMesh->xcc ;
-    RealField & ycc = grid->cellMesh->ycc ;
-    RealField & zcc = grid->cellMesh->zcc ;
-    RealField & vol = grid->cellMesh->vol;
+	RealField & xcc = grid->cellMesh->xcc;
+	RealField & ycc = grid->cellMesh->ycc;
+	RealField & zcc = grid->cellMesh->zcc;
+	RealField & vol = grid->cellMesh->vol;
 
-    RealField & xfn = grid->faceMesh->xfn;
-    RealField & yfn = grid->faceMesh->yfn;
-    RealField & zfn = grid->faceMesh->zfn;
+	RealField & xfn = grid->faceMesh->xfn;
+	RealField & yfn = grid->faceMesh->yfn;
+	RealField & zfn = grid->faceMesh->zfn;
 
-    RealField & xfc = grid->faceMesh->xfc;
-    RealField & yfc = grid->faceMesh->yfc;
-    RealField & zfc = grid->faceMesh->zfc;
+	RealField & xfc = grid->faceMesh->xfc;
+	RealField & yfc = grid->faceMesh->yfc;
+	RealField & zfc = grid->faceMesh->zfc;
 
-    RealField & vfx = grid->faceMesh->vfx;
-    RealField & vfy = grid->faceMesh->vfy;
-    RealField & vfz = grid->faceMesh->vfz;
+	RealField & vfx = grid->faceMesh->vfx;
+	RealField & vfy = grid->faceMesh->vfy;
+	RealField & vfz = grid->faceMesh->vfz;
 
-    RealField & area = grid->faceMesh->area;
+	RealField & area = grid->faceMesh->area;
 
-    MRField * q = GetFieldPointer< MRField >( grid, "q" );
-    MRField * visl = GetFieldPointer< MRField >( grid, "visl" );
+	MRField * q = GetFieldPointer< MRField >(grid, "q");
+	MRField * visl = GetFieldPointer< MRField >(grid, "visl");
 
-    MRField * bcdqdx = GetFieldPointer< MRField > ( grid, "bcdqdx" );
-    MRField * bcdqdy = GetFieldPointer< MRField > ( grid, "bcdqdy" );
-    MRField * bcdqdz = GetFieldPointer< MRField > ( grid, "bcdqdz" );
+	MRField * bcdqdx = GetFieldPointer< MRField >(grid, "bcdqdx");
+	MRField * bcdqdy = GetFieldPointer< MRField >(grid, "bcdqdy");
+	MRField * bcdqdz = GetFieldPointer< MRField >(grid, "bcdqdz");
 
-    RealField & dpdx = ( * bcdqdx )[ IDX::IP ];
-    RealField & dpdy = ( * bcdqdy )[ IDX::IP ];
-    RealField & dpdz = ( * bcdqdz )[ IDX::IP ];
+	int startStrategy = ONEFLOW::GetDataValue< int >("startStrategy");
+	if (startStrategy == 2)
+	{
+		RealField & dpdx = (*bcdqdx)[IIDX::IIP];
+		RealField & dpdy = (*bcdqdy)[IIDX::IIP];
+		RealField & dpdz = (*bcdqdz)[IIDX::IIP];
+	}
+	else
+	{
+		RealField & dpdx = (*bcdqdx)[IDX::IP];
+		RealField & dpdy = (*bcdqdy)[IDX::IP];
+		RealField & dpdz = (*bcdqdz)[IDX::IP];
+	}
 
-    stress.rey = GetDataValue< Real >( "reynolds" );
-    stress.orey = 1.0 / stress.rey;
+	stress.rey = GetDataValue< Real >("reynolds");
+	stress.orey = 1.0 / stress.rey;
 
-    int nSolidCell = GetNSolidCell( grid );
-    if ( nSolidCell == 0 ) return;
+	int nSolidCell = GetNSolidCell(grid);
+	if (nSolidCell == 0) return;
 
-    if ( idump_pres == 1 )
-    {
-        StrIO.ClearAll();
+	if (idump_pres == 1)
+	{
+		StrIO.ClearAll();
 
-        StringField title;
-        title.push_back( "title=\"THE FLOW FIELD OF ONEFLOW\"" );
-        title.push_back( "variables=" );
-        title.push_back( "\"x\"" );
-        title.push_back( "\"y\"" );
-        title.push_back( "\"z\"" );
-        title.push_back( "\"-cp\"" );
-        title.push_back( "\"cf\"" );
-        for ( UInt i = 0; i < title.size(); ++ i )
-        {
-            StrIO << title[ i ] << "\n";
-        }
+		StringField title;
+		title.push_back("title=\"THE FLOW FIELD OF ONEFLOW\"");
+		title.push_back("variables=");
+		title.push_back("\"x\"");
+		title.push_back("\"y\"");
+		title.push_back("\"z\"");
+		title.push_back("\"-cp\"");
+		title.push_back("\"cf\"");
+		for (UInt i = 0; i < title.size(); ++i)
+		{
+			StrIO << title[i] << "\n";
+		}
 
-        StrIO << "Zone  i = " << nSolidCell << " \n";
-    }
+		StrIO << "Zone  i = " << nSolidCell << " \n";
+	}
 
-    for ( int ir = 0; ir < nRegion; ++ ir )
-    {
-        int bcType = bcInfo->bcType[ ir ];
-        if ( bcType != BC::SOLID_SURFACE ) continue;
-        bcInfo->bcFace.size();
-        int nBCFace = bcInfo->bcFace[ ir ].size();
+	for (int ir = 0; ir < nRegion; ++ir)
+	{
+		int bcType = bcInfo->bcType[ir];
+		if (bcType != BC::SOLID_SURFACE) continue;
+		bcInfo->bcFace.size();
+		int nBCFace = bcInfo->bcFace[ir].size();
 
-        AeroForce aeroForce;
-        for ( int iBCFace = 0; iBCFace < nBCFace; ++ iBCFace )
-        {
-            int fId = bcInfo->bcFace[ ir ][ iBCFace ];
-            int lc = grid->faceTopo->lCell[ fId ];
-            int rc = grid->faceTopo->rCell[ fId ];
-            stress.area = area[ fId ];
-            stress.fnx  = xfn[ fId ];
-            stress.fny  = yfn[ fId ];
-            stress.fnz  = zfn[ fId ];
-            stress.fanx = xfn[ fId ] * area[ fId ];
-            stress.fany = yfn[ fId ] * area[ fId ];
-            stress.fanz = zfn[ fId ] * area[ fId ];
+		AeroForce aeroForce;
+		for (int iBCFace = 0; iBCFace < nBCFace; ++iBCFace)
+		{
+			int fId = bcInfo->bcFace[ir][iBCFace];
+			int lc = grid->faceTopo->lCell[fId];
+			int rc = grid->faceTopo->rCell[fId];
+			stress.area = area[fId];
+			stress.fnx = xfn[fId];
+			stress.fny = yfn[fId];
+			stress.fnz = zfn[fId];
+			stress.fanx = xfn[fId] * area[fId];
+			stress.fany = yfn[fId] * area[fId];
+			stress.fanz = zfn[fId] * area[fId];
 
-            Real dx  = xfc[ fId ] - xcc[ lc ];
-            Real dy  = yfc[ fId ] - ycc[ lc ];
-            Real dz  = zfc[ fId ] - zcc[ lc ];
+			Real dx = xfc[fId] - xcc[lc];
+			Real dy = yfc[fId] - ycc[lc];
+			Real dz = zfc[fId] - zcc[lc];
 
-            //pressure drag
-            Real wp = ( * q )[ IDX::IP ][ lc ] + dpdx[ fId ] * dx + dpdy[ fId ] * dy + dpdz[ fId ] * dz;
-            if ( wp < 0.0 ) wp = ( * q )[ IDX::IP ][ lc ];
-            Real pref = nscom.inflow[ IDX::IP ];
-            Real cp = two * ( wp - pref );
+			//pressure drag
 
-            Real dpx = stress.fanx * cp;
-            Real dpy = stress.fany * cp;
-            Real dpz = stress.fanz * cp;
 
-            aeroForce.pres.x = dpx;
-            aeroForce.pres.y = dpy;
-            aeroForce.pres.z = dpz;
+			if (startStrategy == 2)
+			{
+				Real wp = (*q)[IIDX::IIP][lc] + (*bcdqdx)[IIDX::IIP][fId] * dx + (*bcdqdy)[IIDX::IIP][fId] * dy + (*bcdqdz)[IIDX::IIP][fId] * dz;
+				if (wp < 0.0) wp = (*q)[IIDX::IIP][lc];
+				Real pref = inscom.inflow[IIDX::IIP];
+				Real cp = two * (wp - pref);
 
-            if ( vis_model.vismodel > 0 )
-            {
-                stress.dudx = ( * bcdqdx )[ IDX::IU ][ fId ];
-                stress.dudy = ( * bcdqdy )[ IDX::IU ][ fId ];
-                stress.dudz = ( * bcdqdz )[ IDX::IU ][ fId ];
+				Real dpx = stress.fanx * cp;
+				Real dpy = stress.fany * cp;
+				Real dpz = stress.fanz * cp;
 
-                stress.dvdx = ( * bcdqdx )[ IDX::IV ][ fId ];
-                stress.dvdy = ( * bcdqdy )[ IDX::IV ][ fId ];
-                stress.dvdz = ( * bcdqdz )[ IDX::IV ][ fId ];
+				aeroForce.pres.x = dpx;
+				aeroForce.pres.y = dpy;
+				aeroForce.pres.z = dpz;
 
-                stress.dwdx = ( * bcdqdx )[ IDX::IW ][ fId ];
-                stress.dwdy = ( * bcdqdy )[ IDX::IW ][ fId ];
-                stress.dwdz = ( * bcdqdz )[ IDX::IW ][ fId ];
+				if (vis_model.vismodel > 0)
+				{
+					stress.dudx = (*bcdqdx)[IIDX::IIU][fId];
+					stress.dudy = (*bcdqdy)[IIDX::IIU][fId];
+					stress.dudz = (*bcdqdz)[IIDX::IIU][fId];
 
-                //gradient correction
-                dx  = xcc[ rc ] - xcc[ lc ];
-                dy  = ycc[ rc ] - ycc[ lc ];
-                dz  = zcc[ rc ] - zcc[ lc ];
+					stress.dvdx = (*bcdqdx)[IIDX::IIV][fId];
+					stress.dvdy = (*bcdqdy)[IIDX::IIV][fId];
+					stress.dvdz = (*bcdqdz)[IIDX::IIV][fId];
 
-                Real ods = 1.0 / DIST( dx, dy, dz );
-                dx *= ods;
-                dy *= ods;
-                dz *= ods;
+					stress.dwdx = (*bcdqdx)[IIDX::IIW][fId];
+					stress.dwdy = (*bcdqdy)[IIDX::IIW][fId];
+					stress.dwdz = (*bcdqdz)[IIDX::IIW][fId];
 
-                CorrectGrad( ( * q )[ IDX::IU ][ lc ], ( * q )[ IDX::IU ][ rc ], stress.dudx, stress.dudy, stress.dudz, dx, dy, dz, ods );
-                CorrectGrad( ( * q )[ IDX::IV ][ lc ], ( * q )[ IDX::IV ][ rc ], stress.dvdx, stress.dvdy, stress.dvdz, dx, dy, dz, ods );
-                CorrectGrad( ( * q )[ IDX::IW ][ lc ], ( * q )[ IDX::IW ][ rc ], stress.dwdx, stress.dwdy, stress.dwdz, dx, dy, dz, ods );
+					//gradient correction
+					dx = xcc[rc] - xcc[lc];
+					dy = ycc[rc] - ycc[lc];
+					dz = zcc[rc] - zcc[lc];
 
-                stress.viscosity = ( * visl )[ 0 ][ lc ];
+					Real ods = 1.0 / DIST(dx, dy, dz);
+					dx *= ods;
+					dy *= ods;
+					dz *= ods;
 
-                stress.CmpForce( & aeroForce.vis );
-            }
+					CorrectGrad((*q)[IIDX::IIU][lc], (*q)[IIDX::IIU][rc], stress.dudx, stress.dudy, stress.dudz, dx, dy, dz, ods);
+					CorrectGrad((*q)[IIDX::IIV][lc], (*q)[IIDX::IIV][rc], stress.dvdx, stress.dvdy, stress.dvdz, dx, dy, dz, ods);
+					CorrectGrad((*q)[IIDX::IIW][lc], (*q)[IIDX::IIW][rc], stress.dwdx, stress.dwdy, stress.dwdz, dx, dy, dz, ods);
 
-            aeroForce.SumForce();
+					stress.viscosity = (*visl)[0][lc];
 
-            aeroForce.vfx = vfx[ fId ];
-            aeroForce.vfy = vfy[ fId ];
-            aeroForce.vfz = vfz[ fId ];
+					stress.CmpForce(&aeroForce.vis);
+				}
+				aeroForce.SumForce();
 
-            aeroForce.CmpPower();
+				aeroForce.vfx = vfx[fId];
+				aeroForce.vfy = vfy[fId];
+				aeroForce.vfz = vfz[fId];
 
-            Real xc = xfc[ fId ];
-            Real yc = yfc[ fId ];
-            Real zc = zfc[ fId ];
+				aeroForce.CmpPower();
 
-            aeroForce.CmpMoment( xc, yc, zc );
-            aeroForceInfo.totalForce.AddForce( & aeroForce );
+				Real xc = xfc[fId];
+				Real yc = yfc[fId];
+				Real zc = zfc[fId];
 
-            if ( idump_pres == 1 )
-            {
-                Real cf = aeroCom.CmpCF( &aeroForce.vis, area[ fId ] );
+				aeroForce.CmpMoment(xc, yc, zc);
+				aeroForceInfo.totalForce.AddForce(&aeroForce);
 
-                int wordWidth = 20;
-                StrIO << setiosflags( ios::left );
-                StrIO << setiosflags( ios::scientific );
-                StrIO << setprecision( 10 );
-                StrIO << setw( wordWidth ) << xc;
-                StrIO << setw( wordWidth ) << yc;
-                StrIO << setw( wordWidth ) << zc;
-                StrIO << setw( wordWidth ) << -cp;
-                StrIO << setw( wordWidth ) << cf;
-                StrIO << endl;
-            }
-        }
-    }
-    if ( idump_pres == 1 )
-    {
-        ToDataBook( ActionState::dataBook, StrIO );
-    }
+				if (idump_pres == 1)
+				{
+					Real cf = aeroCom.CmpCF(&aeroForce.vis, area[fId]);
+
+					int wordWidth = 20;
+					StrIO << setiosflags(ios::left);
+					StrIO << setiosflags(ios::scientific);
+					StrIO << setprecision(10);
+					StrIO << setw(wordWidth) << xc;
+					StrIO << setw(wordWidth) << yc;
+					StrIO << setw(wordWidth) << zc;
+					StrIO << setw(wordWidth) << -cp;
+					StrIO << setw(wordWidth) << cf;
+					StrIO << endl;
+				}
+			}
+			else
+			{
+				Real wp = (*q)[IDX::IP][lc] + (*bcdqdx)[IDX::IP][fId] * dx + (*bcdqdy)[IDX::IP][fId] * dy + (*bcdqdz)[IDX::IP][fId] * dz;
+				if (wp < 0.0) wp = (*q)[IDX::IP][lc];
+				Real pref = nscom.inflow[IDX::IP];
+				Real cp = two * (wp - pref);
+
+				Real dpx = stress.fanx * cp;
+				Real dpy = stress.fany * cp;
+				Real dpz = stress.fanz * cp;
+
+				aeroForce.pres.x = dpx;
+				aeroForce.pres.y = dpy;
+				aeroForce.pres.z = dpz;
+
+				if (vis_model.vismodel > 0)
+				{
+					stress.dudx = (*bcdqdx)[IDX::IU][fId];
+					stress.dudy = (*bcdqdy)[IDX::IU][fId];
+					stress.dudz = (*bcdqdz)[IDX::IU][fId];
+
+					stress.dvdx = (*bcdqdx)[IDX::IV][fId];
+					stress.dvdy = (*bcdqdy)[IDX::IV][fId];
+					stress.dvdz = (*bcdqdz)[IDX::IV][fId];
+
+					stress.dwdx = (*bcdqdx)[IDX::IW][fId];
+					stress.dwdy = (*bcdqdy)[IDX::IW][fId];
+					stress.dwdz = (*bcdqdz)[IDX::IW][fId];
+
+					//gradient correction
+					dx = xcc[rc] - xcc[lc];
+					dy = ycc[rc] - ycc[lc];
+					dz = zcc[rc] - zcc[lc];
+
+					Real ods = 1.0 / DIST(dx, dy, dz);
+					dx *= ods;
+					dy *= ods;
+					dz *= ods;
+
+					CorrectGrad((*q)[IDX::IU][lc], (*q)[IDX::IU][rc], stress.dudx, stress.dudy, stress.dudz, dx, dy, dz, ods);
+					CorrectGrad((*q)[IDX::IV][lc], (*q)[IDX::IV][rc], stress.dvdx, stress.dvdy, stress.dvdz, dx, dy, dz, ods);
+					CorrectGrad((*q)[IDX::IW][lc], (*q)[IDX::IW][rc], stress.dwdx, stress.dwdy, stress.dwdz, dx, dy, dz, ods);
+
+					stress.viscosity = (*visl)[0][lc];
+
+					stress.CmpForce(&aeroForce.vis);
+				}
+				aeroForce.SumForce();
+
+				aeroForce.vfx = vfx[fId];
+				aeroForce.vfy = vfy[fId];
+				aeroForce.vfz = vfz[fId];
+
+				aeroForce.CmpPower();
+
+				Real xc = xfc[fId];
+				Real yc = yfc[fId];
+				Real zc = zfc[fId];
+
+				aeroForce.CmpMoment(xc, yc, zc);
+				aeroForceInfo.totalForce.AddForce(&aeroForce);
+
+				if (idump_pres == 1)
+				{
+					Real cf = aeroCom.CmpCF(&aeroForce.vis, area[fId]);
+
+					int wordWidth = 20;
+					StrIO << setiosflags(ios::left);
+					StrIO << setiosflags(ios::scientific);
+					StrIO << setprecision(10);
+					StrIO << setw(wordWidth) << xc;
+					StrIO << setw(wordWidth) << yc;
+					StrIO << setw(wordWidth) << zc;
+					StrIO << setw(wordWidth) << -cp;
+					StrIO << setw(wordWidth) << cf;
+					StrIO << endl;
+				}
+			}
+		}
+		if (idump_pres == 1)
+		{
+			ToDataBook(ActionState::dataBook, StrIO);
+		}
+	}
 }
-
 
 EndNameSpace

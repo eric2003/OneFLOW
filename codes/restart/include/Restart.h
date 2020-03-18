@@ -41,6 +41,7 @@ public:
     void Dump( int sTid );
 public:
     virtual void InitRestart( int sTid );
+	virtual void InitinsRestart( int sTid );
 };
 
 Restart * CreateRestart( int sTid );

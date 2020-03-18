@@ -32,6 +32,10 @@ DEFINE_DATA_CLASS( DumpRestart );
 DEFINE_DATA_CLASS( InitRestart );
 DEFINE_DATA_CLASS( InitFlowField );
 
+//DEFINE_DATA_CLASS( ReadinsRestart );
+//DEFINE_DATA_CLASS( DumpinsRestart );
+DEFINE_DATA_CLASS( InitinsRestart );
+
 void RegisterRestartTask();
 
 EndNameSpace

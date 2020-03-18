@@ -100,7 +100,7 @@ void NsCmpTimeStep( StringField & data )
 void NsUpdateResiduals( StringField & data )
 {
     Rhs * rhs = new Rhs();
-    rhs->UpdateResiduals();
+    rhs->UpdateNsResiduals();
     delete rhs;
 }
 
