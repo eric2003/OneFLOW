@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2020 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -31,6 +31,7 @@ License
 #include "StrGrid.h"
 #include "PointSearch.h"
 #include "BcRecord.h"
+#include "Plot3D.h"
 #include "HXMath.h"
 #include "Partition.h"
 #include <iostream>
@@ -57,7 +58,7 @@ void GridFactory::Run()
 {
     grid_para.Init();
 
-    switch (grid_para.gridObj)
+    switch ( grid_para.gridObj )
     {
     case 0: //生成一些基本外形的网格，如方腔，圆柱，RAE2822翼型等等
         this->DataBaseGrid();
@@ -116,11 +117,28 @@ void GridFactory::DataBaseGrid()
 
 void GridFactory::Plot3DProcess()
 {
-    CgnsFactory * cgnsFactory = new CgnsFactory();
+    if ( grid_para.target_filetype == "oneflow" )
+    {
+        CgnsFactory * cgnsFactory = new CgnsFactory();
 
-    cgnsFactory->CommonToOneFlowGrid();
+        cgnsFactory->CommonToOneFlowGrid();
 
-    delete cgnsFactory;
+        delete cgnsFactory;
+    }
+    else if ( grid_para.target_filetype == "cgns" )
+    {
+        CgnsFactory * cgnsFactory = new CgnsFactory();
+
+        ZgridMediator zgridMediator;
+        zgridMediator.SetDeleteFlag( true );
+
+        Plot3D::Plot3DToCgns( & zgridMediator );
+
+        cgnsFactory->DumpCgnsGrid( & zgridMediator );
+
+        delete cgnsFactory;
+    }
+
 }
 
 void GridFactory::SU2Process()

@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2020 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -368,7 +368,6 @@ void FieldManager::AllocateBcField( UnsGrid * grid, FieldPropertyData * fieldPro
     for ( std::map< string, int >::iterator iter = data.begin(); iter != data.end(); ++ iter )
     {
         int nTEqu = iter->second;
-
         ONEFLOW::CreateMRField( grid, nTEqu, nBFace, iter->first );
 
         MRField * field = ONEFLOW::GetFieldPointer< MRField >( grid, iter->first );

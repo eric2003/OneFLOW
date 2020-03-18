@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2020 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -59,7 +59,6 @@ void INsInitFinal( StringField & data )
     INsCmpBc();
     INSCmpGamaT( F_GHOST );
     ICmpLaminarViscosity( F_GHOST );
-
     Grid * grid = Zone::GetGrid();
 
     if ( Zone::GetCGrid( grid ) )
@@ -104,7 +103,6 @@ void INsUpdateResiduals( StringField & data )
 
 void INsImplicitMethod( StringField & data )
 {
-
     ;
 }
 
@@ -180,6 +178,7 @@ SolverRegData * GetINsReg()
     insReg.dataFlag = WITH_DATA;
     return & insReg;
 }
-  REGISTER_REG_DATA( GetINsReg );
+
+REGISTER_REG_DATA( GetINsReg );
 
 EndNameSpace

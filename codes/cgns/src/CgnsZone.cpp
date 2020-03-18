@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2020 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -21,20 +21,26 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "CgnsZone.h"
+#include "CgnsZoneUtil.h"
 #include "CgnsBase.h"
-#include "CgnsData.h"
 #include "CgnsCoor.h"
 #include "CgnsSection.h"
-#include "CgnsMultiSection.h"
-#include "CgnsBcRegion.h"
-#include "CgnsBcRegionProxy.h"
+#include "CgnsZsection.h"
+#include "CgnsBcBoco.h"
+#include "CgnsZbc.h"
+#include "CgnsZbcBoco.h"
+#include "BcRecord.h"
+#include "Boundary.h"
 #include "NodeMesh.h"
 #include "StrUtil.h"
 #include "Dimension.h"
 #include "GridElem.h"
 #include "ElemFeature.h"
+#include "ElementHome.h"
 #include "PointFactory.h"
+#include "PointSearch.h"
 #include "FaceSolver.h"
+#include "Stop.h"
 #include <iostream>
 #include <iomanip>
 using namespace std;
@@ -45,29 +51,42 @@ BeginNameSpace( ONEFLOW )
 CgnsZone::CgnsZone( CgnsBase * cgnsBase )
 {
     this->cgnsBase = cgnsBase;
-    this->nodeMesh = 0;
-    this->multiSection = 0;
-    this->bcRegionProxy = 0;
+    this->cgnsZsection = 0;
+    this->cgnsZbc = 0;
+    this->volBcType = -1;
+    this->cgnsCoor = 0;
 }
 
 CgnsZone::~CgnsZone()
 {
-    delete this->nodeMesh;
-    delete this->multiSection;
-    delete this->bcRegionProxy;
+    delete this->cgnsZsection;
+    delete this->cgnsZbc;
+    delete this->cgnsCoor;
 }
 
-void CgnsZone::FreeMesh()
+void CgnsZone::CopyISize( CgInt * isize )
 {
-    delete this->nodeMesh;
-    this->nodeMesh = 0;
+    for ( int i = 0; i < 9; ++ i )
+    {
+        this->isize[ i ] = isize[ i ];
+    }
+}
+
+void CgnsZone::SetVolBcType( int volBcType )
+{
+    this->volBcType = volBcType;
+}
+
+int CgnsZone::GetVolBcType()
+{
+    return this->volBcType;
 }
 
 void CgnsZone::Create()
 {
-    this->nodeMesh = new NodeMesh();
-    this->multiSection = new CgnsMultiSection( this );
-    this->bcRegionProxy = new CgnsBcRegionProxy( this );
+    this->cgnsZsection = new CgnsZsection( this );
+    this->cgnsZbc = new CgnsZbc( this );
+    this->cgnsCoor = new CgnsCoor( this );
 }
 
 void CgnsZone::InitElement( GridElem * ge )
@@ -78,27 +97,33 @@ void CgnsZone::InitElement( GridElem * ge )
 
 void CgnsZone::SetPeriodicBc()
 {
-    this->bcRegionProxy->SetPeriodicBc();
+    this->cgnsZbc->SetPeriodicBc();
 }
 
 void CgnsZone::SetElementTypeAndNode( ElemFeature * elem_feature )
 {
-    size_t nSection = this->multiSection->cgnsSections.size();
+    size_t nSection = this->cgnsZsection->nSection;
     for ( int iSection = 0; iSection < nSection; ++ iSection )
     {
-        CgnsSection * section = this->multiSection->cgnsSections[ iSection ];
-        section->SetElementTypeAndNode( elem_feature );
+        CgnsSection * cgnsSection = this->cgnsZsection->GetCgnsSection( iSection );
+        cgnsSection->SetElementTypeAndNode( elem_feature );
     }
     cout << "\n";
-    cout << " iZone = " << this->zId << " nCell = " << nCell << "\n";
+    cout << " iZone = " << this->zId << " nCell = " << this->cgnsCoor->GetNCell() << "\n";
     cout << " elem_feature->eType->size = " << elem_feature->eType->size() << endl;
+}
+
+bool CgnsZone::ExistSection( const string & sectionName )
+{
+    return this->cgnsZsection->ExistSection( sectionName );
 }
 
 void CgnsZone::InitLgMapping()
 {
-    this->l2g.resize( this->nNode );
+    int nNode = this->cgnsCoor->GetNNode();
+    this->l2g.resize( nNode );
 
-    for ( int iNode = 0; iNode < this->nNode; ++ iNode )
+    for ( int iNode = 0; iNode < nNode; ++ iNode )
     {
         this->l2g[ iNode ] = iNode;
     }
@@ -106,26 +131,27 @@ void CgnsZone::InitLgMapping()
 
 void CgnsZone::ConvertToInnerDataStandard()
 {
-    if ( this->cgnsZoneType == Structured )
+    if ( this->cgnsZoneType == CGNS_ENUMV( Structured ) )
     {
         //this->SetStructuredSectionInformation();
         return;
     }
 
-    this->multiSection->ConvertToInnerDataStandard();
-    this->bcRegionProxy->ConvertToInnerDataStandard();
+    this->cgnsZsection->ConvertToInnerDataStandard();
+    this->cgnsZbc->ConvertToInnerDataStandard();
 
 }
 
 void CgnsZone::ConstructCgnsGridPoints( PointFactory * point_factory )
 {
-    RealField & x = this->nodeMesh->xN;
-    RealField & y = this->nodeMesh->yN;
-    RealField & z = this->nodeMesh->zN;
+    NodeMesh * nodeMesh = this->cgnsCoor->GetNodeMesh();
+    RealField & x = nodeMesh->xN;
+    RealField & y = nodeMesh->yN;
+    RealField & z = nodeMesh->zN;
 
     this->InitLgMapping();
 
-    size_t nNode = this->nodeMesh->GetNumberOfNodes();
+    size_t nNode = nodeMesh->GetNumberOfNodes();
 
     for ( int iNode = 0; iNode < nNode; ++ iNode )
     {
@@ -137,12 +163,12 @@ void CgnsZone::ConstructCgnsGridPoints( PointFactory * point_factory )
 
 void CgnsZone::ScanBcFace( FaceSolver * face_solver )
 {
-    this->bcRegionProxy->ScanBcFace( face_solver );
+    this->cgnsZbc->ScanBcFace( face_solver );
 }
 
 void CgnsZone::GetElementNodeId( CgInt eId, CgIntField & eNodeId )
 {
-    CgnsSection * cgnsSection = this->multiSection->GetSectionByEid( eId );
+    CgnsSection * cgnsSection = this->cgnsZsection->GetSectionByEid( eId );
     cgnsSection->GetElementNodeId( eId - cgnsSection->startId, eNodeId );
 }
 
@@ -159,17 +185,6 @@ void CgnsZone::ReadCgnsGrid()
     this->ConvertToInnerDataStandard();
 }
 
-void CgnsZone::ReadCgnsGrid( CgnsZone * cgnsZoneIn )
-{
-    this->ReadCgnsZoneAttribute( cgnsZoneIn );
-
-    this->ReadElementConnectivities( cgnsZoneIn );
-
-    this->ReadCgnsGridCoordinates( cgnsZoneIn );
-
-    this->ConvertToInnerDataStandard();
-}
-
 void CgnsZone::ReadCgnsZoneAttribute()
 {
     this->ReadCgnsZoneType();
@@ -177,15 +192,6 @@ void CgnsZone::ReadCgnsZoneAttribute()
     this->ReadCgnsZoneNameAndGeneralizedDimension();
 
     this->SetDimension();
-}
-
-void CgnsZone::ReadCgnsZoneAttribute( CgnsZone * cgnsZoneIn )
-{
-    this->ReadCgnsZoneType( cgnsZoneIn );
-
-    this->ReadCgnsZoneNameAndGeneralizedDimension( cgnsZoneIn );
-
-    this->SetDimension( cgnsZoneIn );
 }
 
 void CgnsZone::ReadCgnsZoneType()
@@ -196,158 +202,31 @@ void CgnsZone::ReadCgnsZoneType()
     cout << "   The Zone Type is " << GetCgnsZoneTypeName( cgnsZoneType ) << " Zone" << "\n";
 }
 
-void CgnsZone::ReadCgnsZoneType( CgnsZone * cgnsZoneIn )
-{
-    this->cgnsZoneType = Unstructured;
-
-    cout << "   The Zone Type is " << GetCgnsZoneTypeName( cgnsZoneType ) << " Zone" << "\n";
-}
-
 void CgnsZone::ReadCgnsZoneNameAndGeneralizedDimension()
 {
     CgnsTraits::char33 cgnsZoneName;
 
     //Determine the number of vertices and cellVolume elements in this zone
-    cg_zone_read( cgnsBase->fileId, cgnsBase->baseId, this->zId, cgnsZoneName, this->isize[ 0 ] );
+    cg_zone_read( cgnsBase->fileId, cgnsBase->baseId, this->zId, cgnsZoneName, this->isize );
 
     this->zoneName = cgnsZoneName;
 
     cout << "   CGNS Zone Name = " << cgnsZoneName << "\n";
 }
 
-void CgnsZone::ReadCgnsZoneNameAndGeneralizedDimension( CgnsZone * cgnsZoneIn )
-{
-    this->zoneName = cgnsZoneIn->zoneName;
-}
 
 void CgnsZone::SetDimension()
 {
-    // vertex size
-    //isize[ 0 ][ 0 ] = 21;
-    //isize[ 0 ][ 1 ] = 17;
-    //isize[ 0 ][ 2 ] = 9;
-    // cell size
-    //isize[ 1 ][ 0 ] = isize[ 0 ][ 0 ] - 1;
-    //isize[ 1 ][ 1 ] = isize[ 0 ][ 1 ] - 1;
-    //isize[ 1 ][ 2 ] = isize[ 0 ][ 2 ] - 1;
-    // boundary vertex size ( always zero for structured grids )
-    //isize[ 2 ][ 0 ] = 0;
-    //isize[ 2 ][ 1 ] = 0;
-    //isize[ 2 ][ 2 ] = 0;
-
-    if ( this->cgnsZoneType == Structured )
-    {
-        // lower range index
-        irmin[ 0 ] = 1;
-        irmin[ 1 ] = 1;
-        irmin[ 2 ] = 1;
-
-        // upper range index of vertices
-        irmax[ 0 ] = 1;
-        irmax[ 1 ] = 1;
-        irmax[ 2 ] = 1;
-
-        cellSize[ 0 ] = 1;
-        cellSize[ 1 ] = 1;
-        cellSize[ 2 ] = 1;
-
-        // upper range index of vertices
-        // vertex size
-        if ( this->cgnsBase->celldim == TWO_D )
-        {
-            irmax[ 0 ] = isize[ 0 ][ 0 ];
-            irmax[ 1 ] = isize[ 0 ][ 1 ];
-
-            // cell size
-            //cellSize[ 0 ] = isize[ 1 ][ 0 ];
-            //cellSize[ 1 ] = isize[ 1 ][ 1 ];
-
-            cellSize[ 0 ] = isize[ 0 ][ 2 ];
-            cellSize[ 1 ] = isize[ 1 ][ 0 ];
-        }
-        else
-        {
-            irmax[ 0 ] = isize[ 0 ][ 0 ];
-            irmax[ 1 ] = isize[ 0 ][ 1 ];
-            irmax[ 2 ] = isize[ 0 ][ 2 ];
-
-            // cell size
-            cellSize[ 0 ] = isize[ 1 ][ 0 ];
-            cellSize[ 1 ] = isize[ 1 ][ 1 ];
-            cellSize[ 2 ] = isize[ 1 ][ 2 ];
-        }
-        cout << "   The Dimension Of Grid is : \n";
-        cout << "   I Direction " << setw( 10 ) << irmin[ 0 ] << setw( 10 ) << irmax[ 0 ] << "\n";
-        cout << "   J Direction " << setw( 10 ) << irmin[ 1 ] << setw( 10 ) << irmax[ 1 ] << "\n";
-        cout << "   K Direction " << setw( 10 ) << irmin[ 2 ] << setw( 10 ) << irmax[ 2 ] << "\n";
-        this->nNode = irmax[ 0 ] * irmax[ 1 ] * irmax[ 2 ];
-        this->nCell = cellSize[ 0 ] * cellSize[ 1 ] * cellSize[ 2 ];
-    }
-    else
-    {
-        irmin[ 0 ] = 1;
-        irmin[ 1 ] = 0;
-        irmin[ 2 ] = 0;
-
-        irmax[ 0 ] = isize[ 0 ][ 0 ]; //isize地址数可多于读取变量数
-        irmax[ 1 ] = 0;
-        irmax[ 2 ] = 0;
-
-        //注意，下面和一般的isize[ 1 ][ 0 ] 有所区别，因为这里我们定义isize[ 3 ][ 3 ]
-        //通常对于非结构定义isize[ 3 ][ 1 ]，我们这样定义是为了统一处理
-
-        cellSize[ 0 ] = isize[ 0 ][ 1 ];
-
-        this->nNode = irmax[ 0 ];
-        this->nCell = cellSize[ 0 ];
-    }
-
-    cout << "   numberOfNodes = " << this->nNode << " numberOfCells = " << this->nCell << "\n";
+    this->cgnsCoor->SetDimension();
 }
 
-void CgnsZone::SetDimension( CgnsZone * cgnsZoneIn )
-{
-    isize[ 0 ][ 0 ] = cgnsZoneIn->nNode;
-    isize[ 0 ][ 1 ] = cgnsZoneIn->nCell;
-
-    irmin[ 0 ] = 1;
-    irmin[ 1 ] = 0;
-    irmin[ 2 ] = 0;
-
-    irmax[ 0 ] = isize[ 0 ][ 0 ];
-    irmax[ 1 ] = 0;
-    irmax[ 2 ] = 0;
-
-    //注意，下面和一般的cgnsIsize[ 1 ][ 0 ] 有所区别，因为这里我们定义cgnsIsize[ 3 ][ 3 ]
-    //通常对于非结构定义cgnsIsize[ 3 ][ 1 ]，我们这样定义是为了统一处理
-
-    cellSize[ 0 ] = isize[ 0 ][ 1 ];
-
-    this->nNode = irmax[ 0 ];
-    this->nCell = cellSize[ 0 ];
-
-    this->InitL2g();
-
-    cout << "   numberOfNodes = " << this->nNode << " numberOfCells = " << this->nCell << "\n";
-}
-
-void CgnsZone::InitL2g()
-{
-    l2g.resize( this->nNode );
-
-    for ( int iNode = 0; iNode < this->nNode; ++ iNode )
-    {
-        l2g[ iNode ] = iNode;
-    }
-}
-
-CgInt CgnsZone::GetNI() const { return irmax[0]; };
-CgInt CgnsZone::GetNJ() const { return irmax[1]; };
-CgInt CgnsZone::GetNK() const { return irmax[2]; };
+CgInt CgnsZone::GetNI() const { return this->cgnsCoor->irmax[0]; };
+CgInt CgnsZone::GetNJ() const { return this->cgnsCoor->irmax[1]; };
+CgInt CgnsZone::GetNK() const { return this->cgnsCoor->irmax[2]; };
 
 void CgnsZone::ReadElementConnectivities()
 {
-    if ( this->cgnsZoneType == Structured ) return;
+    if ( this->cgnsZoneType == CGNS_ENUMV( Structured ) ) return;
 
     this->ReadNumberOfCgnsSections();
 
@@ -356,282 +235,39 @@ void CgnsZone::ReadElementConnectivities()
     this->ReadCgnsSections();
 }
 
-void CgnsZone::ReadElementConnectivities( CgnsZone * cgnsZoneIn )
-{
-    this->AllocateUnsElemConn   ( cgnsZoneIn );
-    this->GenerateUnsVolElemConn( cgnsZoneIn );
-    this->GenerateUnsBcElemConn ( cgnsZoneIn );
-    this->SetElemPosition();
-    this->GenerateUnsBcCondConn ( cgnsZoneIn );
-}
-
-void CgnsZone::FillCgnsData( CgnsData * cgnsData )
-{
-    int nSection = 2;
-
-    cgnsData->Create( nSection );
-
-    CgIntField & startId = cgnsData->startId;
-    CgIntField & endId = cgnsData->endId;
-    IntField & elemType = cgnsData->elemType;
-
-    int nBFace        = 0;
-    int nActualBcFace = 0;
-
-    int nBcRegion = this->bcRegionProxy->nBcRegion;
-
-    for ( int iBcRegion = 0; iBcRegion < nBcRegion; ++ iBcRegion )
-    {
-        CgnsBcRegion * cgnsBcRegion = this->bcRegionProxy->GetBcRegion( iBcRegion );
-        int nBcElement       = cgnsBcRegion->nElements;
-        int nActualBcElement = cgnsBcRegion->GetActualNumberOfBoundaryElements();
-        nBFace        += nBcElement;
-        nActualBcFace += nActualBcElement;
-
-        cout << " iBcRegion  = " << iBcRegion << " numberOfBoundaryElements       = " << nBcElement << "\n";
-        cout << " iBcRegion  = " << iBcRegion << " numberOfActualBoundaryElements = " << nActualBcElement << "\n";
-    }
-    cout << " numberOfBoundaryFaces       = " << nBFace       << "\n";
-    cout << " numberOfActualBoundaryFaces = " << nActualBcFace << "\n";
-
-    startId[ 0 ] = 1;
-    endId[ 0 ] = this->nCell;
-
-    startId[ 1 ] = this->nCell + 1;
-    endId  [ 1 ] = this->nCell + nActualBcFace;
-
-    int celldim = this->cgnsBase->celldim;
-
-    if ( celldim == ONE_D )
-    {
-        elemType[ 0 ]  = CGNS_ENUMV( BAR_2 );
-        elemType[ 1 ]  = CGNS_ENUMV( NODE );
-    }
-    else if ( celldim == TWO_D )
-    {
-        elemType[ 0 ]  = CGNS_ENUMV( QUAD_4 );
-        elemType[ 1 ]  = CGNS_ENUMV( BAR_2  );
-    }
-    else if ( celldim == THREE_D )
-    {
-        elemType[ 0 ]  = CGNS_ENUMV( HEXA_8 );
-        elemType[ 1 ]  = CGNS_ENUMV( QUAD_4 );
-    }
-}
-
-void CgnsZone::AllocateUnsElemConn( CgnsZone * cgnsZoneIn )
-{
-    CgnsData * cgnsData = new CgnsData();
-
-    cgnsZoneIn->FillCgnsData( cgnsData );
-
-    this->multiSection->FillCgnsSections( cgnsData );
-
-    delete cgnsData;
-}
-
 void CgnsZone::SetElemPosition()
 {
-    this->multiSection->SetElemPosition();
-}
-
-void CgnsZone::GenerateUnsVolElemConn( CgnsZone * cgnsZoneIn )
-{
-    int ni = static_cast<int> (cgnsZoneIn->GetNI());
-    int nj = static_cast<int> (cgnsZoneIn->GetNJ());
-    int nk = static_cast<int> (cgnsZoneIn->GetNK());
-
-    cout << " ni = " << ni << " nj = " << nj << " nk = " << nk << "\n";
-
-    int iSection = 0;
-    CgnsSection * cgnsSection = multiSection->cgnsSections[ iSection ];
-
-    Range I, J, K;
-    GetRange( ni, nj, nk, 0, -1, I, J, K );
-
-    int ist, ied, jst, jed, kst, ked;
-    GetIJKRegion( I, J, K, ist, ied, jst, jed, kst, ked );
-
-    int il1 = 1;
-    int jl1 = 1;
-    int kl1 = 1;
-
-    int cell_dim = this->cgnsBase->celldim;
-
-    if ( cell_dim == TWO_D ) kl1 = 0;
-    if ( cell_dim == ONE_D ) jl1 = 0;
-
-    CgIntField & connList = cgnsSection->connList;
-
-    int pos = 0;
-
-    for ( int k = kst; k <= ked; ++ k )
-    {
-        for ( int j = jst; j <= jed; ++ j )
-        {
-            for ( int i = ist; i <= ied; ++ i )
-            {
-                int index1, index2, index3, index4;
-                EncodeIJK( index1,  i      , j      , k,  ni,  nj,  nk );
-                EncodeIJK( index2,  i + il1, j      , k,  ni,  nj,  nk );
-
-                connList[ pos ++ ] = this->l2g[ index1 ] + 1;
-                connList[ pos ++ ] = this->l2g[ index2 ] + 1;
-
-                if ( cell_dim == ONE_D ) continue;
-
-                EncodeIJK( index3,  i + il1, j + jl1, k,  ni,  nj,  nk );
-                EncodeIJK( index4,  i      , j + jl1, k,  ni,  nj,  nk );
-
-                connList[ pos ++ ] = this->l2g[ index3 ] + 1;
-                connList[ pos ++ ] = this->l2g[ index4 ] + 1;
-
-                if ( cell_dim == TWO_D ) continue;
-
-                int index5, index6, index7, index8;
-                EncodeIJK( index5,  i      , j      , k + kl1,  ni,  nj,  nk );
-                EncodeIJK( index6,  i + il1, j      , k + kl1,  ni,  nj,  nk );
-                EncodeIJK( index7,  i + il1, j + jl1, k + kl1,  ni,  nj,  nk );
-                EncodeIJK( index8,  i      , j + jl1, k + kl1,  ni,  nj,  nk );
-
-                connList[ pos ++ ] = this->l2g[ index5 ] + 1;
-                connList[ pos ++ ] = this->l2g[ index6 ] + 1;
-                connList[ pos ++ ] = this->l2g[ index7 ] + 1;
-                connList[ pos ++ ] = this->l2g[ index8 ] + 1;
-            }
-        }
-    }
-}
-
-void CgnsZone::GenerateUnsBcElemConn( CgnsZone * cgnsZoneIn )
-{
-    int iSection = 1;
-    CgnsSection * cgnsSection = multiSection->cgnsSections[ iSection ];
-
-    this->CreateCgnsBcRegion( cgnsZoneIn );
-
-    cout << " ConnectionList Size = " << cgnsSection->connSize << "\n";
-    cgnsZoneIn->bcRegionProxy->GenerateUnsBcElemConn( cgnsSection->connList );
-}
-
-void CgnsZone::GenerateUnsBcCondConn( CgnsZone * cgnsZoneIn )
-{
-    int nBcRegion = cgnsZoneIn->bcRegionProxy->nBcRegion;
-
-    int iSection = 1;
-    CgnsSection * cgnsSection = multiSection->cgnsSections[ iSection ];
-
-    CgInt startId = cgnsSection->startId;
-
-    for ( int iBcRegion = 0; iBcRegion < nBcRegion; ++ iBcRegion )
-    {
-        CgnsBcRegion * bcRegion    = this      ->bcRegionProxy->GetBcRegion( iBcRegion );
-        CgnsBcRegion * strBcRegion = cgnsZoneIn->bcRegionProxy->GetBcRegion( iBcRegion );
-        bcRegion->CopyStrBcRegion( strBcRegion, startId );
-    }
+    this->cgnsZsection->SetElemPosition();
 }
 
 void CgnsZone::ReadNumberOfCgnsSections()
 {
-    this->multiSection->ReadNumberOfCgnsSections();
-}
-
-void CgnsZone::ReadNumberOfCgnsSections( CgnsZone * cgnsZoneIn )
-{
-    this->multiSection->nSection = cgnsZoneIn->multiSection->nSection;
-    cout << "   numberOfCgnsSections = " << this->multiSection->nSection << "\n";
+    this->cgnsZsection->ReadNumberOfCgnsSections();
 }
 
 void CgnsZone::CreateCgnsSections()
 {
-    this->multiSection->Create();
+    this->cgnsZsection->CreateCgnsSection();
 }
 
 void CgnsZone::ReadCgnsSections()
 {
-    this->multiSection->ReadCgnsSections();
+    this->cgnsZsection->ReadCgnsSections();
 }
 
 void CgnsZone::ReadCgnsGridCoordinates()
 {
-    //Determine the number and names of the coordinates.
-    int fileId = cgnsBase->fileId;
-    int baseId = cgnsBase->baseId;
-    cg_ncoords( fileId, baseId, this->zId, & this->nCoor );
-
-    nodeMesh->CreateNodes( static_cast<int>(this->nNode));
-
-    CgnsCoor * cgnsCoor = new CgnsCoor();
-
-    for ( int coordId = 1; coordId <= this->nCoor; ++ coordId )
-    {
-        DataType_t dataType;
-        CgnsTraits::char33 coorName;
-        cg_coord_info( fileId, baseId, this->zId, coordId, & dataType, coorName );
-        int coId = coordId - 1;
-        cgnsCoor->Alloc( coId, static_cast<int>(this->nNode), dataType );
-        //Read the x-, y-, z-coordinates.
-        cg_coord_read( fileId, baseId, this->zId, coorName, dataType, this->irmin, this->irmax, cgnsCoor->GetCoor( coId ) );
-        this->coorName = coorName;
-    }
-
-    cgnsCoor->SetAllData( nodeMesh->xN, nodeMesh->yN, nodeMesh->zN );
-
-    delete cgnsCoor;
-}
-
-void CgnsZone::ReadCgnsGridCoordinates( CgnsZone * cgnsZoneIn )
-{
-    * this->nodeMesh = * cgnsZoneIn->nodeMesh;
+    cgnsCoor->ReadCgnsGridCoordinates();
 }
 
 void CgnsZone::ReadCgnsGridBoundary()
 {
-    bcRegionProxy->ReadCgnsGridBoundary();
+    cgnsZbc->ReadCgnsGridBoundary();
 }
 
 void CgnsZone::ProcessPeriodicBc()
 {
     ;
-}
-
-void CgnsZone::CreateCgnsBcRegion( CgnsZone * cgnsZoneIn )
-{
-    bcRegionProxy->CreateCgnsBcRegion( cgnsZoneIn->bcRegionProxy );
-}
-
-void EncodeIJK( int & index, int i, int j, int k, int ni, int nj, int nk )
-{
-    index = ( i - 1 ) + ( j - 1 ) * ni + ( k - 1 ) * ( ni * nj ) ;
-}
-
-void DecodeIJK( int index, int & i, int & j, int & k, int ni, int nj, int nk )
-{
-    k = index / ( ni * nj ) + 1;
-    index -= ( k - 1 ) * ni * nj;
-    j = index / ni + 1;
-    i = index - ( j - 1 ) * ni + 1;
-}
-
-void GetRange( int ni, int nj, int nk, int startShift, int endShift, Range & I, Range & J, Range & K )
-{
-    I.SetRange( 1 + startShift, ni + endShift );
-    J.SetRange( 1 + startShift, nj + endShift );
-    K.SetRange( 1 + startShift, nk + endShift );
-
-    if ( ni == 1 ) I.SetRange( 1, 1 );
-    if ( nj == 1 ) J.SetRange( 1, 1 );
-    if ( nk == 1 ) K.SetRange( 1, 1 );
-}
-
-void GetIJKRegion( Range & I, Range & J, Range & K, int & ist, int & ied, int & jst, int & jed, int & kst, int & ked )
-{
-    ist = I.First();
-    ied = I.Last();
-    jst = J.First();
-    jed = J.Last();
-    kst = K.First();
-    ked = K.Last();
 }
 
 #endif

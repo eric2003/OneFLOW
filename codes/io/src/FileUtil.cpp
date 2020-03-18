@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2020 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -26,6 +26,7 @@ License
 #include "BasicParallel.h"
 #include "LogFile.h"
 #ifdef _WINDOWS
+#include <windows.h>
 #include <direct.h>
 #include <io.h>
 #else
@@ -62,6 +63,30 @@ void MakeDir( const string & dirName )
     {
         cout << dirName << " directory has been created successfully !\n";
     }
+}
+
+string HX_GetExePath()
+{
+    char buffer[ FILENAME_MAX ] = { 0 };
+#ifdef _WIN32
+    GetModuleFileName( NULL, buffer, FILENAME_MAX );
+#else
+    ssize_t count = readlink( "/proc/self/exe", buffer, FILENAME_MAX );
+#endif
+    string::size_type pos = string( buffer ).find_last_of( "\\/" );
+    return string( buffer ).substr( 0, pos);
+}
+
+string HX_GetCurrentDir()
+{
+#ifdef _WINDOWS
+    char * cwd = _getcwd( 0, 0 );
+#else
+    char * cwd = getcwd( 0, 0 ); 
+#endif
+    std::string working_dir( cwd ) ;
+    std::free( cwd ) ;
+    return working_dir ;
 }
 
 void OpenFile( fstream & file, const string & fileName, const ios_base::openmode & openMode )

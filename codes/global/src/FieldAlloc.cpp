@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2020 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -20,6 +20,7 @@ License
 
 \*---------------------------------------------------------------------------*/
 #include "FieldAlloc.h"
+#include "SimuCtrl.h"
 #include "FieldImp.h"
 #include "UsdPara.h"
 #include "SolverInfo.h"
@@ -54,10 +55,8 @@ void FieldAlloc::AllocateAllFields( int sTid, const string & basicString )
 void FieldAlloc::InitField( int sTid, const string & basicString )
 {
     ONEFLOW::StrIO.ClearAll();
-    ONEFLOW::StrIO << "./system/" << basicString << "/alloc/" << "init.txt";
+    ONEFLOW::StrIO << SimuCtrl::system_root << basicString << "/alloc/" << "init.txt";
     std::string fileName = ONEFLOW::StrIO.str();
-
-    //NameValuePair nameValuePair;
 
     BoolIO boolIO;
     boolIO.ReadFile( fileName, 1 );
@@ -144,7 +143,7 @@ void FieldAlloc::CmpInnerFieldFileName( const string & basicString, StringField 
     basicNameList.push_back( "bc"       );
 
     ONEFLOW::StrIO.ClearAll();
-    ONEFLOW::StrIO << "./system/" << basicString << "/alloc/";
+    ONEFLOW::StrIO << SimuCtrl::system_root << basicString << "/alloc/";
     string rootString = ONEFLOW::StrIO.str();
 
     for ( int i = 0; i < basicNameList.size(); ++ i )
@@ -167,7 +166,7 @@ void FieldAlloc::CmpInterfaceFileName( const string & basicString, StringField &
     basicNameList.push_back( "interOverset" );
 
     ONEFLOW::StrIO.ClearAll();
-    ONEFLOW::StrIO << "./system/" << basicString << "/alloc/";
+    ONEFLOW::StrIO << SimuCtrl::system_root << basicString << "/alloc/";
     string rootString = ONEFLOW::StrIO.str();
 
     for ( int i = 0; i < basicNameList.size(); ++ i )

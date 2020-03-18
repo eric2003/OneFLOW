@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2020 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -24,24 +24,25 @@ License
 #include "FileIO.h"
 #include "DataBase.h"
 #include "DataBook.h"
+#include <vector>
+#include <string>
+using namespace std;
 
 BeginNameSpace( ONEFLOW )
 
 bool IsArrayParameter( const string & lineOfName );
-void ReadBasicData( FileIO & fileIO );
+void ReadOneFLOWScriptFile( FileIO & fileIO );
+void ReadOneFLOWScriptFile( const std::string & fileName );
+
 void AnalysisArrayParameter( FileIO & fileIO, int keyWordIndex );
 int AnalysisScalarParameter( FileIO & fileIO, int keyWordIndex );
 int GetParameterArraySize( const string & word );
-void ReadHXFile( const std::string & fileName );
 
 void ReadControlInfo();
-void ReadPrjBaseDir();
-void ReadHXScript();
-void ReadMultiFile();
+void ReadPrjScript();
+void ReadScriptFileNameList( vector< string > & scriptFileNameList );
+void ReadMultiScriptFiles( vector< string > & scriptFileNameList );
 void BroadcastControlParameterToAllProcessors();
-
-int GetNumberOfParameterFiles();
-std::string GetParameterFileName( int iFile = 0 );
 
 void CompressData( DataBase * dataBase, DataBook *& dataBook );
 void DecompressData( DataBase * dataBase, DataBook * dataBook );

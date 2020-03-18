@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2020 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -43,12 +43,45 @@ public:
     int readGridType;
     string gridFile;
     string bcFile;
+    string targetFile;
     string gridType;
 public:
     void ReadGrid();
     void ReadGridgen();
     void ReadPlot3D();
     void ReadPlot3DCoor();
+public:
+    void AddDefaultName();
+};
+
+class ZgridMediator
+{
+public:
+    ZgridMediator();
+    ~ZgridMediator();
+public:
+    HXVector< GridMediator * > gm;
+    bool flag;
+public:
+    void AddGridMediator( GridMediator * gridMediator );
+    GridMediator * GetGridMediator( int iGridMediator );
+    int GetSize();
+    string GetTargetFile();
+    void SetDeleteFlag( bool flag );
+public:
+    void CreateSimple( int nZone );
+    void ReadGrid();
+};
+
+class GlobalGrid
+{
+public:
+    GlobalGrid();
+    ~GlobalGrid();
+public:
+    static GridMediator * gridMediator;
+    static Grid * GetGrid( int zoneId );
+    static void SetCurrentGridMediator( GridMediator * gridMediatorIn );
 };
 
 EndNameSpace

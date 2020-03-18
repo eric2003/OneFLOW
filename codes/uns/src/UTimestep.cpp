@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2020 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -130,7 +130,7 @@ void UTimestep::ReadTmp()
 
     unsf.Init();
 
-       for ( int cId = 0; cId < ug.nTCell; ++ cId )
+    for ( int cId = 0; cId < ug.nTCell; ++ cId )
     {
         for ( int iEqu = 0; iEqu < 5; ++ iEqu )
         {
@@ -138,29 +138,29 @@ void UTimestep::ReadTmp()
         }
     }
 
-       for ( int cId = 0; cId < ug.nTCell; ++ cId )
+    for ( int cId = 0; cId < ug.nTCell; ++ cId )
     {
         file.read( reinterpret_cast< char * >( & ( * unsf.visl )[ 0 ][ cId ] ), sizeof( double ) );
     }
 
-       for ( int cId = 0; cId < ug.nTCell; ++ cId )
+    for ( int cId = 0; cId < ug.nTCell; ++ cId )
     {
         file.read( reinterpret_cast< char * >( & ( * unsf.vist )[ 0 ][ cId ] ), sizeof( double ) );
     }
 
     vector< Real > tmp1( ug.nTCell ), tmp2( ug.nTCell );
 
-       for ( int cId = 0; cId < ug.nTCell; ++ cId )
+    for ( int cId = 0; cId < ug.nTCell; ++ cId )
     {
         tmp1[ cId ] = ( * unsf.timestep )[ 0 ][ cId ];
     }
 
-       for ( int cId = 0; cId < ug.nTCell; ++ cId )
+    for ( int cId = 0; cId < ug.nTCell; ++ cId )
     {
         file.read( reinterpret_cast< char * >( & ( * unsf.timestep )[ 0 ][ cId ] ), sizeof( double ) );
     }
 
-       for ( int cId = 0; cId < ug.nTCell; ++ cId )
+    for ( int cId = 0; cId < ug.nTCell; ++ cId )
     {
         tmp2[ cId ] = ( * unsf.timestep )[ 0 ][ cId ];
     }

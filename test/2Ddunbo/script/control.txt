@@ -1,0 +1,9 @@
+"simu.txt";
+"dimension.txt";
+"tolerence.txt";
+"cfd.txt";
+"vismodel.txt";
+"multigrid.txt";
+"inflow.txt";
+"turb.txt";
+"walldist.txt";

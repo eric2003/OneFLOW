@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2020 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -78,6 +78,7 @@ void INsUpdate::CmpFlowFieldHyperSonic()
 
     Real density = inscom.q[ IIDX::IIR ];
     Real density0 = inscom.q[ IIDX::IIR ];
+
     Real dr = density - density0;
     if ( density < 0.0 )
     {
@@ -85,6 +86,7 @@ void INsUpdate::CmpFlowFieldHyperSonic()
     }
 
     Real rd = 1.0 / density;
+
     Real um  = inscom.q[ IIDX::IIU ] * rd;
     Real vm  = inscom.q[ IIDX::IIV ] * rd;
     Real wm  = inscom.q[ IIDX::IIW ] * rd;

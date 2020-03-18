@@ -50,6 +50,7 @@ before_script:
 
 # build instructions
 script:
+  - export PATH=/usr/bin/:$PATH
   - cmake -G "Unix Makefiles" -DCMAKE_CXX_COMPILER=$CXX_COMPILER -DCMAKE_C_COMPILER=$C_COMPILER -DAUTO_CI_TEST=ON -DMPI_DIR=$TRAVIS_BUILD_DIR/openmpi ../
   - make -j 4
   - sudo make install

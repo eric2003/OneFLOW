@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2020 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -77,8 +77,7 @@ void PIO::ParallelOpenPrj( fstream & file, const string & fileName, const ios_ba
 
     string prjFileName = ONEFLOW::StrIO.str();
     string prj_dir = PIO::GetDirName( prjFileName );
-    //cout << " prj_dir = " << prj_dir << " prjFileName = " << prjFileName << " fileName = " << fileName << "\n";
-    //cout << " PrjStatus::prjBaseDir = " << PrjStatus::prjBaseDir << "\n";
+
     if ( ! DirExist( prj_dir ) )
     {
         MakeDir( prj_dir );

@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2020 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -182,14 +182,14 @@ void UnsGrid::ReadBoundaryTopology( DataBook * databook )
     ONEFLOW::HXRead( databook, this->nBFace );
     this->faceTopo->SetNBFace( this->nBFace );
 
-    cout << "nBFace = " << this->nBFace << endl;
+    //cout << " nBFace = " << this->nBFace << endl;
 
     //设置边界条件
     BcRecord * bcRecord = this->faceTopo->bcManager->bcRecord;
     ONEFLOW::HXRead( databook, bcRecord->bcType );
     ONEFLOW::HXRead( databook, bcRecord->bcRegion );
     ONEFLOW::HXRead( databook, this->nIFace );
-
+    cout << " nBFace = " << this->nBFace;
     cout << " nIFace = " << this->nIFace << endl;
     this->interFace->Set( this->nIFace, this );
 

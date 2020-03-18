@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2020 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -21,10 +21,14 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "CgnsBase.h"
+#include "CgnsFile.h"
 #include "CgnsZone.h"
+#include "CgnsZoneUtil.h"
 #include "StrUtil.h"
 #include "Dimension.h"
 #include "CgnsFamilyBc.h"
+#include "CgnsVariable.h"
+
 #include <iostream>
 using namespace std;
 
@@ -34,56 +38,82 @@ BeginNameSpace( ONEFLOW )
 
 CgnsBase::CgnsBase()
 {
+    this->cgnsFile = 0;
     this->familyBc = 0;
+    this->freeFlag = false;
+}
+
+CgnsBase::CgnsBase( CgnsFile * cgnsFile )
+{
+    this->cgnsFile = cgnsFile;
+    this->familyBc = 0;
+    this->freeFlag = false;
 }
 
 CgnsBase::~CgnsBase()
 {
     delete this->familyBc;
+    if ( this->freeFlag )
+    {
+        this->FreeZoneList();
+    }
 }
 
-CgnsZone * CgnsBase::GetCgnsZone( int zoneId )
+void CgnsBase::FreeZoneList()
 {
-    int id = zoneId - 1;
-    return this->cgnsZones[ id ];
+    for ( int i = 0; i < cgnsZones.size(); ++ i )
+    {
+        delete cgnsZones[ i ];
+    }
 }
 
-CgnsZone * CgnsBase::GetCgnsZone( const string & zoneName )
+
+CgnsZone * CgnsBase::GetCgnsZone( int iZone )
+{
+    //iZone base on 0
+    return this->cgnsZones[ iZone ];
+}
+
+CgnsZone * CgnsBase::GetCgnsZoneByName( const string & zoneName )
 {
     map< string, int >::iterator iter;
     iter = zoneNameMap.find( zoneName );
-    int zoneId = iter->second;
-    return this->GetCgnsZone( zoneId );
+    int iZone = iter->second - 1;
+    return this->GetCgnsZone( iZone );
 }
 
-void CgnsBase::SetDefaultCgnsBaseBasicInformation()
+int CgnsBase::GetNZone()
 {
-    this->celldim = Dim::dimension;
-    this->phydim  = Dim::dimension;
+    return this->cgnsZones.size();
+}
 
+void CgnsBase::SetDefaultCgnsBaseBasicInfo()
+{
+    //this->celldim = Dim::dimension;
+    //this->phydim  = Dim::dimension;
+
+    this->celldim = THREE_D;
+    this->phydim  = THREE_D;
+  
     this->baseName = ONEFLOW::AddString( "Base", this->baseId );
 }
 
-void CgnsBase::AllocateAllCgnsZonesInCurrentCgnsBase()
+void CgnsBase::AddCgnsZone( CgnsZone * cgnsZone )
 {
-    cgnsZones.resize( nZones );
+    cgnsZones.push_back( cgnsZone );
+    int zId = cgnsZones.size();
+    cgnsZone->zId = zId;
+}
 
+void CgnsBase::AllocateAllCgnsZones()
+{
     for ( int iZone = 0; iZone < nZones; ++ iZone )
     {
         CgnsZone * cgnsZone = new CgnsZone( this );
 
-        cgnsZones[ iZone ] = cgnsZone;
+        this->AddCgnsZone( cgnsZone );
 
         cgnsZone->Create();
-    }
-}
-
-void CgnsBase::InitAllCgnsZonesInCurrentCgnsBase()
-{
-    for ( int iZone = 0; iZone < nZones; ++ iZone )
-    {
-        CgnsZone * cgnsZone = cgnsZones[ iZone ];
-        cgnsZone->zId = iZone + 1;
     }
 }
 
@@ -95,13 +125,13 @@ void CgnsBase::ReadCgnsBaseBasicInfo()
     cg_base_read( this->fileId, this->baseId, cgnsBaseName, & this->celldim, & this->phydim );
     this->baseName = cgnsBaseName;
     cout << "   baseId = " << this->baseId << " baseName = " << cgnsBaseName << "\n";
+    cout << "   cell dim = " << this->celldim << " physical dim = " << this->phydim << "\n";
 }
 
-void CgnsBase::ReadCgnsBaseBasicInfo( CgnsBase * cgnsBaseIn )
+void CgnsBase::DumpCgnsBaseBasicInfo()
 {
-    this->baseName = cgnsBaseIn->baseName;
-    this->celldim  = cgnsBaseIn->celldim;
-    this->phydim   = cgnsBaseIn->phydim;
+    cg_base_write( this->fileId, this->baseName.c_str(), this->celldim, this->phydim, &this->baseId );
+    cout << " baseId = " << this->baseId << " baseName = " << this->baseName << "\n";
 }
 
 void CgnsBase::ReadNumberOfCgnsZones()
@@ -110,16 +140,11 @@ void CgnsBase::ReadNumberOfCgnsZones()
     cg_nzones( this->fileId, this->baseId, & this->nZones );
 }
 
-void CgnsBase::ReadNumberOfCgnsZones( CgnsBase * cgnsBaseIn )
-{
-    this->nZones = cgnsBaseIn->nZones;
-}
-
 void CgnsBase::ConstructZoneNameMap()
 {
     for ( int iZone = 0; iZone < nZones; ++ iZone )
     {
-        CgnsZone * cgnsZone = this->cgnsZones[ iZone ];
+        CgnsZone * cgnsZone = this->GetCgnsZone( iZone );
         zoneNameMap[ cgnsZone->zoneName ] = cgnsZone->zId;
     }
 }
@@ -127,12 +152,14 @@ void CgnsBase::ConstructZoneNameMap()
 void CgnsBase::ReadAllCgnsZones()
 {
     cout << "** Reading CGNS Grid In Base " << this->baseId << "\n";
+    cout << "   Reading CGNS Family Specified BC \n";
+    this->ReadFamilySpecifiedBc();
     cout << "   numberOfCgnsZones       = " << this->nZones << "\n\n";
 
     for ( int iZone = 0; iZone < nZones; ++ iZone )
     {
         cout << "==>iZone = " << iZone << " numberOfCgnsZones = " << this->nZones << "\n";
-        CgnsZone * cgnsZone = this->cgnsZones[ iZone ];
+        CgnsZone * cgnsZone = this->GetCgnsZone( iZone );
         cgnsZone->ReadCgnsGrid();
     }
 
@@ -142,22 +169,8 @@ void CgnsBase::ReadAllCgnsZones()
     {
         cout << "==>iZone = " << iZone << " numberOfCgnsZones = " << this->nZones << "\n";
         cout << "cgnsZone->SetPeriodicBc\n";
-        CgnsZone * cgnsZone = this->cgnsZones[ iZone ];
+        CgnsZone * cgnsZone = this->GetCgnsZone( iZone );
         cgnsZone->SetPeriodicBc();
-    }
-}
-
-void CgnsBase::ReadAllCgnsZones( CgnsBase * cgnsBaseIn )
-{
-    cout << "** Reading CGNS Grid In Base " << this->baseId << "\n";
-    cout << "   numberOfCgnsZones       = " << this->nZones << "\n\n";
-
-    for ( int iZone = 0; iZone < nZones; ++ iZone )
-    {
-        cout << "==>iZone = " << iZone << " numberOfCgnsZones = " << this->nZones << "\n";
-        CgnsZone * cgnsZone = this->cgnsZones[ iZone ];
-        CgnsZone * cgnsZoneIn = cgnsBaseIn->cgnsZones[ iZone ];
-        cgnsZone->ReadCgnsGrid( cgnsZoneIn );
     }
 }
 
@@ -171,6 +184,69 @@ void CgnsBase::ReadFamilySpecifiedBc()
     this->familyBc = new CgnsFamilyBc( this );
     this->familyBc->ReadFamilySpecifiedBc();
 }
+
+void CgnsBase::WriteZoneInfo( const string & zoneName, ZoneType_t zoneType, cgsize_t * isize )
+{
+    int cgzone;
+    cg_zone_write( this->fileId, this->baseId, zoneName.c_str(), isize, zoneType, & cgzone );
+    this->freeFlag = true;
+
+    CgnsZone * cgnsZone = new CgnsZone( this );
+    cgnsZone->zoneName = zoneName;
+    cgnsZone->cgnsZoneType = zoneType;
+    cgnsZone->CopyISize( isize );
+    this->cgnsZones.push_back( cgnsZone );    ;
+}
+
+void CgnsBase::GoToBase()
+{
+    cg_goto( this->fileId, this->baseId, "end" );
+}
+
+void CgnsBase::GoToNode( const string & nodeName, int ith )
+{
+    cg_goto( this->fileId, this->baseId, nodeName.c_str(), ith, NULL );
+}
+
+void CgnsBase::ReadArray()
+{
+    CgnsUserData cgnsUserData( this );
+    cgnsUserData.ReadUserData();
+}
+
+void CgnsBase::ReadReferenceState()
+{
+    this->GoToBase();
+
+    //CGNS_ENUMT(DataClass_t) id;
+    //cg_dataclass_read( & id );
+    //cout << "DataClass id = " << id << "\n";
+    //cout << "DataClass = " << DataClassName[ id ] << "\n";
+
+    char * state;
+    cg_state_read( & state );
+    cout << "ReferenceState = " << state << "\n";
+
+    this->GoToNode( "ReferenceState_t", 1 );
+    int narrays = -1;
+    cg_narrays( & narrays );
+    cout << " narrays = " << narrays << "\n";
+
+    for ( int n = 1; n <= narrays; ++ n )
+    {
+        CGNS_ENUMT(DataType_t) idata;
+        int idim;
+        cgsize_t idimvec;
+        char arrayname[33];
+        cg_array_info( n, arrayname, & idata, & idim, & idimvec );
+        cout << " DataTypeName = " << DataTypeName[ idata ] << "\n";
+        double data;
+        cg_array_read_as( n, CGNS_ENUMV(RealDouble), & data );
+        cout << "Variable = " << arrayname << "\n";
+        cout << "   data = " << data << "\n";
+    }
+}
+
 
 #endif
 EndNameSpace

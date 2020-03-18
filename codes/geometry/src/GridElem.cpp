@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2020 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -32,17 +32,48 @@ License
 #include "Boundary.h"
 #include "PointFactory.h"
 #include "NodeMesh.h"
+#include "GridState.h"
+#include "BgGrid.h"
 #include <iostream>
 #include <iomanip>
 using namespace std;
 
 BeginNameSpace( ONEFLOW )
 
-GridElem::GridElem( HXVector< CgnsZone * > & cgnsZones )
+int OneFlow2CgnsZoneType( int zoneType )
 {
+    if ( zoneType == UMESH )
+    {
+        return CGNS_ENUMV( Unstructured );
+    }
+    else
+    {
+        return CGNS_ENUMV( Structured );
+    }
+}
+
+int Cgns2OneFlowZoneType( int zoneType )
+{
+    if ( zoneType == CGNS_ENUMV( Unstructured ) )
+    {
+        return UMESH;
+    }
+    else
+    {
+        return SMESH;
+    }
+}
+
+GridElem::GridElem( HXVector< CgnsZone * > & cgnsZones, int iZone )
+{
+    this->cgnsZones = cgnsZones;
+    this->CreateGrid( cgnsZones, iZone );
+
     this->minLen = LARGE;
     this->maxLen = -LARGE;
-    this->cgnsZones = cgnsZones;
+
+    this->delFlag = false;
+
     this->point_factory = new PointFactory();
     this->elem_feature = new ElemFeature();
     this->face_solver = new FaceSolver();
@@ -57,7 +88,35 @@ GridElem::~GridElem()
     delete this->elem_feature;
     cout << "delete this->face_solver;\n";
     delete this->face_solver;
+    if ( this->delFlag )
+    {
+        delete this->grid;
+    }
+    
     cout << "GridElem::~GridElem()\n";
+}
+
+CgnsZone * GridElem::GetCgnsZone( int iZone )
+{
+    return this->cgnsZones[ iZone ];
+}
+
+int GridElem::GetNZone()
+{
+    return this->cgnsZones.size();
+}
+
+void GridElem::CreateGrid( HXVector< CgnsZone * > cgnsZones, int iZone )
+{
+    CgnsZone * cgnsZone = cgnsZones[ 0 ];
+    int cgnsZoneType = cgnsZone->cgnsZoneType;
+    int gridType = Cgns2OneFlowZoneType( cgnsZoneType );
+    this->grid = ONEFLOW::CreateGrid( gridType );
+    grid->level = 0;
+    grid->id = iZone;
+    grid->localId = iZone;
+    grid->type = gridType;
+    grid->volBcType = cgnsZone->GetVolBcType();
 }
 
 void GridElem::PrepareUnsCompGrid()
@@ -72,42 +131,31 @@ void GridElem::PrepareUnsCompGrid()
     //Continue to parse
     cout << " ScanElements()\n";
     this->elem_feature->ScanElements();
-    this->GenerateCmpElement();
-}
-
-void GridElem::ComputeMinMaxInfo()
-{
-    this->minLen =   LARGE;
-    this->maxLen = - LARGE;
-    for ( int iZone = 0; iZone < cgnsZones.size(); ++ iZone )
-    {
-        CgnsZone * cgnsZone = cgnsZones[ iZone ];
-
-        this->minLen = MIN( this->minLen, cgnsZone->minLen );
-        this->maxLen = MAX( this->maxLen, cgnsZone->maxLen );
-    }
-    cout << "   minLen = " << this->minLen << " maxLen = " << this->maxLen << endl;
+    this->GenerateCompElement();
 }
 
 void GridElem::InitCgnsElements()
 {
-    for ( int iZone = 0; iZone < cgnsZones.size(); ++ iZone )
+    int nZone = this->GetNZone();
+    for ( int iZone = 0; iZone < nZone; ++ iZone )
     {
-        CgnsZone * cgnsZone = cgnsZones[ iZone ];
+        CgnsZone * cgnsZone = this->GetCgnsZone( iZone );
+        
         cgnsZone->InitElement( this );
     }
 }
 
 void GridElem::ScanBcFace()
 {
-    int nZone = this->cgnsZones.size();
+    int nZone = this->GetNZone();
     for ( int iZone = 0; iZone < nZone; ++ iZone )
     {
-        this->cgnsZones[ iZone ]->ScanBcFace( this->elem_feature->face_solver );
+        CgnsZone * cgnsZone = this->GetCgnsZone( iZone );
+        cgnsZone->ScanBcFace( this->elem_feature->face_solver );
     }
 }
 
-void GridElem::GenerateCmpElement()
+void GridElem::GenerateCompElement()
 {
     int nElement =  this->elem_feature->eType->size();
 
@@ -140,7 +188,12 @@ void GridElem::GenerateCmpElement()
 
 }
 
-void GridElem::GenerateCmpGrid( Grid * gridIn )
+void GridElem::GenerateCompGrid()
+{
+    this->GenerateCompGrid( this->grid );
+}
+
+void GridElem::GenerateCompGrid( Grid * gridIn )
 {
     UnsGrid * grid = UnsGridCast ( gridIn );
 
@@ -282,6 +335,35 @@ void GridElem::ReorderLink( UnsGrid * grid )
     faceTopo->f2n = faceTopo->faceToNodeNew;
     faceTopo->lCell = faceTopo->lCellNew;
     faceTopo->rCell = faceTopo->rCellNew;
+}
+
+ZgridElem::ZgridElem()
+{
+    ;
+}
+
+ZgridElem::~ZgridElem()
+{
+    for ( int i = 0; i < this->data.size(); ++ i )
+    {
+        delete this->data[ i ];
+    }
+}
+
+void ZgridElem::AddGridElem( GridElem * gridElem )
+{
+    this->data.push_back( gridElem );
+}
+
+void ZgridElem::AddGridElem( HXVector< CgnsZone * > cgnsZones, int iZone )
+{
+    GridElem * gridElem = new GridElem( cgnsZones, iZone );
+    this->AddGridElem( gridElem );
+}
+
+GridElem * ZgridElem::GetGridElem( int iGridElem )
+{
+    return this->data[ iGridElem ];
 }
 
 EndNameSpace

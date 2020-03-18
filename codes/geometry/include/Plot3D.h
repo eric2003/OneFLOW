@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2020 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -34,6 +34,7 @@ const int ASCII  = 0;
 const int BINARY = 1;
 class GridMediator;
 class FileIO;
+class ZgridMediator;
 
 class Plot3D
 {
@@ -48,6 +49,14 @@ public:
     static void ReadCoor( FileIO * ioFile, RealField & coordinate );
     static void ReadCoor( FileIO * ioFile, RealField & coor, int total_size );
     static void ReadBc( GridMediator * gridMediator );
+public:
+    static void DumpCoor( GridMediator * gridMediator );
+    static void DumpCoorBinary( GridMediator * gridMediator );
+    static void DumpCoorAscii( GridMediator * gridMediator );
+    static void DumpCoorAscii( fstream & file, RealField & coor );
+    static void DumpBc( GridMediator * gridMediator );
+    static void Plot3DToCgns( ZgridMediator * zgridMediator );
+
 };
 
 bool GetPlot3D_NKFlag();

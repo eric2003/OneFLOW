@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2020 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -32,39 +32,50 @@ BeginNameSpace( ONEFLOW )
 
 #ifdef ENABLE_CGNS
 
+class CgnsFile;
 class CgnsZone;
 class CgnsFamilyBc;
 
 class CgnsBase
 {
 public:
+    CgnsBase( CgnsFile * cgnsFile );
     CgnsBase();
     ~CgnsBase();
 public:
+    CgnsFile * cgnsFile;
     int fileId, baseId;
     int nZones;
     int celldim, phydim;
     string baseName;
     HXVector< CgnsZone * > cgnsZones;
+    bool freeFlag;
 public:
-    CgnsZone * GetCgnsZone( int zoneId );
-    CgnsZone * GetCgnsZone( const string & zoneName );
+    void FreeZoneList();
+    CgnsZone * GetCgnsZoneByName( const string & zoneName );
+    CgnsZone * GetCgnsZone( int iZone );
     void ConstructZoneNameMap();
     map< string, int > zoneNameMap;
     CgnsFamilyBc * familyBc;
 public:
-    void SetDefaultCgnsBaseBasicInformation();
-    void AllocateAllCgnsZonesInCurrentCgnsBase();
-    void InitAllCgnsZonesInCurrentCgnsBase();
+    int GetNZone();
+    void SetDefaultCgnsBaseBasicInfo();
+    void AddCgnsZone( CgnsZone * cgnsZone );
+    void AllocateAllCgnsZones();
     void ReadCgnsBaseBasicInfo();
-    void ReadCgnsBaseBasicInfo( CgnsBase * cgnsBaseIn );
+    void DumpCgnsBaseBasicInfo();
     void ReadNumberOfCgnsZones();
-    void ReadNumberOfCgnsZones( CgnsBase * cgnsBaseIn );
     void ReadAllCgnsZones();
-    void ReadAllCgnsZones( CgnsBase * cgnsBaseIn );
 public:
     void SetFamilyBc( BCType_t & bcType, const string & bcRegionName );
     void ReadFamilySpecifiedBc();
+public:
+    void GoToBase();
+    void GoToNode( const string & nodeName, int ith );
+public:
+    void WriteZoneInfo( const string & zoneName, ZoneType_t zoneType, cgsize_t * isize );
+    void ReadArray();
+    void ReadReferenceState();
 };
 
 #endif

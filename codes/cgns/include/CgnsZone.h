@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2020 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -28,24 +28,25 @@ License
 #include <fstream>
 #include "HXCgns.h"
 #include "HXArray.h"
+#include "GridDef.h"
 using namespace std;
 
 BeginNameSpace( ONEFLOW )
 
 #ifdef ENABLE_CGNS
 
-class StrGrid;
 class CgnsZone;
 class CgnsBase;
+class CgnsCoor;
 class NodeMesh;
-class CgnsMultiSection;
-class CgnsBcRegionProxy;
+class CgnsZsection;
+class CgnsZbc;
 class GridElem;
 class PointFactory;
 class ElemFeature;
 class FaceSolver;
-class CgnsData;
 class CgnsBase;
+
 class CgnsZone
 {
 public:
@@ -53,27 +54,24 @@ public:
     ~CgnsZone();
 public:
     CgnsBase * cgnsBase;
-    NodeMesh * nodeMesh;
-    CgnsMultiSection * multiSection;
-    CgnsBcRegionProxy * bcRegionProxy;
-
-    CgInt nNode, nCell;
-    int nCoor;
+    CgnsCoor * cgnsCoor;
+    CgnsZsection * cgnsZsection;
+    CgnsZbc * cgnsZbc;
+public:
+    string zoneName;
+    int zId;
 
     ZoneType_t cgnsZoneType;
 
-    int zId;
-    CgInt irmin[ 3 ], irmax[ 3 ], cellSize[ 3 ];
-    CgInt isize[ 3 ][ 3 ];
-
-    string coorName;
-    string zoneName;
+    int volBcType;
 
     IntField l2g;
 
-    Real minLen, maxLen;
+    CgInt isize[ 9 ];
 public:
-    void FreeMesh();
+    void CopyISize( CgInt * isize );
+    void SetVolBcType( int volBcType );
+    int GetVolBcType();
 public:
     void Create();
     void SetPeriodicBc();
@@ -86,43 +84,26 @@ public:
     void ScanBcFace( FaceSolver * face_solver );
     void GetElementNodeId( CgInt eId, CgIntField & eNodeId );
     void ReadCgnsGrid();
-    void ReadCgnsGrid( CgnsZone * cgnsZoneIn );
     void ReadCgnsZoneAttribute();
-    void ReadCgnsZoneAttribute( CgnsZone * cgnsZoneIn );
     void ReadCgnsZoneType();
-    void ReadCgnsZoneType( CgnsZone * cgnsZoneIn );
     void ReadCgnsZoneNameAndGeneralizedDimension();
-    void ReadCgnsZoneNameAndGeneralizedDimension( CgnsZone * cgnsZoneIn );
     void SetDimension();
-    void SetDimension( CgnsZone * cgnsZoneIn );
     void ReadElementConnectivities();
-    void ReadElementConnectivities( CgnsZone * cgnsZoneIn );
     void ReadNumberOfCgnsSections();
-    void ReadNumberOfCgnsSections( CgnsZone * cgnsZoneIn );
     void CreateCgnsSections();
     void ReadCgnsSections();
     void ReadCgnsGridCoordinates();
-    void ReadCgnsGridCoordinates( CgnsZone * cgnsZoneIn );
     void ReadCgnsGridBoundary();
     void ProcessPeriodicBc();
 public:
-    void AllocateUnsElemConn( CgnsZone * cgnsZoneIn );
-    void GenerateUnsVolElemConn( CgnsZone * cgnsZoneIn );
-    void GenerateUnsBcElemConn ( CgnsZone * cgnsZoneIn );
-    void GenerateUnsBcCondConn ( CgnsZone * cgnsZoneIn );
     void SetElemPosition();
-    void CreateCgnsBcRegion( CgnsZone * cgnsZoneIn );
-    void InitL2g();
+public:
     CgInt GetNI() const;
     CgInt GetNJ() const;
     CgInt GetNK() const;
-    void FillCgnsData( CgnsData * cgnsData );
+public:
+    bool ExistSection( const string & sectionName );
 };
-
-void EncodeIJK( int & index, int i, int j, int k, int ni, int nj, int nk );
-void DecodeIJK( int index, int & i, int & j, int & k, int ni, int nj, int nk );
-void GetRange( int ni, int nj, int nk, int startShift, int endShift, Range & I, Range & J, Range & K );
-void GetIJKRegion( Range & I, Range & J, Range & K, int & ist, int & ied, int & jst, int & jed, int & kst, int & ked );
 
 #endif
 

@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2020 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -33,6 +33,7 @@ const int F_INNER = 0;
 const int F_GHOST = 1;
 const int F_TOTAL = 2;
 
+class UnsGrid;
 class UGeom
 {
 public:
@@ -44,6 +45,7 @@ public:
     void SetStEd( int flag );
     void DumpCellFace( int cId );
 public:
+    UnsGrid * grid;
     int fId;
     int cId;
     int bcfId;
