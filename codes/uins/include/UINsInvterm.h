@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-    Copyright (C) 2017-2020 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -22,20 +22,45 @@ License
 
 
 #pragma once
-#include "HXClone.h"
+#include "INsInvterm.h"
 
 BeginNameSpace( ONEFLOW )
 
-DEFINE_DATA_CLASS( InitFirst );
-DEFINE_DATA_CLASS( ReadRestart );
-DEFINE_DATA_CLASS( DumpRestart );
-DEFINE_DATA_CLASS( InitRestart );
-DEFINE_DATA_CLASS( InitFlowField );
+class UINsFField;
+class Limiter;
+class LimField;
 
-//DEFINE_DATA_CLASS( ReadinsRestart );
-//DEFINE_DATA_CLASS( DumpinsRestart );
-DEFINE_DATA_CLASS( InitinsRestart );
-
-void RegisterRestartTask();
+class UINsInvterm : public INsInvterm
+{
+public:
+    UINsInvterm();
+    ~UINsInvterm();
+public:
+    void Alloc();
+    void DeAlloc();
+    void CmpInvcoff();
+    void CmpInvMassFlux();
+    void CmpInvFace();
+    void CmpLimiter();
+	void MomPred();
+	void CmpFaceflux();
+	void CmpCorrectPresscoef();
+	void CmpPressCorrectEqu();
+	void UpdateFaceflux();
+	void UpdateSpeed();
+    void AddFlux();
+    void PrepareFaceValue();
+	//void CmpINsinvTerm();
+    //void UpdateFaceInvFlux();
+    void ReadTmp();
+public:
+    void GetQlQrField();
+    void ReconstructFaceValueField();
+    void BoundaryQlQrFixField();
+public:
+    Limiter * limiter;
+    LimField * limf;
+    MRField * iinvflux;
+};
 
 EndNameSpace

@@ -61,8 +61,8 @@ void UNsInvFlux::CmpLimiter()
 
 void UNsInvFlux::CmpInvFace()
 {
-    uns_grad.Init();
-    uns_grad.CmpGrad();
+    //uns_grad.Init();
+    //uns_grad.CmpGrad();
 
     this->CmpLimiter();
 

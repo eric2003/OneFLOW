@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-    Copyright (C) 2017-2020 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -22,20 +22,32 @@ License
 
 
 #pragma once
-#include "HXClone.h"
-
+#include "Restart.h"
 BeginNameSpace( ONEFLOW )
 
-DEFINE_DATA_CLASS( InitFirst );
-DEFINE_DATA_CLASS( ReadRestart );
-DEFINE_DATA_CLASS( DumpRestart );
-DEFINE_DATA_CLASS( InitRestart );
-DEFINE_DATA_CLASS( InitFlowField );
+class UINsRestart : public Restart
+{
+public:
+    UINsRestart();
+    ~UINsRestart();
+public:
+    void InitinsRestart( int sTid );
+};
 
-//DEFINE_DATA_CLASS( ReadinsRestart );
-//DEFINE_DATA_CLASS( DumpinsRestart );
-DEFINE_DATA_CLASS( InitinsRestart );
-
-void RegisterRestartTask();
+class ShockVertex
+{
+public:
+    ShockVertex();
+    ~ShockVertex();
+public:
+    Real xc, yc;
+    Real Ms, gama;
+    Real ru, uu, vu, pu;
+    Real rd, ud, vd, pd;
+public:
+    void Init();
+    Real vortexfun( Real x, Real y, Real gama );
+    void Cal( Real x, Real y, Real gama, Real & vx, Real & vy );
+};
 
 EndNameSpace

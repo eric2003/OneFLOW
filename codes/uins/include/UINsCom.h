@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-    Copyright (C) 2017-2020 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -22,20 +22,44 @@ License
 
 
 #pragma once
-#include "HXClone.h"
+#include "INsCom.h"
 
 BeginNameSpace( ONEFLOW )
 
-DEFINE_DATA_CLASS( InitFirst );
-DEFINE_DATA_CLASS( ReadRestart );
-DEFINE_DATA_CLASS( DumpRestart );
-DEFINE_DATA_CLASS( InitRestart );
-DEFINE_DATA_CLASS( InitFlowField );
+class BcRecord;
 
-//DEFINE_DATA_CLASS( ReadinsRestart );
-//DEFINE_DATA_CLASS( DumpinsRestart );
-DEFINE_DATA_CLASS( InitinsRestart );
+class UINsField
+{
+public:
+    UINsField();
+    ~UINsField();
+public:
+    void Init();
+public:
+    MRField * q, * q1, * q2;
+    MRField * dq;
+    MRField * rhs, * drhs;
+    MRField * gama, * gama1, * gama2;
+    MRField * dqdx, * dqdy, * dqdz;
+    MRField * dtdx, * dtdy, * dtdz;
+    MRField * bc_q;
+    MRField * bcdqdx, * bcdqdy, * bcdqdz;
+    MRField * invsr; //inviscid spectrum radius;
+    MRField * vissr; //viscous  spectrum radius;
+    MRField * impsr; //implicit spectrum radius;
+    MRField * visl;
+    MRField * vist;
+    MRField * timestep;
+    MRField * tempr;
+    MRField * invflux;
+    MRField * visflux;
+    MRField * limiter;
+    MRField * res;
+    MRField * res1;
+    MRField * res2;
+    RealField * spectrum;
+};
 
-void RegisterRestartTask();
+extern UINsField uinsf;
 
 EndNameSpace

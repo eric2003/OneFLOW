@@ -102,6 +102,51 @@ public:
 public:
     void ComputeDimCps( Real tm, RealField & dim_cps );
     void ComputeMixtureByMassFraction( RealField & cs, RealField & var, Real & mixture );
+
+public:
+	void INsInit();
+	void INsComputeRefPara();
+	void INsComputeRefGasInfo();
+	void INsComputeRefGama();
+	void INsComputeRefSoundSpeed();
+	void INsComputeRefMachAndVel();
+	void INsComputeStateCoef();
+	void INsComputeStateCoefNs();
+	void INsComputeStateCoefChemical();
+	void INsComputeRefPrim();
+	void INsComputeRefReynolds();
+	void INsComputeDimRefViscosity();
+	void INsComputeDimRefViscosityNs();
+	void INsComputeDimRefViscosityChemical();
+	void INsComputeSutherlandConstant();
+	void INsComputeMoleFractionByMassFraction(RealField & massFrac, RealField & moleFrac);
+	void INsComputeDimSpeciesViscosity(Real tm, RealField & vis_s_dim);
+	void INsComputeMixtureCoefByWilkeFormula(RealField & moleFrac, RealField & var, RealField & phi);
+	void INsComputeMixtureByWilkeFormula(RealField & moleFrac, RealField & mixs, RealField & phi, Real & mixture);
+	void INsComputeMixtureByWilkeFormula(RealField & moleFrac, RealField & mixs, Real & mixture);
+	void INsSetAirInformationByDataBase();
+	void INsNormalizeAirInfo();
+	void INsComputeRefMolecularInfo();
+	void INsComputeRefMolecularInfoAir();
+	void INsComputeRefMolecularInfoChem();
+public:
+	//void INsAlloc();
+	//void INsDeAlloc();
+	void INsInitRefPara();
+	void INsInitGasModel();
+	void INsReadGasModel();
+	void INsInit(int nSpecies, int nReaction);
+	void INsReadChemical(FileIO * ioFile);
+	void INsInitWorkingSpace();
+	void INsAllocWorkingSpace();
+public:
+	void INsRead(DataBook * dataBook);
+	void INsWrite(DataBook * dataBook);
+	void INsCompressData(DataBook *& dataBook);
+	void INsDecompressData(DataBook * dataBook);
+public:
+	void INsComputeDimCps(Real tm, RealField & dim_cps);
+	void INsComputeMixtureByMassFraction(RealField & cs, RealField & var, Real & mixture);
 };
 
 extern Chemical chem;

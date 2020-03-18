@@ -21,11 +21,11 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "INsSolver.h"
-#include "NsCom.h"
-#include "NsCtrl.h"
+#include "INsCom.h"
+#include "INsCtrl.h"
 #include "SolverInfo.h"
 #include "SolverDef.h"
-#include "UNsBcSolver.h"
+#include "UINsBcSolver.h"
 #include "HeatFlux.h"
 #include "DataBase.h"
 #include <iostream>
@@ -51,12 +51,13 @@ void INsSolver::StaticInit()
     INsSolver::initFlag = true;
     this->sTid = ONEFLOW::INC_NS_SOLVER;
 
-    ns_ctrl.Init();
-    nscom.Init();
+    ins_ctrl.Init();
+    inscom.Init();
 
     SolverInfo * solverInfo = SolverInfoFactory::GetSolverInfo( this->sTid );
-    solverInfo->nEqu  = nscom.nEqu;
-    solverInfo->nTEqu = nscom.nTEqu;
+    solverInfo->nEqu  = inscom.nEqu;
+    solverInfo->nTEqu = inscom.nTEqu;
+
     solverInfo->registerInterface = 0;
     solverInfo->residualName = "res";
     solverInfo->resFileName = GetDataValue< string >( "resFile" );

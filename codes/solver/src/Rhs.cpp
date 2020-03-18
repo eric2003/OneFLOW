@@ -34,6 +34,17 @@ License
 #include "UNsVisFlux.h"
 #include "UNsUnsteady.h"
 #include "Ctrl.h"
+
+//#include "UINsCorrectPress.h"
+//#include "UINsCorrectSpeed.h"
+#include "INsCom.h"
+#include "UINsCom.h"
+#include "INsCom.h"
+#include "INsIdx.h"
+#include "UINsInvterm.h"
+#include "UINsVisterm.h"
+//#include "UINsUnsteady.h"
+#include "UINsBcSolver.h"
 #include <iostream>
 using namespace std;
 
@@ -49,7 +60,7 @@ Rhs::~Rhs()
     ;
 }
 
-void Rhs::UpdateResiduals()
+void Rhs::UpdateNsResiduals()
 {
     NsCmpRHS();
 }
@@ -147,5 +158,173 @@ void NsCmpDualTimeStepSrc()
     unsUnsteady->CmpDualTimeSrc();
     delete unsUnsteady;
 }
+
+void Rhs::UpdateINsResiduals()
+{
+	INsCmpRHS();
+}
+
+void INsCmpBc()
+{
+	UINsBcSolver * uINsBcSolver = new UINsBcSolver();
+	uINsBcSolver->Init();
+	uINsBcSolver->CmpBc();
+	delete uINsBcSolver;
+}
+
+void INSCmpGamaT(int flag)
+{
+	UnsGrid * grid = Zone::GetUnsGrid();
+
+	ug.Init();
+	uinsf.Init();
+	ug.SetStEd(flag);
+
+	if (inscom.chemModel == 1)
+	{
+	}
+	else
+	{
+		//if ( ZoneState::zid == 0 )
+		//{
+		//    cout << " ug.ist = " << ug.ist  << " ug.ied = " << ug.ied << "\n";
+		//    int kkk = 1;
+		//}
+		Real oamw = one;
+		for (int cId = ug.ist; cId < ug.ied; ++cId)
+		{
+			Real & density = ( * uinsf.q )[ IIDX::IIR ][ cId ];
+			Real & pressure = ( * uinsf.q )[ IIDX::IIP ][ cId ];
+			( * uinsf.gama )[ 0 ][ cId ] = inscom.gama_ref;
+			//( * uinsf.tempr )[ IIDX::IITT ][ cId ] = pressure / ( inscom.statecoef * density * oamw );
+		}
+	}
+}
+
+void INsCmpRHS()
+{
+	INsCmpInv();
+
+	INsCmpVis();
+
+	INsCmpSrc();
+
+	//INsMomPred();  //需要解动量方程组
+
+	INsCmpFaceflux();
+
+	INsCorrectPresscoef();
+
+	INsCmpPressCorrectEquandUpdatePress();  //需要解压力修正方程组，增设单元修正压力未知量
+
+	INsCmpSpeedCorrectandUpdateSpeed();  //需要先增设界面修正速度未知量并进行求解,更新单元速度和压力
+
+	INsUpdateFaceflux();   //更新界面流量
+
+}
+
+void INsCmpInv()
+{
+	UINsInvterm * uINsInvterm = new UINsInvterm();
+	uINsInvterm->CmpInvcoff();
+	delete uINsInvterm;
+}
+
+void INsCmpVis()
+{
+	UINsVisterm * uINsVisterm = new UINsVisterm();
+	uINsVisterm->CmpViscoff();
+	delete uINsVisterm;
+}
+
+void INsCmpSrc()
+{
+	//if (inscom.chemModel == 1)
+	//{
+	//	INsCmpChemSrc();
+	//}
+
+	//INsCmpTurbEnergy();
+
+	//dual time step source
+	//if (ctrl.idualtime == 1)
+	//{
+	//	INsCmpDualTimeStepSrc();
+	//}
+	UINsVisterm * uINsVisterm = new UINsVisterm();
+	uINsVisterm->CmpSrc();
+	delete uINsVisterm;
+}
+
+void INsMomPred()
+{
+	UINsInvterm * uINsInvterm = new UINsInvterm();
+	uINsInvterm->MomPred();
+	delete uINsInvterm;
+}
+
+void INsCmpFaceflux()
+{
+	UINsInvterm * uINsInvterm = new UINsInvterm();
+	uINsInvterm->CmpFaceflux();
+	delete uINsInvterm;
+}
+
+void INsCorrectPresscoef()
+{
+	UINsInvterm * uINsInvterm = new UINsInvterm();
+	uINsInvterm->CmpCorrectPresscoef();
+	delete uINsInvterm;
+}
+
+void INsCmpPressCorrectEquandUpdatePress()
+{
+	UINsInvterm * uINsInvterm = new UINsInvterm();
+	uINsInvterm->CmpPressCorrectEqu();
+	delete uINsInvterm;
+}
+
+void INsUpdateFaceflux()
+{
+	UINsInvterm * uINsInvterm = new UINsInvterm();
+	uINsInvterm->UpdateFaceflux();
+	delete uINsInvterm;
+}
+
+void INsCmpSpeedCorrectandUpdateSpeed()
+{
+	UINsInvterm * uINsInvterm = new UINsInvterm();
+	uINsInvterm->UpdateSpeed();
+	delete uINsInvterm;
+}
+
+//void INsCorrectSpeed()
+//{
+//	UINsInvterm * uINsInvterm = new UINsInvterm();
+//	uINsInvterm->CmpCorrectSpeed();
+//	delete uINsInvterm;
+//}
+
+
+
+
+
+void INsCmpChemSrc()
+{
+	;
+}
+
+void INsCmpTurbEnergy()
+{
+	;
+}
+
+//void INsCmpDualTimeStepSrc()
+//{
+//	UINsUnsteady * uinsUnsteady = new UINsUnsteady();
+//	uinsUnsteady->CmpDualTimeSrc();
+//	delete uinsUnsteady;
+//}
+
 
 EndNameSpace

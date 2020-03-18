@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-    Copyright (C) 2017-2020 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -22,20 +22,41 @@ License
 
 
 #pragma once
-#include "HXClone.h"
+#include "INsVisterm.h"
+#include "HXArray.h"
 
 BeginNameSpace( ONEFLOW )
 
-DEFINE_DATA_CLASS( InitFirst );
-DEFINE_DATA_CLASS( ReadRestart );
-DEFINE_DATA_CLASS( DumpRestart );
-DEFINE_DATA_CLASS( InitRestart );
-DEFINE_DATA_CLASS( InitFlowField );
+class UINsVisterm : public INsVisterm
+{
+public:
+	UINsVisterm();
+    ~UINsVisterm();
+public:
+    typedef void ( UINsVisterm:: * VisPointer )();
+    VisPointer visPointer;
+    MRField * visflux;
+public:
+    void CmpViscoff();
+    void PrepareField();
+    void CmpNsVisterm();
+	void CmpVisterm();
+	void CmpFaceVisterm();
 
-//DEFINE_DATA_CLASS( ReadinsRestart );
-//DEFINE_DATA_CLASS( DumpinsRestart );
-DEFINE_DATA_CLASS( InitinsRestart );
+    void Alloc();
+    void DeAlloc();
+	void CmpSrc();
+public:
+    void PrepareFaceValue();
+    void SaveFacePara();
+    void CmpFaceWeight();
+public:
+    void CmpGradCoef();
+    void PrepareCellGeom();
+};
 
-void RegisterRestartTask();
+void ICmpLaminarViscosity( int flag );
+
+
 
 EndNameSpace

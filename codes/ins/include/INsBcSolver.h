@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-    Copyright (C) 2017-2020 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -22,20 +22,43 @@ License
 
 
 #pragma once
-#include "HXClone.h"
+#include "HXDefine.h"
 
 BeginNameSpace( ONEFLOW )
 
-DEFINE_DATA_CLASS( InitFirst );
-DEFINE_DATA_CLASS( ReadRestart );
-DEFINE_DATA_CLASS( DumpRestart );
-DEFINE_DATA_CLASS( InitRestart );
-DEFINE_DATA_CLASS( InitFlowField );
+class INsBcSolver
+{
+public:
+    INsBcSolver();
+    ~INsBcSolver();
+public:
+    typedef void ( INsBcSolver:: * BcPointer )();
+public:
+    void SetBc();
+    void SetSolidSurfaceBc();
+    virtual void Solve(){};
+    BcPointer bcPointer;
+    bool updateFlag;
+public:
+    void InFlowBc           ();
+    void OutFlowBc          ();
+    void FarFieldBc         ();
+    void IsothermalVisWallBc();
+    void AdiabaticVisWallBc ();
+    void SymmetryBc         ();
+    void PoleBc             ();
+    void OversetBc          ();
+    void InterfaceBc        ();
+    void NoBc               ();
+    void UserDefinedBc      ();
+    void PeriodicBc         ();
+    void VelocityBc();
+public:
+    void CmpFaceBc();
+    Real CmpReciMolecularWeight( RealField & prim );
+    Real CmpDensity( RealField & prim, Real pres, Real temperature );
+};
 
-//DEFINE_DATA_CLASS( ReadinsRestart );
-//DEFINE_DATA_CLASS( DumpinsRestart );
-DEFINE_DATA_CLASS( InitinsRestart );
 
-void RegisterRestartTask();
 
 EndNameSpace

@@ -30,9 +30,9 @@ License
 #include "Boundary.h"
 #include "BcRecord.h"
 #include "DataBase.h"
-#include "NsIdx.h"
+#include "INsIdx.h"
 #include "HXMath.h"
-#include "UNsLusgs.h"
+#include "UINsLusgs.h"
 #include <iostream>
 using namespace std;
 
@@ -51,7 +51,7 @@ UINsSolver::~UINsSolver()
 void UINsSolver::StaticInit()
 {
     INsSolver::StaticInit();
-    LusgsState::AddSolver( this->sid, this->gridType, new UNsLusgs() );
+    LusgsState::AddSolver( this->sid, this->gridType, new UINsLusgs() );
 }
 
 void UINsSolver::Init()

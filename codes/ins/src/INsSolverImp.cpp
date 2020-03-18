@@ -22,10 +22,10 @@ License
 
 #include "INsSolverImp.h"
 #include "SolverImp.h"
-#include "UTimestep.h"
+#include "UITimestep.h"
 #include "Zone.h"
 #include "GridState.h"
-#include "UNsVisFlux.h"
+#include "UINsVisterm.h"
 #include "Rhs.h"
 #include "UCom.h"
 #include "CmxTask.h"
@@ -54,12 +54,11 @@ void RegisterINsFunc()
 
 void INsInitFinal( StringField & data )
 {
-    NSCmpGamaT( F_INNER );
-    CmpLaminarViscosity( F_INNER );
-    NsCmpBc();
-    NSCmpGamaT( F_GHOST );
-    CmpLaminarViscosity( F_GHOST );
-
+    INSCmpGamaT( F_INNER );
+    ICmpLaminarViscosity( F_INNER );
+    INsCmpBc();
+    INSCmpGamaT( F_GHOST );
+    ICmpLaminarViscosity( F_GHOST );
     Grid * grid = Zone::GetGrid();
 
     if ( Zone::GetCGrid( grid ) )
@@ -81,16 +80,16 @@ void INsVisual( StringField & data )
 
 void INsCmpBoundary( StringField & data )
 {
-    NSCmpGamaT( F_INNER );
-    CmpLaminarViscosity( F_INNER );
-    NsCmpBc();
-    NSCmpGamaT( F_GHOST );
-    CmpLaminarViscosity( F_GHOST );
+    INSCmpGamaT( F_INNER );
+    ICmpLaminarViscosity( F_INNER );
+    INsCmpBc();
+    INSCmpGamaT( F_GHOST );
+    ICmpLaminarViscosity( F_GHOST );
 }
 
 void INsCmpTimeStep( StringField & data )
 {
-    UTimestep * uTimestep = new UTimestep();
+    UITimestep * uTimestep = new UITimestep();
     uTimestep->CmpTimestep();
     delete uTimestep;
 }
@@ -98,7 +97,7 @@ void INsCmpTimeStep( StringField & data )
 void INsUpdateResiduals( StringField & data )
 {
     Rhs * rhs = new Rhs();
-    rhs->UpdateResiduals();
+    rhs->UpdateINsResiduals();
     delete rhs;
 }
 
@@ -180,6 +179,6 @@ SolverRegData * GetINsReg()
     return & insReg;
 }
 
-//REGISTER_REG_DATA( GetINsReg );
+REGISTER_REG_DATA( GetINsReg );
 
 EndNameSpace

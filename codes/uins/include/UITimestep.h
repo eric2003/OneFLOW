@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-    Copyright (C) 2017-2020 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -22,20 +22,38 @@ License
 
 
 #pragma once
-#include "HXClone.h"
+#include "HXDefine.h"
+#include "ITimestep.h"
 
 BeginNameSpace( ONEFLOW )
+class UITimestep : public ITimestep
+{
+public:
+    UITimestep();
+    ~UITimestep();
+public:
+    void Init();
+    void ReadTmp();
+    void CmpTimestep();
+    void CmpLocalTimestep();
+    void CmpGlobalTimestep();
+    void CmpLgTimestep();
+    void CmpInvTimestep();
+    void CmpVisTimestep();
+    void CmpMinTimestep();
+    void SetTimestep( Real timestep );
+public:
+    void CmpSpectrumField();
+    void CmpInvSpectrumField();
+    void CmpVisSpectrumField();
+public:
+    void SetId( int fId );
+    void PrepareData();
+    void PrepareVisData();
+    void UpdateInvSpectrumField();
+    void UpdateVisSpectrumField();
+    void ModifyTimestep();
+};
 
-DEFINE_DATA_CLASS( InitFirst );
-DEFINE_DATA_CLASS( ReadRestart );
-DEFINE_DATA_CLASS( DumpRestart );
-DEFINE_DATA_CLASS( InitRestart );
-DEFINE_DATA_CLASS( InitFlowField );
-
-//DEFINE_DATA_CLASS( ReadinsRestart );
-//DEFINE_DATA_CLASS( DumpinsRestart );
-DEFINE_DATA_CLASS( InitinsRestart );
-
-void RegisterRestartTask();
 
 EndNameSpace

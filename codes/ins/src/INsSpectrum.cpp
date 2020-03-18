@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-    Copyright (C) 2017-2020 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -20,22 +20,24 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-
-#pragma once
-#include "HXClone.h"
+#include "INsSpectrum.h"
+#include "Iteration.h"
+#include "INsCom.h"
+#include "HXMath.h"
+#include "INsIdx.h"
+#include <iostream>
+using namespace std;
 
 BeginNameSpace( ONEFLOW )
 
-DEFINE_DATA_CLASS( InitFirst );
-DEFINE_DATA_CLASS( ReadRestart );
-DEFINE_DATA_CLASS( DumpRestart );
-DEFINE_DATA_CLASS( InitRestart );
-DEFINE_DATA_CLASS( InitFlowField );
+INsSpectrum::INsSpectrum()
+{
+    ;
+}
 
-//DEFINE_DATA_CLASS( ReadinsRestart );
-//DEFINE_DATA_CLASS( DumpinsRestart );
-DEFINE_DATA_CLASS( InitinsRestart );
-
-void RegisterRestartTask();
+INsSpectrum::~INsSpectrum()
+{
+    ;
+}
 
 EndNameSpace

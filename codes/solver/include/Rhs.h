@@ -32,7 +32,8 @@ public:
     Rhs ();
     ~Rhs();
 public:
-    void UpdateResiduals();
+    void UpdateNsResiduals();
+	void UpdateINsResiduals();
 };
 
 void NsCmpBc();
@@ -44,5 +45,26 @@ void NsCmpSrcFlux();
 void NsCmpChemSrc();
 void NsCmpTurbEnergy();
 void NsCmpDualTimeStepSrc();
+
+void INsCmpBc();
+void INSCmpGamaT(int flag);
+void INsCmpRHS();
+//void INsCmpInvFlux();
+//void INsCmpVisFlux();
+//void INsCmpSrcFlux();
+void INsCmpChemSrc();
+void INsCmpTurbEnergy();
+//void INsCmpDualTimeStepSrc();
+void INsCorrectPresscoef();
+//void INsCorrectSpeed();
+void INsCmpInv();
+void INsCmpVis();
+void INsCmpSrc();
+void INsMomPred();
+void INsCmpFaceflux();
+void INsCmpPressCorrectEquandUpdatePress();
+void INsUpdateFaceflux();
+void INsCmpSpeedCorrectandUpdateSpeed();
+
 
 EndNameSpace

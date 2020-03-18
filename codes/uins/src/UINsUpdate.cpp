@@ -22,9 +22,9 @@ License
 
 #include "UINsUpdate.h"
 #include "UCom.h"
-#include "NsCom.h"
-#include "UNsCom.h"
-#include "NsIdx.h"
+#include "INsCom.h"
+#include "UINsCom.h"
+#include "INsIdx.h"
 #include "Zone.h"
 #include "ZoneState.h"
 #include "HXMath.h"
@@ -48,7 +48,7 @@ void UINsUpdate::UpdateFlowField( int sTid )
     GetUpdateField( sTid, this->q, this->dq );
 
     ug.Init();
-    unsf.Init();
+    uinsf.Init();
 
     for ( int cId = 0; cId < ug.nCell; ++ cId )
     {
@@ -71,36 +71,36 @@ void UINsUpdate::UpdateFlowField( int sTid )
 
 void UINsUpdate::PrepareData()
 {
-    for ( int iEqu = 0; iEqu < nscom.nTEqu; ++ iEqu )
+    for ( int iEqu = 0; iEqu < inscom.nTEqu; ++ iEqu )
     {
-        nscom.prim [ iEqu ] = ( * unsf.q )[ iEqu ][ ug.cId ];
-        nscom.prim0[ iEqu ] = ( * unsf.q )[ iEqu ][ ug.cId ];
+        inscom.prim [ iEqu ] = ( * uinsf.q )[ iEqu ][ ug.cId ];
+        inscom.prim0[ iEqu ] = ( * uinsf.q )[ iEqu ][ ug.cId ];
     }
 
-    for ( int iEqu = 0; iEqu < nscom.nTModel; ++ iEqu )
+    for ( int iEqu = 0; iEqu < inscom.nTModel; ++ iEqu )
     {
-        nscom.t [ iEqu ] = ( * unsf.tempr )[ iEqu ][ ug.cId ];
-        nscom.t0[ iEqu ] = ( * unsf.tempr )[ iEqu ][ ug.cId ];
+        inscom.t [ iEqu ] = ( * uinsf.tempr )[ iEqu ][ ug.cId ];
+        inscom.t0[ iEqu ] = ( * uinsf.tempr )[ iEqu ][ ug.cId ];
     }
 
-    for ( int iEqu = 0; iEqu < nscom.nTEqu; ++ iEqu )
+    for ( int iEqu = 0; iEqu < inscom.nTEqu; ++ iEqu )
     {
-        nscom.dq[ iEqu ] = ( * unsf.dq )[ iEqu ][ ug.cId ];
+        inscom.dq[ iEqu ] = ( * uinsf.dq )[ iEqu ][ ug.cId ];
     }
 
-    nscom.gama = ( * unsf.gama )[ 0 ][ ug.cId ];
+    inscom.gama = ( * uinsf.gama )[ 0 ][ ug.cId ];
 }
 
 void UINsUpdate::DumpProbeInfo()
 {
     cout << setprecision( 3 );
-    cout << "Warning : p = " << nscom.prim[ IDX::IP ] << ", r = " << nscom.prim[ IDX::IR ];
+    cout << "Warning : p = " << inscom.prim[ IIDX::IIP ] << ", r = " << inscom.prim[ IIDX::IIR ];
     cout << " <-> zid = " << ZoneState::zid << ", cid = " << ug.cId << endl;
 }
 
 void UINsUpdate::SolutionFix()
 {
-    nscom.prim = 0;
+    inscom.prim = 0;
 
     Real sumV = 0.0;
 
@@ -120,35 +120,35 @@ void UINsUpdate::SolutionFix()
 
         sumV += volN;
 
-        for ( int iEqu = 0; iEqu < nscom.nTEqu; ++ iEqu )
+        for ( int iEqu = 0; iEqu < inscom.nTEqu; ++ iEqu )
         {
-            Real f = ( * unsf.q )[ iEqu ][ iNei ];
-            if ( iEqu == IDX::IR || iEqu == IDX::IP )
+            Real f = ( * uinsf.q )[ iEqu ][ iNei ];
+            if ( iEqu == IIDX::IIR || iEqu == IIDX::IIP )
             {
                 f = ABS( f );
             }
-            nscom.prim[ iEqu ] += f * volN;
+            inscom.prim[ iEqu ] += f * volN;
         }
     }
 
     Real rVol = 1.0 / sumV;
 
-    for ( int iEqu = 0; iEqu < nscom.nTEqu; ++ iEqu )
+    for ( int iEqu = 0; iEqu < inscom.nTEqu; ++ iEqu )
     {
-        nscom.prim[ iEqu ] *= rVol;
+        inscom.prim[ iEqu ] *= rVol;
     }
 }
 
 void UINsUpdate::UpdateFlowFieldValue()
 {
-    for ( int iEqu = 0; iEqu < nscom.nTEqu; ++ iEqu )
+    for ( int iEqu = 0; iEqu < inscom.nTEqu; ++ iEqu )
     {
-        ( * unsf.q )[ iEqu ][ ug.cId ] = nscom.prim[ iEqu ];
+        ( * uinsf.q )[ iEqu ][ ug.cId ] = inscom.prim[ iEqu ];
     }
 
-    for ( int iEqu = 0; iEqu < nscom.nTModel; ++ iEqu )
+    for ( int iEqu = 0; iEqu < inscom.nTModel; ++ iEqu )
     {
-        ( * unsf.tempr )[ iEqu ][ ug.cId ] = nscom.t[ iEqu ];
+        ( * uinsf.tempr )[ iEqu ][ ug.cId ] = inscom.t[ iEqu ];
     }
 }
 
