@@ -21,6 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "CgnsVariable.h"
+#include "CgnsBase.h"
 #include <iostream>
 #include <iomanip>
 using namespace std;
@@ -97,6 +98,59 @@ CgnsZVector::CgnsZVector()
 
 CgnsZVector::~CgnsZVector()
 {
+    int nArrays = cgnsVectorList.size();
+    for ( int iArray = 0; iArray < nArrays; ++ iArray )
+    {
+        delete cgnsVectorList[ iArray ];
+    }
+}
+
+CgnsUserData::CgnsUserData( CgnsBase * cgnsBase )
+{
+    this->cgnsBase = cgnsBase;
+}
+
+CgnsUserData::~CgnsUserData()
+{
+    int nSize = cgnsZVectorList.size();
+    for ( int i = 0; i < nSize; ++ i )
+    {
+        delete cgnsZVectorList[ i ];
+    }
+}
+
+void CgnsUserData::ReadUserData()
+{
+    cgnsBase->GoToBase();
+    int nUserData = -1;
+    cg_nuser_data( & nUserData );
+
+    cout << " nUserData = " << nUserData << "\n";
+
+    for ( int iData = 0; iData < nUserData; ++ iData )
+    {
+        int iDataId = iData + 1;
+        cgnsBase->GoToBase();
+
+        char name[ 33 ];
+        cg_user_data_read( iDataId, name );
+
+        cout << " iData = " << iData << " user data name = " << name << "\n";
+
+        cgnsBase->GoToNode( "UserDefinedData_t", iDataId );
+
+        CgnsZVector * cgnsZVector = new CgnsZVector();
+        cgnsZVector->ReadArray();
+        cgnsZVectorList.push_back( cgnsZVector );
+    }
+}
+
+void CgnsZVector::ReadArray()
+{
+    int nArrays = -1;
+    cg_narrays( & nArrays );
+    cout << " narrays = " << nArrays << "\n";
+    this->ReadArray( nArrays );
 }
 
 void CgnsZVector::ReadArray( int nArrays )
@@ -104,9 +158,11 @@ void CgnsZVector::ReadArray( int nArrays )
     for ( int iArray = 0; iArray < nArrays; ++ iArray )
     {
         int A = iArray + 1;
-        CgnsVector cgnsVar;
-        cgnsVar.arrayId = A;
-        cgnsVar.ReadArray();
+        CgnsVector * cgnsVar = new CgnsVector();
+        cgnsVar->arrayId = A;
+        cgnsVar->ReadArray();
+
+        cgnsVectorList.push_back( cgnsVar );
     }
 }
 

@@ -59,6 +59,7 @@ public:
     void ReadNumberOfBases();
     void ReadBases();
     void ReadArray();
+    void ReadReferenceState();
 };
 
 

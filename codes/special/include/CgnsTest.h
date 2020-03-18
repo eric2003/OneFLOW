@@ -52,6 +52,8 @@ public:
     void SetDefaultGridName();
     void ReadNondimensionalParameter();
     void WriteNondimensionalParameter();
+    void WriteReferenceState();
+    void ReadReferenceState();
     void WriteDescriptor();
     void ReadDescriptor();
     void ReadBaseDescriptor( int baseIndex );

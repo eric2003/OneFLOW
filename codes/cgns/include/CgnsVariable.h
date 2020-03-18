@@ -61,6 +61,20 @@ public:
 public:
     vector< CgnsVector * > cgnsVectorList;
     void ReadArray( int nArrays );
+    void ReadArray();
+};
+
+class CgnsBase;
+class CgnsUserData
+{
+public:
+    CgnsUserData( CgnsBase * cgnsBase );
+    ~CgnsUserData();
+public:
+    CgnsBase * cgnsBase;
+    vector< CgnsZVector * > cgnsZVectorList;
+public:
+    void ReadUserData();
 };
 
 //class CgnsVariable

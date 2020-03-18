@@ -21,6 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "CgnsBase.h"
+#include "CgnsFile.h"
 #include "CgnsZone.h"
 #include "CgnsZoneUtil.h"
 #include "StrUtil.h"
@@ -37,6 +38,14 @@ BeginNameSpace( ONEFLOW )
 
 CgnsBase::CgnsBase()
 {
+    this->cgnsFile = 0;
+    this->familyBc = 0;
+    this->freeFlag = false;
+}
+
+CgnsBase::CgnsBase( CgnsFile * cgnsFile )
+{
+    this->cgnsFile = cgnsFile;
     this->familyBc = 0;
     this->freeFlag = false;
 }
@@ -201,30 +210,40 @@ void CgnsBase::GoToNode( const string & nodeName, int ith )
 
 void CgnsBase::ReadArray()
 {
+    CgnsUserData cgnsUserData( this );
+    cgnsUserData.ReadUserData();
+}
+
+void CgnsBase::ReadReferenceState()
+{
     this->GoToBase();
-    int nUserData = -1;
-    cg_nuser_data( & nUserData );
 
-    cout << " nUserData = " << nUserData << "\n";
+    //CGNS_ENUMT(DataClass_t) id;
+    //cg_dataclass_read( & id );
+    //cout << "DataClass id = " << id << "\n";
+    //cout << "DataClass = " << DataClassName[ id ] << "\n";
 
-    for ( int iData = 0; iData < nUserData; ++ iData )
+    char * state;
+    cg_state_read( & state );
+    cout << "ReferenceState = " << state << "\n";
+
+    this->GoToNode( "ReferenceState_t", 1 );
+    int narrays = -1;
+    cg_narrays( & narrays );
+    cout << " narrays = " << narrays << "\n";
+
+    for ( int n = 1; n <= narrays; ++ n )
     {
-        int iDataId = iData + 1;
-        this->GoToBase();
-
-        char name[ 33 ];
-        cg_user_data_read( iDataId, name );
-
-        cout << " iData = " << iData << " user data name = " << name << "\n";
-
-        this->GoToNode( "UserDefinedData_t", iDataId );
-        int narrays = -1;
-        cg_narrays( & narrays );
-
-        cout << " narrays = " << narrays << "\n";
-
-        CgnsZVector cgnsZVector;
-        cgnsZVector.ReadArray( narrays );
+        CGNS_ENUMT(DataType_t) idata;
+        int idim;
+        cgsize_t idimvec;
+        char arrayname[33];
+        cg_array_info( n, arrayname, & idata, & idim, & idimvec );
+        cout << " DataTypeName = " << DataTypeName[ idata ] << "\n";
+        double data;
+        cg_array_read_as( n, CGNS_ENUMV(RealDouble), & data );
+        cout << "Variable = " << arrayname << "\n";
+        cout << "   data = " << data << "\n";
     }
 }
 
