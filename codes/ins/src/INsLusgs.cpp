@@ -22,7 +22,7 @@ License
 
 #include "INsLusgs.h"
 #include "INsCom.h"
-#include "INsIDX.h"
+#include "INsIdx.h"
 #include "HXMath.h"
 #include "Parallel.h"
 #include <iostream>

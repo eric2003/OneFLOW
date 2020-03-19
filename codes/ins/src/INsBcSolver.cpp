@@ -25,7 +25,7 @@ License
 #include "INsCom.h"
 #include "UCom.h"
 #include "INsCtrl.h"
-#include "INsIDX.h"
+#include "INsIdx.h"
 #include "HXMath.h"
 #include "Stop.h"
 #include "Boundary.h"

@@ -25,7 +25,7 @@ License
 #include "UINsUpdate.h"
 #include "INsInvterm.h"
 #include "INsCom.h"
-#include "INsIDX.h"
+#include "INsIdx.h"
 #include "HXMath.h"
 
 BeginNameSpace( ONEFLOW )

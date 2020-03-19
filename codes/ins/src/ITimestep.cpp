@@ -24,7 +24,7 @@ License
 #include "Iteration.h"
 #include "INsCom.h"
 #include "HXMath.h"
-#include "INsIDX.h"
+#include "INsIdx.h"
 #include <iostream>
 using namespace std;
 

@@ -29,7 +29,7 @@ License
 #include "UCom.h"
 #include "Com.h"
 #include "INsCom.h"
-#include "INsIDX.h"
+#include "INsIdx.h"
 #include "HXMath.h"
 #include "Ctrl.h"
 
