@@ -218,10 +218,10 @@ void CgnsBase::ReadReferenceState()
 {
     this->GoToBase();
 
-    //CGNS_ENUMT(DataClass_t) id;
-    //cg_dataclass_read( & id );
-    //cout << "DataClass id = " << id << "\n";
-    //cout << "DataClass = " << DataClassName[ id ] << "\n";
+    CGNS_ENUMT(DataClass_t) id;
+    cg_dataclass_read( & id );
+    cout << "DataClass id = " << id << "\n";
+    cout << "DataClass = " << DataClassName[ id ] << "\n";
 
     char * state;
     cg_state_read( & state );
@@ -247,6 +247,23 @@ void CgnsBase::ReadReferenceState()
     }
 }
 
+void CgnsBase::ReadBaseDescriptor()
+{
+    this->GoToBase();
+
+    //find out how many descriptors are here:
+    int ndescriptors = -1;
+    cg_ndescriptors( & ndescriptors );
+    cout << " ndescriptors = " << ndescriptors << "\n";
+    for ( int n = 1; n <= ndescriptors; ++ n )
+    {
+        //read descriptor
+        char *text, name[33];
+        cg_descriptor_read( n, name, &text );
+        cout << "The descriptor is : " << name << "," << text << "\n";
+        delete[ ] text;
+    }
+}
 
 #endif
 EndNameSpace

@@ -50,13 +50,10 @@ public:
     void Test();
 public:
     void SetDefaultGridName();
-    void ReadNondimensionalParameter();
-    void WriteNondimensionalParameter();
     void WriteReferenceState();
     void ReadReferenceState();
     void WriteDescriptor();
     void ReadDescriptor();
-    void ReadBaseDescriptor( int baseIndex );
     void WriteSimpleMultiBaseTest();
     void ReadSimpleMultiBaseTest();
     void TestCgnsLink();
@@ -67,12 +64,10 @@ public:
     void OpenCgnsFile( const string & fileName, int cgnsOpenMode );
     void CloseCgnsFile();
     void CloseCgnsFile( int index_file );
-    string GetCgnsFileTypeName( int file_type );
     void WriteBase( const string & baseName );
     void WriteBase( const string & baseName, int celldim, int physdim );
 public:
     void WriteDouble( const string & varName, const double & varValue );
-    void GotoBaseBegin( int baseIndex );
 public:
     void ReadEmptyCgnsFile();
     void WriteEmptyCgnsFile();

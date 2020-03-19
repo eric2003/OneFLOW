@@ -32,6 +32,28 @@ using namespace std;
 
 BeginNameSpace( ONEFLOW )
 
+string GetCgnsFileTypeName( int file_type )
+{
+    string fileTypeName;
+    if ( file_type == CG_FILE_ADF )
+    {
+        fileTypeName = "CG_FILE_ADF";
+    }
+    else if ( file_type == CG_FILE_HDF5 )
+    {
+        fileTypeName = "CG_FILE_HDF5";
+    }
+    else if ( file_type == CG_FILE_ADF2 )
+    {
+        fileTypeName = "CG_FILE_ADF2";
+    }
+    else
+    {
+        fileTypeName = "CG_FILE_NONE";
+    }
+    return fileTypeName;
+}
+
 CgnsFile::CgnsFile()
 {
     this->openStatus = CG_ERROR;
@@ -56,10 +78,26 @@ void CgnsFile::OpenCgnsFile( const string & fileName, int cgnsOpenMode )
 {
     this->openStatus = cg_open( fileName.c_str(), cgnsOpenMode, & this->fileId );
     cout << " Current CGNS File Index = " << this->fileId << "\n";
+
     if ( this->openStatus != CG_OK )
     {
         cg_error_exit();
     }
+
+    float fileVersion = -1;
+    cg_version( this->fileId, & fileVersion );
+
+    cout << " CGNS File Version = " << setiosflags( ios::fixed ) << setprecision( 4 ) << fileVersion << "\n";
+
+    int precision = -1;
+    cg_precision( this->fileId, & precision );
+
+    cout << " CGNS Precision = " << precision << "\n";
+
+    int file_type = -1;
+    cg_get_file_type( this->fileId, & file_type );
+
+    cout << " CGNS file_type = " << file_type << " file_type name = " << GetCgnsFileTypeName( file_type ) << "\n";
 }
 
 void CgnsFile::CloseCgnsFile()
@@ -116,6 +154,7 @@ void CgnsFile::ReadNumberOfBases()
 
 void CgnsFile::ReadBases()
 {
+    this->ReadNumberOfBases();
     for ( int iBase = 0; iBase < this->nBases; ++ iBase )
     {
         int baseId = iBase + 1;
@@ -129,6 +168,7 @@ void CgnsFile::ReadBases()
 
 void CgnsFile::ReadArray()
 {
+    this->ReadBases();
     for ( int iBase = 0; iBase < this->nBases; ++ iBase )
     {
         CgnsBase * cgnsBase = this->baseList[ iBase ];
@@ -138,6 +178,7 @@ void CgnsFile::ReadArray()
 
 void CgnsFile::ReadReferenceState()
 {
+    this->ReadBases();
     for ( int iBase = 0; iBase < this->nBases; ++ iBase )
     {
         CgnsBase * cgnsBase = this->baseList[ iBase ];
@@ -145,5 +186,37 @@ void CgnsFile::ReadReferenceState()
     }
 }
 
+void CgnsFile::ReadBaseDescriptor()
+{
+    this->ReadBases();
+    for ( int iBase = 0; iBase < this->nBases; ++ iBase )
+    {
+        CgnsBase * cgnsBase = this->baseList[ iBase ];
+        cgnsBase->ReadBaseDescriptor();
+    }
+}
+
+void CgnsFile::WriteBaseDescriptor()
+{
+    cout << "Program write_descriptor\n";
+    CgnsBase * cgnsBase = this->WriteBase( "base1" );
+
+    //cg_goto must be called or an error will occur
+    cg_goto( this->fileId, cgnsBase->baseId, "end" );
+    cg_descriptor_write("Information","info1");
+    cg_descriptor_write("hello world","haha ! hello world!");
+
+    cgnsBase = this->WriteBase( "base2" );
+    cg_goto( this->fileId, cgnsBase->baseId, "end" );
+    cg_descriptor_write("descript1","des1");
+    cg_descriptor_write("descript2","des1");
+    cg_descriptor_write("descript3","des1");
+
+    cgnsBase = this->WriteBase( "base3" );
+    cg_goto( this->fileId, cgnsBase->baseId, "end" );
+    cg_descriptor_write("mydes","mydes1");
+    cg_descriptor_write("mydes","mydes2");
+    cg_descriptor_write("mydes","mydes3");
+}
 
 EndNameSpace

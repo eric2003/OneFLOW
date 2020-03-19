@@ -76,6 +76,7 @@ public:
     void WriteZoneInfo( const string & zoneName, ZoneType_t zoneType, cgsize_t * isize );
     void ReadArray();
     void ReadReferenceState();
+    void ReadBaseDescriptor();
 };
 
 #endif

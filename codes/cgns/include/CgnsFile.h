@@ -31,6 +31,8 @@ BeginNameSpace( ONEFLOW )
 
 class CgnsBase;
 
+string GetCgnsFileTypeName( int file_type );
+
 class CgnsFile
 {
 public:
@@ -60,6 +62,8 @@ public:
     void ReadBases();
     void ReadArray();
     void ReadReferenceState();
+    void ReadBaseDescriptor();
+    void WriteBaseDescriptor();
 };
 
 
