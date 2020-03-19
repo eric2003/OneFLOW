@@ -30,7 +30,7 @@ using namespace std;
 
 BeginNameSpace( ONEFLOW )
 
-ILusgsData nslu;
+ILusgsData inslu;
 
 ILusgsData::ILusgsData()
 {
@@ -77,39 +77,39 @@ void INsLusgs::DumpSweepInformation()
     int pid = ONEFLOW::Parallel::GetPid();
     if ( pid == ONEFLOW::Parallel::GetServerid() )
     {
-        cout << "Navier Stokes residual reduced by " << nslu.dmax << " with " << nslu.numberOfRealSweeps << " Sweeps\n";
+        cout << "Navier Stokes residual reduced by " << inslu.dmax << " with " << inslu.numberOfRealSweeps << " Sweeps\n";
     }
 }
 
 void INsLusgs::ZeroFluxIncrement()
 {
-    for ( int iEqu = 0; iEqu < nslu.nEqu; ++ iEqu )
+    for ( int iEqu = 0; iEqu < inslu.nEqu; ++ iEqu )
     {
-        nslu.rhs0[ iEqu ] = 0.0;
+        inslu.rhs0[ iEqu ] = 0.0;
     }
 }
 
 void INsLusgs::AddViscousTerm()
 {
-    for ( int iEqu = 0; iEqu < nslu.nEqu; ++ iEqu )
+    for ( int iEqu = 0; iEqu < inslu.nEqu; ++ iEqu )
     {
-        nslu.rhs0[ iEqu ] -= nslu.visrad * nslu.dqj[ iEqu ];
+        inslu.rhs0[ iEqu ] -= inslu.visrad * inslu.dqj[ iEqu ];
     }
 }
 
 void INsLusgs::AddFluxIncrement()
 {
-    for ( int iEqu = 0; iEqu < nslu.nEqu; ++ iEqu )
+    for ( int iEqu = 0; iEqu < inslu.nEqu; ++ iEqu )
     {
-        nslu.rhs0[ iEqu ] += nslu.dfj[ iEqu ];
+        inslu.rhs0[ iEqu ] += inslu.dfj[ iEqu ];
     }
 }
 
 void INsLusgs::AddFluxIncrement( const Real & coef )
 {
-    for ( int iEqu = 0; iEqu < nslu.nEqu; ++ iEqu )
+    for ( int iEqu = 0; iEqu < inslu.nEqu; ++ iEqu )
     {
-        nslu.rhs0[ iEqu ] += coef * nslu.dfj[ iEqu ];
+        inslu.rhs0[ iEqu ] += coef * inslu.dfj[ iEqu ];
     }
 }
 
@@ -127,7 +127,7 @@ void INsLusgs::CmpFaceEigenValue( RealField & prim )
     Real & wm  = prim[ IIDX::IIW ];
     Real & pm  = prim[ IIDX::IIP ];
 
-    Real c2 = ABS( nslu.gama * pm / rm );
+    Real c2 = ABS( inslu.gama * pm / rm );
     Real cm = sqrt( c2 );
 
     Real vn_fluid = gcom.xfn * um + gcom.yfn * vm + gcom.zfn * wm;
@@ -139,22 +139,22 @@ void INsLusgs::CmpFaceEigenValue( RealField & prim )
 
     Real max_eigen = ABS( vn_rel ) + cm;
 
-    nslu.lmdOnFace1 = max_eigen;
-    nslu.lmdOnFace2 = max_eigen;
-    nslu.lmdOnFace3 = max_eigen;
+    inslu.lmdOnFace1 = max_eigen;
+    inslu.lmdOnFace2 = max_eigen;
+    inslu.lmdOnFace3 = max_eigen;
 }
 
 void INsLusgs::GetStandardFluxIncrement( int signOfMatrix )
 {
-    this->CmpFaceEigenValue( nslu.primF );
+    this->CmpFaceEigenValue( inslu.primF );
 
-    Real & rm  = nslu.primj[ IIDX::IIR ];
-    Real & um  = nslu.primj[ IIDX::IIU ];
-    Real & vm  = nslu.primj[ IIDX::IIV ];
-    Real & wm  = nslu.primj[ IIDX::IIW ];
-    Real & pm  = nslu.primj[ IIDX::IIP ];
+    Real & rm  = inslu.primj[ IIDX::IIR ];
+    Real & um  = inslu.primj[ IIDX::IIU ];
+    Real & vm  = inslu.primj[ IIDX::IIV ];
+    Real & wm  = inslu.primj[ IIDX::IIW ];
+    Real & pm  = inslu.primj[ IIDX::IIP ];
 
-    Real c2 = ABS( nslu.gama * pm / rm );
+    Real c2 = ABS( inslu.gama * pm / rm );
     Real cm = sqrt( c2 );
 
     Real vn_fluid = gcom.xfn * um + gcom.yfn * vm + gcom.zfn * wm;
@@ -164,63 +164,63 @@ void INsLusgs::GetStandardFluxIncrement( int signOfMatrix )
     Real lmd2 = vn_rel + cm;
     Real lmd3 = vn_rel - cm;
 
-    lmd1 = half * ( lmd1 + signOfMatrix * nslu.lmdOnFace1 );
-    lmd2 = half * ( lmd2 + signOfMatrix * nslu.lmdOnFace2 );
-    lmd3 = half * ( lmd3 + signOfMatrix * nslu.lmdOnFace3 );
+    lmd1 = half * ( lmd1 + signOfMatrix * inslu.lmdOnFace1 );
+    lmd2 = half * ( lmd2 + signOfMatrix * inslu.lmdOnFace2 );
+    lmd3 = half * ( lmd3 + signOfMatrix * inslu.lmdOnFace3 );
 
     Real x1 = ( lmd1 + lmd1 - lmd2 - lmd3 ) / ( c2 + c2 );
     Real x2 = ( lmd2 - lmd3 ) / ( cm + cm );
 
-    Real dc =   vn_fluid * nslu.dqj[ IIDX::IIR  ]
-              - gcom.xfn * nslu.dqj[ IIDX::IIRU ]
-              - gcom.yfn * nslu.dqj[ IIDX::IIRV ]
-              - gcom.zfn * nslu.dqj[ IIDX::IIRW ];
+    Real dc =   vn_fluid * inslu.dqj[ IIDX::IIR  ]
+              - gcom.xfn * inslu.dqj[ IIDX::IIRU ]
+              - gcom.yfn * inslu.dqj[ IIDX::IIRV ]
+              - gcom.zfn * inslu.dqj[ IIDX::IIRW ];
     Real c2dc = c2 * dc;
 
     Real dh, hm;
 
-    ONEFLOW::CmpIDH( nslu.primj, nslu.gama, nslu.dqj, dh, hm );
+    ONEFLOW::CmpIDH( inslu.primj, inslu.gama, inslu.dqj, dh, hm );
 
     Real term1 =  dh   * x1 + dc * x2;
     Real term2 =  c2dc * x1 + dh * x2;
 
-    nslu.dfj[ IIDX::IIR  ] = lmd1 * nslu.dqj[ IIDX::IIR  ] -      term1                    ;
-    nslu.dfj[ IIDX::IIRU ] = lmd1 * nslu.dqj[ IIDX::IIRU ] - um * term1 + gcom.xfn * term2;
-    nslu.dfj[ IIDX::IIRV ] = lmd1 * nslu.dqj[ IIDX::IIRV ] - vm * term1 + gcom.yfn * term2;
-    nslu.dfj[ IIDX::IIRW ] = lmd1 * nslu.dqj[ IIDX::IIRW ] - wm * term1 + gcom.zfn * term2;
-   // nslu.dfj[ IIDX::IIRE ] = lmd1 * nslu.dqj[ IIDX::IIRE ] - hm * term1 + vn_fluid * term2;
+    inslu.dfj[ IIDX::IIR  ] = lmd1 * inslu.dqj[ IIDX::IIR  ] -      term1                    ;
+    inslu.dfj[ IIDX::IIRU ] = lmd1 * inslu.dqj[ IIDX::IIRU ] - um * term1 + gcom.xfn * term2;
+    inslu.dfj[ IIDX::IIRV ] = lmd1 * inslu.dqj[ IIDX::IIRV ] - vm * term1 + gcom.yfn * term2;
+    inslu.dfj[ IIDX::IIRW ] = lmd1 * inslu.dqj[ IIDX::IIRW ] - wm * term1 + gcom.zfn * term2;
+   // inslu.dfj[ IIDX::IIRE ] = lmd1 * inslu.dqj[ IIDX::IIRE ] - hm * term1 + vn_fluid * term2;
 
-    for ( int iEqu = nslu.nBEqu; iEqu < nslu.nEqu; ++ iEqu )
+    for ( int iEqu = inslu.nBEqu; iEqu < inslu.nEqu; ++ iEqu )
     {
-        nslu.dfj[ iEqu ] = lmd1 * nslu.dqj[ iEqu ] - nslu.primj[ iEqu ] * term1;
+        inslu.dfj[ iEqu ] = lmd1 * inslu.dqj[ iEqu ] - inslu.primj[ iEqu ] * term1;
     }
 
-    for ( int iEqu = 0; iEqu < nslu.nEqu; ++ iEqu )
+    for ( int iEqu = 0; iEqu < inslu.nEqu; ++ iEqu )
     {
-        nslu.dfj[ iEqu ] *= gcom.farea;
+        inslu.dfj[ iEqu ] *= gcom.farea;
     }
 }
 
 
 void INsLusgs::InitializeSweep( int iSweep )
 {
-    nslu.norm = 0.0;
+    inslu.norm = 0.0;
 }
 
 bool INsLusgs::UpdateSweep( int iSweep )
 {
-    nslu.numberOfRealSweeps = iSweep + 1;
+    inslu.numberOfRealSweeps = iSweep + 1;
     if ( iSweep == 0 )
     {
-        nslu.norm0 = nslu.norm;
-        nslu.dmax  = 1.0;
+        inslu.norm0 = inslu.norm;
+        inslu.dmax  = 1.0;
     }
     else
     {
-        nslu.dmax = sqrt( nslu.norm / ( nslu.norm0 + SMALL ) );
+        inslu.dmax = sqrt( inslu.norm / ( inslu.norm0 + SMALL ) );
     }
 
-    if ( nslu.dmax < nslu.tol )
+    if ( inslu.dmax < inslu.tol )
     {
         return true;
     }
@@ -229,98 +229,98 @@ bool INsLusgs::UpdateSweep( int iSweep )
 
 void INsLusgs::CmpLowerChange()
 {
-    if ( nslu.numberOfSweeps > 1 )
+    if ( inslu.numberOfSweeps > 1 )
     {
-        for ( int iEqu = 0; iEqu < nslu.nEqu; ++ iEqu )
+        for ( int iEqu = 0; iEqu < inslu.nEqu; ++ iEqu )
         {
-            nslu.tmp[ iEqu ] = nslu.dqi[ iEqu ] - nslu.rhs0[ iEqu ];
+            inslu.tmp[ iEqu ] = inslu.dqi[ iEqu ] - inslu.rhs0[ iEqu ];
         }
 
-        for ( int iEqu = 0; iEqu < nslu.nEqu; ++ iEqu )
+        for ( int iEqu = 0; iEqu < inslu.nEqu; ++ iEqu )
         {
-            nslu.tmp[ iEqu ] /=  nslu.radius[ iEqu ];
+            inslu.tmp[ iEqu ] /=  inslu.radius[ iEqu ];
         }
 
-        for ( int iEqu = 0; iEqu < nslu.nEqu; ++ iEqu )
+        for ( int iEqu = 0; iEqu < inslu.nEqu; ++ iEqu )
         {
-            nslu.dqi[ iEqu ] = nslu.tmp[ iEqu ];
+            inslu.dqi[ iEqu ] = inslu.tmp[ iEqu ];
         }
 
-        for ( int iEqu = 0; iEqu < nslu.nEqu; ++ iEqu )
+        for ( int iEqu = 0; iEqu < inslu.nEqu; ++ iEqu )
         {
-            nslu.drhs[ iEqu ] += nslu.rhs0[ iEqu ];
+            inslu.drhs[ iEqu ] += inslu.rhs0[ iEqu ];
         }
 
-        for ( int iEqu = 0; iEqu < nslu.nEqu; ++ iEqu )
+        for ( int iEqu = 0; iEqu < inslu.nEqu; ++ iEqu )
         {
-            nslu.dqSweep =  nslu.dqi[ iEqu ] - nslu.dqi0[ iEqu ];
-            nslu.norm   += SQR( nslu.dqSweep );
+            inslu.dqSweep =  inslu.dqi[ iEqu ] - inslu.dqi0[ iEqu ];
+            inslu.norm   += SQR( inslu.dqSweep );
         }
     }
     else
     {
-        for ( int iEqu = 0; iEqu < nslu.nEqu; ++ iEqu )
+        for ( int iEqu = 0; iEqu < inslu.nEqu; ++ iEqu )
         {
-            nslu.tmp[ iEqu ] = nslu.rhs[ iEqu ] - nslu.rhs0[ iEqu ];
+            inslu.tmp[ iEqu ] = inslu.rhs[ iEqu ] - inslu.rhs0[ iEqu ];
         }
 
-        for ( int iEqu = 0; iEqu < nslu.nEqu; ++ iEqu )
+        for ( int iEqu = 0; iEqu < inslu.nEqu; ++ iEqu )
         {
-            nslu.tmp[ iEqu ] /=  nslu.radius[ iEqu ];
+            inslu.tmp[ iEqu ] /=  inslu.radius[ iEqu ];
         }
 
-        for ( int iEqu = 0; iEqu < nslu.nEqu; ++ iEqu )
+        for ( int iEqu = 0; iEqu < inslu.nEqu; ++ iEqu )
         {
-            nslu.dqi[ iEqu ] = nslu.tmp[ iEqu ];
+            inslu.dqi[ iEqu ] = inslu.tmp[ iEqu ];
         }
     }
 }
 
 void INsLusgs::CmpUpperChange()
 {
-    if ( nslu.numberOfSweeps > 1 )
+    if ( inslu.numberOfSweeps > 1 )
     {
-        for ( int iEqu = 0; iEqu < nslu.nEqu; ++ iEqu )
+        for ( int iEqu = 0; iEqu < inslu.nEqu; ++ iEqu )
         {
-            nslu.tmp[ iEqu ] = nslu.dqi[ iEqu ] - nslu.rhs0[ iEqu ];
+            inslu.tmp[ iEqu ] = inslu.dqi[ iEqu ] - inslu.rhs0[ iEqu ];
         }
 
-        for ( int iEqu = 0; iEqu < nslu.nEqu; ++ iEqu )
+        for ( int iEqu = 0; iEqu < inslu.nEqu; ++ iEqu )
         {
-            nslu.tmp[ iEqu ] /=  nslu.radius[ iEqu ];
+            inslu.tmp[ iEqu ] /=  inslu.radius[ iEqu ];
         }
 
-        for ( int iEqu = 0; iEqu < nslu.nEqu; ++ iEqu )
+        for ( int iEqu = 0; iEqu < inslu.nEqu; ++ iEqu )
         {
-            nslu.dqi[ iEqu ] = nslu.tmp[ iEqu ];
+            inslu.dqi[ iEqu ] = inslu.tmp[ iEqu ];
         }
 
-        for ( int iEqu = 0; iEqu < nslu.nEqu; ++ iEqu )
+        for ( int iEqu = 0; iEqu < inslu.nEqu; ++ iEqu )
         {            
-            nslu.drhs[ iEqu ] += nslu.rhs0[ iEqu ];
+            inslu.drhs[ iEqu ] += inslu.rhs0[ iEqu ];
         }
 
-        for ( int iEqu = 0; iEqu < nslu.nEqu; ++ iEqu )
+        for ( int iEqu = 0; iEqu < inslu.nEqu; ++ iEqu )
         {
-            nslu.dqSweep     = nslu.dqi[ iEqu ] - nslu.dqi0[ iEqu ];
-            nslu.norm       += SQR( nslu.dqSweep );
+            inslu.dqSweep     = inslu.dqi[ iEqu ] - inslu.dqi0[ iEqu ];
+            inslu.norm       += SQR( inslu.dqSweep );
         }
     }
     else
     {
-        for ( int iEqu = 0; iEqu < nslu.nEqu; ++ iEqu )
+        for ( int iEqu = 0; iEqu < inslu.nEqu; ++ iEqu )
         {
-            nslu.tmp[ iEqu ] = - nslu.rhs0[ iEqu ];
+            inslu.tmp[ iEqu ] = - inslu.rhs0[ iEqu ];
         }
 
-        for ( int iEqu = 0; iEqu < nslu.nEqu; ++ iEqu )
+        for ( int iEqu = 0; iEqu < inslu.nEqu; ++ iEqu )
         {
-            nslu.tmp[ iEqu ] /=  nslu.radius[ iEqu ];
+            inslu.tmp[ iEqu ] /=  inslu.radius[ iEqu ];
         }
 
-        for ( int iEqu = 0; iEqu < nslu.nEqu; ++ iEqu )
+        for ( int iEqu = 0; iEqu < inslu.nEqu; ++ iEqu )
         {
-            nslu.dqi[ iEqu ] += nslu.tmp[ iEqu ];
+            inslu.dqi[ iEqu ] += inslu.tmp[ iEqu ];
         }
     }
 }
@@ -333,14 +333,14 @@ bool INsLusgs::IsOversetCell()
 
 void INsLusgs::ZeroOversetCell()
 {
-    for ( int iEqu = 0; iEqu < nslu.nEqu; ++ iEqu )
+    for ( int iEqu = 0; iEqu < inslu.nEqu; ++ iEqu )
     {
-        nslu.dqi[ iEqu ] = 0.0;
+        inslu.dqi[ iEqu ] = 0.0;
     }
 
-    for ( int iEqu = 0; iEqu < nslu.nEqu; ++ iEqu )
+    for ( int iEqu = 0; iEqu < inslu.nEqu; ++ iEqu )
     {
-        nslu.drhs[ iEqu ] = 0.0;
+        inslu.drhs[ iEqu ] = 0.0;
     }
 }
 

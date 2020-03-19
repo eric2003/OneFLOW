@@ -62,7 +62,7 @@ public:
     RealField tmp; //ÁÙÊ±Êý×é
 };
 
-extern ILusgsData nslu;
+extern ILusgsData inslu;
 
 class INsLusgs : public LusgsSolver
 {
