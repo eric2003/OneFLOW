@@ -60,7 +60,7 @@ void UINsLusgs::Init()
     CellTopo * cellTopo = grid->cellMesh->cellTopo;
     cellTopo->CmpC2f( faceTopo );
     ug.Init();
-    nslu.Init();
+    inslu.Init();
     uinsf.Init();
     this->CmpSpectrum();
 }
@@ -225,23 +225,23 @@ void UINsLusgs::SetMeshGeometry()
 
 void UINsLusgs::PrepareData()
 {
-    for ( int iEqu = 0; iEqu < nslu.nEqu; ++ iEqu )
+    for ( int iEqu = 0; iEqu < inslu.nEqu; ++ iEqu )
     {
-        nslu.primj[ iEqu ] = ( * uinsf.q )[ iEqu ][ ug.rc ]; //qField存的是原始变量！
+        inslu.primj[ iEqu ] = ( * uinsf.q )[ iEqu ][ ug.rc ]; //qField存的是原始变量！
     }
 
-    for ( int iEqu = 0; iEqu < nslu.nEqu; ++ iEqu )
+    for ( int iEqu = 0; iEqu < inslu.nEqu; ++ iEqu )
     {
-        nslu.dqj[ iEqu ] = ( * uinsf.dq )[ iEqu ][ ug.rc ];
+        inslu.dqj[ iEqu ] = ( * uinsf.dq )[ iEqu ][ ug.rc ];
     }
 
     this->PrepareDataFacePrim();
 
-    nslu.gama = ( * uinsf.gama )[ 0 ][ ug.rc ];
+    inslu.gama = ( * uinsf.gama )[ 0 ][ ug.rc ];
     inscom.visl = ( * uinsf.visl )[ 0 ][ ug.rc ];
     inscom.vist = ( * uinsf.vist )[ 0 ][ ug.rc ];
 
-    for ( int iEqu = 0; iEqu < nslu.nEqu; ++ iEqu )
+    for ( int iEqu = 0; iEqu < inslu.nEqu; ++ iEqu )
     {
         inscom.q1[ iEqu ] = ( * uinsf.q )[ iEqu ][ ug.lc ];
         inscom.q2[ iEqu ] = ( * uinsf.q )[ iEqu ][ ug.rc ];
@@ -280,15 +280,15 @@ void UINsLusgs::PrepareDataFacePrim()
 
     if ( pm <= 0.0 ) cout << "pm = " << pm << endl;
 
-    nslu.primF[ IIDX::IIR ] = rm;
-    nslu.primF[ IIDX::IIU ] = um;
-    nslu.primF[ IIDX::IIV ] = vm;
-    nslu.primF[ IIDX::IIW ] = wm;
-    nslu.primF[ IIDX::IIP ] = pm;
+    inslu.primF[ IIDX::IIR ] = rm;
+    inslu.primF[ IIDX::IIU ] = um;
+    inslu.primF[ IIDX::IIV ] = vm;
+    inslu.primF[ IIDX::IIW ] = wm;
+    inslu.primF[ IIDX::IIP ] = pm;
 
-    for ( int iEqu = nslu.nBEqu; iEqu < nslu.nEqu; ++ iEqu ) 
+    for ( int iEqu = inslu.nBEqu; iEqu < inslu.nEqu; ++ iEqu ) 
     {
-        nslu.primF[ iEqu ] = half * ( ( * uinsf.q )[ iEqu ][ ug.lc ] + ( * uinsf.q )[ iEqu ][ ug.rc ] ); 
+        inslu.primF[ iEqu ] = half * ( ( * uinsf.q )[ iEqu ][ ug.lc ] + ( * uinsf.q )[ iEqu ][ ug.rc ] ); 
     }
 }
 
@@ -307,7 +307,7 @@ void UINsLusgs::ComputeViscousTerm()
 
         inscom.vissr = farea2 * c3;
 
-        nslu.visrad = inscom.vissr / ( * ug.cvol )[ ug.rc ];
+        inslu.visrad = inscom.vissr / ( * ug.cvol )[ ug.rc ];
     }
     else
     {
@@ -320,59 +320,59 @@ void UINsLusgs::ComputeViscousTerm()
 
         Real c1  = 2.0 * viscosity / ( density * dist * inscom.reynolds + SMALL );
         inscom.vissr = half * c1 * gcom.farea;
-        nslu.visrad = inscom.vissr;
+        inslu.visrad = inscom.vissr;
     }
 
-    for ( int iEqu = 0; iEqu < nslu.nEqu; ++ iEqu )
+    for ( int iEqu = 0; iEqu < inslu.nEqu; ++ iEqu )
     {
-        nslu.rhs0[ iEqu ] -= nslu.visrad * nslu.dqj[ iEqu ];
+        inslu.rhs0[ iEqu ] -= inslu.visrad * inslu.dqj[ iEqu ];
     }
 }
 
 void UINsLusgs::PrepareSweep()
 {
-    for ( int iEqu = 0; iEqu < nslu.nEqu; ++ iEqu )
+    for ( int iEqu = 0; iEqu < inslu.nEqu; ++ iEqu )
     {
         gcom.blank = ( * ug.blankf )[ ug.cId ];
 
-        nslu.dqi[ iEqu ] = ( * uinsf.dq  )[ iEqu ][ ug.cId ]; //dqField的初值为0（守恒或者原始变量）
-        nslu.rhs[ iEqu ] = ( * uinsf.rhs )[ iEqu ][ ug.cId ]; //RHS还是存在RHS里面比较好
+        inslu.dqi[ iEqu ] = ( * uinsf.dq  )[ iEqu ][ ug.cId ]; //dqField的初值为0（守恒或者原始变量）
+        inslu.rhs[ iEqu ] = ( * uinsf.rhs )[ iEqu ][ ug.cId ]; //RHS还是存在RHS里面比较好
     }
 
-    if ( nslu.numberOfSweeps > 1 )
+    if ( inslu.numberOfSweeps > 1 )
     {
-        for ( int iEqu = 0; iEqu < nslu.nEqu; ++ iEqu )
+        for ( int iEqu = 0; iEqu < inslu.nEqu; ++ iEqu )
         {
-            nslu.dqi0[ iEqu ] = nslu.dqi[ iEqu ];
-            nslu.drhs[ iEqu ] = ( * uinsf.drhs )[ iEqu ][ ug.cId ];
+            inslu.dqi0[ iEqu ] = inslu.dqi[ iEqu ];
+            inslu.drhs[ iEqu ] = ( * uinsf.drhs )[ iEqu ][ ug.cId ];
 
-            nslu.dqi[ iEqu ] = ( * uinsf.rhs )[ iEqu ][ ug.cId ] - nslu.drhs[ iEqu ];
-            ( * uinsf.dq )[ iEqu ][ ug.cId ] = nslu.dqi[ iEqu ];
-            nslu.drhs[ iEqu ] = 0.0;
+            inslu.dqi[ iEqu ] = ( * uinsf.rhs )[ iEqu ][ ug.cId ] - inslu.drhs[ iEqu ];
+            ( * uinsf.dq )[ iEqu ][ ug.cId ] = inslu.dqi[ iEqu ];
+            inslu.drhs[ iEqu ] = 0.0;
         }
     }
 
-    for ( int iEqu = 0; iEqu < nslu.nEqu; ++ iEqu )
+    for ( int iEqu = 0; iEqu < inslu.nEqu; ++ iEqu )
     {
-        nslu.radius[ iEqu ] = ( * uinsf.impsr )[ 0 ][ ug.cId ];
+        inslu.radius[ iEqu ] = ( * uinsf.impsr )[ 0 ][ ug.cId ];
     }
 }
 
 void UINsLusgs::Update()
 {
-    if ( nslu.numberOfSweeps > 1 )
+    if ( inslu.numberOfSweeps > 1 )
     {
-        for ( int iEqu = 0; iEqu < nslu.nEqu; ++ iEqu )
+        for ( int iEqu = 0; iEqu < inslu.nEqu; ++ iEqu )
         {
-            ( * uinsf.dq   )[ iEqu ][ ug.cId ]  = nslu.dqi[ iEqu ];
-            ( * uinsf.drhs )[ iEqu ][ ug.cId ]  = nslu.drhs[ iEqu ];
+            ( * uinsf.dq   )[ iEqu ][ ug.cId ]  = inslu.dqi[ iEqu ];
+            ( * uinsf.drhs )[ iEqu ][ ug.cId ]  = inslu.drhs[ iEqu ];
         }
     }
     else
     {
-        for ( int iEqu = 0; iEqu < nslu.nEqu; ++ iEqu )
+        for ( int iEqu = 0; iEqu < inslu.nEqu; ++ iEqu )
         {
-            ( * uinsf.dq   )[ iEqu ][ ug.cId ]  = nslu.dqi[ iEqu ];
+            ( * uinsf.dq   )[ iEqu ][ ug.cId ]  = inslu.dqi[ iEqu ];
         }
     }
 }
