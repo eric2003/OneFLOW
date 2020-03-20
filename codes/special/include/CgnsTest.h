@@ -40,10 +40,6 @@ public:
     ~CgnsTest();
 public:
     string fileName;
-    int index_file;
-    int curr_base_id;
-    int nBases;
-    HXVector< CgnsBase * > baseList;
 public:
     void Init();
     void Run();
@@ -59,13 +55,6 @@ public:
     void TestCgnsLink();
 private:
     void SetISize( cgsize_t * isize );
-public:
-    void OpenCgnsFile( int cgnsOpenMode );
-    void OpenCgnsFile( const string & fileName, int cgnsOpenMode );
-    void CloseCgnsFile();
-    void CloseCgnsFile( int index_file );
-    void WriteBase( const string & baseName );
-    void WriteBase( const string & baseName, int celldim, int physdim );
 public:
     void WriteDouble( const string & varName, const double & varValue );
 public:

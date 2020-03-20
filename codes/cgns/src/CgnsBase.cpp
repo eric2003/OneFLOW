@@ -121,6 +121,9 @@ void CgnsBase::ReadCgnsBaseBasicInfo()
 {
     CgnsTraits::char33 cgnsBaseName;
 
+    double double_base_id;
+    cg_base_id( this->fileId, this->baseId, & double_base_id );
+    cout << " double_base_id = " << double_base_id << "\n";
     //Check the cell and physical dimensions of the bases.
     cg_base_read( this->fileId, this->baseId, cgnsBaseName, & this->celldim, & this->phydim );
     this->baseName = cgnsBaseName;

@@ -80,64 +80,22 @@ void CgnsTest::SetDefaultGridName()
     this->fileName = prjFileName;
 }
 
-void CgnsTest::WriteBase( const string & baseName )
-{
-    int celldim = 3;
-    int physdim = 3;
-    this->WriteBase( baseName, celldim, physdim );
-}
-
-void CgnsTest::WriteBase( const string & baseName, int celldim, int physdim )
-{
-    int index_base = -1;
-    cg_base_write( index_file, baseName.c_str(), celldim, physdim, & index_base );
-    cout << " CGNS Base index = " << index_base << "\n";
-    curr_base_id = index_base;
-}
-
 void CgnsTest::WriteSimpleMultiBaseTest()
 {
-    this->OpenCgnsFile( CG_MODE_WRITE );
-
-    //this->WriteBase( "base1" );
-    //this->WriteBase( "base2" );
-    //this->WriteBase( "base3" );
-    //this->WriteBase( "base4" );
-
-    //this->WriteBase( "base1" );
-    //this->WriteBase( "base2", 2, 3 );
-    //this->WriteBase( "base3", 3, 2 );
-    //this->WriteBase( "base4", 1, 3 );
-
-    this->WriteBase( "OneFLOW1" );
-    this->WriteBase( "OneFLOW 2" );
-    this->WriteBase( "CGNS base 3" );
-    this->WriteBase( "Fluid" );
-    this->WriteBase( "CAE library" );
-
-    this->CloseCgnsFile();
+    CgnsFile * cgnsFile = new CgnsFile( "smiplebase.cgns", CG_MODE_WRITE );
+    cgnsFile->WriteBase( "OneFLOW1" );
+    cgnsFile->WriteBase( "OneFLOW 2" );
+    cgnsFile->WriteBase( "CGNS base 3" );
+    cgnsFile->WriteBase( "Fluid" );
+    cgnsFile->WriteBase( "CAE library" );
+    delete cgnsFile;
 }
 
 void CgnsTest::ReadSimpleMultiBaseTest()
 {
-    this->OpenCgnsFile( CG_MODE_READ );
-
-    //Determine the of bases in the grid
-    cg_nbases( this->index_file, & this->nBases );
-    cout << " Total number of CGNS Base = " << this->nBases << "\n";
-
-    for ( int iBase = 0; iBase < this->nBases; ++ iBase )
-    {
-        double double_base_id;
-        int baseId = iBase + 1;
-        char basename[ 33 ];
-        int cell_dim, phys_dim;
-        cg_base_id( this->index_file, baseId, & double_base_id );
-        cg_base_read( this->index_file, baseId, basename, & cell_dim, & phys_dim );
-        cout << " baseId = " << baseId << " double_base_id = " << double_base_id << " basename = " << basename << "\n";
-    }
-
-    this->CloseCgnsFile();
+    CgnsFile * cgnsFile = new CgnsFile( "smiplebase.cgns", CG_MODE_READ );
+    cgnsFile->ReadBases();
+    delete cgnsFile;
 }
 
 void CgnsTest::WriteDescriptor()
@@ -152,31 +110,6 @@ void CgnsTest::ReadDescriptor()
     CgnsFile * cgnsFile = new CgnsFile( "descript.cgns", CG_MODE_READ );
     cgnsFile->ReadBaseDescriptor();
     delete cgnsFile;
-}
-
-void CgnsTest::OpenCgnsFile( int cgnsOpenMode )
-{
-    this->OpenCgnsFile( this->fileName, cgnsOpenMode );
-}
-
-void CgnsTest::OpenCgnsFile( const string & fileName, int cgnsOpenMode )
-{
-    int result = cg_open( fileName.c_str(), cgnsOpenMode, & index_file );
-    cout << " CGNS File Index = " << index_file << "\n";
-    if ( result != CG_OK )
-    {
-        cg_error_exit();
-    }
-}
-
-void CgnsTest::CloseCgnsFile()
-{
-    cg_close( index_file );
-}
-
-void CgnsTest::CloseCgnsFile( int index_file )
-{
-    cg_close( index_file );
 }
 
 void CgnsTest::WriteEmptyCgnsFile()
