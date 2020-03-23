@@ -77,6 +77,7 @@ public:
     void ReadArray();
     void ReadReferenceState();
     void ReadBaseDescriptor();
+    void ReadConvergence();
 };
 
 #endif

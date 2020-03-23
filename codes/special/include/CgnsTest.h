@@ -48,6 +48,8 @@ public:
     void SetDefaultGridName();
     void WriteReferenceState();
     void ReadReferenceState();
+    void WriteConvergence();
+    void ReadConvergence();
     void WriteDescriptor();
     void ReadDescriptor();
     void WriteSimpleMultiBaseTest();

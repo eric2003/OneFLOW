@@ -219,4 +219,14 @@ void CgnsFile::WriteBaseDescriptor()
     cg_descriptor_write("mydes","mydes3");
 }
 
+void CgnsFile::ReadConvergence()
+{
+    this->ReadBases();
+    for ( int iBase = 0; iBase < this->nBases; ++ iBase )
+    {
+        CgnsBase * cgnsBase = this->baseList[ iBase ];
+        cgnsBase->ReadConvergence();
+    }
+}
+
 EndNameSpace

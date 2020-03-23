@@ -64,6 +64,7 @@ public:
     void ReadReferenceState();
     void ReadBaseDescriptor();
     void WriteBaseDescriptor();
+    void ReadConvergence();
 };
 
 

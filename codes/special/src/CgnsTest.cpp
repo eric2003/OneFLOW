@@ -57,13 +57,16 @@ void CgnsTest::Run()
     //this->WriteEmptyCgnsFile();
     //this->ReadEmptyCgnsFile();
     //this->WriteDescriptor();
-    this->ReadDescriptor();
+    //this->ReadDescriptor();
     //this->Test();
     //this->TestCgnsLink();
     //this->WriteArray();
     //this->ReadArray();
     //this->WriteReferenceState();
     //this->ReadReferenceState();
+    //this->WriteConvergence();
+    this->ReadConvergence();
+    
 }
 
 void CgnsTest::Test()
@@ -329,5 +332,38 @@ void CgnsTest::ReadReferenceState()
     cgnsFile->ReadReferenceState();
     delete cgnsFile; 
 }
+
+void CgnsTest::WriteConvergence()
+{
+    CgnsFile * cgnsFile = new CgnsFile( "convergence.cgns", CG_MODE_WRITE );
+    CgnsBase * cgnsBase = cgnsFile->WriteBase( "Base" );
+    cgnsBase->GoToBase();
+    const int ntt = 20;
+    double cl[ntt];
+    /* create history array simple example: */
+    for ( int n = 0; n < ntt; ++ n )
+    {
+        cl[ n ] = static_cast< float >( n + 1.0 );
+    }
+
+    /* create history node (SIDS names it GlobalConvergenceHistory at base level) */
+    //cg_convergence_write( ntt, "" );
+    cg_convergence_write( ntt, "haha" );
+    /* go to new history node */
+    cgnsBase->GoToNode( "ConvergenceHistory_t", 1 );
+    /* write lift coefficient array (user must use SIDS-standard name here) */
+
+    cgsize_t nuse = ntt;
+    cg_array_write("CoefLift",CGNS_ENUMV(RealDouble),1,&nuse,&cl);
+    delete cgnsFile; 
+}
+
+void CgnsTest::ReadConvergence()
+{
+    CgnsFile * cgnsFile = new CgnsFile( "convergence.cgns", CG_MODE_READ );
+    cgnsFile->ReadConvergence();
+    delete cgnsFile; 
+}
+
 
 EndNameSpace
