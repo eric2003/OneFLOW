@@ -35,6 +35,9 @@ public:
     ~Scalar();
 public:
     void Run();
+private:
+    void Lesson1();
+    void Lesson2();
 
 };
 

@@ -73,11 +73,15 @@ public:
     void GoToBase();
     void GoToNode( const string & nodeName, int ith );
 public:
-    void WriteZoneInfo( const string & zoneName, ZoneType_t zoneType, cgsize_t * isize );
+    CgnsZone * WriteZoneInfo( const string & zoneName, ZoneType_t zoneType, cgsize_t * isize );
+    CgnsZone * WriteZone( const string & zoneName );
+    void SetTestISize( cgsize_t * isize );
     void ReadArray();
     void ReadReferenceState();
     void ReadBaseDescriptor();
     void ReadConvergence();
+    void ReadCgnsZones();
+    void ReadFlowEqn();
 };
 
 #endif

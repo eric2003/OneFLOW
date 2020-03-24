@@ -38,6 +38,11 @@ Scalar::~Scalar()
 
 void Scalar::Run()
 {
+    this->Lesson1();
+}
+
+void Scalar::Lesson1()
+{
     int nx = 41;
 
     double len = 2.0;
@@ -56,7 +61,24 @@ void Scalar::Run()
 
     vector< double > x( nx );
     Numpy::Linspace( x, 0, len );
+    //Numpy::Plot( x, u );
+
+    vector< double > un( nx );
+    Numpy::Ones( un ); //initialize a temporary array
+
+    for ( int n = 0; n < nt; ++ n ) //loop for values of n from 0 to nt, so it will run nt times
+    {
+        Numpy::Copy( u, un ); //copy the existing values of u into un
+        for ( int i = 1; i < nx; ++ i ) //you can try commenting this line and...
+        {
+            u[ i ] = un[ i ] - c * dt / dx * ( un[ i ] - un[ i - 1 ] );
+        }
+    }
     Numpy::Plot( x, u );
+}
+
+void Scalar::Lesson2()
+{
 }
 
 

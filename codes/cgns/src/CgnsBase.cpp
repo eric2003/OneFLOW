@@ -188,9 +188,9 @@ void CgnsBase::ReadFamilySpecifiedBc()
     this->familyBc->ReadFamilySpecifiedBc();
 }
 
-void CgnsBase::WriteZoneInfo( const string & zoneName, ZoneType_t zoneType, cgsize_t * isize )
+CgnsZone * CgnsBase::WriteZoneInfo( const string & zoneName, ZoneType_t zoneType, cgsize_t * isize )
 {
-    int cgzone;
+    int cgzone = -1;
     cg_zone_write( this->fileId, this->baseId, zoneName.c_str(), isize, zoneType, & cgzone );
     this->freeFlag = true;
 
@@ -198,7 +198,28 @@ void CgnsBase::WriteZoneInfo( const string & zoneName, ZoneType_t zoneType, cgsi
     cgnsZone->zoneName = zoneName;
     cgnsZone->cgnsZoneType = zoneType;
     cgnsZone->CopyISize( isize );
-    this->cgnsZones.push_back( cgnsZone );    ;
+    cgnsZone->zId = cgzone;
+    this->cgnsZones.push_back( cgnsZone );
+    return cgnsZone;
+}
+
+CgnsZone * CgnsBase::WriteZone( const string & zoneName )
+{
+    cgsize_t isize[ 9 ];
+    this->SetTestISize( isize );
+
+    return this->WriteZoneInfo( zoneName, CGNS_ENUMV( Structured ), isize );
+}
+
+void CgnsBase::SetTestISize( cgsize_t * isize )
+{
+    int nijk = 5;
+    for ( int n = 0; n < 3; n ++ )
+    {
+        isize[ n     ] = nijk;
+        isize[ n + 3 ] = nijk - 1;
+        isize[ n + 6 ] = 0;
+    }
 }
 
 void CgnsBase::GoToBase()
@@ -303,6 +324,31 @@ void CgnsBase::ReadConvergence()
     }
 }
 
+void CgnsBase::ReadCgnsZones()
+{
+    this->ReadNumberOfCgnsZones();
+
+    for ( int iZone = 0; iZone < this->nZones; ++ iZone )
+    {
+        int zoneId = iZone + 1;
+
+        CgnsZone * cgnsZone = new CgnsZone( this );
+        cgnsZone->zId = zoneId;
+        this->AddCgnsZone( cgnsZone );
+        cgnsZone->ReadCgnsZoneBasicInfo();
+    }
+}
+
+void CgnsBase::ReadFlowEqn()
+{
+    this->ReadCgnsZones();
+
+    for ( int iZone = 0; iZone < this->nZones; ++ iZone )
+    {
+        CgnsZone * cgnsZone = this->GetCgnsZone( iZone );
+        cgnsZone->ReadFlowEqn();
+    }
+}
 
 #endif
 EndNameSpace

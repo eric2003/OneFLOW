@@ -55,6 +55,8 @@ public:
     void WriteSimpleMultiBaseTest();
     void ReadSimpleMultiBaseTest();
     void TestCgnsLink();
+    void WriteFlowEqn();
+    void ReadFlowEqn();
 private:
     void SetISize( cgsize_t * isize );
 public:

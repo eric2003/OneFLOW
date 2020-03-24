@@ -79,5 +79,14 @@ void Numpy::Plot( vector< double > & x, vector< double > & f )
     file.clear();
 }
 
+void Numpy::Copy( vector< double > & a, vector< double > & b )
+{
+    int nSize = a.size();
+    for ( int i = 0; i < nSize; ++ i )
+    {
+        b[ i ] = a[ i ];
+    }
+}
+
 
 EndNameSpace

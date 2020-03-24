@@ -229,4 +229,14 @@ void CgnsFile::ReadConvergence()
     }
 }
 
+void CgnsFile::ReadFlowEqn()
+{
+    this->ReadBases();
+    for ( int iBase = 0; iBase < this->nBases; ++ iBase )
+    {
+        CgnsBase * cgnsBase = this->baseList[ iBase ];
+        cgnsBase->ReadFlowEqn();
+    }
+}
+
 EndNameSpace

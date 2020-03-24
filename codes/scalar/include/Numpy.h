@@ -38,6 +38,7 @@ public:
     static void Set( vector< double > & var, int st, int ed, double v );
     static void Linspace( vector< double > & var, double st, double ed );
     static void Plot( vector< double > & x, vector< double > & f );
+    static void Copy( vector< double > & a, vector< double > & b );
 };
 
 EndNameSpace

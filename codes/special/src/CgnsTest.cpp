@@ -65,7 +65,9 @@ void CgnsTest::Run()
     //this->WriteReferenceState();
     //this->ReadReferenceState();
     //this->WriteConvergence();
-    this->ReadConvergence();
+    //this->ReadConvergence();
+    //this->WriteFlowEqn();
+    this->ReadFlowEqn();
     
 }
 
@@ -372,5 +374,73 @@ void CgnsTest::ReadConvergence()
     delete cgnsFile; 
 }
 
+
+void CgnsTest::WriteFlowEqn()
+{
+    float gamma   = 1.4;
+    float prandtl = 0.90;
+
+    int idata[6];
+    idata[0]=0;
+    idata[1]=1;
+    idata[2]=0;
+    idata[3]=0;
+    idata[4]=0;
+    idata[5]=0;
+
+    CgnsFile * cgnsFile = new CgnsFile( "floweqn.cgns", CG_MODE_WRITE );
+    CgnsBase * cgnsBase = cgnsFile->WriteBase( "Base1" );
+    CgnsZone * cgnsZone = cgnsBase->WriteZone( "Zone1" );
+    cgnsZone->GoToZone();
+
+    //Create 'FlowEquationSet' node under 'Zone_t'
+    // equation dimension = 3
+    int ieq_dim = 3;
+    cg_equationset_write( ieq_dim );
+
+    //Create 'GoverningEquations' node under 'FlowEquationSet'
+    cgnsZone->GoToNode( "FlowEquationSet_t", 1 );
+    cg_governing_write( CGNS_ENUMV(NSTurbulent) );
+
+    //Create 'DiffusionModel' node under 'GoverningEquations'
+    cgnsZone->GoToNode( "FlowEquationSet_t", 1, "GoverningEquations_t",1 );
+    cg_diffusion_write(idata);
+
+    cgsize_t nuse = 1;
+    //Create 'GasModel' under 'FlowEquationSet'
+    cgnsZone->GoToNode( "FlowEquationSet_t", 1 );
+    cg_model_write("GasModel_t",CGNS_ENUMV(Ideal));
+
+    // Create 'SpecificHeatRatio' under GasModel
+    cgnsZone->GoToNode( "FlowEquationSet_t", 1, "GasModel_t",1 );
+    cg_array_write("SpecificHeatRatio",CGNS_ENUMV(RealSingle), 1, &nuse, &gamma);
+    // Create 'DataClass' under 'SpecificHeatRatio'
+
+    cgnsZone->GoToNode( "FlowEquationSet_t", 1, "GasModel_t",1, "DataArray_t",1 );
+    cg_dataclass_write(CGNS_ENUMV(NondimensionalParameter));
+
+    //Create 'TurbulenceClosure' under 'FlowEquationSet'
+    cgnsZone->GoToNode( "FlowEquationSet_t", 1 );
+    cg_model_write("TurbulenceClosure_t",CGNS_ENUMV(EddyViscosity));
+
+    //Create 'PrandtlTurbulent' under 'TurbulenceClosure'
+    cgnsZone->GoToNode( "FlowEquationSet_t", 1, "TurbulenceClosure_t",1 );
+    cg_array_write("PrandtlTurbulent",CGNS_ENUMV(RealSingle),1,&nuse,&prandtl);
+    //Create 'DataClass' under 'PrandtlTurbulent'
+    cgnsZone->GoToNode( "FlowEquationSet_t", 1, "TurbulenceClosure_t", 1, "DataArray_t", 1 );
+    cg_dataclass_write(CGNS_ENUMV(NondimensionalParameter));
+
+    //Create 'TurbulenceModel' under 'FlowEquationSet'
+    cgnsZone->GoToNode( "FlowEquationSet_t", 1 );
+    cg_model_write("TurbulenceModel_t",CGNS_ENUMV(OneEquation_SpalartAllmaras));
+    delete cgnsFile;
+}
+
+void CgnsTest::ReadFlowEqn()
+{
+    CgnsFile * cgnsFile = new CgnsFile( "floweqn.cgns", CG_MODE_READ );
+    cgnsFile->ReadFlowEqn();
+    delete cgnsFile;
+}
 
 EndNameSpace

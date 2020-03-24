@@ -65,6 +65,7 @@ public:
     void ReadBaseDescriptor();
     void WriteBaseDescriptor();
     void ReadConvergence();
+    void ReadFlowEqn();
 };
 
 

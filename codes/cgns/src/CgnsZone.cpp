@@ -194,6 +194,12 @@ void CgnsZone::ReadCgnsZoneAttribute()
     this->SetDimension();
 }
 
+void CgnsZone::ReadCgnsZoneBasicInfo()
+{
+    this->ReadCgnsZoneType();
+    this->ReadCgnsZoneNameAndGeneralizedDimension();
+}
+
 void CgnsZone::ReadCgnsZoneType()
 {
     //Check the zone type
@@ -268,6 +274,95 @@ void CgnsZone::ReadCgnsGridBoundary()
 void CgnsZone::ProcessPeriodicBc()
 {
     ;
+}
+
+void CgnsZone::GoToZone()
+{
+    int fileId = this->cgnsBase->fileId;
+    int baseId = this->cgnsBase->baseId;
+    cg_goto( fileId, baseId,"Zone_t", this->zId, "end" );
+}
+
+void CgnsZone::GoToNode( const string & nodeName, int ith )
+{
+    int fileId = this->cgnsBase->fileId;
+    int baseId = this->cgnsBase->baseId;
+    cg_goto( fileId, baseId, "Zone_t", this->zId, nodeName.c_str(), ith, "end" );
+}
+
+void CgnsZone::GoToNode( const string & nodeNamei, int ith, const string & nodeNamej, int jth )
+{
+    int fileId = this->cgnsBase->fileId;
+    int baseId = this->cgnsBase->baseId;
+    cg_goto( fileId, baseId, "Zone_t", this->zId, nodeNamei.c_str(), ith, nodeNamej.c_str(), jth, "end" );
+}
+
+void CgnsZone::GoToNode( const string & nodeNamei, int ith, const string & nodeNamej, int jth, const string & nodeNamek, int kth )
+{
+    int fileId = this->cgnsBase->fileId;
+    int baseId = this->cgnsBase->baseId;
+    cg_goto( fileId, baseId, "Zone_t", this->zId, nodeNamei.c_str(), ith, nodeNamej.c_str(), jth, nodeNamek.c_str(), kth, "end" );
+}
+
+void CgnsZone::ReadFlowEqn()
+{
+    int idata[6];
+    int id,ige,igm,ivm,itcm,itc,itm;
+    float gamma,prandtl;
+    CGNS_ENUMT(GoverningEquationsType_t) itype;
+    CGNS_ENUMT(ModelType_t) mtype;
+
+    this->GoToZone();
+
+    cg_equationset_read( &id, &ige, &igm, &ivm, &itcm, &itc, &itm );
+    cout << "Eqn dimension = " << id << "\n";
+
+    //Read 'GoverningEquations' node
+    if ( ige == 1 )
+    {
+        this->GoToNode( "FlowEquationSet_t", 1 );
+        cg_governing_read( & itype );
+        cout << " Gov eqn = " << GoverningEquationsTypeName[ itype ] << "\n";
+        //Read 'DiffusionModel' node
+        this->GoToNode( "FlowEquationSet_t", 1, "GoverningEquations_t", 1 );
+        cg_diffusion_read( idata );
+        cout << "     diffusion = ";
+        cout << idata[ 0 ] << ", ";
+        cout << idata[ 1 ] << ", ";
+        cout << idata[ 2 ] << ", ";
+        cout << idata[ 3 ] << ", ";
+        cout << idata[ 4 ] << ", ";
+        cout << idata[ 5 ] << "\n";
+    }
+
+    // Read gas model
+    if ( igm == 1 )
+    {
+        this->GoToNode( "FlowEquationSet_t", 1 );
+        cg_model_read( "GasModel_t", & mtype );
+        cout << " Gas model type = " << ModelTypeName[ mtype ] << "\n";
+        this->GoToNode( "FlowEquationSet_t", 1, "GasModel_t", 1 );
+        cg_array_read_as(1,CGNS_ENUMV(RealSingle),&gamma);
+        cout << "     gamma = " << gamma << "\n";
+    }
+
+    //Read turbulence closure
+    if ( itc == 1 )
+    {
+        this->GoToNode( "FlowEquationSet_t", 1 );
+        cg_model_read( "TurbulenceClosure_t", & mtype );
+        cout << " Turbulence closure type = " << ModelTypeName[ mtype ] << "\n";
+        this->GoToNode( "FlowEquationSet_t", 1, "TurbulenceClosure_t", 1 );
+        cg_array_read_as( 1, CGNS_ENUMV(RealSingle), & prandtl );
+        cout << "     turb prandtl number = " << prandtl << "\n";
+    }
+
+    if ( itm == 1 )
+    {
+        this->GoToNode( "FlowEquationSet_t", 1 );
+        cg_model_read( "TurbulenceModel_t", & mtype );
+        cout << " Turbulence model type " << ModelTypeName[ mtype ] << "\n";
+    }
 }
 
 #endif
