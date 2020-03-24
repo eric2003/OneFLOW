@@ -271,8 +271,14 @@ void CgnsBase::ReadBaseDescriptor()
 void CgnsBase::ReadConvergence()
 {
     this->GoToBase();
-    this->GoToNode( "ConvergenceHistory_t", 1 );
 
+    int nIterations;
+    char *text;
+    cg_convergence_read( &nIterations, &text );
+    cout << "nIterations = " << nIterations << " text = " << text << "\n";
+    delete[ ] text;
+
+    this->GoToNode( "ConvergenceHistory_t", 1 );
     int narrays = -1;
     cg_narrays( & narrays );
     cout << " narrays = " << narrays << "\n";
@@ -285,13 +291,13 @@ void CgnsBase::ReadConvergence()
         cgsize_t idimvec;
         char arrayname[ 33 ];
         cg_array_info( n, arrayname, & itype, & idim, & idimvec );
-        vector< double > cl( idimvec );
+        vector< double > varArray( idimvec );
         cout << "Datatype = " << itype << " DataTypeName = " << DataTypeName[ itype ] << "\n";"\n";
-        cg_array_read_as( n, itype, &cl[ 0 ] );
+        cg_array_read_as( n, itype, &varArray[ 0 ] );
         cout << " VarArrayName = " << arrayname << "\n";
         for ( int i = 0; i < idimvec; ++ i )
         {
-            cout << cl[ i ] << " ";
+            cout << varArray[ i ] << " ";
         }
         cout << "\n";
     }

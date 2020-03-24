@@ -338,23 +338,30 @@ void CgnsTest::WriteConvergence()
     CgnsFile * cgnsFile = new CgnsFile( "convergence.cgns", CG_MODE_WRITE );
     CgnsBase * cgnsBase = cgnsFile->WriteBase( "Base" );
     cgnsBase->GoToBase();
-    const int ntt = 20;
-    double cl[ntt];
+    const int nIterations = 20;
+    vector< double > cl( nIterations ), dl( 2 * nIterations );
     /* create history array simple example: */
-    for ( int n = 0; n < ntt; ++ n )
+    for ( int n = 0; n < nIterations; ++ n )
     {
         cl[ n ] = static_cast< float >( n + 1.0 );
     }
 
+    for ( int n = 0; n < 2 * nIterations; ++ n )
+    {
+        dl[ n ] = - static_cast< float >( n + 1.0 );
+    }
+
     /* create history node (SIDS names it GlobalConvergenceHistory at base level) */
-    //cg_convergence_write( ntt, "" );
-    cg_convergence_write( ntt, "haha" );
+    //cg_convergence_write( nIterations, "" );
+    cg_convergence_write( nIterations, "haha" );
     /* go to new history node */
     cgnsBase->GoToNode( "ConvergenceHistory_t", 1 );
     /* write lift coefficient array (user must use SIDS-standard name here) */
 
-    cgsize_t nuse = ntt;
-    cg_array_write("CoefLift",CGNS_ENUMV(RealDouble),1,&nuse,&cl);
+    cgsize_t nuse = nIterations;
+    cgsize_t muse = 2 * nIterations;
+    cg_array_write("CoefLift",CGNS_ENUMV(RealDouble), 1, &nuse, &cl[ 0 ] );
+    cg_array_write("DoefLift",CGNS_ENUMV(RealDouble), 1, &muse, &dl[ 0 ] );
     delete cgnsFile; 
 }
 

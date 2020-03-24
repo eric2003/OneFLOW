@@ -19,34 +19,25 @@ License
     along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 
 \*---------------------------------------------------------------------------*/
-#include "SimpleSimu.h"
-#include "Scalar.h"
-#include <iostream>
+
+
+#pragma once
+#include "Configure.h"
+#include <vector>
 using namespace std;
 
 BeginNameSpace( ONEFLOW )
 
-SimpleSimu::SimpleSimu( std::vector<std::string> &args )
+class Numpy
 {
-    this->args = args;
-    this->ProcessCmdLineArgs( args );
-}
-
-SimpleSimu::~SimpleSimu()
-{
-}
-
-void SimpleSimu::ProcessCmdLineArgs( std::vector<std::string> &args )
-{
-}
-
-void SimpleSimu::Run()
-{
-    cout << "SimpleSimu::Run\n";
-    Scalar * scalar = new Scalar();
-    scalar->Run();
-    delete scalar;
-}
-
+public:
+    Numpy();
+    ~Numpy();
+public:
+    static void Ones( vector< double > & var );
+    static void Set( vector< double > & var, int st, int ed, double v );
+    static void Linspace( vector< double > & var, double st, double ed );
+    static void Plot( vector< double > & x, vector< double > & f );
+};
 
 EndNameSpace
