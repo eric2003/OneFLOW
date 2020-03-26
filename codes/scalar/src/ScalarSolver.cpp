@@ -20,7 +20,6 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "Scalar.h"
 #include "ScalarSolver.h"
 #include "Numpy.h"
 #include <iostream>
@@ -29,33 +28,42 @@ using namespace std;
 
 BeginNameSpace( ONEFLOW )
 
-Scalar::Scalar()
+ScalarSolver::ScalarSolver()
 {
 }
 
-Scalar::~Scalar()
+ScalarSolver::~ScalarSolver()
 {
 }
 
-void Scalar::Run()
+void ScalarSolver::Init()
 {
-    //this->Lesson1();
-    ScalarSolver * scalarSolver = new ScalarSolver();
-    scalarSolver->Run();
-    delete scalarSolver;
+    this->InitCtrlParameter();
+
+    this->InitGrid();
+
+    this->InitFlowField();
 }
 
-void Scalar::Lesson1()
+void ScalarSolver::InitCtrlParameter()
 {
-    int nx = 41;
+    this->nx = 41;
+    this->len = 2.0;
+    this->dx = len / ( nx - 1.0 );
+    this->nt = 25;
+    this->dt = 0.025;
+    this->c  = 1;
+}
 
-    double len = 2.0;
-    double dx = len / ( nx - 1.0 );
-    int    nt = 25;
-    double dt = 0.025;
-    double c  = 1;
+void ScalarSolver::InitGrid()
+{
+    x.resize( nx );
+    Numpy::Linspace( x, 0, len );
+}
 
-    vector< double > u( nx );
+void ScalarSolver::InitFlowField()
+{
+    u.resize( nx );
     Numpy::Ones( u );
 
     int st = 0.5 / dx;
@@ -63,13 +71,19 @@ void Scalar::Lesson1()
 
     Numpy::Set( u, st, ed, 2 );
 
-    vector< double > x( nx );
-    Numpy::Linspace( x, 0, len );
-    //Numpy::Plot( x, u );
-
-    vector< double > un( nx );
+    un.resize( nx );
     Numpy::Ones( un ); //initialize a temporary array
+}
 
+void ScalarSolver::Run()
+{
+    this->Init();
+
+    this->Solve();
+}
+
+void ScalarSolver::Solve()
+{
     for ( int n = 0; n < nt; ++ n ) //loop for values of n from 0 to nt, so it will run nt times
     {
         Numpy::Copy( u, un ); //copy the existing values of u into un
@@ -79,10 +93,6 @@ void Scalar::Lesson1()
         }
     }
     Numpy::Plot( x, u );
-}
-
-void Scalar::Lesson2()
-{
 }
 
 
