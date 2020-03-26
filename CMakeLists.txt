@@ -52,6 +52,8 @@ endif(WIN32)
 
 #message(STATUS "The new CMAKE_CXX_FLAGS is ${CMAKE_CXX_FLAGS}")
 
+include(UtilFunction.cmake)
+
 #look for CMakeLists.txt in subdirectory <codes> and build an executable target:
 add_subdirectory(codes ${MY_WORKING_DIR})
 
