@@ -24,6 +24,7 @@ License
 #pragma once
 #include "Configure.h"
 #include <vector>
+#include <string>
 using namespace std;
 
 BeginNameSpace( ONEFLOW )
@@ -38,7 +39,15 @@ public:
     static void Set( vector< double > & var, int st, int ed, double v );
     static void Linspace( vector< double > & var, double st, double ed );
     static void Plot( vector< double > & x, vector< double > & f );
+    static void Plot( const string & fileName, vector< double > & x, vector< double > & f );
     static void Copy( vector< double > & a, vector< double > & b );
+    static void ToTecplot( const string & fileName, vector< double > & x, vector< double > & f );
+    static void ToTecplot( const string & fileName, vector< double > & x, vector< double > & u, vector< double > & v );
+    static void Analysis( const string & fileName, vector< double > & x, vector< vector< double > > & du );
+    static void AnalysisNew( const string & fileName, vector< vector< double > > & x, vector< vector< double > > & du );
+    static void DrawL1Norm( const string & fileName, vector< double > & dxList, vector< double > & l1NormList );
+    static void DrawNorms( const string & fileName, vector< double > & dxList, vector< double > & l1NormList, vector< double > & l2NormList );
+
 };
 
 EndNameSpace

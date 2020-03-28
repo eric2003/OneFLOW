@@ -64,10 +64,24 @@ void Numpy::Linspace( vector< double > & var, double st, double ed )
     }
 }
 
+void Numpy::Copy( vector< double > & a, vector< double > & b )
+{
+    int nSize = a.size();
+    for ( int i = 0; i < nSize; ++ i )
+    {
+        b[ i ] = a[ i ];
+    }
+}
+
 void Numpy::Plot( vector< double > & x, vector< double > & f )
 {
+    Numpy::Plot( "plot.plt", x, f );
+}
+
+void Numpy::Plot( const string & fileName, vector< double > & x, vector< double > & f )
+{
     fstream file;
-    file.open( "plot.plt", ios_base::out );
+    file.open( fileName.c_str(), ios_base::out );
     int nSize = x.size();
     file << nSize << " ";
     for ( int i = 0; i < nSize; ++ i )
@@ -79,14 +93,125 @@ void Numpy::Plot( vector< double > & x, vector< double > & f )
     file.clear();
 }
 
-void Numpy::Copy( vector< double > & a, vector< double > & b )
+void Numpy::ToTecplot( const string & fileName, vector< double > & x, vector< double > & f )
 {
-    int nSize = a.size();
+    fstream file;
+    file.open( fileName.c_str(), ios_base::out );
+    int nSize = x.size();
+
+    file << "TITLE = " << "\"OneFLOW X-Y Plot\"" << endl;
+    file << "VARIABLES = " << "\"x\", " << "\"u\" " << "\n";
+    file << "ZONE T = " << "\"scalar results\"," << " I = " << nSize << "\n";
     for ( int i = 0; i < nSize; ++ i )
     {
-        b[ i ] = a[ i ];
+        file << x[ i ] << " " << f[ i ] << "\n";
     }
+
+    file.close();
+    file.clear();
+
 }
+
+void Numpy::ToTecplot( const string & fileName, vector< double > & x, vector< double > & u, vector< double > & v )
+{
+    fstream file;
+    file.open( fileName.c_str(), ios_base::out );
+    int nSize = x.size();
+
+    file << "TITLE = " << "\"OneFLOW X-Y Plot\"" << endl;
+    file << "VARIABLES = " << "\"x\", " << "\"u\", " << "\"v\" " << "\n";
+    file << "ZONE T = " << "\"scalar results\"," << " I = " << nSize << "\n";
+    for ( int i = 0; i < nSize; ++ i )
+    {
+        file << x[ i ] << " " << u[ i ] << " " << v[ i ]  << "\n";
+    }
+
+    file.close();
+    file.clear();
+}
+
+void Numpy::Analysis( const string & fileName, vector< double > & x, vector< vector< double > > & du )
+{
+    fstream file;
+    file.open( fileName.c_str(), ios_base::out );
+
+    file << "TITLE = " << "\"OneFLOW X-Y Plot\"" << endl;
+
+    int nSize = x.size();
+    file << "ZONE T = " << "\"scalar analysis results\"," << " I = " << nSize << "\n";
+    for ( int i = 0; i < nSize; ++ i )
+    {
+        file << x[ i ];
+        for ( int j = 0; j < du.size(); ++ j )
+        {
+            file << " " << du[ j ][ i ];
+        }
+        file << endl;
+    }
+
+    file.close();
+    file.clear();
+}
+
+void Numpy::AnalysisNew( const string & fileName, vector< vector< double > > & x, vector< vector< double > > & du )
+{
+    fstream file;
+    file.open( fileName.c_str(), ios_base::out );
+
+    file << "TITLE = " << "\"OneFLOW X-Y Plot\"" << endl;
+
+    for ( int j = 0; j < du.size(); ++ j )
+    {
+        int nSize = x[ j ].size();
+        file << "ZONE T = " << "\"scalar analysis results\"," << " I = " << nSize << "\n";
+        for ( int i = 0; i < nSize; ++ i )
+        {
+            file << x[ j ][ i ] << " " << du[ j ][ i ] << endl;
+        }
+    }
+
+    file.close();
+    file.clear();
+}
+
+void Numpy::DrawL1Norm( const string & fileName, vector< double > & dxList, vector< double > & l1NormList )
+{
+    fstream file;
+    file.open( fileName.c_str(), ios_base::out );
+
+    file << "TITLE = " << "\"OneFLOW X-Y Plot\"" << endl;
+
+    int nSize = dxList.size();
+    file << "VARIABLES = " << "\"dx\", " << "\"norm\" " << "\n";
+    file << "ZONE T = " << "\"scalar Norm analysis results\"," << " I = " << nSize << "\n";
+    for ( int i = 0; i < nSize; ++ i )
+    {
+        file << dxList[ i ] << " " << l1NormList[ i ] << endl;
+    }
+
+    file.close();
+    file.clear();
+}
+
+void Numpy::DrawNorms( const string & fileName, vector< double > & dxList, vector< double > & l1NormList, vector< double > & l2NormList )
+{
+    fstream file;
+    file.open( fileName.c_str(), ios_base::out );
+
+    file << "TITLE = " << "\"OneFLOW X-Y Plot\"" << endl;
+
+    int nSize = dxList.size();
+    file << "VARIABLES = " << "\"dx\" " << "\"norm1\" " << "\"norm2\" " << "\n";
+    file << "ZONE T = " << "\"scalar Norm analysis results\"," << " I = " << nSize << "\n";
+    for ( int i = 0; i < nSize; ++ i )
+    {
+        file << dxList[ i ] << " " << l1NormList[ i ] << " " << l2NormList[ i ] << endl;
+    }
+
+    file.close();
+    file.clear();
+}
+
 
 
 EndNameSpace

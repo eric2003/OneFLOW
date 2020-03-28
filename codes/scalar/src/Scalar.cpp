@@ -22,6 +22,7 @@ License
 
 #include "Scalar.h"
 #include "ScalarSolver.h"
+#include "ScalarOrder.h"
 #include "Numpy.h"
 #include <iostream>
 #include <vector>
@@ -39,10 +40,13 @@ Scalar::~Scalar()
 
 void Scalar::Run()
 {
-    //this->Lesson1();
-    ScalarSolver * scalarSolver = new ScalarSolver();
-    scalarSolver->Run();
-    delete scalarSolver;
+    //ScalarSolver * scalarSolver = new ScalarSolver();
+    //scalarSolver->Run();
+    //delete scalarSolver;
+
+    ScalarOrder * scalarOrder = new ScalarOrder();
+    scalarOrder->Run();
+    delete scalarOrder;
 }
 
 void Scalar::Lesson1()

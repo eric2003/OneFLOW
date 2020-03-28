@@ -28,66 +28,33 @@ using namespace std;
 
 BeginNameSpace( ONEFLOW )
 
-class ScalarZone
+class ScalarPara
 {
 public:
-    ScalarZone();
-    ~ScalarZone();
-public:
-    int ist, ied;
-};
-
-class ScalarPara;
-
-class ScalarSolver
-{
-public:
-    ScalarSolver();
-    ~ScalarSolver();
-public:
-    void Run();
-    void RunTest( ScalarPara * para );
-    void Init();
-    void Solve();
-    void SolvePart();
-    void SolvePart( int ist, int ied );
-    void SolvePartNew();
-    void InitCtrlParameter();
-    void InitCtrlParameterTest( ScalarPara * para );
-    void InitGrid();
-    void InitFlowField();
-public:
-    void SetScalarZone();
-    void SolveOneStep();
-    void Visual();
-    void Visual( ScalarPara * para );
-    void Theory( double t );
-    double ScalarFun( double xm );
-    double SquareFun( double xm );
-    double SinFun( double xm );
-    double MyCurve( double xm );
-    void FreeScalarZones();
-public:
-    void ComputeL1Norm();
-    void ComputeL2Norm();
+    ScalarPara();
+    ~ScalarPara();
 public:
     int nx;
-
     double len;
     double dx;
-    int    nt;
+    int nt;
     double dt;
     double c;
-
-    vector< double > u;
-    vector< double > un;
-    vector< double > x;
-    vector< ScalarZone * > scalarZones;
-public:
-    vector< double > u0;
-    vector< double > du, dua;
-    vector< double > utheory;
+    double timeN;
     double l1Norm, l2Norm;
+    vector< double > x;
+    vector< double > du;
 };
+
+class ScalarOrder
+{
+public:
+    ScalarOrder();
+    ~ScalarOrder();
+public:
+    void Run();
+    void Run1();
+};
+
 
 EndNameSpace
