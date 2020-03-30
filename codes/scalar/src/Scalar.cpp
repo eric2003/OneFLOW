@@ -40,13 +40,13 @@ Scalar::~Scalar()
 
 void Scalar::Run()
 {
-    //ScalarSolver * scalarSolver = new ScalarSolver();
-    //scalarSolver->Run();
-    //delete scalarSolver;
+    ScalarSolver * scalarSolver = new ScalarSolver();
+    scalarSolver->Run();
+    delete scalarSolver;
 
-    ScalarOrder * scalarOrder = new ScalarOrder();
-    scalarOrder->Run();
-    delete scalarOrder;
+    //ScalarOrder * scalarOrder = new ScalarOrder();
+    //scalarOrder->Run();
+    //delete scalarOrder;
 }
 
 void Scalar::Lesson1()
@@ -69,7 +69,6 @@ void Scalar::Lesson1()
 
     vector< double > x( nx );
     Numpy::Linspace( x, 0, len );
-    //Numpy::Plot( x, u );
 
     vector< double > un( nx );
     Numpy::Ones( un ); //initialize a temporary array

@@ -66,23 +66,12 @@ void ScalarSolver::Init()
     this->InitFlowField();
 }
 
-//void ScalarSolver::InitCtrlParameter()
-//{
-//    this->nx = 41;
-//    this->len = 2.0;
-//    this->dx = len / ( nx - 1.0 );
-//    this->nt = 25;
-//    this->dt = 0.025;
-//    this->c  = 1;
-//}
-
 void ScalarSolver::InitCtrlParameter()
 {
     this->nx = 41;
     this->len = 2.0;
     this->dx = len / ( nx - 1.0 );
-    //this->nt = 25;
-    this->nt = 5;
+    this->nt = 25;
     this->dt = 0.025;
     this->c  = 1;
     double timeN = 0.625;
@@ -109,11 +98,6 @@ void ScalarSolver::InitFlowField()
     u.resize( nx );
     Numpy::Ones( u );
 
-    //int st = 0.5 / dx;
-    //int ed = 1 / dx + 1;
-
-    //Numpy::Set( u, st, ed, 2 );
-
     for ( int i = 0; i < nx; ++ i )
     {
         double xm = this->x[ i ];
@@ -131,7 +115,7 @@ void ScalarSolver::Run()
 {
     this->Init();
 
-    this->SolvePartNew();
+    this->SolveFlowField();
 
     this->Visual();
    
@@ -145,7 +129,7 @@ void ScalarSolver::RunTest( ScalarPara * para )
 
     this->InitFlowField();
 
-    this->SolvePartNew();
+    this->SolveFlowField();
 
     this->Visual( para );
 
@@ -194,28 +178,34 @@ void ScalarSolver::SolvePart( int ist, int ied )
 
 void ScalarSolver::SetScalarZone()
 {
-    int ist = 1;
-    int ied = nx/2;
+    int nZones = 4;
+    int dn = nx / nZones;
 
-    int jst = nx/2;
-    int jed = nx;
+    vector< int > idxList( nZones + 1 );
+    idxList[ 0 ] = 1;
+    idxList[ nZones ] = nx;
+    for ( int iZone = 1; iZone < nZones; ++ iZone )
+    {
+        idxList[ iZone ] = iZone * dn + 1;
+    }
 
-    ScalarZone * scalarZone = 0;
-    scalarZone = new ScalarZone();
-    scalarZone->ist = ist;
-    scalarZone->ied = ied;
-    this->scalarZones.push_back( scalarZone );
-
-    scalarZone = new ScalarZone();
-    scalarZone->ist = jst;
-    scalarZone->ied = jed;
-    this->scalarZones.push_back( scalarZone );
+    for ( int iZone = 0; iZone < nZones; ++ iZone )
+    {
+        ScalarZone * scalarZone = new ScalarZone();
+        scalarZone->ist = idxList[ iZone ];
+        scalarZone->ied = idxList[ iZone + 1 ];
+        this->scalarZones.push_back( scalarZone );
+        cout << " iZone = " << iZone << " nZones = " << nZones << " ist = " << scalarZone->ist << " ied = " << scalarZone->ied << "\n";
+    }
 }
 
 void ScalarSolver::SolveOneStep()
 {
-    this->SolvePart( this->scalarZones[ 0 ]->ist, this->scalarZones[ 0 ]->ied );
-    this->SolvePart( this->scalarZones[ 1 ]->ist, this->scalarZones[ 1 ]->ied );
+    int nZones = this->scalarZones.size();
+    for ( int iZone = 0; iZone < nZones; ++ iZone )
+    {
+        this->SolvePart( this->scalarZones[ iZone ]->ist, this->scalarZones[ iZone ]->ied );
+    }
 }
 
 void ScalarSolver::Visual()
@@ -251,7 +241,7 @@ void ScalarSolver::Visual( ScalarPara * para )
     para->l2Norm = this->l2Norm;
 }
 
-void ScalarSolver::SolvePartNew()
+void ScalarSolver::SolveFlowField()
 {
     this->SetScalarZone();
 
@@ -265,8 +255,8 @@ void ScalarSolver::SolvePartNew()
 
 double ScalarSolver::ScalarFun( double xm )
 {
-    //return SquareFun( xm );
-    return MyCurve( xm );
+    return SquareFun( xm );
+    //return MyCurve( xm );
     //return SinFun( xm );
 }
 

@@ -51,7 +51,7 @@ public:
     void Solve();
     void SolvePart();
     void SolvePart( int ist, int ied );
-    void SolvePartNew();
+    void SolveFlowField();
     void InitCtrlParameter();
     void InitCtrlParameterTest( ScalarPara * para );
     void InitGrid();
