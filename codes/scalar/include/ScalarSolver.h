@@ -28,17 +28,39 @@ using namespace std;
 
 BeginNameSpace( ONEFLOW )
 
+const int SCALAR_INTERFACE   = -1;
+const int SCALAR_COMPUTE     = 1;
+const int SCALAR_EXTRAPOLATE = 2;
+
 class ScalarZone
 {
 public:
     ScalarZone();
     ~ScalarZone();
 public:
+    void Init( int ist, int ied );
+    void InitField( vector< double > & uGlobal );
+    void Solve( double coef );
+    void UpdateUN();
+    void GatherField( vector< double > & ugfield );
+    void CompareField( vector< double > & uGlobal );
+    void SetBc( int bcL, int bcR );
+    double GetRightBcValue();
+    void SetLeftBcValue( double lv );
+public:
+    int zoneid;
     int ist, ied;
+    int nNode;
+    vector< double > u;
+    vector< double > un;
+    vector< double > x;
+
+    vector< int > bcPointList;
+    vector< int > bcTypeList;
 };
 
 class ScalarPara;
-
+class ScalarZone;
 class ScalarSolver
 {
 public:
@@ -49,13 +71,16 @@ public:
     void RunTest( ScalarPara * para );
     void Init();
     void Solve();
-    void SolvePart();
-    void SolvePart( int ist, int ied );
+    void SolvePart( ScalarZone * scalarZone );
     void SolveFlowField();
+    void Boundary();
     void InitCtrlParameter();
     void InitCtrlParameterTest( ScalarPara * para );
     void InitGrid();
     void InitFlowField();
+    void InitZoneFlowField();
+    void UpdateUN();
+    void CompareField();
 public:
     void SetScalarZone();
     void SolveOneStep();
@@ -84,7 +109,6 @@ public:
     vector< double > x;
     vector< ScalarZone * > scalarZones;
 public:
-    vector< double > u0;
     vector< double > du, dua;
     vector< double > utheory;
     double l1Norm, l2Norm;
