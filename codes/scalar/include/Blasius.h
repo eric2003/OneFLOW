@@ -36,7 +36,13 @@ public:
 public:
     void Run();
     void BlasiusFun( vector<double> &y, vector<double> &k );
-    void rk4( double deta );
+    void rk4( double deta, int nStep );
+    void Process();
+public:
+    double alpha;
+    vector< double > etaList;
+    vector< double > F, Fx;
+    vector< double > f, fx;
 };
 
 EndNameSpace
