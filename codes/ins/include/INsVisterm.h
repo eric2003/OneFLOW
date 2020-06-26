@@ -89,8 +89,8 @@ public:
 public:
 	static Real Icdim;
 	static Real Ic;
-	static void ICmpConst();
-	static Real ICmpViscosity(Real t);
+	static void ICompConst();
+	static Real ICompViscosity(Real t);
 };
 
 EndNameSpace

@@ -50,7 +50,7 @@ public:
     void UserDefinedBc();
     void PeriodicBc   ();
 public:
-    void CmpFaceBc();
+    void CompFaceBc();
 };
 
 

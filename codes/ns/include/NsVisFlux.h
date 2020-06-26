@@ -87,8 +87,8 @@ public:
 public:
     static Real cdim;
     static Real c;
-    static void CmpConst();
-    static Real CmpViscosity( Real t );
+    static void CompConst();
+    static Real CompViscosity( Real t );
 };
 
 EndNameSpace

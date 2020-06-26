@@ -98,7 +98,7 @@ void UNsLusgs::LowerSweep()
         
             this->SolveLowerCell();
 
-            this->CmpLowerChange();
+            this->CompLowerChange();
         }
 
         this->Update();
@@ -130,7 +130,7 @@ void UNsLusgs::UpperSweep()
 
             this->SolveUpperCell();
 
-            this->CmpUpperChange();
+            this->CompUpperChange();
         }
 
         this->Update();

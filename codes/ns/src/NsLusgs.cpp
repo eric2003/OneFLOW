@@ -118,7 +118,7 @@ void NsLusgs::GetFluxIncrement( int signOfMatrix )
     this->GetStandardFluxIncrement( signOfMatrix );
 }
 
-void NsLusgs::CmpFaceEigenValue( RealField & prim )
+void NsLusgs::CompFaceEigenValue( RealField & prim )
 {
     //这里输入的应该是作用单元界面上的值
     Real & rm  = prim[ IDX::IR ];
@@ -146,7 +146,7 @@ void NsLusgs::CmpFaceEigenValue( RealField & prim )
 
 void NsLusgs::GetStandardFluxIncrement( int signOfMatrix )
 {
-    this->CmpFaceEigenValue( nslu.primF );
+    this->CompFaceEigenValue( nslu.primF );
 
     Real & rm  = nslu.primj[ IDX::IR ];
     Real & um  = nslu.primj[ IDX::IU ];
@@ -227,7 +227,7 @@ bool NsLusgs::UpdateSweep( int iSweep )
     return false;
 }
 
-void NsLusgs::CmpLowerChange()
+void NsLusgs::CompLowerChange()
 {
     if ( nslu.numberOfSweeps > 1 )
     {
@@ -276,7 +276,7 @@ void NsLusgs::CmpLowerChange()
     }
 }
 
-void NsLusgs::CmpUpperChange()
+void NsLusgs::CompUpperChange()
 {
     if ( nslu.numberOfSweeps > 1 )
     {

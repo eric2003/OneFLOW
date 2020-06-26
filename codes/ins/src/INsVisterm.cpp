@@ -144,12 +144,12 @@ Iutherland::~Iutherland()
 
 }
 
-void Iutherland::ICmpConst()
+void Iutherland::ICompConst()
 {
 	Iutherland::Ic = Iutherland::Icdim / inscom.tref_dim;
 }
 
-Real Iutherland::ICmpViscosity( Real t )
+Real Iutherland::ICompViscosity( Real t )
 {
 	Real t3 = t * t * t;
 	return sqrt(t3) * (1 + Iutherland::Ic) / ( t + Iutherland::Ic );

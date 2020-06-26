@@ -122,7 +122,7 @@ void INsBcSolver::SetSolidSurfaceBc()
     }
 }
 
-void INsBcSolver::CmpFaceBc()
+void INsBcSolver::CompFaceBc()
 {
     ( this->* bcPointer )();
 }
@@ -282,7 +282,7 @@ void INsBcSolver::IsothermalVisWallBc()
     Real pm = inscom.prims1[ IIDX::IIP ];
     Real temperature = inscom.ts1[ IIDX::IITT ];
 
-    Real rw_face = this->CmpDensity( inscom.prims1, pm, inscom.twall );
+    Real rw_face = this->CompDensity( inscom.prims1, pm, inscom.twall );
     inscom.prim[ IIDX::IIR ] = rw_face;
     inscom.prim[ IIDX::IIU ] = 0.0;
     inscom.prim[ IIDX::IIV ] = 0.0;
@@ -298,7 +298,7 @@ void INsBcSolver::IsothermalVisWallBc()
     }
 
     Real rg1;
-    Real rw = this->CmpDensity( inscom.prims1, pg1, inscom.twall );
+    Real rw = this->CompDensity( inscom.prims1, pg1, inscom.twall );
 
     rg1 = 2.0 * rw - rm;
     rg1 = MAX( 0.5 * rw, rg1 );
@@ -319,7 +319,7 @@ void INsBcSolver::IsothermalVisWallBc()
 
     if ( tg2 < tlim ) tg2 = tlim;
 
-    rg2 = this->CmpDensity( inscom.prims2, pg2, tg2 );
+    rg2 = this->CompDensity( inscom.prims2, pg2, tg2 );
 
     inscom.primt2[ IIDX::IIR ] = rg2;
 }
@@ -413,15 +413,15 @@ void INsBcSolver::PeriodicBc()
 }
 
 
-Real INsBcSolver::CmpReciMolecularWeight( RealField & prim )
+Real INsBcSolver::CompReciMolecularWeight( RealField & prim )
 {
     Real reciprocalAverageMolecularWeight = one;
     return reciprocalAverageMolecularWeight;
 }
 
-Real INsBcSolver::CmpDensity( RealField & prim, Real pres, Real temperature )
+Real INsBcSolver::CompDensity( RealField & prim, Real pres, Real temperature )
 {
-    Real rmw = this->CmpReciMolecularWeight( prim );
+    Real rmw = this->CompReciMolecularWeight( prim );
     Real density = pres / ( inscom.statecoef * temperature * rmw );
     return density;
 }

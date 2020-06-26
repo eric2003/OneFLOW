@@ -444,7 +444,7 @@ void CompLaminarViscosity( int flag )
     for ( int cId = ug.ist; cId < ug.ied; ++ cId )
     {
         Real temperature = ( * unsf.tempr )[ IDX::ITT ][ cId ];
-        Real visl = Sutherland::CmpViscosity( temperature );
+        Real visl = Sutherland::CompViscosity( temperature );
         ( * unsf.visl )[ 0 ][ cId ] = MAX( minLimit, visl );
     }
 }

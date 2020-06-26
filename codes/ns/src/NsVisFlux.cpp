@@ -146,12 +146,12 @@ Sutherland::~Sutherland()
 
 }
 
-void Sutherland::CmpConst()
+void Sutherland::CompConst()
 {
     Sutherland::c = Sutherland::cdim / nscom.tref_dim;
 }
 
-Real Sutherland::CmpViscosity( Real t )
+Real Sutherland::CompViscosity( Real t )
 {
     Real t3 = t * t * t;
     return sqrt( t3 ) * ( 1 + Sutherland::c ) / ( t + Sutherland::c );

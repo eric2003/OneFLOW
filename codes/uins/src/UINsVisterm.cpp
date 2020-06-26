@@ -320,7 +320,7 @@ void ICmpLaminarViscosity(int flag)
 		for (int cId = ug.ist; cId < ug.ied; ++cId)
 		{
 			//Real temperature = ( *uinsf.tempr )[ IIDX::IITT ][ cId ];
-			//Real visl = Iutherland::ICmpViscosity( temperature );
+			//Real visl = Iutherland::ICompViscosity( temperature );
 			//( *uinsf.visl )[ 0 ][ cId ] = MAX( minLimit, visl );
 		}
 }
