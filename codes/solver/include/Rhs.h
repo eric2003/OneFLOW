@@ -37,8 +37,8 @@ public:
 };
 
 void NsCompBc();
-void NSCmpGamaT( int flag );
-void NsCmpRHS();
+void NSCompGamaT( int flag );
+void NsCompRHS();
 void NsCmpInvFlux();
 void NsCmpVisFlux();
 void NsCmpSrcFlux();

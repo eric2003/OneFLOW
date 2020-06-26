@@ -62,7 +62,7 @@ Rhs::~Rhs()
 
 void Rhs::UpdateNsResiduals()
 {
-    NsCmpRHS();
+    NsCompRHS();
 }
 
 void NsCompBc()
@@ -73,7 +73,7 @@ void NsCompBc()
     delete uNsBcSolver;
 }
 
-void NSCmpGamaT( int flag )
+void NSCompGamaT( int flag )
 {
     UnsGrid * grid = Zone::GetUnsGrid();
 
@@ -102,7 +102,7 @@ void NSCmpGamaT( int flag )
     }
 }
 
-void NsCmpRHS()
+void NsCompRHS()
 {
     NsCmpInvFlux();
 
