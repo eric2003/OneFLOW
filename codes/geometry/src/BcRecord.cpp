@@ -126,7 +126,7 @@ int BcRecord::ComputeNIFace()
     return nIFace;
 }
 
-int BcRecord::CmpNumWallFace()
+int BcRecord::CompNumWallFace()
 {
     int nBFace = this->GetNBFace();
 

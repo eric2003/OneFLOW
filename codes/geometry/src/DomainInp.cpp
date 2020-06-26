@@ -189,7 +189,7 @@ void PatchBox::GenList()
     klist.push_back( k4 );
 }
 
-void PatchBox::CmpNormal()
+void PatchBox::CompNormal()
 {
     int p1 = idmap[ 0 ];
     int p2 = idmap[ 1 ];
@@ -249,7 +249,7 @@ void PatchBox::CmpNormal()
     int kkk = 1;
 }
 
-void PatchBox::CmpIdMap( PatchBox * box )
+void PatchBox::CompIdMap( PatchBox * box )
 {
     for ( int i = 0; i < 4; ++ i )
     {
@@ -817,7 +817,7 @@ void DomainInp::Dump( MultiDomain * md, GridMediator * gridMediator, PointSearch
                 //DumpCoor( zid1, ip, jp, kp, gridMediator, file );
             }
 
-            box1->CmpNormal();
+            box1->CompNormal();
 
             int zid2 = md->zoneid2[ i ];
 
@@ -834,8 +834,8 @@ void DomainInp::Dump( MultiDomain * md, GridMediator * gridMediator, PointSearch
                 box2->idlist.push_back( id );
                 //DumpCoor( zid2, ip, jp, kp, gridMediator, file );
             }
-            box2->CmpIdMap( box1 );
-            box2->CmpNormal();
+            box2->CompIdMap( box1 );
+            box2->CompNormal();
 
             file << setw( width ) << box1->smin[ 0 ] << setw( width ) << box1->smax[ 0 ];
             file << setw( width ) << box1->smin[ 1 ] << setw( width ) << box1->smax[ 1 ];

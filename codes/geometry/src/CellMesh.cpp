@@ -82,7 +82,7 @@ void CellMesh::DumpDist()
     HXWrite( ActionState::dataBook, dist );
 }
 
-void CellMesh::CmpCellSpan( UnsGrid * grid )
+void CellMesh::CompCellSpan( UnsGrid * grid )
 {
     if ( this->span.size() ) return;
     int nCell = this->GetNumberOfCells();
@@ -119,9 +119,9 @@ void CellMesh::CmpCellSpan( UnsGrid * grid )
     }
 }
 
-void CmpCellSpan( UnsGrid * grid )
+void CompCellSpan( UnsGrid * grid )
 {
-    grid->cellMesh->CmpCellSpan( grid );
+    grid->cellMesh->CompCellSpan( grid );
 }
 
 EndNameSpace

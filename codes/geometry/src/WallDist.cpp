@@ -78,7 +78,7 @@ void FillWallStruct( StringField & data )
     int nBFace = grid->faceTopo->bcManager->bcRecord->GetNBFace();
     BcRecord * bcRecord = grid->faceTopo->bcManager->bcRecord;
 
-    int nWallFace = bcRecord->CmpNumWallFace();
+    int nWallFace = bcRecord->CompNumWallFace();
 
     RealField & xfc = grid->faceMesh->xfc;
     RealField & yfc = grid->faceMesh->yfc;
@@ -139,7 +139,7 @@ void CmpWallDist( StringField & data )
     int nBFace = grid->faceTopo->bcManager->bcRecord->GetNBFace();
     BcRecord * bcRecord = grid->faceTopo->bcManager->bcRecord;
 
-    int nWallFace = bcRecord->CmpNumWallFace();
+    int nWallFace = bcRecord->CompNumWallFace();
 
     RealField & dist = grid->cellMesh->dist;
 

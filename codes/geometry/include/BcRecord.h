@@ -61,7 +61,7 @@ public:
     void Init( UInt nBFace );
     int GetNBFace();
     int ComputeNIFace();
-    int CmpNumWallFace();
+    int CompNumWallFace();
     void CreateI2B( InterFace * interFace );
 public:
     void CreateBcRegion();

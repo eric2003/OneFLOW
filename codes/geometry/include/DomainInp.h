@@ -71,8 +71,8 @@ public:
     void Init();
     void Set( int imin, int imax, int jmin, int jmax, int kmin, int kmax );
     void GenList();
-    void CmpNormal();
-    void CmpIdMap( PatchBox * box );
+    void CompNormal();
+    void CompIdMap( PatchBox * box );
 };
 
 class MultiDomain

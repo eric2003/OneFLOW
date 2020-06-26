@@ -991,7 +991,7 @@ void CmpSubgridLengthScale( RealField & lenth_scale )
 {
     UnsGrid * grid = Zone::GetUnsGrid();
 
-    CmpCellSpan( grid );
+    CompCellSpan( grid );
 
     RealField & wall_dist = grid->cellMesh->dist;
     RealField & largestSpacing = GetLargestSpacing();
@@ -1013,7 +1013,7 @@ void CmpSubgridLengthScale( RealField & lenth_scale )
 RealField & GetLargestSpacing()
 {
     UnsGrid * grid = Zone::GetUnsGrid();
-    CmpCellSpan( grid );
+    CompCellSpan( grid );
     return grid->cellMesh->span;
 }
 
