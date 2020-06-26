@@ -136,7 +136,7 @@ void UITimestep::CmpTimestep()
 
     //ReadTmp();
 
-    this->CmpCfl();
+    this->CompCfl();
 
     this->CmpSpectrumField();
 
@@ -170,7 +170,7 @@ void UITimestep::CmpInvTimestep()
         ug.cId  = cId;
         gcom.cvol  = ( * ug.cvol )[ cId ];
         inscom.invsr = ( * uinsf.invsr )[ 0 ][ cId ];
-        this->CmpCellInvTimestep();
+        this->CompCellInvTimestep();
         ( * uinsf.timestep )[ 0 ][ cId ] = inscom.timestep;
     }
 }
@@ -186,7 +186,7 @@ void UITimestep::CmpVisTimestep()
         gcom.cvol  = ( * ug.cvol )[ cId ];
         inscom.vissr = ( * uinsf.vissr )[ 0 ][ cId ];
         inscom.timestep = ( * uinsf.timestep )[ 0 ][ cId ];
-        this->CmpCellVisTimestep();
+        this->CompCellVisTimestep();
         ( * uinsf.timestep )[ 0 ][ cId ] = inscom.timestep;
     }
 }
@@ -211,7 +211,7 @@ void UITimestep::CmpInvSpectrumField()
 
         this->PrepareData();
 
-        this->CmpFaceInvSpec();
+        this->CompFaceInvSpec();
 
         this->UpdateInvSpectrumField();
     }
@@ -233,7 +233,7 @@ void UITimestep::CmpVisSpectrumField()
 
         this->PrepareVisData();
 
-        this->CmpFaceVisSpec();
+        this->CompFaceVisSpec();
 
         this->UpdateVisSpectrumField();
     }

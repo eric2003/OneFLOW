@@ -32,12 +32,12 @@ public:
     ITimestep();
     ~ITimestep();
 public:
-    void CmpCfl();
-    void CmpFaceInvSpec();
-    void CmpFaceVisSpec();
+    void CompCfl();
+    void CompFaceInvSpec();
+    void CompFaceVisSpec();
 public:
-    void CmpCellInvTimestep();
-    void CmpCellVisTimestep();
+    void CompCellInvTimestep();
+    void CompCellVisTimestep();
 };
 
 

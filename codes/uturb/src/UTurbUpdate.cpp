@@ -76,7 +76,7 @@ void UTurbUpdate::UpdateFlowField2Equ()
 
         this->PrepareData2Equ();
 
-        this->CmpFlowField2Equ();
+        this->CompFlowField2Equ();
 
         this->UpdateValue();
     }
@@ -90,7 +90,7 @@ void UTurbUpdate::UpdateFlowField1EquStd()
 
         this->PrepareData1Equ();
 
-        this->CmpFlowField1Equ();
+        this->CompFlowField1Equ();
 
         this->UpdateValue();
     }
@@ -105,7 +105,7 @@ void UTurbUpdate::UpdateFlowField2EquStd()
 
         this->PrepareData2Equ();
 
-        this->CmpFlowField2Equ();
+        this->CompFlowField2Equ();
 
         this->UpdateValue();
     }
