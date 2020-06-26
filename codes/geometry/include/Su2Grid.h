@@ -99,7 +99,7 @@ public:
     HXVector< SecMarker * > data;
 public:
     void Alloc( int nType );
-    int CmpTotalElem();
+    int CompTotalElem();
 };
 
 class MarkerManager
@@ -115,7 +115,7 @@ public:
     LinkField l2g;
 public:
     void CreateMarkerList( int nMarker );
-    void CmpSecMarker( SecMarkerManager * secMarkerManager );
+    void CompSecMarker( SecMarkerManager * secMarkerManager );
 };
 
 class Su2Grid;
@@ -130,7 +130,7 @@ public:
     IntField types;
     LinkField l2g;
 public:
-    void CmpVolSec( Su2Grid* su2Grid, SecMarkerManager * secMarkerManager );
+    void CompVolSec( Su2Grid* su2Grid, SecMarkerManager * secMarkerManager );
 };
 
 class Su2Bc

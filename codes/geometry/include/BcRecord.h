@@ -91,7 +91,7 @@ public:
     void PreProcess();
     bool ExistInterface();
     void Update();
-    void CmpBcType( IntField & bcTypeList );
+    void CompBcType( IntField & bcTypeList );
 };
 
 class BasicRegion

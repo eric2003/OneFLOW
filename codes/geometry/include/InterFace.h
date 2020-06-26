@@ -70,7 +70,7 @@ public:
     void InitNeighborFlag( IntField & flags );
     void InitNeighborZoneInfo();
     void InitNeighborZoneInfo( int iNei, int iZone );
-    void CmpSendId( int iNei, IntField & idsend );
+    void CompSendId( int iNei, IntField & idsend );
     void FillRecvId( int iNei );
     void SetSendId( int zid, IntField & idsend );
     void AllocateNeighbor();

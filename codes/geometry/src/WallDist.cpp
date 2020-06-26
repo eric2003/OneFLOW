@@ -177,7 +177,7 @@ void CmpWallDist( StringField & data )
         {
             WallStructure::PointField  & fvList = fv[ iWFace ];
 
-            Real wdst = CmpPoint2FaceDist( ccp, fvList );
+            Real wdst = CompPoint2FaceDist( ccp, fvList );
 
             if ( wdst < 1.0e-30 )
             {
@@ -256,7 +256,7 @@ void CFillWallStructTaskImp::FillWall()
     }
 }
 
-Real CmpPoint2FaceDist( WallStructure::PointType node, WallStructure::PointField & fvList )
+Real CompPoint2FaceDist( WallStructure::PointType node, WallStructure::PointField & fvList )
 {
     using namespace gte;
     Vector< 3, Real > point0;

@@ -196,7 +196,7 @@ void InterFace::FillRecvId( int iNei )
     }
 }
 
-void InterFace::CmpSendId( int iNei, IntField & idsend )
+void InterFace::CompSendId( int iNei, IntField & idsend )
 {
     InterfacePair * interfacePair = interFacePairs[ iNei ];
     idsend.resize( interfacePair->nIFace );
@@ -328,7 +328,7 @@ void InterFaceTopo::SwapNeighborsSendContent()
 
                 nIFace = interfacePair->nIFace;
                 
-                grid->interFace->CmpSendId( iNei, idsend );
+                grid->interFace->CompSendId( iNei, idsend );
             }
 
             ONEFLOW::HXSwapData( & nIFace, 1, spid, rpid, iZone + gl * ZoneState::nZones );

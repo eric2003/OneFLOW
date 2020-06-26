@@ -202,7 +202,7 @@ void BcManager::Update()
     this->bcFlag = 1;
 }
 
-void BcManager::CmpBcType( IntField & bcTypeList )
+void BcManager::CompBcType( IntField & bcTypeList )
 {
     IntSet bcTypeSet;
 
