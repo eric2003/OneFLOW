@@ -56,7 +56,7 @@ void UTurbSrcFlux::Init()
 {
     ug.Init();
     turbcom.Init();
-    this->CmpGrad();
+    this->CompGrad();
     if ( turbcom.nEqu == 1 )
     {
         this->CmpLengthScaleSa();
@@ -128,7 +128,7 @@ void UTurbSrcFlux::InitVist()
     ug.Init();
     turbcom.Init();
     uturbf.Init();
-    this->CmpGrad();
+    this->CompGrad();
 }
 
 void UTurbSrcFlux::ZeroSpectrum()
@@ -329,19 +329,19 @@ void UTurbSrcFlux::Update2Equ()
     }
 }
 
-void UTurbSrcFlux::CmpGradDebug()
+void UTurbSrcFlux::CompGradDebug()
 {
     uturb_grad.Init();
-    uturb_grad.CmpGrad();
+    uturb_grad.CompGrad();
     uns_grad.Init();
-    uns_grad.CmpGrad();
+    uns_grad.CompGrad();
 }
 
-void UTurbSrcFlux::CmpGrad()
+void UTurbSrcFlux::CompGrad()
 {
     uturb_grad.Init();
-    uturb_grad.CmpGrad();
-    //uturb_grad.CmpGradDebug();
+    uturb_grad.CompGrad();
+    //uturb_grad.CompGradDebug();
 }
 
 void UTurbSrcFlux::PrepareCellValue()

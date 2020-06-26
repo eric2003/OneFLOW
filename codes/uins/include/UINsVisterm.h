@@ -51,7 +51,7 @@ public:
     void SaveFacePara();
     void CmpFaceWeight();
 public:
-    void CmpGradCoef();
+    void CompGradCoef();
     void PrepareCellGeom();
 };
 

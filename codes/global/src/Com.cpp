@@ -73,7 +73,7 @@ void GCom::Reverse()
     //faceArea unchanged
 }
 
-void GCom::CmpTangent()
+void GCom::CompTangent()
 {
     // Get first tangential
     this->idegenerate = false;

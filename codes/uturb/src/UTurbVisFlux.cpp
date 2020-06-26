@@ -127,24 +127,24 @@ void UTurbVisFlux::AverOtherFaceValue()
 {
 }
 
-void UTurbVisFlux::CmpNormalGrad()
+void UTurbVisFlux::CompNormalGrad()
 {
-    visTurb.CmpNormalGrad();
+    visTurb.CompNormalGrad();
 }
 
-void UTurbVisFlux::CmpTestMethod()
+void UTurbVisFlux::CompTestMethod()
 {
-    visTurb.CmpTestMethod();
+    visTurb.CompTestMethod();
 }
 
-void UTurbVisFlux::CmpNew1Method()
+void UTurbVisFlux::CompNew1Method()
 {
-    visTurb.CmpNew1Method();
+    visTurb.CompNew1Method();
 }
 
-void UTurbVisFlux::CmpNew2Method()
+void UTurbVisFlux::CompNew2Method()
 {
-    visTurb.CmpNew2Method();
+    visTurb.CompNew2Method();
 }
 
 void UTurbVisFlux::CorrectFaceGrad()
@@ -176,12 +176,12 @@ void UTurbVisFlux::AverMethod()
 
     this->AverGrad();
 
-    this->CmpNormalGrad();
+    this->CompNormalGrad();
 }
 
 void UTurbVisFlux::StdMethod()
 {
-    this->CmpGradCoef();
+    this->CompGradCoef();
 
     this->ZeroNormalGrad();
 
@@ -191,7 +191,7 @@ void UTurbVisFlux::StdMethod()
 
     this->CorrectFaceGrad();
 
-    this->CmpNormalGrad();
+    this->CompNormalGrad();
 }
 
 void UTurbVisFlux::TestMethod()
@@ -202,7 +202,7 @@ void UTurbVisFlux::TestMethod()
 
     this->PrepareCellGeom();
 
-    this->CmpTestMethod();
+    this->CompTestMethod();
 
     this->ModifyFaceGrad();
 }
@@ -215,7 +215,7 @@ void UTurbVisFlux::New1Method()
 
     this->PrepareCellGeom();
 
-    this->CmpNew1Method();
+    this->CompNew1Method();
 
     this->ModifyFaceGrad();
 }
@@ -228,14 +228,14 @@ void UTurbVisFlux::New2Method()
 
     this->PrepareCellGeom();
 
-    this->CmpNew2Method();
+    this->CompNew2Method();
 
     this->ModifyFaceGrad();
 }
 
-void UTurbVisFlux::CmpGradCoef()
+void UTurbVisFlux::CompGradCoef()
 {
-    vgg.CmpGradCoef();
+    vgg.CompGradCoef();
 }
 
 
@@ -301,7 +301,7 @@ void UTurbVisFlux::PrepareFaceValue()
     gcom.vfn   = ( * ug.vfn   )[ ug.fId ];
     gcom.farea = ( * ug.farea )[ ug.fId ];
 
-    gcom.CmpTangent();
+    gcom.CompTangent();
 
     for ( int iEqu = 0; iEqu < turbcom.nEqu; ++ iEqu )
     {

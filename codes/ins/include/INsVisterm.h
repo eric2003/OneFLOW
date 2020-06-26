@@ -71,10 +71,10 @@ public:
     void AccurateFaceValue();
     void AccurateOtherFaceValue();
     void CorrectFaceGrad();
-    void CmpNormalGrad();
-    void CmpTestMethod();
-    void CmpNew1Method();
-    void CmpNew2Method();
+    void CompNormalGrad();
+    void CompTestMethod();
+    void CompNew1Method();
+    void CompNew2Method();
     void ModifyFaceGrad();
 };
 

@@ -103,28 +103,28 @@ void INsVisterm::CorrectFaceGrad()
     visT.CorrectFaceGrad();
 }
 
-void INsVisterm::CmpNormalGrad()
+void INsVisterm::CompNormalGrad()
 {
-    visQ.CmpNormalGrad();
-    visT.CmpNormalGrad();
+    visQ.CompNormalGrad();
+    visT.CompNormalGrad();
 }
 
-void INsVisterm::CmpTestMethod()
+void INsVisterm::CompTestMethod()
 {
-    visQ.CmpTestMethod();
-    visT.CmpTestMethod();
+    visQ.CompTestMethod();
+    visT.CompTestMethod();
 }
 
-void INsVisterm::CmpNew1Method()
+void INsVisterm::CompNew1Method()
 {
-    visQ.CmpNew1Method();
-    visT.CmpNew1Method();
+    visQ.CompNew1Method();
+    visT.CompNew1Method();
 }
 
-void INsVisterm::CmpNew2Method()
+void INsVisterm::CompNew2Method()
 {
-    visQ.CmpNew2Method();
-    visT.CmpNew2Method();
+    visQ.CompNew2Method();
+    visT.CompNew2Method();
 }
 
 void INsVisterm::ModifyFaceGrad()

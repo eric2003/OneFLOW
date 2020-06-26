@@ -95,8 +95,8 @@ void UINsVisterm::DeAlloc()
 void UINsVisterm::PrepareField()
 {
 	uins_grad.Init();
-	uins_grad.CmpGrad();  //计算梯度
-    //ut_grad.CmpGradDebug();
+	uins_grad.CompGrad();  //计算梯度
+    //ut_grad.CompGradDebug();
 }
 
 void UINsVisterm::CmpVisterm()
@@ -199,7 +199,7 @@ void UINsVisterm::PrepareFaceValue()
     gcom.vfn   = ( * ug.vfn   )[ ug.fId ];
     gcom.farea = ( * ug.farea )[ ug.fId ];
 
-    gcom.CmpTangent();
+    gcom.CompTangent();
 
     for ( int iEqu = 0; iEqu < inscom.nTEqu; ++ iEqu )
     {
@@ -297,9 +297,9 @@ void UINsVisterm::CmpFaceWeight()
 }
 
 
-void UINsVisterm::CmpGradCoef()
+void UINsVisterm::CompGradCoef()
 {
-    vgg.CmpGradCoef();
+    vgg.CompGradCoef();
 }
 
 

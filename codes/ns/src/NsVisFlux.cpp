@@ -104,28 +104,28 @@ void NsVisFlux::CorrectFaceGrad()
     visT.CorrectFaceGrad();
 }
 
-void NsVisFlux::CmpNormalGrad()
+void NsVisFlux::CompNormalGrad()
 {
-    visQ.CmpNormalGrad();
-    visT.CmpNormalGrad();
+    visQ.CompNormalGrad();
+    visT.CompNormalGrad();
 }
 
-void NsVisFlux::CmpTestMethod()
+void NsVisFlux::CompTestMethod()
 {
-    visQ.CmpTestMethod();
-    visT.CmpTestMethod();
+    visQ.CompTestMethod();
+    visT.CompTestMethod();
 }
 
-void NsVisFlux::CmpNew1Method()
+void NsVisFlux::CompNew1Method()
 {
-    visQ.CmpNew1Method();
-    visT.CmpNew1Method();
+    visQ.CompNew1Method();
+    visT.CompNew1Method();
 }
 
-void NsVisFlux::CmpNew2Method()
+void NsVisFlux::CompNew2Method()
 {
-    visQ.CmpNew2Method();
-    visT.CmpNew2Method();
+    visQ.CompNew2Method();
+    visT.CompNew2Method();
 }
 
 void NsVisFlux::ModifyFaceGrad()

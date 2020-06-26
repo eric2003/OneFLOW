@@ -26,8 +26,8 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-void CmpGrad( RealField & q, RealField & dqdx, RealField & dqdy, RealField & dqdz );
-void CmpGradGGCellWeight( RealField & q, RealField & dqdx, RealField & dqdy, RealField & dqdz );
-void CmpGradDebug( RealField & q, RealField & dqdx, RealField & dqdy, RealField & dqdz );
+void CompGrad( RealField & q, RealField & dqdx, RealField & dqdy, RealField & dqdz );
+void CompGradGGCellWeight( RealField & q, RealField & dqdx, RealField & dqdy, RealField & dqdz );
+void CompGradDebug( RealField & q, RealField & dqdx, RealField & dqdy, RealField & dqdz );
 
 EndNameSpace

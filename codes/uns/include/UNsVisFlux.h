@@ -65,7 +65,7 @@ public:
     void TestMethod();
     void New1Method();
     void New2Method();
-    void CmpGradCoef();
+    void CompGradCoef();
     void PrepareCellGeom();
 };
 

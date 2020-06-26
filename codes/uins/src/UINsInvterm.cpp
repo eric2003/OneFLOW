@@ -63,7 +63,7 @@ void UINsInvterm::CmpLimiter()
 void UINsInvterm::CmpInvFace()  //不改动
 {
     //uins_grad.Init();
-    //uins_grad.CmpGrad();
+    //uins_grad.CompGrad();
 
     this->CmpLimiter();   //不改
 
