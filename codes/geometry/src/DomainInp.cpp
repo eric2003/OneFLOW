@@ -373,18 +373,18 @@ void PBlkSet::Analysys()
     int kkk = 1;
 }
 
-void PBlkSet::CmpDomainPatch( int nZone, MultiDomain & md )
+void PBlkSet::CompDomainPatch( int nZone, MultiDomain & md )
 {
     for ( int iZone = 0; iZone < nZone; ++ iZone )
     {
         for ( int jZone = iZone + 1; jZone < nZone; ++ jZone )
         {
-            CmpDomainPatch( iZone, jZone, md );
+            CompDomainPatch( iZone, jZone, md );
         }
     }
 }
 
-void PBlkSet::CmpDomainPatch( int iZone, int jZone, MultiDomain & md )
+void PBlkSet::CompDomainPatch( int iZone, int jZone, MultiDomain & md )
 {
     int n = 6;
     for ( int i = 0; i < n; ++ i )
@@ -553,7 +553,7 @@ IjkSlice::~IjkSlice()
     ;
 }
 
-void IjkSlice::CmpIdir()
+void IjkSlice::CompIdir()
 {
     if ( imin == imax )
     {
@@ -874,27 +874,27 @@ void DomainInp::OutputInp( GridMediator * gridMediator )
         ijkBox.CreateBox( ni, nj, nk );
 
         cout << " block = " << iZone + 1 << "\n";
-        this->CmpFacePoint( grid, & pointSearch, & ijkBox, iZone, & pblkSet );
+        this->CompFacePoint( grid, & pointSearch, & ijkBox, iZone, & pblkSet );
     }
     pblkSet.Analysys();
     MultiDomain md;
-    pblkSet.CmpDomainPatch( nZone, md );
+    pblkSet.CompDomainPatch( nZone, md );
     Dump( & md, gridMediator, & pointSearch );
     int kkk = 1;
 }
 
-void DomainInp::CmpDomainPatch( int nZone, GridMediator * gridMediator )
+void DomainInp::CompDomainPatch( int nZone, GridMediator * gridMediator )
 {
     for ( int iZone = 0; iZone < nZone; ++ iZone )
     {
         for ( int jZone = iZone + 1; jZone < nZone; ++ jZone )
         {
-            CmpDomainPatch( iZone, jZone, gridMediator );
+            CompDomainPatch( iZone, jZone, gridMediator );
         }
     }
 }
 
-void DomainInp::CmpDomainPatch( int iZone, int jZone, GridMediator * gridMediator )
+void DomainInp::CompDomainPatch( int iZone, int jZone, GridMediator * gridMediator )
 {
     Grids grids = gridMediator->gridVector;
 
@@ -915,7 +915,7 @@ void DomainInp::CmpDomainPatch( int iZone, int jZone, GridMediator * gridMediato
     }
 }
 
-void DomainInp::CmpFacePoint( StrGrid * grid, PointSearch * pointSearch, IjkBox * ijkBox, int zId, PBlkSet * pblkSet )
+void DomainInp::CompFacePoint( StrGrid * grid, PointSearch * pointSearch, IjkBox * ijkBox, int zId, PBlkSet * pblkSet )
 {
     Field3D & xs = * grid->strx;
     Field3D & ys = * grid->stry;
