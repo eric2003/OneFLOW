@@ -65,7 +65,7 @@ void Rhs::UpdateNsResiduals()
     NsCmpRHS();
 }
 
-void NsCmpBc()
+void NsCompBc()
 {
     UNsBcSolver * uNsBcSolver = new UNsBcSolver();
     uNsBcSolver->Init();

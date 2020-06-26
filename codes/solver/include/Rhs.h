@@ -36,7 +36,7 @@ public:
 	void UpdateINsResiduals();
 };
 
-void NsCmpBc();
+void NsCompBc();
 void NSCmpGamaT( int flag );
 void NsCmpRHS();
 void NsCmpInvFlux();

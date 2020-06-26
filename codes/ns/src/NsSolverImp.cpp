@@ -58,7 +58,7 @@ void NsInitFinal( StringField & data )
 {
     NSCmpGamaT( F_INNER );
     CmpLaminarViscosity( F_INNER );
-    NsCmpBc();
+    NsCompBc();
     NSCmpGamaT( F_GHOST );
     CmpLaminarViscosity( F_GHOST );
 
@@ -70,7 +70,7 @@ void NsInitFinal( StringField & data )
 
         GridState::gridLevel += 1;
 
-        NsCmpBc();
+        NsCompBc();
 
         GridState::gridLevel -= 1;
     }
@@ -85,7 +85,7 @@ void NsCmpBoundary( StringField & data )
 {
     NSCmpGamaT( F_INNER );
     CmpLaminarViscosity( F_INNER );
-    NsCmpBc();
+    NsCompBc();
     NSCmpGamaT( F_GHOST );
     CmpLaminarViscosity( F_GHOST );
 }
