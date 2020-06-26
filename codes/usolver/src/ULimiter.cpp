@@ -136,8 +136,14 @@ void LimField::GetQlQr()
         ug.lc = ( * ug.lcf )[ ug.fId ];
         ug.rc = ( * ug.rcf )[ ug.fId ];
 
-        if ( fId == 1921 )
+        if ( fId == 433 )
         {
+            vector< Real > tmp1, tmp2;
+            for ( int iEqu = 0; iEqu < this->nEqu; ++ iEqu )
+            {
+                tmp1.push_back( ( * this->q )[ iEqu ][ ug.lc ] );
+                tmp2.push_back( ( * this->q )[ iEqu ][ ug.rc ] );
+            }
             int kkk = 1;
         }
 
@@ -182,7 +188,7 @@ void LimField::CmpFaceValue()
         ug.lc = ( * ug.lcf )[ ug.fId ];
         ug.rc = ( * ug.rcf )[ ug.fId ];
 
-        if ( fId == 10127 )
+        if ( fId == 433 )
         {
             int kkk = 1;
         }
