@@ -104,55 +104,55 @@ void NSCompGamaT( int flag )
 
 void NsCompRHS()
 {
-    NsCmpInvFlux();
+    NsCompInvFlux();
 
-    NsCmpVisFlux();
+    NsCompVisFlux();
 
-    NsCmpSrcFlux();
+    NsCompSrcFlux();
 }
 
 
-void NsCmpInvFlux()
+void NsCompInvFlux()
 {
     UNsInvFlux * uNsInvFlux = new UNsInvFlux();
     uNsInvFlux->CmpFlux();
     delete uNsInvFlux;
 }
 
-void NsCmpVisFlux()
+void NsCompVisFlux()
 {
     UNsVisFlux * uNsVisFlux = new UNsVisFlux();
     uNsVisFlux->CmpFlux();
     delete uNsVisFlux;
 }
 
-void NsCmpSrcFlux()
+void NsCompSrcFlux()
 {
     if ( nscom.chemModel == 1 )
     {
-        NsCmpChemSrc();
+        NsCompChemSrc();
     }
 
-    NsCmpTurbEnergy();
+    NsCompTurbEnergy();
 
     //dual time step source
     if ( ctrl.idualtime == 1 )
     {
-        NsCmpDualTimeStepSrc();
+        NsCompDualTimeStepSrc();
     }
 }
 
-void NsCmpChemSrc()
+void NsCompChemSrc()
 {
     ;
 }
 
-void NsCmpTurbEnergy()
+void NsCompTurbEnergy()
 {
     ;
 }
 
-void NsCmpDualTimeStepSrc()
+void NsCompDualTimeStepSrc()
 {
     UNsUnsteady * unsUnsteady = new UNsUnsteady();
     unsUnsteady->CmpDualTimeSrc();
@@ -203,7 +203,7 @@ void INSCmpGamaT(int flag)
 
 void INsCmpRHS()
 {
-	INsCmpInv();
+	INsCompInv();
 
 	INsCmpVis();
 
@@ -223,7 +223,7 @@ void INsCmpRHS()
 
 }
 
-void INsCmpInv()
+void INsCompInv()
 {
 	UINsInvterm * uINsInvterm = new UINsInvterm();
 	uINsInvterm->CmpInvcoff();
@@ -241,15 +241,15 @@ void INsCmpSrc()
 {
 	//if (inscom.chemModel == 1)
 	//{
-	//	INsCmpChemSrc();
+	//	INsCompChemSrc();
 	//}
 
-	//INsCmpTurbEnergy();
+	//INsCompTurbEnergy();
 
 	//dual time step source
 	//if (ctrl.idualtime == 1)
 	//{
-	//	INsCmpDualTimeStepSrc();
+	//	INsCompDualTimeStepSrc();
 	//}
 	UINsVisterm * uINsVisterm = new UINsVisterm();
 	uINsVisterm->CmpSrc();
@@ -309,17 +309,17 @@ void INsCmpSpeedCorrectandUpdateSpeed()
 
 
 
-void INsCmpChemSrc()
+void INsCompChemSrc()
 {
 	;
 }
 
-void INsCmpTurbEnergy()
+void INsCompTurbEnergy()
 {
 	;
 }
 
-//void INsCmpDualTimeStepSrc()
+//void INsCompDualTimeStepSrc()
 //{
 //	UINsUnsteady * uinsUnsteady = new UINsUnsteady();
 //	uinsUnsteady->CmpDualTimeSrc();

@@ -55,10 +55,10 @@ public:
     G2LMapping * g2l;
 public:
     void Alloc( UnsGrid * grid );
-    void CmpL2G    ( UnsGrid * ggrid, int zid, UnsGrid * grid );
-    void CmpL2GNode( UnsGrid * ggrid, int zid, UnsGrid * grid );
-    void CmpL2GFace( UnsGrid * ggrid, int zid, UnsGrid * grid );
-    void CmpL2GCell( UnsGrid * ggrid, int zid, UnsGrid * grid );
+    void CompL2G    ( UnsGrid * ggrid, int zid, UnsGrid * grid );
+    void CompL2GNode( UnsGrid * ggrid, int zid, UnsGrid * grid );
+    void CompL2GFace( UnsGrid * ggrid, int zid, UnsGrid * grid );
+    void CompL2GCell( UnsGrid * ggrid, int zid, UnsGrid * grid );
 };
 
 class G2LMapping
@@ -110,15 +110,15 @@ public:
     void PreProcess();
     void PostProcess();
 public:
-    void CmpGC2N();
-    void CmpG2lCell();
-    void CmpG2lFace( UnsGrid * ggrid, int zid, UnsGrid * grid );
-    void CmpG2lNode( UnsGrid * ggrid, int zid, UnsGrid * grid );
+    void CompGC2N();
+    void CompG2lCell();
+    void CompG2lFace( UnsGrid * ggrid, int zid, UnsGrid * grid );
+    void CompG2lNode( UnsGrid * ggrid, int zid, UnsGrid * grid );
     int GetNCell( UnsGrid * ggrid, int zid );
     void CreateL2g( UnsGrid * ggrid, int zid, UnsGrid * grid );
     void SetCoor( UnsGrid * ggrid, int zid, UnsGrid * grid );
     void SetGeometricRelationship( UnsGrid * ggrid, int zid, UnsGrid * grid );
-    void CmpF2N( UnsGrid * ggrid, int zid, UnsGrid * grid );
+    void CompF2N( UnsGrid * ggrid, int zid, UnsGrid * grid );
     void SetF2CAndBC( UnsGrid * ggrid, int zid, UnsGrid * grid );
     void SetInterface( UnsGrid * ggrid, int zid, UnsGrid * grid );
 };
