@@ -22,51 +22,27 @@ License
 
 
 #pragma once
-#include "HXDefine.h"
-#include <string>
+#include "Configure.h"
 #include <vector>
 using namespace std;
 
 BeginNameSpace( ONEFLOW )
 
-class CgnsBase;
-
-string GetCgnsFileTypeName( int file_type );
-
-class CgnsFile
+class Blasius
 {
 public:
-    CgnsFile();
-    CgnsFile( const string & fileName, int openMode );
-    ~CgnsFile();
+    Blasius();
+    ~Blasius();
 public:
-    string fileName;
-    int fileId;
-    int openMode;
-    int openStatus;
-    int nBases;
-    vector< CgnsBase * > baseList;
+    void Run();
+    void BlasiusFun( vector<double> &y, vector<double> &k );
+    void rk4( double deta, int nStep );
+    void Process();
 public:
-    int currBaseId;
-public:
-    void OpenCgnsFile( const string & fileName, int cgnsOpenMode );
-    void CloseCgnsFile();
-    CgnsBase * WriteBase( const string & baseName );
-    CgnsBase * WriteBase( const string & baseName, int celldim, int physdim );
-private:
-    CgnsBase * AddBase( int fileId, const string & baseName, int celldim, int physdim, int baseId );
-    void FreeBaseList();
-public:
-    void GoPath( const string & path );
-    void ReadNumberOfBases();
-    void ReadBases();
-    void ReadArray();
-    void ReadReferenceState();
-    void ReadBaseDescriptor();
-    void WriteBaseDescriptor();
-    void ReadConvergence();
-    void ReadFlowEqn();
+    double alpha;
+    vector< double > etaList;
+    vector< double > F, Fx;
+    vector< double > f, fx;
 };
-
 
 EndNameSpace

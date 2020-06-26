@@ -40,39 +40,27 @@ public:
     ~CgnsTest();
 public:
     string fileName;
-    int index_file;
-    int curr_base_id;
-    int nBases;
-    HXVector< CgnsBase * > baseList;
 public:
     void Init();
     void Run();
     void Test();
 public:
     void SetDefaultGridName();
-    void ReadNondimensionalParameter();
-    void WriteNondimensionalParameter();
     void WriteReferenceState();
     void ReadReferenceState();
+    void WriteConvergence();
+    void ReadConvergence();
     void WriteDescriptor();
     void ReadDescriptor();
-    void ReadBaseDescriptor( int baseIndex );
     void WriteSimpleMultiBaseTest();
     void ReadSimpleMultiBaseTest();
     void TestCgnsLink();
+    void WriteFlowEqn();
+    void ReadFlowEqn();
 private:
     void SetISize( cgsize_t * isize );
 public:
-    void OpenCgnsFile( int cgnsOpenMode );
-    void OpenCgnsFile( const string & fileName, int cgnsOpenMode );
-    void CloseCgnsFile();
-    void CloseCgnsFile( int index_file );
-    string GetCgnsFileTypeName( int file_type );
-    void WriteBase( const string & baseName );
-    void WriteBase( const string & baseName, int celldim, int physdim );
-public:
     void WriteDouble( const string & varName, const double & varValue );
-    void GotoBaseBegin( int baseIndex );
 public:
     void ReadEmptyCgnsFile();
     void WriteEmptyCgnsFile();

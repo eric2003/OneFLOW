@@ -95,6 +95,7 @@ public:
     void ReadCgnsGridCoordinates();
     void ReadCgnsGridBoundary();
     void ProcessPeriodicBc();
+    void ReadCgnsZoneBasicInfo();
 public:
     void SetElemPosition();
 public:
@@ -103,6 +104,12 @@ public:
     CgInt GetNK() const;
 public:
     bool ExistSection( const string & sectionName );
+    void GoToZone();
+    void GoToNode( const string & nodeName, int ith );
+    void GoToNode( const string & nodeNamei, int ith, const string & nodeNamej, int jth );
+    void GoToNode( const string & nodeNamei, int ith, const string & nodeNamej, int jth, const string & nodeNamek, int kth );
+public:
+    void ReadFlowEqn();
 };
 
 #endif

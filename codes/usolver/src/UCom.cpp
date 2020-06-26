@@ -144,7 +144,6 @@ void AddF2CField( MRField * cellField, MRField * faceField )
         ug.fId = fId;
         ug.lc = ( * ug.lcf )[ ug.fId ];
         ug.rc = ( * ug.rcf )[ ug.fId ];
-        //if ( ug.lc == 0 ) cout << fId << endl;
 
         for ( int iEqu = 0; iEqu < nEqu; ++ iEqu )
         {
@@ -158,8 +157,6 @@ void AddF2CField( MRField * cellField, MRField * faceField )
         ug.lc = ( * ug.lcf )[ ug.fId ];
         ug.rc = ( * ug.rcf )[ ug.fId ];
 
-        //if ( ug.lc == 0 || ug.rc == 0 ) cout << fId << endl;
-
         for ( int iEqu = 0; iEqu < nEqu; ++ iEqu )
         {
             ( * cellField )[ iEqu ][ ug.lc ] -= ( * faceField )[ iEqu ][ ug.fId ];
@@ -167,7 +164,6 @@ void AddF2CField( MRField * cellField, MRField * faceField )
         }
     }
 }
-
 
 void AddF2CFieldDebug( MRField * cellField, MRField * faceField )
 {

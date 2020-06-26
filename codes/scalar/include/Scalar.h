@@ -22,51 +22,23 @@ License
 
 
 #pragma once
-#include "HXDefine.h"
-#include <string>
+#include "Configure.h"
 #include <vector>
 using namespace std;
 
 BeginNameSpace( ONEFLOW )
 
-class CgnsBase;
-
-string GetCgnsFileTypeName( int file_type );
-
-class CgnsFile
+class Scalar
 {
 public:
-    CgnsFile();
-    CgnsFile( const string & fileName, int openMode );
-    ~CgnsFile();
+    Scalar();
+    ~Scalar();
 public:
-    string fileName;
-    int fileId;
-    int openMode;
-    int openStatus;
-    int nBases;
-    vector< CgnsBase * > baseList;
-public:
-    int currBaseId;
-public:
-    void OpenCgnsFile( const string & fileName, int cgnsOpenMode );
-    void CloseCgnsFile();
-    CgnsBase * WriteBase( const string & baseName );
-    CgnsBase * WriteBase( const string & baseName, int celldim, int physdim );
+    void Run();
 private:
-    CgnsBase * AddBase( int fileId, const string & baseName, int celldim, int physdim, int baseId );
-    void FreeBaseList();
-public:
-    void GoPath( const string & path );
-    void ReadNumberOfBases();
-    void ReadBases();
-    void ReadArray();
-    void ReadReferenceState();
-    void ReadBaseDescriptor();
-    void WriteBaseDescriptor();
-    void ReadConvergence();
-    void ReadFlowEqn();
-};
+    void Lesson1();
+    void Lesson2();
 
+};
 
 EndNameSpace
