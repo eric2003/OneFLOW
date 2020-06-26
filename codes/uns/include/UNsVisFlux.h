@@ -45,7 +45,7 @@ public:
     void CmpFaceVisFlux();
     void UpdateFaceVisFlux();
     void CmpHeatFlux();
-    void CmpStress();
+    void CompStress();
     void CmpAniStress();
     void CmpNsVisFlux();
     void ZeroHeatFlux();

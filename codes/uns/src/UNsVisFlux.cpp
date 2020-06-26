@@ -150,7 +150,7 @@ void UNsVisFlux::CmpFaceVisFlux()
 {
     this->CmpHeatFlux();
 
-    this->CmpStress();
+    this->CompStress();
 
     this->CmpNsVisFlux();
 }
@@ -175,7 +175,7 @@ void UNsVisFlux::SaveHeatFlux()
     heat_sur->var->push_back( non_dim_heatflux );
 }
 
-void UNsVisFlux::CmpStress()
+void UNsVisFlux::CompStress()
 {
     Real divv2p3 = two3rd * ( vis.dudx + vis.dvdy + vis.dwdz );
 

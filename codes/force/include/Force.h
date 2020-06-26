@@ -51,9 +51,9 @@ public:
     ~AeroCom();
 public:
     void Init();
-    Real CmpCL( Force * f );
-    Real CmpCD( Force * f );
-    Real CmpCF( Force * f, Real area );
+    Real CompCL( Force * f );
+    Real CompCD( Force * f );
+    Real CompCF( Force * f, Real area );
 public:
     Real aref, lref;
     Real xref, yref, zref;
@@ -82,8 +82,8 @@ public:
     Real power;
 public:
     void SumForce();
-    void CmpPower();
-    void CmpMoment( Real xc, Real yc, Real zc );
+    void CompPower();
+    void CompMoment( Real xc, Real yc, Real zc );
     void AddForce( AeroForce * rhs );
     void Init();
 };
@@ -98,7 +98,7 @@ public:
     void CollectForce();
     void Sum( Force * force );
     void Sum( Real * var );
-    void CmpCoef();
+    void CompCoef();
 public:
     AeroForce totalForce;
     Force cf, cpres, cmom;

@@ -33,8 +33,8 @@ public:
     Stress();
     ~Stress();
 public:
-    void CmpStress();
-    void CmpForce( Force * force );
+    void CompStress();
+    void CompForce( Force * force );
 public:
     Real dudx, dudy, dudz;
     Real dvdx, dvdy, dvdz;

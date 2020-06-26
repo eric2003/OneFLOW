@@ -33,14 +33,14 @@ public:
 public:
     void Run();
     void Init();
-    void CmpForce();
+    void CompForce();
     void Dump();
 public:
     string fileName;
 };
 
 class UnsGrid;
-void CmpAeroForce( int idump_pres );
+void CompAeroForce( int idump_pres );
 int GetNSolidCell( UnsGrid * grid );
 
 EndNameSpace
