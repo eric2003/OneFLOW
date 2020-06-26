@@ -58,7 +58,7 @@ void UNsLusgs::Init()
     UnsGrid * grid = Zone::GetUnsGrid();
     FaceTopo * faceTopo = grid->faceTopo;
     CellTopo * cellTopo = grid->cellMesh->cellTopo;
-    cellTopo->CmpC2f( faceTopo );
+    cellTopo->CompC2f( faceTopo );
     ug.Init();
     nslu.Init();
     unsf.Init();

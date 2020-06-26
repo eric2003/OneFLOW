@@ -151,7 +151,7 @@ void G2LMapping::GenerateGC2Z()
 void G2LMapping::GetXadjAdjncy( UnsGrid * ggrid, vector<idx_t> & xadj, vector<idx_t>& adjncy )
 {   
     int  nCell = ggrid->nCell;
-    CmpC2C( ggrid );
+    CompC2C( ggrid );
     LinkField & c2c = ggrid->cellMesh->cellTopo->c2c;
     xadj[ 0 ]  = 0;
     int iCount = 0;

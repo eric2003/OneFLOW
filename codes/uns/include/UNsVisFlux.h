@@ -69,7 +69,7 @@ public:
     void PrepareCellGeom();
 };
 
-void CmpLaminarViscosity( int flag );
+void CompLaminarViscosity( int flag );
 
 
 

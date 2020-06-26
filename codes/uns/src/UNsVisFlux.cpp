@@ -433,7 +433,7 @@ void UNsVisFlux::UpdateFaceVisFlux()
     }
 }
 
-void CmpLaminarViscosity( int flag )
+void CompLaminarViscosity( int flag )
 {
     ug.Init();
     unsf.Init();
