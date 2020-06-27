@@ -56,7 +56,7 @@ void UTurbBcSolver::Init()
     turbcom.Init();
 }
 
-void UTurbBcSolver::CmpBc()
+void UTurbBcSolver::CalcBc()
 {
     ug.nRegion = ug.bcRecord->bcInfo->bcType.size();
 
@@ -67,7 +67,7 @@ void UTurbBcSolver::CmpBc()
         ug.nRBFace = ug.bcRecord->bcInfo->bcFace[ ir ].size();
         this->SetBc();
 
-        this->CmpBcRegion();
+        this->CalcBcRegion();
     }
 }
 
@@ -96,7 +96,7 @@ void UTurbBcSolver::SetId( int bcfId )
 
 }
 
-void UTurbBcSolver::CmpBcRegion()
+void UTurbBcSolver::CalcBcRegion()
 {
     for ( int ibc = 0; ibc < ug.nRBFace; ++ ibc )
     {

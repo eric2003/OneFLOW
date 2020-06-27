@@ -126,8 +126,8 @@ void ResidualTask::CmpRes( int sTid, ResData & data )
 void ResidualTask::PostDumpResiduals()
 {
     size_t nEqu = this->data.resave.res.size();
-    this->data.resave.CmpAver( dataList );
-    this->data.resmax.CmpMax( dataList );
+    this->data.resave.CalcAver( dataList );
+    this->data.resmax.CalcMax( dataList );
 
     if ( Parallel::pid != Parallel::serverid ) return;
 
@@ -187,7 +187,7 @@ void ResidualTask::DumpFile()
 
 void ResidualTask::DumpScreen()
 {
-    int maxId = this->data.resmax.CmpMaxId();
+    int maxId = this->data.resmax.CalcMaxId();
 
     ostringstream oss;
     if ( ( Iteration::outerSteps - 1 ) % 100 == 0 )

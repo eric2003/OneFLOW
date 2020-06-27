@@ -45,14 +45,14 @@ void TurbInitFinal( StringField & data )
 {
     CmpTurbulentViscosity();
 
-    TurbCmpBc();
+    TurbCalcBc();
 }
 
 void TurbCmpBoundary( StringField & data )
 {
     CmpTurbulentViscosity();
 
-    TurbCmpBc();
+    TurbCalcBc();
 }
 
 void TurbUpdateResiduals( StringField & data )

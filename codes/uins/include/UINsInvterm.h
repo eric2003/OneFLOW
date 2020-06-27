@@ -50,7 +50,7 @@ public:
 	void UpdateSpeed();
     void AddFlux();
     void PrepareFaceValue();
-	//void CmpINsinvTerm();
+	//void CalcINsinvTerm();
     //void UpdateFaceInvFlux();
     void ReadTmp();
 public:

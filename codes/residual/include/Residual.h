@@ -40,7 +40,7 @@ public:
     void Init( int nEqu );
     ResAver & operator += ( const ResAver & rhs );
     void Zero();
-    void CmpAver( HXVector< ResData > & dataList );
+    void CalcAver( HXVector< ResData > & dataList );
 };
 
 class ResMax
@@ -56,8 +56,8 @@ public:
 public:
     void Init( int nEqu );
     void SwapMax( ResMax & rhs );
-    void CmpMax( HXVector< ResData > & dataList );
-    int CmpMaxId();
+    void CalcMax( HXVector< ResData > & dataList );
+    int CalcMaxId();
 };
 
 class ResData

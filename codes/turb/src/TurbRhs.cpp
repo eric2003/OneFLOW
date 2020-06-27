@@ -46,17 +46,17 @@ void TurbRhs::CmpRHS()
     TurbCmpRHS();
 }
 
-void TurbCmpBc()
+void TurbCalcBc()
 {
     UTurbBcSolver * uTurbBcSolver = new UTurbBcSolver();
     uTurbBcSolver->Init();
-    uTurbBcSolver->CmpBc();
+    uTurbBcSolver->CalcBc();
     delete uTurbBcSolver;
 }
 
 void TurbCmpRHS()
 {
-    TurbCmpBc();
+    TurbCalcBc();
 
     TurbCmpSpectrum();
 

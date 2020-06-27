@@ -69,7 +69,7 @@ void NsCompBc()
 {
     UNsBcSolver * uNsBcSolver = new UNsBcSolver();
     uNsBcSolver->Init();
-    uNsBcSolver->CmpBc();
+    uNsBcSolver->CalcBc();
     delete uNsBcSolver;
 }
 
@@ -168,7 +168,7 @@ void INsCompBc()
 {
 	UINsBcSolver * uINsBcSolver = new UINsBcSolver();
 	uINsBcSolver->Init();
-	uINsBcSolver->CmpBc();
+	uINsBcSolver->CalcBc();
 	delete uINsBcSolver;
 }
 

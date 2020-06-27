@@ -185,7 +185,7 @@ void UINsInvterm::CmpInvMassFlux()
 
         this->PrepareFaceValue();
 
-        this->CmpINsinvTerm();
+        this->CalcINsinvTerm();
 
         //this->UpdateFaceInvFlux();
     }
@@ -240,7 +240,7 @@ void UINsInvterm::CmpFaceflux()
 
 		this->PrepareFaceValue();
 
-		this->CmpINsFaceflux();
+		this->CalcINsFaceflux();
 	}
 	//this->AddFlux();
 }
@@ -271,7 +271,7 @@ void UINsInvterm::CmpCorrectPresscoef()
 
 		//this->PrepareFaceValue();
 
-		this->CmpINsFaceCorrectPresscoef();
+		this->CalcINsFaceCorrectPresscoef();
 	}
 
 	for (int cId = 0; cId < ug.nCell; ++cId)

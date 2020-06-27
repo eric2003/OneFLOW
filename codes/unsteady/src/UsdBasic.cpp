@@ -182,7 +182,7 @@ void UsdBasic::InitCoef()
     coeff[ 2 ] = phi ;
 }
 
-void UsdBasic::CmpResCoef()
+void UsdBasic::CalcResCoef()
 {
     Real thet = coeff[ 0 ];
     Real xi   = coeff[ 1 ];
@@ -202,7 +202,7 @@ void UsdBasic::CmpResCoef()
     }
 }
 
-void UsdBasic::CmpSpectrumCoeff()
+void UsdBasic::CalcSpectrumCoeff()
 {
     Real thet = coeff[ 0 ];
     Real xi   = coeff[ 1 ];
@@ -254,8 +254,8 @@ void UsdBasic::CalcSrcCoeff()
 void UsdBasic::InitBasic()
 {
     this->InitCoef();
-    this->CmpResCoef();
-    this->CmpSpectrumCoeff();
+    this->CalcResCoef();
+    this->CalcSpectrumCoeff();
 }
 
 EndNameSpace

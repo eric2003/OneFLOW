@@ -82,7 +82,7 @@ void INsInvterm::Solve()
 {
 }
 
-void INsInvterm::CmpINsinvTerm()
+void INsInvterm::CalcINsinvTerm()
 {
 	INsExtract(iinv.prim1, iinv.rl, iinv.ul, iinv.vl, iinv.wl, iinv.pl);
 	INsExtract(iinv.prim2, iinv.rr, iinv.ur, iinv.vr, iinv.wr, iinv.pr);
@@ -137,7 +137,7 @@ void INsInvterm::CmpINsinvTerm()
 	//iinv.flux[IIDX::IIRW] = iinv.rm * gcom.zfn * half* (iinv.vl + iinv.vr)* gcom.farea ; 
 }
 
-void INsInvterm::CmpINsFaceflux()
+void INsInvterm::CalcINsFaceflux()
 {
 	Real dx1 = (*ug.xfc)[ug.fId] - (*ug.xcc)[ug.lc];
 	Real dy1 = (*ug.yfc)[ug.fId] - (*ug.ycc)[ug.lc];
@@ -170,7 +170,7 @@ void INsInvterm::CmpINsFaceflux()
 	iinv.flux[IIDX::IIRW] = iinv.rm * gcom.zfn * iinv.wm * gcom.farea ;
 }
 
-void INsInvterm::CmpINsFaceCorrectPresscoef()
+void INsInvterm::CalcINsFaceCorrectPresscoef()
 {
 
      iinv.Vdvj[ug.fId] = iinv.f1[ug.fId] * ( gcom.cvol1/((1+1)*iinv.sp[ug.lc]- iinv.spj[ug.lc])) + iinv.f2[ug.fId] * (gcom.cvol2 / ((1 + 1)*iinv.sp[ug.rc] - iinv.spj[ug.rc]));  // (Vp/dv)j，用于求面速度修正量

@@ -94,9 +94,9 @@ public:
     //void SetPointer( int schemeIndex );
 	//InvtermPointer InvtermPointer;
 public:
-	void CmpINsinvTerm();
-	void CmpINsFaceflux();
-	void CmpINsFaceCorrectPresscoef();
+	void CalcINsinvTerm();
+	void CalcINsFaceflux();
+	void CalcINsFaceCorrectPresscoef();
 	//void Roe      ();
     //void RoeOld   (){};
     //void HybridRoe(){};

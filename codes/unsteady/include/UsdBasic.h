@@ -39,8 +39,8 @@ public:
     RealField coeff;
 public:
     void InitCoef();
-    void CmpResCoef();
-    void CmpSpectrumCoeff();
+    void CalcResCoef();
+    void CalcSpectrumCoeff();
     void CalcSrcCoeffBasic();
     void CalcSrcCoeff();
 public:

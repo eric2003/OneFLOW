@@ -82,7 +82,7 @@ void UUnsteady::PrepareResidual()
 
 void UUnsteady::CmpDualTimeResidual()
 {
-    data->CmpResCoef();
+    data->CalcResCoef();
 
     for ( int cId = 0; cId < ug.nCell; ++ cId )
     {
