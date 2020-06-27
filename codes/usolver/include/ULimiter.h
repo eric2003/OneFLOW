@@ -95,14 +95,14 @@ public:
     void CalcLimiter();
     void CalcLimiterScalar();
 
-    void CmpZeroLimiter();
-    void CmpNoLimiter();
-    void CmpBarthLimiter();
-    void CmpVencatLimiter();
-    void CmpLocalBarthLimiter();
-    void CmpLocalVencatLimiter();
+    void CalcZeroLimiter();
+    void CalcNoLimiter();
+    void CalcBarthLimiter();
+    void CalcVencatLimiter();
+    void CalcLocalBarthLimiter();
+    void CalcLocalVencatLimiter();
     void PrepareData();
-    void CmpMinMaxDiff();
+    void CalcMinMaxDiff();
 };
 
 bool NoCheck( RealField & q );

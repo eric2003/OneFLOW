@@ -55,10 +55,10 @@ void RegisterINsFunc()
 void INsInitFinal( StringField & data )
 {
     INsCompGamaT( F_INNER );
-    ICmpLaminarViscosity( F_INNER );
+    ICalcLaminarViscosity( F_INNER );
     INsCompBc();
     INsCompGamaT( F_GHOST );
-    ICmpLaminarViscosity( F_GHOST );
+    ICalcLaminarViscosity( F_GHOST );
     Grid * grid = Zone::GetGrid();
 
     if ( Zone::GetCGrid( grid ) )
@@ -81,10 +81,10 @@ void INsVisual( StringField & data )
 void INsCmpBoundary( StringField & data )
 {
     INsCompGamaT( F_INNER );
-    ICmpLaminarViscosity( F_INNER );
+    ICalcLaminarViscosity( F_INNER );
     INsCompBc();
     INsCompGamaT( F_GHOST );
-    ICmpLaminarViscosity( F_GHOST );
+    ICalcLaminarViscosity( F_GHOST );
 }
 
 void INsCmpTimeStep( StringField & data )

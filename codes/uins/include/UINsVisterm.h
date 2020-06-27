@@ -55,7 +55,7 @@ public:
     void PrepareCellGeom();
 };
 
-void ICmpLaminarViscosity( int flag );
+void ICalcLaminarViscosity( int flag );
 
 
 

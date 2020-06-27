@@ -309,7 +309,7 @@ void UINsVisterm::PrepareCellGeom()
 }
 
 
-void ICmpLaminarViscosity(int flag)
+void ICalcLaminarViscosity(int flag)
 {
 		ug.Init();
 		uinsf.Init();
