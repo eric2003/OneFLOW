@@ -40,34 +40,34 @@ public:
     void Update2Equ();
     void CompGrad();
     void CompGradDebug();
-    void CmpVist();
-    void CmpVist1Equ();
-    void CmpVist2Equ();
-    void CmpVistMax();
+    void CalcVist();
+    void CalcVist1Equ();
+    void CalcVist2Equ();
+    void CalcVistMax();
     void SetGhostCellVist();
     void ZeroSpectrum();
     void ReadTmp();
 public:
     void PrepareCellValue();
     void PrepareCellValue1Equ();
-    void CmpLengthScaleSa();
-    void CmpLengthScaleSst();
+    void CalcLengthScaleSa();
+    void CalcLengthScaleSst();
 
-    void CmpLengthScaleOfSaDes();
-    void CmpLengthScaleOfSaDdes();
-    void CmpLengthScaleOfSaIddes();
+    void CalcLengthScaleOfSaDes();
+    void CalcLengthScaleOfSaDdes();
+    void CalcLengthScaleOfSaIddes();
 
-    void CmpLengthScaleOfSstDes();
-    void CmpLengthScaleOfSstDdes();
-    void CmpLengthScaleOfSstIddes();
+    void CalcLengthScaleOfSstDes();
+    void CalcLengthScaleOfSstDdes();
+    void CalcLengthScaleOfSstIddes();
 
-    void CmpLengthScaleOfWallDist();
+    void CalcLengthScaleOfWallDist();
 public:
-    void CmpBlendingTerm();
+    void CalcBlendingTerm();
     void CalcCrossingTerm();
-    void CmpCdkwmax();
+    void CalcCdkwmax();
     void CalcCrossDiff();
-    void CmpBlendField();
+    void CalcBlendField();
     void ModifyBlendingTerm();
 };
 

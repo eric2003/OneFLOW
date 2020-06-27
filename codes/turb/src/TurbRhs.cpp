@@ -112,7 +112,7 @@ void TurbCmpDualTimeStepSrc()
 void CmpTurbulentViscosity()
 {
     UTurbSrcFlux * uTurbSrcFlux = new UTurbSrcFlux();
-    uTurbSrcFlux->CmpVist();
+    uTurbSrcFlux->CalcVist();
     delete uTurbSrcFlux;
 
 }

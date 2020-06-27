@@ -59,20 +59,20 @@ void UTurbSrcFlux::Init()
     this->CompGrad();
     if ( turbcom.nEqu == 1 )
     {
-        this->CmpLengthScaleSa();
+        this->CalcLengthScaleSa();
     }
     else if ( turbcom.nEqu >= 2 )
     {
         if ( vis_model.visname.substr( 0, 13 ) == "2eq-kw-menter"  )
         {
             this->CalcCrossingTerm();
-            this->CmpBlendingTerm();
-            this->CmpLengthScaleSst();
+            this->CalcBlendingTerm();
+            this->CalcLengthScaleSst();
         }
         else if ( vis_model.visname.substr( 0, 12 ) == "easm-kw-2005" )
         {
             this->CalcCrossingTerm();
-            this->CmpBlendingTerm();
+            this->CalcBlendingTerm();
         }
         else
         {
@@ -97,19 +97,19 @@ void UTurbSrcFlux::CalcSrcFlux()
     }
 }
 
-void UTurbSrcFlux::CmpVist()
+void UTurbSrcFlux::CalcVist()
 {
     InitVist();
     if ( turbcom.nEqu == 1 )
     {
-        this->CmpVist1Equ();
+        this->CalcVist1Equ();
     }
     else if ( turbcom.nEqu >= 2 )
     {
-        this->CmpVist2Equ();
+        this->CalcVist2Equ();
     }
     SetGhostCellVist();
-    CmpVistMax();
+    CalcVistMax();
 }
 
 void UTurbSrcFlux::SetGhostCellVist()
@@ -194,7 +194,7 @@ void UTurbSrcFlux::ReadTmp()
     file.clear();
 }
 
-void UTurbSrcFlux::CmpVistMax()
+void UTurbSrcFlux::CalcVistMax()
 {
     turbcom.maxid = 0;
     turbcom.maxvist = -1.0;
@@ -213,7 +213,7 @@ void UTurbSrcFlux::CmpVistMax()
     //cout << "maxvist = " << turbcom.maxvist << " cell id = " << turbcom.maxid << endl;
 }
 
-void UTurbSrcFlux::CmpVist1Equ()
+void UTurbSrcFlux::CalcVist1Equ()
 {
     for ( int cId = 0; cId < ug.nCell; ++ cId )
     {
@@ -238,7 +238,7 @@ void UTurbSrcFlux::CmpVist1Equ()
     }
 }
 
-void UTurbSrcFlux::CmpVist2Equ()
+void UTurbSrcFlux::CalcVist2Equ()
 {
     for ( int cId = 0; cId < ug.nCell; ++ cId )
     {
@@ -410,47 +410,47 @@ void UTurbSrcFlux::PrepareCellValue1Equ()
     }
 }
 
-void UTurbSrcFlux::CmpLengthScaleSa()
+void UTurbSrcFlux::CalcLengthScaleSa()
 {
     if ( turbcom.des_model == DES ) 
     {
-        this->CmpLengthScaleOfSaDes();
+        this->CalcLengthScaleOfSaDes();
     }
     else if ( turbcom.des_model == DDES ) 
     {
-        this->CmpLengthScaleOfSaDdes();
+        this->CalcLengthScaleOfSaDdes();
     }
     else if ( turbcom.des_model == IDDES ) 
     {
-        this->CmpLengthScaleOfSaIddes();
+        this->CalcLengthScaleOfSaIddes();
     }
     else
     {
-        this->CmpLengthScaleOfWallDist();
+        this->CalcLengthScaleOfWallDist();
     }
 }
 
-void UTurbSrcFlux::CmpLengthScaleSst()
+void UTurbSrcFlux::CalcLengthScaleSst()
 {
     if ( turbcom.des_model == DES ) 
     {
-        this->CmpLengthScaleOfSstDes();
+        this->CalcLengthScaleOfSstDes();
     }
     else if ( turbcom.des_model == DDES ) 
     {
-        this->CmpLengthScaleOfSstDdes();
+        this->CalcLengthScaleOfSstDdes();
     }
     else if ( turbcom.des_model == IDDES ) 
     {
-        this->CmpLengthScaleOfSstIddes();
+        this->CalcLengthScaleOfSstIddes();
     }
     else
     {
-        this->CmpLengthScaleOfWallDist();
+        this->CalcLengthScaleOfWallDist();
     }
 }
 
-void UTurbSrcFlux::CmpLengthScaleOfSaDes()
+void UTurbSrcFlux::CalcLengthScaleOfSaDes()
 {
     UnsGrid * grid = Zone::GetUnsGrid();
     MRField * len_scale = GetFieldPointer< MRField > ( grid, "len_scale" );
@@ -472,7 +472,7 @@ void UTurbSrcFlux::CmpLengthScaleOfSaDes()
     }
 }
 
-void UTurbSrcFlux::CmpLengthScaleOfSstDes()
+void UTurbSrcFlux::CalcLengthScaleOfSstDes()
 {
     UnsGrid * grid = Zone::GetUnsGrid();
     MRField * len_scale = GetFieldPointer< MRField > ( grid, "len_scale" );
@@ -497,7 +497,7 @@ void UTurbSrcFlux::CmpLengthScaleOfSstDes()
     }
 }
 
-void UTurbSrcFlux::CmpLengthScaleOfSaDdes()
+void UTurbSrcFlux::CalcLengthScaleOfSaDdes()
 {
     UnsGrid * grid = Zone::GetUnsGrid();
     MRField * len_scale = GetFieldPointer< MRField > ( grid, "len_scale" );
@@ -543,7 +543,7 @@ void UTurbSrcFlux::CmpLengthScaleOfSaDdes()
     }
 }
 
-void UTurbSrcFlux::CmpLengthScaleOfSstDdes()
+void UTurbSrcFlux::CalcLengthScaleOfSstDdes()
 {
     UnsGrid * grid = Zone::GetUnsGrid();
     MRField * len_scale = GetFieldPointer< MRField > ( grid, "len_scale" );
@@ -602,7 +602,7 @@ void UTurbSrcFlux::CmpLengthScaleOfSstDdes()
     }
 }
 
-void UTurbSrcFlux::CmpLengthScaleOfSaIddes()
+void UTurbSrcFlux::CalcLengthScaleOfSaIddes()
 {
     UnsGrid * grid = Zone::GetUnsGrid();
     MRField * len_scale = GetFieldPointer< MRField > ( grid, "len_scale" );
@@ -686,7 +686,7 @@ void UTurbSrcFlux::CmpLengthScaleOfSaIddes()
     }
 }
 
-void UTurbSrcFlux::CmpLengthScaleOfSstIddes()
+void UTurbSrcFlux::CalcLengthScaleOfSstIddes()
 {
     UnsGrid * grid = Zone::GetUnsGrid();
     MRField * len_scale = GetFieldPointer< MRField > ( grid, "len_scale" );
@@ -789,7 +789,7 @@ void UTurbSrcFlux::CmpLengthScaleOfSstIddes()
 }
 
 
-void UTurbSrcFlux::CmpLengthScaleOfWallDist()
+void UTurbSrcFlux::CalcLengthScaleOfWallDist()
 {
     UnsGrid * grid = Zone::GetUnsGrid();
     MRField * len_scale = GetFieldPointer< MRField > ( grid, "len_scale" );
@@ -803,18 +803,18 @@ void UTurbSrcFlux::CmpLengthScaleOfWallDist()
     }
 }
 
-void UTurbSrcFlux::CmpBlendingTerm()
+void UTurbSrcFlux::CalcBlendingTerm()
 {
     turbcom.ibld = 1;
 
-    this->CmpCdkwmax();
+    this->CalcCdkwmax();
 
-    this->CmpBlendField();
+    this->CalcBlendField();
 
     this->ModifyBlendingTerm();
 }
 
-void UTurbSrcFlux::CmpCdkwmax()
+void UTurbSrcFlux::CalcCdkwmax()
 {
     //Compute maximum crossing diffusion term across flowfield
     turbcom.cdkwmax = 0.0;
@@ -833,7 +833,7 @@ void UTurbSrcFlux::CmpCdkwmax()
     turbcom.CalcCdkwmin();
 }
 
-void UTurbSrcFlux::CmpBlendField()
+void UTurbSrcFlux::CalcBlendField()
 {
     for ( int cId = 0; cId < ug.nCell; ++ cId )
     {
