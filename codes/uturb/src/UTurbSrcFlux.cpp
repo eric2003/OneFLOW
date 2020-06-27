@@ -232,7 +232,7 @@ void UTurbSrcFlux::CmpVist1Equ()
         turbcom.nuet = ( * uturbf.q  )[ ISA ][ ug.cId ];
         turbcom.visl = ( * uturbf.visl )[ 0 ][ ug.cId ];
 
-        this->CmpCellVist1Equ();
+        this->CalcCellVist1Equ();
 
         ( * uturbf.vist )[ 0 ][ ug.cId ] = turbcom.vist;
     }
@@ -261,7 +261,7 @@ void UTurbSrcFlux::CmpVist2Equ()
         turbcom.vist = ( * uturbf.vist )[ 0 ][ ug.cId ];
         turbcom.dist  = ( * uturbf.dist )[ ug.cId ];
 
-        this->CmpCellVist2Equ();
+        this->CalcCellVist2Equ();
 
         ( * uturbf.vist )[ 0 ][ ug.cId ] = turbcom.vist;
     }

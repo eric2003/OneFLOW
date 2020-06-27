@@ -460,7 +460,7 @@ void TurbCom::CmpSaProd()
     }
 }
 
-void TurbCom::CmpVGrad()
+void TurbCom::CalcVGrad()
 {
     s11 = dudx;
     s22 = dvdy;
@@ -476,7 +476,7 @@ void TurbCom::CmpVGrad()
     divv = s11 + s22 + s33;
 }
 
-void TurbCom::CmpProdk()
+void TurbCom::CalcProdk()
 {
     if ( iprod_sst == 0 )
     {
@@ -494,7 +494,7 @@ void TurbCom::CmpProdk()
     }
 }
 
-void TurbCom::CmpDissk()
+void TurbCom::CalcDissk()
 {
     if ( des_model ) 
     {
@@ -511,7 +511,7 @@ void TurbCom::LimitProdk()
     prodk = MIN( prodk, pklim * dissk );
 }
 
-void TurbCom::CmpProdwKwMenter()
+void TurbCom::CalcProdwKwMenter()
 {
     beta   = bld * beta1  + ( 1.0 - bld ) * beta2;
     alphaw = bld * alphaw1 + ( 1.0 - bld ) * alphaw2;
@@ -521,14 +521,14 @@ void TurbCom::CmpProdwKwMenter()
     cdkww = two * ( one - bld ) * rho * sigw2 * cross_term / ( kw + SMALL );
 }
 
-void TurbCom::CmpProdwKwWilcox1998()
+void TurbCom::CalcProdwKwWilcox1998()
 {
     prodw = alphaw * kw / ( ke + SMALL ) * prodk;
     dissw = fbeta * beta * rho * SQR( kw );
     cdkww = sigd * rho * MAX( cross_term, zero ) / ( kw + SMALL );
 }
 
-void TurbCom::CmpProdwKwWilcox2006()
+void TurbCom::CalcProdwKwWilcox2006()
 {
     sigd = zero;
     if ( cross_term > zero )
@@ -542,21 +542,21 @@ void TurbCom::CmpProdwKwWilcox2006()
     cdkww = sigd * rho * MAX( cross_term, zero ) / ( kw + SMALL );
 }
 
-void TurbCom::CmpProdwKwDefault()
+void TurbCom::CalcProdwKwDefault()
 {
     prodw = alphaw * kw / ( ke + SMALL ) * prodk;
     dissw = fbeta * beta * rho * SQR( kw );
     cdkww = sigd * rho * MAX( cross_term, zero ) / ( kw + SMALL );
 }
 
-void TurbCom::CmpProdwEasmKw2003()
+void TurbCom::CalcProdwEasmKw2003()
 {
     prodw = alphaw * kw / ( ke + SMALL ) * prodk;
     dissw = fbeta * beta * rho * SQR( kw );
     cdkww = sigd * rho * MAX( cross_term, zero ) / ( kw + SMALL );
 }
 
-void TurbCom::CmpProdwEasmKw2005()
+void TurbCom::CalcProdwEasmKw2005()
 {
     beta   = bld * beta1   + ( 1.0 - bld ) * beta2;
     alphaw = bld * alphaw1 + ( 1.0 - bld ) * alphaw2;
@@ -639,7 +639,7 @@ void TurbCom::CmpCrossing()
     cross_term = dkedx * dkwdx + dkedy * dkwdy + dkedz * dkwdz;
 }
 
-void TurbCom::CmpFbetaOfKwWilcox1998()
+void TurbCom::CalcFbetaOfKwWilcox1998()
 {
     xk = cross_term / ( pow( kw, 3 ) + SMALL );
     if ( xk <= 0.0 )
@@ -663,7 +663,7 @@ void TurbCom::CmpFbetaOfKwWilcox1998()
     fbeta  = fw;
 }
 
-void TurbCom::CmpFbetaOfKwWilcox2006()
+void TurbCom::CalcFbetaOfKwWilcox2006()
 {
     Real sh11 = s11 - half * divv;
     Real sh22 = s22 - half * divv;
@@ -683,7 +683,7 @@ void TurbCom::CmpFbetaOfKwWilcox2006()
     fbeta  = fw;
 }
 
-void TurbCom::CmpFbetaOfEasmKw2003()
+void TurbCom::CalcFbetaOfEasmKw2003()
 {
     xk = cmu * cmu * cross_term / ( pow( kw, 3 ) + SMALL );
     fk = 1.0;
