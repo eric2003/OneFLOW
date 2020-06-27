@@ -61,7 +61,7 @@ void UTurbVisFlux::DeAlloc()
     delete visflux;
 }
 
-void UTurbVisFlux::CmpVisFlux()
+void UTurbVisFlux::CalcVisFlux()
 {
     ug.Init();
     uturbf.Init();
@@ -70,11 +70,11 @@ void UTurbVisFlux::CmpVisFlux()
     Alloc();
     if ( turbcom.nEqu == 1 )
     {
-        this->CmpVisFlux1Equ();
+        this->CalcVisFlux1Equ();
     }
     else if ( turbcom.nEqu >= 2 )
     {
-        this->CmpVisFlux2Equ();
+        this->CalcVisFlux2Equ();
     }
     DeAlloc();
 }
@@ -244,7 +244,7 @@ void UTurbVisFlux::PrepareCellGeom()
     vgg.PrepareCellGeom();
 }
 
-void UTurbVisFlux::CmpVisFlux1Equ()
+void UTurbVisFlux::CalcVisFlux1Equ()
 {
     for ( int fId = 0; fId < ug.nFace; ++ fId )
     {
@@ -260,14 +260,14 @@ void UTurbVisFlux::CmpVisFlux1Equ()
 
         this->PrepareFaceValue();
 
-        this->CmpFaceVisFlux1Equ();
+        this->CalcFaceVisFlux1Equ();
 
         this->UpdateFaceVisFlux();
     }
     this->AddVisFlux();
 }
 
-void UTurbVisFlux::CmpVisFlux2Equ()
+void UTurbVisFlux::CalcVisFlux2Equ()
 {
     for ( int fId = 0; fId < ug.nFace; ++ fId )
     {
@@ -278,7 +278,7 @@ void UTurbVisFlux::CmpVisFlux2Equ()
 
         this->PrepareFaceValue();
 
-        this->CmpFaceVisFlux2Equ();
+        this->CalcFaceVisFlux2Equ();
 
         this->UpdateFaceVisFlux();
     }
@@ -347,7 +347,7 @@ void UTurbVisFlux::PrepareFaceValue()
     ( this->* visPointer )();
 }
 
-void UTurbVisFlux::CmpFaceVisFlux1Equ()
+void UTurbVisFlux::CalcFaceVisFlux1Equ()
 {
     Real orl = 1.0 / ( turbcom.rho1 + SMALL );
     Real orr = 1.0 / ( turbcom.rho2 + SMALL );
@@ -368,7 +368,7 @@ void UTurbVisFlux::CmpFaceVisFlux1Equ()
     }
 }
 
-void UTurbVisFlux::CmpFaceVisFlux2Equ()
+void UTurbVisFlux::CalcFaceVisFlux2Equ()
 {
     turbcom.CmpSigkw();
 

@@ -40,13 +40,13 @@ public:
     void SetVisPointer();
     void CalcFlux();
     void PrepareField();
-    void CmpVisFlux();
+    void CalcVisFlux();
     void AddVisFlux();
-    void CmpFaceVisFlux();
+    void CalcFaceVisFlux();
     void UpdateFaceVisFlux();
-    void CmpHeatFlux();
+    void CalcHeatFlux();
     void CompStress();
-    void CmpAniStress();
+    void CalcAniStress();
     void CmpNsVisFlux();
     void ZeroHeatFlux();
     void AddChemHeatFlux();

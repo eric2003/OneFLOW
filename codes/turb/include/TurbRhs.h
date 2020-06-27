@@ -38,7 +38,7 @@ public:
 void TurbCalcBc();
 void TurbCmpRHS();
 void TurbCalcInvFlux();
-void TurbCmpVisFlux();
+void TurbCalcVisFlux();
 void TurbCalcSrcFlux();
 void TurbCmpSpectrum();
 void TurbCmpDualTimeStepSrc();

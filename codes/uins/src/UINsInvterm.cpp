@@ -90,7 +90,7 @@ void UINsInvterm::BoundaryQlQrFixField()
     limf->BcQlQrFix();
 }
 
-void UINsInvterm::CmpInvcoff()
+void UINsInvterm::CalcInvcoff()
 {
     if ( inscom.icmpInv == 0 ) return;
     iinv.Init();
@@ -102,13 +102,13 @@ void UINsInvterm::CmpInvcoff()
 
     //ReadTmp();
     this->CalcInvFace();
-    this->CmpInvMassFlux();  //需要改动
+    this->CalcInvMassFlux();  //需要改动
     //this->AddInv();
 
     DeAlloc();
 }
 
-void UINsInvterm::CmpInvMassFlux()
+void UINsInvterm::CalcInvMassFlux()
 {
     if ( Iteration::outerSteps == 2 )
     {
@@ -218,7 +218,7 @@ void UINsInvterm::MomPred()
 }
 
 
-void UINsInvterm::CmpFaceflux()
+void UINsInvterm::CalcFaceflux()
 {
 
 	iinv.Init();
@@ -254,7 +254,7 @@ void UINsInvterm::AddFlux()
 //	//ONEFLOW::AddF2CFieldDebug( res, invflux );
 }
 
-void UINsInvterm::CmpCorrectPresscoef()
+void UINsInvterm::CalcCorrectPresscoef()
 {
 
 	for (int fId = 0; fId < ug.nFace; ++fId)
@@ -290,7 +290,7 @@ void UINsInvterm::CmpCorrectPresscoef()
 	}
 }
 
-void UINsInvterm::CmpPressCorrectEqu()
+void UINsInvterm::CalcPressCorrectEqu()
 {
 	for (int cId = 0; cId < ug.nCell; ++cId)
 	{

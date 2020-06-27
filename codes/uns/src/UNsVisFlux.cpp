@@ -97,7 +97,7 @@ void UNsVisFlux::CalcFlux()
     this->SetVisPointer();
 
     this->PrepareField();
-    this->CmpVisFlux();
+    this->CalcVisFlux();
     this->AddVisFlux();
 
     DeAlloc();
@@ -120,7 +120,7 @@ void UNsVisFlux::PrepareField()
     //ut_grad.CompGradDebug();
 }
 
-void UNsVisFlux::CmpVisFlux()
+void UNsVisFlux::CalcVisFlux()
 {
     for ( int fId = 0; fId < ug.nFace; ++ fId )
     {
@@ -140,22 +140,22 @@ void UNsVisFlux::CmpVisFlux()
 
         this->PrepareFaceValue();
 
-        this->CmpFaceVisFlux();
+        this->CalcFaceVisFlux();
 
         this->UpdateFaceVisFlux();
     }
 }
 
-void UNsVisFlux::CmpFaceVisFlux()
+void UNsVisFlux::CalcFaceVisFlux()
 {
-    this->CmpHeatFlux();
+    this->CalcHeatFlux();
 
     this->CompStress();
 
     this->CmpNsVisFlux();
 }
 
-void UNsVisFlux::CmpHeatFlux()
+void UNsVisFlux::CalcHeatFlux()
 {
     this->ZeroHeatFlux();
 
@@ -186,10 +186,10 @@ void UNsVisFlux::CompStress()
     vis.txz = nscom.vis * ( vis.dudz + vis.dwdx );
     vis.tyz = nscom.vis * ( vis.dvdz + vis.dwdy );
 
-    this->CmpAniStress();
+    this->CalcAniStress();
 }
 
-void UNsVisFlux::CmpAniStress()
+void UNsVisFlux::CalcAniStress()
 {
     if ( ctrl.nrokplus <= 0 ) return;
     Real two3rdRhok = two3rd * vis.rhok;

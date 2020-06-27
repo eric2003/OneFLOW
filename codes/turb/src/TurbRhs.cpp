@@ -64,7 +64,7 @@ void TurbCmpRHS()
 
     TurbCalcInvFlux();
 
-    TurbCmpVisFlux();
+    TurbCalcVisFlux();
 
     TurbCmpDualTimeStepSrc();
 }
@@ -77,10 +77,10 @@ void TurbCalcInvFlux()
     delete uTurbInvFlux;
 }
 
-void TurbCmpVisFlux()
+void TurbCalcVisFlux()
 {
     UTurbVisFlux * uTurbVisFlux = new UTurbVisFlux();
-    uTurbVisFlux->CmpVisFlux();
+    uTurbVisFlux->CalcVisFlux();
     delete uTurbVisFlux;
 }
 

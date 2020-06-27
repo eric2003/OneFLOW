@@ -226,7 +226,7 @@ void INsCompRHS()
 void INsCompInv()
 {
 	UINsInvterm * uINsInvterm = new UINsInvterm();
-	uINsInvterm->CmpInvcoff();
+	uINsInvterm->CalcInvcoff();
 	delete uINsInvterm;
 }
 
@@ -266,21 +266,21 @@ void INsMomPred()
 void INsCompFaceflux()
 {
 	UINsInvterm * uINsInvterm = new UINsInvterm();
-	uINsInvterm->CmpFaceflux();
+	uINsInvterm->CalcFaceflux();
 	delete uINsInvterm;
 }
 
 void INsCorrectPresscoef()
 {
 	UINsInvterm * uINsInvterm = new UINsInvterm();
-	uINsInvterm->CmpCorrectPresscoef();
+	uINsInvterm->CalcCorrectPresscoef();
 	delete uINsInvterm;
 }
 
 void INsCompPressCorrectEquandUpdatePress()
 {
 	UINsInvterm * uINsInvterm = new UINsInvterm();
-	uINsInvterm->CmpPressCorrectEqu();
+	uINsInvterm->CalcPressCorrectEqu();
 	delete uINsInvterm;
 }
 

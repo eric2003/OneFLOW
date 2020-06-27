@@ -41,13 +41,13 @@ public:
     void DeAlloc();
     void AddVisFlux();
     void SetVisPointer();
-    void CmpVisFlux();
-    void CmpVisFlux1Equ();
-    void CmpVisFlux2Equ();
+    void CalcVisFlux();
+    void CalcVisFlux1Equ();
+    void CalcVisFlux2Equ();
 
     void PrepareFaceValue();
-    void CmpFaceVisFlux1Equ();
-    void CmpFaceVisFlux2Equ();
+    void CalcFaceVisFlux1Equ();
+    void CalcFaceVisFlux2Equ();
     void UpdateFaceVisFlux();
 public:
     void CmpFaceWeight();
