@@ -33,9 +33,9 @@ public:
 public:
     void ReadTmp();
     void ZeroSpectrum();
-    void CmpSpectrum();
-    void CmpSpectrum1Equ();
-    void CmpSpectrum2Equ();
+    void CalcSpectrum();
+    void CalcSpectrum1Equ();
+    void CalcSpectrum2Equ();
 public:
     void CmpUnsteadySpectrum();
     void UpdateSpectrumRadius();

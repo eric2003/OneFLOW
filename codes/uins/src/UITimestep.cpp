@@ -138,7 +138,7 @@ void UITimestep::CmpTimestep()
 
     this->CompCfl();
 
-    this->CmpSpectrumField();
+    this->CalcSpectrumField();
 
     if ( inscom.timestepModel == 0 )
     {
@@ -191,7 +191,7 @@ void UITimestep::CmpVisTimestep()
     }
 }
 
-void UITimestep::CmpSpectrumField()
+void UITimestep::CalcSpectrumField()
 {
     this->CmpInvSpectrumField();
     this->CmpVisSpectrumField();

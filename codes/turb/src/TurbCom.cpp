@@ -413,7 +413,7 @@ void TurbCom::InitInflow()
 
 }
 
-void TurbCom::CmpSigkw()
+void TurbCom::CalcSigkw()
 {
     if ( sst_type == 0 ) return;
 
@@ -422,7 +422,7 @@ void TurbCom::CmpSigkw()
     sigw = bld * sigw1 + ( 1.0 - bld ) * sigw2;
 }
 
-void TurbCom::CmpWorkVar()
+void TurbCom::CalcWorkVar()
 {
     //work1 = ui,i
     //work2 = u1,1^2 + u2,2^2 + u3,3^2
@@ -434,7 +434,7 @@ void TurbCom::CmpWorkVar()
     work4 = DIST( dwdy - dvdz, dudz - dwdx, dvdx - dudy );
 }
 
-void TurbCom::CmpSaProd()
+void TurbCom::CalcSaProd()
 {
     if ( iprod_sa == 1 )
     {
@@ -592,7 +592,7 @@ void TurbCom::CalcSrc()
     oorw = 1.0 / ( rho * kw + SMALL );
 }
 
-void TurbCom::CmpCrossDiff()
+void TurbCom::CalcCrossDiff()
 {
     crossdiff = 2.0 * rho * cross_term * sigw2 / ( kw + SMALL );
     if ( crossdiff > cdkwmax )
@@ -601,13 +601,13 @@ void TurbCom::CmpCrossDiff()
     }
 }
 
-void TurbCom::CmpCdkwmin()
+void TurbCom::CalcCdkwmin()
 {
     //cdkwmin = cdkwmax * 1.0e-8;
     cdkwmin = 1.0e-20;
 }
 
-void TurbCom::CmpCellBlendingTerm()
+void TurbCom::CalcCellBlendingTerm()
 {
     //calculate cd_kw
     crossdiff = 2.0 * rho * sigw2 * cross_term / ( kw + SMALL );
@@ -634,7 +634,7 @@ void TurbCom::CmpCellBlendingTerm()
     bld = tanh( POWER4( arg1 ) );
 }
 
-void TurbCom::CmpCrossing()
+void TurbCom::CalcCrossing()
 {
     cross_term = dkedx * dkwdx + dkedy * dkwdy + dkedz * dkwdz;
 }
@@ -770,8 +770,8 @@ void TurbCom::CalcSrcSa()
     Real d2   = SQR( len_scale );
     Real od2  = one / d2;
 
-    CmpWorkVar();
-    CmpSaProd();
+    CalcWorkVar();
+    CalcSaProd();
     this->str = this->work4;
 
     //this->compress = this->nuet * this->work1;

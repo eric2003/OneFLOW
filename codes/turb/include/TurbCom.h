@@ -162,9 +162,9 @@ public:
     void Init();
     void InitConst();
     void InitInflow();
-    void CmpSigkw();
-    void CmpWorkVar();
-    void CmpSaProd();
+    void CalcSigkw();
+    void CalcWorkVar();
+    void CalcSaProd();
     void CalcVGrad();
     void CalcProdk();
     void CalcDissk();
@@ -177,10 +177,10 @@ public:
     void CalcProdwEasmKw2005();
     void ModifyPd();
     void CalcSrc();
-    void CmpCrossDiff();
-    void CmpCdkwmin();
-    void CmpCellBlendingTerm();
-    void CmpCrossing();
+    void CalcCrossDiff();
+    void CalcCdkwmin();
+    void CalcCellBlendingTerm();
+    void CalcCrossing();
     void CalcFbetaOfKwWilcox1998();
     void CalcFbetaOfKwWilcox2006();
     void CalcFbetaOfEasmKw2003();

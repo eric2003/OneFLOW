@@ -342,7 +342,7 @@ void UTurbVisFlux::PrepareFaceValue()
     turbcom.rho2 = ( * uturbf.q_ns )[ IDX::IR ][ ug.rc ];
 
     this->AverGrad();
-    this->CmpFaceWeight();
+    this->CalcFaceWeight();
 
     ( this->* visPointer )();
 }
@@ -370,7 +370,7 @@ void UTurbVisFlux::CalcFaceVisFlux1Equ()
 
 void UTurbVisFlux::CalcFaceVisFlux2Equ()
 {
-    turbcom.CmpSigkw();
+    turbcom.CalcSigkw();
 
     Real visl = half * ( turbcom.visl1 + turbcom.visl2 );
     Real vist = half * ( turbcom.vist1 + turbcom.vist2 );
@@ -399,9 +399,9 @@ void UTurbVisFlux::UpdateFaceVisFlux()
     }
 }
 
-void UTurbVisFlux::CmpFaceWeight()
+void UTurbVisFlux::CalcFaceWeight()
 {
-    vgg.CmpFaceWeight();
+    vgg.CalcFaceWeight();
 }
 
 EndNameSpace

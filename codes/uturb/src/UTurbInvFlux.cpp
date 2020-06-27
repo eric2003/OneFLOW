@@ -76,8 +76,8 @@ void UTurbInvFlux::GetQlQrField()
 
 void UTurbInvFlux::ReconstructFaceValueField()
 {
-    limf->CmpFaceValue();
-    nslimiter->limf->CmpFaceValue();
+    limf->CalcFaceValue();
+    nslimiter->limf->CalcFaceValue();
 }
 
 void UTurbInvFlux::BoundaryQlQrFixField()

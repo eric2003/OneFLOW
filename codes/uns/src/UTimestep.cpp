@@ -195,7 +195,7 @@ void UTimestep::CmpTimestep()
 
     this->CompCfl();
 
-    this->CmpSpectrumField();
+    this->CalcSpectrumField();
 
     if ( nscom.timestepModel == 0 )
     {
@@ -248,7 +248,7 @@ void UTimestep::CmpVisTimestep()
     }
 }
 
-void UTimestep::CmpSpectrumField()
+void UTimestep::CalcSpectrumField()
 {
     this->CmpInvSpectrumField();
     this->CmpVisSpectrumField();

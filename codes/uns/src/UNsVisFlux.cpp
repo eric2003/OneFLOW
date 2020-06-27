@@ -314,7 +314,7 @@ void UNsVisFlux::PrepareFaceValue()
     }
 
     this->AverGrad();
-    this->CmpFaceWeight();
+    this->CalcFaceWeight();
 
     ( this->* visPointer )();
 
@@ -343,9 +343,9 @@ void UNsVisFlux::SaveFacePara()
     vis.tmid = visT.q[ IDX::ITT ];
 }
 
-void UNsVisFlux::CmpFaceWeight()
+void UNsVisFlux::CalcFaceWeight()
 {
-    vgg.CmpFaceWeight();
+    vgg.CalcFaceWeight();
 }
 
 void UNsVisFlux::AverMethod()

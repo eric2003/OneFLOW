@@ -43,7 +43,7 @@ public:
     void CmpMinTimestep();
     void SetTimestep( Real timestep );
 public:
-    void CmpSpectrumField();
+    void CalcSpectrumField();
     void CmpInvSpectrumField();
     void CmpVisSpectrumField();
 public:

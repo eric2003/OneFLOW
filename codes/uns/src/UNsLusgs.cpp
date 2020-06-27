@@ -62,10 +62,10 @@ void UNsLusgs::Init()
     ug.Init();
     nslu.Init();
     unsf.Init();
-    this->CmpSpectrum();
+    this->CalcSpectrum();
 }
 
-void UNsLusgs::CmpSpectrum()
+void UNsLusgs::CalcSpectrum()
 {
     UNsSpectrum * unsSpectrum = new UNsSpectrum();
     unsSpectrum->CmpImplicitSpectrum();

@@ -65,18 +65,18 @@ void UTurbSrcFlux::Init()
     {
         if ( vis_model.visname.substr( 0, 13 ) == "2eq-kw-menter"  )
         {
-            this->CmpCrossingTerm();
+            this->CalcCrossingTerm();
             this->CmpBlendingTerm();
             this->CmpLengthScaleSst();
         }
         else if ( vis_model.visname.substr( 0, 12 ) == "easm-kw-2005" )
         {
-            this->CmpCrossingTerm();
+            this->CalcCrossingTerm();
             this->CmpBlendingTerm();
         }
         else
         {
-            this->CmpCrossingTerm();
+            this->CalcCrossingTerm();
         }
     }
     this->SetSrcFluxPointer();
@@ -827,10 +827,10 @@ void UTurbSrcFlux::CmpCdkwmax()
         turbcom.kw   = ( * uturbf.q  )[ IKW ][ ug.cId ];
         turbcom.cross_term = ( * uturbf.cross )[ 0 ][ ug.cId ];
 
-        this->CmpCrossDiff();
+        this->CalcCrossDiff();
     }
 
-    turbcom.CmpCdkwmin();
+    turbcom.CalcCdkwmin();
 }
 
 void UTurbSrcFlux::CmpBlendField()
@@ -851,7 +851,7 @@ void UTurbSrcFlux::CmpBlendField()
         turbcom.visl = ( * uturbf.visl )[ 0 ][ ug.cId ];
         turbcom.dist = ( * uturbf.dist )[ ug.cId ];
 
-        turbcom.CmpCellBlendingTerm();
+        turbcom.CalcCellBlendingTerm();
 
         ( * uturbf.bld )[ 0 ][ ug.cId ] = turbcom.bld;
     }
@@ -878,7 +878,7 @@ void UTurbSrcFlux::ModifyBlendingTerm()
     }
 }
 
-void UTurbSrcFlux::CmpCrossingTerm()
+void UTurbSrcFlux::CalcCrossingTerm()
 {
     for ( int cId = 0; cId < ug.nCell; ++ cId )
     {
@@ -892,15 +892,15 @@ void UTurbSrcFlux::CmpCrossingTerm()
         turbcom.dkwdy = ( * uturbf.dqdy )[ IKW ][ ug.cId ];
         turbcom.dkwdz = ( * uturbf.dqdz )[ IKW ][ ug.cId ];
 
-        turbcom.CmpCrossing();
+        turbcom.CalcCrossing();
 
         ( * uturbf.cross )[ 0 ][ cId ] = turbcom.cross_term;
     }
 }
 
-void UTurbSrcFlux::CmpCrossDiff()
+void UTurbSrcFlux::CalcCrossDiff()
 {
-    turbcom.CmpCrossDiff();
+    turbcom.CalcCrossDiff();
 }
 
 void ComputeLengthLesOfSa( RealField & lesLengthField )

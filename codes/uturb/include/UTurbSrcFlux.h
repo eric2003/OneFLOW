@@ -64,9 +64,9 @@ public:
     void CmpLengthScaleOfWallDist();
 public:
     void CmpBlendingTerm();
-    void CmpCrossingTerm();
+    void CalcCrossingTerm();
     void CmpCdkwmax();
-    void CmpCrossDiff();
+    void CalcCrossDiff();
     void CmpBlendField();
     void ModifyBlendingTerm();
 };

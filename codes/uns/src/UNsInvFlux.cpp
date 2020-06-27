@@ -80,8 +80,8 @@ void UNsInvFlux::GetQlQrField()
 
 void UNsInvFlux::ReconstructFaceValueField()
 {
-    limf->CmpFaceValue();
-    //limf->CmpFaceValueWeighted();
+    limf->CalcFaceValue();
+    //limf->CalcFaceValueWeighted();
 }
 
 void UNsInvFlux::BoundaryQlQrFixField()

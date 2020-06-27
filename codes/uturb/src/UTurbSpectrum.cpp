@@ -129,7 +129,7 @@ void UTurbSpectrum::ReadTmp()
 }
 
 
-void UTurbSpectrum::CmpSpectrum()
+void UTurbSpectrum::CalcSpectrum()
 {
     ug.Init();
     turblu.Init();
@@ -139,11 +139,11 @@ void UTurbSpectrum::CmpSpectrum()
     this->ZeroSpectrum();
     if ( turbcom.nEqu == 1 )
     {
-        this->CmpSpectrum1Equ();
+        this->CalcSpectrum1Equ();
     }
     else if ( turbcom.nEqu >= 2 )
     {
-        this->CmpSpectrum2Equ();
+        this->CalcSpectrum2Equ();
     }
 }
 
@@ -154,7 +154,7 @@ void UTurbSpectrum::ZeroSpectrum()
     ( * uturbf.matrix_r ) = 0;
 }
 
-void UTurbSpectrum::CmpSpectrum1Equ()
+void UTurbSpectrum::CalcSpectrum1Equ()
 {
     this->CmpUnsteadySpectrum();
 
@@ -166,13 +166,13 @@ void UTurbSpectrum::CmpSpectrum1Equ()
 
         this->PrepareFaceValue1Equ();
 
-        this->CmpFaceSpectrum1Equ();
+        this->CalcFaceSpectrum1Equ();
 
         this->UpdateSpectrumRadius();
     }
 }
 
-void UTurbSpectrum::CmpSpectrum2Equ()
+void UTurbSpectrum::CalcSpectrum2Equ()
 {
     this->CmpUnsteadySpectrum();
 
@@ -184,7 +184,7 @@ void UTurbSpectrum::CmpSpectrum2Equ()
 
         this->PrepareFaceValue2Equ();
 
-        this->CmpFaceSpectrum2Equ();
+        this->CalcFaceSpectrum2Equ();
 
         this->UpdateSpectrumRadius();
     }

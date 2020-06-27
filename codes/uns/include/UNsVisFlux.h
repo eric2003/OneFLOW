@@ -58,7 +58,7 @@ public:
 public:
     void PrepareFaceValue();
     void SaveFacePara();
-    void CmpFaceWeight();
+    void CalcFaceWeight();
 public:
     void AverMethod();
     void StdMethod();

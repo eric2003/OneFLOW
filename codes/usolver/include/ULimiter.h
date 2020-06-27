@@ -64,8 +64,8 @@ public:
 public:
     virtual void Init(){};
     Real ModifyLimiter( Real phil, Real phir );
-    void CmpFaceValue();
-    void CmpFaceValueWeighted();
+    void CalcFaceValue();
+    void CalcFaceValueWeighted();
     void GetQlQr();
     virtual void BcQlQrFix();
 public:

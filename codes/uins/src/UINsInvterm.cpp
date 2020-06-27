@@ -81,8 +81,8 @@ void UINsInvterm::GetQlQrField()
 
 void UINsInvterm::ReconstructFaceValueField()
 {
-    limf->CmpFaceValue();
-    //limf->CmpFaceValueWeighted();
+    limf->CalcFaceValue();
+    //limf->CalcFaceValueWeighted();
 }
 
 void UINsInvterm::BoundaryQlQrFixField()

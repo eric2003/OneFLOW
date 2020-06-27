@@ -258,7 +258,7 @@ void UINsVisterm::PrepareFaceValue()
     }
 
     this->AverGrad();
-    this->CmpFaceWeight();
+    this->CalcFaceWeight();
     this->SaveFacePara();
 }
 
@@ -291,9 +291,9 @@ void UINsVisterm::SaveFacePara()
     //Ivis.tmid = visT.q[ IIDX::IITT ];
 }
 
-void UINsVisterm::CmpFaceWeight()
+void UINsVisterm::CalcFaceWeight()
 {
-    vgg.CmpFaceWeight();
+    vgg.CalcFaceWeight();
 }
 
 

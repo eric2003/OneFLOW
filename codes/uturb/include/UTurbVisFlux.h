@@ -50,7 +50,7 @@ public:
     void CalcFaceVisFlux2Equ();
     void UpdateFaceVisFlux();
 public:
-    void CmpFaceWeight();
+    void CalcFaceWeight();
     void CompGradCoef();
     void PrepareCellGeom();
 public:

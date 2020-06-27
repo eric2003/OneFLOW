@@ -72,7 +72,7 @@ TurbSpectrum::~TurbSpectrum()
     ;
 }
 
-void TurbSpectrum::CmpFaceSpectrum1Equ()
+void TurbSpectrum::CalcFaceSpectrum1Equ()
 {
     for ( int iEqu = 0; iEqu < turbcom.nEqu; ++ iEqu )
     {
@@ -133,7 +133,7 @@ void TurbSpectrum::CmpFaceSpectrum1Equ()
     turbsp.matrix2[ ISA ] += - turbcom.oreynolds * ovol * ( turbcom.osigma * nueff * areaS2 );
 }
 
-void TurbSpectrum::CmpFaceSpectrum2Equ()
+void TurbSpectrum::CalcFaceSpectrum2Equ()
 {
     for ( int iEqu = 0; iEqu < turbcom.nEqu; ++ iEqu )
     {
@@ -178,7 +178,7 @@ void TurbSpectrum::CmpFaceSpectrum2Equ()
     turbcom.visl = half * ( turbcom.visl1 + turbcom.visl2 );
     turbcom.vist = half * ( turbcom.vist1 + turbcom.vist2 );
 
-    turbcom.CmpSigkw();
+    turbcom.CalcSigkw();
 
     gcom.cvol = half * ( gcom.cvol1 + gcom.cvol2 );
     Real ovol = one / gcom.cvol;

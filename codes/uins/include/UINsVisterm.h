@@ -49,7 +49,7 @@ public:
 public:
     void PrepareFaceValue();
     void SaveFacePara();
-    void CmpFaceWeight();
+    void CalcFaceWeight();
 public:
     void CompGradCoef();
     void PrepareCellGeom();

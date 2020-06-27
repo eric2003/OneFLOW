@@ -41,7 +41,7 @@ VisGradGeom::~VisGradGeom()
     ;
 }
 
-void VisGradGeom::CmpFaceWeight()
+void VisGradGeom::CalcFaceWeight()
 {
     dxl = ( * ug.xfc )[ ug.fId ] - ( * ug.xcc )[ ug.lc ];
     dyl = ( * ug.yfc )[ ug.fId ] - ( * ug.ycc )[ ug.lc ];

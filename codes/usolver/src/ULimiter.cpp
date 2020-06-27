@@ -178,7 +178,7 @@ void LimField::BcQlQrFix()
 }
 
 
-void LimField::CmpFaceValue()
+void LimField::CalcFaceValue()
 {
     RealField qTry( this->nEqu );
 
@@ -255,7 +255,7 @@ void LimField::CmpFaceValue()
     }
 }
 
-void LimField::CmpFaceValueWeighted()
+void LimField::CalcFaceValueWeighted()
 {
     RealField qTry( this->nEqu );
 
