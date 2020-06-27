@@ -161,10 +161,10 @@ void NsCompDualTimeStepSrc()
 
 void Rhs::UpdateINsResiduals()
 {
-	INsCmpRHS();
+	INsCompRHS();
 }
 
-void INsCmpBc()
+void INsCompBc()
 {
 	UINsBcSolver * uINsBcSolver = new UINsBcSolver();
 	uINsBcSolver->Init();
@@ -172,7 +172,7 @@ void INsCmpBc()
 	delete uINsBcSolver;
 }
 
-void INSCmpGamaT(int flag)
+void INSCompGamaT(int flag)
 {
 	UnsGrid * grid = Zone::GetUnsGrid();
 
@@ -201,23 +201,23 @@ void INSCmpGamaT(int flag)
 	}
 }
 
-void INsCmpRHS()
+void INsCompRHS()
 {
 	INsCompInv();
 
-	INsCmpVis();
+	INsCompVis();
 
-	INsCmpSrc();
+	INsCompSrc();
 
 	//INsMomPred();  //需要解动量方程组
 
-	INsCmpFaceflux();
+	INsCompFaceflux();
 
 	INsCorrectPresscoef();
 
-	INsCmpPressCorrectEquandUpdatePress();  //需要解压力修正方程组，增设单元修正压力未知量
+	INsCompPressCorrectEquandUpdatePress();  //需要解压力修正方程组，增设单元修正压力未知量
 
-	INsCmpSpeedCorrectandUpdateSpeed();  //需要先增设界面修正速度未知量并进行求解,更新单元速度和压力
+	INsCompSpeedCorrectandUpdateSpeed();  //需要先增设界面修正速度未知量并进行求解,更新单元速度和压力
 
 	INsUpdateFaceflux();   //更新界面流量
 
@@ -230,14 +230,14 @@ void INsCompInv()
 	delete uINsInvterm;
 }
 
-void INsCmpVis()
+void INsCompVis()
 {
 	UINsVisterm * uINsVisterm = new UINsVisterm();
 	uINsVisterm->CmpViscoff();
 	delete uINsVisterm;
 }
 
-void INsCmpSrc()
+void INsCompSrc()
 {
 	//if (inscom.chemModel == 1)
 	//{
@@ -263,7 +263,7 @@ void INsMomPred()
 	delete uINsInvterm;
 }
 
-void INsCmpFaceflux()
+void INsCompFaceflux()
 {
 	UINsInvterm * uINsInvterm = new UINsInvterm();
 	uINsInvterm->CmpFaceflux();
@@ -277,7 +277,7 @@ void INsCorrectPresscoef()
 	delete uINsInvterm;
 }
 
-void INsCmpPressCorrectEquandUpdatePress()
+void INsCompPressCorrectEquandUpdatePress()
 {
 	UINsInvterm * uINsInvterm = new UINsInvterm();
 	uINsInvterm->CmpPressCorrectEqu();
@@ -291,7 +291,7 @@ void INsUpdateFaceflux()
 	delete uINsInvterm;
 }
 
-void INsCmpSpeedCorrectandUpdateSpeed()
+void INsCompSpeedCorrectandUpdateSpeed()
 {
 	UINsInvterm * uINsInvterm = new UINsInvterm();
 	uINsInvterm->UpdateSpeed();

@@ -46,9 +46,9 @@ void NsCompChemSrc();
 void NsCompTurbEnergy();
 void NsCompDualTimeStepSrc();
 
-void INsCmpBc();
-void INSCmpGamaT(int flag);
-void INsCmpRHS();
+void INsCompBc();
+void INSCompGamaT(int flag);
+void INsCompRHS();
 //void INsCompInvFlux();
 //void INsCompVisFlux();
 //void INsCompSrcFlux();
@@ -58,13 +58,13 @@ void INsCompTurbEnergy();
 void INsCorrectPresscoef();
 //void INsCorrectSpeed();
 void INsCompInv();
-void INsCmpVis();
-void INsCmpSrc();
+void INsCompVis();
+void INsCompSrc();
 void INsMomPred();
-void INsCmpFaceflux();
-void INsCmpPressCorrectEquandUpdatePress();
+void INsCompFaceflux();
+void INsCompPressCorrectEquandUpdatePress();
 void INsUpdateFaceflux();
-void INsCmpSpeedCorrectandUpdateSpeed();
+void INsCompSpeedCorrectandUpdateSpeed();
 
 
 EndNameSpace
