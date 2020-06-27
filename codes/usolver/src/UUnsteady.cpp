@@ -103,7 +103,7 @@ void UUnsteady::CmpDualTimeSrc()
 
     this->CmpDualTimeResidual();
 
-    data->CmpSrcCoeff();
+    data->CalcSrcCoeff();
 
     for ( int cId = 0; cId < ug.nCell; ++ cId )
     {

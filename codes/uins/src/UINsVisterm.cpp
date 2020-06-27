@@ -61,7 +61,7 @@ UINsVisterm::~UINsVisterm()
 }
 
 
-void UINsVisterm::CmpViscoff()
+void UINsVisterm::CalcViscoff()
 {
     if ( vis_model.vismodel == 0 ) return;
     ug.Init();
@@ -76,7 +76,7 @@ void UINsVisterm::CmpViscoff()
     //this->SetVisPointer();
 
     this->PrepareField();
-    this->CmpVisterm();
+    this->CalcVisterm();
     //this->Addterm();
 
     DeAlloc();
@@ -99,7 +99,7 @@ void UINsVisterm::PrepareField()
     //ut_grad.CompGradDebug();
 }
 
-void UINsVisterm::CmpVisterm()
+void UINsVisterm::CalcVisterm()
 {
     for ( int fId = 0; fId < ug.nFace; ++ fId )
     {
@@ -119,18 +119,18 @@ void UINsVisterm::CmpVisterm()
 
         //this->PrepareFaceValue();
 
-        this->CmpFaceVisterm();  //要改动
+        this->CalcFaceVisterm();  //要改动
 
     }
 }
 
-void UINsVisterm::CmpFaceVisterm()
+void UINsVisterm::CalcFaceVisterm()
 {
-    this->CmpNsVisterm();  //要改动
+    this->CalcNsVisterm();  //要改动
 }
 
 
-void UINsVisterm::CmpNsVisterm()
+void UINsVisterm::CalcNsVisterm()
 {
 
 	Real l2rdx = (*ug.xcc)[ug.rc] - (*ug.xcc)[ug.lc];  //界面左右单元中心距
@@ -153,7 +153,7 @@ void UINsVisterm::CmpNsVisterm()
 
 }
 
-void UINsVisterm::CmpSrc()
+void UINsVisterm::CalcSrc()
 {
 	for (int cId = 0; cId < ug.nCell; ++cId)
 	{

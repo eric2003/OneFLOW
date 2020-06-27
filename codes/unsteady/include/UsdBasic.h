@@ -41,8 +41,8 @@ public:
     void InitCoef();
     void CmpResCoef();
     void CmpSpectrumCoeff();
-    void CmpSrcCoeffBasic();
-    void CmpSrcCoeff();
+    void CalcSrcCoeffBasic();
+    void CalcSrcCoeff();
 public:
     void InitBasic();
 };

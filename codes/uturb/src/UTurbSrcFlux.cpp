@@ -83,17 +83,17 @@ void UTurbSrcFlux::Init()
 
 }
 
-void UTurbSrcFlux::CmpSrcFlux()
+void UTurbSrcFlux::CalcSrcFlux()
 {
     //ReadTmp();
     Init();
     if ( turbcom.nEqu == 1 )
     {
-        this->CmpSrcFlux1Equ();
+        this->CalcSrcFlux1Equ();
     }
     else if ( turbcom.nEqu >= 2 )
     {
-        this->CmpSrcFlux2Equ();
+        this->CalcSrcFlux2Equ();
     }
 }
 
@@ -267,7 +267,7 @@ void UTurbSrcFlux::CmpVist2Equ()
     }
 }
 
-void UTurbSrcFlux::CmpSrcFlux1Equ()
+void UTurbSrcFlux::CalcSrcFlux1Equ()
 {
     for ( int cId = 0; cId < ug.nCell; ++ cId )
     {
@@ -280,13 +280,13 @@ void UTurbSrcFlux::CmpSrcFlux1Equ()
 
         this->PrepareCellValue1Equ();
 
-        this->CmpSrcSa();
+        this->CalcSrcSa();
 
         this->Update1Equ();
     }
 }
 
-void UTurbSrcFlux::CmpSrcFlux2Equ()
+void UTurbSrcFlux::CalcSrcFlux2Equ()
 {
     for ( int cId = 0; cId < ug.nCell; ++ cId )
     {
@@ -299,7 +299,7 @@ void UTurbSrcFlux::CmpSrcFlux2Equ()
 
         this->PrepareCellValue();
 
-        this->CmpSrc2Equ();
+        this->CalcSrc2Equ();
 
         this->Update2Equ();
     }

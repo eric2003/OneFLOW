@@ -32,9 +32,9 @@ public:
 public:
     void Init();
     void InitVist();
-    void CmpSrcFlux();
-    void CmpSrcFlux1Equ();
-    void CmpSrcFlux2Equ();
+    void CalcSrcFlux();
+    void CalcSrcFlux1Equ();
+    void CalcSrcFlux2Equ();
 
     void Update1Equ();
     void Update2Equ();

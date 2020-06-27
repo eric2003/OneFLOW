@@ -576,7 +576,7 @@ void TurbCom::ModifyPd()
     }
 }
 
-void TurbCom::CmpSrc()
+void TurbCom::CalcSrc()
 {
     srck  = prodk - dissk;
     srcw  = prodw - dissw + cdkww;
@@ -764,7 +764,7 @@ void TurbCom::RGamaTransition()
     sper = destRe / ( rho * rectabar );
 }
 
-void TurbCom::CmpSrcSa()
+void TurbCom::CalcSrcSa()
 {
     Real olam = rho / ( visl + SMALL );
     Real d2   = SQR( len_scale );

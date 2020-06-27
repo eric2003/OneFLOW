@@ -35,14 +35,14 @@ public:
     SrcPointer cmpProd;
 public:
     void SetSrcFluxPointer();
-    void CmpSrcSa();
-    void CmpSrc2Equ();
-    void CmpSrc2EquKwMenter();
-    void CmpSrc2EquKwWilcox1998();
-    void CmpSrc2EquKwWilcox2006();
-    void CmpSrc2EquKwDefault();
-    void CmpSrc2EquEasmKw2003();
-    void CmpSrc2EquEasmKw2005();
+    void CalcSrcSa();
+    void CalcSrc2Equ();
+    void CalcSrc2EquKwMenter();
+    void CalcSrc2EquKwWilcox1998();
+    void CalcSrc2EquKwWilcox2006();
+    void CalcSrc2EquKwDefault();
+    void CalcSrc2EquEasmKw2003();
+    void CalcSrc2EquEasmKw2005();
     void CmpFbetaCoef();
     void CmpFbetaDefault();
     void CmpFbetaOfKwWilcox1998();
@@ -62,7 +62,7 @@ public:
     void CmpProdwEasmKw2003();
     void CmpProdwEasmKw2005();
     void ModifyPd();
-    void CmpSrc();
+    void CalcSrc();
 public:
     void CmpCellVist1Equ();
     void CmpCellVist2Equ();

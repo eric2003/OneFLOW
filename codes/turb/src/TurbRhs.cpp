@@ -60,7 +60,7 @@ void TurbCmpRHS()
 
     TurbCmpSpectrum();
 
-    TurbCmpSrcFlux();
+    TurbCalcSrcFlux();
 
     TurbCmpInvFlux();
 
@@ -84,10 +84,10 @@ void TurbCmpVisFlux()
     delete uTurbVisFlux;
 }
 
-void TurbCmpSrcFlux()
+void TurbCalcSrcFlux()
 {
     UTurbSrcFlux * uTurbSrcFlux = new UTurbSrcFlux();
-    uTurbSrcFlux->CmpSrcFlux();
+    uTurbSrcFlux->CalcSrcFlux();
     delete uTurbSrcFlux;
 }
 

@@ -176,7 +176,7 @@ public:
     void CmpProdwEasmKw2003();
     void CmpProdwEasmKw2005();
     void ModifyPd();
-    void CmpSrc();
+    void CalcSrc();
     void CmpCrossDiff();
     void CmpCdkwmin();
     void CmpCellBlendingTerm();
@@ -185,7 +185,7 @@ public:
     void CmpFbetaOfKwWilcox2006();
     void CmpFbetaOfEasmKw2003();
     void RGamaTransition();
-    void CmpSrcSa();
+    void CalcSrcSa();
 };
 
 extern TurbCom turbcom;

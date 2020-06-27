@@ -46,25 +46,25 @@ void TurbSrcFlux::SetSrcFluxPointer()
         this->cmpBeta = & TurbSrcFlux::CmpFbetaDefault;
         if ( vis_model.visname.substr( 0, 13 ) == "2eq-kw-menter"  )
         {
-            this->srcFlux = & TurbSrcFlux::CmpSrc2EquKwMenter;
+            this->srcFlux = & TurbSrcFlux::CalcSrc2EquKwMenter;
             this->cmpBeta = & TurbSrcFlux::CmpFbetaDefault;
             this->cmpProd = & TurbSrcFlux::CmpProdwKwMenter;
         }
         else if ( vis_model.visname.substr( 0, 18 ) == "2eq-kw-wilcox-1998" )
         {
-            this->srcFlux = & TurbSrcFlux::CmpSrc2EquKwWilcox1998;
+            this->srcFlux = & TurbSrcFlux::CalcSrc2EquKwWilcox1998;
             this->cmpBeta = & TurbSrcFlux::CmpFbetaOfKwWilcox1998;
             this->cmpProd = & TurbSrcFlux::CmpProdwKwWilcox1998;
         }
         else if ( vis_model.visname.substr( 0, 18 ) == "2eq-kw-wilcox-2006" )
         {
-            this->srcFlux = & TurbSrcFlux::CmpSrc2EquKwWilcox2006;
+            this->srcFlux = & TurbSrcFlux::CalcSrc2EquKwWilcox2006;
             this->cmpBeta = & TurbSrcFlux::CmpFbetaOfKwWilcox2006;
             this->cmpProd = & TurbSrcFlux::CmpProdwKwWilcox2006;
         }
         else
         {
-            this->srcFlux = & TurbSrcFlux::CmpSrc2EquKwDefault;
+            this->srcFlux = & TurbSrcFlux::CalcSrc2EquKwDefault;
             this->cmpBeta = & TurbSrcFlux::CmpFbetaDefault;
             this->cmpProd = & TurbSrcFlux::CmpProdwKwDefault;
         }
@@ -74,22 +74,22 @@ void TurbSrcFlux::SetSrcFluxPointer()
         if ( vis_model.visname.substr( 0, 12 ) == "easm-kw-2001" ||
              vis_model.visname.substr( 0, 12 ) == "easm-kw-2003" )
         {
-            this->srcFlux = & TurbSrcFlux::CmpSrc2EquEasmKw2003;
+            this->srcFlux = & TurbSrcFlux::CalcSrc2EquEasmKw2003;
             this->cmpBeta = & TurbSrcFlux::CmpFbetaOfEasmKw2003;
             this->cmpProd = & TurbSrcFlux::CmpProdwEasmKw2003;
         }
         else if ( vis_model.visname.substr( 0, 12 ) == "easm-kw-2005" )
         {
-            this->srcFlux = & TurbSrcFlux::CmpSrc2EquEasmKw2005;
+            this->srcFlux = & TurbSrcFlux::CalcSrc2EquEasmKw2005;
             this->cmpBeta = & TurbSrcFlux::CmpFbetaDefault;
             this->cmpProd = & TurbSrcFlux::CmpProdwEasmKw2005;
         }
     }
 }
 
-void TurbSrcFlux::CmpSrcSa()
+void TurbSrcFlux::CalcSrcSa()
 {
-    turbcom.CmpSrcSa();
+    turbcom.CalcSrcSa();
 }
 
 void TurbSrcFlux::CmpFbetaCoef()
@@ -103,7 +103,7 @@ void TurbSrcFlux::CmpProdW()
 }
 
 
-void TurbSrcFlux::CmpSrc2Equ()
+void TurbSrcFlux::CalcSrc2Equ()
 {
     this->CmpVGrad();
     this->CmpTransition();
@@ -113,10 +113,10 @@ void TurbSrcFlux::CmpSrc2Equ()
     this->LimitProdk();
     this->CmpProdW();
     this->ModifyPd();
-    this->CmpSrc();
+    this->CalcSrc();
 }
 
-void TurbSrcFlux::CmpSrc2EquKwMenter()
+void TurbSrcFlux::CalcSrc2EquKwMenter()
 {
     this->CmpVGrad();
     this->CmpTransition();
@@ -125,10 +125,10 @@ void TurbSrcFlux::CmpSrc2EquKwMenter()
     this->LimitProdk();
     this->CmpProdwKwMenter();
     this->ModifyPd();
-    this->CmpSrc();
+    this->CalcSrc();
 }
 
-void TurbSrcFlux::CmpSrc2EquKwWilcox1998()
+void TurbSrcFlux::CalcSrc2EquKwWilcox1998()
 {
     this->CmpVGrad();
     this->CmpTransition();
@@ -138,10 +138,10 @@ void TurbSrcFlux::CmpSrc2EquKwWilcox1998()
     this->LimitProdk();
     this->CmpProdwKwWilcox1998();
     this->ModifyPd();
-    this->CmpSrc();
+    this->CalcSrc();
 }
 
-void TurbSrcFlux::CmpSrc2EquKwWilcox2006()
+void TurbSrcFlux::CalcSrc2EquKwWilcox2006()
 {
     this->CmpVGrad();
     this->CmpTransition();
@@ -151,10 +151,10 @@ void TurbSrcFlux::CmpSrc2EquKwWilcox2006()
     this->LimitProdk();
     this->CmpProdwKwWilcox2006();
     this->ModifyPd();
-    this->CmpSrc();
+    this->CalcSrc();
 }
 
-void TurbSrcFlux::CmpSrc2EquKwDefault()
+void TurbSrcFlux::CalcSrc2EquKwDefault()
 {
     this->CmpVGrad();
     this->CmpTransition();
@@ -163,10 +163,10 @@ void TurbSrcFlux::CmpSrc2EquKwDefault()
     this->LimitProdk();
     this->CmpProdwKwDefault();
     this->ModifyPd();
-    this->CmpSrc();
+    this->CalcSrc();
 }
 
-void TurbSrcFlux::CmpSrc2EquEasmKw2003()
+void TurbSrcFlux::CalcSrc2EquEasmKw2003()
 {
     this->CmpVGrad();
     this->CmpTransition();
@@ -176,10 +176,10 @@ void TurbSrcFlux::CmpSrc2EquEasmKw2003()
     this->LimitProdk();
     this->CmpProdwEasmKw2003();
     this->ModifyPd();
-    this->CmpSrc();
+    this->CalcSrc();
 }
 
-void TurbSrcFlux::CmpSrc2EquEasmKw2005()
+void TurbSrcFlux::CalcSrc2EquEasmKw2005()
 {
     this->CmpVGrad();
     this->CmpTransition();
@@ -188,7 +188,7 @@ void TurbSrcFlux::CmpSrc2EquEasmKw2005()
     this->LimitProdk();
     this->CmpProdwEasmKw2005();
     this->ModifyPd();
-    this->CmpSrc();
+    this->CalcSrc();
 }
 
 
@@ -271,9 +271,9 @@ void TurbSrcFlux::ModifyPd()
     turbcom.ModifyPd();
 }
 
-void TurbSrcFlux::CmpSrc()
+void TurbSrcFlux::CalcSrc()
 {
-    turbcom.CmpSrc();
+    turbcom.CalcSrc();
 }
 
 void TurbSrcFlux::CmpCellVist1Equ()

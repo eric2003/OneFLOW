@@ -39,7 +39,7 @@ void TurbCmpBc();
 void TurbCmpRHS();
 void TurbCmpInvFlux();
 void TurbCmpVisFlux();
-void TurbCmpSrcFlux();
+void TurbCalcSrcFlux();
 void TurbCmpSpectrum();
 void TurbCmpDualTimeStepSrc();
 void CmpTurbulentViscosity();

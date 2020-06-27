@@ -233,7 +233,7 @@ void INsCompInv()
 void INsCompVis()
 {
 	UINsVisterm * uINsVisterm = new UINsVisterm();
-	uINsVisterm->CmpViscoff();
+	uINsVisterm->CalcViscoff();
 	delete uINsVisterm;
 }
 
@@ -252,7 +252,7 @@ void INsCompSrc()
 	//	INsCompDualTimeStepSrc();
 	//}
 	UINsVisterm * uINsVisterm = new UINsVisterm();
-	uINsVisterm->CmpSrc();
+	uINsVisterm->CalcSrc();
 	delete uINsVisterm;
 }
 
