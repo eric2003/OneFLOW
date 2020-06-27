@@ -56,10 +56,10 @@ void RegisterNsFunc()
 
 void NsInitFinal( StringField & data )
 {
-    NSCompGamaT( F_INNER );
+    NsCompGamaT( F_INNER );
     CompLaminarViscosity( F_INNER );
     NsCompBc();
-    NSCompGamaT( F_GHOST );
+    NsCompGamaT( F_GHOST );
     CompLaminarViscosity( F_GHOST );
 
     Grid * grid = Zone::GetGrid();
@@ -83,10 +83,10 @@ void NsVisual( StringField & data )
 
 void NsCmpBoundary( StringField & data )
 {
-    NSCompGamaT( F_INNER );
+    NsCompGamaT( F_INNER );
     CompLaminarViscosity( F_INNER );
     NsCompBc();
-    NSCompGamaT( F_GHOST );
+    NsCompGamaT( F_GHOST );
     CompLaminarViscosity( F_GHOST );
 }
 

@@ -75,8 +75,8 @@ void FieldAlloc::RegisterInterfaceVar( int sTid, const string & basicString )
     StringField fileNameList;
     IntField fieldTypeList;
 
-    FieldAlloc::CmpInterfaceFileName( basicString, fileNameList );
-    FieldAlloc::CmpInterfaceFileType( fieldTypeList );
+    FieldAlloc::CalcInterfaceFileName( basicString, fileNameList );
+    FieldAlloc::CalcInterfaceFileType( fieldTypeList );
     
     for ( int iFile = 0; iFile < fileNameList.size(); ++ iFile )
     {
@@ -92,7 +92,7 @@ void FieldAlloc::AllocateGlobalField( int sTid, const string & basicString )
 {
     FieldFactory::AddFieldManager( sTid );
     StringField fileNameList;
-    FieldAlloc::CmpInnerFieldFileName( basicString, fileNameList );
+    FieldAlloc::CalcInnerFieldFileName( basicString, fileNameList );
 
     for ( int iFile = 0; iFile < fileNameList.size(); ++ iFile )
     {
@@ -134,7 +134,7 @@ void FieldAlloc::AllocateOversetInterfaceField( IFieldProperty * iFieldProperty 
 {
 }
 
-void FieldAlloc::CmpInnerFieldFileName( const string & basicString, StringField & fileNameList )
+void FieldAlloc::CalcInnerFieldFileName( const string & basicString, StringField & fileNameList )
 {
     StringField basicNameList;
     basicNameList.push_back( "unsteady" );
@@ -157,7 +157,7 @@ void FieldAlloc::CmpInnerFieldFileName( const string & basicString, StringField 
     }
 }
 
-void FieldAlloc::CmpInterfaceFileName( const string & basicString, StringField & fileNameList )
+void FieldAlloc::CalcInterfaceFileName( const string & basicString, StringField & fileNameList )
 {
     StringField basicNameList;
     basicNameList.push_back( "inter"        );
@@ -180,7 +180,7 @@ void FieldAlloc::CmpInterfaceFileName( const string & basicString, StringField &
     }
 }
 
-void FieldAlloc::CmpInterfaceFileType( IntField & fieldTypeList )
+void FieldAlloc::CalcInterfaceFileType( IntField & fieldTypeList )
 {
     fieldTypeList.push_back( ONEFLOW::INTERFACE_DATA          );
     fieldTypeList.push_back( ONEFLOW::INTERFACE_DQ_DATA       );

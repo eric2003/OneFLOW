@@ -73,7 +73,7 @@ void NsCompBc()
     delete uNsBcSolver;
 }
 
-void NSCompGamaT( int flag )
+void NsCompGamaT( int flag )
 {
     UnsGrid * grid = Zone::GetUnsGrid();
 
@@ -172,7 +172,7 @@ void INsCompBc()
 	delete uINsBcSolver;
 }
 
-void INSCompGamaT(int flag)
+void INsCompGamaT(int flag)
 {
 	UnsGrid * grid = Zone::GetUnsGrid();
 

@@ -54,9 +54,9 @@ public:
     static void InitField( int sTid, const string & basicString );
     static void RegisterInterfaceVar( int sTid, const string & basicString );
     static void AllocateGlobalField( int sTid, const string & basicString );
-    static void CmpInnerFieldFileName( const string & basicString, StringField & fileNameList );
-    static void CmpInterfaceFileName( const string & basicString, StringField & fileNameList );
-    static void CmpInterfaceFileType( IntField & fieldTypeList );
+    static void CalcInnerFieldFileName( const string & basicString, StringField & fileNameList );
+    static void CalcInterfaceFileName( const string & basicString, StringField & fileNameList );
+    static void CalcInterfaceFileType( IntField & fieldTypeList );
     static void AllocateAllKindsOfInterfaceField( int sTid );
     static void AllocateInterfaceField( IFieldProperty * iFieldProperty );
     static void AllocateOversetInterfaceField( IFieldProperty * iFieldProperty );

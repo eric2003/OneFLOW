@@ -37,7 +37,7 @@ public:
 };
 
 void NsCompBc();
-void NSCompGamaT( int flag );
+void NsCompGamaT( int flag );
 void NsCompRHS();
 void NsCompInvFlux();
 void NsCompVisFlux();
@@ -47,7 +47,7 @@ void NsCompTurbEnergy();
 void NsCompDualTimeStepSrc();
 
 void INsCompBc();
-void INSCompGamaT(int flag);
+void INsCompGamaT(int flag);
 void INsCompRHS();
 //void INsCompInvFlux();
 //void INsCompVisFlux();
