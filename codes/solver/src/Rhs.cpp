@@ -115,14 +115,14 @@ void NsCompRHS()
 void NsCompInvFlux()
 {
     UNsInvFlux * uNsInvFlux = new UNsInvFlux();
-    uNsInvFlux->CmpFlux();
+    uNsInvFlux->CalcFlux();
     delete uNsInvFlux;
 }
 
 void NsCompVisFlux()
 {
     UNsVisFlux * uNsVisFlux = new UNsVisFlux();
-    uNsVisFlux->CmpFlux();
+    uNsVisFlux->CalcFlux();
     delete uNsVisFlux;
 }
 

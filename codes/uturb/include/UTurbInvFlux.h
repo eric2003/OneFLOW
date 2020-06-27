@@ -42,10 +42,10 @@ public:
 public:
     void Alloc();
     void DeAlloc();
-    void CmpFlux();
-    void CmpInvFlux();
-    void CmpInvFace();
-    void CmpLimiter();
+    void CalcFlux();
+    void CalcInvFlux();
+    void CalcInvFace();
+    void CalcLimiter();
     void AddInvFlux();
     void PrepareFaceValue();
     void UpdateFaceInvFlux();

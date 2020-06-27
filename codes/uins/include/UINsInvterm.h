@@ -40,8 +40,8 @@ public:
     void DeAlloc();
     void CmpInvcoff();
     void CmpInvMassFlux();
-    void CmpInvFace();
-    void CmpLimiter();
+    void CalcInvFace();
+    void CalcLimiter();
 	void MomPred();
 	void CmpFaceflux();
 	void CmpCorrectPresscoef();

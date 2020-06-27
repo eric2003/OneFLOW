@@ -374,7 +374,7 @@ Limiter::~Limiter()
     delete lim;
 }
 
-void Limiter::CmpLimiter()
+void Limiter::CalcLimiter()
 {
     ug.Init();
     limf->Init();
@@ -387,7 +387,7 @@ void Limiter::CmpLimiter()
         lim->dqdy    = & ( * limf->dqdy    )[ iEqu ];
         lim->dqdz    = & ( * limf->dqdz    )[ iEqu ];
         this->SetInitValue();
-        this->CmpLimiterScalar();
+        this->CalcLimiterScalar();
     }
     DeAlloc();
 }
@@ -412,7 +412,7 @@ void Limiter::SetInitValue()
     }
 }
 
-void Limiter::CmpLimiterScalar()
+void Limiter::CalcLimiterScalar()
 {
     if ( limflag == ILMT_ZERO )
     {

@@ -92,8 +92,8 @@ public:
     void Alloc();
     void DeAlloc();
     void SetInitValue();
-    void CmpLimiter();
-    void CmpLimiterScalar();
+    void CalcLimiter();
+    void CalcLimiterScalar();
 
     void CmpZeroLimiter();
     void CmpNoLimiter();

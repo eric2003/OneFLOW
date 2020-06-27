@@ -55,17 +55,17 @@ UINsInvterm::~UINsInvterm()
     delete limiter;
 }
 
-void UINsInvterm::CmpLimiter()
+void UINsInvterm::CalcLimiter()
 {
-    limiter->CmpLimiter();
+    limiter->CalcLimiter();
 }
 
-void UINsInvterm::CmpInvFace()  //不改动
+void UINsInvterm::CalcInvFace()  //不改动
 {
     //uins_grad.Init();
     //uins_grad.CompGrad();
 
-    this->CmpLimiter();   //不改
+    this->CalcLimiter();   //不改
 
     this->GetQlQrField();  //不改
 
@@ -101,7 +101,7 @@ void UINsInvterm::CmpInvcoff()
     //this->SetPointer( inscom.ischeme );
 
     //ReadTmp();
-    this->CmpInvFace();
+    this->CalcInvFace();
     this->CmpInvMassFlux();  //需要改动
     //this->AddInv();
 
@@ -225,7 +225,7 @@ void UINsInvterm::CmpFaceflux()
 	ug.Init();
 	uinsf.Init();
 	Alloc();
-	this->CmpInvFace();  //边界处理
+	this->CalcInvFace();  //边界处理
 	for (int fId = 0; fId < ug.nFace; ++fId)
 	{
 		ug.fId = fId;

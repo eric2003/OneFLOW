@@ -37,7 +37,7 @@ public:
 
 void TurbCalcBc();
 void TurbCmpRHS();
-void TurbCmpInvFlux();
+void TurbCalcInvFlux();
 void TurbCmpVisFlux();
 void TurbCalcSrcFlux();
 void TurbCmpSpectrum();

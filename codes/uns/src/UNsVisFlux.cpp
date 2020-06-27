@@ -82,7 +82,7 @@ void UNsVisFlux::SetVisPointer()
     }
 }
 
-void UNsVisFlux::CmpFlux()
+void UNsVisFlux::CalcFlux()
 {
     if ( vis_model.vismodel == 0 ) return;
     ug.Init();

@@ -54,17 +54,17 @@ UNsInvFlux::~UNsInvFlux()
     delete limiter;
 }
 
-void UNsInvFlux::CmpLimiter()
+void UNsInvFlux::CalcLimiter()
 {
-    limiter->CmpLimiter();
+    limiter->CalcLimiter();
 }
 
-void UNsInvFlux::CmpInvFace()
+void UNsInvFlux::CalcInvFace()
 {
     uns_grad.Init();
     uns_grad.CompGrad();
 
-    this->CmpLimiter();
+    this->CalcLimiter();
 
     this->GetQlQrField();
 
@@ -89,7 +89,7 @@ void UNsInvFlux::BoundaryQlQrFixField()
     limf->BcQlQrFix();
 }
 
-void UNsInvFlux::CmpFlux()
+void UNsInvFlux::CalcFlux()
 {
     if ( nscom.icmpInv == 0 ) return;
     inv.Init();
@@ -100,14 +100,14 @@ void UNsInvFlux::CmpFlux()
     this->SetPointer( nscom.ischeme );
 
     //ReadTmp();
-    this->CmpInvFace();
-    this->CmpInvFlux();
+    this->CalcInvFace();
+    this->CalcInvFlux();
     this->AddInvFlux();
 
     DeAlloc();
 }
 
-void UNsInvFlux::CmpInvFlux()
+void UNsInvFlux::CalcInvFlux()
 {
     if ( Iteration::outerSteps == 2 )
     {
