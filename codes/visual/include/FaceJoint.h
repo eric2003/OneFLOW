@@ -41,7 +41,7 @@ public:
     FaceJoint * global;
 public:
     void ConstructPointIndex();
-    void CmpNodeValue();
+    void CalcNodeValue();
 };
 
 class WallVisual;

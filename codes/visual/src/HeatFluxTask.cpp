@@ -125,7 +125,7 @@ void HeatFluxTask::ConstructPointIndex()
 
 void HeatFluxTask::CalcNodeValue()
 {
-    wallManager->CmpNodeValue();
+    wallManager->CalcNodeValue();
 }
 
 void HeatFluxTask::VisualizeWallNodeValue()

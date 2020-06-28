@@ -29,7 +29,7 @@ BeginNameSpace( ONEFLOW )
 MRField * AllocNodeVar( int nEqu = 1 );
 MRField * CreateNodeVar( const string & name );
 MRField * CreateNodeVar( RealField & qc );
-void CmpNodeVar( RealField & qNodeField, RealField & qField );
+void CalcNodeVar( RealField & qNodeField, RealField & qField );
 void FixBcNodeVar( RealField & qNodeField, RealField & qField, RealField & nCount, int bcType, bool twoSide );
 
 template < typename T >

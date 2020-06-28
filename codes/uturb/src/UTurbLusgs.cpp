@@ -149,7 +149,7 @@ void UTurbLusgs::UpperSweep()
         this->Update();
     }
 
-    //CmpTurbulentViscosity();
+    //CalcTurbulentViscosity();
 }
 
 void UTurbLusgs::SolveLowerCell()

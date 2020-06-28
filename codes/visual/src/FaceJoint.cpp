@@ -57,7 +57,7 @@ void FaceJointManager::ConstructPointIndex()
     }
 }
 
-void FaceJointManager::CmpNodeValue()
+void FaceJointManager::CalcNodeValue()
 {
     this->global->ComputeNodeValue();
 

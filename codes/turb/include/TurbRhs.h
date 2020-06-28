@@ -42,6 +42,6 @@ void TurbCalcVisFlux();
 void TurbCalcSrcFlux();
 void TurbCalcSpectrum();
 void TurbCmpDualTimeStepSrc();
-void CmpTurbulentViscosity();
+void CalcTurbulentViscosity();
 
 EndNameSpace
