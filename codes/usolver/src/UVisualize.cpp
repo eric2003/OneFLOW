@@ -115,7 +115,7 @@ void BcVisual::Compute( int bcType )
 {
     UnsGrid * grid = Zone::GetUnsGrid();
 
-    this->Cmpf2n( bcType );
+    this->Calcf2n( bcType );
 
     e2n.resize( 0 );
     lcell.resize( 0 );
@@ -192,7 +192,7 @@ void BcVisual::ResolveElementEdge()
     }
 }
 
-void BcVisual::Cmpf2n( int bcType )
+void BcVisual::Calcf2n( int bcType )
 {
     UnsGrid * grid = Zone::GetUnsGrid();
     FaceTopo * faceTopo = grid->faceTopo;
@@ -467,7 +467,7 @@ void UVisualize::Visual()
     VisualTool visualTool;
     visualTool.Init();
 
-    this->CmpNodeField( & visualTool );
+    this->CalcNodeField( & visualTool );
 
     ostringstream oss;
 
@@ -612,7 +612,7 @@ void UVisualize::ShowBcDebugTest( ostringstream & oss, VisualTool * visualTool )
     }
 }
 
-void UVisualize::CmpNodeField( VisualTool * visualTool )
+void UVisualize::CalcNodeField( VisualTool * visualTool )
 {
     UnsGrid * grid = Zone::GetUnsGrid();
     MRField * q = ONEFLOW::GetFieldPointer< MRField >( grid, "q" );
@@ -625,7 +625,7 @@ void UVisualize::CmpNodeField( VisualTool * visualTool )
 
     MRField * gaman = CreateNodeVar( "gama" );
     MRField * machn = visualTool->CreateField( "mach" );
-    CmpMach( rn, un, vn, wn, pn, gaman, machn );
+    CalcMach( rn, un, vn, wn, pn, gaman, machn );
     delete gaman;
 
     MRField * tempr = ONEFLOW::GetFieldPointer< MRField >( grid, "tempr" );
@@ -638,7 +638,7 @@ void UVisualize::CmpNodeField( VisualTool * visualTool )
     }
 }
 
-void CmpMach( MRField * r, MRField * u, MRField * v, MRField * w, MRField * p, MRField * gama, MRField * mach )
+void CalcMach( MRField * r, MRField * u, MRField * v, MRField * w, MRField * p, MRField * gama, MRField * mach )
 {
     UnsGrid * grid = Zone::GetUnsGrid();
     int nNode = grid->nNode;

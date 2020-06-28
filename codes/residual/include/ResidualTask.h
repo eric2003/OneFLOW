@@ -33,7 +33,7 @@ public:
 public:
     void Run();
 public:
-    void CmpRes( int sTid, ResData & data );
+    void CalcRes( int sTid, ResData & data );
     void PostDumpResiduals();
     void DumpScreen();
     void DumpFile();

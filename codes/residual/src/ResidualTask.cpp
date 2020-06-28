@@ -64,14 +64,14 @@ void ResidualTask::Run()
         if (  ! ZoneState::IsValidZone( zId ) ) continue;
         ZoneState::zid = zId;
         dataList[ iCount ].Init( solverInfo->nEqu );
-        this->CmpRes( SolverState::tid, dataList[ iCount ] );
+        this->CalcRes( SolverState::tid, dataList[ iCount ] );
         ++ iCount;
     }
 
     PostDumpResiduals();
 }
 
-void ResidualTask::CmpRes( int sTid, ResData & data )
+void ResidualTask::CalcRes( int sTid, ResData & data )
 {
     UnsGrid * grid = Zone::GetUnsGrid();
     SolverInfo * solverInfo = SolverInfoFactory::GetSolverInfo( sTid );
