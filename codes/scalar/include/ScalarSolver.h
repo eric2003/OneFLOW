@@ -43,7 +43,7 @@ public:
     void Solve( double coef );
     void UpdateUN();
     void GatherField( vector< double > & ugfield );
-    void DompareField( vector< double > & uGlobal );
+    void CompareField( vector< double > & uGlobal );
     void SetBc( int bcL, int bcR );
     double GetRightBcValue();
     void SetLeftBcValue( double lv );
@@ -80,7 +80,7 @@ public:
     void InitFlowField();
     void InitZoneFlowField();
     void UpdateUN();
-    void DompareField();
+    void CompareField();
 public:
     void SetScalarZone();
     void SolveOneStep();

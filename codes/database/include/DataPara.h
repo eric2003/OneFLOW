@@ -45,7 +45,7 @@ public:
     void Copy( DataV * inputData );
 };
 
-class DompareDataV
+class CompareDataV
 {
 public:
     bool operator()( const DataV * lhs, const DataV * rhs ) const
@@ -60,7 +60,7 @@ public:
     DataPara();
     ~DataPara();
 public:
-    typedef set < DataV *, DompareDataV > DataSET;
+    typedef set < DataV *, CompareDataV > DataSET;
 protected:
     DataSET * dataSet;
 public:

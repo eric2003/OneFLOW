@@ -44,7 +44,7 @@ public:
     PointerWrap * GetPointerWrap() { return data;  }
 };
 
-class DompareDataF
+class CompareDataF
 {
 public:
     bool operator()( const DataF * lhs, const DataF * rhs ) const
@@ -56,7 +56,7 @@ public:
 class DataField
 {
 public:
-    typedef set < DataF *, DompareDataF > DataSET;
+    typedef set < DataF *, CompareDataF > DataSET;
 public:
     DataField();
     ~DataField();

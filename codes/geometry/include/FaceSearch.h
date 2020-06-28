@@ -39,7 +39,7 @@ public:
     IntField sortedNodeId;
 };
 
-class DompareFace
+class CompareFace
 {
 public:
     bool operator() ( const FaceSort * lhs, const FaceSort * rhs ) const
@@ -55,7 +55,7 @@ public:
     ~FaceSearchBasic();
 public:
     HXVector< FaceSort * > faceArray;
-    set< FaceSort * , DompareFace > faceSet;
+    set< FaceSort * , CompareFace > faceSet;
 public:
     int AddFace( const IntField & faceNode );
     int FindFace( const IntField & faceNode );

@@ -50,7 +50,7 @@ public:
     void MoveTo( const T & newX, const T & newY, const T & newZ );
 public:
     bool operator < ( const point_type & rhs ) const;
-    bool Dompare( const point_type & rhs, const T & tolerance ) const;
+    bool Compare( const point_type & rhs, const T & tolerance ) const;
 };
 
 EndNameSpace

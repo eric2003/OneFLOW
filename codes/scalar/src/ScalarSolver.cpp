@@ -91,7 +91,7 @@ void ScalarZone::GatherField( vector< double > & ugfield )
     }
 }
 
-void ScalarZone::DompareField( vector< double > & uGlobal )
+void ScalarZone::CompareField( vector< double > & uGlobal )
 {
     for ( int i = 0; i < nNode; ++ i )
     {
@@ -373,17 +373,17 @@ void ScalarSolver::SolveFlowField()
 
         this->Boundary();
 
-        this->DompareField();
+        this->CompareField();
     }
 }
 
-void ScalarSolver::DompareField()
+void ScalarSolver::CompareField()
 {
     int nZones = this->scalarZones.size();
     for ( int iZone = 0; iZone < nZones; ++ iZone )
     {
         ScalarZone * scalarZone = this->scalarZones[ iZone ];
-        scalarZone->DompareField( this->u );
+        scalarZone->CompareField( this->u );
     }
 }
 
