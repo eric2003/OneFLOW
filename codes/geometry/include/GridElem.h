@@ -54,12 +54,12 @@ public:
     int GetNZone();
 public:
     void CreateGrid( HXVector< CgnsZone * > cgnsZones, int iZone );
-    void PrepareUnsCompGrid();
+    void PrepareUnsCalcGrid();
     void InitCgnsElements();
     void ScanBcFace();
     void GenerateCompElement();
-    void GenerateCompGrid();
-    void GenerateCompGrid( Grid * grid );
+    void GenerateCalcGrid();
+    void GenerateCalcGrid( Grid * grid );
     void DomputeBoundaryType( UnsGrid * grid );
     void ReorderLink( UnsGrid * grid );
 };

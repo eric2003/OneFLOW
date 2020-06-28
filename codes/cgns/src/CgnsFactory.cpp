@@ -49,7 +49,7 @@ License
 #include "CgnsBcBoco.h"
 #include "ElementHome.h"
 #include "HXPointer.h"
-#include "CompGrid.h"
+#include "CalcGrid.h"
 #include "GridElem.h"
 #include "BgGrid.h"
 using namespace std;
@@ -129,9 +129,9 @@ void CgnsFactory::CgnsToOneFlowGrid()
 
     this->AllocateGridElem();
 
-    this->PrepareUnsCompGrid();
+    this->PrepareUnsCalcGrid();
 
-    this->GenerateCompGrid();
+    this->GenerateCalcGrid();
 
     Grids grids;
 
@@ -144,7 +144,7 @@ void CgnsFactory::CgnsToOneFlowGrid()
 
 
     //对网格进行处理并输出计算所用的网格文件
-    ONEFLOW::GenerateMultiZoneCompGrids( grids );
+    ONEFLOW::GenerateMultiZoneCalcGrids( grids );
 }
 
 void CgnsFactory::CreateCgnsZone( ZgridMediator * zgridMediator )
@@ -203,7 +203,7 @@ void CgnsFactory::CommonToUnsGrid()
         delete cgnsFactory;
     }
 
-    ONEFLOW::GenerateMultiZoneCompGrids( grids );
+    ONEFLOW::GenerateMultiZoneCalcGrids( grids );
     delete gridMediator;
 }
 
@@ -223,9 +223,9 @@ void CgnsFactory::CommonToUnsGridTEST()
 
     this->AllocateGridElem();
 
-    this->PrepareUnsCompGrid();
+    this->PrepareUnsCalcGrid();
 
-    this->GenerateCompGrid();
+    this->GenerateCalcGrid();
 
     Grids grids;
 
@@ -236,16 +236,16 @@ void CgnsFactory::CommonToUnsGridTEST()
         grids.push_back( grid );
     }
 
-    ONEFLOW::GenerateMultiZoneCompGrids( grids );
+    ONEFLOW::GenerateMultiZoneCalcGrids( grids );
 }
 
 void CgnsFactory::CgnsToOneFlowGrid( Grid *& grid, int zId )
 {
     this->AllocateGridElem();
 
-    this->PrepareUnsCompGrid();
+    this->PrepareUnsCalcGrid();
 
-    this->GenerateCompGrid();
+    this->GenerateCalcGrid();
 
     GridElem * gridElem = zgridElem->GetGridElem( 0 );
     grid = gridElem->grid;
@@ -287,24 +287,24 @@ void CgnsFactory::AllocateGridElem()
     }
 }
 
-void CgnsFactory::PrepareUnsCompGrid()
+void CgnsFactory::PrepareUnsCalcGrid()
 {
     for ( int iZone = 0; iZone < this->nZone; ++ iZone )
     {
         GridElem * gridElem = zgridElem->GetGridElem( iZone );
-        gridElem->PrepareUnsCompGrid();
+        gridElem->PrepareUnsCalcGrid();
     }
 }
 
-void CgnsFactory::GenerateCompGrid()
+void CgnsFactory::GenerateCalcGrid()
 {
     if ( ONEFLOW::IsStrGrid( grid_para.topo ) )
     {
-        this->GenerateStrCompGrid();
+        this->GenerateStrCalcGrid();
     }
     else if ( ONEFLOW::IsUnsGrid( grid_para.topo ) )
     {
-        this->GenerateUnsCompGrid();
+        this->GenerateUnsCalcGrid();
     }
     else
     {
@@ -312,16 +312,16 @@ void CgnsFactory::GenerateCompGrid()
     }
 }
 
-void CgnsFactory::GenerateStrCompGrid()
+void CgnsFactory::GenerateStrCalcGrid()
 {
 }
 
-void CgnsFactory::GenerateUnsCompGrid()
+void CgnsFactory::GenerateUnsCalcGrid()
 {
     for ( int iZone = 0; iZone < this->nZone; ++ iZone )
     {
         GridElem * gridElem = zgridElem->GetGridElem( iZone );
-        gridElem->GenerateCompGrid();
+        gridElem->GenerateCalcGrid();
     }
 }
 

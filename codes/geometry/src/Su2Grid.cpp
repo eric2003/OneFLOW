@@ -39,7 +39,7 @@ License
 #include "StrGrid.h"
 #include "UnsGrid.h"
 #include "BgGrid.h"
-#include "CompGrid.h"
+#include "CalcGrid.h"
 #include "HXPointer.h"
 #include "NodeMesh.h"
 #include "BgGrid.h"
@@ -513,7 +513,7 @@ void Su2Grid::Su2ToOneFlowGrid()
         delete cgnsFactory;
     }
 
-    ONEFLOW::GenerateMultiZoneCompGrids( grids );
+    ONEFLOW::GenerateMultiZoneCalcGrids( grids );
 }
 
 void FillSU2CgnsZone( Su2Grid* su2Grid, CgnsZone * cgnsZone )

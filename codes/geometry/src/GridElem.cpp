@@ -119,7 +119,7 @@ void GridElem::CreateGrid( HXVector< CgnsZone * > cgnsZones, int iZone )
     grid->volBcType = cgnsZone->GetVolBcType();
 }
 
-void GridElem::PrepareUnsCompGrid()
+void GridElem::PrepareUnsCalcGrid()
 {
     cout << " InitCgnsElements()\n";
     this->InitCgnsElements();
@@ -188,12 +188,12 @@ void GridElem::GenerateCompElement()
 
 }
 
-void GridElem::GenerateCompGrid()
+void GridElem::GenerateCalcGrid()
 {
-    this->GenerateCompGrid( this->grid );
+    this->GenerateCalcGrid( this->grid );
 }
 
-void GridElem::GenerateCompGrid( Grid * gridIn )
+void GridElem::GenerateCalcGrid( Grid * gridIn )
 {
     UnsGrid * grid = UnsGridCast ( gridIn );
 

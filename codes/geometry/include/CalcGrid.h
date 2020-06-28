@@ -32,11 +32,11 @@ class Grid;
 class IFaceLink;
 class NodeMesh;
 
-class CompGrid
+class CalcGrid
 {
 public:
-    CompGrid();
-    ~CompGrid();
+    CalcGrid();
+    ~CalcGrid();
 public:
     Grids grids;
     string gridFileName;
@@ -67,7 +67,7 @@ public:
 string GetTargetGridFileName();
 int GetIgnoreNoBc();
 
-void GenerateMultiZoneCompGrids( Grids & grids );
+void GenerateMultiZoneCalcGrids( Grids & grids );
 void ResetGridScaleAndTranslate( NodeMesh * nodeMesh );
 void TurnZAxisToYAxis( NodeMesh * nodeMesh );
 
