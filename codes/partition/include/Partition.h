@@ -105,8 +105,8 @@ public:
     void GenerateMultiZoneGrid();
     void CreatePart();
     void AllocPart();
-    void BuildCmpGrid();
-    void BuildCmpGrid( int zid );
+    void BuildComputationalGrid();
+    void BuildComputationalGrid( int zid );
     void PreProcess();
     void PostProcess();
 public:

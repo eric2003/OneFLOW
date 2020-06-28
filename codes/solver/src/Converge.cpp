@@ -55,10 +55,10 @@ void ConvergeTask::Run()
 
     }
 
-    this->CmpBool();
+    this->CalcBool();
 }
 
-void ConvergeTask::CmpBool()
+void ConvergeTask::CalcBool()
 {
     this->flag = true;
     int nSize = boolField.size();
