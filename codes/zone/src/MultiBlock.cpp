@@ -59,7 +59,7 @@ void MultiBlock::ReadMultiBlockGrid()
 void MultiBlock::SetUpMultigrid()
 {
     SolverState::tid = GRID_SOLVER;
-    SsSgTask( "CMP_METRICS" );
+    SsSgTask( "CALC_METRICS" );
 }
 
 void MultiBlock::LoadGridAndBuildLink()

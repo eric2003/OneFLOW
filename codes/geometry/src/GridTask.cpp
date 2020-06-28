@@ -47,8 +47,8 @@ void SetGridFunc()
     REGISTER_DATA_CLASS( AllocWallDist );
     REGISTER_DATA_CLASS( ReadWallDist  );
     REGISTER_DATA_CLASS( DumpWallDist  );
-    REGISTER_DATA_CLASS( CreateCmpMetricsTask  );
-    REGISTER_DATA_CLASS( CmpMetrics  );
+    REGISTER_DATA_CLASS( CreateCalcMetricsTask  );
+    REGISTER_DATA_CLASS( CalcMetrics  );
     REGISTER_DATA_CLASS( SwapCellCenter  );
     REGISTER_DATA_CLASS( DecodeCellCenter );
     SetWallTask();
@@ -72,19 +72,19 @@ void DumpWallDist( StringField & data )
     grid->cellMesh->DumpDist();
 }
 
-void CreateCmpMetricsTask( StringField & data )
+void CreateCalcMetricsTask( StringField & data )
 {
-    CmpMetricsTask * task = new CmpMetricsTask();
+    CalcMetricsTask * task = new CalcMetricsTask();
     TaskState::task = task;
 }
 
-void CmpMetrics( StringField & data )
+void CalcMetrics( StringField & data )
 {
     UnsGrid * grid = Zone::GetUnsGrid();
-    grid->CmpMetrics();
+    grid->CalcMetrics();
 }
 
-void CmpMetricsTask::Run()
+void CalcMetricsTask::Run()
 {
     ActionState::dataBook = this->dataBook;
     for ( int zId = 0; zId < ZoneState::nZones; ++ zId )

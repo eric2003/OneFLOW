@@ -465,21 +465,21 @@ void UnsGrid::WriteGridFaceTopology( VirtualFile * vf )
     ONEFLOW::HXWrite( vf, this->faceTopo->rCell );
 }
 
-void UnsGrid::CmpMetrics()
+void UnsGrid::CalcMetrics()
 {
     this->AllocMetrics();
 
     if ( IsOneD() )
     {
-        this->CmpMetrics1D();
+        this->CalcMetrics1D();
     }
     else if ( IsTwoD() )
     {
-        this->CmpMetrics2D();
+        this->CalcMetrics2D();
     }
     else if ( IsThreeD() )
     {
-        this->CmpMetrics3D();
+        this->CalcMetrics3D();
     }
 }
 
@@ -490,7 +490,7 @@ void UnsGrid::AllocMetrics()
 
 }
 
-void UnsGrid::CmpMetrics1D()
+void UnsGrid::CalcMetrics1D()
 {
     this->ComputeFaceCenter1D();
     this->ComputeCellCenterVol1D();
@@ -498,14 +498,14 @@ void UnsGrid::CmpMetrics1D()
     this->ComputeGhostCellCenterVol1D();
 }
 
-void UnsGrid::CmpMetrics2D()
+void UnsGrid::CalcMetrics2D()
 {
     this->ComputeFaceNormal2D();
     this->ComputeFaceCenter2D();
     this->ComputeCellCenterVol2D();
 }
 
-void UnsGrid::CmpMetrics3D()
+void UnsGrid::CalcMetrics3D()
 {
     this->ComputeFaceNormal3D();
     this->ComputeFaceCenter3D();

@@ -69,10 +69,10 @@ private:
     void WriteGridFaceTopology( VirtualFile * vf );
     void WriteBoundaryTopology( VirtualFile * vf );
 public:
-    void CmpMetrics();
-    void CmpMetrics1D();
-    void CmpMetrics2D();
-    void CmpMetrics3D();
+    void CalcMetrics();
+    void CalcMetrics1D();
+    void CalcMetrics2D();
+    void CalcMetrics3D();
     void AllocMetrics();
 private:
     void ComputeFaceCenter1D();
