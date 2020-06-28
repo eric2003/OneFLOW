@@ -187,7 +187,7 @@ void UTimestep::ReadTmp()
 }
 
 
-void UTimestep::CmpTimestep()
+void UTimestep::CalcTimeStep()
 {
     this->Init();
 

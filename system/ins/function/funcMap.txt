@@ -12,7 +12,7 @@ UPDATE_INTERFACE_DQ       , CPrepareInterfaceField, 2, INTERFACE_DQ  , GREAT_SEN
 UPDATE_INTERFACE_GRAD     , CPrepareInterfaceField, 2, INTERFACE_GRAD, GREAT_SEND
 UPDATE_UNSTEADY_FLOW      , CUpdateUnsteadyFlow, 0
 VISUALIZATION             , CVisualization, 0
-CMP_TIME_STEP           , CINsCmpTimeStep, 0
+CALC_TIME_STEP            , CINsCalcTimeStep, 0
 LOAD_RESIDUALS            , CLoadResiduals, 1, FIELD_RHS
 UPDATE_RESIDUALS          , CINsUpdateResiduals, 0
 CALC_BOUNDARY             , CINsCalcBoundary, 0

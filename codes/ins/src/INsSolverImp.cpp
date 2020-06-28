@@ -42,7 +42,7 @@ void RegisterINsFunc()
 {
     REGISTER_DATA_CLASS( INsInitFinal );
     REGISTER_DATA_CLASS( INsVisual );
-    REGISTER_DATA_CLASS( INsCmpTimeStep );
+    REGISTER_DATA_CLASS( INsCalcTimeStep );
     REGISTER_DATA_CLASS( INsUpdateResiduals );
     REGISTER_DATA_CLASS( INsImplicitMethod );
     REGISTER_DATA_CLASS( INsPostprocess );
@@ -87,10 +87,10 @@ void INsCalcBoundary( StringField & data )
     ICalcLaminarViscosity( F_GHOST );
 }
 
-void INsCmpTimeStep( StringField & data )
+void INsCalcTimeStep( StringField & data )
 {
     UITimestep * uTimestep = new UITimestep();
-    uTimestep->CmpTimestep();
+    uTimestep->CalcTimeStep();
     delete uTimestep;
 }
 

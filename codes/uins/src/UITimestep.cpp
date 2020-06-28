@@ -130,7 +130,7 @@ void UITimestep::ReadTmp()
 }
 
 
-void UITimestep::CmpTimestep()
+void UITimestep::CalcTimeStep()
 {
     this->Init();
 

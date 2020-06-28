@@ -42,7 +42,7 @@ void RegisterNsFunc()
 {
     REGISTER_DATA_CLASS( NsInitFinal );
     REGISTER_DATA_CLASS( NsVisual );
-    REGISTER_DATA_CLASS( NsCmpTimeStep );
+    REGISTER_DATA_CLASS( NsCalcTimeStep );
     REGISTER_DATA_CLASS( NsUpdateResiduals );
     REGISTER_DATA_CLASS( NsImplicitMethod );
     REGISTER_DATA_CLASS( NsPostprocess );
@@ -90,10 +90,10 @@ void NsCalcBoundary( StringField & data )
     CompLaminarViscosity( F_GHOST );
 }
 
-void NsCmpTimeStep( StringField & data )
+void NsCalcTimeStep( StringField & data )
 {
     UTimestep * uTimestep = new UTimestep();
-    uTimestep->CmpTimestep();
+    uTimestep->CalcTimeStep();
     delete uTimestep;
 }
 

@@ -28,7 +28,7 @@ BeginNameSpace( ONEFLOW )
 
 DEFINE_DATA_CLASS( INsInitFinal );
 DEFINE_DATA_CLASS( INsVisual );
-DEFINE_DATA_CLASS( INsCmpTimeStep );
+DEFINE_DATA_CLASS( INsCalcTimeStep );
 DEFINE_DATA_CLASS( INsUpdateResiduals );
 DEFINE_DATA_CLASS( INsImplicitMethod );
 DEFINE_DATA_CLASS( INsPostprocess );
