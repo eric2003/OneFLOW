@@ -33,7 +33,7 @@ public:
     Lhs();
     virtual ~Lhs();
 public:
-    virtual void CmpLHS( int sTid ){};
+    virtual void CalcLHS( int sTid ){};
 };
 
 Lhs * CreateLhs( int sTid );

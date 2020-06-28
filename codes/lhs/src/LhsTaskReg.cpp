@@ -31,15 +31,15 @@ REGISTER_TASK( RegisterLhsTask )
 
 void RegisterLhsTask()
 {
-    REGISTER_DATA_CLASS( CmpLHS );
+    REGISTER_DATA_CLASS( CalcLHS );
 }
 
 
-void CmpLHS( StringField & data )
+void CalcLHS( StringField & data )
 {
     int sTid = SolverState::tid;
     Lhs * lhs = CreateLhs( sTid );
-    lhs->CmpLHS( sTid );
+    lhs->CalcLHS( sTid );
     delete lhs;
 }
 

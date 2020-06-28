@@ -3,7 +3,7 @@ INIT_FINAL                , CINsInitFinal, 0
 READ_RESTART              , CReadRestart, 0
 DUMP_RESTART              , CDumpRestart, 0
 INIT_RESTART              , CInitRestart, 0
-CALC_INTERFACE_GRAD    , CCalcInterfaceGrad, 0
+CALC_INTERFACE_GRAD       , CCalcInterfaceGrad, 0
 DUMP_RESIDUAL             , CDumpResidual, 1, FIELD_RHS
 UPLOAD_INTERFACE_DATA     , CUploadInterfaceData, 0
 DOWNLOAD_INTERFACE_DATA   , CDownloadInterfaceData, 0
@@ -27,7 +27,7 @@ STORE_RHS                 , CStoreRHS, 1, FIELD_RHS
 RECOVER_RESIDUALS         , CRecoverResidual, 1, FIELD_RHS
 UPDATE_FLOWFIELD          , CUpdateFlowField, 0
 UPDATE_FLOWFIELD_LUSGS    , CUpdateFlowField, 0
-CMP_LHS                                , CCmpLHS, 0
+CALC_LHS                  , CCalcLHS, 0
 ZERO_DQ_FIELD             , CSetField, 2, dq, 0.0
 INIT_LUSGS                , CLusgsInit, 0
 LUSGS_LOWER_SWEEP         , CLusgsLowerSweep, 0

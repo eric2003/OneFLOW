@@ -26,7 +26,7 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-DEFINE_DATA_CLASS( CmpLHS );
+DEFINE_DATA_CLASS( CalcLHS );
 
 void RegisterLhsTask();
 
