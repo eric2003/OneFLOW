@@ -459,7 +459,7 @@ void UTurbSrcFlux::CalcLengthScaleOfSaDes()
 
     RealField lesLength( numberOfCells );
 
-    DomputeLengthLesOfSa( lesLength );
+    CalcLengthLesOfSa( lesLength );
 
     RealField & wall_dist = grid->cellMesh->dist;
 
@@ -481,7 +481,7 @@ void UTurbSrcFlux::CalcLengthScaleOfSstDes()
 
     RealField lesLength( numberOfCells );
 
-    DomputeLengthLesOfSst( lesLength );
+    CalcLengthLesOfSst( lesLength );
 
     RealField & wall_dist = grid->cellMesh->dist;
 
@@ -507,7 +507,7 @@ void UTurbSrcFlux::CalcLengthScaleOfSaDdes()
     RealField & wall_dist = grid->cellMesh->dist;
 
     RealField lesLength( nCell );
-    DomputeLengthLesOfSa( lesLength );
+    CalcLengthLesOfSa( lesLength );
 
     for ( int cId = 0; cId < nCell; ++ cId ) 
     {
@@ -553,7 +553,7 @@ void UTurbSrcFlux::CalcLengthScaleOfSstDdes()
     RealField & wall_dist = grid->cellMesh->dist;
 
     RealField lesLength( nCell );
-    DomputeLengthLesOfSst( lesLength );
+    CalcLengthLesOfSst( lesLength );
 
     for ( int cId = 0; cId < nCell; ++ cId ) 
     {
@@ -614,7 +614,7 @@ void UTurbSrcFlux::CalcLengthScaleOfSaIddes()
 
     RealField lesLength( nCell );
 
-    DomputeLengthLesOfSa( lesLength );
+    CalcLengthLesOfSa( lesLength );
 
     RealField lowReynoldsCorr( nCell );
     CalcLowReynoldsCorrection( lowReynoldsCorr );
@@ -698,7 +698,7 @@ void UTurbSrcFlux::CalcLengthScaleOfSstIddes()
 
     RealField lesLength( nCell );
 
-    DomputeLengthLesOfSst( lesLength );
+    CalcLengthLesOfSst( lesLength );
     //sa model
     //Real ct   = 1.63;
     //Real cl   = 3.55;
@@ -816,7 +816,7 @@ void UTurbSrcFlux::CalcBlendingTerm()
 
 void UTurbSrcFlux::CalcCdkwmax()
 {
-    //Dompute maximum crossing diffusion term across flowfield
+    //Calc maximum crossing diffusion term across flowfield
     turbcom.cdkwmax = 0.0;
 
     for ( int cId = 0; cId < ug.nCell; ++ cId )
@@ -903,7 +903,7 @@ void UTurbSrcFlux::CalcCrossDiff()
     turbcom.CalcCrossDiff();
 }
 
-void DomputeLengthLesOfSa( RealField & lesLengthField )
+void CalcLengthLesOfSa( RealField & lesLengthField )
 {
     UnsGrid * grid = Zone::GetUnsGrid();
 
@@ -924,7 +924,7 @@ void DomputeLengthLesOfSa( RealField & lesLengthField )
     }
 }
 
-void DomputeLengthLesOfSst( RealField & lesLengthField )
+void CalcLengthLesOfSst( RealField & lesLengthField )
 {
     UnsGrid * grid = Zone::GetUnsGrid();
     int nCell = grid->nCell;

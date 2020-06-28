@@ -204,7 +204,7 @@ bool VisGrad::TestSatisfied()
     bool result = vgg.angle1 > 0.0 && vgg.angle2 > 0.0 && ABS( vgg.d1 ) > SMALL && ABS( vgg.d2 ) > SMALL;
     if ( result )
     {
-        this->DomputeC1C2();
+        this->CalcC1C2();
     }
     return result;
 }
@@ -230,7 +230,7 @@ bool VisGrad::New2Satisfied()
     return result;
 }
 
-void VisGrad::DomputeC1C2()
+void VisGrad::CalcC1C2()
 {
     Real dtmp = SQR( vgg.d1, vgg.d2 );
     vgg.c1 = SQR( vgg.d1 ) / dtmp;

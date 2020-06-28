@@ -70,7 +70,7 @@ public:
     void ConstructTopo();
     void SetInterfaceBc();
     void GetCornerPoint( int & pt, int id1, int id2, int id3 );
-    void DomputeBlkDim();
+    void CalcBlkDim();
     void CreateFaceList();
 public:
     void CreateBlockMesh();
@@ -93,7 +93,7 @@ public:
     void ConstructTopo();
     void SetInterfaceBc();
     void GetCornerPoint( int & pt, int id1, int id2 );
-    void DomputeBlkDim();
+    void CalcBlkDim();
     void CreateFaceList();
 };
 

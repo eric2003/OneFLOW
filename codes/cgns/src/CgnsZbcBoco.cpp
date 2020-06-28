@@ -83,7 +83,7 @@ void CgnsZbcBoco::ShiftBcRegion()
     for ( int iBoco = 0; iBoco < this->nBoco; ++ iBoco )
     {
         CgnsBcBoco * cgnsBcBoco = this->GetCgnsBc( iBoco );
-        if ( ! cgnsBcBoco->DomputeBase() )
+        if ( ! cgnsBcBoco->CalcBase() )
         {
             baseFlag = 0;
             break;

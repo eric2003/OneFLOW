@@ -58,7 +58,7 @@ void CgnsBcBoco::ConvertToInnerDataStandard()
     }
 }
 
-int CgnsBcBoco::DomputeBase()
+int CgnsBcBoco::CalcBase()
 {
     for ( int eId = 0; eId < this->nElements; ++ eId )
     {

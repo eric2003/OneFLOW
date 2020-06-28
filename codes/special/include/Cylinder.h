@@ -72,7 +72,7 @@ public:
     void SetBoundaryGrid();
     void GeneDomain();
 public:
-    void DomputeCircleCenter( PointType & p1, PointType & p2, PointType & p0, PointType & pcenter );
+    void CalcCircleCenter( PointType & p1, PointType & p2, PointType & p0, PointType & pcenter );
 public:
     void DumpGrid( const string & fileName, DomainData * domain );
     void DumpBcFile( const string & fileName, DomainData * domain, IntField & bcList );

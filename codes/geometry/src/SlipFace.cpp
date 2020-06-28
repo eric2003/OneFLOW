@@ -290,17 +290,17 @@ void GlobalSlipFace::Trans( DataBook * dataBook )
     }
 }
 
-void GlobalSlipFace::DomputeDist()
+void GlobalSlipFace::CalcDist()
 {
     localSlipFace->InitDist();
     for ( int i = 0; i < localSlipFace->data.size(); ++ i )
     {
         SlipFace * slipface = localSlipFace->data[ i ];
-        this->DomputeDist( slipface );
+        this->CalcDist( slipface );
     }
 }
 
-void GlobalSlipFace::DomputeDist( SlipFace * slipface )
+void GlobalSlipFace::CalcDist( SlipFace * slipface )
 {
     for ( int iSlip = 0; iSlip < slipface->nSlipFace; ++ iSlip )
     {
@@ -315,7 +315,7 @@ void GlobalSlipFace::DomputeDist( SlipFace * slipface )
         {
             SlipFace * slipface1 = this->data[ i ];
             if ( slipface1->zoneid == slipface->zoneid ) continue;
-            this->Dompute( xfc, yfc, zfc, dst, zid, isbc, slipface1 );
+            this->Calc( xfc, yfc, zfc, dst, zid, isbc, slipface1 );
         }
 
         slipface->distList[ iSlip ] = dst;
@@ -324,7 +324,7 @@ void GlobalSlipFace::DomputeDist( SlipFace * slipface )
     }
 }
 
-void GlobalSlipFace::Dompute( Real xfc, Real yfc, Real zfc, Real & dst, int & zid, int & isbc, SlipFace * slipface )
+void GlobalSlipFace::Calc( Real xfc, Real yfc, Real zfc, Real & dst, int & zid, int & isbc, SlipFace * slipface )
 {
     for ( int iSlip = 0; iSlip < slipface->nSlipFace; ++ iSlip )
     {
@@ -424,7 +424,7 @@ void InitSlipFaceTopo()
     }
 
     globalSlipFace->Swap();
-    globalSlipFace->DomputeDist();
+    globalSlipFace->CalcDist();
 
     slipFaceTopo->InitZoneNeighborsInfo();
     slipFaceTopo->SwapNeighborZoneInfo();

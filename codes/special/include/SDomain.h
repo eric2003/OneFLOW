@@ -56,7 +56,7 @@ public:
     void SetDomain( int fid, IntField & lineList, IntField & posList );
     void ConstructSDomainCtrlPoint();
     void GetCommonPoint( MLine * mLine1, MLine * mLine2, int & pt );
-    bool DomputeSingleDomainCoor();
+    bool CalcSingleDomainCoor();
     void SetRemainingCtrlPoint( IntField & idxList );
 public:
     void ConstructLineToDomainMap();

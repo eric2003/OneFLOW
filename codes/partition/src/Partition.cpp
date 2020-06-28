@@ -341,7 +341,7 @@ void Partition::BuildCalcutationalGrid( int zid )
 
     if ( partition_c2n )
     {
-    //    this->DomputeGlobalToLocalCellToNodeMapping( uns_grid, zid, grid );
+    //    this->CalcGlobalToLocalCellToNodeMapping( uns_grid, zid, grid );
     //    this->WriteCellToNode( grid );
     }
 

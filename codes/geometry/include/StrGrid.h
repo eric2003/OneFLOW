@@ -58,27 +58,27 @@ public:
     void SetBasicDimension();
     void SetLayout();
 public:
-    int DomputeNumberOfNode();
-    int DomputeNumberOfCell();
-    int DomputeNumberOfFace();
+    int CalcNumberOfNode();
+    int CalcNumberOfCell();
+    int CalcNumberOfFace();
 public:
     void GetMinMaxDistance( Real & dismin, Real & dismax );
-    void DomputeMinMaxDis3D( Real & dismin, Real & dismax );
-    void DomputeMinMaxDis2D( Real & dismin, Real & dismax );
-    void DomputeMinMaxDis1D( Real & dismin, Real & dismax );
+    void CalcMinMaxDis3D( Real & dismin, Real & dismax );
+    void CalcMinMaxDis2D( Real & dismin, Real & dismax );
+    void CalcMinMaxDis1D( Real & dismin, Real & dismax );
 };
 
-int DomputeNumberOfFace( const int & ni );
-int DomputeNumberOfFace( const int & ni, const int & nj );
-int DomputeNumberOfFace( const int & ni, const int & nj, const int & nk );
+int CalcNumberOfFace( const int & ni );
+int CalcNumberOfFace( const int & ni, const int & nj );
+int CalcNumberOfFace( const int & ni, const int & nj, const int & nk );
 
-int DomputeNumberOfNode( const int & ni );
-int DomputeNumberOfNode( const int & ni, const int & nj );
-int DomputeNumberOfNode( const int & ni, const int & nj, const int & nk );
+int CalcNumberOfNode( const int & ni );
+int CalcNumberOfNode( const int & ni, const int & nj );
+int CalcNumberOfNode( const int & ni, const int & nj, const int & nk );
 
-int DomputeNumberOfCell( const int & ni );
-int DomputeNumberOfCell( const int & ni, const int & nj );
-int DomputeNumberOfCell( const int & ni, const int & nj, const int & nk );
+int CalcNumberOfCell( const int & ni );
+int CalcNumberOfCell( const int & ni, const int & nj );
+int CalcNumberOfCell( const int & ni, const int & nj, const int & nk );
 
 StrGrid * StrGridCast( Grid * gridIn );
 void GetIJKRange( int ni, int nj, int nk, int startShift, int endShift, Range & I, Range & J, Range & K );
@@ -94,7 +94,7 @@ public:
     static int jst, jed;
     static int kst, ked;
 public:
-    static void Dompute( int ni, int nj, int nk, int ss, int es );
+    static void Calc( int ni, int nj, int nk, int ss, int es );
     static void ToScalar();
 };
 

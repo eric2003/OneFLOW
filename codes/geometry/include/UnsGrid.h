@@ -75,18 +75,18 @@ public:
     void CalcMetrics3D();
     void AllocMetrics();
 private:
-    void DomputeFaceCenter1D();
-    void DomputeCellCenterVol1D();
-    void DomputeFaceNormal1D();
-    void DomputeGhostCellCenterVol1D();
+    void CalcFaceCenter1D();
+    void CalcCellCenterVol1D();
+    void CalcFaceNormal1D();
+    void CalcGhostCellCenterVol1D();
 private:
-    void DomputeFaceNormal2D();
-    void DomputeFaceCenter2D();
-    void DomputeCellCenterVol2D();
+    void CalcFaceNormal2D();
+    void CalcFaceCenter2D();
+    void CalcCellCenterVol2D();
 private:
-    void DomputeFaceNormal3D();
-    void DomputeFaceCenter3D();
-    void DomputeCellCenterVol3D();
+    void CalcFaceNormal3D();
+    void CalcFaceCenter3D();
+    void CalcCellCenterVol3D();
 };
 
 UnsGrid * UnsGridCast( Grid * gridIn );

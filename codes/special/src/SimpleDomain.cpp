@@ -160,7 +160,7 @@ void DomData::ConstructBcPoint()
     int kkk = 1;
 }
 
-void DomData::DomputeDimBasic( int closedCurve )
+void DomData::CalcDimBasic( int closedCurve )
 {
     FindBcPointList2D( bcpointList );
     int nSeg = bcpointList.size();
@@ -217,14 +217,14 @@ void DomData::DomputeDimBasic( int closedCurve )
     
 }
 
-void DomData::DomputeDim2D()
+void DomData::CalcDim2D()
 {
-    DomputeDimBasic( 1 );
+    CalcDimBasic( 1 );
 }
 
-void DomData::DomputeDim1D()
+void DomData::CalcDim1D()
 {
-    DomputeDimBasic( 0 );
+    CalcDimBasic( 0 );
 }
 
 void DomData::Normalize( int &d )
@@ -338,7 +338,7 @@ void DomData::FindNextPoint2D( IntField & ptList, int prev, int me, int & next, 
     }
 }
 
-void DomData::DomputeDomainCtrlPoints( IntField & blkControlpoints, IntField & localpt )
+void DomData::CalcDomainCtrlPoints( IntField & blkControlpoints, IntField & localpt )
 {
     for ( int i = 0; i < localpt.size(); ++ i )
     {
@@ -348,7 +348,7 @@ void DomData::DomputeDomainCtrlPoints( IntField & blkControlpoints, IntField & l
     }
 }
 
-void DomData::DomputeDomainCtrlPoints( IntField & blk_ctrl_points )
+void DomData::CalcDomainCtrlPoints( IntField & blk_ctrl_points )
 {
     for ( int i = 0; i < blk_ctrl_points.size(); ++ i )
     {
@@ -360,7 +360,7 @@ void DomData::DomputeDomainCtrlPoints( IntField & blk_ctrl_points )
     }
 }
 
-void DomData::DomputeBcCoor( CoorMap * coorMap, int closedCurve )
+void DomData::CalcBcCoor( CoorMap * coorMap, int closedCurve )
 {
     int nSeg = bcpointList.size();
     int nSegLoop = nSeg - 1;

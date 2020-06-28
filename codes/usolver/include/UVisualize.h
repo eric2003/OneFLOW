@@ -52,7 +52,7 @@ public:
     BcVisual();
     ~BcVisual();
 public:
-    void Dompute( int bcType );
+    void Calc( int bcType );
     void Calcf2n( int bcType );
     void ResolveElementEdge();
     void Dump( ostringstream & oss, VisualTool * visualTool, string & bcTitle );

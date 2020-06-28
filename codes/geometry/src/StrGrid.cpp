@@ -66,38 +66,38 @@ void StrGrid::Encode( DataBook * databook )
     this->WriteGrid( databook );
 }
 
-int StrGrid::DomputeNumberOfNode()
+int StrGrid::CalcNumberOfNode()
 {
     if ( ONEFLOW::IsTwoD() )
     {
-        return ONEFLOW::DomputeNumberOfNode( ni, nj );
+        return ONEFLOW::CalcNumberOfNode( ni, nj );
     }
-    return ONEFLOW::DomputeNumberOfNode( ni, nj, nk );
+    return ONEFLOW::CalcNumberOfNode( ni, nj, nk );
 }
 
-int StrGrid::DomputeNumberOfCell()
+int StrGrid::CalcNumberOfCell()
 {
     if ( ONEFLOW::IsTwoD() )
     {
-        return ONEFLOW::DomputeNumberOfCell( ni, nj );
+        return ONEFLOW::CalcNumberOfCell( ni, nj );
     }
-    return ONEFLOW::DomputeNumberOfCell( ni, nj, nk );
+    return ONEFLOW::CalcNumberOfCell( ni, nj, nk );
 }
 
-int StrGrid::DomputeNumberOfFace()
+int StrGrid::CalcNumberOfFace()
 {
     if ( ONEFLOW::IsTwoD() )
     {
-        return ONEFLOW::DomputeNumberOfFace( ni, nj );
+        return ONEFLOW::CalcNumberOfFace( ni, nj );
     }
-    return ONEFLOW::DomputeNumberOfFace( ni, nj, nk );
+    return ONEFLOW::CalcNumberOfFace( ni, nj, nk );
 }
 
 void StrGrid::SetBasicDimension()
 {
-    this->nNode = this->DomputeNumberOfNode();
-    this->nCell = this->DomputeNumberOfCell();
-    this->nFace = this->DomputeNumberOfFace();
+    this->nNode = this->CalcNumberOfNode();
+    this->nCell = this->CalcNumberOfCell();
+    this->nFace = this->CalcNumberOfFace();
 
     cout << " " << Dim::dimension << "D Grid\n";
 
@@ -143,7 +143,7 @@ void StrGrid::WriteBoundaryTopology( DataBook * databook )
 {
 }
 
-void StrGrid::DomputeMinMaxDis3D( Real & dismin, Real & dismax )
+void StrGrid::CalcMinMaxDis3D( Real & dismin, Real & dismax )
 {
     dismin =   LARGE;
     dismax = - LARGE;
@@ -233,7 +233,7 @@ void StrGrid::DomputeMinMaxDis3D( Real & dismin, Real & dismax )
     }
 }
 
-void StrGrid::DomputeMinMaxDis2D( Real & dismin, Real & dismax )
+void StrGrid::CalcMinMaxDis2D( Real & dismin, Real & dismax )
 {
     dismin =   LARGE;
     dismax = - LARGE;
@@ -291,7 +291,7 @@ void StrGrid::DomputeMinMaxDis2D( Real & dismin, Real & dismax )
     }
 }
 
-void StrGrid::DomputeMinMaxDis1D( Real & dismin, Real & dismax )
+void StrGrid::CalcMinMaxDis1D( Real & dismin, Real & dismax )
 {
     dismin =   LARGE;
     dismax = - LARGE;
@@ -341,63 +341,63 @@ void StrGrid::GetMinMaxDistance( Real & dismin, Real & dismax )
 {
     if ( Dim::dimension == THREE_D )
     {
-        this->DomputeMinMaxDis3D( dismin, dismax );
+        this->CalcMinMaxDis3D( dismin, dismax );
     }
     else if ( Dim::dimension == TWO_D )
     {
-        this->DomputeMinMaxDis2D( dismin, dismax );
+        this->CalcMinMaxDis2D( dismin, dismax );
     }
     else
     {
-        this->DomputeMinMaxDis1D( dismin, dismax );
+        this->CalcMinMaxDis1D( dismin, dismax );
     }
 }
 
-int DomputeNumberOfFace( const int & ni )
+int CalcNumberOfFace( const int & ni )
 {
     return ni;
 }
 
-int DomputeNumberOfFace( const int & ni, const int & nj )
+int CalcNumberOfFace( const int & ni, const int & nj )
 {
     return ( nj - 1 ) * ni + ( ni - 1 ) * nj;
 }
 
-int DomputeNumberOfFace( const int & ni, const int & nj, const int & nk )
+int CalcNumberOfFace( const int & ni, const int & nj, const int & nk )
 {
     return ( nj - 1 ) * ( nk - 1 ) * ni + ( nk - 1 ) * ( ni - 1 ) * nj + ( ni - 1 ) * ( nj - 1 ) * nk;
 }
 
-int DomputeNumberOfNode( const int & ni )
+int CalcNumberOfNode( const int & ni )
 {
     return ni;
 }
 
-int DomputeNumberOfNode( const int & ni, const int & nj )
+int CalcNumberOfNode( const int & ni, const int & nj )
 {
     return ni * nj;
 }
 
-int DomputeNumberOfNode( const int & ni, const int & nj, const int & nk )
+int CalcNumberOfNode( const int & ni, const int & nj, const int & nk )
 {
     return ni * nj * nk;
 }
 
-int DomputeNumberOfCell( const int & ni )
+int CalcNumberOfCell( const int & ni )
 {
     return ONEFLOW::COUNT( 1, ni - 1 );
 }
 
-int DomputeNumberOfCell( const int & ni, const int & nj )
+int CalcNumberOfCell( const int & ni, const int & nj )
 {
-    return ONEFLOW::DomputeNumberOfCell( ni ) * ONEFLOW::DomputeNumberOfCell( nj );
+    return ONEFLOW::CalcNumberOfCell( ni ) * ONEFLOW::CalcNumberOfCell( nj );
 }
 
-int DomputeNumberOfCell( const int & ni, const int & nj, const int & nk )
+int CalcNumberOfCell( const int & ni, const int & nj, const int & nk )
 {
-    return ONEFLOW::DomputeNumberOfCell( ni ) *
-           ONEFLOW::DomputeNumberOfCell( nj ) *
-           ONEFLOW::DomputeNumberOfCell( nk ) ;
+    return ONEFLOW::CalcNumberOfCell( ni ) *
+           ONEFLOW::CalcNumberOfCell( nj ) *
+           ONEFLOW::CalcNumberOfCell( nk ) ;
 }
 
 StrGrid * StrGridCast( Grid * gridIn )
@@ -436,7 +436,7 @@ IJKRange::~IJKRange()
     ;
 }
 
-void IJKRange::Dompute( int ni, int nj, int nk, int ss, int es )
+void IJKRange::Calc( int ni, int nj, int nk, int ss, int es )
 {
     IJKRange::I.SetRange( 1 + ss, ni + es );
     IJKRange::J.SetRange( 1 + ss, nj + es );

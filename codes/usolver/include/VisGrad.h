@@ -81,7 +81,7 @@ public:
     bool TestSatisfied();
     bool New1Satisfied();
     bool New2Satisfied();
-    void DomputeC1C2();
+    void CalcC1C2();
     void AccurateSideValue();
     void AccurateFaceValue();
     void ModifyFaceGrad();

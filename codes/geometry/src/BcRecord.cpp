@@ -110,7 +110,7 @@ void BcRecord::Init( UInt nBFace )
     this->bcRegion.resize( nBFace );
 }
 
-int BcRecord::DomputeNIFace()
+int BcRecord::CalcNIFace()
 {
     int nBFace = this->GetNBFace();
 
@@ -362,7 +362,7 @@ void BcRegion::GetNormalizeIJKRegion( int & ist, int & ied, int & jst, int & jed
     ked = MAX( ABS( this->s->start[ 2 ] ), ABS( this->s->end[ 2 ] ) );
 }
 
-int BcRegion::DomputeRegionCells()
+int BcRegion::CalcRegionCells()
 {
     int imin, imax, jmin, jmax, kmin, kmax;
     this->GetNormalizeIJKRegion( imin, imax, jmin, jmax, kmin, kmax );

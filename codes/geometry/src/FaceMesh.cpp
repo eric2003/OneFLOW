@@ -43,9 +43,9 @@ UInt FaceMesh::GetNFace()
     return faceTopo->GetNFace();  
 }
 
-UInt FaceMesh::DomputeTotalFaceNodes()
+UInt FaceMesh::CalcTotalFaceNodes()
 {
-    return faceTopo->DomputeTotalFaceNodes();
+    return faceTopo->CalcTotalFaceNodes();
 }
 
 UInt FaceMesh::GetNBFace()
@@ -58,7 +58,7 @@ void FaceMesh::SetNBFace( UInt nBFace )
     faceTopo->SetNBFace( nBFace );
 }
 
-void FaceMesh::DomputeFaceCenter1D( NodeMesh * nodeMesh )
+void FaceMesh::CalcFaceCenter1D( NodeMesh * nodeMesh )
 {
     UInt nFace = this->GetNFace();
     RealField & xN = nodeMesh->xN;
@@ -76,7 +76,7 @@ void FaceMesh::DomputeFaceCenter1D( NodeMesh * nodeMesh )
     }
 }
 
-void FaceMesh::DomputeFaceNormal1D( NodeMesh * nodeMesh, CellMesh * cellMesh )
+void FaceMesh::CalcFaceNormal1D( NodeMesh * nodeMesh, CellMesh * cellMesh )
 {
     UInt nFace = this->GetNFace();
     RealField & xN = nodeMesh->xN;
@@ -107,7 +107,7 @@ void FaceMesh::DomputeFaceNormal1D( NodeMesh * nodeMesh, CellMesh * cellMesh )
 }
 
 
-void FaceMesh::DomputeFaceNormal2D( NodeMesh * nodeMesh )
+void FaceMesh::CalcFaceNormal2D( NodeMesh * nodeMesh )
 {
     RealField & xN = nodeMesh->xN;
     RealField & yN = nodeMesh->yN;
@@ -137,7 +137,7 @@ void FaceMesh::DomputeFaceNormal2D( NodeMesh * nodeMesh )
     }
 }
 
-void FaceMesh::DomputeFaceCenter2D( NodeMesh * nodeMesh )
+void FaceMesh::CalcFaceCenter2D( NodeMesh * nodeMesh )
 {
     UInt nFace = this->GetNFace();
     RealField & xN = nodeMesh->xN;
@@ -157,7 +157,7 @@ void FaceMesh::DomputeFaceCenter2D( NodeMesh * nodeMesh )
     int kkk = 1;
 }
 
-void FaceMesh::DomputeFaceNormal3D( NodeMesh * nodeMesh )
+void FaceMesh::CalcFaceNormal3D( NodeMesh * nodeMesh )
 {
     xfn = 0;
     yfn = 0;
@@ -205,7 +205,7 @@ void FaceMesh::DomputeFaceNormal3D( NodeMesh * nodeMesh )
     }
 }
 
-void FaceMesh::DomputeFaceCenter3D( NodeMesh * nodeMesh )
+void FaceMesh::CalcFaceCenter3D( NodeMesh * nodeMesh )
 {
     RealField & xN = nodeMesh->xN;
     RealField & yN = nodeMesh->yN;

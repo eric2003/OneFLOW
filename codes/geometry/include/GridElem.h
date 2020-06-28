@@ -60,7 +60,7 @@ public:
     void GenerateCalcElement();
     void GenerateCalcGrid();
     void GenerateCalcGrid( Grid * grid );
-    void DomputeBoundaryType( UnsGrid * grid );
+    void CalcBoundaryType( UnsGrid * grid );
     void ReorderLink( UnsGrid * grid );
 };
 

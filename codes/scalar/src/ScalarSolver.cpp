@@ -334,8 +334,8 @@ void ScalarSolver::Visual( ScalarPara * para )
     Numpy::ToTecplot( "theory_tec.plt", x, u, utheory );
     Numpy::ToTecplot( "du.plt", x, u, du );
     Numpy::ToTecplot( "dua.plt", x, utheory, dua );
-    this->DomputeL1Norm();
-    this->DomputeL2Norm();
+    this->CalcL1Norm();
+    this->CalcL2Norm();
     para->x = x;
     para->du = dua;
     para->l1Norm = this->l1Norm;
@@ -461,7 +461,7 @@ void ScalarSolver::Theory( double t )
 
 }
 
-void ScalarSolver::DomputeL1Norm()
+void ScalarSolver::CalcL1Norm()
 {
     this->l1Norm = 0.0;
 
@@ -475,7 +475,7 @@ void ScalarSolver::DomputeL1Norm()
     cout << " this->l1Norm = " << this->l1Norm << "\n";
 }
 
-void ScalarSolver::DomputeL2Norm()
+void ScalarSolver::CalcL2Norm()
 {
     this->l2Norm = 0.0;
 

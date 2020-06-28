@@ -93,8 +93,8 @@ public:
     double MyCurve( double xm );
     void FreeScalarZones();
 public:
-    void DomputeL1Norm();
-    void DomputeL2Norm();
+    void CalcL1Norm();
+    void CalcL2Norm();
 public:
     int nx;
 

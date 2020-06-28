@@ -74,7 +74,7 @@ public:
     void FillRecvId( int iNei );
     void SetSendId( int zid, IntField & idsend );
     void AllocateNeighbor();
-    int DomputeNIFace( int iNei );
+    int CalcNIFace( int iNei );
     IntField & GetInterfaceId( int neiId, int iSr );
 };
 

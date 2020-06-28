@@ -113,7 +113,7 @@ void Sod::Run()
 
 void Sod::Theory()
 {
-//  Domputes the exact solution for the Sod's shock-tube problem.
+//  Calcs the exact solution for the Sod's shock-tube problem.
 //  See J.D. Anderson, Modern Compressible Flow (1984) for details.
 //
 //     --------------------------------------------
@@ -156,7 +156,7 @@ void Sod::Theory()
     Real xr = 1.0;
     Real xd = 0.5;
 
-    //Dompute acoustic velocities.
+    //Calc acoustic velocities.
     Real a1 = sqrt( gam * p1 / r1 );
     Real a4 = sqrt( gam * p4 / r4 );
 

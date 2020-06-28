@@ -112,7 +112,7 @@ void SimpleMesh2D::GenerateCircleMesh()
 
     for ( int j = 0; j < nj; ++ j )
     {
-        this->DomputeX2Y2Array( x1Array, y1Array, x2Array, y2Array );
+        this->CalcX2Y2Array( x1Array, y1Array, x2Array, y2Array );
 
         this->PushCircleNode( x2Array, y2Array, nodeArray2 );
 
@@ -145,7 +145,7 @@ void SimpleMesh2D::GenerateExtrapolationMesh()
 
     for ( int j = 0; j < nj; ++ j )
     {
-        this->DomputeX2Y2ArrayNoLoop( x1Array, y1Array, x2Array, y2Array );
+        this->CalcX2Y2ArrayNoLoop( x1Array, y1Array, x2Array, y2Array );
         this->PushCircleNode( x2Array, y2Array, nodeArray2 );
         this->PushElement( nodeArray1, nodeArray2, 1 );
 
@@ -264,7 +264,7 @@ void SimpleMesh2D::GenerateCircleSurface( RealField & xArray, RealField & yArray
     }
 }
 
-void SimpleMesh2D::DomputeX2Y2Array( RealField & x1Array, RealField & y1Array, RealField & x2Array, RealField & y2Array )
+void SimpleMesh2D::CalcX2Y2Array( RealField & x1Array, RealField & y1Array, RealField & x2Array, RealField & y2Array )
 {
     int numberOfNodes = x1Array.size();
     Real factor = sin( PI / 3 );
@@ -294,7 +294,7 @@ void SimpleMesh2D::DomputeX2Y2Array( RealField & x1Array, RealField & y1Array, R
     }
 }
 
-void SimpleMesh2D::DomputeX2Y2ArrayNoLoop( RealField & x1Array, RealField & y1Array, RealField & x2Array, RealField & y2Array )
+void SimpleMesh2D::CalcX2Y2ArrayNoLoop( RealField & x1Array, RealField & y1Array, RealField & x2Array, RealField & y2Array )
 {
     int numberOfNodes = x1Array.size();
     Real factor = sin( PI / 3 );
@@ -370,7 +370,7 @@ void Mesh::CreateMesh()
     this->ConstructTopology();
     ONEFLOW::Visual::Show( this );
 
-    this->DomputeMetrics();
+    this->CalcMetrics();
 }
 
 void Mesh::ConstructTopology()
@@ -521,67 +521,67 @@ void Mesh::AllocateMetrics()
     this->cellMesh->AllocateMetrics( this->faceMesh );
 }
 
-void Mesh::DomputeMetrics()
+void Mesh::CalcMetrics()
 {
     this->AllocateMetrics();
     if ( ONEFLOW::IsOneD() )
     {
-        this->DomputeMetrics1D();
+        this->CalcMetrics1D();
     }
     else if ( ONEFLOW::IsTwoD() )
     {
-        this->DomputeMetrics2D();
+        this->CalcMetrics2D();
     }
     else if ( ONEFLOW::IsThreeD() )
     {
-        this->DomputeMetrics3D();
+        this->CalcMetrics3D();
     }
 }
 
-void Mesh::DomputeMetrics1D()
+void Mesh::CalcMetrics1D()
 {
     //compute face center first for one dimensional case then face normal
-    this->DomputeFaceCenter1D();
-    this->DomputeCellCenterVol1D();
-    this->DomputeFaceNormal1D();
-    this->DomputeGhostCellCenterVol1D();
+    this->CalcFaceCenter1D();
+    this->CalcCellCenterVol1D();
+    this->CalcFaceNormal1D();
+    this->CalcGhostCellCenterVol1D();
 }
 
-void Mesh::DomputeMetrics2D()
+void Mesh::CalcMetrics2D()
 {
-    this->DomputeFaceNormal2D();
-    this->DomputeFaceCenter2D();
-    this->DomputeCellCenterVol2D();
+    this->CalcFaceNormal2D();
+    this->CalcFaceCenter2D();
+    this->CalcCellCenterVol2D();
 }
 
-void Mesh::DomputeMetrics3D()
+void Mesh::CalcMetrics3D()
 {
-    this->DomputeFaceNormal3D();
-    this->DomputeFaceCenter3D();
-    this->DomputeCellCenterVol3D();
+    this->CalcFaceNormal3D();
+    this->CalcFaceCenter3D();
+    this->CalcCellCenterVol3D();
 }
 
-void Mesh::DomputeFaceNormal2D()
+void Mesh::CalcFaceNormal2D()
 {
-    this->faceMesh->DomputeFaceNormal2D( this->nodeMesh );
+    this->faceMesh->CalcFaceNormal2D( this->nodeMesh );
 }
 
-void Mesh::DomputeFaceCenter2D()
+void Mesh::CalcFaceCenter2D()
 {
-    this->faceMesh->DomputeFaceCenter2D( this->nodeMesh );
+    this->faceMesh->CalcFaceCenter2D( this->nodeMesh );
 }
 
-void Mesh::DomputeFaceCenter1D()
+void Mesh::CalcFaceCenter1D()
 {
-    this->faceMesh->DomputeFaceCenter1D( this->nodeMesh );
+    this->faceMesh->CalcFaceCenter1D( this->nodeMesh );
 }
 
-void Mesh::DomputeFaceNormal1D()
+void Mesh::CalcFaceNormal1D()
 {
-    this->faceMesh->DomputeFaceNormal1D( this->nodeMesh, this->cellMesh );
+    this->faceMesh->CalcFaceNormal1D( this->nodeMesh, this->cellMesh );
 }
 
-void Mesh::DomputeCellCenterVol1D()
+void Mesh::CalcCellCenterVol1D()
 {
     UInt nFace = this->faceMesh->GetNFace();
     UInt nBFace = this->faceMesh->GetNBFace();
@@ -614,7 +614,7 @@ void Mesh::DomputeCellCenterVol1D()
     }
 }
 
-void Mesh::DomputeGhostCellCenterVol1D()
+void Mesh::CalcGhostCellCenterVol1D()
 {
     UInt nFace = this->faceMesh->GetNFace();
     UInt nBFace = this->faceMesh->GetNBFace();
@@ -663,7 +663,7 @@ void Mesh::DomputeGhostCellCenterVol1D()
     }
 }
 
-void Mesh::DomputeCellCenterVol2D()
+void Mesh::CalcCellCenterVol2D()
 {
     UInt nFace = this->faceMesh->GetNFace();
     UInt nBFace = this->faceMesh->GetNBFace();
@@ -776,7 +776,7 @@ void Mesh::DomputeCellCenterVol2D()
     }
 }
 
-void Mesh::DomputeCellCenterVol3D()
+void Mesh::CalcCellCenterVol3D()
 {
     UInt nFace = this->faceMesh->GetNFace();
     UInt nBFace = this->faceMesh->GetNBFace();
@@ -916,14 +916,14 @@ void Mesh::DomputeCellCenterVol3D()
     }
 }
 
-void Mesh::DomputeFaceNormal3D()
+void Mesh::CalcFaceNormal3D()
 {
-    this->faceMesh->DomputeFaceNormal3D( this->nodeMesh );
+    this->faceMesh->CalcFaceNormal3D( this->nodeMesh );
 }
 
-void Mesh::DomputeFaceCenter3D()
+void Mesh::CalcFaceCenter3D()
 {
-    this->faceMesh->DomputeFaceCenter3D( this->nodeMesh );
+    this->faceMesh->CalcFaceCenter3D( this->nodeMesh );
 }
 
 

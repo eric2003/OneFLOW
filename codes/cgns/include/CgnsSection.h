@@ -71,8 +71,8 @@ public:
     void ReadCgnsSectionInfo();
     void SetSectionInfo( const string & sectionName, int elemType, int startId, int endId );
     void CreateConnList();
-    void DomputeNumberOfSectionElements();
-    void DomputeCapacityOfCgnsConnectionList();
+    void CalcNumberOfSectionElements();
+    void CalcCapacityOfCgnsConnectionList();
     void AllocateCgnsConnectionList();
     void ReadCgnsSectionConnectionList();
     void SetElemPosition();

@@ -232,7 +232,7 @@ void Block3D::ConstructTopo()
     //for ( int iMDomain = 0; iMDomain < nMDomain; ++ iMDomain )
     //{
     //    MDomain * mDomain = mDomainList[ iMDomain ];
-    //    mDomain->DomputeDomainCtrlPoints( ctrl_points );
+    //    mDomain->CalcDomainCtrlPoints( ctrl_points );
     //}
 
     int p1, p2, p3, p4, p5, p6, p7, p8;
@@ -258,9 +258,9 @@ void Block3D::ConstructTopo()
     for ( int iMDomain = 0; iMDomain < nMDomain; ++ iMDomain )
     {
         MDomain * mDomain = mDomainList[ iMDomain ];
-        mDomain->DomputeDomainCtrlPoints( this->controlpoints, this->localpt[iMDomain ] );
+        mDomain->CalcDomainCtrlPoints( this->controlpoints, this->localpt[iMDomain ] );
     }
-    this->DomputeBlkDim();
+    this->CalcBlkDim();
 }
 
 void Block3D::GetCornerPoint( int & pt, int id1, int id2, int id3 )
@@ -315,13 +315,13 @@ void Block3D::SetInterfaceBc()
     }
 }
 
-void Block3D::DomputeBlkDim()
+void Block3D::CalcBlkDim()
 {
     int nMDomain = mDomainList.size();
     for ( int iMDomain = 0; iMDomain < nMDomain; ++ iMDomain )
     {
         MDomain * mDomain = mDomainList[ iMDomain ];
-        mDomain->DomputeDim2D();
+        mDomain->CalcDim2D();
     }
 
     MDomain * d0 = mDomainList[ 0 ];
@@ -357,7 +357,7 @@ void Block3D::DomputeBlkDim()
     for ( int iMDomain = 0; iMDomain < nMDomain; ++ iMDomain )
     {
         MDomain * mDomain = mDomainList[ iMDomain ];
-        mDomain->DomputeCoor();
+        mDomain->CalcCoor();
     }
 
     CreateFaceList();
@@ -632,10 +632,10 @@ void Block2D::ConstructTopo()
     for ( int iMDomain = 0; iMDomain < nMDomain; ++ iMDomain )
     {
         MLine * mLine = mLineList[ iMDomain ];
-        mLine->DomputeDomainCtrlPoints( this->controlpoints, this->localpt[iMDomain ] );
+        mLine->CalcDomainCtrlPoints( this->controlpoints, this->localpt[iMDomain ] );
     }
 
-    this->DomputeBlkDim();
+    this->CalcBlkDim();
 }
 
 void Block2D::GetCornerPoint( int & pt, int id1, int id2 )
@@ -687,13 +687,13 @@ void Block2D::SetInterfaceBc()
     }
 }
 
-void Block2D::DomputeBlkDim()
+void Block2D::CalcBlkDim()
 {
     int nMDomain = mLineList.size();
     for ( int iMDomain = 0; iMDomain < nMDomain; ++ iMDomain )
     {
         MLine * mLine = mLineList[ iMDomain ];
-        mLine->DomputeDim1D();
+        mLine->CalcDim1D();
     }
 
     MLine * d0 = mLineList[ 0 ];
@@ -722,7 +722,7 @@ void Block2D::DomputeBlkDim()
     for ( int iMDomain = 0; iMDomain < nMDomain; ++ iMDomain )
     {
         MLine * mLine = mLineList[ iMDomain ];
-        mLine->DomputeCoor( & this->coorMap );
+        mLine->CalcCoor( & this->coorMap );
     }
 
     CreateFaceList();

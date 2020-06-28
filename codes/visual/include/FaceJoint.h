@@ -73,7 +73,7 @@ public:
     void CalcBoundBox();
     void ConstructPointIndex();
     void ConstructPointIndexMap( FaceJoint * globalBasicWall );
-    void DomputeNodeValue();
+    void CalcNodeValue();
     void RemapNodeValue( FaceJoint * globalBasicWall );
 public:
     int GetSize() { return fvp.size(); }

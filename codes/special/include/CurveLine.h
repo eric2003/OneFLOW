@@ -69,15 +69,15 @@ public:
     void GenerateCurveLine();
     void GenerateCircleLine();
     void GenerateParabolicLine();
-    void DomputeTotalLength();
-    Real DomputeParabolicLength(Real x, Real p);
+    void CalcTotalLength();
+    Real CalcParabolicLength(Real x, Real p);
     void FindXByLength(Real & x, Real p, Real maxX, Real length);
 public:
-    void DomputeLineLength();
-    void DomputeNormal( RealField & nbx, RealField & nby, RealField & nbz );
+    void CalcLineLength();
+    void CalcNormal( RealField & nbx, RealField & nby, RealField & nbz );
 };
 
-Real DomputeDist( PointType & p1, PointType & p2 );
+Real CalcDist( PointType & p1, PointType & p2 );
 
 void CrossProduct( RealField & a, RealField & b, RealField & c );
 

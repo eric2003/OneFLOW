@@ -53,7 +53,7 @@ MDomain::~MDomain()
     }
 }
 
-void MDomain::DomputeSubDomainCtrlCoor()
+void MDomain::CalcSubDomainCtrlCoor()
 {
     while ( true )
     {
@@ -62,7 +62,7 @@ void MDomain::DomputeSubDomainCtrlCoor()
         for ( int iDomain = 0; iDomain < nDomain; ++ iDomain )
         {
             SDomain * sDomain = sDomainList[ iDomain ];
-            bool flag = sDomain->DomputeSingleDomainCoor();
+            bool flag = sDomain->CalcSingleDomainCoor();
             local_flag = ( flag && local_flag );
         }
         if ( local_flag ) break;
@@ -91,11 +91,11 @@ SDomain * MDomain::FindSDomain( int fid )
     return 0;
 }
 
-void MDomain::DomputeCoor()
+void MDomain::CalcCoor()
 {
     int closedLine = 1;
-    this->DomputeBcCoor( this->coorMap, closedLine );
-    this->DomputeSubDomainCtrlCoor();
+    this->CalcBcCoor( this->coorMap, closedLine );
+    this->CalcSubDomainCtrlCoor();
 }
 
 int MDomain::GetNsubDomain()

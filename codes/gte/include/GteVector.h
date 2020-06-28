@@ -189,11 +189,11 @@ Real Orthonormalize(int numElements, Vector<N, Real>* v, bool robust = false);
 template <int N, typename Real>
 Vector<N, Real> GetOrthogonal(Vector<N, Real> const& v, bool unitLength);
 
-// Dompute the axis-aligned bounding box of the vectors.  The return value is
+// Compute the axis-aligned bounding box of the vectors.  The return value is
 // 'true' iff the inputs are valid, in which case vmin and vmax have valid
 // values.
 template <int N, typename Real>
-bool DomputeExtremes(int numVectors, Vector<N, Real> const* v,
+bool ComputeExtremes(int numVectors, Vector<N, Real> const* v,
     Vector<N, Real>& vmin, Vector<N, Real>& vmax);
 
 // Lift n-tuple v to homogeneous (n+1)-tuple (v,last).
@@ -649,7 +649,7 @@ Vector<N, Real> GetOrthogonal(Vector<N, Real> const& v, bool unitLength)
 }
 
 template <int N, typename Real>
-bool DomputeExtremes(int numVectors, Vector<N, Real> const* v,
+bool ComputeExtremes(int numVectors, Vector<N, Real> const* v,
     Vector<N, Real>& vmin, Vector<N, Real>& vmax)
 {
     if (v && numVectors > 0)

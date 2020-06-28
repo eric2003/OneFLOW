@@ -213,13 +213,13 @@ void GridElem::GenerateCalcGrid( Grid * gridIn )
         grid->nodeMesh->zN[ iNode ] = this->point_factory->pointList[ nodeIndex ].z;
     }
 
-    this->DomputeBoundaryType( grid );
+    this->CalcBoundaryType( grid );
     this->ReorderLink( grid );
 
     cout << "\n-->All the computing information is ready\n";
 }
 
-void GridElem::DomputeBoundaryType( UnsGrid * grid )
+void GridElem::CalcBoundaryType( UnsGrid * grid )
 {
     cout << "\n-->Set boundary condition......\n";
     delete grid->faceTopo;

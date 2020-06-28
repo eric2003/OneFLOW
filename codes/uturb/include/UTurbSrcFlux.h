@@ -71,8 +71,8 @@ public:
     void ModifyBlendingTerm();
 };
 
-void DomputeLengthLesOfSa( RealField & lesLengthField );
-void DomputeLengthLesOfSst( RealField & lesLengthField );
+void CalcLengthLesOfSa( RealField & lesLengthField );
+void CalcLengthLesOfSst( RealField & lesLengthField );
 
 RealField GetLengthScale();
 RealField & GetLargestSpacing();
