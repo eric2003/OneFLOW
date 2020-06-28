@@ -156,7 +156,7 @@ void UTurbSpectrum::ZeroSpectrum()
 
 void UTurbSpectrum::CalcSpectrum1Equ()
 {
-    this->CmpUnsteadySpectrum();
+    this->CalcUnsteadySpectrum();
 
     for ( int fId = 0; fId < ug.nFace; ++ fId )
     {
@@ -174,7 +174,7 @@ void UTurbSpectrum::CalcSpectrum1Equ()
 
 void UTurbSpectrum::CalcSpectrum2Equ()
 {
-    this->CmpUnsteadySpectrum();
+    this->CalcUnsteadySpectrum();
 
     for ( int fId = 0; fId < ug.nFace; ++ fId )
     {
@@ -190,7 +190,7 @@ void UTurbSpectrum::CalcSpectrum2Equ()
     }
 }
 
-void UTurbSpectrum::CmpUnsteadySpectrum()
+void UTurbSpectrum::CalcUnsteadySpectrum()
 {
     if ( ctrl.idualtime == 0 )//单时间步，注意:是usd.sp2!
     {

@@ -37,7 +37,7 @@ public:
     void CalcSpectrum1Equ();
     void CalcSpectrum2Equ();
 public:
-    void CmpUnsteadySpectrum();
+    void CalcUnsteadySpectrum();
     void UpdateSpectrumRadius();
 
     void PrepareFaceValue1Equ();

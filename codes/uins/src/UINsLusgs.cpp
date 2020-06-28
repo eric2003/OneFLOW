@@ -68,7 +68,7 @@ void UINsLusgs::Init()
 void UINsLusgs::CalcSpectrum()
 {
     UINsSpectrum * unsSpectrum = new UINsSpectrum();
-    unsSpectrum->CmpImplicitSpectrum();
+    unsSpectrum->CalcImplicitSpectrum();
     delete unsSpectrum;
 }
 

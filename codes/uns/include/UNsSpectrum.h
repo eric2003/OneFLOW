@@ -31,8 +31,8 @@ public:
     UNsSpectrum();
     ~UNsSpectrum();
 public:
-    void CmpImplicitSpectrum();
-    void CmpUnsteadySpectrum();
+    void CalcImplicitSpectrum();
+    void CalcUnsteadySpectrum();
     void AddInvSpectrum();
     void AddVisSpectrum();
 };

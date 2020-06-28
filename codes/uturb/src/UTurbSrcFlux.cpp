@@ -617,7 +617,7 @@ void UTurbSrcFlux::CalcLengthScaleOfSaIddes()
     ComputeLengthLesOfSa( lesLength );
 
     RealField lowReynoldsCorr( nCell );
-    CmpLowReynoldsCorrection( lowReynoldsCorr );
+    CalcLowReynoldsCorrection( lowReynoldsCorr );
 
     Real ct   = 1.63;
     Real cl   = 3.55;
@@ -911,7 +911,7 @@ void ComputeLengthLesOfSa( RealField & lesLengthField )
 
     RealField lowReynoldsCorr( nCell );
 
-    CmpLowReynoldsCorrection( lowReynoldsCorr );
+    CalcLowReynoldsCorrection( lowReynoldsCorr );
 
     RealField lengthScale = GetLengthScale();
 
@@ -946,7 +946,7 @@ RealField GetLengthScale()
     if ( turbcom.des_model == IDDES )
     {
         RealField lenth_scale;
-        CmpSubgridLengthScale( lenth_scale );
+        CalcSubgridLengthScale( lenth_scale );
         return lenth_scale;
     }
     else
@@ -956,7 +956,7 @@ RealField GetLengthScale()
     }
 }
 
-void CmpLowReynoldsCorrection( RealField & lowReynoldsCorr )
+void CalcLowReynoldsCorrection( RealField & lowReynoldsCorr )
 {
     UnsGrid * grid = Zone::GetUnsGrid();
 
@@ -987,7 +987,7 @@ void CmpLowReynoldsCorrection( RealField & lowReynoldsCorr )
     }
 }
 
-void CmpSubgridLengthScale( RealField & lenth_scale )
+void CalcSubgridLengthScale( RealField & lenth_scale )
 {
     UnsGrid * grid = Zone::GetUnsGrid();
 

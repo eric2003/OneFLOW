@@ -38,7 +38,7 @@ public:
     ~VisGradGeom();
 public:
     void CalcFaceWeight();
-    void CmpAngle( Real dx, Real dy, Real dz, Real dist, Real & angle );
+    void CalcAngle( Real dx, Real dy, Real dz, Real dist, Real & angle );
     void PrepareCellGeom();
     void CompGradCoef();
 public:

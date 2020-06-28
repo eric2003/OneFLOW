@@ -70,7 +70,7 @@ public:
     PointSearch * ps;
     WallVisual * wallVisual;
 public:
-    void CmpBoundBox();
+    void CalcBoundBox();
     void ConstructPointIndex();
     void ConstructPointIndexMap( FaceJoint * globalBasicWall );
     void ComputeNodeValue();

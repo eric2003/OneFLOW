@@ -44,7 +44,7 @@ public:
     void CollectWallFaceValue();
     void VisualizeWallNodeValue();
     void ConstructPointIndex();
-    void CmpNodeValue();
+    void CalcNodeValue();
 };
 
 class PointSearch;

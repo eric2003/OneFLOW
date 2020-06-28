@@ -76,7 +76,7 @@ void ComputeLengthLesOfSst( RealField & lesLengthField );
 
 RealField GetLengthScale();
 RealField & GetLargestSpacing();
-void CmpSubgridLengthScale( RealField & lenth_scale );
-void CmpLowReynoldsCorrection( RealField & lowReynoldsCorr );
+void CalcSubgridLengthScale( RealField & lenth_scale );
+void CalcLowReynoldsCorrection( RealField & lowReynoldsCorr );
 
 EndNameSpace

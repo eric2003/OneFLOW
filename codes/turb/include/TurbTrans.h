@@ -49,7 +49,7 @@ public:
     Real CorrectionOfBlendingFunctionInSST( Real density, Real distance, Real viscosity, Real kineticEnergy, Real reynoldsInflow, Real F1 );
     Real CorrectionOfDestructionInKEquation( Real gmeff, Real Dk );
     Real CorrectionOfProductionInKEquation( Real gmeff, Real Pk );
-    Real CmpIntensity( Real velocity, Real kineticEnergy );
+    Real CalcIntensity( Real velocity, Real kineticEnergy );
     Real EmpiricalCorrelationOfFlamdacta( Real Tu, Real lamdacta );
     Real EmpiricalCorrelationOfRectat( Real Tu, Real Flamdacta );
     Real AccelerationAlongStreamline( Real u, Real v, Real w,

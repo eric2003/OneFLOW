@@ -398,7 +398,7 @@ void TurbCom::InitInflow()
 
         if ( inflow_intensity <= 0.0 )
         {
-            TUoo = trans.CmpIntensity( 1.0, keoo );
+            TUoo = trans.CalcIntensity( 1.0, keoo );
         }
         else
         {
@@ -740,7 +740,7 @@ void TurbCom::RGamaTransition()
                             
     Real Fctat = turb_trans.BlendingFunctionOfFctat( intermittency, Rew, rectabar, vorticity, visl, rho, absU, dist, reynolds );
     Real tscl  = turb_trans.TimeScaleInSourceTerm(  rho, absU, visl, reynolds ); 
-    Real TU    = turb_trans.CmpIntensity( absU, ke );
+    Real TU    = turb_trans.CalcIntensity( absU, ke );
     gmeff = turb_trans.SeparationCorrectionOfIntermittency( intermittency, Rev, Rectac, RT, Fctat );
                             
     Real dUds  = turb_trans.AccelerationAlongStreamline( um, vm, wm, dudx, dudy, dudz, dvdx, dvdy, dvdz, dwdx, dwdy, dwdz );

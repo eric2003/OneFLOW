@@ -84,7 +84,7 @@ FaceJoint::~FaceJoint()
     delete wallVisual;
 }
 
-void FaceJoint::CmpBoundBox()
+void FaceJoint::CalcBoundBox()
 {
     pmin[ 0 ] = LARGE;
     pmin[ 1 ] = LARGE;
@@ -147,7 +147,7 @@ void FaceJoint::CmpBoundBox()
 void FaceJoint::ConstructPointIndex()
 {
     if ( ! this->isValid ) return;
-    this->CmpBoundBox();
+    this->CalcBoundBox();
 
     FaceJoint::PointLink & fvp = this->fvp;
 
