@@ -125,7 +125,7 @@ void MergeToSingleZone( Grids & grids, HXVector< Int3D * > & unsIdList, NodeMesh
         unsIdList[ iZone ] = new Int3D( Range( 1, ni ), Range( 1, nj ), Range( 1, nk ) );
         Int3D & unsId = * unsIdList[ iZone ];
         cout << " block = " << iZone + 1 << "\n";
-        ComputeUnsId( grid, point_search, & unsId );
+        DomputeUnsId( grid, point_search, & unsId );
     }
 
     nNode = point_search->GetNPoint();
@@ -158,7 +158,7 @@ void FillSection( Grids & grids, HXVector< Int3D * > & unsIdList, CgnsZone * cgn
         StrGrid * grid = ONEFLOW::StrGridCast( grids[ iZone ] );
         Int3D & unsId = * unsIdList[ iZone ];
 
-        nTCell += grid->ComputeNumberOfCell();
+        nTCell += grid->DomputeNumberOfCell();
 
         BcRegionGroup * bcRegionGroup = grid->bcRegionGroup;
         size_t nBcRegions = bcRegionGroup->regions->size();
@@ -168,7 +168,7 @@ void FillSection( Grids & grids, HXVector< Int3D * > & unsIdList, CgnsZone * cgn
             BcRegion * bcRegion = ( * bcRegionGroup->regions )[ ir ];
             if ( BC::IsNotNormalBc( bcRegion->bcType ) ) continue;
             
-            nBFace += bcRegion->ComputeRegionCells();
+            nBFace += bcRegion->DomputeRegionCells();
             nTBcRegion ++;
         }
     }
@@ -220,7 +220,7 @@ void FillSection( Grids & grids, HXVector< Int3D * > & unsIdList, CgnsZone * cgn
 
         Int3D & unsId = * unsIdList[ iZone ];
         
-        IJKRange::Compute( ni, nj, nk, 0, -1 );
+        IJKRange::Dompute( ni, nj, nk, 0, -1 );
         IJKRange::ToScalar();
 
         int is = 1;
@@ -280,7 +280,7 @@ void FillSection( Grids & grids, HXVector< Int3D * > & unsIdList, CgnsZone * cgn
         {
             BcRegion * bcRegion = ( * bcRegionGroup->regions )[ ir ];
             if ( BC::IsNotNormalBc( bcRegion->bcType ) ) continue;
-            int nRegionCell = bcRegion->ComputeRegionCells();
+            int nRegionCell = bcRegion->DomputeRegionCells();
 
             CgnsBcBoco * cgnsBcBoco = cgnsZbc->cgnsZbcBoco->GetCgnsBc( irc );
             
@@ -308,7 +308,7 @@ void FillSection( Grids & grids, HXVector< Int3D * > & unsIdList, CgnsZone * cgn
     delete bcTypeMap;
 }
 
-void ComputeUnsId( StrGrid * grid, PointSearch * pointSearch, Int3D * unsId )
+void DomputeUnsId( StrGrid * grid, PointSearch * pointSearch, Int3D * unsId )
 {
     int ni = grid->ni;
     int nj = grid->nj;

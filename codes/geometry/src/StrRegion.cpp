@@ -126,7 +126,7 @@ void MyRRegion::Test()
 
     this->AddBcRegion( &r2 );
 
-    this->ComputeDiv( refregions );
+    this->DomputeDiv( refregions );
 
     this->GenerateRegions( subregions );
 
@@ -137,14 +137,14 @@ void MyRRegion::Test()
 
 void MyRRegion::Run()
 {
-    this->ComputeDiv( this->refregions );
+    this->DomputeDiv( this->refregions );
 
     this->GenerateRegions( this->subregions );
 
     this->CollectNoSetBoundary();
 }
 
-void MyRRegion::ComputeDiv( MyRegions & regions )
+void MyRRegion::DomputeDiv( MyRegions & regions )
 {
     IntSet idiv_set, jdiv_set, kdiv_set;
     int nr = regions.size();

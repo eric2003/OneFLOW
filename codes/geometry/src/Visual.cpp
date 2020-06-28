@@ -74,7 +74,7 @@ void Visual::DumpTitle( fstream & file, Mesh * mesh )
         file << titleOfTecplot[ i ] << endl;
     }
 
-    UInt totalNumFaceNodes = mesh->faceMesh->ComputeTotalFaceNodes();
+    UInt totalNumFaceNodes = mesh->faceMesh->DomputeTotalFaceNodes();
     UInt nFace = mesh->faceMesh->GetNFace();
     UInt numberOfNodes = mesh->nodeMesh->GetNumberOfNodes();
     UInt numberOfCells = mesh->cellMesh->GetNumberOfCells();

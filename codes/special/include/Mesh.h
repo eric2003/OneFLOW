@@ -70,8 +70,8 @@ private:
     void ConstructElement();
 protected:
     void GenerateCircleSurface( RealField & xArray, RealField & yArray, int ni );
-    void ComputeX2Y2Array( RealField & x1Array, RealField & y1Array, RealField & x2Array, RealField & y2Array );
-    void ComputeX2Y2ArrayNoLoop( RealField & x1Array, RealField & y1Array, RealField & x2Array, RealField & y2Array );
+    void DomputeX2Y2Array( RealField & x1Array, RealField & y1Array, RealField & x2Array, RealField & y2Array );
+    void DomputeX2Y2ArrayNoLoop( RealField & x1Array, RealField & y1Array, RealField & x2Array, RealField & y2Array );
     void PushCircleNode( RealField & xArray, RealField & yArray, IntField & nodeArray );
 };
 
@@ -93,25 +93,25 @@ public:
 public:
     void ConstructTopology();
     void SwapBoundary();
-    void ComputeMetrics();
+    void DomputeMetrics();
     void AllocateMetrics();
 private:
-    void ComputeMetrics1D();
-    void ComputeMetrics2D();
-    void ComputeMetrics3D();
+    void DomputeMetrics1D();
+    void DomputeMetrics2D();
+    void DomputeMetrics3D();
 private:
-    void ComputeFaceCenter1D();
-    void ComputeCellCenterVol1D();
-    void ComputeFaceNormal1D();
-    void ComputeGhostCellCenterVol1D();
+    void DomputeFaceCenter1D();
+    void DomputeCellCenterVol1D();
+    void DomputeFaceNormal1D();
+    void DomputeGhostCellCenterVol1D();
 private:
-    void ComputeFaceNormal2D();
-    void ComputeFaceCenter2D();
-    void ComputeCellCenterVol2D();
+    void DomputeFaceNormal2D();
+    void DomputeFaceCenter2D();
+    void DomputeCellCenterVol2D();
 private:
-    void ComputeFaceNormal3D();
-    void ComputeFaceCenter3D();
-    void ComputeCellCenterVol3D();
+    void DomputeFaceNormal3D();
+    void DomputeFaceCenter3D();
+    void DomputeCellCenterVol3D();
 };
 
 EndNameSpace

@@ -225,10 +225,10 @@ void MLine::ConstructLineToDomainMap( int domain_id, map< int, IntSet > & lineTo
     ONEFLOW::ConstructLineToDomainMap( domain_id, mLine->lineList, lineToDomainMap );
 }
 
-void MLine::ComputeCoor( CoorMap * localCoorMap )
+void MLine::DomputeCoor( CoorMap * localCoorMap )
 {
     int openLine = 0;
-    this->ComputeBcCoor( localCoorMap, openLine );
+    this->DomputeBcCoor( localCoorMap, openLine );
 }
 
 void MLine::ConstructDomainTopo()

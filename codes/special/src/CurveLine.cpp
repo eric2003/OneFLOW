@@ -144,20 +144,20 @@ void CurveLine::MakeCircle( PointType & p1, PointType & p2, PointType & p0 )
     }
 }
 
-void CurveLine::ComputeTotalLength()
+void CurveLine::DomputeTotalLength()
 {
     if ( lineType == 0 )
     {
-        ComputeLineLength();
+        DomputeLineLength();
     }
 }
 
-void CurveLine::ComputeLineLength()
+void CurveLine::DomputeLineLength()
 {
-    this->totalCurveLength = ONEFLOW::ComputeDist( start_p, end_p );
+    this->totalCurveLength = ONEFLOW::DomputeDist( start_p, end_p );
 }
 
-void CurveLine::ComputeNormal( RealField & nbx, RealField & nby, RealField & nbz )
+void CurveLine::DomputeNormal( RealField & nbx, RealField & nby, RealField & nbz )
 {
     int nPoint = this->x.size();
     nbx.resize( nPoint );
@@ -269,7 +269,7 @@ void CurveLine::GenerateCircleLine()
     }
 }
 
-Real CurveLine::ComputeParabolicLength(Real x, Real p)
+Real CurveLine::DomputeParabolicLength(Real x, Real p)
 {
     Real term = 2 * x / p;
     Real s = p / 2 * (sqrt(term * (1 + term)) + log(sqrt(term) + sqrt(1 + term)));
@@ -285,7 +285,7 @@ void CurveLine::FindXByLength(Real & x, Real p, Real maxX, Real length)
     {
         x = half * (x1 + x2);
 
-        Real s = this->ComputeParabolicLength(x, p);
+        Real s = this->DomputeParabolicLength(x, p);
 
         if (s < length)
         {
@@ -310,7 +310,7 @@ void CurveLine::GenerateParabolicLine()
     Real H = ABS( start_p.y - end_p.y );
     Real p = H * H / (2.0 * L);
 
-    Real curve_lenth = this->ComputeParabolicLength( L, p );
+    Real curve_lenth = this->DomputeParabolicLength( L, p );
 
     Real ave_ratio = 1.0 / (nPoint - 1);
 
@@ -340,7 +340,7 @@ void CurveLine::GenerateParabolicLine()
 
 void CurveLine::GenerateCurveLine()
 {
-    ComputeLineLength();
+    DomputeLineLength();
 
     int nPoint = this->x.size();
     this->ds1 = this->totalCurveLength / ( nPoint - 1 );
@@ -368,7 +368,7 @@ void CurveLine::GenerateCurveLine()
     }
 }
 
-Real ComputeDist( PointType & p1, PointType & p2 )
+Real DomputeDist( PointType & p1, PointType & p2 )
 {
     Real dx = p1.x - p2.x;
     Real dy = p1.y - p2.y;

@@ -59,7 +59,7 @@ public:
     IntField lCellNew, rCellNew;
 public:
     UInt GetNFace() { return faceType.size();  }
-    UInt ComputeTotalFaceNodes();
+    UInt DomputeTotalFaceNodes();
     UInt GetNBFace();
     void SetNBFace( UInt nBFace );
 public:

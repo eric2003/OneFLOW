@@ -171,7 +171,7 @@ void Chemical::Init()
 {
     InitRefPara();
 
-    ComputeRefPara();
+    DomputeRefPara();
 }
 
 void Chemical::InitRefPara()
@@ -181,38 +181,38 @@ void Chemical::InitRefPara()
     InitWorkingSpace();
 }
 
-void Chemical::ComputeRefPara()
+void Chemical::DomputeRefPara()
 {
-    ComputeRefMolecularInfo();
+    DomputeRefMolecularInfo();
 
-    ComputeRefGasInfo();
+    DomputeRefGasInfo();
 
-    ComputeRefGama();
+    DomputeRefGama();
 
-    ComputeRefSoundSpeed();
+    DomputeRefSoundSpeed();
 
-    ComputeRefMachAndVel();
+    DomputeRefMachAndVel();
 
-    ComputeStateCoef();
+    DomputeStateCoef();
 
-    ComputeRefPrim();
+    DomputeRefPrim();
 
-    ComputeRefReynolds();
+    DomputeRefReynolds();
 }
 
-void Chemical::ComputeRefMolecularInfo()
+void Chemical::DomputeRefMolecularInfo()
 {
     if ( nscom.chemModel > 0 )
     {
-        ComputeRefMolecularInfoChem();
+        DomputeRefMolecularInfoChem();
     }
     else
     {
-        ComputeRefMolecularInfoAir();
+        DomputeRefMolecularInfoAir();
     }
 }
 
-void Chemical::ComputeRefMolecularInfoAir()
+void Chemical::DomputeRefMolecularInfoAir()
 {
     //dimensional average molecular weight
     Real mair = 28.75481;
@@ -221,23 +221,23 @@ void Chemical::ComputeRefMolecularInfoAir()
     nscom.amw = 1.0;
 }
 
-void Chemical::ComputeRefMolecularInfoChem()
+void Chemical::DomputeRefMolecularInfoChem()
 {
-    moleProp->ComputeProperty();
+    moleProp->DomputeProperty();
 
     nscom.dim_amw = moleProp->dim_amw;
     nscom.amw = moleProp->amw;
 }
 
-void Chemical::ComputeRefGama()
+void Chemical::DomputeRefGama()
 {
     if ( nscom.chemModel <= 0 ) return;
     Real t_ref = 1.0;
-    ComputeDimCps( t_ref, dim_cp_s );
+    DomputeDimCps( t_ref, dim_cp_s );
 
     RealField & mfrac = moleProp->mfrac;
     Real dimCp, dimCv;
-    ComputeMixtureByMassFraction( mfrac, dim_cp_s, dimCp );
+    DomputeMixtureByMassFraction( mfrac, dim_cp_s, dimCp );
 
     Real dim_oamw = 1.0 / nscom.dim_amw;
 
@@ -245,14 +245,14 @@ void Chemical::ComputeRefGama()
     nscom.gama_ref = dimCp / dimCv;
 }
 
-void Chemical::ComputeRefSoundSpeed()
+void Chemical::DomputeRefSoundSpeed()
 {
     Real dim_oamw = 1.0 / nscom.dim_amw;
 
     nscom.cref_dim = sqrt( nscom.gama_ref * rjmk * dim_oamw * nscom.tref_dim );
 }
 
-void Chemical::ComputeRefMachAndVel()
+void Chemical::DomputeRefMachAndVel()
 {
     if ( nscom.machStrategy == 0 )
     {
@@ -264,30 +264,30 @@ void Chemical::ComputeRefMachAndVel()
     }
 }
 
-void Chemical::ComputeStateCoef()
+void Chemical::DomputeStateCoef()
 {
     if ( nscom.chemModel > 0 )
     {
-        ComputeStateCoefChemical();
+        DomputeStateCoefChemical();
     }
     else
     {
-        ComputeStateCoefNs();
+        DomputeStateCoefNs();
     }
 }
 
-void Chemical::ComputeStateCoefNs()
+void Chemical::DomputeStateCoefNs()
 {
     nscom.statecoef = 1.0 / ( nscom.gama_ref * SQR( nscom.mach_ref ) );
 }
 
-void Chemical::ComputeStateCoefChemical()
+void Chemical::DomputeStateCoefChemical()
 {
     //这个和NS的计算应该是等价的
     nscom.statecoef = rjmk * nscom.tref_dim / ( SQR( nscom.vref_dim ) * nscom.dim_amw );
 }
 
-void Chemical::ComputeRefPrim()
+void Chemical::DomputeRefPrim()
 {
     nscom.dref = 1.0;
     nscom.tref = 1.0;
@@ -324,9 +324,9 @@ void Chemical::ComputeRefPrim()
     }
 }
 
-void Chemical::ComputeRefReynolds()
+void Chemical::DomputeRefReynolds()
 {
-    this->ComputeDimRefViscosity();
+    this->DomputeDimRefViscosity();
 
     if ( nscom.chemModel > 0 || nscom.gasInfoStrategy == 0 )
     {
@@ -336,21 +336,21 @@ void Chemical::ComputeRefReynolds()
     nscom.oreynolds = 1.0 / nscom.reynolds;
 }
 
-void Chemical::ComputeDimRefViscosity()
+void Chemical::DomputeDimRefViscosity()
 {
     if ( nscom.chemModel > 0 )
     {
-        ComputeDimRefViscosityChemical();
+        DomputeDimRefViscosityChemical();
     }
     else
     {
-        ComputeDimRefViscosityNs();
+        DomputeDimRefViscosityNs();
     }
 
-    ComputeSutherlandConstant();
+    DomputeSutherlandConstant();
 }
 
-void Chemical::ComputeDimRefViscosityNs()
+void Chemical::DomputeDimRefViscosityNs()
 {
     Real t0 = 273.15; // zero degree celsius temperature(K)
     Real c = 110.4; //dimensional temperature constant in sutherland formula
@@ -361,20 +361,20 @@ void Chemical::ComputeDimRefViscosityNs()
     nscom.visref_dim = coef * pow( t / t0, 1.5 ) * mu0;
 }
 
-void Chemical::ComputeDimRefViscosityChemical()
+void Chemical::DomputeDimRefViscosityChemical()
 {
-    ComputeMoleFractionByMassFraction( moleProp->mfrac, xi_s );
-    ComputeDimSpeciesViscosity( nscom.tref, vis_s );
-    ComputeMixtureByWilkeFormula( xi_s, vis_s, nscom.visref_dim );
+    DomputeMoleFractionByMassFraction( moleProp->mfrac, xi_s );
+    DomputeDimSpeciesViscosity( nscom.tref, vis_s );
+    DomputeMixtureByWilkeFormula( xi_s, vis_s, nscom.visref_dim );
 }
 
-void Chemical::ComputeSutherlandConstant()
+void Chemical::DomputeSutherlandConstant()
 {
     nscom.csuth_dim = 110.4;
     nscom.csuth = nscom.csuth_dim / nscom.tref_dim;
 }
 
-void Chemical::ComputeMoleFractionByMassFraction( RealField & massFrac, RealField & moleFrac )
+void Chemical::DomputeMoleFractionByMassFraction( RealField & massFrac, RealField & moleFrac )
 {
     Real xiSum = 0.0;
     for ( int iSpecies = 0; iSpecies < nSpecies; ++ iSpecies )
@@ -389,7 +389,7 @@ void Chemical::ComputeMoleFractionByMassFraction( RealField & massFrac, RealFiel
     }
 }
 
-void Chemical::ComputeDimSpeciesViscosity( Real tm, RealField & vis_s_dim )
+void Chemical::DomputeDimSpeciesViscosity( Real tm, RealField & vis_s_dim )
 {
     Real t1, lt1, lt2, lt3, lt4, tmp;
     t1 = tm * nscom.tref_dim;
@@ -411,7 +411,7 @@ void Chemical::ComputeDimSpeciesViscosity( Real tm, RealField & vis_s_dim )
     return;
 }
 
-void Chemical::ComputeMixtureCoefByWilkeFormula( RealField & moleFrac, RealField & var, RealField & phi )
+void Chemical::DomputeMixtureCoefByWilkeFormula( RealField & moleFrac, RealField & var, RealField & phi )
 {
     RealField & mw = moleProp->mw;
 
@@ -427,7 +427,7 @@ void Chemical::ComputeMixtureCoefByWilkeFormula( RealField & moleFrac, RealField
     }
 }
 
-void Chemical::ComputeMixtureByWilkeFormula( RealField & moleFrac, RealField & mixs, RealField & phi, Real & mixture )
+void Chemical::DomputeMixtureByWilkeFormula( RealField & moleFrac, RealField & mixs, RealField & phi, Real & mixture )
 {
     mixture = 0.0;
     for ( int is = 0; is < nSpecies; ++ is )
@@ -436,14 +436,14 @@ void Chemical::ComputeMixtureByWilkeFormula( RealField & moleFrac, RealField & m
     }
 }
 
-void Chemical::ComputeMixtureByWilkeFormula( RealField & moleFrac, RealField & mixs, Real & mixture )
+void Chemical::DomputeMixtureByWilkeFormula( RealField & moleFrac, RealField & mixs, Real & mixture )
 {
     RealField & phi = vis_phi_s;
-    ComputeMixtureCoefByWilkeFormula( moleFrac, mixs, phi );
-    ComputeMixtureByWilkeFormula( moleFrac, mixs, phi, mixture );
+    DomputeMixtureCoefByWilkeFormula( moleFrac, mixs, phi );
+    DomputeMixtureByWilkeFormula( moleFrac, mixs, phi, mixture );
 }
 
-void Chemical::ComputeRefGasInfo()
+void Chemical::DomputeRefGasInfo()
 {
     //compute reference pressure and density
     if ( nscom.gasInfoStrategy == 0 )
@@ -481,7 +481,7 @@ void Chemical::NormalizeAirInfo()
     nscom.dref_dim = nscom.pref_dim / ( rjmk * odim_amw * nscom.tref_dim );
 }
 
-void Chemical::ComputeDimCps( Real tm, RealField & dim_cps )
+void Chemical::DomputeDimCps( Real tm, RealField & dim_cps )
 {
     Real t1, t2, t3, t4;
 
@@ -508,7 +508,7 @@ void Chemical::ComputeDimCps( Real tm, RealField & dim_cps )
     }
 }
 
-void Chemical::ComputeMixtureByMassFraction( RealField & cs, RealField & var, Real & mixture )
+void Chemical::DomputeMixtureByMassFraction( RealField & cs, RealField & var, Real & mixture )
 {
     mixture = 0.0;
     for ( int iSpecies = 0; iSpecies < nSpecies; ++ iSpecies )
@@ -680,7 +680,7 @@ void Chemical::INsInit()
 {
 	INsInitRefPara();
 
-	INsComputeRefPara();
+	INsDomputeRefPara();
 }
 
 void Chemical::INsInitRefPara()
@@ -690,38 +690,38 @@ void Chemical::INsInitRefPara()
 	INsInitWorkingSpace();
 }
 
-void Chemical::INsComputeRefPara()
+void Chemical::INsDomputeRefPara()
 {
-	INsComputeRefMolecularInfo();
+	INsDomputeRefMolecularInfo();
 
-	INsComputeRefGasInfo();
+	INsDomputeRefGasInfo();
 
-	INsComputeRefGama();
+	INsDomputeRefGama();
 
-	INsComputeRefSoundSpeed();
+	INsDomputeRefSoundSpeed();
 
-	INsComputeRefMachAndVel();
+	INsDomputeRefMachAndVel();
 
-	INsComputeStateCoef();
+	INsDomputeStateCoef();
 
-	INsComputeRefPrim();
+	INsDomputeRefPrim();
 
-	INsComputeRefReynolds();
+	INsDomputeRefReynolds();
 }
 
-void Chemical::INsComputeRefMolecularInfo()
+void Chemical::INsDomputeRefMolecularInfo()
 {
 	if (inscom.chemModel > 0)
 	{
-		INsComputeRefMolecularInfoChem();
+		INsDomputeRefMolecularInfoChem();
 	}
 	else
 	{
-		INsComputeRefMolecularInfoAir();
+		INsDomputeRefMolecularInfoAir();
 	}
 }
 
-void Chemical::INsComputeRefMolecularInfoAir()
+void Chemical::INsDomputeRefMolecularInfoAir()
 {
 	//dimensional average molecular weight
 	Real mair = 28.75481;
@@ -730,23 +730,23 @@ void Chemical::INsComputeRefMolecularInfoAir()
 	inscom.amw = 1.0;
 }
 
-void Chemical::INsComputeRefMolecularInfoChem()
+void Chemical::INsDomputeRefMolecularInfoChem()
 {
-	moleProp->ComputeProperty();
+	moleProp->DomputeProperty();
 
 	inscom.dim_amw = moleProp->dim_amw;
 	inscom.amw = moleProp->amw;
 }
 
-void Chemical::INsComputeRefGama()
+void Chemical::INsDomputeRefGama()
 {
 	if (inscom.chemModel <= 0) return;
 	Real t_ref = 1.0;
-	INsComputeDimCps(t_ref, dim_cp_s);
+	INsDomputeDimCps(t_ref, dim_cp_s);
 
 	RealField & mfrac = moleProp->mfrac;
 	Real dimCp, dimCv;
-	INsComputeMixtureByMassFraction(mfrac, dim_cp_s, dimCp);
+	INsDomputeMixtureByMassFraction(mfrac, dim_cp_s, dimCp);
 
 	Real dim_oamw = 1.0 / inscom.dim_amw;
 
@@ -754,14 +754,14 @@ void Chemical::INsComputeRefGama()
 	inscom.gama_ref = dimCp / dimCv;
 }
 
-void Chemical::INsComputeRefSoundSpeed()
+void Chemical::INsDomputeRefSoundSpeed()
 {
 	Real dim_oamw = 1.0 / inscom.dim_amw;
 
 	inscom.cref_dim = sqrt(inscom.gama_ref * rjmk * dim_oamw * inscom.tref_dim);
 }
 
-void Chemical::INsComputeRefMachAndVel()
+void Chemical::INsDomputeRefMachAndVel()
 {
 	if (inscom.machStrategy == 0)
 	{
@@ -773,30 +773,30 @@ void Chemical::INsComputeRefMachAndVel()
 	}
 }
 
-void Chemical::INsComputeStateCoef()
+void Chemical::INsDomputeStateCoef()
 {
 	if (inscom.chemModel > 0)
 	{
-		INsComputeStateCoefChemical();
+		INsDomputeStateCoefChemical();
 	}
 	else
 	{
-		INsComputeStateCoefNs();
+		INsDomputeStateCoefNs();
 	}
 }
 
-void Chemical::INsComputeStateCoefNs()
+void Chemical::INsDomputeStateCoefNs()
 {
 	inscom.statecoef = 1.0 / (inscom.gama_ref * SQR(inscom.mach_ref));
 }
 
-void Chemical::INsComputeStateCoefChemical()
+void Chemical::INsDomputeStateCoefChemical()
 {
 	//这个和NS的计算应该是等价的
 	inscom.statecoef = rjmk * inscom.tref_dim / (SQR(inscom.vref_dim) * inscom.dim_amw);
 }
 
-void Chemical::INsComputeRefPrim()
+void Chemical::INsDomputeRefPrim()
 {
 	inscom.dref = 1.0;
 	inscom.tref = 1.0;
@@ -833,9 +833,9 @@ void Chemical::INsComputeRefPrim()
 	}
 }
 
-void Chemical::INsComputeRefReynolds()
+void Chemical::INsDomputeRefReynolds()
 {
-	this->INsComputeDimRefViscosity();
+	this->INsDomputeDimRefViscosity();
 
 	if (inscom.chemModel > 0 || inscom.gasInfoStrategy == 0)
 	{
@@ -845,21 +845,21 @@ void Chemical::INsComputeRefReynolds()
 	inscom.oreynolds = 1.0 / inscom.reynolds;
 }
 
-void Chemical::INsComputeDimRefViscosity()
+void Chemical::INsDomputeDimRefViscosity()
 {
 	if (inscom.chemModel > 0)
 	{
-		INsComputeDimRefViscosityChemical();
+		INsDomputeDimRefViscosityChemical();
 	}
 	else
 	{
-		INsComputeDimRefViscosityNs();
+		INsDomputeDimRefViscosityNs();
 	}
 
-	INsComputeSutherlandConstant();
+	INsDomputeSutherlandConstant();
 }
 
-void Chemical::INsComputeDimRefViscosityNs()
+void Chemical::INsDomputeDimRefViscosityNs()
 {
 	Real t0 = 273.15; // zero degree celsius temperature(K)
 	Real c = 110.4; //dimensional temperature constant in sutherland formula
@@ -870,20 +870,20 @@ void Chemical::INsComputeDimRefViscosityNs()
 	inscom.visref_dim = coef * pow(t / t0, 1.5) * mu0;
 }
 
-void Chemical::INsComputeDimRefViscosityChemical()
+void Chemical::INsDomputeDimRefViscosityChemical()
 {
-	INsComputeMoleFractionByMassFraction(moleProp->mfrac, xi_s);
-	INsComputeDimSpeciesViscosity(inscom.tref, vis_s);
-	INsComputeMixtureByWilkeFormula(xi_s, vis_s, inscom.visref_dim);
+	INsDomputeMoleFractionByMassFraction(moleProp->mfrac, xi_s);
+	INsDomputeDimSpeciesViscosity(inscom.tref, vis_s);
+	INsDomputeMixtureByWilkeFormula(xi_s, vis_s, inscom.visref_dim);
 }
 
-void Chemical::INsComputeSutherlandConstant()
+void Chemical::INsDomputeSutherlandConstant()
 {
 	inscom.csuth_dim = 110.4;
 	inscom.csuth = inscom.csuth_dim / inscom.tref_dim;
 }
 
-void Chemical::INsComputeMoleFractionByMassFraction(RealField & massFrac, RealField & moleFrac)
+void Chemical::INsDomputeMoleFractionByMassFraction(RealField & massFrac, RealField & moleFrac)
 {
 	Real xiSum = 0.0;
 	for (int iSpecies = 0; iSpecies < nSpecies; ++iSpecies)
@@ -898,7 +898,7 @@ void Chemical::INsComputeMoleFractionByMassFraction(RealField & massFrac, RealFi
 	}
 }
 
-void Chemical::INsComputeDimSpeciesViscosity(Real tm, RealField & vis_s_dim)
+void Chemical::INsDomputeDimSpeciesViscosity(Real tm, RealField & vis_s_dim)
 {
 	Real t1, lt1, lt2, lt3, lt4, tmp;
 	t1 = tm * inscom.tref_dim;
@@ -920,7 +920,7 @@ void Chemical::INsComputeDimSpeciesViscosity(Real tm, RealField & vis_s_dim)
 	return;
 }
 
-void Chemical::INsComputeMixtureCoefByWilkeFormula(RealField & moleFrac, RealField & var, RealField & phi)
+void Chemical::INsDomputeMixtureCoefByWilkeFormula(RealField & moleFrac, RealField & var, RealField & phi)
 {
 	RealField & mw = moleProp->mw;
 
@@ -936,7 +936,7 @@ void Chemical::INsComputeMixtureCoefByWilkeFormula(RealField & moleFrac, RealFie
 	}
 }
 
-void Chemical::INsComputeMixtureByWilkeFormula(RealField & moleFrac, RealField & mixs, RealField & phi, Real & mixture)
+void Chemical::INsDomputeMixtureByWilkeFormula(RealField & moleFrac, RealField & mixs, RealField & phi, Real & mixture)
 {
 	mixture = 0.0;
 	for (int is = 0; is < nSpecies; ++is)
@@ -945,14 +945,14 @@ void Chemical::INsComputeMixtureByWilkeFormula(RealField & moleFrac, RealField &
 	}
 }
 
-void Chemical::INsComputeMixtureByWilkeFormula(RealField & moleFrac, RealField & mixs, Real & mixture)
+void Chemical::INsDomputeMixtureByWilkeFormula(RealField & moleFrac, RealField & mixs, Real & mixture)
 {
 	RealField & phi = vis_phi_s;
-	INsComputeMixtureCoefByWilkeFormula(moleFrac, mixs, phi);
-	INsComputeMixtureByWilkeFormula(moleFrac, mixs, phi, mixture);
+	INsDomputeMixtureCoefByWilkeFormula(moleFrac, mixs, phi);
+	INsDomputeMixtureByWilkeFormula(moleFrac, mixs, phi, mixture);
 }
 
-void Chemical::INsComputeRefGasInfo()
+void Chemical::INsDomputeRefGasInfo()
 {
 	//compute reference pressure and density
 	if (inscom.gasInfoStrategy == 0)
@@ -990,7 +990,7 @@ void Chemical::INsNormalizeAirInfo()
 	inscom.dref_dim = inscom.pref_dim / (rjmk * odim_amw * inscom.tref_dim);
 }
 
-void Chemical::INsComputeDimCps(Real tm, RealField & dim_cps)
+void Chemical::INsDomputeDimCps(Real tm, RealField & dim_cps)
 {
 	Real t1, t2, t3, t4;
 
@@ -1017,7 +1017,7 @@ void Chemical::INsComputeDimCps(Real tm, RealField & dim_cps)
 	}
 }
 
-void Chemical::INsComputeMixtureByMassFraction(RealField & cs, RealField & var, Real & mixture)
+void Chemical::INsDomputeMixtureByMassFraction(RealField & cs, RealField & var, Real & mixture)
 {
 	mixture = 0.0;
 	for (int iSpecies = 0; iSpecies < nSpecies; ++iSpecies)

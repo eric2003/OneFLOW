@@ -213,13 +213,13 @@ void GridElem::GenerateCompGrid( Grid * gridIn )
         grid->nodeMesh->zN[ iNode ] = this->point_factory->pointList[ nodeIndex ].z;
     }
 
-    this->ComputeBoundaryType( grid );
+    this->DomputeBoundaryType( grid );
     this->ReorderLink( grid );
 
     cout << "\n-->All the computing information is ready\n";
 }
 
-void GridElem::ComputeBoundaryType( UnsGrid * grid )
+void GridElem::DomputeBoundaryType( UnsGrid * grid )
 {
     cout << "\n-->Set boundary condition......\n";
     delete grid->faceTopo;

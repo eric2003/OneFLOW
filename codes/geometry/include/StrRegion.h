@@ -52,7 +52,7 @@ public:
     MyRegions bcregions;
     MyRegions regions_nobc;
 public:
-    void ComputeDiv( MyRegions & regions );
+    void DomputeDiv( MyRegions & regions );
     void GenerateRegions( MyRegions & regions );
     void CollectNoSetBoundary();
     bool InBoundary( MyRegion * region );

@@ -95,9 +95,9 @@ public:
     void Swap();
     void Init( DataBook * dataBook );
     void Trans( DataBook * dataBook );
-    void ComputeDist();
-    void ComputeDist( SlipFace * slipface );
-    void Compute( Real xfc, Real yfc, Real zfc, Real & dst, int & zid, int & isbc, SlipFace * slipface );
+    void DomputeDist();
+    void DomputeDist( SlipFace * slipface );
+    void Dompute( Real xfc, Real yfc, Real zfc, Real & dst, int & zid, int & isbc, SlipFace * slipface );
 };
 
 

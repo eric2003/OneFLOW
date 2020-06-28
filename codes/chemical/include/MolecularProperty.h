@@ -48,7 +48,7 @@ public:
     Real dim_amw; //dimensional average molecular weight
     Real amw; //average molecular weight
 public:
-    void ComputeProperty();
+    void DomputeProperty();
     void Init( int nSpecies );
     void Read( FileIO * ioFile );
     void Read( DataBook * dataBook );

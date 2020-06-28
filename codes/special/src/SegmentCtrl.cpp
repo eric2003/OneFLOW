@@ -74,7 +74,7 @@ void SegmentCtrl::Read( FileIO * ioFile )
 }
 
 
-void SegmentCtrl::ComputeFactor()
+void SegmentCtrl::DomputeFactor()
 {
     if ( this->distribution == 2 )
     {
@@ -82,27 +82,27 @@ void SegmentCtrl::ComputeFactor()
     }
     else
     {
-        this->ComputeEffectiveFactor();
+        this->DomputeEffectiveFactor();
     }
 }
 
-Real SegmentCtrl::ComputeFactor( Real compCoor )
+Real SegmentCtrl::DomputeFactor( Real compCoor )
 {
     Real factor = -1;
     if ( this->distribution == 3 )
     {
-        factor = this->ComputeDFactor( compCoor );
+        factor = this->DomputeDFactor( compCoor );
     }
     else
     {
-        factor = this->ComputeDFactor( compCoor );
-        //factor = this->ComputeSFactor( compCoor );
+        factor = this->DomputeDFactor( compCoor );
+        //factor = this->DomputeSFactor( compCoor );
 
     }
     return factor;
 }
 
-Real SegmentCtrl::ComputeDFactor( Real compCoor )
+Real SegmentCtrl::DomputeDFactor( Real compCoor )
 {
     Real factor;
     if ( compCoor <= cA3 )
@@ -120,7 +120,7 @@ Real SegmentCtrl::ComputeDFactor( Real compCoor )
     return factor;
 }
 
-Real SegmentCtrl::ComputeSFactor( Real compCoor )
+Real SegmentCtrl::DomputeSFactor( Real compCoor )
 {
     Real cFactor = ( exp( expCoeff * compCoor ) - 1.0 ) / ( exp( expCoeff ) - 1.0 );
     Real factor = c1 * cFactor + c2 * ( 1 - cFactor );
@@ -185,8 +185,8 @@ Real SegmentCtrl::CalDExp()
 
 void SegmentCtrl::Init()
 {
-    //this->ComputeEffectiveRatio();
-    this->ComputeEffectiveRatioTest();
+    //this->DomputeEffectiveRatio();
+    this->DomputeEffectiveRatioTest();
 
     //if ( this->distribution == 3 )
     //{
@@ -225,7 +225,7 @@ void SegmentCtrl::SetPara( Real diff, Real & v_min, Real & v_max )
     cout << " cA3 = " << cA3 << " diff = " << diff << "\n";
 }
 
-void SegmentCtrl::ComputeEffectiveRatioTest()
+void SegmentCtrl::DomputeEffectiveRatioTest()
 {
     if ( ds1 < 0.0 && ds2 < 0.0 )
     {
@@ -300,7 +300,7 @@ void SegmentCtrl::ComputeEffectiveRatioTest()
     this->c2 = 1 - this->c1;
 }
 
-void SegmentCtrl::ComputeEffectiveRatio()
+void SegmentCtrl::DomputeEffectiveRatio()
 {
     if ( this->distribution == 1 )
     {
@@ -326,7 +326,7 @@ void SegmentCtrl::ComputeEffectiveRatio()
     this->c2 = 1 - this->c1;
 }
 
-void SegmentCtrl::ComputeEffectiveFactor()
+void SegmentCtrl::DomputeEffectiveFactor()
 {
     this->Init();
 
@@ -336,7 +336,7 @@ void SegmentCtrl::ComputeEffectiveFactor()
     for ( int iPoint = 1; iPoint < nPoint - 1; ++ iPoint )
     {
         Real coor = static_cast<Real>( iPoint ) / ( nPoint - 1 );
-        Real factor = this->ComputeFactor( coor );
+        Real factor = this->DomputeFactor( coor );
 
         int idx = c1 * iPoint + c2 * ( nPoint - 1 - iPoint );
         this->factorList[ iPoint ] = factor;

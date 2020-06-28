@@ -277,10 +277,10 @@ void Cylinder::ToTecplot( const string & fileName, DomainData * domain )
     CloseFile( file );
 }
 
-void Cylinder::ComputeCircleCenter( PointType & p1, PointType & p2, PointType & p0, PointType & pcenter )
+void Cylinder::DomputeCircleCenter( PointType & p1, PointType & p2, PointType & p0, PointType & pcenter )
 {
-    Real L = ComputeDist( p1, p0 );
-    Real H = ComputeDist( p2, p0 );
+    Real L = DomputeDist( p1, p0 );
+    Real H = DomputeDist( p2, p0 );
     Real R = ( L * L + H * H ) / ( 2 * L );
     Real S = R - L;
     Real coef = R / L;
@@ -411,7 +411,7 @@ void Cylinder::GeneDomain()
 
     this->beta = 1.002;
     RealField nbx, nby, nbz;
-    s1->ComputeNormal( nbx, nby, nbz );
+    s1->DomputeNormal( nbx, nby, nbz );
     nbx[ 0 ] = - 1.0;
     nby[ 0 ] = 0.0;
     nbz[ 0 ] = 0.0;

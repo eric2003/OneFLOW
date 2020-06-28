@@ -46,7 +46,7 @@ public:
 public:
     void PushBc( int imin, int imax, int jmin, int jmax, int kmin, int kmax, int bcType );
     void SetBcRegion( StrGrid * grid );
-    int ComputeNBcRegion();
+    int DomputeNBcRegion();
 };
 
 

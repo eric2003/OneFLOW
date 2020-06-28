@@ -38,7 +38,7 @@ public:
 public:
     UInt GetNumberOfNodes() { return xN.size(); }
     void CreateNodes( int numberOfNodes );
-    void ComputeMinMaxBox();
+    void DomputeMinMaxBox();
     void AddPoint( Real xp, Real yp, Real zp );
 };
 

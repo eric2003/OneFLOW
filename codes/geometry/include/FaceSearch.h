@@ -76,7 +76,7 @@ public:
     IFaceLink * iFaceLink;
     int gFid;
 public:
-    void ComputeNewFaceId( IFaceLink * iFaceLink );
+    void DomputeNewFaceId( IFaceLink * iFaceLink );
     void SplitQuad2Tri( FaceSort * pFaceSort );
     void SplitLine( FaceSort * pFaceSort );
     void GetLocalTri( LinkField & localTriId, LinkField & localTriFlag );

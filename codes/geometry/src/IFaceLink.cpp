@@ -96,7 +96,7 @@ void IFaceLink::CreateLink( IntField & faceNode, int zid, int lCount )
 
 void IFaceLink::ReconstructInterFace()
 {
-    this->face_search->ComputeNewFaceId( this );
+    this->face_search->DomputeNewFaceId( this );
 }
 
 void IFaceLink::InitNewLgMapping()

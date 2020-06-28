@@ -47,8 +47,8 @@ public:
 public:
     int GetDim() { return ptList.size(); };
     virtual void GenerateLineMesh() {};
-    virtual void ComputeCurveGeometry() {};
-    virtual void ComputeCoor( Real s, Real & xt, Real & yt, Real & zt ) {};
+    virtual void DomputeCurveGeometry() {};
+    virtual void DomputeCoor( Real s, Real & xt, Real & yt, Real & zt ) {};
 };
 
 void Alloc( RealField2D & field, int ni, int nj );

@@ -213,7 +213,7 @@ void UINsLusgs::Solve( int fId, int signValue )
 
     this->GetStandardFluxIncrement( signValue );
 
-    this->ComputeViscousTerm();
+    this->DomputeViscousTerm();
 
     this->AddFluxIncrement();
 }
@@ -292,7 +292,7 @@ void UINsLusgs::PrepareDataFacePrim()
     }
 }
 
-void UINsLusgs::ComputeViscousTerm()
+void UINsLusgs::DomputeViscousTerm()
 {
     if ( vis_model.vismodel == 0 ) return;
 

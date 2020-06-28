@@ -46,7 +46,7 @@ FaceTopo::~FaceTopo()
     delete bcManager;
 }
 
-UInt FaceTopo::ComputeTotalFaceNodes()
+UInt FaceTopo::DomputeTotalFaceNodes()
 {
     UInt totalNumFaceNodes = 0;
     UInt nFace = this->GetNFace();

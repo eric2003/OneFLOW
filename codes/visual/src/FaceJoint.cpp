@@ -59,7 +59,7 @@ void FaceJointManager::ConstructPointIndex()
 
 void FaceJointManager::CalcNodeValue()
 {
-    this->global->ComputeNodeValue();
+    this->global->DomputeNodeValue();
 
     int nLocal = this->patch.size();
     for ( int iLocal = 0; iLocal < nLocal; ++ iLocal )
@@ -198,7 +198,7 @@ void FaceJoint::ConstructPointIndexMap( FaceJoint * globalBasicWall )
     }
 }
 
-void FaceJoint::ComputeNodeValue()
+void FaceJoint::DomputeNodeValue()
 {
     int numberOfWallFaces = this->GetSize();
 

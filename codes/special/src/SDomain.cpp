@@ -164,7 +164,7 @@ void SDomain::SetRemainingCtrlPoint( IntField & idxList )
 }
 
 
-bool SDomain::ComputeSingleDomainCoor()
+bool SDomain::DomputeSingleDomainCoor()
 {
     int nCtrlPoint = this->ctrlpoints.size();
     int nCount = 0;
@@ -190,9 +190,9 @@ bool SDomain::ComputeSingleDomainCoor()
     }
     else if ( nCount == 4 )
     {
-        this->ComputeDim2D();
+        this->DomputeDim2D();
         int closedLine = 1;
-        this->ComputeBcCoor( this->coorMap, closedLine );
+        this->DomputeBcCoor( this->coorMap, closedLine );
         return true;
     }
     return true;
@@ -296,8 +296,8 @@ void SDomain::ConstructLocalTopoAsBlk2D()
     {
         MLine * mLine = mLineList[ iMLine ];
         mLine->ConstructDomainTopo();
-        mLine->ComputeDim1D();
-        mLine->ComputeCoor( this->localCoorMap );
+        mLine->DomputeDim1D();
+        mLine->DomputeCoor( this->localCoorMap );
     }
 }
 

@@ -60,7 +60,7 @@ public:
 public:
     void Init( UInt nBFace );
     int GetNBFace();
-    int ComputeNIFace();
+    int DomputeNIFace();
     int CompNumWallFace();
     void CreateI2B( InterFace * interFace );
 public:
@@ -148,7 +148,7 @@ public:
     BasicRegion * t;
 public:
     void GetNormalizeIJKRegion( int & ist, int & ied, int & jst, int & jed, int & kst, int & ked );
-    int ComputeRegionCells();
+    int DomputeRegionCells();
 };
 
 class BcRegionGroup

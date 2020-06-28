@@ -54,7 +54,7 @@ void NodeMesh::CreateNodes( int numberOfNodes )
     zN.resize( numberOfNodes );
 }
 
-void NodeMesh::ComputeMinMaxBox()
+void NodeMesh::DomputeMinMaxBox()
 {
     if ( this->boxFlag ) return;
 

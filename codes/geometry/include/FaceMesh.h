@@ -45,15 +45,15 @@ public:
     RealField vfn;
 public:
     UInt GetNFace();
-    UInt ComputeTotalFaceNodes();
+    UInt DomputeTotalFaceNodes();
     UInt GetNBFace();
     void SetNBFace( UInt nBFace );
-    void ComputeFaceNormal1D( NodeMesh * nodeMesh, CellMesh * cellMesh );
-    void ComputeFaceCenter1D( NodeMesh * nodeMesh );
-    void ComputeFaceNormal2D( NodeMesh * nodeMesh );
-    void ComputeFaceCenter2D( NodeMesh * nodeMesh );
-    void ComputeFaceNormal3D( NodeMesh * nodeMesh );
-    void ComputeFaceCenter3D( NodeMesh * nodeMesh );
+    void DomputeFaceNormal1D( NodeMesh * nodeMesh, CellMesh * cellMesh );
+    void DomputeFaceCenter1D( NodeMesh * nodeMesh );
+    void DomputeFaceNormal2D( NodeMesh * nodeMesh );
+    void DomputeFaceCenter2D( NodeMesh * nodeMesh );
+    void DomputeFaceNormal3D( NodeMesh * nodeMesh );
+    void DomputeFaceCenter3D( NodeMesh * nodeMesh );
 
     void AllocateMetrics();
 };

@@ -111,7 +111,7 @@ BcVisual::~BcVisual()
     ;
 }
 
-void BcVisual::Compute( int bcType )
+void BcVisual::Dompute( int bcType )
 {
     UnsGrid * grid = Zone::GetUnsGrid();
 
@@ -580,7 +580,7 @@ void UVisualize::ShowBc( ostringstream & oss, VisualTool * visualTool )
 
         BcVisual bcVisual;
 
-        bcVisual.Compute( bcType );
+        bcVisual.Dompute( bcType );
 
         bcVisual.Dump( oss, visualTool, bcTitle );
     }    
@@ -606,7 +606,7 @@ void UVisualize::ShowBcDebugTest( ostringstream & oss, VisualTool * visualTool )
 
         BcVisual bcVisual;
 
-        bcVisual.Compute( bcType );
+        bcVisual.Dompute( bcType );
 
         bcVisual.DumpDebug( oss, visualTool, bcTitle );
     }

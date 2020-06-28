@@ -52,8 +52,8 @@ public:
 public:
     SDomain * FindSDomain( int fid );
     void AddSubDomain( int fid, IntField & lineList, IntField & posList );
-    void ComputeSubDomainCtrlCoor();
-    void ComputeCoor();
+    void DomputeSubDomainCtrlCoor();
+    void DomputeCoor();
     int GetNsubDomain();
     void ConstructMultiDomainTopo();
     void ConstructMultiLineToDomainMap();

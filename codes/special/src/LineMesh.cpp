@@ -44,7 +44,7 @@ void LineMesh::GenerateLineMesh()
     this->GenerateCurveMesh();
 }
 
-void LineMesh::ComputeCurveGeometry()
+void LineMesh::DomputeCurveGeometry()
 {
     PointType * pt1 = point_Machine.GetPoint( this->curveInfo->p1 );
     PointType * pt2 = point_Machine.GetPoint( this->curveInfo->p2 );
@@ -64,7 +64,7 @@ void LineMesh::ComputeCurveGeometry()
     this->segmentCtrl->lenth = DIST( dx, dy, dz );
 }
 
-void LineMesh::ComputeCoor( Real s, Real & xt, Real & yt, Real & zt )
+void LineMesh::DomputeCoor( Real s, Real & xt, Real & yt, Real & zt )
 {
     PointType * pt1 = 0;
     PointType * pt2 = 0;

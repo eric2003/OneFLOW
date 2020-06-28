@@ -148,7 +148,7 @@ void InterFace::InitNeighborZoneInfo()
     }
 }
 
-int InterFace::ComputeNIFace( int iNei )
+int InterFace::DomputeNIFace( int iNei )
 {
     int expectedId = this->interFacePairs[ iNei ]->nzid;
     int nIFaceCount = 0;
@@ -171,7 +171,7 @@ void InterFace::InitNeighborZoneInfo( int iNei, int iZone )
 
     this->z2n.insert( pair< int, int >( iZone, iNei ) );
 
-    int nIFaceCount = this->ComputeNIFace( iNei );
+    int nIFaceCount = this->DomputeNIFace( iNei );
 
     interfacePair->nIFace = nIFaceCount;
     interfacePair->idsend.resize( nIFaceCount );

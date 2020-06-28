@@ -156,19 +156,19 @@ void CgnsSection::ReadCgnsSectionInfo()
 
 void CgnsSection::CreateConnList()
 {
-    this->ComputeNumberOfSectionElements();
+    this->DomputeNumberOfSectionElements();
 
-    this->ComputeCapacityOfCgnsConnectionList();
+    this->DomputeCapacityOfCgnsConnectionList();
 
     this->AllocateCgnsConnectionList();
 }
 
-void CgnsSection::ComputeNumberOfSectionElements()
+void CgnsSection::DomputeNumberOfSectionElements()
 {
     this->nElement = this->endId - this->startId + 1;
 }
 
-void CgnsSection::ComputeCapacityOfCgnsConnectionList()
+void CgnsSection::DomputeCapacityOfCgnsConnectionList()
 {
     if ( eType == MIXED ||
          eType == NGON_n ||

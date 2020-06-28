@@ -94,18 +94,18 @@ public:
     IntField & GetLinePoints( int line_id );
     void ConstructCtrlPoint();
     void ConstructBcPoint();
-    void ComputeDimBasic( int closedCurve );
-    void ComputeDim2D();
-    void ComputeDim1D();
-    void ComputeBcCoor( CoorMap * coorMap, int iloop );
+    void DomputeDimBasic( int closedCurve );
+    void DomputeDim2D();
+    void DomputeDim1D();
+    void DomputeBcCoor( CoorMap * coorMap, int iloop );
     void Normalize( int &d );
     void FindBcPointList2D( IntField & bcpointList );
     void NormalBcPointList2D( IntField & bcpointList );
     void FindNextPoint2D( IntField & ptList, int prev, int me, int & next, int & flag );
     bool IsBcPoint( int pt );
     bool IsCtrlPoint( int pt );
-    void ComputeDomainCtrlPoints( IntField & blkControlpoints, IntField & localpt );
-    void ComputeDomainCtrlPoints( IntField & blk_ctrl_points );
+    void DomputeDomainCtrlPoints( IntField & blkControlpoints, IntField & localpt );
+    void DomputeDomainCtrlPoints( IntField & blk_ctrl_points );
 };
 
 

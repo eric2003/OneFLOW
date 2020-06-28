@@ -50,18 +50,18 @@ public:
     IntField pidxList;
 public:
     void Read( FileIO * ioFile );
-    void ComputeFactor();
-    Real ComputeFactor( Real compCoor );
-    Real ComputeDFactor( Real compCoor );
-    Real ComputeSFactor( Real compCoor );
+    void DomputeFactor();
+    Real DomputeFactor( Real compCoor );
+    Real DomputeDFactor( Real compCoor );
+    Real DomputeSFactor( Real compCoor );
     void InitDExp();
     void InitCoef();
     void Init();
     Real CalDExp();
     void SetPara( Real diff, Real & v_min, Real & v_max );
-    void ComputeEffectiveRatioTest();
-    void ComputeEffectiveRatio();
-    void ComputeEffectiveFactor();
+    void DomputeEffectiveRatioTest();
+    void DomputeEffectiveRatio();
+    void DomputeEffectiveFactor();
     void CopyFactor();
 };
 

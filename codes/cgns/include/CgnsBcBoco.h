@@ -66,7 +66,7 @@ public:
     CgnsZone * cgnsZone;
 public:
     void ConvertToInnerDataStandard();
-    int  ComputeBase();
+    int  DomputeBase();
     void ShiftBcRegion();
     void ScanBcFace( FaceSolver * face_solver );
 public:

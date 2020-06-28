@@ -112,7 +112,7 @@ void UnsGrid::ReadGrid( DataBook * databook )
     cout << "The grid nodes have been read\n";
     ONEFLOW::HXRead( databook, this->volBcType  );
 
-    this->nodeMesh->ComputeMinMaxBox();
+    this->nodeMesh->DomputeMinMaxBox();
     this->ReadGridFaceTopology( databook );
     this->ReadBoundaryTopology( databook );
     this->NormalizeBc();
@@ -303,7 +303,7 @@ void UnsGrid::GenerateLgMapping( IFaceLink * iFaceLink )
 
     this->faceTopo->bcManager->PreProcess();
 
-    int nIFace = bcRecord->ComputeNIFace();
+    int nIFace = bcRecord->DomputeNIFace();
 
     cout << "nIFace = " << nIFace << endl;
     this->nIFace = nIFace;
@@ -492,37 +492,37 @@ void UnsGrid::AllocMetrics()
 
 void UnsGrid::CalcMetrics1D()
 {
-    this->ComputeFaceCenter1D();
-    this->ComputeCellCenterVol1D();
-    this->ComputeFaceNormal1D();
-    this->ComputeGhostCellCenterVol1D();
+    this->DomputeFaceCenter1D();
+    this->DomputeCellCenterVol1D();
+    this->DomputeFaceNormal1D();
+    this->DomputeGhostCellCenterVol1D();
 }
 
 void UnsGrid::CalcMetrics2D()
 {
-    this->ComputeFaceNormal2D();
-    this->ComputeFaceCenter2D();
-    this->ComputeCellCenterVol2D();
+    this->DomputeFaceNormal2D();
+    this->DomputeFaceCenter2D();
+    this->DomputeCellCenterVol2D();
 }
 
 void UnsGrid::CalcMetrics3D()
 {
-    this->ComputeFaceNormal3D();
-    this->ComputeFaceCenter3D();
-    this->ComputeCellCenterVol3D();
+    this->DomputeFaceNormal3D();
+    this->DomputeFaceCenter3D();
+    this->DomputeCellCenterVol3D();
 }
 
-void UnsGrid::ComputeFaceCenter1D()
+void UnsGrid::DomputeFaceCenter1D()
 {
-    this->faceMesh->ComputeFaceCenter1D( this->nodeMesh );
+    this->faceMesh->DomputeFaceCenter1D( this->nodeMesh );
 }
 
-void UnsGrid::ComputeFaceNormal1D()
+void UnsGrid::DomputeFaceNormal1D()
 {
-    this->faceMesh->ComputeFaceNormal1D( this->nodeMesh, this->cellMesh );
+    this->faceMesh->DomputeFaceNormal1D( this->nodeMesh, this->cellMesh );
 }
 
-void UnsGrid::ComputeCellCenterVol1D()
+void UnsGrid::DomputeCellCenterVol1D()
 {
     UInt nFace = this->faceMesh->GetNFace();
     UInt nBFace = this->faceMesh->GetNBFace();
@@ -555,7 +555,7 @@ void UnsGrid::ComputeCellCenterVol1D()
     }
 }
 
-void UnsGrid::ComputeGhostCellCenterVol1D()
+void UnsGrid::DomputeGhostCellCenterVol1D()
 {
     UInt nFace = this->faceMesh->GetNFace();
     UInt nBFace = this->faceMesh->GetNBFace();
@@ -604,17 +604,17 @@ void UnsGrid::ComputeGhostCellCenterVol1D()
     }
 }
 
-void UnsGrid::ComputeFaceNormal2D()
+void UnsGrid::DomputeFaceNormal2D()
 {
-    this->faceMesh->ComputeFaceNormal2D( this->nodeMesh );
+    this->faceMesh->DomputeFaceNormal2D( this->nodeMesh );
 }
 
-void UnsGrid::ComputeFaceCenter2D()
+void UnsGrid::DomputeFaceCenter2D()
 {
-    this->faceMesh->ComputeFaceCenter2D( this->nodeMesh );
+    this->faceMesh->DomputeFaceCenter2D( this->nodeMesh );
 }
 
-void UnsGrid::ComputeCellCenterVol2D()
+void UnsGrid::DomputeCellCenterVol2D()
 {
     UInt nFace = this->faceMesh->GetNFace();
     UInt nBFace = this->faceMesh->GetNBFace();
@@ -727,7 +727,7 @@ void UnsGrid::ComputeCellCenterVol2D()
     }
 }
 
-void UnsGrid::ComputeCellCenterVol3D()
+void UnsGrid::DomputeCellCenterVol3D()
 {
     UInt nFace = this->faceMesh->GetNFace();
     UInt nBFace = this->faceMesh->GetNBFace();
@@ -872,14 +872,14 @@ void UnsGrid::ComputeCellCenterVol3D()
     }
 }
 
-void UnsGrid::ComputeFaceNormal3D()
+void UnsGrid::DomputeFaceNormal3D()
 {
-    this->faceMesh->ComputeFaceNormal3D( this->nodeMesh );
+    this->faceMesh->DomputeFaceNormal3D( this->nodeMesh );
 }
 
-void UnsGrid::ComputeFaceCenter3D()
+void UnsGrid::DomputeFaceCenter3D()
 {
-    this->faceMesh->ComputeFaceCenter3D( this->nodeMesh );
+    this->faceMesh->DomputeFaceCenter3D( this->nodeMesh );
 }
 
 EndNameSpace

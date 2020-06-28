@@ -79,8 +79,8 @@ void CurveMesh::GenerateCurveMesh()
     * ptList[ st ] = * pt1;
     * ptList[ ed ] = * pt2;
 
-    this->ComputeCurveGeometry();
-    segmentCtrl->ComputeFactor();
+    this->DomputeCurveGeometry();
+    segmentCtrl->DomputeFactor();
 
     for ( int iPoint = 1; iPoint < segmentCtrl->nPoint - 1; ++ iPoint )
     {
@@ -90,7 +90,7 @@ void CurveMesh::GenerateCurveMesh()
         Real s = this->segmentCtrl->lenth * factor;
 
         Real xt, yt, zt;
-        this->ComputeCoor( s, xt, yt, zt );
+        this->DomputeCoor( s, xt, yt, zt );
 
         ptList[ idx ]->x = xt;
         ptList[ idx ]->y = yt;

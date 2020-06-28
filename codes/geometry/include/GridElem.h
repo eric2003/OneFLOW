@@ -60,7 +60,7 @@ public:
     void GenerateCompElement();
     void GenerateCompGrid();
     void GenerateCompGrid( Grid * grid );
-    void ComputeBoundaryType( UnsGrid * grid );
+    void DomputeBoundaryType( UnsGrid * grid );
     void ReorderLink( UnsGrid * grid );
 };
 

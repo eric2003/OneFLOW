@@ -49,7 +49,7 @@ public:
     void SetMeshGeometry();
     void PrepareData();
     void PrepareDataFacePrim();
-    void ComputeViscousTerm();
+    void DomputeViscousTerm();
     void Init();
     void CalcSpectrum();
 };

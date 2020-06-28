@@ -73,7 +73,7 @@ public:
     void ConstructDomainTopo();
     void ConstructCtrlPoint();
     void ConstructSLineCtrlPoint();
-    void ComputeCoor( CoorMap * localCoorMap );
+    void DomputeCoor( CoorMap * localCoorMap );
     void SetDomainBcMesh( SDomain * sDomain );
     void CreateInpFaceList( HXVector< Face2D * > &facelist );
 };

@@ -70,7 +70,7 @@ void StrBcSetting::PushBc( int imin, int imax, int jmin, int jmax, int kmin, int
     bcTypeList.push_back( bcType );
 }
 
-int StrBcSetting::ComputeNBcRegion()
+int StrBcSetting::DomputeNBcRegion()
 {
     int nSize = this->bcTypeList.size();
     int nCount = 0;
@@ -86,7 +86,7 @@ int StrBcSetting::ComputeNBcRegion()
 
 void StrBcSetting::SetBcRegion( StrGrid * grid )
 {
-    int nBcRegion = ComputeNBcRegion();
+    int nBcRegion = DomputeNBcRegion();
 
     int iZone = grid->id;
 

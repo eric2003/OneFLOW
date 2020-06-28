@@ -68,7 +68,7 @@ void CreateStandardADTByTolerance( Grids & grids, AdtTree *& adtTree, Real & tol
 
 void ShiftMinMaxBox( RealField & pmin, RealField & pmax, Real tolerance );
 void GetGridsMinMaxDistance( Grids & grids, Real & mindis, Real & maxdis );
-Real ComputeGridTolerance( Grids & grids );
+Real DomputeGridTolerance( Grids & grids );
 void GetBoundingBoxOfMultiZoneGrids( Grids & grids, RealField & pmin, RealField & pmax );
 
 EndNameSpace
