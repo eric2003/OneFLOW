@@ -233,14 +233,14 @@ void BroadcastControlParameterToAllProcessors()
 {
     ONEFLOW::logFile << "Broadcast Control Parameter To All Processors\n";
 
-    ONEFLOW::HXBcast( ONEFLOW::CompressData, ONEFLOW::DecompressData, Parallel::GetServerid() );
+    ONEFLOW::HXBcast( ONEFLOW::DompressData, ONEFLOW::DecompressData, Parallel::GetServerid() );
 }
 
-void CompressData( DataBook *& dataBook )
+void DompressData( DataBook *& dataBook )
 {
     DataBase * globalDataBase = ONEFLOW::GetGlobalDataBase();
 
-    ONEFLOW::CompressData( globalDataBase, dataBook );
+    ONEFLOW::DompressData( globalDataBase, dataBook );
 }
 
 void DecompressData( DataBook * dataBook )
@@ -249,7 +249,7 @@ void DecompressData( DataBook * dataBook )
     ONEFLOW::DecompressData( globalDataBase, dataBook );
 }
 
-void CompressData( DataBase * dataBase, DataBook *& dataBook )
+void DompressData( DataBase * dataBase, DataBook *& dataBook )
 {
     DataPara::DataSET * dataSet = dataBase->dataPara->GetDataSet();
     DataPara::DataSET::iterator iter;

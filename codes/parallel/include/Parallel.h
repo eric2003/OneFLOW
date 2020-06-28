@@ -33,7 +33,7 @@ BeginNameSpace( ONEFLOW )
 void SetUpParallelEnvironment();
 
 void HXBcast( DataBook * dataBook, int rootid );
-void HXBcast( DATA_COMPRESS dataCompression, DATA_DECOMPRESS dataDecompression, int rootid );
+void HXBcast( DATA_COMPRESS dataDompression, DATA_DECOMPRESS dataDecompression, int rootid );
 
 template< typename T >
 void HXReadBcast( fstream & file, T * field, int nElement, int pid );
