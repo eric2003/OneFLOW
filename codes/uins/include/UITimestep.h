@@ -40,7 +40,7 @@ public:
     void CalcLgTimestep();
     void CalcInvTimestep();
     void CalcVisTimestep();
-    void CmpMinTimestep();
+    void CalcMinTimestep();
     void SetTimestep( Real timestep );
 public:
     void CalcSpectrumField();

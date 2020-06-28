@@ -179,7 +179,7 @@ void NsLusgs::GetStandardFluxIncrement( int signOfMatrix )
 
     Real dh, hm;
 
-    ONEFLOW::CmpDH( nslu.primj, nslu.gama, nslu.dqj, dh, hm );
+    ONEFLOW::CalcDH( nslu.primj, nslu.gama, nslu.dqj, dh, hm );
 
     Real term1 =  dh   * x1 + dc * x2;
     Real term2 =  c2dc * x1 + dh * x2;
@@ -344,7 +344,7 @@ void NsLusgs::ZeroOversetCell()
     }
 }
 
-void CmpDH( RealField & prim, Real & gama, RealField & dq, Real & dh, Real & totalEnthalpy )
+void CalcDH( RealField & prim, Real & gama, RealField & dq, Real & dh, Real & totalEnthalpy )
 {
     Real v2, ae, af;
     Real enthalpy;

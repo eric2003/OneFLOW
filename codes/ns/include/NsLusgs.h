@@ -89,7 +89,7 @@ public:
     void ZeroOversetCell();
 };
 
-void CmpDH( RealField & prim, Real & gama, RealField & dq, Real & dh, Real & totalEnthalpy );
+void CalcDH( RealField & prim, Real & gama, RealField & dq, Real & dh, Real & totalEnthalpy );
 
 
 EndNameSpace

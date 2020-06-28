@@ -301,7 +301,7 @@ void INsCompSpeedCorrectandUpdateSpeed()
 //void INsCorrectSpeed()
 //{
 //	UINsInvterm * uINsInvterm = new UINsInvterm();
-//	uINsInvterm->CmpCorrectSpeed();
+//	uINsInvterm->CalcCorrectSpeed();
 //	delete uINsInvterm;
 //}
 

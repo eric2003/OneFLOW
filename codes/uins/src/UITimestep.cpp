@@ -318,7 +318,7 @@ void UITimestep::UpdateVisSpectrumField()
 
 void UITimestep::ModifyTimestep()
 {
-    this->CmpMinTimestep();
+    this->CalcMinTimestep();
     if ( inscom.max_time_ratio <= 0 ) return;
 
     Real maxPermittedTimestep = inscom.max_time_ratio * inscom.minTimestep;
@@ -333,7 +333,7 @@ void UITimestep::CalcGlobalTimestep()
     this->SetTimestep( ctrl.pdt );
 }
 
-void UITimestep::CmpMinTimestep()
+void UITimestep::CalcMinTimestep()
 {
     inscom.minTimestep = LARGE;
     for ( int cId = 0; cId < ug.nCell; ++ cId )
