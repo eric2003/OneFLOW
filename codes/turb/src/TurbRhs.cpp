@@ -41,9 +41,9 @@ TurbRhs::~TurbRhs()
     ;
 }
 
-void TurbRhs::CmpRHS()
+void TurbRhs::CalcRHS()
 {
-    TurbCmpRHS();
+    TurbCalcRHS();
 }
 
 void TurbCalcBc()
@@ -54,7 +54,7 @@ void TurbCalcBc()
     delete uTurbBcSolver;
 }
 
-void TurbCmpRHS()
+void TurbCalcRHS()
 {
     TurbCalcBc();
 
@@ -66,7 +66,7 @@ void TurbCmpRHS()
 
     TurbCalcVisFlux();
 
-    TurbCmpDualTimeStepSrc();
+    TurbCalcDualTimeStepSrc();
 }
 
 
@@ -98,7 +98,7 @@ void TurbCalcSpectrum()
     delete uTurbSpectrum;
 }
 
-void TurbCmpDualTimeStepSrc()
+void TurbCalcDualTimeStepSrc()
 {
     //dual time step source
     if ( ctrl.idualtime == 1 )

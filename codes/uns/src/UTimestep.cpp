@@ -213,14 +213,14 @@ void UTimestep::CalcTimeStep()
 
 void UTimestep::CmpLocalTimestep()
 {
-    this->CmpInvTimestep();
+    this->CalcInvTimestep();
 
-    this->CmpVisTimestep();
+    this->CalcVisTimestep();
 
     this->ModifyTimestep();
 }
 
-void UTimestep::CmpInvTimestep()
+void UTimestep::CalcInvTimestep()
 {
     for ( int cId = 0; cId < ug.nCell; ++ cId )
     {
@@ -232,7 +232,7 @@ void UTimestep::CmpInvTimestep()
     }
 }
 
-void UTimestep::CmpVisTimestep()
+void UTimestep::CalcVisTimestep()
 {
     bool flag = vis_model.vismodel > 0 && nscom.visTimestepModel > 0;
     if ( ! flag ) return;
@@ -250,11 +250,11 @@ void UTimestep::CmpVisTimestep()
 
 void UTimestep::CalcSpectrumField()
 {
-    this->CmpInvSpectrumField();
-    this->CmpVisSpectrumField();
+    this->CalcInvSpectrumField();
+    this->CalcVisSpectrumField();
 }
 
-void UTimestep::CmpInvSpectrumField()
+void UTimestep::CalcInvSpectrumField()
 {
     Grid * grid = Zone::GetGrid();
 
@@ -274,7 +274,7 @@ void UTimestep::CmpInvSpectrumField()
     }
 }
 
-void UTimestep::CmpVisSpectrumField()
+void UTimestep::CalcVisSpectrumField()
 {
     Grid * grid = Zone::GetGrid();
 

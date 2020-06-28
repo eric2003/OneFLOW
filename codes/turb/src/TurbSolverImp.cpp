@@ -58,7 +58,7 @@ void TurbCalcBoundary( StringField & data )
 void TurbUpdateResiduals( StringField & data )
 {
     TurbRhs * rhs = new TurbRhs();
-    rhs->CmpRHS();
+    rhs->CalcRHS();
     delete rhs;
 }
 

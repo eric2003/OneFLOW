@@ -156,14 +156,14 @@ void UITimestep::CalcTimeStep()
 
 void UITimestep::CmpLocalTimestep()
 {
-    this->CmpInvTimestep();
+    this->CalcInvTimestep();
 
-    this->CmpVisTimestep();
+    this->CalcVisTimestep();
 
     this->ModifyTimestep();
 }
 
-void UITimestep::CmpInvTimestep()
+void UITimestep::CalcInvTimestep()
 {
     for ( int cId = 0; cId < ug.nCell; ++ cId )
     {
@@ -175,7 +175,7 @@ void UITimestep::CmpInvTimestep()
     }
 }
 
-void UITimestep::CmpVisTimestep()
+void UITimestep::CalcVisTimestep()
 {
     bool flag = vis_model.vismodel > 0 && inscom.visTimestepModel > 0;
     if ( ! flag ) return;
@@ -193,11 +193,11 @@ void UITimestep::CmpVisTimestep()
 
 void UITimestep::CalcSpectrumField()
 {
-    this->CmpInvSpectrumField();
-    this->CmpVisSpectrumField();
+    this->CalcInvSpectrumField();
+    this->CalcVisSpectrumField();
 }
 
-void UITimestep::CmpInvSpectrumField()
+void UITimestep::CalcInvSpectrumField()
 {
     Grid * grid = Zone::GetGrid();
 
@@ -217,7 +217,7 @@ void UITimestep::CmpInvSpectrumField()
     }
 }
 
-void UITimestep::CmpVisSpectrumField()
+void UITimestep::CalcVisSpectrumField()
 {
     Grid * grid = Zone::GetGrid();
 
