@@ -26,7 +26,7 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-DEFINE_DATA_CLASS( CmpInterfaceGrad );
+DEFINE_DATA_CLASS( CalcInterfaceGrad );
 DEFINE_DATA_CLASS( UploadInterfaceData );
 DEFINE_DATA_CLASS( DownloadInterfaceData );
 DEFINE_DATA_CLASS( PrepareInterfaceField );

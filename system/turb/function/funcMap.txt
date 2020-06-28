@@ -3,7 +3,7 @@ INIT_FINAL                , CTurbInitFinal, 0
 READ_RESTART              , CReadRestart, 0
 DUMP_RESTART              , CDumpRestart, 0
 INIT_RESTART              , CInitRestart, 0
-CMP_INTERFACE_GRAD    , CCmpInterfaceGrad, 0
+CALC_INTERFACE_GRAD    , CCalcInterfaceGrad, 0
 DUMP_RESIDUAL             , CDumpResidual, 1, FIELD_RHS
 UPLOAD_INTERFACE_DATA     , CUploadInterfaceData, 0
 DOWNLOAD_INTERFACE_DATA   , CDownloadInterfaceData, 0
