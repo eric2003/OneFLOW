@@ -47,13 +47,13 @@ public:
     Real conv;
     int  iConv;
 public:
-    void CmpCellDualTimeResidual();
-    void CmpCellDualTimeSrc();
+    void CalcCellDualTimeResidual();
+    void CalcCellDualTimeSrc();
 public:
     virtual void Init();
     void InitSub( int nEqu );
     void ZeroData();
-    void CmpCellUnsteadyCri();
+    void CalcCellUnsteadyCri();
     void CmpCvg();
 };
 

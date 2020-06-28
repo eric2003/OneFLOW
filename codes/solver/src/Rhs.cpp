@@ -155,7 +155,7 @@ void NsCompTurbEnergy()
 void NsCompDualTimeStepSrc()
 {
     UNsUnsteady * unsUnsteady = new UNsUnsteady();
-    unsUnsteady->CmpDualTimeSrc();
+    unsUnsteady->CalcDualTimeSrc();
     delete unsUnsteady;
 }
 
@@ -322,7 +322,7 @@ void INsCompTurbEnergy()
 //void INsCompDualTimeStepSrc()
 //{
 //	UINsUnsteady * uinsUnsteady = new UINsUnsteady();
-//	uinsUnsteady->CmpDualTimeSrc();
+//	uinsUnsteady->CalcDualTimeSrc();
 //	delete uinsUnsteady;
 //}
 

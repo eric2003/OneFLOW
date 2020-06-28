@@ -104,7 +104,7 @@ void TurbCalcDualTimeStepSrc()
     if ( ctrl.idualtime == 1 )
     {
         UTurbUnsteady * uTurbUnsteady = new UTurbUnsteady();
-        uTurbUnsteady->CmpDualTimeSrc();
+        uTurbUnsteady->CalcDualTimeSrc();
         delete uTurbUnsteady;
     }
 }

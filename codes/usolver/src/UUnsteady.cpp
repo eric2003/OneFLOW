@@ -80,7 +80,7 @@ void UUnsteady::PrepareResidual()
     }
 }
 
-void UUnsteady::CmpDualTimeResidual()
+void UUnsteady::CalcDualTimeResidual()
 {
     data->CalcResCoef();
 
@@ -90,18 +90,18 @@ void UUnsteady::CmpDualTimeResidual()
 
         this->PrepareResidual();
 
-        data->CmpCellDualTimeResidual();
+        data->CalcCellDualTimeResidual();
 
         this->UpdateDualTimeStepResidual();
     }
 }
 
-void UUnsteady::CmpDualTimeSrc()
+void UUnsteady::CalcDualTimeSrc()
 {
     ug.Init();
     this->StoreOldResidual();
 
-    this->CmpDualTimeResidual();
+    this->CalcDualTimeResidual();
 
     data->CalcSrcCoeff();
 
@@ -111,7 +111,7 @@ void UUnsteady::CmpDualTimeSrc()
 
         ( * this->srcFun )( this );
 
-        data->CmpCellDualTimeSrc();
+        data->CalcCellDualTimeSrc();
 
         this->UpdateDualTimeStepSource();
     }
@@ -127,7 +127,7 @@ void UUnsteady::CalcUnsteadyCriterion()
 
         ( * this->criFun )( this );
         
-        data->CmpCellUnsteadyCri();
+        data->CalcCellUnsteadyCri();
     }
 
     data->CmpCvg();

@@ -47,7 +47,7 @@ public:
     void CalcHeatFlux();
     void CompStress();
     void CalcAniStress();
-    void CmpNsVisFlux();
+    void CalcNsVisFlux();
     void ZeroHeatFlux();
     void AddChemHeatFlux();
     void AddHeatFlux();

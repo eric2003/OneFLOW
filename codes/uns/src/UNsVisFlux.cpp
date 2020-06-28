@@ -152,7 +152,7 @@ void UNsVisFlux::CalcFaceVisFlux()
 
     this->CompStress();
 
-    this->CmpNsVisFlux();
+    this->CalcNsVisFlux();
 }
 
 void UNsVisFlux::CalcHeatFlux()
@@ -201,7 +201,7 @@ void UNsVisFlux::CalcAniStress()
     vis.tyz += vis.b23;
 }
 
-void UNsVisFlux::CmpNsVisFlux()
+void UNsVisFlux::CalcNsVisFlux()
 {
     vis.fvis[ IDX::IR  ] = 0.0;
     vis.fvis[ IDX::IRU ] = gcom.xfn * vis.txx + gcom.yfn * vis.txy + gcom.zfn * vis.txz;
