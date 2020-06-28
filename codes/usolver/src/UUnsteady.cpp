@@ -130,7 +130,7 @@ void UUnsteady::CalcUnsteadyCriterion()
         data->CalcCellUnsteadyCri();
     }
 
-    data->CmpCvg();
+    data->CalcCvg();
 }
 
 EndNameSpace

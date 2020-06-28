@@ -142,19 +142,19 @@ void UITimestep::CalcTimeStep()
 
     if ( inscom.timestepModel == 0 )
     {
-        this->CmpLocalTimestep();
+        this->CalcLocalTimestep();
     }
     else if ( inscom.timestepModel == 1 )
     {
-        this->CmpGlobalTimestep();
+        this->CalcGlobalTimestep();
     }
     else
     {
-        this->CmpLgTimestep();
+        this->CalcLgTimestep();
     }
 }
 
-void UITimestep::CmpLocalTimestep()
+void UITimestep::CalcLocalTimestep()
 {
     this->CalcInvTimestep();
 
@@ -328,7 +328,7 @@ void UITimestep::ModifyTimestep()
     }
 }
 
-void UITimestep::CmpGlobalTimestep()
+void UITimestep::CalcGlobalTimestep()
 {
     this->SetTimestep( ctrl.pdt );
 }
@@ -350,9 +350,9 @@ void UITimestep::SetTimestep( Real timestep )
     }
 }
 
-void UITimestep::CmpLgTimestep()
+void UITimestep::CalcLgTimestep()
 {
-    this->CmpLocalTimestep();
+    this->CalcLocalTimestep();
     this->SetTimestep( inscom.minTimestep );
     ctrl.pdt = inscom.minTimestep;
 }

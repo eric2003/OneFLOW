@@ -199,19 +199,19 @@ void UTimestep::CalcTimeStep()
 
     if ( nscom.timestepModel == 0 )
     {
-        this->CmpLocalTimestep();
+        this->CalcLocalTimestep();
     }
     else if ( nscom.timestepModel == 1 )
     {
-        this->CmpGlobalTimestep();
+        this->CalcGlobalTimestep();
     }
     else
     {
-        this->CmpLgTimestep();
+        this->CalcLgTimestep();
     }
 }
 
-void UTimestep::CmpLocalTimestep()
+void UTimestep::CalcLocalTimestep()
 {
     this->CalcInvTimestep();
 
@@ -385,7 +385,7 @@ void UTimestep::ModifyTimestep()
     }
 }
 
-void UTimestep::CmpGlobalTimestep()
+void UTimestep::CalcGlobalTimestep()
 {
     this->SetTimestep( ctrl.pdt );
 }
@@ -407,9 +407,9 @@ void UTimestep::SetTimestep( Real timestep )
     }
 }
 
-void UTimestep::CmpLgTimestep()
+void UTimestep::CalcLgTimestep()
 {
-    this->CmpLocalTimestep();
+    this->CalcLocalTimestep();
     this->SetTimestep( nscom.minTimestep );
     ctrl.pdt = nscom.minTimestep;
 }

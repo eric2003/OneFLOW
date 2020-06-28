@@ -35,9 +35,9 @@ public:
     void Init();
     void ReadTmp();
     void CalcTimeStep();
-    void CmpLocalTimestep();
-    void CmpGlobalTimestep();
-    void CmpLgTimestep();
+    void CalcLocalTimestep();
+    void CalcGlobalTimestep();
+    void CalcLgTimestep();
     void CalcInvTimestep();
     void CalcVisTimestep();
     void CmpMinTimestep();

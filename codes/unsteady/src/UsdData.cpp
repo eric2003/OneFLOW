@@ -113,7 +113,7 @@ void UsdData::CalcCellUnsteadyCri()
     }
 }
 
-void UsdData::CmpCvg()
+void UsdData::CalcCvg()
 {
     if ( ctrl.iConv == 0 )
     {

@@ -54,7 +54,7 @@ public:
     void InitSub( int nEqu );
     void ZeroData();
     void CalcCellUnsteadyCri();
-    void CmpCvg();
+    void CalcCvg();
 };
 
 extern UsdBasic usd;
