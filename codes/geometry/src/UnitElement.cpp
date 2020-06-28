@@ -181,14 +181,14 @@ void UnitElement::Initialize( int elementType )
         //TRI_6
         // 1....4....2 ...5....3....6....1
 
-        // Domposite Face 3
+        // Composite Face 3
         // BAR_3 1 2 4
         // BAR_3 2 3 5
         // BAR_3 3 1 6
 
-        this->PushDompositeFace( ONEFLOW::BAR_3, 1, 2, 4 );
-        this->PushDompositeFace( ONEFLOW::BAR_3, 2, 3, 5 );
-        this->PushDompositeFace( ONEFLOW::BAR_3, 3, 1, 6 );
+        this->PushCompositeFace( ONEFLOW::BAR_3, 1, 2, 4 );
+        this->PushCompositeFace( ONEFLOW::BAR_3, 2, 3, 5 );
+        this->PushCompositeFace( ONEFLOW::BAR_3, 3, 1, 6 );
         // Face 6
         // 1 4
         // 4 2
@@ -244,16 +244,16 @@ void UnitElement::Initialize( int elementType )
         // QUAD_8
         // 1..5..2..6..3..7..4..8..1
 
-        // Domposite Face 4
+        // Composite Face 4
         // BAR_3 1 2 5
         // BAR_3 2 3 6
         // BAR_3 3 4 7
         // BAR_3 4 1 8
 
-        this->PushDompositeFace( ONEFLOW::BAR_3, 1, 2, 5 );
-        this->PushDompositeFace( ONEFLOW::BAR_3, 2, 3, 6 );
-        this->PushDompositeFace( ONEFLOW::BAR_3, 3, 4, 7 );
-        this->PushDompositeFace( ONEFLOW::BAR_3, 4, 1, 8 );
+        this->PushCompositeFace( ONEFLOW::BAR_3, 1, 2, 5 );
+        this->PushCompositeFace( ONEFLOW::BAR_3, 2, 3, 6 );
+        this->PushCompositeFace( ONEFLOW::BAR_3, 3, 4, 7 );
+        this->PushCompositeFace( ONEFLOW::BAR_3, 4, 1, 8 );
 
         // Face 8
         // 1 5
@@ -292,15 +292,15 @@ void UnitElement::Initialize( int elementType )
         // QUAD_9
         // 1..5.2..6..3..7..4..8..1..9
 
-        // Domposite Face 4
+        // Composite Face 4
         // BAR_3 1 2 5
         // BAR_3 2 3 6
         // BAR_3 3 4 7
         // BAR_3 4 1 8
-        this->PushDompositeFace( ONEFLOW::BAR_3, 1, 2, 5 );
-        this->PushDompositeFace( ONEFLOW::BAR_3, 2, 3, 6 );
-        this->PushDompositeFace( ONEFLOW::BAR_3, 3, 4, 7 );
-        this->PushDompositeFace( ONEFLOW::BAR_3, 4, 1, 8 );
+        this->PushCompositeFace( ONEFLOW::BAR_3, 1, 2, 5 );
+        this->PushCompositeFace( ONEFLOW::BAR_3, 2, 3, 6 );
+        this->PushCompositeFace( ONEFLOW::BAR_3, 3, 4, 7 );
+        this->PushCompositeFace( ONEFLOW::BAR_3, 4, 1, 8 );
 
         // Face 8
         // 1 5
@@ -364,16 +364,16 @@ void UnitElement::Initialize( int elementType )
         // TETRA_10
         // 1..7..3..6..2..5..8..10..9..4
 
-        // Domposite Face 4
+        // Composite Face 4
         // TRI_6 1  3  2  7  6  5
         // TRI_6 2  3  4  6  10 9
         // TRI_6 3  1  4  7  8  10
         // TRI_6 1  2  4  5  9  8
 
-        this->PushDompositeFace( ONEFLOW::TRI_6, 1, 3, 2, 7, 6, 5 );
-        this->PushDompositeFace( ONEFLOW::TRI_6, 2, 3, 4, 6, 10, 9 );
-        this->PushDompositeFace( ONEFLOW::TRI_6, 3, 1, 4, 7, 8, 10 );
-        this->PushDompositeFace( ONEFLOW::TRI_6, 1, 2, 4, 5, 9, 8 );
+        this->PushCompositeFace( ONEFLOW::TRI_6, 1, 3, 2, 7, 6, 5 );
+        this->PushCompositeFace( ONEFLOW::TRI_6, 2, 3, 4, 6, 10, 9 );
+        this->PushCompositeFace( ONEFLOW::TRI_6, 3, 1, 4, 7, 8, 10 );
+        this->PushCompositeFace( ONEFLOW::TRI_6, 1, 2, 4, 5, 9, 8 );
         // Face 16
         // 1  7  5
         // 7  6  5
@@ -477,18 +477,18 @@ void UnitElement::Initialize( int elementType )
         // PYRA_14
         // Face 20
 
-        // Domposite Face 5
+        // Composite Face 5
         // QUAD_9 : 1  4  3  2  9   8   7  6  14
         // TRI_6  : 1  2  5  6  11  10
         // TRI_6  : 2  3  5  7  12  11
         // TRI_6  : 3  4  5  8  13  12
         // TRI_6  : 4  1  5  9  10  13
 
-        this->PushDompositeFace( ONEFLOW::QUAD_9, 1, 4, 3, 2, 9, 8, 7, 6, 14 );
-        this->PushDompositeFace( ONEFLOW::TRI_6, 1, 2, 5, 6, 11, 10 );
-        this->PushDompositeFace( ONEFLOW::TRI_6, 2, 3, 5, 7, 12, 11 );
-        this->PushDompositeFace( ONEFLOW::TRI_6, 3, 4, 5, 8, 13, 12 );
-        this->PushDompositeFace( ONEFLOW::TRI_6, 4, 1, 5, 9, 10, 13 );
+        this->PushCompositeFace( ONEFLOW::QUAD_9, 1, 4, 3, 2, 9, 8, 7, 6, 14 );
+        this->PushCompositeFace( ONEFLOW::TRI_6, 1, 2, 5, 6, 11, 10 );
+        this->PushCompositeFace( ONEFLOW::TRI_6, 2, 3, 5, 7, 12, 11 );
+        this->PushCompositeFace( ONEFLOW::TRI_6, 3, 4, 5, 8, 13, 12 );
+        this->PushCompositeFace( ONEFLOW::TRI_6, 4, 1, 5, 9, 10, 13 );
 
         // 1  9  4  8  3  7  2  6  1   middle 14
         // Face 4
@@ -648,18 +648,18 @@ void UnitElement::Initialize( int elementType )
     {
         // PENTA_18
 
-        // Domposite Face 5
+        // Composite Face 5
         // QUAD_9 : 1  2  5  4  7  11  13  10  16
         // QUAD_9 : 2  3  6  5  8  12  14  11  17
         // QUAD_9 : 3  1  4  6  9  10  15  12  18
         // TRI_6  : 1  3  2  9  8  7
         // TRI_6  : 4  5  6  13 14 15
 
-        this->PushDompositeFace( ONEFLOW::QUAD_9, 1, 2, 5, 4, 7, 11, 13, 10, 16 );
-        this->PushDompositeFace( ONEFLOW::QUAD_9, 2, 3, 6, 5, 8, 12, 14, 11, 17 );
-        this->PushDompositeFace( ONEFLOW::QUAD_9, 3, 1, 4, 6, 9, 10, 15, 12, 18 );
-        this->PushDompositeFace( ONEFLOW::TRI_6, 1, 3, 2, 9, 8, 7 );
-        this->PushDompositeFace( ONEFLOW::TRI_6, 4, 5, 6, 13, 14, 15 );
+        this->PushCompositeFace( ONEFLOW::QUAD_9, 1, 2, 5, 4, 7, 11, 13, 10, 16 );
+        this->PushCompositeFace( ONEFLOW::QUAD_9, 2, 3, 6, 5, 8, 12, 14, 11, 17 );
+        this->PushCompositeFace( ONEFLOW::QUAD_9, 3, 1, 4, 6, 9, 10, 15, 12, 18 );
+        this->PushCompositeFace( ONEFLOW::TRI_6, 1, 3, 2, 9, 8, 7 );
+        this->PushCompositeFace( ONEFLOW::TRI_6, 4, 5, 6, 13, 14, 15 );
 
         // Face 20
 
@@ -830,7 +830,7 @@ void UnitElement::Initialize( int elementType )
     {
         // HEXA_27
 
-        // Domposite Face 6
+        // Composite Face 6
         // QUAD_9 : 1  4  3  2  12  11  10  9   21
         // QUAD_9 : 5  6  7  8  17  18  19  20  26
         // QUAD_9 : 1  2  6  5  9   14  17  13  22
@@ -838,12 +838,12 @@ void UnitElement::Initialize( int elementType )
         // QUAD_9 : 3  4  8  7  11  16  19  15  24
         // QUAD_9 : 1  5  8  4  13  20  16  12  25
 
-        this->PushDompositeFace( ONEFLOW::QUAD_9, 1, 4, 3, 2, 12, 11, 10, 9, 21 );
-        this->PushDompositeFace( ONEFLOW::QUAD_9, 5, 6, 7, 8, 17, 18, 19, 20, 26 );
-        this->PushDompositeFace( ONEFLOW::QUAD_9, 1, 2, 6, 5, 9, 14, 17, 13, 22 );
-        this->PushDompositeFace( ONEFLOW::QUAD_9, 2, 3, 7, 6, 10, 15, 18, 14, 23 );
-        this->PushDompositeFace( ONEFLOW::QUAD_9, 3, 4, 8, 7, 11, 16, 19, 15, 24 );
-        this->PushDompositeFace( ONEFLOW::QUAD_9, 1, 5, 8, 4, 13, 20, 16, 12, 25 );
+        this->PushCompositeFace( ONEFLOW::QUAD_9, 1, 4, 3, 2, 12, 11, 10, 9, 21 );
+        this->PushCompositeFace( ONEFLOW::QUAD_9, 5, 6, 7, 8, 17, 18, 19, 20, 26 );
+        this->PushCompositeFace( ONEFLOW::QUAD_9, 1, 2, 6, 5, 9, 14, 17, 13, 22 );
+        this->PushCompositeFace( ONEFLOW::QUAD_9, 2, 3, 7, 6, 10, 15, 18, 14, 23 );
+        this->PushCompositeFace( ONEFLOW::QUAD_9, 3, 4, 8, 7, 11, 16, 19, 15, 24 );
+        this->PushCompositeFace( ONEFLOW::QUAD_9, 1, 5, 8, 4, 13, 20, 16, 12, 25 );
 
         // Face 24
 
@@ -1512,7 +1512,7 @@ void UnitElement::PushMiddlePoint( int pm, int p1, int p2, int p3, int p4, int p
     middlePointStruct[ pm - 1 ].push_back( p8 - 1 );
 }
 
-void UnitElement::PushDompositeFace( int faceElementType, int p1, int p2, int p3 )
+void UnitElement::PushCompositeFace( int faceElementType, int p1, int p2, int p3 )
 {
     compositeFaceElementType.push_back( faceElementType );
 
@@ -1529,7 +1529,7 @@ void UnitElement::PushDompositeFace( int faceElementType, int p1, int p2, int p3
     compositeFaceList.push_back( face );
 }
 
-void UnitElement::PushDompositeFace( int faceElementType, int p1, int p2, int p3, int p4, int p5, int p6 )
+void UnitElement::PushCompositeFace( int faceElementType, int p1, int p2, int p3, int p4, int p5, int p6 )
 {
     compositeFaceElementType.push_back( faceElementType );
 
@@ -1549,7 +1549,7 @@ void UnitElement::PushDompositeFace( int faceElementType, int p1, int p2, int p3
     compositeFaceList.push_back( face );
 }
 
-void UnitElement::PushDompositeFace( int faceElementType, int p1, int p2, int p3, int p4, int p5, int p6, int p7, int p8, int p9 )
+void UnitElement::PushCompositeFace( int faceElementType, int p1, int p2, int p3, int p4, int p5, int p6, int p7, int p8, int p9 )
 {
     compositeFaceElementType.push_back( faceElementType );
 

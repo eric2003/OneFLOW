@@ -94,9 +94,9 @@ public:
     void PushChildElement( int elementType, int p1, int p2, int p3, int p4, int p5, int p6 );
     void PushChildElement( int elementType, int p1, int p2, int p3, int p4, int p5, int p6, int p7, int p8 );
 public:
-    void PushDompositeFace( int faceElementType, int p1, int p2, int p3 );
-    void PushDompositeFace( int faceElementType, int p1, int p2, int p3, int p4, int p5, int p6 );
-    void PushDompositeFace( int faceElementType, int p1, int p2, int p3, int p4, int p5, int p6, int p7, int p8, int p9 );
+    void PushCompositeFace( int faceElementType, int p1, int p2, int p3 );
+    void PushCompositeFace( int faceElementType, int p1, int p2, int p3, int p4, int p5, int p6 );
+    void PushCompositeFace( int faceElementType, int p1, int p2, int p3, int p4, int p5, int p6, int p7, int p8, int p9 );
 };
 
 EndNameSpace
