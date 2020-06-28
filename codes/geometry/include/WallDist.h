@@ -29,7 +29,7 @@ BeginNameSpace( ONEFLOW )
 
 DEFINE_DATA_CLASS( FillWallStructTask  );
 DEFINE_DATA_CLASS( FillWallStruct  );
-DEFINE_DATA_CLASS( CmpWallDist );
+DEFINE_DATA_CLASS( CalcWallDist );
 
 class CFillWallStructTaskImp : public Task
 {

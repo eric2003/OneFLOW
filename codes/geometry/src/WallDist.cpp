@@ -63,7 +63,7 @@ void SetWallTask()
 {
     REGISTER_DATA_CLASS( FillWallStructTask  );
     REGISTER_DATA_CLASS( FillWallStruct  );
-    REGISTER_DATA_CLASS( CmpWallDist );
+    REGISTER_DATA_CLASS( CalcWallDist );
 }
 
 void FillWallStructTask( StringField & data )
@@ -133,7 +133,7 @@ void FillWallStruct( StringField & data )
     HXWrite( ActionState::dataBook, fc );
 }
 
-void CmpWallDist( StringField & data )
+void CalcWallDist( StringField & data )
 {
     UnsGrid * grid = Zone::GetUnsGrid();
     int nBFace = grid->faceTopo->bcManager->bcRecord->GetNBFace();
