@@ -100,7 +100,7 @@ void UINsBcSolver::CalcBcRegion()
 
         this->PrepareData();
 
-        this->CompFaceBc();
+        this->CalcFaceBc();
 
         this->UpdateBc();
     }

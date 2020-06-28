@@ -56,7 +56,7 @@ void UTurbSrcFlux::Init()
 {
     ug.Init();
     turbcom.Init();
-    this->CompGrad();
+    this->CalcGrad();
     if ( turbcom.nEqu == 1 )
     {
         this->CalcLengthScaleSa();
@@ -128,7 +128,7 @@ void UTurbSrcFlux::InitVist()
     ug.Init();
     turbcom.Init();
     uturbf.Init();
-    this->CompGrad();
+    this->CalcGrad();
 }
 
 void UTurbSrcFlux::ZeroSpectrum()
@@ -329,19 +329,19 @@ void UTurbSrcFlux::Update2Equ()
     }
 }
 
-void UTurbSrcFlux::CompGradDebug()
+void UTurbSrcFlux::CalcGradDebug()
 {
     uturb_grad.Init();
-    uturb_grad.CompGrad();
+    uturb_grad.CalcGrad();
     uns_grad.Init();
-    uns_grad.CompGrad();
+    uns_grad.CalcGrad();
 }
 
-void UTurbSrcFlux::CompGrad()
+void UTurbSrcFlux::CalcGrad()
 {
     uturb_grad.Init();
-    uturb_grad.CompGrad();
-    //uturb_grad.CompGradDebug();
+    uturb_grad.CalcGrad();
+    //uturb_grad.CalcGradDebug();
 }
 
 void UTurbSrcFlux::PrepareCellValue()
@@ -991,7 +991,7 @@ void CalcSubgridLengthScale( RealField & lenth_scale )
 {
     UnsGrid * grid = Zone::GetUnsGrid();
 
-    CompCellSpan( grid );
+    CalcCellSpan( grid );
 
     RealField & wall_dist = grid->cellMesh->dist;
     RealField & largestSpacing = GetLargestSpacing();
@@ -1013,7 +1013,7 @@ void CalcSubgridLengthScale( RealField & lenth_scale )
 RealField & GetLargestSpacing()
 {
     UnsGrid * grid = Zone::GetUnsGrid();
-    CompCellSpan( grid );
+    CalcCellSpan( grid );
     return grid->cellMesh->span;
 }
 

@@ -92,7 +92,7 @@ void BlkBasic::DumpInp( fstream & file )
     for ( int iFace = 0; iFace < nFace; ++ iFace )
     {
         Face2D * face2d = this->facelist[ iFace ];
-        face2d->CompRegion();
+        face2d->CalcRegion();
 
         int imin = face2d->st.i;
         int jmin = face2d->st.j;
@@ -349,9 +349,9 @@ void Block3D::DomputeBlkDim()
         int i = iList[ iPoint ];
         int j = jList[ iPoint ];
         int k = kList[ iPoint ];
-        CompCoor c;
+        CalcCoor c;
         c.SetCoor( i, j, k );
-        this->coorMap.insert( pair<int, CompCoor>( pt, c ) );
+        this->coorMap.insert( pair<int, CalcCoor>( pt, c ) );
     }
 
     for ( int iMDomain = 0; iMDomain < nMDomain; ++ iMDomain )
@@ -714,9 +714,9 @@ void Block2D::DomputeBlkDim()
         int i = iList[ iPoint ];
         int j = jList[ iPoint ];
         int k = kList[ iPoint ];
-        CompCoor c;
+        CalcCoor c;
         c.SetCoor( i, j, k );
-        this->coorMap.insert( pair<int, CompCoor>( pt, c ) );
+        this->coorMap.insert( pair<int, CalcCoor>( pt, c ) );
     }
 
     for ( int iMDomain = 0; iMDomain < nMDomain; ++ iMDomain )

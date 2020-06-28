@@ -65,7 +65,7 @@ public:
     void InitNeighborFlag( IntField & flags );
     void AllocateNeighbor();
     void FillRecvId( int iNei );
-    void CompSendId( int iNei, IntField & idsend );
+    void CalcSendId( int iNei, IntField & idsend );
     void SetSendId( int zid, IntField & idsend );
 };
 

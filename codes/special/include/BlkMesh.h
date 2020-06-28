@@ -23,7 +23,7 @@ License
 
 #pragma once
 #include "HXDefine.h"
-#include "CompCoor.h"
+#include "CalcCoor.h"
 
 BeginNameSpace( ONEFLOW )
 

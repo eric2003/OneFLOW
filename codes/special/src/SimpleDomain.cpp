@@ -54,7 +54,7 @@ Face2D::~Face2D()
     delete this->t;
 }
 
-void Face2D::CompRegion()
+void Face2D::CalcRegion()
 {
     if ( this->bcType != -1 )
     {
@@ -70,7 +70,7 @@ void Face2D::CompRegion()
     }
 }
 
-void Face2D::CompStEd( CoorMap * coorMap )
+void Face2D::CalcStEd( CoorMap * coorMap )
 {
     CoorMap::iterator c1, c2;
     int p1 = this->ctrlpoints[ 0 ];
@@ -392,9 +392,9 @@ void DomData::DomputeBcCoor( CoorMap * coorMap, int closedCurve )
         int mj = iter1->second.j + dj * ( dim - 1 );
         int mk = iter1->second.k + dk * ( dim - 1 );
 
-        CompCoor coor;
+        CalcCoor coor;
         coor.SetCoor( mi, mj, mk );
-        coorMap->insert( pair<int, CompCoor>( p2, coor ) );
+        coorMap->insert( pair<int, CalcCoor>( p2, coor ) );
 
         if ( IsCtrlPoint( p2 ) )
         {
@@ -519,7 +519,7 @@ void GetUnitInt( int &d )
     }
 }
 
-void GetUnitDir( CompCoor & c )
+void GetUnitDir( CalcCoor & c )
 {
     GetUnitInt( c.i );
     GetUnitInt( c.j );

@@ -105,7 +105,7 @@ void TurbBcSolver::SetBc()
     }
 }
 
-void TurbBcSolver::CompFaceBc()
+void TurbBcSolver::CalcFaceBc()
 {
     ( this->* bcPointer )();
 }

@@ -104,28 +104,28 @@ void NsVisFlux::CorrectFaceGrad()
     visT.CorrectFaceGrad();
 }
 
-void NsVisFlux::CompNormalGrad()
+void NsVisFlux::CalcNormalGrad()
 {
-    visQ.CompNormalGrad();
-    visT.CompNormalGrad();
+    visQ.CalcNormalGrad();
+    visT.CalcNormalGrad();
 }
 
-void NsVisFlux::CompTestMethod()
+void NsVisFlux::CalcTestMethod()
 {
-    visQ.CompTestMethod();
-    visT.CompTestMethod();
+    visQ.CalcTestMethod();
+    visT.CalcTestMethod();
 }
 
-void NsVisFlux::CompNew1Method()
+void NsVisFlux::CalcNew1Method()
 {
-    visQ.CompNew1Method();
-    visT.CompNew1Method();
+    visQ.CalcNew1Method();
+    visT.CalcNew1Method();
 }
 
-void NsVisFlux::CompNew2Method()
+void NsVisFlux::CalcNew2Method()
 {
-    visQ.CompNew2Method();
-    visT.CompNew2Method();
+    visQ.CalcNew2Method();
+    visT.CalcNew2Method();
 }
 
 void NsVisFlux::ModifyFaceGrad()
@@ -146,12 +146,12 @@ Sutherland::~Sutherland()
 
 }
 
-void Sutherland::CompConst()
+void Sutherland::CalcConst()
 {
     Sutherland::c = Sutherland::cdim / nscom.tref_dim;
 }
 
-Real Sutherland::CompViscosity( Real t )
+Real Sutherland::CalcViscosity( Real t )
 {
     Real t3 = t * t * t;
     return sqrt( t3 ) * ( 1 + Sutherland::c ) / ( t + Sutherland::c );

@@ -46,11 +46,11 @@ public:
 public:
     void Alloc( int nCell );
     UInt GetNumberOfCells() { return cellType.size(); }
-    void CompC2f( FaceTopo * faceTopo );
-    void CompC2C( FaceTopo * faceTopo );
+    void CalcC2f( FaceTopo * faceTopo );
+    void CalcC2C( FaceTopo * faceTopo );
 };
 
-void CompC2f( UnsGrid * grid );
-void CompC2C( UnsGrid * grid );
+void CalcC2f( UnsGrid * grid );
+void CalcC2C( UnsGrid * grid );
 
 EndNameSpace

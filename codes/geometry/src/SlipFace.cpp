@@ -171,7 +171,7 @@ void SlipFace::FillRecvId( int iNei )
     }
 }
 
-void SlipFace::CompSendId( int iNei, IntField & idsend )
+void SlipFace::CalcSendId( int iNei, IntField & idsend )
 {
     SlipfacePair * slipfacePair = slipfacePairs[ iNei ];
     idsend.resize( 0 );
@@ -528,7 +528,7 @@ void SlipFaceTopo::SwapNeighborsSendContent()
                 Grid * grid = Zone::GetGrid( iZone );
                 SlipfacePair * slipfacePair = grid->slipFace->GetSlipfacePair( iNei );
 
-                grid->slipFace->CompSendId( iNei, idsend );
+                grid->slipFace->CalcSendId( iNei, idsend );
 
                 nSend = idsend.size();
             }

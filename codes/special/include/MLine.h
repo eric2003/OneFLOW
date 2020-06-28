@@ -22,7 +22,7 @@ License
 
 
 #pragma once
-#include "CompCoor.h"
+#include "CalcCoor.h"
 #include "SimpleDomain.h"
 #include <map>
 using namespace std;

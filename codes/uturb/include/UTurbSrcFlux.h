@@ -38,8 +38,8 @@ public:
 
     void Update1Equ();
     void Update2Equ();
-    void CompGrad();
-    void CompGradDebug();
+    void CalcGrad();
+    void CalcGradDebug();
     void CalcVist();
     void CalcVist1Equ();
     void CalcVist2Equ();

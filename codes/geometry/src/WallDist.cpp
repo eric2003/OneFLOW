@@ -78,7 +78,7 @@ void FillWallStruct( StringField & data )
     int nBFace = grid->faceTopo->bcManager->bcRecord->GetNBFace();
     BcRecord * bcRecord = grid->faceTopo->bcManager->bcRecord;
 
-    int nWallFace = bcRecord->CompNumWallFace();
+    int nWallFace = bcRecord->CalcNumWallFace();
 
     RealField & xfc = grid->faceMesh->xfc;
     RealField & yfc = grid->faceMesh->yfc;
@@ -139,7 +139,7 @@ void CalcWallDist( StringField & data )
     int nBFace = grid->faceTopo->bcManager->bcRecord->GetNBFace();
     BcRecord * bcRecord = grid->faceTopo->bcManager->bcRecord;
 
-    int nWallFace = bcRecord->CompNumWallFace();
+    int nWallFace = bcRecord->CalcNumWallFace();
 
     RealField & dist = grid->cellMesh->dist;
 
@@ -177,7 +177,7 @@ void CalcWallDist( StringField & data )
         {
             WallStructure::PointField  & fvList = fv[ iWFace ];
 
-            Real wdst = CompPoint2FaceDist( ccp, fvList );
+            Real wdst = CalcPoint2FaceDist( ccp, fvList );
 
             if ( wdst < 1.0e-30 )
             {
@@ -256,7 +256,7 @@ void CFillWallStructTaskImp::FillWall()
     }
 }
 
-Real CompPoint2FaceDist( WallStructure::PointType node, WallStructure::PointField & fvList )
+Real CalcPoint2FaceDist( WallStructure::PointType node, WallStructure::PointField & fvList )
 {
     using namespace gte;
     Vector< 3, Real > point0;

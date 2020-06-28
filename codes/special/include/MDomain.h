@@ -24,7 +24,7 @@ License
 #pragma once
 #include "HXDefine.h"
 #include "Mid.h"
-#include "CompCoor.h"
+#include "CalcCoor.h"
 #include "SimpleDomain.h"
 #include <set>
 #include <map>
@@ -36,7 +36,7 @@ class Block3D;
 class BlkMesh;
 class SDomain;
 class MDomain;
-class CompCoor;
+class CalcCoor;
 class Face2D;
 class MLine;
 

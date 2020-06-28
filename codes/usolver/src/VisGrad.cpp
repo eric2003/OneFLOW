@@ -96,7 +96,7 @@ void VisGradGeom::PrepareCellGeom()
     this->CalcAngle( this->dxr, this->dyr, this->dzr,   this->d2, this->angle2 );
 }
 
-void VisGradGeom::CompGradCoef()
+void VisGradGeom::CalcGradCoef()
 {
     this->dx  = ( * ug.xcc )[ ug.rc ] - ( * ug.xcc )[ ug.lc ];
     this->dy  = ( * ug.ycc )[ ug.rc ] - ( * ug.ycc )[ ug.lc ];
@@ -184,7 +184,7 @@ void VisGrad::CorrectFaceGrad()
     }
 }
 
-void VisGrad::CompNormalGrad()
+void VisGrad::CalcNormalGrad()
 {
     for ( int iEqu = 0; iEqu < nEqu; ++ iEqu )
     {
@@ -288,7 +288,7 @@ void VisGrad::ModifyFaceGrad()
     }
 }
 
-void VisGrad::CompTestMethod()
+void VisGrad::CalcTestMethod()
 {
     if ( this->FaceAngleIsValid() )
     {
@@ -314,7 +314,7 @@ void VisGrad::CompTestMethod()
     }
 }
 
-void VisGrad::CompNew1Method()
+void VisGrad::CalcNew1Method()
 {
     if ( ! this->New1Satisfied() ) return;
 
@@ -326,7 +326,7 @@ void VisGrad::CompNew1Method()
     }
 }
 
-void VisGrad::CompNew2Method()
+void VisGrad::CalcNew2Method()
 {
     if ( ! this->New2Satisfied() ) return;
 

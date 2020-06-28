@@ -31,9 +31,9 @@ public:
     INsUpdate ();
     ~INsUpdate();
 public:
-    void CompFlowField();
-    void CompFlowFieldHyperSonic();
-    void CompFlowFieldHyperSonic_Temperature();
+    void CalcFlowField();
+    void CalcFlowFieldHyperSonic();
+    void CalcFlowFieldHyperSonic_Temperature();
     bool WeekSolutionFix();
 };
 

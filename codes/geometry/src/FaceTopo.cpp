@@ -382,7 +382,7 @@ bool FaceTopo::GetTId( int iFace, int iPosition, int & tId )
     return true;
 }
 
-void FaceTopo::CompC2C( LinkField & c2c )
+void FaceTopo::CalcC2C( LinkField & c2c )
 {
     if ( c2c.size() != 0 ) return;
 

@@ -95,8 +95,8 @@ void UINsVisterm::DeAlloc()
 void UINsVisterm::PrepareField()
 {
 	uins_grad.Init();
-	uins_grad.CompGrad();  //计算梯度
-    //ut_grad.CompGradDebug();
+	uins_grad.CalcGrad();  //计算梯度
+    //ut_grad.CalcGradDebug();
 }
 
 void UINsVisterm::CalcVisterm()
@@ -199,7 +199,7 @@ void UINsVisterm::PrepareFaceValue()
     gcom.vfn   = ( * ug.vfn   )[ ug.fId ];
     gcom.farea = ( * ug.farea )[ ug.fId ];
 
-    gcom.CompTangent();
+    gcom.CalcTangent();
 
     for ( int iEqu = 0; iEqu < inscom.nTEqu; ++ iEqu )
     {
@@ -297,9 +297,9 @@ void UINsVisterm::CalcFaceWeight()
 }
 
 
-void UINsVisterm::CompGradCoef()
+void UINsVisterm::CalcGradCoef()
 {
-    vgg.CompGradCoef();
+    vgg.CalcGradCoef();
 }
 
 
@@ -320,7 +320,7 @@ void ICalcLaminarViscosity(int flag)
 		for (int cId = ug.ist; cId < ug.ied; ++cId)
 		{
 			//Real temperature = ( *uinsf.tempr )[ IIDX::IITT ][ cId ];
-			//Real visl = Iutherland::ICompViscosity( temperature );
+			//Real visl = Iutherland::ICalcViscosity( temperature );
 			//( *uinsf.visl )[ 0 ][ cId ] = MAX( minLimit, visl );
 		}
 }

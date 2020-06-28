@@ -92,7 +92,7 @@ void CellTopo::PushElement( int p1, int p2, int p3, int p4, int elementType )
     }
 }
 
-void CellTopo::CompC2f( FaceTopo * faceTopo )
+void CellTopo::CalcC2f( FaceTopo * faceTopo )
 {
     if ( c2f.size() != 0 ) return;
 
@@ -117,23 +117,23 @@ void CellTopo::CompC2f( FaceTopo * faceTopo )
     }
 }
 
-void CellTopo::CompC2C( FaceTopo * faceTopo )
+void CellTopo::CalcC2C( FaceTopo * faceTopo )
 {
-    faceTopo->CompC2C( this->c2c );
+    faceTopo->CalcC2C( this->c2c );
 }
 
-void CompC2f( UnsGrid * grid )
+void CalcC2f( UnsGrid * grid )
 {
     FaceTopo * faceTopo = grid->faceTopo;
     CellTopo * cellTopo = grid->cellMesh->cellTopo;
-    cellTopo->CompC2f( faceTopo );
+    cellTopo->CalcC2f( faceTopo );
 }
 
-void CompC2C( UnsGrid * grid )
+void CalcC2C( UnsGrid * grid )
 {
     FaceTopo * faceTopo = grid->faceTopo;
     CellTopo * cellTopo = grid->cellMesh->cellTopo;
-    cellTopo->CompC2C( faceTopo );
+    cellTopo->CalcC2C( faceTopo );
 }
 
 EndNameSpace

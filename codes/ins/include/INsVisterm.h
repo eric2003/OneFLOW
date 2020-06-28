@@ -71,10 +71,10 @@ public:
     void AccurateFaceValue();
     void AccurateOtherFaceValue();
     void CorrectFaceGrad();
-    void CompNormalGrad();
-    void CompTestMethod();
-    void CompNew1Method();
-    void CompNew2Method();
+    void CalcNormalGrad();
+    void CalcTestMethod();
+    void CalcNew1Method();
+    void CalcNew2Method();
     void ModifyFaceGrad();
 };
 
@@ -89,8 +89,8 @@ public:
 public:
 	static Real Icdim;
 	static Real Ic;
-	static void ICompConst();
-	static Real ICompViscosity(Real t);
+	static void ICalcConst();
+	static Real ICalcViscosity(Real t);
 };
 
 EndNameSpace

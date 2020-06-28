@@ -126,7 +126,7 @@ int BcRecord::DomputeNIFace()
     return nIFace;
 }
 
-int BcRecord::CompNumWallFace()
+int BcRecord::CalcNumWallFace()
 {
     int nBFace = this->GetNBFace();
 
@@ -202,7 +202,7 @@ void BcManager::Update()
     this->bcFlag = 1;
 }
 
-void BcManager::CompBcType( IntField & bcTypeList )
+void BcManager::CalcBcType( IntField & bcTypeList )
 {
     IntSet bcTypeSet;
 

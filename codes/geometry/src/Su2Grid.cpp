@@ -135,7 +135,7 @@ void SecMarkerManager::Alloc( int nType )
     }
 }
 
-int SecMarkerManager::CompTotalElem()
+int SecMarkerManager::CalcTotalElem()
 {
     int nType = data.size();
     int nElem = 0;
@@ -170,7 +170,7 @@ void MarkerManager::CreateMarkerList( int nMarker )
     }
 }
 
-void MarkerManager::CompSecMarker( SecMarkerManager * secMarkerManager )
+void MarkerManager::CalcSecMarker( SecMarkerManager * secMarkerManager )
 {
     int nMarker = this->markerList.size();
     IntSet typeSet;
@@ -234,7 +234,7 @@ VolumeSecManager::~VolumeSecManager()
     ;
 }
 
-void VolumeSecManager::CompVolSec( Su2Grid* su2Grid, SecMarkerManager * secMarkerManager )
+void VolumeSecManager::CalcVolSec( Su2Grid* su2Grid, SecMarkerManager * secMarkerManager )
 {
     IntSet typeSet;
 
@@ -533,9 +533,9 @@ void FillSU2CgnsZone( Su2Grid* su2Grid, CgnsZone * cgnsZone )
     
     SecMarkerManager volSec;
 
-    su2Grid->volSec.CompVolSec( su2Grid, & volSec );
+    su2Grid->volSec.CalcVolSec( su2Grid, & volSec );
     SecMarkerManager bcSec;
-    su2Grid->mmark.CompSecMarker( &bcSec );
+    su2Grid->mmark.CalcSecMarker( &bcSec );
 
     int nVolSec = volSec.nType;
     int nBcSec = bcSec.nType;
@@ -547,7 +547,7 @@ void FillSU2CgnsZone( Su2Grid* su2Grid, CgnsZone * cgnsZone )
     cgnsZsection->nSection = nSection;
     cgnsZsection->CreateCgnsSection();
 
-    int nVolCell = volSec.CompTotalElem();
+    int nVolCell = volSec.CalcTotalElem();
  
     int sumElem = 0;
     for ( int iSection = 0; iSection < nSection; ++ iSection )

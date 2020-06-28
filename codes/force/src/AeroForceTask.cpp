@@ -77,7 +77,7 @@ void AerodynamicForceTask::Run()
         if (  ! ZoneState::IsValidZone( zId ) ) continue;
         ZoneState::zid = zId;
 
-        this->CompForce();
+        this->CalcForce();
     }
 
     aeroForceInfo.CollectForce();
@@ -95,7 +95,7 @@ void AerodynamicForceTask::Dump()
 {
     if ( Parallel::pid != Parallel::serverid ) return;
 
-    aeroForceInfo.CompCoef();
+    aeroForceInfo.CalcCoef();
 
     ostringstream oss;
 
@@ -156,10 +156,10 @@ void AerodynamicForceTask::Dump()
     CloseFile( file );
 }
 
-void AerodynamicForceTask::CompForce()
+void AerodynamicForceTask::CalcForce()
 {
     int idump_pres = 0;
-    CompAeroForce( idump_pres );
+    CalcAeroForce( idump_pres );
 }
 
 int GetNSolidCell( UnsGrid * grid )
@@ -185,7 +185,7 @@ int GetNSolidCell( UnsGrid * grid )
     return nSolidCell;
 }
 
-void CompAeroForce(int idump_pres)
+void CalcAeroForce(int idump_pres)
 {
 	UnsGrid * grid = Zone::GetUnsGrid();
 	BcRecord * bcRecord = grid->faceTopo->bcManager->bcRecord;
@@ -334,7 +334,7 @@ void CompAeroForce(int idump_pres)
 
 					stress.viscosity = (*visl)[0][lc];
 
-					stress.CompForce(&aeroForce.vis);
+					stress.CalcForce(&aeroForce.vis);
 				}
 				aeroForce.SumForce();
 
@@ -342,18 +342,18 @@ void CompAeroForce(int idump_pres)
 				aeroForce.vfy = vfy[fId];
 				aeroForce.vfz = vfz[fId];
 
-				aeroForce.CompPower();
+				aeroForce.CalcPower();
 
 				Real xc = xfc[fId];
 				Real yc = yfc[fId];
 				Real zc = zfc[fId];
 
-				aeroForce.CompMoment(xc, yc, zc);
+				aeroForce.CalcMoment(xc, yc, zc);
 				aeroForceInfo.totalForce.AddForce(&aeroForce);
 
 				if (idump_pres == 1)
 				{
-					Real cf = aeroCom.CompCF(&aeroForce.vis, area[fId]);
+					Real cf = aeroCom.CalcCF(&aeroForce.vis, area[fId]);
 
 					int wordWidth = 20;
 					StrIO << setiosflags(ios::left);
@@ -412,7 +412,7 @@ void CompAeroForce(int idump_pres)
 
 					stress.viscosity = (*visl)[0][lc];
 
-					stress.CompForce(&aeroForce.vis);
+					stress.CalcForce(&aeroForce.vis);
 				}
 				aeroForce.SumForce();
 
@@ -420,18 +420,18 @@ void CompAeroForce(int idump_pres)
 				aeroForce.vfy = vfy[fId];
 				aeroForce.vfz = vfz[fId];
 
-				aeroForce.CompPower();
+				aeroForce.CalcPower();
 
 				Real xc = xfc[fId];
 				Real yc = yfc[fId];
 				Real zc = zfc[fId];
 
-				aeroForce.CompMoment(xc, yc, zc);
+				aeroForce.CalcMoment(xc, yc, zc);
 				aeroForceInfo.totalForce.AddForce(&aeroForce);
 
 				if (idump_pres == 1)
 				{
-					Real cf = aeroCom.CompCF(&aeroForce.vis, area[fId]);
+					Real cf = aeroCom.CalcCF(&aeroForce.vis, area[fId]);
 
 					int wordWidth = 20;
 					StrIO << setiosflags(ios::left);

@@ -57,7 +57,7 @@ public:
     void PrepareUnsCalcGrid();
     void InitCgnsElements();
     void ScanBcFace();
-    void GenerateCompElement();
+    void GenerateCalcElement();
     void GenerateCalcGrid();
     void GenerateCalcGrid( Grid * grid );
     void DomputeBoundaryType( UnsGrid * grid );

@@ -44,7 +44,7 @@ void DumpAerodynamicForceTask( StringField & data )
 void DumpPressureCoeff( StringField & data )
 {
     int idump_pres = 1;
-    CompAeroForce( idump_pres );
+    CalcAeroForce( idump_pres );
 }
 
 EndNameSpace

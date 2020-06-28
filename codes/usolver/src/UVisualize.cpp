@@ -567,7 +567,7 @@ void UVisualize::ShowBc( ostringstream & oss, VisualTool * visualTool )
     UnsGrid * grid = Zone::GetUnsGrid();
 
     IntField bcTypeList;
-    grid->faceTopo->bcManager->CompBcType( bcTypeList );
+    grid->faceTopo->bcManager->CalcBcType( bcTypeList );
     int nBcType = bcTypeList.size();
 
     for ( int iBcType = 0; iBcType < nBcType; ++ iBcType )
@@ -592,7 +592,7 @@ void UVisualize::ShowBcDebugTest( ostringstream & oss, VisualTool * visualTool )
     UnsGrid * grid = Zone::GetUnsGrid();
 
     IntField bcTypeList;
-    grid->faceTopo->bcManager->CompBcType( bcTypeList );
+    grid->faceTopo->bcManager->CalcBcType( bcTypeList );
     int nBcType = bcTypeList.size();
 
     for ( int iBcType = 0; iBcType < nBcType; ++ iBcType )

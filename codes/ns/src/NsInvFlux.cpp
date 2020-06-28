@@ -193,8 +193,8 @@ void NsInvFlux::Roe()
 
     Real hint_l, hint_r;
 
-    CompEnthalpy( inv.prim1, inv.gama1, hint_l );
-    CompEnthalpy( inv.prim2, inv.gama2, hint_r );
+    CalcEnthalpy( inv.prim1, inv.gama1, hint_l );
+    CalcEnthalpy( inv.prim2, inv.gama2, hint_r );
 
     inv.hl  = hint_l + half * v2l;
     inv.hr  = hint_r + half * v2r;
@@ -285,7 +285,7 @@ void NsInvFlux::Roe()
     Real c2dc = c2 * dc;
 
     Real dh;
-    CompTotalEnthalpyChange( inv.prim, inv.gama, inv.dq, dh );
+    CalcTotalEnthalpyChange( inv.prim, inv.gama, inv.dq, dh );
 
     Real term1 = dh   * xi1 + dc * xi2;
     Real term2 = c2dc * xi1 + dh * xi2;
@@ -317,8 +317,8 @@ void NsInvFlux::Vanleer()
 
     Real hint_l, hint_r;
 
-    CompEnthalpy( inv.prim1, inv.gama1, hint_l );
-    CompEnthalpy( inv.prim2, inv.gama2, hint_r );
+    CalcEnthalpy( inv.prim1, inv.gama1, hint_l );
+    CalcEnthalpy( inv.prim2, inv.gama2, hint_r );
 
     inv.hl  = hint_l + half * v2l;
     inv.hr  = hint_r + half * v2r;
@@ -414,8 +414,8 @@ void NsInvFlux::Steger()
 
     Real hint_l, hint_r;
 
-    CompEnthalpy( inv.prim1, inv.gama1, hint_l );
-    CompEnthalpy( inv.prim2, inv.gama2, hint_r );
+    CalcEnthalpy( inv.prim1, inv.gama1, hint_l );
+    CalcEnthalpy( inv.prim2, inv.gama2, hint_r );
 
     inv.hl  = hint_l + half * v2l;
     inv.hr  = hint_r + half * v2r;
@@ -526,8 +526,8 @@ void NsInvFlux::Hlle()
 
     Real hint_l, hint_r;
 
-    CompEnthalpy( inv.prim1, inv.gama1, hint_l );
-    CompEnthalpy( inv.prim2, inv.gama2, hint_r );
+    CalcEnthalpy( inv.prim1, inv.gama1, hint_l );
+    CalcEnthalpy( inv.prim2, inv.gama2, hint_r );
 
     inv.hl  = hint_l + half * v2l;
     inv.hr  = hint_r + half * v2r;
@@ -603,8 +603,8 @@ void NsInvFlux::LaxFriedrichs()
 
     Real hint_l, hint_r;
 
-    CompEnthalpy( inv.prim1, inv.gama1, hint_l );
-    CompEnthalpy( inv.prim2, inv.gama2, hint_r );
+    CalcEnthalpy( inv.prim1, inv.gama1, hint_l );
+    CalcEnthalpy( inv.prim2, inv.gama2, hint_r );
 
     inv.hl  = hint_l + half * v2l;
     inv.hr  = hint_r + half * v2r;
@@ -672,8 +672,8 @@ void NsInvFlux::Ausmp()
 
     Real hint_l, hint_r;
 
-    CompEnthalpy( inv.prim1, inv.gama1, hint_l );
-    CompEnthalpy( inv.prim2, inv.gama2, hint_r );
+    CalcEnthalpy( inv.prim1, inv.gama1, hint_l );
+    CalcEnthalpy( inv.prim2, inv.gama2, hint_r );
 
     inv.hl  = hint_l + half * v2l;
     inv.hr  = hint_r + half * v2r;
@@ -740,8 +740,8 @@ void NsInvFlux::AusmpUp()
 
     Real hint_l, hint_r;
 
-    CompEnthalpy( inv.prim1, inv.gama1, hint_l );
-    CompEnthalpy( inv.prim2, inv.gama2, hint_r );
+    CalcEnthalpy( inv.prim1, inv.gama1, hint_l );
+    CalcEnthalpy( inv.prim2, inv.gama2, hint_r );
 
     inv.hl  = hint_l + half * v2l;
     inv.hr  = hint_r + half * v2r;
@@ -850,8 +850,8 @@ void NsInvFlux::Ausmdv()
 
     Real hint_l, hint_r;
 
-    CompEnthalpy( inv.prim1, inv.gama1, hint_l );
-    CompEnthalpy( inv.prim2, inv.gama2, hint_r );
+    CalcEnthalpy( inv.prim1, inv.gama1, hint_l );
+    CalcEnthalpy( inv.prim2, inv.gama2, hint_r );
 
     inv.hl  = hint_l + half * v2l;
     inv.hr  = hint_r + half * v2r;
@@ -1058,8 +1058,8 @@ void NsInvFlux::Ausmw()
 
     Real hint_l, hint_r;
 
-    CompEnthalpy( inv.prim1, inv.gama1, hint_l );
-    CompEnthalpy( inv.prim2, inv.gama2, hint_r );
+    CalcEnthalpy( inv.prim1, inv.gama1, hint_l );
+    CalcEnthalpy( inv.prim2, inv.gama2, hint_r );
 
     inv.hl  = hint_l + half * v2l;
     inv.hr  = hint_r + half * v2r;
@@ -1164,8 +1164,8 @@ void NsInvFlux::Ausmpw()
 
     Real hint_l, hint_r;
 
-    CompEnthalpy( inv.prim1, inv.gama1, hint_l );
-    CompEnthalpy( inv.prim2, inv.gama2, hint_r );
+    CalcEnthalpy( inv.prim1, inv.gama1, hint_l );
+    CalcEnthalpy( inv.prim2, inv.gama2, hint_r );
 
     inv.hl  = hint_l + half * v2l;
     inv.hr  = hint_r + half * v2r;
@@ -1253,8 +1253,8 @@ void NsInvFlux::Slau2()
 
     Real hint_l, hint_r;
 
-    CompEnthalpy( inv.prim1, inv.gama1, hint_l );
-    CompEnthalpy( inv.prim2, inv.gama2, hint_r );
+    CalcEnthalpy( inv.prim1, inv.gama1, hint_l );
+    CalcEnthalpy( inv.prim2, inv.gama2, hint_r );
 
     inv.hl  = hint_l + half * v2l;
     inv.hr  = hint_r + half * v2r;
@@ -1313,7 +1313,7 @@ void NsInvFlux::Slau2()
     }
 }
 
-void CompEnthalpy( RealField & prim, Real gama, Real & enthalpy )
+void CalcEnthalpy( RealField & prim, Real gama, Real & enthalpy )
 {
     Real & density  = prim[ IDX::IR ];
     Real & pressure = prim[ IDX::IP ];
@@ -1327,7 +1327,7 @@ void CompEnthalpy( RealField & prim, Real gama, Real & enthalpy )
     }
 }
 
-void CompTotalEnthalpyChange( RealField & prim, Real & gama, RealField & dq, Real & dh )
+void CalcTotalEnthalpyChange( RealField & prim, Real & gama, RealField & dq, Real & dh )
 {
     Real v2, ae, af;
 
@@ -1355,7 +1355,7 @@ void PrimToQ( RealField & prim, Real gama, RealField & q )
     Real &      wm  = prim[ IDX::IW ];
     Real & pressure = prim[ IDX::IP ];
     
-    ONEFLOW::CompInternalEnergy( prim, gama, em );
+    ONEFLOW::CalcInternalEnergy( prim, gama, em );
 
     q[ IDX::IR  ] = density;
     q[ IDX::IRU ] = density * um;
@@ -1393,7 +1393,7 @@ void QToPrim( RealField & q, Real gama, RealField & prim, RealField & temp )
 }
 
 
-void CompInternalEnergy( RealField & prim, Real gama, Real & em )
+void CalcInternalEnergy( RealField & prim, Real gama, Real & em )
 {
     Real & rm = prim[ IDX::IR ];
     Real & um = prim[ IDX::IU ];

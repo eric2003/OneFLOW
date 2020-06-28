@@ -78,13 +78,13 @@ public:
     void AddFluxIncrement    ();
     void AddFluxIncrement( const Real & coef );
     void GetFluxIncrement( int signOfMatrix );
-    void CompFaceEigenValue( RealField & prim );
+    void CalcFaceEigenValue( RealField & prim );
     void GetStandardFluxIncrement( int signOfMatrix );
     void InitializeSweep( int iSweep );
     bool UpdateSweep    ( int iSweep );
 public:
-    void CompLowerChange();
-    void CompUpperChange();
+    void CalcLowerChange();
+    void CalcUpperChange();
     bool IsOversetCell  ();
     void ZeroOversetCell();
 };

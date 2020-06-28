@@ -24,7 +24,7 @@ License
 #pragma once
 #include "HXDefine.h"
 #include "Mid.h"
-#include "CompCoor.h"
+#include "CalcCoor.h"
 #include <set>
 #include <map>
 #include <fstream>
@@ -33,7 +33,7 @@ BeginNameSpace( ONEFLOW )
 
 class Block3D;
 class SDomain;
-class CompCoor;
+class CalcCoor;
 class Face2D;
 
 class BlkF2C
@@ -56,12 +56,12 @@ public:
     int face_id;
     int bcType;
     IntField ctrlpoints;
-    CompCoor st, ed;
-    CompCoor p1, p2;
+    CalcCoor st, ed;
+    CalcCoor p1, p2;
     Face2D * t;
 public:
-    void CompRegion();
-    void CompStEd( CoorMap * coorMap );
+    void CalcRegion();
+    void CalcStEd( CoorMap * coorMap );
     void Set1DRegion( IntField & ctrlpoints );
 };
 
@@ -122,6 +122,6 @@ bool InArray( int ip, IntField & var_array );
 void GetPointIdLink( IntField & lineList, LinkField & pointIdLink );
 
 void GetUnitInt( int &d );
-void GetUnitDir( CompCoor & c );
+void GetUnitDir( CalcCoor & c );
 
 EndNameSpace

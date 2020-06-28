@@ -78,18 +78,18 @@ public:
     void AddFluxIncrement    ();
     void AddFluxIncrement( const Real & coef );
     void GetFluxIncrement( int signOfMatrix );
-    void CompFaceEigenValue( RealField & prim );
+    void CalcFaceEigenValue( RealField & prim );
     void GetStandardFluxIncrement( int signOfMatrix );
     void InitializeSweep( int iSweep );
     bool UpdateSweep    ( int iSweep );
 public:
-    void CompLowerChange();
-    void CompUpperChange();
+    void CalcLowerChange();
+    void CalcUpperChange();
     bool IsOversetCell  ();
     void ZeroOversetCell();
 };
 
-void CompIDH( RealField & prim, Real & gama, RealField & dq, Real & dh, Real & totalEnthalpy );
+void CalcIDH( RealField & prim, Real & gama, RealField & dq, Real & dh, Real & totalEnthalpy );
 
 
 EndNameSpace

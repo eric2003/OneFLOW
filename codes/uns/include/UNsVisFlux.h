@@ -45,7 +45,7 @@ public:
     void CalcFaceVisFlux();
     void UpdateFaceVisFlux();
     void CalcHeatFlux();
-    void CompStress();
+    void CalcStress();
     void CalcAniStress();
     void CalcNsVisFlux();
     void ZeroHeatFlux();
@@ -65,11 +65,11 @@ public:
     void TestMethod();
     void New1Method();
     void New2Method();
-    void CompGradCoef();
+    void CalcGradCoef();
     void PrepareCellGeom();
 };
 
-void CompLaminarViscosity( int flag );
+void CalcLaminarViscosity( int flag );
 
 
 

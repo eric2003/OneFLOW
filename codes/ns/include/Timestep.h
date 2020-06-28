@@ -32,12 +32,12 @@ public:
     Timestep();
     ~Timestep();
 public:
-    void CompCfl();
-    void CompFaceInvSpec();
-    void CompFaceVisSpec();
+    void CalcCfl();
+    void CalcFaceInvSpec();
+    void CalcFaceVisSpec();
 public:
-    void CompCellInvTimestep();
-    void CompCellVisTimestep();
+    void CalcCellInvTimestep();
+    void CalcCellVisTimestep();
 };
 
 

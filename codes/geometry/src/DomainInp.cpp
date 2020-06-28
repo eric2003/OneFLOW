@@ -189,7 +189,7 @@ void PatchBox::GenList()
     klist.push_back( k4 );
 }
 
-void PatchBox::CompNormal()
+void PatchBox::CalcNormal()
 {
     int p1 = idmap[ 0 ];
     int p2 = idmap[ 1 ];
@@ -249,7 +249,7 @@ void PatchBox::CompNormal()
     int kkk = 1;
 }
 
-void PatchBox::CompIdMap( PatchBox * box )
+void PatchBox::CalcIdMap( PatchBox * box )
 {
     for ( int i = 0; i < 4; ++ i )
     {
@@ -373,18 +373,18 @@ void PBlkSet::Analysys()
     int kkk = 1;
 }
 
-void PBlkSet::CompDomainPatch( int nZone, MultiDomain & md )
+void PBlkSet::CalcDomainPatch( int nZone, MultiDomain & md )
 {
     for ( int iZone = 0; iZone < nZone; ++ iZone )
     {
         for ( int jZone = iZone + 1; jZone < nZone; ++ jZone )
         {
-            CompDomainPatch( iZone, jZone, md );
+            CalcDomainPatch( iZone, jZone, md );
         }
     }
 }
 
-void PBlkSet::CompDomainPatch( int iZone, int jZone, MultiDomain & md )
+void PBlkSet::CalcDomainPatch( int iZone, int jZone, MultiDomain & md )
 {
     int n = 6;
     for ( int i = 0; i < n; ++ i )
@@ -553,7 +553,7 @@ IjkSlice::~IjkSlice()
     ;
 }
 
-void IjkSlice::CompIdir()
+void IjkSlice::CalcIdir()
 {
     if ( imin == imax )
     {
@@ -817,7 +817,7 @@ void DomainInp::Dump( MultiDomain * md, GridMediator * gridMediator, PointSearch
                 //DumpCoor( zid1, ip, jp, kp, gridMediator, file );
             }
 
-            box1->CompNormal();
+            box1->CalcNormal();
 
             int zid2 = md->zoneid2[ i ];
 
@@ -834,8 +834,8 @@ void DomainInp::Dump( MultiDomain * md, GridMediator * gridMediator, PointSearch
                 box2->idlist.push_back( id );
                 //DumpCoor( zid2, ip, jp, kp, gridMediator, file );
             }
-            box2->CompIdMap( box1 );
-            box2->CompNormal();
+            box2->CalcIdMap( box1 );
+            box2->CalcNormal();
 
             file << setw( width ) << box1->smin[ 0 ] << setw( width ) << box1->smax[ 0 ];
             file << setw( width ) << box1->smin[ 1 ] << setw( width ) << box1->smax[ 1 ];
@@ -874,27 +874,27 @@ void DomainInp::OutputInp( GridMediator * gridMediator )
         ijkBox.CreateBox( ni, nj, nk );
 
         cout << " block = " << iZone + 1 << "\n";
-        this->CompFacePoint( grid, & pointSearch, & ijkBox, iZone, & pblkSet );
+        this->CalcFacePoint( grid, & pointSearch, & ijkBox, iZone, & pblkSet );
     }
     pblkSet.Analysys();
     MultiDomain md;
-    pblkSet.CompDomainPatch( nZone, md );
+    pblkSet.CalcDomainPatch( nZone, md );
     Dump( & md, gridMediator, & pointSearch );
     int kkk = 1;
 }
 
-void DomainInp::CompDomainPatch( int nZone, GridMediator * gridMediator )
+void DomainInp::CalcDomainPatch( int nZone, GridMediator * gridMediator )
 {
     for ( int iZone = 0; iZone < nZone; ++ iZone )
     {
         for ( int jZone = iZone + 1; jZone < nZone; ++ jZone )
         {
-            CompDomainPatch( iZone, jZone, gridMediator );
+            CalcDomainPatch( iZone, jZone, gridMediator );
         }
     }
 }
 
-void DomainInp::CompDomainPatch( int iZone, int jZone, GridMediator * gridMediator )
+void DomainInp::CalcDomainPatch( int iZone, int jZone, GridMediator * gridMediator )
 {
     Grids grids = gridMediator->gridVector;
 
@@ -915,7 +915,7 @@ void DomainInp::CompDomainPatch( int iZone, int jZone, GridMediator * gridMediat
     }
 }
 
-void DomainInp::CompFacePoint( StrGrid * grid, PointSearch * pointSearch, IjkBox * ijkBox, int zId, PBlkSet * pblkSet )
+void DomainInp::CalcFacePoint( StrGrid * grid, PointSearch * pointSearch, IjkBox * ijkBox, int zId, PBlkSet * pblkSet )
 {
     Field3D & xs = * grid->strx;
     Field3D & ys = * grid->stry;

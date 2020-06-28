@@ -56,11 +56,11 @@ void RegisterNsFunc()
 
 void NsInitFinal( StringField & data )
 {
-    NsCompGamaT( F_INNER );
-    CompLaminarViscosity( F_INNER );
-    NsCompBc();
-    NsCompGamaT( F_GHOST );
-    CompLaminarViscosity( F_GHOST );
+    NsCalcGamaT( F_INNER );
+    CalcLaminarViscosity( F_INNER );
+    NsCalcBc();
+    NsCalcGamaT( F_GHOST );
+    CalcLaminarViscosity( F_GHOST );
 
     Grid * grid = Zone::GetGrid();
 
@@ -70,7 +70,7 @@ void NsInitFinal( StringField & data )
 
         GridState::gridLevel += 1;
 
-        NsCompBc();
+        NsCalcBc();
 
         GridState::gridLevel -= 1;
     }
@@ -83,11 +83,11 @@ void NsVisual( StringField & data )
 
 void NsCalcBoundary( StringField & data )
 {
-    NsCompGamaT( F_INNER );
-    CompLaminarViscosity( F_INNER );
-    NsCompBc();
-    NsCompGamaT( F_GHOST );
-    CompLaminarViscosity( F_GHOST );
+    NsCalcGamaT( F_INNER );
+    CalcLaminarViscosity( F_INNER );
+    NsCalcBc();
+    NsCalcGamaT( F_GHOST );
+    CalcLaminarViscosity( F_GHOST );
 }
 
 void NsCalcTimeStep( StringField & data )

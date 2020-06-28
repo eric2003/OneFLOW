@@ -127,24 +127,24 @@ void UTurbVisFlux::AverOtherFaceValue()
 {
 }
 
-void UTurbVisFlux::CompNormalGrad()
+void UTurbVisFlux::CalcNormalGrad()
 {
-    visTurb.CompNormalGrad();
+    visTurb.CalcNormalGrad();
 }
 
-void UTurbVisFlux::CompTestMethod()
+void UTurbVisFlux::CalcTestMethod()
 {
-    visTurb.CompTestMethod();
+    visTurb.CalcTestMethod();
 }
 
-void UTurbVisFlux::CompNew1Method()
+void UTurbVisFlux::CalcNew1Method()
 {
-    visTurb.CompNew1Method();
+    visTurb.CalcNew1Method();
 }
 
-void UTurbVisFlux::CompNew2Method()
+void UTurbVisFlux::CalcNew2Method()
 {
-    visTurb.CompNew2Method();
+    visTurb.CalcNew2Method();
 }
 
 void UTurbVisFlux::CorrectFaceGrad()
@@ -176,12 +176,12 @@ void UTurbVisFlux::AverMethod()
 
     this->AverGrad();
 
-    this->CompNormalGrad();
+    this->CalcNormalGrad();
 }
 
 void UTurbVisFlux::StdMethod()
 {
-    this->CompGradCoef();
+    this->CalcGradCoef();
 
     this->ZeroNormalGrad();
 
@@ -191,7 +191,7 @@ void UTurbVisFlux::StdMethod()
 
     this->CorrectFaceGrad();
 
-    this->CompNormalGrad();
+    this->CalcNormalGrad();
 }
 
 void UTurbVisFlux::TestMethod()
@@ -202,7 +202,7 @@ void UTurbVisFlux::TestMethod()
 
     this->PrepareCellGeom();
 
-    this->CompTestMethod();
+    this->CalcTestMethod();
 
     this->ModifyFaceGrad();
 }
@@ -215,7 +215,7 @@ void UTurbVisFlux::New1Method()
 
     this->PrepareCellGeom();
 
-    this->CompNew1Method();
+    this->CalcNew1Method();
 
     this->ModifyFaceGrad();
 }
@@ -228,14 +228,14 @@ void UTurbVisFlux::New2Method()
 
     this->PrepareCellGeom();
 
-    this->CompNew2Method();
+    this->CalcNew2Method();
 
     this->ModifyFaceGrad();
 }
 
-void UTurbVisFlux::CompGradCoef()
+void UTurbVisFlux::CalcGradCoef()
 {
-    vgg.CompGradCoef();
+    vgg.CalcGradCoef();
 }
 
 
@@ -301,7 +301,7 @@ void UTurbVisFlux::PrepareFaceValue()
     gcom.vfn   = ( * ug.vfn   )[ ug.fId ];
     gcom.farea = ( * ug.farea )[ ug.fId ];
 
-    gcom.CompTangent();
+    gcom.CalcTangent();
 
     for ( int iEqu = 0; iEqu < turbcom.nEqu; ++ iEqu )
     {

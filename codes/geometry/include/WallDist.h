@@ -55,6 +55,6 @@ public:
 
 void SetWallTask();
 void FreeWallStruct();
-Real CompPoint2FaceDist( WallStructure::PointType node, WallStructure::PointField & fvList );
+Real CalcPoint2FaceDist( WallStructure::PointType node, WallStructure::PointField & fvList );
 
 EndNameSpace

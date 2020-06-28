@@ -36,35 +36,35 @@ public:
 	void UpdateINsResiduals();
 };
 
-void NsCompBc();
-void NsCompGamaT( int flag );
-void NsCompRHS();
-void NsCompInvFlux();
-void NsCompVisFlux();
-void NsCompSrcFlux();
-void NsCompChemSrc();
-void NsCompTurbEnergy();
-void NsCompDualTimeStepSrc();
+void NsCalcBc();
+void NsCalcGamaT( int flag );
+void NsCalcRHS();
+void NsCalcInvFlux();
+void NsCalcVisFlux();
+void NsCalcSrcFlux();
+void NsCalcChemSrc();
+void NsCalcTurbEnergy();
+void NsCalcDualTimeStepSrc();
 
-void INsCompBc();
-void INsCompGamaT(int flag);
-void INsCompRHS();
-//void INsCompInvFlux();
-//void INsCompVisFlux();
-//void INsCompSrcFlux();
-void INsCompChemSrc();
-void INsCompTurbEnergy();
-//void INsCompDualTimeStepSrc();
+void INsCalcBc();
+void INsCalcGamaT(int flag);
+void INsCalcRHS();
+//void INsCalcInvFlux();
+//void INsCalcVisFlux();
+//void INsCalcSrcFlux();
+void INsCalcChemSrc();
+void INsCalcTurbEnergy();
+//void INsCalcDualTimeStepSrc();
 void INsCorrectPresscoef();
 //void INsCorrectSpeed();
-void INsCompInv();
-void INsCompVis();
-void INsCompSrc();
+void INsCalcInv();
+void INsCalcVis();
+void INsCalcSrc();
 void INsMomPred();
-void INsCompFaceflux();
-void INsCompPressCorrectEquandUpdatePress();
+void INsCalcFaceflux();
+void INsCalcPressCorrectEquandUpdatePress();
 void INsUpdateFaceflux();
-void INsCompSpeedCorrectandUpdateSpeed();
+void INsCalcSpeedCorrectandUpdateSpeed();
 
 
 EndNameSpace

@@ -131,7 +131,7 @@ void GridElem::PrepareUnsCalcGrid()
     //Continue to parse
     cout << " ScanElements()\n";
     this->elem_feature->ScanElements();
-    this->GenerateCompElement();
+    this->GenerateCalcElement();
 }
 
 void GridElem::InitCgnsElements()
@@ -155,7 +155,7 @@ void GridElem::ScanBcFace()
     }
 }
 
-void GridElem::GenerateCompElement()
+void GridElem::GenerateCalcElement()
 {
     int nElement =  this->elem_feature->eType->size();
 

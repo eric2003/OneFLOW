@@ -20,27 +20,42 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-
-#pragma once
-#include "HXDefine.h"
-#include <map>
-using namespace std;
+#include "CalcCoor.h"
 
 BeginNameSpace( ONEFLOW )
 
-class CompCoor
+CalcCoor::CalcCoor()
 {
-public:
-    CompCoor();
-    ~CompCoor();
-public:
-    int i, j, k;
-public:
-    bool operator < ( const CompCoor & rhs ) const;
-    void SetCoor( int i, int j, int k );
-};
+}
 
-typedef map< int, CompCoor > CoorMap;
+CalcCoor::~CalcCoor()
+{
+}
 
+void CalcCoor::SetCoor( int i, int j, int k )
+{
+    this->i = i;
+    this->j = j;
+    this->k = k;
+}
+
+bool CalcCoor::operator < ( const CalcCoor & rhs ) const
+{
+    if ( this->i == rhs.i )
+    {
+        if ( this->j == rhs.j )
+        {
+            return ( this->k < rhs.k );
+        }
+        else
+        {
+            return ( this->j < rhs.j );
+        }
+    }
+    else
+    {
+        return ( this->i < rhs.i );
+    }
+}
 
 EndNameSpace

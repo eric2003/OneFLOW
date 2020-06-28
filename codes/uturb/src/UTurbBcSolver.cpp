@@ -104,7 +104,7 @@ void UTurbBcSolver::CalcBcRegion()
 
         this->PrepareData();
 
-        this->CompFaceBc();
+        this->CalcFaceBc();
 
         this->UpdateBc();
     }

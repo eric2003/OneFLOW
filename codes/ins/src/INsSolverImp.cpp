@@ -54,10 +54,10 @@ void RegisterINsFunc()
 
 void INsInitFinal( StringField & data )
 {
-    INsCompGamaT( F_INNER );
+    INsCalcGamaT( F_INNER );
     ICalcLaminarViscosity( F_INNER );
-    INsCompBc();
-    INsCompGamaT( F_GHOST );
+    INsCalcBc();
+    INsCalcGamaT( F_GHOST );
     ICalcLaminarViscosity( F_GHOST );
     Grid * grid = Zone::GetGrid();
 
@@ -67,7 +67,7 @@ void INsInitFinal( StringField & data )
 
         GridState::gridLevel += 1;
 
-        NsCompBc();
+        NsCalcBc();
 
         GridState::gridLevel -= 1;
     }
@@ -80,10 +80,10 @@ void INsVisual( StringField & data )
 
 void INsCalcBoundary( StringField & data )
 {
-    INsCompGamaT( F_INNER );
+    INsCalcGamaT( F_INNER );
     ICalcLaminarViscosity( F_INNER );
-    INsCompBc();
-    INsCompGamaT( F_GHOST );
+    INsCalcBc();
+    INsCalcGamaT( F_GHOST );
     ICalcLaminarViscosity( F_GHOST );
 }
 

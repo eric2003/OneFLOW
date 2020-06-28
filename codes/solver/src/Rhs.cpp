@@ -62,10 +62,10 @@ Rhs::~Rhs()
 
 void Rhs::UpdateNsResiduals()
 {
-    NsCompRHS();
+    NsCalcRHS();
 }
 
-void NsCompBc()
+void NsCalcBc()
 {
     UNsBcSolver * uNsBcSolver = new UNsBcSolver();
     uNsBcSolver->Init();
@@ -73,7 +73,7 @@ void NsCompBc()
     delete uNsBcSolver;
 }
 
-void NsCompGamaT( int flag )
+void NsCalcGamaT( int flag )
 {
     UnsGrid * grid = Zone::GetUnsGrid();
 
@@ -102,57 +102,57 @@ void NsCompGamaT( int flag )
     }
 }
 
-void NsCompRHS()
+void NsCalcRHS()
 {
-    NsCompInvFlux();
+    NsCalcInvFlux();
 
-    NsCompVisFlux();
+    NsCalcVisFlux();
 
-    NsCompSrcFlux();
+    NsCalcSrcFlux();
 }
 
 
-void NsCompInvFlux()
+void NsCalcInvFlux()
 {
     UNsInvFlux * uNsInvFlux = new UNsInvFlux();
     uNsInvFlux->CalcFlux();
     delete uNsInvFlux;
 }
 
-void NsCompVisFlux()
+void NsCalcVisFlux()
 {
     UNsVisFlux * uNsVisFlux = new UNsVisFlux();
     uNsVisFlux->CalcFlux();
     delete uNsVisFlux;
 }
 
-void NsCompSrcFlux()
+void NsCalcSrcFlux()
 {
     if ( nscom.chemModel == 1 )
     {
-        NsCompChemSrc();
+        NsCalcChemSrc();
     }
 
-    NsCompTurbEnergy();
+    NsCalcTurbEnergy();
 
     //dual time step source
     if ( ctrl.idualtime == 1 )
     {
-        NsCompDualTimeStepSrc();
+        NsCalcDualTimeStepSrc();
     }
 }
 
-void NsCompChemSrc()
+void NsCalcChemSrc()
 {
     ;
 }
 
-void NsCompTurbEnergy()
+void NsCalcTurbEnergy()
 {
     ;
 }
 
-void NsCompDualTimeStepSrc()
+void NsCalcDualTimeStepSrc()
 {
     UNsUnsteady * unsUnsteady = new UNsUnsteady();
     unsUnsteady->CalcDualTimeSrc();
@@ -161,10 +161,10 @@ void NsCompDualTimeStepSrc()
 
 void Rhs::UpdateINsResiduals()
 {
-	INsCompRHS();
+	INsCalcRHS();
 }
 
-void INsCompBc()
+void INsCalcBc()
 {
 	UINsBcSolver * uINsBcSolver = new UINsBcSolver();
 	uINsBcSolver->Init();
@@ -172,7 +172,7 @@ void INsCompBc()
 	delete uINsBcSolver;
 }
 
-void INsCompGamaT(int flag)
+void INsCalcGamaT(int flag)
 {
 	UnsGrid * grid = Zone::GetUnsGrid();
 
@@ -201,55 +201,55 @@ void INsCompGamaT(int flag)
 	}
 }
 
-void INsCompRHS()
+void INsCalcRHS()
 {
-	INsCompInv();
+	INsCalcInv();
 
-	INsCompVis();
+	INsCalcVis();
 
-	INsCompSrc();
+	INsCalcSrc();
 
 	//INsMomPred();  //需要解动量方程组
 
-	INsCompFaceflux();
+	INsCalcFaceflux();
 
 	INsCorrectPresscoef();
 
-	INsCompPressCorrectEquandUpdatePress();  //需要解压力修正方程组，增设单元修正压力未知量
+	INsCalcPressCorrectEquandUpdatePress();  //需要解压力修正方程组，增设单元修正压力未知量
 
-	INsCompSpeedCorrectandUpdateSpeed();  //需要先增设界面修正速度未知量并进行求解,更新单元速度和压力
+	INsCalcSpeedCorrectandUpdateSpeed();  //需要先增设界面修正速度未知量并进行求解,更新单元速度和压力
 
 	INsUpdateFaceflux();   //更新界面流量
 
 }
 
-void INsCompInv()
+void INsCalcInv()
 {
 	UINsInvterm * uINsInvterm = new UINsInvterm();
 	uINsInvterm->CalcInvcoff();
 	delete uINsInvterm;
 }
 
-void INsCompVis()
+void INsCalcVis()
 {
 	UINsVisterm * uINsVisterm = new UINsVisterm();
 	uINsVisterm->CalcViscoff();
 	delete uINsVisterm;
 }
 
-void INsCompSrc()
+void INsCalcSrc()
 {
 	//if (inscom.chemModel == 1)
 	//{
-	//	INsCompChemSrc();
+	//	INsCalcChemSrc();
 	//}
 
-	//INsCompTurbEnergy();
+	//INsCalcTurbEnergy();
 
 	//dual time step source
 	//if (ctrl.idualtime == 1)
 	//{
-	//	INsCompDualTimeStepSrc();
+	//	INsCalcDualTimeStepSrc();
 	//}
 	UINsVisterm * uINsVisterm = new UINsVisterm();
 	uINsVisterm->CalcSrc();
@@ -263,7 +263,7 @@ void INsMomPred()
 	delete uINsInvterm;
 }
 
-void INsCompFaceflux()
+void INsCalcFaceflux()
 {
 	UINsInvterm * uINsInvterm = new UINsInvterm();
 	uINsInvterm->CalcFaceflux();
@@ -277,7 +277,7 @@ void INsCorrectPresscoef()
 	delete uINsInvterm;
 }
 
-void INsCompPressCorrectEquandUpdatePress()
+void INsCalcPressCorrectEquandUpdatePress()
 {
 	UINsInvterm * uINsInvterm = new UINsInvterm();
 	uINsInvterm->CalcPressCorrectEqu();
@@ -291,7 +291,7 @@ void INsUpdateFaceflux()
 	delete uINsInvterm;
 }
 
-void INsCompSpeedCorrectandUpdateSpeed()
+void INsCalcSpeedCorrectandUpdateSpeed()
 {
 	UINsInvterm * uINsInvterm = new UINsInvterm();
 	uINsInvterm->UpdateSpeed();
@@ -309,17 +309,17 @@ void INsCompSpeedCorrectandUpdateSpeed()
 
 
 
-void INsCompChemSrc()
+void INsCalcChemSrc()
 {
 	;
 }
 
-void INsCompTurbEnergy()
+void INsCalcTurbEnergy()
 {
 	;
 }
 
-//void INsCompDualTimeStepSrc()
+//void INsCalcDualTimeStepSrc()
 //{
 //	UINsUnsteady * uinsUnsteady = new UINsUnsteady();
 //	uinsUnsteady->CalcDualTimeSrc();

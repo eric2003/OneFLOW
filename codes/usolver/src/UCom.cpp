@@ -90,7 +90,7 @@ void UGeom::Init()
 
     ug.blankf = & cellTopo->blank;
 
-    cellTopo->CompC2f( faceTopo );
+    cellTopo->CalcC2f( faceTopo );
 
     ug.c2f = & cellTopo->c2f;
 

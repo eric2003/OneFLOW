@@ -55,10 +55,10 @@ public:
     G2LMapping * g2l;
 public:
     void Alloc( UnsGrid * grid );
-    void CompL2G    ( UnsGrid * ggrid, int zid, UnsGrid * grid );
-    void CompL2GNode( UnsGrid * ggrid, int zid, UnsGrid * grid );
-    void CompL2GFace( UnsGrid * ggrid, int zid, UnsGrid * grid );
-    void CompL2GCell( UnsGrid * ggrid, int zid, UnsGrid * grid );
+    void CalcL2G    ( UnsGrid * ggrid, int zid, UnsGrid * grid );
+    void CalcL2GNode( UnsGrid * ggrid, int zid, UnsGrid * grid );
+    void CalcL2GFace( UnsGrid * ggrid, int zid, UnsGrid * grid );
+    void CalcL2GCell( UnsGrid * ggrid, int zid, UnsGrid * grid );
 };
 
 class G2LMapping
@@ -105,20 +105,20 @@ public:
     void GenerateMultiZoneGrid();
     void CreatePart();
     void AllocPart();
-    void BuildComputationalGrid();
-    void BuildComputationalGrid( int zid );
+    void BuildCalcutationalGrid();
+    void BuildCalcutationalGrid( int zid );
     void PreProcess();
     void PostProcess();
 public:
-    void CompGC2N();
-    void CompG2lCell();
-    void CompG2lFace( UnsGrid * ggrid, int zid, UnsGrid * grid );
-    void CompG2lNode( UnsGrid * ggrid, int zid, UnsGrid * grid );
+    void CalcGC2N();
+    void CalcG2lCell();
+    void CalcG2lFace( UnsGrid * ggrid, int zid, UnsGrid * grid );
+    void CalcG2lNode( UnsGrid * ggrid, int zid, UnsGrid * grid );
     int GetNCell( UnsGrid * ggrid, int zid );
     void CreateL2g( UnsGrid * ggrid, int zid, UnsGrid * grid );
     void SetCoor( UnsGrid * ggrid, int zid, UnsGrid * grid );
     void SetGeometricRelationship( UnsGrid * ggrid, int zid, UnsGrid * grid );
-    void CompF2N( UnsGrid * ggrid, int zid, UnsGrid * grid );
+    void CalcF2N( UnsGrid * ggrid, int zid, UnsGrid * grid );
     void SetF2CAndBC( UnsGrid * ggrid, int zid, UnsGrid * grid );
     void SetInterface( UnsGrid * ggrid, int zid, UnsGrid * grid );
 };

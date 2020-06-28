@@ -38,7 +38,7 @@ TurbUpdate::~TurbUpdate()
 {
 }
 
-void TurbUpdate::CompFlowField2Equ()
+void TurbUpdate::CalcFlowField2Equ()
 {
     for ( int iEqu = 0; iEqu < turbcom.nEqu; ++ iEqu )
     {
@@ -55,7 +55,7 @@ void TurbUpdate::CompFlowField2Equ()
     }
 }
 
-void TurbUpdate::CompFlowField1Equ()
+void TurbUpdate::CalcFlowField1Equ()
 {
     for ( int iEqu = 0; iEqu < turbcom.nEqu; ++ iEqu )
     {

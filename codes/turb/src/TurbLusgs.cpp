@@ -153,7 +153,7 @@ bool TurbLusgs::UpdateSweep( int iSweep )
     return false;
 }
 
-void TurbLusgs::CompLowerChange()
+void TurbLusgs::CalcLowerChange()
 {
     if ( turblu.numberOfSweeps > 1 )
     {
@@ -203,7 +203,7 @@ void TurbLusgs::CompLowerChange()
     }
 }
 
-void TurbLusgs::CompUpperChange()
+void TurbLusgs::CalcUpperChange()
 {
     if ( turblu.numberOfSweeps > 1 )
     {

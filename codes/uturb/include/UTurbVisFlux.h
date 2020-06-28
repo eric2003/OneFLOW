@@ -51,7 +51,7 @@ public:
     void UpdateFaceVisFlux();
 public:
     void CalcFaceWeight();
-    void CompGradCoef();
+    void CalcGradCoef();
     void PrepareCellGeom();
 public:
     void AverMethod();
@@ -64,10 +64,10 @@ public:
     void AverGrad();
     void AverFaceValue();
     void AverOtherFaceValue();
-    void CompNormalGrad();
-    void CompTestMethod();
-    void CompNew1Method();
-    void CompNew2Method();
+    void CalcNormalGrad();
+    void CalcTestMethod();
+    void CalcNew1Method();
+    void CalcNew2Method();
     void CorrectFaceGrad();
     void ModifyFaceGrad();
     void AccurateFaceValue();

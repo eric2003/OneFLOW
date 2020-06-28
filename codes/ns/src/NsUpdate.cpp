@@ -37,7 +37,7 @@ NsUpdate::~NsUpdate()
 {
 }
 
-void NsUpdate::CompFlowField()
+void NsUpdate::CalcFlowField()
 {
     PrimToQ( nscom.prim0, nscom.gama, nscom.q0 );
 
@@ -66,7 +66,7 @@ void NsUpdate::CompFlowField()
     }
 }
 
-void NsUpdate::CompFlowFieldHyperSonic()
+void NsUpdate::CalcFlowFieldHyperSonic()
 {
     PrimToQ( nscom.prim0, nscom.gama, nscom.q0 );
 
@@ -130,7 +130,7 @@ void NsUpdate::CompFlowFieldHyperSonic()
     }
 }
 
-void NsUpdate::CompFlowFieldHyperSonic_Temperature()
+void NsUpdate::CalcFlowFieldHyperSonic_Temperature()
 {
     PrimToQ( nscom.prim0, nscom.gama, nscom.q0 );
 

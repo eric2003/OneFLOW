@@ -61,7 +61,7 @@ public:
     void Init( UInt nBFace );
     int GetNBFace();
     int DomputeNIFace();
-    int CompNumWallFace();
+    int CalcNumWallFace();
     void CreateI2B( InterFace * interFace );
 public:
     void CreateBcRegion();
@@ -91,7 +91,7 @@ public:
     void PreProcess();
     bool ExistInterface();
     void Update();
-    void CompBcType( IntField & bcTypeList );
+    void CalcBcType( IntField & bcTypeList );
 };
 
 class BasicRegion

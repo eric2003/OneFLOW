@@ -159,7 +159,7 @@ void MDomain::CreateInpFaceList( HXVector< Face2D * > &facelist )
         face2d->ctrlpoints = sDomain->ctrlpoints;
         BlkF2C & face_struct = blkFaceSolver.myFaceSolver.face2Block[ face2d->face_id ];
         face2d->bcType = face_struct.bctype;
-        face2d->CompStEd( coorMap );
+        face2d->CalcStEd( coorMap );
         facelist.push_back( face2d );
     }
 }

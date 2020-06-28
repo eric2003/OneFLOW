@@ -63,7 +63,7 @@ void UINsInvterm::CalcLimiter()
 void UINsInvterm::CalcInvFace()  //不改动
 {
     //uins_grad.Init();
-    //uins_grad.CompGrad();
+    //uins_grad.CalcGrad();
 
     this->CalcLimiter();   //不改
 
