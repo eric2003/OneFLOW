@@ -44,10 +44,10 @@ void ReadScriptFileNameList( vector< string > & scriptFileNameList );
 void ReadMultiScriptFiles( vector< string > & scriptFileNameList );
 void BroadcastControlParameterToAllProcessors();
 
-void DompressData( DataBase * dataBase, DataBook *& dataBook );
+void CompressData( DataBase * dataBase, DataBook *& dataBook );
 void DecompressData( DataBase * dataBase, DataBook * dataBook );
 
-void DompressData( DataBook *& dataBook );
+void CompressData( DataBook *& dataBook );
 void DecompressData( DataBook * dataBook );
 
 EndNameSpace

@@ -114,7 +114,7 @@ void Sod::Run()
 void Sod::Theory()
 {
 //  Domputes the exact solution for the Sod's shock-tube problem.
-//  See J.D. Anderson, Modern Dompressible Flow (1984) for details.
+//  See J.D. Anderson, Modern Compressible Flow (1984) for details.
 //
 //     --------------------------------------------
 //     |                     |                    |

@@ -173,7 +173,7 @@ void HXBcast( DataBook * dataBook, int rootid )
     dataBook->Bcast( rootid );
 }
 
-void HXBcast( DATA_COMPRESS dataDompression, DATA_DECOMPRESS dataDecompression, int rootid )
+void HXBcast( DATA_COMPRESS dataCompression, DATA_DECOMPRESS dataDecompression, int rootid )
 {
     int nProc = Parallel::GetNProc();
 
@@ -183,8 +183,8 @@ void HXBcast( DATA_COMPRESS dataDompression, DATA_DECOMPRESS dataDecompression, 
 
     if ( Parallel::GetPid() == rootid )
     {
-        //Dompress data, or store data to dataBook
-        dataDompression( dataBook );
+        //Compress data, or store data to dataBook
+        dataCompression( dataBook );
     }
 
     //Pass the dataBook to the required processes

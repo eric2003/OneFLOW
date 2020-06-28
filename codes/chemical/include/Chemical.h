@@ -97,7 +97,7 @@ public:
 public:
     void Read( DataBook * dataBook );
     void Write( DataBook * dataBook );
-    void DompressData( DataBook *& dataBook );
+    void CompressData( DataBook *& dataBook );
     void DecompressData( DataBook * dataBook );
 public:
     void DomputeDimCps( Real tm, RealField & dim_cps );
@@ -142,7 +142,7 @@ public:
 public:
 	void INsRead(DataBook * dataBook);
 	void INsWrite(DataBook * dataBook);
-	void INsDompressData(DataBook *& dataBook);
+	void INsCompressData(DataBook *& dataBook);
 	void INsDecompressData(DataBook * dataBook);
 public:
 	void INsDomputeDimCps(Real tm, RealField & dim_cps);
@@ -151,7 +151,7 @@ public:
 
 extern Chemical chem;
 
-void ChemicalDompressData( DataBook *& dataBook );
+void ChemicalCompressData( DataBook *& dataBook );
 void ChemicalDecompressData( DataBook * dataBook );
 
 EndNameSpace

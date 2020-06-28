@@ -76,7 +76,7 @@ void Chemical::InitGasModel()
     {
         ReadGasModel();
     }
-    ONEFLOW::HXBcast( ChemicalDompressData, ChemicalDecompressData, Parallel::GetServerid() );
+    ONEFLOW::HXBcast( ChemicalCompressData, ChemicalDecompressData, Parallel::GetServerid() );
 }
 
 void Chemical::InitWorkingSpace()
@@ -517,7 +517,7 @@ void Chemical::DomputeMixtureByMassFraction( RealField & cs, RealField & var, Re
     }
 }
 
-void Chemical::DompressData( DataBook *& dataBook )
+void Chemical::CompressData( DataBook *& dataBook )
 {
     HXAppend( dataBook, nSpecies );
     HXAppend( dataBook, nReaction );
@@ -536,9 +536,9 @@ void Chemical::DecompressData( DataBook * dataBook )
     Read( dataBook );
 }
 
-void ChemicalDompressData( DataBook *& dataBook )
+void ChemicalCompressData( DataBook *& dataBook )
 {
-    chem.DompressData( dataBook );
+    chem.CompressData( dataBook );
 }
 
 void ChemicalDecompressData( DataBook * dataBook )
@@ -585,7 +585,7 @@ void Chemical::INsInitGasModel()
 	{
 		INsReadGasModel();
 	}
-	ONEFLOW::HXBcast(ChemicalDompressData, ChemicalDecompressData, Parallel::GetServerid());
+	ONEFLOW::HXBcast(ChemicalCompressData, ChemicalDecompressData, Parallel::GetServerid());
 }
 
 void Chemical::INsInitWorkingSpace()
@@ -1026,7 +1026,7 @@ void Chemical::INsDomputeMixtureByMassFraction(RealField & cs, RealField & var, 
 	}
 }
 
-void Chemical::INsDompressData(DataBook *& dataBook)
+void Chemical::INsCompressData(DataBook *& dataBook)
 {
 	HXAppend(dataBook, nSpecies);
 	HXAppend(dataBook, nReaction);
@@ -1045,9 +1045,9 @@ void Chemical::INsDecompressData(DataBook * dataBook)
 	INsRead(dataBook);
 }
 
-//void INsChemicalDompressData(DataBook *& dataBook)
+//void INsChemicalCompressData(DataBook *& dataBook)
 //{
-	//chem.INsDompressData(dataBook);
+	//chem.INsCompressData(dataBook);
 //}
 
 //void INsChemicalDecompressData(DataBook * dataBook)
