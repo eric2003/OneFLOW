@@ -43,7 +43,7 @@ public:
     bool operator < ( const PBlk * rhs ) const;
 };
 
-class ComparePBlk
+class DomparePBlk
 {
 public:
     bool operator()( const PBlk * lhs, const PBlk * rhs ) const 
@@ -97,7 +97,7 @@ public:
     ~PBlkSet();
 public:
     IntField id;
-    HXVector< set< PBlk *, ComparePBlk > * > pinfo;
+    HXVector< set< PBlk *, DomparePBlk > * > pinfo;
 public:
     void ReSize( int nSize );
     void Add( int idx, PBlk * pblk );
@@ -105,7 +105,7 @@ public:
     void CompDomainPatch( int nZone, MultiDomain & md );
     void CompDomainPatch( int iZone, int jZone, MultiDomain & md );
     bool CrossDomain( int iZone, int idomain, int jZone, int jdomain, PatchBox & box_i, PatchBox & box_j );
-    bool BlkDomainInSet( int zoneid, int idomain, set< PBlk *, ComparePBlk > * pset, PBlk *& pblk );
+    bool BlkDomainInSet( int zoneid, int idomain, set< PBlk *, DomparePBlk > * pset, PBlk *& pblk );
     bool CheckPBlkList( HXVector< PBlk * > & pblk_list, PatchBox & box );
 
 };

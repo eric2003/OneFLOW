@@ -323,8 +323,8 @@ void PBlkSet::Add( int idx, PBlk * pblk )
     int nSize = this->id.size();
     if ( idx < nSize )
     {
-        set< PBlk *, ComparePBlk > * pset = pinfo[ idx ];
-        set< PBlk *, ComparePBlk >::iterator iter;
+        set< PBlk *, DomparePBlk > * pset = pinfo[ idx ];
+        set< PBlk *, DomparePBlk >::iterator iter;
         iter = pset->find( pblk );
         if ( iter == pset->end() )
         {
@@ -338,7 +338,7 @@ void PBlkSet::Add( int idx, PBlk * pblk )
     else
     {
         this->ReSize( nSize + 1 );
-        set< PBlk *, ComparePBlk > * pset = new set< PBlk *, ComparePBlk >;
+        set< PBlk *, DomparePBlk > * pset = new set< PBlk *, DomparePBlk >;
         pinfo[ idx ] = pset;
         pset->insert( pblk );
         this->id[ idx ] = idx;
@@ -408,9 +408,9 @@ void PBlkSet::CompDomainPatch( int iZone, int jZone, MultiDomain & md )
     }
 }
 
-bool PBlkSet::BlkDomainInSet( int zoneid, int idomain, set< PBlk *, ComparePBlk > * pset, PBlk *& pblk )
+bool PBlkSet::BlkDomainInSet( int zoneid, int idomain, set< PBlk *, DomparePBlk > * pset, PBlk *& pblk )
 {
-    set< PBlk *, ComparePBlk >::iterator iter;
+    set< PBlk *, DomparePBlk >::iterator iter;
 
     for ( iter = pset->begin(); iter != pset->end(); ++ iter )
     {
@@ -520,8 +520,8 @@ bool PBlkSet::CrossDomain( int iZone, int idomain, int jZone, int jdomain, Patch
     for ( int i = 0; i < nSize; ++ i )
     {
         int nn = pinfo[ i ]->size();
-        set< PBlk *, ComparePBlk > * pset = pinfo[ i ];
-        set< PBlk *, ComparePBlk >::iterator iter;
+        set< PBlk *, DomparePBlk > * pset = pinfo[ i ];
+        set< PBlk *, DomparePBlk >::iterator iter;
 
         PBlk * pblk1 = 0;
         PBlk * pblk2 = 0;

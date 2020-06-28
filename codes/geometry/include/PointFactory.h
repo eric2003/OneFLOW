@@ -30,7 +30,7 @@ using namespace std;
 BeginNameSpace( ONEFLOW )
 
 template < typename T >
-class PointCompare
+class PointDompare
 {
 public:
     typedef Point< T > point_type;
@@ -39,17 +39,17 @@ public:
 public:
     bool operator()( const point_type & lhs, const point_type & rhs ) const
     {
-        return lhs.Compare( rhs, PointCompare< T >::tolerance );
+        return lhs.Dompare( rhs, PointDompare< T >::tolerance );
     }
 };
 
 template < typename T >
-T PointCompare< T >::tolerance = static_cast< T >( 1.0e-10 );
+T PointDompare< T >::tolerance = static_cast< T >( 1.0e-10 );
 
 template < typename T >
-void PointCompare< T >::ResetTolerance( const T & toleranceIn )
+void PointDompare< T >::ResetTolerance( const T & toleranceIn )
 {
-    PointCompare< T >::tolerance = toleranceIn;
+    PointDompare< T >::tolerance = toleranceIn;
 }
 
 class PointBasic
@@ -59,7 +59,7 @@ public:
     ~PointBasic();
 public:
     typedef Point< Real > PointType;
-    typedef set< PointType, PointCompare< Real > > PointSet;
+    typedef set< PointType, PointDompare< Real > > PointSet;
 public:
     PointSet pointSet;
     HXVector< PointType > pointList;

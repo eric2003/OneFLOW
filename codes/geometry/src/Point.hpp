@@ -131,7 +131,7 @@ bool Point<T>::operator < ( const Point<T> & rhs ) const
 }
 
 template < typename T >
-bool Point<T>::Compare( const Point<T> & rhs, const T & tolerance ) const
+bool Point<T>::Dompare( const Point<T> & rhs, const T & tolerance ) const
 {
     T dx = x - rhs.x;
     T dy = y - rhs.y;
