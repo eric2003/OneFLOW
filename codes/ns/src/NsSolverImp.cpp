@@ -48,7 +48,7 @@ void RegisterNsFunc()
     REGISTER_DATA_CLASS( NsPostprocess );
     REGISTER_DATA_CLASS( NsFinalPostprocess );
     REGISTER_DATA_CLASS( NsInitSolver );
-    REGISTER_DATA_CLASS( NsCmpBoundary );
+    REGISTER_DATA_CLASS( NsCalcBoundary );
     REGISTER_DATA_CLASS( DumpHeatFluxCoeff );
     SetPlateTask();
     SetTurbPlateTask();
@@ -81,7 +81,7 @@ void NsVisual( StringField & data )
     ;
 }
 
-void NsCmpBoundary( StringField & data )
+void NsCalcBoundary( StringField & data )
 {
     NsCompGamaT( F_INNER );
     CompLaminarViscosity( F_INNER );

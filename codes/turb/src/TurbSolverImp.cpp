@@ -38,7 +38,7 @@ void SetTurbFunc()
     REGISTER_DATA_CLASS( TurbPostprocess );
     REGISTER_DATA_CLASS( TurbFinalPostprocess );
     REGISTER_DATA_CLASS( TurbInitSolver );
-    REGISTER_DATA_CLASS( TurbCmpBoundary );
+    REGISTER_DATA_CLASS( TurbCalcBoundary );
 }
 
 void TurbInitFinal( StringField & data )
@@ -48,7 +48,7 @@ void TurbInitFinal( StringField & data )
     TurbCalcBc();
 }
 
-void TurbCmpBoundary( StringField & data )
+void TurbCalcBoundary( StringField & data )
 {
     CalcTurbulentViscosity();
 

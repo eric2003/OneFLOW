@@ -105,7 +105,7 @@ void CreateWallDist()
 {
     SolverState::tid = GRID_SOLVER;
     SsSgTask( "FILL_WALL_STRUCT" );
-    SsSgTask( "CMP_WALL_DIST" );
+    SsSgTask( "CALC_WALL_DIST" );
     FreeWallStruct();
     SsSgTask( "WRITE_WALL_DIST" );
 }

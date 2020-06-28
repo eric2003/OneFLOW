@@ -13,7 +13,7 @@ UPDATE_INTERFACE_GRAD     , CPrepareInterfaceField, 2, INTERFACE_GRAD, GREAT_SEN
 UPDATE_UNSTEADY_FLOW      , CUpdateUnsteadyFlow, 0
 LOAD_RESIDUALS            , CLoadResiduals, 1, FIELD_RHS
 UPDATE_RESIDUALS          , CTurbUpdateResiduals, 0
-CMP_BOUNDARY              , CTurbCmpBoundary, 0
+CALC_BOUNDARY             , CTurbCalcBoundary, 0
 ZERO_RESIDUALS            , CZeroResiduals, 0
 LOAD_Q                    , CLoadQ, 1, FIELD_FLOW
 RESTRICT_ALL_Q            , CRestrictAllQ, 1, FIELD_FLOW

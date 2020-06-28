@@ -48,7 +48,7 @@ void RegisterINsFunc()
     REGISTER_DATA_CLASS( INsPostprocess );
     REGISTER_DATA_CLASS( INsFinalPostprocess );
     REGISTER_DATA_CLASS( INsInitSolver );
-    REGISTER_DATA_CLASS( INsCmpBoundary );
+    REGISTER_DATA_CLASS( INsCalcBoundary );
     REGISTER_DATA_CLASS( IDumpHeatFluxCoeff );
 }
 
@@ -78,7 +78,7 @@ void INsVisual( StringField & data )
     ;
 }
 
-void INsCmpBoundary( StringField & data )
+void INsCalcBoundary( StringField & data )
 {
     INsCompGamaT( F_INNER );
     ICalcLaminarViscosity( F_INNER );

@@ -88,9 +88,9 @@ void TimeIntegral::RungeKutta()
 
             ONEFLOW::SsSgTask( "LOAD_RESIDUALS"   );
             ONEFLOW::SsSgTask( "UPDATE_RESIDUALS" );
-            ONEFLOW::SsSgTask( "CMP_LHS"          );
+            ONEFLOW::SsSgTask( "CALC_LHS"         );
             ONEFLOW::SsSgTask( "UPDATE_FLOWFIELD" );
-            ONEFLOW::SsSgTask( "CMP_BOUNDARY"     );
+            ONEFLOW::SsSgTask( "CALC_BOUNDARY"    );
         }
     }
     else
@@ -100,9 +100,9 @@ void TimeIntegral::RungeKutta()
         ONEFLOW::SsSgTask( "CMP_TIME_STEP"    );
         ONEFLOW::SsSgTask( "LOAD_RESIDUALS"   );
         ONEFLOW::SsSgTask( "UPDATE_RESIDUALS" );
-        ONEFLOW::SsSgTask( "CMP_LHS"          );
+        ONEFLOW::SsSgTask( "CALC_LHS"         );
         ONEFLOW::SsSgTask( "UPDATE_FLOWFIELD" );
-        ONEFLOW::SsSgTask( "CMP_BOUNDARY"     );
+        ONEFLOW::SsSgTask( "CALC_BOUNDARY"    );
     }
 }
 
@@ -122,7 +122,7 @@ void TimeIntegral::Lusgs()
     }
 
     ONEFLOW::SsSgTask( "UPDATE_FLOWFIELD_LUSGS" );
-    ONEFLOW::SsSgTask( "CMP_BOUNDARY"           );
+    ONEFLOW::SsSgTask( "CALC_BOUNDARY"           );
 }
 
 EndNameSpace

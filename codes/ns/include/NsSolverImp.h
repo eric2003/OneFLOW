@@ -34,7 +34,7 @@ DEFINE_DATA_CLASS( NsImplicitMethod );
 DEFINE_DATA_CLASS( NsPostprocess );
 DEFINE_DATA_CLASS( NsFinalPostprocess );
 DEFINE_DATA_CLASS( NsInitSolver );
-DEFINE_DATA_CLASS( NsCmpBoundary );
+DEFINE_DATA_CLASS( NsCalcBoundary );
 DEFINE_DATA_CLASS( DumpHeatFluxCoeff );
 
 void RegisterNsFunc();
