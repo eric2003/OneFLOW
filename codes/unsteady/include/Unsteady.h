@@ -44,7 +44,7 @@ public:
     USDFunc criFun;
     int sTid;
 public:
-    virtual void CmpUnsteadyCriterion() {};
+    virtual void CalcUnsteadyCriterion() {};
     void UpdateUnsteady( int sTid );
 };
 

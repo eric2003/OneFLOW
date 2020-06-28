@@ -38,7 +38,7 @@ public:
     void PrepareResidual();
     void CmpDualTimeResidual();
     void CmpDualTimeSrc();
-    void CmpUnsteadyCriterion();
+    void CalcUnsteadyCriterion();
 };
 
 EndNameSpace

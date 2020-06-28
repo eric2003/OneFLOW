@@ -117,7 +117,7 @@ void UUnsteady::CmpDualTimeSrc()
     }
 }
 
-void UUnsteady::CmpUnsteadyCriterion()
+void UUnsteady::CalcUnsteadyCriterion()
 {
     data->ZeroData();
 

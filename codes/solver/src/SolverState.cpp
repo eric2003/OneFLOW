@@ -124,7 +124,7 @@ bool SolverState::Converge()
     for ( int iSolver = 0; iSolver < SolverState::nSolver; ++ iSolver )
     {
         SolverState::id = iSolver;
-        ONEFLOW::SsSgTask( "CMP_UNSTEADY_CRITERION" );
+        ONEFLOW::SsSgTask( "CALC_UNSTEADY_CRITERION" );
     }
     
     return flag;

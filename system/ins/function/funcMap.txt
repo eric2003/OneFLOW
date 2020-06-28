@@ -33,6 +33,6 @@ INIT_LUSGS                , CLusgsInit, 0
 LUSGS_LOWER_SWEEP         , CLusgsLowerSweep, 0
 LUSGS_UPPER_SWEEP         , CLusgsUpperSweep, 0
 IMPLICIT_METHOD           , CINsImplicitMethod, 0
-CMP_UNSTEADY_CRITERION, CCmpUnsteadyCriterion, 0
+CALC_UNSTEADY_CRITERION   , CCalcUnsteadyCriterion, 0
 DUMP_PRESSURE_COEFF       , CDumpPressureCoeff, 0
 DUMP_HEATFLUX_COEFF       , CIDumpHeatFluxCoeff, 0

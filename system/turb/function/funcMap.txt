@@ -30,4 +30,4 @@ ZERO_DQ_FIELD             , CSetField, 2, turbdq, 0.0
 INIT_LUSGS                , CLusgsInit, 0
 LUSGS_LOWER_SWEEP         , CLusgsLowerSweep, 0
 LUSGS_UPPER_SWEEP         , CLusgsUpperSweep, 0
-Cmp_UNSTEADY_CRITERION, CCmpUnsteadyCriterion, 0
+CALC_UNSTEADY_CRITERION   , CCalcUnsteadyCriterion, 0

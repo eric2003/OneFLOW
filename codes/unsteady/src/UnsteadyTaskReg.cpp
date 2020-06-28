@@ -61,7 +61,7 @@ REGISTER_TASK( RegisterUnsteadyTask )
 void RegisterUnsteadyTask()
 {
     REGISTER_DATA_CLASS( UpdateUnsteadyFlow );
-    REGISTER_DATA_CLASS( CmpUnsteadyCriterion );
+    REGISTER_DATA_CLASS( CalcUnsteadyCriterion );
 }
 
 
@@ -74,11 +74,11 @@ void UpdateUnsteadyFlow( StringField & data )
     delete unsteady;
 }
 
-void CmpUnsteadyCriterion( StringField & data )
+void CalcUnsteadyCriterion( StringField & data )
 {
     int sTid = SolverState::tid;
     Unsteady * unsteady = CreateUnsteady( sTid );
-    unsteady->CmpUnsteadyCriterion();
+    unsteady->CalcUnsteadyCriterion();
     delete unsteady;
 }
 
