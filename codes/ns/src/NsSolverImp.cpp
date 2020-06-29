@@ -22,7 +22,7 @@ License
 
 #include "NsSolverImp.h"
 #include "SolverImp.h"
-#include "UTimeTtep.h"
+#include "UTimeStep.h"
 #include "Zone.h"
 #include "GridState.h"
 #include "UNsVisFlux.h"

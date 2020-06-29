@@ -20,7 +20,7 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "TimeTtep.h"
+#include "TimeStep.h"
 #include "Iteration.h"
 #include "NsCom.h"
 #include "HXMath.h"

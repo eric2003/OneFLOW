@@ -20,7 +20,7 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "UTimeTtep.h"
+#include "UTimeStep.h"
 #include "NsCom.h"
 #include "UNsCom.h"
 #include "UCom.h"
