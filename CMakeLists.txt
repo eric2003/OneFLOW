@@ -23,6 +23,9 @@ set(MY_WORKING_DIR OneFLOW)
 set(PRJ_ROOT_DIR ${CMAKE_SOURCE_DIR})
 message(STATUS "PRJ_ROOT_DIR is ${PRJ_ROOT_DIR}.")
 
+set(OneFLOW_CMAKE_DIR "${CMAKE_SOURCE_DIR}/cmake")
+list(INSERT CMAKE_MODULE_PATH 0 "${OneFLOW_CMAKE_DIR}")
+
 #output message:
 message(STATUS "Welcome to Build Project ${CMAKE_PROJECT_NAME}.")
 message(STATUS "The OS is ${CMAKE_SYSTEM_NAME}, version ${CMAKE_SYSTEM_VERSION}.")
@@ -52,7 +55,8 @@ endif(WIN32)
 
 #message(STATUS "The new CMAKE_CXX_FLAGS is ${CMAKE_CXX_FLAGS}")
 
-include(UtilFunction.cmake)
+#include(UtilFunction.cmake)
+include(UtilFunction)
 
 #look for CMakeLists.txt in subdirectory <codes> and build an executable target:
 add_subdirectory(codes ${MY_WORKING_DIR})
