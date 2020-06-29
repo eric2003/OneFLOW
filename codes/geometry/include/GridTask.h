@@ -29,18 +29,18 @@ BeginNameSpace( ONEFLOW )
 DEFINE_DATA_CLASS( AllocWallDist );
 DEFINE_DATA_CLASS( ReadWallDist  );
 DEFINE_DATA_CLASS( DumpWallDist  );
-DEFINE_DATA_CLASS( CreateCmpMetricsTask  );
-DEFINE_DATA_CLASS( CmpMetrics );
+DEFINE_DATA_CLASS( CreateCalcMetricsTask  );
+DEFINE_DATA_CLASS( CalcMetrics );
 DEFINE_DATA_CLASS( SwapCellCenter  );
 DEFINE_DATA_CLASS( DecodeCellCenter );
 
 void SetGridFunc();
 
-class CmpMetricsTask : public Task
+class CalcMetricsTask : public Task
 {
 public:
-    CmpMetricsTask () {};
-    ~CmpMetricsTask() {};
+    CalcMetricsTask () {};
+    ~CalcMetricsTask() {};
 public:
     void Run();
 };

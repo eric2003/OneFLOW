@@ -71,8 +71,8 @@ public:
     void Init();
     void Set( int imin, int imax, int jmin, int jmax, int kmin, int kmax );
     void GenList();
-    void CmpNormal();
-    void CmpIdMap( PatchBox * box );
+    void CalcNormal();
+    void CalcIdMap( PatchBox * box );
 };
 
 class MultiDomain
@@ -102,8 +102,8 @@ public:
     void ReSize( int nSize );
     void Add( int idx, PBlk * pblk );
     void Analysys();
-    void CmpDomainPatch( int nZone, MultiDomain & md );
-    void CmpDomainPatch( int iZone, int jZone, MultiDomain & md );
+    void CalcDomainPatch( int nZone, MultiDomain & md );
+    void CalcDomainPatch( int iZone, int jZone, MultiDomain & md );
     bool CrossDomain( int iZone, int idomain, int jZone, int jdomain, PatchBox & box_i, PatchBox & box_j );
     bool BlkDomainInSet( int zoneid, int idomain, set< PBlk *, ComparePBlk > * pset, PBlk *& pblk );
     bool CheckPBlkList( HXVector< PBlk * > & pblk_list, PatchBox & box );
@@ -135,7 +135,7 @@ public:
     int imin, imax, jmin, jmax, kmin, kmax;
     int idir;
 public:
-    void CmpIdir();
+    void CalcIdir();
     void Run();
     void RunI();
 };
@@ -155,9 +155,9 @@ public:
 public:
     void GeneInp();
     void OutputInp( GridMediator * gridMediator );
-    void CmpFacePoint( StrGrid * grid, PointSearch * pointSearch, IjkBox * ijkBox, int zId, PBlkSet * pblkSet );
-    void CmpDomainPatch( int nZone, GridMediator * gridMediator );
-    void CmpDomainPatch( int iZone, int jZone, GridMediator * gridMediator );
+    void CalcFacePoint( StrGrid * grid, PointSearch * pointSearch, IjkBox * ijkBox, int zId, PBlkSet * pblkSet );
+    void CalcDomainPatch( int nZone, GridMediator * gridMediator );
+    void CalcDomainPatch( int iZone, int jZone, GridMediator * gridMediator );
     void GetId( int zid, int i, int j, int k, int & id, GridMediator * gridMediator, PointSearch * pointSearch );
     void DumpCoor( int zid, int i, int j, int k, GridMediator * gridMediator, fstream & file );
     void Dump( MultiDomain * md, GridMediator * gridMediator, PointSearch * pointSearch );

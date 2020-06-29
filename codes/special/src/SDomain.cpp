@@ -158,13 +158,13 @@ void SDomain::SetRemainingCtrlPoint( IntField & idxList )
 
     int pt = this->ctrlpoints[ ip ];
 
-    CompCoor coor;
+    CalcCoor coor;
     coor.SetCoor( mi, mj, mk );
-    coorMap->insert( pair<int, CompCoor>( pt, coor ) );
+    coorMap->insert( pair<int, CalcCoor>( pt, coor ) );
 }
 
 
-bool SDomain::ComputeSingleDomainCoor()
+bool SDomain::CalcSingleDomainCoor()
 {
     int nCtrlPoint = this->ctrlpoints.size();
     int nCount = 0;
@@ -190,9 +190,9 @@ bool SDomain::ComputeSingleDomainCoor()
     }
     else if ( nCount == 4 )
     {
-        this->ComputeDim2D();
+        this->CalcDim2D();
         int closedLine = 1;
-        this->ComputeBcCoor( this->coorMap, closedLine );
+        this->CalcBcCoor( this->coorMap, closedLine );
         return true;
     }
     return true;
@@ -286,9 +286,9 @@ void SDomain::ConstructLocalTopoAsBlk2D()
         int i = iList[ iPoint ];
         int j = jList[ iPoint ];
         int k = kList[ iPoint ];
-        CompCoor c;
+        CalcCoor c;
         c.SetCoor( i, j, k );
-        this->localCoorMap->insert( pair<int, CompCoor>( pt, c ) );
+        this->localCoorMap->insert( pair<int, CalcCoor>( pt, c ) );
     }
 
     int nMLine = mLineList.size();
@@ -296,8 +296,8 @@ void SDomain::ConstructLocalTopoAsBlk2D()
     {
         MLine * mLine = mLineList[ iMLine ];
         mLine->ConstructDomainTopo();
-        mLine->ComputeDim1D();
-        mLine->ComputeCoor( this->localCoorMap );
+        mLine->CalcDim1D();
+        mLine->CalcCoor( this->localCoorMap );
     }
 }
 
@@ -328,17 +328,17 @@ void SDomain::SetBlkBcMesh( Block3D * blk3d )
     CoorMap::iterator it3 = coorMap->find( p3 );
     CoorMap::iterator it4 = coorMap->find( p4 );
 
-    CompCoor & c1 = it1->second;
-    CompCoor & c2 = it2->second;
-    CompCoor & c3 = it3->second;
-    CompCoor & c4 = it4->second;
+    CalcCoor & c1 = it1->second;
+    CalcCoor & c2 = it2->second;
+    CalcCoor & c3 = it3->second;
+    CalcCoor & c4 = it4->second;
 
-    CompCoor d1;
+    CalcCoor d1;
     d1.i = c2.i - c1.i;
     d1.j = c2.j - c1.j;
     d1.k = c2.k - c1.k;
 
-    CompCoor d2;
+    CalcCoor d2;
     d2.i = c4.i - c1.i;
     d2.j = c4.j - c1.j;
     d2.k = c4.k - c1.k;
@@ -351,7 +351,7 @@ void SDomain::SetBlkBcMesh( Block3D * blk3d )
 
     for ( int j = 1; j <= nj; ++ j )
     {
-        CompCoor cj;
+        CalcCoor cj;
         j0 = j - 1;
         cj.i = c1.i + d2.i * j0;
         cj.j = c1.j + d2.j * j0;
@@ -360,7 +360,7 @@ void SDomain::SetBlkBcMesh( Block3D * blk3d )
         for ( int i = 1; i <= ni; ++ i )
         {
             i0 = i - 1;
-            CompCoor ci;
+            CalcCoor ci;
             ci.i = c1.i + d1.i * i0;
             ci.j = c1.j + d1.j * i0;
             ci.k = c1.k + d1.k * i0;

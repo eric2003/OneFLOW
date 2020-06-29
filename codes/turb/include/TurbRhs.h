@@ -32,16 +32,16 @@ public:
     TurbRhs ();
     ~TurbRhs();
 public:
-    void CmpRHS();
+    void CalcRHS();
 };
 
-void TurbCmpBc();
-void TurbCmpRHS();
-void TurbCmpInvFlux();
-void TurbCmpVisFlux();
-void TurbCmpSrcFlux();
-void TurbCmpSpectrum();
-void TurbCmpDualTimeStepSrc();
-void CmpTurbulentViscosity();
+void TurbCalcBc();
+void TurbCalcRHS();
+void TurbCalcInvFlux();
+void TurbCalcVisFlux();
+void TurbCalcSrcFlux();
+void TurbCalcSpectrum();
+void TurbCalcDualTimeStepSrc();
+void CalcTurbulentViscosity();
 
 EndNameSpace

@@ -36,35 +36,35 @@ public:
 	void UpdateINsResiduals();
 };
 
-void NsCmpBc();
-void NSCmpGamaT( int flag );
-void NsCmpRHS();
-void NsCmpInvFlux();
-void NsCmpVisFlux();
-void NsCmpSrcFlux();
-void NsCmpChemSrc();
-void NsCmpTurbEnergy();
-void NsCmpDualTimeStepSrc();
+void NsCalcBc();
+void NsCalcGamaT( int flag );
+void NsCalcRHS();
+void NsCalcInvFlux();
+void NsCalcVisFlux();
+void NsCalcSrcFlux();
+void NsCalcChemSrc();
+void NsCalcTurbEnergy();
+void NsCalcDualTimeStepSrc();
 
-void INsCmpBc();
-void INSCmpGamaT(int flag);
-void INsCmpRHS();
-//void INsCmpInvFlux();
-//void INsCmpVisFlux();
-//void INsCmpSrcFlux();
-void INsCmpChemSrc();
-void INsCmpTurbEnergy();
-//void INsCmpDualTimeStepSrc();
+void INsCalcBc();
+void INsCalcGamaT(int flag);
+void INsCalcRHS();
+//void INsCalcInvFlux();
+//void INsCalcVisFlux();
+//void INsCalcSrcFlux();
+void INsCalcChemSrc();
+void INsCalcTurbEnergy();
+//void INsCalcDualTimeStepSrc();
 void INsCorrectPresscoef();
 //void INsCorrectSpeed();
-void INsCmpInv();
-void INsCmpVis();
-void INsCmpSrc();
+void INsCalcInv();
+void INsCalcVis();
+void INsCalcSrc();
 void INsMomPred();
-void INsCmpFaceflux();
-void INsCmpPressCorrectEquandUpdatePress();
+void INsCalcFaceflux();
+void INsCalcPressCorrectEquandUpdatePress();
 void INsUpdateFaceflux();
-void INsCmpSpeedCorrectandUpdateSpeed();
+void INsCalcSpeedCorrectandUpdateSpeed();
 
 
 EndNameSpace

@@ -54,7 +54,7 @@ Face2D::~Face2D()
     delete this->t;
 }
 
-void Face2D::CompRegion()
+void Face2D::CalcRegion()
 {
     if ( this->bcType != -1 )
     {
@@ -70,7 +70,7 @@ void Face2D::CompRegion()
     }
 }
 
-void Face2D::CompStEd( CoorMap * coorMap )
+void Face2D::CalcStEd( CoorMap * coorMap )
 {
     CoorMap::iterator c1, c2;
     int p1 = this->ctrlpoints[ 0 ];
@@ -160,7 +160,7 @@ void DomData::ConstructBcPoint()
     int kkk = 1;
 }
 
-void DomData::ComputeDimBasic( int closedCurve )
+void DomData::CalcDimBasic( int closedCurve )
 {
     FindBcPointList2D( bcpointList );
     int nSeg = bcpointList.size();
@@ -217,14 +217,14 @@ void DomData::ComputeDimBasic( int closedCurve )
     
 }
 
-void DomData::ComputeDim2D()
+void DomData::CalcDim2D()
 {
-    ComputeDimBasic( 1 );
+    CalcDimBasic( 1 );
 }
 
-void DomData::ComputeDim1D()
+void DomData::CalcDim1D()
 {
-    ComputeDimBasic( 0 );
+    CalcDimBasic( 0 );
 }
 
 void DomData::Normalize( int &d )
@@ -338,7 +338,7 @@ void DomData::FindNextPoint2D( IntField & ptList, int prev, int me, int & next, 
     }
 }
 
-void DomData::ComputeDomainCtrlPoints( IntField & blkControlpoints, IntField & localpt )
+void DomData::CalcDomainCtrlPoints( IntField & blkControlpoints, IntField & localpt )
 {
     for ( int i = 0; i < localpt.size(); ++ i )
     {
@@ -348,7 +348,7 @@ void DomData::ComputeDomainCtrlPoints( IntField & blkControlpoints, IntField & l
     }
 }
 
-void DomData::ComputeDomainCtrlPoints( IntField & blk_ctrl_points )
+void DomData::CalcDomainCtrlPoints( IntField & blk_ctrl_points )
 {
     for ( int i = 0; i < blk_ctrl_points.size(); ++ i )
     {
@@ -360,7 +360,7 @@ void DomData::ComputeDomainCtrlPoints( IntField & blk_ctrl_points )
     }
 }
 
-void DomData::ComputeBcCoor( CoorMap * coorMap, int closedCurve )
+void DomData::CalcBcCoor( CoorMap * coorMap, int closedCurve )
 {
     int nSeg = bcpointList.size();
     int nSegLoop = nSeg - 1;
@@ -392,9 +392,9 @@ void DomData::ComputeBcCoor( CoorMap * coorMap, int closedCurve )
         int mj = iter1->second.j + dj * ( dim - 1 );
         int mk = iter1->second.k + dk * ( dim - 1 );
 
-        CompCoor coor;
+        CalcCoor coor;
         coor.SetCoor( mi, mj, mk );
-        coorMap->insert( pair<int, CompCoor>( p2, coor ) );
+        coorMap->insert( pair<int, CalcCoor>( p2, coor ) );
 
         if ( IsCtrlPoint( p2 ) )
         {
@@ -519,7 +519,7 @@ void GetUnitInt( int &d )
     }
 }
 
-void GetUnitDir( CompCoor & c )
+void GetUnitDir( CalcCoor & c )
 {
     GetUnitInt( c.i );
     GetUnitInt( c.j );

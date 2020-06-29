@@ -67,7 +67,7 @@ void HeatFluxTask::Run()
     this->CollectWallFaceNode();
     this->ConstructPointIndex();
     this->CollectWallFaceValue();
-    this->CmpNodeValue();
+    this->CalcNodeValue();
     this->VisualizeWallNodeValue();
 }
 
@@ -123,9 +123,9 @@ void HeatFluxTask::ConstructPointIndex()
     wallManager->ConstructPointIndex();
 }
 
-void HeatFluxTask::CmpNodeValue()
+void HeatFluxTask::CalcNodeValue()
 {
-    wallManager->CmpNodeValue();
+    wallManager->CalcNodeValue();
 }
 
 void HeatFluxTask::VisualizeWallNodeValue()

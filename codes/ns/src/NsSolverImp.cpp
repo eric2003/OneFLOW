@@ -42,13 +42,13 @@ void RegisterNsFunc()
 {
     REGISTER_DATA_CLASS( NsInitFinal );
     REGISTER_DATA_CLASS( NsVisual );
-    REGISTER_DATA_CLASS( NsCmpTimeStep );
+    REGISTER_DATA_CLASS( NsCalcTimeStep );
     REGISTER_DATA_CLASS( NsUpdateResiduals );
     REGISTER_DATA_CLASS( NsImplicitMethod );
     REGISTER_DATA_CLASS( NsPostprocess );
     REGISTER_DATA_CLASS( NsFinalPostprocess );
     REGISTER_DATA_CLASS( NsInitSolver );
-    REGISTER_DATA_CLASS( NsCmpBoundary );
+    REGISTER_DATA_CLASS( NsCalcBoundary );
     REGISTER_DATA_CLASS( DumpHeatFluxCoeff );
     SetPlateTask();
     SetTurbPlateTask();
@@ -56,11 +56,11 @@ void RegisterNsFunc()
 
 void NsInitFinal( StringField & data )
 {
-    NSCmpGamaT( F_INNER );
-    CmpLaminarViscosity( F_INNER );
-    NsCmpBc();
-    NSCmpGamaT( F_GHOST );
-    CmpLaminarViscosity( F_GHOST );
+    NsCalcGamaT( F_INNER );
+    CalcLaminarViscosity( F_INNER );
+    NsCalcBc();
+    NsCalcGamaT( F_GHOST );
+    CalcLaminarViscosity( F_GHOST );
 
     Grid * grid = Zone::GetGrid();
 
@@ -70,7 +70,7 @@ void NsInitFinal( StringField & data )
 
         GridState::gridLevel += 1;
 
-        NsCmpBc();
+        NsCalcBc();
 
         GridState::gridLevel -= 1;
     }
@@ -81,19 +81,19 @@ void NsVisual( StringField & data )
     ;
 }
 
-void NsCmpBoundary( StringField & data )
+void NsCalcBoundary( StringField & data )
 {
-    NSCmpGamaT( F_INNER );
-    CmpLaminarViscosity( F_INNER );
-    NsCmpBc();
-    NSCmpGamaT( F_GHOST );
-    CmpLaminarViscosity( F_GHOST );
+    NsCalcGamaT( F_INNER );
+    CalcLaminarViscosity( F_INNER );
+    NsCalcBc();
+    NsCalcGamaT( F_GHOST );
+    CalcLaminarViscosity( F_GHOST );
 }
 
-void NsCmpTimeStep( StringField & data )
+void NsCalcTimeStep( StringField & data )
 {
     UTimestep * uTimestep = new UTimestep();
-    uTimestep->CmpTimestep();
+    uTimestep->CalcTimeStep();
     delete uTimestep;
 }
 

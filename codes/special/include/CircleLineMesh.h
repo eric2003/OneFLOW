@@ -36,9 +36,9 @@ public:
     Real radius;
     Real alpha0, alpha1;
 public:
-    void ComputeCurveGeometry();
+    void CalcCurveGeometry();
     void GenerateLineMesh();
-    void ComputeCoor( Real s, Real & xt, Real & yt, Real & zt );
+    void CalcCoor( Real s, Real & xt, Real & yt, Real & zt );
 };
 
 

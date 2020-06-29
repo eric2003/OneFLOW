@@ -42,23 +42,23 @@ void RegisterINsFunc()
 {
     REGISTER_DATA_CLASS( INsInitFinal );
     REGISTER_DATA_CLASS( INsVisual );
-    REGISTER_DATA_CLASS( INsCmpTimeStep );
+    REGISTER_DATA_CLASS( INsCalcTimeStep );
     REGISTER_DATA_CLASS( INsUpdateResiduals );
     REGISTER_DATA_CLASS( INsImplicitMethod );
     REGISTER_DATA_CLASS( INsPostprocess );
     REGISTER_DATA_CLASS( INsFinalPostprocess );
     REGISTER_DATA_CLASS( INsInitSolver );
-    REGISTER_DATA_CLASS( INsCmpBoundary );
+    REGISTER_DATA_CLASS( INsCalcBoundary );
     REGISTER_DATA_CLASS( IDumpHeatFluxCoeff );
 }
 
 void INsInitFinal( StringField & data )
 {
-    INSCmpGamaT( F_INNER );
-    ICmpLaminarViscosity( F_INNER );
-    INsCmpBc();
-    INSCmpGamaT( F_GHOST );
-    ICmpLaminarViscosity( F_GHOST );
+    INsCalcGamaT( F_INNER );
+    ICalcLaminarViscosity( F_INNER );
+    INsCalcBc();
+    INsCalcGamaT( F_GHOST );
+    ICalcLaminarViscosity( F_GHOST );
     Grid * grid = Zone::GetGrid();
 
     if ( Zone::GetCGrid( grid ) )
@@ -67,7 +67,7 @@ void INsInitFinal( StringField & data )
 
         GridState::gridLevel += 1;
 
-        NsCmpBc();
+        NsCalcBc();
 
         GridState::gridLevel -= 1;
     }
@@ -78,19 +78,19 @@ void INsVisual( StringField & data )
     ;
 }
 
-void INsCmpBoundary( StringField & data )
+void INsCalcBoundary( StringField & data )
 {
-    INSCmpGamaT( F_INNER );
-    ICmpLaminarViscosity( F_INNER );
-    INsCmpBc();
-    INSCmpGamaT( F_GHOST );
-    ICmpLaminarViscosity( F_GHOST );
+    INsCalcGamaT( F_INNER );
+    ICalcLaminarViscosity( F_INNER );
+    INsCalcBc();
+    INsCalcGamaT( F_GHOST );
+    ICalcLaminarViscosity( F_GHOST );
 }
 
-void INsCmpTimeStep( StringField & data )
+void INsCalcTimeStep( StringField & data )
 {
     UITimestep * uTimestep = new UITimestep();
-    uTimestep->CmpTimestep();
+    uTimestep->CalcTimeStep();
     delete uTimestep;
 }
 

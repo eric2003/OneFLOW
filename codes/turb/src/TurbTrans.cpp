@@ -128,7 +128,7 @@ Real Transition::SeparationCorrectionOfIntermittency( Real gmori, Real Rev, Real
     return MAX( gmori, gmsep );
 }
 
-Real Transition::CmpIntensity( Real velocity, Real kineticEnergy )
+Real Transition::CalcIntensity( Real velocity, Real kineticEnergy )
 {
     return MAX( 0.027, 100.0 * sqrt( 2.0 * kineticEnergy / 3.0 ) / velocity );
 }

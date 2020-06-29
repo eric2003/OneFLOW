@@ -82,12 +82,12 @@ void CellMesh::DumpDist()
     HXWrite( ActionState::dataBook, dist );
 }
 
-void CellMesh::CmpCellSpan( UnsGrid * grid )
+void CellMesh::CalcCellSpan( UnsGrid * grid )
 {
     if ( this->span.size() ) return;
     int nCell = this->GetNumberOfCells();
     this->span.resize( nCell );
-    CmpC2f( grid );
+    CalcC2f( grid );
 
     FaceTopo * faceTopo = grid->faceTopo;
     LinkField & c2f = this->cellTopo->c2f;
@@ -119,9 +119,9 @@ void CellMesh::CmpCellSpan( UnsGrid * grid )
     }
 }
 
-void CmpCellSpan( UnsGrid * grid )
+void CalcCellSpan( UnsGrid * grid )
 {
-    grid->cellMesh->CmpCellSpan( grid );
+    grid->cellMesh->CalcCellSpan( grid );
 }
 
 EndNameSpace

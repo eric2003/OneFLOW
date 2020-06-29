@@ -32,51 +32,51 @@ public:
 public:
     void Init();
     void InitVist();
-    void CmpSrcFlux();
-    void CmpSrcFlux1Equ();
-    void CmpSrcFlux2Equ();
+    void CalcSrcFlux();
+    void CalcSrcFlux1Equ();
+    void CalcSrcFlux2Equ();
 
     void Update1Equ();
     void Update2Equ();
-    void CmpGrad();
-    void CmpGradDebug();
-    void CmpVist();
-    void CmpVist1Equ();
-    void CmpVist2Equ();
-    void CmpVistMax();
+    void CalcGrad();
+    void CalcGradDebug();
+    void CalcVist();
+    void CalcVist1Equ();
+    void CalcVist2Equ();
+    void CalcVistMax();
     void SetGhostCellVist();
     void ZeroSpectrum();
     void ReadTmp();
 public:
     void PrepareCellValue();
     void PrepareCellValue1Equ();
-    void CmpLengthScaleSa();
-    void CmpLengthScaleSst();
+    void CalcLengthScaleSa();
+    void CalcLengthScaleSst();
 
-    void CmpLengthScaleOfSaDes();
-    void CmpLengthScaleOfSaDdes();
-    void CmpLengthScaleOfSaIddes();
+    void CalcLengthScaleOfSaDes();
+    void CalcLengthScaleOfSaDdes();
+    void CalcLengthScaleOfSaIddes();
 
-    void CmpLengthScaleOfSstDes();
-    void CmpLengthScaleOfSstDdes();
-    void CmpLengthScaleOfSstIddes();
+    void CalcLengthScaleOfSstDes();
+    void CalcLengthScaleOfSstDdes();
+    void CalcLengthScaleOfSstIddes();
 
-    void CmpLengthScaleOfWallDist();
+    void CalcLengthScaleOfWallDist();
 public:
-    void CmpBlendingTerm();
-    void CmpCrossingTerm();
-    void CmpCdkwmax();
-    void CmpCrossDiff();
-    void CmpBlendField();
+    void CalcBlendingTerm();
+    void CalcCrossingTerm();
+    void CalcCdkwmax();
+    void CalcCrossDiff();
+    void CalcBlendField();
     void ModifyBlendingTerm();
 };
 
-void ComputeLengthLesOfSa( RealField & lesLengthField );
-void ComputeLengthLesOfSst( RealField & lesLengthField );
+void CalcLengthLesOfSa( RealField & lesLengthField );
+void CalcLengthLesOfSst( RealField & lesLengthField );
 
 RealField GetLengthScale();
 RealField & GetLargestSpacing();
-void CmpSubgridLengthScale( RealField & lenth_scale );
-void CmpLowReynoldsCorrection( RealField & lowReynoldsCorr );
+void CalcSubgridLengthScale( RealField & lenth_scale );
+void CalcLowReynoldsCorrection( RealField & lowReynoldsCorr );
 
 EndNameSpace

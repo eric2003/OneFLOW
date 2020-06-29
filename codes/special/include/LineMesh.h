@@ -37,8 +37,8 @@ public:
     ~LineMesh();
 public:
     void GenerateLineMesh();
-    void ComputeCurveGeometry();
-    void ComputeCoor( Real s, Real & xt, Real & yt, Real & zt );
+    void CalcCurveGeometry();
+    void CalcCoor( Real s, Real & xt, Real & yt, Real & zt );
 };
 
 EndNameSpace

@@ -62,7 +62,7 @@ void UTurbLusgs::Init()
     UnsGrid * grid = Zone::GetUnsGrid();
     FaceTopo * faceTopo = grid->faceTopo;
     CellTopo * cellTopo = grid->cellMesh->cellTopo;
-    cellTopo->CmpC2f( faceTopo );
+    cellTopo->CalcC2f( faceTopo );
     ug.Init();
     turblu.Init();
     uturbf.Init();
@@ -111,7 +111,7 @@ void UTurbLusgs::LowerSweep()
         
             this->SolveLowerCell();
 
-            this->CmpLowerChange();
+            this->CalcLowerChange();
         }
 
         this->Update();
@@ -143,13 +143,13 @@ void UTurbLusgs::UpperSweep()
 
             this->SolveUpperCell();
 
-            this->CmpUpperChange();
+            this->CalcUpperChange();
         }
 
         this->Update();
     }
 
-    //CmpTurbulentViscosity();
+    //CalcTurbulentViscosity();
 }
 
 void UTurbLusgs::SolveLowerCell()

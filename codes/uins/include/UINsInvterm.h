@@ -38,19 +38,19 @@ public:
 public:
     void Alloc();
     void DeAlloc();
-    void CmpInvcoff();
-    void CmpInvMassFlux();
-    void CmpInvFace();
-    void CmpLimiter();
+    void CalcInvcoff();
+    void CalcInvMassFlux();
+    void CalcInvFace();
+    void CalcLimiter();
 	void MomPred();
-	void CmpFaceflux();
-	void CmpCorrectPresscoef();
-	void CmpPressCorrectEqu();
+	void CalcFaceflux();
+	void CalcCorrectPresscoef();
+	void CalcPressCorrectEqu();
 	void UpdateFaceflux();
 	void UpdateSpeed();
     void AddFlux();
     void PrepareFaceValue();
-	//void CmpINsinvTerm();
+	//void CalcINsinvTerm();
     //void UpdateFaceInvFlux();
     void ReadTmp();
 public:

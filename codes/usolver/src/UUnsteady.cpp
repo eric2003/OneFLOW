@@ -80,9 +80,9 @@ void UUnsteady::PrepareResidual()
     }
 }
 
-void UUnsteady::CmpDualTimeResidual()
+void UUnsteady::CalcDualTimeResidual()
 {
-    data->CmpResCoef();
+    data->CalcResCoef();
 
     for ( int cId = 0; cId < ug.nCell; ++ cId )
     {
@@ -90,20 +90,20 @@ void UUnsteady::CmpDualTimeResidual()
 
         this->PrepareResidual();
 
-        data->CmpCellDualTimeResidual();
+        data->CalcCellDualTimeResidual();
 
         this->UpdateDualTimeStepResidual();
     }
 }
 
-void UUnsteady::CmpDualTimeSrc()
+void UUnsteady::CalcDualTimeSrc()
 {
     ug.Init();
     this->StoreOldResidual();
 
-    this->CmpDualTimeResidual();
+    this->CalcDualTimeResidual();
 
-    data->CmpSrcCoeff();
+    data->CalcSrcCoeff();
 
     for ( int cId = 0; cId < ug.nCell; ++ cId )
     {
@@ -111,13 +111,13 @@ void UUnsteady::CmpDualTimeSrc()
 
         ( * this->srcFun )( this );
 
-        data->CmpCellDualTimeSrc();
+        data->CalcCellDualTimeSrc();
 
         this->UpdateDualTimeStepSource();
     }
 }
 
-void UUnsteady::CmpUnsteadyCriterion()
+void UUnsteady::CalcUnsteadyCriterion()
 {
     data->ZeroData();
 
@@ -127,10 +127,10 @@ void UUnsteady::CmpUnsteadyCriterion()
 
         ( * this->criFun )( this );
         
-        data->CmpCellUnsteadyCri();
+        data->CalcCellUnsteadyCri();
     }
 
-    data->CmpCvg();
+    data->CalcCvg();
 }
 
 EndNameSpace

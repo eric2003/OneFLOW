@@ -178,7 +178,7 @@ void LimField::BcQlQrFix()
 }
 
 
-void LimField::CmpFaceValue()
+void LimField::CalcFaceValue()
 {
     RealField qTry( this->nEqu );
 
@@ -255,7 +255,7 @@ void LimField::CmpFaceValue()
     }
 }
 
-void LimField::CmpFaceValueWeighted()
+void LimField::CalcFaceValueWeighted()
 {
     RealField qTry( this->nEqu );
 
@@ -374,7 +374,7 @@ Limiter::~Limiter()
     delete lim;
 }
 
-void Limiter::CmpLimiter()
+void Limiter::CalcLimiter()
 {
     ug.Init();
     limf->Init();
@@ -387,7 +387,7 @@ void Limiter::CmpLimiter()
         lim->dqdy    = & ( * limf->dqdy    )[ iEqu ];
         lim->dqdz    = & ( * limf->dqdz    )[ iEqu ];
         this->SetInitValue();
-        this->CmpLimiterScalar();
+        this->CalcLimiterScalar();
     }
     DeAlloc();
 }
@@ -412,27 +412,27 @@ void Limiter::SetInitValue()
     }
 }
 
-void Limiter::CmpLimiterScalar()
+void Limiter::CalcLimiterScalar()
 {
     if ( limflag == ILMT_ZERO )
     {
-        this->CmpZeroLimiter();
+        this->CalcZeroLimiter();
     }
     else if ( limflag == ILMT_NO )
     {
-        this->CmpNoLimiter();
+        this->CalcNoLimiter();
     }
     else if ( limflag == ILMT_BARTH )
     {
-        this->CmpBarthLimiter();
+        this->CalcBarthLimiter();
     }
     else if ( limflag == ILMT_VENCAT )
     {
-        this->CmpVencatLimiter();
+        this->CalcVencatLimiter();
     }
 }
 
-void Limiter::CmpZeroLimiter()
+void Limiter::CalcZeroLimiter()
 {
     for ( int fId = 0; fId < ug.nFace; ++ fId )
     {
@@ -448,7 +448,7 @@ void Limiter::CmpZeroLimiter()
     }
 }
 
-void Limiter::CmpNoLimiter()
+void Limiter::CalcNoLimiter()
 {
     for ( int fId = 0; fId < ug.nFace; ++ fId )
     {
@@ -464,9 +464,9 @@ void Limiter::CmpNoLimiter()
     }
 }
 
-void Limiter::CmpBarthLimiter()
+void Limiter::CalcBarthLimiter()
 {
-    this->CmpMinMaxDiff();
+    this->CalcMinMaxDiff();
 
     for ( int fId = 0; fId < ug.nFace; ++ fId )
     {
@@ -476,16 +476,16 @@ void Limiter::CmpBarthLimiter()
 
         this->PrepareData();
 
-        this->CmpLocalBarthLimiter();
+        this->CalcLocalBarthLimiter();
 
         ( * lim->limiter )[ ug.lc ] = lim->lim1;
         ( * lim->limiter )[ ug.rc ] = lim->lim2;
     }
 }
 
-void Limiter::CmpVencatLimiter()
+void Limiter::CalcVencatLimiter()
 {
-    this->CmpMinMaxDiff();
+    this->CalcMinMaxDiff();
 
     for ( int fId = 0; fId < ug.nFace; ++ fId )
     {
@@ -495,7 +495,7 @@ void Limiter::CmpVencatLimiter()
 
         this->PrepareData();
 
-        this->CmpLocalVencatLimiter();
+        this->CalcLocalVencatLimiter();
 
         ( * lim->limiter )[ ug.lc ] = lim->lim1;
         ( * lim->limiter )[ ug.rc ] = lim->lim2;
@@ -541,7 +541,7 @@ void Limiter::PrepareData()
     lim->lim2 =  ( * lim->limiter )[ ug.rc ];
 }
 
-void Limiter::CmpLocalBarthLimiter()
+void Limiter::CalcLocalBarthLimiter()
 {
     Real dx1 = gcom.xfc - gcom.xcc1;
     Real dy1 = gcom.yfc - gcom.ycc1;
@@ -568,7 +568,7 @@ void Limiter::CmpLocalBarthLimiter()
     lim->lim2 = MIN( lim->lim2, limv2 );
 }
 
-void Limiter::CmpLocalVencatLimiter()
+void Limiter::CalcLocalVencatLimiter()
 {
     Real eps = ctrl.vencat_coef * MAX( lim->qmax - lim->qmin, 1.0 );
     Real eps1 = SQR( eps ) + SMALL;
@@ -592,7 +592,7 @@ void Limiter::CmpLocalVencatLimiter()
     lim->lim2 = MIN( lim->lim2, limv2 );
 }
 
-void Limiter::CmpMinMaxDiff()
+void Limiter::CalcMinMaxDiff()
 {
     // Find the maximum and minimum in the neighbor of each cell
     for ( int cId = 0; cId < ug.nCell; ++ cId )

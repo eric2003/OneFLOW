@@ -38,16 +38,16 @@ public:
     MRField * visflux;
 public:
     void SetVisPointer();
-    void CmpFlux();
+    void CalcFlux();
     void PrepareField();
-    void CmpVisFlux();
+    void CalcVisFlux();
     void AddVisFlux();
-    void CmpFaceVisFlux();
+    void CalcFaceVisFlux();
     void UpdateFaceVisFlux();
-    void CmpHeatFlux();
-    void CmpStress();
-    void CmpAniStress();
-    void CmpNsVisFlux();
+    void CalcHeatFlux();
+    void CalcStress();
+    void CalcAniStress();
+    void CalcNsVisFlux();
     void ZeroHeatFlux();
     void AddChemHeatFlux();
     void AddHeatFlux();
@@ -58,18 +58,18 @@ public:
 public:
     void PrepareFaceValue();
     void SaveFacePara();
-    void CmpFaceWeight();
+    void CalcFaceWeight();
 public:
     void AverMethod();
     void StdMethod();
     void TestMethod();
     void New1Method();
     void New2Method();
-    void CmpGradCoef();
+    void CalcGradCoef();
     void PrepareCellGeom();
 };
 
-void CmpLaminarViscosity( int flag );
+void CalcLaminarViscosity( int flag );
 
 
 

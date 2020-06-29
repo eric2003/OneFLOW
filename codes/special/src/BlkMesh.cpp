@@ -92,7 +92,7 @@ void BlkBasic::DumpInp( fstream & file )
     for ( int iFace = 0; iFace < nFace; ++ iFace )
     {
         Face2D * face2d = this->facelist[ iFace ];
-        face2d->CompRegion();
+        face2d->CalcRegion();
 
         int imin = face2d->st.i;
         int jmin = face2d->st.j;
@@ -232,7 +232,7 @@ void Block3D::ConstructTopo()
     //for ( int iMDomain = 0; iMDomain < nMDomain; ++ iMDomain )
     //{
     //    MDomain * mDomain = mDomainList[ iMDomain ];
-    //    mDomain->ComputeDomainCtrlPoints( ctrl_points );
+    //    mDomain->CalcDomainCtrlPoints( ctrl_points );
     //}
 
     int p1, p2, p3, p4, p5, p6, p7, p8;
@@ -258,9 +258,9 @@ void Block3D::ConstructTopo()
     for ( int iMDomain = 0; iMDomain < nMDomain; ++ iMDomain )
     {
         MDomain * mDomain = mDomainList[ iMDomain ];
-        mDomain->ComputeDomainCtrlPoints( this->controlpoints, this->localpt[iMDomain ] );
+        mDomain->CalcDomainCtrlPoints( this->controlpoints, this->localpt[iMDomain ] );
     }
-    this->ComputeBlkDim();
+    this->CalcBlkDim();
 }
 
 void Block3D::GetCornerPoint( int & pt, int id1, int id2, int id3 )
@@ -315,13 +315,13 @@ void Block3D::SetInterfaceBc()
     }
 }
 
-void Block3D::ComputeBlkDim()
+void Block3D::CalcBlkDim()
 {
     int nMDomain = mDomainList.size();
     for ( int iMDomain = 0; iMDomain < nMDomain; ++ iMDomain )
     {
         MDomain * mDomain = mDomainList[ iMDomain ];
-        mDomain->ComputeDim2D();
+        mDomain->CalcDim2D();
     }
 
     MDomain * d0 = mDomainList[ 0 ];
@@ -349,15 +349,15 @@ void Block3D::ComputeBlkDim()
         int i = iList[ iPoint ];
         int j = jList[ iPoint ];
         int k = kList[ iPoint ];
-        CompCoor c;
+        CalcCoor c;
         c.SetCoor( i, j, k );
-        this->coorMap.insert( pair<int, CompCoor>( pt, c ) );
+        this->coorMap.insert( pair<int, CalcCoor>( pt, c ) );
     }
 
     for ( int iMDomain = 0; iMDomain < nMDomain; ++ iMDomain )
     {
         MDomain * mDomain = mDomainList[ iMDomain ];
-        mDomain->ComputeCoor();
+        mDomain->CalcCoor();
     }
 
     CreateFaceList();
@@ -632,10 +632,10 @@ void Block2D::ConstructTopo()
     for ( int iMDomain = 0; iMDomain < nMDomain; ++ iMDomain )
     {
         MLine * mLine = mLineList[ iMDomain ];
-        mLine->ComputeDomainCtrlPoints( this->controlpoints, this->localpt[iMDomain ] );
+        mLine->CalcDomainCtrlPoints( this->controlpoints, this->localpt[iMDomain ] );
     }
 
-    this->ComputeBlkDim();
+    this->CalcBlkDim();
 }
 
 void Block2D::GetCornerPoint( int & pt, int id1, int id2 )
@@ -687,13 +687,13 @@ void Block2D::SetInterfaceBc()
     }
 }
 
-void Block2D::ComputeBlkDim()
+void Block2D::CalcBlkDim()
 {
     int nMDomain = mLineList.size();
     for ( int iMDomain = 0; iMDomain < nMDomain; ++ iMDomain )
     {
         MLine * mLine = mLineList[ iMDomain ];
-        mLine->ComputeDim1D();
+        mLine->CalcDim1D();
     }
 
     MLine * d0 = mLineList[ 0 ];
@@ -714,15 +714,15 @@ void Block2D::ComputeBlkDim()
         int i = iList[ iPoint ];
         int j = jList[ iPoint ];
         int k = kList[ iPoint ];
-        CompCoor c;
+        CalcCoor c;
         c.SetCoor( i, j, k );
-        this->coorMap.insert( pair<int, CompCoor>( pt, c ) );
+        this->coorMap.insert( pair<int, CalcCoor>( pt, c ) );
     }
 
     for ( int iMDomain = 0; iMDomain < nMDomain; ++ iMDomain )
     {
         MLine * mLine = mLineList[ iMDomain ];
-        mLine->ComputeCoor( & this->coorMap );
+        mLine->CalcCoor( & this->coorMap );
     }
 
     CreateFaceList();

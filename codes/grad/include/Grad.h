@@ -41,8 +41,8 @@ public:
     int istore;
 public:
     virtual void Init(){};
-    void CmpGrad();
-    void CmpGradDebug();
+    void CalcGrad();
+    void CalcGradDebug();
     void SwapBcGrad();
     void StoreBcGrad();
 };

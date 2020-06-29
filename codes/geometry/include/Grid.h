@@ -87,7 +87,7 @@ public:
     virtual void UpdateOtherTopologyTerm( IFaceLink * iFaceLink ){};
 public:
     virtual void GetMinMaxDistance( Real & dismin, Real & dismax ) {};
-    virtual void CmpMetrics() {};
+    virtual void CalcMetrics() {};
 };
 
 EndNameSpace

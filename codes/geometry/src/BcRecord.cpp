@@ -110,7 +110,7 @@ void BcRecord::Init( UInt nBFace )
     this->bcRegion.resize( nBFace );
 }
 
-int BcRecord::ComputeNIFace()
+int BcRecord::CalcNIFace()
 {
     int nBFace = this->GetNBFace();
 
@@ -126,7 +126,7 @@ int BcRecord::ComputeNIFace()
     return nIFace;
 }
 
-int BcRecord::CmpNumWallFace()
+int BcRecord::CalcNumWallFace()
 {
     int nBFace = this->GetNBFace();
 
@@ -202,7 +202,7 @@ void BcManager::Update()
     this->bcFlag = 1;
 }
 
-void BcManager::CmpBcType( IntField & bcTypeList )
+void BcManager::CalcBcType( IntField & bcTypeList )
 {
     IntSet bcTypeSet;
 
@@ -362,7 +362,7 @@ void BcRegion::GetNormalizeIJKRegion( int & ist, int & ied, int & jst, int & jed
     ked = MAX( ABS( this->s->start[ 2 ] ), ABS( this->s->end[ 2 ] ) );
 }
 
-int BcRegion::ComputeRegionCells()
+int BcRegion::CalcRegionCells()
 {
     int imin, imax, jmin, jmax, kmin, kmax;
     this->GetNormalizeIJKRegion( imin, imax, jmin, jmax, kmin, kmax );

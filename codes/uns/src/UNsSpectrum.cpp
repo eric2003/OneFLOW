@@ -49,9 +49,9 @@ UNsSpectrum::~UNsSpectrum()
 {
 }
 
-void UNsSpectrum::CmpImplicitSpectrum()
+void UNsSpectrum::CalcImplicitSpectrum()
 {
-    this->CmpUnsteadySpectrum();
+    this->CalcUnsteadySpectrum();
 
     this->AddInvSpectrum();
 
@@ -59,7 +59,7 @@ void UNsSpectrum::CmpImplicitSpectrum()
 
 }
 
-void UNsSpectrum::CmpUnsteadySpectrum()
+void UNsSpectrum::CalcUnsteadySpectrum()
 {
     if ( ctrl.idualtime == 0 )//单时间步，注意:是usd.sp2!
     {

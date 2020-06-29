@@ -28,13 +28,13 @@ BeginNameSpace( ONEFLOW )
 
 DEFINE_DATA_CLASS( NsInitFinal );
 DEFINE_DATA_CLASS( NsVisual );
-DEFINE_DATA_CLASS( NsCmpTimeStep );
+DEFINE_DATA_CLASS( NsCalcTimeStep );
 DEFINE_DATA_CLASS( NsUpdateResiduals );
 DEFINE_DATA_CLASS( NsImplicitMethod );
 DEFINE_DATA_CLASS( NsPostprocess );
 DEFINE_DATA_CLASS( NsFinalPostprocess );
 DEFINE_DATA_CLASS( NsInitSolver );
-DEFINE_DATA_CLASS( NsCmpBoundary );
+DEFINE_DATA_CLASS( NsCalcBoundary );
 DEFINE_DATA_CLASS( DumpHeatFluxCoeff );
 
 void RegisterNsFunc();

@@ -70,7 +70,7 @@ public:
     IntField & GetElementFace(int iFace);
     int GetFaceType(int iFace) const;
 
-    IntField & GetRelatedPointListForMiddlePointComputation(int iMiddlePoint);
+    IntField & GetRelatedPointListForMiddlePointCalcutation(int iMiddlePoint);
 
     IntField & GetChildElementRelativeNodeIndex(int iChildElement);
 

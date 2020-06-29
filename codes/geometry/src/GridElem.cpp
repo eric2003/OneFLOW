@@ -119,7 +119,7 @@ void GridElem::CreateGrid( HXVector< CgnsZone * > cgnsZones, int iZone )
     grid->volBcType = cgnsZone->GetVolBcType();
 }
 
-void GridElem::PrepareUnsCompGrid()
+void GridElem::PrepareUnsCalcGrid()
 {
     cout << " InitCgnsElements()\n";
     this->InitCgnsElements();
@@ -131,7 +131,7 @@ void GridElem::PrepareUnsCompGrid()
     //Continue to parse
     cout << " ScanElements()\n";
     this->elem_feature->ScanElements();
-    this->GenerateCompElement();
+    this->GenerateCalcElement();
 }
 
 void GridElem::InitCgnsElements()
@@ -155,7 +155,7 @@ void GridElem::ScanBcFace()
     }
 }
 
-void GridElem::GenerateCompElement()
+void GridElem::GenerateCalcElement()
 {
     int nElement =  this->elem_feature->eType->size();
 
@@ -188,12 +188,12 @@ void GridElem::GenerateCompElement()
 
 }
 
-void GridElem::GenerateCompGrid()
+void GridElem::GenerateCalcGrid()
 {
-    this->GenerateCompGrid( this->grid );
+    this->GenerateCalcGrid( this->grid );
 }
 
-void GridElem::GenerateCompGrid( Grid * gridIn )
+void GridElem::GenerateCalcGrid( Grid * gridIn )
 {
     UnsGrid * grid = UnsGridCast ( gridIn );
 
@@ -213,13 +213,13 @@ void GridElem::GenerateCompGrid( Grid * gridIn )
         grid->nodeMesh->zN[ iNode ] = this->point_factory->pointList[ nodeIndex ].z;
     }
 
-    this->ComputeBoundaryType( grid );
+    this->CalcBoundaryType( grid );
     this->ReorderLink( grid );
 
     cout << "\n-->All the computing information is ready\n";
 }
 
-void GridElem::ComputeBoundaryType( UnsGrid * grid )
+void GridElem::CalcBoundaryType( UnsGrid * grid )
 {
     cout << "\n-->Set boundary condition......\n";
     delete grid->faceTopo;

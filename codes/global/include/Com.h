@@ -31,7 +31,7 @@ public:
     ~GCom();
 public:
     void Reverse();
-    void CmpTangent();
+    void CalcTangent();
     void SetGeometry();
 public:
     int blank;

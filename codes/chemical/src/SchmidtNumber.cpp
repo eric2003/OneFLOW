@@ -47,7 +47,7 @@ void SchmidtNumber::Init( int nSpecies )
     oturbSchmidt.resize( nSpecies );
 }
 
-void SchmidtNumber::ComputeSchmidtNumber( IntField & ionType )
+void SchmidtNumber::CalcSchmidtNumber( IntField & ionType )
 {
     for ( int iSpecies = 0; iSpecies < nSpecies; ++ iSpecies )
     {

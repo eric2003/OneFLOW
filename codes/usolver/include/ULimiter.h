@@ -64,8 +64,8 @@ public:
 public:
     virtual void Init(){};
     Real ModifyLimiter( Real phil, Real phir );
-    void CmpFaceValue();
-    void CmpFaceValueWeighted();
+    void CalcFaceValue();
+    void CalcFaceValueWeighted();
     void GetQlQr();
     virtual void BcQlQrFix();
 public:
@@ -92,17 +92,17 @@ public:
     void Alloc();
     void DeAlloc();
     void SetInitValue();
-    void CmpLimiter();
-    void CmpLimiterScalar();
+    void CalcLimiter();
+    void CalcLimiterScalar();
 
-    void CmpZeroLimiter();
-    void CmpNoLimiter();
-    void CmpBarthLimiter();
-    void CmpVencatLimiter();
-    void CmpLocalBarthLimiter();
-    void CmpLocalVencatLimiter();
+    void CalcZeroLimiter();
+    void CalcNoLimiter();
+    void CalcBarthLimiter();
+    void CalcVencatLimiter();
+    void CalcLocalBarthLimiter();
+    void CalcLocalVencatLimiter();
     void PrepareData();
-    void CmpMinMaxDiff();
+    void CalcMinMaxDiff();
 };
 
 bool NoCheck( RealField & q );

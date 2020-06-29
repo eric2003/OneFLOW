@@ -36,7 +36,7 @@ public:
     RealField turbSchmidt, oturbSchmidt;
 public:
     void Init( int nSpecies );
-    void ComputeSchmidtNumber( IntField & ionType );
+    void CalcSchmidtNumber( IntField & ionType );
     void Read ( DataBook * dataBook );
     void Write( DataBook * dataBook );
 };

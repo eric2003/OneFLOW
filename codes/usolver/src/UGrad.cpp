@@ -36,7 +36,7 @@ using namespace std;
 
 BeginNameSpace( ONEFLOW )
 
-void CmpGrad( RealField & q, RealField & dqdx, RealField & dqdy, RealField & dqdz )
+void CalcGrad( RealField & q, RealField & dqdx, RealField & dqdy, RealField & dqdz )
 {
     dqdx = 0;
     dqdy = 0;
@@ -84,7 +84,7 @@ void CmpGrad( RealField & q, RealField & dqdx, RealField & dqdy, RealField & dqd
     }
 }
 
-void CmpGradGGCellWeight( RealField & q, RealField & dqdx, RealField & dqdy, RealField & dqdz )
+void CalcGradGGCellWeight( RealField & q, RealField & dqdx, RealField & dqdy, RealField & dqdz )
 {
     dqdx = 0;
     dqdy = 0;
@@ -151,7 +151,7 @@ void CmpGradGGCellWeight( RealField & q, RealField & dqdx, RealField & dqdy, Rea
     }
 }
 
-void CmpGradDebug( RealField & q, RealField & dqdx, RealField & dqdy, RealField & dqdz )
+void CalcGradDebug( RealField & q, RealField & dqdx, RealField & dqdy, RealField & dqdz )
 {
     dqdx = 0;
     dqdy = 0;

@@ -75,13 +75,13 @@ public:
     void CgnsToOneFlowGrid( Grid *& grid, int zId );
     void ConvertStrCgns2UnsCgnsGrid();
     void AllocateGridElem();
-    void PrepareUnsCompGrid();
+    void PrepareUnsCalcGrid();
 
     //转换为oneflow计算所用的网格
-    void GenerateCompGrid();
+    void GenerateCalcGrid();
 protected:
-    void GenerateStrCompGrid();
-    void GenerateUnsCompGrid();
+    void GenerateStrCalcGrid();
+    void GenerateUnsCalcGrid();
 };
 
 #endif

@@ -61,7 +61,7 @@ void UTurbVisFlux::DeAlloc()
     delete visflux;
 }
 
-void UTurbVisFlux::CmpVisFlux()
+void UTurbVisFlux::CalcVisFlux()
 {
     ug.Init();
     uturbf.Init();
@@ -70,11 +70,11 @@ void UTurbVisFlux::CmpVisFlux()
     Alloc();
     if ( turbcom.nEqu == 1 )
     {
-        this->CmpVisFlux1Equ();
+        this->CalcVisFlux1Equ();
     }
     else if ( turbcom.nEqu >= 2 )
     {
-        this->CmpVisFlux2Equ();
+        this->CalcVisFlux2Equ();
     }
     DeAlloc();
 }
@@ -127,24 +127,24 @@ void UTurbVisFlux::AverOtherFaceValue()
 {
 }
 
-void UTurbVisFlux::CmpNormalGrad()
+void UTurbVisFlux::CalcNormalGrad()
 {
-    visTurb.CmpNormalGrad();
+    visTurb.CalcNormalGrad();
 }
 
-void UTurbVisFlux::CmpTestMethod()
+void UTurbVisFlux::CalcTestMethod()
 {
-    visTurb.CmpTestMethod();
+    visTurb.CalcTestMethod();
 }
 
-void UTurbVisFlux::CmpNew1Method()
+void UTurbVisFlux::CalcNew1Method()
 {
-    visTurb.CmpNew1Method();
+    visTurb.CalcNew1Method();
 }
 
-void UTurbVisFlux::CmpNew2Method()
+void UTurbVisFlux::CalcNew2Method()
 {
-    visTurb.CmpNew2Method();
+    visTurb.CalcNew2Method();
 }
 
 void UTurbVisFlux::CorrectFaceGrad()
@@ -176,12 +176,12 @@ void UTurbVisFlux::AverMethod()
 
     this->AverGrad();
 
-    this->CmpNormalGrad();
+    this->CalcNormalGrad();
 }
 
 void UTurbVisFlux::StdMethod()
 {
-    this->CmpGradCoef();
+    this->CalcGradCoef();
 
     this->ZeroNormalGrad();
 
@@ -191,7 +191,7 @@ void UTurbVisFlux::StdMethod()
 
     this->CorrectFaceGrad();
 
-    this->CmpNormalGrad();
+    this->CalcNormalGrad();
 }
 
 void UTurbVisFlux::TestMethod()
@@ -202,7 +202,7 @@ void UTurbVisFlux::TestMethod()
 
     this->PrepareCellGeom();
 
-    this->CmpTestMethod();
+    this->CalcTestMethod();
 
     this->ModifyFaceGrad();
 }
@@ -215,7 +215,7 @@ void UTurbVisFlux::New1Method()
 
     this->PrepareCellGeom();
 
-    this->CmpNew1Method();
+    this->CalcNew1Method();
 
     this->ModifyFaceGrad();
 }
@@ -228,14 +228,14 @@ void UTurbVisFlux::New2Method()
 
     this->PrepareCellGeom();
 
-    this->CmpNew2Method();
+    this->CalcNew2Method();
 
     this->ModifyFaceGrad();
 }
 
-void UTurbVisFlux::CmpGradCoef()
+void UTurbVisFlux::CalcGradCoef()
 {
-    vgg.CmpGradCoef();
+    vgg.CalcGradCoef();
 }
 
 
@@ -244,7 +244,7 @@ void UTurbVisFlux::PrepareCellGeom()
     vgg.PrepareCellGeom();
 }
 
-void UTurbVisFlux::CmpVisFlux1Equ()
+void UTurbVisFlux::CalcVisFlux1Equ()
 {
     for ( int fId = 0; fId < ug.nFace; ++ fId )
     {
@@ -260,14 +260,14 @@ void UTurbVisFlux::CmpVisFlux1Equ()
 
         this->PrepareFaceValue();
 
-        this->CmpFaceVisFlux1Equ();
+        this->CalcFaceVisFlux1Equ();
 
         this->UpdateFaceVisFlux();
     }
     this->AddVisFlux();
 }
 
-void UTurbVisFlux::CmpVisFlux2Equ()
+void UTurbVisFlux::CalcVisFlux2Equ()
 {
     for ( int fId = 0; fId < ug.nFace; ++ fId )
     {
@@ -278,7 +278,7 @@ void UTurbVisFlux::CmpVisFlux2Equ()
 
         this->PrepareFaceValue();
 
-        this->CmpFaceVisFlux2Equ();
+        this->CalcFaceVisFlux2Equ();
 
         this->UpdateFaceVisFlux();
     }
@@ -301,7 +301,7 @@ void UTurbVisFlux::PrepareFaceValue()
     gcom.vfn   = ( * ug.vfn   )[ ug.fId ];
     gcom.farea = ( * ug.farea )[ ug.fId ];
 
-    gcom.CmpTangent();
+    gcom.CalcTangent();
 
     for ( int iEqu = 0; iEqu < turbcom.nEqu; ++ iEqu )
     {
@@ -342,12 +342,12 @@ void UTurbVisFlux::PrepareFaceValue()
     turbcom.rho2 = ( * uturbf.q_ns )[ IDX::IR ][ ug.rc ];
 
     this->AverGrad();
-    this->CmpFaceWeight();
+    this->CalcFaceWeight();
 
     ( this->* visPointer )();
 }
 
-void UTurbVisFlux::CmpFaceVisFlux1Equ()
+void UTurbVisFlux::CalcFaceVisFlux1Equ()
 {
     Real orl = 1.0 / ( turbcom.rho1 + SMALL );
     Real orr = 1.0 / ( turbcom.rho2 + SMALL );
@@ -368,9 +368,9 @@ void UTurbVisFlux::CmpFaceVisFlux1Equ()
     }
 }
 
-void UTurbVisFlux::CmpFaceVisFlux2Equ()
+void UTurbVisFlux::CalcFaceVisFlux2Equ()
 {
-    turbcom.CmpSigkw();
+    turbcom.CalcSigkw();
 
     Real visl = half * ( turbcom.visl1 + turbcom.visl2 );
     Real vist = half * ( turbcom.vist1 + turbcom.vist2 );
@@ -399,9 +399,9 @@ void UTurbVisFlux::UpdateFaceVisFlux()
     }
 }
 
-void UTurbVisFlux::CmpFaceWeight()
+void UTurbVisFlux::CalcFaceWeight()
 {
-    vgg.CmpFaceWeight();
+    vgg.CalcFaceWeight();
 }
 
 EndNameSpace

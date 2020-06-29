@@ -53,7 +53,7 @@ MDomain::~MDomain()
     }
 }
 
-void MDomain::ComputeSubDomainCtrlCoor()
+void MDomain::CalcSubDomainCtrlCoor()
 {
     while ( true )
     {
@@ -62,7 +62,7 @@ void MDomain::ComputeSubDomainCtrlCoor()
         for ( int iDomain = 0; iDomain < nDomain; ++ iDomain )
         {
             SDomain * sDomain = sDomainList[ iDomain ];
-            bool flag = sDomain->ComputeSingleDomainCoor();
+            bool flag = sDomain->CalcSingleDomainCoor();
             local_flag = ( flag && local_flag );
         }
         if ( local_flag ) break;
@@ -91,11 +91,11 @@ SDomain * MDomain::FindSDomain( int fid )
     return 0;
 }
 
-void MDomain::ComputeCoor()
+void MDomain::CalcCoor()
 {
     int closedLine = 1;
-    this->ComputeBcCoor( this->coorMap, closedLine );
-    this->ComputeSubDomainCtrlCoor();
+    this->CalcBcCoor( this->coorMap, closedLine );
+    this->CalcSubDomainCtrlCoor();
 }
 
 int MDomain::GetNsubDomain()
@@ -159,7 +159,7 @@ void MDomain::CreateInpFaceList( HXVector< Face2D * > &facelist )
         face2d->ctrlpoints = sDomain->ctrlpoints;
         BlkF2C & face_struct = blkFaceSolver.myFaceSolver.face2Block[ face2d->face_id ];
         face2d->bcType = face_struct.bctype;
-        face2d->CompStEd( coorMap );
+        face2d->CalcStEd( coorMap );
         facelist.push_back( face2d );
     }
 }

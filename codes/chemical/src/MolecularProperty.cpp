@@ -110,7 +110,7 @@ void MolecularProperty::Read( FileIO * ioFile )
         ct[ iSpecies ] = ioFile->ReadNextDigit< Real >();
     }
 
-    schmidtNumber->ComputeSchmidtNumber( ion_type );
+    schmidtNumber->CalcSchmidtNumber( ion_type );
 }
 
 void MolecularProperty::Read( DataBook * dataBook )
@@ -155,7 +155,7 @@ void MolecularProperty::Write( DataBook * dataBook )
     HXAppend( dataBook, omw );
 }
 
-void MolecularProperty::ComputeProperty()
+void MolecularProperty::CalcProperty()
 {
     //dimensional molecular weight
     Real coef = 1.0e-3;

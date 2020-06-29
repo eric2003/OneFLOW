@@ -54,9 +54,9 @@ public:
     static void InitField( int sTid, const string & basicString );
     static void RegisterInterfaceVar( int sTid, const string & basicString );
     static void AllocateGlobalField( int sTid, const string & basicString );
-    static void CmpInnerFieldFileName( const string & basicString, StringField & fileNameList );
-    static void CmpInterfaceFileName( const string & basicString, StringField & fileNameList );
-    static void CmpInterfaceFileType( IntField & fieldTypeList );
+    static void CalcInnerFieldFileName( const string & basicString, StringField & fileNameList );
+    static void CalcInterfaceFileName( const string & basicString, StringField & fileNameList );
+    static void CalcInterfaceFileType( IntField & fieldTypeList );
     static void AllocateAllKindsOfInterfaceField( int sTid );
     static void AllocateInterfaceField( IFieldProperty * iFieldProperty );
     static void AllocateOversetInterfaceField( IFieldProperty * iFieldProperty );
@@ -130,15 +130,15 @@ public:
     void Add( const string & name, bool value );
     void ReadBool( FileIO * ioFile );
     void ReadSuperBool( FileIO * ioFile );
-    bool CmpVarValue( const string & varName );
+    bool CalcVarValue( const string & varName );
     void Read();
     void ReadFile( const string & fileName, int valueFlag = 0 );
 
 };
 
-bool CmpBoolExp( bool var1, const string & opName, bool var2 );
-bool CmpBoolExp( const string & varName1, const string & opName, const string & varName2 );
-bool CmpVarValue( const string & varName, StringField & boolName, BoolField & boolVar );
+bool CalcBoolExp( bool var1, const string & opName, bool var2 );
+bool CalcBoolExp( const string & varName1, const string & opName, const string & varName2 );
+bool CalcVarValue( const string & varName, StringField & boolName, BoolField & boolVar );
 int GetVarDimension( const string & dimName );
 
 EndNameSpace

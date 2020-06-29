@@ -28,13 +28,13 @@ BeginNameSpace( ONEFLOW )
 
 DEFINE_DATA_CLASS( INsInitFinal );
 DEFINE_DATA_CLASS( INsVisual );
-DEFINE_DATA_CLASS( INsCmpTimeStep );
+DEFINE_DATA_CLASS( INsCalcTimeStep );
 DEFINE_DATA_CLASS( INsUpdateResiduals );
 DEFINE_DATA_CLASS( INsImplicitMethod );
 DEFINE_DATA_CLASS( INsPostprocess );
 DEFINE_DATA_CLASS( INsFinalPostprocess );
 DEFINE_DATA_CLASS( INsInitSolver );
-DEFINE_DATA_CLASS( INsCmpBoundary );
+DEFINE_DATA_CLASS( INsCalcBoundary );
 DEFINE_DATA_CLASS( IDumpHeatFluxCoeff );
 
 void RegisterINsFunc();

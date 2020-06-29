@@ -33,7 +33,7 @@ public:
     ~ConvergeTask();
 public:
     void Run();
-    void CmpBool();
+    void CalcBool();
 protected:
     BoolField boolField;
     bool flag;

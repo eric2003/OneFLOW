@@ -69,10 +69,10 @@ public:
     void AccurateFaceValue();
     void AccurateOtherFaceValue();
     void CorrectFaceGrad();
-    void CmpNormalGrad();
-    void CmpTestMethod();
-    void CmpNew1Method();
-    void CmpNew2Method();
+    void CalcNormalGrad();
+    void CalcTestMethod();
+    void CalcNew1Method();
+    void CalcNew2Method();
     void ModifyFaceGrad();
 };
 
@@ -87,8 +87,8 @@ public:
 public:
     static Real cdim;
     static Real c;
-    static void CmpConst();
-    static Real CmpViscosity( Real t );
+    static void CalcConst();
+    static Real CalcViscosity( Real t );
 };
 
 EndNameSpace

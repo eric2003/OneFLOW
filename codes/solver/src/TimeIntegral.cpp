@@ -79,7 +79,7 @@ void TimeIntegral::RungeKutta()
     if ( GridState::gridLevel == 0 )
     {
         ONEFLOW::SsSgTask( "LOAD_Q"        );
-        ONEFLOW::SsSgTask( "CMP_TIME_STEP" );
+        ONEFLOW::SsSgTask( "CALC_TIME_STEP" );
 
         int nStages = ctrl.rk_coef.size();
         for ( int iStage = 0; iStage < nStages; ++ iStage )
@@ -88,28 +88,28 @@ void TimeIntegral::RungeKutta()
 
             ONEFLOW::SsSgTask( "LOAD_RESIDUALS"   );
             ONEFLOW::SsSgTask( "UPDATE_RESIDUALS" );
-            ONEFLOW::SsSgTask( "CMP_LHS"          );
+            ONEFLOW::SsSgTask( "CALC_LHS"         );
             ONEFLOW::SsSgTask( "UPDATE_FLOWFIELD" );
-            ONEFLOW::SsSgTask( "CMP_BOUNDARY"     );
+            ONEFLOW::SsSgTask( "CALC_BOUNDARY"    );
         }
     }
     else
     {
         ctrl.lhscoef = 1.0;
         ONEFLOW::SsSgTask( "LOAD_Q"           );
-        ONEFLOW::SsSgTask( "CMP_TIME_STEP"    );
+        ONEFLOW::SsSgTask( "CALC_TIME_STEP"    );
         ONEFLOW::SsSgTask( "LOAD_RESIDUALS"   );
         ONEFLOW::SsSgTask( "UPDATE_RESIDUALS" );
-        ONEFLOW::SsSgTask( "CMP_LHS"          );
+        ONEFLOW::SsSgTask( "CALC_LHS"         );
         ONEFLOW::SsSgTask( "UPDATE_FLOWFIELD" );
-        ONEFLOW::SsSgTask( "CMP_BOUNDARY"     );
+        ONEFLOW::SsSgTask( "CALC_BOUNDARY"    );
     }
 }
 
 void TimeIntegral::Lusgs()
 {
     ONEFLOW::SsSgTask( "ZERO_DQ_FIELD"    );
-    ONEFLOW::SsSgTask( "CMP_TIME_STEP"    );
+    ONEFLOW::SsSgTask( "CALC_TIME_STEP"   );
     ONEFLOW::SsSgTask( "LOAD_RESIDUALS"   );
     ONEFLOW::SsSgTask( "UPDATE_RESIDUALS" );
     ONEFLOW::SsSgTask( "INIT_LUSGS"       );
@@ -122,7 +122,7 @@ void TimeIntegral::Lusgs()
     }
 
     ONEFLOW::SsSgTask( "UPDATE_FLOWFIELD_LUSGS" );
-    ONEFLOW::SsSgTask( "CMP_BOUNDARY"           );
+    ONEFLOW::SsSgTask( "CALC_BOUNDARY"          );
 }
 
 EndNameSpace

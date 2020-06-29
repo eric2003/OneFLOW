@@ -31,8 +31,8 @@ public:
     TurbUpdate ();
     ~TurbUpdate();
 public:
-    void CmpFlowField1Equ();
-    void CmpFlowField2Equ();
+    void CalcFlowField1Equ();
+    void CalcFlowField2Equ();
     void ModifyValue1Equ();
     virtual void SmoothTurbulencePoint(){};
 };

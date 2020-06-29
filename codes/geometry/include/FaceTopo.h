@@ -59,7 +59,7 @@ public:
     IntField lCellNew, rCellNew;
 public:
     UInt GetNFace() { return faceType.size();  }
-    UInt ComputeTotalFaceNodes();
+    UInt CalcTotalFaceNodes();
     UInt GetNBFace();
     void SetNBFace( UInt nBFace );
 public:
@@ -74,7 +74,7 @@ public:
 public:
     bool GetSId( int iFace, int iPosition, int & sId );
     bool GetTId( int iFace, int iPosition, int & tId );
-    void CmpC2C( LinkField & c2c );
+    void CalcC2C( LinkField & c2c );
 };
 
 EndNameSpace

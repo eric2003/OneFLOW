@@ -38,7 +38,7 @@ Stress::~Stress()
     ;
 }
 
-void Stress::CmpStress()
+void Stress::CalcStress()
 {
     Real divv2p3 = two3rd * ( dudx + dvdy + dwdz );
 
@@ -50,9 +50,9 @@ void Stress::CmpStress()
     tyz = viscosity * ( dvdz + dwdy );
 }
 
-void Stress::CmpForce( Force * force )
+void Stress::CalcForce( Force * force )
 {
-    this->CmpStress();
+    this->CalcStress();
 
     Real coef = - two * area * orey;
 

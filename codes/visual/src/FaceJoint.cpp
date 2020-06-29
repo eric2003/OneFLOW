@@ -57,9 +57,9 @@ void FaceJointManager::ConstructPointIndex()
     }
 }
 
-void FaceJointManager::CmpNodeValue()
+void FaceJointManager::CalcNodeValue()
 {
-    this->global->ComputeNodeValue();
+    this->global->CalcNodeValue();
 
     int nLocal = this->patch.size();
     for ( int iLocal = 0; iLocal < nLocal; ++ iLocal )
@@ -84,7 +84,7 @@ FaceJoint::~FaceJoint()
     delete wallVisual;
 }
 
-void FaceJoint::CmpBoundBox()
+void FaceJoint::CalcBoundBox()
 {
     pmin[ 0 ] = LARGE;
     pmin[ 1 ] = LARGE;
@@ -147,7 +147,7 @@ void FaceJoint::CmpBoundBox()
 void FaceJoint::ConstructPointIndex()
 {
     if ( ! this->isValid ) return;
-    this->CmpBoundBox();
+    this->CalcBoundBox();
 
     FaceJoint::PointLink & fvp = this->fvp;
 
@@ -198,7 +198,7 @@ void FaceJoint::ConstructPointIndexMap( FaceJoint * globalBasicWall )
     }
 }
 
-void FaceJoint::ComputeNodeValue()
+void FaceJoint::CalcNodeValue()
 {
     int numberOfWallFaces = this->GetSize();
 

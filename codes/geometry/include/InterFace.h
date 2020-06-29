@@ -70,11 +70,11 @@ public:
     void InitNeighborFlag( IntField & flags );
     void InitNeighborZoneInfo();
     void InitNeighborZoneInfo( int iNei, int iZone );
-    void CmpSendId( int iNei, IntField & idsend );
+    void CalcSendId( int iNei, IntField & idsend );
     void FillRecvId( int iNei );
     void SetSendId( int zid, IntField & idsend );
     void AllocateNeighbor();
-    int ComputeNIFace( int iNei );
+    int CalcNIFace( int iNei );
     IntField & GetInterfaceId( int neiId, int iSr );
 };
 

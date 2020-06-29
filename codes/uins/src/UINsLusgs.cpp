@@ -58,17 +58,17 @@ void UINsLusgs::Init()
     UnsGrid * grid = Zone::GetUnsGrid();
     FaceTopo * faceTopo = grid->faceTopo;
     CellTopo * cellTopo = grid->cellMesh->cellTopo;
-    cellTopo->CmpC2f( faceTopo );
+    cellTopo->CalcC2f( faceTopo );
     ug.Init();
     inslu.Init();
     uinsf.Init();
-    this->CmpSpectrum();
+    this->CalcSpectrum();
 }
 
-void UINsLusgs::CmpSpectrum()
+void UINsLusgs::CalcSpectrum()
 {
     UINsSpectrum * unsSpectrum = new UINsSpectrum();
-    unsSpectrum->CmpImplicitSpectrum();
+    unsSpectrum->CalcImplicitSpectrum();
     delete unsSpectrum;
 }
 
@@ -98,7 +98,7 @@ void UINsLusgs::LowerSweep()
         
             this->SolveLowerCell();
 
-            this->CmpLowerChange();
+            this->CalcLowerChange();
         }
 
         this->Update();
@@ -130,7 +130,7 @@ void UINsLusgs::UpperSweep()
 
             this->SolveUpperCell();
 
-            this->CmpUpperChange();
+            this->CalcUpperChange();
         }
 
         this->Update();
@@ -213,7 +213,7 @@ void UINsLusgs::Solve( int fId, int signValue )
 
     this->GetStandardFluxIncrement( signValue );
 
-    this->ComputeViscousTerm();
+    this->CalcViscousTerm();
 
     this->AddFluxIncrement();
 }
@@ -292,7 +292,7 @@ void UINsLusgs::PrepareDataFacePrim()
     }
 }
 
-void UINsLusgs::ComputeViscousTerm()
+void UINsLusgs::CalcViscousTerm()
 {
     if ( vis_model.vismodel == 0 ) return;
 

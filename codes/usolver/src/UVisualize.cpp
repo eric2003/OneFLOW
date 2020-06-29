@@ -111,11 +111,11 @@ BcVisual::~BcVisual()
     ;
 }
 
-void BcVisual::Compute( int bcType )
+void BcVisual::Calc( int bcType )
 {
     UnsGrid * grid = Zone::GetUnsGrid();
 
-    this->Cmpf2n( bcType );
+    this->Calcf2n( bcType );
 
     e2n.resize( 0 );
     lcell.resize( 0 );
@@ -192,7 +192,7 @@ void BcVisual::ResolveElementEdge()
     }
 }
 
-void BcVisual::Cmpf2n( int bcType )
+void BcVisual::Calcf2n( int bcType )
 {
     UnsGrid * grid = Zone::GetUnsGrid();
     FaceTopo * faceTopo = grid->faceTopo;
@@ -467,7 +467,7 @@ void UVisualize::Visual()
     VisualTool visualTool;
     visualTool.Init();
 
-    this->CmpNodeField( & visualTool );
+    this->CalcNodeField( & visualTool );
 
     ostringstream oss;
 
@@ -567,7 +567,7 @@ void UVisualize::ShowBc( ostringstream & oss, VisualTool * visualTool )
     UnsGrid * grid = Zone::GetUnsGrid();
 
     IntField bcTypeList;
-    grid->faceTopo->bcManager->CmpBcType( bcTypeList );
+    grid->faceTopo->bcManager->CalcBcType( bcTypeList );
     int nBcType = bcTypeList.size();
 
     for ( int iBcType = 0; iBcType < nBcType; ++ iBcType )
@@ -580,7 +580,7 @@ void UVisualize::ShowBc( ostringstream & oss, VisualTool * visualTool )
 
         BcVisual bcVisual;
 
-        bcVisual.Compute( bcType );
+        bcVisual.Calc( bcType );
 
         bcVisual.Dump( oss, visualTool, bcTitle );
     }    
@@ -592,7 +592,7 @@ void UVisualize::ShowBcDebugTest( ostringstream & oss, VisualTool * visualTool )
     UnsGrid * grid = Zone::GetUnsGrid();
 
     IntField bcTypeList;
-    grid->faceTopo->bcManager->CmpBcType( bcTypeList );
+    grid->faceTopo->bcManager->CalcBcType( bcTypeList );
     int nBcType = bcTypeList.size();
 
     for ( int iBcType = 0; iBcType < nBcType; ++ iBcType )
@@ -606,13 +606,13 @@ void UVisualize::ShowBcDebugTest( ostringstream & oss, VisualTool * visualTool )
 
         BcVisual bcVisual;
 
-        bcVisual.Compute( bcType );
+        bcVisual.Calc( bcType );
 
         bcVisual.DumpDebug( oss, visualTool, bcTitle );
     }
 }
 
-void UVisualize::CmpNodeField( VisualTool * visualTool )
+void UVisualize::CalcNodeField( VisualTool * visualTool )
 {
     UnsGrid * grid = Zone::GetUnsGrid();
     MRField * q = ONEFLOW::GetFieldPointer< MRField >( grid, "q" );
@@ -625,7 +625,7 @@ void UVisualize::CmpNodeField( VisualTool * visualTool )
 
     MRField * gaman = CreateNodeVar( "gama" );
     MRField * machn = visualTool->CreateField( "mach" );
-    CmpMach( rn, un, vn, wn, pn, gaman, machn );
+    CalcMach( rn, un, vn, wn, pn, gaman, machn );
     delete gaman;
 
     MRField * tempr = ONEFLOW::GetFieldPointer< MRField >( grid, "tempr" );
@@ -638,7 +638,7 @@ void UVisualize::CmpNodeField( VisualTool * visualTool )
     }
 }
 
-void CmpMach( MRField * r, MRField * u, MRField * v, MRField * w, MRField * p, MRField * gama, MRField * mach )
+void CalcMach( MRField * r, MRField * u, MRField * v, MRField * w, MRField * p, MRField * gama, MRField * mach )
 {
     UnsGrid * grid = Zone::GetUnsGrid();
     int nNode = grid->nNode;

@@ -20,7 +20,7 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "CompGrid.h"
+#include "CalcGrid.h"
 #include "UnsGrid.h"
 #include "Grid.h"
 #include "GridPara.h"
@@ -45,17 +45,17 @@ using namespace std;
 
 BeginNameSpace( ONEFLOW )
 
-CompGrid::CompGrid()
+CalcGrid::CalcGrid()
 {
     iFaceLink = 0;
 }
 
-CompGrid::~CompGrid()
+CalcGrid::~CalcGrid()
 {
     delete iFaceLink;
 }
 
-void CompGrid::Init( Grids & grids )
+void CalcGrid::Init( Grids & grids )
 {
     this->grids = grids;
     this->grids.SetDeleteFlag( true );
@@ -71,7 +71,7 @@ void CompGrid::Init( Grids & grids )
     }
 }
 
-void CompGrid::BuildInterfaceLink()
+void CalcGrid::BuildInterfaceLink()
 {
     int gridObj = GetDataValue< int >( "gridObj" );
 
@@ -93,7 +93,7 @@ void CompGrid::BuildInterfaceLink()
     }
 }
 
-void CompGrid::Dump()
+void CalcGrid::Dump()
 {
     cout << __FUNCTION__ << endl;
     fstream file;
@@ -122,7 +122,7 @@ void CompGrid::Dump()
     ONEFLOW::CloseFile( file );
 }
 
-void CompGrid::Post()
+void CalcGrid::Post()
 {
     logFile << "GenerateOverset\n";
     this->GenerateOverset();
@@ -130,14 +130,14 @@ void CompGrid::Post()
     this->BuildInterfaceLink();
     logFile << "ResetGridScaleAndTranslate\n";
     this->ResetGridScaleAndTranslate();
-    logFile << "CompGrid::Post() Final \n";
+    logFile << "CalcGrid::Post() Final \n";
 }
 
-void CompGrid::GenerateOverset()
+void CalcGrid::GenerateOverset()
 {
 }
 
-void CompGrid::ReconstructLink()
+void CalcGrid::ReconstructLink()
 {
     int nZone = static_cast<int>(grids.size());
     for ( int iZone = 0; iZone < nZone; ++ iZone )
@@ -146,7 +146,7 @@ void CompGrid::ReconstructLink()
     }
 }
 
-void CompGrid::ReconstructLink( int iZone )
+void CalcGrid::ReconstructLink( int iZone )
 {
     UnsGrid * grid = UnsGridCast( grids[ iZone ] );
 
@@ -192,12 +192,12 @@ void CompGrid::ReconstructLink( int iZone )
     }
 }
 
-void CompGrid::ReconstructInterFace()
+void CalcGrid::ReconstructInterFace()
 {
     this->iFaceLink->ReconstructInterFace();
 }
 
-void CompGrid::ResetGridScaleAndTranslate()
+void CalcGrid::ResetGridScaleAndTranslate()
 {
     int nZone = static_cast<int>(grids.size());
     for ( int iZone = 0; iZone < nZone; ++ iZone )
@@ -207,7 +207,7 @@ void CompGrid::ResetGridScaleAndTranslate()
     }
 }
 
-void CompGrid::GenerateLink()
+void CalcGrid::GenerateLink()
 {
     this->iFaceLink = new IFaceLink( grids );
 
@@ -222,7 +222,7 @@ void CompGrid::GenerateLink()
     this->MatchInterfaceTopology();
 }
 
-void CompGrid::ModifyBcType()
+void CalcGrid::ModifyBcType()
 {
     int ignoreNoBc = ONEFLOW::GetIgnoreNoBc();
 
@@ -237,7 +237,7 @@ void CompGrid::ModifyBcType()
     }
 }
 
-void CompGrid::GenerateLgMapping()
+void CalcGrid::GenerateLgMapping()
 {
     int nZone = static_cast<int>(grids.size());
     for ( int iZone = 0; iZone < nZone; ++ iZone )
@@ -247,7 +247,7 @@ void CompGrid::GenerateLgMapping()
     }
 }
 
-void CompGrid::ReGenerateLgMapping()
+void CalcGrid::ReGenerateLgMapping()
 {
     this->iFaceLink->InitNewLgMapping();
 
@@ -262,12 +262,12 @@ void CompGrid::ReGenerateLgMapping()
     this->UpdateOtherTopologyTerm();
 }
 
-void CompGrid::UpdateLgMapping()
+void CalcGrid::UpdateLgMapping()
 {
     iFaceLink->UpdateLgMapping();
 }
 
-void CompGrid::UpdateOtherTopologyTerm()
+void CalcGrid::UpdateOtherTopologyTerm()
 {
     int nZone = static_cast<int>(grids.size());
     for ( int iZone = 0; iZone < nZone; ++ iZone )
@@ -277,7 +277,7 @@ void CompGrid::UpdateOtherTopologyTerm()
     }
 }
 
-void CompGrid::MatchInterfaceTopology()
+void CalcGrid::MatchInterfaceTopology()
 {
     int nZone = static_cast<int>(grids.size());
     for ( int iZone = 0; iZone < nZone; ++ iZone )
@@ -297,11 +297,11 @@ string GetTargetGridFileName()
     return ONEFLOW::GetDataValue< string >( "targetGridFileName" );
 }
 
-void GenerateMultiZoneCompGrids( Grids & grids )
+void GenerateMultiZoneCalcGrids( Grids & grids )
 {
     RegionNameMap::DumpRegion();
 
-    CompGrid * compGrid = new CompGrid();
+    CalcGrid * compGrid = new CalcGrid();
     compGrid->Init( grids );
     logFile << "Post\n";
 

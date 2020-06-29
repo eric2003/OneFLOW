@@ -60,8 +60,8 @@ public:
 public:
     void Init( UInt nBFace );
     int GetNBFace();
-    int ComputeNIFace();
-    int CmpNumWallFace();
+    int CalcNIFace();
+    int CalcNumWallFace();
     void CreateI2B( InterFace * interFace );
 public:
     void CreateBcRegion();
@@ -91,7 +91,7 @@ public:
     void PreProcess();
     bool ExistInterface();
     void Update();
-    void CmpBcType( IntField & bcTypeList );
+    void CalcBcType( IntField & bcTypeList );
 };
 
 class BasicRegion
@@ -148,7 +148,7 @@ public:
     BasicRegion * t;
 public:
     void GetNormalizeIJKRegion( int & ist, int & ied, int & jst, int & jed, int & kst, int & ked );
-    int ComputeRegionCells();
+    int CalcRegionCells();
 };
 
 class BcRegionGroup

@@ -192,7 +192,7 @@ void CreateStandardADT( RealField & ptmin, RealField & ptmax, AdtTree *& adtTree
 
 void CreateStandardADT( Grid * grid, AdtTree *& adtTree, Real & tolerance )
 {
-    grid->nodeMesh->ComputeMinMaxBox();
+    grid->nodeMesh->CalcMinMaxBox();
     RealField & ptmin = grid->nodeMesh->pmin;
     RealField & ptmax = grid->nodeMesh->pmax;
 
@@ -214,7 +214,7 @@ void CreateStandardADT( Grids & grids, AdtTree *& adtTree, Real & tolerance )
     RealField pmin( 3 ), pmax( 3 );
     ONEFLOW::GetBoundingBoxOfMultiZoneGrids( grids, pmin, pmax );
 
-    tolerance = ONEFLOW::ComputeGridTolerance( grids );
+    tolerance = ONEFLOW::CalcGridTolerance( grids );
     if ( tolerance < 1.0e-10 )
     {
         tolerance = 1.0e-8;
@@ -264,7 +264,7 @@ void GetGridsMinMaxDistance( Grids & grids, Real & mindis, Real & maxdis )
     }
 }
 
-Real ComputeGridTolerance( Grids & grids )
+Real CalcGridTolerance( Grids & grids )
 {
     Real mindis =   LARGE;
     Real maxdis = - LARGE;
@@ -290,7 +290,7 @@ void GetBoundingBoxOfMultiZoneGrids( Grids & grids, RealField & pmin, RealField 
 
     for ( int iZone = 0; iZone < numberOfZones; ++ iZone )
     {
-        grids[ iZone ]->nodeMesh->ComputeMinMaxBox();
+        grids[ iZone ]->nodeMesh->CalcMinMaxBox();
         RealField & localPmin = grids[ iZone ]->nodeMesh->pmin;
         RealField & localPmax = grids[ iZone ]->nodeMesh->pmax;
 

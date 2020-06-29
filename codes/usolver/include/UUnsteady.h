@@ -36,9 +36,9 @@ public:
     void UpdateDualTimeStepSource();
     void StoreOldResidual();
     void PrepareResidual();
-    void CmpDualTimeResidual();
-    void CmpDualTimeSrc();
-    void CmpUnsteadyCriterion();
+    void CalcDualTimeResidual();
+    void CalcDualTimeSrc();
+    void CalcUnsteadyCriterion();
 };
 
 EndNameSpace

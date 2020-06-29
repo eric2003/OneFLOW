@@ -41,7 +41,7 @@ VisGradGeom::~VisGradGeom()
     ;
 }
 
-void VisGradGeom::CmpFaceWeight()
+void VisGradGeom::CalcFaceWeight()
 {
     dxl = ( * ug.xfc )[ ug.fId ] - ( * ug.xcc )[ ug.lc ];
     dyl = ( * ug.yfc )[ ug.fId ] - ( * ug.ycc )[ ug.lc ];
@@ -59,7 +59,7 @@ void VisGradGeom::CmpFaceWeight()
     fw2 = delt1 * delta;
 }
 
-void VisGradGeom::CmpAngle( Real dx, Real dy, Real dz, Real dist, Real & angle )
+void VisGradGeom::CalcAngle( Real dx, Real dy, Real dz, Real dist, Real & angle )
 {
     Real result = dist / ( DIST( dx, dy, dz ) + SMALL );
     if ( result >   1.0 ) result =   1.0;
@@ -92,11 +92,11 @@ void VisGradGeom::PrepareCellGeom()
     //( r1x, r1y ) - ( rLx, rLy ) = ( dr1x, dr1y ) - ( drLx, drLy )
     //( dr1x, dr1y ) - ( drLx, drLy ) = d1 * ( fnx, fny ) - ( dxl, dyl )
 
-    this->CmpAngle( this->dxl, this->dyl, this->dzl, - this->d1, this->angle1 );
-    this->CmpAngle( this->dxr, this->dyr, this->dzr,   this->d2, this->angle2 );
+    this->CalcAngle( this->dxl, this->dyl, this->dzl, - this->d1, this->angle1 );
+    this->CalcAngle( this->dxr, this->dyr, this->dzr,   this->d2, this->angle2 );
 }
 
-void VisGradGeom::CmpGradCoef()
+void VisGradGeom::CalcGradCoef()
 {
     this->dx  = ( * ug.xcc )[ ug.rc ] - ( * ug.xcc )[ ug.lc ];
     this->dy  = ( * ug.ycc )[ ug.rc ] - ( * ug.ycc )[ ug.lc ];
@@ -184,7 +184,7 @@ void VisGrad::CorrectFaceGrad()
     }
 }
 
-void VisGrad::CmpNormalGrad()
+void VisGrad::CalcNormalGrad()
 {
     for ( int iEqu = 0; iEqu < nEqu; ++ iEqu )
     {
@@ -204,7 +204,7 @@ bool VisGrad::TestSatisfied()
     bool result = vgg.angle1 > 0.0 && vgg.angle2 > 0.0 && ABS( vgg.d1 ) > SMALL && ABS( vgg.d2 ) > SMALL;
     if ( result )
     {
-        this->ComputeC1C2();
+        this->CalcC1C2();
     }
     return result;
 }
@@ -230,7 +230,7 @@ bool VisGrad::New2Satisfied()
     return result;
 }
 
-void VisGrad::ComputeC1C2()
+void VisGrad::CalcC1C2()
 {
     Real dtmp = SQR( vgg.d1, vgg.d2 );
     vgg.c1 = SQR( vgg.d1 ) / dtmp;
@@ -288,7 +288,7 @@ void VisGrad::ModifyFaceGrad()
     }
 }
 
-void VisGrad::CmpTestMethod()
+void VisGrad::CalcTestMethod()
 {
     if ( this->FaceAngleIsValid() )
     {
@@ -314,7 +314,7 @@ void VisGrad::CmpTestMethod()
     }
 }
 
-void VisGrad::CmpNew1Method()
+void VisGrad::CalcNew1Method()
 {
     if ( ! this->New1Satisfied() ) return;
 
@@ -326,7 +326,7 @@ void VisGrad::CmpNew1Method()
     }
 }
 
-void VisGrad::CmpNew2Method()
+void VisGrad::CalcNew2Method()
 {
     if ( ! this->New2Satisfied() ) return;
 

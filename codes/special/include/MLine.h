@@ -22,7 +22,7 @@ License
 
 
 #pragma once
-#include "CompCoor.h"
+#include "CalcCoor.h"
 #include "SimpleDomain.h"
 #include <map>
 using namespace std;
@@ -73,7 +73,7 @@ public:
     void ConstructDomainTopo();
     void ConstructCtrlPoint();
     void ConstructSLineCtrlPoint();
-    void ComputeCoor( CoorMap * localCoorMap );
+    void CalcCoor( CoorMap * localCoorMap );
     void SetDomainBcMesh( SDomain * sDomain );
     void CreateInpFaceList( HXVector< Face2D * > &facelist );
 };

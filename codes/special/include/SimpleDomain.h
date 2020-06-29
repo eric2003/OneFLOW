@@ -24,7 +24,7 @@ License
 #pragma once
 #include "HXDefine.h"
 #include "Mid.h"
-#include "CompCoor.h"
+#include "CalcCoor.h"
 #include <set>
 #include <map>
 #include <fstream>
@@ -33,7 +33,7 @@ BeginNameSpace( ONEFLOW )
 
 class Block3D;
 class SDomain;
-class CompCoor;
+class CalcCoor;
 class Face2D;
 
 class BlkF2C
@@ -56,12 +56,12 @@ public:
     int face_id;
     int bcType;
     IntField ctrlpoints;
-    CompCoor st, ed;
-    CompCoor p1, p2;
+    CalcCoor st, ed;
+    CalcCoor p1, p2;
     Face2D * t;
 public:
-    void CompRegion();
-    void CompStEd( CoorMap * coorMap );
+    void CalcRegion();
+    void CalcStEd( CoorMap * coorMap );
     void Set1DRegion( IntField & ctrlpoints );
 };
 
@@ -94,18 +94,18 @@ public:
     IntField & GetLinePoints( int line_id );
     void ConstructCtrlPoint();
     void ConstructBcPoint();
-    void ComputeDimBasic( int closedCurve );
-    void ComputeDim2D();
-    void ComputeDim1D();
-    void ComputeBcCoor( CoorMap * coorMap, int iloop );
+    void CalcDimBasic( int closedCurve );
+    void CalcDim2D();
+    void CalcDim1D();
+    void CalcBcCoor( CoorMap * coorMap, int iloop );
     void Normalize( int &d );
     void FindBcPointList2D( IntField & bcpointList );
     void NormalBcPointList2D( IntField & bcpointList );
     void FindNextPoint2D( IntField & ptList, int prev, int me, int & next, int & flag );
     bool IsBcPoint( int pt );
     bool IsCtrlPoint( int pt );
-    void ComputeDomainCtrlPoints( IntField & blkControlpoints, IntField & localpt );
-    void ComputeDomainCtrlPoints( IntField & blk_ctrl_points );
+    void CalcDomainCtrlPoints( IntField & blkControlpoints, IntField & localpt );
+    void CalcDomainCtrlPoints( IntField & blk_ctrl_points );
 };
 
 
@@ -122,6 +122,6 @@ bool InArray( int ip, IntField & var_array );
 void GetPointIdLink( IntField & lineList, LinkField & pointIdLink );
 
 void GetUnitInt( int &d );
-void GetUnitDir( CompCoor & c );
+void GetUnitDir( CalcCoor & c );
 
 EndNameSpace

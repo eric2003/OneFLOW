@@ -34,18 +34,18 @@ public:
 public:
     void Init();
     void ReadTmp();
-    void CmpTimestep();
-    void CmpLocalTimestep();
-    void CmpGlobalTimestep();
-    void CmpLgTimestep();
-    void CmpInvTimestep();
-    void CmpVisTimestep();
-    void CmpMinTimestep();
+    void CalcTimeStep();
+    void CalcLocalTimestep();
+    void CalcGlobalTimestep();
+    void CalcLgTimestep();
+    void CalcInvTimestep();
+    void CalcVisTimestep();
+    void CalcMinTimestep();
     void SetTimestep( Real timestep );
 public:
-    void CmpSpectrumField();
-    void CmpInvSpectrumField();
-    void CmpVisSpectrumField();
+    void CalcSpectrumField();
+    void CalcInvSpectrumField();
+    void CalcVisSpectrumField();
 public:
     void SetId( int fId );
     void PrepareData();

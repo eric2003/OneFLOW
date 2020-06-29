@@ -46,22 +46,22 @@ Grad::~Grad()
     ;
 }
 
-void Grad::CmpGrad()
+void Grad::CalcGrad()
 {
     for ( int iEqu = 0; iEqu < nEqu; ++ iEqu )
     {
-        //ONEFLOW::CmpGrad( ( * q )[ iEqu ], ( * dqdx )[ iEqu ], ( * dqdy )[ iEqu ], ( * dqdz )[ iEqu ] );
-        ONEFLOW::CmpGradGGCellWeight( ( * q )[ iEqu ], ( * dqdx )[ iEqu ], ( * dqdy )[ iEqu ], ( * dqdz )[ iEqu ] );
+        //ONEFLOW::CalcGrad( ( * q )[ iEqu ], ( * dqdx )[ iEqu ], ( * dqdy )[ iEqu ], ( * dqdz )[ iEqu ] );
+        ONEFLOW::CalcGradGGCellWeight( ( * q )[ iEqu ], ( * dqdx )[ iEqu ], ( * dqdy )[ iEqu ], ( * dqdz )[ iEqu ] );
     }
 
     this->SwapBcGrad();
 }
 
-void Grad::CmpGradDebug()
+void Grad::CalcGradDebug()
 {
     for ( int iEqu = 0; iEqu < nEqu; ++ iEqu )
     {
-        ONEFLOW::CmpGradDebug( ( * q )[ iEqu ], ( * dqdx )[ iEqu ], ( * dqdy )[ iEqu ], ( * dqdz )[ iEqu ] );
+        ONEFLOW::CalcGradDebug( ( * q )[ iEqu ], ( * dqdx )[ iEqu ], ( * dqdy )[ iEqu ], ( * dqdz )[ iEqu ] );
     }
 
     this->SwapBcGrad();

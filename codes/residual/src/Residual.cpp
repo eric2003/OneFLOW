@@ -49,7 +49,7 @@ void ResAver::Zero()
     this->nCell = 0;
 }
 
-void ResAver::CmpAver( HXVector< ResData > & dataList )
+void ResAver::CalcAver( HXVector< ResData > & dataList )
 {
     this->Zero();
     for ( int i = 0; i < dataList.size(); ++ i )
@@ -124,7 +124,7 @@ void ResMax::SwapMax( ResMax & rhs )
     }
 }
 
-void ResMax::CmpMax( HXVector< ResData > & dataList )
+void ResMax::CalcMax( HXVector< ResData > & dataList )
 {
     ResData & t = dataList[ 0 ];
     * this = t.resmax;
@@ -136,7 +136,7 @@ void ResMax::CmpMax( HXVector< ResData > & dataList )
     }
 }
 
-int ResMax::CmpMaxId()
+int ResMax::CalcMaxId()
 {
     int nEqu = resmax.size();
     int id = 0;

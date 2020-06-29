@@ -41,7 +41,7 @@ public:
     FaceJoint * global;
 public:
     void ConstructPointIndex();
-    void CmpNodeValue();
+    void CalcNodeValue();
 };
 
 class WallVisual;
@@ -70,10 +70,10 @@ public:
     PointSearch * ps;
     WallVisual * wallVisual;
 public:
-    void CmpBoundBox();
+    void CalcBoundBox();
     void ConstructPointIndex();
     void ConstructPointIndexMap( FaceJoint * globalBasicWall );
-    void ComputeNodeValue();
+    void CalcNodeValue();
     void RemapNodeValue( FaceJoint * globalBasicWall );
 public:
     int GetSize() { return fvp.size(); }

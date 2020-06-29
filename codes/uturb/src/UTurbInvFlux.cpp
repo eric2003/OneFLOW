@@ -52,15 +52,15 @@ UTurbInvFlux::~UTurbInvFlux()
     delete nslimiter;
 }
 
-void UTurbInvFlux::CmpLimiter()
+void UTurbInvFlux::CalcLimiter()
 {
-     limiter->CmpLimiter();
-     nslimiter->CmpLimiter();
+     limiter->CalcLimiter();
+     nslimiter->CalcLimiter();
 }
 
-void UTurbInvFlux::CmpInvFace()
+void UTurbInvFlux::CalcInvFace()
 {
-    this->CmpLimiter();
+    this->CalcLimiter();
     this->GetQlQrField();
 
     this->ReconstructFaceValueField();
@@ -76,8 +76,8 @@ void UTurbInvFlux::GetQlQrField()
 
 void UTurbInvFlux::ReconstructFaceValueField()
 {
-    limf->CmpFaceValue();
-    nslimiter->limf->CmpFaceValue();
+    limf->CalcFaceValue();
+    nslimiter->limf->CalcFaceValue();
 }
 
 void UTurbInvFlux::BoundaryQlQrFixField()
@@ -127,7 +127,7 @@ void UTurbInvFlux::DeAlloc()
     delete invflux;
 }
 
-void UTurbInvFlux::CmpFlux()
+void UTurbInvFlux::CalcFlux()
 {
     TurbInv & inv = turbInv;
     inv.Init();
@@ -137,14 +137,14 @@ void UTurbInvFlux::CmpFlux()
 
     Alloc();
 
-    this->CmpInvFace();
-    this->CmpInvFlux();
+    this->CalcInvFace();
+    this->CalcInvFlux();
     this->AddInvFlux();
 
     DeAlloc();
 }
 
-void UTurbInvFlux::CmpInvFlux()
+void UTurbInvFlux::CalcInvFlux()
 {
     for ( int fId = 0; fId < ug.nFace; ++ fId )
     {

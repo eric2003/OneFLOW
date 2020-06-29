@@ -148,7 +148,7 @@ void InterFace::InitNeighborZoneInfo()
     }
 }
 
-int InterFace::ComputeNIFace( int iNei )
+int InterFace::CalcNIFace( int iNei )
 {
     int expectedId = this->interFacePairs[ iNei ]->nzid;
     int nIFaceCount = 0;
@@ -171,7 +171,7 @@ void InterFace::InitNeighborZoneInfo( int iNei, int iZone )
 
     this->z2n.insert( pair< int, int >( iZone, iNei ) );
 
-    int nIFaceCount = this->ComputeNIFace( iNei );
+    int nIFaceCount = this->CalcNIFace( iNei );
 
     interfacePair->nIFace = nIFaceCount;
     interfacePair->idsend.resize( nIFaceCount );
@@ -196,7 +196,7 @@ void InterFace::FillRecvId( int iNei )
     }
 }
 
-void InterFace::CmpSendId( int iNei, IntField & idsend )
+void InterFace::CalcSendId( int iNei, IntField & idsend )
 {
     InterfacePair * interfacePair = interFacePairs[ iNei ];
     idsend.resize( interfacePair->nIFace );
@@ -328,7 +328,7 @@ void InterFaceTopo::SwapNeighborsSendContent()
 
                 nIFace = interfacePair->nIFace;
                 
-                grid->interFace->CmpSendId( iNei, idsend );
+                grid->interFace->CalcSendId( iNei, idsend );
             }
 
             ONEFLOW::HXSwapData( & nIFace, 1, spid, rpid, iZone + gl * ZoneState::nZones );

@@ -82,7 +82,7 @@ void UNsVisFlux::SetVisPointer()
     }
 }
 
-void UNsVisFlux::CmpFlux()
+void UNsVisFlux::CalcFlux()
 {
     if ( vis_model.vismodel == 0 ) return;
     ug.Init();
@@ -97,7 +97,7 @@ void UNsVisFlux::CmpFlux()
     this->SetVisPointer();
 
     this->PrepareField();
-    this->CmpVisFlux();
+    this->CalcVisFlux();
     this->AddVisFlux();
 
     DeAlloc();
@@ -116,11 +116,11 @@ void UNsVisFlux::DeAlloc()
 void UNsVisFlux::PrepareField()
 {
     ut_grad.Init();
-    ut_grad.CmpGrad();
-    //ut_grad.CmpGradDebug();
+    ut_grad.CalcGrad();
+    //ut_grad.CalcGradDebug();
 }
 
-void UNsVisFlux::CmpVisFlux()
+void UNsVisFlux::CalcVisFlux()
 {
     for ( int fId = 0; fId < ug.nFace; ++ fId )
     {
@@ -140,22 +140,22 @@ void UNsVisFlux::CmpVisFlux()
 
         this->PrepareFaceValue();
 
-        this->CmpFaceVisFlux();
+        this->CalcFaceVisFlux();
 
         this->UpdateFaceVisFlux();
     }
 }
 
-void UNsVisFlux::CmpFaceVisFlux()
+void UNsVisFlux::CalcFaceVisFlux()
 {
-    this->CmpHeatFlux();
+    this->CalcHeatFlux();
 
-    this->CmpStress();
+    this->CalcStress();
 
-    this->CmpNsVisFlux();
+    this->CalcNsVisFlux();
 }
 
-void UNsVisFlux::CmpHeatFlux()
+void UNsVisFlux::CalcHeatFlux()
 {
     this->ZeroHeatFlux();
 
@@ -175,7 +175,7 @@ void UNsVisFlux::SaveHeatFlux()
     heat_sur->var->push_back( non_dim_heatflux );
 }
 
-void UNsVisFlux::CmpStress()
+void UNsVisFlux::CalcStress()
 {
     Real divv2p3 = two3rd * ( vis.dudx + vis.dvdy + vis.dwdz );
 
@@ -186,10 +186,10 @@ void UNsVisFlux::CmpStress()
     vis.txz = nscom.vis * ( vis.dudz + vis.dwdx );
     vis.tyz = nscom.vis * ( vis.dvdz + vis.dwdy );
 
-    this->CmpAniStress();
+    this->CalcAniStress();
 }
 
-void UNsVisFlux::CmpAniStress()
+void UNsVisFlux::CalcAniStress()
 {
     if ( ctrl.nrokplus <= 0 ) return;
     Real two3rdRhok = two3rd * vis.rhok;
@@ -201,7 +201,7 @@ void UNsVisFlux::CmpAniStress()
     vis.tyz += vis.b23;
 }
 
-void UNsVisFlux::CmpNsVisFlux()
+void UNsVisFlux::CalcNsVisFlux()
 {
     vis.fvis[ IDX::IR  ] = 0.0;
     vis.fvis[ IDX::IRU ] = gcom.xfn * vis.txx + gcom.yfn * vis.txy + gcom.zfn * vis.txz;
@@ -255,7 +255,7 @@ void UNsVisFlux::PrepareFaceValue()
     gcom.vfn   = ( * ug.vfn   )[ ug.fId ];
     gcom.farea = ( * ug.farea )[ ug.fId ];
 
-    gcom.CmpTangent();
+    gcom.CalcTangent();
 
     for ( int iEqu = 0; iEqu < nscom.nTEqu; ++ iEqu )
     {
@@ -314,7 +314,7 @@ void UNsVisFlux::PrepareFaceValue()
     }
 
     this->AverGrad();
-    this->CmpFaceWeight();
+    this->CalcFaceWeight();
 
     ( this->* visPointer )();
 
@@ -343,9 +343,9 @@ void UNsVisFlux::SaveFacePara()
     vis.tmid = visT.q[ IDX::ITT ];
 }
 
-void UNsVisFlux::CmpFaceWeight()
+void UNsVisFlux::CalcFaceWeight()
 {
-    vgg.CmpFaceWeight();
+    vgg.CalcFaceWeight();
 }
 
 void UNsVisFlux::AverMethod()
@@ -356,12 +356,12 @@ void UNsVisFlux::AverMethod()
 
     this->AverGrad();
 
-    this->CmpNormalGrad();
+    this->CalcNormalGrad();
 }
 
 void UNsVisFlux::StdMethod()
 {
-    this->CmpGradCoef();
+    this->CalcGradCoef();
 
     this->ZeroNormalGrad();
 
@@ -371,7 +371,7 @@ void UNsVisFlux::StdMethod()
 
     this->CorrectFaceGrad();
 
-    this->CmpNormalGrad();
+    this->CalcNormalGrad();
 }
 
 void UNsVisFlux::TestMethod()
@@ -382,7 +382,7 @@ void UNsVisFlux::TestMethod()
 
     this->PrepareCellGeom();
 
-    this->CmpTestMethod();
+    this->CalcTestMethod();
 
     this->ModifyFaceGrad();
 }
@@ -395,7 +395,7 @@ void UNsVisFlux::New1Method()
 
     this->PrepareCellGeom();
 
-    this->CmpNew1Method();
+    this->CalcNew1Method();
 
     this->ModifyFaceGrad();
 }
@@ -408,14 +408,14 @@ void UNsVisFlux::New2Method()
 
     this->PrepareCellGeom();
 
-    this->CmpNew2Method();
+    this->CalcNew2Method();
 
     this->ModifyFaceGrad();
 }
 
-void UNsVisFlux::CmpGradCoef()
+void UNsVisFlux::CalcGradCoef()
 {
-    vgg.CmpGradCoef();
+    vgg.CalcGradCoef();
 }
 
 
@@ -433,7 +433,7 @@ void UNsVisFlux::UpdateFaceVisFlux()
     }
 }
 
-void CmpLaminarViscosity( int flag )
+void CalcLaminarViscosity( int flag )
 {
     ug.Init();
     unsf.Init();
@@ -444,7 +444,7 @@ void CmpLaminarViscosity( int flag )
     for ( int cId = ug.ist; cId < ug.ied; ++ cId )
     {
         Real temperature = ( * unsf.tempr )[ IDX::ITT ][ cId ];
-        Real visl = Sutherland::CmpViscosity( temperature );
+        Real visl = Sutherland::CalcViscosity( temperature );
         ( * unsf.visl )[ 0 ][ cId ] = MAX( minLimit, visl );
     }
 }

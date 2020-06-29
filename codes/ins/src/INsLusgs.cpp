@@ -118,7 +118,7 @@ void INsLusgs::GetFluxIncrement( int signOfMatrix )
     this->GetStandardFluxIncrement( signOfMatrix );
 }
 
-void INsLusgs::CmpFaceEigenValue( RealField & prim )
+void INsLusgs::CalcFaceEigenValue( RealField & prim )
 {
     //这里输入的应该是作用单元界面上的值
     Real & rm  = prim[ IIDX::IIR ];
@@ -146,7 +146,7 @@ void INsLusgs::CmpFaceEigenValue( RealField & prim )
 
 void INsLusgs::GetStandardFluxIncrement( int signOfMatrix )
 {
-    this->CmpFaceEigenValue( inslu.primF );
+    this->CalcFaceEigenValue( inslu.primF );
 
     Real & rm  = inslu.primj[ IIDX::IIR ];
     Real & um  = inslu.primj[ IIDX::IIU ];
@@ -179,7 +179,7 @@ void INsLusgs::GetStandardFluxIncrement( int signOfMatrix )
 
     Real dh, hm;
 
-    ONEFLOW::CmpIDH( inslu.primj, inslu.gama, inslu.dqj, dh, hm );
+    ONEFLOW::CalcIDH( inslu.primj, inslu.gama, inslu.dqj, dh, hm );
 
     Real term1 =  dh   * x1 + dc * x2;
     Real term2 =  c2dc * x1 + dh * x2;
@@ -227,7 +227,7 @@ bool INsLusgs::UpdateSweep( int iSweep )
     return false;
 }
 
-void INsLusgs::CmpLowerChange()
+void INsLusgs::CalcLowerChange()
 {
     if ( inslu.numberOfSweeps > 1 )
     {
@@ -276,7 +276,7 @@ void INsLusgs::CmpLowerChange()
     }
 }
 
-void INsLusgs::CmpUpperChange()
+void INsLusgs::CalcUpperChange()
 {
     if ( inslu.numberOfSweeps > 1 )
     {
@@ -344,7 +344,7 @@ void INsLusgs::ZeroOversetCell()
     }
 }
 
-void CmpIDH(RealField & prim, Real & gama, RealField & dq, Real & dh, Real & totalEnthalpy)
+void CalcIDH(RealField & prim, Real & gama, RealField & dq, Real & dh, Real & totalEnthalpy)
 {
 	Real v2, ae, af;
 	Real enthalpy;

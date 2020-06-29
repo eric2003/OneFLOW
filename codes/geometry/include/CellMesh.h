@@ -47,9 +47,9 @@ public:
     void AllocDist();
     void ReadDist();
     void DumpDist();
-    void CmpCellSpan( UnsGrid * grid );
+    void CalcCellSpan( UnsGrid * grid );
 };
 
-void CmpCellSpan( UnsGrid * grid );
+void CalcCellSpan( UnsGrid * grid );
 
 EndNameSpace

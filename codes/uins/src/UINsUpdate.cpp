@@ -61,9 +61,9 @@ void UINsUpdate::UpdateFlowField( int sTid )
 
         this->PrepareData();
 
-        this->CmpFlowField();
-        //this->CmpFlowFieldHyperSonic();
-        //this->CmpFlowFieldHyperSonic_Temperature();
+        this->CalcFlowField();
+        //this->CalcFlowFieldHyperSonic();
+        //this->CalcFlowFieldHyperSonic_Temperature();
 
         this->UpdateFlowFieldValue();
     }

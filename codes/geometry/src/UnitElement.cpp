@@ -1451,7 +1451,7 @@ int UnitElement::GetElementType() const { return elementType; };
 IntField & UnitElement::GetElementFace(int iFace) { return faceList[iFace]; };
 int UnitElement::GetFaceType(int iFace) const { return faceTypeContainer[iFace]; };
 
-IntField & UnitElement::GetRelatedPointListForMiddlePointComputation(int iMiddlePoint) { return middlePointStruct[iMiddlePoint]; }
+IntField & UnitElement::GetRelatedPointListForMiddlePointCalcutation(int iMiddlePoint) { return middlePointStruct[iMiddlePoint]; }
 IntField & UnitElement::GetChildElementRelativeNodeIndex(int iChildElement) { return childElementIndex[iChildElement]; };
 
 int UnitElement::GetChildElementNumbers() const { return childElementType.size(); };

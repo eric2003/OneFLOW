@@ -55,17 +55,17 @@ UINsInvterm::~UINsInvterm()
     delete limiter;
 }
 
-void UINsInvterm::CmpLimiter()
+void UINsInvterm::CalcLimiter()
 {
-    limiter->CmpLimiter();
+    limiter->CalcLimiter();
 }
 
-void UINsInvterm::CmpInvFace()  //不改动
+void UINsInvterm::CalcInvFace()  //不改动
 {
     //uins_grad.Init();
-    //uins_grad.CmpGrad();
+    //uins_grad.CalcGrad();
 
-    this->CmpLimiter();   //不改
+    this->CalcLimiter();   //不改
 
     this->GetQlQrField();  //不改
 
@@ -81,8 +81,8 @@ void UINsInvterm::GetQlQrField()
 
 void UINsInvterm::ReconstructFaceValueField()
 {
-    limf->CmpFaceValue();
-    //limf->CmpFaceValueWeighted();
+    limf->CalcFaceValue();
+    //limf->CalcFaceValueWeighted();
 }
 
 void UINsInvterm::BoundaryQlQrFixField()
@@ -90,7 +90,7 @@ void UINsInvterm::BoundaryQlQrFixField()
     limf->BcQlQrFix();
 }
 
-void UINsInvterm::CmpInvcoff()
+void UINsInvterm::CalcInvcoff()
 {
     if ( inscom.icmpInv == 0 ) return;
     iinv.Init();
@@ -101,14 +101,14 @@ void UINsInvterm::CmpInvcoff()
     //this->SetPointer( inscom.ischeme );
 
     //ReadTmp();
-    this->CmpInvFace();
-    this->CmpInvMassFlux();  //需要改动
+    this->CalcInvFace();
+    this->CalcInvMassFlux();  //需要改动
     //this->AddInv();
 
     DeAlloc();
 }
 
-void UINsInvterm::CmpInvMassFlux()
+void UINsInvterm::CalcInvMassFlux()
 {
     if ( Iteration::outerSteps == 2 )
     {
@@ -185,7 +185,7 @@ void UINsInvterm::CmpInvMassFlux()
 
         this->PrepareFaceValue();
 
-        this->CmpINsinvTerm();
+        this->CalcINsinvTerm();
 
         //this->UpdateFaceInvFlux();
     }
@@ -218,14 +218,14 @@ void UINsInvterm::MomPred()
 }
 
 
-void UINsInvterm::CmpFaceflux()
+void UINsInvterm::CalcFaceflux()
 {
 
 	iinv.Init();
 	ug.Init();
 	uinsf.Init();
 	Alloc();
-	this->CmpInvFace();  //边界处理
+	this->CalcInvFace();  //边界处理
 	for (int fId = 0; fId < ug.nFace; ++fId)
 	{
 		ug.fId = fId;
@@ -240,7 +240,7 @@ void UINsInvterm::CmpFaceflux()
 
 		this->PrepareFaceValue();
 
-		this->CmpINsFaceflux();
+		this->CalcINsFaceflux();
 	}
 	//this->AddFlux();
 }
@@ -254,7 +254,7 @@ void UINsInvterm::AddFlux()
 //	//ONEFLOW::AddF2CFieldDebug( res, invflux );
 }
 
-void UINsInvterm::CmpCorrectPresscoef()
+void UINsInvterm::CalcCorrectPresscoef()
 {
 
 	for (int fId = 0; fId < ug.nFace; ++fId)
@@ -271,7 +271,7 @@ void UINsInvterm::CmpCorrectPresscoef()
 
 		//this->PrepareFaceValue();
 
-		this->CmpINsFaceCorrectPresscoef();
+		this->CalcINsFaceCorrectPresscoef();
 	}
 
 	for (int cId = 0; cId < ug.nCell; ++cId)
@@ -290,7 +290,7 @@ void UINsInvterm::CmpCorrectPresscoef()
 	}
 }
 
-void UINsInvterm::CmpPressCorrectEqu()
+void UINsInvterm::CalcPressCorrectEqu()
 {
 	for (int cId = 0; cId < ug.nCell; ++cId)
 	{

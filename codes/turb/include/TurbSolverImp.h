@@ -32,7 +32,7 @@ DEFINE_DATA_CLASS( TurbImplicitMethod );
 DEFINE_DATA_CLASS( TurbPostprocess );
 DEFINE_DATA_CLASS( TurbFinalPostprocess );
 DEFINE_DATA_CLASS( TurbInitSolver );
-DEFINE_DATA_CLASS( TurbCmpBoundary );
+DEFINE_DATA_CLASS( TurbCalcBoundary );
 
 void SetTurbFunc();
 

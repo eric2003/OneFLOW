@@ -145,19 +145,19 @@ void AeroCom::Init()
     this->cMoment = aref * lref;
 }
 
-Real AeroCom::CmpCL( Force * f )
+Real AeroCom::CalcCL( Force * f )
 {
     Real cl = - sina * f->x  + cosa * f->y;
     return cl;
 }
 
-Real AeroCom::CmpCD( Force * f )
+Real AeroCom::CalcCD( Force * f )
 {
     Real cd = cosa * cosb * f->x + sina * cosb * f->y + sinb * f->z;
     return cd;
 }
 
-Real AeroCom::CmpCF( Force * f, Real area )
+Real AeroCom::CalcCF( Force * f, Real area )
 {
     Real dir = cosa * f->x + sina * f->y;
     Real cf = DIST( f->x, f->y, f->z ) / area * SIGN( 1.0, dir );
@@ -187,12 +187,12 @@ void AeroForce::SumForce()
     total = pres + vis;
 }
 
-void AeroForce::CmpPower()
+void AeroForce::CalcPower()
 {
     power = - 1.0 * ( vfx * total.x + vfy * total.y + vfz * total.z );
 }
 
-void AeroForce::CmpMoment( Real xc, Real yc, Real zc )
+void AeroForce::CalcMoment( Real xc, Real yc, Real zc )
 {
     mom.x = ( yc - aeroCom.yref ) * total.z - ( zc - aeroCom.zref ) * total.y;
     mom.y = ( zc - aeroCom.zref ) * total.x - ( xc - aeroCom.xref ) * total.z;
@@ -251,7 +251,7 @@ void AeroForceInfo::Sum( Real * var )
     * var = sumVar;
 }
 
-void AeroForceInfo::CmpCoef()
+void AeroForceInfo::CalcCoef()
 {
     cf = totalForce.total / aeroCom.cForce;
     cpres = totalForce.pres / aeroCom.cForce;
@@ -259,9 +259,9 @@ void AeroForceInfo::CmpCoef()
     cpower = totalForce.power / aeroCom.cForce;
 
     const Real AR = 9.5;
-    cl      = aeroCom.CmpCL( & cf );
-    cd      = aeroCom.CmpCD( & cf );
-    cd_pres = aeroCom.CmpCD( & cpres );
+    cl      = aeroCom.CalcCL( & cf );
+    cd      = aeroCom.CalcCD( & cf );
+    cd_pres = aeroCom.CalcCD( & cpres );
     cd_vis  = cd - cd_pres;
     cdl     = cd - SQR( cl ) / ( PI * AR );
 

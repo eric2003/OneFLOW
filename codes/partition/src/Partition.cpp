@@ -35,7 +35,7 @@ License
 #include "GridState.h"
 #include "NodeMesh.h"
 #include "InterFace.h"
-#include "CompGrid.h"
+#include "CalcGrid.h"
 #include "DataBase.h"
 #include <iostream>
 using namespace std;
@@ -52,12 +52,12 @@ L2GMapping::~L2GMapping()
     ;
 }
 
-void L2GMapping::CmpL2G( UnsGrid * ggrid, int zid, UnsGrid * grid )
+void L2GMapping::CalcL2G( UnsGrid * ggrid, int zid, UnsGrid * grid )
 {
     this->Alloc( grid );
-    this->CmpL2GNode( ggrid, zid, grid );
-    this->CmpL2GFace( ggrid, zid, grid );
-    this->CmpL2GCell( ggrid, zid, grid );
+    this->CalcL2GNode( ggrid, zid, grid );
+    this->CalcL2GFace( ggrid, zid, grid );
+    this->CalcL2GCell( ggrid, zid, grid );
 }
 
 void L2GMapping::Alloc( UnsGrid * grid )
@@ -71,7 +71,7 @@ void L2GMapping::Alloc( UnsGrid * grid )
     this->l2g_cell.resize( nCell );
 }
 
-void L2GMapping::CmpL2GNode( UnsGrid * ggrid, int zid, UnsGrid * grid )
+void L2GMapping::CalcL2GNode( UnsGrid * ggrid, int zid, UnsGrid * grid )
 {
     int nNode = ggrid->nNode;
 
@@ -84,7 +84,7 @@ void L2GMapping::CmpL2GNode( UnsGrid * ggrid, int zid, UnsGrid * grid )
     }
 }
 
-void L2GMapping::CmpL2GFace( UnsGrid * ggrid, int zid, UnsGrid * grid )
+void L2GMapping::CalcL2GFace( UnsGrid * ggrid, int zid, UnsGrid * grid )
 {
     int nFace = ggrid->nFace;
 
@@ -98,7 +98,7 @@ void L2GMapping::CmpL2GFace( UnsGrid * ggrid, int zid, UnsGrid * grid )
     }
 }
 
-void L2GMapping::CmpL2GCell( UnsGrid * ggrid, int zid, UnsGrid * grid )
+void L2GMapping::CalcL2GCell( UnsGrid * ggrid, int zid, UnsGrid * grid )
 {
     int nCell = ggrid->nCell;
     int cid = 0;
@@ -151,7 +151,7 @@ void G2LMapping::GenerateGC2Z()
 void G2LMapping::GetXadjAdjncy( UnsGrid * ggrid, vector<idx_t> & xadj, vector<idx_t>& adjncy )
 {   
     int  nCell = ggrid->nCell;
-    CmpC2C( ggrid );
+    CalcC2C( ggrid );
     LinkField & c2c = ggrid->cellMesh->cellTopo->c2c;
     xadj[ 0 ]  = 0;
     int iCount = 0;
@@ -233,7 +233,7 @@ void Partition::Run()
 
     this->GenerateMultiZoneGrid();
 
-    ONEFLOW::GenerateMultiZoneCompGrids( grids );
+    ONEFLOW::GenerateMultiZoneCalcGrids( grids );
 }
 
 void Partition::ReadGrid()
@@ -263,7 +263,7 @@ void Partition::GenerateMultiZoneGrid()
 
     this->AllocPart();
 
-    this->BuildCmpGrid();
+    this->BuildCalcutationalGrid();
 }
 
 void Partition::CreatePart()
@@ -271,11 +271,11 @@ void Partition::CreatePart()
     g2l = new G2LMapping( uns_grid );
     g2l->npartproc = this->npartproc;
     g2l->GenerateGC2Z();
-    this->CmpG2lCell();
+    this->CalcG2lCell();
 
     if ( this->partition_c2n )
     {
-        this->CmpGC2N();
+        this->CalcGC2N();
     }
 }
 
@@ -294,14 +294,14 @@ void Partition::AllocPart()
     }
 }
 
-void Partition::BuildCmpGrid()
+void Partition::BuildCalcutationalGrid()
 {
     this->PreProcess();
     for ( int pid = 0; pid < npartproc; ++ pid )
     {
-        cout << "BuildCmpGrid pid = " << pid << " npartproc = " << npartproc << "\n";
+        cout << "BuildCalcutationalGrid pid = " << pid << " npartproc = " << npartproc << "\n";
         //for unstructured grid, each processor only contains one zone, so pid equal to zid
-        this->BuildCmpGrid( pid );
+        this->BuildCalcutationalGrid( pid );
     }
     this->PostProcess();
 }
@@ -314,11 +314,11 @@ void Partition::PostProcess()
 {
 }
 
-void Partition::CmpGC2N()
+void Partition::CalcGC2N()
 {
 }
 
-void Partition::CmpG2lCell()
+void Partition::CalcG2lCell()
 {
     IntField zCount( npartproc, 0 );
 
@@ -330,18 +330,18 @@ void Partition::CmpG2lCell()
     }
 }
 
-void Partition::BuildCmpGrid( int zid )
+void Partition::BuildCalcutationalGrid( int zid )
 {
     UnsGrid * grid = UnsGridCast( grids[ zid ] );
 
     grid->nCell = this->GetNCell( uns_grid, zid );
 
-    this->CmpG2lFace( uns_grid, zid, grid );
-    this->CmpG2lNode( uns_grid, zid, grid );
+    this->CalcG2lFace( uns_grid, zid, grid );
+    this->CalcG2lNode( uns_grid, zid, grid );
 
     if ( partition_c2n )
     {
-    //    this->ComputeGlobalToLocalCellToNodeMapping( uns_grid, zid, grid );
+    //    this->CalcGlobalToLocalCellToNodeMapping( uns_grid, zid, grid );
     //    this->WriteCellToNode( grid );
     }
 
@@ -352,7 +352,7 @@ void Partition::BuildCmpGrid( int zid )
     delete this->l2g;
 }
 
-void Partition::CmpG2lFace( UnsGrid * ggrid, int zid, UnsGrid * grid )
+void Partition::CalcG2lFace( UnsGrid * ggrid, int zid, UnsGrid * grid )
 {
     int nCell  = ggrid->nCell;
     int nFace  = ggrid->nFace;
@@ -431,7 +431,7 @@ void Partition::CmpG2lFace( UnsGrid * ggrid, int zid, UnsGrid * grid )
     grid->nIFace = nIFaceNow;
 }
 
-void Partition::CmpG2lNode( UnsGrid * ggrid, int zid, UnsGrid * grid )
+void Partition::CalcG2lNode( UnsGrid * ggrid, int zid, UnsGrid * grid )
 {
     int nFace = ggrid->nFace;
     int nNode = ggrid->nNode;
@@ -486,7 +486,7 @@ int Partition::GetNCell( UnsGrid * ggrid, int zid )
 void Partition::CreateL2g( UnsGrid * ggrid, int zid, UnsGrid * grid )
 {
     l2g->g2l = this->g2l;
-    l2g->CmpL2G( ggrid, zid, grid );
+    l2g->CalcL2G( ggrid, zid, grid );
 }
 
 void Partition::SetCoor( UnsGrid * ggrid, int zid, UnsGrid * grid )
@@ -514,12 +514,12 @@ void Partition::SetCoor( UnsGrid * ggrid, int zid, UnsGrid * grid )
 
 void Partition::SetGeometricRelationship( UnsGrid * ggrid, int zid, UnsGrid * grid )
 {
-    this->CmpF2N( ggrid, zid, grid );
+    this->CalcF2N( ggrid, zid, grid );
     this->SetF2CAndBC( ggrid, zid, grid );
     this->SetInterface( ggrid, zid, grid );
 }
 
-void Partition::CmpF2N( UnsGrid * ggrid, int zid, UnsGrid * grid )
+void Partition::CalcF2N( UnsGrid * ggrid, int zid, UnsGrid * grid )
 {
     LinkField & f2n = grid->faceTopo->f2n;
     LinkField & gf2n = ggrid->faceTopo->f2n;

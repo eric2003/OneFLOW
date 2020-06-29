@@ -52,7 +52,7 @@ void UNsBcSolver::Init()
     unsf.Init();
 }
 
-void UNsBcSolver::CmpBc()
+void UNsBcSolver::CalcBc()
 {
     ug.nRegion = ug.bcRecord->bcInfo->bcType.size();
 
@@ -63,7 +63,7 @@ void UNsBcSolver::CmpBc()
         ug.nRBFace = ug.bcRecord->bcInfo->bcFace[ ir ].size();
         this->SetBc();
 
-        this->CmpBcRegion();
+        this->CalcBcRegion();
     }
 }
 
@@ -92,7 +92,7 @@ void UNsBcSolver::SetId( int bcfId )
 
 }
 
-void UNsBcSolver::CmpBcRegion()
+void UNsBcSolver::CalcBcRegion()
 {
     for ( int ibc = 0; ibc < ug.nRBFace; ++ ibc )
     {
@@ -100,7 +100,7 @@ void UNsBcSolver::CmpBcRegion()
 
         this->PrepareData();
 
-        this->CmpFaceBc();
+        this->CalcFaceBc();
 
         this->UpdateBc();
     }

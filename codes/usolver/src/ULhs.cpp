@@ -44,7 +44,7 @@ ULhs::~ULhs()
     ;
 }
 
-void ULhs::CmpLHS( int sTid )
+void ULhs::CalcLHS( int sTid )
 {
     UnsGrid * grid = Zone::GetUnsGrid();
 

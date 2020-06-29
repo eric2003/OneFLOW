@@ -65,7 +65,7 @@ public:
     void InitNeighborFlag( IntField & flags );
     void AllocateNeighbor();
     void FillRecvId( int iNei );
-    void CmpSendId( int iNei, IntField & idsend );
+    void CalcSendId( int iNei, IntField & idsend );
     void SetSendId( int zid, IntField & idsend );
 };
 
@@ -95,9 +95,9 @@ public:
     void Swap();
     void Init( DataBook * dataBook );
     void Trans( DataBook * dataBook );
-    void ComputeDist();
-    void ComputeDist( SlipFace * slipface );
-    void Compute( Real xfc, Real yfc, Real zfc, Real & dst, int & zid, int & isbc, SlipFace * slipface );
+    void CalcDist();
+    void CalcDist( SlipFace * slipface );
+    void Calc( Real xfc, Real yfc, Real zfc, Real & dst, int & zid, int & isbc, SlipFace * slipface );
 };
 
 

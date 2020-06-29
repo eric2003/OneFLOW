@@ -56,60 +56,60 @@ void UTurbSrcFlux::Init()
 {
     ug.Init();
     turbcom.Init();
-    this->CmpGrad();
+    this->CalcGrad();
     if ( turbcom.nEqu == 1 )
     {
-        this->CmpLengthScaleSa();
+        this->CalcLengthScaleSa();
     }
     else if ( turbcom.nEqu >= 2 )
     {
         if ( vis_model.visname.substr( 0, 13 ) == "2eq-kw-menter"  )
         {
-            this->CmpCrossingTerm();
-            this->CmpBlendingTerm();
-            this->CmpLengthScaleSst();
+            this->CalcCrossingTerm();
+            this->CalcBlendingTerm();
+            this->CalcLengthScaleSst();
         }
         else if ( vis_model.visname.substr( 0, 12 ) == "easm-kw-2005" )
         {
-            this->CmpCrossingTerm();
-            this->CmpBlendingTerm();
+            this->CalcCrossingTerm();
+            this->CalcBlendingTerm();
         }
         else
         {
-            this->CmpCrossingTerm();
+            this->CalcCrossingTerm();
         }
     }
     this->SetSrcFluxPointer();
 
 }
 
-void UTurbSrcFlux::CmpSrcFlux()
+void UTurbSrcFlux::CalcSrcFlux()
 {
     //ReadTmp();
     Init();
     if ( turbcom.nEqu == 1 )
     {
-        this->CmpSrcFlux1Equ();
+        this->CalcSrcFlux1Equ();
     }
     else if ( turbcom.nEqu >= 2 )
     {
-        this->CmpSrcFlux2Equ();
+        this->CalcSrcFlux2Equ();
     }
 }
 
-void UTurbSrcFlux::CmpVist()
+void UTurbSrcFlux::CalcVist()
 {
     InitVist();
     if ( turbcom.nEqu == 1 )
     {
-        this->CmpVist1Equ();
+        this->CalcVist1Equ();
     }
     else if ( turbcom.nEqu >= 2 )
     {
-        this->CmpVist2Equ();
+        this->CalcVist2Equ();
     }
     SetGhostCellVist();
-    CmpVistMax();
+    CalcVistMax();
 }
 
 void UTurbSrcFlux::SetGhostCellVist()
@@ -128,7 +128,7 @@ void UTurbSrcFlux::InitVist()
     ug.Init();
     turbcom.Init();
     uturbf.Init();
-    this->CmpGrad();
+    this->CalcGrad();
 }
 
 void UTurbSrcFlux::ZeroSpectrum()
@@ -194,7 +194,7 @@ void UTurbSrcFlux::ReadTmp()
     file.clear();
 }
 
-void UTurbSrcFlux::CmpVistMax()
+void UTurbSrcFlux::CalcVistMax()
 {
     turbcom.maxid = 0;
     turbcom.maxvist = -1.0;
@@ -213,7 +213,7 @@ void UTurbSrcFlux::CmpVistMax()
     //cout << "maxvist = " << turbcom.maxvist << " cell id = " << turbcom.maxid << endl;
 }
 
-void UTurbSrcFlux::CmpVist1Equ()
+void UTurbSrcFlux::CalcVist1Equ()
 {
     for ( int cId = 0; cId < ug.nCell; ++ cId )
     {
@@ -232,13 +232,13 @@ void UTurbSrcFlux::CmpVist1Equ()
         turbcom.nuet = ( * uturbf.q  )[ ISA ][ ug.cId ];
         turbcom.visl = ( * uturbf.visl )[ 0 ][ ug.cId ];
 
-        this->CmpCellVist1Equ();
+        this->CalcCellVist1Equ();
 
         ( * uturbf.vist )[ 0 ][ ug.cId ] = turbcom.vist;
     }
 }
 
-void UTurbSrcFlux::CmpVist2Equ()
+void UTurbSrcFlux::CalcVist2Equ()
 {
     for ( int cId = 0; cId < ug.nCell; ++ cId )
     {
@@ -261,13 +261,13 @@ void UTurbSrcFlux::CmpVist2Equ()
         turbcom.vist = ( * uturbf.vist )[ 0 ][ ug.cId ];
         turbcom.dist  = ( * uturbf.dist )[ ug.cId ];
 
-        this->CmpCellVist2Equ();
+        this->CalcCellVist2Equ();
 
         ( * uturbf.vist )[ 0 ][ ug.cId ] = turbcom.vist;
     }
 }
 
-void UTurbSrcFlux::CmpSrcFlux1Equ()
+void UTurbSrcFlux::CalcSrcFlux1Equ()
 {
     for ( int cId = 0; cId < ug.nCell; ++ cId )
     {
@@ -280,13 +280,13 @@ void UTurbSrcFlux::CmpSrcFlux1Equ()
 
         this->PrepareCellValue1Equ();
 
-        this->CmpSrcSa();
+        this->CalcSrcSa();
 
         this->Update1Equ();
     }
 }
 
-void UTurbSrcFlux::CmpSrcFlux2Equ()
+void UTurbSrcFlux::CalcSrcFlux2Equ()
 {
     for ( int cId = 0; cId < ug.nCell; ++ cId )
     {
@@ -299,7 +299,7 @@ void UTurbSrcFlux::CmpSrcFlux2Equ()
 
         this->PrepareCellValue();
 
-        this->CmpSrc2Equ();
+        this->CalcSrc2Equ();
 
         this->Update2Equ();
     }
@@ -329,19 +329,19 @@ void UTurbSrcFlux::Update2Equ()
     }
 }
 
-void UTurbSrcFlux::CmpGradDebug()
+void UTurbSrcFlux::CalcGradDebug()
 {
     uturb_grad.Init();
-    uturb_grad.CmpGrad();
+    uturb_grad.CalcGrad();
     uns_grad.Init();
-    uns_grad.CmpGrad();
+    uns_grad.CalcGrad();
 }
 
-void UTurbSrcFlux::CmpGrad()
+void UTurbSrcFlux::CalcGrad()
 {
     uturb_grad.Init();
-    uturb_grad.CmpGrad();
-    //uturb_grad.CmpGradDebug();
+    uturb_grad.CalcGrad();
+    //uturb_grad.CalcGradDebug();
 }
 
 void UTurbSrcFlux::PrepareCellValue()
@@ -410,47 +410,47 @@ void UTurbSrcFlux::PrepareCellValue1Equ()
     }
 }
 
-void UTurbSrcFlux::CmpLengthScaleSa()
+void UTurbSrcFlux::CalcLengthScaleSa()
 {
     if ( turbcom.des_model == DES ) 
     {
-        this->CmpLengthScaleOfSaDes();
+        this->CalcLengthScaleOfSaDes();
     }
     else if ( turbcom.des_model == DDES ) 
     {
-        this->CmpLengthScaleOfSaDdes();
+        this->CalcLengthScaleOfSaDdes();
     }
     else if ( turbcom.des_model == IDDES ) 
     {
-        this->CmpLengthScaleOfSaIddes();
+        this->CalcLengthScaleOfSaIddes();
     }
     else
     {
-        this->CmpLengthScaleOfWallDist();
+        this->CalcLengthScaleOfWallDist();
     }
 }
 
-void UTurbSrcFlux::CmpLengthScaleSst()
+void UTurbSrcFlux::CalcLengthScaleSst()
 {
     if ( turbcom.des_model == DES ) 
     {
-        this->CmpLengthScaleOfSstDes();
+        this->CalcLengthScaleOfSstDes();
     }
     else if ( turbcom.des_model == DDES ) 
     {
-        this->CmpLengthScaleOfSstDdes();
+        this->CalcLengthScaleOfSstDdes();
     }
     else if ( turbcom.des_model == IDDES ) 
     {
-        this->CmpLengthScaleOfSstIddes();
+        this->CalcLengthScaleOfSstIddes();
     }
     else
     {
-        this->CmpLengthScaleOfWallDist();
+        this->CalcLengthScaleOfWallDist();
     }
 }
 
-void UTurbSrcFlux::CmpLengthScaleOfSaDes()
+void UTurbSrcFlux::CalcLengthScaleOfSaDes()
 {
     UnsGrid * grid = Zone::GetUnsGrid();
     MRField * len_scale = GetFieldPointer< MRField > ( grid, "len_scale" );
@@ -459,7 +459,7 @@ void UTurbSrcFlux::CmpLengthScaleOfSaDes()
 
     RealField lesLength( numberOfCells );
 
-    ComputeLengthLesOfSa( lesLength );
+    CalcLengthLesOfSa( lesLength );
 
     RealField & wall_dist = grid->cellMesh->dist;
 
@@ -472,7 +472,7 @@ void UTurbSrcFlux::CmpLengthScaleOfSaDes()
     }
 }
 
-void UTurbSrcFlux::CmpLengthScaleOfSstDes()
+void UTurbSrcFlux::CalcLengthScaleOfSstDes()
 {
     UnsGrid * grid = Zone::GetUnsGrid();
     MRField * len_scale = GetFieldPointer< MRField > ( grid, "len_scale" );
@@ -481,7 +481,7 @@ void UTurbSrcFlux::CmpLengthScaleOfSstDes()
 
     RealField lesLength( numberOfCells );
 
-    ComputeLengthLesOfSst( lesLength );
+    CalcLengthLesOfSst( lesLength );
 
     RealField & wall_dist = grid->cellMesh->dist;
 
@@ -497,7 +497,7 @@ void UTurbSrcFlux::CmpLengthScaleOfSstDes()
     }
 }
 
-void UTurbSrcFlux::CmpLengthScaleOfSaDdes()
+void UTurbSrcFlux::CalcLengthScaleOfSaDdes()
 {
     UnsGrid * grid = Zone::GetUnsGrid();
     MRField * len_scale = GetFieldPointer< MRField > ( grid, "len_scale" );
@@ -507,7 +507,7 @@ void UTurbSrcFlux::CmpLengthScaleOfSaDdes()
     RealField & wall_dist = grid->cellMesh->dist;
 
     RealField lesLength( nCell );
-    ComputeLengthLesOfSa( lesLength );
+    CalcLengthLesOfSa( lesLength );
 
     for ( int cId = 0; cId < nCell; ++ cId ) 
     {
@@ -543,7 +543,7 @@ void UTurbSrcFlux::CmpLengthScaleOfSaDdes()
     }
 }
 
-void UTurbSrcFlux::CmpLengthScaleOfSstDdes()
+void UTurbSrcFlux::CalcLengthScaleOfSstDdes()
 {
     UnsGrid * grid = Zone::GetUnsGrid();
     MRField * len_scale = GetFieldPointer< MRField > ( grid, "len_scale" );
@@ -553,7 +553,7 @@ void UTurbSrcFlux::CmpLengthScaleOfSstDdes()
     RealField & wall_dist = grid->cellMesh->dist;
 
     RealField lesLength( nCell );
-    ComputeLengthLesOfSst( lesLength );
+    CalcLengthLesOfSst( lesLength );
 
     for ( int cId = 0; cId < nCell; ++ cId ) 
     {
@@ -602,7 +602,7 @@ void UTurbSrcFlux::CmpLengthScaleOfSstDdes()
     }
 }
 
-void UTurbSrcFlux::CmpLengthScaleOfSaIddes()
+void UTurbSrcFlux::CalcLengthScaleOfSaIddes()
 {
     UnsGrid * grid = Zone::GetUnsGrid();
     MRField * len_scale = GetFieldPointer< MRField > ( grid, "len_scale" );
@@ -614,10 +614,10 @@ void UTurbSrcFlux::CmpLengthScaleOfSaIddes()
 
     RealField lesLength( nCell );
 
-    ComputeLengthLesOfSa( lesLength );
+    CalcLengthLesOfSa( lesLength );
 
     RealField lowReynoldsCorr( nCell );
-    CmpLowReynoldsCorrection( lowReynoldsCorr );
+    CalcLowReynoldsCorrection( lowReynoldsCorr );
 
     Real ct   = 1.63;
     Real cl   = 3.55;
@@ -686,7 +686,7 @@ void UTurbSrcFlux::CmpLengthScaleOfSaIddes()
     }
 }
 
-void UTurbSrcFlux::CmpLengthScaleOfSstIddes()
+void UTurbSrcFlux::CalcLengthScaleOfSstIddes()
 {
     UnsGrid * grid = Zone::GetUnsGrid();
     MRField * len_scale = GetFieldPointer< MRField > ( grid, "len_scale" );
@@ -698,7 +698,7 @@ void UTurbSrcFlux::CmpLengthScaleOfSstIddes()
 
     RealField lesLength( nCell );
 
-    ComputeLengthLesOfSst( lesLength );
+    CalcLengthLesOfSst( lesLength );
     //sa model
     //Real ct   = 1.63;
     //Real cl   = 3.55;
@@ -789,7 +789,7 @@ void UTurbSrcFlux::CmpLengthScaleOfSstIddes()
 }
 
 
-void UTurbSrcFlux::CmpLengthScaleOfWallDist()
+void UTurbSrcFlux::CalcLengthScaleOfWallDist()
 {
     UnsGrid * grid = Zone::GetUnsGrid();
     MRField * len_scale = GetFieldPointer< MRField > ( grid, "len_scale" );
@@ -803,20 +803,20 @@ void UTurbSrcFlux::CmpLengthScaleOfWallDist()
     }
 }
 
-void UTurbSrcFlux::CmpBlendingTerm()
+void UTurbSrcFlux::CalcBlendingTerm()
 {
     turbcom.ibld = 1;
 
-    this->CmpCdkwmax();
+    this->CalcCdkwmax();
 
-    this->CmpBlendField();
+    this->CalcBlendField();
 
     this->ModifyBlendingTerm();
 }
 
-void UTurbSrcFlux::CmpCdkwmax()
+void UTurbSrcFlux::CalcCdkwmax()
 {
-    //Compute maximum crossing diffusion term across flowfield
+    //Calc maximum crossing diffusion term across flowfield
     turbcom.cdkwmax = 0.0;
 
     for ( int cId = 0; cId < ug.nCell; ++ cId )
@@ -827,13 +827,13 @@ void UTurbSrcFlux::CmpCdkwmax()
         turbcom.kw   = ( * uturbf.q  )[ IKW ][ ug.cId ];
         turbcom.cross_term = ( * uturbf.cross )[ 0 ][ ug.cId ];
 
-        this->CmpCrossDiff();
+        this->CalcCrossDiff();
     }
 
-    turbcom.CmpCdkwmin();
+    turbcom.CalcCdkwmin();
 }
 
-void UTurbSrcFlux::CmpBlendField()
+void UTurbSrcFlux::CalcBlendField()
 {
     for ( int cId = 0; cId < ug.nCell; ++ cId )
     {
@@ -851,7 +851,7 @@ void UTurbSrcFlux::CmpBlendField()
         turbcom.visl = ( * uturbf.visl )[ 0 ][ ug.cId ];
         turbcom.dist = ( * uturbf.dist )[ ug.cId ];
 
-        turbcom.CmpCellBlendingTerm();
+        turbcom.CalcCellBlendingTerm();
 
         ( * uturbf.bld )[ 0 ][ ug.cId ] = turbcom.bld;
     }
@@ -878,7 +878,7 @@ void UTurbSrcFlux::ModifyBlendingTerm()
     }
 }
 
-void UTurbSrcFlux::CmpCrossingTerm()
+void UTurbSrcFlux::CalcCrossingTerm()
 {
     for ( int cId = 0; cId < ug.nCell; ++ cId )
     {
@@ -892,18 +892,18 @@ void UTurbSrcFlux::CmpCrossingTerm()
         turbcom.dkwdy = ( * uturbf.dqdy )[ IKW ][ ug.cId ];
         turbcom.dkwdz = ( * uturbf.dqdz )[ IKW ][ ug.cId ];
 
-        turbcom.CmpCrossing();
+        turbcom.CalcCrossing();
 
         ( * uturbf.cross )[ 0 ][ cId ] = turbcom.cross_term;
     }
 }
 
-void UTurbSrcFlux::CmpCrossDiff()
+void UTurbSrcFlux::CalcCrossDiff()
 {
-    turbcom.CmpCrossDiff();
+    turbcom.CalcCrossDiff();
 }
 
-void ComputeLengthLesOfSa( RealField & lesLengthField )
+void CalcLengthLesOfSa( RealField & lesLengthField )
 {
     UnsGrid * grid = Zone::GetUnsGrid();
 
@@ -911,7 +911,7 @@ void ComputeLengthLesOfSa( RealField & lesLengthField )
 
     RealField lowReynoldsCorr( nCell );
 
-    CmpLowReynoldsCorrection( lowReynoldsCorr );
+    CalcLowReynoldsCorrection( lowReynoldsCorr );
 
     RealField lengthScale = GetLengthScale();
 
@@ -924,7 +924,7 @@ void ComputeLengthLesOfSa( RealField & lesLengthField )
     }
 }
 
-void ComputeLengthLesOfSst( RealField & lesLengthField )
+void CalcLengthLesOfSst( RealField & lesLengthField )
 {
     UnsGrid * grid = Zone::GetUnsGrid();
     int nCell = grid->nCell;
@@ -946,7 +946,7 @@ RealField GetLengthScale()
     if ( turbcom.des_model == IDDES )
     {
         RealField lenth_scale;
-        CmpSubgridLengthScale( lenth_scale );
+        CalcSubgridLengthScale( lenth_scale );
         return lenth_scale;
     }
     else
@@ -956,7 +956,7 @@ RealField GetLengthScale()
     }
 }
 
-void CmpLowReynoldsCorrection( RealField & lowReynoldsCorr )
+void CalcLowReynoldsCorrection( RealField & lowReynoldsCorr )
 {
     UnsGrid * grid = Zone::GetUnsGrid();
 
@@ -987,11 +987,11 @@ void CmpLowReynoldsCorrection( RealField & lowReynoldsCorr )
     }
 }
 
-void CmpSubgridLengthScale( RealField & lenth_scale )
+void CalcSubgridLengthScale( RealField & lenth_scale )
 {
     UnsGrid * grid = Zone::GetUnsGrid();
 
-    CmpCellSpan( grid );
+    CalcCellSpan( grid );
 
     RealField & wall_dist = grid->cellMesh->dist;
     RealField & largestSpacing = GetLargestSpacing();
@@ -1013,7 +1013,7 @@ void CmpSubgridLengthScale( RealField & lenth_scale )
 RealField & GetLargestSpacing()
 {
     UnsGrid * grid = Zone::GetUnsGrid();
-    CmpCellSpan( grid );
+    CalcCellSpan( grid );
     return grid->cellMesh->span;
 }
 

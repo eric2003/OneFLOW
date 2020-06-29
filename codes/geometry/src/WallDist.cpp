@@ -63,7 +63,7 @@ void SetWallTask()
 {
     REGISTER_DATA_CLASS( FillWallStructTask  );
     REGISTER_DATA_CLASS( FillWallStruct  );
-    REGISTER_DATA_CLASS( CmpWallDist );
+    REGISTER_DATA_CLASS( CalcWallDist );
 }
 
 void FillWallStructTask( StringField & data )
@@ -78,7 +78,7 @@ void FillWallStruct( StringField & data )
     int nBFace = grid->faceTopo->bcManager->bcRecord->GetNBFace();
     BcRecord * bcRecord = grid->faceTopo->bcManager->bcRecord;
 
-    int nWallFace = bcRecord->CmpNumWallFace();
+    int nWallFace = bcRecord->CalcNumWallFace();
 
     RealField & xfc = grid->faceMesh->xfc;
     RealField & yfc = grid->faceMesh->yfc;
@@ -133,13 +133,13 @@ void FillWallStruct( StringField & data )
     HXWrite( ActionState::dataBook, fc );
 }
 
-void CmpWallDist( StringField & data )
+void CalcWallDist( StringField & data )
 {
     UnsGrid * grid = Zone::GetUnsGrid();
     int nBFace = grid->faceTopo->bcManager->bcRecord->GetNBFace();
     BcRecord * bcRecord = grid->faceTopo->bcManager->bcRecord;
 
-    int nWallFace = bcRecord->CmpNumWallFace();
+    int nWallFace = bcRecord->CalcNumWallFace();
 
     RealField & dist = grid->cellMesh->dist;
 
@@ -177,7 +177,7 @@ void CmpWallDist( StringField & data )
         {
             WallStructure::PointField  & fvList = fv[ iWFace ];
 
-            Real wdst = CmpPoint2FaceDist( ccp, fvList );
+            Real wdst = CalcPoint2FaceDist( ccp, fvList );
 
             if ( wdst < 1.0e-30 )
             {
@@ -256,7 +256,7 @@ void CFillWallStructTaskImp::FillWall()
     }
 }
 
-Real CmpPoint2FaceDist( WallStructure::PointType node, WallStructure::PointField & fvList )
+Real CalcPoint2FaceDist( WallStructure::PointType node, WallStructure::PointField & fvList )
 {
     using namespace gte;
     Vector< 3, Real > point0;

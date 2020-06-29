@@ -41,78 +41,78 @@ TurbRhs::~TurbRhs()
     ;
 }
 
-void TurbRhs::CmpRHS()
+void TurbRhs::CalcRHS()
 {
-    TurbCmpRHS();
+    TurbCalcRHS();
 }
 
-void TurbCmpBc()
+void TurbCalcBc()
 {
     UTurbBcSolver * uTurbBcSolver = new UTurbBcSolver();
     uTurbBcSolver->Init();
-    uTurbBcSolver->CmpBc();
+    uTurbBcSolver->CalcBc();
     delete uTurbBcSolver;
 }
 
-void TurbCmpRHS()
+void TurbCalcRHS()
 {
-    TurbCmpBc();
+    TurbCalcBc();
 
-    TurbCmpSpectrum();
+    TurbCalcSpectrum();
 
-    TurbCmpSrcFlux();
+    TurbCalcSrcFlux();
 
-    TurbCmpInvFlux();
+    TurbCalcInvFlux();
 
-    TurbCmpVisFlux();
+    TurbCalcVisFlux();
 
-    TurbCmpDualTimeStepSrc();
+    TurbCalcDualTimeStepSrc();
 }
 
 
-void TurbCmpInvFlux()
+void TurbCalcInvFlux()
 {
     UTurbInvFlux * uTurbInvFlux = new UTurbInvFlux();
-    uTurbInvFlux->CmpFlux();
+    uTurbInvFlux->CalcFlux();
     delete uTurbInvFlux;
 }
 
-void TurbCmpVisFlux()
+void TurbCalcVisFlux()
 {
     UTurbVisFlux * uTurbVisFlux = new UTurbVisFlux();
-    uTurbVisFlux->CmpVisFlux();
+    uTurbVisFlux->CalcVisFlux();
     delete uTurbVisFlux;
 }
 
-void TurbCmpSrcFlux()
+void TurbCalcSrcFlux()
 {
     UTurbSrcFlux * uTurbSrcFlux = new UTurbSrcFlux();
-    uTurbSrcFlux->CmpSrcFlux();
+    uTurbSrcFlux->CalcSrcFlux();
     delete uTurbSrcFlux;
 }
 
-void TurbCmpSpectrum()
+void TurbCalcSpectrum()
 {
     UTurbSpectrum * uTurbSpectrum = new UTurbSpectrum();
-    uTurbSpectrum->CmpSpectrum();
+    uTurbSpectrum->CalcSpectrum();
     delete uTurbSpectrum;
 }
 
-void TurbCmpDualTimeStepSrc()
+void TurbCalcDualTimeStepSrc()
 {
     //dual time step source
     if ( ctrl.idualtime == 1 )
     {
         UTurbUnsteady * uTurbUnsteady = new UTurbUnsteady();
-        uTurbUnsteady->CmpDualTimeSrc();
+        uTurbUnsteady->CalcDualTimeSrc();
         delete uTurbUnsteady;
     }
 }
 
-void CmpTurbulentViscosity()
+void CalcTurbulentViscosity()
 {
     UTurbSrcFlux * uTurbSrcFlux = new UTurbSrcFlux();
-    uTurbSrcFlux->CmpVist();
+    uTurbSrcFlux->CalcVist();
     delete uTurbSrcFlux;
 
 }

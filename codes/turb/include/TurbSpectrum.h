@@ -52,8 +52,8 @@ public:
     TurbSpectrum();
     ~TurbSpectrum();
 public:
-    void CmpFaceSpectrum1Equ();
-    void CmpFaceSpectrum2Equ();
+    void CalcFaceSpectrum1Equ();
+    void CalcFaceSpectrum2Equ();
 };
 
 

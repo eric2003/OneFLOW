@@ -57,7 +57,7 @@ REGISTER_TASK( RegisterInterfaceTask )
 
 void RegisterInterfaceTask()
 {
-    REGISTER_DATA_CLASS( CmpInterfaceGrad );
+    REGISTER_DATA_CLASS( CalcInterfaceGrad );
     REGISTER_DATA_CLASS( UploadInterfaceData );
     REGISTER_DATA_CLASS( DownloadInterfaceData );
     REGISTER_DATA_CLASS( PrepareInterfaceField );
@@ -66,7 +66,7 @@ void RegisterInterfaceTask()
 }
 
 
-void CmpInterfaceGrad( StringField & data )
+void CalcInterfaceGrad( StringField & data )
 {
     ;
 }

@@ -69,24 +69,24 @@ private:
     void WriteGridFaceTopology( VirtualFile * vf );
     void WriteBoundaryTopology( VirtualFile * vf );
 public:
-    void CmpMetrics();
-    void CmpMetrics1D();
-    void CmpMetrics2D();
-    void CmpMetrics3D();
+    void CalcMetrics();
+    void CalcMetrics1D();
+    void CalcMetrics2D();
+    void CalcMetrics3D();
     void AllocMetrics();
 private:
-    void ComputeFaceCenter1D();
-    void ComputeCellCenterVol1D();
-    void ComputeFaceNormal1D();
-    void ComputeGhostCellCenterVol1D();
+    void CalcFaceCenter1D();
+    void CalcCellCenterVol1D();
+    void CalcFaceNormal1D();
+    void CalcGhostCellCenterVol1D();
 private:
-    void ComputeFaceNormal2D();
-    void ComputeFaceCenter2D();
-    void ComputeCellCenterVol2D();
+    void CalcFaceNormal2D();
+    void CalcFaceCenter2D();
+    void CalcCellCenterVol2D();
 private:
-    void ComputeFaceNormal3D();
-    void ComputeFaceCenter3D();
-    void ComputeCellCenterVol3D();
+    void CalcFaceNormal3D();
+    void CalcFaceCenter3D();
+    void CalcCellCenterVol3D();
 };
 
 UnsGrid * UnsGridCast( Grid * gridIn );

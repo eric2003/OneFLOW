@@ -41,17 +41,17 @@ public:
     void DeAlloc();
     void AddVisFlux();
     void SetVisPointer();
-    void CmpVisFlux();
-    void CmpVisFlux1Equ();
-    void CmpVisFlux2Equ();
+    void CalcVisFlux();
+    void CalcVisFlux1Equ();
+    void CalcVisFlux2Equ();
 
     void PrepareFaceValue();
-    void CmpFaceVisFlux1Equ();
-    void CmpFaceVisFlux2Equ();
+    void CalcFaceVisFlux1Equ();
+    void CalcFaceVisFlux2Equ();
     void UpdateFaceVisFlux();
 public:
-    void CmpFaceWeight();
-    void CmpGradCoef();
+    void CalcFaceWeight();
+    void CalcGradCoef();
     void PrepareCellGeom();
 public:
     void AverMethod();
@@ -64,10 +64,10 @@ public:
     void AverGrad();
     void AverFaceValue();
     void AverOtherFaceValue();
-    void CmpNormalGrad();
-    void CmpTestMethod();
-    void CmpNew1Method();
-    void CmpNew2Method();
+    void CalcNormalGrad();
+    void CalcTestMethod();
+    void CalcNew1Method();
+    void CalcNew2Method();
     void CorrectFaceGrad();
     void ModifyFaceGrad();
     void AccurateFaceValue();

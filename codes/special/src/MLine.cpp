@@ -106,10 +106,10 @@ void SLine::SetDomainBcMesh( SDomain * sDomain )
     CoorMap::iterator it1 = sDomain->localCoorMap->find( p1 );
     CoorMap::iterator it2 = sDomain->localCoorMap->find( p2 );
 
-    CompCoor & c1 = it1->second;
-    CompCoor & c2 = it2->second;
+    CalcCoor & c1 = it1->second;
+    CalcCoor & c2 = it2->second;
 
-    CompCoor d1;
+    CalcCoor d1;
     d1.i = c2.i - c1.i;
     d1.j = c2.j - c1.j;
     d1.k = c2.k - c1.k;
@@ -118,7 +118,7 @@ void SLine::SetDomainBcMesh( SDomain * sDomain )
 
     for ( int i = 1; i <= ni; ++ i )
     {
-        CompCoor ci;
+        CalcCoor ci;
         int i0 = i - 1;
         ci.i = c1.i + d1.i * i0;
         ci.j = c1.j + d1.j * i0;
@@ -225,10 +225,10 @@ void MLine::ConstructLineToDomainMap( int domain_id, map< int, IntSet > & lineTo
     ONEFLOW::ConstructLineToDomainMap( domain_id, mLine->lineList, lineToDomainMap );
 }
 
-void MLine::ComputeCoor( CoorMap * localCoorMap )
+void MLine::CalcCoor( CoorMap * localCoorMap )
 {
     int openLine = 0;
-    this->ComputeBcCoor( localCoorMap, openLine );
+    this->CalcBcCoor( localCoorMap, openLine );
 }
 
 void MLine::ConstructDomainTopo()
@@ -268,7 +268,7 @@ void MLine::CreateInpFaceList( HXVector< Face2D * > &facelist )
         face2d->Set1DRegion( sLine->ctrlpoints );
         BlkF2C & face_struct = blkFaceSolver.myFaceSolver.face2Block[ face2d->face_id ];
         face2d->bcType = face_struct.bctype;
-        face2d->CompStEd( coorMap );
+        face2d->CalcStEd( coorMap );
         facelist.push_back( face2d );
     }
 }

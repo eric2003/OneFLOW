@@ -171,7 +171,7 @@ void SlipFace::FillRecvId( int iNei )
     }
 }
 
-void SlipFace::CmpSendId( int iNei, IntField & idsend )
+void SlipFace::CalcSendId( int iNei, IntField & idsend )
 {
     SlipfacePair * slipfacePair = slipfacePairs[ iNei ];
     idsend.resize( 0 );
@@ -290,17 +290,17 @@ void GlobalSlipFace::Trans( DataBook * dataBook )
     }
 }
 
-void GlobalSlipFace::ComputeDist()
+void GlobalSlipFace::CalcDist()
 {
     localSlipFace->InitDist();
     for ( int i = 0; i < localSlipFace->data.size(); ++ i )
     {
         SlipFace * slipface = localSlipFace->data[ i ];
-        this->ComputeDist( slipface );
+        this->CalcDist( slipface );
     }
 }
 
-void GlobalSlipFace::ComputeDist( SlipFace * slipface )
+void GlobalSlipFace::CalcDist( SlipFace * slipface )
 {
     for ( int iSlip = 0; iSlip < slipface->nSlipFace; ++ iSlip )
     {
@@ -315,7 +315,7 @@ void GlobalSlipFace::ComputeDist( SlipFace * slipface )
         {
             SlipFace * slipface1 = this->data[ i ];
             if ( slipface1->zoneid == slipface->zoneid ) continue;
-            this->Compute( xfc, yfc, zfc, dst, zid, isbc, slipface1 );
+            this->Calc( xfc, yfc, zfc, dst, zid, isbc, slipface1 );
         }
 
         slipface->distList[ iSlip ] = dst;
@@ -324,7 +324,7 @@ void GlobalSlipFace::ComputeDist( SlipFace * slipface )
     }
 }
 
-void GlobalSlipFace::Compute( Real xfc, Real yfc, Real zfc, Real & dst, int & zid, int & isbc, SlipFace * slipface )
+void GlobalSlipFace::Calc( Real xfc, Real yfc, Real zfc, Real & dst, int & zid, int & isbc, SlipFace * slipface )
 {
     for ( int iSlip = 0; iSlip < slipface->nSlipFace; ++ iSlip )
     {
@@ -424,7 +424,7 @@ void InitSlipFaceTopo()
     }
 
     globalSlipFace->Swap();
-    globalSlipFace->ComputeDist();
+    globalSlipFace->CalcDist();
 
     slipFaceTopo->InitZoneNeighborsInfo();
     slipFaceTopo->SwapNeighborZoneInfo();
@@ -528,7 +528,7 @@ void SlipFaceTopo::SwapNeighborsSendContent()
                 Grid * grid = Zone::GetGrid( iZone );
                 SlipfacePair * slipfacePair = grid->slipFace->GetSlipfacePair( iNei );
 
-                grid->slipFace->CmpSendId( iNei, idsend );
+                grid->slipFace->CalcSendId( iNei, idsend );
 
                 nSend = idsend.size();
             }

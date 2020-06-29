@@ -76,8 +76,8 @@ public:
     void InitializeSweep( int iSweep );
     bool UpdateSweep    ( int iSweep );
 public:
-    void CmpLowerChange();
-    void CmpUpperChange();
+    void CalcLowerChange();
+    void CalcUpperChange();
     bool IsOversetCell  ();
     void ZeroOversetCell();
 };

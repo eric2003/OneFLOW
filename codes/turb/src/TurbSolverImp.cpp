@@ -38,27 +38,27 @@ void SetTurbFunc()
     REGISTER_DATA_CLASS( TurbPostprocess );
     REGISTER_DATA_CLASS( TurbFinalPostprocess );
     REGISTER_DATA_CLASS( TurbInitSolver );
-    REGISTER_DATA_CLASS( TurbCmpBoundary );
+    REGISTER_DATA_CLASS( TurbCalcBoundary );
 }
 
 void TurbInitFinal( StringField & data )
 {
-    CmpTurbulentViscosity();
+    CalcTurbulentViscosity();
 
-    TurbCmpBc();
+    TurbCalcBc();
 }
 
-void TurbCmpBoundary( StringField & data )
+void TurbCalcBoundary( StringField & data )
 {
-    CmpTurbulentViscosity();
+    CalcTurbulentViscosity();
 
-    TurbCmpBc();
+    TurbCalcBc();
 }
 
 void TurbUpdateResiduals( StringField & data )
 {
     TurbRhs * rhs = new TurbRhs();
-    rhs->CmpRHS();
+    rhs->CalcRHS();
     delete rhs;
 }
 

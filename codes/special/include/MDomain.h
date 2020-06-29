@@ -24,7 +24,7 @@ License
 #pragma once
 #include "HXDefine.h"
 #include "Mid.h"
-#include "CompCoor.h"
+#include "CalcCoor.h"
 #include "SimpleDomain.h"
 #include <set>
 #include <map>
@@ -36,7 +36,7 @@ class Block3D;
 class BlkMesh;
 class SDomain;
 class MDomain;
-class CompCoor;
+class CalcCoor;
 class Face2D;
 class MLine;
 
@@ -52,8 +52,8 @@ public:
 public:
     SDomain * FindSDomain( int fid );
     void AddSubDomain( int fid, IntField & lineList, IntField & posList );
-    void ComputeSubDomainCtrlCoor();
-    void ComputeCoor();
+    void CalcSubDomainCtrlCoor();
+    void CalcCoor();
     int GetNsubDomain();
     void ConstructMultiDomainTopo();
     void ConstructMultiLineToDomainMap();

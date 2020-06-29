@@ -190,7 +190,7 @@ void MyFaceSolver::BuildSDomainList()
         sDomain->SetDomain( iFace, lineList, posList );
         sDomain->ConstructSDomainCtrlPoint();
         sDomain->ConstructDomainTopo();
-        sDomain->ComputeDim2D();
+        sDomain->CalcDim2D();
         sDomain->ConstructLocalTopoAsBlk2D();
     }
     int kkk = 1;

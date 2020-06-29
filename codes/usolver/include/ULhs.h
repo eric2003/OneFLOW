@@ -31,7 +31,7 @@ public:
     ULhs();
     ~ULhs();
 public:
-    void CmpLHS( int sTid );
+    void CalcLHS( int sTid );
 };
 
 EndNameSpace

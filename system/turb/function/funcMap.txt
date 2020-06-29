@@ -3,7 +3,7 @@ INIT_FINAL                , CTurbInitFinal, 0
 READ_RESTART              , CReadRestart, 0
 DUMP_RESTART              , CDumpRestart, 0
 INIT_RESTART              , CInitRestart, 0
-CMP_INTERFACE_GRAD    , CCmpInterfaceGrad, 0
+CALC_INTERFACE_GRAD       , CCalcInterfaceGrad, 0
 DUMP_RESIDUAL             , CDumpResidual, 1, FIELD_RHS
 UPLOAD_INTERFACE_DATA     , CUploadInterfaceData, 0
 DOWNLOAD_INTERFACE_DATA   , CDownloadInterfaceData, 0
@@ -13,7 +13,7 @@ UPDATE_INTERFACE_GRAD     , CPrepareInterfaceField, 2, INTERFACE_GRAD, GREAT_SEN
 UPDATE_UNSTEADY_FLOW      , CUpdateUnsteadyFlow, 0
 LOAD_RESIDUALS            , CLoadResiduals, 1, FIELD_RHS
 UPDATE_RESIDUALS          , CTurbUpdateResiduals, 0
-CMP_BOUNDARY              , CTurbCmpBoundary, 0
+CALC_BOUNDARY             , CTurbCalcBoundary, 0
 ZERO_RESIDUALS            , CZeroResiduals, 0
 LOAD_Q                    , CLoadQ, 1, FIELD_FLOW
 RESTRICT_ALL_Q            , CRestrictAllQ, 1, FIELD_FLOW
@@ -25,9 +25,9 @@ STORE_RHS                 , CStoreRHS, 1, FIELD_RHS
 RECOVER_RESIDUALS         , CRecoverResidual, 1, FIELD_RHS
 UPDATE_FLOWFIELD          , CUpdateFlowField, 0
 UPDATE_FLOWFIELD_LUSGS    , CUpdateFlowField, 0
-CMP_LHS               , CCmpLHS, 0
+CALC_LHS                  , CCalcLHS, 0
 ZERO_DQ_FIELD             , CSetField, 2, turbdq, 0.0
 INIT_LUSGS                , CLusgsInit, 0
 LUSGS_LOWER_SWEEP         , CLusgsLowerSweep, 0
 LUSGS_UPPER_SWEEP         , CLusgsUpperSweep, 0
-Cmp_UNSTEADY_CRITERION, CCmpUnsteadyCriterion, 0
+CALC_UNSTEADY_CRITERION   , CCalcUnsteadyCriterion, 0

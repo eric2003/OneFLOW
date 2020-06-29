@@ -27,7 +27,7 @@ License
 BeginNameSpace( ONEFLOW )
 
 DEFINE_DATA_CLASS( UpdateUnsteadyFlow );
-DEFINE_DATA_CLASS( CmpUnsteadyCriterion );
+DEFINE_DATA_CLASS( CalcUnsteadyCriterion );
 
 void RegisterUnsteadyTask();
 

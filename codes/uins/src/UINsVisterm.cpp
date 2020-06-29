@@ -61,7 +61,7 @@ UINsVisterm::~UINsVisterm()
 }
 
 
-void UINsVisterm::CmpViscoff()
+void UINsVisterm::CalcViscoff()
 {
     if ( vis_model.vismodel == 0 ) return;
     ug.Init();
@@ -76,7 +76,7 @@ void UINsVisterm::CmpViscoff()
     //this->SetVisPointer();
 
     this->PrepareField();
-    this->CmpVisterm();
+    this->CalcVisterm();
     //this->Addterm();
 
     DeAlloc();
@@ -95,11 +95,11 @@ void UINsVisterm::DeAlloc()
 void UINsVisterm::PrepareField()
 {
 	uins_grad.Init();
-	uins_grad.CmpGrad();  //计算梯度
-    //ut_grad.CmpGradDebug();
+	uins_grad.CalcGrad();  //计算梯度
+    //ut_grad.CalcGradDebug();
 }
 
-void UINsVisterm::CmpVisterm()
+void UINsVisterm::CalcVisterm()
 {
     for ( int fId = 0; fId < ug.nFace; ++ fId )
     {
@@ -119,18 +119,18 @@ void UINsVisterm::CmpVisterm()
 
         //this->PrepareFaceValue();
 
-        this->CmpFaceVisterm();  //要改动
+        this->CalcFaceVisterm();  //要改动
 
     }
 }
 
-void UINsVisterm::CmpFaceVisterm()
+void UINsVisterm::CalcFaceVisterm()
 {
-    this->CmpNsVisterm();  //要改动
+    this->CalcNsVisterm();  //要改动
 }
 
 
-void UINsVisterm::CmpNsVisterm()
+void UINsVisterm::CalcNsVisterm()
 {
 
 	Real l2rdx = (*ug.xcc)[ug.rc] - (*ug.xcc)[ug.lc];  //界面左右单元中心距
@@ -153,7 +153,7 @@ void UINsVisterm::CmpNsVisterm()
 
 }
 
-void UINsVisterm::CmpSrc()
+void UINsVisterm::CalcSrc()
 {
 	for (int cId = 0; cId < ug.nCell; ++cId)
 	{
@@ -199,7 +199,7 @@ void UINsVisterm::PrepareFaceValue()
     gcom.vfn   = ( * ug.vfn   )[ ug.fId ];
     gcom.farea = ( * ug.farea )[ ug.fId ];
 
-    gcom.CmpTangent();
+    gcom.CalcTangent();
 
     for ( int iEqu = 0; iEqu < inscom.nTEqu; ++ iEqu )
     {
@@ -258,7 +258,7 @@ void UINsVisterm::PrepareFaceValue()
     }
 
     this->AverGrad();
-    this->CmpFaceWeight();
+    this->CalcFaceWeight();
     this->SaveFacePara();
 }
 
@@ -291,15 +291,15 @@ void UINsVisterm::SaveFacePara()
     //Ivis.tmid = visT.q[ IIDX::IITT ];
 }
 
-void UINsVisterm::CmpFaceWeight()
+void UINsVisterm::CalcFaceWeight()
 {
-    vgg.CmpFaceWeight();
+    vgg.CalcFaceWeight();
 }
 
 
-void UINsVisterm::CmpGradCoef()
+void UINsVisterm::CalcGradCoef()
 {
-    vgg.CmpGradCoef();
+    vgg.CalcGradCoef();
 }
 
 
@@ -309,7 +309,7 @@ void UINsVisterm::PrepareCellGeom()
 }
 
 
-void ICmpLaminarViscosity(int flag)
+void ICalcLaminarViscosity(int flag)
 {
 		ug.Init();
 		uinsf.Init();
@@ -320,7 +320,7 @@ void ICmpLaminarViscosity(int flag)
 		for (int cId = ug.ist; cId < ug.ied; ++cId)
 		{
 			//Real temperature = ( *uinsf.tempr )[ IIDX::IITT ][ cId ];
-			//Real visl = Iutherland::ICmpViscosity( temperature );
+			//Real visl = Iutherland::ICalcViscosity( temperature );
 			//( *uinsf.visl )[ 0 ][ cId ] = MAX( minLimit, visl );
 		}
 }

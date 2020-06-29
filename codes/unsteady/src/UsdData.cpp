@@ -67,7 +67,7 @@ void UsdData::InitSub( int nEqu )
     normList.resize( nEqu );
 }
 
-void UsdData::CmpCellDualTimeResidual()
+void UsdData::CalcCellDualTimeResidual()
 {
     for ( int iEqu = 0; iEqu < nEqu; ++ iEqu )
     {
@@ -77,7 +77,7 @@ void UsdData::CmpCellDualTimeResidual()
     }
 }
 
-void UsdData::CmpCellDualTimeSrc()
+void UsdData::CalcCellDualTimeSrc()
 {
     for ( int iEqu = 0; iEqu < nEqu; ++ iEqu )
     {
@@ -100,7 +100,7 @@ void UsdData::ZeroData()
     normList  = zero;
 }
 
-void UsdData::CmpCellUnsteadyCri()
+void UsdData::CalcCellUnsteadyCri()
 {
     for ( int iEqu = 0; iEqu < nEqu; ++ iEqu )
     {
@@ -113,7 +113,7 @@ void UsdData::CmpCellUnsteadyCri()
     }
 }
 
-void UsdData::CmpCvg()
+void UsdData::CalcCvg()
 {
     if ( ctrl.iConv == 0 )
     {

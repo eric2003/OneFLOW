@@ -35,37 +35,37 @@ public:
     SrcPointer cmpProd;
 public:
     void SetSrcFluxPointer();
-    void CmpSrcSa();
-    void CmpSrc2Equ();
-    void CmpSrc2EquKwMenter();
-    void CmpSrc2EquKwWilcox1998();
-    void CmpSrc2EquKwWilcox2006();
-    void CmpSrc2EquKwDefault();
-    void CmpSrc2EquEasmKw2003();
-    void CmpSrc2EquEasmKw2005();
-    void CmpFbetaCoef();
-    void CmpFbetaDefault();
-    void CmpFbetaOfKwWilcox1998();
-    void CmpFbetaOfKwWilcox2006();
-    void CmpFbetaOfEasmKw2003();
+    void CalcSrcSa();
+    void CalcSrc2Equ();
+    void CalcSrc2EquKwMenter();
+    void CalcSrc2EquKwWilcox1998();
+    void CalcSrc2EquKwWilcox2006();
+    void CalcSrc2EquKwDefault();
+    void CalcSrc2EquEasmKw2003();
+    void CalcSrc2EquEasmKw2005();
+    void CalcFbetaCoef();
+    void CalcFbetaDefault();
+    void CalcFbetaOfKwWilcox1998();
+    void CalcFbetaOfKwWilcox2006();
+    void CalcFbetaOfEasmKw2003();
 public:
-    void CmpVGrad();
-    void CmpTransition();
-    void CmpProdW();
-    void CmpProdk();
-    void CmpDissk();
+    void CalcVGrad();
+    void CalcTransition();
+    void CalcProdW();
+    void CalcProdk();
+    void CalcDissk();
     void LimitProdk();
-    void CmpProdwKwMenter();
-    void CmpProdwKwWilcox1998();
-    void CmpProdwKwWilcox2006();
-    void CmpProdwKwDefault();
-    void CmpProdwEasmKw2003();
-    void CmpProdwEasmKw2005();
+    void CalcProdwKwMenter();
+    void CalcProdwKwWilcox1998();
+    void CalcProdwKwWilcox2006();
+    void CalcProdwKwDefault();
+    void CalcProdwEasmKw2003();
+    void CalcProdwEasmKw2005();
     void ModifyPd();
-    void CmpSrc();
+    void CalcSrc();
 public:
-    void CmpCellVist1Equ();
-    void CmpCellVist2Equ();
+    void CalcCellVist1Equ();
+    void CalcCellVist2Equ();
 };
 
 

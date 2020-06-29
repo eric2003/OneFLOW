@@ -38,7 +38,7 @@ INsUpdate::~INsUpdate()
 {
 }
 
-void INsUpdate::CmpFlowField()
+void INsUpdate::CalcFlowField()
 {
     //INsPrimToQ( inscom.prim0, inscom.gama, inscom.q0 );
 
@@ -67,7 +67,7 @@ void INsUpdate::CmpFlowField()
     }
 }
 
-void INsUpdate::CmpFlowFieldHyperSonic()
+void INsUpdate::CalcFlowFieldHyperSonic()
 {
    // INsPrimToQ( inscom.prim0, inscom.gama, inscom.q0 );
 
@@ -133,7 +133,7 @@ void INsUpdate::CmpFlowFieldHyperSonic()
     }
 }
 
-void INsUpdate::CmpFlowFieldHyperSonic_Temperature()
+void INsUpdate::CalcFlowFieldHyperSonic_Temperature()
 {
 //	INsPrimToQ( inscom.prim0, inscom.gama, inscom.q0 );
 

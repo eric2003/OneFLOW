@@ -130,52 +130,52 @@ void UITimestep::ReadTmp()
 }
 
 
-void UITimestep::CmpTimestep()
+void UITimestep::CalcTimeStep()
 {
     this->Init();
 
     //ReadTmp();
 
-    this->CmpCfl();
+    this->CalcCfl();
 
-    this->CmpSpectrumField();
+    this->CalcSpectrumField();
 
     if ( inscom.timestepModel == 0 )
     {
-        this->CmpLocalTimestep();
+        this->CalcLocalTimestep();
     }
     else if ( inscom.timestepModel == 1 )
     {
-        this->CmpGlobalTimestep();
+        this->CalcGlobalTimestep();
     }
     else
     {
-        this->CmpLgTimestep();
+        this->CalcLgTimestep();
     }
 }
 
-void UITimestep::CmpLocalTimestep()
+void UITimestep::CalcLocalTimestep()
 {
-    this->CmpInvTimestep();
+    this->CalcInvTimestep();
 
-    this->CmpVisTimestep();
+    this->CalcVisTimestep();
 
     this->ModifyTimestep();
 }
 
-void UITimestep::CmpInvTimestep()
+void UITimestep::CalcInvTimestep()
 {
     for ( int cId = 0; cId < ug.nCell; ++ cId )
     {
         ug.cId  = cId;
         gcom.cvol  = ( * ug.cvol )[ cId ];
         inscom.invsr = ( * uinsf.invsr )[ 0 ][ cId ];
-        this->CmpCellInvTimestep();
+        this->CalcCellInvTimestep();
         ( * uinsf.timestep )[ 0 ][ cId ] = inscom.timestep;
     }
 }
 
-void UITimestep::CmpVisTimestep()
+void UITimestep::CalcVisTimestep()
 {
     bool flag = vis_model.vismodel > 0 && inscom.visTimestepModel > 0;
     if ( ! flag ) return;
@@ -186,18 +186,18 @@ void UITimestep::CmpVisTimestep()
         gcom.cvol  = ( * ug.cvol )[ cId ];
         inscom.vissr = ( * uinsf.vissr )[ 0 ][ cId ];
         inscom.timestep = ( * uinsf.timestep )[ 0 ][ cId ];
-        this->CmpCellVisTimestep();
+        this->CalcCellVisTimestep();
         ( * uinsf.timestep )[ 0 ][ cId ] = inscom.timestep;
     }
 }
 
-void UITimestep::CmpSpectrumField()
+void UITimestep::CalcSpectrumField()
 {
-    this->CmpInvSpectrumField();
-    this->CmpVisSpectrumField();
+    this->CalcInvSpectrumField();
+    this->CalcVisSpectrumField();
 }
 
-void UITimestep::CmpInvSpectrumField()
+void UITimestep::CalcInvSpectrumField()
 {
     Grid * grid = Zone::GetGrid();
 
@@ -211,13 +211,13 @@ void UITimestep::CmpInvSpectrumField()
 
         this->PrepareData();
 
-        this->CmpFaceInvSpec();
+        this->CalcFaceInvSpec();
 
         this->UpdateInvSpectrumField();
     }
 }
 
-void UITimestep::CmpVisSpectrumField()
+void UITimestep::CalcVisSpectrumField()
 {
     Grid * grid = Zone::GetGrid();
 
@@ -233,7 +233,7 @@ void UITimestep::CmpVisSpectrumField()
 
         this->PrepareVisData();
 
-        this->CmpFaceVisSpec();
+        this->CalcFaceVisSpec();
 
         this->UpdateVisSpectrumField();
     }
@@ -318,7 +318,7 @@ void UITimestep::UpdateVisSpectrumField()
 
 void UITimestep::ModifyTimestep()
 {
-    this->CmpMinTimestep();
+    this->CalcMinTimestep();
     if ( inscom.max_time_ratio <= 0 ) return;
 
     Real maxPermittedTimestep = inscom.max_time_ratio * inscom.minTimestep;
@@ -328,12 +328,12 @@ void UITimestep::ModifyTimestep()
     }
 }
 
-void UITimestep::CmpGlobalTimestep()
+void UITimestep::CalcGlobalTimestep()
 {
     this->SetTimestep( ctrl.pdt );
 }
 
-void UITimestep::CmpMinTimestep()
+void UITimestep::CalcMinTimestep()
 {
     inscom.minTimestep = LARGE;
     for ( int cId = 0; cId < ug.nCell; ++ cId )
@@ -350,9 +350,9 @@ void UITimestep::SetTimestep( Real timestep )
     }
 }
 
-void UITimestep::CmpLgTimestep()
+void UITimestep::CalcLgTimestep()
 {
-    this->CmpLocalTimestep();
+    this->CalcLocalTimestep();
     this->SetTimestep( inscom.minTimestep );
     ctrl.pdt = inscom.minTimestep;
 }
