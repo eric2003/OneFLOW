@@ -22,7 +22,7 @@ License
 
 #include "NsSolverImp.h"
 #include "SolverImp.h"
-#include "UTimestep.h"
+#include "UTimeTtep.h"
 #include "Zone.h"
 #include "GridState.h"
 #include "UNsVisFlux.h"
@@ -92,9 +92,9 @@ void NsCalcBoundary( StringField & data )
 
 void NsCalcTimeStep( StringField & data )
 {
-    UTimestep * uTimestep = new UTimestep();
-    uTimestep->CalcTimeStep();
-    delete uTimestep;
+    UTimeStep * uTimeStep = new UTimeStep();
+    uTimeStep->CalcTimeStep();
+    delete uTimeStep;
 }
 
 void NsUpdateResiduals( StringField & data )

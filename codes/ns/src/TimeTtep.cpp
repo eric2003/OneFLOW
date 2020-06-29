@@ -20,7 +20,7 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "Timestep.h"
+#include "TimeTtep.h"
 #include "Iteration.h"
 #include "NsCom.h"
 #include "HXMath.h"
@@ -30,17 +30,17 @@ using namespace std;
 
 BeginNameSpace( ONEFLOW )
 
-Timestep::Timestep()
+TimeStep::TimeStep()
 {
     ;
 }
 
-Timestep::~Timestep()
+TimeStep::~TimeStep()
 {
     ;
 }
 
-void Timestep::CalcCfl()
+void TimeStep::CalcCfl()
 {
     int iter = Iteration::outerSteps;
 
@@ -58,7 +58,7 @@ void Timestep::CalcCfl()
     }
 }
 
-void Timestep::CalcFaceInvSpec()
+void TimeStep::CalcFaceInvSpec()
 {
     Real rl = nscom.q1[ IDX::IR ];
     Real ul = nscom.q1[ IDX::IU ];
@@ -87,7 +87,7 @@ void Timestep::CalcFaceInvSpec()
     nscom.invsr = half * gcom.farea * ( ABS( vn ) + cm );
 }
 
-void Timestep::CalcFaceVisSpec()
+void TimeStep::CalcFaceVisSpec()
 {
     if ( nscom.visSRModel == 1 )
     {
@@ -121,15 +121,15 @@ void Timestep::CalcFaceVisSpec()
     }
 }
 
-void Timestep::CalcCellInvTimestep()
+void TimeStep::CalcCellInvTimeStep()
 {
     nscom.timestep = Iteration::cfl * gcom.cvol / nscom.invsr;
 }
 
-void Timestep::CalcCellVisTimestep()
+void TimeStep::CalcCellVisTimeStep()
 {
-    Real visTimestep = Iteration::cfl * gcom.cvol / nscom.vissr;
-    nscom.timestep *= visTimestep / ( nscom.timestep + visTimestep );
+    Real visTimeStep = Iteration::cfl * gcom.cvol / nscom.vissr;
+    nscom.timestep *= visTimeStep / ( nscom.timestep + visTimeStep );
 }
 
 EndNameSpace

@@ -50,7 +50,7 @@ void NsCom::Init()
     ivischeme = GetDataValue< int >( "ivischeme" );
     timestepModel = GetDataValue< int >( "timestepModel" );
     visSRModel = GetDataValue< int >( "visSRModel" );
-    visTimestepModel = GetDataValue< int >( "visTimestepModel" );
+    visTimeStepModel = GetDataValue< int >( "visTimeStepModel" );
     chemModel = GetDataValue< int >( "chemModel" );
     nTModel = GetDataValue< int >( "nTModel" );
 

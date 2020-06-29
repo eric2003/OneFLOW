@@ -22,7 +22,7 @@ License
 
 #include "INsSolverImp.h"
 #include "SolverImp.h"
-#include "UITimestep.h"
+#include "UITimeTtep.h"
 #include "Zone.h"
 #include "GridState.h"
 #include "UINsVisterm.h"
@@ -89,9 +89,9 @@ void INsCalcBoundary( StringField & data )
 
 void INsCalcTimeStep( StringField & data )
 {
-    UITimestep * uTimestep = new UITimestep();
-    uTimestep->CalcTimeStep();
-    delete uTimestep;
+    UITimeStep * uTimeStep = new UITimeStep();
+    uTimeStep->CalcTimeStep();
+    delete uTimeStep;
 }
 
 void INsUpdateResiduals( StringField & data )

@@ -20,7 +20,7 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "ITimestep.h"
+#include "ITimeTtep.h"
 #include "Iteration.h"
 #include "INsCom.h"
 #include "HXMath.h"
@@ -30,17 +30,17 @@ using namespace std;
 
 BeginNameSpace( ONEFLOW )
 
-ITimestep::ITimestep()
+ITimeStep::ITimeStep()
 {
     ;
 }
 
-ITimestep::~ITimestep()
+ITimeStep::~ITimeStep()
 {
     ;
 }
 
-void ITimestep::CalcCfl()
+void ITimeStep::CalcCfl()
 {
     int iter = Iteration::outerSteps;
 
@@ -58,7 +58,7 @@ void ITimestep::CalcCfl()
     }
 }
 
-void ITimestep::CalcFaceInvSpec()
+void ITimeStep::CalcFaceInvSpec()
 {
     Real rl = inscom.q1[ IIDX::IIR ];
     Real ul = inscom.q1[ IIDX::IIU ];
@@ -87,7 +87,7 @@ void ITimestep::CalcFaceInvSpec()
     inscom.invsr = half * gcom.farea * ( ABS( vn ) + cm );
 }
 
-void ITimestep::CalcFaceVisSpec()
+void ITimeStep::CalcFaceVisSpec()
 {
     if ( inscom.visSRModel == 1 )
     {
@@ -121,15 +121,15 @@ void ITimestep::CalcFaceVisSpec()
     }
 }
 
-void ITimestep::CalcCellInvTimestep()
+void ITimeStep::CalcCellInvTimeStep()
 {
     inscom.timestep = Iteration::cfl * gcom.cvol / inscom.invsr;
 }
 
-void ITimestep::CalcCellVisTimestep()
+void ITimeStep::CalcCellVisTimeStep()
 {
-    Real visTimestep = Iteration::cfl * gcom.cvol / inscom.vissr;
-    inscom.timestep *= visTimestep / ( inscom.timestep + visTimestep );
+    Real visTimeStep = Iteration::cfl * gcom.cvol / inscom.vissr;
+    inscom.timestep *= visTimeStep / ( inscom.timestep + visTimeStep );
 }
 
 EndNameSpace
