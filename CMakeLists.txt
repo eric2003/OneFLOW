@@ -55,8 +55,20 @@ endif(WIN32)
 
 #message(STATUS "The new CMAKE_CXX_FLAGS is ${CMAKE_CXX_FLAGS}")
 
-#include(UtilFunction.cmake)
 include(UtilFunction)
+include(oflDirectories)
+
+# Set up our directory structure for output libraries and binaries
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/${CMAKE_INSTALL_BINDIR}")
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/${CMAKE_INSTALL_LIBDIR}")
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/${CMAKE_INSTALL_LIBDIR}")
+
+message(STATUS "The CMAKE_BINARY_DIR is ${CMAKE_BINARY_DIR}")
+message(STATUS "The CMAKE_INSTALL_BINDIR is ${CMAKE_INSTALL_BINDIR}")
+message(STATUS "The CMAKE_INSTALL_LIBDIR is ${CMAKE_INSTALL_LIBDIR}")
+message(STATUS "The CMAKE_RUNTIME_OUTPUT_DIRECTORY is ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}")
+message(STATUS "The CMAKE_LIBRARY_OUTPUT_DIRECTORY is ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}")
+message(STATUS "The CMAKE_ARCHIVE_OUTPUT_DIRECTORY is ${CMAKE_ARCHIVE_OUTPUT_DIRECTORY}")
 
 #look for CMakeLists.txt in subdirectory <codes> and build an executable target:
 add_subdirectory(codes ${MY_WORKING_DIR})
