@@ -182,6 +182,11 @@ void CgnsBase::SetFamilyBc( BCType_t & bcType, const string & bcRegionName )
     this->familyBc->SetFamilyBc( bcType, bcRegionName );
 }
 
+BCType_t CgnsBase::GetFamilyBcType( const string & bcFamilyName )
+{
+    return this->familyBc->GetFamilyBcType( bcFamilyName );
+}
+
 void CgnsBase::ReadFamilySpecifiedBc()
 {
     this->familyBc = new CgnsFamilyBc( this );

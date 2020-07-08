@@ -19,6 +19,7 @@ message( STATUS "CMAKE_PROJECT_DESCRIPTION = ${CMAKE_PROJECT_DESCRIPTION}" )
 
 #set working directory:
 set(MY_WORKING_DIR OneFLOW)
+set(THIRD_PARTY_DIR ThirdParty)
 
 set(PRJ_ROOT_DIR ${CMAKE_SOURCE_DIR})
 message(STATUS "PRJ_ROOT_DIR is ${PRJ_ROOT_DIR}.")
@@ -72,6 +73,7 @@ message(STATUS "The CMAKE_ARCHIVE_OUTPUT_DIRECTORY is ${CMAKE_ARCHIVE_OUTPUT_DIR
 
 #look for CMakeLists.txt in subdirectory <codes> and build an executable target:
 add_subdirectory(codes ${MY_WORKING_DIR})
+add_subdirectory(ThirdParty ${THIRD_PARTY_DIR})
 
 #exit:
 message(STATUS "--- Exit ${CMAKE_CURRENT_LIST_FILE}! ---")

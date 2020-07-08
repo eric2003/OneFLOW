@@ -21,6 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "CgnsTest.h"
+#include "CgnsTestTmp.h"
 #include "CgnsFile.h"
 #include "CgnsBase.h"
 #include "CgnsFactory.h"
@@ -51,7 +52,7 @@ void CgnsTest::Init()
 void CgnsTest::Run()
 {
     this->Init();
-
+    this->WriteTest();
     //this->WriteSimpleMultiBaseTest();
     //this->ReadSimpleMultiBaseTest();
     //this->WriteEmptyCgnsFile();
@@ -67,7 +68,7 @@ void CgnsTest::Run()
     //this->WriteConvergence();
     //this->ReadConvergence();
     //this->WriteFlowEqn();
-    this->ReadFlowEqn();
+    //this->ReadFlowEqn();
     
 }
 
@@ -441,6 +442,22 @@ void CgnsTest::ReadFlowEqn()
     CgnsFile * cgnsFile = new CgnsFile( "floweqn.cgns", CG_MODE_READ );
     cgnsFile->ReadFlowEqn();
     delete cgnsFile;
+}
+
+void CgnsTest::WriteTest()
+{
+    init_data();
+    int cgfile;
+
+    cg_open( this->fileName.c_str(), CG_MODE_WRITE, &cgfile );
+    SetCgFile( cgfile );
+
+    write_structured();
+    write_unstructured();
+    write_mixed();
+    write_mismatched();
+
+    cg_close( GetCgFile() );
 }
 
 EndNameSpace

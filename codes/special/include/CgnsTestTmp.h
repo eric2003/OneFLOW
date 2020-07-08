@@ -30,47 +30,12 @@ using namespace std;
 
 BeginNameSpace( ONEFLOW )
 
-class CgnsBase;
-class CgnsFile;
-
-class CgnsTest
-{
-public:
-    CgnsTest();
-    ~CgnsTest();
-public:
-    string fileName;
-public:
-    void Init();
-    void Run();
-    void Test();
-public:
-    void SetDefaultGridName();
-    void WriteReferenceState();
-    void ReadReferenceState();
-    void WriteConvergence();
-    void ReadConvergence();
-    void WriteDescriptor();
-    void ReadDescriptor();
-    void WriteSimpleMultiBaseTest();
-    void ReadSimpleMultiBaseTest();
-    void TestCgnsLink();
-    void WriteFlowEqn();
-    void ReadFlowEqn();
-private:
-    void SetISize( cgsize_t * isize );
-public:
-    void WriteDouble( const string & varName, const double & varValue );
-public:
-    void ReadEmptyCgnsFile();
-    void WriteEmptyCgnsFile();
-public:
-    void WriteArray();
-    void WriteArray( CgnsFile * cgnsFile, CgnsBase * cgnsBase );
-    void ReadArray();
-    void GetArray( vector< vector< float > > & myfloat2d );
-    void WriteTest();
-};
-
+void init_data();
+void write_structured();
+void write_unstructured();
+void write_mixed();
+void write_mismatched();
+void SetCgFile( int cgfileIn );
+int GetCgFile();
 
 EndNameSpace

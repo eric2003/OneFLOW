@@ -176,12 +176,21 @@ void CgnsBcBoco::ReadCgnsBocoInfo()
                   bcRegionName, & this->bcType, & this->pointSetType, & this->nElements,
                   normalIndex,  & normalListSize, & this->normalDataType, & this->nDataSets );
 
+    cg_goto( fileId, baseId, "Zone_t", 1, "ZoneBC_t", 1, "BC_t", this->bcId, "end" );
+
     this->name = bcRegionName;
 
-    cgnsZone->cgnsBase->SetFamilyBc( bcType, bcRegionName );
+    if ( this->bcType == FamilySpecified )
+    {
+        CgnsTraits::char33 bcFamilyName;
+        int ierr = cg_famname_read( bcFamilyName );
+
+        this->bcType = cgnsZone->cgnsBase->GetFamilyBcType( bcFamilyName );
+    }
 
     cout << "   CGNS Boundary Name             = " << bcRegionName << "\n";
     cout << "   CGNS Boundary Condition Name   = " << GetCgnsBcName( this->bcType ) << "\n";
+    cout << "haha\n";
 }
 
 void CgnsBcBoco::ReadCgnsBocoGridLocation()
