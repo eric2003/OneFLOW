@@ -30,6 +30,7 @@ License
 #include "CgnsZone.h"
 #include <iostream>
 #include <iomanip>
+#include <cmath>
 using namespace std;
 
 BeginNameSpace( ONEFLOW )
