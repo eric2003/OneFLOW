@@ -20,27 +20,27 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "ITimestep.h"
+#include "TimeStep.h"
 #include "Iteration.h"
-#include "INsCom.h"
+#include "NsCom.h"
 #include "HXMath.h"
-#include "INsIdx.h"
+#include "NsIdx.h"
 #include <iostream>
 using namespace std;
 
 BeginNameSpace( ONEFLOW )
 
-ITimestep::ITimestep()
+TimeStep::TimeStep()
 {
     ;
 }
 
-ITimestep::~ITimestep()
+TimeStep::~TimeStep()
 {
     ;
 }
 
-void ITimestep::CalcCfl()
+void TimeStep::CalcCfl()
 {
     int iter = Iteration::outerSteps;
 
@@ -58,78 +58,78 @@ void ITimestep::CalcCfl()
     }
 }
 
-void ITimestep::CalcFaceInvSpec()
+void TimeStep::CalcFaceInvSpec()
 {
-    Real rl = inscom.q1[ IIDX::IIR ];
-    Real ul = inscom.q1[ IIDX::IIU ];
-    Real vl = inscom.q1[ IIDX::IIV ];
-    Real wl = inscom.q1[ IIDX::IIW ];
-    Real pl = inscom.q1[ IIDX::IIP ];
-    Real cl = sqrt( inscom.gama1 * pl / rl );
+    Real rl = nscom.q1[ IDX::IR ];
+    Real ul = nscom.q1[ IDX::IU ];
+    Real vl = nscom.q1[ IDX::IV ];
+    Real wl = nscom.q1[ IDX::IW ];
+    Real pl = nscom.q1[ IDX::IP ];
+    Real cl = sqrt( nscom.gama1 * pl / rl );
 
-    Real rr = inscom.q2[ IIDX::IIR ];
-    Real ur = inscom.q2[ IIDX::IIU ];
-    Real vr = inscom.q2[ IIDX::IIV ];
-    Real wr = inscom.q2[ IIDX::IIW ];
-    Real pr = inscom.q2[ IIDX::IIP ];
-    Real cr = sqrt( inscom.gama2 * pr / rr );
+    Real rr = nscom.q2[ IDX::IR ];
+    Real ur = nscom.q2[ IDX::IU ];
+    Real vr = nscom.q2[ IDX::IV ];
+    Real wr = nscom.q2[ IDX::IW ];
+    Real pr = nscom.q2[ IDX::IP ];
+    Real cr = sqrt( nscom.gama2 * pr / rr );
         
     Real vnl  = gcom.xfn * ul + gcom.yfn * vl + gcom.zfn * wl - gcom.vfn;
     Real vnr  = gcom.xfn * ur + gcom.yfn * vr + gcom.zfn * wr - gcom.vfn;
 
-    inscom.gama = half * ( inscom.gama1 + inscom.gama2 );
+    nscom.gama = half * ( nscom.gama1 + nscom.gama2 );
 
     Real pm = half * ( pl + pr );
     Real rm = half * ( rl + rr );
-    Real cm = sqrt( inscom.gama * pm / rm );
+    Real cm = sqrt( nscom.gama * pm / rm );
     Real vn = half * ( vnl + vnr );
 
-    inscom.invsr = half * gcom.farea * ( ABS( vn ) + cm );
+    nscom.invsr = half * gcom.farea * ( ABS( vn ) + cm );
 }
 
-void ITimestep::CalcFaceVisSpec()
+void TimeStep::CalcFaceVisSpec()
 {
-    if ( inscom.visSRModel == 1 )
+    if ( nscom.visSRModel == 1 )
     {
-        Real density = half * ( inscom.q1[ IIDX::IIR ] + inscom.q2[ IIDX::IIR ] );
+        Real density = half * ( nscom.q1[ IDX::IR ] + nscom.q2[ IDX::IR ] );
 
-        Real c1 = 4.0 / 3.0 * ( inscom.visl + inscom.vist );
-        Real c2 = inscom.gama * ( inscom.visl * inscom.oprl + inscom.vist * inscom.oprt );
-        Real c3 = two * MAX( c1, c2 ) / ( inscom.reynolds * density );
+        Real c1 = 4.0 / 3.0 * ( nscom.visl + nscom.vist );
+        Real c2 = nscom.gama * ( nscom.visl * nscom.oprl + nscom.vist * nscom.oprt );
+        Real c3 = two * MAX( c1, c2 ) / ( nscom.reynolds * density );
         Real farea2 = SQR( gcom.farea );
 
-        inscom.vissr = farea2 * c3;
+        nscom.vissr = farea2 * c3;
     }
-    else if ( inscom.visSRModel == 2 )
+    else if ( nscom.visSRModel == 2 )
     {
         Real dist = ABS(  gcom.xfn * ( gcom.xcc2 - gcom.xcc1 )
                         + gcom.yfn * ( gcom.ycc2 - gcom.ycc1 )
                         + gcom.zfn * ( gcom.zcc2 - gcom.zcc1 ) );
 
-        Real viscosity = inscom.visl + inscom.vist;
-        Real density   = half * ( inscom.q1[ IIDX::IIR ] + inscom.q2[ IIDX::IIR ] );
+        Real viscosity = nscom.visl + nscom.vist;
+        Real density   = half * ( nscom.q1[ IDX::IR ] + nscom.q2[ IDX::IR ] );
 
-        Real c1  = 2.0 * viscosity / ( density * dist * inscom.reynolds + SMALL );
-        inscom.vissr = half * c1 * gcom.farea;
+        Real c1  = 2.0 * viscosity / ( density * dist * nscom.reynolds + SMALL );
+        nscom.vissr = half * c1 * gcom.farea;
     }
-    else if ( inscom.visSRModel == 3 )
+    else if ( nscom.visSRModel == 3 )
     {
-        Real density = half * ( inscom.q1[ IIDX::IIR ] + inscom.q2[ IIDX::IIR ] );
+        Real density = half * ( nscom.q1[ IDX::IR ] + nscom.q2[ IDX::IR ] );
         Real farea2 = SQR( gcom.farea );
 
-        inscom.vissr = farea2 / ( inscom.reynolds * density + SMALL );
+        nscom.vissr = farea2 / ( nscom.reynolds * density + SMALL );
     }
 }
 
-void ITimestep::CalcCellInvTimestep()
+void TimeStep::CalcCellInvTimeStep()
 {
-    inscom.timestep = Iteration::cfl * gcom.cvol / inscom.invsr;
+    nscom.timestep = Iteration::cfl * gcom.cvol / nscom.invsr;
 }
 
-void ITimestep::CalcCellVisTimestep()
+void TimeStep::CalcCellVisTimeStep()
 {
-    Real visTimestep = Iteration::cfl * gcom.cvol / inscom.vissr;
-    inscom.timestep *= visTimestep / ( inscom.timestep + visTimestep );
+    Real visTimeStep = Iteration::cfl * gcom.cvol / nscom.vissr;
+    nscom.timestep *= visTimeStep / ( nscom.timestep + visTimeStep );
 }
 
 EndNameSpace

@@ -68,6 +68,7 @@ public:
     void ReadAllCgnsZones();
 public:
     void SetFamilyBc( BCType_t & bcType, const string & bcRegionName );
+    BCType_t GetFamilyBcType( const string & bcFamilyName );
     void ReadFamilySpecifiedBc();
 public:
     void GoToBase();

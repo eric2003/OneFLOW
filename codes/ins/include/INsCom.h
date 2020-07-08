@@ -49,7 +49,7 @@ public:
     int nSpecies;
     int visSRModel;
     int timestepModel;
-    int visTimestepModel;
+    int visTimeStepModel;
     int chemModel;
     int nTModel;
     int bctype;
@@ -136,9 +136,9 @@ public:
     Real vissr; //viscous  spectrum radius;
     Real dt;
     Real timestep;
-    Real minTimestep;
+    Real minTimeStep;
     Real max_time_ratio;
-    Real physicalTimestep;
+    Real physicalTimeStep;
 };
 
 extern INsCom inscom;

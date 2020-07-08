@@ -23,53 +23,36 @@ License
 
 #pragma once
 #include "HXDefine.h"
-#include "HXCgns.h"
-#include <string>
-#include <vector>
-using namespace std;
+#include "TimeStep.h"
 
 BeginNameSpace( ONEFLOW )
-
-class CgnsBase;
-class CgnsFile;
-
-class CgnsTest
+class UTimeStep : public TimeStep
 {
 public:
-    CgnsTest();
-    ~CgnsTest();
-public:
-    string fileName;
+    UTimeStep();
+    ~UTimeStep();
 public:
     void Init();
-    void Run();
-    void Test();
+    void ReadTmp();
+    void CalcTimeStep();
+    void CalcLocalTimeStep();
+    void CalcGlobalTimeStep();
+    void CalcLgTimeStep();
+    void CalcInvTimeStep();
+    void CalcVisTimeStep();
+    void CalcMinTimeStep();
+    void SetTimeStep( Real timestep );
 public:
-    void SetDefaultGridName();
-    void WriteReferenceState();
-    void ReadReferenceState();
-    void WriteConvergence();
-    void ReadConvergence();
-    void WriteDescriptor();
-    void ReadDescriptor();
-    void WriteSimpleMultiBaseTest();
-    void ReadSimpleMultiBaseTest();
-    void TestCgnsLink();
-    void WriteFlowEqn();
-    void ReadFlowEqn();
-private:
-    void SetISize( cgsize_t * isize );
+    void CalcSpectrumField();
+    void CalcInvSpectrumField();
+    void CalcVisSpectrumField();
 public:
-    void WriteDouble( const string & varName, const double & varValue );
-public:
-    void ReadEmptyCgnsFile();
-    void WriteEmptyCgnsFile();
-public:
-    void WriteArray();
-    void WriteArray( CgnsFile * cgnsFile, CgnsBase * cgnsBase );
-    void ReadArray();
-    void GetArray( vector< vector< float > > & myfloat2d );
-    void WriteTest();
+    void SetId( int fId );
+    void PrepareData();
+    void PrepareVisData();
+    void UpdateInvSpectrumField();
+    void UpdateVisSpectrumField();
+    void ModifyTimeStep();
 };
 
 

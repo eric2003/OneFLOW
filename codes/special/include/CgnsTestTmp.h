@@ -23,22 +23,19 @@ License
 
 #pragma once
 #include "HXDefine.h"
+#include "HXCgns.h"
+#include <string>
+#include <vector>
+using namespace std;
 
 BeginNameSpace( ONEFLOW )
 
-class ITimestep
-{
-public:
-    ITimestep();
-    ~ITimestep();
-public:
-    void CalcCfl();
-    void CalcFaceInvSpec();
-    void CalcFaceVisSpec();
-public:
-    void CalcCellInvTimestep();
-    void CalcCellVisTimestep();
-};
-
+void init_data();
+void write_structured();
+void write_unstructured();
+void write_mixed();
+void write_mismatched();
+void SetCgFile( int cgfileIn );
+int GetCgFile();
 
 EndNameSpace

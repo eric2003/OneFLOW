@@ -32,7 +32,7 @@ int  ncfl = 100;
 Real max_time_ratio = 1.0e10;
 
 int visSRModel = 2;
-int visTimestepModel = 1;
+int visTimeStepModel = 1;
 int chemModel = 0;
 int nTModel = 1;
 

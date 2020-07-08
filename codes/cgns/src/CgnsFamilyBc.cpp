@@ -84,6 +84,13 @@ void CgnsFamilyBc::SetFamilyBc( BCType_t & bcType, const string & bcRegionName )
     }
 }
 
+BCType_t CgnsFamilyBc::GetFamilyBcType( const string & bcFamilyName )
+{
+    int bcTypeOfFamily = this->GetBcType( bcFamilyName );
+    BCType_t bcType = static_cast< BCType_t >( bcTypeOfFamily );
+    return bcType;
+}
+
 void CgnsFamilyBc::ReadFamilySpecifiedBc()
 {
     int fileId = cgnsBase->fileId;

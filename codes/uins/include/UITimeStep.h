@@ -23,25 +23,25 @@ License
 
 #pragma once
 #include "HXDefine.h"
-#include "Timestep.h"
+#include "ITimeStep.h"
 
 BeginNameSpace( ONEFLOW )
-class UTimestep : public Timestep
+class UITimeStep : public ITimeStep
 {
 public:
-    UTimestep();
-    ~UTimestep();
+    UITimeStep();
+    ~UITimeStep();
 public:
     void Init();
     void ReadTmp();
     void CalcTimeStep();
-    void CalcLocalTimestep();
-    void CalcGlobalTimestep();
-    void CalcLgTimestep();
-    void CalcInvTimestep();
-    void CalcVisTimestep();
-    void CalcMinTimestep();
-    void SetTimestep( Real timestep );
+    void CalcLocalTimeStep();
+    void CalcGlobalTimeStep();
+    void CalcLgTimeStep();
+    void CalcInvTimeStep();
+    void CalcVisTimeStep();
+    void CalcMinTimeStep();
+    void SetTimeStep( Real timestep );
 public:
     void CalcSpectrumField();
     void CalcInvSpectrumField();
@@ -52,7 +52,7 @@ public:
     void PrepareVisData();
     void UpdateInvSpectrumField();
     void UpdateVisSpectrumField();
-    void ModifyTimestep();
+    void ModifyTimeStep();
 };
 
 

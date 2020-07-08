@@ -26,18 +26,18 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-class Timestep
+class TimeStep
 {
 public:
-    Timestep();
-    ~Timestep();
+    TimeStep();
+    ~TimeStep();
 public:
     void CalcCfl();
     void CalcFaceInvSpec();
     void CalcFaceVisSpec();
 public:
-    void CalcCellInvTimestep();
-    void CalcCellVisTimestep();
+    void CalcCellInvTimeStep();
+    void CalcCellVisTimeStep();
 };
 
 
