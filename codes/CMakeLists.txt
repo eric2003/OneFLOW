@@ -231,11 +231,19 @@ if(CGNS_ENABLE)
     endif()
 endif()
 
-GetAllSubDir( dirList ${CMAKE_CURRENT_SOURCE_DIR})
+set( JsonPrjDir "${PRJ_ROOT_DIR}/${THIRD_PARTY_DIR}/jsoncpp" )
+set( JsonHeaderDir ${JsonPrjDir} )
+include_directories( ${JsonHeaderDir} )
+set( JsonSRC "${JsonPrjDir}/jsoncpp.cpp" )
+
+GetAllSubDir( dirList ${CMAKE_CURRENT_SOURCE_DIR} )
 
 message( STATUS "The dirList is ${dirList}" )
 
 set_source_group( HEAD_LIST SRC_LIST )
+
+list( APPEND SRC_LIST ${JsonSRC} )
+#message(STATUS "SRC_LIST is ${SRC_LIST}.")
 
 #. set executable name:
 set(EXECUTABLE_TARGET_NAME "${CMAKE_PROJECT_NAME}")

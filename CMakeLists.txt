@@ -24,6 +24,7 @@ set(THIRD_PARTY_DIR ThirdParty)
 set(PRJ_ROOT_DIR ${CMAKE_SOURCE_DIR})
 message(STATUS "PRJ_ROOT_DIR is ${PRJ_ROOT_DIR}.")
 
+
 set(OneFLOW_CMAKE_DIR "${CMAKE_SOURCE_DIR}/cmake")
 list(INSERT CMAKE_MODULE_PATH 0 "${OneFLOW_CMAKE_DIR}")
 
@@ -72,8 +73,8 @@ message(STATUS "The CMAKE_LIBRARY_OUTPUT_DIRECTORY is ${CMAKE_LIBRARY_OUTPUT_DIR
 message(STATUS "The CMAKE_ARCHIVE_OUTPUT_DIRECTORY is ${CMAKE_ARCHIVE_OUTPUT_DIRECTORY}")
 
 #look for CMakeLists.txt in subdirectory <codes> and build an executable target:
-add_subdirectory(codes ${MY_WORKING_DIR})
 add_subdirectory(ThirdParty ${THIRD_PARTY_DIR})
+add_subdirectory(codes ${MY_WORKING_DIR})
 
 #exit:
 message(STATUS "--- Exit ${CMAKE_CURRENT_LIST_FILE}! ---")
