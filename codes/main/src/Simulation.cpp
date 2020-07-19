@@ -23,7 +23,7 @@ License
 #include "SimuImp.h"
 #include "SimpleSimu.h"
 #include "MpiTest.h"
-#include "TestJson.h"
+#include "JsonTest.h"
 #include <iostream>
 using namespace std;
 
@@ -90,9 +90,9 @@ void Simulation::RunDefaultSimu()
     //mpiTest->Run();
     //delete mpiTest;
 
-    TestJson * testJson = new TestJson();
-    testJson->Run();
-    delete testJson;
+    JsonTest * jsonTest = new JsonTest();
+    jsonTest->Run();
+    delete jsonTest;
 }
 
 

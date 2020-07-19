@@ -31,11 +31,11 @@ void test_demo_write_array();
 void test_demo_write();
 void readFileJson();
 
-class TestJson
+class JsonTest
 {
 public:
-    TestJson();
-    ~TestJson();
+    JsonTest();
+    ~JsonTest();
 public:
     void Run();
 };

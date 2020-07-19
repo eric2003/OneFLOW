@@ -19,7 +19,7 @@ You should have received a copy of the GNU General Public License
 along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 
 \*---------------------------------------------------------------------------*/
-#include "TestJson.h"
+#include "JsonTest.h"
 #include "json/json.h"
 #include <iostream>
 #include <fstream>
@@ -141,16 +141,16 @@ void readFileJson()
     int kkk = 1;
 }
 
-TestJson::TestJson()
+JsonTest::JsonTest()
 {
     ;
 }
 
-TestJson::~TestJson()
+JsonTest::~JsonTest()
 {
 }
 
-void TestJson::Run()
+void JsonTest::Run()
 {
     readFileJson();
 }
