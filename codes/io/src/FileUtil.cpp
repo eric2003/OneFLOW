@@ -89,6 +89,82 @@ string HX_GetCurrentDir()
     return working_dir ;
 }
 
+bool EndWithSlash( const string & fileName )
+{
+    if ( EndWithForwardSlash( fileName ) ||
+        EndWithBackwardSlash( fileName ) )
+    {
+        return true;
+    }
+    return false;
+}
+
+bool EndWithBackwardSlash( const string & fileName )
+{
+    size_t pos = fileName.find_last_of("\\");
+    size_t ss = fileName.size();
+    if ( ss == 0 )
+    {
+        return false;
+    }
+    else
+    {
+        bool flag = fileName.substr( ss - 1, 1 ) == "\\";
+        return flag;
+    }
+}
+
+bool EndWithForwardSlash( const string & fileName )
+{
+    size_t pos = fileName.find_last_of("/");
+    size_t ss = fileName.size();
+    if ( ss == 0 )
+    {
+        return false;
+    }
+    else
+    {
+        bool flag = fileName.substr( ss - 1, 1 ) == "/";
+        return flag;
+    }
+}
+
+bool StartWithForwardSlash( const string & fileName )
+{
+    size_t pos = fileName.find_first_of("/");
+    if ( fileName.size() == 0 )
+    {
+        return false;
+    }
+
+    if ( fileName.substr( 0,1 ) == "/" )
+    {
+        return true;
+    }
+    return false;
+}
+
+string RemoveFirstSlash( const string & fileName )
+{
+    if ( StartWithForwardSlash( fileName ) )
+    {
+        int len = fileName.size();
+        return fileName.substr( 1, len - 1 );
+    }
+    return fileName;
+}
+
+string RemoveEndSlash( const string & fileName )
+{
+    if ( EndWithSlash( fileName ) )
+    {
+        int len = fileName.size();
+        return fileName.substr( 0, len - 1 );
+    }
+    return fileName;
+
+}
+
 void OpenFile( fstream & file, const string & fileName, const ios_base::openmode & openMode )
 {
     file.open( fileName.c_str(), openMode );
