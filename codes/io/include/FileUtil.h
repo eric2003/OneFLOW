@@ -38,6 +38,13 @@ void MakeDir( const string & dirName );
 string HX_GetExePath();
 string HX_GetCurrentDir();
 
+bool EndWithSlash( const string & fileName );
+bool EndWithBackwardSlash( const string & fileName );
+bool EndWithForwardSlash( const string & fileName );
+bool StartWithForwardSlash( const string & fileName );
+string RemoveFirstSlash( const string & fileName );
+string RemoveEndSlash( const string & fileName );
+
 void OpenFile( fstream & file, const string & fileName, const ios_base::openmode & openMode );
 void CloseFile( fstream & file );
 

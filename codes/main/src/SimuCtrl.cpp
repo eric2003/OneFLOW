@@ -52,10 +52,12 @@ void SimuCtrl::Init()
     string local_root = "/system/";
     if ( SimuCtrl::run_from_ide )
     {
-        SimuCtrl::system_root = SimuCtrl::current_dir + local_root;
+        string current_dir_now = RemoveEndSlash( SimuCtrl::current_dir );
+        SimuCtrl::system_root = current_dir_now + local_root;
     }
     else
     {
+        string execute_dir = RemoveEndSlash( SimuCtrl::execute_dir );
         SimuCtrl::system_root = SimuCtrl::execute_dir + local_root;
     }
     cout << "SimuCtrl::system_root = " << SimuCtrl::system_root << "\n";
