@@ -28,6 +28,8 @@ License
 #include "FaceSearch.h"
 #include "HXMath.h"
 #include "HXStd.h"
+#include <iostream>
+using namespace std;
 
 BeginNameSpace( ONEFLOW )
 
@@ -58,6 +60,7 @@ void BcRecord::CreateBcRegion()
 
     IntSet bcTypeSet;
     IntSet bcUserTypeSet;
+    IntSet bcRegionNameSet;
 
     int nBFace = this->GetNBFace();
 
@@ -66,22 +69,25 @@ void BcRecord::CreateBcRegion()
         int bcType = this->bcType[ iFace ];
         int bcRegion = this->bcRegion[ iFace ];
         bcTypeSet.insert( bcType );
+        bcRegionNameSet.insert( bcRegion );
         if ( bcType == BC::GENERIC_2 )
         {
             bcUserTypeSet.insert( bcRegion );
         }
     }
+    //cout << " bcTypeSet.size() = " << bcTypeSet.size() << "\n";
+    //cout << " bcRegionNameSet.size() = " << bcRegionNameSet.size() << "\n";
 
     ONEFLOW::Set2Array( bcTypeSet, bcInfo->bcType );
 
-    int nRegion = bcInfo->bcType.size();
-    bcInfo->bcFace.resize( nRegion );
-    bcInfo->bcRegion.resize( nRegion );
-    bcInfo->bcdtkey.resize( nRegion );
+    int nBcTypeRegions = bcInfo->bcType.size();
+    bcInfo->bcFace.resize( nBcTypeRegions );
+    bcInfo->bcRegion.resize( nBcTypeRegions );
+    bcInfo->bcdtkey.resize( nBcTypeRegions );
 
-    for ( int ir = 0; ir < nRegion; ++ ir )
+    for ( int iBcTypeRegion = 0; iBcTypeRegion < nBcTypeRegions; ++ iBcTypeRegion )
     {
-        int targetBcType = bcInfo->bcType[ ir ];
+        int targetBcType = bcInfo->bcType[ iBcTypeRegion ];
         for ( int iFace = 0; iFace < nBFace; ++ iFace )
         {
             int bcType = this->bcType[ iFace ];
@@ -89,9 +95,9 @@ void BcRecord::CreateBcRegion()
             if ( bcType == targetBcType )
             {
                 int bcRegion = this->bcRegion[ iFace ];
-                bcInfo->bcFace[ ir ].push_back( iFace );
-                bcInfo->bcRegion[ ir ].push_back( bcRegion );
-                bcInfo->bcdtkey[ ir ].push_back( bcdtkey );
+                bcInfo->bcFace[ iBcTypeRegion ].push_back( iFace );
+                bcInfo->bcRegion[ iBcTypeRegion ].push_back( bcRegion );
+                bcInfo->bcdtkey[ iBcTypeRegion ].push_back( bcdtkey );
             }
         }
     }

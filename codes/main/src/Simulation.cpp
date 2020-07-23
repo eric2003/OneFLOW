@@ -52,15 +52,8 @@ void Simulation::ProcessCmdLineArgs( int argc, char ** argv )
     for ( int i = 0; i < argc; ++ i )
     {   
         args[ i ] = argv[ i ];
-        //cout << "arguments[ " << i << " ] = " << args[ i ] << endl;
         cout << "argv[" << i << "] = " << args[ i ] << endl;
     }
-
-    //if ( args.size() <= 2 )
-    //{
-    //    cout << " argument number should be 3\n";
-    //    exit( 0 );
-    //}
 }
 
 void Simulation::Run()
@@ -86,13 +79,13 @@ void Simulation::Run()
 
 void Simulation::RunDefaultSimu()
 {
-    //MpiTest * mpiTest = new MpiTest();
-    //mpiTest->Run();
-    //delete mpiTest;
+    MpiTest * mpiTest = new MpiTest();
+    mpiTest->Run();
+    delete mpiTest;
 
-    JsonTest * jsonTest = new JsonTest();
-    jsonTest->Run();
-    delete jsonTest;
+    //JsonTest * jsonTest = new JsonTest();
+    //jsonTest->Run();
+    //delete jsonTest;
 }
 
 
