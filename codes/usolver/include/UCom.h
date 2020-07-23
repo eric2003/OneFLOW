@@ -56,7 +56,7 @@ public:
     int ist, ied;
     int lc;
     int rc;
-    int ir, bcr, bcdtkey, bctype, nRegion, nRBFace;
+    int ir, bcNameId, bcdtkey, bctype, nRegion, nRBFace;
     int ireconface;
 public:
     IntField * lcf;

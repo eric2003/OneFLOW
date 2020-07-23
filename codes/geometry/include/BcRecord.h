@@ -40,7 +40,7 @@ public:
     ~BcInfo();
 public:
     LinkField bcFace;
-    LinkField bcRegion;
+    LinkField bcNameId;
     LinkField bcdtkey;
     IntField bcType;
 public:
