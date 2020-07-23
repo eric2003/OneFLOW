@@ -103,7 +103,7 @@ void FillWallStruct( StringField & data )
     for ( int iFace = 0; iFace < nBFace; ++ iFace )
     {
         int bcType = bcRecord->bcType[ iFace ];
-        int bcRegion = bcRecord->bcRegion[ iFace ];
+        int bcRegion = bcRecord->bcNameId[ iFace ];
         int nNode = grid->faceTopo->f2n[ iFace ].size();
 
         if ( bcType == BC::SOLID_SURFACE )

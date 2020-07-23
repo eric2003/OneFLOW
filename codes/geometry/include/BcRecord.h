@@ -55,7 +55,7 @@ public:
 public:
     IntField bcType;
     IntField bcdtkey;
-    IntField bcRegion;
+    IntField bcNameId;
     BcInfo * bcInfo;
 public:
     void Init( UInt nBFace );
@@ -64,7 +64,7 @@ public:
     int CalcNumWallFace();
     void CreateI2B( InterFace * interFace );
 public:
-    void CreateBcRegion();
+    void CreateBcTypeRegion();
 };
 
 class IFaceLink;

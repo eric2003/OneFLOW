@@ -53,7 +53,7 @@ BcRecord::~BcRecord()
     delete bcInfo;
 }
 
-void BcRecord::CreateBcRegion()
+void BcRecord::CreateBcTypeRegion()
 {
     if ( bcInfo ) return;
     this->bcInfo = new BcInfo();
@@ -67,7 +67,7 @@ void BcRecord::CreateBcRegion()
     for ( int iFace = 0; iFace < nBFace; ++ iFace )
     {
         int bcType = this->bcType[ iFace ];
-        int bcRegion = this->bcRegion[ iFace ];
+        int bcRegion = this->bcNameId[ iFace ];
         bcTypeSet.insert( bcType );
         bcRegionNameSet.insert( bcRegion );
         if ( bcType == BC::GENERIC_2 )
@@ -94,7 +94,7 @@ void BcRecord::CreateBcRegion()
             int bcdtkey = this->bcdtkey[ iFace ];
             if ( bcType == targetBcType )
             {
-                int bcRegion = this->bcRegion[ iFace ];
+                int bcRegion = this->bcNameId[ iFace ];
                 bcInfo->bcFace[ iBcTypeRegion ].push_back( iFace );
                 bcInfo->bcRegion[ iBcTypeRegion ].push_back( bcRegion );
                 bcInfo->bcdtkey[ iBcTypeRegion ].push_back( bcdtkey );
@@ -113,7 +113,7 @@ void BcRecord::Init( UInt nBFace )
 {
     this->bcType.resize( nBFace );
     this->bcdtkey.resize( nBFace );
-    this->bcRegion.resize( nBFace );
+    this->bcNameId.resize( nBFace );
 }
 
 int BcRecord::CalcNIFace()
