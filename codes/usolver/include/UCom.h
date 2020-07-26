@@ -56,7 +56,6 @@ public:
     int ist, ied;
     int lc;
     int rc;
-    //int ir, bcNameId, bcdtkey, bctype, nRegion, nRBFace;
     int ir, bcNameId, bctype, nRegion, nRBFace;
     int ireconface;
 public:
