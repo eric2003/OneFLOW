@@ -83,7 +83,7 @@ void BcRecord::CreateBcTypeRegion()
     int nBcTypeRegions = bcInfo->bcType.size();
     bcInfo->bcFace.resize( nBcTypeRegions );
     bcInfo->bcNameId.resize( nBcTypeRegions );
-    bcInfo->bcdtkey.resize( nBcTypeRegions );
+    //bcInfo->bcdtkey.resize( nBcTypeRegions );
 
     for ( int iBcTypeRegion = 0; iBcTypeRegion < nBcTypeRegions; ++ iBcTypeRegion )
     {
@@ -91,13 +91,13 @@ void BcRecord::CreateBcTypeRegion()
         for ( int iFace = 0; iFace < nBFace; ++ iFace )
         {
             int bcType = this->bcType[ iFace ];
-            int bcdtkey = this->bcdtkey[ iFace ];
+            //int bcdtkey = this->bcdtkey[ iFace ];
             if ( bcType == targetBcType )
             {
                 int bcNameId = this->bcNameId[ iFace ];
                 bcInfo->bcFace[ iBcTypeRegion ].push_back( iFace );
                 bcInfo->bcNameId[ iBcTypeRegion ].push_back( bcNameId );
-                bcInfo->bcdtkey[ iBcTypeRegion ].push_back( bcdtkey );
+                //bcInfo->bcdtkey[ iBcTypeRegion ].push_back( bcdtkey );
             }
         }
     }
@@ -112,7 +112,7 @@ int BcRecord::GetNBFace()
 void BcRecord::Init( UInt nBFace )
 {
     this->bcType.resize( nBFace );
-    this->bcdtkey.resize( nBFace );
+    //this->bcdtkey.resize( nBFace );
     this->bcNameId.resize( nBFace );
 }
 

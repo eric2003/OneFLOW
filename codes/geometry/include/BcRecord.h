@@ -41,7 +41,7 @@ public:
 public:
     LinkField bcFace;
     LinkField bcNameId;
-    LinkField bcdtkey;
+    //LinkField bcdtkey;
     IntField bcType;
 public:
     UInt GetNBcRegion() { return bcType.size(); }
@@ -54,7 +54,7 @@ public:
     ~BcRecord();
 public:
     IntField bcType;
-    IntField bcdtkey;
+    //IntField bcdtkey;
     IntField bcNameId;
     BcInfo * bcInfo;
 public:

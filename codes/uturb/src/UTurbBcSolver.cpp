@@ -80,7 +80,7 @@ void UTurbBcSolver::SetId( int bcfId )
     ug.fId = bcInfo->bcFace[ ug.ir ][ bcfId ];
     ug.bcNameId = bcInfo->bcNameId[ ug.ir ][ bcfId ];
 
-    ug.bcdtkey = bcInfo->bcdtkey[ ug.ir ][ bcfId ];
+    //ug.bcdtkey = bcInfo->bcdtkey[ ug.ir ][ bcfId ];
 
     ug.lc = ( * ug.lcf )[ ug.fId ];
     ug.rc = ( * ug.rcf )[ ug.fId ];
