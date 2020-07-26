@@ -59,6 +59,8 @@ public:
     Real CalcDensity( RealField & prim, Real pres, Real temperature );
 };
 
+class BcData;
+extern BcData ins_bc_data;
 
 
 EndNameSpace

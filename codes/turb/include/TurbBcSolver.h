@@ -53,6 +53,8 @@ public:
     void CalcFaceBc();
 };
 
+class BcData;
+extern BcData turb_bc_data;
 
 
 EndNameSpace

@@ -34,6 +34,8 @@ using namespace std;
 
 BeginNameSpace( ONEFLOW )
 
+BcData bcdata;
+
 NsBcSolver::NsBcSolver()
 {
     ;

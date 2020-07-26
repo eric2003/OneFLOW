@@ -21,6 +21,8 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "INsSolver.h"
+#include "INsBcSolver.h"
+#include "BcData.h"
 #include "INsCom.h"
 #include "INsCtrl.h"
 #include "SolverInfo.h"
@@ -53,6 +55,8 @@ void INsSolver::StaticInit()
 
     ins_ctrl.Init();
     inscom.Init();
+    string fileName = "grid/ins_bc.txt";
+    ins_bc_data.Init( fileName );
 
     SolverInfo * solverInfo = SolverInfoFactory::GetSolverInfo( this->sTid );
     solverInfo->nEqu  = inscom.nEqu;

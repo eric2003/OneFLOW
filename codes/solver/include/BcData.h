@@ -33,6 +33,7 @@ public:
     ~BcData();
 public:
     void Init();
+    void Init( const string & fileName );
     void ReadList( const string & fileName );
     void ReadRegion();
 public:
@@ -41,7 +42,5 @@ public:
     IntField irList;
     HXVector< RealField > dataList;
 };
-
-extern BcData bcdata;
 
 EndNameSpace

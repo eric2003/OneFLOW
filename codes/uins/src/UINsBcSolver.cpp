@@ -81,11 +81,11 @@ void UINsBcSolver::SetId( int bcfId )
 
     inscom.bcdtkey = 0;
     if ( ug.bcNameId == -1 ) return; //interface
-    int dd = bcdata.r2d[ ug.bcNameId ];
+    int dd = ins_bc_data.r2d[ ug.bcNameId ];
     if ( dd != - 1 )
     {
         inscom.bcdtkey = 1;
-        inscom.bcflow = & bcdata.dataList[ dd ];
+        inscom.bcflow = & ins_bc_data.dataList[ dd ];
     }
 
 }

@@ -86,11 +86,11 @@ void UTurbBcSolver::SetId( int bcfId )
 
     turbcom.bcdtkey = 0;
     if ( ug.bcNameId == -1 ) return;
-    int dd = bcdata.r2d[ ug.bcNameId ];
+    int dd = turb_bc_data.r2d[ ug.bcNameId ];
     if ( dd != - 1 )
     {
         turbcom.bcdtkey = 1;
-        turbcom.bcflow = & bcdata.dataList[ dd ];
+        turbcom.bcflow = & turb_bc_data.dataList[ dd ];
     }
 
 }

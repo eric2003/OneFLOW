@@ -21,6 +21,8 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "TurbSolver.h"
+#include "TurbBcSolver.h"
+#include "BcData.h"
 #include "SolverInfo.h"
 #include "SolverDef.h"
 #include "TurbCtrl.h"
@@ -47,6 +49,9 @@ void TurbSolver::StaticInit()
 {
     if ( TurbSolver::initFlag ) return;
     TurbSolver::initFlag = true;
+
+    string fileName = "grid/turb_bc.txt";
+    turb_bc_data.Init( fileName );
 
     this->sTid = ONEFLOW::TURB_SOLVER;
     SolverInfo * solverInfo = SolverInfoFactory::GetSolverInfo( this->sTid );

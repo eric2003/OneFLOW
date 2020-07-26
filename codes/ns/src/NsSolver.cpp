@@ -28,6 +28,7 @@ License
 #include "UNsBcSolver.h"
 #include "HeatFlux.h"
 #include "DataBase.h"
+#include "BcData.h"
 #include <iostream>
 using namespace std;
 
@@ -53,6 +54,8 @@ void NsSolver::StaticInit()
 
     ns_ctrl.Init();
     nscom.Init();
+    string fileName = "grid/ns_bc.txt";
+    bcdata.Init( fileName );
 
     SolverInfo * solverInfo = SolverInfoFactory::GetSolverInfo( this->sTid );
     solverInfo->nEqu  = nscom.nEqu;

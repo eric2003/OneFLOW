@@ -27,14 +27,24 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-BcData bcdata;
-
 BcData::BcData()
 {
 }
 
 BcData::~BcData()
 {
+}
+
+void BcData::Init( const string & fileName )
+{
+    this->ReadList( fileName );
+    this->ReadRegion();
+    this->r2d.resize( nRegion, -1 );
+    for ( int i = 0; i < irList.size(); ++ i )
+    {
+        int ir = irList[ i ];
+        this->r2d[ ir ] = i;
+    }
 }
 
 void BcData::Init()
