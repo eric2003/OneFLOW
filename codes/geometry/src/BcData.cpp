@@ -62,11 +62,16 @@ void BcData::ReadRegion()
 
 void BcData::ReadList()
 {
+    string fileName = "script/bc.txt";
+    this->ReadList( fileName );
+}
+
+void BcData::ReadList( const string & fileName )
+{
     //\tÎªtab¼ü
     string separator = " =\r\n\t#$,;\"";
 
     FileIO ioFile;
-    string fileName = "script/bc.txt";
     ioFile.OpenPrjFile( fileName, ios_base::in );
     ioFile.SetDefaultSeparator( separator );
 
