@@ -39,7 +39,8 @@ BcData::~BcData()
 
 void BcData::Init()
 {
-    this->ReadList();
+    string fileName = "script/bc.txt";
+    this->ReadList( fileName );
     this->ReadRegion();
     this->r2d.resize( nRegion, -1 );
     for ( int i = 0; i < irList.size(); ++ i )
@@ -58,12 +59,6 @@ void BcData::ReadRegion()
     file >> nRegion;
 
     CloseFile( file );
-}
-
-void BcData::ReadList()
-{
-    string fileName = "script/bc.txt";
-    this->ReadList( fileName );
 }
 
 void BcData::ReadList( const string & fileName )
