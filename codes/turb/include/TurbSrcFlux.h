@@ -31,8 +31,8 @@ public:
     ~TurbSrcFlux();
     typedef void ( TurbSrcFlux:: * SrcPointer )();
     SrcPointer srcFlux;
-    SrcPointer cmpBeta;
-    SrcPointer cmpProd;
+    SrcPointer calcBeta;
+    SrcPointer calcProd;
 public:
     void SetSrcFluxPointer();
     void CalcSrcSa();
