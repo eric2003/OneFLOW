@@ -22,6 +22,7 @@ License
 
 #include "INsBcSolver.h"
 #include "BcData.h"
+#include "FlowModel.h"
 #include "INsCom.h"
 #include "UCom.h"
 #include "INsCtrl.h"
@@ -108,7 +109,7 @@ void INsBcSolver::SetBc()
 
 void INsBcSolver::SetSolidSurfaceBc()
 {
-    if ( vis_model.vismodel == _INVISCID )
+    if ( vis_model.vismodel == INVISCID )
     {
         this->bcPointer = & INsBcSolver::SymmetryBc;
     }

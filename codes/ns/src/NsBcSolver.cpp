@@ -22,6 +22,7 @@ License
 
 #include "NsBcSolver.h"
 #include "BcData.h"
+#include "FlowModel.h"
 #include "NsCom.h"
 #include "UCom.h"
 #include "NsCtrl.h"

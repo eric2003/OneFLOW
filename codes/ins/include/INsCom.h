@@ -28,12 +28,6 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-const int _INVISCID  = 0;
-const int _LAMINAR   = 1;
-const int _ALGEBRAIC = 2;
-const int _ONE_EQU   = 3;
-const int _TWO_EQU   = 4;
-
 class INsCom
 {
 public:
