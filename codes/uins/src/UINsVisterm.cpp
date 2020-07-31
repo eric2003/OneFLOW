@@ -226,7 +226,7 @@ void UINsVisterm::PrepareFaceValue()
     nscom.visl1 = ( * uinsf.visl )[ 0 ][ ug.lc ];
     nscom.visl2 = ( * uinsf.visl )[ 0 ][ ug.rc ];
 
-   nscom.vist1 = ( * uinsf.vist )[ 0 ][ ug.lc ];
+    nscom.vist1 = ( * uinsf.vist )[ 0 ][ ug.lc ];
     nscom.vist2 = ( * uinsf.vist )[ 0 ][ ug.rc ];
 
     nscom.visl = half * ( nscom.visl1 + nscom.visl2 );
@@ -311,18 +311,18 @@ void UINsVisterm::PrepareCellGeom()
 
 void ICalcLaminarViscosity(int flag)
 {
-		ug.Init();
-		uinsf.Init();
-		ug.SetStEd(flag);
+	ug.Init();
+	uinsf.Init();
+	ug.SetStEd(flag);
 
-		Real minLimit = 0.0;
+	Real minLimit = 0.0;
 
-		for (int cId = ug.ist; cId < ug.ied; ++cId)
-		{
-			//Real temperature = ( *uinsf.tempr )[ IIDX::IITT ][ cId ];
-			//Real visl = Iutherland::ICalcViscosity( temperature );
-			//( *uinsf.visl )[ 0 ][ cId ] = MAX( minLimit, visl );
-		}
+	for (int cId = ug.ist; cId < ug.ied; ++cId)
+	{
+		//Real temperature = ( *uinsf.tempr )[ IIDX::IITT ][ cId ];
+		//Real visl = Iutherland::ICalcViscosity( temperature );
+		//( *uinsf.visl )[ 0 ][ cId ] = MAX( minLimit, visl );
+	}
 }
 
 EndNameSpace

@@ -32,8 +32,6 @@ BeginNameSpace( ONEFLOW )
 
 INsVis Ivis;
 
-
-
 INsVis::INsVis()
 {
     ;
@@ -132,6 +130,7 @@ void INsVisterm::ModifyFaceGrad()
     visQ.ModifyFaceGrad();
     visT.ModifyFaceGrad();
 }
+
 Real Iutherland::Icdim = 110.4;
 Real Iutherland::Ic;
 
