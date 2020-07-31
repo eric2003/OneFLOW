@@ -287,8 +287,6 @@ void CalcAeroForce(int idump_pres)
 			Real dz = zfc[fId] - zcc[lc];
 
 			//pressure drag
-
-
 			if (startStrategy == 2)
 			{
 				Real wp = (*q)[IIDX::IIP][lc] + (*bcdqdx)[IIDX::IIP][fId] * dx + (*bcdqdy)[IIDX::IIP][fId] * dy + (*bcdqdz)[IIDX::IIP][fId] * dz;

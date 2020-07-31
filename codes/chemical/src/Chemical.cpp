@@ -546,37 +546,6 @@ void ChemicalDecompressData( DataBook * dataBook )
     chem.DecompressData( dataBook );
 }
 
-
-
-
-//Chemical::Chemical()
-//{
-	//INsAlloc();
-//}
-
-//Chemical::~Chemical()
-//{
-	//INsDeAlloc();
-//}
-
-//void Chemical::INsAlloc()
-//{
-	//moleProp = new MolecularProperty();
-	//reactionRate = new ReactionRate();
-	//stoichiometric = new Stoichiometric();
-	//blotterCurve = new BlotterCurve();
-	//thermodynamic = new Thermodynamic();
-//}
-
-//void Chemical::INsDeAlloc()
-//{
-	//delete moleProp;
-	//delete reactionRate;
-	//delete stoichiometric;
-	//delete blotterCurve;
-	//delete thermodynamic;
-//}
-
 void Chemical::INsInitGasModel()
 {
 	if (inscom.chemModel <= 0) return;

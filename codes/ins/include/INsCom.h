@@ -25,114 +25,15 @@ License
 #include "HXDefine.h"
 #include "HXArray.h"
 #include "Com.h"
+#include "NsCom.h"
 
 BeginNameSpace( ONEFLOW )
 
-class INsCom
+class INsCom : public NsCom
 {
 public:
     INsCom();
     ~INsCom();
-public:
-    void Init();
-public:
-    bool init_flag;
-    int nBEqu;
-    int nEqu;
-    int nTEqu;
-    int nSpecies;
-    int visSRModel;
-    int timestepModel;
-    int visTimeStepModel;
-    int chemModel;
-    int nTModel;
-    int bctype;
-    int bcdtkey;
-    int icmpInv;
-    int nProbe;
-    int ischeme;
-    int ivischeme;
-public:
-    int faceOuterNormal;
-public:
-    Real vis;
-    Real visl, visl1, visl2;
-    Real vist, vist1, vist2;
-    Real prl, prt;
-    Real oprl, oprt;
-    Real const_cp, kcp;
-    Real reynolds, oreynolds;
-public:
-    Real mach_ref;
-    Real gama_ref;
-    Real gama;
-    Real gama1;
-    Real gama2;
-public:
-    Real twall_dim;
-    Real twall;
-    Real statecoef;
-
-    Real elevation;
-    Real tref_dim;
-    Real pref_dim;
-    Real dref_dim;
-    Real vref_dim;
-    Real cref_dim;
-    Real tref;
-    Real pref;
-    Real dref;
-    Real vref;
-    Real cref;
-    int gasInfoStrategy;
-    int machStrategy;
-    string gasModelFile;
-    Real schmidtl;
-    Real schmidtt;
-    Real reylref_dim;
-    Real aoa, aos;
-    RealField refns;
-    Real visref_dim;
-    Real csuth;
-    Real csuth_dim;
-    Real dim_amw; //dimensional average molecular weight
-    Real amw; //average molecular weight
-public:
-    RealField q1;
-    RealField q2;
-
-    RealField q;
-    RealField q0;
-    RealField dq;
-
-    RealField prim;
-    RealField prim0;
-
-    RealField t;
-    RealField t0;
-
-    RealField prims1;
-    RealField prims2;
-
-    RealField primt1;
-    RealField primt2;
-
-    RealField ts1;
-    RealField ts2;
-
-    RealField tt1;
-    RealField tt2;
-
-    RealField inflow;
-    RealField * bcflow;
-public:
-    Real invsr; //inviscid spectrum radius;
-    Real vissr; //viscous  spectrum radius;
-    Real dt;
-    Real timestep;
-    Real minTimeStep;
-    Real max_time_ratio;
-    Real physicalTimeStep;
 };
 
 extern INsCom inscom;
