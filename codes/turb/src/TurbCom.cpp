@@ -59,6 +59,10 @@ void TurbCom::Init()
             sst_type = 1;
         }
     }
+    this->nTEqu = this->nEqu;
+    int nTurbEqu = this->nEqu;
+    SetDataInt( "nTurbEqu", nTurbEqu );
+
     turb_ilim = GetDataValue< int >( "turb_ilim" );
     tns_ilim = GetDataValue< int >( "tns_ilim" );
     iturb_visflux = GetDataValue< int >( "iturb_visflux" );

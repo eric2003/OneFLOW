@@ -21,6 +21,8 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "TurbSolver.h"
+#include "TurbBcSolver.h"
+#include "BcData.h"
 #include "SolverInfo.h"
 #include "SolverDef.h"
 #include "TurbCtrl.h"
@@ -48,21 +50,17 @@ void TurbSolver::StaticInit()
     if ( TurbSolver::initFlag ) return;
     TurbSolver::initFlag = true;
 
+    string fileName = "grid/turb_bc.txt";
+    turb_bc_data.Init( fileName );
+
+    turb_ctrl.Init();
+    turbcom.Init();
+
     this->sTid = ONEFLOW::TURB_SOLVER;
     SolverInfo * solverInfo = SolverInfoFactory::GetSolverInfo( this->sTid );
-    solverInfo->nEqu  = 1;
-    solverInfo->nTEqu = 1;
 
-    if ( vis_model.vismodel == 3 )
-    {
-        solverInfo->nEqu  = 1;
-        solverInfo->nTEqu = 1;
-    }
-    else if ( vis_model.vismodel == 4 )
-    {
-        solverInfo->nEqu  = 2;
-        solverInfo->nTEqu = 2;
-    }
+    solverInfo->nEqu  = turbcom.nEqu;
+    solverInfo->nTEqu = turbcom.nTEqu;
 
     solverInfo->registerInterface = 0;
     solverInfo->residualName = "turbres";
@@ -74,11 +72,6 @@ void TurbSolver::StaticInit()
 
     solverInfo->implicitString.push_back( "turbq"  );
     solverInfo->implicitString.push_back( "turbdq" );
-
-    int nTurbEqu = solverInfo->nEqu;
-    SetDataInt( "nTurbEqu", nTurbEqu );
-    turb_ctrl.Init();
-    turbcom.Init();
 }
 
 EndNameSpace

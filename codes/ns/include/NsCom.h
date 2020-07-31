@@ -28,12 +28,6 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-const int INVISCID  = 0;
-const int LAMINAR   = 1;
-const int ALGEBRAIC = 2;
-const int ONE_EQU   = 3;
-const int TWO_EQU   = 4;
-
 class NsCom
 {
 public:

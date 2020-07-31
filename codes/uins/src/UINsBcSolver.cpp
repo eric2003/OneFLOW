@@ -74,20 +74,18 @@ void UINsBcSolver::SetId( int bcfId )
     BcInfo * bcInfo = ug.bcRecord->bcInfo;
 
     ug.fId = bcInfo->bcFace[ ug.ir ][ bcfId ];
-    ug.bcr = bcInfo->bcRegion[ ug.ir ][ bcfId ];
-
-    ug.bcdtkey = bcInfo->bcdtkey[ ug.ir ][ bcfId ];
+    ug.bcNameId = bcInfo->bcNameId[ ug.ir ][ bcfId ];
 
     ug.lc = ( * ug.lcf )[ ug.fId ];
     ug.rc = ( * ug.rcf )[ ug.fId ];
 
     inscom.bcdtkey = 0;
-    if ( ug.bcr == -1 ) return; //interface
-    int dd = bcdata.r2d[ ug.bcr ];
+    if ( ug.bcNameId == -1 ) return; //interface
+    int dd = ins_bc_data.r2d[ ug.bcNameId ];
     if ( dd != - 1 )
     {
         inscom.bcdtkey = 1;
-        inscom.bcflow = & bcdata.dataList[ dd ];
+        inscom.bcflow = & ins_bc_data.dataList[ dd ];
     }
 
 }
