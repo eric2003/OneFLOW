@@ -238,13 +238,13 @@ void UINsLusgs::PrepareData()
     this->PrepareDataFacePrim();
 
     inslu.gama = ( * uinsf.gama )[ 0 ][ ug.rc ];
-    inscom.visl = ( * uinsf.visl )[ 0 ][ ug.rc ];
-    inscom.vist = ( * uinsf.vist )[ 0 ][ ug.rc ];
+    nscom.visl = ( * uinsf.visl )[ 0 ][ ug.rc ];
+    nscom.vist = ( * uinsf.vist )[ 0 ][ ug.rc ];
 
     for ( int iEqu = 0; iEqu < inslu.nEqu; ++ iEqu )
     {
-        inscom.q1[ iEqu ] = ( * uinsf.q )[ iEqu ][ ug.lc ];
-        inscom.q2[ iEqu ] = ( * uinsf.q )[ iEqu ][ ug.rc ];
+        nscom.q1[ iEqu ] = ( * uinsf.q )[ iEqu ][ ug.lc ];
+        nscom.q2[ iEqu ] = ( * uinsf.q )[ iEqu ][ ug.rc ];
     }
 }
 
@@ -296,18 +296,18 @@ void UINsLusgs::CalcViscousTerm()
 {
     if ( vis_model.vismodel == 0 ) return;
 
-    if ( inscom.visSRModel == 1 )
+    if ( nscom.visSRModel == 1 )
     {
-        Real density = half * ( inscom.q1[ IIDX::IIR ] + inscom.q2[ IIDX::IIR ] );
+        Real density = half * ( nscom.q1[ IIDX::IIR ] + nscom.q2[ IIDX::IIR ] );
 
-        Real c1 = 4.0 / 3.0 * ( inscom.visl + inscom.vist );
-        Real c2 = inscom.gama * ( inscom.visl * inscom.oprl + inscom.vist * inscom.oprt );
-        Real c3 = two * MAX( c1, c2 ) / ( inscom.reynolds * density );
+        Real c1 = 4.0 / 3.0 * ( nscom.visl + nscom.vist );
+        Real c2 = nscom.gama * ( nscom.visl * nscom.oprl + nscom.vist * nscom.oprt );
+        Real c3 = two * MAX( c1, c2 ) / ( nscom.reynolds * density );
         Real farea2 = SQR( gcom.farea );
 
-        inscom.vissr = farea2 * c3;
+        nscom.vissr = farea2 * c3;
 
-        inslu.visrad = inscom.vissr / ( * ug.cvol )[ ug.rc ];
+        inslu.visrad = nscom.vissr / ( * ug.cvol )[ ug.rc ];
     }
     else
     {
@@ -315,12 +315,12 @@ void UINsLusgs::CalcViscousTerm()
                         + gcom.yfn * ( gcom.ycc2 - gcom.ycc1 )
                         + gcom.zfn * ( gcom.zcc2 - gcom.zcc1 ) );
 
-        Real viscosity = inscom.visl + inscom.vist;
-        Real density   = half * ( inscom.q1[ IIDX::IIR ] + inscom.q2[ IIDX::IIR ] );
+        Real viscosity = nscom.visl + nscom.vist;
+        Real density   = half * ( nscom.q1[ IIDX::IIR ] + nscom.q2[ IIDX::IIR ] );
 
-        Real c1  = 2.0 * viscosity / ( density * dist * inscom.reynolds + SMALL );
-        inscom.vissr = half * c1 * gcom.farea;
-        inslu.visrad = inscom.vissr;
+        Real c1  = 2.0 * viscosity / ( density * dist * nscom.reynolds + SMALL );
+        nscom.vissr = half * c1 * gcom.farea;
+        inslu.visrad = nscom.vissr;
     }
 
     for ( int iEqu = 0; iEqu < inslu.nEqu; ++ iEqu )

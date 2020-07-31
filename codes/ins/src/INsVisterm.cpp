@@ -46,7 +46,7 @@ INsVis::~INsVis()
 
 void INsVis::Init()
 {
-    fvis.resize( inscom.nEqu );
+    fvis.resize( nscom.nEqu );
 }
 
 INsVisterm::INsVisterm()
@@ -80,8 +80,8 @@ void INsVisterm::AverFaceValue()
 
 void INsVisterm::AverOtherFaceValue()
 {
-    inscom.visl   = half * ( inscom.visl1 + inscom.visl2 );
-    inscom.vist   = half * ( inscom.vist1 + inscom.vist2 );
+    nscom.visl   = half * ( nscom.visl1 + nscom.visl2 );
+    nscom.vist   = half * ( nscom.vist1 + nscom.vist2 );
 }
 
 void INsVisterm::AccurateFaceValue()
@@ -93,8 +93,8 @@ void INsVisterm::AccurateFaceValue()
 
 void INsVisterm::AccurateOtherFaceValue()
 {
-    inscom.visl   = half * ( inscom.visl1 + inscom.visl2 );
-    inscom.vist   = half * ( inscom.vist1 + inscom.vist2 );
+    nscom.visl   = half * ( nscom.visl1 + nscom.visl2 );
+    nscom.vist   = half * ( nscom.vist1 + nscom.vist2 );
 }
 
 void INsVisterm::CorrectFaceGrad()
@@ -146,7 +146,7 @@ Iutherland::~Iutherland()
 
 void Iutherland::ICalcConst()
 {
-	Iutherland::Ic = Iutherland::Icdim / inscom.tref_dim;
+	Iutherland::Ic = Iutherland::Icdim / nscom.tref_dim;
 }
 
 Real Iutherland::ICalcViscosity( Real t )

@@ -92,13 +92,13 @@ void UINsInvterm::BoundaryQlQrFixField()
 
 void UINsInvterm::CalcInvcoff()
 {
-    if ( inscom.icmpInv == 0 ) return;
+    if ( nscom.icmpInv == 0 ) return;
     iinv.Init();
     ug.Init();
     uinsf.Init();
     Alloc();
 
-    //this->SetPointer( inscom.ischeme );
+    //this->SetPointer( nscom.ischeme );
 
     //ReadTmp();
     this->CalcInvFace();
@@ -199,11 +199,11 @@ void UINsInvterm::PrepareFaceValue()
     gcom.vfn   = ( * ug.vfn   )[ ug.fId ];
     gcom.farea = ( * ug.farea )[ ug.fId ];
 
-    inscom.gama1 = ( * uinsf.gama )[ 0 ][ ug.lc ];
-    inscom.gama2 = ( * uinsf.gama )[ 0 ][ ug.rc ];
+    nscom.gama1 = ( * uinsf.gama )[ 0 ][ ug.lc ];
+    nscom.gama2 = ( * uinsf.gama )[ 0 ][ ug.rc ];
 
-    iinv.gama1 = inscom.gama1;
-    iinv.gama2 = inscom.gama2;
+    iinv.gama1 = nscom.gama1;
+    iinv.gama2 = nscom.gama2;
 
     for ( int iEqu = 0; iEqu < limf->nEqu; ++ iEqu )
     {
@@ -295,7 +295,7 @@ void UINsInvterm::CalcPressCorrectEqu()
 	for (int cId = 0; cId < ug.nCell; ++cId)
 	{
 		ug.cId = cId;
-		inscom.prim[IIDX::IIP] = inscom.prim[IIDX::IIP]+iinv.pp[ug.cId];
+		nscom.prim[IIDX::IIP] = nscom.prim[IIDX::IIP]+iinv.pp[ug.cId];
 	}
 }
 
@@ -330,16 +330,16 @@ void UINsInvterm::UpdateSpeed()
 		iinv.vv[ug.cId] = iinv.Vdv[ug.cId] * 1;
 		iinv.ww[ug.cId] = iinv.Vdv[ug.cId] * 1;
 
-		inscom.prim[IIDX::IIU] = inscom.prim[IIDX::IIU] + iinv.uu[ug.cId];
-		inscom.prim[IIDX::IIV] = inscom.prim[IIDX::IIV] + iinv.vv[ug.cId];
-		inscom.prim[IIDX::IIW] = inscom.prim[IIDX::IIW] + iinv.ww[ug.cId];
+		nscom.prim[IIDX::IIU] = nscom.prim[IIDX::IIU] + iinv.uu[ug.cId];
+		nscom.prim[IIDX::IIV] = nscom.prim[IIDX::IIV] + iinv.vv[ug.cId];
+		nscom.prim[IIDX::IIW] = nscom.prim[IIDX::IIW] + iinv.ww[ug.cId];
 	}
 	
 }
 
 void UINsInvterm::Alloc()
 {
-    iinvflux = new MRField( inscom.nEqu, ug.nFace );
+    iinvflux = new MRField( nscom.nEqu, ug.nFace );
 }
 
 void UINsInvterm::DeAlloc()

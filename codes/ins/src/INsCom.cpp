@@ -29,16 +29,13 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-INsCom inscom;
 
 INsCom::INsCom()
 {
-    //init_flag = false;
 }
 
 INsCom::~INsCom()
 {
-    ;
 }
 
 void INsExtract(RealField & prim, Real & rm, Real & um, Real & vm, Real & wm, Real & pm)

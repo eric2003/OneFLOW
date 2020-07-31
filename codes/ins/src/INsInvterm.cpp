@@ -51,7 +51,7 @@ INsInv::~INsInv()
 
 void INsInv::Init()
 {
-    int nEqu = inscom.nEqu;
+    int nEqu = nscom.nEqu;
     prim.resize( nEqu );
     prim1.resize( nEqu );
     prim2.resize( nEqu );

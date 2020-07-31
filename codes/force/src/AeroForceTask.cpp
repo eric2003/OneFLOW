@@ -291,7 +291,7 @@ void CalcAeroForce(int idump_pres)
 			{
 				Real wp = (*q)[IIDX::IIP][lc] + (*bcdqdx)[IIDX::IIP][fId] * dx + (*bcdqdy)[IIDX::IIP][fId] * dy + (*bcdqdz)[IIDX::IIP][fId] * dz;
 				if (wp < 0.0) wp = (*q)[IIDX::IIP][lc];
-				Real pref = inscom.inflow[IIDX::IIP];
+				Real pref = nscom.inflow[IIDX::IIP];
 				Real cp = two * (wp - pref);
 
 				Real dpx = stress.fanx * cp;

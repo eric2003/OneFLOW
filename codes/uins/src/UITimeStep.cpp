@@ -110,7 +110,7 @@ void UITimeStep::ReadTmp()
 
     for ( int iCell = 0; iCell < ug.nTCell; ++ iCell )
     {
-        for ( int iEqu = 0; iEqu < inscom.nTModel; ++ iEqu )
+        for ( int iEqu = 0; iEqu < nscom.nTModel; ++ iEqu )
         {
             file.read( reinterpret_cast< char * >( & ( * uinsf.tempr )[ iEqu ][ iCell ] ), sizeof( double ) );
         }
@@ -140,11 +140,11 @@ void UITimeStep::CalcTimeStep()
 
     this->CalcSpectrumField();
 
-    if ( inscom.timestepModel == 0 )
+    if ( nscom.timestepModel == 0 )
     {
         this->CalcLocalTimeStep();
     }
-    else if ( inscom.timestepModel == 1 )
+    else if ( nscom.timestepModel == 1 )
     {
         this->CalcGlobalTimeStep();
     }
@@ -169,25 +169,25 @@ void UITimeStep::CalcInvTimeStep()
     {
         ug.cId  = cId;
         gcom.cvol  = ( * ug.cvol )[ cId ];
-        inscom.invsr = ( * uinsf.invsr )[ 0 ][ cId ];
+        nscom.invsr = ( * uinsf.invsr )[ 0 ][ cId ];
         this->CalcCellInvTimeStep();
-        ( * uinsf.timestep )[ 0 ][ cId ] = inscom.timestep;
+        ( * uinsf.timestep )[ 0 ][ cId ] = nscom.timestep;
     }
 }
 
 void UITimeStep::CalcVisTimeStep()
 {
-    bool flag = vis_model.vismodel > 0 && inscom.visTimeStepModel > 0;
+    bool flag = vis_model.vismodel > 0 && nscom.visTimeStepModel > 0;
     if ( ! flag ) return;
 
     for ( int cId = 0; cId < ug.nCell; ++ cId )
     {
         ug.cId  = cId;
         gcom.cvol  = ( * ug.cvol )[ cId ];
-        inscom.vissr = ( * uinsf.vissr )[ 0 ][ cId ];
-        inscom.timestep = ( * uinsf.timestep )[ 0 ][ cId ];
+        nscom.vissr = ( * uinsf.vissr )[ 0 ][ cId ];
+        nscom.timestep = ( * uinsf.timestep )[ 0 ][ cId ];
         this->CalcCellVisTimeStep();
-        ( * uinsf.timestep )[ 0 ][ cId ] = inscom.timestep;
+        ( * uinsf.timestep )[ 0 ][ cId ] = nscom.timestep;
     }
 }
 
@@ -254,14 +254,14 @@ void UITimeStep::PrepareData()
     gcom.vfn   = ( * ug.vfn   )[ ug.fId ];
     gcom.farea = ( * ug.farea )[ ug.fId ];
 
-    for ( int iEqu = 0; iEqu < inscom.nTEqu; ++ iEqu )
+    for ( int iEqu = 0; iEqu < nscom.nTEqu; ++ iEqu )
     {
-        inscom.q1[ iEqu ] = ( * uinsf.q )[ iEqu ][ ug.lc ];
-        inscom.q2[ iEqu ] = ( * uinsf.q )[ iEqu ][ ug.rc ];
+        nscom.q1[ iEqu ] = ( * uinsf.q )[ iEqu ][ ug.lc ];
+        nscom.q2[ iEqu ] = ( * uinsf.q )[ iEqu ][ ug.rc ];
     }
 
-    inscom.gama1 = ( * uinsf.gama  )[ 0 ][ ug.lc ];
-    inscom.gama2 = ( * uinsf.gama  )[ 0 ][ ug.rc ];
+    nscom.gama1 = ( * uinsf.gama  )[ 0 ][ ug.lc ];
+    nscom.gama2 = ( * uinsf.gama  )[ 0 ][ ug.rc ];
 }
 
 void UITimeStep::PrepareVisData()
@@ -272,27 +272,27 @@ void UITimeStep::PrepareVisData()
     gcom.vfn   = ( * ug.vfn   )[ ug.fId ];
     gcom.farea = ( * ug.farea )[ ug.fId ];
 
-    for ( int iEqu = 0; iEqu < inscom.nTEqu; ++ iEqu )
+    for ( int iEqu = 0; iEqu < nscom.nTEqu; ++ iEqu )
     {
-        inscom.q1[ iEqu ] = ( * uinsf.q )[ iEqu ][ ug.lc ];
-        inscom.q2[ iEqu ] = ( * uinsf.q )[ iEqu ][ ug.rc ];
+        nscom.q1[ iEqu ] = ( * uinsf.q )[ iEqu ][ ug.lc ];
+        nscom.q2[ iEqu ] = ( * uinsf.q )[ iEqu ][ ug.rc ];
     }
 
-    inscom.gama1 = ( * uinsf.gama )[ 0 ][ ug.lc ];
-    inscom.gama2 = ( * uinsf.gama )[ 0 ][ ug.rc ];
+    nscom.gama1 = ( * uinsf.gama )[ 0 ][ ug.lc ];
+    nscom.gama2 = ( * uinsf.gama )[ 0 ][ ug.rc ];
 
     gcom.cvol1 = ( * ug.cvol )[ ug.lc ];
     gcom.cvol2 = ( * ug.cvol )[ ug.rc ];
 
-    inscom.visl1   = ( * uinsf.visl  )[ 0 ][ ug.lc ];
-    inscom.visl2   = ( * uinsf.visl  )[ 0 ][ ug.rc ];
+    nscom.visl1   = ( * uinsf.visl  )[ 0 ][ ug.lc ];
+    nscom.visl2   = ( * uinsf.visl  )[ 0 ][ ug.rc ];
 
-    inscom.visl = half * ( inscom.visl1 + inscom.visl2 );
+    nscom.visl = half * ( nscom.visl1 + nscom.visl2 );
 
-    inscom.vist1 = ( * uinsf.vist )[ 0 ][ ug.lc ];
-    inscom.vist2 = ( * uinsf.vist )[ 0 ][ ug.rc ];
+    nscom.vist1 = ( * uinsf.vist )[ 0 ][ ug.lc ];
+    nscom.vist2 = ( * uinsf.vist )[ 0 ][ ug.rc ];
 
-    inscom.vist = half * ( inscom.vist1 + inscom.vist2 );
+    nscom.vist = half * ( nscom.vist1 + nscom.vist2 );
 
     gcom.xcc1 = ( * ug.xcc )[ ug.lc ];
     gcom.xcc2 = ( * ug.xcc )[ ug.rc ];
@@ -306,22 +306,22 @@ void UITimeStep::PrepareVisData()
 
 void UITimeStep::UpdateInvSpectrumField()
 {
-    ( * uinsf.invsr )[ 0 ][ ug.lc ] += inscom.invsr;
-    ( * uinsf.invsr )[ 0 ][ ug.rc ] += inscom.invsr;
+    ( * uinsf.invsr )[ 0 ][ ug.lc ] += nscom.invsr;
+    ( * uinsf.invsr )[ 0 ][ ug.rc ] += nscom.invsr;
 }
 
 void UITimeStep::UpdateVisSpectrumField()
 {
-    ( * uinsf.vissr )[ 0 ][ ug.lc ] += inscom.vissr;
-    ( * uinsf.vissr )[ 0 ][ ug.rc ] += inscom.vissr;
+    ( * uinsf.vissr )[ 0 ][ ug.lc ] += nscom.vissr;
+    ( * uinsf.vissr )[ 0 ][ ug.rc ] += nscom.vissr;
 }
 
 void UITimeStep::ModifyTimeStep()
 {
     this->CalcMinTimeStep();
-    if ( inscom.max_time_ratio <= 0 ) return;
+    if ( nscom.max_time_ratio <= 0 ) return;
 
-    Real maxPermittedTimeStep = inscom.max_time_ratio * inscom.minTimeStep;
+    Real maxPermittedTimeStep = nscom.max_time_ratio * nscom.minTimeStep;
     for ( int cId = 0; cId < ug.nCell; ++ cId )
     {
         ( * uinsf.timestep )[ 0 ][ cId ] = MIN( ( * uinsf.timestep )[ 0 ][ cId ], maxPermittedTimeStep );
@@ -335,10 +335,10 @@ void UITimeStep::CalcGlobalTimeStep()
 
 void UITimeStep::CalcMinTimeStep()
 {
-    inscom.minTimeStep = LARGE;
+    nscom.minTimeStep = LARGE;
     for ( int cId = 0; cId < ug.nCell; ++ cId )
     {
-        inscom.minTimeStep = MIN( ( * uinsf.timestep )[ 0 ][ cId ], inscom.minTimeStep );
+        nscom.minTimeStep = MIN( ( * uinsf.timestep )[ 0 ][ cId ], nscom.minTimeStep );
     }
 }
 
@@ -353,8 +353,8 @@ void UITimeStep::SetTimeStep( Real timestep )
 void UITimeStep::CalcLgTimeStep()
 {
     this->CalcLocalTimeStep();
-    this->SetTimeStep( inscom.minTimeStep );
-    ctrl.pdt = inscom.minTimeStep;
+    this->SetTimeStep( nscom.minTimeStep );
+    ctrl.pdt = nscom.minTimeStep;
 }
 
 

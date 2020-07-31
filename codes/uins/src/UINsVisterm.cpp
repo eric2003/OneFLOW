@@ -66,8 +66,8 @@ void UINsVisterm::CalcViscoff()
     if ( vis_model.vismodel == 0 ) return;
     ug.Init();
     uinsf.Init();
-    visQ.Init( inscom.nEqu );
-    //visT.Init( inscom.nTModel );
+    visQ.Init( nscom.nEqu );
+    //visT.Init( nscom.nTModel );
     Ivis.Init();
    // heat_flux.Init();
 
@@ -84,7 +84,7 @@ void UINsVisterm::CalcViscoff()
 
 void UINsVisterm::Alloc()
 {
-    visflux = new MRField( inscom.nEqu, ug.nFace );
+    visflux = new MRField( nscom.nEqu, ug.nFace );
 }
 
 void UINsVisterm::DeAlloc()
@@ -201,7 +201,7 @@ void UINsVisterm::PrepareFaceValue()
 
     gcom.CalcTangent();
 
-    for ( int iEqu = 0; iEqu < inscom.nTEqu; ++ iEqu )
+    for ( int iEqu = 0; iEqu < nscom.nTEqu; ++ iEqu )
     {
         visQ.dqdx1[ iEqu ] = ( * uinsf.dqdx )[ iEqu ][ ug.lc ];
         visQ.dqdy1[ iEqu ] = ( * uinsf.dqdy )[ iEqu ][ ug.lc ];
@@ -212,7 +212,7 @@ void UINsVisterm::PrepareFaceValue()
         visQ.dqdz2[ iEqu ] = ( * uinsf.dqdz )[ iEqu ][ ug.rc ];
     }
 
-   // for ( int iEqu = 0; iEqu < inscom.nTModel; ++ iEqu )
+   // for ( int iEqu = 0; iEqu < nscom.nTModel; ++ iEqu )
     //{
    //     visT.dqdx1[ iEqu ] = ( * uinsf.dtdx )[ iEqu ][ ug.lc ];
    //     visT.dqdy1[ iEqu ] = ( * uinsf.dtdy )[ iEqu ][ ug.lc ];
@@ -223,35 +223,35 @@ void UINsVisterm::PrepareFaceValue()
 //        visT.dqdz2[ iEqu ] = ( * uinsf.dtdz )[ iEqu ][ ug.rc ];
 //    }
 
-    inscom.visl1 = ( * uinsf.visl )[ 0 ][ ug.lc ];
-    inscom.visl2 = ( * uinsf.visl )[ 0 ][ ug.rc ];
+    nscom.visl1 = ( * uinsf.visl )[ 0 ][ ug.lc ];
+    nscom.visl2 = ( * uinsf.visl )[ 0 ][ ug.rc ];
 
-   inscom.vist1 = ( * uinsf.vist )[ 0 ][ ug.lc ];
-    inscom.vist2 = ( * uinsf.vist )[ 0 ][ ug.rc ];
+   nscom.vist1 = ( * uinsf.vist )[ 0 ][ ug.lc ];
+    nscom.vist2 = ( * uinsf.vist )[ 0 ][ ug.rc ];
 
-    inscom.visl = half * ( inscom.visl1 + inscom.visl2 );
-    inscom.vist = half * ( inscom.vist1 + inscom.vist2 );
-    inscom.vis  = inscom.visl + inscom.vist;
+    nscom.visl = half * ( nscom.visl1 + nscom.visl2 );
+    nscom.vist = half * ( nscom.vist1 + nscom.vist2 );
+    nscom.vis  = nscom.visl + nscom.vist;
 
-    for ( int iEqu = 0; iEqu < inscom.nTEqu; ++ iEqu )
+    for ( int iEqu = 0; iEqu < nscom.nTEqu; ++ iEqu )
     {
         visQ.q1[ iEqu ] = ( * uinsf.q )[ iEqu ][ ug.lc ];
         visQ.q2[ iEqu ] = ( * uinsf.q )[ iEqu ][ ug.rc ];
     }
 
-    for ( int iEqu = 0; iEqu < inscom.nTEqu; ++ iEqu )
+    for ( int iEqu = 0; iEqu < nscom.nTEqu; ++ iEqu )
     {
         visQ.q11[ iEqu ] = visQ.q1[ iEqu ];
         visQ.q22[ iEqu ] = visQ.q2[ iEqu ];
     }
 
-   // for ( int iEqu = 0; iEqu < inscom.nTModel; ++ iEqu )
+   // for ( int iEqu = 0; iEqu < nscom.nTModel; ++ iEqu )
    // {
    //     visT.q1[ iEqu ] = ( * uinsf.tempr )[ iEqu ][ ug.lc ];
    //     visT.q2[ iEqu ] = ( * uinsf.tempr )[ iEqu ][ ug.rc ];
    // }
 
-    for ( int iEqu = 0; iEqu < inscom.nTModel; ++ iEqu )
+    for ( int iEqu = 0; iEqu < nscom.nTModel; ++ iEqu )
     {
         visT.q11[ iEqu ] = visT.q1[ iEqu ];
         visT.q22[ iEqu ] = visT.q2[ iEqu ];
