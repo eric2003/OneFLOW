@@ -30,7 +30,7 @@ License
 #include "CellTopo.h"
 #include "Zone.h"
 #include "INsCtrl.h"
-#include "INsIDX.h"
+#include "INsIdx.h"
 #include "HXMath.h"
 #include "Parallel.h"
 #include "Iteration.h"
