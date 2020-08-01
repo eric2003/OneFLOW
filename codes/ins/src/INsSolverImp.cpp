@@ -22,7 +22,7 @@ License
 
 #include "INsSolverImp.h"
 #include "SolverImp.h"
-#include "UITimestep.h"
+#include "UITimeStep.h"
 #include "Zone.h"
 #include "GridState.h"
 #include "UINsVisterm.h"

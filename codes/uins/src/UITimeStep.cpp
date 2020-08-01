@@ -20,7 +20,7 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "UITimestep.h"
+#include "UITimeStep.h"
 #include "INsCom.h"
 #include "UINsCom.h"
 #include "UCom.h"
