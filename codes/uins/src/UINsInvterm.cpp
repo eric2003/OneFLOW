@@ -25,6 +25,7 @@ License
 #include "UINsVisterm.h"
 #include "UINsGrad.h"
 #include "BcData.h"
+#include "INsBcSolver.h"
 #include "Zone.h"
 #include "Atmosphere.h"
 #include "UnsGrid.h"
@@ -98,7 +99,7 @@ void UINsInvterm::BoundaryQlQrFixField()
 
 void UINsInvterm::CmpInvcoff()
 {
-	if (inscom.icmpInv == 0) return;
+	if (nscom.icmpInv == 0) return;
 	iinv.Init();
 	ug.Init();
 	uinsf.Init();
@@ -416,23 +417,21 @@ void UINsInvterm::MomPre()
 		BcInfo * bcInfo = ug.bcRecord->bcInfo;
 
 		ug.fId = bcInfo->bcFace[ug.ir][fId];
-		ug.bcr = bcInfo->bcRegion[ug.ir][fId];
-
-		ug.bcdtkey = bcInfo->bcdtkey[ug.ir][fId];
+		ug.bcNameId = bcInfo->bcNameId[ug.ir][fId];
 
 		ug.lc = (*ug.lcf)[ug.fId];
 		ug.rc = (*ug.rcf)[ug.fId];
 
-		inscom.bcdtkey = 0;
-		if (ug.bcr == -1) return; //interface
-		int dd = bcdata.r2d[ug.bcr];
+		nscom.bcdtkey = 0;
+		if (ug.bcNameId == -1) return; //interface
+		int dd = bcdata.r2d[ug.bcNameId];
 		if (dd != -1)
 		{
-			inscom.bcdtkey = 1;
-			inscom.bcflow = &bcdata.dataList[dd];
+			nscom.bcdtkey = 1;
+			nscom.bcflow = &bcdata.dataList[dd];
 		}
 
-		if (inscom.bcdtkey == 0)
+		if (nscom.bcdtkey == 0)
 		{
 			iinv.uc[ug.rc] = -iinv.uc[ug.lc] + 2 * gcom.vfx;
 			iinv.vc[ug.rc] = -iinv.vc[ug.lc] + 2 * gcom.vfy;
@@ -440,9 +439,9 @@ void UINsInvterm::MomPre()
 		}
 		else
 		{
-			iinv.uc[ug.rc] = -iinv.uc[ug.lc] + 2 * (*inscom.bcflow)[IIDX::IIU];
-			iinv.vc[ug.rc] = -iinv.vc[ug.lc] + 2 * (*inscom.bcflow)[IIDX::IIV];
-			iinv.wc[ug.rc] = -iinv.wc[ug.lc] + 2 * (*inscom.bcflow)[IIDX::IIW];
+			iinv.uc[ug.rc] = -iinv.uc[ug.lc] + 2 * (*nscom.bcflow)[IIDX::IIU];
+			iinv.vc[ug.rc] = -iinv.vc[ug.lc] + 2 * (*nscom.bcflow)[IIDX::IIV];
+			iinv.wc[ug.rc] = -iinv.wc[ug.lc] + 2 * (*nscom.bcflow)[IIDX::IIW];
 		}
 	}*/
 
@@ -621,13 +620,11 @@ void UINsInvterm::MomPre()
 
 		BcInfo * bcInfo = ug.bcRecord->bcInfo;
 
-		ug.fId = bcInfo->bcFace[ug.ir][fId];
-		ug.bcr = bcInfo->bcRegion[ug.ir][fId];
+		ug.fId = bcInfo->bcFace[ ug.ir ][ fId ];
+		ug.bcNameId = bcInfo->bcNameId[ ug.ir ][ fId ];
 
-		ug.bcdtkey = bcInfo->bcdtkey[ug.ir][fId];
-
-		ug.lc = (*ug.lcf)[ug.fId];
-		ug.rc = (*ug.rcf)[ug.fId];
+		ug.lc = ( * ug.lcf )[ ug.fId ];
+		ug.rc = ( * ug.rcf )[ ug.fId ];
 
 		if (ug.bctype < 0)
 		{
@@ -636,36 +633,35 @@ void UINsInvterm::MomPre()
 
 		else if (ug.bctype == BC::SOLID_SURFACE)
 		{
-	
-				inscom.bcdtkey = 0;
-				if (ug.bcr == -1) return; //interface
-				int dd = bcdata.r2d[ug.bcr];
-				if (dd != -1)
-				{
-					inscom.bcdtkey = 1;
-					inscom.bcflow = &bcdata.dataList[dd];
-				}
+			nscom.bcdtkey = 0;
+			if (ug.bcNameId == -1) return; //interface
+			int dd = ins_bc_data.r2d[ug.bcNameId];
+			if (dd != -1)
+			{
+				nscom.bcdtkey = 1;
+				nscom.bcflow = &ins_bc_data.dataList[dd];
+			}
 
-				if (inscom.bcdtkey == 0)
-				{
-					iinv.uc[ug.rc] = -iinv.uc[ug.lc] + 2 * gcom.vfx;
-					iinv.vc[ug.rc] = -iinv.vc[ug.lc] + 2 * gcom.vfy;
-					iinv.wc[ug.rc] = -iinv.wc[ug.lc] + 2 * gcom.vfz;
-				}
-				else
-				{
-					iinv.uc[ug.rc] = -iinv.uc[ug.lc] + 2 * (*inscom.bcflow)[IIDX::IIU];
-					iinv.vc[ug.rc] = -iinv.vc[ug.lc] + 2 * (*inscom.bcflow)[IIDX::IIV];
-					iinv.wc[ug.rc] = -iinv.wc[ug.lc] + 2 * (*inscom.bcflow)[IIDX::IIW];
-				}
+			if (nscom.bcdtkey == 0)
+			{
+				iinv.uc[ug.rc] = -iinv.uc[ug.lc] + 2 * gcom.vfx;
+				iinv.vc[ug.rc] = -iinv.vc[ug.lc] + 2 * gcom.vfy;
+				iinv.wc[ug.rc] = -iinv.wc[ug.lc] + 2 * gcom.vfz;
+			}
+			else
+			{
+				iinv.uc[ug.rc] = -iinv.uc[ug.lc] + 2 * (*nscom.bcflow)[IIDX::IIU];
+				iinv.vc[ug.rc] = -iinv.vc[ug.lc] + 2 * (*nscom.bcflow)[IIDX::IIV];
+				iinv.wc[ug.rc] = -iinv.wc[ug.lc] + 2 * (*nscom.bcflow)[IIDX::IIW];
+			}
 
 		}
 
 		else if (ug.bctype == BC::INFLOW)
 		{
-			iinv.uc[ug.rc] = inscom.inflow[IIDX::IIU];
-			iinv.vc[ug.rc] = inscom.inflow[IIDX::IIV];
-			iinv.wc[ug.rc] = inscom.inflow[IIDX::IIW];
+			iinv.uc[ug.rc] = nscom.inflow[IIDX::IIU];
+			iinv.vc[ug.rc] = nscom.inflow[IIDX::IIV];
+			iinv.wc[ug.rc] = nscom.inflow[IIDX::IIW];
 		}
 
 		else if (ug.bctype == BC::OUTFLOW)
@@ -711,23 +707,23 @@ void UINsInvterm::MomPre()
 			Real win = iinv.wc[ug.lc];
 			Real pin = (*uinsf.q)[IIDX::IIP][ug.lc];
 
-			gcom.xfn *= inscom.faceOuterNormal;
-			gcom.yfn *= inscom.faceOuterNormal;
-			gcom.zfn *= inscom.faceOuterNormal;
+			gcom.xfn *= nscom.faceOuterNormal;
+			gcom.yfn *= nscom.faceOuterNormal;
+			gcom.zfn *= nscom.faceOuterNormal;
 
-			Real rref = inscom.inflow[IIDX::IIR];
-			Real uref = inscom.inflow[IIDX::IIU];
-			Real vref = inscom.inflow[IIDX::IIV];
-			Real wref = inscom.inflow[IIDX::IIW];
-			Real pref = inscom.inflow[IIDX::IIP];
+			Real rref = nscom.inflow[IIDX::IIR];
+			Real uref = nscom.inflow[IIDX::IIU];
+			Real vref = nscom.inflow[IIDX::IIV];
+			Real wref = nscom.inflow[IIDX::IIW];
+			Real pref = nscom.inflow[IIDX::IIP];
 
 			Real vnref = gcom.xfn * uref + gcom.yfn * vref + gcom.zfn * wref - gcom.vfn;
 			Real vnin = gcom.xfn * uin + gcom.yfn * vin + gcom.zfn * win - (*ug.vfn)[ug.fId];
 
-			Real cref = sqrt(ABS(inscom.gama_ref * pref / rref));
-			Real cin = sqrt(ABS(inscom.gama * pin / rin));
+			Real cref = sqrt(ABS(nscom.gama_ref * pref / rref));
+			Real cin = sqrt(ABS(nscom.gama * pin / rin));
 
-			Real gamm1 = inscom.gama - one;
+			Real gamm1 = nscom.gama - one;
 
 			Real velin = DIST(uin, vin, win);
 
@@ -742,9 +738,9 @@ void UINsInvterm::MomPre()
 				}
 				else
 				{
-					iinv.uc[ug.rc] = inscom.inflow[IIDX::IIU];
-					iinv.vc[ug.rc] = inscom.inflow[IIDX::IIV];
-					iinv.wc[ug.rc] = inscom.inflow[IIDX::IIW];
+					iinv.uc[ug.rc] = nscom.inflow[IIDX::IIU];
+					iinv.vc[ug.rc] = nscom.inflow[IIDX::IIV];
+					iinv.wc[ug.rc] = nscom.inflow[IIDX::IIW];
 				}
 			}
 			else
@@ -759,7 +755,7 @@ void UINsInvterm::MomPre()
 				if (vnb >= 0.0)
 				{
 					// exit
-					entr = pin / pow(rin, inscom.gama);
+					entr = pin / pow(rin, nscom.gama);
 
 					vtx = uin - gcom.xfn * vnin;
 					vty = vin - gcom.yfn * vnin;
@@ -768,17 +764,17 @@ void UINsInvterm::MomPre()
 				else
 				{
 					//inlet
-					entr = pref / pow(rref, inscom.gama);
+					entr = pref / pow(rref, nscom.gama);
 					vtx = uref - gcom.xfn * vnref;
 					vty = vref - gcom.yfn * vnref;
 					vtz = wref - gcom.zfn * vnref;
 				}
 
-				Real rb = pow((cb * cb / (entr * inscom.gama)), one / gamm1);
+				Real rb = pow((cb * cb / (entr * nscom.gama)), one / gamm1);
 				Real ub = vtx + gcom.xfn * vnb;
 				Real vb = vty + gcom.yfn * vnb;
 				Real wb = vtz + gcom.zfn * vnb;
-				Real pb = cb * cb * rb / inscom.gama;
+				Real pb = cb * cb * rb / nscom.gama;
 
 				
 				iinv.uc[ug.rc] = ub;
@@ -820,23 +816,21 @@ for (int fId = 0; fId < ug.nBFace; ++fId)
 	BcInfo * bcInfo = ug.bcRecord->bcInfo;
 
 	ug.fId = bcInfo->bcFace[ug.ir][fId];
-	ug.bcr = bcInfo->bcRegion[ug.ir][fId];
-
-	ug.bcdtkey = bcInfo->bcdtkey[ug.ir][fId];
+	ug.bcNameId = bcInfo->bcNameId[ug.ir][fId];
 
 	ug.lc = (*ug.lcf)[ug.fId];
 	ug.rc = (*ug.rcf)[ug.fId];
 
-	inscom.bcdtkey = 0;
-	if (ug.bcr == -1) return; //interface
-	int dd = bcdata.r2d[ug.bcr];
+	nscom.bcdtkey = 0;
+	if (ug.bcNameId == -1) return; //interface
+	int dd = bcdata.r2d[ug.bcNameId];
 	if (dd != -1)
 	{
-		inscom.bcdtkey = 1;
-		inscom.bcflow = &bcdata.dataList[dd];
+		nscom.bcdtkey = 1;
+		nscom.bcflow = &bcdata.dataList[dd];
 	}
 
-	if (inscom.bcdtkey == 0)
+	if (nscom.bcdtkey == 0)
 	{
 		iinv.uc[ug.rc] = -iinv.uc[ug.lc] + 2 * gcom.vfx;
 		iinv.vc[ug.rc] = -iinv.vc[ug.lc] + 2 * gcom.vfy;
@@ -844,9 +838,9 @@ for (int fId = 0; fId < ug.nBFace; ++fId)
 	}
 	else
 	{
-		iinv.uc[ug.rc] = -iinv.uc[ug.lc] + 2 * (*inscom.bcflow)[IIDX::IIU];
-		iinv.vc[ug.rc] = -iinv.vc[ug.lc] + 2 * (*inscom.bcflow)[IIDX::IIV];
-		iinv.wc[ug.rc] = -iinv.wc[ug.lc] + 2 * (*inscom.bcflow)[IIDX::IIW];
+		iinv.uc[ug.rc] = -iinv.uc[ug.lc] + 2 * (*nscom.bcflow)[IIDX::IIU];
+		iinv.vc[ug.rc] = -iinv.vc[ug.lc] + 2 * (*nscom.bcflow)[IIDX::IIV];
+		iinv.wc[ug.rc] = -iinv.wc[ug.lc] + 2 * (*nscom.bcflow)[IIDX::IIW];
 	}
 }*/
 
@@ -1376,7 +1370,7 @@ void UINsInvterm::CmpPressCorrectEqu()
 
 		else if (ug.bctype == BC::INFLOW)
 		{
-			(*uinsf.q)[IIDX::IIP][ug.rc] = inscom.inflow[IIDX::IIP];
+			(*uinsf.q)[IIDX::IIP][ug.rc] = nscom.inflow[IIDX::IIP];
 		}
 
 		else if (ug.bctype == BC::OUTFLOW)
@@ -1407,23 +1401,23 @@ void UINsInvterm::CmpPressCorrectEqu()
 			Real win = iinv.wc[ug.lc];
 			Real pin = (*uinsf.q)[IIDX::IIP][ug.lc];
 
-			gcom.xfn *= inscom.faceOuterNormal;
-			gcom.yfn *= inscom.faceOuterNormal;
-			gcom.zfn *= inscom.faceOuterNormal;
+			gcom.xfn *= nscom.faceOuterNormal;
+			gcom.yfn *= nscom.faceOuterNormal;
+			gcom.zfn *= nscom.faceOuterNormal;
 
-			Real rref = inscom.inflow[IIDX::IIR];
-			Real uref = inscom.inflow[IIDX::IIU];
-			Real vref = inscom.inflow[IIDX::IIV];
-			Real wref = inscom.inflow[IIDX::IIW];
-			Real pref = inscom.inflow[IIDX::IIP];
+			Real rref = nscom.inflow[IIDX::IIR];
+			Real uref = nscom.inflow[IIDX::IIU];
+			Real vref = nscom.inflow[IIDX::IIV];
+			Real wref = nscom.inflow[IIDX::IIW];
+			Real pref = nscom.inflow[IIDX::IIP];
 
 			Real vnref = gcom.xfn * uref + gcom.yfn * vref + gcom.zfn * wref - gcom.vfn;
 			Real vnin = gcom.xfn * uin + gcom.yfn * vin + gcom.zfn * win - (*ug.vfn)[ug.fId];
 
-			Real cref = sqrt(ABS(inscom.gama_ref * pref / rref));
-			Real cin = sqrt(ABS(inscom.gama * pin / rin));
+			Real cref = sqrt(ABS(nscom.gama_ref * pref / rref));
+			Real cin = sqrt(ABS(nscom.gama * pin / rin));
 
-			Real gamm1 = inscom.gama - one;
+			Real gamm1 = nscom.gama - one;
 
 			Real velin = DIST(uin, vin, win);
 			//超声速
@@ -1435,7 +1429,7 @@ void UINsInvterm::CmpPressCorrectEqu()
 				}
 				else
 				{
-					(*uinsf.q)[IIDX::IIP][ug.rc] = inscom.inflow[IIDX::IIP];
+					(*uinsf.q)[IIDX::IIP][ug.rc] = nscom.inflow[IIDX::IIP];
 				}
 			}
 			else
@@ -1450,15 +1444,15 @@ void UINsInvterm::CmpPressCorrectEqu()
 				if (vnb >= 0.0)
 				{
 					// exit
-					entr = pin / pow(rin, inscom.gama);
+					entr = pin / pow(rin, nscom.gama);
 				}
 				else
 				{
-					entr = pref / pow(rref, inscom.gama);
+					entr = pref / pow(rref, nscom.gama);
 				}
 
-				Real rb = pow((cb * cb / (entr * inscom.gama)), one / gamm1);
-				Real pb = cb * cb * rb / inscom.gama;
+				Real rb = pow((cb * cb / (entr * nscom.gama)), one / gamm1);
+				Real pb = cb * cb * rb / nscom.gama;
 
 				(*uinsf.q)[IIDX::IIP][ug.rc] = pb;
 			}
@@ -1494,7 +1488,7 @@ for (int cId = 0; cId < ug.nCell; ++cId)
 
 	//for (int cId = 0; cId < ug.nTCell; cId++)
 	//{
-	//	iinv.pc[ug.cId] = inscom.prim[IIDX::IIP] + iinv.pp[ug.cId]; //下一时刻的压力值
+	//	iinv.pc[ug.cId] = nscom.prim[IIDX::IIP] + iinv.pp[ug.cId]; //下一时刻的压力值
 	//}
 	
 	/*ofstream fileres_p("residual_p.txt", ios::app);
@@ -1637,9 +1631,7 @@ void UINsInvterm::UpdateSpeed()
 		BcInfo * bcInfo = ug.bcRecord->bcInfo;
 
 		ug.fId = bcInfo->bcFace[ug.ir][fId];
-		ug.bcr = bcInfo->bcRegion[ug.ir][fId];
-
-		ug.bcdtkey = bcInfo->bcdtkey[ug.ir][fId];
+		ug.bcNameId = bcInfo->bcNameId[ug.ir][fId];
 
 		ug.lc = (*ug.lcf)[ug.fId];
 		ug.rc = (*ug.rcf)[ug.fId];
@@ -1651,17 +1643,16 @@ void UINsInvterm::UpdateSpeed()
 
 		else if (ug.bctype == BC::SOLID_SURFACE)
 		{
-
-			inscom.bcdtkey = 0;
-			if (ug.bcr == -1) return; //interface
-			int dd = bcdata.r2d[ug.bcr];
+			nscom.bcdtkey = 0;
+			if (ug.bcNameId == -1) return; //interface
+			int dd = ins_bc_data.r2d[ug.bcNameId];
 			if (dd != -1)
 			{
-				inscom.bcdtkey = 1;
-				inscom.bcflow = &bcdata.dataList[dd];
+				nscom.bcdtkey = 1;
+				nscom.bcflow = &ins_bc_data.dataList[dd];
 			}
 
-			if (inscom.bcdtkey == 0)
+			if (nscom.bcdtkey == 0)
 			{
 				iinv.up[ug.rc] = -iinv.up[ug.lc] + 2 * gcom.vfx;
 				iinv.vp[ug.rc] = -iinv.vp[ug.lc] + 2 * gcom.vfy;
@@ -1669,17 +1660,17 @@ void UINsInvterm::UpdateSpeed()
 			}
 			else
 			{
-				iinv.up[ug.rc] = -iinv.up[ug.lc] + 2 * (*inscom.bcflow)[IIDX::IIU];
-				iinv.vp[ug.rc] = -iinv.vp[ug.lc] + 2 * (*inscom.bcflow)[IIDX::IIV];
-				iinv.wp[ug.rc] = -iinv.wp[ug.lc] + 2 * (*inscom.bcflow)[IIDX::IIW];
+				iinv.up[ug.rc] = -iinv.up[ug.lc] + 2 * (*nscom.bcflow)[IIDX::IIU];
+				iinv.vp[ug.rc] = -iinv.vp[ug.lc] + 2 * (*nscom.bcflow)[IIDX::IIV];
+				iinv.wp[ug.rc] = -iinv.wp[ug.lc] + 2 * (*nscom.bcflow)[IIDX::IIW];
 			}
 		}
 
 		else if (ug.bctype == BC::INFLOW)
 		{
-			iinv.up[ug.rc] = inscom.inflow[IIDX::IIU];
-			iinv.vp[ug.rc] = inscom.inflow[IIDX::IIV];
-			iinv.wp[ug.rc] = inscom.inflow[IIDX::IIW];
+			iinv.up[ug.rc] = nscom.inflow[IIDX::IIU];
+			iinv.vp[ug.rc] = nscom.inflow[IIDX::IIV];
+			iinv.wp[ug.rc] = nscom.inflow[IIDX::IIW];
 		}
 
 		else if (ug.bctype == BC::OUTFLOW)
@@ -1730,23 +1721,23 @@ void UINsInvterm::UpdateSpeed()
 			Real win = iinv.wp[ug.lc];
 			Real pin = (*uinsf.q)[IIDX::IIP][ug.lc];
 
-			gcom.xfn *= inscom.faceOuterNormal;
-			gcom.yfn *= inscom.faceOuterNormal;
-			gcom.zfn *= inscom.faceOuterNormal;
+			gcom.xfn *= nscom.faceOuterNormal;
+			gcom.yfn *= nscom.faceOuterNormal;
+			gcom.zfn *= nscom.faceOuterNormal;
 
-			Real rref = inscom.inflow[IIDX::IIR];
-			Real uref = inscom.inflow[IIDX::IIU];
-			Real vref = inscom.inflow[IIDX::IIV];
-			Real wref = inscom.inflow[IIDX::IIW];
-			Real pref = inscom.inflow[IIDX::IIP];
+			Real rref = nscom.inflow[IIDX::IIR];
+			Real uref = nscom.inflow[IIDX::IIU];
+			Real vref = nscom.inflow[IIDX::IIV];
+			Real wref = nscom.inflow[IIDX::IIW];
+			Real pref = nscom.inflow[IIDX::IIP];
 
 			Real vnref = gcom.xfn * uref + gcom.yfn * vref + gcom.zfn * wref - gcom.vfn;
 			Real vnin = gcom.xfn * uin + gcom.yfn * vin + gcom.zfn * win - (*ug.vfn)[ug.fId];
 
-			Real cref = sqrt(ABS(inscom.gama_ref * pref / rref));
-			Real cin = sqrt(ABS(inscom.gama * pin / rin));
+			Real cref = sqrt(ABS(nscom.gama_ref * pref / rref));
+			Real cin = sqrt(ABS(nscom.gama * pin / rin));
 
-			Real gamm1 = inscom.gama - one;
+			Real gamm1 = nscom.gama - one;
 
 			Real velin = DIST(uin, vin, win);
 
@@ -1761,9 +1752,9 @@ void UINsInvterm::UpdateSpeed()
 				}
 				else
 				{
-					iinv.up[ug.rc] = inscom.inflow[IIDX::IIU];
-					iinv.vp[ug.rc] = inscom.inflow[IIDX::IIV];
-					iinv.wp[ug.rc] = inscom.inflow[IIDX::IIW];
+					iinv.up[ug.rc] = nscom.inflow[IIDX::IIU];
+					iinv.vp[ug.rc] = nscom.inflow[IIDX::IIV];
+					iinv.wp[ug.rc] = nscom.inflow[IIDX::IIW];
 				}
 			}
 			else
@@ -1778,7 +1769,7 @@ void UINsInvterm::UpdateSpeed()
 				if (vnb >= 0.0)
 				{
 					// exit
-					entr = pin / pow(rin, inscom.gama);
+					entr = pin / pow(rin, nscom.gama);
 
 					vtx = uin - gcom.xfn * vnin;
 					vty = vin - gcom.yfn * vnin;
@@ -1787,17 +1778,17 @@ void UINsInvterm::UpdateSpeed()
 				else
 				{
 					//inlet
-					entr = pref / pow(rref, inscom.gama);
+					entr = pref / pow(rref, nscom.gama);
 					vtx = uref - gcom.xfn * vnref;
 					vty = vref - gcom.yfn * vnref;
 					vtz = wref - gcom.zfn * vnref;
 				}
 
-				Real rb = pow((cb * cb / (entr * inscom.gama)), one / gamm1);
+				Real rb = pow((cb * cb / (entr * nscom.gama)), one / gamm1);
 				Real ub = vtx + gcom.xfn * vnb;
 				Real vb = vty + gcom.yfn * vnb;
 				Real wb = vtz + gcom.zfn * vnb;
-				Real pb = cb * cb * rb / inscom.gama;
+				Real pb = cb * cb * rb / nscom.gama;
 
 
 				iinv.up[ug.rc] = ub;

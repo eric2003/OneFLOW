@@ -28,6 +28,8 @@ License
 #include "FaceSearch.h"
 #include "HXMath.h"
 #include "HXStd.h"
+#include <iostream>
+using namespace std;
 
 BeginNameSpace( ONEFLOW )
 
@@ -51,47 +53,48 @@ BcRecord::~BcRecord()
     delete bcInfo;
 }
 
-void BcRecord::CreateBcRegion()
+void BcRecord::CreateBcTypeRegion()
 {
     if ( bcInfo ) return;
     this->bcInfo = new BcInfo();
 
     IntSet bcTypeSet;
     IntSet bcUserTypeSet;
+    IntSet bcRegionNameSet;
 
     int nBFace = this->GetNBFace();
 
     for ( int iFace = 0; iFace < nBFace; ++ iFace )
     {
         int bcType = this->bcType[ iFace ];
-        int bcRegion = this->bcRegion[ iFace ];
+        int bcNameId = this->bcNameId[ iFace ];
         bcTypeSet.insert( bcType );
+        bcRegionNameSet.insert( bcNameId );
         if ( bcType == BC::GENERIC_2 )
         {
-            bcUserTypeSet.insert( bcRegion );
+            bcUserTypeSet.insert( bcNameId );
         }
     }
+    //cout << " bcTypeSet.size() = " << bcTypeSet.size() << "\n";
+    //cout << " bcRegionNameSet.size() = " << bcRegionNameSet.size() << "\n";
 
     ONEFLOW::Set2Array( bcTypeSet, bcInfo->bcType );
 
-    int nRegion = bcInfo->bcType.size();
-    bcInfo->bcFace.resize( nRegion );
-    bcInfo->bcRegion.resize( nRegion );
-    bcInfo->bcdtkey.resize( nRegion );
+    int nBcTypeRegions = bcInfo->bcType.size();
+    bcInfo->bcFace.resize( nBcTypeRegions );
+    bcInfo->bcNameId.resize( nBcTypeRegions );
 
-    for ( int ir = 0; ir < nRegion; ++ ir )
+    for ( int iBcTypeRegion = 0; iBcTypeRegion < nBcTypeRegions; ++ iBcTypeRegion )
     {
-        int targetBcType = bcInfo->bcType[ ir ];
+        int targetBcType = bcInfo->bcType[ iBcTypeRegion ];
         for ( int iFace = 0; iFace < nBFace; ++ iFace )
         {
             int bcType = this->bcType[ iFace ];
-            int bcdtkey = this->bcdtkey[ iFace ];
             if ( bcType == targetBcType )
             {
-                int bcRegion = this->bcRegion[ iFace ];
-                bcInfo->bcFace[ ir ].push_back( iFace );
-                bcInfo->bcRegion[ ir ].push_back( bcRegion );
-                bcInfo->bcdtkey[ ir ].push_back( bcdtkey );
+                int bcNameId = this->bcNameId[ iFace ];
+                bcInfo->bcFace[ iBcTypeRegion ].push_back( iFace );
+                bcInfo->bcNameId[ iBcTypeRegion ].push_back( bcNameId );
             }
         }
     }
@@ -106,8 +109,7 @@ int BcRecord::GetNBFace()
 void BcRecord::Init( UInt nBFace )
 {
     this->bcType.resize( nBFace );
-    this->bcdtkey.resize( nBFace );
-    this->bcRegion.resize( nBFace );
+    this->bcNameId.resize( nBFace );
 }
 
 int BcRecord::CalcNIFace()

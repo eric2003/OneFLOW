@@ -74,9 +74,7 @@ void UINsBcSolver::SetId( int bcfId )
     BcInfo * bcInfo = ug.bcRecord->bcInfo;
 
     ug.fId = bcInfo->bcFace[ ug.ir ][ bcfId ];
-    ug.bcr = bcInfo->bcRegion[ ug.ir ][ bcfId ];
-
-    ug.bcdtkey = bcInfo->bcdtkey[ ug.ir ][ bcfId ];
+    ug.bcNameId = bcInfo->bcNameId[ ug.ir ][ bcfId ];
 
     ug.lc = ( * ug.lcf )[ ug.fId ];
     ug.rc = ( * ug.rcf )[ ug.fId ];

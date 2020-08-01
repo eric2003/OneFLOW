@@ -78,20 +78,19 @@ void UTurbBcSolver::SetId( int bcfId )
     BcInfo * bcInfo = ug.bcRecord->bcInfo;
 
     ug.fId = bcInfo->bcFace[ ug.ir ][ bcfId ];
-    ug.bcr = bcInfo->bcRegion[ ug.ir ][ bcfId ];
+    ug.bcNameId = bcInfo->bcNameId[ ug.ir ][ bcfId ];
 
-    ug.bcdtkey = bcInfo->bcdtkey[ ug.ir ][ bcfId ];
 
     ug.lc = ( * ug.lcf )[ ug.fId ];
     ug.rc = ( * ug.rcf )[ ug.fId ];
 
     turbcom.bcdtkey = 0;
-    if ( ug.bcr == -1 ) return;
-    int dd = bcdata.r2d[ ug.bcr ];
+    if ( ug.bcNameId == -1 ) return;
+    int dd = turb_bc_data.r2d[ ug.bcNameId ];
     if ( dd != - 1 )
     {
         turbcom.bcdtkey = 1;
-        turbcom.bcflow = & bcdata.dataList[ dd ];
+        turbcom.bcflow = & turb_bc_data.dataList[ dd ];
     }
 
 }

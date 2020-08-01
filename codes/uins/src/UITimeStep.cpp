@@ -323,7 +323,7 @@ void UITimestep::ModifyTimestep()
     this->CmpMinTimestep();
     if ( nscom.max_time_ratio <= 0 ) return;
 
-    Real maxPermittedTimestep = nscom.max_time_ratio * nscom.minTimestep;
+    Real maxPermittedTimestep = nscom.max_time_ratio * nscom.minTimeStep;
     for ( int cId = 0; cId < ug.nCell; ++ cId )
     {
         ( * uinsf.timestep )[ 0 ][ cId ] = MIN( ( * uinsf.timestep )[ 0 ][ cId ], maxPermittedTimestep );
@@ -337,10 +337,10 @@ void UITimestep::CmpGlobalTimestep()
 
 void UITimestep::CmpMinTimestep()
 {
-    nscom.minTimestep = LARGE;
+    nscom.minTimeStep = LARGE;
     for ( int cId = 0; cId < ug.nCell; ++ cId )
     {
-        nscom.minTimestep = MIN( ( * uinsf.timestep )[ 0 ][ cId ], nscom.minTimestep );
+        nscom.minTimeStep = MIN( ( * uinsf.timestep )[ 0 ][ cId ], nscom.minTimeStep );
     }
 }
 
@@ -355,8 +355,8 @@ void UITimestep::SetTimestep( Real timestep )
 void UITimestep::CmpLgTimestep()
 {
     this->CmpLocalTimestep();
-    this->SetTimestep( nscom.minTimestep );
-    ctrl.pdt = nscom.minTimestep;
+    this->SetTimestep( nscom.minTimeStep );
+    ctrl.pdt = nscom.minTimeStep;
 }
 
 

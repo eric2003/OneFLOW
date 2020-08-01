@@ -1,32 +1,32 @@
 /*---------------------------------------------------------------------------*\
-    OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
+Copyright (C) 2017-2020 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
-    This file is part of OneFLOW.
+This file is part of OneFLOW.
 
-    OneFLOW is free software: you can redistribute it and/or modify it
-    under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+OneFLOW is free software: you can redistribute it and/or modify it
+under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
 
-    OneFLOW is distributed in the hope that it will be useful, but WITHOUT
-    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-    FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
-    for more details.
+OneFLOW is distributed in the hope that it will be useful, but WITHOUT
+ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
+You should have received a copy of the GNU General Public License
+along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 
 \*---------------------------------------------------------------------------*/
 
 #include "INsBcSolver.h"
-#include "INsInvterm.h"
 #include "BcData.h"
+#include "FlowModel.h"
 #include "INsCom.h"
 #include "UCom.h"
 #include "INsCtrl.h"
-#include "INsIDX.h"
+#include "INsIdx.h"
 #include "HXMath.h"
 #include "Stop.h"
 #include "Boundary.h"
@@ -34,6 +34,8 @@ License
 using namespace std;
 
 BeginNameSpace( ONEFLOW )
+
+BcData ins_bc_data;
 
 INsBcSolver::INsBcSolver()
 {
@@ -107,7 +109,7 @@ void INsBcSolver::SetBc()
 
 void INsBcSolver::SetSolidSurfaceBc()
 {
-    if ( vis_model.vismodel == _INVISCID )
+    if ( vis_model.vismodel == INVISCID )
     {
         this->bcPointer = & INsBcSolver::SymmetryBc;
     }
@@ -420,7 +422,7 @@ Real INsBcSolver::CmpReciMolecularWeight( RealField & prim )
     return reciprocalAverageMolecularWeight;
 }
 
-Real INsBcSolver::CmpDensity( RealField & prim, Real pres, Real temperature )
+Real INsBcSolver::CalcDensity( RealField & prim, Real pres, Real temperature )
 {
     Real rmw = this->CmpReciMolecularWeight( prim );
     Real density = pres / ( nscom.statecoef * temperature * rmw );

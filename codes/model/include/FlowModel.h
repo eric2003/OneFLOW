@@ -22,26 +22,15 @@ License
 
 
 #pragma once
-#include "HXDefine.h"
+#include "Configure.h"
 
 BeginNameSpace( ONEFLOW )
 
-class BcData
-{
-public:
-    BcData();
-    ~BcData();
-public:
-    void Init();
-    void ReadList();
-    void ReadRegion();
-public:
-    int nRegion;
-    IntField r2d;
-    IntField irList;
-    HXVector< RealField > dataList;
-};
+const int INVISCID  = 0;
+const int LAMINAR   = 1;
+const int ALGEBRAIC = 2;
+const int ONE_EQU   = 3;
+const int TWO_EQU   = 4;
 
-extern BcData bcdata;
 
 EndNameSpace

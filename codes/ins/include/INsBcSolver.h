@@ -56,9 +56,10 @@ public:
 public:
     void CmpFaceBc();
     Real CmpReciMolecularWeight( RealField & prim );
-    Real CmpDensity( RealField & prim, Real pres, Real temperature );
+    Real CalcDensity( RealField & prim, Real pres, Real temperature );
 };
 
-
+class BcData;
+extern BcData ins_bc_data;
 
 EndNameSpace

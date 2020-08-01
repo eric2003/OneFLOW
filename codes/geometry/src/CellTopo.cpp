@@ -25,7 +25,6 @@ License
 #include "FaceTopo.h"
 #include "UnsGrid.h"
 #include "HXCgns.h"
-#include "DataBase.h"
 
 BeginNameSpace( ONEFLOW )
 
@@ -100,16 +99,8 @@ void CellTopo::CalcC2f( FaceTopo * faceTopo )
     int nCell = this->GetNumberOfCells();
     int nBFace = faceTopo->GetNBFace();
     int nFace = faceTopo->GetNFace();
-	int startStrategy = ONEFLOW::GetDataValue< int >("startStrategy");
 
-	if (startStrategy == 2|| startStrategy == 3)
-	{
-		c2f.resize(nCell + nBFace);  //ins时做了修改
-	}
-	else
-	{
-		c2f.resize(nCell);
-	}
+    c2f.resize( nCell );
 
     for ( int iFace = 0; iFace < nBFace; ++ iFace )
     {

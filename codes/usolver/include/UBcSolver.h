@@ -26,7 +26,6 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-class BcCom;
-void CreateBcRegion();
+//void CreateBcTypeRegion();
 
 EndNameSpace

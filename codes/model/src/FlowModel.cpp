@@ -19,40 +19,10 @@ License
     along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 
 \*---------------------------------------------------------------------------*/
-#include "FieldSimu.h"
-#include "Iteration.h"
-#include "Ctrl.h"
-#include "NsCom.h"
-#include "UsdData.h"
-#include "MultiBlock.h"
-#include "SolverMap.h"
-#include "CmxTask.h"
-#include "Multigrid.h"
-#include "BcData.h"
+
+#include "FlowModel.h"
 
 BeginNameSpace( ONEFLOW )
 
-void FieldSimu()
-{
-    InitFlowSimuGlobal();
-    MultiBlock::LoadGridAndBuildLink();
-    MultiBlock::ProcessFlowWallDist();
-    SolverMap::CreateSolvers();
-    InitializeSolver();
-    MultigridSolve();
-}
-
-void InitFlowSimuGlobal()
-{
-    vis_model.Init();
-    ctrl.Init();
-    Iteration::Init();
-    usd.InitBasic();
-}
-
-void InitializeSolver()
-{
-    ONEFLOW::MsMgTask( "INIT_FLOWFIELD" );
-}
 
 EndNameSpace

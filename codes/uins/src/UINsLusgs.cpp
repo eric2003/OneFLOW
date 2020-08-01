@@ -307,7 +307,7 @@ void UINsLusgs::ComputeViscousTerm()
 
         nscom.vissr = farea2 * c3;
 
-        nslu.visrad = inscom.vissr / ( * ug.cvol )[ ug.rc ];
+        nslu.visrad = nscom.vissr / ( * ug.cvol )[ ug.rc ];
     }
     else
     {

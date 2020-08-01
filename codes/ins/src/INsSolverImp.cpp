@@ -72,7 +72,7 @@ void INsInitFinal( StringField & data )
 
         GridState::gridLevel += 1;
 
-		NsCalcBc;
+		NsCalcBc();
 
         GridState::gridLevel -= 1;
     }

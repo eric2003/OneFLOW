@@ -288,7 +288,7 @@ void UINsVisterm::CmpFaceVisterm()
 
 	iinv.c2d = sqrt(iinv.l2rdx * iinv.l2rdx + iinv.l2rdy * iinv.l2rdy + iinv.l2rdz * iinv.l2rdz);
 
-	iinv.vis = 1 / inscom.reynolds;  //动力粘度
+	iinv.vis = 1 / nscom.reynolds;  //动力粘度
 
 	iinv.dist = (*ug.xfn)[ug.fId] * ((*ug.xcc)[ug.rc] - (*ug.xcc)[ug.lc]) + (*ug.yfn)[ug.fId] * ((*ug.ycc)[ug.rc] - (*ug.ycc)[ug.lc]) + (*ug.zfn)[ug.fId] * ((*ug.zcc)[ug.rc] - (*ug.zcc)[ug.lc]);
 
