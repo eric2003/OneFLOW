@@ -38,14 +38,14 @@ License
 BeginNameSpace( ONEFLOW )
 
 
-//void CreateBcTypeRegion()
-//{
-//    UnsGrid * grid = Zone::GetUnsGrid();
-//    BcRecord * bcRecord = grid->faceTopo->bcManager->bcRecord;
-//    bcRecord->CreateBcTypeRegion();
-//
-//    ug.bcRecord = bcRecord;
-//}
+void CreateBcRegion()
+{
+    UnsGrid * grid = Zone::GetUnsGrid();
+    BcRecord * bcRecord = grid->faceTopo->bcManager->bcRecord;
+    bcRecord->CreateBcRegion();
+
+    ug.bcRecord = bcRecord;
+}
 
 
 EndNameSpace

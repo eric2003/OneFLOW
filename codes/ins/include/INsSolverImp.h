@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-    Copyright (C) 2017-2020 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -28,14 +28,17 @@ BeginNameSpace( ONEFLOW )
 
 DEFINE_DATA_CLASS( INsInitFinal );
 DEFINE_DATA_CLASS( INsVisual );
-DEFINE_DATA_CLASS( INsCalcTimeStep );
+DEFINE_DATA_CLASS( INsCmpTimeStep );
 DEFINE_DATA_CLASS( INsUpdateResiduals );
 DEFINE_DATA_CLASS( INsImplicitMethod );
 DEFINE_DATA_CLASS( INsPostprocess );
 DEFINE_DATA_CLASS( INsFinalPostprocess );
 DEFINE_DATA_CLASS( INsInitSolver );
-DEFINE_DATA_CLASS( INsCalcBoundary );
+DEFINE_DATA_CLASS( INsCmpBoundary );
 DEFINE_DATA_CLASS( IDumpHeatFluxCoeff );
+
+DEFINE_DATA_CLASS( INsCmpTurb );
+DEFINE_DATA_CLASS(INsCmpHeat);
 
 void RegisterINsFunc();
 

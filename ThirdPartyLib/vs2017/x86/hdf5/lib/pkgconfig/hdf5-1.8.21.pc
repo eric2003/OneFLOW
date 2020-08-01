@@ -1,0 +1,14 @@
+prefix=D:/git/CppProgram/ThirdPartyLib/vs2017/x86/hdf5
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
+
+Name: hdf5
+Description: HDF5 (Hierarchical Data Format 5) Software Library
+Version: 1.8.21
+
+Cflags: -I${includedir}
+Libs: -L${libdir} 
+Requires: 
+Libs.private:   -lhdf5
+Requires.private: 

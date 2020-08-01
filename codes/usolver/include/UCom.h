@@ -41,7 +41,7 @@ public:
     ~UGeom();
 public:
     void Init();
-    void CreateBcTypeRegion();
+    void CreateBcRegion();
     void SetStEd( int flag );
     void DumpCellFace( int cId );
 public:
@@ -56,7 +56,7 @@ public:
     int ist, ied;
     int lc;
     int rc;
-    int ir, bcNameId, bctype, nRegion, nRBFace;
+    int ir, bcr, bcdtkey, bctype, nRegion, nRBFace;
     int ireconface;
 public:
     IntField * lcf;

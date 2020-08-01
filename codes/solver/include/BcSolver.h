@@ -36,6 +36,7 @@ public:
 public:
     int nEqu;
     int bctype;
+    int bcdtkey;
     int isowallbc;
 public:
     int faceOuterNormal;

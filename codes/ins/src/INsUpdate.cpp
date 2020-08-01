@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-    Copyright (C) 2017-2020 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -25,7 +25,7 @@ License
 #include "UINsUpdate.h"
 #include "INsInvterm.h"
 #include "INsCom.h"
-#include "INsIdx.h"
+#include "INsIDX.h"
 #include "HXMath.h"
 
 BeginNameSpace( ONEFLOW )
@@ -38,7 +38,7 @@ INsUpdate::~INsUpdate()
 {
 }
 
-void INsUpdate::CalcFlowField()
+void INsUpdate::CmpFlowField()
 {
     //INsPrimToQ( nscom.prim0, nscom.gama, nscom.q0 );
 
@@ -67,7 +67,7 @@ void INsUpdate::CalcFlowField()
     }
 }
 
-void INsUpdate::CalcFlowFieldHyperSonic()
+void INsUpdate::CmpFlowFieldHyperSonic()
 {
    // INsPrimToQ( nscom.prim0, nscom.gama, nscom.q0 );
 
@@ -91,6 +91,7 @@ void INsUpdate::CalcFlowFieldHyperSonic()
     Real vm  = nscom.q[ IIDX::IIV ] * rd;
     Real wm  = nscom.q[ IIDX::IIW ] * rd;
     Real rem = nscom.q[ IIDX::IIP ];
+
     Real v2  = ONEFLOW::SQR( um, vm, wm );
 
     Real reint = rem - half * density * v2;
@@ -133,7 +134,7 @@ void INsUpdate::CalcFlowFieldHyperSonic()
     }
 }
 
-void INsUpdate::CalcFlowFieldHyperSonic_Temperature()
+void INsUpdate::CmpFlowFieldHyperSonic_Temperature()
 {
 //	INsPrimToQ( nscom.prim0, nscom.gama, nscom.q0 );
 

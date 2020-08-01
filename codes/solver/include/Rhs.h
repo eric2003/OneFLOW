@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-    Copyright (C) 2017-2020 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -37,7 +37,7 @@ public:
 };
 
 void NsCalcBc();
-void NsCalcGamaT( int flag );
+void NsCalcGamaT(int flag);
 void NsCalcRHS();
 void NsCalcInvFlux();
 void NsCalcVisFlux();
@@ -46,25 +46,24 @@ void NsCalcChemSrc();
 void NsCalcTurbEnergy();
 void NsCalcDualTimeStepSrc();
 
-void INsCalcBc();
-void INsCalcGamaT(int flag);
-void INsCalcRHS();
-//void INsCalcInvFlux();
-//void INsCalcVisFlux();
-//void INsCalcSrcFlux();
-void INsCalcChemSrc();
-void INsCalcTurbEnergy();
-//void INsCalcDualTimeStepSrc();
+void INsCmpBc();
+void INSCmpGamaT(int flag);
+void INsCmpRHS();
+void INsCmpChemSrc();
+void INsCmpTurbEnergy();
 void INsCorrectPresscoef();
-//void INsCorrectSpeed();
-void INsCalcInv();
-void INsCalcVis();
-void INsCalcSrc();
-void INsMomPred();
-void INsCalcFaceflux();
-void INsCalcPressCorrectEquandUpdatePress();
+void INsCmpTimestep();
+void INsPreflux();
+void INsCmpInv();
+void INsCmpVis();
+void INsCmpUnstead();
+void INsCmpSrc();
+void INsMomPre();
+void INsCmpFaceflux();
+void INsCmpPressCorrectEquandUpdatePress();
 void INsUpdateFaceflux();
-void INsCalcSpeedCorrectandUpdateSpeed();
+void INsUpdateRes();
+void INsCmpSpeedCorrectandUpdateSpeed();
 
 
 EndNameSpace

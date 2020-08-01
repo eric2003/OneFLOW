@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-    Copyright (C) 2017-2020 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -101,25 +101,25 @@ void INsVisterm::CorrectFaceGrad()
     visT.CorrectFaceGrad();
 }
 
-void INsVisterm::CalcNormalGrad()
+void INsVisterm::CmpNormalGrad()
 {
     visQ.CalcNormalGrad();
     visT.CalcNormalGrad();
 }
 
-void INsVisterm::CalcTestMethod()
+void INsVisterm::CmpTestMethod()
 {
     visQ.CalcTestMethod();
     visT.CalcTestMethod();
 }
 
-void INsVisterm::CalcNew1Method()
+void INsVisterm::CmpNew1Method()
 {
     visQ.CalcNew1Method();
     visT.CalcNew1Method();
 }
 
-void INsVisterm::CalcNew2Method()
+void INsVisterm::CmpNew2Method()
 {
     visQ.CalcNew2Method();
     visT.CalcNew2Method();
@@ -143,12 +143,12 @@ Iutherland::~Iutherland()
 
 }
 
-void Iutherland::ICalcConst()
+void Iutherland::ICmpConst()
 {
 	Iutherland::Ic = Iutherland::Icdim / nscom.tref_dim;
 }
 
-Real Iutherland::ICalcViscosity( Real t )
+Real Iutherland::ICmpViscosity( Real t )
 {
 	Real t3 = t * t * t;
 	return sqrt(t3) * (1 + Iutherland::Ic) / ( t + Iutherland::Ic );

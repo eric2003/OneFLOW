@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-    Copyright (C) 2017-2020 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -52,7 +52,7 @@ void UINsBcSolver::Init()
     uinsf.Init();
 }
 
-void UINsBcSolver::CalcBc()
+void UINsBcSolver::CmpBc()
 {
     ug.nRegion = ug.bcRecord->bcInfo->bcType.size();
 
@@ -63,7 +63,7 @@ void UINsBcSolver::CalcBc()
         ug.nRBFace = ug.bcRecord->bcInfo->bcFace[ ir ].size();
         this->SetBc();
 
-        this->CalcBcRegion();
+        this->CmpBcRegion();
     }
 }
 
@@ -74,7 +74,9 @@ void UINsBcSolver::SetId( int bcfId )
     BcInfo * bcInfo = ug.bcRecord->bcInfo;
 
     ug.fId = bcInfo->bcFace[ ug.ir ][ bcfId ];
-    ug.bcNameId = bcInfo->bcNameId[ ug.ir ][ bcfId ];
+    ug.bcr = bcInfo->bcRegion[ ug.ir ][ bcfId ];
+
+    ug.bcdtkey = bcInfo->bcdtkey[ ug.ir ][ bcfId ];
 
     ug.lc = ( * ug.lcf )[ ug.fId ];
     ug.rc = ( * ug.rcf )[ ug.fId ];
@@ -90,7 +92,7 @@ void UINsBcSolver::SetId( int bcfId )
 
 }
 
-void UINsBcSolver::CalcBcRegion()
+void UINsBcSolver::CmpBcRegion()
 {
     for ( int ibc = 0; ibc < ug.nRBFace; ++ ibc )
     {
@@ -98,7 +100,7 @@ void UINsBcSolver::CalcBcRegion()
 
         this->PrepareData();
 
-        this->CalcFaceBc();
+        this->CmpFaceBc();
 
         this->UpdateBc();
     }

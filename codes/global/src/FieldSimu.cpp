@@ -28,6 +28,7 @@ License
 #include "SolverMap.h"
 #include "CmxTask.h"
 #include "Multigrid.h"
+#include "BcData.h"
 
 BeginNameSpace( ONEFLOW )
 
@@ -47,6 +48,7 @@ void InitFlowSimuGlobal()
     ctrl.Init();
     Iteration::Init();
     usd.InitBasic();
+    bcdata.Init();
 }
 
 void InitializeSolver()

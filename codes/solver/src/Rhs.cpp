@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-    Copyright (C) 2017-2020 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -24,6 +24,7 @@ License
 #include "UNsBcSolver.h"
 #include "Zone.h"
 #include "DataBase.h"
+#include "Iteration.h"
 #include "NsCom.h"
 #include "UCom.h"
 #include "UNsCom.h"
@@ -62,117 +63,117 @@ Rhs::~Rhs()
 
 void Rhs::UpdateNsResiduals()
 {
-    NsCalcRHS();
+	NsCalcRHS();
 }
 
 void NsCalcBc()
 {
-    UNsBcSolver * uNsBcSolver = new UNsBcSolver();
-    uNsBcSolver->Init();
-    uNsBcSolver->CalcBc();
-    delete uNsBcSolver;
+	UNsBcSolver * uNsBcSolver = new UNsBcSolver();
+	uNsBcSolver->Init();
+	uNsBcSolver->CalcBc();
+	delete uNsBcSolver;
 }
 
-void NsCalcGamaT( int flag )
+void NsCalcGamaT(int flag)
 {
-    UnsGrid * grid = Zone::GetUnsGrid();
+	UnsGrid * grid = Zone::GetUnsGrid();
 
-    ug.Init();
-    unsf.Init();
-    ug.SetStEd( flag );
+	ug.Init();
+	unsf.Init();
+	ug.SetStEd(flag);
 
-    if ( nscom.chemModel == 1 )
-    {
-    }
-    else
-    {
-        //if ( ZoneState::zid == 0 )
-        //{
-        //    cout << " ug.ist = " << ug.ist  << " ug.ied = " << ug.ied << "\n";
-        //    int kkk = 1;
-        //}
-        Real oamw = one;
-        for ( int cId = ug.ist; cId < ug.ied; ++ cId )
-        {
-            Real & density  = ( * unsf.q )[ IDX::IR ][ cId ];
-            Real & pressure = ( * unsf.q )[ IDX::IP ][ cId ];
-            ( * unsf.gama )[ 0 ][ cId ] = nscom.gama_ref;
-            ( * unsf.tempr )[ IDX::ITT ][ cId ] = pressure / ( nscom.statecoef * density * oamw );
-        }
-    }
+	if (nscom.chemModel == 1)
+	{
+	}
+	else
+	{
+		//if ( ZoneState::zid == 0 )
+		//{
+		//    cout << " ug.ist = " << ug.ist  << " ug.ied = " << ug.ied << "\n";
+		//    int kkk = 1;
+		//}
+		Real oamw = one;
+		for (int cId = ug.ist; cId < ug.ied; ++cId)
+		{
+			Real & density = (*unsf.q)[IDX::IR][cId];
+			Real & pressure = (*unsf.q)[IDX::IP][cId];
+			(*unsf.gama)[0][cId] = nscom.gama_ref;
+			(*unsf.tempr)[IDX::ITT][cId] = pressure / (nscom.statecoef * density * oamw);
+		}
+	}
 }
 
 void NsCalcRHS()
 {
-    NsCalcInvFlux();
+	NsCalcInvFlux();
 
-    NsCalcVisFlux();
+	NsCalcVisFlux();
 
-    NsCalcSrcFlux();
+	NsCalcSrcFlux();
 }
 
 
 void NsCalcInvFlux()
 {
-    UNsInvFlux * uNsInvFlux = new UNsInvFlux();
-    uNsInvFlux->CalcFlux();
-    delete uNsInvFlux;
+	UNsInvFlux * uNsInvFlux = new UNsInvFlux();
+	uNsInvFlux->CalcFlux();
+	delete uNsInvFlux;
 }
 
 void NsCalcVisFlux()
 {
-    UNsVisFlux * uNsVisFlux = new UNsVisFlux();
-    uNsVisFlux->CalcFlux();
-    delete uNsVisFlux;
+	UNsVisFlux * uNsVisFlux = new UNsVisFlux();
+	uNsVisFlux->CalcFlux();
+	delete uNsVisFlux;
 }
 
 void NsCalcSrcFlux()
 {
-    if ( nscom.chemModel == 1 )
-    {
-        NsCalcChemSrc();
-    }
+	if (nscom.chemModel == 1)
+	{
+		NsCalcChemSrc();
+	}
 
-    NsCalcTurbEnergy();
+	NsCalcTurbEnergy();
 
-    //dual time step source
-    if ( ctrl.idualtime == 1 )
-    {
-        NsCalcDualTimeStepSrc();
-    }
+	//dual time step source
+	if (ctrl.idualtime == 1)
+	{
+		NsCalcDualTimeStepSrc();
+	}
 }
 
 void NsCalcChemSrc()
 {
-    ;
+	;
 }
 
 void NsCalcTurbEnergy()
 {
-    ;
+	;
 }
 
 void NsCalcDualTimeStepSrc()
 {
-    UNsUnsteady * unsUnsteady = new UNsUnsteady();
-    unsUnsteady->CalcDualTimeSrc();
-    delete unsUnsteady;
+	UNsUnsteady * unsUnsteady = new UNsUnsteady();
+	unsUnsteady->CalcDualTimeSrc();
+	delete unsUnsteady;
 }
 
 void Rhs::UpdateINsResiduals()
 {
-	INsCalcRHS();
+	INsCmpRHS();
 }
 
-void INsCalcBc()
+void INsCmpBc()
 {
 	UINsBcSolver * uINsBcSolver = new UINsBcSolver();
 	uINsBcSolver->Init();
-	uINsBcSolver->CalcBc();
+	uINsBcSolver->CmpBc();
 	delete uINsBcSolver;
 }
 
-void INsCalcGamaT(int flag)
+void INSCmpGamaT(int flag)
 {
 	UnsGrid * grid = Zone::GetUnsGrid();
 
@@ -195,92 +196,115 @@ void INsCalcGamaT(int flag)
 		{
 			Real & density = ( * uinsf.q )[ IIDX::IIR ][ cId ];
 			Real & pressure = ( * uinsf.q )[ IIDX::IIP ][ cId ];
+
 			( * uinsf.gama )[ 0 ][ cId ] = nscom.gama_ref;
 			//( * uinsf.tempr )[ IIDX::IITT ][ cId ] = pressure / ( nscom.statecoef * density * oamw );
+			(*uinsf.tempr)[IIDX::IITT][cId] = 0;
 		}
 	}
 }
 
-void INsCalcRHS()
+void INsCmpRHS()
 {
-	INsCalcInv();
 
-	INsCalcVis();
+		INsCmpTimestep();
 
-	INsCalcSrc();
+		INsPreflux();
 
-	//INsMomPred();  //ÐèÒª½â¶¯Á¿·½³Ì×é
+		INsCmpInv(); //è®¡ç®—å¯¹æµé¡¹
 
-	INsCalcFaceflux();
+		INsCmpVis(); //è®¡ç®—æ‰©æ•£é¡¹
 
-	INsCorrectPresscoef();
+		INsCmpUnstead(); //è®¡ç®—éžç¨³æ€é¡¹
 
-	INsCalcPressCorrectEquandUpdatePress();  //ÐèÒª½âÑ¹Á¦ÐÞÕý·½³Ì×é£¬ÔöÉèµ¥ÔªÐÞÕýÑ¹Á¦Î´ÖªÁ¿
+		INsCmpSrc(); //è®¡ç®—æºé¡¹å’ŒåŠ¨é‡æ–¹ç¨‹ç³»æ•°
 
-	INsCalcSpeedCorrectandUpdateSpeed();  //ÐèÒªÏÈÔöÉè½çÃæÐÞÕýËÙ¶ÈÎ´ÖªÁ¿²¢½øÐÐÇó½â,¸üÐÂµ¥ÔªËÙ¶ÈºÍÑ¹Á¦
+		INsMomPre(); //æ±‚è§£åŠ¨é‡æ–¹ç¨‹
 
-	INsUpdateFaceflux();   //¸üÐÂ½çÃæÁ÷Á¿
+		//INsCmpinsBc();
+
+		INsCmpFaceflux(); //è®¡ç®—ç•Œé¢æµé‡
+
+		INsCorrectPresscoef(); //è®¡ç®—åŽ‹åŠ›ä¿®æ­£æ–¹ç¨‹ç³»æ•°
+
+		INsCmpPressCorrectEquandUpdatePress();  //éœ€è¦è§£åŽ‹åŠ›ä¿®æ­£æ–¹ç¨‹ç»„ï¼Œå¢žè®¾å•å…ƒä¿®æ­£åŽ‹åŠ›æœªçŸ¥é‡
+
+		INsCmpSpeedCorrectandUpdateSpeed();  //éœ€è¦å…ˆå¢žè®¾ç•Œé¢ä¿®æ­£é€Ÿåº¦æœªçŸ¥é‡å¹¶è¿›è¡Œæ±‚è§£,æ›´æ–°å•å…ƒé€Ÿåº¦å’ŒåŽ‹åŠ›
+
+		INsUpdateFaceflux();   //æ›´æ–°ç•Œé¢æµé‡
+
+		INsUpdateRes();
 
 }
 
-void INsCalcInv()
+void INsCmpTimestep()
 {
-	UINsInvterm * uINsInvterm = new UINsInvterm();
-	uINsInvterm->CalcInvcoff();
+	
+UINsInvterm * uINsInvterm = new UINsInvterm();
+	uINsInvterm->CmpINsTimestep();
 	delete uINsInvterm;
 }
 
-void INsCalcVis()
-{
-	UINsVisterm * uINsVisterm = new UINsVisterm();
-	uINsVisterm->CalcViscoff();
-	delete uINsVisterm;
-}
-
-void INsCalcSrc()
-{
-	//if (nscom.chemModel == 1)
-	//{
-	//	INsCalcChemSrc();
-	//}
-
-	//INsCalcTurbEnergy();
-
-	//dual time step source
-	//if (ctrl.idualtime == 1)
-	//{
-	//	INsCalcDualTimeStepSrc();
-	//}
-	UINsVisterm * uINsVisterm = new UINsVisterm();
-	uINsVisterm->CalcSrc();
-	delete uINsVisterm;
-}
-
-void INsMomPred()
+void INsPreflux()
 {
 	UINsInvterm * uINsInvterm = new UINsInvterm();
-	uINsInvterm->MomPred();
+	uINsInvterm->CmpINsPreflux();
 	delete uINsInvterm;
 }
 
-void INsCalcFaceflux()
+void INsCmpInv()
 {
 	UINsInvterm * uINsInvterm = new UINsInvterm();
-	uINsInvterm->CalcFaceflux();
+	uINsInvterm->CmpInvcoff();
+	delete uINsInvterm;
+}
+
+void INsCmpVis()
+{
+	UINsVisterm * uINsVisterm = new UINsVisterm();
+	uINsVisterm->CmpViscoff();
+	delete uINsVisterm;
+}
+
+void INsCmpUnstead()
+{
+	UINsVisterm * uINsVisterm = new UINsVisterm();
+	uINsVisterm->CmpUnsteadcoff();
+	delete uINsVisterm;
+}
+
+void INsCmpSrc()
+{
+	UINsVisterm * uINsVisterm = new UINsVisterm();
+	uINsVisterm->CmpINsSrc();
+	delete uINsVisterm;
+}
+
+void INsMomPre()
+{
+	UINsInvterm * uINsInvterm = new UINsInvterm();
+	uINsInvterm->MomPre();
+	delete uINsInvterm;
+}
+
+void INsCmpFaceflux()
+{
+	UINsInvterm * uINsInvterm = new UINsInvterm();
+	uINsInvterm->CmpFaceflux();
 	delete uINsInvterm;
 }
 
 void INsCorrectPresscoef()
 {
 	UINsInvterm * uINsInvterm = new UINsInvterm();
-	uINsInvterm->CalcCorrectPresscoef();
+	uINsInvterm->CmpCorrectPresscoef();
 	delete uINsInvterm;
 }
 
-void INsCalcPressCorrectEquandUpdatePress()
+void INsCmpPressCorrectEquandUpdatePress()
 {
 	UINsInvterm * uINsInvterm = new UINsInvterm();
-	uINsInvterm->CalcPressCorrectEqu();
+	uINsInvterm->CmpPressCorrectEqu();
 	delete uINsInvterm;
 }
 
@@ -291,38 +315,43 @@ void INsUpdateFaceflux()
 	delete uINsInvterm;
 }
 
-void INsCalcSpeedCorrectandUpdateSpeed()
+void INsCmpSpeedCorrectandUpdateSpeed()
 {
 	UINsInvterm * uINsInvterm = new UINsInvterm();
 	uINsInvterm->UpdateSpeed();
 	delete uINsInvterm;
 }
 
+void INsUpdateRes()
+{
+	UINsInvterm * uINsInvterm = new UINsInvterm();
+	uINsInvterm->UpdateINsRes();
+	delete uINsInvterm;
+}
+
 //void INsCorrectSpeed()
 //{
 //	UINsInvterm * uINsInvterm = new UINsInvterm();
-//	uINsInvterm->CalcCorrectSpeed();
+//	uINsInvterm->CmpCorrectSpeed();
 //	delete uINsInvterm;
 //}
 
 
 
-
-
-void INsCalcChemSrc()
+void INsCmpChemSrc()
 {
 	;
 }
 
-void INsCalcTurbEnergy()
+void INsCmpTurbEnergy()
 {
 	;
 }
 
-//void INsCalcDualTimeStepSrc()
+//void INsCmpDualTimeStepSrc()
 //{
 //	UINsUnsteady * uinsUnsteady = new UINsUnsteady();
-//	uinsUnsteady->CalcDualTimeSrc();
+//	uinsUnsteady->CmpDualTimeSrc();
 //	delete uinsUnsteady;
 //}
 

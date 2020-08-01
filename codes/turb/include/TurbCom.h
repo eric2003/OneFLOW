@@ -43,7 +43,7 @@ public:
     ~TurbCom();
 public:
     bool init_flag;
-    int nEqu, nTEqu;
+    int nEqu;
     Real visl1, visl2;
     Real vist1, vist2;
     Real visl, vist, vis;

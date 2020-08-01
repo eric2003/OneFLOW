@@ -277,12 +277,12 @@ void FaceTopo::ResetNumberOfBoundaryCondition( IFaceLink * iFaceLink )
     int nBFace = this->bcManager->bcRecord->GetNBFace();
 
     this->bcManager->bcRecordNew->bcType.resize( 0 );
-    this->bcManager->bcRecordNew->bcNameId.resize( 0 );
+    this->bcManager->bcRecordNew->bcRegion.resize( 0 );
 
     int localIid = 0;
     for ( int iFace = 0; iFace < nBFace; ++ iFace )
     {
-        int bcRegion = this->bcManager->bcRecord->bcNameId[ iFace ];
+        int bcRegion = this->bcManager->bcRecord->bcRegion[ iFace ];
         int bcType = this->bcManager->bcRecord->bcType[ iFace ];
         if ( BC::IsInterfaceBc( bcType ) )
         {
@@ -294,13 +294,13 @@ void FaceTopo::ResetNumberOfBoundaryCondition( IFaceLink * iFaceLink )
                 for ( int iCFace = 0; iCFace < nCFace; ++ iCFace )
                 {
                     this->bcManager->bcRecordNew->bcType.push_back( bcType );
-                    this->bcManager->bcRecordNew->bcNameId.push_back( bcRegion );
+                    this->bcManager->bcRecordNew->bcRegion.push_back( bcRegion );
                 }
             }
             else
             {
                 this->bcManager->bcRecordNew->bcType.push_back( bcType );
-                this->bcManager->bcRecordNew->bcNameId.push_back( bcRegion );
+                this->bcManager->bcRecordNew->bcRegion.push_back( bcRegion );
             }
 
             ++ localIid;
@@ -308,7 +308,7 @@ void FaceTopo::ResetNumberOfBoundaryCondition( IFaceLink * iFaceLink )
         else
         {
             this->bcManager->bcRecordNew->bcType.push_back( bcType );
-            this->bcManager->bcRecordNew->bcNameId.push_back( bcRegion );
+            this->bcManager->bcRecordNew->bcRegion.push_back( bcRegion );
         }
     }
 

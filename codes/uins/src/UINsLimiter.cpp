@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-    Copyright (C) 2017-2020 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -30,6 +30,9 @@ License
 #include "UINsCom.h"
 #include "Boundary.h"
 #include "BcRecord.h"
+#include "INsIdx.h"
+#include "Iteration.h"
+#include "INsInvterm.h"
 
 BeginNameSpace( ONEFLOW )
 
@@ -66,34 +69,36 @@ void INsLimField::Init()
 
 void INsLimField::BcQlQrFix()
 {
-    for ( int fId = 0; fId < ug.nBFace; ++ fId )
-    {
-        int bcType = ug.bcRecord->bcType[ fId ];
-        if ( bcType == BC::INTERFACE ) continue;
-        if ( bcType == BC::PERIODIC ) continue;
+	for (int fId = 0; fId < ug.nBFace; ++fId)
+	{
+		int bcType = ug.bcRecord->bcType[fId];
+		if (bcType == BC::INTERFACE) continue;
+		if (bcType == BC::PERIODIC) continue;
 
-        ug.fId = fId;
-        ug.lc = ( * ug.lcf )[ ug.fId ];
-        ug.rc = ( * ug.rcf )[ ug.fId ];
+		ug.fId = fId;
+		ug.lc = (*ug.lcf)[ug.fId];
+		ug.rc = (*ug.rcf)[ug.fId];
 
-        for ( int iEqu = 0; iEqu < this->nEqu; ++ iEqu )
-        {
-            Real tmp = half * ( ( * this->q )[ iEqu ][ ug.lc ] + ( * this->q )[ iEqu ][ ug.rc ] );
+		for (int iEqu = 0; iEqu < this->nEqu; ++iEqu)
+		{
+			Real tmp = half * ((*this->q)[iEqu][ug.lc] + (*this->q)[iEqu][ug.rc]);
 
-            ( * this->qf1 )[ iEqu ][ ug.fId ] = tmp;
-            ( * this->qf2 )[ iEqu ][ ug.fId ] = tmp;
-        }
+			(*this->qf1)[iEqu][ug.fId] = tmp;
+			(*this->qf2)[iEqu][ug.fId] = tmp;
+		}
 
-        if ( bcType == BC::SOLID_SURFACE )
-        {
-            for ( int iEqu = 0; iEqu < this->nEqu; ++ iEqu )
-            {
-                ( * this->qf1 )[ iEqu ][ ug.fId ] = ( * uinsf.bc_q )[ iEqu ][ ug.fId ];
-                ( * this->qf2 )[ iEqu ][ ug.fId ] = ( * uinsf.bc_q )[ iEqu ][ ug.fId ];
-            }
-        }
-    }
+		if (bcType == BC::SOLID_SURFACE)
+		{
+			for (int iEqu = 0; iEqu < this->nEqu; ++iEqu)
+			{
+				(*this->qf1)[iEqu][ug.fId] = (*uinsf.bc_q)[iEqu][ug.fId];
+				(*this->qf2)[iEqu][ug.fId] = (*uinsf.bc_q)[iEqu][ug.fId];
+			}
+		}
+	}
+
 }
+
 
 INsLimiter::INsLimiter()
 {

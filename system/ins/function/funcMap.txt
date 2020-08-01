@@ -1,8 +1,10 @@
 INIT_FIRST                , CInitFirst, 1, ins
 INIT_FINAL                , CINsInitFinal, 0
+READ_INSRESTART，, CReadinsRestart, 0
 READ_RESTART              , CReadRestart, 0
 DUMP_RESTART              , CDumpRestart, 0
 INIT_RESTART              , CInitRestart, 0
+INIT_INSRESTART           , CInitinsRestart, 0
 CALC_INTERFACE_GRAD       , CCalcInterfaceGrad, 0
 DUMP_RESIDUAL             , CDumpResidual, 1, FIELD_RHS
 UPLOAD_INTERFACE_DATA     , CUploadInterfaceData, 0
@@ -12,10 +14,10 @@ UPDATE_INTERFACE_DQ       , CPrepareInterfaceField, 2, INTERFACE_DQ  , GREAT_SEN
 UPDATE_INTERFACE_GRAD     , CPrepareInterfaceField, 2, INTERFACE_GRAD, GREAT_SEND
 UPDATE_UNSTEADY_FLOW      , CUpdateUnsteadyFlow, 0
 VISUALIZATION             , CVisualization, 0
-CALC_TIME_STEP            , CINsCalcTimeStep, 0
+CALC_TIME_STEP            , CINsCmpTimeStep, 0
 LOAD_RESIDUALS            , CLoadResiduals, 1, FIELD_RHS
 UPDATE_RESIDUALS          , CINsUpdateResiduals, 0
-CALC_BOUNDARY             , CINsCalcBoundary, 0
+CALC_BOUNDARY             , CINsCmpBoundary, 0
 ZERO_RESIDUALS            , CZeroResiduals, 0
 LOAD_Q                    , CLoadQ, 1, FIELD_FLOW
 RESTRICT_ALL_Q            , CRestrictAllQ, 1, FIELD_FLOW

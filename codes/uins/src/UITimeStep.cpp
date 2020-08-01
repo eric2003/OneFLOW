@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-    Copyright (C) 2017-2020 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -20,7 +20,7 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "UITimeStep.h"
+#include "UITimestep.h"
 #include "INsCom.h"
 #include "UINsCom.h"
 #include "UCom.h"
@@ -46,23 +46,23 @@ BeginNameSpace( ONEFLOW )
 
 
 
-UITimeStep::UITimeStep()
+UITimestep::UITimestep()
 {
     ;
 }
 
-UITimeStep::~UITimeStep()
+UITimestep::~UITimestep()
 {
     ;
 }
 
-void UITimeStep::Init()
+void UITimestep::Init()
 {
     ug.Init();
     uinsf.Init();
 }
 
-void UITimeStep::ReadTmp()
+void UITimestep::ReadTmp()
 {
     static int iii = 0;
     if ( iii ) return;
@@ -130,54 +130,56 @@ void UITimeStep::ReadTmp()
 }
 
 
-void UITimeStep::CalcTimeStep()
+void UITimestep::CmpTimestep()
 {
     this->Init();
 
     //ReadTmp();
 
-    this->CalcCfl();
+    this->CmpCfl();
 
-    this->CalcSpectrumField();
+    this->CmpSpectrumField();
 
     if ( nscom.timestepModel == 0 )
     {
-        this->CalcLocalTimeStep();
+        this->CmpLocalTimestep();
     }
     else if ( nscom.timestepModel == 1 )
     {
-        this->CalcGlobalTimeStep();
+        this->CmpGlobalTimestep();
     }
     else
     {
-        this->CalcLgTimeStep();
+        this->CmpLgTimestep();
     }
 }
 
-void UITimeStep::CalcLocalTimeStep()
+void UITimestep::CmpLocalTimestep()
 {
-    this->CalcInvTimeStep();
+    this->CmpInvTimestep();
 
-    this->CalcVisTimeStep();
+    this->CmpVisTimestep();
 
-    this->ModifyTimeStep();
+    this->ModifyTimestep();
 }
 
-void UITimeStep::CalcInvTimeStep()
+void UITimestep::CmpInvTimestep()
 {
     for ( int cId = 0; cId < ug.nCell; ++ cId )
     {
         ug.cId  = cId;
         gcom.cvol  = ( * ug.cvol )[ cId ];
+
         nscom.invsr = ( * uinsf.invsr )[ 0 ][ cId ];
-        this->CalcCellInvTimeStep();
+        this->CmpCellInvTimestep();
         ( * uinsf.timestep )[ 0 ][ cId ] = nscom.timestep;
     }
 }
 
-void UITimeStep::CalcVisTimeStep()
+void UITimestep::CmpVisTimestep()
 {
     bool flag = vis_model.vismodel > 0 && nscom.visTimeStepModel > 0;
+
     if ( ! flag ) return;
 
     for ( int cId = 0; cId < ug.nCell; ++ cId )
@@ -186,18 +188,18 @@ void UITimeStep::CalcVisTimeStep()
         gcom.cvol  = ( * ug.cvol )[ cId ];
         nscom.vissr = ( * uinsf.vissr )[ 0 ][ cId ];
         nscom.timestep = ( * uinsf.timestep )[ 0 ][ cId ];
-        this->CalcCellVisTimeStep();
+        this->CmpCellVisTimestep();
         ( * uinsf.timestep )[ 0 ][ cId ] = nscom.timestep;
     }
 }
 
-void UITimeStep::CalcSpectrumField()
+void UITimestep::CmpSpectrumField()
 {
-    this->CalcInvSpectrumField();
-    this->CalcVisSpectrumField();
+    this->CmpInvSpectrumField();
+    this->CmpVisSpectrumField();
 }
 
-void UITimeStep::CalcInvSpectrumField()
+void UITimestep::CmpInvSpectrumField()
 {
     Grid * grid = Zone::GetGrid();
 
@@ -211,13 +213,13 @@ void UITimeStep::CalcInvSpectrumField()
 
         this->PrepareData();
 
-        this->CalcFaceInvSpec();
+        this->CmpFaceInvSpec();
 
         this->UpdateInvSpectrumField();
     }
 }
 
-void UITimeStep::CalcVisSpectrumField()
+void UITimestep::CmpVisSpectrumField()
 {
     Grid * grid = Zone::GetGrid();
 
@@ -233,20 +235,20 @@ void UITimeStep::CalcVisSpectrumField()
 
         this->PrepareVisData();
 
-        this->CalcFaceVisSpec();
+        this->CmpFaceVisSpec();
 
         this->UpdateVisSpectrumField();
     }
 }
 
-void UITimeStep::SetId( int fId )
+void UITimestep::SetId( int fId )
 {
     ug.fId = fId;
     ug.lc = ( * ug.lcf )[ fId ];
     ug.rc = ( * ug.rcf )[ fId ];
 }
 
-void UITimeStep::PrepareData()
+void UITimestep::PrepareData()
 {
     gcom.xfn   = ( * ug.xfn   )[ ug.fId ];
     gcom.yfn   = ( * ug.yfn   )[ ug.fId ];
@@ -264,7 +266,7 @@ void UITimeStep::PrepareData()
     nscom.gama2 = ( * uinsf.gama  )[ 0 ][ ug.rc ];
 }
 
-void UITimeStep::PrepareVisData()
+void UITimestep::PrepareVisData()
 {
     gcom.xfn   = ( * ug.xfn   )[ ug.fId ];
     gcom.yfn   = ( * ug.yfn   )[ ug.fId ];
@@ -304,45 +306,45 @@ void UITimeStep::PrepareVisData()
     gcom.zcc2 = ( * ug.zcc )[ ug.rc ];
 }
 
-void UITimeStep::UpdateInvSpectrumField()
+void UITimestep::UpdateInvSpectrumField()
 {
     ( * uinsf.invsr )[ 0 ][ ug.lc ] += nscom.invsr;
     ( * uinsf.invsr )[ 0 ][ ug.rc ] += nscom.invsr;
 }
 
-void UITimeStep::UpdateVisSpectrumField()
+void UITimestep::UpdateVisSpectrumField()
 {
     ( * uinsf.vissr )[ 0 ][ ug.lc ] += nscom.vissr;
     ( * uinsf.vissr )[ 0 ][ ug.rc ] += nscom.vissr;
 }
 
-void UITimeStep::ModifyTimeStep()
+void UITimestep::ModifyTimestep()
 {
-    this->CalcMinTimeStep();
+    this->CmpMinTimestep();
     if ( nscom.max_time_ratio <= 0 ) return;
 
-    Real maxPermittedTimeStep = nscom.max_time_ratio * nscom.minTimeStep;
+    Real maxPermittedTimestep = nscom.max_time_ratio * nscom.minTimestep;
     for ( int cId = 0; cId < ug.nCell; ++ cId )
     {
-        ( * uinsf.timestep )[ 0 ][ cId ] = MIN( ( * uinsf.timestep )[ 0 ][ cId ], maxPermittedTimeStep );
+        ( * uinsf.timestep )[ 0 ][ cId ] = MIN( ( * uinsf.timestep )[ 0 ][ cId ], maxPermittedTimestep );
     }
 }
 
-void UITimeStep::CalcGlobalTimeStep()
+void UITimestep::CmpGlobalTimestep()
 {
-    this->SetTimeStep( ctrl.pdt );
+    this->SetTimestep( ctrl.pdt );
 }
 
-void UITimeStep::CalcMinTimeStep()
+void UITimestep::CmpMinTimestep()
 {
-    nscom.minTimeStep = LARGE;
+    nscom.minTimestep = LARGE;
     for ( int cId = 0; cId < ug.nCell; ++ cId )
     {
-        nscom.minTimeStep = MIN( ( * uinsf.timestep )[ 0 ][ cId ], nscom.minTimeStep );
+        nscom.minTimestep = MIN( ( * uinsf.timestep )[ 0 ][ cId ], nscom.minTimestep );
     }
 }
 
-void UITimeStep::SetTimeStep( Real timestep )
+void UITimestep::SetTimestep( Real timestep )
 {
     for ( int cId = 0; cId < ug.nCell; ++ cId )
     {
@@ -350,11 +352,11 @@ void UITimeStep::SetTimeStep( Real timestep )
     }
 }
 
-void UITimeStep::CalcLgTimeStep()
+void UITimestep::CmpLgTimestep()
 {
-    this->CalcLocalTimeStep();
-    this->SetTimeStep( nscom.minTimeStep );
-    ctrl.pdt = nscom.minTimeStep;
+    this->CmpLocalTimestep();
+    this->SetTimestep( nscom.minTimestep );
+    ctrl.pdt = nscom.minTimestep;
 }
 
 

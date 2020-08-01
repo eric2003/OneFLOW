@@ -179,7 +179,7 @@ void GridElem::GenerateCalcElement()
         if ( rc == INVALID_INDEX )
         {
             faceTopo->bcManager->bcRecord->bcType.push_back( ( * this->face_solver->faceBcType )[ iFace ] );
-            faceTopo->bcManager->bcRecord->bcNameId.push_back( ( * this->face_solver->faceBcKey )[ iFace ] );
+            faceTopo->bcManager->bcRecord->bcRegion.push_back( ( * this->face_solver->faceBcKey )[ iFace ] );
             ++ nBFace;
         }
     }
@@ -246,7 +246,7 @@ void GridElem::CalcBoundaryType( UnsGrid * grid )
     for ( int iFace = 0; iFace < nBFace; ++ iFace )
     {
         int cgnsBcType = bcRecord->bcType[ iFace ];
-        int bcNameId = bcRecord->bcNameId[ iFace ];
+        int bcNameId = bcRecord->bcRegion[ iFace ];
         int bcType = bcTypeMap->Cgns2OneFlow( cgnsBcType );
 
         bcRecord->bcType[ iCount ] = bcType;

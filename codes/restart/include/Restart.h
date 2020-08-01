@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-    Copyright (C) 2017-2020 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -38,6 +38,7 @@ public:
     void DumpUnsteady( int sTid );
     void InitUnsteady( int sTid );
     void Read( int sTid );
+	//void Readins(int sTid);
     void Dump( int sTid );
 public:
     virtual void InitRestart( int sTid );
@@ -49,6 +50,7 @@ Restart * CreateRestart( int sTid );
 class DataStorage;
 
 void ReadRestartHeader();
+void ReadinsRestartHeader();
 void DumpRestartHeader();
 void RwInterface( int sTid, int readOrWrite );
 void RwInterfaceRecord( DataStorage * storage, StringField & fieldNameList, int readOrWrite );

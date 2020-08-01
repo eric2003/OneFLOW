@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-    Copyright (C) 2017-2020 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -21,6 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "UINsUpdate.h"
+#include "INsInvterm.h"
 #include "UCom.h"
 #include "INsCom.h"
 #include "UINsCom.h"
@@ -43,14 +44,14 @@ UINsUpdate::~UINsUpdate()
 {
 }
 
-void UINsUpdate::UpdateFlowField( int sTid )
+void UINsUpdate::UpdateINsFlowField( int sTid )
 {
     GetUpdateField( sTid, this->q, this->dq );
 
     ug.Init();
     uinsf.Init();
 
-    for ( int cId = 0; cId < ug.nCell; ++ cId )
+    for ( int cId = 0; cId < ug.nTCell; ++ cId )
     {
         ug.cId = cId;
 
@@ -61,9 +62,9 @@ void UINsUpdate::UpdateFlowField( int sTid )
 
         this->PrepareData();
 
-        this->CalcFlowField();
-        //this->CalcFlowFieldHyperSonic();
-        //this->CalcFlowFieldHyperSonic_Temperature();
+        this->CmpFlowField();
+        //this->CmpFlowFieldHyperSonic();
+        //this->CmpFlowFieldHyperSonic_Temperature();
 
         this->UpdateFlowFieldValue();
     }
@@ -141,10 +142,15 @@ void UINsUpdate::SolutionFix()
 
 void UINsUpdate::UpdateFlowFieldValue()
 {
-    for ( int iEqu = 0; iEqu < nscom.nTEqu; ++ iEqu )
-    {
-        ( * uinsf.q )[ iEqu ][ ug.cId ] = nscom.prim[ iEqu ];
-    }
+	(*uinsf.q)[IIDX::IIU][ug.cId] = iinv.up[ug.cId];
+	(*uinsf.q)[IIDX::IIV][ug.cId] = iinv.vp[ug.cId];
+	(*uinsf.q)[IIDX::IIW][ug.cId] = iinv.wp[ug.cId];
+	(*uinsf.q)[IIDX::IIP][ug.cId] = iinv.pc[ug.cId];
+
+	//for (int iEqu = 0; iEqu < nscom.nTEqu; ++iEqu)
+	//{
+		//(*uinsf.q)[iEqu][ug.cId] = nscom.prim[iEqu];
+	//}
 
     for ( int iEqu = 0; iEqu < nscom.nTModel; ++ iEqu )
     {

@@ -43,30 +43,30 @@ void TurbSrcFlux::SetSrcFluxPointer()
     if ( vis_model.visname.substr( 0, 6 ) == "2eq-kw" )
     {
         // MENTER'S K-OMEGA SST MODEL
-        this->calcBeta = & TurbSrcFlux::CalcFbetaDefault;
+        this->cmpBeta = & TurbSrcFlux::CalcFbetaDefault;
         if ( vis_model.visname.substr( 0, 13 ) == "2eq-kw-menter"  )
         {
             this->srcFlux = & TurbSrcFlux::CalcSrc2EquKwMenter;
-            this->calcBeta = & TurbSrcFlux::CalcFbetaDefault;
-            this->calcProd = & TurbSrcFlux::CalcProdwKwMenter;
+            this->cmpBeta = & TurbSrcFlux::CalcFbetaDefault;
+            this->cmpProd = & TurbSrcFlux::CalcProdwKwMenter;
         }
         else if ( vis_model.visname.substr( 0, 18 ) == "2eq-kw-wilcox-1998" )
         {
             this->srcFlux = & TurbSrcFlux::CalcSrc2EquKwWilcox1998;
-            this->calcBeta = & TurbSrcFlux::CalcFbetaOfKwWilcox1998;
-            this->calcProd = & TurbSrcFlux::CalcProdwKwWilcox1998;
+            this->cmpBeta = & TurbSrcFlux::CalcFbetaOfKwWilcox1998;
+            this->cmpProd = & TurbSrcFlux::CalcProdwKwWilcox1998;
         }
         else if ( vis_model.visname.substr( 0, 18 ) == "2eq-kw-wilcox-2006" )
         {
             this->srcFlux = & TurbSrcFlux::CalcSrc2EquKwWilcox2006;
-            this->calcBeta = & TurbSrcFlux::CalcFbetaOfKwWilcox2006;
-            this->calcProd = & TurbSrcFlux::CalcProdwKwWilcox2006;
+            this->cmpBeta = & TurbSrcFlux::CalcFbetaOfKwWilcox2006;
+            this->cmpProd = & TurbSrcFlux::CalcProdwKwWilcox2006;
         }
         else
         {
             this->srcFlux = & TurbSrcFlux::CalcSrc2EquKwDefault;
-            this->calcBeta = & TurbSrcFlux::CalcFbetaDefault;
-            this->calcProd = & TurbSrcFlux::CalcProdwKwDefault;
+            this->cmpBeta = & TurbSrcFlux::CalcFbetaDefault;
+            this->cmpProd = & TurbSrcFlux::CalcProdwKwDefault;
         }
     }
     else if ( vis_model.visname.substr( 0, 4 ) == "easm" )
@@ -75,14 +75,14 @@ void TurbSrcFlux::SetSrcFluxPointer()
              vis_model.visname.substr( 0, 12 ) == "easm-kw-2003" )
         {
             this->srcFlux = & TurbSrcFlux::CalcSrc2EquEasmKw2003;
-            this->calcBeta = & TurbSrcFlux::CalcFbetaOfEasmKw2003;
-            this->calcProd = & TurbSrcFlux::CalcProdwEasmKw2003;
+            this->cmpBeta = & TurbSrcFlux::CalcFbetaOfEasmKw2003;
+            this->cmpProd = & TurbSrcFlux::CalcProdwEasmKw2003;
         }
         else if ( vis_model.visname.substr( 0, 12 ) == "easm-kw-2005" )
         {
             this->srcFlux = & TurbSrcFlux::CalcSrc2EquEasmKw2005;
-            this->calcBeta = & TurbSrcFlux::CalcFbetaDefault;
-            this->calcProd = & TurbSrcFlux::CalcProdwEasmKw2005;
+            this->cmpBeta = & TurbSrcFlux::CalcFbetaDefault;
+            this->cmpProd = & TurbSrcFlux::CalcProdwEasmKw2005;
         }
     }
 }
@@ -94,12 +94,12 @@ void TurbSrcFlux::CalcSrcSa()
 
 void TurbSrcFlux::CalcFbetaCoef()
 {
-    ( this->* calcBeta )();
+    ( this->* cmpBeta )();
 }
 
 void TurbSrcFlux::CalcProdW()
 {
-    ( this->* calcProd )();
+    ( this->* cmpProd )();
 }
 
 

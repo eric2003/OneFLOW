@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-    Copyright (C) 2017-2020 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -30,6 +30,8 @@ typedef void ( * TIME_INTEGRAL )( void );
 
 const int MULTI_STAGE = 1;
 const int LUSGS = 2;
+const int SIMPLE = 3;
+
 
 class SweepState
 {
@@ -53,6 +55,7 @@ public:
 public:
     static void RungeKutta();
     static void Lusgs();
+	static void Simple();
 };
 
 EndNameSpace

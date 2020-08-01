@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-    Copyright (C) 2017-2020 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -21,12 +21,12 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "INsBcSolver.h"
+#include "INsInvterm.h"
 #include "BcData.h"
-#include "FlowModel.h"
 #include "INsCom.h"
 #include "UCom.h"
 #include "INsCtrl.h"
-#include "INsIdx.h"
+#include "INsIDX.h"
 #include "HXMath.h"
 #include "Stop.h"
 #include "Boundary.h"
@@ -34,8 +34,6 @@ License
 using namespace std;
 
 BeginNameSpace( ONEFLOW )
-
-BcData ins_bc_data;
 
 INsBcSolver::INsBcSolver()
 {
@@ -109,7 +107,7 @@ void INsBcSolver::SetBc()
 
 void INsBcSolver::SetSolidSurfaceBc()
 {
-    if ( vis_model.vismodel == INVISCID )
+    if ( vis_model.vismodel == _INVISCID )
     {
         this->bcPointer = & INsBcSolver::SymmetryBc;
     }
@@ -125,7 +123,7 @@ void INsBcSolver::SetSolidSurfaceBc()
     }
 }
 
-void INsBcSolver::CalcFaceBc()
+void INsBcSolver::CmpFaceBc()
 {
     ( this->* bcPointer )();
 }
@@ -189,7 +187,7 @@ void INsBcSolver::FarFieldBc()
 
     Real velin = DIST( uin, vin, win );
 
-    //³¬ÉùËÙ
+    //Â³Â¬Ã‰Ã¹Ã‹Ã™
     if ( velin > cin )
     {
         if ( vnin >= 0.0 )
@@ -416,15 +414,15 @@ void INsBcSolver::PeriodicBc()
 }
 
 
-Real INsBcSolver::CalcReciMolecularWeight( RealField & prim )
+Real INsBcSolver::CmpReciMolecularWeight( RealField & prim )
 {
     Real reciprocalAverageMolecularWeight = one;
     return reciprocalAverageMolecularWeight;
 }
 
-Real INsBcSolver::CalcDensity( RealField & prim, Real pres, Real temperature )
+Real INsBcSolver::CmpDensity( RealField & prim, Real pres, Real temperature )
 {
-    Real rmw = this->CalcReciMolecularWeight( prim );
+    Real rmw = this->CmpReciMolecularWeight( prim );
     Real density = pres / ( nscom.statecoef * temperature * rmw );
     return density;
 }
