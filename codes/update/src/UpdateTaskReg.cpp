@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-    Copyright (C) 2017-2020 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -29,10 +29,8 @@ BeginNameSpace( ONEFLOW )
 
 REGISTER_TASK( RegisterUpdateTask )
 
-void RegisterUpdateTask()
-{
-    REGISTER_DATA_CLASS( UpdateFlowField );
-}
+REGISTER_TASK(RegisterINsUpdateTask)
+
 
 void UpdateFlowField( StringField & data )
 {
@@ -42,4 +40,26 @@ void UpdateFlowField( StringField & data )
     delete update;
 }
 
+void UpdateINsFlowField(StringField & data)
+{
+	int sTid = SolverState::tid;
+	Update * update = CreateUpdate(sTid);
+	update->UpdateINsFlowField(sTid);
+	delete update;
+}
+
+void RegisterUpdateTask()
+{
+	REGISTER_DATA_CLASS(UpdateFlowField);
+}
+
+void RegisterINsUpdateTask()
+{
+	REGISTER_DATA_CLASS(UpdateINsFlowField);
+}
+
+
+
 EndNameSpace
+
+

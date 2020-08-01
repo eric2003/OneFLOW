@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-    Copyright (C) 2017-2020 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -26,6 +26,7 @@ License
 #include "ZoneState.h"
 #include "PIO.h"
 #include "ActionState.h"
+#include "DataBase.h"
 #include "DataBook.h"
 #include "InterFace.h"
 #include <iostream>
@@ -43,12 +44,25 @@ CWriteFile::~CWriteFile()
 
 void CWriteFile::Run()
 {
-    ActionState::dataBook = this->dataBook;
-    if ( Parallel::mode == 0 )
-    {
-        this->ServerWrite();
-    }
+	int startStrategy = ONEFLOW::GetDataValue< int >("startStrategy");
+	if (startStrategy == 2)
+	{
+		ActionState::dataBook = this->dataBook;
+		if (Parallel::mode == 0)
+		{
+			this->ServerWrite();
+		}
+	}
+	else
+	{
+		ActionState::dataBook = this->dataBook;
+		if (Parallel::mode == 0)
+		{
+			this->ServerWrite();
+		}
+	}
 }
+
 
 void CWriteFile::ServerWrite()
 {

@@ -35,8 +35,6 @@ using namespace std;
 
 BeginNameSpace( ONEFLOW )
 
-BcData turb_bc_data;
-
 TurbBcSolver::TurbBcSolver()
 {
     ;

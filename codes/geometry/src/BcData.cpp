@@ -27,6 +27,8 @@ License
 
 BeginNameSpace( ONEFLOW )
 
+BcData bcdata;
+
 BcData::BcData()
 {
 }
@@ -35,22 +37,9 @@ BcData::~BcData()
 {
 }
 
-void BcData::Init( const string & fileName )
-{
-    this->ReadList( fileName );
-    this->ReadRegion();
-    this->r2d.resize( nRegion, -1 );
-    for ( int i = 0; i < irList.size(); ++ i )
-    {
-        int ir = irList[ i ];
-        this->r2d[ ir ] = i;
-    }
-}
-
 void BcData::Init()
 {
-    string fileName = "script/bc.txt";
-    this->ReadList( fileName );
+    this->ReadList();
     this->ReadRegion();
     this->r2d.resize( nRegion, -1 );
     for ( int i = 0; i < irList.size(); ++ i )
@@ -71,12 +60,13 @@ void BcData::ReadRegion()
     CloseFile( file );
 }
 
-void BcData::ReadList( const string & fileName )
+void BcData::ReadList()
 {
     //\tÎªtab¼ü
     string separator = " =\r\n\t#$,;\"";
 
     FileIO ioFile;
+    string fileName = "script/bc.txt";
     ioFile.OpenPrjFile( fileName, ios_base::in );
     ioFile.SetDefaultSeparator( separator );
 

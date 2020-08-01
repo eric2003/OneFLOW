@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-    Copyright (C) 2017-2020 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -31,7 +31,7 @@ public:
     UINsUpdate ();
     ~UINsUpdate();
 public:
-    void UpdateFlowField( int sTid );
+    void UpdateINsFlowField( int sTid );
     void PrepareData();
     void DumpProbeInfo();
     void SolutionFix();

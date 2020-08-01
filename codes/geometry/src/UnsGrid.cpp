@@ -187,7 +187,7 @@ void UnsGrid::ReadBoundaryTopology( DataBook * databook )
     //设置边界条件
     BcRecord * bcRecord = this->faceTopo->bcManager->bcRecord;
     ONEFLOW::HXRead( databook, bcRecord->bcType );
-    ONEFLOW::HXRead( databook, bcRecord->bcNameId );
+    ONEFLOW::HXRead( databook, bcRecord->bcRegion );
     ONEFLOW::HXRead( databook, this->nIFace );
     cout << " nBFace = " << this->nBFace;
     cout << " nIFace = " << this->nIFace << endl;
@@ -211,7 +211,7 @@ void UnsGrid::WriteBoundaryTopology( VirtualFile * vf )
 
     ONEFLOW::HXWrite( vf, nBFace );
     ONEFLOW::HXWrite( vf, bcRecord->bcType );
-    ONEFLOW::HXWrite( vf, bcRecord->bcNameId );
+    ONEFLOW::HXWrite( vf, bcRecord->bcRegion );
     ONEFLOW::HXWrite( vf, this->interFace->nIFace );
 
     if ( this->interFace->nIFace > 0 )
@@ -271,7 +271,7 @@ void UnsGrid::WriteBoundaryTopology( DataBook * databook )
     ONEFLOW::HXWrite( databook, nBFace );
 
     ONEFLOW::HXWrite( databook, this->faceTopo->bcManager->bcRecord->bcType );
-    ONEFLOW::HXWrite( databook, this->faceTopo->bcManager->bcRecord->bcNameId );
+    ONEFLOW::HXWrite( databook, this->faceTopo->bcManager->bcRecord->bcRegion );
 
     ONEFLOW::HXWrite( databook, this->interFace->nIFace );
     if ( this->interFace->nIFace > 0 )

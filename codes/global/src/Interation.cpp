@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-    Copyright (C) 2017-2020 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -72,20 +72,44 @@ bool Iteration::InnerOk()
 
 bool Iteration::ResOk()
 {
-    if ( Iteration::outerSteps % nResSave == 0 )
-    {
-        return Iteration::innerSteps == 1;
-    }
-    return false;
+	int startStrategy = ONEFLOW::GetDataValue< int >("startStrategy");
+	if (startStrategy == 2)
+	{
+		if (Iteration::innerSteps % nResSave == 0)
+		{
+			return true;
+		}
+		return false;
+	}
+	else
+	{
+		if (Iteration::outerSteps % nResSave == 0)
+		{
+			return Iteration::innerSteps == 1;
+		}
+		return false;
+	}
 }
 
 bool Iteration::ForceOk()
 {
-    if ( Iteration::outerSteps % nForceSave == 0 )
-    {
-        return Iteration::innerSteps == 1;
-    }
-    return false;
+	int startStrategy = ONEFLOW::GetDataValue< int >("startStrategy");
+	if (startStrategy == 2)
+	{
+		if (Iteration::innerSteps % nForceSave == 0)
+		{
+			return true;
+		}
+		return false;
+	}
+	else
+	{
+		if (Iteration::outerSteps % nForceSave == 0)
+		{
+			return Iteration::innerSteps == 1;
+		}
+		return false;
+	}
 }
 
 SimuIterState::SimuIterState()

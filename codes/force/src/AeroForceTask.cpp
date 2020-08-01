@@ -165,7 +165,7 @@ void AerodynamicForceTask::CalcForce()
 int GetNSolidCell( UnsGrid * grid )
 {
     BcRecord * bcRecord = grid->faceTopo->bcManager->bcRecord;
-    bcRecord->CreateBcTypeRegion();
+    bcRecord->CreateBcRegion();
 
     BcInfo * bcInfo = bcRecord->bcInfo;
 
@@ -189,7 +189,7 @@ void CalcAeroForce(int idump_pres)
 {
 	UnsGrid * grid = Zone::GetUnsGrid();
 	BcRecord * bcRecord = grid->faceTopo->bcManager->bcRecord;
-	bcRecord->CreateBcTypeRegion();
+	bcRecord->CreateBcRegion();
 
 	BcInfo * bcInfo = bcRecord->bcInfo;
 

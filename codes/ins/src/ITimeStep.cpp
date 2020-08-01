@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-    Copyright (C) 2017-2020 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -20,27 +20,27 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "ITimeStep.h"
+#include "ITimestep.h"
 #include "Iteration.h"
 #include "INsCom.h"
 #include "HXMath.h"
-#include "INsIdx.h"
+#include "INsIDX.h"
 #include <iostream>
 using namespace std;
 
 BeginNameSpace( ONEFLOW )
 
-ITimeStep::ITimeStep()
+ITimestep::ITimestep()
 {
     ;
 }
 
-ITimeStep::~ITimeStep()
+ITimestep::~ITimestep()
 {
     ;
 }
 
-void ITimeStep::CalcCfl()
+void ITimestep::CmpCfl()
 {
     int iter = Iteration::outerSteps;
 
@@ -58,7 +58,7 @@ void ITimeStep::CalcCfl()
     }
 }
 
-void ITimeStep::CalcFaceInvSpec()
+void ITimestep::CmpFaceInvSpec()
 {
     Real rl = inscom.q1[ IIDX::IIR ];
     Real ul = inscom.q1[ IIDX::IIU ];
@@ -87,7 +87,7 @@ void ITimeStep::CalcFaceInvSpec()
     inscom.invsr = half * gcom.farea * ( ABS( vn ) + cm );
 }
 
-void ITimeStep::CalcFaceVisSpec()
+void ITimestep::CmpFaceVisSpec()
 {
     if ( inscom.visSRModel == 1 )
     {
@@ -121,15 +121,15 @@ void ITimeStep::CalcFaceVisSpec()
     }
 }
 
-void ITimeStep::CalcCellInvTimeStep()
+void ITimestep::CmpCellInvTimestep()
 {
     inscom.timestep = Iteration::cfl * gcom.cvol / inscom.invsr;
 }
 
-void ITimeStep::CalcCellVisTimeStep()
+void ITimestep::CmpCellVisTimestep()
 {
-    Real visTimeStep = Iteration::cfl * gcom.cvol / inscom.vissr;
-    inscom.timestep *= visTimeStep / ( inscom.timestep + visTimeStep );
+    Real visTimestep = Iteration::cfl * gcom.cvol / inscom.vissr;
+    inscom.timestep *= visTimestep / ( inscom.timestep + visTimestep );
 }
 
 EndNameSpace

@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-    Copyright (C) 2017-2020 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -23,12 +23,16 @@ License
 
 #pragma once
 #include "INsInvterm.h"
+#include "systemSolver.h"
+#include "poisson.h"
 
-BeginNameSpace( ONEFLOW )
+BeginNameSpace(ONEFLOW)
 
 class UINsFField;
 class Limiter;
 class LimField;
+class SolveMRhs;
+
 
 class UINsInvterm : public INsInvterm
 {
@@ -38,29 +42,45 @@ public:
 public:
     void Alloc();
     void DeAlloc();
-    void CalcInvcoff();
-    void CalcInvMassFlux();
-    void CalcInvFace();
-    void CalcLimiter();
-	void MomPred();
-	void CalcFaceflux();
-	void CalcCorrectPresscoef();
-	void CalcPressCorrectEqu();
+	void CmpINsTimestep();
+	void CmpINsPreflux();
+	void INsPreflux();
+	void Initflux();
+    void CmpInvcoff();
+    void CmpInvMassFlux();
+    void CmpInvFace();
+    void CmpLimiter();
+	void CmpFaceflux();
+	void CmpINsMomRes();
+	void CmpINsPreRes();
+	void CmpCorrectPresscoef();
+	void CmpNewMomCoe();
+	void CmpPressCorrectEqu();
 	void UpdateFaceflux();
+	void CmpUpdateINsFaceflux();
+	void CmpUpdateINsBcFaceflux();
 	void UpdateSpeed();
+	void UpdateINsRes();
     void AddFlux();
     void PrepareFaceValue();
-	//void CalcINsinvTerm();
+	void PrepareProFaceValue();
+	void CmpPreGrad();
+	//void CmpINsinvTerm();
     //void UpdateFaceInvFlux();
     void ReadTmp();
 public:
     void GetQlQrField();
     void ReconstructFaceValueField();
     void BoundaryQlQrFixField();
+    void Init();
+    void MomPre();
 public:
-    Limiter * limiter;
-    LimField * limf;
-    MRField * iinvflux;
+    Limiter* limiter;
+    LimField* limf;
+    MRField* iinvflux;
+public:
+    Real Number;
 };
-
+//void PrimToQ(RealField & prim, Real gama, RealField & q);
+extern UINsInvterm NonZero;
 EndNameSpace

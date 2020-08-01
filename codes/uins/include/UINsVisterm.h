@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-    Copyright (C) 2017-2020 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -36,26 +36,32 @@ public:
     typedef void ( UINsVisterm:: * VisPointer )();
     VisPointer visPointer;
     MRField * visflux;
+
 public:
-    void CalcViscoff();
+    void CmpViscoff();
     void PrepareField();
-    void CalcNsVisterm();
-	void CalcVisterm();
-	void CalcFaceVisterm();
+	void CmpPreandVisGrad();
+    
+	void CmpVisterm();
+	void CmpFaceVisterm();
+	void CmpBcFaceVisterm();
 
     void Alloc();
     void DeAlloc();
-	void CalcSrc();
+	void CmpINsSrc();
+	//void Addcoff();
+
+	void CmpUnsteadcoff();
 public:
     void PrepareFaceValue();
     void SaveFacePara();
-    void CalcFaceWeight();
+    void CmpFaceWeight();
 public:
-    void CalcGradCoef();
+    void CmpGradCoef();
     void PrepareCellGeom();
 };
 
-void ICalcLaminarViscosity( int flag );
+void ICmpLaminarViscosity( int flag );
 
 
 

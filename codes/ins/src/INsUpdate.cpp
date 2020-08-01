@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-    Copyright (C) 2017-2020 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -25,7 +25,7 @@ License
 #include "UINsUpdate.h"
 #include "INsInvterm.h"
 #include "INsCom.h"
-#include "INsIdx.h"
+#include "INsIDX.h"
 #include "HXMath.h"
 
 BeginNameSpace( ONEFLOW )
@@ -38,7 +38,7 @@ INsUpdate::~INsUpdate()
 {
 }
 
-void INsUpdate::CalcFlowField()
+void INsUpdate::CmpFlowField()
 {
     //INsPrimToQ( inscom.prim0, inscom.gama, inscom.q0 );
 
@@ -67,7 +67,7 @@ void INsUpdate::CalcFlowField()
     }
 }
 
-void INsUpdate::CalcFlowFieldHyperSonic()
+void INsUpdate::CmpFlowFieldHyperSonic()
 {
    // INsPrimToQ( inscom.prim0, inscom.gama, inscom.q0 );
 
@@ -78,7 +78,6 @@ void INsUpdate::CalcFlowFieldHyperSonic()
 
     Real density = inscom.q[ IIDX::IIR ];
     Real density0 = inscom.q[ IIDX::IIR ];
-
     Real dr = density - density0;
     if ( density < 0.0 )
     {
@@ -86,7 +85,6 @@ void INsUpdate::CalcFlowFieldHyperSonic()
     }
 
     Real rd = 1.0 / density;
-
     Real um  = inscom.q[ IIDX::IIU ] * rd;
     Real vm  = inscom.q[ IIDX::IIV ] * rd;
     Real wm  = inscom.q[ IIDX::IIW ] * rd;
@@ -133,7 +131,7 @@ void INsUpdate::CalcFlowFieldHyperSonic()
     }
 }
 
-void INsUpdate::CalcFlowFieldHyperSonic_Temperature()
+void INsUpdate::CmpFlowFieldHyperSonic_Temperature()
 {
 //	INsPrimToQ( inscom.prim0, inscom.gama, inscom.q0 );
 

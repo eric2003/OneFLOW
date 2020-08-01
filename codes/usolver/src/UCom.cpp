@@ -56,7 +56,7 @@ void UGeom::Init()
     ug.nFace = grid->nFace;
 
     this->SetStEd( F_TOTAL );
-    this->CreateBcTypeRegion();
+    this->CreateBcRegion();
 
     FaceTopo * faceTopo = grid->faceTopo;
     ug.lcf = & faceTopo->lCell;
@@ -98,11 +98,11 @@ void UGeom::Init()
     ug.ireconface = 1;
 }
 
-void UGeom::CreateBcTypeRegion()
+void UGeom::CreateBcRegion()
 {
     UnsGrid * grid = Zone::GetUnsGrid();
     BcRecord * bcRecord = grid->faceTopo->bcManager->bcRecord;
-    bcRecord->CreateBcTypeRegion();
+    bcRecord->CreateBcRegion();
 
     ug.bcRecord = bcRecord;
 }

@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-    Copyright (C) 2017-2020 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -21,6 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "Multigrid.h"
+#include "INsInvterm.h"
 #include "Mesh.h"
 #include "Ctrl.h"
 #include "Solver.h"
@@ -109,23 +110,66 @@ void MG::MultigridSolve()
 
 void MG::Run()
 {
-    TimeSpan * timeSpan = new TimeSpan();
-    while ( SimuIterState::Running() )
-    {
-        Iteration::outerSteps ++;
-        ctrl.currTime += ctrl.pdt;
-   
-        //Inner loop
-        Iteration::innerSteps = 0;
-        while ( ! SolverState::Converge() )
-        {
-            Iteration::innerSteps ++;
+	int startStrategy = ONEFLOW::GetDataValue< int >("startStrategy");
+	if (startStrategy == 2|| startStrategy == 3)
+	{
 
-            this->SolveInnerIter();
-        }
-        this->OuterProcess( timeSpan );
-    }
-    delete timeSpan;
+		double rhs_V = 1e-8;
+		double rhs_u = 1e-8;
+		double rhs_v = 1e-8;
+		double rhs_w = 1e-8;
+
+		int maxIterSteps = GetDataValue< int >("maxIterSteps");
+
+		iinv.remax_V = 1;
+
+		iinv.remax_up = 1;
+		iinv.remax_vp = 1;
+		iinv.remax_wp = 1;
+
+			//while (iinv.remax_V > rhs_V )
+		TimeSpan * timeSpan = new TimeSpan();
+		while (SimuIterState::Running())
+		{
+
+			while (iinv.remax_up > rhs_u || iinv.remax_vp > rhs_v || iinv.remax_wp > rhs_w)
+			{
+
+				if (Iteration::innerSteps >= maxIterSteps) break;
+
+				ctrl.currTime += ctrl.pdt;
+
+				Iteration::outerSteps++;
+				Iteration::innerSteps++;
+
+				this->SolveInnerIter();
+
+			}
+			this->OuterProcess(timeSpan);
+		}
+		delete timeSpan;
+	}
+
+	else
+	{
+		TimeSpan * timeSpan = new TimeSpan();
+		while (SimuIterState::Running())
+		{
+			Iteration::outerSteps++;
+			ctrl.currTime += ctrl.pdt;
+
+			//Inner loop
+			Iteration::innerSteps = 0;
+			while (!SolverState::Converge())
+			{
+				Iteration::innerSteps++;
+
+				this->SolveInnerIter();
+			}
+			this->OuterProcess(timeSpan);
+		}
+		delete timeSpan;
+	}
 }
 
 void MG::InnerProcess()
@@ -277,11 +321,23 @@ void MG::FastSolveFlowFieldByMultigridMethod( int gl )
 
 void MG::SolveMultigridFlowField( int gl )
 {
-    this->MWrap( & MG::PreprocessMultigridFlowField       , gl );
-    this->MWrap( & MG::PreRelaxationCycle                 , gl );
-    this->FastSolveFlowFieldByMultigridMethod( gl );
-    this->MWrap( & MG::PostRelaxationCycle                , gl );
-    this->MWrap( & MG::PostprocessMultigridFlowField      , gl );
+	int startStrategy = ONEFLOW::GetDataValue< int >("startStrategy");
+	if (startStrategy == 2|| startStrategy == 3)
+	{
+		//this->MWrap(&MG::PreprocessMultigridFlowField, gl);
+		this->MWrap(&MG::PreRelaxationCycle, gl);
+		//this->FastSolveFlowFieldByMultigridMethod(gl);
+		//this->MWrap(&MG::PostRelaxationCycle, gl);
+		//this->MWrap(&MG::PostprocessMultigridFlowField, gl);
+	}
+	else
+	{
+		this->MWrap(&MG::PreprocessMultigridFlowField, gl);
+		this->MWrap(&MG::PreRelaxationCycle, gl);
+		this->FastSolveFlowFieldByMultigridMethod(gl);
+		this->MWrap(&MG::PostRelaxationCycle, gl);
+		this->MWrap(&MG::PostprocessMultigridFlowField, gl);
+	}
 }
 
 void MG::SolveInnerIter()
@@ -320,9 +376,18 @@ void MG::WeakIter()
 
 void MG::StrongIter()
 {
-    this->ZeroResidualsForAllSolvers();
+	int startStrategy = ONEFLOW::GetDataValue< int >("startStrategy");
+	if (startStrategy == 2|| startStrategy == 3)
+	{
+		//this->ZeroResidualsForAllSolvers();
+		this->SolveMultigridFlowField(0);
+	}
+	else
+	{
+		this->ZeroResidualsForAllSolvers();
 
-    this->SolveMultigridFlowField( 0 );
+		this->SolveMultigridFlowField(0);
+	}
 }
 
 

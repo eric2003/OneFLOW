@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-    Copyright (C) 2017-2020 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -49,9 +49,9 @@ UINsSpectrum::~UINsSpectrum()
 {
 }
 
-void UINsSpectrum::CalcImplicitSpectrum()
+void UINsSpectrum::CmpImplicitSpectrum()
 {
-    this->CalcUnsteadySpectrum();
+    this->CmpUnsteadySpectrum();
 
     this->AddInvSpectrum();
 
@@ -59,7 +59,7 @@ void UINsSpectrum::CalcImplicitSpectrum()
 
 }
 
-void UINsSpectrum::CalcUnsteadySpectrum()
+void UINsSpectrum::CmpUnsteadySpectrum()
 {
     if ( ctrl.idualtime == 0 )//单时间步，注意:是usd.sp2!
     {

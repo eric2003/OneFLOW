@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-    Copyright (C) 2017-2020 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -50,7 +50,7 @@ void INsCom::Init()
     ivischeme = GetDataValue< int >( "ivischeme" );
     timestepModel = GetDataValue< int >( "timestepModel" );
     visSRModel = GetDataValue< int >( "visSRModel" );
-    visTimeStepModel = GetDataValue< int >( "visTimeStepModel" );
+    visTimestepModel = GetDataValue< int >( "visTimestepModel" );
     chemModel = GetDataValue< int >( "chemModel" );
     nTModel = GetDataValue< int >( "nTModel" );
 

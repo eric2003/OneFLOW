@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-    Copyright (C) 2017-2020 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -23,36 +23,36 @@ License
 
 #pragma once
 #include "HXDefine.h"
-#include "ITimeStep.h"
+#include "ITimestep.h"
 
 BeginNameSpace( ONEFLOW )
-class UITimeStep : public ITimeStep
+class UITimestep : public ITimestep
 {
 public:
-    UITimeStep();
-    ~UITimeStep();
+    UITimestep();
+    ~UITimestep();
 public:
     void Init();
     void ReadTmp();
-    void CalcTimeStep();
-    void CalcLocalTimeStep();
-    void CalcGlobalTimeStep();
-    void CalcLgTimeStep();
-    void CalcInvTimeStep();
-    void CalcVisTimeStep();
-    void CalcMinTimeStep();
-    void SetTimeStep( Real timestep );
+    void CmpTimestep();
+    void CmpLocalTimestep();
+    void CmpGlobalTimestep();
+    void CmpLgTimestep();
+    void CmpInvTimestep();
+    void CmpVisTimestep();
+    void CmpMinTimestep();
+    void SetTimestep( Real timestep );
 public:
-    void CalcSpectrumField();
-    void CalcInvSpectrumField();
-    void CalcVisSpectrumField();
+    void CmpSpectrumField();
+    void CmpInvSpectrumField();
+    void CmpVisSpectrumField();
 public:
     void SetId( int fId );
     void PrepareData();
     void PrepareVisData();
     void UpdateInvSpectrumField();
     void UpdateVisSpectrumField();
-    void ModifyTimeStep();
+    void ModifyTimestep();
 };
 
 
