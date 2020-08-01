@@ -66,7 +66,7 @@ void UINsGrad::Init()
     bdqdy = GetFieldPointer< MRField > ( grid, "bcdqdy" );
     bdqdz = GetFieldPointer< MRField > ( grid, "bcdqdz" );
 
-    this->nEqu = inscom.nTEqu;
+    this->nEqu = nscom.nTEqu;
 
     this->istore = 1;
 }
@@ -95,7 +95,7 @@ void UITGrad::Init()
 	dqdy = GetFieldPointer< MRField >(grid, namey);
 	dqdz = GetFieldPointer< MRField >(grid, namez);
 
-	this->nEqu = inscom.nTModel;
+	this->nEqu = nscom.nTModel;
 
 	this->istore = 0;
 }

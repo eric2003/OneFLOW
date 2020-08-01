@@ -40,7 +40,7 @@ INsLimField::INsLimField()
 {
     qf1 = 0;
     qf2 = 0;
-    this->nEqu = inscom.nEqu;
+    this->nEqu = nscom.nEqu;
 }
 
 INsLimField::~INsLimField()

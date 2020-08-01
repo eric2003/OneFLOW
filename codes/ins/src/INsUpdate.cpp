@@ -40,22 +40,22 @@ INsUpdate::~INsUpdate()
 
 void INsUpdate::CmpFlowField()
 {
-    //INsPrimToQ( inscom.prim0, inscom.gama, inscom.q0 );
+    //INsPrimToQ( nscom.prim0, nscom.gama, nscom.q0 );
 
-    for ( int iEqu = 0; iEqu < inscom.nTEqu; ++ iEqu )
+    for ( int iEqu = 0; iEqu < nscom.nTEqu; ++ iEqu )
     {
-        inscom.q[ iEqu ] = inscom.q0[ iEqu ] + inscom.dq[ iEqu ];
+        nscom.q[ iEqu ] = nscom.q0[ iEqu ] + nscom.dq[ iEqu ];
     }
 
-    //INsQToPrim( inscom.q, inscom.gama, inscom.prim, inscom.t );
+    //INsQToPrim( nscom.q, nscom.gama, nscom.prim, nscom.t );
 
-    Real density  = inscom.prim[ IIDX::IIR ];
-    Real pressure = inscom.prim[ IIDX::IIP ];
+    Real density  = nscom.prim[ IIDX::IIR ];
+    Real pressure = nscom.prim[ IIDX::IIP ];
 
     if ( density <= 0.0 || pressure <= 0.0 )
     {
-        inscom.nProbe += 1;
-        if ( inscom.nProbe < 2 )
+        nscom.nProbe += 1;
+        if ( nscom.nProbe < 2 )
         {
             this->DumpProbeInfo();
         }
@@ -69,15 +69,16 @@ void INsUpdate::CmpFlowField()
 
 void INsUpdate::CmpFlowFieldHyperSonic()
 {
-   // INsPrimToQ( inscom.prim0, inscom.gama, inscom.q0 );
+   // INsPrimToQ( nscom.prim0, nscom.gama, nscom.q0 );
 
-    for ( int iEqu = 0; iEqu < inscom.nTEqu; ++ iEqu )
+    for ( int iEqu = 0; iEqu < nscom.nTEqu; ++ iEqu )
     {
-        inscom.q[ iEqu ] = inscom.q0[ iEqu ] + inscom.dq[ iEqu ];
+        nscom.q[ iEqu ] = nscom.q0[ iEqu ] + nscom.dq[ iEqu ];
     }
 
-    Real density = inscom.q[ IIDX::IIR ];
-    Real density0 = inscom.q[ IIDX::IIR ];
+    Real density = nscom.q[ IIDX::IIR ];
+    Real density0 = nscom.q[ IIDX::IIR ];
+
     Real dr = density - density0;
     if ( density < 0.0 )
     {
@@ -85,15 +86,17 @@ void INsUpdate::CmpFlowFieldHyperSonic()
     }
 
     Real rd = 1.0 / density;
-    Real um  = inscom.q[ IIDX::IIU ] * rd;
-    Real vm  = inscom.q[ IIDX::IIV ] * rd;
-    Real wm  = inscom.q[ IIDX::IIW ] * rd;
-    Real rem = inscom.q[ IIDX::IIP ];
+
+    Real um  = nscom.q[ IIDX::IIU ] * rd;
+    Real vm  = nscom.q[ IIDX::IIV ] * rd;
+    Real wm  = nscom.q[ IIDX::IIW ] * rd;
+    Real rem = nscom.q[ IIDX::IIP ];
+
     Real v2  = ONEFLOW::SQR( um, vm, wm );
 
     Real reint = rem - half * density * v2;
-    Real pressure = ( inscom.gama - one ) * reint;
-    Real pressure0 = inscom.prim0[ IIDX::IIP ];
+    Real pressure = ( nscom.gama - one ) * reint;
+    Real pressure0 = nscom.prim0[ IIDX::IIP ];
 
     if ( pressure < 0.0 )
     {
@@ -101,7 +104,7 @@ void INsUpdate::CmpFlowFieldHyperSonic()
         pressure  = PositiveUpdate( pressure0, dp );
     }
 
-    Real reint_new = pressure / ( inscom.gama - one );
+    Real reint_new = pressure / ( nscom.gama - one );
     if ( v2 > 0.0 )
     {
         Real coef = sqrt( ABS( rem - reint_new ) * 2 / ( density * v2 ) );
@@ -110,16 +113,16 @@ void INsUpdate::CmpFlowFieldHyperSonic()
         wm *= coef;
     }
 
-    inscom.prim[ IIDX::IIR ] = density;
-    inscom.prim[ IIDX::IIU ] = um;
-    inscom.prim[ IIDX::IIV ] = vm;
-    inscom.prim[ IIDX::IIW ] = wm;
-    inscom.prim[ IIDX::IIP ] = pressure;
+    nscom.prim[ IIDX::IIR ] = density;
+    nscom.prim[ IIDX::IIU ] = um;
+    nscom.prim[ IIDX::IIV ] = vm;
+    nscom.prim[ IIDX::IIW ] = wm;
+    nscom.prim[ IIDX::IIP ] = pressure;
 
     if ( density <= 0.0 || pressure <= 0.0 )
     {
-        inscom.nProbe += 1;
-        if ( inscom.nProbe < 2 )
+        nscom.nProbe += 1;
+        if ( nscom.nProbe < 2 )
         {
             this->DumpProbeInfo();
         }
@@ -133,22 +136,22 @@ void INsUpdate::CmpFlowFieldHyperSonic()
 
 void INsUpdate::CmpFlowFieldHyperSonic_Temperature()
 {
-//	INsPrimToQ( inscom.prim0, inscom.gama, inscom.q0 );
+//	INsPrimToQ( nscom.prim0, nscom.gama, nscom.q0 );
 
-    for ( int iEqu = 0; iEqu < inscom.nTEqu; ++ iEqu )
+    for ( int iEqu = 0; iEqu < nscom.nTEqu; ++ iEqu )
     {
-        inscom.q[ iEqu ] = inscom.q0[ iEqu ] + inscom.dq[ iEqu ];
+        nscom.q[ iEqu ] = nscom.q0[ iEqu ] + nscom.dq[ iEqu ];
     }
 
-//	INsQToPrim( inscom.q, inscom.gama, inscom.prim, inscom.t );
+//	INsQToPrim( nscom.q, nscom.gama, nscom.prim, nscom.t );
 
-    Real density  = inscom.prim[ IIDX::IIR ];
-    Real pressure = inscom.prim[ IIDX::IIP ];
+    Real density  = nscom.prim[ IIDX::IIR ];
+    Real pressure = nscom.prim[ IIDX::IIP ];
 
     if ( density <= 0.0 || pressure <= 0.0 )
     {
-        inscom.nProbe += 1;
-        if ( inscom.nProbe < 2 )
+        nscom.nProbe += 1;
+        if ( nscom.nProbe < 2 )
         {
             this->DumpProbeInfo();
         }
@@ -161,14 +164,14 @@ void INsUpdate::CmpFlowFieldHyperSonic_Temperature()
 
     if ( density > 0.0 && pressure > 0.0 )
     {
-        Real rm2 = inscom.gama * SQR( inscom.mach_ref );
+        Real rm2 = nscom.gama * SQR( nscom.mach_ref );
         Real temp_now = rm2 * pressure / density;
 
         Real temp_limit = 50.0;
         if ( temp_now >= temp_limit )
         {
             density = rm2 * pressure / temp_limit;
-            inscom.prim[ IIDX::IIR ] = density;
+            nscom.prim[ IIDX::IIR ] = density;
         }
 
         //if ( temp_now >= temp_limit )
@@ -200,13 +203,13 @@ bool INsUpdate::WeekSolutionFix()
     for ( int iFix = 0; iFix < fixCoefList.size(); ++ iFix )
     {
         Real fixCoef = fixCoefList[ iFix ];
-        for ( int iEqu = 0; iEqu < inscom.nTEqu; ++ iEqu )
+        for ( int iEqu = 0; iEqu < nscom.nTEqu; ++ iEqu )
         {
-            inscom.prim[ iEqu ] += fixCoef * inscom.dq[ iEqu ];
+            nscom.prim[ iEqu ] += fixCoef * nscom.dq[ iEqu ];
         }
 
-        Real density  = inscom.prim[ IIDX::IIR ];
-        Real pressure = inscom.prim[ IIDX::IIP ];
+        Real density  = nscom.prim[ IIDX::IIR ];
+        Real pressure = nscom.prim[ IIDX::IIP ];
 
         if ( ! ( density < 0.0 || pressure < 0.0 ) )
         {

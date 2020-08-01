@@ -181,7 +181,7 @@ void INSCmpGamaT(int flag)
 	uinsf.Init();
 	ug.SetStEd(flag);
 
-	if (inscom.chemModel == 1)
+	if (nscom.chemModel == 1)
 	{
 	}
 	else
@@ -196,8 +196,9 @@ void INSCmpGamaT(int flag)
 		{
 			Real & density = ( * uinsf.q )[ IIDX::IIR ][ cId ];
 			Real & pressure = ( * uinsf.q )[ IIDX::IIP ][ cId ];
-			( * uinsf.gama )[ 0 ][ cId ] = inscom.gama_ref;
-			//( * uinsf.tempr )[ IIDX::IITT ][ cId ] = pressure / ( inscom.statecoef * density * oamw );
+
+			( * uinsf.gama )[ 0 ][ cId ] = nscom.gama_ref;
+			//( * uinsf.tempr )[ IIDX::IITT ][ cId ] = pressure / ( nscom.statecoef * density * oamw );
 			(*uinsf.tempr)[IIDX::IITT][cId] = 0;
 		}
 	}
@@ -210,27 +211,27 @@ void INsCmpRHS()
 
 		INsPreflux();
 
-		INsCmpInv(); //¼ÆËã¶ÔÁ÷Ïî
+		INsCmpInv(); //è®¡ç®—å¯¹æµé¡¹
 
-		INsCmpVis(); //¼ÆËãÀ©É¢Ïî
+		INsCmpVis(); //è®¡ç®—æ‰©æ•£é¡¹
 
-		INsCmpUnstead(); //¼ÆËã·ÇÎÈÌ¬Ïî
+		INsCmpUnstead(); //è®¡ç®—éç¨³æ€é¡¹
 
-		INsCmpSrc(); //¼ÆËãÔ´ÏîºÍ¶¯Á¿·½³ÌÏµÊı
+		INsCmpSrc(); //è®¡ç®—æºé¡¹å’ŒåŠ¨é‡æ–¹ç¨‹ç³»æ•°
 
-		INsMomPre(); //Çó½â¶¯Á¿·½³Ì
+		INsMomPre(); //æ±‚è§£åŠ¨é‡æ–¹ç¨‹
 
 		//INsCmpinsBc();
 
-		INsCmpFaceflux(); //¼ÆËã½çÃæÁ÷Á¿
+		INsCmpFaceflux(); //è®¡ç®—ç•Œé¢æµé‡
 
-		INsCorrectPresscoef(); //¼ÆËãÑ¹Á¦ĞŞÕı·½³ÌÏµÊı
+		INsCorrectPresscoef(); //è®¡ç®—å‹åŠ›ä¿®æ­£æ–¹ç¨‹ç³»æ•°
 
-		INsCmpPressCorrectEquandUpdatePress();  //ĞèÒª½âÑ¹Á¦ĞŞÕı·½³Ì×é£¬ÔöÉèµ¥ÔªĞŞÕıÑ¹Á¦Î´ÖªÁ¿
+		INsCmpPressCorrectEquandUpdatePress();  //éœ€è¦è§£å‹åŠ›ä¿®æ­£æ–¹ç¨‹ç»„ï¼Œå¢è®¾å•å…ƒä¿®æ­£å‹åŠ›æœªçŸ¥é‡
 
-		INsCmpSpeedCorrectandUpdateSpeed();  //ĞèÒªÏÈÔöÉè½çÃæĞŞÕıËÙ¶ÈÎ´ÖªÁ¿²¢½øĞĞÇó½â,¸üĞÂµ¥ÔªËÙ¶ÈºÍÑ¹Á¦
+		INsCmpSpeedCorrectandUpdateSpeed();  //éœ€è¦å…ˆå¢è®¾ç•Œé¢ä¿®æ­£é€Ÿåº¦æœªçŸ¥é‡å¹¶è¿›è¡Œæ±‚è§£,æ›´æ–°å•å…ƒé€Ÿåº¦å’Œå‹åŠ›
 
-		INsUpdateFaceflux();   //¸üĞÂ½çÃæÁ÷Á¿
+		INsUpdateFaceflux();   //æ›´æ–°ç•Œé¢æµé‡
 
 		INsUpdateRes();
 

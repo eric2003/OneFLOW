@@ -227,7 +227,7 @@ void UINsLusgs::PrepareData()
 {
     for ( int iEqu = 0; iEqu < nslu.nEqu; ++ iEqu )
     {
-        nslu.primj[ iEqu ] = ( * uinsf.q )[ iEqu ][ ug.rc ]; //qField´æµÄÊÇÔ­Ê¼±äÁ¿£¡
+        nslu.primj[ iEqu ] = ( * uinsf.q )[ iEqu ][ ug.rc ]; //qFieldå­˜çš„æ˜¯åŽŸå§‹å˜é‡ï¼
     }
 
     for ( int iEqu = 0; iEqu < nslu.nEqu; ++ iEqu )
@@ -238,13 +238,13 @@ void UINsLusgs::PrepareData()
     this->PrepareDataFacePrim();
 
     nslu.gama = ( * uinsf.gama )[ 0 ][ ug.rc ];
-    inscom.visl = ( * uinsf.visl )[ 0 ][ ug.rc ];
-    inscom.vist = ( * uinsf.vist )[ 0 ][ ug.rc ];
+    nscom.visl = ( * uinsf.visl )[ 0 ][ ug.rc ];
+    nscom.vist = ( * uinsf.vist )[ 0 ][ ug.rc ];
 
     for ( int iEqu = 0; iEqu < nslu.nEqu; ++ iEqu )
     {
-        inscom.q1[ iEqu ] = ( * uinsf.q )[ iEqu ][ ug.lc ];
-        inscom.q2[ iEqu ] = ( * uinsf.q )[ iEqu ][ ug.rc ];
+        nscom.q1[ iEqu ] = ( * uinsf.q )[ iEqu ][ ug.lc ];
+        nscom.q2[ iEqu ] = ( * uinsf.q )[ iEqu ][ ug.rc ];
     }
 }
 
@@ -296,16 +296,16 @@ void UINsLusgs::ComputeViscousTerm()
 {
     if ( vis_model.vismodel == 0 ) return;
 
-    if ( inscom.visSRModel == 1 )
+    if ( nscom.visSRModel == 1 )
     {
-        Real density = half * ( inscom.q1[ IIDX::IIR ] + inscom.q2[ IIDX::IIR ] );
+        Real density = half * ( nscom.q1[ IIDX::IIR ] + nscom.q2[ IIDX::IIR ] );
 
-        Real c1 = 4.0 / 3.0 * ( inscom.visl + inscom.vist );
-        Real c2 = inscom.gama * ( inscom.visl * inscom.oprl + inscom.vist * inscom.oprt );
-        Real c3 = two * MAX( c1, c2 ) / ( inscom.reynolds * density );
+        Real c1 = 4.0 / 3.0 * ( nscom.visl + nscom.vist );
+        Real c2 = nscom.gama * ( nscom.visl * nscom.oprl + nscom.vist * nscom.oprt );
+        Real c3 = two * MAX( c1, c2 ) / ( nscom.reynolds * density );
         Real farea2 = SQR( gcom.farea );
 
-        inscom.vissr = farea2 * c3;
+        nscom.vissr = farea2 * c3;
 
         nslu.visrad = inscom.vissr / ( * ug.cvol )[ ug.rc ];
     }
@@ -315,12 +315,12 @@ void UINsLusgs::ComputeViscousTerm()
                         + gcom.yfn * ( gcom.ycc2 - gcom.ycc1 )
                         + gcom.zfn * ( gcom.zcc2 - gcom.zcc1 ) );
 
-        Real viscosity = inscom.visl + inscom.vist;
-        Real density   = half * ( inscom.q1[ IIDX::IIR ] + inscom.q2[ IIDX::IIR ] );
+        Real viscosity = nscom.visl + nscom.vist;
+        Real density   = half * ( nscom.q1[ IIDX::IIR ] + nscom.q2[ IIDX::IIR ] );
 
-        Real c1  = 2.0 * viscosity / ( density * dist * inscom.reynolds + SMALL );
-        inscom.vissr = half * c1 * gcom.farea;
-        nslu.visrad = inscom.vissr;
+        Real c1  = 2.0 * viscosity / ( density * dist * nscom.reynolds + SMALL );
+        nscom.vissr = half * c1 * gcom.farea;
+        nslu.visrad = nscom.vissr;
     }
 
     for ( int iEqu = 0; iEqu < nslu.nEqu; ++ iEqu )
@@ -335,8 +335,8 @@ void UINsLusgs::PrepareSweep()
     {
         gcom.blank = ( * ug.blankf )[ ug.cId ];
 
-        nslu.dqi[ iEqu ] = ( * uinsf.dq  )[ iEqu ][ ug.cId ]; //dqFieldµÄ³õÖµÎª0£¨ÊØºã»òÕßÔ­Ê¼±äÁ¿£©
-        nslu.rhs[ iEqu ] = ( * uinsf.rhs )[ iEqu ][ ug.cId ]; //RHS»¹ÊÇ´æÔÚRHSÀïÃæ±È½ÏºÃ
+        nslu.dqi[ iEqu ] = ( * uinsf.dq  )[ iEqu ][ ug.cId ]; //dqFieldçš„åˆå€¼ä¸º0ï¼ˆå®ˆæ’æˆ–è€…åŽŸå§‹å˜é‡ï¼‰
+        nslu.rhs[ iEqu ] = ( * uinsf.rhs )[ iEqu ][ ug.cId ]; //RHSè¿˜æ˜¯å­˜åœ¨RHSé‡Œé¢æ¯”è¾ƒå¥½
     }
 
     if ( nslu.numberOfSweeps > 1 )

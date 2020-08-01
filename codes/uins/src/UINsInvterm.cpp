@@ -65,19 +65,19 @@ void UINsInvterm::CmpLimiter()
 	limiter->CalcLimiter();
 }
 
-void UINsInvterm::CmpInvFace()  //µ¥ÔªÊı¾İÖØ¹¹
+void UINsInvterm::CmpInvFace()  //å•å…ƒæ•°æ®é‡æ„
 {
 	//uins_grad.Init();
 	//uins_grad.CmpGrad();
 
 
-	this->CmpLimiter();   //²»¸Ä
+	this->CmpLimiter();   //ä¸æ”¹
 
-	this->GetQlQrField();  //²»¸Ä
+	this->GetQlQrField();  //ä¸æ”¹
 
-	//this->ReconstructFaceValueField();  //²»¸Ä
+	//this->ReconstructFaceValueField();  //ä¸æ”¹
 
-	this->BoundaryQlQrFixField();  //²»¸Ä
+	this->BoundaryQlQrFixField();  //ä¸æ”¹
 }
 
 void UINsInvterm::GetQlQrField()
@@ -105,7 +105,7 @@ void UINsInvterm::CmpInvcoff()
 	//Alloc();
 
 	//this->CmpInvFace();
-	this->CmpInvMassFlux();  //ĞèÒª¸Ä¶¯
+	this->CmpInvMassFlux();  //éœ€è¦æ”¹åŠ¨
 
    //DeAlloc();
 }
@@ -119,7 +119,7 @@ void UINsInvterm::CmpINsPreflux()
 	if (ctrl.currTime == 0.001 && Iteration::innerSteps == 1)
 	//if (ctrl.currTime == 0.001 && Iteration::outerSteps == 1)
 	{
-		if (inscom.icmpInv == 0) return;
+		if (nscom.icmpInv == 0) return;
 		iinv.Init();
 		ug.Init();
 		uinsf.Init();
@@ -319,11 +319,11 @@ void UINsInvterm::PrepareFaceValue()
 	gcom.vfn = (*ug.vfn)[ug.fId];
 	gcom.farea = (*ug.farea)[ug.fId];
 
-	inscom.gama1 = (*uinsf.gama)[0][ug.lc];
-	inscom.gama2 = (*uinsf.gama)[0][ug.rc];
+  nscom.gama1 = ( * uinsf.gama )[ 0 ][ ug.lc ];
+  nscom.gama2 = ( * uinsf.gama )[ 0 ][ ug.rc ];
 
-	iinv.gama1 = inscom.gama1;
-	iinv.gama2 = inscom.gama2;
+  iinv.gama1 = nscom.gama1;
+  iinv.gama2 = nscom.gama2;
 
 	for (int iEqu = 0; iEqu < limf->nEqu; ++iEqu)
 	{
@@ -384,7 +384,7 @@ void UINsInvterm::MomPre()
 
 			if (ug.cId == ug.lc)
 			{
-				iinv.muc[ug.cId] += -iinv.sj[ug.cId][iFace] * (*uinsf.q)[IIDX::IIU][ug.rc];   //Ê¹ÓÃ¸ßË¹ÈüµÂ¶ûµü´úÊ±£¬ÏàÁÚµ¥Ôª¶ÔÆäµÄÓ°Ïì£¬¾ØÕó·¨²»ĞèÒª
+				iinv.muc[ug.cId] += -iinv.sj[ug.cId][iFace] * (*uinsf.q)[IIDX::IIU][ug.rc];   //ä½¿ç”¨é«˜æ–¯èµ›å¾·å°”è¿­ä»£æ—¶ï¼Œç›¸é‚»å•å…ƒå¯¹å…¶çš„å½±å“ï¼ŒçŸ©é˜µæ³•ä¸éœ€è¦
 				iinv.mvc[ug.cId] += -iinv.sj[ug.cId][iFace] * (*uinsf.q)[IIDX::IIV][ug.rc];
 				iinv.mwc[ug.cId] += -iinv.sj[ug.cId][iFace] * (*uinsf.q)[IIDX::IIW][ug.rc];
 
@@ -392,7 +392,7 @@ void UINsInvterm::MomPre()
 			else if (ug.cId == ug.rc)
 			{
 
-				iinv.muc[ug.cId] += -iinv.sj[ug.cId][iFace] * (*uinsf.q)[IIDX::IIU][ug.lc]; //Ê¹ÓÃ¸ßË¹ÈüµÂ¶ûµü´úÊ±£¬ÏàÁÚµ¥Ôª¶ÔÆäµÄÓ°Ïì£¬¾ØÕó·¨²»ĞèÒª
+				iinv.muc[ug.cId] += -iinv.sj[ug.cId][iFace] * (*uinsf.q)[IIDX::IIU][ug.lc]; //ä½¿ç”¨é«˜æ–¯èµ›å¾·å°”è¿­ä»£æ—¶ï¼Œç›¸é‚»å•å…ƒå¯¹å…¶çš„å½±å“ï¼ŒçŸ©é˜µæ³•ä¸éœ€è¦
 				iinv.mvc[ug.cId] += -iinv.sj[ug.cId][iFace] * (*uinsf.q)[IIDX::IIV][ug.lc];
 				iinv.mwc[ug.cId] += -iinv.sj[ug.cId][iFace] * (*uinsf.q)[IIDX::IIW][ug.lc];
 
@@ -400,7 +400,7 @@ void UINsInvterm::MomPre()
 		}
 
 
-			iinv.uc[ug.cId] = (iinv.muc[ug.cId] + iinv.buc[ug.cId]) / (iinv.spc[ug.cId]);  //ÏÂÒ»Ê±¿ÌËÙ¶ÈµÄÔ¤²âÖµ
+			iinv.uc[ug.cId] = (iinv.muc[ug.cId] + iinv.buc[ug.cId]) / (iinv.spc[ug.cId]);  //ä¸‹ä¸€æ—¶åˆ»é€Ÿåº¦çš„é¢„æµ‹å€¼
 
 
 			iinv.vc[ug.cId] = (iinv.mvc[ug.cId] + iinv.bvc[ug.cId]) / (iinv.spc[ug.cId]);
@@ -446,30 +446,30 @@ void UINsInvterm::MomPre()
 		}
 	}*/
 
-	//BGMRESÇó½â
+	//BGMRESæ±‚è§£
 	NonZero.Number = 0;
 	for (int cId = 0; cId < ug.nTCell; ++cId)
 	{                                          
-		int fn = (*ug.c2f)[cId].size();                             //ÏàÁÚµ¥ÔªµÄ¸öÊı                                    
-		NonZero.Number += fn;                                          //·Ç¶Ô½ÇÏßÉÏ·ÇÁãÔªµÄ¸öÊı
+		int fn = (*ug.c2f)[cId].size();                             //ç›¸é‚»å•å…ƒçš„ä¸ªæ•°                                    
+		NonZero.Number += fn;                                          //éå¯¹è§’çº¿ä¸Šéé›¶å…ƒçš„ä¸ªæ•°
 	}
-	NonZero.Number = NonZero.Number + ug.nTCell;                     //·ÇÁãÔªµÄ×Ü¸öÊı         
-	Rank.RANKNUMBER = ug.nTCell;                                     // ¾ØÕóµÄĞĞÁĞ´óĞ¡
-	Rank.NUMBER = NonZero.Number;                                    // ¾ØÕó·ÇÁãÔªËØ¸öÊı´«µ½¼ÆËã³ÌĞòÖĞ
-	Rank.COLNUMBER = 1;                                              //ÓÒ¶ËÏî¸öÊı
-	Rank.Init();                                                     //´«ÈëGMRES¼ÆËã³ÌĞòµÄÖĞ¼ä±äÁ¿
+	NonZero.Number = NonZero.Number + ug.nTCell;                     //éé›¶å…ƒçš„æ€»ä¸ªæ•°         
+	Rank.RANKNUMBER = ug.nTCell;                                     // çŸ©é˜µçš„è¡Œåˆ—å¤§å°
+	Rank.NUMBER = NonZero.Number;                                    // çŸ©é˜µéé›¶å…ƒç´ ä¸ªæ•°ä¼ åˆ°è®¡ç®—ç¨‹åºä¸­
+	Rank.COLNUMBER = 1;                                              //å³ç«¯é¡¹ä¸ªæ•°
+	Rank.Init();                                                     //ä¼ å…¥GMRESè®¡ç®—ç¨‹åºçš„ä¸­é—´å˜é‡
 	double residual_u, residual_v, residual_w;
 	for (int cId = 0; cId < ug.nTCell; ++cId)
 	{
 		Rank.TempIA[0] = 0;
 		int n = Rank.TempIA[cId];
 		int fn = (*ug.c2f)[cId].size();
-		Rank.TempIA[cId + 1] = Rank.TempIA[cId] + fn + 1;                                                  // Ç°n+1ĞĞ·ÇÁãÔªËØµÄ¸öÊı
+		Rank.TempIA[cId + 1] = Rank.TempIA[cId] + fn + 1;                                                  // å‰n+1è¡Œéé›¶å…ƒç´ çš„ä¸ªæ•°
 		for (int iFace = 0; iFace < fn; ++iFace)
 		{
-			int fId = (*ug.c2f)[cId][iFace];                                                            // ÏàÁÚÃæµÄ±àºÅ
-			ug.lc = (*ug.lcf)[fId];                                                                     // Ãæ×ó²àµ¥Ôª
-			ug.rc = (*ug.rcf)[fId];                                                                     // ÃæÓÒ²àµ¥Ôª
+			int fId = (*ug.c2f)[cId][iFace];                                                            // ç›¸é‚»é¢çš„ç¼–å·
+			ug.lc = (*ug.lcf)[fId];                                                                     // é¢å·¦ä¾§å•å…ƒ
+			ug.rc = (*ug.rcf)[fId];                                                                     // é¢å³ä¾§å•å…ƒ
 			if (cId == ug.lc)
 			{
 				Rank.TempA[n + iFace] = -iinv.ai[fId][0];
@@ -481,8 +481,8 @@ void UINsInvterm::MomPre()
 				Rank.TempJA[n + iFace] = ug.lc;
 			}
 		}
-		Rank.TempA[n + fn] = iinv.spc[cId];                          //Ö÷¶Ô½ÇÏßÔªËØÖµ
-		Rank.TempJA[n + fn] = cId;                                      //Ö÷¶Ô½ÇÏß×İ×ø±ê
+		Rank.TempA[n + fn] = iinv.spc[cId];                          //ä¸»å¯¹è§’çº¿å…ƒç´ å€¼
+		Rank.TempJA[n + fn] = cId;                                      //ä¸»å¯¹è§’çº¿çºµåæ ‡
 
 	}
 	for (int cId = 0; cId < ug.nTCell; cId++)
@@ -492,7 +492,7 @@ void UINsInvterm::MomPre()
 	bgx.BGMRES();
 	for (int cId = 0; cId < ug.nTCell; cId++)
 	{
-		iinv.uc[cId] = Rank.TempX[cId][0];                       // ½âµÄÊä³ö
+		iinv.uc[cId] = Rank.TempX[cId][0];                       // è§£çš„è¾“å‡º
 	}
 	residual_u = Rank.residual;
 	iinv.res_u = residual_u;
@@ -506,26 +506,26 @@ void UINsInvterm::MomPre()
 	NonZero.Number = 0;
 	for (int cId = 0; cId < ug.nTCell; ++cId)
 	{
-		int fn = (*ug.c2f)[cId].size();                             //ÏàÁÚµ¥ÔªµÄ¸öÊı                                    
-		NonZero.Number += fn;                                          //·Ç¶Ô½ÇÏßÉÏ·ÇÁãÔªµÄ¸öÊı
+		int fn = (*ug.c2f)[cId].size();                             //ç›¸é‚»å•å…ƒçš„ä¸ªæ•°                                    
+		NonZero.Number += fn;                                          //éå¯¹è§’çº¿ä¸Šéé›¶å…ƒçš„ä¸ªæ•°
 	}
-	NonZero.Number = NonZero.Number + ug.nTCell;                     //·ÇÁãÔªµÄ×Ü¸öÊı         
-	Rank.RANKNUMBER = ug.nTCell;                                     // ¾ØÕóµÄĞĞÁĞ´óĞ¡
-	Rank.NUMBER = NonZero.Number;                                    // ¾ØÕó·ÇÁãÔªËØ¸öÊı´«µ½¼ÆËã³ÌĞòÖĞ
-	Rank.COLNUMBER = 1;                                              //ÓÒ¶ËÏî¸öÊı
-	Rank.Init();                                                     //´«ÈëGMRES¼ÆËã³ÌĞòµÄÖĞ¼ä±äÁ¿
+	NonZero.Number = NonZero.Number + ug.nTCell;                     //éé›¶å…ƒçš„æ€»ä¸ªæ•°         
+	Rank.RANKNUMBER = ug.nTCell;                                     // çŸ©é˜µçš„è¡Œåˆ—å¤§å°
+	Rank.NUMBER = NonZero.Number;                                    // çŸ©é˜µéé›¶å…ƒç´ ä¸ªæ•°ä¼ åˆ°è®¡ç®—ç¨‹åºä¸­
+	Rank.COLNUMBER = 1;                                              //å³ç«¯é¡¹ä¸ªæ•°
+	Rank.Init();                                                     //ä¼ å…¥GMRESè®¡ç®—ç¨‹åºçš„ä¸­é—´å˜é‡
 	//double residual_u, residual_v, residual_w;
 	for (int cId = 0; cId < ug.nTCell; ++cId)
 	{
 		Rank.TempIA[0] = 0;
 		int n = Rank.TempIA[cId];
 		int fn = (*ug.c2f)[cId].size();
-		Rank.TempIA[cId + 1] = Rank.TempIA[cId] + fn + 1;                                                  // Ç°n+1ĞĞ·ÇÁãÔªËØµÄ¸öÊı
+		Rank.TempIA[cId + 1] = Rank.TempIA[cId] + fn + 1;                                                  // å‰n+1è¡Œéé›¶å…ƒç´ çš„ä¸ªæ•°
 		for (int iFace = 0; iFace < fn; ++iFace)
 		{
-			int fId = (*ug.c2f)[cId][iFace];                                                            // ÏàÁÚÃæµÄ±àºÅ
-			ug.lc = (*ug.lcf)[fId];                                                                     // Ãæ×ó²àµ¥Ôª
-			ug.rc = (*ug.rcf)[fId];                                                                     // ÃæÓÒ²àµ¥Ôª
+			int fId = (*ug.c2f)[cId][iFace];                                                            // ç›¸é‚»é¢çš„ç¼–å·
+			ug.lc = (*ug.lcf)[fId];                                                                     // é¢å·¦ä¾§å•å…ƒ
+			ug.rc = (*ug.rcf)[fId];                                                                     // é¢å³ä¾§å•å…ƒ
 			if (cId == ug.lc)
 			{
 				Rank.TempA[n + iFace] = -iinv.ai[fId][0];
@@ -537,8 +537,8 @@ void UINsInvterm::MomPre()
 				Rank.TempJA[n + iFace] = ug.lc;
 			}
 		}
-		Rank.TempA[n + fn] = iinv.spc[cId];                          //Ö÷¶Ô½ÇÏßÔªËØÖµ
-		Rank.TempJA[n + fn] = cId;                                      //Ö÷¶Ô½ÇÏß×İ×ø±ê
+		Rank.TempA[n + fn] = iinv.spc[cId];                          //ä¸»å¯¹è§’çº¿å…ƒç´ å€¼
+		Rank.TempJA[n + fn] = cId;                                      //ä¸»å¯¹è§’çº¿çºµåæ ‡
 
 	}
 
@@ -563,26 +563,26 @@ void UINsInvterm::MomPre()
 	NonZero.Number = 0;
 	for (int cId = 0; cId < ug.nTCell; ++cId)
 	{
-		int fn = (*ug.c2f)[cId].size();                             //ÏàÁÚµ¥ÔªµÄ¸öÊı                                    
-		NonZero.Number += fn;                                          //·Ç¶Ô½ÇÏßÉÏ·ÇÁãÔªµÄ¸öÊı
+		int fn = (*ug.c2f)[cId].size();                             //ç›¸é‚»å•å…ƒçš„ä¸ªæ•°                                    
+		NonZero.Number += fn;                                          //éå¯¹è§’çº¿ä¸Šéé›¶å…ƒçš„ä¸ªæ•°
 	}
-	NonZero.Number = NonZero.Number + ug.nTCell;                     //·ÇÁãÔªµÄ×Ü¸öÊı         
-	Rank.RANKNUMBER = ug.nTCell;                                     // ¾ØÕóµÄĞĞÁĞ´óĞ¡
-	Rank.NUMBER = NonZero.Number;                                    // ¾ØÕó·ÇÁãÔªËØ¸öÊı´«µ½¼ÆËã³ÌĞòÖĞ
-	Rank.COLNUMBER = 1;                                              //ÓÒ¶ËÏî¸öÊı
-	Rank.Init();                                                     //´«ÈëGMRES¼ÆËã³ÌĞòµÄÖĞ¼ä±äÁ¿
+	NonZero.Number = NonZero.Number + ug.nTCell;                     //éé›¶å…ƒçš„æ€»ä¸ªæ•°         
+	Rank.RANKNUMBER = ug.nTCell;                                     // çŸ©é˜µçš„è¡Œåˆ—å¤§å°
+	Rank.NUMBER = NonZero.Number;                                    // çŸ©é˜µéé›¶å…ƒç´ ä¸ªæ•°ä¼ åˆ°è®¡ç®—ç¨‹åºä¸­
+	Rank.COLNUMBER = 1;                                              //å³ç«¯é¡¹ä¸ªæ•°
+	Rank.Init();                                                     //ä¼ å…¥GMRESè®¡ç®—ç¨‹åºçš„ä¸­é—´å˜é‡
 	//double residual_u, residual_v, residual_w;
 	for (int cId = 0; cId < ug.nTCell; ++cId)
 	{
 		Rank.TempIA[0] = 0;
 		int n = Rank.TempIA[cId];
 		int fn = (*ug.c2f)[cId].size();
-		Rank.TempIA[cId + 1] = Rank.TempIA[cId] + fn + 1;                                                  // Ç°n+1ĞĞ·ÇÁãÔªËØµÄ¸öÊı
+		Rank.TempIA[cId + 1] = Rank.TempIA[cId] + fn + 1;                                                  // å‰n+1è¡Œéé›¶å…ƒç´ çš„ä¸ªæ•°
 		for (int iFace = 0; iFace < fn; ++iFace)
 		{
-			int fId = (*ug.c2f)[cId][iFace];                                                            // ÏàÁÚÃæµÄ±àºÅ
-			ug.lc = (*ug.lcf)[fId];                                                                     // Ãæ×ó²àµ¥Ôª
-			ug.rc = (*ug.rcf)[fId];                                                                     // ÃæÓÒ²àµ¥Ôª
+			int fId = (*ug.c2f)[cId][iFace];                                                            // ç›¸é‚»é¢çš„ç¼–å·
+			ug.lc = (*ug.lcf)[fId];                                                                     // é¢å·¦ä¾§å•å…ƒ
+			ug.rc = (*ug.rcf)[fId];                                                                     // é¢å³ä¾§å•å…ƒ
 			if (cId == ug.lc)
 			{
 				Rank.TempA[n + iFace] = -iinv.ai[fId][0];
@@ -594,8 +594,8 @@ void UINsInvterm::MomPre()
 				Rank.TempJA[n + iFace] = ug.lc;
 			}
 		}
-		Rank.TempA[n + fn] = iinv.spc[cId];                          //Ö÷¶Ô½ÇÏßÔªËØÖµ
-		Rank.TempJA[n + fn] = cId;                                      //Ö÷¶Ô½ÇÏß×İ×ø±ê
+		Rank.TempA[n + fn] = iinv.spc[cId];                          //ä¸»å¯¹è§’çº¿å…ƒç´ å€¼
+		Rank.TempJA[n + fn] = cId;                                      //ä¸»å¯¹è§’çº¿çºµåæ ‡
 
 	}
 
@@ -731,7 +731,7 @@ void UINsInvterm::MomPre()
 
 			Real velin = DIST(uin, vin, win);
 
-			//³¬ÉùËÙ
+			//è¶…å£°é€Ÿ
 			if (velin > cin)
 			{
 				if (vnin >= 0.0)
@@ -850,7 +850,7 @@ for (int fId = 0; fId < ug.nBFace; ++fId)
 	}
 }*/
 
-	/*½«²Ğ²îÊä³öµ½txtÎÄ¼şÖĞ*/
+	/*å°†æ®‹å·®è¾“å‡ºåˆ°txtæ–‡ä»¶ä¸­*/
 	/*ofstream fileres_u("residual_u.txt", ios::app);
 	//fileres_u << "residual_u:" << residual_u << endl;
 	fileres_u << residual_u << endl;
@@ -874,7 +874,7 @@ void UINsInvterm::CmpFaceflux()
 	ug.Init();
 	uinsf.Init();
 	//Alloc();
-	//this->CmpInvFace();  //±ß½ç´¦Àí
+	//this->CmpInvFace();  //è¾¹ç•Œå¤„ç†
 	for (int fId = ug.nBFace; fId < ug.nFace; ++fId)
 	{
 		ug.fId = fId;
@@ -917,7 +917,7 @@ void UINsInvterm::CmpINsMomRes()
 	iinv.res_v = 0;
 	iinv.res_w = 0;
 
-	//ÅĞ±ğµü´úÊÕÁ²µÄÌõ¼ş
+	//åˆ¤åˆ«è¿­ä»£æ”¶æ•›çš„æ¡ä»¶
 	//double phiscale, temp;
 	//for (int cId = 0; cId < ug.nTCell; cId++)
 	//{
@@ -984,7 +984,6 @@ void UINsInvterm::CmpINsMomRes()
 		iinv.res_u += (iinv.buc[ug.cId]+iinv.muc[ug.cId] - iinv.ump[ug.cId]* (iinv.spu[ug.cId]))*(iinv.buc[ug.cId]+iinv.muc[ug.cId]  - iinv.ump[ug.cId] * (iinv.spu[ug.cId]));
 		iinv.res_v += (iinv.bvc[ug.cId]+iinv.mvc[ug.cId] - iinv.vmp[ug.cId] * (iinv.spv[ug.cId]))*(iinv.bvc[ug.cId]+iinv.mvc[ug.cId] - iinv.vmp[ug.cId] * (iinv.spv[ug.cId]));
 		iinv.res_w += (iinv.bwc[ug.cId]+iinv.mwc[ug.cId] - iinv.wmp[ug.cId] * (iinv.spw[ug.cId]))*(iinv.bwc[ug.cId]+iinv.mwc[ug.cId] - iinv.wmp[ug.cId] * (iinv.spw[ug.cId]));
-
 	}
 
 	iinv.res_u = sqrt(iinv.res_u);
@@ -1024,10 +1023,9 @@ void UINsInvterm::AddFlux()
 			(*res)[iEqu][ug.lc] -= (*iinvflux)[iEqu][ug.fId];
 			(*res)[iEqu][ug.rc] += (*iinvflux)[iEqu][ug.fId];
 		}
-	}
+  }
 
 	//ONEFLOW::AddF2CField(res, iinvflux);
-
 }
 
 void UINsInvterm::CmpCorrectPresscoef()
@@ -1089,11 +1087,11 @@ void UINsInvterm::CmpCorrectPresscoef()
 	{
 		ug.cId = cId;
 
-		//iinv.VdU[ug.cId] = -(*ug.cvol)[ug.cId] / ((1 + 1)*iinv.spu[ug.cId] - iinv.sju[ug.cId]); //ÓÃÓÚÇóµ¥ÔªĞŞÕıËÙ¶ÈÁ¿;
+		//iinv.VdU[ug.cId] = -(*ug.cvol)[ug.cId] / ((1 + 1)*iinv.spu[ug.cId] - iinv.sju[ug.cId]); //ç”¨äºæ±‚å•å…ƒä¿®æ­£é€Ÿåº¦é‡;
 		//iinv.VdV[ug.cId] = -(*ug.cvol)[ug.cId] / ((1 + 1)*iinv.spv[ug.cId] - iinv.sjv[ug.cId]);
 		//iinv.VdW[ug.cId] = -(*ug.cvol)[ug.cId] / ((1 + 1)*iinv.spw[ug.cId] - iinv.sjw[ug.cId]);
 
-		iinv.VdU[ug.cId] = -(*ug.cvol)[ug.cId] / ((1+1)*iinv.spc[ug.cId]); //ÓÃÓÚÇóµ¥ÔªĞŞÕıËÙ¶ÈÁ¿;
+		iinv.VdU[ug.cId] = -(*ug.cvol)[ug.cId] / ((1+1)*iinv.spc[ug.cId]); //ç”¨äºæ±‚å•å…ƒä¿®æ­£é€Ÿåº¦é‡;
 		iinv.VdV[ug.cId] = -(*ug.cvol)[ug.cId] / ((1 + 1)*iinv.spc[ug.cId]);
 		iinv.VdW[ug.cId] = -(*ug.cvol)[ug.cId] / ((1 + 1)*iinv.spc[ug.cId]);
 
@@ -1116,7 +1114,7 @@ void UINsInvterm::CmpCorrectPresscoef()
 
 			if (ug.cId == ug.lc)
 			{
-				iinv.sjp[ug.cId][iFace] = -iinv.ajp[ug.fId]; //Çó½âÑ¹Á¦ĞŞÕı·½³ÌµÄ·ÇÁãÏµÊı
+				iinv.sjp[ug.cId][iFace] = -iinv.ajp[ug.fId]; //æ±‚è§£å‹åŠ›ä¿®æ­£æ–¹ç¨‹çš„éé›¶ç³»æ•°
 				iinv.sjd[ug.cId][iFace] = ug.rc;
 
 				//cout << "iinv.sjp=" << iinv.sjp[ug.cId][iFace] << "iinv.sjd=" << ug.rc << "\n";
@@ -1211,7 +1209,7 @@ void UINsInvterm::CmpNewMomCoe()
 	//{
 	//	ug.cId = cId;
 
-	//	iinv.spu[ug.cId] = iinv.bi1[ug.cId] + iinv.bi2[ug.cId] + iinv.aku1[ug.cId] + iinv.aku2[ug.cId] + iinv.spt[ug.cId]; //¾ØÕóÖ÷¶Ô½ÇÏßÏµÊı£¬¶¯Á¿·½³Ìµ¥ÔªÖ÷ÏµÊı
+	//	iinv.spu[ug.cId] = iinv.bi1[ug.cId] + iinv.bi2[ug.cId] + iinv.aku1[ug.cId] + iinv.aku2[ug.cId] + iinv.spt[ug.cId]; //çŸ©é˜µä¸»å¯¹è§’çº¿ç³»æ•°ï¼ŒåŠ¨é‡æ–¹ç¨‹å•å…ƒä¸»ç³»æ•°
 	//	iinv.spv[ug.cId] = iinv.bi1[ug.cId] + iinv.bi2[ug.cId] + iinv.akv1[ug.cId] + iinv.akv2[ug.cId] + iinv.spt[ug.cId];
 	//	iinv.spw[ug.cId] = iinv.bi1[ug.cId] + iinv.bi2[ug.cId] + iinv.akw1[ug.cId] + iinv.akw2[ug.cId] + iinv.spt[ug.cId];
 	//}
@@ -1244,14 +1242,14 @@ void UINsInvterm::CmpPressCorrectEqu()
 				ug.rc = (*ug.rcf)[ug.fId];
 				if (ug.cId == ug.lc)
 				{
-					iinv.mp[ug.cId] += -iinv.sjp[ug.cId][iFace] * iinv.pp[ug.rc]; //¸ßË¹Èü´÷¶ûµü´úÇó½âÊ±µÄÏàÁÚµ¥ÔªµÄÖµ£¬¾ØÕó·¨²»ĞèÒª
+					iinv.mp[ug.cId] += -iinv.sjp[ug.cId][iFace] * iinv.pp[ug.rc]; //é«˜æ–¯èµ›æˆ´å°”è¿­ä»£æ±‚è§£æ—¶çš„ç›¸é‚»å•å…ƒçš„å€¼ï¼ŒçŸ©é˜µæ³•ä¸éœ€è¦
 				}
 				else if (ug.cId == ug.rc)
 				{
 					iinv.mp[ug.cId] += -iinv.sjp[ug.cId][iFace] * iinv.pp[ug.lc];
 				}
 			}
-			iinv.pp[ug.cId] = (iinv.bp[ug.cId] + iinv.mp[ug.cId]) / (iinv.spp[ug.cId]); //Ñ¹Á¦ĞŞÕıÖµ
+			iinv.pp[ug.cId] = (iinv.bp[ug.cId] + iinv.mp[ug.cId]) / (iinv.spp[ug.cId]); //å‹åŠ›ä¿®æ­£å€¼
 
 			iinv.res_p = MAX(iinv.res_p, abs(iinv.ppd - iinv.pp[ug.cId]));
 
@@ -1285,19 +1283,19 @@ void UINsInvterm::CmpPressCorrectEqu()
 		(*uinsf.q)[IIDX::IIP][ug.rc] = (*uinsf.q)[IIDX::IIP][ug.lc];
 	}*/
 
-		//BGMRESÇó½â
+		//BGMRESæ±‚è§£
 	NonZero.Number = 0;
 
 	for (int cId = 0; cId < ug.nTCell; ++cId)
 	{   
-		//ug.cId = cId;                                                                  // Ö÷µ¥Ôª±àºÅ
-		int fn = (*ug.c2f)[cId].size();                                                                 // µ¥ÔªÏàÁÚÃæµÄ¸öÊı
+		//ug.cId = cId;                                                                  // ä¸»å•å…ƒç¼–å·
+		int fn = (*ug.c2f)[cId].size();                                                                 // å•å…ƒç›¸é‚»é¢çš„ä¸ªæ•°
 		NonZero.Number += fn;
 	}
-	NonZero.Number = NonZero.Number + ug.nTCell;                                                        // ·ÇÁãÔªËØµÄ¼ÆÊı
-	Rank.RANKNUMBER = ug.nTCell;                                                                        // ¾ØÕóµÄĞĞÁĞ
+	NonZero.Number = NonZero.Number + ug.nTCell;                                                        // éé›¶å…ƒç´ çš„è®¡æ•°
+	Rank.RANKNUMBER = ug.nTCell;                                                                        // çŸ©é˜µçš„è¡Œåˆ—
 	Rank.COLNUMBER = 1;
-	Rank.NUMBER = NonZero.Number;                                                                      // ¾ØÕó·ÇÁãÔªËØ¸öÊı
+	Rank.NUMBER = NonZero.Number;                                                                      // çŸ©é˜µéé›¶å…ƒç´ ä¸ªæ•°
 	Rank.Init();
 	double residual_p;
 	for (int cId = 0; cId < ug.nTCell; ++cId)
@@ -1306,28 +1304,28 @@ void UINsInvterm::CmpPressCorrectEqu()
 		Rank.TempIA[0] = 0;
 		int n = Rank.TempIA[cId];
 		int fn = (*ug.c2f)[cId].size();
-		Rank.TempIA[cId + 1] = Rank.TempIA[cId] + fn + 1;                  // Ç°n+1ĞĞ·ÇÁãÔªËØµÄ¸öÊı
+		Rank.TempIA[cId + 1] = Rank.TempIA[cId] + fn + 1;                  // å‰n+1è¡Œéé›¶å…ƒç´ çš„ä¸ªæ•°
 		for (int iFace = 0; iFace < fn; ++iFace)
 		{
-			int fId = (*ug.c2f)[cId][iFace];                           // ÏàÁÚÃæµÄ±àºÅ
+			int fId = (*ug.c2f)[cId][iFace];                           // ç›¸é‚»é¢çš„ç¼–å·
 			ug.fId = fId;
-			ug.lc = (*ug.lcf)[fId];                                    // Ãæ×ó²àµ¥Ôª
-			ug.rc = (*ug.rcf)[fId];                                    // ÃæÓÒ²àµ¥Ôª
+			ug.lc = (*ug.lcf)[fId];                                    // é¢å·¦ä¾§å•å…ƒ
+			ug.rc = (*ug.rcf)[fId];                                    // é¢å³ä¾§å•å…ƒ
 			if (cId == ug.lc)
 			{
-				Rank.TempA[n + iFace] = iinv.sjp[cId][iFace];          //·Ç¶Ô½ÇÏßÔªËØÖµ
-				Rank.TempJA[n + iFace] = ug.rc;                           //·Ç¶Ô½ÇÏßÔªËØ×İ×ø±ê
+				Rank.TempA[n + iFace] = iinv.sjp[cId][iFace];          //éå¯¹è§’çº¿å…ƒç´ å€¼
+				Rank.TempJA[n + iFace] = ug.rc;                           //éå¯¹è§’çº¿å…ƒç´ çºµåæ ‡
 			}
 			else if (cId == ug.rc)
 			{
-				Rank.TempA[n + iFace] = iinv.sjp[cId][iFace];          //·Ç¶Ô½ÇÏßÔªËØÖµ
-				Rank.TempJA[n + iFace] = ug.lc;                           //·Ç¶Ô½ÇÏßÔªËØ×İ×ø±ê
+				Rank.TempA[n + iFace] = iinv.sjp[cId][iFace];          //éå¯¹è§’çº¿å…ƒç´ å€¼
+				Rank.TempJA[n + iFace] = ug.lc;                           //éå¯¹è§’çº¿å…ƒç´ çºµåæ ‡
 			}
 		}
-		Rank.TempA[n + fn] = iinv.spp[cId];                            //Ö÷¶Ô½ÇÏßÔªËØ
-		Rank.TempJA[n + fn] = cId;                                        //Ö÷¶Ô½ÇÏß×İ×ø±ê
+		Rank.TempA[n + fn] = iinv.spp[cId];                            //ä¸»å¯¹è§’çº¿å…ƒç´ 
+		Rank.TempJA[n + fn] = cId;                                        //ä¸»å¯¹è§’çº¿çºµåæ ‡
 
-		Rank.TempB[cId][0] = iinv.bp[cId];                             //ÓÒ¶ËÏî
+		Rank.TempB[cId][0] = iinv.bp[cId];                             //å³ç«¯é¡¹
 	}
 	bgx.BGMRES();
 	residual_p = Rank.residual;
@@ -1335,7 +1333,7 @@ void UINsInvterm::CmpPressCorrectEqu()
 	for (int cId = 0; cId < ug.nTCell; cId++)
 	{
 		//ug.cId = cId;
-		iinv.pp[cId] = Rank.TempX[cId][0]; //µ±Ç°Ê±¿ÌµÄÑ¹Á¦ĞŞÕıÖµ
+		iinv.pp[cId] = Rank.TempX[cId][0]; //å½“å‰æ—¶åˆ»çš„å‹åŠ›ä¿®æ­£å€¼
 	}
 
 	Rank.Deallocate();
@@ -1343,7 +1341,7 @@ void UINsInvterm::CmpPressCorrectEqu()
 	//iinv.res_p = 0;
 	//iinv.res_p = MAX(iinv.res_p, abs(iinv.ppd - iinv.pp[ug.cId]));
 
-	//±ß½çµ¥Ôª
+	//è¾¹ç•Œå•å…ƒ
 	for (int fId = 0; fId < ug.nBFace; ++fId)
 	{
 		ug.fId = fId;
@@ -1428,7 +1426,7 @@ void UINsInvterm::CmpPressCorrectEqu()
 			Real gamm1 = inscom.gama - one;
 
 			Real velin = DIST(uin, vin, win);
-			//³¬ÉùËÙ
+			//è¶…å£°é€Ÿ
 			if (velin > cin)
 			{
 				if (vnin >= 0.0)
@@ -1496,7 +1494,7 @@ for (int cId = 0; cId < ug.nCell; ++cId)
 
 	//for (int cId = 0; cId < ug.nTCell; cId++)
 	//{
-	//	iinv.pc[ug.cId] = inscom.prim[IIDX::IIP] + iinv.pp[ug.cId]; //ÏÂÒ»Ê±¿ÌµÄÑ¹Á¦Öµ
+	//	iinv.pc[ug.cId] = inscom.prim[IIDX::IIP] + iinv.pp[ug.cId]; //ä¸‹ä¸€æ—¶åˆ»çš„å‹åŠ›å€¼
 	//}
 	
 	/*ofstream fileres_p("residual_p.txt", ios::app);
@@ -1539,7 +1537,7 @@ void UINsInvterm::UpdateFaceflux()
 	ug.Init();
 	uinsf.Init();
 	//Alloc();
-	//this->CmpInvFace();  //±ß½ç´¦Àí
+	//this->CmpInvFace();  //è¾¹ç•Œå¤„ç†
 	for (int fId = ug.nBFace; fId < ug.nFace; ++fId)
 	{
 		ug.fId = fId;
@@ -1579,11 +1577,11 @@ void UINsInvterm::UpdateFaceflux()
 
 void UINsInvterm::CmpUpdateINsBcFaceflux()
 {
-	iinv.uuj[ug.fId] = 0; //ÃæËÙ¶ÈĞŞÕıÁ¿
+	iinv.uuj[ug.fId] = 0; //é¢é€Ÿåº¦ä¿®æ­£é‡
 	iinv.vvj[ug.fId] = 0;
 	iinv.wwj[ug.fId] = 0;
 
-	iinv.uf[ug.fId] = iinv.uf[ug.fId] + iinv.uuj[ug.fId]; //ÏÂÒ»Ê±¿ÌÃæËÙ¶È
+	iinv.uf[ug.fId] = iinv.uf[ug.fId] + iinv.uuj[ug.fId]; //ä¸‹ä¸€æ—¶åˆ»é¢é€Ÿåº¦
 	iinv.vf[ug.fId] = iinv.vf[ug.fId] + iinv.vvj[ug.fId];
 	iinv.wf[ug.fId] = iinv.wf[ug.fId] + iinv.wwj[ug.fId];
 
@@ -1597,11 +1595,11 @@ void UINsInvterm::CmpUpdateINsFaceflux()
 
 	iinv.dist = (*ug.xfn)[ug.fId] * ((*ug.xcc)[ug.rc] - (*ug.xcc)[ug.lc]) + (*ug.yfn)[ug.fId] * ((*ug.ycc)[ug.rc] - (*ug.ycc)[ug.lc]) + (*ug.zfn)[ug.fId] * ((*ug.zcc)[ug.rc] - (*ug.zcc)[ug.lc]);
 
-	iinv.uuj[ug.fId] = iinv.Vdvu[ug.fId] * (iinv.pp[ug.lc] - iinv.pp[ug.rc]) * (*ug.xfn)[ug.fId] / iinv.dist; //ÃæËÙ¶ÈĞŞÕıÁ¿
+	iinv.uuj[ug.fId] = iinv.Vdvu[ug.fId] * (iinv.pp[ug.lc] - iinv.pp[ug.rc]) * (*ug.xfn)[ug.fId] / iinv.dist; //é¢é€Ÿåº¦ä¿®æ­£é‡
 	iinv.vvj[ug.fId] = iinv.Vdvv[ug.fId] * (iinv.pp[ug.lc] - iinv.pp[ug.rc]) * (*ug.yfn)[ug.fId] / iinv.dist;
 	iinv.wwj[ug.fId] = iinv.Vdvw[ug.fId] * (iinv.pp[ug.lc] - iinv.pp[ug.rc]) * (*ug.zfn)[ug.fId] / iinv.dist;
 
-	iinv.uf[ug.fId] = iinv.uf[ug.fId] + iinv.uuj[ug.fId]; //ÏÂÒ»Ê±¿ÌÃæËÙ¶È
+	iinv.uf[ug.fId] = iinv.uf[ug.fId] + iinv.uuj[ug.fId]; //ä¸‹ä¸€æ—¶åˆ»é¢é€Ÿåº¦
 	iinv.vf[ug.fId] = iinv.vf[ug.fId] + iinv.vvj[ug.fId];
 	iinv.wf[ug.fId] = iinv.wf[ug.fId] + iinv.wwj[ug.fId];
 
@@ -1618,11 +1616,11 @@ void UINsInvterm::UpdateSpeed()
 	{
 		ug.cId = cId;
 
-		iinv.uu[ug.cId] = iinv.VdU[ug.cId] * iinv.dqqdx[ug.cId]*0.8; //ËÙ¶ÈĞŞÕıÁ¿
+		iinv.uu[ug.cId] = iinv.VdU[ug.cId] * iinv.dqqdx[ug.cId]*0.8; //é€Ÿåº¦ä¿®æ­£é‡
 		iinv.vv[ug.cId] = iinv.VdV[ug.cId] * iinv.dqqdy[ug.cId]*0.8;
 		iinv.ww[ug.cId] = iinv.VdW[ug.cId] * iinv.dqqdz[ug.cId]*0.8;
 
-		iinv.up[ug.cId] = iinv.uc[cId] + iinv.uu[ug.cId];  //ÏÂÒ»Ê±¿ÌµÄËÙ¶ÈÖµ
+		iinv.up[ug.cId] = iinv.uc[cId] + iinv.uu[ug.cId];  //ä¸‹ä¸€æ—¶åˆ»çš„é€Ÿåº¦å€¼
 		iinv.vp[ug.cId] = iinv.vc[cId] + iinv.vv[ug.cId];
 		iinv.wp[ug.cId] = iinv.wc[cId] + iinv.ww[ug.cId];
 
@@ -1752,7 +1750,7 @@ void UINsInvterm::UpdateSpeed()
 
 			Real velin = DIST(uin, vin, win);
 
-			//³¬ÉùËÙ
+			//è¶…å£°é€Ÿ
 			if (velin > cin)
 			{
 				if (vnin >= 0.0)
@@ -1834,11 +1832,11 @@ void UINsInvterm::UpdateSpeed()
 	{
 		ug.cId = cId;
 
-		iinv.uu[ug.cId] = 0; //ËÙ¶ÈĞŞÕıÁ¿
+		iinv.uu[ug.cId] = 0; //é€Ÿåº¦ä¿®æ­£é‡
 		iinv.vv[ug.cId] = 0;
 		iinv.ww[ug.cId] = 0;
 
-		iinv.up[ug.cId] = iinv.uc[cId] + iinv.uu[ug.cId];  //ÏÂÒ»Ê±¿ÌµÄËÙ¶ÈÖµ
+		iinv.up[ug.cId] = iinv.uc[cId] + iinv.uu[ug.cId];  //ä¸‹ä¸€æ—¶åˆ»çš„é€Ÿåº¦å€¼
 		iinv.vp[ug.cId] = iinv.vc[cId] + iinv.vv[ug.cId];
 		iinv.wp[ug.cId] = iinv.wc[cId] + iinv.ww[ug.cId];
 
@@ -1923,14 +1921,14 @@ void UINsInvterm::UpdateINsRes()
 
 			if (ug.cId == ug.lc)
 			{
-				iinv.mu[ug.cId] += -iinv.ai[ug.fId][0] * (iinv.up[ug.rc] - iinv.uc[ug.rc]);  //¾ØÕó·ÇÁãÏµÊı£¬¶¯Á¿·½³ÌÖĞÓëÖ÷µ¥ÔªÏàÁÚµÄµ¥ÔªÃæÍ¨Á¿
+				iinv.mu[ug.cId] += -iinv.ai[ug.fId][0] * (iinv.up[ug.rc] - iinv.uc[ug.rc]);  //çŸ©é˜µéé›¶ç³»æ•°ï¼ŒåŠ¨é‡æ–¹ç¨‹ä¸­ä¸ä¸»å•å…ƒç›¸é‚»çš„å•å…ƒé¢é€šé‡
 				iinv.mv[ug.cId] += -iinv.ai[ug.fId][0] * (iinv.vp[ug.rc] - iinv.vc[ug.rc]);
 				iinv.mw[ug.cId] += -iinv.ai[ug.fId][0] * (iinv.wp[ug.rc] - iinv.wc[ug.rc]);
 				//iinv.mpp[ug.cId] += -iinv.ajp[ug.fId] * iinv.pp[ug.rc];
 			}
 			else if (ug.cId == ug.rc)
 			{
-				iinv.mu[ug.cId] += -iinv.ai[ug.fId][1] * (iinv.up[ug.lc] - iinv.uc[ug.lc]);  //¾ØÕó·ÇÁãÏµÊı£¬¶¯Á¿·½³ÌÖĞÓëÖ÷µ¥ÔªÏàÁÚµÄµ¥ÔªÃæÍ¨Á¿
+				iinv.mu[ug.cId] += -iinv.ai[ug.fId][1] * (iinv.up[ug.lc] - iinv.uc[ug.lc]);  //çŸ©é˜µéé›¶ç³»æ•°ï¼ŒåŠ¨é‡æ–¹ç¨‹ä¸­ä¸ä¸»å•å…ƒç›¸é‚»çš„å•å…ƒé¢é€šé‡
 				iinv.mv[ug.cId] += -iinv.ai[ug.fId][1] * (iinv.vp[ug.lc] - iinv.vc[ug.lc]);
 				iinv.mw[ug.cId] += -iinv.ai[ug.fId][1] * (iinv.wp[ug.lc] - iinv.wc[ug.lc]);
 				//iinv.mpp[ug.cId] += -iinv.ajp[ug.fId] * iinv.pp[ug.lc];
@@ -2069,8 +2067,7 @@ void UINsInvterm::CmpPreGrad()
 
 void UINsInvterm::Alloc()
 {
-	//iinvflux = new MRField(inscom.nEqu, ug.nFace);
-
+	//iinvflux = new MRField(nscom.nEqu, ug.nFace);
 }
 
 void UINsInvterm::DeAlloc()

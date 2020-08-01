@@ -104,21 +104,10 @@ public:
 	void CmpINsBcFaceflux();
 	void CmpINsFaceCorrectPresscoef();
 	void CmpINsBcFaceCorrectPresscoef();
-	//void Roe      ();
-    //void RoeOld   (){};
-    //void HybridRoe(){};
-    //void Vanleer  ();
-    //void Steger   ();
-    //void Hlle     ();
-    //void LaxFriedrichs();
-    //void Ausmp    ();
-    //void AusmpUp  ();
-    //void Ausmdv   ();
-    //void Ausmw    ();
-    //void Ausmpw   ();
-    //void Slau2();
+	//void CalcINsinvTerm();
+	//void CalcINsFaceflux();
+	//void CalcINsFaceCorrectPresscoef();
 public:
-   // void ModifyAbsoluteEigenvalue();
 };
 
 void INsCmpEnthalpy( RealField & prim, Real gama, Real & enthalpy );
