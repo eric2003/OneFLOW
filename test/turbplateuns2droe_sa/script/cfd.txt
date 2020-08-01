@@ -1,0 +1,52 @@
+int   startStrategy  = 0；
+int    iexitflag  = 0; //0 maxstep 1 maxtime;
+int    maxSteps   =  50; //总模拟步数
+Real   maxTime    =  0.2;    //总模拟时间
+
+//输出相关										      
+int    nFieldSave       =  50;   //流场保存
+int    nForceSave      =  1;
+int    nResSave          =  1;    //残差及气动力输出
+int    nVisualSave      =  50;    //流场显示
+int    addVisualizationSteps               =  0;     //1: 文件名+外迭代步，0不加
+
+string gridFileName = "grid/turbplate20182d.ofl";
+string aeroFile   =  "results/aero.dat";
+string resFile    =  "results/res.dat";
+string wallaeroFile=  "results/wallaero.dat";
+string heatfluxFile=  "results/heatflux.dat";
+string visualFile =  "visual/visual.dat";
+string flowFile   =  "restart/flow.dat";
+
+int showfield = 0; //0 no 1 show
+
+int nTEqu = 5;
+int nEqu  = 5;
+int nTModel = 1;
+
+int timestepModel = 0; //0 local 1 global 2 lg
+Real global_dt = 0.001;
+Real cflst = 0.1;
+Real cfled = 10.0;
+int  ncfl = 100;
+Real max_time_ratio = 1.0e10;
+
+int visSRModel = 2;
+int visTimeStepModel = 1;
+int chemModel = 0;
+int nTModel = 1;
+
+int idualtime           =  0;
+int time_integral      =  2;      //1--RK; 2--LU-SGS;
+int rk_stage             =  1;
+int linearTwoStepMethods  =  1;      //1--BDF1; 2--C-N; 1--BDF2;
+
+int ischeme   = 1; //1 roe 2 vanleer 3 steger 4 hlle 5 lax 6 ausmp 7 ausmp+ 8 ausmdv 9 ausmw 10 ausmpw
+int ivischeme = 0; //0 std 1 aver 2 test 3 new1 4 new2 
+int ieigenfix = 1;
+Real centropy1 = 0.0001;
+Real centropy2 = 0.0001;
+
+int idump = 2;  //0 no 1 laminar plate 2 turb plate
+int ilim  = 0; // -1 0 order 0 no 1 barth 2 vencat
+Real vencat_coef = 0.0001

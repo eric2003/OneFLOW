@@ -1,0 +1,6 @@
+﻿results/aero.dat
+results/wallaero.dat
+results/res.dat
+results/turbres.dat
+results/turbplate_cf.dat
+results/turbplateflow.dat
