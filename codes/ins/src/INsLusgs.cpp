@@ -21,6 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "INsLusgs.h"
+#include "NsLusgs.h"
 #include "INsCom.h"
 #include "INsIdx.h"
 #include "HXMath.h"
@@ -30,35 +31,35 @@ using namespace std;
 
 BeginNameSpace( ONEFLOW )
 
-ILusgsData nslu;
-
-ILusgsData::ILusgsData()
-{
-    ;
-}
-
-ILusgsData::~ILusgsData()
-{
-    ;
-}
-
-void ILusgsData::Init()
-{
-    nEqu = nscom.nEqu;
-    nBEqu = nEqu;
-
-    radius.resize( nEqu );
-    dqj.resize( nEqu );
-    dqi.resize( nEqu );
-    dqi0.resize( nEqu );
-    primj.resize( nEqu );
-    primF.resize( nEqu );
-    rhs0.resize( nEqu );
-    dfj.resize( nEqu );
-    drhs.resize( nEqu );
-    rhs.resize( nEqu );
-    tmp.resize( nEqu );
-}
+//ILusgsData nslu;
+//
+//ILusgsData::ILusgsData()
+//{
+//    ;
+//}
+//
+//ILusgsData::~ILusgsData()
+//{
+//    ;
+//}
+//
+//void ILusgsData::Init()
+//{
+//    nEqu = nscom.nEqu;
+//    nBEqu = nEqu;
+//
+//    radius.resize( nEqu );
+//    dqj.resize( nEqu );
+//    dqi.resize( nEqu );
+//    dqi0.resize( nEqu );
+//    primj.resize( nEqu );
+//    primF.resize( nEqu );
+//    rhs0.resize( nEqu );
+//    dfj.resize( nEqu );
+//    drhs.resize( nEqu );
+//    rhs.resize( nEqu );
+//    tmp.resize( nEqu );
+//}
 
 INsLusgs::INsLusgs()
 {

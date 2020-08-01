@@ -25,44 +25,44 @@ License
 #include "Lusgs.h"
 BeginNameSpace( ONEFLOW )
 
-class ILusgsData
-{
-public:
-    ILusgsData();
-    ~ILusgsData();
-public:
-    void Init();
-public:
-    int  nEqu;
-    int  nBEqu;
-    int  numberOfSweeps;
-    int  numberOfRealSweeps;
-    bool keyPrim;
-    Real tol;
-    Real norm0, dqSweep, dmax;
-    Real norm;
-    Real gama, rad;
+//class ILusgsData
+//{
+//public:
+//    ILusgsData();
+//    ~ILusgsData();
+//public:
+//    void Init();
+//public:
+//    int  nEqu;
+//    int  nBEqu;
+//    int  numberOfSweeps;
+//    int  numberOfRealSweeps;
+//    bool keyPrim;
+//    Real tol;
+//    Real norm0, dqSweep, dmax;
+//    Real norm;
+//    Real gama, rad;
+//
+//    Real lmdOnFace1;
+//    Real lmdOnFace2;
+//    Real lmdOnFace3;
+//
+//    Real visrad;
+//
+//    RealField radius;
+//    RealField dqj;    //dq of neighbor cell
+//    RealField dqi;    //dq of this unit
+//    RealField dqi0;   //The previous DQ of this unit (used for normal)
+//    RealField primj;   //邻居单元的原始变量
+//    RealField primF;   //面元上的原始变量
+//    RealField rhs0;   //隐式残差增量
+//    RealField dfj;   //临时数组，用于求隐式残差增量
+//    RealField drhs;   //用于nsweep>1的情况
+//    RealField rhs ;   //方程n时刻的右端项
+//    RealField tmp; //临时数组
+//};
 
-    Real lmdOnFace1;
-    Real lmdOnFace2;
-    Real lmdOnFace3;
-
-    Real visrad;
-
-    RealField radius;
-    RealField dqj;    //dq of neighbor cell
-    RealField dqi;    //dq of this unit
-    RealField dqi0;   //The previous DQ of this unit (used for normal)
-    RealField primj;   //邻居单元的原始变量
-    RealField primF;   //面元上的原始变量
-    RealField rhs0;   //隐式残差增量
-    RealField dfj;   //临时数组，用于求隐式残差增量
-    RealField drhs;   //用于nsweep>1的情况
-    RealField rhs ;   //方程n时刻的右端项
-    RealField tmp; //临时数组
-};
-
-extern ILusgsData nslu;
+//extern ILusgsData nslu;
 
 class INsLusgs : public LusgsSolver
 {

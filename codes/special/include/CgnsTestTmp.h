@@ -30,12 +30,12 @@ using namespace std;
 
 BeginNameSpace( ONEFLOW )
 
-void init_data();
-void write_structured();
-void write_unstructured();
-void write_mixed();
-void write_mismatched();
-void SetCgFile( int cgfileIn );
-int GetCgFile();
+//void init_data();
+//void write_structured();
+//void write_unstructured();
+//void write_mixed();
+//void write_mismatched();
+//void SetCgFile( int cgfileIn );
+//int GetCgFile();
 
 EndNameSpace

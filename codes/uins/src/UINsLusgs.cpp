@@ -21,6 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "UINsLusgs.h"
+#include "NsLusgs.h"
 #include "UINsSpectrum.h"
 #include "UCom.h"
 #include "UINsCom.h"

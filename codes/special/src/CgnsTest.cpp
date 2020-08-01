@@ -1,4 +1,4 @@
-/*-----------------------this->----------------------------------------------------*\
+/*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
     Copyright (C) 2017-2020 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
@@ -446,18 +446,18 @@ void CgnsTest::ReadFlowEqn()
 
 void CgnsTest::WriteTest()
 {
-    init_data();
-    int cgfile;
+    //init_data();
+    //int cgfile;
 
-    cg_open( this->fileName.c_str(), CG_MODE_WRITE, &cgfile );
-    SetCgFile( cgfile );
+    //cg_open( this->fileName.c_str(), CG_MODE_WRITE, &cgfile );
+    //SetCgFile( cgfile );
 
-    write_structured();
-    write_unstructured();
-    write_mixed();
-    write_mismatched();
+    //write_structured();
+    //write_unstructured();
+    //write_mixed();
+    //write_mismatched();
 
-    cg_close( GetCgFile() );
+    //cg_close( GetCgFile() );
 }
 
 EndNameSpace
