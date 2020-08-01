@@ -1,0 +1,9 @@
+"script/simu.txt";
+"script/dimension.txt";
+"script/tolerence.txt";
+"script/cfd.txt";
+"script/vismodel.txt";
+"script/multigrid.txt";
+"script/inflow.txt";
+"script/turb.txt";
+"script/walldist.txt";
