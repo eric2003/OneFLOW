@@ -1,0 +1,14 @@
+prefix=C:/Program
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
+
+Name: hdf5
+Description: HDF5 (Hierarchical Data Format 5) Software Library
+Version: 1.10.6
+
+Cflags: -I${includedir}
+Libs: -L${libdir}  -lhdf5
+Requires: 
+Libs.private:  -lhdf5::zlib-static -lhdf5::szip-static  -lhdf5
+Requires.private: 

@@ -1,0 +1,77 @@
+# makefile include for building CGNS code
+# this file contains the options and libraries used for
+# building and linking CGNS code, and is intended to be
+# included in a user's Makefile from the installation
+
+#-----------------------------------------------------------------------
+# CGNS library build options. A 1 indicates that the library
+# was built with that option, a 0 indicates without
+# CGNS_DEBUG     = debug
+# CGNS_LEGACY    = legacy code (prior to 3.0)
+# CGNS_SCOPING   = scoping of enums
+# CGNS_64BIT     = 64 bit support
+# CGNS_FORTRAN   = Fortran interface
+# CGNS_PARALLEL  = parallel I/O
+# CGNS_BASESCOPE = Base scope for family and zone reference-to
+#-----------------------------------------------------------------------
+
+CGNS_DEBUG     = 0
+CGNS_LEGACY    = 0
+CGNS_SCOPING   = 1
+CGNS_64BIT     = 0
+CGNS_FORTRAN   = 0
+CGNS_PARALLEL  = 0
+CGNS_BASESCOPE = 0
+
+#-----------------------------------------------------------------------
+# CGNS_LIBDIR     - installation directory for CGNS library
+# CGNS_INCLUDEDIR - installation directory for CGNS headers
+#-----------------------------------------------------------------------
+
+CGNS_LIBDIR     = D:\git\CppProgram\ThirdPartyLib\vs2017\x86\cgns\lib
+CGNS_INCLUDEDIR = D:\git\CppProgram\ThirdPartyLib\vs2017\x86\cgns\include
+
+#-----------------------------------------------------------------------
+# CGNS_CC      - C compiler used to build library
+# CGNS_CFLAGS  - compiler flags used to build library
+# CGNS_LDFLAGS - any additional linking flags
+#-----------------------------------------------------------------------
+
+CGNS_CC      = C:\Program Files (x86)\Microsoft Visual Studio\2017\Professional\VC\Tools\MSVC\14.16.27023\bin\Hostx86\x86\cl.exe
+CGNS_CFLAGS  = /DWIN32 /D_WINDOWS /W3;/MD /O2 /Ob2 /DNDEBUG  
+CGNS_LDFLAGS = /machine:X86;/INCREMENTAL:NO
+
+#-----------------------------------------------------------------------
+# LIBCGNS - CGNS library name
+#-----------------------------------------------------------------------
+
+CGNS_LIB = $(CGNS_LIBDIR)/cgns.lib
+
+#-----------------------------------------------------------------------
+# CGNS_HDF5INC - path to HDF5 header files
+# CGNS_HDF5LIB - HDF5 library
+# CGNS_SZIPLIB - szip library (if needed)
+# CGNS_ZLIBLIB - zlib library (if needed)
+#-----------------------------------------------------------------------
+
+CGNS_HDF5INC = 
+CGNS_HDF5LIB = 
+CGNS_SZIPLIB = 
+CGNS_ZLIBLIB = 
+
+#-----------------------------------------------------------------------
+# CGNS_MPIINC  - path to MPI header files
+# CGNS_MPILIBS - MPI libraries
+#-----------------------------------------------------------------------
+
+CGNS_MPIINC  = 
+CGNS_MPILIBS = 
+
+#-----------------------------------------------------------------------
+# CGNS_LINKLIBS contains the list of libraries
+#               with which a CGNS application needs to link
+#-----------------------------------------------------------------------
+
+CGNS_LINKLIBS = $(CGNS_LIB) $(CGNS_HDF5LIB) $(CGNS_SZIPLIB) \
+	$(CGNS_ZLIBLIB) $(CGNS_MPILIBS) 
+
