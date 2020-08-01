@@ -54,13 +54,13 @@ void INsSolver::StaticInit()
     this->sTid = ONEFLOW::INC_NS_SOLVER;
 
     ins_ctrl.Init();
-    inscom.Init();
+    nscom.Init();
     string fileName = "grid/ins_bc.txt";
     ins_bc_data.Init( fileName );
 
     SolverInfo * solverInfo = SolverInfoFactory::GetSolverInfo( this->sTid );
-    solverInfo->nEqu  = inscom.nEqu;
-    solverInfo->nTEqu = inscom.nTEqu;
+    solverInfo->nEqu  = nscom.nEqu;
+    solverInfo->nTEqu = nscom.nTEqu;
 
     solverInfo->registerInterface = 0;
     solverInfo->residualName = "res";

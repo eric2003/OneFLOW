@@ -44,7 +44,7 @@ ILusgsData::~ILusgsData()
 
 void ILusgsData::Init()
 {
-    nEqu = inscom.nEqu;
+    nEqu = nscom.nEqu;
     nBEqu = nEqu;
 
     radius.resize( nEqu );

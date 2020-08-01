@@ -97,27 +97,7 @@ public:
 	void CalcINsinvTerm();
 	void CalcINsFaceflux();
 	void CalcINsFaceCorrectPresscoef();
-	//void Roe      ();
-    //void RoeOld   (){};
-    //void HybridRoe(){};
-    //void Vanleer  ();
-    //void Steger   ();
-    //void Hlle     ();
-    //void LaxFriedrichs();
-    //void Ausmp    ();
-    //void AusmpUp  ();
-    //void Ausmdv   ();
-    //void Ausmw    ();
-    //void Ausmpw   ();
-    //void Slau2();
 public:
-   // void ModifyAbsoluteEigenvalue();
 };
-
-void INsCalcEnthalpy( RealField & prim, Real gama, Real & enthalpy );
-void INsCalcTotalEnthalpyChange( RealField & prim, Real & gama, RealField & dq, Real & dh );
-void INsPrimToQ( RealField & prim, Real gama, RealField & q );
-void INsQToPrim( RealField & q, Real gama, RealField & prim, RealField & temp );
-void INsCalcInternalEnergy( RealField & prim, Real gama, Real & em );
 
 EndNameSpace

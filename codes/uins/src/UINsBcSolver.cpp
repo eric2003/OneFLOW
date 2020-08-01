@@ -79,13 +79,13 @@ void UINsBcSolver::SetId( int bcfId )
     ug.lc = ( * ug.lcf )[ ug.fId ];
     ug.rc = ( * ug.rcf )[ ug.fId ];
 
-    inscom.bcdtkey = 0;
+    nscom.bcdtkey = 0;
     if ( ug.bcNameId == -1 ) return; //interface
     int dd = ins_bc_data.r2d[ ug.bcNameId ];
     if ( dd != - 1 )
     {
-        inscom.bcdtkey = 1;
-        inscom.bcflow = & ins_bc_data.dataList[ dd ];
+        nscom.bcdtkey = 1;
+        nscom.bcflow = & ins_bc_data.dataList[ dd ];
     }
 
 }
@@ -108,14 +108,14 @@ void UINsBcSolver::UpdateBc()
 {
     if ( ! this->updateFlag ) return;
 
-    for ( int iEqu = 0; iEqu < inscom.nTEqu; ++ iEqu )
+    for ( int iEqu = 0; iEqu < nscom.nTEqu; ++ iEqu )
     {
-        ( * uinsf.q )[ iEqu ][ ug.rc ] = inscom.primt1[ iEqu ];
+        ( * uinsf.q )[ iEqu ][ ug.rc ] = nscom.primt1[ iEqu ];
     }
 
-    for ( int iEqu = 0; iEqu < inscom.nTEqu; ++ iEqu )
+    for ( int iEqu = 0; iEqu < nscom.nTEqu; ++ iEqu )
     {
-        ( * uinsf.bc_q )[ iEqu ][ ug.fId ] = inscom.prim[ iEqu ];
+        ( * uinsf.bc_q )[ iEqu ][ ug.fId ] = nscom.prim[ iEqu ];
     }
 }
 
@@ -132,14 +132,14 @@ void UINsBcSolver::PrepareData()
     gcom.vfn   = ( * ug.vfn   )[ ug.fId ];
     gcom.farea = ( * ug.farea )[ ug.fId ];
 
-    for ( int iEqu = 0; iEqu < inscom.nTEqu; ++ iEqu )
+    for ( int iEqu = 0; iEqu < nscom.nTEqu; ++ iEqu )
     {
-        inscom.q1[ iEqu ] = ( * uinsf.q )[ iEqu ][ ug.lc ];
-        inscom.q2[ iEqu ] = ( * uinsf.q )[ iEqu ][ ug.lc ];
+        nscom.q1[ iEqu ] = ( * uinsf.q )[ iEqu ][ ug.lc ];
+        nscom.q2[ iEqu ] = ( * uinsf.q )[ iEqu ][ ug.lc ];
     }
 
-    inscom.gama1 = ( * uinsf.gama )[ 0 ][ ug.lc ];
-    inscom.gama2 = ( * uinsf.gama )[ 0 ][ ug.lc ];
+    nscom.gama1 = ( * uinsf.gama )[ 0 ][ ug.lc ];
+    nscom.gama2 = ( * uinsf.gama )[ 0 ][ ug.lc ];
 
     gcom.xcc1 = ( * ug.xcc )[ ug.lc ];
     gcom.ycc1 = ( * ug.ycc )[ ug.lc ];
@@ -153,16 +153,16 @@ void UINsBcSolver::PrepareData()
     gcom.yfc =  ( * ug.yfc )[ ug.fId ];
     gcom.zfc =  ( * ug.zfc )[ ug.fId ];
 
-    for ( int iEqu = 0; iEqu < inscom.nTEqu; ++ iEqu )
+    for ( int iEqu = 0; iEqu < nscom.nTEqu; ++ iEqu )
     {
-        inscom.prims1[ iEqu ] = ( * uinsf.q )[ iEqu ][ ug.lc ];
-        inscom.prims2[ iEqu ] = ( * uinsf.q )[ iEqu ][ ug.lc ];
+        nscom.prims1[ iEqu ] = ( * uinsf.q )[ iEqu ][ ug.lc ];
+        nscom.prims2[ iEqu ] = ( * uinsf.q )[ iEqu ][ ug.lc ];
     }
 
-    for ( int iEqu = 0; iEqu < inscom.nTModel; ++ iEqu )
+    for ( int iEqu = 0; iEqu < nscom.nTModel; ++ iEqu )
     {
-        inscom.ts1[ iEqu ] = ( * uinsf.tempr )[ iEqu ][ ug.lc ];
-        inscom.ts2[ iEqu ] = ( * uinsf.tempr )[ iEqu ][ ug.lc ];
+        nscom.ts1[ iEqu ] = ( * uinsf.tempr )[ iEqu ][ ug.lc ];
+        nscom.ts2[ iEqu ] = ( * uinsf.tempr )[ iEqu ][ ug.lc ];
     }
 }
 

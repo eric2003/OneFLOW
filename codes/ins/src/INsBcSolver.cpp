@@ -132,60 +132,60 @@ void INsBcSolver::CalcFaceBc()
 
 void INsBcSolver::InFlowBc()
 {
-    for ( int iEqu = 0; iEqu < inscom.nTEqu; ++ iEqu )
+    for ( int iEqu = 0; iEqu < nscom.nTEqu; ++ iEqu )
     {
-        inscom.primt1[ iEqu ] = inscom.inflow[ iEqu ];
-        inscom.primt2[ iEqu ] = inscom.inflow[ iEqu ];
+        nscom.primt1[ iEqu ] = nscom.inflow[ iEqu ];
+        nscom.primt2[ iEqu ] = nscom.inflow[ iEqu ];
     }
 }
 
 void INsBcSolver::OutFlowBc()
 {
-    for ( int iEqu = 0; iEqu < inscom.nTEqu; ++ iEqu )
+    for ( int iEqu = 0; iEqu < nscom.nTEqu; ++ iEqu )
     {
-        inscom.primt1[ iEqu ] = inscom.prims1[ iEqu ];
-        inscom.primt2[ iEqu ] = inscom.prims2[ iEqu ];
+        nscom.primt1[ iEqu ] = nscom.prims1[ iEqu ];
+        nscom.primt2[ iEqu ] = nscom.prims2[ iEqu ];
     }
 }
 
 void INsBcSolver::PoleBc()
 {
-    for ( int iEqu = 0; iEqu < inscom.nTEqu; ++ iEqu )
+    for ( int iEqu = 0; iEqu < nscom.nTEqu; ++ iEqu )
     {
-        inscom.primt1[ iEqu ] = inscom.prims1[ iEqu ];
-        inscom.primt2[ iEqu ] = inscom.prims2[ iEqu ];
+        nscom.primt1[ iEqu ] = nscom.prims1[ iEqu ];
+        nscom.primt2[ iEqu ] = nscom.prims2[ iEqu ];
     }
 }
 
 void INsBcSolver::FarFieldBc()
 {
-    for ( int iEqu = 0; iEqu < inscom.nTEqu; ++ iEqu )
+    for ( int iEqu = 0; iEqu < nscom.nTEqu; ++ iEqu )
     {
-        inscom.primt1[ iEqu ] = inscom.prims1[ iEqu ];
-        inscom.primt2[ iEqu ] = inscom.prims2[ iEqu ];
+        nscom.primt1[ iEqu ] = nscom.prims1[ iEqu ];
+        nscom.primt2[ iEqu ] = nscom.prims2[ iEqu ];
     }
 
     //inner point
     Real rin, uin, vin, win, pin;
-    ONEFLOW::INsExtract( inscom.prims1, rin, uin, vin, win, pin );
+    ONEFLOW::INsExtract( nscom.prims1, rin, uin, vin, win, pin );
 
-    gcom.xfn *= inscom.faceOuterNormal;
-    gcom.yfn *= inscom.faceOuterNormal;
-    gcom.zfn *= inscom.faceOuterNormal;
+    gcom.xfn *= nscom.faceOuterNormal;
+    gcom.yfn *= nscom.faceOuterNormal;
+    gcom.zfn *= nscom.faceOuterNormal;
 
-    Real rref = inscom.inflow[ IIDX::IIR ];
-    Real uref = inscom.inflow[ IIDX::IIU ];
-    Real vref = inscom.inflow[ IIDX::IIV ];
-    Real wref = inscom.inflow[ IIDX::IIW ];
-    Real pref = inscom.inflow[ IIDX::IIP ];
+    Real rref = nscom.inflow[ IIDX::IIR ];
+    Real uref = nscom.inflow[ IIDX::IIU ];
+    Real vref = nscom.inflow[ IIDX::IIV ];
+    Real wref = nscom.inflow[ IIDX::IIW ];
+    Real pref = nscom.inflow[ IIDX::IIP ];
 
     Real vnref = gcom.xfn * uref + gcom.yfn * vref + gcom.zfn * wref - gcom.vfn;
     Real vnin  = gcom.xfn * uin  + gcom.yfn * vin  + gcom.zfn * win  - gcom.vfn;
 
-    Real cref = sqrt( ABS( inscom.gama_ref * pref / rref ) );
-    Real cin  = sqrt( ABS( inscom.gama    * pin  / rin  ) );
+    Real cref = sqrt( ABS( nscom.gama_ref * pref / rref ) );
+    Real cin  = sqrt( ABS( nscom.gama    * pin  / rin  ) );
 
-    Real gamm1 = inscom.gama - one;
+    Real gamm1 = nscom.gama - one;
 
     Real velin = DIST( uin, vin, win );
 
@@ -194,30 +194,30 @@ void INsBcSolver::FarFieldBc()
     {
         if ( vnin >= 0.0 )
         {
-            for ( int iEqu = 0; iEqu < inscom.nTEqu; ++ iEqu )
+            for ( int iEqu = 0; iEqu < nscom.nTEqu; ++ iEqu )
             {
-                inscom.primt1[ iEqu ] = inscom.prims1[ iEqu ];
+                nscom.primt1[ iEqu ] = nscom.prims1[ iEqu ];
             }
 
-            for ( int iEqu = 0; iEqu < inscom.nTEqu; ++ iEqu )
+            for ( int iEqu = 0; iEqu < nscom.nTEqu; ++ iEqu )
             {
-                inscom.primt2[ iEqu ] = 2.0 * inscom.prims1[ iEqu ] - inscom.prims2[ iEqu ];
+                nscom.primt2[ iEqu ] = 2.0 * nscom.prims1[ iEqu ] - nscom.prims2[ iEqu ];
             }
 
-            if ( inscom.primt2[ IIDX::IIR ] <= 0.0 || inscom.primt2[ IIDX::IIP ] <= 0.0 )
+            if ( nscom.primt2[ IIDX::IIR ] <= 0.0 || nscom.primt2[ IIDX::IIP ] <= 0.0 )
             {
-                for ( int iEqu = 0; iEqu < inscom.nTEqu; ++ iEqu )
+                for ( int iEqu = 0; iEqu < nscom.nTEqu; ++ iEqu )
                 {
-                    inscom.primt2[ iEqu ] = inscom.prims1[ iEqu ];
+                    nscom.primt2[ iEqu ] = nscom.prims1[ iEqu ];
                 }
             }
         }
         else
         {
-            for ( int iEqu = 0; iEqu < inscom.nTEqu; ++ iEqu )
+            for ( int iEqu = 0; iEqu < nscom.nTEqu; ++ iEqu )
             {
-                inscom.primt1[ iEqu ] = inscom.inflow[ iEqu ];
-                inscom.primt2[ iEqu ] = inscom.inflow[ iEqu ];
+                nscom.primt1[ iEqu ] = nscom.inflow[ iEqu ];
+                nscom.primt2[ iEqu ] = nscom.inflow[ iEqu ];
             }
         }
     }
@@ -233,7 +233,7 @@ void INsBcSolver::FarFieldBc()
         if ( vnb >= 0.0 )
         {
             // exit
-            entr = pin / pow( rin, inscom.gama );
+            entr = pin / pow( rin, nscom.gama );
 
             vtx = uin - gcom.xfn * vnin;
             vty = vin - gcom.yfn * vnin;
@@ -242,58 +242,58 @@ void INsBcSolver::FarFieldBc()
         else
         {
             //inlet
-            entr = pref / pow( rref, inscom.gama );
+            entr = pref / pow( rref, nscom.gama );
             vtx = uref - gcom.xfn * vnref;
             vty = vref - gcom.yfn * vnref;
             vtz = wref - gcom.zfn * vnref;
         }
 
-        Real rb  = pow( ( cb * cb / ( entr * inscom.gama ) ), one / gamm1 );
+        Real rb  = pow( ( cb * cb / ( entr * nscom.gama ) ), one / gamm1 );
         Real ub  = vtx + gcom.xfn * vnb;
         Real vb  = vty + gcom.yfn * vnb;
         Real wb  = vtz + gcom.zfn * vnb;
-        Real pb  = cb * cb * rb / inscom.gama;
+        Real pb  = cb * cb * rb / nscom.gama;
 
-        inscom.primt1[ IIDX::IIR ] = rb;
-        inscom.primt1[ IIDX::IIU ] = ub;
-        inscom.primt1[ IIDX::IIV ] = vb;
-        inscom.primt1[ IIDX::IIW ] = wb;
-        inscom.primt1[ IIDX::IIP ] = pb;
+        nscom.primt1[ IIDX::IIR ] = rb;
+        nscom.primt1[ IIDX::IIU ] = ub;
+        nscom.primt1[ IIDX::IIV ] = vb;
+        nscom.primt1[ IIDX::IIW ] = wb;
+        nscom.primt1[ IIDX::IIP ] = pb;
 
-        for ( int iEqu = 0; iEqu < inscom.nTEqu; ++ iEqu )
+        for ( int iEqu = 0; iEqu < nscom.nTEqu; ++ iEqu )
         {
-            inscom.primt2[ iEqu ] = inscom.primt1[ iEqu ];
+            nscom.primt2[ iEqu ] = nscom.primt1[ iEqu ];
         }
     }
 }
 
 void INsBcSolver::IsothermalVisWallBc()
 {
-    for ( int iEqu = 0; iEqu < inscom.nTEqu; ++ iEqu )
+    for ( int iEqu = 0; iEqu < nscom.nTEqu; ++ iEqu )
     {
-        inscom.primt1[ iEqu ] = inscom.prims1[ iEqu ];
-        inscom.primt2[ iEqu ] = inscom.prims2[ iEqu ];
+        nscom.primt1[ iEqu ] = nscom.prims1[ iEqu ];
+        nscom.primt2[ iEqu ] = nscom.prims2[ iEqu ];
     }
 
     this->VelocityBc();
 
-    inscom.twall = inscom.twall_dim / inscom.tref_dim;
+    nscom.twall = nscom.twall_dim / nscom.tref_dim;
 
-    Real tlim = 0.1 * inscom.twall;
+    Real tlim = 0.1 * nscom.twall;
 
-    Real rm = inscom.prims1[ IIDX::IIR ];
-    Real pm = inscom.prims1[ IIDX::IIP ];
-    Real temperature = inscom.ts1[ IIDX::IITT ];
+    Real rm = nscom.prims1[ IIDX::IIR ];
+    Real pm = nscom.prims1[ IIDX::IIP ];
+    Real temperature = nscom.ts1[ IIDX::IITT ];
 
-    Real rw_face = this->CalcDensity( inscom.prims1, pm, inscom.twall );
-    inscom.prim[ IIDX::IIR ] = rw_face;
-    inscom.prim[ IIDX::IIU ] = 0.0;
-    inscom.prim[ IIDX::IIV ] = 0.0;
-    inscom.prim[ IIDX::IIW ] = 0.0;
-    inscom.prim[ IIDX::IIP ] = pm;
+    Real rw_face = this->CalcDensity( nscom.prims1, pm, nscom.twall );
+    nscom.prim[ IIDX::IIR ] = rw_face;
+    nscom.prim[ IIDX::IIU ] = 0.0;
+    nscom.prim[ IIDX::IIV ] = 0.0;
+    nscom.prim[ IIDX::IIW ] = 0.0;
+    nscom.prim[ IIDX::IIP ] = pm;
 
     Real pg1 = pm;
-    Real tg1 = 2.0 * inscom.twall - temperature;
+    Real tg1 = 2.0 * nscom.twall - temperature;
 
     if ( tg1 < tlim )
     {
@@ -301,98 +301,98 @@ void INsBcSolver::IsothermalVisWallBc()
     }
 
     Real rg1;
-    Real rw = this->CalcDensity( inscom.prims1, pg1, inscom.twall );
+    Real rw = this->CalcDensity( nscom.prims1, pg1, nscom.twall );
 
     rg1 = 2.0 * rw - rm;
     rg1 = MAX( 0.5 * rw, rg1 );
 
-    inscom.primt1[ IIDX::IIR ] = rg1;
-    inscom.primt1[ IIDX::IIP ] = pg1;
+    nscom.primt1[ IIDX::IIR ] = rg1;
+    nscom.primt1[ IIDX::IIP ] = pg1;
 
-    inscom.primt2[ IIDX::IIP ] = inscom.prims2[ IIDX::IIP ];
+    nscom.primt2[ IIDX::IIP ] = nscom.prims2[ IIDX::IIP ];
 
-    rm = inscom.prims2[ IIDX::IIR ];
-    pm = inscom.prims2[ IIDX::IIP ];
-    temperature = inscom.ts2[ IIDX::IITT ];
+    rm = nscom.prims2[ IIDX::IIR ];
+    pm = nscom.prims2[ IIDX::IIP ];
+    temperature = nscom.ts2[ IIDX::IITT ];
 
     Real pg2 = pm;
-    Real tg2 = 2.0 * inscom.twall - temperature;
+    Real tg2 = 2.0 * nscom.twall - temperature;
 
     Real rg2;
 
     if ( tg2 < tlim ) tg2 = tlim;
 
-    rg2 = this->CalcDensity( inscom.prims2, pg2, tg2 );
+    rg2 = this->CalcDensity( nscom.prims2, pg2, tg2 );
 
-    inscom.primt2[ IIDX::IIR ] = rg2;
+    nscom.primt2[ IIDX::IIR ] = rg2;
 }
 
 void INsBcSolver::VelocityBc()
 {
-    if ( inscom.bcdtkey == 0 )
+    if ( nscom.bcdtkey == 0 )
     {
-        inscom.primt1[ IIDX::IIU ] = - inscom.primt1[ IIDX::IIU ] + two * gcom.vfx;
-        inscom.primt1[ IIDX::IIV ] = - inscom.primt1[ IIDX::IIV ] + two * gcom.vfy;
-        inscom.primt1[ IIDX::IIW ] = - inscom.primt1[ IIDX::IIW ] + two * gcom.vfz;
+        nscom.primt1[ IIDX::IIU ] = - nscom.primt1[ IIDX::IIU ] + two * gcom.vfx;
+        nscom.primt1[ IIDX::IIV ] = - nscom.primt1[ IIDX::IIV ] + two * gcom.vfy;
+        nscom.primt1[ IIDX::IIW ] = - nscom.primt1[ IIDX::IIW ] + two * gcom.vfz;
 
-        inscom.primt2[ IIDX::IIU ] = - inscom.primt2[ IIDX::IIU ] + two * gcom.vfx;
-        inscom.primt2[ IIDX::IIV ] = - inscom.primt2[ IIDX::IIV ] + two * gcom.vfy;
-        inscom.primt2[ IIDX::IIW ] = - inscom.primt2[ IIDX::IIW ] + two * gcom.vfz;
+        nscom.primt2[ IIDX::IIU ] = - nscom.primt2[ IIDX::IIU ] + two * gcom.vfx;
+        nscom.primt2[ IIDX::IIV ] = - nscom.primt2[ IIDX::IIV ] + two * gcom.vfy;
+        nscom.primt2[ IIDX::IIW ] = - nscom.primt2[ IIDX::IIW ] + two * gcom.vfz;
     }
     else
     {
-        inscom.primt1[ IIDX::IIU ] = - inscom.primt1[ IIDX::IIU ] + two * ( * inscom.bcflow )[ IIDX::IIU ];
-        inscom.primt1[ IIDX::IIV ] = - inscom.primt1[ IIDX::IIV ] + two * ( * inscom.bcflow )[ IIDX::IIV ];
-        inscom.primt1[ IIDX::IIW ] = - inscom.primt1[ IIDX::IIW ] + two * ( * inscom.bcflow )[ IIDX::IIW ];
+        nscom.primt1[ IIDX::IIU ] = - nscom.primt1[ IIDX::IIU ] + two * ( * nscom.bcflow )[ IIDX::IIU ];
+        nscom.primt1[ IIDX::IIV ] = - nscom.primt1[ IIDX::IIV ] + two * ( * nscom.bcflow )[ IIDX::IIV ];
+        nscom.primt1[ IIDX::IIW ] = - nscom.primt1[ IIDX::IIW ] + two * ( * nscom.bcflow )[ IIDX::IIW ];
 
-        inscom.primt2[ IIDX::IIU ] = - inscom.primt2[ IIDX::IIU ] + two * ( * inscom.bcflow )[ IIDX::IIU ];
-        inscom.primt2[ IIDX::IIV ] = - inscom.primt2[ IIDX::IIV ] + two * ( * inscom.bcflow )[ IIDX::IIV ];
-        inscom.primt2[ IIDX::IIW ] = - inscom.primt2[ IIDX::IIW ] + two * ( * inscom.bcflow )[ IIDX::IIW ];
+        nscom.primt2[ IIDX::IIU ] = - nscom.primt2[ IIDX::IIU ] + two * ( * nscom.bcflow )[ IIDX::IIU ];
+        nscom.primt2[ IIDX::IIV ] = - nscom.primt2[ IIDX::IIV ] + two * ( * nscom.bcflow )[ IIDX::IIV ];
+        nscom.primt2[ IIDX::IIW ] = - nscom.primt2[ IIDX::IIW ] + two * ( * nscom.bcflow )[ IIDX::IIW ];
     }
 }
 
 void INsBcSolver::AdiabaticVisWallBc()
 {
-    for ( int iEqu = 0; iEqu < inscom.nTEqu; ++ iEqu )
+    for ( int iEqu = 0; iEqu < nscom.nTEqu; ++ iEqu )
     {
-        inscom.primt1[ iEqu ] = inscom.prims1[ iEqu ];
-        inscom.primt2[ iEqu ] = inscom.prims2[ iEqu ];
+        nscom.primt1[ iEqu ] = nscom.prims1[ iEqu ];
+        nscom.primt2[ iEqu ] = nscom.prims2[ iEqu ];
     }
     this->VelocityBc();
 
-    inscom.prim[ IIDX::IIR ] = inscom.prims1[ IIDX::IIR ];
-    inscom.prim[ IIDX::IIU ] = 0.0;
-    inscom.prim[ IIDX::IIV ] = 0.0;
-    inscom.prim[ IIDX::IIW ] = 0.0;
-    inscom.prim[ IIDX::IIP ] = inscom.prims1[ IIDX::IIP ];
+    nscom.prim[ IIDX::IIR ] = nscom.prims1[ IIDX::IIR ];
+    nscom.prim[ IIDX::IIU ] = 0.0;
+    nscom.prim[ IIDX::IIV ] = 0.0;
+    nscom.prim[ IIDX::IIW ] = 0.0;
+    nscom.prim[ IIDX::IIP ] = nscom.prims1[ IIDX::IIP ];
 }
 
 void INsBcSolver::SymmetryBc()
 {
-    Real vx1 = inscom.prims1[ IIDX::IIU ];
-    Real vy1 = inscom.prims1[ IIDX::IIV ];
-    Real vz1 = inscom.prims1[ IIDX::IIW ];
+    Real vx1 = nscom.prims1[ IIDX::IIU ];
+    Real vy1 = nscom.prims1[ IIDX::IIV ];
+    Real vz1 = nscom.prims1[ IIDX::IIW ];
 
-    Real vx2 = inscom.prims2[ IIDX::IIU ];
-    Real vy2 = inscom.prims2[ IIDX::IIV ];
-    Real vz2 = inscom.prims2[ IIDX::IIW ];
+    Real vx2 = nscom.prims2[ IIDX::IIU ];
+    Real vy2 = nscom.prims2[ IIDX::IIV ];
+    Real vz2 = nscom.prims2[ IIDX::IIW ];
 
     Real vnRelative1 = gcom.xfn * vx1 + gcom.yfn * vy1 + gcom.zfn * vz1 - gcom.vfn;
     Real vnRelative2 = gcom.xfn * vx2 + gcom.yfn * vy2 + gcom.zfn * vz2 - gcom.vfn;
 
-    for ( int iEqu = 0; iEqu < inscom.nTEqu; ++ iEqu )
+    for ( int iEqu = 0; iEqu < nscom.nTEqu; ++ iEqu )
     {
-        inscom.primt1[ iEqu ] = inscom.prims1[ iEqu ];
-        inscom.primt2[ iEqu ] = inscom.prims2[ iEqu ];
+        nscom.primt1[ iEqu ] = nscom.prims1[ iEqu ];
+        nscom.primt2[ iEqu ] = nscom.prims2[ iEqu ];
     }
 
-    inscom.primt1[ IIDX::IIU ] = inscom.prims1[ IIDX::IIU ] - two * gcom.xfn * vnRelative1;
-    inscom.primt1[ IIDX::IIV ] = inscom.prims1[ IIDX::IIV ] - two * gcom.yfn * vnRelative1;
-    inscom.primt1[ IIDX::IIW ] = inscom.prims1[ IIDX::IIW ] - two * gcom.zfn * vnRelative1;
+    nscom.primt1[ IIDX::IIU ] = nscom.prims1[ IIDX::IIU ] - two * gcom.xfn * vnRelative1;
+    nscom.primt1[ IIDX::IIV ] = nscom.prims1[ IIDX::IIV ] - two * gcom.yfn * vnRelative1;
+    nscom.primt1[ IIDX::IIW ] = nscom.prims1[ IIDX::IIW ] - two * gcom.zfn * vnRelative1;
 
-    inscom.primt2[ IIDX::IIU ] = inscom.prims2[ IIDX::IIU ] - two * gcom.xfn * vnRelative2;
-    inscom.primt2[ IIDX::IIV ] = inscom.prims2[ IIDX::IIV ] - two * gcom.yfn * vnRelative2;
-    inscom.primt2[ IIDX::IIW ] = inscom.prims2[ IIDX::IIW ] - two * gcom.zfn * vnRelative2;
+    nscom.primt2[ IIDX::IIU ] = nscom.prims2[ IIDX::IIU ] - two * gcom.xfn * vnRelative2;
+    nscom.primt2[ IIDX::IIV ] = nscom.prims2[ IIDX::IIV ] - two * gcom.yfn * vnRelative2;
+    nscom.primt2[ IIDX::IIW ] = nscom.prims2[ IIDX::IIW ] - two * gcom.zfn * vnRelative2;
 }
 
 void INsBcSolver::OversetBc()
@@ -425,7 +425,7 @@ Real INsBcSolver::CalcReciMolecularWeight( RealField & prim )
 Real INsBcSolver::CalcDensity( RealField & prim, Real pres, Real temperature )
 {
     Real rmw = this->CalcReciMolecularWeight( prim );
-    Real density = pres / ( inscom.statecoef * temperature * rmw );
+    Real density = pres / ( nscom.statecoef * temperature * rmw );
     return density;
 }
 

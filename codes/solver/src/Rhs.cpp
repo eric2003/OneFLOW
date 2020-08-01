@@ -180,7 +180,7 @@ void INsCalcGamaT(int flag)
 	uinsf.Init();
 	ug.SetStEd(flag);
 
-	if (inscom.chemModel == 1)
+	if (nscom.chemModel == 1)
 	{
 	}
 	else
@@ -195,8 +195,8 @@ void INsCalcGamaT(int flag)
 		{
 			Real & density = ( * uinsf.q )[ IIDX::IIR ][ cId ];
 			Real & pressure = ( * uinsf.q )[ IIDX::IIP ][ cId ];
-			( * uinsf.gama )[ 0 ][ cId ] = inscom.gama_ref;
-			//( * uinsf.tempr )[ IIDX::IITT ][ cId ] = pressure / ( inscom.statecoef * density * oamw );
+			( * uinsf.gama )[ 0 ][ cId ] = nscom.gama_ref;
+			//( * uinsf.tempr )[ IIDX::IITT ][ cId ] = pressure / ( nscom.statecoef * density * oamw );
 		}
 	}
 }
@@ -239,7 +239,7 @@ void INsCalcVis()
 
 void INsCalcSrc()
 {
-	//if (inscom.chemModel == 1)
+	//if (nscom.chemModel == 1)
 	//{
 	//	INsCalcChemSrc();
 	//}
