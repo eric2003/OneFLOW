@@ -272,7 +272,6 @@ void INsInvterm::CmpINsBcFaceflux()
 
 void INsInvterm::CmpINsFaceCorrectPresscoef()
 {
-
 	iinv.Vdvu[ug.fId] = iinv.f1[ug.fId] * ((*ug.cvol1)[ug.lc] /(iinv.spc[ug.lc])) + iinv.f2[ug.fId] * ((*ug.cvol2)[ug.rc]  / (iinv.spc[ug.rc]));  // -Mf*n，用于求面速度修正量
 	iinv.Vdvv[ug.fId] = iinv.f1[ug.fId] * ((*ug.cvol1)[ug.lc] / (iinv.spc[ug.lc])) + iinv.f2[ug.fId] * ((*ug.cvol2)[ug.rc] / (iinv.spc[ug.rc]));
 	iinv.Vdvw[ug.fId] = iinv.f1[ug.fId] * ((*ug.cvol1)[ug.lc] / (iinv.spc[ug.lc])) + iinv.f2[ug.fId] * ((*ug.cvol2)[ug.rc]  / (iinv.spc[ug.rc]));
@@ -312,12 +311,10 @@ void INsInvterm::CmpINsFaceCorrectPresscoef()
 
 void INsInvterm::CmpINsBcFaceCorrectPresscoef()
 {
-
 	iinv.Vdvu[ug.fId] =  0;  // (Vp/dv)j，用于求面速度修正量
 	iinv.Vdvv[ug.fId] = 0;
 	iinv.Vdvw[ug.fId] = 0;
 	iinv.ajp[ug.fId] = 0;
-
 }
 
 

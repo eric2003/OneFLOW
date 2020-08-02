@@ -361,7 +361,7 @@ void UINsInvterm::PrepareProFaceValue()
 UINsInvterm NonZero;
 void UINsInvterm::Init()
 {
-	int Number = 0;
+	this->Number = 0;
 }
 
 void UINsInvterm::MomPre()
