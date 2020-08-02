@@ -206,35 +206,33 @@ void INSCmpGamaT(int flag)
 
 void INsCmpRHS()
 {
+	INsCmpTimestep();
 
-		INsCmpTimestep();
+	INsPreflux();
 
-		INsPreflux();
+	INsCmpInv(); //计算对流项
 
-		INsCmpInv(); //计算对流项
+	INsCmpVis(); //计算扩散项
 
-		INsCmpVis(); //计算扩散项
+	INsCmpUnstead(); //计算非稳态项
 
-		INsCmpUnstead(); //计算非稳态项
+	INsCmpSrc(); //计算源项和动量方程系数
 
-		INsCmpSrc(); //计算源项和动量方程系数
+	INsMomPre(); //求解动量方程
 
-		INsMomPre(); //求解动量方程
+	//INsCmpinsBc();
 
-		//INsCmpinsBc();
+	INsCmpFaceflux(); //计算界面流量
 
-		INsCmpFaceflux(); //计算界面流量
+	INsCorrectPresscoef(); //计算压力修正方程系数
 
-		INsCorrectPresscoef(); //计算压力修正方程系数
+	INsCmpPressCorrectEquandUpdatePress();  //需要解压力修正方程组，增设单元修正压力未知量
 
-		INsCmpPressCorrectEquandUpdatePress();  //需要解压力修正方程组，增设单元修正压力未知量
+	INsCmpSpeedCorrectandUpdateSpeed();  //需要先增设界面修正速度未知量并进行求解,更新单元速度和压力
 
-		INsCmpSpeedCorrectandUpdateSpeed();  //需要先增设界面修正速度未知量并进行求解,更新单元速度和压力
+	INsUpdateFaceflux();   //更新界面流量
 
-		INsUpdateFaceflux();   //更新界面流量
-
-		INsUpdateRes();
-
+	INsUpdateRes();
 }
 
 void INsCmpTimestep()

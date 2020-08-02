@@ -79,7 +79,7 @@ void UNsLusgs::LowerSweep()
     for ( int cId = 0; cId < ug.nCell; ++ cId )
     {
         ug.cId = cId;
-        if ( cId == 9 )
+        if ( cId == 32 )
         {
             int kkk = 1;
         }

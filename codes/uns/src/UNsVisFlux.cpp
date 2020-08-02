@@ -134,8 +134,9 @@ void UNsVisFlux::CalcVisFlux()
             int kkk = 1;
         }
 
-        if ( ug.lc == 11 || ug.rc == 11 )
+        if ( ug.lc == 118 || ug.rc == 118 )
         {
+            int kkk = 1;
         }
 
         this->PrepareFaceValue();

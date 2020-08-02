@@ -54,7 +54,7 @@ void UNsUpdate::UpdateFlowField( int sTid )
     {
         ug.cId = cId;
 
-        if ( ug.cId == 9 )
+        if ( ug.cId == 32 )
         {
             int kkk = 1;
         }
