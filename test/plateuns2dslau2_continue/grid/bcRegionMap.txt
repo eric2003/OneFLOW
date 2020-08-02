@@ -1,0 +1,8 @@
+7
+4 BCFarfield4
+5 BCFarfield5
+6 BCFarfield6
+2 BCOutflow2
+3 BCOutflow3
+0 BCSymmetryPlane0
+1 BCWall1
