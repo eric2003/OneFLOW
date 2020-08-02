@@ -3,6 +3,7 @@ branches:
   only:
   - master
   - eric
+  - hexin
 image: Visual Studio 2015
 configuration: release
 platform: x64
