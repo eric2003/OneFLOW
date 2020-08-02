@@ -1,0 +1,39 @@
+int  inflowType             = 1; (0-x-direction uniform flow; 1-static;2-manufacturing solution,3-given value,4-read in from a file)
+int  manufacturedInflowType = 1; // 1 - 等熵涡; 2 - Euler制造解; 3 - Couette Flow; 4 - 待添加
+Real inflowVelocity         = 1;
+
+//cavity condition
+Real mach_ref        =  0.2;
+Real aoa_degree      =  0.0;
+Real sideslip_degree =  0.0;
+Real reynolds        =  100.0;
+
+Real lref =  1.0;    //nondimensional
+Real aref =  1.0;    //nondimensional
+Real xref =  0.0;    //nondimensional
+Real yref =  0.0;    //nondimensional
+Real zref =  0.0;    //nondimensional
+
+// gasInfostrategy
+// 0 calculating relevant parameters based on height
+// 1 calculating pressure based on density and temperature
+// 2 calculating density based on pressure and temperature
+// machStrategy
+// 0 calculate by given mach number
+// 1 calculating mach number based on reference velocity
+int gasInfoStrategy  =  2;
+int machStrategy  =  0;
+Real elevation     =  61.0; // km
+Real tref_dim  =  300.0;   // K
+Real pref_dim  =  101325;  // Pa : N / m^2
+Real dref_dim  =  1.225;   // kg / m^3
+Real vref_dim  =  34.0294; // m/s
+Real reylref_dim  =  1.0;     // m
+Real gama_ref =  1.4;
+Real prl      =  0.72;
+Real prt      =  0.90;
+Real schmidtl =  0.5;
+Real schmidtt =  0.5;
+string gasModelFile  =  "gasmodel/air5s11r.dat"
+int  isowallbc  =  0;     // 0 绝热壁 1 等温壁
+Real twall_dim  =  300.0; // K

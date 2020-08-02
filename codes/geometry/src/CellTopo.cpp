@@ -99,8 +99,9 @@ void CellTopo::CalcC2f( FaceTopo * faceTopo )
     int nCell = this->GetNumberOfCells();
     int nBFace = faceTopo->GetNBFace();
     int nFace = faceTopo->GetNFace();
-
-    c2f.resize( nCell );
+    int nTCell = nCell + nBFace;
+    //c2f.resize( nCell );
+    c2f.resize( nTCell ); //add boundary cell for incompressible ns
 
     for ( int iFace = 0; iFace < nBFace; ++ iFace )
     {
