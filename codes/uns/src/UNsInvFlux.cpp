@@ -62,7 +62,7 @@ void UNsInvFlux::CalcLimiter()
 void UNsInvFlux::CalcInvFace()
 {
     uns_grad.Init();
-    uns_grad.CalcGrad();
+    //uns_grad.CalcGrad();
 
     this->CalcLimiter();
 
