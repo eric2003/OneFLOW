@@ -320,11 +320,11 @@ void UINsInvterm::PrepareFaceValue()
 	gcom.vfn = (*ug.vfn)[ug.fId];
 	gcom.farea = (*ug.farea)[ug.fId];
 
-  nscom.gama1 = ( * uinsf.gama )[ 0 ][ ug.lc ];
-  nscom.gama2 = ( * uinsf.gama )[ 0 ][ ug.rc ];
+	nscom.gama1 = ( * uinsf.gama )[ 0 ][ ug.lc ];
+	nscom.gama2 = ( * uinsf.gama )[ 0 ][ ug.rc ];
 
-  iinv.gama1 = nscom.gama1;
-  iinv.gama2 = nscom.gama2;
+	iinv.gama1 = nscom.gama1;
+	iinv.gama2 = nscom.gama2;
 
 	for (int iEqu = 0; iEqu < limf->nEqu; ++iEqu)
 	{
@@ -424,11 +424,11 @@ void UINsInvterm::MomPre()
 
 		nscom.bcdtkey = 0;
 		if (ug.bcNameId == -1) return; //interface
-		int dd = bcdata.r2d[ug.bcNameId];
+		int dd = ns_bc_data.r2d[ug.bcNameId];
 		if (dd != -1)
 		{
 			nscom.bcdtkey = 1;
-			nscom.bcflow = &bcdata.dataList[dd];
+			nscom.bcflow = &ns_bc_data.dataList[dd];
 		}
 
 		if (nscom.bcdtkey == 0)
@@ -823,11 +823,11 @@ for (int fId = 0; fId < ug.nBFace; ++fId)
 
 	nscom.bcdtkey = 0;
 	if (ug.bcNameId == -1) return; //interface
-	int dd = bcdata.r2d[ug.bcNameId];
+	int dd = ns_bc_data.r2d[ug.bcNameId];
 	if (dd != -1)
 	{
 		nscom.bcdtkey = 1;
-		nscom.bcflow = &bcdata.dataList[dd];
+		nscom.bcflow = &ns_bc_data.dataList[dd];
 	}
 
 	if (nscom.bcdtkey == 0)

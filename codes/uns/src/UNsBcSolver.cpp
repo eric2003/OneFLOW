@@ -81,11 +81,11 @@ void UNsBcSolver::SetId( int bcfId )
 
     nscom.bcdtkey = 0;
     if ( ug.bcNameId == -1 ) return; //interface
-    int dd = bcdata.r2d[ ug.bcNameId ];
+    int dd = ns_bc_data.r2d[ ug.bcNameId ];
     if ( dd != - 1 )
     {
         nscom.bcdtkey = 1;
-        nscom.bcflow = & bcdata.dataList[ dd ];
+        nscom.bcflow = & ns_bc_data.dataList[ dd ];
     }
 
 }
