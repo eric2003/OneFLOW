@@ -32,7 +32,6 @@ public:
     BcData();
     ~BcData();
 public:
-    void Init();
     void Init( const string & fileName );
     void ReadList( const string & fileName );
     void ReadRegion();
