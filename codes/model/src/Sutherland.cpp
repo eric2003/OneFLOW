@@ -22,6 +22,8 @@ License
 
 #include "Sutherland.h"
 #include "NsCom.h"
+#include <cmath>
+using namespace std;
 
 BeginNameSpace( ONEFLOW )
 
