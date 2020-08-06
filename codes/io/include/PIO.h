@@ -22,8 +22,7 @@ License
 
 
 #pragma once
-#include "HXDefine.h"
-#include "GridDef.h"
+#include "Configure.h"
 #include <fstream>
 #include <string>
 using namespace std;

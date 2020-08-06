@@ -21,7 +21,6 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "PIO.h"
-#include "ZoneState.h"
 #include "Parallel.h"
 #include "OStream.h"
 #include "FileUtil.h"
@@ -32,7 +31,6 @@ License
 #include "Task.h"
 #include "TaskState.h"
 #include <iostream>
-#include <string>
 using namespace std;
 
 BeginNameSpace( ONEFLOW )
