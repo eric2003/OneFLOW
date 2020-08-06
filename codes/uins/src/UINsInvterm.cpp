@@ -111,11 +111,11 @@ void UINsInvterm::CmpInvcoff()
    //DeAlloc();
 }
 
-void UINsInvterm::CmpINsTimestep()
+void UINsInvterm::CalcINsTimestep()
 {
 	iinv.timestep = GetDataValue< Real >("global_dt");
 }
-void UINsInvterm::CmpINsPreflux()
+void UINsInvterm::CalcINsPreflux()
 {
 	if (ctrl.currTime == 0.001 && Iteration::innerSteps == 1)
 	//if (ctrl.currTime == 0.001 && Iteration::outerSteps == 1)
@@ -153,7 +153,7 @@ void UINsInvterm::INsPreflux()
 
 		this->PrepareFaceValue();
 
-		this->CmpINsinvFlux();
+		this->CalcINsinvFlux();
 
 	}
 
@@ -166,7 +166,7 @@ void UINsInvterm::INsPreflux()
 
 		this->PrepareFaceValue();
 
-		this->CmpINsBcinvFlux();
+		this->CalcINsBcinvFlux();
 	}
 
 	/*delete iinv.rf;
@@ -308,7 +308,7 @@ void UINsInvterm::CmpInvMassFlux()
 
 		//this->PrepareFaceValue();
 
-		this->CmpINsinvTerm();
+		this->CalcINsinvTerm();
 	}
 }
 
@@ -366,7 +366,7 @@ void UINsInvterm::Init()
 
 void UINsInvterm::MomPre()
 {
-	this->CmpINsMomRes();
+	this->CalcINsMomRes();
 
 	/*iinv.muc = 0;
 	iinv.mvc = 0;
@@ -883,7 +883,7 @@ void UINsInvterm::CmpFaceflux()
 
 		this->PrepareProFaceValue();
 
-		this->CmpINsFaceflux();
+		this->CalcINsFaceflux();
 	}
 
 	for (int fId = 0; fId < ug.nBFace; ++fId)
@@ -900,12 +900,12 @@ void UINsInvterm::CmpFaceflux()
 
 		this->PrepareProFaceValue();
 
-		this->CmpINsBcFaceflux();
+		this->CalcINsBcFaceflux();
 	}
 
 }
 
-void UINsInvterm::CmpINsMomRes()
+void UINsInvterm::CalcINsMomRes()
 {
 	iinv.res_u = 0;
 	iinv.res_v = 0;
@@ -1037,7 +1037,7 @@ void UINsInvterm::CmpCorrectPresscoef()
 		ug.lc = (*ug.lcf)[ug.fId];
 		ug.rc = (*ug.rcf)[ug.fId];
 
-		this->CmpINsFaceCorrectPresscoef();
+		this->CalcINsFaceCorrectPresscoef();
 	}
 
 	for (int fId = 0; fId < ug.nBFace; ++fId)
@@ -1052,7 +1052,7 @@ void UINsInvterm::CmpCorrectPresscoef()
 		ug.lc = (*ug.lcf)[ug.fId];
 		ug.rc = (*ug.rcf)[ug.fId];
 
-		this->CmpINsBcFaceCorrectPresscoef();
+		this->CalcINsBcFaceCorrectPresscoef();
 	}
 
 	iinv.spp = 0;
@@ -1499,7 +1499,7 @@ for (int cId = 0; cId < ug.nCell; ++cId)
 }
 
 
-void UINsInvterm::CmpINsPreRes()
+void UINsInvterm::CalcINsPreRes()
 {
 	//iinv.res_p = 0;
 

@@ -48,7 +48,7 @@ public:
 
     void Alloc();
     void DeAlloc();
-	void CmpINsSrc();
+	void CalcINsSrc();
 	//void Addcoff();
 
 	void CmpUnsteadcoff();

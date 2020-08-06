@@ -96,14 +96,14 @@ public:
     //void SetPointer( int schemeIndex );
 	//InvtermPointer InvtermPointer;
 public:
-	void CmpINsinvFlux();
-	void CmpINsBcinvFlux();
-	void CmpINsinvTerm();
-	void CmpINsBcinvTerm();
-	void CmpINsFaceflux();
-	void CmpINsBcFaceflux();
-	void CmpINsFaceCorrectPresscoef();
-	void CmpINsBcFaceCorrectPresscoef();
+	void CalcINsinvFlux();
+	void CalcINsBcinvFlux();
+	void CalcINsinvTerm();
+	void CalcINsBcinvTerm();
+	void CalcINsFaceflux();
+	void CalcINsBcFaceflux();
+	void CalcINsFaceCorrectPresscoef();
+	void CalcINsBcFaceCorrectPresscoef();
 	//void CalcINsinvTerm();
 	//void CalcINsFaceflux();
 	//void CalcINsFaceCorrectPresscoef();

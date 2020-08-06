@@ -103,7 +103,7 @@ void VarNameFactory::FreeVarNameSolver()
     VarNameFactory::mapData = 0;
 }
 
-bool CmpDataAB::operator()( const DataAB & k1, const DataAB & k2 ) const
+bool CmmmpDataAB::operator()( const DataAB & k1, const DataAB & k2 ) const
 {
     if ( k1.a != k2.a )
     {
@@ -124,7 +124,7 @@ MapIntInt::~MapIntInt()
 
 void MapIntInt::AddData( int a, int b )
 {
-    map< DataAB, int, CmpDataAB >::iterator iter;
+    map< DataAB, int, CmmmpDataAB >::iterator iter;
     DataAB ab;
     ab.a = a;
     ab.b = b;
@@ -138,7 +138,7 @@ void MapIntInt::AddData( int a, int b )
 
 int MapIntInt::GetId( int a, int b )
 {
-    map< DataAB, int, CmpDataAB >::iterator iter;
+    map< DataAB, int, CmmmpDataAB >::iterator iter;
     DataAB ab;
     ab.a = a;
     ab.b = b;

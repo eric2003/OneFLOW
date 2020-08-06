@@ -562,7 +562,7 @@ void UINsVisterm::CmpUnsteadcoff()
 
 
 
-void UINsVisterm::CmpINsSrc()
+void UINsVisterm::CalcINsSrc()
 {
 	iinv.spc = 0;
 	iinv.buc = 0;

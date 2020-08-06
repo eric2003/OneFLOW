@@ -42,8 +42,8 @@ public:
 public:
     void Alloc();
     void DeAlloc();
-	void CmpINsTimestep();
-	void CmpINsPreflux();
+	void CalcINsTimestep();
+	void CalcINsPreflux();
 	void INsPreflux();
 	void Initflux();
     void CmpInvcoff();
@@ -51,8 +51,8 @@ public:
     void CmpInvFace();
     void CmpLimiter();
 	void CmpFaceflux();
-	void CmpINsMomRes();
-	void CmpINsPreRes();
+	void CalcINsMomRes();
+	void CalcINsPreRes();
 	void CmpCorrectPresscoef();
 	void CmpNewMomCoe();
 	void CmpPressCorrectEqu();
@@ -65,7 +65,7 @@ public:
     void PrepareFaceValue();
 	void PrepareProFaceValue();
 	void CmpPreGrad();
-	//void CmpINsinvTerm();
+	//void CalcINsinvTerm();
     //void UpdateFaceInvFlux();
     void ReadTmp();
 public:

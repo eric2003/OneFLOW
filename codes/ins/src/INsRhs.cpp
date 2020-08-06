@@ -134,14 +134,14 @@ void INsCalcRHS()
 void INsCalcTimestep()
 {
 	UINsInvterm * uINsInvterm = new UINsInvterm();
-	uINsInvterm->CmpINsTimestep();
+	uINsInvterm->CalcINsTimestep();
 	delete uINsInvterm;
 }
 
 void INsPreflux()
 {
 	UINsInvterm * uINsInvterm = new UINsInvterm();
-	uINsInvterm->CmpINsPreflux();
+	uINsInvterm->CalcINsPreflux();
 	delete uINsInvterm;
 }
 
@@ -169,7 +169,7 @@ void INsCalcUnstead()
 void INsCalcSrc()
 {
 	UINsVisterm * uINsVisterm = new UINsVisterm();
-	uINsVisterm->CmpINsSrc();
+	uINsVisterm->CalcINsSrc();
 	delete uINsVisterm;
 }
 
