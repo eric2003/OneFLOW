@@ -86,7 +86,7 @@ void INsInvterm::Solve()
 {
 }
 
-void INsInvterm::CmpINsinvFlux()
+void INsInvterm::CalcINsinvFlux()
 {
 
 		INsExtract(iinv.prim1, iinv.rl, iinv.ul, iinv.vl, iinv.wl, iinv.pl);
@@ -109,7 +109,7 @@ void INsInvterm::CmpINsinvFlux()
 
 }
 
-void INsInvterm::CmpINsBcinvFlux()
+void INsInvterm::CalcINsBcinvFlux()
 {
 
 	INsExtract(iinv.prim1, iinv.rl, iinv.ul, iinv.vl, iinv.wl, iinv.pl);
@@ -139,7 +139,7 @@ void INsInvterm::CmpINsBcinvFlux()
 	}
 }
 
-void INsInvterm::CmpINsinvTerm()
+void INsInvterm::CalcINsinvTerm()
 { 
 		Real clr = MAX(0, iinv.fq[ug.fId]);  //从界面左侧单元流入右侧单元的质量流量
 
@@ -153,7 +153,7 @@ void INsInvterm::CmpINsinvTerm()
 
 }
 
-void INsInvterm::CmpINsBcinvTerm()
+void INsInvterm::CalcINsBcinvTerm()
 {
 	
 		Real clr = MAX(0, iinv.fq[ug.fId]);  //从界面左侧单元流入右侧单元的初始质量流量
@@ -167,7 +167,7 @@ void INsInvterm::CmpINsBcinvTerm()
 		iinv.ai2[ug.rc] += clr;   //流出单元的流量
 }
 
-void INsInvterm::CmpINsFaceflux()
+void INsInvterm::CalcINsFaceflux()
 {
 	INsExtract(iinv.prim1, iinv.rl, iinv.ul, iinv.vl, iinv.wl, iinv.pl);
 	INsExtract(iinv.prim2, iinv.rr, iinv.ur, iinv.vr, iinv.wr, iinv.pr);
@@ -220,7 +220,7 @@ void INsInvterm::CmpINsFaceflux()
 }
 
 
-void INsInvterm::CmpINsBcFaceflux()
+void INsInvterm::CalcINsBcFaceflux()
 {
 	INsExtract(iinv.prim1, iinv.rl, iinv.ul, iinv.vl, iinv.wl, iinv.pl);
 	INsExtract(iinv.prim2, iinv.rr, iinv.ur, iinv.vr, iinv.wr, iinv.pr);
@@ -270,7 +270,7 @@ void INsInvterm::CmpINsBcFaceflux()
 									  
 }
 
-void INsInvterm::CmpINsFaceCorrectPresscoef()
+void INsInvterm::CalcINsFaceCorrectPresscoef()
 {
 	iinv.Vdvu[ug.fId] = iinv.f1[ug.fId] * ((*ug.cvol1)[ug.lc] /(iinv.spc[ug.lc])) + iinv.f2[ug.fId] * ((*ug.cvol2)[ug.rc]  / (iinv.spc[ug.rc]));  // -Mf*n，用于求面速度修正量
 	iinv.Vdvv[ug.fId] = iinv.f1[ug.fId] * ((*ug.cvol1)[ug.lc] / (iinv.spc[ug.lc])) + iinv.f2[ug.fId] * ((*ug.cvol2)[ug.rc] / (iinv.spc[ug.rc]));
@@ -309,7 +309,7 @@ void INsInvterm::CmpINsFaceCorrectPresscoef()
 	iinv.ajp[ug.fId] = iinv.rf[ug.fId] * (iinv.Vdvu[ug.fId] * (*ug.xfn)[ug.fId] * (*ug.xfn)[ug.fId] + iinv.Vdvv[ug.fId] * (*ug.yfn)[ug.fId] * (*ug.yfn)[ug.fId] + iinv.Vdvw[ug.fId] * (*ug.zfn)[ug.fId] * (*ug.zfn)[ug.fId]) * (*ug.farea)[ug.fId] / iinv.dist;
 }
 
-void INsInvterm::CmpINsBcFaceCorrectPresscoef()
+void INsInvterm::CalcINsBcFaceCorrectPresscoef()
 {
 	iinv.Vdvu[ug.fId] =  0;  // (Vp/dv)j，用于求面速度修正量
 	iinv.Vdvv[ug.fId] = 0;

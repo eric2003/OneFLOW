@@ -22,24 +22,37 @@ License
 
 
 #pragma once
-#include "BcSolver.h"
-#include "UBcSolver.h"
-#include "INsBcSolver.h"
+#include "Rhs.h"
 
 BeginNameSpace( ONEFLOW )
 
-class UINsBcSolver : public INsBcSolver
+class INsRhs : public Rhs
 {
 public:
-    UINsBcSolver();
-    ~UINsBcSolver();
+    INsRhs ();
+    ~INsRhs();
 public:
-    void Init();
-    void CalcBcRegion();
-    void CalcBc();
-    void SetId( int bcfId );
-    void PrepareData();
-    void UpdateBc();
+    void UpdateResiduals();
 };
+
+void INsCalcBc();
+void INsCalcGamaT(int flag);
+void INsCalcRHS();
+void INsCalcChemSrc();
+void INsCalcTurbEnergy();
+void INsCorrectPresscoef();
+void INsCalcTimeStep();
+void INsPreflux();
+void INsCalcInv();
+void INsCalcVis();
+void INsCalcUnstead();
+void INsCalcSrc();
+void INsMomPre();
+void INsCalcFaceflux();
+void INsCalcPressCorrectEquandUpdatePress();
+void INsUpdateFaceflux();
+void INsUpdateRes();
+void INsCalcSpeedCorrectandUpdateSpeed();
+
 
 EndNameSpace

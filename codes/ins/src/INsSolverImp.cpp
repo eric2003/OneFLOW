@@ -22,11 +22,11 @@ License
 
 #include "INsSolverImp.h"
 #include "SolverImp.h"
-#include "UITimeStep.h"
+#include "UTimeStep.h"
 #include "Zone.h"
 #include "GridState.h"
 #include "UINsVisterm.h"
-#include "Rhs.h"
+#include "INsRhs.h"
 #include "UCom.h"
 #include "CmxTask.h"
 #include "Iteration.h"
@@ -43,26 +43,26 @@ void RegisterINsFunc()
 {
     REGISTER_DATA_CLASS( INsInitFinal );
     REGISTER_DATA_CLASS( INsVisual );
-    REGISTER_DATA_CLASS( INsCmpTimeStep );
+    REGISTER_DATA_CLASS( INsCalcTimeStep );
     REGISTER_DATA_CLASS( INsUpdateResiduals );
     REGISTER_DATA_CLASS( INsImplicitMethod );
     REGISTER_DATA_CLASS( INsPostprocess );
     REGISTER_DATA_CLASS( INsFinalPostprocess );
     REGISTER_DATA_CLASS( INsInitSolver );
-    REGISTER_DATA_CLASS( INsCmpBoundary );
+    REGISTER_DATA_CLASS( INsCalcBoundary );
     REGISTER_DATA_CLASS( IDumpHeatFluxCoeff );
 
-	REGISTER_DATA_CLASS( INsCmpTurb );
-	REGISTER_DATA_CLASS(INsCmpHeat);
+	REGISTER_DATA_CLASS( INsCalcTurb );
+	REGISTER_DATA_CLASS( INsCalcHeat );
 }
 
 void INsInitFinal( StringField & data )
 {
-    INSCmpGamaT( F_INNER );
-    //ICmpLaminarViscosity( F_INNER );
-    INsCmpBc();
-    INSCmpGamaT( F_GHOST );
-    //ICmpLaminarViscosity( F_GHOST );
+    INsCalcGamaT( F_INNER );
+    //ICalcLaminarViscosity( F_INNER );
+    INsCalcBc();
+    INsCalcGamaT( F_GHOST );
+    //ICalcLaminarViscosity( F_GHOST );
 
     Grid * grid = Zone::GetGrid();
 
@@ -72,7 +72,7 @@ void INsInitFinal( StringField & data )
 
         GridState::gridLevel += 1;
 
-		NsCalcBc();
+		INsCalcBc();
 
         GridState::gridLevel -= 1;
     }
@@ -83,26 +83,26 @@ void INsVisual( StringField & data )
     ;
 }
 
-void INsCmpBoundary( StringField & data )
+void INsCalcBoundary( StringField & data )
 {
-    INSCmpGamaT( F_INNER );
-   // ICmpLaminarViscosity( F_INNER );
-    INsCmpBc();
-    INSCmpGamaT( F_GHOST );
-   // ICmpLaminarViscosity( F_GHOST );
+    INsCalcGamaT( F_INNER );
+   // ICalcLaminarViscosity( F_INNER );
+    INsCalcBc();
+    INsCalcGamaT( F_GHOST );
+   // ICalcLaminarViscosity( F_GHOST );
 }
 
-void INsCmpTimeStep( StringField & data )
+void INsCalcTimeStep( StringField & data )
 {
-    UITimestep * uTimestep = new UITimestep();
-    uTimestep->CmpTimestep();
-    delete uTimestep;
+    UTimeStep * uTimeStep = new UTimeStep();
+    uTimeStep->CalcTimeStep();
+    delete uTimeStep;
 }
 
 void INsUpdateResiduals( StringField & data )
 {
-    Rhs * rhs = new Rhs();
-    rhs->UpdateINsResiduals();
+    Rhs * rhs = new INsRhs();
+    rhs->UpdateResiduals();
     delete rhs;
 }
 
@@ -206,12 +206,12 @@ void IDumpHeatFluxCoeff( StringField & data )
     ;
 }
 
-void INsCmpTurb(StringField & data)
+void INsCalcTurb(StringField & data)
 {
 	;
 }
 
-void INsCmpHeat(StringField & data)
+void INsCalcHeat(StringField & data)
 {
 	;
 }
@@ -226,6 +226,7 @@ SolverRegData * GetINsReg()
     insReg.dataFlag = WITH_DATA;
     return & insReg;
 }
-  REGISTER_REG_DATA( GetINsReg );
+
+REGISTER_REG_DATA( GetINsReg );
 
 EndNameSpace

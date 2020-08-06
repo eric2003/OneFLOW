@@ -101,25 +101,25 @@ void INsVisterm::CorrectFaceGrad()
     visT.CorrectFaceGrad();
 }
 
-void INsVisterm::CmpNormalGrad()
+void INsVisterm::CalcNormalGrad()
 {
     visQ.CalcNormalGrad();
     visT.CalcNormalGrad();
 }
 
-void INsVisterm::CmpTestMethod()
+void INsVisterm::CalcTestMethod()
 {
     visQ.CalcTestMethod();
     visT.CalcTestMethod();
 }
 
-void INsVisterm::CmpNew1Method()
+void INsVisterm::CalcNew1Method()
 {
     visQ.CalcNew1Method();
     visT.CalcNew1Method();
 }
 
-void INsVisterm::CmpNew2Method()
+void INsVisterm::CalcNew2Method()
 {
     visQ.CalcNew2Method();
     visT.CalcNew2Method();
@@ -130,31 +130,6 @@ void INsVisterm::ModifyFaceGrad()
     visQ.ModifyFaceGrad();
     visT.ModifyFaceGrad();
 }
-
-Real Iutherland::Icdim = 110.4;
-Real Iutherland::Ic;
-
-Iutherland::Iutherland()
-{
-}
-
-Iutherland::~Iutherland()
-{
-
-}
-
-void Iutherland::ICmpConst()
-{
-	Iutherland::Ic = Iutherland::Icdim / nscom.tref_dim;
-}
-
-Real Iutherland::ICmpViscosity( Real t )
-{
-	Real t3 = t * t * t;
-	return sqrt(t3) * (1 + Iutherland::Ic) / ( t + Iutherland::Ic );
-}
-
-
 
 
 EndNameSpace

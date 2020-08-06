@@ -20,40 +20,51 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-
-#pragma once
-#include "HXDefine.h"
-#include "ITimeStep.h"
+#include "Sutherland.h"
+#include <cmath>
+using namespace std;
 
 BeginNameSpace( ONEFLOW )
-class UITimestep : public ITimestep
-{
-public:
-    UITimestep();
-    ~UITimestep();
-public:
-    void Init();
-    void ReadTmp();
-    void CmpTimestep();
-    void CmpLocalTimestep();
-    void CmpGlobalTimestep();
-    void CmpLgTimestep();
-    void CmpInvTimestep();
-    void CmpVisTimestep();
-    void CmpMinTimestep();
-    void SetTimestep( Real timestep );
-public:
-    void CmpSpectrumField();
-    void CmpInvSpectrumField();
-    void CmpVisSpectrumField();
-public:
-    void SetId( int fId );
-    void PrepareData();
-    void PrepareVisData();
-    void UpdateInvSpectrumField();
-    void UpdateVisSpectrumField();
-    void ModifyTimestep();
-};
 
+Sutherland::Sutherland()
+{
+    this->SetInvalidValue();
+}
+
+Sutherland::~Sutherland()
+{
+}
+
+void Sutherland::SetInvalidValue()
+{
+    this->t0_dim = -1.0;
+    this->ts_dim = -1.0;
+    this->mu0_dim = -1.0;
+
+    this->ts = -1.0;
+
+}
+
+void Sutherland::Init( Real tref_dim )
+{
+    this->t0_dim = 273.16; // zero degree celsius temperature(K)
+    this->ts_dim = 110.4; //dimensional temperature constant in sutherland formula
+    this->mu0_dim = 1.715e-5; //dimensional air viscosity at zero celsius degree
+
+    this->ts = this->ts_dim / tref_dim;
+}
+
+Real Sutherland::CalcViscosityDim( Real t_dim )
+{
+    Real coef = ( t0_dim + ts_dim ) / ( t_dim + ts_dim );
+    Real vis_dim = coef * pow( t_dim / t0_dim, 1.5 ) * this->mu0_dim;
+    return vis_dim;
+}
+
+Real Sutherland::CalcViscosity( Real t )
+{
+    Real t3 = t * t * t;
+    return sqrt( t3 ) * ( 1 + this->ts ) / ( t + this->ts );
+}
 
 EndNameSpace

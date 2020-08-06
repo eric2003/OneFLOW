@@ -79,16 +79,4 @@ public:
 extern VisGrad visQ;
 extern VisGrad visT;
 
-class Sutherland
-{
-public:
-    Sutherland();
-    ~Sutherland();
-public:
-    static Real cdim;
-    static Real c;
-    static void CalcConst();
-    static Real CalcViscosity( Real t );
-};
-
 EndNameSpace

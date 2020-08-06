@@ -60,7 +60,7 @@ public:
 };
 
 class BcData;
-extern BcData bcdata;
+extern BcData ns_bc_data;
 
 
 

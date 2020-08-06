@@ -96,24 +96,24 @@ public:
     //void SetPointer( int schemeIndex );
 	//InvtermPointer InvtermPointer;
 public:
-	void CmpINsinvFlux();
-	void CmpINsBcinvFlux();
-	void CmpINsinvTerm();
-	void CmpINsBcinvTerm();
-	void CmpINsFaceflux();
-	void CmpINsBcFaceflux();
-	void CmpINsFaceCorrectPresscoef();
-	void CmpINsBcFaceCorrectPresscoef();
+	void CalcINsinvFlux();
+	void CalcINsBcinvFlux();
+	void CalcINsinvTerm();
+	void CalcINsBcinvTerm();
+	void CalcINsFaceflux();
+	void CalcINsBcFaceflux();
+	void CalcINsFaceCorrectPresscoef();
+	void CalcINsBcFaceCorrectPresscoef();
 	//void CalcINsinvTerm();
 	//void CalcINsFaceflux();
 	//void CalcINsFaceCorrectPresscoef();
 public:
 };
 
-void INsCmpEnthalpy( RealField & prim, Real gama, Real & enthalpy );
-void INsCmpTotalEnthalpyChange( RealField & prim, Real & gama, RealField & dq, Real & dh );
+void INsCalcEnthalpy( RealField & prim, Real gama, Real & enthalpy );
+void INsCalcTotalEnthalpyChange( RealField & prim, Real & gama, RealField & dq, Real & dh );
 void INsPrimToQ( RealField & prim, Real gama, RealField & q );
 void INsQToPrim( RealField & q, Real gama, RealField & prim, RealField & temp );
-void INsCmpInternalEnergy( RealField & prim, Real gama, Real & em );
+void INsCalcInternalEnergy( RealField & prim, Real gama, Real & em );
 
 EndNameSpace

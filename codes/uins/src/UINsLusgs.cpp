@@ -63,13 +63,13 @@ void UINsLusgs::Init()
     ug.Init();
     nslu.Init();
     uinsf.Init();
-    this->CmpSpectrum();
+    this->CalcSpectrum();
 }
 
-void UINsLusgs::CmpSpectrum()
+void UINsLusgs::CalcSpectrum()
 {
     UINsSpectrum * unsSpectrum = new UINsSpectrum();
-    unsSpectrum->CmpImplicitSpectrum();
+    unsSpectrum->CalcImplicitSpectrum();
     delete unsSpectrum;
 }
 
@@ -99,7 +99,7 @@ void UINsLusgs::LowerSweep()
         
             this->SolveLowerCell();
 
-            this->CmpLowerChange();
+            this->CalcLowerChange();
         }
 
         this->Update();
@@ -131,7 +131,7 @@ void UINsLusgs::UpperSweep()
 
             this->SolveUpperCell();
 
-            this->CmpUpperChange();
+            this->CalcUpperChange();
         }
 
         this->Update();

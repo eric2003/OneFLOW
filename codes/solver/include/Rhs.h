@@ -32,38 +32,7 @@ public:
     Rhs ();
     ~Rhs();
 public:
-    void UpdateNsResiduals();
-	void UpdateINsResiduals();
+    virtual void UpdateResiduals();
 };
-
-void NsCalcBc();
-void NsCalcGamaT(int flag);
-void NsCalcRHS();
-void NsCalcInvFlux();
-void NsCalcVisFlux();
-void NsCalcSrcFlux();
-void NsCalcChemSrc();
-void NsCalcTurbEnergy();
-void NsCalcDualTimeStepSrc();
-
-void INsCmpBc();
-void INSCmpGamaT(int flag);
-void INsCmpRHS();
-void INsCmpChemSrc();
-void INsCmpTurbEnergy();
-void INsCorrectPresscoef();
-void INsCmpTimestep();
-void INsPreflux();
-void INsCmpInv();
-void INsCmpVis();
-void INsCmpUnstead();
-void INsCmpSrc();
-void INsMomPre();
-void INsCmpFaceflux();
-void INsCmpPressCorrectEquandUpdatePress();
-void INsUpdateFaceflux();
-void INsUpdateRes();
-void INsCmpSpeedCorrectandUpdateSpeed();
-
 
 EndNameSpace

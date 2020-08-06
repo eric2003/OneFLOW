@@ -54,7 +54,7 @@ void NsSolver::StaticInit()
     ns_ctrl.Init();
     nscom.Init();
     string fileName = "grid/ns_bc.txt";
-    bcdata.Init( fileName );
+    ns_bc_data.Init( fileName );
 
     this->sTid = ONEFLOW::NS_SOLVER;
     SolverInfo * solverInfo = SolverInfoFactory::GetSolverInfo( this->sTid );

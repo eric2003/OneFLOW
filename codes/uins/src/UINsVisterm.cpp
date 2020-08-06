@@ -62,8 +62,7 @@ UINsVisterm::~UINsVisterm()
     ;
 }
 
-
-void UINsVisterm::CmpViscoff()
+void UINsVisterm::CalcViscoff()
 {
     if ( vis_model.vismodel == 0 ) return;
     ug.Init();
@@ -73,7 +72,7 @@ void UINsVisterm::CmpViscoff()
     //Alloc();
 
     this->PrepareField();
-    this->CmpVisterm();
+    this->CalcVisterm();
 
     //DeAlloc();
 }
@@ -91,12 +90,12 @@ void UINsVisterm::DeAlloc()
 void UINsVisterm::PrepareField()
 {
 	//uins_grad.Init();
-	//uins_grad.CmpGrad();  //计算梯度
-    //ut_grad.CmpGradDebug();
-	this->CmpPreandVisGrad();
+	//uins_grad.CalcGrad();  //计算梯度
+    //ut_grad.CalcGradDebug();
+	this->CalcPreandVisGrad();
 }
 
-void UINsVisterm::CmpPreandVisGrad()
+void UINsVisterm::CalcPreandVisGrad()
 {
 	(*uinsf.dqdx)[IIDX::IIR] = 0;
 	(*uinsf.dqdy)[IIDX::IIR] = 0;
@@ -229,7 +228,7 @@ void UINsVisterm::CmpPreandVisGrad()
 }
 
 
-void UINsVisterm::CmpVisterm()
+void UINsVisterm::CalcVisterm()
 {
     for ( int fId = 0; fId < ug.nFace; ++ fId )
     {
@@ -250,7 +249,7 @@ void UINsVisterm::CmpVisterm()
 		//iinv.wkl[ug.fId] = (*limf->qf1)[IIDX::IIW][ug.fId];
 		//iinv.wkr[ug.fId] = (*limf->qf2)[IIDX::IIW][ug.fId];
 
-        this->CmpFaceVisterm();  //要改动
+        this->CalcFaceVisterm();  //要改动
 
     }
 
@@ -273,13 +272,13 @@ void UINsVisterm::CmpVisterm()
 		//iinv.wkl[ug.fId] = (*limf->qf1)[IIDX::IIW][ug.fId];
 		//iinv.wkr[ug.fId] = (*limf->qf2)[IIDX::IIW][ug.fId];
 
-		this->CmpBcFaceVisterm();  //要改动
+		this->CalcBcFaceVisterm();  //要改动
 
 	}*/
 
 }
 
-void UINsVisterm::CmpFaceVisterm()
+void UINsVisterm::CalcFaceVisterm()
 {
 
 	iinv.l2rdx = (*ug.xcc)[ug.rc] - (*ug.xcc)[ug.lc];  //界面左右单元中心距
@@ -387,7 +386,7 @@ void UINsVisterm::CmpFaceVisterm()
 	iinv.biw[ug.fId][1] = -iinv.Ftw1 - iinv.Ftw2;
 }
 
-/*void UINsVisterm::CmpBcFaceVisterm()
+/*void UINsVisterm::CalcBcFaceVisterm()
 {
 	iinv.l2rdx[ug.fId] = (*ug.xfc)[ug.fId] - (*ug.xcc)[ug.lc];  //界面左右单元中心距
 	iinv.l2rdy[ug.fId] = (*ug.yfc)[ug.fId] - (*ug.ycc)[ug.lc];
@@ -477,7 +476,7 @@ void UINsVisterm::CmpFaceVisterm()
 	iinv.biw[1][ug.fId] = -iinv.Ftw1[ug.fId] - iinv.Ftw2[ug.fId];
 }*/
 
-void UINsVisterm::CmpUnsteadcoff()
+void UINsVisterm::CalcUnsteadcoff()
 {
 	for (int cId = 0; cId < ug.nCell; ++cId)
 	{
@@ -562,7 +561,7 @@ void UINsVisterm::CmpUnsteadcoff()
 
 
 
-void UINsVisterm::CmpINsSrc()
+void UINsVisterm::CalcINsSrc()
 {
 	iinv.spc = 0;
 	iinv.buc = 0;

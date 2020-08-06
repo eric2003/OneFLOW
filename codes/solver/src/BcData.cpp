@@ -47,19 +47,6 @@ void BcData::Init( const string & fileName )
     }
 }
 
-void BcData::Init()
-{
-    string fileName = "script/bc.txt";
-    this->ReadList( fileName );
-    this->ReadRegion();
-    this->r2d.resize( nRegion, -1 );
-    for ( int i = 0; i < irList.size(); ++ i )
-    {
-        int ir = irList[ i ];
-        this->r2d[ ir ] = i;
-    }
-}
-
 void BcData::ReadRegion()
 {
     fstream file;

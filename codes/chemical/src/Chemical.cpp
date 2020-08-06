@@ -25,6 +25,7 @@ License
 #include "Stoichiometric.h"
 #include "BlotterCurve.h"
 #include "Thermodynamic.h"
+#include "Sutherland.h"
 #include "NsCom.h"
 #include "Parallel.h"
 #include "FileIO.h"
@@ -352,13 +353,9 @@ void Chemical::CalcDimRefViscosity()
 
 void Chemical::CalcDimRefViscosityNs()
 {
-    Real t0 = 273.15; // zero degree celsius temperature(K)
-    Real c = 110.4; //dimensional temperature constant in sutherland formula
-    Real mu0 = 1.715e-5; //dimensional air viscosity at zero celsius degree
-
-    Real t = nscom.tref_dim;
-    Real coef = ( t0 + c ) / ( t + c );
-    nscom.visref_dim = coef * pow( t / t0, 1.5 ) * mu0;
+    Sutherland sutherland;
+    sutherland.Init( nscom.tref_dim );
+    nscom.visref_dim = sutherland.CalcViscosityDim( nscom.tref_dim );
 }
 
 void Chemical::CalcDimRefViscosityChemical()

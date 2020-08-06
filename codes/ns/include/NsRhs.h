@@ -22,23 +22,27 @@ License
 
 
 #pragma once
-#include "HXDefine.h"
+#include "Rhs.h"
 
 BeginNameSpace( ONEFLOW )
 
-class ITimestep
+class NsRhs : public Rhs
 {
 public:
-    ITimestep();
-    ~ITimestep();
+    NsRhs ();
+    ~NsRhs();
 public:
-    void CmpCfl();
-    void CmpFaceInvSpec();
-    void CmpFaceVisSpec();
-public:
-    void CmpCellInvTimestep();
-    void CmpCellVisTimestep();
+    void UpdateResiduals();
 };
 
+void NsCalcBc();
+void NsCalcGamaT(int flag);
+void NsCalcRHS();
+void NsCalcInvFlux();
+void NsCalcVisFlux();
+void NsCalcSrcFlux();
+void NsCalcChemSrc();
+void NsCalcTurbEnergy();
+void NsCalcDualTimeStepSrc();
 
 EndNameSpace

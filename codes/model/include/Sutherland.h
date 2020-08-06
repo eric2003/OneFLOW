@@ -22,24 +22,24 @@ License
 
 
 #pragma once
-#include "BcSolver.h"
-#include "UBcSolver.h"
-#include "INsBcSolver.h"
-
+#include "HXType.h"
 BeginNameSpace( ONEFLOW )
 
-class UINsBcSolver : public INsBcSolver
+class Sutherland
 {
 public:
-    UINsBcSolver();
-    ~UINsBcSolver();
+    Sutherland();
+    ~Sutherland();
 public:
-    void Init();
-    void CalcBcRegion();
-    void CalcBc();
-    void SetId( int bcfId );
-    void PrepareData();
-    void UpdateBc();
+    Real t0_dim, ts_dim;
+    Real mu0_dim;
+    Real ts;
+public:
+    void Init( Real tref_dim );
+    Real CalcViscosity( Real t );
+    Real CalcViscosityDim( Real t_dim );
+public:
+    void SetInvalidValue();
 };
 
 EndNameSpace

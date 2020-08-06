@@ -26,7 +26,7 @@ License
 #include "Zone.h"
 #include "GridState.h"
 #include "UNsVisFlux.h"
-#include "Rhs.h"
+#include "NsRhs.h"
 #include "UCom.h"
 #include "CmxTask.h"
 #include "Iteration.h"
@@ -99,8 +99,8 @@ void NsCalcTimeStep( StringField & data )
 
 void NsUpdateResiduals( StringField & data )
 {
-    Rhs * rhs = new Rhs();
-    rhs->UpdateNsResiduals();
+    Rhs * rhs = new NsRhs();
+    rhs->UpdateResiduals();
     delete rhs;
 }
 

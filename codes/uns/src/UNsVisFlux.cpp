@@ -21,6 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "UNsVisFlux.h"
+#include "Sutherland.h"
 #include "HeatFlux.h"
 #include "Zone.h"
 #include "ZoneState.h"
@@ -442,10 +443,13 @@ void CalcLaminarViscosity( int flag )
 
     Real minLimit = 0.0;
 
+    Sutherland sutherland;
+    sutherland.Init( nscom.tref_dim );
+
     for ( int cId = ug.ist; cId < ug.ied; ++ cId )
     {
         Real temperature = ( * unsf.tempr )[ IDX::ITT ][ cId ];
-        Real visl = Sutherland::CalcViscosity( temperature );
+        Real visl = sutherland.CalcViscosity( temperature );
         ( * unsf.visl )[ 0 ][ cId ] = MAX( minLimit, visl );
     }
 }

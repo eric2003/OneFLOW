@@ -71,26 +71,14 @@ public:
     void AccurateFaceValue();
     void AccurateOtherFaceValue();
     void CorrectFaceGrad();
-    void CmpNormalGrad();
-    void CmpTestMethod();
-    void CmpNew1Method();
-    void CmpNew2Method();
+    void CalcNormalGrad();
+    void CalcTestMethod();
+    void CalcNew1Method();
+    void CalcNew2Method();
     void ModifyFaceGrad();
 };
 
 extern VisGrad visQ;
 extern VisGrad visT;
-
-class Iutherland
-{
-public:
-	Iutherland();
-	~Iutherland();
-public:
-	static Real Icdim;
-	static Real Ic;
-	static void ICmpConst();
-	static Real ICmpViscosity(Real t);
-};
 
 EndNameSpace
