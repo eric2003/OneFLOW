@@ -71,7 +71,7 @@ void INsCmpBc()
 	delete uINsBcSolver;
 }
 
-void INSCmpGamaT(int flag)
+void INsCmpGamaT(int flag)
 {
 	UnsGrid * grid = Zone::GetUnsGrid();
 

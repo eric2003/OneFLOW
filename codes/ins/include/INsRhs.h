@@ -36,7 +36,7 @@ public:
 };
 
 void INsCmpBc();
-void INSCmpGamaT(int flag);
+void INsCmpGamaT(int flag);
 void INsCmpRHS();
 void INsCmpChemSrc();
 void INsCmpTurbEnergy();
