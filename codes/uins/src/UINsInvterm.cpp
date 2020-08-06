@@ -115,6 +115,7 @@ void UINsInvterm::CalcINsTimeStep()
 {
 	iinv.timestep = GetDataValue< Real >("global_dt");
 }
+
 void UINsInvterm::CalcINsPreflux()
 {
 	if (ctrl.currTime == 0.001 && Iteration::innerSteps == 1)

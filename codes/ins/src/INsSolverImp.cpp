@@ -22,7 +22,7 @@ License
 
 #include "INsSolverImp.h"
 #include "SolverImp.h"
-#include "UITimeStep.h"
+#include "UTimeStep.h"
 #include "Zone.h"
 #include "GridState.h"
 #include "UINsVisterm.h"
@@ -53,7 +53,7 @@ void RegisterINsFunc()
     REGISTER_DATA_CLASS( IDumpHeatFluxCoeff );
 
 	REGISTER_DATA_CLASS( INsCalcTurb );
-	REGISTER_DATA_CLASS(INsCalcHeat);
+	REGISTER_DATA_CLASS( INsCalcHeat );
 }
 
 void INsInitFinal( StringField & data )
@@ -94,7 +94,11 @@ void INsCalcBoundary( StringField & data )
 
 void INsCalcTimeStep( StringField & data )
 {
-    UITimeStep * uTimeStep = new UITimeStep();
+    //UITimeStep * uTimeStep = new UITimeStep();
+    //uTimeStep->CalcTimeStep();
+    //delete uTimeStep;
+
+    UTimeStep * uTimeStep = new UTimeStep();
     uTimeStep->CalcTimeStep();
     delete uTimeStep;
 }
