@@ -31,10 +31,15 @@ public:
     Sutherland();
     ~Sutherland();
 public:
-    static Real cdim;
-    static Real c;
-    static void CalcConst();
-    static Real CalcViscosity( Real t );
+    Real t0_dim, ts_dim;
+    Real mu0_dim;
+    Real ts;
+public:
+    void Init( Real tref_dim );
+    Real CalcViscosity( Real t );
+    Real CalcViscosityDim( Real t_dim );
+public:
+    void SetInvalidValue();
 };
 
 EndNameSpace
