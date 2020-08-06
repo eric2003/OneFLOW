@@ -66,7 +66,7 @@ public:
     int a, b;
 };
 
-class CmmmpDataAB
+class CmpDataAB
 {
 public:
     bool operator()( const DataAB & k1, const DataAB & k2 ) const;
@@ -78,7 +78,7 @@ public:
     MapIntInt();
     ~MapIntInt();
 public:
-    map< DataAB, int, CmmmpDataAB > data;
+    map< DataAB, int, CmpDataAB > data;
 public:
     void AddData( int a, int b );
     int  GetId( int a, int b );
