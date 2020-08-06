@@ -111,7 +111,7 @@ void UINsInvterm::CalcInvcoff()
    //DeAlloc();
 }
 
-void UINsInvterm::CalcINsTimestep()
+void UINsInvterm::CalcINsTimeStep()
 {
 	iinv.timestep = GetDataValue< Real >("global_dt");
 }

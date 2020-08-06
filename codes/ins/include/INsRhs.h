@@ -41,7 +41,7 @@ void INsCalcRHS();
 void INsCalcChemSrc();
 void INsCalcTurbEnergy();
 void INsCorrectPresscoef();
-void INsCalcTimestep();
+void INsCalcTimeStep();
 void INsPreflux();
 void INsCalcInv();
 void INsCalcVis();

@@ -46,23 +46,23 @@ BeginNameSpace( ONEFLOW )
 
 
 
-UITimestep::UITimestep()
+UITimeStep::UITimeStep()
 {
     ;
 }
 
-UITimestep::~UITimestep()
+UITimeStep::~UITimeStep()
 {
     ;
 }
 
-void UITimestep::Init()
+void UITimeStep::Init()
 {
     ug.Init();
     uinsf.Init();
 }
 
-void UITimestep::ReadTmp()
+void UITimeStep::ReadTmp()
 {
     static int iii = 0;
     if ( iii ) return;
@@ -130,7 +130,7 @@ void UITimestep::ReadTmp()
 }
 
 
-void UITimestep::CalcTimestep()
+void UITimeStep::CalcTimeStep()
 {
     this->Init();
 
@@ -142,28 +142,28 @@ void UITimestep::CalcTimestep()
 
     if ( nscom.timestepModel == 0 )
     {
-        this->CalcLocalTimestep();
+        this->CalcLocalTimeStep();
     }
     else if ( nscom.timestepModel == 1 )
     {
-        this->CalcGlobalTimestep();
+        this->CalcGlobalTimeStep();
     }
     else
     {
-        this->CalcLgTimestep();
+        this->CalcLgTimeStep();
     }
 }
 
-void UITimestep::CalcLocalTimestep()
+void UITimeStep::CalcLocalTimeStep()
 {
-    this->CalcInvTimestep();
+    this->CalcInvTimeStep();
 
-    this->CalcVisTimestep();
+    this->CalcVisTimeStep();
 
-    this->ModifyTimestep();
+    this->ModifyTimeStep();
 }
 
-void UITimestep::CalcInvTimestep()
+void UITimeStep::CalcInvTimeStep()
 {
     for ( int cId = 0; cId < ug.nCell; ++ cId )
     {
@@ -171,12 +171,12 @@ void UITimestep::CalcInvTimestep()
         gcom.cvol  = ( * ug.cvol )[ cId ];
 
         nscom.invsr = ( * uinsf.invsr )[ 0 ][ cId ];
-        this->CalcCellInvTimestep();
+        this->CalcCellInvTimeStep();
         ( * uinsf.timestep )[ 0 ][ cId ] = nscom.timestep;
     }
 }
 
-void UITimestep::CalcVisTimestep()
+void UITimeStep::CalcVisTimeStep()
 {
     bool flag = vis_model.vismodel > 0 && nscom.visTimeStepModel > 0;
 
@@ -188,18 +188,18 @@ void UITimestep::CalcVisTimestep()
         gcom.cvol  = ( * ug.cvol )[ cId ];
         nscom.vissr = ( * uinsf.vissr )[ 0 ][ cId ];
         nscom.timestep = ( * uinsf.timestep )[ 0 ][ cId ];
-        this->CalcCellVisTimestep();
+        this->CalcCellVisTimeStep();
         ( * uinsf.timestep )[ 0 ][ cId ] = nscom.timestep;
     }
 }
 
-void UITimestep::CalcSpectrumField()
+void UITimeStep::CalcSpectrumField()
 {
     this->CalcInvSpectrumField();
     this->CalcVisSpectrumField();
 }
 
-void UITimestep::CalcInvSpectrumField()
+void UITimeStep::CalcInvSpectrumField()
 {
     Grid * grid = Zone::GetGrid();
 
@@ -219,7 +219,7 @@ void UITimestep::CalcInvSpectrumField()
     }
 }
 
-void UITimestep::CalcVisSpectrumField()
+void UITimeStep::CalcVisSpectrumField()
 {
     Grid * grid = Zone::GetGrid();
 
@@ -241,14 +241,14 @@ void UITimestep::CalcVisSpectrumField()
     }
 }
 
-void UITimestep::SetId( int fId )
+void UITimeStep::SetId( int fId )
 {
     ug.fId = fId;
     ug.lc = ( * ug.lcf )[ fId ];
     ug.rc = ( * ug.rcf )[ fId ];
 }
 
-void UITimestep::PrepareData()
+void UITimeStep::PrepareData()
 {
     gcom.xfn   = ( * ug.xfn   )[ ug.fId ];
     gcom.yfn   = ( * ug.yfn   )[ ug.fId ];
@@ -266,7 +266,7 @@ void UITimestep::PrepareData()
     nscom.gama2 = ( * uinsf.gama  )[ 0 ][ ug.rc ];
 }
 
-void UITimestep::PrepareVisData()
+void UITimeStep::PrepareVisData()
 {
     gcom.xfn   = ( * ug.xfn   )[ ug.fId ];
     gcom.yfn   = ( * ug.yfn   )[ ug.fId ];
@@ -306,36 +306,36 @@ void UITimestep::PrepareVisData()
     gcom.zcc2 = ( * ug.zcc )[ ug.rc ];
 }
 
-void UITimestep::UpdateInvSpectrumField()
+void UITimeStep::UpdateInvSpectrumField()
 {
     ( * uinsf.invsr )[ 0 ][ ug.lc ] += nscom.invsr;
     ( * uinsf.invsr )[ 0 ][ ug.rc ] += nscom.invsr;
 }
 
-void UITimestep::UpdateVisSpectrumField()
+void UITimeStep::UpdateVisSpectrumField()
 {
     ( * uinsf.vissr )[ 0 ][ ug.lc ] += nscom.vissr;
     ( * uinsf.vissr )[ 0 ][ ug.rc ] += nscom.vissr;
 }
 
-void UITimestep::ModifyTimestep()
+void UITimeStep::ModifyTimeStep()
 {
-    this->CalcMinTimestep();
+    this->CalcMinTimeStep();
     if ( nscom.max_time_ratio <= 0 ) return;
 
-    Real maxPermittedTimestep = nscom.max_time_ratio * nscom.minTimeStep;
+    Real maxPermittedTimeStep = nscom.max_time_ratio * nscom.minTimeStep;
     for ( int cId = 0; cId < ug.nCell; ++ cId )
     {
-        ( * uinsf.timestep )[ 0 ][ cId ] = MIN( ( * uinsf.timestep )[ 0 ][ cId ], maxPermittedTimestep );
+        ( * uinsf.timestep )[ 0 ][ cId ] = MIN( ( * uinsf.timestep )[ 0 ][ cId ], maxPermittedTimeStep );
     }
 }
 
-void UITimestep::CalcGlobalTimestep()
+void UITimeStep::CalcGlobalTimeStep()
 {
-    this->SetTimestep( ctrl.pdt );
+    this->SetTimeStep( ctrl.pdt );
 }
 
-void UITimestep::CalcMinTimestep()
+void UITimeStep::CalcMinTimeStep()
 {
     nscom.minTimeStep = LARGE;
     for ( int cId = 0; cId < ug.nCell; ++ cId )
@@ -344,7 +344,7 @@ void UITimestep::CalcMinTimestep()
     }
 }
 
-void UITimestep::SetTimestep( Real timestep )
+void UITimeStep::SetTimeStep( Real timestep )
 {
     for ( int cId = 0; cId < ug.nCell; ++ cId )
     {
@@ -352,10 +352,10 @@ void UITimestep::SetTimestep( Real timestep )
     }
 }
 
-void UITimestep::CalcLgTimestep()
+void UITimeStep::CalcLgTimeStep()
 {
-    this->CalcLocalTimestep();
-    this->SetTimestep( nscom.minTimeStep );
+    this->CalcLocalTimeStep();
+    this->SetTimeStep( nscom.minTimeStep );
     ctrl.pdt = nscom.minTimeStep;
 }
 

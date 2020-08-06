@@ -104,7 +104,7 @@ void INsCalcGamaT(int flag)
 
 void INsCalcRHS()
 {
-	INsCalcTimestep();
+	INsCalcTimeStep();
 
 	INsPreflux();
 
@@ -131,10 +131,10 @@ void INsCalcRHS()
 	INsUpdateRes();
 }
 
-void INsCalcTimestep()
+void INsCalcTimeStep()
 {
 	UINsInvterm * uINsInvterm = new UINsInvterm();
-	uINsInvterm->CalcINsTimestep();
+	uINsInvterm->CalcINsTimeStep();
 	delete uINsInvterm;
 }
 

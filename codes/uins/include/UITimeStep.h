@@ -26,22 +26,22 @@ License
 #include "ITimeStep.h"
 
 BeginNameSpace( ONEFLOW )
-class UITimestep : public ITimestep
+class UITimeStep : public ITimeStep
 {
 public:
-    UITimestep();
-    ~UITimestep();
+    UITimeStep();
+    ~UITimeStep();
 public:
     void Init();
     void ReadTmp();
-    void CalcTimestep();
-    void CalcLocalTimestep();
-    void CalcGlobalTimestep();
-    void CalcLgTimestep();
-    void CalcInvTimestep();
-    void CalcVisTimestep();
-    void CalcMinTimestep();
-    void SetTimestep( Real timestep );
+    void CalcTimeStep();
+    void CalcLocalTimeStep();
+    void CalcGlobalTimeStep();
+    void CalcLgTimeStep();
+    void CalcInvTimeStep();
+    void CalcVisTimeStep();
+    void CalcMinTimeStep();
+    void SetTimeStep( Real timestep );
 public:
     void CalcSpectrumField();
     void CalcInvSpectrumField();
@@ -52,7 +52,7 @@ public:
     void PrepareVisData();
     void UpdateInvSpectrumField();
     void UpdateVisSpectrumField();
-    void ModifyTimestep();
+    void ModifyTimeStep();
 };
 
 

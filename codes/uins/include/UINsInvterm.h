@@ -42,7 +42,7 @@ public:
 public:
     void Alloc();
     void DeAlloc();
-	void CalcINsTimestep();
+	void CalcINsTimeStep();
 	void CalcINsPreflux();
 	void INsPreflux();
 	void Initflux();

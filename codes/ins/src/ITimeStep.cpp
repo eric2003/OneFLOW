@@ -30,17 +30,17 @@ using namespace std;
 
 BeginNameSpace( ONEFLOW )
 
-ITimestep::ITimestep()
+ITimeStep::ITimeStep()
 {
     ;
 }
 
-ITimestep::~ITimestep()
+ITimeStep::~ITimeStep()
 {
     ;
 }
 
-void ITimestep::CalcCfl()
+void ITimeStep::CalcCfl()
 {
     int iter = Iteration::outerSteps;
 
@@ -58,7 +58,7 @@ void ITimestep::CalcCfl()
     }
 }
 
-void ITimestep::CalcFaceInvSpec()
+void ITimeStep::CalcFaceInvSpec()
 {
     Real rl = nscom.q1[ IIDX::IIR ];
     Real ul = nscom.q1[ IIDX::IIU ];
@@ -87,7 +87,7 @@ void ITimestep::CalcFaceInvSpec()
     nscom.invsr = half * gcom.farea * ( ABS( vn ) + cm );
 }
 
-void ITimestep::CalcFaceVisSpec()
+void ITimeStep::CalcFaceVisSpec()
 {
     if ( nscom.visSRModel == 1 )
     {
@@ -121,12 +121,12 @@ void ITimestep::CalcFaceVisSpec()
     }
 }
 
-void ITimestep::CalcCellInvTimestep()
+void ITimeStep::CalcCellInvTimeStep()
 {
     nscom.timestep = Iteration::cfl * gcom.cvol / nscom.invsr;
 }
 
-void ITimestep::CalcCellVisTimestep()
+void ITimeStep::CalcCellVisTimeStep()
 {
     Real visTimeStep = Iteration::cfl * gcom.cvol / nscom.vissr;
     nscom.timestep *= visTimeStep / ( nscom.timestep + visTimeStep );
