@@ -125,7 +125,7 @@ void INsBcSolver::SetSolidSurfaceBc()
     }
 }
 
-void INsBcSolver::CmpFaceBc()
+void INsBcSolver::CalcFaceBc()
 {
     ( this->* bcPointer )();
 }
@@ -416,7 +416,7 @@ void INsBcSolver::PeriodicBc()
 }
 
 
-Real INsBcSolver::CmpReciMolecularWeight( RealField & prim )
+Real INsBcSolver::CalcReciMolecularWeight( RealField & prim )
 {
     Real reciprocalAverageMolecularWeight = one;
     return reciprocalAverageMolecularWeight;
@@ -424,7 +424,7 @@ Real INsBcSolver::CmpReciMolecularWeight( RealField & prim )
 
 Real INsBcSolver::CalcDensity( RealField & prim, Real pres, Real temperature )
 {
-    Real rmw = this->CmpReciMolecularWeight( prim );
+    Real rmw = this->CalcReciMolecularWeight( prim );
     Real density = pres / ( nscom.statecoef * temperature * rmw );
     return density;
 }

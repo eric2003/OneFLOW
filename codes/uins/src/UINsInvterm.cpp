@@ -61,18 +61,18 @@ UINsInvterm::~UINsInvterm()
 	delete limiter;
 }
 
-void UINsInvterm::CmpLimiter()
+void UINsInvterm::CalcLimiter()
 {
 	limiter->CalcLimiter();
 }
 
-void UINsInvterm::CmpInvFace()  //单元数据重构
+void UINsInvterm::CalcInvFace()  //单元数据重构
 {
 	//uins_grad.Init();
-	//uins_grad.CmpGrad();
+	//uins_grad.CalcGrad();
 
 
-	this->CmpLimiter();   //不改
+	this->CalcLimiter();   //不改
 
 	this->GetQlQrField();  //不改
 
@@ -89,7 +89,7 @@ void UINsInvterm::GetQlQrField()
 void UINsInvterm::ReconstructFaceValueField()
 {
 	limf->CalcFaceValue();
-	//limf->CmpFaceValueWeighted();
+	//limf->CalcFaceValueWeighted();
 }
 
 void UINsInvterm::BoundaryQlQrFixField()
@@ -97,7 +97,7 @@ void UINsInvterm::BoundaryQlQrFixField()
 	limf->BcQlQrFix();
 }
 
-void UINsInvterm::CmpInvcoff()
+void UINsInvterm::CalcInvcoff()
 {
 	if (nscom.icmpInv == 0) return;
 	iinv.Init();
@@ -105,8 +105,8 @@ void UINsInvterm::CmpInvcoff()
 	uinsf.Init();
 	//Alloc();
 
-	//this->CmpInvFace();
-	this->CmpInvMassFlux();  //需要改动
+	//this->CalcInvFace();
+	this->CalcInvMassFlux();  //需要改动
 
    //DeAlloc();
 }
@@ -126,7 +126,7 @@ void UINsInvterm::CalcINsPreflux()
 		uinsf.Init();
 		//Alloc();
 
-		this->CmpInvFace();
+		this->CalcInvFace();
 		this->INsPreflux();
 
 		//DeAlloc();
@@ -296,7 +296,7 @@ void UINsInvterm::Initflux()
 	iinv.ww = 0;
 }
 
-void UINsInvterm::CmpInvMassFlux()
+void UINsInvterm::CalcInvMassFlux()
 {
 
 	for (int fId = 0; fId < ug.nFace; ++fId)
@@ -861,14 +861,14 @@ for (int fId = 0; fId < ug.nBFace; ++fId)
 	fileres_w.close();*/
 }
 
-void UINsInvterm::CmpFaceflux()
+void UINsInvterm::CalcFaceflux()
 {
 
 	iinv.Init();
 	ug.Init();
 	uinsf.Init();
 	//Alloc();
-	//this->CmpInvFace();  //边界处理
+	//this->CalcInvFace();  //边界处理
 	for (int fId = ug.nBFace; fId < ug.nFace; ++fId)
 	{
 		ug.fId = fId;
@@ -1022,9 +1022,9 @@ void UINsInvterm::AddFlux()
 	//ONEFLOW::AddF2CField(res, iinvflux);
 }
 
-void UINsInvterm::CmpCorrectPresscoef()
+void UINsInvterm::CalcCorrectPresscoef()
 {
-	this->CmpNewMomCoe();
+	this->CalcNewMomCoe();
 	for (int fId = ug.nBFace; fId < ug.nFace; ++fId)
 	{
 		ug.fId = fId;
@@ -1179,7 +1179,7 @@ void UINsInvterm::CmpCorrectPresscoef()
 
 }
 
-void UINsInvterm::CmpNewMomCoe()
+void UINsInvterm::CalcNewMomCoe()
 {
 	iinv.spc = 0;
 
@@ -1210,7 +1210,7 @@ void UINsInvterm::CmpNewMomCoe()
 
 }
 
-void UINsInvterm::CmpPressCorrectEqu()
+void UINsInvterm::CalcPressCorrectEqu()
 {
 	/*double rhs_p = 1e-8;
 	iinv.res_p = 1;
@@ -1531,7 +1531,7 @@ void UINsInvterm::UpdateFaceflux()
 	ug.Init();
 	uinsf.Init();
 	//Alloc();
-	//this->CmpInvFace();  //边界处理
+	//this->CalcInvFace();  //边界处理
 	for (int fId = ug.nBFace; fId < ug.nFace; ++fId)
 	{
 		ug.fId = fId;
@@ -1546,7 +1546,7 @@ void UINsInvterm::UpdateFaceflux()
 
 		//this->PrepareFaceValue();
 
-		this->CmpUpdateINsFaceflux();
+		this->CalcUpdateINsFaceflux();
 
 	}
 
@@ -1564,12 +1564,12 @@ void UINsInvterm::UpdateFaceflux()
 
 		//this->PrepareFaceValue();
 
-		this->CmpUpdateINsBcFaceflux();
+		this->CalcUpdateINsBcFaceflux();
 	}
 
 }
 
-void UINsInvterm::CmpUpdateINsBcFaceflux()
+void UINsInvterm::CalcUpdateINsBcFaceflux()
 {
 	iinv.uuj[ug.fId] = 0; //面速度修正量
 	iinv.vvj[ug.fId] = 0;
@@ -1584,7 +1584,7 @@ void UINsInvterm::CmpUpdateINsBcFaceflux()
 }
 
 
-void UINsInvterm::CmpUpdateINsFaceflux()
+void UINsInvterm::CalcUpdateINsFaceflux()
 {
 
 	iinv.dist = (*ug.xfn)[ug.fId] * ((*ug.xcc)[ug.rc] - (*ug.xcc)[ug.lc]) + (*ug.yfn)[ug.fId] * ((*ug.ycc)[ug.rc] - (*ug.ycc)[ug.lc]) + (*ug.zfn)[ug.fId] * ((*ug.zcc)[ug.rc] - (*ug.zcc)[ug.lc]);
@@ -1604,7 +1604,7 @@ void UINsInvterm::CmpUpdateINsFaceflux()
 
 void UINsInvterm::UpdateSpeed()
 {
-	this->CmpPreGrad();
+	this->CalcPreGrad();
 
 	for (int cId = 0; cId < ug.nCell; ++cId)
 	{
@@ -1979,7 +1979,7 @@ void UINsInvterm::UpdateINsRes()
 }
 
 
-void UINsInvterm::CmpPreGrad()
+void UINsInvterm::CalcPreGrad()
 {
 	iinv.dqqdx = 0;
 	iinv.dqqdy = 0;

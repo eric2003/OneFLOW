@@ -40,7 +40,7 @@ ITimestep::~ITimestep()
     ;
 }
 
-void ITimestep::CmpCfl()
+void ITimestep::CalcCfl()
 {
     int iter = Iteration::outerSteps;
 
@@ -58,7 +58,7 @@ void ITimestep::CmpCfl()
     }
 }
 
-void ITimestep::CmpFaceInvSpec()
+void ITimestep::CalcFaceInvSpec()
 {
     Real rl = nscom.q1[ IIDX::IIR ];
     Real ul = nscom.q1[ IIDX::IIU ];
@@ -87,7 +87,7 @@ void ITimestep::CmpFaceInvSpec()
     nscom.invsr = half * gcom.farea * ( ABS( vn ) + cm );
 }
 
-void ITimestep::CmpFaceVisSpec()
+void ITimestep::CalcFaceVisSpec()
 {
     if ( nscom.visSRModel == 1 )
     {
@@ -121,12 +121,12 @@ void ITimestep::CmpFaceVisSpec()
     }
 }
 
-void ITimestep::CmpCellInvTimestep()
+void ITimestep::CalcCellInvTimestep()
 {
     nscom.timestep = Iteration::cfl * gcom.cvol / nscom.invsr;
 }
 
-void ITimestep::CmpCellVisTimestep()
+void ITimestep::CalcCellVisTimestep()
 {
     Real visTimeStep = Iteration::cfl * gcom.cvol / nscom.vissr;
     nscom.timestep *= visTimeStep / ( nscom.timestep + visTimeStep );

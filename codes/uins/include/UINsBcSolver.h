@@ -35,8 +35,8 @@ public:
     ~UINsBcSolver();
 public:
     void Init();
-    void CmpBcRegion();
-    void CmpBc();
+    void CalcBcRegion();
+    void CalcBc();
     void SetId( int bcfId );
     void PrepareData();
     void UpdateBc();

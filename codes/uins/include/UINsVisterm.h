@@ -38,30 +38,30 @@ public:
     MRField * visflux;
 
 public:
-    void CmpViscoff();
+    void CalcViscoff();
     void PrepareField();
-	void CmpPreandVisGrad();
+	void CalcPreandVisGrad();
     
-	void CmpVisterm();
-	void CmpFaceVisterm();
-	void CmpBcFaceVisterm();
+	void CalcVisterm();
+	void CalcFaceVisterm();
+	void CalcBcFaceVisterm();
 
     void Alloc();
     void DeAlloc();
 	void CalcINsSrc();
 	//void Addcoff();
 
-	void CmpUnsteadcoff();
+	void CalcUnsteadcoff();
 public:
     void PrepareFaceValue();
     void SaveFacePara();
-    void CmpFaceWeight();
+    void CalcFaceWeight();
 public:
-    void CmpGradCoef();
+    void CalcGradCoef();
     void PrepareCellGeom();
 };
 
-void ICmpLaminarViscosity( int flag );
+void ICalcLaminarViscosity( int flag );
 
 
 

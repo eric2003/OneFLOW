@@ -51,7 +51,7 @@ public:
     void PrepareDataFacePrim();
     void ComputeViscousTerm();
     void Init();
-    void CmpSpectrum();
+    void CalcSpectrum();
 };
 
 EndNameSpace

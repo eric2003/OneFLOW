@@ -59,10 +59,10 @@ void RegisterINsFunc()
 void INsInitFinal( StringField & data )
 {
     INsCalcGamaT( F_INNER );
-    //ICmpLaminarViscosity( F_INNER );
+    //ICalcLaminarViscosity( F_INNER );
     INsCalcBc();
     INsCalcGamaT( F_GHOST );
-    //ICmpLaminarViscosity( F_GHOST );
+    //ICalcLaminarViscosity( F_GHOST );
 
     Grid * grid = Zone::GetGrid();
 
@@ -86,16 +86,16 @@ void INsVisual( StringField & data )
 void INsCalcBoundary( StringField & data )
 {
     INsCalcGamaT( F_INNER );
-   // ICmpLaminarViscosity( F_INNER );
+   // ICalcLaminarViscosity( F_INNER );
     INsCalcBc();
     INsCalcGamaT( F_GHOST );
-   // ICmpLaminarViscosity( F_GHOST );
+   // ICalcLaminarViscosity( F_GHOST );
 }
 
 void INsCalcTimeStep( StringField & data )
 {
     UITimestep * uTimestep = new UITimestep();
-    uTimestep->CmpTimestep();
+    uTimestep->CalcTimestep();
     delete uTimestep;
 }
 

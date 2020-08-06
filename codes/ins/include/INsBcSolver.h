@@ -54,8 +54,8 @@ public:
     void PeriodicBc         ();
     void VelocityBc();
 public:
-    void CmpFaceBc();
-    Real CmpReciMolecularWeight( RealField & prim );
+    void CalcFaceBc();
+    Real CalcReciMolecularWeight( RealField & prim );
     Real CalcDensity( RealField & prim, Real pres, Real temperature );
 };
 

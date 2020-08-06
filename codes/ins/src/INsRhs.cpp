@@ -67,7 +67,7 @@ void INsCalcBc()
 {
 	UINsBcSolver * uINsBcSolver = new UINsBcSolver();
 	uINsBcSolver->Init();
-	uINsBcSolver->CmpBc();
+	uINsBcSolver->CalcBc();
 	delete uINsBcSolver;
 }
 
@@ -148,21 +148,21 @@ void INsPreflux()
 void INsCalcInv()
 {
 	UINsInvterm * uINsInvterm = new UINsInvterm();
-	uINsInvterm->CmpInvcoff();
+	uINsInvterm->CalcInvcoff();
 	delete uINsInvterm;
 }
 
 void INsCalcVis()
 {
 	UINsVisterm * uINsVisterm = new UINsVisterm();
-	uINsVisterm->CmpViscoff();
+	uINsVisterm->CalcViscoff();
 	delete uINsVisterm;
 }
 
 void INsCalcUnstead()
 {
 	UINsVisterm * uINsVisterm = new UINsVisterm();
-	uINsVisterm->CmpUnsteadcoff();
+	uINsVisterm->CalcUnsteadcoff();
 	delete uINsVisterm;
 }
 
@@ -183,21 +183,21 @@ void INsMomPre()
 void INsCalcFaceflux()
 {
 	UINsInvterm * uINsInvterm = new UINsInvterm();
-	uINsInvterm->CmpFaceflux();
+	uINsInvterm->CalcFaceflux();
 	delete uINsInvterm;
 }
 
 void INsCorrectPresscoef()
 {
 	UINsInvterm * uINsInvterm = new UINsInvterm();
-	uINsInvterm->CmpCorrectPresscoef();
+	uINsInvterm->CalcCorrectPresscoef();
 	delete uINsInvterm;
 }
 
 void INsCalcPressCorrectEquandUpdatePress()
 {
 	UINsInvterm * uINsInvterm = new UINsInvterm();
-	uINsInvterm->CmpPressCorrectEqu();
+	uINsInvterm->CalcPressCorrectEqu();
 	delete uINsInvterm;
 }
 
@@ -225,7 +225,7 @@ void INsUpdateRes()
 //void INsCorrectSpeed()
 //{
 //	UINsInvterm * uINsInvterm = new UINsInvterm();
-//	uINsInvterm->CmpCorrectSpeed();
+//	uINsInvterm->CalcCorrectSpeed();
 //	delete uINsInvterm;
 //}
 
@@ -244,7 +244,7 @@ void INsCalcTurbEnergy()
 //void INsCalcDualTimeStepSrc()
 //{
 //	UINsUnsteady * uinsUnsteady = new UINsUnsteady();
-//	uinsUnsteady->CmpDualTimeSrc();
+//	uinsUnsteady->CalcDualTimeSrc();
 //	delete uinsUnsteady;
 //}
 
