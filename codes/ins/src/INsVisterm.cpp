@@ -131,30 +131,5 @@ void INsVisterm::ModifyFaceGrad()
     visT.ModifyFaceGrad();
 }
 
-Real Iutherland::Icdim = 110.4;
-Real Iutherland::Ic;
-
-Iutherland::Iutherland()
-{
-}
-
-Iutherland::~Iutherland()
-{
-
-}
-
-void Iutherland::ICalcConst()
-{
-	Iutherland::Ic = Iutherland::Icdim / nscom.tref_dim;
-}
-
-Real Iutherland::ICalcViscosity( Real t )
-{
-	Real t3 = t * t * t;
-	return sqrt(t3) * (1 + Iutherland::Ic) / ( t + Iutherland::Ic );
-}
-
-
-
 
 EndNameSpace

@@ -134,27 +134,4 @@ void NsVisFlux::ModifyFaceGrad()
     visT.ModifyFaceGrad();
 }
 
-Real Sutherland::cdim = 110.4;
-Real Sutherland::c;
-
-Sutherland::Sutherland()
-{
-}
-
-Sutherland::~Sutherland()
-{
-
-}
-
-void Sutherland::CalcConst()
-{
-    Sutherland::c = Sutherland::cdim / nscom.tref_dim;
-}
-
-Real Sutherland::CalcViscosity( Real t )
-{
-    Real t3 = t * t * t;
-    return sqrt( t3 ) * ( 1 + Sutherland::c ) / ( t + Sutherland::c );
-}
-
 EndNameSpace

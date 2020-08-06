@@ -21,6 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "UNsVisFlux.h"
+#include "Sutherland.h"
 #include "HeatFlux.h"
 #include "Zone.h"
 #include "ZoneState.h"

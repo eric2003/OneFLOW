@@ -81,16 +81,4 @@ public:
 extern VisGrad visQ;
 extern VisGrad visT;
 
-class Iutherland
-{
-public:
-	Iutherland();
-	~Iutherland();
-public:
-	static Real Icdim;
-	static Real Ic;
-	static void ICalcConst();
-	static Real ICalcViscosity(Real t);
-};
-
 EndNameSpace

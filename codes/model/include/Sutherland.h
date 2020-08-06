@@ -22,61 +22,19 @@ License
 
 
 #pragma once
-#include "HXDefine.h"
-#include "VisGrad.h"
+#include "HXType.h"
 BeginNameSpace( ONEFLOW )
 
-class NsVis
+class Sutherland
 {
 public:
-    NsVis();
-    ~NsVis();
+    Sutherland();
+    ~Sutherland();
 public:
-    void Init();
-public:
-    Real dudx, dudy, dudz;
-    Real dvdx, dvdy, dvdz;
-    Real dwdx, dwdy, dwdz;
-    Real dtdx, dtdy, dtdz;
-    Real dtdn;
-
-    Real txx, tyy, tzz;
-    Real txy, txz, tyz;
-
-    Real rhok;
-
-    Real b11, b22, b33;
-    Real b12, b13, b23;
-
-    Real qx, qy, qz, qNormal;
-    Real tmid;
-    RealField fvis;
-    Real um, vm, wm;
+    static Real cdim;
+    static Real c;
+    static void CalcConst();
+    static Real CalcViscosity( Real t );
 };
-
-extern NsVis vis;
-
-class NsVisFlux
-{
-public:
-    NsVisFlux ();
-    ~NsVisFlux();
-public:
-    void AverGrad();
-    void ZeroNormalGrad();
-    void AverFaceValue();
-    void AverOtherFaceValue();
-    void AccurateFaceValue();
-    void AccurateOtherFaceValue();
-    void CorrectFaceGrad();
-    void CalcNormalGrad();
-    void CalcTestMethod();
-    void CalcNew1Method();
-    void CalcNew2Method();
-    void ModifyFaceGrad();
-};
-
-extern VisGrad visQ;
-extern VisGrad visT;
 
 EndNameSpace

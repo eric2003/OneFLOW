@@ -20,63 +20,32 @@ License
 
 \*---------------------------------------------------------------------------*/
 
+#include "Sutherland.h"
+#include "NsCom.h"
 
-#pragma once
-#include "HXDefine.h"
-#include "VisGrad.h"
 BeginNameSpace( ONEFLOW )
 
-class NsVis
+Real Sutherland::cdim = 110.4;
+Real Sutherland::c;
+
+Sutherland::Sutherland()
 {
-public:
-    NsVis();
-    ~NsVis();
-public:
-    void Init();
-public:
-    Real dudx, dudy, dudz;
-    Real dvdx, dvdy, dvdz;
-    Real dwdx, dwdy, dwdz;
-    Real dtdx, dtdy, dtdz;
-    Real dtdn;
+}
 
-    Real txx, tyy, tzz;
-    Real txy, txz, tyz;
-
-    Real rhok;
-
-    Real b11, b22, b33;
-    Real b12, b13, b23;
-
-    Real qx, qy, qz, qNormal;
-    Real tmid;
-    RealField fvis;
-    Real um, vm, wm;
-};
-
-extern NsVis vis;
-
-class NsVisFlux
+Sutherland::~Sutherland()
 {
-public:
-    NsVisFlux ();
-    ~NsVisFlux();
-public:
-    void AverGrad();
-    void ZeroNormalGrad();
-    void AverFaceValue();
-    void AverOtherFaceValue();
-    void AccurateFaceValue();
-    void AccurateOtherFaceValue();
-    void CorrectFaceGrad();
-    void CalcNormalGrad();
-    void CalcTestMethod();
-    void CalcNew1Method();
-    void CalcNew2Method();
-    void ModifyFaceGrad();
-};
 
-extern VisGrad visQ;
-extern VisGrad visT;
+}
+
+void Sutherland::CalcConst()
+{
+    Sutherland::c = Sutherland::cdim / nscom.tref_dim;
+}
+
+Real Sutherland::CalcViscosity( Real t )
+{
+    Real t3 = t * t * t;
+    return sqrt( t3 ) * ( 1 + Sutherland::c ) / ( t + Sutherland::c );
+}
 
 EndNameSpace

@@ -94,10 +94,6 @@ void INsCalcBoundary( StringField & data )
 
 void INsCalcTimeStep( StringField & data )
 {
-    //UITimeStep * uTimeStep = new UITimeStep();
-    //uTimeStep->CalcTimeStep();
-    //delete uTimeStep;
-
     UTimeStep * uTimeStep = new UTimeStep();
     uTimeStep->CalcTimeStep();
     delete uTimeStep;
@@ -230,6 +226,7 @@ SolverRegData * GetINsReg()
     insReg.dataFlag = WITH_DATA;
     return & insReg;
 }
-  REGISTER_REG_DATA( GetINsReg );
+
+REGISTER_REG_DATA( GetINsReg );
 
 EndNameSpace

@@ -62,7 +62,6 @@ UINsVisterm::~UINsVisterm()
     ;
 }
 
-
 void UINsVisterm::CalcViscoff()
 {
     if ( vis_model.vismodel == 0 ) return;
