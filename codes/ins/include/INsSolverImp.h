@@ -37,8 +37,8 @@ DEFINE_DATA_CLASS( INsInitSolver );
 DEFINE_DATA_CLASS( INsCalcBoundary );
 DEFINE_DATA_CLASS( IDumpHeatFluxCoeff );
 
-DEFINE_DATA_CLASS( INsCmpTurb );
-DEFINE_DATA_CLASS(INsCmpHeat);
+DEFINE_DATA_CLASS( INsCalcTurb );
+DEFINE_DATA_CLASS(INsCalcHeat);
 
 void RegisterINsFunc();
 

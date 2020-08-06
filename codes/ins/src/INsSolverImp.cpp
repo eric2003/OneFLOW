@@ -52,16 +52,16 @@ void RegisterINsFunc()
     REGISTER_DATA_CLASS( INsCalcBoundary );
     REGISTER_DATA_CLASS( IDumpHeatFluxCoeff );
 
-	REGISTER_DATA_CLASS( INsCmpTurb );
-	REGISTER_DATA_CLASS(INsCmpHeat);
+	REGISTER_DATA_CLASS( INsCalcTurb );
+	REGISTER_DATA_CLASS(INsCalcHeat);
 }
 
 void INsInitFinal( StringField & data )
 {
-    INsCmpGamaT( F_INNER );
+    INsCalcGamaT( F_INNER );
     //ICmpLaminarViscosity( F_INNER );
-    INsCmpBc();
-    INsCmpGamaT( F_GHOST );
+    INsCalcBc();
+    INsCalcGamaT( F_GHOST );
     //ICmpLaminarViscosity( F_GHOST );
 
     Grid * grid = Zone::GetGrid();
@@ -72,7 +72,7 @@ void INsInitFinal( StringField & data )
 
         GridState::gridLevel += 1;
 
-		INsCmpBc();
+		INsCalcBc();
 
         GridState::gridLevel -= 1;
     }
@@ -85,10 +85,10 @@ void INsVisual( StringField & data )
 
 void INsCalcBoundary( StringField & data )
 {
-    INsCmpGamaT( F_INNER );
+    INsCalcGamaT( F_INNER );
    // ICmpLaminarViscosity( F_INNER );
-    INsCmpBc();
-    INsCmpGamaT( F_GHOST );
+    INsCalcBc();
+    INsCalcGamaT( F_GHOST );
    // ICmpLaminarViscosity( F_GHOST );
 }
 
@@ -206,12 +206,12 @@ void IDumpHeatFluxCoeff( StringField & data )
     ;
 }
 
-void INsCmpTurb(StringField & data)
+void INsCalcTurb(StringField & data)
 {
 	;
 }
 
-void INsCmpHeat(StringField & data)
+void INsCalcHeat(StringField & data)
 {
 	;
 }

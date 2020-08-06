@@ -35,24 +35,24 @@ public:
     void UpdateResiduals();
 };
 
-void INsCmpBc();
-void INsCmpGamaT(int flag);
-void INsCmpRHS();
-void INsCmpChemSrc();
-void INsCmpTurbEnergy();
+void INsCalcBc();
+void INsCalcGamaT(int flag);
+void INsCalcRHS();
+void INsCalcChemSrc();
+void INsCalcTurbEnergy();
 void INsCorrectPresscoef();
-void INsCmpTimestep();
+void INsCalcTimestep();
 void INsPreflux();
-void INsCmpInv();
-void INsCmpVis();
-void INsCmpUnstead();
-void INsCmpSrc();
+void INsCalcInv();
+void INsCalcVis();
+void INsCalcUnstead();
+void INsCalcSrc();
 void INsMomPre();
-void INsCmpFaceflux();
-void INsCmpPressCorrectEquandUpdatePress();
+void INsCalcFaceflux();
+void INsCalcPressCorrectEquandUpdatePress();
 void INsUpdateFaceflux();
 void INsUpdateRes();
-void INsCmpSpeedCorrectandUpdateSpeed();
+void INsCalcSpeedCorrectandUpdateSpeed();
 
 
 EndNameSpace
