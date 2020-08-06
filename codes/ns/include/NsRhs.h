@@ -22,17 +22,27 @@ License
 
 
 #pragma once
-#include "HXDefine.h"
+#include "Rhs.h"
 
 BeginNameSpace( ONEFLOW )
 
-class Rhs
+class NsRhs : public Rhs
 {
 public:
-    Rhs ();
-    ~Rhs();
+    NsRhs ();
+    ~NsRhs();
 public:
-    virtual void UpdateResiduals();
+    void UpdateResiduals();
 };
+
+void NsCalcBc();
+void NsCalcGamaT(int flag);
+void NsCalcRHS();
+void NsCalcInvFlux();
+void NsCalcVisFlux();
+void NsCalcSrcFlux();
+void NsCalcChemSrc();
+void NsCalcTurbEnergy();
+void NsCalcDualTimeStepSrc();
 
 EndNameSpace

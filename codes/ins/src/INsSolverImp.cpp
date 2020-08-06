@@ -26,7 +26,7 @@ License
 #include "Zone.h"
 #include "GridState.h"
 #include "UINsVisterm.h"
-#include "Rhs.h"
+#include "INsRhs.h"
 #include "UCom.h"
 #include "CmxTask.h"
 #include "Iteration.h"
@@ -72,7 +72,7 @@ void INsInitFinal( StringField & data )
 
         GridState::gridLevel += 1;
 
-		NsCalcBc();
+		INsCmpBc();
 
         GridState::gridLevel -= 1;
     }
@@ -101,8 +101,8 @@ void INsCmpTimeStep( StringField & data )
 
 void INsUpdateResiduals( StringField & data )
 {
-    Rhs * rhs = new Rhs();
-    rhs->UpdateINsResiduals();
+    Rhs * rhs = new INsRhs();
+    rhs->UpdateResiduals();
     delete rhs;
 }
 
