@@ -21,6 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "ParaFile.h"
+#include "FileUtil.h"
 #include "DataBase.h"
 #include "Parallel.h"
 #include "LogFile.h"
@@ -162,9 +163,30 @@ int GetParameterArraySize( const string & word )
     return arraySize;
 }
 
+//void ReadOneFLOWScriptFile( const std::string & fileName )
+//{
+//    FileIO fileIO;
+//
+//    fileIO.OpenFile( fileName, ios_base::in );
+//
+//    ONEFLOW::ReadOneFLOWScriptFile( fileIO );
+//
+//    fileIO.CloseFile();
+//}
+
 void ReadOneFLOWScriptFile( const std::string & fileName )
 {
     FileIO fileIO;
+
+    //string mainName, extensionName;
+    //ONEFLOW::GetFileNameExtension( fileName, mainName, extensionName, "." );
+    //string newExtensionName = "json";
+
+    //ONEFLOW::StrIO.ClearAll();
+    //ONEFLOW::StrIO << mainName << "." << newExtensionName;
+
+    //string newFileName = ONEFLOW::StrIO.str();
+
 
     fileIO.OpenFile( fileName, ios_base::in );
 
