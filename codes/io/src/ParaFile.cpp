@@ -164,16 +164,16 @@ int GetParameterArraySize( const string & word )
     return arraySize;
 }
 
-//void ReadOneFLOWScriptFile( const string & fileName )
-//{
-//    FileIO fileIO;
-//
-//    fileIO.OpenFile( fileName, ios_base::in );
-//
-//    ONEFLOW::ReadOneFLOWScriptFile( fileIO );
-//
-//    fileIO.CloseFile();
-//}
+void ReadOneFLOWScriptFile( const string & fileName )
+{
+    FileIO fileIO;
+
+    fileIO.OpenFile( fileName, ios_base::in );
+
+    ONEFLOW::ReadOneFLOWScriptFile( fileIO );
+
+    fileIO.CloseFile();
+}
 
 void mytestjson();
 
@@ -190,63 +190,63 @@ string GetJsonFileName( const string & fileName )
     return newFileName;
 }
 
-void ReadOneFLOWScriptFile( const string & fileName )
-{
-    string jsonFileName = GetJsonFileName( fileName );
-
-    FileIO fileIO;
-    fileIO.OpenFile( fileName, ios_base::in );
-
-    //string name, word;
-
-    //\tÎªtab¼ü
-    string keyWordSeparator = " =\r\n\t#$,;\"";
-
-    fileIO.SetDefaultSeparator( keyWordSeparator );
-
-    map < string, int > keyWordMap;
-
-    keyWordMap.insert( pair< string, int >( "int", HX_INT ) );
-    keyWordMap.insert( pair< string, int >( "float", HX_FLOAT ) );
-    keyWordMap.insert( pair< string, int >( "double", HX_DOUBLE ) );
-    keyWordMap.insert( pair< string, int >( "Real", HX_REAL ) );
-    keyWordMap.insert( pair< string, int >( "string", HX_STRING ) );
-    keyWordMap.insert( pair< string, int >( "bool", HX_BOOL ) );
-
-    Json::Value jsonRoot;
-
-    while ( ! fileIO.ReachTheEndOfFile() )
-    {
-        bool resultFlag = fileIO.ReadNextMeaningfulLine();
-        if ( ! resultFlag ) break;
-
-        string keyWord = fileIO.ReadNextWord();
-
-        if ( keyWord == "" ) continue;
-
-        int keyWordIndex = keyWordMap[ keyWord ];
-
-        Json::Value jsonItem;
-        string varName;
-        vector< string > varArray;
-        GetParaInfo( fileIO, varName, varArray );
-        jsonItem[ "type" ] = keyWord;
-        jsonItem[ "value" ] = varArray[0];
-        
-        jsonRoot[ varName ] = jsonItem;
-
-        ONEFLOW::ProcessData( varName, &varArray[0], keyWordIndex, varArray.size() );
-    }
-
-    //cout << jsonRoot.toStyledString() << endl;
-
-    //ofstream ofs;
-    //ofs.open( jsonFileName.c_str() );
-    //ofs << jsonRoot.toStyledString();
-    //ofs.close();
-
-    fileIO.CloseFile();
-}
+//void ReadOneFLOWScriptFile( const string & fileName )
+//{
+//    string jsonFileName = GetJsonFileName( fileName );
+//
+//    FileIO fileIO;
+//    fileIO.OpenFile( fileName, ios_base::in );
+//
+//    //string name, word;
+//
+//    //\tÎªtab¼ü
+//    string keyWordSeparator = " =\r\n\t#$,;\"";
+//
+//    fileIO.SetDefaultSeparator( keyWordSeparator );
+//
+//    map < string, int > keyWordMap;
+//
+//    keyWordMap.insert( pair< string, int >( "int", HX_INT ) );
+//    keyWordMap.insert( pair< string, int >( "float", HX_FLOAT ) );
+//    keyWordMap.insert( pair< string, int >( "double", HX_DOUBLE ) );
+//    keyWordMap.insert( pair< string, int >( "Real", HX_REAL ) );
+//    keyWordMap.insert( pair< string, int >( "string", HX_STRING ) );
+//    keyWordMap.insert( pair< string, int >( "bool", HX_BOOL ) );
+//
+//    Json::Value jsonRoot;
+//
+//    while ( ! fileIO.ReachTheEndOfFile() )
+//    {
+//        bool resultFlag = fileIO.ReadNextMeaningfulLine();
+//        if ( ! resultFlag ) break;
+//
+//        string keyWord = fileIO.ReadNextWord();
+//
+//        if ( keyWord == "" ) continue;
+//
+//        int keyWordIndex = keyWordMap[ keyWord ];
+//
+//        Json::Value jsonItem;
+//        string varName;
+//        vector< string > varArray;
+//        GetParaInfo( fileIO, varName, varArray );
+//        jsonItem[ "type" ] = keyWord;
+//        jsonItem[ "value" ] = varArray[0];
+//        
+//        jsonRoot[ varName ] = jsonItem;
+//
+//        ONEFLOW::ProcessData( varName, &varArray[0], keyWordIndex, varArray.size() );
+//    }
+//
+//    //cout << jsonRoot.toStyledString() << endl;
+//
+//    //ofstream ofs;
+//    //ofs.open( jsonFileName.c_str() );
+//    //ofs << jsonRoot.toStyledString();
+//    //ofs.close();
+//
+//    fileIO.CloseFile();
+//}
 
 void GetParaInfo( FileIO & fileIO, string & varName, vector< string > & varArray )
 {
