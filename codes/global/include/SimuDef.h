@@ -25,7 +25,7 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-//求解问题的类型
+//Types of problem solving
 enum class TaskEnum
 {
     SOLVE_FIELD = 0,
@@ -44,16 +44,16 @@ const map<string, TaskEnum> TaskFilter =
 };
 
 
-//管理oneflow求解时执行的任务类型
+//Manage the types of tasks performed when ONEFLOW is solved
 class SimuState
 {
 public:
     SimuState();
     virtual ~SimuState();
 public:
-    //根据数据库的参数，设置simutask对应的值
+    //According to the database parameters, set the corresponding value of simutask
     void Init();
-    //返回要执行的任务类型
+    //Returns the type of task to execute
     const TaskEnum Task() const;
 
 private:

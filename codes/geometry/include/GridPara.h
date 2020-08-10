@@ -28,7 +28,7 @@ using namespace std;
 
 BeginNameSpace( ONEFLOW )
 
-//网格参数
+//Mesh parameters
 class GridPara
 {
 public:
@@ -43,18 +43,18 @@ public:
     string bcFile;
     string targetFile;
 
-    //对网格执行的转换操作
+    //Conversion operations performed on the grid
     int gridObj;    
 
-    //是否是多块网格
+    //Is it a multiblock mesh
     int multiBlock;
 
     int axis_dir;
-    //网格缩放因子
+    //Mesh scaling factor
     Real gridScale;
     RealField gridTrans;
 public:
-    //初始化网格参数
+    //Initialize mesh parameters
     void Init();
 };
 

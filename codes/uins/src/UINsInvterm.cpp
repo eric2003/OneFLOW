@@ -66,7 +66,7 @@ void UINsInvterm::CalcLimiter()
 	limiter->CalcLimiter();
 }
 
-void UINsInvterm::CalcInvFace()  //单元数据重构
+void UINsInvterm::CalcInvFace()  //Cell data reconstruction
 {
 	//uins_grad.Init();
 	//uins_grad.CalcGrad();
@@ -492,7 +492,7 @@ void UINsInvterm::MomPre()
 	bgx.BGMRES();
 	for (int cId = 0; cId < ug.nTCell; cId++)
 	{
-		iinv.uc[cId] = Rank.TempX[cId][0];                       // 解的输出
+		iinv.uc[cId] = Rank.TempX[cId][0];                       // Output of solution
 	}
 	residual_u = Rank.residual;
 	iinv.res_u = residual_u;
@@ -506,8 +506,8 @@ void UINsInvterm::MomPre()
 	NonZero.Number = 0;
 	for (int cId = 0; cId < ug.nTCell; ++cId)
 	{
-		int fn = (*ug.c2f)[cId].size();                             //相邻单元的个数                                    
-		NonZero.Number += fn;                                          //非对角线上非零元的个数
+		int fn = (*ug.c2f)[cId].size();                             //Number of adjacent cells                                    
+		NonZero.Number += fn;                                          //The number of nonzero elements on a non diagonal line
 	}
 	NonZero.Number = NonZero.Number + ug.nTCell;                     //The total number of nonzero elements         
 	Rank.RANKNUMBER = ug.nTCell;                                     // Row and column size of matrix
@@ -525,7 +525,7 @@ void UINsInvterm::MomPre()
 		{
 			int fId = (*ug.c2f)[cId][iFace];                                                            // Number of adjacent faces
 			ug.lc = (*ug.lcf)[fId];                                                                     // Face left unit
-			ug.rc = (*ug.rcf)[fId];                                                                     // 面右侧单元
+			ug.rc = (*ug.rcf)[fId];                                                                     // Face right unit
 			if (cId == ug.lc)
 			{
 				Rank.TempA[n + iFace] = -iinv.ai[fId][0];
@@ -563,8 +563,8 @@ void UINsInvterm::MomPre()
 	NonZero.Number = 0;
 	for (int cId = 0; cId < ug.nTCell; ++cId)
 	{
-		int fn = (*ug.c2f)[cId].size();                             //相邻单元的个数                                    
-		NonZero.Number += fn;                                          //非对角线上非零元的个数
+		int fn = (*ug.c2f)[cId].size();                             //Number of adjacent cells                                    
+		NonZero.Number += fn;                                          //The number of nonzero elements on a non diagonal line
 	}
 	NonZero.Number = NonZero.Number + ug.nTCell;                     //The total number of nonzero elements         
 	Rank.RANKNUMBER = ug.nTCell;                                     // Row and column size of matrix
@@ -582,7 +582,7 @@ void UINsInvterm::MomPre()
 		{
 			int fId = (*ug.c2f)[cId][iFace];                                                            // Number of adjacent faces
 			ug.lc = (*ug.lcf)[fId];                                                                     // Face left unit
-			ug.rc = (*ug.rcf)[fId];                                                                     // 面右侧单元
+			ug.rc = (*ug.rcf)[fId];                                                                     // Face right unit
 			if (cId == ug.lc)
 			{
 				Rank.TempA[n + iFace] = -iinv.ai[fId][0];
@@ -1305,7 +1305,7 @@ void UINsInvterm::CalcPressCorrectEqu()
 			int fId = (*ug.c2f)[cId][iFace];                           // Number of adjacent faces
 			ug.fId = fId;
 			ug.lc = (*ug.lcf)[fId];                                    // Face left unit
-			ug.rc = (*ug.rcf)[fId];                                    // 面右侧单元
+			ug.rc = (*ug.rcf)[fId];                                    // Face right unit
 			if (cId == ug.lc)
 			{
 				Rank.TempA[n + iFace] = iinv.sjp[cId][iFace];          //Non diagonal element value
@@ -1328,7 +1328,7 @@ void UINsInvterm::CalcPressCorrectEqu()
 	for (int cId = 0; cId < ug.nTCell; cId++)
 	{
 		//ug.cId = cId;
-		iinv.pp[cId] = Rank.TempX[cId][0]; //当前时刻的Pressure correction value
+		iinv.pp[cId] = Rank.TempX[cId][0]; //Of the current momentPressure correction value
 	}
 
 	Rank.Deallocate();
@@ -1489,7 +1489,7 @@ for (int cId = 0; cId < ug.nCell; ++cId)
 
 	//for (int cId = 0; cId < ug.nTCell; cId++)
 	//{
-	//	iinv.pc[ug.cId] = nscom.prim[IIDX::IIP] + iinv.pp[ug.cId]; //下一时刻的压力值
+	//	iinv.pc[ug.cId] = nscom.prim[IIDX::IIP] + iinv.pp[ug.cId]; //Pressure value at the next moment
 	//}
 	
 	/*ofstream fileres_p("residual_p.txt", ios::app);

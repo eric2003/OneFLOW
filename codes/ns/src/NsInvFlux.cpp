@@ -867,9 +867,9 @@ void NsInvFlux::Ausmdv()
     Real c2l = inv.gama * inv.pl * orl;
     Real c2r = inv.gama * inv.pr * orr;
 
-    //这个公式应该参照文献好好对一下，很可能在运动网格下有问题！！！！！！！eric 20140126
-    //这里的vn_l和vn_r是惯性坐标系下的法向速度
-    //而vnl和vnr是相对于运动界面的法向速度
+    //This formula should refer to the literature, it is likely that there is a problem under the moving grid!!!!!!! eric 20140126
+    //VN here_ L and VN_ R is the normal velocity in the inertial coordinate system
+    //VNL and VNR are the normal velocities relative to the moving interface
     Real vn_l  = vnl + gcom.vfn;
     Real vn_r  = vnr + gcom.vfn;
 

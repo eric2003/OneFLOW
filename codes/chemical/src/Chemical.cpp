@@ -284,7 +284,7 @@ void Chemical::CalcStateCoefNs()
 
 void Chemical::CalcStateCoefChemical()
 {
-    //这个和NS的计算应该是等价的
+    //This and NS calculation should be equivalent
     nscom.statecoef = rjmk * nscom.tref_dim / ( SQR( nscom.vref_dim ) * nscom.dim_amw );
 }
 

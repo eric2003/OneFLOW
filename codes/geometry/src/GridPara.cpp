@@ -42,24 +42,24 @@ GridPara::~GridPara()
 
 void GridPara::Init()
 {
-    //设置原始网格的文件名称
+    //Sets the file name of the original grid
     this->gridFile = GetDataValue< string >("sourceGridFileName");
     this->bcFile   = GetDataValue< string >("sourceGridBcName");
     //set target grid file name
     this->targetFile = ONEFLOW::GetDataValue< string >( "targetGridFileName" );
-    //设置原始网格格式
+    //Format original grid
     this->filetype = GetDataValue< string >("sourceGridType");
-    //设置target grid type
+    //Set target grid type
     this->target_filetype = GetDataValue< string >("targetGridType");
-    //设置原始网格的拓扑形式
+    //Sets the topology of the original mesh
     this->topo = GetDataValue< string >("topoType");
 
     this->multiBlock = GetDataValue< int >( "multiBlock" );
-    //设置要进行的网格操作
+    //Set the grid operation to be performed
     this->gridObj = GetDataValue< int >("gridObj");
-    //设置网格缩放比例
+    //Set mesh scale
     this->gridScale =  GetDataValue< Real >( "gridScale" );
-    //设置网格平移量
+    //Set mesh translation amount
     this->gridTrans.resize( 3 );
     CopyArray( this->gridTrans, "gridTrans" );
 

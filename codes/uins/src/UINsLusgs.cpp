@@ -228,7 +228,7 @@ void UINsLusgs::PrepareData()
 {
     for ( int iEqu = 0; iEqu < nslu.nEqu; ++ iEqu )
     {
-        nslu.primj[ iEqu ] = ( * uinsf.q )[ iEqu ][ ug.rc ]; //qField存的是原始变量！
+        nslu.primj[ iEqu ] = ( * uinsf.q )[ iEqu ][ ug.rc ]; //Qfield is the original variable!
     }
 
     for ( int iEqu = 0; iEqu < nslu.nEqu; ++ iEqu )

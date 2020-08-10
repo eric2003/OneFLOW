@@ -296,7 +296,7 @@ void TurbCom::InitConst()
     }
     else if ( vis_model.visname.substr( 0, 4 ) == "easm" )
     {
-        // 专门的easm，不是随意组合的那种
+        // Special EASM, not a random combination
         if ( vis_model.visname.substr( 0, 12 ) == "easm-kw-2001" )
         {
             sigk   = 0.5;

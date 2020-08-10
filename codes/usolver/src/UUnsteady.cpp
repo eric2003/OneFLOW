@@ -56,7 +56,7 @@ void UUnsteady::UpdateDualTimeStepSource()
 
 void UUnsteady::StoreOldResidual()
 {
-    //cxh20140818:首先要知道ResidualN1和ResidualN2（n时刻和n-1时刻的残差）；
+    //Cxh20140818: first of all, we need to know the residualn1 and residualn2 (the residuals at time n and time n-1);
     //双时间步内迭代第一步残差，存储为n时刻残差
     if ( Iteration::innerSteps != 1 ) return;
 

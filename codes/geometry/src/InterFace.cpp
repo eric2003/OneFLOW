@@ -189,7 +189,7 @@ void InterFace::FillRecvId( int iNei )
     {
         if ( this->zoneId[ iFace ] == interfacePair->nzid )
         {
-            //这说明idrecv是以本块对接边界面局部计数的
+            //This shows that idrecv is counted locally by the interface of this block
             interfacePair->idrecv[ iCount ] = iFace;
             ++ iCount;
         }
@@ -250,9 +250,9 @@ InterFaceTopo::~InterFaceTopo()
 
 void InterFaceTopo::InitZoneNeighborsInfo()
 {
-    //这段程序求出每一个zone所有的邻居，如果本块有对接边界的化
-    //这个邻居也包括此块本身
-    //最后将所有的邻居的块号按照升序存在zoneIndex里面。
+    //This procedure to find all the neighbors of each zone, if the block has docking boundary
+    //This neighbor includes the block itself
+    //Finally, block numbers of all neighbors are stored in zoneindex in ascending order.
     int nZone = ZoneState::nZones;
 
     this->data.resize( nZone );

@@ -200,8 +200,8 @@ void MG::PreprocessMultigridFlowField( int gl )
 void MG::InitializeCoarseGridFlowFieldByRestrictFineGridFlowField( int fgl )
 {
     //+ Restrict from fine to coarse grid for all q
-    //+ 对应nsmb: wsav = restr( w )
-    //调用下面语句将更新稀网格上的q值( cq )
+    //+ Corresponding nsmb: wsav = restr (W)
+    //Call the following statement to update the Q value (CQ) on the thin grid
     GridState::SetGridLevel( fgl );
 
     ONEFLOW::SsSgTask( "RESTRICT_ALL_Q" );
@@ -210,8 +210,8 @@ void MG::InitializeCoarseGridFlowFieldByRestrictFineGridFlowField( int fgl )
 void MG::StoreCoarseGridFlowFieldToTemporaryStorage( int fgl )
 {
     int cgl = GridState::GetCGridLevel( fgl );
-    //+ LoadQ( coarseGrid, cqsav )后, cqsav其实是wsav(与NSMB记法相对应)
-    //LoadQ将稀网格上的q值( cq )取出赋给cqsav
+    //+ After loadq (coat grid, cqsav), cqsav is actually wsav (corresponding to nsmb notation)
+    //Loadq takes the Q value (CQ) from the sparse grid and assigns it to cqsav
     GridState::SetGridLevel( cgl );
 
     ONEFLOW::SsSgTask( "LOAD_Q" );
@@ -220,30 +220,30 @@ void MG::StoreCoarseGridFlowFieldToTemporaryStorage( int fgl )
 void MG::PrepareFineGridResiduals( int fgl )
 {
     //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-    //+ 其中( * Residual ) = - ( * rhs )对应 - f
-    //+ 注意Residual是密网格上的值, rhs应该为f，这个要核对一下
+    //+ Where (* residual) = - (* RHS) corresponds to - F
+    //+ Note that residual is the value on the dense grid, and RHS should be f. check this
     //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-    //这里应该是ni, nj, nk而不是cni, cnj, cnk!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    //This should be Ni, NJ, NK instead of CNI, CNJ, CNK!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-    //将Residual初始化为上一次的驱动项（第一次f为0，以后会有值）
+    //Initialize residual to the last driver (F is 0 for the first time, and there will be a value later)
     //Residual = ( - f ) == ( - rhs );
     GridState::SetGridLevel( fgl );
 
     ONEFLOW::SsSgTask( "LOAD_RESIDUALS" );
 
     //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-    //+经过UpdateResiduals后 generalResidualField = RL( w ) - f
+    //+After updateresiduals, generalresidualfield = Rl (W) - F
     //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     ONEFLOW::SsSgTask( "UPDATE_RESIDUALS" );
 }
 
 void MG::PrepareCoarseGridResiduals( int fgl )
 {
-    //+经过RestrictDefect后 residualInCoarseGrid = - restr( RL( w ) - f )
+    //+Residual incoarsegrid = - restr (RL (W) - F) after restrict defect
     GridState::SetGridLevel( fgl );
     ONEFLOW::SsSgTask( "RESTRICT_DEFECT" );
 
-    //经过UpdateResiduals后 residualInCoarseGrid = RL-1( wsav ) - restr( RL( w ) - f )
+    //After updateresiduals, residualincoarsegrid = RL-1 (wsav) - restr (RL (W) - F)
     int cgl = GridState::GetCGridLevel( fgl );
     GridState::SetGridLevel( cgl );
     ONEFLOW::SsSgTask( "UPDATE_RESIDUALS" );
@@ -252,8 +252,8 @@ void MG::PrepareCoarseGridResiduals( int fgl )
 void MG::SolveCoarseGridFlowField( int fgl )
 {
     int cgl = GridState::GetCGridLevel( fgl );
-    //经过SolveCoarseGridFlowField( cgl ),稀网格上的q值将被更新
-    //此时稀网格上的q值等同于NSMB里面的w0
+    //After solvecoarsegridflowfield (CGL), the Q value on the thin grid will be updated
+    //In this case, the Q value on the sparse grid is equal to W0 in nsmb
 
     //cycleType = 1 V cycle
     //cycleType = 2 W cycle
@@ -277,7 +277,7 @@ void MG::CorrectFineGridFlowFieldByInterplateCoarseGridFlowField( int fgl )
 
     ONEFLOW::SsSgTask( "MODIFY_FINEGRID" );
 
-    //下面这个实际上是恢复稀网格上的q值。
+    //The following is actually to restore the Q value on the sparse grid.
     GridState::SetGridLevel( cgl );
 
     ONEFLOW::SsSgTask( "RECOVER_COARSEGRID" );
@@ -299,7 +299,7 @@ void MG::PostRelaxationCycle( int gl )
 
 void MG::PostprocessMultigridFlowField( int gl )
 {
-    // 这里只是恢复generalResidualField的初始值，至于这个有什么用，则另说。
+    // This is only to restore the initial value of the general residual field. As for the usefulness of this, let's say something else.
     GridState::SetGridLevel( gl );
 
     ONEFLOW::SsSgTask( "RECOVER_RESIDUALS" );

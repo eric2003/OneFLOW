@@ -309,46 +309,6 @@ void GetParaInfoArray( FileIO & fileIO, string & varName, vector< string > & var
 
 void mytestjson()
 {
-    //Json::Value root;
-    //Json::Value data;
-    //root[ "action" ] = "run";
-    //data[ "number" ] = 1;
-    //root[ "data" ] = data;
-
-    //{
-    //    Json::Value person; 
-    //    person["name"] = "Tocy";
-    //    person["salary"] = 100;
-    //    root[0] = person;
-    //}
-
-    //{
-    //    Json::Value person; 
-    //    person["name"] = "Kit";
-    //    person["salary"] = 89;
-    //    root[1] = person;
-    //}
-
-    cout<<"测试json写入"<<endl;
-    Json::Value jsonRoot;
-    Json::Value jsonItem;
-    jsonItem["item1"] = "第一个条目";
-    jsonItem["item2"] = "第二个条目";
-    jsonItem["item3"] = 3;
-    jsonRoot.append(jsonItem);
-    jsonItem.clear();//清除上面已经赋值的项
-    jsonItem["First"]="1";
-    jsonItem["Second"]=2;
-    jsonItem["Third"]=3.0F;
-    jsonRoot.append(jsonItem);
-    cout<<jsonRoot.toStyledString()<<endl;
-
-    cout<<"测试json写入到文件"<<endl;
-
-    ofstream ofs;
-    ofs.open("test1.json");
-    ofs << jsonRoot.toStyledString();
-    ofs.close();
 }
 
 void ReadControlInfo()

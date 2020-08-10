@@ -102,8 +102,8 @@ void SetInterfaceFieldData( int iSr, FieldRecord * fieldRecord )
 
     int oppoSr = GetOppositeSendRecv( iSr );
 
-    //按照设计当前zone是第zone i的第j个邻居。
-    //在这里需找出zone i是当前zone的第几个邻居？这个值就是neiId。
+    //By design, the current zone is the jth neighbor of zone I.
+    //How many neighbors of the current zone do you need to find out? This value is neiid.
 
     int neiId = interFace->z2n[ ZoneState::GetZid( oppoSr ) ];
     int nIFace = interFace->interFacePairs[ neiId ]->nIFace;
