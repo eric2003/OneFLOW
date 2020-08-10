@@ -58,7 +58,7 @@ public:
     RealField rhs0;   //隐式残差增量
     RealField dfj;   //临时数组，用于求隐式残差增量
     RealField drhs;   //用于nsweep>1的情况
-    RealField rhs ;   //方程n时刻的右端项
+    RealField rhs ;   //方程n时刻的Right end item
     RealField tmp; //临时数组
 };
 

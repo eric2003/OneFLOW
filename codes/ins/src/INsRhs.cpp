@@ -108,25 +108,25 @@ void INsCalcRHS()
 
 	INsPreflux();
 
-	INsCalcInv(); //计算对流项
+	INsCalcInv(); //Calculating the convective term
 
-	INsCalcVis(); //计算扩散项
+	INsCalcVis(); //Calculate diffusion term
 
-	INsCalcUnstead(); //计算非稳态项
+	INsCalcUnstead(); //Calculating the unsteady term
 
-	INsCalcSrc(); //计算源项和动量方程系数
+	INsCalcSrc(); //Calculate the source term and momentum equation coefficients
 
-	INsMomPre(); //求解动量方程
+	INsMomPre(); //Solving momentum equation
 
-	INsCalcFaceflux(); //计算界面流量
+	INsCalcFaceflux(); //Calculation of interface flow
 
-	INsCorrectPresscoef(); //计算压力修正方程系数
+	INsCorrectPresscoef(); //Calculate the coefficient of pressure correction equation
 
-	INsCalcPressCorrectEquandUpdatePress();  //需要解压力修正方程组，增设单元修正压力未知量
+	INsCalcPressCorrectEquandUpdatePress();  //It is necessary to solve the pressure correction equations and add a new element to correct the unknown pressure
 
-	INsCalcSpeedCorrectandUpdateSpeed();  //需要先增设界面修正速度未知量并进行求解,更新单元速度和压力
+	INsCalcSpeedCorrectandUpdateSpeed();  //It is necessary to add the interface to correct the unknown velocity and solve the problem, and update the unit velocity and pressure
 
-	INsUpdateFaceflux();   //更新界面流量
+	INsUpdateFaceflux();   //Update interface Flux
 
 	INsUpdateRes();
 }

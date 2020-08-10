@@ -261,8 +261,8 @@ void UTurbLusgs::PrepareSweep()
     {
         gcom.blank = ( * ug.blankf )[ ug.cId ];
 
-        turblu.dqi[ iEqu ] = ( * uturbf.dq  )[ iEqu ][ ug.cId ]; //dqField的初值为0（守恒或者原始变量）
-        turblu.rhs[ iEqu ] = ( * uturbf.rhs )[ iEqu ][ ug.cId ]; //RHS还是存在RHS里面比较好
+        turblu.dqi[ iEqu ] = ( * uturbf.dq  )[ iEqu ][ ug.cId ]; //The initial value of dqfield is 0 (conserved or original variable)
+        turblu.rhs[ iEqu ] = ( * uturbf.rhs )[ iEqu ][ ug.cId ]; //It is better to have RHS in RHS
     }
 
     if ( turblu.numberOfSweeps > 1 )

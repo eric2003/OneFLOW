@@ -71,7 +71,7 @@ Solution Preconditioner::solve(const Solution &current)
 			for (iFace = 0; iFace < fn1; iFace++)
 			{
 				//fId = (*ONEFLOW::ug.c2f)[cId][iFace];
-				//lc = (*ONEFLOW::ug.lcf)[fId];                                                                     // 面左侧单元
+				//lc = (*ONEFLOW::ug.lcf)[fId];                                                                     // Face left unit
 				//rc = (*ONEFLOW::ug.rcf)[fId];                                                                     // 面右侧单元
 				offdiag = Rank.TempJA[n1 + iFace];
 				if (offdiag > cId && fn2 > 1.0E-16)

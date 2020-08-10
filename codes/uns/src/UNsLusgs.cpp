@@ -335,8 +335,8 @@ void UNsLusgs::PrepareSweep()
     {
         gcom.blank = ( * ug.blankf )[ ug.cId ];
 
-        nslu.dqi[ iEqu ] = ( * unsf.dq  )[ iEqu ][ ug.cId ]; //dqField的初值为0（守恒或者原始变量）
-        nslu.rhs[ iEqu ] = ( * unsf.rhs )[ iEqu ][ ug.cId ]; //RHS还是存在RHS里面比较好
+        nslu.dqi[ iEqu ] = ( * unsf.dq  )[ iEqu ][ ug.cId ]; //The initial value of dqfield is 0 (conserved or original variable)
+        nslu.rhs[ iEqu ] = ( * unsf.rhs )[ iEqu ][ ug.cId ]; //It is better to have RHS in RHS
     }
 
     if ( nslu.numberOfSweeps > 1 )
