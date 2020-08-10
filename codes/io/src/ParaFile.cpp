@@ -28,6 +28,7 @@ License
 #include "OStream.h"
 #include "Stop.h"
 #include "Prj.h"
+#include "json/json.h"
 #include <iostream>
 #include <string>
 #include <vector>
@@ -163,7 +164,7 @@ int GetParameterArraySize( const string & word )
     return arraySize;
 }
 
-//void ReadOneFLOWScriptFile( const std::string & fileName )
+//void ReadOneFLOWScriptFile( const string & fileName )
 //{
 //    FileIO fileIO;
 //
@@ -174,25 +175,180 @@ int GetParameterArraySize( const string & word )
 //    fileIO.CloseFile();
 //}
 
-void ReadOneFLOWScriptFile( const std::string & fileName )
+void mytestjson();
+
+string GetJsonFileName( const string & fileName )
 {
+    string mainName, extensionName;
+    ONEFLOW::GetFileNameExtension( fileName, mainName, extensionName, "." );
+    string newExtensionName = "json";
+
+    ONEFLOW::StrIO.ClearAll();
+    ONEFLOW::StrIO << mainName << "." << newExtensionName;
+
+    string newFileName = ONEFLOW::StrIO.str();
+    return newFileName;
+}
+
+void ReadOneFLOWScriptFile( const string & fileName )
+{
+    string jsonFileName = GetJsonFileName( fileName );
+
     FileIO fileIO;
-
-    //string mainName, extensionName;
-    //ONEFLOW::GetFileNameExtension( fileName, mainName, extensionName, "." );
-    //string newExtensionName = "json";
-
-    //ONEFLOW::StrIO.ClearAll();
-    //ONEFLOW::StrIO << mainName << "." << newExtensionName;
-
-    //string newFileName = ONEFLOW::StrIO.str();
-
-
     fileIO.OpenFile( fileName, ios_base::in );
 
-    ONEFLOW::ReadOneFLOWScriptFile( fileIO );
+    //string name, word;
+
+    //\t为tab键
+    string keyWordSeparator = " =\r\n\t#$,;\"";
+
+    fileIO.SetDefaultSeparator( keyWordSeparator );
+
+    map < string, int > keyWordMap;
+
+    keyWordMap.insert( pair< string, int >( "int", HX_INT ) );
+    keyWordMap.insert( pair< string, int >( "float", HX_FLOAT ) );
+    keyWordMap.insert( pair< string, int >( "double", HX_DOUBLE ) );
+    keyWordMap.insert( pair< string, int >( "Real", HX_REAL ) );
+    keyWordMap.insert( pair< string, int >( "string", HX_STRING ) );
+    keyWordMap.insert( pair< string, int >( "bool", HX_BOOL ) );
+
+    Json::Value jsonRoot;
+
+    while ( ! fileIO.ReachTheEndOfFile() )
+    {
+        bool resultFlag = fileIO.ReadNextMeaningfulLine();
+        if ( ! resultFlag ) break;
+
+        string keyWord = fileIO.ReadNextWord();
+
+        if ( keyWord == "" ) continue;
+
+        int keyWordIndex = keyWordMap[ keyWord ];
+
+        Json::Value jsonItem;
+        string varName;
+        vector< string > varArray;
+        GetParaInfo( fileIO, varName, varArray );
+        jsonItem[ "type" ] = keyWord;
+        jsonItem[ "value" ] = varArray[0];
+        
+        jsonRoot[ varName ] = jsonItem;
+
+        ONEFLOW::ProcessData( varName, &varArray[0], keyWordIndex, varArray.size() );
+    }
+
+    //cout << jsonRoot.toStyledString() << endl;
+
+    //ofstream ofs;
+    //ofs.open( jsonFileName.c_str() );
+    //ofs << jsonRoot.toStyledString();
+    //ofs.close();
 
     fileIO.CloseFile();
+}
+
+void GetParaInfo( FileIO & fileIO, string & varName, vector< string > & varArray )
+{
+    if ( ONEFLOW::IsArrayParameter( fileIO.GetCurrentLine() ) )
+    {
+        ONEFLOW::GetParaInfoArray( fileIO, varName, varArray );
+    }
+    else
+    {
+        ONEFLOW::GetParaInfoScalar( fileIO, varName, varArray );
+    }
+}
+
+void GetParaInfoScalar( FileIO & fileIO, string & varName, vector< string > & varArray )
+{
+    string errorMessage = "error in parameter file";
+    string separator = " =\r\n\t#$,;\"";  //\t is tab key
+
+    varName = fileIO.ReadNextWord( separator );
+
+    int arraySize = 1;
+    varArray.resize( arraySize );
+
+    varArray[ 0 ] = fileIO.ReadNextWord( separator );
+}
+
+void GetParaInfoArray( FileIO & fileIO, string & varName, vector< string > & varArray )
+{
+    string errorMessage = "error in parameter file";
+    string commSeparator = "=\r\n\t#$,;\"";
+
+    string ayrrayInfo = fileIO.ReadNextWord( commSeparator );
+
+    //Array pattern
+    string arraySeparator = " =\r\n\t#$,;\"[]";
+    string arrayName, arraySizeName;
+
+    arrayName = Word::FindNextWord( ayrrayInfo, arraySeparator );
+    arraySizeName = Word::FindNextWord( ayrrayInfo, arraySeparator );
+
+    int arraySize = ONEFLOW::GetParameterArraySize( arraySizeName );
+
+    varArray.resize( arraySize );
+
+    for ( int i = 0; i < arraySize; ++ i )
+    {
+        varArray[ i ] = fileIO.ReadNextWord( arraySeparator );
+        //It shows that these contents can't be written within 1 lines
+        if ( varArray[ i ] == "" )
+        {
+            fileIO.ReadNextNonEmptyLine();
+            varArray[ i ] = fileIO.ReadNextWord( arraySeparator );
+            if ( varArray[ i ] == "" )
+            {
+                Stop( errorMessage );
+            }
+        }
+    }
+}
+
+void mytestjson()
+{
+    //Json::Value root;
+    //Json::Value data;
+    //root[ "action" ] = "run";
+    //data[ "number" ] = 1;
+    //root[ "data" ] = data;
+
+    //{
+    //    Json::Value person; 
+    //    person["name"] = "Tocy";
+    //    person["salary"] = 100;
+    //    root[0] = person;
+    //}
+
+    //{
+    //    Json::Value person; 
+    //    person["name"] = "Kit";
+    //    person["salary"] = 89;
+    //    root[1] = person;
+    //}
+
+    cout<<"测试json写入"<<endl;
+    Json::Value jsonRoot;
+    Json::Value jsonItem;
+    jsonItem["item1"] = "第一个条目";
+    jsonItem["item2"] = "第二个条目";
+    jsonItem["item3"] = 3;
+    jsonRoot.append(jsonItem);
+    jsonItem.clear();//清除上面已经赋值的项
+    jsonItem["First"]="1";
+    jsonItem["Second"]=2;
+    jsonItem["Third"]=3.0F;
+    jsonRoot.append(jsonItem);
+    cout<<jsonRoot.toStyledString()<<endl;
+
+    cout<<"测试json写入到文件"<<endl;
+
+    ofstream ofs;
+    ofs.open("test1.json");
+    ofs << jsonRoot.toStyledString();
+    ofs.close();
 }
 
 void ReadControlInfo()

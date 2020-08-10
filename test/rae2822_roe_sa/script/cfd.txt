@@ -1,4 +1,4 @@
-int   startStrategy  = 0；
+int    startStrategy  = 0;
 int    iexitflag  = 0; //0 maxstep 1 maxtime;
 int    maxSteps   =  50; //总模拟步数
 Real   maxTime    =  0.2;    //总模拟时间
