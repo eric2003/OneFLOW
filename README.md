@@ -12,7 +12,7 @@ LargeScale Multiphysics Scientific Simulation Environment
 -----------------------------------------------------------
 
 ## Build
-Firstly, make sure that c++ compiler has been installed. For Windows platform, the [Visual Studio IDE](https://visualstudio.microsoft.com/ "Visual Studio IDE") is recommended. Then download and install [Git](https://git-scm.com/ "Git") and [Cmake](https://cmake.org/download/ "cmake") on your system.
+Firstly, make sure that C++ compiler has been installed. For Windows platform, the [Visual Studio IDE](https://visualstudio.microsoft.com/ "Visual Studio IDE") is recommended. Then download and install [Git](https://git-scm.com/ "Git") and [CMake](https://cmake.org/download/ "CMake") on your system.
 
 ### Dependencies
 
@@ -25,13 +25,16 @@ Firstly, make sure that c++ compiler has been installed. For Windows platform, t
 
 1. Download source code from github:
 ```
-git clone --recursive https://github.com/eric2003/OneFLOW
+git clone https://github.com/eric2003/OneFLOW
+2. download prebuilt thirdparty libraries for windows 10 
+git clone https://github.com/eric2003/OneFLOW_ThirdPartyLib
+copy ThirdPartyLib to OneFLOW directory.
 ```
 The above operation will download the source code together with prebuilt thirdparty libraries. You can also build them by yourself.
 
-2. Use cmake to configure and generate project files.
+3. Use CMake to configure and generate project files.
    
-3. Compile and generate executable file.
+4. Compile and generate executable file.
    
 ### Linux
 
@@ -41,7 +44,7 @@ git clone https://github.com/eric2003/OneFLOW
 ```
 The above operation will download the source code only(prebuilt thirdparty libraries are not provided)
 
-2. Use cmake to configure and generate appropriate project files, for example: Makefile.
+2. Use CMake to configure and generate appropriate project files, for example: Makefile.
    
 3. Compile and generate executable file.
    
