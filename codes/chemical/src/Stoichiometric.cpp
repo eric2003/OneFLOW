@@ -60,7 +60,7 @@ void Stoichiometric::Read( FileIO * ioFile )
     for ( int iReaction = 0; iReaction < nReaction; ++ iReaction )
     {
         ioFile->ReadNextNonEmptyLine();
-        //¶Áirtmp
+        //Read irtmp
         word = ioFile->ReadNextWord();
 
         for ( int iSpecies = 0; iSpecies < nSpecies; ++ iSpecies )

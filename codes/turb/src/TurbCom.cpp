@@ -136,7 +136,7 @@ void TurbCom::InitConst()
     fbeta  = 1.0;
     fbetas = 1.0;
     betas  = 0.09;
-    //实际上cmu应该为0.09，但是cmu一般都被吸收了，不需要
+    //In fact, the CMU should be 0.09, but the CMU is generally absorbed and is not required
     cmu    = 1.0;
     clim   = 1.0;
 

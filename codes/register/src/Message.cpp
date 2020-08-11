@@ -93,7 +93,7 @@ void MessageMap::ReadFile( const string & fileName )
 {
     string word;
 
-    //\tÎªtab¼ü
+    //\t is the tab key
     string separator = " =\r\n\t#$,;\"";
 
     FileIO ioFile;

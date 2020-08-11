@@ -189,7 +189,6 @@ void INsBcSolver::FarFieldBc()
 
     Real velin = DIST( uin, vin, win );
 
-    //³¬ÉùËÙ
     if ( velin > cin )
     {
         if ( vnin >= 0.0 )

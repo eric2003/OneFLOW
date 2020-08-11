@@ -153,7 +153,7 @@ void UnitElement::Initialize( int elementType )
 
         //BAR_3
         // 1.........3..........2
-        // 对于中点3来说相邻点为1、2
+        // For point 3, the adjacent points are 1 and 2
         this->PushMiddlePoint( 3, 1, 2 );
 
         //subcell

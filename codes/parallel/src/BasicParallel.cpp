@@ -102,7 +102,7 @@ void HXRecv( void * data, int size, PL_Datatype dataType, int pid, int tag )
 void HXSendChar( void * data, int size, int pid, int tag )
 {
 #ifdef HX_PARALLEL
-    //防止特殊情况
+    //Prevent special circumstances
     if ( size <= 0 ) return;
     MPI_Send( data, size, MPI_CHAR, pid, tag, MPI_COMM_WORLD );
 #endif
@@ -111,7 +111,7 @@ void HXSendChar( void * data, int size, int pid, int tag )
 void HXRecvChar( void * data, int size, int pid, int tag )
 {
 #ifdef HX_PARALLEL
-    //防止特殊情况
+    //Prevent special circumstances
     if ( size <= 0 ) return;
 
     MPI_Status status;

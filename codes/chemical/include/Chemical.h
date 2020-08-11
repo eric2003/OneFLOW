@@ -33,7 +33,7 @@ class Thermodynamic;
 class FileIO;
 class DataBook;
 
-//通用气体常数，单位为J/( Mol * K )
+//General gas constant in J / (mol * k)
 const double rjmk = 8.31434;
 
 class Chemical

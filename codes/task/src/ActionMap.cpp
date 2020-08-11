@@ -118,7 +118,7 @@ string ActionMapImp::GetActionName( int actionIndex )
 
 void ActionMapImp::ReadFile( const string & fileName )
 {
-    //\tÎªtab¼ü
+    //\t is the tab key
     string separator = " =\r\n\t#$,;\"";
 
     FileIO ioFile;

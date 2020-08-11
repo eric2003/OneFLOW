@@ -358,7 +358,7 @@ void BoolIO::Read()
 
 void BoolIO::ReadFile( const string & fileName, int valueFlag )
 {
-   //\tÎªtab¼ü
+   //\t is the tab key
     //string separator  = " =\r\n\t#$,;\"()";
     string separator  = " \r\n\t#$,;\"()";
 

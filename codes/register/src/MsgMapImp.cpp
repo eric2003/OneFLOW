@@ -45,7 +45,7 @@ void CreateMsgMap()
 
 void GetMsgFileNameList( StringField & fileNameList )
 {
-    //\tÎªtab¼ü
+    //\t is the tab key
     string separator  = " =\r\n\t#$,;\"()";
     string msgFileName = SimuCtrl::system_root + "action/" + "actionFileList.txt";
 

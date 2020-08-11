@@ -169,7 +169,7 @@ void TurbBcSolver::FarFieldBc()
 
     Real velin = DIST( uin, vin, win );
 
-    //超声速
+    //Supersonic
     if ( velin > cin )
     {
         if ( vnin >= 0.0 )
@@ -233,7 +233,7 @@ void TurbBcSolver::VisWallBc()
             turbcom.primt2[ iEqu ] = - turbcom.prims2[ iEqu ];
         }
     }
-    else if ( turbcom.nEqu >= 2 )  // 考虑转捩方程后，多了两方程
+    else if ( turbcom.nEqu >= 2 )  // After considering the transition equation, there are two more equations
     {
         Real dist2 = SQR( turbcom.dist );
 

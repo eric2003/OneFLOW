@@ -28,7 +28,7 @@ void Update
 {
 	// Solve for the coefficients, i.e. solve for c in
 	// H*c=s, but we do it in place.
-	// 这里分列进行计算
+	// The calculation is made separately here
 	int lupe;
 	int i;
 	for (i = 0; i < Rank.COLNUMBER; i++)

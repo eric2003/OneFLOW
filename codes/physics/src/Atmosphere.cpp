@@ -50,7 +50,7 @@ void Atmosphere::Init()
     string fileName = SimuCtrl::system_root +"physics/atmosphere.txt";
     ioFile.OpenFile( fileName, ios_base::in );
 
-    //\tÎªtab¼ü
+    //\t is the tab key
     string keyWordSeparator = " ()\r\n\t#$,;\"";
     ioFile.SetDefaultSeparator( keyWordSeparator );
 

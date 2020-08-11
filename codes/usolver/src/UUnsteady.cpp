@@ -57,7 +57,7 @@ void UUnsteady::UpdateDualTimeStepSource()
 void UUnsteady::StoreOldResidual()
 {
     //Cxh20140818: first of all, we need to know the residualn1 and residualn2 (the residuals at time n and time n-1);
-    //双时间步内迭代第一步残差，存储为n时刻残差
+    //The first step residuals of iteration in two time steps are stored as n-time residuals
     if ( Iteration::innerSteps != 1 ) return;
 
     for ( int cId = 0; cId < ug.nCell; ++ cId )

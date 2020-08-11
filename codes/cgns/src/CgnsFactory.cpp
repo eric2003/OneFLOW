@@ -308,7 +308,7 @@ void CgnsFactory::GenerateCalcGrid()
     }
     else
     {
-        //»ìºÏÍø¸ñ
+        //Hybrid grid
     }
 }
 

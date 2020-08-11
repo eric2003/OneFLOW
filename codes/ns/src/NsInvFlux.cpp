@@ -1126,7 +1126,7 @@ void NsInvFlux::Ausmw()
 
     Real presi  = ppl * inv.pl + pmr * inv.pr;
 
-    //!此mi相当于m1/2，与文献定义一致
+    //! this MI is equivalent to M1 / 2, which is consistent with the literature definition
     Real mi  = mpl + mmr;
 
     Real mia = ABS( mi );

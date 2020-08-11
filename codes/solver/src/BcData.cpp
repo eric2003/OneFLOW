@@ -60,7 +60,7 @@ void BcData::ReadRegion()
 
 void BcData::ReadList( const string & fileName )
 {
-    //\tÎªtab¼ü
+    //\t is the tab key
     string separator = " =\r\n\t#$,;\"";
 
     FileIO ioFile;

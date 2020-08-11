@@ -446,7 +446,7 @@ void UINsInvterm::MomPre()
 		}
 	}*/
 
-	//BGMRES求解
+	//Bgmres solution
 	NonZero.Number = 0;
 	for (int cId = 0; cId < ug.nTCell; ++cId)
 	{                                          
@@ -728,7 +728,7 @@ void UINsInvterm::MomPre()
 
 			Real velin = DIST(uin, vin, win);
 
-			//超声速
+			//Supersonic
 			if (velin > cin)
 			{
 				if (vnin >= 0.0)
@@ -1278,7 +1278,7 @@ void UINsInvterm::CalcPressCorrectEqu()
 		(*uinsf.q)[IIDX::IIP][ug.rc] = (*uinsf.q)[IIDX::IIP][ug.lc];
 	}*/
 
-		//BGMRES求解
+		//Bgmres solution
 	NonZero.Number = 0;
 
 	for (int cId = 0; cId < ug.nTCell; ++cId)
@@ -1336,7 +1336,7 @@ void UINsInvterm::CalcPressCorrectEqu()
 	//iinv.res_p = 0;
 	//iinv.res_p = MAX(iinv.res_p, abs(iinv.ppd - iinv.pp[ug.cId]));
 
-	//边界单元
+	//boundary element
 	for (int fId = 0; fId < ug.nBFace; ++fId)
 	{
 		ug.fId = fId;
@@ -1421,7 +1421,7 @@ void UINsInvterm::CalcPressCorrectEqu()
 			Real gamm1 = nscom.gama - one;
 
 			Real velin = DIST(uin, vin, win);
-			//超声速
+			//Supersonic
 			if (velin > cin)
 			{
 				if (vnin >= 0.0)
@@ -1742,7 +1742,7 @@ void UINsInvterm::UpdateSpeed()
 
 			Real velin = DIST(uin, vin, win);
 
-			//超声速
+			//Supersonic
 			if (velin > cin)
 			{
 				if (vnin >= 0.0)

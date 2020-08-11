@@ -58,7 +58,7 @@ void ReadOneFLOWScriptFile( FileIO & fileIO )
 {
     //string name, word;
 
-    //\tÎªtab¼ü
+    //\t is the tab key
     string keyWordSeparator = " =\r\n\t#$,;\"";
 
     fileIO.SetDefaultSeparator( keyWordSeparator );
@@ -199,7 +199,7 @@ string GetJsonFileName( const string & fileName )
 //
 //    //string name, word;
 //
-//    //\tÎªtab¼ü
+//    //\t is the tab key
 //    string keyWordSeparator = " =\r\n\t#$,;\"";
 //
 //    fileIO.SetDefaultSeparator( keyWordSeparator );
