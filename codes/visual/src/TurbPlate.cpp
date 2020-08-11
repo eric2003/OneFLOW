@@ -148,7 +148,7 @@ void TurbVelCut::Dump( LamData * lamData, fstream & file, int axis )
 
         Real utau = sqrt( tauw / ( rw * nscom.reynolds ) );
 
-        //注意这里的定义
+        //Notice the definition here
         Real up = um / utau;
         Real yp = utau * ym * nscom.reynolds / ( vis / rm );
 

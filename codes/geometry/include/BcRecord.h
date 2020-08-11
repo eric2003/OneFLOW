@@ -96,10 +96,10 @@ class BasicRegion
 {
 public:
     int zid;
-    int dir;         //边界面方向:0, 1, 2对应于i, j, k
-    int outerNormal; //左右边界-1, 1对应于左右边界
+    int dir;         //The direction of the boundary: 0, 1, 2 corresponds to I, J, K
+    int outerNormal; //Left and right boundary - 1, 1 corresponds to left and right boundary
     int start[ 3 ], end[ 3 ];
-    int lr[ 3 ];     //左右边界-1, 1对应于左右边界
+    int lr[ 3 ];     //Left and right boundary - 1, 1 corresponds to left and right boundary
 public:
     void SetRegion( int ist, int ied, int jst, int jed );
     void SetRegion( int ist, int ied, int jst, int jed, int kst, int ked );

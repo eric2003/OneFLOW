@@ -54,8 +54,8 @@ public:
     ElemFeature();
     ~ElemFeature();
 public:
-    IntField * eType;       //单元类型
-    CgLinkField  eNodeId;     //单元index
+    IntField * eType;       //Unit type
+    CgLinkField  eNodeId;     //Unit index
 public:
     FaceSolver * face_solver;
     void ScanElements();

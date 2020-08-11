@@ -184,7 +184,7 @@ void UnsGrid::ReadBoundaryTopology( DataBook * databook )
 
     //cout << " nBFace = " << this->nBFace << endl;
 
-    //设置边界条件
+    //Setting boundary conditions
     BcRecord * bcRecord = this->faceTopo->bcManager->bcRecord;
     ONEFLOW::HXRead( databook, bcRecord->bcType );
     ONEFLOW::HXRead( databook, bcRecord->bcNameId );

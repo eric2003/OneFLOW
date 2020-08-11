@@ -28,7 +28,7 @@ void Update
 {
 	// Solve for the coefficients, i.e. solve for c in
 	// H*c=s, but we do it in place.
-	// 这里分列进行计算
+	// The calculation is made separately here
 	int lupe;
 	int i;
 	for (i = 0; i < Rank.COLNUMBER; i++)
@@ -93,7 +93,7 @@ int GMRES
 	Double** givens = ArrayUtils<Double>::twotensor(Rank.COLNUMBER * (krylovDimension + 1), krylovDimension * Rank.COLNUMBER);
 
 	Double** s = ArrayUtils<Double>::twotensor((krylovDimension + 1) * Rank.COLNUMBER, Rank.COLNUMBER);
-	Double** S = ArrayUtils<Double>::twotensor(Rank.COLNUMBER, Rank.COLNUMBER);  //用来取s矩阵的最后三行
+	Double** S = ArrayUtils<Double>::twotensor(Rank.COLNUMBER, Rank.COLNUMBER);  //To take the last three rows of the S matrix
 	Double** R = ArrayUtils<Double>::twotensor(Rank.COLNUMBER, Rank.COLNUMBER);
 	// Determine the residual and allocate the space for the Krylov
 	// subspace.
@@ -101,7 +101,7 @@ int GMRES
 		Approximation(solution->getN()));
 	(*residual) = precond->solve2((*rhs) - (*linearization) * (*solution));
 
-	//残差的第一个列向量
+	//First column vector of residuals
 	Double normr1;
 	double temp = 0.0;
 	for (int ia = 0; ia < Rank.RANKNUMBER; ia++)
@@ -128,7 +128,7 @@ int GMRES
 		// The first QR decomposition, and get the vector V[0], V[1], V[2]
 		for (int ib = 0; ib < Rank.RANKNUMBER; ib++)
 		{
-			(V[0])(ib, 0) = (*residual)(ib, 0) * (1.0 / normr1);    //单位化了第一个V向量的第一列，即v1
+			(V[0])(ib, 0) = (*residual)(ib, 0) * (1.0 / normr1);    //Unites the first column of the first V vector, v1
 		}
 
 		R[0][0] = normr1;
@@ -211,8 +211,8 @@ int GMRES
 				}
 			}
 
-			// QR decomposition to get H[iteration+1][iteration], V[iteration+1]的单位化过程
-			std::vector<Approximation> TV(1, Approximation(solution->getN()));   //临时变量
+			// The unitization process of QR decomposition to get h [iteration + 1] [iteration], v [iteration + 1]
+			std::vector<Approximation> TV(1, Approximation(solution->getN()));   //Temporary variable
 			TV[0] = V[iteration + 1];
 			Double normr2;
 			double t = 0.0;
@@ -318,7 +318,7 @@ int GMRES
 					}
 				}
 			}
-			//将s向量组的后三行存入到S向量组中，以便后续求其范数
+			//The last three lines of the s vector group are stored in the s vector group so that the norm can be calculated later
 			int lupe, innerlupe;
 			for (lupe = 0; lupe < Rank.COLNUMBER; lupe++)
 			{
@@ -345,7 +345,7 @@ int GMRES
 			file2.close();*/
 
 			//cout << tolerance * normRHS << endl;
-			if (rho < tolerance * normRHS)   //该判别方式在BGMRES中是否有效
+			if (rho < tolerance * normRHS)   //Is this method effective in bgmres
 			{
 				// We are close enough! Update the approximation.
 				Update(H, solution, s, &V, iteration);
@@ -368,7 +368,7 @@ int GMRES
 		// approximation and start over.
 		totalRestarts += 1;
 		Update(H, solution, s, &V, iteration - 1);
-		(*residual) = precond->solve2((*linearization) * (*solution) - (*rhs));      //第三个precond
+		(*residual) = precond->solve2((*linearization) * (*solution) - (*rhs));      //The third precond
 		Rank.residual = residual->norm();
 
 		//cout << "totalRestarts:" << totalRestarts << endl;

@@ -61,7 +61,7 @@ void ReactionRate::Read( FileIO * ioFile )
     for ( int iReaction = 0; iReaction < nReaction; ++ iReaction )
     {
         ioFile->ReadNextNonEmptyLine();
-        //¶Áirtmp
+        //Read irtmp
         string word = ioFile->ReadNextWord();
 
         f1[ iReaction ] = ioFile->ReadNextDigit< Real >();

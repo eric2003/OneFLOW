@@ -83,10 +83,10 @@ void SimuImp::PostProcess()
 
 void SimuImp::RunSimu()
 {
-    //设置oneflow需要执行的操作类型
+    //Set the type of operation that ONEFLOW needs to perform
     simu_state.Init();
 
-    //根据任务类型调用不同的求解模块
+    //Call different solving modules according to the task type
     const TaskEnum task = simu_state.Task();
 
     if ( task != TaskEnum::FUN_TEST )
@@ -94,7 +94,7 @@ void SimuImp::RunSimu()
         ConstructSystemMap();
     }
 
-    //根据不同的simutask值，执行不同的求解流程
+    //According to different simutask values, different solving processes are executed
     switch ( task )
     {
         case TaskEnum::SOLVE_FIELD:

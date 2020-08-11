@@ -114,7 +114,7 @@ void FaceTopo::SetNewFace2Node( IFaceLink * iFaceLink )
                         }
                         else
                         {
-                            //此时存储的不是相对值，是绝对的新加点标号
+                            //At this time, the storage is not a relative value, but an absolute new punctuation
                             nodeIndex = iFaceLink->face_search->rCNodeId[ cFid ][ iNode ];
                         }
                         tmpVector.push_back( nodeIndex );

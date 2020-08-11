@@ -70,7 +70,7 @@ void SetData( const string & name, T * value, int type, int size );
 template < typename T >
 T GetDataValue( const std::string & varName, DataBase * database = ONEFLOW::GetGlobalDataBase() );
 
-//从数据库中读取参数类型为T，名称为varName的变量的值
+//Read the value of the variable with parameter type T and name Varname from the database
 template < typename T >
 T GetDataValue( const std::string & varName, DataBase * database )
 {

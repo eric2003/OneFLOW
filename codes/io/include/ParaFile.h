@@ -32,7 +32,11 @@ BeginNameSpace( ONEFLOW )
 
 bool IsArrayParameter( const string & lineOfName );
 void ReadOneFLOWScriptFile( FileIO & fileIO );
-void ReadOneFLOWScriptFile( const std::string & fileName );
+void ReadOneFLOWScriptFile( const string & fileName );
+string GetJsonFileName( const string & fileName );
+void GetParaInfo( FileIO & fileIO, string & varName, vector< string > & varArray );
+void GetParaInfoArray( FileIO & fileIO, string & varName, vector< string > & varArray );
+void GetParaInfoScalar( FileIO & fileIO, string & varName, vector< string > & varArray );
 
 void AnalysisArrayParameter( FileIO & fileIO, int keyWordIndex );
 int AnalysisScalarParameter( FileIO & fileIO, int keyWordIndex );

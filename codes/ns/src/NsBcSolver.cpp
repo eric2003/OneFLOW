@@ -189,7 +189,7 @@ void NsBcSolver::FarFieldBc()
 
     Real velin = DIST( uin, vin, win );
 
-    //³¬ÉùËÙ
+    //Supersonic
     if ( velin > cin )
     {
         if ( vnin >= 0.0 )

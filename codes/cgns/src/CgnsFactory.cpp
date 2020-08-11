@@ -143,7 +143,7 @@ void CgnsFactory::CgnsToOneFlowGrid()
     }
 
 
-    //对网格进行处理并输出计算所用的网格文件
+    //The grid is processed and the grid file used for calculation is output
     ONEFLOW::GenerateMultiZoneCalcGrids( grids );
 }
 
@@ -308,7 +308,7 @@ void CgnsFactory::GenerateCalcGrid()
     }
     else
     {
-        //混合网格
+        //Hybrid grid
     }
 }
 

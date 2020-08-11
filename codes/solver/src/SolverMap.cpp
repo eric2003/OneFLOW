@@ -207,7 +207,7 @@ void SolverNameClass::ReadSolverNames( StringField & solverNameList )
 
     ioFile.OpenPrjFile( "script/solver.txt", ios_base::in );
 
-    //\tÎªtab¼ü
+    //\t is the tab key
     string keyWordSeparator = " ()\r\n\t#$,;\"";
     ioFile.SetDefaultSeparator( keyWordSeparator );
 

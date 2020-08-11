@@ -77,7 +77,7 @@ public:
     void AllocateGridElem();
     void PrepareUnsCalcGrid();
 
-    //转换为oneflow计算所用的网格
+    //Convert to the mesh used in ONEFLOW calculation
     void GenerateCalcGrid();
 protected:
     void GenerateStrCalcGrid();

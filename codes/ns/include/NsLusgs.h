@@ -53,13 +53,13 @@ public:
     RealField dqj;    //dq of neighbor cell
     RealField dqi;    //dq of this unit
     RealField dqi0;   //The previous DQ of this unit (used for normal)
-    RealField primj;   //邻居单元的原始变量
-    RealField primF;   //面元上的原始变量
-    RealField rhs0;   //隐式残差增量
-    RealField dfj;   //临时数组，用于求隐式残差增量
-    RealField drhs;   //用于nsweep>1的情况
-    RealField rhs ;   //方程n时刻的右端项
-    RealField tmp; //临时数组
+    RealField primj;   //The original variable of neighbor unit
+    RealField primF;   //The original variable on the surface
+    RealField rhs0;   //Implicit residual increment
+    RealField dfj;   //Temporary array,Used to findImplicit residual increment
+    RealField drhs;   //For nsweep > 1
+    RealField rhs ;   //Of the equation at time nRight end item
+    RealField tmp; //Temporary array
 };
 
 extern LusgsData nslu;

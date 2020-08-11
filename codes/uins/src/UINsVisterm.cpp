@@ -90,7 +90,7 @@ void UINsVisterm::DeAlloc()
 void UINsVisterm::PrepareField()
 {
 	//uins_grad.Init();
-	//uins_grad.CalcGrad();  //计算梯度
+	//uins_grad.CalcGrad();  //Calculate gradient
     //ut_grad.CalcGradDebug();
 	this->CalcPreandVisGrad();
 }
@@ -249,7 +249,7 @@ void UINsVisterm::CalcVisterm()
 		//iinv.wkl[ug.fId] = (*limf->qf1)[IIDX::IIW][ug.fId];
 		//iinv.wkr[ug.fId] = (*limf->qf2)[IIDX::IIW][ug.fId];
 
-        this->CalcFaceVisterm();  //要改动
+        this->CalcFaceVisterm();  //Change it
 
     }
 
@@ -272,7 +272,7 @@ void UINsVisterm::CalcVisterm()
 		//iinv.wkl[ug.fId] = (*limf->qf1)[IIDX::IIW][ug.fId];
 		//iinv.wkr[ug.fId] = (*limf->qf2)[IIDX::IIW][ug.fId];
 
-		this->CalcBcFaceVisterm();  //要改动
+		this->CalcBcFaceVisterm();  //Change it
 
 	}*/
 
@@ -281,13 +281,13 @@ void UINsVisterm::CalcVisterm()
 void UINsVisterm::CalcFaceVisterm()
 {
 
-	iinv.l2rdx = (*ug.xcc)[ug.rc] - (*ug.xcc)[ug.lc];  //界面左右单元中心距
+	iinv.l2rdx = (*ug.xcc)[ug.rc] - (*ug.xcc)[ug.lc];  //Center distance between left and right units of interface
 	iinv.l2rdy = (*ug.ycc)[ug.rc] - (*ug.ycc)[ug.lc];
 	iinv.l2rdz = (*ug.zcc)[ug.rc] - (*ug.zcc)[ug.lc];
 
 	iinv.c2d = sqrt(iinv.l2rdx * iinv.l2rdx + iinv.l2rdy * iinv.l2rdy + iinv.l2rdz * iinv.l2rdz);
 
-	iinv.vis = 1 / nscom.reynolds;  //动力粘度
+	iinv.vis = 1 / nscom.reynolds;  //Dynamic viscosity
 
 	iinv.dist = (*ug.xfn)[ug.fId] * ((*ug.xcc)[ug.rc] - (*ug.xcc)[ug.lc]) + (*ug.yfn)[ug.fId] * ((*ug.ycc)[ug.rc] - (*ug.ycc)[ug.lc]) + (*ug.zfn)[ug.fId] * ((*ug.zcc)[ug.rc] - (*ug.zcc)[ug.lc]);
 
@@ -305,12 +305,12 @@ void UINsVisterm::CalcFaceVisterm()
 	Real de2 = DIST(dx2, dy2, dz2);
 	Real de = 1.0 / (de1 + de2);
 
-	iinv.f1[ug.fId] = de2 * de;  //左单元权重
-	iinv.f2[ug.fId] = de1 * de;  //右单元权重
+	iinv.f1[ug.fId] = de2 * de;  //Left cell weight
+	iinv.f2[ug.fId] = de1 * de;  //Right cell weight
 
 	iinv.Puf = (iinv.f1[ug.fId] * (*uinsf.dqdx)[IIDX::IIU][ug.lc] + iinv.f2[ug.fId] * (*uinsf.dqdx)[IIDX::IIU][ug.rc])*(*ug.xfn)[ug.fId] +
 		               (iinv.f1[ug.fId] * (*uinsf.dqdy)[IIDX::IIU][ug.lc] + iinv.f2[ug.fId] * (*uinsf.dqdy)[IIDX::IIU][ug.rc])*(*ug.yfn)[ug.fId] +
-		               (iinv.f1[ug.fId] * (*uinsf.dqdz)[IIDX::IIU][ug.lc] + iinv.f2[ug.fId] * (*uinsf.dqdz)[IIDX::IIU][ug.rc])*(*ug.zfn)[ug.fId];  //▽q*n
+		               (iinv.f1[ug.fId] * (*uinsf.dqdz)[IIDX::IIU][ug.lc] + iinv.f2[ug.fId] * (*uinsf.dqdz)[IIDX::IIU][ug.rc])*(*ug.zfn)[ug.fId];  //divq*n
 
 	iinv.Pvf = (iinv.f1[ug.fId] * (*uinsf.dqdx)[IIDX::IIV][ug.lc] + iinv.f2[ug.fId] * (*uinsf.dqdx)[IIDX::IIV][ug.rc])*(*ug.xfn)[ug.fId] +
 		               (iinv.f1[ug.fId] * (*uinsf.dqdy)[IIDX::IIV][ug.lc] + iinv.f2[ug.fId] * (*uinsf.dqdy)[IIDX::IIV][ug.rc])*(*ug.yfn)[ug.fId] +
@@ -333,11 +333,11 @@ void UINsVisterm::CalcFaceVisterm()
 		                (iinv.f1[ug.fId] * (*uinsf.dqdz)[IIDX::IIW][ug.lc] + iinv.f2[ug.fId] * (*uinsf.dqdz)[IIDX::IIW][ug.rc])*iinv.l2rdz ) / iinv.dist;
 
 	
-	iinv.Ftu1 = iinv.Puf *(*ug.farea)[ug.fId]* iinv.vis;   //扩散项中归入源项的部分1
+	iinv.Ftu1 = iinv.Puf *(*ug.farea)[ug.fId]* iinv.vis;   //The part of a diffusion term that is attributed to the source term1
     iinv.Ftv1 = iinv.Pvf *(*ug.farea)[ug.fId]* iinv.vis;
 	iinv.Ftw1 = iinv.Pwf *(*ug.farea)[ug.fId]* iinv.vis;
 
-	iinv.Ftu2 = iinv.Pdu*(*ug.farea)[ug.fId] * iinv.vis;   //扩散项中归入源项的部分2
+	iinv.Ftu2 = iinv.Pdu*(*ug.farea)[ug.fId] * iinv.vis;   //The part of a diffusion term that is attributed to the source term2
 	iinv.Ftv2 = iinv.Pdv*(*ug.farea)[ug.fId] * iinv.vis;
 	iinv.Ftw2 = iinv.Pdw*(*ug.farea)[ug.fId] * iinv.vis;
 
@@ -369,7 +369,7 @@ void UINsVisterm::CalcFaceVisterm()
 		               (iinv.f1[ug.fId] * (*uinsf.dqdy)[IIDX::IIV][ug.lc] + iinv.f2[ug.fId] * (*uinsf.dqdy)[IIDX::IIV][ug.rc]) +
 		               (iinv.f1[ug.fId] * (*uinsf.dqdz)[IIDX::IIW][ug.lc] + iinv.f2[ug.fId] * (*uinsf.dqdz)[IIDX::IIW][ug.rc]))*(*ug.zfn)[ug.fId];
 
-	iinv.FtuT = iinv.PufT * (*ug.farea)[ug.fId] * iinv.vis;  //Г(▽V)T，表面源项
+	iinv.FtuT = iinv.PufT * (*ug.farea)[ug.fId] * iinv.vis;  // surface source term
 	iinv.FtvT = iinv.PvfT * (*ug.farea)[ug.fId] * iinv.vis;
 	iinv.FtwT = iinv.PwfT * (*ug.farea)[ug.fId] * iinv.vis;
 
@@ -388,7 +388,7 @@ void UINsVisterm::CalcFaceVisterm()
 
 /*void UINsVisterm::CalcBcFaceVisterm()
 {
-	iinv.l2rdx[ug.fId] = (*ug.xfc)[ug.fId] - (*ug.xcc)[ug.lc];  //界面左右单元中心距
+	iinv.l2rdx[ug.fId] = (*ug.xfc)[ug.fId] - (*ug.xcc)[ug.lc];  //Center distance between left and right units of interface
 	iinv.l2rdy[ug.fId] = (*ug.yfc)[ug.fId] - (*ug.ycc)[ug.lc];
 	iinv.l2rdz[ug.fId] = (*ug.zfc)[ug.fId] - (*ug.zcc)[ug.lc];
 
@@ -401,7 +401,7 @@ void UINsVisterm::CalcFaceVisterm()
 
 	iinv.Puf[ug.fId] = ((*uinsf.dqdx)[IIDX::IIU][ug.lc])*(*ug.xfn)[ug.fId] +
 		((*uinsf.dqdy)[IIDX::IIU][ug.lc])*(*ug.yfn)[ug.fId] +
-		((*uinsf.dqdz)[IIDX::IIU][ug.lc])*(*ug.zfn)[ug.fId];  //▽q*n
+		((*uinsf.dqdz)[IIDX::IIU][ug.lc])*(*ug.zfn)[ug.fId];  //divq*n
 
 	iinv.Pvf[ug.fId] = ((*uinsf.dqdx)[IIDX::IIV][ug.lc] )*(*ug.xfn)[ug.fId] +
 		((*uinsf.dqdy)[IIDX::IIV][ug.lc])*(*ug.yfn)[ug.fId] +
@@ -423,11 +423,11 @@ void UINsVisterm::CalcFaceVisterm()
 		((*uinsf.dqdy)[IIDX::IIW][ug.lc])*iinv.l2rdy[ug.fId] +
 		((*uinsf.dqdz)[IIDX::IIW][ug.lc] )*iinv.l2rdz[ug.fId]) / iinv.dist[ug.fId];
 
-	iinv.Ftu1[ug.fId] = iinv.Puf[ug.fId] * (*ug.farea)[ug.fId] * iinv.visu[ug.fId];   //扩散项中归入源项的部分1
+	iinv.Ftu1[ug.fId] = iinv.Puf[ug.fId] * (*ug.farea)[ug.fId] * iinv.visu[ug.fId];   //The part of a diffusion term that is attributed to the source term1
 	iinv.Ftv1[ug.fId] = iinv.Pvf[ug.fId] * (*ug.farea)[ug.fId] * iinv.visv[ug.fId];
 	iinv.Ftw1[ug.fId] = iinv.Pwf[ug.fId] * (*ug.farea)[ug.fId] * iinv.visw[ug.fId];
 
-	iinv.Ftu2[ug.fId] = iinv.Pdu[ug.fId] * (*ug.farea)[ug.fId] * iinv.visu[ug.fId];   //扩散项中归入源项的部分2
+	iinv.Ftu2[ug.fId] = iinv.Pdu[ug.fId] * (*ug.farea)[ug.fId] * iinv.visu[ug.fId];   //The part of a diffusion term that is attributed to the source term2
 	iinv.Ftv2[ug.fId] = iinv.Pdv[ug.fId] * (*ug.farea)[ug.fId] * iinv.visv[ug.fId];
 	iinv.Ftw2[ug.fId] = iinv.Pdw[ug.fId] * (*ug.farea)[ug.fId] * iinv.visw[ug.fId];
 
@@ -459,7 +459,7 @@ void UINsVisterm::CalcFaceVisterm()
 		((*uinsf.dqdy)[IIDX::IIV][ug.lc]) +
 		((*uinsf.dqdz)[IIDX::IIW][ug.lc]))*(*ug.zfn)[ug.fId];
 
-	iinv.FtuT[ug.fId] = iinv.PufT[ug.fId] * (*ug.farea)[ug.fId] * iinv.visu[ug.fId];  //Г(▽V)T，表面源项
+	iinv.FtuT[ug.fId] = iinv.PufT[ug.fId] * (*ug.farea)[ug.fId] * iinv.visu[ug.fId];  // surface source term
 	iinv.FtvT[ug.fId] = iinv.PvfT[ug.fId] * (*ug.farea)[ug.fId] * iinv.visv[ug.fId];
 	iinv.FtwT[ug.fId] = iinv.PwfT[ug.fId] * (*ug.farea)[ug.fId] * iinv.visw[ug.fId];
 
@@ -482,7 +482,7 @@ void UINsVisterm::CalcUnsteadcoff()
 	{
 		ug.cId = cId;
 
-		iinv.spt[ug.cId] = (*ug.cvol)[ug.cId] * (*uinsf.q)[IIDX::IIR][ug.cId]/ iinv.timestep;  //矩阵对角线元素的非稳态项
+		iinv.spt[ug.cId] = (*ug.cvol)[ug.cId] * (*uinsf.q)[IIDX::IIR][ug.cId]/ iinv.timestep;  //The unsteady term of diagonal elements of matrix
 		
 		if (ctrl.currTime == 0.001 && Iteration::innerSteps == 1)
 		{
@@ -490,13 +490,13 @@ void UINsVisterm::CalcUnsteadcoff()
 			iinv.vp[ug.cId] = (*uinsf.q)[IIDX::IIV][ug.cId];
 			iinv.wp[ug.cId] = (*uinsf.q)[IIDX::IIW][ug.cId];
 
-			iinv.but[ug.cId] = (*ug.cvol)[ug.cId] * (*uinsf.q)[IIDX::IIR][ug.cId]* iinv.up[ug.cId] / iinv.timestep; //源项的非稳态项
+			iinv.but[ug.cId] = (*ug.cvol)[ug.cId] * (*uinsf.q)[IIDX::IIR][ug.cId]* iinv.up[ug.cId] / iinv.timestep; //Unsteady term of source term
 			iinv.bvt[ug.cId] = (*ug.cvol)[ug.cId] * (*uinsf.q)[IIDX::IIR][ug.cId]* iinv.vp[ug.cId] / iinv.timestep;
 			iinv.bwt[ug.cId] = (*ug.cvol)[ug.cId] * (*uinsf.q)[IIDX::IIR][ug.cId]* iinv.wp[ug.cId]/ iinv.timestep;
 		}
 		else
 		{
-			iinv.but[ug.cId] = (*ug.cvol)[ug.cId] * (*uinsf.q)[IIDX::IIR][ug.cId] * iinv.up[ug.cId] / iinv.timestep; //源项的非稳态项
+			iinv.but[ug.cId] = (*ug.cvol)[ug.cId] * (*uinsf.q)[IIDX::IIR][ug.cId] * iinv.up[ug.cId] / iinv.timestep; //Unsteady term of source term
 			iinv.bvt[ug.cId] = (*ug.cvol)[ug.cId] * (*uinsf.q)[IIDX::IIR][ug.cId] * iinv.vp[ug.cId] / iinv.timestep;
 			iinv.bwt[ug.cId] = (*ug.cvol)[ug.cId] * (*uinsf.q)[IIDX::IIR][ug.cId] * iinv.wp[ug.cId] / iinv.timestep;
 		}
@@ -516,13 +516,13 @@ void UINsVisterm::CalcUnsteadcoff()
 			iinv.vp[ug.rc] = ((*uinsf.q)[IIDX::IIV][ug.rc]+ (*uinsf.q)[IIDX::IIU][ug.rc])/2;
 			iinv.wp[ug.rc] = ((*uinsf.q)[IIDX::IIW][ug.rc]+ (*uinsf.q)[IIDX::IIU][ug.rc])/2;
 
-			iinv.but[ug.rc] = (*ug.farea)[ug.fId] * (*uinsf.q)[IIDX::IIR][ug.rc] * iinv.up[ug.rc] / iinv.timestep; //源项的非稳态项
+			iinv.but[ug.rc] = (*ug.farea)[ug.fId] * (*uinsf.q)[IIDX::IIR][ug.rc] * iinv.up[ug.rc] / iinv.timestep; //Unsteady term of source term
 			iinv.bvt[ug.rc] = (*ug.farea)[ug.fId] * (*uinsf.q)[IIDX::IIR][ug.rc] * iinv.vp[ug.rc] / iinv.timestep;
 			iinv.bwt[ug.rc] = (*ug.farea)[ug.fId] * (*uinsf.q)[IIDX::IIR][ug.rc] * iinv.wp[ug.rc] / iinv.timestep;
 		}
 		else
 		{
-			iinv.but[ug.cId] = (*ug.farea)[ug.fId] * (*uinsf.q)[IIDX::IIR][ug.rc] * iinv.up[ug.rc] / iinv.timestep; //源项的非稳态项
+			iinv.but[ug.cId] = (*ug.farea)[ug.fId] * (*uinsf.q)[IIDX::IIR][ug.rc] * iinv.up[ug.rc] / iinv.timestep; //Unsteady term of source term
 			iinv.bvt[ug.cId] = (*ug.farea)[ug.fId] * (*uinsf.q)[IIDX::IIR][ug.rc] * iinv.vp[ug.rc] / iinv.timestep;
 			iinv.bwt[ug.cId] = (*ug.farea)[ug.fId] * (*uinsf.q)[IIDX::IIR][ug.rc] * iinv.wp[ug.rc] / iinv.timestep;
 		}
@@ -534,7 +534,7 @@ void UINsVisterm::CalcUnsteadcoff()
 	{
 		ug.cId = cId;
 
-		iinv.spt[ug.cId] = (*ug.cvol)[ug.cId] * (*uinsf.q)[IIDX::IIR][ug.cId] / iinv.timestep;  //矩阵对角线元素的非稳态项
+		iinv.spt[ug.cId] = (*ug.cvol)[ug.cId] * (*uinsf.q)[IIDX::IIR][ug.cId] / iinv.timestep;  //The unsteady term of diagonal elements of matrix
 		
 		if (ctrl.currTime == 0.001 && Iteration::innerSteps == 1)
 	
@@ -543,7 +543,7 @@ void UINsVisterm::CalcUnsteadcoff()
 			iinv.vp[ug.cId] = (*uinsf.q)[IIDX::IIV][ug.cId];
 			iinv.wp[ug.cId] = (*uinsf.q)[IIDX::IIW][ug.cId];
 
-			iinv.but[ug.cId] = (*ug.cvol)[ug.cId] * (*uinsf.q)[IIDX::IIR][ug.cId] * iinv.up[ug.cId] / iinv.timestep; //源项的非稳态项
+			iinv.but[ug.cId] = (*ug.cvol)[ug.cId] * (*uinsf.q)[IIDX::IIR][ug.cId] * iinv.up[ug.cId] / iinv.timestep; //Unsteady term of source term
 			iinv.bvt[ug.cId] = (*ug.cvol)[ug.cId] * (*uinsf.q)[IIDX::IIR][ug.cId] * iinv.vp[ug.cId] / iinv.timestep;
 			iinv.bwt[ug.cId] = (*ug.cvol)[ug.cId] * (*uinsf.q)[IIDX::IIR][ug.cId] * iinv.wp[ug.cId] / iinv.timestep;
 
@@ -551,7 +551,7 @@ void UINsVisterm::CalcUnsteadcoff()
 		}
 		else
 		{
-			iinv.but[ug.cId] = (*ug.cvol)[ug.cId] * (*uinsf.q)[IIDX::IIR][ug.cId] * iinv.up[ug.cId] / iinv.timestep; //源项的非稳态项
+			iinv.but[ug.cId] = (*ug.cvol)[ug.cId] * (*uinsf.q)[IIDX::IIR][ug.cId] * iinv.up[ug.cId] / iinv.timestep; //Unsteady term of source term
 			iinv.bvt[ug.cId] = (*ug.cvol)[ug.cId] * (*uinsf.q)[IIDX::IIR][ug.cId] * iinv.vp[ug.cId] / iinv.timestep;
 			iinv.bwt[ug.cId] = (*ug.cvol)[ug.cId] * (*uinsf.q)[IIDX::IIR][ug.cId] * iinv.wp[ug.cId] / iinv.timestep;
 		}
@@ -615,12 +615,12 @@ void UINsVisterm::CalcINsSrc()
 
 			if (ug.cId == ug.lc)
 			{
-				iinv.sj[ug.cId][iFace] = -iinv.ai[ug.fId][0];  //矩阵非零系数，动量方程中与主单元相邻的单元面通量
+				iinv.sj[ug.cId][iFace] = -iinv.ai[ug.fId][0];  //The flux of the element surface adjacent to the main element in the momentum equation
 				iinv.sd[ug.cId][iFace] = ug.rc;
 			}
 			else if (ug.cId == ug.rc)
 			{
-				iinv.sj[ug.cId][iFace] = -iinv.ai[ug.fId][1];  //矩阵非零系数，动量方程中与主单元相邻的单元面通量
+				iinv.sj[ug.cId][iFace] = -iinv.ai[ug.fId][1];  //The flux of the element surface adjacent to the main element in the momentum equation
 				iinv.sd[ug.cId][iFace] = ug.lc;
 			}
 

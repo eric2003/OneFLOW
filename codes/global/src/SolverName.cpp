@@ -30,7 +30,7 @@ BeginNameSpace( ONEFLOW )
 
 void GetSolverFileNames( const string & solverName, StringField & fileNameList )
 {
-    //\tÎªtab¼ü
+    //\t is the tab key
     string separator = " =\r\n\t#$,;\"()";
 
     OStream ostr;

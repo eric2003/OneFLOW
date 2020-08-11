@@ -64,7 +64,7 @@ void MolecularProperty::Read( FileIO * ioFile )
     ioFile->SetDefaultSeparator( separator );
 
     ioFile->SkipLines( 3 );
-    //读各组元名称
+    //Read the names of each species
     ioFile->ReadNextNonEmptyLine();
     for ( int iSpecies = 0; iSpecies < nSpecies; ++ iSpecies )
     {
@@ -79,7 +79,7 @@ void MolecularProperty::Read( FileIO * ioFile )
     }
 
     ioFile->SkipLines( 3 );
-    //!读各组元分子量
+    //!Read the molecular weight of each species
     ioFile->ReadNextNonEmptyLine();
     for ( int iSpecies = 0; iSpecies < nSpecies; ++ iSpecies )
     {
@@ -103,7 +103,7 @@ void MolecularProperty::Read( FileIO * ioFile )
     }
 
     ioFile->SkipLines( 3 );
-    //!读各组元特征温度
+    //!Read the characteristic temperature of each species
     ioFile->ReadNextNonEmptyLine();
     for ( int iSpecies = 0; iSpecies < nSpecies; ++ iSpecies )
     {

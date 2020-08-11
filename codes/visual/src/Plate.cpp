@@ -208,7 +208,7 @@ void PlaneData::SortDataByAxis( int axis )
 
 int PlaneData::FindYIndex()
 {
-    //找到壁面第一层的点
+    //Find the point on the first layer of the wall
     RealField yList = this->y;
     sort( yList.begin(), yList.end() );
 

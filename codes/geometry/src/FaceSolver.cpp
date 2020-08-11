@@ -132,8 +132,8 @@ void FaceSolver::ScanElementFace( CgIntField & eNodeId, int eType, int eId )
         {
             if ((this->faceTopo->lCell)[gFid] == ONEFLOW::INVALID_INDEX)
             {
-                //说明此面虽然存在，但是由于种种原因没有处理
-                (this->faceTopo->lCell)[gFid] = eId; //例如分裂过程中新加入体单元面
+                //This shows that although this aspect exists, it has not been dealt with due to various reasons
+                (this->faceTopo->lCell)[gFid] = eId; //For example, a new volume element surface is added during the splitting process
             }
             else
             {

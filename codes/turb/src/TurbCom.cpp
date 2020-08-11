@@ -136,7 +136,7 @@ void TurbCom::InitConst()
     fbeta  = 1.0;
     fbetas = 1.0;
     betas  = 0.09;
-    //实际上cmu应该为0.09，但是cmu一般都被吸收了，不需要
+    //In fact, the CMU should be 0.09, but the CMU is generally absorbed and is not required
     cmu    = 1.0;
     clim   = 1.0;
 
@@ -296,7 +296,7 @@ void TurbCom::InitConst()
     }
     else if ( vis_model.visname.substr( 0, 4 ) == "easm" )
     {
-        // 专门的easm，不是随意组合的那种
+        // Special EASM, not a random combination
         if ( vis_model.visname.substr( 0, 12 ) == "easm-kw-2001" )
         {
             sigk   = 0.5;

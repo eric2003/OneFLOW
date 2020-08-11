@@ -66,19 +66,19 @@ void UINsInvterm::CalcLimiter()
 	limiter->CalcLimiter();
 }
 
-void UINsInvterm::CalcInvFace()  //单元数据重构
+void UINsInvterm::CalcInvFace()  //Cell data reconstruction
 {
 	//uins_grad.Init();
 	//uins_grad.CalcGrad();
 
 
-	this->CalcLimiter();   //不改
+	this->CalcLimiter();   //Don't change it
 
-	this->GetQlQrField();  //不改
+	this->GetQlQrField();  //Don't change it
 
-	//this->ReconstructFaceValueField();  //不改
+	//this->ReconstructFaceValueField();  //Don't change it
 
-	this->BoundaryQlQrFixField();  //不改
+	this->BoundaryQlQrFixField();  //Don't change it
 }
 
 void UINsInvterm::GetQlQrField()
@@ -106,7 +106,7 @@ void UINsInvterm::CalcInvcoff()
 	//Alloc();
 
 	//this->CalcInvFace();
-	this->CalcInvMassFlux();  //需要改动
+	this->CalcInvMassFlux();  //needs to be changed
 
    //DeAlloc();
 }
@@ -386,7 +386,7 @@ void UINsInvterm::MomPre()
 
 			if (ug.cId == ug.lc)
 			{
-				iinv.muc[ug.cId] += -iinv.sj[ug.cId][iFace] * (*uinsf.q)[IIDX::IIU][ug.rc];   //使用高斯赛德尔迭代时，相邻单元对其的影响，矩阵法不需要
+				iinv.muc[ug.cId] += -iinv.sj[ug.cId][iFace] * (*uinsf.q)[IIDX::IIU][ug.rc];   //When Gauss Seidel iteration is used, the influence of adjacent elements on it is unnecessary for matrix method
 				iinv.mvc[ug.cId] += -iinv.sj[ug.cId][iFace] * (*uinsf.q)[IIDX::IIV][ug.rc];
 				iinv.mwc[ug.cId] += -iinv.sj[ug.cId][iFace] * (*uinsf.q)[IIDX::IIW][ug.rc];
 
@@ -394,7 +394,7 @@ void UINsInvterm::MomPre()
 			else if (ug.cId == ug.rc)
 			{
 
-				iinv.muc[ug.cId] += -iinv.sj[ug.cId][iFace] * (*uinsf.q)[IIDX::IIU][ug.lc]; //使用高斯赛德尔迭代时，相邻单元对其的影响，矩阵法不需要
+				iinv.muc[ug.cId] += -iinv.sj[ug.cId][iFace] * (*uinsf.q)[IIDX::IIU][ug.lc]; //When Gauss Seidel iteration is used, the influence of adjacent elements on it is unnecessary for matrix method
 				iinv.mvc[ug.cId] += -iinv.sj[ug.cId][iFace] * (*uinsf.q)[IIDX::IIV][ug.lc];
 				iinv.mwc[ug.cId] += -iinv.sj[ug.cId][iFace] * (*uinsf.q)[IIDX::IIW][ug.lc];
 
@@ -402,7 +402,7 @@ void UINsInvterm::MomPre()
 		}
 
 
-			iinv.uc[ug.cId] = (iinv.muc[ug.cId] + iinv.buc[ug.cId]) / (iinv.spc[ug.cId]);  //下一时刻速度的预测值
+			iinv.uc[ug.cId] = (iinv.muc[ug.cId] + iinv.buc[ug.cId]) / (iinv.spc[ug.cId]);  //Predicted value of speed at the next moment
 
 
 			iinv.vc[ug.cId] = (iinv.mvc[ug.cId] + iinv.bvc[ug.cId]) / (iinv.spc[ug.cId]);
@@ -446,30 +446,30 @@ void UINsInvterm::MomPre()
 		}
 	}*/
 
-	//BGMRES求解
+	//Bgmres solution
 	NonZero.Number = 0;
 	for (int cId = 0; cId < ug.nTCell; ++cId)
 	{                                          
-		int fn = (*ug.c2f)[cId].size();                             //相邻单元的个数                                    
-		NonZero.Number += fn;                                          //非对角线上非零元的个数
+		int fn = (*ug.c2f)[cId].size();                             // Number of adjacent cells                             
+		NonZero.Number += fn;                                       // The number of nonzero elements on a non diagonal line
 	}
-	NonZero.Number = NonZero.Number + ug.nTCell;                     //非零元的总个数         
-	Rank.RANKNUMBER = ug.nTCell;                                     // 矩阵的行列大小
-	Rank.NUMBER = NonZero.Number;                                    // 矩阵非零元素个数传到计算程序中
-	Rank.COLNUMBER = 1;                                              //右端项个数
-	Rank.Init();                                                     //传入GMRES计算程序的中间变量
+	NonZero.Number = NonZero.Number + ug.nTCell;                     // The total number of nonzero elements     
+	Rank.RANKNUMBER = ug.nTCell;                                     // Row and column size of matrix
+	Rank.NUMBER = NonZero.Number;                                    // The number of non-zero elements of matrix is transferred to the calculation program
+	Rank.COLNUMBER = 1;                                              // Number of right end items
+	Rank.Init();                                                     //Intermediate variable passed into GMRES calculation program
 	double residual_u, residual_v, residual_w;
 	for (int cId = 0; cId < ug.nTCell; ++cId)
 	{
 		Rank.TempIA[0] = 0;
 		int n = Rank.TempIA[cId];
 		int fn = (*ug.c2f)[cId].size();
-		Rank.TempIA[cId + 1] = Rank.TempIA[cId] + fn + 1;                                                  // 前n+1行非零元素的个数
+		Rank.TempIA[cId + 1] = Rank.TempIA[cId] + fn + 1;                                                  // The number of non-zero elements in the first n + 1 row
 		for (int iFace = 0; iFace < fn; ++iFace)
 		{
-			int fId = (*ug.c2f)[cId][iFace];                                                            // 相邻面的编号
-			ug.lc = (*ug.lcf)[fId];                                                                     // 面左侧单元
-			ug.rc = (*ug.rcf)[fId];                                                                     // 面右侧单元
+			int fId = (*ug.c2f)[cId][iFace];                                                            // Number of adjacent faces
+			ug.lc = (*ug.lcf)[fId];                                                                     // Face left unit
+			ug.rc = (*ug.rcf)[fId];                                                                     // Face right unit
 			if (cId == ug.lc)
 			{
 				Rank.TempA[n + iFace] = -iinv.ai[fId][0];
@@ -481,8 +481,8 @@ void UINsInvterm::MomPre()
 				Rank.TempJA[n + iFace] = ug.lc;
 			}
 		}
-		Rank.TempA[n + fn] = iinv.spc[cId];                          //主对角线元素值
-		Rank.TempJA[n + fn] = cId;                                      //主对角线纵坐标
+		Rank.TempA[n + fn] = iinv.spc[cId];                          //Primary diagonal element value
+		Rank.TempJA[n + fn] = cId;                                      //Principal diagonal ordinate
 
 	}
 	for (int cId = 0; cId < ug.nTCell; cId++)
@@ -492,7 +492,7 @@ void UINsInvterm::MomPre()
 	bgx.BGMRES();
 	for (int cId = 0; cId < ug.nTCell; cId++)
 	{
-		iinv.uc[cId] = Rank.TempX[cId][0];                       // 解的输出
+		iinv.uc[cId] = Rank.TempX[cId][0];                       // Output of solution
 	}
 	residual_u = Rank.residual;
 	iinv.res_u = residual_u;
@@ -506,26 +506,26 @@ void UINsInvterm::MomPre()
 	NonZero.Number = 0;
 	for (int cId = 0; cId < ug.nTCell; ++cId)
 	{
-		int fn = (*ug.c2f)[cId].size();                             //相邻单元的个数                                    
-		NonZero.Number += fn;                                          //非对角线上非零元的个数
+		int fn = (*ug.c2f)[cId].size();                             //Number of adjacent cells                                    
+		NonZero.Number += fn;                                          //The number of nonzero elements on a non diagonal line
 	}
-	NonZero.Number = NonZero.Number + ug.nTCell;                     //非零元的总个数         
-	Rank.RANKNUMBER = ug.nTCell;                                     // 矩阵的行列大小
-	Rank.NUMBER = NonZero.Number;                                    // 矩阵非零元素个数传到计算程序中
-	Rank.COLNUMBER = 1;                                              //右端项个数
-	Rank.Init();                                                     //传入GMRES计算程序的中间变量
+	NonZero.Number = NonZero.Number + ug.nTCell;                     //The total number of nonzero elements         
+	Rank.RANKNUMBER = ug.nTCell;                                     // Row and column size of matrix
+	Rank.NUMBER = NonZero.Number;                                    // The number of non-zero elements of matrix is transferred to the calculation program
+	Rank.COLNUMBER = 1;                                              //Number of right end items
+	Rank.Init();                                                     //Intermediate variable passed into GMRES calculation program
 	//double residual_u, residual_v, residual_w;
 	for (int cId = 0; cId < ug.nTCell; ++cId)
 	{
 		Rank.TempIA[0] = 0;
 		int n = Rank.TempIA[cId];
 		int fn = (*ug.c2f)[cId].size();
-		Rank.TempIA[cId + 1] = Rank.TempIA[cId] + fn + 1;                                                  // 前n+1行非零元素的个数
+		Rank.TempIA[cId + 1] = Rank.TempIA[cId] + fn + 1;                                                  // The number of non-zero elements in the first n + 1 row
 		for (int iFace = 0; iFace < fn; ++iFace)
 		{
-			int fId = (*ug.c2f)[cId][iFace];                                                            // 相邻面的编号
-			ug.lc = (*ug.lcf)[fId];                                                                     // 面左侧单元
-			ug.rc = (*ug.rcf)[fId];                                                                     // 面右侧单元
+			int fId = (*ug.c2f)[cId][iFace];                                                            // Number of adjacent faces
+			ug.lc = (*ug.lcf)[fId];                                                                     // Face left unit
+			ug.rc = (*ug.rcf)[fId];                                                                     // Face right unit
 			if (cId == ug.lc)
 			{
 				Rank.TempA[n + iFace] = -iinv.ai[fId][0];
@@ -537,8 +537,8 @@ void UINsInvterm::MomPre()
 				Rank.TempJA[n + iFace] = ug.lc;
 			}
 		}
-		Rank.TempA[n + fn] = iinv.spc[cId];                          //主对角线元素值
-		Rank.TempJA[n + fn] = cId;                                      //主对角线纵坐标
+		Rank.TempA[n + fn] = iinv.spc[cId];                          //Primary diagonal element value
+		Rank.TempJA[n + fn] = cId;                                      //Principal diagonal ordinate
 
 	}
 
@@ -563,26 +563,26 @@ void UINsInvterm::MomPre()
 	NonZero.Number = 0;
 	for (int cId = 0; cId < ug.nTCell; ++cId)
 	{
-		int fn = (*ug.c2f)[cId].size();                             //相邻单元的个数                                    
-		NonZero.Number += fn;                                          //非对角线上非零元的个数
+		int fn = (*ug.c2f)[cId].size();                             //Number of adjacent cells                                    
+		NonZero.Number += fn;                                          //The number of nonzero elements on a non diagonal line
 	}
-	NonZero.Number = NonZero.Number + ug.nTCell;                     //非零元的总个数         
-	Rank.RANKNUMBER = ug.nTCell;                                     // 矩阵的行列大小
-	Rank.NUMBER = NonZero.Number;                                    // 矩阵非零元素个数传到计算程序中
-	Rank.COLNUMBER = 1;                                              //右端项个数
-	Rank.Init();                                                     //传入GMRES计算程序的中间变量
+	NonZero.Number = NonZero.Number + ug.nTCell;                     //The total number of nonzero elements         
+	Rank.RANKNUMBER = ug.nTCell;                                     // Row and column size of matrix
+	Rank.NUMBER = NonZero.Number;                                    // The number of non-zero elements of matrix is transferred to the calculation program
+	Rank.COLNUMBER = 1;                                              //Number of right end items
+	Rank.Init();                                                     //Intermediate variable passed into GMRES calculation program
 	//double residual_u, residual_v, residual_w;
 	for (int cId = 0; cId < ug.nTCell; ++cId)
 	{
 		Rank.TempIA[0] = 0;
 		int n = Rank.TempIA[cId];
 		int fn = (*ug.c2f)[cId].size();
-		Rank.TempIA[cId + 1] = Rank.TempIA[cId] + fn + 1;                                                  // 前n+1行非零元素的个数
+		Rank.TempIA[cId + 1] = Rank.TempIA[cId] + fn + 1;                                                  // The number of non-zero elements in the first n + 1 row
 		for (int iFace = 0; iFace < fn; ++iFace)
 		{
-			int fId = (*ug.c2f)[cId][iFace];                                                            // 相邻面的编号
-			ug.lc = (*ug.lcf)[fId];                                                                     // 面左侧单元
-			ug.rc = (*ug.rcf)[fId];                                                                     // 面右侧单元
+			int fId = (*ug.c2f)[cId][iFace];                                                            // Number of adjacent faces
+			ug.lc = (*ug.lcf)[fId];                                                                     // Face left unit
+			ug.rc = (*ug.rcf)[fId];                                                                     // Face right unit
 			if (cId == ug.lc)
 			{
 				Rank.TempA[n + iFace] = -iinv.ai[fId][0];
@@ -594,8 +594,8 @@ void UINsInvterm::MomPre()
 				Rank.TempJA[n + iFace] = ug.lc;
 			}
 		}
-		Rank.TempA[n + fn] = iinv.spc[cId];                          //主对角线元素值
-		Rank.TempJA[n + fn] = cId;                                      //主对角线纵坐标
+		Rank.TempA[n + fn] = iinv.spc[cId];                          //Primary diagonal element value
+		Rank.TempJA[n + fn] = cId;                                      //Principal diagonal ordinate
 
 	}
 
@@ -728,7 +728,7 @@ void UINsInvterm::MomPre()
 
 			Real velin = DIST(uin, vin, win);
 
-			//超声速
+			//Supersonic
 			if (velin > cin)
 			{
 				if (vnin >= 0.0)
@@ -845,7 +845,7 @@ for (int fId = 0; fId < ug.nBFace; ++fId)
 	}
 }*/
 
-	/*将残差输出到txt文件中*/
+	/*Output the residuals to a TXT file*/
 	/*ofstream fileres_u("residual_u.txt", ios::app);
 	//fileres_u << "residual_u:" << residual_u << endl;
 	fileres_u << residual_u << endl;
@@ -869,7 +869,7 @@ void UINsInvterm::CalcFaceflux()
 	ug.Init();
 	uinsf.Init();
 	//Alloc();
-	//this->CalcInvFace();  //边界处理
+	//this->CalcInvFace();  //Boundary treatment
 	for (int fId = ug.nBFace; fId < ug.nFace; ++fId)
 	{
 		ug.fId = fId;
@@ -912,7 +912,7 @@ void UINsInvterm::CalcINsMomRes()
 	iinv.res_v = 0;
 	iinv.res_w = 0;
 
-	//判别迭代收敛的条件
+	//Conditions for judging convergence of iteration
 	//double phiscale, temp;
 	//for (int cId = 0; cId < ug.nTCell; cId++)
 	//{
@@ -1082,11 +1082,11 @@ void UINsInvterm::CalcCorrectPresscoef()
 	{
 		ug.cId = cId;
 
-		//iinv.VdU[ug.cId] = -(*ug.cvol)[ug.cId] / ((1 + 1)*iinv.spu[ug.cId] - iinv.sju[ug.cId]); //用于求单元修正速度量;
+		//iinv.VdU[ug.cId] = -(*ug.cvol)[ug.cId] / ((1 + 1)*iinv.spu[ug.cId] - iinv.sju[ug.cId]); //It is used to calculate the unit correction speed;
 		//iinv.VdV[ug.cId] = -(*ug.cvol)[ug.cId] / ((1 + 1)*iinv.spv[ug.cId] - iinv.sjv[ug.cId]);
 		//iinv.VdW[ug.cId] = -(*ug.cvol)[ug.cId] / ((1 + 1)*iinv.spw[ug.cId] - iinv.sjw[ug.cId]);
 
-		iinv.VdU[ug.cId] = -(*ug.cvol)[ug.cId] / ((1+1)*iinv.spc[ug.cId]); //用于求单元修正速度量;
+		iinv.VdU[ug.cId] = -(*ug.cvol)[ug.cId] / ((1+1)*iinv.spc[ug.cId]); //It is used to calculate the unit correction speed;
 		iinv.VdV[ug.cId] = -(*ug.cvol)[ug.cId] / ((1 + 1)*iinv.spc[ug.cId]);
 		iinv.VdW[ug.cId] = -(*ug.cvol)[ug.cId] / ((1 + 1)*iinv.spc[ug.cId]);
 
@@ -1109,7 +1109,7 @@ void UINsInvterm::CalcCorrectPresscoef()
 
 			if (ug.cId == ug.lc)
 			{
-				iinv.sjp[ug.cId][iFace] = -iinv.ajp[ug.fId]; //求解压力修正方程的非零系数
+				iinv.sjp[ug.cId][iFace] = -iinv.ajp[ug.fId]; //Non zero coefficient for solving pressure correction equation
 				iinv.sjd[ug.cId][iFace] = ug.rc;
 
 				//cout << "iinv.sjp=" << iinv.sjp[ug.cId][iFace] << "iinv.sjd=" << ug.rc << "\n";
@@ -1204,7 +1204,7 @@ void UINsInvterm::CalcNewMomCoe()
 	//{
 	//	ug.cId = cId;
 
-	//	iinv.spu[ug.cId] = iinv.bi1[ug.cId] + iinv.bi2[ug.cId] + iinv.aku1[ug.cId] + iinv.aku2[ug.cId] + iinv.spt[ug.cId]; //矩阵主对角线系数，动量方程单元主系数
+	//	iinv.spu[ug.cId] = iinv.bi1[ug.cId] + iinv.bi2[ug.cId] + iinv.aku1[ug.cId] + iinv.aku2[ug.cId] + iinv.spt[ug.cId]; //The main diagonal coefficient of matrix and the principal coefficient of element of momentum equation
 	//	iinv.spv[ug.cId] = iinv.bi1[ug.cId] + iinv.bi2[ug.cId] + iinv.akv1[ug.cId] + iinv.akv2[ug.cId] + iinv.spt[ug.cId];
 	//	iinv.spw[ug.cId] = iinv.bi1[ug.cId] + iinv.bi2[ug.cId] + iinv.akw1[ug.cId] + iinv.akw2[ug.cId] + iinv.spt[ug.cId];
 	//}
@@ -1237,14 +1237,14 @@ void UINsInvterm::CalcPressCorrectEqu()
 				ug.rc = (*ug.rcf)[ug.fId];
 				if (ug.cId == ug.lc)
 				{
-					iinv.mp[ug.cId] += -iinv.sjp[ug.cId][iFace] * iinv.pp[ug.rc]; //高斯赛戴尔迭代求解时的相邻单元的值，矩阵法不需要
+					iinv.mp[ug.cId] += -iinv.sjp[ug.cId][iFace] * iinv.pp[ug.rc]; //The matrix method does not need the values of adjacent elements in Gauss Seidel iteration
 				}
 				else if (ug.cId == ug.rc)
 				{
 					iinv.mp[ug.cId] += -iinv.sjp[ug.cId][iFace] * iinv.pp[ug.lc];
 				}
 			}
-			iinv.pp[ug.cId] = (iinv.bp[ug.cId] + iinv.mp[ug.cId]) / (iinv.spp[ug.cId]); //压力修正值
+			iinv.pp[ug.cId] = (iinv.bp[ug.cId] + iinv.mp[ug.cId]) / (iinv.spp[ug.cId]); //Pressure correction value
 
 			iinv.res_p = MAX(iinv.res_p, abs(iinv.ppd - iinv.pp[ug.cId]));
 
@@ -1278,19 +1278,19 @@ void UINsInvterm::CalcPressCorrectEqu()
 		(*uinsf.q)[IIDX::IIP][ug.rc] = (*uinsf.q)[IIDX::IIP][ug.lc];
 	}*/
 
-		//BGMRES求解
+		//Bgmres solution
 	NonZero.Number = 0;
 
 	for (int cId = 0; cId < ug.nTCell; ++cId)
 	{   
-		//ug.cId = cId;                                                                  // 主单元编号
-		int fn = (*ug.c2f)[cId].size();                                                                 // 单元相邻面的个数
+		//ug.cId = cId;                                                                  // Main unit number
+		int fn = (*ug.c2f)[cId].size();                                                                 // Number of adjacent faces of element
 		NonZero.Number += fn;
 	}
-	NonZero.Number = NonZero.Number + ug.nTCell;                                                        // 非零元素的计数
-	Rank.RANKNUMBER = ug.nTCell;                                                                        // 矩阵的行列
+	NonZero.Number = NonZero.Number + ug.nTCell;                                                        // Count of non-zero elements
+	Rank.RANKNUMBER = ug.nTCell;                                                                        // Row and column of matrix
 	Rank.COLNUMBER = 1;
-	Rank.NUMBER = NonZero.Number;                                                                      // 矩阵非零元素个数
+	Rank.NUMBER = NonZero.Number;                                                                      // The number of nonzero elements in matrix
 	Rank.Init();
 	double residual_p;
 	for (int cId = 0; cId < ug.nTCell; ++cId)
@@ -1299,28 +1299,28 @@ void UINsInvterm::CalcPressCorrectEqu()
 		Rank.TempIA[0] = 0;
 		int n = Rank.TempIA[cId];
 		int fn = (*ug.c2f)[cId].size();
-		Rank.TempIA[cId + 1] = Rank.TempIA[cId] + fn + 1;                  // 前n+1行非零元素的个数
+		Rank.TempIA[cId + 1] = Rank.TempIA[cId] + fn + 1;                  // The number of non-zero elements in the first n + 1 row
 		for (int iFace = 0; iFace < fn; ++iFace)
 		{
-			int fId = (*ug.c2f)[cId][iFace];                           // 相邻面的编号
+			int fId = (*ug.c2f)[cId][iFace];                           // Number of adjacent faces
 			ug.fId = fId;
-			ug.lc = (*ug.lcf)[fId];                                    // 面左侧单元
-			ug.rc = (*ug.rcf)[fId];                                    // 面右侧单元
+			ug.lc = (*ug.lcf)[fId];                                    // Face left unit
+			ug.rc = (*ug.rcf)[fId];                                    // Face right unit
 			if (cId == ug.lc)
 			{
-				Rank.TempA[n + iFace] = iinv.sjp[cId][iFace];          //非对角线元素值
-				Rank.TempJA[n + iFace] = ug.rc;                           //非对角线元素纵坐标
+				Rank.TempA[n + iFace] = iinv.sjp[cId][iFace];          //Non diagonal element value
+				Rank.TempJA[n + iFace] = ug.rc;                           //Vertical coordinates of non diagonal element
 			}
 			else if (cId == ug.rc)
 			{
-				Rank.TempA[n + iFace] = iinv.sjp[cId][iFace];          //非对角线元素值
-				Rank.TempJA[n + iFace] = ug.lc;                           //非对角线元素纵坐标
+				Rank.TempA[n + iFace] = iinv.sjp[cId][iFace];          //Non diagonal element value
+				Rank.TempJA[n + iFace] = ug.lc;                           //Vertical coordinates of non diagonal element
 			}
 		}
-		Rank.TempA[n + fn] = iinv.spp[cId];                            //主对角线元素
-		Rank.TempJA[n + fn] = cId;                                        //主对角线纵坐标
+		Rank.TempA[n + fn] = iinv.spp[cId];                            //Main diagonal element
+		Rank.TempJA[n + fn] = cId;                                        //Principal diagonal ordinate
 
-		Rank.TempB[cId][0] = iinv.bp[cId];                             //右端项
+		Rank.TempB[cId][0] = iinv.bp[cId];                             //Right end item
 	}
 	bgx.BGMRES();
 	residual_p = Rank.residual;
@@ -1328,7 +1328,7 @@ void UINsInvterm::CalcPressCorrectEqu()
 	for (int cId = 0; cId < ug.nTCell; cId++)
 	{
 		//ug.cId = cId;
-		iinv.pp[cId] = Rank.TempX[cId][0]; //当前时刻的压力修正值
+		iinv.pp[cId] = Rank.TempX[cId][0]; //Of the current momentPressure correction value
 	}
 
 	Rank.Deallocate();
@@ -1336,7 +1336,7 @@ void UINsInvterm::CalcPressCorrectEqu()
 	//iinv.res_p = 0;
 	//iinv.res_p = MAX(iinv.res_p, abs(iinv.ppd - iinv.pp[ug.cId]));
 
-	//边界单元
+	//boundary element
 	for (int fId = 0; fId < ug.nBFace; ++fId)
 	{
 		ug.fId = fId;
@@ -1421,7 +1421,7 @@ void UINsInvterm::CalcPressCorrectEqu()
 			Real gamm1 = nscom.gama - one;
 
 			Real velin = DIST(uin, vin, win);
-			//超声速
+			//Supersonic
 			if (velin > cin)
 			{
 				if (vnin >= 0.0)
@@ -1489,7 +1489,7 @@ for (int cId = 0; cId < ug.nCell; ++cId)
 
 	//for (int cId = 0; cId < ug.nTCell; cId++)
 	//{
-	//	iinv.pc[ug.cId] = nscom.prim[IIDX::IIP] + iinv.pp[ug.cId]; //下一时刻的压力值
+	//	iinv.pc[ug.cId] = nscom.prim[IIDX::IIP] + iinv.pp[ug.cId]; //Pressure value at the next moment
 	//}
 	
 	/*ofstream fileres_p("residual_p.txt", ios::app);
@@ -1532,7 +1532,7 @@ void UINsInvterm::UpdateFaceflux()
 	ug.Init();
 	uinsf.Init();
 	//Alloc();
-	//this->CalcInvFace();  //边界处理
+	//this->CalcInvFace();  //Boundary treatment
 	for (int fId = ug.nBFace; fId < ug.nFace; ++fId)
 	{
 		ug.fId = fId;
@@ -1572,11 +1572,11 @@ void UINsInvterm::UpdateFaceflux()
 
 void UINsInvterm::CalcUpdateINsBcFaceflux()
 {
-	iinv.uuj[ug.fId] = 0; //面速度修正量
+	iinv.uuj[ug.fId] = 0; //Surface velocity correction
 	iinv.vvj[ug.fId] = 0;
 	iinv.wwj[ug.fId] = 0;
 
-	iinv.uf[ug.fId] = iinv.uf[ug.fId] + iinv.uuj[ug.fId]; //下一时刻面速度
+	iinv.uf[ug.fId] = iinv.uf[ug.fId] + iinv.uuj[ug.fId]; //Next moment surface velocity
 	iinv.vf[ug.fId] = iinv.vf[ug.fId] + iinv.vvj[ug.fId];
 	iinv.wf[ug.fId] = iinv.wf[ug.fId] + iinv.wwj[ug.fId];
 
@@ -1590,11 +1590,11 @@ void UINsInvterm::CalcUpdateINsFaceflux()
 
 	iinv.dist = (*ug.xfn)[ug.fId] * ((*ug.xcc)[ug.rc] - (*ug.xcc)[ug.lc]) + (*ug.yfn)[ug.fId] * ((*ug.ycc)[ug.rc] - (*ug.ycc)[ug.lc]) + (*ug.zfn)[ug.fId] * ((*ug.zcc)[ug.rc] - (*ug.zcc)[ug.lc]);
 
-	iinv.uuj[ug.fId] = iinv.Vdvu[ug.fId] * (iinv.pp[ug.lc] - iinv.pp[ug.rc]) * (*ug.xfn)[ug.fId] / iinv.dist; //面速度修正量
+	iinv.uuj[ug.fId] = iinv.Vdvu[ug.fId] * (iinv.pp[ug.lc] - iinv.pp[ug.rc]) * (*ug.xfn)[ug.fId] / iinv.dist; //Surface velocity correction
 	iinv.vvj[ug.fId] = iinv.Vdvv[ug.fId] * (iinv.pp[ug.lc] - iinv.pp[ug.rc]) * (*ug.yfn)[ug.fId] / iinv.dist;
 	iinv.wwj[ug.fId] = iinv.Vdvw[ug.fId] * (iinv.pp[ug.lc] - iinv.pp[ug.rc]) * (*ug.zfn)[ug.fId] / iinv.dist;
 
-	iinv.uf[ug.fId] = iinv.uf[ug.fId] + iinv.uuj[ug.fId]; //下一时刻面速度
+	iinv.uf[ug.fId] = iinv.uf[ug.fId] + iinv.uuj[ug.fId]; //Next moment surface velocity
 	iinv.vf[ug.fId] = iinv.vf[ug.fId] + iinv.vvj[ug.fId];
 	iinv.wf[ug.fId] = iinv.wf[ug.fId] + iinv.wwj[ug.fId];
 
@@ -1611,11 +1611,11 @@ void UINsInvterm::UpdateSpeed()
 	{
 		ug.cId = cId;
 
-		iinv.uu[ug.cId] = iinv.VdU[ug.cId] * iinv.dqqdx[ug.cId]*0.8; //速度修正量
+		iinv.uu[ug.cId] = iinv.VdU[ug.cId] * iinv.dqqdx[ug.cId]*0.8; //Speed correction
 		iinv.vv[ug.cId] = iinv.VdV[ug.cId] * iinv.dqqdy[ug.cId]*0.8;
 		iinv.ww[ug.cId] = iinv.VdW[ug.cId] * iinv.dqqdz[ug.cId]*0.8;
 
-		iinv.up[ug.cId] = iinv.uc[cId] + iinv.uu[ug.cId];  //下一时刻的速度值
+		iinv.up[ug.cId] = iinv.uc[cId] + iinv.uu[ug.cId];  //Speed at the next moment
 		iinv.vp[ug.cId] = iinv.vc[cId] + iinv.vv[ug.cId];
 		iinv.wp[ug.cId] = iinv.wc[cId] + iinv.ww[ug.cId];
 
@@ -1742,7 +1742,7 @@ void UINsInvterm::UpdateSpeed()
 
 			Real velin = DIST(uin, vin, win);
 
-			//超声速
+			//Supersonic
 			if (velin > cin)
 			{
 				if (vnin >= 0.0)
@@ -1824,11 +1824,11 @@ void UINsInvterm::UpdateSpeed()
 	{
 		ug.cId = cId;
 
-		iinv.uu[ug.cId] = 0; //速度修正量
+		iinv.uu[ug.cId] = 0; //Speed correction
 		iinv.vv[ug.cId] = 0;
 		iinv.ww[ug.cId] = 0;
 
-		iinv.up[ug.cId] = iinv.uc[cId] + iinv.uu[ug.cId];  //下一时刻的速度值
+		iinv.up[ug.cId] = iinv.uc[cId] + iinv.uu[ug.cId];  //Speed at the next moment
 		iinv.vp[ug.cId] = iinv.vc[cId] + iinv.vv[ug.cId];
 		iinv.wp[ug.cId] = iinv.wc[cId] + iinv.ww[ug.cId];
 
@@ -1913,14 +1913,14 @@ void UINsInvterm::UpdateINsRes()
 
 			if (ug.cId == ug.lc)
 			{
-				iinv.mu[ug.cId] += -iinv.ai[ug.fId][0] * (iinv.up[ug.rc] - iinv.uc[ug.rc]);  //矩阵非零系数，动量方程中与主单元相邻的单元面通量
+				iinv.mu[ug.cId] += -iinv.ai[ug.fId][0] * (iinv.up[ug.rc] - iinv.uc[ug.rc]);  //The flux of the element surface adjacent to the main element in the momentum equation
 				iinv.mv[ug.cId] += -iinv.ai[ug.fId][0] * (iinv.vp[ug.rc] - iinv.vc[ug.rc]);
 				iinv.mw[ug.cId] += -iinv.ai[ug.fId][0] * (iinv.wp[ug.rc] - iinv.wc[ug.rc]);
 				//iinv.mpp[ug.cId] += -iinv.ajp[ug.fId] * iinv.pp[ug.rc];
 			}
 			else if (ug.cId == ug.rc)
 			{
-				iinv.mu[ug.cId] += -iinv.ai[ug.fId][1] * (iinv.up[ug.lc] - iinv.uc[ug.lc]);  //矩阵非零系数，动量方程中与主单元相邻的单元面通量
+				iinv.mu[ug.cId] += -iinv.ai[ug.fId][1] * (iinv.up[ug.lc] - iinv.uc[ug.lc]);  //The flux of the element surface adjacent to the main element in the momentum equation
 				iinv.mv[ug.cId] += -iinv.ai[ug.fId][1] * (iinv.vp[ug.lc] - iinv.vc[ug.lc]);
 				iinv.mw[ug.cId] += -iinv.ai[ug.fId][1] * (iinv.wp[ug.lc] - iinv.wc[ug.lc]);
 				//iinv.mpp[ug.cId] += -iinv.ajp[ug.fId] * iinv.pp[ug.lc];

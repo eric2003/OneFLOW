@@ -95,7 +95,7 @@ void INsInvterm::CalcINsinvFlux()
 
 
 
-		iinv.rf[ug.fId] = (iinv.rl + iinv.rr) * half;    //初始界面上的值（u、v、w ）
+		iinv.rf[ug.fId] = (iinv.rl + iinv.rr) * half;    //Values at the initial interface (u, v, w)
 
 		iinv.uf[ug.fId] = (iinv.ul + iinv.ur) * half;
 
@@ -103,9 +103,9 @@ void INsInvterm::CalcINsinvFlux()
 
 		iinv.wf[ug.fId] = (iinv.wl + iinv.wr) * half;
 
-		iinv.vnflow = gcom.xfn * iinv.uf[ug.fId] + gcom.yfn * iinv.vf[ug.fId] + gcom.zfn * iinv.wf[ug.fId] - gcom.vfn;  //初始界面上 V*n
+		iinv.vnflow = gcom.xfn * iinv.uf[ug.fId] + gcom.yfn * iinv.vf[ug.fId] + gcom.zfn * iinv.wf[ug.fId] - gcom.vfn;  //V * n at initial interface
 
-		iinv.fq[ug.fId] = iinv.rf[ug.fId] * iinv.vnflow * gcom.farea; //初始界面上的质量通量
+		iinv.fq[ug.fId] = iinv.rf[ug.fId] * iinv.vnflow * gcom.farea; //Mass flux at the initial interface
 
 }
 
@@ -119,7 +119,7 @@ void INsInvterm::CalcINsBcinvFlux()
 	int bcType = ug.bcRecord->bcType[ug.fId];
 
 
-	iinv.rf[ug.fId] = (iinv.rl + iinv.rr) * half;    //初始界面上的值（u、v、w ）
+	iinv.rf[ug.fId] = (iinv.rl + iinv.rr) * half;    //Values at the initial interface (u, v, w)
 
 	iinv.uf[ug.fId] = (iinv.ul + iinv.ur) * half;
 
@@ -127,7 +127,7 @@ void INsInvterm::CalcINsBcinvFlux()
 
 	iinv.wf[ug.fId] = (iinv.wl + iinv.wr) * half;
 
-	iinv.vnflow = gcom.xfn * iinv.uf[ug.fId] + gcom.yfn * iinv.vf[ug.fId] + gcom.zfn * iinv.wf[ug.fId] - gcom.vfn;  //初始界面上 V*n
+	iinv.vnflow = gcom.xfn * iinv.uf[ug.fId] + gcom.yfn * iinv.vf[ug.fId] + gcom.zfn * iinv.wf[ug.fId] - gcom.vfn;  //V * n at initial interface
 
 	if(bcType == BC::SOLID_SURFACE)
 	{
@@ -135,15 +135,15 @@ void INsInvterm::CalcINsBcinvFlux()
 	}
 	else
 	{
-		iinv.fq[ug.fId] = iinv.rf[ug.fId] * iinv.vnflow * gcom.farea; //初始界面上的质量通量
+		iinv.fq[ug.fId] = iinv.rf[ug.fId] * iinv.vnflow * gcom.farea; //Mass flux at the initial interface
 	}
 }
 
 void INsInvterm::CalcINsinvTerm()
 { 
-		Real clr = MAX(0, iinv.fq[ug.fId]);  //从界面左侧单元流入右侧单元的质量流量
+		Real clr = MAX(0, iinv.fq[ug.fId]);  //Mass flow from the left cell of the interface to the right cell
 
-		Real crl = clr - iinv.fq[ug.fId];   //从界面右侧单元流入左侧单元的质量流量
+		Real crl = clr - iinv.fq[ug.fId];   //Mass flow from the right cell of the interface to the left cell
 		
 		iinv.ai[ug.fId][0] = clr;
 		iinv.ai[ug.fId][1] = crl;
@@ -156,15 +156,15 @@ void INsInvterm::CalcINsinvTerm()
 void INsInvterm::CalcINsBcinvTerm()
 {
 	
-		Real clr = MAX(0, iinv.fq[ug.fId]);  //从界面左侧单元流入右侧单元的初始质量流量
-		Real crl = clr - iinv.fq[ug.fId];   //从界面右侧单元流入左侧单元的初始质量流量
+		Real clr = MAX(0, iinv.fq[ug.fId]);  //Initial mass flow rate from the left cell of the interface to the right cell
+		Real crl = clr - iinv.fq[ug.fId];   //Initial mass flow rate from the right cell of the interface to the left cell
 
 
-		iinv.aii1[ug.fId] = crl;   //该面流向左单元的流量
-		iinv.aii2[ug.fId] = clr;   //该面流向右单元的流量
+		iinv.aii1[ug.fId] = crl;   //The flow rate of the left cell of the surface flow
+		iinv.aii2[ug.fId] = clr;   //The flow rate of the right cell of the surface flow
 
-		iinv.ai1[ug.lc] += crl;   //流入单元的流量
-		iinv.ai2[ug.rc] += clr;   //流出单元的流量
+		iinv.ai1[ug.lc] += crl;   //Flow into the unit
+		iinv.ai2[ug.rc] += clr;   //Flow out of the unit
 }
 
 void INsInvterm::CalcINsFaceflux()
@@ -173,7 +173,7 @@ void INsInvterm::CalcINsFaceflux()
 	INsExtract(iinv.prim2, iinv.rr, iinv.ur, iinv.vr, iinv.wr, iinv.pr);
 
 	
-	iinv.Vau = iinv.f1[ug.fId] * ((*ug.cvol1)[ug.lc] * gcom.xfn / (iinv.spc[ug.lc])) + iinv.f2[ug.fId] * ((*ug.cvol2)[ug.rc] * gcom.xfn / (iinv.spc[ug.rc])); //Df*n，分子
+	iinv.Vau = iinv.f1[ug.fId] * ((*ug.cvol1)[ug.lc] * gcom.xfn / (iinv.spc[ug.lc])) + iinv.f2[ug.fId] * ((*ug.cvol2)[ug.rc] * gcom.xfn / (iinv.spc[ug.rc])); //Df*n
 	iinv.Vav = iinv.f1[ug.fId] * ((*ug.cvol1)[ug.lc] * gcom.yfn / (iinv.spc[ug.lc])) + iinv.f2[ug.fId] * ((*ug.cvol2)[ug.rc] * gcom.yfn / (iinv.spc[ug.rc]));
 	iinv.Vaw = iinv.f1[ug.fId] * ((*ug.cvol1)[ug.lc] * gcom.zfn / (iinv.spc[ug.lc])) + iinv.f2[ug.fId] * ((*ug.cvol2)[ug.rc] * gcom.zfn / (iinv.spc[ug.rc]));
 
@@ -200,19 +200,19 @@ void INsInvterm::CalcINsFaceflux()
 		(iinv.pr - iinv.pl);
 
 	iinv.rf[ug.fId] = half * (iinv.rl+ iinv.rr);
-	iinv.uf[ug.fId] = (iinv.f1[ug.fId] * iinv.ul + iinv.f2[ug.fId] * iinv.ur)+iinv.Deun * iinv.Bpe;  //下一时刻的界面预测速度
+	iinv.uf[ug.fId] = (iinv.f1[ug.fId] * iinv.ul + iinv.f2[ug.fId] * iinv.ur)+iinv.Deun * iinv.Bpe;  //Interface prediction speed at the next moment
 	iinv.vf[ug.fId] = (iinv.f1[ug.fId] * iinv.vl + iinv.f2[ug.fId] * iinv.vr)+iinv.Devn * iinv.Bpe;
 	iinv.wf[ug.fId] = (iinv.f1[ug.fId] * iinv.wl + iinv.f2[ug.fId] * iinv.wr)+iinv.Dewn * iinv.Bpe;
 	
 
 	iinv.vnflow = (*ug.xfn)[ug.fId] * iinv.uf[ug.fId] + (*ug.yfn)[ug.fId] * iinv.vf[ug.fId] + (*ug.zfn)[ug.fId] * iinv.wf[ug.fId];
 
-	iinv.fq[ug.fId] = iinv.rf[ug.fId] * iinv.vnflow * (*ug.farea)[ug.fId];  //下一时刻界面预测通量
+	iinv.fq[ug.fId] = iinv.rf[ug.fId] * iinv.vnflow * (*ug.farea)[ug.fId];  //Next moment interface prediction flux
 
 
-	Real clr = MAX(0, iinv.fq[ug.fId]);  //从界面左侧单元流入右侧单元的初始质量流量
+	Real clr = MAX(0, iinv.fq[ug.fId]);  //Initial mass flow rate from the left cell of the interface to the right cell
 
-	Real crl = clr - iinv.fq[ug.fId];   //从界面右侧单元流入左侧单元的初始质量流量
+	Real crl = clr - iinv.fq[ug.fId];   //Initial mass flow rate from the right cell of the interface to the left cell
 
 	iinv.ai[ug.fId][0] = clr;
 	iinv.ai[ug.fId][1] = crl;
@@ -236,7 +236,7 @@ void INsInvterm::CalcINsBcFaceflux()
 	
 	iinv.vnflow = gcom.xfn * iinv.uf[ug.fId] + gcom.yfn * iinv.vf[ug.fId] + gcom.zfn * iinv.wf[ug.fId];
 
-	iinv.fq[ug.fId] = iinv.rf[ug.fId] * iinv.vnflow * (*ug.farea)[ug.fId];  //下一时刻界面预测通量
+	iinv.fq[ug.fId] = iinv.rf[ug.fId] * iinv.vnflow * (*ug.farea)[ug.fId];  //Next moment interface prediction flux
 	
 
 	/*iinv.uf1[ug.fId] = (iinv.ul + iinv.ur)*half;
@@ -261,9 +261,9 @@ void INsInvterm::CalcINsBcFaceflux()
 		iinv.fq[ug.fId] = 0;
 	}
 
-	Real clr = MAX(0, iinv.fq[ug.fId]);  //从界面左侧单元流入右侧单元的初始质量流量
+	Real clr = MAX(0, iinv.fq[ug.fId]);  //Initial mass flow rate from the left cell of the interface to the right cell
 
-	Real crl = clr - iinv.fq[ug.fId];   //从界面右侧单元流入左侧单元的初始质量流量
+	Real crl = clr - iinv.fq[ug.fId];   //Initial mass flow rate from the right cell of the interface to the left cell
 
 	iinv.ai[ug.fId][0] = clr;
 	iinv.ai[ug.fId][1] = crl;
@@ -272,7 +272,7 @@ void INsInvterm::CalcINsBcFaceflux()
 
 void INsInvterm::CalcINsFaceCorrectPresscoef()
 {
-	iinv.Vdvu[ug.fId] = iinv.f1[ug.fId] * ((*ug.cvol1)[ug.lc] /(iinv.spc[ug.lc])) + iinv.f2[ug.fId] * ((*ug.cvol2)[ug.rc]  / (iinv.spc[ug.rc]));  // -Mf*n，用于求面速度修正量
+	iinv.Vdvu[ug.fId] = iinv.f1[ug.fId] * ((*ug.cvol1)[ug.lc] /(iinv.spc[ug.lc])) + iinv.f2[ug.fId] * ((*ug.cvol2)[ug.rc]  / (iinv.spc[ug.rc]));  // -MF * n, used to calculate the surface velocity correction
 	iinv.Vdvv[ug.fId] = iinv.f1[ug.fId] * ((*ug.cvol1)[ug.lc] / (iinv.spc[ug.lc])) + iinv.f2[ug.fId] * ((*ug.cvol2)[ug.rc] / (iinv.spc[ug.rc]));
 	iinv.Vdvw[ug.fId] = iinv.f1[ug.fId] * ((*ug.cvol1)[ug.lc] / (iinv.spc[ug.lc])) + iinv.f2[ug.fId] * ((*ug.cvol2)[ug.rc]  / (iinv.spc[ug.rc]));
 	
@@ -311,7 +311,7 @@ void INsInvterm::CalcINsFaceCorrectPresscoef()
 
 void INsInvterm::CalcINsBcFaceCorrectPresscoef()
 {
-	iinv.Vdvu[ug.fId] =  0;  // (Vp/dv)j，用于求面速度修正量
+	iinv.Vdvu[ug.fId] =  0;  // (VP / DV) J, used to calculate the surface velocity correction
 	iinv.Vdvv[ug.fId] = 0;
 	iinv.Vdvw[ug.fId] = 0;
 	iinv.ajp[ug.fId] = 0;

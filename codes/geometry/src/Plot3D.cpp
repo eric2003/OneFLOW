@@ -399,7 +399,7 @@ void Plot3D::DumpCoorAscii( fstream & file, RealField & coor )
 void Plot3D::ReadBc( GridMediator * gridMediator )
 {
     string & bcName = gridMediator->bcFile;
-    //\tÎªtab¼ü
+    //\t is the tab key
     string separator = " =\r\n#$,;";
 
     FileIO ioFile;

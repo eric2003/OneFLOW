@@ -192,7 +192,7 @@ void UTurbSpectrum::CalcSpectrum2Equ()
 
 void UTurbSpectrum::CalcUnsteadySpectrum()
 {
-    if ( ctrl.idualtime == 0 )//单时间步，注意:是usd.sp2!
+    if ( ctrl.idualtime == 0 )//Single time step, note: Yes usd.sp2 !
     {
         for ( int cId = 0; cId < ug.nCell; ++ cId )
         {

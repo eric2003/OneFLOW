@@ -46,7 +46,7 @@ double& Poisson::operator()(int row)
 }
 
 /**
- * ¶ÔÓ¦coeMatrixÑ¹Ëõº¯Êý
+ * Corresponding coematrix compression function
 */
 Solution Poisson::operator*(class Solution vector)
 {

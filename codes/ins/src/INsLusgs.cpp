@@ -121,7 +121,7 @@ void INsLusgs::GetFluxIncrement( int signOfMatrix )
 
 void INsLusgs::CalcFaceEigenValue( RealField & prim )
 {
-    //这里输入的应该是作用单元界面上的值
+    //The value entered here should be the value on the action unit interface
     Real & rm  = prim[ IIDX::IIR ];
     Real & um  = prim[ IIDX::IIU ];
     Real & vm  = prim[ IIDX::IIV ];

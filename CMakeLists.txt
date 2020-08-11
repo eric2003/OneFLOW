@@ -48,12 +48,9 @@ message(STATUS "The CMAKE_CXX_COMPILER_VERSION is ${CMAKE_CXX_COMPILER_VERSION}"
 
 message(STATUS "The CMAKE_CXX_FLAGS is ${CMAKE_CXX_FLAGS}")
  
-if(WIN32)
-   #add_compile_options(/std:c++11)
-else(WIN32)
-   add_compile_options(-std=gnu++11)
-   #add_compile_options(-std=c++11)
-endif(WIN32)
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD_REQUIRED True)
+set(CMAKE_CXX_EXTENSIONS OFF)
 
 #message(STATUS "The new CMAKE_CXX_FLAGS is ${CMAKE_CXX_FLAGS}")
 

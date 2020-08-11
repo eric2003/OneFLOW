@@ -60,16 +60,16 @@ void GridFactory::Run()
 
     switch ( grid_para.gridObj )
     {
-    case 0: //生成一些基本外形的网格，如方腔，圆柱，RAE2822翼型等等
+    case 0: //Mesh generation of some basic shapes, such as square cavity, cylinder, RAE2822 airfoil and so on
         this->DataBaseGrid();
         break;
-    case 1:    //转换网格
+    case 1:    //Convert grid
         this->ConvertGrid();
         break;
     case 2:
         this->GeneInp();
         break;
-    case 3:    //网格分区
+    case 3:    //Grid partition
         this->PartGrid();
         break;
     default:

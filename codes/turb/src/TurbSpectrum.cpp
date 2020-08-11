@@ -106,7 +106,7 @@ void TurbSpectrum::CalcFaceSpectrum1Equ()
     turbsp.radius1[ ISA ] += gcom.farea * half * absVn;
     turbsp.radius2[ ISA ] += gcom.farea * half * absVn;
 
-    turbsp.matrix1[ ISA ] += gcom.farea * half * ( - vnl - absVn ); //求积分网格在面的右边，网格的法向恰与面的法向相反
+    turbsp.matrix1[ ISA ] += gcom.farea * half * ( - vnl - absVn ); //The normal direction of the grid is opposite to the normal direction of the surface
     turbsp.matrix2[ ISA ] += gcom.farea * half * (   vnr - absVn );
 
     //calculate jacobians of the diffusion operator at the cell face i + 1/2
@@ -169,8 +169,8 @@ void TurbSpectrum::CalcFaceSpectrum2Equ()
         turbsp.radius1[ iEqu ] += gcom.farea * half * absVn;
         turbsp.radius2[ iEqu ] += gcom.farea * half * absVn;
 
-        //即使absVn或者::ABS( vnl )这样的选择也会造成差别，虽然最终对结果的影响还难以预料
-        turbsp.matrix1[ iEqu ] += gcom.farea * half * ( - vnl - absVn ); //求积分网格在面的右边，网格的法向恰与面的法向相反
+        //Even choices like ABS VN or: ABS (VNL) can make a difference, although the final impact on the results is unpredictable
+        turbsp.matrix1[ iEqu ] += gcom.farea * half * ( - vnl - absVn ); //The normal direction of the grid is opposite to the normal direction of the surface
         turbsp.matrix2[ iEqu ] += gcom.farea * half * (   vnr - absVn );
     }
 

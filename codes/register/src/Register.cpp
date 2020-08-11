@@ -125,7 +125,7 @@ void MRegister::RegisterAll()
 
 void MRegister::Register( const string & fileName, HXRegister * fRegister )
 {
-    //\tÎªtab¼ü
+    //\t is the tab key
     string separator  = " =\r\n\t#$,;\"()";
 
     FileIO ioFile;

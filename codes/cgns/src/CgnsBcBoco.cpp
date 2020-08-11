@@ -76,7 +76,7 @@ void CgnsBcBoco::ShiftBcRegion()
     {
         for ( int eId = 0; eId < this->nElements; ++ eId )
         {
-            this->connList[ eId ] += this->cgnsZone->cgnsCoor->GetNCell(); //此处增加了偏移量，则相应的单元编号也应增加偏移量
+            this->connList[ eId ] += this->cgnsZone->cgnsCoor->GetNCell(); //If the offset is added here, the corresponding cell number should also increase the offset
         }
     }
 }

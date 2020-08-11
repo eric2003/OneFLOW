@@ -71,7 +71,7 @@ void TurbPostprocess( StringField & data )
 {
     CommInterfaceData();
 
-    //残差的求解、输出，需要经过逻辑判断
+    //The solution and output of residuals need logical judgment
     if ( Iteration::ResOk() )
     {
         ONEFLOW::AddCmdToList( "DUMP_RESIDUAL" );
