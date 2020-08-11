@@ -26,7 +26,9 @@ Firstly, make sure that C++ compiler has been installed. For Windows platform, t
 1. Download source code from github:
 ```
 git clone https://github.com/eric2003/OneFLOW
+```
 2. download prebuilt thirdparty libraries for windows 10 
+```
 git clone https://github.com/eric2003/OneFLOW_ThirdPartyLib
 copy ThirdPartyLib to OneFLOW directory.
 ```
