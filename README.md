@@ -27,16 +27,17 @@ Firstly, make sure that C++ compiler has been installed. For Windows platform, t
 ```
 git clone https://github.com/eric2003/OneFLOW
 ```
-2. download prebuilt thirdparty libraries for windows 10 
+2. Download prebuilt thirdparty libraries for windows 10 
 ```
 git clone https://github.com/eric2003/OneFLOW_ThirdPartyLib
-copy ThirdPartyLib to OneFLOW directory.
 ```
+3. Copy ThirdPartyLib to OneFLOW directory.
+
 The above operation will download the source code together with prebuilt thirdparty libraries. You can also build them by yourself.
 
-3. Use CMake to configure and generate project files.
+4. Use CMake to configure and generate project files.
    
-4. Compile and generate executable file.
+5. Compile and generate executable file.
    
 ### Linux
 
