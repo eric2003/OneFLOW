@@ -25,13 +25,20 @@ License
 #include "Stop.h"
 #include "BasicParallel.h"
 #include "LogFile.h"
+
 #ifdef _WINDOWS
 #include <windows.h>
 #include <direct.h>
 #include <io.h>
 #else
-#include <sys/stat.h>
-#include <unistd.h>
+    #ifdef WIN_GNU
+        #include <windows.h>
+        #include <direct.h>
+        #include <io.h>
+    #else
+        #include <sys/stat.h>
+        #include <unistd.h>
+    #endif
 #endif
 
 #include <iostream>
@@ -50,13 +57,32 @@ bool DirExist( const string & dirName )
 #endif
 }
 
+//void MakeDir( const string & dirName )
+//{
+//    int flag;
+//#ifdef _WINDOWS
+//    flag = _mkdir( dirName.c_str() );
+//#else
+//    flag = mkdir( dirName.c_str(), S_IRWXU );
+//#endif
+//
+//    if ( flag == 0 )
+//    {
+//        cout << dirName << " directory has been created successfully !\n";
+//    }
+//}
+
 void MakeDir( const string & dirName )
 {
     int flag;
 #ifdef _WINDOWS
     flag = _mkdir( dirName.c_str() );
 #else
-    flag = mkdir( dirName.c_str(), S_IRWXU );
+    #ifdef WIN_GNU
+        flag = _mkdir( dirName.c_str() );
+    #else
+        flag = mkdir( dirName.c_str(), S_IRWXU );
+    #endif
 #endif
 
     if ( flag == 0 )
@@ -77,6 +103,7 @@ string HX_GetExePath()
     return string( buffer ).substr( 0, pos);
 }
 
+
 string HX_GetCurrentDir()
 {
 #ifdef _WINDOWS
@@ -88,6 +115,18 @@ string HX_GetCurrentDir()
     std::free( cwd ) ;
     return working_dir ;
 }
+
+//string HX_GetCurrentDir()
+//{
+//#ifdef HX_GNU
+//    char * cwd = getcwd( 0, 0 ); 
+//#else
+//    char * cwd = _getcwd( 0, 0 );
+//#endif
+//    std::string working_dir( cwd ) ;
+//    std::free( cwd ) ;
+//    return working_dir ;
+//}
 
 bool EndWithSlash( const string & fileName )
 {
