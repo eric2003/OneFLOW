@@ -675,7 +675,7 @@ void ReadCgnsGrid( CgnsZone * myZone, CgnsZone * cgnsZoneIn )
 
     ONEFLOW::ReadCgnsGridCoordinates( myZone, cgnsZoneIn );
 
-    myZone->ConvertToInnerDataStandard();
+    //myZone->ConvertToInnerDataStandard();
 }
 
 void DumpCgnsZoneType( CgnsZone * myZone, Grid * grid )

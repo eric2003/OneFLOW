@@ -164,6 +164,7 @@ void CgnsBase::ReadAllCgnsZones()
         cout << "==>iZone = " << iZone << " numberOfCgnsZones = " << this->nZones << "\n";
         CgnsZone * cgnsZone = this->GetCgnsZone( iZone );
         cgnsZone->ReadCgnsGrid();
+        cgnsZone->ConvertToInnerDataStandard();
     }
 
     this->ConstructZoneNameMap();

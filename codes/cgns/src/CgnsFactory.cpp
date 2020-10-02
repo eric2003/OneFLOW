@@ -73,7 +73,16 @@ CgnsFactory::~CgnsFactory()
 void CgnsFactory::GenerateGrid()
 {
     this->ReadCgnsGrid();
-    this->CgnsToOneFlowGrid();
+
+    string target_filetype = grid_para.target_filetype; 
+    if ( target_filetype == "cgns" )
+    {
+        this->DumpUnsCgnsGrid();
+    }
+    else
+    {
+        this->CgnsToOneFlowGrid();
+    }
 }
 
 void CgnsFactory::ReadCgnsGrid()
@@ -115,6 +124,11 @@ void CgnsFactory::CommonToOneFlowGrid()
 
 void CgnsFactory::CommonToStrGrid()
 {
+}
+
+void CgnsFactory::DumpUnsCgnsGrid()
+{
+    this->ConvertStrCgns2UnsCgnsGrid();
 }
 
 void CgnsFactory::CgnsToOneFlowGrid()
