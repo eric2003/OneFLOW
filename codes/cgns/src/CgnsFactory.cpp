@@ -91,13 +91,13 @@ void CgnsFactory::DumpCgnsGrid( ZgridMediator * zgridMediator )
 
 void CgnsFactory::ConvertStrCgns2UnsCgnsGrid()
 {
-    CgnsZbase * unsCgnsMultiBase = new CgnsZbase();
+    CgnsZbase * unsCgnsZbase = new CgnsZbase();
 
-    ONEFLOW::ConvertStrCgns2UnsCgnsGrid( unsCgnsMultiBase, cgnsZbase );
+    ONEFLOW::ConvertStrCgns2UnsCgnsGrid( unsCgnsZbase, cgnsZbase );
 
     delete cgnsZbase;
 
-    cgnsZbase = unsCgnsMultiBase;
+    cgnsZbase = unsCgnsZbase;
 }
 
 void CgnsFactory::CommonToOneFlowGrid()
