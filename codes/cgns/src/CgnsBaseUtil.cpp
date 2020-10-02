@@ -46,6 +46,7 @@ void ReadAllCgnsZones( CgnsBase * myCgnsBase, CgnsBase * cgnsBaseIn )
         CgnsZone * cgnsZone = myCgnsBase->GetCgnsZone( iZone );
         CgnsZone * cgnsZoneIn = cgnsBaseIn->GetCgnsZone( iZone );
         ONEFLOW::ReadCgnsGrid( cgnsZone, cgnsZoneIn );
+        cgnsZone->ConvertToInnerDataStandard();
     }
 }
 

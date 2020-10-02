@@ -52,10 +52,10 @@ void CgnsTest::Init()
 void CgnsTest::Run()
 {
     this->Init();
-    this->WriteTest();
+    //this->WriteTest();
     //this->WriteSimpleMultiBaseTest();
     //this->ReadSimpleMultiBaseTest();
-    //this->WriteEmptyCgnsFile();
+    this->WriteEmptyCgnsFile();
     //this->ReadEmptyCgnsFile();
     //this->WriteDescriptor();
     //this->ReadDescriptor();
@@ -120,8 +120,11 @@ void CgnsTest::ReadDescriptor()
 
 void CgnsTest::WriteEmptyCgnsFile()
 {
+    //cout << " CgnsTest::WriteEmptyCgnsFile() " << "\n";
     CgnsFile * cgnsFile = new CgnsFile( "empty.cgns", CG_MODE_WRITE );
+    //cout << " 111 " << "\n";
     delete cgnsFile;
+    //cout << " 222 " << "\n";
 }
 
 void CgnsTest::ReadEmptyCgnsFile()

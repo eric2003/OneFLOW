@@ -73,7 +73,16 @@ CgnsFactory::~CgnsFactory()
 void CgnsFactory::GenerateGrid()
 {
     this->ReadCgnsGrid();
-    this->CgnsToOneFlowGrid();
+
+    string target_filetype = grid_para.target_filetype; 
+    if ( target_filetype == "cgns" )
+    {
+        this->DumpUnsCgnsGrid();
+    }
+    else
+    {
+        this->CgnsToOneFlowGrid();
+    }
 }
 
 void CgnsFactory::ReadCgnsGrid()
@@ -91,13 +100,13 @@ void CgnsFactory::DumpCgnsGrid( ZgridMediator * zgridMediator )
 
 void CgnsFactory::ConvertStrCgns2UnsCgnsGrid()
 {
-    CgnsZbase * unsCgnsMultiBase = new CgnsZbase();
+    CgnsZbase * unsCgnsZbase = new CgnsZbase();
 
-    ONEFLOW::ConvertStrCgns2UnsCgnsGrid( unsCgnsMultiBase, cgnsZbase );
+    ONEFLOW::ConvertStrCgns2UnsCgnsGrid( unsCgnsZbase, cgnsZbase );
 
     delete cgnsZbase;
 
-    cgnsZbase = unsCgnsMultiBase;
+    cgnsZbase = unsCgnsZbase;
 }
 
 void CgnsFactory::CommonToOneFlowGrid()
@@ -115,6 +124,11 @@ void CgnsFactory::CommonToOneFlowGrid()
 
 void CgnsFactory::CommonToStrGrid()
 {
+}
+
+void CgnsFactory::DumpUnsCgnsGrid()
+{
+    this->ConvertStrCgns2UnsCgnsGrid();
 }
 
 void CgnsFactory::CgnsToOneFlowGrid()
