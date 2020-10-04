@@ -181,8 +181,6 @@ void CgnsZone::ReadCgnsGrid()
     this->ReadCgnsGridBoundary();
 
     this->ReadCgnsGridCoordinates();
-
-    //this->ConvertToInnerDataStandard();
 }
 
 void CgnsZone::ReadCgnsZoneAttribute()

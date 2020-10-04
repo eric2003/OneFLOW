@@ -66,6 +66,8 @@ public:
     void DumpCgnsBaseBasicInfo();
     void ReadNumberOfCgnsZones();
     void ReadAllCgnsZones();
+    void ProcessCgnsZones();
+    void ConvertToInnerDataStandard();
 public:
     void SetFamilyBc( BCType_t & bcType, const string & bcRegionName );
     BCType_t GetFamilyBcType( const string & bcFamilyName );

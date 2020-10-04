@@ -74,6 +74,12 @@ void CgnsFactory::GenerateGrid()
 {
     this->ReadCgnsGrid();
 
+    int systemZoneType = cgnsZbase->GetSystemZoneType();
+    if ( ! ( systemZoneType == CGNS_ENUMV( Unstructured ) ) )
+    {
+        this->ConvertStrCgns2UnsCgnsGrid();
+    }
+
     string target_filetype = grid_para.target_filetype; 
     if ( target_filetype == "cgns" )
     {
@@ -81,8 +87,14 @@ void CgnsFactory::GenerateGrid()
     }
     else
     {
+        this->ConvertToInnerData();
         this->CgnsToOneFlowGrid();
     }
+}
+
+void CgnsFactory::ConvertToInnerData()
+{
+    this->cgnsZbase->ConvertToInnerDataStandard();
 }
 
 void CgnsFactory::ReadCgnsGrid()
@@ -128,18 +140,11 @@ void CgnsFactory::CommonToStrGrid()
 
 void CgnsFactory::DumpUnsCgnsGrid()
 {
-    this->ConvertStrCgns2UnsCgnsGrid();
 }
 
 void CgnsFactory::CgnsToOneFlowGrid()
 {
     if ( ! ONEFLOW::IsUnsGrid( grid_para.topo ) ) return;
-
-    int systemZoneType = cgnsZbase->GetSystemZoneType();
-    if ( ! ( systemZoneType == CGNS_ENUMV( Unstructured ) ) )
-    {
-        this->ConvertStrCgns2UnsCgnsGrid();
-    }
 
     this->AllocateGridElem();
 

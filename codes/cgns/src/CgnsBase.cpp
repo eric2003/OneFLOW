@@ -164,8 +164,12 @@ void CgnsBase::ReadAllCgnsZones()
         cout << "==>iZone = " << iZone << " numberOfCgnsZones = " << this->nZones << "\n";
         CgnsZone * cgnsZone = this->GetCgnsZone( iZone );
         cgnsZone->ReadCgnsGrid();
-        cgnsZone->ConvertToInnerDataStandard();
     }
+}
+
+void CgnsBase::ProcessCgnsZones()
+{
+    this->ConvertToInnerDataStandard();
 
     this->ConstructZoneNameMap();
 
@@ -175,6 +179,18 @@ void CgnsBase::ReadAllCgnsZones()
         cout << "cgnsZone->SetPeriodicBc\n";
         CgnsZone * cgnsZone = this->GetCgnsZone( iZone );
         cgnsZone->SetPeriodicBc();
+    }
+}
+
+void CgnsBase::ConvertToInnerDataStandard()
+{
+    cout << "   ConvertToInnerDataStandard \n";
+
+    for ( int iZone = 0; iZone < nZones; ++ iZone )
+    {
+        cout << "==>iZone = " << iZone << " numberOfCgnsZones = " << this->nZones << "\n";
+        CgnsZone * cgnsZone = this->GetCgnsZone( iZone );
+        cgnsZone->ConvertToInnerDataStandard();
     }
 }
 

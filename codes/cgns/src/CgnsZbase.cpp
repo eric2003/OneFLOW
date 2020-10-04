@@ -103,6 +103,15 @@ void CgnsZbase::ReadNumCgnsBase()
     cout << "   Total number of CGNS Base = " << this->nBases << "\n";
 }
 
+void CgnsZbase::ConvertToInnerDataStandard()
+{
+    for ( int iBase = 0; iBase < this->nBases; ++ iBase )
+    {
+        CgnsBase * cgnsBase = this->GetCgnsBase( iBase );
+        cgnsBase->ConvertToInnerDataStandard();
+    }
+}
+
 void CgnsZbase::ReadCgnsMultiBase()
 {
     this->ReadNumCgnsBase();
@@ -117,6 +126,7 @@ void CgnsZbase::ReadCgnsMultiBase()
         cgnsBase->ReadNumberOfCgnsZones();
         cgnsBase->AllocateAllCgnsZones();
         cgnsBase->ReadAllCgnsZones();
+        cgnsBase->ProcessCgnsZones();
     }
 }
 
