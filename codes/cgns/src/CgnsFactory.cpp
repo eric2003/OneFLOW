@@ -140,6 +140,10 @@ void CgnsFactory::CommonToStrGrid()
 
 void CgnsFactory::DumpUnsCgnsGrid()
 {
+    string targetFile = ONEFLOW::GetPrjFileName( grid_para.targetFile );
+    cgnsZbase->OpenCgnsFile( targetFile, CG_MODE_WRITE );
+    cgnsZbase->DumpCgnsMultiBase();
+    cgnsZbase->CloseCgnsFile();
 }
 
 void CgnsFactory::CgnsToOneFlowGrid()

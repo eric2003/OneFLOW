@@ -167,6 +167,21 @@ void CgnsBase::ReadAllCgnsZones()
     }
 }
 
+void CgnsBase::DumpAllCgnsZones()
+{
+    cout << "** Dumping CGNS Grid In Base " << this->baseId << "\n";
+    cout << "   Dumping CGNS Family Specified BC \n";
+    //this->ReadFamilySpecifiedBc();
+    cout << "   numberOfCgnsZones       = " << this->nZones << "\n\n";
+
+    for ( int iZone = 0; iZone < nZones; ++ iZone )
+    {
+        cout << "==>iZone = " << iZone << " numberOfCgnsZones = " << this->nZones << "\n";
+        CgnsZone * cgnsZone = this->GetCgnsZone( iZone );
+        cgnsZone->DumpCgnsGrid();
+    }
+}
+
 void CgnsBase::ProcessCgnsZones()
 {
     this->ConvertToInnerDataStandard();

@@ -66,6 +66,7 @@ public:
     void DumpCgnsBaseBasicInfo();
     void ReadNumberOfCgnsZones();
     void ReadAllCgnsZones();
+    void DumpAllCgnsZones();
     void ProcessCgnsZones();
     void ConvertToInnerDataStandard();
 public:

@@ -183,6 +183,17 @@ void CgnsZone::ReadCgnsGrid()
     this->ReadCgnsGridCoordinates();
 }
 
+void CgnsZone::DumpCgnsGrid()
+{
+    //this->ReadCgnsZoneAttribute();
+
+    //this->ReadElementConnectivities();
+
+    //this->ReadCgnsGridBoundary();
+
+    //this->ReadCgnsGridCoordinates();
+}
+
 void CgnsZone::ReadCgnsZoneAttribute()
 {
     this->ReadCgnsZoneType();

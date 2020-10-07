@@ -95,6 +95,20 @@ void CgnsZbase::CloseCgnsFile()
     cg_close( this->fileId );
 }
 
+void CgnsZbase::DumpCgnsMultiBase()
+{
+    for ( int iBase = 0; iBase < this->nBases; ++ iBase )
+    {
+        CgnsBase * cgnsBase = this->GetCgnsBase( iBase );
+
+        cgnsBase->DumpCgnsBaseBasicInfo();
+        //cgnsBase->ReadNumberOfCgnsZones();
+        //cgnsBase->AllocateAllCgnsZones();
+        cgnsBase->DumpAllCgnsZones();
+        //cgnsBase->ProcessCgnsZones();
+    }
+}
+
 
 void CgnsZbase::ReadNumCgnsBase()
 {

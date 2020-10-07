@@ -46,6 +46,7 @@ public:
     void OpenCgnsFile( const string & fileName, int cgnsOpenMode );
     void CloseCgnsFile();
     void ReadCgnsMultiBase();
+    void DumpCgnsMultiBase();
     void ReadNumCgnsBase();
     void ConvertToInnerDataStandard();
 public:
