@@ -102,8 +102,6 @@ void CgnsZbase::DumpCgnsMultiBase()
         CgnsBase * cgnsBase = this->GetCgnsBase( iBase );
 
         cgnsBase->DumpCgnsBaseBasicInfo();
-        //cgnsBase->ReadNumberOfCgnsZones();
-        //cgnsBase->AllocateAllCgnsZones();
         cgnsBase->DumpAllCgnsZones();
         //cgnsBase->ProcessCgnsZones();
     }

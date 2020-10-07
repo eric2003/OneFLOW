@@ -86,8 +86,11 @@ public:
     void ReadCgnsGrid();
     void DumpCgnsGrid();
     void ReadCgnsZoneAttribute();
+    void DumpCgnsZoneAttribute();
     void ReadCgnsZoneType();
+    void DumpCgnsZoneType();
     void ReadCgnsZoneNameAndGeneralizedDimension();
+    void DumpCgnsZoneNameAndGeneralizedDimension();
     void SetDimension();
     void ReadElementConnectivities();
     void ReadNumberOfCgnsSections();

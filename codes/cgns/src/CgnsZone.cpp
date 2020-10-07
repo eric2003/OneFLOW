@@ -185,7 +185,7 @@ void CgnsZone::ReadCgnsGrid()
 
 void CgnsZone::DumpCgnsGrid()
 {
-    //this->ReadCgnsZoneAttribute();
+    this->DumpCgnsZoneAttribute();
 
     //this->ReadElementConnectivities();
 
@@ -203,6 +203,13 @@ void CgnsZone::ReadCgnsZoneAttribute()
     this->SetDimension();
 }
 
+void CgnsZone::DumpCgnsZoneAttribute()
+{
+    this->DumpCgnsZoneType();
+
+    this->DumpCgnsZoneNameAndGeneralizedDimension();
+}
+
 void CgnsZone::ReadCgnsZoneBasicInfo()
 {
     this->ReadCgnsZoneType();
@@ -213,6 +220,14 @@ void CgnsZone::ReadCgnsZoneType()
 {
     //Check the zone type
     cg_zone_type( cgnsBase->fileId, cgnsBase->baseId, this->zId, & cgnsZoneType );
+
+    cout << "   The Zone Type is " << GetCgnsZoneTypeName( cgnsZoneType ) << " Zone" << "\n";
+}
+
+void CgnsZone::DumpCgnsZoneType()
+{
+    ////Check the zone type
+    //cg_zone_type( cgnsBase->fileId, cgnsBase->baseId, this->zId, & cgnsZoneType );
 
     cout << "   The Zone Type is " << GetCgnsZoneTypeName( cgnsZoneType ) << " Zone" << "\n";
 }
@@ -229,6 +244,17 @@ void CgnsZone::ReadCgnsZoneNameAndGeneralizedDimension()
     cout << "   CGNS Zone Name = " << cgnsZoneName << "\n";
 }
 
+void CgnsZone::DumpCgnsZoneNameAndGeneralizedDimension()
+{
+    CgnsTraits::char33 cgnsZoneName;
+
+    cout << " cell dim = " << this->cgnsBase->celldim << " physics dim = " << this->cgnsBase->phydim << "\n";
+
+    //Determine the number of vertices and cellVolume elements in this zone
+    cg_zone_write( cgnsBase->fileId, cgnsBase->baseId, zoneName.c_str(), isize, cgnsZoneType, &zId );
+    cout << "   Zone Id = " << this->zId << "\n";
+    cout << "   CGNS Zone Name = " << this->zoneName << "\n";
+}
 
 void CgnsZone::SetDimension()
 {
