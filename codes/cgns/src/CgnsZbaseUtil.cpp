@@ -63,11 +63,6 @@ void ReadCgnsMultiBase( CgnsZbase * myCgnsZbase, CgnsZbase * strCgnsMultiBase )
     }
 }
 
-void ConvertStrCgns2UnsCgnsGrid( CgnsZbase * myCgnsZbase, CgnsZbase * strCgnsMultiBase )
-{
-    ONEFLOW::ReadCgnsMultiBase( myCgnsZbase, strCgnsMultiBase );
-}
-
 void CreateDefaultCgnsZones( CgnsZbase * myCgnsZbase, ZgridMediator * zgridMediator )
 {
     myCgnsZbase->fileId = 1;

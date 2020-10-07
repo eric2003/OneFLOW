@@ -114,7 +114,7 @@ void CgnsFactory::ConvertStrCgns2UnsCgnsGrid()
 {
     CgnsZbase * unsCgnsZbase = new CgnsZbase();
 
-    ONEFLOW::ConvertStrCgns2UnsCgnsGrid( unsCgnsZbase, cgnsZbase );
+    ONEFLOW::ReadCgnsMultiBase( unsCgnsZbase, cgnsZbase );
 
     delete cgnsZbase;
 
