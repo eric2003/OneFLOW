@@ -23,6 +23,7 @@ License
 #include "CgnsCoor.h"
 #include "CgnsZone.h"
 #include "CgnsBase.h"
+#include "CgnsFile.h"
 #include "NodeMesh.h"
 #include "Dimension.h"
 #include <iostream>
@@ -39,6 +40,7 @@ CgnsCoor::CgnsCoor( CgnsZone * cgnsZone )
     this->typeList.resize( this->ndim );
     this->coor.resize( this->ndim );
     this->nNodeList.resize( this->ndim );
+    this->coorNameList.resize( this->ndim );
     this->nodeMesh = new NodeMesh();
 }
 
@@ -70,9 +72,6 @@ void CgnsCoor::SetNCell( CgInt nCell )
 
 void CgnsCoor::Alloc( int iCoor, int nNode, DataType_t data_type )
 {
-    this->typeList[ iCoor ] = data_type;
-    this->nNodeList[ iCoor ] = nNode;
-
     if ( data_type == RealSingle )
     {
         this->coor[ iCoor ] = new float [ nNode ];
@@ -119,6 +118,35 @@ void CgnsCoor::SetData( int iCoor, DataType_t data_type, Real * var )
     }
 }
 
+void CgnsCoor::CopyCoorData( CgnsCoor * cgnsCoorIn )
+{
+    for ( int iCoor = 0; iCoor < this->nCoor; ++ iCoor )
+    {
+        int nNode = this->nNodeList[ iCoor ];
+        DataType_t dataType = this->typeList[ iCoor ];
+        this->Alloc( iCoor, nNode, dataType );
+
+        if ( dataType == RealSingle )
+        {
+            float * data = static_cast<float *>( this->coor[ iCoor ] );
+            float * dataIn = static_cast<float *>( cgnsCoorIn->coor[ iCoor ] );
+            for ( int iNode = 0; iNode < nNode; ++ iNode )
+            {
+                data[ iNode ] = dataIn[ iNode ];
+            }
+        }
+        else
+        {
+            double * data = static_cast<double *>( this->coor[ iCoor ] );
+            double * dataIn = static_cast<double *>( cgnsCoorIn->coor[ iCoor ] );
+            for ( int iNode = 0; iNode < nNode; ++ iNode )
+            {
+                data[ iNode ] = dataIn[ iNode ];
+            }
+        }
+    }
+}
+
 void CgnsCoor::DeAlloc()
 {
     for ( int iCoor = 0; iCoor < this->ndim; ++ iCoor )
@@ -140,28 +168,81 @@ void CgnsCoor::DeAlloc()
 void CgnsCoor::ReadCgnsGridCoordinates()
 {
     //Determine the number and names of the coordinates.
-    int fileId = this->cgnsZone->cgnsBase->fileId;
+    int fileId = this->cgnsZone->cgnsBase->cgnsFile->fileId;
     int baseId = this->cgnsZone->cgnsBase->baseId;
     int zoneId = this->cgnsZone->zId;
 
     cg_ncoords( fileId, baseId, zoneId, & this->nCoor );
+    cout << "   this->nCoor = " << this->nCoor << "\n";
 
     int nNode = this->GetNNode();
 
-    for ( int coordId = 0; coordId < this->nCoor; ++ coordId )
+    for ( int iCoor = 0; iCoor < this->nCoor; ++ iCoor )
     {
         DataType_t dataType;
         CgnsTraits::char33 coorName;
-        cg_coord_info( fileId, baseId, zoneId, coordId + 1, & dataType, coorName );
-        this->Alloc( coordId, static_cast<int>( nNode ), dataType );
+        int coordId = iCoor + 1;
+        cg_coord_info( fileId, baseId, zoneId, coordId, & dataType, coorName );
+        cout << "   coorName = " << coorName << " dataType = " << dataType << "\n";
+        this->typeList[ iCoor ] = dataType;
+        this->nNodeList[ iCoor ] = nNode;
+        this->coorNameList[ iCoor ] = coorName;
+        this->Alloc( iCoor, static_cast<int>( nNode ), dataType );
         //Read the x-, y-, z-coordinates.
-        cg_coord_read( fileId, baseId, zoneId, coorName, dataType, this->irmin, this->irmax, this->GetCoor( coordId ) );
+        cg_coord_read( fileId, baseId, zoneId, coorName, dataType, this->irmin, this->irmax, this->GetCoor( iCoor ) );
     }
 
     NodeMesh * nodeMesh = this->GetNodeMesh();
     nodeMesh->CreateNodes( static_cast<int>( nNode ) );
 
     this->SetAllData( nodeMesh->xN, nodeMesh->yN, nodeMesh->zN );
+}
+
+void CgnsCoor::ReadCgnsGridCoordinates( CgnsCoor * cgnsCoorIn )
+{
+    //Determine the number and names of the coordinates.
+    int fileId = this->cgnsZone->cgnsBase->cgnsFile->fileId;
+    int baseId = this->cgnsZone->cgnsBase->baseId;
+    int zoneId = this->cgnsZone->zId;
+
+    cout << " this->nCoor = " << this->nCoor << "\n";
+    this->nCoor = cgnsCoorIn->nCoor;
+    cout << " this->nCoor = " << this->nCoor << "\n";
+
+    int nNode = this->GetNNode();
+
+    cout << " this->nNode = " << this->nNode << "\n";
+
+    this->typeList = cgnsCoorIn->typeList;
+    this->nNodeList = cgnsCoorIn->nNodeList;
+    this->coorNameList = cgnsCoorIn->coorNameList;
+    this->CopyCoorData( cgnsCoorIn );
+
+    NodeMesh * nodeMesh = this->GetNodeMesh();
+    NodeMesh * nodeMeshIn = cgnsCoorIn->GetNodeMesh();
+
+    * nodeMesh = * nodeMeshIn;
+}
+
+void CgnsCoor::DumpCgnsGridCoordinates()
+{
+    //Determine the number and names of the coordinates.
+    int fileId = this->cgnsZone->cgnsBase->cgnsFile->fileId;
+    int baseId = this->cgnsZone->cgnsBase->baseId;
+    int zoneId = this->cgnsZone->zId;
+
+     cout << " this->nCoor = " << this->nCoor << "\n";
+
+     for ( int iCoor = 0; iCoor < this->nCoor; ++ iCoor )
+     {
+         DataType_t dataType = this->typeList[ iCoor ];
+         string & coorName = this->coorNameList[ iCoor ];
+         cout << "   coorName = " << coorName << " dataType = " << dataType << "\n";
+          //Write the x-, y-, z-coordinates.
+         int index_xyz = -1;
+         cg_coord_write( fileId, baseId, zoneId, dataType, coorName.c_str(), this->GetCoor( iCoor ), &index_xyz );
+         cout << "index_xyz = " << index_xyz << "\n";
+     }
 }
 
 void CgnsCoor::FreeMesh()

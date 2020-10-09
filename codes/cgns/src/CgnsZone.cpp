@@ -24,6 +24,7 @@ License
 #include "CgnsZoneUtil.h"
 #include "CgnsBase.h"
 #include "CgnsCoor.h"
+#include "CgnsFile.h"
 #include "CgnsSection.h"
 #include "CgnsZsection.h"
 #include "CgnsBcBoco.h"
@@ -187,11 +188,11 @@ void CgnsZone::DumpCgnsGrid()
 {
     this->DumpCgnsZoneAttribute();
 
-    //this->ReadElementConnectivities();
+    this->DumpElementConnectivities();
 
     //this->ReadCgnsGridBoundary();
 
-    //this->ReadCgnsGridCoordinates();
+    this->DumpCgnsGridCoordinates();
 }
 
 void CgnsZone::ReadCgnsZoneAttribute()
@@ -219,7 +220,7 @@ void CgnsZone::ReadCgnsZoneBasicInfo()
 void CgnsZone::ReadCgnsZoneType()
 {
     //Check the zone type
-    cg_zone_type( cgnsBase->fileId, cgnsBase->baseId, this->zId, & cgnsZoneType );
+    cg_zone_type( cgnsBase->cgnsFile->fileId, cgnsBase->baseId, this->zId, & cgnsZoneType );
 
     cout << "   The Zone Type is " << GetCgnsZoneTypeName( cgnsZoneType ) << " Zone" << "\n";
 }
@@ -237,7 +238,7 @@ void CgnsZone::ReadCgnsZoneNameAndGeneralizedDimension()
     CgnsTraits::char33 cgnsZoneName;
 
     //Determine the number of vertices and cellVolume elements in this zone
-    cg_zone_read( cgnsBase->fileId, cgnsBase->baseId, this->zId, cgnsZoneName, this->isize );
+    cg_zone_read( cgnsBase->cgnsFile->fileId, cgnsBase->baseId, this->zId, cgnsZoneName, this->isize );
 
     this->zoneName = cgnsZoneName;
 
@@ -246,12 +247,10 @@ void CgnsZone::ReadCgnsZoneNameAndGeneralizedDimension()
 
 void CgnsZone::DumpCgnsZoneNameAndGeneralizedDimension()
 {
-    CgnsTraits::char33 cgnsZoneName;
-
-    cout << " cell dim = " << this->cgnsBase->celldim << " physics dim = " << this->cgnsBase->phydim << "\n";
+    cout << "   Cell Dimension = " << this->cgnsBase->celldim << " Physics Dimension = " << this->cgnsBase->phydim << "\n";
 
     //Determine the number of vertices and cellVolume elements in this zone
-    cg_zone_write( cgnsBase->fileId, cgnsBase->baseId, zoneName.c_str(), isize, cgnsZoneType, &zId );
+    cg_zone_write( cgnsBase->cgnsFile->fileId, cgnsBase->baseId, zoneName.c_str(), isize, cgnsZoneType, &this->zId );
     cout << "   Zone Id = " << this->zId << "\n";
     cout << "   CGNS Zone Name = " << this->zoneName << "\n";
 }
@@ -274,6 +273,17 @@ void CgnsZone::ReadElementConnectivities()
     this->CreateCgnsSections();
 
     this->ReadCgnsSections();
+}
+
+void CgnsZone::DumpElementConnectivities()
+{
+    if ( this->cgnsZoneType == CGNS_ENUMV( Structured ) ) return;
+
+    //this->ReadNumberOfCgnsSections();
+
+    //this->CreateCgnsSections();
+
+    //this->ReadCgnsSections();
 }
 
 void CgnsZone::SetElemPosition()
@@ -301,6 +311,16 @@ void CgnsZone::ReadCgnsGridCoordinates()
     cgnsCoor->ReadCgnsGridCoordinates();
 }
 
+void CgnsZone::ReadCgnsGridCoordinates( CgnsZone * cgnsZoneIn )
+{
+    cgnsCoor->ReadCgnsGridCoordinates( cgnsZoneIn->cgnsCoor );
+}
+
+void CgnsZone::DumpCgnsGridCoordinates()
+{
+    cgnsCoor->DumpCgnsGridCoordinates();
+}
+
 void CgnsZone::ReadCgnsGridBoundary()
 {
     cgnsZbc->ReadCgnsGridBoundary();
@@ -313,28 +333,28 @@ void CgnsZone::ProcessPeriodicBc()
 
 void CgnsZone::GoToZone()
 {
-    int fileId = this->cgnsBase->fileId;
+    int fileId = this->cgnsBase->cgnsFile->fileId;
     int baseId = this->cgnsBase->baseId;
     cg_goto( fileId, baseId,"Zone_t", this->zId, "end" );
 }
 
 void CgnsZone::GoToNode( const string & nodeName, int ith )
 {
-    int fileId = this->cgnsBase->fileId;
+    int fileId = this->cgnsBase->cgnsFile->fileId;
     int baseId = this->cgnsBase->baseId;
     cg_goto( fileId, baseId, "Zone_t", this->zId, nodeName.c_str(), ith, "end" );
 }
 
 void CgnsZone::GoToNode( const string & nodeNamei, int ith, const string & nodeNamej, int jth )
 {
-    int fileId = this->cgnsBase->fileId;
+    int fileId = this->cgnsBase->cgnsFile->fileId;
     int baseId = this->cgnsBase->baseId;
     cg_goto( fileId, baseId, "Zone_t", this->zId, nodeNamei.c_str(), ith, nodeNamej.c_str(), jth, "end" );
 }
 
 void CgnsZone::GoToNode( const string & nodeNamei, int ith, const string & nodeNamej, int jth, const string & nodeNamek, int kth )
 {
-    int fileId = this->cgnsBase->fileId;
+    int fileId = this->cgnsBase->cgnsFile->fileId;
     int baseId = this->cgnsBase->baseId;
     cg_goto( fileId, baseId, "Zone_t", this->zId, nodeNamei.c_str(), ith, nodeNamej.c_str(), jth, nodeNamek.c_str(), kth, "end" );
 }

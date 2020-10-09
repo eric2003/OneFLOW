@@ -93,13 +93,16 @@ public:
     void DumpCgnsZoneNameAndGeneralizedDimension();
     void SetDimension();
     void ReadElementConnectivities();
+    void DumpElementConnectivities();
     void ReadNumberOfCgnsSections();
     void CreateCgnsSections();
     void ReadCgnsSections();
     void ReadCgnsGridCoordinates();
+    void DumpCgnsGridCoordinates();
     void ReadCgnsGridBoundary();
     void ProcessPeriodicBc();
     void ReadCgnsZoneBasicInfo();
+    void ReadCgnsGridCoordinates( CgnsZone * cgnsZoneIn );
 public:
     void SetElemPosition();
 public:

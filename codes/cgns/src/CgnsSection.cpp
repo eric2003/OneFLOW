@@ -23,6 +23,7 @@ License
 #include "CgnsSection.h"
 #include "CgnsZone.h"
 #include "CgnsBase.h"
+#include "CgnsFile.h"
 #include "StrUtil.h"
 #include "Dimension.h"
 #include "UnitElement.h"
@@ -130,7 +131,7 @@ void CgnsSection::SetSectionInfo( const string & sectionName, int elemType, int 
 
 void CgnsSection::ReadCgnsSectionInfo()
 {
-    int fileId = cgnsZone->cgnsBase->fileId;
+    int fileId = cgnsZone->cgnsBase->cgnsFile->fileId;
     int baseId = cgnsZone->cgnsBase->baseId;
     int zId = cgnsZone->zId;
 
@@ -199,7 +200,7 @@ void CgnsSection::AllocateCgnsConnectionList()
 
 void CgnsSection::ReadCgnsSectionConnectionList()
 {
-    int fileId = cgnsZone->cgnsBase->fileId;
+    int fileId = cgnsZone->cgnsBase->cgnsFile->fileId;
     int baseId = cgnsZone->cgnsBase->baseId;
     int zId = cgnsZone->zId;
 

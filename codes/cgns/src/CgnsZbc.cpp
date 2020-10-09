@@ -27,6 +27,7 @@ License
 #include "CgnsZbcBoco.h"
 #include "CgnsZone.h"
 #include "CgnsBase.h"
+#include "CgnsFile.h"
 #include "Boundary.h"
 #include "StrUtil.h"
 #include "Dimension.h"
@@ -177,7 +178,7 @@ void CgnsZbc::DumpCgnsGridBoundary( Grid * gridIn )
 
     int nBcRegions = bcRegionGroup->regions->size();
 
-    int fileId = cgnsZone->cgnsBase->fileId;
+    int fileId = cgnsZone->cgnsBase->cgnsFile->fileId;
     int baseId = cgnsZone->cgnsBase->baseId;
     int zoneId = cgnsZone->zId;
 

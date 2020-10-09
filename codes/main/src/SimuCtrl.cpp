@@ -60,7 +60,7 @@ void SimuCtrl::Init()
         string execute_dir = RemoveEndSlash( SimuCtrl::execute_dir );
         SimuCtrl::system_root = SimuCtrl::execute_dir + local_root;
     }
-    cout << "SimuCtrl::system_root = " << SimuCtrl::system_root << "\n";
+    cout << " SimuCtrl::system_root = " << SimuCtrl::system_root << "\n";
 }
 
 EndNameSpace

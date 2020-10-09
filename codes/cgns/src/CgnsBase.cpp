@@ -122,10 +122,10 @@ void CgnsBase::ReadCgnsBaseBasicInfo()
     CgnsTraits::char33 cgnsBaseName;
 
     double double_base_id;
-    cg_base_id( this->fileId, this->baseId, & double_base_id );
-    cout << " double_base_id = " << double_base_id << "\n";
+    cg_base_id( this->cgnsFile->fileId, this->baseId, & double_base_id );
+    cout << "   double_base_id = " << double_base_id << "\n";
     //Check the cell and physical dimensions of the bases.
-    cg_base_read( this->fileId, this->baseId, cgnsBaseName, & this->celldim, & this->phydim );
+    cg_base_read( this->cgnsFile->fileId, this->baseId, cgnsBaseName, & this->celldim, & this->phydim );
     this->baseName = cgnsBaseName;
     cout << "   baseId = " << this->baseId << " baseName = " << cgnsBaseName << "\n";
     cout << "   cell dim = " << this->celldim << " physical dim = " << this->phydim << "\n";
@@ -133,14 +133,14 @@ void CgnsBase::ReadCgnsBaseBasicInfo()
 
 void CgnsBase::DumpCgnsBaseBasicInfo()
 {
-    cg_base_write( this->fileId, this->baseName.c_str(), this->celldim, this->phydim, &this->baseId );
+    cg_base_write( this->cgnsFile->fileId, this->baseName.c_str(), this->celldim, this->phydim, &this->baseId );
     cout << " baseId = " << this->baseId << " baseName = " << this->baseName << "\n";
 }
 
 void CgnsBase::ReadNumberOfCgnsZones()
 {
     //Read the number of zones in the grid.
-    cg_nzones( this->fileId, this->baseId, & this->nZones );
+    cg_nzones( this->cgnsFile->fileId, this->baseId, & this->nZones );
 }
 
 void CgnsBase::ConstructZoneNameMap()
@@ -228,7 +228,7 @@ void CgnsBase::ReadFamilySpecifiedBc()
 CgnsZone * CgnsBase::WriteZoneInfo( const string & zoneName, ZoneType_t zoneType, cgsize_t * isize )
 {
     int cgzone = -1;
-    cg_zone_write( this->fileId, this->baseId, zoneName.c_str(), isize, zoneType, & cgzone );
+    cg_zone_write( this->cgnsFile->fileId, this->baseId, zoneName.c_str(), isize, zoneType, & cgzone );
     this->freeFlag = true;
 
     CgnsZone * cgnsZone = new CgnsZone( this );
@@ -261,12 +261,12 @@ void CgnsBase::SetTestISize( cgsize_t * isize )
 
 void CgnsBase::GoToBase()
 {
-    cg_goto( this->fileId, this->baseId, "end" );
+    cg_goto( this->cgnsFile->fileId, this->baseId, "end" );
 }
 
 void CgnsBase::GoToNode( const string & nodeName, int ith )
 {
-    cg_goto( this->fileId, this->baseId, nodeName.c_str(), ith, NULL );
+    cg_goto( this->cgnsFile->fileId, this->baseId, nodeName.c_str(), ith, NULL );
 }
 
 void CgnsBase::ReadArray()

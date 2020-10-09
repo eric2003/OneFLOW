@@ -25,6 +25,7 @@ License
 #include "CgnsBcBoco.h"
 #include "CgnsZone.h"
 #include "CgnsBase.h"
+#include "CgnsFile.h"
 #include "Boundary.h"
 #include "StrUtil.h"
 #include "Dimension.h"
@@ -99,7 +100,7 @@ void CgnsZbc1to1::ReadZn1to1( int n1to1 )
 
 void CgnsZbc1to1::ReadZn1to1()
 {
-    int fileId = cgnsZone->cgnsBase->fileId;
+    int fileId = cgnsZone->cgnsBase->cgnsFile->fileId;
     int baseId = cgnsZone->cgnsBase->baseId;
     int zId = cgnsZone->zId;
 

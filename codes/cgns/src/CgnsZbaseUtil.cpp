@@ -24,6 +24,7 @@ License
 #include "CgnsZbaseUtil.h"
 #include "CgnsBase.h"
 #include "CgnsBaseUtil.h"
+#include "CgnsFile.h"
 #include "CgnsZone.h"
 #include "StrUtil.h"
 #include "Stop.h"
@@ -40,7 +41,6 @@ BeginNameSpace( ONEFLOW )
 
 void ReadNumCgnsBase( CgnsZbase * myCgnsZbase, CgnsZbase * strCgnsMultiBase )
 {
-    myCgnsZbase->fileId = strCgnsMultiBase->fileId;
     myCgnsZbase->nBases = strCgnsMultiBase->nBases;
 }
 
@@ -65,7 +65,6 @@ void ReadCgnsMultiBase( CgnsZbase * myCgnsZbase, CgnsZbase * strCgnsMultiBase )
 
 void CreateDefaultCgnsZones( CgnsZbase * myCgnsZbase, ZgridMediator * zgridMediator )
 {
-    myCgnsZbase->fileId = 1;
     myCgnsZbase->nBases = zgridMediator->GetSize();
 
     myCgnsZbase->InitCgnsBase();
@@ -97,9 +96,9 @@ void DumpCgnsMultiBase( CgnsZbase * myCgnsZbase, ZgridMediator * zgridMediator )
 void DumpCgnsGrid( CgnsZbase * myCgnsZbase, ZgridMediator * zgridMediator )
 {
     string fileName = zgridMediator->GetTargetFile();
-    myCgnsZbase->OpenCgnsFile( fileName, CG_MODE_WRITE );
+    myCgnsZbase->cgnsFile->OpenCgnsFile( fileName, CG_MODE_WRITE );
     ONEFLOW::DumpCgnsMultiBase( myCgnsZbase, zgridMediator );
-    myCgnsZbase->CloseCgnsFile();
+    myCgnsZbase->cgnsFile->CloseCgnsFile();
 }
 
 void PrepareCgnsZone( CgnsZbase * myCgnsZbase, ZgridMediator * zgridMediator )

@@ -30,6 +30,7 @@ BeginNameSpace( ONEFLOW )
 
 class CgnsBase;
 class CgnsZone;
+class CgnsFile;
 
 class CgnsZbase
 {
@@ -37,14 +38,16 @@ public:
     CgnsZbase ();
     ~CgnsZbase();
 public:
-    int fileId, nBases;
+    CgnsFile * cgnsFile;
+    //int fileId, nBases;
+    int nBases;
  
     HXVector< CgnsBase * > baseVector;
 public:
     int GetSystemZoneType();
     void ReadCgnsGrid( const string & fileName );
-    void OpenCgnsFile( const string & fileName, int cgnsOpenMode );
-    void CloseCgnsFile();
+    //void OpenCgnsFile( const string & fileName, int cgnsOpenMode );
+    //void CloseCgnsFile();
     void ReadCgnsMultiBase();
     void DumpCgnsMultiBase();
     void ReadNumCgnsBase();

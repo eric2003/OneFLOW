@@ -24,6 +24,7 @@ along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 #include "CgnsZone.h"
 #include "CgnsBase.h"
 #include "CgnsCoor.h"
+#include "CgnsFile.h"
 #include "CgnsPeriod.h"
 #include "CgnsGlobal.h"
 #include "NodeMesh.h"
@@ -47,7 +48,7 @@ CgnsBcConn::~CgnsBcConn()
 
 void CgnsBcConn::ReadCgnsBcConnInfo()
 {
-    int fileId = this->cgnsZone->cgnsBase->fileId;
+    int fileId = this->cgnsZone->cgnsBase->cgnsFile->fileId;
     int baseId = this->cgnsZone->cgnsBase->baseId;
     int zId = this->cgnsZone->zId;
 
@@ -74,7 +75,7 @@ void CgnsBcConn::ReadCgnsBcConnInfo()
 
 void CgnsBcConn::ReadCgnsBcConnData()
 {
-    int fileId = this->cgnsZone->cgnsBase->fileId;
+    int fileId = this->cgnsZone->cgnsBase->cgnsFile->fileId;
     int baseId = this->cgnsZone->cgnsBase->baseId;
     int zId = this->cgnsZone->zId;
 

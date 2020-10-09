@@ -24,6 +24,7 @@ License
 #include "GridFactory.h"
 #include "CgnsGlobal.h"
 #include "CgnsZbc.h"
+#include "CgnsFile.h"
 #include "GridPara.h"
 #include "LogFile.h"
 #include "Prj.h"
@@ -141,9 +142,9 @@ void CgnsFactory::CommonToStrGrid()
 void CgnsFactory::DumpUnsCgnsGrid()
 {
     string targetFile = ONEFLOW::GetPrjFileName( grid_para.targetFile );
-    cgnsZbase->OpenCgnsFile( targetFile, CG_MODE_WRITE );
+    cgnsZbase->cgnsFile->OpenCgnsFile( targetFile, CG_MODE_WRITE );
     cgnsZbase->DumpCgnsMultiBase();
-    cgnsZbase->CloseCgnsFile();
+    cgnsZbase->cgnsFile->CloseCgnsFile();
 }
 
 void CgnsFactory::CgnsToOneFlowGrid()

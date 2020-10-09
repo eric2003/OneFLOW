@@ -54,7 +54,7 @@ void PrjStatus::SetPrjBaseDir( const string & prjName )
         ONEFLOW::StrIO << "/";
     }
     PrjStatus::prjBaseDir = ONEFLOW::StrIO.str();
-    cout << " PrjStatus::prjBaseDir =  " << PrjStatus::prjBaseDir << "\n";
+    cout << " PrjStatus::prjBaseDir = " << PrjStatus::prjBaseDir << "\n";
 }
 
 void MakePrjDir( const string & dirName )

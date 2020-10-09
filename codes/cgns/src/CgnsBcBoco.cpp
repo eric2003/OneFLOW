@@ -23,6 +23,7 @@ License
 #include "CgnsBcBoco.h"
 #include "CgnsZone.h"
 #include "CgnsCoor.h"
+#include "CgnsFile.h"
 #include "CgnsZoneUtil.h"
 #include "CgnsBase.h"
 #include "Boundary.h"
@@ -162,7 +163,7 @@ void CgnsBcBoco::ReadCgnsBcBoco()
 void CgnsBcBoco::ReadCgnsBocoInfo()
 {
     // Read the info for this boundary condition.
-    int fileId = cgnsZone->cgnsBase->fileId;
+    int fileId = cgnsZone->cgnsBase->cgnsFile->fileId;
     int baseId = cgnsZone->cgnsBase->baseId;
     int zId = cgnsZone->zId;
 
@@ -190,12 +191,11 @@ void CgnsBcBoco::ReadCgnsBocoInfo()
 
     cout << "   CGNS Boundary Name             = " << bcRegionName << "\n";
     cout << "   CGNS Boundary Condition Name   = " << GetCgnsBcName( this->bcType ) << "\n";
-    cout << "haha\n";
 }
 
 void CgnsBcBoco::ReadCgnsBocoGridLocation()
 {
-    int fileId = cgnsZone->cgnsBase->fileId;
+    int fileId = cgnsZone->cgnsBase->cgnsFile->fileId;
     int baseId = cgnsZone->cgnsBase->baseId;
     int zId = cgnsZone->zId;
 
@@ -239,7 +239,7 @@ void CgnsBcBoco::CreateCgnsBcConn()
 
 void CgnsBcBoco::ReadCgnsBcConn()
 {
-    int fileId = cgnsZone->cgnsBase->fileId;
+    int fileId = cgnsZone->cgnsBase->cgnsFile->fileId;
     int baseId = cgnsZone->cgnsBase->baseId;
     int zId = cgnsZone->zId;
 

@@ -44,7 +44,8 @@ public:
     ~CgnsBase();
 public:
     CgnsFile * cgnsFile;
-    int fileId, baseId;
+    //int fileId, baseId;
+    int baseId;
     int nZones;
     int celldim, phydim;
     string baseName;
