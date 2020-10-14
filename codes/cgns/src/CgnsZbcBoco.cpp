@@ -169,16 +169,15 @@ void CgnsZbcBoco::ReadCgnsZbcBoco()
 
 void CgnsZbcBoco::DumpCgnsZbcBoco()
 {
-    //this->ReadZnboco();
-    //this->CreateCgnsZbc();
+    this->PrintZnboco();
 
-    //for ( int iBoco = 0; iBoco < nBoco; ++ iBoco )
-    //{
-    //    cout << "\n";
-    //    cout << "-->iBoco  = " << iBoco << " nBoco = " << nBoco << "\n";
-    //    CgnsBcBoco * cgnsBcBoco = this->GetCgnsBc( iBoco );
-    //    cgnsBcBoco->ReadCgnsBcBoco();
-    //}
+    for ( int iBoco = 0; iBoco < nBoco; ++ iBoco )
+    {
+        cout << "\n";
+        cout << "-->iBoco  = " << iBoco << " nBoco = " << nBoco << "\n";
+        CgnsBcBoco * cgnsBcBoco = this->GetCgnsBc( iBoco );
+        cgnsBcBoco->DumpCgnsBcBoco();
+    }
 }
 
 int CgnsZbcBoco::GetNumberOfActualBcElements()

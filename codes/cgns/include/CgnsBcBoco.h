@@ -74,11 +74,15 @@ public:
     void ProcessFaceBc( IntSet & bcVertex );
 public:
     void ReadCgnsBcBoco();
+    void DumpCgnsBcBoco();
     void ReadCgnsBocoInfo();
+    void DumpCgnsBocoInfo();
     void ReadCgnsBocoGridLocation();
+    void DumpCgnsBocoGridLocation();
     void SetCgnsBcRegionGridLocation( const GridLocation_t & bcGridLocation );
     void CreateCgnsBcConn();
     void ReadCgnsBcConn();
+    void DumpCgnsBcConn();
     void PrintCgnsBcConn();
     void ExtractIJKRegionFromBcConn( IntField & ijkMin, IntField & ijkMax, CgIntField& bcConn );
     void ExtractIJKRegionFromBcConn( IntField & ijkMin, IntField & ijkMax );

@@ -123,6 +123,9 @@ void CgnsBc1to1::ReadCgnsBc1To1()
     }
 }
 
+void CgnsBc1to1::DumpCgnsBc1To1()
+{
+}
 
 #endif
 

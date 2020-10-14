@@ -124,14 +124,13 @@ void CgnsZbc1to1::ReadCgnsZbc1to1()
 }
 void CgnsZbc1to1::DumpCgnsZbc1to1()
 {
-    //this->ReadZn1to1();
-    //this->CreateCgnsZbc();
+    this->PrintZn1to1();
 
-    //for ( int i1to1 = 0; i1to1 < this->n1to1; ++ i1to1 )
-    //{
-    //    CgnsBc1to1 * cgnsBc1to1 = this->GetCgnsBcRegion1to1( i1to1 );
-    //    cgnsBc1to1->ReadCgnsBc1To1();
-    //}
+    for ( int i1to1 = 0; i1to1 < this->n1to1; ++ i1to1 )
+    {
+        CgnsBc1to1 * cgnsBc1to1 = this->GetCgnsBcRegion1to1( i1to1 );
+        cgnsBc1to1->DumpCgnsBc1To1();
+    }
 }
 
 

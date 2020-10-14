@@ -159,6 +159,16 @@ void CgnsBcBoco::ReadCgnsBcBoco()
     this->PrintCgnsBcConn();
 }
 
+void CgnsBcBoco::DumpCgnsBcBoco()
+{
+    this->DumpCgnsBocoInfo();
+
+    this->DumpCgnsBocoGridLocation();
+
+    this->DumpCgnsBcConn();
+
+    //this->PrintCgnsBcConn();
+}
 
 void CgnsBcBoco::ReadCgnsBocoInfo()
 {
@@ -193,6 +203,39 @@ void CgnsBcBoco::ReadCgnsBocoInfo()
     cout << "   CGNS Boundary Condition Name   = " << GetCgnsBcName( this->bcType ) << "\n";
 }
 
+void CgnsBcBoco::DumpCgnsBocoInfo()
+{
+    // Read the info for this boundary condition.
+    int fileId = cgnsZone->cgnsBase->cgnsFile->fileId;
+    int baseId = cgnsZone->cgnsBase->baseId;
+    int zId = cgnsZone->zId;
+
+    CgnsTraits::char33 bcRegionName;
+
+ /*   this->gridConnType = GridConnectivityTypeNull;
+
+    cg_boco_id( fileId, baseId, zId, this->bcId, & this->bc_double_id );
+
+    cg_boco_info( fileId, baseId, zId, this->bcId,
+        bcRegionName, & this->bcType, & this->pointSetType, & this->nElements,
+        normalIndex,  & normalListSize, & this->normalDataType, & this->nDataSets );
+
+    cg_goto( fileId, baseId, "Zone_t", 1, "ZoneBC_t", 1, "BC_t", this->bcId, "end" );
+
+    this->name = bcRegionName;
+
+    if ( this->bcType == FamilySpecified )
+    {
+        CgnsTraits::char33 bcFamilyName;
+        int ierr = cg_famname_read( bcFamilyName );
+
+        this->bcType = cgnsZone->cgnsBase->GetFamilyBcType( bcFamilyName );
+    }
+
+    cout << "   CGNS Boundary Name             = " << bcRegionName << "\n";
+    cout << "   CGNS Boundary Condition Name   = " << GetCgnsBcName( this->bcType ) << "\n";*/
+}
+
 void CgnsBcBoco::ReadCgnsBocoGridLocation()
 {
     int fileId = cgnsZone->cgnsBase->cgnsFile->fileId;
@@ -211,6 +254,26 @@ void CgnsBcBoco::ReadCgnsBocoGridLocation()
     }
 
     cout << "   CGNS Grid Location Name        = " << GetCgnsGridLocationName( bcGridLocation ) << "\n";
+}
+
+void CgnsBcBoco::DumpCgnsBocoGridLocation()
+{
+    int fileId = cgnsZone->cgnsBase->cgnsFile->fileId;
+    int baseId = cgnsZone->cgnsBase->baseId;
+    int zId = cgnsZone->zId;
+
+    GridLocation_t bcGridLocation;
+    //cg_boco_gridlocation_read( fileId, baseId, zId, this->bcId, &bcGridLocation );
+
+    //this->gridLocation = bcGridLocation;
+    //this->modifiedLocation = bcGridLocation;
+
+    //if ( cgnsZone->ExistSection( this->name ) )
+    //{
+    //    this->modifiedLocation = CGNS_ENUMV( FaceCenter );
+    //}
+
+    //cout << "   CGNS Grid Location Name        = " << GetCgnsGridLocationName( bcGridLocation ) << "\n";
 }
 
 void CgnsBcBoco::SetCgnsBcRegionGridLocation( const GridLocation_t & bcGridLocation )
@@ -252,6 +315,20 @@ void CgnsBcBoco::ReadCgnsBcConn()
     int kkk = 1;
 }
 
+void CgnsBcBoco::DumpCgnsBcConn()
+{
+    int fileId = cgnsZone->cgnsBase->cgnsFile->fileId;
+    int baseId = cgnsZone->cgnsBase->baseId;
+    int zId = cgnsZone->zId;
+
+    //cout << "   CGNS PointSet Type Name        = " << GetCgnsPointSetName( this->pointSetType ) << "\n";
+
+    //int cgnsNormalList;
+
+    //// Read the element ID¡¯s.
+    //cg_boco_read( fileId, baseId, zId, this->bcId, & connList[ 0 ], & cgnsNormalList );
+    //int kkk = 1;
+}
 
 void CgnsBcBoco::PrintCgnsBcConn()
 {

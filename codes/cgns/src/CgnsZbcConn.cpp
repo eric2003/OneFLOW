@@ -112,13 +112,12 @@ void CgnsZbcConn::ReadCgnsZbcConn()
 
 void CgnsZbcConn::DumpCgnsZbcConn()
 {
-    //this->ReadZnconn();
-    //this->CreateCgnsZbc();
-    //for ( int iConn = 0; iConn < this->nConn; ++ iConn )
-    //{
-    //    CgnsBcConn * cgnsBcConn = this->GetCgnsBc( iConn );
-    //    cgnsBcConn->ReadCgnsBcConn();
-    //}
+    this->PrintZnconn();
+    for ( int iConn = 0; iConn < this->nConn; ++ iConn )
+    {
+        CgnsBcConn * cgnsBcConn = this->GetCgnsBc( iConn );
+        cgnsBcConn->DumpCgnsBcConn();
+    }
 }
 
 void CgnsZbcConn::SetPeriodicBc()
