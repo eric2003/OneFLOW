@@ -199,7 +199,7 @@ void CgnsZone::DumpCgnsGrid()
 
     this->DumpElementConnectivities();
 
-    //this->ReadCgnsGridBoundary();
+    this->DumpCgnsGridBoundary();
 
     this->DumpCgnsGridCoordinates();
 }
@@ -336,6 +336,11 @@ void CgnsZone::DumpCgnsGridCoordinates()
 void CgnsZone::ReadCgnsGridBoundary()
 {
     cgnsZbc->ReadCgnsGridBoundary();
+}
+
+void CgnsZone::DumpCgnsGridBoundary()
+{
+    cgnsZbc->DumpCgnsGridBoundary();
 }
 
 void CgnsZone::ProcessPeriodicBc()

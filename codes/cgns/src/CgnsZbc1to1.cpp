@@ -122,6 +122,18 @@ void CgnsZbc1to1::ReadCgnsZbc1to1()
         cgnsBc1to1->ReadCgnsBc1To1();
     }
 }
+void CgnsZbc1to1::DumpCgnsZbc1to1()
+{
+    //this->ReadZn1to1();
+    //this->CreateCgnsZbc();
+
+    //for ( int i1to1 = 0; i1to1 < this->n1to1; ++ i1to1 )
+    //{
+    //    CgnsBc1to1 * cgnsBc1to1 = this->GetCgnsBcRegion1to1( i1to1 );
+    //    cgnsBc1to1->ReadCgnsBc1To1();
+    //}
+}
+
 
 void CgnsZbc1to1::SetPeriodicBc()
 {

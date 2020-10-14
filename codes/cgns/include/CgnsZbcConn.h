@@ -60,6 +60,7 @@ public:
     void ReadZnconn( int nConn );
     void ReadZnconn();
     void ReadCgnsZbcConn();
+    void DumpCgnsZbcConn();
     void SetPeriodicBc();
     void ConvertToInnerDataStandard();
 };

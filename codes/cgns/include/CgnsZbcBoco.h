@@ -60,6 +60,7 @@ public:
     void ReadZnboco();
     void ReadZnboco( int nBoco );
     void ReadCgnsZbcBoco();
+    void DumpCgnsZbcBoco();
     int GetNumberOfActualBcElements();
     void GenerateUnsBcElemConn( CgIntField& bcConn );
 };

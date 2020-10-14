@@ -85,6 +85,13 @@ void CgnsZbc::ReadCgnsGridBoundary()
     this->cgnsZbc1to1->ReadCgnsZbc1to1();
 }
 
+void CgnsZbc::DumpCgnsGridBoundary()
+{
+    this->cgnsZbcBoco->DumpCgnsZbcBoco();
+    this->cgnsZbcConn->DumpCgnsZbcConn();
+    this->cgnsZbc1to1->DumpCgnsZbc1to1();
+}
+
 void CgnsZbc::FillBcPoints( int * start, int * end, cgsize_t * bcpnts, int dimension )
 {
     int icount = 0;

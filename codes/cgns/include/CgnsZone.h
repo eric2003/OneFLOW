@@ -102,6 +102,7 @@ public:
     void ReadCgnsGridCoordinates();
     void DumpCgnsGridCoordinates();
     void ReadCgnsGridBoundary();
+    void DumpCgnsGridBoundary();
     void ProcessPeriodicBc();
     void ReadCgnsZoneBasicInfo();
     void ReadCgnsGridCoordinates( CgnsZone * cgnsZoneIn );
