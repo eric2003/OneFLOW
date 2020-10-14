@@ -124,9 +124,8 @@ void CgnsSection::DumpCgnsSection()
 {
     this->DumpCgnsSectionInfo();
 
-    //this->ReadCgnsSectionConnectionList();
+    this->DumpCgnsSectionConnectionList();
 
-    //this->SetElemPosition();
 }
 
 void CgnsSection::SetSectionInfo( const string & sectionName, int elemType, int startId, int endId )
@@ -165,24 +164,10 @@ void CgnsSection::ReadCgnsSectionInfo()
 
 void CgnsSection::DumpCgnsSectionInfo()
 {
-    //int fileId = cgnsZone->cgnsBase->cgnsFile->fileId;
-    //int baseId = cgnsZone->cgnsBase->baseId;
-    //int zId = cgnsZone->zId;
-
     cout << "   Section Name = " << sectionName << "\n";
     cout << "   Section Type = " << ElementTypeName[ eType ] << "\n";
     cout << "   startId, endId = " << this->startId << " " << this->endId << "\n";
     cout << "   nbndry, iparentflag = " << this->nbndry << " " << this->iparentflag << "\n";
-
-    //cg_section_write(index_file,index_base,index_zone,"Elem",CGNS_ENUMV(HEXA_8),nelem_start,
-    //    nelem_end,nbdyelem,ielem[0],&index_section);
-
-    //if ( IsMixedSection() )
-    //{
-    //    elementDataSize = -1;
-    //    cg_ElementDataSize( fileId, baseId, zId, this->id, & elementDataSize );
-    //    this->pos_shift = 1;
-    //}
 }
 
 void CgnsSection::CreateConnList()
@@ -253,17 +238,9 @@ void CgnsSection::DumpCgnsSectionConnectionList()
     int baseId = cgnsZone->cgnsBase->baseId;
     int zId = cgnsZone->zId;
 
-    // Read the connectivity. Again, the node numbering of the 
-    // connectivities start at 1. If internally a starting index 
-    // of 0 is used ( typical for C-codes ) 1 must be substracted 
-    // from the connectivities read. 
-
-    CgInt *addr = NULL;
-    if ( this->iparentflag )
-    {
-        addr = & iparentdata[ 0 ];
-    }
-    cg_elements_read( fileId, baseId, zId, this->id, & this->connList[ 0 ], addr );
+    // write element connectivity
+    ElementType_t elementType = static_cast< ElementType_t >( this->eType );
+    cg_section_write( fileId, baseId, zId, this->sectionName.c_str(), elementType, this->startId, this->endId, this->nbndry, & this->connList[ 0 ], & this->id );
 }
 
 void CgnsSection::SetElemPosition()
