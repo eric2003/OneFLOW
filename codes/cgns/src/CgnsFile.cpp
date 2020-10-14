@@ -81,7 +81,8 @@ void CgnsFile::OpenCgnsFile( const string & fileName, int cgnsOpenMode )
     this->openMode = openMode;
 
     this->openStatus = cg_open( fileName.c_str(), cgnsOpenMode, & this->fileId );
-    cout << "**************************************************************\n";
+    string stars("**************************************************************");
+    cout << stars << "\n";
     cout << "   CGNS File Index = " << this->fileId << "\n";
 
     if ( this->openStatus != CG_OK )
@@ -104,7 +105,7 @@ void CgnsFile::OpenCgnsFile( const string & fileName, int cgnsOpenMode )
     cg_get_file_type( this->fileId, & file_type );
 
     cout << "   CGNS File Type = " << file_type << " FileTypeName = " << GetCgnsFileTypeName( file_type ) << "\n";
-    cout << "**************************************************************\n";
+    cout << stars << "\n";
 }
 
 void CgnsFile::CloseCgnsFile()

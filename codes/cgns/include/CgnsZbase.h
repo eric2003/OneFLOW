@@ -39,15 +39,12 @@ public:
     ~CgnsZbase();
 public:
     CgnsFile * cgnsFile;
-    //int fileId, nBases;
     int nBases;
  
     HXVector< CgnsBase * > baseVector;
 public:
     int GetSystemZoneType();
     void ReadCgnsGrid( const string & fileName );
-    //void OpenCgnsFile( const string & fileName, int cgnsOpenMode );
-    //void CloseCgnsFile();
     void ReadCgnsMultiBase();
     void DumpCgnsMultiBase();
     void ReadNumCgnsBase();

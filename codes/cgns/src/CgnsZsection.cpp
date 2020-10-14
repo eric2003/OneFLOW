@@ -138,6 +138,19 @@ void CgnsZsection::ReadCgnsSections()
     }
 }
 
+void CgnsZsection::DumpCgnsSections()
+{
+    cout << "   Dumping Cgns Section Data......\n";
+    cout << "\n";
+
+    for ( int iSection = 0; iSection < this->nSection; ++ iSection )
+    {
+        cout << "-->iSection     = " << iSection << " numberOfCgnsSections = " << this->nSection << "\n";
+        CgnsSection * cgnsSection = this->GetCgnsSection( iSection );
+        cgnsSection->DumpCgnsSection();
+    }
+}
+
 void CgnsZsection::SetElemPosition()
 {
     for ( int iSection = 0; iSection < this->nSection; ++ iSection )

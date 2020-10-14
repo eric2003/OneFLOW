@@ -69,9 +69,10 @@ public:
 
     CgInt isize[ 9 ];
 public:
+    void InitISize();
     void CopyISize( CgInt * isize );
     void SetVolBcType( int volBcType );
-    int GetVolBcType();
+    int  GetVolBcType();
 public:
     void Create();
     void SetPeriodicBc();
@@ -97,6 +98,7 @@ public:
     void ReadNumberOfCgnsSections();
     void CreateCgnsSections();
     void ReadCgnsSections();
+    void DumpCgnsSections();
     void ReadCgnsGridCoordinates();
     void DumpCgnsGridCoordinates();
     void ReadCgnsGridBoundary();

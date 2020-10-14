@@ -56,6 +56,7 @@ CgnsZone::CgnsZone( CgnsBase * cgnsBase )
     this->cgnsZbc = 0;
     this->volBcType = -1;
     this->cgnsCoor = 0;
+    this->InitISize();
 }
 
 CgnsZone::~CgnsZone()
@@ -70,6 +71,14 @@ void CgnsZone::CopyISize( CgInt * isize )
     for ( int i = 0; i < 9; ++ i )
     {
         this->isize[ i ] = isize[ i ];
+    }
+}
+
+void CgnsZone::InitISize()
+{
+    for ( int i = 0; i < 9; ++ i )
+    {
+        this->isize[ i ] = 0;
     }
 }
 
@@ -247,7 +256,7 @@ void CgnsZone::ReadCgnsZoneNameAndGeneralizedDimension()
 
 void CgnsZone::DumpCgnsZoneNameAndGeneralizedDimension()
 {
-    cout << "   Cell Dimension = " << this->cgnsBase->celldim << " Physics Dimension = " << this->cgnsBase->phydim << "\n";
+    //cout << "   Cell Dimension = " << this->cgnsBase->celldim << " Physics Dimension = " << this->cgnsBase->phydim << "\n";
 
     //Determine the number of vertices and cellVolume elements in this zone
     cg_zone_write( cgnsBase->cgnsFile->fileId, cgnsBase->baseId, zoneName.c_str(), isize, cgnsZoneType, &this->zId );
@@ -279,11 +288,9 @@ void CgnsZone::DumpElementConnectivities()
 {
     if ( this->cgnsZoneType == CGNS_ENUMV( Structured ) ) return;
 
-    //this->ReadNumberOfCgnsSections();
+    cout << "   numberOfCgnsSections = " << this->cgnsZsection->nSection << "\n";
 
-    //this->CreateCgnsSections();
-
-    //this->ReadCgnsSections();
+    this->DumpCgnsSections();
 }
 
 void CgnsZone::SetElemPosition()
@@ -304,6 +311,11 @@ void CgnsZone::CreateCgnsSections()
 void CgnsZone::ReadCgnsSections()
 {
     this->cgnsZsection->ReadCgnsSections();
+}
+
+void CgnsZone::DumpCgnsSections()
+{
+    this->cgnsZsection->DumpCgnsSections();
 }
 
 void CgnsZone::ReadCgnsGridCoordinates()

@@ -231,17 +231,16 @@ void CgnsCoor::DumpCgnsGridCoordinates()
     int baseId = this->cgnsZone->cgnsBase->baseId;
     int zoneId = this->cgnsZone->zId;
 
-     cout << " this->nCoor = " << this->nCoor << "\n";
+     cout << "   this->nCoor = " << this->nCoor << "\n";
 
      for ( int iCoor = 0; iCoor < this->nCoor; ++ iCoor )
      {
          DataType_t dataType = this->typeList[ iCoor ];
          string & coorName = this->coorNameList[ iCoor ];
-         cout << "   coorName = " << coorName << " dataType = " << dataType << "\n";
           //Write the x-, y-, z-coordinates.
-         int index_xyz = -1;
-         cg_coord_write( fileId, baseId, zoneId, dataType, coorName.c_str(), this->GetCoor( iCoor ), &index_xyz );
-         cout << "index_xyz = " << index_xyz << "\n";
+         int indexCoor = -1;
+         cg_coord_write( fileId, baseId, zoneId, dataType, coorName.c_str(), this->GetCoor( iCoor ), &indexCoor );
+         cout << "   coorName = " << coorName << " dataType = " << dataType << " indexCoor = " << indexCoor << "\n";
      }
 }
 
