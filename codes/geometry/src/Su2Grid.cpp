@@ -605,7 +605,7 @@ void FillSU2CgnsZone( Su2Grid* su2Grid, CgnsZone * cgnsZone )
         cgnsBcBoco->nElements    = marker->nElem;
         cgnsBcBoco->bcType = static_cast< BCType_t >( marker->cgns_bcType );
         cgnsBcBoco->pointSetType = PointList;
-        cgnsBcBoco->CreateCgnsBcBoco();
+        cgnsBcBoco->CreateCgnsBcConn();
 
         for ( int iElem = 0; iElem < marker->nElem; ++ iElem )
         {

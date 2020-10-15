@@ -292,7 +292,7 @@ void FillSection( Grids & grids, HXVector< Int3D * > & unsIdList, CgnsZone * cgn
 
             //cgnsBcBoco->SetCgnsBcRegion( nElements, bcType, );
 
-            cgnsBcBoco->CreateCgnsBcBoco();
+            cgnsBcBoco->CreateCgnsBcConn();
             cgnsBcBoco->connList[ 0 ] = eIdPos + 1;
             cgnsBcBoco->connList[ 1 ] = eIdPos + nRegionCell;
             string bcName = GetCgnsBcName( cgnsBcBoco->bcType );
