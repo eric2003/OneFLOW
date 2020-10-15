@@ -65,6 +65,7 @@ public:
 
     CgnsZone * cgnsZone;
 public:
+    void Init();
     void ConvertToInnerDataStandard();
     int  CalcBase();
     void ShiftBcRegion();
