@@ -80,7 +80,7 @@ public:
     void ReadCgnsBocoGridLocation();
     void DumpCgnsBocoGridLocation();
     void SetCgnsBcRegionGridLocation( const GridLocation_t & bcGridLocation );
-    void CreateCgnsBcConn();
+    void CreateCgnsBcBoco();
     void ReadCgnsBcConn();
     void DumpCgnsBcConn();
     void PrintCgnsBcConn();
