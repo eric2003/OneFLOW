@@ -83,7 +83,7 @@ public:
     void CreateCgnsBcBoco();
     void ReadCgnsBcBocoConnList();
     void DumpCgnsBcConn();
-    void PrintCgnsBcConn();
+    void PrintCgnsBcBoco();
     void ExtractIJKRegionFromBcConn( IntField & ijkMin, IntField & ijkMax, CgIntField& bcConn );
     void ExtractIJKRegionFromBcConn( IntField & ijkMin, IntField & ijkMax );
 public:

@@ -156,7 +156,7 @@ void CgnsBcBoco::ReadCgnsBcBoco()
 
     this->ReadCgnsBcBocoConnList();
 
-    this->PrintCgnsBcConn();
+    this->PrintCgnsBcBoco();
 }
 
 void CgnsBcBoco::DumpCgnsBcBoco()
@@ -330,7 +330,7 @@ void CgnsBcBoco::DumpCgnsBcConn()
     //int kkk = 1;
 }
 
-void CgnsBcBoco::PrintCgnsBcConn()
+void CgnsBcBoco::PrintCgnsBcBoco()
 {
     if ( cgnsZone->cgnsZoneType == CGNS_ENUMV( Unstructured ) )
     {
