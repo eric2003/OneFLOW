@@ -165,9 +165,7 @@ void CgnsBcBoco::DumpCgnsBcBoco()
 
     this->DumpCgnsBocoGridLocation();
 
-    this->DumpCgnsBcConn();
-
-    //this->PrintCgnsBcConn();
+    this->DumpCgnsBcBocoConnList();
 }
 
 void CgnsBcBoco::ReadCgnsBocoInfo()
@@ -315,7 +313,7 @@ void CgnsBcBoco::ReadCgnsBcBocoConnList()
     int kkk = 1;
 }
 
-void CgnsBcBoco::DumpCgnsBcConn()
+void CgnsBcBoco::DumpCgnsBcBocoConnList()
 {
     int fileId = cgnsZone->cgnsBase->cgnsFile->fileId;
     int baseId = cgnsZone->cgnsBase->baseId;
@@ -439,10 +437,10 @@ void CgnsBcBoco::CopyStrBcRegion( CgnsBcBoco * strBcRegion, CgInt & startId )
 
     this->CreateCgnsBcBoco();
 
-    this->ReadCgnsBcConn( strBcRegion, startId );
+    this->ReadCgnsBcBocoConnList( strBcRegion, startId );
 }
 
-void CgnsBcBoco::ReadCgnsBcConn( CgnsBcBoco * strBcRegion, CgInt& startId )
+void CgnsBcBoco::ReadCgnsBcBocoConnList( CgnsBcBoco * strBcRegion, CgInt& startId )
 {
     CgInt actualNumberOfBoundaryElement = strBcRegion->GetActualNumberOfBoundaryElements();
     this->connList[ 0 ] = startId;

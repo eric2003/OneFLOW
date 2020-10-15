@@ -82,13 +82,13 @@ public:
     void SetCgnsBcRegionGridLocation( const GridLocation_t & bcGridLocation );
     void CreateCgnsBcBoco();
     void ReadCgnsBcBocoConnList();
-    void DumpCgnsBcConn();
+    void DumpCgnsBcBocoConnList();
     void PrintCgnsBcBoco();
     void ExtractIJKRegionFromBcConn( IntField & ijkMin, IntField & ijkMax, CgIntField& bcConn );
     void ExtractIJKRegionFromBcConn( IntField & ijkMin, IntField & ijkMax );
 public:
     void CopyStrBcRegion( CgnsBcBoco * strBcRegion, CgInt& startId );
-    void ReadCgnsBcConn( CgnsBcBoco * strBcRegion, CgInt & startId );
+    void ReadCgnsBcBocoConnList( CgnsBcBoco * strBcRegion, CgInt & startId );
     CgInt GetActualNumberOfBoundaryElements();
 };
 
