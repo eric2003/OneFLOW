@@ -152,7 +152,7 @@ void CgnsBcBoco::ReadCgnsBcBoco()
 
     this->ReadCgnsBocoGridLocation();
 
-    this->CreateCgnsBcConn();
+    this->CreateCgnsBcBoco();
 
     this->ReadCgnsBcConn();
 
@@ -282,7 +282,7 @@ void CgnsBcBoco::SetCgnsBcRegionGridLocation( const GridLocation_t & bcGridLocat
     this->modifiedLocation = bcGridLocation;
 }
 
-void CgnsBcBoco::CreateCgnsBcConn()
+void CgnsBcBoco::CreateCgnsBcBoco()
 {
     //cout << "   CGNS Zone Type Name            = " << GetCgnsZoneTypeName( cgnsZone->cgnsZoneType ) << "\n";
 
@@ -437,7 +437,7 @@ void CgnsBcBoco::CopyStrBcRegion( CgnsBcBoco * strBcRegion, CgInt & startId )
     this->gridLocation = CGNS_ENUMV( CellCenter   );
     this->modifiedLocation = this->gridLocation;
 
-    this->CreateCgnsBcConn();
+    this->CreateCgnsBcBoco();
 
     this->ReadCgnsBcConn( strBcRegion, startId );
 }
