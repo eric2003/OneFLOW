@@ -81,7 +81,7 @@ public:
     void DumpCgnsBocoGridLocation();
     void SetCgnsBcRegionGridLocation( const GridLocation_t & bcGridLocation );
     void CreateCgnsBcBoco();
-    void ReadCgnsBcConn();
+    void ReadCgnsBcBocoConnList();
     void DumpCgnsBcConn();
     void PrintCgnsBcConn();
     void ExtractIJKRegionFromBcConn( IntField & ijkMin, IntField & ijkMax, CgIntField& bcConn );

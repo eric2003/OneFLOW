@@ -154,7 +154,7 @@ void CgnsBcBoco::ReadCgnsBcBoco()
 
     this->CreateCgnsBcBoco();
 
-    this->ReadCgnsBcConn();
+    this->ReadCgnsBcBocoConnList();
 
     this->PrintCgnsBcConn();
 }
@@ -300,7 +300,7 @@ void CgnsBcBoco::CreateCgnsBcBoco()
     }
 }
 
-void CgnsBcBoco::ReadCgnsBcConn()
+void CgnsBcBoco::ReadCgnsBcBocoConnList()
 {
     int fileId = cgnsZone->cgnsBase->cgnsFile->fileId;
     int baseId = cgnsZone->cgnsBase->baseId;
