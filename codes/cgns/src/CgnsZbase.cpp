@@ -87,7 +87,6 @@ void CgnsZbase::DumpCgnsMultiBase()
 
         cgnsBase->DumpCgnsBaseBasicInfo();
         cgnsBase->DumpAllCgnsZones();
-        //cgnsBase->ProcessCgnsZones();
     }
 }
 
@@ -108,6 +107,15 @@ void CgnsZbase::ConvertToInnerDataStandard()
     }
 }
 
+void CgnsZbase::ProcessCgnsBases()
+{
+    for ( int iBase = 0; iBase < this->nBases; ++ iBase )
+    {
+        CgnsBase * cgnsBase = this->GetCgnsBase( iBase );
+        cgnsBase->ProcessCgnsZones();
+    }
+}
+
 void CgnsZbase::ReadCgnsMultiBase()
 {
     this->ReadNumCgnsBase();
@@ -122,7 +130,7 @@ void CgnsZbase::ReadCgnsMultiBase()
         cgnsBase->ReadNumberOfCgnsZones();
         cgnsBase->AllocateAllCgnsZones();
         cgnsBase->ReadAllCgnsZones();
-        cgnsBase->ProcessCgnsZones();
+        //cgnsBase->ProcessCgnsZones();
     }
 }
 

@@ -317,13 +317,10 @@ void CgnsBcBoco::DumpCgnsBcBocoConnList()
     int baseId = cgnsZone->cgnsBase->baseId;
     int zId = cgnsZone->zId;
 
-    //cout << "   CGNS PointSet Type Name        = " << GetCgnsPointSetName( this->pointSetType ) << "\n";
-
-    //int cgnsNormalList;
-
-    //// Read the element ID¡¯s.
-    //cg_boco_read( fileId, baseId, zId, this->bcId, & connList[ 0 ], & cgnsNormalList );
-    //int kkk = 1;
+    cout << "   CGNS PointSet Type Name        = " << GetCgnsPointSetName( this->pointSetType ) << "\n";
+    this->bcId = -1;
+    cg_boco_write( fileId, baseId, zId, this->name.c_str(), this->bcType, this->pointSetType, this->nElements, & this->connList[ 0 ], &this->bcId );
+    cout << "   CGNS Bc Id = " << bcId << "\n";
 }
 
 void CgnsBcBoco::PrintCgnsBcBoco()

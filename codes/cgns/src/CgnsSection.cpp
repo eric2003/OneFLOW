@@ -42,6 +42,8 @@ CgnsSection::CgnsSection( CgnsZone * cgnsZone )
     this->cgnsZone = cgnsZone;
     this->connSize = 0;
     this->pos_shift = 0;
+    this->nbndry = 0;
+    this->iparentflag = 0;
 }
 
 CgnsSection::~CgnsSection()
@@ -50,6 +52,11 @@ CgnsSection::~CgnsSection()
 
 void CgnsSection::ConvertToInnerDataStandard()
 {
+    //cout << "++++++++++++++++++++++++++++++++++++++++\n";
+    //cout << "++++++++++++++++++++++++++++++++++++++++\n";
+    //cout << "ConvertToInnerDataStandard\n";
+    //cout << "++++++++++++++++++++++++++++++++++++++++\n";
+    //cout << "++++++++++++++++++++++++++++++++++++++++\n";
     this->startId -= 1;
     this->endId   -= 1;
 

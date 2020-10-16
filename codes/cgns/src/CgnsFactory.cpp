@@ -88,14 +88,14 @@ void CgnsFactory::GenerateGrid()
     }
     else
     {
-        this->ConvertToInnerData();
+        this->ProcessCgnsBases();
         this->CgnsToOneFlowGrid();
     }
 }
 
-void CgnsFactory::ConvertToInnerData()
+void CgnsFactory::ProcessCgnsBases()
 {
-    this->cgnsZbase->ConvertToInnerDataStandard();
+    this->cgnsZbase->ProcessCgnsBases();
 }
 
 void CgnsFactory::ReadCgnsGrid()

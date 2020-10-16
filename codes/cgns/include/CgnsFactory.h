@@ -66,7 +66,7 @@ public:
     void CommonToStrGrid();
     void CommonToUnsGridTEST();
     void ReadGridAndConvertToUnsCgnsZone();
-    void ConvertToInnerData();
+    void ProcessCgnsBases();
 public:
     void CreateCgnsZone( ZgridMediator * zgridMediator );
     void PrepareCgnsZone( ZgridMediator * zgridMediator );

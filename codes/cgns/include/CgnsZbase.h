@@ -49,6 +49,7 @@ public:
     void DumpCgnsMultiBase();
     void ReadNumCgnsBase();
     void ConvertToInnerDataStandard();
+    void ProcessCgnsBases();
 public:
     void AddCgnsBase( CgnsBase * cgnsBase );
     void InitCgnsBase();
