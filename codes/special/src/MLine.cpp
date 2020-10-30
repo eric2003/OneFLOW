@@ -22,6 +22,7 @@ License
 
 #include "MLine.h"
 #include "CurveMesh.h"
+#include "BlkMesh.h"
 #include "BlockFaceSolver.h"
 #include "SimpleDomain.h"
 #include "LineMachine.h"
@@ -143,6 +144,68 @@ void SLine::SetDomainBcMesh( SDomain * sDomain )
     int kkk = 1;
 }
 
+void SLine::SetBlkBcMesh( Block2D * blk2d )
+{
+    RealField2D & x2d = blk2d->x2d;
+    RealField2D & y2d = blk2d->y2d;
+    RealField2D & z2d = blk2d->z2d;
+
+    int line_id = this->line_id - 1;
+    SLine * sLine = blkFaceSolver.myFaceSolver.slineList[ line_id ];
+    ni = sLine->ni;
+    RealField & x1d = sLine->x1d;
+    RealField & y1d = sLine->y1d;
+    RealField & z1d = sLine->z1d;
+
+    int p1 = this->ctrlpoints[ 0 ];
+    int p2 = this->ctrlpoints[ 1 ];
+
+    int q1 = sLine->ctrlpoints[ 0 ];
+    int q2 = sLine->ctrlpoints[ 1 ];
+
+    int flag = 1;
+    if ( p1 != q1 ) flag = -1;
+
+    //CoorMap::iterator it1 = this->localCoorMap->find( p1 );
+    //CoorMap::iterator it2 = sDomain->localCoorMap->find( p2 );
+
+    //CalcCoor & c1 = it1->second;
+    //CalcCoor & c2 = it2->second;
+
+    //CalcCoor d1;
+    //d1.i = c2.i - c1.i;
+    //d1.j = c2.j - c1.j;
+    //d1.k = c2.k - c1.k;
+
+    //GetUnitDir( d1 );
+
+    //for ( int i = 1; i <= ni; ++ i )
+    //{
+    //    CalcCoor ci;
+    //    int i0 = i - 1;
+    //    ci.i = c1.i + d1.i * i0;
+    //    ci.j = c1.j + d1.j * i0;
+    //    ci.k = c1.k + d1.k * i0;
+
+    //    int ii = ci.i - 1;
+    //    int jj = ci.j - 1;
+    //    int kk = ci.k - 1;
+
+    //    if ( flag == -1 )
+    //    {
+    //        i0 = ni - 1 - i0;
+    //    }
+    //    Real xm = x1d[ i0 ];
+    //    Real ym = y1d[ i0 ];
+    //    Real zm = z1d[ i0 ];
+    //    x2d[ ii ][ jj ] = xm;
+    //    y2d[ ii ][ jj ] = ym;
+    //    z2d[ ii ][ jj ] = zm;
+    //}
+
+    int kkk = 1;
+}
+
 MLine::MLine()
 {
     ;
@@ -238,6 +301,7 @@ void MLine::ConstructDomainTopo()
     this->ConstructPointToPointMap();
     this->ConstructBcPoint();
     this->ConstructCtrlPoint();
+    this->ConstructSLineCtrlPoint();
 }
 
 void MLine::AddSubLine( int line_id )
@@ -266,12 +330,23 @@ void MLine::CreateInpFaceList( HXVector< Face2D * > &facelist )
         Face2D * face2d = new Face2D();
         face2d->face_id = sLine->line_id;
         face2d->Set1DRegion( sLine->ctrlpoints );
-        BlkF2C & face_struct = blkFaceSolver.myFaceSolver.face2Block[ face2d->face_id ];
+        BlkF2C & face_struct = blkFaceSolver.myFaceSolver.face2Block[ face2d->face_id - 1 ];
         face2d->bcType = face_struct.bctype;
         face2d->CalcStEd( coorMap );
         facelist.push_back( face2d );
     }
 }
+
+void MLine::SetBlkBcMesh( Block2D * blk2d )
+{
+    int nSLine = slineList.size();
+    for ( int iSLine = 0; iSLine < nSLine; ++ iSLine )
+    {
+        SLine * sLine = this->slineList[ iSLine ];
+        sLine->SetBlkBcMesh( blk2d );
+    }
+}
+
 
 
 

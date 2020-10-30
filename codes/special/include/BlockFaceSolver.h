@@ -84,7 +84,7 @@ public:
 public:
     IntSet blkset;
     HXVector< Block3D * > blkList;
-    HXVector< Block2D * > blk2dList;
+    HXVector< Block2D * > blkList2d;
     bool flag;
     MyFaceSolver myFaceSolver;
 public:
@@ -96,14 +96,18 @@ public:
     void AddLineToFace( int faceid, int pos, int lineid );
     void AddFace2Block( int blockid, int pos, int faceid );
     void BuildBlkFace();
+    void BuildBlkFace2D();
     void SetBoundary();
     void DumpBcInp();
     void ConstructBlockInfo();
+    void ConstructBlockInfo2D();
     void GenerateBlkMesh();
+    void GenerateBlkMesh2D();
     void GenerateFaceMesh();
     void GenerateLineMesh();
     void BuildSDomainList();
     void DumpStandardGrid();
+    void DumpStandardGrid2D();
     void DumpStandardGrid( Grids & strGridList );
 public:
     void DumpBlkScript();

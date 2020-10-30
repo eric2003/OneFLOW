@@ -89,15 +89,20 @@ public:
     RealField2D x2d, y2d, z2d;
     HXVector< MLine * > mLineList;
 public:
+    void Alloc();
+    void CreateBlockMesh2D();
+    void GenerateBlockMesh2D();
     int GetNSubDomain();
     void ConstructTopo();
     void SetInterfaceBc();
     void GetCornerPoint( int & pt, int id1, int id2 );
     void CalcBlkDim();
     void CreateFaceList();
+    void FillStrGrid( Grid * gridIn, int iZone );
 };
 
 void SetGridXYZ3D( StrGrid * grid, RealField3D & x3d, RealField3D & y3d, RealField3D & z3d );
+void SetGridXYZ2D( StrGrid * grid, RealField2D & x2d, RealField2D & y2d, RealField2D & z2d );
 
 
 EndNameSpace

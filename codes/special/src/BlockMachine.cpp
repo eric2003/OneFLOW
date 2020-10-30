@@ -104,13 +104,13 @@ void BlockMachine::GenerateFaceBlockLink()
     else
     {
         blkFaceSolver.SetBoundary();
-        blkFaceSolver.BuildBlkFace();
-        blkFaceSolver.ConstructBlockInfo();
+        blkFaceSolver.BuildBlkFace2D();
+        blkFaceSolver.ConstructBlockInfo2D();
         blkFaceSolver.DumpBcInp();
         blkFaceSolver.GenerateLineMesh();
         blkFaceSolver.GenerateFaceMesh();
         blkFaceSolver.GenerateBlkMesh();
-        blkFaceSolver.DumpStandardGrid();
+        blkFaceSolver.DumpStandardGrid2D();
 
     }
 }

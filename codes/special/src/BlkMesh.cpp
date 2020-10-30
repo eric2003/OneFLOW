@@ -573,6 +573,25 @@ void SetGridXYZ3D( StrGrid * grid, RealField3D & x3d, RealField3D & y3d, RealFie
     }
 }
 
+void SetGridXYZ2D( StrGrid * grid, RealField2D & x2d, RealField2D & y2d, RealField2D & z2d )
+{
+    int ni = grid->ni;
+    int nj = grid->nj;
+    int nk = grid->nk;
+    int pos = 0;
+
+    for ( int j = 0; j < nj; ++ j )
+    {
+        for ( int i = 0; i < ni; ++ i )
+        {
+            grid->nodeMesh->xN[ pos ] = x2d[ i ][ j ];
+            grid->nodeMesh->yN[ pos ] = y2d[ i ][ j ];
+            grid->nodeMesh->zN[ pos ] = z2d[ i ][ j ];
+            ++ pos;
+        }
+    }
+}
+
 Block2D::Block2D()
 {
     int nMLine = 4;
@@ -594,6 +613,77 @@ Block2D::~Block2D()
 {
     DeletePointer( mLineList );
     DeletePointer( facelist );
+}
+
+void Block2D::Alloc()
+{
+    AllocateVector( x2d, ni, nj );
+    AllocateVector( y2d, ni, nj );
+    AllocateVector( z2d, ni, nj );
+}
+
+void Block2D::CreateBlockMesh2D()
+{
+    int nMLine = mLineList.size();
+    for ( int iMLine = 0; iMLine < nMLine; ++ iMLine )
+    {
+        MLine * mLine = mLineList[ iMLine ];
+        mLine->SetBlkBcMesh( this );
+    }
+
+    this->GenerateBlockMesh2D();
+}
+
+void Block2D::GenerateBlockMesh2D()
+{
+    fstream file;
+    OpenPrjFile( file, "grid/blkfaceplot.dat", ios_base::out );
+    file << " VARIABLES = \"X\", \"Y\", \"Z\" \n";
+    file << " ZONE I = " << ni << " F = POINT \n";
+    int ist = 0;
+    int ied = ni - 1;
+    int jst = 0;
+    int jed = nj - 1;
+    for ( int i = 0; i < ni; ++ i )
+    {
+        file << x2d[ i ][ jst ] << " " << y2d[ i ][ jst ] << " " << z2d[ i ][ jst ] << "\n";
+    }
+
+    file << " ZONE I = " << ni << " F = POINT \n";
+    for ( int i = 0; i < ni; ++ i )
+    {
+        file << x2d[ i ][ jed ] << " " << y2d[ i ][ jed ] << " " << z2d[ i ][ jed ] << "\n";
+    }
+
+    file << " ZONE I = " << nj << " F = POINT \n";
+    for ( int j = 0; j < nj; ++ j )
+    {
+        file << x2d[ ist ][ j ] << " " << y2d[ ist ][ j ] << " " << z2d[ ist ][ j ] << "\n";
+    }
+
+    file << " ZONE I = " << nj << " F = POINT \n";
+    for ( int j = 0; j < nj; ++ j )
+    {
+        file << x2d[ ied ][ j ] << " " << y2d[ ied ][ j ] << " " << z2d[ ied ][ j ] << "\n";
+    }
+ 
+    CloseFile( file );
+    TransfiniteInterpolation( x2d, ni, nj );
+    TransfiniteInterpolation( y2d, ni, nj );
+    TransfiniteInterpolation( z2d, ni, nj );
+
+    OpenPrjFile( file, "grid/blkplot2d.dat", ios_base::out );
+    file << " VARIABLES = \"X\", \"Y\", \"Z\" \n";
+    file << " ZONE I = " << ni << ", J = " << nj << " F = POINT \n";
+    for ( int j = 0; j < nj; ++ j )
+    {
+        for ( int i = 0; i < ni; ++ i )
+        {
+            file << x2d[ i ][ j ] << " " << y2d[ i ][ j ] << " " << z2d[ i ][ j ] << "\n";
+        }
+    }
+    CloseFile( file );
+    int kkk = 1;
 }
 
 int Block2D::GetNSubDomain()
@@ -740,7 +830,26 @@ void Block2D::CreateFaceList()
     }
 
     int kkk = 1;
-
 }
+
+void Block2D::FillStrGrid( Grid * gridIn, int iZone )
+{
+    StrGrid * grid = StrGridCast( gridIn );
+    int ni = this->ni;
+    int nj = this->nj;
+    int nk = this->nk;
+
+    grid->id = iZone;
+    grid->ni = ni;
+    grid->nj = nj;
+    grid->nk = nk;
+    grid->SetBasicDimension();
+    grid->nodeMesh->CreateNodes( grid->nNode );
+
+    grid->SetLayout();
+
+    SetGridXYZ2D( grid, x2d, y2d, z2d );
+}
+
 
 EndNameSpace

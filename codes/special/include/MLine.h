@@ -30,6 +30,7 @@ using namespace std;
 BeginNameSpace( ONEFLOW )
 
 class SDomain;
+class Block2D;
 
 class SLine
 {
@@ -43,6 +44,7 @@ public:
     IntField ctrlpoints;
 public:
     void SetDomainBcMesh( SDomain * sDomain );
+    void SetBlkBcMesh( Block2D * blk2d );
     void ConstructCtrlPoints();
     void Alloc();
     void CopyMesh();
@@ -76,6 +78,7 @@ public:
     void CalcCoor( CoorMap * localCoorMap );
     void SetDomainBcMesh( SDomain * sDomain );
     void CreateInpFaceList( HXVector< Face2D * > &facelist );
+    void SetBlkBcMesh( Block2D * blk2d );
 };
 
 
