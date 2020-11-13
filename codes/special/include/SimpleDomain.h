@@ -83,6 +83,7 @@ public:
     map< int, IntSet > pointToDomainMap;
     map< int, IntSet > pointToPointMap;
     map< int, IntSet > lineToDomainMap;
+    map< int, IntSet > pointToLineMap;
 };
 
 class DomData : public DomDataBasic
@@ -106,8 +107,15 @@ public:
     bool IsCtrlPoint( int pt );
     void CalcDomainCtrlPoints( IntField & blkControlpoints, IntField & localpt );
     void CalcDomainCtrlPoints( IntField & blk_ctrl_points );
+    void CalcDomainCtrlPoints();
+public:
+    bool IsBcLine( int line_id );
+    bool IsBcLine( IntSet &bclines, int line_id );
+    void RemoveBcLineId( IntSet &bclines, int line_id );
+    void FindAllBoundaryLine( IntSet &bclines );
+    bool FindNextBcPoint( int ps, int pt, int & pnext, IntSet &bclines );
+    bool IsCornerPoints( int pt );
 };
-
 
 void ConstructInt2Map( int sid, int tid, map< int, IntSet > & dataMap );
 void ConstructIntList2Map( int tid, IntField & idList, map< int, IntSet > & dataMap );

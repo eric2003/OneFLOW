@@ -24,6 +24,7 @@ License
 #pragma once
 #include "HXDefine.h"
 #include "CalcCoor.h"
+#include "BlkMesh.h"
 
 BeginNameSpace( ONEFLOW )
 
@@ -34,30 +35,28 @@ class Face2D;
 class Grid;
 class StrGrid;
 
-class BlkBasic
+class Block3D : public BlkBasic
 {
 public:
-    BlkBasic();
-    virtual ~BlkBasic();
+    Block3D();
+    ~Block3D();
 public:
-    int blk_id;
-    int ni, nj, nk;
-    LinkField localpt;
-    IntField controlpoints;
-    HXVector< Face2D * > facelist;
-    IntField dimList;
-    CoorMap coorMap;
+    RealField3D x3d, y3d, z3d;
+    HXVector< MDomain * > mDomainList;
 public:
-    void AddLocalPt( int p1, int p2 );
-    void AddLocalPt( int p1, int p2, int p3, int p4 );
-    void DumpInp( fstream & file );
-    virtual int GetNSubDomain() { return 1;  };
+    void Alloc();
+    int GetNSubDomain();
+    void ConstructTopo();
+    void SetInterfaceBc();
+    void GetCornerPoint( int & pt, int id1, int id2, int id3 );
+    void CalcBlkDim();
+    void CreateFaceList();
 public:
-    void Add( IntField &iList, IntField &jList, IntField &kList, int i, int j, int k );
+    void CreateBlockMesh();
+    void GenerateBlockMesh();
+    void FillStrGrid( Grid * gridIn, int iZone );
 };
 
-void SetGridXYZ3D( StrGrid * grid, RealField3D & x3d, RealField3D & y3d, RealField3D & z3d );
-void SetGridXYZ2D( StrGrid * grid, RealField2D & x2d, RealField2D & y2d, RealField2D & z2d );
 
 
 EndNameSpace

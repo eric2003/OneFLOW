@@ -43,7 +43,7 @@ class MLine;
 class SDomain : public DomData
 {
 public:
-    SDomain();
+    SDomain( MDomain * mDomain = 0 );
     ~SDomain();
 public:
     int domain_id;
@@ -51,6 +51,7 @@ public:
     CoorMap * localCoorMap;
     CoorMap * coorMap;
     RealField2D x2d, y2d, z2d;
+    int freecoorMap;
 public:
     void Alloc();
     void SetDomain( int fid, IntField & lineList, IntField & posList );
@@ -65,15 +66,21 @@ public:
     void ConstructPointToDomainMap( map< int, IntSet > & pointToDomainMap );
     void ConstructPointToPointMap();
     void ConstructPointToPointMap( map< int, IntSet > & pointToPointMap );
+
+    void ConstructPointToLineMap( map< int, IntSet > & pointToLineMap );
     void ConstructDomainTopo();
     void GetPointIdLink( IntField & lineList, LinkField & pointIdLink );
 public:
     void Add( IntField &iList, IntField &jList, IntField &kList, int i, int j, int k );
     void ConstructLocalTopoAsBlk2D();
     void SetBlkBcMesh( Block3D * blk3d );
+    void SetBlkBcMesh( Block2D * blk2d );
     void SetDomainBcMesh();
     void GenerateSDomainMesh();
     void GenerateSDomainMesh( fstream & file );
+public:
+    void CreateInpFaceList( HXVector< Face2D * > &facelist );
+    void CreateInpFaceList1D( HXVector< Face2D * > &facelist );
 };
 
 

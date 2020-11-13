@@ -71,8 +71,7 @@ void MDomain::CalcSubDomainCtrlCoor()
 
 void MDomain::AddSubDomain( int fid, IntField & lineList, IntField & posList )
 {
-    SDomain * sdomain = new SDomain();
-    sdomain->coorMap = this->coorMap;
+    SDomain * sdomain = new SDomain( this );
     sdomain->SetDomain( fid, lineList, posList );
     sDomainList.push_back( sdomain );
 }
@@ -116,6 +115,7 @@ void MDomain::ConstructMultiDomainTopo()
     this->ConstructMultiLineToDomainMap();
     this->ConstructMultiPointToDomainMap();
     this->ConstructMultiPointToPointMap();
+    this->ConstructPointToLineMap();
     this->ConstructBcPoint();
     this->ConstructCtrlPoint();
 }
@@ -126,6 +126,17 @@ void MDomain::ConstructMultiLineToDomainMap()
     {
         SDomain * sdomain = this->sDomainList[ iDomain ];
         sdomain->ConstructLineToDomainMap( this->lineToDomainMap );
+    }
+
+    int kkk = 1;
+}
+
+void MDomain::ConstructPointToLineMap()
+{
+    for ( int iDomain = 0; iDomain < this->sDomainList.size(); ++ iDomain )
+    {
+        SDomain * sdomain = this->sDomainList[ iDomain ];
+        sdomain->ConstructPointToLineMap( this->pointToLineMap );
     }
 
     int kkk = 1;
@@ -154,13 +165,16 @@ void MDomain::CreateInpFaceList( HXVector< Face2D * > &facelist )
     for ( int iDomain = 0; iDomain < this->sDomainList.size(); ++ iDomain )
     {
         SDomain * sDomain = this->sDomainList[ iDomain ];
-        Face2D * face2d = new Face2D();
-        face2d->face_id = sDomain->domain_id;
-        face2d->ctrlpoints = sDomain->ctrlpoints;
-        BlkF2C & face_struct = blkFaceSolver.myFaceSolver.face2Block[ face2d->face_id ];
-        face2d->bcType = face_struct.bctype;
-        face2d->CalcStEd( coorMap );
-        facelist.push_back( face2d );
+        sDomain->CreateInpFaceList( facelist );
+    }
+}
+
+void MDomain::CreateInpFaceList1D( HXVector< Face2D * > &facelist )
+{
+    for ( int iDomain = 0; iDomain < this->sDomainList.size(); ++ iDomain )
+    {
+        SDomain * sDomain = this->sDomainList[ iDomain ];
+        sDomain->CreateInpFaceList1D( facelist );
     }
 }
 
@@ -171,6 +185,16 @@ void MDomain::SetBlkBcMesh( Block3D * blk3d )
     {
         SDomain * sDomain = sDomainList[ iSDomain ];
         sDomain->SetBlkBcMesh( blk3d );
+    }
+}
+
+void MDomain::SetBlkBcMesh( Block2D * blk2d )
+{
+    int nSDomain = sDomainList.size();
+    for ( int iSDomain = 0; iSDomain < nSDomain; ++ iSDomain )
+    {
+        SDomain * sDomain = sDomainList[ iSDomain ];
+        sDomain->SetBlkBcMesh( blk2d );
     }
 }
 

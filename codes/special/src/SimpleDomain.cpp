@@ -21,6 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 #include "SimpleDomain.h"
 #include "BlockFaceSolver.h"
+#include "HXStd.h"
 #include "LineMachine.h"
 #include "DomainMachine.h"
 #include "CurveInfo.h"
@@ -356,6 +357,118 @@ void DomData::CalcDomainCtrlPoints( IntField & blk_ctrl_points )
         if ( InArray( pt, this->candidate_ctrlpoints ) )
         {
             this->ctrlpoints.push_back( pt );
+        }
+    }
+}
+
+bool DomData::IsBcLine( int line_id )
+{
+    map< int, IntSet >::iterator iter;
+    iter = lineToDomainMap.find( line_id );
+    return iter->second.size() == 1;
+}
+
+bool DomData::IsBcLine( IntSet &bclines, int line_id )
+{
+    IntSet::iterator iter;
+    iter = bclines.find( line_id );
+    return iter != bclines.end();
+}
+
+void DomData::RemoveBcLineId( IntSet &bclines, int line_id )
+{
+    bclines.erase( line_id );
+}
+
+void DomData::FindAllBoundaryLine( IntSet &bclines )
+{
+    map< int, IntSet >::iterator iter;
+    for ( iter = lineToDomainMap.begin(); iter != lineToDomainMap.end(); ++ iter )
+    {
+        if ( iter->second.size() == 1 )
+        {
+            bclines.insert( iter->first );
+        }
+    }
+}
+
+bool DomData::FindNextBcPoint( int ps, int pt, int & pnext, IntSet &bclines )
+{
+    map< int, IntSet >::iterator iter;
+    iter = this->pointToLineMap.find( pt );
+    IntField lines;
+    ONEFLOW::Set2Array( iter->second, lines );
+
+    bool findflag = false;
+
+    for ( int i = 0; i < lines.size(); ++ i )
+    {
+        int line_id = lines[ i ];
+        if ( IsBcLine( bclines, line_id ) )
+        {
+            IntField pointIdList = GlobalGetLine( line_id );
+            int p1 = pointIdList[ 0 ];
+            int p2 = pointIdList[ 1 ];
+            if ( p1 == pt )
+            {
+                pnext = p2;
+            }
+            else
+            {
+                pnext = p1;
+            }
+            RemoveBcLineId( bclines, line_id );
+            findflag = true;
+            break;
+        }
+    }
+    return findflag && ( pnext != ps );
+}
+
+bool DomData::IsCornerPoints( int pt )
+{
+    for ( int i = 0; i < candidate_ctrlpoints.size(); ++ i )
+    {
+        int pp = candidate_ctrlpoints[ i ];
+        if ( pp == pt )
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+void DomData::CalcDomainCtrlPoints()
+{
+    //Start at any corner point
+    //Using the point-to-edge data structure, find the edge.
+    //If the edge is within the boundary (that is, the edge belongs to the boundary line), 
+    //then move along the edge, find another point of the edge,
+    //and remove the processed edge from the boundary. You can avoid going back.
+
+    int ps = candidate_ctrlpoints[ 0 ];
+
+    IntSet bclines;
+    FindAllBoundaryLine( bclines );
+
+    IntField bcpoints;
+
+    int pt = ps;
+    while ( true )
+    {
+        bcpoints.push_back( pt );
+        int pnext = -1;
+        bool flag = FindNextBcPoint( ps, pt, pnext, bclines );
+        if ( ! flag ) break;
+        pt = pnext;
+    };
+
+    for ( int i = 0; i < bcpoints.size(); ++ i )
+    {
+        int pct = bcpoints[ i ];
+        if ( IsCornerPoints( pct ) )
+        {
+            this->ctrlpoints.push_back( pct );
         }
     }
 }

@@ -51,7 +51,7 @@ public:
     bool init_flag;
     LinkField lineList; 
     LinkField faceList;
-    LinkField facePosList;
+    LinkField faceLinePosList;
     set< Mid< int > > refLines;
     set< Mid< int > > refFaces;
     IntSet faceset;
@@ -88,6 +88,7 @@ public:
     bool flag;
     MyFaceSolver myFaceSolver;
 public:
+    Face2D * GetBlkFace( int blk, int face_id );
     Face2D * GetBlkFace2D( int blk, int face_id );
     int  FindFace( Mid<int> & face );
     int  FindFaceId( IntField & face );
@@ -99,6 +100,7 @@ public:
     void BuildBlkFace2D();
     void SetBoundary();
     void DumpBcInp();
+    void DumpBcInp2D();
     void ConstructBlockInfo();
     void ConstructBlockInfo2D();
     void GenerateBlkMesh();
@@ -116,5 +118,7 @@ public:
 };
 
 extern BlkFaceSolver blkFaceSolver;
+
+IntField GlobalGetLine( int line_id );
 
 EndNameSpace

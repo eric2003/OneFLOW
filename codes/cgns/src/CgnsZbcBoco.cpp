@@ -127,7 +127,7 @@ void CgnsZbcBoco::ScanBcFace( FaceSolver * face_solver )
         cgnsBcBoco->nameId = bcNameId;
         cgnsBcBoco->ScanBcFace( face_solver );
     }
-    face_solver->ScanInterfaceBc();
+    //face_solver->ScanInterfaceBc();
 }
 
 void CgnsZbcBoco::PrintZnboco()

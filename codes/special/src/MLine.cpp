@@ -23,6 +23,7 @@ License
 #include "MLine.h"
 #include "CurveMesh.h"
 #include "BlkMesh.h"
+#include "Block2D.h"
 #include "BlockFaceSolver.h"
 #include "SimpleDomain.h"
 #include "LineMachine.h"
@@ -104,8 +105,8 @@ void SLine::SetDomainBcMesh( SDomain * sDomain )
     int flag = 1;
     if ( p1 != q1 ) flag = -1;
 
-    CoorMap::iterator it1 = sDomain->localCoorMap->find( p1 );
-    CoorMap::iterator it2 = sDomain->localCoorMap->find( p2 );
+    CoorMap::iterator it1 = sDomain->coorMap->find( p1 );
+    CoorMap::iterator it2 = sDomain->coorMap->find( p2 );
 
     CalcCoor & c1 = it1->second;
     CalcCoor & c2 = it2->second;
@@ -206,9 +207,21 @@ void SLine::SetBlkBcMesh( Block2D * blk2d )
     int kkk = 1;
 }
 
-MLine::MLine()
+void SLine::ConstructPointToLineMap( map< int, IntSet > & pointToLineMap )
 {
-    ;
+    int line_id = this->line_id - 1;
+    IntField & pointIdList = blkFaceSolver.myFaceSolver.lineList[ line_id ];
+
+    int & p1 = pointIdList[ 0 ];
+    int & p2 = pointIdList[ 1 ];
+
+    ConstructInt2Map( p1, this->line_id, pointToLineMap );
+    ConstructInt2Map( p2, this->line_id, pointToLineMap );
+}
+
+MLine::MLine( SDomain * sDomain )
+{
+    this->coorMap = sDomain->coorMap;
 }
 
 MLine::~MLine()
@@ -252,6 +265,16 @@ void MLine::ConstructPointToPointMap( map< int, IntSet > & pointToPointMap )
     ONEFLOW::ConstructPointToPointMap( pointIdLink, pointToPointMap );
 }
 
+void MLine::ConstructPointToLineMap( map< int, IntSet > & pointToLineMap )
+{
+    int nSLine = slineList.size();
+    for ( int iSLine = 0; iSLine < nSLine; ++ iSLine )
+    {
+        SLine * sLine = this->slineList[ iSLine ];
+        sLine->ConstructPointToLineMap( pointToLineMap );
+    }
+}
+
 void MLine::ConstructPointToDomainMap()
 {
     for ( int iLine = 0; iLine < lineList.size(); ++ iLine )
@@ -288,10 +311,10 @@ void MLine::ConstructLineToDomainMap( int domain_id, map< int, IntSet > & lineTo
     ONEFLOW::ConstructLineToDomainMap( domain_id, mLine->lineList, lineToDomainMap );
 }
 
-void MLine::CalcCoor( CoorMap * localCoorMap )
+void MLine::CalcCoor()
 {
     int openLine = 0;
-    this->CalcBcCoor( localCoorMap, openLine );
+    this->CalcBcCoor( this->coorMap, openLine );
 }
 
 void MLine::ConstructDomainTopo()
@@ -322,7 +345,7 @@ void MLine::SetDomainBcMesh( SDomain * sDomain )
     }
 }
 
-void MLine::CreateInpFaceList( HXVector< Face2D * > &facelist )
+void MLine::CreateInpFaceList1D( HXVector< Face2D * > &facelist )
 {
     for ( int iSLine = 0; iSLine < this->slineList.size(); ++ iSLine )
     {
@@ -330,7 +353,7 @@ void MLine::CreateInpFaceList( HXVector< Face2D * > &facelist )
         Face2D * face2d = new Face2D();
         face2d->face_id = sLine->line_id;
         face2d->Set1DRegion( sLine->ctrlpoints );
-        BlkF2C & face_struct = blkFaceSolver.myFaceSolver.face2Block[ face2d->face_id - 1 ];
+        BlkF2C & face_struct = blkFaceSolver.myFaceSolver.line2Face[ face2d->face_id - 1 ];
         face2d->bcType = face_struct.bctype;
         face2d->CalcStEd( coorMap );
         facelist.push_back( face2d );
