@@ -154,35 +154,6 @@ int Block2D::GetNSubDomain()
     return nSubDomain;
 }
 
-//void Block2D::ConstructTopo()
-//{
-//    int nMDomain = mLineList.size();
-//    for ( int iMDomain = 0; iMDomain < nMDomain; ++ iMDomain )
-//    {
-//        MLine * mLine = mLineList[ iMDomain ];
-//        mLine->ConstructDomainTopo();
-//    }
-//
-//    int p1, p2, p3, p4;
-//
-//    GetCornerPoint( p1, 3, 0 );
-//    GetCornerPoint( p2, 0, 1 );
-//    GetCornerPoint( p3, 1, 2 );
-//    GetCornerPoint( p4, 2, 3 );
-//
-//    this->controlpoints.push_back( p1 );
-//    this->controlpoints.push_back( p2 );
-//    this->controlpoints.push_back( p3 );
-//    this->controlpoints.push_back( p4 );
-//
-//    for ( int iMDomain = 0; iMDomain < nMDomain; ++ iMDomain )
-//    {
-//        MLine * mLine = mLineList[ iMDomain ];
-//        mLine->CalcDomainCtrlPoints( this->controlpoints, this->localpt[iMDomain ] );
-//    }
-//
-//    this->CalcBlkDim();
-//}
 
 void Block2D::ConstructTopo()
 {
