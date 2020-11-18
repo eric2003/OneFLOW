@@ -24,6 +24,7 @@ License
 #include "GridFactory.h"
 #include "CgnsGlobal.h"
 #include "CgnsZbc.h"
+#include "CgnsFile.h"
 #include "GridPara.h"
 #include "LogFile.h"
 #include "Prj.h"
@@ -74,6 +75,12 @@ void CgnsFactory::GenerateGrid()
 {
     this->ReadCgnsGrid();
 
+    int systemZoneType = cgnsZbase->GetSystemZoneType();
+    if ( ! ( systemZoneType == CGNS_ENUMV( Unstructured ) ) )
+    {
+        this->ConvertStrCgns2UnsCgnsGrid();
+    }
+
     string target_filetype = grid_para.target_filetype; 
     if ( target_filetype == "cgns" )
     {
@@ -81,8 +88,14 @@ void CgnsFactory::GenerateGrid()
     }
     else
     {
+        this->ProcessCgnsBases();
         this->CgnsToOneFlowGrid();
     }
+}
+
+void CgnsFactory::ProcessCgnsBases()
+{
+    this->cgnsZbase->ProcessCgnsBases();
 }
 
 void CgnsFactory::ReadCgnsGrid()
@@ -102,7 +115,7 @@ void CgnsFactory::ConvertStrCgns2UnsCgnsGrid()
 {
     CgnsZbase * unsCgnsZbase = new CgnsZbase();
 
-    ONEFLOW::ConvertStrCgns2UnsCgnsGrid( unsCgnsZbase, cgnsZbase );
+    ONEFLOW::ReadCgnsMultiBase( unsCgnsZbase, cgnsZbase );
 
     delete cgnsZbase;
 
@@ -128,18 +141,15 @@ void CgnsFactory::CommonToStrGrid()
 
 void CgnsFactory::DumpUnsCgnsGrid()
 {
-    this->ConvertStrCgns2UnsCgnsGrid();
+    string targetFile = ONEFLOW::GetPrjFileName( grid_para.targetFile );
+    cgnsZbase->cgnsFile->OpenCgnsFile( targetFile, CG_MODE_WRITE );
+    cgnsZbase->DumpCgnsMultiBase();
+    cgnsZbase->cgnsFile->CloseCgnsFile();
 }
 
 void CgnsFactory::CgnsToOneFlowGrid()
 {
     if ( ! ONEFLOW::IsUnsGrid( grid_para.topo ) ) return;
-
-    int systemZoneType = cgnsZbase->GetSystemZoneType();
-    if ( ! ( systemZoneType == CGNS_ENUMV( Unstructured ) ) )
-    {
-        this->ConvertStrCgns2UnsCgnsGrid();
-    }
 
     this->AllocateGridElem();
 

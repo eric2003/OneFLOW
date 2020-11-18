@@ -23,43 +23,42 @@ License
 
 #pragma once
 #include "HXDefine.h"
+#include "CalcCoor.h"
+#include "BlkMesh.h"
 
 BeginNameSpace( ONEFLOW )
 
-#ifdef ENABLE_CGNS
+class Block3D;
 
-class CgnsBase;
-class CgnsZone;
-class CgnsFile;
+class MDomain;
+class Face2D;
+class Grid;
+class StrGrid;
 
-class CgnsZbase
+
+class MLine;
+
+class Block2D : public BlkBasic
 {
 public:
-    CgnsZbase ();
-    ~CgnsZbase();
+    Block2D();
+    ~Block2D();
 public:
-    CgnsFile * cgnsFile;
-    int nBases;
- 
-    HXVector< CgnsBase * > baseVector;
+    RealField2D x2d, y2d, z2d;
+    HXVector< MLine * > mLineList;
+    HXVector< MDomain * > mDomainList;
 public:
-    int GetSystemZoneType();
-    void ReadCgnsGrid( const string & fileName );
-    void ReadCgnsMultiBase();
-    void DumpCgnsMultiBase();
-    void ReadNumCgnsBase();
-    void ConvertToInnerDataStandard();
-    void ProcessCgnsBases();
-public:
-    void AddCgnsBase( CgnsBase * cgnsBase );
-    void InitCgnsBase();
-public:
-    int GetNZone();
-    CgnsBase * GetCgnsBase( int iBase );
-    CgnsZone * GetCgnsZone( int globalZoneId );
-    CgnsZone * GetMultiBaseCgnsZone( int iBase, int iZone );
+    void Alloc();
+    void CreateBlockMesh2D();
+    void GenerateBlockMesh2D();
+    int GetNSubDomain();
+    void ConstructTopo();
+    void SetInterfaceBc();
+    void GetCornerPoint( int & pt, int id1, int id2 );
+    void CalcBlkDim();
+    void CreateFaceList();
+    void FillStrGrid( Grid * gridIn, int iZone );
+    void DumpBlockMesh2D( fstream &file );
 };
-
-#endif
 
 EndNameSpace

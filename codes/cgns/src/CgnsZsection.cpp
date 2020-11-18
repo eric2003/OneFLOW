@@ -24,6 +24,7 @@ License
 #include "CgnsSection.h"
 #include "CgnsBase.h"
 #include "CgnsZone.h"
+#include "CgnsFile.h"
 #include "StrUtil.h"
 #include "Dimension.h"
 #include "UnitElement.h"
@@ -110,7 +111,7 @@ CgnsSection * CgnsZsection::GetSectionByEid( int eId )
 
 void CgnsZsection::ReadNumberOfCgnsSections()
 {
-    int fileId = cgnsZone->cgnsBase->fileId;
+    int fileId = cgnsZone->cgnsBase->cgnsFile->fileId;
     int baseId = cgnsZone->cgnsBase->baseId;
     int zId = cgnsZone->zId;
 
@@ -134,6 +135,19 @@ void CgnsZsection::ReadCgnsSections()
         cout << "-->iSection     = " << iSection << " numberOfCgnsSections = " << this->nSection << "\n";
         CgnsSection * cgnsSection = this->GetCgnsSection( iSection );
         cgnsSection->ReadCgnsSection();
+    }
+}
+
+void CgnsZsection::DumpCgnsSections()
+{
+    cout << "   Dumping Cgns Section Data......\n";
+    cout << "\n";
+
+    for ( int iSection = 0; iSection < this->nSection; ++ iSection )
+    {
+        cout << "-->iSection     = " << iSection << " numberOfCgnsSections = " << this->nSection << "\n";
+        CgnsSection * cgnsSection = this->GetCgnsSection( iSection );
+        cgnsSection->DumpCgnsSection();
     }
 }
 

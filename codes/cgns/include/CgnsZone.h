@@ -69,9 +69,10 @@ public:
 
     CgInt isize[ 9 ];
 public:
+    void InitISize();
     void CopyISize( CgInt * isize );
     void SetVolBcType( int volBcType );
-    int GetVolBcType();
+    int  GetVolBcType();
 public:
     void Create();
     void SetPeriodicBc();
@@ -84,18 +85,27 @@ public:
     void ScanBcFace( FaceSolver * face_solver );
     void GetElementNodeId( CgInt eId, CgIntField & eNodeId );
     void ReadCgnsGrid();
+    void DumpCgnsGrid();
     void ReadCgnsZoneAttribute();
+    void DumpCgnsZoneAttribute();
     void ReadCgnsZoneType();
+    void DumpCgnsZoneType();
     void ReadCgnsZoneNameAndGeneralizedDimension();
+    void DumpCgnsZoneNameAndGeneralizedDimension();
     void SetDimension();
     void ReadElementConnectivities();
+    void DumpElementConnectivities();
     void ReadNumberOfCgnsSections();
     void CreateCgnsSections();
     void ReadCgnsSections();
+    void DumpCgnsSections();
     void ReadCgnsGridCoordinates();
+    void DumpCgnsGridCoordinates();
     void ReadCgnsGridBoundary();
+    void DumpCgnsGridBoundary();
     void ProcessPeriodicBc();
     void ReadCgnsZoneBasicInfo();
+    void ReadCgnsGridCoordinates( CgnsZone * cgnsZoneIn );
 public:
     void SetElemPosition();
 public:

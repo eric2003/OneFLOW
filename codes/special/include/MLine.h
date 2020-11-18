@@ -30,6 +30,7 @@ using namespace std;
 BeginNameSpace( ONEFLOW )
 
 class SDomain;
+class Block2D;
 
 class SLine
 {
@@ -43,16 +44,18 @@ public:
     IntField ctrlpoints;
 public:
     void SetDomainBcMesh( SDomain * sDomain );
+    void SetBlkBcMesh( Block2D * blk2d );
     void ConstructCtrlPoints();
     void Alloc();
     void CopyMesh();
+    void ConstructPointToLineMap( map< int, IntSet > & pointToLineMap );
 
 };
 
 class MLine : public DomData
 {
 public:
-    MLine();
+    MLine( SDomain * sDomain );
     ~MLine();
 public:
     int pos;
@@ -68,14 +71,17 @@ public:
     void ConstructPointToDomainMap( int domain_id, map< int, IntSet > & pointToDomainMap );
     void ConstructPointToPointMap();
     void ConstructPointToPointMap( map< int, IntSet > & pointToPointMap );
+    void ConstructPointToLineMap( map< int, IntSet > & pointToLineMap );
 public:
     void AddSubLine( int line_id );
     void ConstructDomainTopo();
     void ConstructCtrlPoint();
     void ConstructSLineCtrlPoint();
-    void CalcCoor( CoorMap * localCoorMap );
+    //void CalcCoor( CoorMap * localCoorMap );
+    void CalcCoor();
     void SetDomainBcMesh( SDomain * sDomain );
-    void CreateInpFaceList( HXVector< Face2D * > &facelist );
+    void CreateInpFaceList1D( HXVector< Face2D * > &facelist );
+    void SetBlkBcMesh( Block2D * blk2d );
 };
 
 

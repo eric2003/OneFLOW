@@ -22,7 +22,10 @@ License
 
 #include "BlockFaceSolver.h"
 #include "BlkMesh.h"
+#include "Block2D.h"
+#include "Block3D.h"
 #include "MLine.h"
+#include "MDomain.h"
 #include "Transfinite.h"
 #include "SimpleDomain.h"
 #include "LineMachine.h"
@@ -40,12 +43,23 @@ using namespace std;
 
 BeginNameSpace( ONEFLOW )
 
-SDomain::SDomain()
+SDomain::SDomain( MDomain * mDomain )
 {
+    if ( mDomain )
+    {
+        this->coorMap = mDomain->coorMap;
+        freecoorMap = 0;
+    }
+    else
+    {
+        this->coorMap = new CoorMap();
+        freecoorMap = 1;
+    }
+
     int nMLine = 4;
     for ( int iMLine = 0; iMLine < nMLine; ++ iMLine )
     {
-        MLine * mLine = new MLine();
+        MLine * mLine = new MLine( this );
         mLine->pos = iMLine;
         mLineList.push_back( mLine );
     }
@@ -56,6 +70,10 @@ SDomain::~SDomain()
 {
     DeletePointer( mLineList );
     delete localCoorMap;
+    if ( freecoorMap )
+    {
+        delete this->coorMap;
+    }
 }
 
 void SDomain::Alloc()
@@ -72,7 +90,7 @@ void SDomain::SetDomain( int fid, IntField & lineList, IntField & posList )
     for ( int iLine = 0; iLine < lineList.size(); ++ iLine )
     {
         int line_id = lineList[ iLine ];
-        int pos = posList[ iLine ];
+        int pos = posList[ iLine ] - 1;
         MLine * mLine = mLineList[ pos ];
         mLine->AddSubLine( line_id );
     }
@@ -215,6 +233,15 @@ void SDomain::ConstructPointToPointMap( map< int, IntSet > & pointToPointMap )
     }
 }
 
+void SDomain::ConstructPointToLineMap( map< int, IntSet > & pointToLineMap )
+{
+    for ( int iMLine = 0; iMLine < mLineList.size(); ++ iMLine )
+    {
+        MLine * mLine = mLineList[ iMLine ];
+        mLine->ConstructPointToLineMap( pointToLineMap );
+    }
+}
+
 void SDomain::ConstructPointToDomainMap()
 {
     this->ConstructPointToDomainMap( this->pointToDomainMap );
@@ -288,7 +315,7 @@ void SDomain::ConstructLocalTopoAsBlk2D()
         int k = kList[ iPoint ];
         CalcCoor c;
         c.SetCoor( i, j, k );
-        this->localCoorMap->insert( pair<int, CalcCoor>( pt, c ) );
+        this->coorMap->insert( pair<int, CalcCoor>( pt, c ) );
     }
 
     int nMLine = mLineList.size();
@@ -297,7 +324,7 @@ void SDomain::ConstructLocalTopoAsBlk2D()
         MLine * mLine = mLineList[ iMLine ];
         mLine->ConstructDomainTopo();
         mLine->CalcDim1D();
-        mLine->CalcCoor( this->localCoorMap );
+        mLine->CalcCoor();
     }
 }
 
@@ -380,6 +407,85 @@ void SDomain::SetBlkBcMesh( Block3D * blk3d )
     int kkk = 1;
 }
 
+void SDomain::SetBlkBcMesh( Block2D * blk2d )
+{
+    RealField2D & block_x2d = blk2d->x2d;
+    RealField2D & block_y2d = blk2d->y2d;
+    RealField2D & block_z2d = blk2d->z2d;
+
+    SDomain * sDomain = blkFaceSolver.myFaceSolver.sDomainList[ this->domain_id ];
+
+    RealField2D & x2d = sDomain->x2d;
+    RealField2D & y2d = sDomain->y2d;
+    RealField2D & z2d = sDomain->z2d;
+
+    int p1 = this->ctrlpoints[ 0 ];
+    int p2 = this->ctrlpoints[ 1 ];
+    int p3 = this->ctrlpoints[ 2 ];
+    int p4 = this->ctrlpoints[ 3 ];
+
+    int q1 = sDomain->ctrlpoints[ 0 ];
+    int q2 = sDomain->ctrlpoints[ 1 ];
+    int q3 = sDomain->ctrlpoints[ 2 ];
+    int q4 = sDomain->ctrlpoints[ 3 ];
+
+    CoorMap::iterator it1 = coorMap->find( p1 );
+    CoorMap::iterator it2 = coorMap->find( p2 );
+    CoorMap::iterator it3 = coorMap->find( p3 );
+    CoorMap::iterator it4 = coorMap->find( p4 );
+
+    CalcCoor & c1 = it1->second;
+    CalcCoor & c2 = it2->second;
+    CalcCoor & c3 = it3->second;
+    CalcCoor & c4 = it4->second;
+
+    CalcCoor d1;
+    d1.i = c2.i - c1.i;
+    d1.j = c2.j - c1.j;
+    d1.k = c2.k - c1.k;
+
+    CalcCoor d2;
+    d2.i = c4.i - c1.i;
+    d2.j = c4.j - c1.j;
+    d2.k = c4.k - c1.k;
+
+    GetUnitDir( d1 );
+    GetUnitDir( d2 );
+
+    int ii, jj, kk;
+    int i0, j0;
+
+    for ( int j = 1; j <= nj; ++ j )
+    {
+        CalcCoor cj;
+        j0 = j - 1;
+        cj.i = c1.i + d2.i * j0;
+        cj.j = c1.j + d2.j * j0;
+        cj.k = c1.k + d2.k * j0;
+
+        for ( int i = 1; i <= ni; ++ i )
+        {
+            i0 = i - 1;
+            CalcCoor ci;
+            ci.i = c1.i + d1.i * i0;
+            ci.j = c1.j + d1.j * i0;
+            ci.k = c1.k + d1.k * i0;
+            ii = ci.i + cj.i - c1.i - 1;
+            jj = ci.j + cj.j - c1.j - 1;
+            kk = ci.k + cj.k - c1.k - 1;
+            //cout << " i,j = " << i << " " << j << " ni, nj = " << ni << " " << nj << "\n";
+            //cout << " ii,jj,kk = " << ii << " " << jj << " " << kk << "\n";
+            Real xm = x2d[ i0 ][ j0 ];
+            Real ym = y2d[ i0 ][ j0 ];
+            Real zm = z2d[ i0 ][ j0 ];
+            block_x2d[ ii ][ jj ] = xm;
+            block_y2d[ ii ][ jj ] = ym;
+            block_z2d[ ii ][ jj ] = zm;
+        }
+    }
+    int kkk = 1;
+}
+
 void SDomain::SetDomainBcMesh()
 {
     int nMLine = mLineList.size();
@@ -414,6 +520,27 @@ void SDomain::GenerateSDomainMesh( fstream & file )
     }
 }
 
+void SDomain::CreateInpFaceList( HXVector< Face2D * > &facelist )
+{
+    SDomain * sDomain = this;
+    Face2D * face2d = new Face2D();
+    face2d->face_id = sDomain->domain_id;
+    face2d->ctrlpoints = sDomain->ctrlpoints;
+    BlkF2C & face_struct = blkFaceSolver.myFaceSolver.face2Block[ face2d->face_id - 1 ];
+    face2d->bcType = face_struct.bctype;
+    face2d->CalcStEd( coorMap );
+    facelist.push_back( face2d );
+}
+
+void SDomain::CreateInpFaceList1D( HXVector< Face2D * > &facelist )
+{
+    int nMLine = mLineList.size();
+    for ( int iMLine = 0; iMLine < nMLine; ++ iMLine )
+    {
+        MLine * mLine = mLineList[ iMLine ];
+        mLine->CreateInpFaceList1D( facelist );
+    }
+}
 
 
 EndNameSpace

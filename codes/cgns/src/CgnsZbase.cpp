@@ -23,6 +23,7 @@ License
 #include "CgnsZbase.h"
 #include "CgnsBase.h"
 #include "CgnsZone.h"
+#include "CgnsFile.h"
 #include "Stop.h"
 #include <iostream>
 using namespace std;
@@ -33,13 +34,13 @@ BeginNameSpace( ONEFLOW )
 
 CgnsZbase::CgnsZbase()
 {
-    this->fileId = 1;
     this->nBases = 0;
+    this->cgnsFile = new CgnsFile();
 }
 
 CgnsZbase::~CgnsZbase()
 {
-    ;
+    delete cgnsFile;
 }
 
 int CgnsZbase::GetNZone()
@@ -73,34 +74,46 @@ int CgnsZbase::GetSystemZoneType()
 
 void CgnsZbase::ReadCgnsGrid( const string & fileName )
 {
-    this->OpenCgnsFile( fileName, CG_MODE_READ );
-
+    this->cgnsFile->OpenCgnsFile( fileName, CG_MODE_READ );
     this->ReadCgnsMultiBase();
-
-    this->CloseCgnsFile();
+    this->cgnsFile->CloseCgnsFile();
 }
 
-void CgnsZbase::OpenCgnsFile( const string & fileName, int cgnsOpenMode )
+void CgnsZbase::DumpCgnsMultiBase()
 {
-    //Open the CGNS for reading and check if the file was found.
-    if ( cg_open( fileName.c_str(), cgnsOpenMode, & this->fileId ) != CG_OK )
+    for ( int iBase = 0; iBase < this->nBases; ++ iBase )
     {
-        Stop( cg_get_error() );
-    }
-}
+        CgnsBase * cgnsBase = this->GetCgnsBase( iBase );
 
-void CgnsZbase::CloseCgnsFile()
-{
-    //close CGNS file
-    cg_close( this->fileId );
+        cgnsBase->DumpCgnsBaseBasicInfo();
+        cgnsBase->DumpAllCgnsZones();
+    }
 }
 
 
 void CgnsZbase::ReadNumCgnsBase()
 {
     //Determine the of bases in the grid
-    cg_nbases( this->fileId, & this->nBases );
+    cg_nbases( this->cgnsFile->fileId, & this->nBases );
     cout << "   Total number of CGNS Base = " << this->nBases << "\n";
+}
+
+void CgnsZbase::ConvertToInnerDataStandard()
+{
+    for ( int iBase = 0; iBase < this->nBases; ++ iBase )
+    {
+        CgnsBase * cgnsBase = this->GetCgnsBase( iBase );
+        cgnsBase->ConvertToInnerDataStandard();
+    }
+}
+
+void CgnsZbase::ProcessCgnsBases()
+{
+    for ( int iBase = 0; iBase < this->nBases; ++ iBase )
+    {
+        CgnsBase * cgnsBase = this->GetCgnsBase( iBase );
+        cgnsBase->ProcessCgnsZones();
+    }
 }
 
 void CgnsZbase::ReadCgnsMultiBase()
@@ -117,6 +130,7 @@ void CgnsZbase::ReadCgnsMultiBase()
         cgnsBase->ReadNumberOfCgnsZones();
         cgnsBase->AllocateAllCgnsZones();
         cgnsBase->ReadAllCgnsZones();
+        //cgnsBase->ProcessCgnsZones();
     }
 }
 
@@ -124,7 +138,8 @@ void CgnsZbase::AddCgnsBase( CgnsBase * cgnsBase )
 {
     baseVector.push_back( cgnsBase );
     int baseId = baseVector.size();
-    cgnsBase->fileId = this->fileId;
+    //cgnsBase->fileId = this->fileId;
+    cgnsBase->cgnsFile = this->cgnsFile;
     cgnsBase->baseId = baseId;
 }
 
@@ -132,7 +147,7 @@ void CgnsZbase::InitCgnsBase()
 {
     for ( int iBase = 0; iBase < this->nBases; ++ iBase )
     {
-        CgnsBase * cgnsBase = new CgnsBase();
+        CgnsBase * cgnsBase = new CgnsBase( this->cgnsFile );
         this->AddCgnsBase( cgnsBase );
     }
 }

@@ -59,6 +59,7 @@ public:
     void ReadZn1to1();
     void PrintZn1to1();
     void ReadCgnsZbc1to1();
+    void DumpCgnsZbc1to1();
     void SetPeriodicBc();
 };
 

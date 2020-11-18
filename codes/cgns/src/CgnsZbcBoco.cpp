@@ -24,6 +24,7 @@ License
 #include "CgnsBcBoco.h"
 #include "CgnsZone.h"
 #include "CgnsBase.h"
+#include "CgnsFile.h"
 #include "Boundary.h"
 #include "StrUtil.h"
 #include "Dimension.h"
@@ -126,7 +127,6 @@ void CgnsZbcBoco::ScanBcFace( FaceSolver * face_solver )
         cgnsBcBoco->nameId = bcNameId;
         cgnsBcBoco->ScanBcFace( face_solver );
     }
-    face_solver->ScanInterfaceBc();
 }
 
 void CgnsZbcBoco::PrintZnboco()
@@ -136,7 +136,7 @@ void CgnsZbcBoco::PrintZnboco()
 
 void CgnsZbcBoco::ReadZnboco()
 {
-    int fileId = cgnsZone->cgnsBase->fileId;
+    int fileId = cgnsZone->cgnsBase->cgnsFile->fileId;
     int baseId = cgnsZone->cgnsBase->baseId;
     int zId = cgnsZone->zId;
 
@@ -162,6 +162,20 @@ void CgnsZbcBoco::ReadCgnsZbcBoco()
         cout << "-->iBoco  = " << iBoco << " nBoco = " << nBoco << "\n";
         CgnsBcBoco * cgnsBcBoco = this->GetCgnsBc( iBoco );
         cgnsBcBoco->ReadCgnsBcBoco();
+    }
+}
+
+
+void CgnsZbcBoco::DumpCgnsZbcBoco()
+{
+    this->PrintZnboco();
+
+    for ( int iBoco = 0; iBoco < nBoco; ++ iBoco )
+    {
+        cout << "\n";
+        cout << "-->iBoco  = " << iBoco << " nBoco = " << nBoco << "\n";
+        CgnsBcBoco * cgnsBcBoco = this->GetCgnsBc( iBoco );
+        cgnsBcBoco->DumpCgnsBcBoco();
     }
 }
 

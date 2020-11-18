@@ -41,9 +41,13 @@ public:
     GridConnectivityType_t gridConnType;  //Overset, Abutting, Abutting1to1
 public:
     void ReadCgnsBcConnInfo();
+    void DumpCgnsBcConnInfo();
+    
     void ReadCgnsBcConnData();
+    void DumpCgnsBcConnData();
 
     void ReadCgnsBcConn();
+    void DumpCgnsBcConn();
 public:
     void SetPeriodicBc();
 };

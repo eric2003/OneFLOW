@@ -23,6 +23,7 @@ License
 #include "CgnsBc1to1.h"
 #include "CgnsZone.h"
 #include "CgnsBase.h"
+#include "CgnsFile.h"
 #include "CgnsPeriod.h"
 #include "NodeMesh.h"
 #include "HXMath.h"
@@ -54,7 +55,7 @@ CgnsBc1to1::~CgnsBc1to1()
 
 void CgnsBc1to1::ReadCgnsBc1To1()
 {
-    int fileId = this->cgnsZone->cgnsBase->fileId;
+    int fileId = this->cgnsZone->cgnsBase->cgnsFile->fileId;
     int baseId = this->cgnsZone->cgnsBase->baseId;
     int zId = this->cgnsZone->zId;
 
@@ -122,6 +123,9 @@ void CgnsBc1to1::ReadCgnsBc1To1()
     }
 }
 
+void CgnsBc1to1::DumpCgnsBc1To1()
+{
+}
 
 #endif
 

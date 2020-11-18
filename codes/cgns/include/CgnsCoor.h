@@ -43,6 +43,7 @@ public:
     IntField nNodeList;
     HXVector< DataType_t > typeList;
     HXVector< void * > coor;
+    StringField coorNameList;
     CgnsZone * cgnsZone;
     NodeMesh * nodeMesh;
 public:
@@ -61,9 +62,12 @@ public:
     void Alloc( int iCoor, int nNode, DataType_t data_type );
 public:
     void SetData( int iCoor, DataType_t data_type, Real * var );
+    void CopyCoorData( CgnsCoor * cgnsCoorIn );
     void DeAlloc();
 public:
     void ReadCgnsGridCoordinates();
+    void ReadCgnsGridCoordinates( CgnsCoor * cgnsCoorIn );
+    void DumpCgnsGridCoordinates();
     void FreeMesh();
 public:
     NodeMesh * GetNodeMesh();

@@ -51,7 +51,7 @@ public:
     bool init_flag;
     LinkField lineList; 
     LinkField faceList;
-    LinkField facePosList;
+    LinkField faceLinePosList;
     set< Mid< int > > refLines;
     set< Mid< int > > refFaces;
     IntSet faceset;
@@ -84,10 +84,11 @@ public:
 public:
     IntSet blkset;
     HXVector< Block3D * > blkList;
-    HXVector< Block2D * > blk2dList;
+    HXVector< Block2D * > blkList2d;
     bool flag;
     MyFaceSolver myFaceSolver;
 public:
+    Face2D * GetBlkFace( int blk, int face_id );
     Face2D * GetBlkFace2D( int blk, int face_id );
     int  FindFace( Mid<int> & face );
     int  FindFaceId( IntField & face );
@@ -96,14 +97,19 @@ public:
     void AddLineToFace( int faceid, int pos, int lineid );
     void AddFace2Block( int blockid, int pos, int faceid );
     void BuildBlkFace();
+    void BuildBlkFace2D();
     void SetBoundary();
     void DumpBcInp();
+    void DumpBcInp2D();
     void ConstructBlockInfo();
+    void ConstructBlockInfo2D();
     void GenerateBlkMesh();
+    void GenerateBlkMesh2D();
     void GenerateFaceMesh();
     void GenerateLineMesh();
     void BuildSDomainList();
     void DumpStandardGrid();
+    void DumpStandardGrid2D();
     void DumpStandardGrid( Grids & strGridList );
 public:
     void DumpBlkScript();
@@ -112,5 +118,7 @@ public:
 };
 
 extern BlkFaceSolver blkFaceSolver;
+
+IntField GlobalGetLine( int line_id );
 
 EndNameSpace

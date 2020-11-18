@@ -24,6 +24,7 @@ License
 #include "CgnsBcConn.h"
 #include "CgnsBcBoco.h"
 #include "CgnsZone.h"
+#include "CgnsFile.h"
 #include "CgnsBase.h"
 #include "Boundary.h"
 #include "StrUtil.h"
@@ -90,7 +91,7 @@ void CgnsZbcConn::ReadZnconn( int nConn )
 
 void CgnsZbcConn::ReadZnconn()
 {
-    int fileId = cgnsZone->cgnsBase->fileId;
+    int fileId = cgnsZone->cgnsBase->cgnsFile->fileId;
     int baseId = cgnsZone->cgnsBase->baseId;
     int zId = cgnsZone->zId;
 
@@ -106,6 +107,16 @@ void CgnsZbcConn::ReadCgnsZbcConn()
     {
         CgnsBcConn * cgnsBcConn = this->GetCgnsBc( iConn );
         cgnsBcConn->ReadCgnsBcConn();
+    }
+}
+
+void CgnsZbcConn::DumpCgnsZbcConn()
+{
+    this->PrintZnconn();
+    for ( int iConn = 0; iConn < this->nConn; ++ iConn )
+    {
+        CgnsBcConn * cgnsBcConn = this->GetCgnsBc( iConn );
+        cgnsBcConn->DumpCgnsBcConn();
     }
 }
 

@@ -65,6 +65,7 @@ public:
 
     CgnsZone * cgnsZone;
 public:
+    void Init();
     void ConvertToInnerDataStandard();
     int  CalcBase();
     void ShiftBcRegion();
@@ -74,17 +75,21 @@ public:
     void ProcessFaceBc( IntSet & bcVertex );
 public:
     void ReadCgnsBcBoco();
+    void DumpCgnsBcBoco();
     void ReadCgnsBocoInfo();
+    void DumpCgnsBocoInfo();
     void ReadCgnsBocoGridLocation();
+    void DumpCgnsBocoGridLocation();
     void SetCgnsBcRegionGridLocation( const GridLocation_t & bcGridLocation );
-    void CreateCgnsBcConn();
-    void ReadCgnsBcConn();
-    void PrintCgnsBcConn();
+    void CreateCgnsBcBoco();
+    void ReadCgnsBcBocoConnList();
+    void DumpCgnsBcBocoConnList();
+    void PrintCgnsBcBoco();
     void ExtractIJKRegionFromBcConn( IntField & ijkMin, IntField & ijkMax, CgIntField& bcConn );
     void ExtractIJKRegionFromBcConn( IntField & ijkMin, IntField & ijkMax );
 public:
     void CopyStrBcRegion( CgnsBcBoco * strBcRegion, CgInt& startId );
-    void ReadCgnsBcConn( CgnsBcBoco * strBcRegion, CgInt & startId );
+    void ReadCgnsBcBocoConnList( CgnsBcBoco * strBcRegion, CgInt & startId );
     CgInt GetActualNumberOfBoundaryElements();
 };
 

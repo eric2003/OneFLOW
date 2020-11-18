@@ -60,6 +60,7 @@ public:
 public:
     void ReadNumberOfCgnsSections();
     void ReadCgnsSections();
+    void DumpCgnsSections();
     void SetElemPosition();
 public:
     bool ExistSection( const string & sectionName );

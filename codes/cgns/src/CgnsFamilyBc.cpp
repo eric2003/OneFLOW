@@ -22,6 +22,7 @@ License
 
 #include "CgnsFamilyBc.h"
 #include "CgnsBase.h"
+#include "CgnsFile.h"
 #include <iostream>
 #include <iomanip>
 using namespace std;
@@ -93,7 +94,7 @@ BCType_t CgnsFamilyBc::GetFamilyBcType( const string & bcFamilyName )
 
 void CgnsFamilyBc::ReadFamilySpecifiedBc()
 {
-    int fileId = cgnsBase->fileId;
+    int fileId = cgnsBase->cgnsFile->fileId;
     int baseId = cgnsBase->baseId;
 
     int nFamilies = -1;

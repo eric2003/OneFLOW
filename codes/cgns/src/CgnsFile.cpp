@@ -26,6 +26,7 @@ License
 #include "Prj.h"
 #include "StrUtil.h"
 #include "CgnsZone.h"
+#include "Stop.h"
 #include <iostream>
 #include <iomanip>
 using namespace std;
@@ -61,8 +62,8 @@ CgnsFile::CgnsFile()
 
 CgnsFile::CgnsFile( const string & fileName, int openMode )
 {
-    this->fileName = fileName;
-    this->openMode = openMode;
+    //this->fileName = fileName;
+    //this->openMode = openMode;
     this->OpenCgnsFile( fileName, openMode );
 }
 
@@ -76,28 +77,35 @@ CgnsFile::~CgnsFile()
 
 void CgnsFile::OpenCgnsFile( const string & fileName, int cgnsOpenMode )
 {
+    this->fileName = fileName;
+    this->openMode = openMode;
+
     this->openStatus = cg_open( fileName.c_str(), cgnsOpenMode, & this->fileId );
-    cout << " Current CGNS File Index = " << this->fileId << "\n";
+    string stars("**************************************************************");
+    cout << stars << "\n";
+    cout << "   CGNS File Index = " << this->fileId << "\n";
 
     if ( this->openStatus != CG_OK )
     {
-        cg_error_exit();
+        //cg_error_exit();
+        Stop( cg_get_error() );
     }
 
     float fileVersion = -1;
     cg_version( this->fileId, & fileVersion );
 
-    cout << " CGNS File Version = " << setiosflags( ios::fixed ) << setprecision( 4 ) << fileVersion << "\n";
+    cout << "   CGNS File Version = " << setiosflags( ios::fixed ) << setprecision( 4 ) << fileVersion << "\n";
 
     int precision = -1;
     cg_precision( this->fileId, & precision );
 
-    cout << " CGNS Precision = " << precision << "\n";
+    cout << "   CGNS Precision = " << precision << "\n";
 
     int file_type = -1;
     cg_get_file_type( this->fileId, & file_type );
 
-    cout << " CGNS file_type = " << file_type << " file_type name = " << GetCgnsFileTypeName( file_type ) << "\n";
+    cout << "   CGNS File Type = " << file_type << " FileTypeName = " << GetCgnsFileTypeName( file_type ) << "\n";
+    cout << stars << "\n";
 }
 
 void CgnsFile::CloseCgnsFile()
@@ -132,7 +140,6 @@ void CgnsFile::FreeBaseList()
 CgnsBase * CgnsFile::AddBase( int fileId, const string & baseName, int celldim, int physdim, int baseId )
 {
     CgnsBase * base = new CgnsBase( this );
-    base->fileId = fileId;
     base->baseName = baseName;
     base->celldim = celldim;
     base->phydim = physdim;
@@ -160,7 +167,6 @@ void CgnsFile::ReadBases()
         int baseId = iBase + 1;
         CgnsBase * cgnsBase = new CgnsBase( this );
         this->baseList.push_back( cgnsBase );
-        cgnsBase->fileId = this->fileId;
         cgnsBase->baseId = baseId;
         cgnsBase->ReadCgnsBaseBasicInfo();
     }

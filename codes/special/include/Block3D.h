@@ -23,43 +23,40 @@ License
 
 #pragma once
 #include "HXDefine.h"
+#include "CalcCoor.h"
+#include "BlkMesh.h"
 
 BeginNameSpace( ONEFLOW )
 
-#ifdef ENABLE_CGNS
+class Block3D;
 
-class CgnsBase;
-class CgnsZone;
-class CgnsFile;
+class MDomain;
+class Face2D;
+class Grid;
+class StrGrid;
 
-class CgnsZbase
+class Block3D : public BlkBasic
 {
 public:
-    CgnsZbase ();
-    ~CgnsZbase();
+    Block3D();
+    ~Block3D();
 public:
-    CgnsFile * cgnsFile;
-    int nBases;
- 
-    HXVector< CgnsBase * > baseVector;
+    RealField3D x3d, y3d, z3d;
+    HXVector< MDomain * > mDomainList;
 public:
-    int GetSystemZoneType();
-    void ReadCgnsGrid( const string & fileName );
-    void ReadCgnsMultiBase();
-    void DumpCgnsMultiBase();
-    void ReadNumCgnsBase();
-    void ConvertToInnerDataStandard();
-    void ProcessCgnsBases();
+    void Alloc();
+    int GetNSubDomain();
+    void ConstructTopo();
+    void SetInterfaceBc();
+    void GetCornerPoint( int & pt, int id1, int id2, int id3 );
+    void CalcBlkDim();
+    void CreateFaceList();
 public:
-    void AddCgnsBase( CgnsBase * cgnsBase );
-    void InitCgnsBase();
-public:
-    int GetNZone();
-    CgnsBase * GetCgnsBase( int iBase );
-    CgnsZone * GetCgnsZone( int globalZoneId );
-    CgnsZone * GetMultiBaseCgnsZone( int iBase, int iZone );
+    void CreateBlockMesh();
+    void GenerateBlockMesh();
+    void FillStrGrid( Grid * gridIn, int iZone );
 };
 
-#endif
+
 
 EndNameSpace

@@ -68,13 +68,16 @@ public:
     void GetElementNodeId( CgInt eId, CgIntField & eNodeId );
 public:
     void ReadCgnsSection();
+    void DumpCgnsSection();
     void ReadCgnsSectionInfo();
+    void DumpCgnsSectionInfo();
     void SetSectionInfo( const string & sectionName, int elemType, int startId, int endId );
     void CreateConnList();
     void CalcNumberOfSectionElements();
     void CalcCapacityOfCgnsConnectionList();
     void AllocateCgnsConnectionList();
     void ReadCgnsSectionConnectionList();
+    void DumpCgnsSectionConnectionList();
     void SetElemPosition();
     void SetElemPositionOri();
     void SetElemPositionMixed();

@@ -41,6 +41,7 @@ public:
     int itranfrm[ 3 ];
 public:
     void ReadCgnsBc1To1();
+    void DumpCgnsBc1To1();
 };
 
 #endif

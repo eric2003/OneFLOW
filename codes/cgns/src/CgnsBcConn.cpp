@@ -24,6 +24,7 @@ along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 #include "CgnsZone.h"
 #include "CgnsBase.h"
 #include "CgnsCoor.h"
+#include "CgnsFile.h"
 #include "CgnsPeriod.h"
 #include "CgnsGlobal.h"
 #include "NodeMesh.h"
@@ -47,7 +48,7 @@ CgnsBcConn::~CgnsBcConn()
 
 void CgnsBcConn::ReadCgnsBcConnInfo()
 {
-    int fileId = this->cgnsZone->cgnsBase->fileId;
+    int fileId = this->cgnsZone->cgnsBase->cgnsFile->fileId;
     int baseId = this->cgnsZone->cgnsBase->baseId;
     int zId = this->cgnsZone->zId;
 
@@ -72,9 +73,36 @@ void CgnsBcConn::ReadCgnsBcConnInfo()
     cout << "   nConnDonorPoints = " << nConnDonorPoints << "\n";
 }
 
+void CgnsBcConn::DumpCgnsBcConnInfo()
+{
+    int fileId = this->cgnsZone->cgnsBase->cgnsFile->fileId;
+    int baseId = this->cgnsZone->cgnsBase->baseId;
+    int zId = this->cgnsZone->zId;
+
+    CgnsTraits::char33 connName;
+    CgnsTraits::char33 donorZoneName;
+
+    //cg_conn_info( fileId, baseId, zId, this->bcId,
+    //    connName, & this->gridLocation, & this->gridConnType, & this->pointSetType,
+    //    & nConnPoints, donorZoneName, & donorZoneType, & donorPointSetType, & donorDataType, & nConnDonorPoints );
+
+    //this->connName = connName;
+    //this->donorZoneName  = donorZoneName;
+
+    cout << "\n";
+    cout << "   connName      = " << connName << " donorZoneName = " << donorZoneName << "\n";
+    cout << "   gridLocation  = " << GridLocationName[ this->gridLocation ] << "\n";
+    cout << "   donorDataType = " << DataTypeName[ donorDataType ] << "\n";
+    cout << "   gridConnType  = " << GridConnectivityTypeName[ this->gridConnType ] << "\n";
+    cout << "   pointSetType  = " << PointSetTypeName[ this->pointSetType ];
+    cout << "   donorPointSetType = " << PointSetTypeName[ donorPointSetType ] << "\n";
+    cout << "   nConnPoints      = " << nConnPoints << "\n";
+    cout << "   nConnDonorPoints = " << nConnDonorPoints << "\n";
+}
+
 void CgnsBcConn::ReadCgnsBcConnData()
 {
-    int fileId = this->cgnsZone->cgnsBase->fileId;
+    int fileId = this->cgnsZone->cgnsBase->cgnsFile->fileId;
     int baseId = this->cgnsZone->cgnsBase->baseId;
     int zId = this->cgnsZone->zId;
 
@@ -84,10 +112,28 @@ void CgnsBcConn::ReadCgnsBcConnData()
     cg_conn_read( fileId, baseId, zId, this->bcId, & this->connPoint[ 0 ], this->donorDataType, & this->connDonorPoint[ 0 ] );
 }
 
+void CgnsBcConn::DumpCgnsBcConnData()
+{
+    int fileId = this->cgnsZone->cgnsBase->cgnsFile->fileId;
+    int baseId = this->cgnsZone->cgnsBase->baseId;
+    int zId = this->cgnsZone->zId;
+
+    //this->connPoint.resize( nConnPoints );
+    //this->connDonorPoint.resize( nConnDonorPoints );
+
+    //cg_conn_read( fileId, baseId, zId, this->bcId, & this->connPoint[ 0 ], this->donorDataType, & this->connDonorPoint[ 0 ] );
+}
+
 void CgnsBcConn::ReadCgnsBcConn()
 {
     this->ReadCgnsBcConnInfo();
     this->ReadCgnsBcConnData();
+}
+
+void CgnsBcConn::DumpCgnsBcConn()
+{
+    this->DumpCgnsBcConnInfo();
+    this->DumpCgnsBcConnData();
 }
 
 void CgnsBcConn::SetPeriodicBc()

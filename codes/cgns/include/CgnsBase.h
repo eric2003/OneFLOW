@@ -44,7 +44,7 @@ public:
     ~CgnsBase();
 public:
     CgnsFile * cgnsFile;
-    int fileId, baseId;
+    int baseId;
     int nZones;
     int celldim, phydim;
     string baseName;
@@ -66,6 +66,9 @@ public:
     void DumpCgnsBaseBasicInfo();
     void ReadNumberOfCgnsZones();
     void ReadAllCgnsZones();
+    void DumpAllCgnsZones();
+    void ProcessCgnsZones();
+    void ConvertToInnerDataStandard();
 public:
     void SetFamilyBc( BCType_t & bcType, const string & bcRegionName );
     BCType_t GetFamilyBcType( const string & bcFamilyName );

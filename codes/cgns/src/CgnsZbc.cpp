@@ -27,6 +27,7 @@ License
 #include "CgnsZbcBoco.h"
 #include "CgnsZone.h"
 #include "CgnsBase.h"
+#include "CgnsFile.h"
 #include "Boundary.h"
 #include "StrUtil.h"
 #include "Dimension.h"
@@ -82,6 +83,13 @@ void CgnsZbc::ReadCgnsGridBoundary()
     this->cgnsZbcBoco->ReadCgnsZbcBoco();
     this->cgnsZbcConn->ReadCgnsZbcConn();
     this->cgnsZbc1to1->ReadCgnsZbc1to1();
+}
+
+void CgnsZbc::DumpCgnsGridBoundary()
+{
+    this->cgnsZbcBoco->DumpCgnsZbcBoco();
+    this->cgnsZbcConn->DumpCgnsZbcConn();
+    this->cgnsZbc1to1->DumpCgnsZbc1to1();
 }
 
 void CgnsZbc::FillBcPoints( int * start, int * end, cgsize_t * bcpnts, int dimension )
@@ -177,7 +185,7 @@ void CgnsZbc::DumpCgnsGridBoundary( Grid * gridIn )
 
     int nBcRegions = bcRegionGroup->regions->size();
 
-    int fileId = cgnsZone->cgnsBase->fileId;
+    int fileId = cgnsZone->cgnsBase->cgnsFile->fileId;
     int baseId = cgnsZone->cgnsBase->baseId;
     int zoneId = cgnsZone->zId;
 

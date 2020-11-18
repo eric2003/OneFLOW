@@ -23,6 +23,7 @@ License
 #include "CgnsSection.h"
 #include "CgnsZone.h"
 #include "CgnsBase.h"
+#include "CgnsFile.h"
 #include "StrUtil.h"
 #include "Dimension.h"
 #include "UnitElement.h"
@@ -41,6 +42,8 @@ CgnsSection::CgnsSection( CgnsZone * cgnsZone )
     this->cgnsZone = cgnsZone;
     this->connSize = 0;
     this->pos_shift = 0;
+    this->nbndry = 0;
+    this->iparentflag = 0;
 }
 
 CgnsSection::~CgnsSection()
@@ -49,6 +52,11 @@ CgnsSection::~CgnsSection()
 
 void CgnsSection::ConvertToInnerDataStandard()
 {
+    //cout << "++++++++++++++++++++++++++++++++++++++++\n";
+    //cout << "++++++++++++++++++++++++++++++++++++++++\n";
+    //cout << "ConvertToInnerDataStandard\n";
+    //cout << "++++++++++++++++++++++++++++++++++++++++\n";
+    //cout << "++++++++++++++++++++++++++++++++++++++++\n";
     this->startId -= 1;
     this->endId   -= 1;
 
@@ -119,6 +127,13 @@ void CgnsSection::ReadCgnsSection()
     this->SetElemPosition();
 }
 
+void CgnsSection::DumpCgnsSection()
+{
+    this->DumpCgnsSectionInfo();
+
+    this->DumpCgnsSectionConnectionList();
+
+}
 
 void CgnsSection::SetSectionInfo( const string & sectionName, int elemType, int startId, int endId )
 {
@@ -130,7 +145,7 @@ void CgnsSection::SetSectionInfo( const string & sectionName, int elemType, int 
 
 void CgnsSection::ReadCgnsSectionInfo()
 {
-    int fileId = cgnsZone->cgnsBase->fileId;
+    int fileId = cgnsZone->cgnsBase->cgnsFile->fileId;
     int baseId = cgnsZone->cgnsBase->baseId;
     int zId = cgnsZone->zId;
 
@@ -152,6 +167,14 @@ void CgnsSection::ReadCgnsSectionInfo()
         cg_ElementDataSize( fileId, baseId, zId, this->id, & elementDataSize );
         this->pos_shift = 1;
     }
+}
+
+void CgnsSection::DumpCgnsSectionInfo()
+{
+    cout << "   Section Name = " << sectionName << "\n";
+    cout << "   Section Type = " << ElementTypeName[ eType ] << "\n";
+    cout << "   startId, endId = " << this->startId << " " << this->endId << "\n";
+    cout << "   nbndry, iparentflag = " << this->nbndry << " " << this->iparentflag << "\n";
 }
 
 void CgnsSection::CreateConnList()
@@ -199,7 +222,7 @@ void CgnsSection::AllocateCgnsConnectionList()
 
 void CgnsSection::ReadCgnsSectionConnectionList()
 {
-    int fileId = cgnsZone->cgnsBase->fileId;
+    int fileId = cgnsZone->cgnsBase->cgnsFile->fileId;
     int baseId = cgnsZone->cgnsBase->baseId;
     int zId = cgnsZone->zId;
 
@@ -214,6 +237,17 @@ void CgnsSection::ReadCgnsSectionConnectionList()
         addr = & iparentdata[ 0 ];
     }
     cg_elements_read( fileId, baseId, zId, this->id, & this->connList[ 0 ], addr );
+}
+
+void CgnsSection::DumpCgnsSectionConnectionList()
+{
+    int fileId = cgnsZone->cgnsBase->cgnsFile->fileId;
+    int baseId = cgnsZone->cgnsBase->baseId;
+    int zId = cgnsZone->zId;
+
+    // write element connectivity
+    ElementType_t elementType = static_cast< ElementType_t >( this->eType );
+    cg_section_write( fileId, baseId, zId, this->sectionName.c_str(), elementType, this->startId, this->endId, this->nbndry, & this->connList[ 0 ], & this->id );
 }
 
 void CgnsSection::SetElemPosition()

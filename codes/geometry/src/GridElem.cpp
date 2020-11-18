@@ -153,6 +153,8 @@ void GridElem::ScanBcFace()
         CgnsZone * cgnsZone = this->GetCgnsZone( iZone );
         cgnsZone->ScanBcFace( this->elem_feature->face_solver );
     }
+
+    this->elem_feature->face_solver->ScanInterfaceBc();
 }
 
 void GridElem::GenerateCalcElement()

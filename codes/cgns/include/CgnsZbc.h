@@ -60,6 +60,7 @@ public:
 public:
     void ConvertToInnerDataStandard();
     void ReadCgnsGridBoundary();
+    void DumpCgnsGridBoundary();
 
     void FillBcPoints( int * start, int * end, cgsize_t * bcpnts, int dimension );
     void FillBcPoints3D( int * start, int * end, cgsize_t * bcpnts );

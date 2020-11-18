@@ -24,6 +24,7 @@ License
 #include "CgnsZoneUtil.h"
 #include "CgnsBase.h"
 #include "CgnsCoor.h"
+#include "CgnsFile.h"
 #include "CgnsSection.h"
 #include "CgnsZsection.h"
 #include "CgnsBcBoco.h"
@@ -291,7 +292,7 @@ void FillSection( Grids & grids, HXVector< Int3D * > & unsIdList, CgnsZone * cgn
 
             //cgnsBcBoco->SetCgnsBcRegion( nElements, bcType, );
 
-            cgnsBcBoco->CreateCgnsBcConn();
+            cgnsBcBoco->CreateCgnsBcBoco();
             cgnsBcBoco->connList[ 0 ] = eIdPos + 1;
             cgnsBcBoco->connList[ 1 ] = eIdPos + nRegionCell;
             string bcName = GetCgnsBcName( cgnsBcBoco->bcType );
@@ -652,10 +653,11 @@ void SetDimension( CgnsZone * myZone, CgnsZone * cgnsZoneIn )
 
 void ReadCgnsGridCoordinates( CgnsZone * myZone, CgnsZone * cgnsZoneIn )
 {
-    NodeMesh * nodeMesh1 = myZone->cgnsCoor->GetNodeMesh();
-    NodeMesh * nodeMesh2 = cgnsZoneIn->cgnsCoor->GetNodeMesh();
+    myZone->ReadCgnsGridCoordinates( cgnsZoneIn );
+    //NodeMesh * nodeMesh1 = myZone->cgnsCoor->GetNodeMesh();
+    //NodeMesh * nodeMesh2 = cgnsZoneIn->cgnsCoor->GetNodeMesh();
 
-    * nodeMesh1 = * nodeMesh2;
+    //* nodeMesh1 = * nodeMesh2;
 }
 
 void ReadCgnsZoneAttribute( CgnsZone * myZone, CgnsZone * cgnsZoneIn )
@@ -674,8 +676,6 @@ void ReadCgnsGrid( CgnsZone * myZone, CgnsZone * cgnsZoneIn )
     ONEFLOW::ReadElementConnectivities( myZone, cgnsZoneIn );
 
     ONEFLOW::ReadCgnsGridCoordinates( myZone, cgnsZoneIn );
-
-    //myZone->ConvertToInnerDataStandard();
 }
 
 void DumpCgnsZoneType( CgnsZone * myZone, Grid * grid )
@@ -736,7 +736,7 @@ void DumpCgnsZoneNameAndGeneralizedDimension( CgnsZone * myZone, Grid * gridIn )
     myZone->zId = -1;
     cout << " cell dim = " << myZone->cgnsBase->celldim << " physics dim = " << myZone->cgnsBase->phydim << "\n";
     //create zone
-    cg_zone_write( myZone->cgnsBase->fileId, myZone->cgnsBase->baseId, myZone->zoneName.c_str(), myZone->isize, myZone->cgnsZoneType, &myZone->zId );
+    cg_zone_write( myZone->cgnsBase->cgnsFile->fileId, myZone->cgnsBase->baseId, myZone->zoneName.c_str(), myZone->isize, myZone->cgnsZoneType, &myZone->zId );
     cout << " Zone Id = " << myZone->zId << "\n";
 
     cout << "   CGNS Zone Name = " << myZone->zoneName << "\n";
@@ -760,9 +760,9 @@ void DumpCgnsGridCoordinates( CgnsZone * myZone, Grid * grid )
     int index_x = -1;
     int index_y = -2;
     int index_z = -3;
-    cg_coord_write( myZone->cgnsBase->fileId, myZone->cgnsBase->baseId, myZone->zId, RealDouble, "CoordinateX", &grid->nodeMesh->xN[0], &index_x );
-    cg_coord_write( myZone->cgnsBase->fileId, myZone->cgnsBase->baseId, myZone->zId, RealDouble, "CoordinateY", &grid->nodeMesh->yN[0], &index_y );
-    cg_coord_write( myZone->cgnsBase->fileId, myZone->cgnsBase->baseId, myZone->zId, RealDouble, "CoordinateZ", &grid->nodeMesh->zN[0], &index_z );
+    cg_coord_write( myZone->cgnsBase->cgnsFile->fileId, myZone->cgnsBase->baseId, myZone->zId, RealDouble, "CoordinateX", &grid->nodeMesh->xN[0], &index_x );
+    cg_coord_write( myZone->cgnsBase->cgnsFile->fileId, myZone->cgnsBase->baseId, myZone->zId, RealDouble, "CoordinateY", &grid->nodeMesh->yN[0], &index_y );
+    cg_coord_write( myZone->cgnsBase->cgnsFile->fileId, myZone->cgnsBase->baseId, myZone->zId, RealDouble, "CoordinateZ", &grid->nodeMesh->zN[0], &index_z );
     cout << " index_x = " << index_x << "\n";
     cout << " index_y = " << index_y << "\n";
     cout << " index_z = " << index_z << "\n";

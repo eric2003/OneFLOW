@@ -32,6 +32,7 @@ License
 using namespace std;
 BeginNameSpace( ONEFLOW )
 
+class Block2D;
 class Block3D;
 class BlkMesh;
 class SDomain;
@@ -59,8 +60,11 @@ public:
     void ConstructMultiLineToDomainMap();
     void ConstructMultiPointToDomainMap();
     void ConstructMultiPointToPointMap();
+    void ConstructPointToLineMap();
     void CreateInpFaceList( HXVector< Face2D * > &facelist );
+    void CreateInpFaceList1D( HXVector< Face2D * > &facelist );
     void SetBlkBcMesh( Block3D * blk3d );
+    void SetBlkBcMesh( Block2D * blk2d );
 };
 
 EndNameSpace
