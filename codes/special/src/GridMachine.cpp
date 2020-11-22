@@ -44,6 +44,12 @@ GridMachine::~GridMachine()
 {
 }
 
+void GridMachine::Run()
+{
+    this->ReadScript();
+    this->GeneGrid();
+}
+
 void GridMachine::ReadScript()
 {
     string fileName = GetDataValue< string >( "gridLayoutFileName" );

@@ -23,26 +23,18 @@ License
 
 #pragma once
 #include "HXDefine.h"
+#include "Point.h"
 
 BeginNameSpace( ONEFLOW )
 
-class GridMachine
+class GridCreate
 {
 public:
-    GridMachine();
-    ~GridMachine();
+    GridCreate();
+    ~GridCreate();
 public:
-    void Run();
-    void ReadScript();
-    void GeneGrid();
-public:
-    void GenerateFaceBlockLink();
-    void GenerateAllLineMesh();
-public:
-    void DumpStandardGrid();
-    void ConstructBlockTopo();
+    void Run( int igene );
+    void GenePlate();
 };
-
-extern GridMachine grid_Machine;
 
 EndNameSpace
