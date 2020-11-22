@@ -125,7 +125,7 @@ void DomData::ConstructCtrlPoint()
 IntField & DomData::GetLinePoints( int line_id )
 {
     int id = line_id - 1;
-    return blkFaceSolver.myFaceSolver.lineList[ id ];
+    return blkFaceSolver.lineList[ id ];
 }
 
 void DomData::ConstructBcPoint()
@@ -177,7 +177,7 @@ void DomData::CalcDimBasic( int closedCurve )
         IntField line( 2 );
         line[ 0 ] = p1;
         line[ 1 ] = p2;
-        int line_id = blkFaceSolver.myFaceSolver.FindLineId( line );
+        int line_id = blkFaceSolver.FindLineId( line );
         SegmentCtrl * segmentCtrl = line_Machine.GetSegmentCtrl( line_id + 1 );
         int dim = segmentCtrl->nPoint;
         this->bcdimList.push_back( dim );
@@ -569,7 +569,7 @@ void ConstructPointToDomainMap( int tid, IntField & lineList, map< int, IntSet >
     for ( int iLine = 0; iLine < lineList.size(); ++ iLine )
     {
         int line_id = lineList[ iLine ] - 1;
-        IntField & pointIdList = blkFaceSolver.myFaceSolver.lineList[ line_id ];
+        IntField & pointIdList = blkFaceSolver.lineList[ line_id ];
 
         ConstructIntList2Map( tid, pointIdList, dataMap );
     }
@@ -594,7 +594,7 @@ void ConstructPointToPointMap( IntField & lineList, map< int, IntSet > & dataMap
     for ( int iLine = 0; iLine < lineList.size(); ++ iLine )
     {
         int line_id = lineList[ iLine ] - 1;
-        IntField & pointIdList = blkFaceSolver.myFaceSolver.lineList[ line_id ];
+        IntField & pointIdList = blkFaceSolver.lineList[ line_id ];
 
         int & p1 = pointIdList[ 0 ];
         int & p2 = pointIdList[ 1 ];
@@ -619,7 +619,7 @@ void GetPointIdLink( IntField & lineList, LinkField & pointIdLink )
     for ( int iLine = 0; iLine < lineList.size(); ++ iLine )
     {
         int line_id = lineList[ iLine ] - 1;
-        IntField & pointIdList = blkFaceSolver.myFaceSolver.lineList[ line_id ];
+        IntField & pointIdList = blkFaceSolver.lineList[ line_id ];
         pointIdLink.push_back( pointIdList );
     }
 }

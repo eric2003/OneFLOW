@@ -79,7 +79,7 @@ void SLine::CopyMesh()
 
 void SLine::ConstructCtrlPoints()
 {
-    IntField & pointIdList = blkFaceSolver.myFaceSolver.GetLine( line_id );
+    IntField & pointIdList = blkFaceSolver.GetLine( line_id );
     this->ctrlpoints = pointIdList;
 }
 
@@ -90,7 +90,7 @@ void SLine::SetDomainBcMesh( SDomain * sDomain )
     RealField2D & z2d = sDomain->z2d;
 
     int line_id = this->line_id - 1;
-    SLine * sLine = blkFaceSolver.myFaceSolver.slineList[ line_id ];
+    SLine * sLine = blkFaceSolver.slineList[ line_id ];
     ni = sLine->ni;
     RealField & x1d = sLine->x1d;
     RealField & y1d = sLine->y1d;
@@ -152,7 +152,7 @@ void SLine::SetBlkBcMesh( Block2D * blk2d )
     RealField2D & z2d = blk2d->z2d;
 
     int line_id = this->line_id - 1;
-    SLine * sLine = blkFaceSolver.myFaceSolver.slineList[ line_id ];
+    SLine * sLine = blkFaceSolver.slineList[ line_id ];
     ni = sLine->ni;
     RealField & x1d = sLine->x1d;
     RealField & y1d = sLine->y1d;
@@ -210,7 +210,7 @@ void SLine::SetBlkBcMesh( Block2D * blk2d )
 void SLine::ConstructPointToLineMap( map< int, IntSet > & pointToLineMap )
 {
     int line_id = this->line_id - 1;
-    IntField & pointIdList = blkFaceSolver.myFaceSolver.lineList[ line_id ];
+    IntField & pointIdList = blkFaceSolver.lineList[ line_id ];
 
     int & p1 = pointIdList[ 0 ];
     int & p2 = pointIdList[ 1 ];
@@ -280,7 +280,7 @@ void MLine::ConstructPointToDomainMap()
     for ( int iLine = 0; iLine < lineList.size(); ++ iLine )
     {
         int line_id = lineList[ iLine ];
-        IntField & pointIdList = blkFaceSolver.myFaceSolver.GetLine( line_id );
+        IntField & pointIdList = blkFaceSolver.GetLine( line_id );
 
         ConstructIntList2Map( line_id, pointIdList, pointToDomainMap );
     }
@@ -353,7 +353,7 @@ void MLine::CreateInpFaceList1D( HXVector< Face2D * > &facelist )
         Face2D * face2d = new Face2D();
         face2d->face_id = sLine->line_id;
         face2d->Set1DRegion( sLine->ctrlpoints );
-        BlkF2C & face_struct = blkFaceSolver.myFaceSolver.line2Face[ face2d->face_id - 1 ];
+        BlkF2C & face_struct = blkFaceSolver.line2Face[ face2d->face_id - 1 ];
         face2d->bcType = face_struct.bctype;
         face2d->CalcStEd( coorMap );
         facelist.push_back( face2d );
