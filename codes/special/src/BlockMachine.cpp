@@ -36,6 +36,7 @@ License
 #include "Dimension.h"
 #include "BlockElem.h"
 #include "BlockFaceSolver.h"
+#include "GridPara.h"
 #include "HXCgns.h"
 #include <fstream>
 using namespace std;
@@ -120,10 +121,6 @@ void BlockMachine::ConstructBlockTopo()
 }
 
 void BlockMachine::GenerateAllBlockMesh()
-{
-}
-
-void BlockMachine::DumpStandardGrid()
 {
 }
 

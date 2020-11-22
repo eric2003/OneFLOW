@@ -79,54 +79,6 @@ void Block2D::CreateBlockMesh2D()
 
 void Block2D::GenerateBlockMesh2D()
 {
-    fstream file;
-    OpenPrjFile( file, "grid/blkfaceplot.dat", ios_base::out );
-    file << " VARIABLES = \"X\", \"Y\", \"Z\" \n";
-    file << " ZONE I = " << ni << " F = POINT \n";
-    int ist = 0;
-    int ied = ni - 1;
-    int jst = 0;
-    int jed = nj - 1;
-    for ( int i = 0; i < ni; ++ i )
-    {
-        file << x2d[ i ][ jst ] << " " << y2d[ i ][ jst ] << " " << z2d[ i ][ jst ] << "\n";
-    }
-
-    file << " ZONE I = " << ni << " F = POINT \n";
-    for ( int i = 0; i < ni; ++ i )
-    {
-        file << x2d[ i ][ jed ] << " " << y2d[ i ][ jed ] << " " << z2d[ i ][ jed ] << "\n";
-    }
-
-    file << " ZONE I = " << nj << " F = POINT \n";
-    for ( int j = 0; j < nj; ++ j )
-    {
-        file << x2d[ ist ][ j ] << " " << y2d[ ist ][ j ] << " " << z2d[ ist ][ j ] << "\n";
-    }
-
-    file << " ZONE I = " << nj << " F = POINT \n";
-    for ( int j = 0; j < nj; ++ j )
-    {
-        file << x2d[ ied ][ j ] << " " << y2d[ ied ][ j ] << " " << z2d[ ied ][ j ] << "\n";
-    }
- 
-    CloseFile( file );
-    //TransfiniteInterpolation( x2d, ni, nj );
-    //TransfiniteInterpolation( y2d, ni, nj );
-    //TransfiniteInterpolation( z2d, ni, nj );
-
-    //OpenPrjFile( file, "grid/blkplot2d.dat", ios_base::out );
-    //file << " VARIABLES = \"X\", \"Y\", \"Z\" \n";
-    //file << " ZONE I = " << ni << ", J = " << nj << " F = POINT \n";
-    //for ( int j = 0; j < nj; ++ j )
-    //{
-    //    for ( int i = 0; i < ni; ++ i )
-    //    {
-    //        file << x2d[ i ][ j ] << " " << y2d[ i ][ j ] << " " << z2d[ i ][ j ] << "\n";
-    //    }
-    //}
-    //CloseFile( file );
-    //int kkk = 1;
 }
 
 void Block2D::DumpBlockMesh2D( fstream &file )

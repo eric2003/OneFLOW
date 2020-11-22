@@ -44,6 +44,7 @@ License
 #include "Prj.h"
 #include "HXCgns.h"
 #include "Dimension.h"
+#include "GridPara.h"
 #include <algorithm>
 #include <iostream>
 using namespace std;
@@ -208,7 +209,7 @@ void MyFaceSolver::GenerateFaceMesh()
 {
     int nFace = this->faceList.size();
     fstream file;
-    OpenPrjFile( file, "grid/strtecplot.dat", ios_base::out );
+    OpenPrjFile( file, "grid/facemesh_tecplot.dat", ios_base::out );
     for ( int iFace = 0; iFace < nFace; ++ iFace )
     {
         SDomain * sDomain = this->sDomainList[ iFace ];
@@ -401,39 +402,6 @@ void BlkFaceSolver::BuildBlkFace2D()
     }
 }
 
-//void BlkFaceSolver::BuildBlkFace2D()
-//{
-//    int nBlock = this->blkset.size();
-//    this->blkList2d.resize( nBlock );
-//    for ( int iBlk = 0; iBlk < nBlock; ++ iBlk )
-//    {
-//        Block2D * blk2d = new Block2D();
-//        this->blkList2d[ iBlk ] = blk2d;
-//    }
-//
-//    int nFace = this->myFaceSolver.face2Block.size();
-//    for ( int iFace = 0; iFace < nFace; ++ iFace )
-//    {
-//        BlkF2C & face_struct = this->myFaceSolver.face2Block[ iFace ];
-//
-//        IntField & lineList = this->myFaceSolver.faceList[ iFace ];
-//        IntField & posList = this->myFaceSolver.faceLinePosList[ iFace ];
-//
-//        int n_neibor = face_struct.cellList.size();
-//        for ( int i = 0; i < n_neibor; ++ i )
-//        {
-//            int blk_id = face_struct.cellList[ i ] - 1;
-//            int pos = face_struct.posList[ i ] - 1;
-//
-//            Block2D * blk2d = this->blkList2d[ blk_id ];
-//            blk2d->blk_id = blk_id;
-//            int line_id = lineList[ 0 ];
-//            MLine * mLine = blk2d->mLineList[ pos ];
-//            mLine->AddSubLine( line_id );
-//        }
-//    }
-//}
-
 void BlkFaceSolver::BuildSDomainList()
 {
     this->myFaceSolver.BuildSDomainList();
@@ -480,7 +448,7 @@ void BlkFaceSolver::DumpBcInp()
     int width = 5;
 
     fstream file;
-    OpenPrjFile( file, "grid/strplot3d.inp", ios_base::out );
+    OpenPrjFile( file, grid_para.bcFile, ios_base::out );
 
     file << setw( width ) << flowSolverIndex << endl;
     file << setw( width ) << nBlock << endl;
@@ -501,7 +469,7 @@ void BlkFaceSolver::DumpBcInp2D()
     int width = 5;
 
     fstream file;
-    OpenPrjFile( file, "grid/strplot3d.inp", ios_base::out );
+    OpenPrjFile( file, grid_para.bcFile, ios_base::out );
 
     file << setw( width ) << flowSolverIndex << endl;
     file << setw( width ) << nBlock << endl;
@@ -655,7 +623,7 @@ void BlkFaceSolver::DumpStandardGrid2D()
 void BlkFaceSolver::DumpStandardGrid( Grids & strGridList )
 {
     fstream file;
-    OpenPrjFile( file, "grid/strplot3d.grd", ios_base::out | ios_base::binary );
+    OpenPrjFile( file, grid_para.gridFile, ios_base::out | ios_base::binary );
 
     int nZone = strGridList.size();
     HXWrite( & file, nZone );

@@ -44,7 +44,6 @@ public:
     void AddFaceToBlock( FileIO * ioFile );
     void ConstructBlockTopo();
     void GenerateAllBlockMesh();
-    void DumpStandardGrid();
     void DumpStandardGrid( Grids & strGridList );
     void DumpStandardGridBc( Grids & strGridList );
     void GenerateFaceBlockLink();
