@@ -90,30 +90,7 @@ void BlockMachine::AddFaceToBlock( FileIO * ioFile )
 
 void BlockMachine::GenerateFaceBlockLink()
 {
-    if ( Dim::dimension == ONEFLOW::THREE_D )
-    {
-        blkFaceSolver.DumpBlkScript();
-        blkFaceSolver.SetBoundary();
-        blkFaceSolver.BuildBlkFace();
-        blkFaceSolver.ConstructBlockInfo();
-        blkFaceSolver.DumpBcInp();
-        blkFaceSolver.GenerateLineMesh();
-        blkFaceSolver.GenerateFaceMesh();
-        blkFaceSolver.GenerateBlkMesh();
-        blkFaceSolver.DumpStandardGrid();
-    }
-    else
-    {
-        blkFaceSolver.SetBoundary();
-        blkFaceSolver.BuildBlkFace2D();
-        blkFaceSolver.ConstructBlockInfo2D();
-        blkFaceSolver.DumpBcInp2D();
-        blkFaceSolver.GenerateLineMesh();
-        blkFaceSolver.GenerateFaceMesh();
-        blkFaceSolver.GenerateBlkMesh2D();
-        blkFaceSolver.DumpStandardGrid2D();
-
-    }
+    blkFaceSolver.GenerateFaceBlockLink();
 }
 
 EndNameSpace

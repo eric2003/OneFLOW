@@ -652,6 +652,33 @@ void BlkFaceSolver::DumpStandardGrid( Grids & strGridList )
 
 }
 
+void BlkFaceSolver::GenerateFaceBlockLink()
+{
+    if ( Dim::dimension == ONEFLOW::THREE_D )
+    {
+        this->DumpBlkScript();
+        this->SetBoundary();
+        this->BuildBlkFace();
+        this->ConstructBlockInfo();
+        this->DumpBcInp();
+        this->GenerateLineMesh();
+        this->GenerateFaceMesh();
+        this->GenerateBlkMesh();
+        this->DumpStandardGrid();
+    }
+    else
+    {
+        this->SetBoundary();
+        this->BuildBlkFace2D();
+        this->ConstructBlockInfo2D();
+        this->DumpBcInp2D();
+        this->GenerateLineMesh();
+        this->GenerateFaceMesh();
+        this->GenerateBlkMesh2D();
+        this->DumpStandardGrid2D();
+    }
+}
+
 IntField GlobalGetLine( int line_id )
 {
     return blkFaceSolver.myFaceSolver.GetLine( line_id );

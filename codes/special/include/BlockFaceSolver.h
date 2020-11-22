@@ -111,6 +111,7 @@ public:
     void DumpStandardGrid();
     void DumpStandardGrid2D();
     void DumpStandardGrid( Grids & strGridList );
+    void GenerateFaceBlockLink();
 public:
     void DumpBlkScript();
     void DumpBlkScript( fstream & file, BlkElem * blkHexa, IntField & ctrlpoints );
