@@ -116,8 +116,4 @@ void BlockMachine::GenerateFaceBlockLink()
     }
 }
 
-void BlockMachine::ConstructBlockTopo()
-{
-}
-
 EndNameSpace

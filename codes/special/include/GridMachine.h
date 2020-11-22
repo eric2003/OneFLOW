@@ -40,8 +40,6 @@ public:
 public:
     void GenerateFaceBlockLink();
     void GenerateAllLineMesh();
-public:
-    void ConstructBlockTopo();
 };
 
 extern GridMachine grid_Machine;

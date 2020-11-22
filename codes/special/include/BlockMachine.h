@@ -42,7 +42,6 @@ public:
     HXVector< BlockMesh * > blockMeshList;
 public:
     void AddFaceToBlock( FileIO * ioFile );
-    void ConstructBlockTopo();
     void GenerateFaceBlockLink();
 };
 

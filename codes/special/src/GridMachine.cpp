@@ -125,10 +125,5 @@ void GridMachine::GenerateAllLineMesh()
     line_Machine.GenerateAllLineMesh();
 }
 
-void GridMachine::ConstructBlockTopo()
-{
-    block_Machine.ConstructBlockTopo();
-}
-
 
 EndNameSpace
