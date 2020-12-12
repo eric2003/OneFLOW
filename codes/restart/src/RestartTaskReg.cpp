@@ -146,17 +146,14 @@ void InitFlowField( StringField & data )
     {
         ONEFLOW::AddCmdToList( "INIT_RESTART" );
     }
-
-	else if (startStrategy == 1)
+	else if ( startStrategy == 1 )
 	{
-		ONEFLOW::AddCmdToList("READ_RESTART");
+		ONEFLOW::AddCmdToList( "READ_RESTART" );
 	}
-
-	else if (startStrategy == 2)
+	else if ( startStrategy == 2 )
 	{
-		ONEFLOW::AddCmdToList("INIT_INSRESTART");
+		ONEFLOW::AddCmdToList( "INIT_INSRESTART" );
 	}
-
 	else if ( startStrategy == 3 )
     {
         ONEFLOW::AddCmdToList( "READ_INSRESTART" );

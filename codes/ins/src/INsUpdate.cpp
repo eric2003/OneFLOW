@@ -40,14 +40,10 @@ INsUpdate::~INsUpdate()
 
 void INsUpdate::CalcFlowField()
 {
-    //INsPrimToQ( nscom.prim0, nscom.gama, nscom.q0 );
-
     for ( int iEqu = 0; iEqu < nscom.nTEqu; ++ iEqu )
     {
         nscom.q[ iEqu ] = nscom.q0[ iEqu ] + nscom.dq[ iEqu ];
     }
-
-    //INsQToPrim( nscom.q, nscom.gama, nscom.prim, nscom.t );
 
     Real density  = nscom.prim[ IIDX::IIR ];
     Real pressure = nscom.prim[ IIDX::IIP ];
@@ -69,8 +65,6 @@ void INsUpdate::CalcFlowField()
 
 void INsUpdate::CalcFlowFieldHyperSonic()
 {
-   // INsPrimToQ( nscom.prim0, nscom.gama, nscom.q0 );
-
     for ( int iEqu = 0; iEqu < nscom.nTEqu; ++ iEqu )
     {
         nscom.q[ iEqu ] = nscom.q0[ iEqu ] + nscom.dq[ iEqu ];

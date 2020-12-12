@@ -64,7 +64,17 @@ void NsCalcBc()
 	delete uNsBcSolver;
 }
 
-void NsCalcGamaT(int flag)
+void NsCalcBcDebug( const string & title )
+{
+	cout << title << "\n";
+	UNsBcSolver * uNsBcSolver = new UNsBcSolver();
+	uNsBcSolver->Init();
+	uNsBcSolver->CalcBc();
+	delete uNsBcSolver;
+
+}
+
+void NsCalcGamaT( int flag )
 {
 	UnsGrid * grid = Zone::GetUnsGrid();
 
@@ -72,7 +82,7 @@ void NsCalcGamaT(int flag)
 	unsf.Init();
 	ug.SetStEd(flag);
 
-	if (nscom.chemModel == 1)
+	if ( nscom.chemModel == 1 )
 	{
 	}
 	else
@@ -83,12 +93,12 @@ void NsCalcGamaT(int flag)
 		//    int kkk = 1;
 		//}
 		Real oamw = one;
-		for (int cId = ug.ist; cId < ug.ied; ++cId)
+		for ( int cId = ug.ist; cId < ug.ied; ++ cId )
 		{
-			Real & density = (*unsf.q)[IDX::IR][cId];
-			Real & pressure = (*unsf.q)[IDX::IP][cId];
-			(*unsf.gama)[0][cId] = nscom.gama_ref;
-			(*unsf.tempr)[IDX::ITT][cId] = pressure / (nscom.statecoef * density * oamw);
+			Real & density  = (*unsf.q)[ IDX::IR ][ cId ];
+			Real & pressure = (*unsf.q)[ IDX::IP ][ cId ];
+			(*unsf.gama)[ 0 ][ cId ] = nscom.gama_ref;
+			(*unsf.tempr)[ IDX::ITT ][ cId ] = pressure / ( nscom.statecoef * density * oamw );
 		}
 	}
 }
