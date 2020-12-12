@@ -27,6 +27,7 @@ License
 #include "BlockMachine.h"
 #include "Dimension.h"
 #include "DataBase.h"
+#include "GridPara.h"
 #include "FileIO.h"
 #include "HXMath.h"
 #include <iostream>
@@ -44,9 +45,15 @@ GridMachine::~GridMachine()
 {
 }
 
-void GridMachine::ReadScript()
+void GridMachine::Run()
 {
     string fileName = GetDataValue< string >( "gridLayoutFileName" );
+    this->ReadScript( fileName );
+    this->GeneGrid();
+}
+
+void GridMachine::ReadScript( const string & fileName )
+{
     string separator = " =\r\n\t#$,;\"(){}";
 
     FileIO ioFile;
@@ -116,16 +123,6 @@ void GridMachine::GenerateFaceBlockLink()
 void GridMachine::GenerateAllLineMesh()
 {
     line_Machine.GenerateAllLineMesh();
-}
-
-void GridMachine::DumpStandardGrid()
-{
-    block_Machine.DumpStandardGrid();
-}
-
-void GridMachine::ConstructBlockTopo()
-{
-    block_Machine.ConstructBlockTopo();
 }
 
 

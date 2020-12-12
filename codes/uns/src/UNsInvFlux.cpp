@@ -61,8 +61,10 @@ void UNsInvFlux::CalcLimiter()
 
 void UNsInvFlux::CalcInvFace()
 {
+    //cout << "UNsInvFlux::CalcInvFace() uns_grad.CalcGrad() start\n";
     uns_grad.Init();
     uns_grad.CalcGrad();
+    //cout << "uns_grad.CalcGrad() end\n";
 
     this->CalcLimiter();
 
@@ -82,11 +84,41 @@ void UNsInvFlux::ReconstructFaceValueField()
 {
     limf->CalcFaceValue();
     //limf->CalcFaceValueWeighted();
+    if ( Iteration::outerSteps == -31 )
+    {
+        Real mindiff = 1.0e-10;
+        int idumpface = 1;
+        int idumpcell = 0;
+
+        HXDebug::DumpField( "limf.dqdx.debug", limf->dqdx );
+        HXDebug::CompareFile( mindiff, idumpcell );
+        HXDebug::DumpField( "limf.dqdy.debug", limf->dqdy );
+        HXDebug::CompareFile( mindiff, idumpcell );
+        HXDebug::DumpField( "limf.dqdz.debug", limf->dqdz );
+        HXDebug::CompareFile( mindiff, idumpcell );
+
+        HXDebug::DumpField( "limf.qf1_recon.debug", limf->qf1 );
+        HXDebug::CompareFile( mindiff, idumpface );
+        HXDebug::DumpField( "limf.qf2_recon.debug", limf->qf2 );
+        HXDebug::CompareFile( mindiff, idumpface );
+    }
 }
 
 void UNsInvFlux::BoundaryQlQrFixField()
 {
     limf->BcQlQrFix();
+
+    if ( Iteration::outerSteps == -31 )
+    {
+        Real mindiff = 1.0e-10;
+        int idumpface = 1;
+        int idumpcell = 0;
+
+        HXDebug::DumpField( "limf.qf1.debug", limf->qf1 );
+        HXDebug::CompareFile( mindiff, idumpface );
+        HXDebug::DumpField( "limf.qf2.debug", limf->qf2 );
+        HXDebug::CompareFile( mindiff, idumpface );
+    }
 }
 
 void UNsInvFlux::CalcFlux()
@@ -109,11 +141,6 @@ void UNsInvFlux::CalcFlux()
 
 void UNsInvFlux::CalcInvFlux()
 {
-    if ( Iteration::outerSteps == 2 )
-    {
-        int kkk = 1;
-    }
-
     for ( int fId = 0; fId < ug.nFace; ++ fId )
     {
         ug.fId = fId;
@@ -144,9 +171,11 @@ void UNsInvFlux::PrepareFaceValue()
 
     nscom.gama1 = ( * unsf.gama )[ 0 ][ ug.lc ];
     nscom.gama2 = ( * unsf.gama )[ 0 ][ ug.rc ];
+    nscom.gama  = half * ( nscom.gama1 + nscom.gama2 );
 
     inv.gama1 = nscom.gama1;
     inv.gama2 = nscom.gama2;
+    inv.gama  = half * ( inv.gama1 + inv.gama2 );
 
     for ( int iEqu = 0; iEqu < limf->nEqu; ++ iEqu )
     {
@@ -169,6 +198,21 @@ void UNsInvFlux::AddInvFlux()
     MRField * res = GetFieldPointer< MRField >( grid, "res" );
 
     ONEFLOW::AddF2CField( res, invflux );
+    if ( Iteration::outerSteps == -31 )
+    {
+        HXDebug::CheckNANField( res );
+        Real mindiff = 1.0e-10;
+        int idumpface = 1;
+        int idumpcell = 0;
+        MRField * q = GetFieldPointer< MRField >( grid, "q" );
+        HXDebug::DumpField( "flow.debug", q );
+        HXDebug::CompareFile( 1.0e-12, idumpcell );
+
+        HXDebug::DumpField( "InvFaceFlux.debug", invflux );
+        HXDebug::CompareFile( mindiff, idumpface );
+        HXDebug::DumpResField( "InvResFlux.debug" );
+        HXDebug::CompareFile( mindiff, idumpcell );
+    }
 }
 
 void UNsInvFlux::Alloc()

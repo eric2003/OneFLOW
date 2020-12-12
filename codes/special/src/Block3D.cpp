@@ -187,7 +187,7 @@ void Block3D::SetInterfaceBc()
         {
             face2d->t = new Face2D();
 
-            BlkF2C & face_struct = blkFaceSolver.myFaceSolver.face2Block[ domain_id ];
+            BlkF2C & face_struct = blkFaceSolver.face2Block[ domain_id ];
             int n_neibor = face_struct.cellList.size();
             int blk1 = face_struct.cellList[ 0 ] - 1;
             int blk2 = face_struct.cellList[ 1 ] - 1;

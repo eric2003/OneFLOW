@@ -24,6 +24,7 @@ License
 #include "SolverImp.h"
 #include "UTimeStep.h"
 #include "Zone.h"
+#include "UnsGrid.h"
 #include "GridState.h"
 #include "UNsVisFlux.h"
 #include "NsRhs.h"
@@ -35,6 +36,9 @@ License
 #include "LaminarPlate.h"
 #include "TurbPlate.h"
 #include "SolverRegister.h"
+#include "DataBase.h"
+#include <iomanip>
+using namespace std;
 
 BeginNameSpace( ONEFLOW )
 
@@ -56,11 +60,13 @@ void RegisterNsFunc()
 
 void NsInitFinal( StringField & data )
 {
-    NsCalcGamaT( F_INNER );
-    CalcLaminarViscosity( F_INNER );
-    NsCalcBc();
-    NsCalcGamaT( F_GHOST );
-    CalcLaminarViscosity( F_GHOST );
+    //NsCalcGamaT( F_INNER );
+    //CalcLaminarViscosity( F_INNER );
+    //NsCalcBc();
+    //NsCalcGamaT( F_GHOST );
+    //CalcLaminarViscosity( F_GHOST );
+
+    NsCalcBoundary( data );
 
     Grid * grid = Zone::GetGrid();
 
@@ -70,7 +76,7 @@ void NsInitFinal( StringField & data )
 
         GridState::gridLevel += 1;
 
-        NsCalcBc();
+        NsCalcBoundary( data );
 
         GridState::gridLevel -= 1;
     }

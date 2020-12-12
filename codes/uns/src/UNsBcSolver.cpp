@@ -140,6 +140,7 @@ void UNsBcSolver::PrepareData()
 
     nscom.gama1 = ( * unsf.gama )[ 0 ][ ug.lc ];
     nscom.gama2 = ( * unsf.gama )[ 0 ][ ug.lc ];
+    nscom.gama  = half * ( nscom.gama1 + nscom.gama2 );
 
     gcom.xcc1 = ( * ug.xcc )[ ug.lc ];
     gcom.ycc1 = ( * ug.ycc )[ ug.lc ];

@@ -147,11 +147,6 @@ void UINsUpdate::UpdateFlowFieldValue()
 	(*uinsf.q)[IIDX::IIW][ug.cId] = iinv.wp[ug.cId];
 	(*uinsf.q)[IIDX::IIP][ug.cId] = iinv.pc[ug.cId];
 
-	//for (int iEqu = 0; iEqu < nscom.nTEqu; ++iEqu)
-	//{
-		//(*uinsf.q)[iEqu][ug.cId] = nscom.prim[iEqu];
-	//}
-
     for ( int iEqu = 0; iEqu < nscom.nTModel; ++ iEqu )
     {
         ( * uinsf.tempr )[ iEqu ][ ug.cId ] = nscom.t[ iEqu ];

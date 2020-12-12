@@ -32,6 +32,7 @@ License
 #include "HXMath.h"
 #include "Zone.h"
 #include <iostream>
+#include <iomanip>
 using namespace std;
 
 BeginNameSpace( ONEFLOW )
@@ -124,6 +125,77 @@ void CalcGradGGCellWeight( RealField & q, RealField & dqdx, RealField & dqdy, Re
         dqdx[ ug.lc ] += fnxa * value;
         dqdy[ ug.lc ] += fnya * value;
         dqdz[ ug.lc ] += fnza * value;
+
+        if ( ug.fId < ug.nBFace ) continue;
+        dqdx[ ug.rc ] -= fnxa * value;
+        dqdy[ ug.rc ] -= fnya * value;
+        dqdz[ ug.rc ] -= fnza * value;
+    }
+
+    for ( int cId = 0; cId < ug.nCell; ++ cId )
+    {
+        Real ovol = one / ( * ug.cvol )[ cId ];
+        dqdx[ cId ] *= ovol;
+        dqdy[ cId ] *= ovol;
+        dqdz[ cId ] *= ovol;
+    }
+
+    for ( int fId = 0; fId < ug.nBFace; ++ fId )
+    {
+        ug.fId = fId;
+        ug.lc = ( * ug.lcf )[ ug.fId ];
+        ug.rc = ( * ug.rcf )[ ug.fId ];
+
+        dqdx[ ug.rc ] = dqdx[ ug.lc ];
+        dqdy[ ug.rc ] = dqdy[ ug.lc ];
+        dqdz[ ug.rc ] = dqdz[ ug.lc ];
+    }
+}
+
+void CalcGradGGCellWeightDebug( RealField & q, RealField & dqdx, RealField & dqdy, RealField & dqdz )
+{
+    dqdx = 0;
+    dqdy = 0;
+    dqdz = 0;
+
+    for ( int fId = 0; fId < ug.nFace; ++ fId )
+    {
+        ug.fId = fId;
+        ug.lc = ( * ug.lcf )[ ug.fId ];
+        ug.rc = ( * ug.rcf )[ ug.fId ];
+
+        Real dxl = ( * ug.xfc )[ ug.fId ] - ( * ug.xcc )[ ug.lc ];
+        Real dyl = ( * ug.yfc )[ ug.fId ] - ( * ug.ycc )[ ug.lc ];
+        Real dzl = ( * ug.zfc )[ ug.fId ] - ( * ug.zcc )[ ug.lc ];
+
+        Real dxr = ( * ug.xfc )[ ug.fId ] - ( * ug.xcc )[ ug.rc ];
+        Real dyr = ( * ug.yfc )[ ug.fId ] - ( * ug.ycc )[ ug.rc ];
+        Real dzr = ( * ug.zfc )[ ug.fId ] - ( * ug.zcc )[ ug.rc ];
+
+        Real delt1  = DIST( dxl, dyl, dzl );
+        Real delt2  = DIST( dxr, dyr, dzr );
+        Real delta  = 1.0 / ( delt1 + delt2 + SMALL );
+
+        Real cl = delt2 * delta;
+        Real cr = delt1 * delta;
+
+        Real value = cl * q[ ug.lc ] + cr * q[ ug.rc ];
+
+        Real fnxa = ( * ug.xfn )[ ug.fId ] * ( * ug.farea )[ ug.fId ];
+        Real fnya = ( * ug.yfn )[ ug.fId ] * ( * ug.farea )[ ug.fId ];
+        Real fnza = ( * ug.zfn )[ ug.fId ] * ( * ug.farea )[ ug.fId ];
+
+        dqdx[ ug.lc ] += fnxa * value;
+        dqdy[ ug.lc ] += fnya * value;
+        dqdz[ ug.lc ] += fnza * value;
+
+        if ( ug.lc == 0 || ug.rc == 0 )
+        {
+            cout << " ug.lc = " << ug.lc << " ug.rc = " << ug.rc << "\n";
+            cout << " fId = " << fId << " value = " << setiosflags( ios::fixed ) << setprecision( 10 ) << value;
+            cout << " ql = " << setiosflags( ios::fixed ) << setprecision( 10 ) << q[ ug.lc ];
+            cout << " qr = " << setiosflags( ios::fixed ) << setprecision( 10 ) << q[ ug.rc ] << endl;
+        }
 
         if ( ug.fId < ug.nBFace ) continue;
         dqdx[ ug.rc ] -= fnxa * value;

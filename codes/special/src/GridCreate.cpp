@@ -20,15 +20,50 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-
-#pragma once
-#include "HXDefine.h"
+#include "GridCreate.h"
+#include "Transfinite.h"
+#include "CurveLine.h"
+#include "CurveMesh.h"
+#include "PointMachine.h"
+#include "CurveMachine.h"
+#include "GridMachine.h"
+#include "LineMachine.h"
+#include "Prj.h"
+#include "DataBaseIO.h"
+#include "Boundary.h"
+#include "HXMath.h"
+#include "DataBase.h"
+#include "FileIO.h"
+#include "FileUtil.h"
+#include <iostream>
+using namespace std;
 
 BeginNameSpace( ONEFLOW )
 
-void CalcGrad( RealField & q, RealField & dqdx, RealField & dqdy, RealField & dqdz );
-void CalcGradGGCellWeight( RealField & q, RealField & dqdx, RealField & dqdy, RealField & dqdz );
-void CalcGradDebug( RealField & q, RealField & dqdx, RealField & dqdy, RealField & dqdz );
-void CalcGradGGCellWeightDebug( RealField & q, RealField & dqdx, RealField & dqdy, RealField & dqdz );
+
+GridCreate::GridCreate()
+{
+}
+
+GridCreate::~GridCreate()
+{
+}
+
+void GridCreate::Run( int igene )
+{
+    if ( igene == 3 )
+    {
+    }
+    else if ( igene == 4 )
+    {
+        this->GenePlate();
+    }
+}
+
+void GridCreate::GenePlate()
+{
+    grid_Machine.Run();
+}
+
 
 EndNameSpace

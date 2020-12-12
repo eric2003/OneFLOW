@@ -323,6 +323,7 @@ void UINsInvterm::PrepareFaceValue()
 
 	nscom.gama1 = ( * uinsf.gama )[ 0 ][ ug.lc ];
 	nscom.gama2 = ( * uinsf.gama )[ 0 ][ ug.rc ];
+	nscom.gama  = half * ( nscom.gama1 + nscom.gama2 );
 
 	iinv.gama1 = nscom.gama1;
 	iinv.gama2 = nscom.gama2;

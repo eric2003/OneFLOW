@@ -21,6 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "ClassicGrid.h"
+#include "GridCreate.h"
 #include "DataBase.h"
 #include "DataBaseIO.h"
 #include "Boundary.h"
@@ -74,9 +75,9 @@ void ClassicGrid::Run()
     }
     else if ( igene == 4 )
     {
-        Cylinder * cylinder = new Cylinder();
-        cylinder->Run( igene );
-        delete cylinder;
+        GridCreate * gridCreate = new GridCreate();
+        gridCreate->Run( igene );
+        delete gridCreate;
     }
     else if ( igene == 5 )
     {

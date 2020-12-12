@@ -41,38 +41,6 @@ class CalcCoor;
 class Face2D;
 class MLine;
 class SLine;
-
-class MyFaceSolver
-{
-public:
-    MyFaceSolver();
-    ~MyFaceSolver();
-public:
-    bool init_flag;
-    LinkField lineList; 
-    LinkField faceList;
-    LinkField faceLinePosList;
-    set< Mid< int > > refLines;
-    set< Mid< int > > refFaces;
-    IntSet faceset;
-    HXVector< BlkF2C > line2Face;
-    HXVector< BlkF2C > face2Block;
-    HXVector< SDomain * > sDomainList;
-    HXVector< SLine * > slineList;
-public:
-    void Alloc();
-    void AddLineToFace( int faceid, int pos, int lineid );
-    void CreateFaceList();
-    void SetBoundary();
-    int FindLineId( IntField & line );
-    int FindId( IntField & varlist, set< Mid<int> > &refSets );
-    IntField & GetLine( int line_id );
-public:
-    void BuildSDomainList();
-    void GenerateFaceMesh();
-    void GenerateLineMesh();
-};
-
 class Block2D;
 class BlkElem;
 
@@ -86,14 +54,34 @@ public:
     HXVector< Block3D * > blkList;
     HXVector< Block2D * > blkList2d;
     bool flag;
-    MyFaceSolver myFaceSolver;
+public:
+    bool init_flag;
+    LinkField lineList; 
+    LinkField faceList;
+    LinkField faceLinePosList;
+    set< Mid< int > > refLines;
+    set< Mid< int > > refFaces;
+    IntSet faceset;
+    HXVector< BlkF2C > line2Face;
+    HXVector< BlkF2C > face2Block;
+    HXVector< SDomain * > sDomainList;
+    HXVector< SLine * > slineList;
 public:
     Face2D * GetBlkFace( int blk, int face_id );
     Face2D * GetBlkFace2D( int blk, int face_id );
-    int  FindFace( Mid<int> & face );
-    int  FindFaceId( IntField & face );
 public:
     void Alloc();
+    void MyFaceAlloc();
+    void CreateFaceList();
+    int  FindLineId( IntField & line );
+    int  FindId( IntField & varlist, set< Mid<int> > &refSets );
+    int  FindFace( Mid<int> & face );
+    int  FindFaceId( IntField & face );
+    IntField & GetLine( int line_id );
+    void MyFaceBuildSDomainList();
+    void MyFaceGenerateFaceMesh();
+    void MyFaceGenerateLineMesh();
+public:
     void AddLineToFace( int faceid, int pos, int lineid );
     void AddFace2Block( int blockid, int pos, int faceid );
     void BuildBlkFace();
@@ -107,10 +95,10 @@ public:
     void GenerateBlkMesh2D();
     void GenerateFaceMesh();
     void GenerateLineMesh();
-    void BuildSDomainList();
     void DumpStandardGrid();
     void DumpStandardGrid2D();
     void DumpStandardGrid( Grids & strGridList );
+    void GenerateFaceBlockLink();
 public:
     void DumpBlkScript();
     void DumpBlkScript( fstream & file, BlkElem * blkHexa, IntField & ctrlpoints );

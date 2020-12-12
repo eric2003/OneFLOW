@@ -31,7 +31,11 @@ License
 #include "CellMesh.h"
 #include "CellTopo.h"
 #include "Zone.h"
+#include "Iteration.h"
+#include "DataBase.h"
+#include "StrUtil.h"
 #include <iostream>
+#include <iomanip>
 using namespace std;
 
 BeginNameSpace( ONEFLOW )
@@ -48,10 +52,48 @@ Grad::~Grad()
 
 void Grad::CalcGrad()
 {
-    for ( int iEqu = 0; iEqu < nEqu; ++ iEqu )
+    if ( Iteration::outerSteps == -31 )
     {
-        //ONEFLOW::CalcGrad( ( * q )[ iEqu ], ( * dqdx )[ iEqu ], ( * dqdy )[ iEqu ], ( * dqdz )[ iEqu ] );
-        ONEFLOW::CalcGradGGCellWeight( ( * q )[ iEqu ], ( * dqdx )[ iEqu ], ( * dqdy )[ iEqu ], ( * dqdz )[ iEqu ] );
+        for ( int iEqu = 0; iEqu < nEqu; ++ iEqu )
+        {
+            //ONEFLOW::CalcGrad( ( * q )[ iEqu ], ( * dqdx )[ iEqu ], ( * dqdy )[ iEqu ], ( * dqdz )[ iEqu ] );
+            ONEFLOW::CalcGradGGCellWeightDebug( ( * q )[ iEqu ], ( * dqdx )[ iEqu ], ( * dqdy )[ iEqu ], ( * dqdz )[ iEqu ] );
+        }
+    }
+    else
+    {
+        for ( int iEqu = 0; iEqu < nEqu; ++ iEqu )
+        {
+            ONEFLOW::CalcGradGGCellWeight( ( * q )[ iEqu ], ( * dqdx )[ iEqu ], ( * dqdy )[ iEqu ], ( * dqdz )[ iEqu ] );
+        }
+
+    }
+
+    if ( Iteration::outerSteps == -31 )
+    {
+        Real mindiff = 1.0e-10;
+        int idumpface = 1;
+        int idumpcell = 0;
+        string fname = AddString( "grad.", name, ".debug" );
+        cout << "varname = " << name << "\n";
+        HXDebug::DumpField( fname, q );
+        HXDebug::CompareFile( 1.0e-12, idumpcell );
+
+        UnsGrid * grid = Zone::GetUnsGrid();
+        MRField * qq = GetFieldPointer< MRField >( grid, "q" );
+        HXDebug::DumpField( "flowq.debug", qq );
+        HXDebug::CompareFile( 1.0e-12, idumpcell );
+
+        string fnamedqdx = AddString( "grad.", name, ".dqdx.debug" );
+        string fnamedqdy = AddString( "grad.", name, ".dqdy.debug" );
+        string fnamedqdz = AddString( "grad.", name, ".dqdz.debug" );
+
+        HXDebug::DumpField( fnamedqdx, dqdx );
+        HXDebug::CompareFile( mindiff, idumpcell );
+        HXDebug::DumpField( fnamedqdy, dqdy );
+        HXDebug::CompareFile( mindiff, idumpcell );
+        HXDebug::DumpField( fnamedqdz, dqdz );
+        HXDebug::CompareFile( mindiff, idumpcell );
     }
 
     this->SwapBcGrad();
@@ -78,6 +120,20 @@ void Grad::SwapBcGrad()
     DownloadInterfaceValue( grid, dqdx, namex, nEqu );
     DownloadInterfaceValue( grid, dqdy, namey, nEqu );
     DownloadInterfaceValue( grid, dqdz, namez, nEqu );
+
+    if ( Iteration::outerSteps == -31 )
+    {
+        Real mindiff = 1.0e-10;
+        int idumpface = 1;
+        int idumpcell = 0;
+
+        HXDebug::DumpField( "grad.dqdxDownload.debug", dqdx );
+        HXDebug::CompareFile( mindiff, idumpcell );
+        HXDebug::DumpField( "grad.dqdyDownload.debug", dqdy );
+        HXDebug::CompareFile( mindiff, idumpcell );
+        HXDebug::DumpField( "grad.dqdzDownload.debug", dqdz );
+        HXDebug::CompareFile( mindiff, idumpcell );
+    }
     if ( istore == 1 )
     {
         this->StoreBcGrad();

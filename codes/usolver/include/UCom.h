@@ -90,4 +90,20 @@ extern UGeom ug;
 void AddF2CField( MRField * cellField, MRField * faceField );
 void AddF2CFieldDebug( MRField * cellField, MRField * faceField );
 
+class HXDebug
+{
+public:
+    HXDebug();
+    ~HXDebug();
+    static string fileName1, fileName2;
+public:
+    static void DumpResField( const string & fileName );
+    static void DumpField( const string & fileName, MRField * field );
+    static string GetFullFileName( const string & fileName, int startStrategy );
+    static void CompareFile( Real mindiff, int idump );
+    static MRField * ReadField( const string & fileName );
+    static void DumpCellInfo( int iCell );
+    static void CheckNANField( MRField * field );
+};
+
 EndNameSpace

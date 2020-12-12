@@ -30,6 +30,7 @@ License
 #include "HXMath.h"
 #include "Stop.h"
 #include "Boundary.h"
+#include "Iteration.h"
 #include <iostream>
 using namespace std;
 
@@ -165,6 +166,16 @@ void NsBcSolver::FarFieldBc()
         nscom.primt2[ iEqu ] = nscom.prims2[ iEqu ];
     }
 
+    if ( Iteration::outerSteps == 30 && ug.fId == 1 )
+    {
+        //cout << "FarFieldBc\n";
+        //cout << " Iteration::outerSteps = " << Iteration::outerSteps << "\n";
+        //for ( int iEqu = 0; iEqu < nscom.nTEqu; ++ iEqu )
+        //{
+        //    cout << " nscom.primt1[ " << iEqu << " ] = " << nscom.primt1[ iEqu ] << "\n";
+        //}
+    }
+
     //inner point
     Real rin, uin, vin, win, pin;
     ONEFLOW::Extract( nscom.prims1, rin, uin, vin, win, pin );
@@ -180,10 +191,10 @@ void NsBcSolver::FarFieldBc()
     Real pref = nscom.inflow[ IDX::IP ];
 
     Real vnref = gcom.xfn * uref + gcom.yfn * vref + gcom.zfn * wref - gcom.vfn;
-    Real vnin  = gcom.xfn * uin  + gcom.yfn * vin  + gcom.zfn * win  - gcom.vfn;
+    Real vnin = gcom.xfn * uin + gcom.yfn * vin + gcom.zfn * win - gcom.vfn;
 
     Real cref = sqrt( ABS( nscom.gama_ref * pref / rref ) );
-    Real cin  = sqrt( ABS( nscom.gama    * pin  / rin  ) );
+    Real cin = sqrt( ABS( nscom.gama * pin / rin ) );
 
     Real gamm1 = nscom.gama - one;
 
@@ -224,12 +235,12 @@ void NsBcSolver::FarFieldBc()
     else
     {
         //subsonic
-        Real riemp = vnin  + 2.0 * cin  / gamm1;
+        Real riemp = vnin + 2.0 * cin / gamm1;
         Real riemm = vnref - 2.0 * cref / gamm1;
-        Real vnb   = half   * ( riemp + riemm );
-        Real cb    = fourth * ( riemp - riemm ) * gamm1;
+        Real vnb = half * ( riemp + riemm );
+        Real cb = fourth * ( riemp - riemm ) * gamm1;
 
-        Real vtx , vty , vtz , entr;
+        Real vtx, vty, vtz, entr;
         if ( vnb >= 0.0 )
         {
             // exit
@@ -248,11 +259,11 @@ void NsBcSolver::FarFieldBc()
             vtz = wref - gcom.zfn * vnref;
         }
 
-        Real rb  = pow( ( cb * cb / ( entr * nscom.gama ) ), one / gamm1 );
-        Real ub  = vtx + gcom.xfn * vnb;
-        Real vb  = vty + gcom.yfn * vnb;
-        Real wb  = vtz + gcom.zfn * vnb;
-        Real pb  = cb * cb * rb / nscom.gama;
+        Real rb = pow( ( cb * cb / ( entr * nscom.gama ) ), one / gamm1 );
+        Real ub = vtx + gcom.xfn * vnb;
+        Real vb = vty + gcom.yfn * vnb;
+        Real wb = vtz + gcom.zfn * vnb;
+        Real pb = cb * cb * rb / nscom.gama;
 
         nscom.primt1[ IDX::IR ] = rb;
         nscom.primt1[ IDX::IU ] = ub;
@@ -265,6 +276,7 @@ void NsBcSolver::FarFieldBc()
             nscom.primt2[ iEqu ] = nscom.primt1[ iEqu ];
         }
     }
+
 }
 
 void NsBcSolver::IsothermalVisWallBc()

@@ -23,12 +23,18 @@ License
 
 #pragma once
 #include "HXDefine.h"
+#include "Point.h"
 
 BeginNameSpace( ONEFLOW )
 
-void CalcGrad( RealField & q, RealField & dqdx, RealField & dqdy, RealField & dqdz );
-void CalcGradGGCellWeight( RealField & q, RealField & dqdx, RealField & dqdy, RealField & dqdz );
-void CalcGradDebug( RealField & q, RealField & dqdx, RealField & dqdy, RealField & dqdz );
-void CalcGradGGCellWeightDebug( RealField & q, RealField & dqdx, RealField & dqdy, RealField & dqdz );
+class GridCreate
+{
+public:
+    GridCreate();
+    ~GridCreate();
+public:
+    void Run( int igene );
+    void GenePlate();
+};
 
 EndNameSpace

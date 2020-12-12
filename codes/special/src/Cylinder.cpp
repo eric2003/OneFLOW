@@ -142,11 +142,6 @@ void Cylinder::Run( int igene )
 
 void Cylinder::GenePlate()
 {
-    grid_Machine.ReadScript();
-    grid_Machine.GeneGrid();
-
-
-    int kkk = 1;
 }
 
 void Cylinder::HalfCylinder()

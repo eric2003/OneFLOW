@@ -252,7 +252,7 @@ void SDomain::GetPointIdLink( IntField & lineList, LinkField & pointIdLink )
     for ( int iLine = 0; iLine < lineList.size(); ++ iLine )
     {
         int line_id = lineList[ iLine ] - 1;
-        IntField & pointIdList = blkFaceSolver.myFaceSolver.lineList[ line_id ];
+        IntField & pointIdList = blkFaceSolver.lineList[ line_id ];
         pointIdLink.push_back( pointIdList );
     }
 }
@@ -334,7 +334,7 @@ void SDomain::SetBlkBcMesh( Block3D * blk3d )
     RealField3D & y3d = blk3d->y3d;
     RealField3D & z3d = blk3d->z3d;
 
-    SDomain * sDomain = blkFaceSolver.myFaceSolver.sDomainList[ this->domain_id ];
+    SDomain * sDomain = blkFaceSolver.sDomainList[ this->domain_id ];
 
     RealField2D & x2d = sDomain->x2d;
     RealField2D & y2d = sDomain->y2d;
@@ -413,7 +413,7 @@ void SDomain::SetBlkBcMesh( Block2D * blk2d )
     RealField2D & block_y2d = blk2d->y2d;
     RealField2D & block_z2d = blk2d->z2d;
 
-    SDomain * sDomain = blkFaceSolver.myFaceSolver.sDomainList[ this->domain_id ];
+    SDomain * sDomain = blkFaceSolver.sDomainList[ this->domain_id ];
 
     RealField2D & x2d = sDomain->x2d;
     RealField2D & y2d = sDomain->y2d;
@@ -526,7 +526,7 @@ void SDomain::CreateInpFaceList( HXVector< Face2D * > &facelist )
     Face2D * face2d = new Face2D();
     face2d->face_id = sDomain->domain_id;
     face2d->ctrlpoints = sDomain->ctrlpoints;
-    BlkF2C & face_struct = blkFaceSolver.myFaceSolver.face2Block[ face2d->face_id - 1 ];
+    BlkF2C & face_struct = blkFaceSolver.face2Block[ face2d->face_id - 1 ];
     face2d->bcType = face_struct.bctype;
     face2d->CalcStEd( coorMap );
     facelist.push_back( face2d );
