@@ -166,16 +166,6 @@ void NsBcSolver::FarFieldBc()
         nscom.primt2[ iEqu ] = nscom.prims2[ iEqu ];
     }
 
-    if ( Iteration::outerSteps == 30 && ug.fId == 1 )
-    {
-        //cout << "FarFieldBc\n";
-        //cout << " Iteration::outerSteps = " << Iteration::outerSteps << "\n";
-        //for ( int iEqu = 0; iEqu < nscom.nTEqu; ++ iEqu )
-        //{
-        //    cout << " nscom.primt1[ " << iEqu << " ] = " << nscom.primt1[ iEqu ] << "\n";
-        //}
-    }
-
     //inner point
     Real rin, uin, vin, win, pin;
     ONEFLOW::Extract( nscom.prims1, rin, uin, vin, win, pin );
@@ -191,10 +181,10 @@ void NsBcSolver::FarFieldBc()
     Real pref = nscom.inflow[ IDX::IP ];
 
     Real vnref = gcom.xfn * uref + gcom.yfn * vref + gcom.zfn * wref - gcom.vfn;
-    Real vnin = gcom.xfn * uin + gcom.yfn * vin + gcom.zfn * win - gcom.vfn;
+    Real vnin  = gcom.xfn * uin  + gcom.yfn * vin  + gcom.zfn * win  - gcom.vfn;
 
     Real cref = sqrt( ABS( nscom.gama_ref * pref / rref ) );
-    Real cin = sqrt( ABS( nscom.gama * pin / rin ) );
+    Real cin  = sqrt( ABS( nscom.gama     * pin  / rin  ) );
 
     Real gamm1 = nscom.gama - one;
 
@@ -276,7 +266,6 @@ void NsBcSolver::FarFieldBc()
             nscom.primt2[ iEqu ] = nscom.primt1[ iEqu ];
         }
     }
-
 }
 
 void NsBcSolver::IsothermalVisWallBc()
