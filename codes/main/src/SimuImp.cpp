@@ -30,6 +30,7 @@ License
 #include "Parallel.h"
 #include "GridFactory.h"
 #include "Test.h"
+#include "Theory.h"
 #include <iostream>
 using namespace std;
 
@@ -108,6 +109,9 @@ void SimuImp::RunSimu()
             break;
         case TaskEnum::FUN_TEST:
             FunTest();
+            break;
+        case TaskEnum::SOLVE_THEORY:
+            TheorySimu();
             break;
         default:
         {

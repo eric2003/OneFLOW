@@ -33,6 +33,8 @@ public:
     ~Sod();
 public:
     void Run();
+public:
+    void SodGrid();
     void Theory();
     void sp2p1( Real gam, Real p1, Real a1, Real p4, Real a4, Real & p2p1, int & iterr, Real tol );
 public:

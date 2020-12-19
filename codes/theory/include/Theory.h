@@ -19,50 +19,22 @@ License
     along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 
 \*---------------------------------------------------------------------------*/
+
+
 #pragma once
-#include <map>
 #include "HXDefine.h"
 
 BeginNameSpace( ONEFLOW )
 
-//Types of problem solving
-enum class TaskEnum
-{
-    SOLVE_FIELD = 0,
-    CREATE_GRID = 1,
-    CREATE_WALL_DIST = 2,
-    PARTITION_GRID = 3,
-    FUN_TEST = 4,
-    SOLVE_THEORY = 5
-};
-
-const map<string, TaskEnum> TaskFilter = 
-{
-    {"Solve",TaskEnum::SOLVE_FIELD},
-    {"Grid",TaskEnum::CREATE_GRID},
-    {"WallDist",TaskEnum::CREATE_WALL_DIST},
-    {"Partition",TaskEnum::PARTITION_GRID},
-    {"FunTest",TaskEnum::FUN_TEST},
-    {"Theory",TaskEnum::SOLVE_THEORY}
-};
-
-
-//Manage the types of tasks performed when ONEFLOW is solved
-class SimuState
+class Theory
 {
 public:
-    SimuState();
-    virtual ~SimuState();
+    Theory();
+    ~Theory();
 public:
-    //According to the database parameters, set the corresponding value of simutask
-    void Init();
-    //Returns the type of task to execute
-    const TaskEnum Task() const;
-
-private:
-    TaskEnum simutask;
+    void Run();
 };
 
-extern SimuState simu_state;
+void TheorySimu();
 
 EndNameSpace
