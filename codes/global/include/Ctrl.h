@@ -37,6 +37,7 @@ public:
     Real pdt, pdt1;
     int linearTwoStepMethods;
     int showfield;
+    int addVisualizationSteps;
     int idualtime;
     int time_integral;
     int ieigenfix;

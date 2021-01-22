@@ -22,6 +22,7 @@ License
 #pragma once
 #include "HXClone.h"
 #include <ios>
+#include <string>
 using namespace std;
 
 BeginNameSpace( ONEFLOW )
@@ -29,6 +30,8 @@ BeginNameSpace( ONEFLOW )
 DEFINE_DATA_CLASS( SetFile );
 
 void RegisterFileTask();
+
+string GetParallelFileName( const string & fileNameVar );
 
 ios_base::openmode GetOpenMode( const string & openModeName );
 

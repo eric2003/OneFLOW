@@ -22,6 +22,7 @@ License
 
 #include "CircleLineMesh.h"
 #include "LineInfo.h"
+#include "CircleInfo.h"
 #include "PointMachine.h"
 #include "SegmentCtrl.h"
 #include "HXMath.h"
@@ -40,14 +41,16 @@ CircleLineMesh::~CircleLineMesh()
 
 void CircleLineMesh::GenerateLineMesh()
 {
-    ;
+    if ( ! this->IsValidState() ) return;
+    this->GenerateCurveMesh();
 }
 
 void CircleLineMesh::CalcCurveGeometry()
 {
-    PointType * pt1 = point_Machine.GetPoint( this->curveInfo->p1 );
-    PointType * pt2 = point_Machine.GetPoint( this->curveInfo->p2 );
-    PointType * cp = point_Machine.GetPoint( this->center );
+    CircleInfo * circleInfo = static_cast< CircleInfo * >( this->curveInfo );
+    PointType * pt1 = point_Machine.GetPoint( circleInfo->p1 );
+    PointType * pt2 = point_Machine.GetPoint( circleInfo->p2 );
+    PointType * cp  = point_Machine.GetPoint( circleInfo->center );
 
     Real x0 = pt1->x;
     Real y0 = pt1->y;
@@ -91,9 +94,10 @@ void CircleLineMesh::CalcCurveGeometry()
 
 void CircleLineMesh::CalcCoor( Real s, Real & xt, Real & yt, Real & zt )
 {
-    PointType * pt1 = point_Machine.GetPoint( this->curveInfo->p1 );
-    PointType * pt2 = point_Machine.GetPoint( this->curveInfo->p2 );
-    PointType * cp  = point_Machine.GetPoint( this->center );
+    CircleInfo * circleInfo = static_cast< CircleInfo * >( this->curveInfo );
+    PointType * pt1 = point_Machine.GetPoint( circleInfo->p1 );
+    PointType * pt2 = point_Machine.GetPoint( circleInfo->p2 );
+    PointType * cp  = point_Machine.GetPoint( circleInfo->center );
 
     Real angleSpan = ( this->alpha1 - this->alpha0 );
     Real ratio = s / this->segmentCtrl->lenth;

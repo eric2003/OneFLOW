@@ -30,7 +30,7 @@ BeginNameSpace( ONEFLOW )
 class CircleInfo : public CurveInfo
 {
 public:
-    CircleInfo( int p1, int p2, int p3, int id = 1 );
+    CircleInfo( int p1, int center, int p2, int id = 1 );
     CircleInfo();
     ~CircleInfo();
 public:

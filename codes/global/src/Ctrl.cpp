@@ -52,6 +52,8 @@ void Ctrl::Init()
     this->ireadwdst = GetDataValue< int >( "ireadwdst" );
     this->showfield = GetDataValue< int >( "showfield" );
     this->heatfluxFile = GetDataValue< string >( "heatfluxFile" );
+    this->addVisualizationSteps = GetDataValue< int >( "addVisualizationSteps" );
+    
     
     if ( inflowType == 3 )
     {
