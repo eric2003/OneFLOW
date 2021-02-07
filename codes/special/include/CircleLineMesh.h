@@ -32,7 +32,6 @@ public:
     CircleLineMesh();
     ~CircleLineMesh();
 public:
-    int center;
     Real radius;
     Real alpha0, alpha1;
 public:

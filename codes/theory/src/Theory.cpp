@@ -19,64 +19,33 @@ License
     along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 
 \*---------------------------------------------------------------------------*/
-#pragma once
-#include "HXDefine.h"
+
+#include "Theory.h"
+#include "Sod.h"
+#include <iostream>
+using namespace std;
 
 BeginNameSpace( ONEFLOW )
 
-class Ctrl
+Theory::Theory()
 {
-public:
-    Ctrl();
-    ~Ctrl();
-public:
-    int startStrategy;
-    int ireadwdst;
-    int iConv;
-    Real lhscoef;
-    Real pdt, pdt1;
-    int linearTwoStepMethods;
-    int showfield;
-    int addVisualizationSteps;
-    int idualtime;
-    int time_integral;
-    int ieigenfix;
-    Real centropy1;
-    Real centropy2;
-    int idump;
-    int inflowType;
-    RealField initplane;
-    RealField initflow1;
-    RealField initflow2;
-    int rk_stage;
-    RealField rk_coef;
-    Real maxTime;
-    Real currTime;
-    int iexitflag;
-    int ilim;
-    Real vencat_coef;
-    int nrokplus;
-    int ivischeme;
-    string heatfluxFile;
-public:
-    void Init();
-};
+    ;
+}
 
-class VisModel
+Theory::~Theory()
 {
-public:
-    VisModel();
-    ~VisModel();
-public:
-    void Init();
-public:
-    int vismodel;
-    string visname;
-};
+    ;
+}
 
-void CopyArray( RealField & arr, const string & name );
+void Theory::Run()
+{
+}
 
-extern Ctrl ctrl;
-extern VisModel vis_model;
+void TheorySimu()
+{
+    Sod * sod = new Sod();
+    sod->Run();
+    delete sod;
+}
 
 EndNameSpace

@@ -45,6 +45,12 @@ Sod::~Sod()
 
 void Sod::Run()
 {
+    //this->SodGrid();
+    this->Theory();
+}
+
+void Sod::SodGrid()
+{
     int ni = 101;
     int nj = 51;
     int nNode = ni * nj;
@@ -108,7 +114,6 @@ void Sod::Run()
     file << 1  << " " << 1  << " " << 1  << " " << nj  << " " << BC::OUTFLOW << endl;
     file << ni  << " " << ni  << " " << 1  << " " << nj  << " " << BC::OUTFLOW << endl;
     CloseFile( file );
-    this->Theory();
 }
 
 void Sod::Theory()

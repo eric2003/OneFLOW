@@ -51,9 +51,9 @@ void ClassicGrid::Run()
     int igene = GetDataValue< int >( "igene" );
     if ( igene == 0 )
     {
-        Sod * sod = new Sod();
-        sod->Run();
-        delete sod;
+        //Sod * sod = new Sod();
+        //sod->Run();
+        //delete sod;
     }
     else if ( igene == 1 )
     {

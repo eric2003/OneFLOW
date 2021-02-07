@@ -58,6 +58,12 @@ void SegmentCtrl::Read( FileIO * ioFile )
         this->ds1 = ioFile->ReadNextDigit< Real >();
         this->ds2 = ioFile->ReadNextDigit< Real >();
     }
+    else if ( distributionString == "tanh" )
+    {
+        this->distribution = 4;
+        this->ds1 = ioFile->ReadNextDigit< Real >();
+        this->ds2 = ioFile->ReadNextDigit< Real >();
+    }
     else if ( distributionString.substr( 0, 1 ) == "c" )
     {
         this->distribution = 2;
@@ -89,15 +95,13 @@ void SegmentCtrl::CalcFactor()
 Real SegmentCtrl::CalcFactor( Real compCoor )
 {
     Real factor = -1;
-    if ( this->distribution == 3 )
+    if ( this->distribution == 4 )
     {
-        factor = this->CalcDFactor( compCoor );
+        factor = this->CalcTANHFactor( compCoor );
     }
     else
     {
         factor = this->CalcDFactor( compCoor );
-        //factor = this->CalcSFactor( compCoor );
-
     }
     return factor;
 }
@@ -108,8 +112,11 @@ Real SegmentCtrl::CalcDFactor( Real compCoor )
     if ( compCoor <= cA3 )
     {
         Real term1 = ( cA2 / cA3 ) * compCoor;
-        Real factor1 = cA1 * ( exp( term1 ) - 1.0 ) / ( exp( cA2 ) - 1.0 );
-        factor = factor1;
+        factor = compCoor;
+        if ( cA2 != 0.0 )
+        {
+            factor = cA1 * ( exp( term1 ) - 1.0 ) / ( exp( cA2 ) - 1.0 );
+        }
     }
     else
     {
@@ -127,49 +134,15 @@ Real SegmentCtrl::CalcSFactor( Real compCoor )
     return factor;
 }
 
+Real SegmentCtrl::CalcTANHFactor( Real compCoor )
+{
+    Real factor = 1.0 + tanh( cB * ( compCoor - 1.0 ) ) / tanh( cB );
+    return factor;
+}
+
 void SegmentCtrl::InitCoef()
 {
     ;
-}
-
-void SegmentCtrl::InitDExp()
-{
-    Real term1 = cA1 * cA2 / cA3;
-    Real term2 = ( 1.0 - cA3 ) / ( 1.0 - cA1 );
-    Real term3 = exp( cA2 ) / ( exp( cA2 ) - 1.0 );
-    Real term = term1 * term2 * term3;
-
-    Real xsta, xend;
-
-    xsta = - 20.0;
-    xend = 20.0;
-    Real fmid;
-    Real xmid;
-    while ( true )
-    {
-        xmid = half * ( xsta + xend );
-        if ( xmid == 0 )
-        {
-            fmid = 1.0;
-        }
-        else
-        {
-            fmid = xmid / ( exp( xmid ) - 1.0 );
-        }
-
-        if ( ABS( fmid - term ) < 1.0e-8 ) break;
-
-        if ( fmid < term )
-        {
-            xend = xmid;
-        }
-        else
-        {
-            xsta = xmid;
-        }
-    };
-
-    cA4 = xmid;
 }
 
 Real SegmentCtrl::CalDExp()
@@ -185,19 +158,7 @@ Real SegmentCtrl::CalDExp()
 
 void SegmentCtrl::Init()
 {
-    //this->CalcEffectiveRatio();
     this->CalcEffectiveRatioTest();
-
-    //if ( this->distribution == 3 )
-    //{
-    //    this->InitDExp();
-    //}
-    //else
-    //{
-    //    Real ratio_new = this->ratio / ( this->nPoint - 1 );
-    //    Real cc = 1.0 / ( nPoint - 1 );
-    //    GetExponentialCoeff( ratio_new, cc, expCoeff );
-    //}
 }
 
 void SegmentCtrl::SetPara( Real diff, Real & v_min, Real & v_max )
@@ -235,11 +196,11 @@ void SegmentCtrl::CalcEffectiveRatioTest()
         this->cA3 = 1.0;
         this->cA4 = 1.0;
 
-        //Real rds1 = 1.0 / ( this->nPoint - 1 );
-        //Real fds1 = rds1 / cA1;
-        //Real rho1 = 1.0 / ( this->nPoint - 1 );
-        //Real cc1 = rho1 / cA3;
-        //GetExponentialCoeff( fds1, cc1, cA2 );
+        Real rds1 = 1.0 / ( this->nPoint - 1 );
+        Real fds1 = rds1 / cA1;
+        Real rho1 = 1.0 / ( this->nPoint - 1 );
+        Real cc1 = rho1 / cA3;
+        GetExponentialCoeff( fds1, cc1, cA2 );
     }
     else if ( ds1 > 0.0 && ds2 < 0.0 )
     {
@@ -252,6 +213,8 @@ void SegmentCtrl::CalcEffectiveRatioTest()
         Real rho1 = 1.0 / ( this->nPoint - 1 );
         Real cc1 = rho1 / cA3;
         GetExponentialCoeff( fds1, cc1, cA2 );
+
+        GetTanhCoeff( rds1, rho1, cB );
     }
     else if ( ds1 < 0.0 && ds2 > 0.0 )
     {
@@ -263,6 +226,8 @@ void SegmentCtrl::CalcEffectiveRatioTest()
         Real rho1 = 1.0 / ( this->nPoint - 1 );
         Real cc1 = rho1 / cA3;
         GetExponentialCoeff( fds1, cc1, cA2 );
+
+        GetTanhCoeff( rds1, rho1, cB );
     }
     else if ( ds1 > 0.0 && ds2 > 0.0 )
     {
@@ -485,6 +450,40 @@ void GetExponentialCoeff( Real targetRatio, Real cc, Real & coef )
             break;
         }
         if ( ratio > targetRatio )
+        {
+            coefMin = coef;
+        }
+        else
+        {
+            coefMax = coef;
+        }
+        ++ iCount;
+    }
+}
+
+void GetTanhCoeff( Real r1, Real rho1, Real & coef )
+{
+    Real coefMin = -100.0;
+    Real coefMax = 100.0;
+
+    Real rho_term = 1 - rho1;
+    Real target = 1 - r1;
+    Real mindiff = 1.0e-8;
+    int count_max = 200;
+
+    int iCount = 0;
+    while ( true )
+    {
+        coef = half * ( coefMin + coefMax );
+
+        Real value = tanh( coef * rho_term ) / ( tanh( coef ) + SMALL );
+
+        if ( ABS( ( value - target ) ) / target < mindiff || iCount > count_max )
+        {
+            break;
+        }
+
+        if ( value < target )
         {
             coefMin = coef;
         }

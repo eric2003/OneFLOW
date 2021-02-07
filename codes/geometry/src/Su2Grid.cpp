@@ -377,6 +377,7 @@ void Su2Grid::ReadSu2GridAscii( string & fileName )
             else if ( word == "NELEM" )
             {
                 this->nElem = ioFile.ReadNextDigit< int >();
+
                 for ( int iElem = 0; iElem < this->nElem; ++ iElem )
                 {
                     ioFile.ReadNextNonEmptyLine();
@@ -390,7 +391,8 @@ void Su2Grid::ReadSu2GridAscii( string & fileName )
                         elem.push_back( ip );
                     }
                     this->elems.push_back( elem );
-                    int id = ioFile.ReadNextDigit< int >();
+                    //int id = ioFile.ReadNextDigit< int >();
+                    int id = iElem + 1;
                     elemId.push_back( id );
                 }
                 continue;

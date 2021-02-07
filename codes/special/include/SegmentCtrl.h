@@ -44,6 +44,7 @@ public:
     SegmentCopy * segmentCopy;
 public:
     Real cA1, cA2, cA3, cA4;
+    Real cB; //tanh function coef
     Real expCoeff, ratio1, ratio2, ratio;
 public:
     RealField factorList;
@@ -54,7 +55,7 @@ public:
     Real CalcFactor( Real compCoor );
     Real CalcDFactor( Real compCoor );
     Real CalcSFactor( Real compCoor );
-    void InitDExp();
+    Real CalcTANHFactor( Real compCoor );
     void InitCoef();
     void Init();
     Real CalDExp();
@@ -82,5 +83,6 @@ public:
 };
 
 void GetExponentialCoeff( Real targetRatio, Real cc, Real & coef );
+void GetTanhCoeff( Real r1, Real rho1, Real & coef );
 
 EndNameSpace

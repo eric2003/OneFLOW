@@ -24,6 +24,7 @@ License
 #include "SegmentCtrl.h"
 #include "CurveInfo.h"
 #include "LineInfo.h"
+#include "CircleInfo.h"
 #include "LineMesh.h"
 #include "LineMeshImp.h"
 #include "FileIO.h"
@@ -102,6 +103,17 @@ void LineMachine::AddLine( int p1, int p2, int id )
     int idd = this->AddLine( p1, p2 );
     CurveInfo * line = new LineInfo( p1, p2, id );
     this->curveInfoList.push_back( line );
+
+    SegmentCtrl * segmentCtrl = new SegmentCtrl();
+    segmentCtrl->id = id;
+    this->segmentCtrlList.push_back( segmentCtrl );
+}
+
+void LineMachine::AddCircle( int p1, int pc, int p2, int id )
+{
+    int idd = this->AddLine( p1, p2 );
+    CurveInfo * circle = new CircleInfo( p1, pc, p2, id );
+    this->curveInfoList.push_back( circle );
 
     SegmentCtrl * segmentCtrl = new SegmentCtrl();
     segmentCtrl->id = id;

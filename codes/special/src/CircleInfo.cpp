@@ -37,7 +37,7 @@ CircleInfo::CircleInfo()
     this->type = CIRCLE;
 }
 
-CircleInfo::CircleInfo( int p1, int p2, int center, int id )
+CircleInfo::CircleInfo( int p1, int center, int p2, int id )
 {
     this->p1 = p1;
     this->p2 = p2;

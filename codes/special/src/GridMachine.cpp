@@ -87,6 +87,15 @@ void GridMachine::ReadScript( const string & fileName )
 
             line_Machine.AddLine( p1, p2, id );
         }
+        else if ( keyWord == "Circle" )
+        {
+            int id = ioFile.ReadNextDigit< int >();
+            int p1 = ioFile.ReadNextDigit< int >();
+            int pc = ioFile.ReadNextDigit< int >();
+            int p2 = ioFile.ReadNextDigit< int >();
+
+            line_Machine.AddCircle( p1, pc, p2, id );
+        }
         else if ( keyWord == "Dim" )
         {
             line_Machine.AddDimension( & ioFile );
