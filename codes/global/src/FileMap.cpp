@@ -56,8 +56,6 @@ void SetFile( StringField & data )
 {
     string & fileNameVar = data[ 0 ];
 
-    //string fileName = GetDataValue< string >( fileNameVar );
-
     string fileName = GetParallelFileName( fileNameVar );
     
     ios_base::openmode openMode = GetOpenMode( data[ 1 ] );
