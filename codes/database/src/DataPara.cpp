@@ -22,6 +22,9 @@ License
 
 #include "DataPara.h"
 #include "DataObject.h"
+#include "DataBaseType.h"
+#include <iostream>
+using namespace std;
 
 BeginNameSpace( ONEFLOW )
 
@@ -47,6 +50,13 @@ DataV::~DataV()
 void DataV::Copy( DataV * inputData )
 {
     this->data->Copy( inputData->data );
+}
+
+void DataV::Dump( fstream & file )
+{
+    file << name << " , " << DataBaseType::GetName( type ) << " : ";
+    this->data->Dump( file );
+    file << "\n";
 }
 
 DataPara::DataPara()
@@ -106,6 +116,17 @@ void DataPara::DeleteDataPointer( const string & name )
         dataSet->erase( iter );
     }
     delete data;
+}
+
+void DataPara::DumpData( fstream & file )
+{
+    cout << " Dumping database:\n";
+    int count = 0;
+    for ( DataSET::iterator iter = this->dataSet->begin(); iter != this->dataSet->end(); ++ iter )
+    {
+        file << ++ count << ": ";
+        ( *iter )->Dump( file );
+    }
 }
 
 EndNameSpace

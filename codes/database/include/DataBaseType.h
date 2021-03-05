@@ -22,57 +22,37 @@ License
 
 #pragma once
 #include "Configure.h"
-#include <set>
 #include <string>
-#include <fstream>
+#include <map>
 using namespace std;
 
 BeginNameSpace( ONEFLOW )
 
-class DataObject;
+const int HX_INT    = 1;
+const int HX_FLOAT  = 2;
+const int HX_DOUBLE = 3;
+const int HX_REAL   = 4;
+const int HX_STRING = 5;
+const int HX_BOOL   = 6;
 
-class DataV
+class DataBaseType
 {
 public:
-    DataV();
-    DataV( const string & name, int type, int size, DataObject * data );
-    ~DataV();
+    DataBaseType();
+    ~DataBaseType();
 public:
-    string  name;
-    int     type;
-    int     size;
-    DataObject * data;
+    static map< int, string > nameMap;
+    static map< string, int > indexMap;
+    static bool init_flag;
 public:
-    void Copy( DataV * inputData );
-    void Dump( fstream & file );
+    static void Init();
+    static void AddAllItem();
+    static void AddItem( const string &name, int index );
+    static int GetIndex( const string & name );
+    static string & GetName( int index );
 };
 
-class CompareDataV
-{
-public:
-    bool operator()( const DataV * lhs, const DataV * rhs ) const
-    {
-        return lhs->name < rhs->name;
-    }
-};
 
-class DataPara
-{
-public:
-    DataPara();
-    ~DataPara();
-public:
-    typedef set < DataV *, CompareDataV > DataSET;
-protected:
-    DataSET * dataSet;
-public:
-    void UpdateDataPointer( DataV * data );
-    DataV * GetDataPointer( const string & name );
-    void DeleteDataPointer( const string & name );
 
-    DataSET * GetDataSet() { return dataSet; }
-public:
-    void DumpData( fstream & file );
-};
 
 EndNameSpace

@@ -27,19 +27,15 @@ License
 #include "DataField.h"
 #include "DataObject.h"
 #include "DataPointer.h"
+#include "DataBaseType.h"
 #include <iostream>
+#include <fstream>
 #include <string>
 #include <set>
+#include <map>
 using namespace std;
 
 BeginNameSpace( ONEFLOW )
-
-const int HX_INT    = 1;
-const int HX_FLOAT  = 2;
-const int HX_DOUBLE = 3;
-const int HX_REAL   = 4;
-const int HX_STRING = 5;
-const int HX_BOOL   = 6;
 
 class DataObject;
 class DataV;
@@ -172,5 +168,7 @@ void CreateFieldPointer( TStorage * storage, PointerWrap * pointerWrap, const st
     DataBase * database = storage->GetDataBase();
     ONEFLOW::CreateFieldPointer( database, pointerWrap, dataObjectName );
 }
+
+void DumpDataBase( fstream & file );
 
 EndNameSpace

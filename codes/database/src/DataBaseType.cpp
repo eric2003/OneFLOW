@@ -20,59 +20,49 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#pragma once
-#include "Configure.h"
-#include <set>
-#include <string>
-#include <fstream>
-using namespace std;
+#include "DataBaseType.h"
 
 BeginNameSpace( ONEFLOW )
 
-class DataObject;
+map< int, string > DataBaseType::nameMap;
+map< string, int > DataBaseType::indexMap;
+bool DataBaseType::init_flag = false;
 
-class DataV
+DataBaseType::DataBaseType()
 {
-public:
-    DataV();
-    DataV( const string & name, int type, int size, DataObject * data );
-    ~DataV();
-public:
-    string  name;
-    int     type;
-    int     size;
-    DataObject * data;
-public:
-    void Copy( DataV * inputData );
-    void Dump( fstream & file );
-};
+}
 
-class CompareDataV
+DataBaseType::~DataBaseType()
 {
-public:
-    bool operator()( const DataV * lhs, const DataV * rhs ) const
-    {
-        return lhs->name < rhs->name;
-    }
-};
+    ;
+}
 
-class DataPara
+void DataBaseType::Init()
 {
-public:
-    DataPara();
-    ~DataPara();
-public:
-    typedef set < DataV *, CompareDataV > DataSET;
-protected:
-    DataSET * dataSet;
-public:
-    void UpdateDataPointer( DataV * data );
-    DataV * GetDataPointer( const string & name );
-    void DeleteDataPointer( const string & name );
+    if ( DataBaseType::init_flag ) return;
+    DataBaseType::init_flag = true;
+    DataBaseType::AddItem( "int", HX_INT );
+    DataBaseType::AddItem( "float", HX_FLOAT );
+    DataBaseType::AddItem( "double", HX_DOUBLE );
+    DataBaseType::AddItem( "Real", HX_REAL );
+    DataBaseType::AddItem( "string", HX_STRING );
+    DataBaseType::AddItem( "bool", HX_BOOL );
+}
 
-    DataSET * GetDataSet() { return dataSet; }
-public:
-    void DumpData( fstream & file );
-};
+void DataBaseType::AddItem( const string &name, int index )
+{
+    DataBaseType::indexMap.insert( pair< string, int >( name, index ) );
+    DataBaseType::nameMap.insert( pair< int, string >( index, name ) );
+}
+
+int DataBaseType::GetIndex( const string & name )
+{
+    return DataBaseType::indexMap[ name ];
+}
+
+string & DataBaseType::GetName( int index )
+{
+    return DataBaseType::nameMap[ index ];
+}
 
 EndNameSpace

@@ -185,5 +185,10 @@ void * GetFieldPointerVoid( DataBase * database, const string & dataObjectName )
     return 0;
 }
 
+void DumpDataBase( fstream & file )
+{
+    DataBase * dataBase = ONEFLOW::GetGlobalDataBase();
+    dataBase->dataPara->DumpData( file );
+}
 
 EndNameSpace
