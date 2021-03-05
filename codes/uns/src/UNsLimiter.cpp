@@ -76,6 +76,11 @@ void NsLimField::BcQlQrFix()
         ug.lc = ( * ug.lcf )[ ug.fId ];
         ug.rc = ( * ug.rcf )[ ug.fId ];
 
+        if ( ug.fId == 24 )
+        {
+            int kkk = 1;
+        }
+
         for ( int iEqu = 0; iEqu < this->nEqu; ++ iEqu )
         {
             Real tmp = half * ( ( * this->q )[ iEqu ][ ug.lc ] + ( * this->q )[ iEqu ][ ug.rc ] );

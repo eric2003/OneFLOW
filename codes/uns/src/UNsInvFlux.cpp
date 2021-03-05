@@ -145,7 +145,7 @@ void UNsInvFlux::CalcInvFlux()
     {
         ug.fId = fId;
 
-        if ( fId == 433 )
+        if ( fId == 24 )
         {
             int kkk = 1;
         }
