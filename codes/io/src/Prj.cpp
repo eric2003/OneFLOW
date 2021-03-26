@@ -25,8 +25,6 @@ License
 #include "FileUtil.h"
 #include "LogFile.h"
 #include "SimuCtrl.h"
-
-
 #include <iostream>
 using namespace std;
 

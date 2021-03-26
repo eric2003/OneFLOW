@@ -33,7 +33,8 @@ enum class TaskEnum
     CREATE_WALL_DIST = 2,
     PARTITION_GRID = 3,
     FUN_TEST = 4,
-    SOLVE_THEORY = 5
+    SOLVE_THEORY = 5,
+    POST_TASK = 6
 };
 
 const map<string, TaskEnum> TaskFilter = 
@@ -43,7 +44,8 @@ const map<string, TaskEnum> TaskFilter =
     {"WallDist",TaskEnum::CREATE_WALL_DIST},
     {"Partition",TaskEnum::PARTITION_GRID},
     {"FunTest",TaskEnum::FUN_TEST},
-    {"Theory",TaskEnum::SOLVE_THEORY}
+    {"Theory",TaskEnum::SOLVE_THEORY},
+    {"PostTask",TaskEnum::POST_TASK}
 };
 
 
