@@ -19,52 +19,50 @@ License
     along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 
 \*---------------------------------------------------------------------------*/
-#pragma once
-#include <map>
-#include "HXDefine.h"
+
+#include "DataBaseType.h"
 
 BeginNameSpace( ONEFLOW )
 
-//Types of problem solving
-enum class TaskEnum
+map< int, string > DataBaseType::nameMap;
+map< string, int > DataBaseType::indexMap;
+bool DataBaseType::init_flag = false;
+
+DataBaseType::DataBaseType()
 {
-    SOLVE_FIELD = 0,
-    CREATE_GRID = 1,
-    CREATE_WALL_DIST = 2,
-    PARTITION_GRID = 3,
-    FUN_TEST = 4,
-    SOLVE_THEORY = 5,
-    POST_TASK = 6
-};
+}
 
-const map<string, TaskEnum> TaskFilter = 
+DataBaseType::~DataBaseType()
 {
-    {"Solve",TaskEnum::SOLVE_FIELD},
-    {"Grid",TaskEnum::CREATE_GRID},
-    {"WallDist",TaskEnum::CREATE_WALL_DIST},
-    {"Partition",TaskEnum::PARTITION_GRID},
-    {"FunTest",TaskEnum::FUN_TEST},
-    {"Theory",TaskEnum::SOLVE_THEORY},
-    {"PostTask",TaskEnum::POST_TASK}
-};
+    ;
+}
 
-
-//Manage the types of tasks performed when ONEFLOW is solved
-class SimuState
+void DataBaseType::Init()
 {
-public:
-    SimuState();
-    virtual ~SimuState();
-public:
-    //According to the database parameters, set the corresponding value of simutask
-    void Init();
-    //Returns the type of task to execute
-    const TaskEnum Task() const;
+    if ( DataBaseType::init_flag ) return;
+    DataBaseType::init_flag = true;
+    DataBaseType::AddItem( "int", HX_INT );
+    DataBaseType::AddItem( "float", HX_FLOAT );
+    DataBaseType::AddItem( "double", HX_DOUBLE );
+    DataBaseType::AddItem( "Real", HX_REAL );
+    DataBaseType::AddItem( "string", HX_STRING );
+    DataBaseType::AddItem( "bool", HX_BOOL );
+}
 
-private:
-    TaskEnum simutask;
-};
+void DataBaseType::AddItem( const string &name, int index )
+{
+    DataBaseType::indexMap.insert( pair< string, int >( name, index ) );
+    DataBaseType::nameMap.insert( pair< int, string >( index, name ) );
+}
 
-extern SimuState simu_state;
+int DataBaseType::GetIndex( const string & name )
+{
+    return DataBaseType::indexMap[ name ];
+}
+
+string & DataBaseType::GetName( int index )
+{
+    return DataBaseType::nameMap[ index ];
+}
 
 EndNameSpace

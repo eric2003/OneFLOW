@@ -42,6 +42,7 @@ public:
     virtual void Write( DataBook * dataBook ) {};
     virtual void Read( DataBook * dataBook, int numberOfElements ) {};
     virtual void Copy( DataObject * dataObject ) {};
+    virtual void Dump( fstream & file ) {};
 };
 
 template < typename T >
@@ -52,6 +53,19 @@ T GetDataValue( DataObject * dataObject, int iElement )
 {
     T * data = static_cast< T *>( dataObject->GetVoidPointer() );
     return data[ iElement ];
+}
+
+template < typename T >
+void TDataObjectDump( fstream &file, vector< T > data )
+{
+    if ( data.size() == 0 ) return;
+    file << data[ 0 ];
+    for ( int i = 1; i < data.size(); ++ i )
+    {
+        file << " , ";
+        file << data[ i ];
+    }
+
 }
 
 template < typename T >
@@ -113,6 +127,19 @@ public:
             data[ iElement ] = tDataObject->data[ iElement ];
         }
     }
+
+    void Dump( fstream &file )
+    {
+        TDataObjectDump( file, data );
+        //if ( this->data.size() == 0 ) return;
+        //file << this->data[ 0 ];
+        //for ( int i = 1; i < this->data.size(); ++ i )
+        //{
+        //    file << " , ";
+        //    file << this->data[ i ];
+        //}
+       
+    }
 };
 
 
@@ -165,6 +192,11 @@ public:
             TDataObject< string > * tDataObject = static_cast<TDataObject< string > *>( dataObject );
             data[ iElement ] = tDataObject->data[ iElement ];
         }
+    }
+
+    void Dump( fstream &file )
+    {
+        TDataObjectDump( file, data );
     }
 };
 

@@ -19,52 +19,40 @@ License
     along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 
 \*---------------------------------------------------------------------------*/
+
 #pragma once
+#include "Configure.h"
+#include <string>
 #include <map>
-#include "HXDefine.h"
+using namespace std;
 
 BeginNameSpace( ONEFLOW )
 
-//Types of problem solving
-enum class TaskEnum
-{
-    SOLVE_FIELD = 0,
-    CREATE_GRID = 1,
-    CREATE_WALL_DIST = 2,
-    PARTITION_GRID = 3,
-    FUN_TEST = 4,
-    SOLVE_THEORY = 5,
-    POST_TASK = 6
-};
+const int HX_INT    = 1;
+const int HX_FLOAT  = 2;
+const int HX_DOUBLE = 3;
+const int HX_REAL   = 4;
+const int HX_STRING = 5;
+const int HX_BOOL   = 6;
 
-const map<string, TaskEnum> TaskFilter = 
-{
-    {"Solve",TaskEnum::SOLVE_FIELD},
-    {"Grid",TaskEnum::CREATE_GRID},
-    {"WallDist",TaskEnum::CREATE_WALL_DIST},
-    {"Partition",TaskEnum::PARTITION_GRID},
-    {"FunTest",TaskEnum::FUN_TEST},
-    {"Theory",TaskEnum::SOLVE_THEORY},
-    {"PostTask",TaskEnum::POST_TASK}
-};
-
-
-//Manage the types of tasks performed when ONEFLOW is solved
-class SimuState
+class DataBaseType
 {
 public:
-    SimuState();
-    virtual ~SimuState();
+    DataBaseType();
+    ~DataBaseType();
 public:
-    //According to the database parameters, set the corresponding value of simutask
-    void Init();
-    //Returns the type of task to execute
-    const TaskEnum Task() const;
-
-private:
-    TaskEnum simutask;
+    static map< int, string > nameMap;
+    static map< string, int > indexMap;
+    static bool init_flag;
+public:
+    static void Init();
+    static void AddAllItem();
+    static void AddItem( const string &name, int index );
+    static int GetIndex( const string & name );
+    static string & GetName( int index );
 };
 
-extern SimuState simu_state;
+
+
 
 EndNameSpace

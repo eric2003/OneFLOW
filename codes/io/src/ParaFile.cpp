@@ -28,6 +28,7 @@ License
 #include "OStream.h"
 #include "Stop.h"
 #include "Prj.h"
+#include "PIO.h"
 #include "json/json.h"
 #include <iostream>
 #include <string>
@@ -63,14 +64,7 @@ void ReadOneFLOWScriptFile( FileIO & fileIO )
 
     fileIO.SetDefaultSeparator( keyWordSeparator );
 
-    map < string, int > keyWordMap;
-
-    keyWordMap.insert( pair< string, int >( "int", HX_INT ) );
-    keyWordMap.insert( pair< string, int >( "float", HX_FLOAT ) );
-    keyWordMap.insert( pair< string, int >( "double", HX_DOUBLE ) );
-    keyWordMap.insert( pair< string, int >( "Real", HX_REAL ) );
-    keyWordMap.insert( pair< string, int >( "string", HX_STRING ) );
-    keyWordMap.insert( pair< string, int >( "bool", HX_BOOL ) );
+    DataBaseType::Init();
 
     while ( ! fileIO.ReachTheEndOfFile() )
     {
@@ -81,7 +75,8 @@ void ReadOneFLOWScriptFile( FileIO & fileIO )
 
         if ( keyWord == "" ) continue;
 
-        int keyWordIndex = keyWordMap[ keyWord ];
+        //int keyWordIndex = keyWordMap[ keyWord ];
+        int keyWordIndex = DataBaseType::GetIndex( keyWord );
 
         if ( ONEFLOW::IsArrayParameter( fileIO.GetCurrentLine() ) )
         {
@@ -203,15 +198,8 @@ string GetJsonFileName( const string & fileName )
 //    string keyWordSeparator = " =\r\n\t#$,;\"";
 //
 //    fileIO.SetDefaultSeparator( keyWordSeparator );
-//
-//    map < string, int > keyWordMap;
-//
-//    keyWordMap.insert( pair< string, int >( "int", HX_INT ) );
-//    keyWordMap.insert( pair< string, int >( "float", HX_FLOAT ) );
-//    keyWordMap.insert( pair< string, int >( "double", HX_DOUBLE ) );
-//    keyWordMap.insert( pair< string, int >( "Real", HX_REAL ) );
-//    keyWordMap.insert( pair< string, int >( "string", HX_STRING ) );
-//    keyWordMap.insert( pair< string, int >( "bool", HX_BOOL ) );
+
+//    DataBaseType::Init();
 //
 //    Json::Value jsonRoot;
 //
@@ -224,7 +212,7 @@ string GetJsonFileName( const string & fileName )
 //
 //        if ( keyWord == "" ) continue;
 //
-//        int keyWordIndex = keyWordMap[ keyWord ];
+//        int keyWordIndex = DataBaseType::GetIndex( keyWord );
 //
 //        Json::Value jsonItem;
 //        string varName;
@@ -322,6 +310,17 @@ void ReadControlInfo()
 
     Parallel::TestSayHelloFromEveryProcess();
     ONEFLOW::BroadcastControlParameterToAllProcessors();
+    ONEFLOW::DumpDataBase();
+}
+
+void DumpDataBase()
+{
+    DataBase * dataBase = ONEFLOW::GetGlobalDataBase();
+    fstream file;
+    string fileName = "/log/database.log";
+    PIO::ParallelOpenPrj( file, fileName, ios_base::out );
+    dataBase->dataPara->DumpData( file );
+    PIO::Close( file );
 }
 
 void ReadPrjScript()

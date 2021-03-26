@@ -24,6 +24,7 @@ License
 #include "Configure.h"
 #include <set>
 #include <string>
+#include <fstream>
 using namespace std;
 
 BeginNameSpace( ONEFLOW )
@@ -43,6 +44,7 @@ public:
     DataObject * data;
 public:
     void Copy( DataV * inputData );
+    void Dump( fstream & file );
 };
 
 class CompareDataV
@@ -69,6 +71,8 @@ public:
     void DeleteDataPointer( const string & name );
 
     DataSET * GetDataSet() { return dataSet; }
+public:
+    void DumpData( fstream & file );
 };
 
 EndNameSpace

@@ -176,7 +176,6 @@ int GetNSolidCell( UnsGrid * grid )
     {
         int bcType = bcInfo->bcType[ ir ];
         if ( bcType != BC::SOLID_SURFACE ) continue;
-        bcInfo->bcFace.size();
 
         int nBCFace = bcInfo->bcFace[ ir ].size();
         nSolidCell += nBCFace;
@@ -265,7 +264,6 @@ void CalcAeroForce(int idump_pres)
 	{
 		int bcType = bcInfo->bcType[ir];
 		if (bcType != BC::SOLID_SURFACE) continue;
-		bcInfo->bcFace.size();
 		int nBCFace = bcInfo->bcFace[ir].size();
 
 		AeroForce aeroForce;

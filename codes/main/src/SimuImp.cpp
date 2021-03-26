@@ -31,6 +31,7 @@ License
 #include "GridFactory.h"
 #include "Test.h"
 #include "Theory.h"
+#include "PostProcess.h"
 #include <iostream>
 using namespace std;
 
@@ -90,7 +91,10 @@ void SimuImp::RunSimu()
     //Call different solving modules according to the task type
     const TaskEnum task = simu_state.Task();
 
-    if ( task != TaskEnum::FUN_TEST )
+    if ( task == TaskEnum::SOLVE_FIELD ||
+         task == TaskEnum::CREATE_GRID ||
+         task == TaskEnum::CREATE_WALL_DIST
+       )
     {
         ConstructSystemMap();
     }
@@ -112,6 +116,9 @@ void SimuImp::RunSimu()
             break;
         case TaskEnum::SOLVE_THEORY:
             TheorySimu();
+            break;
+        case TaskEnum::POST_TASK:
+            PostSimu();
             break;
         default:
         {

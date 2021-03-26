@@ -47,6 +47,7 @@ void ReadPrjScript();
 void ReadScriptFileNameList( vector< string > & scriptFileNameList );
 void ReadMultiScriptFiles( vector< string > & scriptFileNameList );
 void BroadcastControlParameterToAllProcessors();
+void DumpDataBase();
 
 void CompressData( DataBase * dataBase, DataBook *& dataBook );
 void DecompressData( DataBase * dataBase, DataBook * dataBook );
