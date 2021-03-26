@@ -493,7 +493,7 @@ bool CurveData::FindNextPoint( int p1, int & pNext, VectDir * vd )
 
 void CurveData::ConstructFinalList()
 {
-    IntField &pq = this->GetFistEdge();
+    IntField pq = this->GetFistEdge();
 
     int p1 = pq[ 0 ];
     int p2 = pq[ 1 ];
