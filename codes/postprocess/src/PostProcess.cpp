@@ -747,7 +747,7 @@ void MakeCurveClass::Visual()
     this->mainPart.Visual( fileName1 );
 
     string fileName2 = "grid/slapwallaero.dat";
-    this->mainPart.Visual( fileName2 );
+    this->slapPart.Visual( fileName2 );
 }
 
 EndNameSpace
