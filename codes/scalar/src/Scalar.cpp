@@ -41,12 +41,12 @@ Scalar::~Scalar()
 
 void Scalar::Run()
 {
-    Blasius * blasius = new Blasius();
-    blasius->Run();
-    delete blasius;
-    //ScalarSolver * scalarSolver = new ScalarSolver();
-    //scalarSolver->Run();
-    //delete scalarSolver;
+    //Blasius * blasius = new Blasius();
+    //blasius->Run();
+    //delete blasius;
+    ScalarSolver * scalarSolver = new ScalarSolver();
+    scalarSolver->Run();
+    delete scalarSolver;
 
     //ScalarOrder * scalarOrder = new ScalarOrder();
     //scalarOrder->Run();

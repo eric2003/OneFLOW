@@ -48,5 +48,13 @@ void SimpleSimu::Run()
     delete scalar;
 }
 
+void ToyModelSimu()
+{
+    cout << "ToyModelSimu\n";
+    Scalar * scalar = new Scalar();
+    scalar->Run();
+    delete scalar;
+}
+
 
 EndNameSpace

@@ -100,7 +100,7 @@ Real Test::VencatEric( Real x )
 }
 
 
-void FunTest()
+void FunctionTest()
 {
     Test test;
     test.Run();

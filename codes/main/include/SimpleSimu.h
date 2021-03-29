@@ -39,4 +39,6 @@ public:
     std::vector<std::string> args;
 };
 
+void ToyModelSimu();
+
 EndNameSpace

@@ -21,6 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 #include "SimuImp.h"
 #include "SimuDef.h"
+#include "SimpleSimu.h"
 #include "SimuCtrl.h"
 #include "System.h"
 #include "FieldSimu.h"
@@ -111,11 +112,14 @@ void SimuImp::RunSimu()
         case TaskEnum::CREATE_WALL_DIST:
             WalldistSimu();
             break;
-        case TaskEnum::FUN_TEST:
-            FunTest();
+        case TaskEnum::FUNCTION_TEST:
+            FunctionTest();
             break;
         case TaskEnum::SOLVE_THEORY:
             TheorySimu();
+            break;
+        case TaskEnum::TOY_MODEL:
+            ToyModelSimu();
             break;
         case TaskEnum::POST_TASK:
             PostSimu();
