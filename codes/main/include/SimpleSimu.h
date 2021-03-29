@@ -21,23 +21,8 @@ License
 \*---------------------------------------------------------------------------*/
 #pragma once
 #include "Configure.h"
-#include <vector>
-#include <string>
 
 BeginNameSpace( ONEFLOW )
-
-class SimpleSimu
-{
-public:
-    SimpleSimu( std::vector<std::string> &args );
-    ~SimpleSimu();
-public:
-    void Run();
-protected:
-    void ProcessCmdLineArgs( std::vector<std::string> & args );
-public:
-    std::vector<std::string> args;
-};
 
 void ToyModelSimu();
 

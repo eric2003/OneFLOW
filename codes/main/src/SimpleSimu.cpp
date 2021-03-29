@@ -26,28 +26,6 @@ using namespace std;
 
 BeginNameSpace( ONEFLOW )
 
-SimpleSimu::SimpleSimu( std::vector<std::string> &args )
-{
-    this->args = args;
-    this->ProcessCmdLineArgs( args );
-}
-
-SimpleSimu::~SimpleSimu()
-{
-}
-
-void SimpleSimu::ProcessCmdLineArgs( std::vector<std::string> &args )
-{
-}
-
-void SimpleSimu::Run()
-{
-    cout << "SimpleSimu::Run\n";
-    Scalar * scalar = new Scalar();
-    scalar->Run();
-    delete scalar;
-}
-
 void ToyModelSimu()
 {
     cout << "ToyModelSimu\n";

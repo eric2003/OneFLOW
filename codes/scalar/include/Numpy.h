@@ -25,6 +25,7 @@ License
 #include "Configure.h"
 #include <vector>
 #include <string>
+#include <fstream>
 using namespace std;
 
 BeginNameSpace( ONEFLOW )
@@ -35,6 +36,8 @@ public:
     Numpy();
     ~Numpy();
 public:
+    static void OpenPrjFile( fstream & file, const string & fileName, const ios_base::openmode & openMode );
+    static string AddFileName( const string & prefix, const string & fileName );
     static void Ones( vector< double > & var );
     static void Set( vector< double > & var, int st, int ed, double v );
     static void Linspace( vector< double > & var, double st, double ed );
