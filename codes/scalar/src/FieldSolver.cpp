@@ -19,20 +19,73 @@ License
     along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 
 \*---------------------------------------------------------------------------*/
-#include "SimpleSimu.h"
-#include "Scalar.h"
+
+#include "FieldSolver.h"
+#include "FieldPara.h"
+#include "ScalarGrid.h"
+#include "MetisGrid.h"
+#include "ScalarField.h"
 #include <iostream>
+#include <vector>
 using namespace std;
 
 BeginNameSpace( ONEFLOW )
 
-void ToyModelSimu()
+FieldSolver::FieldSolver()
 {
-    cout << "ToyModelSimu\n";
-    Scalar * scalar = new Scalar();
-    scalar->Run();
-    delete scalar;
+    this->grid = new ScalarGrid();
+    this->field = new ScalarField();
+    this->para = new FieldPara();
 }
 
+FieldSolver::~FieldSolver()
+{
+    delete this->grid;
+    delete this->field;
+    delete this->para;
+}
+
+void FieldSolver::Run()
+{
+    this->Init();
+
+    this->SolveFlowField();
+}
+
+void FieldSolver::Init()
+{
+    this->InitCtrlParameter();
+
+    this->InitGrid();
+
+    this->InitFlowField();
+}
+
+void FieldSolver::InitCtrlParameter()
+{
+    this->para->Init();
+}
+
+void FieldSolver::InitGrid()
+{
+    this->grid->GenerateGrid( this->para->nx, 0, this->para->len );
+    this->grid->CalcTopology();
+    this->grid->CalcMetrics1D();
+
+    Part part;
+    NetGrid netGrid;
+    part.PartitionGrid( this->grid, 4, & netGrid );
+    int kkk = 1;
+}
+
+void FieldSolver::InitFlowField()
+{
+    field->InitFlowField( this->grid );
+}
+
+void FieldSolver::SolveFlowField()
+{
+    field->SolveFlowField( this->para );
+}
 
 EndNameSpace

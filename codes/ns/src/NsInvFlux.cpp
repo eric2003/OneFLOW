@@ -227,7 +227,7 @@ void NsInvFlux::Roe()
     Real c2 = gamm1 * ( inv.hm - half * v2 );
     inv.cm = sqrt( ABS( c2 ) );
 
-    inv.aeig1 = ABS( inv.vnrel                  );
+    inv.aeig1 = ABS( inv.vnrel          );
     inv.aeig2 = ABS( inv.vnrel + inv.cm );
     inv.aeig3 = ABS( inv.vnrel - inv.cm );
 

@@ -37,6 +37,6 @@ public:
     Real VencatEric( Real x );
 };
 
-void FunTest();
+void FunctionTest();
 
 EndNameSpace

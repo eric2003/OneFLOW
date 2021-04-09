@@ -19,20 +19,51 @@ License
     along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 
 \*---------------------------------------------------------------------------*/
-#include "SimpleSimu.h"
-#include "Scalar.h"
-#include <iostream>
+
+
+#pragma once
+#include "Configure.h"
+#include "HXType.h"
+#include "ScalarGrid.h"
+#include <vector>
 using namespace std;
 
 BeginNameSpace( ONEFLOW )
 
-void ToyModelSimu()
+class FieldPara;
+
+class ScalarField
 {
-    cout << "ToyModelSimu\n";
-    Scalar * scalar = new Scalar();
-    scalar->Run();
-    delete scalar;
-}
+public:
+    ScalarField();
+    ~ScalarField();
+public:
+    ScalarGrid * grid;
+    RealList q;
+    RealList res;
+    RealList qL, qR;
+    RealList invflux;
+    FieldPara * para;
+    Real qInf;
+public:
+    void InitFlowField( ScalarGrid * grid );
+    Real ScalarFun( Real xm );
+    Real SquareFun( Real xm );
+public:
+    void ToTecplot( RealList & varlist, string const & fileName );
+    void SolveFlowField( FieldPara * para );
+    void UpdateResidual();
+    void TimeIntergral();
+    void SolveOneStep();
+    void Update();
+    void Boundary();
+    void GetQLQR();
+    void CalcInvFlux();
+    void AddF2CField( RealList & cField, RealList & fField );
+public:
+    void Visual();
+    void Theory( Real time, RealList & theory );
+};
 
 
 EndNameSpace

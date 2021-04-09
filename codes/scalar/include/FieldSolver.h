@@ -19,20 +19,36 @@ License
     along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 
 \*---------------------------------------------------------------------------*/
-#include "SimpleSimu.h"
-#include "Scalar.h"
-#include <iostream>
+
+
+#pragma once
+#include "Configure.h"
+#include "HXType.h"
+#include <vector>
 using namespace std;
 
 BeginNameSpace( ONEFLOW )
 
-void ToyModelSimu()
-{
-    cout << "ToyModelSimu\n";
-    Scalar * scalar = new Scalar();
-    scalar->Run();
-    delete scalar;
-}
+class ScalarField;
+class ScalarGrid;
+class FieldPara;
 
+class FieldSolver
+{
+public:
+    FieldSolver();
+    ~FieldSolver();
+public:
+    ScalarField * field;
+    ScalarGrid * grid;
+    FieldPara * para;
+public:
+    void Run();
+    void Init();
+    void InitCtrlParameter();
+    void InitGrid();
+    void InitFlowField();
+    void SolveFlowField();
+};
 
 EndNameSpace

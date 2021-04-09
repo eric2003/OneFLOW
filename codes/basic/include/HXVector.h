@@ -49,12 +49,26 @@ public:
     {
         ;
     }
+    HXVector( const vector<T>& values )
+    {
+        *this = values;
+    }
 public:
     HXVector< T >& operator =( const T& value )
     {
         for ( UInt i = 0; i < this->size(); ++ i )
         {
             ( *this )[ i ] = value;
+        }
+        return *this;
+    }
+
+    HXVector< T >& operator =( const vector<T>& values )
+    {
+        ( *this ).resize( values.size() );
+        for ( UInt i = 0; i < this->size(); ++ i )
+        {
+            ( *this )[ i ] = values[ i ];
         }
         return *this;
     }

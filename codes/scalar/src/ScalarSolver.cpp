@@ -22,6 +22,8 @@ License
 
 #include "ScalarSolver.h"
 #include "ScalarOrder.h"
+#include "ScalarGrid.h"
+#include "FieldSolver.h"
 #include "Numpy.h"
 #include "HXMath.h"
 #include <iostream>
@@ -119,11 +121,13 @@ void ScalarZone::SetLeftBcValue( double lv )
 
 ScalarSolver::ScalarSolver()
 {
+    this->scalarGrid = new ScalarGrid();
 }
 
 ScalarSolver::~ScalarSolver()
 {
     this->FreeScalarZones();
+    delete this->scalarGrid;
 }
 
 void ScalarSolver::FreeScalarZones()
@@ -150,10 +154,9 @@ void ScalarSolver::InitCtrlParameter()
     this->nx = 41;
     this->len = 2.0;
     this->dx = len / ( nx - 1.0 );
-    //this->nt = 25;
-    this->nt = 5;
-    //this->dt = 0.025;
-    this->dt = 0.05;
+    this->nt = 25;
+    this->dt = 0.025;
+    //this->dt = 0.05;
     this->c  = 1;
     double timeN = 0.625;
 }
@@ -173,6 +176,10 @@ void ScalarSolver::InitGrid()
     x.resize( nx );
     Numpy::Linspace( x, 0, len );
     this->SetScalarZone();
+
+    this->scalarGrid->GenerateGrid( nx, 0, len );
+    this->scalarGrid->CalcTopology();
+    this->scalarGrid->CalcMetrics1D();
 }
 
 void ScalarSolver::SetScalarZone()
@@ -236,11 +243,15 @@ void ScalarSolver::InitZoneFlowField()
 
 void ScalarSolver::Run()
 {
-    this->Init();
+    FieldSolver * fieldSolver = new FieldSolver();
+    fieldSolver->Run();
+    delete fieldSolver;
 
-    this->SolveFlowField();
+    //this->Init();
 
-    this->Visual();
+    //this->SolveFlowField();
+
+    //this->Visual();
    
 }
 
