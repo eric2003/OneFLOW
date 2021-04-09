@@ -61,6 +61,8 @@ public:
 
 class ScalarPara;
 class ScalarZone;
+class ScalarGrid;
+
 class ScalarSolver
 {
 public:
@@ -108,6 +110,7 @@ public:
     vector< double > un;
     vector< double > x;
     vector< ScalarZone * > scalarZones;
+    ScalarGrid * scalarGrid;
 public:
     vector< double > du, dua;
     vector< double > utheory;
