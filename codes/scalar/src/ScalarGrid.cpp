@@ -27,6 +27,9 @@ License
 #include "HXSort.h"
 #include "HXMath.h"
 #include "Boundary.h"
+#include "MetisGrid.h"
+#include "ScalarIFace.h"
+#include "DataBase.h"
 #include <iostream>
 #include <vector>
 #include <algorithm>
@@ -121,6 +124,11 @@ void EList::AddElem( IntList &elem )
 	this->data.push_back( elem.data );
 }
 
+void EList::AddElem( vector< int > &elem )
+{
+	this->data.push_back( elem );
+}
+
 void EList::ReOrder( IntList & orderMap )
 {
 	EList dataSwap = * this;
@@ -199,11 +207,24 @@ void ScalarBccos::ScanBcFace( ScalarGrid * grid )
 ScalarGrid::ScalarGrid()
 {
 	scalarBccos = new ScalarBccos();
+	dataBase = new DataBase();
+	this->grid_id = 0;
+	this->gridTopo = new GridTopo( this->grid_id );
+}
+
+ScalarGrid::ScalarGrid( int grid_id )
+{
+	scalarBccos = new ScalarBccos();
+	dataBase = new DataBase();
+	this->grid_id = grid_id;
+	this->gridTopo = new GridTopo( this->grid_id );
 }
 
 ScalarGrid::~ScalarGrid()
 {
 	delete scalarBccos;
+	delete dataBase;
+	delete this->gridTopo;
 }
 
 size_t ScalarGrid::GetNNodes()
@@ -213,7 +234,7 @@ size_t ScalarGrid::GetNNodes()
 
 size_t ScalarGrid::GetNCells()
 {
-	return this->elements.GetNElements();
+	return this->eTypes.GetNElements();
 }
 
 size_t ScalarGrid::GetNTCells()
@@ -261,7 +282,8 @@ void ScalarGrid::GenerateGrid( int ni, Real xmin, Real xmax )
 		this->PushElement( p1, p2, eType );
 	}
 	ScalarBcco * scalarBccoL = new ScalarBcco();
-	scalarBccoL->bcType = ONEFLOW::BCInflow;
+	//scalarBccoL->bcType = ONEFLOW::BCInflow;
+	scalarBccoL->bcType = ONEFLOW::BCOutflow;
 	scalarBccoL->AddBcPoint( ptL );
 	scalarBccos->AddBcco( scalarBccoL );
 
@@ -330,23 +352,106 @@ void ScalarGrid::CalcFaceCenter1D()
 	}
 }
 
-void ScalarGrid::CalcCellCenterVol1D()
+//void ScalarGrid::CalcCellCenterVol1D()
+//{
+//	this->nCells = this->GetNCells();
+//	
+//	for ( size_t iCell = 0; iCell < this->nCells; ++ iCell )
+//	{
+//		vector< int > & element = this->elements[ iCell ];
+//		int p1 = element[ 0 ];
+//		int p2 = element[ 1 ];
+//		this->xcc[ iCell  ] = half * ( this->xn[ p1 ] + this->xn[ p2 ] );
+//		this->ycc[ iCell  ] = half * ( this->yn[ p1 ] + this->yn[ p2 ] );
+//		this->zcc[ iCell  ] = half * ( this->zn[ p1 ] + this->zn[ p2 ] );
+//		Real dx = this->xn[ p2 ] - this->xn[ p1 ];
+//		Real dy = this->yn[ p2 ] - this->yn[ p1 ];
+//		Real dz = this->zn[ p2 ] - this->zn[ p1 ];
+//		this->vol[ iCell  ] = ONEFLOW::DIST( dx, dy, dz );
+//	}
+//}
+
+
+void ScalarGrid::CalcCellCenter1D()
 {
+	this->xcc = 0;
+	this->ycc = 0;
+	this->zcc = 0;
+
+	this->nFaces = this->GetNFaces();
+	this->nBFaces = this->GetNBFaces();
+	for ( int iFace = 0; iFace < this->nBFaces; ++ iFace )
+	{
+		vector< int > & faceNodes = this->faces[ iFace ];
+		int lc  = this->lc[ iFace ];
+
+		int pt = faceNodes[ 0 ];
+
+		this->xcc[ lc ] += this->xn[ pt ];
+		this->ycc[ lc ] += this->yn[ pt ];
+		this->zcc[ lc ] += this->zn[ pt ];
+	}
+
+	for ( int iFace = nBFaces; iFace < this->nFaces; ++ iFace )
+	{
+		vector< int > & faceNodes = this->faces[ iFace ];
+		int lc  = this->lc[ iFace ];
+		int rc  = this->rc[ iFace ];
+
+		int pt = faceNodes[ 0 ];
+
+		this->xcc[ lc ] += this->xn[ pt ];
+		this->ycc[ lc ] += this->yn[ pt ];
+		this->zcc[ lc ] += this->zn[ pt ];
+
+		this->xcc[ rc ] += this->xn[ pt ];
+		this->ycc[ rc ] += this->yn[ pt ];
+		this->zcc[ rc ] += this->zn[ pt ];
+	}
+
 	this->nCells = this->GetNCells();
-	
+
 	for ( size_t iCell = 0; iCell < this->nCells; ++ iCell )
 	{
-		vector< int > & element = this->elements[ iCell ];
-		int p1 = element[ 0 ];
-		int p2 = element[ 1 ];
-		this->xcc[ iCell  ] = half * ( this->xn[ p1 ] + this->xn[ p2 ] );
-		this->ycc[ iCell  ] = half * ( this->yn[ p1 ] + this->yn[ p2 ] );
-		this->zcc[ iCell  ] = half * ( this->zn[ p1 ] + this->zn[ p2 ] );
-		Real dx = this->xn[ p2 ] - this->xn[ p1 ];
-		Real dy = this->yn[ p2 ] - this->yn[ p1 ];
-		Real dz = this->zn[ p2 ] - this->zn[ p1 ];
-		this->vol[ iCell  ] = ONEFLOW::DIST( dx, dy, dz );
+		this->xcc[ iCell  ] *= half;
+		this->ycc[ iCell  ] *= half;
+		this->zcc[ iCell  ] *= half;
 	}
+}
+
+void ScalarGrid::CalcCellVolume1D()
+{
+	this->vol = 0;
+
+	this->nFaces = this->GetNFaces();
+	for ( int iFace = 0; iFace < this->nFaces; ++ iFace )
+	{
+		vector< int > & faceNodes = this->faces[ iFace ];
+		int lc  = this->lc[ iFace ];
+		int rc  = this->rc[ iFace ];
+
+		int pt = faceNodes[ 0 ];
+
+		Real dxl = this->xfc[ iFace ] - this->xcc[ lc ];
+		Real dyl = this->yfc[ iFace ] - this->ycc[ lc ];
+		Real dzl = this->zfc[ iFace ] - this->zcc[ lc ];
+
+		Real dxr = this->xfc[ iFace ] - this->xcc[ rc ];
+		Real dyr = this->yfc[ iFace ] - this->ycc[ rc ];
+		Real dzr = this->zfc[ iFace ] - this->zcc[ rc ];
+
+		Real dsl = ONEFLOW::DIST( dxl, dyl, dzl );
+		Real dsr = ONEFLOW::DIST( dxr, dyr, dzr );
+
+		this->vol[ lc ] += dsl;
+		this->vol[ rc ] += dsr;
+	}
+}
+
+void ScalarGrid::CalcCellCenterVol1D()
+{
+	this->CalcCellCenter1D();
+	this->CalcCellVolume1D();
 }
 
 void ScalarGrid::CalcFaceNormal1D()
@@ -528,6 +633,7 @@ void ScalarGrid::ReorderFaces()
 void ScalarGrid::SetBcGhostCell()
 {
 	this->nCells = this->GetNCells();
+	this->nBFaces = this->GetNBFaces();
 
 	for ( int iFace = 0; iFace < this->nBFaces; ++ iFace )
 	{
@@ -631,5 +737,16 @@ void ScalarGrid::CalcC2C( EList & c2c )
 	}
 }
 
+void ScalarGrid::GetSId( int i_interface, int & sId )
+{
+	int iBFace = this->gridTopo->interface_to_bcface[ i_interface ];
+	sId = this->lc[ iBFace ];
+}
+
+void ScalarGrid::GetTId( int i_interface, int & tId )
+{
+	int iBFace = this->gridTopo->interface_to_bcface[ i_interface ];
+	tId = this->rc[ iBFace ];
+}
 
 EndNameSpace

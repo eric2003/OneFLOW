@@ -19,52 +19,41 @@ License
     along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 
 \*---------------------------------------------------------------------------*/
-
-
 #pragma once
-#include "Configure.h"
-#include "HXType.h"
-#include "ScalarGrid.h"
-#include <vector>
+#include "HXDefine.h"
+#include "HXArray.h"
+#include <map>
 using namespace std;
 
 BeginNameSpace( ONEFLOW )
 
-class FieldPara;
+class DataStorage;
 
-class ScalarField
+class GFieldDim
 {
 public:
-    ScalarField();
-    ~ScalarField();
+    GFieldDim();
+    ~GFieldDim();
 public:
-    ScalarGrid * grid;
-    RealList q;
-    RealList res;
-    RealList qL, qR;
-    RealList invflux;
-    FieldPara * para;
-    Real qInf;
+    static std::map< string, int > data;
 public:
-    void InitFlowField( ScalarGrid * grid );
-    Real ScalarFun( Real xm );
-    Real SquareFun( Real xm );
+    static void AddField( const string & fieldName, int nEqu );
+    static int GetNEqu( const string & fieldName );
+};
+
+class ScalarFieldRecord
+{
 public:
-    void ToTecplot( RealList & varlist, string const & fileName );
-    void SolveFlowField( FieldPara * para );
-    void UpdateResidual();
-    void TimeIntergral();
-    void SolveOneStep();
-    void Update();
-    void Boundary();
-    void GetQLQR();
-    void CalcInvFlux();
-    void AddF2CField( RealList & cField, RealList & fField );
-    void SetParaPointer( FieldPara * para );
+    ScalarFieldRecord();
+    ~ScalarFieldRecord();
 public:
-    void Visual();
-    void AddVisualData( RealList & qList, RealList & theoryList, RealList & xcoorList );
-    void Theory( Real time, RealList & theory );
+    HXVector< MRField * > fields;
+    IntField nEquList;
+public:
+    void AddField( MRField * field, int nEqu );
+    MRField * GetField( int id );
+public:
+    void AddFieldRecord( DataStorage * dataStorage, StringField & fieldNameList );
 };
 
 

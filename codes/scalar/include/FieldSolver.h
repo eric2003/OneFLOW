@@ -24,7 +24,11 @@ License
 #pragma once
 #include "Configure.h"
 #include "HXType.h"
+#include "ScalarGrid.h"
+#include "HXArray.h"
+#include "Task.h"
 #include <vector>
+#include <string>
 using namespace std;
 
 BeginNameSpace( ONEFLOW )
@@ -32,6 +36,21 @@ BeginNameSpace( ONEFLOW )
 class ScalarField;
 class ScalarGrid;
 class FieldPara;
+class GridTopo;
+class GridTopos;
+class ScalarFieldManager;
+class ScalarFieldRecord;
+
+template < typename T >
+class SortArray
+{
+public:
+    vector< T > data;
+    bool operator < ( const SortArray< T > & rhs ) const
+    {
+        return this->data[ 0 ] < rhs.data[ 0 ];
+    }
+};
 
 class FieldSolver
 {
@@ -42,13 +61,60 @@ public:
     ScalarField * field;
     ScalarGrid * grid;
     FieldPara * para;
+    ScalarFieldManager * scalarFieldManager;
+    vector< ScalarField * > fields;
+    vector< ScalarGrid * > grids;
+    vector< GridTopo * > gridTopos;
+    bool tmpflag_delete_grids;
 public:
     void Run();
     void Init();
     void InitCtrlParameter();
     void InitGrid();
     void InitFlowField();
+    void InitFlowField_Basic();
     void SolveFlowField();
+    void SolveOneStep();
+    void SetParaPointer();
+    void InitParallelInfo();
+    void CommParallelInfo();
+    void UploadInterfaceValue( ScalarGrid * grid, MRField * field2D, const string & name, int nEqu );
+    void UploadInterface();
+    void DownloadInterface();
+    void UpdateInterface( TaskFunction sendAction, TaskFunction recvAction );
+    void SwapInterfaceData( int iZone, int jZone, TaskFunction sendAction, TaskFunction recvAction );
+    void WriteField( RealField & field, IntField & idMap );
+public:
+    void Boundary();
+    void GetQLQR();
+    void CalcInvFlux();
+    void UpdateResidual();
+    void TimeIntergral();
+    void Update();
+    void Visualize();
+    void ToTecplot( RealField & xList, RealField & varlist, string const & fileName );
+public:
+    void ZoneBoundary();
+    void ZoneGetQLQR();
+    void ZoneCalcInvFlux();
+    void ZoneUpdateResidual();
+    void ZoneTimeIntergral();
+    void ZoneUpdate();
+    void AddF2CField( ScalarGrid * grid, RealField & cField, RealField & fField );
+    void Theory( ScalarGrid * grid, Real time, RealField & theory );
+    void AddVisualData( RealField & qList, RealField & theoryList, RealField & xcoorList );
+    void Reorder( RealField & a, RealField & b, RealField & c );
+public:
+    Real ScalarFun( Real xm );
+    Real SquareFun( Real xm );
 };
+
+void PrepareFieldSendData();
+void PrepareFieldRecvData();
+ScalarFieldRecord * PrepareSendScalarFieldRecord();
+ScalarFieldRecord * PrepareRecvScalarFieldRecord();
+
+void PrepareGeomSendData();
+void PrepareGeomRecvData();
 
 EndNameSpace

@@ -113,7 +113,6 @@ void MG::Run()
 	int startStrategy = ONEFLOW::GetDataValue< int >("startStrategy");
 	if (startStrategy == 2|| startStrategy == 3)
 	{
-
 		double rhs_V = 1e-8;
 		double rhs_u = 1e-8;
 		double rhs_v = 1e-8;
@@ -122,12 +121,10 @@ void MG::Run()
 		int maxIterSteps = GetDataValue< int >("maxIterSteps");
 
 		iinv.remax_V = 1;
-
 		iinv.remax_up = 1;
 		iinv.remax_vp = 1;
 		iinv.remax_wp = 1;
 
-			//while (iinv.remax_V > rhs_V )
 		TimeSpan * timeSpan = new TimeSpan();
 		while (SimuIterState::Running())
 		{
@@ -149,24 +146,23 @@ void MG::Run()
 		}
 		delete timeSpan;
 	}
-
 	else
 	{
 		TimeSpan * timeSpan = new TimeSpan();
-		while (SimuIterState::Running())
+		while ( SimuIterState::Running() )
 		{
-			Iteration::outerSteps++;
+			Iteration::outerSteps ++;
 			ctrl.currTime += ctrl.pdt;
 
 			//Inner loop
 			Iteration::innerSteps = 0;
-			while (!SolverState::Converge())
+			while ( !SolverState::Converge() )
 			{
-				Iteration::innerSteps++;
+				Iteration::innerSteps ++;
 
 				this->SolveInnerIter();
 			}
-			this->OuterProcess(timeSpan);
+			this->OuterProcess( timeSpan );
 		}
 		delete timeSpan;
 	}

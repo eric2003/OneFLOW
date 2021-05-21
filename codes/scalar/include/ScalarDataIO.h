@@ -22,50 +22,19 @@ License
 
 
 #pragma once
-#include "Configure.h"
-#include "HXType.h"
-#include "ScalarGrid.h"
+#include "HXDefine.h"
+#include "HXArray.h"
 #include <vector>
 using namespace std;
 
 BeginNameSpace( ONEFLOW )
 
-class FieldPara;
+class DataBook;
 
-class ScalarField
-{
-public:
-    ScalarField();
-    ~ScalarField();
-public:
-    ScalarGrid * grid;
-    RealList q;
-    RealList res;
-    RealList qL, qR;
-    RealList invflux;
-    FieldPara * para;
-    Real qInf;
-public:
-    void InitFlowField( ScalarGrid * grid );
-    Real ScalarFun( Real xm );
-    Real SquareFun( Real xm );
-public:
-    void ToTecplot( RealList & varlist, string const & fileName );
-    void SolveFlowField( FieldPara * para );
-    void UpdateResidual();
-    void TimeIntergral();
-    void SolveOneStep();
-    void Update();
-    void Boundary();
-    void GetQLQR();
-    void CalcInvFlux();
-    void AddF2CField( RealList & cField, RealList & fField );
-    void SetParaPointer( FieldPara * para );
-public:
-    void Visual();
-    void AddVisualData( RealList & qList, RealList & theoryList, RealList & xcoorList );
-    void Theory( Real time, RealList & theory );
-};
+void HXWriteField( DataBook * dataBook, MRField * field2D, vector< int > & idMap );
+void HXWriteField( DataBook * dataBook, RealField & field, vector< int > & idMap );
+void HXReadField( DataBook * dataBook, MRField * field2D, vector< int > & idMap );
+void HXReadField( DataBook * dataBook, RealField & field, vector< int > & idMap );
 
 
 EndNameSpace

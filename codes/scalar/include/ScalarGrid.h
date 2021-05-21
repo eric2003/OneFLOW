@@ -100,6 +100,7 @@ public:
 public:
     size_t GetNElements();
     void AddElem( IntList &elem );
+    void AddElem( vector< int > &elem );
 
     vector< int > & operator [] ( int i )
     {
@@ -139,11 +140,14 @@ public:
     void ScanBcFace( ScalarGrid * grid );
 };
 
+class DataBase;
+class GridTopo;
 
 class ScalarGrid
 {
 public:
     ScalarGrid();
+    ScalarGrid( int grid_id );
     ~ScalarGrid();
 public:
     size_t nNodes, nCells, nBFaces, nFaces;
@@ -167,6 +171,11 @@ public:
     IntList fBcTypes;
     IntList bcTypes;
     ScalarBccos * scalarBccos;
+    DataBase * dataBase;
+    GridTopo * gridTopo;
+    int grid_id;
+public:
+    DataBase * GetDataBase() { return dataBase; };
 public:
     size_t GetNNodes();
     size_t GetNCells();
@@ -188,11 +197,16 @@ public:
 public:
     void CalcMetrics1D();
     void CalcFaceCenter1D();
+    void CalcCellCenter1D();
     void CalcCellCenterVol1D();
+    void CalcCellVolume1D();
     void CalcFaceNormal1D();
     void CalcGhostCellCenterVol1D();
 public:
     void CalcC2C( EList & c2c );
+public:
+    void GetSId( int i_interface, int & sId );
+    void GetTId( int i_interface, int & tId );
     
 };
 

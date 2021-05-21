@@ -151,7 +151,6 @@ void Restart::Read( int sTid )
     RwInterface( sTid, GREAT_READ );
 }
 
-
 void Restart::Dump( int sTid )
 {
     ActionState::dataBook->MoveToBegin();
@@ -200,7 +199,7 @@ void RwInterface( int sTid, int readOrWrite )
 
     if ( ! IsValid( interFace ) ) return;
 
-     VarNameSolver * varNameSolver = VarNameFactory::GetVarNameSolver( sTid, INTERFACE_GRADIENT_DATA );
+    VarNameSolver * varNameSolver = VarNameFactory::GetVarNameSolver( sTid, INTERFACE_GRADIENT_DATA );
     StringField fieldNameList = varNameSolver->data;
 
     for ( int ghostId = MAX_GHOST_LEVELS - 1; ghostId >= 0; -- ghostId )

@@ -139,10 +139,7 @@ void MRegister::Register( const string & fileName, HXRegister * fRegister )
         string actionName = ioFile.ReadNextWord();
         string className  = ioFile.ReadNextWord();
         //cout << "actionName = " << actionName << " className= " << className << endl;
-        if ( className == "CFillWallStruct" )
-        {
-            int kkk = 1;
-        }
+
         fRegister->Register( actionName, className );
 
         HXClone * cloneClass = fRegister->GetClass( actionName );

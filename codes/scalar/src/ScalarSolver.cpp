@@ -32,15 +32,15 @@ using namespace std;
 
 BeginNameSpace( ONEFLOW )
 
-ScalarZone::ScalarZone()
+ScalarZoneTmp::ScalarZoneTmp()
 {
 }
 
-ScalarZone::~ScalarZone()
+ScalarZoneTmp::~ScalarZoneTmp()
 {
 }
 
-void ScalarZone::Init( int ist, int ied )
+void ScalarZoneTmp::Init( int ist, int ied )
 {
     this->ist = ist;
     this->ied = ied;
@@ -50,7 +50,7 @@ void ScalarZone::Init( int ist, int ied )
     this->x.resize( nNode );
 }
 
-void ScalarZone::SetBc( int bcL, int bcR )
+void ScalarZoneTmp::SetBc( int bcL, int bcR )
 {
     this->bcPointList.push_back( 0 );
     this->bcTypeList.push_back( bcL );
@@ -59,7 +59,7 @@ void ScalarZone::SetBc( int bcL, int bcR )
     this->bcTypeList.push_back( bcR );
 }
 
-void ScalarZone::InitField( vector< double > & uGlobal )
+void ScalarZoneTmp::InitField( vector< double > & uGlobal )
 {
     for ( int i = 0; i < nNode; ++ i )
     {
@@ -68,7 +68,7 @@ void ScalarZone::InitField( vector< double > & uGlobal )
     }
 }
 
-void ScalarZone::Solve( double coef )
+void ScalarZoneTmp::Solve( double coef )
 {
     int ist = 1;
     int ied = nNode;
@@ -79,12 +79,12 @@ void ScalarZone::Solve( double coef )
     }
 }
 
-void ScalarZone::UpdateUN()
+void ScalarZoneTmp::UpdateUN()
 {
     Numpy::Copy( u, un );
 }
 
-void ScalarZone::GatherField( vector< double > & ugfield )
+void ScalarZoneTmp::GatherField( vector< double > & ugfield )
 {
     for ( int i = 0; i < nNode; ++ i )
     {
@@ -93,7 +93,7 @@ void ScalarZone::GatherField( vector< double > & ugfield )
     }
 }
 
-void ScalarZone::CompareField( vector< double > & uGlobal )
+void ScalarZoneTmp::CompareField( vector< double > & uGlobal )
 {
     for ( int i = 0; i < nNode; ++ i )
     {
@@ -108,12 +108,12 @@ void ScalarZone::CompareField( vector< double > & uGlobal )
     }
 }
 
-double ScalarZone::GetRightBcValue()
+double ScalarZoneTmp::GetRightBcValue()
 {
     return this->u[ nNode - 1 ];
 }
 
-void ScalarZone::SetLeftBcValue( double lv )
+void ScalarZoneTmp::SetLeftBcValue( double lv )
 {
     this->u[ 0 ] = lv;
 }
@@ -197,7 +197,7 @@ void ScalarSolver::SetScalarZone()
 
     for ( int iZone = 0; iZone < nZones; ++ iZone )
     {
-        ScalarZone * scalarZone = new ScalarZone();
+        ScalarZoneTmp * scalarZone = new ScalarZoneTmp();
         int ist = idxList[ iZone ];
         int ied = idxList[ iZone + 1 ];
 
@@ -236,7 +236,7 @@ void ScalarSolver::InitZoneFlowField()
     int nZones = this->scalarZones.size();
     for ( int iZone = 0; iZone < nZones; ++ iZone )
     {
-        ScalarZone * scalarZone = this->scalarZones[ iZone ];
+        ScalarZoneTmp * scalarZone = this->scalarZones[ iZone ];
         scalarZone->InitField( this->u );
     }
 }
@@ -284,7 +284,7 @@ void ScalarSolver::Solve()
 }
 
 
-void ScalarSolver::SolvePart( ScalarZone * scalarZone )
+void ScalarSolver::SolvePart( ScalarZoneTmp * scalarZone )
 {
     int ist = scalarZone->ist;
     int ied = scalarZone->ied;
@@ -324,7 +324,7 @@ void ScalarSolver::Visual()
 
     for ( int iZone = 0; iZone < nZones; ++ iZone )
     {
-        ScalarZone * scalarZone = this->scalarZones[ iZone ];
+        ScalarZoneTmp * scalarZone = this->scalarZones[ iZone ];
         scalarZone->GatherField( ugfield );
     }
 
@@ -359,14 +359,14 @@ void ScalarSolver::Boundary()
     vector< double > bclist;
     for ( int iZone = 0; iZone < nZones; ++ iZone )
     {
-        ScalarZone * scalarZone = this->scalarZones[ iZone ];
+        ScalarZoneTmp * scalarZone = this->scalarZones[ iZone ];
         double rv = scalarZone->GetRightBcValue();
         bclist.push_back( rv );
     }
 
     for ( int iZone = 1; iZone < nZones; ++ iZone )
     {
-        ScalarZone * scalarZone = this->scalarZones[ iZone ];
+        ScalarZoneTmp * scalarZone = this->scalarZones[ iZone ];
         double rv = scalarZone->GetRightBcValue();
         int i = iZone - 1;
         double bcv = bclist[ i ];
@@ -393,7 +393,7 @@ void ScalarSolver::CompareField()
     int nZones = this->scalarZones.size();
     for ( int iZone = 0; iZone < nZones; ++ iZone )
     {
-        ScalarZone * scalarZone = this->scalarZones[ iZone ];
+        ScalarZoneTmp * scalarZone = this->scalarZones[ iZone ];
         scalarZone->CompareField( this->u );
     }
 }
@@ -405,7 +405,7 @@ void ScalarSolver::UpdateUN()
     int nZones = this->scalarZones.size();
     for ( int iZone = 0; iZone < nZones; ++ iZone )
     {
-        ScalarZone * scalarZone = this->scalarZones[ iZone ];
+        ScalarZoneTmp * scalarZone = this->scalarZones[ iZone ];
         scalarZone->UpdateUN();
     }
 }

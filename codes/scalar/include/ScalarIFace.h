@@ -25,7 +25,9 @@ License
 #include "Configure.h"
 #include "HXType.h"
 #include "HXDefine.h"
+#include "MetisGrid.h"
 #include <vector>
+#include <map>
 using namespace std;
 
 BeginNameSpace( ONEFLOW )
@@ -38,27 +40,66 @@ public:
 public:
     int zonei, zonej;
     vector< int > ghostCells;
+    //global interface id
+    vector< int > iglobalfaces;
+    //local interface id
+    vector< int > ifaces;
     vector< int > cells;
+
+    vector< int > target_ifaces;
+    vector< int > recv_ifaces;
+};
+
+class ScalarFacePair
+{
+public:
+    ScalarFacePair();
+    ~ScalarFacePair();
+public:
+    int zonei, zonej;
+    vector< int > ifaces;
+    vector< int > neibor_ifaces;
 };
 
 class GridTopo;
 class GridTopos;
+class DataStorage;
 
 class ScalarIFace
 {
 public:
-    ScalarIFace() ;
+    ScalarIFace( int zoneid = 0 );
     ~ScalarIFace();
 public:
     vector< ScalarIFaceIJ > data;
-    vector<int> ifaces;
+    vector< ScalarFacePair > sendinfo;
+    vector< ScalarFacePair > recvinfo;
+    
+    vector<int> iglobalfaces;
+    //targt zones
     vector<int> zones;
+    //target cells
     vector<int> cells;
+    //target interfaces (local)
+    vector<int> target_interfaces;
     int zoneid;
+    DataStorage * dataSend;
+    DataStorage * dataRecv;
+    //global interface id to local interface id map
+    map<int, int> global_to_local_interfaces;
+    //local interface id to global interface id map
+    map<int, int> local_to_global_interfaces;
 public:
+    int GetNIFaces();
+    int FindINeibor( int iZone );
+    void DumpInterfaceMap();
+    void DumpMap( map<int, int> & mapin );
+    int GetLocalInterfaceId( int global_interface_id );
+    void CalcLocalInterfaceId( int iZone, vector<int> & globalfaces, vector<int> & localfaces );
     void GetInterface();
-    void CalcInterface( GridTopo * gridTopo );
-
+    void AddInterface( int global_interface_id, int neighbor_zoneid, int neighbor_cellid );
+    void ReconstructNeighbor();
+    DataStorage * GetDataStorage( int iSendRecv );
 };
 
 class ScalarIFaces
@@ -70,8 +111,6 @@ public:
     vector< ScalarIFace > data;
 public:
     void GetInterface();
-    void CalcInterface( GridTopos * gridTopos );
-
 };
 
 EndNameSpace

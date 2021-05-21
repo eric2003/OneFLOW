@@ -33,7 +33,7 @@ class Init_Register##TASK \
 public: \
     Init_Register##TASK() \
     {  \
-        TaskRegister::Register( TASK ); \
+        TaskRegister::Register( TASK, #TASK ); \
     } \
 };  \
 Init_Register##TASK init_Register##TASK;
@@ -45,9 +45,11 @@ public:
     ~TaskRegister();
 public:
     static HXVector< VoidFunc > * taskList;
+    static HXVector< string > * taskNameList;
 public:
-    static void Register( VoidFunc taskfun );
+    static void Register( VoidFunc taskfun, string const & taskname );
     static void Run();
+    static void Free();
 };
 
 EndNameSpace

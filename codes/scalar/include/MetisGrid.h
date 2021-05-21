@@ -27,8 +27,9 @@ License
 #include "HXDefine.h"
 #include "ScalarGrid.h"
 #include "metis.h"
-#include "ScalarIFace.h"
 #include <vector>
+#include <set>
+#include <map>
 using namespace std;
 
 BeginNameSpace( ONEFLOW )
@@ -65,44 +66,81 @@ public:
     void DeAllocateGrid();
 };
 
+//class GridTopos;
+class ScalarIFace;
+
 class GridTopo
 {
 public:
-    GridTopo();
+    GridTopo( int zoneid = 0 );
     ~GridTopo();
 public:
+    //global faceid
     vector<int> faceid;
-    vector<int> nodeid;
-    vector<int> facetype;
+    //local faces with global node id
+    EList faces;
+    //local facenodes
+    EList local_faces;
+    //IntList nodeid;
+    //facetype bctype interface -1, inner 0
+    IntList facetype;
+    //interface id
+    //global interface id count by global face
+    IntList global_interfaces;
+    IntList local_interfaces;
+    IntList bctypes;
+    IntList interface_to_boundarys;
     set<int> nodeset;
+    map<int, int> global_local_node;
+    vector< int > interface_to_bcface;
     IntList lc;
     IntList rc;
     int zoneid;
+    //GridTopos * parent;
+    ScalarIFace * scalarIFace;
+    RealList xn, yn, zn;
+    int nCells;
 public:
+    void SetNCells( int nCells );
+    int GetNCells();
+    void AddInterface( int global_interface_id, int neighbor_zoneid, int neighbor_cellid );
     void AddFaceId( int iFace );
     void AddFaceType( int faceType );
-    void ReconstructNode( EList & faces );
+    void AddPhysicalBcFace( int global_face_id, int bctype, int lcell, int rcell );
+    void AddInnerFace( int global_face_id, int bctype, int lcell, int rcell );
+    void AddInterfaceBcFace( int global_face_id, int bctype, int lcell, int rcell, int nei_zoneid, int nei_cellid );
+    void CalcGlobal2LocalNodeMap();
+    void CalcLocalFaceNodes();
+    void ReconstructNode( ScalarGrid * ggrid );
+    void ReconstructNode( EList & global_faces );
+    void CopyGrid( ScalarGrid * grid );
+    void Normalize( ScalarGrid * grid );
+    void CalcInterface();
+    void ReorderInterface();
+    void ReconstructNeighbor();
+    void CalcCoor( ScalarGrid * grid );
+    void DumpGridInfo();
 };
 
-class GridTopos
-{
-public:
-    GridTopos();
-    ~GridTopos();
-public:
-    vector< GridTopo > data;
-    vector<int> gLCells;
-    ScalarIFaces scalarIFaces;
-public:
-    void Allocate( int nZones );
-    GridTopo & operator [] ( int i )
-    {
-        return data[ i ];
-    }
-public:
-    void CalcGlobal2LocalCells( MetisIntList & cellzone );
-    void CalcInterface();
-};
+class ScalarIFaces;
+
+//class GridTopos
+//{
+//public:
+//    GridTopos();
+//    ~GridTopos();
+//public:
+//    vector< GridTopo * > data;
+//    //vector<int> gLCells;
+//public:
+//    void Allocate( int nZones );
+//    GridTopo * operator [] ( int i )
+//    {
+//        return data[ i ];
+//    }
+//public:
+//    //void CalcGlobal2LocalCells( MetisIntList & cellzone );
+//};
 
 class Part
 {
@@ -111,19 +149,28 @@ public:
     ~Part();
 public:
     ScalarGrid * ggrid;
-    NetGrid * netGrid;
     MetisIntList cellzone;
     int nPart;
-    GridTopos gtopos;
+    vector< ScalarGrid * > * grids;
+    vector<int> gLCells;
 public:
-    void PartitionGrid( ScalarGrid * ggrid, int nPart, NetGrid * netGrid );
+    int GetNZones();
+    void AllocateGrid( int nZones );
+    void PartitionGrid( ScalarGrid * ggrid, int nPart, vector< ScalarGrid * > * grids );
+    void CalcGlobal2LocalCells( MetisIntList & cellzone );
     void CalcCellZone();
     void ReconstructAllZones();
     void CalcGlobalInterface();
-    void ReconstructGrid();
+    void ReconstructGridFaceTopo();
+    void ReconstructInterfaceTopo();
     void ReconstructNode();
+    void ReconstructNeighbor();
+    void DumpGridInfo();
     
 };
 
+
+ScalarGrid * GetGlobalMetisScalarGrid();
+void SetGlobalMetisScalarGrid( ScalarGrid * gridIn );
 
 EndNameSpace

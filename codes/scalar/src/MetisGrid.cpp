@@ -22,6 +22,7 @@ License
 
 #include "MetisGrid.h"
 #include "ScalarGrid.h"
+#include "ScalarIFace.h"
 #include "Constant.h"
 #include "HXCgns.h"
 #include "ElementHome.h"
@@ -125,7 +126,7 @@ void NetGrid::AllocateGrid( int nZones )
 {
 	for ( int iZone = 0; iZone < nZones; ++ iZone )
 	{
-		ScalarGrid * grid = new ScalarGrid();
+		ScalarGrid * grid = new ScalarGrid( iZone );
 		grids.push_back( grid );
 	}
 }
@@ -139,12 +140,25 @@ void NetGrid::DeAllocateGrid()
 	}
 }
 
-GridTopo::GridTopo()
+GridTopo::GridTopo( int zoneid )
 {
+	this->zoneid = zoneid;
+	this->scalarIFace = new ScalarIFace( zoneid );
 }
 
 GridTopo::~GridTopo()
 {
+	delete this->scalarIFace;
+}
+
+void GridTopo::SetNCells( int nCells )
+{
+	this->nCells = nCells;
+}
+
+int GridTopo::GetNCells()
+{
+	return this->nCells;
 }
 
 void GridTopo::AddFaceId( int iFace )
@@ -154,61 +168,222 @@ void GridTopo::AddFaceId( int iFace )
 
 void GridTopo::AddFaceType( int faceType )
 {
-	this->facetype.push_back( faceType );
+	this->facetype.AddData( faceType );
 }
 
-void GridTopo::ReconstructNode( EList & faces )
+void GridTopo::AddPhysicalBcFace( int global_face_id, int bctype, int lcell, int rcell )
+{
+	this->AddFaceId( global_face_id );
+	this->bctypes.AddData( bctype );
+	this->facetype.AddData( bctype );
+
+	this->lc.AddData( lcell );
+	this->rc.AddData( rcell );
+}
+
+void GridTopo::AddInterfaceBcFace( int global_face_id, int bctype, int lcell, int rcell, int nei_zoneid, int nei_cellid )
+{
+	this->AddFaceId( global_face_id );
+	this->global_interfaces.AddData( global_face_id );
+	int iSize = this->bctypes.GetNElements();
+	//local_interfaces:0->nphysicalbc+ilocal_interface=interface->bcface
+	//For example, the number of boundary faces corresponding to inteface0 may be 10
+	this->local_interfaces.AddData( iSize );
+	this->bctypes.AddData( bctype );
+	this->facetype.AddData( bctype );
+
+	this->lc.AddData( lcell );
+	this->rc.AddData( rcell );
+
+	this->AddInterface( global_face_id, nei_zoneid, nei_cellid );
+}
+
+void GridTopo::AddInnerFace( int global_face_id, int bctype, int lcell, int rcell )
+{
+	this->AddFaceId( global_face_id );
+	this->facetype.AddData( bctype );
+
+	this->lc.AddData( lcell );
+	this->rc.AddData( rcell );
+}
+
+void GridTopo::AddInterface( int global_interface_id, int neighbor_zoneid, int neighbor_cellid )
+{
+	this->scalarIFace->AddInterface( global_interface_id, neighbor_zoneid, neighbor_cellid );
+}
+
+void GridTopo::DumpGridInfo()
+{
+	cout << " DumpGridInfo Zone ID = " << this->zoneid << "\n";
+	int nBFaces = this->bctypes.GetNElements();
+	int ninterface = 0;
+	int nPhysicalBC = 0;
+	cout << "(global_faceid,local_faceid,bctype)\n";
+	for ( int iBFace = 0; iBFace < nBFaces; ++ iBFace )
+	{
+		if ( this->bctypes[ iBFace ] == -1 )
+		{
+			++ ninterface;
+			interface_to_bcface.push_back( iBFace );
+		}
+		else
+		{
+			++ nPhysicalBC;
+		}
+		cout << "(" << this->faceid[ iBFace ] << "," << iBFace << "," << this->bctypes[ iBFace ] << ") ";
+	}
+	cout << "\n";
+	int nIFace = this->scalarIFace->iglobalfaces.size();
+	cout << " nIFace = " << nIFace << "\n";
+	cout << " global interface : local interface local bcface in this zone:\n";
+	for ( int iFace = 0; iFace < nIFace; ++ iFace )
+	{
+		int iglobalface = this->scalarIFace->iglobalfaces[ iFace ];
+		int localface = this->scalarIFace->global_to_local_interfaces[ iglobalface ];
+		cout << "( " << iglobalface << "," << localface << "," << interface_to_bcface[ iFace ] << ") ";
+	}
+	cout << "\n";
+	this->scalarIFace->DumpInterfaceMap();
+	//cout << " nPhysicalBC = " << nPhysicalBC << " ninterface = " << ninterface << " nBFaces = " << nBFaces << "\n";
+}
+
+void GridTopo::ReconstructNode( ScalarGrid * ggrid )
+{
+	this->ReconstructNode( ggrid->faces );
+	this->CalcCoor( ggrid );
+}
+
+void GridTopo::CopyGrid( ScalarGrid * grid )
+{
+	grid->xn = this->xn;
+	grid->yn = this->yn;
+	grid->zn = this->zn;
+
+	grid->faces = this->local_faces;
+	grid->lc = this->lc;
+	grid->rc = this->rc;
+
+	grid->fBcTypes = this->bctypes;
+	grid->eTypes.Resize( this->GetNCells() );
+
+	grid->bcTypes = this->bctypes;
+
+	this->Normalize( grid );
+
+	grid->CalcMetrics1D();
+}
+
+void GridTopo::Normalize( ScalarGrid * grid )
+{
+	grid->faces = this->local_faces;
+
+	int nFaces = grid->faces.GetNElements();
+	for ( int iFace = 0; iFace < nFaces; ++ iFace )
+	{
+		if ( grid->lc[ iFace ] < 0 )
+		{
+			//need to reverse the node ordering
+			vector< int > & face = grid->faces[ iFace ];
+			std::reverse( face.begin(), face.end() );
+			// now reverse lc and rc
+			ONEFLOW::SWAP( grid->lc[ iFace ], grid->rc[ iFace ] );
+		}
+	}
+
+	grid->SetBcGhostCell();
+}
+
+void GridTopo::ReconstructNode( EList & global_faces )
 {
 	int nFaces = faceid.size();
 	for ( int iFace = 0; iFace < nFaces; ++ iFace )
 	{
 		int iGFace = faceid[ iFace ];
-		vector< int > & face = faces[ iGFace ];
+		vector< int > & face = global_faces[ iGFace ];
 		int nNode = face.size();
 		for ( int iNode = 0; iNode < nNode; ++ iNode )
 		{
 			nodeset.insert( face[ iNode ] );
 		}
+		local_faces.AddElem( face );
+		faces.AddElem( face );
 	}
+
+	this->CalcGlobal2LocalNodeMap();
+	this->CalcLocalFaceNodes();
 }
 
-GridTopos::GridTopos()
+void GridTopo::CalcGlobal2LocalNodeMap()
 {
-}
-
-GridTopos::~GridTopos()
-{
-}
-
-void GridTopos::Allocate( int nZones )
-{
-	data.resize( nZones );
-	for ( int iZone = 0; iZone < nZones; ++ iZone )
+	int count = 0;
+	for ( set<int>::iterator iter = nodeset.begin(); iter != nodeset.end(); ++ iter )
 	{
-		data[ iZone ].zoneid = iZone;
+		global_local_node.insert( pair<int, int>( *iter, count ++ ) );
 	}
-}
-
-void GridTopos::CalcGlobal2LocalCells( MetisIntList & cellzone )
-{
-	int nZones = this->data.size();
-	int nCells = cellzone.size();
-	vector<int> zoneCount( nZones, 0 );
-	gLCells.resize( nCells );
-
-	for ( int iCell = 0; iCell < nCells; ++ iCell )
-	{
-		int iZone = cellzone[ iCell ];
-		gLCells[ iCell ] = zoneCount[ iZone ] ++;
-	}
-}
-
-void GridTopos::CalcInterface()
-{
-	int nZones = this->data.size();
-	this->scalarIFaces.data.resize( nZones );
-	this->scalarIFaces.CalcInterface( this );
 	int kkk = 1;
+}
+
+void GridTopo::CalcLocalFaceNodes()
+{
+	//local_faces
+	int nFaces = local_faces.GetNElements();
+	for ( int iFace = 0; iFace < nFaces; ++ iFace )
+	{
+		vector< int > & face = local_faces[ iFace ];
+		int nNode = face.size();
+		for ( int iNode = 0; iNode < nNode; ++ iNode )
+		{
+			int glbal_node_id = face[ iNode ];
+			face[ iNode ] = global_local_node[ glbal_node_id ];
+		}
+	}
+	int kkk = 1;
+}
+
+void GridTopo::CalcInterface()
+{
+	int nFaces = faceid.size();
+	for ( int iFace = 0; iFace < nFaces; ++ iFace )
+	{
+		int iGFace = faceid[ iFace ];
+		int bctype = facetype[ iFace ];
+		if ( bctype == 0 ) continue;
+		bctypes.AddData( bctype );
+		if ( bctype == -1 )
+		{
+			global_interfaces.AddData( iGFace );
+			local_interfaces.AddData( iFace );
+		}
+	}
+	cout << " nBFaces = " << bctypes.GetNElements() << " nIFaces = " << local_interfaces.GetNElements() << "\n";
+}
+
+void GridTopo::ReorderInterface()
+{
+	int nFaces = faceid.size();
+	for ( int iFace = 0; iFace < nFaces; ++ iFace )
+	{
+	}
+}
+
+void GridTopo::ReconstructNeighbor()
+{
+	this->scalarIFace->ReconstructNeighbor();
+}
+
+void GridTopo::CalcCoor( ScalarGrid * grid )
+{
+	for ( set<int>::iterator iter = nodeset.begin(); iter != nodeset.end(); ++ iter )
+	{
+		int iNode = *iter;
+		Real xm = grid->xn[ iNode ];
+		Real ym = grid->yn[ iNode ];
+		Real zm = grid->zn[ iNode ];
+
+		this->xn.AddData( xm );
+		this->yn.AddData( ym );
+		this->zn.AddData( zm );
+	}
 }
 
 Part::Part()
@@ -220,14 +395,35 @@ Part::~Part()
 	;
 }
 
-void Part::PartitionGrid( ScalarGrid * ggrid, int nPart, NetGrid * netGrid )
+void Part::PartitionGrid( ScalarGrid * ggrid, int nPart, vector< ScalarGrid * > *grids )
 {
+	ONEFLOW::SetGlobalMetisScalarGrid( ggrid );
+
 	this->ggrid = ggrid;
 	this->nPart = nPart;
-	this->netGrid = netGrid;
+	this->grids = grids;
 	//calc cellzone;
 	this->CalcCellZone();
 	this->ReconstructAllZones();
+}
+
+void Part::CalcGlobal2LocalCells( MetisIntList & cellzone )
+{
+	int nZones = this->GetNZones();
+	int nCells = cellzone.size();
+	vector<int> zoneCount( nZones, 0 );
+	gLCells.resize( nCells );
+
+	for ( int iCell = 0; iCell < nCells; ++ iCell )
+	{
+		int iZone = cellzone[ iCell ];
+		gLCells[ iCell ] = zoneCount[ iZone ] ++;
+	}
+
+	for ( int iZone = 0; iZone < nZones; ++ iZone )
+	{
+		( * this->grids )[ iZone ]->gridTopo->SetNCells( zoneCount[ iZone ] );
+	}
 }
 
 void Part::CalcCellZone()
@@ -236,15 +432,31 @@ void Part::CalcCellZone()
 	metisPart.MetisPartition( this->nPart, this->cellzone );
 }
 
+int Part::GetNZones()
+{
+	return this->nPart;
+}
+
+void Part::AllocateGrid( int nZones )
+{
+	for ( int iZone = 0; iZone < nZones; ++ iZone )
+	{
+		ScalarGrid * grid = new ScalarGrid( iZone );
+		( * this->grids ).push_back( grid );
+	}
+}
+
 void Part::ReconstructAllZones()
 {
-	netGrid->AllocateGrid( this->nPart );
+	this->AllocateGrid( this->nPart );
 	this->CalcGlobalInterface();
-	gtopos.Allocate( this->nPart );
-	gtopos.CalcGlobal2LocalCells( this->cellzone );
-	this->ReconstructGrid();
+	//gtopos->Allocate( this->nPart );
+	this->CalcGlobal2LocalCells( this->cellzone );
+	this->ReconstructGridFaceTopo();
+	this->ReconstructNeighbor();
+	this->ReconstructInterfaceTopo();
+	this->DumpGridInfo();
 	this->ReconstructNode();
-	gtopos.CalcInterface();
 	int kkk = 1;
 }
 
@@ -268,23 +480,57 @@ void Part::CalcGlobalInterface()
 	int kkk = 1;
 }
 
-void Part::ReconstructGrid()
+void Part::DumpGridInfo()
+{
+	int nZones = this->GetNZones();
+	for ( int iZone = 0; iZone < nZones; ++ iZone )
+	{
+		//( * gtopos )[ iZone ]->DumpGridInfo();
+		( * this->grids )[ iZone ]->gridTopo->DumpGridInfo();
+	}
+}
+
+void Part::ReconstructGridFaceTopo()
 {
 	int nFaces = ggrid->GetNFaces();
 	int nCells = ggrid->GetNCells();
 	int nBFaces = ggrid->GetNBFaces();
 
+	//First scan the global physical boundary
 	for ( int iFace = 0; iFace < nBFaces; ++ iFace )
 	{
 		int lc = ggrid->lc[ iFace ];
+		int bctype = ggrid->bcTypes[ iFace ];
 		int lZone = cellzone[ lc ];
-		gtopos[ lZone ].AddFaceId( iFace );
-		gtopos[ lZone ].AddFaceType( 1 );
-		int localCell = gtopos.gLCells[ lc ];
-		gtopos[ lZone ].lc.AddData( localCell );
-		gtopos[ lZone ].rc.AddData( ONEFLOW::INVALID_INDEX );
+		//global face id = iFace, local face id = faceid.size();
+		//global face node: 20,10,30,40, local face node 1 2 4 3 for example
+		//global coor x[20],y[20],z[20],x[10],y[10],z[10]
+		//local coor x[1],y[1],z[1],x[2],y[2],z[2]
+		int localCell = this->gLCells[ lc ];
+		( * this->grids )[ lZone ]->gridTopo->AddPhysicalBcFace( iFace, bctype, localCell, ONEFLOW::INVALID_INDEX );
 	}
 
+	//Then scan the internal block interface
+	for ( int iFace = nBFaces; iFace < nFaces; ++ iFace )
+	{
+		int lc = ggrid->lc[ iFace ];
+		int rc = ggrid->rc[ iFace ];
+		int lZone = cellzone[ lc ];
+		int rZone = cellzone[ rc ];
+
+		if ( lZone != rZone )
+		{
+			int localCell_L = this->gLCells[ lc ];
+			int localCell_R = this->gLCells[ rc ]; //Local cell count in another zone
+
+			int bctype = -1;
+
+			( * this->grids )[ lZone ]->gridTopo->AddInterfaceBcFace( iFace, bctype, localCell_L, ONEFLOW::INVALID_INDEX, rZone, localCell_R );
+			( * this->grids )[ rZone ]->gridTopo->AddInterfaceBcFace( iFace, bctype, ONEFLOW::INVALID_INDEX, localCell_R, lZone, localCell_L );
+		}
+	}
+
+	//Finally, scan the inner face of the block
 	for ( int iFace = nBFaces; iFace < nFaces; ++ iFace )
 	{
 		int lc = ggrid->lc[ iFace ];
@@ -294,41 +540,69 @@ void Part::ReconstructGrid()
 
 		if ( lZone == rZone )
 		{
-			gtopos[ lZone ].AddFaceId( iFace );
-			gtopos[ lZone ].AddFaceType( 0 );
+			//inner face bctype = 0
+			int bctype = 0;
+			int localCell_L = this->gLCells[ lc ];
+			int localCell_R = this->gLCells[ rc ];
 
-			int localCell_L = gtopos.gLCells[ lc ];
-			int localCell_R = gtopos.gLCells[ rc ];
-
-			gtopos[ lZone ].lc.AddData( localCell_L );
-			gtopos[ lZone ].rc.AddData( localCell_R );
+			( * this->grids )[ lZone ]->gridTopo->AddInnerFace( iFace, bctype, localCell_L, localCell_R );
 		}
-		else
+	}
+}
+
+void Part::ReconstructInterfaceTopo()
+{
+	int nZones = this->GetNZones();
+	for ( int iZone = 0; iZone < nZones; ++ iZone )
+	{
+		int nNeis = ( * this->grids )[ iZone ]->gridTopo->scalarIFace->data.size();
+		for ( int iNei = 0; iNei < nNeis; ++ iNei )
 		{
-			gtopos[ lZone ].AddFaceId( iFace );
-			gtopos[ rZone ].AddFaceId( iFace );
-			gtopos[ lZone ].AddFaceType( -1 );
-			gtopos[ rZone ].AddFaceType( -1 );
-
-			int localCell_L = gtopos.gLCells[ lc ];
-			int localCell_R = gtopos.gLCells[ rc ]; //Local cell count in another zone
-
-			gtopos[ lZone ].lc.AddData( localCell_L );
-			gtopos[ lZone ].rc.AddData( ONEFLOW::INVALID_INDEX );
-
-			gtopos[ rZone ].lc.AddData( ONEFLOW::INVALID_INDEX );
-			gtopos[ rZone ].rc.AddData( localCell_R );
+			ScalarIFaceIJ & iFaceIJ = ( * this->grids )[ iZone ]->gridTopo->scalarIFace->data[ iNei ];
+			int jZone =  iFaceIJ.zonej;
+			//iZone的第iNei个邻居为jZone,iZone和jZone的交界面的global interface id为：
+			//iFaceIJ.iglobalfaces,iFaceIJ.target_ifaces是这些interface在jZone里面的局部id
+			//这些id由jZone计算发送给iZone的里iNei个信息存储
+			//实际上这个信息iZone用不到，是jZone接收时使用的。
+			cout << " iZone = " << iZone << " iNei = " << iNei << " jZone = " << jZone << "\n";
+			( * this->grids )[ jZone ]->gridTopo->scalarIFace->CalcLocalInterfaceId( iZone, iFaceIJ.iglobalfaces, iFaceIJ.target_ifaces );
 		}
+	}
+}
+
+void Part::ReconstructNeighbor()
+{
+	int nZones = this->GetNZones();
+	for ( int iZone = 0; iZone < nZones; ++ iZone )
+	{
+		( * this->grids )[ iZone ]->gridTopo->ReconstructNeighbor();
 	}
 }
 
 void Part::ReconstructNode()
 {
-	int nZones = this->nPart;
+	int nZones = this->GetNZones();
 	for ( int iZone = 0; iZone < nZones; ++ iZone )
 	{
-		gtopos[ iZone ].ReconstructNode( ggrid->faces );
+		( * this->grids )[ iZone ]->gridTopo->ReconstructNode( ggrid );
 	}
+
+	for ( int iZone = 0; iZone < nZones; ++ iZone )
+	{
+		( * this->grids )[ iZone ]->gridTopo->CopyGrid( ( * this->grids )[ iZone ] );
+	}
+}
+
+ScalarGrid * globalMetisScalarGrid = 0;
+
+void SetGlobalMetisScalarGrid( ScalarGrid * gridIn )
+{
+	globalMetisScalarGrid = gridIn;
+}
+
+ScalarGrid * GetGlobalMetisScalarGrid()
+{
+	return globalMetisScalarGrid;
 }
 
 EndNameSpace

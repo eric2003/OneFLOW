@@ -71,12 +71,13 @@ void Simulation::Run()
     {
         this->RunDefaultSimu();
     }
-    else if (  nPara == 2 ) {
+    else if (  nPara == 2 )
+    {
         cout << " wrong argument number !\n";
         exit( 0 );
     }
     else // nPara >= 3
-    {
+    { 
         SimuImp * simu = new SimuImp( args );
         simu->Run();
         delete simu;

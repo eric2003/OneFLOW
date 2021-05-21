@@ -53,6 +53,11 @@ public:
         return data[ iEqu ];
     }
 
+    HXVector< T > & AsOneD()
+    {
+        return data[ 0 ];
+    }
+
     Marray< T > & operator = ( const T & value )
     {
         UInt nEqu = this->GetNEqu();
