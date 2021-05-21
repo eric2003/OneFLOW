@@ -22,6 +22,7 @@ License
 #pragma once
 #include "HXDefine.h"
 #include "HXArray.h"
+#include "FieldBase.h"
 #include <map>
 using namespace std;
 
