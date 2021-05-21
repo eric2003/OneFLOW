@@ -109,7 +109,12 @@ void FieldSolver::InitGrid()
     this->grid->CalcMetrics1D();
 
     Part part;
-    part.PartitionGrid( this->grid, 4, & this->grids );
+    //part.PartitionGrid( this->grid, 4, & this->grids );
+    int npart = this->para->nx - 1;
+    //int npart = 32;
+    cout << " npart = " << npart << "\n";
+    //part.PartitionGrid( this->grid, 4, & this->grids );
+    part.PartitionGrid( this->grid, npart, & this->grids );
 
     int nZones = this->grids.size();
     ZoneState::nZones = nZones;

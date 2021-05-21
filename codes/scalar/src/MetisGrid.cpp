@@ -57,6 +57,16 @@ void MetisPart::MetisPartition( int nPart, MetisIntList & cellzone )
 	adjncy.resize( 2 * nInnerFaces );
 	cellzone.resize( nCells );
 
+	if ( nPart == nCells )
+	{
+		for ( int iCell = 0; iCell < nCells; ++ iCell )
+		{
+			int iZone = iCell;
+			cellzone[ iCell ] = iZone;
+		}
+		return;
+	}
+
 	ScalarGetXadjAdjncy( ggrid, xadj, adjncy );
 	ScalarPartitionByMetis( nCells, xadj, adjncy, nPart, cellzone );
 }
