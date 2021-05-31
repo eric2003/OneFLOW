@@ -21,6 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 #pragma once
 #include "Configure.h"
+#include "FileUtil.h"
 #include <fstream>
 #include <string>
 using namespace std;

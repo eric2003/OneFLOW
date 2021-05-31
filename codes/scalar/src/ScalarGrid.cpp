@@ -23,6 +23,7 @@ License
 #include "ScalarGrid.h"
 #include "Constant.h"
 #include "HXCgns.h"
+#include "Dimension.h"
 #include "ElementHome.h"
 #include "HXSort.h"
 #include "HXMath.h"
@@ -30,6 +31,8 @@ License
 #include "MetisGrid.h"
 #include "ScalarIFace.h"
 #include "DataBase.h"
+#include "DataBook.h"
+#include "Prj.h"
 #include <iostream>
 #include <vector>
 #include <algorithm>
@@ -210,6 +213,7 @@ ScalarGrid::ScalarGrid()
 	dataBase = new DataBase();
 	this->grid_id = 0;
 	this->gridTopo = new GridTopo( this->grid_id );
+	this->volBcType = -1;
 }
 
 ScalarGrid::ScalarGrid( int grid_id )
@@ -218,6 +222,7 @@ ScalarGrid::ScalarGrid( int grid_id )
 	dataBase = new DataBase();
 	this->grid_id = grid_id;
 	this->gridTopo = new GridTopo( this->grid_id );
+	this->volBcType = -1;
 }
 
 ScalarGrid::~ScalarGrid()
@@ -748,5 +753,127 @@ void ScalarGrid::GetTId( int i_interface, int & tId )
 	int iBFace = this->gridTopo->interface_to_bcface[ i_interface ];
 	tId = this->rc[ iBFace ];
 }
+
+void ScalarGrid::DumpCalcGrid()
+{
+	cout << "Dumping unstructured grid data files......\n";
+	fstream file;
+	string fileName = "scalar.ofl";
+	OpenPrjFile( file, fileName, ios_base::out | ios_base::binary );
+	DataBook * databook = new DataBook();
+	this->WriteGrid( databook );
+	databook->WriteFile( file );
+	delete databook;
+	CloseFile( file );
+}
+
+void ScalarGrid::WriteGrid( DataBook * databook )
+{
+	ONEFLOW::HXWrite( databook, this->nNodes );
+	ONEFLOW::HXWrite( databook, this->nFaces );
+	ONEFLOW::HXWrite( databook, this->nCells );
+
+	ONEFLOW::HXWrite( databook, this->xn.data );
+	ONEFLOW::HXWrite( databook, this->yn.data );
+	ONEFLOW::HXWrite( databook, this->zn.data );
+
+	ONEFLOW::HXWrite( databook, this->volBcType  );
+
+	this->WriteGridFaceTopology( databook );
+	this->WriteBoundaryTopology( databook );
+}
+
+void ScalarGrid::ReadCalcGrid()
+{
+	fstream file;
+	string fileName = "scalar.ofl";
+	OpenPrjFile( file, fileName, ios_base::in | ios_base::binary );
+	DataBook * databook = new DataBook();
+	databook->ReadFile( file );
+	this->ReadGrid( databook );
+	delete databook;
+	CloseFile( file );
+}
+
+void ScalarGrid::ReadGrid( DataBook * databook )
+{
+	cout << "Reading unstructured grid data files......\n";
+	//Read the number of nodes, number of elements surface and number of elements
+
+	ONEFLOW::HXRead( databook, this->nNodes );
+	ONEFLOW::HXRead( databook, this->nFaces );
+	ONEFLOW::HXRead( databook, this->nCells );
+
+	cout << "Grid dimension = " << Dim::dimension << endl;
+
+	cout << " number of nodes    : " << this->nNodes << endl;
+	cout << " number of surfaces : " << this->nFaces << endl;
+	cout << " number of elements : " << this->nCells << endl;
+
+	this->CreateNodes( this->nNodes );
+	//this->cellMesh->cellTopo->Alloc( this->nCell );
+
+	ONEFLOW::HXRead( databook, this->xn.data );
+	ONEFLOW::HXRead( databook, this->yn.data );
+	ONEFLOW::HXRead( databook, this->zn.data );
+
+	cout << "The grid nodes have been read\n";
+	ONEFLOW::HXRead( databook, this->volBcType  );
+
+	//this->nodeMesh->CalcMinMaxBox();
+	//this->ReadGridFaceTopology( databook );
+	//this->ReadBoundaryTopology( databook );
+	//this->NormalizeBc();
+
+	cout << "All the computing information is ready!\n";
+}
+
+void ScalarGrid::CreateNodes( int numberOfNodes )
+{
+	this->xn.Resize( numberOfNodes );
+	this->yn.Resize( numberOfNodes );
+	this->zn.Resize( numberOfNodes );
+}
+
+void ScalarGrid::WriteGridFaceTopology( DataBook * databook )
+{
+	IntField numFaceNode( this->nFaces );
+
+	for ( int iFace = 0; iFace < this->nFaces; ++ iFace )
+	{
+		numFaceNode[ iFace ] = this->faces[ iFace ].size();
+	}
+
+	ONEFLOW::HXWrite( databook, numFaceNode );
+
+	IntField faceNodeMem;
+
+	for ( int iFace = 0; iFace < this->nFaces; ++ iFace )
+	{
+		int nNode = numFaceNode[ iFace ];
+		for ( int iNode = 0; iNode < nNode; ++ iNode )
+		{
+			faceNodeMem.push_back( this->faces[ iFace ][ iNode ] );
+		}
+	}
+	ONEFLOW::HXWrite( databook, faceNodeMem );
+
+	ONEFLOW::HXWrite( databook, this->lc.data );
+	ONEFLOW::HXWrite( databook, this->rc.data );
+}
+
+void ScalarGrid::WriteBoundaryTopology( DataBook * databook )
+{
+	int nBFaces = this->GetNBFaces();
+	ONEFLOW::HXWrite( databook, nBFaces );
+
+	ONEFLOW::HXWrite( databook, this->bcTypes.data );
+	this->bcNameIds = this->bcTypes;
+	ONEFLOW::HXWrite( databook, this->bcNameIds.data );
+
+	this->gridTopo->scalarIFace->WriteInterfaceTopology( databook );
+}
+
+
 
 EndNameSpace

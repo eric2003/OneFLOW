@@ -23,6 +23,8 @@ License
 #include "ScalarIFace.h"
 #include "MetisGrid.h"
 #include "DataStorage.h"
+#include "DataBaseIO.h"
+#include "DataBook.h"
 #include "SolverDef.h"
 #include <iostream>
 #include <vector>
@@ -194,24 +196,18 @@ DataStorage * ScalarIFace::GetDataStorage( int iSendRecv )
     }
 }
 
-
-ScalarIFaces::ScalarIFaces()
+void ScalarIFace::WriteInterfaceTopology( DataBook * databook )
 {
-    ;
-}
+    int nIFaces = this->GetNIFaces();
 
-ScalarIFaces::~ScalarIFaces()
-{
-    ;
-}
-
-void ScalarIFaces::GetInterface()
-{
-    int nZones = data.size();
-    for( int iZone = 0; iZone < nZones; ++ iZone )
+    ONEFLOW::HXWrite( databook, nIFaces );
+    if ( nIFaces > 0 )
     {
-        data[ iZone ].GetInterface();
+    	ONEFLOW::HXWrite( databook, this->zones             );
+    	ONEFLOW::HXWrite( databook, this->target_interfaces );
+    	//ONEFLOW::HXWrite( databook, this->interFace->i2b               );
     }
+
 }
 
 EndNameSpace

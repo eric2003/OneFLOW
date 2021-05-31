@@ -142,6 +142,7 @@ public:
 
 class DataBase;
 class GridTopo;
+class DataBook;
 
 class ScalarGrid
 {
@@ -170,10 +171,12 @@ public:
     IntList eTypes;
     IntList fBcTypes;
     IntList bcTypes;
+    IntList bcNameIds;
     ScalarBccos * scalarBccos;
     DataBase * dataBase;
     GridTopo * gridTopo;
     int grid_id;
+    int volBcType;
 public:
     DataBase * GetDataBase() { return dataBase; };
 public:
@@ -207,7 +210,15 @@ public:
 public:
     void GetSId( int i_interface, int & sId );
     void GetTId( int i_interface, int & tId );
-    
+public:
+    void DumpCalcGrid();
+    void ReadCalcGrid();
+    void WriteGrid( DataBook * databook );
+    void ReadGrid( DataBook * databook );
+    void CreateNodes( int numberOfNodes );
+    void WriteGridFaceTopology( DataBook * databook );
+    void WriteBoundaryTopology( DataBook * databook );
 };
+
 
 EndNameSpace

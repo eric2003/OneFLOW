@@ -64,6 +64,7 @@ public:
 class GridTopo;
 class GridTopos;
 class DataStorage;
+class DataBook;
 
 class ScalarIFace
 {
@@ -100,17 +101,9 @@ public:
     void AddInterface( int global_interface_id, int neighbor_zoneid, int neighbor_cellid );
     void ReconstructNeighbor();
     DataStorage * GetDataStorage( int iSendRecv );
+public:
+    void WriteInterfaceTopology( DataBook * databook );
 };
 
-class ScalarIFaces
-{
-public:
-    ScalarIFaces() ;
-    ~ScalarIFaces();
-public:
-    vector< ScalarIFace > data;
-public:
-    void GetInterface();
-};
 
 EndNameSpace

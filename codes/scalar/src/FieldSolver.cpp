@@ -21,6 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "FieldSolver.h"
+#include "Dimension.h"
 #include "FieldPara.h"
 #include "DataBase.h"
 #include "ScalarDataIO.h"
@@ -104,16 +105,18 @@ void FieldSolver::InitCtrlParameter()
 
 void FieldSolver::InitGrid()
 {
+    Dim::dimension = ONEFLOW::ONE_D;
     this->grid->GenerateGrid( this->para->nx, 0, this->para->len );
     this->grid->CalcTopology();
     this->grid->CalcMetrics1D();
+    //this->grid->DumpCalcGrid();
+    //ScalarGrid * gridTmp = new ScalarGrid();
+    //gridTmp->ReadCalcGrid();
+    //delete gridTmp;
 
     Part part;
-    //part.PartitionGrid( this->grid, 4, & this->grids );
     int npart = this->para->nx - 1;
-    //int npart = 32;
     cout << " npart = " << npart << "\n";
-    //part.PartitionGrid( this->grid, 4, & this->grids );
     part.PartitionGrid( this->grid, npart, & this->grids );
 
     int nZones = this->grids.size();
@@ -231,9 +234,7 @@ void FieldSolver::UpdateInterface( TaskFunction sendAction, TaskFunction recvAct
         //Loop through each zone
         ZoneState::zid = iZone;
         //Find out the neighbors of each zone 
-        //(that is, the blocks that have docking relationship and need to transfer interface information)
 
-        //int nNei = interFaceTopo.data[ iZone ].size();
         ScalarGrid * grid = ScalarZone::GetGrid();
         GridTopo * gridTopo = grid->gridTopo;
         ScalarIFace * scalarIFace = gridTopo->scalarIFace;
@@ -244,7 +245,6 @@ void FieldSolver::UpdateInterface( TaskFunction sendAction, TaskFunction recvAct
         for ( int iNei = 0; iNei < nNei; ++ iNei )
         {
             //jZone is the block number of the neighbor block
-            //int jZone = interFaceTopo.data[ iZone ][ iNei ];
             int jZone = scalarIFace->data[ iNei ].zonej;
             ZoneState::inei = iNei;
             //Exchange data between this block (iZone) and its neighbor (jZone)
@@ -288,66 +288,6 @@ void FieldSolver::SwapInterfaceData( int iZone, int jZone, TaskFunction sendActi
         recvAction();
     }
 }
-
-//void FieldSolver::PrepareSendData()
-//{
-//    ScalarFieldRecord * fieldRecord = this->PrepareSendScalarFieldRecord();
-//
-//    //By design, the current zone is the jth neighbor of zone I.
-//    //How many neighbors of the current zone do you need to find out? This value is neiid.
-//
-//    ScalarGrid * grid = ScalarZone::GetGrid();
-//    GridTopo * gridTopo = grid->gridTopo;
-//    ScalarIFace * scalarIFace = gridTopo->scalarIFace;
-//
-//    int nNei = scalarIFace->data.size();
-//    int iNei = ZoneState::inei;
-//
-//    ScalarIFaceIJ & sij = scalarIFace->data[ iNei ];
-//    vector< int > & interfaceId = sij.ifaces;
-//
-//    ActionState::dataBook->MoveToBegin();
-//
-//    int nRecords = fieldRecord->nEquList.size();
-//
-//    for ( int fieldId = 0; fieldId < nRecords; ++ fieldId )
-//    {
-//        MRField * field  = fieldRecord->GetField( fieldId );
-//        HXWriteField( ActionState::dataBook, field, interfaceId );
-//    }
-//
-//    delete fieldRecord;
-//}
-//
-//void FieldSolver::ReceiveSendData()
-//{
-//    ScalarFieldRecord * fieldRecord = this->PrepareRecvScalarFieldRecord();
-//
-//    //By design, the current zone is the jth neighbor of zone I.
-//    //How many neighbors of the current zone do you need to find out? This value is neiid.
-//
-//    ScalarGrid * grid = ScalarZone::GetGrid();
-//    GridTopo * gridTopo = grid->gridTopo;
-//    ScalarIFace * scalarIFace = gridTopo->scalarIFace;
-//
-//    int nNei = scalarIFace->data.size();
-//    int jNei = scalarIFace->FindINeibor( ZoneState::szid );
-//
-//    ScalarIFaceIJ & sij = scalarIFace->data[ jNei ];
-//    vector< int > & interfaceId = sij.recv_ifaces;
-//
-//    ActionState::dataBook->MoveToBegin();
-//
-//    int nRecords = fieldRecord->nEquList.size();
-//
-//    for ( int fieldId = 0; fieldId < nRecords; ++ fieldId )
-//    {
-//        MRField * field  = fieldRecord->GetField( fieldId );
-//        HXReadField( ActionState::dataBook, field, interfaceId );
-//    }
-//
-//    delete fieldRecord;
-//}
 
 void FieldSolver::CommParallelInfo()
 {

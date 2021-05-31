@@ -99,7 +99,7 @@ void ScalarFieldManager::AllocateInterfaceField()
     ScalarIFace * scalarIFace = gridTopo->scalarIFace;
 
     int nIFaces = scalarIFace->GetNIFaces();
-    cout << " nIFaces = " << nIFaces << "\n";
+    //cout << " nIFaces = " << nIFaces << "\n";
 
     if ( nIFaces == 0 ) return;
 
@@ -130,7 +130,7 @@ void ScalarFieldManager::UploadInterfaceField()
     ScalarIFace * scalarIFace = gridTopo->scalarIFace;
 
     int nIFaces = scalarIFace->GetNIFaces();
-    cout << " nIFaces = " << nIFaces << "\n";
+    //cout << " nIFaces = " << nIFaces << "\n";
 
     if ( nIFaces == 0 ) return;
 
@@ -147,7 +147,7 @@ void ScalarFieldManager::DownloadInterfaceField()
     ScalarIFace * scalarIFace = gridTopo->scalarIFace;
 
     int nIFaces = scalarIFace->GetNIFaces();
-    cout << " nIFaces = " << nIFaces << "\n";
+    //cout << " nIFaces = " << nIFaces << "\n";
 
     if ( nIFaces == 0 ) return;
 
