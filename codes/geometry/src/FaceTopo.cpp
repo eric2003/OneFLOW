@@ -349,7 +349,7 @@ void FaceTopo::UpdateOtherTopologyTerm()
 
 void FaceTopo::GenerateI2B( InterFace * interFace )
 {
-    this->bcManager->bcRecord->CreateI2B( interFace );
+    this->bcManager->bcRecord->GenerateI2B( interFace );
 }
 
 bool FaceTopo::GetSId( int iFace, int iPosition, int & sId )
