@@ -124,8 +124,6 @@ void FaceTopo::SetNewFace2Node( IFaceLink * iFaceLink )
             }
             else
             {
-                //this->lCellNew.push_back( this->lCell[ iFace ] );
-
                 for ( int iNode = 0; iNode < nFNode; ++ iNode )
                 {
                     int nodeIndex = this->f2n[ iFace ][ iNode ];
@@ -137,9 +135,7 @@ void FaceTopo::SetNewFace2Node( IFaceLink * iFaceLink )
         }
         else
         {
-            //this->lCellNew.push_back( this->lCell[ iFace ] );
-
-            for ( int iNode = 0; iNode < nFNode; ++ iNode )
+              for ( int iNode = 0; iNode < nFNode; ++ iNode )
             {
                 int nodeIndex = this->f2n[ iFace ][ iNode ];
                 tmpVector.push_back( nodeIndex );

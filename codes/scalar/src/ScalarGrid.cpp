@@ -212,7 +212,7 @@ ScalarGrid::ScalarGrid()
 	scalarBccos = new ScalarBccos();
 	dataBase = new DataBase();
 	this->grid_id = 0;
-	this->gridTopo = new GridTopo( this->grid_id );
+	this->gridTopo = new GridTopo( this );
 	this->volBcType = -1;
 }
 
@@ -221,7 +221,7 @@ ScalarGrid::ScalarGrid( int grid_id )
 	scalarBccos = new ScalarBccos();
 	dataBase = new DataBase();
 	this->grid_id = grid_id;
-	this->gridTopo = new GridTopo( this->grid_id );
+	this->gridTopo = new GridTopo( this );
 	this->volBcType = -1;
 }
 
@@ -744,13 +744,13 @@ void ScalarGrid::CalcC2C( EList & c2c )
 
 void ScalarGrid::GetSId( int i_interface, int & sId )
 {
-	int iBFace = this->gridTopo->interface_to_bcface[ i_interface ];
+	int iBFace = this->gridTopo->scalarIFace->interface_to_bcface[ i_interface ];
 	sId = this->lc[ iBFace ];
 }
 
 void ScalarGrid::GetTId( int i_interface, int & tId )
 {
-	int iBFace = this->gridTopo->interface_to_bcface[ i_interface ];
+	int iBFace = this->gridTopo->scalarIFace->interface_to_bcface[ i_interface ];
 	tId = this->rc[ iBFace ];
 }
 

@@ -64,7 +64,6 @@ public:
     ScalarFieldManager * scalarFieldManager;
     vector< ScalarField * > fields;
     vector< ScalarGrid * > grids;
-    vector< GridTopo * > gridTopos;
     bool tmpflag_delete_grids;
 public:
     void Run();

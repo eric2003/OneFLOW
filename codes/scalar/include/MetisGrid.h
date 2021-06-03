@@ -60,7 +60,7 @@ class ScalarIFace;
 class GridTopo
 {
 public:
-    GridTopo( int zoneid = 0 );
+    GridTopo( ScalarGrid * grid );
     ~GridTopo();
 public:
     //global faceid
@@ -74,20 +74,15 @@ public:
     IntList bctypes;
     set<int> nodeset;
     map<int, int> global_local_node;
-    //mapping relationship between local interface bc ID and boundary bc ID
-    vector< int > interface_to_bcface;
-    IntList lc;
-    IntList rc;
-    int zoneid;
     ScalarIFace * scalarIFace;
+    ScalarGrid * grid;
     RealList xn, yn, zn;
     int nCells;
 public:
+    int GetNBFaces();
     void SetNCells( int nCells );
     int GetNCells();
     void AddInterface( int global_interface_id, int neighbor_zoneid, int neighbor_cellid );
-    void AddFaceId( int iFace );
-    void AddFaceType( int faceType );
     void AddPhysicalBcFace( int global_face_id, int bctype, int lcell, int rcell );
     void AddInnerFace( int global_face_id, int bctype, int lcell, int rcell );
     void AddInterfaceBcFace( int global_face_id, int bctype, int lcell, int rcell, int nei_zoneid, int nei_cellid );
@@ -101,6 +96,7 @@ public:
     void ReconstructNeighbor();
     void CalcCoor( ScalarGrid * grid );
     void DumpGridInfo();
+    void CalcInterfaceToBcFace();
 };
 
 class Part
@@ -125,6 +121,7 @@ public:
     void ReconstructInterfaceTopo();
     void ReconstructNode();
     void ReconstructNeighbor();
+    void CalcInterfaceToBcFace();
     void DumpGridInfo();
     
 };

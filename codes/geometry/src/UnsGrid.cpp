@@ -313,7 +313,7 @@ void UnsGrid::GenerateLgMapping( IFaceLink * iFaceLink )
 
     iFaceLink->Init( this );
 
-    this->faceTopo->bcManager->bcRecord->GenerateI2B( this->interFace );
+    this->faceTopo->GenerateI2B( this->interFace );
 
     int nBFace = bcRecord->GetNBFace();
 

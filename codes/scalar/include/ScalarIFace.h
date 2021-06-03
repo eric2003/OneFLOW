@@ -90,6 +90,9 @@ public:
     map<int, int> global_to_local_interfaces;
     //local interface id to global interface id map
     map<int, int> local_to_global_interfaces;
+
+    //mapping relationship between local interface bc ID and boundary bc ID
+    vector< int > interface_to_bcface;
 public:
     int GetNIFaces();
     int FindINeibor( int iZone );
