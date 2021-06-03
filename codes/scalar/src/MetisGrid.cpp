@@ -186,7 +186,6 @@ void GridTopo::AddPhysicalBcFace( int global_face_id, int bctype, int lcell, int
 void GridTopo::AddInterfaceBcFace( int global_face_id, int bctype, int lcell, int rcell, int nei_zoneid, int nei_cellid )
 {
 	this->AddFaceId( global_face_id );
-	this->global_interfaces.AddData( global_face_id );
 	int iSize = this->bctypes.GetNElements();
 	//interface_to_bcface:ilocal_interface -> nphysicalbc+ilocal_interface=interface->bcface
 	//For example, the number of boundary faces corresponding to inteface0 may be 10
@@ -403,7 +402,6 @@ void Part::AllocateGrid( int nZones )
 void Part::ReconstructAllZones()
 {
 	this->AllocateGrid( this->nPart );
-	this->CalcGlobalInterface();
 	this->CalcGlobal2LocalCells( this->cellzone );
 	this->ReconstructGridFaceTopo();
 	this->ReconstructNeighbor();
@@ -413,32 +411,11 @@ void Part::ReconstructAllZones()
 	int kkk = 1;
 }
 
-void Part::CalcGlobalInterface()
-{
-	int nFaces = ggrid->GetNFaces();
-	int nCells = ggrid->GetNCells();
-	int nBFaces = ggrid->GetNBFaces();
-	int nInnerFaces = nFaces - nBFaces;
-	//global interfaces
-	vector< int > interfaces;
-    for ( int iFace = nBFaces; iFace < nFaces; ++ iFace )
-    {
-		int lc = ggrid->lc[ iFace ];
-		int rc = ggrid->rc[ iFace ];
-		if ( cellzone[ lc ] != cellzone[ rc ] )
-		{
-			interfaces.push_back( iFace );
-		}
-    }
-	int kkk = 1;
-}
-
 void Part::DumpGridInfo()
 {
 	int nZones = this->GetNZones();
 	for ( int iZone = 0; iZone < nZones; ++ iZone )
 	{
-		//( * gtopos )[ iZone ]->DumpGridInfo();
 		( * this->grids )[ iZone ]->gridTopo->DumpGridInfo();
 	}
 }

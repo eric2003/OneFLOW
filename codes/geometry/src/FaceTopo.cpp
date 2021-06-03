@@ -349,21 +349,7 @@ void FaceTopo::UpdateOtherTopologyTerm()
 
 void FaceTopo::GenerateI2B( InterFace * interFace )
 {
-    if ( ! interFace ) return;
-
-    int nBFace = this->bcManager->bcRecord->GetNBFace();
-
-    int iFace = 0;
-    for ( int iBFace = 0; iBFace < nBFace; ++ iBFace )
-    {
-        int bcType = this->bcManager->bcRecord->bcType[ iBFace ];
-        if ( ! BC::IsInterfaceBc( bcType ) )
-        {
-            continue;
-        }
-
-        interFace->i2b[ iFace ++ ] = iBFace;
-    }
+    this->bcManager->bcRecord->CreateI2B( interFace );
 }
 
 bool FaceTopo::GetSId( int iFace, int iPosition, int & sId )

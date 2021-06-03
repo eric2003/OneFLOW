@@ -69,16 +69,12 @@ public:
     EList faces;
     //local facenodes
     EList local_faces;
-    //IntList nodeid;
     //facetype bctype interface -1, inner 0
     IntList facetype;
-    //interface id
-    //global interface id count by global face
-    IntList global_interfaces;
-    //IntList local_interfaces;
     IntList bctypes;
     set<int> nodeset;
     map<int, int> global_local_node;
+    //mapping relationship between local interface bc ID and boundary bc ID
     vector< int > interface_to_bcface;
     IntList lc;
     IntList rc;
@@ -125,7 +121,6 @@ public:
     void CalcGlobal2LocalCells( MetisIntList & cellzone );
     void CalcCellZone();
     void ReconstructAllZones();
-    void CalcGlobalInterface();
     void ReconstructGridFaceTopo();
     void ReconstructInterfaceTopo();
     void ReconstructNode();
