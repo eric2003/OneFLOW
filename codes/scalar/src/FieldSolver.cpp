@@ -236,8 +236,7 @@ void FieldSolver::UpdateInterface( TaskFunction sendAction, TaskFunction recvAct
         //Find out the neighbors of each zone 
 
         ScalarGrid * grid = ScalarZone::GetGrid();
-        GridTopo * gridTopo = grid->gridTopo;
-        ScalarIFace * scalarIFace = gridTopo->scalarIFace;
+        ScalarIFace * scalarIFace = grid->scalarIFace;
         int nNei = scalarIFace->data.size();
 
         //For all neighbors of this block (zone = iZone), exchange information
@@ -626,8 +625,7 @@ void PrepareFieldSendData()
     //How many neighbors of the current zone do you need to find out? This value is neiid.
 
     ScalarGrid * grid = ScalarZone::GetGrid();
-    GridTopo * gridTopo = grid->gridTopo;
-    ScalarIFace * scalarIFace = gridTopo->scalarIFace;
+    ScalarIFace * scalarIFace = grid->scalarIFace;
 
     int nNei = scalarIFace->data.size();
     int iNei = ZoneState::inei;
@@ -656,8 +654,7 @@ void PrepareFieldRecvData()
     //How many neighbors of the current zone do you need to find out? This value is neiid.
 
     ScalarGrid * grid = ScalarZone::GetGrid();
-    GridTopo * gridTopo = grid->gridTopo;
-    ScalarIFace * scalarIFace = gridTopo->scalarIFace;
+    ScalarIFace * scalarIFace = grid->scalarIFace;
 
     int nNei = scalarIFace->data.size();
     int jNei = scalarIFace->FindINeibor( ZoneState::szid );
@@ -683,8 +680,7 @@ ScalarFieldRecord * PrepareSendScalarFieldRecord()
     ScalarFieldRecord * fieldRecord = new ScalarFieldRecord();
 
     ScalarGrid * grid = ScalarZone::GetGrid();
-    GridTopo * gridTopo = grid->gridTopo;
-    ScalarIFace * scalarIFace = gridTopo->scalarIFace;
+    ScalarIFace * scalarIFace = grid->scalarIFace;
 
     StringField fieldNameList;
     fieldNameList.push_back( "q" );
@@ -699,8 +695,7 @@ ScalarFieldRecord *  PrepareRecvScalarFieldRecord()
     ScalarFieldRecord * fieldRecord = new ScalarFieldRecord();
 
     ScalarGrid * grid = ScalarZone::GetGrid();
-    GridTopo * gridTopo = grid->gridTopo;
-    ScalarIFace * scalarIFace = gridTopo->scalarIFace;
+    ScalarIFace * scalarIFace = grid->scalarIFace;
 
     StringField fieldNameList;
     fieldNameList.push_back( "q" );
@@ -716,8 +711,7 @@ void PrepareGeomSendData()
     //How many neighbors of the current zone do you need to find out? This value is neiid.
 
     ScalarGrid * grid = ScalarZone::GetGrid();
-    GridTopo * gridTopo = grid->gridTopo;
-    ScalarIFace * scalarIFace = gridTopo->scalarIFace;
+    ScalarIFace * scalarIFace = grid->scalarIFace;
 
     int nNei = scalarIFace->data.size();
     int iNei = ZoneState::inei;
@@ -747,8 +741,7 @@ void PrepareGeomRecvData()
     //How many neighbors of the current zone do you need to find out? This value is neiid.
 
     ScalarGrid * grid = ScalarZone::GetGrid();
-    GridTopo * gridTopo = grid->gridTopo;
-    ScalarIFace * scalarIFace = gridTopo->scalarIFace;
+    ScalarIFace * scalarIFace = grid->scalarIFace;
 
     int nNei = scalarIFace->data.size();
     int jNei = scalarIFace->FindINeibor( ZoneState::szid );

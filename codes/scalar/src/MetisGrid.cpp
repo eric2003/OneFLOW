@@ -145,34 +145,17 @@ void MetisPart::ScalarPartitionByMetis( idx_t nCells, MetisIntList & xadj, Metis
 GridTopo::GridTopo( ScalarGrid * grid )
 {
 	this->grid = grid;
-	this->scalarIFace = new ScalarIFace( grid->grid_id );
 }
 
 GridTopo::~GridTopo()
 {
-	delete this->scalarIFace;
-}
-
-int GridTopo::GetNBFaces()
-{
-	return this->bctypes.GetNElements();
-}
-
-void GridTopo::SetNCells( int nCells )
-{
-	this->nCells = nCells;
-}
-
-int GridTopo::GetNCells()
-{
-	return this->nCells;
 }
 
 void GridTopo::AddPhysicalBcFace( int global_face_id, int bctype, int lcell, int rcell )
 {
 	this->faceid.push_back( global_face_id );
-	this->bctypes.AddData( bctype );
-	this->facetype.AddData( bctype );
+	grid->bcTypes.AddData( bctype );
+	grid->fBcTypes.AddData( bctype );
 
 	this->grid->lc.AddData( lcell );
 	this->grid->rc.AddData( rcell );
@@ -181,8 +164,8 @@ void GridTopo::AddPhysicalBcFace( int global_face_id, int bctype, int lcell, int
 void GridTopo::AddInterfaceBcFace( int global_face_id, int bctype, int lcell, int rcell, int nei_zoneid, int nei_cellid )
 {
 	this->faceid.push_back( global_face_id );
-	this->bctypes.AddData( bctype );
-	this->facetype.AddData( bctype );
+	grid->bcTypes.AddData( bctype );
+	grid->fBcTypes.AddData( bctype );
 
 	this->grid->lc.AddData( lcell );
 	this->grid->rc.AddData( rcell );
@@ -193,7 +176,7 @@ void GridTopo::AddInterfaceBcFace( int global_face_id, int bctype, int lcell, in
 void GridTopo::AddInnerFace( int global_face_id, int bctype, int lcell, int rcell )
 {
 	this->faceid.push_back( global_face_id );
-	this->facetype.AddData( bctype );
+	grid->fBcTypes.AddData( bctype );
 
 	this->grid->lc.AddData( lcell );
 	this->grid->rc.AddData( rcell );
@@ -201,33 +184,14 @@ void GridTopo::AddInnerFace( int global_face_id, int bctype, int lcell, int rcel
 
 void GridTopo::AddInterface( int global_interface_id, int neighbor_zoneid, int neighbor_cellid )
 {
-	this->scalarIFace->AddInterface( global_interface_id, neighbor_zoneid, neighbor_cellid );
-}
-
-void GridTopo::CalcInterfaceToBcFace()
-{
-	if ( scalarIFace->GetNIFaces() == 0 ) return;
-
-	int nBFaces = this->GetNBFaces();
-
-	scalarIFace->interface_to_bcface.resize( 0 );
-
-	for ( int iBFace = 0; iBFace < nBFaces; ++ iBFace )
-	{
-		if ( ! BC::IsInterfaceBc( this->bctypes[ iBFace ] ) )
-		{
-			continue;
-		}
-
-		scalarIFace->interface_to_bcface.push_back( iBFace );
-	}
+	this->grid->scalarIFace->AddInterface( global_interface_id, neighbor_zoneid, neighbor_cellid );
 }
 
 void GridTopo::DumpGridInfo()
 {
 	cout << " DumpGridInfo Zone ID = " << this->grid->grid_id << "\n";
-	int nIFace = this->scalarIFace->iglobalfaces.size();
-	this->scalarIFace->DumpInterfaceMap();
+	int nIFace = this->grid->scalarIFace->iglobalfaces.size();
+	this->grid->scalarIFace->DumpInterfaceMap();
 }
 
 void GridTopo::ReconstructNode( ScalarGrid * ggrid )
@@ -238,17 +202,6 @@ void GridTopo::ReconstructNode( ScalarGrid * ggrid )
 
 void GridTopo::CopyGrid( ScalarGrid * grid )
 {
-	grid->xn = this->xn;
-	grid->yn = this->yn;
-	grid->zn = this->zn;
-
-	grid->faces = this->local_faces;
-
-	grid->fBcTypes = this->bctypes;
-	grid->eTypes.Resize( this->GetNCells() );
-
-	grid->bcTypes = this->bctypes;
-
 	this->Normalize( grid );
 
 	grid->CalcMetrics1D();
@@ -321,31 +274,23 @@ void GridTopo::CalcLocalFaceNodes()
 	int kkk = 1;
 }
 
-void GridTopo::ReorderInterface()
-{
-	int nFaces = faceid.size();
-	for ( int iFace = 0; iFace < nFaces; ++ iFace )
-	{
-	}
-}
-
 void GridTopo::ReconstructNeighbor()
 {
-	this->scalarIFace->ReconstructNeighbor();
+	this->grid->scalarIFace->ReconstructNeighbor();
 }
 
-void GridTopo::CalcCoor( ScalarGrid * grid )
+void GridTopo::CalcCoor( ScalarGrid * ggrid )
 {
 	for ( set<int>::iterator iter = nodeset.begin(); iter != nodeset.end(); ++ iter )
 	{
 		int iNode = *iter;
-		Real xm = grid->xn[ iNode ];
-		Real ym = grid->yn[ iNode ];
-		Real zm = grid->zn[ iNode ];
+		Real xm = ggrid->xn[ iNode ];
+		Real ym = ggrid->yn[ iNode ];
+		Real zm = ggrid->zn[ iNode ];
 
-		this->xn.AddData( xm );
-		this->yn.AddData( ym );
-		this->zn.AddData( zm );
+		grid->xn.AddData( xm );
+		grid->yn.AddData( ym );
+		grid->zn.AddData( zm );
 	}
 }
 
@@ -379,11 +324,9 @@ void Part::CalcGlobal2LocalCells( MetisIntList & cellzone )
 	{
 		int iZone = cellzone[ iCell ];
 		gLCells[ iCell ] = zoneCount[ iZone ] ++;
-	}
+		int eType = this->ggrid->eTypes[ iCell ];
+		( * this->grids )[ iZone ]->eTypes.AddData( eType );
 
-	for ( int iZone = 0; iZone < nZones; ++ iZone )
-	{
-		( * this->grids )[ iZone ]->gridTopo->SetNCells( zoneCount[ iZone ] );
 	}
 }
 
@@ -494,17 +437,17 @@ void Part::ReconstructInterfaceTopo()
 	int nZones = this->GetNZones();
 	for ( int iZone = 0; iZone < nZones; ++ iZone )
 	{
-		int nNeis = ( * this->grids )[ iZone ]->gridTopo->scalarIFace->data.size();
+		int nNeis = ( * this->grids )[ iZone ]->scalarIFace->data.size();
 		for ( int iNei = 0; iNei < nNeis; ++ iNei )
 		{
-			ScalarIFaceIJ & iFaceIJ = ( * this->grids )[ iZone ]->gridTopo->scalarIFace->data[ iNei ];
+			ScalarIFaceIJ & iFaceIJ = ( * this->grids )[ iZone ]->scalarIFace->data[ iNei ];
 			int jZone =  iFaceIJ.zonej;
 			//iZone的第iNei个邻居为jZone,iZone和jZone的交界面的global interface id为：
 			//iFaceIJ.iglobalfaces,iFaceIJ.target_ifaces是这些interface在jZone里面的局部id
 			//这些id由jZone计算发送给iZone的里iNei个信息存储
 			//实际上这个信息iZone用不到，是jZone接收时使用的。
 			cout << " iZone = " << iZone << " iNei = " << iNei << " jZone = " << jZone << "\n";
-			( * this->grids )[ jZone ]->gridTopo->scalarIFace->CalcLocalInterfaceId( iZone, iFaceIJ.iglobalfaces, iFaceIJ.target_ifaces );
+			( * this->grids )[ jZone ]->scalarIFace->CalcLocalInterfaceId( iZone, iFaceIJ.iglobalfaces, iFaceIJ.target_ifaces );
 		}
 	}
 }
@@ -514,7 +457,7 @@ void Part::CalcInterfaceToBcFace()
 	int nZones = this->GetNZones();
 	for ( int iZone = 0; iZone < nZones; ++ iZone )
 	{
-		( * this->grids )[ iZone ]->gridTopo->CalcInterfaceToBcFace();
+		( * this->grids )[ iZone ]->CalcInterfaceToBcFace();
 	}
 }
 

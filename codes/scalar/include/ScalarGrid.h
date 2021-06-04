@@ -143,6 +143,7 @@ public:
 class DataBase;
 class GridTopo;
 class DataBook;
+class ScalarIFace;
 
 class ScalarGrid
 {
@@ -175,6 +176,7 @@ public:
     ScalarBccos * scalarBccos;
     DataBase * dataBase;
     GridTopo * gridTopo;
+    ScalarIFace * scalarIFace;
     int grid_id;
     int volBcType;
 public:
@@ -207,6 +209,7 @@ public:
     void CalcGhostCellCenterVol1D();
 public:
     void CalcC2C( EList & c2c );
+    void CalcInterfaceToBcFace();
 public:
     void GetSId( int i_interface, int & sId );
     void GetTId( int i_interface, int & tId );

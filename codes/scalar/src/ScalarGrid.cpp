@@ -213,6 +213,7 @@ ScalarGrid::ScalarGrid()
 	dataBase = new DataBase();
 	this->grid_id = 0;
 	this->gridTopo = new GridTopo( this );
+	this->scalarIFace = new ScalarIFace( this->grid_id );
 	this->volBcType = -1;
 }
 
@@ -222,14 +223,16 @@ ScalarGrid::ScalarGrid( int grid_id )
 	dataBase = new DataBase();
 	this->grid_id = grid_id;
 	this->gridTopo = new GridTopo( this );
+	this->scalarIFace = new ScalarIFace( this->grid_id );
 	this->volBcType = -1;
 }
 
 ScalarGrid::~ScalarGrid()
 {
-	delete scalarBccos;
-	delete dataBase;
+	delete this->scalarBccos;
+	delete this->dataBase;
 	delete this->gridTopo;
+	delete this->scalarIFace;
 }
 
 size_t ScalarGrid::GetNNodes()
@@ -742,15 +745,33 @@ void ScalarGrid::CalcC2C( EList & c2c )
 	}
 }
 
+void ScalarGrid::CalcInterfaceToBcFace()
+{
+	if ( this->scalarIFace->GetNIFaces() == 0 ) return;
+	int nBFaces = this->GetNBFaces();
+
+	this->scalarIFace->interface_to_bcface.resize( 0 );
+
+	for ( int iBFace = 0; iBFace < nBFaces; ++ iBFace )
+	{
+		if ( ! BC::IsInterfaceBc( this->bcTypes[ iBFace ] ) )
+		{
+			continue;
+		}
+
+		this->scalarIFace->interface_to_bcface.push_back( iBFace );
+	}
+}
+
 void ScalarGrid::GetSId( int i_interface, int & sId )
 {
-	int iBFace = this->gridTopo->scalarIFace->interface_to_bcface[ i_interface ];
+	int iBFace = this->scalarIFace->interface_to_bcface[ i_interface ];
 	sId = this->lc[ iBFace ];
 }
 
 void ScalarGrid::GetTId( int i_interface, int & tId )
 {
-	int iBFace = this->gridTopo->scalarIFace->interface_to_bcface[ i_interface ];
+	int iBFace = this->scalarIFace->interface_to_bcface[ i_interface ];
 	tId = this->rc[ iBFace ];
 }
 
@@ -871,7 +892,7 @@ void ScalarGrid::WriteBoundaryTopology( DataBook * databook )
 	this->bcNameIds = this->bcTypes;
 	ONEFLOW::HXWrite( databook, this->bcNameIds.data );
 
-	this->gridTopo->scalarIFace->WriteInterfaceTopology( databook );
+	this->scalarIFace->WriteInterfaceTopology( databook );
 }
 
 

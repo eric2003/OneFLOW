@@ -95,8 +95,7 @@ void ScalarFieldManager::AllocateAllFields()
 void ScalarFieldManager::AllocateInterfaceField()
 {
     ScalarGrid * grid = ScalarZone::GetGrid();
-    GridTopo * gridTopo = grid->gridTopo;
-    ScalarIFace * scalarIFace = gridTopo->scalarIFace;
+    ScalarIFace * scalarIFace = grid->scalarIFace;
 
     int nIFaces = scalarIFace->GetNIFaces();
     //cout << " nIFaces = " << nIFaces << "\n";
@@ -126,8 +125,7 @@ void ScalarFieldManager::AllocateFaceField()
 void ScalarFieldManager::UploadInterfaceField()
 {
     ScalarGrid * grid = ScalarZone::GetGrid();
-    GridTopo * gridTopo = grid->gridTopo;
-    ScalarIFace * scalarIFace = gridTopo->scalarIFace;
+    ScalarIFace * scalarIFace = grid->scalarIFace;
 
     int nIFaces = scalarIFace->GetNIFaces();
     //cout << " nIFaces = " << nIFaces << "\n";
@@ -143,8 +141,7 @@ void ScalarFieldManager::UploadInterfaceField()
 void ScalarFieldManager::DownloadInterfaceField()
 {
     ScalarGrid * grid = ScalarZone::GetGrid();
-    GridTopo * gridTopo = grid->gridTopo;
-    ScalarIFace * scalarIFace = gridTopo->scalarIFace;
+    ScalarIFace * scalarIFace = grid->scalarIFace;
 
     int nIFaces = scalarIFace->GetNIFaces();
     //cout << " nIFaces = " << nIFaces << "\n";
@@ -159,19 +156,17 @@ void ScalarFieldManager::DownloadInterfaceField()
 
 void ScalarUploadInterfaceValue( ScalarGrid * grid, const string & name )
 {
-    GridTopo * gridTopo = grid->gridTopo;
-
     MRField * field2D = ONEFLOW::GetFieldPointer< MRField >( grid, name );
 
     if ( field2D == 0 ) return;
 
     int nEqu = field2D->GetNEqu();
 
-    DataStorage * dataSend = gridTopo->scalarIFace->dataSend;
+    DataStorage * dataSend = grid->scalarIFace->dataSend;
 
     MRField * fieldStorage = ONEFLOW::GetFieldPointer< MRField >( dataSend, name );
 
-    int nIFaces = gridTopo->scalarIFace->GetNIFaces();
+    int nIFaces = grid->scalarIFace->GetNIFaces();
 
     for ( int iFace = 0; iFace < nIFaces; ++ iFace )
     {
@@ -187,19 +182,17 @@ void ScalarUploadInterfaceValue( ScalarGrid * grid, const string & name )
 
 void ScalarDownloadInterfaceValue( ScalarGrid * grid, const string & name )
 {
-    GridTopo * gridTopo = grid->gridTopo;
-
     MRField * field2D = ONEFLOW::GetFieldPointer< MRField >( grid, name );
 
     if ( field2D == 0 ) return;
 
     int nEqu = field2D->GetNEqu();
 
-    DataStorage * dataRecv = gridTopo->scalarIFace->dataRecv;
+    DataStorage * dataRecv = grid->scalarIFace->dataRecv;
 
     MRField * fieldStorage = ONEFLOW::GetFieldPointer< MRField >( dataRecv, name );
 
-    int nIFaces = gridTopo->scalarIFace->GetNIFaces();
+    int nIFaces = grid->scalarIFace->GetNIFaces();
 
     for ( int iFace = 0; iFace < nIFaces; ++ iFace )
     {

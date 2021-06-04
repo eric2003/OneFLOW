@@ -69,19 +69,11 @@ public:
     EList faces;
     //local facenodes
     EList local_faces;
-    //facetype bctype interface -1, inner 0
-    IntList facetype;
-    IntList bctypes;
+
     set<int> nodeset;
     map<int, int> global_local_node;
-    ScalarIFace * scalarIFace;
     ScalarGrid * grid;
-    RealList xn, yn, zn;
-    int nCells;
 public:
-    int GetNBFaces();
-    void SetNCells( int nCells );
-    int GetNCells();
     void AddInterface( int global_interface_id, int neighbor_zoneid, int neighbor_cellid );
     void AddPhysicalBcFace( int global_face_id, int bctype, int lcell, int rcell );
     void AddInnerFace( int global_face_id, int bctype, int lcell, int rcell );
@@ -92,11 +84,9 @@ public:
     void ReconstructNode( EList & global_faces );
     void CopyGrid( ScalarGrid * grid );
     void Normalize( ScalarGrid * grid );
-    void ReorderInterface();
     void ReconstructNeighbor();
-    void CalcCoor( ScalarGrid * grid );
+    void CalcCoor( ScalarGrid * ggrid );
     void DumpGridInfo();
-    void CalcInterfaceToBcFace();
 };
 
 class Part
