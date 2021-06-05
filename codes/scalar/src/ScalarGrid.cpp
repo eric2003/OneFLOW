@@ -763,6 +763,24 @@ void ScalarGrid::CalcInterfaceToBcFace()
 	}
 }
 
+void ScalarGrid::Normalize()
+{
+	int nFaces = this->faces.GetNElements();
+	for ( int iFace = 0; iFace < nFaces; ++ iFace )
+	{
+		if ( this->lc[ iFace ] < 0 )
+		{
+			//need to reverse the node ordering
+			vector< int > & face = this->faces[ iFace ];
+			std::reverse( face.begin(), face.end() );
+			// now reverse lc and rc
+			ONEFLOW::SWAP( this->lc[ iFace ], this->rc[ iFace ] );
+		}
+	}
+
+	this->SetBcGhostCell();
+}
+
 void ScalarGrid::GetSId( int i_interface, int & sId )
 {
 	int iBFace = this->scalarIFace->interface_to_bcface[ i_interface ];

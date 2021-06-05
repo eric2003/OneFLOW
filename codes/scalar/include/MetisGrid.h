@@ -65,11 +65,6 @@ public:
 public:
     //global faceid
     vector<int> faceid;
-    //local faces with global node id
-    EList faces;
-    //local facenodes
-    EList local_faces;
-
     set<int> nodeset;
     map<int, int> global_local_node;
     ScalarGrid * grid;
@@ -82,8 +77,6 @@ public:
     void CalcLocalFaceNodes();
     void ReconstructNode( ScalarGrid * ggrid );
     void ReconstructNode( EList & global_faces );
-    void CopyGrid( ScalarGrid * grid );
-    void Normalize( ScalarGrid * grid );
     void ReconstructNeighbor();
     void CalcCoor( ScalarGrid * ggrid );
     void DumpGridInfo();

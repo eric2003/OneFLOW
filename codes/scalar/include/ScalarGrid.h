@@ -210,6 +210,7 @@ public:
 public:
     void CalcC2C( EList & c2c );
     void CalcInterfaceToBcFace();
+    void Normalize();
 public:
     void GetSId( int i_interface, int & sId );
     void GetTId( int i_interface, int & tId );

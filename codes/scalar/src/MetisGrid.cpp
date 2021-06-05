@@ -200,33 +200,6 @@ void GridTopo::ReconstructNode( ScalarGrid * ggrid )
 	this->CalcCoor( ggrid );
 }
 
-void GridTopo::CopyGrid( ScalarGrid * grid )
-{
-	this->Normalize( grid );
-
-	grid->CalcMetrics1D();
-}
-
-void GridTopo::Normalize( ScalarGrid * grid )
-{
-	grid->faces = this->local_faces;
-
-	int nFaces = grid->faces.GetNElements();
-	for ( int iFace = 0; iFace < nFaces; ++ iFace )
-	{
-		if ( grid->lc[ iFace ] < 0 )
-		{
-			//need to reverse the node ordering
-			vector< int > & face = grid->faces[ iFace ];
-			std::reverse( face.begin(), face.end() );
-			// now reverse lc and rc
-			ONEFLOW::SWAP( grid->lc[ iFace ], grid->rc[ iFace ] );
-		}
-	}
-
-	grid->SetBcGhostCell();
-}
-
 void GridTopo::ReconstructNode( EList & global_faces )
 {
 	int nFaces = faceid.size();
@@ -239,8 +212,7 @@ void GridTopo::ReconstructNode( EList & global_faces )
 		{
 			nodeset.insert( face[ iNode ] );
 		}
-		local_faces.AddElem( face );
-		faces.AddElem( face );
+		grid->faces.AddElem( face );
 	}
 
 	this->CalcGlobal2LocalNodeMap();
@@ -260,10 +232,10 @@ void GridTopo::CalcGlobal2LocalNodeMap()
 void GridTopo::CalcLocalFaceNodes()
 {
 	//local_faces
-	int nFaces = local_faces.GetNElements();
+	int nFaces = grid->faces.GetNElements();
 	for ( int iFace = 0; iFace < nFaces; ++ iFace )
 	{
-		vector< int > & face = local_faces[ iFace ];
+		vector< int > & face = grid->faces[ iFace ];
 		int nNode = face.size();
 		for ( int iNode = 0; iNode < nNode; ++ iNode )
 		{
@@ -358,7 +330,6 @@ void Part::ReconstructAllZones()
 	this->ReconstructNeighbor();
 	this->ReconstructInterfaceTopo();
 	this->CalcInterfaceToBcFace();
-	//this->DumpGridInfo();
 	this->ReconstructNode();
 	int kkk = 1;
 }
@@ -466,7 +437,7 @@ void Part::ReconstructNeighbor()
 	int nZones = this->GetNZones();
 	for ( int iZone = 0; iZone < nZones; ++ iZone )
 	{
-		( * this->grids )[ iZone ]->gridTopo->ReconstructNeighbor();
+		( * this->grids )[ iZone ]->scalarIFace->ReconstructNeighbor();
 	}
 }
 
@@ -480,7 +451,9 @@ void Part::ReconstructNode()
 
 	for ( int iZone = 0; iZone < nZones; ++ iZone )
 	{
-		( * this->grids )[ iZone ]->gridTopo->CopyGrid( ( * this->grids )[ iZone ] );
+		ScalarGrid * grid = ( * this->grids )[ iZone ];
+		grid->Normalize();
+		grid->CalcMetrics1D();
 	}
 }
 
