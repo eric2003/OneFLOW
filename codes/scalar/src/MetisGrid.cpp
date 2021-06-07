@@ -196,23 +196,9 @@ void GridTopo::DumpGridInfo()
 
 void GridTopo::ReconstructNode( ScalarGrid * ggrid )
 {
-	this->ReconstructNode( ggrid->faces );
+	EList & global_faces = ggrid->faces;
+	//this->ReconstructNode( ggrid->faces );
 
-	for ( set<int>::iterator iter = nodeset.begin(); iter != nodeset.end(); ++ iter )
-	{
-		int iNode = *iter;
-		Real xm = ggrid->xn[ iNode ];
-		Real ym = ggrid->yn[ iNode ];
-		Real zm = ggrid->zn[ iNode ];
-
-		grid->xn.AddData( xm );
-		grid->yn.AddData( ym );
-		grid->zn.AddData( zm );
-	}
-}
-
-void GridTopo::ReconstructNode( EList & global_faces )
-{
 	int nFaces = faceid.size();
 	for ( int iFace = 0; iFace < nFaces; ++ iFace )
 	{
@@ -231,9 +217,7 @@ void GridTopo::ReconstructNode( EList & global_faces )
 	{
 		global_local_node.insert( pair<int, int>( *iter, count ++ ) );
 	}
-	//this->CalcLocalFaceNodes();
-	//local_faces
-	//int nFaces = grid->faces.GetNElements();
+
 	for ( int iFace = 0; iFace < nFaces; ++ iFace )
 	{
 		vector< int > & face = grid->faces[ iFace ];
@@ -244,7 +228,52 @@ void GridTopo::ReconstructNode( EList & global_faces )
 			face[ iNode ] = global_local_node[ glbal_node_id ];
 		}
 	}
+
+	for ( set<int>::iterator iter = nodeset.begin(); iter != nodeset.end(); ++ iter )
+	{
+		int iNode = *iter;
+		Real xm = ggrid->xn[ iNode ];
+		Real ym = ggrid->yn[ iNode ];
+		Real zm = ggrid->zn[ iNode ];
+
+		grid->xn.AddData( xm );
+		grid->yn.AddData( ym );
+		grid->zn.AddData( zm );
+	}
 }
+
+//void GridTopo::ReconstructNode( EList & global_faces )
+//{
+//	int nFaces = faceid.size();
+//	for ( int iFace = 0; iFace < nFaces; ++ iFace )
+//	{
+//		int iGFace = faceid[ iFace ];
+//		vector< int > & face = global_faces[ iGFace ];
+//		int nNode = face.size();
+//		for ( int iNode = 0; iNode < nNode; ++ iNode )
+//		{
+//			nodeset.insert( face[ iNode ] );
+//		}
+//		grid->faces.AddElem( face );
+//	}
+//
+//	int count = 0;
+//	for ( set<int>::iterator iter = nodeset.begin(); iter != nodeset.end(); ++ iter )
+//	{
+//		global_local_node.insert( pair<int, int>( *iter, count ++ ) );
+//	}
+//
+//	for ( int iFace = 0; iFace < nFaces; ++ iFace )
+//	{
+//		vector< int > & face = grid->faces[ iFace ];
+//		int nNode = face.size();
+//		for ( int iNode = 0; iNode < nNode; ++ iNode )
+//		{
+//			int glbal_node_id = face[ iNode ];
+//			face[ iNode ] = global_local_node[ glbal_node_id ];
+//		}
+//	}
+//}
 
 Part::Part()
 {
