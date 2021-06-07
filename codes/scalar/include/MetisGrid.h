@@ -73,12 +73,8 @@ public:
     void AddPhysicalBcFace( int global_face_id, int bctype, int lcell, int rcell );
     void AddInnerFace( int global_face_id, int bctype, int lcell, int rcell );
     void AddInterfaceBcFace( int global_face_id, int bctype, int lcell, int rcell, int nei_zoneid, int nei_cellid );
-    void CalcGlobal2LocalNodeMap();
-    void CalcLocalFaceNodes();
     void ReconstructNode( ScalarGrid * ggrid );
     void ReconstructNode( EList & global_faces );
-    void ReconstructNeighbor();
-    void CalcCoor( ScalarGrid * ggrid );
     void DumpGridInfo();
 };
 

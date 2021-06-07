@@ -197,7 +197,18 @@ void GridTopo::DumpGridInfo()
 void GridTopo::ReconstructNode( ScalarGrid * ggrid )
 {
 	this->ReconstructNode( ggrid->faces );
-	this->CalcCoor( ggrid );
+
+	for ( set<int>::iterator iter = nodeset.begin(); iter != nodeset.end(); ++ iter )
+	{
+		int iNode = *iter;
+		Real xm = ggrid->xn[ iNode ];
+		Real ym = ggrid->yn[ iNode ];
+		Real zm = ggrid->zn[ iNode ];
+
+		grid->xn.AddData( xm );
+		grid->yn.AddData( ym );
+		grid->zn.AddData( zm );
+	}
 }
 
 void GridTopo::ReconstructNode( EList & global_faces )
@@ -215,24 +226,14 @@ void GridTopo::ReconstructNode( EList & global_faces )
 		grid->faces.AddElem( face );
 	}
 
-	this->CalcGlobal2LocalNodeMap();
-	this->CalcLocalFaceNodes();
-}
-
-void GridTopo::CalcGlobal2LocalNodeMap()
-{
 	int count = 0;
 	for ( set<int>::iterator iter = nodeset.begin(); iter != nodeset.end(); ++ iter )
 	{
 		global_local_node.insert( pair<int, int>( *iter, count ++ ) );
 	}
-	int kkk = 1;
-}
-
-void GridTopo::CalcLocalFaceNodes()
-{
+	//this->CalcLocalFaceNodes();
 	//local_faces
-	int nFaces = grid->faces.GetNElements();
+	//int nFaces = grid->faces.GetNElements();
 	for ( int iFace = 0; iFace < nFaces; ++ iFace )
 	{
 		vector< int > & face = grid->faces[ iFace ];
@@ -242,27 +243,6 @@ void GridTopo::CalcLocalFaceNodes()
 			int glbal_node_id = face[ iNode ];
 			face[ iNode ] = global_local_node[ glbal_node_id ];
 		}
-	}
-	int kkk = 1;
-}
-
-void GridTopo::ReconstructNeighbor()
-{
-	this->grid->scalarIFace->ReconstructNeighbor();
-}
-
-void GridTopo::CalcCoor( ScalarGrid * ggrid )
-{
-	for ( set<int>::iterator iter = nodeset.begin(); iter != nodeset.end(); ++ iter )
-	{
-		int iNode = *iter;
-		Real xm = ggrid->xn[ iNode ];
-		Real ym = ggrid->yn[ iNode ];
-		Real zm = ggrid->zn[ iNode ];
-
-		grid->xn.AddData( xm );
-		grid->yn.AddData( ym );
-		grid->zn.AddData( zm );
 	}
 }
 
