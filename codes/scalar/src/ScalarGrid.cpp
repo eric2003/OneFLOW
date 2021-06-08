@@ -212,7 +212,6 @@ ScalarGrid::ScalarGrid()
 	scalarBccos = new ScalarBccos();
 	dataBase = new DataBase();
 	this->grid_id = 0;
-	this->gridTopo = new GridTopo( this );
 	this->scalarIFace = new ScalarIFace( this->grid_id );
 	this->volBcType = -1;
 }
@@ -222,7 +221,6 @@ ScalarGrid::ScalarGrid( int grid_id )
 	scalarBccos = new ScalarBccos();
 	dataBase = new DataBase();
 	this->grid_id = grid_id;
-	this->gridTopo = new GridTopo( this );
 	this->scalarIFace = new ScalarIFace( this->grid_id );
 	this->volBcType = -1;
 }
@@ -231,7 +229,6 @@ ScalarGrid::~ScalarGrid()
 {
 	delete this->scalarBccos;
 	delete this->dataBase;
-	delete this->gridTopo;
 	delete this->scalarIFace;
 }
 
@@ -912,6 +909,93 @@ void ScalarGrid::WriteBoundaryTopology( DataBook * databook )
 
 	this->scalarIFace->WriteInterfaceTopology( databook );
 }
+
+//for partition
+void ScalarGrid::AddPhysicalBcFace( int global_face_id, int bctype, int lcell, int rcell )
+{
+	this->global_faceid.push_back( global_face_id );
+	this->bcTypes.AddData( bctype );
+	this->fBcTypes.AddData( bctype );
+
+	this->lc.AddData( lcell );
+	this->rc.AddData( rcell );
+}
+
+void ScalarGrid::AddInterfaceBcFace( int global_face_id, int bctype, int lcell, int rcell, int nei_zoneid, int nei_cellid )
+{
+	this->global_faceid.push_back( global_face_id );
+	this->bcTypes.AddData( bctype );
+	this->fBcTypes.AddData( bctype );
+
+	this->lc.AddData( lcell );
+	this->rc.AddData( rcell );
+
+	this->AddInterface( global_face_id, nei_zoneid, nei_cellid );
+}
+
+void ScalarGrid::AddInnerFace( int global_face_id, int bctype, int lcell, int rcell )
+{
+	this->global_faceid.push_back( global_face_id );
+	this->fBcTypes.AddData( bctype );
+
+	this->lc.AddData( lcell );
+	this->rc.AddData( rcell );
+}
+
+void ScalarGrid::AddInterface( int global_interface_id, int neighbor_zoneid, int neighbor_cellid )
+{
+	this->scalarIFace->AddInterface( global_interface_id, neighbor_zoneid, neighbor_cellid );
+}
+
+void ScalarGrid::ReconstructNode( ScalarGrid * ggrid )
+{
+	int nFaces = this->global_faceid.size();
+	set<int> nodeset;
+
+	for ( int iFace = 0; iFace < nFaces; ++ iFace )
+	{
+		//global face id
+		int iGFace = this->global_faceid[ iFace ];
+		vector< int > & face = ggrid->faces[ iGFace ];
+		int nNode = face.size();
+		for ( int iNode = 0; iNode < nNode; ++ iNode )
+		{
+			nodeset.insert( face[ iNode ] );
+		}
+		this->faces.AddElem( face );
+	}
+
+	map<int, int> global_local_node;
+	int count = 0;
+	for ( set<int>::iterator iter = nodeset.begin(); iter != nodeset.end(); ++ iter )
+	{
+		global_local_node.insert( pair<int, int>( *iter, count ++ ) );
+	}
+
+	for ( int iFace = 0; iFace < nFaces; ++ iFace )
+	{
+		vector< int > & face = this->faces[ iFace ];
+		int nNode = face.size();
+		for ( int iNode = 0; iNode < nNode; ++ iNode )
+		{
+			int glbal_node_id = face[ iNode ];
+			face[ iNode ] = global_local_node[ glbal_node_id ];
+		}
+	}
+
+	for ( set<int>::iterator iter = nodeset.begin(); iter != nodeset.end(); ++ iter )
+	{
+		int iNode = *iter;
+		Real xm = ggrid->xn[ iNode ];
+		Real ym = ggrid->yn[ iNode ];
+		Real zm = ggrid->zn[ iNode ];
+
+		this->xn.AddData( xm );
+		this->yn.AddData( ym );
+		this->zn.AddData( zm );
+	}
+}
+
 
 
 

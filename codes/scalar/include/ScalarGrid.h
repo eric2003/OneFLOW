@@ -166,6 +166,9 @@ public:
     IntList lpos;
     IntList rpos;
 
+    //global faceid
+    vector<int> global_faceid;
+
     EList faces;
     EList elements;
     IntList fTypes;
@@ -175,7 +178,6 @@ public:
     IntList bcNameIds;
     ScalarBccos * scalarBccos;
     DataBase * dataBase;
-    GridTopo * gridTopo;
     ScalarIFace * scalarIFace;
     int grid_id;
     int volBcType;
@@ -222,6 +224,14 @@ public:
     void CreateNodes( int numberOfNodes );
     void WriteGridFaceTopology( DataBook * databook );
     void WriteBoundaryTopology( DataBook * databook );
+public:
+    //partition
+    void AddInterface( int global_interface_id, int neighbor_zoneid, int neighbor_cellid );
+    void AddPhysicalBcFace( int global_face_id, int bctype, int lcell, int rcell );
+    void AddInnerFace( int global_face_id, int bctype, int lcell, int rcell );
+    void AddInterfaceBcFace( int global_face_id, int bctype, int lcell, int rcell, int nei_zoneid, int nei_cellid );
+    void ReconstructNode( ScalarGrid * ggrid );
+
 };
 
 

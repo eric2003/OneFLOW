@@ -57,27 +57,6 @@ private:
 
 class ScalarIFace;
 
-class GridTopo
-{
-public:
-    GridTopo( ScalarGrid * grid );
-    ~GridTopo();
-public:
-    //global faceid
-    vector<int> faceid;
-    set<int> nodeset;
-    map<int, int> global_local_node;
-    ScalarGrid * grid;
-public:
-    void AddInterface( int global_interface_id, int neighbor_zoneid, int neighbor_cellid );
-    void AddPhysicalBcFace( int global_face_id, int bctype, int lcell, int rcell );
-    void AddInnerFace( int global_face_id, int bctype, int lcell, int rcell );
-    void AddInterfaceBcFace( int global_face_id, int bctype, int lcell, int rcell, int nei_zoneid, int nei_cellid );
-    void ReconstructNode( ScalarGrid * ggrid );
-    //void ReconstructNode( EList & global_faces );
-    void DumpGridInfo();
-};
-
 class Part
 {
 public:
@@ -93,7 +72,6 @@ public:
     int GetNZones();
     void AllocateGrid( int nZones );
     void PartitionGrid( ScalarGrid * ggrid, int nPart, vector< ScalarGrid * > * grids );
-    void CalcGlobal2LocalCells( MetisIntList & cellzone );
     void CalcCellZone();
     void ReconstructAllZones();
     void ReconstructGridFaceTopo();
@@ -101,8 +79,6 @@ public:
     void ReconstructNode();
     void ReconstructNeighbor();
     void CalcInterfaceToBcFace();
-    void DumpGridInfo();
-    
 };
 
 

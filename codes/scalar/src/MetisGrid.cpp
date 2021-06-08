@@ -142,139 +142,6 @@ void MetisPart::ScalarPartitionByMetis( idx_t nCells, MetisIntList & xadj, Metis
 	cout << "Partition is finished!\n";
 }
 
-GridTopo::GridTopo( ScalarGrid * grid )
-{
-	this->grid = grid;
-}
-
-GridTopo::~GridTopo()
-{
-}
-
-void GridTopo::AddPhysicalBcFace( int global_face_id, int bctype, int lcell, int rcell )
-{
-	this->faceid.push_back( global_face_id );
-	grid->bcTypes.AddData( bctype );
-	grid->fBcTypes.AddData( bctype );
-
-	this->grid->lc.AddData( lcell );
-	this->grid->rc.AddData( rcell );
-}
-
-void GridTopo::AddInterfaceBcFace( int global_face_id, int bctype, int lcell, int rcell, int nei_zoneid, int nei_cellid )
-{
-	this->faceid.push_back( global_face_id );
-	grid->bcTypes.AddData( bctype );
-	grid->fBcTypes.AddData( bctype );
-
-	this->grid->lc.AddData( lcell );
-	this->grid->rc.AddData( rcell );
-
-	this->AddInterface( global_face_id, nei_zoneid, nei_cellid );
-}
-
-void GridTopo::AddInnerFace( int global_face_id, int bctype, int lcell, int rcell )
-{
-	this->faceid.push_back( global_face_id );
-	grid->fBcTypes.AddData( bctype );
-
-	this->grid->lc.AddData( lcell );
-	this->grid->rc.AddData( rcell );
-}
-
-void GridTopo::AddInterface( int global_interface_id, int neighbor_zoneid, int neighbor_cellid )
-{
-	this->grid->scalarIFace->AddInterface( global_interface_id, neighbor_zoneid, neighbor_cellid );
-}
-
-void GridTopo::DumpGridInfo()
-{
-	cout << " DumpGridInfo Zone ID = " << this->grid->grid_id << "\n";
-	int nIFace = this->grid->scalarIFace->iglobalfaces.size();
-	this->grid->scalarIFace->DumpInterfaceMap();
-}
-
-void GridTopo::ReconstructNode( ScalarGrid * ggrid )
-{
-	EList & global_faces = ggrid->faces;
-	//this->ReconstructNode( ggrid->faces );
-
-	int nFaces = faceid.size();
-	for ( int iFace = 0; iFace < nFaces; ++ iFace )
-	{
-		int iGFace = faceid[ iFace ];
-		vector< int > & face = global_faces[ iGFace ];
-		int nNode = face.size();
-		for ( int iNode = 0; iNode < nNode; ++ iNode )
-		{
-			nodeset.insert( face[ iNode ] );
-		}
-		grid->faces.AddElem( face );
-	}
-
-	int count = 0;
-	for ( set<int>::iterator iter = nodeset.begin(); iter != nodeset.end(); ++ iter )
-	{
-		global_local_node.insert( pair<int, int>( *iter, count ++ ) );
-	}
-
-	for ( int iFace = 0; iFace < nFaces; ++ iFace )
-	{
-		vector< int > & face = grid->faces[ iFace ];
-		int nNode = face.size();
-		for ( int iNode = 0; iNode < nNode; ++ iNode )
-		{
-			int glbal_node_id = face[ iNode ];
-			face[ iNode ] = global_local_node[ glbal_node_id ];
-		}
-	}
-
-	for ( set<int>::iterator iter = nodeset.begin(); iter != nodeset.end(); ++ iter )
-	{
-		int iNode = *iter;
-		Real xm = ggrid->xn[ iNode ];
-		Real ym = ggrid->yn[ iNode ];
-		Real zm = ggrid->zn[ iNode ];
-
-		grid->xn.AddData( xm );
-		grid->yn.AddData( ym );
-		grid->zn.AddData( zm );
-	}
-}
-
-//void GridTopo::ReconstructNode( EList & global_faces )
-//{
-//	int nFaces = faceid.size();
-//	for ( int iFace = 0; iFace < nFaces; ++ iFace )
-//	{
-//		int iGFace = faceid[ iFace ];
-//		vector< int > & face = global_faces[ iGFace ];
-//		int nNode = face.size();
-//		for ( int iNode = 0; iNode < nNode; ++ iNode )
-//		{
-//			nodeset.insert( face[ iNode ] );
-//		}
-//		grid->faces.AddElem( face );
-//	}
-//
-//	int count = 0;
-//	for ( set<int>::iterator iter = nodeset.begin(); iter != nodeset.end(); ++ iter )
-//	{
-//		global_local_node.insert( pair<int, int>( *iter, count ++ ) );
-//	}
-//
-//	for ( int iFace = 0; iFace < nFaces; ++ iFace )
-//	{
-//		vector< int > & face = grid->faces[ iFace ];
-//		int nNode = face.size();
-//		for ( int iNode = 0; iNode < nNode; ++ iNode )
-//		{
-//			int glbal_node_id = face[ iNode ];
-//			face[ iNode ] = global_local_node[ glbal_node_id ];
-//		}
-//	}
-//}
-
 Part::Part()
 {
 }
@@ -292,23 +159,6 @@ void Part::PartitionGrid( ScalarGrid * ggrid, int nPart, vector< ScalarGrid * > 
 	//calc cellzone;
 	this->CalcCellZone();
 	this->ReconstructAllZones();
-}
-
-void Part::CalcGlobal2LocalCells( MetisIntList & cellzone )
-{
-	int nZones = this->GetNZones();
-	int nCells = cellzone.size();
-	vector<int> zoneCount( nZones, 0 );
-	gLCells.resize( nCells );
-
-	for ( int iCell = 0; iCell < nCells; ++ iCell )
-	{
-		int iZone = cellzone[ iCell ];
-		gLCells[ iCell ] = zoneCount[ iZone ] ++;
-		int eType = this->ggrid->eTypes[ iCell ];
-		( * this->grids )[ iZone ]->eTypes.AddData( eType );
-
-	}
 }
 
 void Part::CalcCellZone()
@@ -334,29 +184,30 @@ void Part::AllocateGrid( int nZones )
 void Part::ReconstructAllZones()
 {
 	this->AllocateGrid( this->nPart );
-	this->CalcGlobal2LocalCells( this->cellzone );
 	this->ReconstructGridFaceTopo();
 	this->ReconstructNeighbor();
 	this->ReconstructInterfaceTopo();
 	this->CalcInterfaceToBcFace();
 	this->ReconstructNode();
-	int kkk = 1;
-}
-
-void Part::DumpGridInfo()
-{
-	int nZones = this->GetNZones();
-	for ( int iZone = 0; iZone < nZones; ++ iZone )
-	{
-		( * this->grids )[ iZone ]->gridTopo->DumpGridInfo();
-	}
 }
 
 void Part::ReconstructGridFaceTopo()
 {
+	int nZones = this->GetNZones();
 	int nFaces = ggrid->GetNFaces();
 	int nCells = ggrid->GetNCells();
 	int nBFaces = ggrid->GetNBFaces();
+
+	vector<int> zoneCount( nZones, 0 );
+	gLCells.resize( nCells );
+
+	for ( int iCell = 0; iCell < nCells; ++ iCell )
+	{
+		int iZone = cellzone[ iCell ];
+		gLCells[ iCell ] = zoneCount[ iZone ] ++;
+		int eType = this->ggrid->eTypes[ iCell ];
+		( * this->grids )[ iZone ]->eTypes.AddData( eType );
+	}
 
 	//First scan the global physical boundary
 	for ( int iFace = 0; iFace < nBFaces; ++ iFace )
@@ -369,7 +220,7 @@ void Part::ReconstructGridFaceTopo()
 		//global coor x[20],y[20],z[20],x[10],y[10],z[10]
 		//local coor x[1],y[1],z[1],x[2],y[2],z[2]
 		int localCell = this->gLCells[ lc ];
-		( * this->grids )[ lZone ]->gridTopo->AddPhysicalBcFace( iFace, bctype, localCell, ONEFLOW::INVALID_INDEX );
+		( * this->grids )[ lZone ]->AddPhysicalBcFace( iFace, bctype, localCell, ONEFLOW::INVALID_INDEX );
 	}
 
 	//Then scan the internal block interface
@@ -387,8 +238,8 @@ void Part::ReconstructGridFaceTopo()
 
 			int bctype = -1;
 
-			( * this->grids )[ lZone ]->gridTopo->AddInterfaceBcFace( iFace, bctype, localCell_L, ONEFLOW::INVALID_INDEX, rZone, localCell_R );
-			( * this->grids )[ rZone ]->gridTopo->AddInterfaceBcFace( iFace, bctype, ONEFLOW::INVALID_INDEX, localCell_R, lZone, localCell_L );
+			( * this->grids )[ lZone ]->AddInterfaceBcFace( iFace, bctype, localCell_L, ONEFLOW::INVALID_INDEX, rZone, localCell_R );
+			( * this->grids )[ rZone ]->AddInterfaceBcFace( iFace, bctype, ONEFLOW::INVALID_INDEX, localCell_R, lZone, localCell_L );
 		}
 	}
 
@@ -407,7 +258,7 @@ void Part::ReconstructGridFaceTopo()
 			int localCell_L = this->gLCells[ lc ];
 			int localCell_R = this->gLCells[ rc ];
 
-			( * this->grids )[ lZone ]->gridTopo->AddInnerFace( iFace, bctype, localCell_L, localCell_R );
+			( * this->grids )[ lZone ]->AddInnerFace( iFace, bctype, localCell_L, localCell_R );
 		}
 	}
 }
@@ -455,14 +306,11 @@ void Part::ReconstructNode()
 	int nZones = this->GetNZones();
 	for ( int iZone = 0; iZone < nZones; ++ iZone )
 	{
-		( * this->grids )[ iZone ]->gridTopo->ReconstructNode( ggrid );
-	}
-
-	for ( int iZone = 0; iZone < nZones; ++ iZone )
-	{
 		ScalarGrid * grid = ( * this->grids )[ iZone ];
+		grid->ReconstructNode( ggrid );
 		grid->Normalize();
 		grid->CalcMetrics1D();
+
 	}
 }
 
