@@ -64,14 +64,12 @@ public:
     ~Part();
 public:
     ScalarGrid * ggrid;
-    MetisIntList cellzone;
     int nPart;
     vector< ScalarGrid * > * grids;
 public:
     int GetNZones();
     void AllocateGrid( int nZones );
     void PartitionGrid( ScalarGrid * ggrid, int nPart, vector< ScalarGrid * > * grids );
-    void CalcCellZone();
     void ReconstructAllZones();
     void ReconstructGridFaceTopo();
     void ReconstructInterfaceTopo();

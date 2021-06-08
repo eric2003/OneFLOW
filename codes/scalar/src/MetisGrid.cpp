@@ -157,14 +157,7 @@ void Part::PartitionGrid( ScalarGrid * ggrid, int nPart, vector< ScalarGrid * > 
 	this->nPart = nPart;
 	this->grids = grids;
 	//calc cellzone;
-	this->CalcCellZone();
 	this->ReconstructAllZones();
-}
-
-void Part::CalcCellZone()
-{
-	MetisPart metisPart( this->ggrid );
-	metisPart.MetisPartition( this->nPart, this->cellzone );
 }
 
 int Part::GetNZones()
@@ -193,6 +186,11 @@ void Part::ReconstructAllZones()
 
 void Part::ReconstructGridFaceTopo()
 {
+	//calc cellzone;
+	MetisPart metisPart( this->ggrid );
+	MetisIntList cellzone;
+	metisPart.MetisPartition( this->nPart, cellzone );
+
 	int nZones = this->GetNZones();
 	int nFaces = ggrid->GetNFaces();
 	int nCells = ggrid->GetNCells();
