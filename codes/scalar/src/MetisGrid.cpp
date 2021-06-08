@@ -199,12 +199,13 @@ void Part::ReconstructGridFaceTopo()
 	int nBFaces = ggrid->GetNBFaces();
 
 	vector<int> zoneCount( nZones, 0 );
-	gLCells.resize( nCells );
+	vector<int> localCells; //global cell id -> local cell id
+	localCells.resize( nCells );
 
 	for ( int iCell = 0; iCell < nCells; ++ iCell )
 	{
 		int iZone = cellzone[ iCell ];
-		gLCells[ iCell ] = zoneCount[ iZone ] ++;
+		localCells[ iCell ] = zoneCount[ iZone ] ++;
 		int eType = this->ggrid->eTypes[ iCell ];
 		( * this->grids )[ iZone ]->eTypes.AddData( eType );
 	}
@@ -219,7 +220,7 @@ void Part::ReconstructGridFaceTopo()
 		//global face node: 20,10,30,40, local face node 1 2 4 3 for example
 		//global coor x[20],y[20],z[20],x[10],y[10],z[10]
 		//local coor x[1],y[1],z[1],x[2],y[2],z[2]
-		int localCell = this->gLCells[ lc ];
+		int localCell = localCells[ lc ];
 		( * this->grids )[ lZone ]->AddPhysicalBcFace( iFace, bctype, localCell, ONEFLOW::INVALID_INDEX );
 	}
 
@@ -233,8 +234,8 @@ void Part::ReconstructGridFaceTopo()
 
 		if ( lZone != rZone )
 		{
-			int localCell_L = this->gLCells[ lc ];
-			int localCell_R = this->gLCells[ rc ]; //Local cell count in another zone
+			int localCell_L = localCells[ lc ];
+			int localCell_R = localCells[ rc ]; //Local cell count in another zone
 
 			int bctype = -1;
 
@@ -255,8 +256,8 @@ void Part::ReconstructGridFaceTopo()
 		{
 			//inner face bctype = 0
 			int bctype = 0;
-			int localCell_L = this->gLCells[ lc ];
-			int localCell_R = this->gLCells[ rc ];
+			int localCell_L = localCells[ lc ];
+			int localCell_R = localCells[ rc ];
 
 			( * this->grids )[ lZone ]->AddInnerFace( iFace, bctype, localCell_L, localCell_R );
 		}

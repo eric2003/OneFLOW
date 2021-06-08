@@ -67,7 +67,6 @@ public:
     MetisIntList cellzone;
     int nPart;
     vector< ScalarGrid * > * grids;
-    vector<int> gLCells;
 public:
     int GetNZones();
     void AllocateGrid( int nZones );
