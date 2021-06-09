@@ -70,7 +70,6 @@ public:
     int GetNZones();
     void AllocateGrid( int nZones );
     void PartitionGrid( ScalarGrid * ggrid, int nPart, vector< ScalarGrid * > * grids );
-    void ReconstructAllZones();
     void ReconstructGridFaceTopo();
     void ReconstructInterfaceTopo();
     void ReconstructNode();

@@ -156,8 +156,13 @@ void Part::PartitionGrid( ScalarGrid * ggrid, int nPart, vector< ScalarGrid * > 
 	this->ggrid = ggrid;
 	this->nPart = nPart;
 	this->grids = grids;
-	//calc cellzone;
-	this->ReconstructAllZones();
+
+	this->AllocateGrid( this->nPart );
+	this->ReconstructGridFaceTopo();
+	this->ReconstructNeighbor();
+	this->ReconstructInterfaceTopo();
+	this->CalcInterfaceToBcFace();
+	this->ReconstructNode();
 }
 
 int Part::GetNZones()
@@ -172,16 +177,6 @@ void Part::AllocateGrid( int nZones )
 		ScalarGrid * grid = new ScalarGrid( iZone );
 		( * this->grids ).push_back( grid );
 	}
-}
-
-void Part::ReconstructAllZones()
-{
-	this->AllocateGrid( this->nPart );
-	this->ReconstructGridFaceTopo();
-	this->ReconstructNeighbor();
-	this->ReconstructInterfaceTopo();
-	this->CalcInterfaceToBcFace();
-	this->ReconstructNode();
 }
 
 void Part::ReconstructGridFaceTopo()
