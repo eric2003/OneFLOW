@@ -37,18 +37,17 @@ BeginNameSpace( ONEFLOW )
 typedef vector<idx_t> MetisIntList;
 class ScalarGrid;
 
-class MetisPart
+class MetisSplit
 {
 public:
-    MetisPart( ScalarGrid * ggrid );
-    ~MetisPart();
+    MetisSplit();
+    ~MetisSplit();
 public:
     MetisIntList xadj;
     MetisIntList adjncy;
-    ScalarGrid * ggrid;
 public:
-    void MetisPartition( int nPart, MetisIntList & cellzone );
-    void ManualPartition( int nPart, MetisIntList & cellzone );
+    void MetisPartition( ScalarGrid * ggrid, int nPart, MetisIntList & cellzone );
+    void ManualPartition( ScalarGrid * ggrid, int nPart, MetisIntList & cellzone );
 private:
     void ScalarGetXadjAdjncy( ScalarGrid * ggrid, MetisIntList & xadj, MetisIntList & adjncy );
     void ScalarPartitionByMetis( idx_t nCells, MetisIntList & xadj, MetisIntList & adjncy, int nPart, MetisIntList & cellzone );
@@ -57,11 +56,11 @@ private:
 
 class ScalarIFace;
 
-class Part
+class GridPartition
 {
 public:
-    Part();
-    ~Part();
+    GridPartition();
+    ~GridPartition();
 public:
     ScalarGrid * ggrid;
     int nPart;

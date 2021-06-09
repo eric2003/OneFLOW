@@ -36,17 +36,16 @@ using namespace std;
 
 BeginNameSpace( ONEFLOW )
 
-MetisPart::MetisPart( ScalarGrid * ggrid )
+MetisSplit::MetisSplit()
 {
-	this->ggrid = ggrid;
 }
 
-MetisPart::~MetisPart()
+MetisSplit::~MetisSplit()
 {
 	;
 }
 
-void MetisPart::ManualPartition( int nPart, MetisIntList & cellzone )
+void MetisSplit::ManualPartition( ScalarGrid * ggrid, int nPart, MetisIntList & cellzone )
 {
 	int nFaces = ggrid->GetNFaces();
 	int nCells = ggrid->GetNCells();
@@ -70,7 +69,7 @@ void MetisPart::ManualPartition( int nPart, MetisIntList & cellzone )
 	}
 }
 
-void MetisPart::MetisPartition( int nPart, MetisIntList & cellzone )
+void MetisSplit::MetisPartition( ScalarGrid * ggrid, int nPart, MetisIntList & cellzone )
 {
 	int nFaces = ggrid->GetNFaces();
 	int nCells = ggrid->GetNCells();
@@ -83,7 +82,7 @@ void MetisPart::MetisPartition( int nPart, MetisIntList & cellzone )
 
 	if ( nPart == nCells )
 	{
-		ManualPartition( nPart, cellzone );
+		ManualPartition( ggrid, nPart, cellzone );
 		return;
 	}
 
@@ -91,7 +90,7 @@ void MetisPart::MetisPartition( int nPart, MetisIntList & cellzone )
 	ScalarPartitionByMetis( nCells, xadj, adjncy, nPart, cellzone );
 }
 
-void MetisPart::ScalarGetXadjAdjncy( ScalarGrid * ggrid, MetisIntList & xadj, MetisIntList & adjncy )
+void MetisSplit::ScalarGetXadjAdjncy( ScalarGrid * ggrid, MetisIntList & xadj, MetisIntList & adjncy )
 {   
 	int nCells = ggrid->GetNCells();
 
@@ -110,7 +109,7 @@ void MetisPart::ScalarGetXadjAdjncy( ScalarGrid * ggrid, MetisIntList & xadj, Me
 	}
 }
 
-void MetisPart::ScalarPartitionByMetis( idx_t nCells, MetisIntList & xadj, MetisIntList & adjncy, int nPart, MetisIntList & cellzone )
+void MetisSplit::ScalarPartitionByMetis( idx_t nCells, MetisIntList & xadj, MetisIntList & adjncy, int nPart, MetisIntList & cellzone )
 {
 	idx_t   ncon     = 1;
 	idx_t   * vwgt   = 0;
@@ -142,22 +141,21 @@ void MetisPart::ScalarPartitionByMetis( idx_t nCells, MetisIntList & xadj, Metis
 	cout << "Partition is finished!\n";
 }
 
-Part::Part()
+GridPartition::GridPartition()
 {
 }
 
-Part::~Part()
+GridPartition::~GridPartition()
 {
 	;
 }
 
-void Part::PartitionGrid( ScalarGrid * ggrid, int nPart, vector< ScalarGrid * > *grids )
+void GridPartition::PartitionGrid( ScalarGrid * ggrid, int nPart, vector< ScalarGrid * > *grids )
 {
 	this->ggrid = ggrid;
 	this->nPart = nPart;
 	this->grids = grids;
 
-	this->AllocateGrid( this->nPart );
 	this->ReconstructGridFaceTopo();
 	this->ReconstructNeighbor();
 	this->ReconstructInterfaceTopo();
@@ -165,12 +163,12 @@ void Part::PartitionGrid( ScalarGrid * ggrid, int nPart, vector< ScalarGrid * > 
 	this->ReconstructNode();
 }
 
-int Part::GetNZones()
+int GridPartition::GetNZones()
 {
 	return this->nPart;
 }
 
-void Part::AllocateGrid( int nZones )
+void GridPartition::AllocateGrid( int nZones )
 {
 	for ( int iZone = 0; iZone < nZones; ++ iZone )
 	{
@@ -179,12 +177,14 @@ void Part::AllocateGrid( int nZones )
 	}
 }
 
-void Part::ReconstructGridFaceTopo()
+void GridPartition::ReconstructGridFaceTopo()
 {
 	//calc cellzone;
-	MetisPart metisPart( this->ggrid );
+	MetisSplit metisSplit;
 	MetisIntList cellzone;
-	metisPart.MetisPartition( this->nPart, cellzone );
+	metisSplit.MetisPartition( this->ggrid, this->nPart, cellzone );
+
+	this->AllocateGrid( this->nPart );
 
 	int nZones = this->GetNZones();
 	int nFaces = ggrid->GetNFaces();
@@ -257,7 +257,7 @@ void Part::ReconstructGridFaceTopo()
 	}
 }
 
-void Part::ReconstructInterfaceTopo()
+void GridPartition::ReconstructInterfaceTopo()
 {
 	int nZones = this->GetNZones();
 	for ( int iZone = 0; iZone < nZones; ++ iZone )
@@ -277,7 +277,7 @@ void Part::ReconstructInterfaceTopo()
 	}
 }
 
-void Part::CalcInterfaceToBcFace()
+void GridPartition::CalcInterfaceToBcFace()
 {
 	int nZones = this->GetNZones();
 	for ( int iZone = 0; iZone < nZones; ++ iZone )
@@ -286,7 +286,7 @@ void Part::CalcInterfaceToBcFace()
 	}
 }
 
-void Part::ReconstructNeighbor()
+void GridPartition::ReconstructNeighbor()
 {
 	int nZones = this->GetNZones();
 	for ( int iZone = 0; iZone < nZones; ++ iZone )
@@ -295,7 +295,7 @@ void Part::ReconstructNeighbor()
 	}
 }
 
-void Part::ReconstructNode()
+void GridPartition::ReconstructNode()
 {
 	int nZones = this->GetNZones();
 	for ( int iZone = 0; iZone < nZones; ++ iZone )

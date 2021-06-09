@@ -114,10 +114,10 @@ void FieldSolver::InitGrid()
     //gridTmp->ReadCalcGrid();
     //delete gridTmp;
 
-    Part part;
+    GridPartition gridPartition;
     int npart = this->para->nx - 1;
     cout << " npart = " << npart << "\n";
-    part.PartitionGrid( this->grid, npart, & this->grids );
+    gridPartition.PartitionGrid( this->grid, npart, & this->grids );
 
     int nZones = this->grids.size();
     ZoneState::nZones = nZones;
