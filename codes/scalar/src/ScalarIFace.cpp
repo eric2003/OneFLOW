@@ -138,17 +138,6 @@ void ScalarIFace::DumpMap( map<int,int> & mapin )
     cout << "\n";
 }
 
-void ScalarIFace::GetInterface()
-{
-    int nNeis = data.size();
-    for( int iNei = 0; iNei < nNeis; ++ iNei)
-    {
-        ScalarIFaceIJ & iFaceIJ = data[ iNei ];
-        int iZone =  iFaceIJ.zonej;
-        vector<int> & ghostCells = iFaceIJ.ghostCells;
-    }
-}
-
 void ScalarIFace::ReconstructNeighbor()
 {
     int nSize = zones.size();
@@ -203,11 +192,29 @@ void ScalarIFace::WriteInterfaceTopology( DataBook * databook )
     ONEFLOW::HXWrite( databook, nIFaces );
     if ( nIFaces > 0 )
     {
-    	ONEFLOW::HXWrite( databook, this->zones             );
-    	ONEFLOW::HXWrite( databook, this->target_interfaces );
-    	//ONEFLOW::HXWrite( databook, this->interFace->i2b               );
+    	ONEFLOW::HXWrite( databook, this->zones               );
+    	ONEFLOW::HXWrite( databook, this->target_interfaces   );
+    	ONEFLOW::HXWrite( databook, this->interface_to_bcface );
     }
+}
 
+void ScalarIFace::ReadInterfaceTopology( DataBook * databook )
+{
+    int nIFaces = -1;
+    ONEFLOW::HXRead( databook, nIFaces );
+
+    cout << " nIFaces = " << nIFaces << endl;
+
+    if ( nIFaces > 0 )
+    {
+        this->zones.resize( nIFaces );
+        this->target_interfaces.resize( nIFaces );
+        this->interface_to_bcface.resize( nIFaces );
+
+        ONEFLOW::HXRead( databook, this->zones               );
+        ONEFLOW::HXRead( databook, this->target_interfaces   );
+        ONEFLOW::HXRead( databook, this->interface_to_bcface );
+    }
 }
 
 EndNameSpace

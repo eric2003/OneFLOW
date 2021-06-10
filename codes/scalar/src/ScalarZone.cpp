@@ -26,7 +26,6 @@ along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 
 BeginNameSpace( ONEFLOW )
 
-//GridTopos * ScalarZone::ggridTopos = 0;
 int ScalarZone::nLocalZones = 0;
 HXVector< ScalarGrid * > ScalarZone::scalar_grids;
 
@@ -40,13 +39,10 @@ ScalarZone::~ScalarZone()
 
 void ScalarZone::Allocate()
 {
-    //ScalarZone::ggridTopos = new GridTopos();
 }
 
 void ScalarZone::DeAllocate()
 {
-    //delete ScalarZone::ggridTopos;
-    //ScalarZone::ggridTopos = 0;
 }
 
 void ScalarZone::AddGrid( int zid, ScalarGrid * grid )

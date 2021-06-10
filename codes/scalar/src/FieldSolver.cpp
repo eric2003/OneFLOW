@@ -89,7 +89,9 @@ void FieldSolver::Init()
 {
     this->InitCtrlParameter();
 
-    this->InitGrid();
+    //this->InitGrid();
+
+    this->ReadGrid();
 
     this->InitFlowField();
 
@@ -110,6 +112,7 @@ void FieldSolver::InitGrid()
     this->grid->CalcTopology();
     this->grid->CalcMetrics1D();
     //this->grid->DumpCalcGrid();
+    //exit( 0 );
     //ScalarGrid * gridTmp = new ScalarGrid();
     //gridTmp->ReadCalcGrid();
     //delete gridTmp;
@@ -126,6 +129,23 @@ void FieldSolver::InitGrid()
         ScalarZone::AddGrid( iZone, this->grids[ iZone ] );
     }
     int kkk = 1;
+}
+
+void FieldSolver::ReadGrid()
+{
+    Dim::dimension = ONEFLOW::ONE_D;
+    this->grid->ReadCalcGrid();
+    this->grid->CalcMetrics1D();
+
+    this->tmpflag_delete_grids = false;
+    this->grids.push_back( this->grid );
+
+    int nZones = this->grids.size();
+    ZoneState::nZones = nZones;
+    for ( int iZone = 0; iZone < nZones; ++ iZone )
+    {
+        ScalarZone::AddGrid( iZone, this->grids[ iZone ] );
+    }
 }
 
 //void FieldSolver::InitGrid()

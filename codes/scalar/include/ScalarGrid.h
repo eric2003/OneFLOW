@@ -152,8 +152,8 @@ public:
     ScalarGrid( int grid_id );
     ~ScalarGrid();
 public:
-    size_t nNodes, nCells, nBFaces, nFaces;
-    size_t nTCells;
+    int nNodes, nCells, nBFaces, nFaces;
+    int nTCells;
     RealList xn, yn, zn;
     RealList xfc, yfc, zfc;
     RealList xfn, yfn, zfn;
@@ -184,11 +184,11 @@ public:
 public:
     DataBase * GetDataBase() { return dataBase; };
 public:
-    size_t GetNNodes();
-    size_t GetNCells();
-    size_t GetNFaces();
-    size_t GetNBFaces();
-    size_t GetNTCells();
+    int GetNNodes();
+    int GetNCells();
+    int GetNFaces();
+    int GetNBFaces();
+    int GetNTCells();
     void GenerateGrid( int ni, Real xmin, Real xmax );
     void CalcTopology();
     void PushElement( int p1, int p2, int eType );
@@ -224,6 +224,8 @@ public:
     void CreateNodes( int numberOfNodes );
     void WriteGridFaceTopology( DataBook * databook );
     void WriteBoundaryTopology( DataBook * databook );
+    void ReadGridFaceTopology( DataBook * databook );
+    void ReadBoundaryTopology( DataBook * databook );
 public:
     //partition
     void AddInterface( int global_interface_id, int neighbor_zoneid, int neighbor_cellid );

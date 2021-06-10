@@ -40,7 +40,6 @@ public:
     ScalarZone();
     ~ScalarZone();
 public:
-    //static GridTopos * ggridTopos;
     static int nLocalZones;
     static HXVector< ScalarGrid * > scalar_grids;
 public:

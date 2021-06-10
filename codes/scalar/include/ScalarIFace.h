@@ -76,13 +76,13 @@ public:
     vector< ScalarFacePair > sendinfo;
     vector< ScalarFacePair > recvinfo;
     
-    vector<int> iglobalfaces;
+    vector< int > iglobalfaces;
     //targt zones
-    vector<int> zones;
+    vector< int > zones;
     //target cells
-    vector<int> cells;
+    vector< int > cells;
     //target interfaces (local)
-    vector<int> target_interfaces;
+    vector< int > target_interfaces;
     int zoneid;
     DataStorage * dataSend;
     DataStorage * dataRecv;
@@ -100,12 +100,12 @@ public:
     void DumpMap( map<int, int> & mapin );
     int GetLocalInterfaceId( int global_interface_id );
     void CalcLocalInterfaceId( int iZone, vector<int> & globalfaces, vector<int> & localfaces );
-    void GetInterface();
     void AddInterface( int global_interface_id, int neighbor_zoneid, int neighbor_cellid );
     void ReconstructNeighbor();
     DataStorage * GetDataStorage( int iSendRecv );
 public:
     void WriteInterfaceTopology( DataBook * databook );
+    void ReadInterfaceTopology( DataBook * databook );
 };
 
 

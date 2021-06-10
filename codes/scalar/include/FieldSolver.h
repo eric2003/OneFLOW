@@ -70,6 +70,7 @@ public:
     void Init();
     void InitCtrlParameter();
     void InitGrid();
+    void ReadGrid();
     void InitFlowField();
     void InitFlowField_Basic();
     void SolveFlowField();
