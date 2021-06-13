@@ -27,6 +27,7 @@ License
 #include "HXDefine.h"
 #include "metis.h"
 #include <vector>
+#include <fstream>
 using namespace std;
 
 BeginNameSpace( ONEFLOW )
@@ -181,6 +182,7 @@ public:
     ScalarIFace * scalarIFace;
     int grid_id;
     int volBcType;
+    int type;
 public:
     DataBase * GetDataBase() { return dataBase; };
 public:
@@ -221,6 +223,8 @@ public:
     void ReadCalcGrid();
     void WriteGrid( DataBook * databook );
     void ReadGrid( DataBook * databook );
+    void WriteGrid( fstream & file );
+    void ReadGrid( fstream & file );
     void CreateNodes( int numberOfNodes );
     void WriteGridFaceTopology( DataBook * databook );
     void WriteBoundaryTopology( DataBook * databook );
@@ -228,6 +232,7 @@ public:
     void ReadBoundaryTopology( DataBook * databook );
 public:
     //partition
+    void AddFaceType( int fType );
     void AddInterface( int global_interface_id, int neighbor_zoneid, int neighbor_cellid );
     void AddPhysicalBcFace( int global_face_id, int bctype, int lcell, int rcell );
     void AddInnerFace( int global_face_id, int bctype, int lcell, int rcell );

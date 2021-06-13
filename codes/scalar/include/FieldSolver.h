@@ -70,7 +70,14 @@ public:
     void Init();
     void InitCtrlParameter();
     void InitGrid();
-    void ReadGrid();
+    void CreateOriginalGrid();
+    void ReadGrid( const string & gridFileName );
+    void ReadGrid( const string & gridFileName, vector< ScalarGrid * > & grids );
+    void ReadOneGrid();
+    void PartitionGrid();
+    void AddZoneGrid();
+    void CalcGridMetrics();
+    void DumpGrid( const string & gridFileName );
     void InitFlowField();
     void InitFlowField_Basic();
     void SolveFlowField();

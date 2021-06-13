@@ -121,12 +121,6 @@ void ScalarIFace::DumpInterfaceMap()
     cout << " local_to_global_interfaces map \n";
     this->DumpMap( this->local_to_global_interfaces );
     cout << "\n";
-
-    //for ( int i = 0; i < zones.size(); ++ i )
-    //{
-    //    cout << " zone: " << zones[ i ] << " iface = " << target_interfaces[ i ] << " ";
-    //}
-    //cout << "\n";
 }
 
 void ScalarIFace::DumpMap( map<int,int> & mapin )

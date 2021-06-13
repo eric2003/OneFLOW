@@ -80,9 +80,23 @@ FieldSolver::~FieldSolver()
 
 void FieldSolver::Run()
 {
-    this->Init();
+    int flag = 2;
+    if ( flag == 0 )
+    {
+        this->CreateOriginalGrid();
+    }
+    else if ( flag == 1 )
+    {
+        //partition grid
+        this->ReadOneGrid();
+        this->PartitionGrid();
+    }
+    else 
+    {
+        this->Init();
 
-    this->SolveFlowField();
+        this->SolveFlowField();
+    }
 }
 
 void FieldSolver::Init()
@@ -91,7 +105,13 @@ void FieldSolver::Init()
 
     //this->InitGrid();
 
-    this->ReadGrid();
+    string gridFileName = "scalar_metis.ofl";
+
+    this->ReadGrid( gridFileName );
+
+    this->AddZoneGrid();
+
+    this->CalcGridMetrics();
 
     this->InitFlowField();
 
@@ -100,9 +120,89 @@ void FieldSolver::Init()
     this->CommParallelInfo();
 }
 
+void FieldSolver::AddZoneGrid()
+{
+    int nZones = this->grids.size();
+    ZoneState::nZones = nZones;
+    for ( int iZone = 0; iZone < nZones; ++ iZone )
+    {
+        ScalarZone::AddGrid( iZone, this->grids[ iZone ] );
+    }
+}
+
+void FieldSolver::CalcGridMetrics()
+{
+    for ( int iZone = 0; iZone < ZoneState::nZones; ++ iZone )
+    {
+        ScalarGrid * grid = ScalarZone::GetGrid( iZone );
+        grid->CalcMetrics1D();
+    }
+}
+
 void FieldSolver::InitCtrlParameter()
 {
     this->para->Init();
+}
+
+void FieldSolver::PartitionGrid()
+{
+    Dim::dimension = ONEFLOW::ONE_D;
+
+    GridPartition gridPartition;
+    //int npart = this->para->nx - 1;
+    //int npart = this->grid->nCells;
+    int npart = 2;
+    cout << " npart = " << npart << "\n";
+    gridPartition.PartitionGrid( this->grid, npart, & this->grids );
+
+    int nZones = this->grids.size();
+    ZoneState::nZones = nZones;
+    for ( int iZone = 0; iZone < nZones; ++ iZone )
+    {
+        ScalarZone::AddGrid( iZone, this->grids[ iZone ] );
+    }
+
+    this->DumpGrid( "scalar_metis.ofl" );
+}
+
+void FieldSolver::DumpGrid( const string & gridFileName )
+{
+    fstream file;
+    OpenPrjFile( file, gridFileName, ios_base::out|ios_base::binary|ios_base::trunc );
+    int nZone = static_cast<int>( this->grids.size() );
+
+    ZoneState::pid.resize( nZone );
+    ZoneState::zoneType.resize( nZone );
+
+    for ( int iZone = 0; iZone < nZone; ++ iZone )
+    {
+        ZoneState::pid[ iZone ] = iZone;
+        ZoneState::zoneType[ iZone ] = grids[ iZone ]->type;
+    }
+
+    ONEFLOW::HXWrite( & file, nZone );
+    ONEFLOW::HXWrite( & file, ZoneState::pid );
+    ONEFLOW::HXWrite( & file, ZoneState::zoneType );
+
+    for ( int iZone = 0; iZone < nZone; ++ iZone )
+    {
+        cout << "iZone = " << iZone << " nZone = " << nZone << "\n";
+        grids[ iZone ]->WriteGrid( file );
+    }
+
+    ONEFLOW::CloseFile( file );
+}
+
+void FieldSolver::CreateOriginalGrid()
+{
+    Dim::dimension = ONEFLOW::ONE_D;
+    this->InitCtrlParameter();
+    this->grid->GenerateGrid( this->para->nx, 0, this->para->len );
+    this->grid->CalcTopology();
+    this->grid->CalcMetrics1D();
+    this->grids.push_back( this->grid );
+    this->tmpflag_delete_grids = false;
+    this->DumpGrid("scalar.ofl");
 }
 
 void FieldSolver::InitGrid()
@@ -131,21 +231,48 @@ void FieldSolver::InitGrid()
     int kkk = 1;
 }
 
-void FieldSolver::ReadGrid()
+void FieldSolver::ReadOneGrid()
 {
     Dim::dimension = ONEFLOW::ONE_D;
-    this->grid->ReadCalcGrid();
+    vector< ScalarGrid * > tmp_grids;
+
+    this->ReadGrid( "scalar.ofl", tmp_grids );
+    delete this->grid;
+    this->grid = tmp_grids[ 0 ];
+    //this->grid->ReadCalcGrid();
     this->grid->CalcMetrics1D();
+}
 
-    this->tmpflag_delete_grids = false;
-    this->grids.push_back( this->grid );
+void FieldSolver::ReadGrid( const string & gridFileName )
+{
+    this->ReadGrid( gridFileName, this->grids );
+}
 
-    int nZones = this->grids.size();
-    ZoneState::nZones = nZones;
-    for ( int iZone = 0; iZone < nZones; ++ iZone )
+void FieldSolver::ReadGrid( const string & gridFileName, vector< ScalarGrid * > & grids )
+{
+    fstream file;
+    OpenPrjFile( file, gridFileName, ios_base::in|ios_base::binary );
+
+    int nZone = -1;
+
+    ONEFLOW::HXRead( & file, nZone );
+
+    ZoneState::pid.resize( nZone );
+    ZoneState::zoneType.resize( nZone );
+
+    ONEFLOW::HXRead( & file, ZoneState::pid );
+    ONEFLOW::HXRead( & file, ZoneState::zoneType );
+
+    for ( int iZone = 0; iZone < nZone; ++ iZone )
     {
-        ScalarZone::AddGrid( iZone, this->grids[ iZone ] );
+        cout << "iZone = " << iZone << " nZone = " << nZone << "\n";
+        ScalarGrid * grid = new ScalarGrid( iZone );
+        grid->type = ZoneState::zoneType[ iZone ];
+        grid->ReadGrid( file );
+        grids.push_back( grid );
     }
+
+    ONEFLOW::CloseFile( file );
 }
 
 //void FieldSolver::InitGrid()

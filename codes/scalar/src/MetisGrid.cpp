@@ -200,7 +200,8 @@ void GridPartition::ReconstructGridFaceTopo()
 		int iZone = cellzone[ iCell ];
 		localCells[ iCell ] = zoneCount[ iZone ] ++;
 		int eType = this->ggrid->eTypes[ iCell ];
-		( * this->grids )[ iZone ]->eTypes.AddData( eType );
+		ScalarGrid * grid = ( * this->grids )[ iZone ];
+		grid->eTypes.AddData( eType );
 	}
 
 	//First scan the global physical boundary
@@ -214,7 +215,10 @@ void GridPartition::ReconstructGridFaceTopo()
 		//global coor x[20],y[20],z[20],x[10],y[10],z[10]
 		//local coor x[1],y[1],z[1],x[2],y[2],z[2]
 		int localCell = localCells[ lc ];
-		( * this->grids )[ lZone ]->AddPhysicalBcFace( iFace, bctype, localCell, ONEFLOW::INVALID_INDEX );
+		int ftype = ggrid->fTypes[ iFace ];
+		ScalarGrid * gridL = ( * this->grids )[ lZone ];
+		gridL->AddFaceType( ftype );
+		gridL->AddPhysicalBcFace( iFace, bctype, localCell, ONEFLOW::INVALID_INDEX );
 	}
 
 	//Then scan the internal block interface
@@ -225,6 +229,8 @@ void GridPartition::ReconstructGridFaceTopo()
 		int lZone = cellzone[ lc ];
 		int rZone = cellzone[ rc ];
 
+		int ftype = ggrid->fTypes[ iFace ];
+
 		if ( lZone != rZone )
 		{
 			int localCell_L = localCells[ lc ];
@@ -232,8 +238,14 @@ void GridPartition::ReconstructGridFaceTopo()
 
 			int bctype = -1;
 
-			( * this->grids )[ lZone ]->AddInterfaceBcFace( iFace, bctype, localCell_L, ONEFLOW::INVALID_INDEX, rZone, localCell_R );
-			( * this->grids )[ rZone ]->AddInterfaceBcFace( iFace, bctype, ONEFLOW::INVALID_INDEX, localCell_R, lZone, localCell_L );
+			ScalarGrid * gridL = ( * this->grids )[ lZone ];
+			ScalarGrid * gridR = ( * this->grids )[ rZone ];
+
+			gridL->AddFaceType( ftype );
+			gridR->AddFaceType( ftype );
+
+			gridL->AddInterfaceBcFace( iFace, bctype, localCell_L, ONEFLOW::INVALID_INDEX, rZone, localCell_R );
+			gridR->AddInterfaceBcFace( iFace, bctype, ONEFLOW::INVALID_INDEX, localCell_R, lZone, localCell_L );
 		}
 	}
 
@@ -252,7 +264,12 @@ void GridPartition::ReconstructGridFaceTopo()
 			int localCell_L = localCells[ lc ];
 			int localCell_R = localCells[ rc ];
 
-			( * this->grids )[ lZone ]->AddInnerFace( iFace, bctype, localCell_L, localCell_R );
+			ScalarGrid * grid = ( * this->grids )[ lZone ];
+
+			int ftype = ggrid->fTypes[ iFace ];
+
+			grid->AddFaceType( ftype );
+			grid->AddInnerFace( iFace, bctype, localCell_L, localCell_R );
 		}
 	}
 }
@@ -275,6 +292,20 @@ void GridPartition::ReconstructInterfaceTopo()
 			( * this->grids )[ jZone ]->scalarIFace->CalcLocalInterfaceId( iZone, iFaceIJ.iglobalfaces, iFaceIJ.target_ifaces );
 		}
 	}
+
+	for ( int iZone = 0; iZone < nZones; ++ iZone )
+	{
+		ScalarIFace * scalarIFace = ( * this->grids )[ iZone ]->scalarIFace;
+		int nIFaces = scalarIFace->iglobalfaces.size();
+		for ( int iFace = 0; iFace < nIFaces; ++ iFace )
+		{
+			int igface = scalarIFace->iglobalfaces[ iFace ];
+			int jZone  = scalarIFace->zones[ iFace ];
+			int jlocalface = ( * this->grids )[ jZone ]->scalarIFace->GetLocalInterfaceId( igface );
+			scalarIFace->target_interfaces.push_back( jlocalface );
+		}
+	}
+
 }
 
 void GridPartition::CalcInterfaceToBcFace()

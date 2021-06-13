@@ -21,6 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "ScalarGrid.h"
+#include "GridState.h"
 #include "Constant.h"
 #include "HXCgns.h"
 #include "Dimension.h"
@@ -215,6 +216,7 @@ ScalarGrid::ScalarGrid()
 	this->grid_id = 0;
 	this->scalarIFace = new ScalarIFace( this->grid_id );
 	this->volBcType = -1;
+	this->type = ONEFLOW::UMESH;
 }
 
 ScalarGrid::ScalarGrid( int grid_id )
@@ -224,6 +226,7 @@ ScalarGrid::ScalarGrid( int grid_id )
 	this->grid_id = grid_id;
 	this->scalarIFace = new ScalarIFace( this->grid_id );
 	this->volBcType = -1;
+	this->type = ONEFLOW::UMESH;
 }
 
 ScalarGrid::~ScalarGrid()
@@ -804,21 +807,42 @@ void ScalarGrid::DumpCalcGrid()
 	CloseFile( file );
 }
 
+void ScalarGrid::WriteGrid( fstream & file )
+{
+	DataBook * databook = new DataBook();
+	this->WriteGrid( databook );
+	databook->WriteFile( file );
+	delete databook;
+}
+
 void ScalarGrid::WriteGrid( DataBook * databook )
 {
+	this->nNodes = this->GetNNodes();
+	this->nCells = this->GetNCells();
+	this->nFaces = this->GetNFaces();
+
 	ONEFLOW::HXWrite( databook, this->nNodes );
 	ONEFLOW::HXWrite( databook, this->nCells );
 	ONEFLOW::HXWrite( databook, this->nFaces );
+
+	cout << " this->nNodes = " << this->nNodes << "\n";
+	cout << " this->nCells = " << this->nCells << "\n";
+	cout << " this->nFaces = " << this->nFaces << "\n";
 
 	//node
 	ONEFLOW::HXWrite( databook, this->xn.data );
 	ONEFLOW::HXWrite( databook, this->yn.data );
 	ONEFLOW::HXWrite( databook, this->zn.data );
 
+	cout << " dumping xn,yn,zn \n";
+
+	cout << " dumping eTypes \n";
+
 	//element
 	ONEFLOW::HXWrite( databook, this->eTypes.data );
 
 	ONEFLOW::HXWrite( databook, this->volBcType  );
+	cout << " this->volBcType = " << this->volBcType << "\n";
 
 	this->WriteGridFaceTopology( databook );
 	this->WriteBoundaryTopology( databook );
@@ -834,6 +858,14 @@ void ScalarGrid::ReadCalcGrid()
 	this->ReadGrid( databook );
 	delete databook;
 	CloseFile( file );
+}
+
+void ScalarGrid::ReadGrid( fstream & file )
+{
+	DataBook * databook = new DataBook();
+	databook->ReadFile( file );
+	this->ReadGrid( databook );
+	delete databook;
 }
 
 void ScalarGrid::ReadGrid( DataBook * databook )
@@ -853,16 +885,25 @@ void ScalarGrid::ReadGrid( DataBook * databook )
 
 	this->CreateNodes( this->nNodes );
 
+	cout << " Reading xn,yn,zn\n";
+
 	ONEFLOW::HXRead( databook, this->xn.data );
 	ONEFLOW::HXRead( databook, this->yn.data );
 	ONEFLOW::HXRead( databook, this->zn.data );
+
+	cout << " Reading eTypes\n";
 
 	//element
 	this->eTypes.Resize( this->nCells );
 	ONEFLOW::HXRead( databook, this->eTypes.data );
 
 	cout << "The grid nodes have been read\n";
+
+	cout << " Reading volBcType\n";
+	this->volBcType = -1000;
 	ONEFLOW::HXRead( databook, this->volBcType  );
+
+	cout << " this->volBcType = " << this->volBcType << "\n";
 
 	//this->nodeMesh->CalcMinMaxBox();
 	this->ReadGridFaceTopology( databook );
@@ -881,7 +922,15 @@ void ScalarGrid::CreateNodes( int numberOfNodes )
 
 void ScalarGrid::WriteGridFaceTopology( DataBook * databook )
 {
+	cout << " Dumping this->fTypes \n";
 	ONEFLOW::HXWrite( databook, this->fTypes.data );
+
+	cout << "fTypes = \n";
+	for ( int iFace = 0; iFace < this->fTypes.data.size(); ++ iFace )
+	{
+		cout << this->fTypes.data[ iFace ] << " ";
+	}
+	cout << "\n";
 
 	IntField numFaceNode( this->nFaces );
 
@@ -890,7 +939,18 @@ void ScalarGrid::WriteGridFaceTopology( DataBook * databook )
 		numFaceNode[ iFace ] = this->faces[ iFace ].size();
 	}
 
+	cout << " Dumping numFaceNode \n";
+
 	ONEFLOW::HXWrite( databook, numFaceNode );
+
+	int nsum = ONEFLOW::SUM( numFaceNode );
+	cout << " nsum = " << nsum << "\n";
+	cout << "numFaceNode = \n";
+	for ( int iFace = 0; iFace < numFaceNode.size(); ++ iFace )
+	{
+		cout << numFaceNode[ iFace ] << " ";
+	}
+	cout << "\n";
 
 	IntField faceNodeMem;
 
@@ -902,6 +962,7 @@ void ScalarGrid::WriteGridFaceTopology( DataBook * databook )
 			faceNodeMem.push_back( this->faces[ iFace ][ iNode ] );
 		}
 	}
+	cout << " Dumping faceNodeMem \n";
 	ONEFLOW::HXWrite( databook, faceNodeMem );
 
 	ONEFLOW::HXWrite( databook, this->lc.data );
@@ -915,17 +976,36 @@ void ScalarGrid::ReadGridFaceTopology( DataBook * databook )
 	this->rc.Resize( this->nFaces );
 	this->fTypes.Resize( this->nFaces );
 
+	cout << " Reading this->fTypes\n";
+
 	ONEFLOW::HXRead( databook, this->fTypes.data );
 
+	cout << "fTypes = \n";
+	for ( int iFace = 0; iFace < this->fTypes.data.size(); ++ iFace )
+	{
+		cout << this->fTypes.data[ iFace ] << " ";
+	}
+	cout << "\n";
+
 	IntField numFaceNode( this->nFaces );
+
+	cout << " Reading numFaceNode\n";
 
 	ONEFLOW::HXRead( databook, numFaceNode );
 
 	int nsum = ONEFLOW::SUM( numFaceNode );
+	cout << " nsum = " << nsum << "\n";
+	cout << " this->nFaces = " << this->nFaces << "\n";
+	cout << "numFaceNode = \n";
+	for ( int iFace = 0; iFace < numFaceNode.size(); ++ iFace )
+	{
+		cout << numFaceNode[ iFace ] << " ";
+	}
+	cout << "\n";
 
 	cout << "Setting the connection mode of face to point......\n";
 	IntField faceNodeMem( nsum );
-
+	cout << " Reading faceNodeMem\n";
 	ONEFLOW::HXRead( databook, faceNodeMem );
 
 	int ipos = 0;
@@ -982,6 +1062,11 @@ void ScalarGrid::ReadBoundaryTopology( DataBook * databook )
 	ONEFLOW::HXRead( databook, this->bcNameIds.data );
 
 	this->scalarIFace->ReadInterfaceTopology( databook );
+}
+
+void ScalarGrid::AddFaceType( int fType )
+{
+	this->fTypes.AddData( fType );
 }
 
 //for partition
