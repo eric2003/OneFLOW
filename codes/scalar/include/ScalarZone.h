@@ -30,8 +30,6 @@ using namespace std;
 
 BeginNameSpace( ONEFLOW )
 
-class GridTopos;
-class GridTopo;
 class ScalarGrid;
 
 class ScalarZone

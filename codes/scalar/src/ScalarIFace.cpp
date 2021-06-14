@@ -42,13 +42,25 @@ ScalarIFaceIJ::~ScalarIFaceIJ()
 {
 }
 
-ScalarFacePair::ScalarFacePair()
+void ScalarIFaceIJ::WriteInterfaceTopology( DataBook * databook )
 {
-    ;
+    int nIFace = ifaces.size();
+    ONEFLOW::HXWrite( databook, this->zonej );
+    ONEFLOW::HXWrite( databook, nIFace );
+    ONEFLOW::HXWrite( databook, this->ifaces );
+    ONEFLOW::HXWrite( databook, this->recv_ifaces );
 }
 
-ScalarFacePair::~ScalarFacePair()
+void ScalarIFaceIJ::ReadInterfaceTopology( DataBook * databook )
 {
+    ONEFLOW::HXRead( databook, this->zonej );
+    int nIFace = -1;
+    ONEFLOW::HXRead( databook, nIFace );
+    this->ifaces.resize( nIFace );
+    this->recv_ifaces.resize( nIFace );
+
+    ONEFLOW::HXRead( databook, this->ifaces );
+    ONEFLOW::HXRead( databook, this->recv_ifaces );
 }
 
 ScalarIFace::ScalarIFace( int zoneid )
@@ -189,6 +201,14 @@ void ScalarIFace::WriteInterfaceTopology( DataBook * databook )
     	ONEFLOW::HXWrite( databook, this->zones               );
     	ONEFLOW::HXWrite( databook, this->target_interfaces   );
     	ONEFLOW::HXWrite( databook, this->interface_to_bcface );
+
+        int nNeis = data.size();
+        ONEFLOW::HXWrite( databook, nNeis );
+        for ( int iNei = 0; iNei < nNeis; ++ iNei )
+        {
+            ScalarIFaceIJ & iFaceIJ = data[ iNei ];
+            iFaceIJ.WriteInterfaceTopology( databook );
+        }
     }
 }
 
@@ -208,6 +228,15 @@ void ScalarIFace::ReadInterfaceTopology( DataBook * databook )
         ONEFLOW::HXRead( databook, this->zones               );
         ONEFLOW::HXRead( databook, this->target_interfaces   );
         ONEFLOW::HXRead( databook, this->interface_to_bcface );
+
+        int nNeis = -1;
+        ONEFLOW::HXRead( databook, nNeis );
+        this->data.resize( nNeis );
+        for ( int iNei = 0; iNei < nNeis; ++ iNei )
+        {
+            ScalarIFaceIJ & iFaceIJ = data[ iNei ];
+            iFaceIJ.ReadInterfaceTopology( databook );
+        }
     }
 }
 

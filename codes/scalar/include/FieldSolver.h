@@ -36,8 +36,6 @@ BeginNameSpace( ONEFLOW )
 class ScalarField;
 class ScalarGrid;
 class FieldPara;
-class GridTopo;
-class GridTopos;
 class ScalarFieldManager;
 class ScalarFieldRecord;
 

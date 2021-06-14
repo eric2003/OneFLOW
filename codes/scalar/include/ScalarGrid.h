@@ -142,7 +142,6 @@ public:
 };
 
 class DataBase;
-class GridTopo;
 class DataBook;
 class ScalarIFace;
 

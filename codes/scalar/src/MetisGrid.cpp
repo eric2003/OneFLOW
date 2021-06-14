@@ -284,8 +284,8 @@ void GridPartition::ReconstructInterfaceTopo()
 		{
 			ScalarIFaceIJ & iFaceIJ = ( * this->grids )[ iZone ]->scalarIFace->data[ iNei ];
 			int jZone =  iFaceIJ.zonej;
-			//iZone的第iNei个邻居为jZone,iZone和jZone的交界面的global interface id为：
-			//iFaceIJ.iglobalfaces,iFaceIJ.target_ifaces是这些interface在jZone里面的局部id
+			//iZone的第iNei个邻居为jZone,iZone和jZone的交界面的global interface id为iFaceIJ.iglobalfaces,
+			//iFaceIJ.target_ifaces是这些interface在jZone里面的局部id
 			//这些id由jZone计算发送给iZone的里iNei个信息存储
 			//实际上这个信息iZone用不到，是jZone接收时使用的。
 			cout << " iZone = " << iZone << " iNei = " << iNei << " jZone = " << jZone << "\n";

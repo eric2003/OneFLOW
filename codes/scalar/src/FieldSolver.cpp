@@ -150,8 +150,8 @@ void FieldSolver::PartitionGrid()
 
     GridPartition gridPartition;
     //int npart = this->para->nx - 1;
-    //int npart = this->grid->nCells;
-    int npart = 2;
+    int npart = this->grid->nCells;
+    //int npart = 2;
     cout << " npart = " << npart << "\n";
     gridPartition.PartitionGrid( this->grid, npart, & this->grids );
 

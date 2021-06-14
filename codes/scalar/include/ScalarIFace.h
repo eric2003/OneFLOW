@@ -32,6 +32,9 @@ using namespace std;
 
 BeginNameSpace( ONEFLOW )
 
+class DataStorage;
+class DataBook;
+
 class ScalarIFaceIJ
 {
 public:
@@ -48,23 +51,10 @@ public:
 
     vector< int > target_ifaces;
     vector< int > recv_ifaces;
-};
-
-class ScalarFacePair
-{
 public:
-    ScalarFacePair();
-    ~ScalarFacePair();
-public:
-    int zonei, zonej;
-    vector< int > ifaces;
-    vector< int > neibor_ifaces;
+    void WriteInterfaceTopology( DataBook * databook );
+    void ReadInterfaceTopology( DataBook * databook );
 };
-
-class GridTopo;
-class GridTopos;
-class DataStorage;
-class DataBook;
 
 class ScalarIFace
 {
@@ -73,8 +63,6 @@ public:
     ~ScalarIFace();
 public:
     vector< ScalarIFaceIJ > data;
-    vector< ScalarFacePair > sendinfo;
-    vector< ScalarFacePair > recvinfo;
     
     vector< int > iglobalfaces;
     //targt zones
