@@ -22,6 +22,7 @@ License
 
 #include "Zone.h"
 #include "ZoneState.h"
+#include "InterFace.h"
 #include "ScalarZone.h"
 #include "GridGroup.h"
 #include "PIO.h"
@@ -162,5 +163,14 @@ ScalarGrid * Zone::GetScalarGrid()
     return ScalarZone::GetGrid();
 }
 
+int Zone::GetNumberOfZoneNeighbors( int zoneId )
+{
+    return interFaceTopo.data[ zoneId ].size();
+}
+
+int Zone::GetNeighborZoneId( int zoneId, int iNeighbor )
+{
+    return interFaceTopo.data[ zoneId ][ iNeighbor ];
+}
 
 EndNameSpace

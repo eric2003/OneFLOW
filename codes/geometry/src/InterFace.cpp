@@ -21,6 +21,8 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "InterFace.h"
+#include "ScalarGrid.h"
+#include "ScalarIFace.h"
 #include "Grid.h"
 #include "BgGrid.h"
 #include "Zone.h"
@@ -133,7 +135,6 @@ void InterFace::InitNeighborZoneInfo()
     this->InitNeighborFlag( flags );
 
     //The adjacent blocks of this block are calculated
-    //interFacePairs.resize( nNeighbor );
     this->AllocateNeighbor();
 
     int iNei = 0;
@@ -268,6 +269,31 @@ void InterFaceTopo::InitInterfaceTopoImp()
 
 void InterFaceTopo::InitInterfaceTopoTest()
 {
+    //This procedure to find all the neighbors of each zone, if the block has docking boundary
+    //This neighbor includes the block itself
+    //Finally, block numbers of all neighbors are stored in zoneindex in ascending order.
+    int nZone = ZoneState::nZones;
+
+    this->data.resize( nZone );
+
+    for ( int iZone = 0; iZone < nZone; ++ iZone )
+    {
+        if ( ! ZoneState::IsValidZone( iZone ) ) continue;
+
+        ScalarGrid * grid = Zone::GetScalarGrid( iZone );
+
+        ScalarIFace * scalarIFace = grid->scalarIFace;
+
+        IntField & neiborZoneIds = this->data[ iZone ];
+
+        int nNei = scalarIFace->data.size();
+
+        for ( int iNei = 0; iNei < nNei; ++ iNei )
+        {
+            ScalarIFaceIJ & sij = scalarIFace->data[ iNei ];
+            neiborZoneIds.push_back( sij.zonej );
+        }
+    }
 }
 
 void InterFaceTopo::InitZoneNeighborsInfo()

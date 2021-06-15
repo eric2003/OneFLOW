@@ -57,6 +57,9 @@ public:
     static void AddScalarGrid( int zid, ScalarGrid * grid );
     static ScalarGrid * GetScalarGrid( int iZone );
     static ScalarGrid * GetScalarGrid();
+public:
+    static int GetNumberOfZoneNeighbors( int zoneId );
+    static int GetNeighborZoneId( int zoneId, int iNeighbor );
 };
 
 EndNameSpace

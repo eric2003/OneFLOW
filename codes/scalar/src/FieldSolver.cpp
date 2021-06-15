@@ -21,6 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "FieldSolver.h"
+#include "InterFace.h"
 #include "Dimension.h"
 #include "FieldPara.h"
 #include "Zone.h"
@@ -115,6 +116,9 @@ void FieldSolver::LoadGrid()
     this->FillTmpGridVector();
 
     this->CalcGridMetrics();
+
+    interFaceTopo.flag_test = 1;
+    interFaceTopo.InitInterfaceTopo();
 
 }
 
@@ -250,7 +254,6 @@ void FieldSolver::ReadOneGrid()
     this->ReadGrid( "scalar.ofl", tmp_grids );
     delete this->grid;
     this->grid = tmp_grids[ 0 ];
-    //this->grid->ReadCalcGrid();
     this->grid->CalcMetrics1D();
 }
 
@@ -374,6 +377,35 @@ void FieldSolver::DownloadInterface()
     }
 }
 
+//void FieldSolver::UpdateInterface( TaskFunction sendAction, TaskFunction recvAction )
+//{
+//    ActionState::dataBook = new DataBook();
+//    for ( int iZone = 0; iZone < ZoneState::nZones; ++ iZone )
+//    {
+//        //Loop through each zone
+//        ZoneState::zid = iZone;
+//        //Find out the neighbors of each zone 
+//
+//        ScalarGrid * grid = ScalarZone::GetGrid();
+//        ScalarIFace * scalarIFace = grid->scalarIFace;
+//        int nNei = scalarIFace->data.size();
+//
+//        //For all neighbors of this block (zone = iZone), exchange information
+//        ZoneState::zid  = iZone;
+//        for ( int iNei = 0; iNei < nNei; ++ iNei )
+//        {
+//            //jZone is the block number of the neighbor block
+//            int jZone = scalarIFace->data[ iNei ].zonej;
+//            ZoneState::inei = iNei;
+//            //Exchange data between this block (iZone) and its neighbor (jZone)
+//            //But it is not necessarily in this process, because the process of block Zid
+//            //and the process of block jZone may not be in this process
+//            this->SwapInterfaceData( iZone, jZone, sendAction, recvAction );
+//        }
+//    }
+//    delete ActionState::dataBook;
+//}
+
 void FieldSolver::UpdateInterface( TaskFunction sendAction, TaskFunction recvAction )
 {
     ActionState::dataBook = new DataBook();
@@ -383,16 +415,13 @@ void FieldSolver::UpdateInterface( TaskFunction sendAction, TaskFunction recvAct
         ZoneState::zid = iZone;
         //Find out the neighbors of each zone 
 
-        ScalarGrid * grid = ScalarZone::GetGrid();
-        ScalarIFace * scalarIFace = grid->scalarIFace;
-        int nNei = scalarIFace->data.size();
+        int nNei = Zone::GetNumberOfZoneNeighbors( iZone );
 
         //For all neighbors of this block (zone = iZone), exchange information
-        ZoneState::zid  = iZone;
         for ( int iNei = 0; iNei < nNei; ++ iNei )
         {
             //jZone is the block number of the neighbor block
-            int jZone = scalarIFace->data[ iNei ].zonej;
+            int jZone = Zone::GetNeighborZoneId( iZone, iNei );
             ZoneState::inei = iNei;
             //Exchange data between this block (iZone) and its neighbor (jZone)
             //But it is not necessarily in this process, because the process of block Zid
