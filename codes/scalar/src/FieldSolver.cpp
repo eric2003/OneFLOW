@@ -23,6 +23,7 @@ License
 #include "FieldSolver.h"
 #include "Dimension.h"
 #include "FieldPara.h"
+#include "Zone.h"
 #include "DataBase.h"
 #include "ScalarDataIO.h"
 #include "ScalarGrid.h"
@@ -101,13 +102,31 @@ void FieldSolver::Run()
 
 void FieldSolver::LoadGrid()
 {
+    StringField gridFileList;
+
+    //string gridFileName = ONEFLOW::GetGridFileName();
     string gridFileName = "scalar_metis.ofl";
 
-    this->ReadGrid( gridFileName );
+    gridFileList.push_back( gridFileName );
 
-    this->AddZoneGrid();
+    Zone::flag_test_grid = 1;
+    Zone::ReadGrid( gridFileList );
+
+    this->FillTmpGridVector();
 
     this->CalcGridMetrics();
+
+}
+
+void FieldSolver::FillTmpGridVector()
+{
+    for ( int iZone = 0; iZone < ZoneState::nZones; ++ iZone )
+    {
+        if ( ! ZoneState::IsValidZone( iZone ) ) continue;
+
+        ScalarGrid * grid = Zone::GetScalarGrid( iZone );
+        this->grids.push_back( grid );
+    }
 }
 
 void FieldSolver::Init()
@@ -135,7 +154,9 @@ void FieldSolver::CalcGridMetrics()
 {
     for ( int iZone = 0; iZone < ZoneState::nZones; ++ iZone )
     {
-        ScalarGrid * grid = ScalarZone::GetGrid( iZone );
+        if ( ! ZoneState::IsValidZone( iZone ) ) continue;
+
+        ScalarGrid * grid = Zone::GetScalarGrid( iZone );
         grid->CalcMetrics1D();
     }
 }
@@ -156,13 +177,7 @@ void FieldSolver::PartitionGrid()
     cout << " npart = " << npart << "\n";
     gridPartition.PartitionGrid( this->grid, npart, & this->grids );
 
-    int nZones = this->grids.size();
-    ZoneState::nZones = nZones;
-    for ( int iZone = 0; iZone < nZones; ++ iZone )
-    {
-        ScalarZone::AddGrid( iZone, this->grids[ iZone ] );
-    }
-
+    this->AddZoneGrid();
     this->DumpGrid( "scalar_metis.ofl" );
 }
 
@@ -280,36 +295,29 @@ void FieldSolver::ReadGrid( const string & gridFileName, vector< ScalarGrid * > 
     ONEFLOW::CloseFile( file );
 }
 
-//void FieldSolver::InitGrid()
-//{
-//    this->grid->GenerateGrid( this->para->nx, 0, this->para->len );
-//    this->grid->CalcTopology();
-//    this->grid->CalcMetrics1D();
-//
-//    this->tmpflag_delete_grids = false;
-//
-//    this->grids.push_back( this->grid );
-//}
-
 void FieldSolver::InitFlowField()
 {
     this->scalarFieldManager->Init();
-    int nZones = this->grids.size();
-    for ( int iZone = 0; iZone < nZones; ++ iZone )
+
+    for ( int iZone = 0; iZone < ZoneState::nZones; ++ iZone )
     {
+        if ( ! ZoneState::IsValidZone( iZone ) ) continue;
         ZoneState::zid = iZone;
-        cout << " iZone = " << iZone << "\n";
         this->scalarFieldManager->AllocateAllFields();
     }
 
-    for ( int iZone = 0; iZone < nZones; ++ iZone )
+    for ( int iZone = 0; iZone < ZoneState::nZones; ++ iZone )
     {
+        if ( ! ZoneState::IsValidZone( iZone ) ) continue;
+        ZoneState::zid = iZone;
+
         ScalarField * field = new ScalarField();
         this->fields.push_back( field );
     }
 
-    for ( int iZone = 0; iZone < nZones; ++ iZone )
+    for ( int iZone = 0; iZone < ZoneState::nZones; ++ iZone )
     {
+        if ( ! ZoneState::IsValidZone( iZone ) ) continue;
         ZoneState::zid = iZone;
         this->InitFlowField_Basic();
     }
@@ -348,6 +356,7 @@ void FieldSolver::UploadInterface()
 {
     for ( int iZone = 0; iZone < ZoneState::nZones; ++ iZone )
     {
+        if ( ! ZoneState::IsValidZone( iZone ) ) continue;
         ZoneState::zid = iZone;
 
         this->scalarFieldManager->UploadInterfaceField();
@@ -358,6 +367,7 @@ void FieldSolver::DownloadInterface()
 {
     for ( int iZone = 0; iZone < ZoneState::nZones; ++ iZone )
     {
+        if ( ! ZoneState::IsValidZone( iZone ) ) continue;
         ZoneState::zid = iZone;
 
         this->scalarFieldManager->DownloadInterfaceField();

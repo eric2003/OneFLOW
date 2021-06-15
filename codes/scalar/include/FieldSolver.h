@@ -64,6 +64,9 @@ public:
     vector< ScalarGrid * > grids;
     bool tmpflag_delete_grids;
 public:
+    //tmp
+    void FillTmpGridVector();
+public:
     void Run();
     void Init();
     void LoadGrid();

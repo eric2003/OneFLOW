@@ -241,10 +241,32 @@ InterfacePair::~InterfacePair()
 
 InterFaceTopo::InterFaceTopo()
 {
-    ;
+    this->flag_test = 0;
 }
 
 InterFaceTopo::~InterFaceTopo()
+{
+}
+
+void InterFaceTopo::InitInterfaceTopo()
+{
+    if ( flag_test == 0 )
+    {
+        this->InitInterfaceTopoImp();
+    }
+    else
+    {
+        this->InitInterfaceTopoTest();
+    }
+}
+
+void InterFaceTopo::InitInterfaceTopoImp()
+{
+    this->InitZoneNeighborsInfo();
+    this->SwapNeighborZoneInfo();
+}
+
+void InterFaceTopo::InitInterfaceTopoTest()
 {
 }
 
@@ -354,8 +376,7 @@ InterFaceTopo interFaceTopo;
 
 void InitInterfaceTopo()
 {
-    interFaceTopo.InitZoneNeighborsInfo();
-    interFaceTopo.SwapNeighborZoneInfo();
+    interFaceTopo.InitInterfaceTopo();
 }
 
 InterFace * InterFaceState::interFace = 0;

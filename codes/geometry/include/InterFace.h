@@ -101,7 +101,12 @@ public:
     InterFaceTopo ();
     ~InterFaceTopo();
 public:
+    int flag_test;
     LinkField data;
+public:
+    void InitInterfaceTopo();
+    void InitInterfaceTopoImp();
+    void InitInterfaceTopoTest();
 public:
     void InitZoneNeighborsInfo();
     void SwapNeighborsSendContent();
