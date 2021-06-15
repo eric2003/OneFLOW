@@ -172,7 +172,8 @@ void GridPartition::AllocateGrid( int nZones )
 {
 	for ( int iZone = 0; iZone < nZones; ++ iZone )
 	{
-		ScalarGrid * grid = new ScalarGrid( iZone );
+		ScalarGrid * grid = new ScalarGrid();
+		grid->id = iZone;
 		( * this->grids ).push_back( grid );
 	}
 }

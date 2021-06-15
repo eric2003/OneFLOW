@@ -149,7 +149,6 @@ class ScalarGrid
 {
 public:
     ScalarGrid();
-    ScalarGrid( int grid_id );
     ~ScalarGrid();
 public:
     int nNodes, nCells, nBFaces, nFaces;
@@ -180,7 +179,7 @@ public:
     DataBase * dataBase;
     ScalarIFace * scalarIFace;
     int type, level;
-    int grid_id;
+    int id;
     int localId;
     int volBcType;
 public:

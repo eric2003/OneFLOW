@@ -63,9 +63,8 @@ void ScalarIFaceIJ::ReadInterfaceTopology( DataBook * databook )
     ONEFLOW::HXRead( databook, this->recv_ifaces );
 }
 
-ScalarIFace::ScalarIFace( int zoneid )
+ScalarIFace::ScalarIFace()
 {
-    this->zoneid = zoneid;
     this->dataSend = new DataStorage();
     this->dataRecv = new DataStorage();
 }
@@ -120,7 +119,7 @@ void ScalarIFace::CalcLocalInterfaceId( int iZone, vector<int> & globalfaces, ve
     }
     //The neighbor of iZone iNei is jzone, and the jNei neighbor of jZone is iZone
     int jNei = FindINeibor( iZone );
-    cout << " zoneid = " << this->zoneid << " iZone() = " << iZone << " jNei = " << jNei << "\n";
+    //cout << " zoneid = " << this->zoneid << " iZone() = " << iZone << " jNei = " << jNei << "\n";
     ScalarIFaceIJ & iFaceIJ = this->data[ jNei ];
     iFaceIJ.recv_ifaces = localfaces;
 }
@@ -158,7 +157,7 @@ void ScalarIFace::ReconstructNeighbor()
     {
         ScalarIFaceIJ sij;
         int current_nei_zoneid = * iter;
-        sij.zonei = zoneid;
+        //sij.zonei = zoneid;
         sij.zonej = current_nei_zoneid;
 
         for ( int i = 0; i < nSize; ++ i )

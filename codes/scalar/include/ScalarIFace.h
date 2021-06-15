@@ -59,7 +59,7 @@ public:
 class ScalarIFace
 {
 public:
-    ScalarIFace( int zoneid = 0 );
+    ScalarIFace();
     ~ScalarIFace();
 public:
     vector< ScalarIFaceIJ > data;
@@ -71,7 +71,7 @@ public:
     vector< int > cells;
     //target interfaces (local)
     vector< int > target_interfaces;
-    int zoneid;
+    //int zoneid;
     DataStorage * dataSend;
     DataStorage * dataRecv;
     //global interface id to local interface id map

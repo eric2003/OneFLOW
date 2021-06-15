@@ -213,18 +213,9 @@ ScalarGrid::ScalarGrid()
 {
 	scalarBccos = new ScalarBccos();
 	dataBase = new DataBase();
-	this->grid_id = 0;
-	this->scalarIFace = new ScalarIFace( this->grid_id );
-	this->volBcType = -1;
-	this->type = ONEFLOW::UMESH;
-}
-
-ScalarGrid::ScalarGrid( int grid_id )
-{
-	scalarBccos = new ScalarBccos();
-	dataBase = new DataBase();
-	this->grid_id = grid_id;
-	this->scalarIFace = new ScalarIFace( this->grid_id );
+	this->id = 0;
+	this->level = 0;
+	this->scalarIFace = new ScalarIFace();
 	this->volBcType = -1;
 	this->type = ONEFLOW::UMESH;
 }

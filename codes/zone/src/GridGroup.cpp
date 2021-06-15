@@ -164,9 +164,9 @@ void GridGroup::CreateGridTest( int zoneId )
 {
     int gridType = ZoneState::zoneType[ zoneId ];
 
-    ScalarGrid * grid = new ScalarGrid( zoneId );
+    ScalarGrid * grid = new ScalarGrid();
     grid->level = 0;
-    grid->grid_id = zoneId;
+    grid->id = zoneId;
     grid->localId = Zone::nLocalZones ++;
     grid->type = gridType;
 

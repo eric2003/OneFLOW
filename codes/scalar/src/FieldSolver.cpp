@@ -212,11 +212,6 @@ void FieldSolver::InitGrid()
     this->grid->GenerateGrid( this->para->nx, 0, this->para->len );
     this->grid->CalcTopology();
     this->grid->CalcMetrics1D();
-    //this->grid->DumpCalcGrid();
-    //exit( 0 );
-    //ScalarGrid * gridTmp = new ScalarGrid();
-    //gridTmp->ReadCalcGrid();
-    //delete gridTmp;
 
     GridPartition gridPartition;
     int npart = this->para->nx - 1;
@@ -275,7 +270,8 @@ void FieldSolver::ReadGrid( const string & gridFileName, vector< ScalarGrid * > 
     for ( int iZone = 0; iZone < nZone; ++ iZone )
     {
         cout << "iZone = " << iZone << " nZone = " << nZone << "\n";
-        ScalarGrid * grid = new ScalarGrid( iZone );
+        ScalarGrid * grid = new ScalarGrid();
+        grid->id = iZone;
         grid->type = ZoneState::zoneType[ iZone ];
         grid->ReadGrid( file );
         grids.push_back( grid );
