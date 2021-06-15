@@ -52,7 +52,7 @@ void TaskRegister::Register( VoidFunc taskfun, string const & taskname )
     }
     TaskRegister::taskList->push_back( taskfun );
     TaskRegister::taskNameList->push_back( taskname );
-    cout << "TaskRegister::Register " << taskname << "\n";
+    //cout << "TaskRegister::Register " << taskname << "\n";
 }
 
 void TaskRegister::Run()
