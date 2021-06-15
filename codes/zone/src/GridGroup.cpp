@@ -42,9 +42,6 @@ using namespace std;
 BeginNameSpace( ONEFLOW )
 
 
-IntField GridGroup::pid;
-IntField GridGroup::zoneType;
-
 GridGroup::GridGroup( int zoneStart )
 {
     this->zoneStart = zoneStart;

@@ -40,8 +40,8 @@ public:
     ~GridGroup();
 public:
     int   nZones;
-    static IntField pid;
-    static IntField zoneType;
+    IntField pid;
+    IntField zoneType;
     int zoneStart;
 protected:
     void ReadGrid( fstream & file, int iZone );

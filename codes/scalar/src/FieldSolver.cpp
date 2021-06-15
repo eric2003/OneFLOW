@@ -99,12 +99,8 @@ void FieldSolver::Run()
     }
 }
 
-void FieldSolver::Init()
+void FieldSolver::LoadGrid()
 {
-    this->InitCtrlParameter();
-
-    //this->InitGrid();
-
     string gridFileName = "scalar_metis.ofl";
 
     this->ReadGrid( gridFileName );
@@ -112,10 +108,15 @@ void FieldSolver::Init()
     this->AddZoneGrid();
 
     this->CalcGridMetrics();
+}
+
+void FieldSolver::Init()
+{
+    this->InitCtrlParameter();
+
+    this->LoadGrid();
 
     this->InitFlowField();
-
-    this->InitParallelInfo();
 
     this->CommParallelInfo();
 }
@@ -263,6 +264,14 @@ void FieldSolver::ReadGrid( const string & gridFileName, vector< ScalarGrid * > 
     ONEFLOW::HXRead( & file, ZoneState::pid );
     ONEFLOW::HXRead( & file, ZoneState::zoneType );
 
+    if ( Parallel::zoneMode == 0 )
+    {
+        for ( int iZone = 0; iZone < nZone; ++ iZone )
+        {
+            ZoneState::pid[ iZone ] = ( iZone ) % Parallel::nProc;
+        }
+    }
+
     for ( int iZone = 0; iZone < nZone; ++ iZone )
     {
         cout << "iZone = " << iZone << " nZone = " << nZone << "\n";
@@ -337,20 +346,6 @@ Real FieldSolver::SquareFun( Real xm )
         return 2.0;
     }
     return 1.0;
-}
-
-void FieldSolver::InitParallelInfo()
-{
-    int nZones = this->grids.size();
-    ZoneState::nZones = nZones;
-    ZoneState::pid.resize( nZones );
-    ZoneState::zoneType.resize( nZones );
-
-    for ( int iZone = 0; iZone < nZones; ++ iZone )
-    {
-        ZoneState::pid[ iZone ] = iZone % Parallel::nProc;
-        ZoneState::zoneType[ iZone ] = ONEFLOW::UMESH;
-    }
 }
 
 void FieldSolver::UploadInterface()

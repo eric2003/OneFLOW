@@ -243,9 +243,9 @@ void ScalarSolver::InitZoneFlowField()
 
 void ScalarSolver::Run()
 {
-    FieldSolver * fieldSolver = new FieldSolver();
-    fieldSolver->Run();
-    delete fieldSolver;
+    //FieldSolver * fieldSolver = new FieldSolver();
+    //fieldSolver->Run();
+    //delete fieldSolver;
 
     //this->Init();
 

@@ -66,6 +66,7 @@ public:
 public:
     void Run();
     void Init();
+    void LoadGrid();
     void InitCtrlParameter();
     void InitGrid();
     void CreateOriginalGrid();
@@ -81,7 +82,6 @@ public:
     void SolveFlowField();
     void SolveOneStep();
     void SetParaPointer();
-    void InitParallelInfo();
     void CommParallelInfo();
     void UploadInterfaceValue( ScalarGrid * grid, MRField * field2D, const string & name, int nEqu );
     void UploadInterface();
