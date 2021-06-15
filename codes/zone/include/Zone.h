@@ -32,6 +32,7 @@ BeginNameSpace( ONEFLOW )
 
 class Grid;
 class UnsGrid;
+class ScalarGrid;
 
 class Zone
 {
@@ -39,6 +40,7 @@ public:
     Zone();
     ~Zone();
 public:
+    static int flag_test_grid;
     static HXVector< Grids * > globalGrids;
     static int nLocalZones;
     static void AddGrid( int zid, Grid * grid );
@@ -51,6 +53,10 @@ public:
     static Grid * GetCGrid( Grid * grid );
     static Grid * GetFGrid( Grid * grid );
     static UnsGrid * GetUnsGrid();
+public:
+    static void AddScalarGrid( int zid, ScalarGrid * grid );
+    static ScalarGrid * GetScalarGrid( int iZone );
+    static ScalarGrid * GetScalarGrid();
 };
 
 EndNameSpace

@@ -22,6 +22,7 @@ License
 
 #include "Zone.h"
 #include "ZoneState.h"
+#include "ScalarZone.h"
 #include "GridGroup.h"
 #include "PIO.h"
 #include "Parallel.h"
@@ -44,6 +45,7 @@ BeginNameSpace( ONEFLOW )
 
 HXVector< Grids * > Zone::globalGrids;
 int Zone::nLocalZones = 0;
+int Zone::flag_test_grid = 0;
 
 Zone::Zone()
 {
@@ -88,14 +90,14 @@ Grid * Zone::GetCGrid( Grid * grid )
     int level = grid->level + 1;
     int ngrid = ( * Zone::globalGrids[ ZoneState::zid ] ).size();
     if ( level >= ngrid ) return 0;
-    return Zone::GetGrid( ZoneState::zid, level);
+    return Zone::GetGrid( ZoneState::zid, level );
 }
 
 Grid * Zone::GetFGrid( Grid * grid )
 {
     int level = grid->level - 1;
     level = MAX( level, 0 );
-    return Zone::GetGrid( ZoneState::zid, level);
+    return Zone::GetGrid( ZoneState::zid, level );
 }
 
 void Zone::InitLayout( StringField & fileNameList )
@@ -144,5 +146,21 @@ void Zone::ReadGrid( StringField & fileNameList )
     }
     Zone::NormalizeLayout();
 }
+
+void Zone::AddScalarGrid( int zid, ScalarGrid * grid )
+{
+    ScalarZone::AddGrid( zid, grid );
+}
+
+ScalarGrid * Zone::GetScalarGrid( int iZone )
+{
+    return ScalarZone::GetGrid( iZone );
+}
+
+ScalarGrid * Zone::GetScalarGrid()
+{
+    return ScalarZone::GetGrid();
+}
+
 
 EndNameSpace

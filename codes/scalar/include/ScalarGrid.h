@@ -179,9 +179,10 @@ public:
     ScalarBccos * scalarBccos;
     DataBase * dataBase;
     ScalarIFace * scalarIFace;
+    int type, level;
     int grid_id;
+    int localId;
     int volBcType;
-    int type;
 public:
     DataBase * GetDataBase() { return dataBase; };
 public:
