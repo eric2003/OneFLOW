@@ -368,4 +368,14 @@ GridElem * ZgridElem::GetGridElem( int iGridElem )
     return this->data[ iGridElem ];
 }
 
+void ZgridElem::PrepareUnsCalcGrid()
+{
+    int nZones = this->data.size();
+    for ( int iZone = 0; iZone < nZones; ++ iZone )
+    {
+        GridElem * gridElem = this->GetGridElem( iZone );
+        gridElem->PrepareUnsCalcGrid();
+    }
+}
+
 EndNameSpace

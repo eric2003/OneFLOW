@@ -62,7 +62,6 @@ public:
     void DumpUnsCgnsGrid();
 public:
     void CommonToOneFlowGrid();
-    void CommonToUnsGrid();
     void CommonToStrGrid();
     void CommonToUnsGridTEST();
     void ReadGridAndConvertToUnsCgnsZone();

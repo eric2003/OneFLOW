@@ -75,6 +75,7 @@ public:
     GridElem * GetGridElem( int iGridElem );
     void AddGridElem( GridElem * gridElem );
     void AddGridElem( HXVector< CgnsZone * > cgnsZones, int iZone );
+    void PrepareUnsCalcGrid();
 };
 
 EndNameSpace

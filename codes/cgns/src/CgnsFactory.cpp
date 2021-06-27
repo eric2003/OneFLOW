@@ -126,7 +126,6 @@ void CgnsFactory::CommonToOneFlowGrid()
 {
     if ( ONEFLOW::IsUnsGrid( grid_para.topo ) )
     {
-        //this->CommonToUnsGrid();
         this->CommonToUnsGridTEST();
     }
     else if ( ONEFLOW::IsStrGrid( grid_para.topo ) )
@@ -181,56 +180,6 @@ void CgnsFactory::PrepareCgnsZone( ZgridMediator * zgridMediator )
     ONEFLOW::PrepareCgnsZone( cgnsZbase, zgridMediator );
 }
 
-void CgnsFactory::CommonToUnsGrid()
-{
-    GridMediator * gridMediator = new GridMediator();
-    gridMediator->gridFile = ONEFLOW::GetDataValue< string >( "sourceGridFileName" );
-    gridMediator->bcFile   = ONEFLOW::GetDataValue< string >( "sourceGridBcName" );
-
-    gridMediator->gridType = grid_para.filetype;
-    gridMediator->ReadGrid();
-
-    int nZones = gridMediator->numberOfZones;
-
-    if ( grid_para.multiBlock )
-    {
-        nZones = gridMediator->numberOfZones;
-    }
-    else
-    {
-        nZones = 1;
-    }
-
-    Grids grids( nZones );
-
-    for ( int iZone = 0; iZone < nZones; ++ iZone )
-    {
-        CgnsFactory * cgnsFactory = new CgnsFactory();
-        int cgnsZoneId = iZone + 1;
-        CgnsZone * cgnsZone = cgnsFactory->CreateOneUnsCgnsZone( cgnsZoneId );
-
-        Grids grid_array;
-
-        if ( grid_para.multiBlock )
-        {
-            grid_array.push_back( gridMediator->gridVector[ iZone ] );
-        }
-        else
-        {
-            grid_array = gridMediator->gridVector;
-        }
-
-        ONEFLOW::PrepareCgnsZoneSub( grid_array, cgnsZone );
-        
-        cgnsFactory->CgnsToOneFlowGrid( grids[ iZone ], iZone );
-
-        delete cgnsFactory;
-    }
-
-    ONEFLOW::GenerateMultiZoneCalcGrids( grids );
-    delete gridMediator;
-}
-
 void CgnsFactory::ReadGridAndConvertToUnsCgnsZone()
 {
     ZgridMediator zgridMediator;
@@ -245,22 +194,7 @@ void CgnsFactory::CommonToUnsGridTEST()
 {
     this->ReadGridAndConvertToUnsCgnsZone();
 
-    this->AllocateGridElem();
-
-    this->PrepareUnsCalcGrid();
-
-    this->GenerateCalcGrid();
-
-    Grids grids;
-
-    for ( int iZone = 0; iZone < this->nZone; ++ iZone )
-    {
-        GridElem * gridElem = zgridElem->GetGridElem( iZone );
-        Grid * grid = gridElem->grid;
-        grids.push_back( grid );
-    }
-
-    ONEFLOW::GenerateMultiZoneCalcGrids( grids );
+    this->CgnsToOneFlowGrid();
 }
 
 void CgnsFactory::CgnsToOneFlowGrid( Grid *& grid, int zId )
@@ -313,11 +247,7 @@ void CgnsFactory::AllocateGridElem()
 
 void CgnsFactory::PrepareUnsCalcGrid()
 {
-    for ( int iZone = 0; iZone < this->nZone; ++ iZone )
-    {
-        GridElem * gridElem = zgridElem->GetGridElem( iZone );
-        gridElem->PrepareUnsCalcGrid();
-    }
+    this->zgridElem->PrepareUnsCalcGrid();
 }
 
 void CgnsFactory::GenerateCalcGrid()
