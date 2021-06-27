@@ -269,6 +269,12 @@ void InterFaceTopo::InitInterfaceTopoImp()
 
 void InterFaceTopo::InitInterfaceTopoTest()
 {
+    this->InitZoneNeighborsInfoTest();
+    this->SwapNeighborZoneInfoTest();
+}
+
+void InterFaceTopo::InitZoneNeighborsInfoTest()
+{
     //This procedure to find all the neighbors of each zone, if the block has docking boundary
     //This neighbor includes the block itself
     //Finally, block numbers of all neighbors are stored in zoneindex in ascending order.
@@ -293,6 +299,25 @@ void InterFaceTopo::InitInterfaceTopoTest()
             ScalarIFaceIJ & sij = scalarIFace->data[ iNei ];
             neiborZoneIds.push_back( sij.zonej );
         }
+    }
+}
+
+void InterFaceTopo::SwapNeighborZoneInfoTest()
+{
+    for ( int iZone = 0; iZone < ZoneState::nZones; ++ iZone )
+    {
+        int pid = ZoneState::pid[ iZone ];
+
+        IntField & neiborZoneIds = this->data[ iZone ];
+
+        int nNeighbor = neiborZoneIds.size();
+
+        ONEFLOW::HXBcast( & nNeighbor, 1, pid );
+
+        if ( nNeighbor == 0 ) continue;
+
+        neiborZoneIds.resize( nNeighbor );
+        ONEFLOW::HXBcast( & neiborZoneIds[ 0 ], nNeighbor, pid );
     }
 }
 

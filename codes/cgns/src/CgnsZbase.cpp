@@ -43,13 +43,24 @@ CgnsZbase::~CgnsZbase()
     delete cgnsFile;
 }
 
-int CgnsZbase::GetNZone()
+void CgnsZbase::OpenCgnsFile( const string & fileName, int cgnsOpenMode )
+{
+    this->cgnsFile->OpenCgnsFile( fileName, cgnsOpenMode );
+}
+
+void CgnsZbase::CloseCgnsFile()
+{
+    this->cgnsFile->CloseCgnsFile();
+}
+
+
+int CgnsZbase::GetNZones()
 {
     int nZone = 0;
     for ( int iBase = 0; iBase < this->nBases; ++ iBase )
     {
         CgnsBase * cgnsBase = this->GetCgnsBase( iBase );
-        nZone += cgnsBase->GetNZone();
+        nZone += cgnsBase->GetNZones();
     }
     return nZone;
 }
@@ -57,7 +68,7 @@ int CgnsZbase::GetNZone()
 int CgnsZbase::GetSystemZoneType()
 {
     IntSet zoneTypeSet;
-    int nTZones = this->GetNZone();
+    int nTZones = this->GetNZones();
     for ( int iZone = 0; iZone < nTZones; ++ iZone )
     {
         CgnsZone * cgnsZone = this->GetCgnsZone( iZone );
@@ -74,9 +85,9 @@ int CgnsZbase::GetSystemZoneType()
 
 void CgnsZbase::ReadCgnsGrid( const string & fileName )
 {
-    this->cgnsFile->OpenCgnsFile( fileName, CG_MODE_READ );
+    this->OpenCgnsFile( fileName, CG_MODE_READ );
     this->ReadCgnsMultiBase();
-    this->cgnsFile->CloseCgnsFile();
+    this->CloseCgnsFile();
 }
 
 void CgnsZbase::DumpCgnsMultiBase()
@@ -130,7 +141,6 @@ void CgnsZbase::ReadCgnsMultiBase()
         cgnsBase->ReadNumberOfCgnsZones();
         cgnsBase->AllocateAllCgnsZones();
         cgnsBase->ReadAllCgnsZones();
-        //cgnsBase->ProcessCgnsZones();
     }
 }
 

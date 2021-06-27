@@ -118,6 +118,43 @@ void CgnsCoor::SetData( int iCoor, DataType_t data_type, Real * var )
     }
 }
 
+void CgnsCoor::SetCoorData( int iCoor, DataType_t data_type, Real * var )
+{
+    int nNode = this->nNodeList[ iCoor ];
+    if ( data_type == RealSingle )
+    {
+        float * data = static_cast< float * >( this->coor[ iCoor ] );
+        for ( int iNode = 0; iNode < nNode; ++ iNode )
+        {
+            data[ iNode ] = var[ iNode ];
+        }
+    }
+    else
+    {
+        double * data = static_cast< double * >( this->coor[ iCoor ] );
+        for ( int iNode = 0; iNode < nNode; ++ iNode )
+        {
+            data[ iNode ] = var[ iNode ];
+            var[ iNode ] = data[ iNode ];
+        }
+    }
+}
+
+void CgnsCoor::SetAllCoorData()
+{
+    HXVector< Real * > xyz( this->ndim );
+
+    xyz[ 0 ] = & nodeMesh->xN[ 0 ];
+    xyz[ 1 ] = & nodeMesh->yN[ 0 ];
+    xyz[ 2 ] = & nodeMesh->zN[ 0 ];
+
+    for ( int iCoor = 0; iCoor < this->ndim; ++ iCoor )
+    {
+        DataType_t data_type = this->typeList[ iCoor ];
+        this->SetCoorData( iCoor, data_type, xyz[ iCoor ] );
+    }
+}
+
 void CgnsCoor::CopyCoorData( CgnsCoor * cgnsCoorIn )
 {
     for ( int iCoor = 0; iCoor < this->nCoor; ++ iCoor )
@@ -183,7 +220,7 @@ void CgnsCoor::ReadCgnsGridCoordinates()
         CgnsTraits::char33 coorName;
         int coordId = iCoor + 1;
         cg_coord_info( fileId, baseId, zoneId, coordId, & dataType, coorName );
-        cout << "   coorName = " << coorName << " dataType = " << dataType << "\n";
+        cout << "   coorName = " << coorName << " dataType = " << dataType << " dataTypeName = " << DataTypeName[ dataType ] << "\n";
         this->typeList[ iCoor ] = dataType;
         this->nNodeList[ iCoor ] = nNode;
         this->coorNameList[ iCoor ] = coorName;

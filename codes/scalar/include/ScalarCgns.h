@@ -20,71 +20,39 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "WriteTask.h"
-#include "Parallel.h"
-#include "Zone.h"
-#include "ZoneState.h"
-#include "PIO.h"
-#include "ActionState.h"
-#include "DataBase.h"
-#include "DataBook.h"
-#include "InterFace.h"
-#include <iostream>
+
+#pragma once
+#include "HXDefine.h"
+#include <vector>
+#include <fstream>
 using namespace std;
 
 BeginNameSpace( ONEFLOW )
 
-CWriteFile::CWriteFile()
+class SectionMarker
 {
-}
+public:
+    SectionMarker();
+    ~SectionMarker();
+public:
+    int cgns_type;
+    string name;
+    int nElements;
+    LinkField elements;
+    IntField elementIds;
+};
 
-CWriteFile::~CWriteFile()
+class SectionManager
 {
-}
-
-void CWriteFile::Run()
-{
-	ActionState::dataBook = this->dataBook;
-	if ( Parallel::mode == 0 )
-	{
-		this->ServerWrite();
-	}
-}
-
-void CWriteFile::ServerWrite()
-{
-    fstream file;
-    ActionState::file = & file;
-
-    PIO::ParallelOpenPrj();
-
-    for ( int zId = 0; zId < ZoneState::nZones; ++ zId )
-    {
-        ZoneState::zid = zId;
-
-        this->ServerWrite( this->mainAction );
-    }
-
-    PIO::ParallelClose();
-}
-
-void CWriteFile::ServerWrite( VoidFunc mainAction )
-{
-    int sPid = ZoneState::pid[ ZoneState::zid ];
-    int rPid = Parallel::serverid;
-
-    if ( Parallel::pid == sPid )
-    {
-        this->action();
-    }
-
-    HXSwapData( ActionState::dataBook, sPid, rPid );
-
-    if ( Parallel::pid == rPid )
-    {
-        mainAction();
-    }
-}
-
-
+public:
+    SectionManager();
+    ~SectionManager();
+public:
+    int nType;
+    HXVector< SectionMarker * > data;
+public:
+    void Alloc( int nType );
+    int CalcTotalElem();
+    int GetNSections();
+};
 EndNameSpace

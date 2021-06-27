@@ -278,7 +278,7 @@ void CgnsFactory::CgnsToOneFlowGrid( Grid *& grid, int zId )
 
 void CgnsFactory::AllocateGridElem()
 {
-    this->nOriZone = this->cgnsZbase->GetNZone();
+    this->nOriZone = this->cgnsZbase->GetNZones();
 
     if ( grid_para.multiBlock == 0 )
     {

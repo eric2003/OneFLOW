@@ -32,12 +32,8 @@ BeginNameSpace( ONEFLOW )
 
 FaceSolver::FaceSolver()
 {
-    //this->nodeId = new LinkField();
-    //this->lCell = new IntField();
-    //this->rCell = new IntField();
     this->faceBcKey = new IntField();
     this->faceBcType = new IntField();
-    //this->faceType = new IntField();
     this->childFid = new LinkField();
 
     this->refFaces = new set< Mid<int> >();
@@ -46,12 +42,8 @@ FaceSolver::FaceSolver()
 
 FaceSolver::~FaceSolver()
 {
-    //delete this->nodeId;
-    //delete this->lCell;
-    //delete this->rCell;
     delete this->faceBcKey;
     delete this->faceBcType;
-    //delete this->faceType;
     delete this->childFid;
 
     delete this->refFaces;

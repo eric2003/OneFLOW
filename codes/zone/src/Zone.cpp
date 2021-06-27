@@ -21,6 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "Zone.h"
+#include "LogFile.h"
 #include "ZoneState.h"
 #include "InterFace.h"
 #include "ScalarZone.h"
@@ -118,6 +119,7 @@ void Zone::InitLayout( StringField & fileNameList )
         PIO::ParallelClose( file );
     }
     cout << " nTZones = " << nTZones << endl;
+    logFile << "  nTZones = " << nTZones << "\n";
 
     ZoneState::nZones = nTZones;
     ZoneState::pid.resize( ZoneState::nZones );

@@ -54,8 +54,8 @@ public:
     ElemFeature();
     ~ElemFeature();
 public:
-    IntField * eType;       //Unit type
-    CgLinkField  eNodeId;     //Unit index
+    IntField * eType;       //Element type
+    CgLinkField  eNodeId;   //Element index
 public:
     FaceSolver * face_solver;
     void ScanElements();

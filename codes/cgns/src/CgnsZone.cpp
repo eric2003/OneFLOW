@@ -264,6 +264,20 @@ void CgnsZone::DumpCgnsZoneNameAndGeneralizedDimension()
     cout << "   CGNS Zone Name = " << this->zoneName << "\n";
 }
 
+void CgnsZone::WriteZoneInfo( const string & zoneName, ZoneType_t zoneType, cgsize_t * isize )
+{
+    int fileId = cgnsBase->cgnsFile->fileId;
+    int baseId = cgnsBase->baseId;
+
+    this->Create();
+
+    this->zoneName = zoneName;
+    this->cgnsZoneType = zoneType;
+    this->CopyISize( isize );
+
+    cg_zone_write( fileId, baseId, zoneName.c_str(), isize, cgnsZoneType, &this->zId );
+}
+
 void CgnsZone::SetDimension()
 {
     this->cgnsCoor->SetDimension();

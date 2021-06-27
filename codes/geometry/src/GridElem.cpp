@@ -101,7 +101,7 @@ CgnsZone * GridElem::GetCgnsZone( int iZone )
     return this->cgnsZones[ iZone ];
 }
 
-int GridElem::GetNZone()
+int GridElem::GetNZones()
 {
     return this->cgnsZones.size();
 }
@@ -136,7 +136,7 @@ void GridElem::PrepareUnsCalcGrid()
 
 void GridElem::InitCgnsElements()
 {
-    int nZone = this->GetNZone();
+    int nZone = this->GetNZones();
     for ( int iZone = 0; iZone < nZone; ++ iZone )
     {
         CgnsZone * cgnsZone = this->GetCgnsZone( iZone );
@@ -147,7 +147,7 @@ void GridElem::InitCgnsElements()
 
 void GridElem::ScanBcFace()
 {
-    int nZone = this->GetNZone();
+    int nZone = this->GetNZones();
     for ( int iZone = 0; iZone < nZone; ++ iZone )
     {
         CgnsZone * cgnsZone = this->GetCgnsZone( iZone );

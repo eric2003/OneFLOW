@@ -20,71 +20,59 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "WriteTask.h"
-#include "Parallel.h"
-#include "Zone.h"
-#include "ZoneState.h"
-#include "PIO.h"
-#include "ActionState.h"
-#include "DataBase.h"
-#include "DataBook.h"
-#include "InterFace.h"
-#include <iostream>
-using namespace std;
+#include "ScalarCgns.h"
 
 BeginNameSpace( ONEFLOW )
 
-CWriteFile::CWriteFile()
+SectionMarker::SectionMarker()
 {
+    ;
 }
 
-CWriteFile::~CWriteFile()
+SectionMarker::~SectionMarker()
 {
+    ;
 }
 
-void CWriteFile::Run()
+SectionManager::SectionManager()
 {
-	ActionState::dataBook = this->dataBook;
-	if ( Parallel::mode == 0 )
-	{
-		this->ServerWrite();
-	}
+    ;
 }
 
-void CWriteFile::ServerWrite()
+SectionManager::~SectionManager()
 {
-    fstream file;
-    ActionState::file = & file;
-
-    PIO::ParallelOpenPrj();
-
-    for ( int zId = 0; zId < ZoneState::nZones; ++ zId )
+    int nType = this->data.size();
+    for ( int i = 0; i < nType; ++ i )
     {
-        ZoneState::zid = zId;
-
-        this->ServerWrite( this->mainAction );
-    }
-
-    PIO::ParallelClose();
-}
-
-void CWriteFile::ServerWrite( VoidFunc mainAction )
-{
-    int sPid = ZoneState::pid[ ZoneState::zid ];
-    int rPid = Parallel::serverid;
-
-    if ( Parallel::pid == sPid )
-    {
-        this->action();
-    }
-
-    HXSwapData( ActionState::dataBook, sPid, rPid );
-
-    if ( Parallel::pid == rPid )
-    {
-        mainAction();
+        delete this->data[ i ];
     }
 }
 
+int SectionManager::GetNSections()
+{
+    return this->data.size();
+}
+
+void SectionManager::Alloc( int nType )
+{
+    this->nType = nType;
+    this->data.resize( nType );
+    for ( int i = 0; i < nType; ++ i )
+    {
+        this->data[ i ] = new SectionMarker();
+    }
+}
+
+int SectionManager::CalcTotalElem()
+{
+    int nType = this->data.size();
+    int nElements = 0;
+    for ( int i = 0; i < nType; ++ i )
+    {
+        SectionMarker * sectionMarker = this->data[ i ];
+        nElements += sectionMarker->nElements;
+    }
+    return nElements;
+}
 
 EndNameSpace

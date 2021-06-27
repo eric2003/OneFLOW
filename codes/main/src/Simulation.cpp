@@ -86,17 +86,17 @@ void Simulation::Run()
 
 void Simulation::RunDefaultSimu()
 {
-    MpiTest * mpiTest = new MpiTest();
-    mpiTest->Run();
-    delete mpiTest;
+    //MpiTest * mpiTest = new MpiTest();
+    //mpiTest->Run();
+    //delete mpiTest;
 
     //JsonTest * jsonTest = new JsonTest();
     //jsonTest->Run();
     //delete jsonTest;
 
-    //CgnsTest * cgnsTest = new CgnsTest();
-    //cgnsTest->Run();
-    //delete cgnsTest;
+    CgnsTest * cgnsTest = new CgnsTest();
+    cgnsTest->Run();
+    delete cgnsTest;
 }
 
 

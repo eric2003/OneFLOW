@@ -82,7 +82,7 @@ CgnsZone * CgnsBase::GetCgnsZoneByName( const string & zoneName )
     return this->GetCgnsZone( iZone );
 }
 
-int CgnsBase::GetNZone()
+int CgnsBase::GetNZones()
 {
     return this->cgnsZones.size();
 }
@@ -141,6 +141,17 @@ void CgnsBase::ReadNumberOfCgnsZones()
 {
     //Read the number of zones in the grid.
     cg_nzones( this->cgnsFile->fileId, this->baseId, & this->nZones );
+}
+
+CgnsZone * CgnsBase::CreateCgnsZone()
+{
+    CgnsZone * cgnsZone = new CgnsZone( this );
+
+    this->AddCgnsZone( cgnsZone );
+
+    cgnsZone->Create();
+
+    return cgnsZone;
 }
 
 void CgnsBase::ConstructZoneNameMap()
@@ -232,11 +243,11 @@ CgnsZone * CgnsBase::WriteZoneInfo( const string & zoneName, ZoneType_t zoneType
     this->freeFlag = true;
 
     CgnsZone * cgnsZone = new CgnsZone( this );
-    cgnsZone->zoneName = zoneName;
-    cgnsZone->cgnsZoneType = zoneType;
-    cgnsZone->CopyISize( isize );
-    cgnsZone->zId = cgzone;
-    this->cgnsZones.push_back( cgnsZone );
+
+    this->AddCgnsZone( cgnsZone );
+
+    cgnsZone->WriteZoneInfo( zoneName, zoneType, isize );
+
     return cgnsZone;
 }
 

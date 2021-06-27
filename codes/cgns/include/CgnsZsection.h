@@ -35,10 +35,6 @@ BeginNameSpace( ONEFLOW )
 
 class CgnsZone;
 class CgnsSection;
-//class ElemFeature;
-
-//class CgnsZone;
-//class CgnsZbc;
 
 class CgnsZsection
 {

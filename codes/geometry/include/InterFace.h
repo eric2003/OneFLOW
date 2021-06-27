@@ -107,6 +107,8 @@ public:
     void InitInterfaceTopo();
     void InitInterfaceTopoImp();
     void InitInterfaceTopoTest();
+    void InitZoneNeighborsInfoTest();
+    void SwapNeighborZoneInfoTest();
 public:
     void InitZoneNeighborsInfo();
     void SwapNeighborsSendContent();

@@ -50,6 +50,8 @@ public:
     }
 };
 
+class DataBook;
+
 class FieldSolver
 {
 public:
@@ -73,6 +75,7 @@ public:
     void InitCtrlParameter();
     void InitGrid();
     void CreateOriginalGrid();
+    void CreateOriginalGridFromCgns();
     void ReadGrid( const string & gridFileName );
     void ReadGrid( const string & gridFileName, vector< ScalarGrid * > & grids );
     void ReadOneGrid();
@@ -110,7 +113,9 @@ public:
     void ZoneUpdate();
     void AddF2CField( ScalarGrid * grid, RealField & cField, RealField & fField );
     void Theory( ScalarGrid * grid, Real time, RealField & theory );
+    void GetVisualData( DataBook * dataBook );
     void AddVisualData( RealField & qList, RealField & theoryList, RealField & xcoorList );
+    void AddVisualData( DataBook * dataBook, RealField & qList, RealField & theoryList, RealField & xcoorList );
     void Reorder( RealField & a, RealField & b, RealField & c );
 public:
     Real ScalarFun( Real xm );
@@ -124,5 +129,7 @@ ScalarFieldRecord * PrepareRecvScalarFieldRecord();
 
 void PrepareGeomSendData();
 void PrepareGeomRecvData();
+
+void TestMPI();
 
 EndNameSpace

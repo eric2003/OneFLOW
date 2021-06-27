@@ -22,10 +22,14 @@ License
 
 #include "FieldSolver.h"
 #include "InterFace.h"
+#include "CgnsZbase.h"
+#include "DataBook.h"
 #include "Dimension.h"
 #include "FieldPara.h"
 #include "Zone.h"
+#include "PIO.h"
 #include "DataBase.h"
+#include "StrUtil.h"
 #include "ScalarDataIO.h"
 #include "ScalarGrid.h"
 #include "MetisGrid.h"
@@ -82,12 +86,18 @@ FieldSolver::~FieldSolver()
 
 void FieldSolver::Run()
 {
-    int flag = 2;
+    TestMPI();
+
+    int flag = 0;
     if ( flag == 0 )
     {
         this->CreateOriginalGrid();
     }
     else if ( flag == 1 )
+    {
+        this->CreateOriginalGridFromCgns();
+    }
+    else if ( flag == 2 )
     {
         //partition grid
         this->ReadOneGrid();
@@ -105,8 +115,8 @@ void FieldSolver::LoadGrid()
 {
     StringField gridFileList;
 
-    //string gridFileName = ONEFLOW::GetGridFileName();
-    string gridFileName = "scalar_metis.ofl";
+    //string gridFileName = "scalar_metis2.ofl";
+    string gridFileName = "scalar_metis40.ofl";
 
     gridFileList.push_back( gridFileName );
 
@@ -182,7 +192,8 @@ void FieldSolver::PartitionGrid()
     gridPartition.PartitionGrid( this->grid, npart, & this->grids );
 
     this->AddZoneGrid();
-    this->DumpGrid( "scalar_metis.ofl" );
+    string gridName = AddString( "scalar_metis", npart, ".ofl" );
+    this->DumpGrid( gridName );
 }
 
 void FieldSolver::DumpGrid( const string & gridFileName )
@@ -218,6 +229,18 @@ void FieldSolver::CreateOriginalGrid()
     Dim::dimension = ONEFLOW::ONE_D;
     this->InitCtrlParameter();
     this->grid->GenerateGrid( this->para->nx, 0, this->para->len );
+    this->grid->CalcTopology();
+    this->grid->CalcMetrics1D();
+    this->grids.push_back( this->grid );
+    this->tmpflag_delete_grids = false;
+    this->DumpGrid("scalar.ofl");
+}
+
+void FieldSolver::CreateOriginalGridFromCgns()
+{
+    Dim::dimension = ONEFLOW::ONE_D;
+    this->InitCtrlParameter();
+    this->grid->GenerateGridFromCgns();
     this->grid->CalcTopology();
     this->grid->CalcMetrics1D();
     this->grids.push_back( this->grid );
@@ -452,7 +475,7 @@ void FieldSolver::SwapInterfaceData( int iZone, int jZone, TaskFunction sendActi
     //Here, after the package is delivered to SF express, SF express will send the package (data) to the specified address (process)
 
     HXSwapData( ActionState::dataBook, sPid, rPid );
-
+   
     //If the current process is not on this process, 
     //then the only action that this process can take is to participate in receiving data as the receiver
     if ( Parallel::pid == rPid )
@@ -470,7 +493,6 @@ void FieldSolver::CommParallelInfo()
     this->UploadInterface();
     this->UpdateInterface( PrepareFieldSendData, PrepareFieldRecvData );
     this->DownloadInterface();
-
     this->UpdateInterface( PrepareGeomSendData, PrepareGeomRecvData );
 }
 
@@ -479,7 +501,6 @@ void FieldSolver::SolveFlowField()
     for ( int n = 0; n < para->nt; ++ n )
     {
         cout << " iStep = " << n << " nStep = " << para->nt << "\n";
-
         this->SolveOneStep();
     }
 }
@@ -500,7 +521,9 @@ void FieldSolver::Boundary()
 {
     for ( int iZone = 0; iZone < ZoneState::nZones; ++ iZone )
     {
+        if ( ! ZoneState::IsValidZone( iZone ) ) continue;
         ZoneState::zid = iZone;
+
         this->ZoneBoundary();
     }
 }
@@ -535,6 +558,7 @@ void FieldSolver::GetQLQR()
 {
     for ( int iZone = 0; iZone < ZoneState::nZones; ++ iZone )
     {
+        if ( ! ZoneState::IsValidZone( iZone ) ) continue;
         ZoneState::zid = iZone;
         this->ZoneGetQLQR();
     }
@@ -563,6 +587,7 @@ void FieldSolver::CalcInvFlux()
 {
     for ( int iZone = 0; iZone < ZoneState::nZones; ++ iZone )
     {
+        if ( ! ZoneState::IsValidZone( iZone ) ) continue;
         ZoneState::zid = iZone;
         this->ZoneCalcInvFlux();
     }
@@ -611,6 +636,7 @@ void FieldSolver::UpdateResidual()
 {
     for ( int iZone = 0; iZone < ZoneState::nZones; ++ iZone )
     {
+        if ( ! ZoneState::IsValidZone( iZone ) ) continue;
         ZoneState::zid = iZone;
         this->ZoneUpdateResidual();
     }
@@ -652,6 +678,7 @@ void FieldSolver::TimeIntergral()
 {
     for ( int iZone = 0; iZone < ZoneState::nZones; ++ iZone )
     {
+        if ( ! ZoneState::IsValidZone( iZone ) ) continue;
         ZoneState::zid = iZone;
         this->ZoneTimeIntergral();
     }
@@ -675,6 +702,7 @@ void FieldSolver::Update()
 {
     for ( int iZone = 0; iZone < ZoneState::nZones; ++ iZone )
     {
+        if ( ! ZoneState::IsValidZone( iZone ) ) continue;
         ZoneState::zid = iZone;
         this->ZoneUpdate();
     }
@@ -696,21 +724,55 @@ void FieldSolver::ZoneUpdate()
 
 void FieldSolver::Visualize()
 {
+    DataBook * dataBook = new DataBook();
+    ActionState::dataBook = dataBook;
+    fstream file;
+    ActionState::file = & file;
+
     RealField q;
     RealField theory;
     RealField xcoor;
-    for ( int iZone = 0; iZone < ZoneState::nZones; ++ iZone )
+
+    for ( int zId = 0; zId < ZoneState::nZones; ++ zId )
     {
-        ZoneState::zid = iZone;
-        this->AddVisualData( q, theory, xcoor );
+        ZoneState::zid = zId;
+        int sPid = ZoneState::pid[ ZoneState::zid ];
+        int rPid = Parallel::serverid;
+
+        if ( Parallel::pid == sPid )
+        {
+            this->GetVisualData( dataBook );
+        }
+
+        HXSwapData( ActionState::dataBook, sPid, rPid );
+        if ( Parallel::pid == rPid )
+        {
+            this->AddVisualData( ActionState::dataBook, q, theory, xcoor );
+        }
     }
 
-    this->Reorder( xcoor, q, theory );
+    if ( Parallel::pid == Parallel::serverid )
+    {
+        this->Reorder( xcoor, q, theory );
+        this->ToTecplot( xcoor, q, "OneFLOW.plt" );
+        this->ToTecplot( xcoor, theory, "theory.plt" );
+    }
 
-    this->ToTecplot( xcoor, q, "OneFLOW.plt" );
-    this->ToTecplot( xcoor, theory, "theory.plt" );
+    delete dataBook;
 }
 
+
+void TestMPI()
+{
+    //DataBook * dataBook = new DataBook();
+    //if ( Parallel::pid == 0 )
+    //{
+    //    int i = 2;
+    //    HXWrite( dataBook, i );
+    //}
+    //HXSwapDataDebug( dataBook, 0, 1 );
+    //delete dataBook;
+}
 
 void FieldSolver::Reorder( RealField & a, RealField & b, RealField & c )
 {
@@ -733,6 +795,60 @@ void FieldSolver::Reorder( RealField & a, RealField & b, RealField & c )
         a[ iElem ] = xlist[ iElem ].data[ 0 ];
         b[ iElem ] = xlist[ iElem ].data[ 1 ];
         c[ iElem ] = xlist[ iElem ].data[ 2 ];
+    }
+}
+
+void FieldSolver::GetVisualData( DataBook * dataBook )
+{
+    ScalarGrid * grid = ScalarZone::GetGrid();
+
+    RealField & q = GetFieldReference< MRField > ( grid, "q" ).AsOneD();
+
+    int nCells = grid->GetNCells();
+
+    Real time = para->dt * para->nt;
+    Real xs = para->c * time;
+
+    RealField theory;
+    Theory( grid, time, theory );
+
+    RealField xcoor;
+
+    RealField qvisual;
+
+    for ( int iCell = 0; iCell < nCells; ++ iCell )
+    {
+        Real xm = grid->xcc[ iCell ];
+        xcoor.push_back( xm );
+        qvisual.push_back( q[ iCell ] );
+    }
+    dataBook->MoveToBegin();
+
+    ONEFLOW::HXWrite( dataBook, nCells );
+    ONEFLOW::HXWrite( dataBook, qvisual );
+    ONEFLOW::HXWrite( dataBook, theory );
+    ONEFLOW::HXWrite( dataBook, xcoor );
+}
+
+void FieldSolver::AddVisualData( DataBook * dataBook, RealField & qList, RealField & theoryList, RealField & xcoorList )
+{
+    dataBook->MoveToBegin();
+
+    int nCells = -1;
+    ONEFLOW::HXRead( dataBook, nCells );
+    RealField q, theory, xcoor;
+    q.resize( nCells );
+    theory.resize( nCells );
+    xcoor.resize( nCells );
+    ONEFLOW::HXRead( dataBook, q    );
+    ONEFLOW::HXRead( dataBook, theory );
+    ONEFLOW::HXRead( dataBook, xcoor  );
+
+    for ( int iCell = 0; iCell < nCells; ++ iCell )
+    {
+        qList.push_back( q[ iCell ] );
+        theoryList.push_back( theory[ iCell ] );
+        xcoorList.push_back( xcoor[ iCell ] );
     }
 }
 
@@ -797,9 +913,6 @@ void FieldSolver::ToTecplot( RealField & xList, RealField & varlist, string cons
 void PrepareFieldSendData()
 {
     ScalarFieldRecord * fieldRecord = PrepareSendScalarFieldRecord();
-
-    //By design, the current zone is the jth neighbor of zone I.
-    //How many neighbors of the current zone do you need to find out? This value is neiid.
 
     ScalarGrid * grid = ScalarZone::GetGrid();
     ScalarIFace * scalarIFace = grid->scalarIFace;
@@ -884,9 +997,6 @@ ScalarFieldRecord *  PrepareRecvScalarFieldRecord()
 
 void PrepareGeomSendData()
 {
-    //By design, the current zone is the jth neighbor of zone I.
-    //How many neighbors of the current zone do you need to find out? This value is neiid.
-
     ScalarGrid * grid = ScalarZone::GetGrid();
     ScalarIFace * scalarIFace = grid->scalarIFace;
 

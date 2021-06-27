@@ -22,9 +22,9 @@ License
 
 
 #pragma once
-#include "Configure.h"
 #include "HXType.h"
 #include "HXDefine.h"
+#include "HXCgns.h"
 #include "metis.h"
 #include <vector>
 #include <fstream>
@@ -121,9 +121,16 @@ public:
     ScalarBcco();
     ~ScalarBcco();
 public:
+    string bcName;
     int bcType;
+
+    EList elements;
+    IntList eTypes;
+
     vector< int > vertexList;
+    IntList local_globalIds;
 public:
+    void PushBoundaryFace( int pt, int eType );
     void AddBcPoint( int bcVertex );
     void ScanBcFace( ScalarGrid * grid );
     void ProcessVertexBc( IntSet & bcVertex );
@@ -144,6 +151,9 @@ public:
 class DataBase;
 class DataBook;
 class ScalarIFace;
+class CgnsZbase;
+class CgnsZone;
+class SectionManager;
 
 class ScalarGrid
 {
@@ -170,6 +180,10 @@ public:
 
     EList faces;
     EList elements;
+    //
+    EList boundaryElements;
+    IntList bcETypes;
+    //
     IntList fTypes;
     IntList eTypes;
     IntList fBcTypes;
@@ -193,6 +207,7 @@ public:
     void GenerateGrid( int ni, Real xmin, Real xmax );
     void CalcTopology();
     void PushElement( int p1, int p2, int eType );
+    void PushBoundaryFace( int pt, int eType );
     void ReorderFaces();
     void CalcOrderMap( IntList &orderMap );
     void SetBcGhostCell();
@@ -202,6 +217,16 @@ public:
     bool CheckBcFace( IntSet & bcVertex, vector< int > & nodeId );
     void AllocateBc();
     void SetBcTypes();
+public:
+    void ReadFromCgnsZbase( CgnsZbase * cgnsZbase );
+    void ReadFromCgnsZone( CgnsZone * cgnsZone );
+    void PushElement( CgIntField & eNodeId, int eType );
+    void GenerateGridFromCgns();
+    void DumpCgnsGrid();
+    void SetCgnsZone( CgnsZone * cgnsZone );
+public:
+    void CalcVolumeSection( SectionManager * volumeSectionManager );
+    void CalcBoundarySection( SectionManager * bcSectionManager );
 public:
     void CalcMetrics1D();
     void CalcFaceCenter1D();

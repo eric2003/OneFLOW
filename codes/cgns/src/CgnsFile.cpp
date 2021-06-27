@@ -62,8 +62,6 @@ CgnsFile::CgnsFile()
 
 CgnsFile::CgnsFile( const string & fileName, int openMode )
 {
-    //this->fileName = fileName;
-    //this->openMode = openMode;
     this->OpenCgnsFile( fileName, openMode );
 }
 
@@ -157,6 +155,18 @@ void CgnsFile::ReadNumberOfBases()
 {
     cg_nbases( this->fileId, & this->nBases );
     cout << " Total number of CGNS Base = " << this->nBases << "\n";
+}
+
+CgnsBase * CgnsFile::CreateCgnsBase()
+{
+    int iBase = baseList.size();
+    int baseId = iBase + 1;
+
+    CgnsBase * cgnsBase = new CgnsBase( this );
+    this->baseList.push_back( cgnsBase );
+    cgnsBase->baseId = baseId;
+
+    return cgnsBase;
 }
 
 void CgnsFile::ReadBases()

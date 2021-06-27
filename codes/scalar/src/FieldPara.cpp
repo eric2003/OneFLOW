@@ -43,8 +43,8 @@ void FieldPara::Init()
     this->nx = 41;
     this->len = 2.0;
     this->dx = len / ( nx - 1.0 );
+    //this->nt = 25;
     this->nt = 25;
-    //this->nt = 5;
     this->dt = 0.025;
     this->c  = 1;
 }

@@ -165,7 +165,6 @@ void CgnsZbcBoco::ReadCgnsZbcBoco()
     }
 }
 
-
 void CgnsZbcBoco::DumpCgnsZbcBoco()
 {
     this->PrintZnboco();
@@ -177,6 +176,20 @@ void CgnsZbcBoco::DumpCgnsZbcBoco()
         CgnsBcBoco * cgnsBcBoco = this->GetCgnsBc( iBoco );
         cgnsBcBoco->DumpCgnsBcBoco();
     }
+}
+
+CgnsBcBoco * CgnsZbcBoco::WriteCgnsBoco( const string & bocoName, BCType_t bocotype,  PointSetType_t ptset_type, cgsize_t npnts, const cgsize_t * pnts )
+{
+    int fileId = cgnsZone->cgnsBase->cgnsFile->fileId;
+    int baseId = cgnsZone->cgnsBase->baseId;
+    int zId = cgnsZone->zId;
+
+    CgnsBcBoco * cgnsBcBoco = new CgnsBcBoco( this->cgnsZone );
+    this->AddCgnsBcBoco( cgnsBcBoco );
+
+    cgnsBcBoco->WriteCgnsBoco( bocoName, bocotype, ptset_type, npnts, pnts );
+
+    return cgnsBcBoco;
 }
 
 int CgnsZbcBoco::GetNumberOfActualBcElements()

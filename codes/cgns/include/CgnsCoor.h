@@ -62,6 +62,8 @@ public:
     void Alloc( int iCoor, int nNode, DataType_t data_type );
 public:
     void SetData( int iCoor, DataType_t data_type, Real * var );
+    void SetCoorData( int iCoor, DataType_t data_type, Real * var );
+    void SetAllCoorData();
     void CopyCoorData( CgnsCoor * cgnsCoorIn );
     void DeAlloc();
 public:

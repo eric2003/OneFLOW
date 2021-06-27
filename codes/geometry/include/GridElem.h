@@ -51,7 +51,7 @@ public:
     Real minLen, maxLen;
 public:
     CgnsZone * GetCgnsZone( int iZone );
-    int GetNZone();
+    int GetNZones();
 public:
     void CreateGrid( HXVector< CgnsZone * > cgnsZones, int iZone );
     void PrepareUnsCalcGrid();
