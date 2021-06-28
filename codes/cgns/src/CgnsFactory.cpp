@@ -30,6 +30,7 @@ License
 #include "Prj.h"
 #include "Stop.h"
 #include "StrUtil.h"
+#include "Su2Grid.h"
 #include "GridState.h"
 #include "GridMediator.h"
 #include "DataBase.h"
@@ -300,6 +301,32 @@ CgnsZone * CgnsFactory::CreateOneUnsCgnsZone( int cgnsZoneId )
     return cgnsZone;
 }
 
+void CgnsFactory::CreateOneSu2Grid( Su2Grid* su2Grid, int iZone, Grid *& grid )
+{
+    int cgnsZoneId = iZone + 1;
+    CgnsZone * cgnsZone = this->CreateOneUnsCgnsZone( cgnsZoneId );
+
+    FillSU2CgnsZone( su2Grid, cgnsZone );
+
+    this->CgnsToOneFlowGrid( grid, iZone );
+}
+
+void CgnsFactory::CreateSu2Grid( Su2Grid* su2Grid )
+{
+    int nZones = su2Grid->nZone;
+    Grids grids( nZones );
+
+    for ( int iZone = 0; iZone < nZones; ++ iZone )
+    {
+        CgnsFactory * cgnsFactory = new CgnsFactory();
+        
+        cgnsFactory->CreateOneSu2Grid(su2Grid, iZone, grids[ iZone ] );
+        
+        delete cgnsFactory;
+    }
+
+    ONEFLOW::GenerateMultiZoneCalcGrids( grids );
+}
 
 #endif
 EndNameSpace

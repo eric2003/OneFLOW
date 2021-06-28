@@ -179,5 +179,6 @@ class Grid;
 class CgnsFactory;
 class CgnsZone;
 void FillSU2CgnsZone( Su2Grid* su2Grid, CgnsZone * cgnsZone );
+void CreateSu2Grid( Su2Grid* su2Grid );
 
 EndNameSpace

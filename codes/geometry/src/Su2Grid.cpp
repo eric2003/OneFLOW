@@ -488,7 +488,7 @@ void Su2Grid::MarkBoundary( string & su2cfgFile)
         int kkk = 1;
     }
 
-    su2Bc.Process(markerBCNameList, markerNameList);
+    su2Bc.Process( markerBCNameList, markerNameList );
 
     ioFile.CloseFile();
 }
@@ -500,22 +500,7 @@ void Su2Grid::Su2ToOneFlowGrid()
     this->MarkBoundary(su2cfgFile);
     this->ReadSu2GridAscii( gridFile );
 
-    Grids grids( nZone );
-
-    for ( int iZone = 0; iZone < nZone; ++ iZone )
-    {
-        CgnsFactory * cgnsFactory = new CgnsFactory();
-        int cgnsZoneId = iZone + 1;
-        CgnsZone * cgnsZone = cgnsFactory->CreateOneUnsCgnsZone( cgnsZoneId );
-
-        FillSU2CgnsZone( this, cgnsZone );
-
-        cgnsFactory->CgnsToOneFlowGrid( grids[ iZone ], iZone );
-
-        delete cgnsFactory;
-    }
-
-    ONEFLOW::GenerateMultiZoneCalcGrids( grids );
+    ONEFLOW::CreateSu2Grid( this );
 }
 
 void FillSU2CgnsZone( Su2Grid* su2Grid, CgnsZone * cgnsZone )
@@ -620,6 +605,15 @@ void FillSU2CgnsZone( Su2Grid* su2Grid, CgnsZone * cgnsZone )
 
     cgnsZone->ConvertToInnerDataStandard();
     int kkk = 1;
+}
+
+void CreateSu2Grid( Su2Grid* su2Grid )
+{
+    CgnsFactory * cgnsFactory = new CgnsFactory();
+
+    cgnsFactory->CreateSu2Grid( su2Grid );
+
+    delete cgnsFactory;
 }
 
 EndNameSpace

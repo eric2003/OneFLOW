@@ -36,6 +36,7 @@ BeginNameSpace( ONEFLOW )
 class StrGrid;
 class NodeMesh;
 class Grid;
+class Su2Grid;
 class CgnsZbase;
 class CgnsZone;
 class GridElem;
@@ -71,6 +72,8 @@ public:
     void PrepareCgnsZone( ZgridMediator * zgridMediator );
     void CreateDefaultZone( int nZone );
     CgnsZone * CreateOneUnsCgnsZone( int cgnsZoneId );
+    void CreateOneSu2Grid( Su2Grid* su2Grid, int iZone, Grid *& grid );
+    void CreateSu2Grid( Su2Grid* su2Grid );
 public:
     void CgnsToOneFlowGrid();
     void CgnsToOneFlowGrid( Grid *& grid, int zId );
