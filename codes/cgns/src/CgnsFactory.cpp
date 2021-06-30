@@ -158,14 +158,7 @@ void CgnsFactory::CgnsToOneFlowGrid()
     this->GenerateCalcGrid();
 
     Grids grids;
-
-    for ( int iZone = 0; iZone < this->nZone; ++ iZone )
-    {
-        GridElem * gridElem = zgridElem->GetGridElem( iZone );
-        Grid * grid = gridElem->grid;
-        grids.push_back( grid );
-    }
-
+    zgridElem->GetGrids( grids );
 
     //The grid is processed and the grid file used for calculation is output
     ONEFLOW::GenerateMultiZoneCalcGrids( grids );

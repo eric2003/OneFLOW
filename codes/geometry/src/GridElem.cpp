@@ -388,5 +388,16 @@ void ZgridElem::GenerateCalcGrid()
     }
 }
 
+void ZgridElem::GetGrids( Grids & grids )
+{
+    int nZones = this->data.size();
+    for ( int iZone = 0; iZone < nZones; ++ iZone )
+    {
+        GridElem * gridElem = this->GetGridElem( iZone );
+        Grid * grid = gridElem->grid;
+        grids.push_back( grid );
+    }
+}
+
 
 EndNameSpace

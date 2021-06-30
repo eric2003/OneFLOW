@@ -23,6 +23,7 @@ License
 
 #pragma once
 #include "HXDefine.h"
+#include "GridDef.h"
 
 BeginNameSpace( ONEFLOW )
 
@@ -78,6 +79,7 @@ public:
 public:
     void PrepareUnsCalcGrid();
     void GenerateCalcGrid();
+    void GetGrids( Grids & grids );
 };
 
 EndNameSpace
