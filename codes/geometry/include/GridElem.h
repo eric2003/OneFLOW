@@ -29,6 +29,7 @@ BeginNameSpace( ONEFLOW )
 
 class PointFactory;
 class CgnsZone;
+class CgnsZbase;
 class ElemFeature;
 class FaceSolver;
 class Grid;
@@ -77,6 +78,7 @@ public:
     void AddGridElem( GridElem * gridElem );
     void AddGridElem( HXVector< CgnsZone * > cgnsZones, int iZone );
 public:
+    void AllocateGridElem( CgnsZbase * cgnsZbase );
     void PrepareUnsCalcGrid();
     void GenerateCalcGrid();
     void GetGrids( Grids & grids );

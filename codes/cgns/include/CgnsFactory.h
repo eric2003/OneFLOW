@@ -54,8 +54,6 @@ public:
 public:
     CgnsZbase * cgnsZbase;
     ZgridElem * zgridElem;
-    int nZone;
-    int nOriZone;
 public:
     void GenerateGrid();
     void ReadCgnsGrid();

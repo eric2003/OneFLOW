@@ -22,6 +22,8 @@ License
 
 #include "GridElem.h"
 #include "CgnsZone.h"
+#include "CgnsZbase.h"
+#include "GridPara.h"
 #include "HXCgns.h"
 #include "UnsGrid.h"
 #include "HXMath.h"
@@ -366,6 +368,41 @@ void ZgridElem::AddGridElem( HXVector< CgnsZone * > cgnsZones, int iZone )
 GridElem * ZgridElem::GetGridElem( int iGridElem )
 {
     return this->data[ iGridElem ];
+}
+
+void ZgridElem::AllocateGridElem( CgnsZbase * cgnsZbase )
+{
+    if ( grid_para.multiBlock == 0 )
+    {
+        HXVector< CgnsZone * > cgnsZones;
+
+        int nOriZone = cgnsZbase->GetNZones();
+
+        for ( int iZone = 0; iZone < nOriZone; ++ iZone )
+        {
+            cgnsZones.push_back( cgnsZbase->GetCgnsZone( iZone ) );
+        }
+
+        int nZones = 1;
+
+        for ( int iZone = 0; iZone < nZones; ++ iZone )
+        {
+            this->AddGridElem( cgnsZones, iZone );
+        }
+
+    }
+    else
+    {
+        int nZones = cgnsZbase->GetNZones();
+
+        for ( int iZone = 0; iZone < nZones; ++ iZone )
+        {
+            HXVector< CgnsZone * > cgnsZones;
+            cgnsZones.push_back( cgnsZbase->GetCgnsZone( iZone ) );
+
+            this->AddGridElem( cgnsZones, iZone );
+        }
+    }
 }
 
 void ZgridElem::PrepareUnsCalcGrid()

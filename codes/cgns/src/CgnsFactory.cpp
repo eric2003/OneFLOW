@@ -63,7 +63,7 @@ CgnsFactory::CgnsFactory()
 {
     this->cgnsZbase = new CgnsZbase();
     this->zgridElem = new ZgridElem();
-    this->nZone = 0;
+    //this->nZone = 0;
 }
 
 CgnsFactory::~CgnsFactory()
@@ -142,9 +142,9 @@ void CgnsFactory::CommonToStrGrid()
 void CgnsFactory::DumpUnsCgnsGrid()
 {
     string targetFile = ONEFLOW::GetPrjFileName( grid_para.targetFile );
-    cgnsZbase->cgnsFile->OpenCgnsFile( targetFile, CG_MODE_WRITE );
+    cgnsZbase->OpenCgnsFile( targetFile, CG_MODE_WRITE );
     cgnsZbase->DumpCgnsMultiBase();
-    cgnsZbase->cgnsFile->CloseCgnsFile();
+    cgnsZbase->CloseCgnsFile();
 }
 
 void CgnsFactory::CgnsToOneFlowGrid()
@@ -206,37 +206,7 @@ void CgnsFactory::CgnsToOneFlowGrid( Grid *& grid, int zId )
 
 void CgnsFactory::AllocateGridElem()
 {
-    this->nOriZone = this->cgnsZbase->GetNZones();
-
-    if ( grid_para.multiBlock == 0 )
-    {
-        HXVector< CgnsZone * > cgnsZones;
-
-        for ( int iZone = 0; iZone < this->nOriZone; ++ iZone )
-        {
-            cgnsZones.push_back( cgnsZbase->GetCgnsZone( iZone ) );
-        }
-
-        this->nZone = 1;
-
-        for ( int iZone = 0; iZone < this->nZone; ++ iZone )
-        {
-            zgridElem->AddGridElem( cgnsZones, iZone );
-        }
-
-    }
-    else
-    {
-        this->nZone = this->nOriZone;
-
-        for ( int iZone = 0; iZone < this->nZone; ++ iZone )
-        {
-            HXVector< CgnsZone * > cgnsZones;
-            cgnsZones.push_back( cgnsZbase->GetCgnsZone( iZone ) );
-
-            zgridElem->AddGridElem( cgnsZones, iZone );
-        }
-    }
+    zgridElem->AllocateGridElem( this->cgnsZbase );
 }
 
 void CgnsFactory::PrepareUnsCalcGrid()
