@@ -378,4 +378,15 @@ void ZgridElem::PrepareUnsCalcGrid()
     }
 }
 
+void ZgridElem::GenerateCalcGrid()
+{
+    int nZones = this->data.size();
+    for ( int iZone = 0; iZone < nZones; ++ iZone )
+    {
+        GridElem * gridElem = this->GetGridElem( iZone );
+        gridElem->GenerateCalcGrid();
+    }
+}
+
+
 EndNameSpace

@@ -253,31 +253,7 @@ void CgnsFactory::PrepareUnsCalcGrid()
 
 void CgnsFactory::GenerateCalcGrid()
 {
-    if ( ONEFLOW::IsStrGrid( grid_para.topo ) )
-    {
-        this->GenerateStrCalcGrid();
-    }
-    else if ( ONEFLOW::IsUnsGrid( grid_para.topo ) )
-    {
-        this->GenerateUnsCalcGrid();
-    }
-    else
-    {
-        //Hybrid grid
-    }
-}
-
-void CgnsFactory::GenerateStrCalcGrid()
-{
-}
-
-void CgnsFactory::GenerateUnsCalcGrid()
-{
-    for ( int iZone = 0; iZone < this->nZone; ++ iZone )
-    {
-        GridElem * gridElem = zgridElem->GetGridElem( iZone );
-        gridElem->GenerateCalcGrid();
-    }
+    this->zgridElem->GenerateCalcGrid();
 }
 
 void CgnsFactory::CreateDefaultZone( int nZone )

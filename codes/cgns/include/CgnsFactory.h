@@ -83,9 +83,6 @@ public:
 
     //Convert to the mesh used in ONEFLOW calculation
     void GenerateCalcGrid();
-protected:
-    void GenerateStrCalcGrid();
-    void GenerateUnsCalcGrid();
 };
 
 #endif
