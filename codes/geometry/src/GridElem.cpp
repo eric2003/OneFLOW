@@ -341,9 +341,9 @@ void GridElem::ReorderLink( UnsGrid * grid )
     faceTopo->rCell = faceTopo->rCellNew;
 }
 
-ZgridElem::ZgridElem()
+ZgridElem::ZgridElem( CgnsZbase * cgnsZbase )
 {
-    ;
+    this->cgnsZbase = cgnsZbase;
 }
 
 ZgridElem::~ZgridElem()
@@ -370,7 +370,7 @@ GridElem * ZgridElem::GetGridElem( int iGridElem )
     return this->data[ iGridElem ];
 }
 
-void ZgridElem::AllocateGridElem( CgnsZbase * cgnsZbase )
+void ZgridElem::AllocateGridElem()
 {
     if ( grid_para.multiBlock == 0 )
     {
@@ -434,6 +434,17 @@ void ZgridElem::GetGrids( Grids & grids )
         Grid * grid = gridElem->grid;
         grids.push_back( grid );
     }
+}
+
+void ZgridElem::GenerateLocalOneFlowGrid( Grids & grids )
+{
+    this->AllocateGridElem();
+
+    this->PrepareUnsCalcGrid();
+
+    this->GenerateCalcGrid();
+
+    this->GetGrids( grids );
 }
 
 

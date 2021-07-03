@@ -500,13 +500,13 @@ void Su2Grid::Su2ToOneFlowGrid()
     this->MarkBoundary(su2cfgFile);
     this->ReadSu2GridAscii( gridFile );
 
-    ONEFLOW::CreateSu2Grid( this );
+    ONEFLOW::Su2ToOneFlowGrid( this );
 }
 
-void FillSU2CgnsZone( Su2Grid* su2Grid, CgnsZone * cgnsZone )
+void Su2Grid::FillSU2CgnsZone( CgnsZone * cgnsZone )
 {
-    int nNode = su2Grid->xN.size();
-    int nCell = su2Grid->nElem;
+    int nNode = this->xN.size();
+    int nCell = this->nElem;
 
     cgnsZone->cgnsCoor->SetNNode( nNode );
     cgnsZone->cgnsCoor->SetNCell( nCell );
@@ -514,15 +514,15 @@ void FillSU2CgnsZone( Su2Grid* su2Grid, CgnsZone * cgnsZone )
     NodeMesh * nodeMesh = cgnsZone->cgnsCoor->GetNodeMesh();
 
     nodeMesh->CreateNodes( nNode );
-    nodeMesh->xN = su2Grid->xN;
-    nodeMesh->yN = su2Grid->yN;
-    nodeMesh->zN = su2Grid->zN;
+    nodeMesh->xN = this->xN;
+    nodeMesh->yN = this->yN;
+    nodeMesh->zN = this->zN;
     
     SecMarkerManager volSec;
 
-    su2Grid->volSec.CalcVolSec( su2Grid, & volSec );
+    this->volSec.CalcVolSec( this, & volSec );
     SecMarkerManager bcSec;
-    su2Grid->mmark.CalcSecMarker( &bcSec );
+    this->mmark.CalcSecMarker( &bcSec );
 
     int nVolSec = volSec.nType;
     int nBcSec = bcSec.nType;
@@ -577,12 +577,12 @@ void FillSU2CgnsZone( Su2Grid* su2Grid, CgnsZone * cgnsZone )
     }
 
     CgnsZbc * cgnsZbc = cgnsZone->cgnsZbc;
-    cgnsZbc->cgnsZbcBoco->ReadZnboco( su2Grid->mmark.nMarker );
+    cgnsZbc->cgnsZbcBoco->ReadZnboco( this->mmark.nMarker );
     cgnsZbc->cgnsZbcBoco->CreateCgnsZbc();
 
-    for ( int iMarker = 0; iMarker < su2Grid->mmark.nMarker; ++ iMarker )
+    for ( int iMarker = 0; iMarker < this->mmark.nMarker; ++ iMarker )
     {
-        Marker * marker = su2Grid->mmark.markerList[ iMarker ];
+        Marker * marker = this->mmark.markerList[ iMarker ];
         string & name = marker->name;
         string& bcName = marker->bcName;
 
@@ -596,22 +596,24 @@ void FillSU2CgnsZone( Su2Grid* su2Grid, CgnsZone * cgnsZone )
 
         for ( int iElem = 0; iElem < marker->nElem; ++ iElem )
         {
-            int elemId = su2Grid->mmark.l2g[ iMarker ][ iElem ];
+            int elemId = this->mmark.l2g[ iMarker ][ iElem ];
             cgnsBcBoco->connList[ iElem ] = elemId + 1 + nVolCell;
         }
         
         //string bcName = GetCgnsBcName( cgnsBcBoco->bcType );
     }
 
+    cgnsZone->cgnsZoneType = Unstructured;
+
     cgnsZone->ConvertToInnerDataStandard();
     int kkk = 1;
 }
 
-void CreateSu2Grid( Su2Grid* su2Grid )
+void Su2ToOneFlowGrid( Su2Grid* su2Grid )
 {
     CgnsFactory * cgnsFactory = new CgnsFactory();
 
-    cgnsFactory->CreateSu2Grid( su2Grid );
+    cgnsFactory->Su2ToOneFlowGrid( su2Grid );
 
     delete cgnsFactory;
 }

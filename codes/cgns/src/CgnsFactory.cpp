@@ -62,7 +62,7 @@ BeginNameSpace( ONEFLOW )
 CgnsFactory::CgnsFactory()
 {
     this->cgnsZbase = new CgnsZbase();
-    this->zgridElem = new ZgridElem();
+    this->zgridElem = new ZgridElem( this->cgnsZbase );
     //this->nZone = 0;
 }
 
@@ -147,23 +147,6 @@ void CgnsFactory::DumpUnsCgnsGrid()
     cgnsZbase->CloseCgnsFile();
 }
 
-void CgnsFactory::CgnsToOneFlowGrid()
-{
-    if ( ! ONEFLOW::IsUnsGrid( grid_para.topo ) ) return;
-
-    this->AllocateGridElem();
-
-    this->PrepareUnsCalcGrid();
-
-    this->GenerateCalcGrid();
-
-    Grids grids;
-    zgridElem->GetGrids( grids );
-
-    //The grid is processed and the grid file used for calculation is output
-    ONEFLOW::GenerateMultiZoneCalcGrids( grids );
-}
-
 void CgnsFactory::CreateCgnsZone( ZgridMediator * zgridMediator )
 {
     ONEFLOW::CreateDefaultCgnsZones( cgnsZbase, zgridMediator );
@@ -191,81 +174,61 @@ void CgnsFactory::CommonToUnsGridTEST()
     this->CgnsToOneFlowGrid();
 }
 
-void CgnsFactory::CgnsToOneFlowGrid( Grid *& grid, int zId )
+CgnsZone * CgnsFactory::CreateSu2CgnsZone( Su2Grid* su2Grid )
 {
-    this->AllocateGridElem();
+    CgnsZone * cgnsZone = this->cgnsZbase->CreateCgnsZone();
 
-    this->PrepareUnsCalcGrid();
+    su2Grid->FillSU2CgnsZone( cgnsZone );
 
-    this->GenerateCalcGrid();
-
-    GridElem * gridElem = zgridElem->GetGridElem( 0 );
-    grid = gridElem->grid;
-    grid->id = zId;
-}
-
-void CgnsFactory::AllocateGridElem()
-{
-    zgridElem->AllocateGridElem( this->cgnsZbase );
-}
-
-void CgnsFactory::PrepareUnsCalcGrid()
-{
-    this->zgridElem->PrepareUnsCalcGrid();
-}
-
-void CgnsFactory::GenerateCalcGrid()
-{
-    this->zgridElem->GenerateCalcGrid();
-}
-
-void CgnsFactory::CreateDefaultZone( int nZone )
-{
-    ZgridMediator * zgridMediator = new ZgridMediator();
-    zgridMediator->CreateSimple( nZone );
-    ONEFLOW::CreateDefaultCgnsZones( cgnsZbase, zgridMediator );
-    delete zgridMediator;
-
-}
-
-CgnsZone * CgnsFactory::CreateOneUnsCgnsZone( int cgnsZoneId )
-{
-    int nZone = 1;
-    this->CreateDefaultZone( nZone );
-
-    int iZone = 0;
-    CgnsZone * cgnsZone = cgnsZbase->GetCgnsZone( iZone );
-    cgnsZone->cgnsZoneType = ONEFLOW::CGNS_ENUMV( Unstructured );
-    cgnsZone->zId = cgnsZoneId;
     return cgnsZone;
 }
 
-void CgnsFactory::CreateOneSu2Grid( Su2Grid* su2Grid, int iZone, Grid *& grid )
-{
-    int cgnsZoneId = iZone + 1;
-    CgnsZone * cgnsZone = this->CreateOneUnsCgnsZone( cgnsZoneId );
-
-    FillSU2CgnsZone( su2Grid, cgnsZone );
-
-    this->CgnsToOneFlowGrid( grid, iZone );
-}
-
-void CgnsFactory::CreateSu2Grid( Su2Grid* su2Grid )
+void CgnsFactory::Su2ToOneFlowGrid( Su2Grid* su2Grid )
 {
     int nZones = su2Grid->nZone;
-    Grids grids( nZones );
+    Grids grids;
 
     for ( int iZone = 0; iZone < nZones; ++ iZone )
     {
-        CgnsFactory * cgnsFactory = new CgnsFactory();
-        
-        cgnsFactory->CreateOneSu2Grid(su2Grid, iZone, grids[ iZone ] );
-        
-        delete cgnsFactory;
+        ONEFLOW::GenerateLocalOneFlowGridFromSu2Grid( su2Grid, grids );
     }
 
     ONEFLOW::GenerateMultiZoneCalcGrids( grids );
 }
+
+void CgnsFactory::CgnsToOneFlowGrid()
+{
+    if ( ! ONEFLOW::IsUnsGrid( grid_para.topo ) ) return;
+
+    Grids grids;
+
+    zgridElem->GenerateLocalOneFlowGrid( grids );
+
+    //The grid is processed and the grid file used for calculation is output
+    ONEFLOW::GenerateMultiZoneCalcGrids( grids );
+}
+
+void AddOneFlowGrid( Grids & grids, Grid * grid )
+{
+    int iZone = grids.size() - 1;
+    grids.push_back( grid );
+    grid->id = iZone;
+}
+
+void GenerateLocalOneFlowGridFromSu2Grid( Su2Grid* su2Grid, Grids & grids )
+{
+    CgnsFactory * cgnsFactory = new CgnsFactory();
+
+    cgnsFactory->CreateSu2CgnsZone( su2Grid );
+
+    Grids local_grids;
+    cgnsFactory->zgridElem->GenerateLocalOneFlowGrid( local_grids );
+
+    ONEFLOW::AddOneFlowGrid( grids, local_grids[ 0 ] );
+
+    delete cgnsFactory;
+}
+
 
 #endif
 EndNameSpace

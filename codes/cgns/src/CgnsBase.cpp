@@ -154,6 +154,15 @@ CgnsZone * CgnsBase::CreateCgnsZone()
     return cgnsZone;
 }
 
+void CgnsBase::CreateCgnsZones( int nZones )
+{
+    this->nZones = nZones;
+    for ( int iZone = 0; iZone < nZones; ++ iZone )
+    {
+        CgnsZone * cgnsZone = this->CreateCgnsZone();
+    }
+}
+
 void CgnsBase::ConstructZoneNameMap()
 {
     for ( int iZone = 0; iZone < nZones; ++ iZone )

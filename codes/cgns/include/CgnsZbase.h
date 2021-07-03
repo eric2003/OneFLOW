@@ -54,12 +54,17 @@ public:
     void CloseCgnsFile();
 public:
     void AddCgnsBase( CgnsBase * cgnsBase );
+    CgnsBase * CreateCgnsBase();
     void InitCgnsBase();
 public:
     int GetNZones();
     CgnsBase * GetCgnsBase( int iBase );
     CgnsZone * GetCgnsZone( int globalZoneId );
     CgnsZone * GetMultiBaseCgnsZone( int iBase, int iZone );
+public:
+    void FreeCgnsBases();
+    void CreateCgnsZones( int nZones = 0 );
+    CgnsZone * CreateCgnsZone();
 };
 
 #endif

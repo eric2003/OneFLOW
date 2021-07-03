@@ -150,6 +150,8 @@ public:
     int GetCgnsBcType(string& geoName);
 };
 
+class CgnsZone;
+
 class Su2Grid
 {
 public:
@@ -160,6 +162,7 @@ public:
     void ReadSu2GridAscii( string & fileName );
     void Su2ToOneFlowGrid();
     void MarkBoundary(string& su2cfgFile);
+    void FillSU2CgnsZone( CgnsZone * cgnsZone );
 public:
     int ndim;
     int nPoin, nElem;
@@ -178,7 +181,6 @@ public:
 class Grid;
 class CgnsFactory;
 class CgnsZone;
-void FillSU2CgnsZone( Su2Grid* su2Grid, CgnsZone * cgnsZone );
-void CreateSu2Grid( Su2Grid* su2Grid );
+void Su2ToOneFlowGrid( Su2Grid* su2Grid );
 
 EndNameSpace

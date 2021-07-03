@@ -31,7 +31,6 @@ using namespace std;
 BeginNameSpace( ONEFLOW )
 #ifdef ENABLE_CGNS
 
-
 CgnsZbase::CgnsZbase()
 {
     this->nBases = 0;
@@ -40,7 +39,17 @@ CgnsZbase::CgnsZbase()
 
 CgnsZbase::~CgnsZbase()
 {
+    this->FreeCgnsBases();
     delete cgnsFile;
+}
+
+void CgnsZbase::FreeCgnsBases()
+{
+    int nBases = baseVector.size();
+    for ( int iBase = 0; iBase < nBases; ++ iBase )
+    {
+        delete baseVector[ iBase ];
+    }
 }
 
 void CgnsZbase::OpenCgnsFile( const string & fileName, int cgnsOpenMode )
@@ -53,16 +62,37 @@ void CgnsZbase::CloseCgnsFile()
     this->cgnsFile->CloseCgnsFile();
 }
 
-
 int CgnsZbase::GetNZones()
 {
-    int nZone = 0;
+    int nZones = 0;
     for ( int iBase = 0; iBase < this->nBases; ++ iBase )
     {
         CgnsBase * cgnsBase = this->GetCgnsBase( iBase );
-        nZone += cgnsBase->GetNZones();
+        nZones += cgnsBase->GetNZones();
     }
-    return nZone;
+    return nZones;
+}
+
+void CgnsZbase::CreateCgnsZones( int nZones )
+{
+    CgnsBase * cgnsBase = this->CreateCgnsBase();
+    cgnsBase->CreateCgnsZones( nZones );
+}
+
+CgnsZone * CgnsZbase::CreateCgnsZone()
+{
+    CgnsBase * cgnsBase = 0;
+    if ( this->nBases == 0 )
+    {
+        cgnsBase = this->CreateCgnsBase();
+    }
+    else
+    {
+        cgnsBase = this->GetCgnsBase( 0 );
+    }
+    
+    CgnsZone * cgnsZone = cgnsBase->CreateCgnsZone();
+    return cgnsZone; 
 }
 
 int CgnsZbase::GetSystemZoneType()
@@ -148,17 +178,22 @@ void CgnsZbase::AddCgnsBase( CgnsBase * cgnsBase )
 {
     baseVector.push_back( cgnsBase );
     int baseId = baseVector.size();
-    //cgnsBase->fileId = this->fileId;
     cgnsBase->cgnsFile = this->cgnsFile;
     cgnsBase->baseId = baseId;
+}
+
+CgnsBase * CgnsZbase::CreateCgnsBase()
+{
+    CgnsBase * cgnsBase = new CgnsBase( this->cgnsFile );
+    this->AddCgnsBase( cgnsBase );
+    return cgnsBase;
 }
 
 void CgnsZbase::InitCgnsBase()
 {
     for ( int iBase = 0; iBase < this->nBases; ++ iBase )
     {
-        CgnsBase * cgnsBase = new CgnsBase( this->cgnsFile );
-        this->AddCgnsBase( cgnsBase );
+        this->CreateCgnsBase();
     }
 }
 

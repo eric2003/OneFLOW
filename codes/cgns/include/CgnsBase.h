@@ -66,6 +66,7 @@ public:
     void DumpCgnsBaseBasicInfo();
     void ReadNumberOfCgnsZones();
     CgnsZone * CreateCgnsZone();
+    void CreateCgnsZones( int nZones );
     void ReadAllCgnsZones();
     void DumpAllCgnsZones();
     void ProcessCgnsZones();
