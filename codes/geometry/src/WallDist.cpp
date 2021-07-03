@@ -104,7 +104,7 @@ void FillWallStruct( StringField & data )
     {
         int bcType = bcRecord->bcType[ iFace ];
         int bcRegion = bcRecord->bcNameId[ iFace ];
-        int nNode = grid->faceTopo->f2n[ iFace ].size();
+        int nNode = grid->faceTopo->faces[ iFace ].size();
 
         if ( bcType == BC::SOLID_SURFACE )
         {
@@ -112,7 +112,7 @@ void FillWallStruct( StringField & data )
 
             for ( int iNode = 0; iNode < nNode; ++ iNode )
             {
-                int iPoint = grid->faceTopo->f2n[ iFace ][ iNode ];
+                int iPoint = grid->faceTopo->faces[ iFace ][ iNode ];
                 Real x0 = x[ iPoint ];
                 Real y0 = y[ iPoint ];
                 Real z0 = z[ iPoint ];

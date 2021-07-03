@@ -165,7 +165,7 @@ void GridElem::GenerateCalcElement()
 
     FaceTopo * faceTopo = this->face_solver->faceTopo;
 
-    int nFace = this->face_solver->faceTopo->f2n.size();
+    int nFace = this->face_solver->faceTopo->faces.size();
 
     int nBFace = 0;
 
@@ -230,7 +230,7 @@ void GridElem::CalcBoundaryType( UnsGrid * grid )
     grid->faceTopo = this->face_solver->faceTopo;
     grid->faceTopo->grid = grid;
     this->face_solver->faceTopo = 0;
-    int nFace = grid->faceTopo->f2n.size();
+    int nFace = grid->faceTopo->faces.size();
     cout << " nFace = " << nFace << "\n";
      
     BcRecord * bcRecord = grid->faceTopo->bcManager->bcRecord;
@@ -332,11 +332,11 @@ void GridElem::ReorderLink( UnsGrid * grid )
     for ( int iFace = 0; iFace < nFace; ++ iFace )
     {
         int jFace = f2map[ iFace ];
-        faceTopo->faceToNodeNew[ iFace ] = faceTopo->f2n[ jFace ];
+        faceTopo->faceToNodeNew[ iFace ] = faceTopo->faces[ jFace ];
         faceTopo->lCellNew[ iFace ] = faceTopo->lCell[ jFace ];
         faceTopo->rCellNew[ iFace ] = faceTopo->rCell[ jFace ];
     }
-    faceTopo->f2n = faceTopo->faceToNodeNew;
+    faceTopo->faces = faceTopo->faceToNodeNew;
     faceTopo->lCell = faceTopo->lCellNew;
     faceTopo->rCell = faceTopo->rCellNew;
 }

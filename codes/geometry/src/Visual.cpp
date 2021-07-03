@@ -117,10 +117,10 @@ void Visual::DumpFaceNodesLink( fstream & file, Mesh * mesh )
     UInt nFace = mesh->faceMesh->GetNFace();
     for ( UInt iFace = 0; iFace < nFace; ++ iFace )
     {
-        int numberOfNodesOnFace = mesh->faceMesh->faceTopo->f2n[ iFace ].size();
+        int numberOfNodesOnFace = mesh->faceMesh->faceTopo->faces[ iFace ].size();
         for ( int iNodeOfFace = 0; iNodeOfFace < numberOfNodesOnFace; ++ iNodeOfFace )
         {
-            file << mesh->faceMesh->faceTopo->f2n[ iFace ][ iNodeOfFace ] + 1 << " ";
+            file << mesh->faceMesh->faceTopo->faces[ iFace ][ iNodeOfFace ] + 1 << " ";
             if ( ( nodeCount + 1 ) % Visual::numberOfWords == 0 ) file << endl;
             nodeCount ++;
         }

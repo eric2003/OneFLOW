@@ -196,7 +196,7 @@ void BcVisual::Calcf2n( int bcType )
 {
     UnsGrid * grid = Zone::GetUnsGrid();
     FaceTopo * faceTopo = grid->faceTopo;
-    LinkField & f2n = faceTopo->f2n;
+    LinkField & f2n = faceTopo->faces;
     BcRecord * bcRecord = faceTopo->bcManager->bcRecord;
 
     IntField localf2n( 4 );
@@ -510,7 +510,7 @@ void UVisualize::ShowField( ostringstream & oss, VisualTool * visualTool )
     UnsGrid * grid = Zone::GetUnsGrid();
 
     FaceTopo * faceTopo = grid->faceTopo;
-    LinkField & f2n = faceTopo->f2n;
+    LinkField & f2n = faceTopo->faces;
 
     int nNode = grid->nNode;
     int nCell = grid->nCell;

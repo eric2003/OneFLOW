@@ -425,7 +425,7 @@ void Mesh::ConstructTopology()
                 faceTopo->rCell[ faceIndex ] = ONEFLOW::INVALID_INDEX;
                 faceTopo->lPosition[ faceIndex ] = iLocalFace;
                 faceTopo->rPosition[ faceIndex ] = ONEFLOW::INVALID_INDEX;
-                faceTopo->f2n.push_back( faceNodeIndexArray );
+                faceTopo->faces.push_back( faceNodeIndexArray );
             }
             else
             {
@@ -499,12 +499,12 @@ void Mesh::SwapBoundary()
         faceTopo->rPosition[ iFace ] = rPositionSwap[ oldFaceIndex ];
     }
 
-    LinkField faceToNodeSwap = faceTopo->f2n;
+    LinkField faceToNodeSwap = faceTopo->faces;
 
     for ( int iFace = 0; iFace < nFace; ++ iFace )
     {
         int oldFaceIndex = orderMapping[ iFace ];
-        faceTopo->f2n[ iFace ] = faceToNodeSwap[ oldFaceIndex ];
+        faceTopo->faces[ iFace ] = faceToNodeSwap[ oldFaceIndex ];
     }
 
     IntField faceTypeSwap = faceTopo->faceType;
@@ -814,7 +814,7 @@ void Mesh::CalcCellCenterVol3D()
         int lc = faceTopo->lCell[ iFace ];
         int rc = faceTopo->rCell[ iFace ];
 
-        IntField & faceIndex = faceTopo->f2n[ iFace ];
+        IntField & faceIndex = faceTopo->faces[ iFace ];
 
         UInt faceNodeNumber = faceIndex.size();
         for ( UInt iNode = 0; iNode < faceNodeNumber; ++ iNode )

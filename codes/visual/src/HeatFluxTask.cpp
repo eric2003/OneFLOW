@@ -163,7 +163,7 @@ void CollectWallFaceNode()
     RealField & y = grid->nodeMesh->yN;
     RealField & z = grid->nodeMesh->zN;
 
-    LinkField & f2n = grid->faceTopo->f2n;
+    LinkField & f2n = grid->faceTopo->faces;
     IntField & bcType = grid->faceTopo->bcManager->bcRecord->bcType;
 
     int nBFace = bcType.size();

@@ -130,7 +130,7 @@ void UnsGrid::NormalizeBc()
 
 void UnsGrid::ReadGridFaceTopology( DataBook * databook )
 {
-    this->faceTopo->f2n.resize( this->nFace );
+    this->faceTopo->faces.resize( this->nFace );
     this->faceTopo->lCell.resize( this->nFace );
     this->faceTopo->rCell.resize( this->nFace );
     this->faceTopo->faceType.resize( this->nFace );
@@ -153,7 +153,7 @@ void UnsGrid::ReadGridFaceTopology( DataBook * databook )
         for ( int iNode = 0; iNode < nNode; ++ iNode )
         {
             int pid = faceNodeMem[ ipos ++ ];
-            this->faceTopo->f2n[ iFace ].push_back( pid );
+            this->faceTopo->faces[ iFace ].push_back( pid );
         }
     }
 
@@ -167,7 +167,7 @@ void UnsGrid::ReadGridFaceTopology( DataBook * databook )
         if ( this->faceTopo->lCell[ iFace ] < 0 )
         {
             //need to reverse the node ordering
-            IntField & f2n = this->faceTopo->f2n[ iFace ];
+            IntField & f2n = this->faceTopo->faces[ iFace ];
             //std::reverse( std::begin( f2n ), std::end( f2n ) );
             std::reverse( f2n.begin(), f2n.end() );
             // now reverse leftCellIndex  and rightCellIndex
@@ -244,7 +244,7 @@ void UnsGrid::WriteGridFaceTopology( DataBook * databook )
 
     for ( int iFace = 0; iFace < this->nFace; ++ iFace )
     {
-        numFaceNode[ iFace ] = this->faceTopo->f2n[ iFace ].size();
+        numFaceNode[ iFace ] = this->faceTopo->faces[ iFace ].size();
     }
 
     ONEFLOW::HXWrite( databook, numFaceNode );
@@ -256,7 +256,7 @@ void UnsGrid::WriteGridFaceTopology( DataBook * databook )
         int nNode = numFaceNode[ iFace ];
         for ( int iNode = 0; iNode < nNode; ++ iNode )
         {
-            faceNodeMem.push_back( this->faceTopo->f2n[ iFace ][ iNode ] );
+            faceNodeMem.push_back( this->faceTopo->faces[ iFace ][ iNode ] );
         }
     }
     ONEFLOW::HXWrite( databook, faceNodeMem );
@@ -328,7 +328,7 @@ void UnsGrid::GenerateLgMapping( IFaceLink * iFaceLink )
         {
             continue;
         }
-        IntField & faceNode = this->faceTopo->f2n[ iBFace ];
+        IntField & faceNode = this->faceTopo->faces[ iBFace ];
         int nNode = faceNode.size();
 
         gINode.resize( nNode );
@@ -391,7 +391,7 @@ void UnsGrid::GetMinMaxDistance( Real & dismin, Real & dismax )
 
     for ( int iFace = 0; iFace < nFace; ++ iFace )
     {
-        IntField & faceNode = this->faceTopo->f2n[ iFace ];
+        IntField & faceNode = this->faceTopo->faces[ iFace ];
         int nNode = faceNode.size();
         for ( int iNode = 0; iNode < nNode; ++ iNode )
         {
@@ -439,21 +439,21 @@ void UnsGrid::WriteGrid( fstream & file )
 
 void UnsGrid::WriteGridFaceTopology( VirtualFile * vf )
 {
-    int nFace = this->faceTopo->f2n.size();
+    int nFace = this->faceTopo->faces.size();
     IntField nFNode( nFace );
 
     for ( int iFace = 0; iFace < nFace; ++ iFace )
     {
-        nFNode[ iFace ] = this->faceTopo->f2n[ iFace ].size();
+        nFNode[ iFace ] = this->faceTopo->faces[ iFace ].size();
     }
 
     IntField fNode;
     for ( int iFace = 0; iFace < nFace; ++ iFace )
     {
-        int nNode = this->faceTopo->f2n[ iFace ].size();
+        int nNode = this->faceTopo->faces[ iFace ].size();
         for ( int iNode = 0; iNode < nNode; ++ iNode )
         {
-            int nodeId = this->faceTopo->f2n[ iFace ][ iNode ];
+            int nodeId = this->faceTopo->faces[ iFace ][ iNode ];
             fNode.push_back( nodeId );
         }
     }
@@ -765,7 +765,7 @@ void UnsGrid::CalcCellCenterVol3D()
         int lc = faceTopo->lCell[ iFace ];
         int rc = faceTopo->rCell[ iFace ];
 
-        IntField & faceIndex = faceTopo->f2n[ iFace ];
+        IntField & faceIndex = faceTopo->faces[ iFace ];
 
         UInt faceNodeNumber = faceIndex.size();
         for ( UInt iNode = 0; iNode < faceNodeNumber; ++ iNode )

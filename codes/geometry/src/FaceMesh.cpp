@@ -67,7 +67,7 @@ void FaceMesh::CalcFaceCenter1D( NodeMesh * nodeMesh )
 
     for ( UInt iFace = 0; iFace < nFace; ++ iFace )
     {
-        IntField & nodeIndex = faceTopo->f2n[ iFace ];
+        IntField & nodeIndex = faceTopo->faces[ iFace ];
         int p1 = nodeIndex[ 0 ];
         int p2 = nodeIndex[ 0 ];
         xfc[ iFace ] = half * ( xN[ p1 ] + xN[ p2 ] );
@@ -117,7 +117,7 @@ void FaceMesh::CalcFaceNormal2D( NodeMesh * nodeMesh )
 
     for ( UInt iFace = 0; iFace < nFace; ++ iFace )
     {
-        IntField & faceIndex = faceTopo->f2n[ iFace ];
+        IntField & faceIndex = faceTopo->faces[ iFace ];
         int p1 = faceIndex[ 0 ];
         int p2 = faceIndex[ 1 ];
 
@@ -146,7 +146,7 @@ void FaceMesh::CalcFaceCenter2D( NodeMesh * nodeMesh )
 
     for ( UInt iFace = 0; iFace < nFace; ++ iFace )
     {
-        IntField & nodeIndex = faceTopo->f2n[ iFace ];
+        IntField & nodeIndex = faceTopo->faces[ iFace ];
         int p1 = nodeIndex[ 0 ];
         int p2 = nodeIndex[ 1 ];
         xfc[ iFace ] = half * ( xN[ p1 ] + xN[ p2 ] );
@@ -171,7 +171,7 @@ void FaceMesh::CalcFaceNormal3D( NodeMesh * nodeMesh )
 
     for ( UInt iFace = 0; iFace < nFace; ++ iFace )
     {
-        IntField & faceIndex = faceTopo->f2n[ iFace ];
+        IntField & faceIndex = faceTopo->faces[ iFace ];
 
         UInt faceNodeNumber = faceIndex.size();
         for ( UInt iNodeInFace = 0; iNodeInFace < faceNodeNumber; ++ iNodeInFace )
@@ -219,7 +219,7 @@ void FaceMesh::CalcFaceCenter3D( NodeMesh * nodeMesh )
         Real y0 = 0.0;
         Real z0 = 0.0;
 
-        IntField & faceIndex = faceTopo->f2n[ iFace ];
+        IntField & faceIndex = faceTopo->faces[ iFace ];
 
         UInt faceNodeNumber = faceIndex.size();
         for ( UInt iNodeInFace = 0; iNodeInFace < faceNodeNumber; ++ iNodeInFace )

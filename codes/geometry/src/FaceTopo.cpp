@@ -52,7 +52,7 @@ UInt FaceTopo::CalcTotalFaceNodes()
     UInt nFace = this->GetNFace();
     for ( UInt iFace = 0; iFace < nFace; ++ iFace )
     {
-        totalNumFaceNodes += f2n[ iFace ].size();
+        totalNumFaceNodes += faces[ iFace ].size();
     }
     return totalNumFaceNodes;
 }
@@ -83,7 +83,7 @@ void FaceTopo::SetNewFace2Node( IFaceLink * iFaceLink )
     {
         int bcType = this->bcManager->bcRecord->bcType[ iFace ];
 
-        int nFNode = this->f2n[ iFace ].size();
+        int nFNode = this->faces[ iFace ].size();
         IntField tmpVector;
 
         if ( BC::IsInterfaceBc( bcType ) )
@@ -110,7 +110,7 @@ void FaceTopo::SetNewFace2Node( IFaceLink * iFaceLink )
                         if ( flag == 1 )
                         {
                             int rNId = iFaceLink->face_search->rCNodeId[ cFid ][ iNode ];
-                            nodeIndex = this->f2n[ iFace ][ rNId ];
+                            nodeIndex = this->faces[ iFace ][ rNId ];
                         }
                         else
                         {
@@ -126,7 +126,7 @@ void FaceTopo::SetNewFace2Node( IFaceLink * iFaceLink )
             {
                 for ( int iNode = 0; iNode < nFNode; ++ iNode )
                 {
-                    int nodeIndex = this->f2n[ iFace ][ iNode ];
+                    int nodeIndex = this->faces[ iFace ][ iNode ];
                     tmpVector.push_back( nodeIndex );
                 }
                 this->faceToNodeNew.push_back( tmpVector );
@@ -137,7 +137,7 @@ void FaceTopo::SetNewFace2Node( IFaceLink * iFaceLink )
         {
               for ( int iNode = 0; iNode < nFNode; ++ iNode )
             {
-                int nodeIndex = this->f2n[ iFace ][ iNode ];
+                int nodeIndex = this->faces[ iFace ][ iNode ];
                 tmpVector.push_back( nodeIndex );
             }
             this->faceToNodeNew.push_back( tmpVector );
@@ -148,11 +148,11 @@ void FaceTopo::SetNewFace2Node( IFaceLink * iFaceLink )
     int nFace = this->GetNFace();
     for ( int iFace = nBFace; iFace < nFace; ++ iFace )
     {
-        int nFNode = this->f2n[ iFace ].size();
+        int nFNode = this->faces[ iFace ].size();
         IntField tmpVector;
         for ( int iNode = 0; iNode < nFNode; ++ iNode )
         {
-            int nId = this->f2n[ iFace ][ iNode ];
+            int nId = this->faces[ iFace ][ iNode ];
             tmpVector.push_back( nId );
         }
         this->faceToNodeNew.push_back( tmpVector );
@@ -340,7 +340,7 @@ void FaceTopo::UpdateOtherTopologyTerm()
     this->bcManager->Update();
     this->lCell = this->lCellNew;
     this->rCell = this->rCellNew;
-    this->f2n = this->faceToNodeNew;
+    this->faces = this->faceToNodeNew;
 }
 
 void FaceTopo::GenerateI2B( InterFace * interFace )

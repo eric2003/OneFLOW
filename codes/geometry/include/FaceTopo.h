@@ -45,7 +45,8 @@ public:
 public:
     int nCell;
     IntField faceType;
-    LinkField f2n;
+    //LinkField f2n;
+    LinkField faces;
     LinkField c2f;
 
     IntField lCell, rCell;

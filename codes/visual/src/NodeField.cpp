@@ -65,7 +65,7 @@ void CalcNodeVar( RealField & qNodeField, RealField & qField )
 {
     UnsGrid * grid = Zone::GetUnsGrid();
     FaceTopo * faceTopo = grid->faceTopo;
-    LinkField & f2c = faceTopo->f2n;
+    LinkField & f2c = faceTopo->faces;
 
     int nNode = grid->nNode;
     int nFace = grid->nFace;
@@ -107,7 +107,7 @@ void FixBcNodeVar( RealField & qNodeField, RealField & qField, RealField & nCoun
     UnsGrid * grid = Zone::GetUnsGrid();
     FaceTopo * faceTopo = grid->faceTopo;
     BcRecord * bcRecord = faceTopo->bcManager->bcRecord;
-    LinkField & f2c = faceTopo->f2n;
+    LinkField & f2c = faceTopo->faces;
 
     int nNode = grid->nNode;
     int nFace = grid->nFace;

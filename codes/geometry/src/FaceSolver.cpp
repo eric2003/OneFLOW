@@ -94,7 +94,7 @@ void FaceSolver::ScanElementFace( CgIntField & eNodeId, int eType, int eId )
             aNodeId.push_back( eNodeId[ rNodeId[ iNode ] ] );
         }                                                              
 
-        Mid<int> fMid( nNode, this->faceTopo->f2n.size() );
+        Mid<int> fMid( nNode, this->faceTopo->faces.size() );
         fMid.data = aNodeId;
         std::sort( fMid.data.begin(), fMid.data.end() );
         int gFid = this->FindFace( fMid );
@@ -117,7 +117,7 @@ void FaceSolver::ScanElementFace( CgIntField & eNodeId, int eType, int eId )
             this->faceBcKey->push_back( ONEFLOW::INVALID_INDEX );
             this->faceTopo->faceType.push_back( fType );
 
-            this->faceTopo->f2n.push_back( aNodeId );
+            this->faceTopo->faces.push_back( aNodeId );
             this->childFid->resize( totalfn + 1 );
         }
         else
@@ -174,7 +174,7 @@ void FaceSolver::ScanBcFace( IntSet& bcVertex, int bcType, int bcNameId )
         if ( ( rCell          == ONEFLOW::INVALID_INDEX ) && 
              ( originalBcType == ONEFLOW::INVALID_INDEX ) )
         {
-            if ( this->CheckBcFace( bcVertex, ( this->faceTopo->f2n )[ iFace ] ) )
+            if ( this->CheckBcFace( bcVertex, ( this->faceTopo->faces )[ iFace ] ) )
             {
                 ++ nBFace;
 
@@ -216,7 +216,7 @@ void FaceSolver::ScanBcFaceDetail( IntSet& bcVertex, int bcType, int bcNameId )
 
         if ( originalBcType == ONEFLOW::INVALID_INDEX )
         {
-            if ( this->CheckBcFace( bcVertex, ( this->faceTopo->f2n )[ iFace ] ) )
+            if ( this->CheckBcFace( bcVertex, ( this->faceTopo->faces )[ iFace ] ) )
             {
                 ++ nBFace;
 
@@ -255,7 +255,7 @@ int FaceSolver::GetNSimpleFace()
 {
     int nSimpleFace = 0;
 
-    for ( int iFace = 0; iFace < this->faceTopo->f2n.size(); ++ iFace )
+    for ( int iFace = 0; iFace < this->faceTopo->faces.size(); ++ iFace )
     {
         int nCFace = ( * this->childFid )[ iFace ].size();
         if ( nCFace == 0 )

@@ -455,7 +455,7 @@ void CuttingClass::CutPlane( Real cutPosition, int cutAxis, LamData * lamData )
     RealField & xyz = this->GetCoor( grid, cutAxis );
 
     int nFace = grid->nFace;
-    LinkField & f2n = grid->faceTopo->f2n;
+    LinkField & f2n = grid->faceTopo->faces;
 
     RealField point( 3 );
     for ( int iFace = 0; iFace < nFace; ++ iFace )
