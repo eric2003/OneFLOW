@@ -428,7 +428,7 @@ void Partition::CalcG2lFace( UnsGrid * ggrid, int zid, UnsGrid * grid )
 
     InterFace * interFace = grid->interFace;
     interFace->Set( nIFaceNow );
-    grid->nIFace = nIFaceNow;
+    grid->nIFaces = nIFaceNow;
 }
 
 void Partition::CalcG2lNode( UnsGrid * ggrid, int zid, UnsGrid * grid )
@@ -623,7 +623,7 @@ void Partition::SetInterface( UnsGrid * ggrid, int zid, UnsGrid * grid )
     if ( this->partition_type != 1 ) return;
 
     InterFace * interFace = grid->interFace;
-    int nIFace = interFace->nIFace;
+    int nIFaces = interFace->nIFaces;
     int nBFaces = grid->nBFaces;
 
     int nGFace = ggrid->nFaces;
@@ -633,7 +633,7 @@ void Partition::SetInterface( UnsGrid * ggrid, int zid, UnsGrid * grid )
     IntField & grCell = ggrid->faceTopo->rCell;
 
     //number of physical boundary face
-    int nPBFace = nBFaces - nIFace;
+    int nPBFace = nBFaces - nIFaces;
 
     for ( int gfid = nGBFace; gfid < nGFace; ++ gfid )
     {
@@ -687,13 +687,13 @@ bool FindMatch( UnsGrid * grid, FacePair * facePair )
     if ( ! ONEFLOW::IsValid( interFace ) ) return found;
 
     int nBFaces = grid->nBFaces;
-    int nIFace = interFace->nIFace;
-    int nPBFace = nBFaces - nIFace;
+    int nIFaces = interFace->nIFaces;
+    int nPBFace = nBFaces - nIFaces;
 
     IntField & lCell = grid->faceTopo->lCell;
     IntField & rCell = grid->faceTopo->rCell;
 
-    for ( int iFace = 0; iFace < nIFace; ++ iFace )
+    for ( int iFace = 0; iFace < nIFaces; ++ iFace )
     {
         int lc = lCell[ iFace + nPBFace ];
         int rc = rCell[ iFace + nPBFace ];

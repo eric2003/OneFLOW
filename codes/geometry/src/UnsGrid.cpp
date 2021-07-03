@@ -188,12 +188,12 @@ void UnsGrid::ReadBoundaryTopology( DataBook * databook )
     BcRecord * bcRecord = this->faceTopo->bcManager->bcRecord;
     ONEFLOW::HXRead( databook, bcRecord->bcType );
     ONEFLOW::HXRead( databook, bcRecord->bcNameId );
-    ONEFLOW::HXRead( databook, this->nIFace );
+    ONEFLOW::HXRead( databook, this->nIFaces );
     cout << " nBFaces = " << this->nBFaces;
-    cout << " nIFace = " << this->nIFace << endl;
-    this->interFace->Set( this->nIFace, this );
+    cout << " nIFaces = " << this->nIFaces << endl;
+    this->interFace->Set( this->nIFaces, this );
 
-    if ( this->nIFace > 0 )
+    if ( this->nIFaces > 0 )
     {
         ONEFLOW::HXRead( databook, this->interFace->zoneId            );
         ONEFLOW::HXRead( databook, this->interFace->localInterfaceId  );
@@ -206,15 +206,15 @@ void UnsGrid::WriteBoundaryTopology( VirtualFile * vf )
     cout << "Output boundary condition\n";
     BcRecord * bcRecord = this->faceTopo->bcManager->bcRecord;
     int nBFaces = bcRecord->GetNBFace();
-    cout << "nBFaces = " << nBFaces << " nIFace = " << this->nIFace << endl;
-    cout << "this->interFace->nIFace = " << this->interFace->nIFace << endl;
+    cout << "nBFaces = " << nBFaces << " nIFaces = " << this->nIFaces << endl;
+    cout << "this->interFace->nIFaces = " << this->interFace->nIFaces << endl;
 
     ONEFLOW::HXWrite( vf, nBFaces );
     ONEFLOW::HXWrite( vf, bcRecord->bcType );
     ONEFLOW::HXWrite( vf, bcRecord->bcNameId );
-    ONEFLOW::HXWrite( vf, this->interFace->nIFace );
+    ONEFLOW::HXWrite( vf, this->interFace->nIFaces );
 
-    if ( this->interFace->nIFace > 0 )
+    if ( this->interFace->nIFaces > 0 )
     {
         ONEFLOW::HXWrite( vf, this->interFace->zoneId );
         ONEFLOW::HXWrite( vf, this->interFace->localInterfaceId );
@@ -273,8 +273,8 @@ void UnsGrid::WriteBoundaryTopology( DataBook * databook )
     ONEFLOW::HXWrite( databook, this->faceTopo->bcManager->bcRecord->bcType );
     ONEFLOW::HXWrite( databook, this->faceTopo->bcManager->bcRecord->bcNameId );
 
-    ONEFLOW::HXWrite( databook, this->interFace->nIFace );
-    if ( this->interFace->nIFace > 0 )
+    ONEFLOW::HXWrite( databook, this->interFace->nIFaces );
+    if ( this->interFace->nIFaces > 0 )
     {
         ONEFLOW::HXWrite( databook, this->interFace->zoneId            );
         ONEFLOW::HXWrite( databook, this->interFace->localInterfaceId  );
@@ -303,13 +303,13 @@ void UnsGrid::GenerateLgMapping( IFaceLink * iFaceLink )
 
     this->faceTopo->bcManager->PreProcess();
 
-    int nIFace = bcRecord->CalcNIFace();
+    int nIFaces = bcRecord->CalcNIFace();
 
-    cout << "nIFace = " << nIFace << endl;
-    this->nIFace = nIFace;
-    this->interFace->Set( nIFace, this );
+    cout << "nIFaces = " << nIFaces << endl;
+    this->nIFaces = nIFaces;
+    this->interFace->Set( nIFaces, this );
 
-    if ( nIFace == 0 ) return;
+    if ( nIFaces == 0 ) return;
 
     iFaceLink->Init( this );
 
@@ -370,9 +370,9 @@ void UnsGrid::UpdateOtherTopologyTerm( IFaceLink * iFaceLink )
 
     this->faceTopo->UpdateOtherTopologyTerm();
 
-    int nIFace = iFaceLink->l2g[ this->id ].size();
+    int nIFaces = iFaceLink->l2g[ this->id ].size();
 
-    this->interFace->Resize( nIFace );
+    this->interFace->Resize( nIFaces );
     this->faceTopo->GenerateI2B( this->interFace );
 }
 

@@ -102,7 +102,7 @@ void SwapCellCenter( StringField & data )
     if ( ! ONEFLOW::IsValid( interFace ) ) return;
 
     int iNei = interFace->z2n[ ZoneState::rzid ];
-    int nIFace  = interFace->interFacePairs[ iNei ]->nIFace;
+    int nIFaces  = interFace->interFacePairs[ iNei ]->nIFaces;
 
     IntField & interfaceId = interFace->GetInterfaceId( iNei, GREAT_SEND );
 
@@ -115,7 +115,7 @@ void SwapCellCenter( StringField & data )
     RealField & zcc = cellMesh->zcc;
     RealField & vol = cellMesh->vol;
 
-    for ( int iLocalFace = 0; iLocalFace < nIFace; ++ iLocalFace )
+    for ( int iLocalFace = 0; iLocalFace < nIFaces; ++ iLocalFace )
     {
         int s1;
         int iFace = interfaceId[ iLocalFace ];
@@ -136,7 +136,7 @@ void DecodeCellCenter( StringField & data )
     if ( ! ONEFLOW::IsValid( interFace ) ) return;
 
     int iNei = interFace->z2n[ ZoneState::szid ];
-    int nIFace  = interFace->interFacePairs[ iNei ]->nIFace;
+    int nIFaces  = interFace->interFacePairs[ iNei ]->nIFaces;
     IntField & interfaceId = interFace->GetInterfaceId( iNei, GREAT_RECV );
 
     ActionState::dataBook->MoveToBegin();
@@ -148,7 +148,7 @@ void DecodeCellCenter( StringField & data )
     RealField & zcc = cellMesh->zcc;
     RealField & vol = cellMesh->vol;
 
-    for ( int iLocalFace = 0; iLocalFace < nIFace; ++ iLocalFace )
+    for ( int iLocalFace = 0; iLocalFace < nIFaces; ++ iLocalFace )
     {
         int iFace = interfaceId[ iLocalFace ];
         int t1;

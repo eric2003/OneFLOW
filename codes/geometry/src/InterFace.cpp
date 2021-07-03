@@ -38,20 +38,20 @@ BeginNameSpace( ONEFLOW )
 
 bool IsValid( InterFace * interFace )
 {
-    return interFace->nIFace != 0;
+    return interFace->nIFaces != 0;
 }
 
 InterFace::InterFace()
 {
-    this->nIFace = 0;
+    this->nIFaces = 0;
     this->parent = 0;
     this->AllocSendRecv();
 }
 
-InterFace::InterFace( int nIFace, Grid * parent )
+InterFace::InterFace( int nIFaces, Grid * parent )
 {
     this->AllocSendRecv();
-    this->Set( nIFace, parent );
+    this->Set( nIFaces, parent );
 }
 
 InterFace::~InterFace()
@@ -83,28 +83,28 @@ void InterFace::DeAllocSendRecv()
     }
 }
 
-void InterFace::Set( int nIFace, Grid * parent )
+void InterFace::Set( int nIFaces, Grid * parent )
 {
-    this->Resize( nIFace );
+    this->Resize( nIFaces );
     this->parent = parent;
 }
 
-void InterFace::Resize( int nIFace )
+void InterFace::Resize( int nIFaces )
 {
-    if ( nIFace <= 0 ) nIFace = 0;
-    this->nIFace = nIFace;
-    zoneId          .resize( nIFace );
-    localInterfaceId.resize( nIFace );
-    localCellId     .resize( nIFace );
-    i2b .resize( nIFace );
-    idir.resize( nIFace );
+    if ( nIFaces <= 0 ) nIFaces = 0;
+    this->nIFaces = nIFaces;
+    zoneId          .resize( nIFaces );
+    localInterfaceId.resize( nIFaces );
+    localCellId     .resize( nIFaces );
+    i2b .resize( nIFaces );
+    idir.resize( nIFaces );
 }
 
 void InterFace::InitNeighborFlag( IntField & flags )
 {
     flags.resize( ZoneState::nZones, 0 );
 
-    for ( int iFace = 0; iFace < this->nIFace; ++ iFace )
+    for ( int iFace = 0; iFace < this->nIFaces; ++ iFace )
     {
         flags[ this->zoneId[ iFace ] ] = 1;
     }
@@ -154,7 +154,7 @@ int InterFace::CalcNIFace( int iNei )
     int expectedId = this->interFacePairs[ iNei ]->nzid;
     int nIFaceCount = 0;
 
-    for ( int iFace = 0; iFace < this->nIFace; ++ iFace )
+    for ( int iFace = 0; iFace < this->nIFaces; ++ iFace )
     {
         if ( this->zoneId[ iFace ] == expectedId )
         {
@@ -174,7 +174,7 @@ void InterFace::InitNeighborZoneInfo( int iNei, int iZone )
 
     int nIFaceCount = this->CalcNIFace( iNei );
 
-    interfacePair->nIFace = nIFaceCount;
+    interfacePair->nIFaces = nIFaceCount;
     interfacePair->idsend.resize( nIFaceCount );
     interfacePair->idrecv.resize( nIFaceCount );
 
@@ -186,7 +186,7 @@ void InterFace::FillRecvId( int iNei )
     InterfacePair * interfacePair = interFacePairs[ iNei ];
 
     int iCount = 0;
-    for ( int iFace = 0; iFace < this->nIFace; ++ iFace )
+    for ( int iFace = 0; iFace < this->nIFaces; ++ iFace )
     {
         if ( this->zoneId[ iFace ] == interfacePair->nzid )
         {
@@ -200,10 +200,10 @@ void InterFace::FillRecvId( int iNei )
 void InterFace::CalcSendId( int iNei, IntField & idsend )
 {
     InterfacePair * interfacePair = interFacePairs[ iNei ];
-    idsend.resize( interfacePair->nIFace );
+    idsend.resize( interfacePair->nIFaces );
 
     int iCount = 0;
-    for ( int iFace = 0; iFace < this->nIFace; ++ iFace )
+    for ( int iFace = 0; iFace < this->nIFaces; ++ iFace )
     {
         if ( this->zoneId[ iFace ] == interfacePair->nzid )
         {
@@ -391,7 +391,7 @@ void InterFaceTopo::SwapNeighborsSendContent()
         {
             int nZid = t[ iNei ];
             int rpid = ZoneState::pid[ nZid ];
-            int nIFace = 0;
+            int nIFaces = 0;
             IntField idsend;
 
             if ( Parallel::pid == spid )
@@ -399,20 +399,20 @@ void InterFaceTopo::SwapNeighborsSendContent()
                 Grid * grid = Zone::GetGrid( iZone );
                 InterfacePair * interfacePair = grid->interFace->interFacePairs[ iNei ];
 
-                nIFace = interfacePair->nIFace;
+                nIFaces = interfacePair->nIFaces;
                 
                 grid->interFace->CalcSendId( iNei, idsend );
             }
 
-            ONEFLOW::HXSwapData( & nIFace, 1, spid, rpid, iZone + gl * ZoneState::nZones );
+            ONEFLOW::HXSwapData( & nIFaces, 1, spid, rpid, iZone + gl * ZoneState::nZones );
 
             if ( Parallel::pid  == rpid && 
                           spid  != rpid )
             {
-                idsend.resize( nIFace );
+                idsend.resize( nIFaces );
             }
 
-            ONEFLOW::HXSwapData( & idsend[ 0 ], nIFace, spid, rpid, iZone + gl * ZoneState::nZones );
+            ONEFLOW::HXSwapData( & idsend[ 0 ], nIFaces, spid, rpid, iZone + gl * ZoneState::nZones );
 
             if ( Parallel::pid == rpid )
             {

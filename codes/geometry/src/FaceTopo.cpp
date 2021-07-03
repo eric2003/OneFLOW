@@ -236,13 +236,13 @@ void FaceTopo::ModifyBoundaryInformation( IFaceLink * iFaceLink )
 
     int nBFaceNew = 0;
 
-    int nIFace = localI2B.size();
+    int nIFaces = localI2B.size();
 
-    int nIFaceNew = nIFace;
+    int nIFaceNew = nIFaces;
 
-    iFaceLink->nChild.resize( nIFace, 0 );
+    iFaceLink->nChild.resize( nIFaces, 0 );
 
-    for ( int iFid = 0; iFid < nIFace; ++ iFid )
+    for ( int iFid = 0; iFid < nIFaces; ++ iFid )
     {
         int gFid   = iFaceLink->l2g[ this->grid->id ][ iFid ];
         int nCFace = iFaceLink->face_search->cFaceId[ gFid ].size();
@@ -263,7 +263,7 @@ void FaceTopo::ModifyBoundaryInformation( IFaceLink * iFaceLink )
             iFaceLink->l2gNew.push_back( gFid );
         }
     }
-    cout << "original number of interfaces = " << nIFace << " new number of interfaces = " << nIFaceNew << endl;
+    cout << "original number of interfaces = " << nIFaces << " new number of interfaces = " << nIFaceNew << endl;
 
     this->ResetNumberOfBoundaryCondition( iFaceLink );
 }

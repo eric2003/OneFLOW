@@ -116,16 +116,16 @@ int BcRecord::CalcNIFace()
 {
     int nBFaces = this->GetNBFace();
 
-    int nIFace = 0;
+    int nIFaces = 0;
     for ( int iFace = 0; iFace < nBFaces; ++ iFace )
     {
         if ( BC::IsInterfaceBc( this->bcType[ iFace ] ) )
         {
-            ++ nIFace;
+            ++ nIFaces;
         }
     }
 
-    return nIFace;
+    return nIFaces;
 }
 
 int BcRecord::CalcNumWallFace()

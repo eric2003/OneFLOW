@@ -68,18 +68,18 @@ IFieldProperty::~IFieldProperty()
 {
 }
 
-void IFieldProperty::AllocateInterfaceField( int nIFace, DataStorage * dataStorage )
+void IFieldProperty::AllocateInterfaceField( int nIFaces, DataStorage * dataStorage )
 {
-    if ( nIFace <= 0 ) return;
+    if ( nIFaces <= 0 ) return;
 
     for ( std::map< string, int >::iterator iter = this->data.begin(); iter != this->data.end(); ++ iter )
     {
         int nTEqu = iter->second;
 
-        ONEFLOW::CreateMRField( dataStorage, nTEqu, nIFace, iter->first );
+        ONEFLOW::CreateMRField( dataStorage, nTEqu, nIFaces, iter->first );
 
         MRField * field = ONEFLOW::GetFieldPointer< MRField >( dataStorage, iter->first );
-        ONEFLOW::ZeroField( field, nTEqu, nIFace );
+        ONEFLOW::ZeroField( field, nTEqu, nIFaces );
     }
 }
 
@@ -429,7 +429,7 @@ void UploadInterfaceValue( UnsGrid * grid, MRField * field2D, const string & nam
     InterFace * interFace = grid->interFace;
     if ( ! ONEFLOW::IsValid( interFace ) ) return;
 
-    int nIFace = interFace->nIFace;
+    int nIFaces = interFace->nIFaces;
 
     if ( field2D == 0 ) return;
 
@@ -439,7 +439,7 @@ void UploadInterfaceValue( UnsGrid * grid, MRField * field2D, const string & nam
 
         MRField * fieldStorage = ONEFLOW::GetFieldPointer< MRField >( dataSend, name );
 
-        for ( int iFace = 0; iFace < nIFace; ++ iFace )
+        for ( int iFace = 0; iFace < nIFaces; ++ iFace )
         {
             int iCell;
             grid->faceTopo->GetSId( iFace, ghostId + 1, iCell );
@@ -465,8 +465,8 @@ void DownloadInterfaceValue( UnsGrid * grid, MRField * field2D, const string & n
 
         MRField * fieldStorage = ONEFLOW::GetFieldPointer< MRField >( dataRecv, name );
 
-        int nIFace = interFace->nIFace;
-        for ( int iFace = 0; iFace < nIFace; ++ iFace )
+        int nIFaces = interFace->nIFaces;
+        for ( int iFace = 0; iFace < nIFaces; ++ iFace )
         {
             int iCell;
             grid->faceTopo->GetTId( iFace, ghostId + 1, iCell );
@@ -492,8 +492,8 @@ void DownloadInterfaceValue_TEST( UnsGrid * grid, MRField * field2D, const strin
 
         MRField * fieldStorage = ONEFLOW::GetFieldPointer< MRField >( dataRecv, name );
 
-        int nIFace = interFace->nIFace;
-        for ( int iFace = 0; iFace < nIFace; ++ iFace )
+        int nIFaces = interFace->nIFaces;
+        for ( int iFace = 0; iFace < nIFaces; ++ iFace )
         {
             int iCell;
             grid->faceTopo->GetTId( iFace, ghostId + 1, iCell );

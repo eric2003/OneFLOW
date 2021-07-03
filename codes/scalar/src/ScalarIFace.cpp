@@ -44,9 +44,9 @@ ScalarIFaceIJ::~ScalarIFaceIJ()
 
 void ScalarIFaceIJ::WriteInterfaceTopology( DataBook * databook )
 {
-    int nIFace = ifaces.size();
+    int nIFaces = ifaces.size();
     ONEFLOW::HXWrite( databook, this->zonej );
-    ONEFLOW::HXWrite( databook, nIFace );
+    ONEFLOW::HXWrite( databook, nIFaces );
     ONEFLOW::HXWrite( databook, this->ifaces );
     ONEFLOW::HXWrite( databook, this->recv_ifaces );
 }
@@ -54,10 +54,10 @@ void ScalarIFaceIJ::WriteInterfaceTopology( DataBook * databook )
 void ScalarIFaceIJ::ReadInterfaceTopology( DataBook * databook )
 {
     ONEFLOW::HXRead( databook, this->zonej );
-    int nIFace = -1;
-    ONEFLOW::HXRead( databook, nIFace );
-    this->ifaces.resize( nIFace );
-    this->recv_ifaces.resize( nIFace );
+    int nIFaces = -1;
+    ONEFLOW::HXRead( databook, nIFaces );
+    this->ifaces.resize( nIFaces );
+    this->recv_ifaces.resize( nIFaces );
 
     ONEFLOW::HXRead( databook, this->ifaces );
     ONEFLOW::HXRead( databook, this->recv_ifaces );

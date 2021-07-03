@@ -122,11 +122,11 @@ void FieldAlloc::AllocateInterfaceField( IFieldProperty * iFieldProperty )
 
     if ( ! ONEFLOW::IsValid( interFace ) ) return;
 
-    int nIFace = grid->interFace->nIFace;
+    int nIFaces = grid->interFace->nIFaces;
     for ( int ghostId = MAX_GHOST_LEVELS - 1; ghostId >= 0; -- ghostId )
     {
-        iFieldProperty->AllocateInterfaceField( nIFace, interFace->dataSend[ ghostId ] );
-        iFieldProperty->AllocateInterfaceField( nIFace, interFace->dataRecv[ ghostId ] );
+        iFieldProperty->AllocateInterfaceField( nIFaces, interFace->dataSend[ ghostId ] );
+        iFieldProperty->AllocateInterfaceField( nIFaces, interFace->dataRecv[ ghostId ] );
     }
 }
 

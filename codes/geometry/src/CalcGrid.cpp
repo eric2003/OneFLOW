@@ -151,19 +151,19 @@ void CalcGrid::ReconstructLink( int iZone )
     UnsGrid * grid = UnsGridCast( grids[ iZone ] );
 
     InterFace * interFace = grid->interFace;
-    grid->nIFace = grid->interFace->nIFace;
+    grid->nIFaces = grid->interFace->nIFaces;
 
     if ( ! ONEFLOW::IsValid( interFace ) ) return;
 
     int nBFaces = grid->nBFaces;
-    int nIFace = interFace->nIFace;
-    int nPBFace = nBFaces - nIFace;
+    int nIFaces = interFace->nIFaces;
+    int nPBFace = nBFaces - nIFaces;
 
     IntField & lCell = grid->faceTopo->lCell;
     IntField & rCell = grid->faceTopo->rCell;
 
     FacePair facePair;
-    for ( int iFace = 0; iFace < nIFace; ++ iFace )
+    for ( int iFace = 0; iFace < nIFaces; ++ iFace )
     {
         int nei_zone_id = interFace->zoneId[ iFace ];
         int lc = lCell[ iFace + nPBFace ];

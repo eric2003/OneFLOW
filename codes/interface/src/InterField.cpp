@@ -106,7 +106,7 @@ void SetInterfaceFieldData( int iSr, FieldRecord * fieldRecord )
     //How many neighbors of the current zone do you need to find out? This value is neiid.
 
     int neiId = interFace->z2n[ ZoneState::GetZid( oppoSr ) ];
-    int nIFace = interFace->interFacePairs[ neiId ]->nIFace;
+    int nIFaces = interFace->interFacePairs[ neiId ]->nIFaces;
     IntField & interfaceId = interFace->GetInterfaceId( neiId, iSr );
     
     ActionState::dataBook->MoveToBegin();

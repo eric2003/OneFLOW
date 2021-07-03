@@ -64,7 +64,7 @@ public:
     int nNodes;
     int nFaces, nCells;
     int nBFaces;
-    int nIFace;
+    int nIFaces;
     int volBcType;
     NodeMesh * nodeMesh;
     InterFace * interFace;

@@ -45,12 +45,12 @@ class InterFace
 {
 public:
     InterFace();
-    InterFace( int nIFace, Grid * parent = 0 );
+    InterFace( int nIFaces, Grid * parent = 0 );
     ~InterFace();
 public:
-    void Set( int nIFace, Grid * parent = 0 );
+    void Set( int nIFaces, Grid * parent = 0 );
 public:
-    int   nIFace;
+    int   nIFaces;
     int   nNeighbor;     //no of neighbors
     IntField zoneId;             //the ID of another zone corresponding to the interface of this block.
     IntField localInterfaceId;   //the ID of another face corresponding to the interface of this block.
@@ -66,7 +66,7 @@ public:
 public:
     void AllocSendRecv();
     void DeAllocSendRecv();
-    void Resize( int nIFace );
+    void Resize( int nIFaces );
     void InitNeighborFlag( IntField & flags );
     void InitNeighborZoneInfo();
     void InitNeighborZoneInfo( int iNei, int iZone );
@@ -87,7 +87,7 @@ public:
     //zid, nzid is the block number of the neighboring block (neighbor)
     int zid, nzid;
     //nIFaces is the number of interfaces corresponding to this block of adjacent blocks (not necessarily all)
-    int nIFace;
+    int nIFaces;
     IntField idrecv; // using in receiving, interface number in the current zone
     IntField idsend; // using in sending,   interface number in the tagret  zone
 protected:
