@@ -86,15 +86,15 @@ void FaceSolver::ScanElementFace( CgIntField & eNodeId, int eType, int eId )
         IntField & rNodeId = unitElement->faceList[ iFace ];
         int fType = unitElement->GetFaceType( iFace );
          
-        int nNode = rNodeId.size();
+        int nNodes = rNodeId.size();
 
         IntField aNodeId;
-        for ( int iNode = 0; iNode < nNode; ++ iNode )
+        for ( int iNode = 0; iNode < nNodes; ++ iNode )
         {
             aNodeId.push_back( eNodeId[ rNodeId[ iNode ] ] );
         }                                                              
 
-        Mid<int> fMid( nNode, this->faceTopo->faces.size() );
+        Mid<int> fMid( nNodes, this->faceTopo->faces.size() );
         fMid.data = aNodeId;
         std::sort( fMid.data.begin(), fMid.data.end() );
         int gFid = this->FindFace( fMid );

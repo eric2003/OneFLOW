@@ -53,7 +53,7 @@ void Sod::SodGrid()
 {
     int ni = 101;
     int nj = 51;
-    int nNode = ni * nj;
+    int nNodes = ni * nj;
 
     RealField2D x;
     RealField2D y;
@@ -263,9 +263,9 @@ void Sod::Theory()
     }
 
     int nxp = 21;
-    int nNode = nxp + 8;
+    int nNodes = nxp + 8;
 
-    file << " zone  i = " << nNode << endl;
+    file << " zone  i = " << nNodes << endl;
 
     file << xl << " " << r4 << " " << u4 << " " << rmach4 << " " << p4 << endl;
     file << xhead << " " << r4 << " " << u4 << " " << rmach4 << " " << p4 << endl;

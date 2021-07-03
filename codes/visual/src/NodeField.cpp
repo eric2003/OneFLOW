@@ -33,8 +33,8 @@ BeginNameSpace( ONEFLOW )
 MRField * AllocNodeVar( int nEqu )
 {
     UnsGrid * grid = Zone::GetUnsGrid();
-    int nNode = grid->nNode;
-    MRField * nf = new MRField( nEqu, nNode );
+    int nNodes = grid->nNodes;
+    MRField * nf = new MRField( nEqu, nNodes );
     return nf;
 }
 
@@ -42,7 +42,7 @@ MRField * CreateNodeVar( const string & name )
 {
     UnsGrid * grid = Zone::GetUnsGrid();
     MRField * cf = GetFieldPointer< MRField > ( grid, name );
-    int nNode = grid->nNode;
+    int nNodes = grid->nNodes;
     int nEqu = cf->GetNEqu();
 
     MRField * nf = AllocNodeVar( nEqu );
@@ -67,9 +67,9 @@ void CalcNodeVar( RealField & qNodeField, RealField & qField )
     FaceTopo * faceTopo = grid->faceTopo;
     LinkField & f2c = faceTopo->faces;
 
-    int nNode = grid->nNode;
+    int nNodes = grid->nNodes;
     int nFace = grid->nFace;
-    RealField nCount( nNode );
+    RealField nCount( nNodes );
     nCount = 0.0;
     qNodeField = 0.0;
 
@@ -96,7 +96,7 @@ void CalcNodeVar( RealField & qNodeField, RealField & qField )
     FixBcNodeVar( qNodeField, qField, nCount, BC::INTERFACE    , true );
     FixBcNodeVar( qNodeField, qField, nCount, BC::FARFIELD     , true );
 
-    for ( int iNode = 0; iNode < nNode; ++ iNode )
+    for ( int iNode = 0; iNode < nNodes; ++ iNode )
     {
         qNodeField[ iNode ] /= ( nCount[ iNode ] + SMALL );
     }
@@ -109,7 +109,7 @@ void FixBcNodeVar( RealField & qNodeField, RealField & qField, RealField & nCoun
     BcRecord * bcRecord = faceTopo->bcManager->bcRecord;
     LinkField & f2c = faceTopo->faces;
 
-    int nNode = grid->nNode;
+    int nNodes = grid->nNodes;
     int nFace = grid->nFace;
     int nBFace = grid->nBFace;
 

@@ -91,13 +91,13 @@ void PrepareCgnsZoneSub( Grids & grids, CgnsZone * cgnsZone )
 {
     NodeMesh * nodeMesh = cgnsZone->cgnsCoor->GetNodeMesh();
 
-    int nNode, nCell;
+    int nNodes, nCell;
 
     HXVector< Int3D * > unsIdList;
 
-    MergeToSingleZone( grids, unsIdList, nodeMesh, nNode, nCell );
+    MergeToSingleZone( grids, unsIdList, nodeMesh, nNodes, nCell );
 
-    cgnsZone->cgnsCoor->SetNNode( nNode );
+    cgnsZone->cgnsCoor->SetNNode( nNodes );
     cgnsZone->cgnsCoor->SetNCell( nCell );
 
     FillSection( grids, unsIdList, cgnsZone );
@@ -107,7 +107,7 @@ void PrepareCgnsZoneSub( Grids & grids, CgnsZone * cgnsZone )
     ONEFLOW::DeletePointer( unsIdList );
 }
 
-void MergeToSingleZone( Grids & grids, HXVector< Int3D * > & unsIdList, NodeMesh * nodeMesh, int & nNode, int & nCell )
+void MergeToSingleZone( Grids & grids, HXVector< Int3D * > & unsIdList, NodeMesh * nodeMesh, int & nNodes, int & nCell )
 {
     PointSearch * point_search = new PointSearch();
     point_search->Initialize( grids );
@@ -129,13 +129,13 @@ void MergeToSingleZone( Grids & grids, HXVector< Int3D * > & unsIdList, NodeMesh
         CalcUnsId( grid, point_search, & unsId );
     }
 
-    nNode = point_search->GetNPoint();
+    nNodes = point_search->GetNPoint();
 
-    cout << " First nNode = " << nNode << "\n";
-    nodeMesh->xN.resize( nNode );
-    nodeMesh->yN.resize( nNode );
-    nodeMesh->zN.resize( nNode );
-    for ( int i = 0; i < nNode; ++ i )
+    cout << " First nNodes = " << nNodes << "\n";
+    nodeMesh->xN.resize( nNodes );
+    nodeMesh->yN.resize( nNodes );
+    nodeMesh->zN.resize( nNodes );
+    for ( int i = 0; i < nNodes; ++ i )
     {
         Real xm, ym, zm;
         point_search->GetPoint( i, xm, ym, zm );

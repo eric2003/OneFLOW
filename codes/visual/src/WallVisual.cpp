@@ -201,9 +201,9 @@ void WallVisual::ConstructTopology3D()
         {
             IntField & local_fn = unitElement->GetElementFace( loc_Face );
             int face_type = unitElement->GetFaceType( loc_Face );
-            int nNode = local_fn.size();
+            int nNodes = local_fn.size();
             IntField fn;
-            for ( int iFacePoint = 0; iFacePoint < nNode; ++ iFacePoint )
+            for ( int iFacePoint = 0; iFacePoint < nNodes; ++ iFacePoint )
             {
                 fn.push_back( element[ local_fn[ iFacePoint ] ] );
             }

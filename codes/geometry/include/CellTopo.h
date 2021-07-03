@@ -37,7 +37,7 @@ public:
 public:
     IntField eTypes;
     IntField blank;
-    LinkField cellToNode;
+    LinkField elements;
     LinkField c2f;
     LinkField c2c;
 public:

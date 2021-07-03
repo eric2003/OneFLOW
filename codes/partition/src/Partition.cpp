@@ -62,20 +62,20 @@ void L2GMapping::CalcL2G( UnsGrid * ggrid, int zid, UnsGrid * grid )
 
 void L2GMapping::Alloc( UnsGrid * grid )
 {
-    int nNode = grid->nNode;
+    int nNodes = grid->nNodes;
     int nFace = grid->nFace;
     int nCell = grid->nCell;
 
-    this->l2g_node.resize( nNode );
+    this->l2g_node.resize( nNodes );
     this->l2g_face.resize( nFace );
     this->l2g_cell.resize( nCell );
 }
 
 void L2GMapping::CalcL2GNode( UnsGrid * ggrid, int zid, UnsGrid * grid )
 {
-    int nNode = ggrid->nNode;
+    int nNodes = ggrid->nNodes;
 
-    for ( int iNode = 0; iNode < nNode; ++ iNode )
+    for ( int iNode = 0; iNode < nNodes; ++ iNode )
     {
         if ( g2l->g2l_node[ iNode ] > - 1 )
         {
@@ -118,7 +118,7 @@ G2LMapping::G2LMapping( UnsGrid * ggrid )
 
     this->g2l_cell.resize( ggrid->nCell );
     this->g2l_face.resize( ggrid->nFace );
-    this->g2l_node.resize( ggrid->nNode );
+    this->g2l_node.resize( ggrid->nNodes );
     this->gc2lzone.resize( ggrid->nCell );
 
     this->npartproc = GetDataValue< int >( "npartproc" );
@@ -434,11 +434,11 @@ void Partition::CalcG2lFace( UnsGrid * ggrid, int zid, UnsGrid * grid )
 void Partition::CalcG2lNode( UnsGrid * ggrid, int zid, UnsGrid * grid )
 {
     int nFace = ggrid->nFace;
-    int nNode = ggrid->nNode;
+    int nNodes = ggrid->nNodes;
 
     LinkField & f2n = ggrid->faceTopo->faces;
 
-    for ( int iNode = 0; iNode < nNode; ++ iNode )
+    for ( int iNode = 0; iNode < nNodes; ++ iNode )
     {
         g2l->g2l_node[ iNode ] = - 2;
     }
@@ -458,7 +458,7 @@ void Partition::CalcG2lNode( UnsGrid * ggrid, int zid, UnsGrid * grid )
     }
 
     int nLNode = 0;
-    for ( int iNode = 0; iNode < nNode; ++ iNode )
+    for ( int iNode = 0; iNode < nNodes; ++ iNode )
     {
         if ( g2l->g2l_node[ iNode ] == - 1 )
         {
@@ -466,7 +466,7 @@ void Partition::CalcG2lNode( UnsGrid * ggrid, int zid, UnsGrid * grid )
         }
     }
 
-    grid->nNode = nLNode;
+    grid->nNodes = nLNode;
 }
 
 int Partition::GetNCell( UnsGrid * ggrid, int zid )
@@ -491,11 +491,11 @@ void Partition::CreateL2g( UnsGrid * ggrid, int zid, UnsGrid * grid )
 
 void Partition::SetCoor( UnsGrid * ggrid, int zid, UnsGrid * grid )
 {
-    int nNode = grid->nNode;
-    grid->nodeMesh->CreateNodes( nNode );
+    int nNodes = grid->nNodes;
+    grid->nodeMesh->CreateNodes( nNodes );
 
     int iCount = 0;
-    for ( int iNode = 0; iNode < ggrid->nNode; ++ iNode )
+    for ( int iNode = 0; iNode < ggrid->nNodes; ++ iNode )
     {
         if ( g2l->g2l_node[ iNode ] > - 1 )
         {
@@ -506,7 +506,7 @@ void Partition::SetCoor( UnsGrid * ggrid, int zid, UnsGrid * grid )
         }
     }
 
-    if ( iCount != nNode )
+    if ( iCount != nNodes )
     {
         cout << "error in Partition::SetCoor\n";
     }

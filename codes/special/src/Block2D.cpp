@@ -245,7 +245,7 @@ void Block2D::FillStrGrid( Grid * gridIn, int iZone )
     grid->nj = nj;
     grid->nk = nk;
     grid->SetBasicDimension();
-    grid->nodeMesh->CreateNodes( grid->nNode );
+    grid->nodeMesh->CreateNodes( grid->nNodes );
 
     grid->SetLayout();
 

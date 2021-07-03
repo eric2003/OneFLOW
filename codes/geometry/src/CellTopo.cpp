@@ -43,7 +43,7 @@ void CellTopo::Alloc( int nCell )
 {
     blank.resize( nCell );
     eTypes.resize( nCell );
-    cellToNode.resize( nCell );
+    elements.resize( nCell );
 
     blank = 1;
 }
@@ -55,7 +55,7 @@ void CellTopo::PushElement( int p1, int p2, int p3, int elementType )
     element.push_back( p2 );
     element.push_back( p3 );
 
-    cellToNode.push_back( element );
+    elements.push_back( element );
     eTypes.push_back( elementType );
 }
 
@@ -73,8 +73,8 @@ void CellTopo::PushElement( int p1, int p2, int p3, int p4, int elementType )
         element2.push_back( p4 );
         element2.push_back( p1 );
 
-        cellToNode.push_back( element1 );
-        cellToNode.push_back( element2 );
+        elements.push_back( element1 );
+        elements.push_back( element2 );
 
         eTypes.push_back( elementType );
         eTypes.push_back( elementType );
@@ -87,7 +87,7 @@ void CellTopo::PushElement( int p1, int p2, int p3, int p4, int elementType )
         element.push_back( p3 );
         element.push_back( p4 );
 
-        cellToNode.push_back( element );
+        elements.push_back( element );
         eTypes.push_back( elementType );
     }
 }

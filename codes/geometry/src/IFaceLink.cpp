@@ -200,10 +200,10 @@ void IFaceLink::MatchPeoridicInterface( Grid * grid )
         RealField xxList, yyList, zzList;
         f2fmap.FindFace( xList, yList, zList, xxList, yyList, zzList );
 
-        int nNode = xxList.size( );
+        int nNodes = xxList.size( );
         IntField faceNode_period;
 
-        for ( int i = 0; i < nNode; ++ i )
+        for ( int i = 0; i < nNodes; ++ i )
         {
             Real xm = xxList[ i ];
             Real ym = yyList[ i ];

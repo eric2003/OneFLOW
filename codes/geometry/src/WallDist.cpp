@@ -104,13 +104,13 @@ void FillWallStruct( StringField & data )
     {
         int bcType = bcRecord->bcType[ iFace ];
         int bcRegion = bcRecord->bcNameId[ iFace ];
-        int nNode = grid->faceTopo->faces[ iFace ].size();
+        int nNodes = grid->faceTopo->faces[ iFace ].size();
 
         if ( bcType == BC::SOLID_SURFACE )
         {
             WallStructure::PointField simpleFace;
 
-            for ( int iNode = 0; iNode < nNode; ++ iNode )
+            for ( int iNode = 0; iNode < nNodes; ++ iNode )
             {
                 int iPoint = grid->faceTopo->faces[ iFace ][ iNode ];
                 Real x0 = x[ iPoint ];

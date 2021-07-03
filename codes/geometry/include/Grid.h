@@ -61,7 +61,7 @@ public:
     string name;
     int type, level;
     int id, localId;
-    int nNode;
+    int nNodes;
     int nFace, nCell;
     int nBFace;
     int nIFace;

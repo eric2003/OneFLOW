@@ -315,9 +315,9 @@ void GenerateMultiZoneCalcGrids( Grids & grids )
 
 void ResetGridScaleAndTranslate( NodeMesh * nodeMesh )
 {
-    size_t nNode = nodeMesh->GetNumberOfNodes();
+    size_t nNodes = nodeMesh->GetNumberOfNodes();
 
-    for ( int iNode = 0; iNode < nNode; ++ iNode )
+    for ( int iNode = 0; iNode < nNodes; ++ iNode )
     {
         nodeMesh->xN[ iNode ] *= grid_para.gridScale;
         nodeMesh->yN[ iNode ] *= grid_para.gridScale;
@@ -336,14 +336,14 @@ void ResetGridScaleAndTranslate( NodeMesh * nodeMesh )
 
 void TurnZAxisToYAxis( NodeMesh * nodeMesh )
 {
-    size_t nNode = nodeMesh->GetNumberOfNodes();
+    size_t nNodes = nodeMesh->GetNumberOfNodes();
 
     RealField & xN = nodeMesh->xN;
     RealField & yN = nodeMesh->yN;
     RealField & zN = nodeMesh->zN;
 
     Real tmp;
-    for ( int iNode = 0; iNode < nNode; ++ iNode )
+    for ( int iNode = 0; iNode < nNodes; ++ iNode )
     {
         tmp         = yN[ iNode ];
         yN[ iNode ] = zN[ iNode ];

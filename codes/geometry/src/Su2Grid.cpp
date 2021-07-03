@@ -505,15 +505,15 @@ void Su2Grid::Su2ToOneFlowGrid()
 
 void Su2Grid::FillSU2CgnsZone( CgnsZone * cgnsZone )
 {
-    int nNode = this->xN.size();
+    int nNodes = this->xN.size();
     int nCell = this->nElem;
 
-    cgnsZone->cgnsCoor->SetNNode( nNode );
+    cgnsZone->cgnsCoor->SetNNode( nNodes );
     cgnsZone->cgnsCoor->SetNCell( nCell );
 
     NodeMesh * nodeMesh = cgnsZone->cgnsCoor->GetNodeMesh();
 
-    nodeMesh->CreateNodes( nNode );
+    nodeMesh->CreateNodes( nNodes );
     nodeMesh->xN = this->xN;
     nodeMesh->yN = this->yN;
     nodeMesh->zN = this->zN;
@@ -561,8 +561,8 @@ void Su2Grid::FillSU2CgnsZone( CgnsZone * cgnsZone )
         for ( int iElem = 0; iElem < nElem; ++ iElem )
         {
             IntField & elem = sec->elems[ iElem ];
-            int nNode = elem.size();
-            for ( int i = 0; i < nNode; ++ i )
+            int nNodes = elem.size();
+            for ( int i = 0; i < nNodes; ++ i )
             {
                 cgnsSection->connList[ pos ++ ]= elem[ i ] + 1;
             }

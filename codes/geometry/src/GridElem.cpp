@@ -27,6 +27,8 @@ License
 #include "HXCgns.h"
 #include "UnsGrid.h"
 #include "HXMath.h"
+#include "CellTopo.h"
+#include "CellMesh.h"
 #include "ElemFeature.h"
 #include "FaceTopo.h"
 #include "FaceSolver.h"
@@ -156,7 +158,7 @@ void GridElem::ScanBcFace()
 
 void GridElem::GenerateCalcElement()
 {
-    int nElement =  this->elem_feature->eType->size();
+    int nElement =  this->elem_feature->eTypes->size();
 
     FaceTopo * faceTopo = this->face_solver->faceTopo;
 
@@ -196,14 +198,15 @@ void GridElem::GenerateCalcGrid( Grid * gridIn )
 {
     UnsGrid * grid = UnsGridCast ( gridIn );
 
-    grid->nCell = this->elem_feature->eType->size();
+    grid->nCell = this->elem_feature->eTypes->size();
+    grid->cellMesh->cellTopo->eTypes = * this->elem_feature->eTypes;
     cout << "   nCell = " << grid->nCell << endl;
 
-    int nNode = this->point_factory->c2g.size();
-    grid->nodeMesh->CreateNodes( nNode );
-    grid->nNode = nNode;
+    int nNodes = this->point_factory->c2g.size();
+    grid->nodeMesh->CreateNodes( nNodes );
+    grid->nNodes = nNodes;
 
-    for ( int iNode = 0; iNode < nNode; ++ iNode )
+    for ( int iNode = 0; iNode < nNodes; ++ iNode )
     {
         int nodeIndex = this->point_factory->c2g[ iNode ];
 

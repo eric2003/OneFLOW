@@ -133,11 +133,11 @@ void BcVisual::ResolveElementEdge()
 
     for ( int fId = 0; fId < nFace; ++ fId )
     {
-        int nNode = this->f2n[ fId ].size();
-        for ( int iNode = 0; iNode < nNode; ++ iNode )
+        int nNodes = this->f2n[ fId ].size();
+        for ( int iNode = 0; iNode < nNodes; ++ iNode )
         {
             int iNode0 = iNode;
-            int iNode1 = ( iNode + 1 ) % nNode;
+            int iNode1 = ( iNode + 1 ) % nNodes;
 
             int ip1 = this->f2n[ fId ][ iNode0 ];
             int ip2 = this->f2n[ fId ][ iNode1 ];
@@ -212,10 +212,10 @@ void BcVisual::Calcf2n( int bcType )
     {
         if ( bcType != bcRecord->bcType[ iFace ] ) continue;
 
-        int nNode = f2n[ iFace ].size();
+        int nNodes = f2n[ iFace ].size();
 
         localf2n.resize( 0 );
-        for ( int iNode = 0; iNode < nNode; ++ iNode )
+        for ( int iNode = 0; iNode < nNodes; ++ iNode )
         {
             int gId = f2n[ iFace ][ iNode ];
 
@@ -272,7 +272,7 @@ void BcVisual::Dump( ostringstream & oss, VisualTool * visualTool, string & bcTi
         oss << visualTool->title[ i ] << endl;
     }
         
-    int nNode = l2g.size();
+    int nNodes = l2g.size();
     int nFace = e2n.size();
     int nElem = this->f2n.size();
 
@@ -283,7 +283,7 @@ void BcVisual::Dump( ostringstream & oss, VisualTool * visualTool, string & bcTi
 
     oss << "ZoneType = FEPolygon\n";
 
-    oss << "Nodes    = " << nNode << endl;
+    oss << "Nodes    = " << nNodes << endl;
     oss << "Faces    = " << nFace << endl;  
     oss << "Elements = " << nElem << endl;  
     oss << "NumConnectedBoundaryFaces = 0\n";
@@ -311,7 +311,7 @@ void BcVisual::DumpDebug( ostringstream & oss, VisualTool * visualTool, string &
 {
     UnsGrid * grid = Zone::GetUnsGrid();
 
-    int nNode = l2g.size();
+    int nNodes = l2g.size();
     int nFace = e2n.size();
     int nElem = this->f2n.size();
 
@@ -322,14 +322,14 @@ void BcVisual::DumpDebug( ostringstream & oss, VisualTool * visualTool, string &
     oss << " \"y\" ";
     oss << " \"z\" ";
     oss << "\n";
-    //oss << " ZONE N = " << nNode << " E = " << nElem << " F = FEPOINT, ET = TRIANGLE \n";
-    //oss << " ZONE N = " << nNode << " E = " << nElem << " F = FEPOINT, ET = QUADRILATERAL \n";
+    //oss << " ZONE N = " << nNodes << " E = " << nElem << " F = FEPOINT, ET = TRIANGLE \n";
+    //oss << " ZONE N = " << nNodes << " E = " << nElem << " F = FEPOINT, ET = QUADRILATERAL \n";
     oss << "title = \"THE FLOW FIELD OF ONEFLOW\" \n";
     oss << "VARIALBES = \"x\" \"y\" \"z\" " << "\n";
 
-    oss << " ZONE N = " << nNode << " E = " << nElem << " F = FEPOINT, ET = QUADRILATERAL \n";
+    oss << " ZONE N = " << nNodes << " E = " << nElem << " F = FEPOINT, ET = QUADRILATERAL \n";
 
-    for ( int iNode = 0; iNode < nNode; ++ iNode )
+    for ( int iNode = 0; iNode < nNodes; ++ iNode )
     {
         int id = l2g[ iNode ];
         oss << grid->nodeMesh->xN[ id ] << " ";
@@ -359,7 +359,7 @@ void BcVisual::DumpSeveralElement()
 {
     UnsGrid * grid = Zone::GetUnsGrid();
 
-    int nNode = l2g.size();
+    int nNodes = l2g.size();
     int nFace = e2n.size();
     int nElem = this->f2n.size();
 
@@ -512,7 +512,7 @@ void UVisualize::ShowField( ostringstream & oss, VisualTool * visualTool )
     FaceTopo * faceTopo = grid->faceTopo;
     LinkField & f2n = faceTopo->faces;
 
-    int nNode = grid->nNode;
+    int nNodes = grid->nNodes;
     int nCell = grid->nCell;
     int nFace = grid->nFace;
 
@@ -533,7 +533,7 @@ void UVisualize::ShowField( ostringstream & oss, VisualTool * visualTool )
     {
         oss << "ZoneType = FEPolygon\n";
     }
-    oss << "Nodes    = " << nNode << endl;
+    oss << "Nodes    = " << nNodes << endl;
     oss << "Faces    = " << nFace << endl;
     oss << "Elements = " << nCell << endl;
     oss << "TotalNumFaceNodes = " << totalNumFaceNodes << endl;
@@ -641,8 +641,8 @@ void UVisualize::CalcNodeField( VisualTool * visualTool )
 void CalcMach( MRField * r, MRField * u, MRField * v, MRField * w, MRField * p, MRField * gama, MRField * mach )
 {
     UnsGrid * grid = Zone::GetUnsGrid();
-    int nNode = grid->nNode;
-    for ( int iNode = 0; iNode < nNode; ++ iNode )
+    int nNodes = grid->nNodes;
+    for ( int iNode = 0; iNode < nNodes; ++ iNode )
     {
         Real rm = ( * r )[ 0 ][ iNode ];
         Real um = ( * u )[ 0 ][ iNode ];

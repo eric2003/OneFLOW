@@ -137,8 +137,8 @@ void FaceSearch::CalcNewFaceId( IFaceLink * iFaceLink )
 
 void FaceSearch::SplitQuad2Tri( FaceSort * pFaceSort )
 {
-    int nNode = pFaceSort->nodeId.size();
-    if ( nNode <= 3 ) return;
+    int nNodes = pFaceSort->nodeId.size();
+    if ( nNodes <= 3 ) return;
 
     LinkField localTriId, localTriFlag;
     this->GetLocalTri( localTriId, localTriFlag );
@@ -170,8 +170,8 @@ void FaceSearch::SplitQuad2Tri( FaceSort * pFaceSort )
 
 void FaceSearch::SplitLine( FaceSort * pFaceSort )
 {
-    int nNode = pFaceSort->nodeId.size();
-    if ( nNode >= 3 ) return;
+    int nNodes = pFaceSort->nodeId.size();
+    if ( nNodes >= 3 ) return;
 
     LinkField localLineId, localLineFlag;
     LinkField lineId;
@@ -294,8 +294,8 @@ bool FaceSearch::GetLine( FaceSort * pFaceSort, LinkField & localLineId, LinkFie
     int zoneIndex = this->iFaceLink->gI2Zid[ this->gFid ][ 0 ];
     Grid * grid = ( this->iFaceLink->grids )[ zoneIndex ];
 
-    int nNode = grid->nodeMesh->GetNumberOfNodes();
-    int pId = nNode;
+    int nNodes = grid->nodeMesh->GetNumberOfNodes();
+    int pId = nNodes;
 
     grid->nodeMesh->AddPoint( coor2[ 0 ], coor2[ 1 ], coor2[ 2 ] );
 

@@ -50,7 +50,7 @@ public:
 public:
     int zoneid;
     int ist, ied;
-    int nNode;
+    int nNodes;
     vector< double > u;
     vector< double > un;
     vector< double > x;

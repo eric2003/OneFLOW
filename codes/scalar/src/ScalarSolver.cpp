@@ -44,10 +44,10 @@ void ScalarZoneTmp::Init( int ist, int ied )
 {
     this->ist = ist;
     this->ied = ied;
-    this->nNode = ied - ist + 1;
-    this->u.resize( nNode );
-    this->un.resize( nNode );
-    this->x.resize( nNode );
+    this->nNodes = ied - ist + 1;
+    this->u.resize( nNodes );
+    this->un.resize( nNodes );
+    this->x.resize( nNodes );
 }
 
 void ScalarZoneTmp::SetBc( int bcL, int bcR )
@@ -55,13 +55,13 @@ void ScalarZoneTmp::SetBc( int bcL, int bcR )
     this->bcPointList.push_back( 0 );
     this->bcTypeList.push_back( bcL );
 
-    this->bcPointList.push_back( nNode - 1 );
+    this->bcPointList.push_back( nNodes - 1 );
     this->bcTypeList.push_back( bcR );
 }
 
 void ScalarZoneTmp::InitField( vector< double > & uGlobal )
 {
-    for ( int i = 0; i < nNode; ++ i )
+    for ( int i = 0; i < nNodes; ++ i )
     {
         int j = ( this->ist - 1 ) + i;
         this->u[ i ] = uGlobal[ j ];
@@ -71,7 +71,7 @@ void ScalarZoneTmp::InitField( vector< double > & uGlobal )
 void ScalarZoneTmp::Solve( double coef )
 {
     int ist = 1;
-    int ied = nNode;
+    int ied = nNodes;
     for ( int i = ist; i < ied; ++ i )
     {
         //u[ i ] = un[ i ] - c * dt / dx * ( un[ i ] - un[ i - 1 ] );
@@ -86,7 +86,7 @@ void ScalarZoneTmp::UpdateUN()
 
 void ScalarZoneTmp::GatherField( vector< double > & ugfield )
 {
-    for ( int i = 0; i < nNode; ++ i )
+    for ( int i = 0; i < nNodes; ++ i )
     {
         int j = ( this->ist - 1 ) + i;
         ugfield[ j ] = this->u[ i ];
@@ -95,7 +95,7 @@ void ScalarZoneTmp::GatherField( vector< double > & ugfield )
 
 void ScalarZoneTmp::CompareField( vector< double > & uGlobal )
 {
-    for ( int i = 0; i < nNode; ++ i )
+    for ( int i = 0; i < nNodes; ++ i )
     {
         int j = ( this->ist - 1 ) + i;
         double ug = uGlobal[ j ];
@@ -110,7 +110,7 @@ void ScalarZoneTmp::CompareField( vector< double > & uGlobal )
 
 double ScalarZoneTmp::GetRightBcValue()
 {
-    return this->u[ nNode - 1 ];
+    return this->u[ nNodes - 1 ];
 }
 
 void ScalarZoneTmp::SetLeftBcValue( double lv )

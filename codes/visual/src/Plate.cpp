@@ -111,8 +111,8 @@ void PlaneData::AddVar( int p1, int p2, Real c1, Real c2 )
 
 void PlaneData::Write( DataBook * dataBook )
 {
-    int nNode = x.size();
-    HXWrite( dataBook, nNode );
+    int nNodes = x.size();
+    HXWrite( dataBook, nNodes );
     HXWrite( dataBook, x );
     HXWrite( dataBook, y );
     HXWrite( dataBook, z );
@@ -128,13 +128,13 @@ void PlaneData::Write( DataBook * dataBook )
 
 void PlaneData::Read( DataBook * dataBook )
 {
-    int nNode = 0;
-    RealField xx( nNode ), yy( nNode ), zz( nNode );
-    HXRead( dataBook, nNode );
+    int nNodes = 0;
+    RealField xx( nNodes ), yy( nNodes ), zz( nNodes );
+    HXRead( dataBook, nNodes );
     HXRead( dataBook, xx );
     HXRead( dataBook, yy );
     HXRead( dataBook, zz );
-    for ( int i = 0; i < nNode; ++ i )
+    for ( int i = 0; i < nNodes; ++ i )
     {
         x.push_back( xx[ i ] );
         y.push_back( yy[ i ] );
@@ -161,10 +161,10 @@ void PlaneData::SortData( RealField & varList )
     HXVector< HXSort< Real > > sortList;
     HXSort< Real > svar;
 
-    int nNode = this->x.size();
-    if ( nNode <= 0 ) return;
+    int nNodes = this->x.size();
+    if ( nNodes <= 0 ) return;
 
-    for ( int iNode = 0; iNode < nNode; ++ iNode )
+    for ( int iNode = 0; iNode < nNodes; ++ iNode )
     {
         svar.value = varList[ iNode ];
         svar.index = iNode;
@@ -173,7 +173,7 @@ void PlaneData::SortData( RealField & varList )
     sort( sortList.begin(), sortList.end() );
 
     IntField indexList;
-    for ( int iNode = 0; iNode < nNode; ++ iNode )
+    for ( int iNode = 0; iNode < nNodes; ++ iNode )
     {
         indexList.push_back( sortList[ iNode ].index );
     }
@@ -463,8 +463,8 @@ void CuttingClass::CutPlane( Real cutPosition, int cutAxis, LamData * lamData )
         Real coorMin =   LARGE;
         Real coorMax = - LARGE;
 
-        int nNode = f2n[ iFace ].size();
-        for ( int iNode = 0; iNode < nNode; ++ iNode )
+        int nNodes = f2n[ iFace ].size();
+        for ( int iNode = 0; iNode < nNodes; ++ iNode )
         {
             int nId = f2n[ iFace ][ iNode ];
             coorMin = MIN( xyz[ nId ], coorMin );
@@ -476,10 +476,10 @@ void CuttingClass::CutPlane( Real cutPosition, int cutAxis, LamData * lamData )
             continue;
         }
 
-        for ( int iNode = 0; iNode < nNode; ++ iNode )
+        for ( int iNode = 0; iNode < nNodes; ++ iNode )
         {
             int p1 = f2n[ iFace ][ iNode     ];
-            int p2 = f2n[ iFace ][ ( iNode + 1 ) % nNode ];
+            int p2 = f2n[ iFace ][ ( iNode + 1 ) % nNodes ];
 
             coorMin = MIN( xyz[ p1 ], xyz[ p2 ] );
             coorMax = MAX( xyz[ p1 ], xyz[ p2 ] );

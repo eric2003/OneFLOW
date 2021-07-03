@@ -323,10 +323,10 @@ void SimpleMesh2D::CalcX2Y2ArrayNoLoop( RealField & x1Array, RealField & y1Array
         y2Array[ iNode ] = y;
     }
 
-    int nNode = numberOfNodes - 1;
+    int nNodes = numberOfNodes - 1;
 
-    x2Array[ nNode ] = 2 * x2Array[ nNode - 1 ] - x2Array[ nNode - 2 ];
-    y2Array[ nNode ] = 2 * y2Array[ nNode - 1 ] - y2Array[ nNode - 2 ];
+    x2Array[ nNodes ] = 2 * x2Array[ nNodes - 1 ] - x2Array[ nNodes - 2 ];
+    y2Array[ nNodes ] = 2 * y2Array[ nNodes - 1 ] - y2Array[ nNodes - 2 ];
 }
 
 void SimpleMesh2D::PushCircleNode( RealField & xArray, RealField & yArray, IntField & nodeArray )
@@ -385,7 +385,7 @@ void Mesh::ConstructTopology()
 
     for ( UInt iCell = 0; iCell < numberOfCells; ++ iCell )
     {
-        IntField & element = cellTopo->cellToNode[ iCell ];
+        IntField & element = cellTopo->elements[ iCell ];
 
         int elementType = cellTopo->eTypes[ iCell ];
 
@@ -601,7 +601,7 @@ void Mesh::CalcCellCenterVol1D()
 
     for ( UInt iCell = 0; iCell < numberOfCells; ++ iCell )
     {
-        IntField & element = cellTopo->cellToNode[ iCell ];
+        IntField & element = cellTopo->elements[ iCell ];
         int p1 = element[ 0 ];
         int p2 = element[ 1 ];
         xcc[ iCell  ] = half * ( xN[ p1 ] + xN[ p2 ] );

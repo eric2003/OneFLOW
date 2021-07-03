@@ -54,7 +54,7 @@ public:
     RealField x;
     RealField y;
     RealField z;
-    int nNode;
+    int nNodes;
 public:
     PointType start_p, end_p;
     PointType center_p;
@@ -62,7 +62,7 @@ public:
     Real ds1, ds2;
     int lineType;
 public:
-    void Alloc( int nNode );
+    void Alloc( int nNodes );
     void MakeLine( PointType & p1, PointType & p2 );
     void MakeCircle();
     void MakeCircle( PointType & p1, PointType & p2, PointType & p0 );

@@ -369,8 +369,8 @@ void Cylinder::GeneDomain()
     CurveLine * s3 = this->strCurveLoop->GetCurve( 2 );
     CurveLine * s4 = this->strCurveLoop->GetCurve( 3 );
 
-    int ni = s1->nNode;
-    int nj = s3->nNode;
+    int ni = s1->nNodes;
+    int nj = s3->nNodes;
 
     int il = 0;
     int ir = ni - 1;

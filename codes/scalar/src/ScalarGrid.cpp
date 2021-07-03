@@ -1305,8 +1305,8 @@ void ScalarGrid::WriteGridFaceTopology( DataBook * databook )
 
 	for ( int iFace = 0; iFace < this->nFaces; ++ iFace )
 	{
-		int nNode = numFaceNode[ iFace ];
-		for ( int iNode = 0; iNode < nNode; ++ iNode )
+		int nNodes = numFaceNode[ iFace ];
+		for ( int iNode = 0; iNode < nNodes; ++ iNode )
 		{
 			faceNodeMem.push_back( this->faces[ iFace ][ iNode ] );
 		}
@@ -1360,8 +1360,8 @@ void ScalarGrid::ReadGridFaceTopology( DataBook * databook )
 	int ipos = 0;
 	for ( int iFace = 0; iFace < this->nFaces; ++ iFace )
 	{
-		int nNode = numFaceNode[ iFace ];
-		for ( int iNode = 0; iNode < nNode; ++ iNode )
+		int nNodes = numFaceNode[ iFace ];
+		for ( int iNode = 0; iNode < nNodes; ++ iNode )
 		{
 			int pid = faceNodeMem[ ipos ++ ];
 			this->faces[ iFace ].push_back( pid );
@@ -1465,8 +1465,8 @@ void ScalarGrid::ReconstructNode( ScalarGrid * ggrid )
 		//global face id
 		int iGFace = this->global_faceid[ iFace ];
 		vector< int > & face = ggrid->faces[ iGFace ];
-		int nNode = face.size();
-		for ( int iNode = 0; iNode < nNode; ++ iNode )
+		int nNodes = face.size();
+		for ( int iNode = 0; iNode < nNodes; ++ iNode )
 		{
 			nodeset.insert( face[ iNode ] );
 		}
@@ -1483,8 +1483,8 @@ void ScalarGrid::ReconstructNode( ScalarGrid * ggrid )
 	for ( int iFace = 0; iFace < nFaces; ++ iFace )
 	{
 		vector< int > & face = this->faces[ iFace ];
-		int nNode = face.size();
-		for ( int iNode = 0; iNode < nNode; ++ iNode )
+		int nNodes = face.size();
+		for ( int iNode = 0; iNode < nNodes; ++ iNode )
 		{
 			int glbal_node_id = face[ iNode ];
 			face[ iNode ] = global_local_node[ glbal_node_id ];

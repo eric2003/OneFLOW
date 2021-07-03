@@ -94,9 +94,9 @@ int F2FMap::AddFacePoint( CgIntField & fNodeId, NodeMesh *nodeMesh, IntField & n
 
 void F2FMap::FindFace( RealField &xList, RealField &yList, RealField &zList, RealField &xxList, RealField &yyList, RealField &zzList )
 {
-    int nNode = xList.size();
+    int nNodes = xList.size();
     IntField face;
-    for ( int i = 0; i < nNode; ++ i )
+    for ( int i = 0; i < nNodes; ++ i )
     {
         Real xm = xList[ i ];
         Real ym = yList[ i ];

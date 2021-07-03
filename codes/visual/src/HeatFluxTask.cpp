@@ -175,8 +175,8 @@ void CollectWallFaceNode()
         if ( bc_type == BC::SOLID_SURFACE )
         {
             WallStructure::PointField ptList;
-            int nNode = f2n[ iFace ].size();
-            for ( int iNode = 0; iNode < nNode; ++ iNode )
+            int nNodes = f2n[ iFace ].size();
+            for ( int iNode = 0; iNode < nNodes; ++ iNode )
             {
                 int index = f2n[ iFace ][ iNode ];
                 Real x0 = x[ index ];
