@@ -62,6 +62,8 @@ public:
     void ReconstructInterFace();
     void MatchInterfaceTopology();
     void ReconstructLink( int iZone );
+public:
+    void GenerateMultiZoneCalcGrids( Grids & grids );
 };
 
 string GetTargetGridFileName();

@@ -287,6 +287,15 @@ void CalcGrid::MatchInterfaceTopology()
     }
 }
 
+void CalcGrid::GenerateMultiZoneCalcGrids( Grids & grids )
+{
+    RegionNameMap::DumpRegion();
+
+    this->Init( grids );
+    this->Post();
+    this->Dump();
+}
+
 int GetIgnoreNoBc()
 {
     return ONEFLOW::GetDataValue< int >( "ignoreNoBc" );
@@ -299,17 +308,9 @@ string GetTargetGridFileName()
 
 void GenerateMultiZoneCalcGrids( Grids & grids )
 {
-    RegionNameMap::DumpRegion();
-
-    CalcGrid * compGrid = new CalcGrid();
-    compGrid->Init( grids );
-    logFile << "Post\n";
-
-    compGrid->Post();
-    logFile << "Post 1\n";
-    compGrid->Dump();
-    logFile << "Dump\n";
-    delete compGrid;
+    CalcGrid * calcGrid = new CalcGrid();
+    calcGrid->GenerateMultiZoneCalcGrids( grids );
+    delete calcGrid;
 }
 
 void ResetGridScaleAndTranslate( NodeMesh * nodeMesh )

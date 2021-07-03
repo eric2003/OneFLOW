@@ -263,7 +263,7 @@ void Partition::GenerateMultiZoneGrid()
 
     this->AllocPart();
 
-    this->BuildCalcutationalGrid();
+    this->BuildCalculationalGrid();
 }
 
 void Partition::CreatePart()
@@ -294,14 +294,14 @@ void Partition::AllocPart()
     }
 }
 
-void Partition::BuildCalcutationalGrid()
+void Partition::BuildCalculationalGrid()
 {
     this->PreProcess();
     for ( int pid = 0; pid < npartproc; ++ pid )
     {
-        cout << "BuildCalcutationalGrid pid = " << pid << " npartproc = " << npartproc << "\n";
+        cout << "BuildCalculationalGrid pid = " << pid << " npartproc = " << npartproc << "\n";
         //for unstructured grid, each processor only contains one zone, so pid equal to zid
-        this->BuildCalcutationalGrid( pid );
+        this->BuildCalculationalGrid( pid );
     }
     this->PostProcess();
 }
@@ -330,7 +330,7 @@ void Partition::CalcG2lCell()
     }
 }
 
-void Partition::BuildCalcutationalGrid( int zid )
+void Partition::BuildCalculationalGrid( int zid )
 {
     UnsGrid * grid = UnsGridCast( grids[ zid ] );
 
