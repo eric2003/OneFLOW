@@ -153,11 +153,11 @@ void WallVisual::BuildFaceTopo( IntField & faceNodeIndexArray, int loc_Face, int
 
 void WallVisual::CalcOrderMap( int & nBFace, IntField & orderMapping )
 {
-    int nFace = rCell.size();
-    orderMapping.resize( nFace );
+    int nFaces = rCell.size();
+    orderMapping.resize( nFaces );
     int iCount = 0;
     nBFace = 0;
-    for ( int iFace = 0; iFace < nFace; ++ iFace )
+    for ( int iFace = 0; iFace < nFaces; ++ iFace )
     {
         int rc = rCell[ iFace ];
         if ( rc == INVALID_INDEX )
@@ -167,7 +167,7 @@ void WallVisual::CalcOrderMap( int & nBFace, IntField & orderMapping )
         }
     }
 
-    for ( int iFace = 0; iFace < nFace; ++ iFace )
+    for ( int iFace = 0; iFace < nFaces; ++ iFace )
     {
         int rc = rCell[ iFace ];
         if ( rc != INVALID_INDEX )

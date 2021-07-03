@@ -60,12 +60,12 @@ void FaceMesh::SetNBFace( UInt nBFace )
 
 void FaceMesh::CalcFaceCenter1D( NodeMesh * nodeMesh )
 {
-    UInt nFace = this->GetNFace();
+    UInt nFaces = this->GetNFace();
     RealField & xN = nodeMesh->xN;
     RealField & yN = nodeMesh->yN;
     RealField & zN = nodeMesh->zN;
 
-    for ( UInt iFace = 0; iFace < nFace; ++ iFace )
+    for ( UInt iFace = 0; iFace < nFaces; ++ iFace )
     {
         IntField & nodeIndex = faceTopo->faces[ iFace ];
         int p1 = nodeIndex[ 0 ];
@@ -78,7 +78,7 @@ void FaceMesh::CalcFaceCenter1D( NodeMesh * nodeMesh )
 
 void FaceMesh::CalcFaceNormal1D( NodeMesh * nodeMesh, CellMesh * cellMesh )
 {
-    UInt nFace = this->GetNFace();
+    UInt nFaces = this->GetNFace();
     RealField & xN = nodeMesh->xN;
     RealField & yN = nodeMesh->yN;
     RealField & zN = nodeMesh->zN;
@@ -88,7 +88,7 @@ void FaceMesh::CalcFaceNormal1D( NodeMesh * nodeMesh, CellMesh * cellMesh )
     RealField & zcc  = cellMesh->zcc ;
     RealField & vol = cellMesh->vol;
 
-    for ( UInt iFace = 0; iFace < nFace; ++ iFace )
+    for ( UInt iFace = 0; iFace < nFaces; ++ iFace )
     {
         int lc  = faceTopo->lCell[ iFace ];
 
@@ -113,9 +113,9 @@ void FaceMesh::CalcFaceNormal2D( NodeMesh * nodeMesh )
     RealField & yN = nodeMesh->yN;
     RealField & zN = nodeMesh->zN;
 
-    UInt nFace = this->GetNFace();
+    UInt nFaces = this->GetNFace();
 
-    for ( UInt iFace = 0; iFace < nFace; ++ iFace )
+    for ( UInt iFace = 0; iFace < nFaces; ++ iFace )
     {
         IntField & faceIndex = faceTopo->faces[ iFace ];
         int p1 = faceIndex[ 0 ];
@@ -128,7 +128,7 @@ void FaceMesh::CalcFaceNormal2D( NodeMesh * nodeMesh )
         area[ iFace ] = ONEFLOW::DIST( xfn[ iFace ], yfn[ iFace ], zfn[ iFace ] );
     }
 
-    for ( UInt iFace = 0; iFace < nFace; ++ iFace )
+    for ( UInt iFace = 0; iFace < nFaces; ++ iFace )
     {
         Real oArea = 1.0 / ( area[ iFace ] + SMALL );
         xfn[ iFace ] *= oArea;
@@ -139,12 +139,12 @@ void FaceMesh::CalcFaceNormal2D( NodeMesh * nodeMesh )
 
 void FaceMesh::CalcFaceCenter2D( NodeMesh * nodeMesh )
 {
-    UInt nFace = this->GetNFace();
+    UInt nFaces = this->GetNFace();
     RealField & xN = nodeMesh->xN;
     RealField & yN = nodeMesh->yN;
     RealField & zN = nodeMesh->zN;
 
-    for ( UInt iFace = 0; iFace < nFace; ++ iFace )
+    for ( UInt iFace = 0; iFace < nFaces; ++ iFace )
     {
         IntField & nodeIndex = faceTopo->faces[ iFace ];
         int p1 = nodeIndex[ 0 ];
@@ -167,9 +167,9 @@ void FaceMesh::CalcFaceNormal3D( NodeMesh * nodeMesh )
     RealField & yN = nodeMesh->yN;
     RealField & zN = nodeMesh->zN;
 
-    UInt nFace = this->GetNFace();
+    UInt nFaces = this->GetNFace();
 
-    for ( UInt iFace = 0; iFace < nFace; ++ iFace )
+    for ( UInt iFace = 0; iFace < nFaces; ++ iFace )
     {
         IntField & faceIndex = faceTopo->faces[ iFace ];
 
@@ -196,7 +196,7 @@ void FaceMesh::CalcFaceNormal3D( NodeMesh * nodeMesh )
         area[ iFace ] = ONEFLOW::DIST( xfn[ iFace ], yfn[ iFace ], zfn[ iFace ] );
     }
 
-    for ( UInt iFace = 0; iFace < nFace; ++ iFace )
+    for ( UInt iFace = 0; iFace < nFaces; ++ iFace )
     {
         Real oArea = 1.0 / ( area[ iFace ] + SMALL );
         xfn[ iFace ] *= oArea;
@@ -211,9 +211,9 @@ void FaceMesh::CalcFaceCenter3D( NodeMesh * nodeMesh )
     RealField & yN = nodeMesh->yN;
     RealField & zN = nodeMesh->zN;
 
-    UInt nFace = this->GetNFace();
+    UInt nFaces = this->GetNFace();
 
-    for ( UInt iFace = 0; iFace < nFace; ++ iFace )
+    for ( UInt iFace = 0; iFace < nFaces; ++ iFace )
     {
         Real x0 = 0.0;
         Real y0 = 0.0;
@@ -285,18 +285,18 @@ void FaceMesh::CalcFaceCenter3D( NodeMesh * nodeMesh )
 
 void FaceMesh::AllocateMetrics()
 {
-    UInt nFace = this->GetNFace();
-    this->xfc.resize( nFace );
-    this->yfc.resize( nFace );
-    this->zfc.resize( nFace );
-    this->xfn.resize( nFace );
-    this->yfn.resize( nFace );
-    this->zfn.resize( nFace );
-    this->area.resize( nFace );
-    this->vfx.resize( nFace );
-    this->vfy.resize( nFace );
-    this->vfz.resize( nFace );
-    this->vfn.resize( nFace );
+    UInt nFaces = this->GetNFace();
+    this->xfc.resize( nFaces );
+    this->yfc.resize( nFaces );
+    this->zfc.resize( nFaces );
+    this->xfn.resize( nFaces );
+    this->yfn.resize( nFaces );
+    this->zfn.resize( nFaces );
+    this->area.resize( nFaces );
+    this->vfx.resize( nFaces );
+    this->vfy.resize( nFaces );
+    this->vfz.resize( nFaces );
+    this->vfn.resize( nFaces );
     this->vfx = 0;
     this->vfy = 0;
     this->vfz = 0;

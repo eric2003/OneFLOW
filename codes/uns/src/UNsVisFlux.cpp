@@ -107,7 +107,7 @@ void UNsVisFlux::CalcFlux()
 
 void UNsVisFlux::Alloc()
 {
-    visflux = new MRField( nscom.nEqu, ug.nFace );
+    visflux = new MRField( nscom.nEqu, ug.nFaces );
 }
 
 void UNsVisFlux::DeAlloc()
@@ -124,7 +124,7 @@ void UNsVisFlux::PrepareField()
 
 void UNsVisFlux::CalcVisFlux()
 {
-    for ( int fId = 0; fId < ug.nFace; ++ fId )
+    for ( int fId = 0; fId < ug.nFaces; ++ fId )
     {
         ug.fId = fId;
 

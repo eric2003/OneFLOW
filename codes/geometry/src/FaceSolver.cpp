@@ -146,11 +146,11 @@ void FaceSolver::ScanBcFace( IntSet& bcVertex, int bcType, int bcNameId )
     int nBFace = 0;
 
     //cout << " this->faceTopo = " << this->faceTopo << "\n";
-    int nFace = this->faceTopo->lCell.size();
+    int nFaces = this->faceTopo->lCell.size();
 
-    cout << " nFace = " << nFace << "\n";
+    cout << " nFaces = " << nFaces << "\n";
     int nTraditionalBc = 0;
-    for ( int iFace = 0; iFace < nFace; ++ iFace )
+    for ( int iFace = 0; iFace < nFaces; ++ iFace )
     {
         int rCell = ( this->faceTopo->rCell )[ iFace ];
 
@@ -162,11 +162,11 @@ void FaceSolver::ScanBcFace( IntSet& bcVertex, int bcType, int bcNameId )
     cout << " nTraditionalBc = " << nTraditionalBc << "\n";
 
 
-    for ( int iFace = 0; iFace < nFace; ++ iFace )
+    for ( int iFace = 0; iFace < nFaces; ++ iFace )
     {
         if ( iFace % 200000 == 0 ) 
         {
-            //cout << " iFace = " << iFace << " numberOfTotalFaces = " << nFace << endl;
+            //cout << " iFace = " << iFace << " numberOfTotalFaces = " << nFaces << endl;
         }
         int originalBcType = ( * this->faceBcType )[ iFace ];
         int rCell     = ( this->faceTopo->rCell )[ iFace ];
@@ -190,11 +190,11 @@ void FaceSolver::ScanBcFace( IntSet& bcVertex, int bcType, int bcNameId )
 
 void FaceSolver::ScanBcFaceDetail( IntSet& bcVertex, int bcType, int bcNameId )
 {
-    int nFace = this->faceTopo->lCell.size();
-    cout << " nFace = " << nFace << "\n";
+    int nFaces = this->faceTopo->lCell.size();
+    cout << " nFaces = " << nFaces << "\n";
 
     int nTraditionalBc = 0;
-    for ( int iFace = 0; iFace < nFace; ++ iFace )
+    for ( int iFace = 0; iFace < nFaces; ++ iFace )
     {
         int rCell = ( this->faceTopo->rCell )[ iFace ];
 
@@ -206,11 +206,11 @@ void FaceSolver::ScanBcFaceDetail( IntSet& bcVertex, int bcType, int bcNameId )
     cout << " nTraditionalBc = " << nTraditionalBc << "\n";
 
     int nBFace = 0;
-    for ( int iFace = 0; iFace < nFace; ++ iFace )
+    for ( int iFace = 0; iFace < nFaces; ++ iFace )
     {
         if ( iFace % 200000 == 0 ) 
         {
-            //cout << " iFace = " << iFace << " numberOfTotalFaces = " << nFace << endl;
+            //cout << " iFace = " << iFace << " numberOfTotalFaces = " << nFaces << endl;
         }
         int originalBcType = ( * this->faceBcType )[ iFace ];
 
@@ -232,11 +232,11 @@ void FaceSolver::ScanBcFaceDetail( IntSet& bcVertex, int bcType, int bcNameId )
 
 void FaceSolver::ScanInterfaceBc()
 {
-    int nFace = this->faceTopo->lCell.size();
+    int nFaces = this->faceTopo->lCell.size();
 
     int bcNameId = -1;
     int nInterFace = 0;
-    for ( int iFace = 0; iFace < nFace; ++ iFace )
+    for ( int iFace = 0; iFace < nFaces; ++ iFace )
     {
         int originalBcType = ( * this->faceBcType )[ iFace ];
 

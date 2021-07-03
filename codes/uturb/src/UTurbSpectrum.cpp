@@ -158,7 +158,7 @@ void UTurbSpectrum::CalcSpectrum1Equ()
 {
     this->CalcUnsteadySpectrum();
 
-    for ( int fId = 0; fId < ug.nFace; ++ fId )
+    for ( int fId = 0; fId < ug.nFaces; ++ fId )
     {
         ug.fId = fId;
         ug.lc = ( * ug.lcf )[ ug.fId ];
@@ -176,7 +176,7 @@ void UTurbSpectrum::CalcSpectrum2Equ()
 {
     this->CalcUnsteadySpectrum();
 
-    for ( int fId = 0; fId < ug.nFace; ++ fId )
+    for ( int fId = 0; fId < ug.nFaces; ++ fId )
     {
         ug.fId = fId;
         ug.lc = ( * ug.lcf )[ ug.fId ];

@@ -53,7 +53,7 @@ UTurbVisFlux::~UTurbVisFlux()
 
 void UTurbVisFlux::Alloc()
 {
-    visflux = new MRField( turbcom.nEqu, ug.nFace );
+    visflux = new MRField( turbcom.nEqu, ug.nFaces );
 }
 
 void UTurbVisFlux::DeAlloc()
@@ -246,7 +246,7 @@ void UTurbVisFlux::PrepareCellGeom()
 
 void UTurbVisFlux::CalcVisFlux1Equ()
 {
-    for ( int fId = 0; fId < ug.nFace; ++ fId )
+    for ( int fId = 0; fId < ug.nFaces; ++ fId )
     {
         ug.fId = fId;
 
@@ -269,7 +269,7 @@ void UTurbVisFlux::CalcVisFlux1Equ()
 
 void UTurbVisFlux::CalcVisFlux2Equ()
 {
-    for ( int fId = 0; fId < ug.nFace; ++ fId )
+    for ( int fId = 0; fId < ug.nFaces; ++ fId )
     {
         ug.fId = fId;
 

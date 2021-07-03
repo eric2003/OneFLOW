@@ -93,13 +93,13 @@ void UnsGrid::ReadGrid( DataBook * databook )
     //Read the number of nodes, number of elements surface and number of elements
 
     ONEFLOW::HXRead( databook, this->nNodes );
-    ONEFLOW::HXRead( databook, this->nFace );
+    ONEFLOW::HXRead( databook, this->nFaces );
     ONEFLOW::HXRead( databook, this->nCell );
 
     cout << "Grid dimension = " << Dim::dimension << endl;
 
     cout << " number of nodes    : " << this->nNodes << endl;
-    cout << " number of surfaces : " << this->nFace << endl;
+    cout << " number of surfaces : " << this->nFaces << endl;
     cout << " number of elements : " << this->nCell << endl;
 
     this->nodeMesh->CreateNodes( this->nNodes );
@@ -130,12 +130,12 @@ void UnsGrid::NormalizeBc()
 
 void UnsGrid::ReadGridFaceTopology( DataBook * databook )
 {
-    this->faceTopo->faces.resize( this->nFace );
-    this->faceTopo->lCell.resize( this->nFace );
-    this->faceTopo->rCell.resize( this->nFace );
-    this->faceTopo->fTypes.resize( this->nFace );
+    this->faceTopo->faces.resize( this->nFaces );
+    this->faceTopo->lCell.resize( this->nFaces );
+    this->faceTopo->rCell.resize( this->nFaces );
+    this->faceTopo->fTypes.resize( this->nFaces );
 
-    IntField numFaceNode( this->nFace );
+    IntField numFaceNode( this->nFaces );
 
     ONEFLOW::HXRead( databook, numFaceNode );
 
@@ -147,7 +147,7 @@ void UnsGrid::ReadGridFaceTopology( DataBook * databook )
     ONEFLOW::HXRead( databook, faceNodeMem );
 
     int ipos = 0;
-    for ( int iFace = 0; iFace < this->nFace; ++ iFace )
+    for ( int iFace = 0; iFace < this->nFaces; ++ iFace )
     {
         int nNodes = numFaceNode[ iFace ];
         for ( int iNode = 0; iNode < nNodes; ++ iNode )
@@ -162,7 +162,7 @@ void UnsGrid::ReadGridFaceTopology( DataBook * databook )
     ONEFLOW::HXRead( databook, this->faceTopo->lCell );
     ONEFLOW::HXRead( databook, this->faceTopo->rCell );
 
-    for ( int iFace = 0; iFace < this->nFace; ++ iFace )
+    for ( int iFace = 0; iFace < this->nFaces; ++ iFace )
     {
         if ( this->faceTopo->lCell[ iFace ] < 0 )
         {
@@ -225,7 +225,7 @@ void UnsGrid::WriteBoundaryTopology( VirtualFile * vf )
 void UnsGrid::WriteGrid( DataBook * databook )
 {
     ONEFLOW::HXWrite( databook, this->nNodes );
-    ONEFLOW::HXWrite( databook, this->nFace );
+    ONEFLOW::HXWrite( databook, this->nFaces );
     ONEFLOW::HXWrite( databook, this->nCell );
 
     ONEFLOW::HXWrite( databook, this->nodeMesh->xN );
@@ -240,9 +240,9 @@ void UnsGrid::WriteGrid( DataBook * databook )
 
 void UnsGrid::WriteGridFaceTopology( DataBook * databook )
 {
-    IntField numFaceNode( this->nFace );
+    IntField numFaceNode( this->nFaces );
 
-    for ( int iFace = 0; iFace < this->nFace; ++ iFace )
+    for ( int iFace = 0; iFace < this->nFaces; ++ iFace )
     {
         numFaceNode[ iFace ] = this->faceTopo->faces[ iFace ].size();
     }
@@ -251,7 +251,7 @@ void UnsGrid::WriteGridFaceTopology( DataBook * databook )
 
     IntField faceNodeMem;
 
-    for ( int iFace = 0; iFace < this->nFace; ++ iFace )
+    for ( int iFace = 0; iFace < this->nFaces; ++ iFace )
     {
         int nNodes = numFaceNode[ iFace ];
         for ( int iNode = 0; iNode < nNodes; ++ iNode )
@@ -385,11 +385,11 @@ void UnsGrid::GetMinMaxDistance( Real & dismin, Real & dismax )
     RealField & y = this->nodeMesh->yN;
     RealField & z = this->nodeMesh->zN;
 
-    int nFace = this->faceTopo->GetNFace();
+    int nFaces = this->faceTopo->GetNFace();
 
     Real ptTol = Tolerence::GetTol();
 
-    for ( int iFace = 0; iFace < nFace; ++ iFace )
+    for ( int iFace = 0; iFace < nFaces; ++ iFace )
     {
         IntField & faceNode = this->faceTopo->faces[ iFace ];
         int nNodes = faceNode.size();
@@ -415,10 +415,10 @@ void UnsGrid::WriteGrid( fstream & file )
 
     vf->BeginWriteWork();
 
-    cout << "Output nNodes = " << this->nNodes << " nFace = " <<  this->nFace << " nCell = " << nCell << "\n";
+    cout << "Output nNodes = " << this->nNodes << " nFaces = " <<  this->nFaces << " nCell = " << nCell << "\n";
 
     ONEFLOW::HXWrite( vf, this->nNodes );
-    ONEFLOW::HXWrite( vf, this->nFace );
+    ONEFLOW::HXWrite( vf, this->nFaces );
     ONEFLOW::HXWrite( vf, this->nCell );
 
     cout << "Output grid\n";
@@ -439,16 +439,16 @@ void UnsGrid::WriteGrid( fstream & file )
 
 void UnsGrid::WriteGridFaceTopology( VirtualFile * vf )
 {
-    int nFace = this->faceTopo->faces.size();
-    IntField nFNode( nFace );
+    int nFaces = this->faceTopo->faces.size();
+    IntField nFNode( nFaces );
 
-    for ( int iFace = 0; iFace < nFace; ++ iFace )
+    for ( int iFace = 0; iFace < nFaces; ++ iFace )
     {
         nFNode[ iFace ] = this->faceTopo->faces[ iFace ].size();
     }
 
     IntField fNode;
-    for ( int iFace = 0; iFace < nFace; ++ iFace )
+    for ( int iFace = 0; iFace < nFaces; ++ iFace )
     {
         int nNodes = this->faceTopo->faces[ iFace ].size();
         for ( int iNode = 0; iNode < nNodes; ++ iNode )
@@ -524,7 +524,7 @@ void UnsGrid::CalcFaceNormal1D()
 
 void UnsGrid::CalcCellCenterVol1D()
 {
-    UInt nFace = this->faceMesh->GetNFace();
+    UInt nFaces = this->faceMesh->GetNFace();
     UInt nBFace = this->faceMesh->GetNBFace();
     UInt numberOfCells = this->cellMesh->GetNumberOfCells();
 
@@ -557,7 +557,7 @@ void UnsGrid::CalcCellCenterVol1D()
 
 void UnsGrid::CalcGhostCellCenterVol1D()
 {
-    UInt nFace = this->faceMesh->GetNFace();
+    UInt nFaces = this->faceMesh->GetNFace();
     UInt nBFace = this->faceMesh->GetNBFace();
     UInt numberOfCells = this->cellMesh->GetNumberOfCells();
 
@@ -616,7 +616,7 @@ void UnsGrid::CalcFaceCenter2D()
 
 void UnsGrid::CalcCellCenterVol2D()
 {
-    UInt nFace = this->faceMesh->GetNFace();
+    UInt nFaces = this->faceMesh->GetNFace();
     UInt nBFace = this->faceMesh->GetNBFace();
     UInt numberOfCells = this->cellMesh->GetNumberOfCells();
 
@@ -656,7 +656,7 @@ void UnsGrid::CalcCellCenterVol2D()
     }
 
     // For interior cell faces
-    for ( UInt iFace = nBFace; iFace < nFace; ++ iFace )
+    for ( UInt iFace = nBFace; iFace < nFaces; ++ iFace )
     {
         int lc = faceTopo->lCell[ iFace ];
         int rc = faceTopo->rCell[ iFace ];
@@ -729,7 +729,7 @@ void UnsGrid::CalcCellCenterVol2D()
 
 void UnsGrid::CalcCellCenterVol3D()
 {
-    UInt nFace = this->faceMesh->GetNFace();
+    UInt nFaces = this->faceMesh->GetNFace();
     UInt nBFace = this->faceMesh->GetNBFace();
     UInt numberOfCells = this->cellMesh->GetNumberOfCells();
 
@@ -760,7 +760,7 @@ void UnsGrid::CalcCellCenterVol3D()
     zcc  = 0;
     vol = 0;
 
-    for ( UInt iFace = 0; iFace < nFace; ++ iFace )
+    for ( UInt iFace = 0; iFace < nFaces; ++ iFace )
     {
         int lc = faceTopo->lCell[ iFace ];
         int rc = faceTopo->rCell[ iFace ];

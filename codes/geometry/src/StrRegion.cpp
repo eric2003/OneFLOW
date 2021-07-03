@@ -336,8 +336,8 @@ void MyRegionFactory::AddBcRegion( MyRegions & bcregions_notset )
 
 void MyRegionFactory::Run()
 {
-    int nFace = this->refregions.size();
-    for ( int i = 0; i < nFace; ++ i )
+    int nFaces = this->refregions.size();
+    for ( int i = 0; i < nFaces; ++ i )
     {
         MyRegion * r = this->refregions[ i ];
         MyRegions bcregions_collect;

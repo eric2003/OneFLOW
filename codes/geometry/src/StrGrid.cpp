@@ -97,12 +97,12 @@ void StrGrid::SetBasicDimension()
 {
     this->nNodes = this->CalcNumberOfNode();
     this->nCell = this->CalcNumberOfCell();
-    this->nFace = this->CalcNumberOfFace();
+    this->nFaces = this->CalcNumberOfFace();
 
     cout << " " << Dim::dimension << "D Grid\n";
 
     cout << " number of nodes           : " << this->nNodes << endl;
-    cout << " number of element surface : " << this->nFace << endl;
+    cout << " number of element surface : " << this->nFaces << endl;
     cout << " number of element         : " << this->nCell << endl;
 }
 

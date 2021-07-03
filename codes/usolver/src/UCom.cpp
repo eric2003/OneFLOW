@@ -58,7 +58,7 @@ void UGeom::Init()
     ug.nBFace = grid->nBFace;
     ug.nCell = grid->nCell;
     ug.nTCell = grid->nCell + grid->nBFace;
-    ug.nFace = grid->nFace;
+    ug.nFaces = grid->nFaces;
 
     this->SetStEd( F_TOTAL );
     this->CreateBcTypeRegion();
@@ -133,8 +133,8 @@ void UGeom::SetStEd( int flag )
 
 void UGeom::DumpCellFace( int cId )
 {
-    int nFace = ( * this->c2f )[ cId ].size();
-    for ( int fId = 0; fId < nFace; ++ fId )
+    int nFaces = ( * this->c2f )[ cId ].size();
+    for ( int fId = 0; fId < nFaces; ++ fId )
     {
         cout << ( * this->c2f )[ cId ][ fId ] << " ";
     }
@@ -156,7 +156,7 @@ void AddF2CField( MRField * cellField, MRField * faceField )
         }
     }
 
-    for ( int fId = ug.nBFace; fId < ug.nFace; ++ fId )
+    for ( int fId = ug.nBFace; fId < ug.nFaces; ++ fId )
     {
         ug.fId = fId;
         ug.lc = ( * ug.lcf )[ ug.fId ];
@@ -200,7 +200,7 @@ void AddF2CFieldDebug( MRField * cellField, MRField * faceField )
         }
     }
 
-    for ( int fId = ug.nBFace; fId < ug.nFace; ++ fId )
+    for ( int fId = ug.nBFace; fId < ug.nFaces; ++ fId )
     {
         ug.fId = fId;
         ug.lc = ( * ug.lcf )[ ug.fId ];
@@ -363,9 +363,9 @@ void HXDebug::CompareFile( Real mindiff, int idump )
 void HXDebug::DumpCellInfo( int iCell )
 {
     UnsGrid * grid = Zone::GetUnsGrid();
-    int nFace = ( * ug.c2f )[ iCell ].size();
+    int nFaces = ( * ug.c2f )[ iCell ].size();
     int nBFace = ( * ug.bcRecord ).bcType.size();
-    for ( int iFace = 0; iFace < nFace; ++ iFace )
+    for ( int iFace = 0; iFace < nFaces; ++ iFace )
     {
         int fid = ( * ug.c2f )[ iCell ][ iFace ];
         int bctype = -1;

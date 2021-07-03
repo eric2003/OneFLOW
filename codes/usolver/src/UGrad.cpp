@@ -43,7 +43,7 @@ void CalcGrad( RealField & q, RealField & dqdx, RealField & dqdy, RealField & dq
     dqdy = 0;
     dqdz = 0;
 
-    for ( int fId = 0; fId < ug.nFace; ++ fId )
+    for ( int fId = 0; fId < ug.nFaces; ++ fId )
     {
         ug.fId = fId;
         ug.lc = ( * ug.lcf )[ ug.fId ];
@@ -91,7 +91,7 @@ void CalcGradGGCellWeight( RealField & q, RealField & dqdx, RealField & dqdy, Re
     dqdy = 0;
     dqdz = 0;
 
-    for ( int fId = 0; fId < ug.nFace; ++ fId )
+    for ( int fId = 0; fId < ug.nFaces; ++ fId )
     {
         if ( fId == 432 )
         {
@@ -158,7 +158,7 @@ void CalcGradGGCellWeightDebug( RealField & q, RealField & dqdx, RealField & dqd
     dqdy = 0;
     dqdz = 0;
 
-    for ( int fId = 0; fId < ug.nFace; ++ fId )
+    for ( int fId = 0; fId < ug.nFaces; ++ fId )
     {
         ug.fId = fId;
         ug.lc = ( * ug.lcf )[ ug.fId ];
@@ -229,7 +229,7 @@ void CalcGradDebug( RealField & q, RealField & dqdx, RealField & dqdy, RealField
     dqdy = 0;
     dqdz = 0;
 
-    for ( int fId = 0; fId < ug.nFace; ++ fId )
+    for ( int fId = 0; fId < ug.nFaces; ++ fId )
     {
         ug.fId = fId;
         ug.lc = ( * ug.lcf )[ ug.fId ];

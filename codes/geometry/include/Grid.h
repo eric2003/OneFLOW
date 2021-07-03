@@ -62,7 +62,7 @@ public:
     int type, level;
     int id, localId;
     int nNodes;
-    int nFace, nCell;
+    int nFaces, nCell;
     int nBFace;
     int nIFace;
     int volBcType;

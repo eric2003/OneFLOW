@@ -126,12 +126,12 @@ void BcVisual::Calc( int bcType )
 
 void BcVisual::ResolveElementEdge()
 {
-    int nFace = this->f2n.size();
+    int nFaces = this->f2n.size();
     int nSize = 2;
 
     set< Mid<int> > edgeSet;
 
-    for ( int fId = 0; fId < nFace; ++ fId )
+    for ( int fId = 0; fId < nFaces; ++ fId )
     {
         int nNodes = this->f2n[ fId ].size();
         for ( int iNode = 0; iNode < nNodes; ++ iNode )
@@ -273,7 +273,7 @@ void BcVisual::Dump( ostringstream & oss, VisualTool * visualTool, string & bcTi
     }
         
     int nNodes = l2g.size();
-    int nFace = e2n.size();
+    int nFaces = e2n.size();
     int nElem = this->f2n.size();
 
     // output for Tecplot
@@ -284,7 +284,7 @@ void BcVisual::Dump( ostringstream & oss, VisualTool * visualTool, string & bcTi
     oss << "ZoneType = FEPolygon\n";
 
     oss << "Nodes    = " << nNodes << endl;
-    oss << "Faces    = " << nFace << endl;  
+    oss << "Faces    = " << nFaces << endl;  
     oss << "Elements = " << nElem << endl;  
     oss << "NumConnectedBoundaryFaces = 0\n";
     oss << "TotalNumBoundaryConnections = 0\n";
@@ -312,7 +312,7 @@ void BcVisual::DumpDebug( ostringstream & oss, VisualTool * visualTool, string &
     UnsGrid * grid = Zone::GetUnsGrid();
 
     int nNodes = l2g.size();
-    int nFace = e2n.size();
+    int nFaces = e2n.size();
     int nElem = this->f2n.size();
 
     // output for Tecplot
@@ -360,7 +360,7 @@ void BcVisual::DumpSeveralElement()
     UnsGrid * grid = Zone::GetUnsGrid();
 
     int nNodes = l2g.size();
-    int nFace = e2n.size();
+    int nFaces = e2n.size();
     int nElem = this->f2n.size();
 
     fstream file;
@@ -514,7 +514,7 @@ void UVisualize::ShowField( ostringstream & oss, VisualTool * visualTool )
 
     int nNodes = grid->nNodes;
     int nCell = grid->nCell;
-    int nFace = grid->nFace;
+    int nFaces = grid->nFaces;
 
     for ( UInt i = 0; i < visualTool->title.size(); ++ i )
     {
@@ -534,7 +534,7 @@ void UVisualize::ShowField( ostringstream & oss, VisualTool * visualTool )
         oss << "ZoneType = FEPolygon\n";
     }
     oss << "Nodes    = " << nNodes << endl;
-    oss << "Faces    = " << nFace << endl;
+    oss << "Faces    = " << nFaces << endl;
     oss << "Elements = " << nCell << endl;
     oss << "TotalNumFaceNodes = " << totalNumFaceNodes << endl;
     oss << "NumConnectedBoundaryFaces = 0\n";

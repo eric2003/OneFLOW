@@ -130,7 +130,7 @@ Real LimField::ModifyLimiter( Real phil, Real phir )
 
 void LimField::GetQlQr()
 {
-    for ( int fId = 0; fId < ug.nFace; ++ fId )
+    for ( int fId = 0; fId < ug.nFaces; ++ fId )
     {
         ug.fId = fId;
         ug.lc = ( * ug.lcf )[ ug.fId ];
@@ -182,7 +182,7 @@ void LimField::CalcFaceValue()
 {
     RealField qTry( this->nEqu );
 
-    for ( int fId = 0; fId < ug.nFace; ++ fId )
+    for ( int fId = 0; fId < ug.nFaces; ++ fId )
     {
         ug.fId = fId;
         ug.lc = ( * ug.lcf )[ ug.fId ];
@@ -259,7 +259,7 @@ void LimField::CalcFaceValueWeighted()
 {
     RealField qTry( this->nEqu );
 
-    for ( int fId = 0; fId < ug.nFace; ++ fId )
+    for ( int fId = 0; fId < ug.nFaces; ++ fId )
     {
         ug.fId = fId;
         ug.lc = ( * ug.lcf )[ ug.fId ];
@@ -434,7 +434,7 @@ void Limiter::CalcLimiterScalar()
 
 void Limiter::CalcZeroLimiter()
 {
-    for ( int fId = 0; fId < ug.nFace; ++ fId )
+    for ( int fId = 0; fId < ug.nFaces; ++ fId )
     {
         ug.fId = fId;
         ug.lc = ( * ug.lcf )[ ug.fId ];
@@ -450,7 +450,7 @@ void Limiter::CalcZeroLimiter()
 
 void Limiter::CalcNoLimiter()
 {
-    for ( int fId = 0; fId < ug.nFace; ++ fId )
+    for ( int fId = 0; fId < ug.nFaces; ++ fId )
     {
         ug.fId = fId;
         ug.lc = ( * ug.lcf )[ ug.fId ];
@@ -468,7 +468,7 @@ void Limiter::CalcBarthLimiter()
 {
     this->CalcMinMaxDiff();
 
-    for ( int fId = 0; fId < ug.nFace; ++ fId )
+    for ( int fId = 0; fId < ug.nFaces; ++ fId )
     {
         ug.fId = fId;
         ug.lc = ( * ug.lcf )[ ug.fId ];
@@ -487,7 +487,7 @@ void Limiter::CalcVencatLimiter()
 {
     this->CalcMinMaxDiff();
 
-    for ( int fId = 0; fId < ug.nFace; ++ fId )
+    for ( int fId = 0; fId < ug.nFaces; ++ fId )
     {
         ug.fId = fId;
         ug.lc = ( * ug.lcf )[ ug.fId ];
@@ -614,7 +614,7 @@ void Limiter::CalcMinMaxDiff()
         ( * lim->maxvf )[ ug.lc ] = MAX( ( * lim->maxvf )[ ug.lc ], ( * lim->q )[ ug.rc ] );
     }
 
-    for ( int fId = ug.nBFace; fId < ug.nFace; ++ fId )
+    for ( int fId = ug.nBFace; fId < ug.nFaces; ++ fId )
     {
         ug.fId = fId;
         ug.lc = ( * ug.lcf )[ ug.fId ];

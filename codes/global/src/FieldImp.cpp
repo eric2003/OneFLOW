@@ -343,7 +343,7 @@ void FieldManager::AllocateInnerField( UnsGrid * grid, FieldPropertyData * field
 
 void FieldManager::AllocateFaceField( UnsGrid * grid, FieldPropertyData * fieldPropertyData )
 {
-    int nFace = grid->nFace;
+    int nFaces = grid->nFaces;
 
     map< string, int > & data = fieldPropertyData->faceField->data;
 
@@ -351,11 +351,11 @@ void FieldManager::AllocateFaceField( UnsGrid * grid, FieldPropertyData * fieldP
     {
         int nTEqu = iter->second;
 
-        ONEFLOW::CreateMRField( grid, nTEqu, nFace, iter->first );
+        ONEFLOW::CreateMRField( grid, nTEqu, nFaces, iter->first );
 
         MRField * field = ONEFLOW::GetFieldPointer< MRField >( grid, iter->first );
 
-        ONEFLOW::ZeroField( field, nTEqu, nFace );
+        ONEFLOW::ZeroField( field, nTEqu, nFaces );
     }
 }
 

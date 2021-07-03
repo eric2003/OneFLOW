@@ -262,7 +262,7 @@ void UTimeStep::CalcInvSpectrumField()
 
     ONEFLOW::ZeroField( invsr, 1, grid->nCell );
 
-    for ( int iFace = 0; iFace < grid->nFace; ++ iFace )
+    for ( int iFace = 0; iFace < grid->nFaces; ++ iFace )
     {
         this->SetId( iFace );
 
@@ -284,7 +284,7 @@ void UTimeStep::CalcVisSpectrumField()
 
     if ( vis_model.vismodel <= 0 ) return;
 
-    for ( int iFace = 0; iFace < grid->nFace; ++ iFace )
+    for ( int iFace = 0; iFace < grid->nFaces; ++ iFace )
     {
         this->SetId( iFace );
 

@@ -54,8 +54,8 @@ void TurbLimField::Init()
 
     this->nEqu = q->GetNEqu();
 
-    qf1 = new MRField( this->nEqu, grid->nFace );
-    qf2 = new MRField( this->nEqu, grid->nFace );
+    qf1 = new MRField( this->nEqu, grid->nFaces );
+    qf2 = new MRField( this->nEqu, grid->nFaces );
 
     this->ckfun = & NoCheck;
 }

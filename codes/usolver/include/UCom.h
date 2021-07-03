@@ -49,7 +49,7 @@ public:
     int fId;
     int cId;
     int bcfId;
-    int nFace;
+    int nFaces;
     int nBFace;
     int nCell;
     int nTCell;

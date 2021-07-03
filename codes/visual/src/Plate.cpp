@@ -454,11 +454,11 @@ void CuttingClass::CutPlane( Real cutPosition, int cutAxis, LamData * lamData )
 
     RealField & xyz = this->GetCoor( grid, cutAxis );
 
-    int nFace = grid->nFace;
+    int nFaces = grid->nFaces;
     LinkField & f2n = grid->faceTopo->faces;
 
     RealField point( 3 );
-    for ( int iFace = 0; iFace < nFace; ++ iFace )
+    for ( int iFace = 0; iFace < nFaces; ++ iFace )
     {
         Real coorMin =   LARGE;
         Real coorMax = - LARGE;

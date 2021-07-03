@@ -109,15 +109,15 @@ FaceSearch::~FaceSearch()
 void FaceSearch::CalcNewFaceId( IFaceLink * iFaceLink )
 {
     this->iFaceLink = iFaceLink;
-    int nFace = this->faceArray.size();
-    this->status.resize( nFace, -1 );
-    this->cFaceId.resize( nFace );
-    this->rCNodeId.resize( nFace );
-    this->rCNodeFlag.resize( nFace );
+    int nFaces = this->faceArray.size();
+    this->status.resize( nFaces, -1 );
+    this->cFaceId.resize( nFaces );
+    this->rCNodeId.resize( nFaces );
+    this->rCNodeFlag.resize( nFaces );
 
     if ( Dim::dimension == ONEFLOW::THREE_D )
     {
-        for ( int iFace = 0; iFace < nFace; ++ iFace )
+        for ( int iFace = 0; iFace < nFaces; ++ iFace )
         {
             this->gFid = iFace;
             FaceSort * faceSort = this->faceArray[ iFace ];
@@ -126,7 +126,7 @@ void FaceSearch::CalcNewFaceId( IFaceLink * iFaceLink )
     }
     else if ( Dim::dimension == ONEFLOW::TWO_D )
     {
-        for ( int iFace = 0; iFace < nFace; ++ iFace )
+        for ( int iFace = 0; iFace < nFaces; ++ iFace )
         {
             this->gFid = iFace;
             FaceSort * faceSort = this->faceArray[ iFace ];

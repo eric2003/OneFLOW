@@ -49,8 +49,8 @@ FaceTopo::~FaceTopo()
 UInt FaceTopo::CalcTotalFaceNodes()
 {
     UInt totalNumFaceNodes = 0;
-    UInt nFace = this->GetNFace();
-    for ( UInt iFace = 0; iFace < nFace; ++ iFace )
+    UInt nFaces = this->GetNFace();
+    for ( UInt iFace = 0; iFace < nFaces; ++ iFace )
     {
         totalNumFaceNodes += faces[ iFace ].size();
     }
@@ -145,8 +145,8 @@ void FaceTopo::SetNewFace2Node( IFaceLink * iFaceLink )
     }
 
     //Inner Face
-    int nFace = this->GetNFace();
-    for ( int iFace = nBFace; iFace < nFace; ++ iFace )
+    int nFaces = this->GetNFace();
+    for ( int iFace = nBFace; iFace < nFaces; ++ iFace )
     {
         int nFNode = this->faces[ iFace ].size();
         IntField tmpVector;
@@ -205,9 +205,9 @@ void FaceTopo::SetNewFace2Cell( IFaceLink * iFaceLink )
         this->rCellNew.push_back( iFace + nCell );
     }
 
-    int nFace = this->GetNFace();
+    int nFaces = this->GetNFace();
 
-    for ( int iFace = nBFace; iFace < nFace; ++ iFace )
+    for ( int iFace = nBFace; iFace < nFaces; ++ iFace )
     {
         this->lCellNew.push_back( this->lCell[ iFace ] );
         this->rCellNew.push_back( this->rCell[ iFace ] );
@@ -370,7 +370,7 @@ void FaceTopo::CalcC2C( LinkField & c2c )
 
     int nCell = this->grid->nCell;
     int nBFace = this->GetNBFace();
-    int nFace = this->GetNFace();
+    int nFaces = this->GetNFace();
 
     c2c.resize( nCell );
 
@@ -386,7 +386,7 @@ void FaceTopo::CalcC2C( LinkField & c2c )
         }
     }
 
-    for ( int iFace = nBFace; iFace < nFace; ++ iFace )
+    for ( int iFace = nBFace; iFace < nFaces; ++ iFace )
     {
         int lc  = this->lCell[ iFace ];
         int rc  = this->rCell[ iFace ];

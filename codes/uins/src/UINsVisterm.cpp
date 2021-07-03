@@ -79,7 +79,7 @@ void UINsVisterm::CalcViscoff()
 
 void UINsVisterm::Alloc()
 {
-    visflux = new MRField( nscom.nEqu, ug.nFace );
+    visflux = new MRField( nscom.nEqu, ug.nFaces );
 }
 
 void UINsVisterm::DeAlloc()
@@ -117,7 +117,7 @@ void UINsVisterm::CalcPreandVisGrad()
 	(*uinsf.dqdy)[IIDX::IIP] = 0;
 	(*uinsf.dqdz)[IIDX::IIP] = 0;
 
-	for (int fId = 0; fId < ug.nFace; ++fId)
+	for (int fId = 0; fId < ug.nFaces; ++fId)
 	{
 		if (fId == 432)
 		{
@@ -230,7 +230,7 @@ void UINsVisterm::CalcPreandVisGrad()
 
 void UINsVisterm::CalcVisterm()
 {
-    for ( int fId = 0; fId < ug.nFace; ++ fId )
+    for ( int fId = 0; fId < ug.nFaces; ++ fId )
     {
         ug.fId = fId;
 
@@ -568,7 +568,7 @@ void UINsVisterm::CalcINsSrc()
 	iinv.bvc = 0;
 	iinv.bwc = 0;
 
-	for (int fId = 0; fId < ug.nFace; ++fId)
+	for (int fId = 0; fId < ug.nFaces; ++fId)
 	{
 		ug.fId = fId;
 		ug.lc = (*ug.lcf)[ug.fId];

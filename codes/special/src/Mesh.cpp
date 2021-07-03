@@ -441,16 +441,16 @@ void Mesh::ConstructTopology()
 
 void Mesh::SwapBoundary()
 {
-    UInt nFace = this->faceMesh->GetNFace();
+    UInt nFaces = this->faceMesh->GetNFace();
 
-    IntField orderMapping( nFace );
+    IntField orderMapping( nFaces );
 
     CellTopo * cellTopo = this->cellMesh->cellTopo;
     FaceTopo * faceTopo = this->faceMesh->faceTopo;
 
     int iBoundaryFaceCount = 0;
     int iCount = 0;
-    for ( int iFace = 0; iFace < nFace; ++ iFace )
+    for ( int iFace = 0; iFace < nFaces; ++ iFace )
     {
         int rc = faceTopo->rCell[ iFace ];
         if ( rc == ONEFLOW::INVALID_INDEX )
@@ -463,7 +463,7 @@ void Mesh::SwapBoundary()
     int nBFace = iBoundaryFaceCount;
     this->faceMesh->SetNBFace( nBFace );
 
-    for ( int iFace = 0; iFace < nFace; ++ iFace )
+    for ( int iFace = 0; iFace < nFaces; ++ iFace )
     {
         int rc = faceTopo->rCell[ iFace ];
         if ( rc != ONEFLOW::INVALID_INDEX )
@@ -475,7 +475,7 @@ void Mesh::SwapBoundary()
     IntField lCellIndexSwap = faceTopo->lCell;
     IntField rCellIndexSwap = faceTopo->rCell;
 
-    for ( int iFace = 0; iFace < nFace; ++ iFace )
+    for ( int iFace = 0; iFace < nFaces; ++ iFace )
     {
         int oldFaceIndex = orderMapping[ iFace ];
         faceTopo->lCell[ iFace ] = lCellIndexSwap[ oldFaceIndex ];
@@ -492,7 +492,7 @@ void Mesh::SwapBoundary()
     IntField lPositionSwap = faceTopo->lPosition;
     IntField rPositionSwap = faceTopo->rPosition;
 
-    for ( int iFace = 0; iFace < nFace; ++ iFace )
+    for ( int iFace = 0; iFace < nFaces; ++ iFace )
     {
         int oldFaceIndex = orderMapping[ iFace ];
         faceTopo->lPosition[ iFace ] = lPositionSwap[ oldFaceIndex ];
@@ -501,14 +501,14 @@ void Mesh::SwapBoundary()
 
     LinkField faceToNodeSwap = faceTopo->faces;
 
-    for ( int iFace = 0; iFace < nFace; ++ iFace )
+    for ( int iFace = 0; iFace < nFaces; ++ iFace )
     {
         int oldFaceIndex = orderMapping[ iFace ];
         faceTopo->faces[ iFace ] = faceToNodeSwap[ oldFaceIndex ];
     }
 
     IntField faceTypeSwap = faceTopo->fTypes;
-    for ( int iFace = 0; iFace < nFace; ++ iFace )
+    for ( int iFace = 0; iFace < nFaces; ++ iFace )
     {
         int oldFaceIndex = orderMapping[ iFace ];
         faceTopo->fTypes[ iFace ] = faceTypeSwap[ oldFaceIndex ];
@@ -583,7 +583,7 @@ void Mesh::CalcFaceNormal1D()
 
 void Mesh::CalcCellCenterVol1D()
 {
-    UInt nFace = this->faceMesh->GetNFace();
+    UInt nFaces = this->faceMesh->GetNFace();
     UInt nBFace = this->faceMesh->GetNBFace();
     UInt numberOfCells = this->cellMesh->GetNumberOfCells();
 
@@ -616,7 +616,7 @@ void Mesh::CalcCellCenterVol1D()
 
 void Mesh::CalcGhostCellCenterVol1D()
 {
-    UInt nFace = this->faceMesh->GetNFace();
+    UInt nFaces = this->faceMesh->GetNFace();
     UInt nBFace = this->faceMesh->GetNBFace();
     UInt numberOfCells = this->cellMesh->GetNumberOfCells();
 
@@ -665,7 +665,7 @@ void Mesh::CalcGhostCellCenterVol1D()
 
 void Mesh::CalcCellCenterVol2D()
 {
-    UInt nFace = this->faceMesh->GetNFace();
+    UInt nFaces = this->faceMesh->GetNFace();
     UInt nBFace = this->faceMesh->GetNBFace();
     UInt numberOfCells = this->cellMesh->GetNumberOfCells();
 
@@ -705,7 +705,7 @@ void Mesh::CalcCellCenterVol2D()
     }
 
     // For interior cell faces
-    for ( UInt iFace = nBFace; iFace < nFace; ++ iFace )
+    for ( UInt iFace = nBFace; iFace < nFaces; ++ iFace )
     {
         int lc = faceTopo->lCell[ iFace ];
         int rc = faceTopo->rCell[ iFace ];
@@ -778,7 +778,7 @@ void Mesh::CalcCellCenterVol2D()
 
 void Mesh::CalcCellCenterVol3D()
 {
-    UInt nFace = this->faceMesh->GetNFace();
+    UInt nFaces = this->faceMesh->GetNFace();
     UInt nBFace = this->faceMesh->GetNBFace();
     UInt numberOfCells = this->cellMesh->GetNumberOfCells();
 
@@ -809,7 +809,7 @@ void Mesh::CalcCellCenterVol3D()
     zcc  = 0;
     vol = 0;
 
-    for ( UInt iFace = 0; iFace < nFace; ++ iFace )
+    for ( UInt iFace = 0; iFace < nFaces; ++ iFace )
     {
         int lc = faceTopo->lCell[ iFace ];
         int rc = faceTopo->rCell[ iFace ];

@@ -119,7 +119,7 @@ void UTurbInvFlux::AddInvFlux()
 
 void UTurbInvFlux::Alloc()
 {
-    invflux = new MRField( limf->nEqu, ug.nFace );
+    invflux = new MRField( limf->nEqu, ug.nFaces );
 }
 
 void UTurbInvFlux::DeAlloc()
@@ -146,7 +146,7 @@ void UTurbInvFlux::CalcFlux()
 
 void UTurbInvFlux::CalcInvFlux()
 {
-    for ( int fId = 0; fId < ug.nFace; ++ fId )
+    for ( int fId = 0; fId < ug.nFaces; ++ fId )
     {
         ug.fId = fId;
 

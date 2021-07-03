@@ -162,17 +162,17 @@ void GridElem::GenerateCalcElement()
 
     FaceTopo * faceTopo = this->face_solver->faceTopo;
 
-    int nFace = this->face_solver->faceTopo->faces.size();
+    int nFaces = this->face_solver->faceTopo->faces.size();
 
     int nBFace = 0;
 
-    //cout << " nFace = " << nFace << "\n";
+    //cout << " nFaces = " << nFaces << "\n";
 
-    for ( int iFace = 0; iFace < nFace; ++ iFace )
+    for ( int iFace = 0; iFace < nFaces; ++ iFace )
     {
         if ( iFace % 200000 == 0 ) 
         {
-            cout << " iFace = " << iFace << " numberOfTotalFaces = " << nFace << endl;
+            cout << " iFace = " << iFace << " numberOfTotalFaces = " << nFaces << endl;
         }
 
         int rc = ( faceTopo->rCell )[ iFace ];
@@ -228,8 +228,8 @@ void GridElem::CalcBoundaryType( UnsGrid * grid )
     grid->faceTopo = this->face_solver->faceTopo;
     grid->faceTopo->grid = grid;
     this->face_solver->faceTopo = 0;
-    int nFace = grid->faceTopo->faces.size();
-    cout << " nFace = " << nFace << "\n";
+    int nFaces = grid->faceTopo->faces.size();
+    cout << " nFaces = " << nFaces << "\n";
      
     BcRecord * bcRecord = grid->faceTopo->bcManager->bcRecord;
     int nBFace = bcRecord->bcType.size();
@@ -298,12 +298,12 @@ void GridElem::CalcBoundaryType( UnsGrid * grid )
 void GridElem::ReorderLink( UnsGrid * grid )
 {
     FaceTopo * faceTopo = grid->faceTopo;
-    int nFace = faceTopo->fTypes.size();
-    grid->nFace = nFace;
+    int nFaces = faceTopo->fTypes.size();
+    grid->nFaces = nFaces;
 
-    IntField f1map( nFace ), f2map( nFace );
+    IntField f1map( nFaces ), f2map( nFaces );
     int iCount = 0;
-    for ( int iFace = 0; iFace < nFace; ++ iFace )
+    for ( int iFace = 0; iFace < nFaces; ++ iFace )
     {
         int rc = faceTopo->rCell[ iFace ];
         if ( rc == INVALID_INDEX )
@@ -314,7 +314,7 @@ void GridElem::ReorderLink( UnsGrid * grid )
         }
     }
 
-    for ( int iFace = 0; iFace < nFace; ++ iFace )
+    for ( int iFace = 0; iFace < nFaces; ++ iFace )
     {
         int rc = faceTopo->rCell[ iFace ];
         if ( rc != INVALID_INDEX )
@@ -324,10 +324,10 @@ void GridElem::ReorderLink( UnsGrid * grid )
             ++ iCount;
         }
     }
-    faceTopo->facesNew.resize( nFace );
-    faceTopo->lCellNew.resize( nFace );
-    faceTopo->rCellNew.resize( nFace );
-    for ( int iFace = 0; iFace < nFace; ++ iFace )
+    faceTopo->facesNew.resize( nFaces );
+    faceTopo->lCellNew.resize( nFaces );
+    faceTopo->rCellNew.resize( nFaces );
+    for ( int iFace = 0; iFace < nFaces; ++ iFace )
     {
         int jFace = f2map[ iFace ];
         faceTopo->facesNew[ iFace ] = faceTopo->faces[ jFace ];

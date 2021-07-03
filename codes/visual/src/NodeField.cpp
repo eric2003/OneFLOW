@@ -68,12 +68,12 @@ void CalcNodeVar( RealField & qNodeField, RealField & qField )
     LinkField & f2c = faceTopo->faces;
 
     int nNodes = grid->nNodes;
-    int nFace = grid->nFace;
+    int nFaces = grid->nFaces;
     RealField nCount( nNodes );
     nCount = 0.0;
     qNodeField = 0.0;
 
-    for ( int iFace = 0; iFace < nFace; ++ iFace )
+    for ( int iFace = 0; iFace < nFaces; ++ iFace )
     {
         int lc = faceTopo->lCell[ iFace ];
         int rc = faceTopo->rCell[ iFace ];
@@ -110,7 +110,7 @@ void FixBcNodeVar( RealField & qNodeField, RealField & qField, RealField & nCoun
     LinkField & f2c = faceTopo->faces;
 
     int nNodes = grid->nNodes;
-    int nFace = grid->nFace;
+    int nFaces = grid->nFaces;
     int nBFace = grid->nBFace;
 
     for ( int iFace = 0; iFace < nBFace; ++ iFace )
