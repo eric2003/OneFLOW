@@ -111,9 +111,9 @@ void FixBcNodeVar( RealField & qNodeField, RealField & qField, RealField & nCoun
 
     int nNodes = grid->nNodes;
     int nFaces = grid->nFaces;
-    int nBFace = grid->nBFace;
+    int nBFaces = grid->nBFaces;
 
-    for ( int iFace = 0; iFace < nBFace; ++ iFace )
+    for ( int iFace = 0; iFace < nBFaces; ++ iFace )
     {
         if ( bcRecord->bcType[ iFace ] != bcType ) continue;
         int lc = faceTopo->lCell[ iFace ];
@@ -128,7 +128,7 @@ void FixBcNodeVar( RealField & qNodeField, RealField & qField, RealField & nCoun
         }
     }
 
-    for ( int iFace = 0; iFace < nBFace; ++ iFace )
+    for ( int iFace = 0; iFace < nBFaces; ++ iFace )
     {
         if ( bcRecord->bcType[ iFace ] != bcType ) continue;
 

@@ -145,7 +145,7 @@ void UINsInvterm::INsPreflux()
 	RealField *wf = new RealField(ug.nFaces);
 	RealField *fq = new RealField(ug.nFaces);*/
 
-	for (int fId = ug.nBFace; fId < ug.nFaces; ++fId)
+	for (int fId = ug.nBFaces; fId < ug.nFaces; ++fId)
 	{
 		ug.fId = fId;
 
@@ -158,7 +158,7 @@ void UINsInvterm::INsPreflux()
 
 	}
 
-	for (int fId = 0; fId < ug.nBFace; ++fId)
+	for (int fId = 0; fId < ug.nBFaces; ++fId)
 	{
 		ug.fId = fId;
 
@@ -412,7 +412,7 @@ void UINsInvterm::MomPre()
 
 	}
 
-	for (int fId = 0; fId < ug.nBFace; ++fId)
+	for (int fId = 0; fId < ug.nBFaces; ++fId)
 	{
 		ug.fId = fId;
 
@@ -616,7 +616,7 @@ void UINsInvterm::MomPre()
 
 	//cout << "residual_w:" << residual_w << endl;
 
-	for (int fId = 0; fId < ug.nBFace; ++fId)
+	for (int fId = 0; fId < ug.nBFaces; ++fId)
 	{
 		ug.fId = fId;
 
@@ -811,7 +811,7 @@ void UINsInvterm::MomPre()
 
 }
 
-for (int fId = 0; fId < ug.nBFace; ++fId)
+for (int fId = 0; fId < ug.nBFaces; ++fId)
 {
 	ug.fId = fId;
 
@@ -871,7 +871,7 @@ void UINsInvterm::CalcFaceflux()
 	uinsf.Init();
 	//Alloc();
 	//this->CalcInvFace();  //Boundary treatment
-	for (int fId = ug.nBFace; fId < ug.nFaces; ++fId)
+	for (int fId = ug.nBFaces; fId < ug.nFaces; ++fId)
 	{
 		ug.fId = fId;
 
@@ -888,7 +888,7 @@ void UINsInvterm::CalcFaceflux()
 		this->CalcINsFaceflux();
 	}
 
-	for (int fId = 0; fId < ug.nBFace; ++fId)
+	for (int fId = 0; fId < ug.nBFaces; ++fId)
 	{
 		ug.fId = fId;
 
@@ -993,7 +993,7 @@ void UINsInvterm::AddFlux()
 	UnsGrid* grid = Zone::GetUnsGrid();
 	MRField* res = GetFieldPointer< MRField >(grid, "res");
 	int nEqu = res->GetNEqu();
-	for (int fId = 0; fId < ug.nBFace; ++fId)
+	for (int fId = 0; fId < ug.nBFaces; ++fId)
 	{
 		ug.fId = fId;
 		ug.lc = (*ug.lcf)[ug.fId];
@@ -1006,7 +1006,7 @@ void UINsInvterm::AddFlux()
 		}
 	}
 
-	for (int fId = ug.nBFace; fId < ug.nFaces; ++fId)
+	for (int fId = ug.nBFaces; fId < ug.nFaces; ++fId)
 	{
 		ug.fId = fId;
 		ug.lc = (*ug.lcf)[ug.fId];
@@ -1027,7 +1027,7 @@ void UINsInvterm::AddFlux()
 void UINsInvterm::CalcCorrectPresscoef()
 {
 	this->CalcNewMomCoe();
-	for (int fId = ug.nBFace; fId < ug.nFaces; ++fId)
+	for (int fId = ug.nBFaces; fId < ug.nFaces; ++fId)
 	{
 		ug.fId = fId;
 
@@ -1042,7 +1042,7 @@ void UINsInvterm::CalcCorrectPresscoef()
 		this->CalcINsFaceCorrectPresscoef();
 	}
 
-	for (int fId = 0; fId < ug.nBFace; ++fId)
+	for (int fId = 0; fId < ug.nBFaces; ++fId)
 	{
 		ug.fId = fId;
 
@@ -1072,7 +1072,7 @@ void UINsInvterm::CalcCorrectPresscoef()
 		iinv.bp[ug.lc] += -iinv.fq[ug.fId];
 		iinv.bp[ug.rc] += iinv.fq[ug.fId];
 
-		if (ug.fId < ug.nBFace)
+		if (ug.fId < ug.nBFaces)
 		{
 			//iinv.spp[ug.rc] = 0.001;
 			iinv.spp[ug.rc] = 1;
@@ -1232,7 +1232,7 @@ void UINsInvterm::CalcPressCorrectEqu()
 			{
 				int fId = (*ug.c2f)[ug.cId][iFace];
 				ug.fId = fId;
-				if (ug.fId < ug.nBFace) continue;
+				if (ug.fId < ug.nBFaces) continue;
 
 				ug.lc = (*ug.lcf)[ug.fId];
 				ug.rc = (*ug.rcf)[ug.fId];
@@ -1253,7 +1253,7 @@ void UINsInvterm::CalcPressCorrectEqu()
 
 	}
 
-	for (int fId = 0; fId < ug.nBFace; ++fId)
+	for (int fId = 0; fId < ug.nBFaces; ++fId)
 	{
 		ug.fId = fId;
 		ug.lc = (*ug.lcf)[ug.fId];
@@ -1270,7 +1270,7 @@ void UINsInvterm::CalcPressCorrectEqu()
 		(*uinsf.q)[IIDX::IIP][ug.cId] = (*uinsf.q)[IIDX::IIP][ug.cId] + 0.8*iinv.pp[ug.cId];
 	}
 
-	for (int fId = 0; fId < ug.nBFace; ++fId)
+	for (int fId = 0; fId < ug.nBFaces; ++fId)
 	{
 		ug.fId = fId;
 		ug.lc = (*ug.lcf)[ug.fId];
@@ -1338,7 +1338,7 @@ void UINsInvterm::CalcPressCorrectEqu()
 	//iinv.res_p = MAX(iinv.res_p, abs(iinv.ppd - iinv.pp[ug.cId]));
 
 	//boundary element
-	for (int fId = 0; fId < ug.nBFace; ++fId)
+	for (int fId = 0; fId < ug.nBFaces; ++fId)
 	{
 		ug.fId = fId;
 		ug.lc = (*ug.lcf)[ug.fId];
@@ -1354,7 +1354,7 @@ void UINsInvterm::CalcPressCorrectEqu()
 	}
 
 
-	for (int fId = 0; fId < ug.nBFace; ++fId)
+	for (int fId = 0; fId < ug.nBFaces; ++fId)
 	{
 		ug.fId = fId;
 		ug.lc = (*ug.lcf)[ug.fId];
@@ -1473,7 +1473,7 @@ void UINsInvterm::CalcPressCorrectEqu()
 		iinv.pp[ug.cId] = 0;
 	}
 
-	for (int fId = 0; fId < ug.nBFace; ++fId)
+	for (int fId = 0; fId < ug.nBFaces; ++fId)
 	{
 		ug.fId = fId;
 		ug.lc = (*ug.lcf)[ug.fId];
@@ -1534,7 +1534,7 @@ void UINsInvterm::UpdateFaceflux()
 	uinsf.Init();
 	//Alloc();
 	//this->CalcInvFace();  //Boundary treatment
-	for (int fId = ug.nBFace; fId < ug.nFaces; ++fId)
+	for (int fId = ug.nBFaces; fId < ug.nFaces; ++fId)
 	{
 		ug.fId = fId;
 
@@ -1552,7 +1552,7 @@ void UINsInvterm::UpdateFaceflux()
 
 	}
 
-	for (int fId = 0; fId < ug.nBFace; ++fId)
+	for (int fId = 0; fId < ug.nBFaces; ++fId)
 	{
 		ug.fId = fId;
 
@@ -1626,7 +1626,7 @@ void UINsInvterm::UpdateSpeed()
 
 	}
 
-	for (int fId = 0; fId < ug.nBFace; ++fId)
+	for (int fId = 0; fId < ug.nBFaces; ++fId)
 	{
 		ug.fId = fId;
 
@@ -2007,7 +2007,7 @@ void UINsInvterm::CalcPreGrad()
 
 		Real cl = delt2 * delta;
 		Real cr = delt1 * delta;
-		//if (ug.fId < ug.nBFace)
+		//if (ug.fId < ug.nBFaces)
 		//{
 		//	iinv.value[ug.fId] = iinv.pp[ug.lc] + iinv.pp[ug.rc];
 		//}
@@ -2024,7 +2024,7 @@ void UINsInvterm::CalcPreGrad()
 		iinv.dqqdy[ug.lc] += fnya * iinv.value;
 		iinv.dqqdz[ug.lc] += fnza * iinv.value;
 
-		if (ug.fId < ug.nBFace) continue;
+		if (ug.fId < ug.nBFaces) continue;
 
 		iinv.dqqdx[ug.rc] += -fnxa * iinv.value;
 		iinv.dqqdy[ug.rc] += -fnya * iinv.value;
@@ -2040,7 +2040,7 @@ void UINsInvterm::CalcPreGrad()
 		iinv.dqqdz[ug.cId] *= ovol;
 	}
 
-	for (int fId = 0; fId < ug.nBFace; ++fId)
+	for (int fId = 0; fId < ug.nBFaces; ++fId)
 	{
 		ug.fId = fId;
 		ug.lc = (*ug.lcf)[ug.fId];

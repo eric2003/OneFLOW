@@ -114,7 +114,7 @@ void UTurbSrcFlux::CalcVist()
 
 void UTurbSrcFlux::SetGhostCellVist()
 {
-    for ( int fId = 0; fId < ug.nBFace; ++ fId )
+    for ( int fId = 0; fId < ug.nBFaces; ++ fId )
     {
         int lc  = ( * ug.lcf ) [ fId ];
         int rc  = ( * ug.rcf ) [ fId ];
@@ -865,7 +865,7 @@ void UTurbSrcFlux::ModifyBlendingTerm()
 
     IntField & bcType = ug.bcRecord->bcType;
 
-    for ( int fId = 0; fId < ug.nBFace; ++ fId )
+    for ( int fId = 0; fId < ug.nBFaces; ++ fId )
     {
         int bc_type = bcType[ fId ];
 

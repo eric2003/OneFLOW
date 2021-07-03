@@ -62,9 +62,9 @@ UInt FaceTopo::GetNBFace()
     return this->bcManager->bcRecord->GetNBFace();
 }
 
-void FaceTopo::SetNBFace( UInt nBFace )
+void FaceTopo::SetNBFace( UInt nBFaces )
 {
-    this->bcManager->bcRecord->Init( nBFace );
+    this->bcManager->bcRecord->Init( nBFaces );
 }
 
 void FaceTopo::ModifyFaceNodeId( IFaceLink * iFaceLink )
@@ -75,11 +75,11 @@ void FaceTopo::ModifyFaceNodeId( IFaceLink * iFaceLink )
 
 void FaceTopo::SetNewFace2Node( IFaceLink * iFaceLink )
 {
-    int nBFace = this->bcManager->bcRecord->GetNBFace();
+    int nBFaces = this->bcManager->bcRecord->GetNBFace();
     this->facesNew.resize( 0 );
 
     int localFid = 0;
-    for ( int iFace = 0; iFace < nBFace; ++ iFace )
+    for ( int iFace = 0; iFace < nBFaces; ++ iFace )
     {
         int bcType = this->bcManager->bcRecord->bcType[ iFace ];
 
@@ -146,7 +146,7 @@ void FaceTopo::SetNewFace2Node( IFaceLink * iFaceLink )
 
     //Inner Face
     int nFaces = this->GetNFace();
-    for ( int iFace = nBFace; iFace < nFaces; ++ iFace )
+    for ( int iFace = nBFaces; iFace < nFaces; ++ iFace )
     {
         int nFNode = this->faces[ iFace ].size();
         IntField tmpVector;
@@ -161,14 +161,14 @@ void FaceTopo::SetNewFace2Node( IFaceLink * iFaceLink )
 
 void FaceTopo::SetNewFace2Cell( IFaceLink * iFaceLink )
 {
-    int nBFace = this->bcManager->bcRecord->GetNBFace();
+    int nBFaces = this->bcManager->bcRecord->GetNBFace();
 
     int localFid = 0;
 
     this->lCellNew.resize( 0 );
     this->rCellNew.resize( 0 );
 
-    for ( int iFace = 0; iFace < nBFace; ++ iFace )
+    for ( int iFace = 0; iFace < nBFaces; ++ iFace )
     {
         int bcType = this->bcManager->bcRecord->bcType[ iFace ];
 
@@ -207,7 +207,7 @@ void FaceTopo::SetNewFace2Cell( IFaceLink * iFaceLink )
 
     int nFaces = this->GetNFace();
 
-    for ( int iFace = nBFace; iFace < nFaces; ++ iFace )
+    for ( int iFace = nBFaces; iFace < nFaces; ++ iFace )
     {
         this->lCellNew.push_back( this->lCell[ iFace ] );
         this->rCellNew.push_back( this->rCell[ iFace ] );
@@ -218,13 +218,13 @@ void FaceTopo::SetNewFace2Cell( IFaceLink * iFaceLink )
 void FaceTopo::ModifyBoundaryInformation( IFaceLink * iFaceLink )
 {
     //find the new number of boundary faces
-    int nBFace = this->bcManager->bcRecord->GetNBFace();
+    int nBFaces = this->bcManager->bcRecord->GetNBFace();
 
     int localIid = 0;
 
     IntField localI2B;
 
-    for ( int iFace = 0; iFace < nBFace; ++ iFace )
+    for ( int iFace = 0; iFace < nBFaces; ++ iFace )
     {
         int bcType = this->bcManager->bcRecord->bcType[ iFace ];
         if ( BC::IsInterfaceBc( bcType ) )
@@ -270,13 +270,13 @@ void FaceTopo::ModifyBoundaryInformation( IFaceLink * iFaceLink )
 
 void FaceTopo::ResetNumberOfBoundaryCondition( IFaceLink * iFaceLink )
 {
-    int nBFace = this->bcManager->bcRecord->GetNBFace();
+    int nBFaces = this->bcManager->bcRecord->GetNBFace();
 
     this->bcManager->bcRecordNew->bcType.resize( 0 );
     this->bcManager->bcRecordNew->bcNameId.resize( 0 );
 
     int localIid = 0;
-    for ( int iFace = 0; iFace < nBFace; ++ iFace )
+    for ( int iFace = 0; iFace < nBFaces; ++ iFace )
     {
         int bcRegion = this->bcManager->bcRecord->bcNameId[ iFace ];
         int bcType = this->bcManager->bcRecord->bcType[ iFace ];
@@ -369,13 +369,13 @@ void FaceTopo::CalcC2C( LinkField & c2c )
     if ( c2c.size() != 0 ) return;
 
     int nCells = this->grid->nCells;
-    int nBFace = this->GetNBFace();
+    int nBFaces = this->GetNBFace();
     int nFaces = this->GetNFace();
 
     c2c.resize( nCells );
 
     // If boundary is an INTERFACE, need to count ghost cell
-    for ( int iFace = 0; iFace < nBFace; ++ iFace )
+    for ( int iFace = 0; iFace < nBFaces; ++ iFace )
     {
         int bcType = this->bcManager->bcRecord->bcType[ iFace ];
         if ( BC::IsInterfaceBc( bcType ) )
@@ -386,7 +386,7 @@ void FaceTopo::CalcC2C( LinkField & c2c )
         }
     }
 
-    for ( int iFace = nBFace; iFace < nFaces; ++ iFace )
+    for ( int iFace = nBFaces; iFace < nFaces; ++ iFace )
     {
         int lc  = this->lCell[ iFace ];
         int rc  = this->rCell[ iFace ];

@@ -155,9 +155,9 @@ void CalcGrid::ReconstructLink( int iZone )
 
     if ( ! ONEFLOW::IsValid( interFace ) ) return;
 
-    int nBFace = grid->nBFace;
+    int nBFaces = grid->nBFaces;
     int nIFace = interFace->nIFace;
-    int nPBFace = nBFace - nIFace;
+    int nPBFace = nBFaces - nIFace;
 
     IntField & lCell = grid->faceTopo->lCell;
     IntField & rCell = grid->faceTopo->rCell;

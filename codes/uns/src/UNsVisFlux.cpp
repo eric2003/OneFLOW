@@ -171,7 +171,7 @@ void UNsVisFlux::CalcHeatFlux()
 
 void UNsVisFlux::SaveHeatFlux()
 {
-    if ( ug.fId >= ug.nBFace ) return;
+    if ( ug.fId >= ug.nBFaces ) return;
     if ( ug.bcRecord->bcType[ ug.fId ] != BC::SOLID_SURFACE ) return;
     SurfaceValue * heat_sur = heat_flux.heatflux[ ZoneState::zid ];
     Real non_dim_heatflux = - nscom.oreynolds * vis.qNormal;

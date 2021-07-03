@@ -151,19 +151,19 @@ void WallVisual::BuildFaceTopo( IntField & faceNodeIndexArray, int loc_Face, int
     }
 }
 
-void WallVisual::CalcOrderMap( int & nBFace, IntField & orderMapping )
+void WallVisual::CalcOrderMap( int & nBFaces, IntField & orderMapping )
 {
     int nFaces = rCell.size();
     orderMapping.resize( nFaces );
     int iCount = 0;
-    nBFace = 0;
+    nBFaces = 0;
     for ( int iFace = 0; iFace < nFaces; ++ iFace )
     {
         int rc = rCell[ iFace ];
         if ( rc == INVALID_INDEX )
         {
             orderMapping[ iCount ++ ] = iFace;
-            ++ nBFace;
+            ++ nBFaces;
         }
     }
 
@@ -213,8 +213,8 @@ void WallVisual::ConstructTopology3D()
     }
 
     IntField orderMapping;
-    int nBFace = 0;
-    CalcOrderMap( nBFace, orderMapping );
+    int nBFaces = 0;
+    CalcOrderMap( nBFaces, orderMapping );
 
     ONEFLOW::Reorder( this->lCell, orderMapping );
     ONEFLOW::Reorder( this->rCell, orderMapping );
@@ -223,7 +223,7 @@ void WallVisual::ConstructTopology3D()
     ONEFLOW::Reorder( this->fLink, orderMapping );
     ONEFLOW::Reorder( this->faceType, orderMapping );
 
-    for ( int iFace = 0; iFace < nBFace; ++ iFace )
+    for ( int iFace = 0; iFace < nBFaces; ++ iFace )
     {
         rCell[ iFace ] = iFace + nCells;
     }

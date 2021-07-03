@@ -56,7 +56,7 @@ public:
     IntField bcNameId;
     BcInfo * bcInfo;
 public:
-    void Init( UInt nBFace );
+    void Init( UInt nBFaces );
     int GetNBFace();
     int CalcNIFace();
     int CalcNumWallFace();
@@ -156,7 +156,7 @@ public:
     ~BcRegionGroup();
 public:
     int zoneIndex;
-    int nBFace, nIFace;
+    int nBFaces, nIFace;
     HXVector< BcRegion * > * regions;
     void Create( int nBcRegions );
     void SetBcRegion( int ir, BcRegion * bcRegion );

@@ -326,7 +326,7 @@ void FieldManager::AllocateInnerAndBcField( UnsGrid * grid, FieldPropertyData * 
 
 void FieldManager::AllocateInnerField( UnsGrid * grid, FieldPropertyData * fieldPropertyData )
 {
-    int nTCell = grid->nCells + grid->nBFace;
+    int nTCell = grid->nCells + grid->nBFaces;
 
     map< string, int > & data = fieldPropertyData->innerField->data;
 
@@ -361,18 +361,18 @@ void FieldManager::AllocateFaceField( UnsGrid * grid, FieldPropertyData * fieldP
 
 void FieldManager::AllocateBcField( UnsGrid * grid, FieldPropertyData * fieldPropertyData )
 {
-    int nBFace = grid->nBFace;
+    int nBFaces = grid->nBFaces;
 
     map< string, int > & data = fieldPropertyData->bcField->data;
 
     for ( std::map< string, int >::iterator iter = data.begin(); iter != data.end(); ++ iter )
     {
         int nTEqu = iter->second;
-        ONEFLOW::CreateMRField( grid, nTEqu, nBFace, iter->first );
+        ONEFLOW::CreateMRField( grid, nTEqu, nBFaces, iter->first );
 
         MRField * field = ONEFLOW::GetFieldPointer< MRField >( grid, iter->first );
 
-        ONEFLOW::ZeroField( field, nTEqu, nBFace );
+        ONEFLOW::ZeroField( field, nTEqu, nBFaces );
     }
 }
 

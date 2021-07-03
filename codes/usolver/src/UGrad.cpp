@@ -59,7 +59,7 @@ void CalcGrad( RealField & q, RealField & dqdx, RealField & dqdy, RealField & dq
         dqdy[ ug.lc ] += fnya * value;
         dqdz[ ug.lc ] += fnza * value;
 
-        if ( ug.fId < ug.nBFace ) continue;
+        if ( ug.fId < ug.nBFaces ) continue;
         dqdx[ ug.rc ] -= fnxa * value;
         dqdy[ ug.rc ] -= fnya * value;
         dqdz[ ug.rc ] -= fnza * value;
@@ -73,7 +73,7 @@ void CalcGrad( RealField & q, RealField & dqdx, RealField & dqdy, RealField & dq
         dqdz[ cId ] *= ovol;
     }
 
-    for ( int fId = 0; fId < ug.nBFace; ++ fId )
+    for ( int fId = 0; fId < ug.nBFaces; ++ fId )
     {
         ug.fId = fId;
         ug.lc = ( * ug.lcf )[ ug.fId ];
@@ -126,7 +126,7 @@ void CalcGradGGCellWeight( RealField & q, RealField & dqdx, RealField & dqdy, Re
         dqdy[ ug.lc ] += fnya * value;
         dqdz[ ug.lc ] += fnza * value;
 
-        if ( ug.fId < ug.nBFace ) continue;
+        if ( ug.fId < ug.nBFaces ) continue;
         dqdx[ ug.rc ] -= fnxa * value;
         dqdy[ ug.rc ] -= fnya * value;
         dqdz[ ug.rc ] -= fnza * value;
@@ -140,7 +140,7 @@ void CalcGradGGCellWeight( RealField & q, RealField & dqdx, RealField & dqdy, Re
         dqdz[ cId ] *= ovol;
     }
 
-    for ( int fId = 0; fId < ug.nBFace; ++ fId )
+    for ( int fId = 0; fId < ug.nBFaces; ++ fId )
     {
         ug.fId = fId;
         ug.lc = ( * ug.lcf )[ ug.fId ];
@@ -197,7 +197,7 @@ void CalcGradGGCellWeightDebug( RealField & q, RealField & dqdx, RealField & dqd
             cout << " qr = " << setiosflags( ios::fixed ) << setprecision( 10 ) << q[ ug.rc ] << endl;
         }
 
-        if ( ug.fId < ug.nBFace ) continue;
+        if ( ug.fId < ug.nBFaces ) continue;
         dqdx[ ug.rc ] -= fnxa * value;
         dqdy[ ug.rc ] -= fnya * value;
         dqdz[ ug.rc ] -= fnza * value;
@@ -211,7 +211,7 @@ void CalcGradGGCellWeightDebug( RealField & q, RealField & dqdx, RealField & dqd
         dqdz[ cId ] *= ovol;
     }
 
-    for ( int fId = 0; fId < ug.nBFace; ++ fId )
+    for ( int fId = 0; fId < ug.nBFaces; ++ fId )
     {
         ug.fId = fId;
         ug.lc = ( * ug.lcf )[ ug.fId ];
@@ -255,7 +255,7 @@ void CalcGradDebug( RealField & q, RealField & dqdx, RealField & dqdy, RealField
             cout << " fId = " << fId << " value = " << value << " ql= " << q[ ug.lc ] << " qr = " << q[ ug.rc ] << endl;
         }
 
-        if ( ug.fId < ug.nBFace ) continue;
+        if ( ug.fId < ug.nBFaces ) continue;
         dqdx[ ug.rc ] -= fnxa * value;
         dqdy[ ug.rc ] -= fnya * value;
         dqdz[ ug.rc ] -= fnza * value;
@@ -273,7 +273,7 @@ void CalcGradDebug( RealField & q, RealField & dqdx, RealField & dqdy, RealField
         dqdz[ cId ] *= ovol;
     }
 
-    for ( int fId = 0; fId < ug.nBFace; ++ fId )
+    for ( int fId = 0; fId < ug.nBFaces; ++ fId )
     {
         ug.fId = fId;
         ug.lc = ( * ug.lcf )[ ug.fId ];

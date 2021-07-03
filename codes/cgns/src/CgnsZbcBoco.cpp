@@ -194,7 +194,7 @@ CgnsBcBoco * CgnsZbcBoco::WriteCgnsBoco( const string & bocoName, BCType_t bocot
 
 int CgnsZbcBoco::GetNumberOfActualBcElements()
 {
-    int nBFace = 0;
+    int nBFaces = 0;
     int nActualBcFace = 0;
 
     for ( int iBoco = 0; iBoco < this->nBoco; ++ iBoco )
@@ -202,13 +202,13 @@ int CgnsZbcBoco::GetNumberOfActualBcElements()
         CgnsBcBoco * cgnsBcBoco = this->GetCgnsBc( iBoco );
         int nBcElement = cgnsBcBoco->nElements;
         int nActualBcElement = cgnsBcBoco->GetActualNumberOfBoundaryElements();
-        nBFace += nBcElement;
+        nBFaces += nBcElement;
         nActualBcFace += nActualBcElement;
 
         cout << " iBoco  = " << iBoco << " numberOfBoundaryElements       = " << nBcElement << "\n";
         cout << " iBoco  = " << iBoco << " numberOfActualBoundaryElements = " << nActualBcElement << "\n";
     }
-    cout << " numberOfBoundaryFaces       = " << nBFace << "\n";
+    cout << " numberOfBoundaryFaces       = " << nBFaces << "\n";
     cout << " numberOfActualBoundaryFaces = " << nActualBcFace << "\n";
     return nActualBcFace;
 }

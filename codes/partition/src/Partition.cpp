@@ -137,10 +137,10 @@ void G2LMapping::GenerateGC2Z()
 
     int nCells  = ggrid->nCells;
     int nFaces  = ggrid->nFaces;
-    int nBFace = ggrid->nBFace;
+    int nBFaces = ggrid->nBFaces;
 
     vector<idx_t> xadj  ( ggrid->nCells + 1 );
-    vector<idx_t> adjncy( 2 * ( nFaces - nBFace ) );
+    vector<idx_t> adjncy( 2 * ( nFaces - nBFaces ) );
 
     this->GetXadjAdjncy( ggrid, xadj, adjncy );
     this->PartByMetis( nCells, xadj, adjncy );
@@ -356,7 +356,7 @@ void Partition::CalcG2lFace( UnsGrid * ggrid, int zid, UnsGrid * grid )
 {
     int nCells  = ggrid->nCells;
     int nFaces  = ggrid->nFaces;
-    int nBFace = ggrid->nBFace;
+    int nBFaces = ggrid->nBFaces;
 
     IntField & glCell = ggrid->faceTopo->lCell;
     IntField & grCell = ggrid->faceTopo->rCell;
@@ -384,7 +384,7 @@ void Partition::CalcG2lFace( UnsGrid * ggrid, int zid, UnsGrid * grid )
     int nFaceNow = 0;
 
     //physical boundary
-    for ( int fid = 0; fid < nBFace; ++ fid )
+    for ( int fid = 0; fid < nBFaces; ++ fid )
     {
         if ( g2l->g2l_face[ fid ] == - 1 )
         {
@@ -393,7 +393,7 @@ void Partition::CalcG2lFace( UnsGrid * ggrid, int zid, UnsGrid * grid )
     }
 
     int nIFaceNow = 0;
-    for ( int fid = nBFace; fid < nFaces; ++ fid )
+    for ( int fid = nBFaces; fid < nFaces; ++ fid )
     {
         if ( g2l->g2l_face[ fid ] == - 1 )
         {
@@ -409,7 +409,7 @@ void Partition::CalcG2lFace( UnsGrid * ggrid, int zid, UnsGrid * grid )
 
     //inner boundary
     int nBFaceNow = nFaceNow;
-    for ( int fid = nBFace; fid < nFaces; ++ fid )
+    for ( int fid = nBFaces; fid < nFaces; ++ fid )
     {
         if ( g2l->g2l_face[ fid ] == - 1 )
         {
@@ -424,7 +424,7 @@ void Partition::CalcG2lFace( UnsGrid * ggrid, int zid, UnsGrid * grid )
     }
 
     grid->nFaces  = nFaceNow;
-    grid->nBFace = nBFaceNow;
+    grid->nBFaces = nBFaceNow;
 
     InterFace * interFace = grid->interFace;
     interFace->Set( nIFaceNow );
@@ -544,7 +544,7 @@ void Partition::CalcF2N( UnsGrid * ggrid, int zid, UnsGrid * grid )
 
 void Partition::SetF2CAndBC( UnsGrid * ggrid, int zid, UnsGrid * grid )
 {
-    int nGBFace = ggrid->nBFace;
+    int nGBFace = ggrid->nBFaces;
 
     IntField & glCell = ggrid->faceTopo->lCell;
     IntField & grCell = ggrid->faceTopo->rCell;
@@ -552,18 +552,18 @@ void Partition::SetF2CAndBC( UnsGrid * ggrid, int zid, UnsGrid * grid )
     IntField & gbcType = ggrid->faceTopo->bcManager->bcRecord->bcType;
 
     int nFaces  = grid->nFaces;
-    int nBFace = grid->nBFace;
+    int nBFaces = grid->nBFaces;
 
     IntField & lCell = grid->faceTopo->lCell;
     IntField & rCell = grid->faceTopo->rCell;
     lCell.resize( nFaces );
     rCell.resize( nFaces );
 
-    grid->faceTopo->SetNBFace( nBFace );
+    grid->faceTopo->SetNBFace( nBFaces );
 
     IntField & local_bcType = grid->faceTopo->bcManager->bcRecord->bcType;
 
-    for ( int iFace = 0; iFace < nBFace; ++ iFace )
+    for ( int iFace = 0; iFace < nBFaces; ++ iFace )
     {
         int gfid = this->l2g->l2g_face[ iFace ];
 
@@ -604,7 +604,7 @@ void Partition::SetF2CAndBC( UnsGrid * ggrid, int zid, UnsGrid * grid )
         rCell[ iFace ] = rc;
     }
 
-    for ( int iFace = nBFace; iFace < nFaces; ++ iFace )
+    for ( int iFace = nBFaces; iFace < nFaces; ++ iFace )
     {
         int gfid = this->l2g->l2g_face[ iFace ];
         int glc = glCell[ gfid ];
@@ -624,21 +624,21 @@ void Partition::SetInterface( UnsGrid * ggrid, int zid, UnsGrid * grid )
 
     InterFace * interFace = grid->interFace;
     int nIFace = interFace->nIFace;
-    int nBFace = grid->nBFace;
+    int nBFaces = grid->nBFaces;
 
     int nGFace = ggrid->nFaces;
-    int nGBFace = ggrid->nBFace;
+    int nGBFace = ggrid->nBFaces;
 
     IntField & glCell = ggrid->faceTopo->lCell;
     IntField & grCell = ggrid->faceTopo->rCell;
 
     //number of physical boundary face
-    int nPBFace = nBFace - nIFace;
+    int nPBFace = nBFaces - nIFace;
 
     for ( int gfid = nGBFace; gfid < nGFace; ++ gfid )
     {
         int fid = this->g2l->g2l_face[ gfid ];
-        if ( fid < nBFace && fid > - 1 )
+        if ( fid < nBFaces && fid > - 1 )
         {
             //local interface id
             int ifid = fid - nPBFace;
@@ -686,9 +686,9 @@ bool FindMatch( UnsGrid * grid, FacePair * facePair )
 
     if ( ! ONEFLOW::IsValid( interFace ) ) return found;
 
-    int nBFace = grid->nBFace;
+    int nBFaces = grid->nBFaces;
     int nIFace = interFace->nIFace;
-    int nPBFace = nBFace - nIFace;
+    int nPBFace = nBFaces - nIFace;
 
     IntField & lCell = grid->faceTopo->lCell;
     IntField & rCell = grid->faceTopo->rCell;

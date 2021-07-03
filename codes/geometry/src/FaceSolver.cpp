@@ -143,7 +143,7 @@ void FaceSolver::ScanElementFace( CgIntField & eNodeId, int eType, int eId )
 
 void FaceSolver::ScanBcFace( IntSet& bcVertex, int bcType, int bcNameId )
 {
-    int nBFace = 0;
+    int nBFaces = 0;
 
     //cout << " this->faceTopo = " << this->faceTopo << "\n";
     int nFaces = this->faceTopo->lCell.size();
@@ -176,7 +176,7 @@ void FaceSolver::ScanBcFace( IntSet& bcVertex, int bcType, int bcNameId )
         {
             if ( this->CheckBcFace( bcVertex, ( this->faceTopo->faces )[ iFace ] ) )
             {
-                ++ nBFace;
+                ++ nBFaces;
 
                 ( * this->faceBcType )[ iFace ] = bcType;
                 ( * this->faceBcKey  )[ iFace ] = bcNameId;
@@ -184,7 +184,7 @@ void FaceSolver::ScanBcFace( IntSet& bcVertex, int bcType, int bcNameId )
         }
     }
 
-    //cout << " nBFace = " << nBFace << endl;
+    //cout << " nBFaces = " << nBFaces << endl;
     int kkk = 1;
 }
 
@@ -205,7 +205,7 @@ void FaceSolver::ScanBcFaceDetail( IntSet& bcVertex, int bcType, int bcNameId )
     }
     cout << " nTraditionalBc = " << nTraditionalBc << "\n";
 
-    int nBFace = 0;
+    int nBFaces = 0;
     for ( int iFace = 0; iFace < nFaces; ++ iFace )
     {
         if ( iFace % 200000 == 0 ) 
@@ -218,7 +218,7 @@ void FaceSolver::ScanBcFaceDetail( IntSet& bcVertex, int bcType, int bcNameId )
         {
             if ( this->CheckBcFace( bcVertex, ( this->faceTopo->faces )[ iFace ] ) )
             {
-                ++ nBFace;
+                ++ nBFaces;
 
                 ( * this->faceBcType )[ iFace ] = bcType;
                 ( * this->faceBcKey  )[ iFace ] = bcNameId;
@@ -226,7 +226,7 @@ void FaceSolver::ScanBcFaceDetail( IntSet& bcVertex, int bcType, int bcNameId )
         }
     }
 
-    cout << " nFinalBcFace = " << nBFace << " bcType = " << bcType << endl;
+    cout << " nFinalBcFace = " << nBFaces << " bcType = " << bcType << endl;
     int kkk = 1;
 }
 

@@ -55,9 +55,9 @@ void UGeom::Init()
     //UnsGrid * grid = Zone::GetUnsGrid();
     grid = Zone::GetUnsGrid();
 
-    ug.nBFace = grid->nBFace;
+    ug.nBFaces = grid->nBFaces;
     ug.nCells = grid->nCells;
-    ug.nTCell = grid->nCells + grid->nBFace;
+    ug.nTCell = grid->nCells + grid->nBFaces;
     ug.nFaces = grid->nFaces;
 
     this->SetStEd( F_TOTAL );
@@ -144,7 +144,7 @@ void UGeom::DumpCellFace( int cId )
 void AddF2CField( MRField * cellField, MRField * faceField )
 {
     int nEqu = cellField->GetNEqu();
-    for ( int fId = 0; fId < ug.nBFace; ++ fId )
+    for ( int fId = 0; fId < ug.nBFaces; ++ fId )
     {
         ug.fId = fId;
         ug.lc = ( * ug.lcf )[ ug.fId ];
@@ -156,7 +156,7 @@ void AddF2CField( MRField * cellField, MRField * faceField )
         }
     }
 
-    for ( int fId = ug.nBFace; fId < ug.nFaces; ++ fId )
+    for ( int fId = ug.nBFaces; fId < ug.nFaces; ++ fId )
     {
         ug.fId = fId;
         ug.lc = ( * ug.lcf )[ ug.fId ];
@@ -173,7 +173,7 @@ void AddF2CField( MRField * cellField, MRField * faceField )
 void AddF2CFieldDebug( MRField * cellField, MRField * faceField )
 {
     int nEqu = cellField->GetNEqu();
-    for ( int fId = 0; fId < ug.nBFace; ++ fId )
+    for ( int fId = 0; fId < ug.nBFaces; ++ fId )
     {
         ug.fId = fId;
         ug.lc = ( * ug.lcf )[ ug.fId ];
@@ -200,7 +200,7 @@ void AddF2CFieldDebug( MRField * cellField, MRField * faceField )
         }
     }
 
-    for ( int fId = ug.nBFace; fId < ug.nFaces; ++ fId )
+    for ( int fId = ug.nBFaces; fId < ug.nFaces; ++ fId )
     {
         ug.fId = fId;
         ug.lc = ( * ug.lcf )[ ug.fId ];
@@ -364,12 +364,12 @@ void HXDebug::DumpCellInfo( int iCell )
 {
     UnsGrid * grid = Zone::GetUnsGrid();
     int nFaces = ( * ug.c2f )[ iCell ].size();
-    int nBFace = ( * ug.bcRecord ).bcType.size();
+    int nBFaces = ( * ug.bcRecord ).bcType.size();
     for ( int iFace = 0; iFace < nFaces; ++ iFace )
     {
         int fid = ( * ug.c2f )[ iCell ][ iFace ];
         int bctype = -1;
-        if ( fid < nBFace )
+        if ( fid < nBFaces )
         {
             bctype = ( * ug.bcRecord ).bcType[ fid ];
         }

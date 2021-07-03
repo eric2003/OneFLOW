@@ -66,7 +66,7 @@ void NsLimField::Init()
 
 void NsLimField::BcQlQrFix()
 {
-    for ( int fId = 0; fId < ug.nBFace; ++ fId )
+    for ( int fId = 0; fId < ug.nBFaces; ++ fId )
     {
         int bcType = ug.bcRecord->bcType[ fId ];
         if ( bcType == BC::INTERFACE ) continue;

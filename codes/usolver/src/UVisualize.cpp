@@ -206,9 +206,9 @@ void BcVisual::Calcf2n( int bcType )
     this->f2n.resize( 0 );
     this->l2g.resize( 0 );
 
-    int nBFace = grid->nBFace;
+    int nBFaces = grid->nBFaces;
 
-    for ( int iFace = 0; iFace < nBFace; ++ iFace )
+    for ( int iFace = 0; iFace < nBFaces; ++ iFace )
     {
         if ( bcType != bcRecord->bcType[ iFace ] ) continue;
 

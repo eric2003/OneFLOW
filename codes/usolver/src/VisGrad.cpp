@@ -236,7 +236,7 @@ void VisGrad::CalcC1C2()
     vgg.c1 = SQR( vgg.d1 ) / dtmp;
     vgg.c2 = 1.0 - vgg.c1;
 
-    if ( ug.fId < ug.nBFace )
+    if ( ug.fId < ug.nBFaces )
     {
         int bcType = ug.bcRecord->bcType[ ug.fId ];
 

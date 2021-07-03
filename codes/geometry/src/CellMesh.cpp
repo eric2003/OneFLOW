@@ -55,8 +55,8 @@ UInt CellMesh::GetNumberOfCells()
 void CellMesh::AllocateMetrics( FaceMesh * faceMesh )
 {
     UInt numberOfCells = this->GetNumberOfCells();
-    UInt nBFace = faceMesh->GetNBFace();
-    UInt nTCell = numberOfCells + nBFace;
+    UInt nBFaces = faceMesh->GetNBFace();
+    UInt nTCell = numberOfCells + nBFaces;
     this->xcc.resize( nTCell );
     this->ycc.resize( nTCell );
     this->zcc.resize( nTCell );

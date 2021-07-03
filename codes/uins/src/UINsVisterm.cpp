@@ -169,7 +169,7 @@ void UINsVisterm::CalcPreandVisGrad()
 		(*uinsf.dqdy)[IIDX::IIP][ug.lc] += fnya * value4;
 		(*uinsf.dqdz)[IIDX::IIP][ug.lc] += fnza * value4;
 
-		if (ug.fId < ug.nBFace) continue;
+		if (ug.fId < ug.nBFaces) continue;
 		(*uinsf.dqdx)[IIDX::IIU][ug.rc] += -fnxa * value1;
 		(*uinsf.dqdy)[IIDX::IIU][ug.rc] += -fnya * value1;
 		(*uinsf.dqdz)[IIDX::IIU][ug.rc] += -fnza * value1;
@@ -202,7 +202,7 @@ void UINsVisterm::CalcPreandVisGrad()
 		(*uinsf.dqdz)[IIDX::IIP][ug.cId] *= ovol;
 	}
 
-	for (int fId = 0; fId < ug.nBFace; ++fId)
+	for (int fId = 0; fId < ug.nBFaces; ++fId)
 	{
 		ug.fId = fId;
 		ug.lc = (*ug.lcf)[ug.fId];
@@ -253,7 +253,7 @@ void UINsVisterm::CalcVisterm()
 
     }
 
-	/*for (int fId = 0; fId < ug.nBFace; ++fId)
+	/*for (int fId = 0; fId < ug.nBFaces; ++fId)
 	{
 		ug.fId = fId;
 
@@ -502,7 +502,7 @@ void UINsVisterm::CalcUnsteadcoff()
 		}
 	}
 
-	/*for (int fId = 0; fId < ug.nBFace; ++fId)
+	/*for (int fId = 0; fId < ug.nBFaces; ++fId)
 	{
 		ug.fId = fId;
 		ug.lc = (*ug.lcf)[ug.fId];

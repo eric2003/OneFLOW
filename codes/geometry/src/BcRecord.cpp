@@ -62,9 +62,9 @@ void BcRecord::CreateBcTypeRegion()
     IntSet bcUserTypeSet;
     IntSet bcRegionNameSet;
 
-    int nBFace = this->GetNBFace();
+    int nBFaces = this->GetNBFace();
 
-    for ( int iFace = 0; iFace < nBFace; ++ iFace )
+    for ( int iFace = 0; iFace < nBFaces; ++ iFace )
     {
         int bcType = this->bcType[ iFace ];
         int bcNameId = this->bcNameId[ iFace ];
@@ -87,7 +87,7 @@ void BcRecord::CreateBcTypeRegion()
     for ( int iBcTypeRegion = 0; iBcTypeRegion < nBcTypeRegions; ++ iBcTypeRegion )
     {
         int targetBcType = bcInfo->bcType[ iBcTypeRegion ];
-        for ( int iFace = 0; iFace < nBFace; ++ iFace )
+        for ( int iFace = 0; iFace < nBFaces; ++ iFace )
         {
             int bcType = this->bcType[ iFace ];
             if ( bcType == targetBcType )
@@ -106,18 +106,18 @@ int BcRecord::GetNBFace()
     return bcType.size();
 }
 
-void BcRecord::Init( UInt nBFace )
+void BcRecord::Init( UInt nBFaces )
 {
-    this->bcType.resize( nBFace );
-    this->bcNameId.resize( nBFace );
+    this->bcType.resize( nBFaces );
+    this->bcNameId.resize( nBFaces );
 }
 
 int BcRecord::CalcNIFace()
 {
-    int nBFace = this->GetNBFace();
+    int nBFaces = this->GetNBFace();
 
     int nIFace = 0;
-    for ( int iFace = 0; iFace < nBFace; ++ iFace )
+    for ( int iFace = 0; iFace < nBFaces; ++ iFace )
     {
         if ( BC::IsInterfaceBc( this->bcType[ iFace ] ) )
         {
@@ -130,10 +130,10 @@ int BcRecord::CalcNIFace()
 
 int BcRecord::CalcNumWallFace()
 {
-    int nBFace = this->GetNBFace();
+    int nBFaces = this->GetNBFace();
 
     int nWFace = 0;
-    for ( int iFace = 0; iFace < nBFace; ++ iFace )
+    for ( int iFace = 0; iFace < nBFaces; ++ iFace )
     {
         if ( BC::IsWallBc( this->bcType[ iFace ] ) )
         {
@@ -148,10 +148,10 @@ void BcRecord::GenerateI2B( InterFace * interFace )
 {
     if ( ! interFace ) return;
 
-    int nBFace = this->GetNBFace();
+    int nBFaces = this->GetNBFace();
 
     int iFace  = 0;
-    for ( int iBFace = 0; iBFace < nBFace; ++ iBFace )
+    for ( int iBFace = 0; iBFace < nBFaces; ++ iBFace )
     {
         if ( ! BC::IsInterfaceBc( this->bcType[ iBFace ] ) )
         {
@@ -177,15 +177,15 @@ BcManager::~BcManager()
 
 void BcManager::PreProcess()
 {
-    int nBFace = this->bcRecord->GetNBFace();
-    bcFlag.resize( nBFace, 1 );
+    int nBFaces = this->bcRecord->GetNBFace();
+    bcFlag.resize( nBFaces, 1 );
 }
 
 bool BcManager::ExistInterface()
 {
-    int nBFace = this->bcRecord->GetNBFace();
+    int nBFaces = this->bcRecord->GetNBFace();
 
-    for ( int iFace = 0; iFace < nBFace; ++ iFace )
+    for ( int iFace = 0; iFace < nBFaces; ++ iFace )
     {
         int bcType = this->bcRecord->bcType[ iFace ];
         if ( BC::IsInterfaceBc( bcType ) )
@@ -199,8 +199,8 @@ bool BcManager::ExistInterface()
 void BcManager::Update()
 {
     * this->bcRecord = * this->bcRecordNew;
-    int nBFace = this->bcRecord->bcType.size();
-    this->bcFlag.resize( nBFace );
+    int nBFaces = this->bcRecord->bcType.size();
+    this->bcFlag.resize( nBFaces );
     this->bcFlag = 1;
 }
 
@@ -208,9 +208,9 @@ void BcManager::CalcBcType( IntField & bcTypeList )
 {
     IntSet bcTypeSet;
 
-    int nBFace = this->bcRecord->GetNBFace();
+    int nBFaces = this->bcRecord->GetNBFace();
 
-    for ( int iFace = 0; iFace < nBFace; ++ iFace )
+    for ( int iFace = 0; iFace < nBFaces; ++ iFace )
     {
         int bcType = this->bcRecord->bcType[ iFace ];
         bcTypeSet.insert( bcType );

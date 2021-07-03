@@ -164,7 +164,7 @@ void GridElem::GenerateCalcElement()
 
     int nFaces = this->face_solver->faceTopo->faces.size();
 
-    int nBFace = 0;
+    int nBFaces = 0;
 
     //cout << " nFaces = " << nFaces << "\n";
 
@@ -181,7 +181,7 @@ void GridElem::GenerateCalcElement()
         {
             faceTopo->bcManager->bcRecord->bcType.push_back( ( * this->face_solver->faceBcType )[ iFace ] );
             faceTopo->bcManager->bcRecord->bcNameId.push_back( ( * this->face_solver->faceBcKey )[ iFace ] );
-            ++ nBFace;
+            ++ nBFaces;
         }
     }
 
@@ -232,11 +232,11 @@ void GridElem::CalcBoundaryType( UnsGrid * grid )
     cout << " nFaces = " << nFaces << "\n";
      
     BcRecord * bcRecord = grid->faceTopo->bcManager->bcRecord;
-    int nBFace = bcRecord->bcType.size();
+    int nBFaces = bcRecord->bcType.size();
 
-    grid->nBFace = nBFace;
+    grid->nBFaces = nBFaces;
 
-    cout << " nBFace = " << nBFace << "\n";
+    cout << " nBFaces = " << nBFaces << "\n";
 
     BcTypeMap * bcTypeMap = new BcTypeMap();
     bcTypeMap->Init();
@@ -245,7 +245,7 @@ void GridElem::CalcBoundaryType( UnsGrid * grid )
 
     IntSet originalBcSet, finalBcSet;
     int iCount = 0;
-    for ( int iFace = 0; iFace < nBFace; ++ iFace )
+    for ( int iFace = 0; iFace < nBFaces; ++ iFace )
     {
         int cgnsBcType = bcRecord->bcType[ iFace ];
         int bcNameId = bcRecord->bcNameId[ iFace ];
@@ -265,7 +265,7 @@ void GridElem::CalcBoundaryType( UnsGrid * grid )
     for ( IntSet::iterator iter = originalBcSet.begin(); iter != originalBcSet.end(); ++ iter )
     {
         int iCount = 0;
-        for ( int iFace = 0; iFace < nBFace; ++ iFace )
+        for ( int iFace = 0; iFace < nBFaces; ++ iFace )
         {
             int cgnsBcType = cgnsBcArray[ iFace ];
             if ( cgnsBcType == * iter )

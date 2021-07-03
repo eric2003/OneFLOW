@@ -166,9 +166,9 @@ void CollectWallFaceNode()
     LinkField & f2n = grid->faceTopo->faces;
     IntField & bcType = grid->faceTopo->bcManager->bcRecord->bcType;
 
-    int nBFace = bcType.size();
+    int nBFaces = bcType.size();
 
-    for ( int iFace = 0; iFace < nBFace; ++ iFace )
+    for ( int iFace = 0; iFace < nBFaces; ++ iFace )
     {
         int bc_type = bcType[ iFace ];
 

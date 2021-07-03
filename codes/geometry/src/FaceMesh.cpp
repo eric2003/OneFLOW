@@ -53,9 +53,9 @@ UInt FaceMesh::GetNBFace()
     return faceTopo->GetNBFace();
 }
 
-void FaceMesh::SetNBFace( UInt nBFace )
+void FaceMesh::SetNBFace( UInt nBFaces )
 {
-    faceTopo->SetNBFace( nBFace );
+    faceTopo->SetNBFace( nBFaces );
 }
 
 void FaceMesh::CalcFaceCenter1D( NodeMesh * nodeMesh )
@@ -301,8 +301,8 @@ void FaceMesh::AllocateMetrics()
     this->vfy = 0;
     this->vfz = 0;
     this->vfn = 0;
-    UInt nBFace = this->GetNBFace();
-    this->faceTopo->bcManager->bcRecord->bcType.resize( nBFace );
+    UInt nBFaces = this->GetNBFace();
+    this->faceTopo->bcManager->bcRecord->bcType.resize( nBFaces );
 }
 
 EndNameSpace

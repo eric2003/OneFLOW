@@ -157,7 +157,7 @@ void LimField::GetQlQr()
 
 void LimField::BcQlQrFix()
 {
-    for ( int fId = 0; fId < ug.nBFace; ++ fId )
+    for ( int fId = 0; fId < ug.nBFaces; ++ fId )
     {
         int bcType = ug.bcRecord->bcType[ fId ];
         if ( bcType == BC::INTERFACE ) continue;
@@ -601,7 +601,7 @@ void Limiter::CalcMinMaxDiff()
         ( * lim->maxvf )[ cId ] = ( * lim->q )[ cId ];
     }
 
-    for ( int fId = 0; fId < ug.nBFace; ++ fId )
+    for ( int fId = 0; fId < ug.nBFaces; ++ fId )
     {
         ug.fId = fId;
         ug.lc = ( * ug.lcf )[ ug.fId ];
@@ -614,7 +614,7 @@ void Limiter::CalcMinMaxDiff()
         ( * lim->maxvf )[ ug.lc ] = MAX( ( * lim->maxvf )[ ug.lc ], ( * lim->q )[ ug.rc ] );
     }
 
-    for ( int fId = ug.nBFace; fId < ug.nFaces; ++ fId )
+    for ( int fId = ug.nBFaces; fId < ug.nFaces; ++ fId )
     {
         ug.fId = fId;
         ug.lc = ( * ug.lcf )[ ug.fId ];

@@ -50,7 +50,7 @@ public:
     int cId;
     int bcfId;
     int nFaces;
-    int nBFace;
+    int nBFaces;
     int nCells;
     int nTCell;
     int ist, ied;

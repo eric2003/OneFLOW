@@ -152,7 +152,7 @@ void FillSection( Grids & grids, HXVector< Int3D * > & unsIdList, CgnsZone * cgn
     int nTBcRegion = 0;
 
     int nTCell = 0;
-    int nBFace = 0;
+    int nBFaces = 0;
 
     for ( int iZone = 0; iZone < grids.size(); ++ iZone )
     {
@@ -169,12 +169,12 @@ void FillSection( Grids & grids, HXVector< Int3D * > & unsIdList, CgnsZone * cgn
             BcRegion * bcRegion = ( * bcRegionGroup->regions )[ ir ];
             if ( BC::IsNotNormalBc( bcRegion->bcType ) ) continue;
             
-            nBFace += bcRegion->CalcRegionCells();
+            nBFaces += bcRegion->CalcRegionCells();
             nTBcRegion ++;
         }
     }
 
-    cout << " nBFace = " << nBFace << "\n";
+    cout << " nBFaces = " << nBFaces << "\n";
 
     cgnsZone->cgnsCoor->SetNCell( nTCell );
 
@@ -185,7 +185,7 @@ void FillSection( Grids & grids, HXVector< Int3D * > & unsIdList, CgnsZone * cgn
     cgnsZone->cgnsZsection->cgnsSections[ 0 ]->endId   = nTCell;
 
     cgnsZone->cgnsZsection->cgnsSections[ 1 ]->startId = nTCell + 1;
-    cgnsZone->cgnsZsection->cgnsSections[ 1 ]->endId   = nTCell + 1 + nBFace;
+    cgnsZone->cgnsZsection->cgnsSections[ 1 ]->endId   = nTCell + 1 + nBFaces;
 
     if ( Dim::dimension == ONEFLOW::THREE_D )
     {

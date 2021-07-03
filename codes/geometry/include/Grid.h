@@ -63,7 +63,7 @@ public:
     int id, localId;
     int nNodes;
     int nFaces, nCells;
-    int nBFace;
+    int nBFaces;
     int nIFace;
     int volBcType;
     NodeMesh * nodeMesh;
