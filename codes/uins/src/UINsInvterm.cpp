@@ -247,16 +247,16 @@ void UINsInvterm::Initflux()
 	iinv.dsrl.resize(ug.nFaces);
 	iinv.elrn.resize(ug.nFaces);
 	//iinv.value.resize(ug.nFaces);
-	iinv.mu.resize(ug.nCell);
-	iinv.mv.resize(ug.nCell);
-	iinv.mw.resize(ug.nCell);
-	iinv.mua.resize(ug.nCell);
-	iinv.mva.resize(ug.nCell);
-	iinv.mwa.resize(ug.nCell);
-	iinv.res_pp.resize(ug.nCell);
-	iinv.res_up.resize(ug.nCell);
-	iinv.res_vp.resize(ug.nCell);
-	iinv.res_wp.resize(ug.nCell);
+	iinv.mu.resize(ug.nCells);
+	iinv.mv.resize(ug.nCells);
+	iinv.mw.resize(ug.nCells);
+	iinv.mua.resize(ug.nCells);
+	iinv.mva.resize(ug.nCells);
+	iinv.mwa.resize(ug.nCells);
+	iinv.res_pp.resize(ug.nCells);
+	iinv.res_up.resize(ug.nCells);
+	iinv.res_vp.resize(ug.nCells);
+	iinv.res_wp.resize(ug.nCells);
 
 	iinv.ai1 = 0;
 	iinv.ai2 = 0;
@@ -374,7 +374,7 @@ void UINsInvterm::MomPre()
 	iinv.mvc = 0;
 	iinv.mwc = 0;
 
-	for (int cId = 0; cId < ug.nCell; ++cId)
+	for (int cId = 0; cId < ug.nCells; ++cId)
 	{
 		ug.cId = cId;
 		int fn = (*ug.c2f)[ug.cId].size();
@@ -801,7 +801,7 @@ void UINsInvterm::MomPre()
 
 	}
 
-/*for (int cId = 0; cId < ug.nCell; cId++)
+/*for (int cId = 0; cId < ug.nCells; cId++)
 {
 	ug.cId = cId;
 
@@ -1222,7 +1222,7 @@ void UINsInvterm::CalcPressCorrectEqu()
 	{
 		iinv.res_p = 0.0;
 
-		for (int cId = 0; cId < ug.nCell; ++cId)
+		for (int cId = 0; cId < ug.nCells; ++cId)
 		{
 			ug.cId = cId;
 
@@ -1264,7 +1264,7 @@ void UINsInvterm::CalcPressCorrectEqu()
 
 
 
-	for (int cId = 0; cId < ug.nCell; ++cId)
+	for (int cId = 0; cId < ug.nCells; ++cId)
 	{
 		ug.cId = cId;
 		(*uinsf.q)[IIDX::IIP][ug.cId] = (*uinsf.q)[IIDX::IIP][ug.cId] + 0.8*iinv.pp[ug.cId];
@@ -1347,7 +1347,7 @@ void UINsInvterm::CalcPressCorrectEqu()
 		iinv.pp[ug.rc] = iinv.pp[ug.lc];
 	}
 
-	for (int cId = 0; cId < ug.nCell; ++cId)
+	for (int cId = 0; cId < ug.nCells; ++cId)
 	{
 		ug.cId = cId;
 		(*uinsf.q)[IIDX::IIP][ug.cId] = (*uinsf.q)[IIDX::IIP][ug.cId] +0.8*iinv.pp[ug.cId];
@@ -1467,7 +1467,7 @@ void UINsInvterm::CalcPressCorrectEqu()
 
 	}
 
-	/*for (int cId = 0; cId < ug.nCell; ++cId)
+	/*for (int cId = 0; cId < ug.nCells; ++cId)
 	{
 		ug.cId = cId;
 		iinv.pp[ug.cId] = 0;
@@ -1482,7 +1482,7 @@ void UINsInvterm::CalcPressCorrectEqu()
 		iinv.pp[ug.rc] = iinv.pp[ug.lc];
 	}
 
-for (int cId = 0; cId < ug.nCell; ++cId)
+for (int cId = 0; cId < ug.nCells; ++cId)
 {
 	ug.cId = cId;
 	(*uinsf.q)[IIDX::IIP][ug.cId] = (*uinsf.q)[IIDX::IIP][ug.cId] + 0.8*iinv.pp[ug.cId];
@@ -1608,7 +1608,7 @@ void UINsInvterm::UpdateSpeed()
 {
 	this->CalcPreGrad();
 
-	for (int cId = 0; cId < ug.nCell; ++cId)
+	for (int cId = 0; cId < ug.nCells; ++cId)
 	{
 		ug.cId = cId;
 
@@ -1821,7 +1821,7 @@ void UINsInvterm::UpdateSpeed()
 
 
 
-	/*for (int cId = ug.nCell; cId < ug.nTCell; ++cId)
+	/*for (int cId = ug.nCells; cId < ug.nTCell; ++cId)
 	{
 		ug.cId = cId;
 
@@ -1854,7 +1854,7 @@ void UINsInvterm::UpdateINsRes()
 		iinv.bp[ug.rc] += iinv.fq[ug.fId];
 	}
 
-	for (int cId = 0; cId < ug.nCell; ++cId)
+	for (int cId = 0; cId < ug.nCells; ++cId)
 	{
 		ug.cId = cId;
 		iinv.res_V[ug.cId] = 10*iinv.bp[ug.cId];
@@ -1899,7 +1899,7 @@ void UINsInvterm::UpdateINsRes()
 		iinv.bp[ug.rc] += iinv.fq[ug.fId];
 	}
 
-	for (int cId = 0; cId < ug.nCell; ++cId)
+	for (int cId = 0; cId < ug.nCells; ++cId)
 	{
 		ug.cId = cId;
 
@@ -2031,7 +2031,7 @@ void UINsInvterm::CalcPreGrad()
 		iinv.dqqdz[ug.rc] += -fnza * iinv.value;
 	}
 
-	for (int cId = 0; cId < ug.nCell; ++cId)
+	for (int cId = 0; cId < ug.nCells; ++cId)
 	{
 		ug.cId = cId;
 		Real ovol = one / (*ug.cvol)[ug.cId];
@@ -2046,7 +2046,7 @@ void UINsInvterm::CalcPreGrad()
 		ug.lc = (*ug.lcf)[ug.fId];
 		ug.rc = (*ug.rcf)[ug.fId];
 
-		//if (ug.rc > ug.nCell)
+		//if (ug.rc > ug.nCells)
 		//{
 		iinv.dqqdx[ug.rc] = iinv.dqqdx[ug.lc];
 		iinv.dqqdy[ug.rc] = iinv.dqqdy[ug.lc];

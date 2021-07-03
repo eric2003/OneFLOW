@@ -133,7 +133,7 @@ void UTurbSrcFlux::InitVist()
 
 void UTurbSrcFlux::ZeroSpectrum()
 {
-    for ( int cId = 0; cId < ug.nCell; ++ cId )
+    for ( int cId = 0; cId < ug.nCells; ++ cId )
     {
         ug.cId = cId;
         for ( int iEqu = 0; iEqu < turbcom.nEqu; ++ iEqu )
@@ -198,7 +198,7 @@ void UTurbSrcFlux::CalcVistMax()
 {
     turbcom.maxid = 0;
     turbcom.maxvist = -1.0;
-    for ( int cId = 0; cId < ug.nCell; ++ cId )
+    for ( int cId = 0; cId < ug.nCells; ++ cId )
     {
         ug.cId = cId;
 
@@ -215,7 +215,7 @@ void UTurbSrcFlux::CalcVistMax()
 
 void UTurbSrcFlux::CalcVist1Equ()
 {
-    for ( int cId = 0; cId < ug.nCell; ++ cId )
+    for ( int cId = 0; cId < ug.nCells; ++ cId )
     {
         ug.cId = cId;
 
@@ -240,7 +240,7 @@ void UTurbSrcFlux::CalcVist1Equ()
 
 void UTurbSrcFlux::CalcVist2Equ()
 {
-    for ( int cId = 0; cId < ug.nCell; ++ cId )
+    for ( int cId = 0; cId < ug.nCells; ++ cId )
     {
         ug.cId = cId;
 
@@ -269,7 +269,7 @@ void UTurbSrcFlux::CalcVist2Equ()
 
 void UTurbSrcFlux::CalcSrcFlux1Equ()
 {
-    for ( int cId = 0; cId < ug.nCell; ++ cId )
+    for ( int cId = 0; cId < ug.nCells; ++ cId )
     {
         ug.cId = cId;
 
@@ -288,7 +288,7 @@ void UTurbSrcFlux::CalcSrcFlux1Equ()
 
 void UTurbSrcFlux::CalcSrcFlux2Equ()
 {
-    for ( int cId = 0; cId < ug.nCell; ++ cId )
+    for ( int cId = 0; cId < ug.nCells; ++ cId )
     {
         ug.cId = cId;
 
@@ -455,7 +455,7 @@ void UTurbSrcFlux::CalcLengthScaleOfSaDes()
     UnsGrid * grid = Zone::GetUnsGrid();
     MRField * len_scale = GetFieldPointer< MRField > ( grid, "len_scale" );
 
-    int numberOfCells = grid->nCell;
+    int numberOfCells = grid->nCells;
 
     RealField lesLength( numberOfCells );
 
@@ -477,7 +477,7 @@ void UTurbSrcFlux::CalcLengthScaleOfSstDes()
     UnsGrid * grid = Zone::GetUnsGrid();
     MRField * len_scale = GetFieldPointer< MRField > ( grid, "len_scale" );
 
-    int numberOfCells = grid->nCell;
+    int numberOfCells = grid->nCells;
 
     RealField lesLength( numberOfCells );
 
@@ -502,14 +502,14 @@ void UTurbSrcFlux::CalcLengthScaleOfSaDdes()
     UnsGrid * grid = Zone::GetUnsGrid();
     MRField * len_scale = GetFieldPointer< MRField > ( grid, "len_scale" );
 
-    int nCell = grid->nCell;
+    int nCells = grid->nCells;
 
     RealField & wall_dist = grid->cellMesh->dist;
 
-    RealField lesLength( nCell );
+    RealField lesLength( nCells );
     CalcLengthLesOfSa( lesLength );
 
-    for ( int cId = 0; cId < nCell; ++ cId ) 
+    for ( int cId = 0; cId < nCells; ++ cId ) 
     {
         Real rho = ( * uturbf.q_ns  )[ IDX::IR ][ cId ];
         Real visl = ( * uturbf.visl  )[ 0 ][ cId ];
@@ -548,14 +548,14 @@ void UTurbSrcFlux::CalcLengthScaleOfSstDdes()
     UnsGrid * grid = Zone::GetUnsGrid();
     MRField * len_scale = GetFieldPointer< MRField > ( grid, "len_scale" );
 
-    int nCell = grid->nCell;
+    int nCells = grid->nCells;
 
     RealField & wall_dist = grid->cellMesh->dist;
 
-    RealField lesLength( nCell );
+    RealField lesLength( nCells );
     CalcLengthLesOfSst( lesLength );
 
-    for ( int cId = 0; cId < nCell; ++ cId ) 
+    for ( int cId = 0; cId < nCells; ++ cId ) 
     {
         Real rho = ( * uturbf.q_ns  )[ IDX::IR ][ cId ];
         Real visl = ( * uturbf.visl  )[ 0 ][ cId ];
@@ -607,22 +607,22 @@ void UTurbSrcFlux::CalcLengthScaleOfSaIddes()
     UnsGrid * grid = Zone::GetUnsGrid();
     MRField * len_scale = GetFieldPointer< MRField > ( grid, "len_scale" );
 
-    int nCell = grid->nCell;
+    int nCells = grid->nCells;
 
     RealField & wall_dist = grid->cellMesh->dist;
     RealField & span = grid->cellMesh->span;
 
-    RealField lesLength( nCell );
+    RealField lesLength( nCells );
 
     CalcLengthLesOfSa( lesLength );
 
-    RealField lowReynoldsCorr( nCell );
+    RealField lowReynoldsCorr( nCells );
     CalcLowReynoldsCorrection( lowReynoldsCorr );
 
     Real ct   = 1.63;
     Real cl   = 3.55;
 
-    for ( int cId = 0; cId < nCell; ++ cId ) 
+    for ( int cId = 0; cId < nCells; ++ cId ) 
     {
         Real rho = ( * uturbf.q_ns  )[ IDX::IR ][ cId ];
         Real visl = ( * uturbf.visl )[ 0 ][ cId ];
@@ -691,12 +691,12 @@ void UTurbSrcFlux::CalcLengthScaleOfSstIddes()
     UnsGrid * grid = Zone::GetUnsGrid();
     MRField * len_scale = GetFieldPointer< MRField > ( grid, "len_scale" );
 
-    int nCell = grid->nCell;
+    int nCells = grid->nCells;
 
     RealField & wall_dist = grid->cellMesh->dist;
     RealField & span = grid->cellMesh->span;
 
-    RealField lesLength( nCell );
+    RealField lesLength( nCells );
 
     CalcLengthLesOfSst( lesLength );
     //sa model
@@ -710,7 +710,7 @@ void UTurbSrcFlux::CalcLengthScaleOfSstIddes()
     Real cdt1 = 20.0;
     Real cdt2 = 3.0;
 
-    for ( int cId = 0; cId < nCell; ++ cId ) 
+    for ( int cId = 0; cId < nCells; ++ cId ) 
     {
         Real rho = ( * uturbf.q_ns  )[ IDX::IR ][ cId ];
         Real visl = ( * uturbf.visl )[ 0 ][ cId ];
@@ -795,9 +795,9 @@ void UTurbSrcFlux::CalcLengthScaleOfWallDist()
     MRField * len_scale = GetFieldPointer< MRField > ( grid, "len_scale" );
 
     RealField & wall_dist = grid->cellMesh->dist;
-    int nCell = grid->nCell;
+    int nCells = grid->nCells;
 
-    for ( int cId = 0; cId < nCell; ++ cId ) 
+    for ( int cId = 0; cId < nCells; ++ cId ) 
     {
         ( * len_scale )[ 0 ][ cId ] = wall_dist[ cId ];
     }
@@ -819,7 +819,7 @@ void UTurbSrcFlux::CalcCdkwmax()
     //Calc maximum crossing diffusion term across flowfield
     turbcom.cdkwmax = 0.0;
 
-    for ( int cId = 0; cId < ug.nCell; ++ cId )
+    for ( int cId = 0; cId < ug.nCells; ++ cId )
     {
         ug.cId = cId;
         turbcom.rho  = ( * uturbf.q_ns  )[ IDX::IR ][ ug.cId ];
@@ -835,7 +835,7 @@ void UTurbSrcFlux::CalcCdkwmax()
 
 void UTurbSrcFlux::CalcBlendField()
 {
-    for ( int cId = 0; cId < ug.nCell; ++ cId )
+    for ( int cId = 0; cId < ug.nCells; ++ cId )
     {
         ug.cId = cId;
         if ( cId == 11 )
@@ -880,7 +880,7 @@ void UTurbSrcFlux::ModifyBlendingTerm()
 
 void UTurbSrcFlux::CalcCrossingTerm()
 {
-    for ( int cId = 0; cId < ug.nCell; ++ cId )
+    for ( int cId = 0; cId < ug.nCells; ++ cId )
     {
         ug.cId = cId;
 
@@ -907,15 +907,15 @@ void CalcLengthLesOfSa( RealField & lesLengthField )
 {
     UnsGrid * grid = Zone::GetUnsGrid();
 
-    int nCell = grid->nCell;
+    int nCells = grid->nCells;
 
-    RealField lowReynoldsCorr( nCell );
+    RealField lowReynoldsCorr( nCells );
 
     CalcLowReynoldsCorrection( lowReynoldsCorr );
 
     RealField lengthScale = GetLengthScale();
 
-    for ( int cId = 0; cId < nCell; ++ cId ) 
+    for ( int cId = 0; cId < nCells; ++ cId ) 
     {
         Real term1 = lowReynoldsCorr[ cId ];
         Real term2 = lengthScale[ cId ];
@@ -927,11 +927,11 @@ void CalcLengthLesOfSa( RealField & lesLengthField )
 void CalcLengthLesOfSst( RealField & lesLengthField )
 {
     UnsGrid * grid = Zone::GetUnsGrid();
-    int nCell = grid->nCell;
+    int nCells = grid->nCells;
 
     RealField lengthScale = GetLengthScale();
 
-    for ( int cId = 0; cId < nCell; ++ cId ) 
+    for ( int cId = 0; cId < nCells; ++ cId ) 
     {
         Real term1 = lengthScale[ cId ];
         turbcom.bld = ( * uturbf.bld )[ 0 ][ cId ];
@@ -960,7 +960,7 @@ void CalcLowReynoldsCorrection( RealField & lowReynoldsCorr )
 {
     UnsGrid * grid = Zone::GetUnsGrid();
 
-    for ( int cId = 0; cId < grid->nCell; ++ cId ) 
+    for ( int cId = 0; cId < grid->nCells; ++ cId ) 
     {
         Real nuet = ( * uturbf.q )[ ISA ][ cId ];
         Real rho = ( * uturbf.q_ns  )[ IDX::IR ][ cId ];
@@ -996,9 +996,9 @@ void CalcSubgridLengthScale( RealField & lenth_scale )
     RealField & wall_dist = grid->cellMesh->dist;
     RealField & largestSpacing = GetLargestSpacing();
 
-    lenth_scale.resize( grid->nCell );
+    lenth_scale.resize( grid->nCells );
     
-    for ( int cId = 0; cId < grid->nCell; ++ cId ) 
+    for ( int cId = 0; cId < grid->nCells; ++ cId ) 
     {
         Real cw    = 0.15;
         Real dist = wall_dist[ cId ];

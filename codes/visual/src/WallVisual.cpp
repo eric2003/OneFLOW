@@ -183,11 +183,11 @@ void WallVisual::ConstructTopology2D()
 
 void WallVisual::ConstructTopology3D()
 {
-    UInt nCell = this->eLink.size();
+    UInt nCells = this->eLink.size();
 
     HXSort< IntField > faceForSorting;
 
-    for ( UInt iCell = 0; iCell < nCell; ++ iCell )
+    for ( UInt iCell = 0; iCell < nCells; ++ iCell )
     {
         IntField & element = this->eLink[ iCell ];
 
@@ -225,7 +225,7 @@ void WallVisual::ConstructTopology3D()
 
     for ( int iFace = 0; iFace < nBFace; ++ iFace )
     {
-        rCell[ iFace ] = iFace + nCell;
+        rCell[ iFace ] = iFace + nCells;
     }
 }
 

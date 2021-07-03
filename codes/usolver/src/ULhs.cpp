@@ -55,7 +55,7 @@ void ULhs::CalcLHS( int sTid )
 
     for ( int iEqu = 0; iEqu < solverInfo->nTEqu; ++ iEqu )
     {
-        for ( int cId = 0; cId < ug.nCell; ++ cId )
+        for ( int cId = 0; cId < ug.nCells; ++ cId )
         {
             //Real dt = ctrl.pdt;
             Real dt = ( * unsf.timestep )[ 0 ][ cId ];

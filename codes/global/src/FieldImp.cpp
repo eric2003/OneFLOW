@@ -326,7 +326,7 @@ void FieldManager::AllocateInnerAndBcField( UnsGrid * grid, FieldPropertyData * 
 
 void FieldManager::AllocateInnerField( UnsGrid * grid, FieldPropertyData * fieldPropertyData )
 {
-    int nTCell = grid->nCell + grid->nBFace;
+    int nTCell = grid->nCells + grid->nBFace;
 
     map< string, int > & data = fieldPropertyData->innerField->data;
 

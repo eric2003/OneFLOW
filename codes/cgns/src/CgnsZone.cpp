@@ -119,7 +119,7 @@ void CgnsZone::SetElementTypeAndNode( ElemFeature * elem_feature )
         cgnsSection->SetElementTypeAndNode( elem_feature );
     }
     cout << "\n";
-    cout << " iZone = " << this->zId << " nCell = " << this->cgnsCoor->GetNCell() << "\n";
+    cout << " iZone = " << this->zId << " nCells = " << this->cgnsCoor->GetNCell() << "\n";
     cout << " elem_feature->eType->size = " << elem_feature->eTypes->size() << endl;
 }
 

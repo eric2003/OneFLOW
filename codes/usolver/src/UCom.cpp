@@ -56,8 +56,8 @@ void UGeom::Init()
     grid = Zone::GetUnsGrid();
 
     ug.nBFace = grid->nBFace;
-    ug.nCell = grid->nCell;
-    ug.nTCell = grid->nCell + grid->nBFace;
+    ug.nCells = grid->nCells;
+    ug.nTCell = grid->nCells + grid->nBFace;
     ug.nFaces = grid->nFaces;
 
     this->SetStEd( F_TOTAL );
@@ -117,11 +117,11 @@ void UGeom::SetStEd( int flag )
     if ( flag == F_INNER )
     {
         this->ist = 0;
-        this->ied = ug.nCell;
+        this->ied = ug.nCells;
     }
     else if ( flag == F_GHOST )
     {
-        this->ist = ug.nCell;
+        this->ist = ug.nCells;
         this->ied = ug.nTCell;
     }
     else if ( flag == F_TOTAL )
@@ -338,8 +338,8 @@ void HXDebug::CompareFile( Real mindiff, int idump )
     {
         HXVector< Real > & f1 = ( * field1 )[ iEqu ];
         HXVector< Real > & f2 = ( * field2 )[ iEqu ];
-        int nCell = f1.size();
-        for ( int iCell = 0; iCell < nCell; ++ iCell )
+        int nCells = f1.size();
+        for ( int iCell = 0; iCell < nCells; ++ iCell )
         {
             Real diff = f1[ iCell ] - f2[ iCell ];
             if ( ABS( diff ) > mindiff )

@@ -595,7 +595,7 @@ void Limiter::CalcLocalVencatLimiter()
 void Limiter::CalcMinMaxDiff()
 {
     // Find the maximum and minimum in the neighbor of each cell
-    for ( int cId = 0; cId < ug.nCell; ++ cId )
+    for ( int cId = 0; cId < ug.nCells; ++ cId )
     {
         ( * lim->minvf )[ cId ] = ( * lim->q )[ cId ];
         ( * lim->maxvf )[ cId ] = ( * lim->q )[ cId ];
@@ -628,7 +628,7 @@ void Limiter::CalcMinMaxDiff()
     }
 
     // Get the maximum and the minimum difference
-    for ( int cId = 0; cId < ug.nCell; ++ cId )
+    for ( int cId = 0; cId < ug.nCells; ++ cId )
     {
         ( * lim->minvf )[ cId ] -= ( * lim->q )[ cId ];
         ( * lim->maxvf )[ cId ] -= ( * lim->q )[ cId ];
@@ -636,7 +636,7 @@ void Limiter::CalcMinMaxDiff()
 
     lim->qmin =   LARGE;
     lim->qmax = - LARGE;
-    for ( int cId = 0; cId < ug.nCell; ++ cId )
+    for ( int cId = 0; cId < ug.nCells; ++ cId )
     {
         lim->qmin = MIN( lim->qmin, ( * lim->minvf )[ cId ] );
         lim->qmax = MAX( lim->qmax, ( * lim->maxvf )[ cId ] );

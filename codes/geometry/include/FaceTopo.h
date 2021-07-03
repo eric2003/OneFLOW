@@ -43,7 +43,7 @@ public:
     FaceTopo();
     ~FaceTopo();
 public:
-    int nCell;
+    int nCells;
     IntField fTypes;
     LinkField faces;
     LinkField c2f;

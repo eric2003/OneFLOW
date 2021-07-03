@@ -50,7 +50,7 @@ void UNsUpdate::UpdateFlowField( int sTid )
     ug.Init();
     unsf.Init();
 
-    for ( int cId = 0; cId < ug.nCell; ++ cId )
+    for ( int cId = 0; cId < ug.nCells; ++ cId )
     {
         ug.cId = cId;
 

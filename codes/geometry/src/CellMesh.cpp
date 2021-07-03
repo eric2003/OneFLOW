@@ -85,8 +85,8 @@ void CellMesh::DumpDist()
 void CellMesh::CalcCellSpan( UnsGrid * grid )
 {
     if ( this->span.size() ) return;
-    int nCell = this->GetNumberOfCells();
-    this->span.resize( nCell );
+    int nCells = this->GetNumberOfCells();
+    this->span.resize( nCells );
     CalcC2f( grid );
 
     FaceTopo * faceTopo = grid->faceTopo;
@@ -94,7 +94,7 @@ void CellMesh::CalcCellSpan( UnsGrid * grid )
     IntField & lcf = faceTopo->lCell;
     IntField & rcf = faceTopo->rCell;
 
-    for ( int ic = 0; ic < nCell; ++ ic )
+    for ( int ic = 0; ic < nCells; ++ ic )
     {
         Real delta  = - LARGE;
         Real deltaj = 0.0;

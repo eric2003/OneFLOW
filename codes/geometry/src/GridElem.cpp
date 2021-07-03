@@ -198,9 +198,9 @@ void GridElem::GenerateCalcGrid( Grid * gridIn )
 {
     UnsGrid * grid = UnsGridCast ( gridIn );
 
-    grid->nCell = this->elem_feature->eTypes->size();
+    grid->nCells = this->elem_feature->eTypes->size();
     grid->cellMesh->cellTopo->eTypes = * this->elem_feature->eTypes;
-    cout << "   nCell = " << grid->nCell << endl;
+    cout << "   nCells = " << grid->nCells << endl;
 
     int nNodes = this->point_factory->c2g.size();
     grid->nodeMesh->CreateNodes( nNodes );

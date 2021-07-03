@@ -143,7 +143,7 @@ void CalcWallDist( StringField & data )
 
     RealField & dist = grid->cellMesh->dist;
 
-    int nCell = grid->nCell;
+    int nCells = grid->nCells;
 
     dist = LARGE;
 
@@ -158,12 +158,12 @@ void CalcWallDist( StringField & data )
 
     int nWFace = wallstruct->fc.size();
 
-    for ( int cId = 0; cId < nCell; ++ cId )
+    for ( int cId = 0; cId < nCells; ++ cId )
     {
         if ( cId % 10000 == 0 )
         {
             cout << " pid = " << Parallel::pid << " Zone = " << grid->id;
-            cout << " cid = " << cId << " " << "nCell = " << nCell;
+            cout << " cid = " << cId << " " << "nCells = " << nCells;
             cout << " nWFace = " << nWFace << endl;
         }
 
@@ -191,7 +191,7 @@ void CalcWallDist( StringField & data )
     }
 
 
-    for ( int cId = 0; cId < nCell; ++ cId )
+    for ( int cId = 0; cId < nCells; ++ cId )
     {
         dist[ cId ] = sqrt( dist[ cId ] );
     }

@@ -94,16 +94,16 @@ void UnsGrid::ReadGrid( DataBook * databook )
 
     ONEFLOW::HXRead( databook, this->nNodes );
     ONEFLOW::HXRead( databook, this->nFaces );
-    ONEFLOW::HXRead( databook, this->nCell );
+    ONEFLOW::HXRead( databook, this->nCells );
 
     cout << "Grid dimension = " << Dim::dimension << endl;
 
     cout << " number of nodes    : " << this->nNodes << endl;
     cout << " number of surfaces : " << this->nFaces << endl;
-    cout << " number of elements : " << this->nCell << endl;
+    cout << " number of elements : " << this->nCells << endl;
 
     this->nodeMesh->CreateNodes( this->nNodes );
-    this->cellMesh->cellTopo->Alloc( this->nCell );
+    this->cellMesh->cellTopo->Alloc( this->nCells );
 
     ONEFLOW::HXRead( databook, this->nodeMesh->xN );
     ONEFLOW::HXRead( databook, this->nodeMesh->yN );
@@ -124,7 +124,7 @@ void UnsGrid::NormalizeBc()
 {
     for ( int iFace = 0; iFace < this->nBFace; ++ iFace )
     {
-        this->faceTopo->rCell[ iFace ] = iFace + this->nCell;
+        this->faceTopo->rCell[ iFace ] = iFace + this->nCells;
     }
 }
 
@@ -226,7 +226,7 @@ void UnsGrid::WriteGrid( DataBook * databook )
 {
     ONEFLOW::HXWrite( databook, this->nNodes );
     ONEFLOW::HXWrite( databook, this->nFaces );
-    ONEFLOW::HXWrite( databook, this->nCell );
+    ONEFLOW::HXWrite( databook, this->nCells );
 
     ONEFLOW::HXWrite( databook, this->nodeMesh->xN );
     ONEFLOW::HXWrite( databook, this->nodeMesh->yN );
@@ -415,11 +415,11 @@ void UnsGrid::WriteGrid( fstream & file )
 
     vf->BeginWriteWork();
 
-    cout << "Output nNodes = " << this->nNodes << " nFaces = " <<  this->nFaces << " nCell = " << nCell << "\n";
+    cout << "Output nNodes = " << this->nNodes << " nFaces = " <<  this->nFaces << " nCells = " << nCells << "\n";
 
     ONEFLOW::HXWrite( vf, this->nNodes );
     ONEFLOW::HXWrite( vf, this->nFaces );
-    ONEFLOW::HXWrite( vf, this->nCell );
+    ONEFLOW::HXWrite( vf, this->nCells );
 
     cout << "Output grid\n";
     ONEFLOW::HXWrite( vf, this->nodeMesh->xN );

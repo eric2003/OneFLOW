@@ -506,10 +506,10 @@ void Su2Grid::Su2ToOneFlowGrid()
 void Su2Grid::FillSU2CgnsZone( CgnsZone * cgnsZone )
 {
     int nNodes = this->xN.size();
-    int nCell = this->nElem;
+    int nCells = this->nElem;
 
     cgnsZone->cgnsCoor->SetNNode( nNodes );
-    cgnsZone->cgnsCoor->SetNCell( nCell );
+    cgnsZone->cgnsCoor->SetNCell( nCells );
 
     NodeMesh * nodeMesh = cgnsZone->cgnsCoor->GetNodeMesh();
 

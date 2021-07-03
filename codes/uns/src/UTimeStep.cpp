@@ -222,7 +222,7 @@ void UTimeStep::CalcLocalTimeStep()
 
 void UTimeStep::CalcInvTimeStep()
 {
-    for ( int cId = 0; cId < ug.nCell; ++ cId )
+    for ( int cId = 0; cId < ug.nCells; ++ cId )
     {
         ug.cId  = cId;
         gcom.cvol  = ( * ug.cvol )[ cId ];
@@ -237,7 +237,7 @@ void UTimeStep::CalcVisTimeStep()
     bool flag = vis_model.vismodel > 0 && nscom.visTimeStepModel > 0;
     if ( ! flag ) return;
 
-    for ( int cId = 0; cId < ug.nCell; ++ cId )
+    for ( int cId = 0; cId < ug.nCells; ++ cId )
     {
         ug.cId  = cId;
         gcom.cvol  = ( * ug.cvol )[ cId ];
@@ -260,7 +260,7 @@ void UTimeStep::CalcInvSpectrumField()
 
     MRField * invsr = ONEFLOW::GetFieldPointer< MRField >( grid, "invsr" );
 
-    ONEFLOW::ZeroField( invsr, 1, grid->nCell );
+    ONEFLOW::ZeroField( invsr, 1, grid->nCells );
 
     for ( int iFace = 0; iFace < grid->nFaces; ++ iFace )
     {
@@ -280,7 +280,7 @@ void UTimeStep::CalcVisSpectrumField()
 
     MRField * vissr = ONEFLOW::GetFieldPointer< MRField >( grid, "vissr" );
 
-    ONEFLOW::ZeroField( vissr, 1, grid->nCell );
+    ONEFLOW::ZeroField( vissr, 1, grid->nCells );
 
     if ( vis_model.vismodel <= 0 ) return;
 
@@ -380,7 +380,7 @@ void UTimeStep::ModifyTimeStep()
     if ( nscom.max_time_ratio <= 0 ) return;
 
     Real maxPermittedTimeStep = nscom.max_time_ratio * nscom.minTimeStep;
-    for ( int cId = 0; cId < ug.nCell; ++ cId )
+    for ( int cId = 0; cId < ug.nCells; ++ cId )
     {
         ( * unsf.timestep )[ 0 ][ cId ] = MIN( ( * unsf.timestep )[ 0 ][ cId ], maxPermittedTimeStep );
     }
@@ -394,7 +394,7 @@ void UTimeStep::CalcGlobalTimeStep()
 void UTimeStep::CalcMinTimeStep()
 {
     nscom.minTimeStep = LARGE;
-    for ( int cId = 0; cId < ug.nCell; ++ cId )
+    for ( int cId = 0; cId < ug.nCells; ++ cId )
     {
         nscom.minTimeStep = MIN( ( * unsf.timestep )[ 0 ][ cId ], nscom.minTimeStep );
     }
@@ -402,7 +402,7 @@ void UTimeStep::CalcMinTimeStep()
 
 void UTimeStep::SetTimeStep( Real timestep )
 {
-    for ( int cId = 0; cId < ug.nCell; ++ cId )
+    for ( int cId = 0; cId < ug.nCells; ++ cId )
     {
         ( * unsf.timestep )[ 0 ][ cId ] = timestep;
     }

@@ -35,7 +35,7 @@ public:
     ~ResAver();
 public:
     RealField res;
-    int nCell;
+    int nCells;
 public:
     void Init( int nEqu );
     ResAver & operator += ( const ResAver & rhs );

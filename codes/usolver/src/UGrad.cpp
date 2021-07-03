@@ -65,7 +65,7 @@ void CalcGrad( RealField & q, RealField & dqdx, RealField & dqdy, RealField & dq
         dqdz[ ug.rc ] -= fnza * value;
     }
 
-    for ( int cId = 0; cId < ug.nCell; ++ cId )
+    for ( int cId = 0; cId < ug.nCells; ++ cId )
     {
         Real ovol = one / ( * ug.cvol )[ cId ];
         dqdx[ cId ] *= ovol;
@@ -132,7 +132,7 @@ void CalcGradGGCellWeight( RealField & q, RealField & dqdx, RealField & dqdy, Re
         dqdz[ ug.rc ] -= fnza * value;
     }
 
-    for ( int cId = 0; cId < ug.nCell; ++ cId )
+    for ( int cId = 0; cId < ug.nCells; ++ cId )
     {
         Real ovol = one / ( * ug.cvol )[ cId ];
         dqdx[ cId ] *= ovol;
@@ -203,7 +203,7 @@ void CalcGradGGCellWeightDebug( RealField & q, RealField & dqdx, RealField & dqd
         dqdz[ ug.rc ] -= fnza * value;
     }
 
-    for ( int cId = 0; cId < ug.nCell; ++ cId )
+    for ( int cId = 0; cId < ug.nCells; ++ cId )
     {
         Real ovol = one / ( * ug.cvol )[ cId ];
         dqdx[ cId ] *= ovol;
@@ -261,7 +261,7 @@ void CalcGradDebug( RealField & q, RealField & dqdx, RealField & dqdy, RealField
         dqdz[ ug.rc ] -= fnza * value;
     }
 
-    for ( int cId = 0; cId < ug.nCell; ++ cId )
+    for ( int cId = 0; cId < ug.nCells; ++ cId )
     {
         if ( cId == 0 )
         {

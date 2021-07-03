@@ -194,7 +194,7 @@ void UTurbSpectrum::CalcUnsteadySpectrum()
 {
     if ( ctrl.idualtime == 0 )//Single time step, note: Yes usd.sp2 !
     {
-        for ( int cId = 0; cId < ug.nCell; ++ cId )
+        for ( int cId = 0; cId < ug.nCells; ++ cId )
         {
             Real vol = ( * ug.cvol )[ cId ];
             Real ts  = ( * uturbf.timestep )[ 0 ][ cId ] * turbcom.turb_cfl_ratio;
@@ -208,7 +208,7 @@ void UTurbSpectrum::CalcUnsteadySpectrum()
     }
     else
     {
-        for ( int cId = 0; cId < ug.nCell; ++ cId )
+        for ( int cId = 0; cId < ug.nCells; ++ cId )
         {
             Real vol = ( * ug.cvol )[ cId ];
             Real ts  = ( * unsf.timestep )[ 0 ][ cId ] * turbcom.turb_cfl_ratio;

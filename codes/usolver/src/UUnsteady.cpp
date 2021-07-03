@@ -60,7 +60,7 @@ void UUnsteady::StoreOldResidual()
     //The first step residuals of iteration in two time steps are stored as n-time residuals
     if ( Iteration::innerSteps != 1 ) return;
 
-    for ( int cId = 0; cId < ug.nCell; ++ cId )
+    for ( int cId = 0; cId < ug.nCells; ++ cId )
     {
         for ( int iEqu = 0; iEqu < data->nEqu; ++ iEqu )
         {
@@ -84,7 +84,7 @@ void UUnsteady::CalcDualTimeResidual()
 {
     data->CalcResCoef();
 
-    for ( int cId = 0; cId < ug.nCell; ++ cId )
+    for ( int cId = 0; cId < ug.nCells; ++ cId )
     {
         ug.cId = cId;
 
@@ -105,7 +105,7 @@ void UUnsteady::CalcDualTimeSrc()
 
     data->CalcSrcCoeff();
 
-    for ( int cId = 0; cId < ug.nCell; ++ cId )
+    for ( int cId = 0; cId < ug.nCells; ++ cId )
     {
         ug.cId = cId;
 
@@ -121,7 +121,7 @@ void UUnsteady::CalcUnsteadyCriterion()
 {
     data->ZeroData();
 
-    for ( int cId = 0; cId < ug.nCell; ++ cId )
+    for ( int cId = 0; cId < ug.nCells; ++ cId )
     {
         ug.cId = cId;
 

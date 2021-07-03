@@ -46,7 +46,7 @@ void ResAver::Init( int nEqu )
 void ResAver::Zero()
 {
     this->res = 0;
-    this->nCell = 0;
+    this->nCells = 0;
 }
 
 void ResAver::CalcAver( HXVector< ResData > & dataList )
@@ -61,10 +61,10 @@ void ResAver::CalcAver( HXVector< ResData > & dataList )
     int nEqu = this->res.size();
     RealField resSum( nEqu );
     int nCellSum = 0;
-    HXReduceInt( & this->nCell, & nCellSum, 1, PL_SUM );
+    HXReduceInt( & this->nCells, & nCellSum, 1, PL_SUM );
     HXReduceReal( & this->res[ 0 ], & resSum[ 0 ], nEqu, PL_SUM );
 
-    this->nCell = nCellSum;
+    this->nCells = nCellSum;
     for ( int iEqu = 0; iEqu < nEqu; ++ iEqu )
     {
         this->res[ iEqu ] = sqrt( resSum[ iEqu ] / nCellSum );
@@ -78,7 +78,7 @@ ResAver & ResAver::operator += ( const ResAver & rhs )
     {
         this->res[ iEqu ] += rhs.res[ iEqu ];
     }
-    this->nCell += rhs.nCell;
+    this->nCells += rhs.nCells;
     return *this;
 }
 

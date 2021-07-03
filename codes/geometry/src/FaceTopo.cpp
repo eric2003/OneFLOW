@@ -198,11 +198,11 @@ void FaceTopo::SetNewFace2Cell( IFaceLink * iFaceLink )
 
     int nBFaceNew = this->lCellNew.size();
 
-    int nCell = this->grid->nCell;
+    int nCells = this->grid->nCells;
 
     for ( int iFace = 0; iFace < nBFaceNew; ++ iFace )
     {
-        this->rCellNew.push_back( iFace + nCell );
+        this->rCellNew.push_back( iFace + nCells );
     }
 
     int nFaces = this->GetNFace();
@@ -368,11 +368,11 @@ void FaceTopo::CalcC2C( LinkField & c2c )
 {
     if ( c2c.size() != 0 ) return;
 
-    int nCell = this->grid->nCell;
+    int nCells = this->grid->nCells;
     int nBFace = this->GetNBFace();
     int nFaces = this->GetNFace();
 
-    c2c.resize( nCell );
+    c2c.resize( nCells );
 
     // If boundary is an INTERFACE, need to count ghost cell
     for ( int iFace = 0; iFace < nBFace; ++ iFace )

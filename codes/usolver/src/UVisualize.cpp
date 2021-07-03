@@ -513,7 +513,7 @@ void UVisualize::ShowField( ostringstream & oss, VisualTool * visualTool )
     LinkField & f2n = faceTopo->faces;
 
     int nNodes = grid->nNodes;
-    int nCell = grid->nCell;
+    int nCells = grid->nCells;
     int nFaces = grid->nFaces;
 
     for ( UInt i = 0; i < visualTool->title.size(); ++ i )
@@ -535,7 +535,7 @@ void UVisualize::ShowField( ostringstream & oss, VisualTool * visualTool )
     }
     oss << "Nodes    = " << nNodes << endl;
     oss << "Faces    = " << nFaces << endl;
-    oss << "Elements = " << nCell << endl;
+    oss << "Elements = " << nCells << endl;
     oss << "TotalNumFaceNodes = " << totalNumFaceNodes << endl;
     oss << "NumConnectedBoundaryFaces = 0\n";
     oss << "TotalNumBoundaryConnections = 0\n";
@@ -557,8 +557,8 @@ void UVisualize::ShowField( ostringstream & oss, VisualTool * visualTool )
     }
 
     Plot::DumpFaceNodeLink( f2n );
-    Plot::DumpFaceElementLink( faceTopo->lCell, nCell );
-    Plot::DumpFaceElementLink( faceTopo->rCell, nCell );
+    Plot::DumpFaceElementLink( faceTopo->lCell, nCells );
+    Plot::DumpFaceElementLink( faceTopo->rCell, nCells );
 }
 
 void UVisualize::ShowBc( ostringstream & oss, VisualTool * visualTool )

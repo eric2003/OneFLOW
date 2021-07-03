@@ -81,19 +81,19 @@ void ResidualTask::CalcRes( int sTid, ResData & data )
     MRField * res = ONEFLOW::GetFieldPointer< MRField >( grid, solverInfo->residualName );
 
     data.resave.Zero();
-    data.resave.nCell =  grid->nCell;
+    data.resave.nCells =  grid->nCells;
 
     data.resmax.index = 0;
     data.resmax.resmax = 0;
 
     for ( int iEqu = 0; iEqu < nEqu; ++ iEqu )
     {
-        for ( int cId = 0; cId < grid->nCell; ++ cId )
+        for ( int cId = 0; cId < grid->nCells; ++ cId )
         {
             Real ress = ( * res )[ iEqu ][ cId ];
             if ( NotANumber( ress ) )
             {
-                cout << " iEqu = " << iEqu << " cId = " << cId << " grid->nCell = " << grid->nCell << "\n";
+                cout << " iEqu = " << iEqu << " cId = " << cId << " grid->nCells = " << grid->nCells << "\n";
                 cout << " ress = " << ress << "\n";
             }
             data.resave.res[ iEqu ] += SQR( ress );

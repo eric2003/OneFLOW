@@ -51,7 +51,7 @@ public:
     int bcfId;
     int nFaces;
     int nBFace;
-    int nCell;
+    int nCells;
     int nTCell;
     int ist, ied;
     int lc;

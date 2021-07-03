@@ -184,7 +184,7 @@ void UINsVisterm::CalcPreandVisGrad()
 		(*uinsf.dqdz)[IIDX::IIP][ug.rc] += -fnza * value4;
 	}
 
-	for (int cId = 0; cId < ug.nCell; ++cId)
+	for (int cId = 0; cId < ug.nCells; ++cId)
 	{
 		ug.cId = cId;
 		Real ovol = one / (*ug.cvol)[ug.cId];
@@ -207,7 +207,7 @@ void UINsVisterm::CalcPreandVisGrad()
 		ug.fId = fId;
 		ug.lc = (*ug.lcf)[ug.fId];
 		ug.rc = (*ug.rcf)[ug.fId];
-		//if (ug.rc > ug.nCell)
+		//if (ug.rc > ug.nCells)
 		//{
 		(*uinsf.dqdx)[IIDX::IIU][ug.rc] = (*uinsf.dqdx)[IIDX::IIU][ug.lc];
 		(*uinsf.dqdy)[IIDX::IIU][ug.rc] = (*uinsf.dqdy)[IIDX::IIU][ug.lc];
@@ -478,7 +478,7 @@ void UINsVisterm::CalcFaceVisterm()
 
 void UINsVisterm::CalcUnsteadcoff()
 {
-	for (int cId = 0; cId < ug.nCell; ++cId)
+	for (int cId = 0; cId < ug.nCells; ++cId)
 	{
 		ug.cId = cId;
 
@@ -530,7 +530,7 @@ void UINsVisterm::CalcUnsteadcoff()
 	}*/
 
 
-	for (int cId = ug.nCell; cId < ug.nTCell; ++cId)
+	for (int cId = ug.nCells; cId < ug.nTCell; ++cId)
 	{
 		ug.cId = cId;
 

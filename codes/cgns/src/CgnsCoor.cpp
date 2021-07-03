@@ -57,7 +57,7 @@ CgInt CgnsCoor::GetNNode()
 
 CgInt CgnsCoor::GetNCell()
 {
-    return this->nCell;
+    return this->nCells;
 }
 
 void CgnsCoor::SetNNode( CgInt nNodes )
@@ -65,9 +65,9 @@ void CgnsCoor::SetNNode( CgInt nNodes )
     this->nNodes = nNodes;
 }
 
-void CgnsCoor::SetNCell( CgInt nCell )
+void CgnsCoor::SetNCell( CgInt nCells )
 {
-    this->nCell = nCell;
+    this->nCells = nCells;
 }
 
 void CgnsCoor::Alloc( int iCoor, int nNodes, DataType_t data_type )
@@ -357,9 +357,9 @@ void CgnsCoor::SetDimensionStr()
     cout << "   J Direction " << setw( 10 ) << irmin[ 1 ] << setw( 10 ) << irmax[ 1 ] << "\n";
     cout << "   K Direction " << setw( 10 ) << irmin[ 2 ] << setw( 10 ) << irmax[ 2 ] << "\n";
     int nNodes = irmax[ 0 ] * irmax[ 1 ] * irmax[ 2 ];
-    int nCell = cellSize[ 0 ] * cellSize[ 1 ] * cellSize[ 2 ];
+    int nCells = cellSize[ 0 ] * cellSize[ 1 ] * cellSize[ 2 ];
     this->SetNNode( nNodes );
-    this->SetNCell( nCell );
+    this->SetNCell( nCells );
 }
 
 void CgnsCoor::SetDimensionUns()
@@ -376,9 +376,9 @@ void CgnsCoor::SetDimensionUns()
     cellSize[ 0 ] = isize[ 1 ];
 
     int nNodes = irmax[ 0 ];
-    int nCell = cellSize[ 0 ];
+    int nCells = cellSize[ 0 ];
     this->SetNNode( nNodes );
-    this->SetNCell( nCell );
+    this->SetNCell( nCells );
 }
 
 void CgnsCoor::SetDimension( CgnsCoor * cgnsCoorIn )
