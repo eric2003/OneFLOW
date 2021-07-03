@@ -387,7 +387,7 @@ void Mesh::ConstructTopology()
     {
         IntField & element = cellTopo->cellToNode[ iCell ];
 
-        int elementType = cellTopo->cellType[ iCell ];
+        int elementType = cellTopo->eTypes[ iCell ];
 
         UnitElement * unitElement = ONEFLOW::ElementHome::GetUnitElement( elementType );
         int numberOfFaceInElement = unitElement->GetElementFaceNumber();
@@ -418,9 +418,9 @@ void Mesh::ConstructTopology()
                 faceTopo->rCell.resize( newSize );
                 faceTopo->lPosition.resize( newSize );
                 faceTopo->rPosition.resize( newSize );
-                faceTopo->faceType.resize( newSize );
+                faceTopo->fTypes.resize( newSize );
 
-                faceTopo->faceType[ faceIndex ] = faceType;
+                faceTopo->fTypes[ faceIndex ] = faceType;
                 faceTopo->lCell[ faceIndex ] = iCell;
                 faceTopo->rCell[ faceIndex ] = ONEFLOW::INVALID_INDEX;
                 faceTopo->lPosition[ faceIndex ] = iLocalFace;
@@ -507,11 +507,11 @@ void Mesh::SwapBoundary()
         faceTopo->faces[ iFace ] = faceToNodeSwap[ oldFaceIndex ];
     }
 
-    IntField faceTypeSwap = faceTopo->faceType;
+    IntField faceTypeSwap = faceTopo->fTypes;
     for ( int iFace = 0; iFace < nFace; ++ iFace )
     {
         int oldFaceIndex = orderMapping[ iFace ];
-        faceTopo->faceType[ iFace ] = faceTypeSwap[ oldFaceIndex ];
+        faceTopo->fTypes[ iFace ] = faceTypeSwap[ oldFaceIndex ];
     }
 }
 

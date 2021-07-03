@@ -44,8 +44,7 @@ public:
     ~FaceTopo();
 public:
     int nCell;
-    IntField faceType;
-    //LinkField f2n;
+    IntField fTypes;
     LinkField faces;
     LinkField c2f;
 
@@ -56,10 +55,10 @@ public:
     BcManager * bcManager;
     Grid * grid;
 public:
-    LinkField faceToNodeNew;
+    LinkField facesNew;
     IntField lCellNew, rCellNew;
 public:
-    UInt GetNFace() { return faceType.size();  }
+    UInt GetNFace() { return fTypes.size();  }
     UInt CalcTotalFaceNodes();
     UInt GetNBFace();
     void SetNBFace( UInt nBFace );

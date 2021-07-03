@@ -42,7 +42,7 @@ CellTopo::~CellTopo()
 void CellTopo::Alloc( int nCell )
 {
     blank.resize( nCell );
-    cellType.resize( nCell );
+    eTypes.resize( nCell );
     cellToNode.resize( nCell );
 
     blank = 1;
@@ -56,7 +56,7 @@ void CellTopo::PushElement( int p1, int p2, int p3, int elementType )
     element.push_back( p3 );
 
     cellToNode.push_back( element );
-    cellType.push_back( elementType );
+    eTypes.push_back( elementType );
 }
 
 void CellTopo::PushElement( int p1, int p2, int p3, int p4, int elementType )
@@ -76,8 +76,8 @@ void CellTopo::PushElement( int p1, int p2, int p3, int p4, int elementType )
         cellToNode.push_back( element1 );
         cellToNode.push_back( element2 );
 
-        cellType.push_back( elementType );
-        cellType.push_back( elementType );
+        eTypes.push_back( elementType );
+        eTypes.push_back( elementType );
     }
     else if ( elementType == ONEFLOW::QUAD_4 )
     {
@@ -88,7 +88,7 @@ void CellTopo::PushElement( int p1, int p2, int p3, int p4, int elementType )
         element.push_back( p4 );
 
         cellToNode.push_back( element );
-        cellType.push_back( elementType );
+        eTypes.push_back( elementType );
     }
 }
 

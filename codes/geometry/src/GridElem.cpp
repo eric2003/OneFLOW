@@ -84,18 +84,13 @@ GridElem::GridElem( HXVector< CgnsZone * > & cgnsZones, int iZone )
 
 GridElem::~GridElem()
 {
-    cout << "delete this->point_factory;\n";
     delete this->point_factory;
-    cout << "delete this->elem_feature;\n";
     delete this->elem_feature;
-    cout << "delete this->face_solver;\n";
     delete this->face_solver;
     if ( this->delFlag )
     {
         delete this->grid;
     }
-    
-    cout << "GridElem::~GridElem()\n";
 }
 
 CgnsZone * GridElem::GetCgnsZone( int iZone )
@@ -300,7 +295,7 @@ void GridElem::CalcBoundaryType( UnsGrid * grid )
 void GridElem::ReorderLink( UnsGrid * grid )
 {
     FaceTopo * faceTopo = grid->faceTopo;
-    int nFace = faceTopo->faceType.size();
+    int nFace = faceTopo->fTypes.size();
     grid->nFace = nFace;
 
     IntField f1map( nFace ), f2map( nFace );
@@ -326,17 +321,17 @@ void GridElem::ReorderLink( UnsGrid * grid )
             ++ iCount;
         }
     }
-    faceTopo->faceToNodeNew.resize( nFace );
+    faceTopo->facesNew.resize( nFace );
     faceTopo->lCellNew.resize( nFace );
     faceTopo->rCellNew.resize( nFace );
     for ( int iFace = 0; iFace < nFace; ++ iFace )
     {
         int jFace = f2map[ iFace ];
-        faceTopo->faceToNodeNew[ iFace ] = faceTopo->faces[ jFace ];
+        faceTopo->facesNew[ iFace ] = faceTopo->faces[ jFace ];
         faceTopo->lCellNew[ iFace ] = faceTopo->lCell[ jFace ];
         faceTopo->rCellNew[ iFace ] = faceTopo->rCell[ jFace ];
     }
-    faceTopo->faces = faceTopo->faceToNodeNew;
+    faceTopo->faces = faceTopo->facesNew;
     faceTopo->lCell = faceTopo->lCellNew;
     faceTopo->rCell = faceTopo->rCellNew;
 }

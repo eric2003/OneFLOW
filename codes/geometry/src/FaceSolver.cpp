@@ -115,7 +115,7 @@ void FaceSolver::ScanElementFace( CgIntField & eNodeId, int eType, int eId )
 
             this->faceBcType->push_back( ONEFLOW::INVALID_INDEX );
             this->faceBcKey->push_back( ONEFLOW::INVALID_INDEX );
-            this->faceTopo->faceType.push_back( fType );
+            this->faceTopo->fTypes.push_back( fType );
 
             this->faceTopo->faces.push_back( aNodeId );
             this->childFid->resize( totalfn + 1 );

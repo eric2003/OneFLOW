@@ -76,7 +76,7 @@ void FaceTopo::ModifyFaceNodeId( IFaceLink * iFaceLink )
 void FaceTopo::SetNewFace2Node( IFaceLink * iFaceLink )
 {
     int nBFace = this->bcManager->bcRecord->GetNBFace();
-    this->faceToNodeNew.resize( 0 );
+    this->facesNew.resize( 0 );
 
     int localFid = 0;
     for ( int iFace = 0; iFace < nBFace; ++ iFace )
@@ -119,7 +119,7 @@ void FaceTopo::SetNewFace2Node( IFaceLink * iFaceLink )
                         }
                         tmpVector.push_back( nodeIndex );
                     }
-                    this->faceToNodeNew.push_back( tmpVector );
+                    this->facesNew.push_back( tmpVector );
                 }
             }
             else
@@ -129,7 +129,7 @@ void FaceTopo::SetNewFace2Node( IFaceLink * iFaceLink )
                     int nodeIndex = this->faces[ iFace ][ iNode ];
                     tmpVector.push_back( nodeIndex );
                 }
-                this->faceToNodeNew.push_back( tmpVector );
+                this->facesNew.push_back( tmpVector );
             }
             ++ localFid;
         }
@@ -140,7 +140,7 @@ void FaceTopo::SetNewFace2Node( IFaceLink * iFaceLink )
                 int nodeIndex = this->faces[ iFace ][ iNode ];
                 tmpVector.push_back( nodeIndex );
             }
-            this->faceToNodeNew.push_back( tmpVector );
+            this->facesNew.push_back( tmpVector );
         }
     }
 
@@ -155,7 +155,7 @@ void FaceTopo::SetNewFace2Node( IFaceLink * iFaceLink )
             int nId = this->faces[ iFace ][ iNode ];
             tmpVector.push_back( nId );
         }
-        this->faceToNodeNew.push_back( tmpVector );
+        this->facesNew.push_back( tmpVector );
     }
 }
 
@@ -340,7 +340,7 @@ void FaceTopo::UpdateOtherTopologyTerm()
     this->bcManager->Update();
     this->lCell = this->lCellNew;
     this->rCell = this->rCellNew;
-    this->faces = this->faceToNodeNew;
+    this->faces = this->facesNew;
 }
 
 void FaceTopo::GenerateI2B( InterFace * interFace )

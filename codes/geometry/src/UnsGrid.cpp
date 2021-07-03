@@ -133,7 +133,7 @@ void UnsGrid::ReadGridFaceTopology( DataBook * databook )
     this->faceTopo->faces.resize( this->nFace );
     this->faceTopo->lCell.resize( this->nFace );
     this->faceTopo->rCell.resize( this->nFace );
-    this->faceTopo->faceType.resize( this->nFace );
+    this->faceTopo->fTypes.resize( this->nFace );
 
     IntField numFaceNode( this->nFace );
 
