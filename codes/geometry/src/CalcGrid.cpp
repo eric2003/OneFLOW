@@ -159,8 +159,8 @@ void CalcGrid::ReconstructLink( int iZone )
     int nIFaces = interFace->nIFaces;
     int nPBFace = nBFaces - nIFaces;
 
-    IntField & lCell = grid->faceTopo->lCell;
-    IntField & rCell = grid->faceTopo->rCell;
+    IntField & lCell = grid->faceTopo->lCells;
+    IntField & rCell = grid->faceTopo->rCells;
 
     FacePair facePair;
     for ( int iFace = 0; iFace < nIFaces; ++ iFace )

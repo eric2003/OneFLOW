@@ -175,7 +175,7 @@ void GridElem::GenerateCalcElement()
             cout << " iFace = " << iFace << " numberOfTotalFaces = " << nFaces << endl;
         }
 
-        int rc = ( faceTopo->rCell )[ iFace ];
+        int rc = ( faceTopo->rCells )[ iFace ];
 
         if ( rc == INVALID_INDEX )
         {
@@ -305,7 +305,7 @@ void GridElem::ReorderLink( UnsGrid * grid )
     int iCount = 0;
     for ( int iFace = 0; iFace < nFaces; ++ iFace )
     {
-        int rc = faceTopo->rCell[ iFace ];
+        int rc = faceTopo->rCells[ iFace ];
         if ( rc == INVALID_INDEX )
         {
             f1map[ iFace ] = iCount;
@@ -316,7 +316,7 @@ void GridElem::ReorderLink( UnsGrid * grid )
 
     for ( int iFace = 0; iFace < nFaces; ++ iFace )
     {
-        int rc = faceTopo->rCell[ iFace ];
+        int rc = faceTopo->rCells[ iFace ];
         if ( rc != INVALID_INDEX )
         {
             f1map[ iFace ] = iCount;
@@ -325,18 +325,18 @@ void GridElem::ReorderLink( UnsGrid * grid )
         }
     }
     faceTopo->facesNew.resize( nFaces );
-    faceTopo->lCellNew.resize( nFaces );
-    faceTopo->rCellNew.resize( nFaces );
+    faceTopo->lCellsNew.resize( nFaces );
+    faceTopo->rCellsNew.resize( nFaces );
     for ( int iFace = 0; iFace < nFaces; ++ iFace )
     {
         int jFace = f2map[ iFace ];
         faceTopo->facesNew[ iFace ] = faceTopo->faces[ jFace ];
-        faceTopo->lCellNew[ iFace ] = faceTopo->lCell[ jFace ];
-        faceTopo->rCellNew[ iFace ] = faceTopo->rCell[ jFace ];
+        faceTopo->lCellsNew[ iFace ] = faceTopo->lCells[ jFace ];
+        faceTopo->rCellsNew[ iFace ] = faceTopo->rCells[ jFace ];
     }
     faceTopo->faces = faceTopo->facesNew;
-    faceTopo->lCell = faceTopo->lCellNew;
-    faceTopo->rCell = faceTopo->rCellNew;
+    faceTopo->lCells = faceTopo->lCellsNew;
+    faceTopo->rCells = faceTopo->rCellsNew;
 }
 
 ZgridElem::ZgridElem( CgnsZbase * cgnsZbase )

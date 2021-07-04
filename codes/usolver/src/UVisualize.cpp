@@ -557,8 +557,8 @@ void UVisualize::ShowField( ostringstream & oss, VisualTool * visualTool )
     }
 
     Plot::DumpFaceNodeLink( f2n );
-    Plot::DumpFaceElementLink( faceTopo->lCell, nCells );
-    Plot::DumpFaceElementLink( faceTopo->rCell, nCells );
+    Plot::DumpFaceElementLink( faceTopo->lCells, nCells );
+    Plot::DumpFaceElementLink( faceTopo->rCells, nCells );
 }
 
 void UVisualize::ShowBc( ostringstream & oss, VisualTool * visualTool )

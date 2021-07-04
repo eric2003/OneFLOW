@@ -75,8 +75,8 @@ void CalcNodeVar( RealField & qNodeField, RealField & qField )
 
     for ( int iFace = 0; iFace < nFaces; ++ iFace )
     {
-        int lc = faceTopo->lCell[ iFace ];
-        int rc = faceTopo->rCell[ iFace ];
+        int lc = faceTopo->lCells[ iFace ];
+        int rc = faceTopo->rCells[ iFace ];
 
         int fnNode = f2c[ iFace ].size();
         for ( int iNode = 0; iNode < fnNode; ++ iNode )
@@ -116,8 +116,8 @@ void FixBcNodeVar( RealField & qNodeField, RealField & qField, RealField & nCoun
     for ( int iFace = 0; iFace < nBFaces; ++ iFace )
     {
         if ( bcRecord->bcType[ iFace ] != bcType ) continue;
-        int lc = faceTopo->lCell[ iFace ];
-        int rc = faceTopo->rCell[ iFace ];
+        int lc = faceTopo->lCells[ iFace ];
+        int rc = faceTopo->rCells[ iFace ];
 
         int fnNode = f2c[ iFace ].size();
         for ( int iNode = 0; iNode < fnNode; ++ iNode )
@@ -132,8 +132,8 @@ void FixBcNodeVar( RealField & qNodeField, RealField & qField, RealField & nCoun
     {
         if ( bcRecord->bcType[ iFace ] != bcType ) continue;
 
-        int lc = faceTopo->lCell[ iFace ];
-        int rc = faceTopo->rCell[ iFace ];
+        int lc = faceTopo->lCells[ iFace ];
+        int rc = faceTopo->rCells[ iFace ];
 
         int fnNode = f2c[ iFace ].size();
         for ( int iNode = 0; iNode < fnNode; ++ iNode )

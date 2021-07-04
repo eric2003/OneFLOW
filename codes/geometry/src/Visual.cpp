@@ -133,8 +133,8 @@ void Visual::DumpFaceElementLink( fstream & file, Mesh * mesh )
     UInt nFaces = mesh->faceMesh->GetNFace();
     UInt numberOfCells = mesh->cellMesh->GetNumberOfCells();
 
-    Visual::DumpFaceElementLink( file, nFaces, numberOfCells, mesh->faceMesh->faceTopo->lCell );
-    Visual::DumpFaceElementLink( file, nFaces, numberOfCells, mesh->faceMesh->faceTopo->rCell );
+    Visual::DumpFaceElementLink( file, nFaces, numberOfCells, mesh->faceMesh->faceTopo->lCells );
+    Visual::DumpFaceElementLink( file, nFaces, numberOfCells, mesh->faceMesh->faceTopo->rCells );
 }
 
 void Visual::DumpFaceElementLink( fstream & file, UInt nFaces, UInt numberOfElements, IntField & faceElementIndex )

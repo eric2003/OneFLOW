@@ -29,6 +29,7 @@ License
 #include "CellTopo.h"
 #include "Zone.h"
 #include "PIO.h"
+#include "Stop.h"
 #include "DataBase.h"
 #include "OStream.h"
 #include "FileUtil.h"
@@ -64,8 +65,8 @@ void UGeom::Init()
     this->CreateBcTypeRegion();
 
     FaceTopo * faceTopo = grid->faceTopo;
-    ug.lcf = & faceTopo->lCell;
-    ug.rcf = & faceTopo->rCell;
+    ug.lcf = & faceTopo->lCells;
+    ug.rcf = & faceTopo->rCells;
 
     FaceMesh * faceMesh = grid->faceMesh;
     CellMesh * cellMesh = grid->cellMesh;
@@ -391,6 +392,7 @@ void HXDebug::CheckNANField( MRField * field )
             if ( NotANumber( value ) )
             {
                 cout << " iEqu = " << iEqu << " iElem = " << iElem << " nElems = " << nElems << " value = " << value << "\n";
+                Stop( "NotANumber" );
             }
         }
     }

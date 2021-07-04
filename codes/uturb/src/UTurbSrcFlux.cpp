@@ -37,6 +37,7 @@ License
 #include "CellMesh.h"
 #include "BcRecord.h"
 #include "Boundary.h"
+#include "Stop.h"
 #include <iostream>
 using namespace std;
 
@@ -226,7 +227,8 @@ void UTurbSrcFlux::CalcVist1Equ()
         if ( turbcom.rho < 0 || NotANumber( turbcom.rho ) )
         {
             cout << " zone = " << ZoneState::zid << " cId = " << cId << " rho = " << turbcom.rho << "\n";
-            cin.get();
+            Stop( "NotANumber( turbcom.rho )" );
+            //cin.get();
         }
         turbcom.rho  = ( * uturbf.q_ns  )[ IDX::IR  ][ ug.cId ];
         turbcom.nuet = ( * uturbf.q  )[ ISA ][ ug.cId ];

@@ -358,8 +358,8 @@ void Partition::CalcG2lFace( UnsGrid * ggrid, int zid, UnsGrid * grid )
     int nFaces  = ggrid->nFaces;
     int nBFaces = ggrid->nBFaces;
 
-    IntField & glCell = ggrid->faceTopo->lCell;
-    IntField & grCell = ggrid->faceTopo->rCell;
+    IntField & glCell = ggrid->faceTopo->lCells;
+    IntField & grCell = ggrid->faceTopo->rCells;
 
     for ( int fid = 0; fid < nFaces; ++ fid )
     {
@@ -546,20 +546,20 @@ void Partition::SetF2CAndBC( UnsGrid * ggrid, int zid, UnsGrid * grid )
 {
     int nGBFace = ggrid->nBFaces;
 
-    IntField & glCell = ggrid->faceTopo->lCell;
-    IntField & grCell = ggrid->faceTopo->rCell;
+    IntField & glCell = ggrid->faceTopo->lCells;
+    IntField & grCell = ggrid->faceTopo->rCells;
 
     IntField & gbcType = ggrid->faceTopo->bcManager->bcRecord->bcType;
 
     int nFaces  = grid->nFaces;
     int nBFaces = grid->nBFaces;
 
-    IntField & lCell = grid->faceTopo->lCell;
-    IntField & rCell = grid->faceTopo->rCell;
+    IntField & lCell = grid->faceTopo->lCells;
+    IntField & rCell = grid->faceTopo->rCells;
     lCell.resize( nFaces );
     rCell.resize( nFaces );
 
-    grid->faceTopo->SetNBFace( nBFaces );
+    grid->faceTopo->SetNBFaces( nBFaces );
 
     IntField & local_bcType = grid->faceTopo->bcManager->bcRecord->bcType;
 
@@ -629,8 +629,8 @@ void Partition::SetInterface( UnsGrid * ggrid, int zid, UnsGrid * grid )
     int nGFace = ggrid->nFaces;
     int nGBFace = ggrid->nBFaces;
 
-    IntField & glCell = ggrid->faceTopo->lCell;
-    IntField & grCell = ggrid->faceTopo->rCell;
+    IntField & glCell = ggrid->faceTopo->lCells;
+    IntField & grCell = ggrid->faceTopo->rCells;
 
     //number of physical boundary face
     int nPBFace = nBFaces - nIFaces;
@@ -690,8 +690,8 @@ bool FindMatch( UnsGrid * grid, FacePair * facePair )
     int nIFaces = interFace->nIFaces;
     int nPBFace = nBFaces - nIFaces;
 
-    IntField & lCell = grid->faceTopo->lCell;
-    IntField & rCell = grid->faceTopo->rCell;
+    IntField & lCell = grid->faceTopo->lCells;
+    IntField & rCell = grid->faceTopo->rCells;
 
     for ( int iFace = 0; iFace < nIFaces; ++ iFace )
     {

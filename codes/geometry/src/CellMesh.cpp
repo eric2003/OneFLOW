@@ -91,8 +91,8 @@ void CellMesh::CalcCellSpan( UnsGrid * grid )
 
     FaceTopo * faceTopo = grid->faceTopo;
     LinkField & c2f = this->cellTopo->c2f;
-    IntField & lcf = faceTopo->lCell;
-    IntField & rcf = faceTopo->rCell;
+    IntField & lcf = faceTopo->lCells;
+    IntField & rcf = faceTopo->rCells;
 
     for ( int ic = 0; ic < nCells; ++ ic )
     {

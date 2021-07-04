@@ -499,7 +499,7 @@ void DownloadInterfaceValue_TEST( UnsGrid * grid, MRField * field2D, const strin
             grid->faceTopo->GetTId( iFace, ghostId + 1, iCell );
 
             int iBFace = grid->interFace->i2b[ iFace ];
-            int tId = grid->faceTopo->rCell[ iBFace ];
+            int tId = grid->faceTopo->rCells[ iBFace ];
 
             for ( int iEqu = 0; iEqu < nEqu; ++ iEqu )
             {

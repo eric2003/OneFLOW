@@ -24,6 +24,7 @@ License
 #include "Zone.h"
 #include "ZoneState.h"
 #include "PIO.h"
+#include "Stop.h"
 #include "Parallel.h"
 #include "SolverState.h"
 #include "SolverInfo.h"
@@ -95,6 +96,7 @@ void ResidualTask::CalcRes( int sTid, ResData & data )
             {
                 cout << " iEqu = " << iEqu << " cId = " << cId << " grid->nCells = " << grid->nCells << "\n";
                 cout << " ress = " << ress << "\n";
+                Stop( "NotANumber" );
             }
             data.resave.res[ iEqu ] += SQR( ress );
             if ( data.resmax.resmax[ iEqu ] < ABS( ress ) )

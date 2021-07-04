@@ -40,7 +40,7 @@ FaceMesh::~FaceMesh()
 
 UInt FaceMesh::GetNFace()
 {
-    return faceTopo->GetNFace();  
+    return faceTopo->GetNFaces();  
 }
 
 UInt FaceMesh::CalcTotalFaceNodes()
@@ -50,12 +50,12 @@ UInt FaceMesh::CalcTotalFaceNodes()
 
 UInt FaceMesh::GetNBFace()
 {
-    return faceTopo->GetNBFace();
+    return faceTopo->GetNBFaces();
 }
 
 void FaceMesh::SetNBFace( UInt nBFaces )
 {
-    faceTopo->SetNBFace( nBFaces );
+    faceTopo->SetNBFaces( nBFaces );
 }
 
 void FaceMesh::CalcFaceCenter1D( NodeMesh * nodeMesh )
@@ -90,7 +90,7 @@ void FaceMesh::CalcFaceNormal1D( NodeMesh * nodeMesh, CellMesh * cellMesh )
 
     for ( UInt iFace = 0; iFace < nFaces; ++ iFace )
     {
-        int lc  = faceTopo->lCell[ iFace ];
+        int lc  = faceTopo->lCells[ iFace ];
 
         Real dx = xfc[ iFace ] - xcc[ lc ];
         Real dy = yfc[ iFace ] - ycc[ lc ];

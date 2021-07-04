@@ -414,15 +414,15 @@ void Mesh::ConstructTopology()
                 faceSet.insert( faceForSorting );
                 int faceIndex = faceForSorting.index;
                 int newSize = faceIndex + 1;
-                faceTopo->lCell.resize( newSize );
-                faceTopo->rCell.resize( newSize );
+                faceTopo->lCells.resize( newSize );
+                faceTopo->rCells.resize( newSize );
                 faceTopo->lPosition.resize( newSize );
                 faceTopo->rPosition.resize( newSize );
                 faceTopo->fTypes.resize( newSize );
 
                 faceTopo->fTypes[ faceIndex ] = faceType;
-                faceTopo->lCell[ faceIndex ] = iCell;
-                faceTopo->rCell[ faceIndex ] = ONEFLOW::INVALID_INDEX;
+                faceTopo->lCells[ faceIndex ] = iCell;
+                faceTopo->rCells[ faceIndex ] = ONEFLOW::INVALID_INDEX;
                 faceTopo->lPosition[ faceIndex ] = iLocalFace;
                 faceTopo->rPosition[ faceIndex ] = ONEFLOW::INVALID_INDEX;
                 faceTopo->faces.push_back( faceNodeIndexArray );
@@ -430,7 +430,7 @@ void Mesh::ConstructTopology()
             else
             {
                 int faceIndex = iter->index;
-                faceTopo->rCell[ faceIndex ] = iCell;
+                faceTopo->rCells[ faceIndex ] = iCell;
                 faceTopo->rPosition[ faceIndex ] = iLocalFace;
             }
         }
@@ -452,7 +452,7 @@ void Mesh::SwapBoundary()
     int iCount = 0;
     for ( int iFace = 0; iFace < nFaces; ++ iFace )
     {
-        int rc = faceTopo->rCell[ iFace ];
+        int rc = faceTopo->rCells[ iFace ];
         if ( rc == ONEFLOW::INVALID_INDEX )
         {
             orderMapping[ iCount ++ ] = iFace;
@@ -465,28 +465,28 @@ void Mesh::SwapBoundary()
 
     for ( int iFace = 0; iFace < nFaces; ++ iFace )
     {
-        int rc = faceTopo->rCell[ iFace ];
+        int rc = faceTopo->rCells[ iFace ];
         if ( rc != ONEFLOW::INVALID_INDEX )
         {
             orderMapping[ iCount ++ ] = iFace;
         }
     }
 
-    IntField lCellIndexSwap = faceTopo->lCell;
-    IntField rCellIndexSwap = faceTopo->rCell;
+    IntField lCellIndexSwap = faceTopo->lCells;
+    IntField rCellIndexSwap = faceTopo->rCells;
 
     for ( int iFace = 0; iFace < nFaces; ++ iFace )
     {
         int oldFaceIndex = orderMapping[ iFace ];
-        faceTopo->lCell[ iFace ] = lCellIndexSwap[ oldFaceIndex ];
-        faceTopo->rCell[ iFace ] = rCellIndexSwap[ oldFaceIndex ];
+        faceTopo->lCells[ iFace ] = lCellIndexSwap[ oldFaceIndex ];
+        faceTopo->rCells[ iFace ] = rCellIndexSwap[ oldFaceIndex ];
     }
 
     UInt numberOfCells = this->cellMesh->GetNumberOfCells();
 
     for ( int iFace = 0; iFace < nBFaces; ++ iFace )
     {
-        faceTopo->rCell[ iFace ] = iFace + numberOfCells;
+        faceTopo->rCells[ iFace ] = iFace + numberOfCells;
     }
 
     IntField lPositionSwap = faceTopo->lPosition;
@@ -641,7 +641,7 @@ void Mesh::CalcGhostCellCenterVol1D()
     // For ghost cells
     for ( UInt iFace = 0; iFace < nBFaces; ++ iFace )
     {
-        int lc  = faceTopo->lCell[ iFace ];
+        int lc  = faceTopo->lCells[ iFace ];
         int rc = iFace + numberOfCells;
         if ( area[ iFace ] > SMALL )
         {
@@ -694,7 +694,7 @@ void Mesh::CalcCellCenterVol2D()
 
     for ( UInt iFace = 0; iFace < nBFaces; ++ iFace )
     {
-        int lc = faceTopo->lCell[ iFace ];
+        int lc = faceTopo->lCells[ iFace ];
         Real dot = ( xfc[ iFace ] * xfn[ iFace ] +
                      yfc[ iFace ] * yfn[ iFace ] +
                      zfc[ iFace ] * zfn[ iFace ] ) * area[ iFace ];
@@ -707,8 +707,8 @@ void Mesh::CalcCellCenterVol2D()
     // For interior cell faces
     for ( UInt iFace = nBFaces; iFace < nFaces; ++ iFace )
     {
-        int lc = faceTopo->lCell[ iFace ];
-        int rc = faceTopo->rCell[ iFace ];
+        int lc = faceTopo->lCells[ iFace ];
+        int rc = faceTopo->rCells[ iFace ];
         Real dot = ( xfc[ iFace ] * xfn[ iFace ] +
                      yfc[ iFace ] * yfn[ iFace ] +
                      zfc[ iFace ] * zfn[ iFace ] ) * area[ iFace ];
@@ -754,7 +754,7 @@ void Mesh::CalcCellCenterVol2D()
     // For ghost cells
     for ( UInt iFace = 0; iFace < nBFaces; ++ iFace )
     {
-        int lc = faceTopo->lCell[ iFace ];
+        int lc = faceTopo->lCells[ iFace ];
         int rc = iFace + numberOfCells;
         if ( area[ iFace ] > SMALL )
         {
@@ -811,8 +811,8 @@ void Mesh::CalcCellCenterVol3D()
 
     for ( UInt iFace = 0; iFace < nFaces; ++ iFace )
     {
-        int lc = faceTopo->lCell[ iFace ];
-        int rc = faceTopo->rCell[ iFace ];
+        int lc = faceTopo->lCells[ iFace ];
+        int rc = faceTopo->rCells[ iFace ];
 
         IntField & faceIndex = faceTopo->faces[ iFace ];
 
@@ -892,7 +892,7 @@ void Mesh::CalcCellCenterVol3D()
     // For ghost cells
     for ( int iFace = 0; iFace < nBFaces; ++ iFace )
     {
-        int lc = faceTopo->lCell[ iFace ];
+        int lc = faceTopo->lCells[ iFace ];
         int rc = iFace + numberOfCells;
 
         if ( area[ iFace ] > SMALL )

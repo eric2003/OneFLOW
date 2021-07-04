@@ -48,7 +48,7 @@ public:
     LinkField faces;
     LinkField c2f;
 
-    IntField lCell, rCell;
+    IntField lCells, rCells;
     IntField lPosition, rPosition;
 
     UInt nBFaces;
@@ -56,12 +56,12 @@ public:
     Grid * grid;
 public:
     LinkField facesNew;
-    IntField lCellNew, rCellNew;
+    IntField lCellsNew, rCellsNew;
 public:
-    UInt GetNFace() { return fTypes.size();  }
+    UInt GetNFaces() { return fTypes.size();  }
     UInt CalcTotalFaceNodes();
-    UInt GetNBFace();
-    void SetNBFace( UInt nBFaces );
+    UInt GetNBFaces();
+    void SetNBFaces( UInt nBFaces );
 public:
     void ModifyFaceNodeId( IFaceLink * iFaceLink );
     void SetNewFace2Node( IFaceLink * iFaceLink );
