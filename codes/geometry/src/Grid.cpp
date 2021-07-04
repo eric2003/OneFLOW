@@ -21,6 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "Grid.h"
+#include "Dimension.h"
 #include "NodeMesh.h"
 #include "InterFace.h"
 #include "SlipFace.h"
@@ -35,7 +36,8 @@ map< string, Grid * > * Grid::classMap = 0;
 Grid::Grid()
 {
     name = "grid";
-    volBcType = -1;
+    this->dimension = THREE_D;
+    this->volBcType = -1;
     this->nodeMesh = 0;
     this->interFace = 0;
     this->dataBase = 0;
@@ -97,6 +99,21 @@ void Grid::Free()
 void Grid::Init()
 {
     this->BasicInit();
+}
+
+bool Grid::IsOneD()
+{
+    return this->dimension == ONEFLOW::ONE_D;
+}
+
+bool Grid::IsTwoD()
+{
+    return this->dimension == ONEFLOW::TWO_D;
+}
+
+bool Grid::IsThreeD()
+{
+    return this->dimension == ONEFLOW::THREE_D;
 }
 
 EndNameSpace

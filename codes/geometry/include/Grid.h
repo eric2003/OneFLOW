@@ -59,6 +59,7 @@ public:
     static map < string, Grid * > * classMap;
 public:
     string name;
+    int dimension;
     int type, level;
     int id, localId;
     int nNodes;
@@ -76,6 +77,10 @@ public:
     void BasicInit();
     void Free();
     virtual void Init();
+public:
+    bool IsOneD();
+    bool IsTwoD();
+    bool IsThreeD();
 public:
     virtual void ReadGrid ( fstream & file ) {};
     virtual void WriteGrid( fstream & file ) {};

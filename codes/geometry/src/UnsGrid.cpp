@@ -469,15 +469,15 @@ void UnsGrid::CalcMetrics()
 {
     this->AllocMetrics();
 
-    if ( IsOneD() )
+    if ( this->IsOneD() )
     {
         this->CalcMetrics1D();
     }
-    else if ( IsTwoD() )
+    else if ( this->IsTwoD() )
     {
         this->CalcMetrics2D();
     }
-    else if ( IsThreeD() )
+    else if ( this->IsThreeD() )
     {
         this->CalcMetrics3D();
     }
