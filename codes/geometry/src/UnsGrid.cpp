@@ -33,7 +33,6 @@ License
 #include "Mesh.h"
 #include "DataBaseIO.h"
 #include "DataBook.h"
-#include "VirtualFile.h"
 #include "IFaceLink.h"
 #include "Boundary.h"
 #include "Tolerence.h"
@@ -168,7 +167,6 @@ void UnsGrid::ReadGridFaceTopology( DataBook * databook )
         {
             //need to reverse the node ordering
             IntField & f2n = this->faceTopo->faces[ iFace ];
-            //std::reverse( std::begin( f2n ), std::end( f2n ) );
             std::reverse( f2n.begin(), f2n.end() );
             // now reverse leftCellIndex  and rightCellIndex
             ONEFLOW::SWAP( this->faceTopo->lCell[ iFace ], this->faceTopo->rCell[ iFace ] );
@@ -201,29 +199,14 @@ void UnsGrid::ReadBoundaryTopology( DataBook * databook )
     }
 }
 
-void UnsGrid::WriteBoundaryTopology( VirtualFile * vf )
-{
-    cout << "Output boundary condition\n";
-    BcRecord * bcRecord = this->faceTopo->bcManager->bcRecord;
-    int nBFaces = bcRecord->GetNBFace();
-    cout << "nBFaces = " << nBFaces << " nIFaces = " << this->nIFaces << endl;
-    cout << "this->interFace->nIFaces = " << this->interFace->nIFaces << endl;
-
-    ONEFLOW::HXWrite( vf, nBFaces );
-    ONEFLOW::HXWrite( vf, bcRecord->bcType );
-    ONEFLOW::HXWrite( vf, bcRecord->bcNameId );
-    ONEFLOW::HXWrite( vf, this->interFace->nIFaces );
-
-    if ( this->interFace->nIFaces > 0 )
-    {
-        ONEFLOW::HXWrite( vf, this->interFace->zoneId );
-        ONEFLOW::HXWrite( vf, this->interFace->localInterfaceId );
-        ONEFLOW::HXWrite( vf, this->interFace->i2b );
-    }
-}
-
 void UnsGrid::WriteGrid( DataBook * databook )
 {
+    cout << "Grid dimension = " << Dim::dimension << endl;
+
+    cout << " number of nodes    : " << this->nNodes << endl;
+    cout << " number of surfaces : " << this->nFaces << endl;
+    cout << " number of elements : " << this->nCells << endl;
+
     ONEFLOW::HXWrite( databook, this->nNodes );
     ONEFLOW::HXWrite( databook, this->nFaces );
     ONEFLOW::HXWrite( databook, this->nCells );
@@ -411,73 +394,40 @@ void UnsGrid::GetMinMaxDistance( Real & dismin, Real & dismax )
 
 void UnsGrid::WriteGrid( fstream & file )
 {
-    VirtualFile * vf = new VirtualFile( & file );
+    DataBook * databook = new DataBook();
+    this->WriteGrid( databook );
+    databook->WriteFile( file );
+    delete databook;
 
-    vf->BeginWriteWork();
-
-    cout << "Output nNodes = " << this->nNodes << " nFaces = " <<  this->nFaces << " nCells = " << nCells << "\n";
-
-    ONEFLOW::HXWrite( vf, this->nNodes );
-    ONEFLOW::HXWrite( vf, this->nFaces );
-    ONEFLOW::HXWrite( vf, this->nCells );
-
-    cout << "Output grid\n";
-    ONEFLOW::HXWrite( vf, this->nodeMesh->xN );
-    ONEFLOW::HXWrite( vf, this->nodeMesh->yN );
-    ONEFLOW::HXWrite( vf, this->nodeMesh->zN );
-
-    cout << "Output volBcType = " << this->volBcType << "\n";
-    ONEFLOW::HXWrite( vf, this->volBcType  );
-
-    this->WriteGridFaceTopology( vf );
-    this->WriteBoundaryTopology( vf );
-
-    vf->EndWriteWork();
-
-    delete vf;
 }
 
-void UnsGrid::WriteGridFaceTopology( VirtualFile * vf )
-{
-    int nFaces = this->faceTopo->faces.size();
-    IntField nFNode( nFaces );
-
-    for ( int iFace = 0; iFace < nFaces; ++ iFace )
-    {
-        nFNode[ iFace ] = this->faceTopo->faces[ iFace ].size();
-    }
-
-    IntField fNode;
-    for ( int iFace = 0; iFace < nFaces; ++ iFace )
-    {
-        int nNodes = this->faceTopo->faces[ iFace ].size();
-        for ( int iNode = 0; iNode < nNodes; ++ iNode )
-        {
-            int nodeId = this->faceTopo->faces[ iFace ][ iNode ];
-            fNode.push_back( nodeId );
-        }
-    }
-
-    ONEFLOW::HXWrite( vf, nFNode );
-    ONEFLOW::HXWrite( vf, fNode );
-
-    ONEFLOW::HXWrite( vf, this->faceTopo->lCell );
-    ONEFLOW::HXWrite( vf, this->faceTopo->rCell );
-}
 
 void UnsGrid::CalcMetrics()
 {
     this->AllocMetrics();
 
-    if ( this->IsOneD() )
+    //if ( this->IsOneD() )
+    //{
+    //    this->CalcMetrics1D();
+    //}
+    //else if ( this->IsTwoD() )
+    //{
+    //    this->CalcMetrics2D();
+    //}
+    //else if ( this->IsThreeD() )
+    //{
+    //    this->CalcMetrics3D();
+    //}
+
+    if ( ONEFLOW::IsOneD() )
     {
         this->CalcMetrics1D();
     }
-    else if ( this->IsTwoD() )
+    else if ( ONEFLOW::IsTwoD() )
     {
         this->CalcMetrics2D();
     }
-    else if ( this->IsThreeD() )
+    else if ( ONEFLOW::IsThreeD() )
     {
         this->CalcMetrics3D();
     }
@@ -487,7 +437,6 @@ void UnsGrid::AllocMetrics()
 {
     this->faceMesh->AllocateMetrics();
     this->cellMesh->AllocateMetrics( this->faceMesh );
-
 }
 
 void UnsGrid::CalcMetrics1D()

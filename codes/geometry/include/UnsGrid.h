@@ -65,9 +65,6 @@ public:
 public:
     void GetMinMaxDistance( Real & dismin, Real & dismax );
     void WriteGrid( fstream & file );
-private:
-    void WriteGridFaceTopology( VirtualFile * vf );
-    void WriteBoundaryTopology( VirtualFile * vf );
 public:
     void CalcMetrics();
     void CalcMetrics1D();
