@@ -26,7 +26,7 @@ jobs:
           cd ${{ github.workspace }}
           echo ls
           ls
-          sudo apt install libhdf5-dev libcgns-dev libmetis-dev libmpich-dev
+          sudo apt-get install libhdf5-dev libcgns-dev libmetis-dev libmpich-dev -y
         shell: bash
       - name: CMake Build
         run: |
