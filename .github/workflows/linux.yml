@@ -1,0 +1,39 @@
+# This is a basic workflow to help you get started with Actions
+
+name: OneFLOW_Linux_MPI_CI
+
+# Controls when the workflow will run
+on:
+  # Triggers the workflow on push or pull request events but only for the main branch
+  push:
+    branches: [ main, hexin ]
+  pull_request:
+    branches: [ main, hexin ]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  build:
+    name: "Linux OneFLOW Actions"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install Third party library
+        run: |
+          echo cd ${{ github.workspace }}
+          cd ${{ github.workspace }}
+          echo ls
+          ls
+          sudo apt install libhdf5-dev libcgns-dev libmetis-dev libmpich-dev
+        shell: bash
+      - name: CMake Build
+        run: |
+          cd ${{ github.workspace }}
+          ls
+          mkdir build
+          cd build
+          cmake --version
+          cmake -DCMAKE_INSTALL_PREFIX=${{ github.workspace }} ../
+          ls       
