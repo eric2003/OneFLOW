@@ -28,7 +28,7 @@ jobs:
           ls
           sudo apt-get install libhdf5-dev libcgns-dev libmetis-dev libmpich-dev -y
         shell: bash
-      - name: CMake Build
+      - name: CMake Build and Install
         run: |
           cd ${{ github.workspace }}
           ls
@@ -36,16 +36,13 @@ jobs:
           cd build
           cmake --version
           cmake -DCMAKE_INSTALL_PREFIX=${{ github.workspace }} ../
-          ls
+          make -j 4
+          make install
         shell: bash 
-      - name: CMake Install
+      - name: Run OneFLOW CFD Tests
         env:
           prefix: ${{ github.workspace }}
         run: |
-          cd ${{ github.workspace }}/build
-          ls
-          make -j 4
-          make install
           ls "${{env.prefix}}"
           export PATH=${{env.prefix}}/bin/:$PATH
           #./OneFLOW

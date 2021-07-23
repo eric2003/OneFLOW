@@ -1,5 +1,0 @@
-4
-0 BCWall0
-1 BCWall1
-2 BCWall2
-3 BCWall3
