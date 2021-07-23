@@ -49,4 +49,7 @@ jobs:
           ls "${{env.prefix}}"
           cd "${{env.prefix}}/bin"
           ./OneFLOW
+          cd "${{env.prefix}}/test"
+          ls
+          python --version
         shell: bash
