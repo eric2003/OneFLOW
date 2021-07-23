@@ -52,4 +52,5 @@ jobs:
           cd "${{env.prefix}}/test"
           ls
           python --version
+          python test.py
         shell: bash
