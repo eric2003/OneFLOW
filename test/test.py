@@ -129,7 +129,7 @@ def RunTest(testprjdir):
     mpiCmd = "mpiexec -n 1 "
     if opsys == "linux":
         mpiCmd = "mpirun -np 1 "
-    cmd = mpiPath + mpiCmd + exePath +"OneFLOW" + " 0 " + testprjdir
+    cmd = mpiPath + mpiCmd + exePath + "OneFLOW" + " 0 " + testprjdir
     print(cmd)
     process = subprocess.Popen(cmd, shell=True)
     while process.poll() is None:

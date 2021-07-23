@@ -47,10 +47,10 @@ jobs:
           make -j 4
           make install
           ls "${{env.prefix}}"
-          cd "${{env.prefix}}/bin"
-          ./OneFLOW
+          export PATH=${{env.prefix}}/bin/:$PATH
+          #./OneFLOW
           cd "${{env.prefix}}/test"
           ls
           python --version
-          python test.py
+          python test.py "" "" linux
         shell: bash
