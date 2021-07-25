@@ -143,20 +143,26 @@ list( APPEND SRC_LIST ${JsonSRC} )
 set(EXECUTABLE_TARGET_NAME "${CMAKE_PROJECT_NAME}")
 message(STATUS "The executable name is ${EXECUTABLE_TARGET_NAME}.")
 
-# adds flags to the compiler command line for sources in the current directory and below:
-if( BIT64_FLAG )
-    add_definitions(-DX64)
-endif( BIT64_FLAG )
-
-if( WIN32 )
-    add_definitions( -DHX_PARALLEL -DHX_CGNS -DUSE_DLL )
-else()
-    add_definitions( -DHX_PARALLEL -DHX_CGNS )
-endif()
-
 #. add an executable to the project using the specified source files and header files:
 add_executable( ${EXECUTABLE_TARGET_NAME} ${SRC_LIST} ${HEAD_LIST} ) 
 target_link_libraries(${EXECUTABLE_TARGET_NAME} ${CGNS_LIBRARY_DIRS} ${MPI_LIBRARIES} ${METIS_LIBRARIES} )
+
+if( BIT64_FLAG )
+	target_compile_definitions( ${EXECUTABLE_TARGET_NAME} PRIVATE X64 )
+endif( BIT64_FLAG )
+
+if( WIN32 )
+	target_compile_definitions( ${EXECUTABLE_TARGET_NAME} 
+	                            PRIVATE
+								       HX_PARALLEL
+									   HX_CGNS
+									   USE_DLL
+							   )
+else()
+	target_compile_definitions( ${EXECUTABLE_TARGET_NAME} PRIVATE HX_PARALLEL )
+	target_compile_definitions( ${EXECUTABLE_TARGET_NAME} PRIVATE HX_CGNS )
+endif()
+
 
 set(PRJ_SYSTEM_DIR ${PRJ_ROOT_DIR}/system/)
 set(PRJ_DOCUMENT_DIR ${PRJ_ROOT_DIR}/doc/)
