@@ -5,6 +5,7 @@ message(STATUS "This current binary directory is ${CMAKE_CURRENT_BINARY_DIR}.")
 message(STATUS "This current source directory is ${CMAKE_CURRENT_SOURCE_DIR}.")
 
 set( BIT64_FLAG TRUE CACHE BOOL "64bit or 32bit code")
+set( my_compile_def )
 
 if ( ${CMAKE_SYSTEM_NAME} MATCHES "Windows" )
     if ( CMAKE_GENERATOR MATCHES "Visual Studio 16 2019" )
@@ -24,11 +25,8 @@ if ( ${CMAKE_SYSTEM_NAME} MATCHES "Windows" )
     endif()
 
     if ( CMAKE_COMPILER_IS_GNUCXX )
-        add_definitions( -DWIN_GNU )
-    endif()
-
-    if ( CMAKE_COMPILER_IS_GNUCXX )
-        add_definitions( -DWIN_GNU )
+        #add_definitions( -DWIN_GNU )
+		list( APPEND my_compile_def WIN_GNU )
         set( WIN_COMPILER mingw )
     else()
         set( WIN_COMPILER ${VS_COMPILER} )
@@ -55,18 +53,6 @@ message(STATUS "The LDFLAGS is ${LDFLAGS}")
 message(STATUS "The CMAKE_C_FLAGS is ${CMAKE_C_FLAGS}")
 message(STATUS "The CMAKE_CXX_FLAGS is ${CMAKE_CXX_FLAGS}")
 message(STATUS "The CMAKE_EXE_LINKER_FLAGS is ${CMAKE_EXE_LINKER_FLAGS}")
-#set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -lpthread -lrt")
-
-if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
-    if ( CMAKE_COMPILER_IS_GNUCXX )
-        #Set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,-Bstatic, -Wl,-Bdynamic")
-    else()
-        #Set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl")
-    endif()
-else()
-    #Set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,--no-as-needed -ldl")
-endif()
-#message(STATUS "The CMAKE_EXE_LINKER_FLAGS is ${CMAKE_EXE_LINKER_FLAGS}")
 
 if( BIT64_FLAG )
     set(ARCH "x64")
@@ -78,7 +64,8 @@ endif()
 option(MPI_ENABLE "ON for using MPI library" ON)
 
 if ( MPI_ENABLE )
-    add_definitions(-DENABLE_MPI)
+    #add_definitions(-DENABLE_MPI)
+	list( APPEND my_compile_def ENABLE_MPI )
     if ( ${CMAKE_SYSTEM_NAME} MATCHES "Windows")
 		set( MPI_INCLUDE_DIRS "C:/Program Files (x86)/Microsoft SDKs/MPI/include" CACHE PATH "path to mpi headers" )
 		set( MPI_LIBRARIES "C:/Program Files (x86)/Microsoft SDKs/MPI/Lib/${ARCH}/msmpi.lib" CACHE PATH "path to mpi library" )
@@ -95,7 +82,8 @@ endif()
 option(METIS_ENABLE "ON for using METIS partitioning library" ON)
 
 if( METIS_ENABLE )
-    add_definitions( -DENABLE_METIS )
+    #add_definitions( -DENABLE_METIS )
+	list( APPEND my_compile_def ENABLE_METIS )
     
     if ( ${CMAKE_SYSTEM_NAME} MATCHES "Windows")
 		set( METIS_INCLUDE_DIRS "C:/METIS/include"  CACHE PATH "path to METIS headers" )
@@ -112,7 +100,8 @@ endif()
 option( CGNS_ENABLE "ON for using CGNS library" ON )
 
 if( CGNS_ENABLE )
-    add_definitions( -DENABLE_CGNS )
+    #add_definitions( -DENABLE_CGNS )
+	list( APPEND my_compile_def ENABLE_CGNS )
     if ( ${CMAKE_SYSTEM_NAME} MATCHES "Windows" )
 		set( CGNS_INCLUDE_DIRS "C:/cgns/include" CACHE PATH "path to CGNS headers" )
 		set( CGNS_LIBRARY_DIRS "C:/cgns/lib/cgnsdll.lib" CACHE PATH "path to CGNS library" )
@@ -145,23 +134,22 @@ message(STATUS "The executable name is ${EXECUTABLE_TARGET_NAME}.")
 
 #. add an executable to the project using the specified source files and header files:
 add_executable( ${EXECUTABLE_TARGET_NAME} ${SRC_LIST} ${HEAD_LIST} ) 
-target_link_libraries(${EXECUTABLE_TARGET_NAME} ${CGNS_LIBRARY_DIRS} ${MPI_LIBRARIES} ${METIS_LIBRARIES} )
+target_link_libraries( ${EXECUTABLE_TARGET_NAME} ${CGNS_LIBRARY_DIRS} ${MPI_LIBRARIES} ${METIS_LIBRARIES} )
 
 if( BIT64_FLAG )
-	target_compile_definitions( ${EXECUTABLE_TARGET_NAME} PRIVATE X64 )
+    list( APPEND my_compile_def X64 )
 endif( BIT64_FLAG )
 
 if( WIN32 )
-	target_compile_definitions( ${EXECUTABLE_TARGET_NAME} 
-	                            PRIVATE
-								       HX_PARALLEL
-									   HX_CGNS
-									   USE_DLL
-							   )
+    list( APPEND my_compile_def HX_PARALLEL )
+	list( APPEND my_compile_def HX_CGNS )
+	list( APPEND my_compile_def USE_DLL )
 else()
-	target_compile_definitions( ${EXECUTABLE_TARGET_NAME} PRIVATE HX_PARALLEL )
-	target_compile_definitions( ${EXECUTABLE_TARGET_NAME} PRIVATE HX_CGNS )
+    list( APPEND my_compile_def HX_PARALLEL )
+	list( APPEND my_compile_def HX_CGNS )
 endif()
+
+target_compile_definitions( ${EXECUTABLE_TARGET_NAME} PRIVATE ${my_compile_def} )
 
 
 set(PRJ_SYSTEM_DIR ${PRJ_ROOT_DIR}/system/)
