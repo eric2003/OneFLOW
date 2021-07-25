@@ -6,6 +6,7 @@ message(STATUS "This current source directory is ${CMAKE_CURRENT_SOURCE_DIR}.")
 
 set( BIT64_FLAG TRUE CACHE BOOL "64bit or 32bit code")
 set( my_compile_def )
+set( my_libraries )
 
 if ( ${CMAKE_SYSTEM_NAME} MATCHES "Windows" )
     if ( CMAKE_GENERATOR MATCHES "Visual Studio 16 2019" )
@@ -38,7 +39,8 @@ endif()
 if( CMAKE_SYSTEM_NAME MATCHES "Linux" )
 elseif( CMAKE_SYSTEM_NAME MATCHES "Windows" )
     message(STATUS "WIN_COMPILER is ${WIN_COMPILER}")
-    add_definitions(-D_CRT_SECURE_NO_WARNINGS)  #取消c语言中fopen等函数的警告
+    #add_definitions(-D_CRT_SECURE_NO_WARNINGS)  #取消c语言中fopen等函数的警告
+	list( APPEND my_compile_def _CRT_SECURE_NO_WARNINGS )
 endif()
 
 message(STATUS "The CMAKE_C_COMPILER is ${CMAKE_C_COMPILER}")
@@ -73,13 +75,15 @@ if ( MPI_ENABLE )
 		set( MPI_INCLUDE_DIRS "/usr/include/x86_64-linux-gnu/mpich" CACHE PATH "path to mpi headers" )
 		set( MPI_LIBRARIES "/usr/lib/x86_64-linux-gnu/libmpich.so" CACHE PATH "path to mpi library" )
     endif()
-
-	include_directories ("${MPI_INCLUDE_DIRS}")
+	
 	message(STATUS "The MPI_LIBRARIES is ${MPI_LIBRARIES}")
+	
+	include_directories ("${MPI_INCLUDE_DIRS}")
+	list ( APPEND my_libraries ${MPI_LIBRARIES} )
 endif()
 
 #metis库设置
-option(METIS_ENABLE "ON for using METIS partitioning library" ON)
+option ( METIS_ENABLE "ON for using METIS partitioning library" ON )
 
 if( METIS_ENABLE )
     #add_definitions( -DENABLE_METIS )
@@ -93,15 +97,16 @@ if( METIS_ENABLE )
 		set( METIS_LIBRARIES "/usr/lib/x86_64-linux-gnu/libmetis.so" )
     endif()
 
-    include_directories(${METIS_INCLUDE_DIRS})
+    include_directories( ${METIS_INCLUDE_DIRS} )
+	list ( APPEND my_libraries ${METIS_LIBRARIES} )
 endif()
 
 #CGNS库设置
 option( CGNS_ENABLE "ON for using CGNS library" ON )
 
-if( CGNS_ENABLE )
+if ( CGNS_ENABLE )
     #add_definitions( -DENABLE_CGNS )
-	list( APPEND my_compile_def ENABLE_CGNS )
+	list ( APPEND my_compile_def ENABLE_CGNS )
     if ( ${CMAKE_SYSTEM_NAME} MATCHES "Windows" )
 		set( CGNS_INCLUDE_DIRS "C:/cgns/include" CACHE PATH "path to CGNS headers" )
 		set( CGNS_LIBRARY_DIRS "C:/cgns/lib/cgnsdll.lib" CACHE PATH "path to CGNS library" )
@@ -109,34 +114,28 @@ if( CGNS_ENABLE )
 		set( CGNS_INCLUDE_DIRS "/usr/include" CACHE PATH "path to CGNS headers" )
 		set( CGNS_LIBRARY_DIRS "/usr/lib/x86_64-linux-gnu/libcgns.so" CACHE PATH "path to CGNS library" )
     endif()
-	
-    include_directories( ${CGNS_INCLUDE_DIRS} )
 	message(STATUS "The CGNS_INCLUDE_DIRS is ${CGNS_INCLUDE_DIRS}")
+	
+    include_directories ( ${CGNS_INCLUDE_DIRS} )
+	list ( APPEND my_libraries ${CGNS_LIBRARY_DIRS} )
+
 endif()
 
-set( JsonPrjDir "${PRJ_ROOT_DIR}/${THIRD_PARTY_DIR}/jsoncpp" )
-set( JsonHeaderDir ${JsonPrjDir} )
-include_directories( ${JsonHeaderDir} ) 
-set( JsonSRC "${JsonPrjDir}/jsoncpp.cpp" ) 
+set ( JsonPrjDir "${PRJ_ROOT_DIR}/${THIRD_PARTY_DIR}/jsoncpp" )
+set ( JsonHeaderDir ${JsonPrjDir} )
+include_directories ( ${JsonHeaderDir} ) 
+set ( JsonSRC "${JsonPrjDir}/jsoncpp.cpp" ) 
 
 GetAllSubDir( dirList ${CMAKE_CURRENT_SOURCE_DIR})
 
-message( STATUS "The dirList is ${dirList}" )
+message ( STATUS "The dirList is ${dirList}" )
 
 set_source_group( HEAD_LIST SRC_LIST )
 
 list( APPEND SRC_LIST ${JsonSRC} ) 
 #message(STATUS "SRC_LIST is ${SRC_LIST}.")
 
-#. set executable name:
-set(EXECUTABLE_TARGET_NAME "${CMAKE_PROJECT_NAME}")
-message(STATUS "The executable name is ${EXECUTABLE_TARGET_NAME}.")
-
-#. add an executable to the project using the specified source files and header files:
-add_executable( ${EXECUTABLE_TARGET_NAME} ${SRC_LIST} ${HEAD_LIST} ) 
-target_link_libraries( ${EXECUTABLE_TARGET_NAME} ${CGNS_LIBRARY_DIRS} ${MPI_LIBRARIES} ${METIS_LIBRARIES} )
-
-if( BIT64_FLAG )
+if ( BIT64_FLAG )
     list( APPEND my_compile_def X64 )
 endif( BIT64_FLAG )
 
@@ -149,8 +148,26 @@ else()
 	list( APPEND my_compile_def HX_CGNS )
 endif()
 
-target_compile_definitions( ${EXECUTABLE_TARGET_NAME} PRIVATE ${my_compile_def} )
+#. set executable name:
+set(EXECUTABLE_TARGET_NAME "${CMAKE_PROJECT_NAME}")
+message(STATUS "The executable name is ${EXECUTABLE_TARGET_NAME}.")
 
+#. add an executable to the project using the specified source files and header files:
+add_executable( ${EXECUTABLE_TARGET_NAME}
+   ${SRC_LIST}
+   ${HEAD_LIST}
+) 
+
+target_link_libraries( ${EXECUTABLE_TARGET_NAME} 
+    PRIVATE 
+        ${my_libraries}
+)
+
+#target_link_libraries( ${EXECUTABLE_TARGET_NAME} ${CGNS_LIBRARY_DIRS} ${MPI_LIBRARIES} ${METIS_LIBRARIES} )
+target_compile_definitions( ${EXECUTABLE_TARGET_NAME}
+	PRIVATE
+	   ${my_compile_def} 
+)
 
 set(PRJ_SYSTEM_DIR ${PRJ_ROOT_DIR}/system/)
 set(PRJ_DOCUMENT_DIR ${PRJ_ROOT_DIR}/doc/)
