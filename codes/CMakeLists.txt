@@ -122,10 +122,7 @@ set ( JsonHeaderDir ${JsonPrjDir} )
 list ( APPEND my_include_dirs ${JsonHeaderDir} )
 set ( JsonSRC "${JsonPrjDir}/jsoncpp.cpp" ) 
 
-GetAllSubDir( dirList ${CMAKE_CURRENT_SOURCE_DIR} )
-message ( STATUS "The dirList is ${dirList}" )
-
-SetSourceGroup( my_head_list my_src_list local_include_dirs )
+ConstructSolutionDirTree( ${CMAKE_CURRENT_SOURCE_DIR} my_head_list my_src_list local_include_dirs )
 list ( APPEND my_include_dirs ${local_include_dirs} )
 
 list( APPEND my_src_list ${JsonSRC} ) 
