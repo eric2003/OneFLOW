@@ -153,10 +153,12 @@ set ( OneFLOW_EXE "${CMAKE_PROJECT_NAME}" )
 message(STATUS "The executable name is ${OneFLOW_EXE}.")
 
 #. add an executable to the project using the specified source files and header files:
-add_executable( ${OneFLOW_EXE}
-   ${my_src_list}
-   ${my_head_list}
-) 
+#add_executable( ${OneFLOW_EXE}
+#   ${my_src_list}
+#   ${my_head_list}
+#) 
+
+add_executable( ${OneFLOW_EXE} ${my_src_list} )
 
 target_link_libraries( ${OneFLOW_EXE} 
     PRIVATE 
