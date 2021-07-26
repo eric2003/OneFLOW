@@ -1,12 +1,12 @@
-﻿#. output message:
-message(STATUS "") 
-message(STATUS "--- Enter subdirectory, Start to call ${CMAKE_CURRENT_LIST_FILE} ---") 
-message(STATUS "This current binary directory is ${CMAKE_CURRENT_BINARY_DIR}.")
-message(STATUS "This current source directory is ${CMAKE_CURRENT_SOURCE_DIR}.")
+﻿message ( STATUS "") 
+message ( STATUS "--- Enter subdirectory, Start to call ${CMAKE_CURRENT_LIST_FILE} ---" )
+message ( STATUS "This current binary directory is ${CMAKE_CURRENT_BINARY_DIR}." )
+message ( STATUS "This current source directory is ${CMAKE_CURRENT_SOURCE_DIR}." )
 
-set( BIT64_FLAG TRUE CACHE BOOL "64bit or 32bit code")
-set( my_compile_def )
-set( my_libraries )
+set ( BIT64_FLAG TRUE CACHE BOOL "64bit or 32bit code" )
+set ( my_compile_def "" )
+set ( my_libraries "" )
+set ( my_include_dirs "" )
 
 if ( ${CMAKE_SYSTEM_NAME} MATCHES "Windows" )
     if ( CMAKE_GENERATOR MATCHES "Visual Studio 16 2019" )
@@ -26,7 +26,6 @@ if ( ${CMAKE_SYSTEM_NAME} MATCHES "Windows" )
     endif()
 
     if ( CMAKE_COMPILER_IS_GNUCXX )
-        #add_definitions( -DWIN_GNU )
 		list( APPEND my_compile_def WIN_GNU )
         set( WIN_COMPILER mingw )
     else()
@@ -39,7 +38,7 @@ endif()
 if( CMAKE_SYSTEM_NAME MATCHES "Linux" )
 elseif( CMAKE_SYSTEM_NAME MATCHES "Windows" )
     message(STATUS "WIN_COMPILER is ${WIN_COMPILER}")
-    #add_definitions(-D_CRT_SECURE_NO_WARNINGS)  #取消c语言中fopen等函数的警告
+    #取消c语言中fopen等函数的警告
 	list( APPEND my_compile_def _CRT_SECURE_NO_WARNINGS )
 endif()
 
@@ -66,7 +65,6 @@ endif()
 option(MPI_ENABLE "ON for using MPI library" ON)
 
 if ( MPI_ENABLE )
-    #add_definitions(-DENABLE_MPI)
 	list( APPEND my_compile_def ENABLE_MPI )
     if ( ${CMAKE_SYSTEM_NAME} MATCHES "Windows")
 		set( MPI_INCLUDE_DIRS "C:/Program Files (x86)/Microsoft SDKs/MPI/include" CACHE PATH "path to mpi headers" )
@@ -78,15 +76,15 @@ if ( MPI_ENABLE )
 	
 	message(STATUS "The MPI_LIBRARIES is ${MPI_LIBRARIES}")
 	
-	include_directories ("${MPI_INCLUDE_DIRS}")
+	#include_directories ("${MPI_INCLUDE_DIRS}")
 	list ( APPEND my_libraries ${MPI_LIBRARIES} )
+	list ( APPEND my_include_dirs ${MPI_INCLUDE_DIRS} )
 endif()
 
 #metis库设置
 option ( METIS_ENABLE "ON for using METIS partitioning library" ON )
 
 if( METIS_ENABLE )
-    #add_definitions( -DENABLE_METIS )
 	list( APPEND my_compile_def ENABLE_METIS )
     
     if ( ${CMAKE_SYSTEM_NAME} MATCHES "Windows")
@@ -97,43 +95,45 @@ if( METIS_ENABLE )
 		set( METIS_LIBRARIES "/usr/lib/x86_64-linux-gnu/libmetis.so" )
     endif()
 
-    include_directories( ${METIS_INCLUDE_DIRS} )
+    #include_directories( ${METIS_INCLUDE_DIRS} )
 	list ( APPEND my_libraries ${METIS_LIBRARIES} )
+	list ( APPEND my_include_dirs ${METIS_INCLUDE_DIRS} )
 endif()
 
 #CGNS库设置
 option( CGNS_ENABLE "ON for using CGNS library" ON )
 
 if ( CGNS_ENABLE )
-    #add_definitions( -DENABLE_CGNS )
 	list ( APPEND my_compile_def ENABLE_CGNS )
     if ( ${CMAKE_SYSTEM_NAME} MATCHES "Windows" )
-		set( CGNS_INCLUDE_DIRS "C:/cgns/include" CACHE PATH "path to CGNS headers" )
-		set( CGNS_LIBRARY_DIRS "C:/cgns/lib/cgnsdll.lib" CACHE PATH "path to CGNS library" )
+		set ( CGNS_INCLUDE_DIRS "C:/cgns/include" CACHE PATH "path to CGNS headers" )
+		set ( CGNS_LIBRARIES "C:/cgns/lib/cgnsdll.lib" CACHE PATH "path to CGNS library" )
     else()
-		set( CGNS_INCLUDE_DIRS "/usr/include" CACHE PATH "path to CGNS headers" )
-		set( CGNS_LIBRARY_DIRS "/usr/lib/x86_64-linux-gnu/libcgns.so" CACHE PATH "path to CGNS library" )
+		set ( CGNS_INCLUDE_DIRS "/usr/include" CACHE PATH "path to CGNS headers" )
+		set ( CGNS_LIBRARIES "/usr/lib/x86_64-linux-gnu/libcgns.so" CACHE PATH "path to CGNS library" )
     endif()
 	message(STATUS "The CGNS_INCLUDE_DIRS is ${CGNS_INCLUDE_DIRS}")
 	
-    include_directories ( ${CGNS_INCLUDE_DIRS} )
-	list ( APPEND my_libraries ${CGNS_LIBRARY_DIRS} )
-
+    #include_directories ( ${CGNS_INCLUDE_DIRS} )
+	list ( APPEND my_libraries ${CGNS_LIBRARIES} )
+	list ( APPEND my_include_dirs ${CGNS_INCLUDE_DIRS} )
 endif()
 
 set ( JsonPrjDir "${PRJ_ROOT_DIR}/${THIRD_PARTY_DIR}/jsoncpp" )
 set ( JsonHeaderDir ${JsonPrjDir} )
-include_directories ( ${JsonHeaderDir} ) 
+#include_directories ( ${JsonHeaderDir} ) 
+list ( APPEND my_include_dirs ${JsonHeaderDir} )
 set ( JsonSRC "${JsonPrjDir}/jsoncpp.cpp" ) 
 
 GetAllSubDir( dirList ${CMAKE_CURRENT_SOURCE_DIR})
-
 message ( STATUS "The dirList is ${dirList}" )
 
-set_source_group( HEAD_LIST SRC_LIST )
+SetSourceGroup( my_head_list my_src_list local_include_dirs )
+list ( APPEND my_include_dirs ${local_include_dirs} )
+fun_include_directories( ${my_include_dirs} )
 
-list( APPEND SRC_LIST ${JsonSRC} ) 
-#message(STATUS "SRC_LIST is ${SRC_LIST}.")
+
+list( APPEND my_src_list ${JsonSRC} ) 
 
 if ( BIT64_FLAG )
     list( APPEND my_compile_def X64 )
@@ -149,22 +149,21 @@ else()
 endif()
 
 #. set executable name:
-set(EXECUTABLE_TARGET_NAME "${CMAKE_PROJECT_NAME}")
-message(STATUS "The executable name is ${EXECUTABLE_TARGET_NAME}.")
+set ( OneFLOW_EXE "${CMAKE_PROJECT_NAME}" )
+message(STATUS "The executable name is ${OneFLOW_EXE}.")
 
 #. add an executable to the project using the specified source files and header files:
-add_executable( ${EXECUTABLE_TARGET_NAME}
-   ${SRC_LIST}
-   ${HEAD_LIST}
+add_executable( ${OneFLOW_EXE}
+   ${my_src_list}
+   ${my_head_list}
 ) 
 
-target_link_libraries( ${EXECUTABLE_TARGET_NAME} 
+target_link_libraries( ${OneFLOW_EXE} 
     PRIVATE 
         ${my_libraries}
 )
 
-#target_link_libraries( ${EXECUTABLE_TARGET_NAME} ${CGNS_LIBRARY_DIRS} ${MPI_LIBRARIES} ${METIS_LIBRARIES} )
-target_compile_definitions( ${EXECUTABLE_TARGET_NAME}
+target_compile_definitions( ${OneFLOW_EXE}
 	PRIVATE
 	   ${my_compile_def} 
 )
@@ -172,7 +171,7 @@ target_compile_definitions( ${EXECUTABLE_TARGET_NAME}
 set(PRJ_SYSTEM_DIR ${PRJ_ROOT_DIR}/system/)
 set(PRJ_DOCUMENT_DIR ${PRJ_ROOT_DIR}/doc/)
 
-install(TARGETS ${EXECUTABLE_TARGET_NAME} RUNTIME DESTINATION bin)
+install(TARGETS ${OneFLOW_EXE} RUNTIME DESTINATION bin)
 install(DIRECTORY "${PRJ_SYSTEM_DIR}" DESTINATION "bin/system")
 install(DIRECTORY "${PRJ_DOCUMENT_DIR}" DESTINATION "doc")
 
