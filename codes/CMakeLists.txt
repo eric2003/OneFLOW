@@ -130,7 +130,7 @@ message ( STATUS "The dirList is ${dirList}" )
 
 SetSourceGroup( my_head_list my_src_list local_include_dirs )
 list ( APPEND my_include_dirs ${local_include_dirs} )
-fun_include_directories( ${my_include_dirs} )
+#fun_include_directories( ${my_include_dirs} )
 
 
 list( APPEND my_src_list ${JsonSRC} ) 
@@ -152,13 +152,13 @@ endif()
 set ( OneFLOW_EXE "${CMAKE_PROJECT_NAME}" )
 message(STATUS "The executable name is ${OneFLOW_EXE}.")
 
-#. add an executable to the project using the specified source files and header files:
-#add_executable( ${OneFLOW_EXE}
-#   ${my_src_list}
-#   ${my_head_list}
-#) 
-
+#. add an executable to the project
 add_executable( ${OneFLOW_EXE} ${my_src_list} )
+
+target_include_directories( ${OneFLOW_EXE}
+    PRIVATE 
+        ${my_include_dirs}
+)
 
 target_link_libraries( ${OneFLOW_EXE} 
     PRIVATE 
