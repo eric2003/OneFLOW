@@ -27,56 +27,55 @@ if ( ${CMAKE_SYSTEM_NAME} MATCHES "Windows" )
 
     if ( CMAKE_COMPILER_IS_GNUCXX )
 		list( APPEND my_compile_def WIN_GNU )
-        set( WIN_COMPILER mingw )
+        set ( WIN_COMPILER mingw )
     else()
-        set( WIN_COMPILER ${VS_COMPILER} )
+        set ( WIN_COMPILER ${VS_COMPILER} )
     endif()
 
-    message(STATUS "The current WIN_COMPILER is ${WIN_COMPILER}")
+    message ( STATUS "The current WIN_COMPILER is ${WIN_COMPILER}" )
 endif()
 
-if( CMAKE_SYSTEM_NAME MATCHES "Linux" )
-elseif( CMAKE_SYSTEM_NAME MATCHES "Windows" )
-    message(STATUS "WIN_COMPILER is ${WIN_COMPILER}")
+if ( CMAKE_SYSTEM_NAME MATCHES "Linux" )
+elseif ( CMAKE_SYSTEM_NAME MATCHES "Windows" )
+    message ( STATUS "WIN_COMPILER is ${WIN_COMPILER}" )
     #取消c语言中fopen等函数的警告
-	list( APPEND my_compile_def _CRT_SECURE_NO_WARNINGS )
+	list ( APPEND my_compile_def _CRT_SECURE_NO_WARNINGS )
 endif()
 
-message(STATUS "The CMAKE_C_COMPILER is ${CMAKE_C_COMPILER}")
-message(STATUS "The CMAKE_CXX_COMPILER is ${CMAKE_CXX_COMPILER}")
-message(STATUS "The CMAKE_C_FLAGS is ${CMAKE_C_FLAGS}")
-message(STATUS "The CMAKE_CXX_FLAGS is ${CMAKE_CXX_FLAGS}")
+message ( STATUS "The CMAKE_C_COMPILER is ${CMAKE_C_COMPILER}" )
+message ( STATUS "The CMAKE_CXX_COMPILER is ${CMAKE_CXX_COMPILER}" )
+message ( STATUS "The CMAKE_C_FLAGS is ${CMAKE_C_FLAGS}" )
+message ( STATUS "The CMAKE_CXX_FLAGS is ${CMAKE_CXX_FLAGS}" )
 
-message(STATUS "The CFLAGS is ${CFLAGS}")
-message(STATUS "The CXXFLAGS is ${CXXFLAGS}")
-message(STATUS "The LDFLAGS is ${LDFLAGS}")
+message ( STATUS "The CFLAGS is ${CFLAGS}" )
+message ( STATUS "The CXXFLAGS is ${CXXFLAGS}" )
+message ( STATUS "The LDFLAGS is ${LDFLAGS}" )
 
-message(STATUS "The CMAKE_C_FLAGS is ${CMAKE_C_FLAGS}")
-message(STATUS "The CMAKE_CXX_FLAGS is ${CMAKE_CXX_FLAGS}")
-message(STATUS "The CMAKE_EXE_LINKER_FLAGS is ${CMAKE_EXE_LINKER_FLAGS}")
+message ( STATUS "The CMAKE_C_FLAGS is ${CMAKE_C_FLAGS}" )
+message ( STATUS "The CMAKE_CXX_FLAGS is ${CMAKE_CXX_FLAGS}" )
+message ( STATUS "The CMAKE_EXE_LINKER_FLAGS is ${CMAKE_EXE_LINKER_FLAGS}" )
 
-if( BIT64_FLAG )
-    set(ARCH "x64")
+if ( BIT64_FLAG )
+    set ( ARCH "x64" )
 else()
-    set(ARCH "x86")
+    set ( ARCH "x86" )
 endif()
 
 #mpi库设置
-option(MPI_ENABLE "ON for using MPI library" ON)
+option ( MPI_ENABLE "ON for using MPI library" ON )
 
 if ( MPI_ENABLE )
-	list( APPEND my_compile_def ENABLE_MPI )
-    if ( ${CMAKE_SYSTEM_NAME} MATCHES "Windows")
-		set( MPI_INCLUDE_DIRS "C:/Program Files (x86)/Microsoft SDKs/MPI/include" CACHE PATH "path to mpi headers" )
-		set( MPI_LIBRARIES "C:/Program Files (x86)/Microsoft SDKs/MPI/Lib/${ARCH}/msmpi.lib" CACHE PATH "path to mpi library" )
+	list ( APPEND my_compile_def ENABLE_MPI )
+    if ( ${CMAKE_SYSTEM_NAME} MATCHES "Windows" )
+		set ( MPI_INCLUDE_DIRS "C:/Program Files (x86)/Microsoft SDKs/MPI/include" CACHE PATH "path to mpi headers" )
+		set ( MPI_LIBRARIES "C:/Program Files (x86)/Microsoft SDKs/MPI/Lib/${ARCH}/msmpi.lib" CACHE PATH "path to mpi library" )
     else()
-		set( MPI_INCLUDE_DIRS "/usr/include/x86_64-linux-gnu/mpich" CACHE PATH "path to mpi headers" )
-		set( MPI_LIBRARIES "/usr/lib/x86_64-linux-gnu/libmpich.so" CACHE PATH "path to mpi library" )
+		set ( MPI_INCLUDE_DIRS "/usr/include/x86_64-linux-gnu/mpich" CACHE PATH "path to mpi headers" )
+		set ( MPI_LIBRARIES "/usr/lib/x86_64-linux-gnu/libmpich.so" CACHE PATH "path to mpi library" )
     endif()
 	
-	message(STATUS "The MPI_LIBRARIES is ${MPI_LIBRARIES}")
+	message ( STATUS "The MPI_LIBRARIES is ${MPI_LIBRARIES}" )
 	
-	#include_directories ("${MPI_INCLUDE_DIRS}")
 	list ( APPEND my_libraries ${MPI_LIBRARIES} )
 	list ( APPEND my_include_dirs ${MPI_INCLUDE_DIRS} )
 endif()
@@ -84,24 +83,23 @@ endif()
 #metis库设置
 option ( METIS_ENABLE "ON for using METIS partitioning library" ON )
 
-if( METIS_ENABLE )
-	list( APPEND my_compile_def ENABLE_METIS )
+if ( METIS_ENABLE )
+	list ( APPEND my_compile_def ENABLE_METIS )
     
     if ( ${CMAKE_SYSTEM_NAME} MATCHES "Windows")
-		set( METIS_INCLUDE_DIRS "C:/METIS/include"  CACHE PATH "path to METIS headers" )
-		set( METIS_LIBRARIES "C:/METIS/lib/metis.lib" CACHE PATH "path to METIS library" )
+		set ( METIS_INCLUDE_DIRS "C:/METIS/include"  CACHE PATH "path to METIS headers" )
+		set ( METIS_LIBRARIES "C:/METIS/lib/metis.lib" CACHE PATH "path to METIS library" )
     else()
-		set( METIS_INCLUDE_DIRS "/usr/include" )
-		set( METIS_LIBRARIES "/usr/lib/x86_64-linux-gnu/libmetis.so" )
+		set ( METIS_INCLUDE_DIRS "/usr/include" )
+		set ( METIS_LIBRARIES "/usr/lib/x86_64-linux-gnu/libmetis.so" )
     endif()
 
-    #include_directories( ${METIS_INCLUDE_DIRS} )
 	list ( APPEND my_libraries ${METIS_LIBRARIES} )
 	list ( APPEND my_include_dirs ${METIS_INCLUDE_DIRS} )
 endif()
 
 #CGNS库设置
-option( CGNS_ENABLE "ON for using CGNS library" ON )
+option ( CGNS_ENABLE "ON for using CGNS library" ON )
 
 if ( CGNS_ENABLE )
 	list ( APPEND my_compile_def ENABLE_CGNS )
@@ -114,24 +112,21 @@ if ( CGNS_ENABLE )
     endif()
 	message(STATUS "The CGNS_INCLUDE_DIRS is ${CGNS_INCLUDE_DIRS}")
 	
-    #include_directories ( ${CGNS_INCLUDE_DIRS} )
 	list ( APPEND my_libraries ${CGNS_LIBRARIES} )
 	list ( APPEND my_include_dirs ${CGNS_INCLUDE_DIRS} )
 endif()
 
 set ( JsonPrjDir "${PRJ_ROOT_DIR}/${THIRD_PARTY_DIR}/jsoncpp" )
 set ( JsonHeaderDir ${JsonPrjDir} )
-#include_directories ( ${JsonHeaderDir} ) 
+
 list ( APPEND my_include_dirs ${JsonHeaderDir} )
 set ( JsonSRC "${JsonPrjDir}/jsoncpp.cpp" ) 
 
-GetAllSubDir( dirList ${CMAKE_CURRENT_SOURCE_DIR})
+GetAllSubDir( dirList ${CMAKE_CURRENT_SOURCE_DIR} )
 message ( STATUS "The dirList is ${dirList}" )
 
 SetSourceGroup( my_head_list my_src_list local_include_dirs )
 list ( APPEND my_include_dirs ${local_include_dirs} )
-#fun_include_directories( ${my_include_dirs} )
-
 
 list( APPEND my_src_list ${JsonSRC} ) 
 
@@ -150,31 +145,31 @@ endif()
 
 #. set executable name:
 set ( OneFLOW_EXE "${CMAKE_PROJECT_NAME}" )
-message(STATUS "The executable name is ${OneFLOW_EXE}.")
+message ( STATUS "The executable name is ${OneFLOW_EXE}." )
 
 #. add an executable to the project
-add_executable( ${OneFLOW_EXE} ${my_src_list} )
+add_executable ( ${OneFLOW_EXE} ${my_src_list} ${my_head_list} )
 
-target_include_directories( ${OneFLOW_EXE}
-    PRIVATE 
+target_include_directories ( ${OneFLOW_EXE}
+	PRIVATE 
         ${my_include_dirs}
 )
 
-target_link_libraries( ${OneFLOW_EXE} 
+target_link_libraries ( ${OneFLOW_EXE} 
     PRIVATE 
         ${my_libraries}
 )
 
-target_compile_definitions( ${OneFLOW_EXE}
+target_compile_definitions ( ${OneFLOW_EXE}
 	PRIVATE
 	   ${my_compile_def} 
 )
 
-set(PRJ_SYSTEM_DIR ${PRJ_ROOT_DIR}/system/)
-set(PRJ_DOCUMENT_DIR ${PRJ_ROOT_DIR}/doc/)
+set ( PRJ_SYSTEM_DIR ${PRJ_ROOT_DIR}/system/ )
+set ( PRJ_DOCUMENT_DIR ${PRJ_ROOT_DIR}/doc/ )
 
-install(TARGETS ${OneFLOW_EXE} RUNTIME DESTINATION bin)
-install(DIRECTORY "${PRJ_SYSTEM_DIR}" DESTINATION "bin/system")
-install(DIRECTORY "${PRJ_DOCUMENT_DIR}" DESTINATION "doc")
+install ( TARGETS ${OneFLOW_EXE} RUNTIME DESTINATION bin )
+install ( DIRECTORY "${PRJ_SYSTEM_DIR}" DESTINATION "bin/system" )
+install ( DIRECTORY "${PRJ_DOCUMENT_DIR}" DESTINATION "doc" )
 
-message(STATUS "--- Exit ${CMAKE_CURRENT_LIST_FILE}! ---")
+message ( STATUS "--- Exit ${CMAKE_CURRENT_LIST_FILE}! ---" )

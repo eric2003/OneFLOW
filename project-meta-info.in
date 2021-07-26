@@ -1,0 +1,3 @@
+set( project_version 1.0.0.0 )
+set( project_description "OneFLOW opensource CFD" )
+set( project_homepage "https://github.com/eric2003/OneFLOW" )
