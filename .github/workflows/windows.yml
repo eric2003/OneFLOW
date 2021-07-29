@@ -35,10 +35,17 @@ jobs:
         env:
           prefix: ${{ github.workspace }}
         run: |
+          cd ${{ github.workspace }}
+          python --version
           ls "${{env.prefix}}"
+          Write-Host "path 1..........................."
+          $Env:path
           $Env:path = [environment]::GetEnvironmentvariable("path", [System.EnvironmentVariableTarget]::Machine)
           $Env:path = $Env:Path + ";C:OneFLOW/bin"
-          cd "${{env.prefix}}/test"
+          Write-Host "path 2..........................."
+          $Env:path
+          Write-Host "cd test"
+          cd test
           ls
           python --version
           python test.py "" "" windows
