@@ -169,6 +169,8 @@ function InstallMETIS() {
     cmake ../
     cmake --build . --parallel 4 --config release
     cmake --install . --prefix $metis_prefix
+	cd ../../
+	pwd
     Write-Host "METIS-5.1.0 installation complete..."
 }
 
@@ -203,9 +205,13 @@ function DownloadCGNS() {
     Write-Host "CGNS-4.2.0 downloading complete"
 }
 
-function Init() {
+function InitDownload() {
 	mkdir download
 	cd download
+}
+
+function ExitDownload() {
+	cd ..
 }
 
 function CompileOneFLOW() {
@@ -222,13 +228,13 @@ function CompileOneFLOW() {
 }
 
 function main() {
-	Init
+	InitDownload
     InstallMSMPI
     InstallHDF5
     InstallCGNS
     InstallMETIS
+	ExitDownload
 	Write-Host "the current directory is"
-	cd ../../
 	pwd
 	ls
 	CompileOneFLOW
