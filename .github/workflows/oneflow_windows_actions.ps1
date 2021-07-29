@@ -203,6 +203,9 @@ function main() {
     InstallHDF5
     InstallCGNS
     InstallMETIS
+	Write-Host "the current directory is"
+	pwd
+	ls
 }
 
 main
