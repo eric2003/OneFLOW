@@ -48,5 +48,5 @@ jobs:
           cd test
           ls
           python --version
-          python test.py " " " " windows
+          python test.py "mpiexec -n 1" "OneFLOW"
         shell: pwsh
