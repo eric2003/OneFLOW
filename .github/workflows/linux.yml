@@ -50,6 +50,6 @@ jobs:
           cd "${{env.prefix}}/test"
           ls
           python --version
-          python test.py " " " " linux
+          #python test.py " " " " linux
           python test.py "mpirun -np 1" "OneFLOW"
         shell: bash
