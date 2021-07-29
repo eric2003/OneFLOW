@@ -31,3 +31,15 @@ jobs:
           $psfile = "${{ github.workspace }}/.github/workflows/oneflow_windows_actions.ps1"
           & $psfile
         shell: pwsh
+      - name: Run OneFLOW CFD Tests
+        env:
+          prefix: ${{ github.workspace }}
+        run: |
+          ls "${{env.prefix}}"
+          $Env:path = [environment]::GetEnvironmentvariable("path", [System.EnvironmentVariableTarget]::Machine)
+          $Env:path = $Env:Path + ";C:OneFLOW/bin"
+          cd "${{env.prefix}}/test"
+          ls
+          python --version
+          python test.py "" "" windows
+        shell: bash        

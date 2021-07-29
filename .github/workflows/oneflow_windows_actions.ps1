@@ -234,9 +234,6 @@ function main() {
     InstallCGNS
     InstallMETIS
 	ExitDownload
-	Write-Host "the current directory is"
-	pwd
-	ls
 	CompileOneFLOW
 }
 
