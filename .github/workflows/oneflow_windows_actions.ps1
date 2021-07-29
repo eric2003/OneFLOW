@@ -135,6 +135,8 @@ function InstallCGNS() {
     cmake --build . --parallel 4 --config release
     cmake --install . --prefix $cgns_prefix
     AddMachinePath( $cgns_bin )
+	cd ../../
+	pwd
     Write-Host "CGNS-4.2.0 installation complete..."
 }
 
@@ -204,6 +206,7 @@ function main() {
     InstallCGNS
     InstallMETIS
 	Write-Host "the current directory is"
+	cd ../../
 	pwd
 	ls
 }
