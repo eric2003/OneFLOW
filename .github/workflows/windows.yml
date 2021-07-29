@@ -49,4 +49,4 @@ jobs:
           ls
           python --version
           python test.py "" "" windows
-        shell: bash        
+        shell: pwsh
