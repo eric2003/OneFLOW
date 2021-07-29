@@ -100,6 +100,9 @@ function InstallHDF5() {
     
     Write-Host "Checking Env:HDF5_DIR..."
     Write-Host "Env:HDF5_DIR = $Env:HDF5_DIR"
+	
+	cd ..
+	pwd	
     
     Write-Host "HDF5-1.10.7 installation complete..."
     #$Program_Dir = "C:/Program Files"
@@ -200,7 +203,26 @@ function DownloadCGNS() {
     Write-Host "CGNS-4.2.0 downloading complete"
 }
 
+function Init() {
+	mkdir download
+	cd download
+}
+
+function CompileOneFLOW() {
+	Write-Host "Compile OneFLOW ..."
+	mkdir build
+	cd build
+	cmake ../
+	$oneflow_prefix = "C:/OneFLOW"
+    $oneflow_bin = $oneflow_prefix + "/bin"
+    cmake --build . --parallel 4 --config release
+    cmake --install . --prefix $oneflow_prefix
+    AddMachinePath( $oneflow_bin )
+	Write-Host "Compile OneFLOW complete..."
+}
+
 function main() {
+	Init
     InstallMSMPI
     InstallHDF5
     InstallCGNS
@@ -209,6 +231,7 @@ function main() {
 	cd ../../
 	pwd
 	ls
+	CompileOneFLOW
 }
 
 main
