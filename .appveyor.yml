@@ -13,7 +13,10 @@ build_script:
 - ps: >-
     powershell ci/appveyor/oneflow_windows_actions.ps1
 test_script:
-- cmd: >-
+- ps: >-
+    Write-Host "test_script ..."
+    pwd
+    python --version
     cd test
     
     %PYTHON%/python.exe test.py "mpiexec -n 1" "OneFLOW"
