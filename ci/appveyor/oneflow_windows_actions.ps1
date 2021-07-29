@@ -150,9 +150,14 @@ function DownloadMETIS() {
     $metis_project_name     = "METIS-5.1.0-Modified"
     $metis_project_git_name = $metis_project_name + ".git"
     $metis_project_web_addr = $metis_project_url + $metis_project_git_name
+	Write-Host "metis_project_web_addr = $metis_project_web_addr"
+	Write-Host "git clone $metis_project_web_addr"
     git clone $metis_project_web_addr
+	Write-Host "ls"
     ls
+	Write-Host "cd $metis_project_name"
     cd $metis_project_name
+	Write-Host "ls"
     ls
     Write-Host "Downloading METIS-5.1.0 complete..."
 }
