@@ -336,7 +336,6 @@ void GridPartition::ReconstructNode()
 		grid->ReconstructNode( ggrid );
 		grid->Normalize();
 		grid->CalcMetrics1D();
-
 	}
 }
 

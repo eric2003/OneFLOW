@@ -254,6 +254,7 @@ public:
     void WriteBoundaryTopology( DataBook * databook );
     void ReadGridFaceTopology( DataBook * databook );
     void ReadBoundaryTopology( DataBook * databook );
+    void NormalizeBc();
 public:
     //partition
     void AddFaceType( int fType );

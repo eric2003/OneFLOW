@@ -21,6 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "FieldSolver.h"
+#include "ScalarMetis.h"
 #include "InterFace.h"
 #include "CgnsZbase.h"
 #include "DataBook.h"
@@ -88,20 +89,21 @@ void FieldSolver::Run()
 {
     TestMPI();
 
-    int flag = 0;
-    if ( flag == 0 )
+    int scalar_flag = ONEFLOW::GetDataValue< int >("scalar_flag");
+
+    Dim::SetDimension( ONEFLOW::GetDataValue< int >( "dimension" ) );
+
+    if ( scalar_flag == 0 )
     {
         this->CreateOriginalGrid();
     }
-    else if ( flag == 1 )
+    else if ( scalar_flag == 1 )
     {
         this->CreateOriginalGridFromCgns();
     }
-    else if ( flag == 2 )
+    else if ( scalar_flag == 2 )
     {
-        //partition grid
-        this->ReadOneGrid();
-        this->PartitionGrid();
+        ScalarMetis::Run();
     }
     else 
     {
@@ -115,16 +117,14 @@ void FieldSolver::LoadGrid()
 {
     StringField gridFileList;
 
-    //string gridFileName = "scalar_metis2.ofl";
-    string gridFileName = "scalar_metis40.ofl";
+    string scalar_grid_filename = ONEFLOW::GetDataValue< string >("scalar_grid_filename");
 
-    gridFileList.push_back( gridFileName );
+    gridFileList.push_back( scalar_grid_filename );
 
     Zone::flag_test_grid = 1;
     Zone::ReadGrid( gridFileList );
 
     this->FillTmpGridVector();
-
     this->CalcGridMetrics();
 
     interFaceTopo.flag_test = 1;
@@ -238,7 +238,6 @@ void FieldSolver::CreateOriginalGrid()
 
 void FieldSolver::CreateOriginalGridFromCgns()
 {
-    Dim::dimension = ONEFLOW::ONE_D;
     this->InitCtrlParameter();
     this->grid->GenerateGridFromCgns();
     this->grid->CalcTopology();

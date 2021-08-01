@@ -1171,12 +1171,12 @@ void ScalarGrid::WriteGrid( DataBook * databook )
 	this->nFaces = this->GetNFaces();
 
 	ONEFLOW::HXWrite( databook, this->nNodes );
-	ONEFLOW::HXWrite( databook, this->nCells );
 	ONEFLOW::HXWrite( databook, this->nFaces );
+	ONEFLOW::HXWrite( databook, this->nCells );
 
-	cout << " this->nNodes = " << this->nNodes << "\n";
-	cout << " this->nCells = " << this->nCells << "\n";
-	cout << " this->nFaces = " << this->nFaces << "\n";
+	cout << " number of nodes    : " << this->nNodes << endl;
+	cout << " number of surfaces : " << this->nFaces << endl;
+	cout << " number of elements : " << this->nCells << endl;
 
 	//node
 	ONEFLOW::HXWrite( databook, this->xn.data );
@@ -1185,13 +1185,13 @@ void ScalarGrid::WriteGrid( DataBook * databook )
 
 	cout << " dumping xn,yn,zn \n";
 
+	ONEFLOW::HXWrite( databook, this->volBcType  );
+	cout << " this->volBcType = " << this->volBcType << "\n";
+
 	cout << " dumping eTypes \n";
 
 	//element
 	ONEFLOW::HXWrite( databook, this->eTypes.data );
-
-	ONEFLOW::HXWrite( databook, this->volBcType  );
-	cout << " this->volBcType = " << this->volBcType << "\n";
 
 	this->WriteGridFaceTopology( databook );
 	this->WriteBoundaryTopology( databook );
@@ -1222,15 +1222,15 @@ void ScalarGrid::ReadGrid( DataBook * databook )
 	cout << "Reading unstructured grid data files......\n";
 	//Read the number of nodes, number of elements and number of elements faces
 
-	ONEFLOW::HXRead( databook, this->nNodes );
-	ONEFLOW::HXRead( databook, this->nCells );
-	ONEFLOW::HXRead( databook, this->nFaces );
-
 	cout << "Grid dimension = " << Dim::dimension << endl;
 
+	ONEFLOW::HXRead( databook, this->nNodes );
+	ONEFLOW::HXRead( databook, this->nFaces );
+	ONEFLOW::HXRead( databook, this->nCells );
+
 	cout << " number of nodes    : " << this->nNodes << endl;
+	cout << " number of surfaces : " << this->nFaces << endl;
 	cout << " number of elements : " << this->nCells << endl;
-	cout << " number of faces    : " << this->nFaces << endl;
 
 	this->CreateNodes( this->nNodes );
 
@@ -1240,6 +1240,12 @@ void ScalarGrid::ReadGrid( DataBook * databook )
 	ONEFLOW::HXRead( databook, this->yn.data );
 	ONEFLOW::HXRead( databook, this->zn.data );
 
+	cout << " Reading volBcType\n";
+	this->volBcType = -1000;
+	ONEFLOW::HXRead( databook, this->volBcType  );
+
+	cout << " this->volBcType = " << this->volBcType << "\n";
+
 	cout << " Reading eTypes\n";
 
 	//element
@@ -1248,18 +1254,20 @@ void ScalarGrid::ReadGrid( DataBook * databook )
 
 	cout << "The grid nodes have been read\n";
 
-	cout << " Reading volBcType\n";
-	this->volBcType = -1000;
-	ONEFLOW::HXRead( databook, this->volBcType  );
-
-	cout << " this->volBcType = " << this->volBcType << "\n";
-
 	//this->nodeMesh->CalcMinMaxBox();
 	this->ReadGridFaceTopology( databook );
 	this->ReadBoundaryTopology( databook );
-	//this->NormalizeBc();
+	this->NormalizeBc();
 
 	cout << "All the computing information is ready!\n";
+}
+
+void ScalarGrid::NormalizeBc()
+{
+	for ( int iFace = 0; iFace < this->nBFaces; ++ iFace )
+	{
+		this->rc[ iFace ] = iFace + this->nCells;
+	}
 }
 
 void ScalarGrid::CreateNodes( int numberOfNodes )

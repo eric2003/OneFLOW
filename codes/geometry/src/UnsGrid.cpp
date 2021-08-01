@@ -217,8 +217,53 @@ void UnsGrid::WriteGrid( DataBook * databook )
 
     ONEFLOW::HXWrite( databook, this->volBcType  );
 
-    this->WriteGridFaceTopology( databook );
-    this->WriteBoundaryTopology( databook );
+    if ( ONEFLOW::IsOneD() )
+    {
+        this->WriteGridFaceTopology1D( databook );
+        this->WriteBoundaryTopology1D( databook );
+    }
+    else
+    {
+        this->WriteGridFaceTopology( databook );
+        this->WriteBoundaryTopology( databook );
+    }
+}
+
+void UnsGrid::WriteGridFaceTopology1D( DataBook * databook )
+{
+    cout << " Reading eTypes\n";
+
+    //write element types
+    int ntmpElements = this->cellMesh->cellTopo->eTypes.size();
+    ONEFLOW::HXWrite( databook, this->cellMesh->cellTopo->eTypes );
+
+    //write face types
+    int ntmpFaces = this->faceTopo->fTypes.size();
+    ONEFLOW::HXWrite( databook, this->faceTopo->fTypes );
+
+    IntField numFaceNode( this->nFaces );
+
+    for ( int iFace = 0; iFace < this->nFaces; ++ iFace )
+    {
+        numFaceNode[ iFace ] = this->faceTopo->faces[ iFace ].size();
+    }
+
+    ONEFLOW::HXWrite( databook, numFaceNode );
+
+    IntField faceNodeMem;
+
+    for ( int iFace = 0; iFace < this->nFaces; ++ iFace )
+    {
+        int nNodes = numFaceNode[ iFace ];
+        for ( int iNode = 0; iNode < nNodes; ++ iNode )
+        {
+            faceNodeMem.push_back( this->faceTopo->faces[ iFace ][ iNode ] );
+        }
+    }
+    ONEFLOW::HXWrite( databook, faceNodeMem );
+
+    ONEFLOW::HXWrite( databook, this->faceTopo->lCells );
+    ONEFLOW::HXWrite( databook, this->faceTopo->rCells );
 }
 
 void UnsGrid::WriteGridFaceTopology( DataBook * databook )
@@ -264,6 +309,24 @@ void UnsGrid::WriteBoundaryTopology( DataBook * databook )
         ONEFLOW::HXWrite( databook, this->interFace->i2b               );
     }
 }
+
+void UnsGrid::WriteBoundaryTopology1D( DataBook * databook )
+{
+    int nBFaces = this->faceTopo->GetNBFaces();
+    ONEFLOW::HXWrite( databook, nBFaces );
+
+    ONEFLOW::HXWrite( databook, this->faceTopo->bcManager->bcRecord->bcType );
+    ONEFLOW::HXWrite( databook, this->faceTopo->bcManager->bcRecord->bcNameId );
+
+    ONEFLOW::HXWrite( databook, this->interFace->nIFaces );
+    if ( this->interFace->nIFaces > 0 )
+    {
+        ONEFLOW::HXWrite( databook, this->interFace->zoneId            );
+        ONEFLOW::HXWrite( databook, this->interFace->localInterfaceId  );
+        ONEFLOW::HXWrite( databook, this->interFace->i2b               );
+    }
+}
+
 
 void UnsGrid::ModifyBcType( int bcType1, int bcType2 )
 {
