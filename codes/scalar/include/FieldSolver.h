@@ -73,11 +73,8 @@ public:
     void Init();
     void LoadGrid();
     void InitCtrlParameter();
-    void CreateOriginalGrid();
-    void CreateOriginalGridFromCgns();
     void AddZoneGrid();
     void CalcGridMetrics();
-    void DumpGrid( const string & gridFileName );
     void InitFlowField();
     void InitFlowField_Basic();
     void SolveFlowField();

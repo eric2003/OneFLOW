@@ -38,10 +38,13 @@ public:
     ~ScalarMetis();
 public:
     static void Run();
+    static void Create1DMesh();
+    static void Create1DMeshFromCgns();
 };
 
 void ScalarMetisAddZoneGrid( vector< ScalarGrid * > & part_grids );
 void ScalarReadGrid( const string & gridFileName, vector< ScalarGrid * > & grids );
+void ScalarDumpGrid( const string & gridFileName, ScalarGrid * grid );
 void ScalarDumpGrid( const string & gridFileName, vector< ScalarGrid * > & grids );
 
 EndNameSpace

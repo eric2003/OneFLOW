@@ -90,16 +90,15 @@ void FieldSolver::Run()
     TestMPI();
 
     int scalar_flag = ONEFLOW::GetDataValue< int >("scalar_flag");
-
     Dim::SetDimension( ONEFLOW::GetDataValue< int >( "dimension" ) );
 
     if ( scalar_flag == 0 )
     {
-        this->CreateOriginalGrid();
+        ScalarMetis::Create1DMesh();
     }
     else if ( scalar_flag == 1 )
     {
-        this->CreateOriginalGridFromCgns();
+        ScalarMetis::Create1DMeshFromCgns();
     }
     else if ( scalar_flag == 2 )
     {
@@ -178,57 +177,6 @@ void FieldSolver::CalcGridMetrics()
 void FieldSolver::InitCtrlParameter()
 {
     this->para->Init();
-}
-
-void FieldSolver::DumpGrid( const string & gridFileName )
-{
-    fstream file;
-    OpenPrjFile( file, gridFileName, ios_base::out|ios_base::binary|ios_base::trunc );
-    int nZone = static_cast<int>( this->grids.size() );
-
-    ZoneState::pid.resize( nZone );
-    ZoneState::zoneType.resize( nZone );
-
-    for ( int iZone = 0; iZone < nZone; ++ iZone )
-    {
-        ZoneState::pid[ iZone ] = iZone;
-        ZoneState::zoneType[ iZone ] = grids[ iZone ]->type;
-    }
-
-    ONEFLOW::HXWrite( & file, nZone );
-    ONEFLOW::HXWrite( & file, ZoneState::pid );
-    ONEFLOW::HXWrite( & file, ZoneState::zoneType );
-
-    for ( int iZone = 0; iZone < nZone; ++ iZone )
-    {
-        cout << "iZone = " << iZone << " nZone = " << nZone << "\n";
-        grids[ iZone ]->WriteGrid( file );
-    }
-
-    ONEFLOW::CloseFile( file );
-}
-
-void FieldSolver::CreateOriginalGrid()
-{
-    Dim::dimension = ONEFLOW::ONE_D;
-    this->InitCtrlParameter();
-    this->grid->GenerateGrid( this->para->nx, 0, this->para->len );
-    this->grid->CalcTopology();
-    this->grid->CalcMetrics1D();
-    this->grids.push_back( this->grid );
-    this->tmpflag_delete_grids = false;
-    this->DumpGrid("scalar.ofl");
-}
-
-void FieldSolver::CreateOriginalGridFromCgns()
-{
-    this->InitCtrlParameter();
-    this->grid->GenerateGridFromCgns();
-    this->grid->CalcTopology();
-    this->grid->CalcMetrics1D();
-    this->grids.push_back( this->grid );
-    this->tmpflag_delete_grids = false;
-    this->DumpGrid("scalar.ofl");
 }
 
 void FieldSolver::InitFlowField()
