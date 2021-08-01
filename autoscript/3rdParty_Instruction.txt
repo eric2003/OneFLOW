@@ -1,6 +1,6 @@
 ### To be continued
 
-# HDF5 Build
+## HDF5 Build
 tar xvf hdf5-1.8.22.tar.gz
 mkdir hdf5-1.8.22-install
 cd hdf5-1.8.22
@@ -8,7 +8,7 @@ CC=${MPI_HOME}/bin/mpicc ./configure --enable-parallel --prefix=${HDF5_HOME}
 make -j8
 make install
 
-# CGNS BUILD
+## CGNS BUILD
 tar xvf CGNS-4.2.0.tar.gz
 mkdir CGNS-4.2.0-install
 cd CGNS-4.2.0 && mkdir build && cd build
@@ -18,12 +18,18 @@ module load hdf5/1.8.22
 cmake .. -DCGNS_ENABLE_HDF5=ON -DCGNS_ENABLE_LEGACY=ON -DCMAKE_INSTALL_PREFIX=../../CGNS-4.2.0-install
 
 # build cgns tools and tests
-cmake .. -DBUILD_TESTING=ON -DCGNS_ENABLE_LEGACY=ON -DCGNS_ENABLE_HDF5=ON -DCGNS_BUILD_CGNSTOOLS=ON -DCGNS_BUILD_SHARED=ON -DCGNS_BUILD_TESTING=ON -DCGNS_ENABLE_TESTS=ON -DCGNS_USE_SHARED=ON -DCMAKE_INSTALL_PREFIX=../../CGNS-4.2.0-install
-sudo apt-get install libxmu-dev # may need to install this
-Modify CMakeLists.txt add this line:
+# Modify CMakeLists.txt add this line:
 set(OpenGL_GL_PREFERENCE LEGACY)
+cmake .. -DBUILD_TESTING=ON -DCGNS_ENABLE_LEGACY=ON -DCGNS_ENABLE_HDF5=ON -DCGNS_BUILD_CGNSTOOLS=ON -DCGNS_BUILD_SHARED=ON -DCGNS_BUILD_TESTING=ON -DCGNS_ENABLE_TESTS=ON -DCGNS_USE_SHARED=ON -DCMAKE_INSTALL_PREFIX=../../CGNS-4.2.0-install
+
+# For Debian
+sudo apt-get install libxmu-dev # may need to install this
+# For Centos
+yum install tcl tk -y
 
 cmake .. -DHDF5_NEED_MPI=ON
+make -j8
+make install
 
 # METIS build
 tar -xvf metis-5.1.0.tar.gz
