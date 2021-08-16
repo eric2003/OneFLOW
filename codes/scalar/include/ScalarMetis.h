@@ -40,6 +40,7 @@ public:
     static void Run();
     static void Create1DMesh();
     static void Create1DMeshFromCgns();
+    static void CreateCgnsMesh1D();
 };
 
 void ScalarMetisAddZoneGrid( vector< ScalarGrid * > & part_grids );

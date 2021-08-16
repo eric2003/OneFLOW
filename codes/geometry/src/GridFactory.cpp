@@ -87,9 +87,9 @@ void GridFactory::GeneInp()
 
 void GridFactory::PartGrid()
 {
-    Partition * part = new Partition();
-    part->Run();
-    delete part;
+    Partition * partOld = new Partition();
+    partOld->Run();
+    delete partOld;
 }
 
 void GridFactory::ConvertGrid()

@@ -575,9 +575,6 @@ void ScalarGrid::DumpCgnsGrid()
 
 void ScalarGrid::GenerateGridFromCgns( const string & prjFileName )
 {
-	fstream file;
-	//string prjFileName = ONEFLOW::GetPrjFileName( "scalar.cgns" );
-
 	CgnsZbase * cgnsZbase = new CgnsZbase();
 	cgnsZbase->OpenCgnsFile( prjFileName, CG_MODE_READ );
 	cgnsZbase->ReadCgnsMultiBase();

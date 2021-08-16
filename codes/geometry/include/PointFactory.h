@@ -70,6 +70,7 @@ public:
     int DeletePoint( PointBasic::PointType & point );
     int FindPoint( Real xm, Real ym, Real zm );
     void GetFaceCoorList( IntField & nodeId, RealField &xList, RealField &yList, RealField &zList );
+    void ModifyPointIndexAfterDelete( int pid );
 protected:
     int AddPoint( PointBasic::PointType & point );
     int FindPointId( PointBasic::PointType & point );

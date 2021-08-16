@@ -47,6 +47,7 @@ License
 #include "ScalarZone.h"
 #include "HXCgns.h"
 #include "HXMath.h"
+#include "SmartGrid.h"
 #include <iostream>
 #include <vector>
 using namespace std;
@@ -91,6 +92,28 @@ void ScalarMetis::Run()
 }
 
 void ScalarMetis::Create1DMesh()
+{
+    ScalarGrid * grid = new ScalarGrid();
+
+    int scalar_nx = ONEFLOW::GetDataValue< int >("scalar_nx");
+    Real scalar_len = ONEFLOW::GetDataValue< int >("scalar_len");
+
+    string scalar_grid_filename = ONEFLOW::GetDataValue< string >("scalar_grid_filename");
+
+    grid->GenerateGrid( scalar_nx, 0, scalar_len );
+    grid->CalcTopology();
+    grid->CalcMetrics1D();
+
+    ScalarDumpGrid( scalar_grid_filename, grid );
+
+    delete grid;
+
+    SmartGrid * smart_grid = new SmartGrid();
+    smart_grid->Run();
+    delete smart_grid;
+}
+
+void ScalarMetis::CreateCgnsMesh1D()
 {
     ScalarGrid * grid = new ScalarGrid();
 

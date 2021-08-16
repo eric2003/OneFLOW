@@ -63,7 +63,6 @@ CgnsFactory::CgnsFactory()
 {
     this->cgnsZbase = new CgnsZbase();
     this->zgridElem = new ZgridElem( this->cgnsZbase );
-    //this->nZone = 0;
 }
 
 CgnsFactory::~CgnsFactory()
