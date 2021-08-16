@@ -23,6 +23,7 @@ License
 #include "SmartGrid.h"
 #include "HXCgns.h"
 #include "ElementHome.h"
+#include "PrintDevice.h"
 #include <iostream>
 #include <algorithm>
 using namespace std;
@@ -358,6 +359,9 @@ void SmartGrid::Run()
     int xmin = 0.0;
     int xmax = 2.0;
     this->GenerateGrid( ni, xmin, xmax );
+    #ifdef ENABLE_CUDA
+        InitCUDA();
+    #endif
 }
 
 void SmartGrid::AddElement( int p1, int p2, int eType )
