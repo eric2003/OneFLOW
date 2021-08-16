@@ -11,7 +11,7 @@ function ( ConstructSolutionDirTree currdir my_head_list my_src_list my_include_
     foreach ( child ${FOUND_FILES} )
 		set( candidate_dir ${currdir}/${child} )
         if ( IS_DIRECTORY ${candidate_dir} )
-			message ( STATUS "The ${candidate_dir} is DIRECTORY" )
+			#message ( STATUS "The ${candidate_dir} is DIRECTORY" )
 			file ( GLOB header_files "${candidate_dir}/*.h" )
 			file ( GLOB src_files    "${candidate_dir}/*.cpp" )
 			file ( GLOB cuda_src_files "${candidate_dir}/*.cu" )
