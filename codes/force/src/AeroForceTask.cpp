@@ -221,7 +221,7 @@ void CalcAeroForce(int idump_pres)
 	MRField * bcdqdz = GetFieldPointer< MRField >(grid, "bcdqdz");
 
 	int startStrategy = ONEFLOW::GetDataValue< int >("startStrategy");
-	if (startStrategy == 2)
+	if ( startStrategy == 2 )
 	{
 		RealField & dpdx = (*bcdqdx)[IIDX::IIP];
 		RealField & dpdy = (*bcdqdy)[IIDX::IIP];

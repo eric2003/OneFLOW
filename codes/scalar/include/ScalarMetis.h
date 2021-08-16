@@ -20,41 +20,32 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "FieldPara.h"
-#include "DataBase.h"
-#include <iostream>
-#include <fstream>
+
+#pragma once
+#include "HXType.h"
 #include <vector>
+#include <string>
 using namespace std;
 
 BeginNameSpace( ONEFLOW )
 
-FieldPara::FieldPara()
-{
-    ;
-}
+class ScalarGrid;
 
-FieldPara::~FieldPara()
+class ScalarMetis
 {
-    ;
-}
+public:
+    ScalarMetis();
+    ~ScalarMetis();
+public:
+    static void Run();
+    static void Create1DMesh();
+    static void Create1DMeshFromCgns();
+    static void CreateCgnsMesh1D();
+};
 
-void FieldPara::Init()
-{
-    //this->nx = 41;
-    //this->len = 2.0;
-    //this->dx = len / ( nx - 1.0 );
-    ////this->nt = 25;
-    //this->nt = 25;
-    //this->dt = 0.025;
-    //this->c  = 1;
-
-    this->nx  = ONEFLOW::GetDataValue< int >("scalar_nx");
-    this->len = ONEFLOW::GetDataValue< int >("scalar_len");
-    this->nt  = ONEFLOW::GetDataValue< int >("scalar_nt");
-    this->dt  = ONEFLOW::GetDataValue< Real >("scalar_dt");
-    this->c   = ONEFLOW::GetDataValue< Real >("scalar_c");
-    this->dx  = this->len / ( this->nx - 1.0 );
-}
+void ScalarMetisAddZoneGrid( vector< ScalarGrid * > & part_grids );
+void ScalarReadGrid( const string & gridFileName, vector< ScalarGrid * > & grids );
+void ScalarDumpGrid( const string & gridFileName, ScalarGrid * grid );
+void ScalarDumpGrid( const string & gridFileName, vector< ScalarGrid * > & grids );
 
 EndNameSpace

@@ -221,7 +221,7 @@ public:
     void ReadFromCgnsZbase( CgnsZbase * cgnsZbase );
     void ReadFromCgnsZone( CgnsZone * cgnsZone );
     void PushElement( CgIntField & eNodeId, int eType );
-    void GenerateGridFromCgns();
+    void GenerateGridFromCgns( const string & prjFileName );
     void DumpCgnsGrid();
     void SetCgnsZone( CgnsZone * cgnsZone );
 public:
@@ -254,6 +254,7 @@ public:
     void WriteBoundaryTopology( DataBook * databook );
     void ReadGridFaceTopology( DataBook * databook );
     void ReadBoundaryTopology( DataBook * databook );
+    void NormalizeBc();
 public:
     //partition
     void AddFaceType( int fType );

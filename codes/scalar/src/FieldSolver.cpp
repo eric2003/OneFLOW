@@ -21,6 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "FieldSolver.h"
+#include "ScalarMetis.h"
 #include "InterFace.h"
 #include "CgnsZbase.h"
 #include "DataBook.h"
@@ -88,20 +89,20 @@ void FieldSolver::Run()
 {
     TestMPI();
 
-    int flag = 0;
-    if ( flag == 0 )
+    int scalar_flag = ONEFLOW::GetDataValue< int >("scalar_flag");
+    Dim::SetDimension( ONEFLOW::GetDataValue< int >( "dimension" ) );
+
+    if ( scalar_flag == 0 )
     {
-        this->CreateOriginalGrid();
+        ScalarMetis::Create1DMesh();
     }
-    else if ( flag == 1 )
+    else if ( scalar_flag == 1 )
     {
-        this->CreateOriginalGridFromCgns();
+        ScalarMetis::Create1DMeshFromCgns();
     }
-    else if ( flag == 2 )
+    else if ( scalar_flag == 2 )
     {
-        //partition grid
-        this->ReadOneGrid();
-        this->PartitionGrid();
+        ScalarMetis::Run();
     }
     else 
     {
@@ -115,16 +116,14 @@ void FieldSolver::LoadGrid()
 {
     StringField gridFileList;
 
-    //string gridFileName = "scalar_metis2.ofl";
-    string gridFileName = "scalar_metis40.ofl";
+    string scalar_grid_filename = ONEFLOW::GetDataValue< string >("scalar_grid_filename");
 
-    gridFileList.push_back( gridFileName );
+    gridFileList.push_back( scalar_grid_filename );
 
     Zone::flag_test_grid = 1;
     Zone::ReadGrid( gridFileList );
 
     this->FillTmpGridVector();
-
     this->CalcGridMetrics();
 
     interFaceTopo.flag_test = 1;
@@ -178,147 +177,6 @@ void FieldSolver::CalcGridMetrics()
 void FieldSolver::InitCtrlParameter()
 {
     this->para->Init();
-}
-
-void FieldSolver::PartitionGrid()
-{
-    Dim::dimension = ONEFLOW::ONE_D;
-
-    GridPartition gridPartition;
-    //int npart = this->para->nx - 1;
-    int npart = this->grid->nCells;
-    //int npart = 2;
-    cout << " npart = " << npart << "\n";
-    gridPartition.PartitionGrid( this->grid, npart, & this->grids );
-
-    this->AddZoneGrid();
-    string gridName = AddString( "scalar_metis", npart, ".ofl" );
-    this->DumpGrid( gridName );
-}
-
-void FieldSolver::DumpGrid( const string & gridFileName )
-{
-    fstream file;
-    OpenPrjFile( file, gridFileName, ios_base::out|ios_base::binary|ios_base::trunc );
-    int nZone = static_cast<int>( this->grids.size() );
-
-    ZoneState::pid.resize( nZone );
-    ZoneState::zoneType.resize( nZone );
-
-    for ( int iZone = 0; iZone < nZone; ++ iZone )
-    {
-        ZoneState::pid[ iZone ] = iZone;
-        ZoneState::zoneType[ iZone ] = grids[ iZone ]->type;
-    }
-
-    ONEFLOW::HXWrite( & file, nZone );
-    ONEFLOW::HXWrite( & file, ZoneState::pid );
-    ONEFLOW::HXWrite( & file, ZoneState::zoneType );
-
-    for ( int iZone = 0; iZone < nZone; ++ iZone )
-    {
-        cout << "iZone = " << iZone << " nZone = " << nZone << "\n";
-        grids[ iZone ]->WriteGrid( file );
-    }
-
-    ONEFLOW::CloseFile( file );
-}
-
-void FieldSolver::CreateOriginalGrid()
-{
-    Dim::dimension = ONEFLOW::ONE_D;
-    this->InitCtrlParameter();
-    this->grid->GenerateGrid( this->para->nx, 0, this->para->len );
-    this->grid->CalcTopology();
-    this->grid->CalcMetrics1D();
-    this->grids.push_back( this->grid );
-    this->tmpflag_delete_grids = false;
-    this->DumpGrid("scalar.ofl");
-}
-
-void FieldSolver::CreateOriginalGridFromCgns()
-{
-    Dim::dimension = ONEFLOW::ONE_D;
-    this->InitCtrlParameter();
-    this->grid->GenerateGridFromCgns();
-    this->grid->CalcTopology();
-    this->grid->CalcMetrics1D();
-    this->grids.push_back( this->grid );
-    this->tmpflag_delete_grids = false;
-    this->DumpGrid("scalar.ofl");
-}
-
-void FieldSolver::InitGrid()
-{
-    Dim::dimension = ONEFLOW::ONE_D;
-    this->grid->GenerateGrid( this->para->nx, 0, this->para->len );
-    this->grid->CalcTopology();
-    this->grid->CalcMetrics1D();
-
-    GridPartition gridPartition;
-    int npart = this->para->nx - 1;
-    cout << " npart = " << npart << "\n";
-    gridPartition.PartitionGrid( this->grid, npart, & this->grids );
-
-    int nZones = this->grids.size();
-    ZoneState::nZones = nZones;
-    for ( int iZone = 0; iZone < nZones; ++ iZone )
-    {
-        ScalarZone::AddGrid( iZone, this->grids[ iZone ] );
-    }
-    int kkk = 1;
-}
-
-void FieldSolver::ReadOneGrid()
-{
-    Dim::dimension = ONEFLOW::ONE_D;
-    vector< ScalarGrid * > tmp_grids;
-
-    this->ReadGrid( "scalar.ofl", tmp_grids );
-    delete this->grid;
-    this->grid = tmp_grids[ 0 ];
-    this->grid->CalcMetrics1D();
-}
-
-void FieldSolver::ReadGrid( const string & gridFileName )
-{
-    this->ReadGrid( gridFileName, this->grids );
-}
-
-void FieldSolver::ReadGrid( const string & gridFileName, vector< ScalarGrid * > & grids )
-{
-    fstream file;
-    OpenPrjFile( file, gridFileName, ios_base::in|ios_base::binary );
-
-    int nZone = -1;
-
-    ONEFLOW::HXRead( & file, nZone );
-
-    ZoneState::pid.resize( nZone );
-    ZoneState::zoneType.resize( nZone );
-
-    ONEFLOW::HXRead( & file, ZoneState::pid );
-    ONEFLOW::HXRead( & file, ZoneState::zoneType );
-
-    if ( Parallel::zoneMode == 0 )
-    {
-        for ( int iZone = 0; iZone < nZone; ++ iZone )
-        {
-            ZoneState::pid[ iZone ] = ( iZone ) % Parallel::nProc;
-        }
-    }
-
-    for ( int iZone = 0; iZone < nZone; ++ iZone )
-    {
-        cout << "iZone = " << iZone << " nZone = " << nZone << "\n";
-        ScalarGrid * grid = new ScalarGrid();
-        grid->id = iZone;
-        grid->type = ZoneState::zoneType[ iZone ];
-        grid->ReadGrid( file );
-        grids.push_back( grid );
-    }
-
-    ONEFLOW::CloseFile( file );
 }
 
 void FieldSolver::InitFlowField()

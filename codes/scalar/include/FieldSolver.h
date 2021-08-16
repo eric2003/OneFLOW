@@ -73,28 +73,17 @@ public:
     void Init();
     void LoadGrid();
     void InitCtrlParameter();
-    void InitGrid();
-    void CreateOriginalGrid();
-    void CreateOriginalGridFromCgns();
-    void ReadGrid( const string & gridFileName );
-    void ReadGrid( const string & gridFileName, vector< ScalarGrid * > & grids );
-    void ReadOneGrid();
-    void PartitionGrid();
     void AddZoneGrid();
     void CalcGridMetrics();
-    void DumpGrid( const string & gridFileName );
     void InitFlowField();
     void InitFlowField_Basic();
     void SolveFlowField();
     void SolveOneStep();
-    void SetParaPointer();
     void CommParallelInfo();
-    void UploadInterfaceValue( ScalarGrid * grid, MRField * field2D, const string & name, int nEqu );
     void UploadInterface();
     void DownloadInterface();
     void UpdateInterface( TaskFunction sendAction, TaskFunction recvAction );
     void SwapInterfaceData( int iZone, int jZone, TaskFunction sendAction, TaskFunction recvAction );
-    void WriteField( RealField & field, IntField & idMap );
 public:
     void Boundary();
     void GetQLQR();
