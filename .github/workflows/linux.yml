@@ -35,8 +35,10 @@ jobs:
           ls
           mkdir build
           cd build
-          export MPI_HOME_INC = "/usr/include/x86_64-linux-gnu/mpich"
-          export MPI_HOME_LIB = "/usr/lib/x86_64-linux-gnu/libmpich.so"
+          echo MPI_HOME_INC
+          echo MPI_HOME_LIB
+          export MPI_HOME_INC="/usr/include/x86_64-linux-gnu/mpich"
+          export MPI_HOME_LIB="/usr/lib/x86_64-linux-gnu/libmpich.so"
           cmake --version
           cmake -DCMAKE_INSTALL_PREFIX=${{ github.workspace }} ../
           make -j 4
