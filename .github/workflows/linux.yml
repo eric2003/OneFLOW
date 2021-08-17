@@ -40,7 +40,9 @@ jobs:
           export MPI_HOME_INC="/usr/include/x86_64-linux-gnu/mpich"
           export MPI_HOME_LIB="/usr/lib/x86_64-linux-gnu/libmpich.so"
           export CGNS_HOME_INC="/usr/include"
-          export CGNS_HOME_LIB="/usr/lib/x86_64-linux-gnu/libcgns.so"      
+          export CGNS_HOME_LIB="/usr/lib/x86_64-linux-gnu/libcgns.so"
+          export METIS_HOME_INC="/usr/include"
+          export METIS_HOME_LIB="/usr/lib/x86_64-linux-gnu/libmetis.so"
           cmake --version
           cmake -DCMAKE_INSTALL_PREFIX=${{ github.workspace }} ../
           make -j 4
