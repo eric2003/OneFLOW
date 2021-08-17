@@ -35,7 +35,6 @@ jobs:
           ls
           mkdir build
           cd build
-          which mpich
           export MPI_HOME_INC = "/usr/include/x86_64-linux-gnu/mpich"
           export MPI_HOME_LIB = "/usr/lib/x86_64-linux-gnu/libmpich.so"
           cmake --version
