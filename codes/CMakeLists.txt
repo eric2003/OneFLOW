@@ -8,6 +8,9 @@ set ( my_libraries )
 set ( my_include_dirs )
 set ( my_propertie_name )
 set ( my_propertie_value )
+set ( my_compile_features )
+
+list ( APPEND my_compile_features cxx_std_14 )
 
 set ( BIT64_FLAG TRUE CACHE BOOL "64bit or 32bit code" )
 
@@ -25,6 +28,7 @@ if ( CMAKE_CUDA_COMPILER )
 	list ( APPEND my_propertie_value "35;50;52;72;75" )
 	list ( APPEND my_propertie_name CUDA_SEPARABLE_COMPILATION )
 	list ( APPEND my_propertie_value ON )
+	list ( APPEND my_compile_features cuda_std_14 )
 else()
 	message ( STATUS "No CUDA support" )
 endif()
@@ -167,8 +171,7 @@ target_link_libraries ( ${PROJECT_NAME}
 
 target_compile_features ( ${PROJECT_NAME} 
 	PUBLIC 
-		cuda_std_14
-		cxx_std_14
+		${my_compile_features}
 )
 
 target_compile_definitions ( ${PROJECT_NAME}
