@@ -19,11 +19,8 @@ check_language ( CUDA )
 
 if ( CMAKE_CUDA_COMPILER )
 	enable_language ( CUDA )
-	list( APPEND my_compile_def ENABLE_CUDA )
-    #set ( PRJ_CUDA_ARCHITECTURES "35;50;52;72;75" )
-	#set ( PRJ_CUDA_SEPARABLE_COMPILATION ON )
-	list( APPEND my_include_dirs ${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES} )
-	message ( STATUS "The CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES is ${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES}" )
+	list ( APPEND my_compile_def ENABLE_CUDA )
+	list ( APPEND my_include_dirs ${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES} )
 	list ( APPEND my_propertie_name CUDA_ARCHITECTURES )
 	list ( APPEND my_propertie_value "35;50;52;72;75" )
 	list ( APPEND my_propertie_name CUDA_SEPARABLE_COMPILATION )
@@ -35,10 +32,9 @@ endif()
 
 message ( STATUS "The CMAKE_CUDA_COMPILER is ${CMAKE_CUDA_COMPILER}" )
 
-
 if ( CMAKE_SYSTEM_NAME MATCHES "Linux" )
 elseif ( CMAKE_SYSTEM_NAME MATCHES "Windows" )
-    #取消c语言中fopen等函数的警告
+    #Cancel the warning of fopen in C language
 	list ( APPEND my_compile_def _CRT_SECURE_NO_WARNINGS )
 endif()
 
@@ -61,7 +57,7 @@ else()
     set ( ARCH "x86" )
 endif()
 
-#mpi库设置
+#MPI library settings
 option ( MPI_ENABLE "ON for using MPI library" ON )
 
 if ( MPI_ENABLE )
@@ -84,7 +80,7 @@ if ( MPI_ENABLE )
 	list ( APPEND my_include_dirs ${MPI_INCLUDE_DIRS} )
 endif()
 
-#metis库设置
+#METIS library settings
 option ( METIS_ENABLE "ON for using METIS partitioning library" ON )
 
 if ( METIS_ENABLE )
@@ -94,10 +90,6 @@ if ( METIS_ENABLE )
 		set ( METIS_INCLUDE_DIRS "C:/METIS/include"  CACHE PATH "path to METIS headers" )
 		set ( METIS_LIBRARIES "C:/METIS/lib/metis.lib" CACHE PATH "path to METIS library" )
     else()
-		#set ( METIS_INCLUDE_DIRS "/usr/include" )
-		#set ( METIS_LIBRARIES "/usr/lib/x86_64-linux-gnu/libmetis.so" )
-		#set ( METIS_INCLUDE_DIRS "$ENV{METIS_HOME}/include" )
-		#set ( METIS_LIBRARIES "$ENV{METIS_HOME}/lib/libmetis.a" )
 		set ( METIS_INCLUDE_DIRS $ENV{METIS_HOME_INC} )
 		set ( METIS_LIBRARIES $ENV{METIS_HOME_LIB} )
     endif()
@@ -106,7 +98,7 @@ if ( METIS_ENABLE )
 	list ( APPEND my_include_dirs ${METIS_INCLUDE_DIRS} )
 endif()
 
-#CGNS库设置
+#CGNS library settings
 option ( CGNS_ENABLE "ON for using CGNS library" ON )
 
 if ( CGNS_ENABLE )
@@ -115,10 +107,6 @@ if ( CGNS_ENABLE )
 		set ( CGNS_INCLUDE_DIRS "C:/cgns/include" CACHE PATH "path to CGNS headers" )
 		set ( CGNS_LIBRARIES "C:/cgns/lib/cgnsdll.lib" CACHE PATH "path to CGNS library" )
     else()
-		#set ( CGNS_INCLUDE_DIRS "/usr/include" CACHE PATH "path to CGNS headers" )
-		#set ( CGNS_LIBRARIES "/usr/lib/x86_64-linux-gnu/libcgns.so" CACHE PATH "path to CGNS library" )
-		#set ( CGNS_INCLUDE_DIRS "$ENV{CGNS_HOME}/include" CACHE PATH "path to CGNS headers" )
-		#set ( CGNS_LIBRARIES "$ENV{CGNS_HOME}/lib/libcgns.so" CACHE PATH "path to CGNS library" )
 		set ( CGNS_INCLUDE_DIRS $ENV{CGNS_HOME_INC} CACHE PATH "path to CGNS headers" )
 		set ( CGNS_LIBRARIES $ENV{CGNS_HOME_LIB} CACHE PATH "path to CGNS library" )		
     endif()
@@ -137,7 +125,7 @@ set ( JsonSRC "${JsonPrjDir}/jsoncpp.cpp" )
 ConstructSolutionDirTree( ${CMAKE_CURRENT_SOURCE_DIR} my_head_list my_src_list local_include_dirs )
 list ( APPEND my_include_dirs ${local_include_dirs} )
 
-list( APPEND my_src_list ${JsonSRC} ) 
+list ( APPEND my_src_list ${JsonSRC} ) 
 
 if ( BIT64_FLAG )
     list( APPEND my_compile_def X64 )
@@ -190,12 +178,6 @@ foreach ( val RANGE ${my_len} )
 			${name} ${value}
 	)
 endforeach ()
-
-#set_target_properties (	${PROJECT_NAME}
-#	PROPERTIES
-#		CUDA_ARCHITECTURES ${PRJ_CUDA_ARCHITECTURES}
-#		CUDA_SEPARABLE_COMPILATION ${PRJ_CUDA_SEPARABLE_COMPILATION}
-#)
 
 set ( PRJ_SYSTEM_DIR ${PRJ_ROOT_DIR}/system/ )
 set ( PRJ_DOCUMENT_DIR ${PRJ_ROOT_DIR}/doc/ )
