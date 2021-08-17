@@ -3,14 +3,14 @@ message ( STATUS "--- Enter subdirectory, Start to call ${CMAKE_CURRENT_LIST_FIL
 message ( STATUS "This current binary directory is ${CMAKE_CURRENT_BINARY_DIR}." )
 message ( STATUS "This current source directory is ${CMAKE_CURRENT_SOURCE_DIR}." )
 
-set ( prj_compile_def )
-set ( prj_libraries )
-set ( prj_include_dirs )
-set ( prj_property_name )
-set ( prj_property_value )
-set ( prj_compile_features )
+set ( PRJ_COMPILE_DEF )
+set ( PRJ_LIBRARIES )
+set ( PRJ_INCLUDE_DIRS )
+set ( PRJ_PROPERTY_NAME )
+set ( PRJ_PROPERTY_VALUE )
+set ( PRJ_COMPILE_FEATURES )
 
-list ( APPEND prj_compile_features cxx_std_14 )
+list ( APPEND PRJ_COMPILE_FEATURES cxx_std_14 )
 
 set ( BIT64_FLAG TRUE CACHE BOOL "64bit or 32bit code" )
 
@@ -19,13 +19,13 @@ check_language ( CUDA )
 
 if ( CMAKE_CUDA_COMPILER )
 	enable_language ( CUDA )
-	list ( APPEND prj_compile_def ENABLE_CUDA )
-	list ( APPEND prj_include_dirs ${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES} )
-	list ( APPEND prj_property_name CUDA_ARCHITECTURES )
-	list ( APPEND prj_property_value "35;50;52;72;75" )
-	list ( APPEND prj_property_name CUDA_SEPARABLE_COMPILATION )
-	list ( APPEND prj_property_value ON )
-	list ( APPEND prj_compile_features cuda_std_14 )
+	list ( APPEND PRJ_COMPILE_DEF ENABLE_CUDA )
+	list ( APPEND PRJ_INCLUDE_DIRS ${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES} )
+	list ( APPEND PRJ_PROPERTY_NAME CUDA_ARCHITECTURES )
+	list ( APPEND PRJ_PROPERTY_VALUE "35;50;52;72;75" )
+	list ( APPEND PRJ_PROPERTY_NAME CUDA_SEPARABLE_COMPILATION )
+	list ( APPEND PRJ_PROPERTY_VALUE ON )
+	list ( APPEND PRJ_COMPILE_FEATURES cuda_std_14 )
 else()
 	message ( STATUS "No CUDA support" )
 endif()
@@ -35,7 +35,7 @@ message ( STATUS "The CMAKE_CUDA_COMPILER is ${CMAKE_CUDA_COMPILER}" )
 if ( CMAKE_SYSTEM_NAME MATCHES "Linux" )
 elseif ( CMAKE_SYSTEM_NAME MATCHES "Windows" )
     #Cancel the warning of fopen in C language
-	list ( APPEND prj_compile_def _CRT_SECURE_NO_WARNINGS )
+	list ( APPEND PRJ_COMPILE_DEF _CRT_SECURE_NO_WARNINGS )
 endif()
 
 message ( STATUS "The CMAKE_C_COMPILER is ${CMAKE_C_COMPILER}" )
@@ -61,7 +61,7 @@ endif()
 option ( MPI_ENABLE "ON for using MPI library" ON )
 
 if ( MPI_ENABLE )
-	list ( APPEND prj_compile_def ENABLE_MPI )
+	list ( APPEND PRJ_COMPILE_DEF ENABLE_MPI )
     if ( ${CMAKE_SYSTEM_NAME} MATCHES "Windows" )
 		set ( MPI_INCLUDE_DIRS "C:/Program Files (x86)/Microsoft SDKs/MPI/include" CACHE PATH "path to mpi headers" )
 		set ( MPI_LIBRARIES "C:/Program Files (x86)/Microsoft SDKs/MPI/Lib/${ARCH}/msmpi.lib" CACHE PATH "path to mpi library" )
@@ -76,15 +76,15 @@ if ( MPI_ENABLE )
 	
 	message ( STATUS "The MPI_LIBRARIES is ${MPI_LIBRARIES}" )
 	
-	list ( APPEND prj_libraries ${MPI_LIBRARIES} )
-	list ( APPEND prj_include_dirs ${MPI_INCLUDE_DIRS} )
+	list ( APPEND PRJ_LIBRARIES ${MPI_LIBRARIES} )
+	list ( APPEND PRJ_INCLUDE_DIRS ${MPI_INCLUDE_DIRS} )
 endif()
 
 #METIS library settings
 option ( METIS_ENABLE "ON for using METIS partitioning library" ON )
 
 if ( METIS_ENABLE )
-	list ( APPEND prj_compile_def ENABLE_METIS )
+	list ( APPEND PRJ_COMPILE_DEF ENABLE_METIS )
     
     if ( ${CMAKE_SYSTEM_NAME} MATCHES "Windows")
 		set ( METIS_INCLUDE_DIRS "C:/METIS/include"  CACHE PATH "path to METIS headers" )
@@ -94,15 +94,15 @@ if ( METIS_ENABLE )
 		set ( METIS_LIBRARIES $ENV{METIS_HOME_LIB} )
     endif()
 
-	list ( APPEND prj_libraries ${METIS_LIBRARIES} )
-	list ( APPEND prj_include_dirs ${METIS_INCLUDE_DIRS} )
+	list ( APPEND PRJ_LIBRARIES ${METIS_LIBRARIES} )
+	list ( APPEND PRJ_INCLUDE_DIRS ${METIS_INCLUDE_DIRS} )
 endif()
 
 #CGNS library settings
 option ( CGNS_ENABLE "ON for using CGNS library" ON )
 
 if ( CGNS_ENABLE )
-	list ( APPEND prj_compile_def ENABLE_CGNS )
+	list ( APPEND PRJ_COMPILE_DEF ENABLE_CGNS )
     if ( ${CMAKE_SYSTEM_NAME} MATCHES "Windows" )
 		set ( CGNS_INCLUDE_DIRS "C:/cgns/include" CACHE PATH "path to CGNS headers" )
 		set ( CGNS_LIBRARIES "C:/cgns/lib/cgnsdll.lib" CACHE PATH "path to CGNS library" )
@@ -112,32 +112,32 @@ if ( CGNS_ENABLE )
     endif()
 	message(STATUS "The CGNS_INCLUDE_DIRS is ${CGNS_INCLUDE_DIRS}")
 	
-	list ( APPEND prj_libraries ${CGNS_LIBRARIES} )
-	list ( APPEND prj_include_dirs ${CGNS_INCLUDE_DIRS} )
+	list ( APPEND PRJ_LIBRARIES ${CGNS_LIBRARIES} )
+	list ( APPEND PRJ_INCLUDE_DIRS ${CGNS_INCLUDE_DIRS} )
 endif()
 
 set ( JsonPrjDir "${PRJ_ROOT_DIR}/${THIRD_PARTY_DIR}/jsoncpp" )
 set ( JsonHeaderDir ${JsonPrjDir} )
 
-list ( APPEND prj_include_dirs ${JsonHeaderDir} )
+list ( APPEND PRJ_INCLUDE_DIRS ${JsonHeaderDir} )
 set ( JsonSRC "${JsonPrjDir}/jsoncpp.cpp" ) 
 
 ConstructSolutionDirTree( ${CMAKE_CURRENT_SOURCE_DIR} my_head_list my_src_list local_include_dirs )
-list ( APPEND prj_include_dirs ${local_include_dirs} )
+list ( APPEND PRJ_INCLUDE_DIRS ${local_include_dirs} )
 
 list ( APPEND my_src_list ${JsonSRC} ) 
 
 if ( BIT64_FLAG )
-    list( APPEND prj_compile_def X64 )
+    list( APPEND PRJ_COMPILE_DEF X64 )
 endif( BIT64_FLAG )
 
 if( WIN32 )
-    list( APPEND prj_compile_def HX_PARALLEL )
-	list( APPEND prj_compile_def HX_CGNS )
-	list( APPEND prj_compile_def USE_DLL )
+    list( APPEND PRJ_COMPILE_DEF HX_PARALLEL )
+	list( APPEND PRJ_COMPILE_DEF HX_CGNS )
+	list( APPEND PRJ_COMPILE_DEF USE_DLL )
 else()
-    list( APPEND prj_compile_def HX_PARALLEL )
-	list( APPEND prj_compile_def HX_CGNS )
+    list( APPEND PRJ_COMPILE_DEF HX_PARALLEL )
+	list( APPEND PRJ_COMPILE_DEF HX_CGNS )
 endif()
 
 #. set executable name:
@@ -149,30 +149,30 @@ add_executable ( ${PROJECT_NAME} ${my_src_list} ${my_head_list} )
 
 target_include_directories ( ${PROJECT_NAME}
 	PRIVATE 
-        ${prj_include_dirs}
+        ${PRJ_INCLUDE_DIRS}
 )
 
 target_link_libraries ( ${PROJECT_NAME} 
     PRIVATE 
-        ${prj_libraries}
+        ${PRJ_LIBRARIES}
 )
 
 target_compile_features ( ${PROJECT_NAME} 
 	PUBLIC 
-		${prj_compile_features}
+		${PRJ_COMPILE_FEATURES}
 )
 
 target_compile_definitions ( ${PROJECT_NAME}
 	PRIVATE
-	   ${prj_compile_def} 
+	   ${PRJ_COMPILE_DEF} 
 )
 
-list ( LENGTH prj_property_name len )
+list ( LENGTH PRJ_PROPERTY_NAME len )
 math ( EXPR my_len "${len} - 1")
 
 foreach ( val RANGE ${my_len} )
-	list ( GET prj_property_name  ${val} name )
-	list ( GET prj_property_value ${val} value )
+	list ( GET PRJ_PROPERTY_NAME  ${val} name )
+	list ( GET PRJ_PROPERTY_VALUE ${val} value )
 	set_target_properties ( ${PROJECT_NAME}
 		PROPERTIES
 			${name} ${value}
