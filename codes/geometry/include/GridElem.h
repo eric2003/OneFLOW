@@ -23,11 +23,13 @@ License
 
 #pragma once
 #include "HXDefine.h"
+#include "GridDef.h"
 
 BeginNameSpace( ONEFLOW )
 
 class PointFactory;
 class CgnsZone;
+class CgnsZbase;
 class ElemFeature;
 class FaceSolver;
 class Grid;
@@ -51,7 +53,7 @@ public:
     Real minLen, maxLen;
 public:
     CgnsZone * GetCgnsZone( int iZone );
-    int GetNZone();
+    int GetNZones();
 public:
     void CreateGrid( HXVector< CgnsZone * > cgnsZones, int iZone );
     void PrepareUnsCalcGrid();
@@ -67,14 +69,22 @@ public:
 class ZgridElem
 {
 public:
-    ZgridElem();
+    ZgridElem( CgnsZbase * cgnsZbase );
     ~ZgridElem();
 public:
     HXVector< GridElem * > data;
+    CgnsZbase * cgnsZbase;
+    Grids grids;
 public:
     GridElem * GetGridElem( int iGridElem );
     void AddGridElem( GridElem * gridElem );
     void AddGridElem( HXVector< CgnsZone * > cgnsZones, int iZone );
+public:
+    void GenerateLocalOneFlowGrid( Grids & grids );
+    void AllocateGridElem();
+    void PrepareUnsCalcGrid();
+    void GenerateCalcGrid();
+    void GetGrids( Grids & grids );
 };
 
 EndNameSpace

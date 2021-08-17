@@ -125,6 +125,25 @@ void ScalarField::Visual()
     ToTecplot( theory, "theory.plt" );
 }
 
+void ScalarField::AddVisualData( RealList & qList, RealList & theoryList, RealList & xcoorList )
+{
+    int nCells = grid->GetNCells();
+
+    Real time = para->dt * para->nt;
+    Real xs = para->c * time;
+
+    RealList theory;
+    Theory( time, theory );
+
+    for ( int iCell = 0; iCell < nCells; ++ iCell )
+    {
+        Real xm = grid->xcc[ iCell ];
+        qList.AddData( q[ iCell ] );
+        theoryList.AddData( theory[ iCell ] );
+        xcoorList.AddData( xm );
+    }
+}
+
 void ScalarField::Theory( Real time, RealList & theory )
 {
     int nCells = grid->GetNCells();
@@ -215,6 +234,11 @@ void ScalarField::CalcInvFlux()
         Real area = grid->area[ iFace ];
         invflux[ iFace ] = fM * area;
     }
+}
+
+void ScalarField::SetParaPointer( FieldPara * para )
+{
+    this->para = para;
 }
 
 void ScalarField::Boundary()

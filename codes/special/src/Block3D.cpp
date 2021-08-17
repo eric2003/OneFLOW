@@ -178,8 +178,8 @@ void Block3D::GetCornerPoint( int & pt, int id1, int id2, int id3 )
 
 void Block3D::SetInterfaceBc()
 {
-    int nFace = this->facelist.size();
-    for ( int iFace = 0; iFace < nFace; ++ iFace )
+    int nFaces = this->facelist.size();
+    for ( int iFace = 0; iFace < nFaces; ++ iFace )
     {
         Face2D * face2d = this->facelist[ iFace ];
         int domain_id = face2d->face_id;
@@ -438,7 +438,7 @@ void Block3D::FillStrGrid( Grid * gridIn, int iZone )
     grid->nj = nj;
     grid->nk = nk;
     grid->SetBasicDimension();
-    grid->nodeMesh->CreateNodes( grid->nNode );
+    grid->nodeMesh->CreateNodes( grid->nNodes );
 
     grid->SetLayout();
 

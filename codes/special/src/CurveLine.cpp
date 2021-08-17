@@ -78,12 +78,12 @@ CurveLine::~CurveLine()
     ;
 }
 
-void CurveLine::Alloc( int nNode )
+void CurveLine::Alloc( int nNodes )
 {
-    this->nNode = nNode;
-    this->x.resize( nNode );
-    this->y.resize( nNode );
-    this->z.resize( nNode );
+    this->nNodes = nNodes;
+    this->x.resize( nNodes );
+    this->y.resize( nNodes );
+    this->z.resize( nNodes );
 }
 
 void CurveLine::MakeLine( PointType & p1, PointType & p2 )

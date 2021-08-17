@@ -28,8 +28,18 @@ License
 using namespace std;
 
 BeginNameSpace( ONEFLOW )
+
 template < typename T >
-inline T SUM( HXVector< T > & a )
+T SUM( vector< T > & a );
+
+template < typename T >
+T MaxField( vector< T > & field );
+
+template < typename T >
+T MinField( vector< T > & field );
+
+template < typename T >
+inline T SUM( vector< T > & a )
 {
     T sum = 0;
     int nElements = a.size();
@@ -41,7 +51,7 @@ inline T SUM( HXVector< T > & a )
 }
 
 template < typename T >
-inline T MaxField( HXVector< T > & field )
+inline T MaxField( vector< T > & field )
 {
     T maxValue = field[ 0 ];
 
@@ -54,7 +64,7 @@ inline T MaxField( HXVector< T > & field )
 }
 
 template < typename T >
-inline T MinField( HXVector< T > & field )
+inline T MinField( vector< T > & field )
 {
     T minValue = field[ 0 ];
 

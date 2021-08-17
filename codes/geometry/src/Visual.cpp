@@ -75,7 +75,7 @@ void Visual::DumpTitle( fstream & file, Mesh * mesh )
     }
 
     UInt totalNumFaceNodes = mesh->faceMesh->CalcTotalFaceNodes();
-    UInt nFace = mesh->faceMesh->GetNFace();
+    UInt nFaces = mesh->faceMesh->GetNFace();
     UInt numberOfNodes = mesh->nodeMesh->GetNumberOfNodes();
     UInt numberOfCells = mesh->cellMesh->GetNumberOfCells();
 
@@ -85,7 +85,7 @@ void Visual::DumpTitle( fstream & file, Mesh * mesh )
     file << "ZoneType = FEPolygon\n";
 
     file << "Nodes    = " << numberOfNodes << endl;
-    file << "Faces    = " << nFace << endl;
+    file << "Faces    = " << nFaces << endl;
     file << "Elements = " << numberOfCells << endl;
     file << "TotalNumFaceNodes = " << totalNumFaceNodes << endl;
     file << "NumConnectedBoundaryFaces = 0\n";
@@ -114,13 +114,13 @@ void Visual::DumpCoordinate( fstream & file, RealField & coordinate )
 void Visual::DumpFaceNodesLink( fstream & file, Mesh * mesh )
 {
     UInt nodeCount = 0;
-    UInt nFace = mesh->faceMesh->GetNFace();
-    for ( UInt iFace = 0; iFace < nFace; ++ iFace )
+    UInt nFaces = mesh->faceMesh->GetNFace();
+    for ( UInt iFace = 0; iFace < nFaces; ++ iFace )
     {
-        int numberOfNodesOnFace = mesh->faceMesh->faceTopo->f2n[ iFace ].size();
+        int numberOfNodesOnFace = mesh->faceMesh->faceTopo->faces[ iFace ].size();
         for ( int iNodeOfFace = 0; iNodeOfFace < numberOfNodesOnFace; ++ iNodeOfFace )
         {
-            file << mesh->faceMesh->faceTopo->f2n[ iFace ][ iNodeOfFace ] + 1 << " ";
+            file << mesh->faceMesh->faceTopo->faces[ iFace ][ iNodeOfFace ] + 1 << " ";
             if ( ( nodeCount + 1 ) % Visual::numberOfWords == 0 ) file << endl;
             nodeCount ++;
         }
@@ -130,16 +130,16 @@ void Visual::DumpFaceNodesLink( fstream & file, Mesh * mesh )
 
 void Visual::DumpFaceElementLink( fstream & file, Mesh * mesh )
 {
-    UInt nFace = mesh->faceMesh->GetNFace();
+    UInt nFaces = mesh->faceMesh->GetNFace();
     UInt numberOfCells = mesh->cellMesh->GetNumberOfCells();
 
-    Visual::DumpFaceElementLink( file, nFace, numberOfCells, mesh->faceMesh->faceTopo->lCell );
-    Visual::DumpFaceElementLink( file, nFace, numberOfCells, mesh->faceMesh->faceTopo->rCell );
+    Visual::DumpFaceElementLink( file, nFaces, numberOfCells, mesh->faceMesh->faceTopo->lCells );
+    Visual::DumpFaceElementLink( file, nFaces, numberOfCells, mesh->faceMesh->faceTopo->rCells );
 }
 
-void Visual::DumpFaceElementLink( fstream & file, UInt nFace, UInt numberOfElements, IntField & faceElementIndex )
+void Visual::DumpFaceElementLink( fstream & file, UInt nFaces, UInt numberOfElements, IntField & faceElementIndex )
 {
-    for ( UInt iFace = 0; iFace < nFace; ++ iFace )
+    for ( UInt iFace = 0; iFace < nFaces; ++ iFace )
     {
         int elementIndex = faceElementIndex[ iFace ] + 1;
         if ( elementIndex > numberOfElements || elementIndex < 0 ) elementIndex = 0;
@@ -147,7 +147,7 @@ void Visual::DumpFaceElementLink( fstream & file, UInt nFace, UInt numberOfEleme
         file << elementIndex << " ";
         if ( ( iFace + 1 ) % Visual::numberOfWords == 0 ) file << endl;
     }
-    if ( nFace % Visual::numberOfWords != 0 ) file << endl;
+    if ( nFaces % Visual::numberOfWords != 0 ) file << endl;
 }
 
 EndNameSpace

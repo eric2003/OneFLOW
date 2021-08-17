@@ -21,6 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 #include "SimpleSimu.h"
 #include "Scalar.h"
+#include "FieldSolver.h"
 #include <iostream>
 using namespace std;
 
@@ -29,9 +30,9 @@ BeginNameSpace( ONEFLOW )
 void ToyModelSimu()
 {
     cout << "ToyModelSimu\n";
-    Scalar * scalar = new Scalar();
-    scalar->Run();
-    delete scalar;
+    FieldSolver * fieldSolver = new FieldSolver();
+    fieldSolver->Run();
+    delete fieldSolver;
 }
 
 

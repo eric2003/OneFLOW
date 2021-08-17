@@ -39,19 +39,19 @@ BlkElem::~BlkElem()
 void BlkElem::Init( int eType )
 {
     this->eType = eType;
-    int nNode = 4;
+    int nNodes = 4;
     if ( eType == ONEFLOW::QUAD_4 )
     {
-        nNode = 4;
+        nNodes = 4;
     }
     else if ( eType == ONEFLOW::HEXA_8 )
     {
-        nNode = 8;
+        nNodes = 8;
     }
 
-    nodeId.resize( nNode );
+    nodeId.resize( nNodes );
 
-    for ( int iNode = 0; iNode < nNode; ++ iNode )
+    for ( int iNode = 0; iNode < nNodes; ++ iNode )
     {
         nodeId[ iNode ] = iNode;
     }

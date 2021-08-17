@@ -22,7 +22,6 @@ License
 
 #include "Prj.h"
 #include "OStream.h"
-#include "FileUtil.h"
 #include "LogFile.h"
 #include "SimuCtrl.h"
 #include <iostream>

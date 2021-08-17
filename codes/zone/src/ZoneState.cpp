@@ -31,6 +31,7 @@ int ZoneState::nZones = 0;
 int ZoneState::zid = 0;
 int ZoneState::szid = 0;
 int ZoneState::rzid = 0;
+int ZoneState::inei = 0;
 
 IntField ZoneState::pid;
 IntField ZoneState::zoneType;

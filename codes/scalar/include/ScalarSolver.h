@@ -32,11 +32,11 @@ const int SCALAR_INTERFACE   = -1;
 const int SCALAR_COMPUTE     = 1;
 const int SCALAR_EXTRAPOLATE = 2;
 
-class ScalarZone
+class ScalarZoneTmp
 {
 public:
-    ScalarZone();
-    ~ScalarZone();
+    ScalarZoneTmp();
+    ~ScalarZoneTmp();
 public:
     void Init( int ist, int ied );
     void InitField( vector< double > & uGlobal );
@@ -50,7 +50,7 @@ public:
 public:
     int zoneid;
     int ist, ied;
-    int nNode;
+    int nNodes;
     vector< double > u;
     vector< double > un;
     vector< double > x;
@@ -60,7 +60,7 @@ public:
 };
 
 class ScalarPara;
-class ScalarZone;
+class ScalarZoneTmp;
 class ScalarGrid;
 
 class ScalarSolver
@@ -73,7 +73,7 @@ public:
     void RunTest( ScalarPara * para );
     void Init();
     void Solve();
-    void SolvePart( ScalarZone * scalarZone );
+    void SolvePart( ScalarZoneTmp * scalarZone );
     void SolveFlowField();
     void Boundary();
     void InitCtrlParameter();
@@ -109,7 +109,7 @@ public:
     vector< double > u;
     vector< double > un;
     vector< double > x;
-    vector< ScalarZone * > scalarZones;
+    vector< ScalarZoneTmp * > scalarZones;
     ScalarGrid * scalarGrid;
 public:
     vector< double > du, dua;

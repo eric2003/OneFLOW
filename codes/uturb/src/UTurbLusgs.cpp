@@ -93,7 +93,7 @@ void UTurbLusgs::LowerSweep()
 
     //ReadTmp();
     
-    for ( int cId = 0; cId < ug.nCell; ++ cId )
+    for ( int cId = 0; cId < ug.nCells; ++ cId )
     {
         ug.cId = cId;
 
@@ -126,7 +126,7 @@ void UTurbLusgs::UpperSweep()
     //this->LusgsBoundary();
     //DownloadInterfaceValue( grid, dqField, "dqField",  numberOfTotalEquations );
     
-    for ( int cId = ug.nCell - 1; cId >= 0; -- cId )
+    for ( int cId = ug.nCells - 1; cId >= 0; -- cId )
     {
         ug.cId = cId;
         gcom.blank = ( * ug.blankf )[ ug.cId ];

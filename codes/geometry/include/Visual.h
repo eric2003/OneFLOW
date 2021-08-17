@@ -49,7 +49,7 @@ public:
     static void DumpCoordinate( fstream & file, RealField & coordinate );
     static void DumpFaceNodesLink( fstream & file, Mesh * mesh );
     static void DumpFaceElementLink( fstream & file, Mesh * mesh );
-    static void DumpFaceElementLink( fstream & file, UInt nFace, UInt numberOfElements, IntField & faceElementIndex );
+    static void DumpFaceElementLink( fstream & file, UInt nFaces, UInt numberOfElements, IntField & faceElementIndex );
 };
 
 

@@ -91,14 +91,14 @@ void PrepareCgnsZoneSub( Grids & grids, CgnsZone * cgnsZone )
 {
     NodeMesh * nodeMesh = cgnsZone->cgnsCoor->GetNodeMesh();
 
-    int nNode, nCell;
+    int nNodes, nCells;
 
     HXVector< Int3D * > unsIdList;
 
-    MergeToSingleZone( grids, unsIdList, nodeMesh, nNode, nCell );
+    MergeToSingleZone( grids, unsIdList, nodeMesh, nNodes, nCells );
 
-    cgnsZone->cgnsCoor->SetNNode( nNode );
-    cgnsZone->cgnsCoor->SetNCell( nCell );
+    cgnsZone->cgnsCoor->SetNNode( nNodes );
+    cgnsZone->cgnsCoor->SetNCell( nCells );
 
     FillSection( grids, unsIdList, cgnsZone );
 
@@ -107,7 +107,7 @@ void PrepareCgnsZoneSub( Grids & grids, CgnsZone * cgnsZone )
     ONEFLOW::DeletePointer( unsIdList );
 }
 
-void MergeToSingleZone( Grids & grids, HXVector< Int3D * > & unsIdList, NodeMesh * nodeMesh, int & nNode, int & nCell )
+void MergeToSingleZone( Grids & grids, HXVector< Int3D * > & unsIdList, NodeMesh * nodeMesh, int & nNodes, int & nCells )
 {
     PointSearch * point_search = new PointSearch();
     point_search->Initialize( grids );
@@ -115,27 +115,27 @@ void MergeToSingleZone( Grids & grids, HXVector< Int3D * > & unsIdList, NodeMesh
     size_t nZone = grids.size();
 
     unsIdList.resize( nZone );
-    nCell = 0;
+    nCells = 0;
     for ( int iZone = 0; iZone < nZone; ++ iZone )
     {
         StrGrid * grid = ONEFLOW::StrGridCast( grids[ iZone ] );
         int ni = grid->ni;
         int nj = grid->nj;
         int nk = grid->nk;
-        nCell += grid->nCell;
+        nCells += grid->nCells;
         unsIdList[ iZone ] = new Int3D( Range( 1, ni ), Range( 1, nj ), Range( 1, nk ) );
         Int3D & unsId = * unsIdList[ iZone ];
         cout << " block = " << iZone + 1 << "\n";
         CalcUnsId( grid, point_search, & unsId );
     }
 
-    nNode = point_search->GetNPoint();
+    nNodes = point_search->GetNPoint();
 
-    cout << " First nNode = " << nNode << "\n";
-    nodeMesh->xN.resize( nNode );
-    nodeMesh->yN.resize( nNode );
-    nodeMesh->zN.resize( nNode );
-    for ( int i = 0; i < nNode; ++ i )
+    cout << " First nNodes = " << nNodes << "\n";
+    nodeMesh->xN.resize( nNodes );
+    nodeMesh->yN.resize( nNodes );
+    nodeMesh->zN.resize( nNodes );
+    for ( int i = 0; i < nNodes; ++ i )
     {
         Real xm, ym, zm;
         point_search->GetPoint( i, xm, ym, zm );
@@ -152,7 +152,7 @@ void FillSection( Grids & grids, HXVector< Int3D * > & unsIdList, CgnsZone * cgn
     int nTBcRegion = 0;
 
     int nTCell = 0;
-    int nBFace = 0;
+    int nBFaces = 0;
 
     for ( int iZone = 0; iZone < grids.size(); ++ iZone )
     {
@@ -169,12 +169,12 @@ void FillSection( Grids & grids, HXVector< Int3D * > & unsIdList, CgnsZone * cgn
             BcRegion * bcRegion = ( * bcRegionGroup->regions )[ ir ];
             if ( BC::IsNotNormalBc( bcRegion->bcType ) ) continue;
             
-            nBFace += bcRegion->CalcRegionCells();
+            nBFaces += bcRegion->CalcRegionCells();
             nTBcRegion ++;
         }
     }
 
-    cout << " nBFace = " << nBFace << "\n";
+    cout << " nBFaces = " << nBFaces << "\n";
 
     cgnsZone->cgnsCoor->SetNCell( nTCell );
 
@@ -185,7 +185,7 @@ void FillSection( Grids & grids, HXVector< Int3D * > & unsIdList, CgnsZone * cgn
     cgnsZone->cgnsZsection->cgnsSections[ 0 ]->endId   = nTCell;
 
     cgnsZone->cgnsZsection->cgnsSections[ 1 ]->startId = nTCell + 1;
-    cgnsZone->cgnsZsection->cgnsSections[ 1 ]->endId   = nTCell + 1 + nBFace;
+    cgnsZone->cgnsZsection->cgnsSections[ 1 ]->endId   = nTCell + 1 + nBFaces;
 
     if ( Dim::dimension == ONEFLOW::THREE_D )
     {

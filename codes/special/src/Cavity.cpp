@@ -79,7 +79,7 @@ void Cavity::Run()
     grid->nj = nj;
     grid->nk = nk;
     grid->SetBasicDimension();
-    grid->nodeMesh->CreateNodes( grid->nNode );
+    grid->nodeMesh->CreateNodes( grid->nNodes );
     grid->SetLayout();
 
     Real xl = 0.0;

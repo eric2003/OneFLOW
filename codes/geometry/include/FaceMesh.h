@@ -47,7 +47,7 @@ public:
     UInt GetNFace();
     UInt CalcTotalFaceNodes();
     UInt GetNBFace();
-    void SetNBFace( UInt nBFace );
+    void SetNBFace( UInt nBFaces );
     void CalcFaceNormal1D( NodeMesh * nodeMesh, CellMesh * cellMesh );
     void CalcFaceCenter1D( NodeMesh * nodeMesh );
     void CalcFaceNormal2D( NodeMesh * nodeMesh );

@@ -323,10 +323,10 @@ void SimpleMesh2D::CalcX2Y2ArrayNoLoop( RealField & x1Array, RealField & y1Array
         y2Array[ iNode ] = y;
     }
 
-    int nNode = numberOfNodes - 1;
+    int nNodes = numberOfNodes - 1;
 
-    x2Array[ nNode ] = 2 * x2Array[ nNode - 1 ] - x2Array[ nNode - 2 ];
-    y2Array[ nNode ] = 2 * y2Array[ nNode - 1 ] - y2Array[ nNode - 2 ];
+    x2Array[ nNodes ] = 2 * x2Array[ nNodes - 1 ] - x2Array[ nNodes - 2 ];
+    y2Array[ nNodes ] = 2 * y2Array[ nNodes - 1 ] - y2Array[ nNodes - 2 ];
 }
 
 void SimpleMesh2D::PushCircleNode( RealField & xArray, RealField & yArray, IntField & nodeArray )
@@ -385,9 +385,9 @@ void Mesh::ConstructTopology()
 
     for ( UInt iCell = 0; iCell < numberOfCells; ++ iCell )
     {
-        IntField & element = cellTopo->cellToNode[ iCell ];
+        IntField & element = cellTopo->elements[ iCell ];
 
-        int elementType = cellTopo->cellType[ iCell ];
+        int elementType = cellTopo->eTypes[ iCell ];
 
         UnitElement * unitElement = ONEFLOW::ElementHome::GetUnitElement( elementType );
         int numberOfFaceInElement = unitElement->GetElementFaceNumber();
@@ -414,23 +414,23 @@ void Mesh::ConstructTopology()
                 faceSet.insert( faceForSorting );
                 int faceIndex = faceForSorting.index;
                 int newSize = faceIndex + 1;
-                faceTopo->lCell.resize( newSize );
-                faceTopo->rCell.resize( newSize );
+                faceTopo->lCells.resize( newSize );
+                faceTopo->rCells.resize( newSize );
                 faceTopo->lPosition.resize( newSize );
                 faceTopo->rPosition.resize( newSize );
-                faceTopo->faceType.resize( newSize );
+                faceTopo->fTypes.resize( newSize );
 
-                faceTopo->faceType[ faceIndex ] = faceType;
-                faceTopo->lCell[ faceIndex ] = iCell;
-                faceTopo->rCell[ faceIndex ] = ONEFLOW::INVALID_INDEX;
+                faceTopo->fTypes[ faceIndex ] = faceType;
+                faceTopo->lCells[ faceIndex ] = iCell;
+                faceTopo->rCells[ faceIndex ] = ONEFLOW::INVALID_INDEX;
                 faceTopo->lPosition[ faceIndex ] = iLocalFace;
                 faceTopo->rPosition[ faceIndex ] = ONEFLOW::INVALID_INDEX;
-                faceTopo->f2n.push_back( faceNodeIndexArray );
+                faceTopo->faces.push_back( faceNodeIndexArray );
             }
             else
             {
                 int faceIndex = iter->index;
-                faceTopo->rCell[ faceIndex ] = iCell;
+                faceTopo->rCells[ faceIndex ] = iCell;
                 faceTopo->rPosition[ faceIndex ] = iLocalFace;
             }
         }
@@ -441,18 +441,18 @@ void Mesh::ConstructTopology()
 
 void Mesh::SwapBoundary()
 {
-    UInt nFace = this->faceMesh->GetNFace();
+    UInt nFaces = this->faceMesh->GetNFace();
 
-    IntField orderMapping( nFace );
+    IntField orderMapping( nFaces );
 
     CellTopo * cellTopo = this->cellMesh->cellTopo;
     FaceTopo * faceTopo = this->faceMesh->faceTopo;
 
     int iBoundaryFaceCount = 0;
     int iCount = 0;
-    for ( int iFace = 0; iFace < nFace; ++ iFace )
+    for ( int iFace = 0; iFace < nFaces; ++ iFace )
     {
-        int rc = faceTopo->rCell[ iFace ];
+        int rc = faceTopo->rCells[ iFace ];
         if ( rc == ONEFLOW::INVALID_INDEX )
         {
             orderMapping[ iCount ++ ] = iFace;
@@ -460,58 +460,58 @@ void Mesh::SwapBoundary()
         }
     }
 
-    int nBFace = iBoundaryFaceCount;
-    this->faceMesh->SetNBFace( nBFace );
+    int nBFaces = iBoundaryFaceCount;
+    this->faceMesh->SetNBFace( nBFaces );
 
-    for ( int iFace = 0; iFace < nFace; ++ iFace )
+    for ( int iFace = 0; iFace < nFaces; ++ iFace )
     {
-        int rc = faceTopo->rCell[ iFace ];
+        int rc = faceTopo->rCells[ iFace ];
         if ( rc != ONEFLOW::INVALID_INDEX )
         {
             orderMapping[ iCount ++ ] = iFace;
         }
     }
 
-    IntField lCellIndexSwap = faceTopo->lCell;
-    IntField rCellIndexSwap = faceTopo->rCell;
+    IntField lCellIndexSwap = faceTopo->lCells;
+    IntField rCellIndexSwap = faceTopo->rCells;
 
-    for ( int iFace = 0; iFace < nFace; ++ iFace )
+    for ( int iFace = 0; iFace < nFaces; ++ iFace )
     {
         int oldFaceIndex = orderMapping[ iFace ];
-        faceTopo->lCell[ iFace ] = lCellIndexSwap[ oldFaceIndex ];
-        faceTopo->rCell[ iFace ] = rCellIndexSwap[ oldFaceIndex ];
+        faceTopo->lCells[ iFace ] = lCellIndexSwap[ oldFaceIndex ];
+        faceTopo->rCells[ iFace ] = rCellIndexSwap[ oldFaceIndex ];
     }
 
     UInt numberOfCells = this->cellMesh->GetNumberOfCells();
 
-    for ( int iFace = 0; iFace < nBFace; ++ iFace )
+    for ( int iFace = 0; iFace < nBFaces; ++ iFace )
     {
-        faceTopo->rCell[ iFace ] = iFace + numberOfCells;
+        faceTopo->rCells[ iFace ] = iFace + numberOfCells;
     }
 
     IntField lPositionSwap = faceTopo->lPosition;
     IntField rPositionSwap = faceTopo->rPosition;
 
-    for ( int iFace = 0; iFace < nFace; ++ iFace )
+    for ( int iFace = 0; iFace < nFaces; ++ iFace )
     {
         int oldFaceIndex = orderMapping[ iFace ];
         faceTopo->lPosition[ iFace ] = lPositionSwap[ oldFaceIndex ];
         faceTopo->rPosition[ iFace ] = rPositionSwap[ oldFaceIndex ];
     }
 
-    LinkField faceToNodeSwap = faceTopo->f2n;
+    LinkField faceToNodeSwap = faceTopo->faces;
 
-    for ( int iFace = 0; iFace < nFace; ++ iFace )
+    for ( int iFace = 0; iFace < nFaces; ++ iFace )
     {
         int oldFaceIndex = orderMapping[ iFace ];
-        faceTopo->f2n[ iFace ] = faceToNodeSwap[ oldFaceIndex ];
+        faceTopo->faces[ iFace ] = faceToNodeSwap[ oldFaceIndex ];
     }
 
-    IntField faceTypeSwap = faceTopo->faceType;
-    for ( int iFace = 0; iFace < nFace; ++ iFace )
+    IntField faceTypeSwap = faceTopo->fTypes;
+    for ( int iFace = 0; iFace < nFaces; ++ iFace )
     {
         int oldFaceIndex = orderMapping[ iFace ];
-        faceTopo->faceType[ iFace ] = faceTypeSwap[ oldFaceIndex ];
+        faceTopo->fTypes[ iFace ] = faceTypeSwap[ oldFaceIndex ];
     }
 }
 
@@ -583,8 +583,8 @@ void Mesh::CalcFaceNormal1D()
 
 void Mesh::CalcCellCenterVol1D()
 {
-    UInt nFace = this->faceMesh->GetNFace();
-    UInt nBFace = this->faceMesh->GetNBFace();
+    UInt nFaces = this->faceMesh->GetNFace();
+    UInt nBFaces = this->faceMesh->GetNBFace();
     UInt numberOfCells = this->cellMesh->GetNumberOfCells();
 
     RealField & xcc  = this->cellMesh->xcc ;
@@ -601,7 +601,7 @@ void Mesh::CalcCellCenterVol1D()
 
     for ( UInt iCell = 0; iCell < numberOfCells; ++ iCell )
     {
-        IntField & element = cellTopo->cellToNode[ iCell ];
+        IntField & element = cellTopo->elements[ iCell ];
         int p1 = element[ 0 ];
         int p2 = element[ 1 ];
         xcc[ iCell  ] = half * ( xN[ p1 ] + xN[ p2 ] );
@@ -616,8 +616,8 @@ void Mesh::CalcCellCenterVol1D()
 
 void Mesh::CalcGhostCellCenterVol1D()
 {
-    UInt nFace = this->faceMesh->GetNFace();
-    UInt nBFace = this->faceMesh->GetNBFace();
+    UInt nFaces = this->faceMesh->GetNFace();
+    UInt nBFaces = this->faceMesh->GetNBFace();
     UInt numberOfCells = this->cellMesh->GetNumberOfCells();
 
     RealField & xcc  = this->cellMesh->xcc ;
@@ -639,9 +639,9 @@ void Mesh::CalcGhostCellCenterVol1D()
     FaceTopo * faceTopo = this->faceMesh->faceTopo;
 
     // For ghost cells
-    for ( UInt iFace = 0; iFace < nBFace; ++ iFace )
+    for ( UInt iFace = 0; iFace < nBFaces; ++ iFace )
     {
-        int lc  = faceTopo->lCell[ iFace ];
+        int lc  = faceTopo->lCells[ iFace ];
         int rc = iFace + numberOfCells;
         if ( area[ iFace ] > SMALL )
         {
@@ -665,8 +665,8 @@ void Mesh::CalcGhostCellCenterVol1D()
 
 void Mesh::CalcCellCenterVol2D()
 {
-    UInt nFace = this->faceMesh->GetNFace();
-    UInt nBFace = this->faceMesh->GetNBFace();
+    UInt nFaces = this->faceMesh->GetNFace();
+    UInt nBFaces = this->faceMesh->GetNBFace();
     UInt numberOfCells = this->cellMesh->GetNumberOfCells();
 
     RealField & xcc  = this->cellMesh->xcc ;
@@ -692,9 +692,9 @@ void Mesh::CalcCellCenterVol2D()
     zcc  = 0;
     vol = 0;
 
-    for ( UInt iFace = 0; iFace < nBFace; ++ iFace )
+    for ( UInt iFace = 0; iFace < nBFaces; ++ iFace )
     {
-        int lc = faceTopo->lCell[ iFace ];
+        int lc = faceTopo->lCells[ iFace ];
         Real dot = ( xfc[ iFace ] * xfn[ iFace ] +
                      yfc[ iFace ] * yfn[ iFace ] +
                      zfc[ iFace ] * zfn[ iFace ] ) * area[ iFace ];
@@ -705,10 +705,10 @@ void Mesh::CalcCellCenterVol2D()
     }
 
     // For interior cell faces
-    for ( UInt iFace = nBFace; iFace < nFace; ++ iFace )
+    for ( UInt iFace = nBFaces; iFace < nFaces; ++ iFace )
     {
-        int lc = faceTopo->lCell[ iFace ];
-        int rc = faceTopo->rCell[ iFace ];
+        int lc = faceTopo->lCells[ iFace ];
+        int rc = faceTopo->rCells[ iFace ];
         Real dot = ( xfc[ iFace ] * xfn[ iFace ] +
                      yfc[ iFace ] * yfn[ iFace ] +
                      zfc[ iFace ] * zfn[ iFace ] ) * area[ iFace ];
@@ -752,9 +752,9 @@ void Mesh::CalcCellCenterVol2D()
     }
 
     // For ghost cells
-    for ( UInt iFace = 0; iFace < nBFace; ++ iFace )
+    for ( UInt iFace = 0; iFace < nBFaces; ++ iFace )
     {
-        int lc = faceTopo->lCell[ iFace ];
+        int lc = faceTopo->lCells[ iFace ];
         int rc = iFace + numberOfCells;
         if ( area[ iFace ] > SMALL )
         {
@@ -778,8 +778,8 @@ void Mesh::CalcCellCenterVol2D()
 
 void Mesh::CalcCellCenterVol3D()
 {
-    UInt nFace = this->faceMesh->GetNFace();
-    UInt nBFace = this->faceMesh->GetNBFace();
+    UInt nFaces = this->faceMesh->GetNFace();
+    UInt nBFaces = this->faceMesh->GetNBFace();
     UInt numberOfCells = this->cellMesh->GetNumberOfCells();
 
     RealField & xcc  = this->cellMesh->xcc ;
@@ -809,12 +809,12 @@ void Mesh::CalcCellCenterVol3D()
     zcc  = 0;
     vol = 0;
 
-    for ( UInt iFace = 0; iFace < nFace; ++ iFace )
+    for ( UInt iFace = 0; iFace < nFaces; ++ iFace )
     {
-        int lc = faceTopo->lCell[ iFace ];
-        int rc = faceTopo->rCell[ iFace ];
+        int lc = faceTopo->lCells[ iFace ];
+        int rc = faceTopo->rCells[ iFace ];
 
-        IntField & faceIndex = faceTopo->f2n[ iFace ];
+        IntField & faceIndex = faceTopo->faces[ iFace ];
 
         UInt faceNodeNumber = faceIndex.size();
         for ( UInt iNode = 0; iNode < faceNodeNumber; ++ iNode )
@@ -890,9 +890,9 @@ void Mesh::CalcCellCenterVol3D()
     if ( cell ) cout << cell << " cells have negative vols \n";
 
     // For ghost cells
-    for ( int iFace = 0; iFace < nBFace; ++ iFace )
+    for ( int iFace = 0; iFace < nBFaces; ++ iFace )
     {
-        int lc = faceTopo->lCell[ iFace ];
+        int lc = faceTopo->lCells[ iFace ];
         int rc = iFace + numberOfCells;
 
         if ( area[ iFace ] > SMALL )

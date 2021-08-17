@@ -70,6 +70,13 @@ public:
     void ReadArray();
     void GetArray( vector< vector< float > > & myfloat2d );
     void WriteTest();
+public:
+    int read_bcpnts_unst();
+    int write_bcpnts_unst();
+    int write_grid_unst();
+    int read_grid_unst();
+    void mytest_read();
+    void mytest_write();
 };
 
 

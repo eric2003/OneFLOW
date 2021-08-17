@@ -148,14 +148,14 @@ void Grad::StoreBcGrad()
 
     IntField & bcType = faceTopo->bcManager->bcRecord->bcType;
 
-    int nBFace = bcType.size();
+    int nBFaces = bcType.size();
 
-    for ( int iFace = 0; iFace < nBFace; ++ iFace )
+    for ( int iFace = 0; iFace < nBFaces; ++ iFace )
     {
         int bc_type = bcType[ iFace ];
 
-        int lc = faceTopo->lCell[ iFace ];
-        int rc = faceTopo->rCell[ iFace ];
+        int lc = faceTopo->lCells[ iFace ];
+        int rc = faceTopo->rCells[ iFace ];
 
         for ( int iEqu = 0; iEqu < nEqu; ++ iEqu )
         {

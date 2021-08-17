@@ -139,13 +139,13 @@ void UINsInvterm::INsPreflux()
 {
 	this->Initflux();
 
-	/*RealField *rf = new RealField(ug.nFace);
-	RealField *uf = new RealField(ug.nFace);
-	RealField *vf = new RealField(ug.nFace);
-	RealField *wf = new RealField(ug.nFace);
-	RealField *fq = new RealField(ug.nFace);*/
+	/*RealField *rf = new RealField(ug.nFaces);
+	RealField *uf = new RealField(ug.nFaces);
+	RealField *vf = new RealField(ug.nFaces);
+	RealField *wf = new RealField(ug.nFaces);
+	RealField *fq = new RealField(ug.nFaces);*/
 
-	for (int fId = ug.nBFace; fId < ug.nFace; ++fId)
+	for (int fId = ug.nBFaces; fId < ug.nFaces; ++fId)
 	{
 		ug.fId = fId;
 
@@ -158,7 +158,7 @@ void UINsInvterm::INsPreflux()
 
 	}
 
-	for (int fId = 0; fId < ug.nBFace; ++fId)
+	for (int fId = 0; fId < ug.nBFaces; ++fId)
 	{
 		ug.fId = fId;
 
@@ -179,18 +179,18 @@ void UINsInvterm::INsPreflux()
 }
 void UINsInvterm::Initflux()
 {
-	iinv.f1.resize(ug.nFace);
-	iinv.f2.resize(ug.nFace);
-	iinv.rf.resize(ug.nFace);
-	iinv.uf.resize(ug.nFace);
-	iinv.vf.resize(ug.nFace);
-	iinv.wf.resize(ug.nFace);
-	iinv.Vdvu.resize(ug.nFace);
-	iinv.Vdvv.resize(ug.nFace);
-	iinv.Vdvw.resize(ug.nFace);
-	iinv.aju.resize(ug.nFace);
-	iinv.ajv.resize(ug.nFace);
-	iinv.ajw.resize(ug.nFace);
+	iinv.f1.resize(ug.nFaces);
+	iinv.f2.resize(ug.nFaces);
+	iinv.rf.resize(ug.nFaces);
+	iinv.uf.resize(ug.nFaces);
+	iinv.vf.resize(ug.nFaces);
+	iinv.wf.resize(ug.nFaces);
+	iinv.Vdvu.resize(ug.nFaces);
+	iinv.Vdvv.resize(ug.nFaces);
+	iinv.Vdvw.resize(ug.nFaces);
+	iinv.aju.resize(ug.nFaces);
+	iinv.ajv.resize(ug.nFaces);
+	iinv.ajw.resize(ug.nFaces);
 	iinv.VdU.resize(ug.nTCell);
 	iinv.VdV.resize(ug.nTCell);
 	iinv.VdW.resize(ug.nTCell);
@@ -198,16 +198,16 @@ void UINsInvterm::Initflux()
 	iinv.bvc.resize(ug.nTCell);
 	iinv.bwc.resize(ug.nTCell);
 	iinv.bp.resize(ug.nTCell);
-	iinv.ajp.resize(ug.nFace);
+	iinv.ajp.resize(ug.nFaces);
 	iinv.sju.resize(ug.nTCell);
 	iinv.sjv.resize(ug.nTCell);
 	iinv.sjw.resize(ug.nTCell);
-	iinv.fq.resize(ug.nFace);
+	iinv.fq.resize(ug.nFaces);
 	iinv.spc.resize(ug.nTCell);
-	iinv.ai.resize(ug.nFace,2);
-	iinv.biu.resize(ug.nFace,2);
-	iinv.biv.resize(ug.nFace,2);
-	iinv.biw.resize(ug.nFace,2);
+	iinv.ai.resize(ug.nFaces,2);
+	iinv.biu.resize(ug.nFaces,2);
+	iinv.biv.resize(ug.nFaces,2);
+	iinv.biw.resize(ug.nFaces,2);
 	//iinv.sj.resize(ug.nTCell, 4);
 	//iinv.sd.resize(ug.nTCell, 4);
 	//iinv.sjp.resize(ug.nTCell, 4);
@@ -217,9 +217,9 @@ void UINsInvterm::Initflux()
 	iinv.uu.resize(ug.nTCell);
 	iinv.vv.resize(ug.nTCell);
 	iinv.ww.resize(ug.nTCell);
-	iinv.uuj.resize(ug.nFace);
-	iinv.vvj.resize(ug.nFace);
-	iinv.wwj.resize(ug.nFace);
+	iinv.uuj.resize(ug.nFaces);
+	iinv.vvj.resize(ug.nFaces);
+	iinv.wwj.resize(ug.nFaces);
 	iinv.muc.resize(ug.nTCell);
 	iinv.mvc.resize(ug.nTCell);
 	iinv.mwc.resize(ug.nTCell);
@@ -237,26 +237,26 @@ void UINsInvterm::Initflux()
 	iinv.dqqdx.resize(ug.nTCell);
 	iinv.dqqdy.resize(ug.nTCell);
 	iinv.dqqdz.resize(ug.nTCell);
-	iinv.Fn.resize(ug.nFace);
-	iinv.Fnu.resize(ug.nFace);
-	iinv.Fnv.resize(ug.nFace);
-	iinv.Fnw.resize(ug.nFace);
-	iinv.Fpu.resize(ug.nFace);
-	iinv.Fpv.resize(ug.nFace);
-	iinv.Fpw.resize(ug.nFace);
-	iinv.dsrl.resize(ug.nFace);
-	iinv.elrn.resize(ug.nFace);
-	//iinv.value.resize(ug.nFace);
-	iinv.mu.resize(ug.nCell);
-	iinv.mv.resize(ug.nCell);
-	iinv.mw.resize(ug.nCell);
-	iinv.mua.resize(ug.nCell);
-	iinv.mva.resize(ug.nCell);
-	iinv.mwa.resize(ug.nCell);
-	iinv.res_pp.resize(ug.nCell);
-	iinv.res_up.resize(ug.nCell);
-	iinv.res_vp.resize(ug.nCell);
-	iinv.res_wp.resize(ug.nCell);
+	iinv.Fn.resize(ug.nFaces);
+	iinv.Fnu.resize(ug.nFaces);
+	iinv.Fnv.resize(ug.nFaces);
+	iinv.Fnw.resize(ug.nFaces);
+	iinv.Fpu.resize(ug.nFaces);
+	iinv.Fpv.resize(ug.nFaces);
+	iinv.Fpw.resize(ug.nFaces);
+	iinv.dsrl.resize(ug.nFaces);
+	iinv.elrn.resize(ug.nFaces);
+	//iinv.value.resize(ug.nFaces);
+	iinv.mu.resize(ug.nCells);
+	iinv.mv.resize(ug.nCells);
+	iinv.mw.resize(ug.nCells);
+	iinv.mua.resize(ug.nCells);
+	iinv.mva.resize(ug.nCells);
+	iinv.mwa.resize(ug.nCells);
+	iinv.res_pp.resize(ug.nCells);
+	iinv.res_up.resize(ug.nCells);
+	iinv.res_vp.resize(ug.nCells);
+	iinv.res_wp.resize(ug.nCells);
 
 	iinv.ai1 = 0;
 	iinv.ai2 = 0;
@@ -300,7 +300,7 @@ void UINsInvterm::Initflux()
 void UINsInvterm::CalcInvMassFlux()
 {
 
-	for (int fId = 0; fId < ug.nFace; ++fId)
+	for (int fId = 0; fId < ug.nFaces; ++fId)
 	{
 		ug.fId = fId;
 
@@ -374,7 +374,7 @@ void UINsInvterm::MomPre()
 	iinv.mvc = 0;
 	iinv.mwc = 0;
 
-	for (int cId = 0; cId < ug.nCell; ++cId)
+	for (int cId = 0; cId < ug.nCells; ++cId)
 	{
 		ug.cId = cId;
 		int fn = (*ug.c2f)[ug.cId].size();
@@ -412,7 +412,7 @@ void UINsInvterm::MomPre()
 
 	}
 
-	for (int fId = 0; fId < ug.nBFace; ++fId)
+	for (int fId = 0; fId < ug.nBFaces; ++fId)
 	{
 		ug.fId = fId;
 
@@ -616,7 +616,7 @@ void UINsInvterm::MomPre()
 
 	//cout << "residual_w:" << residual_w << endl;
 
-	for (int fId = 0; fId < ug.nBFace; ++fId)
+	for (int fId = 0; fId < ug.nBFaces; ++fId)
 	{
 		ug.fId = fId;
 
@@ -801,7 +801,7 @@ void UINsInvterm::MomPre()
 
 	}
 
-/*for (int cId = 0; cId < ug.nCell; cId++)
+/*for (int cId = 0; cId < ug.nCells; cId++)
 {
 	ug.cId = cId;
 
@@ -811,7 +811,7 @@ void UINsInvterm::MomPre()
 
 }
 
-for (int fId = 0; fId < ug.nBFace; ++fId)
+for (int fId = 0; fId < ug.nBFaces; ++fId)
 {
 	ug.fId = fId;
 
@@ -871,7 +871,7 @@ void UINsInvterm::CalcFaceflux()
 	uinsf.Init();
 	//Alloc();
 	//this->CalcInvFace();  //Boundary treatment
-	for (int fId = ug.nBFace; fId < ug.nFace; ++fId)
+	for (int fId = ug.nBFaces; fId < ug.nFaces; ++fId)
 	{
 		ug.fId = fId;
 
@@ -888,7 +888,7 @@ void UINsInvterm::CalcFaceflux()
 		this->CalcINsFaceflux();
 	}
 
-	for (int fId = 0; fId < ug.nBFace; ++fId)
+	for (int fId = 0; fId < ug.nBFaces; ++fId)
 	{
 		ug.fId = fId;
 
@@ -993,7 +993,7 @@ void UINsInvterm::AddFlux()
 	UnsGrid* grid = Zone::GetUnsGrid();
 	MRField* res = GetFieldPointer< MRField >(grid, "res");
 	int nEqu = res->GetNEqu();
-	for (int fId = 0; fId < ug.nBFace; ++fId)
+	for (int fId = 0; fId < ug.nBFaces; ++fId)
 	{
 		ug.fId = fId;
 		ug.lc = (*ug.lcf)[ug.fId];
@@ -1006,7 +1006,7 @@ void UINsInvterm::AddFlux()
 		}
 	}
 
-	for (int fId = ug.nBFace; fId < ug.nFace; ++fId)
+	for (int fId = ug.nBFaces; fId < ug.nFaces; ++fId)
 	{
 		ug.fId = fId;
 		ug.lc = (*ug.lcf)[ug.fId];
@@ -1027,7 +1027,7 @@ void UINsInvterm::AddFlux()
 void UINsInvterm::CalcCorrectPresscoef()
 {
 	this->CalcNewMomCoe();
-	for (int fId = ug.nBFace; fId < ug.nFace; ++fId)
+	for (int fId = ug.nBFaces; fId < ug.nFaces; ++fId)
 	{
 		ug.fId = fId;
 
@@ -1042,7 +1042,7 @@ void UINsInvterm::CalcCorrectPresscoef()
 		this->CalcINsFaceCorrectPresscoef();
 	}
 
-	for (int fId = 0; fId < ug.nBFace; ++fId)
+	for (int fId = 0; fId < ug.nBFaces; ++fId)
 	{
 		ug.fId = fId;
 
@@ -1060,7 +1060,7 @@ void UINsInvterm::CalcCorrectPresscoef()
 	iinv.spp = 0;
 	iinv.bp = 0;
 
-	for (int fId = 0; fId < ug.nFace; ++fId)
+	for (int fId = 0; fId < ug.nFaces; ++fId)
 	{
 		ug.fId = fId;
 		ug.lc = (*ug.lcf)[ug.fId];
@@ -1072,7 +1072,7 @@ void UINsInvterm::CalcCorrectPresscoef()
 		iinv.bp[ug.lc] += -iinv.fq[ug.fId];
 		iinv.bp[ug.rc] += iinv.fq[ug.fId];
 
-		if (ug.fId < ug.nBFace)
+		if (ug.fId < ug.nBFaces)
 		{
 			//iinv.spp[ug.rc] = 0.001;
 			iinv.spp[ug.rc] = 1;
@@ -1185,7 +1185,7 @@ void UINsInvterm::CalcNewMomCoe()
 {
 	iinv.spc = 0;
 
-	for (int fId = 0; fId < ug.nFace; ++fId)
+	for (int fId = 0; fId < ug.nFaces; ++fId)
 	{
 		ug.fId = fId;
 		ug.lc = (*ug.lcf)[ug.fId];
@@ -1222,7 +1222,7 @@ void UINsInvterm::CalcPressCorrectEqu()
 	{
 		iinv.res_p = 0.0;
 
-		for (int cId = 0; cId < ug.nCell; ++cId)
+		for (int cId = 0; cId < ug.nCells; ++cId)
 		{
 			ug.cId = cId;
 
@@ -1232,7 +1232,7 @@ void UINsInvterm::CalcPressCorrectEqu()
 			{
 				int fId = (*ug.c2f)[ug.cId][iFace];
 				ug.fId = fId;
-				if (ug.fId < ug.nBFace) continue;
+				if (ug.fId < ug.nBFaces) continue;
 
 				ug.lc = (*ug.lcf)[ug.fId];
 				ug.rc = (*ug.rcf)[ug.fId];
@@ -1253,7 +1253,7 @@ void UINsInvterm::CalcPressCorrectEqu()
 
 	}
 
-	for (int fId = 0; fId < ug.nBFace; ++fId)
+	for (int fId = 0; fId < ug.nBFaces; ++fId)
 	{
 		ug.fId = fId;
 		ug.lc = (*ug.lcf)[ug.fId];
@@ -1264,13 +1264,13 @@ void UINsInvterm::CalcPressCorrectEqu()
 
 
 
-	for (int cId = 0; cId < ug.nCell; ++cId)
+	for (int cId = 0; cId < ug.nCells; ++cId)
 	{
 		ug.cId = cId;
 		(*uinsf.q)[IIDX::IIP][ug.cId] = (*uinsf.q)[IIDX::IIP][ug.cId] + 0.8*iinv.pp[ug.cId];
 	}
 
-	for (int fId = 0; fId < ug.nBFace; ++fId)
+	for (int fId = 0; fId < ug.nBFaces; ++fId)
 	{
 		ug.fId = fId;
 		ug.lc = (*ug.lcf)[ug.fId];
@@ -1338,7 +1338,7 @@ void UINsInvterm::CalcPressCorrectEqu()
 	//iinv.res_p = MAX(iinv.res_p, abs(iinv.ppd - iinv.pp[ug.cId]));
 
 	//boundary element
-	for (int fId = 0; fId < ug.nBFace; ++fId)
+	for (int fId = 0; fId < ug.nBFaces; ++fId)
 	{
 		ug.fId = fId;
 		ug.lc = (*ug.lcf)[ug.fId];
@@ -1347,14 +1347,14 @@ void UINsInvterm::CalcPressCorrectEqu()
 		iinv.pp[ug.rc] = iinv.pp[ug.lc];
 	}
 
-	for (int cId = 0; cId < ug.nCell; ++cId)
+	for (int cId = 0; cId < ug.nCells; ++cId)
 	{
 		ug.cId = cId;
 		(*uinsf.q)[IIDX::IIP][ug.cId] = (*uinsf.q)[IIDX::IIP][ug.cId] +0.8*iinv.pp[ug.cId];
 	}
 
 
-	for (int fId = 0; fId < ug.nBFace; ++fId)
+	for (int fId = 0; fId < ug.nBFaces; ++fId)
 	{
 		ug.fId = fId;
 		ug.lc = (*ug.lcf)[ug.fId];
@@ -1467,13 +1467,13 @@ void UINsInvterm::CalcPressCorrectEqu()
 
 	}
 
-	/*for (int cId = 0; cId < ug.nCell; ++cId)
+	/*for (int cId = 0; cId < ug.nCells; ++cId)
 	{
 		ug.cId = cId;
 		iinv.pp[ug.cId] = 0;
 	}
 
-	for (int fId = 0; fId < ug.nBFace; ++fId)
+	for (int fId = 0; fId < ug.nBFaces; ++fId)
 	{
 		ug.fId = fId;
 		ug.lc = (*ug.lcf)[ug.fId];
@@ -1482,7 +1482,7 @@ void UINsInvterm::CalcPressCorrectEqu()
 		iinv.pp[ug.rc] = iinv.pp[ug.lc];
 	}
 
-for (int cId = 0; cId < ug.nCell; ++cId)
+for (int cId = 0; cId < ug.nCells; ++cId)
 {
 	ug.cId = cId;
 	(*uinsf.q)[IIDX::IIP][ug.cId] = (*uinsf.q)[IIDX::IIP][ug.cId] + 0.8*iinv.pp[ug.cId];
@@ -1534,7 +1534,7 @@ void UINsInvterm::UpdateFaceflux()
 	uinsf.Init();
 	//Alloc();
 	//this->CalcInvFace();  //Boundary treatment
-	for (int fId = ug.nBFace; fId < ug.nFace; ++fId)
+	for (int fId = ug.nBFaces; fId < ug.nFaces; ++fId)
 	{
 		ug.fId = fId;
 
@@ -1552,7 +1552,7 @@ void UINsInvterm::UpdateFaceflux()
 
 	}
 
-	for (int fId = 0; fId < ug.nBFace; ++fId)
+	for (int fId = 0; fId < ug.nBFaces; ++fId)
 	{
 		ug.fId = fId;
 
@@ -1608,7 +1608,7 @@ void UINsInvterm::UpdateSpeed()
 {
 	this->CalcPreGrad();
 
-	for (int cId = 0; cId < ug.nCell; ++cId)
+	for (int cId = 0; cId < ug.nCells; ++cId)
 	{
 		ug.cId = cId;
 
@@ -1626,7 +1626,7 @@ void UINsInvterm::UpdateSpeed()
 
 	}
 
-	for (int fId = 0; fId < ug.nBFace; ++fId)
+	for (int fId = 0; fId < ug.nBFaces; ++fId)
 	{
 		ug.fId = fId;
 
@@ -1821,7 +1821,7 @@ void UINsInvterm::UpdateSpeed()
 
 
 
-	/*for (int cId = ug.nCell; cId < ug.nTCell; ++cId)
+	/*for (int cId = ug.nCells; cId < ug.nTCell; ++cId)
 	{
 		ug.cId = cId;
 
@@ -1844,7 +1844,7 @@ void UINsInvterm::UpdateINsRes()
 	/*iinv.remax_V = 0;
 	iinv.remax_pp = 0;
 
-	for (int fId = 0; fId < ug.nFace; ++fId)
+	for (int fId = 0; fId < ug.nFaces; ++fId)
 	{
 		ug.fId = fId;
 		ug.lc = (*ug.lcf)[ug.fId];
@@ -1854,7 +1854,7 @@ void UINsInvterm::UpdateINsRes()
 		iinv.bp[ug.rc] += iinv.fq[ug.fId];
 	}
 
-	for (int cId = 0; cId < ug.nCell; ++cId)
+	for (int cId = 0; cId < ug.nCells; ++cId)
 	{
 		ug.cId = cId;
 		iinv.res_V[ug.cId] = 10*iinv.bp[ug.cId];
@@ -1889,7 +1889,7 @@ void UINsInvterm::UpdateINsRes()
 	iinv.remax_wp = 0;
 	iinv.remax_pp = 0;
 
-	for (int fId = 0; fId < ug.nFace; ++fId)
+	for (int fId = 0; fId < ug.nFaces; ++fId)
 	{
 		ug.fId = fId;
 		ug.lc = (*ug.lcf)[ug.fId];
@@ -1899,7 +1899,7 @@ void UINsInvterm::UpdateINsRes()
 		iinv.bp[ug.rc] += iinv.fq[ug.fId];
 	}
 
-	for (int cId = 0; cId < ug.nCell; ++cId)
+	for (int cId = 0; cId < ug.nCells; ++cId)
 	{
 		ug.cId = cId;
 
@@ -1987,7 +1987,7 @@ void UINsInvterm::CalcPreGrad()
 	iinv.dqqdy = 0;
 	iinv.dqqdz = 0;
 
-	for (int fId = 0; fId < ug.nFace; ++fId)
+	for (int fId = 0; fId < ug.nFaces; ++fId)
 	{
 		ug.fId = fId;
 		ug.lc = (*ug.lcf)[ug.fId];
@@ -2007,7 +2007,7 @@ void UINsInvterm::CalcPreGrad()
 
 		Real cl = delt2 * delta;
 		Real cr = delt1 * delta;
-		//if (ug.fId < ug.nBFace)
+		//if (ug.fId < ug.nBFaces)
 		//{
 		//	iinv.value[ug.fId] = iinv.pp[ug.lc] + iinv.pp[ug.rc];
 		//}
@@ -2024,14 +2024,14 @@ void UINsInvterm::CalcPreGrad()
 		iinv.dqqdy[ug.lc] += fnya * iinv.value;
 		iinv.dqqdz[ug.lc] += fnza * iinv.value;
 
-		if (ug.fId < ug.nBFace) continue;
+		if (ug.fId < ug.nBFaces) continue;
 
 		iinv.dqqdx[ug.rc] += -fnxa * iinv.value;
 		iinv.dqqdy[ug.rc] += -fnya * iinv.value;
 		iinv.dqqdz[ug.rc] += -fnza * iinv.value;
 	}
 
-	for (int cId = 0; cId < ug.nCell; ++cId)
+	for (int cId = 0; cId < ug.nCells; ++cId)
 	{
 		ug.cId = cId;
 		Real ovol = one / (*ug.cvol)[ug.cId];
@@ -2040,13 +2040,13 @@ void UINsInvterm::CalcPreGrad()
 		iinv.dqqdz[ug.cId] *= ovol;
 	}
 
-	for (int fId = 0; fId < ug.nBFace; ++fId)
+	for (int fId = 0; fId < ug.nBFaces; ++fId)
 	{
 		ug.fId = fId;
 		ug.lc = (*ug.lcf)[ug.fId];
 		ug.rc = (*ug.rcf)[ug.fId];
 
-		//if (ug.rc > ug.nCell)
+		//if (ug.rc > ug.nCells)
 		//{
 		iinv.dqqdx[ug.rc] = iinv.dqqdx[ug.lc];
 		iinv.dqqdy[ug.rc] = iinv.dqqdy[ug.lc];
@@ -2060,7 +2060,7 @@ void UINsInvterm::CalcPreGrad()
 
 void UINsInvterm::Alloc()
 {
-	//iinvflux = new MRField(nscom.nEqu, ug.nFace);
+	//iinvflux = new MRField(nscom.nEqu, ug.nFaces);
 }
 
 void UINsInvterm::DeAlloc()

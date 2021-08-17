@@ -22,9 +22,13 @@ License
 
 #include "GridElem.h"
 #include "CgnsZone.h"
+#include "CgnsZbase.h"
+#include "GridPara.h"
 #include "HXCgns.h"
 #include "UnsGrid.h"
 #include "HXMath.h"
+#include "CellTopo.h"
+#include "CellMesh.h"
 #include "ElemFeature.h"
 #include "FaceTopo.h"
 #include "FaceSolver.h"
@@ -82,18 +86,13 @@ GridElem::GridElem( HXVector< CgnsZone * > & cgnsZones, int iZone )
 
 GridElem::~GridElem()
 {
-    cout << "delete this->point_factory;\n";
     delete this->point_factory;
-    cout << "delete this->elem_feature;\n";
     delete this->elem_feature;
-    cout << "delete this->face_solver;\n";
     delete this->face_solver;
     if ( this->delFlag )
     {
         delete this->grid;
     }
-    
-    cout << "GridElem::~GridElem()\n";
 }
 
 CgnsZone * GridElem::GetCgnsZone( int iZone )
@@ -101,7 +100,7 @@ CgnsZone * GridElem::GetCgnsZone( int iZone )
     return this->cgnsZones[ iZone ];
 }
 
-int GridElem::GetNZone()
+int GridElem::GetNZones()
 {
     return this->cgnsZones.size();
 }
@@ -136,7 +135,7 @@ void GridElem::PrepareUnsCalcGrid()
 
 void GridElem::InitCgnsElements()
 {
-    int nZone = this->GetNZone();
+    int nZone = this->GetNZones();
     for ( int iZone = 0; iZone < nZone; ++ iZone )
     {
         CgnsZone * cgnsZone = this->GetCgnsZone( iZone );
@@ -147,7 +146,7 @@ void GridElem::InitCgnsElements()
 
 void GridElem::ScanBcFace()
 {
-    int nZone = this->GetNZone();
+    int nZone = this->GetNZones();
     for ( int iZone = 0; iZone < nZone; ++ iZone )
     {
         CgnsZone * cgnsZone = this->GetCgnsZone( iZone );
@@ -159,30 +158,30 @@ void GridElem::ScanBcFace()
 
 void GridElem::GenerateCalcElement()
 {
-    int nElement =  this->elem_feature->eType->size();
+    int nElement =  this->elem_feature->eTypes->size();
 
     FaceTopo * faceTopo = this->face_solver->faceTopo;
 
-    int nFace = this->face_solver->faceTopo->f2n.size();
+    int nFaces = this->face_solver->faceTopo->faces.size();
 
-    int nBFace = 0;
+    int nBFaces = 0;
 
-    //cout << " nFace = " << nFace << "\n";
+    //cout << " nFaces = " << nFaces << "\n";
 
-    for ( int iFace = 0; iFace < nFace; ++ iFace )
+    for ( int iFace = 0; iFace < nFaces; ++ iFace )
     {
         if ( iFace % 200000 == 0 ) 
         {
-            cout << " iFace = " << iFace << " numberOfTotalFaces = " << nFace << endl;
+            cout << " iFace = " << iFace << " numberOfTotalFaces = " << nFaces << endl;
         }
 
-        int rc = ( faceTopo->rCell )[ iFace ];
+        int rc = ( faceTopo->rCells )[ iFace ];
 
         if ( rc == INVALID_INDEX )
         {
             faceTopo->bcManager->bcRecord->bcType.push_back( ( * this->face_solver->faceBcType )[ iFace ] );
             faceTopo->bcManager->bcRecord->bcNameId.push_back( ( * this->face_solver->faceBcKey )[ iFace ] );
-            ++ nBFace;
+            ++ nBFaces;
         }
     }
 
@@ -199,14 +198,15 @@ void GridElem::GenerateCalcGrid( Grid * gridIn )
 {
     UnsGrid * grid = UnsGridCast ( gridIn );
 
-    grid->nCell = this->elem_feature->eType->size();
-    cout << "   nCell = " << grid->nCell << endl;
+    grid->nCells = this->elem_feature->eTypes->size();
+    grid->cellMesh->cellTopo->eTypes = * this->elem_feature->eTypes;
+    cout << "   nCells = " << grid->nCells << endl;
 
-    int nNode = this->point_factory->c2g.size();
-    grid->nodeMesh->CreateNodes( nNode );
-    grid->nNode = nNode;
+    int nNodes = this->point_factory->c2g.size();
+    grid->nodeMesh->CreateNodes( nNodes );
+    grid->nNodes = nNodes;
 
-    for ( int iNode = 0; iNode < nNode; ++ iNode )
+    for ( int iNode = 0; iNode < nNodes; ++ iNode )
     {
         int nodeIndex = this->point_factory->c2g[ iNode ];
 
@@ -228,15 +228,15 @@ void GridElem::CalcBoundaryType( UnsGrid * grid )
     grid->faceTopo = this->face_solver->faceTopo;
     grid->faceTopo->grid = grid;
     this->face_solver->faceTopo = 0;
-    int nFace = grid->faceTopo->f2n.size();
-    cout << " nFace = " << nFace << "\n";
+    int nFaces = grid->faceTopo->faces.size();
+    cout << " nFaces = " << nFaces << "\n";
      
     BcRecord * bcRecord = grid->faceTopo->bcManager->bcRecord;
-    int nBFace = bcRecord->bcType.size();
+    int nBFaces = bcRecord->bcType.size();
 
-    grid->nBFace = nBFace;
+    grid->nBFaces = nBFaces;
 
-    cout << " nBFace = " << nBFace << "\n";
+    cout << " nBFaces = " << nBFaces << "\n";
 
     BcTypeMap * bcTypeMap = new BcTypeMap();
     bcTypeMap->Init();
@@ -245,7 +245,7 @@ void GridElem::CalcBoundaryType( UnsGrid * grid )
 
     IntSet originalBcSet, finalBcSet;
     int iCount = 0;
-    for ( int iFace = 0; iFace < nBFace; ++ iFace )
+    for ( int iFace = 0; iFace < nBFaces; ++ iFace )
     {
         int cgnsBcType = bcRecord->bcType[ iFace ];
         int bcNameId = bcRecord->bcNameId[ iFace ];
@@ -265,7 +265,7 @@ void GridElem::CalcBoundaryType( UnsGrid * grid )
     for ( IntSet::iterator iter = originalBcSet.begin(); iter != originalBcSet.end(); ++ iter )
     {
         int iCount = 0;
-        for ( int iFace = 0; iFace < nBFace; ++ iFace )
+        for ( int iFace = 0; iFace < nBFaces; ++ iFace )
         {
             int cgnsBcType = cgnsBcArray[ iFace ];
             if ( cgnsBcType == * iter )
@@ -298,14 +298,14 @@ void GridElem::CalcBoundaryType( UnsGrid * grid )
 void GridElem::ReorderLink( UnsGrid * grid )
 {
     FaceTopo * faceTopo = grid->faceTopo;
-    int nFace = faceTopo->faceType.size();
-    grid->nFace = nFace;
+    int nFaces = faceTopo->fTypes.size();
+    grid->nFaces = nFaces;
 
-    IntField f1map( nFace ), f2map( nFace );
+    IntField f1map( nFaces ), f2map( nFaces );
     int iCount = 0;
-    for ( int iFace = 0; iFace < nFace; ++ iFace )
+    for ( int iFace = 0; iFace < nFaces; ++ iFace )
     {
-        int rc = faceTopo->rCell[ iFace ];
+        int rc = faceTopo->rCells[ iFace ];
         if ( rc == INVALID_INDEX )
         {
             f1map[ iFace ] = iCount;
@@ -314,9 +314,9 @@ void GridElem::ReorderLink( UnsGrid * grid )
         }
     }
 
-    for ( int iFace = 0; iFace < nFace; ++ iFace )
+    for ( int iFace = 0; iFace < nFaces; ++ iFace )
     {
-        int rc = faceTopo->rCell[ iFace ];
+        int rc = faceTopo->rCells[ iFace ];
         if ( rc != INVALID_INDEX )
         {
             f1map[ iFace ] = iCount;
@@ -324,24 +324,24 @@ void GridElem::ReorderLink( UnsGrid * grid )
             ++ iCount;
         }
     }
-    faceTopo->faceToNodeNew.resize( nFace );
-    faceTopo->lCellNew.resize( nFace );
-    faceTopo->rCellNew.resize( nFace );
-    for ( int iFace = 0; iFace < nFace; ++ iFace )
+    faceTopo->facesNew.resize( nFaces );
+    faceTopo->lCellsNew.resize( nFaces );
+    faceTopo->rCellsNew.resize( nFaces );
+    for ( int iFace = 0; iFace < nFaces; ++ iFace )
     {
         int jFace = f2map[ iFace ];
-        faceTopo->faceToNodeNew[ iFace ] = faceTopo->f2n[ jFace ];
-        faceTopo->lCellNew[ iFace ] = faceTopo->lCell[ jFace ];
-        faceTopo->rCellNew[ iFace ] = faceTopo->rCell[ jFace ];
+        faceTopo->facesNew[ iFace ] = faceTopo->faces[ jFace ];
+        faceTopo->lCellsNew[ iFace ] = faceTopo->lCells[ jFace ];
+        faceTopo->rCellsNew[ iFace ] = faceTopo->rCells[ jFace ];
     }
-    faceTopo->f2n = faceTopo->faceToNodeNew;
-    faceTopo->lCell = faceTopo->lCellNew;
-    faceTopo->rCell = faceTopo->rCellNew;
+    faceTopo->faces = faceTopo->facesNew;
+    faceTopo->lCells = faceTopo->lCellsNew;
+    faceTopo->rCells = faceTopo->rCellsNew;
 }
 
-ZgridElem::ZgridElem()
+ZgridElem::ZgridElem( CgnsZbase * cgnsZbase )
 {
-    ;
+    this->cgnsZbase = cgnsZbase;
 }
 
 ZgridElem::~ZgridElem()
@@ -367,5 +367,83 @@ GridElem * ZgridElem::GetGridElem( int iGridElem )
 {
     return this->data[ iGridElem ];
 }
+
+void ZgridElem::AllocateGridElem()
+{
+    if ( grid_para.multiBlock == 0 )
+    {
+        HXVector< CgnsZone * > cgnsZones;
+
+        int nOriZone = cgnsZbase->GetNZones();
+
+        for ( int iZone = 0; iZone < nOriZone; ++ iZone )
+        {
+            cgnsZones.push_back( cgnsZbase->GetCgnsZone( iZone ) );
+        }
+
+        int nZones = 1;
+
+        for ( int iZone = 0; iZone < nZones; ++ iZone )
+        {
+            this->AddGridElem( cgnsZones, iZone );
+        }
+
+    }
+    else
+    {
+        int nZones = cgnsZbase->GetNZones();
+
+        for ( int iZone = 0; iZone < nZones; ++ iZone )
+        {
+            HXVector< CgnsZone * > cgnsZones;
+            cgnsZones.push_back( cgnsZbase->GetCgnsZone( iZone ) );
+
+            this->AddGridElem( cgnsZones, iZone );
+        }
+    }
+}
+
+void ZgridElem::PrepareUnsCalcGrid()
+{
+    int nZones = this->data.size();
+    for ( int iZone = 0; iZone < nZones; ++ iZone )
+    {
+        GridElem * gridElem = this->GetGridElem( iZone );
+        gridElem->PrepareUnsCalcGrid();
+    }
+}
+
+void ZgridElem::GenerateCalcGrid()
+{
+    int nZones = this->data.size();
+    for ( int iZone = 0; iZone < nZones; ++ iZone )
+    {
+        GridElem * gridElem = this->GetGridElem( iZone );
+        gridElem->GenerateCalcGrid();
+    }
+}
+
+void ZgridElem::GetGrids( Grids & grids )
+{
+    int nZones = this->data.size();
+    for ( int iZone = 0; iZone < nZones; ++ iZone )
+    {
+        GridElem * gridElem = this->GetGridElem( iZone );
+        Grid * grid = gridElem->grid;
+        grids.push_back( grid );
+    }
+}
+
+void ZgridElem::GenerateLocalOneFlowGrid( Grids & grids )
+{
+    this->AllocateGridElem();
+
+    this->PrepareUnsCalcGrid();
+
+    this->GenerateCalcGrid();
+
+    this->GetGrids( grids );
+}
+
 
 EndNameSpace

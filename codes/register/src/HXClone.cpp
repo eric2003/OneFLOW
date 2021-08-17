@@ -47,6 +47,8 @@ HXClone * HXClone::Register( const string & type, HXClone * clone )
         HXClone::classMap = new map < string, HXClone * >();
     }
 
+    //cout << "HXClone::Register : " << type << "\n";
+
     map < string, HXClone * >::iterator iter = HXClone::classMap->find( type );
     if ( iter == HXClone::classMap->end() )
     {

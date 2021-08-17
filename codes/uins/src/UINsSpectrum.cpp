@@ -63,14 +63,14 @@ void UINsSpectrum::CalcUnsteadySpectrum()
 {
     if ( ctrl.idualtime == 0 )//Single time step, note: Yes usd.sp2 !
     {
-        for ( int cId = 0; cId < ug.nCell; ++ cId )
+        for ( int cId = 0; cId < ug.nCells; ++ cId )
         {
             ( * uinsf.impsr )[ 0 ][ cId ] = ( usd.sp2 /  ( * uinsf.timestep )[ 0 ][ cId ] ) * ( * ug.cvol )[ cId ];
         }
     }
     else
     {
-        for ( int cId = 0; cId < ug.nCell; ++ cId )
+        for ( int cId = 0; cId < ug.nCells; ++ cId )
         {
             ( * uinsf.impsr )[ 0 ][ cId ] = ( usd.sp1 / ( * uinsf.timestep )[ 0 ][ cId ] + usd.sp2 / ctrl.pdt1 ) * ( * ug.cvol )[ cId ];
         }
@@ -79,7 +79,7 @@ void UINsSpectrum::CalcUnsteadySpectrum()
 
 void UINsSpectrum::AddInvSpectrum()
 {
-    for ( int cId = 0; cId < ug.nCell; ++ cId )
+    for ( int cId = 0; cId < ug.nCells; ++ cId )
     {
         ( * uinsf.impsr )[ 0 ][ cId ] += ( * uinsf.invsr )[ 0 ][ cId ];
     }
@@ -87,7 +87,7 @@ void UINsSpectrum::AddInvSpectrum()
 
 void UINsSpectrum::AddVisSpectrum()
 {
-    for ( int cId = 0; cId < ug.nCell; ++ cId )
+    for ( int cId = 0; cId < ug.nCells; ++ cId )
     {
         ( * uinsf.impsr )[ 0 ][ cId ] += ( * uinsf.vissr )[ 0 ][ cId ];
     }

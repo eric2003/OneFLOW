@@ -43,25 +43,25 @@ public:
     FaceTopo();
     ~FaceTopo();
 public:
-    int nCell;
-    IntField faceType;
-    LinkField f2n;
+    int nCells;
+    IntField fTypes;
+    LinkField faces;
     LinkField c2f;
 
-    IntField lCell, rCell;
+    IntField lCells, rCells;
     IntField lPosition, rPosition;
 
-    UInt nBFace;
+    UInt nBFaces;
     BcManager * bcManager;
     Grid * grid;
 public:
-    LinkField faceToNodeNew;
-    IntField lCellNew, rCellNew;
+    LinkField facesNew;
+    IntField lCellsNew, rCellsNew;
 public:
-    UInt GetNFace() { return faceType.size();  }
+    UInt GetNFaces() { return fTypes.size();  }
     UInt CalcTotalFaceNodes();
-    UInt GetNBFace();
-    void SetNBFace( UInt nBFace );
+    UInt GetNBFaces();
+    void SetNBFaces( UInt nBFaces );
 public:
     void ModifyFaceNodeId( IFaceLink * iFaceLink );
     void SetNewFace2Node( IFaceLink * iFaceLink );

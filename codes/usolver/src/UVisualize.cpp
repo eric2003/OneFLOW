@@ -126,18 +126,18 @@ void BcVisual::Calc( int bcType )
 
 void BcVisual::ResolveElementEdge()
 {
-    int nFace = this->f2n.size();
+    int nFaces = this->f2n.size();
     int nSize = 2;
 
     set< Mid<int> > edgeSet;
 
-    for ( int fId = 0; fId < nFace; ++ fId )
+    for ( int fId = 0; fId < nFaces; ++ fId )
     {
-        int nNode = this->f2n[ fId ].size();
-        for ( int iNode = 0; iNode < nNode; ++ iNode )
+        int nNodes = this->f2n[ fId ].size();
+        for ( int iNode = 0; iNode < nNodes; ++ iNode )
         {
             int iNode0 = iNode;
-            int iNode1 = ( iNode + 1 ) % nNode;
+            int iNode1 = ( iNode + 1 ) % nNodes;
 
             int ip1 = this->f2n[ fId ][ iNode0 ];
             int ip2 = this->f2n[ fId ][ iNode1 ];
@@ -196,7 +196,7 @@ void BcVisual::Calcf2n( int bcType )
 {
     UnsGrid * grid = Zone::GetUnsGrid();
     FaceTopo * faceTopo = grid->faceTopo;
-    LinkField & f2n = faceTopo->f2n;
+    LinkField & f2n = faceTopo->faces;
     BcRecord * bcRecord = faceTopo->bcManager->bcRecord;
 
     IntField localf2n( 4 );
@@ -206,16 +206,16 @@ void BcVisual::Calcf2n( int bcType )
     this->f2n.resize( 0 );
     this->l2g.resize( 0 );
 
-    int nBFace = grid->nBFace;
+    int nBFaces = grid->nBFaces;
 
-    for ( int iFace = 0; iFace < nBFace; ++ iFace )
+    for ( int iFace = 0; iFace < nBFaces; ++ iFace )
     {
         if ( bcType != bcRecord->bcType[ iFace ] ) continue;
 
-        int nNode = f2n[ iFace ].size();
+        int nNodes = f2n[ iFace ].size();
 
         localf2n.resize( 0 );
-        for ( int iNode = 0; iNode < nNode; ++ iNode )
+        for ( int iNode = 0; iNode < nNodes; ++ iNode )
         {
             int gId = f2n[ iFace ][ iNode ];
 
@@ -272,8 +272,8 @@ void BcVisual::Dump( ostringstream & oss, VisualTool * visualTool, string & bcTi
         oss << visualTool->title[ i ] << endl;
     }
         
-    int nNode = l2g.size();
-    int nFace = e2n.size();
+    int nNodes = l2g.size();
+    int nFaces = e2n.size();
     int nElem = this->f2n.size();
 
     // output for Tecplot
@@ -283,8 +283,8 @@ void BcVisual::Dump( ostringstream & oss, VisualTool * visualTool, string & bcTi
 
     oss << "ZoneType = FEPolygon\n";
 
-    oss << "Nodes    = " << nNode << endl;
-    oss << "Faces    = " << nFace << endl;  
+    oss << "Nodes    = " << nNodes << endl;
+    oss << "Faces    = " << nFaces << endl;  
     oss << "Elements = " << nElem << endl;  
     oss << "NumConnectedBoundaryFaces = 0\n";
     oss << "TotalNumBoundaryConnections = 0\n";
@@ -311,8 +311,8 @@ void BcVisual::DumpDebug( ostringstream & oss, VisualTool * visualTool, string &
 {
     UnsGrid * grid = Zone::GetUnsGrid();
 
-    int nNode = l2g.size();
-    int nFace = e2n.size();
+    int nNodes = l2g.size();
+    int nFaces = e2n.size();
     int nElem = this->f2n.size();
 
     // output for Tecplot
@@ -322,14 +322,14 @@ void BcVisual::DumpDebug( ostringstream & oss, VisualTool * visualTool, string &
     oss << " \"y\" ";
     oss << " \"z\" ";
     oss << "\n";
-    //oss << " ZONE N = " << nNode << " E = " << nElem << " F = FEPOINT, ET = TRIANGLE \n";
-    //oss << " ZONE N = " << nNode << " E = " << nElem << " F = FEPOINT, ET = QUADRILATERAL \n";
+    //oss << " ZONE N = " << nNodes << " E = " << nElem << " F = FEPOINT, ET = TRIANGLE \n";
+    //oss << " ZONE N = " << nNodes << " E = " << nElem << " F = FEPOINT, ET = QUADRILATERAL \n";
     oss << "title = \"THE FLOW FIELD OF ONEFLOW\" \n";
     oss << "VARIALBES = \"x\" \"y\" \"z\" " << "\n";
 
-    oss << " ZONE N = " << nNode << " E = " << nElem << " F = FEPOINT, ET = QUADRILATERAL \n";
+    oss << " ZONE N = " << nNodes << " E = " << nElem << " F = FEPOINT, ET = QUADRILATERAL \n";
 
-    for ( int iNode = 0; iNode < nNode; ++ iNode )
+    for ( int iNode = 0; iNode < nNodes; ++ iNode )
     {
         int id = l2g[ iNode ];
         oss << grid->nodeMesh->xN[ id ] << " ";
@@ -359,8 +359,8 @@ void BcVisual::DumpSeveralElement()
 {
     UnsGrid * grid = Zone::GetUnsGrid();
 
-    int nNode = l2g.size();
-    int nFace = e2n.size();
+    int nNodes = l2g.size();
+    int nFaces = e2n.size();
     int nElem = this->f2n.size();
 
     fstream file;
@@ -510,11 +510,11 @@ void UVisualize::ShowField( ostringstream & oss, VisualTool * visualTool )
     UnsGrid * grid = Zone::GetUnsGrid();
 
     FaceTopo * faceTopo = grid->faceTopo;
-    LinkField & f2n = faceTopo->f2n;
+    LinkField & f2n = faceTopo->faces;
 
-    int nNode = grid->nNode;
-    int nCell = grid->nCell;
-    int nFace = grid->nFace;
+    int nNodes = grid->nNodes;
+    int nCells = grid->nCells;
+    int nFaces = grid->nFaces;
 
     for ( UInt i = 0; i < visualTool->title.size(); ++ i )
     {
@@ -533,9 +533,9 @@ void UVisualize::ShowField( ostringstream & oss, VisualTool * visualTool )
     {
         oss << "ZoneType = FEPolygon\n";
     }
-    oss << "Nodes    = " << nNode << endl;
-    oss << "Faces    = " << nFace << endl;
-    oss << "Elements = " << nCell << endl;
+    oss << "Nodes    = " << nNodes << endl;
+    oss << "Faces    = " << nFaces << endl;
+    oss << "Elements = " << nCells << endl;
     oss << "TotalNumFaceNodes = " << totalNumFaceNodes << endl;
     oss << "NumConnectedBoundaryFaces = 0\n";
     oss << "TotalNumBoundaryConnections = 0\n";
@@ -557,8 +557,8 @@ void UVisualize::ShowField( ostringstream & oss, VisualTool * visualTool )
     }
 
     Plot::DumpFaceNodeLink( f2n );
-    Plot::DumpFaceElementLink( faceTopo->lCell, nCell );
-    Plot::DumpFaceElementLink( faceTopo->rCell, nCell );
+    Plot::DumpFaceElementLink( faceTopo->lCells, nCells );
+    Plot::DumpFaceElementLink( faceTopo->rCells, nCells );
 }
 
 void UVisualize::ShowBc( ostringstream & oss, VisualTool * visualTool )
@@ -641,8 +641,8 @@ void UVisualize::CalcNodeField( VisualTool * visualTool )
 void CalcMach( MRField * r, MRField * u, MRField * v, MRField * w, MRField * p, MRField * gama, MRField * mach )
 {
     UnsGrid * grid = Zone::GetUnsGrid();
-    int nNode = grid->nNode;
-    for ( int iNode = 0; iNode < nNode; ++ iNode )
+    int nNodes = grid->nNodes;
+    for ( int iNode = 0; iNode < nNodes; ++ iNode )
     {
         Real rm = ( * r )[ 0 ][ iNode ];
         Real um = ( * u )[ 0 ][ iNode ];

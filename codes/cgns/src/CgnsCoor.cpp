@@ -52,33 +52,33 @@ CgnsCoor::~CgnsCoor()
 
 CgInt CgnsCoor::GetNNode()
 {
-    return this->nNode;
+    return this->nNodes;
 }
 
 CgInt CgnsCoor::GetNCell()
 {
-    return this->nCell;
+    return this->nCells;
 }
 
-void CgnsCoor::SetNNode( CgInt nNode )
+void CgnsCoor::SetNNode( CgInt nNodes )
 {
-    this->nNode = nNode;
+    this->nNodes = nNodes;
 }
 
-void CgnsCoor::SetNCell( CgInt nCell )
+void CgnsCoor::SetNCell( CgInt nCells )
 {
-    this->nCell = nCell;
+    this->nCells = nCells;
 }
 
-void CgnsCoor::Alloc( int iCoor, int nNode, DataType_t data_type )
+void CgnsCoor::Alloc( int iCoor, int nNodes, DataType_t data_type )
 {
     if ( data_type == RealSingle )
     {
-        this->coor[ iCoor ] = new float [ nNode ];
+        this->coor[ iCoor ] = new float [ nNodes ];
     }
     else
     {
-        this->coor[ iCoor ] = new double [ nNode ];
+        this->coor[ iCoor ] = new double [ nNodes ];
     }
 }
 
@@ -99,11 +99,11 @@ void CgnsCoor::SetAllData( RealField & x, RealField & y, RealField & z )
 
 void CgnsCoor::SetData( int iCoor, DataType_t data_type, Real * var )
 {
-    int nNode = this->nNodeList[ iCoor ];
+    int nNodes = this->nNodeList[ iCoor ];
     if ( data_type == RealSingle )
     {
         float * data = static_cast< float * >( this->coor[ iCoor ] );
-        for ( int iNode = 0; iNode < nNode; ++ iNode )
+        for ( int iNode = 0; iNode < nNodes; ++ iNode )
         {
             var[ iNode ] = data[ iNode ];
         }
@@ -111,10 +111,47 @@ void CgnsCoor::SetData( int iCoor, DataType_t data_type, Real * var )
     else
     {
         double * data = static_cast< double * >( this->coor[ iCoor ] );
-        for ( int iNode = 0; iNode < nNode; ++ iNode )
+        for ( int iNode = 0; iNode < nNodes; ++ iNode )
         {
             var[ iNode ] = data[ iNode ];
         }
+    }
+}
+
+void CgnsCoor::SetCoorData( int iCoor, DataType_t data_type, Real * var )
+{
+    int nNodes = this->nNodeList[ iCoor ];
+    if ( data_type == RealSingle )
+    {
+        float * data = static_cast< float * >( this->coor[ iCoor ] );
+        for ( int iNode = 0; iNode < nNodes; ++ iNode )
+        {
+            data[ iNode ] = var[ iNode ];
+        }
+    }
+    else
+    {
+        double * data = static_cast< double * >( this->coor[ iCoor ] );
+        for ( int iNode = 0; iNode < nNodes; ++ iNode )
+        {
+            data[ iNode ] = var[ iNode ];
+            var[ iNode ] = data[ iNode ];
+        }
+    }
+}
+
+void CgnsCoor::SetAllCoorData()
+{
+    HXVector< Real * > xyz( this->ndim );
+
+    xyz[ 0 ] = & nodeMesh->xN[ 0 ];
+    xyz[ 1 ] = & nodeMesh->yN[ 0 ];
+    xyz[ 2 ] = & nodeMesh->zN[ 0 ];
+
+    for ( int iCoor = 0; iCoor < this->ndim; ++ iCoor )
+    {
+        DataType_t data_type = this->typeList[ iCoor ];
+        this->SetCoorData( iCoor, data_type, xyz[ iCoor ] );
     }
 }
 
@@ -122,15 +159,15 @@ void CgnsCoor::CopyCoorData( CgnsCoor * cgnsCoorIn )
 {
     for ( int iCoor = 0; iCoor < this->nCoor; ++ iCoor )
     {
-        int nNode = this->nNodeList[ iCoor ];
+        int nNodes = this->nNodeList[ iCoor ];
         DataType_t dataType = this->typeList[ iCoor ];
-        this->Alloc( iCoor, nNode, dataType );
+        this->Alloc( iCoor, nNodes, dataType );
 
         if ( dataType == RealSingle )
         {
             float * data = static_cast<float *>( this->coor[ iCoor ] );
             float * dataIn = static_cast<float *>( cgnsCoorIn->coor[ iCoor ] );
-            for ( int iNode = 0; iNode < nNode; ++ iNode )
+            for ( int iNode = 0; iNode < nNodes; ++ iNode )
             {
                 data[ iNode ] = dataIn[ iNode ];
             }
@@ -139,7 +176,7 @@ void CgnsCoor::CopyCoorData( CgnsCoor * cgnsCoorIn )
         {
             double * data = static_cast<double *>( this->coor[ iCoor ] );
             double * dataIn = static_cast<double *>( cgnsCoorIn->coor[ iCoor ] );
-            for ( int iNode = 0; iNode < nNode; ++ iNode )
+            for ( int iNode = 0; iNode < nNodes; ++ iNode )
             {
                 data[ iNode ] = dataIn[ iNode ];
             }
@@ -175,7 +212,7 @@ void CgnsCoor::ReadCgnsGridCoordinates()
     cg_ncoords( fileId, baseId, zoneId, & this->nCoor );
     cout << "   this->nCoor = " << this->nCoor << "\n";
 
-    int nNode = this->GetNNode();
+    int nNodes = this->GetNNode();
 
     for ( int iCoor = 0; iCoor < this->nCoor; ++ iCoor )
     {
@@ -183,17 +220,17 @@ void CgnsCoor::ReadCgnsGridCoordinates()
         CgnsTraits::char33 coorName;
         int coordId = iCoor + 1;
         cg_coord_info( fileId, baseId, zoneId, coordId, & dataType, coorName );
-        cout << "   coorName = " << coorName << " dataType = " << dataType << "\n";
+        cout << "   coorName = " << coorName << " dataType = " << dataType << " dataTypeName = " << DataTypeName[ dataType ] << "\n";
         this->typeList[ iCoor ] = dataType;
-        this->nNodeList[ iCoor ] = nNode;
+        this->nNodeList[ iCoor ] = nNodes;
         this->coorNameList[ iCoor ] = coorName;
-        this->Alloc( iCoor, static_cast<int>( nNode ), dataType );
+        this->Alloc( iCoor, static_cast<int>( nNodes ), dataType );
         //Read the x-, y-, z-coordinates.
         cg_coord_read( fileId, baseId, zoneId, coorName, dataType, this->irmin, this->irmax, this->GetCoor( iCoor ) );
     }
 
     NodeMesh * nodeMesh = this->GetNodeMesh();
-    nodeMesh->CreateNodes( static_cast<int>( nNode ) );
+    nodeMesh->CreateNodes( static_cast<int>( nNodes ) );
 
     this->SetAllData( nodeMesh->xN, nodeMesh->yN, nodeMesh->zN );
 }
@@ -209,9 +246,9 @@ void CgnsCoor::ReadCgnsGridCoordinates( CgnsCoor * cgnsCoorIn )
     this->nCoor = cgnsCoorIn->nCoor;
     cout << " this->nCoor = " << this->nCoor << "\n";
 
-    int nNode = this->GetNNode();
+    int nNodes = this->GetNNode();
 
-    cout << " this->nNode = " << this->nNode << "\n";
+    cout << " this->nNodes = " << this->nNodes << "\n";
 
     this->typeList = cgnsCoorIn->typeList;
     this->nNodeList = cgnsCoorIn->nNodeList;
@@ -319,10 +356,10 @@ void CgnsCoor::SetDimensionStr()
     cout << "   I Direction " << setw( 10 ) << irmin[ 0 ] << setw( 10 ) << irmax[ 0 ] << "\n";
     cout << "   J Direction " << setw( 10 ) << irmin[ 1 ] << setw( 10 ) << irmax[ 1 ] << "\n";
     cout << "   K Direction " << setw( 10 ) << irmin[ 2 ] << setw( 10 ) << irmax[ 2 ] << "\n";
-    int nNode = irmax[ 0 ] * irmax[ 1 ] * irmax[ 2 ];
-    int nCell = cellSize[ 0 ] * cellSize[ 1 ] * cellSize[ 2 ];
-    this->SetNNode( nNode );
-    this->SetNCell( nCell );
+    int nNodes = irmax[ 0 ] * irmax[ 1 ] * irmax[ 2 ];
+    int nCells = cellSize[ 0 ] * cellSize[ 1 ] * cellSize[ 2 ];
+    this->SetNNode( nNodes );
+    this->SetNCell( nCells );
 }
 
 void CgnsCoor::SetDimensionUns()
@@ -338,10 +375,10 @@ void CgnsCoor::SetDimensionUns()
 
     cellSize[ 0 ] = isize[ 1 ];
 
-    int nNode = irmax[ 0 ];
-    int nCell = cellSize[ 0 ];
-    this->SetNNode( nNode );
-    this->SetNCell( nCell );
+    int nNodes = irmax[ 0 ];
+    int nCells = cellSize[ 0 ];
+    this->SetNNode( nNodes );
+    this->SetNCell( nCells );
 }
 
 void CgnsCoor::SetDimension( CgnsCoor * cgnsCoorIn )

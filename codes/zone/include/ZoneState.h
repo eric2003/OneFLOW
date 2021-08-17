@@ -37,6 +37,7 @@ public:
     static int zid;
     static int szid;
     static int rzid;
+    static int inei;
     static IntField pid;
     static IntField zoneType;
     static IntField localZid;

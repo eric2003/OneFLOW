@@ -130,7 +130,7 @@ Real LimField::ModifyLimiter( Real phil, Real phir )
 
 void LimField::GetQlQr()
 {
-    for ( int fId = 0; fId < ug.nFace; ++ fId )
+    for ( int fId = 0; fId < ug.nFaces; ++ fId )
     {
         ug.fId = fId;
         ug.lc = ( * ug.lcf )[ ug.fId ];
@@ -157,7 +157,7 @@ void LimField::GetQlQr()
 
 void LimField::BcQlQrFix()
 {
-    for ( int fId = 0; fId < ug.nBFace; ++ fId )
+    for ( int fId = 0; fId < ug.nBFaces; ++ fId )
     {
         int bcType = ug.bcRecord->bcType[ fId ];
         if ( bcType == BC::INTERFACE ) continue;
@@ -182,7 +182,7 @@ void LimField::CalcFaceValue()
 {
     RealField qTry( this->nEqu );
 
-    for ( int fId = 0; fId < ug.nFace; ++ fId )
+    for ( int fId = 0; fId < ug.nFaces; ++ fId )
     {
         ug.fId = fId;
         ug.lc = ( * ug.lcf )[ ug.fId ];
@@ -259,7 +259,7 @@ void LimField::CalcFaceValueWeighted()
 {
     RealField qTry( this->nEqu );
 
-    for ( int fId = 0; fId < ug.nFace; ++ fId )
+    for ( int fId = 0; fId < ug.nFaces; ++ fId )
     {
         ug.fId = fId;
         ug.lc = ( * ug.lcf )[ ug.fId ];
@@ -434,7 +434,7 @@ void Limiter::CalcLimiterScalar()
 
 void Limiter::CalcZeroLimiter()
 {
-    for ( int fId = 0; fId < ug.nFace; ++ fId )
+    for ( int fId = 0; fId < ug.nFaces; ++ fId )
     {
         ug.fId = fId;
         ug.lc = ( * ug.lcf )[ ug.fId ];
@@ -450,7 +450,7 @@ void Limiter::CalcZeroLimiter()
 
 void Limiter::CalcNoLimiter()
 {
-    for ( int fId = 0; fId < ug.nFace; ++ fId )
+    for ( int fId = 0; fId < ug.nFaces; ++ fId )
     {
         ug.fId = fId;
         ug.lc = ( * ug.lcf )[ ug.fId ];
@@ -468,7 +468,7 @@ void Limiter::CalcBarthLimiter()
 {
     this->CalcMinMaxDiff();
 
-    for ( int fId = 0; fId < ug.nFace; ++ fId )
+    for ( int fId = 0; fId < ug.nFaces; ++ fId )
     {
         ug.fId = fId;
         ug.lc = ( * ug.lcf )[ ug.fId ];
@@ -487,7 +487,7 @@ void Limiter::CalcVencatLimiter()
 {
     this->CalcMinMaxDiff();
 
-    for ( int fId = 0; fId < ug.nFace; ++ fId )
+    for ( int fId = 0; fId < ug.nFaces; ++ fId )
     {
         ug.fId = fId;
         ug.lc = ( * ug.lcf )[ ug.fId ];
@@ -595,13 +595,13 @@ void Limiter::CalcLocalVencatLimiter()
 void Limiter::CalcMinMaxDiff()
 {
     // Find the maximum and minimum in the neighbor of each cell
-    for ( int cId = 0; cId < ug.nCell; ++ cId )
+    for ( int cId = 0; cId < ug.nCells; ++ cId )
     {
         ( * lim->minvf )[ cId ] = ( * lim->q )[ cId ];
         ( * lim->maxvf )[ cId ] = ( * lim->q )[ cId ];
     }
 
-    for ( int fId = 0; fId < ug.nBFace; ++ fId )
+    for ( int fId = 0; fId < ug.nBFaces; ++ fId )
     {
         ug.fId = fId;
         ug.lc = ( * ug.lcf )[ ug.fId ];
@@ -614,7 +614,7 @@ void Limiter::CalcMinMaxDiff()
         ( * lim->maxvf )[ ug.lc ] = MAX( ( * lim->maxvf )[ ug.lc ], ( * lim->q )[ ug.rc ] );
     }
 
-    for ( int fId = ug.nBFace; fId < ug.nFace; ++ fId )
+    for ( int fId = ug.nBFaces; fId < ug.nFaces; ++ fId )
     {
         ug.fId = fId;
         ug.lc = ( * ug.lcf )[ ug.fId ];
@@ -628,7 +628,7 @@ void Limiter::CalcMinMaxDiff()
     }
 
     // Get the maximum and the minimum difference
-    for ( int cId = 0; cId < ug.nCell; ++ cId )
+    for ( int cId = 0; cId < ug.nCells; ++ cId )
     {
         ( * lim->minvf )[ cId ] -= ( * lim->q )[ cId ];
         ( * lim->maxvf )[ cId ] -= ( * lim->q )[ cId ];
@@ -636,7 +636,7 @@ void Limiter::CalcMinMaxDiff()
 
     lim->qmin =   LARGE;
     lim->qmax = - LARGE;
-    for ( int cId = 0; cId < ug.nCell; ++ cId )
+    for ( int cId = 0; cId < ug.nCells; ++ cId )
     {
         lim->qmin = MIN( lim->qmin, ( * lim->minvf )[ cId ] );
         lim->qmax = MAX( lim->qmax, ( * lim->maxvf )[ cId ] );

@@ -21,7 +21,10 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "Zone.h"
+#include "LogFile.h"
 #include "ZoneState.h"
+#include "InterFace.h"
+#include "ScalarZone.h"
 #include "GridGroup.h"
 #include "PIO.h"
 #include "Parallel.h"
@@ -44,6 +47,7 @@ BeginNameSpace( ONEFLOW )
 
 HXVector< Grids * > Zone::globalGrids;
 int Zone::nLocalZones = 0;
+int Zone::flag_test_grid = 0;
 
 Zone::Zone()
 {
@@ -88,14 +92,14 @@ Grid * Zone::GetCGrid( Grid * grid )
     int level = grid->level + 1;
     int ngrid = ( * Zone::globalGrids[ ZoneState::zid ] ).size();
     if ( level >= ngrid ) return 0;
-    return Zone::GetGrid( ZoneState::zid, level);
+    return Zone::GetGrid( ZoneState::zid, level );
 }
 
 Grid * Zone::GetFGrid( Grid * grid )
 {
     int level = grid->level - 1;
     level = MAX( level, 0 );
-    return Zone::GetGrid( ZoneState::zid, level);
+    return Zone::GetGrid( ZoneState::zid, level );
 }
 
 void Zone::InitLayout( StringField & fileNameList )
@@ -115,6 +119,7 @@ void Zone::InitLayout( StringField & fileNameList )
         PIO::ParallelClose( file );
     }
     cout << " nTZones = " << nTZones << endl;
+    logFile << "  nTZones = " << nTZones << "\n";
 
     ZoneState::nZones = nTZones;
     ZoneState::pid.resize( ZoneState::nZones );
@@ -143,6 +148,31 @@ void Zone::ReadGrid( StringField & fileNameList )
         delete gridGroup;
     }
     Zone::NormalizeLayout();
+}
+
+void Zone::AddScalarGrid( int zid, ScalarGrid * grid )
+{
+    ScalarZone::AddGrid( zid, grid );
+}
+
+ScalarGrid * Zone::GetScalarGrid( int iZone )
+{
+    return ScalarZone::GetGrid( iZone );
+}
+
+ScalarGrid * Zone::GetScalarGrid()
+{
+    return ScalarZone::GetGrid();
+}
+
+int Zone::GetNumberOfZoneNeighbors( int zoneId )
+{
+    return interFaceTopo.data[ zoneId ].size();
+}
+
+int Zone::GetNeighborZoneId( int zoneId, int iNeighbor )
+{
+    return interFaceTopo.data[ zoneId ][ iNeighbor ];
 }
 
 EndNameSpace

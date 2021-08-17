@@ -27,6 +27,7 @@ using namespace std;
 BeginNameSpace( ONEFLOW )
 
 HXVector< VoidFunc > * TaskRegister::taskList = 0;
+HXVector< string > * TaskRegister::taskNameList = 0;
 
 TaskRegister::TaskRegister()
 {
@@ -36,13 +37,22 @@ TaskRegister::~TaskRegister()
 {
 }
 
-void TaskRegister::Register( VoidFunc taskfun )
+void TaskRegister::Free()
+{
+    delete TaskRegister::taskList;
+    delete TaskRegister::taskNameList;
+}
+
+void TaskRegister::Register( VoidFunc taskfun, string const & taskname )
 {
     if ( ! TaskRegister::taskList )
     {
         TaskRegister::taskList = new HXVector< VoidFunc >;
+        TaskRegister::taskNameList = new HXVector< string >;
     }
     TaskRegister::taskList->push_back( taskfun );
+    TaskRegister::taskNameList->push_back( taskname );
+    //cout << "TaskRegister::Register " << taskname << "\n";
 }
 
 void TaskRegister::Run()
@@ -54,6 +64,18 @@ void TaskRegister::Run()
         ( fun )( );
     }
 }
+
+class Tmp_Free_TaskRegister
+{
+public:
+    Tmp_Free_TaskRegister() {}
+    ~Tmp_Free_TaskRegister()
+    {
+        TaskRegister::Free();
+    }
+};
+
+Tmp_Free_TaskRegister tmp_Free_TaskRegister;
 
 
 EndNameSpace

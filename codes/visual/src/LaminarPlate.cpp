@@ -100,9 +100,9 @@ void LamVelCut::Dump()
 
 void LamVelCut::Dump( LamData * lamData, fstream & file, int axis )
 {
-    int nNode = lamData->GetNNode();
+    int nNodes = lamData->GetNNode();
 
-    file << "zone  i = " << nNode << " \n";
+    file << "zone  i = " << nNodes << " \n";
 
     int wordWidth = 20;
 
@@ -117,7 +117,7 @@ void LamVelCut::Dump( LamData * lamData, fstream & file, int axis )
 
     Real vel_inf = 1.0;
 
-    for ( int iNode = 0; iNode < nNode; ++ iNode )
+    for ( int iNode = 0; iNode < nNodes; ++ iNode )
     {
         Real xm = x[ iNode ];
         Real ym = y[ iNode ];
@@ -183,9 +183,9 @@ void LamFriCut::Dump()
 
 void LamFriCut::Dump( LamData * lamData, fstream & file, int axis )
 {
-    int nNode = lamData->GetNNode();
+    int nNodes = lamData->GetNNode();
 
-    file << "zone  i = " << nNode << " \n";
+    file << "zone  i = " << nNodes << " \n";
 
     int wordWidth = 20;
 
@@ -200,7 +200,7 @@ void LamFriCut::Dump( LamData * lamData, fstream & file, int axis )
 
     Real vel_inf = 1.0;
 
-    for ( int iNode = 0; iNode < nNode; ++ iNode )
+    for ( int iNode = 0; iNode < nNodes; ++ iNode )
     {
         Real xm = x[ iNode ];
         Real ym = y[ iNode ];

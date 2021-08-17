@@ -44,25 +44,12 @@ CWriteFile::~CWriteFile()
 
 void CWriteFile::Run()
 {
-	int startStrategy = ONEFLOW::GetDataValue< int >("startStrategy");
-	if (startStrategy == 2)
+	ActionState::dataBook = this->dataBook;
+	if ( Parallel::mode == 0 )
 	{
-		ActionState::dataBook = this->dataBook;
-		if (Parallel::mode == 0)
-		{
-			this->ServerWrite();
-		}
-	}
-	else
-	{
-		ActionState::dataBook = this->dataBook;
-		if (Parallel::mode == 0)
-		{
-			this->ServerWrite();
-		}
+		this->ServerWrite();
 	}
 }
-
 
 void CWriteFile::ServerWrite()
 {

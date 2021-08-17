@@ -22,11 +22,12 @@ License
 
 
 #pragma once
-#include "Configure.h"
 #include "HXType.h"
 #include "HXDefine.h"
+#include "HXCgns.h"
 #include "metis.h"
 #include <vector>
+#include <fstream>
 using namespace std;
 
 BeginNameSpace( ONEFLOW )
@@ -100,6 +101,7 @@ public:
 public:
     size_t GetNElements();
     void AddElem( IntList &elem );
+    void AddElem( vector< int > &elem );
 
     vector< int > & operator [] ( int i )
     {
@@ -119,9 +121,16 @@ public:
     ScalarBcco();
     ~ScalarBcco();
 public:
+    string bcName;
     int bcType;
+
+    EList elements;
+    IntList eTypes;
+
     vector< int > vertexList;
+    IntList local_globalIds;
 public:
+    void PushBoundaryFace( int pt, int eType );
     void AddBcPoint( int bcVertex );
     void ScanBcFace( ScalarGrid * grid );
     void ProcessVertexBc( IntSet & bcVertex );
@@ -139,6 +148,12 @@ public:
     void ScanBcFace( ScalarGrid * grid );
 };
 
+class DataBase;
+class DataBook;
+class ScalarIFace;
+class CgnsZbase;
+class CgnsZone;
+class SectionManager;
 
 class ScalarGrid
 {
@@ -146,8 +161,8 @@ public:
     ScalarGrid();
     ~ScalarGrid();
 public:
-    size_t nNodes, nCells, nBFaces, nFaces;
-    size_t nTCells;
+    int nNodes, nCells, nBFaces, nFaces;
+    int nTCells;
     RealList xn, yn, zn;
     RealList xfc, yfc, zfc;
     RealList xfn, yfn, zfn;
@@ -160,22 +175,39 @@ public:
     IntList lpos;
     IntList rpos;
 
+    //global faceid
+    vector<int> global_faceid;
+
     EList faces;
     EList elements;
+    //
+    EList boundaryElements;
+    IntList bcETypes;
+    //
     IntList fTypes;
     IntList eTypes;
     IntList fBcTypes;
     IntList bcTypes;
+    IntList bcNameIds;
     ScalarBccos * scalarBccos;
+    DataBase * dataBase;
+    ScalarIFace * scalarIFace;
+    int type, level;
+    int id;
+    int localId;
+    int volBcType;
 public:
-    size_t GetNNodes();
-    size_t GetNCells();
-    size_t GetNFaces();
-    size_t GetNBFaces();
-    size_t GetNTCells();
+    DataBase * GetDataBase() { return dataBase; };
+public:
+    int GetNNodes();
+    int GetNCells();
+    int GetNFaces();
+    int GetNBFaces();
+    int GetNTCells();
     void GenerateGrid( int ni, Real xmin, Real xmax );
     void CalcTopology();
     void PushElement( int p1, int p2, int eType );
+    void PushBoundaryFace( int pt, int eType );
     void ReorderFaces();
     void CalcOrderMap( IntList &orderMap );
     void SetBcGhostCell();
@@ -186,14 +218,53 @@ public:
     void AllocateBc();
     void SetBcTypes();
 public:
+    void ReadFromCgnsZbase( CgnsZbase * cgnsZbase );
+    void ReadFromCgnsZone( CgnsZone * cgnsZone );
+    void PushElement( CgIntField & eNodeId, int eType );
+    void GenerateGridFromCgns( const string & prjFileName );
+    void DumpCgnsGrid();
+    void SetCgnsZone( CgnsZone * cgnsZone );
+public:
+    void CalcVolumeSection( SectionManager * volumeSectionManager );
+    void CalcBoundarySection( SectionManager * bcSectionManager );
+public:
     void CalcMetrics1D();
     void CalcFaceCenter1D();
+    void CalcCellCenter1D();
     void CalcCellCenterVol1D();
+    void CalcCellVolume1D();
     void CalcFaceNormal1D();
     void CalcGhostCellCenterVol1D();
 public:
     void CalcC2C( EList & c2c );
-    
+    void CalcInterfaceToBcFace();
+    void Normalize();
+public:
+    void GetSId( int i_interface, int & sId );
+    void GetTId( int i_interface, int & tId );
+public:
+    void DumpCalcGrid();
+    void ReadCalcGrid();
+    void WriteGrid( DataBook * databook );
+    void ReadGrid( DataBook * databook );
+    void WriteGrid( fstream & file );
+    void ReadGrid( fstream & file );
+    void CreateNodes( int numberOfNodes );
+    void WriteGridFaceTopology( DataBook * databook );
+    void WriteBoundaryTopology( DataBook * databook );
+    void ReadGridFaceTopology( DataBook * databook );
+    void ReadBoundaryTopology( DataBook * databook );
+    void NormalizeBc();
+public:
+    //partition
+    void AddFaceType( int fType );
+    void AddInterface( int global_interface_id, int neighbor_zoneid, int neighbor_cellid );
+    void AddPhysicalBcFace( int global_face_id, int bctype, int lcell, int rcell );
+    void AddInnerFace( int global_face_id, int bctype, int lcell, int rcell );
+    void AddInterfaceBcFace( int global_face_id, int bctype, int lcell, int rcell, int nei_zoneid, int nei_cellid );
+    void ReconstructNode( ScalarGrid * ggrid );
+
 };
+
 
 EndNameSpace

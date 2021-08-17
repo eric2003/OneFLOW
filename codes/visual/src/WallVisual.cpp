@@ -151,23 +151,23 @@ void WallVisual::BuildFaceTopo( IntField & faceNodeIndexArray, int loc_Face, int
     }
 }
 
-void WallVisual::CalcOrderMap( int & nBFace, IntField & orderMapping )
+void WallVisual::CalcOrderMap( int & nBFaces, IntField & orderMapping )
 {
-    int nFace = rCell.size();
-    orderMapping.resize( nFace );
+    int nFaces = rCell.size();
+    orderMapping.resize( nFaces );
     int iCount = 0;
-    nBFace = 0;
-    for ( int iFace = 0; iFace < nFace; ++ iFace )
+    nBFaces = 0;
+    for ( int iFace = 0; iFace < nFaces; ++ iFace )
     {
         int rc = rCell[ iFace ];
         if ( rc == INVALID_INDEX )
         {
             orderMapping[ iCount ++ ] = iFace;
-            ++ nBFace;
+            ++ nBFaces;
         }
     }
 
-    for ( int iFace = 0; iFace < nFace; ++ iFace )
+    for ( int iFace = 0; iFace < nFaces; ++ iFace )
     {
         int rc = rCell[ iFace ];
         if ( rc != INVALID_INDEX )
@@ -183,11 +183,11 @@ void WallVisual::ConstructTopology2D()
 
 void WallVisual::ConstructTopology3D()
 {
-    UInt nCell = this->eLink.size();
+    UInt nCells = this->eLink.size();
 
     HXSort< IntField > faceForSorting;
 
-    for ( UInt iCell = 0; iCell < nCell; ++ iCell )
+    for ( UInt iCell = 0; iCell < nCells; ++ iCell )
     {
         IntField & element = this->eLink[ iCell ];
 
@@ -201,9 +201,9 @@ void WallVisual::ConstructTopology3D()
         {
             IntField & local_fn = unitElement->GetElementFace( loc_Face );
             int face_type = unitElement->GetFaceType( loc_Face );
-            int nNode = local_fn.size();
+            int nNodes = local_fn.size();
             IntField fn;
-            for ( int iFacePoint = 0; iFacePoint < nNode; ++ iFacePoint )
+            for ( int iFacePoint = 0; iFacePoint < nNodes; ++ iFacePoint )
             {
                 fn.push_back( element[ local_fn[ iFacePoint ] ] );
             }
@@ -213,8 +213,8 @@ void WallVisual::ConstructTopology3D()
     }
 
     IntField orderMapping;
-    int nBFace = 0;
-    CalcOrderMap( nBFace, orderMapping );
+    int nBFaces = 0;
+    CalcOrderMap( nBFaces, orderMapping );
 
     ONEFLOW::Reorder( this->lCell, orderMapping );
     ONEFLOW::Reorder( this->rCell, orderMapping );
@@ -223,9 +223,9 @@ void WallVisual::ConstructTopology3D()
     ONEFLOW::Reorder( this->fLink, orderMapping );
     ONEFLOW::Reorder( this->faceType, orderMapping );
 
-    for ( int iFace = 0; iFace < nBFace; ++ iFace )
+    for ( int iFace = 0; iFace < nBFaces; ++ iFace )
     {
-        rCell[ iFace ] = iFace + nCell;
+        rCell[ iFace ] = iFace + nCells;
     }
 }
 

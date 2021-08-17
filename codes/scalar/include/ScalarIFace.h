@@ -25,10 +25,15 @@ License
 #include "Configure.h"
 #include "HXType.h"
 #include "HXDefine.h"
+#include "MetisGrid.h"
 #include <vector>
+#include <map>
 using namespace std;
 
 BeginNameSpace( ONEFLOW )
+
+class DataStorage;
+class DataBook;
 
 class ScalarIFaceIJ
 {
@@ -38,40 +43,58 @@ public:
 public:
     int zonei, zonej;
     vector< int > ghostCells;
+    //global interface id
+    vector< int > iglobalfaces;
+    //local interface id
+    vector< int > ifaces;
     vector< int > cells;
-};
 
-class GridTopo;
-class GridTopos;
+    vector< int > target_ifaces;
+    vector< int > recv_ifaces;
+public:
+    void WriteInterfaceTopology( DataBook * databook );
+    void ReadInterfaceTopology( DataBook * databook );
+};
 
 class ScalarIFace
 {
 public:
-    ScalarIFace() ;
+    ScalarIFace();
     ~ScalarIFace();
 public:
     vector< ScalarIFaceIJ > data;
-    vector<int> ifaces;
-    vector<int> zones;
-    vector<int> cells;
-    int zoneid;
-public:
-    void GetInterface();
-    void CalcInterface( GridTopo * gridTopo );
+    
+    vector< int > iglobalfaces;
+    //targt zones
+    vector< int > zones;
+    //target cells
+    vector< int > cells;
+    //target interfaces (local)
+    vector< int > target_interfaces;
+    //int zoneid;
+    DataStorage * dataSend;
+    DataStorage * dataRecv;
+    //global interface id to local interface id map
+    map<int, int> global_to_local_interfaces;
+    //local interface id to global interface id map
+    map<int, int> local_to_global_interfaces;
 
+    //mapping relationship between local interface bc ID and boundary bc ID
+    vector< int > interface_to_bcface;
+public:
+    int GetNIFaces();
+    int FindINeibor( int iZone );
+    void DumpInterfaceMap();
+    void DumpMap( map<int, int> & mapin );
+    int GetLocalInterfaceId( int global_interface_id );
+    void CalcLocalInterfaceId( int iZone, vector<int> & globalfaces, vector<int> & localfaces );
+    void AddInterface( int global_interface_id, int neighbor_zoneid, int neighbor_cellid );
+    void ReconstructNeighbor();
+    DataStorage * GetDataStorage( int iSendRecv );
+public:
+    void WriteInterfaceTopology( DataBook * databook );
+    void ReadInterfaceTopology( DataBook * databook );
 };
 
-class ScalarIFaces
-{
-public:
-    ScalarIFaces() ;
-    ~ScalarIFaces();
-public:
-    vector< ScalarIFace > data;
-public:
-    void GetInterface();
-    void CalcInterface( GridTopos * gridTopos );
-
-};
 
 EndNameSpace

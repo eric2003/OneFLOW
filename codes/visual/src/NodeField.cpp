@@ -33,8 +33,8 @@ BeginNameSpace( ONEFLOW )
 MRField * AllocNodeVar( int nEqu )
 {
     UnsGrid * grid = Zone::GetUnsGrid();
-    int nNode = grid->nNode;
-    MRField * nf = new MRField( nEqu, nNode );
+    int nNodes = grid->nNodes;
+    MRField * nf = new MRField( nEqu, nNodes );
     return nf;
 }
 
@@ -42,7 +42,7 @@ MRField * CreateNodeVar( const string & name )
 {
     UnsGrid * grid = Zone::GetUnsGrid();
     MRField * cf = GetFieldPointer< MRField > ( grid, name );
-    int nNode = grid->nNode;
+    int nNodes = grid->nNodes;
     int nEqu = cf->GetNEqu();
 
     MRField * nf = AllocNodeVar( nEqu );
@@ -65,18 +65,18 @@ void CalcNodeVar( RealField & qNodeField, RealField & qField )
 {
     UnsGrid * grid = Zone::GetUnsGrid();
     FaceTopo * faceTopo = grid->faceTopo;
-    LinkField & f2c = faceTopo->f2n;
+    LinkField & f2c = faceTopo->faces;
 
-    int nNode = grid->nNode;
-    int nFace = grid->nFace;
-    RealField nCount( nNode );
+    int nNodes = grid->nNodes;
+    int nFaces = grid->nFaces;
+    RealField nCount( nNodes );
     nCount = 0.0;
     qNodeField = 0.0;
 
-    for ( int iFace = 0; iFace < nFace; ++ iFace )
+    for ( int iFace = 0; iFace < nFaces; ++ iFace )
     {
-        int lc = faceTopo->lCell[ iFace ];
-        int rc = faceTopo->rCell[ iFace ];
+        int lc = faceTopo->lCells[ iFace ];
+        int rc = faceTopo->rCells[ iFace ];
 
         int fnNode = f2c[ iFace ].size();
         for ( int iNode = 0; iNode < fnNode; ++ iNode )
@@ -96,7 +96,7 @@ void CalcNodeVar( RealField & qNodeField, RealField & qField )
     FixBcNodeVar( qNodeField, qField, nCount, BC::INTERFACE    , true );
     FixBcNodeVar( qNodeField, qField, nCount, BC::FARFIELD     , true );
 
-    for ( int iNode = 0; iNode < nNode; ++ iNode )
+    for ( int iNode = 0; iNode < nNodes; ++ iNode )
     {
         qNodeField[ iNode ] /= ( nCount[ iNode ] + SMALL );
     }
@@ -107,17 +107,17 @@ void FixBcNodeVar( RealField & qNodeField, RealField & qField, RealField & nCoun
     UnsGrid * grid = Zone::GetUnsGrid();
     FaceTopo * faceTopo = grid->faceTopo;
     BcRecord * bcRecord = faceTopo->bcManager->bcRecord;
-    LinkField & f2c = faceTopo->f2n;
+    LinkField & f2c = faceTopo->faces;
 
-    int nNode = grid->nNode;
-    int nFace = grid->nFace;
-    int nBFace = grid->nBFace;
+    int nNodes = grid->nNodes;
+    int nFaces = grid->nFaces;
+    int nBFaces = grid->nBFaces;
 
-    for ( int iFace = 0; iFace < nBFace; ++ iFace )
+    for ( int iFace = 0; iFace < nBFaces; ++ iFace )
     {
         if ( bcRecord->bcType[ iFace ] != bcType ) continue;
-        int lc = faceTopo->lCell[ iFace ];
-        int rc = faceTopo->rCell[ iFace ];
+        int lc = faceTopo->lCells[ iFace ];
+        int rc = faceTopo->rCells[ iFace ];
 
         int fnNode = f2c[ iFace ].size();
         for ( int iNode = 0; iNode < fnNode; ++ iNode )
@@ -128,12 +128,12 @@ void FixBcNodeVar( RealField & qNodeField, RealField & qField, RealField & nCoun
         }
     }
 
-    for ( int iFace = 0; iFace < nBFace; ++ iFace )
+    for ( int iFace = 0; iFace < nBFaces; ++ iFace )
     {
         if ( bcRecord->bcType[ iFace ] != bcType ) continue;
 
-        int lc = faceTopo->lCell[ iFace ];
-        int rc = faceTopo->rCell[ iFace ];
+        int lc = faceTopo->lCells[ iFace ];
+        int rc = faceTopo->rCells[ iFace ];
 
         int fnNode = f2c[ iFace ].size();
         for ( int iNode = 0; iNode < fnNode; ++ iNode )

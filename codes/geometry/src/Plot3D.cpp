@@ -119,7 +119,7 @@ void Plot3D::ReadCoorBinary( GridMediator * gridMediator )
         grid->nj = nj;
         grid->nk = nk;
         grid->SetBasicDimension();
-        grid->nodeMesh->CreateNodes( grid->nNode );
+        grid->nodeMesh->CreateNodes( grid->nNodes );
 
         grid->SetLayout();
 
@@ -138,7 +138,7 @@ void Plot3D::ReadCoorBinary( GridMediator * gridMediator )
     for ( int iZone = 0; iZone < gridMediator->numberOfZones; ++ iZone )
     {
         StrGrid * grid = ONEFLOW::StrGridCast( gridMediator->gridVector[ iZone ] );
-        int numberOfNodes = grid->nNode;
+        int numberOfNodes = grid->nNodes;
 
         int ni = grid->ni;
         int nj = grid->nj;
@@ -254,7 +254,7 @@ void Plot3D::ReadCoorAscii( GridMediator * gridMediator )
         grid->nj = nj;
         grid->nk = nk;
         grid->SetBasicDimension();
-        grid->nodeMesh->CreateNodes( grid->nNode );
+        grid->nodeMesh->CreateNodes( grid->nNodes );
 
         grid->SetLayout();
 
@@ -274,7 +274,7 @@ void Plot3D::ReadCoorAscii( GridMediator * gridMediator )
     for ( int iZone = 0; iZone < gridMediator->numberOfZones; ++ iZone )
     {
         StrGrid * grid = ONEFLOW::StrGridCast( gridMediator->gridVector[ iZone ] );
-        int numberOfNodes = grid->nNode;
+        int numberOfNodes = grid->nNodes;
 
         int ni = grid->ni;
         int nj = grid->nj;

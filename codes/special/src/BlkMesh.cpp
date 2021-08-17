@@ -85,11 +85,11 @@ void BlkBasic::DumpInp( fstream & file )
 
     file << "zone" << this->blk_id + 1 << "\n";
 
-    int nFace = this->facelist.size();
+    int nFaces = this->facelist.size();
 
-    file << setw( width )  << nFace << "\n";
+    file << setw( width )  << nFaces << "\n";
 
-    for ( int iFace = 0; iFace < nFace; ++ iFace )
+    for ( int iFace = 0; iFace < nFaces; ++ iFace )
     {
         Face2D * face2d = this->facelist[ iFace ];
         face2d->CalcRegion();

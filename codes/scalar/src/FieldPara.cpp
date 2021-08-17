@@ -21,6 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "FieldPara.h"
+#include "DataBase.h"
 #include <iostream>
 #include <fstream>
 #include <vector>
@@ -40,12 +41,20 @@ FieldPara::~FieldPara()
 
 void FieldPara::Init()
 {
-    this->nx = 41;
-    this->len = 2.0;
-    this->dx = len / ( nx - 1.0 );
-    this->nt = 25;
-    this->dt = 0.025;
-    this->c  = 1;
+    //this->nx = 41;
+    //this->len = 2.0;
+    //this->dx = len / ( nx - 1.0 );
+    ////this->nt = 25;
+    //this->nt = 25;
+    //this->dt = 0.025;
+    //this->c  = 1;
+
+    this->nx  = ONEFLOW::GetDataValue< int >("scalar_nx");
+    this->len = ONEFLOW::GetDataValue< int >("scalar_len");
+    this->nt  = ONEFLOW::GetDataValue< int >("scalar_nt");
+    this->dt  = ONEFLOW::GetDataValue< Real >("scalar_dt");
+    this->c   = ONEFLOW::GetDataValue< Real >("scalar_c");
+    this->dx  = this->len / ( this->nx - 1.0 );
 }
 
 EndNameSpace

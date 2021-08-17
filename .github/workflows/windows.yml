@@ -1,0 +1,52 @@
+# This is a basic workflow to help you get started with Actions
+
+name: ONEFLOW_Windows_CI
+
+# Controls when the workflow will run
+on:
+  # Triggers the workflow on push or pull request events but only for the main branch
+  push:
+    branches: [ main, hexin ]
+  pull_request:
+    branches: [ main, hexin ]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "build"
+  build:
+    name: "Windows OneFLOW Actions"
+    runs-on: windows-latest
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+      - name: Download and Install MPI HDF5 CGNS METIS
+        run: |
+          cd ${{ github.workspace }}
+          ls
+          $psfile = "${{ github.workspace }}/.github/workflows/oneflow_windows_actions.ps1"
+          & $psfile
+        shell: pwsh
+      - name: Run OneFLOW CFD Tests
+        env:
+          prefix: ${{ github.workspace }}
+        run: |
+          cd ${{ github.workspace }}
+          python --version
+          ls "${{env.prefix}}"
+          Write-Host "path 1..........................."
+          $Env:path
+          $Env:path = [environment]::GetEnvironmentvariable("path", [System.EnvironmentVariableTarget]::Machine)
+          $Env:path = $Env:Path + ";C:OneFLOW/bin"
+          Write-Host "path 2..........................."
+          $Env:path
+          Write-Host "cd test"
+          cd test
+          ls
+          python --version
+          python test.py "mpiexec -n 1" "OneFLOW"
+        shell: pwsh

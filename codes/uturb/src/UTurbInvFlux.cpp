@@ -96,8 +96,8 @@ void UTurbInvFlux::AddInvFlux()
     vector< vector< Real > > tmp( turbcom.nEqu );
     for ( int iEqu = 0; iEqu < turbcom.nEqu; ++ iEqu )
     {
-        tmp[ iEqu ].resize( ug.nCell );
-        for ( int cId = 0; cId < ug.nCell; ++ cId )
+        tmp[ iEqu ].resize( ug.nCells );
+        for ( int cId = 0; cId < ug.nCells; ++ cId )
         {
             tmp[ iEqu ][ cId ] = ( * invflux  )[ iEqu ][ cId ];
         }
@@ -107,8 +107,8 @@ void UTurbInvFlux::AddInvFlux()
     vector< vector< Real > > tmp( turbcom.nEqu );
     for ( int iEqu = 0; iEqu < turbcom.nEqu; ++ iEqu )
     {
-        tmp[ iEqu ].resize( ug.nCell );
-        for ( int cId = 0; cId < ug.nCell; ++ cId )
+        tmp[ iEqu ].resize( ug.nCells );
+        for ( int cId = 0; cId < ug.nCells; ++ cId )
         {
             tmp[ iEqu ][ cId ] = ( * res   )[ iEqu ][ cId ];
         }
@@ -119,7 +119,7 @@ void UTurbInvFlux::AddInvFlux()
 
 void UTurbInvFlux::Alloc()
 {
-    invflux = new MRField( limf->nEqu, ug.nFace );
+    invflux = new MRField( limf->nEqu, ug.nFaces );
 }
 
 void UTurbInvFlux::DeAlloc()
@@ -146,7 +146,7 @@ void UTurbInvFlux::CalcFlux()
 
 void UTurbInvFlux::CalcInvFlux()
 {
-    for ( int fId = 0; fId < ug.nFace; ++ fId )
+    for ( int fId = 0; fId < ug.nFaces; ++ fId )
     {
         ug.fId = fId;
 

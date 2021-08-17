@@ -92,6 +92,7 @@ public:
     void DumpCgnsZoneType();
     void ReadCgnsZoneNameAndGeneralizedDimension();
     void DumpCgnsZoneNameAndGeneralizedDimension();
+    void WriteZoneInfo( const string & zoneName, ZoneType_t zoneType, cgsize_t * isize );
     void SetDimension();
     void ReadElementConnectivities();
     void DumpElementConnectivities();

@@ -22,6 +22,10 @@ License
 
 #include "ScalarIFace.h"
 #include "MetisGrid.h"
+#include "DataStorage.h"
+#include "DataBaseIO.h"
+#include "DataBook.h"
+#include "SolverDef.h"
 #include <iostream>
 #include <vector>
 #include <algorithm>
@@ -38,72 +42,200 @@ ScalarIFaceIJ::~ScalarIFaceIJ()
 {
 }
 
+void ScalarIFaceIJ::WriteInterfaceTopology( DataBook * databook )
+{
+    int nIFaces = ifaces.size();
+    ONEFLOW::HXWrite( databook, this->zonej );
+    ONEFLOW::HXWrite( databook, nIFaces );
+    ONEFLOW::HXWrite( databook, this->ifaces );
+    ONEFLOW::HXWrite( databook, this->recv_ifaces );
+}
+
+void ScalarIFaceIJ::ReadInterfaceTopology( DataBook * databook )
+{
+    ONEFLOW::HXRead( databook, this->zonej );
+    int nIFaces = -1;
+    ONEFLOW::HXRead( databook, nIFaces );
+    this->ifaces.resize( nIFaces );
+    this->recv_ifaces.resize( nIFaces );
+
+    ONEFLOW::HXRead( databook, this->ifaces );
+    ONEFLOW::HXRead( databook, this->recv_ifaces );
+}
+
 ScalarIFace::ScalarIFace()
 {
-    ;
+    this->dataSend = new DataStorage();
+    this->dataRecv = new DataStorage();
 }
 
 ScalarIFace::~ScalarIFace()
 {
+    delete this->dataSend;
+    delete this->dataRecv;
 }
-//IFace( iZone, jZone );
-//iface(2,3,4,5,6) 对应自己的ghostcell分别为（nCell+2，nCell+3，nCell+4，nCell+5，nCell+6）
-//对面的Zone为2，实际cell是7,8,9,10,11(局部cell id)，全局id为（70,80,90,100,110）
-//iface(10,11,12) 对应自己的ghostcell分别为（nCell+10，nCell+11，nCell+12）对应对面的Zone为3，cell是31,34,47(局部cell id)，全局id为（310,340,470）
-//那么len（iface（1,2））=5，也就是5个元素，这时可以通过告诉对方获得。
 
-void ScalarIFace::GetInterface()
+void ScalarIFace::AddInterface( int global_interface_id, int neighbor_zoneid, int neighbor_cellid )
+{
+    int ilocal_interface = this->iglobalfaces.size();
+    this->iglobalfaces.push_back( global_interface_id );
+    this->zones.push_back( neighbor_zoneid );
+    this->cells.push_back( neighbor_cellid );
+    this->global_to_local_interfaces[ global_interface_id ] = ilocal_interface;
+    this->local_to_global_interfaces[ ilocal_interface ] = global_interface_id;
+}
+
+int ScalarIFace::GetLocalInterfaceId( int global_interface_id )
+{
+    return this->global_to_local_interfaces[ global_interface_id ];
+}
+
+int ScalarIFace::GetNIFaces()
+{
+    return zones.size();
+}
+
+int ScalarIFace::FindINeibor( int iZone )
 {
     int nNeis = data.size();
     for( int iNei = 0; iNei < nNeis; ++ iNei)
     {
         ScalarIFaceIJ & iFaceIJ = data[ iNei ];
-        int iZone =  iFaceIJ.zonej;
-        vector<int> & ghostCells = iFaceIJ.ghostCells;
-    }
-}
-
-void ScalarIFace::CalcInterface( GridTopo * gridTopo )
-{
-    this->zoneid = gridTopo->zoneid;
-    int nFaces = gridTopo->facetype.size();
-    for ( int iFace = 0; iFace < nFaces; ++ iFace )
-    {
-        int facetype = gridTopo->facetype[ iFace ];
-        if ( facetype == -1 )
+        if ( iZone == iFaceIJ.zonej )
         {
-            int faceid = gridTopo->faceid[ iFace ];
-            ifaces.push_back( faceid );
+            return iNei;
         }
     }
-    int kkk = 1;
+    return -1;
 }
 
-ScalarIFaces::ScalarIFaces()
+void ScalarIFace::CalcLocalInterfaceId( int iZone, vector<int> & globalfaces, vector<int> & localfaces )
 {
-    ;
-}
-
-ScalarIFaces::~ScalarIFaces()
-{
-    ;
-}
-
-void ScalarIFaces::GetInterface()
-{
-    int nZones = data.size();
-    for( int iZone = 0; iZone < nZones; ++ iZone )
+    for ( int i = 0; i < globalfaces.size(); ++ i )
     {
-        data[ iZone ].GetInterface();
+        int gid = globalfaces[ i ];
+        int lid = this->global_to_local_interfaces[ gid ];
+        localfaces.push_back( lid );
+    }
+    //The neighbor of iZone iNei is jzone, and the jNei neighbor of jZone is iZone
+    int jNei = FindINeibor( iZone );
+    //cout << " zoneid = " << this->zoneid << " iZone() = " << iZone << " jNei = " << jNei << "\n";
+    ScalarIFaceIJ & iFaceIJ = this->data[ jNei ];
+    iFaceIJ.recv_ifaces = localfaces;
+}
+
+void ScalarIFace::DumpInterfaceMap()
+{
+    cout << " global_to_local_interfaces map \n";
+    this->DumpMap( this->global_to_local_interfaces );
+    cout << "\n";
+    cout << " local_to_global_interfaces map \n";
+    this->DumpMap( this->local_to_global_interfaces );
+    cout << "\n";
+}
+
+void ScalarIFace::DumpMap( map<int,int> & mapin )
+{
+    for ( map<int, int>::iterator iter = mapin.begin(); iter != mapin.end(); ++ iter )
+    {
+        cout << iter->first << " " << iter->second << "\n";
+    }
+    cout << "\n";
+}
+
+void ScalarIFace::ReconstructNeighbor()
+{
+    int nSize = zones.size();
+    set<int> nei_zoneidset;
+    for ( int i = 0; i < nSize; ++ i )
+    {
+        int nei_zoneid = zones[ i ];
+        nei_zoneidset.insert( nei_zoneid );
+    }
+
+    for ( set<int>::iterator iter = nei_zoneidset.begin(); iter != nei_zoneidset.end(); ++ iter )
+    {
+        ScalarIFaceIJ sij;
+        int current_nei_zoneid = * iter;
+        //sij.zonei = zoneid;
+        sij.zonej = current_nei_zoneid;
+
+        for ( int i = 0; i < nSize; ++ i )
+        {
+            int nei_zoneid = zones[ i ];
+            if ( nei_zoneid == current_nei_zoneid )
+            {
+                sij.cells.push_back( this->cells[ i ] );
+                sij.iglobalfaces.push_back( this->iglobalfaces[ i ] );
+                sij.ifaces.push_back( i );
+            }
+        }
+        this->data.push_back( sij );
     }
 }
 
-void ScalarIFaces::CalcInterface( GridTopos * gridTopos )
+DataStorage * ScalarIFace::GetDataStorage( int iSendRecv )
 {
-    int nZones = data.size();
-    for( int iZone = 0; iZone < nZones; ++ iZone )
+    if ( iSendRecv == SEND_STORAGE )
     {
-        data[ iZone ].CalcInterface( & gridTopos->data[ iZone ] );
+        return this->dataSend;
+    }
+    else if ( iSendRecv == RECV_STORAGE )
+    {
+        return this->dataRecv;
+    }
+    else
+    {
+        return 0;
+    }
+}
+
+void ScalarIFace::WriteInterfaceTopology( DataBook * databook )
+{
+    int nIFaces = this->GetNIFaces();
+
+    ONEFLOW::HXWrite( databook, nIFaces );
+    if ( nIFaces > 0 )
+    {
+    	ONEFLOW::HXWrite( databook, this->zones               );
+    	ONEFLOW::HXWrite( databook, this->target_interfaces   );
+    	ONEFLOW::HXWrite( databook, this->interface_to_bcface );
+
+        int nNeis = data.size();
+        ONEFLOW::HXWrite( databook, nNeis );
+        for ( int iNei = 0; iNei < nNeis; ++ iNei )
+        {
+            ScalarIFaceIJ & iFaceIJ = data[ iNei ];
+            iFaceIJ.WriteInterfaceTopology( databook );
+        }
+    }
+}
+
+void ScalarIFace::ReadInterfaceTopology( DataBook * databook )
+{
+    int nIFaces = -1;
+    ONEFLOW::HXRead( databook, nIFaces );
+
+    cout << " nIFaces = " << nIFaces << endl;
+
+    if ( nIFaces > 0 )
+    {
+        this->zones.resize( nIFaces );
+        this->target_interfaces.resize( nIFaces );
+        this->interface_to_bcface.resize( nIFaces );
+
+        ONEFLOW::HXRead( databook, this->zones               );
+        ONEFLOW::HXRead( databook, this->target_interfaces   );
+        ONEFLOW::HXRead( databook, this->interface_to_bcface );
+
+        int nNeis = -1;
+        ONEFLOW::HXRead( databook, nNeis );
+        this->data.resize( nNeis );
+        for ( int iNei = 0; iNei < nNeis; ++ iNei )
+        {
+            ScalarIFaceIJ & iFaceIJ = data[ iNei ];
+            iFaceIJ.ReadInterfaceTopology( databook );
+        }
     }
 }
 

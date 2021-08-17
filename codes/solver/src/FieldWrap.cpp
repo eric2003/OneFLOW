@@ -94,7 +94,7 @@ FieldWrap * FieldHome::CreateField( int sTid, int level )
 
     Grid * grid = Zone::GetGrid();
 
-    int nTCell = grid->nCell + grid->nBFace;
+    int nTCell = grid->nCells + grid->nBFaces;
 
     MRField * field = new MRField( info->nTEqu, nTCell );
 

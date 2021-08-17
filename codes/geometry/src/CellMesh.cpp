@@ -55,8 +55,8 @@ UInt CellMesh::GetNumberOfCells()
 void CellMesh::AllocateMetrics( FaceMesh * faceMesh )
 {
     UInt numberOfCells = this->GetNumberOfCells();
-    UInt nBFace = faceMesh->GetNBFace();
-    UInt nTCell = numberOfCells + nBFace;
+    UInt nBFaces = faceMesh->GetNBFace();
+    UInt nTCell = numberOfCells + nBFaces;
     this->xcc.resize( nTCell );
     this->ycc.resize( nTCell );
     this->zcc.resize( nTCell );
@@ -85,16 +85,16 @@ void CellMesh::DumpDist()
 void CellMesh::CalcCellSpan( UnsGrid * grid )
 {
     if ( this->span.size() ) return;
-    int nCell = this->GetNumberOfCells();
-    this->span.resize( nCell );
+    int nCells = this->GetNumberOfCells();
+    this->span.resize( nCells );
     CalcC2f( grid );
 
     FaceTopo * faceTopo = grid->faceTopo;
     LinkField & c2f = this->cellTopo->c2f;
-    IntField & lcf = faceTopo->lCell;
-    IntField & rcf = faceTopo->rCell;
+    IntField & lcf = faceTopo->lCells;
+    IntField & rcf = faceTopo->rCells;
 
-    for ( int ic = 0; ic < nCell; ++ ic )
+    for ( int ic = 0; ic < nCells; ++ ic )
     {
         Real delta  = - LARGE;
         Real deltaj = 0.0;

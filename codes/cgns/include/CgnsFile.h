@@ -60,6 +60,7 @@ public:
     void GoPath( const string & path );
     void ReadNumberOfBases();
     void ReadBases();
+    CgnsBase * CreateCgnsBase();
     void ReadArray();
     void ReadReferenceState();
     void ReadBaseDescriptor();

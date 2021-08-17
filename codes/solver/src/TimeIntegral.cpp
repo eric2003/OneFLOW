@@ -58,7 +58,7 @@ void TimeIntegral::Init()
     {
         TimeIntegral::timeIntegral = & TimeIntegral::RungeKutta;
     }
-	else if (ctrl.time_integral == SIMPLE)
+	else if ( ctrl.time_integral == SIMPLE )
 	{
 		TimeIntegral::timeIntegral = &TimeIntegral::Simple;
 	}

@@ -49,19 +49,21 @@ public:
 public:
     CgInt irmin[ 3 ], irmax[ 3 ], cellSize[ 3 ];
 protected:
-    CgInt nNode, nCell;
+    CgInt nNodes, nCells;
 public:
     CgInt GetNNode();
     CgInt GetNCell();
 
-    void SetNNode( CgInt nNode );
-    void SetNCell( CgInt nCell );
+    void SetNNode( CgInt nNodes );
+    void SetNCell( CgInt nCells );
 public:
     void * GetCoor( int iCoor ) { return coor[ iCoor ]; };
     void SetAllData( RealField & x, RealField & y, RealField & z );
-    void Alloc( int iCoor, int nNode, DataType_t data_type );
+    void Alloc( int iCoor, int nNodes, DataType_t data_type );
 public:
     void SetData( int iCoor, DataType_t data_type, Real * var );
+    void SetCoorData( int iCoor, DataType_t data_type, Real * var );
+    void SetAllCoorData();
     void CopyCoorData( CgnsCoor * cgnsCoorIn );
     void DeAlloc();
 public:

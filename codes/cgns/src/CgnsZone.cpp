@@ -119,8 +119,8 @@ void CgnsZone::SetElementTypeAndNode( ElemFeature * elem_feature )
         cgnsSection->SetElementTypeAndNode( elem_feature );
     }
     cout << "\n";
-    cout << " iZone = " << this->zId << " nCell = " << this->cgnsCoor->GetNCell() << "\n";
-    cout << " elem_feature->eType->size = " << elem_feature->eType->size() << endl;
+    cout << " iZone = " << this->zId << " nCells = " << this->cgnsCoor->GetNCell() << "\n";
+    cout << " elem_feature->eType->size = " << elem_feature->eTypes->size() << endl;
 }
 
 bool CgnsZone::ExistSection( const string & sectionName )
@@ -130,10 +130,10 @@ bool CgnsZone::ExistSection( const string & sectionName )
 
 void CgnsZone::InitLgMapping()
 {
-    int nNode = this->cgnsCoor->GetNNode();
-    this->l2g.resize( nNode );
+    int nNodes = this->cgnsCoor->GetNNode();
+    this->l2g.resize( nNodes );
 
-    for ( int iNode = 0; iNode < nNode; ++ iNode )
+    for ( int iNode = 0; iNode < nNodes; ++ iNode )
     {
         this->l2g[ iNode ] = iNode;
     }
@@ -161,9 +161,9 @@ void CgnsZone::ConstructCgnsGridPoints( PointFactory * point_factory )
 
     this->InitLgMapping();
 
-    size_t nNode = nodeMesh->GetNumberOfNodes();
+    size_t nNodes = nodeMesh->GetNumberOfNodes();
 
-    for ( int iNode = 0; iNode < nNode; ++ iNode )
+    for ( int iNode = 0; iNode < nNodes; ++ iNode )
     {
         int pid = point_factory->AddPoint( x[ iNode ], y[ iNode ], z[ iNode ] );
         
@@ -262,6 +262,20 @@ void CgnsZone::DumpCgnsZoneNameAndGeneralizedDimension()
     cg_zone_write( cgnsBase->cgnsFile->fileId, cgnsBase->baseId, zoneName.c_str(), isize, cgnsZoneType, &this->zId );
     cout << "   Zone Id = " << this->zId << "\n";
     cout << "   CGNS Zone Name = " << this->zoneName << "\n";
+}
+
+void CgnsZone::WriteZoneInfo( const string & zoneName, ZoneType_t zoneType, cgsize_t * isize )
+{
+    int fileId = cgnsBase->cgnsFile->fileId;
+    int baseId = cgnsBase->baseId;
+
+    this->Create();
+
+    this->zoneName = zoneName;
+    this->cgnsZoneType = zoneType;
+    this->CopyISize( isize );
+
+    cg_zone_write( fileId, baseId, zoneName.c_str(), isize, cgnsZoneType, &this->zId );
 }
 
 void CgnsZone::SetDimension()

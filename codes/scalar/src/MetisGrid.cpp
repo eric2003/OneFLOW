@@ -22,6 +22,7 @@ License
 
 #include "MetisGrid.h"
 #include "ScalarGrid.h"
+#include "ScalarIFace.h"
 #include "Constant.h"
 #include "HXCgns.h"
 #include "ElementHome.h"
@@ -35,17 +36,40 @@ using namespace std;
 
 BeginNameSpace( ONEFLOW )
 
-MetisPart::MetisPart( ScalarGrid * ggrid )
+MetisSplit::MetisSplit()
 {
-	this->ggrid = ggrid;
 }
 
-MetisPart::~MetisPart()
+MetisSplit::~MetisSplit()
 {
 	;
 }
 
-void MetisPart::MetisPartition( int nPart, MetisIntList & cellzone )
+void MetisSplit::ManualPartition( ScalarGrid * ggrid, int nPart, MetisIntList & cellzone )
+{
+	int nFaces = ggrid->GetNFaces();
+	int nCells = ggrid->GetNCells();
+	int nBFaces = ggrid->GetNBFaces();
+	int nInnerFaces = nFaces - nBFaces;
+
+	vector< int > tmp;
+	for ( int iCell = 0; iCell < nCells; iCell += 2 )
+	{
+		tmp.push_back( iCell );
+	}
+
+	for ( int iCell = 1; iCell < nCells; iCell += 2 )
+	{
+		tmp.push_back( iCell );
+	}
+
+	for ( int iCell = 0; iCell < nCells; ++ iCell )
+	{
+		cellzone[ iCell ] = tmp[ iCell ];
+	}
+}
+
+void MetisSplit::MetisPartition( ScalarGrid * ggrid, int nPart, MetisIntList & cellzone )
 {
 	int nFaces = ggrid->GetNFaces();
 	int nCells = ggrid->GetNCells();
@@ -56,11 +80,17 @@ void MetisPart::MetisPartition( int nPart, MetisIntList & cellzone )
 	adjncy.resize( 2 * nInnerFaces );
 	cellzone.resize( nCells );
 
+	if ( nPart == nCells )
+	{
+		ManualPartition( ggrid, nPart, cellzone );
+		return;
+	}
+
 	ScalarGetXadjAdjncy( ggrid, xadj, adjncy );
 	ScalarPartitionByMetis( nCells, xadj, adjncy, nPart, cellzone );
 }
 
-void MetisPart::ScalarGetXadjAdjncy( ScalarGrid * ggrid, MetisIntList & xadj, MetisIntList & adjncy )
+void MetisSplit::ScalarGetXadjAdjncy( ScalarGrid * ggrid, MetisIntList & xadj, MetisIntList & adjncy )
 {   
 	int nCells = ggrid->GetNCells();
 
@@ -79,7 +109,7 @@ void MetisPart::ScalarGetXadjAdjncy( ScalarGrid * ggrid, MetisIntList & xadj, Me
 	}
 }
 
-void MetisPart::ScalarPartitionByMetis( idx_t nCells, MetisIntList & xadj, MetisIntList & adjncy, int nPart, MetisIntList & cellzone )
+void MetisSplit::ScalarPartitionByMetis( idx_t nCells, MetisIntList & xadj, MetisIntList & adjncy, int nPart, MetisIntList & cellzone )
 {
 	idx_t   ncon     = 1;
 	idx_t   * vwgt   = 0;
@@ -111,180 +141,116 @@ void MetisPart::ScalarPartitionByMetis( idx_t nCells, MetisIntList & xadj, Metis
 	cout << "Partition is finished!\n";
 }
 
-NetGrid::NetGrid()
+GridPartition::GridPartition()
+{
+}
+
+GridPartition::~GridPartition()
 {
 	;
 }
 
-NetGrid::~NetGrid()
+void GridPartition::PartitionGrid( ScalarGrid * ggrid, int nPart, vector< ScalarGrid * > *grids )
 {
-	this->DeAllocateGrid();
+	this->ggrid = ggrid;
+	this->nPart = nPart;
+	this->grids = grids;
+
+	this->ReconstructGridFaceTopo();
+	this->ReconstructNeighbor();
+	this->ReconstructInterfaceTopo();
+	this->CalcInterfaceToBcFace();
+	this->ReconstructNode();
 }
 
-void NetGrid::AllocateGrid( int nZones )
+int GridPartition::GetNZones()
+{
+	return this->nPart;
+}
+
+void GridPartition::AllocateGrid( int nZones )
 {
 	for ( int iZone = 0; iZone < nZones; ++ iZone )
 	{
 		ScalarGrid * grid = new ScalarGrid();
-		grids.push_back( grid );
+		grid->id = iZone;
+		( * this->grids ).push_back( grid );
 	}
 }
 
-void NetGrid::DeAllocateGrid()
+void GridPartition::ReconstructGridFaceTopo()
 {
-	int nZones = grids.size();
-	for ( int iZone = 0; iZone < nZones; ++ iZone )
-	{
-		delete grids[ iZone ];
-	}
-}
+	//calc cellzone;
+	MetisSplit metisSplit;
+	MetisIntList cellzone;
+	metisSplit.MetisPartition( this->ggrid, this->nPart, cellzone );
 
-GridTopo::GridTopo()
-{
-}
+	this->AllocateGrid( this->nPart );
 
-GridTopo::~GridTopo()
-{
-}
+	int nZones = this->GetNZones();
+	int nFaces = ggrid->GetNFaces();
+	int nCells = ggrid->GetNCells();
+	int nBFaces = ggrid->GetNBFaces();
 
-void GridTopo::AddFaceId( int iFace )
-{
-	faceid.push_back( iFace );
-}
-
-void GridTopo::AddFaceType( int faceType )
-{
-	this->facetype.push_back( faceType );
-}
-
-void GridTopo::ReconstructNode( EList & faces )
-{
-	int nFaces = faceid.size();
-	for ( int iFace = 0; iFace < nFaces; ++ iFace )
-	{
-		int iGFace = faceid[ iFace ];
-		vector< int > & face = faces[ iGFace ];
-		int nNode = face.size();
-		for ( int iNode = 0; iNode < nNode; ++ iNode )
-		{
-			nodeset.insert( face[ iNode ] );
-		}
-	}
-}
-
-GridTopos::GridTopos()
-{
-}
-
-GridTopos::~GridTopos()
-{
-}
-
-void GridTopos::Allocate( int nZones )
-{
-	data.resize( nZones );
-	for ( int iZone = 0; iZone < nZones; ++ iZone )
-	{
-		data[ iZone ].zoneid = iZone;
-	}
-}
-
-void GridTopos::CalcGlobal2LocalCells( MetisIntList & cellzone )
-{
-	int nZones = this->data.size();
-	int nCells = cellzone.size();
 	vector<int> zoneCount( nZones, 0 );
-	gLCells.resize( nCells );
+	vector<int> localCells; //global cell id -> local cell id
+	localCells.resize( nCells );
 
 	for ( int iCell = 0; iCell < nCells; ++ iCell )
 	{
 		int iZone = cellzone[ iCell ];
-		gLCells[ iCell ] = zoneCount[ iZone ] ++;
+		localCells[ iCell ] = zoneCount[ iZone ] ++;
+		int eType = this->ggrid->eTypes[ iCell ];
+		ScalarGrid * grid = ( * this->grids )[ iZone ];
+		grid->eTypes.AddData( eType );
 	}
-}
 
-void GridTopos::CalcInterface()
-{
-	int nZones = this->data.size();
-	this->scalarIFaces.data.resize( nZones );
-	this->scalarIFaces.CalcInterface( this );
-	int kkk = 1;
-}
-
-Part::Part()
-{
-}
-
-Part::~Part()
-{
-	;
-}
-
-void Part::PartitionGrid( ScalarGrid * ggrid, int nPart, NetGrid * netGrid )
-{
-	this->ggrid = ggrid;
-	this->nPart = nPart;
-	this->netGrid = netGrid;
-	//calc cellzone;
-	this->CalcCellZone();
-	this->ReconstructAllZones();
-}
-
-void Part::CalcCellZone()
-{
-	MetisPart metisPart( this->ggrid );
-	metisPart.MetisPartition( this->nPart, this->cellzone );
-}
-
-void Part::ReconstructAllZones()
-{
-	netGrid->AllocateGrid( this->nPart );
-	this->CalcGlobalInterface();
-	gtopos.Allocate( this->nPart );
-	gtopos.CalcGlobal2LocalCells( this->cellzone );
-	this->ReconstructGrid();
-	this->ReconstructNode();
-	gtopos.CalcInterface();
-	int kkk = 1;
-}
-
-void Part::CalcGlobalInterface()
-{
-	int nFaces = ggrid->GetNFaces();
-	int nCells = ggrid->GetNCells();
-	int nBFaces = ggrid->GetNBFaces();
-	int nInnerFaces = nFaces - nBFaces;
-	//global interfaces
-	vector< int > interfaces;
-    for ( int iFace = nBFaces; iFace < nFaces; ++ iFace )
-    {
-		int lc = ggrid->lc[ iFace ];
-		int rc = ggrid->rc[ iFace ];
-		if ( cellzone[ lc ] != cellzone[ rc ] )
-		{
-			interfaces.push_back( iFace );
-		}
-    }
-	int kkk = 1;
-}
-
-void Part::ReconstructGrid()
-{
-	int nFaces = ggrid->GetNFaces();
-	int nCells = ggrid->GetNCells();
-	int nBFaces = ggrid->GetNBFaces();
-
+	//First scan the global physical boundary
 	for ( int iFace = 0; iFace < nBFaces; ++ iFace )
 	{
 		int lc = ggrid->lc[ iFace ];
+		int bctype = ggrid->bcTypes[ iFace ];
 		int lZone = cellzone[ lc ];
-		gtopos[ lZone ].AddFaceId( iFace );
-		gtopos[ lZone ].AddFaceType( 1 );
-		int localCell = gtopos.gLCells[ lc ];
-		gtopos[ lZone ].lc.AddData( localCell );
-		gtopos[ lZone ].rc.AddData( ONEFLOW::INVALID_INDEX );
+		//global face id = iFace, local face id = faceid.size();
+		//global face node: 20,10,30,40, local face node 1 2 4 3 for example
+		//global coor x[20],y[20],z[20],x[10],y[10],z[10]
+		//local coor x[1],y[1],z[1],x[2],y[2],z[2]
+		int localCell = localCells[ lc ];
+		int ftype = ggrid->fTypes[ iFace ];
+		ScalarGrid * gridL = ( * this->grids )[ lZone ];
+		gridL->AddFaceType( ftype );
+		gridL->AddPhysicalBcFace( iFace, bctype, localCell, ONEFLOW::INVALID_INDEX );
 	}
 
+	//Then scan the internal block interface
+	for ( int iFace = nBFaces; iFace < nFaces; ++ iFace )
+	{
+		int lc = ggrid->lc[ iFace ];
+		int rc = ggrid->rc[ iFace ];
+		int lZone = cellzone[ lc ];
+		int rZone = cellzone[ rc ];
+
+		int ftype = ggrid->fTypes[ iFace ];
+
+		if ( lZone != rZone )
+		{
+			int localCell_L = localCells[ lc ];
+			int localCell_R = localCells[ rc ]; //Local cell count in another zone
+
+			int bctype = -1;
+
+			ScalarGrid * gridL = ( * this->grids )[ lZone ];
+			ScalarGrid * gridR = ( * this->grids )[ rZone ];
+
+			gridL->AddFaceType( ftype );
+			gridR->AddFaceType( ftype );
+
+			gridL->AddInterfaceBcFace( iFace, bctype, localCell_L, ONEFLOW::INVALID_INDEX, rZone, localCell_R );
+			gridR->AddInterfaceBcFace( iFace, bctype, ONEFLOW::INVALID_INDEX, localCell_R, lZone, localCell_L );
+		}
+	}
+
+	//Finally, scan the inner face of the block
 	for ( int iFace = nBFaces; iFace < nFaces; ++ iFace )
 	{
 		int lc = ggrid->lc[ iFace ];
@@ -294,40 +260,82 @@ void Part::ReconstructGrid()
 
 		if ( lZone == rZone )
 		{
-			gtopos[ lZone ].AddFaceId( iFace );
-			gtopos[ lZone ].AddFaceType( 0 );
+			//inner face bctype = 0
+			int bctype = 0;
+			int localCell_L = localCells[ lc ];
+			int localCell_R = localCells[ rc ];
 
-			int localCell_L = gtopos.gLCells[ lc ];
-			int localCell_R = gtopos.gLCells[ rc ];
+			ScalarGrid * grid = ( * this->grids )[ lZone ];
 
-			gtopos[ lZone ].lc.AddData( localCell_L );
-			gtopos[ lZone ].rc.AddData( localCell_R );
-		}
-		else
-		{
-			gtopos[ lZone ].AddFaceId( iFace );
-			gtopos[ rZone ].AddFaceId( iFace );
-			gtopos[ lZone ].AddFaceType( -1 );
-			gtopos[ rZone ].AddFaceType( -1 );
+			int ftype = ggrid->fTypes[ iFace ];
 
-			int localCell_L = gtopos.gLCells[ lc ];
-			int localCell_R = gtopos.gLCells[ rc ]; //Local cell count in another zone
-
-			gtopos[ lZone ].lc.AddData( localCell_L );
-			gtopos[ lZone ].rc.AddData( ONEFLOW::INVALID_INDEX );
-
-			gtopos[ rZone ].lc.AddData( ONEFLOW::INVALID_INDEX );
-			gtopos[ rZone ].rc.AddData( localCell_R );
+			grid->AddFaceType( ftype );
+			grid->AddInnerFace( iFace, bctype, localCell_L, localCell_R );
 		}
 	}
 }
 
-void Part::ReconstructNode()
+void GridPartition::ReconstructInterfaceTopo()
 {
-	int nZones = this->nPart;
+	int nZones = this->GetNZones();
 	for ( int iZone = 0; iZone < nZones; ++ iZone )
 	{
-		gtopos[ iZone ].ReconstructNode( ggrid->faces );
+		int nNeis = ( * this->grids )[ iZone ]->scalarIFace->data.size();
+		for ( int iNei = 0; iNei < nNeis; ++ iNei )
+		{
+			ScalarIFaceIJ & iFaceIJ = ( * this->grids )[ iZone ]->scalarIFace->data[ iNei ];
+			int jZone =  iFaceIJ.zonej;
+			//iZone的第iNei个邻居为jZone,iZone和jZone的交界面的global interface id为iFaceIJ.iglobalfaces,
+			//iFaceIJ.target_ifaces是这些interface在jZone里面的局部id
+			//这些id由jZone计算发送给iZone的里iNei个信息存储
+			//实际上这个信息iZone用不到，是jZone接收时使用的。
+			cout << " iZone = " << iZone << " iNei = " << iNei << " jZone = " << jZone << "\n";
+			( * this->grids )[ jZone ]->scalarIFace->CalcLocalInterfaceId( iZone, iFaceIJ.iglobalfaces, iFaceIJ.target_ifaces );
+		}
+	}
+
+	for ( int iZone = 0; iZone < nZones; ++ iZone )
+	{
+		ScalarIFace * scalarIFace = ( * this->grids )[ iZone ]->scalarIFace;
+		int nIFaces = scalarIFace->iglobalfaces.size();
+		for ( int iFace = 0; iFace < nIFaces; ++ iFace )
+		{
+			int igface = scalarIFace->iglobalfaces[ iFace ];
+			int jZone  = scalarIFace->zones[ iFace ];
+			int jlocalface = ( * this->grids )[ jZone ]->scalarIFace->GetLocalInterfaceId( igface );
+			scalarIFace->target_interfaces.push_back( jlocalface );
+		}
+	}
+
+}
+
+void GridPartition::CalcInterfaceToBcFace()
+{
+	int nZones = this->GetNZones();
+	for ( int iZone = 0; iZone < nZones; ++ iZone )
+	{
+		( * this->grids )[ iZone ]->CalcInterfaceToBcFace();
+	}
+}
+
+void GridPartition::ReconstructNeighbor()
+{
+	int nZones = this->GetNZones();
+	for ( int iZone = 0; iZone < nZones; ++ iZone )
+	{
+		( * this->grids )[ iZone ]->scalarIFace->ReconstructNeighbor();
+	}
+}
+
+void GridPartition::ReconstructNode()
+{
+	int nZones = this->GetNZones();
+	for ( int iZone = 0; iZone < nZones; ++ iZone )
+	{
+		ScalarGrid * grid = ( * this->grids )[ iZone ];
+		grid->ReconstructNode( ggrid );
+		grid->Normalize();
+		grid->CalcMetrics1D();
 	}
 }
 

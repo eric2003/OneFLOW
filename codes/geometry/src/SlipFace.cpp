@@ -379,10 +379,10 @@ void InitSlipFaceTopo()
         UnsGrid * grid = Zone::GetUnsGrid();
 
         BcRecord * bcRecord = grid->faceTopo->bcManager->bcRecord;
-        int nBFace = bcRecord->GetNBFace();
+        int nBFaces = bcRecord->GetNBFace();
 
         int nSlipFace = 0;
-        for ( int iBFace = 0; iBFace < nBFace; ++ iBFace )
+        for ( int iBFace = 0; iBFace < nBFaces; ++ iBFace )
         {
             int bcType = bcRecord->bcType[ iBFace ];
             if ( BC::IsSlipfaceBc( bcType ) )
@@ -397,7 +397,7 @@ void InitSlipFaceTopo()
         localSlipFace->AddSlipFace( slipFace );
 
         int iFace = 0;
-        for ( int iBFace = 0; iBFace < nBFace; ++ iBFace )
+        for ( int iBFace = 0; iBFace < nBFaces; ++ iBFace )
         {
             int bcType = bcRecord->bcType[ iBFace ];
             if ( ! BC::IsSlipfaceBc( bcType ) )

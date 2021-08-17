@@ -36,6 +36,7 @@ BeginNameSpace( ONEFLOW )
 class StrGrid;
 class NodeMesh;
 class Grid;
+class Su2Grid;
 class CgnsZbase;
 class CgnsZone;
 class GridElem;
@@ -53,8 +54,6 @@ public:
 public:
     CgnsZbase * cgnsZbase;
     ZgridElem * zgridElem;
-    int nZone;
-    int nOriZone;
 public:
     void GenerateGrid();
     void ReadCgnsGrid();
@@ -62,7 +61,6 @@ public:
     void DumpUnsCgnsGrid();
 public:
     void CommonToOneFlowGrid();
-    void CommonToUnsGrid();
     void CommonToStrGrid();
     void CommonToUnsGridTEST();
     void ReadGridAndConvertToUnsCgnsZone();
@@ -70,21 +68,15 @@ public:
 public:
     void CreateCgnsZone( ZgridMediator * zgridMediator );
     void PrepareCgnsZone( ZgridMediator * zgridMediator );
-    void CreateDefaultZone( int nZone );
-    CgnsZone * CreateOneUnsCgnsZone( int cgnsZoneId );
+    CgnsZone * CreateSu2CgnsZone( Su2Grid* su2Grid );
+    void Su2ToOneFlowGrid( Su2Grid* su2Grid );
 public:
     void CgnsToOneFlowGrid();
-    void CgnsToOneFlowGrid( Grid *& grid, int zId );
     void ConvertStrCgns2UnsCgnsGrid();
-    void AllocateGridElem();
-    void PrepareUnsCalcGrid();
-
-    //Convert to the mesh used in ONEFLOW calculation
-    void GenerateCalcGrid();
-protected:
-    void GenerateStrCalcGrid();
-    void GenerateUnsCalcGrid();
 };
+
+void AddOneFlowGrid( Grids & grids, Grid * grid );
+void GenerateLocalOneFlowGridFromSu2Grid( Su2Grid* su2Grid, Grids & grids );
 
 #endif
 

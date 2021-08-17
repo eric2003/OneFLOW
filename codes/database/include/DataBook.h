@@ -71,6 +71,7 @@ public:
 
     void Send( int pid, int tag );
     void Recv( int pid, int tag );
+
     void Bcast( int rootid );
 
     void SendRecv( int sendpid, int recvpid, int tag );

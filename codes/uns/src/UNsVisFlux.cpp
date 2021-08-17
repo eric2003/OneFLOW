@@ -107,7 +107,7 @@ void UNsVisFlux::CalcFlux()
 
 void UNsVisFlux::Alloc()
 {
-    visflux = new MRField( nscom.nEqu, ug.nFace );
+    visflux = new MRField( nscom.nEqu, ug.nFaces );
 }
 
 void UNsVisFlux::DeAlloc()
@@ -124,7 +124,7 @@ void UNsVisFlux::PrepareField()
 
 void UNsVisFlux::CalcVisFlux()
 {
-    for ( int fId = 0; fId < ug.nFace; ++ fId )
+    for ( int fId = 0; fId < ug.nFaces; ++ fId )
     {
         ug.fId = fId;
 
@@ -171,7 +171,7 @@ void UNsVisFlux::CalcHeatFlux()
 
 void UNsVisFlux::SaveHeatFlux()
 {
-    if ( ug.fId >= ug.nBFace ) return;
+    if ( ug.fId >= ug.nBFaces ) return;
     if ( ug.bcRecord->bcType[ ug.fId ] != BC::SOLID_SURFACE ) return;
     SurfaceValue * heat_sur = heat_flux.heatflux[ ZoneState::zid ];
     Real non_dim_heatflux = - nscom.oreynolds * vis.qNormal;

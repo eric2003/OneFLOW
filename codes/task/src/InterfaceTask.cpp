@@ -49,11 +49,11 @@ void CUpdateInterface::Run()
     {
         ZoneState::zid = zId;
 
-        int nNei = interFaceTopo.data[ zId ].size();
+        int nNei = Zone::GetNumberOfZoneNeighbors( zId );
 
         for ( int iNei = 0; iNei < nNei; ++ iNei )
         {
-            int jZone = interFaceTopo.data[ zId ][ iNei ];
+            int jZone = Zone::GetNeighborZoneId( zId, iNei );
 
             this->SwapInterfaceData( zId, jZone );
         }

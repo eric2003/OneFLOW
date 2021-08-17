@@ -70,8 +70,8 @@ BlkFaceSolver::~BlkFaceSolver()
 Face2D * BlkFaceSolver::GetBlkFace( int blk, int face_id )
 {
     Block3D * blk3d = this->blkList[ blk ];
-    int nFace = blk3d->facelist.size();
-    for ( int i = 0; i < nFace; ++ i )
+    int nFaces = blk3d->facelist.size();
+    for ( int i = 0; i < nFaces; ++ i )
     {
         Face2D * face2d = blk3d->facelist[ i ];
         int fid = face2d->face_id;
@@ -86,8 +86,8 @@ Face2D * BlkFaceSolver::GetBlkFace( int blk, int face_id )
 Face2D * BlkFaceSolver::GetBlkFace2D( int blk, int face_id )
 {
     Block2D * blk2d = this->blkList2d[ blk ];
-    int nFace = blk2d->facelist.size();
-    for ( int i = 0; i < nFace; ++ i )
+    int nFaces = blk2d->facelist.size();
+    for ( int i = 0; i < nFaces; ++ i )
     {
         Face2D * face2d = blk2d->facelist[ i ];
         int fid = face2d->face_id;
@@ -126,16 +126,16 @@ int BlkFaceSolver::FindFaceId( IntField & face )
 
 void BlkFaceSolver::MyFaceBuildSDomainList()
 {
-    int nFace = this->face2Block.size();
-    this->sDomainList.resize( nFace );
-    for ( int iFace = 0; iFace < nFace; ++ iFace )
+    int nFaces = this->face2Block.size();
+    this->sDomainList.resize( nFaces );
+    for ( int iFace = 0; iFace < nFaces; ++ iFace )
     {
         SDomain * sDomain = new SDomain();
         sDomain->domain_id = iFace;
         this->sDomainList[ iFace ] = sDomain;
     }
 
-    for ( int iFace = 0; iFace < nFace; ++ iFace )
+    for ( int iFace = 0; iFace < nFaces; ++ iFace )
     {
         IntField & lineList = this->faceList[ iFace ];
         IntField & posList = this->faceLinePosList[ iFace ];
@@ -152,10 +152,10 @@ void BlkFaceSolver::MyFaceBuildSDomainList()
 
 void BlkFaceSolver::MyFaceGenerateFaceMesh()
 {
-    int nFace = this->faceList.size();
+    int nFaces = this->faceList.size();
     fstream file;
     OpenPrjFile( file, "grid/facemesh_tecplot.dat", ios_base::out );
-    for ( int iFace = 0; iFace < nFace; ++ iFace )
+    for ( int iFace = 0; iFace < nFaces; ++ iFace )
     {
         SDomain * sDomain = this->sDomainList[ iFace ];
         sDomain->Alloc();
@@ -190,9 +190,9 @@ void BlkFaceSolver::Alloc()
 void BlkFaceSolver::CreateFaceList()
 {
     //All cell faces have been built in faceset
-    int nFace = faceset.size();
-    this->faceList.resize( nFace );
-    this->faceLinePosList.resize( nFace );
+    int nFaces = faceset.size();
+    this->faceList.resize( nFaces );
+    this->faceLinePosList.resize( nFaces );
 
     int nLine = this->line2Face.size();
     for ( int iLine = 0; iLine < nLine; ++ iLine )
@@ -209,8 +209,8 @@ void BlkFaceSolver::CreateFaceList()
         }
     }
 
-    this->face2Block.resize( nFace );
-    for ( int iFace = 0; iFace < nFace; ++ iFace )
+    this->face2Block.resize( nFaces );
+    for ( int iFace = 0; iFace < nFaces; ++ iFace )
     {
         IntField & face = this->faceList[ iFace ];
         Mid<int> fMid( face.size(), iFace );
@@ -312,8 +312,8 @@ void BlkFaceSolver::AddFace2Block( int blockid, int pos, int faceid )
 
 void BlkFaceSolver::SetBoundary()
 {
-    int nFace = this->face2Block.size();
-    for ( int iFace = 0; iFace < nFace; ++ iFace )
+    int nFaces = this->face2Block.size();
+    for ( int iFace = 0; iFace < nFaces; ++ iFace )
     {
         int bcType = domain_Machine.bctypeList[ iFace ];
         BlkF2C & face_struct = this->face2Block[ iFace ];
@@ -331,8 +331,8 @@ void BlkFaceSolver::BuildBlkFace()
         this->blkList[ iBlk ] = blk3d;
     }
 
-    int nFace = this->face2Block.size();
-    for ( int iFace = 0; iFace < nFace; ++ iFace )
+    int nFaces = this->face2Block.size();
+    for ( int iFace = 0; iFace < nFaces; ++ iFace )
     {
         BlkF2C & face_struct = this->face2Block[ iFace ];
 
@@ -363,8 +363,8 @@ void BlkFaceSolver::BuildBlkFace2D()
         this->blkList2d[ iBlk ] = blk2d;
     }
 
-    int nFace = this->face2Block.size();
-    for ( int iFace = 0; iFace < nFace; ++ iFace )
+    int nFaces = this->face2Block.size();
+    for ( int iFace = 0; iFace < nFaces; ++ iFace )
     {
         BlkF2C & face_struct = this->face2Block[ iFace ];
 
@@ -488,8 +488,8 @@ void BlkFaceSolver::DumpBlkScript( fstream & file, BlkElem * blkHexa, IntField &
     //int p2 = ctrlpoints[ 1 ];
     //file << "Line(1)=" << "{" << p1 << "," << p2 << "}\n";
 
-    int nFace = blkHexa->faceList.size();
-    for ( int i = 0; i < nFace; ++ i )
+    int nFaces = blkHexa->faceList.size();
+    for ( int i = 0; i < nFaces; ++ i )
     {
         IntField localid = blkHexa->faceList[ i ];
         this->DumpBlkScript( file, localid, ctrlpoints );

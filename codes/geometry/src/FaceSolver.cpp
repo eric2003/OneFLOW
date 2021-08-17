@@ -32,12 +32,8 @@ BeginNameSpace( ONEFLOW )
 
 FaceSolver::FaceSolver()
 {
-    //this->nodeId = new LinkField();
-    //this->lCell = new IntField();
-    //this->rCell = new IntField();
     this->faceBcKey = new IntField();
     this->faceBcType = new IntField();
-    //this->faceType = new IntField();
     this->childFid = new LinkField();
 
     this->refFaces = new set< Mid<int> >();
@@ -46,12 +42,8 @@ FaceSolver::FaceSolver()
 
 FaceSolver::~FaceSolver()
 {
-    //delete this->nodeId;
-    //delete this->lCell;
-    //delete this->rCell;
     delete this->faceBcKey;
     delete this->faceBcType;
-    //delete this->faceType;
     delete this->childFid;
 
     delete this->refFaces;
@@ -94,15 +86,15 @@ void FaceSolver::ScanElementFace( CgIntField & eNodeId, int eType, int eId )
         IntField & rNodeId = unitElement->faceList[ iFace ];
         int fType = unitElement->GetFaceType( iFace );
          
-        int nNode = rNodeId.size();
+        int nNodes = rNodeId.size();
 
         IntField aNodeId;
-        for ( int iNode = 0; iNode < nNode; ++ iNode )
+        for ( int iNode = 0; iNode < nNodes; ++ iNode )
         {
             aNodeId.push_back( eNodeId[ rNodeId[ iNode ] ] );
         }                                                              
 
-        Mid<int> fMid( nNode, this->faceTopo->f2n.size() );
+        Mid<int> fMid( nNodes, this->faceTopo->faces.size() );
         fMid.data = aNodeId;
         std::sort( fMid.data.begin(), fMid.data.end() );
         int gFid = this->FindFace( fMid );
@@ -110,7 +102,7 @@ void FaceSolver::ScanElementFace( CgIntField & eNodeId, int eType, int eId )
         if ( gFid == ONEFLOW::INVALID_INDEX )
         {
             int totalfn    = this->refFaces->size();
-            int faceNumber = this->faceTopo->lCell.size();
+            int faceNumber = this->faceTopo->lCells.size();
             if ( totalfn != faceNumber )
             {
                 cout << "totalfn != faceNumber " << totalfn << " " << faceNumber << endl;
@@ -118,30 +110,30 @@ void FaceSolver::ScanElementFace( CgIntField & eNodeId, int eType, int eId )
             }
             this->refFaces->insert( fMid );
 
-            this->faceTopo->lCell.push_back( eId );
-            this->faceTopo->rCell.push_back( ONEFLOW::INVALID_INDEX );
+            this->faceTopo->lCells.push_back( eId );
+            this->faceTopo->rCells.push_back( ONEFLOW::INVALID_INDEX );
 
             this->faceBcType->push_back( ONEFLOW::INVALID_INDEX );
             this->faceBcKey->push_back( ONEFLOW::INVALID_INDEX );
-            this->faceTopo->faceType.push_back( fType );
+            this->faceTopo->fTypes.push_back( fType );
 
-            this->faceTopo->f2n.push_back( aNodeId );
+            this->faceTopo->faces.push_back( aNodeId );
             this->childFid->resize( totalfn + 1 );
         }
         else
         {
-            if ((this->faceTopo->lCell)[gFid] == ONEFLOW::INVALID_INDEX)
+            if ((this->faceTopo->lCells)[gFid] == ONEFLOW::INVALID_INDEX)
             {
                 //This shows that although this aspect exists, it has not been dealt with due to various reasons
-                (this->faceTopo->lCell)[gFid] = eId; //For example, a new volume element surface is added during the splitting process
+                (this->faceTopo->lCells)[gFid] = eId; //For example, a new volume element surface is added during the splitting process
             }
             else
             {
-                if ( (this->faceTopo->rCell)[gFid] == ONEFLOW::INVALID_INDEX )
+                if ( (this->faceTopo->rCells)[gFid] == ONEFLOW::INVALID_INDEX )
                 {
-                    if ((this->faceTopo->lCell)[gFid] != eId)
+                    if ((this->faceTopo->lCells)[gFid] != eId)
                     {
-                        (this->faceTopo->rCell)[gFid] = eId;
+                        (this->faceTopo->rCells)[gFid] = eId;
                     }
                 }
             }
@@ -151,16 +143,16 @@ void FaceSolver::ScanElementFace( CgIntField & eNodeId, int eType, int eId )
 
 void FaceSolver::ScanBcFace( IntSet& bcVertex, int bcType, int bcNameId )
 {
-    int nBFace = 0;
+    int nBFaces = 0;
 
     //cout << " this->faceTopo = " << this->faceTopo << "\n";
-    int nFace = this->faceTopo->lCell.size();
+    int nFaces = this->faceTopo->lCells.size();
 
-    cout << " nFace = " << nFace << "\n";
+    cout << " nFaces = " << nFaces << "\n";
     int nTraditionalBc = 0;
-    for ( int iFace = 0; iFace < nFace; ++ iFace )
+    for ( int iFace = 0; iFace < nFaces; ++ iFace )
     {
-        int rCell = ( this->faceTopo->rCell )[ iFace ];
+        int rCell = ( this->faceTopo->rCells )[ iFace ];
 
         if ( rCell == ONEFLOW::INVALID_INDEX )
         {
@@ -170,21 +162,21 @@ void FaceSolver::ScanBcFace( IntSet& bcVertex, int bcType, int bcNameId )
     cout << " nTraditionalBc = " << nTraditionalBc << "\n";
 
 
-    for ( int iFace = 0; iFace < nFace; ++ iFace )
+    for ( int iFace = 0; iFace < nFaces; ++ iFace )
     {
         if ( iFace % 200000 == 0 ) 
         {
-            //cout << " iFace = " << iFace << " numberOfTotalFaces = " << nFace << endl;
+            //cout << " iFace = " << iFace << " numberOfTotalFaces = " << nFaces << endl;
         }
         int originalBcType = ( * this->faceBcType )[ iFace ];
-        int rCell     = ( this->faceTopo->rCell )[ iFace ];
+        int rCell     = ( this->faceTopo->rCells )[ iFace ];
 
         if ( ( rCell          == ONEFLOW::INVALID_INDEX ) && 
              ( originalBcType == ONEFLOW::INVALID_INDEX ) )
         {
-            if ( this->CheckBcFace( bcVertex, ( this->faceTopo->f2n )[ iFace ] ) )
+            if ( this->CheckBcFace( bcVertex, ( this->faceTopo->faces )[ iFace ] ) )
             {
-                ++ nBFace;
+                ++ nBFaces;
 
                 ( * this->faceBcType )[ iFace ] = bcType;
                 ( * this->faceBcKey  )[ iFace ] = bcNameId;
@@ -192,19 +184,19 @@ void FaceSolver::ScanBcFace( IntSet& bcVertex, int bcType, int bcNameId )
         }
     }
 
-    //cout << " nBFace = " << nBFace << endl;
+    //cout << " nBFaces = " << nBFaces << endl;
     int kkk = 1;
 }
 
 void FaceSolver::ScanBcFaceDetail( IntSet& bcVertex, int bcType, int bcNameId )
 {
-    int nFace = this->faceTopo->lCell.size();
-    cout << " nFace = " << nFace << "\n";
+    int nFaces = this->faceTopo->lCells.size();
+    cout << " nFaces = " << nFaces << "\n";
 
     int nTraditionalBc = 0;
-    for ( int iFace = 0; iFace < nFace; ++ iFace )
+    for ( int iFace = 0; iFace < nFaces; ++ iFace )
     {
-        int rCell = ( this->faceTopo->rCell )[ iFace ];
+        int rCell = ( this->faceTopo->rCells )[ iFace ];
 
         if ( rCell == ONEFLOW::INVALID_INDEX )
         {
@@ -213,20 +205,20 @@ void FaceSolver::ScanBcFaceDetail( IntSet& bcVertex, int bcType, int bcNameId )
     }
     cout << " nTraditionalBc = " << nTraditionalBc << "\n";
 
-    int nBFace = 0;
-    for ( int iFace = 0; iFace < nFace; ++ iFace )
+    int nBFaces = 0;
+    for ( int iFace = 0; iFace < nFaces; ++ iFace )
     {
         if ( iFace % 200000 == 0 ) 
         {
-            //cout << " iFace = " << iFace << " numberOfTotalFaces = " << nFace << endl;
+            //cout << " iFace = " << iFace << " numberOfTotalFaces = " << nFaces << endl;
         }
         int originalBcType = ( * this->faceBcType )[ iFace ];
 
         if ( originalBcType == ONEFLOW::INVALID_INDEX )
         {
-            if ( this->CheckBcFace( bcVertex, ( this->faceTopo->f2n )[ iFace ] ) )
+            if ( this->CheckBcFace( bcVertex, ( this->faceTopo->faces )[ iFace ] ) )
             {
-                ++ nBFace;
+                ++ nBFaces;
 
                 ( * this->faceBcType )[ iFace ] = bcType;
                 ( * this->faceBcKey  )[ iFace ] = bcNameId;
@@ -234,17 +226,17 @@ void FaceSolver::ScanBcFaceDetail( IntSet& bcVertex, int bcType, int bcNameId )
         }
     }
 
-    cout << " nFinalBcFace = " << nBFace << " bcType = " << bcType << endl;
+    cout << " nFinalBcFace = " << nBFaces << " bcType = " << bcType << endl;
     int kkk = 1;
 }
 
 void FaceSolver::ScanInterfaceBc()
 {
-    int nFace = this->faceTopo->lCell.size();
+    int nFaces = this->faceTopo->lCells.size();
 
     int bcNameId = -1;
     int nInterFace = 0;
-    for ( int iFace = 0; iFace < nFace; ++ iFace )
+    for ( int iFace = 0; iFace < nFaces; ++ iFace )
     {
         int originalBcType = ( * this->faceBcType )[ iFace ];
 
@@ -263,7 +255,7 @@ int FaceSolver::GetNSimpleFace()
 {
     int nSimpleFace = 0;
 
-    for ( int iFace = 0; iFace < this->faceTopo->f2n.size(); ++ iFace )
+    for ( int iFace = 0; iFace < this->faceTopo->faces.size(); ++ iFace )
     {
         int nCFace = ( * this->childFid )[ iFace ].size();
         if ( nCFace == 0 )

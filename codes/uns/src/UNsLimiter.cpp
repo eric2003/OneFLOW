@@ -58,15 +58,15 @@ void NsLimField::Init()
 
     this->nEqu = q->GetNEqu();
 
-    qf1 = new MRField( this->nEqu, grid->nFace );
-    qf2 = new MRField( this->nEqu, grid->nFace );
+    qf1 = new MRField( this->nEqu, grid->nFaces );
+    qf2 = new MRField( this->nEqu, grid->nFaces );
 
     this->ckfun = & NsCheckFunction;
 }
 
 void NsLimField::BcQlQrFix()
 {
-    for ( int fId = 0; fId < ug.nBFace; ++ fId )
+    for ( int fId = 0; fId < ug.nBFaces; ++ fId )
     {
         int bcType = ug.bcRecord->bcType[ fId ];
         if ( bcType == BC::INTERFACE ) continue;

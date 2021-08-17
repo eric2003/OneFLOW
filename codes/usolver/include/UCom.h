@@ -49,9 +49,9 @@ public:
     int fId;
     int cId;
     int bcfId;
-    int nFace;
-    int nBFace;
-    int nCell;
+    int nFaces;
+    int nBFaces;
+    int nCells;
     int nTCell;
     int ist, ied;
     int lc;

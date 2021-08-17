@@ -60,8 +60,10 @@ public:
     void GetQLQR();
     void CalcInvFlux();
     void AddF2CField( RealList & cField, RealList & fField );
+    void SetParaPointer( FieldPara * para );
 public:
     void Visual();
+    void AddVisualData( RealList & qList, RealList & theoryList, RealList & xcoorList );
     void Theory( Real time, RealList & theory );
 };
 

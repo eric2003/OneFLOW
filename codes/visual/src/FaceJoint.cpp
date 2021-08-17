@@ -224,8 +224,8 @@ void FaceJoint::CalcNodeValue()
         }
     }
 
-    int nNode = fnv.size();
-    for ( int iNode = 0; iNode < nNode; ++ iNode )
+    int nNodes = fnv.size();
+    for ( int iNode = 0; iNode < nNodes; ++ iNode )
     {
         fnv[ iNode ] /= weightId[ iNode ];
     }

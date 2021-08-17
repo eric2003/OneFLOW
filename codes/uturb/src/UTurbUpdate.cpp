@@ -70,7 +70,7 @@ void UTurbUpdate::UpdateFlowField1Equ()
 
 void UTurbUpdate::UpdateFlowField2Equ()
 {
-    for ( int cId = 0; cId < ug.nCell; ++ cId )
+    for ( int cId = 0; cId < ug.nCells; ++ cId )
     {
         ug.cId = cId;
 
@@ -84,7 +84,7 @@ void UTurbUpdate::UpdateFlowField2Equ()
 
 void UTurbUpdate::UpdateFlowField1EquStd()
 {
-    for ( int cId = 0; cId < ug.nCell; ++ cId )
+    for ( int cId = 0; cId < ug.nCells; ++ cId )
     {
         ug.cId = cId;
 
@@ -99,7 +99,7 @@ void UTurbUpdate::UpdateFlowField1EquStd()
 
 void UTurbUpdate::UpdateFlowField2EquStd()
 {
-    for ( int cId = 0; cId < ug.nCell; ++ cId )
+    for ( int cId = 0; cId < ug.nCells; ++ cId )
     {
         ug.cId = cId;
 

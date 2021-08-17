@@ -69,7 +69,6 @@ void MultiBlock::LoadGridAndBuildLink()
     MultiBlock::InitMultiZoneTopo();
 }
 
-
 void MultiBlock::PrepareFlowGrid()
 {
     MultiBlock::LoadGridAndBuildLink();

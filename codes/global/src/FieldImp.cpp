@@ -68,18 +68,18 @@ IFieldProperty::~IFieldProperty()
 {
 }
 
-void IFieldProperty::AllocateInterfaceField( int nIFace, DataStorage * dataStorage )
+void IFieldProperty::AllocateInterfaceField( int nIFaces, DataStorage * dataStorage )
 {
-    if ( nIFace <= 0 ) return;
+    if ( nIFaces <= 0 ) return;
 
     for ( std::map< string, int >::iterator iter = this->data.begin(); iter != this->data.end(); ++ iter )
     {
         int nTEqu = iter->second;
 
-        ONEFLOW::CreateMRField( dataStorage, nTEqu, nIFace, iter->first );
+        ONEFLOW::CreateMRField( dataStorage, nTEqu, nIFaces, iter->first );
 
         MRField * field = ONEFLOW::GetFieldPointer< MRField >( dataStorage, iter->first );
-        ONEFLOW::ZeroField( field, nTEqu, nIFace );
+        ONEFLOW::ZeroField( field, nTEqu, nIFaces );
     }
 }
 
@@ -326,7 +326,7 @@ void FieldManager::AllocateInnerAndBcField( UnsGrid * grid, FieldPropertyData * 
 
 void FieldManager::AllocateInnerField( UnsGrid * grid, FieldPropertyData * fieldPropertyData )
 {
-    int nTCell = grid->nCell + grid->nBFace;
+    int nTCell = grid->nCells + grid->nBFaces;
 
     map< string, int > & data = fieldPropertyData->innerField->data;
 
@@ -343,7 +343,7 @@ void FieldManager::AllocateInnerField( UnsGrid * grid, FieldPropertyData * field
 
 void FieldManager::AllocateFaceField( UnsGrid * grid, FieldPropertyData * fieldPropertyData )
 {
-    int nFace = grid->nFace;
+    int nFaces = grid->nFaces;
 
     map< string, int > & data = fieldPropertyData->faceField->data;
 
@@ -351,28 +351,28 @@ void FieldManager::AllocateFaceField( UnsGrid * grid, FieldPropertyData * fieldP
     {
         int nTEqu = iter->second;
 
-        ONEFLOW::CreateMRField( grid, nTEqu, nFace, iter->first );
+        ONEFLOW::CreateMRField( grid, nTEqu, nFaces, iter->first );
 
         MRField * field = ONEFLOW::GetFieldPointer< MRField >( grid, iter->first );
 
-        ONEFLOW::ZeroField( field, nTEqu, nFace );
+        ONEFLOW::ZeroField( field, nTEqu, nFaces );
     }
 }
 
 void FieldManager::AllocateBcField( UnsGrid * grid, FieldPropertyData * fieldPropertyData )
 {
-    int nBFace = grid->nBFace;
+    int nBFaces = grid->nBFaces;
 
     map< string, int > & data = fieldPropertyData->bcField->data;
 
     for ( std::map< string, int >::iterator iter = data.begin(); iter != data.end(); ++ iter )
     {
         int nTEqu = iter->second;
-        ONEFLOW::CreateMRField( grid, nTEqu, nBFace, iter->first );
+        ONEFLOW::CreateMRField( grid, nTEqu, nBFaces, iter->first );
 
         MRField * field = ONEFLOW::GetFieldPointer< MRField >( grid, iter->first );
 
-        ONEFLOW::ZeroField( field, nTEqu, nBFace );
+        ONEFLOW::ZeroField( field, nTEqu, nBFaces );
     }
 }
 
@@ -429,7 +429,7 @@ void UploadInterfaceValue( UnsGrid * grid, MRField * field2D, const string & nam
     InterFace * interFace = grid->interFace;
     if ( ! ONEFLOW::IsValid( interFace ) ) return;
 
-    int nIFace = interFace->nIFace;
+    int nIFaces = interFace->nIFaces;
 
     if ( field2D == 0 ) return;
 
@@ -439,7 +439,7 @@ void UploadInterfaceValue( UnsGrid * grid, MRField * field2D, const string & nam
 
         MRField * fieldStorage = ONEFLOW::GetFieldPointer< MRField >( dataSend, name );
 
-        for ( int iFace = 0; iFace < nIFace; ++ iFace )
+        for ( int iFace = 0; iFace < nIFaces; ++ iFace )
         {
             int iCell;
             grid->faceTopo->GetSId( iFace, ghostId + 1, iCell );
@@ -465,8 +465,8 @@ void DownloadInterfaceValue( UnsGrid * grid, MRField * field2D, const string & n
 
         MRField * fieldStorage = ONEFLOW::GetFieldPointer< MRField >( dataRecv, name );
 
-        int nIFace = interFace->nIFace;
-        for ( int iFace = 0; iFace < nIFace; ++ iFace )
+        int nIFaces = interFace->nIFaces;
+        for ( int iFace = 0; iFace < nIFaces; ++ iFace )
         {
             int iCell;
             grid->faceTopo->GetTId( iFace, ghostId + 1, iCell );
@@ -492,14 +492,14 @@ void DownloadInterfaceValue_TEST( UnsGrid * grid, MRField * field2D, const strin
 
         MRField * fieldStorage = ONEFLOW::GetFieldPointer< MRField >( dataRecv, name );
 
-        int nIFace = interFace->nIFace;
-        for ( int iFace = 0; iFace < nIFace; ++ iFace )
+        int nIFaces = interFace->nIFaces;
+        for ( int iFace = 0; iFace < nIFaces; ++ iFace )
         {
             int iCell;
             grid->faceTopo->GetTId( iFace, ghostId + 1, iCell );
 
             int iBFace = grid->interFace->i2b[ iFace ];
-            int tId = grid->faceTopo->rCell[ iBFace ];
+            int tId = grid->faceTopo->rCells[ iBFace ];
 
             for ( int iEqu = 0; iEqu < nEqu; ++ iEqu )
             {

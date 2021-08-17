@@ -75,7 +75,7 @@ void FillWallStructTask( StringField & data )
 void FillWallStruct( StringField & data )
 {
     UnsGrid * grid = Zone::GetUnsGrid();
-    int nBFace = grid->faceTopo->bcManager->bcRecord->GetNBFace();
+    int nBFaces = grid->faceTopo->bcManager->bcRecord->GetNBFace();
     BcRecord * bcRecord = grid->faceTopo->bcManager->bcRecord;
 
     int nWallFace = bcRecord->CalcNumWallFace();
@@ -100,19 +100,19 @@ void FillWallStruct( StringField & data )
     WallStructure::PointField fc;
     WallStructure::PointLink  fv;
 
-    for ( int iFace = 0; iFace < nBFace; ++ iFace )
+    for ( int iFace = 0; iFace < nBFaces; ++ iFace )
     {
         int bcType = bcRecord->bcType[ iFace ];
         int bcRegion = bcRecord->bcNameId[ iFace ];
-        int nNode = grid->faceTopo->f2n[ iFace ].size();
+        int nNodes = grid->faceTopo->faces[ iFace ].size();
 
         if ( bcType == BC::SOLID_SURFACE )
         {
             WallStructure::PointField simpleFace;
 
-            for ( int iNode = 0; iNode < nNode; ++ iNode )
+            for ( int iNode = 0; iNode < nNodes; ++ iNode )
             {
-                int iPoint = grid->faceTopo->f2n[ iFace ][ iNode ];
+                int iPoint = grid->faceTopo->faces[ iFace ][ iNode ];
                 Real x0 = x[ iPoint ];
                 Real y0 = y[ iPoint ];
                 Real z0 = z[ iPoint ];
@@ -136,14 +136,14 @@ void FillWallStruct( StringField & data )
 void CalcWallDist( StringField & data )
 {
     UnsGrid * grid = Zone::GetUnsGrid();
-    int nBFace = grid->faceTopo->bcManager->bcRecord->GetNBFace();
+    int nBFaces = grid->faceTopo->bcManager->bcRecord->GetNBFace();
     BcRecord * bcRecord = grid->faceTopo->bcManager->bcRecord;
 
     int nWallFace = bcRecord->CalcNumWallFace();
 
     RealField & dist = grid->cellMesh->dist;
 
-    int nCell = grid->nCell;
+    int nCells = grid->nCells;
 
     dist = LARGE;
 
@@ -158,12 +158,12 @@ void CalcWallDist( StringField & data )
 
     int nWFace = wallstruct->fc.size();
 
-    for ( int cId = 0; cId < nCell; ++ cId )
+    for ( int cId = 0; cId < nCells; ++ cId )
     {
         if ( cId % 10000 == 0 )
         {
             cout << " pid = " << Parallel::pid << " Zone = " << grid->id;
-            cout << " cid = " << cId << " " << "nCell = " << nCell;
+            cout << " cid = " << cId << " " << "nCells = " << nCells;
             cout << " nWFace = " << nWFace << endl;
         }
 
@@ -191,7 +191,7 @@ void CalcWallDist( StringField & data )
     }
 
 
-    for ( int cId = 0; cId < nCell; ++ cId )
+    for ( int cId = 0; cId < nCells; ++ cId )
     {
         dist[ cId ] = sqrt( dist[ cId ] );
     }

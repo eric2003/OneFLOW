@@ -52,9 +52,9 @@ IFaceLink::~IFaceLink()
 void IFaceLink::Init( Grid * grid )
 {
     int zid = grid->id;
-    int nIFace = grid->interFace->nIFace;
+    int nIFaces = grid->interFace->nIFaces;
 
-    this->l2g[ zid ].resize( nIFace );
+    this->l2g[ zid ].resize( nIFaces );
 }
 
 void IFaceLink::AddFace( const IntField & facePointIndexes )
@@ -118,9 +118,9 @@ void IFaceLink::MatchInterfaceTopology( Grid * grid )
 
     int nPeoridic = 0;
 
-    int nIFace = this->l2g[ grid->id ].size();
+    int nIFaces = this->l2g[ grid->id ].size();
 
-    for ( int iIFace = 0; iIFace < nIFace; ++ iIFace )
+    for ( int iIFace = 0; iIFace < nIFaces; ++ iIFace )
     {
         int gIFace = this->l2g[ grid->id ][ iIFace ];
         bool flag = false;
@@ -139,7 +139,7 @@ void IFaceLink::MatchInterfaceTopology( Grid * grid )
             }
             //cout << " Current ZoneIndex  = " << grid->id << endl;
             //cout << " nIZone = " << nIZone << endl;
-            //cout << " LocalInterface Index = " << iIFace << " nIFace = " << nIFace << endl;
+            //cout << " LocalInterface Index = " << iIFace << " nIFaces = " << nIFaces << endl;
         }
 
         for ( int iIZone = 0; iIZone < nIZone; ++ iIZone )
@@ -176,9 +176,9 @@ void IFaceLink::MatchPeoridicInterface( Grid * grid )
 
     int nPeoridic = 0;
 
-    int nIFace = this->l2g[ grid->id ].size();
+    int nIFaces = this->l2g[ grid->id ].size();
 
-    for ( int iIFace = 0; iIFace < nIFace; ++ iIFace )
+    for ( int iIFace = 0; iIFace < nIFaces; ++ iIFace )
     {
         int gIFace = this->l2g[ grid->id ][ iIFace ];
         bool flag = false;
@@ -200,10 +200,10 @@ void IFaceLink::MatchPeoridicInterface( Grid * grid )
         RealField xxList, yyList, zzList;
         f2fmap.FindFace( xList, yList, zList, xxList, yyList, zzList );
 
-        int nNode = xxList.size( );
+        int nNodes = xxList.size( );
         IntField faceNode_period;
 
-        for ( int i = 0; i < nNode; ++ i )
+        for ( int i = 0; i < nNodes; ++ i )
         {
             Real xm = xxList[ i ];
             Real ym = yyList[ i ];

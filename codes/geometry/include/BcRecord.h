@@ -56,11 +56,11 @@ public:
     IntField bcNameId;
     BcInfo * bcInfo;
 public:
-    void Init( UInt nBFace );
+    void Init( UInt nBFaces );
     int GetNBFace();
     int CalcNIFace();
     int CalcNumWallFace();
-    void CreateI2B( InterFace * interFace );
+    void GenerateI2B( InterFace * interFace );
 public:
     void CreateBcTypeRegion();
 };
@@ -156,7 +156,7 @@ public:
     ~BcRegionGroup();
 public:
     int zoneIndex;
-    int nBFace, nIFace;
+    int nBFaces, nIFaces;
     HXVector< BcRegion * > * regions;
     void Create( int nBcRegions );
     void SetBcRegion( int ir, BcRegion * bcRegion );

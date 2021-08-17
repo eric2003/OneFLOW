@@ -27,8 +27,9 @@ License
 #include "HXDefine.h"
 #include "ScalarGrid.h"
 #include "metis.h"
-#include "ScalarIFace.h"
 #include <vector>
+#include <set>
+#include <map>
 using namespace std;
 
 BeginNameSpace( ONEFLOW )
@@ -36,93 +37,43 @@ BeginNameSpace( ONEFLOW )
 typedef vector<idx_t> MetisIntList;
 class ScalarGrid;
 
-class MetisPart
+class MetisSplit
 {
 public:
-    MetisPart( ScalarGrid * ggrid );
-    ~MetisPart();
+    MetisSplit();
+    ~MetisSplit();
 public:
     MetisIntList xadj;
     MetisIntList adjncy;
-    ScalarGrid * ggrid;
 public:
-    void MetisPartition( int nPart, MetisIntList & cellzone );
+    void MetisPartition( ScalarGrid * ggrid, int nPart, MetisIntList & cellzone );
+    void ManualPartition( ScalarGrid * ggrid, int nPart, MetisIntList & cellzone );
 private:
     void ScalarGetXadjAdjncy( ScalarGrid * ggrid, MetisIntList & xadj, MetisIntList & adjncy );
     void ScalarPartitionByMetis( idx_t nCells, MetisIntList & xadj, MetisIntList & adjncy, int nPart, MetisIntList & cellzone );
 
 };
 
-class NetGrid
-{
-public:
-    NetGrid();
-    ~NetGrid();
-public:
-    vector< ScalarGrid * > grids;
-public:
-    void AllocateGrid( int nZones );
-    void DeAllocateGrid();
-};
+class ScalarIFace;
 
-class GridTopo
+class GridPartition
 {
 public:
-    GridTopo();
-    ~GridTopo();
-public:
-    vector<int> faceid;
-    vector<int> nodeid;
-    vector<int> facetype;
-    set<int> nodeset;
-    IntList lc;
-    IntList rc;
-    int zoneid;
-public:
-    void AddFaceId( int iFace );
-    void AddFaceType( int faceType );
-    void ReconstructNode( EList & faces );
-};
-
-class GridTopos
-{
-public:
-    GridTopos();
-    ~GridTopos();
-public:
-    vector< GridTopo > data;
-    vector<int> gLCells;
-    ScalarIFaces scalarIFaces;
-public:
-    void Allocate( int nZones );
-    GridTopo & operator [] ( int i )
-    {
-        return data[ i ];
-    }
-public:
-    void CalcGlobal2LocalCells( MetisIntList & cellzone );
-    void CalcInterface();
-};
-
-class Part
-{
-public:
-    Part();
-    ~Part();
+    GridPartition();
+    ~GridPartition();
 public:
     ScalarGrid * ggrid;
-    NetGrid * netGrid;
-    MetisIntList cellzone;
     int nPart;
-    GridTopos gtopos;
+    vector< ScalarGrid * > * grids;
 public:
-    void PartitionGrid( ScalarGrid * ggrid, int nPart, NetGrid * netGrid );
-    void CalcCellZone();
-    void ReconstructAllZones();
-    void CalcGlobalInterface();
-    void ReconstructGrid();
+    int GetNZones();
+    void AllocateGrid( int nZones );
+    void PartitionGrid( ScalarGrid * ggrid, int nPart, vector< ScalarGrid * > * grids );
+    void ReconstructGridFaceTopo();
+    void ReconstructInterfaceTopo();
     void ReconstructNode();
-    
+    void ReconstructNeighbor();
+    void CalcInterfaceToBcFace();
 };
 
 

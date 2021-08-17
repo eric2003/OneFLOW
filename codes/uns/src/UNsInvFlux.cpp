@@ -141,7 +141,7 @@ void UNsInvFlux::CalcFlux()
 
 void UNsInvFlux::CalcInvFlux()
 {
-    for ( int fId = 0; fId < ug.nFace; ++ fId )
+    for ( int fId = 0; fId < ug.nFaces; ++ fId )
     {
         ug.fId = fId;
 
@@ -217,7 +217,7 @@ void UNsInvFlux::AddInvFlux()
 
 void UNsInvFlux::Alloc()
 {
-    invflux = new MRField( nscom.nEqu, ug.nFace );
+    invflux = new MRField( nscom.nEqu, ug.nFaces );
 }
 
 void UNsInvFlux::DeAlloc()

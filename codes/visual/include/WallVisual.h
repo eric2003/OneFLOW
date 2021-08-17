@@ -73,7 +73,7 @@ public:
 public:
     RealField xN, yN, zN;
 public:
-    void CalcOrderMap( int & nBFace, IntField & orderMapping );
+    void CalcOrderMap( int & nBFaces, IntField & orderMapping );
     void ConstructTopology();
     void ConstructTopology2D();
     void ConstructTopology3D();

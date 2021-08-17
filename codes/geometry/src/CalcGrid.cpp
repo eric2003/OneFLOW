@@ -95,7 +95,7 @@ void CalcGrid::BuildInterfaceLink()
 
 void CalcGrid::Dump()
 {
-    cout << __FUNCTION__ << endl;
+    //cout << __FUNCTION__ << endl;
     fstream file;
     OpenPrjFile( file, gridFileName, ios_base::out|ios_base::binary|ios_base::trunc );
     int nZone = static_cast<int>(grids.size());
@@ -151,19 +151,19 @@ void CalcGrid::ReconstructLink( int iZone )
     UnsGrid * grid = UnsGridCast( grids[ iZone ] );
 
     InterFace * interFace = grid->interFace;
-    grid->nIFace = grid->interFace->nIFace;
+    grid->nIFaces = grid->interFace->nIFaces;
 
     if ( ! ONEFLOW::IsValid( interFace ) ) return;
 
-    int nBFace = grid->nBFace;
-    int nIFace = interFace->nIFace;
-    int nPBFace = nBFace - nIFace;
+    int nBFaces = grid->nBFaces;
+    int nIFaces = interFace->nIFaces;
+    int nPBFace = nBFaces - nIFaces;
 
-    IntField & lCell = grid->faceTopo->lCell;
-    IntField & rCell = grid->faceTopo->rCell;
+    IntField & lCell = grid->faceTopo->lCells;
+    IntField & rCell = grid->faceTopo->rCells;
 
     FacePair facePair;
-    for ( int iFace = 0; iFace < nIFace; ++ iFace )
+    for ( int iFace = 0; iFace < nIFaces; ++ iFace )
     {
         int nei_zone_id = interFace->zoneId[ iFace ];
         int lc = lCell[ iFace + nPBFace ];
@@ -287,6 +287,15 @@ void CalcGrid::MatchInterfaceTopology()
     }
 }
 
+void CalcGrid::GenerateMultiZoneCalcGrids( Grids & grids )
+{
+    RegionNameMap::DumpRegion();
+
+    this->Init( grids );
+    this->Post();
+    this->Dump();
+}
+
 int GetIgnoreNoBc()
 {
     return ONEFLOW::GetDataValue< int >( "ignoreNoBc" );
@@ -299,24 +308,16 @@ string GetTargetGridFileName()
 
 void GenerateMultiZoneCalcGrids( Grids & grids )
 {
-    RegionNameMap::DumpRegion();
-
-    CalcGrid * compGrid = new CalcGrid();
-    compGrid->Init( grids );
-    logFile << "Post\n";
-
-    compGrid->Post();
-    logFile << "Post 1\n";
-    compGrid->Dump();
-    logFile << "Dump\n";
-    delete compGrid;
+    CalcGrid * calcGrid = new CalcGrid();
+    calcGrid->GenerateMultiZoneCalcGrids( grids );
+    delete calcGrid;
 }
 
 void ResetGridScaleAndTranslate( NodeMesh * nodeMesh )
 {
-    size_t nNode = nodeMesh->GetNumberOfNodes();
+    size_t nNodes = nodeMesh->GetNumberOfNodes();
 
-    for ( int iNode = 0; iNode < nNode; ++ iNode )
+    for ( int iNode = 0; iNode < nNodes; ++ iNode )
     {
         nodeMesh->xN[ iNode ] *= grid_para.gridScale;
         nodeMesh->yN[ iNode ] *= grid_para.gridScale;
@@ -335,14 +336,14 @@ void ResetGridScaleAndTranslate( NodeMesh * nodeMesh )
 
 void TurnZAxisToYAxis( NodeMesh * nodeMesh )
 {
-    size_t nNode = nodeMesh->GetNumberOfNodes();
+    size_t nNodes = nodeMesh->GetNumberOfNodes();
 
     RealField & xN = nodeMesh->xN;
     RealField & yN = nodeMesh->yN;
     RealField & zN = nodeMesh->zN;
 
     Real tmp;
-    for ( int iNode = 0; iNode < nNode; ++ iNode )
+    for ( int iNode = 0; iNode < nNodes; ++ iNode )
     {
         tmp         = yN[ iNode ];
         yN[ iNode ] = zN[ iNode ];

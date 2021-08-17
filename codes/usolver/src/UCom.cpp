@@ -29,6 +29,7 @@ License
 #include "CellTopo.h"
 #include "Zone.h"
 #include "PIO.h"
+#include "Stop.h"
 #include "DataBase.h"
 #include "OStream.h"
 #include "FileUtil.h"
@@ -55,17 +56,17 @@ void UGeom::Init()
     //UnsGrid * grid = Zone::GetUnsGrid();
     grid = Zone::GetUnsGrid();
 
-    ug.nBFace = grid->nBFace;
-    ug.nCell = grid->nCell;
-    ug.nTCell = grid->nCell + grid->nBFace;
-    ug.nFace = grid->nFace;
+    ug.nBFaces = grid->nBFaces;
+    ug.nCells = grid->nCells;
+    ug.nTCell = grid->nCells + grid->nBFaces;
+    ug.nFaces = grid->nFaces;
 
     this->SetStEd( F_TOTAL );
     this->CreateBcTypeRegion();
 
     FaceTopo * faceTopo = grid->faceTopo;
-    ug.lcf = & faceTopo->lCell;
-    ug.rcf = & faceTopo->rCell;
+    ug.lcf = & faceTopo->lCells;
+    ug.rcf = & faceTopo->rCells;
 
     FaceMesh * faceMesh = grid->faceMesh;
     CellMesh * cellMesh = grid->cellMesh;
@@ -117,11 +118,11 @@ void UGeom::SetStEd( int flag )
     if ( flag == F_INNER )
     {
         this->ist = 0;
-        this->ied = ug.nCell;
+        this->ied = ug.nCells;
     }
     else if ( flag == F_GHOST )
     {
-        this->ist = ug.nCell;
+        this->ist = ug.nCells;
         this->ied = ug.nTCell;
     }
     else if ( flag == F_TOTAL )
@@ -133,8 +134,8 @@ void UGeom::SetStEd( int flag )
 
 void UGeom::DumpCellFace( int cId )
 {
-    int nFace = ( * this->c2f )[ cId ].size();
-    for ( int fId = 0; fId < nFace; ++ fId )
+    int nFaces = ( * this->c2f )[ cId ].size();
+    for ( int fId = 0; fId < nFaces; ++ fId )
     {
         cout << ( * this->c2f )[ cId ][ fId ] << " ";
     }
@@ -144,7 +145,7 @@ void UGeom::DumpCellFace( int cId )
 void AddF2CField( MRField * cellField, MRField * faceField )
 {
     int nEqu = cellField->GetNEqu();
-    for ( int fId = 0; fId < ug.nBFace; ++ fId )
+    for ( int fId = 0; fId < ug.nBFaces; ++ fId )
     {
         ug.fId = fId;
         ug.lc = ( * ug.lcf )[ ug.fId ];
@@ -156,7 +157,7 @@ void AddF2CField( MRField * cellField, MRField * faceField )
         }
     }
 
-    for ( int fId = ug.nBFace; fId < ug.nFace; ++ fId )
+    for ( int fId = ug.nBFaces; fId < ug.nFaces; ++ fId )
     {
         ug.fId = fId;
         ug.lc = ( * ug.lcf )[ ug.fId ];
@@ -173,7 +174,7 @@ void AddF2CField( MRField * cellField, MRField * faceField )
 void AddF2CFieldDebug( MRField * cellField, MRField * faceField )
 {
     int nEqu = cellField->GetNEqu();
-    for ( int fId = 0; fId < ug.nBFace; ++ fId )
+    for ( int fId = 0; fId < ug.nBFaces; ++ fId )
     {
         ug.fId = fId;
         ug.lc = ( * ug.lcf )[ ug.fId ];
@@ -200,7 +201,7 @@ void AddF2CFieldDebug( MRField * cellField, MRField * faceField )
         }
     }
 
-    for ( int fId = ug.nBFace; fId < ug.nFace; ++ fId )
+    for ( int fId = ug.nBFaces; fId < ug.nFaces; ++ fId )
     {
         ug.fId = fId;
         ug.lc = ( * ug.lcf )[ ug.fId ];
@@ -338,8 +339,8 @@ void HXDebug::CompareFile( Real mindiff, int idump )
     {
         HXVector< Real > & f1 = ( * field1 )[ iEqu ];
         HXVector< Real > & f2 = ( * field2 )[ iEqu ];
-        int nCell = f1.size();
-        for ( int iCell = 0; iCell < nCell; ++ iCell )
+        int nCells = f1.size();
+        for ( int iCell = 0; iCell < nCells; ++ iCell )
         {
             Real diff = f1[ iCell ] - f2[ iCell ];
             if ( ABS( diff ) > mindiff )
@@ -363,13 +364,13 @@ void HXDebug::CompareFile( Real mindiff, int idump )
 void HXDebug::DumpCellInfo( int iCell )
 {
     UnsGrid * grid = Zone::GetUnsGrid();
-    int nFace = ( * ug.c2f )[ iCell ].size();
-    int nBFace = ( * ug.bcRecord ).bcType.size();
-    for ( int iFace = 0; iFace < nFace; ++ iFace )
+    int nFaces = ( * ug.c2f )[ iCell ].size();
+    int nBFaces = ( * ug.bcRecord ).bcType.size();
+    for ( int iFace = 0; iFace < nFaces; ++ iFace )
     {
         int fid = ( * ug.c2f )[ iCell ][ iFace ];
         int bctype = -1;
-        if ( fid < nBFace )
+        if ( fid < nBFaces )
         {
             bctype = ( * ug.bcRecord ).bcType[ fid ];
         }
@@ -391,6 +392,7 @@ void HXDebug::CheckNANField( MRField * field )
             if ( NotANumber( value ) )
             {
                 cout << " iEqu = " << iEqu << " iElem = " << iElem << " nElems = " << nElems << " value = " << value << "\n";
+                Stop( "NotANumber" );
             }
         }
     }

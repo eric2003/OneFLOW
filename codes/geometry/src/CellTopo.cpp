@@ -39,11 +39,11 @@ CellTopo::~CellTopo()
     ;
 }
 
-void CellTopo::Alloc( int nCell )
+void CellTopo::Alloc( int nCells )
 {
-    blank.resize( nCell );
-    cellType.resize( nCell );
-    cellToNode.resize( nCell );
+    blank.resize( nCells );
+    eTypes.resize( nCells );
+    elements.resize( nCells );
 
     blank = 1;
 }
@@ -55,8 +55,8 @@ void CellTopo::PushElement( int p1, int p2, int p3, int elementType )
     element.push_back( p2 );
     element.push_back( p3 );
 
-    cellToNode.push_back( element );
-    cellType.push_back( elementType );
+    elements.push_back( element );
+    eTypes.push_back( elementType );
 }
 
 void CellTopo::PushElement( int p1, int p2, int p3, int p4, int elementType )
@@ -73,11 +73,11 @@ void CellTopo::PushElement( int p1, int p2, int p3, int p4, int elementType )
         element2.push_back( p4 );
         element2.push_back( p1 );
 
-        cellToNode.push_back( element1 );
-        cellToNode.push_back( element2 );
+        elements.push_back( element1 );
+        elements.push_back( element2 );
 
-        cellType.push_back( elementType );
-        cellType.push_back( elementType );
+        eTypes.push_back( elementType );
+        eTypes.push_back( elementType );
     }
     else if ( elementType == ONEFLOW::QUAD_4 )
     {
@@ -87,8 +87,8 @@ void CellTopo::PushElement( int p1, int p2, int p3, int p4, int elementType )
         element.push_back( p3 );
         element.push_back( p4 );
 
-        cellToNode.push_back( element );
-        cellType.push_back( elementType );
+        elements.push_back( element );
+        eTypes.push_back( elementType );
     }
 }
 
@@ -96,23 +96,23 @@ void CellTopo::CalcC2f( FaceTopo * faceTopo )
 {
     if ( c2f.size() != 0 ) return;
 
-    int nCell = this->GetNumberOfCells();
-    int nBFace = faceTopo->GetNBFace();
-    int nFace = faceTopo->GetNFace();
-    int nTCell = nCell + nBFace;
-    //c2f.resize( nCell );
+    int nCells = this->GetNumberOfCells();
+    int nBFaces = faceTopo->GetNBFaces();
+    int nFaces = faceTopo->GetNFaces();
+    int nTCell = nCells + nBFaces;
+    //c2f.resize( nCells );
     c2f.resize( nTCell ); //add boundary cell for incompressible ns
 
-    for ( int iFace = 0; iFace < nBFace; ++ iFace )
+    for ( int iFace = 0; iFace < nBFaces; ++ iFace )
     {
-        int lc  = faceTopo->lCell[ iFace ];
+        int lc  = faceTopo->lCells[ iFace ];
         c2f[ lc  ].push_back( iFace );
     }
 
-    for ( int iFace = nBFace; iFace < nFace; ++ iFace )
+    for ( int iFace = nBFaces; iFace < nFaces; ++ iFace )
     {
-        int lc  = faceTopo->lCell[ iFace ];
-        int rc  = faceTopo->rCell[ iFace ];
+        int lc  = faceTopo->lCells[ iFace ];
+        int rc  = faceTopo->rCells[ iFace ];
         c2f[ lc ].push_back( iFace );
         c2f[ rc ].push_back( iFace );
     }

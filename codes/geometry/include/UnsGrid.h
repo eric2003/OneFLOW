@@ -56,6 +56,8 @@ public:
     void ReadBoundaryTopology( DataBook * databook );
     void WriteGridFaceTopology( DataBook * databook );
     void WriteBoundaryTopology( DataBook * databook );
+    void WriteBoundaryTopology1D( DataBook * databook );
+    void WriteGridFaceTopology1D( DataBook * databook );
 public:
     void ModifyBcType( int bcType1, int bcType2 );
     void GenerateLgMapping( IFaceLink * iFaceLink );
@@ -65,9 +67,6 @@ public:
 public:
     void GetMinMaxDistance( Real & dismin, Real & dismax );
     void WriteGrid( fstream & file );
-private:
-    void WriteGridFaceTopology( VirtualFile * vf );
-    void WriteBoundaryTopology( VirtualFile * vf );
 public:
     void CalcMetrics();
     void CalcMetrics1D();

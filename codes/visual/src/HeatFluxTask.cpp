@@ -163,20 +163,20 @@ void CollectWallFaceNode()
     RealField & y = grid->nodeMesh->yN;
     RealField & z = grid->nodeMesh->zN;
 
-    LinkField & f2n = grid->faceTopo->f2n;
+    LinkField & f2n = grid->faceTopo->faces;
     IntField & bcType = grid->faceTopo->bcManager->bcRecord->bcType;
 
-    int nBFace = bcType.size();
+    int nBFaces = bcType.size();
 
-    for ( int iFace = 0; iFace < nBFace; ++ iFace )
+    for ( int iFace = 0; iFace < nBFaces; ++ iFace )
     {
         int bc_type = bcType[ iFace ];
 
         if ( bc_type == BC::SOLID_SURFACE )
         {
             WallStructure::PointField ptList;
-            int nNode = f2n[ iFace ].size();
-            for ( int iNode = 0; iNode < nNode; ++ iNode )
+            int nNodes = f2n[ iFace ].size();
+            for ( int iNode = 0; iNode < nNodes; ++ iNode )
             {
                 int index = f2n[ iFace ][ iNode ];
                 Real x0 = x[ index ];

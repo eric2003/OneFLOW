@@ -58,13 +58,15 @@ public:
     map< string, int > zoneNameMap;
     CgnsFamilyBc * familyBc;
 public:
-    int GetNZone();
+    int GetNZones();
     void SetDefaultCgnsBaseBasicInfo();
     void AddCgnsZone( CgnsZone * cgnsZone );
     void AllocateAllCgnsZones();
     void ReadCgnsBaseBasicInfo();
     void DumpCgnsBaseBasicInfo();
     void ReadNumberOfCgnsZones();
+    CgnsZone * CreateCgnsZone();
+    void CreateCgnsZones( int nZones );
     void ReadAllCgnsZones();
     void DumpAllCgnsZones();
     void ProcessCgnsZones();

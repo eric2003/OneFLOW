@@ -78,7 +78,7 @@ public:
     void GenerateGC2Z();
 #ifdef ENABLE_METIS
     void GetXadjAdjncy( UnsGrid * ggrid, vector<idx_t>& xadj, vector<idx_t>& adjncy );
-    void PartByMetis( idx_t nCell, vector<idx_t>& xadj, vector<idx_t>& adjncy );
+    void PartByMetis( idx_t nCells, vector<idx_t>& xadj, vector<idx_t>& adjncy );
 #endif
     void DumpXadjAdjncy( UnsGrid * grid, IntField & xadj, IntField & adjncy );
     void DumpGC2Z( UnsGrid * grid );
@@ -105,8 +105,8 @@ public:
     void GenerateMultiZoneGrid();
     void CreatePart();
     void AllocPart();
-    void BuildCalcutationalGrid();
-    void BuildCalcutationalGrid( int zid );
+    void BuildCalculationalGrid();
+    void BuildCalculationalGrid( int zid );
     void PreProcess();
     void PostProcess();
 public:

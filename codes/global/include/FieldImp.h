@@ -47,7 +47,7 @@ public:
     IFieldProperty();
     ~IFieldProperty();
 public:
-    void AllocateInterfaceField( int nIFace, DataStorage * dataStorage );
+    void AllocateInterfaceField( int nIFaces, DataStorage * dataStorage );
     void DeAllocateInterfaceField( DataStorage * dataStorage );
     void UploadInterfaceValue();
     void DownloadInterfaceValue();

@@ -23,6 +23,8 @@ License
 #include "GridGroup.h"
 #include "Zone.h"
 #include "ZoneState.h"
+#include "ScalarGrid.h"
+
 #include "PIO.h"
 #include "Parallel.h"
 #include "SolverDef.h"
@@ -41,9 +43,6 @@ using namespace std;
 
 BeginNameSpace( ONEFLOW )
 
-
-IntField GridGroup::pid;
-IntField GridGroup::zoneType;
 
 GridGroup::GridGroup( int zoneStart )
 {
@@ -126,13 +125,7 @@ void GridGroup::ReadGrid( fstream & file, int zid )
 
     if ( Parallel::pid == rpid )
     {
-        int gridType = ZoneState::zoneType[ zid ];
-        Grid * grid = ONEFLOW::CreateGrid( gridType );
-        grid->level = 0;
-        grid->id = zid;
-        grid->localId = Zone::nLocalZones ++;
-        grid->type = gridType;
-        Zone::AddGrid( zid, grid );
+        this->CreateGrid( zid );
     }
 
     DataBook * dataBook = new DataBook();
@@ -142,7 +135,42 @@ void GridGroup::ReadGrid( fstream & file, int zid )
     ONEFLOW::DataToGrid( dataBook, zid );
 
     delete dataBook;
+}
 
+void GridGroup::CreateGrid( int zoneId )
+{
+    if ( Zone::flag_test_grid == 0 )
+    {
+        this->CreateGridImp( zoneId );
+    }
+    else
+    {
+        this->CreateGridTest( zoneId );
+    }
+}
+
+void GridGroup::CreateGridImp( int zoneId )
+{
+    int gridType = ZoneState::zoneType[ zoneId ];
+    Grid * grid = ONEFLOW::CreateGrid( gridType );
+    grid->level = 0;
+    grid->id = zoneId;
+    grid->localId = Zone::nLocalZones ++;
+    grid->type = gridType;
+    Zone::AddGrid( zoneId, grid );
+}
+
+void GridGroup::CreateGridTest( int zoneId )
+{
+    int gridType = ZoneState::zoneType[ zoneId ];
+
+    ScalarGrid * grid = new ScalarGrid();
+    grid->level = 0;
+    grid->id = zoneId;
+    grid->localId = Zone::nLocalZones ++;
+    grid->type = gridType;
+
+    Zone::AddScalarGrid( zoneId, grid );
 }
 
 void ReadAbstractData( fstream & file, DataBook * dataBook, int sendpid, int recvpid, int tag )
@@ -157,6 +185,18 @@ void ReadAbstractData( fstream & file, DataBook * dataBook, int sendpid, int rec
 
 void DataToGrid( DataBook * dataBook, int zid )
 {
+    if ( Zone::flag_test_grid == 0 )
+    {
+        DataToGridImp( dataBook, zid );
+    }
+    else
+    {
+        DataToGridTest( dataBook, zid );
+    }
+}
+
+void DataToGridImp( DataBook * dataBook, int zid )
+{
     int spid = 0;
     int rpid = 0;
 
@@ -167,6 +207,19 @@ void DataToGrid( DataBook * dataBook, int zid )
     Grid * grid = Zone::GetGrid( zid, 0 );
 
     grid->Decode( dataBook );
+}
+
+void DataToGridTest( DataBook * dataBook, int zid )
+{
+    int spid = 0;
+    int rpid = 0;
+
+    Parallel::GetSrPid( zid, spid, rpid );
+
+    if ( Parallel::pid != rpid ) return;
+
+    ScalarGrid * grid = Zone::GetScalarGrid( zid );
+    grid->ReadGrid( dataBook );
 }
 
 EndNameSpace

@@ -83,10 +83,23 @@ int PointBasic::DeletePoint( PointBasic::PointType & point )
     {
         pid = iter->id;
         pointSet.erase( point );
+        this->ModifyPointIndexAfterDelete( pid );
         int kkk = 1;
     }
 
     return pid;
+}
+
+void PointBasic::ModifyPointIndexAfterDelete( int pid )
+{
+    PointSet::iterator iter;
+    for ( PointSet::iterator iter = this->pointSet.begin(); iter != this->pointSet.end(); ++ iter )
+    {
+        if ( iter->id > pid )
+        {
+            //( * iter ).->id -= 1;
+        }
+    }
 }
 
 int PointBasic::AddPoint( PointBasic::PointType & point )

@@ -50,14 +50,21 @@ public:
     void ReadNumCgnsBase();
     void ConvertToInnerDataStandard();
     void ProcessCgnsBases();
+    void OpenCgnsFile( const string & fileName, int cgnsOpenMode );
+    void CloseCgnsFile();
 public:
     void AddCgnsBase( CgnsBase * cgnsBase );
+    CgnsBase * CreateCgnsBase();
     void InitCgnsBase();
 public:
-    int GetNZone();
+    int GetNZones();
     CgnsBase * GetCgnsBase( int iBase );
     CgnsZone * GetCgnsZone( int globalZoneId );
     CgnsZone * GetMultiBaseCgnsZone( int iBase, int iZone );
+public:
+    void FreeCgnsBases();
+    void CreateCgnsZones( int nZones = 0 );
+    CgnsZone * CreateCgnsZone();
 };
 
 #endif

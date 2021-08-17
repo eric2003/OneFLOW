@@ -221,7 +221,7 @@ void CalcAeroForce(int idump_pres)
 	MRField * bcdqdz = GetFieldPointer< MRField >(grid, "bcdqdz");
 
 	int startStrategy = ONEFLOW::GetDataValue< int >("startStrategy");
-	if (startStrategy == 2)
+	if ( startStrategy == 2 )
 	{
 		RealField & dpdx = (*bcdqdx)[IIDX::IIP];
 		RealField & dpdy = (*bcdqdy)[IIDX::IIP];
@@ -270,8 +270,8 @@ void CalcAeroForce(int idump_pres)
 		for (int iBCFace = 0; iBCFace < nBCFace; ++iBCFace)
 		{
 			int fId = bcInfo->bcFace[ir][iBCFace];
-			int lc = grid->faceTopo->lCell[fId];
-			int rc = grid->faceTopo->rCell[fId];
+			int lc = grid->faceTopo->lCells[fId];
+			int rc = grid->faceTopo->rCells[fId];
 			stress.area = area[fId];
 			stress.fnx = xfn[fId];
 			stress.fny = yfn[fId];
