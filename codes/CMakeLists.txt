@@ -6,6 +6,8 @@ message ( STATUS "This current source directory is ${CMAKE_CURRENT_SOURCE_DIR}."
 set ( my_compile_def )
 set ( my_libraries )
 set ( my_include_dirs )
+set ( my_propertie_name )
+set ( my_propertie_value )
 
 set ( BIT64_FLAG TRUE CACHE BOOL "64bit or 32bit code" )
 
@@ -15,11 +17,14 @@ check_language ( CUDA )
 if ( CMAKE_CUDA_COMPILER )
 	enable_language ( CUDA )
 	list( APPEND my_compile_def ENABLE_CUDA )
-    set ( PRJ_CUDA_ARCHITECTURES "35;50;52;72;75" )
-	set ( PRJ_CUDA_SEPARABLE_COMPILATION ON )
+    #set ( PRJ_CUDA_ARCHITECTURES "35;50;52;72;75" )
+	#set ( PRJ_CUDA_SEPARABLE_COMPILATION ON )
 	list( APPEND my_include_dirs ${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES} )
 	message ( STATUS "The CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES is ${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES}" )
-	message ( STATUS "PRJ_CUDA_SEPARABLE_COMPILATION = ${PRJ_CUDA_SEPARABLE_COMPILATION}" )
+	list ( APPEND my_propertie_name CUDA_ARCHITECTURES )
+	list ( APPEND my_propertie_value "35;50;52;72;75" )
+	list ( APPEND my_propertie_name CUDA_SEPARABLE_COMPILATION )
+	list ( APPEND my_propertie_value ON )
 else()
 	message ( STATUS "No CUDA support" )
 endif()
@@ -171,11 +176,23 @@ target_compile_definitions ( ${PROJECT_NAME}
 	   ${my_compile_def} 
 )
 
-set_target_properties (	${PROJECT_NAME}
-	PROPERTIES
-		CUDA_ARCHITECTURES ${PRJ_CUDA_ARCHITECTURES}
-		CUDA_SEPARABLE_COMPILATION ${PRJ_CUDA_SEPARABLE_COMPILATION}
-)
+list ( LENGTH my_propertie_name len )
+math ( EXPR my_len "${len} - 1")
+
+foreach ( val RANGE ${my_len} )
+	list ( GET my_propertie_name  ${val} name )
+	list ( GET my_propertie_value ${val} value )
+	set_target_properties ( ${PROJECT_NAME}
+		PROPERTIES
+			${name} ${value}
+	)
+endforeach ()
+
+#set_target_properties (	${PROJECT_NAME}
+#	PROPERTIES
+#		CUDA_ARCHITECTURES ${PRJ_CUDA_ARCHITECTURES}
+#		CUDA_SEPARABLE_COMPILATION ${PRJ_CUDA_SEPARABLE_COMPILATION}
+#)
 
 set ( PRJ_SYSTEM_DIR ${PRJ_ROOT_DIR}/system/ )
 set ( PRJ_DOCUMENT_DIR ${PRJ_ROOT_DIR}/doc/ )
