@@ -122,10 +122,10 @@ set ( JsonHeaderDir ${JsonPrjDir} )
 list ( APPEND PRJ_INCLUDE_DIRS ${JsonHeaderDir} )
 set ( JsonSRC "${JsonPrjDir}/jsoncpp.cpp" ) 
 
-ConstructSolutionDirTree( ${CMAKE_CURRENT_SOURCE_DIR} my_head_list my_src_list local_include_dirs )
-list ( APPEND PRJ_INCLUDE_DIRS ${local_include_dirs} )
+ConstructSolutionDirTree( ${CMAKE_CURRENT_SOURCE_DIR} PRJ_HEADER_LIST PRJ_SRC_LIST PRJ_LOCAL_INCLUDE_DIRS )
+list ( APPEND PRJ_INCLUDE_DIRS ${PRJ_LOCAL_INCLUDE_DIRS} )
 
-list ( APPEND my_src_list ${JsonSRC} ) 
+list ( APPEND PRJ_SRC_LIST ${JsonSRC} ) 
 
 if ( BIT64_FLAG )
     list( APPEND PRJ_COMPILE_DEF X64 )
@@ -145,7 +145,7 @@ set ( OneFLOW_EXE "${PROJECT_NAME}" )
 message ( STATUS "The executable name is ${PROJECT_NAME}." )
 
 #. add an executable to the project
-add_executable ( ${PROJECT_NAME} ${my_src_list} ${my_head_list} )
+add_executable ( ${PROJECT_NAME} ${PRJ_SRC_LIST} ${PRJ_HEADER_LIST} )
 
 target_include_directories ( ${PROJECT_NAME}
 	PRIVATE 
