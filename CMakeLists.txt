@@ -67,23 +67,7 @@ message ( STATUS "The CMAKE_ARCHIVE_OUTPUT_DIRECTORY is ${CMAKE_ARCHIVE_OUTPUT_D
 #look for CMakeLists.txt in subdirectory <codes> and build an executable target:
 add_subdirectory ( ThirdParty ${THIRD_PARTY_DIR} )
 add_subdirectory ( codes      ${MY_WORKING_DIR}  )
-
 add_subdirectory ( gui  )
 
-
-#set ( use_qt false )
-#set ( use_qt true )
-#if ( use_qt )
-#	add_subdirectory ( gui oneflow_qt_prj )
-#endif ()
-
-#set ( use_opengl false )
-#set ( use_opengl true )
-
-#if ( use_opengl )
-#	add_subdirectory ( opengl oneflow_opengl_prj )
-#endif ()
-
-#exit:
 message ( STATUS "--- Exit ${CMAKE_CURRENT_LIST_FILE}! ---" )
 message ( STATUS "Finished build project ${PROJECT_NAME}!" )
