@@ -488,11 +488,11 @@ void SmartGrid::GenerateGrid( int ni, Real xmin, Real xmax )
 
         this->AddElement( p1, p2, eType );
     }
-    CreatBCRegion( "LeftOutFlow", ONEFLOW::BCOutflow );
-	scalarBccoL->bcName = "LeftOutFlow";
-	scalarBccoL->bcType = ONEFLOW::BCOutflow;
+ //   CreatBCRegion( "LeftOutFlow", ONEFLOW::BCOutflow );
+	//scalarBccoL->bcName = "LeftOutFlow";
+	//scalarBccoL->bcType = ONEFLOW::BCOutflow;
 
-    this->AddBoundaryFace( ptl, );
+ //   this->AddBoundaryFace( ptl, );
 
     this->TopoPostprocess();
 
