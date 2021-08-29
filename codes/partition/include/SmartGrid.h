@@ -82,9 +82,10 @@ public:
    Ids vint;
 public:
     bool NotFind( IDSMap::iterator & iter );
-    IDSMap::iterator FindIds( vector< int > & ids, int type );
+    IDSMap::iterator FindIds( const vector< int > & ids, int type );
     int AddIds( vector< int > & ids, int type );
     int AddData();
+    void ModifyDataIndex( const Ids &var, int new_id );
 };
 
 class UnitElement;
@@ -102,12 +103,23 @@ public:
     vector< int > lc_pos, rc_pos;
     vector< int > fTypes;
     vector< int > fBcTypes;
+    vector< int > bcTypes;
+    int nCells;
 public:
     void GetElementFace( UnitElement * unitElement, vector< int > & element, int facePos, vector< int > & face, int & faceType );
     void AddSingleFace( UnitElement * unitElement, vector< int > & element, int facePos, int  iCell );
     void ModifyFace( int face_id, int iCell, int face_pos );
     void AddNewFace( int iCell, int face_pos, int faceType );
     void AddElementFaces( vector< int > & element, int eType, int iCell );
+public:
+    void ReorderFaces();
+    void CalcOrderMap( vector<int > & orderMap );
+    void ReOrder( vector< int > & varList, vector< int > & orderMap );
+    void ReOrderMapdata( IdTool & faceIdTool, vector< int > & orderMap );
+    void TopoPostprocess();
+public:
+    void ScanBcFace();
+    void SetBcGhostCell();
 };
 
 class TopoAction
@@ -125,9 +137,28 @@ public:
     IdTool elementIdTool;
 public:
     TopoSort * topo_sort;
-    //vector< vector< int > > elements;
-    //vector< int > eTypes;
 };
+
+class MyBcRegion
+{
+public:
+    MyBcRegion();
+    ~MyBcRegion();
+public:
+    string name;
+
+};
+
+
+class BcAction
+{
+public:
+    BcAction();
+    ~BcAction();
+public:
+    void CreatBCRegion( const string "LeftOutFlow", ONEFLOW::BCOutflow );
+};
+
 
 class SmartGrid
 {
@@ -137,6 +168,7 @@ public:
 public:
     PointAction * point_action;
     TopoAction * topo_action;
+    BcAction * topo_action;
 public:
     int AddPoint( Real x, Real y, Real z );
     void TestAddDeletePoints();
