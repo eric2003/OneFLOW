@@ -139,25 +139,25 @@ public:
     TopoSort * topo_sort;
 };
 
-class MyBcRegion
-{
-public:
-    MyBcRegion();
-    ~MyBcRegion();
-public:
-    string name;
-
-};
-
-
-class BcAction
-{
-public:
-    BcAction();
-    ~BcAction();
-public:
-    void CreatBCRegion( const string "LeftOutFlow", ONEFLOW::BCOutflow );
-};
+//class MyBcRegion
+//{
+//public:
+//    MyBcRegion();
+//    ~MyBcRegion();
+//public:
+//    string name;
+//
+//};
+//
+//
+//class BcAction
+//{
+//public:
+//    BcAction();
+//    ~BcAction();
+//public:
+//    void CreatBCRegion( const string "LeftOutFlow", ONEFLOW::BCOutflow );
+//};
 
 
 class SmartGrid
@@ -168,7 +168,7 @@ public:
 public:
     PointAction * point_action;
     TopoAction * topo_action;
-    BcAction * topo_action;
+    //BcAction * topo_action;
 public:
     int AddPoint( Real x, Real y, Real z );
     void TestAddDeletePoints();
