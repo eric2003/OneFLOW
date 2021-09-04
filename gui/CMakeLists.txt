@@ -12,3 +12,10 @@ set ( use_opengl false )
 if ( use_opengl )
     add_subdirectory ( opengl )
 endif ()
+
+set ( use_vtk false )
+#set ( use_vtk true )
+
+if ( use_vtk )
+    add_subdirectory ( vtk )
+endif ()
