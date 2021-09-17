@@ -8,6 +8,7 @@ set ( PRJ_LIBRARIES )
 set ( PRJ_INCLUDE_DIRS )
 set ( PRJ_PROPERTY_NAME )
 set ( PRJ_PROPERTY_VALUE )
+set ( PRJ_COMPILE_OPTIONS )
 set ( PRJ_COMPILE_FEATURES )
 
 list ( APPEND PRJ_COMPILE_FEATURES cxx_std_14 )
@@ -26,11 +27,19 @@ if ( CMAKE_CUDA_COMPILER )
 	list ( APPEND PRJ_PROPERTY_NAME CUDA_SEPARABLE_COMPILATION )
 	list ( APPEND PRJ_PROPERTY_VALUE ON )
 	list ( APPEND PRJ_COMPILE_FEATURES cuda_std_14 )
+	list ( APPEND PRJ_COMPILE_OPTIONS -Xcompiler )
+	message ( STATUS "The CMAKE_CUDA_COMPILER is ${CMAKE_CUDA_COMPILER}" )
 else()
 	message ( STATUS "No CUDA support" )
 endif()
 
-message ( STATUS "The CMAKE_CUDA_COMPILER is ${CMAKE_CUDA_COMPILER}" )
+find_package ( OpenMP )
+if ( OpenMP_FOUND )
+	list ( APPEND PRJ_COMPILE_DEF ENABLE_OPENMP )
+	list ( APPEND PRJ_LIBRARIES ${OpenMP_CXX_LIBRARIES} )
+	list ( APPEND PRJ_COMPILE_OPTIONS ${OpenMP_CXX_FLAGS} )
+endif ()
+
 
 if ( CMAKE_SYSTEM_NAME MATCHES "Linux" )
 elseif ( CMAKE_SYSTEM_NAME MATCHES "Windows" )
@@ -79,6 +88,7 @@ if ( MPI_ENABLE )
 	list ( APPEND PRJ_LIBRARIES ${MPI_LIBRARIES} )
 	list ( APPEND PRJ_INCLUDE_DIRS ${MPI_INCLUDE_DIRS} )
 endif()
+
 
 #METIS library settings
 option ( METIS_ENABLE "ON for using METIS partitioning library" ON )
@@ -157,8 +167,13 @@ target_link_libraries ( ${PROJECT_NAME}
         ${PRJ_LIBRARIES}
 )
 
+target_compile_options ( ${PROJECT_NAME}
+	PRIVATE
+		${PRJ_COMPILE_OPTIONS}
+)
+
 target_compile_features ( ${PROJECT_NAME} 
-	PUBLIC 
+	PRIVATE 
 		${PRJ_COMPILE_FEATURES}
 )
 
