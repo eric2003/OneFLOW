@@ -30,7 +30,7 @@ set ( OneFLOW_CMAKE_DIR "${CMAKE_SOURCE_DIR}/cmake" )
 list ( INSERT CMAKE_MODULE_PATH 0 "${OneFLOW_CMAKE_DIR}" )
 
 #output message:
-message ( STATUS "Welcome to Build Project ${CMAKE_PROJECT_NAME}." )
+message ( STATUS "Welcome to Build Project ${PROJECT_NAME}." )
 message ( STATUS "The OS is ${CMAKE_SYSTEM_NAME}, version ${CMAKE_SYSTEM_VERSION}." )
 
 message ( STATUS "The CMAKE_SOURCE_DIR is ${CMAKE_SOURCE_DIR}." )
@@ -49,10 +49,6 @@ message ( STATUS "The CMAKE_CXX_COMPILER_VERSION is ${CMAKE_CXX_COMPILER_VERSION
 
 message ( STATUS "The CMAKE_CXX_FLAGS is ${CMAKE_CXX_FLAGS}" )
  
-set ( CMAKE_CXX_STANDARD 11 )
-set ( CMAKE_CXX_STANDARD_REQUIRED True )
-set ( CMAKE_CXX_EXTENSIONS OFF )
-
 include ( UtilFunction   )
 include ( oflDirectories )
 
@@ -71,7 +67,7 @@ message ( STATUS "The CMAKE_ARCHIVE_OUTPUT_DIRECTORY is ${CMAKE_ARCHIVE_OUTPUT_D
 #look for CMakeLists.txt in subdirectory <codes> and build an executable target:
 add_subdirectory ( ThirdParty ${THIRD_PARTY_DIR} )
 add_subdirectory ( codes      ${MY_WORKING_DIR}  )
+add_subdirectory ( gui  )
 
-#exit:
 message ( STATUS "--- Exit ${CMAKE_CURRENT_LIST_FILE}! ---" )
 message ( STATUS "Finished build project ${PROJECT_NAME}!" )

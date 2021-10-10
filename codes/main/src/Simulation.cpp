@@ -25,6 +25,7 @@ License
 #include "MpiTest.h"
 #include "JsonTest.h"
 #include "CgnsTest.h"
+#include "HybridParallel.h"
 #include <iostream>
 using namespace std;
 
@@ -94,9 +95,14 @@ void Simulation::RunDefaultSimu()
     //jsonTest->Run();
     //delete jsonTest;
 
-    CgnsTest * cgnsTest = new CgnsTest();
-    cgnsTest->Run();
-    delete cgnsTest;
+    //CgnsTest * cgnsTest = new CgnsTest();
+    //cgnsTest->Run();
+    //delete cgnsTest;
+
+    // CUDA, OpenMP, and MPI parallel
+    HybridParallel * hybridParallel = new HybridParallel();
+    hybridParallel->Run();
+    delete hybridParallel;
 }
 
 

@@ -204,6 +204,111 @@ void TopoSort::AddElementFaces( vector< int > & element, int eType, int iCell )
     }
 }
 
+void TopoSort::ReorderFaces()
+{
+    vector<int > orderMap;
+    this->CalcOrderMap( orderMap );
+
+    this->ReOrder( this->lc, orderMap );
+    this->ReOrder( this->rc, orderMap );
+
+    this->ReOrder( this->lc_pos, orderMap );
+    this->ReOrder( this->rc_pos, orderMap );
+
+    this->ReOrder( this->fTypes, orderMap );
+    this->ReOrder( this->fBcTypes, orderMap );
+
+    this->ReOrderMapdata( this->faceIdTool, orderMap );
+}
+
+void TopoSort::CalcOrderMap( vector<int > &orderMap )
+{
+    int nFaces = this->fTypes.size();
+	orderMap.resize( nFaces );
+
+	int iBoundaryFaceCount = 0;
+	int iCount = 0;
+	for ( int iFace = 0; iFace < nFaces; ++ iFace )
+	{
+		int rc = this->rc[ iFace ];
+		if ( rc == ONEFLOW::INVALID_INDEX )
+		{
+			orderMap[ iCount ++ ] = iFace;
+			++ iBoundaryFaceCount;
+		}
+	}
+
+	int nBFaces = iBoundaryFaceCount;
+
+	for ( int iFace = 0; iFace < nFaces; ++ iFace )
+	{
+		int rc = this->rc[ iFace ];
+		if ( rc != ONEFLOW::INVALID_INDEX )
+		{
+			orderMap[ iCount ++ ] = iFace;
+		}
+	}
+}
+
+void TopoSort::ReOrder( vector< int > & varList, vector< int > & orderMap )
+{
+	vector< int > dataSwap = varList;
+	size_t nElements = varList.size();
+
+	for ( size_t i = 0; i < nElements; ++ i )
+	{
+		size_t j = orderMap[ i ];
+		varList[ i ] = dataSwap[ j ];
+	}
+}
+
+void TopoSort::ReOrderMapdata( IdTool & faceIdTool, vector< int > & orderMap )
+{
+    vector< Ids > dataSwap = faceIdTool.ids_list;
+    size_t nElements = dataSwap.size();
+	for ( size_t i = 0; i < nElements; ++ i )
+	{
+		size_t j = orderMap[ i ];
+		faceIdTool.ids_list[ i ] = dataSwap[ j ];
+        faceIdTool.ModifyDataIndex( dataSwap[ j ], i );
+	}
+}
+
+void TopoSort::TopoPostprocess()
+{
+    this->ReorderFaces();
+    this->ScanBcFace();
+    this->SetBcGhostCell();
+}
+
+void TopoSort::ScanBcFace()
+{
+    int nFaces = this->fTypes.size();
+	cout << " nFaces = " << nFaces << "\n";
+
+	int nTraditionalBc = 0;
+	for ( int iFace = 0; iFace < nFaces; ++ iFace )
+	{
+		int originalBcType = this->fBcTypes[ iFace ];
+		if ( originalBcType == ONEFLOW::INVALID_INDEX )
+		{
+			++ nTraditionalBc;
+		}
+	}
+	cout << " nTraditionalBc = " << nTraditionalBc << "\n";
+	this->bcTypes.resize( nTraditionalBc );
+}
+
+void TopoSort::SetBcGhostCell()
+{
+    int nBFaces = this->bcTypes.size();
+
+	for ( int iFace = 0; iFace < nBFaces; ++ iFace )
+	{
+		this->rc[ iFace ] = iFace + nCells;
+	}
+}
+
 Ids::Ids()
 {
     ;
@@ -234,7 +339,7 @@ IdTool::~IdTool()
 }
 
 
-IdTool::IDSMap::iterator IdTool::FindIds( vector< int > & ids, int type )
+IdTool::IDSMap::iterator IdTool::FindIds( const vector< int > & ids, int type )
 {
     this->vint.type = type;
     this->vint.ids = ids;
@@ -251,12 +356,10 @@ bool IdTool::NotFind( IdTool::IDSMap::iterator & iter )
 
 int IdTool::AddData()
 {
-    //map & vector
     int index = this->ids_map.size();
     this->ids_map[ this->vint ] = index;
     this->ids_list.push_back( this->vint );
     return index;
-
 }
 
 int IdTool::AddIds( vector< int > & ids, int type )
@@ -271,7 +374,13 @@ int IdTool::AddIds( vector< int > & ids, int type )
         //Data already exists
         return iter->second;
     }
+}
 
+void IdTool::ModifyDataIndex( const Ids & var, int new_id )
+{
+    IdTool::IDSMap::iterator iter = this->FindIds( var.ids, var.type );
+    if ( this->NotFind( iter ) ) return;
+    iter->second = new_id;
 }
 
 
@@ -291,9 +400,6 @@ void TopoAction::AddElement( int p1, int p2, int eType )
     elem.push_back( p1 );
     elem.push_back( p2 );
 
-    //this->elements.push_back( elem );
-    //this->eTypes.push_back( eType );
-
     int e_index = elementIdTool.AddIds( elem, eType );
     cout << " e_index = " << e_index << "\n";
     topo_sort->AddElementFaces( elem, eType, e_index );
@@ -302,20 +408,6 @@ void TopoAction::AddElement( int p1, int p2, int eType )
 void TopoAction::CalcTopology()
 {
     TopoSort topo_sort;
-
-    //int nCells = this->elements.size();
-    //for ( int iCell = 0; iCell < nCells; ++ iCell )
-    //{
-    //    vector< int > & element = elements[ iCell ];
-
-    //    int eType = eTypes[ iCell ];
-
-    //    topo_sort.AddElementFaces( element, eType, iCell );
-    //}
-
-    //this->ReorderFaces();
-    //this->ScanBcFace();
-    //this->SetBcGhostCell();
 }
 
 
@@ -362,6 +454,10 @@ void SmartGrid::Run()
     #ifdef ENABLE_CUDA
         InitCUDA();
     #endif
+    #ifdef ENABLE_OPENMP
+        #pragma omp parallel  
+        cout << "Hello, OneFLOW OpenMP Test!\n";
+    #endif
 }
 
 void SmartGrid::AddElement( int p1, int p2, int eType )
@@ -396,6 +492,11 @@ void SmartGrid::GenerateGrid( int ni, Real xmin, Real xmax )
 
         this->AddElement( p1, p2, eType );
     }
+ //   CreatBCRegion( "LeftOutFlow", ONEFLOW::BCOutflow );
+	//scalarBccoL->bcName = "LeftOutFlow";
+	//scalarBccoL->bcType = ONEFLOW::BCOutflow;
+
+ //   this->AddBoundaryFace( ptl, );
 
     this->TopoPostprocess();
 
@@ -405,60 +506,12 @@ void SmartGrid::GenerateGrid( int ni, Real xmin, Real xmax )
 
 void SmartGrid::TopoPostprocess()
 {
-    //this->ReorderFaces();
-    //this->ScanBcFace();
-    //this->SetBcGhostCell();
+    topo_action->topo_sort->TopoPostprocess();
 }
 
 void SmartGrid::CalcTopology()
 {
     this->topo_action->CalcTopology();
-}
-
-void SmartGrid::ReorderFaces()
-{
-    //IntList orderMap;
-    //this->CalcOrderMap( orderMap );
-
-    //this->lc.ReOrder( orderMap );
-    //this->rc.ReOrder( orderMap );
-
-    //this->lpos.ReOrder( orderMap );
-    //this->rpos.ReOrder( orderMap );
-
-    //this->fTypes.ReOrder( orderMap );
-    //this->fBcTypes.ReOrder( orderMap );
-    //this->faces.ReOrder( orderMap );
-}
-
-void SmartGrid::CalcOrderMap( vector< int > & orderMap )
-{
-    //this->nFaces = this->faces.GetNElements();
-    //orderMap.Resize( this->nFaces );
-
-    //int iBoundaryFaceCount = 0;
-    //int iCount = 0;
-    //for ( int iFace = 0; iFace < this->nFaces; ++ iFace )
-    //{
-    //    int rc = this->rc[ iFace ];
-    //    if ( rc == ONEFLOW::INVALID_INDEX )
-    //    {
-    //        orderMap[ iCount ++ ] = iFace;
-    //        ++ iBoundaryFaceCount;
-    //    }
-    //}
-
-    //this->nBFaces = iBoundaryFaceCount;
-
-    //for ( int iFace = 0; iFace < this->nFaces; ++ iFace )
-    //{
-    //    int rc = this->rc[ iFace ];
-    //    if ( rc != ONEFLOW::INVALID_INDEX )
-    //    {
-    //        orderMap[ iCount ++ ] = iFace;
-    //    }
-    //}
-
 }
 
 EndNameSpace
