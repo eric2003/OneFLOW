@@ -18,7 +18,7 @@ message ( STATUS "OpenACC_FOUND      = ${OpenACC_FOUND}" )
 message ( STATUS "OpenACC_C_FOUND    = ${OpenACC_C_FOUND}" )
 message ( STATUS "OpenACC_CXX_FOUND  = ${OpenACC_CXX_FOUND}" )
 
-if ( OpenACC_FOUND )
+if ( OpenACC_CXX_FOUND )
 	list ( APPEND PRJ_COMPILE_DEF ENABLE_OPENACC )
     set ( OpenACC_CXX_FLAGS "-fast -acc -Minfo=accel -gpu=cc60,cc70,cc75,cc80" )
 endif ()
@@ -64,11 +64,6 @@ if ( CUDAToolkit_FOUND )
 		   ${CUDA_PRJ_COMPILE_DEF} 
 	)	
 	
-	#set_target_properties ( ${CUDA_LIB}
-	#	PROPERTIES
-	#		CUDA_SEPARABLE_COMPILATION ON
-	#)
-
 	list ( APPEND PRJ_INCLUDE_DIRS ${CUDA_INCLUDE_DIRS} )
 	list ( APPEND PRJ_LIBRARIES ${CUDA_LIB} )
 else()

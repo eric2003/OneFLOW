@@ -53,13 +53,6 @@ HybridParallel::~HybridParallel()
 
 void HybridParallel::Run()
 {
-//#ifdef ENABLE_CUDA
-//    InitCUDA();
-//#endif
-//#ifdef ENABLE_OPENMP
-//    #pragma omp parallel  
-//    cout << "Hello, OneFLOW OpenMP Test!\n";
-//#endif
 	int argc = 0;
 	char ** argv = 0;
 	this->HybridRun( argc, argv );
