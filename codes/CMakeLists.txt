@@ -33,8 +33,8 @@ if ( OpenACC_CXX_FOUND )
 	endif()
 	if ( CUDAToolkit_FOUND )
 		set ( OpenACC_CXX_FLAGS "${OpenACC_CXX_FLAGS} ${ACC_FLAG}" )
-	else
-		set ( OpenACC_CXX_FLAGS "" )
+	else ()
+		set ( OpenACC_CXX_FLAGS )
 	endif()
 endif ()
 
