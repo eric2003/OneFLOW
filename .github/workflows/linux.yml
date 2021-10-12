@@ -38,9 +38,9 @@ jobs:
           sudo apt-get install libhdf5-dev libcgns-dev libmetis-dev libmpich-dev -y
         shell: bash
       - name: CMake Build and Install
-        env:
-           CC:   gcc-10
-           CXX:  g++-10
+        #env:
+        #   CC:   gcc-10
+        #   CXX:  g++-10
         run: |
           cd ${{ github.workspace }}
           ls
