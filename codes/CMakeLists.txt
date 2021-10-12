@@ -12,15 +12,30 @@ list ( APPEND PRJ_COMPILE_FEATURES cxx_std_17 )
 
 set ( BIT64_FLAG TRUE CACHE BOOL "64bit or 32bit code" )
 
+find_package ( CUDAToolkit )
+
 find_package ( OpenACC )
 
 message ( STATUS "OpenACC_FOUND      = ${OpenACC_FOUND}" )
 message ( STATUS "OpenACC_C_FOUND    = ${OpenACC_C_FOUND}" )
 message ( STATUS "OpenACC_CXX_FOUND  = ${OpenACC_CXX_FOUND}" )
+message ( STATUS "OpenACC_C_FLAGS    = ${OpenACC_C_FLAGS}" )
+message ( STATUS "OpenACC_CXX_FLAGS  = ${OpenACC_CXX_FLAGS}" )
 
-if ( OpenACC_FOUND )
+if ( OpenACC_CXX_FOUND )
 	list ( APPEND PRJ_COMPILE_DEF ENABLE_OPENACC )
-    set ( OpenACC_CXX_FLAGS "-fast -acc -Minfo=accel -gpu=cc60,cc70,cc75,cc80" )
+	message ( STATUS "ENV{NVCC_COMPILER}  = $ENV{NVCC_COMPILER}" )
+	if ( $ENV{NVCC_COMPILER} MATCHES "NVCC_COMPILER" )
+		#set ( OpenACC_CXX_FLAGS "${OpenACC_CXX_FLAGS} -fast -acc -Minfo=accel -gpu=cc60,cc70,cc75,cc80" )	
+		set( ACC_FLAG "-fast -Minfo=accel -gpu=cc60,cc70,cc75,cc80" )
+	else()
+		set( ACC_FLAG "-Ofast" )
+	endif()
+	if ( CUDAToolkit_FOUND )
+		set ( OpenACC_CXX_FLAGS "${OpenACC_CXX_FLAGS} ${ACC_FLAG}" )
+	else ()
+		set ( OpenACC_CXX_FLAGS )
+	endif()
 endif ()
 
 find_package ( OpenMP )
@@ -34,7 +49,7 @@ endif ()
 
 set ( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS} ${OpenACC_CXX_FLAGS}" )
 
-find_package ( CUDAToolkit )
+#find_package ( CUDAToolkit )
 if ( CUDAToolkit_FOUND )
 	enable_language( CUDA )
 	set ( CMAKE_CUDA_STANDARD 14 )
@@ -64,11 +79,6 @@ if ( CUDAToolkit_FOUND )
 		   ${CUDA_PRJ_COMPILE_DEF} 
 	)	
 	
-	#set_target_properties ( ${CUDA_LIB}
-	#	PROPERTIES
-	#		CUDA_SEPARABLE_COMPILATION ON
-	#)
-
 	list ( APPEND PRJ_INCLUDE_DIRS ${CUDA_INCLUDE_DIRS} )
 	list ( APPEND PRJ_LIBRARIES ${CUDA_LIB} )
 else()

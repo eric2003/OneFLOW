@@ -61,7 +61,7 @@ public:
     //According to the database parameters, set the corresponding value of simutask
     void Init();
     //Returns the type of task to execute
-    const TaskEnum Task() const;
+    TaskEnum Task() const;
 
 private:
     TaskEnum simutask;

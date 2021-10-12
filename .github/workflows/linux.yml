@@ -20,6 +20,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+      - name: Install GCC-10
+        run: |
+          sudo apt-get update
+          sudo apt install gcc-10 g++-10 -y
+          gcc --version
+          g++ --version
+          ls /usr/bin/gcc*
+        shell: bash
       - name: Install Third party library
         run: |
           echo cd ${{ github.workspace }}
@@ -30,6 +38,9 @@ jobs:
           sudo apt-get install libhdf5-dev libcgns-dev libmetis-dev libmpich-dev -y
         shell: bash
       - name: CMake Build and Install
+        #env:
+        #   CC:   gcc-10
+        #   CXX:  g++-10
         run: |
           cd ${{ github.workspace }}
           ls
