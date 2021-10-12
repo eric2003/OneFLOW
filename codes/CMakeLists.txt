@@ -29,10 +29,12 @@ if ( OpenACC_CXX_FOUND )
 		#set ( OpenACC_CXX_FLAGS "${OpenACC_CXX_FLAGS} -fast -acc -Minfo=accel -gpu=cc60,cc70,cc75,cc80" )	
 		set( ACC_FLAG "-fast -Minfo=accel -gpu=cc60,cc70,cc75,cc80" )
 	else()
-		#set( ACC_FLAG "-Ofast" )
+		set( ACC_FLAG "-Ofast" )
 	endif()
 	if ( CUDAToolkit_FOUND )
 		set ( OpenACC_CXX_FLAGS "${OpenACC_CXX_FLAGS} ${ACC_FLAG}" )
+	else
+		set ( OpenACC_CXX_FLAGS )
 	endif()
 endif ()
 
