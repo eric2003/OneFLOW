@@ -39,7 +39,7 @@ class NsLimiter : public Limiter
 {
 public:
     NsLimiter();
-    ~NsLimiter();
+    ~NsLimiter() override;
 };
 
 EndNameSpace

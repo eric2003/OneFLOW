@@ -38,7 +38,7 @@ public:
     IMPLEMENT_GRID_CLONE( StrGrid )
 public:
     StrGrid();
-    ~StrGrid();
+    ~StrGrid() override;
 public:
     int  ni, nj, nk;
     FaceTopo * faceTopo;
@@ -62,7 +62,7 @@ public:
     int CalcNumberOfCell();
     int CalcNumberOfFace();
 public:
-    void GetMinMaxDistance( Real & dismin, Real & dismax );
+    void GetMinMaxDistance( Real & dismin, Real & dismax ) override;
     void CalcMinMaxDis3D( Real & dismin, Real & dismax );
     void CalcMinMaxDis2D( Real & dismin, Real & dismax );
     void CalcMinMaxDis1D( Real & dismin, Real & dismax );

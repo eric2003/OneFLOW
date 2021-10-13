@@ -39,9 +39,9 @@ public:
     IMPLEMENT_GRID_CLONE( UnsGrid )
 public:
     UnsGrid();
-    ~UnsGrid();
+    ~UnsGrid() override;
 public:
-    void Init();
+    void Init() override;
     FaceTopo * faceTopo;
     FaceMesh * faceMesh;
     CellMesh * cellMesh;
@@ -65,10 +65,10 @@ public:
     void UpdateOtherTopologyTerm( IFaceLink * iFaceLink ) override;
     void NormalizeBc();
 public:
-    void GetMinMaxDistance( Real & dismin, Real & dismax );
+    void GetMinMaxDistance( Real & dismin, Real & dismax ) override;
     void WriteGrid( fstream & file );
 public:
-    void CalcMetrics();
+    void CalcMetrics() override;
     void CalcMetrics1D();
     void CalcMetrics2D();
     void CalcMetrics3D();

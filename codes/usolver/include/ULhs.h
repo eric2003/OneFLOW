@@ -29,9 +29,9 @@ class ULhs : public Lhs
 {
 public:
     ULhs();
-    ~ULhs();
+    ~ULhs() override;
 public:
-    void CalcLHS( int sTid );
+    void CalcLHS( int sTid ) override;
 };
 
 EndNameSpace

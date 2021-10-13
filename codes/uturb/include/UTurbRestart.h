@@ -31,7 +31,7 @@ public:
     UTurbRestart();
     ~UTurbRestart();
 public:
-    void InitRestart( int sTid );
+    void InitRestart( int sTid ) override;
 };
 
 EndNameSpace
