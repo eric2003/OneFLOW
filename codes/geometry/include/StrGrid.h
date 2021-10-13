@@ -45,11 +45,11 @@ public:
     BcRegionGroup * bcRegionGroup;
     Field3D * strx, * stry, * strz;
 public:
-    void Decode( DataBook * databook );
-    void Encode( DataBook * databook );
+    void Decode( DataBook * databook ) override;
+    void Encode( DataBook * databook ) override;
 public:
-    void ReadGrid( DataBook * databook );
-    void WriteGrid( DataBook * databook );
+    void ReadGrid( DataBook * databook ) override;
+    void WriteGrid( DataBook * databook ) override;
 public:
     void ReadBoundaryTopology( DataBook * databook );
     void WriteGridFaceTopology( DataBook * databook );
