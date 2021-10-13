@@ -31,7 +31,7 @@ public:
     UINsRestart();
     ~UINsRestart();
 public:
-    void InitinsRestart( int sTid );
+    void InitinsRestart( int sTid ) override;
 };
 
 class ShockVertex

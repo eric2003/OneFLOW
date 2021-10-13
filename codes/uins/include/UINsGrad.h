@@ -32,7 +32,7 @@ public:
     UINsGrad();
     ~UINsGrad();
 public:
-    void Init();
+    void Init() override;
 };
 
 class UITGrad : public Grad
@@ -41,7 +41,7 @@ public:
 	UITGrad();
 	~UITGrad();
 public:
-	void Init();
+	void Init() override;
 };
 
 extern UINsGrad uins_grad;

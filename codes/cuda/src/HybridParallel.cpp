@@ -79,7 +79,7 @@ void HybridParallel::HybridRun( int argc, char ** argv )
 #endif
 
 #ifdef ENABLE_OPENMP
-	printf("number of host threads:\t%d\n", omp_get_num_procs());	
+	printf("number of host CPUs:\t%d\n", omp_get_num_procs());	
 #pragma omp parallel num_threads(4)
 	{
 		int nt = omp_get_thread_num();

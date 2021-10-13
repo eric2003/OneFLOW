@@ -29,9 +29,9 @@ class CWriteFile : public Task
 {
 public:
     CWriteFile();
-    ~CWriteFile();
+    ~CWriteFile() override;
 public:
-    void Run();
+    void Run() override;
     VoidFunc mainAction;
 public:
     void ServerWrite();

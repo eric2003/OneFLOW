@@ -29,17 +29,17 @@ class INsLimField : public LimField
 {
 public:
     INsLimField();
-    ~INsLimField();
+    ~INsLimField() override;
 public:
-    void Init();
-    void BcQlQrFix();
+    void Init() override;
+    void BcQlQrFix() override;
 };
 
 class INsLimiter : public Limiter
 {
 public:
     INsLimiter();
-    ~INsLimiter();
+    ~INsLimiter() override;
 };
 
 EndNameSpace

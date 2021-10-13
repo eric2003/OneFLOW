@@ -48,18 +48,18 @@ class NullCmd : public Command
 {
 public:
     NullCmd(){};
-    virtual ~NullCmd(){};
+    ~NullCmd() override {};
 public:
-    virtual void Execute(){};
+    void Execute() override {};
 };
 
 class SimpleCmd : public Command
 {
 public:
     SimpleCmd();
-    virtual ~SimpleCmd();
+    ~SimpleCmd() override;
 public:
-    virtual void Execute();
+    void Execute() override;
 };
 
 class CMD

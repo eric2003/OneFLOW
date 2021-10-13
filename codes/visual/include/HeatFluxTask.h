@@ -33,11 +33,11 @@ class HeatFluxTask : public Task
 {
 public:
     HeatFluxTask ();
-    ~HeatFluxTask();
+    ~HeatFluxTask() override;
 public:
     FaceJointManager * wallManager;
 public:
-    void Run();
+    void Run() override;
 public:
     void AllocVariable();
     void CollectWallFaceNode();
