@@ -35,9 +35,9 @@ class CFillWallStructTaskImp : public Task
 {
 public:
     CFillWallStructTaskImp();
-    ~CFillWallStructTaskImp();
+    ~CFillWallStructTaskImp() override;
 public:
-    void Run();
+    void Run() override;
     void Create();
     void FillWall();
 };

@@ -32,7 +32,7 @@ public:
     UNsGrad();
     ~UNsGrad();
 public:
-    void Init();
+    void Init() override;
 };
 
 class UTGrad : public Grad
@@ -41,7 +41,7 @@ public:
     UTGrad();
     ~UTGrad();
 public:
-    void Init();
+    void Init() override;
 };
 
 extern UNsGrad uns_grad;

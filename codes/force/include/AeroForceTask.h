@@ -29,9 +29,9 @@ class AerodynamicForceTask : public Task
 {
 public:
     AerodynamicForceTask ();
-    ~AerodynamicForceTask();
+    ~AerodynamicForceTask() override;
 public:
-    void Run();
+    void Run() override;
     void Init();
     void CalcForce();
     void Dump();

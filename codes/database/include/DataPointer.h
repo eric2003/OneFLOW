@@ -52,14 +52,14 @@ public:
         this->data = data;
     }
 
-    ~DataPointer()
+    ~DataPointer() override
     {
         delete data;
     }
 protected:
     T * data;
 public:
-    void * GetPointer() { return data; };
+    void * GetPointer() override { return data; };
 };
 
 

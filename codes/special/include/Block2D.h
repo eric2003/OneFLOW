@@ -42,7 +42,7 @@ class Block2D : public BlkBasic
 {
 public:
     Block2D();
-    ~Block2D();
+    ~Block2D() override;
 public:
     RealField2D x2d, y2d, z2d;
     HXVector< MLine * > mLineList;
@@ -51,7 +51,7 @@ public:
     void Alloc();
     void CreateBlockMesh2D();
     void GenerateBlockMesh2D();
-    int GetNSubDomain();
+    int GetNSubDomain() override;
     void ConstructTopo();
     void SetInterfaceBc();
     void GetCornerPoint( int & pt, int id1, int id2 );

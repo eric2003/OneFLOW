@@ -30,9 +30,9 @@ class SimpleTask : public Task
 {
 public:
     SimpleTask() {};
-    ~SimpleTask(){};
+    ~SimpleTask() override {};
 public:
-    void Run();
+    void Run() override;
 protected:
 };
 

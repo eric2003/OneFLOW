@@ -29,9 +29,9 @@ class OversetTask : public Task
 {
 public:
     OversetTask() {};
-    ~OversetTask() {};
+    ~OversetTask() override {};
 public:
-    void Run() {};
+    void Run() override {};
 };
 
 
