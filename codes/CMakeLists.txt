@@ -1,12 +1,13 @@
 ﻿message ( STATUS "") 
-message ( STATUS "--- Enter subdirectory, Start to call ${CMAKE_CURRENT_LIST_FILE} ---" )
-message ( STATUS "This current binary directory is ${CMAKE_CURRENT_BINARY_DIR}." )
-message ( STATUS "This current source directory is ${CMAKE_CURRENT_SOURCE_DIR}." )
+message ( STATUS "CMAKE_CURRENT_LIST_FILE = ${CMAKE_CURRENT_LIST_FILE}." )
+message ( STATUS "CMAKE_CURRENT_BINARY_DIR = ${CMAKE_CURRENT_BINARY_DIR}." )
+message ( STATUS "CMAKE_CURRENT_SOURCE_DIR = ${CMAKE_CURRENT_SOURCE_DIR}." )
 
 set ( PRJ_COMPILE_DEF )
 set ( PRJ_LIBRARIES )
 set ( PRJ_INCLUDE_DIRS )
 set ( PRJ_COMPILE_FEATURES )
+set ( USEER_LIBS )
 
 list ( APPEND PRJ_COMPILE_FEATURES cxx_std_17 )
 
@@ -26,7 +27,6 @@ if ( OpenACC_CXX_FOUND )
 	list ( APPEND PRJ_COMPILE_DEF ENABLE_OPENACC )
 	message ( STATUS "ENV{NVCC_COMPILER}  = $ENV{NVCC_COMPILER}" )
 	if ( $ENV{NVCC_COMPILER} MATCHES "NVCC_COMPILER" )
-		#set ( OpenACC_CXX_FLAGS "${OpenACC_CXX_FLAGS} -fast -acc -Minfo=accel -gpu=cc60,cc70,cc75,cc80" )	
 		set( ACC_FLAG "-fast -Minfo=accel -gpu=cc60,cc70,cc75,cc80" )
 	else()
 		set( ACC_FLAG "-Ofast" )
@@ -34,7 +34,6 @@ if ( OpenACC_CXX_FOUND )
 	if ( CUDAToolkit_FOUND )
 		set ( OpenACC_CXX_FLAGS "${OpenACC_CXX_FLAGS} ${ACC_FLAG}" )
 	else ()
-		#set ( OpenACC_CXX_FLAGS )
 		set ( OpenACC_CXX_FLAGS "${OpenACC_CXX_FLAGS} ${ACC_FLAG} -foffload=disable" )
 	endif()
 endif ()
@@ -50,7 +49,6 @@ endif ()
 
 set ( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS} ${OpenACC_CXX_FLAGS}" )
 
-#find_package ( CUDAToolkit )
 if ( CUDAToolkit_FOUND )
 	enable_language( CUDA )
 	set ( CMAKE_CUDA_STANDARD 14 )
@@ -67,7 +65,6 @@ if ( CUDAToolkit_FOUND )
 	
 	set( CUDA_LIB "CUDA_LIB" )
 	add_library( ${CUDA_LIB} STATIC 
-		#${CUDA_SRC_LIST} ${CUDA_HEADER_LIST}
 		${CUDA_SRC_LIST}
 	)
 	target_include_directories ( ${CUDA_LIB}
@@ -82,6 +79,7 @@ if ( CUDAToolkit_FOUND )
 	
 	list ( APPEND PRJ_INCLUDE_DIRS ${CUDA_INCLUDE_DIRS} )
 	list ( APPEND PRJ_LIBRARIES ${CUDA_LIB} )
+	list ( APPEND USEER_LIBS ${CUDA_LIB} )
 else()
 	message ( STATUS "No CUDA support" )
 endif()
@@ -104,7 +102,6 @@ message ( STATUS "The CFLAGS is ${CFLAGS}" )
 message ( STATUS "The CXXFLAGS is ${CXXFLAGS}" )
 message ( STATUS "The LDFLAGS is ${LDFLAGS}" )
 
-
 if ( BIT64_FLAG )
     set ( ARCH "x64" )
 else()
@@ -120,10 +117,6 @@ if ( MPI_ENABLE )
 		set ( MPI_INCLUDE_DIRS "C:/Program Files (x86)/Microsoft SDKs/MPI/include" CACHE PATH "path to mpi headers" )
 		set ( MPI_LIBRARIES "C:/Program Files (x86)/Microsoft SDKs/MPI/Lib/${ARCH}/msmpi.lib" CACHE PATH "path to mpi library" )
     else()
-		#set ( MPI_INCLUDE_DIRS "/usr/include/x86_64-linux-gnu/mpich" CACHE PATH "path to mpi headers" )
-		#set ( MPI_LIBRARIES "/usr/lib/x86_64-linux-gnu/libmpich.so" CACHE PATH "path to mpi library" )
-        #set ( MPI_INCLUDE_DIRS "$ENV{MPI_HOME}/include" CACHE PATH "path to mpi headers" )
-        #set ( MPI_LIBRARIES "$ENV{MPI_HOME}/lib/libmpich.so" CACHE PATH "path to mpi library" )
         set ( MPI_INCLUDE_DIRS "$ENV{MPI_HOME_INC}" CACHE PATH "path to mpi headers" )
         set ( MPI_LIBRARIES "$ENV{MPI_HOME_LIB}" CACHE PATH "path to mpi library" )
     endif()
@@ -195,11 +188,8 @@ else()
 	list( APPEND PRJ_COMPILE_DEF HX_CGNS )
 endif()
 
-#. set executable name:
-set ( OneFLOW_EXE "${PROJECT_NAME}" )
 message ( STATUS "The executable name is ${PROJECT_NAME}." )
 
-#. add an executable to the project
 add_executable ( ${PROJECT_NAME} ${PRJ_SRC_LIST} ${PRJ_HEADER_LIST} )
 
 target_include_directories ( ${PROJECT_NAME}
@@ -222,15 +212,17 @@ target_compile_definitions ( ${PROJECT_NAME}
 	   ${PRJ_COMPILE_DEF} 
 )
 
-#set_target_properties ( ${PROJECT_NAME}
-#	PROPERTIES
-#		CUDA_SEPARABLE_COMPILATION ON
-#)
-
 set ( PRJ_SYSTEM_DIR ${PRJ_ROOT_DIR}/system/ )
 set ( PRJ_DOCUMENT_DIR ${PRJ_ROOT_DIR}/doc/ )
 
-install ( TARGETS ${PROJECT_NAME} RUNTIME DESTINATION bin )
+get_property ( STATIC_LIBS GLOBAL PROPERTY STATIC_LIBS_PROPERTY )
+#message( STATUS "STATIC_LIBS = ${STATIC_LIBS}" )
+
+install ( TARGETS ${PROJECT_NAME} ${USEER_LIBS} ${STATIC_LIBS}
+	RUNTIME DESTINATION bin 
+	LIBRARY DESTINATION lib
+	ARCHIVE DESTINATION lib
+)
 install ( DIRECTORY "${PRJ_SYSTEM_DIR}" DESTINATION "bin/system" )
 install ( DIRECTORY "${PRJ_DOCUMENT_DIR}" DESTINATION "doc" )
 
