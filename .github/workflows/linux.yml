@@ -66,9 +66,9 @@ jobs:
           echo "env.prefix= ${{env.prefix}}"
           echo "ls ${{env.prefix}}"
           ls "${{env.prefix}}"
-          export PATH=${{env.prefix}}/bin/:${{env.prefix}}/bin/lib:$PATH
+          export PATH=${{env.prefix}}/bin/:${{env.prefix}}/lib:$PATH
           echo $PATH
-          export LD_LIBRARY_PATH=${{env.prefix}}/bin/lib:$LD_LIBRARY_PATH
+          export LD_LIBRARY_PATH=${{env.prefix}}/lib:$LD_LIBRARY_PATH
           sudo ldconfig
           ls ${{env.prefix}}/bin
           ldd ${{env.prefix}}/bin/OneFLOW
