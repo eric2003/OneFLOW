@@ -55,13 +55,13 @@ jobs:
           export METIS_HOME_INC="/usr/include"
           export METIS_HOME_LIB="/usr/lib/x86_64-linux-gnu/libmetis.so"
           cmake --version
-          cmake -DCMAKE_INSTALL_PREFIX=${{ github.workspace }} ../
+          cmake -DCMAKE_INSTALL_PREFIX=${{ github.workspace }}/Run ../
           make -j 4
           make install
         shell: bash 
       - name: Run OneFLOW CFD Tests
         env:
-          prefix: ${{ github.workspace }}
+          prefix: ${{ github.workspace }}/Run
         run: |
           echo "env.prefix= ${{env.prefix}}"
           echo "ls ${{env.prefix}}"
