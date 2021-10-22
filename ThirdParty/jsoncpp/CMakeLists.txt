@@ -1,10 +1,9 @@
 project ( JSonCpp )
 
-message( STATUS "CMAKE_PROJECT_NAME = ${CMAKE_PROJECT_NAME}" )
-message( STATUS "PROJECT_NAME       = ${PROJECT_NAME}" )
-
-set( JSon_EXE "${CMAKE_PROJECT_NAME}" )
-message( STATUS "The JSon_EXE is ${JSon_EXE}.")
+message ( STATUS "") 
+message ( STATUS "CMAKE_CURRENT_LIST_FILE  = ${CMAKE_CURRENT_LIST_FILE}" )
+message ( STATUS "CMAKE_CURRENT_BINARY_DIR = ${CMAKE_CURRENT_BINARY_DIR}" )
+message ( STATUS "CMAKE_CURRENT_SOURCE_DIR = ${CMAKE_CURRENT_SOURCE_DIR}" )
 
 set ( JSonCpp_SRC_LIST jsoncpp.cpp )
 set ( JSonCpp_HEAD_LIST
@@ -12,7 +11,10 @@ set ( JSonCpp_HEAD_LIST
       json/json-forwards.h
 )
 
-#Generate the static library from the library sources
+get_property ( STATIC_LIBS GLOBAL PROPERTY STATIC_LIBS_PROPERTY )
+list ( APPEND STATIC_LIBS ${PROJECT_NAME} )
+set_property ( GLOBAL PROPERTY STATIC_LIBS_PROPERTY ${STATIC_LIBS} )
+message( STATUS "STATIC_LIBS = ${STATIC_LIBS}" )
 add_library ( ${PROJECT_NAME} STATIC  ${JSonCpp_SRC_LIST} ${JSonCpp_HEAD_LIST} )
  
 

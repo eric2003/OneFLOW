@@ -1,9 +1,9 @@
-﻿project ( Third_Party )
+﻿project ( ThirdParty )
 
-message ( STATUS "CMAKE_PROJECT_NAME    = ${CMAKE_PROJECT_NAME}" )
-message ( STATUS "PROJECT_NAME = ${PROJECT_NAME}" )
+message ( STATUS "") 
+message ( STATUS "CMAKE_CURRENT_LIST_FILE = ${CMAKE_CURRENT_LIST_FILE}" )
+message ( STATUS "CMAKE_CURRENT_BINARY_DIR = ${CMAKE_CURRENT_BINARY_DIR}" )
+message ( STATUS "CMAKE_CURRENT_SOURCE_DIR = ${CMAKE_CURRENT_SOURCE_DIR}" )
 
-set ( JSONCPP_DIR "JSONCpp" )
-set ( TEST_JSON_DIR "TestJson" )
-add_subdirectory ( jsoncpp ${JSONCPP_DIR} )
+add_subdirectory ( jsoncpp )
  
