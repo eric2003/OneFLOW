@@ -65,7 +65,8 @@ jobs:
         run: |
           ls "${{env.prefix}}"
           export PATH=${{env.prefix}}/bin/:${{env.prefix}}/bin/lib:$PATH
-          #./OneFLOW
+          echo $PATH
+          OneFLOW
           cd "${{env.prefix}}/test"
           ls
           python --version
