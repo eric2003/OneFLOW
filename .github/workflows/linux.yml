@@ -64,7 +64,7 @@ jobs:
           prefix: ${{ github.workspace }}
         run: |
           ls "${{env.prefix}}"
-          export PATH=${{env.prefix}}/bin/:$PATH
+          export PATH=${{env.prefix}}/bin/:${{env.prefix}}/bin/lib:$PATH
           #./OneFLOW
           cd "${{env.prefix}}/test"
           ls
