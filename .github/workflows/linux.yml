@@ -73,7 +73,7 @@ jobs:
           ls ${{env.prefix}}/bin
           ldd ${{env.prefix}}/bin/OneFLOW
           OneFLOW
-          cd "${{env.prefix}}/test"
+          cd "${{ github.workspace }}/test"
           ls
           python --version
           #python test.py " " " " linux
