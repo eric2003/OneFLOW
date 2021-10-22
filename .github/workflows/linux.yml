@@ -63,15 +63,15 @@ jobs:
         env:
           prefix: ${{ github.workspace }}/Run
         run: |
-          echo "env.prefix= ${{env.prefix}}"
-          echo "ls ${{env.prefix}}"
-          ls "${{env.prefix}}"
+          #echo "env.prefix= ${{env.prefix}}"
+          #echo "ls ${{env.prefix}}"
+          #ls "${{env.prefix}}"
           export PATH=${{env.prefix}}/bin/:${{env.prefix}}/lib:$PATH
-          echo $PATH
+          #echo $PATH
           export LD_LIBRARY_PATH=${{env.prefix}}/lib:$LD_LIBRARY_PATH
-          sudo ldconfig
-          ls ${{env.prefix}}/bin
-          ldd ${{env.prefix}}/bin/OneFLOW
+          #sudo ldconfig
+          #ls ${{env.prefix}}/bin
+          #ldd ${{env.prefix}}/bin/OneFLOW
           OneFLOW
           cd "${{ github.workspace }}/test"
           ls
