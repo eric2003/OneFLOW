@@ -68,6 +68,8 @@ jobs:
           echo $PATH
           export LD_LIBRARY_PATH=${{env.prefix}}/bin/lib:$LD_LIBRARY_PATH
           sudo ldconfig
+          ls ${{env.prefix}}/bin
+          ldd ${{env.prefix}}/bin/OneFLOW
           OneFLOW
           cd "${{env.prefix}}/test"
           ls
