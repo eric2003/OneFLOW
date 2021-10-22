@@ -35,7 +35,7 @@ public:
 public:
     IMPLEMENT_SOLVER_CLONE( INsSolver )
 public:
-    void StaticInit();
+    void StaticInit() override;
 public:
     static bool initFlag;
 };

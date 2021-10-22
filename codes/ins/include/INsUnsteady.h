@@ -35,7 +35,7 @@ public:
     INsUsdData();
     ~INsUsdData();
 public:
-    void Init();
+    void Init() override;
 };
 
 EndNameSpace

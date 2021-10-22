@@ -60,12 +60,12 @@ class TurbFlatPlateTask : public Task
 {
 public:
     TurbFlatPlateTask();
-    ~TurbFlatPlateTask();
+    ~TurbFlatPlateTask() override;
 public:
     CuttingClass * velCut;
     CuttingClass * friCut;
 public:
-    void Run();
+    void Run() override;
     void OutProfile( CuttingClass * cut );
 };
 

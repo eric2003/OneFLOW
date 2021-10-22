@@ -34,7 +34,7 @@ public:
 public:
     IMPLEMENT_SOLVER_CLONE( TurbSolver )
 public:
-    void StaticInit();
+    void StaticInit() override;
 public:
     static bool initFlag;
 };

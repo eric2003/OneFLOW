@@ -29,9 +29,9 @@ class CUpdateInterface : public Task
 {
 public:
     CUpdateInterface ();
-    ~CUpdateInterface();
+    ~CUpdateInterface() override;
 public:
-    void Run();
+    void Run() override;
 protected:
     void SwapInterfaceData( int iZone, int jZone );
 };

@@ -32,7 +32,7 @@ public:
     UTurbGrad();
     ~UTurbGrad();
 public:
-    void Init();
+    void Init() override;
 };
 
 extern UTurbGrad uturb_grad;

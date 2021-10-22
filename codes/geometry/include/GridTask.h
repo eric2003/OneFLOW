@@ -40,9 +40,9 @@ class CalcMetricsTask : public Task
 {
 public:
     CalcMetricsTask () {};
-    ~CalcMetricsTask() {};
+    ~CalcMetricsTask() override {};
 public:
-    void Run();
+    void Run() override;
 };
 
 class SolverRegData;

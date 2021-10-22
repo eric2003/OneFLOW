@@ -39,13 +39,13 @@ class Block3D : public BlkBasic
 {
 public:
     Block3D();
-    ~Block3D();
+    ~Block3D() override;
 public:
     RealField3D x3d, y3d, z3d;
     HXVector< MDomain * > mDomainList;
 public:
     void Alloc();
-    int GetNSubDomain();
+    int GetNSubDomain() override;
     void ConstructTopo();
     void SetInterfaceBc();
     void GetCornerPoint( int & pt, int id1, int id2, int id3 );

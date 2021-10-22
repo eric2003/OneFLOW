@@ -32,9 +32,9 @@ class CReadFile : public Task
 {
 public:
     CReadFile();
-    ~CReadFile();
+    ~CReadFile() override;
 public:
-    void Run();
+    void Run() override;
     VoidFunc mainAction;
 public:
     void ServerRead();

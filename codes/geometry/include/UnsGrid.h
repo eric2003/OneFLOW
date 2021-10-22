@@ -39,18 +39,18 @@ public:
     IMPLEMENT_GRID_CLONE( UnsGrid )
 public:
     UnsGrid();
-    ~UnsGrid();
+    ~UnsGrid() override;
 public:
-    void Init();
+    void Init() override;
     FaceTopo * faceTopo;
     FaceMesh * faceMesh;
     CellMesh * cellMesh;
 public:
-    void Decode( DataBook * databook );
-    void Encode( DataBook * databook );
+    void Decode( DataBook * databook ) override;
+    void Encode( DataBook * databook ) override;
 public:
-    void ReadGrid( DataBook * databook );
-    void WriteGrid( DataBook * databook );
+    void ReadGrid( DataBook * databook ) override;
+    void WriteGrid( DataBook * databook ) override;
 public:
     void ReadGridFaceTopology( DataBook * databook );
     void ReadBoundaryTopology( DataBook * databook );
@@ -59,16 +59,16 @@ public:
     void WriteBoundaryTopology1D( DataBook * databook );
     void WriteGridFaceTopology1D( DataBook * databook );
 public:
-    void ModifyBcType( int bcType1, int bcType2 );
-    void GenerateLgMapping( IFaceLink * iFaceLink );
-    void ReGenerateLgMapping( IFaceLink * iFaceLink );
-    void UpdateOtherTopologyTerm( IFaceLink * iFaceLink );
+    void ModifyBcType( int bcType1, int bcType2 ) override;
+    void GenerateLgMapping( IFaceLink * iFaceLink ) override;
+    void ReGenerateLgMapping( IFaceLink * iFaceLink ) override;
+    void UpdateOtherTopologyTerm( IFaceLink * iFaceLink ) override;
     void NormalizeBc();
 public:
-    void GetMinMaxDistance( Real & dismin, Real & dismax );
+    void GetMinMaxDistance( Real & dismin, Real & dismax ) override;
     void WriteGrid( fstream & file );
 public:
-    void CalcMetrics();
+    void CalcMetrics() override;
     void CalcMetrics1D();
     void CalcMetrics2D();
     void CalcMetrics3D();
