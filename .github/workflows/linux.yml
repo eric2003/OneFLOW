@@ -66,6 +66,8 @@ jobs:
           ls "${{env.prefix}}"
           export PATH=${{env.prefix}}/bin/:${{env.prefix}}/bin/lib:$PATH
           echo $PATH
+          export LD_LIBRARY_PATH=${{env.prefix}}/bin/lib:$LD_LIBRARY_PATH
+          ldconfig
           OneFLOW
           cd "${{env.prefix}}/test"
           ls
