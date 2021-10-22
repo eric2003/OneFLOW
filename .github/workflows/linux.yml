@@ -63,6 +63,8 @@ jobs:
         env:
           prefix: ${{ github.workspace }}
         run: |
+          echo "env.prefix= ${{env.prefix}}"
+          echo "ls ${{env.prefix}}"
           ls "${{env.prefix}}"
           export PATH=${{env.prefix}}/bin/:${{env.prefix}}/bin/lib:$PATH
           echo $PATH
