@@ -4,10 +4,7 @@
 extern "C" {
 #endif
 
-#ifdef ENABLE_OPENACC
-
-void test_open_acc();
-#endif 
+void Jacobi_Test();
 
 #ifdef __cplusplus
 } // closing brace for extern "C"

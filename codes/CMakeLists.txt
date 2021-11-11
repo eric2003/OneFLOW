@@ -7,14 +7,14 @@ set ( PRJ_COMPILE_DEF )
 set ( PRJ_LIBRARIES )
 set ( PRJ_INCLUDE_DIRS )
 set ( PRJ_COMPILE_FEATURES )
-set ( USEER_LIBS )
+set ( USER_LIBS )
 
 list ( APPEND PRJ_COMPILE_FEATURES cxx_std_17 )
 
 set ( BIT64_FLAG TRUE CACHE BOOL "64bit or 32bit code" )
+set ( AUTO_ACC TRUE CACHE BOOL "auto acc or not")
 
 find_package ( CUDAToolkit )
-
 find_package ( OpenACC )
 
 message ( STATUS "OpenACC_FOUND      = ${OpenACC_FOUND}" )
@@ -23,20 +23,26 @@ message ( STATUS "OpenACC_CXX_FOUND  = ${OpenACC_CXX_FOUND}" )
 message ( STATUS "OpenACC_C_FLAGS    = ${OpenACC_C_FLAGS}" )
 message ( STATUS "OpenACC_CXX_FLAGS  = ${OpenACC_CXX_FLAGS}" )
 
-if ( OpenACC_CXX_FOUND )
+#set ( GPUFLAGS "-gpu=managed -Minfo=all,ccff -Mneginfo" )
+set ( GPUFLAGS "-gpu=managed -Minfo=all,ccff" )
+
+if ( OpenACC_CXX_FOUND AND AUTO_ACC )
 	list ( APPEND PRJ_COMPILE_DEF ENABLE_OPENACC )
 	message ( STATUS "ENV{NVCC_COMPILER}  = $ENV{NVCC_COMPILER}" )
 	if ( $ENV{NVCC_COMPILER} MATCHES "NVCC_COMPILER" )
-		set( ACC_FLAG "-fast -Minfo=accel -gpu=cc60,cc70,cc75,cc80" )
+		#set( ACC_FLAG "-fast -Minfo=accel -gpu=cc60,cc70,cc75,cc80" )
+		set( ACC_FLAG "-fast ${GPUFLAGS}" )
+		list ( APPEND PRJ_COMPILE_DEF NVCC_COMPILER_ENABLED )
 	else()
-		set( ACC_FLAG "-Ofast" )
+		#set( ACC_FLAG "-Ofast" )
+		#set( ACC_FLAG "-Ofast ${GPUFLAGS}" )
+		#set( ACC_FLAG "-Ofast -foffload=disable" )
+		set( ACC_FLAG "-Ofast -foffload=disable" )
 	endif()
-	if ( CUDAToolkit_FOUND )
-		set ( OpenACC_CXX_FLAGS "${OpenACC_CXX_FLAGS} ${ACC_FLAG}" )
-	else ()
-		set ( OpenACC_CXX_FLAGS "${OpenACC_CXX_FLAGS} ${ACC_FLAG} -foffload=disable" )
-	endif()
+	set ( OpenACC_CXX_FLAGS "${OpenACC_CXX_FLAGS} ${ACC_FLAG}" )
 endif ()
+
+message ( STATUS "OpenACC_CXX_FLAGS now = ${OpenACC_CXX_FLAGS}" )
 
 find_package ( OpenMP )
 if ( OpenMP_FOUND )
@@ -48,6 +54,8 @@ if ( OpenMP_FOUND )
 endif ()
 
 set ( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS} ${OpenACC_CXX_FLAGS}" )
+
+message ( STATUS "CMAKE_CXX_FLAGS now = ${CMAKE_CXX_FLAGS}" )
 
 if ( CUDAToolkit_FOUND )
 	enable_language( CUDA )
@@ -63,7 +71,7 @@ if ( CUDAToolkit_FOUND )
 	list ( APPEND CUDA_INCLUDE_DIRS ${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES} )
 	list ( APPEND CUDA_INCLUDE_DIRS ${CUDA_LOCAL_INCLUDE_DIRS} )
 	
-	set( CUDA_LIB "CUDA_LIB" )
+	set ( CUDA_LIB "CUDA_LIB" )
 	add_library( ${CUDA_LIB} STATIC 
 		${CUDA_SRC_LIST}
 	)
@@ -79,7 +87,7 @@ if ( CUDAToolkit_FOUND )
 	
 	list ( APPEND PRJ_INCLUDE_DIRS ${CUDA_INCLUDE_DIRS} )
 	list ( APPEND PRJ_LIBRARIES ${CUDA_LIB} )
-	list ( APPEND USEER_LIBS ${CUDA_LIB} )
+	list ( APPEND USER_LIBS ${CUDA_LIB} )
 else()
 	message ( STATUS "No CUDA support" )
 endif()
@@ -167,28 +175,33 @@ endif()
 set ( JsonPrjDir "${PRJ_ROOT_DIR}/${THIRD_PARTY_DIR}/jsoncpp" )
 set ( JsonHeaderDir ${JsonPrjDir} )
 
-list ( APPEND PRJ_INCLUDE_DIRS ${JsonHeaderDir} )
-set ( JsonSRC "${JsonPrjDir}/jsoncpp.cpp" ) 
-
 ConstructSolutionDirTree( ${CMAKE_CURRENT_SOURCE_DIR} PRJ_HEADER_LIST PRJ_SRC_LIST PRJ_LOCAL_INCLUDE_DIRS )
 list ( APPEND PRJ_INCLUDE_DIRS ${PRJ_LOCAL_INCLUDE_DIRS} )
 
-list ( APPEND PRJ_SRC_LIST ${JsonSRC} ) 
+GetGlobalValue ( THIRD_PROPERTY::INCLUDE_DIRS THIRD_INCLUDE_DIRS )
+
+list ( APPEND PRJ_INCLUDE_DIRS ${THIRD_INCLUDE_DIRS} )
+
+message( STATUS "THIRD_INCLUDE_DIRS = ${THIRD_INCLUDE_DIRS}" )
+
+GetGlobalValue ( THIRD_PROPERTY::LIBRARIES THIRD_LIBRARIES )
+GetGlobalValue ( THIRD_PROPERTY::DEFINE_SYMBOL THIRD_DEFINE_SYMBOL )
+
+list ( APPEND PRJ_LIBRARIES ${THIRD_LIBRARIES} )
+list ( APPEND PRJ_COMPILE_DEF ${THIRD_DEFINE_SYMBOL} )
 
 if ( BIT64_FLAG )
-    list( APPEND PRJ_COMPILE_DEF X64 )
+    list ( APPEND PRJ_COMPILE_DEF X64 )
 endif( BIT64_FLAG )
 
-if( WIN32 )
-    list( APPEND PRJ_COMPILE_DEF HX_PARALLEL )
-	list( APPEND PRJ_COMPILE_DEF HX_CGNS )
-	list( APPEND PRJ_COMPILE_DEF USE_DLL )
-else()
-    list( APPEND PRJ_COMPILE_DEF HX_PARALLEL )
-	list( APPEND PRJ_COMPILE_DEF HX_CGNS )
-endif()
-
-message ( STATUS "The executable name is ${PROJECT_NAME}." )
+if ( WIN32 )
+    list ( APPEND PRJ_COMPILE_DEF HX_PARALLEL )
+	list ( APPEND PRJ_COMPILE_DEF HX_CGNS )
+	list ( APPEND PRJ_COMPILE_DEF USE_DLL )
+else ()
+    list ( APPEND PRJ_COMPILE_DEF HX_PARALLEL )
+	list ( APPEND PRJ_COMPILE_DEF HX_CGNS )
+endif ()
 
 add_executable ( ${PROJECT_NAME} ${PRJ_SRC_LIST} ${PRJ_HEADER_LIST} )
 
@@ -215,10 +228,7 @@ target_compile_definitions ( ${PROJECT_NAME}
 set ( PRJ_SYSTEM_DIR ${PRJ_ROOT_DIR}/system/ )
 set ( PRJ_DOCUMENT_DIR ${PRJ_ROOT_DIR}/doc/ )
 
-get_property ( STATIC_LIBS GLOBAL PROPERTY STATIC_LIBS_PROPERTY )
-#message( STATUS "STATIC_LIBS = ${STATIC_LIBS}" )
-
-install ( TARGETS ${PROJECT_NAME} ${USEER_LIBS} ${STATIC_LIBS}
+install ( TARGETS ${PROJECT_NAME} ${USER_LIBS} ${THIRD_LIBRARIES}
 	RUNTIME DESTINATION bin 
 	LIBRARY DESTINATION lib
 	ARCHIVE DESTINATION lib

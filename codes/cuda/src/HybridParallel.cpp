@@ -22,6 +22,11 @@ License
 
 #include <mpi.h>
 
+#ifdef ENABLE_CUDA
+#include "PrintDevice.h"
+#include "cuda_sub.h"
+#endif
+
 #ifdef ENABLE_OPENMP
 #include <omp.h>
 #endif
@@ -30,10 +35,11 @@ License
 #include "myopenacc.h"
 #endif
 
-#ifdef ENABLE_CUDA
-#include "PrintDevice.h"
-#include "cuda_sub.h"
-#endif
+#include "jacobi.h"
+
+#include <stdio.h>
+#include <iostream>
+using namespace std;
 
 #include "HybridParallel.h"
 
@@ -77,6 +83,7 @@ void HybridParallel::HybridRun( int argc, char ** argv )
 #ifdef ENABLE_OPENACC
 	test_open_acc();
 #endif
+	Jacobi_Test();
 
 #ifdef ENABLE_OPENMP
 	printf("number of host CPUs:\t%d\n", omp_get_num_procs());	
