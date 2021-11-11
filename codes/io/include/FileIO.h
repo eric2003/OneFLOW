@@ -45,7 +45,7 @@ public:
     ~FileIO();
 protected:
     std::string * line, * separator;
-    fstream * file;
+    fstream file;
     int setfileFlag;
 protected:
     std::string fileName;
@@ -61,11 +61,10 @@ public:
     string & GetCurrentLine() { return * this->line; };
 public:
     void ResetCommentString( StringField &commentStringList );
-    void SetDefaultFile     ( std::fstream * defaultFileIn   );
     void SetDefaultSeparator( const std::string & separatorIn   ) { * this->separator = separatorIn; };
 
     std::string  * GetDefaultLine     () { return line; }
-    std::fstream * GetDefaultFile     () { return file; }
+    std::fstream * GetDefaultFile     () { return &file; }
     std::string  * GetDefaultSeparator() { return separator; }
 public:
     void SetLineContent( const std::string & lineContent ) { * this->line = lineContent; };
