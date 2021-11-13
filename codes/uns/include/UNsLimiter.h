@@ -29,17 +29,17 @@ class NsLimField : public LimField
 {
 public:
     NsLimField();
-    ~NsLimField();
+    ~NsLimField() override;
 public:
-    void Init();
-    void BcQlQrFix();
+    void Init() override;
+    void BcQlQrFix() override;
 };
 
 class NsLimiter : public Limiter
 {
 public:
     NsLimiter();
-    ~NsLimiter();
+    ~NsLimiter() override;
 };
 
 EndNameSpace

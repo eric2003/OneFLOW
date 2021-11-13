@@ -32,7 +32,7 @@ class CircleInfo : public CurveInfo
 public:
     CircleInfo( int p1, int center, int p2, int id = 1 );
     CircleInfo();
-    ~CircleInfo();
+    ~CircleInfo() override;
 public:
     int center;
 };

@@ -51,7 +51,7 @@ void SimuState::Init()
     }    
 }
 
-const TaskEnum SimuState::Task() const
+TaskEnum SimuState::Task() const
 {
     return simutask;
 }

@@ -32,7 +32,7 @@ class LineInfo : public CurveInfo
 public:
     LineInfo( int p1, int p2, int id = 1 );
     LineInfo();
-    ~LineInfo();
+    ~LineInfo() override;
 };
 
 

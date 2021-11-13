@@ -3,10 +3,10 @@ function ( ConstructSolutionDirTree currdir my_head_list my_src_list my_include_
 	set ( tmp_src_list     "" )
 	set ( tmp_include_dirs "" )
 
-	message ( STATUS "The currdir is ${currdir}" )
+	#message ( STATUS "The currdir is ${currdir}" )
 	file ( GLOB_RECURSE FOUND_FILES LIST_DIRECTORIES true RELATIVE ${currdir} * )
 
-	message( STATUS "Files are ${FOUND_FILES}" )
+	#message( STATUS "Files are ${FOUND_FILES}" )
 
     foreach ( child ${FOUND_FILES} )
 		set( candidate_dir ${currdir}/${child} )
@@ -33,8 +33,8 @@ function ( ConstructSolutionDirTree currdir my_head_list my_src_list my_include_
 			list ( APPEND tmp_src_list  ${src_files} )
 			#list ( APPEND tmp_src_list  ${cuda_src_files} )
 		
-			message ( STATUS "The header_files is ${header_files}" )
-			message ( STATUS "The src_files is ${src_files}" )
+			#message ( STATUS "The header_files is ${header_files}" )
+			#message ( STATUS "The src_files is ${src_files}" )
 			#message ( STATUS "The cuda_src_files is ${cuda_src_files}" )
         endif()
     endforeach()
@@ -77,4 +77,20 @@ function ( GetCUDAFiles currdir my_head_list my_src_list my_include_dirs )
     set ( ${my_head_list} ${tmp_header_list} PARENT_SCOPE )
     set ( ${my_src_list} ${tmp_src_list} PARENT_SCOPE )
 	set ( ${my_include_dirs} ${tmp_include_dirs} PARENT_SCOPE )	
+endfunction()
+
+function ( AppendGlobalValue global_property value )
+	#message ( STATUS "global_property = ${global_property}" )
+	#message ( STATUS "value = ${value}" )
+	get_property ( _local_var GLOBAL PROPERTY ${global_property} )
+	
+	list ( APPEND _local_var ${value} )
+	set_property ( GLOBAL PROPERTY ${global_property} ${_local_var} )
+endfunction()
+
+function ( GetGlobalValue global_property value )
+	#message ( STATUS "global_property = ${global_property}" )
+	#message ( STATUS "value = ${value}" )
+	get_property ( _local_var GLOBAL PROPERTY ${global_property} )
+	set ( ${value} ${_local_var} PARENT_SCOPE )
 endfunction()

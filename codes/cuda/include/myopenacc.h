@@ -7,8 +7,8 @@ extern "C" {
 #ifdef ENABLE_OPENACC
 
 void test_open_acc();
-
 #endif 
+
 #ifdef __cplusplus
 } // closing brace for extern "C"
 #endif

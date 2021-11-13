@@ -31,8 +31,8 @@ public:
     UNsLusgs ();
     ~UNsLusgs();
 public:
-    void LowerSweep();
-    void UpperSweep();
+    void LowerSweep() override;
+    void UpperSweep() override;
     void SingleSweep();
     void PrepareSweep();
     void Update();

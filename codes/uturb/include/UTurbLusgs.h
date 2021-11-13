@@ -31,8 +31,8 @@ public:
     UTurbLusgs ();
     ~UTurbLusgs();
 public:
-    void LowerSweep();
-    void UpperSweep();
+    void LowerSweep() override;
+    void UpperSweep() override;
     void SingleSweep();
     void PrepareSweep();
     void Update();

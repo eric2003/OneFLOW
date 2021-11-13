@@ -29,9 +29,9 @@ class ResidualTask : public Task
 {
 public:
     ResidualTask ();
-    ~ResidualTask();
+    ~ResidualTask() override;
 public:
-    void Run();
+    void Run() override;
 public:
     void CalcRes( int sTid, ResData & data );
     void PostDumpResiduals();

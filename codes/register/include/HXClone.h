@@ -65,7 +65,7 @@ class TYPE : public HXClone \
 public: \
     IMPLEMENT_CLASS_CLONE( TYPE ) \
 public: \
-    void Solve() \
+    void Solve() override \
     { \
         HX##TYPE();\
     } \
@@ -79,7 +79,7 @@ class C##TYPE : public HXClone \
 public: \
     IMPLEMENT_CLASS_CLONE( C##TYPE ) \
 public: \
-    void Solve() \
+    void Solve() override \
     { \
         TYPE( this->data );\
     } \

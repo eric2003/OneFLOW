@@ -57,21 +57,6 @@ bool DirExist( const string & dirName )
 #endif
 }
 
-//void MakeDir( const string & dirName )
-//{
-//    int flag;
-//#ifdef _WINDOWS
-//    flag = _mkdir( dirName.c_str() );
-//#else
-//    flag = mkdir( dirName.c_str(), S_IRWXU );
-//#endif
-//
-//    if ( flag == 0 )
-//    {
-//        cout << dirName << " directory has been created successfully !\n";
-//    }
-//}
-
 void MakeDir( const string & dirName )
 {
     int flag;
@@ -115,18 +100,6 @@ string HX_GetCurrentDir()
     std::free( cwd ) ;
     return working_dir ;
 }
-
-//string HX_GetCurrentDir()
-//{
-//#ifdef HX_GNU
-//    char * cwd = getcwd( 0, 0 ); 
-//#else
-//    char * cwd = _getcwd( 0, 0 );
-//#endif
-//    std::string working_dir( cwd ) ;
-//    std::free( cwd ) ;
-//    return working_dir ;
-//}
 
 bool EndWithSlash( const string & fileName )
 {

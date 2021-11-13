@@ -22,6 +22,11 @@ License
 
 #include <mpi.h>
 
+#ifdef ENABLE_CUDA
+#include "PrintDevice.h"
+#include "cuda_sub.h"
+#endif
+
 #ifdef ENABLE_OPENMP
 #include <omp.h>
 #endif
@@ -30,10 +35,11 @@ License
 #include "myopenacc.h"
 #endif
 
-#ifdef ENABLE_CUDA
-#include "PrintDevice.h"
-#include "cuda_sub.h"
-#endif
+#include "jacobi.h"
+
+#include <stdio.h>
+#include <iostream>
+using namespace std;
 
 #include "HybridParallel.h"
 
@@ -53,13 +59,6 @@ HybridParallel::~HybridParallel()
 
 void HybridParallel::Run()
 {
-//#ifdef ENABLE_CUDA
-//    InitCUDA();
-//#endif
-//#ifdef ENABLE_OPENMP
-//    #pragma omp parallel  
-//    cout << "Hello, OneFLOW OpenMP Test!\n";
-//#endif
 	int argc = 0;
 	char ** argv = 0;
 	this->HybridRun( argc, argv );
@@ -84,9 +83,10 @@ void HybridParallel::HybridRun( int argc, char ** argv )
 #ifdef ENABLE_OPENACC
 	test_open_acc();
 #endif
+	Jacobi_Test();
 
 #ifdef ENABLE_OPENMP
-	printf("number of host threads:\t%d\n", omp_get_num_procs());	
+	printf("number of host CPUs:\t%d\n", omp_get_num_procs());	
 #pragma omp parallel num_threads(4)
 	{
 		int nt = omp_get_thread_num();

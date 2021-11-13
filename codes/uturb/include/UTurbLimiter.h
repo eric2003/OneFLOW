@@ -29,16 +29,16 @@ class TurbLimField : public LimField
 {
 public:
     TurbLimField();
-    ~TurbLimField();
+    ~TurbLimField() override;
 public:
-    void Init();
+    void Init() override;
 };
 
 class TurbLimiter : public Limiter
 {
 public:
     TurbLimiter();
-    ~TurbLimiter();
+    ~TurbLimiter() override;
 };
 
 EndNameSpace

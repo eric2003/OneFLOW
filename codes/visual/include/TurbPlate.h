@@ -44,6 +44,10 @@ public:
 public:
     void Dump();
     void Dump( LamData * lamData, fstream & file, int axis );
+    void DumpDetail( LamData * lamData, fstream & file, int axis );
+public:
+    void DumpNormal();
+    void DumpDetail();
 };
 
 class TurbFriCut : public CuttingClass
@@ -60,12 +64,12 @@ class TurbFlatPlateTask : public Task
 {
 public:
     TurbFlatPlateTask();
-    ~TurbFlatPlateTask();
+    ~TurbFlatPlateTask() override;
 public:
     CuttingClass * velCut;
     CuttingClass * friCut;
 public:
-    void Run();
+    void Run() override;
     void OutProfile( CuttingClass * cut );
 };
 

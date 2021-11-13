@@ -30,9 +30,9 @@ class ConvergeTask : public Task
 {
 public:
     ConvergeTask();
-    ~ConvergeTask();
+    ~ConvergeTask() override;
 public:
-    void Run();
+    void Run() override;
     void CalcBool();
 protected:
     BoolField boolField;

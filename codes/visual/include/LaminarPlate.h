@@ -40,8 +40,8 @@ public:
     LamVelCut();
     ~LamVelCut();
 public:
-    void Dump();
-    void Dump( LamData * lamData, fstream & file, int axis );
+    void Dump() override;
+    void Dump( LamData * lamData, fstream & file, int axis ) override;
 };
 
 class LamFriCut : public CuttingClass
@@ -50,8 +50,8 @@ public:
     LamFriCut();
     ~LamFriCut();
 public:
-    void Dump();
-    void Dump( LamData * lamData, fstream & file, int axis );
+    void Dump() override;
+    void Dump( LamData * lamData, fstream & file, int axis ) override;
 };
 
 
@@ -59,12 +59,12 @@ class LaminarFlatPlateTask : public Task
 {
 public:
     LaminarFlatPlateTask();
-    ~LaminarFlatPlateTask();
+    ~LaminarFlatPlateTask() override;
 public:
     CuttingClass * velCut;
     CuttingClass * friCut;
 public:
-    void Run();
+    void Run() override;
     void OutProfile( CuttingClass * cut );
 };
 

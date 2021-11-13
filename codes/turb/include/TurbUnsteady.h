@@ -35,7 +35,7 @@ public:
     TurbUsdData();
     ~TurbUsdData();
 public:
-    void Init();
+    void Init() override;
 };
 
 

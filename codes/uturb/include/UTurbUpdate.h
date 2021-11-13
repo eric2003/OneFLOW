@@ -31,7 +31,7 @@ public:
     UTurbUpdate ();
     ~UTurbUpdate();
 public:
-    void UpdateFlowField( int sTid );
+    void UpdateFlowField( int sTid ) override;
     void UpdateFlowField1Equ();
     void UpdateFlowField2Equ();
     void UpdateFlowField1EquStd();
@@ -41,7 +41,7 @@ public:
     void PrepareData2Equ();
     void UpdateValue();
 public:
-    void DumpProbeInfo();
+    void DumpProbeInfo() override;
     void SmoothTurbulentPoint();
 };
 

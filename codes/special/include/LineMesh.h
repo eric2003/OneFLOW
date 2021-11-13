@@ -34,11 +34,11 @@ class LineMesh : public CurveMesh
 {
 public:
     LineMesh();
-    ~LineMesh();
+    ~LineMesh() override;
 public:
-    void GenerateLineMesh();
-    void CalcCurveGeometry();
-    void CalcCoor( Real s, Real & xt, Real & yt, Real & zt );
+    void GenerateLineMesh() override;
+    void CalcCurveGeometry() override;
+    void CalcCoor( Real s, Real & xt, Real & yt, Real & zt ) override;
 };
 
 EndNameSpace

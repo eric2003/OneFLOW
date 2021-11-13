@@ -20,6 +20,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+      - name: Install GCC-10
+        run: |
+          sudo apt-get update
+          sudo apt install gcc-10 g++-10 -y
+          gcc --version
+          g++ --version
+          ls /usr/bin/gcc*
+        shell: bash
       - name: Install Third party library
         run: |
           echo cd ${{ github.workspace }}
@@ -30,6 +38,9 @@ jobs:
           sudo apt-get install libhdf5-dev libcgns-dev libmetis-dev libmpich-dev -y
         shell: bash
       - name: CMake Build and Install
+        #env:
+        #   CC:   gcc-10
+        #   CXX:  g++-10
         run: |
           cd ${{ github.workspace }}
           ls
@@ -44,18 +55,25 @@ jobs:
           export METIS_HOME_INC="/usr/include"
           export METIS_HOME_LIB="/usr/lib/x86_64-linux-gnu/libmetis.so"
           cmake --version
-          cmake -DCMAKE_INSTALL_PREFIX=${{ github.workspace }} ../
+          cmake -DCMAKE_INSTALL_PREFIX=${{ github.workspace }}/Run ../
           make -j 4
           make install
         shell: bash 
       - name: Run OneFLOW CFD Tests
         env:
-          prefix: ${{ github.workspace }}
+          prefix: ${{ github.workspace }}/Run
         run: |
-          ls "${{env.prefix}}"
-          export PATH=${{env.prefix}}/bin/:$PATH
-          #./OneFLOW
-          cd "${{env.prefix}}/test"
+          #echo "env.prefix= ${{env.prefix}}"
+          #echo "ls ${{env.prefix}}"
+          #ls "${{env.prefix}}"
+          export PATH=${{env.prefix}}/bin/:${{env.prefix}}/lib:$PATH
+          #echo $PATH
+          export LD_LIBRARY_PATH=${{env.prefix}}/lib:$LD_LIBRARY_PATH
+          #sudo ldconfig
+          #ls ${{env.prefix}}/bin
+          #ldd ${{env.prefix}}/bin/OneFLOW
+          OneFLOW
+          cd "${{ github.workspace }}/test"
           ls
           python --version
           #python test.py " " " " linux

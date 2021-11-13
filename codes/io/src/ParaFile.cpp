@@ -352,6 +352,7 @@ void ReadScriptFileNameList( vector< string > & scriptFileNameList )
     }
 
     ioFile.CloseFile();
+
 }
 
 void ReadMultiScriptFiles( vector< string > & scriptFileNameList )
