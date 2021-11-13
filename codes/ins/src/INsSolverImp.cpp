@@ -159,14 +159,6 @@ void INsPostprocess( StringField & data )
 			ONEFLOW::AddCmdToList("VISUALIZATION");
 			ONEFLOW::AddCmdToList("DUMP_PRESSURE_COEFF");
 			ONEFLOW::AddCmdToList("DUMP_HEATFLUX_COEFF");
-			//if ( ctrl.idump == 1 )
-			//{
-			//    ONEFLOW::AddCmdToList( "DUMP_LAMINAR_PLATE" );
-			//}
-			//else if ( ctrl.idump == 2 )
-			//{
-			//    ONEFLOW::AddCmdToList( "DUMP_TURB_PLATE" );
-			//}
 		}
 	}
 

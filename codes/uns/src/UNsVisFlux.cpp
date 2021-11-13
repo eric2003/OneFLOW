@@ -41,7 +41,9 @@ License
 #include "FieldImp.h"
 #include "Iteration.h"
 #include <iostream>
+#include <iomanip>
 using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 
@@ -58,6 +60,7 @@ UNsVisFlux::~UNsVisFlux()
 
 void UNsVisFlux::SetVisPointer()
 {
+    //cout << " nscom.ivischeme = " << nscom.ivischeme << "\n";
     if ( nscom.ivischeme == VIS_STD )
     {
         this->visPointer = & UNsVisFlux::StdMethod;
@@ -119,7 +122,6 @@ void UNsVisFlux::PrepareField()
 {
     ut_grad.Init();
     ut_grad.CalcGrad();
-    //ut_grad.CalcGradDebug();
 }
 
 void UNsVisFlux::CalcVisFlux()
@@ -130,16 +132,6 @@ void UNsVisFlux::CalcVisFlux()
 
         ug.lc = ( * ug.lcf )[ ug.fId ];
         ug.rc = ( * ug.rcf )[ ug.fId ];
-
-        if ( fId == 147489 )
-        {
-            int kkk = 1;
-        }
-
-        if ( ug.lc == 118 || ug.rc == 118 )
-        {
-            int kkk = 1;
-        }
 
         this->PrepareFaceValue();
 
@@ -213,6 +205,7 @@ void UNsVisFlux::CalcNsVisFlux()
     vis.fvis[ IDX::IRE ] = vis.um * vis.fvis[ IDX::IRU ] + 
                            vis.vm * vis.fvis[ IDX::IRV ] + 
                            vis.wm * vis.fvis[ IDX::IRW ] + vis.qNormal;
+
 }
 
 void UNsVisFlux::ZeroHeatFlux()

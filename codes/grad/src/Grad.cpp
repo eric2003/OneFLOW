@@ -52,21 +52,9 @@ Grad::~Grad()
 
 void Grad::CalcGrad()
 {
-    if ( Iteration::outerSteps == -31 )
+    for ( int iEqu = 0; iEqu < nEqu; ++ iEqu )
     {
-        for ( int iEqu = 0; iEqu < nEqu; ++ iEqu )
-        {
-            //ONEFLOW::CalcGrad( ( * q )[ iEqu ], ( * dqdx )[ iEqu ], ( * dqdy )[ iEqu ], ( * dqdz )[ iEqu ] );
-            ONEFLOW::CalcGradGGCellWeightDebug( ( * q )[ iEqu ], ( * dqdx )[ iEqu ], ( * dqdy )[ iEqu ], ( * dqdz )[ iEqu ] );
-        }
-    }
-    else
-    {
-        for ( int iEqu = 0; iEqu < nEqu; ++ iEqu )
-        {
-            ONEFLOW::CalcGradGGCellWeight( ( * q )[ iEqu ], ( * dqdx )[ iEqu ], ( * dqdy )[ iEqu ], ( * dqdz )[ iEqu ] );
-        }
-
+        ONEFLOW::CalcGradGGCellWeight( ( * q )[ iEqu ], ( * dqdx )[ iEqu ], ( * dqdy )[ iEqu ], ( * dqdz )[ iEqu ] );
     }
 
     if ( Iteration::outerSteps == -31 )

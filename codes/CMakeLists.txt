@@ -24,7 +24,8 @@ message ( STATUS "OpenACC_C_FLAGS    = ${OpenACC_C_FLAGS}" )
 message ( STATUS "OpenACC_CXX_FLAGS  = ${OpenACC_CXX_FLAGS}" )
 
 #set ( GPUFLAGS "-gpu=managed -Minfo=all,ccff -Mneginfo" )
-set ( GPUFLAGS "-gpu=managed -Minfo=all,ccff" )
+#set ( GPUFLAGS "-gpu=managed -Minfo=all,ccff" )
+set ( GPUFLAGS "-gpu=managed -Minfo=accel" )
 
 if ( OpenACC_CXX_FOUND AND AUTO_ACC )
 	list ( APPEND PRJ_COMPILE_DEF ENABLE_OPENACC )
