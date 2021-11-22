@@ -71,9 +71,9 @@ class UVisualize : public Visualize
 {
 public:
     UVisualize();
-    ~UVisualize();
+    ~UVisualize() override;
 public:
-    void Visual();
+    void Visual() override;
     bool NeedVisualField();
     void CalcNodeField( VisualTool * visualTool );
     void ShowField( ostringstream & oss, VisualTool * visualTool );

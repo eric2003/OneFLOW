@@ -86,6 +86,8 @@ public:
     virtual void WriteGrid( fstream & file ) {};
     virtual void Decode( DataBook * databook ){};
     virtual void Encode( DataBook * databook ){};
+    virtual void ReadGrid( DataBook * databook ){};
+    virtual void WriteGrid( DataBook * databook ){};
     virtual void ModifyBcType( int bcType1, int bcType2 ) {};
     virtual void GenerateLgMapping( IFaceLink * iFaceLink ){};
     virtual void ReGenerateLgMapping( IFaceLink * iFaceLink ){};

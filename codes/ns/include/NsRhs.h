@@ -32,7 +32,7 @@ public:
     NsRhs ();
     ~NsRhs();
 public:
-    void UpdateResiduals();
+    void UpdateResiduals() override;
 };
 
 void NsCalcBc();

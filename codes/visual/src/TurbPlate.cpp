@@ -74,6 +74,12 @@ TurbVelCut::~TurbVelCut()
 
 void TurbVelCut::Dump()
 {
+    this->DumpNormal();
+    //this->DumpDetail();
+}
+
+void TurbVelCut::DumpNormal()
+{
     string velocityFile = "results/turbplateflow.dat";
 
     fstream file;
@@ -94,6 +100,41 @@ void TurbVelCut::Dump()
     {
         LamData * lamData = sliceData[ i ];
         this->Dump( lamData, file, sliceInfo.dir2[ i ] );
+    }
+
+    PIO::Close( file );
+}
+
+void TurbVelCut::DumpDetail()
+{
+    string velocityFile = "results/turbplateflow_detail.dat";
+
+    fstream file;
+    PIO::ParallelOpenPrj( file, velocityFile, ios_base::out );
+    StringField title;
+    title.push_back( "title=\"THE FLOW FIELD OF ONEFLOW\"" );
+    title.push_back( "variables=" );
+    title.push_back( "\"y+\"" );
+    title.push_back( "\"u+\"" );
+    title.push_back( "\"x\"" );
+    title.push_back( "\"y\"" );
+    title.push_back( "\"rho\"" );
+    title.push_back( "\"p\"" );
+    title.push_back( "\"u\"" );
+    title.push_back( "\"v\"" );
+    title.push_back( "\"utau\"" );
+    title.push_back( "\"vis\"" );
+
+    for ( UInt i = 0; i < title.size(); ++ i )
+    {
+        file << title[ i ] << endl;
+    }
+
+    size_t nSlice = sliceData.size();
+    for ( int i = 0; i < nSlice; ++ i )
+    {
+        LamData * lamData = sliceData[ i ];
+        this->DumpDetail( lamData, file, sliceInfo.dir2[ i ] );
     }
 
     PIO::Close( file );
@@ -156,6 +197,73 @@ void TurbVelCut::Dump( LamData * lamData, fstream & file, int axis )
         file << setiosflags( ios::scientific );
         file << setprecision( 10 );
         file << setw( wordWidth ) << yp << setw( wordWidth ) << up << endl;
+    }
+}
+
+void TurbVelCut::DumpDetail( LamData * lamData, fstream & file, int axis )
+{
+    int nNodes = lamData->GetNNode();
+
+    file << "zone  i = " << nNodes << " \n";
+
+    int wordWidth = 22;
+
+    RealField & x = lamData->data[ 0 ]->x;
+    RealField & y = lamData->data[ 0 ]->y;
+    RealField & z = lamData->data[ 0 ]->z;
+
+    lamData->SortDataByAxis( axis );
+
+    RealField2D & qdata   = lamData->data[ 0 ]->slicedata;
+    RealField2D & visdata = lamData->data[ 1 ]->slicedata;
+
+    int ywId = lamData->FindYIndex();
+    Real xw = x[ ywId ];
+    Real yw = y[ ywId ];
+    Real zw = z[ ywId ];
+
+    Real rw = qdata[ 0 ][ ywId ];
+    Real uw = qdata[ 1 ][ ywId ];
+    Real vw = qdata[ 2 ][ ywId ];
+    Real ww = qdata[ 3 ][ ywId ];
+    Real pw = qdata[ 4 ][ ywId ];
+
+    Real visw = visdata[ 0 ][ ywId ];
+
+    for ( int iNode = 0; iNode < nNodes; ++ iNode )
+    {
+        Real xm = x[ iNode ];
+        Real ym = y[ iNode ];
+        Real zm = z[ iNode ];
+
+        Real rm = qdata[ 0 ][ iNode ];
+        Real um = qdata[ 1 ][ iNode ];
+        Real vm = qdata[ 2 ][ iNode ];
+        Real wm = qdata[ 3 ][ iNode ];
+        Real pm = qdata[ 4 ][ iNode ];
+
+        Real vis = visdata[ 0 ][ iNode ];
+
+        Real dudy = uw / yw;
+        Real tauw = visw * dudy;
+
+        Real utau = sqrt( tauw / ( rw * nscom.reynolds ) );
+
+        //Notice the definition here
+        Real up = um / utau;
+        Real yp = utau * ym * nscom.reynolds / ( vis / rm );
+
+        file << setiosflags( ios::left );
+        file << setiosflags( ios::scientific );
+        //file << setprecision( 10 );
+        //file << setprecision( 12 );
+        file << setprecision( 14 );
+        file << setw( wordWidth ) << yp << setw( wordWidth ) << up;
+        file << setw( wordWidth ) << xm << setw( wordWidth ) << ym;
+        file << setw( wordWidth ) << rm << setw( wordWidth ) << pm;
+        file << setw( wordWidth ) << um << setw( wordWidth ) << vm;
+        file << setw( wordWidth ) << utau << setw( wordWidth ) << vis;
+        file << endl;
     }
 }
 

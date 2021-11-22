@@ -30,14 +30,14 @@ class CircleLineMesh : public CurveMesh
 {
 public:
     CircleLineMesh();
-    ~CircleLineMesh();
+    ~CircleLineMesh() override;
 public:
     Real radius;
     Real alpha0, alpha1;
 public:
-    void CalcCurveGeometry();
-    void GenerateLineMesh();
-    void CalcCoor( Real s, Real & xt, Real & yt, Real & zt );
+    void CalcCurveGeometry() override;
+    void GenerateLineMesh() override;
+    void CalcCoor( Real s, Real & xt, Real & yt, Real & zt ) override;
 };
 
 

@@ -41,7 +41,7 @@ public:
     void Run();
     void Init();
 public:
-    void StaticInit();
+    void StaticInit() override;
 };
 
 EndNameSpace

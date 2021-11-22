@@ -54,9 +54,9 @@ std::string * GetDefaultSeparatorOfWord()
 
 FileIO::FileIO()
 {
-    line        = new std::string;
-    separator   = new std::string;
-    file        = new fstream;
+    line        = new std::string();
+    separator   = new std::string();
+    //file        = new fstream();
     setfileFlag = 0;
     //\t is tab key
     string keyWordSeparator = " =\r\n\t#$,;\"";
@@ -71,10 +71,6 @@ FileIO::~FileIO()
 {
     delete line;
     delete separator;
-    if ( setfileFlag == 0 )
-    {
-        delete file;
-    }
     delete this->commentLine;
 }
 
@@ -83,50 +79,40 @@ void FileIO::ResetCommentString(StringField& commentStringList)
     this->commentLine->ResetCommentString(commentStringList);
 }
 
-void FileIO::SetDefaultFile ( std::fstream * defaultFileIn )
-{
-    if ( setfileFlag == 0 )
-    {
-        delete file;
-    }
-    this->file  = defaultFileIn;
-    setfileFlag = 1;
-}
-
 void FileIO::OpenFile( const string & fileName, const ios_base::openmode & fileOpenMode )
 {
     this->fileName     = fileName;
     this->fileOpenMode = fileOpenMode;
-    ONEFLOW::OpenFile( * file, fileName, fileOpenMode );
+    ONEFLOW::OpenFile( this->file, fileName, fileOpenMode );
 }
 
 void FileIO::OpenPrjFile( const string & fileName, const ios_base::openmode & fileOpenMode )
 {
     this->fileName     = fileName;
     this->fileOpenMode = fileOpenMode;
-    ONEFLOW::OpenPrjFile( * file, fileName, fileOpenMode );
+    ONEFLOW::OpenPrjFile( this->file, fileName, fileOpenMode );
 }
 
 void FileIO::CloseFile()
 {
-    ONEFLOW::CloseFile( * file );
+    ONEFLOW::CloseFile( this->file );
 }
 
 void FileIO::MarkCurrentFilePosition()
 {
-    filePosition = file->tellp();
+    filePosition = this->file.tellp();
 }
 
 void FileIO::MoveToPreviousFilePosition()
 {
-    file->seekp( filePosition );
+    this->file.seekp( filePosition );
 }
 
 bool FileIO::ReadNextMeaningfulLine()
 {
     while ( ! this->ReachTheEndOfFile() )
     {
-         Word::ReadNextLine( * file, * line );
+         Word::ReadNextLine( this->file, * line );
 
         if ( Word::IsEmptyLine  ( * line ) ||
              Word::IsCommentLine( * line, this->commentLine->commentdata ) )
@@ -140,7 +126,7 @@ bool FileIO::ReadNextMeaningfulLine()
 
 bool FileIO::ReachTheEndOfFile()
 {
-    if ( ( * file ).eof() )
+    if ( this->file.eof() )
     {
         return true;
     }
@@ -149,12 +135,12 @@ bool FileIO::ReachTheEndOfFile()
 
 void FileIO::SkipLines( int numberOfLinesToSkip )
 {
-     Word::SkipLines( * file, numberOfLinesToSkip );
+     Word::SkipLines( this->file, numberOfLinesToSkip );
 }
 
 bool FileIO::ReadNextNonEmptyLine()
 {
-    return Word::ReadNextNonEmptyLine( * this->file, * this->line );
+    return Word::ReadNextNonEmptyLine( this->file, * this->line );
 }
 
 void FileIO::DumpLineContentToScreen()

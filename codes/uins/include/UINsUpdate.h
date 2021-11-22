@@ -31,10 +31,11 @@ public:
     UINsUpdate ();
     ~UINsUpdate();
 public:
-    void UpdateINsFlowField( int sTid );
+    void UpdateINsFlowField( int sTid ) override;
+    void DumpProbeInfo() override;
+    void SolutionFix() override;
+public:
     void PrepareData();
-    void DumpProbeInfo();
-    void SolutionFix();
     void UpdateFlowFieldValue();
 };
 

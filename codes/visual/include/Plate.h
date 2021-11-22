@@ -104,7 +104,7 @@ public:
     void Slice();
     void Swap();
     virtual void Dump(){};
-    virtual void Dump( LamData * lamData, fstream & file ){};
+    virtual void Dump( LamData * lamData, fstream & file, int axis ){};
     void Write( DataBook * dataBook );
     void Read( DataBook * dataBook );
     RealField & GetCoor( UnsGrid * grid, int cutAxis );

@@ -38,18 +38,18 @@ public:
     IMPLEMENT_GRID_CLONE( StrGrid )
 public:
     StrGrid();
-    ~StrGrid();
+    ~StrGrid() override;
 public:
     int  ni, nj, nk;
     FaceTopo * faceTopo;
     BcRegionGroup * bcRegionGroup;
     Field3D * strx, * stry, * strz;
 public:
-    void Decode( DataBook * databook );
-    void Encode( DataBook * databook );
+    void Decode( DataBook * databook ) override;
+    void Encode( DataBook * databook ) override;
 public:
-    void ReadGrid( DataBook * databook );
-    void WriteGrid( DataBook * databook );
+    void ReadGrid( DataBook * databook ) override;
+    void WriteGrid( DataBook * databook ) override;
 public:
     void ReadBoundaryTopology( DataBook * databook );
     void WriteGridFaceTopology( DataBook * databook );
@@ -62,7 +62,7 @@ public:
     int CalcNumberOfCell();
     int CalcNumberOfFace();
 public:
-    void GetMinMaxDistance( Real & dismin, Real & dismax );
+    void GetMinMaxDistance( Real & dismin, Real & dismax ) override;
     void CalcMinMaxDis3D( Real & dismin, Real & dismax );
     void CalcMinMaxDis2D( Real & dismin, Real & dismax );
     void CalcMinMaxDis1D( Real & dismin, Real & dismax );

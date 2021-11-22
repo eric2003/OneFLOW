@@ -31,10 +31,10 @@ public:
     UNsUpdate ();
     ~UNsUpdate();
 public:
-    void UpdateFlowField( int sTid );
+    void UpdateFlowField( int sTid ) override;
+    void DumpProbeInfo() override;
+    void SolutionFix() override;
     void PrepareData();
-    void DumpProbeInfo();
-    void SolutionFix();
     void UpdateFlowFieldValue();
 };
 

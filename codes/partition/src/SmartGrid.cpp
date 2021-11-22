@@ -454,6 +454,10 @@ void SmartGrid::Run()
     #ifdef ENABLE_CUDA
         InitCUDA();
     #endif
+    #ifdef ENABLE_OPENMP
+        #pragma omp parallel  
+        cout << "Hello, OneFLOW OpenMP Test!\n";
+    #endif
 }
 
 void SmartGrid::AddElement( int p1, int p2, int eType )
