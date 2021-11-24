@@ -54,16 +54,9 @@ void UNsUpdate::UpdateFlowField( int sTid )
     {
         ug.cId = cId;
 
-        if ( ug.cId == 32 )
-        {
-            int kkk = 1;
-        }
-
         this->PrepareData();
 
         this->CalcFlowField();
-        //this->CalcFlowFieldHyperSonic();
-        //this->CalcFlowFieldHyperSonic_Temperature();
 
         this->UpdateFlowFieldValue();
     }

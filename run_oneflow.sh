@@ -12,6 +12,7 @@ root_dir=${PWD}
 echo "root_dir=$root_dir"
 install_dir=$root_dir/Run
 export PATH=$install_dir/bin/:$install_dir/lib:$PATH
+export LD_LIBRARY_PATH=$install_dir/lib:$LD_LIBRARY_PATH
 mpirun -np 1 OneFLOW
 cd $install_dir
 rm -rf test

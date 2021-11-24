@@ -44,6 +44,10 @@ public:
 public:
     void Dump();
     void Dump( LamData * lamData, fstream & file, int axis );
+    void DumpDetail( LamData * lamData, fstream & file, int axis );
+public:
+    void DumpNormal();
+    void DumpDetail();
 };
 
 class TurbFriCut : public CuttingClass
