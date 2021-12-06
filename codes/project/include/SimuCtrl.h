@@ -19,48 +19,26 @@ License
     along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 
 \*---------------------------------------------------------------------------*/
-#include "SimuCtrl.h"
-#include "FileUtil.h"
-#include <iostream>
-using namespace std;
+#pragma once
+#include "Configure.h"
+#include <string>
 
 BeginNameSpace( ONEFLOW )
 
-bool SimuCtrl::hx_debug = false;
-bool SimuCtrl::run_from_ide = false;
-string SimuCtrl::system_root = "";
-string SimuCtrl::execute_dir = "";
-string SimuCtrl::current_dir = "";
-
-SimuCtrl::SimuCtrl()
+class SimuCtrl
 {
+public:
+    SimuCtrl();
+    ~SimuCtrl();
+public:
+    static bool hx_debug;
+    static bool run_from_ide;
+    static std::string system_root;
+    static std::string current_dir;
+    static std::string execute_dir;
+public:
+    static void Init();
 
-}
-
-SimuCtrl::~SimuCtrl()
-{
-}
-
-void SimuCtrl::Init()
-{
-    SimuCtrl::execute_dir = HX_GetExePath();
-    SimuCtrl::current_dir = HX_GetCurrentDir();
-
-    cout << " SimuCtrl::execute_dir = " << SimuCtrl::execute_dir << "\n";
-    cout << " SimuCtrl::current_dir = " << SimuCtrl::current_dir << "\n";
-
-    string local_root = "/system/";
-    if ( SimuCtrl::run_from_ide )
-    {
-        string current_dir_now = RemoveEndSlash( SimuCtrl::current_dir );
-        SimuCtrl::system_root = current_dir_now + local_root;
-    }
-    else
-    {
-        string execute_dir = RemoveEndSlash( SimuCtrl::execute_dir );
-        SimuCtrl::system_root = SimuCtrl::execute_dir + local_root;
-    }
-    cout << " SimuCtrl::system_root = " << SimuCtrl::system_root << "\n";
-}
+};
 
 EndNameSpace
