@@ -401,7 +401,7 @@ void TopoAction::AddElement( int p1, int p2, int eType )
     elem.push_back( p2 );
 
     int e_index = elementIdTool.AddIds( elem, eType );
-    cout << " e_index = " << e_index << "\n";
+    //cout << " e_index = " << e_index << "\n";
     topo_sort->AddElementFaces( elem, eType, e_index );
 }
 

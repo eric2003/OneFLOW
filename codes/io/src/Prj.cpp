@@ -22,14 +22,13 @@ License
 
 #include "Prj.h"
 #include "OStream.h"
-#include "LogFile.h"
 #include "SimuCtrl.h"
+#include "FileUtil.h"
 #include <iostream>
-using namespace std;
 
 BeginNameSpace( ONEFLOW )
 
-string PrjStatus::prjBaseDir = "";
+std::string PrjStatus::prjBaseDir = "";
 
 PrjStatus::PrjStatus()
 {
@@ -43,8 +42,8 @@ PrjStatus::~PrjStatus()
 
 void PrjStatus::SetPrjBaseDir( const string & prjName )
 {
-    string current_dir_now = RemoveEndSlash( SimuCtrl::current_dir );
-    string prj_name_now = RemoveFirstSlash( prjName );
+    std::string current_dir_now = RemoveEndSlash( SimuCtrl::current_dir );
+    std::string prj_name_now = RemoveFirstSlash( prjName );
     ONEFLOW::StrIO << current_dir_now << "/" << prj_name_now;
     if ( ! EndWithSlash( prj_name_now ) )
     {
@@ -54,36 +53,36 @@ void PrjStatus::SetPrjBaseDir( const string & prjName )
     cout << " PrjStatus::prjBaseDir = " << PrjStatus::prjBaseDir << "\n";
 }
 
-void MakePrjDir( const string & dirName )
+void MakePrjDir( const std::string & dirName )
 {
     ONEFLOW::StrIO.ClearAll();
     ONEFLOW::StrIO << PrjStatus::prjBaseDir << dirName;
 
-    string prjDirName = ONEFLOW::StrIO.str();
+    std::string prjDirName = ONEFLOW::StrIO.str();
     //cout << " prjDirName = " << prjDirName << "\n";
 
     MakeDir( prjDirName );
 }
 
-void OpenPrjFile( fstream & file, const string & fileName, const ios_base::openmode & openMode )
+void OpenPrjFile( std::fstream & file, const std::string & fileName, const std::ios_base::openmode & openMode )
 {
     ONEFLOW::StrIO.ClearAll();
     ONEFLOW::StrIO << PrjStatus::prjBaseDir << fileName;
 
-    string prjFileName = ONEFLOW::StrIO.str();
+    std::string prjFileName = ONEFLOW::StrIO.str();
 
     ONEFLOW::OpenFile( file, prjFileName, openMode );
 }
 
-string GetPrjFileName( const string & fileName )
+std::string GetPrjFileName( const std::string & fileName )
 {
     ONEFLOW::StrIO.ClearAll();
 
-    string fileNameNew = RemoveFirstSlash( fileName );
+    std::string fileNameNew = RemoveFirstSlash( fileName );
 
     ONEFLOW::StrIO << PrjStatus::prjBaseDir << fileNameNew;
 
-    string prjFileName = ONEFLOW::StrIO.str();
+    std::string prjFileName = ONEFLOW::StrIO.str();
 
     return prjFileName;
 }

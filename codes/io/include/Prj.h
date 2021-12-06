@@ -21,10 +21,8 @@ License
 \*---------------------------------------------------------------------------*/
 #pragma once
 #include "Configure.h"
-#include "FileUtil.h"
 #include <fstream>
 #include <string>
-using namespace std;
 
 BeginNameSpace( ONEFLOW )
 
@@ -34,14 +32,14 @@ public:
     PrjStatus();
     ~PrjStatus();
 public:
-    static string prjBaseDir;
-    static void SetPrjBaseDir( const string & prjName );
+    static std::string prjBaseDir;
+    static void SetPrjBaseDir( const std::string & prjName );
 };
 
-void MakePrjDir( const string & dirName );
+void MakePrjDir( const std::string & dirName );
 
-void OpenPrjFile( fstream & file, const string & fileName, const ios_base::openmode & openMode );
+void OpenPrjFile( std::fstream & file, const std::string & fileName, const std::ios_base::openmode & openMode );
 
-string GetPrjFileName( const string & fileName );
+std::string GetPrjFileName( const std::string & fileName );
 
 EndNameSpace
