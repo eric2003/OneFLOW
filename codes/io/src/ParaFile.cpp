@@ -320,7 +320,7 @@ void DumpDataBase()
     string fileName = "/log/database.log";
     PIO::ParallelOpenPrj( file, fileName, ios_base::out );
     dataBase->dataPara->DumpData( file );
-    PIO::Close( file );
+    PIO::ParallelClose( file );
 }
 
 void ReadPrjScript()

@@ -41,6 +41,7 @@ void MakePrjDir( const std::string & dirName );
 void OpenPrjFile( std::fstream & file, const std::string & fileName, const std::ios_base::openmode & openMode );
 
 std::string GetPrjFileName( const std::string & fileName );
+std::string GetPrjDirName( const std::string & fileName );
 
 void OpenFile( std::fstream & file, const std::string & fileName, const std::ios_base::openmode & openMode );
 void CloseFile( std::fstream & file );

@@ -102,7 +102,7 @@ void TurbVelCut::DumpNormal()
         this->Dump( lamData, file, sliceInfo.dir2[ i ] );
     }
 
-    PIO::Close( file );
+    PIO::ParallelClose( file );
 }
 
 void TurbVelCut::DumpDetail()
@@ -137,7 +137,7 @@ void TurbVelCut::DumpDetail()
         this->DumpDetail( lamData, file, sliceInfo.dir2[ i ] );
     }
 
-    PIO::Close( file );
+    PIO::ParallelClose( file );
 }
 
 void TurbVelCut::Dump( LamData * lamData, fstream & file, int axis )
@@ -303,7 +303,7 @@ void TurbFriCut::Dump()
         this->Dump( lamData, file, sliceInfo.dir2[ i ] );
     }
 
-    PIO::Close( file );
+    PIO::ParallelClose( file );
 }
 
 void TurbFriCut::Dump( LamData * lamData, fstream & file, int axis )

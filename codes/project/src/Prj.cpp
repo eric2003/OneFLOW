@@ -65,12 +65,38 @@ void MakePrjDir( const std::string & dirName )
     MakeDir( prjDirName );
 }
 
+std::string GetPrjDirName( const std::string & fileName )
+{
+    size_t pos = fileName.find_last_of("\\/");
+    if ( string::npos == pos )
+    {
+        return "";
+    }
+    else
+    {
+        return fileName.substr(0, pos);
+    }
+}
+
+
+void CreateDirIfNeeded( std::string & prjFileName )
+{
+    string prj_dir = ONEFLOW::GetPrjDirName( prjFileName );
+
+    if ( ! DirExist( prj_dir ) )
+    {
+        MakeDir( prj_dir );
+    }
+}
+
 void OpenPrjFile( std::fstream & file, const std::string & fileName, const std::ios_base::openmode & openMode )
 {
     ONEFLOW::StrIO.ClearAll();
     ONEFLOW::StrIO << PrjStatus::prjBaseDir << fileName;
 
     std::string prjFileName = ONEFLOW::StrIO.str();
+
+    CreateDirIfNeeded( prjFileName );
 
     ONEFLOW::OpenFile( file, prjFileName, openMode );
 }
