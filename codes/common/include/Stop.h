@@ -22,13 +22,12 @@ License
 #pragma once
 #include "Configure.h"
 #include <string>
-using namespace std;
 
 BeginNameSpace( ONEFLOW )
 
 #define Stop( _Expression ) ( ONEFLOW::StopProgramFunction( _Expression, __FILE__, __LINE__, __DATE__, __TIME__ ) )
 
-void StopProgramFunction( const string & stopInformation, const string & fileName, const int & fileLine, const string & dateName, const string & timeName );
+void StopProgramFunction( const std::string & stopInformation, const std::string & fileName, const int & fileLine, const std::string & dateName, const std::string & timeName );
 
 
 EndNameSpace

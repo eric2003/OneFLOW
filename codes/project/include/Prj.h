@@ -42,4 +42,7 @@ void OpenPrjFile( std::fstream & file, const std::string & fileName, const std::
 
 std::string GetPrjFileName( const std::string & fileName );
 
+void OpenFile( std::fstream & file, const std::string & fileName, const std::ios_base::openmode & openMode );
+void CloseFile( std::fstream & file );
+
 EndNameSpace

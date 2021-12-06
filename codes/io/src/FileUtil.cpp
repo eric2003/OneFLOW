@@ -177,23 +177,6 @@ string RemoveEndSlash( const string & fileName )
 
 }
 
-void OpenFile( fstream & file, const string & fileName, const ios_base::openmode & openMode )
-{
-    file.open( fileName.c_str(), openMode );
-    if ( ! file )
-    {
-        cout << "could not open " << fileName << endl;
-        Stop( "" );
-    }
-}
-
-void CloseFile( fstream & file )
-{
-    file.close();
-    file.clear();
-}
-
-
 void GetFileNameExtension( const string & fullName, string & mainName, string & extensionName, const string & fileNameSeparator )
 {
     basic_string <char>::size_type index;

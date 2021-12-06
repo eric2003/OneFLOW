@@ -21,6 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "Prj.h"
+#include "Stop.h"
 #include "OStream.h"
 #include "SimuCtrl.h"
 #include "FileUtil.h"
@@ -87,5 +88,20 @@ std::string GetPrjFileName( const std::string & fileName )
     return prjFileName;
 }
 
+void OpenFile( std::fstream & file, const std::string & fileName, const std::ios_base::openmode & openMode )
+{
+    file.open( fileName.c_str(), openMode );
+    if ( ! file )
+    {
+        cout << "could not open " << fileName << endl;
+        Stop( "" );
+    }
+}
+
+void CloseFile( std::fstream & file )
+{
+    file.close();
+    file.clear();
+}
 
 EndNameSpace

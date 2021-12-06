@@ -45,9 +45,6 @@ bool StartWithForwardSlash( const string & fileName );
 string RemoveFirstSlash( const string & fileName );
 string RemoveEndSlash( const string & fileName );
 
-void OpenFile( fstream & file, const string & fileName, const ios_base::openmode & openMode );
-void CloseFile( fstream & file );
-
 void   GetFileNameExtension( const string & fullName, string & mainName, string & extensionName, const string & fileNameSeparator );
 
 void   ModifyFileMainName     ( string & fileName, const string & newMainName );
