@@ -83,7 +83,7 @@ void TurbVelCut::DumpNormal()
     string velocityFile = "results/turbplateflow.dat";
 
     fstream file;
-    PIO::ParallelOpenPrj( file, velocityFile, ios_base::out );
+    PIO::OpenPrjFile( file, velocityFile, ios_base::out );
     StringField title;
     title.push_back( "title=\"THE FLOW FIELD OF ONEFLOW\"" );
     title.push_back( "variables=" );
@@ -110,7 +110,7 @@ void TurbVelCut::DumpDetail()
     string velocityFile = "results/turbplateflow_detail.dat";
 
     fstream file;
-    PIO::ParallelOpenPrj( file, velocityFile, ios_base::out );
+    PIO::OpenPrjFile( file, velocityFile, ios_base::out );
     StringField title;
     title.push_back( "title=\"THE FLOW FIELD OF ONEFLOW\"" );
     title.push_back( "variables=" );
@@ -284,7 +284,7 @@ void TurbFriCut::Dump()
     string frictionFile = "results/turbplate_cf.dat";
 
     fstream file;
-    PIO::ParallelOpenPrj( file, frictionFile, ios_base::out );
+    PIO::OpenPrjFile( file, frictionFile, ios_base::out );
     StringField title;
     title.push_back( "title=\"THE FLOW FIELD OF ONEFLOW\"" );
     title.push_back( "variables=" );

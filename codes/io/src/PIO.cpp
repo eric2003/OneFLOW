@@ -50,19 +50,19 @@ void PIO::ParallelOpen( std::fstream & file, const std::string & fileName, const
 {
     if ( Parallel::pid != Parallel::GetFid() ) return;
 
-    PIO::Open( file, fileName, openMode );
+    ONEFLOW::OpenFile( file, fileName, openMode );
 }
 
-void PIO::ParallelOpenPrj( std::fstream & file, const std::string & fileName, const std::ios_base::openmode & openMode )
+void PIO::OpenPrjFile( std::fstream & file, const std::string & fileName, const std::ios_base::openmode & openMode )
 {
     if ( Parallel::pid != Parallel::GetFid() ) return;
 
     ONEFLOW::OpenPrjFile( file, fileName, openMode );
 }
 
-void PIO::ParallelOpenPrj()
+void PIO::OpenPrjFile()
 {
-    PIO::ParallelOpenPrj( * ActionState::file, TaskState::task->fileInfo->fileName, TaskState::task->fileInfo->openMode );
+    PIO::OpenPrjFile( * ActionState::file, TaskState::task->fileInfo->fileName, TaskState::task->fileInfo->openMode );
 }
 
 void PIO::ParallelClose()
@@ -75,16 +75,6 @@ void PIO::ParallelClose( std::fstream & file )
     if ( Parallel::pid != Parallel::GetFid() ) return;
 
     ONEFLOW::CloseFile( file );
-}
-
-void PIO::Open( std::fstream & file, const std::string & fileName, const std::ios_base::openmode & openMode )
-{
-    file.open( fileName.c_str(), openMode );
-    if ( ! file )
-    {
-        cout << "could not open " << fileName << endl;
-        Stop("");
-    }
 }
 
 

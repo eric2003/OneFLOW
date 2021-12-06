@@ -34,10 +34,9 @@ public:
     PIO();
     ~PIO();
 public:
-    static void ParallelOpenPrj();
+    static void OpenPrjFile();
     static void ParallelOpen( std::fstream & file, const std::string & fileName, const std::ios_base::openmode & openMode );
-    static void ParallelOpenPrj( std::fstream & file, const std::string & fileName, const std::ios_base::openmode & openMode );
-    static void Open( std::fstream & file, const std::string & fileName, const std::ios_base::openmode & openMode );
+    static void OpenPrjFile( std::fstream & file, const std::string & fileName, const std::ios_base::openmode & openMode );
 
     static void ParallelClose( std::fstream & file );
     static void ParallelClose();

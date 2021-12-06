@@ -75,7 +75,7 @@ void LamVelCut::Dump()
     string velocityFile = "results/flatplateflow.dat";
 
     fstream file;
-    PIO::ParallelOpenPrj( file, velocityFile, ios_base::out );
+    PIO::OpenPrjFile( file, velocityFile, ios_base::out );
     StringField title;
     title.push_back( "title=\"THE FLOW FIELD OF ONEFLOW\"" );
     title.push_back( "variables=" );
@@ -159,7 +159,7 @@ void LamFriCut::Dump()
     string frictionFile = "results/flatplate_cf.dat";
 
     fstream file;
-    PIO::ParallelOpenPrj( file, frictionFile, ios_base::out );
+    PIO::OpenPrjFile( file, frictionFile, ios_base::out );
     StringField title;
     title.push_back( "title=\"THE FLOW FIELD OF ONEFLOW\"" );
     title.push_back( "variables=" );

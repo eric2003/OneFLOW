@@ -53,7 +53,7 @@ void CReadFile::ServerRead()
     fstream file;
     ActionState::file = & file;
 
-    PIO::ParallelOpenPrj();
+    PIO::OpenPrjFile();
 
     for ( int zId = 0; zId < ZoneState::nZones; ++ zId )
     {

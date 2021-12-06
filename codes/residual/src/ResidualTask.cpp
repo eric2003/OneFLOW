@@ -144,7 +144,7 @@ void ResidualTask::DumpFile()
     fstream file;
     SolverInfo * solverInfo = SolverInfoFactory::GetSolverInfo( SolverState::tid );
     string & fileName = solverInfo->resFileName;
-    PIO::ParallelOpenPrj( file, fileName, ios_base::out | ios_base::app );
+    PIO::OpenPrjFile( file, fileName, ios_base::out | ios_base::app );
 
     if ( IsEmpty( file ) )
     {

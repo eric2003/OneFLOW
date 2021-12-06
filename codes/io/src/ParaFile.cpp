@@ -318,7 +318,7 @@ void DumpDataBase()
     DataBase * dataBase = ONEFLOW::GetGlobalDataBase();
     fstream file;
     string fileName = "/log/database.log";
-    PIO::ParallelOpenPrj( file, fileName, ios_base::out );
+    PIO::OpenPrjFile( file, fileName, ios_base::out );
     dataBase->dataPara->DumpData( file );
     PIO::ParallelClose( file );
 }

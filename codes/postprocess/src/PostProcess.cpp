@@ -611,7 +611,7 @@ void CurveData::Visual( const string & fileName, vector< Real > & x, vector< Rea
 {
     fstream file;
 
-    PIO::ParallelOpenPrj( file, fileName, ios_base::out );
+    PIO::OpenPrjFile( file, fileName, ios_base::out );
 
     StringField title;
     GetCurveTitle( title );
@@ -637,7 +637,7 @@ void CurveData::VisualCurveValue( const string & fileName, vector< Real > & x, v
 {
     fstream file;
 
-    PIO::ParallelOpenPrj( file, fileName, ios_base::out );
+    PIO::OpenPrjFile( file, fileName, ios_base::out );
 
     StringField title;
     GetCurveValueTitle( title );

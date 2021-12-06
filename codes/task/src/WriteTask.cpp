@@ -56,7 +56,7 @@ void CWriteFile::ServerWrite()
     fstream file;
     ActionState::file = & file;
 
-    PIO::ParallelOpenPrj();
+    PIO::OpenPrjFile();
 
     for ( int zId = 0; zId < ZoneState::nZones; ++ zId )
     {
