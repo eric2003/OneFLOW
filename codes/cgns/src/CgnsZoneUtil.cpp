@@ -48,7 +48,6 @@ License
 #include "Stop.h"
 #include <iostream>
 #include <iomanip>
-using namespace std;
 
 BeginNameSpace( ONEFLOW )
 #ifdef ENABLE_CGNS

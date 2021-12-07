@@ -178,7 +178,7 @@ void SDomain::SetRemainingCtrlPoint( IntField & idxList )
 
     CalcCoor coor;
     coor.SetCoor( mi, mj, mk );
-    coorMap->insert( pair<int, CalcCoor>( pt, coor ) );
+    coorMap->insert( std::pair<int, CalcCoor>( pt, coor ) );
 }
 
 
@@ -315,7 +315,7 @@ void SDomain::ConstructLocalTopoAsBlk2D()
         int k = kList[ iPoint ];
         CalcCoor c;
         c.SetCoor( i, j, k );
-        this->coorMap->insert( pair<int, CalcCoor>( pt, c ) );
+        this->coorMap->insert( std::pair<int, CalcCoor>( pt, c ) );
     }
 
     int nMLine = mLineList.size();

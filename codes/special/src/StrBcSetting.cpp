@@ -37,19 +37,19 @@ StrBcSetting::~StrBcSetting()
 
 void StrBcSetting::ConstructBcMap()
 {
-    boundaryMap.insert( pair< std::string, int >( "interface", BC::INTERFACE ) );
-    boundaryMap.insert( pair< std::string, int >( "extrapolation", BC::EXTRAPOLATION ) );
-    boundaryMap.insert( pair< std::string, int >( "symmetry", BC::SYMMETRY ) );
-    boundaryMap.insert( pair< std::string, int >( "inflow", BC::INFLOW ) );
-    boundaryMap.insert( pair< std::string, int >( "outflow", BC::OUTFLOW ) );
-    boundaryMap.insert( pair< std::string, int >( "solidsurface", BC::SOLID_SURFACE ) );
-    boundaryMap.insert( pair< std::string, int >( "pole", BC::POLE ) );
-    boundaryMap.insert( pair< std::string, int >( "no", BC::NO_BOUNDARY ) );
-    boundaryMap.insert( pair< std::string, int >( "farfield", BC::FARFIELD ) );
-    boundaryMap.insert( pair< std::string, int >( "overset", BC::OVERSET ) );
-    boundaryMap.insert( pair< std::string, int >( "generic1", BC::GENERIC_1 ) );
-    boundaryMap.insert( pair< std::string, int >( "generic2", BC::GENERIC_2 ) );
-    boundaryMap.insert( pair< std::string, int >( "generic3", BC::GENERIC_3 ) );
+    boundaryMap.insert( std::pair< std::string, int >( "interface", BC::INTERFACE ) );
+    boundaryMap.insert( std::pair< std::string, int >( "extrapolation", BC::EXTRAPOLATION ) );
+    boundaryMap.insert( std::pair< std::string, int >( "symmetry", BC::SYMMETRY ) );
+    boundaryMap.insert( std::pair< std::string, int >( "inflow", BC::INFLOW ) );
+    boundaryMap.insert( std::pair< std::string, int >( "outflow", BC::OUTFLOW ) );
+    boundaryMap.insert( std::pair< std::string, int >( "solidsurface", BC::SOLID_SURFACE ) );
+    boundaryMap.insert( std::pair< std::string, int >( "pole", BC::POLE ) );
+    boundaryMap.insert( std::pair< std::string, int >( "no", BC::NO_BOUNDARY ) );
+    boundaryMap.insert( std::pair< std::string, int >( "farfield", BC::FARFIELD ) );
+    boundaryMap.insert( std::pair< std::string, int >( "overset", BC::OVERSET ) );
+    boundaryMap.insert( std::pair< std::string, int >( "generic1", BC::GENERIC_1 ) );
+    boundaryMap.insert( std::pair< std::string, int >( "generic2", BC::GENERIC_2 ) );
+    boundaryMap.insert( std::pair< std::string, int >( "generic3", BC::GENERIC_3 ) );
 }
 
 int StrBcSetting::GetBcType( const std::string & bcTypeName )

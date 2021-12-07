@@ -41,7 +41,7 @@ License
 #include "GridPara.h"
 #include <iostream>
 
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 

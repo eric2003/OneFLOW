@@ -1483,7 +1483,7 @@ void ScalarGrid::ReconstructNode( ScalarGrid * ggrid )
 	int count = 0;
 	for ( std::set<int>::iterator iter = nodeset.begin(); iter != nodeset.end(); ++ iter )
 	{
-		global_local_node.insert( pair<int, int>( *iter, count ++ ) );
+		global_local_node.insert( std::pair<int, int>( *iter, count ++ ) );
 	}
 
 	for ( int iFace = 0; iFace < nFaces; ++ iFace )

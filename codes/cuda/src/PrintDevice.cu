@@ -2,7 +2,6 @@
 
 #include <cuda_runtime.h>
 #include <iostream>
-using namespace std;
 
 void printDeviceProp(const cudaDeviceProp& prop)
 {

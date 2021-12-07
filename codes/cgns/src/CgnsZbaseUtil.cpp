@@ -33,7 +33,6 @@ License
 #include "GridPara.h"
 #include "GridMediator.h"
 #include <iostream>
-using namespace std;
 
 BeginNameSpace( ONEFLOW )
 #ifdef ENABLE_CGNS

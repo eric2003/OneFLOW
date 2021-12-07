@@ -24,7 +24,6 @@ License
 #include "CgnsBase.h"
 #include <iostream>
 #include <iomanip>
-using namespace std;
 
 BeginNameSpace( ONEFLOW )
 

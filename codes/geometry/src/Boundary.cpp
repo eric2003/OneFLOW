@@ -117,7 +117,7 @@ BcTypeMap::~BcTypeMap()
 
 void BcTypeMap::Init()
 {
-    typedef pair< int, int > IntPair;
+    typedef std::pair< int, int > IntPair;
 
     cgns2OneFlow.insert( IntPair( CGNS_ENUMV( BCTypeUserDefined       ), BC::GENERIC_2       ) );
     cgns2OneFlow.insert( IntPair( CGNS_ENUMV( BCSymmetryPlane         ), BC::SYMMETRY        ) );

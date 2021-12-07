@@ -40,7 +40,7 @@ License
 #include "BgGrid.h"
 #include <iostream>
 #include <iomanip>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 

@@ -29,7 +29,7 @@ License
 #include "Configure.h"
 #include <string>
 #include <vector>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 

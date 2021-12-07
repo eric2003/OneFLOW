@@ -39,7 +39,7 @@ License
 #include "Boundary.h"
 #include <algorithm>
 #include <iomanip>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 

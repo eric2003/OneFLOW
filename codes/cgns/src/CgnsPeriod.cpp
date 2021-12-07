@@ -45,7 +45,7 @@ F2FMap::~F2FMap()
 
 void F2FMap::AddFacePair(int faceId1, int faceId2)
 {
-    this->face_pair.insert( pair<int, int>(faceId1, faceId2) );
+    this->face_pair.insert( std::pair<int, int>(faceId1, faceId2) );
 }
 
 int F2FMap::FindPeriodFace( int faceId )

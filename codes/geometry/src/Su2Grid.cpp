@@ -89,7 +89,7 @@ VTK_CgnsMap::~VTK_CgnsMap()
 
 void VTK_CgnsMap::Init()
 {
-    typedef pair< int, int > IntPair;
+    typedef std::pair< int, int > IntPair;
 
     vtk2Cgns.insert( IntPair( VTK_TYPE::VERTEX       , NODE    ) );
     vtk2Cgns.insert( IntPair( VTK_TYPE::LINE         , BAR_2   ) );
@@ -287,14 +287,14 @@ void Su2Bc::Init()
 {
     bcList.insert("HEATFLUX");
     bcList.insert("FAR");
-    typedef pair< std::string, int > String2IntPair;
+    typedef std::pair< std::string, int > String2IntPair;
     bcNameToValueMap.insert(String2IntPair("HEATFLUX", BCWall));
     bcNameToValueMap.insert(String2IntPair("FAR", BCFarfield));
 }
 
 void Su2Bc::AddBc(std::string& geoName, std::string& bcName)
 {
-    typedef pair< std::string, std::string > StringPair;
+    typedef std::pair< std::string, std::string > StringPair;
     bcMap.insert(StringPair(geoName, bcName));
 }
 

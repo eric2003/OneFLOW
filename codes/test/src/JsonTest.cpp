@@ -23,7 +23,7 @@ along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 #include "json/json.h"
 #include <iostream>
 #include <fstream>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 

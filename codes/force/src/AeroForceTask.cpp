@@ -54,7 +54,7 @@ License
 #include <sstream>
 #include <iomanip>
 #include <iostream>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 

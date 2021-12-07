@@ -27,7 +27,6 @@ License
 #include "Parallel.h"
 #include <sstream>
 #include "LogFile.h"
-using namespace std;
 
 BeginNameSpace( ONEFLOW )
 

@@ -24,7 +24,6 @@ License
 #include "Configure.h"
 #include <string>
 #include <map>
-using namespace std;
 
 BeginNameSpace( ONEFLOW )
 

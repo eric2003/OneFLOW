@@ -36,7 +36,7 @@ License
 #include "FileIO.h"
 #include "FileUtil.h"
 #include <iostream>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 

@@ -26,7 +26,7 @@ License
 #include "FileIO.h"
 #include <cmath>
 #include <iostream>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 

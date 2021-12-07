@@ -23,7 +23,7 @@ along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 #include "Configure.h"
 #include <map>
 #include <string>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 

@@ -38,7 +38,7 @@ License
 #include "UNsCom.h"
 #include <sstream>
 #include <iomanip>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 

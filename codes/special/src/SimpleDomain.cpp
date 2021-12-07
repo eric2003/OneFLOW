@@ -507,7 +507,7 @@ void DomData::CalcBcCoor( CoorMap * coorMap, int closedCurve )
 
         CalcCoor coor;
         coor.SetCoor( mi, mj, mk );
-        coorMap->insert( pair<int, CalcCoor>( p2, coor ) );
+        coorMap->insert( std::pair<int, CalcCoor>( p2, coor ) );
 
         if ( IsCtrlPoint( p2 ) )
         {

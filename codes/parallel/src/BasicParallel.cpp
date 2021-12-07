@@ -22,7 +22,7 @@ License
 
 #include "BasicParallel.h"
 #include <iostream>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 

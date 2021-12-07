@@ -103,7 +103,7 @@ void Block3D::ConstructTopo()
             {
                 IntSet iset;
                 iset.insert( iMDomain );
-                p2dMap.insert( pair< int, IntSet >( pt, iset ) );
+                p2dMap.insert( std::pair< int, IntSet >( pt, iset ) );
             }
             else
             {
@@ -245,7 +245,7 @@ void Block3D::CalcBlkDim()
         int k = kList[ iPoint ];
         CalcCoor c;
         c.SetCoor( i, j, k );
-        this->coorMap.insert( pair<int, CalcCoor>( pt, c ) );
+        this->coorMap.insert( std::pair<int, CalcCoor>( pt, c ) );
     }
 
     for ( int iMDomain = 0; iMDomain < nMDomain; ++ iMDomain )

@@ -26,7 +26,6 @@ License
 #include "CgnsFile.h"
 #include "Stop.h"
 #include <iostream>
-using namespace std;
 
 BeginNameSpace( ONEFLOW )
 #ifdef ENABLE_CGNS
