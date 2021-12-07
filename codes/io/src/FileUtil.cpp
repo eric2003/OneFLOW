@@ -83,8 +83,8 @@ std::string HX_GetExePath()
 #else
     std::size_t count = readlink( "/proc/self/exe", buffer, FILENAME_MAX );
 #endif
-    string::size_type pos = string( buffer ).find_last_of( "\\/" );
-    return string( buffer ).substr( 0, pos);
+    std::string::size_type pos = std::string( buffer ).find_last_of( "\\/" );
+    return std::string( buffer ).substr( 0, pos);
 }
 
 
@@ -178,7 +178,7 @@ std::string RemoveEndSlash( const std::string & fileName )
 
 void GetFileNameExtension( const std::string & fullName, std::string & mainName, std::string & extensionName, const std::string & fileNameSeparator )
 {
-    basic_string <char>::size_type index;
+    std::basic_string <char>::size_type index;
 
     index         = fullName.find_last_of( fileNameSeparator );
     mainName      = fullName.substr( 0, index );

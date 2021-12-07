@@ -39,7 +39,7 @@ License
 #include "GridPara.h"
 #include "HXCgns.h"
 #include <fstream>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 

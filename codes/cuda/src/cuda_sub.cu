@@ -4,7 +4,7 @@
 #include <cuda_runtime.h>
 #include "cuda_sub.h"
 #include <iostream>
-using namespace std;
+
 
 void GetCudaDeviceCount( int &num_gpus )
 {

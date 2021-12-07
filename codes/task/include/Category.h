@@ -25,7 +25,7 @@ License
 #include "Configure.h"
 #include "HXDefine.h"
 #include <map>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 

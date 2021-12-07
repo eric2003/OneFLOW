@@ -29,7 +29,7 @@ License
    #include <string.h>
 #endif
 #include <fstream>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 DataPage::DataPage()

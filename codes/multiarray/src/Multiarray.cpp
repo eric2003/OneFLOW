@@ -21,7 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "Memop.h"
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 

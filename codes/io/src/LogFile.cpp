@@ -25,7 +25,7 @@ License
 #include "Parallel.h"
 #include "Prj.h"
 #include <iostream>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 

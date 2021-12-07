@@ -27,7 +27,7 @@ License
 #include "Mid.h"
 #include <vector>
 #include <set>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 class PointFactory;

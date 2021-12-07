@@ -41,7 +41,7 @@ License
 #include "Prj.h"
 #include "HXPointer.h"
 #include <iostream>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 
@@ -301,7 +301,7 @@ int GetIgnoreNoBc()
     return ONEFLOW::GetDataValue< int >( "ignoreNoBc" );
 }
 
-string GetTargetGridFileName()
+std::string GetTargetGridFileName()
 {
     return ONEFLOW::GetDataValue< std::string >( "targetGridFileName" );
 }

@@ -30,7 +30,7 @@ License
 #include <vector>
 #include <set>
 #include <map>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 

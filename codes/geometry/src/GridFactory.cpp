@@ -35,7 +35,7 @@ License
 #include "HXMath.h"
 #include "Partition.h"
 #include <iostream>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 

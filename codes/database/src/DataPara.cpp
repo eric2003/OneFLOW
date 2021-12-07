@@ -24,7 +24,7 @@ License
 #include "DataObject.h"
 #include "DataBaseType.h"
 #include <iostream>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 

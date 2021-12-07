@@ -23,7 +23,7 @@ License
 #include "MpiTest.h"
 #include "mpi.h"
 #include <iostream>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 

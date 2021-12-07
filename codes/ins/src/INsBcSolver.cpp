@@ -31,7 +31,7 @@ along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 #include "Stop.h"
 #include "Boundary.h"
 #include <iostream>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 

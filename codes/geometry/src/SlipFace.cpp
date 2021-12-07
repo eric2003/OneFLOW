@@ -38,7 +38,7 @@ License
 #include "HXMath.h"
 #include "DataStorage.h"
 #include <algorithm>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 

@@ -37,7 +37,7 @@ void RegisterFileTask()
     REGISTER_DATA_CLASS( SetFile );
 }
 
-string GetParallelFileName( const std::string & fileNameVar )
+std::string GetParallelFileName( const std::string & fileNameVar )
 {
     std::string fileName = GetDataValue< std::string >( fileNameVar );
 

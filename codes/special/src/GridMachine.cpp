@@ -31,7 +31,7 @@ License
 #include "FileIO.h"
 #include "HXMath.h"
 #include <iostream>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 

@@ -29,7 +29,7 @@ License
 #include "Task.h"
 #include <vector>
 #include <string>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 

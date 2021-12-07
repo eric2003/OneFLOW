@@ -28,7 +28,7 @@ License
 #include "Dimension.h"
 #include "Stop.h"
 #include <algorithm>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 

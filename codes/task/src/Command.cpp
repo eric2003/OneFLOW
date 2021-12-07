@@ -26,7 +26,7 @@ License
 #include "TimeSpan.h"
 #include <iostream>
 #include <string>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 

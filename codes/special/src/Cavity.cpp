@@ -40,7 +40,7 @@ License
 #include "Plot3D.h"
 #include "DataBase.h"
 #include <iostream>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 

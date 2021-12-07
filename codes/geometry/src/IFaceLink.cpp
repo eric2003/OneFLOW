@@ -29,7 +29,7 @@ License
 #include "NodeMesh.h"
 #include <algorithm>
 #include <iostream>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 IFaceLink::IFaceLink( Grids & grids )

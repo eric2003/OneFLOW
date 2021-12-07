@@ -35,7 +35,7 @@ License
 #include "UnsGrid.h"
 #include "DataBase.h"
 #include <iostream>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 

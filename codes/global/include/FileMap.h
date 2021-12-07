@@ -23,7 +23,7 @@ License
 #include "HXClone.h"
 #include <ios>
 #include <string>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 
@@ -31,7 +31,7 @@ DEFINE_DATA_CLASS( SetFile );
 
 void RegisterFileTask();
 
-string GetParallelFileName( const std::string & fileNameVar );
+std::string GetParallelFileName( const std::string & fileNameVar );
 
 std::ios_base::openmode GetOpenMode( const std::string & openModeName );
 

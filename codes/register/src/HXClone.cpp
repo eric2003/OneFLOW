@@ -22,11 +22,11 @@ License
 
 #include "HXClone.h"
 #include <iostream>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 
-map< std::string, HXClone * > * HXClone::classMap = 0;
+std::map< std::string, HXClone * > * HXClone::classMap = 0;
 
 HXClone * HXClone::SafeClone( const std::string & type )
 {

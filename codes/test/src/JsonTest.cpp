@@ -104,7 +104,7 @@ void readFileJson()
     Json::CharReaderBuilder reader;
     Json::Value root;
 
-    ifstream f;
+    std::ifstream f;
     f.open( "test.json", std::ios::in );
     if ( ! f.is_open() )
     {
@@ -132,7 +132,7 @@ void readFileJson()
         std::cout << " ss = " << ss << "\n";
     }
 
-    ofstream os;
+    std::ofstream os;
     os.open("1.json", std::ios::out);
     Json::StreamWriterBuilder builder;
     std::unique_ptr<Json::StreamWriter> writer( builder.newStreamWriter() );

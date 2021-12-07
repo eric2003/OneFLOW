@@ -26,7 +26,7 @@ License
 #include <string>
 #include <map>
 #include <set>
-using namespace std;
+
 BeginNameSpace( ONEFLOW )
 
 class BC

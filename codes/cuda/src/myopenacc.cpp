@@ -10,7 +10,7 @@
 #include <stdlib.h>
 #include <omp.h>
 #include "laplace2d.h"
-using namespace std;
+
 
 #ifdef ENABLE_OPENACC
 void test_open_acc()

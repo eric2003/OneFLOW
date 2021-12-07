@@ -26,7 +26,7 @@ License
 #include "FileUtil.h"
 #include "SimuCtrl.h"
 #include <iostream>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 

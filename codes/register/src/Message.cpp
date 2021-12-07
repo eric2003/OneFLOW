@@ -24,8 +24,8 @@ License
 #include "FileIO.h"
 
 BeginNameSpace( ONEFLOW )
-map< std::string, int > * MessageMap::nameMap = 0;
-map< int, std::string > * MessageMap::idMap = 0;
+std::map< std::string, int > * MessageMap::nameMap = 0;
+std::map< int, std::string > * MessageMap::idMap = 0;
 
 MessageMap::MessageMap()
 {
@@ -78,7 +78,7 @@ int MessageMap::GetMsgId( const std::string & msgName )
     return actionIndex;
 }
 
-string MessageMap::GetMsgName( int msgId )
+std::string MessageMap::GetMsgName( int msgId )
 {
     std::map< int, std::string >::iterator iter = MessageMap::idMap->find( msgId );
     if ( iter == MessageMap::idMap->end() )

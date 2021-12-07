@@ -24,7 +24,7 @@ License
 #include "Ctrl.h"
 #include "DataBase.h"
 #include <string>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 

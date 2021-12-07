@@ -32,7 +32,7 @@ License
 #include "SolverDef.h"
 #include "LogFile.h"
 #include <algorithm>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 

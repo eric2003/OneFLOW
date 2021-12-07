@@ -38,7 +38,7 @@ License
 #include "BcRecord.h"
 #include <iostream>
 
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 #ifdef ENABLE_CGNS

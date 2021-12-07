@@ -24,7 +24,7 @@ License
 #pragma once
 #include "HXDefine.h"
 #include <vector>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 class FaceTopo;

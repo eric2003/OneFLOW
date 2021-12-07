@@ -24,7 +24,7 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-map< int, int > * Category::data = 0;
+std::map< int, int > * Category::data = 0;
 Category::Category()
 {
     ;

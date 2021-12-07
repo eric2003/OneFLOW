@@ -30,7 +30,7 @@ License
 #include "Multigrid.h"
 #include "BcData.h"
 #include <iostream>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 

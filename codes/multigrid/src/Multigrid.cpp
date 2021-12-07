@@ -37,7 +37,7 @@ License
 #include "BgField.h"
 #include "TimeSpan.h"
 #include <iostream>
-using namespace std;
+
 
 
 BeginNameSpace( ONEFLOW )

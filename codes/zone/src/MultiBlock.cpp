@@ -31,7 +31,7 @@ along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 #include "InterFace.h"
 #include "SlipFace.h"
 #include <iostream>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 
@@ -132,7 +132,7 @@ void MultiBlock::InitOversetTopo()
 {
 }
 
-string GetGridFileName()
+std::string GetGridFileName()
 {
     return ONEFLOW::GetDataValue< std::string >( "gridFileName" );
 }

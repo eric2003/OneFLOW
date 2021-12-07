@@ -41,7 +41,7 @@ License
 #include "INsCom.h"
 #include <sstream>
 #include <iomanip>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 

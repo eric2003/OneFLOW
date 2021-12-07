@@ -54,7 +54,7 @@ int ActionMap::GetActionId( const std::string & name )
     return ActionMap::imp->GetActionId( name );
 }
 
-string ActionMap::GetActionName( int id )
+std::string ActionMap::GetActionName( int id )
 {
     return ActionMap::imp->GetActionName( id );
 }
@@ -104,7 +104,7 @@ int ActionMapImp::GetActionId( const std::string & actionName )
     return actionId;
 }
 
-string ActionMapImp::GetActionName( int actionIndex )
+std::string ActionMapImp::GetActionName( int actionIndex )
 {
     std::map< int, std::string >::iterator iter = this->idMap->find( actionIndex );
     if ( iter == this->idMap->end() )

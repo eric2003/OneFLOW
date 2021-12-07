@@ -25,7 +25,7 @@ License
 #include "HXDefine.h"
 #include "HXMath.h"
 #include <vector>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 

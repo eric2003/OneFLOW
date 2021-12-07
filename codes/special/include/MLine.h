@@ -25,7 +25,7 @@ License
 #include "CalcCoor.h"
 #include "SimpleDomain.h"
 #include <map>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 

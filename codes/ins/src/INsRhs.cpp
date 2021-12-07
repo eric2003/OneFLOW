@@ -44,7 +44,7 @@ License
 //#include "UINsUnsteady.h"
 #include "UINsBcSolver.h"
 #include <iostream>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 

@@ -24,7 +24,7 @@ License
 #include "FaceSolver.h"
 #include "ElementHome.h"
 #include <iostream>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 

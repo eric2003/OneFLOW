@@ -33,7 +33,7 @@ License
 #include "HXMath.h"
 
 
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 

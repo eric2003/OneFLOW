@@ -31,7 +31,7 @@ along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 #include "HeatFlux.h"
 #include "DataBase.h"
 #include <iostream>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 

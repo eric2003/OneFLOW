@@ -37,7 +37,7 @@ License
 #include <algorithm>
 #include <iostream>
 #include <ctime>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 

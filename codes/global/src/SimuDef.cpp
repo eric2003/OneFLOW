@@ -40,7 +40,7 @@ SimuState::~SimuState()
 
 void SimuState::Init()
 {
-    const string& taskStr = ONEFLOW::GetDataValue< std::string >("simutask");
+    const std::string& taskStr = ONEFLOW::GetDataValue< std::string >("simutask");
     if ( TaskFilter.find(taskStr)!= TaskFilter.end() )
     {
         simutask = TaskFilter.at(taskStr);

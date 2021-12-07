@@ -34,7 +34,7 @@ License
 #include <cstring>
 #include <iostream>
 #include <iomanip>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 
