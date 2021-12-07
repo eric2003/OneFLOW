@@ -23,7 +23,6 @@ License
 #include "HXDefine.h"
 #include "DataBase.h"
 #include <string>
-using namespace std;
 
 BeginNameSpace( ONEFLOW )
 

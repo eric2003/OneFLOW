@@ -20,10 +20,9 @@ License
 
 \*---------------------------------------------------------------------------*/
 #pragma once
-#include "HXDefine.h"
+#include "Configure.h"
 #include "HXArray.h"
 #include <map>
-using namespace std;
 
 BeginNameSpace( ONEFLOW )
 
