@@ -22,11 +22,9 @@ License
 
 
 #pragma once
-#include "HXDefine.h"
 #include "PointFactory.h"
 #include "HXCgns.h"
 #include <map>
-using namespace std;
 
 BeginNameSpace(ONEFLOW)
 

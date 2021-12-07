@@ -22,13 +22,9 @@ License
 
 
 #pragma once
-#include "HXDefine.h"
-#include <vector>
-#include <string>
-#include <fstream>
-#include <map>
 #include "HXCgns.h"
-using namespace std;
+#include "HXDefine.h"
+#include <string>
 
 BeginNameSpace( ONEFLOW )
 

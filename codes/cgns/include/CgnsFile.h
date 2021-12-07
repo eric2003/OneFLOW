@@ -25,13 +25,12 @@ License
 #include "HXDefine.h"
 #include <string>
 #include <vector>
-using namespace std;
 
 BeginNameSpace( ONEFLOW )
 
 class CgnsBase;
 
-string GetCgnsFileTypeName( int file_type );
+std::string GetCgnsFileTypeName( int file_type );
 
 class CgnsFile
 {

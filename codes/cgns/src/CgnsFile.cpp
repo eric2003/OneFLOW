@@ -33,7 +33,7 @@ using namespace std;
 
 BeginNameSpace( ONEFLOW )
 
-string GetCgnsFileTypeName( int file_type )
+std::string GetCgnsFileTypeName( int file_type )
 {
     std::string fileTypeName;
     if ( file_type == CG_FILE_ADF )

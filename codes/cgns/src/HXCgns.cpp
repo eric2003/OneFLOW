@@ -21,27 +21,26 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "HXCgns.h"
-using namespace std;
 
 BeginNameSpace( ONEFLOW )
 #ifdef ENABLE_CGNS
 
-string GetCgnsPointSetName( int cgnsPointSetType )
+std::string GetCgnsPointSetName( int cgnsPointSetType )
 {
     return ONEFLOW::PointSetTypeName[ cgnsPointSetType ];
 }
 
-string GetCgnsBcName( int cgnsBcType )
+std::string GetCgnsBcName( int cgnsBcType )
 {
     return ONEFLOW::BCTypeName[ cgnsBcType ];
 }
 
-string GetCgnsGridLocationName( int cgnsGridLocation )
+std::string GetCgnsGridLocationName( int cgnsGridLocation )
 {
     return ONEFLOW::GridLocationName[ cgnsGridLocation ];
 }
 
-string GetCgnsZoneTypeName( int cgnsZoneType )
+std::string GetCgnsZoneTypeName( int cgnsZoneType )
 {
     return ONEFLOW::ZoneTypeName[ cgnsZoneType ];
 }

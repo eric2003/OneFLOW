@@ -25,7 +25,6 @@ License
 #include "HXDefine.h"
 #include "HXCgns.h"
 #include <string>
-using namespace std;
 
 BeginNameSpace( ONEFLOW )
 
