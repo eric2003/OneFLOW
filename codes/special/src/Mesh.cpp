@@ -377,7 +377,7 @@ void Mesh::ConstructTopology()
 {
     UInt numberOfNodes = this->nodeMesh->GetNumberOfNodes();
     UInt numberOfCells = this->cellMesh->GetNumberOfCells();
-    set< HXSort< IntField > > faceSet;
+    std::set< HXSort< IntField > > faceSet;
     HXSort< IntField > faceForSorting;
 
     CellTopo * cellTopo = this->cellMesh->cellTopo;
@@ -407,7 +407,7 @@ void Mesh::ConstructTopology()
             std::sort( faceNodeIndexArraySort.begin(), faceNodeIndexArraySort.end() );
             faceForSorting.value = faceNodeIndexArraySort;
 
-            set< HXSort< IntField > >::iterator iter = faceSet.find( faceForSorting );
+            std::set< HXSort< IntField > >::iterator iter = faceSet.find( faceForSorting );
             if ( iter == faceSet.end() )
             {
                 faceForSorting.index = faceSet.size();

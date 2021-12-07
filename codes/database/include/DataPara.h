@@ -62,7 +62,7 @@ public:
     DataPara();
     ~DataPara();
 public:
-    typedef set < DataV *, CompareDataV > DataSET;
+    typedef std::set < DataV *, CompareDataV > DataSET;
 protected:
     DataSET * dataSet;
 public:

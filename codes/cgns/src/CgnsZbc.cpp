@@ -166,7 +166,7 @@ void CgnsZbc::FillInterface( BcRegion * bcRegion, cgsize_t * ipnts, cgsize_t * i
     this->FillRegion( & trm.s, ipnts, dimension );
     this->FillRegion( & trm.t, ipntsdonor, dimension );
 
-    // set up Transform
+    // std::set up Transform
     itranfrm[ 0 ] = trm.itransform[ 0 ];
     itranfrm[ 1 ] = trm.itransform[ 1 ];
     itranfrm[ 2 ] = trm.itransform[ 2 ];

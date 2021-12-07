@@ -64,7 +64,7 @@ public:
     PointEdgeClass();
     ~PointEdgeClass();
 public:
-    set<int> idset;
+    std::set<int> idset;
     vector<int> idlist;
 public:
     void EdgeToPoint( vector< IntField > & edgeList );
@@ -83,11 +83,11 @@ public:
     vector< HXSort< Real > > xsList;
     vector< Real > dsList;
     vector< VectDir > vectDirList;
-    set< int > idset;
+    std::set< int > idset;
     vector< int > newidlist;
-    vector< set< int > > p2p;
+    vector< std::set< int > > p2p;
     vector< IntField > extremeEdgeList;
-    set < HXSort< IntField > > searchEdgeList;
+    std::set< HXSort< IntField > > searchEdgeList;
     PointEdgeClass pec;
     string file_prestr;
 public:

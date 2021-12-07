@@ -69,7 +69,7 @@ public:
 
     IntField faceType;
     IntField elementType;
-    set< HXSort< IntField > > * faceSet;
+    std::set< HXSort< IntField > > * faceSet;
 public:
     RealField xN, yN, zN;
 public:

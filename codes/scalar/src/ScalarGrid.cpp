@@ -1481,7 +1481,7 @@ void ScalarGrid::ReconstructNode( ScalarGrid * ggrid )
 
 	map<int, int> global_local_node;
 	int count = 0;
-	for ( set<int>::iterator iter = nodeset.begin(); iter != nodeset.end(); ++ iter )
+	for ( std::set<int>::iterator iter = nodeset.begin(); iter != nodeset.end(); ++ iter )
 	{
 		global_local_node.insert( pair<int, int>( *iter, count ++ ) );
 	}
@@ -1497,7 +1497,7 @@ void ScalarGrid::ReconstructNode( ScalarGrid * ggrid )
 		}
 	}
 
-	for ( set<int>::iterator iter = nodeset.begin(); iter != nodeset.end(); ++ iter )
+	for ( std::set<int>::iterator iter = nodeset.begin(); iter != nodeset.end(); ++ iter )
 	{
 		int iNode = *iter;
 		Real xm = ggrid->xn[ iNode ];

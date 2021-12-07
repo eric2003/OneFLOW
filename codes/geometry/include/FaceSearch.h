@@ -55,7 +55,7 @@ public:
     ~FaceSearchBasic();
 public:
     HXVector< FaceSort * > faceArray;
-    set< FaceSort * , CompareFace > faceSet;
+    std::set< FaceSort * , CompareFace > faceSet;
 public:
     int AddFace( const IntField & faceNode );
     int FindFace( const IntField & faceNode );

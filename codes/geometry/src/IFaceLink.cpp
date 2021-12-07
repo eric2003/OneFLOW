@@ -70,7 +70,7 @@ void IFaceLink::CreateLink( IntField & faceNode, int zid, int lCount )
 
     std::sort( faceNode.begin(), faceNode.end() );
     HXSort< IntField > face( faceNode, nTIFace );
-    set < HXSort< IntField > >::iterator iter = this->inFaceList.find( face );
+    std::set < HXSort< IntField > >::iterator iter = this->inFaceList.find( face );
 
     if ( iter == this->inFaceList.end() )
     {

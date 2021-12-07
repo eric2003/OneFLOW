@@ -102,7 +102,7 @@ Face2D * BlkFaceSolver::GetBlkFace2D( int blk, int face_id )
 
 int BlkFaceSolver::FindFace( Mid<int> & face )
 {
-    set< Mid<int> >::iterator iter = this->refFaces.find( face );
+    std::set< Mid<int> >::iterator iter = this->refFaces.find( face );
     if ( iter == this->refFaces.end() )
     {
         return ONEFLOW::INVALID_INDEX;
@@ -116,7 +116,7 @@ int BlkFaceSolver::FindFaceId( IntField & face )
     fMid.data = face;
     std::sort( fMid.data.begin(), fMid.data.end() );
 
-    set< Mid<int> >::iterator iter = this->refFaces.find( fMid );
+    std::set< Mid<int> >::iterator iter = this->refFaces.find( fMid );
     if ( iter == this->refFaces.end() )
     {
         return ONEFLOW::INVALID_INDEX;
@@ -232,13 +232,13 @@ int BlkFaceSolver::FindLineId( IntField & line )
     return this->FindId( line, this->refLines );
 }
 
-int BlkFaceSolver::FindId( IntField & varlist, set< Mid<int> > &refSets )
+int BlkFaceSolver::FindId( IntField & varlist, std::set< Mid<int> > &refSets )
 {
     Mid<int> fMid( varlist.size(), 0 );
     fMid.data = varlist;
     std::sort( fMid.data.begin(), fMid.data.end() );
 
-    set< Mid<int> >::iterator iter = refSets.find( fMid );
+    std::set< Mid<int> >::iterator iter = refSets.find( fMid );
     if ( iter == refSets.end() )
     {
         return ONEFLOW::INVALID_INDEX;
@@ -261,7 +261,7 @@ void BlkFaceSolver::MyFaceAlloc()
     }
     this->line2Face.resize( nLine );
 
-    //The reference line segment set is set up to facilitate the search
+    //The reference line segment std::set is std::set up to facilitate the search
     for ( int i = 0; i < nLine; ++ i )
     {
         IntField & line = this->lineList[ i ];

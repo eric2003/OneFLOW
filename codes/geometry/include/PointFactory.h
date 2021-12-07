@@ -59,7 +59,7 @@ public:
     ~PointBasic();
 public:
     typedef Point< Real > PointType;
-    typedef set< PointType, PointCompare< Real > > PointSet;
+    typedef std::set< PointType, PointCompare< Real > > PointSet;
 public:
     PointSet pointSet;
     HXVector< PointType > pointList;

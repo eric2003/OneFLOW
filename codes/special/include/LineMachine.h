@@ -44,7 +44,7 @@ public:
     IntField dimList;
     RealField ds1List, ds2List;
 public:
-    set< Mid<int> > refLines;
+    std::set< Mid<int> > refLines;
     LinkField lineList; 
 public:
     int AddLine( int p1, int p2 );

@@ -195,7 +195,7 @@ void CommonNameMap::AddName( const std::string & name )
     data.value = name;
     data.index = 0;
 
-    set< HXSort< std::string > >::iterator iter = this->stringMap.find( data );
+    std::set< HXSort< std::string > >::iterator iter = this->stringMap.find( data );
 
     if ( iter == this->stringMap.end() )
     {
@@ -210,7 +210,7 @@ int CommonNameMap::FindNameId( const std::string & name )
     data.value = name;
     data.index = 0;
 
-    set< HXSort< std::string > >::iterator iter = this->stringMap.find( data );
+    std::set< HXSort< std::string > >::iterator iter = this->stringMap.find( data );
 
     if ( iter == this->stringMap.end() )
     {
@@ -227,7 +227,7 @@ void DumpRegion( const std::string & fileName, CommonNameMap & nameMap )
     std::fstream file;
     ONEFLOW::OpenPrjFile( file, fileName, std::ios_base::out );
 
-    set< HXSort< std::string > > & stringMap = nameMap.GetNameMap();
+    std::set< HXSort< std::string > > & stringMap = nameMap.GetNameMap();
 
     file << stringMap.size() << endl;
 

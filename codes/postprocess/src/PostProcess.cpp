@@ -156,7 +156,7 @@ void PointEdgeClass::EdgeToPoint( vector< IntField > & edgeList )
         this->idset.insert( pq[ 1 ] );
     }
 
-    for ( set<int>::iterator iter = idset.begin(); iter != idset.end(); ++ iter )
+    for ( std::set<int>::iterator iter = idset.begin(); iter != idset.end(); ++ iter )
     {
         this->idlist.push_back( * iter );
     }
@@ -301,7 +301,7 @@ void CurveData::AddExtremeEdge( int p, int q )
 
     HXSort< IntField > edge( pq, id );
 
-    set < HXSort< IntField > >::iterator iter = this->searchEdgeList.find( edge );
+    std::set < HXSort< IntField > >::iterator iter = this->searchEdgeList.find( edge );
 
     if ( iter == this->searchEdgeList.end() )
     {
@@ -322,7 +322,7 @@ bool CurveData::FindEdge( int p, int q )
 
     HXSort< IntField > edge( pq, id );
 
-    set < HXSort< IntField > >::iterator iter = this->searchEdgeList.find( edge );
+    std::set < HXSort< IntField > >::iterator iter = this->searchEdgeList.find( edge );
 
     return iter != this->searchEdgeList.end();
 }
@@ -380,7 +380,7 @@ bool CurveData::FindNearestPoint( int p0, int &pNearest )
     if ( idset.empty() ) return false;
     Real minds = LARGE;
     pNearest = -1;
-    for ( set< int >::iterator iter = idset.begin(); iter != idset.end(); ++ iter )
+    for ( std::set< int >::iterator iter = idset.begin(); iter != idset.end(); ++ iter )
     {
         int p1 = ( * iter );
         Real dx = xList[ p1 ] - xList[ p0 ];
@@ -411,7 +411,7 @@ int CurveData::FindNextExtremeEdgePoint( int p1, int p2 )
     {
         cout << " p2 = " << p2 << "p2p[ p2 ].size()=" << p2p[ p2 ].size() << "\n";
     }
-    for ( set<int>::iterator iter = p2p[ p2 ].begin(); iter != p2p[ p2 ].end(); ++ iter )
+    for ( std::set<int>::iterator iter = p2p[ p2 ].begin(); iter != p2p[ p2 ].end(); ++ iter )
     {
         int p3 = ( * iter );
         if ( p3 != p1 ) return p3;
@@ -435,7 +435,7 @@ bool CurveData::FindNextPoint( int p1, int & pNext, VectDir * vd )
     if ( idset.empty() ) return false;
     Real minds = LARGE;
     pNext = -1;
-    for ( set< int >::iterator iter = idset.begin(); iter != idset.end(); ++ iter )
+    for ( std::set< int >::iterator iter = idset.begin(); iter != idset.end(); ++ iter )
     {
         int p2 = ( * iter );
         Real dx = xList[ p2 ] - xList[ p1 ];
@@ -463,7 +463,7 @@ bool CurveData::FindNextPoint( int p1, int & pNext, VectDir * vd )
 
     minds = LARGE;
     pNext = -1;
-    for ( set< int >::iterator iter = idset.begin(); iter != idset.end(); ++ iter )
+    for ( std::set< int >::iterator iter = idset.begin(); iter != idset.end(); ++ iter )
     {
         int p2 = ( * iter );
         vecd.dx = xList[ p2 ] - xList[ p1 ];

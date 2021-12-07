@@ -36,7 +36,7 @@ FaceSolver::FaceSolver()
     this->faceBcType = new IntField();
     this->childFid = new LinkField();
 
-    this->refFaces = new set< Mid<int> >();
+    this->refFaces = new std::set< Mid<int> >();
     this->faceTopo = new FaceTopo();
 }
 
@@ -52,7 +52,7 @@ FaceSolver::~FaceSolver()
 
 int FaceSolver::FindFace( Mid<int> & face )
 {
-    set< Mid<int> >::iterator iter = this->refFaces->find( face );
+    std::set< Mid<int> >::iterator iter = this->refFaces->find( face );
     if ( iter == this->refFaces->end() )
     {
         return ONEFLOW::INVALID_INDEX;

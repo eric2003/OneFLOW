@@ -129,7 +129,7 @@ void BcVisual::ResolveElementEdge()
     int nFaces = this->f2n.size();
     int nSize = 2;
 
-    set< Mid<int> > edgeSet;
+    std::set< Mid<int> > edgeSet;
 
     for ( int fId = 0; fId < nFaces; ++ fId )
     {
@@ -156,7 +156,7 @@ void BcVisual::ResolveElementEdge()
             edge.data = sortedNodeId;
 
             int  edgeIndex;
-            set< Mid<int> >::iterator iter = edgeSet.find( edge );
+            std::set< Mid<int> >::iterator iter = edgeSet.find( edge );
             if ( iter == edgeSet.end() )
             {
                 edgeIndex = -1;
@@ -200,7 +200,7 @@ void BcVisual::Calcf2n( int bcType )
     BcRecord * bcRecord = faceTopo->bcManager->bcRecord;
 
     IntField localf2n( 4 );
-    set< HXSort< int > > sets;
+    std::set< HXSort< int > > sets;
     HXSort< int > data;
 
     this->f2n.resize( 0 );
@@ -220,7 +220,7 @@ void BcVisual::Calcf2n( int bcType )
             int gId = f2n[ iFace ][ iNode ];
 
             data.value = gId;
-            set< HXSort< int > >::iterator iter = sets.find( data );
+            std::set< HXSort< int > >::iterator iter = sets.find( data );
 
             if ( iter == sets.end() )
             {
@@ -379,7 +379,7 @@ void BcVisual::DumpSeveralElement()
     IntField nList, nList1, nList2;
 
     IntField localf2n( 4 );
-    set< HXSort< int > > sList;
+    std::set< HXSort< int > > sList;
     HXSort< int > data;
     int iCount = 0;
     for ( int e = 0; e < eList.size(); ++ e )
@@ -391,7 +391,7 @@ void BcVisual::DumpSeveralElement()
             int ip = this->f2n[ ee ][ in ];
             nList1.push_back( ip );
             data.value = ip;
-            set< HXSort< int > >::iterator iter = sList.find( data );
+            std::set< HXSort< int > >::iterator iter = sList.find( data );
 
             if ( iter == sList.end() )
             {

@@ -37,7 +37,7 @@ typedef HXVector< IntField > LinkField;
 typedef HXVector< std::string > StringField;
 typedef HXVector< bool > BoolField;
 
-typedef set< int > IntSet;
+typedef std::set< int > IntSet;
 typedef HXVector< IntSet > LinkSet;
 
 typedef void( * VoidFunc )();

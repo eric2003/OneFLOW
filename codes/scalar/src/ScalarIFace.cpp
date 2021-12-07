@@ -146,14 +146,14 @@ void ScalarIFace::DumpMap( std::map<int,int> & mapin )
 void ScalarIFace::ReconstructNeighbor()
 {
     int nSize = zones.size();
-    set<int> nei_zoneidset;
+    std::set<int> nei_zoneidset;
     for ( int i = 0; i < nSize; ++ i )
     {
         int nei_zoneid = zones[ i ];
         nei_zoneidset.insert( nei_zoneid );
     }
 
-    for ( set<int>::iterator iter = nei_zoneidset.begin(); iter != nei_zoneidset.end(); ++ iter )
+    for ( std::set<int>::iterator iter = nei_zoneidset.begin(); iter != nei_zoneidset.end(); ++ iter )
     {
         ScalarIFaceIJ sij;
         int current_nei_zoneid = * iter;

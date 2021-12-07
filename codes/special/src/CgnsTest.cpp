@@ -513,7 +513,7 @@ int CgnsTest::read_bcpnts_unst()
             &iptset,&npts,normalindex,&normallistflag,&normaldatatype,&ndataset);
         if (iptset != CGNS_ENUMV(PointList))
         {
-            printf("\nError.  For this program, BCs must be set up as PointList type %s\n",
+            printf("\nError.  For this program, BCs must be std::set up as PointList type %s\n",
                 PointSetTypeName[iptset]);
             return 1;
         }
@@ -689,7 +689,7 @@ int CgnsTest::write_grid_unst()
         y,&index_coord);
     cg_coord_write(index_file,index_base,index_zone,CGNS_ENUMV(RealDouble),"CoordinateZ",
         z,&index_coord);
-    /* set element connectivity: */
+    /* std::set element connectivity: */
     /* ---------------------------------------------------------- */
     /* do all the HEXA_8 elements (this part is mandatory): */
     /* maintain SIDS-standard ordering */

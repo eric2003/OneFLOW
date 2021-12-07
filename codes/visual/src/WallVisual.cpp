@@ -50,7 +50,7 @@ void PointDebug::GetPoint( int index, Real & x, Real & y, Real & z )
 
 WallVisual::WallVisual()
 {
-    faceSet = new set< HXSort< IntField > >();
+    faceSet = new std::set< HXSort< IntField > >();
 }
 
 WallVisual::~WallVisual()
@@ -120,7 +120,7 @@ void WallVisual::BuildFaceTopo( IntField & faceNodeIndexArray, int loc_Face, int
     HXSort< IntField > faceForSorting;
     faceForSorting.value = faceNodeIndexArraySort;
 
-    set< HXSort< IntField > >::iterator iter = faceSet->find( faceForSorting );
+    std::set< HXSort< IntField > >::iterator iter = faceSet->find( faceForSorting );
     if ( iter == faceSet->end() )
     {
         UInt oldFaceNumber = faceSet->size();

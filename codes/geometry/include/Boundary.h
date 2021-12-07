@@ -88,7 +88,7 @@ protected:
 public:
     void AddName( const std::string & name );
     int  FindNameId( const std::string & name );
-    set< HXSort< std::string > > & GetNameMap() { return stringMap; }
+    std::set< HXSort< std::string > > & GetNameMap() { return stringMap; }
 };
 
 void DumpRegion( const std::string & fileName, CommonNameMap & nameMap );

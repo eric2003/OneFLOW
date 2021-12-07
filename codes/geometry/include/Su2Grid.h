@@ -139,7 +139,7 @@ public:
     Su2Bc();
     ~Su2Bc();
 public:
-    set< std::string > bcList;
+    std::set< std::string > bcList;
     std::map<std::string, std::string> bcMap;
     std::map<std::string, int> bcNameToValueMap;
 public:

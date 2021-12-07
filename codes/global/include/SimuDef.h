@@ -58,7 +58,7 @@ public:
     SimuState();
     virtual ~SimuState();
 public:
-    //According to the database parameters, set the corresponding value of simutask
+    //According to the database parameters, std::set the corresponding value of simutask
     void Init();
     //Returns the type of task to execute
     TaskEnum Task() const;

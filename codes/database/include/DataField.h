@@ -56,7 +56,7 @@ public:
 class DataField
 {
 public:
-    typedef set < DataF *, CompareDataF > DataSET;
+    typedef std::set < DataF *, CompareDataF > DataSET;
 public:
     DataField();
     ~DataField();
