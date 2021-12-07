@@ -53,7 +53,7 @@ void CWriteFile::Run()
 
 void CWriteFile::ServerWrite()
 {
-    fstream file;
+    std::fstream file;
     ActionState::file = & file;
 
     PIO::OpenPrjFile();

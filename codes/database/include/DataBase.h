@@ -169,6 +169,6 @@ void CreateFieldPointer( TStorage * storage, PointerWrap * pointerWrap, const st
     ONEFLOW::CreateFieldPointer( database, pointerWrap, dataObjectName );
 }
 
-void DumpDataBase( fstream & file );
+void DumpDataBase( std::fstream & file );
 
 EndNameSpace

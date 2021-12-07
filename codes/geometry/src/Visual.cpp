@@ -48,7 +48,7 @@ void Visual::SetNumberOfWords( int numberOfWords )
 
 void Visual::Show( Mesh * mesh )
 {
-    fstream file;
+    std::fstream file;
     file.open( "tecplot.dat", std::ios_base::out );
 
     Visual::DumpTitle( file, mesh );
@@ -60,7 +60,7 @@ void Visual::Show( Mesh * mesh )
     file.clear();
 }
 
-void Visual::DumpTitle( fstream & file, Mesh * mesh )
+void Visual::DumpTitle( std::fstream & file, Mesh * mesh )
 {
     StringField titleOfTecplot;
     titleOfTecplot.push_back( "title=\"THE FLOW FIELD OF ONEFLOW\"" );
@@ -92,14 +92,14 @@ void Visual::DumpTitle( fstream & file, Mesh * mesh )
     file << "TotalNumBoundaryConnections = 0\n";
 }
 
-void Visual::DumpCoordinate( fstream & file, Mesh * mesh )
+void Visual::DumpCoordinate( std::fstream & file, Mesh * mesh )
 {
     Visual::DumpCoordinate( file, mesh->nodeMesh->xN );
     Visual::DumpCoordinate( file, mesh->nodeMesh->yN );
     Visual::DumpCoordinate( file, mesh->nodeMesh->zN );
 }
 
-void Visual::DumpCoordinate( fstream & file, RealField & coordinate )
+void Visual::DumpCoordinate( std::fstream & file, RealField & coordinate )
 {
     UInt numberOfNodes = coordinate.size();
     for ( UInt iNode = 0; iNode < numberOfNodes; ++ iNode )
@@ -111,7 +111,7 @@ void Visual::DumpCoordinate( fstream & file, RealField & coordinate )
     if ( numberOfNodes % Visual::numberOfWords != 0 ) file << endl;
 }
 
-void Visual::DumpFaceNodesLink( fstream & file, Mesh * mesh )
+void Visual::DumpFaceNodesLink( std::fstream & file, Mesh * mesh )
 {
     UInt nodeCount = 0;
     UInt nFaces = mesh->faceMesh->GetNFace();
@@ -128,7 +128,7 @@ void Visual::DumpFaceNodesLink( fstream & file, Mesh * mesh )
     if ( nodeCount % Visual::numberOfWords != 0 ) file << endl;
 }
 
-void Visual::DumpFaceElementLink( fstream & file, Mesh * mesh )
+void Visual::DumpFaceElementLink( std::fstream & file, Mesh * mesh )
 {
     UInt nFaces = mesh->faceMesh->GetNFace();
     UInt numberOfCells = mesh->cellMesh->GetNumberOfCells();
@@ -137,7 +137,7 @@ void Visual::DumpFaceElementLink( fstream & file, Mesh * mesh )
     Visual::DumpFaceElementLink( file, nFaces, numberOfCells, mesh->faceMesh->faceTopo->rCells );
 }
 
-void Visual::DumpFaceElementLink( fstream & file, UInt nFaces, UInt numberOfElements, IntField & faceElementIndex )
+void Visual::DumpFaceElementLink( std::fstream & file, UInt nFaces, UInt numberOfElements, IntField & faceElementIndex )
 {
     for ( UInt iFace = 0; iFace < nFaces; ++ iFace )
     {

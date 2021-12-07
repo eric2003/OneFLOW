@@ -58,8 +58,8 @@ protected:
 public:
     void Read ( void * data, LLong dataSize );
     void Write( void * data, LLong dataSize );
-    void ReadFile ( fstream & file );
-    void WriteFile( fstream & file );
+    void ReadFile ( std::fstream & file );
+    void WriteFile( std::fstream & file );
 
     void ReadString ( std::string & cs );
     void WriteString( std::string & cs );

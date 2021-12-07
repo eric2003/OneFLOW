@@ -82,9 +82,9 @@ public:
     void PushElement( int p1, int p2, int p3, int elementType );
     void PushElement( int p1, int p2, int p3, int p4, int elementType );
 public:
-    void Visual( fstream & file, StringField & titleOfTecplot, RealField2D & qNodeField );
-    void Visual3D( fstream & file, StringField & titleOfTecplot, RealField2D & qNodeField );
-    void VisualLine( fstream & file, StringField & titleOfTecplot, RealField2D & qNodeField );
+    void Visual( std::fstream & file, StringField & titleOfTecplot, RealField2D & qNodeField );
+    void Visual3D( std::fstream & file, StringField & titleOfTecplot, RealField2D & qNodeField );
+    void VisualLine( std::fstream & file, StringField & titleOfTecplot, RealField2D & qNodeField );
 };
 
 EndNameSpace

@@ -217,7 +217,7 @@ void Cylinder::DumpGrid( const std::string & fileName, DomainData * domain )
         }
     }
 
-    fstream file;
+    std::fstream file;
     OpenPrjFile( file, fileName, std::ios_base::out | std::ios_base::binary );
     int nZone = 1;
     int nk = 1;
@@ -235,7 +235,7 @@ void Cylinder::DumpGrid( const std::string & fileName, DomainData * domain )
 
 void Cylinder::DumpBcFile( const std::string & fileName, DomainData * domain, IntField & bcList )
 {
-    fstream file;
+    std::fstream file;
     OpenPrjFile( file, fileName, std::ios_base::out );
     int solver = 1;
     std::string zName = "A";
@@ -260,7 +260,7 @@ void Cylinder::ToTecplot( const std::string & fileName, DomainData * domain )
     int nj = domain->nj;
     int nk = 1;
 
-    fstream file;
+    std::fstream file;
     OpenPrjFile( file, fileName, std::ios_base::out );
     file << " VARIABLES = \"X\" \"Y\" \"Z\"" << "\n";
     file << "ZONE DATAPACKING = BLOCK, I = " << ni << ", J = " << nj << ", K = " << nk << "\n";
@@ -417,7 +417,7 @@ void Cylinder::GeneDomain()
     AlgebraInterpolation( domain_data.x, domain_data.y, domain_data.z, ni, nj, nbx, nby, nbz, this->beta );
 }
 
-void ToTecplot( fstream & file, RealField2D & coor, int ni, int nj, int nk )
+void ToTecplot( std::fstream & file, RealField2D & coor, int ni, int nj, int nk )
 {
     int numberOfWords = 5;
 
@@ -437,7 +437,7 @@ void ToTecplot( fstream & file, RealField2D & coor, int ni, int nj, int nk )
     if ( ( icount + 1 ) % numberOfWords != 0 ) file << "\n";
 }
 
-void DumpBc( fstream &file, int imin, int imax, int jmin, int jmax, int bcType )
+void DumpBc( std::fstream &file, int imin, int imax, int jmin, int jmax, int bcType )
 {
     int width = 5;
     file << setw( width ) << imin << setw( width ) << imax;

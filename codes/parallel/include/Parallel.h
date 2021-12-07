@@ -36,7 +36,7 @@ void HXBcast( DataBook * dataBook, int rootid );
 void HXBcast( DATA_COMPRESS dataCompression, DATA_DECOMPRESS dataDecompression, int rootid );
 
 template< typename T >
-void HXReadBcast( fstream & file, T * field, int nElement, int pid );
+void HXReadBcast( std::fstream & file, T * field, int nElement, int pid );
 
 template< typename T >
 void HXBcast( T * field, int nElement, int pid );
@@ -72,7 +72,7 @@ protected:
 };
 
 template< typename T >
-void HXReadBcast( fstream & file, T * field, int nElement, int pid )
+void HXReadBcast( std::fstream & file, T * field, int nElement, int pid )
 {
     if ( nElement <= 0 ) return;
 

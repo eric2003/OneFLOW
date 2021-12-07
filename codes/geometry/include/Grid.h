@@ -82,8 +82,8 @@ public:
     bool IsTwoD();
     bool IsThreeD();
 public:
-    virtual void ReadGrid ( fstream & file ) {};
-    virtual void WriteGrid( fstream & file ) {};
+    virtual void ReadGrid ( std::fstream & file ) {};
+    virtual void WriteGrid( std::fstream & file ) {};
     virtual void Decode( DataBook * databook ){};
     virtual void Encode( DataBook * databook ){};
     virtual void ReadGrid( DataBook * databook ){};

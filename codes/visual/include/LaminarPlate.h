@@ -41,7 +41,7 @@ public:
     ~LamVelCut();
 public:
     void Dump() override;
-    void Dump( LamData * lamData, fstream & file, int axis ) override;
+    void Dump( LamData * lamData, std::fstream & file, int axis ) override;
 };
 
 class LamFriCut : public CuttingClass
@@ -51,7 +51,7 @@ public:
     ~LamFriCut();
 public:
     void Dump() override;
-    void Dump( LamData * lamData, fstream & file, int axis ) override;
+    void Dump( LamData * lamData, std::fstream & file, int axis ) override;
 };
 
 

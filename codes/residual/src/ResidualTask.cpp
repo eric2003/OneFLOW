@@ -141,7 +141,7 @@ void ResidualTask::DumpFile()
 {
     ostringstream oss;
 
-    fstream file;
+    std::fstream file;
     SolverInfo * solverInfo = SolverInfoFactory::GetSolverInfo( SolverState::tid );
     std::string & fileName = solverInfo->resFileName;
     PIO::OpenPrjFile( file, fileName, std::ios_base::out | std::ios_base::app );

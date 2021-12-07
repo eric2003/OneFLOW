@@ -584,7 +584,7 @@ void FieldSolver::Visualize()
 {
     DataBook * dataBook = new DataBook();
     ActionState::dataBook = dataBook;
-    fstream file;
+    std::fstream file;
     ActionState::file = & file;
 
     RealField q;
@@ -750,7 +750,7 @@ void FieldSolver::Theory( ScalarGrid * grid, Real time, RealField & theory )
 
 void FieldSolver::ToTecplot( RealField & xList, RealField & varlist, std::string const & fileName )
 {
-    fstream file;
+    std::fstream file;
     OpenPrjFile( file, fileName, std::ios_base::out );
 
     int nSize = xList.size();

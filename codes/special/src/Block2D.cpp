@@ -81,7 +81,7 @@ void Block2D::GenerateBlockMesh2D()
 {
 }
 
-void Block2D::DumpBlockMesh2D( fstream &file )
+void Block2D::DumpBlockMesh2D( std::fstream &file )
 {
     file << " VARIABLES = \"X\", \"Y\", \"Z\" \n";
     file << " ZONE I = " << ni << ", J = " << nj << " F = POINT \n";

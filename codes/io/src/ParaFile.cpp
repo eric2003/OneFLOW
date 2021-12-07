@@ -316,7 +316,7 @@ void ReadControlInfo()
 void DumpDataBase()
 {
     DataBase * dataBase = ONEFLOW::GetGlobalDataBase();
-    fstream file;
+    std::fstream file;
     std::string fileName = "/log/database.log";
     PIO::OpenPrjFile( file, fileName, std::ios_base::out );
     dataBase->dataPara->DumpData( file );

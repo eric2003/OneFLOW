@@ -77,7 +77,7 @@ public:
     void SetBlkBcMesh( Block2D * blk2d );
     void SetDomainBcMesh();
     void GenerateSDomainMesh();
-    void GenerateSDomainMesh( fstream & file );
+    void GenerateSDomainMesh( std::fstream & file );
 public:
     void CreateInpFaceList( HXVector< Face2D * > &facelist );
     void CreateInpFaceList1D( HXVector< Face2D * > &facelist );

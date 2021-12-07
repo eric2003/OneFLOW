@@ -153,7 +153,7 @@ void BlkFaceSolver::MyFaceBuildSDomainList()
 void BlkFaceSolver::MyFaceGenerateFaceMesh()
 {
     int nFaces = this->faceList.size();
-    fstream file;
+    std::fstream file;
     OpenPrjFile( file, "grid/facemesh_tecplot.dat", std::ios_base::out );
     for ( int iFace = 0; iFace < nFaces; ++ iFace )
     {
@@ -426,7 +426,7 @@ void BlkFaceSolver::DumpBcInp()
     int flowSolverIndex = 1;
     int width = 5;
 
-    fstream file;
+    std::fstream file;
     OpenPrjFile( file, grid_para.bcFile, std::ios_base::out );
 
     file << setw( width ) << flowSolverIndex << endl;
@@ -447,7 +447,7 @@ void BlkFaceSolver::DumpBcInp2D()
     int flowSolverIndex = 1;
     int width = 5;
 
-    fstream file;
+    std::fstream file;
     OpenPrjFile( file, grid_para.bcFile, std::ios_base::out );
 
     file << setw( width ) << flowSolverIndex << endl;
@@ -464,7 +464,7 @@ void BlkFaceSolver::DumpBcInp2D()
 
 void BlkFaceSolver::DumpBlkScript()
 {
-    fstream file;
+    std::fstream file;
     OpenPrjFile( file, "grid/blkscript.txt", std::ios_base::out );
     IntField ctrlpoints;
     ctrlpoints.push_back( 1 );
@@ -482,7 +482,7 @@ void BlkFaceSolver::DumpBlkScript()
     int kkk = 1;
 }
 
-void BlkFaceSolver::DumpBlkScript( fstream & file, BlkElem * blkHexa, IntField & ctrlpoints )
+void BlkFaceSolver::DumpBlkScript( std::fstream & file, BlkElem * blkHexa, IntField & ctrlpoints )
 {
     //int p1 = ctrlpoints[ 0 ];
     //int p2 = ctrlpoints[ 1 ];
@@ -496,7 +496,7 @@ void BlkFaceSolver::DumpBlkScript( fstream & file, BlkElem * blkHexa, IntField &
     }
 }
 
-void BlkFaceSolver::DumpBlkScript( fstream & file, IntField & localid, IntField & ctrlpoints )
+void BlkFaceSolver::DumpBlkScript( std::fstream & file, IntField & localid, IntField & ctrlpoints )
 {
     int npoint = localid.size();
     for ( int i = 0; i < npoint; ++ i )
@@ -531,7 +531,7 @@ void BlkFaceSolver::GenerateBlkMesh2D()
         blk2d->CreateBlockMesh2D();
     }
 
-    fstream file;
+    std::fstream file;
     OpenPrjFile( file, "grid/blkplot2d.dat", std::ios_base::out );
 
     for ( int iBlk = 0; iBlk < nBlock; ++ iBlk )
@@ -601,7 +601,7 @@ void BlkFaceSolver::DumpStandardGrid2D()
 
 void BlkFaceSolver::DumpStandardGrid( Grids & strGridList )
 {
-    fstream file;
+    std::fstream file;
     OpenPrjFile( file, grid_para.gridFile, std::ios_base::out | std::ios_base::binary );
 
     int nZone = strGridList.size();

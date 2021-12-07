@@ -85,7 +85,7 @@ void ScalarField::ToTecplot( RealList & varlist, std::string const & fileName )
 {
     int nCells = grid->GetNCells();
 
-    fstream file;
+    std::fstream file;
     OpenPrjFile( file, fileName, std::ios_base::out );
 
     int nSize = nCells;

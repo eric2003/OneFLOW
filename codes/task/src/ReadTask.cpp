@@ -50,7 +50,7 @@ void CReadFile::Run()
 
 void CReadFile::ServerRead()
 {
-    fstream file;
+    std::fstream file;
     ActionState::file = & file;
 
     PIO::OpenPrjFile();

@@ -28,7 +28,7 @@ BeginNameSpace( ONEFLOW )
 
 FileO::FileO()
 {
-    file = new fstream();
+    file = new std::fstream();
     sep = " ";
     nWord = 5;
     nWidth = 5;

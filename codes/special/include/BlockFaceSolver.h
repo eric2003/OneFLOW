@@ -101,8 +101,8 @@ public:
     void GenerateFaceBlockLink();
 public:
     void DumpBlkScript();
-    void DumpBlkScript( fstream & file, BlkElem * blkHexa, IntField & ctrlpoints );
-    void DumpBlkScript( fstream & file, IntField & localid, IntField & ctrlpoints );
+    void DumpBlkScript( std::fstream & file, BlkElem * blkHexa, IntField & ctrlpoints );
+    void DumpBlkScript( std::fstream & file, IntField & localid, IntField & ctrlpoints );
 };
 
 extern BlkFaceSolver blkFaceSolver;

@@ -85,7 +85,7 @@ void Sod::SodGrid()
         }
     }
 
-    fstream file;
+    std::fstream file;
     OpenPrjFile( file, "/grid/sod2d.grd", std::ios_base::out|std::ios_base::binary );
     int nZone = 1;
     int nk = 1;
@@ -246,7 +246,7 @@ void Sod::Theory()
     cout << "    m4 = " << rmach4 << endl;
 
     //Write out to files.
-    fstream file;
+    std::fstream file;
     OpenPrjFile( file, "/grid/sod_theory.dat", std::ios_base::out );
     StringField title;
     title.push_back( "title=\"THE FLOW FIELD OF ONEFLOW\"" );

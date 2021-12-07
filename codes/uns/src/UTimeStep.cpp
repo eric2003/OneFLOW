@@ -124,7 +124,7 @@ void UTimeStep::ReadTmp()
     static int iii = 0;
     if ( iii ) return;
     iii = 1;
-    fstream file;
+    std::fstream file;
     file.open( "nsflow.dat", std::ios_base::in | std::ios_base::binary );
     if ( ! file ) exit( 0 );
 

@@ -273,7 +273,7 @@ void HXDebug::DumpResField( const std::string & fileName )
 
 void HXDebug::DumpField( const std::string & fileName, MRField * field )
 {
-    fstream file;
+    std::fstream file;
 
     HXDebug::fileName1 = HXDebug::GetFullFileName( fileName, 0 );
     HXDebug::fileName2 = HXDebug::GetFullFileName( fileName, 1 );
@@ -304,7 +304,7 @@ void HXDebug::DumpField( const std::string & fileName, MRField * field )
 
 MRField * HXDebug::ReadField( const std::string & fileName )
 {
-    fstream file;
+    std::fstream file;
 
     PIO::OpenPrjFile( file, fileName, std::ios_base::in );
     int nEqu = 0;

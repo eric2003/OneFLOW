@@ -263,7 +263,7 @@ void FaceJoint::AddFaceCenterValue( int nSolidCell, RealField & fcvIn )
     }
 }
 
-void FaceJoint::Visual( fstream & file )
+void FaceJoint::Visual( std::fstream & file )
 {
     if ( ! this->isValid ) return;
     LinkField & fLink = this->fLink;

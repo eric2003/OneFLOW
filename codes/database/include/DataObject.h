@@ -42,7 +42,7 @@ public:
     virtual void Write( DataBook * dataBook ) {};
     virtual void Read( DataBook * dataBook, int numberOfElements ) {};
     virtual void Copy( DataObject * dataObject ) {};
-    virtual void Dump( fstream & file ) {};
+    virtual void Dump( std::fstream & file ) {};
 };
 
 template < typename T >
@@ -56,7 +56,7 @@ T GetDataValue( DataObject * dataObject, int iElement )
 }
 
 template < typename T >
-void TDataObjectDump( fstream &file, vector< T > data )
+void TDataObjectDump( std::fstream &file, vector< T > data )
 {
     if ( data.size() == 0 ) return;
     file << data[ 0 ];
@@ -128,7 +128,7 @@ public:
         }
     }
 
-    void Dump( fstream &file )
+    void Dump( std::fstream &file )
     {
         TDataObjectDump( file, data );
         //if ( this->data.size() == 0 ) return;
@@ -194,7 +194,7 @@ public:
         }
     }
 
-    void Dump( fstream &file )
+    void Dump( std::fstream &file )
     {
         TDataObjectDump( file, data );
     }

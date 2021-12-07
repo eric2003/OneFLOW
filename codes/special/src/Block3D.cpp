@@ -287,7 +287,7 @@ void Block3D::CreateBlockMesh()
 
 void Block3D::GenerateBlockMesh()
 {
-    fstream file;
+    std::fstream file;
     OpenPrjFile( file, "grid/blkfaceplot.dat", std::ios_base::out );
     file << " VARIABLES = \"X\", \"Y\", \"Z\" \n";
     file << " ZONE I = " << ni << ", J = " << nj << " F = POINT \n";

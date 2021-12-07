@@ -42,8 +42,8 @@ public:
     void Read ( void * data, UInt dataSize, UInt position );
     void Write( void * data, UInt dataSize );
     void Write( void * data, UInt dataSize, UInt position );
-    void ReadFile ( fstream & file );
-    void WriteFile( fstream & file );
+    void ReadFile ( std::fstream & file );
+    void WriteFile( std::fstream & file );
     void ToString( std::string & str );
 
     char * GetBeginDataPointer();

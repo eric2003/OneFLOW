@@ -58,7 +58,7 @@ public:
     void CalcBlkDim();
     void CreateFaceList();
     void FillStrGrid( Grid * gridIn, int iZone );
-    void DumpBlockMesh2D( fstream &file );
+    void DumpBlockMesh2D( std::fstream &file );
 };
 
 EndNameSpace

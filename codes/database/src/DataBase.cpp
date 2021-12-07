@@ -185,7 +185,7 @@ void * GetFieldPointerVoid( DataBase * database, const std::string & dataObjectN
     return 0;
 }
 
-void DumpDataBase( fstream & file )
+void DumpDataBase( std::fstream & file )
 {
     DataBase * dataBase = ONEFLOW::GetGlobalDataBase();
     dataBase->dataPara->DumpData( file );

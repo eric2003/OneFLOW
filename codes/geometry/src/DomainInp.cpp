@@ -684,7 +684,7 @@ void DomainInp::GetId( int zid, int i, int j, int k, int & id, GridMediator * gr
     int kkk = 1;
 }
 
-void DomainInp::DumpCoor( int zid, int i, int j, int k, GridMediator * gridMediator, fstream & file )
+void DomainInp::DumpCoor( int zid, int i, int j, int k, GridMediator * gridMediator, std::fstream & file )
 {
     StrGrid * grid = ONEFLOW::StrGridCast( gridMediator->gridVector[ zid ] );
     Field3D & xs = * grid->strx;
@@ -734,7 +734,7 @@ void DomainInp::FindPhysicalPatch( StrGrid * grid, MultiDomain * md, int zid, Ij
 
 void DomainInp::Dump( MultiDomain * md, GridMediator * gridMediator, PointSearch * pointSearch )
 {
-    fstream file;
+    std::fstream file;
     std::string fileName = "test.inp";
     ONEFLOW::OpenPrjFile( file, fileName, std::ios_base::out );
 

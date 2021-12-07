@@ -45,7 +45,7 @@ public:
     ~FileIO();
 protected:
     std::string * line, * separator;
-    fstream file;
+    std::fstream file;
     int setfileFlag;
 protected:
     std::string fileName;
@@ -89,7 +89,7 @@ public:
     template < typename T >
     friend inline FileIO & operator >> ( FileIO & textFileRead, T & value )
     {
-        fstream & file = * textFileRead.GetDefaultFile();
+        std::fstream & file = * textFileRead.GetDefaultFile();
         file >> value;
         return textFileRead;
     }

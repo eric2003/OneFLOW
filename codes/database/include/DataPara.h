@@ -44,7 +44,7 @@ public:
     DataObject * data;
 public:
     void Copy( DataV * inputData );
-    void Dump( fstream & file );
+    void Dump( std::fstream & file );
 };
 
 class CompareDataV
@@ -72,7 +72,7 @@ public:
 
     DataSET * GetDataSet() { return dataSet; }
 public:
-    void DumpData( fstream & file );
+    void DumpData( std::fstream & file );
 };
 
 EndNameSpace

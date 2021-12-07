@@ -237,7 +237,7 @@ void WallVisual::ConstructTopology()
     }
 }
 
-void WallVisual::Visual( fstream & file, StringField & titleOfTecplot, RealField2D & qNodeField )
+void WallVisual::Visual( std::fstream & file, StringField & titleOfTecplot, RealField2D & qNodeField )
 {
     if ( Dim::dimension == TWO_D )
     {
@@ -249,7 +249,7 @@ void WallVisual::Visual( fstream & file, StringField & titleOfTecplot, RealField
     }
 }
 
-void WallVisual::Visual3D( fstream & file, StringField & titleOfTecplot, RealField2D & qNodeField )
+void WallVisual::Visual3D( std::fstream & file, StringField & titleOfTecplot, RealField2D & qNodeField )
 {
     ostringstream oss;
     for ( UInt i = 0; i < titleOfTecplot.size(); ++ i )
@@ -292,7 +292,7 @@ void WallVisual::Visual3D( fstream & file, StringField & titleOfTecplot, RealFie
     file << oss.str();
 }
 
-void WallVisual::VisualLine( fstream & file, StringField & titleOfTecplot, RealField2D & qNodeField )
+void WallVisual::VisualLine( std::fstream & file, StringField & titleOfTecplot, RealField2D & qNodeField )
 {
     ostringstream oss;
     for ( UInt i = 0; i < titleOfTecplot.size(); ++ i )

@@ -82,7 +82,7 @@ void TurbVelCut::DumpNormal()
 {
     std::string velocityFile = "results/turbplateflow.dat";
 
-    fstream file;
+    std::fstream file;
     PIO::OpenPrjFile( file, velocityFile, std::ios_base::out );
     StringField title;
     title.push_back( "title=\"THE FLOW FIELD OF ONEFLOW\"" );
@@ -109,7 +109,7 @@ void TurbVelCut::DumpDetail()
 {
     std::string velocityFile = "results/turbplateflow_detail.dat";
 
-    fstream file;
+    std::fstream file;
     PIO::OpenPrjFile( file, velocityFile, std::ios_base::out );
     StringField title;
     title.push_back( "title=\"THE FLOW FIELD OF ONEFLOW\"" );
@@ -140,7 +140,7 @@ void TurbVelCut::DumpDetail()
     PIO::CloseFile( file );
 }
 
-void TurbVelCut::Dump( LamData * lamData, fstream & file, int axis )
+void TurbVelCut::Dump( LamData * lamData, std::fstream & file, int axis )
 {
     int nNodes = lamData->GetNNode();
 
@@ -200,7 +200,7 @@ void TurbVelCut::Dump( LamData * lamData, fstream & file, int axis )
     }
 }
 
-void TurbVelCut::DumpDetail( LamData * lamData, fstream & file, int axis )
+void TurbVelCut::DumpDetail( LamData * lamData, std::fstream & file, int axis )
 {
     int nNodes = lamData->GetNNode();
 
@@ -283,7 +283,7 @@ void TurbFriCut::Dump()
 {
     std::string frictionFile = "results/turbplate_cf.dat";
 
-    fstream file;
+    std::fstream file;
     PIO::OpenPrjFile( file, frictionFile, std::ios_base::out );
     StringField title;
     title.push_back( "title=\"THE FLOW FIELD OF ONEFLOW\"" );
@@ -306,7 +306,7 @@ void TurbFriCut::Dump()
     PIO::CloseFile( file );
 }
 
-void TurbFriCut::Dump( LamData * lamData, fstream & file, int axis )
+void TurbFriCut::Dump( LamData * lamData, std::fstream & file, int axis )
 {
     int nNodes = lamData->GetNNode();
 

@@ -281,7 +281,7 @@ LLong DataBook::GetRemainingSizeOfCurrentPage()
     return maxUnitSize - remainder;
 }
 
-void DataBook::ReadFile( fstream & file )
+void DataBook::ReadFile( std::fstream & file )
 {
     //Read the contents of file into DataBook
     //And for DataBook, the process is counter, equivalent to writing
@@ -299,7 +299,7 @@ void DataBook::ReadFile( fstream & file )
     }
 }
 
-void DataBook::WriteFile( fstream & file )
+void DataBook::WriteFile( std::fstream & file )
 {
     LLong nLength = this->GetSize();
 

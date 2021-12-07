@@ -44,7 +44,7 @@ public:
     IntField zoneType;
     int zoneStart;
 protected:
-    void ReadGrid( fstream & file, int iZone );
+    void ReadGrid( std::fstream & file, int iZone );
     void CreateGrid( int zoneId );
     void CreateGridImp( int zoneId );
     void CreateGridTest( int zoneId );
@@ -52,12 +52,12 @@ public:
     void ReadGrid( const std::string & fileName );
     void InitZoneLayout( const std::string & fileName );
 protected:
-    void InitZoneLayout( fstream & file );
+    void InitZoneLayout( std::fstream & file );
     void SetMultiZoneLayout();
 };
 
 class DataBook;
-void ReadAbstractData( fstream & file, DataBook * dataBook, int sendpid, int recvpid, int tag = 0 );
+void ReadAbstractData( std::fstream & file, DataBook * dataBook, int sendpid, int recvpid, int tag = 0 );
 void DataToGrid( DataBook * dataBook, int zid );
 void DataToGridImp( DataBook * dataBook, int zid );
 void DataToGridTest( DataBook * dataBook, int zid );

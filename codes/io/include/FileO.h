@@ -40,7 +40,7 @@ public:
     int nCount;
     std::string fileName;
     std::ios_base::openmode fileOpenMode;
-    fstream * file;
+    std::fstream * file;
     std::string sep;
 public:
     void OpenPrjFile( const std::string & fileName, const std::ios_base::openmode & fileOpenMode );

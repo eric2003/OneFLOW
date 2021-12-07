@@ -52,7 +52,7 @@ void DataV::Copy( DataV * inputData )
     this->data->Copy( inputData->data );
 }
 
-void DataV::Dump( fstream & file )
+void DataV::Dump( std::fstream & file )
 {
     file << name << " , " << DataBaseType::GetName( type ) << " : ";
     this->data->Dump( file );
@@ -118,7 +118,7 @@ void DataPara::DeleteDataPointer( const std::string & name )
     delete data;
 }
 
-void DataPara::DumpData( fstream & file )
+void DataPara::DumpData( std::fstream & file )
 {
     cout << " Dumping database:\n";
     int count = 0;

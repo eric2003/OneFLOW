@@ -36,7 +36,7 @@ public:
     Numpy();
     ~Numpy();
 public:
-    static void OpenPrjFile( fstream & file, const std::string & fileName, const std::ios_base::openmode & openMode );
+    static void OpenPrjFile( std::fstream & file, const std::string & fileName, const std::ios_base::openmode & openMode );
     static std::string AddFileName( const std::string & prefix, const std::string & fileName );
     static void Ones( vector< double > & var );
     static void Set( vector< double > & var, int st, int ed, double v );

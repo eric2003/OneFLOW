@@ -45,7 +45,7 @@ void Post::Run()
 {
     cout << " Post::Run()\n";
 
-    fstream file;
+    std::fstream file;
 
     std::string fileName = "grid/wallaero.dat";
 
@@ -609,7 +609,7 @@ void CurveData::Visual( const std::string & fileName )
 
 void CurveData::Visual( const std::string & fileName, vector< Real > & x, vector< Real > & y, vector< Real > & z )
 {
-    fstream file;
+    std::fstream file;
 
     PIO::OpenPrjFile( file, fileName, std::ios_base::out );
 
@@ -635,7 +635,7 @@ void CurveData::Visual( const std::string & fileName, vector< Real > & x, vector
 
 void CurveData::VisualCurveValue( const std::string & fileName, vector< Real > & x, vector< Real > & y, vector< Real > & z, vector< Real > & cp, vector< Real > & cf )
 {
-    fstream file;
+    std::fstream file;
 
     PIO::OpenPrjFile( file, fileName, std::ios_base::out );
 

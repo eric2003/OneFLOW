@@ -55,7 +55,7 @@ GridGroup::~GridGroup()
 
 void GridGroup::InitZoneLayout( const std::string & fileName )
 {
-    fstream file;
+    std::fstream file;
     PIO::OpenPrjFile( file, fileName, std::ios_base::in|std::ios_base::binary );
 
     this->InitZoneLayout( file );
@@ -64,7 +64,7 @@ void GridGroup::InitZoneLayout( const std::string & fileName )
     PIO::CloseFile( file );
 }
 
-void GridGroup::InitZoneLayout( fstream & file )
+void GridGroup::InitZoneLayout( std::fstream & file )
 {
     int fid = Parallel::GetFid();
 
@@ -100,7 +100,7 @@ void GridGroup::SetMultiZoneLayout()
 
 void GridGroup::ReadGrid( const std::string & fileName )
 {
-    fstream file;
+    std::fstream file;
 
     PIO::OpenPrjFile( file, fileName, std::ios_base::in|std::ios_base::binary );
 
@@ -116,7 +116,7 @@ void GridGroup::ReadGrid( const std::string & fileName )
     PIO::CloseFile( file );
 }
 
-void GridGroup::ReadGrid( fstream & file, int zid )
+void GridGroup::ReadGrid( std::fstream & file, int zid )
 {
     int spid = 0;
     int rpid = 0;
@@ -173,7 +173,7 @@ void GridGroup::CreateGridTest( int zoneId )
     Zone::AddScalarGrid( zoneId, grid );
 }
 
-void ReadAbstractData( fstream & file, DataBook * dataBook, int sendpid, int recvpid, int tag )
+void ReadAbstractData( std::fstream & file, DataBook * dataBook, int sendpid, int recvpid, int tag )
 {
     if ( Parallel::pid == sendpid )
     {

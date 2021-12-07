@@ -159,7 +159,7 @@ public:
     void CalcDomainPatch( int nZone, GridMediator * gridMediator );
     void CalcDomainPatch( int iZone, int jZone, GridMediator * gridMediator );
     void GetId( int zid, int i, int j, int k, int & id, GridMediator * gridMediator, PointSearch * pointSearch );
-    void DumpCoor( int zid, int i, int j, int k, GridMediator * gridMediator, fstream & file );
+    void DumpCoor( int zid, int i, int j, int k, GridMediator * gridMediator, std::fstream & file );
     void Dump( MultiDomain * md, GridMediator * gridMediator, PointSearch * pointSearch );
     void FindPhysicalPatch( StrGrid * grid, MultiDomain * md, int zid, IjkBox * ijkBox );
 };

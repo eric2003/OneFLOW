@@ -55,7 +55,7 @@ FileIO::FileIO()
 {
     line        = new std::string();
     separator   = new std::string();
-    //file        = new fstream();
+    //file        = new std::fstream();
     setfileFlag = 0;
     //\t is tab key
     std::string keyWordSeparator = " =\r\n\t#$,;\"";
@@ -242,7 +242,7 @@ bool IsEmpty( std::fstream & file )
 {
     file.seekp( 0, ios::end );
     std::streamoff i = file.tellp();
-    //cout << "ONEFLOW::IsEmpty( fstream & file ) = " << i << endl;
+    //cout << "ONEFLOW::IsEmpty( std::fstream & file ) = " << i << endl;
     if ( i ) return false;
     return true;
 }

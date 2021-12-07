@@ -1154,7 +1154,7 @@ void ScalarGrid::DumpCalcGrid()
 	CloseFile( file );
 }
 
-void ScalarGrid::WriteGrid( fstream & file )
+void ScalarGrid::WriteGrid( std::fstream & file )
 {
 	DataBook * databook = new DataBook();
 	this->WriteGrid( databook );
@@ -1207,7 +1207,7 @@ void ScalarGrid::ReadCalcGrid()
 	CloseFile( file );
 }
 
-void ScalarGrid::ReadGrid( fstream & file )
+void ScalarGrid::ReadGrid( std::fstream & file )
 {
 	DataBook * databook = new DataBook();
 	databook->ReadFile( file );

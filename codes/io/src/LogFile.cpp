@@ -31,7 +31,7 @@ BeginNameSpace( ONEFLOW )
 
 LogFile logFile;
 
-void OpenLogFile( int logFileIndex, fstream & file )
+void OpenLogFile( int logFileIndex, std::fstream & file )
 {
     static int ifReWrite = 0;
 
@@ -53,7 +53,7 @@ void OpenLogFile( int logFileIndex, fstream & file )
     }
 }
 
-void CloseLogFile( fstream & file )
+void CloseLogFile( std::fstream & file )
 {
     file.close();
     file.clear();

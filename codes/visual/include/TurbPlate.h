@@ -43,8 +43,8 @@ public:
     ~TurbVelCut();
 public:
     void Dump();
-    void Dump( LamData * lamData, fstream & file, int axis );
-    void DumpDetail( LamData * lamData, fstream & file, int axis );
+    void Dump( LamData * lamData, std::fstream & file, int axis );
+    void DumpDetail( LamData * lamData, std::fstream & file, int axis );
 public:
     void DumpNormal();
     void DumpDetail();
@@ -57,7 +57,7 @@ public:
     ~TurbFriCut();
 public:
     void Dump();
-    void Dump( LamData * lamData, fstream & file, int axis );
+    void Dump( LamData * lamData, std::fstream & file, int axis );
 };
 
 class TurbFlatPlateTask : public Task

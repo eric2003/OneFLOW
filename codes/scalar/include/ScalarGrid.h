@@ -247,8 +247,8 @@ public:
     void ReadCalcGrid();
     void WriteGrid( DataBook * databook );
     void ReadGrid( DataBook * databook );
-    void WriteGrid( fstream & file );
-    void ReadGrid( fstream & file );
+    void WriteGrid( std::fstream & file );
+    void ReadGrid( std::fstream & file );
     void CreateNodes( int numberOfNodes );
     void WriteGridFaceTopology( DataBook * databook );
     void WriteBoundaryTopology( DataBook * databook );

@@ -503,7 +503,7 @@ void SDomain::GenerateSDomainMesh()
     TransfiniteInterpolation( z2d, ni, nj );
 }
 
-void SDomain::GenerateSDomainMesh( fstream & file )
+void SDomain::GenerateSDomainMesh( std::fstream & file )
 {
     TransfiniteInterpolation( x2d, ni, nj );
     TransfiniteInterpolation( y2d, ni, nj );

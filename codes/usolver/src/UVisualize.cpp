@@ -363,7 +363,7 @@ void BcVisual::DumpSeveralElement()
     int nFaces = e2n.size();
     int nElem = this->f2n.size();
 
-    fstream file;
+    std::fstream file;
     std::string fileName = "test.plt";
     ONEFLOW::OpenPrjFile( file, fileName, std::ios_base::out );
 

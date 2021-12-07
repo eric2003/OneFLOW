@@ -71,7 +71,7 @@ void BlkBasic::Add( IntField &iList, IntField &jList, IntField &kList, int i, in
     kList.push_back( k );
 }
 
-void BlkBasic::DumpInp( fstream & file )
+void BlkBasic::DumpInp( std::fstream & file )
 {
     int width = 5;
 

@@ -74,7 +74,7 @@ void LamVelCut::Dump()
 {
     std::string velocityFile = "results/flatplateflow.dat";
 
-    fstream file;
+    std::fstream file;
     PIO::OpenPrjFile( file, velocityFile, std::ios_base::out );
     StringField title;
     title.push_back( "title=\"THE FLOW FIELD OF ONEFLOW\"" );
@@ -98,7 +98,7 @@ void LamVelCut::Dump()
     PIO::CloseFile( file );
 }
 
-void LamVelCut::Dump( LamData * lamData, fstream & file, int axis )
+void LamVelCut::Dump( LamData * lamData, std::fstream & file, int axis )
 {
     int nNodes = lamData->GetNNode();
 
@@ -158,7 +158,7 @@ void LamFriCut::Dump()
 {
     std::string frictionFile = "results/flatplate_cf.dat";
 
-    fstream file;
+    std::fstream file;
     PIO::OpenPrjFile( file, frictionFile, std::ios_base::out );
     StringField title;
     title.push_back( "title=\"THE FLOW FIELD OF ONEFLOW\"" );
@@ -181,7 +181,7 @@ void LamFriCut::Dump()
     PIO::CloseFile( file );
 }
 
-void LamFriCut::Dump( LamData * lamData, fstream & file, int axis )
+void LamFriCut::Dump( LamData * lamData, std::fstream & file, int axis )
 {
     int nNodes = lamData->GetNNode();
 

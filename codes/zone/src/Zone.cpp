@@ -107,7 +107,7 @@ void Zone::InitLayout( StringField & fileNameList )
     int nTZones = 0;
     for ( int iFile = 0; iFile < fileNameList.size(); ++ iFile )
     {
-        fstream file;
+        std::fstream file;
         PIO::OpenPrjFile( file, fileNameList[ iFile ], std::ios_base::in|std::ios_base::binary );
 
         int nZones = 0;
