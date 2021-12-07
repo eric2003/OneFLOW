@@ -278,7 +278,7 @@ void UNsLusgs::PrepareDataFacePrim()
     Real hm = ( hl + hr * tmp0 ) * tmp1;
     Real pm = rm * ( hm - half * SQR( um, vm, wm ) ) * ( gl - 1.0 ) / gl;
 
-    if ( pm <= 0.0 ) std::cout << "pm = " << pm << endl;
+    if ( pm <= 0.0 ) std::cout << "pm = " << pm << std::endl;
 
     nslu.primF[ IDX::IR ] = rm;
     nslu.primF[ IDX::IU ] = um;

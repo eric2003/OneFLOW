@@ -85,7 +85,7 @@ int GMRES
 	// Allocate the space for the givens rotations, and the upper
 	// Hessenburg matrix.
 	Double** H = ArrayUtils<Double>::twotensor((krylovDimension + 1) * Rank.COLNUMBER, krylovDimension * Rank.COLNUMBER);
-	/*cout << H[1][9] << endl;*/
+	/*cout << H[1][9] << std::endl;*/
 	// The Givens rotations include the sine and cosine term. The
 	// cosine term is in column zero, and the sine term is in column
 	// one.
@@ -338,12 +338,12 @@ int GMRES
 				}
 			rho = sqrt(rho);
 
-			//cout << "iteration:" << iteration << "residual:" << rho << endl;
+			//cout << "iteration:" << iteration << "residual:" << rho << std::endl;
 			/*ofstream file2("residual.txt", ios::app);
-			file2 << "residual:" << rho << endl;
+			file2 << "residual:" << rho << std::endl;
 			file2.close();*/
 
-			//cout << tolerance * normRHS << endl;
+			//cout << tolerance * normRHS << std::endl;
 			if (rho < tolerance * normRHS)   //Is this method effective in bgmres
 			{
 				// We are close enough! Update the approximation.
@@ -370,7 +370,7 @@ int GMRES
 		(*residual) = precond->solve2((*linearization) * (*solution) - (*rhs));      //The third precond
 		Rank.residual = residual->norm();
 
-		//cout << "totalRestarts:" << totalRestarts << endl;
+		//cout << "totalRestarts:" << totalRestarts << std::endl;
 	} // while(numberRestarts,rho)
 
 

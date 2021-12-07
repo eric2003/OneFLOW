@@ -138,7 +138,7 @@ void MRegister::Register( const std::string & fileName, HXRegister * fRegister )
         if ( ! flag ) break;
         std::string actionName = ioFile.ReadNextWord();
         std::string className  = ioFile.ReadNextWord();
-        //cout << "actionName = " << actionName << " className= " << className << endl;
+        //cout << "actionName = " << actionName << " className= " << className << std::endl;
 
         fRegister->Register( actionName, className );
 

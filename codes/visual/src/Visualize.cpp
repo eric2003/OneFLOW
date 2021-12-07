@@ -53,9 +53,9 @@ void Plot::DumpField( RealField & field )
     for ( int iNode = 0; iNode < nNodes; ++ iNode )
     {
         ( * Plot::oss ) << field[ iNode ] << " ";
-        if ( ( iNode + 1 ) % Plot::nWords == 0 ) ( * Plot::oss ) << endl;
+        if ( ( iNode + 1 ) % Plot::nWords == 0 ) ( * Plot::oss ) << std::endl;
     }
-    if ( nNodes % Plot::nWords != 0 ) ( * Plot::oss ) << endl;
+    if ( nNodes % Plot::nWords != 0 ) ( * Plot::oss ) << std::endl;
 }
 
 void Plot::DumpField( IntField & l2g, RealField & field )
@@ -65,9 +65,9 @@ void Plot::DumpField( IntField & l2g, RealField & field )
     {
         int id = l2g[ iNode ];
         ( * Plot::oss ) << field[ id ] << " ";
-        if ( ( iNode + 1 ) % Plot::nWords == 0 ) ( * Plot::oss ) << endl;
+        if ( ( iNode + 1 ) % Plot::nWords == 0 ) ( * Plot::oss ) << std::endl;
     }
-    if ( nNodes % Plot::nWords != 0 ) ( * Plot::oss ) << endl;
+    if ( nNodes % Plot::nWords != 0 ) ( * Plot::oss ) << std::endl;
 }
 
 void Plot::DumpFaceNodeLink( LinkField & f2n )
@@ -80,11 +80,11 @@ void Plot::DumpFaceNodeLink( LinkField & f2n )
         for ( int iNode = 0; iNode < nNodes; ++ iNode )
         {
             ( * Plot::oss ) << f2n[ iFace ][ iNode ] + 1 << " ";
-            if ( ( iCount + 1 ) % Plot::nWords == 0 ) ( * Plot::oss ) << endl;
+            if ( ( iCount + 1 ) % Plot::nWords == 0 ) ( * Plot::oss ) << std::endl;
             iCount ++;
         }
     }
-    if ( iCount % Plot::nWords != 0 ) ( * Plot::oss ) << endl;
+    if ( iCount % Plot::nWords != 0 ) ( * Plot::oss ) << std::endl;
 }
 
 void Plot::DumpFaceElementLink( IntField & elementId, int nElem )
@@ -96,9 +96,9 @@ void Plot::DumpFaceElementLink( IntField & elementId, int nElem )
         if ( eId > nElem || eId < 0 ) eId = 0;
 
         ( * Plot::oss ) << eId << " ";
-        if ( ( iFace + 1 ) % Plot::nWords == 0 ) ( * Plot::oss ) << endl;
+        if ( ( iFace + 1 ) % Plot::nWords == 0 ) ( * Plot::oss ) << std::endl;
     }
-    if ( nFaces % Plot::nWords != 0 ) ( * Plot::oss ) << endl;
+    if ( nFaces % Plot::nWords != 0 ) ( * Plot::oss ) << std::endl;
 }
 
 void Plot::DumpFaceNodeNumber( LinkField & f2n )
@@ -107,9 +107,9 @@ void Plot::DumpFaceNodeNumber( LinkField & f2n )
     for ( int iFace = 0; iFace < nFaces; ++ iFace )
     {
         ( * Plot::oss ) << f2n[ iFace ].size() << " ";
-        if ( ( iFace + 1 ) % Plot::nWords == 0 ) ( * Plot::oss ) << endl;
+        if ( ( iFace + 1 ) % Plot::nWords == 0 ) ( * Plot::oss ) << std::endl;
     }
-    if ( nFaces % Plot::nWords == 0 ) ( * Plot::oss ) << endl;
+    if ( nFaces % Plot::nWords == 0 ) ( * Plot::oss ) << std::endl;
 }
 
 int GetTotalNumFaceNodes( LinkField & f2n )

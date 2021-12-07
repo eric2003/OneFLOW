@@ -226,7 +226,7 @@ string GetJsonFileName( const std::string & fileName )
 //        ONEFLOW::ProcessData( varName, &varArray[0], keyWordIndex, varArray.size() );
 //    }
 //
-//    //cout << jsonRoot.toStyledString() << endl;
+//    //cout << jsonRoot.toStyledString() << std::endl;
 //
 //    //ofstream ofs;
 //    //ofs.open( jsonFileName.c_str() );

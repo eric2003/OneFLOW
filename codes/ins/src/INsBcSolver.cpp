@@ -102,7 +102,7 @@ void INsBcSolver::SetBc()
     }
     else
     {
-        std::cout << "Error : Illegal BCtype ID " << ug.bctype << endl;
+        std::cout << "Error : Illegal BCtype ID " << ug.bctype << std::endl;
         Stop("");
     }
 }

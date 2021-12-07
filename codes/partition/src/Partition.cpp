@@ -193,7 +193,7 @@ void G2LMapping::PartByMetis( idx_t nCells, std::vector<idx_t>& xadj, std::vecto
         METIS_PartGraphRecursive( & nCells, & ncon, & xadj[ 0 ], & adjncy[ 0 ], vwgt, vsize, adjwgt, 
                                   & nZone, tpwgts, ubvec, options, & objval, & gc2lzone[ 0 ] );
     }
-    std::cout << "The interface number: " << objval << endl; 
+    std::cout << "The interface number: " << objval << std::endl; 
     std::cout << "Partition is finished!\n";
 }
 #endif

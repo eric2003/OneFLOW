@@ -129,7 +129,7 @@ void AerodynamicForceTask::Dump()
 
         for ( UInt iTitle = 0; iTitle < title.size(); ++ iTitle )
         {
-            oss << title[ iTitle ] << endl;
+            oss << title[ iTitle ] << std::endl;
         }
     }
 
@@ -149,7 +149,7 @@ void AerodynamicForceTask::Dump()
     oss << aeroForceInfo.cmom.x << "    ";
     oss << aeroForceInfo.cmom.y << "    ";
     oss << aeroForceInfo.cmom.z << "    ";
-    oss << endl;
+    oss << std::endl;
 
     file << oss.str();
 
@@ -360,7 +360,7 @@ void CalcAeroForce(int idump_pres)
 					StrIO << setw(wordWidth) << zc;
 					StrIO << setw(wordWidth) << -cp;
 					StrIO << setw(wordWidth) << cf;
-					StrIO << endl;
+					StrIO << std::endl;
 				}
 			}
 			else
@@ -438,7 +438,7 @@ void CalcAeroForce(int idump_pres)
 					StrIO << setw(wordWidth) << zc;
 					StrIO << setw(wordWidth) << -cp;
 					StrIO << setw(wordWidth) << cf;
-					StrIO << endl;
+					StrIO << std::endl;
 				}
 			}
 		}

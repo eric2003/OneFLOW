@@ -53,7 +53,7 @@ Grid * Grid::SafeClone( const std::string & type )
     std::map < std::string, Grid * >::iterator iter = Grid::classMap->find( type );
     if ( iter == Grid::classMap->end() )
     {
-        std::cout << type << " class not found" << endl;
+        std::cout << type << " class not found" << std::endl;
         exit( 0 );
     }
 

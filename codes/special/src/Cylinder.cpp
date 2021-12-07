@@ -240,11 +240,11 @@ void Cylinder::DumpBcFile( const std::string & fileName, DomainData * domain, In
     int solver = 1;
     std::string zName = "A";
     int nBc = 4;
-    file << solver << endl;
-    file << nZone << endl;
-    file << domain->ni << " " << domain->nj << endl;
-    file << zName << endl;
-    file << nBc << endl;
+    file << solver << std::endl;
+    file << nZone << std::endl;
+    file << domain->ni << " " << domain->nj << std::endl;
+    file << zName << std::endl;
+    file << nBc << std::endl;
 
     DumpBc( file, 1         , domain->ni, 1         , 1         , bcList[ 0 ] );
     DumpBc( file, 1         , domain->ni, domain->nj, domain->nj, bcList[ 1 ] );
@@ -442,7 +442,7 @@ void DumpBc( std::fstream &file, int imin, int imax, int jmin, int jmax, int bcT
     int width = 5;
     file << setw( width ) << imin << setw( width ) << imax;
     file << setw( width ) << jmin << setw( width ) << jmax;
-    file << setw( width ) << bcType << endl;
+    file << setw( width ) << bcType << std::endl;
 }
 
 

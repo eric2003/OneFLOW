@@ -81,7 +81,7 @@ std::string HX_GetExePath()
 #ifdef _WIN32
     GetModuleFileName( NULL, buffer, FILENAME_MAX );
 #else
-    std::ssize_t count = readlink( "/proc/self/exe", buffer, FILENAME_MAX );
+    std::size_t count = readlink( "/proc/self/exe", buffer, FILENAME_MAX );
 #endif
     string::size_type pos = string( buffer ).find_last_of( "\\/" );
     return string( buffer ).substr( 0, pos);

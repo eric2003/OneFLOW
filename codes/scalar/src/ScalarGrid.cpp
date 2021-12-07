@@ -191,7 +191,7 @@ void ScalarBcco::AddBcPoint( int bcVertex )
 
 void ScalarBcco::ScanBcFace( ScalarGrid * grid )
 {
-	cout << " BCTypeName = " << ONEFLOW::GetCgnsBcName( this->bcType ) << endl;
+	cout << " BCTypeName = " << ONEFLOW::GetCgnsBcName( this->bcType ) << std::endl;
 
 	IntSet bcVertex;
 	this->ProcessVertexBc( bcVertex );
@@ -1048,7 +1048,7 @@ void ScalarGrid::ScanBcFace( IntSet& bcVertex, int bcType )
 		}
 	}
 
-	cout << " nFinalBcFace = " << nBcFaces_local << " bcType = " << bcType << endl;
+	cout << " nFinalBcFace = " << nBcFaces_local << " bcType = " << bcType << std::endl;
 	int kkk = 1;
 }
 
@@ -1172,9 +1172,9 @@ void ScalarGrid::WriteGrid( DataBook * databook )
 	ONEFLOW::HXWrite( databook, this->nFaces );
 	ONEFLOW::HXWrite( databook, this->nCells );
 
-	cout << " number of nodes    : " << this->nNodes << endl;
-	cout << " number of surfaces : " << this->nFaces << endl;
-	cout << " number of elements : " << this->nCells << endl;
+	cout << " number of nodes    : " << this->nNodes << std::endl;
+	cout << " number of surfaces : " << this->nFaces << std::endl;
+	cout << " number of elements : " << this->nCells << std::endl;
 
 	//node
 	ONEFLOW::HXWrite( databook, this->xn.data );
@@ -1220,15 +1220,15 @@ void ScalarGrid::ReadGrid( DataBook * databook )
 	cout << "Reading unstructured grid data files......\n";
 	//Read the number of nodes, number of elements and number of elements faces
 
-	cout << "Grid dimension = " << Dim::dimension << endl;
+	cout << "Grid dimension = " << Dim::dimension << std::endl;
 
 	ONEFLOW::HXRead( databook, this->nNodes );
 	ONEFLOW::HXRead( databook, this->nFaces );
 	ONEFLOW::HXRead( databook, this->nCells );
 
-	cout << " number of nodes    : " << this->nNodes << endl;
-	cout << " number of surfaces : " << this->nFaces << endl;
-	cout << " number of elements : " << this->nCells << endl;
+	cout << " number of nodes    : " << this->nNodes << std::endl;
+	cout << " number of surfaces : " << this->nFaces << std::endl;
+	cout << " number of elements : " << this->nCells << std::endl;
 
 	this->CreateNodes( this->nNodes );
 

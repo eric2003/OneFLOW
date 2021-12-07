@@ -244,7 +244,7 @@ void PatchBox::CalcNormal()
 
     std::cout << smin[ 0 ] << " " << smax[ 0 ] << " " ;
     std::cout << smin[ 1 ] << " " << smax[ 1 ] << " " ;
-    std::cout << smin[ 2 ] << " " << smax[ 2 ] << endl << endl;
+    std::cout << smin[ 2 ] << " " << smax[ 2 ] << endl << std::endl;
 
     int kkk = 1;
 }
@@ -359,7 +359,7 @@ void PBlkSet::Analysys()
         ip = i;
         }
     }
-    std::cout << " maxpt = " << maxpt << " ip = " << ip << endl;
+    std::cout << " maxpt = " << maxpt << " ip = " << ip << std::endl;
 
     IntField multi_point;
     for ( int i = 0; i < nSize; ++ i )
@@ -467,7 +467,7 @@ bool PBlkSet::CheckPBlkList( HXVector< PBlk * > & pblk_list, PatchBox & box )
     int ijkv = iv + jv + kv;
     if ( ijkv < 2 )
     {
-        std::cout << " not a domain " << endl;
+        std::cout << " not a domain " << std::endl;
         return false;
     }
 
@@ -499,15 +499,15 @@ bool PBlkSet::CheckPBlkList( HXVector< PBlk * > & pblk_list, PatchBox & box )
 
     if ( ! flag )
     {
-        std::cout << " not a domain " << endl;
+        std::cout << " not a domain " << std::endl;
         return false;
     }
 
     box.Set( imin, imax, jmin, jmax, kmin, kmax );
-    std::cout << imin << " " << imax << endl;
-    std::cout << jmin << " " << jmax << endl;
-    std::cout << kmin << " " << kmax << endl;
-    std::cout << " is a domain " << endl;
+    std::cout << imin << " " << imax << std::endl;
+    std::cout << jmin << " " << jmax << std::endl;
+    std::cout << kmin << " " << kmax << std::endl;
+    std::cout << " is a domain " << std::endl;
     return true;
 }
 
@@ -538,7 +538,7 @@ bool PBlkSet::CrossDomain( int iZone, int idomain, int jZone, int jdomain, Patch
     }
     bool valid_i = CheckPBlkList( pblk1_list, box_i );
     bool valid_j = CheckPBlkList( pblk2_list, box_j );
-    std::cout << "zone[" << iZone << "][" << jZone << "] = " << idomain << ":" << jdomain << " num = " << cross.size() << endl;
+    std::cout << "zone[" << iZone << "][" << jZone << "] = " << idomain << ":" << jdomain << " num = " << cross.size() << std::endl;
     int kkk = 1;
     return valid_i && valid_j;
 }
@@ -697,7 +697,7 @@ void DomainInp::DumpCoor( int zid, int i, int j, int k, GridMediator * gridMedia
     coor[ 1 ] = ys( i, j, k );
     coor[ 2 ] = zs( i, j, k );
 
-    file << coor[ 0 ] << " " << coor[ 1 ] << " " << coor[ 2 ] << endl;
+    file << coor[ 0 ] << " " << coor[ 1 ] << " " << coor[ 2 ] << std::endl;
 
 }
 
@@ -743,8 +743,8 @@ void DomainInp::Dump( MultiDomain * md, GridMediator * gridMediator, PointSearch
 
     int width = 5;
     int solver_id = 1;
-    file << setw( width ) << solver_id << endl;
-    file << setw( width ) << nZone << endl;
+    file << setw( width ) << solver_id << std::endl;
+    file << setw( width ) << nZone << std::endl;
     for ( int iZone = 0; iZone < nZone; ++ iZone )
     {
         StrGrid * grid = ONEFLOW::StrGridCast( grids[ iZone ] );
@@ -754,9 +754,9 @@ void DomainInp::Dump( MultiDomain * md, GridMediator * gridMediator, PointSearch
 
         file << setw( width ) << ni;
         file << setw( width ) << nj;
-        file << setw( width ) << nk << endl;
+        file << setw( width ) << nk << std::endl;
 
-        file << "zone" << iZone + 1 << endl;
+        file << "zone" << iZone + 1 << std::endl;
 
         IjkBox ijkBox;
         FindPhysicalPatch( grid, md, iZone, & ijkBox );
@@ -780,7 +780,7 @@ void DomainInp::Dump( MultiDomain * md, GridMediator * gridMediator, PointSearch
             }
         }
 
-        file << setw( width ) << count << endl;
+        file << setw( width ) << count << std::endl;
 
         for ( int i = 0; i < nn; ++ i )
         {
@@ -790,7 +790,7 @@ void DomainInp::Dump( MultiDomain * md, GridMediator * gridMediator, PointSearch
                 file << setw( width ) << ijkBox.imin[ i ] << setw( width ) << ijkBox.imax[ i ];
                 file << setw( width ) << ijkBox.jmin[ i ] << setw( width ) << ijkBox.jmax[ i ];
                 file << setw( width ) << ijkBox.kmin[ i ] << setw( width ) << ijkBox.kmax[ i ];
-                file << setw( width ) << bctype << endl;
+                file << setw( width ) << bctype << std::endl;
             }
         }
 
@@ -840,11 +840,11 @@ void DomainInp::Dump( MultiDomain * md, GridMediator * gridMediator, PointSearch
             file << setw( width ) << box1->smin[ 0 ] << setw( width ) << box1->smax[ 0 ];
             file << setw( width ) << box1->smin[ 1 ] << setw( width ) << box1->smax[ 1 ];
             file << setw( width ) << box1->smin[ 2 ] << setw( width ) << box1->smax[ 2 ];
-            file << setw( width ) << -1 << endl;
+            file << setw( width ) << -1 << std::endl;
             file << setw( width ) << box2->smin[ 0 ] << setw( width ) << box2->smax[ 0 ];
             file << setw( width ) << box2->smin[ 1 ] << setw( width ) << box2->smax[ 1 ];
             file << setw( width ) << box2->smin[ 2 ] << setw( width ) << box2->smax[ 2 ];
-            file << setw( width ) << zid2 + 1 << endl;
+            file << setw( width ) << zid2 + 1 << std::endl;
 
             int kkk = 1;
         }

@@ -216,7 +216,7 @@ void ScalarIFace::ReadInterfaceTopology( DataBook * databook )
     int nIFaces = -1;
     ONEFLOW::HXRead( databook, nIFaces );
 
-    std::cout << " nIFaces = " << nIFaces << endl;
+    std::cout << " nIFaces = " << nIFaces << std::endl;
 
     if ( nIFaces > 0 )
     {

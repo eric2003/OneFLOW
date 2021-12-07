@@ -51,7 +51,7 @@ void demo_write_array()
     //string json_file = writer.write(root);
     //string json_file = writer.write(root, &std::cout);
     //cout << "demo write json ==============\n";
-    //cout << json_file << endl;
+    //cout << json_file << std::endl;
 }
 
 void test_demo_write_array()
@@ -108,14 +108,14 @@ void readFileJson()
     f.open( "test.json", ios::in );
     if ( ! f.is_open() )
     {
-        std::cout << "Open json file error!" << endl;
+        std::cout << "Open json file error!" << std::endl;
     }
 
     JSONCPP_STRING errs;
 
     bool parse_ok = Json::parseFromStream(reader, f, &root, &errs);
 
-    std::cout << root.size() << endl;
+    std::cout << root.size() << std::endl;
     std::string a1 = root[ "name" ].asString();
     std::string a2 = root[ "age" ].asString();
     std::string a3 = root[ "sex_is_male" ].asString();

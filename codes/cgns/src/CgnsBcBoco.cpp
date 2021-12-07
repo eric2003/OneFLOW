@@ -119,7 +119,7 @@ void CgnsBcBoco::ProcessFaceBc( IntSet & bcVertex )
     if ( this->pointSetType == ElementRange ||
          this->pointSetType == PointRange )
     {
-        std::cout << " nBcElement = " << this->connList[ 1 ] - this->connList[ 0 ] + 1 << endl;
+        std::cout << " nBcElement = " << this->connList[ 1 ] - this->connList[ 0 ] + 1 << std::endl;
         for ( int eId = this->connList[ 0 ]; eId <= this->connList[ 1 ]; ++ eId )
         {
             CgIntField fNodeId;

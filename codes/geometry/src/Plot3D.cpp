@@ -132,7 +132,7 @@ void Plot3D::ReadCoorBinary( GridMediator * gridMediator )
         std::cout << setw( wordWidth ) << ni;
         std::cout << setw( wordWidth ) << nj;
         std::cout << setw( wordWidth ) << nk;
-        std::cout << endl;
+        std::cout << std::endl;
     }
 
     for ( int iZone = 0; iZone < gridMediator->numberOfZones; ++ iZone )
@@ -267,7 +267,7 @@ void Plot3D::ReadCoorAscii( GridMediator * gridMediator )
         std::cout << setw( wordWidth ) << ni;
         std::cout << setw( wordWidth ) << nj;
         std::cout << setw( wordWidth ) << nk;
-        std::cout << endl;
+        std::cout << std::endl;
         ++ zCount;
     }
 
@@ -408,11 +408,11 @@ void Plot3D::ReadBc( GridMediator * gridMediator )
 
     ioFile.ReadNextNonEmptyLine();
     int flowSolverIndex = ioFile.ReadNextDigit< int >();
-    std::cout << " flowSolverIndex = " << flowSolverIndex << endl;
+    std::cout << " flowSolverIndex = " << flowSolverIndex << std::endl;
 
     ioFile.ReadNextNonEmptyLine();
     int numberOfZones = ioFile.ReadNextDigit< int >();
-    std::cout << " numberOfZones = " << numberOfZones << endl;
+    std::cout << " numberOfZones = " << numberOfZones << std::endl;
 
     if ( numberOfZones != gridMediator->numberOfZones )
     {
@@ -438,7 +438,7 @@ void Plot3D::ReadBc( GridMediator * gridMediator )
             nk = ioFile.ReadNextDigit< int >();
         }
 
-        std::cout << " ni, nj, nk = " << ni << " " << nj << " " << nk << endl;
+        std::cout << " ni, nj, nk = " << ni << " " << nj << " " << nk << std::endl;
         int ndif = ONEFLOW::ABS( ni - grid->ni )
                  + ONEFLOW::ABS( nj - grid->nj )
                  + ONEFLOW::ABS( nk - grid->nk );
@@ -647,7 +647,7 @@ void Plot3D::ReadCoor( FileIO * ioFile, RealField & coordinate )
             if ( i >= numberOfNodes )
             {
                 int left = num - j;
-                std::cout << " unread elem = " << left << endl;
+                std::cout << " unread elem = " << left << std::endl;
                 break;
             }
         }

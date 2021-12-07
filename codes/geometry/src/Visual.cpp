@@ -71,7 +71,7 @@ void Visual::DumpTitle( std::fstream & file, Mesh * mesh )
 
     for ( UInt i = 0; i < titleOfTecplot.size(); ++ i )
     {
-        file << titleOfTecplot[ i ] << endl;
+        file << titleOfTecplot[ i ] << std::endl;
     }
 
     UInt totalNumFaceNodes = mesh->faceMesh->CalcTotalFaceNodes();
@@ -84,10 +84,10 @@ void Visual::DumpTitle( std::fstream & file, Mesh * mesh )
     file << "ZONE\n";
     file << "ZoneType = FEPolygon\n";
 
-    file << "Nodes    = " << numberOfNodes << endl;
-    file << "Faces    = " << nFaces << endl;
-    file << "Elements = " << numberOfCells << endl;
-    file << "TotalNumFaceNodes = " << totalNumFaceNodes << endl;
+    file << "Nodes    = " << numberOfNodes << std::endl;
+    file << "Faces    = " << nFaces << std::endl;
+    file << "Elements = " << numberOfCells << std::endl;
+    file << "TotalNumFaceNodes = " << totalNumFaceNodes << std::endl;
     file << "NumConnectedBoundaryFaces = 0\n";
     file << "TotalNumBoundaryConnections = 0\n";
 }
@@ -105,10 +105,10 @@ void Visual::DumpCoordinate( std::fstream & file, RealField & coordinate )
     for ( UInt iNode = 0; iNode < numberOfNodes; ++ iNode )
     {
         file << coordinate[ iNode ] << " ";
-        if ( ( iNode + 1 ) % Visual::numberOfWords == 0 ) file << endl;
+        if ( ( iNode + 1 ) % Visual::numberOfWords == 0 ) file << std::endl;
     }
     //If it's not full, the end line needs a line break
-    if ( numberOfNodes % Visual::numberOfWords != 0 ) file << endl;
+    if ( numberOfNodes % Visual::numberOfWords != 0 ) file << std::endl;
 }
 
 void Visual::DumpFaceNodesLink( std::fstream & file, Mesh * mesh )
@@ -121,11 +121,11 @@ void Visual::DumpFaceNodesLink( std::fstream & file, Mesh * mesh )
         for ( int iNodeOfFace = 0; iNodeOfFace < numberOfNodesOnFace; ++ iNodeOfFace )
         {
             file << mesh->faceMesh->faceTopo->faces[ iFace ][ iNodeOfFace ] + 1 << " ";
-            if ( ( nodeCount + 1 ) % Visual::numberOfWords == 0 ) file << endl;
+            if ( ( nodeCount + 1 ) % Visual::numberOfWords == 0 ) file << std::endl;
             nodeCount ++;
         }
     }
-    if ( nodeCount % Visual::numberOfWords != 0 ) file << endl;
+    if ( nodeCount % Visual::numberOfWords != 0 ) file << std::endl;
 }
 
 void Visual::DumpFaceElementLink( std::fstream & file, Mesh * mesh )
@@ -145,9 +145,9 @@ void Visual::DumpFaceElementLink( std::fstream & file, UInt nFaces, UInt numberO
         if ( elementIndex > numberOfElements || elementIndex < 0 ) elementIndex = 0;
 
         file << elementIndex << " ";
-        if ( ( iFace + 1 ) % Visual::numberOfWords == 0 ) file << endl;
+        if ( ( iFace + 1 ) % Visual::numberOfWords == 0 ) file << std::endl;
     }
-    if ( nFaces % Visual::numberOfWords != 0 ) file << endl;
+    if ( nFaces % Visual::numberOfWords != 0 ) file << std::endl;
 }
 
 EndNameSpace

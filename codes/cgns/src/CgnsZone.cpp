@@ -120,7 +120,7 @@ void CgnsZone::SetElementTypeAndNode( ElemFeature * elem_feature )
     }
     std::cout << "\n";
     std::cout << " iZone = " << this->zId << " nCells = " << this->cgnsCoor->GetNCell() << "\n";
-    std::cout << " elem_feature->eType->size = " << elem_feature->eTypes->size() << endl;
+    std::cout << " elem_feature->eType->size = " << elem_feature->eTypes->size() << std::endl;
 }
 
 bool CgnsZone::ExistSection( const std::string & sectionName )

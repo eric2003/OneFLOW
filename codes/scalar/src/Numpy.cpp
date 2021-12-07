@@ -114,7 +114,7 @@ void Numpy::ToTecplot( const std::string & fileName, std::vector< double > & x, 
     Numpy::OpenPrjFile( file, fileName, std::ios_base::out );
     int nSize = x.size();
 
-    file << "TITLE = " << "\"OneFLOW X-Y Plot\"" << endl;
+    file << "TITLE = " << "\"OneFLOW X-Y Plot\"" << std::endl;
     file << "VARIABLES = " << "\"x\", " << "\"u\" " << "\n";
     file << "ZONE T = " << "\"scalar results\"," << " I = " << nSize << "\n";
     for ( int i = 0; i < nSize; ++ i )
@@ -131,7 +131,7 @@ void Numpy::ToTecplot( const std::string & fileName, std::vector< double > & x, 
     Numpy::OpenPrjFile( file, fileName, std::ios_base::out );
     int nSize = x.size();
 
-    file << "TITLE = " << "\"OneFLOW X-Y Plot\"" << endl;
+    file << "TITLE = " << "\"OneFLOW X-Y Plot\"" << std::endl;
     file << "VARIABLES = " << "\"x\", " << "\"u\", " << "\"v\" " << "\n";
     file << "ZONE T = " << "\"scalar results\"," << " I = " << nSize << "\n";
     for ( int i = 0; i < nSize; ++ i )
@@ -147,7 +147,7 @@ void Numpy::Analysis( const std::string & fileName, std::vector< double > & x, s
     std::fstream file;
     Numpy::OpenPrjFile( file, fileName, std::ios_base::out );
 
-    file << "TITLE = " << "\"OneFLOW X-Y Plot\"" << endl;
+    file << "TITLE = " << "\"OneFLOW X-Y Plot\"" << std::endl;
 
     int nSize = x.size();
     file << "ZONE T = " << "\"scalar analysis results\"," << " I = " << nSize << "\n";
@@ -158,7 +158,7 @@ void Numpy::Analysis( const std::string & fileName, std::vector< double > & x, s
         {
             file << " " << du[ j ][ i ];
         }
-        file << endl;
+        file << std::endl;
     }
 
     CloseFile( file );
@@ -169,7 +169,7 @@ void Numpy::AnalysisNew( const std::string & fileName, std::vector< std::vector<
     std::fstream file;
     Numpy::OpenPrjFile( file, fileName, std::ios_base::out );
 
-    file << "TITLE = " << "\"OneFLOW X-Y Plot\"" << endl;
+    file << "TITLE = " << "\"OneFLOW X-Y Plot\"" << std::endl;
 
     for ( int j = 0; j < du.size(); ++ j )
     {
@@ -177,7 +177,7 @@ void Numpy::AnalysisNew( const std::string & fileName, std::vector< std::vector<
         file << "ZONE T = " << "\"scalar analysis results\"," << " I = " << nSize << "\n";
         for ( int i = 0; i < nSize; ++ i )
         {
-            file << x[ j ][ i ] << " " << du[ j ][ i ] << endl;
+            file << x[ j ][ i ] << " " << du[ j ][ i ] << std::endl;
         }
     }
 
@@ -189,14 +189,14 @@ void Numpy::DrawL1Norm( const std::string & fileName, std::vector< double > & dx
     std::fstream file;
     Numpy::OpenPrjFile( file, fileName, std::ios_base::out );
 
-    file << "TITLE = " << "\"OneFLOW X-Y Plot\"" << endl;
+    file << "TITLE = " << "\"OneFLOW X-Y Plot\"" << std::endl;
 
     int nSize = dxList.size();
     file << "VARIABLES = " << "\"dx\", " << "\"norm\" " << "\n";
     file << "ZONE T = " << "\"scalar Norm analysis results\"," << " I = " << nSize << "\n";
     for ( int i = 0; i < nSize; ++ i )
     {
-        file << dxList[ i ] << " " << l1NormList[ i ] << endl;
+        file << dxList[ i ] << " " << l1NormList[ i ] << std::endl;
     }
 
     CloseFile( file );
@@ -207,14 +207,14 @@ void Numpy::DrawNorms( const std::string & fileName, std::vector< double > & dxL
     std::fstream file;
     Numpy::OpenPrjFile( file, fileName, std::ios_base::out );
 
-    file << "TITLE = " << "\"OneFLOW X-Y Plot\"" << endl;
+    file << "TITLE = " << "\"OneFLOW X-Y Plot\"" << std::endl;
 
     int nSize = dxList.size();
     file << "VARIABLES = " << "\"dx\" " << "\"norm1\" " << "\"norm2\" " << "\n";
     file << "ZONE T = " << "\"scalar Norm analysis results\"," << " I = " << nSize << "\n";
     for ( int i = 0; i < nSize; ++ i )
     {
-        file << dxList[ i ] << " " << l1NormList[ i ] << " " << l2NormList[ i ] << endl;
+        file << dxList[ i ] << " " << l1NormList[ i ] << " " << l2NormList[ i ] << std::endl;
     }
     CloseFile( file );
 }

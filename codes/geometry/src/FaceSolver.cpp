@@ -105,7 +105,7 @@ void FaceSolver::ScanElementFace( CgIntField & eNodeId, int eType, int eId )
             int faceNumber = this->faceTopo->lCells.size();
             if ( totalfn != faceNumber )
             {
-                std::cout << "totalfn != faceNumber " << totalfn << " " << faceNumber << endl;
+                std::cout << "totalfn != faceNumber " << totalfn << " " << faceNumber << std::endl;
                 Stop("");
             }
             this->refFaces->insert( fMid );
@@ -166,7 +166,7 @@ void FaceSolver::ScanBcFace( IntSet& bcVertex, int bcType, int bcNameId )
     {
         if ( iFace % 200000 == 0 ) 
         {
-            //cout << " iFace = " << iFace << " numberOfTotalFaces = " << nFaces << endl;
+            //cout << " iFace = " << iFace << " numberOfTotalFaces = " << nFaces << std::endl;
         }
         int originalBcType = ( * this->faceBcType )[ iFace ];
         int rCell     = ( this->faceTopo->rCells )[ iFace ];
@@ -184,7 +184,7 @@ void FaceSolver::ScanBcFace( IntSet& bcVertex, int bcType, int bcNameId )
         }
     }
 
-    //cout << " nBFaces = " << nBFaces << endl;
+    //cout << " nBFaces = " << nBFaces << std::endl;
     int kkk = 1;
 }
 
@@ -210,7 +210,7 @@ void FaceSolver::ScanBcFaceDetail( IntSet& bcVertex, int bcType, int bcNameId )
     {
         if ( iFace % 200000 == 0 ) 
         {
-            //cout << " iFace = " << iFace << " numberOfTotalFaces = " << nFaces << endl;
+            //cout << " iFace = " << iFace << " numberOfTotalFaces = " << nFaces << std::endl;
         }
         int originalBcType = ( * this->faceBcType )[ iFace ];
 
@@ -226,7 +226,7 @@ void FaceSolver::ScanBcFaceDetail( IntSet& bcVertex, int bcType, int bcNameId )
         }
     }
 
-    std::cout << " nFinalBcFace = " << nBFaces << " bcType = " << bcType << endl;
+    std::cout << " nFinalBcFace = " << nBFaces << " bcType = " << bcType << std::endl;
     int kkk = 1;
 }
 
@@ -248,7 +248,7 @@ void FaceSolver::ScanInterfaceBc()
         }
     }
 
-    std::cout << " nInterFace = " << nInterFace << endl;
+    std::cout << " nInterFace = " << nInterFace << std::endl;
 }
 
 int FaceSolver::GetNSimpleFace()

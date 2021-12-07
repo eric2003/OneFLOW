@@ -126,7 +126,7 @@ void SimuImp::RunSimu()
             break;
         default:
         {
-            std::cerr << "unknown simutask value!!" << endl;
+            std::cerr << "unknown simutask value!!" << std::endl;
             exit(EXIT_FAILURE);
         }
         break;

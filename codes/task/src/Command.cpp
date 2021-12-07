@@ -129,7 +129,7 @@ void CMD::ShowCmdInfo( Command * cmd, int iCmd )
         int iTaskGlobal = iCmd + i;
 
         std::cout << " iTaskGlobal = " << iTaskGlobal << " iTaskLocal = " << i << " ";
-        std::cout << " TaskCode = " << task->taskId << " Task Name = " << task->taskName << endl;
+        std::cout << " TaskCode = " << task->taskId << " Task Name = " << task->taskName << std::endl;
     }
 }
 

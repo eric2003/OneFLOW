@@ -144,7 +144,7 @@ bool FileIO::ReadNextNonEmptyLine()
 
 void FileIO::DumpLineContentToScreen()
 {
-    std::cout << * line << endl;
+    std::cout << * line << std::endl;
 }
 
 void FileIO::SkipReadSymbol( const std::string & stringSymbol )
@@ -240,9 +240,9 @@ std::string FileIO::ReadNextWordToLowerCase( const std::string & separator )
 
 bool IsEmpty( std::fstream & file )
 {
-    file.seekp( 0, ios::end );
+    file.seekp( 0, std::ios::end );
     std::streamoff i = file.tellp();
-    //cout << "ONEFLOW::IsEmpty( std::fstream & file ) = " << i << endl;
+    //cout << "ONEFLOW::IsEmpty( std::fstream & file ) = " << i << std::endl;
     if ( i ) return false;
     return true;
 }

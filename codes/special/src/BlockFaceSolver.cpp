@@ -429,8 +429,8 @@ void BlkFaceSolver::DumpBcInp()
     std::fstream file;
     OpenPrjFile( file, grid_para.bcFile, std::ios_base::out );
 
-    file << setw( width ) << flowSolverIndex << endl;
-    file << setw( width ) << nBlock << endl;
+    file << setw( width ) << flowSolverIndex << std::endl;
+    file << setw( width ) << nBlock << std::endl;
     for ( int iBlk = 0; iBlk < nBlock; ++ iBlk )
     {
         Block3D * blk3d = this->blkList[ iBlk ];
@@ -450,8 +450,8 @@ void BlkFaceSolver::DumpBcInp2D()
     std::fstream file;
     OpenPrjFile( file, grid_para.bcFile, std::ios_base::out );
 
-    file << setw( width ) << flowSolverIndex << endl;
-    file << setw( width ) << nBlock << endl;
+    file << setw( width ) << flowSolverIndex << std::endl;
+    file << setw( width ) << nBlock << std::endl;
     for ( int iBlk = 0; iBlk < nBlock; ++ iBlk )
     {
         Block2D * blk2d = this->blkList2d[ iBlk ];

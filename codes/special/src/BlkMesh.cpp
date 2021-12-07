@@ -81,7 +81,7 @@ void BlkBasic::DumpInp( std::fstream & file )
     {
         file << setw( width ) << nk;
     }
-    file << endl;
+    file << std::endl;
 
     file << "zone" << this->blk_id + 1 << "\n";
 

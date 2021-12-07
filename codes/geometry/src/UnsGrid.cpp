@@ -96,11 +96,11 @@ void UnsGrid::ReadGrid( DataBook * databook )
     ONEFLOW::HXRead( databook, this->nFaces );
     ONEFLOW::HXRead( databook, this->nCells );
 
-    std::cout << "Grid dimension = " << Dim::dimension << endl;
+    std::cout << "Grid dimension = " << Dim::dimension << std::endl;
 
-    std::cout << " number of nodes    : " << this->nNodes << endl;
-    std::cout << " number of surfaces : " << this->nFaces << endl;
-    std::cout << " number of elements : " << this->nCells << endl;
+    std::cout << " number of nodes    : " << this->nNodes << std::endl;
+    std::cout << " number of surfaces : " << this->nFaces << std::endl;
+    std::cout << " number of elements : " << this->nCells << std::endl;
 
     this->nodeMesh->CreateNodes( this->nNodes );
     this->cellMesh->cellTopo->Alloc( this->nCells );
@@ -181,7 +181,7 @@ void UnsGrid::ReadBoundaryTopology( DataBook * databook )
     ONEFLOW::HXRead( databook, this->nBFaces );
     this->faceTopo->SetNBFaces( this->nBFaces );
 
-    //cout << " nBFaces = " << this->nBFaces << endl;
+    //cout << " nBFaces = " << this->nBFaces << std::endl;
 
     //Setting boundary conditions
     BcRecord * bcRecord = this->faceTopo->bcManager->bcRecord;
@@ -189,7 +189,7 @@ void UnsGrid::ReadBoundaryTopology( DataBook * databook )
     ONEFLOW::HXRead( databook, bcRecord->bcNameId );
     ONEFLOW::HXRead( databook, this->nIFaces );
     std::cout << " nBFaces = " << this->nBFaces;
-    std::cout << " nIFaces = " << this->nIFaces << endl;
+    std::cout << " nIFaces = " << this->nIFaces << std::endl;
     this->interFace->Set( this->nIFaces, this );
 
     if ( this->nIFaces > 0 )
@@ -202,11 +202,11 @@ void UnsGrid::ReadBoundaryTopology( DataBook * databook )
 
 void UnsGrid::WriteGrid( DataBook * databook )
 {
-    std::cout << "Grid dimension = " << Dim::dimension << endl;
+    std::cout << "Grid dimension = " << Dim::dimension << std::endl;
 
-    std::cout << " number of nodes    : " << this->nNodes << endl;
-    std::cout << " number of surfaces : " << this->nFaces << endl;
-    std::cout << " number of elements : " << this->nCells << endl;
+    std::cout << " number of nodes    : " << this->nNodes << std::endl;
+    std::cout << " number of surfaces : " << this->nFaces << std::endl;
+    std::cout << " number of elements : " << this->nCells << std::endl;
 
     ONEFLOW::HXWrite( databook, this->nNodes );
     ONEFLOW::HXWrite( databook, this->nFaces );
@@ -344,7 +344,7 @@ void UnsGrid::ModifyBcType( int bcType1, int bcType2 )
 
 void UnsGrid::GenerateLgMapping( IFaceLink * iFaceLink )
 {
-    std::cout << "zoneIndex = " << this->id << endl;
+    std::cout << "zoneIndex = " << this->id << std::endl;
 
     BcRecord * bcRecord = this->faceTopo->bcManager->bcRecord;
 
@@ -352,7 +352,7 @@ void UnsGrid::GenerateLgMapping( IFaceLink * iFaceLink )
 
     int nIFaces = bcRecord->CalcNIFace();
 
-    std::cout << "nIFaces = " << nIFaces << endl;
+    std::cout << "nIFaces = " << nIFaces << std::endl;
     this->nIFaces = nIFaces;
     this->interFace->Set( nIFaces, this );
 
@@ -390,12 +390,12 @@ void UnsGrid::GenerateLgMapping( IFaceLink * iFaceLink )
         ++ lCount;
     }
 
-    std::cout << "local interface count = " << lCount << endl;
+    std::cout << "local interface count = " << lCount << std::endl;
 }
 
 void UnsGrid::ReGenerateLgMapping( IFaceLink * iFaceLink )
 {
-    std::cout << "zoneIndex = " << this->id << endl;
+    std::cout << "zoneIndex = " << this->id << std::endl;
 
     if ( ! this->faceTopo->bcManager->ExistInterface() )
     {

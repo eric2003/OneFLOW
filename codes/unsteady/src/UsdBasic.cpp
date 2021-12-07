@@ -174,7 +174,7 @@ void UsdBasic::InitCoef()
     }
     else
     {
-        std::cout << " Error !!!!! linearTwoStepMethods = " << linearTwoStepMethods << endl;
+        std::cout << " Error !!!!! linearTwoStepMethods = " << linearTwoStepMethods << std::endl;
     }
 
     coeff[ 0 ] = thet;

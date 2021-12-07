@@ -92,7 +92,7 @@ void TurbVelCut::DumpNormal()
 
     for ( UInt i = 0; i < title.size(); ++ i )
     {
-        file << title[ i ] << endl;
+        file << title[ i ] << std::endl;
     }
 
     size_t nSlice = sliceData.size();
@@ -127,7 +127,7 @@ void TurbVelCut::DumpDetail()
 
     for ( UInt i = 0; i < title.size(); ++ i )
     {
-        file << title[ i ] << endl;
+        file << title[ i ] << std::endl;
     }
 
     size_t nSlice = sliceData.size();
@@ -196,7 +196,7 @@ void TurbVelCut::Dump( LamData * lamData, std::fstream & file, int axis )
         file << setiosflags( ios::left );
         file << setiosflags( ios::scientific );
         file << setprecision( 10 );
-        file << setw( wordWidth ) << yp << setw( wordWidth ) << up << endl;
+        file << setw( wordWidth ) << yp << setw( wordWidth ) << up << std::endl;
     }
 }
 
@@ -263,7 +263,7 @@ void TurbVelCut::DumpDetail( LamData * lamData, std::fstream & file, int axis )
         file << setw( wordWidth ) << rm << setw( wordWidth ) << pm;
         file << setw( wordWidth ) << um << setw( wordWidth ) << vm;
         file << setw( wordWidth ) << utau << setw( wordWidth ) << vis;
-        file << endl;
+        file << std::endl;
     }
 }
 
@@ -293,7 +293,7 @@ void TurbFriCut::Dump()
 
     for ( UInt i = 0; i < title.size(); ++ i )
     {
-        file << title[ i ] << endl;
+        file << title[ i ] << std::endl;
     }
 
     size_t nSlice = sliceData.size();
@@ -346,7 +346,7 @@ void TurbFriCut::Dump( LamData * lamData, std::fstream & file, int axis )
         file << setiosflags( ios::left );
         file << setiosflags( ios::scientific );
         file << setprecision( 10 );
-        file << setw( wordWidth ) << xf << setw( wordWidth ) << cf << endl;
+        file << setw( wordWidth ) << xf << setw( wordWidth ) << cf << std::endl;
     }
 }
 

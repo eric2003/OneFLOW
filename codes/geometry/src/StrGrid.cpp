@@ -101,9 +101,9 @@ void StrGrid::SetBasicDimension()
 
     std::cout << " " << Dim::dimension << "D Grid\n";
 
-    std::cout << " number of nodes           : " << this->nNodes << endl;
-    std::cout << " number of element surface : " << this->nFaces << endl;
-    std::cout << " number of element         : " << this->nCells << endl;
+    std::cout << " number of nodes           : " << this->nNodes << std::endl;
+    std::cout << " number of element surface : " << this->nFaces << std::endl;
+    std::cout << " number of element         : " << this->nCells << std::endl;
 }
 
 void StrGrid::SetLayout()

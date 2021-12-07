@@ -113,14 +113,14 @@ void CgnsZbcBoco::ConvertToInnerDataStandard()
 void CgnsZbcBoco::ScanBcFace( FaceSolver * face_solver )
 {
     std::cout << " Now ScanBcFace......\n\n";
-    std::cout << " nBoco = " << this->nBoco << endl;
+    std::cout << " nBoco = " << this->nBoco << std::endl;
 
     for ( int iBoco = 0; iBoco < this->nBoco; ++ iBoco )
     {
         std::cout << " iBoco = " << iBoco << " ";
         CgnsBcBoco * cgnsBcBoco = this->GetCgnsBc( iBoco );
-        std::cout << " BCTypeName = " << ONEFLOW::GetCgnsBcName( cgnsBcBoco->bcType ) << endl;
-        std::cout << " BCRegion Name = " << cgnsBcBoco->name << endl;
+        std::cout << " BCTypeName = " << ONEFLOW::GetCgnsBcName( cgnsBcBoco->bcType ) << std::endl;
+        std::cout << " BCRegion Name = " << cgnsBcBoco->name << std::endl;
 
         RegionNameMap::AddRegion( cgnsBcBoco->name );
         int bcNameId = RegionNameMap::FindRegionId( cgnsBcBoco->name );
@@ -131,7 +131,7 @@ void CgnsZbcBoco::ScanBcFace( FaceSolver * face_solver )
 
 void CgnsZbcBoco::PrintZnboco()
 {
-    std::cout << "   nBoco        = " << this->nBoco << endl;
+    std::cout << "   nBoco        = " << this->nBoco << std::endl;
 }
 
 void CgnsZbcBoco::ReadZnboco()

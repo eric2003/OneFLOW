@@ -229,11 +229,11 @@ void DumpRegion( const std::string & fileName, CommonNameMap & nameMap )
 
     std::set< HXSort< std::string > > & stringMap = nameMap.GetNameMap();
 
-    file << stringMap.size() << endl;
+    file << stringMap.size() << std::endl;
 
     for ( std::set< HXSort< std::string > >::iterator iter = stringMap.begin(); iter != stringMap.end(); ++ iter )
     {
-        file << iter->index << " " << iter->value << endl;
+        file << iter->index << " " << iter->value << std::endl;
     }
     CloseFile( file );
 }

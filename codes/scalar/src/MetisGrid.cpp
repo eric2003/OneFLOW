@@ -137,7 +137,7 @@ void MetisSplit::ScalarPartitionByMetis( idx_t nCells, MetisIntList & xadj, Meti
 		METIS_PartGraphRecursive( & nCells, & ncon, & xadj[ 0 ], & adjncy[ 0 ], vwgt, vsize, adjwgt, 
 			& nZone, tpwgts, ubvec, options, & objval, & cellzone[ 0 ] );
 	}
-	cout << "The interface number: " << objval << endl; 
+	cout << "The interface number: " << objval << std::endl; 
 	cout << "Partition is finished!\n";
 }
 

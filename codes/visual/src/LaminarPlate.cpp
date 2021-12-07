@@ -85,7 +85,7 @@ void LamVelCut::Dump()
 
     for ( UInt i = 0; i < title.size(); ++ i )
     {
-        file << title[ i ] << endl;
+        file << title[ i ] << std::endl;
     }
 
     int nSlice = sliceData.size();
@@ -138,7 +138,7 @@ void LamVelCut::Dump( LamData * lamData, std::fstream & file, int axis )
         file << setiosflags( ios::left );
         file << setiosflags( ios::scientific );
         file << setprecision( 10 );
-        file << setw( wordWidth ) << et << setw( wordWidth ) << ut << setw( wordWidth ) << vt << endl;
+        file << setw( wordWidth ) << et << setw( wordWidth ) << ut << setw( wordWidth ) << vt << std::endl;
     }
 }
 
@@ -168,7 +168,7 @@ void LamFriCut::Dump()
 
     for ( UInt i = 0; i < title.size(); ++ i )
     {
-        file << title[ i ] << endl;
+        file << title[ i ] << std::endl;
     }
 
     int nSlice = sliceData.size();
@@ -221,7 +221,7 @@ void LamFriCut::Dump( LamData * lamData, std::fstream & file, int axis )
         file << setiosflags( ios::left );
         file << setiosflags( ios::scientific );
         file << setprecision( 10 );
-        file << setw( wordWidth ) << xf << setw( wordWidth ) << cf << endl;
+        file << setw( wordWidth ) << xf << setw( wordWidth ) << cf << std::endl;
     }
 }
 

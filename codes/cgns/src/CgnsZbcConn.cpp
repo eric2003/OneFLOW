@@ -80,7 +80,7 @@ void CgnsZbcConn::CreateCgnsZbc()
 
 void CgnsZbcConn::PrintZnconn()
 {
-    std::cout << "   nConn        = " << this->nConn << endl;
+    std::cout << "   nConn        = " << this->nConn << std::endl;
 }
 
 void CgnsZbcConn::ReadZnconn( int nConn )

@@ -172,7 +172,7 @@ void GridElem::GenerateCalcElement()
     {
         if ( iFace % 200000 == 0 ) 
         {
-            std::cout << " iFace = " << iFace << " numberOfTotalFaces = " << nFaces << endl;
+            std::cout << " iFace = " << iFace << " numberOfTotalFaces = " << nFaces << std::endl;
         }
 
         int rc = ( faceTopo->rCells )[ iFace ];
@@ -200,7 +200,7 @@ void GridElem::GenerateCalcGrid( Grid * gridIn )
 
     grid->nCells = this->elem_feature->eTypes->size();
     grid->cellMesh->cellTopo->eTypes = * this->elem_feature->eTypes;
-    std::cout << "   nCells = " << grid->nCells << endl;
+    std::cout << "   nCells = " << grid->nCells << std::endl;
 
     int nNodes = this->point_factory->c2g.size();
     grid->nodeMesh->CreateNodes( nNodes );
@@ -276,23 +276,23 @@ void GridElem::CalcBoundaryType( UnsGrid * grid )
         nBFaceSub.push_back( iCount );
     }
 
-    std::cout << " Original Boundary Condition Number is " << originalBcSet.size() << endl;
+    std::cout << " Original Boundary Condition Number is " << originalBcSet.size() << std::endl;
     iCount = 0;
     for ( IntSet::iterator iter = originalBcSet.begin(); iter != originalBcSet.end(); ++ iter )
     {
         int oriBcType = * iter;
         std::cout << " Boundary Type = " << setw( 3 ) << oriBcType << "  Name = " << setiosflags(ios::left) << setw( 23 ) << GetCgnsBcName( oriBcType );
-        std::cout << " Face = " << nBFaceSub[ iCount ] << endl;
+        std::cout << " Face = " << nBFaceSub[ iCount ] << std::endl;
         ++ iCount;
     }
-    std::cout << endl;
-    std::cout << " Final Boundary Condition Number is " << finalBcSet.size() << endl;
+    std::cout << std::endl;
+    std::cout << " Final Boundary Condition Number is " << finalBcSet.size() << std::endl;
     std::cout << " Boundary Type : ";
     for ( IntSet::iterator iter = finalBcSet.begin(); iter != finalBcSet.end(); ++ iter )
     {
         std::cout << * iter << " ";
     }
-    std::cout << endl;
+    std::cout << std::endl;
 }
 
 void GridElem::ReorderLink( UnsGrid * grid )

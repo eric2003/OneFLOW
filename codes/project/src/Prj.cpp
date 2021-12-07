@@ -119,7 +119,7 @@ void OpenFile( std::fstream & file, const std::string & fileName, const std::ios
     file.open( fileName.c_str(), openMode );
     if ( ! file )
     {
-        std::cout << "could not open " << fileName << endl;
+        std::cout << "could not open " << fileName << std::endl;
         Stop( "" );
     }
 }

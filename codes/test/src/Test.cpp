@@ -55,20 +55,20 @@ void Test::Run()
 
     for ( UInt i = 0; i < title.size(); ++ i )
     {
-        file << title[ i ] << endl;
+        file << title[ i ] << std::endl;
     }
     int nj = 10;
     for ( int j = 0; j < nj; ++ j )
     {
         Real c = 2.0 + j;
-        file << " zone  i = " << ni << endl;
+        file << " zone  i = " << ni << std::endl;
         for ( int i = 0; i < ni; ++ i )
         {
             Real x = i * dx;
             Real f = VencatC( x, c );
             Real g = f * x;
-            //cout << x << " " << f << endl;
-            file << x << " " << f << " " << g << endl;
+            //cout << x << " " << f << std::endl;
+            file << x << " " << f << " " << g << std::endl;
         }
     }
 

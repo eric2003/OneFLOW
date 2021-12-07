@@ -151,7 +151,7 @@ void CalcWallDist( StringField & data )
     RealField & ycc = grid->cellMesh->ycc;
     RealField & zcc = grid->cellMesh->zcc;
 
-    std::cout << "zone " << grid->id << endl;
+    std::cout << "zone " << grid->id << std::endl;
 
     WallStructure::PointField & fc = wallstruct->fc;
     WallStructure::PointLink  & fv = wallstruct->fv;
@@ -164,7 +164,7 @@ void CalcWallDist( StringField & data )
         {
             std::cout << " pid = " << Parallel::pid << " Zone = " << grid->id;
             std::cout << " cid = " << cId << " " << "nCells = " << nCells;
-            std::cout << " nWFace = " << nWFace << endl;
+            std::cout << " nWFace = " << nWFace << std::endl;
         }
 
         Real xc = xcc[ cId ];

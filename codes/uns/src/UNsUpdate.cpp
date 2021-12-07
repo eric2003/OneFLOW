@@ -88,7 +88,7 @@ void UNsUpdate::DumpProbeInfo()
 {
     std::cout << setprecision( 3 );
     std::cout << "Warning : p = " << nscom.prim[ IDX::IP ] << ", r = " << nscom.prim[ IDX::IR ];
-    std::cout << " <-> zid = " << ZoneState::zid << ", cid = " << ug.cId << endl;
+    std::cout << " <-> zid = " << ZoneState::zid << ", cid = " << ug.cId << std::endl;
 }
 
 void UNsUpdate::SolutionFix()

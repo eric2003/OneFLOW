@@ -78,7 +78,7 @@ T GetDataValue( const std::string & varName, DataBase * database )
     }
     else
     {
-        std::cerr << "can't find:" << varName << " in database!!" << endl;
+        std::cerr << "can't find:" << varName << " in database!!" << std::endl;
         exit(EXIT_FAILURE);
     }   
 }

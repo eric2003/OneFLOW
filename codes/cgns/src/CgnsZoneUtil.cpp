@@ -353,7 +353,7 @@ void SetUnsBcConn( BcRegion * bcRegion, CgIntField& conn, int & pos, Int3D & uns
     int ist, ied, jst, jed, kst, ked;
     bcRegion->GetNormalizeIJKRegion( ist, ied, jst, jed, kst, ked );
 
-    std::cout << " ist, ied, jst, jed, kst, ked = " << ist << " " << ied << " " << jst << " " << jed << " " << kst << " " << ked << endl;
+    std::cout << " ist, ied, jst, jed, kst, ked = " << ist << " " << ied << " " << jst << " " << jed << " " << kst << " " << ked << std::endl;
     int numpt = 4;
     if ( Dim::dimension == TWO_D ) numpt = 2;
 

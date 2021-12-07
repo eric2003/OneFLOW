@@ -161,7 +161,7 @@ void ResidualTask::DumpFile()
 
         for ( UInt iTitle = 0; iTitle < title.size(); ++ iTitle )
         {
-            oss << title[ iTitle ] << endl;
+            oss << title[ iTitle ] << std::endl;
         }
     }
 
@@ -179,7 +179,7 @@ void ResidualTask::DumpFile()
         oss << setw( 13 ) << this->data.resave.res[ iVar ] << " ";
     }
 
-    oss << endl;
+    oss << std::endl;
 
     file << oss.str();
 
@@ -194,7 +194,7 @@ void ResidualTask::DumpScreen()
     std::ostringstream oss;
     if ( ( Iteration::outerSteps - 1 ) % 100 == 0 )
     {
-        oss << endl;
+        oss << std::endl;
         oss << "iter initer ave  max zone cell vol  nv \n";
     }
 
@@ -216,7 +216,7 @@ void ResidualTask::DumpScreen()
     oss << setw( 11 ) << this->data.resmax.vol[ maxId ];
     oss << " ";
     oss << setw( 3 )  << maxId + 1;
-    oss << endl;
+    oss << std::endl;
 
     std::cout << oss.str();
 }

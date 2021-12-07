@@ -269,7 +269,7 @@ void BcVisual::Dump( std::ostringstream & oss, VisualTool * visualTool, std::str
 
     for ( UInt i = 0; i < visualTool->title.size(); ++ i )
     {
-        oss << visualTool->title[ i ] << endl;
+        oss << visualTool->title[ i ] << std::endl;
     }
         
     int nNodes = l2g.size();
@@ -279,13 +279,13 @@ void BcVisual::Dump( std::ostringstream & oss, VisualTool * visualTool, std::str
     // output for Tecplot
     oss << "ZONE\n";
 
-    oss << "T = " << bcTitle << endl;
+    oss << "T = " << bcTitle << std::endl;
 
     oss << "ZoneType = FEPolygon\n";
 
-    oss << "Nodes    = " << nNodes << endl;
-    oss << "Faces    = " << nFaces << endl;  
-    oss << "Elements = " << nElem << endl;  
+    oss << "Nodes    = " << nNodes << std::endl;
+    oss << "Faces    = " << nFaces << std::endl;  
+    oss << "Elements = " << nElem << std::endl;  
     oss << "NumConnectedBoundaryFaces = 0\n";
     oss << "TotalNumBoundaryConnections = 0\n";
 
@@ -518,7 +518,7 @@ void UVisualize::ShowField( std::ostringstream & oss, VisualTool * visualTool )
 
     for ( UInt i = 0; i < visualTool->title.size(); ++ i )
     {
-        oss << visualTool->title[ i ] << endl;
+        oss << visualTool->title[ i ] << std::endl;
     }
 
     int totalNumFaceNodes = this->GetTotalNumFaceNodes( f2n );
@@ -533,10 +533,10 @@ void UVisualize::ShowField( std::ostringstream & oss, VisualTool * visualTool )
     {
         oss << "ZoneType = FEPolygon\n";
     }
-    oss << "Nodes    = " << nNodes << endl;
-    oss << "Faces    = " << nFaces << endl;
-    oss << "Elements = " << nCells << endl;
-    oss << "TotalNumFaceNodes = " << totalNumFaceNodes << endl;
+    oss << "Nodes    = " << nNodes << std::endl;
+    oss << "Faces    = " << nFaces << std::endl;
+    oss << "Elements = " << nCells << std::endl;
+    oss << "TotalNumFaceNodes = " << totalNumFaceNodes << std::endl;
     oss << "NumConnectedBoundaryFaces = 0\n";
     oss << "TotalNumBoundaryConnections = 0\n";
     Plot::oss = & oss;
