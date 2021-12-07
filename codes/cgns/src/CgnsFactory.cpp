@@ -54,7 +54,6 @@ License
 #include "CalcGrid.h"
 #include "GridElem.h"
 #include "BgGrid.h"
-using namespace std;
 
 BeginNameSpace( ONEFLOW )
 #ifdef ENABLE_CGNS

@@ -29,7 +29,6 @@ License
 #include "Stop.h"
 #include <iostream>
 #include <iomanip>
-using namespace std;
 
 BeginNameSpace( ONEFLOW )
 
@@ -92,7 +91,7 @@ void CgnsFile::OpenCgnsFile( const std::string & fileName, int cgnsOpenMode )
     float fileVersion = -1;
     cg_version( this->fileId, & fileVersion );
 
-    std::cout << "   CGNS File Version = " << setiosflags( ios::fixed ) << setprecision( 4 ) << fileVersion << "\n";
+    std::cout << "   CGNS File Version = " << std::setiosflags( std::ios::fixed ) << std::setprecision( 4 ) << fileVersion << "\n";
 
     int precision = -1;
     cg_precision( this->fileId, & precision );

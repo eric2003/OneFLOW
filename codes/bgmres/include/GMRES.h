@@ -339,7 +339,7 @@ int GMRES
 			rho = sqrt(rho);
 
 			//cout << "iteration:" << iteration << "residual:" << rho << std::endl;
-			/*ofstream file2("residual.txt", ios::app);
+			/*ofstream file2("residual.txt", std::ios::app);
 			file2 << "residual:" << rho << std::endl;
 			file2.close();*/
 

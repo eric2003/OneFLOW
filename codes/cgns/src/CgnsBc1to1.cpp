@@ -29,7 +29,6 @@ License
 #include "HXMath.h"
 #include <iostream>
 #include <iomanip>
-using namespace std;
 
 BeginNameSpace( ONEFLOW )
 
@@ -86,21 +85,21 @@ void CgnsBc1to1::ReadCgnsBc1To1()
 
     std::cout << "   range (this zone )= ";
     int width = 5;
-    std::cout << setw( width ) << connPoint[ 0 ];
-    std::cout << setw( width ) << connPoint[ 1 ];
-    std::cout << setw( width ) << connPoint[ 2 ] << "\n";
+    std::cout << std::setw( width ) << connPoint[ 0 ];
+    std::cout << std::setw( width ) << connPoint[ 1 ];
+    std::cout << std::setw( width ) << connPoint[ 2 ] << "\n";
     std::cout << "                       ";
-    std::cout << setw( width ) << connPoint[ 3 ];
-    std::cout << setw( width ) << connPoint[ 4 ];
-    std::cout << setw( width ) << connPoint[ 5 ] << "\n";
+    std::cout << std::setw( width ) << connPoint[ 3 ];
+    std::cout << std::setw( width ) << connPoint[ 4 ];
+    std::cout << std::setw( width ) << connPoint[ 5 ] << "\n";
     std::cout << "   range (donor zone)= ";
-    std::cout << setw( width ) << connDonorPoint[ 0 ];
-    std::cout << setw( width ) << connDonorPoint[ 1 ];
-    std::cout << setw( width ) << connDonorPoint[ 2 ] << "\n";
+    std::cout << std::setw( width ) << connDonorPoint[ 0 ];
+    std::cout << std::setw( width ) << connDonorPoint[ 1 ];
+    std::cout << std::setw( width ) << connDonorPoint[ 2 ] << "\n";
     std::cout << "                       ";
-    std::cout << setw( width ) << connDonorPoint[ 3 ];
-    std::cout << setw( width ) << connDonorPoint[ 4 ];
-    std::cout << setw( width ) << connDonorPoint[ 5 ] << "\n";
+    std::cout << std::setw( width ) << connDonorPoint[ 3 ];
+    std::cout << std::setw( width ) << connDonorPoint[ 4 ];
+    std::cout << std::setw( width ) << connDonorPoint[ 5 ] << "\n";
     std::cout << "   transform = " << itranfrm[ 0 ] << " " << itranfrm[ 1 ] << " " << itranfrm[ 2 ] << "\n";
 
     int transform[ 3 ][ 3 ];

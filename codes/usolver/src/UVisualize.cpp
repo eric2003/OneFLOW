@@ -415,9 +415,9 @@ void BcVisual::DumpSeveralElement()
     for ( int iNode = 0; iNode < iCount; ++ iNode )
     {
         int id = l2g[ nList2[ iNode ] ];
-        file << setw( width ) << setprecision( pre ) << grid->nodeMesh->xN[ id ] << " ";
-        file << setw( width ) << setprecision( pre ) << grid->nodeMesh->yN[ id ] << " ";
-        file << setw( width ) << setprecision( pre ) << grid->nodeMesh->zN[ id ] << " ";
+        file << std::setw( width ) << std::setprecision( pre ) << grid->nodeMesh->xN[ id ] << " ";
+        file << std::setw( width ) << std::setprecision( pre ) << grid->nodeMesh->yN[ id ] << " ";
+        file << std::setw( width ) << std::setprecision( pre ) << grid->nodeMesh->zN[ id ] << " ";
         file << "\n";
     }
 

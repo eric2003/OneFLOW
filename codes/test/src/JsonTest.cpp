@@ -105,7 +105,7 @@ void readFileJson()
     Json::Value root;
 
     ifstream f;
-    f.open( "test.json", ios::in );
+    f.open( "test.json", std::ios::in );
     if ( ! f.is_open() )
     {
         std::cout << "Open json file error!" << std::endl;
@@ -133,7 +133,7 @@ void readFileJson()
     }
 
     ofstream os;
-    os.open("1.json", ios::out);
+    os.open("1.json", std::ios::out);
     Json::StreamWriterBuilder builder;
     std::unique_ptr<Json::StreamWriter> writer( builder.newStreamWriter() );
     writer->write(root, &os);

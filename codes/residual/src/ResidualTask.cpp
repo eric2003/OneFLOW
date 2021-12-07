@@ -165,10 +165,10 @@ void ResidualTask::DumpFile()
         }
     }
 
-    oss << setiosflags( ios::left );
-    oss << setprecision( 5 );
-    oss << setiosflags( ios::scientific );
-    oss << setiosflags( ios::showpoint );
+    oss << std::setiosflags( std::ios::left );
+    oss << std::setprecision( 5 );
+    oss << std::setiosflags( std::ios::scientific );
+    oss << std::setiosflags( std::ios::showpoint );
 
     oss << Iteration::outerSteps << " ";
     oss << Iteration::innerSteps << " ";
@@ -176,7 +176,7 @@ void ResidualTask::DumpFile()
     size_t nVar = this->data.resave.res.size();
     for ( int iVar = 0; iVar < nVar; ++ iVar )
     {
-        oss << setw( 13 ) << this->data.resave.res[ iVar ] << " ";
+        oss << std::setw( 13 ) << this->data.resave.res[ iVar ] << " ";
     }
 
     oss << std::endl;
@@ -198,24 +198,24 @@ void ResidualTask::DumpScreen()
         oss << "iter initer ave  max zone cell vol  nv \n";
     }
 
-    oss << setiosflags( ios::left );
-    oss << setprecision( 5 );
-    oss << setiosflags( ios::scientific );
-    oss << setiosflags( ios::showpoint );
+    oss << std::setiosflags( std::ios::left );
+    oss << std::setprecision( 5 );
+    oss << std::setiosflags( std::ios::scientific );
+    oss << std::setiosflags( std::ios::showpoint );
 
-    oss << setw( 7  ) << Iteration::outerSteps;
-    oss << setw( 7  ) << Iteration::innerSteps;
-    oss << setw( 13 ) << this->data.resave.res[ maxId ];
-    oss << setw( 13 ) << this->data.resmax.resmax[ maxId ];
-    oss << setw( 4  ) << this->data.resmax.zid[ maxId ] + 1;
+    oss << std::setw( 7  ) << Iteration::outerSteps;
+    oss << std::setw( 7  ) << Iteration::innerSteps;
+    oss << std::setw( 13 ) << this->data.resave.res[ maxId ];
+    oss << std::setw( 13 ) << this->data.resmax.resmax[ maxId ];
+    oss << std::setw( 4  ) << this->data.resmax.zid[ maxId ] + 1;
     oss << " ";
-    oss << setw( 6  ) << this->data.resmax.index[ maxId ];
+    oss << std::setw( 6  ) << this->data.resmax.index[ maxId ];
     oss << " ";
-    oss << resetiosflags( ios::scientific );
-    oss << setprecision( 3 );
-    oss << setw( 11 ) << this->data.resmax.vol[ maxId ];
+    oss << resetiosflags( std::ios::scientific );
+    oss << std::setprecision( 3 );
+    oss << std::setw( 11 ) << this->data.resmax.vol[ maxId ];
     oss << " ";
-    oss << setw( 3 )  << maxId + 1;
+    oss << std::setw( 3 )  << maxId + 1;
     oss << std::endl;
 
     std::cout << oss.str();

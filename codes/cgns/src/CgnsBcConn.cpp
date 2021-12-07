@@ -31,7 +31,6 @@ along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 #include "HXMath.h"
 #include <iostream>
 #include <iomanip>
-using namespace std;
 
 BeginNameSpace( ONEFLOW )
 

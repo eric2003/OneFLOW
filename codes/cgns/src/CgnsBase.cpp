@@ -30,7 +30,6 @@ License
 #include "CgnsVariable.h"
 
 #include <iostream>
-using namespace std;
 
 BeginNameSpace( ONEFLOW )
 

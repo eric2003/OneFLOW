@@ -346,8 +346,8 @@ void HXDebug::CompareFile( Real mindiff, int idump )
             if ( ABS( diff ) > mindiff )
             {
                 std::cout << " iEqu = " << iEqu << " iCell = " << iCell << " diff = " << diff << "\n";
-                std::cout << " v1 = " << setiosflags( ios::fixed ) << setprecision( 10 ) << f1[ iCell ];
-                std::cout << " v2 = " << setiosflags( ios::fixed ) << setprecision( 10 ) << f2[ iCell ] << "\n";
+                std::cout << " v1 = " << std::setiosflags( std::ios::fixed ) << std::setprecision( 10 ) << f1[ iCell ];
+                std::cout << " v2 = " << std::setiosflags( std::ios::fixed ) << std::setprecision( 10 ) << f2[ iCell ] << "\n";
                 if ( idump == 0 )
                 {
                     HXDebug::DumpCellInfo( iCell );

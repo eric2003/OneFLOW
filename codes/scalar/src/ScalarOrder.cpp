@@ -158,8 +158,8 @@ void ScalarOrder::Run()
         l2p.push_back( or2 );
         int width = 8;
         std::cout << " i = " << i;
-        std::cout << " order1 = " << setw( width ) << setiosflags( ios::fixed ) << setprecision( 6 ) << or1;
-        std::cout << " order2 = " << setw( width ) << setiosflags( ios::fixed ) << setprecision( 6 ) << or2 << "\n";
+        std::cout << " order1 = " << std::setw( width ) << std::setiosflags( std::ios::fixed ) << std::setprecision( 6 ) << or1;
+        std::cout << " order2 = " << std::setw( width ) << std::setiosflags( std::ios::fixed ) << std::setprecision( 6 ) << or2 << "\n";
     }
     
 

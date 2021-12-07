@@ -100,8 +100,8 @@ void AerodynamicForceTask::Dump()
     std::ostringstream oss;
 
     int wordWidth = 16;
-    oss << setiosflags( ios::right );
-    oss << setiosflags( ios::scientific );
+    oss << std::setiosflags( std::ios::right );
+    oss << std::setiosflags( std::ios::scientific );
 
     std::fstream file;
     OpenPrjFile( file, fileName, std::ios_base::out | std::ios_base::app );
@@ -135,8 +135,8 @@ void AerodynamicForceTask::Dump()
 
     oss << Iteration::outerSteps << "    ";
     oss << Iteration::innerSteps << "    ";
-    oss << setprecision( 6 ) << ctrl.currTime << "    ";
-    oss << setprecision( 4 );
+    oss << std::setprecision( 6 ) << ctrl.currTime << "    ";
+    oss << std::setprecision( 4 );
     oss << aeroForceInfo.cl << "    ";
     oss << aeroForceInfo.cd << "    ";
     oss << aeroForceInfo.cd_pres << "    ";
@@ -352,14 +352,14 @@ void CalcAeroForce(int idump_pres)
 					Real cf = aeroCom.CalcCF(&aeroForce.vis, area[fId]);
 
 					int wordWidth = 20;
-					StrIO << setiosflags(ios::left);
-					StrIO << setiosflags(ios::scientific);
-					StrIO << setprecision(10);
-					StrIO << setw(wordWidth) << xc;
-					StrIO << setw(wordWidth) << yc;
-					StrIO << setw(wordWidth) << zc;
-					StrIO << setw(wordWidth) << -cp;
-					StrIO << setw(wordWidth) << cf;
+					StrIO << std::setiosflags(std::ios::left);
+					StrIO << std::setiosflags(std::ios::scientific);
+					StrIO << std::setprecision(10);
+					StrIO << std::setw(wordWidth) << xc;
+					StrIO << std::setw(wordWidth) << yc;
+					StrIO << std::setw(wordWidth) << zc;
+					StrIO << std::setw(wordWidth) << -cp;
+					StrIO << std::setw(wordWidth) << cf;
 					StrIO << std::endl;
 				}
 			}
@@ -430,14 +430,14 @@ void CalcAeroForce(int idump_pres)
 					Real cf = aeroCom.CalcCF(&aeroForce.vis, area[fId]);
 
 					int wordWidth = 20;
-					StrIO << setiosflags(ios::left);
-					StrIO << setiosflags(ios::scientific);
-					StrIO << setprecision(10);
-					StrIO << setw(wordWidth) << xc;
-					StrIO << setw(wordWidth) << yc;
-					StrIO << setw(wordWidth) << zc;
-					StrIO << setw(wordWidth) << -cp;
-					StrIO << setw(wordWidth) << cf;
+					StrIO << std::setiosflags(std::ios::left);
+					StrIO << std::setiosflags(std::ios::scientific);
+					StrIO << std::setprecision(10);
+					StrIO << std::setw(wordWidth) << xc;
+					StrIO << std::setw(wordWidth) << yc;
+					StrIO << std::setw(wordWidth) << zc;
+					StrIO << std::setw(wordWidth) << -cp;
+					StrIO << std::setw(wordWidth) << cf;
 					StrIO << std::endl;
 				}
 			}

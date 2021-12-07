@@ -743,8 +743,8 @@ void DomainInp::Dump( MultiDomain * md, GridMediator * gridMediator, PointSearch
 
     int width = 5;
     int solver_id = 1;
-    file << setw( width ) << solver_id << std::endl;
-    file << setw( width ) << nZone << std::endl;
+    file << std::setw( width ) << solver_id << std::endl;
+    file << std::setw( width ) << nZone << std::endl;
     for ( int iZone = 0; iZone < nZone; ++ iZone )
     {
         StrGrid * grid = ONEFLOW::StrGridCast( grids[ iZone ] );
@@ -752,9 +752,9 @@ void DomainInp::Dump( MultiDomain * md, GridMediator * gridMediator, PointSearch
         int nj = grid->nj;
         int nk = grid->nk;
 
-        file << setw( width ) << ni;
-        file << setw( width ) << nj;
-        file << setw( width ) << nk << std::endl;
+        file << std::setw( width ) << ni;
+        file << std::setw( width ) << nj;
+        file << std::setw( width ) << nk << std::endl;
 
         file << "zone" << iZone + 1 << std::endl;
 
@@ -780,17 +780,17 @@ void DomainInp::Dump( MultiDomain * md, GridMediator * gridMediator, PointSearch
             }
         }
 
-        file << setw( width ) << count << std::endl;
+        file << std::setw( width ) << count << std::endl;
 
         for ( int i = 0; i < nn; ++ i )
         {
             if ( ijkBox.valid[ i ] == 1 )
             {
                 int bctype = 4;
-                file << setw( width ) << ijkBox.imin[ i ] << setw( width ) << ijkBox.imax[ i ];
-                file << setw( width ) << ijkBox.jmin[ i ] << setw( width ) << ijkBox.jmax[ i ];
-                file << setw( width ) << ijkBox.kmin[ i ] << setw( width ) << ijkBox.kmax[ i ];
-                file << setw( width ) << bctype << std::endl;
+                file << std::setw( width ) << ijkBox.imin[ i ] << std::setw( width ) << ijkBox.imax[ i ];
+                file << std::setw( width ) << ijkBox.jmin[ i ] << std::setw( width ) << ijkBox.jmax[ i ];
+                file << std::setw( width ) << ijkBox.kmin[ i ] << std::setw( width ) << ijkBox.kmax[ i ];
+                file << std::setw( width ) << bctype << std::endl;
             }
         }
 
@@ -837,14 +837,14 @@ void DomainInp::Dump( MultiDomain * md, GridMediator * gridMediator, PointSearch
             box2->CalcIdMap( box1 );
             box2->CalcNormal();
 
-            file << setw( width ) << box1->smin[ 0 ] << setw( width ) << box1->smax[ 0 ];
-            file << setw( width ) << box1->smin[ 1 ] << setw( width ) << box1->smax[ 1 ];
-            file << setw( width ) << box1->smin[ 2 ] << setw( width ) << box1->smax[ 2 ];
-            file << setw( width ) << -1 << std::endl;
-            file << setw( width ) << box2->smin[ 0 ] << setw( width ) << box2->smax[ 0 ];
-            file << setw( width ) << box2->smin[ 1 ] << setw( width ) << box2->smax[ 1 ];
-            file << setw( width ) << box2->smin[ 2 ] << setw( width ) << box2->smax[ 2 ];
-            file << setw( width ) << zid2 + 1 << std::endl;
+            file << std::setw( width ) << box1->smin[ 0 ] << std::setw( width ) << box1->smax[ 0 ];
+            file << std::setw( width ) << box1->smin[ 1 ] << std::setw( width ) << box1->smax[ 1 ];
+            file << std::setw( width ) << box1->smin[ 2 ] << std::setw( width ) << box1->smax[ 2 ];
+            file << std::setw( width ) << -1 << std::endl;
+            file << std::setw( width ) << box2->smin[ 0 ] << std::setw( width ) << box2->smax[ 0 ];
+            file << std::setw( width ) << box2->smin[ 1 ] << std::setw( width ) << box2->smax[ 1 ];
+            file << std::setw( width ) << box2->smin[ 2 ] << std::setw( width ) << box2->smax[ 2 ];
+            file << std::setw( width ) << zid2 + 1 << std::endl;
 
             int kkk = 1;
         }

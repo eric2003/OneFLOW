@@ -28,7 +28,6 @@ License
 #include "Dimension.h"
 #include <iostream>
 #include <iomanip>
-using namespace std;
 
 BeginNameSpace( ONEFLOW )
 #ifdef ENABLE_CGNS
@@ -353,9 +352,9 @@ void CgnsCoor::SetDimensionStr()
         cellSize[ 2 ] = isize[ j ++ ];
     }
     std::cout << "   The Dimension Of Grid is : \n";
-    std::cout << "   I Direction " << setw( 10 ) << irmin[ 0 ] << setw( 10 ) << irmax[ 0 ] << "\n";
-    std::cout << "   J Direction " << setw( 10 ) << irmin[ 1 ] << setw( 10 ) << irmax[ 1 ] << "\n";
-    std::cout << "   K Direction " << setw( 10 ) << irmin[ 2 ] << setw( 10 ) << irmax[ 2 ] << "\n";
+    std::cout << "   I Direction " << std::setw( 10 ) << irmin[ 0 ] << std::setw( 10 ) << irmax[ 0 ] << "\n";
+    std::cout << "   J Direction " << std::setw( 10 ) << irmin[ 1 ] << std::setw( 10 ) << irmax[ 1 ] << "\n";
+    std::cout << "   K Direction " << std::setw( 10 ) << irmin[ 2 ] << std::setw( 10 ) << irmax[ 2 ] << "\n";
     int nNodes = irmax[ 0 ] * irmax[ 1 ] * irmax[ 2 ];
     int nCells = cellSize[ 0 ] * cellSize[ 1 ] * cellSize[ 2 ];
     this->SetNNode( nNodes );

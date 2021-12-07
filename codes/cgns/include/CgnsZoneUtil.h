@@ -26,8 +26,6 @@ License
 #include "HXCgns.h"
 #include "HXArray.h"
 #include "GridDef.h"
-#include <vector>
-using namespace std;
 
 BeginNameSpace( ONEFLOW )
 

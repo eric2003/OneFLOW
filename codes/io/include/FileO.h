@@ -60,7 +60,7 @@ public:
     template< typename T >
     void WriteFormat( const T & value )
     {
-        ( * file ) << setw( nWidth ) << value;
+        ( * file ) << std::setw( nWidth ) << value;
     }
 
     template< typename T >

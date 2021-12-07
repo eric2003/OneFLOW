@@ -75,11 +75,11 @@ void BlkBasic::DumpInp( std::fstream & file )
 {
     int width = 5;
 
-    file << setw( width ) << ni;
-    file << setw( width ) << nj;
+    file << std::setw( width ) << ni;
+    file << std::setw( width ) << nj;
     if ( Dim::dimension == ONEFLOW::THREE_D )
     {
-        file << setw( width ) << nk;
+        file << std::setw( width ) << nk;
     }
     file << std::endl;
 
@@ -87,7 +87,7 @@ void BlkBasic::DumpInp( std::fstream & file )
 
     int nFaces = this->facelist.size();
 
-    file << setw( width )  << nFaces << "\n";
+    file << std::setw( width )  << nFaces << "\n";
 
     for ( int iFace = 0; iFace < nFaces; ++ iFace )
     {
@@ -104,16 +104,16 @@ void BlkBasic::DumpInp( std::fstream & file )
 
         int bcType = face2d->bcType;
 
-        file << setw( width ) << imin;
-        file << setw( width ) << imax;
-        file << setw( width ) << jmin;
-        file << setw( width ) << jmax;
+        file << std::setw( width ) << imin;
+        file << std::setw( width ) << imax;
+        file << std::setw( width ) << jmin;
+        file << std::setw( width ) << jmax;
         if ( Dim::dimension == ONEFLOW::THREE_D )
         {
-            file << setw( width ) << kmin;
-            file << setw( width ) << kmax;
+            file << std::setw( width ) << kmin;
+            file << std::setw( width ) << kmax;
         }
-        file << setw( width ) << bcType;
+        file << std::setw( width ) << bcType;
         file << "\n";
 
         if ( bcType < 0 )
@@ -128,16 +128,16 @@ void BlkBasic::DumpInp( std::fstream & file )
 
             int zid = face2d->t->bcType;
 
-            file << setw( width ) << imin;
-            file << setw( width ) << imax;
-            file << setw( width ) << jmin;
-            file << setw( width ) << jmax;
+            file << std::setw( width ) << imin;
+            file << std::setw( width ) << imax;
+            file << std::setw( width ) << jmin;
+            file << std::setw( width ) << jmax;
             if ( Dim::dimension == ONEFLOW::THREE_D )
             {
-                file << setw( width ) << kmin;
-                file << setw( width ) << kmax;
+                file << std::setw( width ) << kmin;
+                file << std::setw( width ) << kmax;
             }
-            file << setw( width ) << zid;
+            file << std::setw( width ) << zid;
             file << "\n";
         }
     }

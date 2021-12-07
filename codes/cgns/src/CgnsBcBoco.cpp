@@ -35,7 +35,6 @@ License
 #include "HXMath.h"
 #include <iostream>
 #include <iomanip>
-using namespace std;
 
 BeginNameSpace( ONEFLOW )
 
@@ -402,7 +401,7 @@ void CgnsBcBoco::PrintCgnsBcBoco()
 
         for ( int iDimension = 0; iDimension < celldim; ++ iDimension )
         {
-            std::cout << rangeTitle[ iDimension ] << setw( 10 ) << ijkMin[ iDimension ] << setw( 10 ) <<  ijkMax[ iDimension ] << "\n";
+            std::cout << rangeTitle[ iDimension ] << std::setw( 10 ) << ijkMin[ iDimension ] << std::setw( 10 ) <<  ijkMax[ iDimension ] << "\n";
         }
         std::cout << "\n";
     }

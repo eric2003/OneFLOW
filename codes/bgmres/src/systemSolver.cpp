@@ -92,7 +92,7 @@ void SolveMRhs::BGMRES()
 
 #define SOLUTION
 #ifdef SOLUTION
-	/*ofstream file("solution.txt", ios::app);
+	/*ofstream file("solution.txt", std::ios::app);
 	int lupe;
 	int innerlupe;
 	for (lupe = 0; lupe < Rank.RANKNUMBER; ++lupe)

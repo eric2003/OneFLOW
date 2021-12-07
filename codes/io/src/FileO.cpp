@@ -59,7 +59,7 @@ void FileO::DumpCoorAscii( RealField & coor )
     nWidth = 15;
     for ( int i = 0; i < nPoint; ++ i )
     {
-        ( * file ) << setw( nWidth ) << coor[ i ];
+        ( * file ) << std::setw( nWidth ) << coor[ i ];
         nCount ++;
         if ( nCount % nWord == 0 )
         {

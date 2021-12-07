@@ -23,13 +23,7 @@ License
 
 #pragma once
 #include "HXDefine.h"
-#include <vector>
-#include <string>
-#include <fstream>
 #include "HXCgns.h"
-#include "HXArray.h"
-#include "GridDef.h"
-using namespace std;
 
 BeginNameSpace( ONEFLOW )
 

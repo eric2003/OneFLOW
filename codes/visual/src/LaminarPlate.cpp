@@ -135,10 +135,10 @@ void LamVelCut::Dump( LamData * lamData, std::fstream & file, int axis )
         Real ut = um;
         Real vt = vm * sqrt( 2 * nscom.reynolds * vel_inf * xm / ( vis / rm ) );
 
-        file << setiosflags( ios::left );
-        file << setiosflags( ios::scientific );
-        file << setprecision( 10 );
-        file << setw( wordWidth ) << et << setw( wordWidth ) << ut << setw( wordWidth ) << vt << std::endl;
+        file << std::setiosflags( std::ios::left );
+        file << std::setiosflags( std::ios::scientific );
+        file << std::setprecision( 10 );
+        file << std::setw( wordWidth ) << et << std::setw( wordWidth ) << ut << std::setw( wordWidth ) << vt << std::endl;
     }
 }
 
@@ -218,10 +218,10 @@ void LamFriCut::Dump( LamData * lamData, std::fstream & file, int axis )
         Real xf = xm;
         Real cf = 2 * vis * dudy / nscom.reynolds;
 
-        file << setiosflags( ios::left );
-        file << setiosflags( ios::scientific );
-        file << setprecision( 10 );
-        file << setw( wordWidth ) << xf << setw( wordWidth ) << cf << std::endl;
+        file << std::setiosflags( std::ios::left );
+        file << std::setiosflags( std::ios::scientific );
+        file << std::setprecision( 10 );
+        file << std::setw( wordWidth ) << xf << std::setw( wordWidth ) << cf << std::endl;
     }
 }
 

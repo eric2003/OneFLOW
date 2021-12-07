@@ -847,17 +847,17 @@ for (int fId = 0; fId < ug.nBFaces; ++fId)
 }*/
 
 	/*Output the residuals to a TXT file*/
-	/*ofstream fileres_u("residual_u.txt", ios::app);
+	/*ofstream fileres_u("residual_u.txt", std::ios::app);
 	//fileres_u << "residual_u:" << residual_u << std::endl;
 	fileres_u << residual_u << std::endl;
 	fileres_u.close();
 
-	ofstream fileres_v("residual_v.txt", ios::app);
+	ofstream fileres_v("residual_v.txt", std::ios::app);
 	//fileres_v << "residual_v:" << residual_v << std::endl;
 	fileres_v << residual_v << std::endl;
 	fileres_v.close();
 
-	ofstream fileres_w("residual_w.txt", ios::app);
+	ofstream fileres_w("residual_w.txt", std::ios::app);
 	//fileres_w << "residual_w:" << residual_w << std::endl;
 	fileres_w <<residual_w << std::endl;
 	fileres_w.close();*/
@@ -1493,7 +1493,7 @@ for (int cId = 0; cId < ug.nCells; ++cId)
 	//	iinv.pc[ug.cId] = nscom.prim[IIDX::IIP] + iinv.pp[ug.cId]; //Pressure value at the next moment
 	//}
 	
-	/*ofstream fileres_p("residual_p.txt", ios::app);
+	/*ofstream fileres_p("residual_p.txt", std::ios::app);
 	//fileres_p << "residual_p:" <<residual_p << std::endl;
 	fileres_p << residual_p << std::endl;
 	fileres_p.close();*/
@@ -1868,13 +1868,13 @@ void UINsInvterm::UpdateINsRes()
 	cout <<"innerSteps:"<< Iteration::innerSteps<< std::endl;
 	//cout << "outerSteps:" << Iteration::outerSteps << std::endl;
 
-	ofstream fileres_vv("residual_vv.txt", ios::app);
+	ofstream fileres_vv("residual_vv.txt", std::ios::app);
 	//fileres_p << "residual_p:" <<residual_p << std::endl;
 	fileres_vv << iinv.remax_V << std::endl;
 	fileres_vv.close();
 	
 
-	ofstream fileres_pp("residual_pp.txt", ios::app);
+	ofstream fileres_pp("residual_pp.txt", std::ios::app);
 	//fileres_p << "residual_p:" <<residual_p << std::endl;
 	fileres_pp << iinv.remax_pp << std::endl;
 	fileres_pp.close();*/
@@ -1956,23 +1956,23 @@ void UINsInvterm::UpdateINsRes()
 	cout << "iinv.remax_pp:" << iinv.remax_pp << std::endl;
 
 
-	ofstream fileres_up("residual_up.txt", ios::app);
+	ofstream fileres_up("residual_up.txt", std::ios::app);
 	//fileres_p << "residual_p:" <<residual_p << std::endl;
 	fileres_up << iinv.remax_up << std::endl;
 	fileres_up.close();
 
 
-	ofstream fileres_vp("residual_vp.txt", ios::app);
+	ofstream fileres_vp("residual_vp.txt", std::ios::app);
 	//fileres_p << "residual_p:" <<residual_p << std::endl;
 	fileres_vp << iinv.remax_vp << std::endl;
 	fileres_vp.close();
 
-	ofstream fileres_wp("residual_wp.txt", ios::app);
+	ofstream fileres_wp("residual_wp.txt", std::ios::app);
 	//fileres_p << "residual_p:" <<residual_p << std::endl;
 	fileres_wp << iinv.remax_wp << std::endl;
 	fileres_wp.close();
 
-	ofstream fileres_pp("residual_pp.txt", ios::app);
+	ofstream fileres_pp("residual_pp.txt", std::ios::app);
 	//fileres_p << "residual_p:" <<residual_p << std::endl;
 	fileres_pp << iinv.remax_pp << std::endl;
 	fileres_pp.close();

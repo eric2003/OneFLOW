@@ -125,13 +125,13 @@ void Plot3D::ReadCoorBinary( GridMediator * gridMediator )
 
         int wordWidth = 8;
 
-        std::cout << setiosflags( ios::right );
-        std::cout << " iZone = " << setw( wordWidth ) << iZone;
-        std::cout << " nZone = " << setw( wordWidth ) << gridMediator->numberOfZones;
+        std::cout << std::setiosflags( std::ios::right );
+        std::cout << " iZone = " << std::setw( wordWidth ) << iZone;
+        std::cout << " nZone = " << std::setw( wordWidth ) << gridMediator->numberOfZones;
         std::cout << " ni, nj, nk = ";
-        std::cout << setw( wordWidth ) << ni;
-        std::cout << setw( wordWidth ) << nj;
-        std::cout << setw( wordWidth ) << nk;
+        std::cout << std::setw( wordWidth ) << ni;
+        std::cout << std::setw( wordWidth ) << nj;
+        std::cout << std::setw( wordWidth ) << nk;
         std::cout << std::endl;
     }
 
@@ -190,13 +190,13 @@ void Plot3D::DumpCoorBinary( GridMediator * gridMediator )
 
         int wordWidth = 8;
 
-        std::cout << setiosflags( ios::right );
-        std::cout << " iZone = " << setw( wordWidth ) << iZone;
-        std::cout << " nZone = " << setw( wordWidth ) << gridMediator->numberOfZones;
+        std::cout << std::setiosflags( std::ios::right );
+        std::cout << " iZone = " << std::setw( wordWidth ) << iZone;
+        std::cout << " nZone = " << std::setw( wordWidth ) << gridMediator->numberOfZones;
         std::cout << " ni, nj, nk = ";
-        std::cout << setw( wordWidth ) << ni;
-        std::cout << setw( wordWidth ) << nj;
-        std::cout << setw( wordWidth ) << nk;
+        std::cout << std::setw( wordWidth ) << ni;
+        std::cout << std::setw( wordWidth ) << nj;
+        std::cout << std::setw( wordWidth ) << nk;
         std::cout << "\n";
     }
 
@@ -260,13 +260,13 @@ void Plot3D::ReadCoorAscii( GridMediator * gridMediator )
 
         int wordWidth = 8;
 
-        std::cout << setiosflags( ios::right );
-        std::cout << " iZone = " << setw( wordWidth ) << zCount;
-        std::cout << " nZone = " << setw( wordWidth ) << gridMediator->numberOfZones;
+        std::cout << std::setiosflags( std::ios::right );
+        std::cout << " iZone = " << std::setw( wordWidth ) << zCount;
+        std::cout << " nZone = " << std::setw( wordWidth ) << gridMediator->numberOfZones;
         std::cout << " ni, nj, nk = ";
-        std::cout << setw( wordWidth ) << ni;
-        std::cout << setw( wordWidth ) << nj;
-        std::cout << setw( wordWidth ) << nk;
+        std::cout << std::setw( wordWidth ) << ni;
+        std::cout << std::setw( wordWidth ) << nj;
+        std::cout << std::setw( wordWidth ) << nk;
         std::cout << std::endl;
         ++ zCount;
     }
@@ -349,13 +349,13 @@ void Plot3D::DumpCoorAscii( GridMediator * gridMediator )
         fileO.WriteEndLine();
 
         int wordWidth = 8;
-        std::cout << setiosflags( ios::right );
-        std::cout << " iZone = " << setw( wordWidth ) << iZone;
-        std::cout << " nZone = " << setw( wordWidth ) << gridMediator->numberOfZones;
+        std::cout << std::setiosflags( std::ios::right );
+        std::cout << " iZone = " << std::setw( wordWidth ) << iZone;
+        std::cout << " nZone = " << std::setw( wordWidth ) << gridMediator->numberOfZones;
         std::cout << " ni, nj, nk = ";
-        std::cout << setw( wordWidth ) << ni;
-        std::cout << setw( wordWidth ) << nj;
-        std::cout << setw( wordWidth ) << nk;
+        std::cout << std::setw( wordWidth ) << ni;
+        std::cout << std::setw( wordWidth ) << nj;
+        std::cout << std::setw( wordWidth ) << nk;
         std::cout << "\n";
     }
 
@@ -387,7 +387,7 @@ void Plot3D::DumpCoorAscii( std::fstream & file, RealField & coor )
     int nCount = 0;
     for ( int i = 0; i < nPoint; ++ i )
     {
-        file << setw( wordWidth ) << coor[ i ];
+        file << std::setw( wordWidth ) << coor[ i ];
         nCount ++;
         if ( nCount % nWord == 0 )
         {
@@ -587,20 +587,20 @@ void Plot3D::DumpBc( GridMediator * gridMediator )
             kmin = s->start[ 2 ];
             kmax = s->end[ 2 ];
             int width = 5;
-            file << setiosflags( ios::right );
-            file << setw( width ) << imin;
-            file << setw( width ) << imax;
-            file << setw( width ) << jmin;
-            file << setw( width ) << jmax;
+            file << std::setiosflags( std::ios::right );
+            file << std::setw( width ) << imin;
+            file << std::setw( width ) << imax;
+            file << std::setw( width ) << jmin;
+            file << std::setw( width ) << jmax;
 
             if ( ONEFLOW::IsThreeD() )
             {
-                file << setw( width ) << kmin;
-                file << setw( width ) << kmax;
+                file << std::setw( width ) << kmin;
+                file << std::setw( width ) << kmax;
             }
 
             int bcType = bcRegion->bcType;
-            file << setw( width ) << bcType;
+            file << std::setw( width ) << bcType;
             file << "\n";
 
             if ( bcType < 0 )
@@ -612,18 +612,18 @@ void Plot3D::DumpBc( GridMediator * gridMediator )
                 jmax = t->end[ 1 ];
                 kmin = t->start[ 2 ];
                 kmax = t->end[ 2 ];
-                file << setiosflags( ios::right );
-                file << setw( width ) << imin;
-                file << setw( width ) << imax;
-                file << setw( width ) << jmin;
-                file << setw( width ) << jmax;
+                file << std::setiosflags( std::ios::right );
+                file << std::setw( width ) << imin;
+                file << std::setw( width ) << imax;
+                file << std::setw( width ) << jmin;
+                file << std::setw( width ) << jmax;
 
                 if ( ONEFLOW::IsThreeD() )
                 {
-                    file << setw( width ) << kmin;
-                    file << setw( width ) << kmax;
+                    file << std::setw( width ) << kmin;
+                    file << std::setw( width ) << kmax;
                 }
-                file << setw( width ) << t->zid;
+                file << std::setw( width ) << t->zid;
                 file << "\n";
             }
         }

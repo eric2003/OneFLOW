@@ -335,9 +335,9 @@ void CalcUnsId( StrGrid * grid, PointSearch * pointSearch, Int3D * unsId )
                 //{
                 //    int width = 8;
                 //    std::cout << " id = " << pointIndex;
-                //    std::cout << setw( width ) << xm;
-                //    std::cout << setw( width ) << ym;
-                //    std::cout << setw( width ) << zm;
+                //    std::cout << std::setw( width ) << xm;
+                //    std::cout << std::setw( width ) << ym;
+                //    std::cout << std::setw( width ) << zm;
                 //    std::cout << "\n";
                 //}
                 

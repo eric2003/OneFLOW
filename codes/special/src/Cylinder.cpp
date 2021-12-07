@@ -440,9 +440,9 @@ void ToTecplot( std::fstream & file, RealField2D & coor, int ni, int nj, int nk 
 void DumpBc( std::fstream &file, int imin, int imax, int jmin, int jmax, int bcType )
 {
     int width = 5;
-    file << setw( width ) << imin << setw( width ) << imax;
-    file << setw( width ) << jmin << setw( width ) << jmax;
-    file << setw( width ) << bcType << std::endl;
+    file << std::setw( width ) << imin << std::setw( width ) << imax;
+    file << std::setw( width ) << jmin << std::setw( width ) << jmax;
+    file << std::setw( width ) << bcType << std::endl;
 }
 
 

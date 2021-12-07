@@ -25,7 +25,6 @@ License
 #include "CgnsFile.h"
 #include <iostream>
 #include <iomanip>
-using namespace std;
 
 BeginNameSpace( ONEFLOW )
 #ifdef ENABLE_CGNS
@@ -108,7 +107,7 @@ void CgnsFamilyBc::ReadFamilySpecifiedBc()
     {
         cg_family_read( fileId, baseId, iFam, familyName, & nBoco, & nGeo );
         std::cout << "   iFam = " << iFam;
-        std::cout << " FamilyName = " << setiosflags( ios::left ) << setw( 15 ) << familyName << " nBoco = " << nBoco << " nGeo = " << nGeo << "\n";
+        std::cout << " FamilyName = " << std::setiosflags( std::ios::left ) << std::setw( 15 ) << familyName << " nBoco = " << nBoco << " nGeo = " << nGeo << "\n";
     }
 
     for ( int iFam = 1; iFam <= nFamilies; ++ iFam )
@@ -122,9 +121,9 @@ void CgnsFamilyBc::ReadFamilySpecifiedBc()
             this->Register( familyName, familyBcType );
             int Width = 10;
             int stringWidth = 23;
-            std::cout << "   FamilyBcName = " << setiosflags( ios::left ) << setw( Width ) << familyBcName;
-            std::cout << " CGNS BcType = " << setiosflags( ios::left ) << setw( 5 ) << familyBcType;
-            std::cout << " CGNS BcName = " << setiosflags(ios::left) << setw( stringWidth ) << GetCgnsBcName( familyBcType ) << "\n";
+            std::cout << "   FamilyBcName = " << std::setiosflags( std::ios::left ) << std::setw( Width ) << familyBcName;
+            std::cout << " CGNS BcType = " << std::setiosflags( std::ios::left ) << std::setw( 5 ) << familyBcType;
+            std::cout << " CGNS BcName = " << std::setiosflags(std::ios::left) << std::setw( stringWidth ) << GetCgnsBcName( familyBcType ) << "\n";
         }
     }
 

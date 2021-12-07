@@ -193,10 +193,10 @@ void TurbVelCut::Dump( LamData * lamData, std::fstream & file, int axis )
         Real up = um / utau;
         Real yp = utau * ym * nscom.reynolds / ( vis / rm );
 
-        file << setiosflags( ios::left );
-        file << setiosflags( ios::scientific );
-        file << setprecision( 10 );
-        file << setw( wordWidth ) << yp << setw( wordWidth ) << up << std::endl;
+        file << std::setiosflags( std::ios::left );
+        file << std::setiosflags( std::ios::scientific );
+        file << std::setprecision( 10 );
+        file << std::setw( wordWidth ) << yp << std::setw( wordWidth ) << up << std::endl;
     }
 }
 
@@ -253,16 +253,16 @@ void TurbVelCut::DumpDetail( LamData * lamData, std::fstream & file, int axis )
         Real up = um / utau;
         Real yp = utau * ym * nscom.reynolds / ( vis / rm );
 
-        file << setiosflags( ios::left );
-        file << setiosflags( ios::scientific );
-        //file << setprecision( 10 );
-        //file << setprecision( 12 );
-        file << setprecision( 14 );
-        file << setw( wordWidth ) << yp << setw( wordWidth ) << up;
-        file << setw( wordWidth ) << xm << setw( wordWidth ) << ym;
-        file << setw( wordWidth ) << rm << setw( wordWidth ) << pm;
-        file << setw( wordWidth ) << um << setw( wordWidth ) << vm;
-        file << setw( wordWidth ) << utau << setw( wordWidth ) << vis;
+        file << std::setiosflags( std::ios::left );
+        file << std::setiosflags( std::ios::scientific );
+        //file << std::setprecision( 10 );
+        //file << std::setprecision( 12 );
+        file << std::setprecision( 14 );
+        file << std::setw( wordWidth ) << yp << std::setw( wordWidth ) << up;
+        file << std::setw( wordWidth ) << xm << std::setw( wordWidth ) << ym;
+        file << std::setw( wordWidth ) << rm << std::setw( wordWidth ) << pm;
+        file << std::setw( wordWidth ) << um << std::setw( wordWidth ) << vm;
+        file << std::setw( wordWidth ) << utau << std::setw( wordWidth ) << vis;
         file << std::endl;
     }
 }
@@ -343,10 +343,10 @@ void TurbFriCut::Dump( LamData * lamData, std::fstream & file, int axis )
         Real xf = rm * vel_inf * xm / vis * nscom.reynolds;
         Real cf = 2 * vis * dudy / nscom.reynolds;
 
-        file << setiosflags( ios::left );
-        file << setiosflags( ios::scientific );
-        file << setprecision( 10 );
-        file << setw( wordWidth ) << xf << setw( wordWidth ) << cf << std::endl;
+        file << std::setiosflags( std::ios::left );
+        file << std::setiosflags( std::ios::scientific );
+        file << std::setprecision( 10 );
+        file << std::setw( wordWidth ) << xf << std::setw( wordWidth ) << cf << std::endl;
     }
 }
 
