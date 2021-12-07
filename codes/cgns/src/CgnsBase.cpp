@@ -76,7 +76,7 @@ CgnsZone * CgnsBase::GetCgnsZone( int iZone )
 
 CgnsZone * CgnsBase::GetCgnsZoneByName( const std::string & zoneName )
 {
-    map< std::string, int >::iterator iter;
+    std::map< std::string, int >::iterator iter;
     iter = zoneNameMap.find( zoneName );
     int iZone = iter->second - 1;
     return this->GetCgnsZone( iZone );

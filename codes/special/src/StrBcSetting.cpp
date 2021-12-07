@@ -54,7 +54,7 @@ void StrBcSetting::ConstructBcMap()
 
 int StrBcSetting::GetBcType( const std::string & bcTypeName )
 {
-    map< std::string, int >::iterator iter;
+    std::map< std::string, int >::iterator iter;
     iter = boundaryMap.find( bcTypeName );
     return iter->second;
 }

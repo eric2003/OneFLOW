@@ -38,7 +38,7 @@ enum class TaskEnum
     POST_TASK = 7
 };
 
-const map<string, TaskEnum> TaskFilter = 
+const std::map<string, TaskEnum> TaskFilter = 
 {
     {"Solve",TaskEnum::SOLVE_FIELD},
     {"Grid",TaskEnum::CREATE_GRID},

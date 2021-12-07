@@ -58,7 +58,7 @@ public:
     IntField i2b; //the serial number correspondence in all boundaries of the interface of this block.
     IntField idir;
     Grid * parent;
-    map< int, int > z2n;
+    std::map< int, int > z2n;
 public:
     HXVector< DataStorage * > dataSend;
     HXVector< DataStorage * > dataRecv;

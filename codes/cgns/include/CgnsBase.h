@@ -55,7 +55,7 @@ public:
     CgnsZone * GetCgnsZoneByName( const std::string & zoneName );
     CgnsZone * GetCgnsZone( int iZone );
     void ConstructZoneNameMap();
-    map< std::string, int > zoneNameMap;
+    std::map< std::string, int > zoneNameMap;
     CgnsFamilyBc * familyBc;
 public:
     int GetNZones();

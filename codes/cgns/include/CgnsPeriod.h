@@ -45,7 +45,7 @@ public:
     PointBasic * pointBasic;
     FaceSearchBasic * faceSearchBasic;
     LinkField faceList1, faceList2;
-    map< int, int > face_pair;
+    std::map< int, int > face_pair;
 public:
     void AddFacePair(int faceId1, int faceId2);
     void AddFacePoint( CgIntField & fNodeId1, CgIntField & fNodeId2, NodeMesh *nodeMesh1, NodeMesh *nodeMesh2 );

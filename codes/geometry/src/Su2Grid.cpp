@@ -292,7 +292,7 @@ void Su2Bc::Init()
     bcNameToValueMap.insert(String2IntPair("FAR", BCFarfield));
 }
 
-void Su2Bc::AddBc(string& geoName, string& bcName)
+void Su2Bc::AddBc(std::string& geoName, std::string& bcName)
 {
     typedef pair< std::string, std::string > StringPair;
     bcMap.insert(StringPair(geoName, bcName));
@@ -305,15 +305,15 @@ void Su2Bc::Process( StringField &markerBCNameList, StringField& markerNameList)
         std::string &bcName = markerBCNameList[i];
         if (bcList.find(bcName) != bcList.end())
         {
-            string& geoName = markerNameList[i];
+            std::string& geoName = markerNameList[i];
             this->AddBc(geoName, bcName);
         }
     }
 }
 
-string Su2Bc::GetBcName(string& geoName)
+std::string Su2Bc::GetBcName(std::string& geoName)
 {
-    map<string, string>::iterator iter;
+    std::map<std::string, std::string>::iterator iter;
     iter = bcMap.find(geoName);
     if (iter!= bcMap.end())
     {
@@ -322,7 +322,7 @@ string Su2Bc::GetBcName(string& geoName)
     return "";
 }
 
-int Su2Bc::GetCgnsBcType(string& geoName)
+int Su2Bc::GetCgnsBcType(std::string& geoName)
 {
     std::string bcName = this->GetBcName(geoName);
     return bcNameToValueMap.find(bcName)->second;

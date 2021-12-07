@@ -41,8 +41,8 @@ public:
     DataBaseType();
     ~DataBaseType();
 public:
-    static map< int, std::string > nameMap;
-    static map< std::string, int > indexMap;
+    static std::map< int, std::string > nameMap;
+    static std::map< std::string, int > indexMap;
     static bool init_flag;
 public:
     static void Init();

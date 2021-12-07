@@ -207,7 +207,7 @@ void SLine::SetBlkBcMesh( Block2D * blk2d )
     int kkk = 1;
 }
 
-void SLine::ConstructPointToLineMap( map< int, IntSet > & pointToLineMap )
+void SLine::ConstructPointToLineMap( std::map< int, IntSet > & pointToLineMap )
 {
     int line_id = this->line_id - 1;
     IntField & pointIdList = blkFaceSolver.lineList[ line_id ];
@@ -241,7 +241,7 @@ void MLine::ConstructSLineCtrlPoint()
 
 void MLine::ConstructCtrlPoint()
 {
-    map< int, IntSet >::iterator iter;
+    std::map< int, IntSet >::iterator iter;
     for ( iter = this->pointToDomainMap.begin(); iter != this->pointToDomainMap.end(); ++ iter )
     {
         if ( iter->second.size() == 1 )
@@ -256,7 +256,7 @@ void MLine::ConstructPointToPointMap()
     this->ConstructPointToPointMap( this->pointToPointMap );
 }
 
-void MLine::ConstructPointToPointMap( map< int, IntSet > & pointToPointMap )
+void MLine::ConstructPointToPointMap( std::map< int, IntSet > & pointToPointMap )
 {
     MLine * mLine = this;
     LinkField pointIdLink;
@@ -265,7 +265,7 @@ void MLine::ConstructPointToPointMap( map< int, IntSet > & pointToPointMap )
     ONEFLOW::ConstructPointToPointMap( pointIdLink, pointToPointMap );
 }
 
-void MLine::ConstructPointToLineMap( map< int, IntSet > & pointToLineMap )
+void MLine::ConstructPointToLineMap( std::map< int, IntSet > & pointToLineMap )
 {
     int nSLine = slineList.size();
     for ( int iSLine = 0; iSLine < nSLine; ++ iSLine )
@@ -286,7 +286,7 @@ void MLine::ConstructPointToDomainMap()
     }
 }
 
-void MLine::ConstructPointToDomainMap( int domain_id, map< int, IntSet > & pointToDomainMap )
+void MLine::ConstructPointToDomainMap( int domain_id, std::map< int, IntSet > & pointToDomainMap )
 {
     MLine * mLine = this;
     LinkField pointIdLink;
@@ -305,7 +305,7 @@ void MLine::ConstructLineToDomainMap()
     }
 }
 
-void MLine::ConstructLineToDomainMap( int domain_id, map< int, IntSet > & lineToDomainMap )
+void MLine::ConstructLineToDomainMap( int domain_id, std::map< int, IntSet > & lineToDomainMap )
 {
     MLine * mLine = this;
     ONEFLOW::ConstructLineToDomainMap( domain_id, mLine->lineList, lineToDomainMap );

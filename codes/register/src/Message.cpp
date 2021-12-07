@@ -38,8 +38,8 @@ MessageMap::~MessageMap()
 void MessageMap::Init()
 {
     if ( MessageMap::nameMap ) return;
-    MessageMap::nameMap = new map< std::string, int >();
-    MessageMap::idMap = new map< int, std::string >();
+    MessageMap::nameMap = new std::map< std::string, int >();
+    MessageMap::idMap = new std::map< int, std::string >();
 }
 
 void MessageMap::Free()
@@ -52,7 +52,7 @@ void MessageMap::Free()
 
 void MessageMap::Register( const std::string & msgName )
 {
-    map< std::string, int >::iterator iter = MessageMap::nameMap->find( msgName );
+    std::map< std::string, int >::iterator iter = MessageMap::nameMap->find( msgName );
     if ( iter == MessageMap::nameMap->end() )
     {
         int msgId = MessageMap::nameMap->size();
@@ -68,7 +68,7 @@ void MessageMap::Unregister( const std::string & msgName )
 
 int MessageMap::GetMsgId( const std::string & msgName )
 {
-    map< std::string, int >::iterator iter = MessageMap::nameMap->find( msgName );
+    std::map< std::string, int >::iterator iter = MessageMap::nameMap->find( msgName );
     if ( iter == MessageMap::nameMap->end() )
     {
         return -1;
@@ -80,7 +80,7 @@ int MessageMap::GetMsgId( const std::string & msgName )
 
 string MessageMap::GetMsgName( int msgId )
 {
-    map< int, std::string >::iterator iter = MessageMap::idMap->find( msgId );
+    std::map< int, std::string >::iterator iter = MessageMap::idMap->find( msgId );
     if ( iter == MessageMap::idMap->end() )
     {
         return "";

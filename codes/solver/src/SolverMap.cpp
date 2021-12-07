@@ -109,14 +109,14 @@ void SolverMap::FreeSolverMap()
 
 int SolverMap::GetId( int sTid )
 {
-    map< int, int >::iterator iter;
+    std::map< int, int >::iterator iter;
     iter = SolverMap::tid2Id.find( sTid );
     return iter->second;
 }
 
 int SolverMap::GetTid( int sid )
 {
-    map< int, int >::iterator iter;
+    std::map< int, int >::iterator iter;
     iter = SolverMap::id2Tid.find( sid );
     return iter->second;
 }
@@ -129,7 +129,7 @@ void SolverMap::AddSolverInfo( int sTid, int sid )
 
 void SolverMap::AddTid2Id( int sTid, int sid )
 {
-    map< int, int >::iterator iter;
+    std::map< int, int >::iterator iter;
     iter = SolverMap::tid2Id.find( sTid );
     if ( iter == SolverMap::tid2Id.end() )
     {
@@ -140,7 +140,7 @@ void SolverMap::AddTid2Id( int sTid, int sid )
 
 void SolverMap::AddId2Tid( int sid, int sTid )
 {
-    map< int, int >::iterator iter = SolverMap::id2Tid.find( sid );
+    std::map< int, int >::iterator iter = SolverMap::id2Tid.find( sid );
     if ( iter == SolverMap::id2Tid.end() )
     {
         SolverMap::id2Tid[ sid ] = sTid;

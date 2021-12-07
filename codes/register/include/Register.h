@@ -36,7 +36,7 @@ public:
     HXRegister();
     ~HXRegister();
 public:
-    map< std::string, HXClone * > data;
+    std::map< std::string, HXClone * > data;
 public:
     void FreeAll();
     void Register( const string & cmdName, const string & className );
@@ -69,7 +69,7 @@ public:
     RegisterFactory();
     ~RegisterFactory();
 public:
-    static map< int, MRegister * > * data;
+    static std::map< int, MRegister * > * data;
 public:
     static void Init();
     static void AddMRegister( int registerId );

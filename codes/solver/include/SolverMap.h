@@ -36,8 +36,8 @@ public:
     ~SolverMap();
 public:
     static IntField tid;
-    static map< int, int > tid2Id;
-    static map< int, int > id2Tid;
+    static std::map< int, int > tid2Id;
+    static std::map< int, int > id2Tid;
     static HXVector< Solver * > strSolver;
     static HXVector< Solver * > unsSolver;
 public:

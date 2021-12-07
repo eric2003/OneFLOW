@@ -35,7 +35,7 @@ public:
     Category();
     ~Category();
 public:
-    static map< int, int > * data;
+    static std::map< int, int > * data;
     static void Init();
     static void AddCategory( int sTid, int category );
     static int  GetCategory( int sTid );

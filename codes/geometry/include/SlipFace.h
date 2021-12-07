@@ -56,7 +56,7 @@ public:
     void InitDist();
     void Init();
 public:
-    map< int, int > z2n;
+    std::map< int, int > z2n;
     int   nNeighbor;     //no of neighbors
     HXVector< SlipfacePair * > slipfacePairs;
     SlipfacePair * GetSlipfacePair( int iNei );

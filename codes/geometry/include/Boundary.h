@@ -70,8 +70,8 @@ public:
     ~BcTypeMap();
 private:
     int numberOfMaxBoundaryConditions;
-    map< int, int > cgns2OneFlow;
-    map< int, int > oneFlow2Cgns;
+    std::map< int, int > cgns2OneFlow;
+    std::map< int, int > oneFlow2Cgns;
 public:
     void Init();
     int OneFlow2Cgns( int oneflow_bctype );

@@ -74,10 +74,10 @@ public:
     //int zoneid;
     DataStorage * dataSend;
     DataStorage * dataRecv;
-    //global interface id to local interface id map
-    map<int, int> global_to_local_interfaces;
-    //local interface id to global interface id map
-    map<int, int> local_to_global_interfaces;
+    //global interface id to local interface id std::map
+    std::map<int, int> global_to_local_interfaces;
+    //local interface id to global interface id std::map
+    std::map<int, int> local_to_global_interfaces;
 
     //mapping relationship between local interface bc ID and boundary bc ID
     vector< int > interface_to_bcface;
@@ -85,7 +85,7 @@ public:
     int GetNIFaces();
     int FindINeibor( int iZone );
     void DumpInterfaceMap();
-    void DumpMap( map<int, int> & mapin );
+    void DumpMap( std::map<int, int> & mapin );
     int GetLocalInterfaceId( int global_interface_id );
     void CalcLocalInterfaceId( int iZone, vector<int> & globalfaces, vector<int> & localfaces );
     void AddInterface( int global_interface_id, int neighbor_zoneid, int neighbor_cellid );

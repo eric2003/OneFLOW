@@ -55,7 +55,7 @@ public:
     VTK_CgnsMap();
     ~VTK_CgnsMap();
 public:
-    map< int, int > vtk2Cgns;
+    std::map< int, int > vtk2Cgns;
 public:
     void Init();
 };
@@ -139,15 +139,15 @@ public:
     Su2Bc();
     ~Su2Bc();
 public:
-    set< string > bcList;
-    map<string, string> bcMap;
-    map<string, int> bcNameToValueMap;
+    set< std::string > bcList;
+    std::map<std::string, std::string> bcMap;
+    std::map<std::string, int> bcNameToValueMap;
 public:
     void Init();
-    void AddBc( string &geoName, string &bcName);
+    void AddBc( std::string &geoName, std::string &bcName);
     void Process(StringField& markerBCNameList, StringField& markerNameList);
-    string GetBcName( string& geoName );
-    int GetCgnsBcType(string& geoName);
+    std::string GetBcName( std::string& geoName );
+    int GetCgnsBcType(std::string& geoName);
 };
 
 class CgnsZone;

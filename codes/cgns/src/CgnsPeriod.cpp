@@ -51,7 +51,7 @@ void F2FMap::AddFacePair(int faceId1, int faceId2)
 
 int F2FMap::FindPeriodFace( int faceId )
 {
-    map< int, int >::iterator iter = this->face_pair.find( faceId );
+    std::map< int, int >::iterator iter = this->face_pair.find( faceId );
     int face_id = -1;
     if ( iter != this->face_pair.end() )
     {

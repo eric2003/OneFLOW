@@ -89,7 +89,7 @@ void Block3D::ConstructTopo()
         MDomain * mDomain = mDomainList[ iMDomain ];
         mDomain->ConstructMultiDomainTopo();
     }
-    map< int, IntSet > p2dMap;
+    std::map< int, IntSet > p2dMap;
     for ( int iMDomain = 0; iMDomain < nMDomain; ++ iMDomain )
     {
         MDomain * mDomain = mDomainList[ iMDomain ];
@@ -97,7 +97,7 @@ void Block3D::ConstructTopo()
         for ( int i = 0; i < nSize; ++ i )
         {
             int pt = mDomain->candidate_bcpoints[ i ];
-            map< int, IntSet >::iterator iter;
+            std::map< int, IntSet >::iterator iter;
             iter = p2dMap.find( pt );
             if ( iter == p2dMap.end() )
             {
@@ -114,7 +114,7 @@ void Block3D::ConstructTopo()
     }
 
     IntField ctrl_points;
-    map< int, IntSet >::iterator iter;
+    std::map< int, IntSet >::iterator iter;
     for ( iter = p2dMap.begin(); iter != p2dMap.end(); ++ iter )
     {
         if ( iter->second.size() == 3 )

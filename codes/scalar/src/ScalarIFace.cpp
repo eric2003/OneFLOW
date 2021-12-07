@@ -126,17 +126,17 @@ void ScalarIFace::CalcLocalInterfaceId( int iZone, vector<int> & globalfaces, ve
 
 void ScalarIFace::DumpInterfaceMap()
 {
-    cout << " global_to_local_interfaces map \n";
+    cout << " global_to_local_interfaces std::map \n";
     this->DumpMap( this->global_to_local_interfaces );
     cout << "\n";
-    cout << " local_to_global_interfaces map \n";
+    cout << " local_to_global_interfaces std::map \n";
     this->DumpMap( this->local_to_global_interfaces );
     cout << "\n";
 }
 
-void ScalarIFace::DumpMap( map<int,int> & mapin )
+void ScalarIFace::DumpMap( std::map<int,int> & mapin )
 {
-    for ( map<int, int>::iterator iter = mapin.begin(); iter != mapin.end(); ++ iter )
+    for ( std::map<int, int>::iterator iter = mapin.begin(); iter != mapin.end(); ++ iter )
     {
         cout << iter->first << " " << iter->second << "\n";
     }

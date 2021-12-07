@@ -328,7 +328,7 @@ void FieldManager::AllocateInnerField( UnsGrid * grid, FieldPropertyData * field
 {
     int nTCell = grid->nCells + grid->nBFaces;
 
-    map< std::string, int > & data = fieldPropertyData->innerField->data;
+    std::map< std::string, int > & data = fieldPropertyData->innerField->data;
 
     for ( std::map< std::string, int >::iterator iter = data.begin(); iter != data.end(); ++ iter )
     {
@@ -345,7 +345,7 @@ void FieldManager::AllocateFaceField( UnsGrid * grid, FieldPropertyData * fieldP
 {
     int nFaces = grid->nFaces;
 
-    map< std::string, int > & data = fieldPropertyData->faceField->data;
+    std::map< std::string, int > & data = fieldPropertyData->faceField->data;
 
     for ( std::map< std::string, int >::iterator iter = data.begin(); iter != data.end(); ++ iter )
     {
@@ -363,7 +363,7 @@ void FieldManager::AllocateBcField( UnsGrid * grid, FieldPropertyData * fieldPro
 {
     int nBFaces = grid->nBFaces;
 
-    map< std::string, int > & data = fieldPropertyData->bcField->data;
+    std::map< std::string, int > & data = fieldPropertyData->bcField->data;
 
     for ( std::map< std::string, int >::iterator iter = data.begin(); iter != data.end(); ++ iter )
     {
@@ -390,13 +390,13 @@ void FieldFactory::Init()
 {
     if ( ! FieldFactory::data )
     {
-        FieldFactory::data = new map< int, FieldManager * >();
+        FieldFactory::data = new std::map< int, FieldManager * >();
     }
 }
 
 void FieldFactory::AddFieldManager( int sTid )
 {
-    map< int, FieldManager * >::iterator iter;
+    std::map< int, FieldManager * >::iterator iter;
     FieldFactory::Init();
     iter = FieldFactory::data->find( sTid );
     if ( iter == FieldFactory::data->end() )
@@ -408,14 +408,14 @@ void FieldFactory::AddFieldManager( int sTid )
 
 FieldManager * FieldFactory::GetFieldManager( int sTid )
 {
-    map< int, FieldManager * >::iterator iter;
+    std::map< int, FieldManager * >::iterator iter;
     iter = FieldFactory::data->find( sTid );
     return iter->second;
 }
 
 void FieldFactory::FreeFieldManager()
 {
-    map< int, FieldManager * >::iterator iter;
+    std::map< int, FieldManager * >::iterator iter;
     for ( iter = FieldFactory::data->begin(); iter != FieldFactory::data->end(); ++ iter )
     {
         delete iter->second;

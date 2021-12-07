@@ -57,7 +57,7 @@ public:
     SolverInfoFactory();
     ~SolverInfoFactory();
 public:
-    static map< int, SolverInfo * > * data;
+    static std::map< int, SolverInfo * > * data;
 public:
     static void Init();
     static void Free();

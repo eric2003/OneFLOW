@@ -52,7 +52,7 @@ public:
 public:
     static HXClone * SafeClone( const std::string & type );
     static HXClone * Register( const std::string & type, HXClone * clone );
-    static map < std::string, HXClone * > * classMap;
+    static std::map < std::string, HXClone * > * classMap;
     StringField data;
 public:
     virtual void Solve(){};

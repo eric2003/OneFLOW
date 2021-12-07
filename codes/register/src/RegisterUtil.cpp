@@ -52,7 +52,7 @@ void VarNameFactory::Init()
 {
     if ( ! VarNameFactory::data )
     {
-        VarNameFactory::data = new map< int, VarNameSolver * >();
+        VarNameFactory::data = new std::map< int, VarNameSolver * >();
         VarNameFactory::mapData = new MapIntInt();
     }
 }
@@ -64,7 +64,7 @@ void VarNameFactory::AddVarNameSolver( int a, int b )
     VarNameFactory::mapData->AddData( a, b );
     int solverPos = VarNameFactory::mapData->GetId( a, b );
 
-    map< int, VarNameSolver * >::iterator iter;
+    std::map< int, VarNameSolver * >::iterator iter;
 
     iter = VarNameFactory::data->find( solverPos );
     if ( iter == VarNameFactory::data->end() )
@@ -80,7 +80,7 @@ VarNameSolver * VarNameFactory::GetVarNameSolver( int a, int b )
 
     int solverId = VarNameFactory::mapData->GetId( a, b );
 
-    map< int, VarNameSolver * >::iterator iter;
+    std::map< int, VarNameSolver * >::iterator iter;
     iter = VarNameFactory::data->find( solverId );
     return iter->second;
 }
@@ -88,7 +88,7 @@ VarNameSolver * VarNameFactory::GetVarNameSolver( int a, int b )
 void VarNameFactory::FreeVarNameSolver()
 {
     if ( ! VarNameFactory::data ) return;
-    map< int, VarNameSolver * >::iterator iter;
+    std::map< int, VarNameSolver * >::iterator iter;
     for ( iter = VarNameFactory::data->begin(); iter != VarNameFactory::data->end(); ++ iter )
     {
         delete iter->second;
@@ -124,7 +124,7 @@ MapIntInt::~MapIntInt()
 
 void MapIntInt::AddData( int a, int b )
 {
-    map< DataAB, int, CmpDataAB >::iterator iter;
+    std::map< DataAB, int, CmpDataAB >::iterator iter;
     DataAB ab;
     ab.a = a;
     ab.b = b;
@@ -138,7 +138,7 @@ void MapIntInt::AddData( int a, int b )
 
 int MapIntInt::GetId( int a, int b )
 {
-    map< DataAB, int, CmpDataAB >::iterator iter;
+    std::map< DataAB, int, CmpDataAB >::iterator iter;
     DataAB ab;
     ab.a = a;
     ab.b = b;

@@ -40,7 +40,7 @@ Solver::~Solver()
 
 Solver * Solver::SafeClone( const string & type )
 {
-    map < std::string, Solver * >::iterator iter = Solver::classMap->find( type );
+    std::map < std::string, Solver * >::iterator iter = Solver::classMap->find( type );
     if ( iter == Solver::classMap->end() )
     {
         cout << type << " class not found \n";
@@ -54,10 +54,10 @@ Solver * Solver::Register( const string & type, Solver * clone )
 {
     if ( ! Solver::classMap )
     {
-        Solver::classMap = new map < std::string, Solver * >();
+        Solver::classMap = new std::map < std::string, Solver * >();
     }
 
-    map < std::string, Solver * >::iterator iter = Solver::classMap->find( type );
+    std::map < std::string, Solver * >::iterator iter = Solver::classMap->find( type );
     if ( iter == Solver::classMap->end() )
     {
         ( * Solver::classMap )[ type ] = clone;

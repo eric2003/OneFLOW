@@ -117,7 +117,7 @@ public:
     FieldFactory();
     ~FieldFactory();
 public:
-    static map< int, FieldManager * > * data;
+    static std::map< int, FieldManager * > * data;
 public:
     static void Init();
     static void AddFieldManager( int sTid );

@@ -36,8 +36,8 @@ public:
     MessageMap();
     ~MessageMap();
 public:
-    static map< std::string, int > * nameMap;
-    static map< int, string > * idMap;
+    static std::map< std::string, int > * nameMap;
+    static std::map< int, string > * idMap;
 public:
     static void Register( const string & msgName );
     static void Unregister( const string & msgName );

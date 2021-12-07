@@ -36,7 +36,7 @@ public:
     ~PointAction();
 public:
     typedef Point< Real > PointType;
-    typedef map< PointType , int, PointCompare< Real > > PointMap;
+    typedef std::map< PointType , int, PointCompare< Real > > PointMap;
 public:
     PointMap pointMap;
     HXVector< PointType > pointList;
@@ -76,7 +76,7 @@ public:
     IdTool() ;
     ~IdTool();
 public:
-   typedef map< Ids, int, CompareIds > IDSMap;
+   typedef std::map< Ids, int, CompareIds > IDSMap;
    IDSMap ids_map;
    vector< Ids > ids_list;
    Ids vint;
@@ -132,7 +132,7 @@ public:
 public:
     void CalcTopology();
 public:
-    typedef map< Ids, int, CompareIds > PointMap;
+    typedef std::map< Ids, int, CompareIds > PointMap;
 public:
     IdTool elementIdTool;
 public:

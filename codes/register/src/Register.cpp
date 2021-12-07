@@ -42,7 +42,7 @@ HXRegister::~HXRegister()
 
 void HXRegister::Register( const std::string & cmdName, const std::string & className )
 {
-    map< std::string, HXClone * >::iterator iter = this->data.find( cmdName );
+    std::map< std::string, HXClone * >::iterator iter = this->data.find( cmdName );
     if ( iter == this->data.end() )
     {
         HXClone * cloneClass = HXClone::SafeClone( className );
@@ -52,7 +52,7 @@ void HXRegister::Register( const std::string & cmdName, const std::string & clas
 
 HXClone * HXRegister::GetClass( const std::string & cmdName )
 {
-    map< std::string, HXClone * >::iterator iter = this->data.find( cmdName );
+    std::map< std::string, HXClone * >::iterator iter = this->data.find( cmdName );
 
     if ( iter != this->data.end() )
     {
@@ -167,13 +167,13 @@ void RegisterFactory::Init()
 {
     if ( ! RegisterFactory::data )
     {
-        RegisterFactory::data = new map< int, MRegister * >();
+        RegisterFactory::data = new std::map< int, MRegister * >();
     }
 }
 
 void RegisterFactory::AddMRegister( int registerId )
 {
-    map< int, MRegister * >::iterator iter;
+    std::map< int, MRegister * >::iterator iter;
     RegisterFactory::Init();
     iter = RegisterFactory::data->find( registerId );
     if ( iter == RegisterFactory::data->end() )
@@ -185,7 +185,7 @@ void RegisterFactory::AddMRegister( int registerId )
 
 MRegister * RegisterFactory::GetMRegister( int registerId )
 {
-    map< int, MRegister * >::iterator iter;
+    std::map< int, MRegister * >::iterator iter;
     iter = RegisterFactory::data->find( registerId );
     return iter->second;
 }
@@ -193,7 +193,7 @@ MRegister * RegisterFactory::GetMRegister( int registerId )
 void RegisterFactory::FreeMRegister()
 {
     if ( ! RegisterFactory::data ) return;
-    map< int, MRegister * >::iterator iter;
+    std::map< int, MRegister * >::iterator iter;
     for ( iter = RegisterFactory::data->begin(); iter != RegisterFactory::data->end(); ++ iter )
     {
         delete iter->second;

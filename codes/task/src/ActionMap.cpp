@@ -66,8 +66,8 @@ void ActionMap::ReadFile( const std::string & fileName )
 
 ActionMapImp::ActionMapImp()
 {
-    this->nameMap = new map< std::string, int >();
-    this->idMap = new map< int, std::string >();
+    this->nameMap = new std::map< std::string, int >();
+    this->idMap = new std::map< int, std::string >();
 }
 
 ActionMapImp::~ActionMapImp()
@@ -78,7 +78,7 @@ ActionMapImp::~ActionMapImp()
 
 void ActionMapImp::Register( const std::string & actionName )
 {
-    map< std::string, int >::iterator iter = this->nameMap->find( actionName );
+    std::map< std::string, int >::iterator iter = this->nameMap->find( actionName );
     if ( iter == this->nameMap->end() )
     {
         int actionId = this->nameMap->size();
@@ -94,7 +94,7 @@ void ActionMapImp::Unregister( const std::string & actionName )
 
 int ActionMapImp::GetActionId( const std::string & actionName )
 {
-    map< std::string, int >::iterator iter = this->nameMap->find( actionName );
+    std::map< std::string, int >::iterator iter = this->nameMap->find( actionName );
     if ( iter == this->nameMap->end() )
     {
         return -1;
@@ -106,7 +106,7 @@ int ActionMapImp::GetActionId( const std::string & actionName )
 
 string ActionMapImp::GetActionName( int actionIndex )
 {
-    map< int, std::string >::iterator iter = this->idMap->find( actionIndex );
+    std::map< int, std::string >::iterator iter = this->idMap->find( actionIndex );
     if ( iter == this->idMap->end() )
     {
         return "";

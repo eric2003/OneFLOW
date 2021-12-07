@@ -50,7 +50,7 @@ Grid::~Grid()
 
 Grid * Grid::SafeClone( const std::string & type )
 {
-    map < std::string, Grid * >::iterator iter = Grid::classMap->find( type );
+    std::map < std::string, Grid * >::iterator iter = Grid::classMap->find( type );
     if ( iter == Grid::classMap->end() )
     {
         cout << type << " class not found" << endl;
@@ -64,10 +64,10 @@ Grid * Grid::Register( const std::string & type, Grid * clone )
 {
     if ( ! Grid::classMap )
     {
-        Grid::classMap = new map < std::string, Grid * >();
+        Grid::classMap = new std::map < std::string, Grid * >();
     }
 
-    map < std::string, Grid * >::iterator iter = Grid::classMap->find( type );
+    std::map < std::string, Grid * >::iterator iter = Grid::classMap->find( type );
     if ( iter == Grid::classMap->end() )
     {
         ( * Grid::classMap )[ type ] = clone;

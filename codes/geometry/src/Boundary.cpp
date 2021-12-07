@@ -159,7 +159,7 @@ void BcTypeMap::Init()
 
 int BcTypeMap::OneFlow2Cgns( int oneflow_bctype )
 {
-    map< int, int >::iterator iter;
+    std::map< int, int >::iterator iter;
     iter = oneFlow2Cgns.find( oneflow_bctype );
     int cgns_bctype = BCTypeUserDefined;
     if ( iter != oneFlow2Cgns.end() )
@@ -171,7 +171,7 @@ int BcTypeMap::OneFlow2Cgns( int oneflow_bctype )
 
 int BcTypeMap::Cgns2OneFlow( int cgns_bctype )
 {
-    map< int, int >::iterator iter;
+    std::map< int, int >::iterator iter;
     iter = cgns2OneFlow.find( cgns_bctype );
     int oneflow_bctype = BC::GENERIC_2;
     if ( iter != cgns2OneFlow.end() )

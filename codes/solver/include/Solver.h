@@ -47,7 +47,7 @@ public:
 public:
     static Solver * SafeClone( const string & type );
     static Solver * Register( const string & type, Solver * clone );
-    static map < std::string, Solver * > * classMap;
+    static std::map < std::string, Solver * > * classMap;
 public:
     int sid, sTid;
     int gridType;

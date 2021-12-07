@@ -56,7 +56,7 @@ public:
 public:
     static Grid * SafeClone( const std::string & type );
     static Grid * Register( const std::string & type, Grid * clone );
-    static map < std::string, Grid * > * classMap;
+    static std::map < std::string, Grid * > * classMap;
 public:
     std::string name;
     int dimension;

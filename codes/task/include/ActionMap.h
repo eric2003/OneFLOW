@@ -51,8 +51,8 @@ public:
     ActionMapImp();
     ~ActionMapImp();
 public:
-    map< std::string, int > * nameMap;
-    map< int, std::string > * idMap;
+    std::map< std::string, int > * nameMap;
+    std::map< int, std::string > * idMap;
 public:
     void Register( const std::string & name );
     void Unregister( const std::string & name );

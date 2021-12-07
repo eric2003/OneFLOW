@@ -221,7 +221,7 @@ void SDomain::ConstructPointToPointMap()
     this->ConstructPointToPointMap( this->pointToPointMap );
 }
 
-void SDomain::ConstructPointToPointMap( map< int, IntSet > & pointToPointMap )
+void SDomain::ConstructPointToPointMap( std::map< int, IntSet > & pointToPointMap )
 {
     for ( int iMLine = 0; iMLine < mLineList.size(); ++ iMLine )
     {
@@ -233,7 +233,7 @@ void SDomain::ConstructPointToPointMap( map< int, IntSet > & pointToPointMap )
     }
 }
 
-void SDomain::ConstructPointToLineMap( map< int, IntSet > & pointToLineMap )
+void SDomain::ConstructPointToLineMap( std::map< int, IntSet > & pointToLineMap )
 {
     for ( int iMLine = 0; iMLine < mLineList.size(); ++ iMLine )
     {
@@ -257,7 +257,7 @@ void SDomain::GetPointIdLink( IntField & lineList, LinkField & pointIdLink )
     }
 }
 
-void SDomain::ConstructPointToDomainMap( map< int, IntSet > & pointToDomainMap )
+void SDomain::ConstructPointToDomainMap( std::map< int, IntSet > & pointToDomainMap )
 {
     for ( int iMLine = 0; iMLine < mLineList.size(); ++ iMLine )
     {
@@ -274,7 +274,7 @@ void SDomain::ConstructLineToDomainMap()
     this->ConstructLineToDomainMap( this->lineToDomainMap );
 }
 
-void SDomain::ConstructLineToDomainMap( map< int, IntSet > & lineToDomainMap )
+void SDomain::ConstructLineToDomainMap( std::map< int, IntSet > & lineToDomainMap )
 {
     for ( int iMLine = 0; iMLine < mLineList.size(); ++ iMLine )
     {

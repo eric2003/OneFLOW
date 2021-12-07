@@ -43,7 +43,7 @@ CgnsFamilyBc::~CgnsFamilyBc()
 
 void CgnsFamilyBc::Init()
 {
-    bcMap = new map< std::string, int >;
+    bcMap = new std::map< std::string, int >;
 }
 
 void CgnsFamilyBc::Free()
@@ -53,7 +53,7 @@ void CgnsFamilyBc::Free()
 
 void CgnsFamilyBc::Register( const std::string & regionName, int bcType )
 {
-    map< std::string, int >::iterator iter = bcMap->find( regionName );
+    std::map< std::string, int >::iterator iter = bcMap->find( regionName );
     if ( iter == bcMap->end() )
     {
         ( * CgnsFamilyBc::bcMap )[ regionName ] = bcType;
@@ -67,7 +67,7 @@ void CgnsFamilyBc::Unregister( const std::string & regionName )
 
 int CgnsFamilyBc::GetBcType( const std::string & regionName )
 {
-    map< std::string, int >::iterator iter = bcMap->find( regionName );
+    std::map< std::string, int >::iterator iter = bcMap->find( regionName );
     if ( iter == bcMap->end() )
     {
         return -1;

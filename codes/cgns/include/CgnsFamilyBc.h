@@ -41,7 +41,7 @@ public:
     CgnsFamilyBc( CgnsBase * cgnsBase );
     ~CgnsFamilyBc();
 public:
-    map< std::string, int > * bcMap;
+    std::map< std::string, int > * bcMap;
     CgnsBase * cgnsBase;
 public:
     void Init();

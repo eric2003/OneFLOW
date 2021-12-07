@@ -30,10 +30,10 @@ map< std::string, int > * fieldIdMap = 0;
 
 void CreateSysMap()
 {
-    solverTypeMap = new map< std::string, int >;
-    interfaceMap = new map< std::string, int >;
-    sendRecvMap = new map< std::string, int >;
-    fieldIdMap = new map< std::string, int >;
+    solverTypeMap = new std::map< std::string, int >;
+    interfaceMap = new std::map< std::string, int >;
+    sendRecvMap = new std::map< std::string, int >;
+    fieldIdMap = new std::map< std::string, int >;
 
     ( * solverTypeMap )[ "CFD_SOLVER"        ] = ONEFLOW::CFD_SOLVER;
     ( * solverTypeMap )[ "NS_SOLVER"         ] = ONEFLOW::NS_SOLVER;

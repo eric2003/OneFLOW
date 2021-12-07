@@ -48,7 +48,7 @@ public:
     VarNameFactory();
     ~VarNameFactory();
 public:
-    static map< int, VarNameSolver * > * data;
+    static std::map< int, VarNameSolver * > * data;
     static MapIntInt * mapData;
 public:
     static void Init();
@@ -78,7 +78,7 @@ public:
     MapIntInt();
     ~MapIntInt();
 public:
-    map< DataAB, int, CmpDataAB > data;
+    std::map< DataAB, int, CmpDataAB > data;
 public:
     void AddData( int a, int b );
     int  GetId( int a, int b );

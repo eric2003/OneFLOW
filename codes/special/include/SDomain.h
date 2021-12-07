@@ -61,13 +61,13 @@ public:
     void SetRemainingCtrlPoint( IntField & idxList );
 public:
     void ConstructLineToDomainMap();
-    void ConstructLineToDomainMap( map< int, IntSet > & lineToDomainMap );
+    void ConstructLineToDomainMap( std::map< int, IntSet > & lineToDomainMap );
     void ConstructPointToDomainMap();
-    void ConstructPointToDomainMap( map< int, IntSet > & pointToDomainMap );
+    void ConstructPointToDomainMap( std::map< int, IntSet > & pointToDomainMap );
     void ConstructPointToPointMap();
-    void ConstructPointToPointMap( map< int, IntSet > & pointToPointMap );
+    void ConstructPointToPointMap( std::map< int, IntSet > & pointToPointMap );
 
-    void ConstructPointToLineMap( map< int, IntSet > & pointToLineMap );
+    void ConstructPointToLineMap( std::map< int, IntSet > & pointToLineMap );
     void ConstructDomainTopo();
     void GetPointIdLink( IntField & lineList, LinkField & pointIdLink );
 public:

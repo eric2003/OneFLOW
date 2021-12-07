@@ -30,7 +30,7 @@ map< std::string, HXClone * > * HXClone::classMap = 0;
 
 HXClone * HXClone::SafeClone( const std::string & type )
 {
-    map < std::string, HXClone * >::iterator iter = HXClone::classMap->find( type );
+    std::map < std::string, HXClone * >::iterator iter = HXClone::classMap->find( type );
     if ( iter == HXClone::classMap->end() )
     {
         cout << type << " class not found" << endl;
@@ -44,12 +44,12 @@ HXClone * HXClone::Register( const std::string & type, HXClone * clone )
 {
     if ( ! HXClone::classMap )
     {
-        HXClone::classMap = new map < std::string, HXClone * >();
+        HXClone::classMap = new std::map < std::string, HXClone * >();
     }
 
     //cout << "HXClone::Register : " << type << "\n";
 
-    map < std::string, HXClone * >::iterator iter = HXClone::classMap->find( type );
+    std::map < std::string, HXClone * >::iterator iter = HXClone::classMap->find( type );
     if ( iter == HXClone::classMap->end() )
     {
         ( * HXClone::classMap )[ type ] = clone;
