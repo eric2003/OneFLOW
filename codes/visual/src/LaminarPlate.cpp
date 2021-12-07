@@ -95,7 +95,7 @@ void LamVelCut::Dump()
         this->Dump( lamData, file, sliceInfo.dir2[ i ] );
     }
 
-    PIO::ParallelClose( file );
+    PIO::CloseFile( file );
 }
 
 void LamVelCut::Dump( LamData * lamData, fstream & file, int axis )
@@ -178,7 +178,7 @@ void LamFriCut::Dump()
         this->Dump( lamData, file, sliceInfo.dir2[ i ] );
     }
 
-    PIO::ParallelClose( file );
+    PIO::CloseFile( file );
 }
 
 void LamFriCut::Dump( LamData * lamData, fstream & file, int axis )

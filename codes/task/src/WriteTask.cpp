@@ -65,7 +65,7 @@ void CWriteFile::ServerWrite()
         this->ServerWrite( this->mainAction );
     }
 
-    PIO::ParallelClose();
+    PIO::CloseFile();
 }
 
 void CWriteFile::ServerWrite( VoidFunc mainAction )

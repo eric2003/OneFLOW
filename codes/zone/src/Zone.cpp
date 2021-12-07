@@ -116,7 +116,7 @@ void Zone::InitLayout( StringField & fileNameList )
 
         nTZones += nZones;
 
-        PIO::ParallelClose( file );
+        PIO::CloseFile( file );
     }
     cout << " nTZones = " << nTZones << endl;
     logFile << "  nTZones = " << nTZones << "\n";

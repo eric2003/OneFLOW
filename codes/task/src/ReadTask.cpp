@@ -62,7 +62,7 @@ void CReadFile::ServerRead()
         this->ServerRead( this->mainAction );
     }
 
-    PIO::ParallelClose();
+    PIO::CloseFile();
 }
 
 void CReadFile::ServerRead( VoidFunc mainAction )

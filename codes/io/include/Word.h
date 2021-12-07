@@ -21,9 +21,10 @@ License
 \*---------------------------------------------------------------------------*/
 
 #pragma once
-#include "HXDefine.h"
+#include "Configure.h"
 #include <fstream>
-using namespace std;
+#include <string>
+#include <vector>
 
 BeginNameSpace( ONEFLOW )
 
@@ -48,19 +49,19 @@ public:
 
 //Character conversion to numeric value
 template < typename T >
-inline T StringToDigit( const string & str, ios_base & ( * f )( ios_base & ) = std::dec )
+inline T StringToDigit( const std::string & str, std::ios_base & ( * f )( std::ios_base & ) = std::dec )
 {
     T value;
-    istringstream stream( str );
+    std::istringstream stream( str );
     stream >> f >> value;
     return value;
 }
 
 //Convert numeric to character
 template < typename T >
-inline string DigitToString( T t, ios_base & ( * f )( ios_base & ) = std::dec )
+inline std::string DigitToString( T t, std::ios_base & ( * f )( std::ios_base & ) = std::dec )
 {
-    ostringstream oss;
+    std::ostringstream oss;
     oss << f << t;
     return oss.str();
 }
@@ -73,22 +74,22 @@ public:
     Word();
     ~Word();
 public:
-    static void ReadNextLine( fstream & file, string & line );
-    static void SkipLines( fstream & file, int numberOfLines );
-    static void TrimBlanks( string & source );
-    static bool FindString( const string & source, const string & word );
-    static bool IsEmptyLine  ( const string & line );
-    static bool IsCommentLine( const string & line );
-    static bool IsCommentLine( const string & line, StringField & comlist );
+    static void ReadNextLine( std::fstream & file, std::string & line );
+    static void SkipLines( std::fstream & file, int numberOfLines );
+    static void TrimBlanks( std::string & source );
+    static bool FindString( const std::string & source, const std::string & word );
+    static bool IsEmptyLine  ( const std::string & line );
+    static bool IsCommentLine( const std::string & line );
+    static bool IsCommentLine( const std::string & line, std::vector<std::string> & comlist );
 public:
-    static string TMP_FindNextWord( const string & source, string & word, const string & separator );
-    static string FindNextWord( string & source, const string & separator );
+    static std::string TMP_FindNextWord( const std::string & source, std::string & word, const std::string & separator );
+    static std::string FindNextWord( std::string & source, const std::string & separator );
 public:
-    static void ToLowerCase( string & word );
-    static void ToUpperCase( string & word );
+    static void ToLowerCase( std::string & word );
+    static void ToUpperCase( std::string & word );
 public:
-    static bool ReadNextNonEmptyLine( fstream & file, string & line );
-    static bool IsDigit( const string & word );
+    static bool ReadNextNonEmptyLine( std::fstream & file, std::string & line );
+    static bool IsDigit( const std::string & word );
 
 };
 

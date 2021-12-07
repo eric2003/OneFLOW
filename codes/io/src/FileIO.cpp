@@ -26,7 +26,6 @@ License
 #include "CommentLine.h"
 #include "Prj.h"
 #include <iostream>
-using namespace std;
 
 BeginNameSpace( ONEFLOW )
 
@@ -79,14 +78,14 @@ void FileIO::ResetCommentString(StringField& commentStringList)
     this->commentLine->ResetCommentString(commentStringList);
 }
 
-void FileIO::OpenFile( const string & fileName, const ios_base::openmode & fileOpenMode )
+void FileIO::OpenFile( const std::string & fileName, const std::ios_base::openmode & fileOpenMode )
 {
     this->fileName     = fileName;
     this->fileOpenMode = fileOpenMode;
     ONEFLOW::OpenFile( this->file, fileName, fileOpenMode );
 }
 
-void FileIO::OpenPrjFile( const string & fileName, const ios_base::openmode & fileOpenMode )
+void FileIO::OpenPrjFile( const std::string & fileName, const std::ios_base::openmode & fileOpenMode )
 {
     this->fileName     = fileName;
     this->fileOpenMode = fileOpenMode;
@@ -148,14 +147,14 @@ void FileIO::DumpLineContentToScreen()
     cout << * line << endl;
 }
 
-void FileIO::SkipReadSymbol( const string & stringSymbol )
+void FileIO::SkipReadSymbol( const std::string & stringSymbol )
 {
     while ( ! this->ReachTheEndOfFile() )
     {
         bool resultFlag = this->ReadNextMeaningfulLine();
         if ( ! resultFlag ) break;
 
-        string word = this->ReadNextWord();
+        std::string word = this->ReadNextWord();
 
         if ( word == stringSymbol )
         {
@@ -174,7 +173,7 @@ void FileIO::SkipReadWholeBlock()
         bool resultFlag = this->ReadNextMeaningfulLine();
         if ( ! resultFlag ) break;
 
-        string word = this->ReadNextWord();
+        std::string word = this->ReadNextWord();
 
         if ( word == "{" )
         {
@@ -195,13 +194,13 @@ void FileIO::SkipReadWholeBlock()
 bool FileIO::NextWordIsEmpty()
 {
     std::string lineLeft = * this->line;
-    string word = Word::FindNextWord( lineLeft, * this->separator );
+    std::string word = Word::FindNextWord( lineLeft, * this->separator );
     return word == "";
 }
 
 std::string FileIO::ReadNextTrueWord()
 {
-    string word = Word::FindNextWord( * this->line, * this->separator );
+    std::string word = Word::FindNextWord( * this->line, * this->separator );
 
     if ( word == "" )
     {
@@ -214,35 +213,35 @@ std::string FileIO::ReadNextTrueWord()
 
 std::string FileIO::ReadNextWord()
 {
-    string word = Word::FindNextWord( * this->line, * this->separator );
+    std::string word = Word::FindNextWord( * this->line, * this->separator );
 
     return word;
 }
 
 std::string FileIO::ReadNextWord( const std::string & separator )
 {
-    string word = Word::FindNextWord( * this->line, separator );
+    std::string word = Word::FindNextWord( * this->line, separator );
     return word;
 }
 
-string FileIO::ReadNextWordToLowerCase()
+std::string FileIO::ReadNextWordToLowerCase()
 {
-    string word = Word::FindNextWord( * this->line, * this->separator );
+    std::string word = Word::FindNextWord( * this->line, * this->separator );
     Word::ToLowerCase( word );
     return word;
 }
 
-string FileIO::ReadNextWordToLowerCase( const std::string & separator )
+std::string FileIO::ReadNextWordToLowerCase( const std::string & separator )
 {
-    string word = Word::FindNextWord( * this->line, separator );
+    std::string word = Word::FindNextWord( * this->line, separator );
     Word::ToLowerCase( word );
     return word;
 }
 
-bool IsEmpty( fstream & file )
+bool IsEmpty( std::fstream & file )
 {
     file.seekp( 0, ios::end );
-    streamoff i = file.tellp();
+    std::streamoff i = file.tellp();
     //cout << "ONEFLOW::IsEmpty( fstream & file ) = " << i << endl;
     if ( i ) return false;
     return true;

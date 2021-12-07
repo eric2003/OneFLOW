@@ -299,7 +299,7 @@ void HXDebug::DumpField( const string & fileName, MRField * field )
         HXWrite( &file, ( * field )[ iEqu ] );
     }
 
-    PIO::ParallelClose( file );
+    PIO::CloseFile( file );
 }
 
 MRField * HXDebug::ReadField( const string & fileName )
@@ -321,7 +321,7 @@ MRField * HXDebug::ReadField( const string & fileName )
         HXRead( &file, ( * field )[ iEqu ] );
     }
 
-    PIO::ParallelClose( file );
+    PIO::CloseFile( file );
 
     return field;
 }

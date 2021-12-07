@@ -630,7 +630,7 @@ void CurveData::Visual( const string & fileName, vector< Real > & x, vector< Rea
         file << z[i] << "\n";
     }
 
-    PIO::ParallelClose( file );
+    PIO::CloseFile( file );
 }
 
 void CurveData::VisualCurveValue( const string & fileName, vector< Real > & x, vector< Real > & y, vector< Real > & z, vector< Real > & cp, vector< Real > & cf )
@@ -660,7 +660,7 @@ void CurveData::VisualCurveValue( const string & fileName, vector< Real > & x, v
         file << cf[i] << "\n";
     }
 
-    PIO::ParallelClose( file );
+    PIO::CloseFile( file );
 }
 
 MakeCurveClass::MakeCurveClass()

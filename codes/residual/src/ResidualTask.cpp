@@ -183,7 +183,7 @@ void ResidualTask::DumpFile()
 
     file << oss.str();
 
-    PIO::ParallelClose( file );
+    PIO::CloseFile( file );
 
 }
 

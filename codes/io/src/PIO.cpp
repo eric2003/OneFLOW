@@ -31,7 +31,6 @@ License
 #include "Task.h"
 #include "TaskState.h"
 #include <iostream>
-//using namespace std;
 
 BeginNameSpace( ONEFLOW )
 
@@ -65,12 +64,12 @@ void PIO::OpenPrjFile()
     PIO::OpenPrjFile( * ActionState::file, TaskState::task->fileInfo->fileName, TaskState::task->fileInfo->openMode );
 }
 
-void PIO::ParallelClose()
+void PIO::CloseFile()
 {
-    PIO::ParallelClose( * ActionState::file );
+    PIO::CloseFile( * ActionState::file );
 }
 
-void PIO::ParallelClose( std::fstream & file )
+void PIO::CloseFile( std::fstream & file )
 {
     if ( Parallel::pid != Parallel::GetFid() ) return;
 

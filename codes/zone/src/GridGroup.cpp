@@ -61,7 +61,7 @@ void GridGroup::InitZoneLayout( const string & fileName )
     this->InitZoneLayout( file );
     this->SetMultiZoneLayout();
 
-    PIO::ParallelClose( file );
+    PIO::CloseFile( file );
 }
 
 void GridGroup::InitZoneLayout( fstream & file )
@@ -113,7 +113,7 @@ void GridGroup::ReadGrid( const string & fileName )
         this->ReadGrid( file, zid );
     }
 
-    PIO::ParallelClose( file );
+    PIO::CloseFile( file );
 }
 
 void GridGroup::ReadGrid( fstream & file, int zid )
