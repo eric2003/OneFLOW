@@ -25,7 +25,6 @@ License
 #include <set>
 #include <string>
 #include <fstream>
-using namespace std;
 
 BeginNameSpace( ONEFLOW )
 
@@ -62,7 +61,7 @@ public:
     DataPara();
     ~DataPara();
 public:
-    typedef std::set < DataV *, CompareDataV > DataSET;
+    typedef std::set< DataV *, CompareDataV > DataSET;
 protected:
     DataSET * dataSet;
 public:

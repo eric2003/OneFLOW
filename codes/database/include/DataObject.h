@@ -28,7 +28,6 @@ License
 #include "LogFile.h"
 #include <string>
 #include <set>
-using namespace std;
 
 BeginNameSpace( ONEFLOW )
 

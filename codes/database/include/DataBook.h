@@ -26,7 +26,6 @@ License
 #include <vector>
 #include <string>
 #include <fstream>
-using namespace std;
 
 BeginNameSpace( ONEFLOW )
 
@@ -64,7 +63,7 @@ public:
     void ReadString ( std::string & cs );
     void WriteString( std::string & cs );
 
-    void Write( ostringstream * oss );
+    void Write( std::ostringstream * oss );
 
     LLong GetSize();
     void ReSize( LLong nLength );
@@ -86,6 +85,6 @@ public:
     void MoveToEnd();
 };
 
-void ToDataBook( DataBook * dataBook, ostringstream & oss );
+void ToDataBook( DataBook * dataBook, std::ostringstream & oss );
 
 EndNameSpace

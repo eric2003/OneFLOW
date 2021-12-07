@@ -164,7 +164,7 @@ void DataBook::AppendString( std::string & cs )
     this->WriteString( cs );
 }
 
-void DataBook::Write( ostringstream * oss )
+void DataBook::Write( std::ostringstream * oss )
 {
     std::string str = oss->str();
     UInt stringSize = str.size();
@@ -416,7 +416,7 @@ void DataBook::Bcast( int rootid )
     }
 }
 
-void ToDataBook( DataBook * dataBook, ostringstream & oss )
+void ToDataBook( DataBook * dataBook, std::ostringstream & oss )
 {
     if ( ! dataBook ) return;
 

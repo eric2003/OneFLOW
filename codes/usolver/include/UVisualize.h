@@ -55,8 +55,8 @@ public:
     void Calc( int bcType );
     void Calcf2n( int bcType );
     void ResolveElementEdge();
-    void Dump( ostringstream & oss, VisualTool * visualTool, std::string & bcTitle );
-    void DumpDebug( ostringstream & oss, VisualTool * visualTool, std::string & bcTitle );
+    void Dump( std::ostringstream & oss, VisualTool * visualTool, std::string & bcTitle );
+    void DumpDebug( std::ostringstream & oss, VisualTool * visualTool, std::string & bcTitle );
     void DumpSeveralElement();
 public:
     LinkField f2n;
@@ -76,9 +76,9 @@ public:
     void Visual() override;
     bool NeedVisualField();
     void CalcNodeField( VisualTool * visualTool );
-    void ShowField( ostringstream & oss, VisualTool * visualTool );
-    void ShowBc( ostringstream & oss, VisualTool * visualTool );
-    void ShowBcDebugTest( ostringstream & oss, VisualTool * visualTool );
+    void ShowField( std::ostringstream & oss, VisualTool * visualTool );
+    void ShowBc( std::ostringstream & oss, VisualTool * visualTool );
+    void ShowBcDebugTest( std::ostringstream & oss, VisualTool * visualTool );
     void ExtractLinkNum( LinkField & f2n, IntField & fnNumber );
     int  GetTotalNumFaceNodes( LinkField & f2n );
 };

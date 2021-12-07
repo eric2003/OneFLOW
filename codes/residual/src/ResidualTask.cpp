@@ -139,7 +139,7 @@ void ResidualTask::PostDumpResiduals()
 
 void ResidualTask::DumpFile()
 {
-    ostringstream oss;
+    std::ostringstream oss;
 
     std::fstream file;
     SolverInfo * solverInfo = SolverInfoFactory::GetSolverInfo( SolverState::tid );
@@ -191,7 +191,7 @@ void ResidualTask::DumpScreen()
 {
     int maxId = this->data.resmax.CalcMaxId();
 
-    ostringstream oss;
+    std::ostringstream oss;
     if ( ( Iteration::outerSteps - 1 ) % 100 == 0 )
     {
         oss << endl;

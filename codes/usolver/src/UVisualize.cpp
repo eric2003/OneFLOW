@@ -263,7 +263,7 @@ void BcVisual::Calcf2n( int bcType )
     //}
 }
 
-void BcVisual::Dump( ostringstream & oss, VisualTool * visualTool, std::string & bcTitle )
+void BcVisual::Dump( std::ostringstream & oss, VisualTool * visualTool, std::string & bcTitle )
 {
     UnsGrid * grid = Zone::GetUnsGrid();
 
@@ -307,7 +307,7 @@ void BcVisual::Dump( ostringstream & oss, VisualTool * visualTool, std::string &
        
 }
 
-void BcVisual::DumpDebug( ostringstream & oss, VisualTool * visualTool, std::string & bcTitle )
+void BcVisual::DumpDebug( std::ostringstream & oss, VisualTool * visualTool, std::string & bcTitle )
 {
     UnsGrid * grid = Zone::GetUnsGrid();
 
@@ -469,7 +469,7 @@ void UVisualize::Visual()
 
     this->CalcNodeField( & visualTool );
 
-    ostringstream oss;
+    std::ostringstream oss;
 
     this->ShowBc( oss, & visualTool );
     //this->ShowBcDebug( oss, & visualTool );
@@ -505,7 +505,7 @@ int UVisualize::GetTotalNumFaceNodes( LinkField & f2n )
     return totalNumFaceNodes;
 }
 
-void UVisualize::ShowField( ostringstream & oss, VisualTool * visualTool )
+void UVisualize::ShowField( std::ostringstream & oss, VisualTool * visualTool )
 {
     UnsGrid * grid = Zone::GetUnsGrid();
 
@@ -561,7 +561,7 @@ void UVisualize::ShowField( ostringstream & oss, VisualTool * visualTool )
     Plot::DumpFaceElementLink( faceTopo->rCells, nCells );
 }
 
-void UVisualize::ShowBc( ostringstream & oss, VisualTool * visualTool )
+void UVisualize::ShowBc( std::ostringstream & oss, VisualTool * visualTool )
 {
     if ( IsTwoD() ) return;
     UnsGrid * grid = Zone::GetUnsGrid();
@@ -586,7 +586,7 @@ void UVisualize::ShowBc( ostringstream & oss, VisualTool * visualTool )
     }    
 }
 
-void UVisualize::ShowBcDebugTest( ostringstream & oss, VisualTool * visualTool )
+void UVisualize::ShowBcDebugTest( std::ostringstream & oss, VisualTool * visualTool )
 {
     if ( IsTwoD() ) return;
     UnsGrid * grid = Zone::GetUnsGrid();

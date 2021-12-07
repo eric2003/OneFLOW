@@ -33,7 +33,6 @@ License
 #include <string>
 #include <set>
 #include <map>
-using namespace std;
 
 BeginNameSpace( ONEFLOW )
 
@@ -79,7 +78,7 @@ T GetDataValue( const std::string & varName, DataBase * database )
     }
     else
     {
-        cerr << "can't find:" << varName << " in database!!" << endl;
+        std::cerr << "can't find:" << varName << " in database!!" << endl;
         exit(EXIT_FAILURE);
     }   
 }

@@ -97,7 +97,7 @@ void AerodynamicForceTask::Dump()
 
     aeroForceInfo.CalcCoef();
 
-    ostringstream oss;
+    std::ostringstream oss;
 
     int wordWidth = 16;
     oss << setiosflags( ios::right );

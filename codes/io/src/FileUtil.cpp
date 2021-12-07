@@ -42,7 +42,6 @@ License
 #endif
 
 #include <iostream>
-using namespace std;
 
 BeginNameSpace( ONEFLOW )
 
@@ -76,20 +75,20 @@ void MakeDir( const std::string & dirName )
     }
 }
 
-string HX_GetExePath()
+std::string HX_GetExePath()
 {
     char buffer[ FILENAME_MAX ] = { 0 };
 #ifdef _WIN32
     GetModuleFileName( NULL, buffer, FILENAME_MAX );
 #else
-    ssize_t count = readlink( "/proc/self/exe", buffer, FILENAME_MAX );
+    std::ssize_t count = readlink( "/proc/self/exe", buffer, FILENAME_MAX );
 #endif
     string::size_type pos = string( buffer ).find_last_of( "\\/" );
     return string( buffer ).substr( 0, pos);
 }
 
 
-string HX_GetCurrentDir()
+std::string HX_GetCurrentDir()
 {
 #ifdef _WINDOWS
     char * cwd = _getcwd( 0, 0 );
@@ -156,7 +155,7 @@ bool StartWithForwardSlash( const std::string & fileName )
     return false;
 }
 
-string RemoveFirstSlash( const std::string & fileName )
+std::string RemoveFirstSlash( const std::string & fileName )
 {
     if ( StartWithForwardSlash( fileName ) )
     {
@@ -166,7 +165,7 @@ string RemoveFirstSlash( const std::string & fileName )
     return fileName;
 }
 
-string RemoveEndSlash( const std::string & fileName )
+std::string RemoveEndSlash( const std::string & fileName )
 {
     if ( EndWithSlash( fileName ) )
     {
@@ -191,7 +190,7 @@ void ModifyFileMainName( std::string & fileName,  const std::string & newMainNam
     std::string mainName, extensionName;
     ONEFLOW::GetFileNameExtension( fileName, mainName, extensionName, "." );
 
-    ostringstream oss;
+    std::ostringstream oss;
     oss << newMainName << "." << extensionName;
 
     fileName = oss.str();
@@ -202,7 +201,7 @@ void ModifyFileExtensionName( std::string & fileName,  const std::string & newEx
     std::string mainName, extensionName;
     ONEFLOW::GetFileNameExtension( fileName, mainName, extensionName, "." );
 
-    ostringstream oss;
+    std::ostringstream oss;
     oss << mainName << "." << newExtensionName;
 
     fileName = oss.str();

@@ -251,7 +251,7 @@ void WallVisual::Visual( std::fstream & file, StringField & titleOfTecplot, Real
 
 void WallVisual::Visual3D( std::fstream & file, StringField & titleOfTecplot, RealField2D & qNodeField )
 {
-    ostringstream oss;
+    std::ostringstream oss;
     for ( UInt i = 0; i < titleOfTecplot.size(); ++ i )
     {
         oss << titleOfTecplot[ i ] << "\n";
@@ -294,7 +294,7 @@ void WallVisual::Visual3D( std::fstream & file, StringField & titleOfTecplot, Re
 
 void WallVisual::VisualLine( std::fstream & file, StringField & titleOfTecplot, RealField2D & qNodeField )
 {
-    ostringstream oss;
+    std::ostringstream oss;
     for ( UInt i = 0; i < titleOfTecplot.size(); ++ i )
     {
         oss << titleOfTecplot[ i ] << "\n";

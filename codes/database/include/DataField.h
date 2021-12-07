@@ -24,7 +24,6 @@ License
 #include "Configure.h"
 #include <set>
 #include <string>
-using namespace std;
 
 BeginNameSpace( ONEFLOW )
 
@@ -56,7 +55,7 @@ public:
 class DataField
 {
 public:
-    typedef std::set < DataF *, CompareDataF > DataSET;
+    typedef std::set< DataF *, CompareDataF > DataSET;
 public:
     DataField();
     ~DataField();
