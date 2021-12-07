@@ -145,7 +145,7 @@ void EList::AddElem( IntList &elem )
 	this->data.push_back( elem.data );
 }
 
-void EList::AddElem( vector< int > &elem )
+void EList::AddElem( std::vector< int > &elem )
 {
 	this->data.push_back( elem );
 }
@@ -997,7 +997,7 @@ void ScalarGrid::SetBcGhostCell()
 	}
 }
 
-bool ScalarGrid::CheckBcFace( IntSet & bcVertex, vector< int > & nodeId )
+bool ScalarGrid::CheckBcFace( IntSet & bcVertex, std::vector< int > & nodeId )
 {
 	int size = nodeId.size();
 	for ( int iNode = 0; iNode < size; ++ iNode )

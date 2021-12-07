@@ -30,16 +30,16 @@ using namespace std;
 BeginNameSpace( ONEFLOW )
 
 template < typename T >
-T SUM( vector< T > & a );
+T SUM( std::vector< T > & a );
 
 template < typename T >
-T MaxField( vector< T > & field );
+T MaxField( std::vector< T > & field );
 
 template < typename T >
-T MinField( vector< T > & field );
+T MinField( std::vector< T > & field );
 
 template < typename T >
-inline T SUM( vector< T > & a )
+inline T SUM( std::vector< T > & a )
 {
     T sum = 0;
     int nElements = a.size();
@@ -51,7 +51,7 @@ inline T SUM( vector< T > & a )
 }
 
 template < typename T >
-inline T MaxField( vector< T > & field )
+inline T MaxField( std::vector< T > & field )
 {
     T maxValue = field[ 0 ];
 
@@ -64,7 +64,7 @@ inline T MaxField( vector< T > & field )
 }
 
 template < typename T >
-inline T MinField( vector< T > & field )
+inline T MinField( std::vector< T > & field )
 {
     T minValue = field[ 0 ];
 

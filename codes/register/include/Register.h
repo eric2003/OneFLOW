@@ -49,7 +49,7 @@ public:
     MRegister();
     ~MRegister();
 public:
-    vector< HXRegister * > data;
+    std::vector< HXRegister * > data;
     StringField fileNames;
 public:
     void SetSolverFileNames( StringField & fileNames );

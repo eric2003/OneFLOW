@@ -140,7 +140,7 @@ TopoSort::~TopoSort()
     ;
 }
 
-void TopoSort::GetElementFace( UnitElement * unitElement, vector< int > & element, int facePos, vector< int > & face, int & faceType )
+void TopoSort::GetElementFace( UnitElement * unitElement, std::vector< int > & element, int facePos, std::vector< int > & face, int & faceType )
 {
     //unit_face -> real_face mapping
     //for instance 0,1,2,3->1001,1002,1003,1004
@@ -154,7 +154,7 @@ void TopoSort::GetElementFace( UnitElement * unitElement, vector< int > & elemen
     }
 }
 
-void TopoSort::AddSingleFace( UnitElement * unitElement, vector< int > & element, int facePos, int iCell )
+void TopoSort::AddSingleFace( UnitElement * unitElement, std::vector< int > & element, int facePos, int iCell )
 {
     int faceType;
     this->GetElementFace( unitElement, element, facePos, this->real_face, faceType );
@@ -189,7 +189,7 @@ void TopoSort::AddNewFace( int iCell, int face_pos, int faceType )
     this->fBcTypes.push_back( ONEFLOW::INVALID_INDEX );
 }
 
-void TopoSort::AddElementFaces( vector< int > & element, int eType, int iCell )
+void TopoSort::AddElementFaces( std::vector< int > & element, int eType, int iCell )
 {
     UnitElement * unitElement = ElementHome::GetUnitElement( eType );
 
@@ -206,7 +206,7 @@ void TopoSort::AddElementFaces( vector< int > & element, int eType, int iCell )
 
 void TopoSort::ReorderFaces()
 {
-    vector<int > orderMap;
+    std::vector<int > orderMap;
     this->CalcOrderMap( orderMap );
 
     this->ReOrder( this->lc, orderMap );
@@ -221,7 +221,7 @@ void TopoSort::ReorderFaces()
     this->ReOrderMapdata( this->faceIdTool, orderMap );
 }
 
-void TopoSort::CalcOrderMap( vector<int > &orderMap )
+void TopoSort::CalcOrderMap( std::vector<int > &orderMap )
 {
     int nFaces = this->fTypes.size();
 	orderMap.resize( nFaces );
@@ -250,7 +250,7 @@ void TopoSort::CalcOrderMap( vector<int > &orderMap )
 	}
 }
 
-void TopoSort::ReOrder( vector< int > & varList, vector< int > & orderMap )
+void TopoSort::ReOrder( std::vector< int > & varList, std::vector< int > & orderMap )
 {
 	vector< int > dataSwap = varList;
 	size_t nElements = varList.size();
@@ -262,9 +262,9 @@ void TopoSort::ReOrder( vector< int > & varList, vector< int > & orderMap )
 	}
 }
 
-void TopoSort::ReOrderMapdata( IdTool & faceIdTool, vector< int > & orderMap )
+void TopoSort::ReOrderMapdata( IdTool & faceIdTool, std::vector< int > & orderMap )
 {
-    vector< Ids > dataSwap = faceIdTool.ids_list;
+    std::vector< Ids > dataSwap = faceIdTool.ids_list;
     size_t nElements = dataSwap.size();
 	for ( size_t i = 0; i < nElements; ++ i )
 	{
@@ -339,7 +339,7 @@ IdTool::~IdTool()
 }
 
 
-IdTool::IDSMap::iterator IdTool::FindIds( const vector< int > & ids, int type )
+IdTool::IDSMap::iterator IdTool::FindIds( const std::vector< int > & ids, int type )
 {
     this->vint.type = type;
     this->vint.ids = ids;
@@ -362,7 +362,7 @@ int IdTool::AddData()
     return index;
 }
 
-int IdTool::AddIds( vector< int > & ids, int type )
+int IdTool::AddIds( std::vector< int > & ids, int type )
 {
     IdTool::IDSMap::iterator iter = this->FindIds( ids, type );
     if ( this->NotFind( iter ) )
@@ -396,7 +396,7 @@ TopoAction::~TopoAction()
 
 void TopoAction::AddElement( int p1, int p2, int eType )
 {
-    vector< int > elem;
+    std::vector< int > elem;
     elem.push_back( p1 );
     elem.push_back( p2 );
 
@@ -469,7 +469,7 @@ void SmartGrid::GenerateGrid( int ni, Real xmin, Real xmax )
 {
     Real dx = ( xmax - xmin ) / ( ni - 1 );
 
-    vector< int > pid_list;
+    std::vector< int > pid_list;
     for ( int i = 0; i < ni; ++ i )
     {
         Real xm = xmin + i * dx;

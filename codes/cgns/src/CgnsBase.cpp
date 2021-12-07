@@ -369,7 +369,7 @@ void CgnsBase::ReadConvergence()
         cgsize_t idimvec;
         char arrayname[ 33 ];
         cg_array_info( n, arrayname, & itype, & idim, & idimvec );
-        vector< double > varArray( idimvec );
+        std::vector< double > varArray( idimvec );
         cout << "Datatype = " << itype << " DataTypeName = " << DataTypeName[ itype ] << "\n";
         cg_array_read_as( n, itype, &varArray[ 0 ] );
         cout << " VarArrayName = " << arrayname << "\n";

@@ -216,7 +216,7 @@ string GetJsonFileName( const std::string & fileName )
 //
 //        Json::Value jsonItem;
 //        std::string varName;
-//        vector< std::string > varArray;
+//        std::vector< std::string > varArray;
 //        GetParaInfo( fileIO, varName, varArray );
 //        jsonItem[ "type" ] = keyWord;
 //        jsonItem[ "value" ] = varArray[0];
@@ -236,7 +236,7 @@ string GetJsonFileName( const std::string & fileName )
 //    fileIO.CloseFile();
 //}
 
-void GetParaInfo( FileIO & fileIO, std::string & varName, vector< std::string > & varArray )
+void GetParaInfo( FileIO & fileIO, std::string & varName, std::vector< std::string > & varArray )
 {
     if ( ONEFLOW::IsArrayParameter( fileIO.GetCurrentLine() ) )
     {
@@ -248,7 +248,7 @@ void GetParaInfo( FileIO & fileIO, std::string & varName, vector< std::string > 
     }
 }
 
-void GetParaInfoScalar( FileIO & fileIO, std::string & varName, vector< std::string > & varArray )
+void GetParaInfoScalar( FileIO & fileIO, std::string & varName, std::vector< std::string > & varArray )
 {
     std::string errorMessage = "error in parameter file";
     std::string separator = " =\r\n\t#$,;\"";  //\t is tab key
@@ -261,7 +261,7 @@ void GetParaInfoScalar( FileIO & fileIO, std::string & varName, vector< std::str
     varArray[ 0 ] = fileIO.ReadNextWord( separator );
 }
 
-void GetParaInfoArray( FileIO & fileIO, std::string & varName, vector< std::string > & varArray )
+void GetParaInfoArray( FileIO & fileIO, std::string & varName, std::vector< std::string > & varArray )
 {
     std::string errorMessage = "error in parameter file";
     std::string commSeparator = "=\r\n\t#$,;\"";
@@ -325,12 +325,12 @@ void DumpDataBase()
 
 void ReadPrjScript()
 {
-    vector< std::string > scriptFileNameList;
+    std::vector< std::string > scriptFileNameList;
     ONEFLOW::ReadScriptFileNameList( scriptFileNameList );
     ONEFLOW::ReadMultiScriptFiles( scriptFileNameList );
 }
 
-void ReadScriptFileNameList( vector< std::string > & scriptFileNameList )
+void ReadScriptFileNameList( std::vector< std::string > & scriptFileNameList )
 {
     FileIO ioFile;
 
@@ -355,7 +355,7 @@ void ReadScriptFileNameList( vector< std::string > & scriptFileNameList )
 
 }
 
-void ReadMultiScriptFiles( vector< std::string > & scriptFileNameList )
+void ReadMultiScriptFiles( std::vector< std::string > & scriptFileNameList )
 {
     int numberOfParameterFiles = scriptFileNameList.size();
 

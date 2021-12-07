@@ -45,7 +45,7 @@ public:
     int openMode;
     int openStatus;
     int nBases;
-    vector< CgnsBase * > baseList;
+    std::vector< CgnsBase * > baseList;
 public:
     int currBaseId;
 public:

@@ -65,9 +65,9 @@ public:
     ~PointEdgeClass();
 public:
     std::set<int> idset;
-    vector<int> idlist;
+    std::vector<int> idlist;
 public:
-    void EdgeToPoint( vector< IntField > & edgeList );
+    void EdgeToPoint( std::vector< IntField > & edgeList );
 };
 
 class CurveData
@@ -76,17 +76,17 @@ public:
     CurveData();
     ~CurveData();
 public:
-    vector< Real > xList, yList, zList;
-    vector< Real > cpList, cfList;
-    vector< int > extremeList;
-    vector< int > idList;
-    vector< HXSort< Real > > xsList;
-    vector< Real > dsList;
-    vector< VectDir > vectDirList;
+    std::vector< Real > xList, yList, zList;
+    std::vector< Real > cpList, cfList;
+    std::vector< int > extremeList;
+    std::vector< int > idList;
+    std::vector< HXSort< Real > > xsList;
+    std::vector< Real > dsList;
+    std::vector< VectDir > vectDirList;
     std::set< int > idset;
-    vector< int > newidlist;
-    vector< std::set< int > > p2p;
-    vector< IntField > extremeEdgeList;
+    std::vector< int > newidlist;
+    std::vector< std::set< int > > p2p;
+    std::vector< IntField > extremeEdgeList;
     std::set< HXSort< IntField > > searchEdgeList;
     PointEdgeClass pec;
     string file_prestr;
@@ -117,11 +117,11 @@ public:
 public:
     void VisualCreateList();
     void VisualCreateList( PointEdgeClass * pec );
-    void VisualCreateList( vector<int> & newidlist, const string& fileName );
+    void VisualCreateList( std::vector<int> & newidlist, const string& fileName );
     void VisualCurveValue();
-    void VisualCurveValue( vector<int> & newidlist, const string& fileName );
-    void Visual( const string & fileName, vector< Real > & x, vector< Real > & y, vector< Real > & z );
-    void VisualCurveValue( const string & fileName, vector< Real > & x, vector< Real > & y, vector< Real > & z, vector< Real > & cp, vector< Real > & cf );
+    void VisualCurveValue( std::vector<int> & newidlist, const string& fileName );
+    void Visual( const string & fileName, std::vector< Real > & x, std::vector< Real > & y, std::vector< Real > & z );
+    void VisualCurveValue( const string & fileName, std::vector< Real > & x, std::vector< Real > & y, std::vector< Real > & z, std::vector< Real > & cp, std::vector< Real > & cf );
     void Visual( const string & fileName );
 
 };

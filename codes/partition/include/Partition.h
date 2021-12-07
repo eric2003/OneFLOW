@@ -70,15 +70,15 @@ public:
     IntField g2l_node;
     IntField g2l_face;
     IntField g2l_cell;
-    vector<idx_t> gc2lzone;
+    std::vector<idx_t> gc2lzone;
     UnsGrid * ggrid;
     int npartproc;
     LinkField c2c;
 public:
     void GenerateGC2Z();
 #ifdef ENABLE_METIS
-    void GetXadjAdjncy( UnsGrid * ggrid, vector<idx_t>& xadj, vector<idx_t>& adjncy );
-    void PartByMetis( idx_t nCells, vector<idx_t>& xadj, vector<idx_t>& adjncy );
+    void GetXadjAdjncy( UnsGrid * ggrid, std::vector<idx_t>& xadj, std::vector<idx_t>& adjncy );
+    void PartByMetis( idx_t nCells, std::vector<idx_t>& xadj, std::vector<idx_t>& adjncy );
 #endif
     void DumpXadjAdjncy( UnsGrid * grid, IntField & xadj, IntField & adjncy );
     void DumpGC2Z( UnsGrid * grid );

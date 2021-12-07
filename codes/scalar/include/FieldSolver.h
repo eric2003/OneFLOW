@@ -43,7 +43,7 @@ template < typename T >
 class SortArray
 {
 public:
-    vector< T > data;
+    std::vector< T > data;
     bool operator < ( const SortArray< T > & rhs ) const
     {
         return this->data[ 0 ] < rhs.data[ 0 ];
@@ -62,8 +62,8 @@ public:
     ScalarGrid * grid;
     FieldPara * para;
     ScalarFieldManager * scalarFieldManager;
-    vector< ScalarField * > fields;
-    vector< ScalarGrid * > grids;
+    std::vector< ScalarField * > fields;
+    std::vector< ScalarGrid * > grids;
     bool tmpflag_delete_grids;
 public:
     //tmp

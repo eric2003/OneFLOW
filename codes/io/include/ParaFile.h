@@ -34,9 +34,9 @@ bool IsArrayParameter( const std::string & lineOfName );
 void ReadOneFLOWScriptFile( FileIO & fileIO );
 void ReadOneFLOWScriptFile( const std::string & fileName );
 string GetJsonFileName( const std::string & fileName );
-void GetParaInfo( FileIO & fileIO, std::string & varName, vector< std::string > & varArray );
-void GetParaInfoArray( FileIO & fileIO, std::string & varName, vector< std::string > & varArray );
-void GetParaInfoScalar( FileIO & fileIO, std::string & varName, vector< std::string > & varArray );
+void GetParaInfo( FileIO & fileIO, std::string & varName, std::vector< std::string > & varArray );
+void GetParaInfoArray( FileIO & fileIO, std::string & varName, std::vector< std::string > & varArray );
+void GetParaInfoScalar( FileIO & fileIO, std::string & varName, std::vector< std::string > & varArray );
 
 void AnalysisArrayParameter( FileIO & fileIO, int keyWordIndex );
 int AnalysisScalarParameter( FileIO & fileIO, int keyWordIndex );
@@ -44,8 +44,8 @@ int GetParameterArraySize( const std::string & word );
 
 void ReadControlInfo();
 void ReadPrjScript();
-void ReadScriptFileNameList( vector< std::string > & scriptFileNameList );
-void ReadMultiScriptFiles( vector< std::string > & scriptFileNameList );
+void ReadScriptFileNameList( std::vector< std::string > & scriptFileNameList );
+void ReadMultiScriptFiles( std::vector< std::string > & scriptFileNameList );
 void BroadcastControlParameterToAllProcessors();
 void DumpDataBase();
 

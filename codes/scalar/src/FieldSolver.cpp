@@ -636,7 +636,7 @@ void FieldSolver::Reorder( RealField & a, RealField & b, RealField & c )
 {
     int nElements = a.size();
 
-    vector< SortArray<Real> > xlist;
+    std::vector< SortArray<Real> > xlist;
     for ( int iElem = 0; iElem < nElements; ++ iElem )
     {
         SortArray<Real> ab;
@@ -779,7 +779,7 @@ void PrepareFieldSendData()
     int iNei = ZoneState::inei;
 
     ScalarIFaceIJ & sij = scalarIFace->data[ iNei ];
-    vector< int > & interfaceId = sij.ifaces;
+    std::vector< int > & interfaceId = sij.ifaces;
 
     ActionState::dataBook->MoveToBegin();
 
@@ -808,7 +808,7 @@ void PrepareFieldRecvData()
     int jNei = scalarIFace->FindINeibor( ZoneState::szid );
 
     ScalarIFaceIJ & sij = scalarIFace->data[ jNei ];
-    vector< int > & interfaceId = sij.recv_ifaces;
+    std::vector< int > & interfaceId = sij.recv_ifaces;
 
     ActionState::dataBook->MoveToBegin();
 
@@ -862,7 +862,7 @@ void PrepareGeomSendData()
     int iNei = ZoneState::inei;
 
     ScalarIFaceIJ & sij = scalarIFace->data[ iNei ];
-    vector< int > & interfaceId = sij.ifaces;
+    std::vector< int > & interfaceId = sij.ifaces;
 
     ActionState::dataBook->MoveToBegin();
 
@@ -892,7 +892,7 @@ void PrepareGeomRecvData()
     int jNei = scalarIFace->FindINeibor( ZoneState::szid );
 
     ScalarIFaceIJ & sij = scalarIFace->data[ jNei ];
-    vector< int > & interfaceId = sij.recv_ifaces;
+    std::vector< int > & interfaceId = sij.recv_ifaces;
 
     ActionState::dataBook->MoveToBegin();
 

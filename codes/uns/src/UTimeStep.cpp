@@ -148,7 +148,7 @@ void UTimeStep::ReadTmp()
         file.read( reinterpret_cast< char * >( & ( * unsf.vist )[ 0 ][ cId ] ), sizeof( double ) );
     }
 
-    vector< Real > tmp1( ug.nTCell ), tmp2( ug.nTCell );
+    std::vector< Real > tmp1( ug.nTCell ), tmp2( ug.nTCell );
 
     for ( int cId = 0; cId < ug.nTCell; ++ cId )
     {

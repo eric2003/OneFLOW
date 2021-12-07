@@ -109,7 +109,7 @@ int ScalarIFace::FindINeibor( int iZone )
     return -1;
 }
 
-void ScalarIFace::CalcLocalInterfaceId( int iZone, vector<int> & globalfaces, vector<int> & localfaces )
+void ScalarIFace::CalcLocalInterfaceId( int iZone, std::vector<int> & globalfaces, std::vector<int> & localfaces )
 {
     for ( int i = 0; i < globalfaces.size(); ++ i )
     {

@@ -59,7 +59,7 @@ public:
     CgnsZVector();
     ~CgnsZVector();
 public:
-    vector< CgnsVector * > cgnsVectorList;
+    std::vector< CgnsVector * > cgnsVectorList;
     void ReadArray( int nArrays );
     void ReadArray();
 };
@@ -72,7 +72,7 @@ public:
     ~CgnsUserData();
 public:
     CgnsBase * cgnsBase;
-    vector< CgnsZVector * > cgnsZVectorList;
+    std::vector< CgnsZVector * > cgnsZVectorList;
 public:
     void ReadUserData();
 };

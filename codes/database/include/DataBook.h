@@ -41,7 +41,7 @@ public:
     DataBook();
     ~DataBook();
 public:
-    vector< DataPage * > * dataBook;
+    std::vector< DataPage * > * dataBook;
     UInt currPageId;
     LLong currPos;
     LLong maxUnitSize;

@@ -42,15 +42,15 @@ public:
     ~ScalarIFaceIJ();
 public:
     int zonei, zonej;
-    vector< int > ghostCells;
+    std::vector< int > ghostCells;
     //global interface id
-    vector< int > iglobalfaces;
+    std::vector< int > iglobalfaces;
     //local interface id
-    vector< int > ifaces;
-    vector< int > cells;
+    std::vector< int > ifaces;
+    std::vector< int > cells;
 
-    vector< int > target_ifaces;
-    vector< int > recv_ifaces;
+    std::vector< int > target_ifaces;
+    std::vector< int > recv_ifaces;
 public:
     void WriteInterfaceTopology( DataBook * databook );
     void ReadInterfaceTopology( DataBook * databook );
@@ -62,15 +62,15 @@ public:
     ScalarIFace();
     ~ScalarIFace();
 public:
-    vector< ScalarIFaceIJ > data;
+    std::vector< ScalarIFaceIJ > data;
     
-    vector< int > iglobalfaces;
+    std::vector< int > iglobalfaces;
     //targt zones
-    vector< int > zones;
+    std::vector< int > zones;
     //target cells
-    vector< int > cells;
+    std::vector< int > cells;
     //target interfaces (local)
-    vector< int > target_interfaces;
+    std::vector< int > target_interfaces;
     //int zoneid;
     DataStorage * dataSend;
     DataStorage * dataRecv;
@@ -80,14 +80,14 @@ public:
     std::map<int, int> local_to_global_interfaces;
 
     //mapping relationship between local interface bc ID and boundary bc ID
-    vector< int > interface_to_bcface;
+    std::vector< int > interface_to_bcface;
 public:
     int GetNIFaces();
     int FindINeibor( int iZone );
     void DumpInterfaceMap();
     void DumpMap( std::map<int, int> & mapin );
     int GetLocalInterfaceId( int global_interface_id );
-    void CalcLocalInterfaceId( int iZone, vector<int> & globalfaces, vector<int> & localfaces );
+    void CalcLocalInterfaceId( int iZone, std::vector<int> & globalfaces, std::vector<int> & localfaces );
     void AddInterface( int global_interface_id, int neighbor_zoneid, int neighbor_cellid );
     void ReconstructNeighbor();
     DataStorage * GetDataStorage( int iSendRecv );

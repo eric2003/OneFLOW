@@ -60,10 +60,10 @@ int HXRandomClass::Random( int rangeMin, int rangeMax )
     return static_cast< int > ( value );
 }
 
-void HXRandomClass::RangeRandom( int rangeMin, int rangeMax, vector< int > & results )
+void HXRandomClass::RangeRandom( int rangeMin, int rangeMax, std::vector< int > & results )
 {
     int numberOfElements = results.size();
-    vector< int > flag( numberOfElements, 0 );
+    std::vector< int > flag( numberOfElements, 0 );
     for ( int iElement = 0; iElement< numberOfElements; ++ iElement )
     {
         int candidateNumber = - 1;

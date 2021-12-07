@@ -68,8 +68,8 @@ void ScalarMetis::Run()
 {
     Dim::SetDimension( ONEFLOW::GetDataValue< int >( "dimension" ) );
 
-    vector< ScalarGrid * > input_grids;
-    vector< ScalarGrid * > part_grids;
+    std::vector< ScalarGrid * > input_grids;
+    std::vector< ScalarGrid * > part_grids;
 
     int dimension = 1;
     std::string root_gridfile = ONEFLOW::GetDataValue< std::string >("root_gridfile");
@@ -150,7 +150,7 @@ void ScalarMetis::Create1DMeshFromCgns()
 }
 
 
-void ScalarMetisAddZoneGrid( vector< ScalarGrid * > & part_grids )
+void ScalarMetisAddZoneGrid( std::vector< ScalarGrid * > & part_grids )
 {
     int nZones = part_grids.size();
     ZoneState::nZones = nZones;
@@ -160,7 +160,7 @@ void ScalarMetisAddZoneGrid( vector< ScalarGrid * > & part_grids )
     }
 }
 
-void ScalarReadGrid( const std::string & gridFileName, vector< ScalarGrid * > & grids )
+void ScalarReadGrid( const std::string & gridFileName, std::vector< ScalarGrid * > & grids )
 {
     std::fstream file;
     OpenPrjFile( file, gridFileName, std::ios_base::in|std::ios_base::binary );
@@ -198,12 +198,12 @@ void ScalarReadGrid( const std::string & gridFileName, vector< ScalarGrid * > & 
 
 void ScalarDumpGrid( const std::string & gridFileName, ScalarGrid * grid )
 {
-    vector< ScalarGrid * > grids;
+    std::vector< ScalarGrid * > grids;
     grids.push_back( grid );
     ScalarDumpGrid( gridFileName, grids );
 }
 
-void ScalarDumpGrid( const std::string & gridFileName, vector< ScalarGrid * > & grids )
+void ScalarDumpGrid( const std::string & gridFileName, std::vector< ScalarGrid * > & grids )
 {
     std::fstream file;
     OpenPrjFile( file, gridFileName, std::ios_base::out|std::ios_base::binary|std::ios_base::trunc );

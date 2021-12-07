@@ -150,7 +150,7 @@ GridPartition::~GridPartition()
 	;
 }
 
-void GridPartition::PartitionGrid( ScalarGrid * ggrid, int nPart, vector< ScalarGrid * > *grids )
+void GridPartition::PartitionGrid( ScalarGrid * ggrid, int nPart, std::vector< ScalarGrid * > *grids )
 {
 	this->ggrid = ggrid;
 	this->nPart = nPart;

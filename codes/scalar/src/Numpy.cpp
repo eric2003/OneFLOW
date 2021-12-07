@@ -51,7 +51,7 @@ void Numpy::OpenPrjFile( std::fstream & file, const std::string & fileName, cons
     ONEFLOW::OpenPrjFile( file, fileNameNew, std::ios_base::out );
 }
 
-void Numpy::Ones( vector< double > & var )
+void Numpy::Ones( std::vector< double > & var )
 {
     int nSize = var.size();
     for ( int i = 0; i < nSize; ++ i )
@@ -60,7 +60,7 @@ void Numpy::Ones( vector< double > & var )
     }
 }
 
-void Numpy::Set( vector< double > & var, int st, int ed, double v )
+void Numpy::Set( std::vector< double > & var, int st, int ed, double v )
 {
     for ( int i = st; i < ed; ++ i )
     {
@@ -68,7 +68,7 @@ void Numpy::Set( vector< double > & var, int st, int ed, double v )
     }
 }
 
-void Numpy::Linspace( vector< double > & var, double st, double ed )
+void Numpy::Linspace( std::vector< double > & var, double st, double ed )
 {
     int nSize = var.size();
     double ds = ed - st;
@@ -79,7 +79,7 @@ void Numpy::Linspace( vector< double > & var, double st, double ed )
     }
 }
 
-void Numpy::Copy( vector< double > & a, vector< double > & b )
+void Numpy::Copy( std::vector< double > & a, std::vector< double > & b )
 {
     int nSize = a.size();
     for ( int i = 0; i < nSize; ++ i )
@@ -88,12 +88,12 @@ void Numpy::Copy( vector< double > & a, vector< double > & b )
     }
 }
 
-void Numpy::Plot( vector< double > & x, vector< double > & f )
+void Numpy::Plot( std::vector< double > & x, std::vector< double > & f )
 {
     Numpy::Plot( "plot.plt", x, f );
 }
 
-void Numpy::Plot( const std::string & fileName, vector< double > & x, vector< double > & f )
+void Numpy::Plot( const std::string & fileName, std::vector< double > & x, std::vector< double > & f )
 {
     std::fstream file;
     Numpy::OpenPrjFile( file, fileName, std::ios_base::out );
@@ -108,7 +108,7 @@ void Numpy::Plot( const std::string & fileName, vector< double > & x, vector< do
     CloseFile( file );
 }
 
-void Numpy::ToTecplot( const std::string & fileName, vector< double > & x, vector< double > & f )
+void Numpy::ToTecplot( const std::string & fileName, std::vector< double > & x, std::vector< double > & f )
 {
     std::fstream file;
     Numpy::OpenPrjFile( file, fileName, std::ios_base::out );
@@ -125,7 +125,7 @@ void Numpy::ToTecplot( const std::string & fileName, vector< double > & x, vecto
     CloseFile( file );
 }
 
-void Numpy::ToTecplot( const std::string & fileName, vector< double > & x, vector< double > & u, vector< double > & v )
+void Numpy::ToTecplot( const std::string & fileName, std::vector< double > & x, std::vector< double > & u, std::vector< double > & v )
 {
     std::fstream file;
     Numpy::OpenPrjFile( file, fileName, std::ios_base::out );
@@ -142,7 +142,7 @@ void Numpy::ToTecplot( const std::string & fileName, vector< double > & x, vecto
     CloseFile( file );
 }
 
-void Numpy::Analysis( const std::string & fileName, vector< double > & x, vector< vector< double > > & du )
+void Numpy::Analysis( const std::string & fileName, std::vector< double > & x, std::vector< std::vector< double > > & du )
 {
     std::fstream file;
     Numpy::OpenPrjFile( file, fileName, std::ios_base::out );
@@ -164,7 +164,7 @@ void Numpy::Analysis( const std::string & fileName, vector< double > & x, vector
     CloseFile( file );
 }
 
-void Numpy::AnalysisNew( const std::string & fileName, vector< vector< double > > & x, vector< vector< double > > & du )
+void Numpy::AnalysisNew( const std::string & fileName, std::vector< std::vector< double > > & x, std::vector< std::vector< double > > & du )
 {
     std::fstream file;
     Numpy::OpenPrjFile( file, fileName, std::ios_base::out );
@@ -184,7 +184,7 @@ void Numpy::AnalysisNew( const std::string & fileName, vector< vector< double > 
     CloseFile( file );
 }
 
-void Numpy::DrawL1Norm( const std::string & fileName, vector< double > & dxList, vector< double > & l1NormList )
+void Numpy::DrawL1Norm( const std::string & fileName, std::vector< double > & dxList, std::vector< double > & l1NormList )
 {
     std::fstream file;
     Numpy::OpenPrjFile( file, fileName, std::ios_base::out );
@@ -202,7 +202,7 @@ void Numpy::DrawL1Norm( const std::string & fileName, vector< double > & dxList,
     CloseFile( file );
 }
 
-void Numpy::DrawNorms( const std::string & fileName, vector< double > & dxList, vector< double > & l1NormList, vector< double > & l2NormList )
+void Numpy::DrawNorms( const std::string & fileName, std::vector< double > & dxList, std::vector< double > & l1NormList, std::vector< double > & l2NormList )
 {
     std::fstream file;
     Numpy::OpenPrjFile( file, fileName, std::ios_base::out );

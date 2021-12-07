@@ -38,7 +38,7 @@ public:
     RealList() ;
     ~RealList();
 public:
-    vector< Real > data;
+    std::vector< Real > data;
 public:
     size_t GetNElements();
     void AddData( Real value );
@@ -71,7 +71,7 @@ public:
     ~IntList();
     IntList( const IntList & rhs );
 public:
-    vector< int > data;
+    std::vector< int > data;
 public:
     size_t GetNElements();
     void AddData( int value );
@@ -97,13 +97,13 @@ public:
     EList() ;
     ~EList();
 public:
-    vector< vector< int > > data;
+    std::vector< std::vector< int > > data;
 public:
     size_t GetNElements();
     void AddElem( IntList &elem );
-    void AddElem( vector< int > &elem );
+    void AddElem( std::vector< int > &elem );
 
-    vector< int > & operator [] ( int i )
+    std::vector< int > & operator [] ( int i )
     {
         return data[ i ];
     }
@@ -127,7 +127,7 @@ public:
     EList elements;
     IntList eTypes;
 
-    vector< int > vertexList;
+    std::vector< int > vertexList;
     IntList local_globalIds;
 public:
     void PushBoundaryFace( int pt, int eType );
@@ -142,7 +142,7 @@ public:
     ScalarBccos();
     ~ScalarBccos();
 public:
-    vector< ScalarBcco * > bccos;
+    std::vector< ScalarBcco * > bccos;
 public:
     void AddBcco( ScalarBcco * scalarBcco );
     void ScanBcFace( ScalarGrid * grid );
@@ -176,7 +176,7 @@ public:
     IntList rpos;
 
     //global faceid
-    vector<int> global_faceid;
+    std::vector<int> global_faceid;
 
     EList faces;
     EList elements;
@@ -214,7 +214,7 @@ public:
     void AllocGeom();
     void ScanBcFace();
     void ScanBcFace( IntSet& bcVertex, int bcType );
-    bool CheckBcFace( IntSet & bcVertex, vector< int > & nodeId );
+    bool CheckBcFace( IntSet & bcVertex, std::vector< int > & nodeId );
     void AllocateBc();
     void SetBcTypes();
 public:

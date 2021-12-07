@@ -59,8 +59,8 @@ public:
     Ids();
     ~Ids();
 public:
-    vector< int > ids;
-    vector< int > sorted_ids;
+    std::vector< int > ids;
+    std::vector< int > sorted_ids;
     int type;
 };
 
@@ -78,12 +78,12 @@ public:
 public:
    typedef std::map< Ids, int, CompareIds > IDSMap;
    IDSMap ids_map;
-   vector< Ids > ids_list;
+   std::vector< Ids > ids_list;
    Ids vint;
 public:
     bool NotFind( IDSMap::iterator & iter );
-    IDSMap::iterator FindIds( const vector< int > & ids, int type );
-    int AddIds( vector< int > & ids, int type );
+    IDSMap::iterator FindIds( const std::vector< int > & ids, int type );
+    int AddIds( std::vector< int > & ids, int type );
     int AddData();
     void ModifyDataIndex( const Ids &var, int new_id );
 };
@@ -97,25 +97,25 @@ public:
     ~TopoSort();
 public:
     IdTool faceIdTool;
-    vector< int > real_face;
+    std::vector< int > real_face;
 public:
-    vector< int > lc, rc;
-    vector< int > lc_pos, rc_pos;
-    vector< int > fTypes;
-    vector< int > fBcTypes;
-    vector< int > bcTypes;
+    std::vector< int > lc, rc;
+    std::vector< int > lc_pos, rc_pos;
+    std::vector< int > fTypes;
+    std::vector< int > fBcTypes;
+    std::vector< int > bcTypes;
     int nCells;
 public:
-    void GetElementFace( UnitElement * unitElement, vector< int > & element, int facePos, vector< int > & face, int & faceType );
-    void AddSingleFace( UnitElement * unitElement, vector< int > & element, int facePos, int  iCell );
+    void GetElementFace( UnitElement * unitElement, std::vector< int > & element, int facePos, std::vector< int > & face, int & faceType );
+    void AddSingleFace( UnitElement * unitElement, std::vector< int > & element, int facePos, int  iCell );
     void ModifyFace( int face_id, int iCell, int face_pos );
     void AddNewFace( int iCell, int face_pos, int faceType );
-    void AddElementFaces( vector< int > & element, int eType, int iCell );
+    void AddElementFaces( std::vector< int > & element, int eType, int iCell );
 public:
     void ReorderFaces();
-    void CalcOrderMap( vector<int > & orderMap );
-    void ReOrder( vector< int > & varList, vector< int > & orderMap );
-    void ReOrderMapdata( IdTool & faceIdTool, vector< int > & orderMap );
+    void CalcOrderMap( std::vector<int > & orderMap );
+    void ReOrder( std::vector< int > & varList, std::vector< int > & orderMap );
+    void ReOrderMapdata( IdTool & faceIdTool, std::vector< int > & orderMap );
     void TopoPostprocess();
 public:
     void ScanBcFace();
@@ -179,7 +179,7 @@ public:
     void CalcTopology();
     void TopoPostprocess();
     void ReorderFaces();
-    void CalcOrderMap( vector< int > & orderMap );
+    void CalcOrderMap( std::vector< int > & orderMap );
 };
 
 

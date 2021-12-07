@@ -147,7 +147,7 @@ PointEdgeClass::~PointEdgeClass()
 {
 }
 
-void PointEdgeClass::EdgeToPoint( vector< IntField > & edgeList )
+void PointEdgeClass::EdgeToPoint( std::vector< IntField > & edgeList )
 {
     for ( int i = 0; i < edgeList.size(); ++ i )
     {
@@ -564,9 +564,9 @@ void CurveData::VisualCreateList( PointEdgeClass * pec )
     VisualCreateList( pec->idlist, fileName );
 }
 
-void CurveData::VisualCreateList( vector<int> & newidlist, const string& fileName )
+void CurveData::VisualCreateList( std::vector<int> & newidlist, const string& fileName )
 {
-    vector< Real > x, y, z;
+    std::vector< Real > x, y, z;
     for ( int i = 0; i < newidlist.size(); ++ i )
     {
         int id = newidlist[ i ];
@@ -581,9 +581,9 @@ void CurveData::VisualCreateList( vector<int> & newidlist, const string& fileNam
     this->Visual( fileName, x, y, z );
 }
 
-void CurveData::VisualCurveValue( vector<int> & newidlist, const string& fileName )
+void CurveData::VisualCurveValue( std::vector<int> & newidlist, const string& fileName )
 {
-    vector< Real > x, y, z, cp, cf;
+    std::vector< Real > x, y, z, cp, cf;
     for ( int i = 0; i < newidlist.size(); ++ i )
     {
         int id = newidlist[ i ];
@@ -607,7 +607,7 @@ void CurveData::Visual( const std::string & fileName )
     this->Visual( fileName, this->xList, this->yList, this->zList );
 }
 
-void CurveData::Visual( const std::string & fileName, vector< Real > & x, vector< Real > & y, vector< Real > & z )
+void CurveData::Visual( const std::string & fileName, std::vector< Real > & x, std::vector< Real > & y, std::vector< Real > & z )
 {
     std::fstream file;
 
@@ -633,7 +633,7 @@ void CurveData::Visual( const std::string & fileName, vector< Real > & x, vector
     PIO::CloseFile( file );
 }
 
-void CurveData::VisualCurveValue( const std::string & fileName, vector< Real > & x, vector< Real > & y, vector< Real > & z, vector< Real > & cp, vector< Real > & cf )
+void CurveData::VisualCurveValue( const std::string & fileName, std::vector< Real > & x, std::vector< Real > & y, std::vector< Real > & z, std::vector< Real > & cp, std::vector< Real > & cf )
 {
     std::fstream file;
 

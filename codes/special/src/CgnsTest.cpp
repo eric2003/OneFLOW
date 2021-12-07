@@ -209,9 +209,9 @@ void CgnsTest::TestCgnsLink()
     delete fileLink;
 }
 
-void CgnsTest::GetArray( vector< vector< float > > & myfloat2d )
+void CgnsTest::GetArray( std::vector< std::vector< float > > & myfloat2d )
 {
-    vector< float > a1, a2, a3;
+    std::vector< float > a1, a2, a3;
     a1.push_back( 1 );
     a1.push_back( 2 );
     a1.push_back( 3 );
@@ -234,7 +234,7 @@ void CgnsTest::GetArray( vector< vector< float > > & myfloat2d )
 
 void CgnsTest::WriteArray()
 {
-    vector< vector< float > > myarray;
+    std::vector< std::vector< float > > myarray;
     this->GetArray( myarray );
 
     CgnsFile * cgnsFile = new CgnsFile( "array.cgns", CG_MODE_WRITE );
@@ -248,7 +248,7 @@ void CgnsTest::WriteArray()
 
 void CgnsTest::WriteArray( CgnsFile * cgnsFile, CgnsBase * cgnsBase )
 {
-    vector< vector< float > > myarray;
+    std::vector< std::vector< float > > myarray;
     this->GetArray( myarray );
 
     cgnsBase->GoToBase();
@@ -357,7 +357,7 @@ void CgnsTest::WriteConvergence()
     CgnsBase * cgnsBase = cgnsFile->WriteBase( "Base" );
     cgnsBase->GoToBase();
     const int nIterations = 20;
-    vector< double > cl( nIterations ), dl( 2 * nIterations );
+    std::vector< double > cl( nIterations ), dl( 2 * nIterations );
     /* create history array simple example: */
     for ( int n = 0; n < nIterations; ++ n )
     {

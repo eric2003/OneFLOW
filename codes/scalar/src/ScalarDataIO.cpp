@@ -27,7 +27,7 @@ using namespace std;
 
 BeginNameSpace( ONEFLOW )
 
-void HXWriteField( DataBook * dataBook, MRField * field2D, vector< int > & idMap )
+void HXWriteField( DataBook * dataBook, MRField * field2D, std::vector< int > & idMap )
 {
     int nEqu = field2D->GetNEqu();
     for ( int iEqu = 0; iEqu < nEqu; ++ iEqu )
@@ -36,7 +36,7 @@ void HXWriteField( DataBook * dataBook, MRField * field2D, vector< int > & idMap
     }
 }
 
-void HXWriteField( DataBook * dataBook, RealField & field, vector< int > & idMap )
+void HXWriteField( DataBook * dataBook, RealField & field, std::vector< int > & idMap )
 {
     int nElem = idMap.size();
     if ( nElem <= 0 ) return;
@@ -49,7 +49,7 @@ void HXWriteField( DataBook * dataBook, RealField & field, vector< int > & idMap
     HXWrite( dataBook, swapField );
 }
 
-void HXReadField( DataBook * dataBook, MRField * field2D, vector< int > & idMap )
+void HXReadField( DataBook * dataBook, MRField * field2D, std::vector< int > & idMap )
 {
     int nEqu = field2D->GetNEqu();
     for ( int iEqu = 0; iEqu < nEqu; ++ iEqu )
@@ -58,7 +58,7 @@ void HXReadField( DataBook * dataBook, MRField * field2D, vector< int > & idMap 
     }
 }
 
-void HXReadField( DataBook * dataBook, RealField & field, vector< int > &  idMap )
+void HXReadField( DataBook * dataBook, RealField & field, std::vector< int > &  idMap )
 {
     int nElem = idMap.size();
     if ( nElem <= 0 ) return;

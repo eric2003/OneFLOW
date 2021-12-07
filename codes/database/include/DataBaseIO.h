@@ -45,19 +45,19 @@ template < typename T >
 void HXRead( std::fstream * file, T * field, int nElement );
 
 template < typename TIO, typename T >
-void HXReadVector( TIO * tio, vector< T > & field );
+void HXReadVector( TIO * tio, std::vector< T > & field );
 
 template < typename TIO, typename T >
-void HXRead( TIO * tio, vector< T > & field );
+void HXRead( TIO * tio, std::vector< T > & field );
 
 template < typename TIO, typename T >
 void HXRead( TIO * tio, HXVector< T > & field );
 
 template < typename T >
-void HXReadVector( std::fstream * file, vector< T > & field );
+void HXReadVector( std::fstream * file, std::vector< T > & field );
 
 template < typename T >
-void HXRead( DataBook * dataBook, vector< vector< T > > & field2D );
+void HXRead( DataBook * dataBook, std::vector< std::vector< T > > & field2D );
 
 template < typename T >
 void HXRead( DataBook * dataBook, HXVector< HXVector< T > > & field2D );
@@ -66,7 +66,7 @@ template < typename vect2D >
 void HXReadVector2D( DataBook * dataBook, vect2D & field2D );
 
 template < typename T >
-void HXRead( std::fstream * file, vector< T > & field );
+void HXRead( std::fstream * file, std::vector< T > & field );
 
 template < typename T >
 void HXRead( std::fstream * file, HXVector< T > & field );
@@ -84,19 +84,19 @@ template < typename T >
 void HXWrite( std::fstream * file, T * field, int nElement );
 
 template < typename TIO, typename T >
-void HXWriteVector( TIO * tio, vector< T > & field );
+void HXWriteVector( TIO * tio, std::vector< T > & field );
 
 template < typename TIO, typename T >
-void HXWrite( TIO * tio, vector< T > & field );
+void HXWrite( TIO * tio, std::vector< T > & field );
 
 template < typename TIO, typename T >
 void HXWrite( TIO * tio, HXVector< T > & field );
 
 template < typename T >
-void HXWriteVector( std::fstream * file, vector< T > & field );
+void HXWriteVector( std::fstream * file, std::vector< T > & field );
 
 template < typename T >
-void HXWrite( std::fstream * file, vector< T > & field );
+void HXWrite( std::fstream * file, std::vector< T > & field );
 
 template < typename T >
 void HXWrite( std::fstream * file, HXVector< T > & field );
@@ -105,7 +105,7 @@ template < typename vect2D >
 void HXWriteVector2D( DataBook * dataBook, vect2D & field2D );
 
 template < typename T >
-void HXWrite( DataBook * dataBook, vector< vector< T > > & field2D );
+void HXWrite( DataBook * dataBook, std::vector< std::vector< T > > & field2D );
 
 template < typename T >
 void HXWrite( DataBook * dataBook, HXVector< HXVector< T > > & field2D );
@@ -117,10 +117,10 @@ template < typename T >
 void HXAppend( DataBook * dataBook, T * field, int nElement );
 
 template < typename T >
-void HXAppendVector( DataBook * dataBook, vector< T > & field );
+void HXAppendVector( DataBook * dataBook, std::vector< T > & field );
 
 template < typename T >
-void HXAppend( DataBook * dataBook, vector< T > & field );
+void HXAppend( DataBook * dataBook, std::vector< T > & field );
 
 template < typename T >
 void HXAppend( DataBook * dataBook, HXVector< T > & field );
@@ -129,7 +129,7 @@ template < typename vect2D >
 void HXAppendVector2D( DataBook * dataBook, vect2D & field2D );
 
 template < typename T >
-void HXAppend( DataBook * dataBook, vector< vector< T > > & field2D );
+void HXAppend( DataBook * dataBook, std::vector< std::vector< T > > & field2D );
 
 template < typename T >
 void HXAppend( DataBook * dataBook, HXVector< HXVector< T > > & field2D );
@@ -167,7 +167,7 @@ void HXRead( std::fstream * file, T * field, int nElement )
 }
 
 template < typename TIO, typename T >
-void HXReadVector( TIO * tio, vector< T > & field )
+void HXReadVector( TIO * tio, std::vector< T > & field )
 {
     size_t nElement = field.size();
     if ( nElement <= 0 ) return;
@@ -175,7 +175,7 @@ void HXReadVector( TIO * tio, vector< T > & field )
 }
 
 template < typename TIO, typename T >
-void HXRead( TIO * tio, vector< T > & field )
+void HXRead( TIO * tio, std::vector< T > & field )
 {
     HXReadVector( tio, field );
 }
@@ -187,14 +187,14 @@ void HXRead( TIO * tio, HXVector< T > & field )
 }
 
 template < typename T >
-void HXReadVector( std::fstream * file, vector< T > & field )
+void HXReadVector( std::fstream * file, std::vector< T > & field )
 {
     int nElement = field.size();
     HXRead( file, & field[ 0 ], nElement );
 }
 
 template < typename T >
-void HXRead( std::fstream * file, vector< T > & field )
+void HXRead( std::fstream * file, std::vector< T > & field )
 {
     HXReadVector( file, field );
 }
@@ -232,7 +232,7 @@ void HXWrite( std::fstream * file, T * field, int nElement )
 }
 
 template < typename TIO, typename T >
-void HXWriteVector( TIO * tio, vector< T > & field )
+void HXWriteVector( TIO * tio, std::vector< T > & field )
 {
     int nElement = field.size();
     if ( nElement <= 0 ) return;
@@ -240,7 +240,7 @@ void HXWriteVector( TIO * tio, vector< T > & field )
 }
 
 template < typename TIO, typename T >
-void HXWrite( TIO * tio, vector< T > & field )
+void HXWrite( TIO * tio, std::vector< T > & field )
 {
     HXWriteVector( tio, field );
 }
@@ -252,14 +252,14 @@ void HXWrite( TIO * tio, HXVector< T > & field )
 }
 
 template < typename T >
-void HXWriteVector( std::fstream * file, vector< T > & field )
+void HXWriteVector( std::fstream * file, std::vector< T > & field )
 {
     UInt nElement = static_cast<int> (field.size());
     HXWrite( file, & field[ 0 ], nElement );
 }
 
 template < typename T >
-void HXWrite( std::fstream * file, vector< T > & field )
+void HXWrite( std::fstream * file, std::vector< T > & field )
 {
     HXWriteVector( file, field );
 }
@@ -288,7 +288,7 @@ void HXReadVector2D( DataBook * dataBook, vect2D & field2D )
 }
 
 template < typename T >
-void HXRead( DataBook * dataBook, vector< vector< T > > & field2D )
+void HXRead( DataBook * dataBook, std::vector< std::vector< T > > & field2D )
 {
     HXReadVector2D( dataBook, field2D );
 }
@@ -316,7 +316,7 @@ void HXWriteVector2D( DataBook * dataBook, vect2D & field2D )
 }
 
 template < typename T >
-void HXWrite( DataBook * dataBook, vector< vector< T > > & field2D )
+void HXWrite( DataBook * dataBook, std::vector< std::vector< T > > & field2D )
 {
     HXWriteVector2D( dataBook, field2D );
 }
@@ -341,7 +341,7 @@ void HXAppend( DataBook * dataBook, T * field, int nElement )
 }
 
 template < typename T >
-void HXAppendVector( DataBook * dataBook, vector< T > & field )
+void HXAppendVector( DataBook * dataBook, std::vector< T > & field )
 {
     UInt nElement = field.size();
     if ( nElement <= 0 ) return;
@@ -349,7 +349,7 @@ void HXAppendVector( DataBook * dataBook, vector< T > & field )
 }
 
 template < typename T >
-void HXAppend( DataBook * dataBook, vector< T > & field )
+void HXAppend( DataBook * dataBook, std::vector< T > & field )
 {
     HXAppendVector( dataBook, field );
 }
@@ -377,7 +377,7 @@ void HXAppendVector2D( DataBook * dataBook, vect2D & field2D )
 }
 
 template < typename T >
-void HXAppend( DataBook * dataBook, vector< vector< T > > & field2D )
+void HXAppend( DataBook * dataBook, std::vector< std::vector< T > > & field2D )
 {
     HXAppendVector2D( dataBook, field2D );
 }

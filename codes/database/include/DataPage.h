@@ -35,7 +35,7 @@ public:
     DataPage();
     ~DataPage();
 public:
-    typedef vector< char > CharMemory;
+    typedef std::vector< char > CharMemory;
 public:
     UInt GetSize();
     void Read ( void * data, UInt dataSize );

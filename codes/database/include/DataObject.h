@@ -56,7 +56,7 @@ T GetDataValue( DataObject * dataObject, int iElement )
 }
 
 template < typename T >
-void TDataObjectDump( std::fstream &file, vector< T > data )
+void TDataObjectDump( std::fstream &file, std::vector< T > data )
 {
     if ( data.size() == 0 ) return;
     file << data[ 0 ];
@@ -78,7 +78,7 @@ public:
     }
     ~TDataObject(){}
 public:
-    vector< T > data;
+    std::vector< T > data;
 public:
     void * GetVoidPointer() { return & data[ 0 ]; };
     void CopyValue( std::string * valueIn )
@@ -153,7 +153,7 @@ public:
     }
     ~TDataObject() {}
 public:
-    vector< std::string > data;
+    std::vector< std::string > data;
 public:
     void * GetVoidPointer() { return & data[ 0 ]; };
     void CopyValue( std::string * valueIn )

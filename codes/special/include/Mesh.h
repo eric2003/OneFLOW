@@ -43,7 +43,7 @@ public:
 public:
     static void Initialize();
     static int Random( int rangeMin, int rangeMax );
-    static void RangeRandom( int rangeMin, int rangeMax, vector< int > & results );
+    static void RangeRandom( int rangeMin, int rangeMax, std::vector< int > & results );
 };
 
 class SimpleMesh2D

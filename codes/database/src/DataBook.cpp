@@ -35,7 +35,7 @@ DataBook::DataBook()
 {
     //maxUnitSize = 1024000;
     maxUnitSize = 1024000000;
-    dataBook = new vector< DataPage * >;
+    dataBook = new std::vector< DataPage * >;
     dataBook->push_back( new DataPage() );
     this->currPos = 0;
     this->currPageId = 0;

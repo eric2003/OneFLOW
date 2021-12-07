@@ -66,8 +66,8 @@ void ScalarOrder::Run1()
     para.dt = dt;
     para.nt = nt;
 
-    vector< vector< double > > duList;
-    vector< vector< double > > xList;
+    std::vector< std::vector< double > > duList;
+    std::vector< std::vector< double > > xList;
 
     int nTest = 5;
 
@@ -112,11 +112,11 @@ void ScalarOrder::Run()
     para.dt = dt;
     para.nt = nt;
 
-    vector< vector< double > > duList;
-    vector< vector< double > > xList;
+    std::vector< std::vector< double > > duList;
+    std::vector< std::vector< double > > xList;
 
-    vector< double > l1NormList, l2NormList;
-    vector< double > dxList;
+    std::vector< double > l1NormList, l2NormList;
+    std::vector< double > dxList;
 
     int nTest = 10;
 
@@ -147,7 +147,7 @@ void ScalarOrder::Run()
     Numpy::DrawL1Norm( "l1Norm.plt", dxList, l1NormList );
     Numpy::DrawNorms( "l1l2Norm.plt", dxList, l1NormList, l2NormList );
 
-    vector< double > l1p, l2p;
+    std::vector< double > l1p, l2p;
     for ( int i = 1; i < l1NormList.size(); ++ i )
     {
         double r1 = l1NormList[ i - 1 ] / l1NormList[ i ];

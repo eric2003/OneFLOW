@@ -68,7 +68,7 @@ public:
     void WriteArray();
     void WriteArray( CgnsFile * cgnsFile, CgnsBase * cgnsBase );
     void ReadArray();
-    void GetArray( vector< vector< float > > & myfloat2d );
+    void GetArray( std::vector< std::vector< float > > & myfloat2d );
     void WriteTest();
 public:
     int read_bcpnts_unst();

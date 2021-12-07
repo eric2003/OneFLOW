@@ -31,10 +31,10 @@ BeginNameSpace( ONEFLOW )
 
 class DataBook;
 
-void HXWriteField( DataBook * dataBook, MRField * field2D, vector< int > & idMap );
-void HXWriteField( DataBook * dataBook, RealField & field, vector< int > & idMap );
-void HXReadField( DataBook * dataBook, MRField * field2D, vector< int > & idMap );
-void HXReadField( DataBook * dataBook, RealField & field, vector< int > & idMap );
+void HXWriteField( DataBook * dataBook, MRField * field2D, std::vector< int > & idMap );
+void HXWriteField( DataBook * dataBook, RealField & field, std::vector< int > & idMap );
+void HXReadField( DataBook * dataBook, MRField * field2D, std::vector< int > & idMap );
+void HXReadField( DataBook * dataBook, RealField & field, std::vector< int > & idMap );
 
 
 EndNameSpace
