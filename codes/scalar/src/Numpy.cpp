@@ -45,10 +45,10 @@ string Numpy::AddFileName( const string & prefix, const string & fileName )
     return fileNameNew;
 }
 
-void Numpy::OpenPrjFile( fstream & file, const string & fileName, const ios_base::openmode & openMode )
+void Numpy::OpenPrjFile( fstream & file, const string & fileName, const std::ios_base::openmode & openMode )
 {
     string fileNameNew = Numpy::AddFileName( "results", fileName );
-    ONEFLOW::OpenPrjFile( file, fileNameNew, ios_base::out );
+    ONEFLOW::OpenPrjFile( file, fileNameNew, std::ios_base::out );
 }
 
 void Numpy::Ones( vector< double > & var )
@@ -96,7 +96,7 @@ void Numpy::Plot( vector< double > & x, vector< double > & f )
 void Numpy::Plot( const string & fileName, vector< double > & x, vector< double > & f )
 {
     fstream file;
-    Numpy::OpenPrjFile( file, fileName, ios_base::out );
+    Numpy::OpenPrjFile( file, fileName, std::ios_base::out );
 
     int nSize = x.size();
     file << nSize << " ";
@@ -111,7 +111,7 @@ void Numpy::Plot( const string & fileName, vector< double > & x, vector< double 
 void Numpy::ToTecplot( const string & fileName, vector< double > & x, vector< double > & f )
 {
     fstream file;
-    Numpy::OpenPrjFile( file, fileName, ios_base::out );
+    Numpy::OpenPrjFile( file, fileName, std::ios_base::out );
     int nSize = x.size();
 
     file << "TITLE = " << "\"OneFLOW X-Y Plot\"" << endl;
@@ -128,7 +128,7 @@ void Numpy::ToTecplot( const string & fileName, vector< double > & x, vector< do
 void Numpy::ToTecplot( const string & fileName, vector< double > & x, vector< double > & u, vector< double > & v )
 {
     fstream file;
-    Numpy::OpenPrjFile( file, fileName, ios_base::out );
+    Numpy::OpenPrjFile( file, fileName, std::ios_base::out );
     int nSize = x.size();
 
     file << "TITLE = " << "\"OneFLOW X-Y Plot\"" << endl;
@@ -145,7 +145,7 @@ void Numpy::ToTecplot( const string & fileName, vector< double > & x, vector< do
 void Numpy::Analysis( const string & fileName, vector< double > & x, vector< vector< double > > & du )
 {
     fstream file;
-    Numpy::OpenPrjFile( file, fileName, ios_base::out );
+    Numpy::OpenPrjFile( file, fileName, std::ios_base::out );
 
     file << "TITLE = " << "\"OneFLOW X-Y Plot\"" << endl;
 
@@ -167,7 +167,7 @@ void Numpy::Analysis( const string & fileName, vector< double > & x, vector< vec
 void Numpy::AnalysisNew( const string & fileName, vector< vector< double > > & x, vector< vector< double > > & du )
 {
     fstream file;
-    Numpy::OpenPrjFile( file, fileName, ios_base::out );
+    Numpy::OpenPrjFile( file, fileName, std::ios_base::out );
 
     file << "TITLE = " << "\"OneFLOW X-Y Plot\"" << endl;
 
@@ -187,7 +187,7 @@ void Numpy::AnalysisNew( const string & fileName, vector< vector< double > > & x
 void Numpy::DrawL1Norm( const string & fileName, vector< double > & dxList, vector< double > & l1NormList )
 {
     fstream file;
-    Numpy::OpenPrjFile( file, fileName, ios_base::out );
+    Numpy::OpenPrjFile( file, fileName, std::ios_base::out );
 
     file << "TITLE = " << "\"OneFLOW X-Y Plot\"" << endl;
 
@@ -205,7 +205,7 @@ void Numpy::DrawL1Norm( const string & fileName, vector< double > & dxList, vect
 void Numpy::DrawNorms( const string & fileName, vector< double > & dxList, vector< double > & l1NormList, vector< double > & l2NormList )
 {
     fstream file;
-    Numpy::OpenPrjFile( file, fileName, ios_base::out );
+    Numpy::OpenPrjFile( file, fileName, std::ios_base::out );
 
     file << "TITLE = " << "\"OneFLOW X-Y Plot\"" << endl;
 

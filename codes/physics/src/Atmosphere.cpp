@@ -48,7 +48,7 @@ void Atmosphere::Init()
     flag = true;
     FileIO ioFile;
     string fileName = SimuCtrl::system_root +"physics/atmosphere.txt";
-    ioFile.OpenFile( fileName, ios_base::in );
+    ioFile.OpenFile( fileName, std::ios_base::in );
 
     //\t is the tab key
     string keyWordSeparator = " ()\r\n\t#$,;\"";

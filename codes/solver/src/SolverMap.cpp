@@ -205,7 +205,7 @@ void SolverNameClass::ReadSolverNames( StringField & solverNameList )
 {
     FileIO ioFile;
 
-    ioFile.OpenPrjFile( "script/solver.txt", ios_base::in );
+    ioFile.OpenPrjFile( "script/solver.txt", std::ios_base::in );
 
     //\t is the tab key
     string keyWordSeparator = " ()\r\n\t#$,;\"";

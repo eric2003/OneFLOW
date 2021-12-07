@@ -218,7 +218,7 @@ void Cylinder::DumpGrid( const string & fileName, DomainData * domain )
     }
 
     fstream file;
-    OpenPrjFile( file, fileName, ios_base::out | ios_base::binary );
+    OpenPrjFile( file, fileName, std::ios_base::out | std::ios_base::binary );
     int nZone = 1;
     int nk = 1;
     HXWrite( & file, nZone );
@@ -236,7 +236,7 @@ void Cylinder::DumpGrid( const string & fileName, DomainData * domain )
 void Cylinder::DumpBcFile( const string & fileName, DomainData * domain, IntField & bcList )
 {
     fstream file;
-    OpenPrjFile( file, fileName, ios_base::out );
+    OpenPrjFile( file, fileName, std::ios_base::out );
     int solver = 1;
     string zName = "A";
     int nBc = 4;
@@ -261,7 +261,7 @@ void Cylinder::ToTecplot( const string & fileName, DomainData * domain )
     int nk = 1;
 
     fstream file;
-    OpenPrjFile( file, fileName, ios_base::out );
+    OpenPrjFile( file, fileName, std::ios_base::out );
     file << " VARIABLES = \"X\" \"Y\" \"Z\"" << "\n";
     file << "ZONE DATAPACKING = BLOCK, I = " << ni << ", J = " << nj << ", K = " << nk << "\n";
 
@@ -291,7 +291,7 @@ void Cylinder::SetBoundaryGrid()
 
     FileIO ioFile;
 
-    ioFile.OpenPrjFile( fileName, ios_base::in );
+    ioFile.OpenPrjFile( fileName, std::ios_base::in );
     ioFile.SetDefaultSeparator( separator );
 
     ioFile.ReadNextNonEmptyLine();

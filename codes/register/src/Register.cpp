@@ -129,7 +129,7 @@ void MRegister::Register( const string & fileName, HXRegister * fRegister )
     string separator  = " =\r\n\t#$,;\"()";
 
     FileIO ioFile;
-    ioFile.OpenFile( fileName, ios_base::in );
+    ioFile.OpenFile( fileName, std::ios_base::in );
     ioFile.SetDefaultSeparator( separator );
 
     while ( ! ioFile.ReachTheEndOfFile()  )

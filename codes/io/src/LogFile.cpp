@@ -43,13 +43,13 @@ void OpenLogFile( int logFileIndex, fstream & file )
     {
         ONEFLOW::MakePrjDir( "log" );
 
-        ONEFLOW::OpenPrjFile( file, fileName, ios_base::out | ios_base::trunc );
+        ONEFLOW::OpenPrjFile( file, fileName, std::ios_base::out | std::ios_base::trunc );
 
         ifReWrite = 1;
     }
     else
     {
-        ONEFLOW::OpenPrjFile( file, fileName, ios_base::out | ios_base::app );
+        ONEFLOW::OpenPrjFile( file, fileName, std::ios_base::out | std::ios_base::app );
     }
 }
 

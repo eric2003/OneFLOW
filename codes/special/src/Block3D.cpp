@@ -288,7 +288,7 @@ void Block3D::CreateBlockMesh()
 void Block3D::GenerateBlockMesh()
 {
     fstream file;
-    OpenPrjFile( file, "grid/blkfaceplot.dat", ios_base::out );
+    OpenPrjFile( file, "grid/blkfaceplot.dat", std::ios_base::out );
     file << " VARIABLES = \"X\", \"Y\", \"Z\" \n";
     file << " ZONE I = " << ni << ", J = " << nj << " F = POINT \n";
     for ( int j = 0; j < nj; ++ j )
@@ -357,7 +357,7 @@ void Block3D::GenerateBlockMesh()
     //}
 
 
-    OpenPrjFile( file, "grid/blkplot.dat", ios_base::out );
+    OpenPrjFile( file, "grid/blkplot.dat", std::ios_base::out );
     file << " VARIABLES = \"X\", \"Y\", \"Z\" \n";
     file << " ZONE I = " << ni << ", J = " << nj << ", K = " << nk << " F = POINT \n";
     for ( int k = 0; k < nk; ++ k )
@@ -372,7 +372,7 @@ void Block3D::GenerateBlockMesh()
     }
     CloseFile( file );
 
-    OpenPrjFile( file, "grid/blkfaceplot111.dat", ios_base::out );
+    OpenPrjFile( file, "grid/blkfaceplot111.dat", std::ios_base::out );
     file << " VARIABLES = \"X\", \"Y\", \"Z\" \n";
     file << " ZONE I = " << ni << ", J = " << nj << " F = POINT \n";
     for ( int j = 0; j < nj; ++ j )

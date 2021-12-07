@@ -365,7 +365,7 @@ void BcVisual::DumpSeveralElement()
 
     fstream file;
     string fileName = "test.plt";
-    ONEFLOW::OpenPrjFile( file, fileName, ios_base::out );
+    ONEFLOW::OpenPrjFile( file, fileName, std::ios_base::out );
 
     file << " VARIALBES = ";
     file << " \"x\" ";

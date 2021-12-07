@@ -51,7 +51,7 @@ void BcData::ReadRegion()
 {
     fstream file;
     string fileName = "grid/bcRegionMap.txt";
-    OpenPrjFile( file, fileName, ios_base::in );
+    OpenPrjFile( file, fileName, std::ios_base::in );
 
     file >> nRegion;
 
@@ -64,7 +64,7 @@ void BcData::ReadList( const string & fileName )
     string separator = " =\r\n\t#$,;\"";
 
     FileIO ioFile;
-    ioFile.OpenPrjFile( fileName, ios_base::in );
+    ioFile.OpenPrjFile( fileName, std::ios_base::in );
     ioFile.SetDefaultSeparator( separator );
 
     while ( ! ioFile.ReachTheEndOfFile() )

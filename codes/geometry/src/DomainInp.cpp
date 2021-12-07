@@ -736,7 +736,7 @@ void DomainInp::Dump( MultiDomain * md, GridMediator * gridMediator, PointSearch
 {
     fstream file;
     string fileName = "test.inp";
-    ONEFLOW::OpenPrjFile( file, fileName, ios_base::out );
+    ONEFLOW::OpenPrjFile( file, fileName, std::ios_base::out );
 
     Grids grids = gridMediator->gridVector;
     int nZone = grids.size();

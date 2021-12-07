@@ -286,7 +286,7 @@ void HXDebug::DumpField( const string & fileName, MRField * field )
         cout << " HXDebug::fileName1 = " << HXDebug::fileName1 << " HXDebug::fileName2 = " << HXDebug::fileName2 << "\n";
     }
 
-    PIO::OpenPrjFile( file, fullFileName, ios_base::out );
+    PIO::OpenPrjFile( file, fullFileName, std::ios_base::out );
 
     int nEqu = field->GetNEqu();
 
@@ -306,7 +306,7 @@ MRField * HXDebug::ReadField( const string & fileName )
 {
     fstream file;
 
-    PIO::OpenPrjFile( file, fileName, ios_base::in );
+    PIO::OpenPrjFile( file, fileName, std::ios_base::in );
     int nEqu = 0;
     HXRead( & file, nEqu );
     int nCells = 0;

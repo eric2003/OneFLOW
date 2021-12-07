@@ -31,8 +31,8 @@ DEFINE_DATA_CLASS( SetFile );
 
 void RegisterFileTask();
 
-string GetParallelFileName( const string & fileNameVar );
+string GetParallelFileName( const std::string & fileNameVar );
 
-ios_base::openmode GetOpenMode( const string & openModeName );
+std::ios_base::openmode GetOpenMode( const std::string & openModeName );
 
 EndNameSpace

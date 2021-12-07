@@ -58,7 +58,7 @@ void GridMachine::ReadScript( const string & fileName )
 
     FileIO ioFile;
 
-    ioFile.OpenPrjFile( fileName, ios_base::in );
+    ioFile.OpenPrjFile( fileName, std::ios_base::in );
     ioFile.SetDefaultSeparator( separator );
 
     while ( ! ioFile.ReachTheEndOfFile() )

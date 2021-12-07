@@ -41,7 +41,7 @@ void GetSolverFileNames( const string & solverName, StringField & fileNameList )
     string keyFileName = ostr.str();
 
     FileIO ioFile;
-    ioFile.OpenFile( keyFileName, ios_base::in );
+    ioFile.OpenFile( keyFileName, std::ios_base::in );
     ioFile.SetDefaultSeparator( separator );
 
     while ( ! ioFile.ReachTheEndOfFile()  )

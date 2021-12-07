@@ -39,11 +39,11 @@ public:
     int nWidth;
     int nCount;
     std::string fileName;
-    ios_base::openmode fileOpenMode;
+    std::ios_base::openmode fileOpenMode;
     fstream * file;
     string sep;
 public:
-    void OpenPrjFile( const string & fileName, const ios_base::openmode & fileOpenMode );
+    void OpenPrjFile( const string & fileName, const std::ios_base::openmode & fileOpenMode );
     void CloseFile();
 
     void WriteEndLine()

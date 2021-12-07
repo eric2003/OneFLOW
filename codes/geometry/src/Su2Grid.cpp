@@ -357,7 +357,7 @@ void Su2Grid::ReadSu2GridAscii( string & fileName )
 {
     FileIO ioFile;
     string separator  = " =\r\n\t#$,;";
-    ioFile.OpenPrjFile( fileName, ios_base::in );
+    ioFile.OpenPrjFile( fileName, std::ios_base::in );
     ioFile.SetDefaultSeparator( separator );
 
     this->nZone = 1;
@@ -465,7 +465,7 @@ void Su2Grid::MarkBoundary( string & su2cfgFile)
 {
     FileIO ioFile;
     string separator = " =\r\n\t#$,;()";
-    ioFile.OpenPrjFile(su2cfgFile, ios_base::in);
+    ioFile.OpenPrjFile(su2cfgFile, std::ios_base::in);
     ioFile.SetDefaultSeparator(separator);
 
     StringField su2Comment;

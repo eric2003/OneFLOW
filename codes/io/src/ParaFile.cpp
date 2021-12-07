@@ -163,7 +163,7 @@ void ReadOneFLOWScriptFile( const string & fileName )
 {
     FileIO fileIO;
 
-    fileIO.OpenFile( fileName, ios_base::in );
+    fileIO.OpenFile( fileName, std::ios_base::in );
 
     ONEFLOW::ReadOneFLOWScriptFile( fileIO );
 
@@ -190,7 +190,7 @@ string GetJsonFileName( const string & fileName )
 //    string jsonFileName = GetJsonFileName( fileName );
 //
 //    FileIO fileIO;
-//    fileIO.OpenFile( fileName, ios_base::in );
+//    fileIO.OpenFile( fileName, std::ios_base::in );
 //
 //    //string name, word;
 //
@@ -318,7 +318,7 @@ void DumpDataBase()
     DataBase * dataBase = ONEFLOW::GetGlobalDataBase();
     fstream file;
     string fileName = "/log/database.log";
-    PIO::OpenPrjFile( file, fileName, ios_base::out );
+    PIO::OpenPrjFile( file, fileName, std::ios_base::out );
     dataBase->dataPara->DumpData( file );
     PIO::CloseFile( file );
 }
@@ -334,7 +334,7 @@ void ReadScriptFileNameList( vector< string > & scriptFileNameList )
 {
     FileIO ioFile;
 
-    ioFile.OpenPrjFile( "script/control.txt", ios_base::in );
+    ioFile.OpenPrjFile( "script/control.txt", std::ios_base::in );
 
     //\t is Tab Key
     string keyWordSeparator = " ()\r\n\t#$,;\"";

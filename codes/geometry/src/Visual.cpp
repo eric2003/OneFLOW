@@ -49,7 +49,7 @@ void Visual::SetNumberOfWords( int numberOfWords )
 void Visual::Show( Mesh * mesh )
 {
     fstream file;
-    file.open( "tecplot.dat", ios_base::out );
+    file.open( "tecplot.dat", std::ios_base::out );
 
     Visual::DumpTitle( file, mesh );
     Visual::DumpCoordinate( file, mesh );

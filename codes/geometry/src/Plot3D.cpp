@@ -93,7 +93,7 @@ void Plot3D::ReadCoorBinary( GridMediator * gridMediator )
     string separator  = " =\r\n\t#$,;";
 
     fstream file;
-    ONEFLOW::OpenPrjFile( file, fileName, ios_base::in|ios_base::binary );
+    ONEFLOW::OpenPrjFile( file, fileName, std::ios_base::in|ios_base::binary );
 
     HXRead( & file, gridMediator->numberOfZones );
     gridMediator->gridVector.resize( gridMediator->numberOfZones );
@@ -165,7 +165,7 @@ void Plot3D::DumpCoorBinary( GridMediator * gridMediator )
     string & fileName = gridMediator->gridFile;
 
     fstream file;
-    ONEFLOW::OpenPrjFile( file, fileName, ios_base::out|ios_base::binary );
+    ONEFLOW::OpenPrjFile( file, fileName, std::ios_base::out|ios_base::binary );
 
     int numberOfZones = gridMediator->numberOfZones;
     HXWrite( & file, numberOfZones );
@@ -226,7 +226,7 @@ void Plot3D::ReadCoorAscii( GridMediator * gridMediator )
 
     FileIO ioFile;
     string separator  = " =\r\n\t#$,;";
-    ioFile.OpenPrjFile( fileName, ios_base::in );
+    ioFile.OpenPrjFile( fileName, std::ios_base::in );
     ioFile.SetDefaultSeparator( separator );
 
     gridMediator->numberOfZones = ioFile.ReadNextDigit< int >();
@@ -325,7 +325,7 @@ void Plot3D::DumpCoorAscii( GridMediator * gridMediator )
     string & fileName = gridMediator->gridFile;
 
     FileO fileO;
-    fileO.OpenPrjFile( fileName, ios_base::out );
+    fileO.OpenPrjFile( fileName, std::ios_base::out );
 
     int numberOfZones = gridMediator->numberOfZones;
     fileO.WriteLine( numberOfZones );
@@ -403,7 +403,7 @@ void Plot3D::ReadBc( GridMediator * gridMediator )
     string separator = " =\r\n#$,;";
 
     FileIO ioFile;
-    ioFile.OpenPrjFile( bcName, ios_base::in );
+    ioFile.OpenPrjFile( bcName, std::ios_base::in );
     ioFile.SetDefaultSeparator( separator );
 
     ioFile.ReadNextNonEmptyLine();
@@ -536,7 +536,7 @@ void Plot3D::DumpBc( GridMediator * gridMediator )
     string & bcName = gridMediator->bcFile;
 
     fstream file;
-    OpenPrjFile( file, bcName, ios_base::out );
+    OpenPrjFile( file, bcName, std::ios_base::out );
 
     int flowSolverIndex = 1;
     file << flowSolverIndex << "\n";

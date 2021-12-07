@@ -86,7 +86,7 @@ void Sod::SodGrid()
     }
 
     fstream file;
-    OpenPrjFile( file, "/grid/sod2d.grd", ios_base::out|ios_base::binary );
+    OpenPrjFile( file, "/grid/sod2d.grd", std::ios_base::out|ios_base::binary );
     int nZone = 1;
     int nk = 1;
     HXWrite( & file, nZone );
@@ -100,7 +100,7 @@ void Sod::SodGrid()
 
     CloseFile( file );
 
-    OpenPrjFile( file, "/grid/sod2d.inp", ios_base::out );
+    OpenPrjFile( file, "/grid/sod2d.inp", std::ios_base::out );
     int solver = 1;
     string zName = "A";
     int nBc = 4;
@@ -247,7 +247,7 @@ void Sod::Theory()
 
     //Write out to files.
     fstream file;
-    OpenPrjFile( file, "/grid/sod_theory.dat", ios_base::out );
+    OpenPrjFile( file, "/grid/sod_theory.dat", std::ios_base::out );
     StringField title;
     title.push_back( "title=\"THE FLOW FIELD OF ONEFLOW\"" );
     title.push_back( "variables=" );

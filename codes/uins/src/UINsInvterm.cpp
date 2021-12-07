@@ -2075,7 +2075,7 @@ void UINsInvterm::ReadTmp()
 	if (iii) return;
 	iii = 1;
 	fstream file;
-	file.open("nsflow.dat", ios_base::in | ios_base::binary);
+	file.open("nsflow.dat", std::ios_base::in | std::ios_base::binary);
 	if (!file) exit(0);
 
 	uinsf.Init();

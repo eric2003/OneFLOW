@@ -104,7 +104,7 @@ void AerodynamicForceTask::Dump()
     oss << setiosflags( ios::scientific );
 
     fstream file;
-    OpenPrjFile( file, fileName, ios_base::out | ios_base::app );
+    OpenPrjFile( file, fileName, std::ios_base::out | std::ios_base::app );
 
     if ( IsEmpty( file ) )
     {

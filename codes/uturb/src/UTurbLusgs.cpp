@@ -74,7 +74,7 @@ void UTurbLusgs::ReadTmp()
     if ( iii ) return;
     iii = 1;
     fstream file;
-    file.open( "turbtmpres.dat", ios_base::in | ios_base::binary );
+    file.open( "turbtmpres.dat", std::ios_base::in | std::ios_base::binary );
 
     for ( int iCell = 0; iCell < ug.nTCell; ++ iCell )
     {

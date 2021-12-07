@@ -35,7 +35,7 @@ public:
     ~FileInfo();
 public:
     string fileName;
-    ios_base::openmode openMode;
+    std::ios_base::openmode openMode;
 };
 
 EndNameSpace

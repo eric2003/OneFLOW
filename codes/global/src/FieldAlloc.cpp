@@ -363,7 +363,7 @@ void BoolIO::ReadFile( const string & fileName, int valueFlag )
     string separator  = " \r\n\t#$,;\"()";
 
     FileIO ioFile;
-    ioFile.OpenFile( fileName, ios_base::in );
+    ioFile.OpenFile( fileName, std::ios_base::in );
     ioFile.SetDefaultSeparator( separator );
 
     this->ioFile = & ioFile;

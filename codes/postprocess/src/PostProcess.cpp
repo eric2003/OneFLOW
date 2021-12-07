@@ -53,7 +53,7 @@ void Post::Run()
     string separator = " =\r\n\t#$,;\"";
 
     FileIO ioFile;
-    ioFile.OpenPrjFile( fileName, ios_base::in );
+    ioFile.OpenPrjFile( fileName, std::ios_base::in );
     ioFile.SetDefaultSeparator( separator );
     int count = 0;
     //vector< Real > xList, yList, zList;
@@ -611,7 +611,7 @@ void CurveData::Visual( const string & fileName, vector< Real > & x, vector< Rea
 {
     fstream file;
 
-    PIO::OpenPrjFile( file, fileName, ios_base::out );
+    PIO::OpenPrjFile( file, fileName, std::ios_base::out );
 
     StringField title;
     GetCurveTitle( title );
@@ -637,7 +637,7 @@ void CurveData::VisualCurveValue( const string & fileName, vector< Real > & x, v
 {
     fstream file;
 
-    PIO::OpenPrjFile( file, fileName, ios_base::out );
+    PIO::OpenPrjFile( file, fileName, std::ios_base::out );
 
     StringField title;
     GetCurveValueTitle( title );

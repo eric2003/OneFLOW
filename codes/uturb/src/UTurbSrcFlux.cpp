@@ -150,7 +150,7 @@ void UTurbSrcFlux::ReadTmp()
     if ( iii ) return;
     iii = 1;
     fstream file;
-    file.open( "turbflowsrc.dat", ios_base::in | ios_base::binary );
+    file.open( "turbflowsrc.dat", std::ios_base::in | std::ios_base::binary );
     if ( ! file ) exit( 0 );
 
        for ( int cId = 0; cId < ug.nTCell; ++ cId )

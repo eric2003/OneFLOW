@@ -53,8 +53,8 @@ protected:
     StreamSize filePosition;
     CommentLine * commentLine;
 public:
-    void OpenFile( const std::string & fileName, const ios_base::openmode & fileOpenMode );
-    void OpenPrjFile( const std::string & fileName, const ios_base::openmode & fileOpenMode );
+    void OpenFile( const std::string & fileName, const std::ios_base::openmode & fileOpenMode );
+    void OpenPrjFile( const std::string & fileName, const std::ios_base::openmode & fileOpenMode );
     void CloseFile();
     void MarkCurrentFilePosition();
     void MoveToPreviousFilePosition();

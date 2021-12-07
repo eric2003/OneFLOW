@@ -40,7 +40,7 @@ FileO::~FileO()
     delete file;
 }
 
-void FileO::OpenPrjFile( const string & fileName, const ios_base::openmode & fileOpenMode )
+void FileO::OpenPrjFile( const string & fileName, const std::ios_base::openmode & fileOpenMode )
 {
     this->fileName     = fileName;
     this->fileOpenMode = fileOpenMode;

@@ -45,7 +45,7 @@ void Test::Run()
     Real xlen = 2.0;
     Real dx = xlen / ( ni - 1 );
     fstream file;
-    OpenPrjFile( file, "/test/vencat.dat", ios_base::out );
+    OpenPrjFile( file, "/test/vencat.dat", std::ios_base::out );
     StringField title;
     title.push_back( "title=\"THE FLOW FIELD OF ONEFLOW\"" );
     title.push_back( "variables=" );

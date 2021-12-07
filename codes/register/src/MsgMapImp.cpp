@@ -50,7 +50,7 @@ void GetMsgFileNameList( StringField & fileNameList )
     string msgFileName = SimuCtrl::system_root + "action/" + "actionFileList.txt";
 
     FileIO ioFile;
-    ioFile.OpenFile( msgFileName, ios_base::in );
+    ioFile.OpenFile( msgFileName, std::ios_base::in );
     ioFile.SetDefaultSeparator( separator );
 
     while ( ! ioFile.ReachTheEndOfFile()  )

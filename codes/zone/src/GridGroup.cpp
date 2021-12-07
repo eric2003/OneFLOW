@@ -56,7 +56,7 @@ GridGroup::~GridGroup()
 void GridGroup::InitZoneLayout( const string & fileName )
 {
     fstream file;
-    PIO::OpenPrjFile( file, fileName, ios_base::in|ios_base::binary );
+    PIO::OpenPrjFile( file, fileName, std::ios_base::in|ios_base::binary );
 
     this->InitZoneLayout( file );
     this->SetMultiZoneLayout();
@@ -102,7 +102,7 @@ void GridGroup::ReadGrid( const string & fileName )
 {
     fstream file;
 
-    PIO::OpenPrjFile( file, fileName, ios_base::in|ios_base::binary );
+    PIO::OpenPrjFile( file, fileName, std::ios_base::in|ios_base::binary );
 
     this->InitZoneLayout( file );
     this->SetMultiZoneLayout();
