@@ -23,6 +23,7 @@ License
 #pragma once
 #include "Configure.h"
 #include <fstream>
+#include <sstream>
 #include <string>
 #include <vector>
 
