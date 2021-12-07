@@ -408,7 +408,7 @@ void CgnsBcBoco::PrintCgnsBcBoco()
     }
 }
 
-void CgnsBcBoco::WriteCgnsBoco( const string & bocoName, BCType_t bocotype, PointSetType_t ptset_type, cgsize_t npnts, const cgsize_t * pnts )
+void CgnsBcBoco::WriteCgnsBoco( const std::string & bocoName, BCType_t bocotype, PointSetType_t ptset_type, cgsize_t npnts, const cgsize_t * pnts )
 {
     int fileId = cgnsZone->cgnsBase->cgnsFile->fileId;
     int baseId = cgnsZone->cgnsBase->baseId;

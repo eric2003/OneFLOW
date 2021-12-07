@@ -62,7 +62,7 @@ void CalcGrid::Init( Grids & grids )
     int gridObj = GetDataValue< int >( "gridObj" );
     if ( gridObj == 3 )
     {
-        string part_uns_file = GetDataValue< string >( "part_uns_file" );
+        std::string part_uns_file = GetDataValue< std::string >( "part_uns_file" );
         this->gridFileName = part_uns_file;
     }
     else
@@ -97,7 +97,7 @@ void CalcGrid::Dump()
 {
     //cout << __FUNCTION__ << endl;
     fstream file;
-    OpenPrjFile( file, gridFileName, std::ios_base::out|ios_base::binary|ios_base::trunc );
+    OpenPrjFile( file, gridFileName, std::ios_base::out|std::ios_base::binary|std::ios_base::trunc );
     int nZone = static_cast<int>(grids.size());
 
     ZoneState::pid.resize( nZone );
@@ -303,7 +303,7 @@ int GetIgnoreNoBc()
 
 string GetTargetGridFileName()
 {
-    return ONEFLOW::GetDataValue< string >( "targetGridFileName" );
+    return ONEFLOW::GetDataValue< std::string >( "targetGridFileName" );
 }
 
 void GenerateMultiZoneCalcGrids( Grids & grids )

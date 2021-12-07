@@ -91,8 +91,8 @@ void CgnsTest::Test()
 
 void CgnsTest::SetDefaultGridName()
 {
-    string gridName = "/grid/oneflow.cgns";
-    string prjFileName = ONEFLOW::GetPrjFileName( gridName );
+    std::string gridName = "/grid/oneflow.cgns";
+    std::string prjFileName = ONEFLOW::GetPrjFileName( gridName );
     cout << " CGNS File Name = " << prjFileName << "\n";
 
     this->fileName = prjFileName;
@@ -145,7 +145,7 @@ void CgnsTest::ReadEmptyCgnsFile()
     delete cgnsFile;
 }
 
-void CgnsTest::WriteDouble( const string & varName, const double & varValue )
+void CgnsTest::WriteDouble( const std::string & varName, const double & varValue )
 {
     int nDim = 1;
     cgsize_t ndims[ 1 ] = { 1 };
@@ -166,8 +166,8 @@ void CgnsTest::SetISize( cgsize_t * isize )
 
 void CgnsTest::TestCgnsLink()
 {
-    string fname    = "zones.cgns";
-    string linkname = "zones_link.cgns";
+    std::string fname    = "zones.cgns";
+    std::string linkname = "zones_link.cgns";
 
     cgsize_t isize[ 9 ];
     this->SetISize( isize );
@@ -178,7 +178,7 @@ void CgnsTest::TestCgnsLink()
 
     for ( int iZone = 0; iZone < nZones; ++ iZone )
     {
-        string name = AddString( "Zone", iZone + 1 );
+        std::string name = AddString( "Zone", iZone + 1 );
         cgnsBase->WriteZoneInfo( name, CGNS_ENUMV( Structured ), isize );
     }
     delete fileZone;
@@ -188,7 +188,7 @@ void CgnsTest::TestCgnsLink()
 
     for ( int iZone = 0; iZone < nZones; ++ iZone )
     {
-        string name = AddString( "Zone", iZone + 1 );
+        std::string name = AddString( "Zone", iZone + 1 );
         cgnsBaseM->WriteZoneInfo( name, CGNS_ENUMV( Structured ), isize );
     }
 
@@ -200,8 +200,8 @@ void CgnsTest::TestCgnsLink()
 
     for ( int iZone = 0; iZone < nZones; ++ iZone )
     {
-        string name     = AddString( "Link to Zone", iZone + 1 );
-        string linkpath = AddString( "/Base/Zone", iZone + 1 );
+        std::string name     = AddString( "Link to Zone", iZone + 1 );
+        std::string linkpath = AddString( "/Base/Zone", iZone + 1 );
 
         cg_link_write( name.c_str(), fname.c_str(), linkpath.c_str() );
     }
@@ -257,7 +257,7 @@ void CgnsTest::WriteArray( CgnsFile * cgnsFile, CgnsBase * cgnsBase )
 
     for ( int i = 0; i < myarray.size(); ++ i )
     {
-        string name = AddString( "MyArray", i + 1 );
+        std::string name = AddString( "MyArray", i + 1 );
         cgsize_t arraysize = myarray[ i ].size();
         cg_array_write( name.c_str(), CGNS_ENUMV( RealSingle ), 1, &arraysize, &myarray[ i ][ 0 ] );
         cgnsFile->GoPath( name );
@@ -270,7 +270,7 @@ void CgnsTest::WriteArray( CgnsFile * cgnsFile, CgnsBase * cgnsBase )
 
     for ( int i = 0; i < myarray.size(); ++ i )
     {
-        string name = AddString( "MyArray", i + 1 );
+        std::string name = AddString( "MyArray", i + 1 );
         cgsize_t arraysize = myarray[ i ].size();
         cg_array_write( name.c_str(), CGNS_ENUMV( RealSingle ), 1, &arraysize, &myarray[ i ][ 0 ] );
         cgnsFile->GoPath( name );
@@ -984,7 +984,7 @@ void CgnsTest::mytest_write()
     ipnts[ 0 ] = 0;
     icounts = 1;
 
-    string zoneName = "Zone1";
+    std::string zoneName = "Zone1";
     CgnsZone * cgnsZone = cgnsBase->WriteZoneInfo( zoneName, CGNS_ENUMV(Unstructured), isize[ 0 ] );
 
     CgnsZbcBoco * cgnsZbcBoco = cgnsZone->cgnsZbc->cgnsZbcBoco;

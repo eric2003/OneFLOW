@@ -71,12 +71,12 @@ void VisualTool::Init()
     title.push_back( "\"z\"" );
 }
 
-void VisualTool::AddTitle( const string & varName )
+void VisualTool::AddTitle( const std::string & varName )
 {
     title.push_back( AddString( "\"",  varName, "\"" ) );
 }
 
-MRField * VisualTool::AddField( const string & varName )
+MRField * VisualTool::AddField( const std::string & varName )
 {
     this->AddTitle( varName );
     MRField * fn = CreateNodeVar( varName );
@@ -84,7 +84,7 @@ MRField * VisualTool::AddField( const string & varName )
     return fn;
 }
 
-MRField * VisualTool::AddField( RealField & qc, const string & varName )
+MRField * VisualTool::AddField( RealField & qc, const std::string & varName )
 {
     this->AddTitle( varName );
     MRField * fn = CreateNodeVar( qc );
@@ -92,7 +92,7 @@ MRField * VisualTool::AddField( RealField & qc, const string & varName )
     return fn;
 }
 
-MRField * VisualTool::CreateField( const string & varName, int nEqu )
+MRField * VisualTool::CreateField( const std::string & varName, int nEqu )
 {
     this->AddTitle( varName );
     MRField * fn = AllocNodeVar( nEqu );
@@ -263,7 +263,7 @@ void BcVisual::Calcf2n( int bcType )
     //}
 }
 
-void BcVisual::Dump( ostringstream & oss, VisualTool * visualTool, string & bcTitle )
+void BcVisual::Dump( ostringstream & oss, VisualTool * visualTool, std::string & bcTitle )
 {
     UnsGrid * grid = Zone::GetUnsGrid();
 
@@ -307,7 +307,7 @@ void BcVisual::Dump( ostringstream & oss, VisualTool * visualTool, string & bcTi
        
 }
 
-void BcVisual::DumpDebug( ostringstream & oss, VisualTool * visualTool, string & bcTitle )
+void BcVisual::DumpDebug( ostringstream & oss, VisualTool * visualTool, std::string & bcTitle )
 {
     UnsGrid * grid = Zone::GetUnsGrid();
 
@@ -364,7 +364,7 @@ void BcVisual::DumpSeveralElement()
     int nElem = this->f2n.size();
 
     fstream file;
-    string fileName = "test.plt";
+    std::string fileName = "test.plt";
     ONEFLOW::OpenPrjFile( file, fileName, std::ios_base::out );
 
     file << " VARIALBES = ";
@@ -576,7 +576,7 @@ void UVisualize::ShowBc( ostringstream & oss, VisualTool * visualTool )
 
         if ( BC::IsInterfaceBc( bcType )  ) continue;
 
-        string bcTitle = AddString( "\"",  ZoneState::zid, "BC=", bcType, "\"" );
+        std::string bcTitle = AddString( "\"",  ZoneState::zid, "BC=", bcType, "\"" );
 
         BcVisual bcVisual;
 
@@ -602,7 +602,7 @@ void UVisualize::ShowBcDebugTest( ostringstream & oss, VisualTool * visualTool )
         if ( BC::IsInterfaceBc( bcType ) ) continue;
         if ( bcType != BC::SYMMETRY ) continue;
 
-        string bcTitle = AddString( "\"", ZoneState::zid, "BC=", bcType, "\"" );
+        std::string bcTitle = AddString( "\"", ZoneState::zid, "BC=", bcType, "\"" );
 
         BcVisual bcVisual;
 

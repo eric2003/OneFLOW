@@ -39,15 +39,15 @@ Numpy::~Numpy()
 {
 }
 
-string Numpy::AddFileName( const string & prefix, const string & fileName )
+string Numpy::AddFileName( const std::string & prefix, const std::string & fileName )
 {
-    string fileNameNew = AddString(prefix, "/", fileName );
+    std::string fileNameNew = AddString(prefix, "/", fileName );
     return fileNameNew;
 }
 
-void Numpy::OpenPrjFile( fstream & file, const string & fileName, const std::ios_base::openmode & openMode )
+void Numpy::OpenPrjFile( fstream & file, const std::string & fileName, const std::ios_base::openmode & openMode )
 {
-    string fileNameNew = Numpy::AddFileName( "results", fileName );
+    std::string fileNameNew = Numpy::AddFileName( "results", fileName );
     ONEFLOW::OpenPrjFile( file, fileNameNew, std::ios_base::out );
 }
 
@@ -93,7 +93,7 @@ void Numpy::Plot( vector< double > & x, vector< double > & f )
     Numpy::Plot( "plot.plt", x, f );
 }
 
-void Numpy::Plot( const string & fileName, vector< double > & x, vector< double > & f )
+void Numpy::Plot( const std::string & fileName, vector< double > & x, vector< double > & f )
 {
     fstream file;
     Numpy::OpenPrjFile( file, fileName, std::ios_base::out );
@@ -108,7 +108,7 @@ void Numpy::Plot( const string & fileName, vector< double > & x, vector< double 
     CloseFile( file );
 }
 
-void Numpy::ToTecplot( const string & fileName, vector< double > & x, vector< double > & f )
+void Numpy::ToTecplot( const std::string & fileName, vector< double > & x, vector< double > & f )
 {
     fstream file;
     Numpy::OpenPrjFile( file, fileName, std::ios_base::out );
@@ -125,7 +125,7 @@ void Numpy::ToTecplot( const string & fileName, vector< double > & x, vector< do
     CloseFile( file );
 }
 
-void Numpy::ToTecplot( const string & fileName, vector< double > & x, vector< double > & u, vector< double > & v )
+void Numpy::ToTecplot( const std::string & fileName, vector< double > & x, vector< double > & u, vector< double > & v )
 {
     fstream file;
     Numpy::OpenPrjFile( file, fileName, std::ios_base::out );
@@ -142,7 +142,7 @@ void Numpy::ToTecplot( const string & fileName, vector< double > & x, vector< do
     CloseFile( file );
 }
 
-void Numpy::Analysis( const string & fileName, vector< double > & x, vector< vector< double > > & du )
+void Numpy::Analysis( const std::string & fileName, vector< double > & x, vector< vector< double > > & du )
 {
     fstream file;
     Numpy::OpenPrjFile( file, fileName, std::ios_base::out );
@@ -164,7 +164,7 @@ void Numpy::Analysis( const string & fileName, vector< double > & x, vector< vec
     CloseFile( file );
 }
 
-void Numpy::AnalysisNew( const string & fileName, vector< vector< double > > & x, vector< vector< double > > & du )
+void Numpy::AnalysisNew( const std::string & fileName, vector< vector< double > > & x, vector< vector< double > > & du )
 {
     fstream file;
     Numpy::OpenPrjFile( file, fileName, std::ios_base::out );
@@ -184,7 +184,7 @@ void Numpy::AnalysisNew( const string & fileName, vector< vector< double > > & x
     CloseFile( file );
 }
 
-void Numpy::DrawL1Norm( const string & fileName, vector< double > & dxList, vector< double > & l1NormList )
+void Numpy::DrawL1Norm( const std::string & fileName, vector< double > & dxList, vector< double > & l1NormList )
 {
     fstream file;
     Numpy::OpenPrjFile( file, fileName, std::ios_base::out );
@@ -202,7 +202,7 @@ void Numpy::DrawL1Norm( const string & fileName, vector< double > & dxList, vect
     CloseFile( file );
 }
 
-void Numpy::DrawNorms( const string & fileName, vector< double > & dxList, vector< double > & l1NormList, vector< double > & l2NormList )
+void Numpy::DrawNorms( const std::string & fileName, vector< double > & dxList, vector< double > & l1NormList, vector< double > & l2NormList )
 {
     fstream file;
     Numpy::OpenPrjFile( file, fileName, std::ios_base::out );

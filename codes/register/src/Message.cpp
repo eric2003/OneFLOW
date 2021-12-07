@@ -24,8 +24,8 @@ License
 #include "FileIO.h"
 
 BeginNameSpace( ONEFLOW )
-map< string, int > * MessageMap::nameMap = 0;
-map< int, string > * MessageMap::idMap = 0;
+map< std::string, int > * MessageMap::nameMap = 0;
+map< int, std::string > * MessageMap::idMap = 0;
 
 MessageMap::MessageMap()
 {
@@ -38,8 +38,8 @@ MessageMap::~MessageMap()
 void MessageMap::Init()
 {
     if ( MessageMap::nameMap ) return;
-    MessageMap::nameMap = new map< string, int >();
-    MessageMap::idMap = new map< int, string >();
+    MessageMap::nameMap = new map< std::string, int >();
+    MessageMap::idMap = new map< int, std::string >();
 }
 
 void MessageMap::Free()
@@ -50,9 +50,9 @@ void MessageMap::Free()
     MessageMap::idMap = 0;
 }
 
-void MessageMap::Register( const string & msgName )
+void MessageMap::Register( const std::string & msgName )
 {
-    map< string, int >::iterator iter = MessageMap::nameMap->find( msgName );
+    map< std::string, int >::iterator iter = MessageMap::nameMap->find( msgName );
     if ( iter == MessageMap::nameMap->end() )
     {
         int msgId = MessageMap::nameMap->size();
@@ -61,14 +61,14 @@ void MessageMap::Register( const string & msgName )
     }
 }
 
-void MessageMap::Unregister( const string & msgName )
+void MessageMap::Unregister( const std::string & msgName )
 {
     MessageMap::nameMap->erase( msgName );
 }
 
-int MessageMap::GetMsgId( const string & msgName )
+int MessageMap::GetMsgId( const std::string & msgName )
 {
-    map< string, int >::iterator iter = MessageMap::nameMap->find( msgName );
+    map< std::string, int >::iterator iter = MessageMap::nameMap->find( msgName );
     if ( iter == MessageMap::nameMap->end() )
     {
         return -1;
@@ -80,7 +80,7 @@ int MessageMap::GetMsgId( const string & msgName )
 
 string MessageMap::GetMsgName( int msgId )
 {
-    map< int, string >::iterator iter = MessageMap::idMap->find( msgId );
+    map< int, std::string >::iterator iter = MessageMap::idMap->find( msgId );
     if ( iter == MessageMap::idMap->end() )
     {
         return "";
@@ -89,12 +89,12 @@ string MessageMap::GetMsgName( int msgId )
     return iter->second;
 }
 
-void MessageMap::ReadFile( const string & fileName )
+void MessageMap::ReadFile( const std::string & fileName )
 {
-    string word;
+    std::string word;
 
     //\t is the tab key
-    string separator = " =\r\n\t#$,;\"";
+    std::string separator = " =\r\n\t#$,;\"";
 
     FileIO ioFile;
     ioFile.OpenFile( fileName, std::ios_base::in );
@@ -103,7 +103,7 @@ void MessageMap::ReadFile( const string & fileName )
     while ( ! ioFile.ReachTheEndOfFile() )
     {
         ioFile.ReadNextNonEmptyLine();
-        string msgName = ioFile.ReadNextWord();
+        std::string msgName = ioFile.ReadNextWord();
         MessageMap::Register( msgName );
     }
 

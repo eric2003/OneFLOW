@@ -86,7 +86,7 @@ void Sod::SodGrid()
     }
 
     fstream file;
-    OpenPrjFile( file, "/grid/sod2d.grd", std::ios_base::out|ios_base::binary );
+    OpenPrjFile( file, "/grid/sod2d.grd", std::ios_base::out|std::ios_base::binary );
     int nZone = 1;
     int nk = 1;
     HXWrite( & file, nZone );
@@ -102,7 +102,7 @@ void Sod::SodGrid()
 
     OpenPrjFile( file, "/grid/sod2d.inp", std::ios_base::out );
     int solver = 1;
-    string zName = "A";
+    std::string zName = "A";
     int nBc = 4;
     file << solver << endl;
     file << nZone << endl;

@@ -51,8 +51,8 @@ SimuImp::~SimuImp()
 void SimuImp::ProcessCmdLineArgs( std::vector<std::string> &args )
 {
     this->args = args;
-    string choise = args[ 1 ];
-    string prjName = args[ 2 ];
+    std::string choise = args[ 1 ];
+    std::string prjName = args[ 2 ];
     if ( choise == "d" )
     {
         SimuCtrl::hx_debug = true;

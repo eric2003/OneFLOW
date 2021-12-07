@@ -41,10 +41,10 @@ public:
     Grids gridVector;
     int numberOfZones;
     int readGridType;
-    string gridFile;
-    string bcFile;
-    string targetFile;
-    string gridType;
+    std::string gridFile;
+    std::string bcFile;
+    std::string targetFile;
+    std::string gridType;
 public:
     void ReadGrid();
     void ReadGridgen();
@@ -66,7 +66,7 @@ public:
     void AddGridMediator( GridMediator * gridMediator );
     GridMediator * GetGridMediator( int iGridMediator );
     int GetSize();
-    string GetTargetFile();
+    std::string GetTargetFile();
     void SetDeleteFlag( bool flag );
 public:
     void CreateSimple( int nZone );

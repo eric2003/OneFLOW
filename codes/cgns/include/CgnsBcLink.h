@@ -51,8 +51,8 @@ public:
     PointSetType_t donorPointSetType;
     DataType_t     donorDataType;
 
-    string connName;
-    string donorZoneName;
+    std::string connName;
+    std::string donorZoneName;
 
     CgnsZone * cgnsZone;
     int bcId;

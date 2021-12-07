@@ -72,7 +72,7 @@ LamVelCut::~LamVelCut()
 
 void LamVelCut::Dump()
 {
-    string velocityFile = "results/flatplateflow.dat";
+    std::string velocityFile = "results/flatplateflow.dat";
 
     fstream file;
     PIO::OpenPrjFile( file, velocityFile, std::ios_base::out );
@@ -156,7 +156,7 @@ LamFriCut::~LamFriCut()
 
 void LamFriCut::Dump()
 {
-    string frictionFile = "results/flatplate_cf.dat";
+    std::string frictionFile = "results/flatplate_cf.dat";
 
     fstream file;
     PIO::OpenPrjFile( file, frictionFile, std::ios_base::out );

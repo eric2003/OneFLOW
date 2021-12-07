@@ -51,7 +51,7 @@ public:
     IntField ePosList;
     int pos_shift;
 
-    string sectionName;
+    std::string sectionName;
     CgnsZone * cgnsZone;
     int id;
     int nCoor;
@@ -71,7 +71,7 @@ public:
     void DumpCgnsSection();
     void ReadCgnsSectionInfo();
     void DumpCgnsSectionInfo();
-    void SetSectionInfo( const string & sectionName, int elemType, int startId, int endId );
+    void SetSectionInfo( const std::string & sectionName, int elemType, int startId, int endId );
     void CreateConnList();
     void CalcNumberOfSectionElements();
     void CalcCapacityOfCgnsConnectionList();

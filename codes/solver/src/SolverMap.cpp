@@ -186,15 +186,15 @@ void SolverNameClass::ReadSolverNames()
     SolverNameClass::ReadSolverNames( solverNameList );
     for ( int isol = 0; isol < solverNameList.size(); ++ isol )
     {
-        string solverName = solverNameList[ isol ];
+        std::string solverName = solverNameList[ isol ];
 
         ONEFLOW::StrIO.ClearAll();
         ONEFLOW::StrIO << "U" << solverName;
-        string uSolverName = ONEFLOW::StrIO.str();
+        std::string uSolverName = ONEFLOW::StrIO.str();
 
         ONEFLOW::StrIO.ClearAll();
         ONEFLOW::StrIO << "S" << solverName;
-        string sSolverName = ONEFLOW::StrIO.str();
+        std::string sSolverName = ONEFLOW::StrIO.str();
 
         SolverNameClass::unsSolverNameList.push_back( uSolverName );
         SolverNameClass::strSolverNameList.push_back( sSolverName );
@@ -208,14 +208,14 @@ void SolverNameClass::ReadSolverNames( StringField & solverNameList )
     ioFile.OpenPrjFile( "script/solver.txt", std::ios_base::in );
 
     //\t is the tab key
-    string keyWordSeparator = " ()\r\n\t#$,;\"";
+    std::string keyWordSeparator = " ()\r\n\t#$,;\"";
     ioFile.SetDefaultSeparator( keyWordSeparator );
 
     while ( ! ioFile.ReachTheEndOfFile()  )
     {
         bool flag = ioFile.ReadNextNonEmptyLine();
         if ( ! flag ) break;
-        string solverName = ioFile.ReadNextWord();
+        std::string solverName = ioFile.ReadNextWord();
         solverNameList.push_back( solverName );
     }
 

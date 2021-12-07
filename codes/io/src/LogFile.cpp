@@ -37,7 +37,7 @@ void OpenLogFile( int logFileIndex, fstream & file )
 
     ONEFLOW::StrIO.ClearAll();
     ONEFLOW::StrIO << "log/log" << logFileIndex << ".log";
-    string fileName = ONEFLOW::StrIO.str();
+    std::string fileName = ONEFLOW::StrIO.str();
 
     if ( ifReWrite == 0 )
     {

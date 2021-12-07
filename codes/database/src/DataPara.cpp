@@ -34,7 +34,7 @@ DataV::DataV()
     this->data = 0;
 }
 
-DataV::DataV( const string & name, int type, int size, DataObject * data )
+DataV::DataV( const std::string & name, int type, int size, DataObject * data )
 {
     this->name = name;
     this->type = type;
@@ -91,7 +91,7 @@ void DataPara::UpdateDataPointer( DataV * data )
     dataSet->insert( data );
 }
 
-DataV * DataPara::GetDataPointer( const string & name )
+DataV * DataPara::GetDataPointer( const std::string & name )
 {
     DataV * data = new DataV( name, 0, 0, 0 );
     DataSET::iterator iter = dataSet->find( data );
@@ -106,7 +106,7 @@ DataV * DataPara::GetDataPointer( const string & name )
     }
 }
 
-void DataPara::DeleteDataPointer( const string & name )
+void DataPara::DeleteDataPointer( const std::string & name )
 {
     DataV * data = new DataV( name, 0, 0, 0 );
     DataSET::iterator iter = dataSet->find( data );

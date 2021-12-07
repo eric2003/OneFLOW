@@ -48,7 +48,7 @@ public:
 bool IsStrGrid( int gridTopo );
 bool IsUnsGrid( int gridTopo );
 
-bool IsStrGrid( const string & gridTopo );
-bool IsUnsGrid( const string & gridTopo );
+bool IsStrGrid( const std::string & gridTopo );
+bool IsUnsGrid( const std::string & gridTopo );
 
 EndNameSpace

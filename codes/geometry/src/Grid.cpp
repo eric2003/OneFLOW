@@ -31,7 +31,7 @@ using namespace std;
 
 BeginNameSpace( ONEFLOW )
 
-map< string, Grid * > * Grid::classMap = 0;
+map< std::string, Grid * > * Grid::classMap = 0;
 
 Grid::Grid()
 {
@@ -48,9 +48,9 @@ Grid::~Grid()
     this->Free();
 }
 
-Grid * Grid::SafeClone( const string & type )
+Grid * Grid::SafeClone( const std::string & type )
 {
-    map < string, Grid * >::iterator iter = Grid::classMap->find( type );
+    map < std::string, Grid * >::iterator iter = Grid::classMap->find( type );
     if ( iter == Grid::classMap->end() )
     {
         cout << type << " class not found" << endl;
@@ -60,14 +60,14 @@ Grid * Grid::SafeClone( const string & type )
     return iter->second->Clone();
 }
 
-Grid * Grid::Register( const string & type, Grid * clone )
+Grid * Grid::Register( const std::string & type, Grid * clone )
 {
     if ( ! Grid::classMap )
     {
-        Grid::classMap = new map < string, Grid * >();
+        Grid::classMap = new map < std::string, Grid * >();
     }
 
-    map < string, Grid * >::iterator iter = Grid::classMap->find( type );
+    map < std::string, Grid * >::iterator iter = Grid::classMap->find( type );
     if ( iter == Grid::classMap->end() )
     {
         ( * Grid::classMap )[ type ] = clone;

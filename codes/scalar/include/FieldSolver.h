@@ -92,7 +92,7 @@ public:
     void TimeIntergral();
     void Update();
     void Visualize();
-    void ToTecplot( RealField & xList, RealField & varlist, string const & fileName );
+    void ToTecplot( RealField & xList, RealField & varlist, std::string const & fileName );
 public:
     void ZoneBoundary();
     void ZoneGetQLQR();

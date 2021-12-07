@@ -91,7 +91,7 @@ public:
     set< HXSort< std::string > > & GetNameMap() { return stringMap; }
 };
 
-void DumpRegion( const string & fileName, CommonNameMap & nameMap );
+void DumpRegion( const std::string & fileName, CommonNameMap & nameMap );
 
 class RegionNameMap
 {

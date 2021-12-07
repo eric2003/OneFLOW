@@ -574,7 +574,7 @@ void ScalarGrid::DumpCgnsGrid()
 	delete cgnsZbase;
 }
 
-void ScalarGrid::GenerateGridFromCgns( const string & prjFileName )
+void ScalarGrid::GenerateGridFromCgns( const std::string & prjFileName )
 {
 	CgnsZbase * cgnsZbase = new CgnsZbase();
 	cgnsZbase->OpenCgnsFile( prjFileName, CG_MODE_READ );

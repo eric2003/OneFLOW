@@ -52,7 +52,7 @@ void CgnsZbase::FreeCgnsBases()
     }
 }
 
-void CgnsZbase::OpenCgnsFile( const string & fileName, int cgnsOpenMode )
+void CgnsZbase::OpenCgnsFile( const std::string & fileName, int cgnsOpenMode )
 {
     this->cgnsFile->OpenCgnsFile( fileName, cgnsOpenMode );
 }
@@ -113,7 +113,7 @@ int CgnsZbase::GetSystemZoneType()
     return ZoneTypeUserDefined;
 }
 
-void CgnsZbase::ReadCgnsGrid( const string & fileName )
+void CgnsZbase::ReadCgnsGrid( const std::string & fileName )
 {
     this->OpenCgnsFile( fileName, CG_MODE_READ );
     this->ReadCgnsMultiBase();

@@ -41,9 +41,9 @@ public:
     std::string fileName;
     std::ios_base::openmode fileOpenMode;
     fstream * file;
-    string sep;
+    std::string sep;
 public:
-    void OpenPrjFile( const string & fileName, const std::ios_base::openmode & fileOpenMode );
+    void OpenPrjFile( const std::string & fileName, const std::ios_base::openmode & fileOpenMode );
     void CloseFile();
 
     void WriteEndLine()

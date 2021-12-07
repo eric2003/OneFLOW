@@ -105,7 +105,7 @@ FieldWrap * FieldHome::CreateField( int sTid, int level )
     return fieldWrap;
 }
 
-FieldWrap * FieldHome::GetFieldWrap( const string & fieldName )
+FieldWrap * FieldHome::GetFieldWrap( const std::string & fieldName )
 {
     Grid * grid = Zone::GetGrid();
 
@@ -118,7 +118,7 @@ FieldWrap * FieldHome::GetFieldWrap( const string & fieldName )
     return fieldWrap;
 }
 
-void FieldHome::SetField( const string & fieldName, Real value )
+void FieldHome::SetField( const std::string & fieldName, Real value )
 {
     Grid * gridIn = Zone::GetGrid();
 
@@ -129,12 +129,12 @@ void FieldHome::SetField( const string & fieldName, Real value )
     ONEFLOW::SetField( fieldWrap, value );
 }
 
-void FieldHome::SetField( int fieldId, const string & fieldName, int orderFlag )
+void FieldHome::SetField( int fieldId, const std::string & fieldName, int orderFlag )
 {
     FieldHome::SetUnsField( fieldId, fieldName, orderFlag );
 }
 
-void FieldHome::SetUnsField( int fieldId, const string & fieldName, int orderFlag )
+void FieldHome::SetUnsField( int fieldId, const std::string & fieldName, int orderFlag )
 {
     Grid * gridIn = Zone::GetGrid();
     UnsGrid * grid = ONEFLOW::UnsGridCast( gridIn );
@@ -158,13 +158,13 @@ MRField * FieldHome::GetUnsField( int fieldId )
     return field;
 }
 
-MRField * FieldHome::GetUnsField( Grid * grid, const string & fieldName )
+MRField * FieldHome::GetUnsField( Grid * grid, const std::string & fieldName )
 {
     MRField * field = ONEFLOW::GetFieldPointer< MRField >( grid, fieldName );
     return field;
 }
 
-void FieldHome::GetSourceTargetField( Grid * grid, int fieldId, const string & fieldName, MRField *& sField, MRField *& tField, int orderFlag )
+void FieldHome::GetSourceTargetField( Grid * grid, int fieldId, const std::string & fieldName, MRField *& sField, MRField *& tField, int orderFlag )
 {
     if ( orderFlag == FLOW_RHS_ORDER )
     {

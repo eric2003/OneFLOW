@@ -41,7 +41,7 @@ PrjStatus::~PrjStatus()
     ;
 }
 
-void PrjStatus::SetPrjBaseDir( const string & prjName )
+void PrjStatus::SetPrjBaseDir( const std::string & prjName )
 {
     std::string current_dir_now = RemoveEndSlash( SimuCtrl::current_dir );
     std::string prj_name_now = RemoveFirstSlash( prjName );
@@ -81,7 +81,7 @@ std::string GetPrjDirName( const std::string & fileName )
 
 void CreateDirIfNeeded( std::string & prjFileName )
 {
-    string prj_dir = ONEFLOW::GetPrjDirName( prjFileName );
+    std::string prj_dir = ONEFLOW::GetPrjDirName( prjFileName );
 
     if ( ! DirExist( prj_dir ) )
     {

@@ -658,8 +658,8 @@ void DomainInp::GeneInp()
     CgnsFactory * cgnsFactory = new CgnsFactory();
 
     GridMediator * gridMediator = new GridMediator();
-    gridMediator->gridFile = ONEFLOW::GetDataValue< string >( "sourceGridFileName" );
-    gridMediator->bcFile   = ONEFLOW::GetDataValue< string >( "sourceGridBcName" );
+    gridMediator->gridFile = ONEFLOW::GetDataValue< std::string >( "sourceGridFileName" );
+    gridMediator->bcFile   = ONEFLOW::GetDataValue< std::string >( "sourceGridBcName" );
     gridMediator->gridType = "plot3d";
 
     gridMediator->ReadPlot3DCoor();
@@ -735,7 +735,7 @@ void DomainInp::FindPhysicalPatch( StrGrid * grid, MultiDomain * md, int zid, Ij
 void DomainInp::Dump( MultiDomain * md, GridMediator * gridMediator, PointSearch * pointSearch )
 {
     fstream file;
-    string fileName = "test.inp";
+    std::string fileName = "test.inp";
     ONEFLOW::OpenPrjFile( file, fileName, std::ios_base::out );
 
     Grids grids = gridMediator->gridVector;

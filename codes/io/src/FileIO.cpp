@@ -58,7 +58,7 @@ FileIO::FileIO()
     //file        = new fstream();
     setfileFlag = 0;
     //\t is tab key
-    string keyWordSeparator = " =\r\n\t#$,;\"";
+    std::string keyWordSeparator = " =\r\n\t#$,;\"";
     this->SetDefaultSeparator( keyWordSeparator );
 
     this->commentLine = new CommentLine();

@@ -35,7 +35,7 @@ public:
     FileState();
     ~FileState();
 public:
-    static string fileName;
+    static std::string fileName;
     static std::ios_base::openmode openMode;
 };
 

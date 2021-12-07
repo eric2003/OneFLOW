@@ -63,10 +63,10 @@ const int GREAT_ZERO  = 2;
 
 int GetOppositeSendRecv( int iSr );
 
-extern map< string, int > * solverTypeMap;
-extern map< string, int > * interfaceMap;
-extern map< string, int > * sendRecvMap;
-extern map< string, int > * fieldIdMap;
+extern map< std::string, int > * solverTypeMap;
+extern map< std::string, int > * interfaceMap;
+extern map< std::string, int > * sendRecvMap;
+extern map< std::string, int > * fieldIdMap;
 
 void CreateSysMap();
 

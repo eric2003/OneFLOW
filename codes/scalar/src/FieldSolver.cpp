@@ -116,7 +116,7 @@ void FieldSolver::LoadGrid()
 {
     StringField gridFileList;
 
-    string scalar_grid_filename = ONEFLOW::GetDataValue< string >("scalar_grid_filename");
+    std::string scalar_grid_filename = ONEFLOW::GetDataValue< std::string >("scalar_grid_filename");
 
     gridFileList.push_back( scalar_grid_filename );
 
@@ -748,7 +748,7 @@ void FieldSolver::Theory( ScalarGrid * grid, Real time, RealField & theory )
     }
 }
 
-void FieldSolver::ToTecplot( RealField & xList, RealField & varlist, string const & fileName )
+void FieldSolver::ToTecplot( RealField & xList, RealField & varlist, std::string const & fileName )
 {
     fstream file;
     OpenPrjFile( file, fileName, std::ios_base::out );

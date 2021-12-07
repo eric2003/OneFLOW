@@ -140,7 +140,7 @@ public:
 public:
     int rid;                         //region id
     int bcType;                      //boundary type
-    string regionName;               //boundary name
+    std::string regionName;               //boundary name
 public:
     BasicRegion * s;
     BasicRegion * t;

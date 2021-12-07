@@ -25,7 +25,7 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-std::map< string, int > GFieldDim::data;
+std::map< std::string, int > GFieldDim::data;
 
 GFieldDim::GFieldDim()
 {
@@ -42,7 +42,7 @@ void GFieldDim::AddField( const string & fileName, int nEqu )
 
 int GFieldDim::GetNEqu( const string & fileName )
 {
-    std::map< string, int >::iterator iter;
+    std::map< std::string, int >::iterator iter;
     iter = GFieldDim::data.find( fileName );
     if ( iter != GFieldDim::data.end() )
     {

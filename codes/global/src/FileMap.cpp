@@ -39,7 +39,7 @@ void RegisterFileTask()
 
 string GetParallelFileName( const std::string & fileNameVar )
 {
-    string fileName = GetDataValue< string >( fileNameVar );
+    std::string fileName = GetDataValue< std::string >( fileNameVar );
 
     if ( fileNameVar == "visualFile" )
     {
@@ -54,9 +54,9 @@ string GetParallelFileName( const std::string & fileNameVar )
 
 void SetFile( StringField & data )
 {
-    string & fileNameVar = data[ 0 ];
+    std::string & fileNameVar = data[ 0 ];
 
-    string fileName = GetParallelFileName( fileNameVar );
+    std::string fileName = GetParallelFileName( fileNameVar );
     
     std::ios_base::openmode openMode = GetOpenMode( data[ 1 ] );
 

@@ -67,7 +67,7 @@ void GenerateCmdList( int msgId )
 
     HXRegister * hxRegister = RegisterFactory::GetRegister( sTid, MESG_FUNC );
 
-    string msgName = MessageMap::GetMsgName( msgId );
+    std::string msgName = MessageMap::GetMsgName( msgId );
 
     HXClone * cloneClass = hxRegister->GetClass( msgName );
 
@@ -81,7 +81,7 @@ void GenerateCmdList( int msgId )
     }
 }
 
-void AddCmdToList( const string & msgName )
+void AddCmdToList( const std::string & msgName )
 {
     int msgId = MessageMap::GetMsgId( msgName );
 
@@ -142,14 +142,14 @@ HXClone * GetClass( int msgId, int sTid, int msgType )
 {
     HXRegister * hxRegister = RegisterFactory::GetRegister( sTid, msgType );
 
-    string msgName = MessageMap::GetMsgName( msgId );
+    std::string msgName = MessageMap::GetMsgName( msgId );
 
     HXClone * cloneClass = hxRegister->GetClass( msgName );
 
     return cloneClass;
 }
 
-void SsSgTask( const string & taskName )
+void SsSgTask( const std::string & taskName )
 {
     int taskCode = MessageMap::GetMsgId( taskName );
 
@@ -158,7 +158,7 @@ void SsSgTask( const string & taskName )
     CMD::ExecuteCmd();
 }
 
-void MsMgTask( const string & taskname )
+void MsMgTask( const std::string & taskname )
 {
     for ( int sid = 0; sid < SolverState::nSolver; ++ sid )
     {

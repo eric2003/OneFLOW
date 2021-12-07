@@ -87,7 +87,7 @@ char * DataPage::GetCurrentDataPointer()
     return &( ( * dataMemory )[ currPos ] );
 }
 
-void DataPage::ToString( string & str )
+void DataPage::ToString( std::string & str )
 {
     if ( this->GetSize() )
     {

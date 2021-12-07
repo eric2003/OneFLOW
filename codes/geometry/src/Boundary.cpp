@@ -222,7 +222,7 @@ int CommonNameMap::FindNameId( const std::string & name )
     }
 }
 
-void DumpRegion( const string & fileName, CommonNameMap & nameMap )
+void DumpRegion( const std::string & fileName, CommonNameMap & nameMap )
 {
     fstream file;
     ONEFLOW::OpenPrjFile( file, fileName, std::ios_base::out );
@@ -260,7 +260,7 @@ int RegionNameMap::FindRegionId( const std::string & regionName )
 
 void RegionNameMap::DumpRegion()
 {
-    string fileName = "grid/bcRegionMap.txt";
+    std::string fileName = "grid/bcRegionMap.txt";
     ONEFLOW::DumpRegion( fileName, RegionNameMap::nameMap );
 }
 
@@ -286,7 +286,7 @@ int VolumeNameMap::FindRegionId( const std::string & regionName )
 
 void VolumeNameMap::DumpRegion()
 {
-    string fileName = "grid/volumeRegionMap.txt";
+    std::string fileName = "grid/volumeRegionMap.txt";
     ONEFLOW::DumpRegion( fileName, VolumeNameMap::nameMap );
 }
 

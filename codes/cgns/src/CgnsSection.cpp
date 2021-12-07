@@ -135,7 +135,7 @@ void CgnsSection::DumpCgnsSection()
 
 }
 
-void CgnsSection::SetSectionInfo( const string & sectionName, int elemType, int startId, int endId )
+void CgnsSection::SetSectionInfo( const std::string & sectionName, int elemType, int startId, int endId )
 {
     this->sectionName = sectionName;
     this->eType = elemType;

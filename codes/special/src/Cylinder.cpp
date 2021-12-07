@@ -201,7 +201,7 @@ void Cylinder::QuarterCylinder()
     this->ToTecplot( "/grid/cylinder-tecplot.dat", & domain_data );
 }
 
-void Cylinder::DumpGrid( const string & fileName, DomainData * domain )
+void Cylinder::DumpGrid( const std::string & fileName, DomainData * domain )
 {
     RealField xN;
     RealField yN;
@@ -233,12 +233,12 @@ void Cylinder::DumpGrid( const string & fileName, DomainData * domain )
     CloseFile( file );
 }
 
-void Cylinder::DumpBcFile( const string & fileName, DomainData * domain, IntField & bcList )
+void Cylinder::DumpBcFile( const std::string & fileName, DomainData * domain, IntField & bcList )
 {
     fstream file;
     OpenPrjFile( file, fileName, std::ios_base::out );
     int solver = 1;
-    string zName = "A";
+    std::string zName = "A";
     int nBc = 4;
     file << solver << endl;
     file << nZone << endl;
@@ -254,7 +254,7 @@ void Cylinder::DumpBcFile( const string & fileName, DomainData * domain, IntFiel
     CloseFile( file );
 }
 
-void Cylinder::ToTecplot( const string & fileName, DomainData * domain )
+void Cylinder::ToTecplot( const std::string & fileName, DomainData * domain )
 {
     int ni = domain->ni;
     int nj = domain->nj;
@@ -286,8 +286,8 @@ void Cylinder::CalcCircleCenter( PointType & p1, PointType & p2, PointType & p0,
 
 void Cylinder::SetBoundaryGrid()
 {
-    string fileName = GetDataValue< string >( "gridLayoutFileName" );
-    string separator = " =\r\n\t#$,;\"";
+    std::string fileName = GetDataValue< std::string >( "gridLayoutFileName" );
+    std::string separator = " =\r\n\t#$,;\"";
 
     FileIO ioFile;
 

@@ -46,8 +46,8 @@ void CreateMsgMap()
 void GetMsgFileNameList( StringField & fileNameList )
 {
     //\t is the tab key
-    string separator  = " =\r\n\t#$,;\"()";
-    string msgFileName = SimuCtrl::system_root + "action/" + "actionFileList.txt";
+    std::string separator  = " =\r\n\t#$,;\"()";
+    std::string msgFileName = SimuCtrl::system_root + "action/" + "actionFileList.txt";
 
     FileIO ioFile;
     ioFile.OpenFile( msgFileName, std::ios_base::in );
@@ -57,8 +57,8 @@ void GetMsgFileNameList( StringField & fileNameList )
     {
         bool flag = ioFile.ReadNextNonEmptyLine();
         if ( ! flag ) break;
-        string fileName = ioFile.ReadNextWord();
-        string fullPathFileName = SimuCtrl::system_root + "action/" + fileName;
+        std::string fileName = ioFile.ReadNextWord();
+        std::string fullPathFileName = SimuCtrl::system_root + "action/" + fileName;
         fileNameList.push_back( fullPathFileName );
     }
 

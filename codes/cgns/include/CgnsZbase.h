@@ -44,13 +44,13 @@ public:
     HXVector< CgnsBase * > baseVector;
 public:
     int GetSystemZoneType();
-    void ReadCgnsGrid( const string & fileName );
+    void ReadCgnsGrid( const std::string & fileName );
     void ReadCgnsMultiBase();
     void DumpCgnsMultiBase();
     void ReadNumCgnsBase();
     void ConvertToInnerDataStandard();
     void ProcessCgnsBases();
-    void OpenCgnsFile( const string & fileName, int cgnsOpenMode );
+    void OpenCgnsFile( const std::string & fileName, int cgnsOpenMode );
     void CloseCgnsFile();
 public:
     void AddCgnsBase( CgnsBase * cgnsBase );

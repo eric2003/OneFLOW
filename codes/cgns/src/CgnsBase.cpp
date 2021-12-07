@@ -74,9 +74,9 @@ CgnsZone * CgnsBase::GetCgnsZone( int iZone )
     return this->cgnsZones[ iZone ];
 }
 
-CgnsZone * CgnsBase::GetCgnsZoneByName( const string & zoneName )
+CgnsZone * CgnsBase::GetCgnsZoneByName( const std::string & zoneName )
 {
-    map< string, int >::iterator iter;
+    map< std::string, int >::iterator iter;
     iter = zoneNameMap.find( zoneName );
     int iZone = iter->second - 1;
     return this->GetCgnsZone( iZone );
@@ -229,12 +229,12 @@ void CgnsBase::ConvertToInnerDataStandard()
     }
 }
 
-void CgnsBase::SetFamilyBc( BCType_t & bcType, const string & bcRegionName )
+void CgnsBase::SetFamilyBc( BCType_t & bcType, const std::string & bcRegionName )
 {
     this->familyBc->SetFamilyBc( bcType, bcRegionName );
 }
 
-BCType_t CgnsBase::GetFamilyBcType( const string & bcFamilyName )
+BCType_t CgnsBase::GetFamilyBcType( const std::string & bcFamilyName )
 {
     return this->familyBc->GetFamilyBcType( bcFamilyName );
 }
@@ -245,7 +245,7 @@ void CgnsBase::ReadFamilySpecifiedBc()
     this->familyBc->ReadFamilySpecifiedBc();
 }
 
-CgnsZone * CgnsBase::WriteZoneInfo( const string & zoneName, ZoneType_t zoneType, cgsize_t * isize )
+CgnsZone * CgnsBase::WriteZoneInfo( const std::string & zoneName, ZoneType_t zoneType, cgsize_t * isize )
 {
     int cgzone = -1;
     cg_zone_write( this->cgnsFile->fileId, this->baseId, zoneName.c_str(), isize, zoneType, & cgzone );
@@ -260,7 +260,7 @@ CgnsZone * CgnsBase::WriteZoneInfo( const string & zoneName, ZoneType_t zoneType
     return cgnsZone;
 }
 
-CgnsZone * CgnsBase::WriteZone( const string & zoneName )
+CgnsZone * CgnsBase::WriteZone( const std::string & zoneName )
 {
     cgsize_t isize[ 9 ];
     this->SetTestISize( isize );
@@ -284,7 +284,7 @@ void CgnsBase::GoToBase()
     cg_goto( this->cgnsFile->fileId, this->baseId, "end" );
 }
 
-void CgnsBase::GoToNode( const string & nodeName, int ith )
+void CgnsBase::GoToNode( const std::string & nodeName, int ith )
 {
     cg_goto( this->cgnsFile->fileId, this->baseId, nodeName.c_str(), ith, NULL );
 }

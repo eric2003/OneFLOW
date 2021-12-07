@@ -44,7 +44,7 @@ public:
     void Write( void * data, UInt dataSize, UInt position );
     void ReadFile ( fstream & file );
     void WriteFile( fstream & file );
-    void ToString( string & str );
+    void ToString( std::string & str );
 
     char * GetBeginDataPointer();
     char * GetCurrentDataPointer();

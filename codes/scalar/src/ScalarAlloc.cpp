@@ -43,7 +43,7 @@ void ScalarFieldProperty::AddField( const string & fieldName, int nEqu )
 
 int ScalarFieldProperty::GetNEqu( const string & fileName )
 {
-    std::map< string, int >::iterator iter;
+    std::map< std::string, int >::iterator iter;
     iter = this->data.find( fileName );
     if ( iter != this->data.end() )
     {
@@ -132,7 +132,7 @@ void ScalarFieldManager::UploadInterfaceField()
 
     if ( nIFaces == 0 ) return;
 
-    for ( std::map< string, int >::iterator iter = this->interfaceAlloc->data.begin(); iter != this->interfaceAlloc->data.end(); ++ iter )
+    for ( std::map< std::string, int >::iterator iter = this->interfaceAlloc->data.begin(); iter != this->interfaceAlloc->data.end(); ++ iter )
     {
         ONEFLOW::ScalarUploadInterfaceValue( grid, iter->first );
     }
@@ -148,7 +148,7 @@ void ScalarFieldManager::DownloadInterfaceField()
 
     if ( nIFaces == 0 ) return;
 
-    for ( std::map< string, int >::iterator iter = this->interfaceAlloc->data.begin(); iter != this->interfaceAlloc->data.end(); ++ iter )
+    for ( std::map< std::string, int >::iterator iter = this->interfaceAlloc->data.begin(); iter != this->interfaceAlloc->data.end(); ++ iter )
     {
         ONEFLOW::ScalarDownloadInterfaceValue( grid, iter->first );
     }

@@ -34,7 +34,7 @@ typedef HXVector< RealField > RealField2D;
 typedef HXVector< RealField2D > RealField3D;
 typedef HXVector< int > IntField;
 typedef HXVector< IntField > LinkField;
-typedef HXVector< string > StringField;
+typedef HXVector< std::string > StringField;
 typedef HXVector< bool > BoolField;
 
 typedef set< int > IntSet;

@@ -36,7 +36,7 @@ public:
     ~SectionMarker();
 public:
     int cgns_type;
-    string name;
+    std::string name;
     int nElements;
     LinkField elements;
     IntField elementIds;

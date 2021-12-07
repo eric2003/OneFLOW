@@ -34,7 +34,7 @@ public:
     FileInfo();
     ~FileInfo();
 public:
-    string fileName;
+    std::string fileName;
     std::ios_base::openmode openMode;
 };
 

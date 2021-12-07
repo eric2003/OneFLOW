@@ -35,7 +35,7 @@ public:
     ~GridMachine();
 public:
     void Run();
-    void ReadScript( const string & fileName );
+    void ReadScript( const std::string & fileName );
     void GeneGrid();
 public:
     void GenerateFaceBlockLink();

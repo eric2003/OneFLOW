@@ -41,17 +41,17 @@ public:
     CgnsFamilyBc( CgnsBase * cgnsBase );
     ~CgnsFamilyBc();
 public:
-    map< string, int > * bcMap;
+    map< std::string, int > * bcMap;
     CgnsBase * cgnsBase;
 public:
     void Init();
     void Free();
-    void Register( const string & regionName, int bcType );
-    void Unregister( const string & regionName );
-    int GetBcType( const string & regionName );
+    void Register( const std::string & regionName, int bcType );
+    void Unregister( const std::string & regionName );
+    int GetBcType( const std::string & regionName );
 public:
-    void SetFamilyBc( BCType_t & bcType, const string & bcRegionName );
-    BCType_t GetFamilyBcType( const string & bcFamilyName );
+    void SetFamilyBc( BCType_t & bcType, const std::string & bcRegionName );
+    BCType_t GetFamilyBcType( const std::string & bcFamilyName );
     void ReadFamilySpecifiedBc();
 };
 

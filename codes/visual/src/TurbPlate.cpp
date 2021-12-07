@@ -80,7 +80,7 @@ void TurbVelCut::Dump()
 
 void TurbVelCut::DumpNormal()
 {
-    string velocityFile = "results/turbplateflow.dat";
+    std::string velocityFile = "results/turbplateflow.dat";
 
     fstream file;
     PIO::OpenPrjFile( file, velocityFile, std::ios_base::out );
@@ -107,7 +107,7 @@ void TurbVelCut::DumpNormal()
 
 void TurbVelCut::DumpDetail()
 {
-    string velocityFile = "results/turbplateflow_detail.dat";
+    std::string velocityFile = "results/turbplateflow_detail.dat";
 
     fstream file;
     PIO::OpenPrjFile( file, velocityFile, std::ios_base::out );
@@ -281,7 +281,7 @@ TurbFriCut::~TurbFriCut()
 
 void TurbFriCut::Dump()
 {
-    string frictionFile = "results/turbplate_cf.dat";
+    std::string frictionFile = "results/turbplate_cf.dat";
 
     fstream file;
     PIO::OpenPrjFile( file, frictionFile, std::ios_base::out );

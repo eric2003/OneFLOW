@@ -34,7 +34,7 @@ public:
     ScalarFieldProperty();
     ~ScalarFieldProperty();
 public:
-    std::map< string, int > data;
+    std::map< std::string, int > data;
 public:
     void AddField( const string & fieldName, int nEqu );
     int GetNEqu( const string & fileName );
@@ -53,7 +53,7 @@ public:
     {
         if ( nElements <= 0 ) return;
 
-        for ( std::map< string, int >::iterator iter = this->data.begin(); iter != this->data.end(); ++ iter )
+        for ( std::map< std::string, int >::iterator iter = this->data.begin(); iter != this->data.end(); ++ iter )
         {
             int nTEqu = iter->second;
 
@@ -67,7 +67,7 @@ public:
     template < typename TStorage >
     void DeAllocateField( TStorage * storage )
     {
-        for ( std::map< string, int >::iterator iter = this->data.begin(); iter != this->data.end(); ++ iter )
+        for ( std::map< std::string, int >::iterator iter = this->data.begin(); iter != this->data.end(); ++ iter )
         {
         }
     }

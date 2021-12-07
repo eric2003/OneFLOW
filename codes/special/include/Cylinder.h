@@ -74,9 +74,9 @@ public:
 public:
     void CalcCircleCenter( PointType & p1, PointType & p2, PointType & p0, PointType & pcenter );
 public:
-    void DumpGrid( const string & fileName, DomainData * domain );
-    void DumpBcFile( const string & fileName, DomainData * domain, IntField & bcList );
-    void ToTecplot( const string & fileName, DomainData * domain );
+    void DumpGrid( const std::string & fileName, DomainData * domain );
+    void DumpBcFile( const std::string & fileName, DomainData * domain, IntField & bcList );
+    void ToTecplot( const std::string & fileName, DomainData * domain );
 };
 
 void ToTecplot( fstream & file, RealField2D & coor, int ni, int nj, int nk );

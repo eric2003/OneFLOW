@@ -39,7 +39,7 @@ public:
 public:
     IntField iminList, imaxList, jminList, jmaxList, kminList, kmaxList, bcTypeList;
 public:
-    map< string, int > boundaryMap;
+    map< std::string, int > boundaryMap;
 public:
     void ConstructBcMap();
     int GetBcType( const string & bcTypeName );

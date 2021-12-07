@@ -249,9 +249,9 @@ HXDebug::~HXDebug()
     ;
 }
 
-string HXDebug::GetFullFileName( const string & fileName, int startStrategy )
+string HXDebug::GetFullFileName( const std::string & fileName, int startStrategy )
 {
-    string newFileName = fileName;
+    std::string newFileName = fileName;
     if ( startStrategy == 1 )
     {
         newFileName = AddSymbolToFileName( fileName, "Continue" );
@@ -260,25 +260,25 @@ string HXDebug::GetFullFileName( const string & fileName, int startStrategy )
     ONEFLOW::StrIO.ClearAll();
     ONEFLOW::StrIO << "debug/" << newFileName;
 
-    string fullFileName = ONEFLOW::StrIO.str();
+    std::string fullFileName = ONEFLOW::StrIO.str();
     return fullFileName;
 }
 
-void HXDebug::DumpResField( const string & fileName )
+void HXDebug::DumpResField( const std::string & fileName )
 {
     UnsGrid * grid = Zone::GetUnsGrid();
     MRField * res = GetFieldPointer< MRField >( grid, "res" );
     HXDebug::DumpField( fileName, res );
 }
 
-void HXDebug::DumpField( const string & fileName, MRField * field )
+void HXDebug::DumpField( const std::string & fileName, MRField * field )
 {
     fstream file;
 
     HXDebug::fileName1 = HXDebug::GetFullFileName( fileName, 0 );
     HXDebug::fileName2 = HXDebug::GetFullFileName( fileName, 1 );
 
-    string fullFileName = HXDebug::fileName1;
+    std::string fullFileName = HXDebug::fileName1;
     int startStrategy = ONEFLOW::GetDataValue< int >("startStrategy");
     if ( startStrategy == 1 )
     {
@@ -302,7 +302,7 @@ void HXDebug::DumpField( const string & fileName, MRField * field )
     PIO::CloseFile( file );
 }
 
-MRField * HXDebug::ReadField( const string & fileName )
+MRField * HXDebug::ReadField( const std::string & fileName )
 {
     fstream file;
 

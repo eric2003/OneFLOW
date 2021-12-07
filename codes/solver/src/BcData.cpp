@@ -35,7 +35,7 @@ BcData::~BcData()
 {
 }
 
-void BcData::Init( const string & fileName )
+void BcData::Init( const std::string & fileName )
 {
     this->ReadList( fileName );
     this->ReadRegion();
@@ -50,7 +50,7 @@ void BcData::Init( const string & fileName )
 void BcData::ReadRegion()
 {
     fstream file;
-    string fileName = "grid/bcRegionMap.txt";
+    std::string fileName = "grid/bcRegionMap.txt";
     OpenPrjFile( file, fileName, std::ios_base::in );
 
     file >> nRegion;
@@ -58,10 +58,10 @@ void BcData::ReadRegion()
     CloseFile( file );
 }
 
-void BcData::ReadList( const string & fileName )
+void BcData::ReadList( const std::string & fileName )
 {
     //\t is the tab key
-    string separator = " =\r\n\t#$,;\"";
+    std::string separator = " =\r\n\t#$,;\"";
 
     FileIO ioFile;
     ioFile.OpenPrjFile( fileName, std::ios_base::in );

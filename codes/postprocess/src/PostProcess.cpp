@@ -47,10 +47,10 @@ void Post::Run()
 
     fstream file;
 
-    string fileName = "grid/wallaero.dat";
+    std::string fileName = "grid/wallaero.dat";
 
     //\t is the tab key
-    string separator = " =\r\n\t#$,;\"";
+    std::string separator = " =\r\n\t#$,;\"";
 
     FileIO ioFile;
     ioFile.OpenPrjFile( fileName, std::ios_base::in );
@@ -172,7 +172,7 @@ CurveData::~CurveData()
     ;
 }
 
-void CurveData::SetFilePreStr( const string & file_prestr )
+void CurveData::SetFilePreStr( const std::string & file_prestr )
 {
     this->file_prestr = file_prestr;
 }
@@ -547,20 +547,20 @@ void CurveData::CreateXSortList()
 
 void CurveData::VisualCreateList()
 {
-    string fileName = AddString( "grid/", this->file_prestr, "createdwallaero.dat");
+    std::string fileName = AddString( "grid/", this->file_prestr, "createdwallaero.dat");
     VisualCreateList( this->newidlist, fileName );
 }
 
 
 void CurveData::VisualCurveValue()
 {
-    string fileName = AddString( "grid/", this->file_prestr, "createdwallaerovalue.dat");
+    std::string fileName = AddString( "grid/", this->file_prestr, "createdwallaerovalue.dat");
     VisualCurveValue( this->newidlist, fileName );
 }
 
 void CurveData::VisualCreateList( PointEdgeClass * pec )
 {
-    string fileName = AddString( "grid/", this->file_prestr, "created_pec_wallaero.dat");
+    std::string fileName = AddString( "grid/", this->file_prestr, "created_pec_wallaero.dat");
     VisualCreateList( pec->idlist, fileName );
 }
 
@@ -602,12 +602,12 @@ void CurveData::VisualCurveValue( vector<int> & newidlist, const string& fileNam
     this->VisualCurveValue( fileName, x, y, z, cp, cf );
 }
 
-void CurveData::Visual( const string & fileName )
+void CurveData::Visual( const std::string & fileName )
 {
     this->Visual( fileName, this->xList, this->yList, this->zList );
 }
 
-void CurveData::Visual( const string & fileName, vector< Real > & x, vector< Real > & y, vector< Real > & z )
+void CurveData::Visual( const std::string & fileName, vector< Real > & x, vector< Real > & y, vector< Real > & z )
 {
     fstream file;
 
@@ -633,7 +633,7 @@ void CurveData::Visual( const string & fileName, vector< Real > & x, vector< Rea
     PIO::CloseFile( file );
 }
 
-void CurveData::VisualCurveValue( const string & fileName, vector< Real > & x, vector< Real > & y, vector< Real > & z, vector< Real > & cp, vector< Real > & cf )
+void CurveData::VisualCurveValue( const std::string & fileName, vector< Real > & x, vector< Real > & y, vector< Real > & z, vector< Real > & cp, vector< Real > & cf )
 {
     fstream file;
 
@@ -740,13 +740,13 @@ void MakeCurveClass::SplitCurve()
 
 void MakeCurveClass::Visual()
 {
-    string fileName = "grid/modifiedwallaero.dat";
+    std::string fileName = "grid/modifiedwallaero.dat";
     this->totalPart.Visual( fileName );
 
-    string fileName1 = "grid/mainwallaero.dat";
+    std::string fileName1 = "grid/mainwallaero.dat";
     this->mainPart.Visual( fileName1 );
 
-    string fileName2 = "grid/slapwallaero.dat";
+    std::string fileName2 = "grid/slapwallaero.dat";
     this->slapPart.Visual( fileName2 );
 }
 

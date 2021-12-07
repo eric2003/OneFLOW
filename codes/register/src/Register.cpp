@@ -40,9 +40,9 @@ HXRegister::~HXRegister()
     ;
 }
 
-void HXRegister::Register( const string & cmdName, const string & className )
+void HXRegister::Register( const std::string & cmdName, const std::string & className )
 {
-    map< string, HXClone * >::iterator iter = this->data.find( cmdName );
+    map< std::string, HXClone * >::iterator iter = this->data.find( cmdName );
     if ( iter == this->data.end() )
     {
         HXClone * cloneClass = HXClone::SafeClone( className );
@@ -50,9 +50,9 @@ void HXRegister::Register( const string & cmdName, const string & className )
     }
 }
 
-HXClone * HXRegister::GetClass( const string & cmdName )
+HXClone * HXRegister::GetClass( const std::string & cmdName )
 {
-    map< string, HXClone * >::iterator iter = this->data.find( cmdName );
+    map< std::string, HXClone * >::iterator iter = this->data.find( cmdName );
 
     if ( iter != this->data.end() )
     {
@@ -118,15 +118,15 @@ void MRegister::RegisterAll()
     for ( int iRegister = 0; iRegister < this->data.size(); ++ iRegister )
     {
         HXRegister * fRegister = this->data[ iRegister ];
-        string & fileName = fileNames[ iRegister ];
+        std::string & fileName = fileNames[ iRegister ];
         this->Register( fileName, fRegister );
     }
 }
 
-void MRegister::Register( const string & fileName, HXRegister * fRegister )
+void MRegister::Register( const std::string & fileName, HXRegister * fRegister )
 {
     //\t is the tab key
-    string separator  = " =\r\n\t#$,;\"()";
+    std::string separator  = " =\r\n\t#$,;\"()";
 
     FileIO ioFile;
     ioFile.OpenFile( fileName, std::ios_base::in );
@@ -136,8 +136,8 @@ void MRegister::Register( const string & fileName, HXRegister * fRegister )
     {
         bool flag = ioFile.ReadNextNonEmptyLine();
         if ( ! flag ) break;
-        string actionName = ioFile.ReadNextWord();
-        string className  = ioFile.ReadNextWord();
+        std::string actionName = ioFile.ReadNextWord();
+        std::string className  = ioFile.ReadNextWord();
         //cout << "actionName = " << actionName << " className= " << className << endl;
 
         fRegister->Register( actionName, className );

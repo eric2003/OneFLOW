@@ -54,11 +54,11 @@ public:
 public:
     virtual Grid * Clone() const = 0;
 public:
-    static Grid * SafeClone( const string & type );
-    static Grid * Register( const string & type, Grid * clone );
-    static map < string, Grid * > * classMap;
+    static Grid * SafeClone( const std::string & type );
+    static Grid * Register( const std::string & type, Grid * clone );
+    static map < std::string, Grid * > * classMap;
 public:
-    string name;
+    std::string name;
     int dimension;
     int type, level;
     int id, localId;

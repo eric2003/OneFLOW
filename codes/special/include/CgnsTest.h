@@ -39,7 +39,7 @@ public:
     CgnsTest();
     ~CgnsTest();
 public:
-    string fileName;
+    std::string fileName;
 public:
     void Init();
     void Run();
@@ -60,7 +60,7 @@ public:
 private:
     void SetISize( cgsize_t * isize );
 public:
-    void WriteDouble( const string & varName, const double & varValue );
+    void WriteDouble( const std::string & varName, const double & varValue );
 public:
     void ReadEmptyCgnsFile();
     void WriteEmptyCgnsFile();

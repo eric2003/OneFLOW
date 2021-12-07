@@ -123,7 +123,7 @@ void CgnsZone::SetElementTypeAndNode( ElemFeature * elem_feature )
     cout << " elem_feature->eType->size = " << elem_feature->eTypes->size() << endl;
 }
 
-bool CgnsZone::ExistSection( const string & sectionName )
+bool CgnsZone::ExistSection( const std::string & sectionName )
 {
     return this->cgnsZsection->ExistSection( sectionName );
 }
@@ -264,7 +264,7 @@ void CgnsZone::DumpCgnsZoneNameAndGeneralizedDimension()
     cout << "   CGNS Zone Name = " << this->zoneName << "\n";
 }
 
-void CgnsZone::WriteZoneInfo( const string & zoneName, ZoneType_t zoneType, cgsize_t * isize )
+void CgnsZone::WriteZoneInfo( const std::string & zoneName, ZoneType_t zoneType, cgsize_t * isize )
 {
     int fileId = cgnsBase->cgnsFile->fileId;
     int baseId = cgnsBase->baseId;
@@ -369,21 +369,21 @@ void CgnsZone::GoToZone()
     cg_goto( fileId, baseId,"Zone_t", this->zId, "end" );
 }
 
-void CgnsZone::GoToNode( const string & nodeName, int ith )
+void CgnsZone::GoToNode( const std::string & nodeName, int ith )
 {
     int fileId = this->cgnsBase->cgnsFile->fileId;
     int baseId = this->cgnsBase->baseId;
     cg_goto( fileId, baseId, "Zone_t", this->zId, nodeName.c_str(), ith, "end" );
 }
 
-void CgnsZone::GoToNode( const string & nodeNamei, int ith, const string & nodeNamej, int jth )
+void CgnsZone::GoToNode( const std::string & nodeNamei, int ith, const std::string & nodeNamej, int jth )
 {
     int fileId = this->cgnsBase->cgnsFile->fileId;
     int baseId = this->cgnsBase->baseId;
     cg_goto( fileId, baseId, "Zone_t", this->zId, nodeNamei.c_str(), ith, nodeNamej.c_str(), jth, "end" );
 }
 
-void CgnsZone::GoToNode( const string & nodeNamei, int ith, const string & nodeNamej, int jth, const string & nodeNamek, int kth )
+void CgnsZone::GoToNode( const std::string & nodeNamei, int ith, const std::string & nodeNamej, int jth, const std::string & nodeNamek, int kth )
 {
     int fileId = this->cgnsBase->cgnsFile->fileId;
     int baseId = this->cgnsBase->baseId;

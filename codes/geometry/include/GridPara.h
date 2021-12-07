@@ -35,13 +35,13 @@ public:
     GridPara();
     ~GridPara();
 public:
-    string topo;
-    string filetype; //plot3d, cgns...
-    string target_filetype;
-    string format; //binary, ascii
-    string gridFile;
-    string bcFile;
-    string targetFile;
+    std::string topo;
+    std::string filetype; //plot3d, cgns...
+    std::string target_filetype;
+    std::string format; //binary, ascii
+    std::string gridFile;
+    std::string bcFile;
+    std::string targetFile;
 
     //Conversion operations performed on the grid
     int gridObj;    

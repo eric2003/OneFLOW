@@ -143,7 +143,7 @@ void ResidualTask::DumpFile()
 
     fstream file;
     SolverInfo * solverInfo = SolverInfoFactory::GetSolverInfo( SolverState::tid );
-    string & fileName = solverInfo->resFileName;
+    std::string & fileName = solverInfo->resFileName;
     PIO::OpenPrjFile( file, fileName, std::ios_base::out | std::ios_base::app );
 
     if ( IsEmpty( file ) )

@@ -46,7 +46,7 @@ using namespace std;
 
 BeginNameSpace( ONEFLOW )
 
-bool DirExist( const string & dirName )
+bool DirExist( const std::string & dirName )
 {
 #ifdef _WINDOWS
     bool flag = ( _access( dirName.c_str(), 0 ) == 0 );
@@ -57,7 +57,7 @@ bool DirExist( const string & dirName )
 #endif
 }
 
-void MakeDir( const string & dirName )
+void MakeDir( const std::string & dirName )
 {
     int flag;
 #ifdef _WINDOWS
@@ -101,7 +101,7 @@ string HX_GetCurrentDir()
     return working_dir ;
 }
 
-bool EndWithSlash( const string & fileName )
+bool EndWithSlash( const std::string & fileName )
 {
     if ( EndWithForwardSlash( fileName ) ||
         EndWithBackwardSlash( fileName ) )
@@ -111,7 +111,7 @@ bool EndWithSlash( const string & fileName )
     return false;
 }
 
-bool EndWithBackwardSlash( const string & fileName )
+bool EndWithBackwardSlash( const std::string & fileName )
 {
     size_t pos = fileName.find_last_of("\\");
     size_t ss = fileName.size();
@@ -126,7 +126,7 @@ bool EndWithBackwardSlash( const string & fileName )
     }
 }
 
-bool EndWithForwardSlash( const string & fileName )
+bool EndWithForwardSlash( const std::string & fileName )
 {
     size_t pos = fileName.find_last_of("/");
     size_t ss = fileName.size();
@@ -141,7 +141,7 @@ bool EndWithForwardSlash( const string & fileName )
     }
 }
 
-bool StartWithForwardSlash( const string & fileName )
+bool StartWithForwardSlash( const std::string & fileName )
 {
     size_t pos = fileName.find_first_of("/");
     if ( fileName.size() == 0 )
@@ -156,7 +156,7 @@ bool StartWithForwardSlash( const string & fileName )
     return false;
 }
 
-string RemoveFirstSlash( const string & fileName )
+string RemoveFirstSlash( const std::string & fileName )
 {
     if ( StartWithForwardSlash( fileName ) )
     {
@@ -166,7 +166,7 @@ string RemoveFirstSlash( const string & fileName )
     return fileName;
 }
 
-string RemoveEndSlash( const string & fileName )
+string RemoveEndSlash( const std::string & fileName )
 {
     if ( EndWithSlash( fileName ) )
     {
@@ -177,7 +177,7 @@ string RemoveEndSlash( const string & fileName )
 
 }
 
-void GetFileNameExtension( const string & fullName, string & mainName, string & extensionName, const string & fileNameSeparator )
+void GetFileNameExtension( const std::string & fullName, std::string & mainName, std::string & extensionName, const std::string & fileNameSeparator )
 {
     basic_string <char>::size_type index;
 
@@ -186,9 +186,9 @@ void GetFileNameExtension( const string & fullName, string & mainName, string & 
     extensionName = fullName.substr( index+1, fullName.length() - index - 1 );
 }
 
-void ModifyFileMainName( string & fileName,  const string & newMainName )
+void ModifyFileMainName( std::string & fileName,  const std::string & newMainName )
 {
-    string mainName, extensionName;
+    std::string mainName, extensionName;
     ONEFLOW::GetFileNameExtension( fileName, mainName, extensionName, "." );
 
     ostringstream oss;
@@ -197,9 +197,9 @@ void ModifyFileMainName( string & fileName,  const string & newMainName )
     fileName = oss.str();
 }
 
-void ModifyFileExtensionName( string & fileName,  const string & newExtensionName )
+void ModifyFileExtensionName( std::string & fileName,  const std::string & newExtensionName )
 {
-    string mainName, extensionName;
+    std::string mainName, extensionName;
     ONEFLOW::GetFileNameExtension( fileName, mainName, extensionName, "." );
 
     ostringstream oss;

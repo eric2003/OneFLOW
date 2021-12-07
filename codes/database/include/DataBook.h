@@ -61,8 +61,8 @@ public:
     void ReadFile ( fstream & file );
     void WriteFile( fstream & file );
 
-    void ReadString ( string & cs );
-    void WriteString( string & cs );
+    void ReadString ( std::string & cs );
+    void WriteString( std::string & cs );
 
     void Write( ostringstream * oss );
 
@@ -76,9 +76,9 @@ public:
 
     void SendRecv( int sendpid, int recvpid, int tag );
 
-    void ToString( string & str );
+    void ToString( std::string & str );
     void Append( void * data, LLong dataSize );
-    void AppendString( string & cs );
+    void AppendString( std::string & cs );
 
     void SecureRelativeSpace( LLong dataSize );
     void SecureAbsoluteSpace( LLong needSize );

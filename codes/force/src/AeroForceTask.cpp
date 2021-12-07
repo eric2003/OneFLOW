@@ -88,7 +88,7 @@ void AerodynamicForceTask::Init()
 {
     aeroForceInfo.Init();
 
-    this->fileName = GetDataValue< string >( "aeroFile" );
+    this->fileName = GetDataValue< std::string >( "aeroFile" );
 }
 
 void AerodynamicForceTask::Dump()

@@ -32,28 +32,28 @@ using namespace std;
 
 BeginNameSpace( ONEFLOW )
 
-bool DirExist( const string & dirName );
-void MakeDir( const string & dirName );
+bool DirExist( const std::string & dirName );
+void MakeDir( const std::string & dirName );
 
 string HX_GetExePath();
 string HX_GetCurrentDir();
 
-bool EndWithSlash( const string & fileName );
-bool EndWithBackwardSlash( const string & fileName );
-bool EndWithForwardSlash( const string & fileName );
-bool StartWithForwardSlash( const string & fileName );
-string RemoveFirstSlash( const string & fileName );
-string RemoveEndSlash( const string & fileName );
+bool EndWithSlash( const std::string & fileName );
+bool EndWithBackwardSlash( const std::string & fileName );
+bool EndWithForwardSlash( const std::string & fileName );
+bool StartWithForwardSlash( const std::string & fileName );
+string RemoveFirstSlash( const std::string & fileName );
+string RemoveEndSlash( const std::string & fileName );
 
-void   GetFileNameExtension( const string & fullName, string & mainName, string & extensionName, const string & fileNameSeparator );
+void   GetFileNameExtension( const std::string & fullName, std::string & mainName, std::string & extensionName, const std::string & fileNameSeparator );
 
-void   ModifyFileMainName     ( string & fileName, const string & newMainName );
-void   ModifyFileExtensionName( string & fileName, const string & newExtensionName );
+void   ModifyFileMainName     ( std::string & fileName, const std::string & newMainName );
+void   ModifyFileExtensionName( std::string & fileName, const std::string & newExtensionName );
 
 template < typename T >
-string AddSymbolToFileName( const string & fileName, const T & symbol )
+string AddSymbolToFileName( const std::string & fileName, const T & symbol )
 {
-    string mainName, extensionName;
+    std::string mainName, extensionName;
     ONEFLOW::GetFileNameExtension( fileName, mainName, extensionName, "." );
 
     ostringstream oss;
@@ -62,9 +62,9 @@ string AddSymbolToFileName( const string & fileName, const T & symbol )
 }
 
 template < typename T1, typename T2 >
-string AddSymbolToFileName( const string & fileName, const T1 & v1, const T2 & v2 )
+string AddSymbolToFileName( const std::string & fileName, const T1 & v1, const T2 & v2 )
 {
-    string mainName, extensionName;
+    std::string mainName, extensionName;
     ONEFLOW::GetFileNameExtension( fileName, mainName, extensionName, "." );
 
     ostringstream oss;
@@ -73,9 +73,9 @@ string AddSymbolToFileName( const string & fileName, const T1 & v1, const T2 & v
 }
 
 template < typename T1, typename T2, typename T3 >
-string AddSymbolToFileName( const string & fileName, const T1 & v1, const T2 & v2, const T3 & v3 )
+string AddSymbolToFileName( const std::string & fileName, const T1 & v1, const T2 & v2, const T3 & v3 )
 {
-    string mainName, extensionName;
+    std::string mainName, extensionName;
     ONEFLOW::GetFileNameExtension( fileName, mainName, extensionName, "." );
 
     ostringstream oss;

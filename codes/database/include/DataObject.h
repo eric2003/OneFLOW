@@ -81,7 +81,7 @@ public:
     vector< T > data;
 public:
     void * GetVoidPointer() { return & data[ 0 ]; };
-    void CopyValue( string * valueIn )
+    void CopyValue( std::string * valueIn )
     {
         UInt nSize = this->data.size();
         for ( UInt i = 0; i < nSize; ++ i )
@@ -144,7 +144,7 @@ public:
 
 
 template <>
-class TDataObject< string > : public DataObject
+class TDataObject< std::string > : public DataObject
 {
 public:
     TDataObject( int nSize )
@@ -153,10 +153,10 @@ public:
     }
     ~TDataObject() {}
 public:
-    vector< string > data;
+    vector< std::string > data;
 public:
     void * GetVoidPointer() { return & data[ 0 ]; };
-    void CopyValue( string * valueIn )
+    void CopyValue( std::string * valueIn )
     {
         UInt nSize = this->data.size();
         for ( UInt i = 0; i < nSize; ++ i )
@@ -170,7 +170,7 @@ public:
         UInt numberOfElements = this->data.size();
         for ( UInt iElement = 0; iElement < numberOfElements; ++ iElement )
         {
-            string & value = this->data[ iElement ];
+            std::string & value = this->data[ iElement ];
             ONEFLOW::HXWrite( dataBook, value );
         }
     }
@@ -189,7 +189,7 @@ public:
         UInt numberOfElements = this->data.size();
         for ( UInt iElement = 0; iElement < numberOfElements; ++ iElement )
         {
-            TDataObject< string > * tDataObject = static_cast<TDataObject< string > *>( dataObject );
+            TDataObject< std::string > * tDataObject = static_cast<TDataObject< std::string > *>( dataObject );
             data[ iElement ] = tDataObject->data[ iElement ];
         }
     }

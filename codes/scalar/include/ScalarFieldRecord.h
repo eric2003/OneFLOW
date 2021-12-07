@@ -35,7 +35,7 @@ public:
     GFieldDim();
     ~GFieldDim();
 public:
-    static std::map< string, int > data;
+    static std::map< std::string, int > data;
 public:
     static void AddField( const string & fieldName, int nEqu );
     static int GetNEqu( const string & fieldName );

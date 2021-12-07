@@ -273,7 +273,7 @@ void CgnsCoor::DumpCgnsGridCoordinates()
      for ( int iCoor = 0; iCoor < this->nCoor; ++ iCoor )
      {
          DataType_t dataType = this->typeList[ iCoor ];
-         string & coorName = this->coorNameList[ iCoor ];
+         std::string & coorName = this->coorNameList[ iCoor ];
           //Write the x-, y-, z-coordinates.
          int indexCoor = -1;
          cg_coord_write( fileId, baseId, zoneId, dataType, coorName.c_str(), this->GetCoor( iCoor ), &indexCoor );

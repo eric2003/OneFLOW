@@ -57,7 +57,7 @@ CgnsSection * CgnsZsection::GetCgnsSection( int iSection )
     return this->cgnsSections[ iSection ];
 }
 
-bool CgnsZsection::ExistSection( const string & sectionName )
+bool CgnsZsection::ExistSection( const std::string & sectionName )
 {
     if ( this->cgnsSections.size() == 0 ) return false;
     for ( int iSection = 0; iSection < this->nSection; ++ iSection )

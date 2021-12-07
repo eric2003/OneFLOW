@@ -134,8 +134,8 @@ void HXAppend( DataBook * dataBook, vector< vector< T > > & field2D );
 template < typename T >
 void HXAppend( DataBook * dataBook, HXVector< HXVector< T > > & field2D );
 
-void HXRead( DataBook * dataBook, string & cs );
-void HXWrite( DataBook * dataBook, string & cs );
+void HXRead( DataBook * dataBook, std::string & cs );
+void HXWrite( DataBook * dataBook, std::string & cs );
 
 void HXRead( DataBook * dataBook, MRField * field );
 void HXWrite( DataBook * dataBook, MRField * field );

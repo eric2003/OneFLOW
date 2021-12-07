@@ -67,8 +67,8 @@ void GetUpdateField( int sTid, FieldWrap *q, FieldWrap *dq )
 
     if ( TaskState::task->taskName == "UPDATE_FLOWFIELD_LUSGS" )
     {
-        string & qFieldString  = solverInfo->implicitString[ 0 ];
-        string & dQFieldString = solverInfo->implicitString[ 1 ];
+        std::string & qFieldString  = solverInfo->implicitString[ 0 ];
+        std::string & dQFieldString = solverInfo->implicitString[ 1 ];
         q  = FieldHome::GetFieldWrap( qFieldString  );
         dq = FieldHome::GetFieldWrap( dQFieldString );
     }

@@ -43,7 +43,7 @@ CgnsFamilyBc::~CgnsFamilyBc()
 
 void CgnsFamilyBc::Init()
 {
-    bcMap = new map< string, int >;
+    bcMap = new map< std::string, int >;
 }
 
 void CgnsFamilyBc::Free()
@@ -51,23 +51,23 @@ void CgnsFamilyBc::Free()
     delete bcMap;
 }
 
-void CgnsFamilyBc::Register( const string & regionName, int bcType )
+void CgnsFamilyBc::Register( const std::string & regionName, int bcType )
 {
-    map< string, int >::iterator iter = bcMap->find( regionName );
+    map< std::string, int >::iterator iter = bcMap->find( regionName );
     if ( iter == bcMap->end() )
     {
         ( * CgnsFamilyBc::bcMap )[ regionName ] = bcType;
     }
 }
 
-void CgnsFamilyBc::Unregister( const string & regionName )
+void CgnsFamilyBc::Unregister( const std::string & regionName )
 {
     bcMap->erase( regionName );
 }
 
-int CgnsFamilyBc::GetBcType( const string & regionName )
+int CgnsFamilyBc::GetBcType( const std::string & regionName )
 {
-    map< string, int >::iterator iter = bcMap->find( regionName );
+    map< std::string, int >::iterator iter = bcMap->find( regionName );
     if ( iter == bcMap->end() )
     {
         return -1;
@@ -76,7 +76,7 @@ int CgnsFamilyBc::GetBcType( const string & regionName )
     return iter->second;
 }
 
-void CgnsFamilyBc::SetFamilyBc( BCType_t & bcType, const string & bcRegionName )
+void CgnsFamilyBc::SetFamilyBc( BCType_t & bcType, const std::string & bcRegionName )
 {
     if ( bcType == FamilySpecified )
     {
@@ -85,7 +85,7 @@ void CgnsFamilyBc::SetFamilyBc( BCType_t & bcType, const string & bcRegionName )
     }
 }
 
-BCType_t CgnsFamilyBc::GetFamilyBcType( const string & bcFamilyName )
+BCType_t CgnsFamilyBc::GetFamilyBcType( const std::string & bcFamilyName )
 {
     int bcTypeOfFamily = this->GetBcType( bcFamilyName );
     BCType_t bcType = static_cast< BCType_t >( bcTypeOfFamily );

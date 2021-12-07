@@ -89,11 +89,11 @@ void Plot3D::DumpCoor( GridMediator * gridMediator )
 
 void Plot3D::ReadCoorBinary( GridMediator * gridMediator )
 {
-    string & fileName = gridMediator->gridFile;
-    string separator  = " =\r\n\t#$,;";
+    std::string & fileName = gridMediator->gridFile;
+    std::string separator  = " =\r\n\t#$,;";
 
     fstream file;
-    ONEFLOW::OpenPrjFile( file, fileName, std::ios_base::in|ios_base::binary );
+    ONEFLOW::OpenPrjFile( file, fileName, std::ios_base::in|std::ios_base::binary );
 
     HXRead( & file, gridMediator->numberOfZones );
     gridMediator->gridVector.resize( gridMediator->numberOfZones );
@@ -162,10 +162,10 @@ void Plot3D::ReadCoorBinary( GridMediator * gridMediator )
 
 void Plot3D::DumpCoorBinary( GridMediator * gridMediator )
 {
-    string & fileName = gridMediator->gridFile;
+    std::string & fileName = gridMediator->gridFile;
 
     fstream file;
-    ONEFLOW::OpenPrjFile( file, fileName, std::ios_base::out|ios_base::binary );
+    ONEFLOW::OpenPrjFile( file, fileName, std::ios_base::out|std::ios_base::binary );
 
     int numberOfZones = gridMediator->numberOfZones;
     HXWrite( & file, numberOfZones );
@@ -222,10 +222,10 @@ void Plot3D::DumpCoorBinary( GridMediator * gridMediator )
 
 void Plot3D::ReadCoorAscii( GridMediator * gridMediator )
 {
-    string & fileName = gridMediator->gridFile;
+    std::string & fileName = gridMediator->gridFile;
 
     FileIO ioFile;
-    string separator  = " =\r\n\t#$,;";
+    std::string separator  = " =\r\n\t#$,;";
     ioFile.OpenPrjFile( fileName, std::ios_base::in );
     ioFile.SetDefaultSeparator( separator );
 
@@ -322,7 +322,7 @@ void Plot3D::ReadCoorAscii( GridMediator * gridMediator )
 
 void Plot3D::DumpCoorAscii( GridMediator * gridMediator )
 {
-    string & fileName = gridMediator->gridFile;
+    std::string & fileName = gridMediator->gridFile;
 
     FileO fileO;
     fileO.OpenPrjFile( fileName, std::ios_base::out );
@@ -398,9 +398,9 @@ void Plot3D::DumpCoorAscii( fstream & file, RealField & coor )
 
 void Plot3D::ReadBc( GridMediator * gridMediator )
 {
-    string & bcName = gridMediator->bcFile;
+    std::string & bcName = gridMediator->bcFile;
     //\t is the tab key
-    string separator = " =\r\n#$,;";
+    std::string separator = " =\r\n#$,;";
 
     FileIO ioFile;
     ioFile.OpenPrjFile( bcName, std::ios_base::in );
@@ -447,7 +447,7 @@ void Plot3D::ReadBc( GridMediator * gridMediator )
             cout << "The dimension in " << iZone + 1 << "block boundary file is not consistent with the dimension in grid!\n";
         }
 
-        string word = ioFile.ReadNextWord();
+        std::string word = ioFile.ReadNextWord();
 
         if ( word == "proc" )
         {
@@ -457,7 +457,7 @@ void Plot3D::ReadBc( GridMediator * gridMediator )
         }
 
         ioFile.ReadNextNonEmptyLine();
-        string blockName = ioFile.ReadNextWord();
+        std::string blockName = ioFile.ReadNextWord();
         ioFile.ReadNextNonEmptyLine();
 
         int nBcRegions = ioFile.ReadNextDigit< int >();
@@ -533,7 +533,7 @@ void Plot3D::ReadBc( GridMediator * gridMediator )
 
 void Plot3D::DumpBc( GridMediator * gridMediator )
 {
-    string & bcName = gridMediator->bcFile;
+    std::string & bcName = gridMediator->bcFile;
 
     fstream file;
     OpenPrjFile( file, bcName, std::ios_base::out );
@@ -566,7 +566,7 @@ void Plot3D::DumpBc( GridMediator * gridMediator )
 
         cout << " ni, nj, nk = " << ni << " " << nj << " " << nk << "\n";
 
-        string blockName = grid->name;
+        std::string blockName = grid->name;
         file << blockName << "\n";
 
         BcRegionGroup * bcRegionGroup = grid->bcRegionGroup;

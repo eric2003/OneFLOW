@@ -33,10 +33,10 @@ public:
     FieldProperty();
     ~FieldProperty();
 public:
-    std::map< string, int > data;
+    std::map< std::string, int > data;
 public:
-    void AddField( const string & fieldName, int nEqu );
-    int GetNEqu( const string & fileName );
+    void AddField( const std::string & fieldName, int nEqu );
+    int GetNEqu( const std::string & fileName );
 };
 
 class DataStorage;
@@ -61,10 +61,10 @@ public:
     GFieldProperty();
     ~GFieldProperty();
 public:
-    static std::map< string, int > data;
+    static std::map< std::string, int > data;
 public:
-    static void AddField( const string & fieldName, int nEqu );
-    static int GetNEqu( const string & fieldName );
+    static void AddField( const std::string & fieldName, int nEqu );
+    static int GetNEqu( const std::string & fieldName );
 };
 
 class FieldPropertyData
@@ -95,14 +95,14 @@ public:
     FieldPropertyData * strManager;
     FieldPropertyData * unsManager;
 public:
-    void AddFaceField( const string & fieldName, int nEqu );
-    void AddInnerField( const string & fieldName, int nEqu );
-    void AddBcField( const string & fieldName, int nEqu );
-    void AddInnerField( const string & fieldName, int nEqu, int type );
-    void AddFaceField( const string & fieldName, int nEqu, int type );
-    void AddBcField( const string & fieldName, int nEqu, int type );
+    void AddFaceField( const std::string & fieldName, int nEqu );
+    void AddInnerField( const std::string & fieldName, int nEqu );
+    void AddBcField( const std::string & fieldName, int nEqu );
+    void AddInnerField( const std::string & fieldName, int nEqu, int type );
+    void AddFaceField( const std::string & fieldName, int nEqu, int type );
+    void AddBcField( const std::string & fieldName, int nEqu, int type );
 public:
-    void SetField( const string & fieldName, Real value );
+    void SetField( const std::string & fieldName, Real value );
     void AllocateInnerAndBcField();
     void AllocateInnerAndBcField( UnsGrid * grid, FieldPropertyData * fieldPropertyData );
     void AllocateInnerField( UnsGrid * grid, FieldPropertyData * fieldPropertyData );
@@ -126,11 +126,11 @@ public:
 };
 
 class UnsGrid;
-void UploadInterfaceValue( UnsGrid * grid, MRField * field2D, const string & name, int nEqu );
-void DownloadInterfaceValue( UnsGrid * grid, MRField * field2D, const string & name, int nEqu );
-void UploadOversetValue( UnsGrid * grid, MRField * field2D, const string & name, int nEqu );
-void DownloadOversetValue( UnsGrid * grid, MRField * field2D, const string & name, int nEqu );
+void UploadInterfaceValue( UnsGrid * grid, MRField * field2D, const std::string & name, int nEqu );
+void DownloadInterfaceValue( UnsGrid * grid, MRField * field2D, const std::string & name, int nEqu );
+void UploadOversetValue( UnsGrid * grid, MRField * field2D, const std::string & name, int nEqu );
+void DownloadOversetValue( UnsGrid * grid, MRField * field2D, const std::string & name, int nEqu );
 
-void DownloadInterfaceValue_TEST( UnsGrid * grid, MRField * field2D, const string & name, int nEqu );
+void DownloadInterfaceValue_TEST( UnsGrid * grid, MRField * field2D, const std::string & name, int nEqu );
 
 EndNameSpace

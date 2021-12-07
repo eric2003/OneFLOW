@@ -75,7 +75,7 @@ void LoadResiduals( StringField & data )
     UnsGrid * grid = Zone::GetUnsGrid();
 
     SolverInfo * solverInfo = SolverInfoFactory::GetSolverInfo( sTid );
-    string & residualName = solverInfo->residualName;
+    std::string & residualName = solverInfo->residualName;
 
     MRField * resField = ONEFLOW::GetFieldPointer< MRField >( grid, residualName );
     MRField * rhsField = FieldHome::GetUnsField( fieldId );
@@ -89,21 +89,21 @@ void ZeroResiduals( StringField & data )
     int sTid = SolverState::tid;
 
     SolverInfo * solverInfo = SolverInfoFactory::GetSolverInfo( sTid );
-    string & fieldName = solverInfo->residualName;
+    std::string & fieldName = solverInfo->residualName;
 
     FieldHome::SetField( fieldName, zero );
 }
 
 void LoadQ( StringField & data )
 {
-    string & fName = data[ 0 ];
+    std::string & fName = data[ 0 ];
 
     int sTid = SolverState::tid;
     int fieldId = ( * fieldIdMap )[ fName ];
 
     SolverInfo * solverInfo = SolverInfoFactory::GetSolverInfo( sTid );
 
-    string & fieldName = solverInfo->gradString[ 0 ];
+    std::string & fieldName = solverInfo->gradString[ 0 ];
 
     FieldHome::SetField( fieldId, fieldName, FLOW_RHS_ORDER );
 }
@@ -111,8 +111,8 @@ void LoadQ( StringField & data )
 void SetField( StringField & data )
 {
     int sTid = SolverState::tid;
-    string & fieldName   = data[ 0 ];
-    string & valueString = data[ 1 ];
+    std::string & fieldName   = data[ 0 ];
+    std::string & valueString = data[ 1 ];
 
     Real value = StringToDigit< Real >( valueString );
     SolverInfo * solverInfo = SolverInfoFactory::GetSolverInfo( sTid );
@@ -122,13 +122,13 @@ void SetField( StringField & data )
 
 void StoreRHS( StringField & data )
 {
-    string & fName = data[ 0 ];
+    std::string & fName = data[ 0 ];
 
     int sTid = SolverState::tid;
     int fieldId = ( * fieldIdMap )[ fName ];
 
     SolverInfo * solverInfo = SolverInfoFactory::GetSolverInfo( sTid );
-    string & residualName = solverInfo->residualName;
+    std::string & residualName = solverInfo->residualName;
 
     FieldHome::SetField( fieldId, residualName, FLOW_RHS_ORDER );
 }

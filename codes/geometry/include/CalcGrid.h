@@ -39,7 +39,7 @@ public:
     ~CalcGrid();
 public:
     Grids grids;
-    string gridFileName;
+    std::string gridFileName;
     IFaceLink * iFaceLink;
 public:
     void BuildInterfaceLink();

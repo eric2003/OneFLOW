@@ -49,7 +49,7 @@ void ActionMap::Free()
     ActionMap::imp = 0;
 }
 
-int ActionMap::GetActionId( const string & name )
+int ActionMap::GetActionId( const std::string & name )
 {
     return ActionMap::imp->GetActionId( name );
 }
@@ -59,15 +59,15 @@ string ActionMap::GetActionName( int id )
     return ActionMap::imp->GetActionName( id );
 }
 
-void ActionMap::ReadFile( const string & fileName )
+void ActionMap::ReadFile( const std::string & fileName )
 {
     ActionMap::imp->ReadFile( fileName );
 }
 
 ActionMapImp::ActionMapImp()
 {
-    this->nameMap = new map< string, int >();
-    this->idMap = new map< int, string >();
+    this->nameMap = new map< std::string, int >();
+    this->idMap = new map< int, std::string >();
 }
 
 ActionMapImp::~ActionMapImp()
@@ -76,9 +76,9 @@ ActionMapImp::~ActionMapImp()
     delete this->idMap;
 }
 
-void ActionMapImp::Register( const string & actionName )
+void ActionMapImp::Register( const std::string & actionName )
 {
-    map< string, int >::iterator iter = this->nameMap->find( actionName );
+    map< std::string, int >::iterator iter = this->nameMap->find( actionName );
     if ( iter == this->nameMap->end() )
     {
         int actionId = this->nameMap->size();
@@ -87,14 +87,14 @@ void ActionMapImp::Register( const string & actionName )
     }
 }
 
-void ActionMapImp::Unregister( const string & actionName )
+void ActionMapImp::Unregister( const std::string & actionName )
 {
     this->nameMap->erase( actionName );
 }
 
-int ActionMapImp::GetActionId( const string & actionName )
+int ActionMapImp::GetActionId( const std::string & actionName )
 {
-    map< string, int >::iterator iter = this->nameMap->find( actionName );
+    map< std::string, int >::iterator iter = this->nameMap->find( actionName );
     if ( iter == this->nameMap->end() )
     {
         return -1;
@@ -106,20 +106,20 @@ int ActionMapImp::GetActionId( const string & actionName )
 
 string ActionMapImp::GetActionName( int actionIndex )
 {
-    map< int, string >::iterator iter = this->idMap->find( actionIndex );
+    map< int, std::string >::iterator iter = this->idMap->find( actionIndex );
     if ( iter == this->idMap->end() )
     {
         return "";
     }
 
-    string & actionName = iter->second;
+    std::string & actionName = iter->second;
     return actionName;
 }
 
-void ActionMapImp::ReadFile( const string & fileName )
+void ActionMapImp::ReadFile( const std::string & fileName )
 {
     //\t is the tab key
-    string separator = " =\r\n\t#$,;\"";
+    std::string separator = " =\r\n\t#$,;\"";
 
     FileIO ioFile;
     ioFile.OpenFile( fileName, std::ios_base::in );
@@ -128,7 +128,7 @@ void ActionMapImp::ReadFile( const string & fileName )
     while ( ! ioFile.ReachTheEndOfFile() )
     {
         ioFile.ReadNextNonEmptyLine();
-        string actionName = ioFile.ReadNextWord();
+        std::string actionName = ioFile.ReadNextWord();
         this->Register( actionName );
     }
 

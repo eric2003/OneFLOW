@@ -128,7 +128,7 @@ void DataBook::Write( void * data, LLong dataSize )
     }
 }
 
-void DataBook::ReadString( string & cs )
+void DataBook::ReadString( std::string & cs )
 {
     UInt nLength = 0;
     this->Read( & nLength, sizeof( UInt ) );
@@ -142,7 +142,7 @@ void DataBook::ReadString( string & cs )
     delete[] data;
 }
 
-void DataBook::WriteString( string & cs )
+void DataBook::WriteString( std::string & cs )
 {
     UInt nLength = cs.length();
 
@@ -158,7 +158,7 @@ void DataBook::WriteString( string & cs )
     delete[] data;
 }
 
-void DataBook::AppendString( string & cs )
+void DataBook::AppendString( std::string & cs )
 {
     this->MoveToEnd();
     this->WriteString( cs );
@@ -166,7 +166,7 @@ void DataBook::AppendString( string & cs )
 
 void DataBook::Write( ostringstream * oss )
 {
-    string str = oss->str();
+    std::string str = oss->str();
     UInt stringSize = str.size();
     this->Write( const_cast< char * >( str.c_str() ), stringSize * sizeof( char ) );
 }
@@ -250,7 +250,7 @@ void DataBook::SecureRelativeSpace( LLong dataSize )
 void DataBook::SecureAbsoluteSpace( LLong needSize )
 {
     //If there is enough space, there is no need to allocate
-    //This can cause some string problems, and if not ReSize, there may be superfluous characters
+    //This can cause some std::string problems, and if not ReSize, there may be superfluous characters
     //in the memory that are not cleared
     //if ( needSize <= GetSize() ) return;
 
@@ -316,7 +316,7 @@ void DataBook::WriteFile( fstream & file )
     }
 }
 
-void DataBook::ToString( string & str )
+void DataBook::ToString( std::string & str )
 {
     for ( UInt iPage = 0; iPage < this->GetNPage(); ++ iPage )
     {

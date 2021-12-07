@@ -37,10 +37,10 @@ class CgnsFile
 {
 public:
     CgnsFile();
-    CgnsFile( const string & fileName, int openMode );
+    CgnsFile( const std::string & fileName, int openMode );
     ~CgnsFile();
 public:
-    string fileName;
+    std::string fileName;
     int fileId;
     int openMode;
     int openStatus;
@@ -49,15 +49,15 @@ public:
 public:
     int currBaseId;
 public:
-    void OpenCgnsFile( const string & fileName, int cgnsOpenMode );
+    void OpenCgnsFile( const std::string & fileName, int cgnsOpenMode );
     void CloseCgnsFile();
-    CgnsBase * WriteBase( const string & baseName );
-    CgnsBase * WriteBase( const string & baseName, int celldim, int physdim );
+    CgnsBase * WriteBase( const std::string & baseName );
+    CgnsBase * WriteBase( const std::string & baseName, int celldim, int physdim );
 private:
-    CgnsBase * AddBase( int fileId, const string & baseName, int celldim, int physdim, int baseId );
+    CgnsBase * AddBase( int fileId, const std::string & baseName, int celldim, int physdim, int baseId );
     void FreeBaseList();
 public:
-    void GoPath( const string & path );
+    void GoPath( const std::string & path );
     void ReadNumberOfBases();
     void ReadBases();
     CgnsBase * CreateCgnsBase();

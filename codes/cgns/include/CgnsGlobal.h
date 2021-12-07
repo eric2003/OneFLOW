@@ -42,10 +42,10 @@ public:
 public:
     CgnsZbase * cgnsbases;
 public:
-    CgnsZone * GetCgnsZoneByName( const string & zoneName );
+    CgnsZone * GetCgnsZoneByName( const std::string & zoneName );
 };
 
-CgnsZone * GetCgnsZoneByName( const string & zoneName );
+CgnsZone * GetCgnsZoneByName( const std::string & zoneName );
 extern CgnsGlobal cgns_global;
 
 #endif

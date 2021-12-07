@@ -81,7 +81,7 @@ Real ScalarField::SquareFun( Real xm )
     return 1.0;
 }
 
-void ScalarField::ToTecplot( RealList & varlist, string const & fileName )
+void ScalarField::ToTecplot( RealList & varlist, std::string const & fileName )
 {
     int nCells = grid->GetNCells();
 

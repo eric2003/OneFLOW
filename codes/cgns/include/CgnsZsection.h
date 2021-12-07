@@ -59,7 +59,7 @@ public:
     void DumpCgnsSections();
     void SetElemPosition();
 public:
-    bool ExistSection( const string & sectionName );
+    bool ExistSection( const std::string & sectionName );
 };
 
 #endif

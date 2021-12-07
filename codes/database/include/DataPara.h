@@ -35,10 +35,10 @@ class DataV
 {
 public:
     DataV();
-    DataV( const string & name, int type, int size, DataObject * data );
+    DataV( const std::string & name, int type, int size, DataObject * data );
     ~DataV();
 public:
-    string  name;
+    std::string  name;
     int     type;
     int     size;
     DataObject * data;
@@ -67,8 +67,8 @@ protected:
     DataSET * dataSet;
 public:
     void UpdateDataPointer( DataV * data );
-    DataV * GetDataPointer( const string & name );
-    void DeleteDataPointer( const string & name );
+    DataV * GetDataPointer( const std::string & name );
+    void DeleteDataPointer( const std::string & name );
 
     DataSET * GetDataSet() { return dataSet; }
 public:

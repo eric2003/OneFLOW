@@ -28,7 +28,7 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-const string whiteSpace = " ";
+const std::string whiteSpace = " ";
 
 void SetDefaultLine( std::string * defaultLineIn );
 std::string * GetDefaultLine();
@@ -110,7 +110,7 @@ public:
         bool flag = Word::FindString( word, "*" );
         if ( flag )
         {
-            string word_num = Word::FindNextWord( word, "*" );
+            std::string word_num = Word::FindNextWord( word, "*" );
             num = StringToDigit< int >( word_num, f );
             word = Word::FindNextWord( word, "*" );
         }

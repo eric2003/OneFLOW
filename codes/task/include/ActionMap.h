@@ -37,9 +37,9 @@ public:
 public:
     static ActionMapImp * imp;
 public:
-    static int    GetActionId( const string & name );
-    static string GetActionName( int id );
-    static void ReadFile( const string & fileName );
+    static int    GetActionId( const std::string & name );
+    static std::string GetActionName( int id );
+    static void ReadFile( const std::string & fileName );
 public:
     static void Init();
     static void Free();
@@ -51,14 +51,14 @@ public:
     ActionMapImp();
     ~ActionMapImp();
 public:
-    map< string, int > * nameMap;
-    map< int, string > * idMap;
+    map< std::string, int > * nameMap;
+    map< int, std::string > * idMap;
 public:
-    void Register( const string & name );
-    void Unregister( const string & name );
-    int    GetActionId( const string & name );
-    string GetActionName( int id );
-    void ReadFile( const string & fileName );
+    void Register( const std::string & name );
+    void Unregister( const std::string & name );
+    int    GetActionId( const std::string & name );
+    std::string GetActionName( int id );
+    void ReadFile( const std::string & fileName );
 };
 
 EndNameSpace

@@ -36,7 +36,7 @@ public:
     HXRegister();
     ~HXRegister();
 public:
-    map< string, HXClone * > data;
+    map< std::string, HXClone * > data;
 public:
     void FreeAll();
     void Register( const string & cmdName, const string & className );

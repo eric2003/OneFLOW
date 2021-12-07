@@ -41,15 +41,15 @@ public:
     DataBaseType();
     ~DataBaseType();
 public:
-    static map< int, string > nameMap;
-    static map< string, int > indexMap;
+    static map< int, std::string > nameMap;
+    static map< std::string, int > indexMap;
     static bool init_flag;
 public:
     static void Init();
     static void AddAllItem();
-    static void AddItem( const string &name, int index );
-    static int GetIndex( const string & name );
-    static string & GetName( int index );
+    static void AddItem( const std::string &name, int index );
+    static int GetIndex( const std::string & name );
+    static std::string & GetName( int index );
 };
 
 

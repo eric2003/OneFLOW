@@ -72,8 +72,8 @@ void ScalarMetis::Run()
     vector< ScalarGrid * > part_grids;
 
     int dimension = 1;
-    string root_gridfile = ONEFLOW::GetDataValue< string >("root_gridfile");
-    string scalar_grid_filename = ONEFLOW::GetDataValue< string >("scalar_grid_filename");
+    std::string root_gridfile = ONEFLOW::GetDataValue< std::string >("root_gridfile");
+    std::string scalar_grid_filename = ONEFLOW::GetDataValue< std::string >("scalar_grid_filename");
 
     int scalar_flag = ONEFLOW::GetDataValue< int >("scalar_flag");
 
@@ -98,7 +98,7 @@ void ScalarMetis::Create1DMesh()
     int scalar_nx = ONEFLOW::GetDataValue< int >("scalar_nx");
     Real scalar_len = ONEFLOW::GetDataValue< int >("scalar_len");
 
-    string scalar_grid_filename = ONEFLOW::GetDataValue< string >("scalar_grid_filename");
+    std::string scalar_grid_filename = ONEFLOW::GetDataValue< std::string >("scalar_grid_filename");
 
     grid->GenerateGrid( scalar_nx, 0, scalar_len );
     grid->CalcTopology();
@@ -120,7 +120,7 @@ void ScalarMetis::CreateCgnsMesh1D()
     int scalar_nx = ONEFLOW::GetDataValue< int >("scalar_nx");
     Real scalar_len = ONEFLOW::GetDataValue< int >("scalar_len");
 
-    string scalar_grid_filename = ONEFLOW::GetDataValue< string >("scalar_grid_filename");
+    std::string scalar_grid_filename = ONEFLOW::GetDataValue< std::string >("scalar_grid_filename");
 
     grid->GenerateGrid( scalar_nx, 0, scalar_len );
     grid->CalcTopology();
@@ -135,10 +135,10 @@ void ScalarMetis::Create1DMeshFromCgns()
 {
     ScalarGrid * grid = new ScalarGrid();
 
-    string scalar_grid_filename = ONEFLOW::GetDataValue< string >("scalar_grid_filename");
-    string scalar_cgns_filename = ONEFLOW::GetDataValue< string >("scalar_cgns_filename");
+    std::string scalar_grid_filename = ONEFLOW::GetDataValue< std::string >("scalar_grid_filename");
+    std::string scalar_cgns_filename = ONEFLOW::GetDataValue< std::string >("scalar_cgns_filename");
 
-    string cgnsprjFileName = ONEFLOW::GetPrjFileName( scalar_cgns_filename );
+    std::string cgnsprjFileName = ONEFLOW::GetPrjFileName( scalar_cgns_filename );
 
     grid->GenerateGridFromCgns( cgnsprjFileName );
     grid->CalcTopology();
@@ -160,10 +160,10 @@ void ScalarMetisAddZoneGrid( vector< ScalarGrid * > & part_grids )
     }
 }
 
-void ScalarReadGrid( const string & gridFileName, vector< ScalarGrid * > & grids )
+void ScalarReadGrid( const std::string & gridFileName, vector< ScalarGrid * > & grids )
 {
     fstream file;
-    OpenPrjFile( file, gridFileName, std::ios_base::in|ios_base::binary );
+    OpenPrjFile( file, gridFileName, std::ios_base::in|std::ios_base::binary );
 
     int nZone = -1;
 
@@ -196,17 +196,17 @@ void ScalarReadGrid( const string & gridFileName, vector< ScalarGrid * > & grids
     ONEFLOW::CloseFile( file );
 }
 
-void ScalarDumpGrid( const string & gridFileName, ScalarGrid * grid )
+void ScalarDumpGrid( const std::string & gridFileName, ScalarGrid * grid )
 {
     vector< ScalarGrid * > grids;
     grids.push_back( grid );
     ScalarDumpGrid( gridFileName, grids );
 }
 
-void ScalarDumpGrid( const string & gridFileName, vector< ScalarGrid * > & grids )
+void ScalarDumpGrid( const std::string & gridFileName, vector< ScalarGrid * > & grids )
 {
     fstream file;
-    OpenPrjFile( file, gridFileName, std::ios_base::out|ios_base::binary|ios_base::trunc );
+    OpenPrjFile( file, gridFileName, std::ios_base::out|std::ios_base::binary|std::ios_base::trunc );
     int nZone = static_cast<int>( grids.size() );
 
     ZoneState::pid.resize( nZone );

@@ -58,7 +58,7 @@ public:
     CgnsZsection * cgnsZsection;
     CgnsZbc * cgnsZbc;
 public:
-    string zoneName;
+    std::string zoneName;
     int zId;
 
     ZoneType_t cgnsZoneType;
@@ -92,7 +92,7 @@ public:
     void DumpCgnsZoneType();
     void ReadCgnsZoneNameAndGeneralizedDimension();
     void DumpCgnsZoneNameAndGeneralizedDimension();
-    void WriteZoneInfo( const string & zoneName, ZoneType_t zoneType, cgsize_t * isize );
+    void WriteZoneInfo( const std::string & zoneName, ZoneType_t zoneType, cgsize_t * isize );
     void SetDimension();
     void ReadElementConnectivities();
     void DumpElementConnectivities();
@@ -114,11 +114,11 @@ public:
     CgInt GetNJ() const;
     CgInt GetNK() const;
 public:
-    bool ExistSection( const string & sectionName );
+    bool ExistSection( const std::string & sectionName );
     void GoToZone();
-    void GoToNode( const string & nodeName, int ith );
-    void GoToNode( const string & nodeNamei, int ith, const string & nodeNamej, int jth );
-    void GoToNode( const string & nodeNamei, int ith, const string & nodeNamej, int jth, const string & nodeNamek, int kth );
+    void GoToNode( const std::string & nodeName, int ith );
+    void GoToNode( const std::string & nodeNamei, int ith, const std::string & nodeNamej, int jth );
+    void GoToNode( const std::string & nodeNamei, int ith, const std::string & nodeNamej, int jth, const std::string & nodeNamek, int kth );
 public:
     void ReadFlowEqn();
 };

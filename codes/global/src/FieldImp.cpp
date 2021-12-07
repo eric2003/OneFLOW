@@ -44,14 +44,14 @@ FieldProperty::~FieldProperty()
 {
 }
 
-void FieldProperty::AddField( const string & fieldName, int nEqu )
+void FieldProperty::AddField( const std::string & fieldName, int nEqu )
 {
     this->data[ fieldName ] = nEqu;
 }
 
-int FieldProperty::GetNEqu( const string & fileName )
+int FieldProperty::GetNEqu( const std::string & fileName )
 {
-    std::map< string, int >::iterator iter;
+    std::map< std::string, int >::iterator iter;
     iter = this->data.find( fileName );
     if ( iter != this->data.end() )
     {
@@ -72,7 +72,7 @@ void IFieldProperty::AllocateInterfaceField( int nIFaces, DataStorage * dataStor
 {
     if ( nIFaces <= 0 ) return;
 
-    for ( std::map< string, int >::iterator iter = this->data.begin(); iter != this->data.end(); ++ iter )
+    for ( std::map< std::string, int >::iterator iter = this->data.begin(); iter != this->data.end(); ++ iter )
     {
         int nTEqu = iter->second;
 
@@ -91,7 +91,7 @@ void IFieldProperty::UploadInterfaceValue()
     {
         UnsGrid * grid = ONEFLOW::UnsGridCast( gridIn );
 
-        for ( std::map< string, int >::iterator iter = this->data.begin(); iter != this->data.end(); ++ iter )
+        for ( std::map< std::string, int >::iterator iter = this->data.begin(); iter != this->data.end(); ++ iter )
         {
             int nEqu = iter->second;
 
@@ -114,7 +114,7 @@ void IFieldProperty::DownloadInterfaceValue()
     {
         UnsGrid * grid = ONEFLOW::UnsGridCast( gridIn );
 
-        for ( std::map< string, int >::iterator iter = this->data.begin(); iter != this->data.end(); ++ iter )
+        for ( std::map< std::string, int >::iterator iter = this->data.begin(); iter != this->data.end(); ++ iter )
         {
             int nEqu = iter->second;
 
@@ -133,7 +133,7 @@ void IFieldProperty::UploadOversetInterfaceValue()
     {
         UnsGrid * grid = ONEFLOW::UnsGridCast( gridIn );
 
-        for ( std::map< string, int >::iterator iter = this->data.begin(); iter != this->data.end(); ++ iter )
+        for ( std::map< std::string, int >::iterator iter = this->data.begin(); iter != this->data.end(); ++ iter )
         {
             int nEqu = iter->second;
 
@@ -152,7 +152,7 @@ void IFieldProperty::DownloadOversetInterfaceValue()
     {
         UnsGrid * grid = ONEFLOW::UnsGridCast( gridIn );
 
-        for ( std::map< string, int >::iterator iter = this->data.begin(); iter != this->data.end(); ++ iter )
+        for ( std::map< std::string, int >::iterator iter = this->data.begin(); iter != this->data.end(); ++ iter )
         {
             int nEqu = iter->second;
 
@@ -165,12 +165,12 @@ void IFieldProperty::DownloadOversetInterfaceValue()
 
 void IFieldProperty::DeAllocateInterfaceField( DataStorage * dataStorage )
 {
-    for ( std::map< string, int >::iterator iter = this->data.begin(); iter != this->data.end(); ++ iter )
+    for ( std::map< std::string, int >::iterator iter = this->data.begin(); iter != this->data.end(); ++ iter )
     {
     }
 }
 
-std::map< string, int > GFieldProperty::data;
+std::map< std::string, int > GFieldProperty::data;
 
 GFieldProperty::GFieldProperty()
 {
@@ -180,14 +180,14 @@ GFieldProperty::~GFieldProperty()
 {
 }
 
-void GFieldProperty::AddField( const string & fileName, int nEqu )
+void GFieldProperty::AddField( const std::string & fileName, int nEqu )
 {
     GFieldProperty::data[ fileName ] = nEqu;
 }
 
-int GFieldProperty::GetNEqu( const string & fileName )
+int GFieldProperty::GetNEqu( const std::string & fileName )
 {
-    std::map< string, int >::iterator iter;
+    std::map< std::string, int >::iterator iter;
     iter = GFieldProperty::data.find( fileName );
     if ( iter != GFieldProperty::data.end() )
     {
@@ -230,33 +230,33 @@ FieldManager::~FieldManager()
     delete commManager;
 }
 
-void FieldManager::SetField( const string & fieldName, Real value )
+void FieldManager::SetField( const std::string & fieldName, Real value )
 {
     int nTEqu = this->commManager->innerField->GetNEqu( fieldName );
 
     FieldHome::SetField( fieldName, value );
 }
 
-void FieldManager::AddFaceField( const string & fieldName, int nEqu )
+void FieldManager::AddFaceField( const std::string & fieldName, int nEqu )
 {
     GFieldProperty::AddField( fieldName, nEqu );
     this->commManager->faceField->AddField( fieldName, nEqu );
 }
 
-void FieldManager::AddInnerField( const string & fieldName, int nEqu )
+void FieldManager::AddInnerField( const std::string & fieldName, int nEqu )
 {
     GFieldProperty::AddField( fieldName, nEqu );
     this->iFieldProperty->AddField( fieldName, nEqu );
     this->commManager->innerField->AddField( fieldName, nEqu );
 }
 
-void FieldManager::AddBcField( const string & fieldName, int nEqu )
+void FieldManager::AddBcField( const std::string & fieldName, int nEqu )
 {
     GFieldProperty::AddField( fieldName, nEqu );
     this->commManager->bcField->AddField( fieldName, nEqu );
 }
 
-void FieldManager::AddInnerField( const string & fieldName, int nEqu, int type )
+void FieldManager::AddInnerField( const std::string & fieldName, int nEqu, int type )
 {
     if ( type == 2 )
     {
@@ -272,7 +272,7 @@ void FieldManager::AddInnerField( const string & fieldName, int nEqu, int type )
     }
 }
 
-void FieldManager::AddFaceField( const string & fieldName, int nEqu, int type )
+void FieldManager::AddFaceField( const std::string & fieldName, int nEqu, int type )
 {
     if ( type == 2 )
     {
@@ -288,7 +288,7 @@ void FieldManager::AddFaceField( const string & fieldName, int nEqu, int type )
     }
 }
 
-void FieldManager::AddBcField( const string & fieldName, int nEqu, int type )
+void FieldManager::AddBcField( const std::string & fieldName, int nEqu, int type )
 {
     if ( type == 2 )
     {
@@ -328,9 +328,9 @@ void FieldManager::AllocateInnerField( UnsGrid * grid, FieldPropertyData * field
 {
     int nTCell = grid->nCells + grid->nBFaces;
 
-    map< string, int > & data = fieldPropertyData->innerField->data;
+    map< std::string, int > & data = fieldPropertyData->innerField->data;
 
-    for ( std::map< string, int >::iterator iter = data.begin(); iter != data.end(); ++ iter )
+    for ( std::map< std::string, int >::iterator iter = data.begin(); iter != data.end(); ++ iter )
     {
         int nTEqu = iter->second;
 
@@ -345,9 +345,9 @@ void FieldManager::AllocateFaceField( UnsGrid * grid, FieldPropertyData * fieldP
 {
     int nFaces = grid->nFaces;
 
-    map< string, int > & data = fieldPropertyData->faceField->data;
+    map< std::string, int > & data = fieldPropertyData->faceField->data;
 
-    for ( std::map< string, int >::iterator iter = data.begin(); iter != data.end(); ++ iter )
+    for ( std::map< std::string, int >::iterator iter = data.begin(); iter != data.end(); ++ iter )
     {
         int nTEqu = iter->second;
 
@@ -363,9 +363,9 @@ void FieldManager::AllocateBcField( UnsGrid * grid, FieldPropertyData * fieldPro
 {
     int nBFaces = grid->nBFaces;
 
-    map< string, int > & data = fieldPropertyData->bcField->data;
+    map< std::string, int > & data = fieldPropertyData->bcField->data;
 
-    for ( std::map< string, int >::iterator iter = data.begin(); iter != data.end(); ++ iter )
+    for ( std::map< std::string, int >::iterator iter = data.begin(); iter != data.end(); ++ iter )
     {
         int nTEqu = iter->second;
         ONEFLOW::CreateMRField( grid, nTEqu, nBFaces, iter->first );
@@ -424,7 +424,7 @@ void FieldFactory::FreeFieldManager()
     FieldFactory::data->clear();
 }
 
-void UploadInterfaceValue( UnsGrid * grid, MRField * field2D, const string & name, int nEqu )
+void UploadInterfaceValue( UnsGrid * grid, MRField * field2D, const std::string & name, int nEqu )
 {
     InterFace * interFace = grid->interFace;
     if ( ! ONEFLOW::IsValid( interFace ) ) return;
@@ -452,7 +452,7 @@ void UploadInterfaceValue( UnsGrid * grid, MRField * field2D, const string & nam
     }
 }
 
-void DownloadInterfaceValue( UnsGrid * grid, MRField * field2D, const string & name, int nEqu )
+void DownloadInterfaceValue( UnsGrid * grid, MRField * field2D, const std::string & name, int nEqu )
 {
     InterFace * interFace = grid->interFace;
     if ( ! ONEFLOW::IsValid( interFace ) ) return;
@@ -479,7 +479,7 @@ void DownloadInterfaceValue( UnsGrid * grid, MRField * field2D, const string & n
     }
 }
 
-void DownloadInterfaceValue_TEST( UnsGrid * grid, MRField * field2D, const string & name, int nEqu )
+void DownloadInterfaceValue_TEST( UnsGrid * grid, MRField * field2D, const std::string & name, int nEqu )
 {
     InterFace * interFace = grid->interFace;
     if ( ! ONEFLOW::IsValid( interFace ) ) return;
@@ -509,12 +509,12 @@ void DownloadInterfaceValue_TEST( UnsGrid * grid, MRField * field2D, const strin
     }
 }
 
-void UploadOversetValue( UnsGrid * grid, MRField * field2D, const string & name, int nEqu )
+void UploadOversetValue( UnsGrid * grid, MRField * field2D, const std::string & name, int nEqu )
 {
 }
 
 
-void DownloadOversetValue( UnsGrid * grid, MRField * field2D, const string & name, int nEqu )
+void DownloadOversetValue( UnsGrid * grid, MRField * field2D, const std::string & name, int nEqu )
 {
 }
 

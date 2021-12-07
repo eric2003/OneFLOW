@@ -47,15 +47,15 @@ public:
     int baseId;
     int nZones;
     int celldim, phydim;
-    string baseName;
+    std::string baseName;
     HXVector< CgnsZone * > cgnsZones;
     bool freeFlag;
 public:
     void FreeZoneList();
-    CgnsZone * GetCgnsZoneByName( const string & zoneName );
+    CgnsZone * GetCgnsZoneByName( const std::string & zoneName );
     CgnsZone * GetCgnsZone( int iZone );
     void ConstructZoneNameMap();
-    map< string, int > zoneNameMap;
+    map< std::string, int > zoneNameMap;
     CgnsFamilyBc * familyBc;
 public:
     int GetNZones();
@@ -72,15 +72,15 @@ public:
     void ProcessCgnsZones();
     void ConvertToInnerDataStandard();
 public:
-    void SetFamilyBc( BCType_t & bcType, const string & bcRegionName );
-    BCType_t GetFamilyBcType( const string & bcFamilyName );
+    void SetFamilyBc( BCType_t & bcType, const std::string & bcRegionName );
+    BCType_t GetFamilyBcType( const std::string & bcFamilyName );
     void ReadFamilySpecifiedBc();
 public:
     void GoToBase();
-    void GoToNode( const string & nodeName, int ith );
+    void GoToNode( const std::string & nodeName, int ith );
 public:
-    CgnsZone * WriteZoneInfo( const string & zoneName, ZoneType_t zoneType, cgsize_t * isize );
-    CgnsZone * WriteZone( const string & zoneName );
+    CgnsZone * WriteZoneInfo( const std::string & zoneName, ZoneType_t zoneType, cgsize_t * isize );
+    CgnsZone * WriteZone( const std::string & zoneName );
     void SetTestISize( cgsize_t * isize );
     void ReadArray();
     void ReadReferenceState();

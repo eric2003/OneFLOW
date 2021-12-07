@@ -35,7 +35,7 @@ BeginNameSpace( ONEFLOW )
 
 string GetCgnsFileTypeName( int file_type )
 {
-    string fileTypeName;
+    std::string fileTypeName;
     if ( file_type == CG_FILE_ADF )
     {
         fileTypeName = "CG_FILE_ADF";
@@ -60,7 +60,7 @@ CgnsFile::CgnsFile()
     this->openStatus = CG_ERROR;
 }
 
-CgnsFile::CgnsFile( const string & fileName, int openMode )
+CgnsFile::CgnsFile( const std::string & fileName, int openMode )
 {
     this->OpenCgnsFile( fileName, openMode );
 }
@@ -73,13 +73,13 @@ CgnsFile::~CgnsFile()
     this->CloseCgnsFile();
 }
 
-void CgnsFile::OpenCgnsFile( const string & fileName, int cgnsOpenMode )
+void CgnsFile::OpenCgnsFile( const std::string & fileName, int cgnsOpenMode )
 {
     this->fileName = fileName;
     this->openMode = openMode;
 
     this->openStatus = cg_open( fileName.c_str(), cgnsOpenMode, & this->fileId );
-    string stars("**************************************************************");
+    std::string stars("**************************************************************");
     cout << stars << "\n";
     cout << "   CGNS File Index = " << this->fileId << "\n";
 
@@ -111,14 +111,14 @@ void CgnsFile::CloseCgnsFile()
     cg_close( this->fileId );
 }
 
-CgnsBase * CgnsFile::WriteBase( const string & baseName )
+CgnsBase * CgnsFile::WriteBase( const std::string & baseName )
 {
     int celldim = 3;
     int physdim = 3;
     return this->WriteBase( baseName, celldim, physdim );
 }
 
-CgnsBase * CgnsFile::WriteBase( const string & baseName, int celldim, int physdim )
+CgnsBase * CgnsFile::WriteBase( const std::string & baseName, int celldim, int physdim )
 {
     int baseId = -1;
     cg_base_write( fileId, baseName.c_str(), celldim, physdim, & baseId );
@@ -135,7 +135,7 @@ void CgnsFile::FreeBaseList()
     }
 }
 
-CgnsBase * CgnsFile::AddBase( int fileId, const string & baseName, int celldim, int physdim, int baseId )
+CgnsBase * CgnsFile::AddBase( int fileId, const std::string & baseName, int celldim, int physdim, int baseId )
 {
     CgnsBase * base = new CgnsBase( this );
     base->baseName = baseName;
@@ -146,7 +146,7 @@ CgnsBase * CgnsFile::AddBase( int fileId, const string & baseName, int celldim, 
     return base;
 }
 
-void CgnsFile::GoPath( const string & path )
+void CgnsFile::GoPath( const std::string & path )
 {
     cg_gopath( this->fileId, path.c_str() );
 }

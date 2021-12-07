@@ -49,8 +49,8 @@ protected:
     void CreateGridImp( int zoneId );
     void CreateGridTest( int zoneId );
 public:
-    void ReadGrid( const string & fileName );
-    void InitZoneLayout( const string & fileName );
+    void ReadGrid( const std::string & fileName );
+    void InitZoneLayout( const std::string & fileName );
 protected:
     void InitZoneLayout( fstream & file );
     void SetMultiZoneLayout();
