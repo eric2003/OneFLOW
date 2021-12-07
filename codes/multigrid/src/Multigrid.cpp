@@ -179,8 +179,8 @@ void MG::OuterProcess( TimeSpan * timeSpan )
     {
         if ( Parallel::IsServer() )
         {
-            cout << "dumping field...";
-            cout << "  finished " << endl;
+            std::cout << "dumping field...";
+            std::cout << "  finished " << endl;
             timeSpan->ShowTimeSpan();
         }
     }

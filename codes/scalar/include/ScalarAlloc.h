@@ -36,8 +36,8 @@ public:
 public:
     std::map< std::string, int > data;
 public:
-    void AddField( const string & fieldName, int nEqu );
-    int GetNEqu( const string & fileName );
+    void AddField( const std::string & fieldName, int nEqu );
+    int GetNEqu( const std::string & fileName );
 };
 
 class DataStorage;
@@ -95,7 +95,7 @@ public:
 
 class ScalarGrid;
 
-void ScalarUploadInterfaceValue( ScalarGrid * grid, const string & name );
-void ScalarDownloadInterfaceValue( ScalarGrid * grid, const string & name );
+void ScalarUploadInterfaceValue( ScalarGrid * grid, const std::string & name );
+void ScalarDownloadInterfaceValue( ScalarGrid * grid, const std::string & name );
 
 EndNameSpace

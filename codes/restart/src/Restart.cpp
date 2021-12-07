@@ -233,7 +233,7 @@ void ReadFieldRecord( DataStorage * storage, StringField & fieldNameList )
 {
     for ( int iField = 0; iField < fieldNameList.size(); ++ iField )
     {
-        string & filedName = fieldNameList[ iField ];
+        std::string & filedName = fieldNameList[ iField ];
         MRField * field = ONEFLOW::GetFieldPointer< MRField >( storage, filedName );
 
         HXRead( ActionState::dataBook, field );
@@ -244,7 +244,7 @@ void WriteFieldRecord( DataStorage * storage, StringField & fieldNameList )
 {
     for ( int iField = 0; iField < fieldNameList.size(); ++ iField )
     {
-        string & filedName = fieldNameList[ iField ];
+        std::string & filedName = fieldNameList[ iField ];
         MRField * field = ONEFLOW::GetFieldPointer< MRField >( storage, filedName );
 
         HXWrite( ActionState::dataBook, field );
@@ -255,7 +255,7 @@ void ZeroFieldRecord( DataStorage * storage, StringField & fieldNameList )
 {
     for ( int iField = 0; iField < fieldNameList.size(); ++ iField )
     {
-        string & filedName = fieldNameList[ iField ];
+        std::string & filedName = fieldNameList[ iField ];
         MRField * field = ONEFLOW::GetFieldPointer< MRField >( storage, filedName );
 
         SetField( field, 0.0 );

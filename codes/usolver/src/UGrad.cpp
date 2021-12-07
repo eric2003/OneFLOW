@@ -242,7 +242,7 @@ void CalcGradDebug( RealField & q, RealField & dqdx, RealField & dqdy, RealField
 
         if ( ug.lc == 0 || ug.rc == 0 )
         {
-            cout << " fId = " << fId << " value = " << value << " ql= " << q[ ug.lc ] << " qr = " << q[ ug.rc ] << endl;
+            std::cout << " fId = " << fId << " value = " << value << " ql= " << q[ ug.lc ] << " qr = " << q[ ug.rc ] << endl;
         }
 
         if ( ug.fId < ug.nBFaces ) continue;

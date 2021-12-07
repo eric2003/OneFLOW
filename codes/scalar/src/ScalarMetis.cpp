@@ -82,7 +82,7 @@ void ScalarMetis::Run()
     root_grid->CalcMetrics1D();
 
     int scalar_npart = ONEFLOW::GetDataValue< int >("scalar_npart");
-    cout << " scalar_npart = " << scalar_npart << "\n";
+    std::cout << " scalar_npart = " << scalar_npart << "\n";
 
     GridPartition gridPartition;
     gridPartition.PartitionGrid( root_grid, scalar_npart, & part_grids );
@@ -185,7 +185,7 @@ void ScalarReadGrid( const std::string & gridFileName, std::vector< ScalarGrid *
 
     for ( int iZone = 0; iZone < nZone; ++ iZone )
     {
-        cout << "iZone = " << iZone << " nZone = " << nZone << "\n";
+        std::cout << "iZone = " << iZone << " nZone = " << nZone << "\n";
         ScalarGrid * grid = new ScalarGrid();
         grid->id = iZone;
         grid->type = ZoneState::zoneType[ iZone ];
@@ -224,7 +224,7 @@ void ScalarDumpGrid( const std::string & gridFileName, std::vector< ScalarGrid *
 
     for ( int iZone = 0; iZone < nZone; ++ iZone )
     {
-        cout << "iZone = " << iZone << " nZone = " << nZone << "\n";
+        std::cout << "iZone = " << iZone << " nZone = " << nZone << "\n";
         grids[ iZone ]->WriteGrid( file );
     }
 

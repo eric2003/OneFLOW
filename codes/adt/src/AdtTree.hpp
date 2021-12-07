@@ -24,7 +24,6 @@ License
    #include <string.h>
 #endif
 
-using namespace std;
 
 BeginNameSpace( ONEFLOW )
 

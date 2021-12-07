@@ -37,7 +37,7 @@ public:
 public:
     StringField data;
 public:
-    void AddFieldName( const string & fieldName );
+    void AddFieldName( const std::string & fieldName );
 };
 
 class MapIntInt;

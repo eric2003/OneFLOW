@@ -80,7 +80,7 @@ void ScalarOrder::Run1()
         para.dt = para.timeN / para.nt;
         para.nx = nx0 * icoef + 1;
         para.dx = len / ( para.nx - 1.0 );
-        cout << " i = " << i << " dt = " << para.dt << " para.nx=" << para.nx << "  para.dx = " << para.dx << "\n";
+        std::cout << " i = " << i << " dt = " << para.dt << " para.nx=" << para.nx << "  para.dx = " << para.dx << "\n";
         scalarSolver->RunTest( &para );
         duList.push_back( para.du );
         xList.push_back( para.x );
@@ -132,7 +132,7 @@ void ScalarOrder::Run()
         //para.timeN = para.dt * para.nt;
         para.nt = nt * icoef;
         para.dt = para.timeN / para.nt;
-        cout << " i = " << i << " dt = " << para.dt << " para.nx=" << para.nx << "  para.dx = " << para.dx << "\n";
+        std::cout << " i = " << i << " dt = " << para.dt << " para.nx=" << para.nx << "  para.dx = " << para.dx << "\n";
         scalarSolver->RunTest( &para );
         duList.push_back( para.du );
         xList.push_back( para.x );
@@ -157,9 +157,9 @@ void ScalarOrder::Run()
         l1p.push_back( or1 );
         l2p.push_back( or2 );
         int width = 8;
-        cout << " i = " << i;
-        cout << " order1 = " << setw( width ) << setiosflags( ios::fixed ) << setprecision( 6 ) << or1;
-        cout << " order2 = " << setw( width ) << setiosflags( ios::fixed ) << setprecision( 6 ) << or2 << "\n";
+        std::cout << " i = " << i;
+        std::cout << " order1 = " << setw( width ) << setiosflags( ios::fixed ) << setprecision( 6 ) << or1;
+        std::cout << " order2 = " << setw( width ) << setiosflags( ios::fixed ) << setprecision( 6 ) << or2 << "\n";
     }
     
 

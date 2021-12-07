@@ -68,8 +68,8 @@ public:
     Marker(){};
     ~Marker(){};
 public:
-    string name;
-    string bcName;
+    std::string name;
+    std::string bcName;
     int cgns_bcType;
     LinkField elems;
     IntField eTypes;
@@ -84,7 +84,7 @@ public:
 public:
     int vtk_type;
     int cgns_type;
-    string name;
+    std::string name;
     int nElem;
     LinkField elems;
 };
@@ -159,7 +159,7 @@ public:
     ~Su2Grid();
 public:
     void ReadSu2Grid( GridMediator * gridMediator );
-    void ReadSu2GridAscii( string & fileName );
+    void ReadSu2GridAscii( std::string & fileName );
     void Su2ToOneFlowGrid();
     void MarkBoundary(string& su2cfgFile);
     void FillSU2CgnsZone( CgnsZone * cgnsZone );

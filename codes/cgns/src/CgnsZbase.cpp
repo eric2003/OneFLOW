@@ -136,7 +136,7 @@ void CgnsZbase::ReadNumCgnsBase()
 {
     //Determine the of bases in the grid
     cg_nbases( this->cgnsFile->fileId, & this->nBases );
-    cout << "   Total number of CGNS Base = " << this->nBases << "\n";
+    std::cout << "   Total number of CGNS Base = " << this->nBases << "\n";
 }
 
 void CgnsZbase::ConvertToInnerDataStandard()

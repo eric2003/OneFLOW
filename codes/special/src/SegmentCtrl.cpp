@@ -44,7 +44,7 @@ SegmentCtrl::~SegmentCtrl()
 
 void SegmentCtrl::Read( FileIO * ioFile )
 {
-    string distributionString = ioFile->ReadNextWord();
+    std::string distributionString = ioFile->ReadNextWord();
 
     if ( distributionString == "r" )
     {
@@ -183,7 +183,7 @@ void SegmentCtrl::SetPara( Real diff, Real & v_min, Real & v_max )
         v_max = cA3;
     }
     this->cA3 = half * ( v_min + v_max );
-    cout << " cA3 = " << cA3 << " diff = " << diff << "\n";
+    std::cout << " cA3 = " << cA3 << " diff = " << diff << "\n";
 }
 
 void SegmentCtrl::CalcEffectiveRatioTest()
@@ -359,7 +359,7 @@ void SegmentCopy::Read( FileIO * ioFile )
 {
     while ( true )
     {
-        string word = ioFile->ReadNextWord();
+        std::string word = ioFile->ReadNextWord();
         if ( word == "" ) break;
         int line_id = StringToDigit< int >( word );
         lineList.push_back( line_id );

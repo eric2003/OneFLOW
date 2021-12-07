@@ -94,8 +94,8 @@ void ResidualTask::CalcRes( int sTid, ResData & data )
             Real ress = ( * res )[ iEqu ][ cId ];
             if ( NotANumber( ress ) )
             {
-                cout << " iEqu = " << iEqu << " cId = " << cId << " grid->nCells = " << grid->nCells << "\n";
-                cout << " ress = " << ress << "\n";
+                std::cout << " iEqu = " << iEqu << " cId = " << cId << " grid->nCells = " << grid->nCells << "\n";
+                std::cout << " ress = " << ress << "\n";
                 Stop( "NotANumber" );
             }
             data.resave.res[ iEqu ] += SQR( ress );
@@ -218,7 +218,7 @@ void ResidualTask::DumpScreen()
     oss << setw( 3 )  << maxId + 1;
     oss << endl;
 
-    cout << oss.str();
+    std::cout << oss.str();
 }
 
 

@@ -242,9 +242,9 @@ void PatchBox::CalcNormal()
     smin[ b ] = - smin[ b ];
     smax[ b ] = - smax[ b ];
 
-    cout << smin[ 0 ] << " " << smax[ 0 ] << " " ;
-    cout << smin[ 1 ] << " " << smax[ 1 ] << " " ;
-    cout << smin[ 2 ] << " " << smax[ 2 ] << endl << endl;
+    std::cout << smin[ 0 ] << " " << smax[ 0 ] << " " ;
+    std::cout << smin[ 1 ] << " " << smax[ 1 ] << " " ;
+    std::cout << smin[ 2 ] << " " << smax[ 2 ] << endl << endl;
 
     int kkk = 1;
 }
@@ -359,7 +359,7 @@ void PBlkSet::Analysys()
         ip = i;
         }
     }
-    cout << " maxpt = " << maxpt << " ip = " << ip << endl;
+    std::cout << " maxpt = " << maxpt << " ip = " << ip << endl;
 
     IntField multi_point;
     for ( int i = 0; i < nSize; ++ i )
@@ -467,7 +467,7 @@ bool PBlkSet::CheckPBlkList( HXVector< PBlk * > & pblk_list, PatchBox & box )
     int ijkv = iv + jv + kv;
     if ( ijkv < 2 )
     {
-        cout << " not a domain " << endl;
+        std::cout << " not a domain " << endl;
         return false;
     }
 
@@ -499,15 +499,15 @@ bool PBlkSet::CheckPBlkList( HXVector< PBlk * > & pblk_list, PatchBox & box )
 
     if ( ! flag )
     {
-        cout << " not a domain " << endl;
+        std::cout << " not a domain " << endl;
         return false;
     }
 
     box.Set( imin, imax, jmin, jmax, kmin, kmax );
-    cout << imin << " " << imax << endl;
-    cout << jmin << " " << jmax << endl;
-    cout << kmin << " " << kmax << endl;
-    cout << " is a domain " << endl;
+    std::cout << imin << " " << imax << endl;
+    std::cout << jmin << " " << jmax << endl;
+    std::cout << kmin << " " << kmax << endl;
+    std::cout << " is a domain " << endl;
     return true;
 }
 
@@ -538,7 +538,7 @@ bool PBlkSet::CrossDomain( int iZone, int idomain, int jZone, int jdomain, Patch
     }
     bool valid_i = CheckPBlkList( pblk1_list, box_i );
     bool valid_j = CheckPBlkList( pblk2_list, box_j );
-    cout << "zone[" << iZone << "][" << jZone << "] = " << idomain << ":" << jdomain << " num = " << cross.size() << endl;
+    std::cout << "zone[" << iZone << "][" << jZone << "] = " << idomain << ":" << jdomain << " num = " << cross.size() << endl;
     int kkk = 1;
     return valid_i && valid_j;
 }
@@ -873,7 +873,7 @@ void DomainInp::OutputInp( GridMediator * gridMediator )
         IjkBox ijkBox;
         ijkBox.CreateBox( ni, nj, nk );
 
-        cout << " block = " << iZone + 1 << "\n";
+        std::cout << " block = " << iZone + 1 << "\n";
         this->CalcFacePoint( grid, & pointSearch, & ijkBox, iZone, & pblkSet );
     }
     pblkSet.Analysys();

@@ -39,8 +39,8 @@ public:
     int numberOfImplicitSweeps;
     StringField gradString;
     StringField implicitString;
-    string residualName;
-    string resFileName;
+    std::string residualName;
+    std::string resFileName;
     Real residual;
     Real conver;
 public:

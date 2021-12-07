@@ -25,7 +25,6 @@ License
 #include "HXType.h"
 #include <set>
 #include <string>
-using namespace std;
 
 BeginNameSpace( ONEFLOW )
 

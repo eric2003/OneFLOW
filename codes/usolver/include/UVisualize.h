@@ -40,10 +40,10 @@ public:
     HXVector< MRField * > qNodeField;
 public:
     void Init();
-    void AddTitle( const string & varName );
-    MRField * AddField( RealField & qCellField, const string & varName );
-    MRField * AddField( const string & varName );
-    MRField * CreateField( const string & varName, int nEqu = 1 );
+    void AddTitle( const std::string & varName );
+    MRField * AddField( RealField & qCellField, const std::string & varName );
+    MRField * AddField( const std::string & varName );
+    MRField * CreateField( const std::string & varName, int nEqu = 1 );
 };
 
 class BcVisual
@@ -55,8 +55,8 @@ public:
     void Calc( int bcType );
     void Calcf2n( int bcType );
     void ResolveElementEdge();
-    void Dump( ostringstream & oss, VisualTool * visualTool, string & bcTitle );
-    void DumpDebug( ostringstream & oss, VisualTool * visualTool, string & bcTitle );
+    void Dump( ostringstream & oss, VisualTool * visualTool, std::string & bcTitle );
+    void DumpDebug( ostringstream & oss, VisualTool * visualTool, std::string & bcTitle );
     void DumpSeveralElement();
 public:
     LinkField f2n;

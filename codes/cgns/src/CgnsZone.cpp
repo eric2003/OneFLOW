@@ -118,9 +118,9 @@ void CgnsZone::SetElementTypeAndNode( ElemFeature * elem_feature )
         CgnsSection * cgnsSection = this->cgnsZsection->GetCgnsSection( iSection );
         cgnsSection->SetElementTypeAndNode( elem_feature );
     }
-    cout << "\n";
-    cout << " iZone = " << this->zId << " nCells = " << this->cgnsCoor->GetNCell() << "\n";
-    cout << " elem_feature->eType->size = " << elem_feature->eTypes->size() << endl;
+    std::cout << "\n";
+    std::cout << " iZone = " << this->zId << " nCells = " << this->cgnsCoor->GetNCell() << "\n";
+    std::cout << " elem_feature->eType->size = " << elem_feature->eTypes->size() << endl;
 }
 
 bool CgnsZone::ExistSection( const std::string & sectionName )
@@ -231,7 +231,7 @@ void CgnsZone::ReadCgnsZoneType()
     //Check the zone type
     cg_zone_type( cgnsBase->cgnsFile->fileId, cgnsBase->baseId, this->zId, & cgnsZoneType );
 
-    cout << "   The Zone Type is " << GetCgnsZoneTypeName( cgnsZoneType ) << " Zone" << "\n";
+    std::cout << "   The Zone Type is " << GetCgnsZoneTypeName( cgnsZoneType ) << " Zone" << "\n";
 }
 
 void CgnsZone::DumpCgnsZoneType()
@@ -239,7 +239,7 @@ void CgnsZone::DumpCgnsZoneType()
     ////Check the zone type
     //cg_zone_type( cgnsBase->fileId, cgnsBase->baseId, this->zId, & cgnsZoneType );
 
-    cout << "   The Zone Type is " << GetCgnsZoneTypeName( cgnsZoneType ) << " Zone" << "\n";
+    std::cout << "   The Zone Type is " << GetCgnsZoneTypeName( cgnsZoneType ) << " Zone" << "\n";
 }
 
 void CgnsZone::ReadCgnsZoneNameAndGeneralizedDimension()
@@ -251,7 +251,7 @@ void CgnsZone::ReadCgnsZoneNameAndGeneralizedDimension()
 
     this->zoneName = cgnsZoneName;
 
-    cout << "   CGNS Zone Name = " << cgnsZoneName << "\n";
+    std::cout << "   CGNS Zone Name = " << cgnsZoneName << "\n";
 }
 
 void CgnsZone::DumpCgnsZoneNameAndGeneralizedDimension()
@@ -260,8 +260,8 @@ void CgnsZone::DumpCgnsZoneNameAndGeneralizedDimension()
 
     //Determine the number of vertices and cellVolume elements in this zone
     cg_zone_write( cgnsBase->cgnsFile->fileId, cgnsBase->baseId, zoneName.c_str(), isize, cgnsZoneType, &this->zId );
-    cout << "   Zone Id = " << this->zId << "\n";
-    cout << "   CGNS Zone Name = " << this->zoneName << "\n";
+    std::cout << "   Zone Id = " << this->zId << "\n";
+    std::cout << "   CGNS Zone Name = " << this->zoneName << "\n";
 }
 
 void CgnsZone::WriteZoneInfo( const std::string & zoneName, ZoneType_t zoneType, cgsize_t * isize )
@@ -302,7 +302,7 @@ void CgnsZone::DumpElementConnectivities()
 {
     if ( this->cgnsZoneType == CGNS_ENUMV( Structured ) ) return;
 
-    cout << "   numberOfCgnsSections = " << this->cgnsZsection->nSection << "\n";
+    std::cout << "   numberOfCgnsSections = " << this->cgnsZsection->nSection << "\n";
 
     this->DumpCgnsSections();
 }
@@ -401,24 +401,24 @@ void CgnsZone::ReadFlowEqn()
     this->GoToZone();
 
     cg_equationset_read( &id, &ige, &igm, &ivm, &itcm, &itc, &itm );
-    cout << "Eqn dimension = " << id << "\n";
+    std::cout << "Eqn dimension = " << id << "\n";
 
     //Read 'GoverningEquations' node
     if ( ige == 1 )
     {
         this->GoToNode( "FlowEquationSet_t", 1 );
         cg_governing_read( & itype );
-        cout << " Gov eqn = " << GoverningEquationsTypeName[ itype ] << "\n";
+        std::cout << " Gov eqn = " << GoverningEquationsTypeName[ itype ] << "\n";
         //Read 'DiffusionModel' node
         this->GoToNode( "FlowEquationSet_t", 1, "GoverningEquations_t", 1 );
         cg_diffusion_read( idata );
-        cout << "     diffusion = ";
-        cout << idata[ 0 ] << ", ";
-        cout << idata[ 1 ] << ", ";
-        cout << idata[ 2 ] << ", ";
-        cout << idata[ 3 ] << ", ";
-        cout << idata[ 4 ] << ", ";
-        cout << idata[ 5 ] << "\n";
+        std::cout << "     diffusion = ";
+        std::cout << idata[ 0 ] << ", ";
+        std::cout << idata[ 1 ] << ", ";
+        std::cout << idata[ 2 ] << ", ";
+        std::cout << idata[ 3 ] << ", ";
+        std::cout << idata[ 4 ] << ", ";
+        std::cout << idata[ 5 ] << "\n";
     }
 
     // Read gas model
@@ -426,10 +426,10 @@ void CgnsZone::ReadFlowEqn()
     {
         this->GoToNode( "FlowEquationSet_t", 1 );
         cg_model_read( "GasModel_t", & mtype );
-        cout << " Gas model type = " << ModelTypeName[ mtype ] << "\n";
+        std::cout << " Gas model type = " << ModelTypeName[ mtype ] << "\n";
         this->GoToNode( "FlowEquationSet_t", 1, "GasModel_t", 1 );
         cg_array_read_as(1,CGNS_ENUMV(RealSingle),&gamma);
-        cout << "     gamma = " << gamma << "\n";
+        std::cout << "     gamma = " << gamma << "\n";
     }
 
     //Read turbulence closure
@@ -437,17 +437,17 @@ void CgnsZone::ReadFlowEqn()
     {
         this->GoToNode( "FlowEquationSet_t", 1 );
         cg_model_read( "TurbulenceClosure_t", & mtype );
-        cout << " Turbulence closure type = " << ModelTypeName[ mtype ] << "\n";
+        std::cout << " Turbulence closure type = " << ModelTypeName[ mtype ] << "\n";
         this->GoToNode( "FlowEquationSet_t", 1, "TurbulenceClosure_t", 1 );
         cg_array_read_as( 1, CGNS_ENUMV(RealSingle), & prandtl );
-        cout << "     turb prandtl number = " << prandtl << "\n";
+        std::cout << "     turb prandtl number = " << prandtl << "\n";
     }
 
     if ( itm == 1 )
     {
         this->GoToNode( "FlowEquationSet_t", 1 );
         cg_model_read( "TurbulenceModel_t", & mtype );
-        cout << " Turbulence model type " << ModelTypeName[ mtype ] << "\n";
+        std::cout << " Turbulence model type " << ModelTypeName[ mtype ] << "\n";
     }
 }
 

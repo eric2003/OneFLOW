@@ -144,7 +144,7 @@ bool FileIO::ReadNextNonEmptyLine()
 
 void FileIO::DumpLineContentToScreen()
 {
-    cout << * line << endl;
+    std::cout << * line << endl;
 }
 
 void FileIO::SkipReadSymbol( const std::string & stringSymbol )

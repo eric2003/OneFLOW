@@ -62,15 +62,15 @@ void CgnsBcConn::ReadCgnsBcConnInfo()
     this->connName = connName;
     this->donorZoneName  = donorZoneName;
 
-    cout << "\n";
-    cout << "   connName      = " << connName << " donorZoneName = " << donorZoneName << "\n";
-    cout << "   gridLocation  = " << GridLocationName[ this->gridLocation ] << "\n";
-    cout << "   donorDataType = " << DataTypeName[ donorDataType ] << "\n";
-    cout << "   gridConnType  = " << GridConnectivityTypeName[ this->gridConnType ] << "\n";
-    cout << "   pointSetType  = " << PointSetTypeName[ this->pointSetType ];
-    cout << "   donorPointSetType = " << PointSetTypeName[ donorPointSetType ] << "\n";
-    cout << "   nConnPoints      = " << nConnPoints << "\n";
-    cout << "   nConnDonorPoints = " << nConnDonorPoints << "\n";
+    std::cout << "\n";
+    std::cout << "   connName      = " << connName << " donorZoneName = " << donorZoneName << "\n";
+    std::cout << "   gridLocation  = " << GridLocationName[ this->gridLocation ] << "\n";
+    std::cout << "   donorDataType = " << DataTypeName[ donorDataType ] << "\n";
+    std::cout << "   gridConnType  = " << GridConnectivityTypeName[ this->gridConnType ] << "\n";
+    std::cout << "   pointSetType  = " << PointSetTypeName[ this->pointSetType ];
+    std::cout << "   donorPointSetType = " << PointSetTypeName[ donorPointSetType ] << "\n";
+    std::cout << "   nConnPoints      = " << nConnPoints << "\n";
+    std::cout << "   nConnDonorPoints = " << nConnDonorPoints << "\n";
 }
 
 void CgnsBcConn::DumpCgnsBcConnInfo()
@@ -89,15 +89,15 @@ void CgnsBcConn::DumpCgnsBcConnInfo()
     //this->connName = connName;
     //this->donorZoneName  = donorZoneName;
 
-    cout << "\n";
-    cout << "   connName      = " << connName << " donorZoneName = " << donorZoneName << "\n";
-    cout << "   gridLocation  = " << GridLocationName[ this->gridLocation ] << "\n";
-    cout << "   donorDataType = " << DataTypeName[ donorDataType ] << "\n";
-    cout << "   gridConnType  = " << GridConnectivityTypeName[ this->gridConnType ] << "\n";
-    cout << "   pointSetType  = " << PointSetTypeName[ this->pointSetType ];
-    cout << "   donorPointSetType = " << PointSetTypeName[ donorPointSetType ] << "\n";
-    cout << "   nConnPoints      = " << nConnPoints << "\n";
-    cout << "   nConnDonorPoints = " << nConnDonorPoints << "\n";
+    std::cout << "\n";
+    std::cout << "   connName      = " << connName << " donorZoneName = " << donorZoneName << "\n";
+    std::cout << "   gridLocation  = " << GridLocationName[ this->gridLocation ] << "\n";
+    std::cout << "   donorDataType = " << DataTypeName[ donorDataType ] << "\n";
+    std::cout << "   gridConnType  = " << GridConnectivityTypeName[ this->gridConnType ] << "\n";
+    std::cout << "   pointSetType  = " << PointSetTypeName[ this->pointSetType ];
+    std::cout << "   donorPointSetType = " << PointSetTypeName[ donorPointSetType ] << "\n";
+    std::cout << "   nConnPoints      = " << nConnPoints << "\n";
+    std::cout << "   nConnDonorPoints = " << nConnDonorPoints << "\n";
 }
 
 void CgnsBcConn::ReadCgnsBcConnData()

@@ -45,7 +45,7 @@ Blasius::~Blasius()
 //
 //    this->alpha = -1.0;
 //    this->rk4( deta, nStep );
-//    cout << "alpha = " << this->alpha << " nstep = " << nStep << "\n";
+//    std::cout << "alpha = " << this->alpha << " nstep = " << nStep << "\n";
 //    this->Process();
 //}
 
@@ -58,7 +58,7 @@ void Blasius::Run()
 
     this->alpha = -1.0;
     this->rk4( deta, nStep );
-    cout << "alpha = " << this->alpha << " nstep = " << nStep << "\n";
+    std::cout << "alpha = " << this->alpha << " nstep = " << nStep << "\n";
     this->Process();
 }
 
@@ -70,8 +70,8 @@ void Blasius::Process()
     //a23 = 0.479522
     double a13 = pow( alpha, 1.0 / 3.0 );
     double a23 = pow( alpha, 2.0 / 3.0 );
-    cout << " a13 = " << a13 << "\n";
-    cout << " a23 = " << a23 << "\n";
+    std::cout << " a13 = " << a13 << "\n";
+    std::cout << " a23 = " << a23 << "\n";
     std::vector< double > etaList1;
     int n = 100;
     for ( int i = 0; i <= n; ++ i )
@@ -170,7 +170,7 @@ void Blasius::rk4( double deta, int nStep )
         this->etaList.push_back( eta );
         this->F.push_back( y1[ 0 ] );
         this->Fx.push_back( y2[ 0 ] );
-        cout << eta << " " << y1[ 0 ] << " " << y1[ 1 ] << " " << y1[ 2 ] << "\n";
+        std::cout << eta << " " << y1[ 0 ] << " " << y1[ 1 ] << " " << y1[ 2 ] << "\n";
     }
     this->alpha = pow( y1[ 1 ], - 3 / 2.0 );
 }

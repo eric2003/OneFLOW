@@ -89,9 +89,9 @@ public:
     std::vector< IntField > extremeEdgeList;
     std::set< HXSort< IntField > > searchEdgeList;
     PointEdgeClass pec;
-    string file_prestr;
+    std::string file_prestr;
 public:
-    void SetFilePreStr( const string & file_prestr );
+    void SetFilePreStr( const std::string & file_prestr );
     void AddPoint( Real x, Real y, Real z );
     void AddValue( Real cp, Real cf );
     void AddPointValue( Real x, Real y, Real z, Real cp, Real cf );
@@ -120,9 +120,9 @@ public:
     void VisualCreateList( std::vector<int> & newidlist, const string& fileName );
     void VisualCurveValue();
     void VisualCurveValue( std::vector<int> & newidlist, const string& fileName );
-    void Visual( const string & fileName, std::vector< Real > & x, std::vector< Real > & y, std::vector< Real > & z );
-    void VisualCurveValue( const string & fileName, std::vector< Real > & x, std::vector< Real > & y, std::vector< Real > & z, std::vector< Real > & cp, std::vector< Real > & cf );
-    void Visual( const string & fileName );
+    void Visual( const std::string & fileName, std::vector< Real > & x, std::vector< Real > & y, std::vector< Real > & z );
+    void VisualCurveValue( const std::string & fileName, std::vector< Real > & x, std::vector< Real > & y, std::vector< Real > & z, std::vector< Real > & cp, std::vector< Real > & cf );
+    void Visual( const std::string & fileName );
 
 };
 

@@ -111,13 +111,13 @@ void CgnsZbc::FillBcPoints( int * start, int * end, cgsize_t * bcpnts, int dimen
         bcpnts[ icount ++ ] = end[ 2 ];
     }
 
-    cout << " " << start[ 0 ] << " " << end[ 0 ];
-    cout << " " << start[ 1 ] << " " << end[ 1 ];
+    std::cout << " " << start[ 0 ] << " " << end[ 0 ];
+    std::cout << " " << start[ 1 ] << " " << end[ 1 ];
     if ( dimension == THREE_D )
     {
-        cout << " " << start[ 2 ] << " " << end[ 2 ];
+        std::cout << " " << start[ 2 ] << " " << end[ 2 ];
     }
-    cout << "\n";
+    std::cout << "\n";
 }
 
 void CgnsZbc::FillBcPoints3D( int * start, int * end, cgsize_t * bcpnts )
@@ -133,10 +133,10 @@ void CgnsZbc::FillBcPoints3D( int * start, int * end, cgsize_t * bcpnts )
     bcpnts[ icount ++ ] = end[ 1 ];
     bcpnts[ icount ++ ] = end[ 2 ];
 
-    cout << " " << start[ 0 ] << " " << end[ 0 ];
-    cout << " " << start[ 1 ] << " " << end[ 1 ];
-    cout << " " << start[ 2 ] << " " << end[ 2 ];
-    cout << "\n";
+    std::cout << " " << start[ 0 ] << " " << end[ 0 ];
+    std::cout << " " << start[ 1 ] << " " << end[ 1 ];
+    std::cout << " " << start[ 2 ] << " " << end[ 2 ];
+    std::cout << "\n";
 }
 
 void CgnsZbc::FillRegion( TestRegion * r, cgsize_t * ipnts, int dimension )
@@ -170,11 +170,11 @@ void CgnsZbc::FillInterface( BcRegion * bcRegion, cgsize_t * ipnts, cgsize_t * i
     itranfrm[ 0 ] = trm.itransform[ 0 ];
     itranfrm[ 1 ] = trm.itransform[ 1 ];
     itranfrm[ 2 ] = trm.itransform[ 2 ];
-    cout << " itranfrm = ";
-    cout << itranfrm[ 0 ] << " ";
-    cout << itranfrm[ 1 ] << " ";
-    cout << itranfrm[ 2 ] << " ";
-    cout << "\n";
+    std::cout << " itranfrm = ";
+    std::cout << itranfrm[ 0 ] << " ";
+    std::cout << itranfrm[ 1 ] << " ";
+    std::cout << itranfrm[ 2 ] << " ";
+    std::cout << "\n";
 }
 
 void CgnsZbc::DumpCgnsGridBoundary( Grid * gridIn )
@@ -189,7 +189,7 @@ void CgnsZbc::DumpCgnsGridBoundary( Grid * gridIn )
     int baseId = cgnsZone->cgnsBase->baseId;
     int zoneId = cgnsZone->zId;
 
-    cout << " fildId = " << fileId << " baseId = " << baseId << " zoneId = " << zoneId << "\n";
+    std::cout << " fildId = " << fileId << " baseId = " << baseId << " zoneId = " << zoneId << "\n";
 
     BcTypeMap * bcTypeMap = new BcTypeMap();
     bcTypeMap->Init();
@@ -212,7 +212,7 @@ void CgnsZbc::DumpCgnsGridBoundary( Grid * gridIn )
             // write 1-to-1 info
             int index_conn = -1;
             cg_1to1_write( fileId, baseId, zoneId, bcRegion->regionName.c_str(), donorName.c_str(), ipnts, ipntsdonor,itranfrm, & index_conn );
-            cout << " regionName = " << bcRegion->regionName << " donorName = " << donorName << " index_conn = " << index_conn << "\n";
+            std::cout << " regionName = " << bcRegion->regionName << " donorName = " << donorName << " index_conn = " << index_conn << "\n";
         }
         else
         {
@@ -221,7 +221,7 @@ void CgnsZbc::DumpCgnsGridBoundary( Grid * gridIn )
             //FillBcPoints3D( s->start, s->end, ipnts );
             int bcId = -1;
             cg_boco_write( fileId, baseId, zoneId, bcRegion->regionName.c_str(), bctype, PointRange, 2, ipnts, &bcId );
-            cout << " bcId = " << bcId << " regionName = " << bcRegion->regionName << "\n";
+            std::cout << " bcId = " << bcId << " regionName = " << bcRegion->regionName << "\n";
         }
     }
 

@@ -93,7 +93,7 @@ void CgnsTest::SetDefaultGridName()
 {
     std::string gridName = "/grid/oneflow.cgns";
     std::string prjFileName = ONEFLOW::GetPrjFileName( gridName );
-    cout << " CGNS File Name = " << prjFileName << "\n";
+    std::cout << " CGNS File Name = " << prjFileName << "\n";
 
     this->fileName = prjFileName;
 }
@@ -939,19 +939,19 @@ void CgnsTest::mytest_read()
     int iphysdim = -1;
 
     cgnsFile->ReadNumberOfBases();
-    cout << " cgnsFile->nBases = " << cgnsFile->nBases << "\n";
+    std::cout << " cgnsFile->nBases = " << cgnsFile->nBases << "\n";
 
     for ( int iBase = 0; iBase < cgnsFile->nBases; ++ iBase )
     {
         CgnsBase * cgnsBase = cgnsFile->CreateCgnsBase();
-        cout << " cgnsBase->baseId = " << cgnsBase->baseId << "\n";
+        std::cout << " cgnsBase->baseId = " << cgnsBase->baseId << "\n";
         cgnsBase->ReadCgnsBaseBasicInfo();
         cgnsBase->ReadNumberOfCgnsZones();
-        cout << " cgnsBase->nZones = " << cgnsBase->nZones << "\n";
+        std::cout << " cgnsBase->nZones = " << cgnsBase->nZones << "\n";
         for ( int iZone = 0; iZone < cgnsBase->nZones; ++ iZone )
         {
             CgnsZone * cgnsZone = cgnsBase->CreateCgnsZone();
-            cout << " cgnsZone->zId = " << cgnsZone->zId << "\n";
+            std::cout << " cgnsZone->zId = " << cgnsZone->zId << "\n";
 
             cgnsZone->ReadCgnsZoneAttribute();
             cgnsZone->ReadCgnsGridBoundary();

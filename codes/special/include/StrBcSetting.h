@@ -42,7 +42,7 @@ public:
     std::map< std::string, int > boundaryMap;
 public:
     void ConstructBcMap();
-    int GetBcType( const string & bcTypeName );
+    int GetBcType( const std::string & bcTypeName );
 public:
     void PushBc( int imin, int imax, int jmin, int jmax, int kmin, int kmax, int bcType );
     void SetBcRegion( StrGrid * grid );

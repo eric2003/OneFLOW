@@ -51,7 +51,7 @@ void PrjStatus::SetPrjBaseDir( const std::string & prjName )
         ONEFLOW::StrIO << "/";
     }
     PrjStatus::prjBaseDir = ONEFLOW::StrIO.str();
-    cout << " PrjStatus::prjBaseDir = " << PrjStatus::prjBaseDir << "\n";
+    std::cout << " PrjStatus::prjBaseDir = " << PrjStatus::prjBaseDir << "\n";
 }
 
 void MakePrjDir( const std::string & dirName )
@@ -119,7 +119,7 @@ void OpenFile( std::fstream & file, const std::string & fileName, const std::ios
     file.open( fileName.c_str(), openMode );
     if ( ! file )
     {
-        cout << "could not open " << fileName << endl;
+        std::cout << "could not open " << fileName << endl;
         Stop( "" );
     }
 }

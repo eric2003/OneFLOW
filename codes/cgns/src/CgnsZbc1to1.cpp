@@ -71,7 +71,7 @@ CgnsBc1to1 * CgnsZbc1to1::GetCgnsBcRegion1to1( int i1to1 )
 
 void CgnsZbc1to1::PrintZn1to1()
 {
-    cout << "   n1to1        = " << this->n1to1 << endl;
+    std::cout << "   n1to1        = " << this->n1to1 << endl;
 }
 
 void CgnsZbc1to1::CreateCgnsZbc()

@@ -263,7 +263,7 @@ void FaceTopo::ModifyBoundaryInformation( IFaceLink * iFaceLink )
             iFaceLink->l2gNew.push_back( gFid );
         }
     }
-    cout << "original number of interfaces = " << nIFaces << " new number of interfaces = " << nIFaceNew << endl;
+    std::cout << "original number of interfaces = " << nIFaces << " new number of interfaces = " << nIFaceNew << endl;
 
     this->ResetNumberOfBoundaryCondition( iFaceLink );
 }

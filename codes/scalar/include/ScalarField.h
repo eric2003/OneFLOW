@@ -50,7 +50,7 @@ public:
     Real ScalarFun( Real xm );
     Real SquareFun( Real xm );
 public:
-    void ToTecplot( RealList & varlist, string const & fileName );
+    void ToTecplot( RealList & varlist, std::string const & fileName );
     void SolveFlowField( FieldPara * para );
     void UpdateResidual();
     void TimeIntergral();

@@ -170,7 +170,7 @@ void Sod::Theory()
     int iterr;
     this->sp2p1( gam, p1, a1, p4, a4, p2p1, iterr, tol );
 
-    cout << "p2p1 = " << p2p1 << endl;
+    std::cout << "p2p1 = " << p2p1 << endl;
     Real t2t1 = p2p1 * ( gp1 / gm1 + p2p1 ) / ( 1.0 + gp1 * p2p1 / gm1 );
 
     Real r2r1 = ( 1.0 + gp1 * p2p1 / gm1 ) / ( gp1 / gm1 + p2p1 );
@@ -211,39 +211,39 @@ void Sod::Theory()
     xtail = xd + ( u3 - a3 ) * tm;
 
     //Write out some data.
-    cout << endl;
-    cout << "gamma             = " << gam << endl;
-    cout << "diaphram location = " << xd << endl;
-    cout << "time              = " << tm << endl;
-    cout << endl;
-    cout << "(1) p1 = " << p1 << endl;
-    cout << "    r1 = " << r1 << endl;
-    cout << "    u1 = " << u1 << endl;
-    cout << "    m1 = " << rmach1 << endl;
-    cout << endl;
-    cout << "Shock speed    = " << wsp << endl;
-    cout << "Shock location = " << xs << endl;
-    cout << endl;
-    cout << "(2) p2 = " << p2 << endl;
-    cout << "    r2 = " << r2 << endl;
-    cout << "    u2 = " << u2 << endl;
-    cout << "    m2 = " << rmach2 << endl;
-    cout << endl;
-    cout << "Contact discontinuity speed    = " << up << endl;
-    cout << "Contact discontinuity location = " << xc << endl;
-    cout << endl;
-    cout << "(3) p3 = " << p3;
-    cout << "    r3 = " << r3;
-    cout << "    u3 = " << u3;
-    cout << "    m3 = " << rmach3;
-    cout << endl;
-    cout << "Expansion region head = " << xhead << endl;
-    cout << "Expansion region tail = " << xtail << endl;
-    cout << endl;
-    cout << "(4) p4 = " << p4 << endl;
-    cout << "    r4 = " << r4 << endl;
-    cout << "    u4 = " << u4 << endl;
-    cout << "    m4 = " << rmach4 << endl;
+    std::cout << endl;
+    std::cout << "gamma             = " << gam << endl;
+    std::cout << "diaphram location = " << xd << endl;
+    std::cout << "time              = " << tm << endl;
+    std::cout << endl;
+    std::cout << "(1) p1 = " << p1 << endl;
+    std::cout << "    r1 = " << r1 << endl;
+    std::cout << "    u1 = " << u1 << endl;
+    std::cout << "    m1 = " << rmach1 << endl;
+    std::cout << endl;
+    std::cout << "Shock speed    = " << wsp << endl;
+    std::cout << "Shock location = " << xs << endl;
+    std::cout << endl;
+    std::cout << "(2) p2 = " << p2 << endl;
+    std::cout << "    r2 = " << r2 << endl;
+    std::cout << "    u2 = " << u2 << endl;
+    std::cout << "    m2 = " << rmach2 << endl;
+    std::cout << endl;
+    std::cout << "Contact discontinuity speed    = " << up << endl;
+    std::cout << "Contact discontinuity location = " << xc << endl;
+    std::cout << endl;
+    std::cout << "(3) p3 = " << p3;
+    std::cout << "    r3 = " << r3;
+    std::cout << "    u3 = " << u3;
+    std::cout << "    m3 = " << rmach3;
+    std::cout << endl;
+    std::cout << "Expansion region head = " << xhead << endl;
+    std::cout << "Expansion region tail = " << xtail << endl;
+    std::cout << endl;
+    std::cout << "(4) p4 = " << p4 << endl;
+    std::cout << "    r4 = " << r4 << endl;
+    std::cout << "    u4 = " << u4 << endl;
+    std::cout << "    m4 = " << rmach4 << endl;
 
     //Write out to files.
     std::fstream file;
@@ -321,7 +321,7 @@ void Sod::sp2p1( Real gam, Real p1, Real a1, Real p4, Real a4, Real & p2p1, int 
 
         Real f = p4 / p1 - p2p1 * pow( 1.0 - t2 / sqrt( t3 ), t1 );
 
-        cout << "iter, p2p1, f: " << iter << " " << p2p1 << " " << f << endl;
+        std::cout << "iter, p2p1, f: " << iter << " " << p2p1 << " " << f << endl;
 
         if ( ABS( f ) <= tol || iter >= itmax ) break;
 

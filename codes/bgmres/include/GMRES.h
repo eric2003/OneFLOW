@@ -7,7 +7,6 @@
 #include "systemSolver.h"
 //#include<crtdbg.h>
 
-using namespace std;
 /** ************************************************************************
  * Update the current approximation to the solution to the linear
  * system. This assumes that the update is created using a GMRES

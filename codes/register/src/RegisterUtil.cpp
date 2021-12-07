@@ -32,7 +32,7 @@ VarNameSolver::~VarNameSolver()
 {
 }
 
-void VarNameSolver::AddFieldName( const string & fieldName )
+void VarNameSolver::AddFieldName( const std::string & fieldName )
 {
     this->data.push_back( fieldName );
 }

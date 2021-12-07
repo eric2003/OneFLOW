@@ -125,13 +125,13 @@ void MergeToSingleZone( Grids & grids, HXVector< Int3D * > & unsIdList, NodeMesh
         nCells += grid->nCells;
         unsIdList[ iZone ] = new Int3D( Range( 1, ni ), Range( 1, nj ), Range( 1, nk ) );
         Int3D & unsId = * unsIdList[ iZone ];
-        cout << " block = " << iZone + 1 << "\n";
+        std::cout << " block = " << iZone + 1 << "\n";
         CalcUnsId( grid, point_search, & unsId );
     }
 
     nNodes = point_search->GetNPoint();
 
-    cout << " First nNodes = " << nNodes << "\n";
+    std::cout << " First nNodes = " << nNodes << "\n";
     nodeMesh->xN.resize( nNodes );
     nodeMesh->yN.resize( nNodes );
     nodeMesh->zN.resize( nNodes );
@@ -174,7 +174,7 @@ void FillSection( Grids & grids, HXVector< Int3D * > & unsIdList, CgnsZone * cgn
         }
     }
 
-    cout << " nBFaces = " << nBFaces << "\n";
+    std::cout << " nBFaces = " << nBFaces << "\n";
 
     cgnsZone->cgnsCoor->SetNCell( nTCell );
 
@@ -334,11 +334,11 @@ void CalcUnsId( StrGrid * grid, PointSearch * pointSearch, Int3D * unsId )
 
                 //{
                 //    int width = 8;
-                //    cout << " id = " << pointIndex;
-                //    cout << setw( width ) << xm;
-                //    cout << setw( width ) << ym;
-                //    cout << setw( width ) << zm;
-                //    cout << "\n";
+                //    std::cout << " id = " << pointIndex;
+                //    std::cout << setw( width ) << xm;
+                //    std::cout << setw( width ) << ym;
+                //    std::cout << setw( width ) << zm;
+                //    std::cout << "\n";
                 //}
                 
 
@@ -353,7 +353,7 @@ void SetUnsBcConn( BcRegion * bcRegion, CgIntField& conn, int & pos, Int3D & uns
     int ist, ied, jst, jed, kst, ked;
     bcRegion->GetNormalizeIJKRegion( ist, ied, jst, jed, kst, ked );
 
-    cout << " ist, ied, jst, jed, kst, ked = " << ist << " " << ied << " " << jst << " " << jed << " " << kst << " " << ked << endl;
+    std::cout << " ist, ied, jst, jed, kst, ked = " << ist << " " << ied << " " << jst << " " << jed << " " << kst << " " << ked << endl;
     int numpt = 4;
     if ( Dim::dimension == TWO_D ) numpt = 2;
 
@@ -490,7 +490,7 @@ void GenerateUnsBcElemConn( CgnsZone * myZone, CgnsZone * cgnsZoneIn )
 
     myZone->cgnsZbc->CreateCgnsZbc( cgnsZoneIn->cgnsZbc );
 
-    cout << " ConnectionList Size = " << cgnsSection->connSize << "\n";
+    std::cout << " ConnectionList Size = " << cgnsSection->connSize << "\n";
     cgnsZoneIn->cgnsZbc->GenerateUnsBcElemConn( cgnsSection->connList );
 }
 
@@ -516,7 +516,7 @@ void GenerateUnsVolElemConn( CgnsZone * myZone, CgnsZone * cgnsZoneIn )
     int nj = static_cast<int> (cgnsZoneIn->GetNJ());
     int nk = static_cast<int> (cgnsZoneIn->GetNK());
 
-    cout << " ni = " << ni << " nj = " << nj << " nk = " << nk << "\n";
+    std::cout << " ni = " << ni << " nj = " << nj << " nk = " << nk << "\n";
 
     int iSection = 0;
     CgnsSection * cgnsSection = myZone->cgnsZsection->GetCgnsSection( iSection );
@@ -637,7 +637,7 @@ void ReadCgnsZoneType( CgnsZone * myZone, CgnsZone * cgnsZoneIn )
 {
     myZone->cgnsZoneType = CGNS_ENUMV( Unstructured );
 
-    cout << "   The Zone Type is " << GetCgnsZoneTypeName( myZone->cgnsZoneType ) << " Zone" << "\n";
+    std::cout << "   The Zone Type is " << GetCgnsZoneTypeName( myZone->cgnsZoneType ) << " Zone" << "\n";
 }
 
 void ReadCgnsZoneNameAndGeneralizedDimension( CgnsZone * myZone, CgnsZone * cgnsZoneIn )
@@ -689,7 +689,7 @@ void DumpCgnsZoneType( CgnsZone * myZone, Grid * grid )
         myZone->cgnsZoneType = CGNS_ENUMV( Structured );
     }
 
-    cout << "   The Zone Type is " << GetCgnsZoneTypeName( myZone->cgnsZoneType ) << " Zone" << "\n";
+    std::cout << "   The Zone Type is " << GetCgnsZoneTypeName( myZone->cgnsZoneType ) << " Zone" << "\n";
 }
 
 void FillISize( CgInt *isize, int ni, int nj, int nk, int dimension )
@@ -734,12 +734,12 @@ void DumpCgnsZoneNameAndGeneralizedDimension( CgnsZone * myZone, Grid * gridIn )
 
     myZone->zoneName = gridIn->name;
     myZone->zId = -1;
-    cout << " cell dim = " << myZone->cgnsBase->celldim << " physics dim = " << myZone->cgnsBase->phydim << "\n";
+    std::cout << " cell dim = " << myZone->cgnsBase->celldim << " physics dim = " << myZone->cgnsBase->phydim << "\n";
     //create zone
     cg_zone_write( myZone->cgnsBase->cgnsFile->fileId, myZone->cgnsBase->baseId, myZone->zoneName.c_str(), myZone->isize, myZone->cgnsZoneType, &myZone->zId );
-    cout << " Zone Id = " << myZone->zId << "\n";
+    std::cout << " Zone Id = " << myZone->zId << "\n";
 
-    cout << "   CGNS Zone Name = " << myZone->zoneName << "\n";
+    std::cout << "   CGNS Zone Name = " << myZone->zoneName << "\n";
 }
 
 void DumpCgnsZoneAttribute( CgnsZone * myZone, Grid * grid )
@@ -763,9 +763,9 @@ void DumpCgnsGridCoordinates( CgnsZone * myZone, Grid * grid )
     cg_coord_write( myZone->cgnsBase->cgnsFile->fileId, myZone->cgnsBase->baseId, myZone->zId, RealDouble, "CoordinateX", &grid->nodeMesh->xN[0], &index_x );
     cg_coord_write( myZone->cgnsBase->cgnsFile->fileId, myZone->cgnsBase->baseId, myZone->zId, RealDouble, "CoordinateY", &grid->nodeMesh->yN[0], &index_y );
     cg_coord_write( myZone->cgnsBase->cgnsFile->fileId, myZone->cgnsBase->baseId, myZone->zId, RealDouble, "CoordinateZ", &grid->nodeMesh->zN[0], &index_z );
-    cout << " index_x = " << index_x << "\n";
-    cout << " index_y = " << index_y << "\n";
-    cout << " index_z = " << index_z << "\n";
+    std::cout << " index_x = " << index_x << "\n";
+    std::cout << " index_y = " << index_y << "\n";
+    std::cout << " index_z = " << index_z << "\n";
 }
 
 void DumpCgnsZone( CgnsZone * myZone, Grid * grid )

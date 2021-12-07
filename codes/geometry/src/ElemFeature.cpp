@@ -62,7 +62,7 @@ void ElemFeature::ScanElements()
 {
     int nElement = this->eTypes->size();
 
-    cout << " nElement = " << nElement << endl;
+    std::cout << " nElement = " << nElement << endl;
 
     int nIo = 200000;
 
@@ -79,13 +79,13 @@ void ElemFeature::ScanElements()
 
         if ( eId % nIo == 0 ) 
         {
-            cout << " eId = " << eId << " Total Element Number = " << nElement << endl;
+            std::cout << " eId = " << eId << " Total Element Number = " << nElement << endl;
         }
 
         this->face_solver->ScanElementFace( this->eNodeId[ eId ], eType, eId );
     }
 
-    cout << " ScanElements Face number = " << this->face_solver->GetNSimpleFace() << endl;
+    std::cout << " ScanElements Face number = " << this->face_solver->GetNSimpleFace() << endl;
 }
 
 

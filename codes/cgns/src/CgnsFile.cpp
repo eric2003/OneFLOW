@@ -80,8 +80,8 @@ void CgnsFile::OpenCgnsFile( const std::string & fileName, int cgnsOpenMode )
 
     this->openStatus = cg_open( fileName.c_str(), cgnsOpenMode, & this->fileId );
     std::string stars("**************************************************************");
-    cout << stars << "\n";
-    cout << "   CGNS File Index = " << this->fileId << "\n";
+    std::cout << stars << "\n";
+    std::cout << "   CGNS File Index = " << this->fileId << "\n";
 
     if ( this->openStatus != CG_OK )
     {
@@ -92,18 +92,18 @@ void CgnsFile::OpenCgnsFile( const std::string & fileName, int cgnsOpenMode )
     float fileVersion = -1;
     cg_version( this->fileId, & fileVersion );
 
-    cout << "   CGNS File Version = " << setiosflags( ios::fixed ) << setprecision( 4 ) << fileVersion << "\n";
+    std::cout << "   CGNS File Version = " << setiosflags( ios::fixed ) << setprecision( 4 ) << fileVersion << "\n";
 
     int precision = -1;
     cg_precision( this->fileId, & precision );
 
-    cout << "   CGNS Precision = " << precision << "\n";
+    std::cout << "   CGNS Precision = " << precision << "\n";
 
     int file_type = -1;
     cg_get_file_type( this->fileId, & file_type );
 
-    cout << "   CGNS File Type = " << file_type << " FileTypeName = " << GetCgnsFileTypeName( file_type ) << "\n";
-    cout << stars << "\n";
+    std::cout << "   CGNS File Type = " << file_type << " FileTypeName = " << GetCgnsFileTypeName( file_type ) << "\n";
+    std::cout << stars << "\n";
 }
 
 void CgnsFile::CloseCgnsFile()
@@ -122,7 +122,7 @@ CgnsBase * CgnsFile::WriteBase( const std::string & baseName, int celldim, int p
 {
     int baseId = -1;
     cg_base_write( fileId, baseName.c_str(), celldim, physdim, & baseId );
-    cout << " CGNS Base index = " << baseId << "\n";
+    std::cout << " CGNS Base index = " << baseId << "\n";
     this->currBaseId = baseId;
     return this->AddBase( fileId, baseName, celldim, physdim, baseId );
 }
@@ -154,7 +154,7 @@ void CgnsFile::GoPath( const std::string & path )
 void CgnsFile::ReadNumberOfBases()
 {
     cg_nbases( this->fileId, & this->nBases );
-    cout << " Total number of CGNS Base = " << this->nBases << "\n";
+    std::cout << " Total number of CGNS Base = " << this->nBases << "\n";
 }
 
 CgnsBase * CgnsFile::CreateCgnsBase()
@@ -214,7 +214,7 @@ void CgnsFile::ReadBaseDescriptor()
 
 void CgnsFile::WriteBaseDescriptor()
 {
-    cout << "Program write_descriptor\n";
+    std::cout << "Program write_descriptor\n";
     CgnsBase * cgnsBase = this->WriteBase( "base1" );
 
     //cg_goto must be called or an error will occur

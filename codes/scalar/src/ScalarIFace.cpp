@@ -126,21 +126,21 @@ void ScalarIFace::CalcLocalInterfaceId( int iZone, std::vector<int> & globalface
 
 void ScalarIFace::DumpInterfaceMap()
 {
-    cout << " global_to_local_interfaces std::map \n";
+    std::cout << " global_to_local_interfaces std::map \n";
     this->DumpMap( this->global_to_local_interfaces );
-    cout << "\n";
-    cout << " local_to_global_interfaces std::map \n";
+    std::cout << "\n";
+    std::cout << " local_to_global_interfaces std::map \n";
     this->DumpMap( this->local_to_global_interfaces );
-    cout << "\n";
+    std::cout << "\n";
 }
 
 void ScalarIFace::DumpMap( std::map<int,int> & mapin )
 {
     for ( std::map<int, int>::iterator iter = mapin.begin(); iter != mapin.end(); ++ iter )
     {
-        cout << iter->first << " " << iter->second << "\n";
+        std::cout << iter->first << " " << iter->second << "\n";
     }
-    cout << "\n";
+    std::cout << "\n";
 }
 
 void ScalarIFace::ReconstructNeighbor()
@@ -216,7 +216,7 @@ void ScalarIFace::ReadInterfaceTopology( DataBook * databook )
     int nIFaces = -1;
     ONEFLOW::HXRead( databook, nIFaces );
 
-    cout << " nIFaces = " << nIFaces << endl;
+    std::cout << " nIFaces = " << nIFaces << endl;
 
     if ( nIFaces > 0 )
     {

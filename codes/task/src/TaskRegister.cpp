@@ -27,7 +27,7 @@ using namespace std;
 BeginNameSpace( ONEFLOW )
 
 HXVector< VoidFunc > * TaskRegister::taskList = 0;
-HXVector< string > * TaskRegister::taskNameList = 0;
+HXVector< std::string > * TaskRegister::taskNameList = 0;
 
 TaskRegister::TaskRegister()
 {
@@ -43,12 +43,12 @@ void TaskRegister::Free()
     delete TaskRegister::taskNameList;
 }
 
-void TaskRegister::Register( VoidFunc taskfun, string const & taskname )
+void TaskRegister::Register( VoidFunc taskfun, std::string const & taskname )
 {
     if ( ! TaskRegister::taskList )
     {
         TaskRegister::taskList = new HXVector< VoidFunc >;
-        TaskRegister::taskNameList = new HXVector< string >;
+        TaskRegister::taskNameList = new HXVector< std::string >;
     }
     TaskRegister::taskList->push_back( taskfun );
     TaskRegister::taskNameList->push_back( taskname );

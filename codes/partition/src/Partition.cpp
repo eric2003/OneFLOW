@@ -180,21 +180,21 @@ void G2LMapping::PartByMetis( idx_t nCells, std::vector<idx_t>& xadj, std::vecto
     idx_t nZone = npartproc;
 
     METIS_SetDefaultOptions( options );
-    cout << "Now begining partition graph!\n";
+    std::cout << "Now begining partition graph!\n";
     if ( nZone > 8 )
     {
-        cout << "Using K-way Partitioning!\n";
+        std::cout << "Using K-way Partitioning!\n";
         METIS_PartGraphKway( & nCells, & ncon, & xadj[ 0 ], & adjncy[ 0 ], vwgt, vsize, adjwgt, 
                              & nZone, tpwgts, ubvec, options, & objval, & gc2lzone[ 0 ] );
     }
     else
     {
-        cout << "Using Recursive Partitioning!\n";
+        std::cout << "Using Recursive Partitioning!\n";
         METIS_PartGraphRecursive( & nCells, & ncon, & xadj[ 0 ], & adjncy[ 0 ], vwgt, vsize, adjwgt, 
                                   & nZone, tpwgts, ubvec, options, & objval, & gc2lzone[ 0 ] );
     }
-    cout << "The interface number: " << objval << endl; 
-    cout << "Partition is finished!\n";
+    std::cout << "The interface number: " << objval << endl; 
+    std::cout << "Partition is finished!\n";
 }
 #endif
 
@@ -239,7 +239,7 @@ void Partition::Run()
 void Partition::ReadGrid()
 {
     StringField gridFileList;
-    string ori_uns_file = GetDataValue< string >( "ori_uns_file" );
+    std::string ori_uns_file = GetDataValue< std::string >( "ori_uns_file" );
     gridFileList.push_back( ori_uns_file );
 
     Zone::ReadGrid( gridFileList );
@@ -248,7 +248,7 @@ void Partition::ReadGrid()
 
     if ( nZones > 1 )
     {
-        cout << " At present, there is no support for multiple blocks such as nZones > 1 !\n";
+        std::cout << " At present, there is no support for multiple blocks such as nZones > 1 !\n";
     }
     else
     {
@@ -299,7 +299,7 @@ void Partition::BuildCalculationalGrid()
     this->PreProcess();
     for ( int pid = 0; pid < npartproc; ++ pid )
     {
-        cout << "BuildCalculationalGrid pid = " << pid << " npartproc = " << npartproc << "\n";
+        std::cout << "BuildCalculationalGrid pid = " << pid << " npartproc = " << npartproc << "\n";
         //for unstructured grid, each processor only contains one zone, so pid equal to zid
         this->BuildCalculationalGrid( pid );
     }
@@ -508,7 +508,7 @@ void Partition::SetCoor( UnsGrid * ggrid, int zid, UnsGrid * grid )
 
     if ( iCount != nNodes )
     {
-        cout << "error in Partition::SetCoor\n";
+        std::cout << "error in Partition::SetCoor\n";
     }
 }
 
@@ -594,7 +594,7 @@ void Partition::SetF2CAndBC( UnsGrid * ggrid, int zid, UnsGrid * grid )
             }
             else
             {
-                cout << "error in SetF2CAndBC\n";
+                std::cout << "error in SetF2CAndBC\n";
             }
         }
 
@@ -663,7 +663,7 @@ void Partition::SetInterface( UnsGrid * ggrid, int zid, UnsGrid * grid )
             }
             else
             {
-                cout << "error\n";
+                std::cout << "error\n";
             }
             //interface
             //   |zone

@@ -121,7 +121,7 @@ public:
     ScalarBcco();
     ~ScalarBcco();
 public:
-    string bcName;
+    std::string bcName;
     int bcType;
 
     EList elements;
@@ -221,7 +221,7 @@ public:
     void ReadFromCgnsZbase( CgnsZbase * cgnsZbase );
     void ReadFromCgnsZone( CgnsZone * cgnsZone );
     void PushElement( CgIntField & eNodeId, int eType );
-    void GenerateGridFromCgns( const string & prjFileName );
+    void GenerateGridFromCgns( const std::string & prjFileName );
     void DumpCgnsGrid();
     void SetCgnsZone( CgnsZone * cgnsZone );
 public:

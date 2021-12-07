@@ -72,7 +72,7 @@ void MakeDir( const std::string & dirName )
 
     if ( flag == 0 )
     {
-        cout << dirName << " directory has been created successfully !\n";
+        std::cout << dirName << " directory has been created successfully !\n";
     }
 }
 

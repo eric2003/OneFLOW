@@ -77,7 +77,7 @@ void NsLusgs::DumpSweepInformation()
     int pid = ONEFLOW::Parallel::GetPid();
     if ( pid == ONEFLOW::Parallel::GetServerid() )
     {
-        cout << "Navier Stokes residual reduced by " << nslu.dmax << " with " << nslu.numberOfRealSweeps << " Sweeps\n";
+        std::cout << "Navier Stokes residual reduced by " << nslu.dmax << " with " << nslu.numberOfRealSweeps << " Sweeps\n";
     }
 }
 

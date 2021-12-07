@@ -37,12 +37,12 @@ TimeSpan::~TimeSpan()
     ;
 }
 
-void TimeSpan::ShowTimeSpan( const string & title )
+void TimeSpan::ShowTimeSpan( const std::string & title )
 {
     t = clock();
     clock_t timeSpan = t - t_old;
     t_old = t;
-    cout << title << " Time elapsed : " << static_cast< Real >( timeSpan ) / CLOCKS_PER_SEC << " seconds" << "\n";
+    std::cout << title << " Time elapsed : " << static_cast< Real >( timeSpan ) / CLOCKS_PER_SEC << " seconds" << "\n";
 }
 
 void TimeSpan::ResetTime()

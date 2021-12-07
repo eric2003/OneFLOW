@@ -99,16 +99,16 @@ void CgnsFamilyBc::ReadFamilySpecifiedBc()
 
     int nFamilies = -1;
     cg_nfamilies( fileId, baseId, & nFamilies );
-    cout << "\n";
-    cout << "   CGNS nFamilies = " << nFamilies << "\n";
+    std::cout << "\n";
+    std::cout << "   CGNS nFamilies = " << nFamilies << "\n";
     CgnsTraits::char33 familyName;
     int nBoco = -1;
     int nGeo = -1;
     for ( int iFam = 1; iFam <= nFamilies; ++ iFam )
     {
         cg_family_read( fileId, baseId, iFam, familyName, & nBoco, & nGeo );
-        cout << "   iFam = " << iFam;
-        cout << " FamilyName = " << setiosflags( ios::left ) << setw( 15 ) << familyName << " nBoco = " << nBoco << " nGeo = " << nGeo << "\n";
+        std::cout << "   iFam = " << iFam;
+        std::cout << " FamilyName = " << setiosflags( ios::left ) << setw( 15 ) << familyName << " nBoco = " << nBoco << " nGeo = " << nGeo << "\n";
     }
 
     for ( int iFam = 1; iFam <= nFamilies; ++ iFam )
@@ -122,14 +122,14 @@ void CgnsFamilyBc::ReadFamilySpecifiedBc()
             this->Register( familyName, familyBcType );
             int Width = 10;
             int stringWidth = 23;
-            cout << "   FamilyBcName = " << setiosflags( ios::left ) << setw( Width ) << familyBcName;
-            cout << " CGNS BcType = " << setiosflags( ios::left ) << setw( 5 ) << familyBcType;
-            cout << " CGNS BcName = " << setiosflags(ios::left) << setw( stringWidth ) << GetCgnsBcName( familyBcType ) << "\n";
+            std::cout << "   FamilyBcName = " << setiosflags( ios::left ) << setw( Width ) << familyBcName;
+            std::cout << " CGNS BcType = " << setiosflags( ios::left ) << setw( 5 ) << familyBcType;
+            std::cout << " CGNS BcName = " << setiosflags(ios::left) << setw( stringWidth ) << GetCgnsBcName( familyBcType ) << "\n";
         }
     }
 
-    cout << "\n";
-    cout << "\n";
+    std::cout << "\n";
+    std::cout << "\n";
 }
 
 #endif

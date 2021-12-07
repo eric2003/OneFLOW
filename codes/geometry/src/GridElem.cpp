@@ -120,15 +120,15 @@ void GridElem::CreateGrid( HXVector< CgnsZone * > cgnsZones, int iZone )
 
 void GridElem::PrepareUnsCalcGrid()
 {
-    cout << " InitCgnsElements()\n";
+    std::cout << " InitCgnsElements()\n";
     this->InitCgnsElements();
-    cout << " ScanElements()\n";
+    std::cout << " ScanElements()\n";
     this->elem_feature->ScanElements();
-    cout << " ScanBcFace()\n";
+    std::cout << " ScanBcFace()\n";
     this->ScanBcFace();
 
     //Continue to parse
-    cout << " ScanElements()\n";
+    std::cout << " ScanElements()\n";
     this->elem_feature->ScanElements();
     this->GenerateCalcElement();
 }
@@ -172,7 +172,7 @@ void GridElem::GenerateCalcElement()
     {
         if ( iFace % 200000 == 0 ) 
         {
-            cout << " iFace = " << iFace << " numberOfTotalFaces = " << nFaces << endl;
+            std::cout << " iFace = " << iFace << " numberOfTotalFaces = " << nFaces << endl;
         }
 
         int rc = ( faceTopo->rCells )[ iFace ];
@@ -200,7 +200,7 @@ void GridElem::GenerateCalcGrid( Grid * gridIn )
 
     grid->nCells = this->elem_feature->eTypes->size();
     grid->cellMesh->cellTopo->eTypes = * this->elem_feature->eTypes;
-    cout << "   nCells = " << grid->nCells << endl;
+    std::cout << "   nCells = " << grid->nCells << endl;
 
     int nNodes = this->point_factory->c2g.size();
     grid->nodeMesh->CreateNodes( nNodes );
@@ -218,25 +218,25 @@ void GridElem::GenerateCalcGrid( Grid * gridIn )
     this->CalcBoundaryType( grid );
     this->ReorderLink( grid );
 
-    cout << "\n-->All the computing information is ready\n";
+    std::cout << "\n-->All the computing information is ready\n";
 }
 
 void GridElem::CalcBoundaryType( UnsGrid * grid )
 {
-    cout << "\n-->Set boundary condition......\n";
+    std::cout << "\n-->Set boundary condition......\n";
     delete grid->faceTopo;
     grid->faceTopo = this->face_solver->faceTopo;
     grid->faceTopo->grid = grid;
     this->face_solver->faceTopo = 0;
     int nFaces = grid->faceTopo->faces.size();
-    cout << " nFaces = " << nFaces << "\n";
+    std::cout << " nFaces = " << nFaces << "\n";
      
     BcRecord * bcRecord = grid->faceTopo->bcManager->bcRecord;
     int nBFaces = bcRecord->bcType.size();
 
     grid->nBFaces = nBFaces;
 
-    cout << " nBFaces = " << nBFaces << "\n";
+    std::cout << " nBFaces = " << nBFaces << "\n";
 
     BcTypeMap * bcTypeMap = new BcTypeMap();
     bcTypeMap->Init();
@@ -276,23 +276,23 @@ void GridElem::CalcBoundaryType( UnsGrid * grid )
         nBFaceSub.push_back( iCount );
     }
 
-    cout << " Original Boundary Condition Number is " << originalBcSet.size() << endl;
+    std::cout << " Original Boundary Condition Number is " << originalBcSet.size() << endl;
     iCount = 0;
     for ( IntSet::iterator iter = originalBcSet.begin(); iter != originalBcSet.end(); ++ iter )
     {
         int oriBcType = * iter;
-        cout << " Boundary Type = " << setw( 3 ) << oriBcType << "  Name = " << setiosflags(ios::left) << setw( 23 ) << GetCgnsBcName( oriBcType );
-        cout << " Face = " << nBFaceSub[ iCount ] << endl;
+        std::cout << " Boundary Type = " << setw( 3 ) << oriBcType << "  Name = " << setiosflags(ios::left) << setw( 23 ) << GetCgnsBcName( oriBcType );
+        std::cout << " Face = " << nBFaceSub[ iCount ] << endl;
         ++ iCount;
     }
-    cout << endl;
-    cout << " Final Boundary Condition Number is " << finalBcSet.size() << endl;
-    cout << " Boundary Type : ";
+    std::cout << endl;
+    std::cout << " Final Boundary Condition Number is " << finalBcSet.size() << endl;
+    std::cout << " Boundary Type : ";
     for ( IntSet::iterator iter = finalBcSet.begin(); iter != finalBcSet.end(); ++ iter )
     {
-        cout << * iter << " ";
+        std::cout << * iter << " ";
     }
-    cout << endl;
+    std::cout << endl;
 }
 
 void GridElem::ReorderLink( UnsGrid * grid )

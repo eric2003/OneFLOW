@@ -178,11 +178,11 @@ void BcVisual::ResolveElementEdge()
                 int ip = this->rcell[ edgeIndex ];
                 if ( ip != -1 )
                 {
-                    cout << "Fatal Error\n";
-                    cout << " edgeIndex = " << edgeIndex << "\n";
+                    std::cout << "Fatal Error\n";
+                    std::cout << " edgeIndex = " << edgeIndex << "\n";
                     for ( int i = 0; i < this->e2n[ edgeIndex ].size(); ++ i )
                     {
-                        cout << this->e2n[ edgeIndex ][ i ] << " ";
+                        std::cout << this->e2n[ edgeIndex ][ i ] << " ";
                     }
                 }
 
@@ -244,22 +244,22 @@ void BcVisual::Calcf2n( int bcType )
     //    int le = 1360;
     //    int re = 1361;
 
-    //    cout << "Elem id = " << le << " " << re << "\n";
-    //    cout << " this->f2n.size() = " << this->f2n.size() << "\n";
+    //    std::cout << "Elem id = " << le << " " << re << "\n";
+    //    std::cout << " this->f2n.size() = " << this->f2n.size() << "\n";
     //    int nle = this->f2n[ le ].size();
     //    int nre = this->f2n[ re ].size();
-    //    cout << "left elem node size =  " << nle << "\n";
-    //    cout << "right elem node size =  " << nre << "\n";
+    //    std::cout << "left elem node size =  " << nle << "\n";
+    //    std::cout << "right elem node size =  " << nre << "\n";
     //    for ( int i = 0; i < nle; ++ i )
     //    {
-    //        cout << this->f2n[ le ][ i ] << " ";
+    //        std::cout << this->f2n[ le ][ i ] << " ";
     //    }
-    //    cout << "\n";
+    //    std::cout << "\n";
     //    for ( int i = 0; i < nre; ++ i )
     //    {
-    //        cout << this->f2n[ re ][ i ] << " ";
+    //        std::cout << this->f2n[ re ][ i ] << " ";
     //    }
-    //    cout << "\n";
+    //    std::cout << "\n";
     //}
 }
 

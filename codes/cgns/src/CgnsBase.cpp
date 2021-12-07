@@ -123,18 +123,18 @@ void CgnsBase::ReadCgnsBaseBasicInfo()
 
     double double_base_id;
     cg_base_id( this->cgnsFile->fileId, this->baseId, & double_base_id );
-    cout << "   double_base_id = " << double_base_id << "\n";
+    std::cout << "   double_base_id = " << double_base_id << "\n";
     //Check the cell and physical dimensions of the bases.
     cg_base_read( this->cgnsFile->fileId, this->baseId, cgnsBaseName, & this->celldim, & this->phydim );
     this->baseName = cgnsBaseName;
-    cout << "   baseId = " << this->baseId << " baseName = " << cgnsBaseName << "\n";
-    cout << "   cell dim = " << this->celldim << " physical dim = " << this->phydim << "\n";
+    std::cout << "   baseId = " << this->baseId << " baseName = " << cgnsBaseName << "\n";
+    std::cout << "   cell dim = " << this->celldim << " physical dim = " << this->phydim << "\n";
 }
 
 void CgnsBase::DumpCgnsBaseBasicInfo()
 {
     cg_base_write( this->cgnsFile->fileId, this->baseName.c_str(), this->celldim, this->phydim, &this->baseId );
-    cout << " baseId = " << this->baseId << " baseName = " << this->baseName << "\n";
+    std::cout << " baseId = " << this->baseId << " baseName = " << this->baseName << "\n";
 }
 
 void CgnsBase::ReadNumberOfCgnsZones()
@@ -174,14 +174,14 @@ void CgnsBase::ConstructZoneNameMap()
 
 void CgnsBase::ReadAllCgnsZones()
 {
-    cout << "** Reading CGNS Grid In Base " << this->baseId << "\n";
-    cout << "   Reading CGNS Family Specified BC \n";
+    std::cout << "** Reading CGNS Grid In Base " << this->baseId << "\n";
+    std::cout << "   Reading CGNS Family Specified BC \n";
     this->ReadFamilySpecifiedBc();
-    cout << "   numberOfCgnsZones       = " << this->nZones << "\n\n";
+    std::cout << "   numberOfCgnsZones       = " << this->nZones << "\n\n";
 
     for ( int iZone = 0; iZone < nZones; ++ iZone )
     {
-        cout << "==>iZone = " << iZone << " numberOfCgnsZones = " << this->nZones << "\n";
+        std::cout << "==>iZone = " << iZone << " numberOfCgnsZones = " << this->nZones << "\n";
         CgnsZone * cgnsZone = this->GetCgnsZone( iZone );
         cgnsZone->ReadCgnsGrid();
     }
@@ -189,14 +189,14 @@ void CgnsBase::ReadAllCgnsZones()
 
 void CgnsBase::DumpAllCgnsZones()
 {
-    cout << "** Dumping CGNS Grid In Base " << this->baseId << "\n";
-    cout << "   Dumping CGNS Family Specified BC \n";
+    std::cout << "** Dumping CGNS Grid In Base " << this->baseId << "\n";
+    std::cout << "   Dumping CGNS Family Specified BC \n";
     //this->ReadFamilySpecifiedBc();
-    cout << "   numberOfCgnsZones       = " << this->nZones << "\n\n";
+    std::cout << "   numberOfCgnsZones       = " << this->nZones << "\n\n";
 
     for ( int iZone = 0; iZone < nZones; ++ iZone )
     {
-        cout << "==>iZone = " << iZone << " numberOfCgnsZones = " << this->nZones << "\n";
+        std::cout << "==>iZone = " << iZone << " numberOfCgnsZones = " << this->nZones << "\n";
         CgnsZone * cgnsZone = this->GetCgnsZone( iZone );
         cgnsZone->DumpCgnsGrid();
     }
@@ -210,8 +210,8 @@ void CgnsBase::ProcessCgnsZones()
 
     for ( int iZone = 0; iZone < nZones; ++ iZone )
     {
-        cout << "==>iZone = " << iZone << " numberOfCgnsZones = " << this->nZones << "\n";
-        cout << "cgnsZone->SetPeriodicBc\n";
+        std::cout << "==>iZone = " << iZone << " numberOfCgnsZones = " << this->nZones << "\n";
+        std::cout << "cgnsZone->SetPeriodicBc\n";
         CgnsZone * cgnsZone = this->GetCgnsZone( iZone );
         cgnsZone->SetPeriodicBc();
     }
@@ -219,11 +219,11 @@ void CgnsBase::ProcessCgnsZones()
 
 void CgnsBase::ConvertToInnerDataStandard()
 {
-    cout << "   ConvertToInnerDataStandard \n";
+    std::cout << "   ConvertToInnerDataStandard \n";
 
     for ( int iZone = 0; iZone < nZones; ++ iZone )
     {
-        cout << "==>iZone = " << iZone << " numberOfCgnsZones = " << this->nZones << "\n";
+        std::cout << "==>iZone = " << iZone << " numberOfCgnsZones = " << this->nZones << "\n";
         CgnsZone * cgnsZone = this->GetCgnsZone( iZone );
         cgnsZone->ConvertToInnerDataStandard();
     }
@@ -301,17 +301,17 @@ void CgnsBase::ReadReferenceState()
 
     CGNS_ENUMT(DataClass_t) id;
     cg_dataclass_read( & id );
-    cout << "DataClass id = " << id << "\n";
-    cout << "DataClass = " << DataClassName[ id ] << "\n";
+    std::cout << "DataClass id = " << id << "\n";
+    std::cout << "DataClass = " << DataClassName[ id ] << "\n";
 
     char * state;
     cg_state_read( & state );
-    cout << "ReferenceState = " << state << "\n";
+    std::cout << "ReferenceState = " << state << "\n";
 
     this->GoToNode( "ReferenceState_t", 1 );
     int narrays = -1;
     cg_narrays( & narrays );
-    cout << " narrays = " << narrays << "\n";
+    std::cout << " narrays = " << narrays << "\n";
 
     for ( int n = 1; n <= narrays; ++ n )
     {
@@ -320,11 +320,11 @@ void CgnsBase::ReadReferenceState()
         cgsize_t idimvec;
         char arrayname[33];
         cg_array_info( n, arrayname, & idata, & idim, & idimvec );
-        cout << " DataTypeName = " << DataTypeName[ idata ] << "\n";
+        std::cout << " DataTypeName = " << DataTypeName[ idata ] << "\n";
         double data;
         cg_array_read_as( n, CGNS_ENUMV(RealDouble), & data );
-        cout << "Variable = " << arrayname << "\n";
-        cout << "   data = " << data << "\n";
+        std::cout << "Variable = " << arrayname << "\n";
+        std::cout << "   data = " << data << "\n";
     }
 }
 
@@ -335,13 +335,13 @@ void CgnsBase::ReadBaseDescriptor()
     //find out how many descriptors are here:
     int ndescriptors = -1;
     cg_ndescriptors( & ndescriptors );
-    cout << " ndescriptors = " << ndescriptors << "\n";
+    std::cout << " ndescriptors = " << ndescriptors << "\n";
     for ( int n = 1; n <= ndescriptors; ++ n )
     {
         //read descriptor
         char *text, name[33];
         cg_descriptor_read( n, name, &text );
-        cout << "The descriptor is : " << name << "," << text << "\n";
+        std::cout << "The descriptor is : " << name << "," << text << "\n";
         delete[ ] text;
     }
 }
@@ -353,13 +353,13 @@ void CgnsBase::ReadConvergence()
     int nIterations;
     char *text;
     cg_convergence_read( &nIterations, &text );
-    cout << "nIterations = " << nIterations << " text = " << text << "\n";
+    std::cout << "nIterations = " << nIterations << " text = " << text << "\n";
     delete[ ] text;
 
     this->GoToNode( "ConvergenceHistory_t", 1 );
     int narrays = -1;
     cg_narrays( & narrays );
-    cout << " narrays = " << narrays << "\n";
+    std::cout << " narrays = " << narrays << "\n";
 
     for ( int n = 1; n <= narrays; ++ n )
     {
@@ -370,14 +370,14 @@ void CgnsBase::ReadConvergence()
         char arrayname[ 33 ];
         cg_array_info( n, arrayname, & itype, & idim, & idimvec );
         std::vector< double > varArray( idimvec );
-        cout << "Datatype = " << itype << " DataTypeName = " << DataTypeName[ itype ] << "\n";
+        std::cout << "Datatype = " << itype << " DataTypeName = " << DataTypeName[ itype ] << "\n";
         cg_array_read_as( n, itype, &varArray[ 0 ] );
-        cout << " VarArrayName = " << arrayname << "\n";
+        std::cout << " VarArrayName = " << arrayname << "\n";
         for ( int i = 0; i < idimvec; ++ i )
         {
-            cout << varArray[ i ] << " ";
+            std::cout << varArray[ i ] << " ";
         }
-        cout << "\n";
+        std::cout << "\n";
     }
 }
 

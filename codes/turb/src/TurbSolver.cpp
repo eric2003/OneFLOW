@@ -50,7 +50,7 @@ void TurbSolver::StaticInit()
     if ( TurbSolver::initFlag ) return;
     TurbSolver::initFlag = true;
 
-    string fileName = "grid/turb_bc.txt";
+    std::string fileName = "grid/turb_bc.txt";
     turb_bc_data.Init( fileName );
 
     turb_ctrl.Init();
@@ -64,7 +64,7 @@ void TurbSolver::StaticInit()
 
     solverInfo->registerInterface = 0;
     solverInfo->residualName = "turbres";
-    solverInfo->resFileName = GetDataValue< string >( "turbresFile" );
+    solverInfo->resFileName = GetDataValue< std::string >( "turbresFile" );
     solverInfo->gradString.push_back( "turbq"    );
     solverInfo->gradString.push_back( "turbdqdx" );
     solverInfo->gradString.push_back( "turbdqdy" );

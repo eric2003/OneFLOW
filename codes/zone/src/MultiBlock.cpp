@@ -49,7 +49,7 @@ void MultiBlock::ReadMultiBlockGrid()
 {
     StringField gridFileList;
 
-    string gridFileName = ONEFLOW::GetGridFileName();
+    std::string gridFileName = ONEFLOW::GetGridFileName();
 
     gridFileList.push_back( gridFileName );
 
@@ -134,7 +134,7 @@ void MultiBlock::InitOversetTopo()
 
 string GetGridFileName()
 {
-    return ONEFLOW::GetDataValue< string >( "gridFileName" );
+    return ONEFLOW::GetDataValue< std::string >( "gridFileName" );
 }
 
 void WalldistSimu()

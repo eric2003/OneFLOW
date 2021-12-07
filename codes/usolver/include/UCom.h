@@ -95,13 +95,13 @@ class HXDebug
 public:
     HXDebug();
     ~HXDebug();
-    static string fileName1, fileName2;
+    static std::string fileName1, fileName2;
 public:
-    static void DumpResField( const string & fileName );
-    static void DumpField( const string & fileName, MRField * field );
-    static string GetFullFileName( const string & fileName, int startStrategy );
+    static void DumpResField( const std::string & fileName );
+    static void DumpField( const std::string & fileName, MRField * field );
+    static std::string GetFullFileName( const std::string & fileName, int startStrategy );
     static void CompareFile( Real mindiff, int idump );
-    static MRField * ReadField( const string & fileName );
+    static MRField * ReadField( const std::string & fileName );
     static void DumpCellInfo( int iCell );
     static void CheckNANField( MRField * field );
 };

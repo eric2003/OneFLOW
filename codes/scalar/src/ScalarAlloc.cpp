@@ -36,12 +36,12 @@ ScalarFieldProperty::~ScalarFieldProperty()
 {
 }
 
-void ScalarFieldProperty::AddField( const string & fieldName, int nEqu )
+void ScalarFieldProperty::AddField( const std::string & fieldName, int nEqu )
 {
     this->data[ fieldName ] = nEqu;
 }
 
-int ScalarFieldProperty::GetNEqu( const string & fileName )
+int ScalarFieldProperty::GetNEqu( const std::string & fileName )
 {
     std::map< std::string, int >::iterator iter;
     iter = this->data.find( fileName );
@@ -154,7 +154,7 @@ void ScalarFieldManager::DownloadInterfaceField()
     }
 }
 
-void ScalarUploadInterfaceValue( ScalarGrid * grid, const string & name )
+void ScalarUploadInterfaceValue( ScalarGrid * grid, const std::string & name )
 {
     MRField * field2D = ONEFLOW::GetFieldPointer< MRField >( grid, name );
 
@@ -180,7 +180,7 @@ void ScalarUploadInterfaceValue( ScalarGrid * grid, const string & name )
     }
 }
 
-void ScalarDownloadInterfaceValue( ScalarGrid * grid, const string & name )
+void ScalarDownloadInterfaceValue( ScalarGrid * grid, const std::string & name )
 {
     MRField * field2D = ONEFLOW::GetFieldPointer< MRField >( grid, name );
 

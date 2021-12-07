@@ -145,7 +145,7 @@ public:
 //    MyBcRegion();
 //    ~MyBcRegion();
 //public:
-//    string name;
+//    std::string name;
 //
 //};
 //
@@ -156,7 +156,7 @@ public:
 //    BcAction();
 //    ~BcAction();
 //public:
-//    void CreatBCRegion( const string "LeftOutFlow", ONEFLOW::BCOutflow );
+//    void CreatBCRegion( const std::string "LeftOutFlow", ONEFLOW::BCOutflow );
 //};
 
 

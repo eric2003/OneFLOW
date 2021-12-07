@@ -37,8 +37,8 @@ public:
 public:
     static std::map< std::string, int > data;
 public:
-    static void AddField( const string & fieldName, int nEqu );
-    static int GetNEqu( const string & fieldName );
+    static void AddField( const std::string & fieldName, int nEqu );
+    static int GetNEqu( const std::string & fieldName );
 };
 
 class ScalarFieldRecord

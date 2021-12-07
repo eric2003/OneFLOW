@@ -49,7 +49,7 @@ void ULhs::CalcLHS( int sTid )
     UnsGrid * grid = Zone::GetUnsGrid();
 
     SolverInfo * solverInfo = SolverInfoFactory::GetSolverInfo( sTid );
-    string & residualName = solverInfo->residualName;
+    std::string & residualName = solverInfo->residualName;
 
     MRField * dq = FieldHome::GetUnsField( grid, residualName );
 

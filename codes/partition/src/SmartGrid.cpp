@@ -437,10 +437,10 @@ void SmartGrid::TestAddDeletePoints()
     this->AddPoint( 3.0, 1.0, 1.0 );
     this->AddPoint( 4.0, 1.0, 1.0 );
     int id4 = this->point_action->DeletePoint( 1.0, 1.0, 1.0 );
-    cout << "id1 = " << id1 << "\n";
-    cout << "id2 = " << id2 << "\n";
-    cout << "id3 = " << id3 << "\n";
-    cout << "id4 = " << id4 << "\n";
+    std::cout << "id1 = " << id1 << "\n";
+    std::cout << "id2 = " << id2 << "\n";
+    std::cout << "id3 = " << id3 << "\n";
+    std::cout << "id4 = " << id4 << "\n";
 
     int kkk = 1;
 }
@@ -456,7 +456,7 @@ void SmartGrid::Run()
     #endif
     #ifdef ENABLE_OPENMP
         #pragma omp parallel  
-        cout << "Hello, OneFLOW OpenMP Test!\n";
+        std::cout << "Hello, OneFLOW OpenMP Test!\n";
     #endif
 }
 

@@ -103,7 +103,7 @@ void ScalarZoneTmp::CompareField( std::vector< double > & uGlobal )
         double diff = ABS( ug - um );
         if ( diff > 1.0e-12 )
         {
-            cout << " i = " << i << "um = " << um << " ig = " << j << " ug = " << ug << "\n";
+            std::cout << " i = " << i << "um = " << um << " ig = " << j << " ug = " << ug << "\n";
         }
     }
 }
@@ -209,7 +209,7 @@ void ScalarSolver::SetScalarZone()
         scalarZone->SetBc( bcL, bcR );
         
         this->scalarZones.push_back( scalarZone );
-        cout << " iZone = " << iZone << " nZones = " << nZones << " ist = " << ist << " ied = " << ied << "\n";
+        std::cout << " iZone = " << iZone << " nZones = " << nZones << " ist = " << ist << " ied = " << ied << "\n";
     }
 }
 
@@ -338,7 +338,7 @@ void ScalarSolver::Visual( ScalarPara * para )
     Numpy::Plot( x, u );
 
     double time_final = this->dt * nt;
-    cout << " nt = " << nt << "\n";
+    std::cout << " nt = " << nt << "\n";
     this->Theory( time_final );
 
     Numpy::Plot( "theory.plt", x, utheory );
@@ -483,7 +483,7 @@ void ScalarSolver::CalcL1Norm()
         double du = ui - um;
         this->l1Norm += ABS( du ) * this->dx;
     }
-    cout << " this->l1Norm = " << this->l1Norm << "\n";
+    std::cout << " this->l1Norm = " << this->l1Norm << "\n";
 }
 
 void ScalarSolver::CalcL2Norm()
@@ -498,7 +498,7 @@ void ScalarSolver::CalcL2Norm()
         this->l2Norm += SQR( du ) * this->dx;
     }
     this->l2Norm = sqrt( this->l2Norm );
-    cout << " this->l2Norm = " << this->l2Norm << "\n";
+    std::cout << " this->l2Norm = " << this->l2Norm << "\n";
 }
 
 EndNameSpace

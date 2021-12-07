@@ -76,7 +76,7 @@ void InitFirst( StringField & data )
 {
     int sTid = SolverState::tid;
 
-    const string & basicString = data[ 0 ];
+    const std::string & basicString = data[ 0 ];
 
     FieldAlloc::AllocateAllFields( sTid, basicString );
 }

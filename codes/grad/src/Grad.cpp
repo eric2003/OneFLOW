@@ -63,7 +63,7 @@ void Grad::CalcGrad()
         int idumpface = 1;
         int idumpcell = 0;
         std::string fname = AddString( "grad.", name, ".debug" );
-        cout << "varname = " << name << "\n";
+        std::cout << "varname = " << name << "\n";
         HXDebug::DumpField( fname, q );
         HXDebug::CompareFile( 1.0e-12, idumpcell );
 

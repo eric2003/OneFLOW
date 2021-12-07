@@ -158,10 +158,10 @@ void IFaceLink::MatchInterfaceTopology( Grid * grid )
 
         //if ( ! flag )
         //{
-        //    cout << "LocalInterface Index = " << iIFace << " There is a problem in the input grid. Please check it carefully!\n";
+        //    std::cout << "LocalInterface Index = " << iIFace << " There is a problem in the input grid. Please check it carefully!\n";
         //}
     }
-    cout << " Total peoridic boundary faces = " << nPeoridic << "\n";
+    std::cout << " Total peoridic boundary faces = " << nPeoridic << "\n";
     if ( nPeoridic != 0 )
     {
         //this->MatchPeoridicInterface( grid );

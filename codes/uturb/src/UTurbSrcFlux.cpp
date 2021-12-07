@@ -226,7 +226,7 @@ void UTurbSrcFlux::CalcVist1Equ()
         }
         if ( turbcom.rho < 0 || NotANumber( turbcom.rho ) )
         {
-            cout << " zone = " << ZoneState::zid << " cId = " << cId << " rho = " << turbcom.rho << "\n";
+            std::cout << " zone = " << ZoneState::zid << " cId = " << cId << " rho = " << turbcom.rho << "\n";
             Stop( "NotANumber( turbcom.rho )" );
             //cin.get();
         }

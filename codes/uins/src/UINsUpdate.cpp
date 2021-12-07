@@ -94,9 +94,9 @@ void UINsUpdate::PrepareData()
 
 void UINsUpdate::DumpProbeInfo()
 {
-    cout << setprecision( 3 );
-    cout << "Warning : p = " << nscom.prim[ IIDX::IIP ] << ", r = " << nscom.prim[ IIDX::IIR ];
-    cout << " <-> zid = " << ZoneState::zid << ", cid = " << ug.cId << endl;
+    std::cout << setprecision( 3 );
+    std::cout << "Warning : p = " << nscom.prim[ IIDX::IIP ] << ", r = " << nscom.prim[ IIDX::IIR ];
+    std::cout << " <-> zid = " << ZoneState::zid << ", cid = " << ug.cId << endl;
 }
 
 void UINsUpdate::SolutionFix()

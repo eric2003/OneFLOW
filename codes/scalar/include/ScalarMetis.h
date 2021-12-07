@@ -44,8 +44,8 @@ public:
 };
 
 void ScalarMetisAddZoneGrid( std::vector< ScalarGrid * > & part_grids );
-void ScalarReadGrid( const string & gridFileName, std::vector< ScalarGrid * > & grids );
-void ScalarDumpGrid( const string & gridFileName, ScalarGrid * grid );
-void ScalarDumpGrid( const string & gridFileName, std::vector< ScalarGrid * > & grids );
+void ScalarReadGrid( const std::string & gridFileName, std::vector< ScalarGrid * > & grids );
+void ScalarDumpGrid( const std::string & gridFileName, ScalarGrid * grid );
+void ScalarDumpGrid( const std::string & gridFileName, std::vector< ScalarGrid * > & grids );
 
 EndNameSpace

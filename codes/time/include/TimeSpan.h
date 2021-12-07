@@ -36,7 +36,7 @@ public:
     clock_t t_old, t;
 public:
     void ResetTime();
-    void ShowTimeSpan( const string & title = "" );
+    void ShowTimeSpan( const std::string & title = "" );
 };
 
 

@@ -24,7 +24,6 @@ License
 #pragma once
 #include "HXType.h"
 #include <vector>
-using namespace std;
 
 BeginNameSpace( ONEFLOW )
 

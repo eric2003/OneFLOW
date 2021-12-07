@@ -29,7 +29,7 @@ BeginNameSpace( ONEFLOW )
 
 void ToyModelSimu()
 {
-    cout << "ToyModelSimu\n";
+    std::cout << "ToyModelSimu\n";
     FieldSolver * fieldSolver = new FieldSolver();
     fieldSolver->Run();
     delete fieldSolver;

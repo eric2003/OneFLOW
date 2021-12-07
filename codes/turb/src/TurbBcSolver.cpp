@@ -102,7 +102,7 @@ void TurbBcSolver::SetBc()
     }
     else
     {
-        cout << "Error : Illegal BCtype ID " << ug.bctype << endl;
+        std::cout << "Error : Illegal BCtype ID " << ug.bctype << endl;
         Stop("");
     }
 }

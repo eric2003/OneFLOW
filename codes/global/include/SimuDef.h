@@ -20,8 +20,9 @@ License
 
 \*---------------------------------------------------------------------------*/
 #pragma once
+#include "Configure.h"
 #include <map>
-#include "HXDefine.h"
+#include <string>
 
 BeginNameSpace( ONEFLOW )
 
@@ -38,7 +39,7 @@ enum class TaskEnum
     POST_TASK = 7
 };
 
-const std::map<string, TaskEnum> TaskFilter = 
+const std::map<std::string, TaskEnum> TaskFilter = 
 {
     {"Solve",TaskEnum::SOLVE_FIELD},
     {"Grid",TaskEnum::CREATE_GRID},

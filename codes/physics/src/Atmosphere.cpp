@@ -116,7 +116,7 @@ void Atmosphere::GetAirPara( const Real & hKm, Real & temperature, Real & pressu
     soundSpeed = sqrt( gama * rGas * temperature );
     pressure = pressure * 100.0;
 
-    cout << pressure << " " << temperature << " " << density << " " << soundSpeed << "\n";
+    std::cout << pressure << " " << temperature << " " << density << " " << soundSpeed << "\n";
 }
 
 int Atmosphere::FindIndex( Real hMeter )

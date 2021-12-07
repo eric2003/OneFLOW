@@ -108,28 +108,28 @@ void readFileJson()
     f.open( "test.json", ios::in );
     if ( ! f.is_open() )
     {
-        cout << "Open json file error!" << endl;
+        std::cout << "Open json file error!" << endl;
     }
 
     JSONCPP_STRING errs;
 
     bool parse_ok = Json::parseFromStream(reader, f, &root, &errs);
 
-    cout << root.size() << endl;
-    string a1 = root[ "name" ].asString();
-    string a2 = root[ "age" ].asString();
-    string a3 = root[ "sex_is_male" ].asString();
+    std::cout << root.size() << endl;
+    std::string a1 = root[ "name" ].asString();
+    std::string a2 = root[ "age" ].asString();
+    std::string a3 = root[ "sex_is_male" ].asString();
     Json::Value & v = root[ "partner" ];
-    string b1 = v[ "partner_name" ].asString();
-    string b2 = v[ "partner_age" ].asString();
-    string b3 = v[ "partner_sex_is_male" ].asString();
+    std::string b1 = v[ "partner_name" ].asString();
+    std::string b2 = v[ "partner_age" ].asString();
+    std::string b3 = v[ "partner_sex_is_male" ].asString();
 
     Json::Value & w = root[ "achievement" ];
     int s = w.size();
     for ( int i = 0; i < s; ++ i )
     {
-        string ss = w[ i ].asString();
-        cout << " ss = " << ss << "\n";
+        std::string ss = w[ i ].asString();
+        std::cout << " ss = " << ss << "\n";
     }
 
     ofstream os;

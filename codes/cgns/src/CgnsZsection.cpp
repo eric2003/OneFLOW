@@ -122,17 +122,17 @@ void CgnsZsection::ReadNumberOfCgnsSections()
 
     cg_nsections( fileId, baseId, zId, & this->nSection );
 
-    cout << "   numberOfCgnsSections = " << this->nSection << "\n";
+    std::cout << "   numberOfCgnsSections = " << this->nSection << "\n";
 }
 
 void CgnsZsection::ReadCgnsSections()
 {
-    cout << "   Reading Cgns Section Data......\n";
-    cout << "\n";
+    std::cout << "   Reading Cgns Section Data......\n";
+    std::cout << "\n";
 
     for ( int iSection = 0; iSection < this->nSection; ++ iSection )
     {
-        cout << "-->iSection     = " << iSection << " numberOfCgnsSections = " << this->nSection << "\n";
+        std::cout << "-->iSection     = " << iSection << " numberOfCgnsSections = " << this->nSection << "\n";
         CgnsSection * cgnsSection = this->GetCgnsSection( iSection );
         cgnsSection->ReadCgnsSection();
     }
@@ -140,12 +140,12 @@ void CgnsZsection::ReadCgnsSections()
 
 void CgnsZsection::DumpCgnsSections()
 {
-    cout << "   Dumping Cgns Section Data......\n";
-    cout << "\n";
+    std::cout << "   Dumping Cgns Section Data......\n";
+    std::cout << "\n";
 
     for ( int iSection = 0; iSection < this->nSection; ++ iSection )
     {
-        cout << "-->iSection     = " << iSection << " numberOfCgnsSections = " << this->nSection << "\n";
+        std::cout << "-->iSection     = " << iSection << " numberOfCgnsSections = " << this->nSection << "\n";
         CgnsSection * cgnsSection = this->GetCgnsSection( iSection );
         cgnsSection->DumpCgnsSection();
     }

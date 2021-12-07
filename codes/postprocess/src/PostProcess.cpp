@@ -43,7 +43,7 @@ Post::~Post()
 
 void Post::Run()
 {
-    cout << " Post::Run()\n";
+    std::cout << " Post::Run()\n";
 
     std::fstream file;
 
@@ -67,7 +67,7 @@ void Post::Run()
 
         if ( count <= 8 )
         {
-            cout << "header = ";
+            std::cout << "header = ";
             ioFile.DumpLineContentToScreen();
             continue;
         }
@@ -206,7 +206,7 @@ void CurveData::FindExtremePoint()
 
     for ( int p = 0; p < N; ++ p )
     {
-        cout << " p = " << p << " N = " << N << "\n";
+        std::cout << " p = " << p << " N = " << N << "\n";
         for ( int q = p + 1; q < N; ++ q )
         {
             for ( int r = q + 1; r < N; ++ r )
@@ -234,7 +234,7 @@ void CurveData::FindExtremePoint()
             count ++;
         }
     }
-    cout << "number of extreme points = " << count << " total points = " << N << "\n";
+    std::cout << "number of extreme points = " << count << " total points = " << N << "\n";
 }
 
 bool CurveData::InTriangle( int p, int q, int r, int s )
@@ -344,7 +344,7 @@ void CurveData::FindExtremeEdge()
 
     for ( int p = 0; p < N; ++ p ) //test
     {
-        cout << " p = " << p << " N = " << N << "\n";
+        std::cout << " p = " << p << " N = " << N << "\n";
         for ( int q = p + 1; q < N; ++ q ) //each
         {
             bool flag = CheckEdge( p, q ); //directed edge pq
@@ -409,7 +409,7 @@ int CurveData::FindNextExtremeEdgePoint( int p1, int p2 )
 {
     if ( p2p[ p2 ].size() != 1 )
     {
-        cout << " p2 = " << p2 << "p2p[ p2 ].size()=" << p2p[ p2 ].size() << "\n";
+        std::cout << " p2 = " << p2 << "p2p[ p2 ].size()=" << p2p[ p2 ].size() << "\n";
     }
     for ( std::set<int>::iterator iter = p2p[ p2 ].begin(); iter != p2p[ p2 ].end(); ++ iter )
     {
@@ -459,7 +459,7 @@ bool CurveData::FindNextPoint( int p1, int & pNext, VectDir * vd )
     int pCandidate = pNext;
     Real dCandidate = minds;
 
-    cout << " angle = " << angle << "\n";
+    std::cout << " angle = " << angle << "\n";
 
     minds = LARGE;
     pNext = -1;
@@ -471,7 +471,7 @@ bool CurveData::FindNextPoint( int p1, int & pNext, VectDir * vd )
         Real ds = DIST( vecd.dx, vecd.dy );
         vecd.Normalize();
         angle = vecd.Angle( vd );
-        cout << " angle = " << angle << " ds = " << ds << "\n";
+        std::cout << " angle = " << angle << " ds = " << ds << "\n";
         if ( angle >= 30 ) continue;
 
         if ( ds < minds )
@@ -481,7 +481,7 @@ bool CurveData::FindNextPoint( int p1, int & pNext, VectDir * vd )
         }
     }
 
-    cout << " pNext = " << pNext << "\n";
+    std::cout << " pNext = " << pNext << "\n";
 
     if ( pNext == - 1 )
     {

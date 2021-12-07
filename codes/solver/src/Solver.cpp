@@ -38,19 +38,19 @@ Solver::~Solver()
 {
 }
 
-Solver * Solver::SafeClone( const string & type )
+Solver * Solver::SafeClone( const std::string & type )
 {
     std::map < std::string, Solver * >::iterator iter = Solver::classMap->find( type );
     if ( iter == Solver::classMap->end() )
     {
-        cout << type << " class not found \n";
+        std::cout << type << " class not found \n";
         exit( 0 );
     }
 
     return iter->second->Clone();
 }
 
-Solver * Solver::Register( const string & type, Solver * clone )
+Solver * Solver::Register( const std::string & type, Solver * clone )
 {
     if ( ! Solver::classMap )
     {

@@ -39,8 +39,8 @@ public:
     std::map< std::string, HXClone * > data;
 public:
     void FreeAll();
-    void Register( const string & cmdName, const string & className );
-    HXClone * GetClass( const string & cmdName );
+    void Register( const std::string & cmdName, const std::string & className );
+    HXClone * GetClass( const std::string & cmdName );
 };
 
 class MRegister
@@ -59,7 +59,7 @@ public:
     void RegisterAll();
 private:
     void AllocateData();
-    void Register( const string & fileName, HXRegister * fRegister );
+    void Register( const std::string & fileName, HXRegister * fRegister );
 };
 
 

@@ -29,7 +29,6 @@ License
 #include "HXMath.h"
 #include "HXStd.h"
 #include <iostream>
-using namespace std;
 
 BeginNameSpace( ONEFLOW )
 

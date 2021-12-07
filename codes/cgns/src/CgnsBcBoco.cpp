@@ -119,7 +119,7 @@ void CgnsBcBoco::ProcessFaceBc( IntSet & bcVertex )
     if ( this->pointSetType == ElementRange ||
          this->pointSetType == PointRange )
     {
-        cout << " nBcElement = " << this->connList[ 1 ] - this->connList[ 0 ] + 1 << endl;
+        std::cout << " nBcElement = " << this->connList[ 1 ] - this->connList[ 0 ] + 1 << endl;
         for ( int eId = this->connList[ 0 ]; eId <= this->connList[ 1 ]; ++ eId )
         {
             CgIntField fNodeId;
@@ -212,8 +212,8 @@ void CgnsBcBoco::ReadCgnsBocoInfo()
         this->bcType = cgnsZone->cgnsBase->GetFamilyBcType( bcFamilyName );
     }
 
-    cout << "   CGNS Boundary Name             = " << bcRegionName << "\n";
-    cout << "   CGNS Boundary Condition Name   = " << GetCgnsBcName( this->bcType ) << "\n";
+    std::cout << "   CGNS Boundary Name             = " << bcRegionName << "\n";
+    std::cout << "   CGNS Boundary Condition Name   = " << GetCgnsBcName( this->bcType ) << "\n";
 }
 
 void CgnsBcBoco::DumpCgnsBocoInfo()
@@ -230,16 +230,16 @@ void CgnsBcBoco::DumpCgnsBocoInfo()
         //this->bcType = cgnsZone->cgnsBase->GetFamilyBcType( bcFamilyName );
     }
 
-    cout << "   CGNS Bc_Double_Id              = " << this->bc_double_id << "\n";
-    cout << "   CGNS pointSetType              = " << this->pointSetType << "\n";
-    cout << "   CGNS nElements                 = " << this->nElements << "\n";
-    cout << "   CGNS normalListSize            = " << this->normalListSize << "\n";
-    cout << "   CGNS normalDataType            = " << this->normalDataType << "\n";
-    cout << "   CGNS nDataSets                 = " << this->nDataSets << "\n";
-    cout << "   CGNS normalIndex               = " << this->normalIndex[ 0 ] << " " << this->normalIndex[ 1 ] << " " << this->normalIndex[ 2 ] << "\n";
-    cout << "   CGNS GridConnType              = " << this->gridConnType << "\n";
-    cout << "   CGNS Boundary Name             = " << this->name << "\n";
-    cout << "   CGNS Boundary Condition Name   = " << GetCgnsBcName( this->bcType ) << "\n";
+    std::cout << "   CGNS Bc_Double_Id              = " << this->bc_double_id << "\n";
+    std::cout << "   CGNS pointSetType              = " << this->pointSetType << "\n";
+    std::cout << "   CGNS nElements                 = " << this->nElements << "\n";
+    std::cout << "   CGNS normalListSize            = " << this->normalListSize << "\n";
+    std::cout << "   CGNS normalDataType            = " << this->normalDataType << "\n";
+    std::cout << "   CGNS nDataSets                 = " << this->nDataSets << "\n";
+    std::cout << "   CGNS normalIndex               = " << this->normalIndex[ 0 ] << " " << this->normalIndex[ 1 ] << " " << this->normalIndex[ 2 ] << "\n";
+    std::cout << "   CGNS GridConnType              = " << this->gridConnType << "\n";
+    std::cout << "   CGNS Boundary Name             = " << this->name << "\n";
+    std::cout << "   CGNS Boundary Condition Name   = " << GetCgnsBcName( this->bcType ) << "\n";
 
     //int cgnsNormalList;
     //int normalListFlag = 0;
@@ -265,7 +265,7 @@ void CgnsBcBoco::ReadCgnsBocoGridLocation()
         this->modifiedLocation = CGNS_ENUMV( FaceCenter );
     }
 
-    cout << "   CGNS Grid Location Name        = " << GetCgnsGridLocationName( bcGridLocation ) << "\n";
+    std::cout << "   CGNS Grid Location Name        = " << GetCgnsGridLocationName( bcGridLocation ) << "\n";
 }
 
 void CgnsBcBoco::DumpCgnsBocoGridLocation()
@@ -279,7 +279,7 @@ void CgnsBcBoco::DumpCgnsBocoGridLocation()
     //cg_goto( fileId, baseId, "Zone_t", zId, "ZoneBC_t", 1, "BC_t", this->bcId, "end" );
     //cg_gridlocation_write( this->gridLocation );
 
-    cout << "   CGNS Grid Location Name        = " << GetCgnsGridLocationName( this->gridLocation ) << "\n";
+    std::cout << "   CGNS Grid Location Name        = " << GetCgnsGridLocationName( this->gridLocation ) << "\n";
 }
 
 void CgnsBcBoco::WriteGridLocation( const GridLocation_t & gridLocation )
@@ -326,7 +326,7 @@ void CgnsBcBoco::ReadCgnsBcBocoConnList()
     int baseId = cgnsZone->cgnsBase->baseId;
     int zId = cgnsZone->zId;
 
-    cout << "   CGNS PointSet Type Name        = " << GetCgnsPointSetName( this->pointSetType ) << "\n";
+    std::cout << "   CGNS PointSet Type Name        = " << GetCgnsPointSetName( this->pointSetType ) << "\n";
 
     int cgnsNormalList;
 
@@ -341,10 +341,10 @@ void CgnsBcBoco::DumpCgnsBcBocoConnList()
     int baseId = cgnsZone->cgnsBase->baseId;
     int zId = cgnsZone->zId;
 
-    cout << "   CGNS PointSet Type Name        = " << GetCgnsPointSetName( this->pointSetType ) << "\n";
+    std::cout << "   CGNS PointSet Type Name        = " << GetCgnsPointSetName( this->pointSetType ) << "\n";
     this->bcId = -1;
     cg_boco_write( fileId, baseId, zId, this->name.c_str(), this->bcType, this->pointSetType, this->nElements, & this->connList[ 0 ], &this->bcId );
-    cout << "   CGNS Bc Id = " << bcId << "\n";
+    std::cout << "   CGNS Bc Id = " << bcId << "\n";
 }
 
 void CgnsBcBoco::PrintCgnsBcBoco()
@@ -353,36 +353,36 @@ void CgnsBcBoco::PrintCgnsBcBoco()
     {
         if ( this->modifiedLocation == CGNS_ENUMV( Vertex ) )
         {
-            cout << "   CGNS Boundary Point's Number   = ";
+            std::cout << "   CGNS Boundary Point's Number   = ";
         }
         else
         {
-            cout << "   CGNS Boundary Element's Number = ";
+            std::cout << "   CGNS Boundary Element's Number = ";
         }
 
         if ( this->pointSetType == CGNS_ENUMV( ElementRange ) ||
              this->pointSetType == CGNS_ENUMV( PointRange   ) )
         {
-            cout << this->nElements << "( " << connList[ 1 ] - connList[ 0 ] + 1 << " )" << "\n";
+            std::cout << this->nElements << "( " << connList[ 1 ] - connList[ 0 ] + 1 << " )" << "\n";
         }
         else
         {
-            cout << this->nElements << "\n";
+            std::cout << this->nElements << "\n";
         }
 
         if ( this->nElements == 2 )
         {
-            cout << "   " << connList[ 0 ] << " " << connList[ 1 ] << "\n";
+            std::cout << "   " << connList[ 0 ] << " " << connList[ 1 ] << "\n";
         }
         else
         {
-            cout << "   ";
+            std::cout << "   ";
             CgInt num = 5;
             for ( int i = 0; i < MIN(num, this->nElements ); ++ i )
             {
-                cout << connList[ i ] << " ";
+                std::cout << connList[ i ] << " ";
             }
-            cout << "\n";
+            std::cout << "\n";
         }
 
     }
@@ -390,7 +390,7 @@ void CgnsBcBoco::PrintCgnsBcBoco()
     {
         int celldim = cgnsZone->cgnsBase->celldim;
 
-        cout << "   The Boundary Range is :\n";
+        std::cout << "   The Boundary Range is :\n";
         StringField rangeTitle;
         rangeTitle.push_back( "   I Direction " );
         rangeTitle.push_back( "   J Direction " );
@@ -402,9 +402,9 @@ void CgnsBcBoco::PrintCgnsBcBoco()
 
         for ( int iDimension = 0; iDimension < celldim; ++ iDimension )
         {
-            cout << rangeTitle[ iDimension ] << setw( 10 ) << ijkMin[ iDimension ] << setw( 10 ) <<  ijkMax[ iDimension ] << "\n";
+            std::cout << rangeTitle[ iDimension ] << setw( 10 ) << ijkMin[ iDimension ] << setw( 10 ) <<  ijkMax[ iDimension ] << "\n";
         }
-        cout << "\n";
+        std::cout << "\n";
     }
 }
 
@@ -422,10 +422,10 @@ void CgnsBcBoco::WriteCgnsBoco( const std::string & bocoName, BCType_t bocotype,
     {
         this->connList[ i ] = pnts[ i ];
     }
-    cout << "   CGNS PointSet Type Name        = " << GetCgnsPointSetName( this->pointSetType ) << "\n";
+    std::cout << "   CGNS PointSet Type Name        = " << GetCgnsPointSetName( this->pointSetType ) << "\n";
     this->bcId = -1;
     cg_boco_write( fileId, baseId, zId, this->name.c_str(), this->bcType, this->pointSetType, this->nElements, & this->connList[ 0 ], &this->bcId );
-    cout << "   CGNS Bc Id = " << bcId << "\n";
+    std::cout << "   CGNS Bc Id = " << bcId << "\n";
 }
 
 void CgnsBcBoco::ExtractIJKRegionFromBcConn( IntField & ijkMin, IntField & ijkMax )
@@ -493,7 +493,7 @@ CgInt CgnsBcBoco::GetActualNumberOfBoundaryElements()
     {
         if ( this->modifiedLocation == CGNS_ENUMV( Vertex ) )
         {
-            cout << "   Can't Get Element Number For cgnsBoundaryGridLocation == Vertex Case \n";
+            std::cout << "   Can't Get Element Number For cgnsBoundaryGridLocation == Vertex Case \n";
             return INVALID_INDEX;
         }
 
@@ -540,7 +540,7 @@ void SetBcConn( CgnsZone * cgnsZone, IntField & ijkMin, IntField & ijkMax, CgInt
     jed = ijkMax[ 1 ];
     ked = ijkMax[ 2 ];
 
-    cout << " ist, ied, jst, jed, kst, ked = " << ist << " " << ied << " " << jst << " " << jed << " " << kst << " " << ked << "\n";
+    std::cout << " ist, ied, jst, jed, kst, ked = " << ist << " " << ied << " " << jst << " " << jed << " " << kst << " " << ked << "\n";
 
     int celldim = cgnsZone->cgnsBase->celldim;
     int numpt = 4;

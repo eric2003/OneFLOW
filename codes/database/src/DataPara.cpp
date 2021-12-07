@@ -120,7 +120,7 @@ void DataPara::DeleteDataPointer( const std::string & name )
 
 void DataPara::DumpData( std::fstream & file )
 {
-    cout << " Dumping database:\n";
+    std::cout << " Dumping database:\n";
     int count = 0;
     for ( DataSET::iterator iter = this->dataSet->begin(); iter != this->dataSet->end(); ++ iter )
     {

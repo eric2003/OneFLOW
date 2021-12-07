@@ -156,9 +156,9 @@ void CgnsSection::ReadCgnsSectionInfo()
 
     this->sectionName = cgnsSectionName;
 
-    cout << "   Section Name = " << cgnsSectionName << "\n";
-    cout << "   Section Type = " << ElementTypeName[ elementType ] << "\n";
-    cout << "   startId, endId = " << this->startId << " " << this->endId << "\n";
+    std::cout << "   Section Name = " << cgnsSectionName << "\n";
+    std::cout << "   Section Type = " << ElementTypeName[ elementType ] << "\n";
+    std::cout << "   startId, endId = " << this->startId << " " << this->endId << "\n";
     this->eType = elementType;
 
     if ( IsMixedSection() )
@@ -171,10 +171,10 @@ void CgnsSection::ReadCgnsSectionInfo()
 
 void CgnsSection::DumpCgnsSectionInfo()
 {
-    cout << "   Section Name = " << sectionName << "\n";
-    cout << "   Section Type = " << ElementTypeName[ eType ] << "\n";
-    cout << "   startId, endId = " << this->startId << " " << this->endId << "\n";
-    cout << "   nbndry, iparentflag = " << this->nbndry << " " << this->iparentflag << "\n";
+    std::cout << "   Section Name = " << sectionName << "\n";
+    std::cout << "   Section Type = " << ElementTypeName[ eType ] << "\n";
+    std::cout << "   startId, endId = " << this->startId << " " << this->endId << "\n";
+    std::cout << "   nbndry, iparentflag = " << this->nbndry << " " << this->iparentflag << "\n";
 }
 
 void CgnsSection::CreateConnList()

@@ -359,7 +359,7 @@ Mesh::~Mesh()
 
 void Mesh::CreateMesh()
 {
-    cout << "Mesh::CreateMesh()\n";
+    std::cout << "Mesh::CreateMesh()\n";
     nodeMesh = new NodeMesh();
     faceMesh = new FaceMesh();
     cellMesh = new CellMesh();
@@ -887,7 +887,7 @@ void Mesh::CalcCellCenterVol3D()
         }
     }
 
-    if ( cell ) cout << cell << " cells have negative vols \n";
+    if ( cell ) std::cout << cell << " cells have negative vols \n";
 
     // For ghost cells
     for ( int iFace = 0; iFace < nBFaces; ++ iFace )

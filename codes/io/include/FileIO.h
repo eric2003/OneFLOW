@@ -35,7 +35,7 @@ std::string * GetDefaultLine();
 
 void SetDefaultSeparatorOfWord( std::string * separatorOfWordIn );
 std::string * GetDefaultSeparatorOfWord();
-typedef streamsize StreamSize;
+typedef std::streamsize StreamSize;
 
 class CommentLine;
 class FileIO

@@ -57,7 +57,7 @@ public:
     static void TestSayHelloFromEveryProcess();
     static void SetDefaultTag( int defaultTagIn );
     static int GetDefaultTag();
-    static void CollectString( string & cs, int rootId, int tag );
+    static void CollectString( std::string & cs, int rootId, int tag );
     static bool IsServer();
     static int GetFid();
     static void GetSrPid( int zid, int & sPid, int & rPid );
@@ -98,7 +98,7 @@ void HXBcast( T * field, int nElement, int pid )
 #endif
 }
 
-void HXBcastString( string & cs, int pid );
+void HXBcastString( std::string & cs, int pid );
 
 template< typename T >
 void HXSwapData( T * field, int nElement, int spid, int rpid, int tag = 0 )

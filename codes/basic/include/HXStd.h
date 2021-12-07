@@ -23,7 +23,6 @@ License
 #pragma once
 #include "HXVector.h"
 #include <set>
-using namespace std;
 
 BeginNameSpace( ONEFLOW )
 
