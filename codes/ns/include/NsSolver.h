@@ -24,7 +24,7 @@ License
 #pragma once
 #include "Solver.h"
 #include "HXClone.h"
-using namespace std;
+
 BeginNameSpace( ONEFLOW )
 
 class NsSolver : public Solver

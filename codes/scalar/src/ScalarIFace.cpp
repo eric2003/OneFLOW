@@ -29,7 +29,7 @@ License
 #include <iostream>
 #include <vector>
 #include <algorithm>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 
@@ -109,7 +109,7 @@ int ScalarIFace::FindINeibor( int iZone )
     return -1;
 }
 
-void ScalarIFace::CalcLocalInterfaceId( int iZone, vector<int> & globalfaces, vector<int> & localfaces )
+void ScalarIFace::CalcLocalInterfaceId( int iZone, std::vector<int> & globalfaces, std::vector<int> & localfaces )
 {
     for ( int i = 0; i < globalfaces.size(); ++ i )
     {
@@ -119,41 +119,41 @@ void ScalarIFace::CalcLocalInterfaceId( int iZone, vector<int> & globalfaces, ve
     }
     //The neighbor of iZone iNei is jzone, and the jNei neighbor of jZone is iZone
     int jNei = FindINeibor( iZone );
-    //cout << " zoneid = " << this->zoneid << " iZone() = " << iZone << " jNei = " << jNei << "\n";
+    //std::cout << " zoneid = " << this->zoneid << " iZone() = " << iZone << " jNei = " << jNei << "\n";
     ScalarIFaceIJ & iFaceIJ = this->data[ jNei ];
     iFaceIJ.recv_ifaces = localfaces;
 }
 
 void ScalarIFace::DumpInterfaceMap()
 {
-    cout << " global_to_local_interfaces map \n";
+    std::cout << " global_to_local_interfaces std::map \n";
     this->DumpMap( this->global_to_local_interfaces );
-    cout << "\n";
-    cout << " local_to_global_interfaces map \n";
+    std::cout << "\n";
+    std::cout << " local_to_global_interfaces std::map \n";
     this->DumpMap( this->local_to_global_interfaces );
-    cout << "\n";
+    std::cout << "\n";
 }
 
-void ScalarIFace::DumpMap( map<int,int> & mapin )
+void ScalarIFace::DumpMap( std::map<int,int> & mapin )
 {
-    for ( map<int, int>::iterator iter = mapin.begin(); iter != mapin.end(); ++ iter )
+    for ( std::map<int, int>::iterator iter = mapin.begin(); iter != mapin.end(); ++ iter )
     {
-        cout << iter->first << " " << iter->second << "\n";
+        std::cout << iter->first << " " << iter->second << "\n";
     }
-    cout << "\n";
+    std::cout << "\n";
 }
 
 void ScalarIFace::ReconstructNeighbor()
 {
     int nSize = zones.size();
-    set<int> nei_zoneidset;
+    std::set<int> nei_zoneidset;
     for ( int i = 0; i < nSize; ++ i )
     {
         int nei_zoneid = zones[ i ];
         nei_zoneidset.insert( nei_zoneid );
     }
 
-    for ( set<int>::iterator iter = nei_zoneidset.begin(); iter != nei_zoneidset.end(); ++ iter )
+    for ( std::set<int>::iterator iter = nei_zoneidset.begin(); iter != nei_zoneidset.end(); ++ iter )
     {
         ScalarIFaceIJ sij;
         int current_nei_zoneid = * iter;
@@ -216,7 +216,7 @@ void ScalarIFace::ReadInterfaceTopology( DataBook * databook )
     int nIFaces = -1;
     ONEFLOW::HXRead( databook, nIFaces );
 
-    cout << " nIFaces = " << nIFaces << endl;
+    std::cout << " nIFaces = " << nIFaces << std::endl;
 
     if ( nIFaces > 0 )
     {

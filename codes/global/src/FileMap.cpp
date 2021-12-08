@@ -37,9 +37,9 @@ void RegisterFileTask()
     REGISTER_DATA_CLASS( SetFile );
 }
 
-string GetParallelFileName( const string & fileNameVar )
+std::string GetParallelFileName( const std::string & fileNameVar )
 {
-    string fileName = GetDataValue< string >( fileNameVar );
+    std::string fileName = GetDataValue< std::string >( fileNameVar );
 
     if ( fileNameVar == "visualFile" )
     {
@@ -54,11 +54,11 @@ string GetParallelFileName( const string & fileNameVar )
 
 void SetFile( StringField & data )
 {
-    string & fileNameVar = data[ 0 ];
+    std::string & fileNameVar = data[ 0 ];
 
-    string fileName = GetParallelFileName( fileNameVar );
+    std::string fileName = GetParallelFileName( fileNameVar );
     
-    ios_base::openmode openMode = GetOpenMode( data[ 1 ] );
+    std::ios_base::openmode openMode = GetOpenMode( data[ 1 ] );
 
     for ( int i = 2; i < data.size(); ++ i )
     {
@@ -69,27 +69,27 @@ void SetFile( StringField & data )
     TaskState::task->fileInfo->openMode = openMode;
 }
 
-ios_base::openmode GetOpenMode( const string & openModeName )
+std::ios_base::openmode GetOpenMode( const std::string & openModeName )
 {
     if ( openModeName == "in" )
     {
-        return ios_base::in;
+        return std::ios_base::in;
     }
     else if ( openModeName == "out" )
     {
-        return ios_base::out;
+        return std::ios_base::out;
     }
     else if ( openModeName == "binary" )
     {
-        return ios_base::binary;
+        return std::ios_base::binary;
     }
     else if ( openModeName == "trunc" )
     {
-        return ios_base::trunc;
+        return std::ios_base::trunc;
     }
     else
     {
-        return ios_base::app;
+        return std::ios_base::app;
     }
 }
 

@@ -23,7 +23,7 @@ License
 #include "UnitElement.h"
 #include "HXCgns.h"
 #include "Dimension.h"
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 

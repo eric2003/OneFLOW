@@ -30,7 +30,7 @@ License
 #include <set>
 #include <map>
 #include <fstream>
-using namespace std;
+
 BeginNameSpace( ONEFLOW )
 
 class Block3D;
@@ -59,8 +59,8 @@ public:
     LinkField lineList; 
     LinkField faceList;
     LinkField faceLinePosList;
-    set< Mid< int > > refLines;
-    set< Mid< int > > refFaces;
+    std::set< Mid< int > > refLines;
+    std::set< Mid< int > > refFaces;
     IntSet faceset;
     HXVector< BlkF2C > line2Face;
     HXVector< BlkF2C > face2Block;
@@ -74,7 +74,7 @@ public:
     void MyFaceAlloc();
     void CreateFaceList();
     int  FindLineId( IntField & line );
-    int  FindId( IntField & varlist, set< Mid<int> > &refSets );
+    int  FindId( IntField & varlist, std::set< Mid<int> > &refSets );
     int  FindFace( Mid<int> & face );
     int  FindFaceId( IntField & face );
     IntField & GetLine( int line_id );
@@ -101,8 +101,8 @@ public:
     void GenerateFaceBlockLink();
 public:
     void DumpBlkScript();
-    void DumpBlkScript( fstream & file, BlkElem * blkHexa, IntField & ctrlpoints );
-    void DumpBlkScript( fstream & file, IntField & localid, IntField & ctrlpoints );
+    void DumpBlkScript( std::fstream & file, BlkElem * blkHexa, IntField & ctrlpoints );
+    void DumpBlkScript( std::fstream & file, IntField & localid, IntField & ctrlpoints );
 };
 
 extern BlkFaceSolver blkFaceSolver;

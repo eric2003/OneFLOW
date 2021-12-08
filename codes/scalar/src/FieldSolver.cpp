@@ -50,7 +50,7 @@ License
 #include "HXMath.h"
 #include <iostream>
 #include <vector>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 
@@ -116,7 +116,7 @@ void FieldSolver::LoadGrid()
 {
     StringField gridFileList;
 
-    string scalar_grid_filename = ONEFLOW::GetDataValue< string >("scalar_grid_filename");
+    std::string scalar_grid_filename = ONEFLOW::GetDataValue< std::string >("scalar_grid_filename");
 
     gridFileList.push_back( scalar_grid_filename );
 
@@ -358,7 +358,7 @@ void FieldSolver::SolveFlowField()
 {
     for ( int n = 0; n < para->nt; ++ n )
     {
-        cout << " iStep = " << n << " nStep = " << para->nt << "\n";
+        std::cout << " iStep = " << n << " nStep = " << para->nt << "\n";
         this->SolveOneStep();
     }
 }
@@ -584,7 +584,7 @@ void FieldSolver::Visualize()
 {
     DataBook * dataBook = new DataBook();
     ActionState::dataBook = dataBook;
-    fstream file;
+    std::fstream file;
     ActionState::file = & file;
 
     RealField q;
@@ -636,7 +636,7 @@ void FieldSolver::Reorder( RealField & a, RealField & b, RealField & c )
 {
     int nElements = a.size();
 
-    vector< SortArray<Real> > xlist;
+    std::vector< SortArray<Real> > xlist;
     for ( int iElem = 0; iElem < nElements; ++ iElem )
     {
         SortArray<Real> ab;
@@ -748,10 +748,10 @@ void FieldSolver::Theory( ScalarGrid * grid, Real time, RealField & theory )
     }
 }
 
-void FieldSolver::ToTecplot( RealField & xList, RealField & varlist, string const & fileName )
+void FieldSolver::ToTecplot( RealField & xList, RealField & varlist, std::string const & fileName )
 {
-    fstream file;
-    OpenPrjFile( file, fileName, ios_base::out );
+    std::fstream file;
+    OpenPrjFile( file, fileName, std::ios_base::out );
 
     int nSize = xList.size();
     file << "TITLE = " << "\"OneFLOW X-Y Plot\"" << "\n";
@@ -779,7 +779,7 @@ void PrepareFieldSendData()
     int iNei = ZoneState::inei;
 
     ScalarIFaceIJ & sij = scalarIFace->data[ iNei ];
-    vector< int > & interfaceId = sij.ifaces;
+    std::vector< int > & interfaceId = sij.ifaces;
 
     ActionState::dataBook->MoveToBegin();
 
@@ -808,7 +808,7 @@ void PrepareFieldRecvData()
     int jNei = scalarIFace->FindINeibor( ZoneState::szid );
 
     ScalarIFaceIJ & sij = scalarIFace->data[ jNei ];
-    vector< int > & interfaceId = sij.recv_ifaces;
+    std::vector< int > & interfaceId = sij.recv_ifaces;
 
     ActionState::dataBook->MoveToBegin();
 
@@ -862,7 +862,7 @@ void PrepareGeomSendData()
     int iNei = ZoneState::inei;
 
     ScalarIFaceIJ & sij = scalarIFace->data[ iNei ];
-    vector< int > & interfaceId = sij.ifaces;
+    std::vector< int > & interfaceId = sij.ifaces;
 
     ActionState::dataBook->MoveToBegin();
 
@@ -892,7 +892,7 @@ void PrepareGeomRecvData()
     int jNei = scalarIFace->FindINeibor( ZoneState::szid );
 
     ScalarIFaceIJ & sij = scalarIFace->data[ jNei ];
-    vector< int > & interfaceId = sij.recv_ifaces;
+    std::vector< int > & interfaceId = sij.recv_ifaces;
 
     ActionState::dataBook->MoveToBegin();
 

@@ -26,7 +26,7 @@ License
 #include "HXCgns.h"
 #include <vector>
 #include <set>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 class FaceSolver;

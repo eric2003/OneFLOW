@@ -27,7 +27,6 @@ License
 #include "Parallel.h"
 #include <sstream>
 #include "LogFile.h"
-using namespace std;
 
 BeginNameSpace( ONEFLOW )
 
@@ -35,7 +34,7 @@ DataBook::DataBook()
 {
     //maxUnitSize = 1024000;
     maxUnitSize = 1024000000;
-    dataBook = new vector< DataPage * >;
+    dataBook = new std::vector< DataPage * >;
     dataBook->push_back( new DataPage() );
     this->currPos = 0;
     this->currPageId = 0;
@@ -128,7 +127,7 @@ void DataBook::Write( void * data, LLong dataSize )
     }
 }
 
-void DataBook::ReadString( string & cs )
+void DataBook::ReadString( std::string & cs )
 {
     UInt nLength = 0;
     this->Read( & nLength, sizeof( UInt ) );
@@ -142,7 +141,7 @@ void DataBook::ReadString( string & cs )
     delete[] data;
 }
 
-void DataBook::WriteString( string & cs )
+void DataBook::WriteString( std::string & cs )
 {
     UInt nLength = cs.length();
 
@@ -158,15 +157,15 @@ void DataBook::WriteString( string & cs )
     delete[] data;
 }
 
-void DataBook::AppendString( string & cs )
+void DataBook::AppendString( std::string & cs )
 {
     this->MoveToEnd();
     this->WriteString( cs );
 }
 
-void DataBook::Write( ostringstream * oss )
+void DataBook::Write( std::ostringstream * oss )
 {
-    string str = oss->str();
+    std::string str = oss->str();
     UInt stringSize = str.size();
     this->Write( const_cast< char * >( str.c_str() ), stringSize * sizeof( char ) );
 }
@@ -250,7 +249,7 @@ void DataBook::SecureRelativeSpace( LLong dataSize )
 void DataBook::SecureAbsoluteSpace( LLong needSize )
 {
     //If there is enough space, there is no need to allocate
-    //This can cause some string problems, and if not ReSize, there may be superfluous characters
+    //This can cause some std::string problems, and if not ReSize, there may be superfluous characters
     //in the memory that are not cleared
     //if ( needSize <= GetSize() ) return;
 
@@ -281,7 +280,7 @@ LLong DataBook::GetRemainingSizeOfCurrentPage()
     return maxUnitSize - remainder;
 }
 
-void DataBook::ReadFile( fstream & file )
+void DataBook::ReadFile( std::fstream & file )
 {
     //Read the contents of file into DataBook
     //And for DataBook, the process is counter, equivalent to writing
@@ -293,13 +292,13 @@ void DataBook::ReadFile( fstream & file )
 
     this->SecureAbsoluteSpace( nLength );
 
-    for ( streamsize iPage = 0; iPage < this->GetNPage(); ++ iPage )
+    for ( std::streamsize iPage = 0; iPage < this->GetNPage(); ++ iPage )
     {
         this->GetPage( iPage )->ReadFile( file );
     }
 }
 
-void DataBook::WriteFile( fstream & file )
+void DataBook::WriteFile( std::fstream & file )
 {
     LLong nLength = this->GetSize();
 
@@ -316,7 +315,7 @@ void DataBook::WriteFile( fstream & file )
     }
 }
 
-void DataBook::ToString( string & str )
+void DataBook::ToString( std::string & str )
 {
     for ( UInt iPage = 0; iPage < this->GetNPage(); ++ iPage )
     {
@@ -416,7 +415,7 @@ void DataBook::Bcast( int rootid )
     }
 }
 
-void ToDataBook( DataBook * dataBook, ostringstream & oss )
+void ToDataBook( DataBook * dataBook, std::ostringstream & oss )
 {
     if ( ! dataBook ) return;
 

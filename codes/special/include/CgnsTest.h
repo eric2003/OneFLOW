@@ -26,7 +26,7 @@ License
 #include "HXCgns.h"
 #include <string>
 #include <vector>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 
@@ -39,7 +39,7 @@ public:
     CgnsTest();
     ~CgnsTest();
 public:
-    string fileName;
+    std::string fileName;
 public:
     void Init();
     void Run();
@@ -60,7 +60,7 @@ public:
 private:
     void SetISize( cgsize_t * isize );
 public:
-    void WriteDouble( const string & varName, const double & varValue );
+    void WriteDouble( const std::string & varName, const double & varValue );
 public:
     void ReadEmptyCgnsFile();
     void WriteEmptyCgnsFile();
@@ -68,7 +68,7 @@ public:
     void WriteArray();
     void WriteArray( CgnsFile * cgnsFile, CgnsBase * cgnsBase );
     void ReadArray();
-    void GetArray( vector< vector< float > > & myfloat2d );
+    void GetArray( std::vector< std::vector< float > > & myfloat2d );
     void WriteTest();
 public:
     int read_bcpnts_unst();

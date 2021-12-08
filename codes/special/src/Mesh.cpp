@@ -37,7 +37,7 @@ License
 #include <algorithm>
 #include <iostream>
 #include <ctime>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 
@@ -60,10 +60,10 @@ int HXRandomClass::Random( int rangeMin, int rangeMax )
     return static_cast< int > ( value );
 }
 
-void HXRandomClass::RangeRandom( int rangeMin, int rangeMax, vector< int > & results )
+void HXRandomClass::RangeRandom( int rangeMin, int rangeMax, std::vector< int > & results )
 {
     int numberOfElements = results.size();
-    vector< int > flag( numberOfElements, 0 );
+    std::vector< int > flag( numberOfElements, 0 );
     for ( int iElement = 0; iElement< numberOfElements; ++ iElement )
     {
         int candidateNumber = - 1;
@@ -359,7 +359,7 @@ Mesh::~Mesh()
 
 void Mesh::CreateMesh()
 {
-    cout << "Mesh::CreateMesh()\n";
+    std::cout << "Mesh::CreateMesh()\n";
     nodeMesh = new NodeMesh();
     faceMesh = new FaceMesh();
     cellMesh = new CellMesh();
@@ -377,7 +377,7 @@ void Mesh::ConstructTopology()
 {
     UInt numberOfNodes = this->nodeMesh->GetNumberOfNodes();
     UInt numberOfCells = this->cellMesh->GetNumberOfCells();
-    set< HXSort< IntField > > faceSet;
+    std::set< HXSort< IntField > > faceSet;
     HXSort< IntField > faceForSorting;
 
     CellTopo * cellTopo = this->cellMesh->cellTopo;
@@ -407,7 +407,7 @@ void Mesh::ConstructTopology()
             std::sort( faceNodeIndexArraySort.begin(), faceNodeIndexArraySort.end() );
             faceForSorting.value = faceNodeIndexArraySort;
 
-            set< HXSort< IntField > >::iterator iter = faceSet.find( faceForSorting );
+            std::set< HXSort< IntField > >::iterator iter = faceSet.find( faceForSorting );
             if ( iter == faceSet.end() )
             {
                 faceForSorting.index = faceSet.size();
@@ -887,7 +887,7 @@ void Mesh::CalcCellCenterVol3D()
         }
     }
 
-    if ( cell ) cout << cell << " cells have negative vols \n";
+    if ( cell ) std::cout << cell << " cells have negative vols \n";
 
     // For ghost cells
     for ( int iFace = 0; iFace < nBFaces; ++ iFace )

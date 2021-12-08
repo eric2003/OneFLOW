@@ -39,7 +39,7 @@ License
 #include "Parallel.h"
 #include "Iteration.h"
 #include <iostream>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 
@@ -73,8 +73,8 @@ void UTurbLusgs::ReadTmp()
     static int iii = 0;
     if ( iii ) return;
     iii = 1;
-    fstream file;
-    file.open( "turbtmpres.dat", ios_base::in | ios_base::binary );
+    std::fstream file;
+    file.open( "turbtmpres.dat", std::ios_base::in | std::ios_base::binary );
 
     for ( int iCell = 0; iCell < ug.nTCell; ++ iCell )
     {

@@ -29,7 +29,7 @@ License
 #include "Boundary.h"
 #include "HXMath.h"
 #include <iostream>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 
@@ -85,8 +85,8 @@ void Sod::SodGrid()
         }
     }
 
-    fstream file;
-    OpenPrjFile( file, "/grid/sod2d.grd", ios_base::out|ios_base::binary );
+    std::fstream file;
+    OpenPrjFile( file, "/grid/sod2d.grd", std::ios_base::out|std::ios_base::binary );
     int nZone = 1;
     int nk = 1;
     HXWrite( & file, nZone );
@@ -100,19 +100,19 @@ void Sod::SodGrid()
 
     CloseFile( file );
 
-    OpenPrjFile( file, "/grid/sod2d.inp", ios_base::out );
+    OpenPrjFile( file, "/grid/sod2d.inp", std::ios_base::out );
     int solver = 1;
-    string zName = "A";
+    std::string zName = "A";
     int nBc = 4;
-    file << solver << endl;
-    file << nZone << endl;
-    file << ni << " " << nj << endl;
-    file << zName << endl;
-    file << nBc << endl;
-    file << 1 << " " << ni  << " " << 1  << " " << 1  << " " << BC::SYMMETRY << endl;
-    file << 1  << " " << ni  << " " << nj  << " " << nj  << " " << BC::SYMMETRY << endl;
-    file << 1  << " " << 1  << " " << 1  << " " << nj  << " " << BC::OUTFLOW << endl;
-    file << ni  << " " << ni  << " " << 1  << " " << nj  << " " << BC::OUTFLOW << endl;
+    file << solver << std::endl;
+    file << nZone << std::endl;
+    file << ni << " " << nj << std::endl;
+    file << zName << std::endl;
+    file << nBc << std::endl;
+    file << 1 << " " << ni  << " " << 1  << " " << 1  << " " << BC::SYMMETRY << std::endl;
+    file << 1  << " " << ni  << " " << nj  << " " << nj  << " " << BC::SYMMETRY << std::endl;
+    file << 1  << " " << 1  << " " << 1  << " " << nj  << " " << BC::OUTFLOW << std::endl;
+    file << ni  << " " << ni  << " " << 1  << " " << nj  << " " << BC::OUTFLOW << std::endl;
     CloseFile( file );
 }
 
@@ -170,7 +170,7 @@ void Sod::Theory()
     int iterr;
     this->sp2p1( gam, p1, a1, p4, a4, p2p1, iterr, tol );
 
-    cout << "p2p1 = " << p2p1 << endl;
+    std::cout << "p2p1 = " << p2p1 << std::endl;
     Real t2t1 = p2p1 * ( gp1 / gm1 + p2p1 ) / ( 1.0 + gp1 * p2p1 / gm1 );
 
     Real r2r1 = ( 1.0 + gp1 * p2p1 / gm1 ) / ( gp1 / gm1 + p2p1 );
@@ -211,43 +211,43 @@ void Sod::Theory()
     xtail = xd + ( u3 - a3 ) * tm;
 
     //Write out some data.
-    cout << endl;
-    cout << "gamma             = " << gam << endl;
-    cout << "diaphram location = " << xd << endl;
-    cout << "time              = " << tm << endl;
-    cout << endl;
-    cout << "(1) p1 = " << p1 << endl;
-    cout << "    r1 = " << r1 << endl;
-    cout << "    u1 = " << u1 << endl;
-    cout << "    m1 = " << rmach1 << endl;
-    cout << endl;
-    cout << "Shock speed    = " << wsp << endl;
-    cout << "Shock location = " << xs << endl;
-    cout << endl;
-    cout << "(2) p2 = " << p2 << endl;
-    cout << "    r2 = " << r2 << endl;
-    cout << "    u2 = " << u2 << endl;
-    cout << "    m2 = " << rmach2 << endl;
-    cout << endl;
-    cout << "Contact discontinuity speed    = " << up << endl;
-    cout << "Contact discontinuity location = " << xc << endl;
-    cout << endl;
-    cout << "(3) p3 = " << p3;
-    cout << "    r3 = " << r3;
-    cout << "    u3 = " << u3;
-    cout << "    m3 = " << rmach3;
-    cout << endl;
-    cout << "Expansion region head = " << xhead << endl;
-    cout << "Expansion region tail = " << xtail << endl;
-    cout << endl;
-    cout << "(4) p4 = " << p4 << endl;
-    cout << "    r4 = " << r4 << endl;
-    cout << "    u4 = " << u4 << endl;
-    cout << "    m4 = " << rmach4 << endl;
+    std::cout << std::endl;
+    std::cout << "gamma             = " << gam << std::endl;
+    std::cout << "diaphram location = " << xd << std::endl;
+    std::cout << "time              = " << tm << std::endl;
+    std::cout << std::endl;
+    std::cout << "(1) p1 = " << p1 << std::endl;
+    std::cout << "    r1 = " << r1 << std::endl;
+    std::cout << "    u1 = " << u1 << std::endl;
+    std::cout << "    m1 = " << rmach1 << std::endl;
+    std::cout << std::endl;
+    std::cout << "Shock speed    = " << wsp << std::endl;
+    std::cout << "Shock location = " << xs << std::endl;
+    std::cout << std::endl;
+    std::cout << "(2) p2 = " << p2 << std::endl;
+    std::cout << "    r2 = " << r2 << std::endl;
+    std::cout << "    u2 = " << u2 << std::endl;
+    std::cout << "    m2 = " << rmach2 << std::endl;
+    std::cout << std::endl;
+    std::cout << "Contact discontinuity speed    = " << up << std::endl;
+    std::cout << "Contact discontinuity location = " << xc << std::endl;
+    std::cout << std::endl;
+    std::cout << "(3) p3 = " << p3;
+    std::cout << "    r3 = " << r3;
+    std::cout << "    u3 = " << u3;
+    std::cout << "    m3 = " << rmach3;
+    std::cout << std::endl;
+    std::cout << "Expansion region head = " << xhead << std::endl;
+    std::cout << "Expansion region tail = " << xtail << std::endl;
+    std::cout << std::endl;
+    std::cout << "(4) p4 = " << p4 << std::endl;
+    std::cout << "    r4 = " << r4 << std::endl;
+    std::cout << "    u4 = " << u4 << std::endl;
+    std::cout << "    m4 = " << rmach4 << std::endl;
 
     //Write out to files.
-    fstream file;
-    OpenPrjFile( file, "/grid/sod_theory.dat", ios_base::out );
+    std::fstream file;
+    OpenPrjFile( file, "/grid/sod_theory.dat", std::ios_base::out );
     StringField title;
     title.push_back( "title=\"THE FLOW FIELD OF ONEFLOW\"" );
     title.push_back( "variables=" );
@@ -259,16 +259,16 @@ void Sod::Theory()
 
     for ( UInt i = 0; i < title.size(); ++ i )
     {
-        file << title[ i ] << endl;
+        file << title[ i ] << std::endl;
     }
 
     int nxp = 21;
     int nNodes = nxp + 8;
 
-    file << " zone  i = " << nNodes << endl;
+    file << " zone  i = " << nNodes << std::endl;
 
-    file << xl << " " << r4 << " " << u4 << " " << rmach4 << " " << p4 << endl;
-    file << xhead << " " << r4 << " " << u4 << " " << rmach4 << " " << p4 << endl;
+    file << xl << " " << r4 << " " << u4 << " " << rmach4 << " " << p4 << std::endl;
+    file << xhead << " " << r4 << " " << u4 << " " << rmach4 << " " << p4 << std::endl;
 
     for ( int n = 1; n <= nxp; ++ n )
     {
@@ -277,15 +277,15 @@ void Sod::Theory()
         Real px = p4 * pow( 1.0 - 0.5 * gm1 * ( ux / a4 ), 2.0 * gam / gm1 );
         Real rx = r4 * pow( 1.0 - 0.5 * gm1 * ( ux / a4 ), 2.0 / gm1 );
         Real mx = ux / sqrt( gam * px / rx );
-        file << xx << " " << rx << " " << ux << " " << mx << " " << px << endl;
+        file << xx << " " << rx << " " << ux << " " << mx << " " << px << std::endl;
     }
 
-    file << xtail << " " << r3 << " " << u3 << " " << rmach3 << " " << p3 << endl;
-    file << xc << " " << r3 << " " << u3 << " " << rmach3 << " " << p3 << endl;
-    file << xc << " " << r2 << " " << u2 << " " << rmach2 << " " << p2 << endl;
-    file << xs << " " << r2 << " " << u2 << " " << rmach2 << " " << p2 << endl;
-    file << xs << " " << r1 << " " << u1 << " " << rmach1 << " " << p1 << endl;
-    file << xr << " " << r1 << " " << u1 << " " << rmach1 << " " << p1 << endl;
+    file << xtail << " " << r3 << " " << u3 << " " << rmach3 << " " << p3 << std::endl;
+    file << xc << " " << r3 << " " << u3 << " " << rmach3 << " " << p3 << std::endl;
+    file << xc << " " << r2 << " " << u2 << " " << rmach2 << " " << p2 << std::endl;
+    file << xs << " " << r2 << " " << u2 << " " << rmach2 << " " << p2 << std::endl;
+    file << xs << " " << r1 << " " << u1 << " " << rmach1 << " " << p1 << std::endl;
+    file << xr << " " << r1 << " " << u1 << " " << rmach1 << " " << p1 << std::endl;
     CloseFile( file );
 }
 
@@ -321,7 +321,7 @@ void Sod::sp2p1( Real gam, Real p1, Real a1, Real p4, Real a4, Real & p2p1, int 
 
         Real f = p4 / p1 - p2p1 * pow( 1.0 - t2 / sqrt( t3 ), t1 );
 
-        cout << "iter, p2p1, f: " << iter << " " << p2p1 << " " << f << endl;
+        std::cout << "iter, p2p1, f: " << iter << " " << p2p1 << " " << f << std::endl;
 
         if ( ABS( f ) <= tol || iter >= itmax ) break;
 

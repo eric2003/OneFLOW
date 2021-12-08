@@ -28,7 +28,7 @@ BeginNameSpace( ONEFLOW )
 
 FileO::FileO()
 {
-    file = new fstream();
+    file = new std::fstream();
     sep = " ";
     nWord = 5;
     nWidth = 5;
@@ -40,7 +40,7 @@ FileO::~FileO()
     delete file;
 }
 
-void FileO::OpenPrjFile( const string & fileName, const ios_base::openmode & fileOpenMode )
+void FileO::OpenPrjFile( const std::string & fileName, const std::ios_base::openmode & fileOpenMode )
 {
     this->fileName     = fileName;
     this->fileOpenMode = fileOpenMode;
@@ -59,7 +59,7 @@ void FileO::DumpCoorAscii( RealField & coor )
     nWidth = 15;
     for ( int i = 0; i < nPoint; ++ i )
     {
-        ( * file ) << setw( nWidth ) << coor[ i ];
+        ( * file ) << std::setw( nWidth ) << coor[ i ];
         nCount ++;
         if ( nCount % nWord == 0 )
         {

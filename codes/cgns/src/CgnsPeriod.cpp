@@ -25,7 +25,6 @@ License
 #include "HXMath.h"
 #include "NodeMesh.h"
 #include <iostream>
-using namespace std;
 
 BeginNameSpace( ONEFLOW )
 #ifdef ENABLE_CGNS
@@ -46,12 +45,12 @@ F2FMap::~F2FMap()
 
 void F2FMap::AddFacePair(int faceId1, int faceId2)
 {
-    this->face_pair.insert( pair<int, int>(faceId1, faceId2) );
+    this->face_pair.insert( std::pair<int, int>(faceId1, faceId2) );
 }
 
 int F2FMap::FindPeriodFace( int faceId )
 {
-    map< int, int >::iterator iter = this->face_pair.find( faceId );
+    std::map< int, int >::iterator iter = this->face_pair.find( faceId );
     int face_id = -1;
     if ( iter != this->face_pair.end() )
     {

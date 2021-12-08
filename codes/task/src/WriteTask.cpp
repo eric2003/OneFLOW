@@ -30,7 +30,7 @@ License
 #include "DataBook.h"
 #include "InterFace.h"
 #include <iostream>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 
@@ -53,10 +53,10 @@ void CWriteFile::Run()
 
 void CWriteFile::ServerWrite()
 {
-    fstream file;
+    std::fstream file;
     ActionState::file = & file;
 
-    PIO::ParallelOpenPrj();
+    PIO::OpenPrjFile();
 
     for ( int zId = 0; zId < ZoneState::nZones; ++ zId )
     {
@@ -65,7 +65,7 @@ void CWriteFile::ServerWrite()
         this->ServerWrite( this->mainAction );
     }
 
-    PIO::ParallelClose();
+    PIO::CloseFile();
 }
 
 void CWriteFile::ServerWrite( VoidFunc mainAction )

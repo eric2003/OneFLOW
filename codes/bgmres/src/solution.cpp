@@ -6,7 +6,6 @@
 #include "poisson.h"
 #include "util.h"
 
-using namespace std;
 /** ************************************************************************
  * Base constructor  for the Solution class. 
  * @param size The length of the vector used in the approximation (optional)

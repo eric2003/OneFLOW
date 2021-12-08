@@ -22,10 +22,6 @@ License
 
 #pragma once
 #include "Configure.h"
-#include "DataStorage.h"
-#include "DataBase.h"
-#include <vector>
-using namespace std;
 
 BeginNameSpace( ONEFLOW )
 

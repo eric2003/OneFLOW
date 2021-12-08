@@ -39,7 +39,7 @@ License
 #include "Boundary.h"
 #include "Stop.h"
 #include <iostream>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 
@@ -149,8 +149,8 @@ void UTurbSrcFlux::ReadTmp()
     static int iii = 0;
     if ( iii ) return;
     iii = 1;
-    fstream file;
-    file.open( "turbflowsrc.dat", ios_base::in | ios_base::binary );
+    std::fstream file;
+    file.open( "turbflowsrc.dat", std::ios_base::in | std::ios_base::binary );
     if ( ! file ) exit( 0 );
 
        for ( int cId = 0; cId < ug.nTCell; ++ cId )
@@ -211,7 +211,7 @@ void UTurbSrcFlux::CalcVistMax()
             turbcom.maxid = cId;
         }
     }
-    //cout << "maxvist = " << turbcom.maxvist << " cell id = " << turbcom.maxid << endl;
+    //std::cout << "maxvist = " << turbcom.maxvist << " cell id = " << turbcom.maxid << std::endl;
 }
 
 void UTurbSrcFlux::CalcVist1Equ()
@@ -226,7 +226,7 @@ void UTurbSrcFlux::CalcVist1Equ()
         }
         if ( turbcom.rho < 0 || NotANumber( turbcom.rho ) )
         {
-            cout << " zone = " << ZoneState::zid << " cId = " << cId << " rho = " << turbcom.rho << "\n";
+            std::cout << " zone = " << ZoneState::zid << " cId = " << cId << " rho = " << turbcom.rho << "\n";
             Stop( "NotANumber( turbcom.rho )" );
             //cin.get();
         }

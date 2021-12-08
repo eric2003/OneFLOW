@@ -23,12 +23,12 @@ License
 #include "Configure.h"
 #include <string>
 #include <fstream>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 
-void OpenLogFile( int logFileIndex, fstream & file );
-void CloseLogFile( fstream & file );
+void OpenLogFile( int logFileIndex, std::fstream & file );
+void CloseLogFile( std::fstream & file );
 class LogFile;
 extern LogFile logFile;
 
@@ -37,7 +37,7 @@ class LogFile
 public:
     LogFile();
     ~LogFile();
-    fstream my_fstream;
+    std::fstream my_fstream;
 public:
     void Open();
     void Close();

@@ -22,7 +22,7 @@ License
 #pragma once
 #include "HXDefine.h"
 #include <string>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 
@@ -50,12 +50,12 @@ public:
     FieldAlloc();
     ~FieldAlloc();
 public:
-    static void AllocateAllFields( int sTid, const string & basicString );
-    static void InitField( int sTid, const string & basicString );
-    static void RegisterInterfaceVar( int sTid, const string & basicString );
-    static void AllocateGlobalField( int sTid, const string & basicString );
-    static void CalcInnerFieldFileName( const string & basicString, StringField & fileNameList );
-    static void CalcInterfaceFileName( const string & basicString, StringField & fileNameList );
+    static void AllocateAllFields( int sTid, const std::string & basicString );
+    static void InitField( int sTid, const std::string & basicString );
+    static void RegisterInterfaceVar( int sTid, const std::string & basicString );
+    static void AllocateGlobalField( int sTid, const std::string & basicString );
+    static void CalcInnerFieldFileName( const std::string & basicString, StringField & fileNameList );
+    static void CalcInterfaceFileName( const std::string & basicString, StringField & fileNameList );
     static void CalcInterfaceFileType( IntField & fieldTypeList );
     static void AllocateAllKindsOfInterfaceField( int sTid );
     static void AllocateInterfaceField( IFieldProperty * iFieldProperty );
@@ -91,7 +91,7 @@ public:
     ParaNameDim * strPara;
     ParaNameDim * unsPara;
 public:
-    ParaNameDim * GetParaNameDim( const string & typeName );
+    ParaNameDim * GetParaNameDim( const std::string & typeName );
 };
 
 class ReadSuperPara
@@ -103,7 +103,7 @@ public:
     ParaNameDimData * paraNameDimData;
     int sTid;
 public:
-    void Register( const string & fileName, int index );
+    void Register( const std::string & fileName, int index );
     void AddUnsteadyInnerFieldProperty();
     void AddInnerFieldProperty();
     void AddFaceFieldProperty();
@@ -127,18 +127,18 @@ public:
     NameValuePair nameValuePair;
     ParaNameDimData * paraNameDimData;
 public:
-    void Add( const string & name, bool value );
+    void Add( const std::string & name, bool value );
     void ReadBool( FileIO * ioFile );
     void ReadSuperBool( FileIO * ioFile );
-    bool CalcVarValue( const string & varName );
+    bool CalcVarValue( const std::string & varName );
     void Read();
-    void ReadFile( const string & fileName, int valueFlag = 0 );
+    void ReadFile( const std::string & fileName, int valueFlag = 0 );
 
 };
 
-bool CalcBoolExp( bool var1, const string & opName, bool var2 );
-bool CalcBoolExp( const string & varName1, const string & opName, const string & varName2 );
-bool CalcVarValue( const string & varName, StringField & boolName, BoolField & boolVar );
-int GetVarDimension( const string & dimName );
+bool CalcBoolExp( bool var1, const std::string & opName, bool var2 );
+bool CalcBoolExp( const std::string & varName1, const std::string & opName, const std::string & varName2 );
+bool CalcVarValue( const std::string & varName, StringField & boolName, BoolField & boolVar );
+int GetVarDimension( const std::string & dimName );
 
 EndNameSpace

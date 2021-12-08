@@ -21,19 +21,18 @@ License
 \*---------------------------------------------------------------------------*/
 #include "Stop.h"
 #include <iostream>
-using namespace std;
 
 BeginNameSpace( ONEFLOW )
 
-void StopProgramFunction( const string & stopInformation, const string & fileName, const int & fileLine, const string & dateName, const string & timeName )
+void StopProgramFunction( const std::string & stopInformation, const std::string & fileName, const int & fileLine, const std::string & dateName, const std::string & timeName )
 {
-    cout << endl;
-    cout << "++++++++++++++++++Stop Information  +++++++++++++++++++++++++++++\n";
-    cout <<  stopInformation << endl;
-    cout << " The stop filename is : " << fileName << endl;
-    cout << " at line " << fileLine << endl;
-    cout << " compiled on " << dateName << " at " << timeName << endl;
-    cout << "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n";
+    std::cout << std::endl;
+    std::cout << "++++++++++++++++++Stop Information  +++++++++++++++++++++++++++++\n";
+    std::cout <<  stopInformation << std::endl;
+    std::cout << " The stop filename is : " << fileName << std::endl;
+    std::cout << " at line " << fileLine << std::endl;
+    std::cout << " compiled on " << dateName << " at " << timeName << std::endl;
+    std::cout << "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n";
     exit( 0 );
 }
 

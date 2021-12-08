@@ -27,11 +27,11 @@ License
 #include "SlipFace.h"
 #include "DataBase.h"
 #include <iostream>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 
-map< string, Grid * > * Grid::classMap = 0;
+std::map< std::string, Grid * > * Grid::classMap = 0;
 
 Grid::Grid()
 {
@@ -48,26 +48,26 @@ Grid::~Grid()
     this->Free();
 }
 
-Grid * Grid::SafeClone( const string & type )
+Grid * Grid::SafeClone( const std::string & type )
 {
-    map < string, Grid * >::iterator iter = Grid::classMap->find( type );
+    std::map < std::string, Grid * >::iterator iter = Grid::classMap->find( type );
     if ( iter == Grid::classMap->end() )
     {
-        cout << type << " class not found" << endl;
+        std::cout << type << " class not found" << std::endl;
         exit( 0 );
     }
 
     return iter->second->Clone();
 }
 
-Grid * Grid::Register( const string & type, Grid * clone )
+Grid * Grid::Register( const std::string & type, Grid * clone )
 {
     if ( ! Grid::classMap )
     {
-        Grid::classMap = new map < string, Grid * >();
+        Grid::classMap = new std::map < std::string, Grid * >();
     }
 
-    map < string, Grid * >::iterator iter = Grid::classMap->find( type );
+    std::map < std::string, Grid * >::iterator iter = Grid::classMap->find( type );
     if ( iter == Grid::classMap->end() )
     {
         ( * Grid::classMap )[ type ] = clone;

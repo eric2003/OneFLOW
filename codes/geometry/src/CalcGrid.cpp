@@ -41,7 +41,7 @@ License
 #include "Prj.h"
 #include "HXPointer.h"
 #include <iostream>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 
@@ -62,7 +62,7 @@ void CalcGrid::Init( Grids & grids )
     int gridObj = GetDataValue< int >( "gridObj" );
     if ( gridObj == 3 )
     {
-        string part_uns_file = GetDataValue< string >( "part_uns_file" );
+        std::string part_uns_file = GetDataValue< std::string >( "part_uns_file" );
         this->gridFileName = part_uns_file;
     }
     else
@@ -95,9 +95,9 @@ void CalcGrid::BuildInterfaceLink()
 
 void CalcGrid::Dump()
 {
-    //cout << __FUNCTION__ << endl;
-    fstream file;
-    OpenPrjFile( file, gridFileName, ios_base::out|ios_base::binary|ios_base::trunc );
+    //std::cout << __FUNCTION__ << std::endl;
+    std::fstream file;
+    OpenPrjFile( file, gridFileName, std::ios_base::out|std::ios_base::binary|std::ios_base::trunc );
     int nZone = static_cast<int>(grids.size());
 
     ZoneState::pid.resize( nZone );
@@ -115,7 +115,7 @@ void CalcGrid::Dump()
 
     for ( int iZone = 0; iZone < nZone; ++ iZone )
     {
-        cout << "iZone = " << iZone << " nZone = " << nZone << "\n";
+        std::cout << "iZone = " << iZone << " nZone = " << nZone << "\n";
         grids[ iZone ]->WriteGrid( file );
     }
 
@@ -301,9 +301,9 @@ int GetIgnoreNoBc()
     return ONEFLOW::GetDataValue< int >( "ignoreNoBc" );
 }
 
-string GetTargetGridFileName()
+std::string GetTargetGridFileName()
 {
-    return ONEFLOW::GetDataValue< string >( "targetGridFileName" );
+    return ONEFLOW::GetDataValue< std::string >( "targetGridFileName" );
 }
 
 void GenerateMultiZoneCalcGrids( Grids & grids )

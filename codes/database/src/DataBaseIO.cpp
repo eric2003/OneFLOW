@@ -26,7 +26,7 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-void HXRead( DataBook * dataBook, string & cs )
+void HXRead( DataBook * dataBook, std::string & cs )
 {
     int nLength = 0;
     ONEFLOW::HXRead( dataBook, nLength );
@@ -39,7 +39,7 @@ void HXRead( DataBook * dataBook, string & cs )
     delete[] data;
 }
 
-void HXWrite( DataBook * dataBook, string & cs )
+void HXWrite( DataBook * dataBook, std::string & cs )
 {
     int nLength = cs.length();
     ONEFLOW::HXWrite( dataBook, nLength );

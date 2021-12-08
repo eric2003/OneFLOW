@@ -31,7 +31,6 @@ License
 #include "Task.h"
 #include "TaskState.h"
 #include <iostream>
-using namespace std;
 
 BeginNameSpace( ONEFLOW )
 
@@ -46,74 +45,35 @@ PIO::~PIO()
     ;
 }
 
-string PIO::GetDirName( const string & fileName )
-{
-    size_t pos = fileName.find_last_of("\\/");
-    if ( string::npos == pos )
-    {
-        return "";
-    }
-    else
-    {
-        return fileName.substr(0, pos);
-    }
-}
-
-void PIO::ParallelOpen( fstream & file, const string & fileName, const ios_base::openmode & openMode )
+void PIO::ParallelOpen( std::fstream & file, const std::string & fileName, const std::ios_base::openmode & openMode )
 {
     if ( Parallel::pid != Parallel::GetFid() ) return;
 
-    PIO::Open( file, fileName, openMode );
+    ONEFLOW::OpenFile( file, fileName, openMode );
 }
 
-void PIO::ParallelOpenPrj( fstream & file, const string & fileName, const ios_base::openmode & openMode )
+void PIO::OpenPrjFile( std::fstream & file, const std::string & fileName, const std::ios_base::openmode & openMode )
 {
     if ( Parallel::pid != Parallel::GetFid() ) return;
 
-    ONEFLOW::StrIO.ClearAll();
-    ONEFLOW::StrIO << PrjStatus::prjBaseDir << fileName;
-
-    string prjFileName = ONEFLOW::StrIO.str();
-    string prj_dir = PIO::GetDirName( prjFileName );
-
-    if ( ! DirExist( prj_dir ) )
-    {
-        MakeDir( prj_dir );
-    }
-    PIO::Open( file, prjFileName, openMode );
+    ONEFLOW::OpenPrjFile( file, fileName, openMode );
 }
 
-void PIO::ParallelOpenPrj()
+void PIO::OpenPrjFile()
 {
-    PIO::ParallelOpenPrj( * ActionState::file, TaskState::task->fileInfo->fileName, TaskState::task->fileInfo->openMode );
+    PIO::OpenPrjFile( * ActionState::file, TaskState::task->fileInfo->fileName, TaskState::task->fileInfo->openMode );
 }
 
-void PIO::ParallelClose()
+void PIO::CloseFile()
 {
-    PIO::ParallelClose( * ActionState::file );
+    PIO::CloseFile( * ActionState::file );
 }
 
-void PIO::ParallelClose( fstream & file )
+void PIO::CloseFile( std::fstream & file )
 {
     if ( Parallel::pid != Parallel::GetFid() ) return;
 
-    PIO::Close( file );
-}
-
-void PIO::Open( fstream & file, const string & fileName, const ios_base::openmode & openMode )
-{
-    file.open( fileName.c_str(), openMode );
-    if ( ! file )
-    {
-        cout << "could not open " << fileName << endl;
-        Stop("");
-    }
-}
-
-void PIO::Close( fstream & file )
-{
-    file.close();
-    file.clear();
+    ONEFLOW::CloseFile( file );
 }
 
 

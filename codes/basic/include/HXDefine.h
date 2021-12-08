@@ -25,7 +25,6 @@ License
 #include "HXType.h"
 #include <set>
 #include <string>
-using namespace std;
 
 BeginNameSpace( ONEFLOW )
 
@@ -34,10 +33,10 @@ typedef HXVector< RealField > RealField2D;
 typedef HXVector< RealField2D > RealField3D;
 typedef HXVector< int > IntField;
 typedef HXVector< IntField > LinkField;
-typedef HXVector< string > StringField;
+typedef HXVector< std::string > StringField;
 typedef HXVector< bool > BoolField;
 
-typedef set< int > IntSet;
+typedef std::set< int > IntSet;
 typedef HXVector< IntSet > LinkSet;
 
 typedef void( * VoidFunc )();

@@ -29,7 +29,7 @@ License
    #include <string.h>
 #endif
 #include <fstream>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 DataPage::DataPage()
@@ -87,7 +87,7 @@ char * DataPage::GetCurrentDataPointer()
     return &( ( * dataMemory )[ currPos ] );
 }
 
-void DataPage::ToString( string & str )
+void DataPage::ToString( std::string & str )
 {
     if ( this->GetSize() )
     {
@@ -152,7 +152,7 @@ void DataPage::Bcast( int rootid )
     HXBcast( this->GetBeginDataPointer(), nLength, rootid );
 }
 
-void DataPage::ReadFile( fstream & file )
+void DataPage::ReadFile( std::fstream & file )
 {
     UInt nLength = this->GetSize();
 
@@ -163,7 +163,7 @@ void DataPage::ReadFile( fstream & file )
     file.read( data, nLength );
 }
 
-void DataPage::WriteFile( fstream & file )
+void DataPage::WriteFile( std::fstream & file )
 {
     UInt nLength = this->GetSize();
 

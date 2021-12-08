@@ -28,7 +28,7 @@ License
 #include "metis.h"
 #include <vector>
 #include <fstream>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 
@@ -38,7 +38,7 @@ public:
     RealList() ;
     ~RealList();
 public:
-    vector< Real > data;
+    std::vector< Real > data;
 public:
     size_t GetNElements();
     void AddData( Real value );
@@ -71,7 +71,7 @@ public:
     ~IntList();
     IntList( const IntList & rhs );
 public:
-    vector< int > data;
+    std::vector< int > data;
 public:
     size_t GetNElements();
     void AddData( int value );
@@ -97,13 +97,13 @@ public:
     EList() ;
     ~EList();
 public:
-    vector< vector< int > > data;
+    std::vector< std::vector< int > > data;
 public:
     size_t GetNElements();
     void AddElem( IntList &elem );
-    void AddElem( vector< int > &elem );
+    void AddElem( std::vector< int > &elem );
 
-    vector< int > & operator [] ( int i )
+    std::vector< int > & operator [] ( int i )
     {
         return data[ i ];
     }
@@ -121,13 +121,13 @@ public:
     ScalarBcco();
     ~ScalarBcco();
 public:
-    string bcName;
+    std::string bcName;
     int bcType;
 
     EList elements;
     IntList eTypes;
 
-    vector< int > vertexList;
+    std::vector< int > vertexList;
     IntList local_globalIds;
 public:
     void PushBoundaryFace( int pt, int eType );
@@ -142,7 +142,7 @@ public:
     ScalarBccos();
     ~ScalarBccos();
 public:
-    vector< ScalarBcco * > bccos;
+    std::vector< ScalarBcco * > bccos;
 public:
     void AddBcco( ScalarBcco * scalarBcco );
     void ScanBcFace( ScalarGrid * grid );
@@ -176,7 +176,7 @@ public:
     IntList rpos;
 
     //global faceid
-    vector<int> global_faceid;
+    std::vector<int> global_faceid;
 
     EList faces;
     EList elements;
@@ -214,14 +214,14 @@ public:
     void AllocGeom();
     void ScanBcFace();
     void ScanBcFace( IntSet& bcVertex, int bcType );
-    bool CheckBcFace( IntSet & bcVertex, vector< int > & nodeId );
+    bool CheckBcFace( IntSet & bcVertex, std::vector< int > & nodeId );
     void AllocateBc();
     void SetBcTypes();
 public:
     void ReadFromCgnsZbase( CgnsZbase * cgnsZbase );
     void ReadFromCgnsZone( CgnsZone * cgnsZone );
     void PushElement( CgIntField & eNodeId, int eType );
-    void GenerateGridFromCgns( const string & prjFileName );
+    void GenerateGridFromCgns( const std::string & prjFileName );
     void DumpCgnsGrid();
     void SetCgnsZone( CgnsZone * cgnsZone );
 public:
@@ -247,8 +247,8 @@ public:
     void ReadCalcGrid();
     void WriteGrid( DataBook * databook );
     void ReadGrid( DataBook * databook );
-    void WriteGrid( fstream & file );
-    void ReadGrid( fstream & file );
+    void WriteGrid( std::fstream & file );
+    void ReadGrid( std::fstream & file );
     void CreateNodes( int numberOfNodes );
     void WriteGridFaceTopology( DataBook * databook );
     void WriteBoundaryTopology( DataBook * databook );

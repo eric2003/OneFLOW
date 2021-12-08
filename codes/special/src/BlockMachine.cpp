@@ -39,7 +39,7 @@ License
 #include "GridPara.h"
 #include "HXCgns.h"
 #include <fstream>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 
@@ -55,7 +55,7 @@ BlockMachine::~BlockMachine()
 
 void BlockMachine::AddFaceToBlock( FileIO * ioFile )
 {
-    string word = ioFile->ReadNextWord();
+    std::string word = ioFile->ReadNextWord();
     if ( word == "L2F" )
     {
         int faceid = ioFile->ReadNextDigit< int >();

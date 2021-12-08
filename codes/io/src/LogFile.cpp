@@ -25,35 +25,35 @@ License
 #include "Parallel.h"
 #include "Prj.h"
 #include <iostream>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 
 LogFile logFile;
 
-void OpenLogFile( int logFileIndex, fstream & file )
+void OpenLogFile( int logFileIndex, std::fstream & file )
 {
     static int ifReWrite = 0;
 
     ONEFLOW::StrIO.ClearAll();
     ONEFLOW::StrIO << "log/log" << logFileIndex << ".log";
-    string fileName = ONEFLOW::StrIO.str();
+    std::string fileName = ONEFLOW::StrIO.str();
 
     if ( ifReWrite == 0 )
     {
         ONEFLOW::MakePrjDir( "log" );
 
-        ONEFLOW::OpenPrjFile( file, fileName, ios_base::out | ios_base::trunc );
+        ONEFLOW::OpenPrjFile( file, fileName, std::ios_base::out | std::ios_base::trunc );
 
         ifReWrite = 1;
     }
     else
     {
-        ONEFLOW::OpenPrjFile( file, fileName, ios_base::out | ios_base::app );
+        ONEFLOW::OpenPrjFile( file, fileName, std::ios_base::out | std::ios_base::app );
     }
 }
 
-void CloseLogFile( fstream & file )
+void CloseLogFile( std::fstream & file )
 {
     file.close();
     file.clear();

@@ -29,7 +29,7 @@ License
 #include <set>
 #include <map>
 #include <fstream>
-using namespace std;
+
 BeginNameSpace( ONEFLOW )
 
 class Block3D;
@@ -61,13 +61,13 @@ public:
     void SetRemainingCtrlPoint( IntField & idxList );
 public:
     void ConstructLineToDomainMap();
-    void ConstructLineToDomainMap( map< int, IntSet > & lineToDomainMap );
+    void ConstructLineToDomainMap( std::map< int, IntSet > & lineToDomainMap );
     void ConstructPointToDomainMap();
-    void ConstructPointToDomainMap( map< int, IntSet > & pointToDomainMap );
+    void ConstructPointToDomainMap( std::map< int, IntSet > & pointToDomainMap );
     void ConstructPointToPointMap();
-    void ConstructPointToPointMap( map< int, IntSet > & pointToPointMap );
+    void ConstructPointToPointMap( std::map< int, IntSet > & pointToPointMap );
 
-    void ConstructPointToLineMap( map< int, IntSet > & pointToLineMap );
+    void ConstructPointToLineMap( std::map< int, IntSet > & pointToLineMap );
     void ConstructDomainTopo();
     void GetPointIdLink( IntField & lineList, LinkField & pointIdLink );
 public:
@@ -77,7 +77,7 @@ public:
     void SetBlkBcMesh( Block2D * blk2d );
     void SetDomainBcMesh();
     void GenerateSDomainMesh();
-    void GenerateSDomainMesh( fstream & file );
+    void GenerateSDomainMesh( std::fstream & file );
 public:
     void CreateInpFaceList( HXVector< Face2D * > &facelist );
     void CreateInpFaceList1D( HXVector< Face2D * > &facelist );

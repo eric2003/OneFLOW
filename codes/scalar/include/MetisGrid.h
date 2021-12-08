@@ -30,11 +30,11 @@ License
 #include <vector>
 #include <set>
 #include <map>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 
-typedef vector<idx_t> MetisIntList;
+typedef std::vector<idx_t> MetisIntList;
 class ScalarGrid;
 
 class MetisSplit
@@ -64,11 +64,11 @@ public:
 public:
     ScalarGrid * ggrid;
     int nPart;
-    vector< ScalarGrid * > * grids;
+    std::vector< ScalarGrid * > * grids;
 public:
     int GetNZones();
     void AllocateGrid( int nZones );
-    void PartitionGrid( ScalarGrid * ggrid, int nPart, vector< ScalarGrid * > * grids );
+    void PartitionGrid( ScalarGrid * ggrid, int nPart, std::vector< ScalarGrid * > * grids );
     void ReconstructGridFaceTopo();
     void ReconstructInterfaceTopo();
     void ReconstructNode();

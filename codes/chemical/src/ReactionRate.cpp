@@ -51,7 +51,7 @@ void ReactionRate::Init( int nReaction )
 
 void ReactionRate::Read( FileIO * ioFile )
 {
-    string separator = " =\r\n#$,;\"'";
+    std::string separator = " =\r\n#$,;\"'";
 
     ioFile->SetDefaultSeparator( separator );
 
@@ -62,7 +62,7 @@ void ReactionRate::Read( FileIO * ioFile )
     {
         ioFile->ReadNextNonEmptyLine();
         //Read irtmp
-        string word = ioFile->ReadNextWord();
+        std::string word = ioFile->ReadNextWord();
 
         f1[ iReaction ] = ioFile->ReadNextDigit< Real >();
         f2[ iReaction ] = ioFile->ReadNextDigit< Real >();

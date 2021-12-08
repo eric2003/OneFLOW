@@ -29,7 +29,6 @@ License
 #include "GridState.h"
 #include "Multigrid.h"
 #include <iostream>
-using namespace std;
 
 BeginNameSpace( ONEFLOW )
 
@@ -47,7 +46,7 @@ Grid * CreateGrid( int gridType )
         grid->Init();
         return grid;
     }
-    cout << "No grid of this type\n";
+    std::cout << "No grid of this type\n";
     return 0;
 }
 

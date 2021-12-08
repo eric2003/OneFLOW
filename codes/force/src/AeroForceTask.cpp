@@ -54,7 +54,7 @@ License
 #include <sstream>
 #include <iomanip>
 #include <iostream>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 
@@ -88,7 +88,7 @@ void AerodynamicForceTask::Init()
 {
     aeroForceInfo.Init();
 
-    this->fileName = GetDataValue< string >( "aeroFile" );
+    this->fileName = GetDataValue< std::string >( "aeroFile" );
 }
 
 void AerodynamicForceTask::Dump()
@@ -97,14 +97,14 @@ void AerodynamicForceTask::Dump()
 
     aeroForceInfo.CalcCoef();
 
-    ostringstream oss;
+    std::ostringstream oss;
 
     int wordWidth = 16;
-    oss << setiosflags( ios::right );
-    oss << setiosflags( ios::scientific );
+    oss << std::setiosflags( std::ios::right );
+    oss << std::setiosflags( std::ios::scientific );
 
-    fstream file;
-    OpenPrjFile( file, fileName, ios_base::out | ios_base::app );
+    std::fstream file;
+    OpenPrjFile( file, fileName, std::ios_base::out | std::ios_base::app );
 
     if ( IsEmpty( file ) )
     {
@@ -129,14 +129,14 @@ void AerodynamicForceTask::Dump()
 
         for ( UInt iTitle = 0; iTitle < title.size(); ++ iTitle )
         {
-            oss << title[ iTitle ] << endl;
+            oss << title[ iTitle ] << std::endl;
         }
     }
 
     oss << Iteration::outerSteps << "    ";
     oss << Iteration::innerSteps << "    ";
-    oss << setprecision( 6 ) << ctrl.currTime << "    ";
-    oss << setprecision( 4 );
+    oss << std::setprecision( 6 ) << ctrl.currTime << "    ";
+    oss << std::setprecision( 4 );
     oss << aeroForceInfo.cl << "    ";
     oss << aeroForceInfo.cd << "    ";
     oss << aeroForceInfo.cd_pres << "    ";
@@ -149,7 +149,7 @@ void AerodynamicForceTask::Dump()
     oss << aeroForceInfo.cmom.x << "    ";
     oss << aeroForceInfo.cmom.y << "    ";
     oss << aeroForceInfo.cmom.z << "    ";
-    oss << endl;
+    oss << std::endl;
 
     file << oss.str();
 
@@ -352,15 +352,15 @@ void CalcAeroForce(int idump_pres)
 					Real cf = aeroCom.CalcCF(&aeroForce.vis, area[fId]);
 
 					int wordWidth = 20;
-					StrIO << setiosflags(ios::left);
-					StrIO << setiosflags(ios::scientific);
-					StrIO << setprecision(10);
-					StrIO << setw(wordWidth) << xc;
-					StrIO << setw(wordWidth) << yc;
-					StrIO << setw(wordWidth) << zc;
-					StrIO << setw(wordWidth) << -cp;
-					StrIO << setw(wordWidth) << cf;
-					StrIO << endl;
+					StrIO << std::setiosflags(std::ios::left);
+					StrIO << std::setiosflags(std::ios::scientific);
+					StrIO << std::setprecision(10);
+					StrIO << std::setw(wordWidth) << xc;
+					StrIO << std::setw(wordWidth) << yc;
+					StrIO << std::setw(wordWidth) << zc;
+					StrIO << std::setw(wordWidth) << -cp;
+					StrIO << std::setw(wordWidth) << cf;
+					StrIO << std::endl;
 				}
 			}
 			else
@@ -430,15 +430,15 @@ void CalcAeroForce(int idump_pres)
 					Real cf = aeroCom.CalcCF(&aeroForce.vis, area[fId]);
 
 					int wordWidth = 20;
-					StrIO << setiosflags(ios::left);
-					StrIO << setiosflags(ios::scientific);
-					StrIO << setprecision(10);
-					StrIO << setw(wordWidth) << xc;
-					StrIO << setw(wordWidth) << yc;
-					StrIO << setw(wordWidth) << zc;
-					StrIO << setw(wordWidth) << -cp;
-					StrIO << setw(wordWidth) << cf;
-					StrIO << endl;
+					StrIO << std::setiosflags(std::ios::left);
+					StrIO << std::setiosflags(std::ios::scientific);
+					StrIO << std::setprecision(10);
+					StrIO << std::setw(wordWidth) << xc;
+					StrIO << std::setw(wordWidth) << yc;
+					StrIO << std::setw(wordWidth) << zc;
+					StrIO << std::setw(wordWidth) << -cp;
+					StrIO << std::setw(wordWidth) << cf;
+					StrIO << std::endl;
 				}
 			}
 		}

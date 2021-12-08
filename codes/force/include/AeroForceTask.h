@@ -36,7 +36,7 @@ public:
     void CalcForce();
     void Dump();
 public:
-    string fileName;
+    std::string fileName;
 };
 
 class UnsGrid;

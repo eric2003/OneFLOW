@@ -57,7 +57,7 @@ public:
     Real vencat_coef;
     int nrokplus;
     int ivischeme;
-    string heatfluxFile;
+    std::string heatfluxFile;
 public:
     void Init();
 };
@@ -71,10 +71,10 @@ public:
     void Init();
 public:
     int vismodel;
-    string visname;
+    std::string visname;
 };
 
-void CopyArray( RealField & arr, const string & name );
+void CopyArray( RealField & arr, const std::string & name );
 
 extern Ctrl ctrl;
 extern VisModel vis_model;

@@ -32,7 +32,7 @@ License
 #include "DataBook.h"
 #include "Tolerence.h"
 #include <iostream>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 
@@ -99,11 +99,11 @@ void StrGrid::SetBasicDimension()
     this->nCells = this->CalcNumberOfCell();
     this->nFaces = this->CalcNumberOfFace();
 
-    cout << " " << Dim::dimension << "D Grid\n";
+    std::cout << " " << Dim::dimension << "D Grid\n";
 
-    cout << " number of nodes           : " << this->nNodes << endl;
-    cout << " number of element surface : " << this->nFaces << endl;
-    cout << " number of element         : " << this->nCells << endl;
+    std::cout << " number of nodes           : " << this->nNodes << std::endl;
+    std::cout << " number of element surface : " << this->nFaces << std::endl;
+    std::cout << " number of element         : " << this->nCells << std::endl;
 }
 
 void StrGrid::SetLayout()

@@ -27,13 +27,13 @@ License
 #include "OStream.h"
 #include <map>
 #include <iostream>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 
 IntField SolverMap::tid;
-map< int, int > SolverMap::tid2Id;
-map< int, int > SolverMap::id2Tid;
+std::map< int, int > SolverMap::tid2Id;
+std::map< int, int > SolverMap::id2Tid;
 HXVector< Solver * > SolverMap::strSolver;
 HXVector< Solver * > SolverMap::unsSolver;
 
@@ -109,14 +109,14 @@ void SolverMap::FreeSolverMap()
 
 int SolverMap::GetId( int sTid )
 {
-    map< int, int >::iterator iter;
+    std::map< int, int >::iterator iter;
     iter = SolverMap::tid2Id.find( sTid );
     return iter->second;
 }
 
 int SolverMap::GetTid( int sid )
 {
-    map< int, int >::iterator iter;
+    std::map< int, int >::iterator iter;
     iter = SolverMap::id2Tid.find( sid );
     return iter->second;
 }
@@ -129,7 +129,7 @@ void SolverMap::AddSolverInfo( int sTid, int sid )
 
 void SolverMap::AddTid2Id( int sTid, int sid )
 {
-    map< int, int >::iterator iter;
+    std::map< int, int >::iterator iter;
     iter = SolverMap::tid2Id.find( sTid );
     if ( iter == SolverMap::tid2Id.end() )
     {
@@ -140,7 +140,7 @@ void SolverMap::AddTid2Id( int sTid, int sid )
 
 void SolverMap::AddId2Tid( int sid, int sTid )
 {
-    map< int, int >::iterator iter = SolverMap::id2Tid.find( sid );
+    std::map< int, int >::iterator iter = SolverMap::id2Tid.find( sid );
     if ( iter == SolverMap::id2Tid.end() )
     {
         SolverMap::id2Tid[ sid ] = sTid;
@@ -186,15 +186,15 @@ void SolverNameClass::ReadSolverNames()
     SolverNameClass::ReadSolverNames( solverNameList );
     for ( int isol = 0; isol < solverNameList.size(); ++ isol )
     {
-        string solverName = solverNameList[ isol ];
+        std::string solverName = solverNameList[ isol ];
 
         ONEFLOW::StrIO.ClearAll();
         ONEFLOW::StrIO << "U" << solverName;
-        string uSolverName = ONEFLOW::StrIO.str();
+        std::string uSolverName = ONEFLOW::StrIO.str();
 
         ONEFLOW::StrIO.ClearAll();
         ONEFLOW::StrIO << "S" << solverName;
-        string sSolverName = ONEFLOW::StrIO.str();
+        std::string sSolverName = ONEFLOW::StrIO.str();
 
         SolverNameClass::unsSolverNameList.push_back( uSolverName );
         SolverNameClass::strSolverNameList.push_back( sSolverName );
@@ -205,17 +205,17 @@ void SolverNameClass::ReadSolverNames( StringField & solverNameList )
 {
     FileIO ioFile;
 
-    ioFile.OpenPrjFile( "script/solver.txt", ios_base::in );
+    ioFile.OpenPrjFile( "script/solver.txt", std::ios_base::in );
 
     //\t is the tab key
-    string keyWordSeparator = " ()\r\n\t#$,;\"";
+    std::string keyWordSeparator = " ()\r\n\t#$,;\"";
     ioFile.SetDefaultSeparator( keyWordSeparator );
 
     while ( ! ioFile.ReachTheEndOfFile()  )
     {
         bool flag = ioFile.ReadNextNonEmptyLine();
         if ( ! flag ) break;
-        string solverName = ioFile.ReadNextWord();
+        std::string solverName = ioFile.ReadNextWord();
         solverNameList.push_back( solverName );
     }
 

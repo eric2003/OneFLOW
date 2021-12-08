@@ -47,7 +47,7 @@ License
 #include "GridPara.h"
 #include <algorithm>
 #include <iostream>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 
@@ -102,7 +102,7 @@ Face2D * BlkFaceSolver::GetBlkFace2D( int blk, int face_id )
 
 int BlkFaceSolver::FindFace( Mid<int> & face )
 {
-    set< Mid<int> >::iterator iter = this->refFaces.find( face );
+    std::set< Mid<int> >::iterator iter = this->refFaces.find( face );
     if ( iter == this->refFaces.end() )
     {
         return ONEFLOW::INVALID_INDEX;
@@ -116,7 +116,7 @@ int BlkFaceSolver::FindFaceId( IntField & face )
     fMid.data = face;
     std::sort( fMid.data.begin(), fMid.data.end() );
 
-    set< Mid<int> >::iterator iter = this->refFaces.find( fMid );
+    std::set< Mid<int> >::iterator iter = this->refFaces.find( fMid );
     if ( iter == this->refFaces.end() )
     {
         return ONEFLOW::INVALID_INDEX;
@@ -153,8 +153,8 @@ void BlkFaceSolver::MyFaceBuildSDomainList()
 void BlkFaceSolver::MyFaceGenerateFaceMesh()
 {
     int nFaces = this->faceList.size();
-    fstream file;
-    OpenPrjFile( file, "grid/facemesh_tecplot.dat", ios_base::out );
+    std::fstream file;
+    OpenPrjFile( file, "grid/facemesh_tecplot.dat", std::ios_base::out );
     for ( int iFace = 0; iFace < nFaces; ++ iFace )
     {
         SDomain * sDomain = this->sDomainList[ iFace ];
@@ -232,13 +232,13 @@ int BlkFaceSolver::FindLineId( IntField & line )
     return this->FindId( line, this->refLines );
 }
 
-int BlkFaceSolver::FindId( IntField & varlist, set< Mid<int> > &refSets )
+int BlkFaceSolver::FindId( IntField & varlist, std::set< Mid<int> > &refSets )
 {
     Mid<int> fMid( varlist.size(), 0 );
     fMid.data = varlist;
     std::sort( fMid.data.begin(), fMid.data.end() );
 
-    set< Mid<int> >::iterator iter = refSets.find( fMid );
+    std::set< Mid<int> >::iterator iter = refSets.find( fMid );
     if ( iter == refSets.end() )
     {
         return ONEFLOW::INVALID_INDEX;
@@ -261,7 +261,7 @@ void BlkFaceSolver::MyFaceAlloc()
     }
     this->line2Face.resize( nLine );
 
-    //The reference line segment set is set up to facilitate the search
+    //The reference line segment std::set is std::set up to facilitate the search
     for ( int i = 0; i < nLine; ++ i )
     {
         IntField & line = this->lineList[ i ];
@@ -426,11 +426,11 @@ void BlkFaceSolver::DumpBcInp()
     int flowSolverIndex = 1;
     int width = 5;
 
-    fstream file;
-    OpenPrjFile( file, grid_para.bcFile, ios_base::out );
+    std::fstream file;
+    OpenPrjFile( file, grid_para.bcFile, std::ios_base::out );
 
-    file << setw( width ) << flowSolverIndex << endl;
-    file << setw( width ) << nBlock << endl;
+    file << std::setw( width ) << flowSolverIndex << std::endl;
+    file << std::setw( width ) << nBlock << std::endl;
     for ( int iBlk = 0; iBlk < nBlock; ++ iBlk )
     {
         Block3D * blk3d = this->blkList[ iBlk ];
@@ -447,11 +447,11 @@ void BlkFaceSolver::DumpBcInp2D()
     int flowSolverIndex = 1;
     int width = 5;
 
-    fstream file;
-    OpenPrjFile( file, grid_para.bcFile, ios_base::out );
+    std::fstream file;
+    OpenPrjFile( file, grid_para.bcFile, std::ios_base::out );
 
-    file << setw( width ) << flowSolverIndex << endl;
-    file << setw( width ) << nBlock << endl;
+    file << std::setw( width ) << flowSolverIndex << std::endl;
+    file << std::setw( width ) << nBlock << std::endl;
     for ( int iBlk = 0; iBlk < nBlock; ++ iBlk )
     {
         Block2D * blk2d = this->blkList2d[ iBlk ];
@@ -464,8 +464,8 @@ void BlkFaceSolver::DumpBcInp2D()
 
 void BlkFaceSolver::DumpBlkScript()
 {
-    fstream file;
-    OpenPrjFile( file, "grid/blkscript.txt", ios_base::out );
+    std::fstream file;
+    OpenPrjFile( file, "grid/blkscript.txt", std::ios_base::out );
     IntField ctrlpoints;
     ctrlpoints.push_back( 1 );
     ctrlpoints.push_back( 2 );
@@ -482,7 +482,7 @@ void BlkFaceSolver::DumpBlkScript()
     int kkk = 1;
 }
 
-void BlkFaceSolver::DumpBlkScript( fstream & file, BlkElem * blkHexa, IntField & ctrlpoints )
+void BlkFaceSolver::DumpBlkScript( std::fstream & file, BlkElem * blkHexa, IntField & ctrlpoints )
 {
     //int p1 = ctrlpoints[ 0 ];
     //int p2 = ctrlpoints[ 1 ];
@@ -496,7 +496,7 @@ void BlkFaceSolver::DumpBlkScript( fstream & file, BlkElem * blkHexa, IntField &
     }
 }
 
-void BlkFaceSolver::DumpBlkScript( fstream & file, IntField & localid, IntField & ctrlpoints )
+void BlkFaceSolver::DumpBlkScript( std::fstream & file, IntField & localid, IntField & ctrlpoints )
 {
     int npoint = localid.size();
     for ( int i = 0; i < npoint; ++ i )
@@ -531,8 +531,8 @@ void BlkFaceSolver::GenerateBlkMesh2D()
         blk2d->CreateBlockMesh2D();
     }
 
-    fstream file;
-    OpenPrjFile( file, "grid/blkplot2d.dat", ios_base::out );
+    std::fstream file;
+    OpenPrjFile( file, "grid/blkplot2d.dat", std::ios_base::out );
 
     for ( int iBlk = 0; iBlk < nBlock; ++ iBlk )
     {
@@ -601,8 +601,8 @@ void BlkFaceSolver::DumpStandardGrid2D()
 
 void BlkFaceSolver::DumpStandardGrid( Grids & strGridList )
 {
-    fstream file;
-    OpenPrjFile( file, grid_para.gridFile, ios_base::out | ios_base::binary );
+    std::fstream file;
+    OpenPrjFile( file, grid_para.gridFile, std::ios_base::out | std::ios_base::binary );
 
     int nZone = strGridList.size();
     HXWrite( & file, nZone );

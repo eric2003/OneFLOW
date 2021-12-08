@@ -43,7 +43,7 @@ License
 #include <iostream>
 #include <algorithm>
 #include <iomanip>
-using namespace std;
+
 
 
 BeginNameSpace( ONEFLOW )
@@ -71,12 +71,12 @@ void VisualTool::Init()
     title.push_back( "\"z\"" );
 }
 
-void VisualTool::AddTitle( const string & varName )
+void VisualTool::AddTitle( const std::string & varName )
 {
     title.push_back( AddString( "\"",  varName, "\"" ) );
 }
 
-MRField * VisualTool::AddField( const string & varName )
+MRField * VisualTool::AddField( const std::string & varName )
 {
     this->AddTitle( varName );
     MRField * fn = CreateNodeVar( varName );
@@ -84,7 +84,7 @@ MRField * VisualTool::AddField( const string & varName )
     return fn;
 }
 
-MRField * VisualTool::AddField( RealField & qc, const string & varName )
+MRField * VisualTool::AddField( RealField & qc, const std::string & varName )
 {
     this->AddTitle( varName );
     MRField * fn = CreateNodeVar( qc );
@@ -92,7 +92,7 @@ MRField * VisualTool::AddField( RealField & qc, const string & varName )
     return fn;
 }
 
-MRField * VisualTool::CreateField( const string & varName, int nEqu )
+MRField * VisualTool::CreateField( const std::string & varName, int nEqu )
 {
     this->AddTitle( varName );
     MRField * fn = AllocNodeVar( nEqu );
@@ -129,7 +129,7 @@ void BcVisual::ResolveElementEdge()
     int nFaces = this->f2n.size();
     int nSize = 2;
 
-    set< Mid<int> > edgeSet;
+    std::set< Mid<int> > edgeSet;
 
     for ( int fId = 0; fId < nFaces; ++ fId )
     {
@@ -156,7 +156,7 @@ void BcVisual::ResolveElementEdge()
             edge.data = sortedNodeId;
 
             int  edgeIndex;
-            set< Mid<int> >::iterator iter = edgeSet.find( edge );
+            std::set< Mid<int> >::iterator iter = edgeSet.find( edge );
             if ( iter == edgeSet.end() )
             {
                 edgeIndex = -1;
@@ -178,11 +178,11 @@ void BcVisual::ResolveElementEdge()
                 int ip = this->rcell[ edgeIndex ];
                 if ( ip != -1 )
                 {
-                    cout << "Fatal Error\n";
-                    cout << " edgeIndex = " << edgeIndex << "\n";
+                    std::cout << "Fatal Error\n";
+                    std::cout << " edgeIndex = " << edgeIndex << "\n";
                     for ( int i = 0; i < this->e2n[ edgeIndex ].size(); ++ i )
                     {
-                        cout << this->e2n[ edgeIndex ][ i ] << " ";
+                        std::cout << this->e2n[ edgeIndex ][ i ] << " ";
                     }
                 }
 
@@ -200,7 +200,7 @@ void BcVisual::Calcf2n( int bcType )
     BcRecord * bcRecord = faceTopo->bcManager->bcRecord;
 
     IntField localf2n( 4 );
-    set< HXSort< int > > sets;
+    std::set< HXSort< int > > sets;
     HXSort< int > data;
 
     this->f2n.resize( 0 );
@@ -220,7 +220,7 @@ void BcVisual::Calcf2n( int bcType )
             int gId = f2n[ iFace ][ iNode ];
 
             data.value = gId;
-            set< HXSort< int > >::iterator iter = sets.find( data );
+            std::set< HXSort< int > >::iterator iter = sets.find( data );
 
             if ( iter == sets.end() )
             {
@@ -244,32 +244,32 @@ void BcVisual::Calcf2n( int bcType )
     //    int le = 1360;
     //    int re = 1361;
 
-    //    cout << "Elem id = " << le << " " << re << "\n";
-    //    cout << " this->f2n.size() = " << this->f2n.size() << "\n";
+    //    std::cout << "Elem id = " << le << " " << re << "\n";
+    //    std::cout << " this->f2n.size() = " << this->f2n.size() << "\n";
     //    int nle = this->f2n[ le ].size();
     //    int nre = this->f2n[ re ].size();
-    //    cout << "left elem node size =  " << nle << "\n";
-    //    cout << "right elem node size =  " << nre << "\n";
+    //    std::cout << "left elem node size =  " << nle << "\n";
+    //    std::cout << "right elem node size =  " << nre << "\n";
     //    for ( int i = 0; i < nle; ++ i )
     //    {
-    //        cout << this->f2n[ le ][ i ] << " ";
+    //        std::cout << this->f2n[ le ][ i ] << " ";
     //    }
-    //    cout << "\n";
+    //    std::cout << "\n";
     //    for ( int i = 0; i < nre; ++ i )
     //    {
-    //        cout << this->f2n[ re ][ i ] << " ";
+    //        std::cout << this->f2n[ re ][ i ] << " ";
     //    }
-    //    cout << "\n";
+    //    std::cout << "\n";
     //}
 }
 
-void BcVisual::Dump( ostringstream & oss, VisualTool * visualTool, string & bcTitle )
+void BcVisual::Dump( std::ostringstream & oss, VisualTool * visualTool, std::string & bcTitle )
 {
     UnsGrid * grid = Zone::GetUnsGrid();
 
     for ( UInt i = 0; i < visualTool->title.size(); ++ i )
     {
-        oss << visualTool->title[ i ] << endl;
+        oss << visualTool->title[ i ] << std::endl;
     }
         
     int nNodes = l2g.size();
@@ -279,13 +279,13 @@ void BcVisual::Dump( ostringstream & oss, VisualTool * visualTool, string & bcTi
     // output for Tecplot
     oss << "ZONE\n";
 
-    oss << "T = " << bcTitle << endl;
+    oss << "T = " << bcTitle << std::endl;
 
     oss << "ZoneType = FEPolygon\n";
 
-    oss << "Nodes    = " << nNodes << endl;
-    oss << "Faces    = " << nFaces << endl;  
-    oss << "Elements = " << nElem << endl;  
+    oss << "Nodes    = " << nNodes << std::endl;
+    oss << "Faces    = " << nFaces << std::endl;  
+    oss << "Elements = " << nElem << std::endl;  
     oss << "NumConnectedBoundaryFaces = 0\n";
     oss << "TotalNumBoundaryConnections = 0\n";
 
@@ -307,7 +307,7 @@ void BcVisual::Dump( ostringstream & oss, VisualTool * visualTool, string & bcTi
        
 }
 
-void BcVisual::DumpDebug( ostringstream & oss, VisualTool * visualTool, string & bcTitle )
+void BcVisual::DumpDebug( std::ostringstream & oss, VisualTool * visualTool, std::string & bcTitle )
 {
     UnsGrid * grid = Zone::GetUnsGrid();
 
@@ -363,9 +363,9 @@ void BcVisual::DumpSeveralElement()
     int nFaces = e2n.size();
     int nElem = this->f2n.size();
 
-    fstream file;
-    string fileName = "test.plt";
-    ONEFLOW::OpenPrjFile( file, fileName, ios_base::out );
+    std::fstream file;
+    std::string fileName = "test.plt";
+    ONEFLOW::OpenPrjFile( file, fileName, std::ios_base::out );
 
     file << " VARIALBES = ";
     file << " \"x\" ";
@@ -379,7 +379,7 @@ void BcVisual::DumpSeveralElement()
     IntField nList, nList1, nList2;
 
     IntField localf2n( 4 );
-    set< HXSort< int > > sList;
+    std::set< HXSort< int > > sList;
     HXSort< int > data;
     int iCount = 0;
     for ( int e = 0; e < eList.size(); ++ e )
@@ -391,7 +391,7 @@ void BcVisual::DumpSeveralElement()
             int ip = this->f2n[ ee ][ in ];
             nList1.push_back( ip );
             data.value = ip;
-            set< HXSort< int > >::iterator iter = sList.find( data );
+            std::set< HXSort< int > >::iterator iter = sList.find( data );
 
             if ( iter == sList.end() )
             {
@@ -415,9 +415,9 @@ void BcVisual::DumpSeveralElement()
     for ( int iNode = 0; iNode < iCount; ++ iNode )
     {
         int id = l2g[ nList2[ iNode ] ];
-        file << setw( width ) << setprecision( pre ) << grid->nodeMesh->xN[ id ] << " ";
-        file << setw( width ) << setprecision( pre ) << grid->nodeMesh->yN[ id ] << " ";
-        file << setw( width ) << setprecision( pre ) << grid->nodeMesh->zN[ id ] << " ";
+        file << std::setw( width ) << std::setprecision( pre ) << grid->nodeMesh->xN[ id ] << " ";
+        file << std::setw( width ) << std::setprecision( pre ) << grid->nodeMesh->yN[ id ] << " ";
+        file << std::setw( width ) << std::setprecision( pre ) << grid->nodeMesh->zN[ id ] << " ";
         file << "\n";
     }
 
@@ -469,7 +469,7 @@ void UVisualize::Visual()
 
     this->CalcNodeField( & visualTool );
 
-    ostringstream oss;
+    std::ostringstream oss;
 
     this->ShowBc( oss, & visualTool );
     //this->ShowBcDebug( oss, & visualTool );
@@ -505,7 +505,7 @@ int UVisualize::GetTotalNumFaceNodes( LinkField & f2n )
     return totalNumFaceNodes;
 }
 
-void UVisualize::ShowField( ostringstream & oss, VisualTool * visualTool )
+void UVisualize::ShowField( std::ostringstream & oss, VisualTool * visualTool )
 {
     UnsGrid * grid = Zone::GetUnsGrid();
 
@@ -518,7 +518,7 @@ void UVisualize::ShowField( ostringstream & oss, VisualTool * visualTool )
 
     for ( UInt i = 0; i < visualTool->title.size(); ++ i )
     {
-        oss << visualTool->title[ i ] << endl;
+        oss << visualTool->title[ i ] << std::endl;
     }
 
     int totalNumFaceNodes = this->GetTotalNumFaceNodes( f2n );
@@ -533,10 +533,10 @@ void UVisualize::ShowField( ostringstream & oss, VisualTool * visualTool )
     {
         oss << "ZoneType = FEPolygon\n";
     }
-    oss << "Nodes    = " << nNodes << endl;
-    oss << "Faces    = " << nFaces << endl;
-    oss << "Elements = " << nCells << endl;
-    oss << "TotalNumFaceNodes = " << totalNumFaceNodes << endl;
+    oss << "Nodes    = " << nNodes << std::endl;
+    oss << "Faces    = " << nFaces << std::endl;
+    oss << "Elements = " << nCells << std::endl;
+    oss << "TotalNumFaceNodes = " << totalNumFaceNodes << std::endl;
     oss << "NumConnectedBoundaryFaces = 0\n";
     oss << "TotalNumBoundaryConnections = 0\n";
     Plot::oss = & oss;
@@ -561,7 +561,7 @@ void UVisualize::ShowField( ostringstream & oss, VisualTool * visualTool )
     Plot::DumpFaceElementLink( faceTopo->rCells, nCells );
 }
 
-void UVisualize::ShowBc( ostringstream & oss, VisualTool * visualTool )
+void UVisualize::ShowBc( std::ostringstream & oss, VisualTool * visualTool )
 {
     if ( IsTwoD() ) return;
     UnsGrid * grid = Zone::GetUnsGrid();
@@ -576,7 +576,7 @@ void UVisualize::ShowBc( ostringstream & oss, VisualTool * visualTool )
 
         if ( BC::IsInterfaceBc( bcType )  ) continue;
 
-        string bcTitle = AddString( "\"",  ZoneState::zid, "BC=", bcType, "\"" );
+        std::string bcTitle = AddString( "\"",  ZoneState::zid, "BC=", bcType, "\"" );
 
         BcVisual bcVisual;
 
@@ -586,7 +586,7 @@ void UVisualize::ShowBc( ostringstream & oss, VisualTool * visualTool )
     }    
 }
 
-void UVisualize::ShowBcDebugTest( ostringstream & oss, VisualTool * visualTool )
+void UVisualize::ShowBcDebugTest( std::ostringstream & oss, VisualTool * visualTool )
 {
     if ( IsTwoD() ) return;
     UnsGrid * grid = Zone::GetUnsGrid();
@@ -602,7 +602,7 @@ void UVisualize::ShowBcDebugTest( ostringstream & oss, VisualTool * visualTool )
         if ( BC::IsInterfaceBc( bcType ) ) continue;
         if ( bcType != BC::SYMMETRY ) continue;
 
-        string bcTitle = AddString( "\"", ZoneState::zid, "BC=", bcType, "\"" );
+        std::string bcTitle = AddString( "\"", ZoneState::zid, "BC=", bcType, "\"" );
 
         BcVisual bcVisual;
 

@@ -31,7 +31,7 @@ along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 #include "HeatFlux.h"
 #include "DataBase.h"
 #include <iostream>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 
@@ -55,7 +55,7 @@ void INsSolver::StaticInit()
 
     ins_ctrl.Init();
     nscom.Init();
-    string fileName = "grid/ins_bc.txt";
+    std::string fileName = "grid/ins_bc.txt";
     ins_bc_data.Init( fileName );
 
     SolverInfo * solverInfo = SolverInfoFactory::GetSolverInfo( this->sTid );
@@ -64,7 +64,7 @@ void INsSolver::StaticInit()
 
     solverInfo->registerInterface = 0;
     solverInfo->residualName = "res";
-    solverInfo->resFileName = GetDataValue< string >( "resFile" );
+    solverInfo->resFileName = GetDataValue< std::string >( "resFile" );
     solverInfo->gradString.push_back( "q"    );
     solverInfo->gradString.push_back( "dqdx" );
     solverInfo->gradString.push_back( "dqdy" );

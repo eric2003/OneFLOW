@@ -23,17 +23,17 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-map< string, int > * solverTypeMap = 0;
-map< string, int > * interfaceMap = 0;
-map< string, int > * sendRecvMap = 0;
-map< string, int > * fieldIdMap = 0;
+std::map< std::string, int > * solverTypeMap = 0;
+std::map< std::string, int > * interfaceMap = 0;
+std::map< std::string, int > * sendRecvMap = 0;
+std::map< std::string, int > * fieldIdMap = 0;
 
 void CreateSysMap()
 {
-    solverTypeMap = new map< string, int >;
-    interfaceMap = new map< string, int >;
-    sendRecvMap = new map< string, int >;
-    fieldIdMap = new map< string, int >;
+    solverTypeMap = new std::map< std::string, int >;
+    interfaceMap = new std::map< std::string, int >;
+    sendRecvMap = new std::map< std::string, int >;
+    fieldIdMap = new std::map< std::string, int >;
 
     ( * solverTypeMap )[ "CFD_SOLVER"        ] = ONEFLOW::CFD_SOLVER;
     ( * solverTypeMap )[ "NS_SOLVER"         ] = ONEFLOW::NS_SOLVER;

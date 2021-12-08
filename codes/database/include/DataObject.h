@@ -28,7 +28,6 @@ License
 #include "LogFile.h"
 #include <string>
 #include <set>
-using namespace std;
 
 BeginNameSpace( ONEFLOW )
 
@@ -42,7 +41,7 @@ public:
     virtual void Write( DataBook * dataBook ) {};
     virtual void Read( DataBook * dataBook, int numberOfElements ) {};
     virtual void Copy( DataObject * dataObject ) {};
-    virtual void Dump( fstream & file ) {};
+    virtual void Dump( std::fstream & file ) {};
 };
 
 template < typename T >
@@ -56,7 +55,7 @@ T GetDataValue( DataObject * dataObject, int iElement )
 }
 
 template < typename T >
-void TDataObjectDump( fstream &file, vector< T > data )
+void TDataObjectDump( std::fstream &file, std::vector< T > data )
 {
     if ( data.size() == 0 ) return;
     file << data[ 0 ];
@@ -78,10 +77,10 @@ public:
     }
     ~TDataObject(){}
 public:
-    vector< T > data;
+    std::vector< T > data;
 public:
     void * GetVoidPointer() { return & data[ 0 ]; };
-    void CopyValue( string * valueIn )
+    void CopyValue( std::string * valueIn )
     {
         UInt nSize = this->data.size();
         for ( UInt i = 0; i < nSize; ++ i )
@@ -128,7 +127,7 @@ public:
         }
     }
 
-    void Dump( fstream &file )
+    void Dump( std::fstream &file )
     {
         TDataObjectDump( file, data );
         //if ( this->data.size() == 0 ) return;
@@ -144,7 +143,7 @@ public:
 
 
 template <>
-class TDataObject< string > : public DataObject
+class TDataObject< std::string > : public DataObject
 {
 public:
     TDataObject( int nSize )
@@ -153,10 +152,10 @@ public:
     }
     ~TDataObject() {}
 public:
-    vector< string > data;
+    std::vector< std::string > data;
 public:
     void * GetVoidPointer() { return & data[ 0 ]; };
-    void CopyValue( string * valueIn )
+    void CopyValue( std::string * valueIn )
     {
         UInt nSize = this->data.size();
         for ( UInt i = 0; i < nSize; ++ i )
@@ -170,7 +169,7 @@ public:
         UInt numberOfElements = this->data.size();
         for ( UInt iElement = 0; iElement < numberOfElements; ++ iElement )
         {
-            string & value = this->data[ iElement ];
+            std::string & value = this->data[ iElement ];
             ONEFLOW::HXWrite( dataBook, value );
         }
     }
@@ -189,12 +188,12 @@ public:
         UInt numberOfElements = this->data.size();
         for ( UInt iElement = 0; iElement < numberOfElements; ++ iElement )
         {
-            TDataObject< string > * tDataObject = static_cast<TDataObject< string > *>( dataObject );
+            TDataObject< std::string > * tDataObject = static_cast<TDataObject< std::string > *>( dataObject );
             data[ iElement ] = tDataObject->data[ iElement ];
         }
     }
 
-    void Dump( fstream &file )
+    void Dump( std::fstream &file )
     {
         TDataObjectDump( file, data );
     }

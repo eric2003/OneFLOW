@@ -21,7 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "OStream.h"
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 
@@ -32,7 +32,7 @@ void OStream::ClearAll()
     this->str("");
 }
 
-void Clear( ostringstream & oss )
+void Clear( std::ostringstream & oss )
 {
     oss.clear( );
     oss.str( "" );

@@ -23,7 +23,7 @@ License
 #include "SolverInfo.h"
 #include <map>
 #include <iostream>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 
@@ -37,7 +37,7 @@ SolverInfo::~SolverInfo()
     ;
 }
 
-map< int, SolverInfo * > * SolverInfoFactory::data = 0;
+std::map< int, SolverInfo * > * SolverInfoFactory::data = 0;
 
 SolverInfoFactory::SolverInfoFactory()
 {
@@ -51,7 +51,7 @@ void SolverInfoFactory::Init()
 {
     if ( ! SolverInfoFactory::data )
     {
-        SolverInfoFactory::data = new map< int, SolverInfo * >();
+        SolverInfoFactory::data = new std::map< int, SolverInfo * >();
     }
 }
 
@@ -59,7 +59,7 @@ void SolverInfoFactory::AddSolverInfo( int sTid )
 {
     SolverInfoFactory::Init();
 
-    map< int, SolverInfo * >::iterator iter;
+    std::map< int, SolverInfo * >::iterator iter;
 
     iter = SolverInfoFactory::data->find( sTid );
     if ( iter == SolverInfoFactory::data->end() )
@@ -71,7 +71,7 @@ void SolverInfoFactory::AddSolverInfo( int sTid )
 
 SolverInfo * SolverInfoFactory::GetSolverInfo( int sTid )
 {
-    map< int, SolverInfo * >::iterator iter;
+    std::map< int, SolverInfo * >::iterator iter;
     iter = SolverInfoFactory::data->find( sTid );
     return iter->second;
 }
@@ -79,7 +79,7 @@ SolverInfo * SolverInfoFactory::GetSolverInfo( int sTid )
 void SolverInfoFactory::Free()
 {
     if ( ! SolverInfoFactory::data ) return;
-    map< int, SolverInfo * >::iterator iter;
+    std::map< int, SolverInfo * >::iterator iter;
     for ( iter = SolverInfoFactory::data->begin(); iter != SolverInfoFactory::data->end(); ++ iter )
     {
         delete iter->second;

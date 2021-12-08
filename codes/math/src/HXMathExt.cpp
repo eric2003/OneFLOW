@@ -23,7 +23,7 @@ License
 
 #include "HXMathExt.h"
 #include <vector>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 

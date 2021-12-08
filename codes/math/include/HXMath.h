@@ -25,7 +25,7 @@ License
 #include "Constant.h"
 #include <vector>
 #include <cmath>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 

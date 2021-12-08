@@ -28,7 +28,7 @@ License
 #include "BcRecord.h"
 
 #include <iostream>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 
@@ -117,7 +117,7 @@ BcTypeMap::~BcTypeMap()
 
 void BcTypeMap::Init()
 {
-    typedef pair< int, int > IntPair;
+    typedef std::pair< int, int > IntPair;
 
     cgns2OneFlow.insert( IntPair( CGNS_ENUMV( BCTypeUserDefined       ), BC::GENERIC_2       ) );
     cgns2OneFlow.insert( IntPair( CGNS_ENUMV( BCSymmetryPlane         ), BC::SYMMETRY        ) );
@@ -159,7 +159,7 @@ void BcTypeMap::Init()
 
 int BcTypeMap::OneFlow2Cgns( int oneflow_bctype )
 {
-    map< int, int >::iterator iter;
+    std::map< int, int >::iterator iter;
     iter = oneFlow2Cgns.find( oneflow_bctype );
     int cgns_bctype = BCTypeUserDefined;
     if ( iter != oneFlow2Cgns.end() )
@@ -171,7 +171,7 @@ int BcTypeMap::OneFlow2Cgns( int oneflow_bctype )
 
 int BcTypeMap::Cgns2OneFlow( int cgns_bctype )
 {
-    map< int, int >::iterator iter;
+    std::map< int, int >::iterator iter;
     iter = cgns2OneFlow.find( cgns_bctype );
     int oneflow_bctype = BC::GENERIC_2;
     if ( iter != cgns2OneFlow.end() )
@@ -195,7 +195,7 @@ void CommonNameMap::AddName( const std::string & name )
     data.value = name;
     data.index = 0;
 
-    set< HXSort< std::string > >::iterator iter = this->stringMap.find( data );
+    std::set< HXSort< std::string > >::iterator iter = this->stringMap.find( data );
 
     if ( iter == this->stringMap.end() )
     {
@@ -210,7 +210,7 @@ int CommonNameMap::FindNameId( const std::string & name )
     data.value = name;
     data.index = 0;
 
-    set< HXSort< std::string > >::iterator iter = this->stringMap.find( data );
+    std::set< HXSort< std::string > >::iterator iter = this->stringMap.find( data );
 
     if ( iter == this->stringMap.end() )
     {
@@ -222,18 +222,18 @@ int CommonNameMap::FindNameId( const std::string & name )
     }
 }
 
-void DumpRegion( const string & fileName, CommonNameMap & nameMap )
+void DumpRegion( const std::string & fileName, CommonNameMap & nameMap )
 {
-    fstream file;
-    ONEFLOW::OpenPrjFile( file, fileName, ios_base::out );
+    std::fstream file;
+    ONEFLOW::OpenPrjFile( file, fileName, std::ios_base::out );
 
-    set< HXSort< std::string > > & stringMap = nameMap.GetNameMap();
+    std::set< HXSort< std::string > > & stringMap = nameMap.GetNameMap();
 
-    file << stringMap.size() << endl;
+    file << stringMap.size() << std::endl;
 
     for ( std::set< HXSort< std::string > >::iterator iter = stringMap.begin(); iter != stringMap.end(); ++ iter )
     {
-        file << iter->index << " " << iter->value << endl;
+        file << iter->index << " " << iter->value << std::endl;
     }
     CloseFile( file );
 }
@@ -260,7 +260,7 @@ int RegionNameMap::FindRegionId( const std::string & regionName )
 
 void RegionNameMap::DumpRegion()
 {
-    string fileName = "grid/bcRegionMap.txt";
+    std::string fileName = "grid/bcRegionMap.txt";
     ONEFLOW::DumpRegion( fileName, RegionNameMap::nameMap );
 }
 
@@ -286,7 +286,7 @@ int VolumeNameMap::FindRegionId( const std::string & regionName )
 
 void VolumeNameMap::DumpRegion()
 {
-    string fileName = "grid/volumeRegionMap.txt";
+    std::string fileName = "grid/volumeRegionMap.txt";
     ONEFLOW::DumpRegion( fileName, VolumeNameMap::nameMap );
 }
 

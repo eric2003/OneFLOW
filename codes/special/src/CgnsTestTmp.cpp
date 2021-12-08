@@ -31,23 +31,23 @@ License
 #include <iostream>
 #include <iomanip>
 #include <cmath>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 
 #define TWOPI 6.2831853
 
-/* set STRUCTURED_FACES to write the structured zone bocos for the
+/* std::set STRUCTURED_FACES to write the structured zone bocos for the
 mixed case as face range and face list instead of as point range/list
 #define STRUCTURED_FACES
 */
 
-/* set UNSTRUCTURED_1TO1 to write the unstructured case
+/* std::set UNSTRUCTURED_1TO1 to write the unstructured case
 zone connectivities as 1to1 instead of abutting1to1
 #define UNSTRUCTURED_1TO1
 */
 
-/* set ABUTTING1TO1_FACES to write the unstructured case
+/* std::set ABUTTING1TO1_FACES to write the unstructured case
 zone connectivites as abutting1to1 with faces(elements)
 instead of points. This also writes the mixed case zone 1
 to zone 2 connectivity with a face range
@@ -336,7 +336,7 @@ to zone 2 connectivity with a face range
 //        diff[n] = 0;
 //    diff[2] = 1;
 //
-//    /* flow equation set */
+//    /* flow equation std::set */
 //
 //    if (cg_goto(cgfile, cgbase, "end") ||
 //        cg_equationset_write (3) ||
@@ -352,7 +352,7 @@ to zone 2 connectivity with a face range
 //    if (cg_dataclass_write(CGNS_ENUMV(Dimensional)) ||
 //        cg_units_write(CGNS_ENUMV(Kilogram), CGNS_ENUMV(Meter),
 //            CGNS_ENUMV(Second), CGNS_ENUMV(Kelvin), CGNS_ENUMV(Radian)))
-//        error_exit("flow equation set dataclass");
+//        error_exit("flow equation std::set dataclass");
 //
 //    /* diffusion model */
 //

@@ -52,7 +52,7 @@ License
 #include "DataBase.h"
 #include <iostream>
 
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 
@@ -89,7 +89,7 @@ VTK_CgnsMap::~VTK_CgnsMap()
 
 void VTK_CgnsMap::Init()
 {
-    typedef pair< int, int > IntPair;
+    typedef std::pair< int, int > IntPair;
 
     vtk2Cgns.insert( IntPair( VTK_TYPE::VERTEX       , NODE    ) );
     vtk2Cgns.insert( IntPair( VTK_TYPE::LINE         , BAR_2   ) );
@@ -287,14 +287,14 @@ void Su2Bc::Init()
 {
     bcList.insert("HEATFLUX");
     bcList.insert("FAR");
-    typedef pair< string, int > String2IntPair;
+    typedef std::pair< std::string, int > String2IntPair;
     bcNameToValueMap.insert(String2IntPair("HEATFLUX", BCWall));
     bcNameToValueMap.insert(String2IntPair("FAR", BCFarfield));
 }
 
-void Su2Bc::AddBc(string& geoName, string& bcName)
+void Su2Bc::AddBc(std::string& geoName, std::string& bcName)
 {
-    typedef pair< string, string > StringPair;
+    typedef std::pair< std::string, std::string > StringPair;
     bcMap.insert(StringPair(geoName, bcName));
 }
 
@@ -302,18 +302,18 @@ void Su2Bc::Process( StringField &markerBCNameList, StringField& markerNameList)
 {
     for ( int i = 0; i < markerBCNameList.size(); ++ i )
     {
-        string &bcName = markerBCNameList[i];
+        std::string &bcName = markerBCNameList[i];
         if (bcList.find(bcName) != bcList.end())
         {
-            string& geoName = markerNameList[i];
+            std::string& geoName = markerNameList[i];
             this->AddBc(geoName, bcName);
         }
     }
 }
 
-string Su2Bc::GetBcName(string& geoName)
+std::string Su2Bc::GetBcName(std::string& geoName)
 {
-    map<string, string>::iterator iter;
+    std::map<std::string, std::string>::iterator iter;
     iter = bcMap.find(geoName);
     if (iter!= bcMap.end())
     {
@@ -322,9 +322,9 @@ string Su2Bc::GetBcName(string& geoName)
     return "";
 }
 
-int Su2Bc::GetCgnsBcType(string& geoName)
+int Su2Bc::GetCgnsBcType(std::string& geoName)
 {
-    string bcName = this->GetBcName(geoName);
+    std::string bcName = this->GetBcName(geoName);
     return bcNameToValueMap.find(bcName)->second;
 }
 
@@ -353,11 +353,11 @@ void Su2Grid::ReadSu2Grid( GridMediator * gridMediator )
 {
 }
 
-void Su2Grid::ReadSu2GridAscii( string & fileName )
+void Su2Grid::ReadSu2GridAscii( std::string & fileName )
 {
     FileIO ioFile;
-    string separator  = " =\r\n\t#$,;";
-    ioFile.OpenPrjFile( fileName, ios_base::in );
+    std::string separator  = " =\r\n\t#$,;";
+    ioFile.OpenPrjFile( fileName, std::ios_base::in );
     ioFile.SetDefaultSeparator( separator );
 
     this->nZone = 1;
@@ -367,7 +367,7 @@ void Su2Grid::ReadSu2GridAscii( string & fileName )
         while ( ! ioFile.ReachTheEndOfFile() )
         {
             ioFile.ReadNextNonEmptyLine();
-            string word = ioFile.ReadNextWord();
+            std::string word = ioFile.ReadNextWord();
 
             if ( word == "NDIME" )
             {
@@ -421,14 +421,14 @@ void Su2Grid::ReadSu2GridAscii( string & fileName )
                 for ( int im = 0; im < this->mmark.nMarker; ++ im )
                 {
                     ioFile.ReadNextNonEmptyLine();
-                    string tag = ioFile.ReadNextWord();
-                    string name = ioFile.ReadNextWord();
+                    std::string tag = ioFile.ReadNextWord();
+                    std::string name = ioFile.ReadNextWord();
                     Marker * marker = mmark.markerList[ im ];
                     marker->name = name;
                     marker->bcName = su2Bc.GetBcName( name );
                     marker->cgns_bcType = su2Bc.GetCgnsBcType(name);
                     ioFile.ReadNextNonEmptyLine();
-                    string marker_elems = ioFile.ReadNextWord();
+                    std::string marker_elems = ioFile.ReadNextWord();
                     marker->nElem = ioFile.ReadNextDigit< int >();
 
                     for ( int ielem = 0; ielem < marker->nElem; ++ ielem )
@@ -461,11 +461,11 @@ void Su2Grid::ReadSu2GridAscii( string & fileName )
     ioFile.CloseFile();
 }
 
-void Su2Grid::MarkBoundary( string & su2cfgFile)
+void Su2Grid::MarkBoundary( std::string & su2cfgFile)
 {
     FileIO ioFile;
-    string separator = " =\r\n\t#$,;()";
-    ioFile.OpenPrjFile(su2cfgFile, ios_base::in);
+    std::string separator = " =\r\n\t#$,;()";
+    ioFile.OpenPrjFile(su2cfgFile, std::ios_base::in);
     ioFile.SetDefaultSeparator(separator);
 
     StringField su2Comment;
@@ -478,10 +478,10 @@ void Su2Grid::MarkBoundary( string & su2cfgFile)
     while (!ioFile.ReachTheEndOfFile())
     {
         ioFile.ReadNextNonEmptyLine();
-        string word = ioFile.ReadNextWord();
+        std::string word = ioFile.ReadNextWord();
 
         if (word.substr(0, 7) != "MARKER_") continue;
-        string bcName = word.substr(7);
+        std::string bcName = word.substr(7);
         markerBCNameList.push_back(bcName);
         word = ioFile.ReadNextWord();
         markerNameList.push_back(word);
@@ -495,8 +495,8 @@ void Su2Grid::MarkBoundary( string & su2cfgFile)
 
 void Su2Grid::Su2ToOneFlowGrid()
 {
-    string gridFile = ONEFLOW::GetDataValue< string >( "sourceGridFileName" );
-    string su2cfgFile = ONEFLOW::GetDataValue< string >("sourceGridBcName");
+    std::string gridFile = ONEFLOW::GetDataValue< std::string >( "sourceGridFileName" );
+    std::string su2cfgFile = ONEFLOW::GetDataValue< std::string >("sourceGridBcName");
     this->MarkBoundary(su2cfgFile);
     this->ReadSu2GridAscii( gridFile );
 
@@ -583,8 +583,8 @@ void Su2Grid::FillSU2CgnsZone( CgnsZone * cgnsZone )
     for ( int iMarker = 0; iMarker < this->mmark.nMarker; ++ iMarker )
     {
         Marker * marker = this->mmark.markerList[ iMarker ];
-        string & name = marker->name;
-        string& bcName = marker->bcName;
+        std::string & name = marker->name;
+        std::string& bcName = marker->bcName;
 
         CgnsBcBoco * cgnsBcBoco = cgnsZbc->cgnsZbcBoco->GetCgnsBc( iMarker );
         cgnsBcBoco->name = name;

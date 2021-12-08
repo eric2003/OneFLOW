@@ -38,8 +38,6 @@ License
 #include "BcRecord.h"
 #include <iostream>
 
-using namespace std;
-
 BeginNameSpace( ONEFLOW )
 #ifdef ENABLE_CGNS
 
@@ -71,7 +69,7 @@ CgnsBc1to1 * CgnsZbc1to1::GetCgnsBcRegion1to1( int i1to1 )
 
 void CgnsZbc1to1::PrintZn1to1()
 {
-    cout << "   n1to1        = " << this->n1to1 << endl;
+    std::cout << "   n1to1        = " << this->n1to1 << std::endl;
 }
 
 void CgnsZbc1to1::CreateCgnsZbc()

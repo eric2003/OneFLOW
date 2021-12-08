@@ -25,7 +25,6 @@ License
 #include "CgnsFile.h"
 #include <iostream>
 #include <iomanip>
-using namespace std;
 
 BeginNameSpace( ONEFLOW )
 #ifdef ENABLE_CGNS
@@ -43,7 +42,7 @@ CgnsFamilyBc::~CgnsFamilyBc()
 
 void CgnsFamilyBc::Init()
 {
-    bcMap = new map< string, int >;
+    bcMap = new std::map< std::string, int >;
 }
 
 void CgnsFamilyBc::Free()
@@ -51,23 +50,23 @@ void CgnsFamilyBc::Free()
     delete bcMap;
 }
 
-void CgnsFamilyBc::Register( const string & regionName, int bcType )
+void CgnsFamilyBc::Register( const std::string & regionName, int bcType )
 {
-    map< string, int >::iterator iter = bcMap->find( regionName );
+    std::map< std::string, int >::iterator iter = bcMap->find( regionName );
     if ( iter == bcMap->end() )
     {
         ( * CgnsFamilyBc::bcMap )[ regionName ] = bcType;
     }
 }
 
-void CgnsFamilyBc::Unregister( const string & regionName )
+void CgnsFamilyBc::Unregister( const std::string & regionName )
 {
     bcMap->erase( regionName );
 }
 
-int CgnsFamilyBc::GetBcType( const string & regionName )
+int CgnsFamilyBc::GetBcType( const std::string & regionName )
 {
-    map< string, int >::iterator iter = bcMap->find( regionName );
+    std::map< std::string, int >::iterator iter = bcMap->find( regionName );
     if ( iter == bcMap->end() )
     {
         return -1;
@@ -76,7 +75,7 @@ int CgnsFamilyBc::GetBcType( const string & regionName )
     return iter->second;
 }
 
-void CgnsFamilyBc::SetFamilyBc( BCType_t & bcType, const string & bcRegionName )
+void CgnsFamilyBc::SetFamilyBc( BCType_t & bcType, const std::string & bcRegionName )
 {
     if ( bcType == FamilySpecified )
     {
@@ -85,7 +84,7 @@ void CgnsFamilyBc::SetFamilyBc( BCType_t & bcType, const string & bcRegionName )
     }
 }
 
-BCType_t CgnsFamilyBc::GetFamilyBcType( const string & bcFamilyName )
+BCType_t CgnsFamilyBc::GetFamilyBcType( const std::string & bcFamilyName )
 {
     int bcTypeOfFamily = this->GetBcType( bcFamilyName );
     BCType_t bcType = static_cast< BCType_t >( bcTypeOfFamily );
@@ -99,16 +98,16 @@ void CgnsFamilyBc::ReadFamilySpecifiedBc()
 
     int nFamilies = -1;
     cg_nfamilies( fileId, baseId, & nFamilies );
-    cout << "\n";
-    cout << "   CGNS nFamilies = " << nFamilies << "\n";
+    std::cout << "\n";
+    std::cout << "   CGNS nFamilies = " << nFamilies << "\n";
     CgnsTraits::char33 familyName;
     int nBoco = -1;
     int nGeo = -1;
     for ( int iFam = 1; iFam <= nFamilies; ++ iFam )
     {
         cg_family_read( fileId, baseId, iFam, familyName, & nBoco, & nGeo );
-        cout << "   iFam = " << iFam;
-        cout << " FamilyName = " << setiosflags( ios::left ) << setw( 15 ) << familyName << " nBoco = " << nBoco << " nGeo = " << nGeo << "\n";
+        std::cout << "   iFam = " << iFam;
+        std::cout << " FamilyName = " << std::setiosflags( std::ios::left ) << std::setw( 15 ) << familyName << " nBoco = " << nBoco << " nGeo = " << nGeo << "\n";
     }
 
     for ( int iFam = 1; iFam <= nFamilies; ++ iFam )
@@ -122,14 +121,14 @@ void CgnsFamilyBc::ReadFamilySpecifiedBc()
             this->Register( familyName, familyBcType );
             int Width = 10;
             int stringWidth = 23;
-            cout << "   FamilyBcName = " << setiosflags( ios::left ) << setw( Width ) << familyBcName;
-            cout << " CGNS BcType = " << setiosflags( ios::left ) << setw( 5 ) << familyBcType;
-            cout << " CGNS BcName = " << setiosflags(ios::left) << setw( stringWidth ) << GetCgnsBcName( familyBcType ) << "\n";
+            std::cout << "   FamilyBcName = " << std::setiosflags( std::ios::left ) << std::setw( Width ) << familyBcName;
+            std::cout << " CGNS BcType = " << std::setiosflags( std::ios::left ) << std::setw( 5 ) << familyBcType;
+            std::cout << " CGNS BcName = " << std::setiosflags(std::ios::left) << std::setw( stringWidth ) << GetCgnsBcName( familyBcType ) << "\n";
         }
     }
 
-    cout << "\n";
-    cout << "\n";
+    std::cout << "\n";
+    std::cout << "\n";
 }
 
 #endif

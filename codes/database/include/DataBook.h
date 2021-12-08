@@ -26,7 +26,6 @@ License
 #include <vector>
 #include <string>
 #include <fstream>
-using namespace std;
 
 BeginNameSpace( ONEFLOW )
 
@@ -41,7 +40,7 @@ public:
     DataBook();
     ~DataBook();
 public:
-    vector< DataPage * > * dataBook;
+    std::vector< DataPage * > * dataBook;
     UInt currPageId;
     LLong currPos;
     LLong maxUnitSize;
@@ -58,13 +57,13 @@ protected:
 public:
     void Read ( void * data, LLong dataSize );
     void Write( void * data, LLong dataSize );
-    void ReadFile ( fstream & file );
-    void WriteFile( fstream & file );
+    void ReadFile ( std::fstream & file );
+    void WriteFile( std::fstream & file );
 
-    void ReadString ( string & cs );
-    void WriteString( string & cs );
+    void ReadString ( std::string & cs );
+    void WriteString( std::string & cs );
 
-    void Write( ostringstream * oss );
+    void Write( std::ostringstream * oss );
 
     LLong GetSize();
     void ReSize( LLong nLength );
@@ -76,9 +75,9 @@ public:
 
     void SendRecv( int sendpid, int recvpid, int tag );
 
-    void ToString( string & str );
+    void ToString( std::string & str );
     void Append( void * data, LLong dataSize );
-    void AppendString( string & cs );
+    void AppendString( std::string & cs );
 
     void SecureRelativeSpace( LLong dataSize );
     void SecureAbsoluteSpace( LLong needSize );
@@ -86,6 +85,6 @@ public:
     void MoveToEnd();
 };
 
-void ToDataBook( DataBook * dataBook, ostringstream & oss );
+void ToDataBook( DataBook * dataBook, std::ostringstream & oss );
 
 EndNameSpace

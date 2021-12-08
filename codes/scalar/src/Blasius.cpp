@@ -24,7 +24,7 @@ License
 #include "HXMath.h"
 #include <iostream>
 #include <vector>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 
@@ -45,7 +45,7 @@ Blasius::~Blasius()
 //
 //    this->alpha = -1.0;
 //    this->rk4( deta, nStep );
-//    cout << "alpha = " << this->alpha << " nstep = " << nStep << "\n";
+//    std::cout << "alpha = " << this->alpha << " nstep = " << nStep << "\n";
 //    this->Process();
 //}
 
@@ -58,7 +58,7 @@ void Blasius::Run()
 
     this->alpha = -1.0;
     this->rk4( deta, nStep );
-    cout << "alpha = " << this->alpha << " nstep = " << nStep << "\n";
+    std::cout << "alpha = " << this->alpha << " nstep = " << nStep << "\n";
     this->Process();
 }
 
@@ -70,9 +70,9 @@ void Blasius::Process()
     //a23 = 0.479522
     double a13 = pow( alpha, 1.0 / 3.0 );
     double a23 = pow( alpha, 2.0 / 3.0 );
-    cout << " a13 = " << a13 << "\n";
-    cout << " a23 = " << a23 << "\n";
-    vector< double > etaList1;
+    std::cout << " a13 = " << a13 << "\n";
+    std::cout << " a23 = " << a23 << "\n";
+    std::vector< double > etaList1;
     int n = 100;
     for ( int i = 0; i <= n; ++ i )
     {
@@ -80,8 +80,8 @@ void Blasius::Process()
         etaList1.push_back( eta );
     }
 
-    vector< double > etaList2;
-    vector< int > idList;
+    std::vector< double > etaList2;
+    std::vector< int > idList;
     int j0 = 0;
     for ( int i = 0; i < etaList1.size(); ++ i )
     {
@@ -114,7 +114,7 @@ void Blasius::Process()
 
 }
 
-void Blasius::BlasiusFun( vector<double> &y, vector<double> &k )
+void Blasius::BlasiusFun( std::vector<double> &y, std::vector<double> &k )
 {
     k[ 0 ] = y[ 1 ];
     k[ 1 ] = y[ 2 ];
@@ -124,8 +124,8 @@ void Blasius::BlasiusFun( vector<double> &y, vector<double> &k )
 void Blasius::rk4( double deta, int nStep )
 {
     int nvec = 3;
-    vector< double > y1( nvec, 0 ), y2( nvec, 0 ), y3( nvec, 0 ), y4( nvec, 0 );
-    vector< double > k1( nvec, 0 ), k2( nvec, 0 ), k3( nvec, 0 ), k4( nvec, 0 );
+    std::vector< double > y1( nvec, 0 ), y2( nvec, 0 ), y3( nvec, 0 ), y4( nvec, 0 );
+    std::vector< double > k1( nvec, 0 ), k2( nvec, 0 ), k3( nvec, 0 ), k4( nvec, 0 );
     double eta = 0.0;
     double h = deta;
 
@@ -170,7 +170,7 @@ void Blasius::rk4( double deta, int nStep )
         this->etaList.push_back( eta );
         this->F.push_back( y1[ 0 ] );
         this->Fx.push_back( y2[ 0 ] );
-        cout << eta << " " << y1[ 0 ] << " " << y1[ 1 ] << " " << y1[ 2 ] << "\n";
+        std::cout << eta << " " << y1[ 0 ] << " " << y1[ 1 ] << " " << y1[ 2 ] << "\n";
     }
     this->alpha = pow( y1[ 1 ], - 3 / 2.0 );
 }

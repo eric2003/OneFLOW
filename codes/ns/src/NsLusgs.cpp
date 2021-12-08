@@ -26,7 +26,7 @@ License
 #include "HXMath.h"
 #include "Parallel.h"
 #include <iostream>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 
@@ -77,7 +77,7 @@ void NsLusgs::DumpSweepInformation()
     int pid = ONEFLOW::Parallel::GetPid();
     if ( pid == ONEFLOW::Parallel::GetServerid() )
     {
-        cout << "Navier Stokes residual reduced by " << nslu.dmax << " with " << nslu.numberOfRealSweeps << " Sweeps\n";
+        std::cout << "Navier Stokes residual reduced by " << nslu.dmax << " with " << nslu.numberOfRealSweeps << " Sweeps\n";
     }
 }
 

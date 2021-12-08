@@ -26,7 +26,7 @@ License
 #include <vector>
 #include <string>
 #include <fstream>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 
@@ -53,7 +53,7 @@ public:
     static void DumpCoor( GridMediator * gridMediator );
     static void DumpCoorBinary( GridMediator * gridMediator );
     static void DumpCoorAscii( GridMediator * gridMediator );
-    static void DumpCoorAscii( fstream & file, RealField & coor );
+    static void DumpCoorAscii( std::fstream & file, RealField & coor );
     static void DumpBc( GridMediator * gridMediator );
     static void Plot3DToCgns( ZgridMediator * zgridMediator );
 

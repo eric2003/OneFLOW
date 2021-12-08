@@ -40,7 +40,7 @@ void SetTaskAction();
 
 void GenerateCmdList( int msgId );
 
-void AddCmdToList( const string & msgName );
+void AddCmdToList( const std::string & msgName );
 void AddCmdToList( int taskCode, int solverCode );
 
 class HXClone;
@@ -49,8 +49,8 @@ HXClone * GetClass( int msgId, int sTid, int msgType );
 void CreateTask( int msgId, int sTid );
 void SetFile( int msgId, int sTid );
 
-void SsSgTask( const string & taskName );
-void MsMgTask( const string & taskName );
+void SsSgTask( const std::string & taskName );
+void MsMgTask( const std::string & taskName );
 
 
 EndNameSpace

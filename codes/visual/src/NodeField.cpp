@@ -38,7 +38,7 @@ MRField * AllocNodeVar( int nEqu )
     return nf;
 }
 
-MRField * CreateNodeVar( const string & name )
+MRField * CreateNodeVar( const std::string & name )
 {
     UnsGrid * grid = Zone::GetUnsGrid();
     MRField * cf = GetFieldPointer< MRField > ( grid, name );

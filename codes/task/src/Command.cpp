@@ -26,7 +26,7 @@ License
 #include "TimeSpan.h"
 #include <iostream>
 #include <string>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 
@@ -128,8 +128,8 @@ void CMD::ShowCmdInfo( Command * cmd, int iCmd )
         Task * task = ( * tasks ) [ i ];
         int iTaskGlobal = iCmd + i;
 
-        cout << " iTaskGlobal = " << iTaskGlobal << " iTaskLocal = " << i << " ";
-        cout << " TaskCode = " << task->taskId << " Task Name = " << task->taskName << endl;
+        std::cout << " iTaskGlobal = " << iTaskGlobal << " iTaskLocal = " << i << " ";
+        std::cout << " TaskCode = " << task->taskId << " Task Name = " << task->taskName << std::endl;
     }
 }
 

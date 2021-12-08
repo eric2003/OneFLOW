@@ -24,7 +24,7 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-map< int, int > * Category::data = 0;
+std::map< int, int > * Category::data = 0;
 Category::Category()
 {
     ;
@@ -39,7 +39,7 @@ void Category::Init()
 {
     if ( ! Category::data )
     {
-        Category::data = new map< int, int >();
+        Category::data = new std::map< int, int >();
     }
 }
 
@@ -53,7 +53,7 @@ void Category::Free()
 void Category::AddCategory( int sTid, int category )
 {
     Category::Init();
-    map< int, int >::iterator iter = Category::data->find( sTid );
+    std::map< int, int >::iterator iter = Category::data->find( sTid );
     if ( iter == Category::data->end() )
     {
         ( * Category::data )[ sTid ] = category;
@@ -62,7 +62,7 @@ void Category::AddCategory( int sTid, int category )
 
 int Category::GetCategory( int sTid )
 {
-    map< int, int >::iterator iter = Category::data->find( sTid );
+    std::map< int, int >::iterator iter = Category::data->find( sTid );
     return iter->second;
 }
 

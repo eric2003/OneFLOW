@@ -23,12 +23,11 @@ License
 #include "HXDefine.h"
 #include "DataBase.h"
 #include <string>
-using namespace std;
 
 BeginNameSpace( ONEFLOW )
 
 template< typename T >
-void CreateMRField( T * storage, int nEqu, int nSize, const string & fieldName )
+void CreateMRField( T * storage, int nEqu, int nSize, const std::string & fieldName )
 {
     MRField * mrField = new MRField( nEqu, nSize );
 

@@ -24,7 +24,7 @@ License
 #pragma once
 #include "Visualize.h"
 #include <sstream>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 
@@ -40,10 +40,10 @@ public:
     HXVector< MRField * > qNodeField;
 public:
     void Init();
-    void AddTitle( const string & varName );
-    MRField * AddField( RealField & qCellField, const string & varName );
-    MRField * AddField( const string & varName );
-    MRField * CreateField( const string & varName, int nEqu = 1 );
+    void AddTitle( const std::string & varName );
+    MRField * AddField( RealField & qCellField, const std::string & varName );
+    MRField * AddField( const std::string & varName );
+    MRField * CreateField( const std::string & varName, int nEqu = 1 );
 };
 
 class BcVisual
@@ -55,8 +55,8 @@ public:
     void Calc( int bcType );
     void Calcf2n( int bcType );
     void ResolveElementEdge();
-    void Dump( ostringstream & oss, VisualTool * visualTool, string & bcTitle );
-    void DumpDebug( ostringstream & oss, VisualTool * visualTool, string & bcTitle );
+    void Dump( std::ostringstream & oss, VisualTool * visualTool, std::string & bcTitle );
+    void DumpDebug( std::ostringstream & oss, VisualTool * visualTool, std::string & bcTitle );
     void DumpSeveralElement();
 public:
     LinkField f2n;
@@ -76,9 +76,9 @@ public:
     void Visual() override;
     bool NeedVisualField();
     void CalcNodeField( VisualTool * visualTool );
-    void ShowField( ostringstream & oss, VisualTool * visualTool );
-    void ShowBc( ostringstream & oss, VisualTool * visualTool );
-    void ShowBcDebugTest( ostringstream & oss, VisualTool * visualTool );
+    void ShowField( std::ostringstream & oss, VisualTool * visualTool );
+    void ShowBc( std::ostringstream & oss, VisualTool * visualTool );
+    void ShowBcDebugTest( std::ostringstream & oss, VisualTool * visualTool );
     void ExtractLinkNum( LinkField & f2n, IntField & fnNumber );
     int  GetTotalNumFaceNodes( LinkField & f2n );
 };

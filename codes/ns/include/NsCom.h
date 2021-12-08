@@ -86,7 +86,7 @@ public:
     Real cref;
     int gasInfoStrategy;
     int machStrategy;
-    string gasModelFile;
+    std::string gasModelFile;
     Real schmidtl;
     Real schmidtt;
     Real reylref_dim;

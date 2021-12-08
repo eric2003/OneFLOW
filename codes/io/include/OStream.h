@@ -23,13 +23,13 @@ License
 #include "Configure.h"
 #include <iomanip>
 #include <sstream>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 
 class OStream;
 extern OStream StrIO;
-class OStream : public ostringstream
+class OStream : public std::ostringstream
 {
 public:
     OStream() {}
@@ -38,7 +38,7 @@ public:
     void ClearAll();
 };
 
-void Clear( ostringstream & oss );
+void Clear( std::ostringstream & oss );
 
 
 EndNameSpace

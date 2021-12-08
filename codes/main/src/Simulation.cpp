@@ -27,7 +27,7 @@ License
 #include "CgnsTest.h"
 #include "HybridParallel.h"
 #include <iostream>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 
@@ -49,18 +49,18 @@ void Simulation::ProcessCmdLineArgs( int argc, char ** argv )
 {
     args.resize( argc );
 
-    cout << "nPara = " << args.size() << "\n";
+    std::cout << "nPara = " << args.size() << "\n";
 
     for ( int i = 0; i < argc; ++ i )
     {   
         args[ i ] = argv[ i ];
-        //cout << "arguments[ " << i << " ] = " << args[ i ] << endl;
-        cout << "argv[" << i << "] = " << args[ i ] << endl;
+        //std::cout << "arguments[ " << i << " ] = " << args[ i ] << std::endl;
+        std::cout << "argv[" << i << "] = " << args[ i ] << std::endl;
     }
 
     //if ( args.size() <= 2 )
     //{
-    //    cout << " argument number should be 3\n";
+    //    std::cout << " argument number should be 3\n";
     //    exit( 0 );
     //}
 }
@@ -74,7 +74,7 @@ void Simulation::Run()
     }
     else if (  nPara == 2 )
     {
-        cout << " wrong argument number !\n";
+        std::cout << " wrong argument number !\n";
         exit( 0 );
     }
     else // nPara >= 3

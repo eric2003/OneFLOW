@@ -46,7 +46,7 @@ License
 #include "Ctrl.h"
 #include <iostream>
 #include <iomanip>
-using namespace std;
+
 
 BeginNameSpace(ONEFLOW)
 
@@ -499,7 +499,7 @@ void UINsInvterm::MomPre()
 	iinv.res_u = residual_u;
 
 	Rank.Deallocate();
-	//cout << "residual_u:" << residual_u << endl;
+	//std::cout << "residual_u:" << residual_u << std::endl;
 
 
 
@@ -558,7 +558,7 @@ void UINsInvterm::MomPre()
 
 	Rank.Deallocate();
 
-	//cout << "residual_v:" << residual_v << endl;
+	//std::cout << "residual_v:" << residual_v << std::endl;
 
 
 	NonZero.Number = 0;
@@ -614,7 +614,7 @@ void UINsInvterm::MomPre()
 
 	Rank.Deallocate();
 
-	//cout << "residual_w:" << residual_w << endl;
+	//std::cout << "residual_w:" << residual_w << std::endl;
 
 	for (int fId = 0; fId < ug.nBFaces; ++fId)
 	{
@@ -847,19 +847,19 @@ for (int fId = 0; fId < ug.nBFaces; ++fId)
 }*/
 
 	/*Output the residuals to a TXT file*/
-	/*ofstream fileres_u("residual_u.txt", ios::app);
-	//fileres_u << "residual_u:" << residual_u << endl;
-	fileres_u << residual_u << endl;
+	/*ofstream fileres_u("residual_u.txt", std::ios::app);
+	//fileres_u << "residual_u:" << residual_u << std::endl;
+	fileres_u << residual_u << std::endl;
 	fileres_u.close();
 
-	ofstream fileres_v("residual_v.txt", ios::app);
-	//fileres_v << "residual_v:" << residual_v << endl;
-	fileres_v << residual_v << endl;
+	std::ofstream fileres_v("residual_v.txt", std::ios::app);
+	//fileres_v << "residual_v:" << residual_v << std::endl;
+	fileres_v << residual_v << std::endl;
 	fileres_v.close();
 
-	ofstream fileres_w("residual_w.txt", ios::app);
-	//fileres_w << "residual_w:" << residual_w << endl;
-	fileres_w <<residual_w << endl;
+	std::ofstream fileres_w("residual_w.txt", std::ios::app);
+	//fileres_w << "residual_w:" << residual_w << std::endl;
+	fileres_w <<residual_w << std::endl;
 	fileres_w.close();*/
 }
 
@@ -998,7 +998,7 @@ void UINsInvterm::AddFlux()
 		ug.fId = fId;
 		ug.lc = (*ug.lcf)[ug.fId];
 		ug.rc = (*ug.rcf)[ug.fId];
-		//if ( ug.lc == 0 ) cout << fId << endl;
+		//if ( ug.lc == 0 ) std::cout << fId << std::endl;
 
 		for (int iEqu = 0; iEqu < nEqu; ++iEqu)
 		{
@@ -1012,7 +1012,7 @@ void UINsInvterm::AddFlux()
 		ug.lc = (*ug.lcf)[ug.fId];
 		ug.rc = (*ug.rcf)[ug.fId];
 
-		//if ( ug.lc == 0 || ug.rc == 0 ) cout << fId << endl;
+		//if ( ug.lc == 0 || ug.rc == 0 ) std::cout << fId << std::endl;
 
 		for (int iEqu = 0; iEqu < nEqu; ++iEqu)
 		{
@@ -1113,14 +1113,14 @@ void UINsInvterm::CalcCorrectPresscoef()
 				iinv.sjp[ug.cId][iFace] = -iinv.ajp[ug.fId]; //Non zero coefficient for solving pressure correction equation
 				iinv.sjd[ug.cId][iFace] = ug.rc;
 
-				//cout << "iinv.sjp=" << iinv.sjp[ug.cId][iFace] << "iinv.sjd=" << ug.rc << "\n";
+				//std::cout << "iinv.sjp=" << iinv.sjp[ug.cId][iFace] << "iinv.sjd=" << ug.rc << "\n";
 			}
 			else if (ug.cId == ug.rc)
 			{
 				iinv.sjp[ug.cId][iFace] = -iinv.ajp[ug.fId];
 				iinv.sjd[ug.cId][iFace] = ug.lc;
 
-				//cout << "iinv.sjp=" << iinv.sjp[ug.cId][iFace] << "iinv.sjd=" << ug.lc << "\n";
+				//std::cout << "iinv.sjp=" << iinv.sjp[ug.cId][iFace] << "iinv.sjd=" << ug.lc << "\n";
 			}
 		}
 	}
@@ -1129,14 +1129,14 @@ void UINsInvterm::CalcCorrectPresscoef()
 	{
 		ug.cId = cId;
 
-		cout << "iinv.bp=" << iinv.buc[ug.cId] << "\n";
+		std::cout << "iinv.bp=" << iinv.buc[ug.cId] << "\n";
 	}
 
 	for (int cId = 0; cId < ug.nTCell; ++cId)
 	{
 		ug.cId = cId;
 
-		cout << "iinv.spp=" << iinv.spp[ug.cId] << "\n";
+		std::cout << "iinv.spp=" << iinv.spp[ug.cId] << "\n";
 	}*/
 
 	//iinv.spp[0] = 3.996004185733362E-003;
@@ -1325,7 +1325,7 @@ void UINsInvterm::CalcPressCorrectEqu()
 	}
 	bgx.BGMRES();
 	residual_p = Rank.residual;
-	//cout << "residual_p:" << residual_p << endl;
+	//std::cout << "residual_p:" << residual_p << std::endl;
 	for (int cId = 0; cId < ug.nTCell; cId++)
 	{
 		//ug.cId = cId;
@@ -1493,9 +1493,9 @@ for (int cId = 0; cId < ug.nCells; ++cId)
 	//	iinv.pc[ug.cId] = nscom.prim[IIDX::IIP] + iinv.pp[ug.cId]; //Pressure value at the next moment
 	//}
 	
-	/*ofstream fileres_p("residual_p.txt", ios::app);
-	//fileres_p << "residual_p:" <<residual_p << endl;
-	fileres_p << residual_p << endl;
+	/*ofstream fileres_p("residual_p.txt", std::ios::app);
+	//fileres_p << "residual_p:" <<residual_p << std::endl;
+	fileres_p << residual_p << std::endl;
 	fileres_p.close();*/
 
 }
@@ -1863,20 +1863,20 @@ void UINsInvterm::UpdateINsRes()
 		iinv.remax_pp = MAX(iinv.remax_pp, abs(iinv.pp[ug.cId]));
 
 	}
-	cout << "iinv.remax_V:" << iinv.remax_V << endl;
-	cout << "iinv.remax_pp:" << iinv.remax_pp << endl;
-	cout <<"innerSteps:"<< Iteration::innerSteps<< endl;
-	//cout << "outerSteps:" << Iteration::outerSteps << endl;
+	std::cout << "iinv.remax_V:" << iinv.remax_V << std::endl;
+	std::cout << "iinv.remax_pp:" << iinv.remax_pp << std::endl;
+	std::cout <<"innerSteps:"<< Iteration::innerSteps<< std::endl;
+	//std::cout << "outerSteps:" << Iteration::outerSteps << std::endl;
 
-	ofstream fileres_vv("residual_vv.txt", ios::app);
-	//fileres_p << "residual_p:" <<residual_p << endl;
-	fileres_vv << iinv.remax_V << endl;
+	std::ofstream fileres_vv("residual_vv.txt", std::ios::app);
+	//fileres_p << "residual_p:" <<residual_p << std::endl;
+	fileres_vv << iinv.remax_V << std::endl;
 	fileres_vv.close();
 	
 
-	ofstream fileres_pp("residual_pp.txt", ios::app);
-	//fileres_p << "residual_p:" <<residual_p << endl;
-	fileres_pp << iinv.remax_pp << endl;
+	std::ofstream fileres_pp("residual_pp.txt", std::ios::app);
+	//fileres_p << "residual_p:" <<residual_p << std::endl;
+	fileres_pp << iinv.remax_pp << std::endl;
 	fileres_pp.close();*/
 
 
@@ -1950,31 +1950,31 @@ void UINsInvterm::UpdateINsRes()
 	iinv.remax_wp = sqrt(iinv.remax_wp);
 	iinv.remax_pp = sqrt(iinv.remax_pp);
 
-	cout << "iinv.remax_up:" << iinv.remax_up << endl;
-	cout << "iinv.remax_vp:" << iinv.remax_vp << endl;
-	cout << "iinv.remax_wp:" << iinv.remax_wp << endl;
-	cout << "iinv.remax_pp:" << iinv.remax_pp << endl;
+	std::cout << "iinv.remax_up:" << iinv.remax_up << std::endl;
+	std::cout << "iinv.remax_vp:" << iinv.remax_vp << std::endl;
+	std::cout << "iinv.remax_wp:" << iinv.remax_wp << std::endl;
+	std::cout << "iinv.remax_pp:" << iinv.remax_pp << std::endl;
 
 
-	ofstream fileres_up("residual_up.txt", ios::app);
-	//fileres_p << "residual_p:" <<residual_p << endl;
-	fileres_up << iinv.remax_up << endl;
+	std::ofstream fileres_up("residual_up.txt", std::ios::app);
+	//fileres_p << "residual_p:" <<residual_p << std::endl;
+	fileres_up << iinv.remax_up << std::endl;
 	fileres_up.close();
 
 
-	ofstream fileres_vp("residual_vp.txt", ios::app);
-	//fileres_p << "residual_p:" <<residual_p << endl;
-	fileres_vp << iinv.remax_vp << endl;
+	std::ofstream fileres_vp("residual_vp.txt", std::ios::app);
+	//fileres_p << "residual_p:" <<residual_p << std::endl;
+	fileres_vp << iinv.remax_vp << std::endl;
 	fileres_vp.close();
 
-	ofstream fileres_wp("residual_wp.txt", ios::app);
-	//fileres_p << "residual_p:" <<residual_p << endl;
-	fileres_wp << iinv.remax_wp << endl;
+	std::ofstream fileres_wp("residual_wp.txt", std::ios::app);
+	//fileres_p << "residual_p:" <<residual_p << std::endl;
+	fileres_wp << iinv.remax_wp << std::endl;
 	fileres_wp.close();
 
-	ofstream fileres_pp("residual_pp.txt", ios::app);
-	//fileres_p << "residual_p:" <<residual_p << endl;
-	fileres_pp << iinv.remax_pp << endl;
+	std::ofstream fileres_pp("residual_pp.txt", std::ios::app);
+	//fileres_p << "residual_p:" <<residual_p << std::endl;
+	fileres_pp << iinv.remax_pp << std::endl;
 	fileres_pp.close();
 
 
@@ -2074,8 +2074,8 @@ void UINsInvterm::ReadTmp()
 	static int iii = 0;
 	if (iii) return;
 	iii = 1;
-	fstream file;
-	file.open("nsflow.dat", ios_base::in | ios_base::binary);
+	std::fstream file;
+	file.open("nsflow.dat", std::ios_base::in | std::ios_base::binary);
 	if (!file) exit(0);
 
 	uinsf.Init();
@@ -2098,7 +2098,7 @@ void UINsInvterm::ReadTmp()
 		file.read(reinterpret_cast<char*>(&(*uinsf.vist)[0][cId]), sizeof(double));
 	}
 
-	vector< Real > tmp1(ug.nTCell), tmp2(ug.nTCell);
+	std::vector< Real > tmp1(ug.nTCell), tmp2(ug.nTCell);
 
 	for (int cId = 0; cId < ug.nTCell; ++cId)
 	{

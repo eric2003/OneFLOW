@@ -93,7 +93,7 @@ void UTurbInvFlux::AddInvFlux()
 
     ONEFLOW::AddF2CField( res, invflux );
 
-    vector< vector< Real > > tmp( turbcom.nEqu );
+    std::vector< std::vector< Real > > tmp( turbcom.nEqu );
     for ( int iEqu = 0; iEqu < turbcom.nEqu; ++ iEqu )
     {
         tmp[ iEqu ].resize( ug.nCells );
@@ -104,7 +104,7 @@ void UTurbInvFlux::AddInvFlux()
     }
     int kkk = 1;
     {
-    vector< vector< Real > > tmp( turbcom.nEqu );
+    std::vector< std::vector< Real > > tmp( turbcom.nEqu );
     for ( int iEqu = 0; iEqu < turbcom.nEqu; ++ iEqu )
     {
         tmp[ iEqu ].resize( ug.nCells );

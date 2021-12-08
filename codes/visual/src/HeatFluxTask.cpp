@@ -46,7 +46,7 @@ License
 #include "NodeMesh.h"
 #include <fstream>
 #include <iostream>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 
@@ -130,8 +130,8 @@ void HeatFluxTask::CalcNodeValue()
 
 void HeatFluxTask::VisualizeWallNodeValue()
 {
-    fstream file;
-    ONEFLOW::OpenPrjFile( file, ctrl.heatfluxFile, ios_base::out );
+    std::fstream file;
+    ONEFLOW::OpenPrjFile( file, ctrl.heatfluxFile, std::ios_base::out );
 
     int numberOfSubData = wallManager->patch.size();
     int iCount = 0;

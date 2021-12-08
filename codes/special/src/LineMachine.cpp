@@ -31,7 +31,7 @@ License
 #include "HXMath.h"
 #include <iostream>
 #include <algorithm>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 
@@ -84,7 +84,7 @@ int LineMachine::AddLine( int p1, int p2 )
     fMid.data = line;
     std::sort( fMid.data.begin(), fMid.data.end() );
 
-    set< Mid<int> >::iterator iter = this->refLines.find( fMid );
+    std::set< Mid<int> >::iterator iter = this->refLines.find( fMid );
     if ( iter == this->refLines.end() )
     {
         this->refLines.insert( fMid );

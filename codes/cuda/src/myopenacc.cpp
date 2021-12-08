@@ -10,7 +10,7 @@
 #include <stdlib.h>
 #include <omp.h>
 #include "laplace2d.h"
-using namespace std;
+
 
 #ifdef ENABLE_OPENACC
 void test_open_acc()
@@ -28,7 +28,7 @@ void test_open_acc()
     {
         printf( "openacc a[%d] = %d\n", i, a[i] );
     }
-	cout << "Hello from myopenacc.cpp using std::cout\n";
+    std::cout << "Hello from myopenacc.cpp using std::cout\n";
 	
 }
 #endif

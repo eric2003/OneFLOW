@@ -21,27 +21,24 @@ License
 \*---------------------------------------------------------------------------*/
 #pragma once
 #include "Configure.h"
-#include "FileUtil.h"
-#include <fstream>
 #include <string>
-using namespace std;
 
 BeginNameSpace( ONEFLOW )
 
-class PrjStatus
+class SimuCtrl
 {
 public:
-    PrjStatus();
-    ~PrjStatus();
+    SimuCtrl();
+    ~SimuCtrl();
 public:
-    static string prjBaseDir;
-    static void SetPrjBaseDir( const string & prjName );
+    static bool hx_debug;
+    static bool run_from_ide;
+    static std::string system_root;
+    static std::string current_dir;
+    static std::string execute_dir;
+public:
+    static void Init();
+
 };
-
-void MakePrjDir( const string & dirName );
-
-void OpenPrjFile( fstream & file, const string & fileName, const ios_base::openmode & openMode );
-
-string GetPrjFileName( const string & fileName );
 
 EndNameSpace

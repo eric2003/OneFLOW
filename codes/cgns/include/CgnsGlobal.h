@@ -22,9 +22,8 @@ License
 
 
 #pragma once
-#include "HXDefine.h"
+#include "Configure.h"
 #include <string>
-using namespace std;
 
 BeginNameSpace( ONEFLOW )
 
@@ -42,10 +41,10 @@ public:
 public:
     CgnsZbase * cgnsbases;
 public:
-    CgnsZone * GetCgnsZoneByName( const string & zoneName );
+    CgnsZone * GetCgnsZoneByName( const std::string & zoneName );
 };
 
-CgnsZone * GetCgnsZoneByName( const string & zoneName );
+CgnsZone * GetCgnsZoneByName( const std::string & zoneName );
 extern CgnsGlobal cgns_global;
 
 #endif

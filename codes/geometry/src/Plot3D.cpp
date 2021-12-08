@@ -41,7 +41,7 @@ License
 #include "GridPara.h"
 #include <iostream>
 
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 
@@ -89,11 +89,11 @@ void Plot3D::DumpCoor( GridMediator * gridMediator )
 
 void Plot3D::ReadCoorBinary( GridMediator * gridMediator )
 {
-    string & fileName = gridMediator->gridFile;
-    string separator  = " =\r\n\t#$,;";
+    std::string & fileName = gridMediator->gridFile;
+    std::string separator  = " =\r\n\t#$,;";
 
-    fstream file;
-    ONEFLOW::OpenPrjFile( file, fileName, ios_base::in|ios_base::binary );
+    std::fstream file;
+    ONEFLOW::OpenPrjFile( file, fileName, std::ios_base::in|std::ios_base::binary );
 
     HXRead( & file, gridMediator->numberOfZones );
     gridMediator->gridVector.resize( gridMediator->numberOfZones );
@@ -125,14 +125,14 @@ void Plot3D::ReadCoorBinary( GridMediator * gridMediator )
 
         int wordWidth = 8;
 
-        cout << setiosflags( ios::right );
-        cout << " iZone = " << setw( wordWidth ) << iZone;
-        cout << " nZone = " << setw( wordWidth ) << gridMediator->numberOfZones;
-        cout << " ni, nj, nk = ";
-        cout << setw( wordWidth ) << ni;
-        cout << setw( wordWidth ) << nj;
-        cout << setw( wordWidth ) << nk;
-        cout << endl;
+        std::cout << std::setiosflags( std::ios::right );
+        std::cout << " iZone = " << std::setw( wordWidth ) << iZone;
+        std::cout << " nZone = " << std::setw( wordWidth ) << gridMediator->numberOfZones;
+        std::cout << " ni, nj, nk = ";
+        std::cout << std::setw( wordWidth ) << ni;
+        std::cout << std::setw( wordWidth ) << nj;
+        std::cout << std::setw( wordWidth ) << nk;
+        std::cout << std::endl;
     }
 
     for ( int iZone = 0; iZone < gridMediator->numberOfZones; ++ iZone )
@@ -162,10 +162,10 @@ void Plot3D::ReadCoorBinary( GridMediator * gridMediator )
 
 void Plot3D::DumpCoorBinary( GridMediator * gridMediator )
 {
-    string & fileName = gridMediator->gridFile;
+    std::string & fileName = gridMediator->gridFile;
 
-    fstream file;
-    ONEFLOW::OpenPrjFile( file, fileName, ios_base::out|ios_base::binary );
+    std::fstream file;
+    ONEFLOW::OpenPrjFile( file, fileName, std::ios_base::out|std::ios_base::binary );
 
     int numberOfZones = gridMediator->numberOfZones;
     HXWrite( & file, numberOfZones );
@@ -190,14 +190,14 @@ void Plot3D::DumpCoorBinary( GridMediator * gridMediator )
 
         int wordWidth = 8;
 
-        cout << setiosflags( ios::right );
-        cout << " iZone = " << setw( wordWidth ) << iZone;
-        cout << " nZone = " << setw( wordWidth ) << gridMediator->numberOfZones;
-        cout << " ni, nj, nk = ";
-        cout << setw( wordWidth ) << ni;
-        cout << setw( wordWidth ) << nj;
-        cout << setw( wordWidth ) << nk;
-        cout << "\n";
+        std::cout << std::setiosflags( std::ios::right );
+        std::cout << " iZone = " << std::setw( wordWidth ) << iZone;
+        std::cout << " nZone = " << std::setw( wordWidth ) << gridMediator->numberOfZones;
+        std::cout << " ni, nj, nk = ";
+        std::cout << std::setw( wordWidth ) << ni;
+        std::cout << std::setw( wordWidth ) << nj;
+        std::cout << std::setw( wordWidth ) << nk;
+        std::cout << "\n";
     }
 
     for ( int iZone = 0; iZone < gridMediator->numberOfZones; ++ iZone )
@@ -222,11 +222,11 @@ void Plot3D::DumpCoorBinary( GridMediator * gridMediator )
 
 void Plot3D::ReadCoorAscii( GridMediator * gridMediator )
 {
-    string & fileName = gridMediator->gridFile;
+    std::string & fileName = gridMediator->gridFile;
 
     FileIO ioFile;
-    string separator  = " =\r\n\t#$,;";
-    ioFile.OpenPrjFile( fileName, ios_base::in );
+    std::string separator  = " =\r\n\t#$,;";
+    ioFile.OpenPrjFile( fileName, std::ios_base::in );
     ioFile.SetDefaultSeparator( separator );
 
     gridMediator->numberOfZones = ioFile.ReadNextDigit< int >();
@@ -260,14 +260,14 @@ void Plot3D::ReadCoorAscii( GridMediator * gridMediator )
 
         int wordWidth = 8;
 
-        cout << setiosflags( ios::right );
-        cout << " iZone = " << setw( wordWidth ) << zCount;
-        cout << " nZone = " << setw( wordWidth ) << gridMediator->numberOfZones;
-        cout << " ni, nj, nk = ";
-        cout << setw( wordWidth ) << ni;
-        cout << setw( wordWidth ) << nj;
-        cout << setw( wordWidth ) << nk;
-        cout << endl;
+        std::cout << std::setiosflags( std::ios::right );
+        std::cout << " iZone = " << std::setw( wordWidth ) << zCount;
+        std::cout << " nZone = " << std::setw( wordWidth ) << gridMediator->numberOfZones;
+        std::cout << " ni, nj, nk = ";
+        std::cout << std::setw( wordWidth ) << ni;
+        std::cout << std::setw( wordWidth ) << nj;
+        std::cout << std::setw( wordWidth ) << nk;
+        std::cout << std::endl;
         ++ zCount;
     }
 
@@ -322,10 +322,10 @@ void Plot3D::ReadCoorAscii( GridMediator * gridMediator )
 
 void Plot3D::DumpCoorAscii( GridMediator * gridMediator )
 {
-    string & fileName = gridMediator->gridFile;
+    std::string & fileName = gridMediator->gridFile;
 
     FileO fileO;
-    fileO.OpenPrjFile( fileName, ios_base::out );
+    fileO.OpenPrjFile( fileName, std::ios_base::out );
 
     int numberOfZones = gridMediator->numberOfZones;
     fileO.WriteLine( numberOfZones );
@@ -349,14 +349,14 @@ void Plot3D::DumpCoorAscii( GridMediator * gridMediator )
         fileO.WriteEndLine();
 
         int wordWidth = 8;
-        cout << setiosflags( ios::right );
-        cout << " iZone = " << setw( wordWidth ) << iZone;
-        cout << " nZone = " << setw( wordWidth ) << gridMediator->numberOfZones;
-        cout << " ni, nj, nk = ";
-        cout << setw( wordWidth ) << ni;
-        cout << setw( wordWidth ) << nj;
-        cout << setw( wordWidth ) << nk;
-        cout << "\n";
+        std::cout << std::setiosflags( std::ios::right );
+        std::cout << " iZone = " << std::setw( wordWidth ) << iZone;
+        std::cout << " nZone = " << std::setw( wordWidth ) << gridMediator->numberOfZones;
+        std::cout << " ni, nj, nk = ";
+        std::cout << std::setw( wordWidth ) << ni;
+        std::cout << std::setw( wordWidth ) << nj;
+        std::cout << std::setw( wordWidth ) << nk;
+        std::cout << "\n";
     }
 
     for ( int iZone = 0; iZone < gridMediator->numberOfZones; ++ iZone )
@@ -379,7 +379,7 @@ void Plot3D::DumpCoorAscii( GridMediator * gridMediator )
     fileO.CloseFile();
 }
 
-void Plot3D::DumpCoorAscii( fstream & file, RealField & coor )
+void Plot3D::DumpCoorAscii( std::fstream & file, RealField & coor )
 {
     int wordWidth = 15;
     int nWord = 5;
@@ -387,7 +387,7 @@ void Plot3D::DumpCoorAscii( fstream & file, RealField & coor )
     int nCount = 0;
     for ( int i = 0; i < nPoint; ++ i )
     {
-        file << setw( wordWidth ) << coor[ i ];
+        file << std::setw( wordWidth ) << coor[ i ];
         nCount ++;
         if ( nCount % nWord == 0 )
         {
@@ -398,21 +398,21 @@ void Plot3D::DumpCoorAscii( fstream & file, RealField & coor )
 
 void Plot3D::ReadBc( GridMediator * gridMediator )
 {
-    string & bcName = gridMediator->bcFile;
+    std::string & bcName = gridMediator->bcFile;
     //\t is the tab key
-    string separator = " =\r\n#$,;";
+    std::string separator = " =\r\n#$,;";
 
     FileIO ioFile;
-    ioFile.OpenPrjFile( bcName, ios_base::in );
+    ioFile.OpenPrjFile( bcName, std::ios_base::in );
     ioFile.SetDefaultSeparator( separator );
 
     ioFile.ReadNextNonEmptyLine();
     int flowSolverIndex = ioFile.ReadNextDigit< int >();
-    cout << " flowSolverIndex = " << flowSolverIndex << endl;
+    std::cout << " flowSolverIndex = " << flowSolverIndex << std::endl;
 
     ioFile.ReadNextNonEmptyLine();
     int numberOfZones = ioFile.ReadNextDigit< int >();
-    cout << " numberOfZones = " << numberOfZones << endl;
+    std::cout << " numberOfZones = " << numberOfZones << std::endl;
 
     if ( numberOfZones != gridMediator->numberOfZones )
     {
@@ -438,16 +438,16 @@ void Plot3D::ReadBc( GridMediator * gridMediator )
             nk = ioFile.ReadNextDigit< int >();
         }
 
-        cout << " ni, nj, nk = " << ni << " " << nj << " " << nk << endl;
+        std::cout << " ni, nj, nk = " << ni << " " << nj << " " << nk << std::endl;
         int ndif = ONEFLOW::ABS( ni - grid->ni )
                  + ONEFLOW::ABS( nj - grid->nj )
                  + ONEFLOW::ABS( nk - grid->nk );
         if ( ndif != 0 )
         {
-            cout << "The dimension in " << iZone + 1 << "block boundary file is not consistent with the dimension in grid!\n";
+            std::cout << "The dimension in " << iZone + 1 << "block boundary file is not consistent with the dimension in grid!\n";
         }
 
-        string word = ioFile.ReadNextWord();
+        std::string word = ioFile.ReadNextWord();
 
         if ( word == "proc" )
         {
@@ -457,7 +457,7 @@ void Plot3D::ReadBc( GridMediator * gridMediator )
         }
 
         ioFile.ReadNextNonEmptyLine();
-        string blockName = ioFile.ReadNextWord();
+        std::string blockName = ioFile.ReadNextWord();
         ioFile.ReadNextNonEmptyLine();
 
         int nBcRegions = ioFile.ReadNextDigit< int >();
@@ -533,19 +533,19 @@ void Plot3D::ReadBc( GridMediator * gridMediator )
 
 void Plot3D::DumpBc( GridMediator * gridMediator )
 {
-    string & bcName = gridMediator->bcFile;
+    std::string & bcName = gridMediator->bcFile;
 
-    fstream file;
-    OpenPrjFile( file, bcName, ios_base::out );
+    std::fstream file;
+    OpenPrjFile( file, bcName, std::ios_base::out );
 
     int flowSolverIndex = 1;
     file << flowSolverIndex << "\n";
-    cout << " flowSolverIndex = " << flowSolverIndex << "\n";
+    std::cout << " flowSolverIndex = " << flowSolverIndex << "\n";
 
     int numberOfZones = gridMediator->numberOfZones;
 
     file << numberOfZones << "\n";
-    cout << " numberOfZones = " << numberOfZones << "\n";
+    std::cout << " numberOfZones = " << numberOfZones << "\n";
 
     bool readPid = false;
 
@@ -564,9 +564,9 @@ void Plot3D::DumpBc( GridMediator * gridMediator )
         }
         file << "\n";
 
-        cout << " ni, nj, nk = " << ni << " " << nj << " " << nk << "\n";
+        std::cout << " ni, nj, nk = " << ni << " " << nj << " " << nk << "\n";
 
-        string blockName = grid->name;
+        std::string blockName = grid->name;
         file << blockName << "\n";
 
         BcRegionGroup * bcRegionGroup = grid->bcRegionGroup;
@@ -587,20 +587,20 @@ void Plot3D::DumpBc( GridMediator * gridMediator )
             kmin = s->start[ 2 ];
             kmax = s->end[ 2 ];
             int width = 5;
-            file << setiosflags( ios::right );
-            file << setw( width ) << imin;
-            file << setw( width ) << imax;
-            file << setw( width ) << jmin;
-            file << setw( width ) << jmax;
+            file << std::setiosflags( std::ios::right );
+            file << std::setw( width ) << imin;
+            file << std::setw( width ) << imax;
+            file << std::setw( width ) << jmin;
+            file << std::setw( width ) << jmax;
 
             if ( ONEFLOW::IsThreeD() )
             {
-                file << setw( width ) << kmin;
-                file << setw( width ) << kmax;
+                file << std::setw( width ) << kmin;
+                file << std::setw( width ) << kmax;
             }
 
             int bcType = bcRegion->bcType;
-            file << setw( width ) << bcType;
+            file << std::setw( width ) << bcType;
             file << "\n";
 
             if ( bcType < 0 )
@@ -612,18 +612,18 @@ void Plot3D::DumpBc( GridMediator * gridMediator )
                 jmax = t->end[ 1 ];
                 kmin = t->start[ 2 ];
                 kmax = t->end[ 2 ];
-                file << setiosflags( ios::right );
-                file << setw( width ) << imin;
-                file << setw( width ) << imax;
-                file << setw( width ) << jmin;
-                file << setw( width ) << jmax;
+                file << std::setiosflags( std::ios::right );
+                file << std::setw( width ) << imin;
+                file << std::setw( width ) << imax;
+                file << std::setw( width ) << jmin;
+                file << std::setw( width ) << jmax;
 
                 if ( ONEFLOW::IsThreeD() )
                 {
-                    file << setw( width ) << kmin;
-                    file << setw( width ) << kmax;
+                    file << std::setw( width ) << kmin;
+                    file << std::setw( width ) << kmax;
                 }
-                file << setw( width ) << t->zid;
+                file << std::setw( width ) << t->zid;
                 file << "\n";
             }
         }
@@ -647,7 +647,7 @@ void Plot3D::ReadCoor( FileIO * ioFile, RealField & coordinate )
             if ( i >= numberOfNodes )
             {
                 int left = num - j;
-                cout << " unread elem = " << left << endl;
+                std::cout << " unread elem = " << left << std::endl;
                 break;
             }
         }
@@ -670,7 +670,7 @@ void Plot3D::ReadCoor( FileIO * ioFile, RealField & coor, int total_size )
 
 void Plot3D::Plot3DToCgns( ZgridMediator * zgridMediator )
 {
-    cout << "plot3d to cgns\n";
+    std::cout << "plot3d to cgns\n";
     GridMediator * gridMediator = new GridMediator();
     gridMediator->gridFile = grid_para.gridFile;
     gridMediator->bcFile = grid_para.bcFile;
@@ -697,11 +697,11 @@ bool GetPlot3D_NKFlag()
     {
         if ( gridgen_plot3d )
         {
-            cout << "The grid type is gridgen plot3d format\n";
+            std::cout << "The grid type is gridgen plot3d format\n";
         }
         else
         {
-            cout << "The grid type is standard plot3d format\n";
+            std::cout << "The grid type is standard plot3d format\n";
         }
     }
 

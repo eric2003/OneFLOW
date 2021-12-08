@@ -30,6 +30,7 @@ License
 #include "FieldRecord.h"
 #include "RegisterUtil.h"
 #include "DataBase.h"
+#include "DataStorage.h"
 #include "ActionState.h"
 #include "FieldImp.h"
 
@@ -87,7 +88,7 @@ void AddFieldRecord( FieldRecord * fieldRecord, DataStorage * dataStorage, Strin
 {
     for ( int iField = 0; iField < fieldNameList.size(); ++ iField )
     {
-        string & filedName = fieldNameList[ iField ];
+        std::string & filedName = fieldNameList[ iField ];
         MRField * field = ONEFLOW::GetFieldPointer< MRField >( dataStorage, filedName );
         int nEqu = GFieldProperty::GetNEqu( filedName );
         fieldRecord->AddField( field , nEqu );

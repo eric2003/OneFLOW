@@ -33,7 +33,7 @@ License
 #include "NodeMesh.h"
 #include <fstream>
 #include <iomanip>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 
@@ -89,7 +89,7 @@ void Block3D::ConstructTopo()
         MDomain * mDomain = mDomainList[ iMDomain ];
         mDomain->ConstructMultiDomainTopo();
     }
-    map< int, IntSet > p2dMap;
+    std::map< int, IntSet > p2dMap;
     for ( int iMDomain = 0; iMDomain < nMDomain; ++ iMDomain )
     {
         MDomain * mDomain = mDomainList[ iMDomain ];
@@ -97,13 +97,13 @@ void Block3D::ConstructTopo()
         for ( int i = 0; i < nSize; ++ i )
         {
             int pt = mDomain->candidate_bcpoints[ i ];
-            map< int, IntSet >::iterator iter;
+            std::map< int, IntSet >::iterator iter;
             iter = p2dMap.find( pt );
             if ( iter == p2dMap.end() )
             {
                 IntSet iset;
                 iset.insert( iMDomain );
-                p2dMap.insert( pair< int, IntSet >( pt, iset ) );
+                p2dMap.insert( std::pair< int, IntSet >( pt, iset ) );
             }
             else
             {
@@ -114,7 +114,7 @@ void Block3D::ConstructTopo()
     }
 
     IntField ctrl_points;
-    map< int, IntSet >::iterator iter;
+    std::map< int, IntSet >::iterator iter;
     for ( iter = p2dMap.begin(); iter != p2dMap.end(); ++ iter )
     {
         if ( iter->second.size() == 3 )
@@ -245,7 +245,7 @@ void Block3D::CalcBlkDim()
         int k = kList[ iPoint ];
         CalcCoor c;
         c.SetCoor( i, j, k );
-        this->coorMap.insert( pair<int, CalcCoor>( pt, c ) );
+        this->coorMap.insert( std::pair<int, CalcCoor>( pt, c ) );
     }
 
     for ( int iMDomain = 0; iMDomain < nMDomain; ++ iMDomain )
@@ -287,8 +287,8 @@ void Block3D::CreateBlockMesh()
 
 void Block3D::GenerateBlockMesh()
 {
-    fstream file;
-    OpenPrjFile( file, "grid/blkfaceplot.dat", ios_base::out );
+    std::fstream file;
+    OpenPrjFile( file, "grid/blkfaceplot.dat", std::ios_base::out );
     file << " VARIABLES = \"X\", \"Y\", \"Z\" \n";
     file << " ZONE I = " << ni << ", J = " << nj << " F = POINT \n";
     for ( int j = 0; j < nj; ++ j )
@@ -357,7 +357,7 @@ void Block3D::GenerateBlockMesh()
     //}
 
 
-    OpenPrjFile( file, "grid/blkplot.dat", ios_base::out );
+    OpenPrjFile( file, "grid/blkplot.dat", std::ios_base::out );
     file << " VARIABLES = \"X\", \"Y\", \"Z\" \n";
     file << " ZONE I = " << ni << ", J = " << nj << ", K = " << nk << " F = POINT \n";
     for ( int k = 0; k < nk; ++ k )
@@ -372,7 +372,7 @@ void Block3D::GenerateBlockMesh()
     }
     CloseFile( file );
 
-    OpenPrjFile( file, "grid/blkfaceplot111.dat", ios_base::out );
+    OpenPrjFile( file, "grid/blkfaceplot111.dat", std::ios_base::out );
     file << " VARIABLES = \"X\", \"Y\", \"Z\" \n";
     file << " ZONE I = " << ni << ", J = " << nj << " F = POINT \n";
     for ( int j = 0; j < nj; ++ j )

@@ -60,7 +60,7 @@ void MolecularProperty::Init( int nSpecies )
 void MolecularProperty::Read( FileIO * ioFile )
 {
     //string word;
-    string separator = " =\r\n#$,;\"'";
+    std::string separator = " =\r\n#$,;\"'";
     ioFile->SetDefaultSeparator( separator );
 
     ioFile->SkipLines( 3 );

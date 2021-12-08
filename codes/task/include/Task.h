@@ -23,7 +23,7 @@ License
 
 #pragma once
 #include "HXDefine.h"
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 
@@ -41,7 +41,7 @@ public:
     virtual void Run(){};
 public:
     int taskId;
-    string taskName;
+    std::string taskName;
     TaskFunction action, sendAction, recvAction;
     DataBook * dataBook;
     FileInfo * fileInfo;

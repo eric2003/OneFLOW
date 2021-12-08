@@ -27,7 +27,7 @@ License
 #include "Numpy.h"
 #include <iostream>
 #include <vector>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 
@@ -63,7 +63,7 @@ void Scalar::Lesson1()
     double dt = 0.025;
     double c  = 1;
 
-    vector< double > u( nx );
+    std::vector< double > u( nx );
     Numpy::Ones( u );
 
     int st = 0.5 / dx;
@@ -71,10 +71,10 @@ void Scalar::Lesson1()
 
     Numpy::Set( u, st, ed, 2 );
 
-    vector< double > x( nx );
+    std::vector< double > x( nx );
     Numpy::Linspace( x, 0, len );
 
-    vector< double > un( nx );
+    std::vector< double > un( nx );
     Numpy::Ones( un ); //initialize a temporary array
 
     for ( int n = 0; n < nt; ++ n ) //loop for values of n from 0 to nt, so it will run nt times

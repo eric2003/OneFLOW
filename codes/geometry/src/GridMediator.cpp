@@ -29,7 +29,7 @@ License
 #include "GridPara.h"
 
 
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 
@@ -155,7 +155,7 @@ void ZgridMediator::ReadGrid()
     this->flag = true;
 }
 
-string ZgridMediator::GetTargetFile()
+std::string ZgridMediator::GetTargetFile()
 {
     int index = 0;
     GridMediator * gridMediator = this->gm[ index ];

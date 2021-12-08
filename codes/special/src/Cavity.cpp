@@ -40,7 +40,7 @@ License
 #include "Plot3D.h"
 #include "DataBase.h"
 #include <iostream>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 
@@ -62,9 +62,9 @@ void Cavity::Run()
 
     int nZone = 1;
     GridMediator * gridMediator = new GridMediator();
-    gridMediator->gridFile = ONEFLOW::GetDataValue< string >( "sourceGridFileName" );
-    gridMediator->bcFile   = ONEFLOW::GetDataValue< string >( "sourceGridBcName" );
-    gridMediator->targetFile = ONEFLOW::GetDataValue< string >( "targetGridFileName" );
+    gridMediator->gridFile = ONEFLOW::GetDataValue< std::string >( "sourceGridFileName" );
+    gridMediator->bcFile   = ONEFLOW::GetDataValue< std::string >( "sourceGridBcName" );
+    gridMediator->targetFile = ONEFLOW::GetDataValue< std::string >( "targetGridFileName" );
 
     gridMediator->numberOfZones = nZone;
     gridMediator->gridVector.resize( nZone );

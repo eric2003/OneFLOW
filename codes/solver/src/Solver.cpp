@@ -25,11 +25,11 @@ License
 #include <map>
 #include <string>
 #include <iostream>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 
-map< string, Solver * > * Solver::classMap = 0;
+std::map< std::string, Solver * > * Solver::classMap = 0;
 Solver::Solver()
 {
 }
@@ -38,26 +38,26 @@ Solver::~Solver()
 {
 }
 
-Solver * Solver::SafeClone( const string & type )
+Solver * Solver::SafeClone( const std::string & type )
 {
-    map < string, Solver * >::iterator iter = Solver::classMap->find( type );
+    std::map < std::string, Solver * >::iterator iter = Solver::classMap->find( type );
     if ( iter == Solver::classMap->end() )
     {
-        cout << type << " class not found \n";
+        std::cout << type << " class not found \n";
         exit( 0 );
     }
 
     return iter->second->Clone();
 }
 
-Solver * Solver::Register( const string & type, Solver * clone )
+Solver * Solver::Register( const std::string & type, Solver * clone )
 {
     if ( ! Solver::classMap )
     {
-        Solver::classMap = new map < string, Solver * >();
+        Solver::classMap = new std::map < std::string, Solver * >();
     }
 
-    map < string, Solver * >::iterator iter = Solver::classMap->find( type );
+    std::map < std::string, Solver * >::iterator iter = Solver::classMap->find( type );
     if ( iter == Solver::classMap->end() )
     {
         ( * Solver::classMap )[ type ] = clone;

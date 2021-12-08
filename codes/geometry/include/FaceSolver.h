@@ -27,7 +27,7 @@ License
 #include "Mid.h"
 #include <vector>
 #include <set>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 class PointFactory;
@@ -40,7 +40,7 @@ public:
     FaceSolver();
     ~FaceSolver();
 public:
-    set< Mid<int> > * refFaces;
+    std::set< Mid<int> > * refFaces;
     IntField * faceBcKey;
     IntField * faceBcType;
     LinkField * childFid;

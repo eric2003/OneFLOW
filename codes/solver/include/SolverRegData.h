@@ -31,7 +31,7 @@ public:
     ~SolverRegData();
 public:
     int sTid;
-    string solverName;
+    std::string solverName;
     VoidFunc func;
     int baseKind;
     int dataFlag;

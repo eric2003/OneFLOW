@@ -42,7 +42,7 @@ License
 #include <algorithm>
 #include <iterator>
 #include <iomanip>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 
@@ -89,18 +89,18 @@ void UnsGrid::Encode( DataBook * databook )
 
 void UnsGrid::ReadGrid( DataBook * databook )
 {
-    cout << "Reading unstructured grid data files......\n";
+    std::cout << "Reading unstructured grid data files......\n";
     //Read the number of nodes, number of elements surface and number of elements
 
     ONEFLOW::HXRead( databook, this->nNodes );
     ONEFLOW::HXRead( databook, this->nFaces );
     ONEFLOW::HXRead( databook, this->nCells );
 
-    cout << "Grid dimension = " << Dim::dimension << endl;
+    std::cout << "Grid dimension = " << Dim::dimension << std::endl;
 
-    cout << " number of nodes    : " << this->nNodes << endl;
-    cout << " number of surfaces : " << this->nFaces << endl;
-    cout << " number of elements : " << this->nCells << endl;
+    std::cout << " number of nodes    : " << this->nNodes << std::endl;
+    std::cout << " number of surfaces : " << this->nFaces << std::endl;
+    std::cout << " number of elements : " << this->nCells << std::endl;
 
     this->nodeMesh->CreateNodes( this->nNodes );
     this->cellMesh->cellTopo->Alloc( this->nCells );
@@ -109,7 +109,7 @@ void UnsGrid::ReadGrid( DataBook * databook )
     ONEFLOW::HXRead( databook, this->nodeMesh->yN );
     ONEFLOW::HXRead( databook, this->nodeMesh->zN );
 
-    cout << "The grid nodes have been read\n";
+    std::cout << "The grid nodes have been read\n";
     ONEFLOW::HXRead( databook, this->volBcType  );
 
     this->nodeMesh->CalcMinMaxBox();
@@ -117,7 +117,7 @@ void UnsGrid::ReadGrid( DataBook * databook )
     this->ReadBoundaryTopology( databook );
     this->NormalizeBc();
 
-    cout << "All the computing information is ready!\n";
+    std::cout << "All the computing information is ready!\n";
 }
 
 void UnsGrid::NormalizeBc()
@@ -141,7 +141,7 @@ void UnsGrid::ReadGridFaceTopology( DataBook * databook )
 
     int nsum = ONEFLOW::SUM( numFaceNode );
 
-    cout << "Setting the connection mode of face to point......\n";
+    std::cout << "Setting the connection mode of face to point......\n";
     IntField faceNodeMem( nsum );
 
     ONEFLOW::HXRead( databook, faceNodeMem );
@@ -157,7 +157,7 @@ void UnsGrid::ReadGridFaceTopology( DataBook * databook )
         }
     }
 
-    cout << "Setting the connection mode of face to cell......\n";
+    std::cout << "Setting the connection mode of face to cell......\n";
 
     ONEFLOW::HXRead( databook, this->faceTopo->lCells );
     ONEFLOW::HXRead( databook, this->faceTopo->rCells );
@@ -177,19 +177,19 @@ void UnsGrid::ReadGridFaceTopology( DataBook * databook )
 
 void UnsGrid::ReadBoundaryTopology( DataBook * databook )
 {
-    cout << "Setting the boundary condition......\n";
+    std::cout << "Setting the boundary condition......\n";
     ONEFLOW::HXRead( databook, this->nBFaces );
     this->faceTopo->SetNBFaces( this->nBFaces );
 
-    //cout << " nBFaces = " << this->nBFaces << endl;
+    //std::cout << " nBFaces = " << this->nBFaces << std::endl;
 
     //Setting boundary conditions
     BcRecord * bcRecord = this->faceTopo->bcManager->bcRecord;
     ONEFLOW::HXRead( databook, bcRecord->bcType );
     ONEFLOW::HXRead( databook, bcRecord->bcNameId );
     ONEFLOW::HXRead( databook, this->nIFaces );
-    cout << " nBFaces = " << this->nBFaces;
-    cout << " nIFaces = " << this->nIFaces << endl;
+    std::cout << " nBFaces = " << this->nBFaces;
+    std::cout << " nIFaces = " << this->nIFaces << std::endl;
     this->interFace->Set( this->nIFaces, this );
 
     if ( this->nIFaces > 0 )
@@ -202,11 +202,11 @@ void UnsGrid::ReadBoundaryTopology( DataBook * databook )
 
 void UnsGrid::WriteGrid( DataBook * databook )
 {
-    cout << "Grid dimension = " << Dim::dimension << endl;
+    std::cout << "Grid dimension = " << Dim::dimension << std::endl;
 
-    cout << " number of nodes    : " << this->nNodes << endl;
-    cout << " number of surfaces : " << this->nFaces << endl;
-    cout << " number of elements : " << this->nCells << endl;
+    std::cout << " number of nodes    : " << this->nNodes << std::endl;
+    std::cout << " number of surfaces : " << this->nFaces << std::endl;
+    std::cout << " number of elements : " << this->nCells << std::endl;
 
     ONEFLOW::HXWrite( databook, this->nNodes );
     ONEFLOW::HXWrite( databook, this->nFaces );
@@ -232,7 +232,7 @@ void UnsGrid::WriteGrid( DataBook * databook )
 
 void UnsGrid::WriteGridFaceTopology1D( DataBook * databook )
 {
-    cout << " Reading eTypes\n";
+    std::cout << " Reading eTypes\n";
 
     //write element types
     int ntmpElements = this->cellMesh->cellTopo->eTypes.size();
@@ -344,7 +344,7 @@ void UnsGrid::ModifyBcType( int bcType1, int bcType2 )
 
 void UnsGrid::GenerateLgMapping( IFaceLink * iFaceLink )
 {
-    cout << "zoneIndex = " << this->id << endl;
+    std::cout << "zoneIndex = " << this->id << std::endl;
 
     BcRecord * bcRecord = this->faceTopo->bcManager->bcRecord;
 
@@ -352,7 +352,7 @@ void UnsGrid::GenerateLgMapping( IFaceLink * iFaceLink )
 
     int nIFaces = bcRecord->CalcNIFace();
 
-    cout << "nIFaces = " << nIFaces << endl;
+    std::cout << "nIFaces = " << nIFaces << std::endl;
     this->nIFaces = nIFaces;
     this->interFace->Set( nIFaces, this );
 
@@ -390,12 +390,12 @@ void UnsGrid::GenerateLgMapping( IFaceLink * iFaceLink )
         ++ lCount;
     }
 
-    cout << "local interface count = " << lCount << endl;
+    std::cout << "local interface count = " << lCount << std::endl;
 }
 
 void UnsGrid::ReGenerateLgMapping( IFaceLink * iFaceLink )
 {
-    cout << "zoneIndex = " << this->id << endl;
+    std::cout << "zoneIndex = " << this->id << std::endl;
 
     if ( ! this->faceTopo->bcManager->ExistInterface() )
     {
@@ -456,7 +456,7 @@ void UnsGrid::GetMinMaxDistance( Real & dismin, Real & dismax )
     }
 }
 
-void UnsGrid::WriteGrid( fstream & file )
+void UnsGrid::WriteGrid( std::fstream & file )
 {
     DataBook * databook = new DataBook();
     this->WriteGrid( databook );
@@ -856,7 +856,7 @@ void UnsGrid::CalcCellCenterVol3D()
         }
     }
 
-    if ( cell ) cout << cell << " cells have negative vols \n";
+    if ( cell ) std::cout << cell << " cells have negative vols \n";
 
     // For ghost cells
     for ( int iFace = 0; iFace < nBFaces; ++ iFace )

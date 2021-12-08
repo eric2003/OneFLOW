@@ -33,7 +33,7 @@ License
 #include "NodeMesh.h"
 #include <fstream>
 #include <iomanip>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 
@@ -81,7 +81,7 @@ void Block2D::GenerateBlockMesh2D()
 {
 }
 
-void Block2D::DumpBlockMesh2D( fstream &file )
+void Block2D::DumpBlockMesh2D( std::fstream &file )
 {
     file << " VARIABLES = \"X\", \"Y\", \"Z\" \n";
     file << " ZONE I = " << ni << ", J = " << nj << " F = POINT \n";
@@ -207,7 +207,7 @@ void Block2D::CalcBlkDim()
         int k = kList[ iPoint ];
         CalcCoor c;
         c.SetCoor( i, j, k );
-        this->coorMap.insert( pair<int, CalcCoor>( pt, c ) );
+        this->coorMap.insert( std::pair<int, CalcCoor>( pt, c ) );
     }
 
     for ( int iMDomain = 0; iMDomain < nMDomain; ++ iMDomain )
