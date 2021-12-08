@@ -23,6 +23,7 @@ License
 #include "Configure.h"
 #include <fstream>
 #include <string>
+#include <vector>
 
 BeginNameSpace( ONEFLOW )
 
@@ -34,6 +35,7 @@ public:
 public:
     static std::string prjBaseDir;
     static void SetPrjBaseDir( const std::string & prjName );
+    static void ProcessCmdLineArgs( std::vector<std::string> &args );
 public:
     static void OpenPrjFile( std::fstream & file, const std::string & fileName, const std::ios_base::openmode & openMode );
     static void OpenFile( std::fstream & file, const std::string & fileName, const std::ios_base::openmode & openMode );

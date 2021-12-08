@@ -40,6 +40,19 @@ Prj::~Prj()
     ;
 }
 
+void Prj::ProcessCmdLineArgs( std::vector<std::string> &args )
+{
+    std::string choise = args[ 1 ];
+    std::string prjName = args[ 2 ];
+    if ( choise == "d" )
+    {
+        SimuCtrl::hx_debug = true;
+        SimuCtrl::run_from_ide = true;
+    }
+    SimuCtrl::Init();
+    Prj::SetPrjBaseDir( prjName );
+}
+
 void Prj::SetPrjBaseDir( const std::string & prjName )
 {
     std::string current_dir_now = RemoveEndSlash( SimuCtrl::current_dir );
