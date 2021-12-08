@@ -37,7 +37,7 @@ void VarNameSolver::AddFieldName( const std::string & fieldName )
     this->data.push_back( fieldName );
 }
 
-map< int, VarNameSolver * > * VarNameFactory::data = 0;
+std::map< int, VarNameSolver * > * VarNameFactory::data = 0;
 MapIntInt * VarNameFactory::mapData = 0;
 
 VarNameFactory::VarNameFactory()

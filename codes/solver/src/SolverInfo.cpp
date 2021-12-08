@@ -23,7 +23,7 @@ License
 #include "SolverInfo.h"
 #include <map>
 #include <iostream>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 
@@ -37,7 +37,7 @@ SolverInfo::~SolverInfo()
     ;
 }
 
-map< int, SolverInfo * > * SolverInfoFactory::data = 0;
+std::map< int, SolverInfo * > * SolverInfoFactory::data = 0;
 
 SolverInfoFactory::SolverInfoFactory()
 {

@@ -26,7 +26,7 @@ License
 #include "HXType.h"
 #include "ScalarGrid.h"
 #include <vector>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 

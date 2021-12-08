@@ -27,13 +27,13 @@ License
 #include "OStream.h"
 #include <map>
 #include <iostream>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 
 IntField SolverMap::tid;
-map< int, int > SolverMap::tid2Id;
-map< int, int > SolverMap::id2Tid;
+std::map< int, int > SolverMap::tid2Id;
+std::map< int, int > SolverMap::id2Tid;
 HXVector< Solver * > SolverMap::strSolver;
 HXVector< Solver * > SolverMap::unsSolver;
 

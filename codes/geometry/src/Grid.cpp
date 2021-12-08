@@ -31,7 +31,7 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-map< std::string, Grid * > * Grid::classMap = 0;
+std::map< std::string, Grid * > * Grid::classMap = 0;
 
 Grid::Grid()
 {

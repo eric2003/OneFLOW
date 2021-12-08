@@ -25,7 +25,7 @@ License
 #include "HXDefine.h"
 #include <map>
 #include <string>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 class HXClone;

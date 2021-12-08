@@ -28,7 +28,7 @@ License
 #include "ActionState.h"
 #include "DataBook.h"
 #include <iostream>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 

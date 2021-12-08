@@ -32,7 +32,7 @@ License
 #include "DataBook.h"
 #include "Tolerence.h"
 #include <iostream>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 

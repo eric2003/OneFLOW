@@ -50,7 +50,7 @@ License
 #include "SmartGrid.h"
 #include <iostream>
 #include <vector>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 

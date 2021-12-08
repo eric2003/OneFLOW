@@ -26,7 +26,7 @@ License
 #include <list>
 #include <string>
 #include <map>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 

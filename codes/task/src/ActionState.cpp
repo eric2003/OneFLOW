@@ -26,9 +26,9 @@ License
 BeginNameSpace( ONEFLOW )
 
 DataBook * ActionState::dataBook = 0;
-fstream * ActionState::file = 0;
-ios_base::openmode ActionState::openMode;
-string ActionState::fileName;
+std::fstream * ActionState::file = 0;
+std::ios_base::openmode ActionState::openMode;
+std::string ActionState::fileName;
 
 ActionState::ActionState()
 {

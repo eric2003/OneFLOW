@@ -22,7 +22,7 @@ License
 
 #include "TaskRegister.h"
 #include <iostream>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 

@@ -25,7 +25,7 @@ License
 #include "HXDefine.h"
 #include "FileIO.h"
 #include <map>
-using namespace std;
+
 BeginNameSpace( ONEFLOW )
 
 class Solver;

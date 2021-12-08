@@ -53,7 +53,7 @@ License
 #include "UINsCom.h"
 #include <map>
 #include <iostream>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 

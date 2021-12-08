@@ -23,7 +23,7 @@ License
 #include "Theory.h"
 #include "Sod.h"
 #include <iostream>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 

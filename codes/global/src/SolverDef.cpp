@@ -23,10 +23,10 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-map< std::string, int > * solverTypeMap = 0;
-map< std::string, int > * interfaceMap = 0;
-map< std::string, int > * sendRecvMap = 0;
-map< std::string, int > * fieldIdMap = 0;
+std::map< std::string, int > * solverTypeMap = 0;
+std::map< std::string, int > * interfaceMap = 0;
+std::map< std::string, int > * sendRecvMap = 0;
+std::map< std::string, int > * fieldIdMap = 0;
 
 void CreateSysMap()
 {

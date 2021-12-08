@@ -26,7 +26,7 @@ License
 #include <vector>
 #include <string>
 #include <map>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 
@@ -161,7 +161,7 @@ public:
     void ReadSu2Grid( GridMediator * gridMediator );
     void ReadSu2GridAscii( std::string & fileName );
     void Su2ToOneFlowGrid();
-    void MarkBoundary(string& su2cfgFile);
+    void MarkBoundary(std::string& su2cfgFile);
     void FillSU2CgnsZone( CgnsZone * cgnsZone );
 public:
     int ndim;

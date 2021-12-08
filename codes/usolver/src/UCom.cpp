@@ -236,8 +236,8 @@ void AddF2CFieldDebug( MRField * cellField, MRField * faceField )
     int kkk = 1;
 }
 
-string HXDebug::fileName1;
-string HXDebug::fileName2;
+std::string HXDebug::fileName1;
+std::string HXDebug::fileName2;
 
 HXDebug::HXDebug()
 {
@@ -249,7 +249,7 @@ HXDebug::~HXDebug()
     ;
 }
 
-string HXDebug::GetFullFileName( const std::string & fileName, int startStrategy )
+std::string HXDebug::GetFullFileName( const std::string & fileName, int startStrategy )
 {
     std::string newFileName = fileName;
     if ( startStrategy == 1 )

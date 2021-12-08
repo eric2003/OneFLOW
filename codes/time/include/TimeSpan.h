@@ -23,7 +23,7 @@ License
 #include "Configure.h"
 #include <string>
 #include <ctime>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 

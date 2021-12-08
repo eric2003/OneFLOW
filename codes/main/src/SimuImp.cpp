@@ -34,7 +34,7 @@ License
 #include "Theory.h"
 #include "PostProcess.h"
 #include <iostream>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 

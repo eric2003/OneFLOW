@@ -27,7 +27,7 @@ License
 #include "HXClone.h"
 #include "FileIO.h"
 #include <iostream>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 HXRegister::HXRegister()
@@ -153,7 +153,7 @@ void MRegister::Register( const std::string & fileName, HXRegister * fRegister )
     ioFile.CloseFile();
 }
 
-map< int, MRegister * > * RegisterFactory::data = 0;
+std::map< int, MRegister * > * RegisterFactory::data = 0;
 
 RegisterFactory::RegisterFactory()
 {

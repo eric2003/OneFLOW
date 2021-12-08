@@ -25,7 +25,7 @@ along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 #include "Prj.h"
 #include <iostream>
 #include <fstream>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 

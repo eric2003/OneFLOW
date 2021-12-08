@@ -25,11 +25,11 @@ License
 #include <map>
 #include <string>
 #include <iostream>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 
-map< std::string, Solver * > * Solver::classMap = 0;
+std::map< std::string, Solver * > * Solver::classMap = 0;
 Solver::Solver()
 {
 }

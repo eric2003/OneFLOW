@@ -23,7 +23,7 @@ License
 #include "Scalar.h"
 #include "FieldSolver.h"
 #include <iostream>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 

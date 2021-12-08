@@ -23,7 +23,7 @@ License
 #include "TimeSpan.h"
 #include "HXDefine.h"
 #include <iostream>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 

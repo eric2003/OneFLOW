@@ -28,7 +28,7 @@ License
 #include "Parallel.h"
 #include "UCom.h"
 #include <iostream>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 

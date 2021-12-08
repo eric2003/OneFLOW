@@ -26,7 +26,7 @@ License
 #include "PrintDevice.h"
 #include <iostream>
 #include <algorithm>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 

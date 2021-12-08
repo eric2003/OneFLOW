@@ -23,7 +23,7 @@ License
 #include "ScalarDataIO.h"
 #include "DataBase.h"
 #include "ActionState.h"
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 

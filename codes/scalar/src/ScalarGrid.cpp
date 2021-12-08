@@ -548,7 +548,7 @@ void ScalarGrid::SetCgnsZone( CgnsZone * cgnsZone )
 void ScalarGrid::DumpCgnsGrid()
 {
 	fstream file;
-	string prjFileName = ONEFLOW::GetPrjFileName( "scalar.cgns" );
+	std::string prjFileName = ONEFLOW::GetPrjFileName( "scalar.cgns" );
 	CgnsZbase * cgnsZbase = new CgnsZbase();
 	cgnsZbase->nBases = 1;
 	cgnsZbase->InitCgnsBase();
@@ -1145,7 +1145,7 @@ void ScalarGrid::DumpCalcGrid()
 {
 	cout << "Dumping unstructured grid data files......\n";
 	fstream file;
-	string fileName = "scalar.ofl";
+std::string fileName = "scalar.ofl";
 	OpenPrjFile( file, fileName, std::ios_base::out | std::ios_base::binary );
 	DataBook * databook = new DataBook();
 	this->WriteGrid( databook );
@@ -1198,7 +1198,7 @@ void ScalarGrid::WriteGrid( DataBook * databook )
 void ScalarGrid::ReadCalcGrid()
 {
 	fstream file;
-	string fileName = "scalar.ofl";
+	std::string fileName = "scalar.ofl";
 	OpenPrjFile( file, fileName, std::ios_base::in | std::ios_base::binary );
 	DataBook * databook = new DataBook();
 	databook->ReadFile( file );

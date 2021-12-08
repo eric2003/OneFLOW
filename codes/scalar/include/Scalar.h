@@ -24,7 +24,7 @@ License
 #pragma once
 #include "Configure.h"
 #include <vector>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 

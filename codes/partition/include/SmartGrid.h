@@ -25,7 +25,7 @@ License
 #include "HXDefine.h"
 #include "PointFactory.h"
 #include <map>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 

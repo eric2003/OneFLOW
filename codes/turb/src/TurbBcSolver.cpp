@@ -31,7 +31,7 @@ License
 #include "Stop.h"
 #include "Boundary.h"
 #include <iostream>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 

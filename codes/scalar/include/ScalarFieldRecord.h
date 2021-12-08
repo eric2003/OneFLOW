@@ -23,7 +23,7 @@ License
 #include "HXDefine.h"
 #include "HXArray.h"
 #include <map>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 

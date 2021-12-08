@@ -377,7 +377,7 @@ void FieldManager::AllocateBcField( UnsGrid * grid, FieldPropertyData * fieldPro
     }
 }
 
-map< int, FieldManager * > * FieldFactory::data = 0;
+std::map< int, FieldManager * > * FieldFactory::data = 0;
 
 FieldFactory::FieldFactory()
 {

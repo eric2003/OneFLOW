@@ -27,7 +27,7 @@ License
 #include "Numpy.h"
 #include <iostream>
 #include <vector>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 

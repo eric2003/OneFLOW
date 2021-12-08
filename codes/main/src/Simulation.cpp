@@ -27,7 +27,7 @@ License
 #include "CgnsTest.h"
 #include "HybridParallel.h"
 #include <iostream>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 

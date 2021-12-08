@@ -28,7 +28,7 @@ License
 #include "metis.h"
 #include <vector>
 #include <fstream>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 

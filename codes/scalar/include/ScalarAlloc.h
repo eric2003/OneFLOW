@@ -24,7 +24,7 @@ License
 #include "HXArray.h"
 #include "FieldBase.h"
 #include <map>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 

@@ -244,7 +244,7 @@ void PatchBox::CalcNormal()
 
     std::cout << smin[ 0 ] << " " << smax[ 0 ] << " " ;
     std::cout << smin[ 1 ] << " " << smax[ 1 ] << " " ;
-    std::cout << smin[ 2 ] << " " << smax[ 2 ] << endl << std::endl;
+    std::cout << smin[ 2 ] << " " << smax[ 2 ] << std::endl << std::endl;
 
     int kkk = 1;
 }
