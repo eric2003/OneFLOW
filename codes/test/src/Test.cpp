@@ -72,7 +72,7 @@ void Test::Run()
         }
     }
 
-    CloseFile( file );
+    Prj::CloseFile( file );
 }
 
 Real Test::Vencat( Real x )

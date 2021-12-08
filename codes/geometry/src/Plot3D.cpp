@@ -157,7 +157,7 @@ void Plot3D::ReadCoorBinary( GridMediator * gridMediator )
         }
     }
 
-    ONEFLOW::CloseFile( file );
+    Prj::CloseFile( file );
 }
 
 void Plot3D::DumpCoorBinary( GridMediator * gridMediator )
@@ -217,7 +217,7 @@ void Plot3D::DumpCoorBinary( GridMediator * gridMediator )
         }
     }
 
-    ONEFLOW::CloseFile( file );
+    Prj::CloseFile( file );
 }
 
 void Plot3D::ReadCoorAscii( GridMediator * gridMediator )
@@ -629,7 +629,7 @@ void Plot3D::DumpBc( GridMediator * gridMediator )
         }
     }
 
-    CloseFile( file );
+    Prj::CloseFile( file );
 }
 
 void Plot3D::ReadCoor( FileIO * ioFile, RealField & coordinate )

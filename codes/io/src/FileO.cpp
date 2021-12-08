@@ -49,7 +49,7 @@ void FileO::OpenPrjFile( const std::string & fileName, const std::ios_base::open
 
 void FileO::CloseFile()
 {
-    ONEFLOW::CloseFile( * file );
+    Prj::CloseFile( * file );
 }
 
 void FileO::DumpCoorAscii( RealField & coor )

@@ -548,7 +548,7 @@ void ScalarGrid::SetCgnsZone( CgnsZone * cgnsZone )
 void ScalarGrid::DumpCgnsGrid()
 {
 	std::fstream file;
-	std::string prjFileName = ONEFLOW::GetPrjFileName( "scalar.cgns" );
+	std::string prjFileName = Prj::GetPrjFileName( "scalar.cgns" );
 	CgnsZbase * cgnsZbase = new CgnsZbase();
 	cgnsZbase->nBases = 1;
 	cgnsZbase->InitCgnsBase();
@@ -1151,7 +1151,7 @@ void ScalarGrid::DumpCalcGrid()
 	this->WriteGrid( databook );
 	databook->WriteFile( file );
 	delete databook;
-	CloseFile( file );
+	Prj::CloseFile( file );
 }
 
 void ScalarGrid::WriteGrid( std::fstream & file )
@@ -1204,7 +1204,7 @@ void ScalarGrid::ReadCalcGrid()
 	databook->ReadFile( file );
 	this->ReadGrid( databook );
 	delete databook;
-	CloseFile( file );
+	Prj::CloseFile( file );
 }
 
 void ScalarGrid::ReadGrid( std::fstream & file )

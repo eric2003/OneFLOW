@@ -100,7 +100,7 @@ void ScalarField::ToTecplot( RealList & varlist, std::string const & fileName )
         file << xm << " " << fm << "\n";
     }
 
-    CloseFile( file );
+    Prj::CloseFile( file );
 }
 
 void ScalarField::SolveFlowField( FieldPara * para )

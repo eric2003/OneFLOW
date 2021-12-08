@@ -138,7 +138,7 @@ void ScalarMetis::Create1DMeshFromCgns()
     std::string scalar_grid_filename = ONEFLOW::GetDataValue< std::string >("scalar_grid_filename");
     std::string scalar_cgns_filename = ONEFLOW::GetDataValue< std::string >("scalar_cgns_filename");
 
-    std::string cgnsprjFileName = ONEFLOW::GetPrjFileName( scalar_cgns_filename );
+    std::string cgnsprjFileName = Prj::GetPrjFileName( scalar_cgns_filename );
 
     grid->GenerateGridFromCgns( cgnsprjFileName );
     grid->CalcTopology();
@@ -193,7 +193,7 @@ void ScalarReadGrid( const std::string & gridFileName, std::vector< ScalarGrid *
         grids.push_back( grid );
     }
 
-    ONEFLOW::CloseFile( file );
+    Prj::CloseFile( file );
 }
 
 void ScalarDumpGrid( const std::string & gridFileName, ScalarGrid * grid )
@@ -228,7 +228,7 @@ void ScalarDumpGrid( const std::string & gridFileName, std::vector< ScalarGrid *
         grids[ iZone ]->WriteGrid( file );
     }
 
-    ONEFLOW::CloseFile( file );
+    Prj::CloseFile( file );
 }
 
 

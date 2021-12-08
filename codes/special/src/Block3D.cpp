@@ -338,7 +338,7 @@ void Block3D::GenerateBlockMesh()
             file << x3d[ ni - 1 ][ j ][ k ] << " " << y3d[ ni-1 ][ j ][ k ] << " " << z3d[ ni-1 ][ j ][ k ] << "\n";
         }
     }
-    CloseFile( file );
+    Prj::CloseFile( file );
     TransfiniteInterpolation( x3d, ni, nj, nk );
     TransfiniteInterpolation( y3d, ni, nj, nk );
     TransfiniteInterpolation( z3d, ni, nj, nk );
@@ -370,7 +370,7 @@ void Block3D::GenerateBlockMesh()
             }
         }
     }
-    CloseFile( file );
+    Prj::CloseFile( file );
 
     Prj::OpenPrjFile( file, "grid/blkfaceplot111.dat", std::ios_base::out );
     file << " VARIABLES = \"X\", \"Y\", \"Z\" \n";
@@ -422,7 +422,7 @@ void Block3D::GenerateBlockMesh()
             file << x3d[ ni - 1 ][ j ][ k ] << " " << y3d[ ni-1 ][ j ][ k ] << " " << z3d[ ni-1 ][ j ][ k ] << "\n";
         }
     }
-    CloseFile( file );
+    Prj::CloseFile( file );
     int kkk = 1;
 }
 

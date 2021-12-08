@@ -100,7 +100,7 @@ void CgnsFactory::ProcessCgnsBases()
 void CgnsFactory::ReadCgnsGrid()
 {
     cgns_global.cgnsbases = cgnsZbase;
-    std::string prjFileName = ONEFLOW::GetPrjFileName( grid_para.gridFile );
+    std::string prjFileName = Prj::GetPrjFileName( grid_para.gridFile );
     cgnsZbase->ReadCgnsGrid( prjFileName );
 }
 
@@ -139,7 +139,7 @@ void CgnsFactory::CommonToStrGrid()
 
 void CgnsFactory::DumpUnsCgnsGrid()
 {
-    std::string targetFile = ONEFLOW::GetPrjFileName( grid_para.targetFile );
+    std::string targetFile = Prj::GetPrjFileName( grid_para.targetFile );
     cgnsZbase->OpenCgnsFile( targetFile, CG_MODE_WRITE );
     cgnsZbase->DumpCgnsMultiBase();
     cgnsZbase->CloseCgnsFile();

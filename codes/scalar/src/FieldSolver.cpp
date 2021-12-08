@@ -765,7 +765,7 @@ void FieldSolver::ToTecplot( RealField & xList, RealField & varlist, std::string
         file << xm << " " << fm << "\n";
     }
 
-    CloseFile( file );
+    Prj::CloseFile( file );
 }
 
 void PrepareFieldSendData()

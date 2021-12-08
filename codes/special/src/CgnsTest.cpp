@@ -92,7 +92,7 @@ void CgnsTest::Test()
 void CgnsTest::SetDefaultGridName()
 {
     std::string gridName = "/grid/oneflow.cgns";
-    std::string prjFileName = ONEFLOW::GetPrjFileName( gridName );
+    std::string prjFileName = Prj::GetPrjFileName( gridName );
     std::cout << " CGNS File Name = " << prjFileName << "\n";
 
     this->fileName = prjFileName;

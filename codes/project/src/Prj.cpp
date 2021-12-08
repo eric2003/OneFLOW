@@ -54,70 +54,6 @@ void PrjStatus::SetPrjBaseDir( const std::string & prjName )
     std::cout << " PrjStatus::prjBaseDir = " << PrjStatus::prjBaseDir << "\n";
 }
 
-void MakePrjDir( const std::string & dirName )
-{
-    ONEFLOW::StrIO.ClearAll();
-    ONEFLOW::StrIO << PrjStatus::prjBaseDir << dirName;
-
-    std::string prjDirName = ONEFLOW::StrIO.str();
-    //std::cout << " prjDirName = " << prjDirName << "\n";
-
-    MakeDir( prjDirName );
-}
-
-std::string GetPrjDirName( const std::string & fileName )
-{
-    size_t pos = fileName.find_last_of("\\/");
-    if ( std::string::npos == pos )
-    {
-        return "";
-    }
-    else
-    {
-        return fileName.substr(0, pos);
-    }
-}
-
-
-void CreateDirIfNeeded( std::string & prjFileName )
-{
-    std::string prj_dir = ONEFLOW::GetPrjDirName( prjFileName );
-
-    if ( ! DirExist( prj_dir ) )
-    {
-        MakeDir( prj_dir );
-    }
-}
-
-std::string GetPrjFileName( const std::string & fileName )
-{
-    ONEFLOW::StrIO.ClearAll();
-
-    std::string fileNameNew = RemoveFirstSlash( fileName );
-
-    ONEFLOW::StrIO << PrjStatus::prjBaseDir << fileNameNew;
-
-    std::string prjFileName = ONEFLOW::StrIO.str();
-
-    return prjFileName;
-}
-
-void OpenFile( std::fstream & file, const std::string & fileName, const std::ios_base::openmode & openMode )
-{
-    file.open( fileName.c_str(), openMode );
-    if ( ! file )
-    {
-        std::cout << "could not open " << fileName << std::endl;
-        Stop( "" );
-    }
-}
-
-void CloseFile( std::fstream & file )
-{
-    file.close();
-    file.clear();
-}
-
 Prj::Prj()
 {
     ;
@@ -137,7 +73,71 @@ void Prj::OpenPrjFile( std::fstream & file, const std::string & fileName, const 
 
     CreateDirIfNeeded( prjFileName );
 
-    ONEFLOW::OpenFile( file, prjFileName, openMode );
+    Prj::OpenFile( file, prjFileName, openMode );
+}
+
+void Prj::OpenFile( std::fstream & file, const std::string & fileName, const std::ios_base::openmode & openMode )
+{
+    file.open( fileName.c_str(), openMode );
+    if ( ! file )
+    {
+        std::cout << "could not open " << fileName << std::endl;
+        Stop( "" );
+    }
+}
+
+void Prj::CloseFile( std::fstream & file )
+{
+    file.close();
+    file.clear();
+}
+
+void Prj::MakePrjDir( const std::string & dirName )
+{
+    ONEFLOW::StrIO.ClearAll();
+    ONEFLOW::StrIO << PrjStatus::prjBaseDir << dirName;
+
+    std::string prjDirName = ONEFLOW::StrIO.str();
+    //std::cout << " prjDirName = " << prjDirName << "\n";
+
+    MakeDir( prjDirName );
+}
+
+std::string Prj::GetPrjDirName( const std::string & fileName )
+{
+    size_t pos = fileName.find_last_of("\\/");
+    if ( std::string::npos == pos )
+    {
+        return "";
+    }
+    else
+    {
+        return fileName.substr(0, pos);
+    }
+}
+
+
+void Prj::CreateDirIfNeeded( std::string & prjFileName )
+{
+    std::string prj_dir = Prj::GetPrjDirName( prjFileName );
+
+    if ( ! DirExist( prj_dir ) )
+    {
+        MakeDir( prj_dir );
+    }
+}
+
+std::string Prj::GetPrjFileName( const std::string & fileName )
+{
+    ONEFLOW::StrIO.ClearAll();
+
+    std::string fileNameNew = RemoveFirstSlash( fileName );
+
+    ONEFLOW::StrIO << PrjStatus::prjBaseDir << fileNameNew;
+
+    std::string prjFileName = ONEFLOW::StrIO.str();
+
+    return prjFileName;
 }
 
 EndNameSpace

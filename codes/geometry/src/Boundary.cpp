@@ -235,7 +235,7 @@ void DumpRegion( const std::string & fileName, CommonNameMap & nameMap )
     {
         file << iter->index << " " << iter->value << std::endl;
     }
-    CloseFile( file );
+    Prj::CloseFile( file );
 }
 
 CommonNameMap RegionNameMap::nameMap;

@@ -230,7 +230,7 @@ void Cylinder::DumpGrid( const std::string & fileName, DomainData * domain )
     HXWrite( & file, yN );
     HXWrite( & file, zN );
 
-    CloseFile( file );
+    Prj::CloseFile( file );
 }
 
 void Cylinder::DumpBcFile( const std::string & fileName, DomainData * domain, IntField & bcList )
@@ -251,7 +251,7 @@ void Cylinder::DumpBcFile( const std::string & fileName, DomainData * domain, In
     DumpBc( file, 1         , 1         , 1         , domain->nj, bcList[ 2 ] );
     DumpBc( file, domain->ni, domain->ni, 1         , domain->nj, bcList[ 3 ] );
 
-    CloseFile( file );
+    Prj::CloseFile( file );
 }
 
 void Cylinder::ToTecplot( const std::string & fileName, DomainData * domain )
@@ -269,7 +269,7 @@ void Cylinder::ToTecplot( const std::string & fileName, DomainData * domain )
     ONEFLOW::ToTecplot( file, domain->y, ni, nj, nk );
     ONEFLOW::ToTecplot( file, domain->z, ni, nj, nk );
 
-    CloseFile( file );
+    Prj::CloseFile( file );
 }
 
 void Cylinder::CalcCircleCenter( PointType & p1, PointType & p2, PointType & p0, PointType & pcenter )

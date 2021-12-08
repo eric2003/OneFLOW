@@ -41,7 +41,7 @@ void OpenLogFile( int logFileIndex, std::fstream & file )
 
     if ( ifReWrite == 0 )
     {
-        ONEFLOW::MakePrjDir( "log" );
+        Prj::MakePrjDir( "log" );
 
         Prj::OpenPrjFile( file, fileName, std::ios_base::out | std::ios_base::trunc );
 

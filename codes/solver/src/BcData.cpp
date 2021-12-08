@@ -55,7 +55,7 @@ void BcData::ReadRegion()
 
     file >> nRegion;
 
-    CloseFile( file );
+    Prj::CloseFile( file );
 }
 
 void BcData::ReadList( const std::string & fileName )

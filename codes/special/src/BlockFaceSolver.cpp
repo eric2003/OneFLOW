@@ -162,7 +162,7 @@ void BlkFaceSolver::MyFaceGenerateFaceMesh()
         sDomain->SetDomainBcMesh();
         sDomain->GenerateSDomainMesh( file );
     }
-    CloseFile( file );
+    Prj::CloseFile( file );
 }
 
 void BlkFaceSolver::MyFaceGenerateLineMesh()
@@ -437,7 +437,7 @@ void BlkFaceSolver::DumpBcInp()
         blk3d->DumpInp( file );
     }
 
-    CloseFile( file );
+    Prj::CloseFile( file );
     int kkk = 1;
 }
 
@@ -458,7 +458,7 @@ void BlkFaceSolver::DumpBcInp2D()
         blk2d->DumpInp( file );
     }
 
-    CloseFile( file );
+    Prj::CloseFile( file );
     int kkk = 1;
 }
 
@@ -478,7 +478,7 @@ void BlkFaceSolver::DumpBlkScript()
     bbElemHome.Init();
     BlkElem * blkHexa = bbElemHome.GetBlkElem( ONEFLOW::HEXA_8 );
     DumpBlkScript( file, blkHexa, ctrlpoints );
-    CloseFile( file );
+    Prj::CloseFile( file );
     int kkk = 1;
 }
 
@@ -539,7 +539,7 @@ void BlkFaceSolver::GenerateBlkMesh2D()
         Block2D * blk2d = this->blkList2d[ iBlk ];
         blk2d->DumpBlockMesh2D( file );
     }
-    CloseFile( file );
+    Prj::CloseFile( file );
 }
 
 void BlkFaceSolver::GenerateFaceMesh()
@@ -627,7 +627,7 @@ void BlkFaceSolver::DumpStandardGrid( Grids & strGridList )
         HXWrite( & file, grid->nodeMesh->zN );
     }
 
-    CloseFile( file );
+    Prj::CloseFile( file );
 
 }
 

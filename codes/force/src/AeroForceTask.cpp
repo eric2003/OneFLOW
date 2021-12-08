@@ -153,7 +153,7 @@ void AerodynamicForceTask::Dump()
 
     file << oss.str();
 
-    CloseFile( file );
+	Prj::CloseFile( file );
 }
 
 void AerodynamicForceTask::CalcForce()

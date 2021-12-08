@@ -98,7 +98,7 @@ void Sod::SodGrid()
     HXWrite( & file, yN );
     HXWrite( & file, zN );
 
-    CloseFile( file );
+    Prj::CloseFile( file );
 
     Prj::OpenPrjFile( file, "/grid/sod2d.inp", std::ios_base::out );
     int solver = 1;
@@ -113,7 +113,7 @@ void Sod::SodGrid()
     file << 1  << " " << ni  << " " << nj  << " " << nj  << " " << BC::SYMMETRY << std::endl;
     file << 1  << " " << 1  << " " << 1  << " " << nj  << " " << BC::OUTFLOW << std::endl;
     file << ni  << " " << ni  << " " << 1  << " " << nj  << " " << BC::OUTFLOW << std::endl;
-    CloseFile( file );
+    Prj::CloseFile( file );
 }
 
 void Sod::Theory()
@@ -286,7 +286,7 @@ void Sod::Theory()
     file << xs << " " << r2 << " " << u2 << " " << rmach2 << " " << p2 << std::endl;
     file << xs << " " << r1 << " " << u1 << " " << rmach1 << " " << p1 << std::endl;
     file << xr << " " << r1 << " " << u1 << " " << rmach1 << " " << p1 << std::endl;
-    CloseFile( file );
+    Prj::CloseFile( file );
 }
 
 void Sod::sp2p1( Real gam, Real p1, Real a1, Real p4, Real a4, Real & p2p1, int & iterr, Real tol )

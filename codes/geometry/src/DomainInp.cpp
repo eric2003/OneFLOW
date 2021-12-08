@@ -849,7 +849,7 @@ void DomainInp::Dump( MultiDomain * md, GridMediator * gridMediator, PointSearch
             int kkk = 1;
         }
     }
-    ONEFLOW::CloseFile( file );
+    Prj::CloseFile( file );
     int kkk = 1;
 }
 

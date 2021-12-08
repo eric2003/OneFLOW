@@ -49,7 +49,7 @@ void PIO::ParallelOpen( std::fstream & file, const std::string & fileName, const
 {
     if ( Parallel::pid != Parallel::GetFid() ) return;
 
-    ONEFLOW::OpenFile( file, fileName, openMode );
+    Prj::OpenFile( file, fileName, openMode );
 }
 
 void PIO::OpenPrjFile( std::fstream & file, const std::string & fileName, const std::ios_base::openmode & openMode )
@@ -73,7 +73,7 @@ void PIO::CloseFile( std::fstream & file )
 {
     if ( Parallel::pid != Parallel::GetFid() ) return;
 
-    ONEFLOW::CloseFile( file );
+    Prj::CloseFile( file );
 }
 
 

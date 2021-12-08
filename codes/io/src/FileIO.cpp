@@ -82,7 +82,7 @@ void FileIO::OpenFile( const std::string & fileName, const std::ios_base::openmo
 {
     this->fileName     = fileName;
     this->fileOpenMode = fileOpenMode;
-    ONEFLOW::OpenFile( this->file, fileName, fileOpenMode );
+    Prj::OpenFile( this->file, fileName, fileOpenMode );
 }
 
 void FileIO::OpenPrjFile( const std::string & fileName, const std::ios_base::openmode & fileOpenMode )
@@ -94,7 +94,7 @@ void FileIO::OpenPrjFile( const std::string & fileName, const std::ios_base::ope
 
 void FileIO::CloseFile()
 {
-    ONEFLOW::CloseFile( this->file );
+    Prj::CloseFile( this->file );
 }
 
 void FileIO::MarkCurrentFilePosition()

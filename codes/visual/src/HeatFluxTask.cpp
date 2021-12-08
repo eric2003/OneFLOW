@@ -141,7 +141,7 @@ void HeatFluxTask::VisualizeWallNodeValue()
         if ( basicWall->isValid ) iCount ++;
         basicWall->Visual( file );
     }
-    CloseFile( file );
+    Prj::CloseFile( file );
 }
 
 void CollectWallFaceNode()

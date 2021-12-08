@@ -119,7 +119,7 @@ void CalcGrid::Dump()
         grids[ iZone ]->WriteGrid( file );
     }
 
-    ONEFLOW::CloseFile( file );
+    Prj::CloseFile( file );
 }
 
 void CalcGrid::Post()
