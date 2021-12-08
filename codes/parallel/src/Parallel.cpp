@@ -32,7 +32,7 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-ostringstream MyStr;
+std::ostringstream MyStr;
 
 int Parallel::zoneMode = 0;
 int Parallel::mode = 0;

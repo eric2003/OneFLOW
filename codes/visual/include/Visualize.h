@@ -25,7 +25,7 @@ License
 #include "HXDefine.h"
 #include "HXArray.h"
 #include <sstream>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 

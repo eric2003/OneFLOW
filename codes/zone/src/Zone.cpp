@@ -40,7 +40,7 @@ License
 #include "Task.h"
 #include <iostream>
 #include <string>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 

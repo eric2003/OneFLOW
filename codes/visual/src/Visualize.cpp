@@ -35,7 +35,7 @@ Visualize::~Visualize()
 }
 
 int Plot::nWords = 5;
-ostringstream * Plot::oss = 0;
+std::ostringstream * Plot::oss = 0;
 
 Plot::Plot()
 {

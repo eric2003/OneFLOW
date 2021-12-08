@@ -30,7 +30,7 @@ License
 #include "DataBook.h"
 #include "InterFace.h"
 #include <iostream>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 
