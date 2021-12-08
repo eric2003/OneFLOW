@@ -25,7 +25,7 @@ License
 #include "HXDefine.h"
 #include "Point.h"
 #include <vector>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 

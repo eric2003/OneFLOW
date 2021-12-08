@@ -34,13 +34,13 @@ License
 #include <string>
 #include <vector>
 #include <map>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 
 bool IsArrayParameter( const std::string & lineOfName )
 {
-    const string::size_type npos = - 1;
+    const std::string::size_type npos = - 1;
 
     if ( lineOfName.find_first_of( "[" ) == npos )
     {
@@ -105,7 +105,7 @@ void AnalysisArrayParameter( FileIO & fileIO, int keyWordIndex )
 
     int arraySize = ONEFLOW::GetParameterArraySize( arraySizeName );
 
-    std::string * valueContainer = new string[ arraySize ];
+    std::string * valueContainer = new std::string[ arraySize ];
 
     for ( int i = 0; i < arraySize; ++ i )
     {
@@ -134,7 +134,7 @@ int AnalysisScalarParameter( FileIO & fileIO, int keyWordIndex )
     std::string name = fileIO.ReadNextWord( separator );
 
     int arraySize = 1;
-    std::string * value = new string[ arraySize ];
+    std::string * value = new std::string[ arraySize ];
 
     value[ 0 ] = fileIO.ReadNextWord( separator );
 
@@ -172,7 +172,7 @@ void ReadOneFLOWScriptFile( const std::string & fileName )
 
 void mytestjson();
 
-string GetJsonFileName( const std::string & fileName )
+std::string GetJsonFileName( const std::string & fileName )
 {
     std::string mainName, extensionName;
     ONEFLOW::GetFileNameExtension( fileName, mainName, extensionName, "." );

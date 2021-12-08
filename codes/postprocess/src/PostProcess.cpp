@@ -29,7 +29,7 @@ License
 #include <fstream>
 #include <vector>
 #include <algorithm>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 
@@ -564,7 +564,7 @@ void CurveData::VisualCreateList( PointEdgeClass * pec )
     VisualCreateList( pec->idlist, fileName );
 }
 
-void CurveData::VisualCreateList( std::vector<int> & newidlist, const string& fileName )
+void CurveData::VisualCreateList( std::vector<int> & newidlist, const std::string& fileName )
 {
     std::vector< Real > x, y, z;
     for ( int i = 0; i < newidlist.size(); ++ i )
@@ -581,7 +581,7 @@ void CurveData::VisualCreateList( std::vector<int> & newidlist, const string& fi
     this->Visual( fileName, x, y, z );
 }
 
-void CurveData::VisualCurveValue( std::vector<int> & newidlist, const string& fileName )
+void CurveData::VisualCurveValue( std::vector<int> & newidlist, const std::string& fileName )
 {
     std::vector< Real > x, y, z, cp, cf;
     for ( int i = 0; i < newidlist.size(); ++ i )

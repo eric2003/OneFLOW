@@ -26,7 +26,7 @@ License
 #include "DataBaseIO.h"
 #include <string>
 #include <vector>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 

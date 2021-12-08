@@ -21,7 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "OStream.h"
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 

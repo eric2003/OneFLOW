@@ -34,7 +34,7 @@ License
 #endif
 
 
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 

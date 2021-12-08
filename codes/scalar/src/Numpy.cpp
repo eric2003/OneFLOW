@@ -27,7 +27,7 @@ License
 #include <iostream>
 #include <fstream>
 #include <vector>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 
@@ -39,7 +39,7 @@ Numpy::~Numpy()
 {
 }
 
-string Numpy::AddFileName( const std::string & prefix, const std::string & fileName )
+std::string Numpy::AddFileName( const std::string & prefix, const std::string & fileName )
 {
     std::string fileNameNew = AddString(prefix, "/", fileName );
     return fileNameNew;

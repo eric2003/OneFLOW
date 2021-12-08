@@ -30,7 +30,7 @@ License
 #include "DataBase.h"
 #include "BcData.h"
 #include <iostream>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 

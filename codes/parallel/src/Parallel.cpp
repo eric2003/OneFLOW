@@ -28,7 +28,7 @@ License
 #include "Zone.h"
 #include "ZoneState.h"
 #include <iostream>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 

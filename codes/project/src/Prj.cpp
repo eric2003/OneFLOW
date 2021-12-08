@@ -68,7 +68,7 @@ void MakePrjDir( const std::string & dirName )
 std::string GetPrjDirName( const std::string & fileName )
 {
     size_t pos = fileName.find_last_of("\\/");
-    if ( string::npos == pos )
+    if ( std::string::npos == pos )
     {
         return "";
     }

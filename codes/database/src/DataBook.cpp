@@ -292,7 +292,7 @@ void DataBook::ReadFile( std::fstream & file )
 
     this->SecureAbsoluteSpace( nLength );
 
-    for ( streamsize iPage = 0; iPage < this->GetNPage(); ++ iPage )
+    for ( std::streamsize iPage = 0; iPage < this->GetNPage(); ++ iPage )
     {
         this->GetPage( iPage )->ReadFile( file );
     }

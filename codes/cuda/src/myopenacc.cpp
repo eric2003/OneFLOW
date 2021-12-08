@@ -28,7 +28,7 @@ void test_open_acc()
     {
         printf( "openacc a[%d] = %d\n", i, a[i] );
     }
-	cout << "Hello from myopenacc.cpp using std::cout\n";
+    std::cout << "Hello from myopenacc.cpp using std::cout\n";
 	
 }
 #endif

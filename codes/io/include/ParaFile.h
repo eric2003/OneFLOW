@@ -26,14 +26,14 @@ License
 #include "DataBook.h"
 #include <vector>
 #include <string>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 
 bool IsArrayParameter( const std::string & lineOfName );
 void ReadOneFLOWScriptFile( FileIO & fileIO );
 void ReadOneFLOWScriptFile( const std::string & fileName );
-string GetJsonFileName( const std::string & fileName );
+std::string GetJsonFileName( const std::string & fileName );
 void GetParaInfo( FileIO & fileIO, std::string & varName, std::vector< std::string > & varArray );
 void GetParaInfoArray( FileIO & fileIO, std::string & varName, std::vector< std::string > & varArray );
 void GetParaInfoScalar( FileIO & fileIO, std::string & varName, std::vector< std::string > & varArray );

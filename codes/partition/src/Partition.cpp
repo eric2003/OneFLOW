@@ -38,7 +38,7 @@ License
 #include "CalcGrid.h"
 #include "DataBase.h"
 #include <iostream>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 

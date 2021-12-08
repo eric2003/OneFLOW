@@ -28,7 +28,6 @@ License
 #include "HXSort.h"
 #include <vector>
 #include <set>
-using namespace std;
 
 BeginNameSpace( ONEFLOW )
 
@@ -117,9 +116,9 @@ public:
 public:
     void VisualCreateList();
     void VisualCreateList( PointEdgeClass * pec );
-    void VisualCreateList( std::vector<int> & newidlist, const string& fileName );
+    void VisualCreateList( std::vector<int> & newidlist, const std::string& fileName );
     void VisualCurveValue();
-    void VisualCurveValue( std::vector<int> & newidlist, const string& fileName );
+    void VisualCurveValue( std::vector<int> & newidlist, const std::string& fileName );
     void Visual( const std::string & fileName, std::vector< Real > & x, std::vector< Real > & y, std::vector< Real > & z );
     void VisualCurveValue( const std::string & fileName, std::vector< Real > & x, std::vector< Real > & y, std::vector< Real > & z, std::vector< Real > & cp, std::vector< Real > & cf );
     void Visual( const std::string & fileName );

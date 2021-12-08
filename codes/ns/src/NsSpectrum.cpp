@@ -26,7 +26,7 @@ License
 #include "HXMath.h"
 #include "NsIdx.h"
 #include <iostream>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 
