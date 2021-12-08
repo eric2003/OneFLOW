@@ -132,11 +132,11 @@ void CgnsTest::ReadDescriptor()
 
 void CgnsTest::WriteEmptyCgnsFile()
 {
-    //cout << " CgnsTest::WriteEmptyCgnsFile() " << "\n";
+    //std::cout << " CgnsTest::WriteEmptyCgnsFile() " << "\n";
     CgnsFile * cgnsFile = new CgnsFile( "empty.cgns", CG_MODE_WRITE );
-    //cout << " 111 " << "\n";
+    //std::cout << " 111 " << "\n";
     delete cgnsFile;
-    //cout << " 222 " << "\n";
+    //std::cout << " 222 " << "\n";
 }
 
 void CgnsTest::ReadEmptyCgnsFile()

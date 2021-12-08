@@ -130,16 +130,16 @@ void IFaceLink::MatchInterfaceTopology( Grid * grid )
         {
             if ( nIZone > 2 )
             {
-                //cout << " More than two faces coincide\n";
+                //std::cout << " More than two faces coincide\n";
             }
             else
             {
                 ++nPeoridic;
-                //cout << " Less than two faces coincide\n";
+                //std::cout << " Less than two faces coincide\n";
             }
-            //cout << " Current ZoneIndex  = " << grid->id << std::endl;
-            //cout << " nIZone = " << nIZone << std::endl;
-            //cout << " LocalInterface Index = " << iIFace << " nIFaces = " << nIFaces << std::endl;
+            //std::cout << " Current ZoneIndex  = " << grid->id << std::endl;
+            //std::cout << " nIZone = " << nIZone << std::endl;
+            //std::cout << " LocalInterface Index = " << iIFace << " nIFaces = " << nIFaces << std::endl;
         }
 
         for ( int iIZone = 0; iIZone < nIZone; ++ iIZone )

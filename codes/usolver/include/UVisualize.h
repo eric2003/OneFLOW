@@ -24,7 +24,7 @@ License
 #pragma once
 #include "Visualize.h"
 #include <sstream>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 

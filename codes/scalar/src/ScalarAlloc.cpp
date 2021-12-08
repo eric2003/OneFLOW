@@ -98,7 +98,7 @@ void ScalarFieldManager::AllocateInterfaceField()
     ScalarIFace * scalarIFace = grid->scalarIFace;
 
     int nIFaces = scalarIFace->GetNIFaces();
-    //cout << " nIFaces = " << nIFaces << "\n";
+    //std::cout << " nIFaces = " << nIFaces << "\n";
 
     if ( nIFaces == 0 ) return;
 
@@ -128,7 +128,7 @@ void ScalarFieldManager::UploadInterfaceField()
     ScalarIFace * scalarIFace = grid->scalarIFace;
 
     int nIFaces = scalarIFace->GetNIFaces();
-    //cout << " nIFaces = " << nIFaces << "\n";
+    //std::cout << " nIFaces = " << nIFaces << "\n";
 
     if ( nIFaces == 0 ) return;
 
@@ -144,7 +144,7 @@ void ScalarFieldManager::DownloadInterfaceField()
     ScalarIFace * scalarIFace = grid->scalarIFace;
 
     int nIFaces = scalarIFace->GetNIFaces();
-    //cout << " nIFaces = " << nIFaces << "\n";
+    //std::cout << " nIFaces = " << nIFaces << "\n";
 
     if ( nIFaces == 0 ) return;
 

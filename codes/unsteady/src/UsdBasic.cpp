@@ -24,7 +24,7 @@ License
 #include "Ctrl.h"
 #include "HXMath.h"
 #include <iostream>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 

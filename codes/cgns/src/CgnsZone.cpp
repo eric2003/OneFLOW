@@ -256,7 +256,7 @@ void CgnsZone::ReadCgnsZoneNameAndGeneralizedDimension()
 
 void CgnsZone::DumpCgnsZoneNameAndGeneralizedDimension()
 {
-    //cout << "   Cell Dimension = " << this->cgnsBase->celldim << " Physics Dimension = " << this->cgnsBase->phydim << "\n";
+    //std::cout << "   Cell Dimension = " << this->cgnsBase->celldim << " Physics Dimension = " << this->cgnsBase->phydim << "\n";
 
     //Determine the number of vertices and cellVolume elements in this zone
     cg_zone_write( cgnsBase->cgnsFile->fileId, cgnsBase->baseId, zoneName.c_str(), isize, cgnsZoneType, &this->zId );

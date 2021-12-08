@@ -172,7 +172,7 @@ void SegmentCtrl::SetPara( Real diff, Real & v_min, Real & v_max )
     //    v_max = cA1;
     //}
     //this->cA1 = half * ( v_min + v_max );
-    //cout << " cA1 = " << cA1 << " diff = " << diff << "\n";
+    //std::cout << " cA1 = " << cA1 << " diff = " << diff << "\n";
 
     if ( diff < 0.0 )
     {

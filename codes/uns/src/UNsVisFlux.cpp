@@ -42,7 +42,7 @@ License
 #include "Iteration.h"
 #include <iostream>
 #include <iomanip>
-using namespace std;
+
 
 
 BeginNameSpace( ONEFLOW )
@@ -60,7 +60,7 @@ UNsVisFlux::~UNsVisFlux()
 
 void UNsVisFlux::SetVisPointer()
 {
-    //cout << " nscom.ivischeme = " << nscom.ivischeme << "\n";
+    //std::cout << " nscom.ivischeme = " << nscom.ivischeme << "\n";
     if ( nscom.ivischeme == VIS_STD )
     {
         this->visPointer = & UNsVisFlux::StdMethod;

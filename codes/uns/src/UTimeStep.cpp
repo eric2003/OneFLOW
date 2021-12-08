@@ -38,7 +38,7 @@ License
 #include "FieldBase.h"
 #include "Iteration.h"
 #include <iostream>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 

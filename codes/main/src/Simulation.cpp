@@ -54,7 +54,7 @@ void Simulation::ProcessCmdLineArgs( int argc, char ** argv )
     for ( int i = 0; i < argc; ++ i )
     {   
         args[ i ] = argv[ i ];
-        //cout << "arguments[ " << i << " ] = " << args[ i ] << std::endl;
+        //std::cout << "arguments[ " << i << " ] = " << args[ i ] << std::endl;
         std::cout << "argv[" << i << "] = " << args[ i ] << std::endl;
     }
 

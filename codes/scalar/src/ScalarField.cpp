@@ -108,7 +108,7 @@ void ScalarField::SolveFlowField( FieldPara * para )
     this->para = para;
     for ( int n = 0; n < para->nt; ++ n )
     {
-        //cout << " iStep = " << n << " nStep = " << para->nt << "\n";
+        //std::cout << " iStep = " << n << " nStep = " << para->nt << "\n";
 
         this->SolveOneStep();
     }

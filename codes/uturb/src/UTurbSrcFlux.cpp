@@ -39,7 +39,7 @@ License
 #include "Boundary.h"
 #include "Stop.h"
 #include <iostream>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 
@@ -211,7 +211,7 @@ void UTurbSrcFlux::CalcVistMax()
             turbcom.maxid = cId;
         }
     }
-    //cout << "maxvist = " << turbcom.maxvist << " cell id = " << turbcom.maxid << std::endl;
+    //std::cout << "maxvist = " << turbcom.maxvist << " cell id = " << turbcom.maxid << std::endl;
 }
 
 void UTurbSrcFlux::CalcVist1Equ()

@@ -41,7 +41,7 @@ License
 #include "Ctrl.h"
 #include "NsIdx.h"
 #include <iostream>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 

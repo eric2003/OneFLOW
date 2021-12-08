@@ -42,7 +42,7 @@ License
 #include <algorithm>
 #include <iterator>
 #include <iomanip>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 
@@ -181,7 +181,7 @@ void UnsGrid::ReadBoundaryTopology( DataBook * databook )
     ONEFLOW::HXRead( databook, this->nBFaces );
     this->faceTopo->SetNBFaces( this->nBFaces );
 
-    //cout << " nBFaces = " << this->nBFaces << std::endl;
+    //std::cout << " nBFaces = " << this->nBFaces << std::endl;
 
     //Setting boundary conditions
     BcRecord * bcRecord = this->faceTopo->bcManager->bcRecord;

@@ -66,7 +66,7 @@ void NsCalcBc()
 
 void NsCalcBcDebug( const std::string & title )
 {
-	cout << title << "\n";
+	std::cout << title << "\n";
 	UNsBcSolver * uNsBcSolver = new UNsBcSolver();
 	uNsBcSolver->Init();
 	uNsBcSolver->CalcBc();

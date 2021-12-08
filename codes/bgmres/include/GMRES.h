@@ -338,12 +338,12 @@ int GMRES
 				}
 			rho = sqrt(rho);
 
-			//cout << "iteration:" << iteration << "residual:" << rho << std::endl;
+			//std::cout << "iteration:" << iteration << "residual:" << rho << std::endl;
 			/*ofstream file2("residual.txt", std::ios::app);
 			file2 << "residual:" << rho << std::endl;
 			file2.close();*/
 
-			//cout << tolerance * normRHS << std::endl;
+			//std::cout << tolerance * normRHS << std::endl;
 			if (rho < tolerance * normRHS)   //Is this method effective in bgmres
 			{
 				// We are close enough! Update the approximation.
@@ -370,7 +370,7 @@ int GMRES
 		(*residual) = precond->solve2((*linearization) * (*solution) - (*rhs));      //The third precond
 		Rank.residual = residual->norm();
 
-		//cout << "totalRestarts:" << totalRestarts << std::endl;
+		//std::cout << "totalRestarts:" << totalRestarts << std::endl;
 	} // while(numberRestarts,rho)
 
 

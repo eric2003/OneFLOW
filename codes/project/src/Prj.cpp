@@ -60,7 +60,7 @@ void MakePrjDir( const std::string & dirName )
     ONEFLOW::StrIO << PrjStatus::prjBaseDir << dirName;
 
     std::string prjDirName = ONEFLOW::StrIO.str();
-    //cout << " prjDirName = " << prjDirName << "\n";
+    //std::cout << " prjDirName = " << prjDirName << "\n";
 
     MakeDir( prjDirName );
 }

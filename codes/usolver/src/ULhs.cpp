@@ -30,7 +30,7 @@ License
 #include "FieldWrap.h"
 #include "SolverInfo.h"
 #include <iostream>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 

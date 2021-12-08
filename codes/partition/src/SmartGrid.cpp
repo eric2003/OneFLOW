@@ -252,7 +252,7 @@ void TopoSort::CalcOrderMap( std::vector<int > &orderMap )
 
 void TopoSort::ReOrder( std::vector< int > & varList, std::vector< int > & orderMap )
 {
-	vector< int > dataSwap = varList;
+	std::vector< int > dataSwap = varList;
 	size_t nElements = varList.size();
 
 	for ( size_t i = 0; i < nElements; ++ i )
@@ -284,7 +284,7 @@ void TopoSort::TopoPostprocess()
 void TopoSort::ScanBcFace()
 {
     int nFaces = this->fTypes.size();
-	cout << " nFaces = " << nFaces << "\n";
+    std::cout << " nFaces = " << nFaces << "\n";
 
 	int nTraditionalBc = 0;
 	for ( int iFace = 0; iFace < nFaces; ++ iFace )
@@ -295,7 +295,7 @@ void TopoSort::ScanBcFace()
 			++ nTraditionalBc;
 		}
 	}
-	cout << " nTraditionalBc = " << nTraditionalBc << "\n";
+    std::cout << " nTraditionalBc = " << nTraditionalBc << "\n";
 	this->bcTypes.resize( nTraditionalBc );
 }
 
@@ -401,7 +401,7 @@ void TopoAction::AddElement( int p1, int p2, int eType )
     elem.push_back( p2 );
 
     int e_index = elementIdTool.AddIds( elem, eType );
-    //cout << " e_index = " << e_index << "\n";
+    //std::cout << " e_index = " << e_index << "\n";
     topo_sort->AddElementFaces( elem, eType, e_index );
 }
 

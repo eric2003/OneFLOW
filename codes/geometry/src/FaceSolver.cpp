@@ -145,7 +145,7 @@ void FaceSolver::ScanBcFace( IntSet& bcVertex, int bcType, int bcNameId )
 {
     int nBFaces = 0;
 
-    //cout << " this->faceTopo = " << this->faceTopo << "\n";
+    //std::cout << " this->faceTopo = " << this->faceTopo << "\n";
     int nFaces = this->faceTopo->lCells.size();
 
     std::cout << " nFaces = " << nFaces << "\n";
@@ -166,7 +166,7 @@ void FaceSolver::ScanBcFace( IntSet& bcVertex, int bcType, int bcNameId )
     {
         if ( iFace % 200000 == 0 ) 
         {
-            //cout << " iFace = " << iFace << " numberOfTotalFaces = " << nFaces << std::endl;
+            //std::cout << " iFace = " << iFace << " numberOfTotalFaces = " << nFaces << std::endl;
         }
         int originalBcType = ( * this->faceBcType )[ iFace ];
         int rCell     = ( this->faceTopo->rCells )[ iFace ];
@@ -184,7 +184,7 @@ void FaceSolver::ScanBcFace( IntSet& bcVertex, int bcType, int bcNameId )
         }
     }
 
-    //cout << " nBFaces = " << nBFaces << std::endl;
+    //std::cout << " nBFaces = " << nBFaces << std::endl;
     int kkk = 1;
 }
 
@@ -210,7 +210,7 @@ void FaceSolver::ScanBcFaceDetail( IntSet& bcVertex, int bcType, int bcNameId )
     {
         if ( iFace % 200000 == 0 ) 
         {
-            //cout << " iFace = " << iFace << " numberOfTotalFaces = " << nFaces << std::endl;
+            //std::cout << " iFace = " << iFace << " numberOfTotalFaces = " << nFaces << std::endl;
         }
         int originalBcType = ( * this->faceBcType )[ iFace ];
 

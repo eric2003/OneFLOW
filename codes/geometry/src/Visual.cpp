@@ -25,7 +25,7 @@ License
 #include "CellMesh.h"
 #include "NodeMesh.h"
 #include "FaceTopo.h"
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 

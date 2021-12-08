@@ -50,8 +50,8 @@ void demo_write_array()
     root[2] = "a json note";   
     //std::string json_file = writer.write(root);
     //string json_file = writer.write(root, &std::cout);
-    //cout << "demo write json ==============\n";
-    //cout << json_file << std::endl;
+    //std::cout << "demo write json ==============\n";
+    //std::cout << json_file << std::endl;
 }
 
 void test_demo_write_array()

@@ -52,7 +52,7 @@ void MetisSplit::ManualPartition( ScalarGrid * ggrid, int nPart, MetisIntList & 
 	int nBFaces = ggrid->GetNBFaces();
 	int nInnerFaces = nFaces - nBFaces;
 
-	vector< int > tmp;
+	std::vector< int > tmp;
 	for ( int iCell = 0; iCell < nCells; iCell += 2 )
 	{
 		tmp.push_back( iCell );
@@ -124,21 +124,21 @@ void MetisSplit::ScalarPartitionByMetis( idx_t nCells, MetisIntList & xadj, Meti
 	idx_t nZone = nPart;
 
 	METIS_SetDefaultOptions( options );
-	cout << "Now begining partition graph!\n";
+	std::cout << "Now begining partition graph!\n";
 	if ( nZone > 8 )
 	{
-		cout << "Using K-way Partitioning!\n";
+		std::cout << "Using K-way Partitioning!\n";
 		METIS_PartGraphKway( & nCells, & ncon, & xadj[ 0 ], & adjncy[ 0 ], vwgt, vsize, adjwgt, 
 			& nZone, tpwgts, ubvec, options, & objval, & cellzone[ 0 ] );
 	}
 	else
 	{
-		cout << "Using Recursive Partitioning!\n";
+		std::cout << "Using Recursive Partitioning!\n";
 		METIS_PartGraphRecursive( & nCells, & ncon, & xadj[ 0 ], & adjncy[ 0 ], vwgt, vsize, adjwgt, 
 			& nZone, tpwgts, ubvec, options, & objval, & cellzone[ 0 ] );
 	}
-	cout << "The interface number: " << objval << std::endl; 
-	cout << "Partition is finished!\n";
+	std::cout << "The interface number: " << objval << std::endl; 
+	std::cout << "Partition is finished!\n";
 }
 
 GridPartition::GridPartition()
@@ -192,8 +192,8 @@ void GridPartition::ReconstructGridFaceTopo()
 	int nCells = ggrid->GetNCells();
 	int nBFaces = ggrid->GetNBFaces();
 
-	vector<int> zoneCount( nZones, 0 );
-	vector<int> localCells; //global cell id -> local cell id
+	std::vector<int> zoneCount( nZones, 0 );
+	std::vector<int> localCells; //global cell id -> local cell id
 	localCells.resize( nCells );
 
 	for ( int iCell = 0; iCell < nCells; ++ iCell )
@@ -289,7 +289,7 @@ void GridPartition::ReconstructInterfaceTopo()
 			//iFaceIJ.target_ifaces是这些interface在jZone里面的局部id
 			//这些id由jZone计算发送给iZone的里iNei个信息存储
 			//实际上这个信息iZone用不到，是jZone接收时使用的。
-			cout << " iZone = " << iZone << " iNei = " << iNei << " jZone = " << jZone << "\n";
+			std::cout << " iZone = " << iZone << " iNei = " << iNei << " jZone = " << jZone << "\n";
 			( * this->grids )[ jZone ]->scalarIFace->CalcLocalInterfaceId( iZone, iFaceIJ.iglobalfaces, iFaceIJ.target_ifaces );
 		}
 	}

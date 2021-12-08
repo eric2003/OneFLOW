@@ -56,7 +56,7 @@ void Post::Run()
     ioFile.OpenPrjFile( fileName, std::ios_base::in );
     ioFile.SetDefaultSeparator( separator );
     int count = 0;
-    //vector< Real > xList, yList, zList;
+    //std::vector< Real > xList, yList, zList;
     MakeCurveClass makeCurve;
     while ( ! ioFile.ReachTheEndOfFile() )
     {
@@ -77,7 +77,7 @@ void Post::Run()
         Real z = ioFile.ReadNextDigit< Real >();
         Real cp = ioFile.ReadNextDigit< Real >();
         Real cf = ioFile.ReadNextDigit< Real >();
-        //cout << x << " " << y << " " << z << "\n";
+        //std::cout << x << " " << y << " " << z << "\n";
         //makeCurve.AddPoint( x, y, z );
         makeCurve.AddPointValue( x, y, z, cp, cf );
     }

@@ -394,8 +394,8 @@ void SDomain::SetBlkBcMesh( Block3D * blk3d )
             ii = ci.i + cj.i - c1.i - 1;
             jj = ci.j + cj.j - c1.j - 1;
             kk = ci.k + cj.k - c1.k - 1;
-            //cout << " i,j = " << i << " " << j << " ni, nj = " << ni << " " << nj << "\n";
-            //cout << " ii,jj,kk = " << ii << " " << jj << " " << kk << "\n";
+            //std::cout << " i,j = " << i << " " << j << " ni, nj = " << ni << " " << nj << "\n";
+            //std::cout << " ii,jj,kk = " << ii << " " << jj << " " << kk << "\n";
             Real xm = x2d[ i0 ][ j0 ];
             Real ym = y2d[ i0 ][ j0 ];
             Real zm = z2d[ i0 ][ j0 ];
@@ -473,8 +473,8 @@ void SDomain::SetBlkBcMesh( Block2D * blk2d )
             ii = ci.i + cj.i - c1.i - 1;
             jj = ci.j + cj.j - c1.j - 1;
             kk = ci.k + cj.k - c1.k - 1;
-            //cout << " i,j = " << i << " " << j << " ni, nj = " << ni << " " << nj << "\n";
-            //cout << " ii,jj,kk = " << ii << " " << jj << " " << kk << "\n";
+            //std::cout << " i,j = " << i << " " << j << " ni, nj = " << ni << " " << nj << "\n";
+            //std::cout << " ii,jj,kk = " << ii << " " << jj << " " << kk << "\n";
             Real xm = x2d[ i0 ][ j0 ];
             Real ym = y2d[ i0 ][ j0 ];
             Real zm = z2d[ i0 ][ j0 ];

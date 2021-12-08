@@ -119,7 +119,7 @@ void ScalarIFace::CalcLocalInterfaceId( int iZone, std::vector<int> & globalface
     }
     //The neighbor of iZone iNei is jzone, and the jNei neighbor of jZone is iZone
     int jNei = FindINeibor( iZone );
-    //cout << " zoneid = " << this->zoneid << " iZone() = " << iZone << " jNei = " << jNei << "\n";
+    //std::cout << " zoneid = " << this->zoneid << " iZone() = " << iZone << " jNei = " << jNei << "\n";
     ScalarIFaceIJ & iFaceIJ = this->data[ jNei ];
     iFaceIJ.recv_ifaces = localfaces;
 }

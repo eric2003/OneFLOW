@@ -67,7 +67,7 @@ void Test::Run()
             Real x = i * dx;
             Real f = VencatC( x, c );
             Real g = f * x;
-            //cout << x << " " << f << std::endl;
+            //std::cout << x << " " << f << std::endl;
             file << x << " " << f << " " << g << std::endl;
         }
     }
