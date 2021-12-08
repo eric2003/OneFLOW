@@ -36,9 +36,19 @@ public:
     static void SetPrjBaseDir( const std::string & prjName );
 };
 
+class Prj
+{
+public:
+    Prj();
+    ~Prj();
+public:
+    static void OpenPrjFile( std::fstream & file, const std::string & fileName, const std::ios_base::openmode & openMode );
+
+};
+
 void MakePrjDir( const std::string & dirName );
 
-void OpenPrjFile( std::fstream & file, const std::string & fileName, const std::ios_base::openmode & openMode );
+//void OpenPrjFile( std::fstream & file, const std::string & fileName, const std::ios_base::openmode & openMode );
 
 std::string GetPrjFileName( const std::string & fileName );
 std::string GetPrjDirName( const std::string & fileName );

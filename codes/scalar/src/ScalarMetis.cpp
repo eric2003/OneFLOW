@@ -163,7 +163,7 @@ void ScalarMetisAddZoneGrid( std::vector< ScalarGrid * > & part_grids )
 void ScalarReadGrid( const std::string & gridFileName, std::vector< ScalarGrid * > & grids )
 {
     std::fstream file;
-    OpenPrjFile( file, gridFileName, std::ios_base::in|std::ios_base::binary );
+    Prj::OpenPrjFile( file, gridFileName, std::ios_base::in|std::ios_base::binary );
 
     int nZone = -1;
 
@@ -206,7 +206,7 @@ void ScalarDumpGrid( const std::string & gridFileName, ScalarGrid * grid )
 void ScalarDumpGrid( const std::string & gridFileName, std::vector< ScalarGrid * > & grids )
 {
     std::fstream file;
-    OpenPrjFile( file, gridFileName, std::ios_base::out|std::ios_base::binary|std::ios_base::trunc );
+    Prj::OpenPrjFile( file, gridFileName, std::ios_base::out|std::ios_base::binary|std::ios_base::trunc );
     int nZone = static_cast<int>( grids.size() );
 
     ZoneState::pid.resize( nZone );

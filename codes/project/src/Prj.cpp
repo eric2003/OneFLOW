@@ -89,18 +89,6 @@ void CreateDirIfNeeded( std::string & prjFileName )
     }
 }
 
-void OpenPrjFile( std::fstream & file, const std::string & fileName, const std::ios_base::openmode & openMode )
-{
-    ONEFLOW::StrIO.ClearAll();
-    ONEFLOW::StrIO << PrjStatus::prjBaseDir << fileName;
-
-    std::string prjFileName = ONEFLOW::StrIO.str();
-
-    CreateDirIfNeeded( prjFileName );
-
-    ONEFLOW::OpenFile( file, prjFileName, openMode );
-}
-
 std::string GetPrjFileName( const std::string & fileName )
 {
     ONEFLOW::StrIO.ClearAll();
@@ -128,6 +116,28 @@ void CloseFile( std::fstream & file )
 {
     file.close();
     file.clear();
+}
+
+Prj::Prj()
+{
+    ;
+}
+
+Prj::~Prj()
+{
+    ;
+}
+
+void Prj::OpenPrjFile( std::fstream & file, const std::string & fileName, const std::ios_base::openmode & openMode )
+{
+    ONEFLOW::StrIO.ClearAll();
+    ONEFLOW::StrIO << PrjStatus::prjBaseDir << fileName;
+
+    std::string prjFileName = ONEFLOW::StrIO.str();
+
+    CreateDirIfNeeded( prjFileName );
+
+    ONEFLOW::OpenFile( file, prjFileName, openMode );
 }
 
 EndNameSpace

@@ -51,7 +51,7 @@ void BcData::ReadRegion()
 {
     std::fstream file;
     std::string fileName = "grid/bcRegionMap.txt";
-    OpenPrjFile( file, fileName, std::ios_base::in );
+    Prj::OpenPrjFile( file, fileName, std::ios_base::in );
 
     file >> nRegion;
 

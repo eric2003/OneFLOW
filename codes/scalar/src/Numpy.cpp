@@ -48,7 +48,7 @@ std::string Numpy::AddFileName( const std::string & prefix, const std::string & 
 void Numpy::OpenPrjFile( std::fstream & file, const std::string & fileName, const std::ios_base::openmode & openMode )
 {
     std::string fileNameNew = Numpy::AddFileName( "results", fileName );
-    ONEFLOW::OpenPrjFile( file, fileNameNew, std::ios_base::out );
+    Prj::OpenPrjFile( file, fileNameNew, std::ios_base::out );
 }
 
 void Numpy::Ones( std::vector< double > & var )

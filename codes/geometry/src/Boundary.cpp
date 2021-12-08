@@ -225,7 +225,7 @@ int CommonNameMap::FindNameId( const std::string & name )
 void DumpRegion( const std::string & fileName, CommonNameMap & nameMap )
 {
     std::fstream file;
-    ONEFLOW::OpenPrjFile( file, fileName, std::ios_base::out );
+    Prj::OpenPrjFile( file, fileName, std::ios_base::out );
 
     std::set< HXSort< std::string > > & stringMap = nameMap.GetNameMap();
 

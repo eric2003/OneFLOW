@@ -93,7 +93,7 @@ void Plot3D::ReadCoorBinary( GridMediator * gridMediator )
     std::string separator  = " =\r\n\t#$,;";
 
     std::fstream file;
-    ONEFLOW::OpenPrjFile( file, fileName, std::ios_base::in|std::ios_base::binary );
+    Prj::OpenPrjFile( file, fileName, std::ios_base::in|std::ios_base::binary );
 
     HXRead( & file, gridMediator->numberOfZones );
     gridMediator->gridVector.resize( gridMediator->numberOfZones );
@@ -165,7 +165,7 @@ void Plot3D::DumpCoorBinary( GridMediator * gridMediator )
     std::string & fileName = gridMediator->gridFile;
 
     std::fstream file;
-    ONEFLOW::OpenPrjFile( file, fileName, std::ios_base::out|std::ios_base::binary );
+    Prj::OpenPrjFile( file, fileName, std::ios_base::out|std::ios_base::binary );
 
     int numberOfZones = gridMediator->numberOfZones;
     HXWrite( & file, numberOfZones );
@@ -536,7 +536,7 @@ void Plot3D::DumpBc( GridMediator * gridMediator )
     std::string & bcName = gridMediator->bcFile;
 
     std::fstream file;
-    OpenPrjFile( file, bcName, std::ios_base::out );
+    Prj::OpenPrjFile( file, bcName, std::ios_base::out );
 
     int flowSolverIndex = 1;
     file << flowSolverIndex << "\n";

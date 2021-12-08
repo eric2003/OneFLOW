@@ -97,7 +97,7 @@ void CalcGrid::Dump()
 {
     //std::cout << __FUNCTION__ << std::endl;
     std::fstream file;
-    OpenPrjFile( file, gridFileName, std::ios_base::out|std::ios_base::binary|std::ios_base::trunc );
+    Prj::OpenPrjFile( file, gridFileName, std::ios_base::out|std::ios_base::binary|std::ios_base::trunc );
     int nZone = static_cast<int>(grids.size());
 
     ZoneState::pid.resize( nZone );

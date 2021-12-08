@@ -218,7 +218,7 @@ void Cylinder::DumpGrid( const std::string & fileName, DomainData * domain )
     }
 
     std::fstream file;
-    OpenPrjFile( file, fileName, std::ios_base::out | std::ios_base::binary );
+    Prj::OpenPrjFile( file, fileName, std::ios_base::out | std::ios_base::binary );
     int nZone = 1;
     int nk = 1;
     HXWrite( & file, nZone );
@@ -236,7 +236,7 @@ void Cylinder::DumpGrid( const std::string & fileName, DomainData * domain )
 void Cylinder::DumpBcFile( const std::string & fileName, DomainData * domain, IntField & bcList )
 {
     std::fstream file;
-    OpenPrjFile( file, fileName, std::ios_base::out );
+    Prj::OpenPrjFile( file, fileName, std::ios_base::out );
     int solver = 1;
     std::string zName = "A";
     int nBc = 4;
@@ -261,7 +261,7 @@ void Cylinder::ToTecplot( const std::string & fileName, DomainData * domain )
     int nk = 1;
 
     std::fstream file;
-    OpenPrjFile( file, fileName, std::ios_base::out );
+    Prj::OpenPrjFile( file, fileName, std::ios_base::out );
     file << " VARIABLES = \"X\" \"Y\" \"Z\"" << "\n";
     file << "ZONE DATAPACKING = BLOCK, I = " << ni << ", J = " << nj << ", K = " << nk << "\n";
 

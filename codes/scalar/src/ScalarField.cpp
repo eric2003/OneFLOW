@@ -86,7 +86,7 @@ void ScalarField::ToTecplot( RealList & varlist, std::string const & fileName )
     int nCells = grid->GetNCells();
 
     std::fstream file;
-    OpenPrjFile( file, fileName, std::ios_base::out );
+    Prj::OpenPrjFile( file, fileName, std::ios_base::out );
 
     int nSize = nCells;
     file << "TITLE = " << "\"OneFLOW X-Y Plot\"" << "\n";

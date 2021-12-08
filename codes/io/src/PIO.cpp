@@ -56,7 +56,7 @@ void PIO::OpenPrjFile( std::fstream & file, const std::string & fileName, const 
 {
     if ( Parallel::pid != Parallel::GetFid() ) return;
 
-    ONEFLOW::OpenPrjFile( file, fileName, openMode );
+    Prj::OpenPrjFile( file, fileName, openMode );
 }
 
 void PIO::OpenPrjFile()

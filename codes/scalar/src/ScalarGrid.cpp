@@ -1145,8 +1145,8 @@ void ScalarGrid::DumpCalcGrid()
 {
 	std::cout << "Dumping unstructured grid data files......\n";
 	std::fstream file;
-std::string fileName = "scalar.ofl";
-	OpenPrjFile( file, fileName, std::ios_base::out | std::ios_base::binary );
+	std::string fileName = "scalar.ofl";
+	Prj::OpenPrjFile( file, fileName, std::ios_base::out | std::ios_base::binary );
 	DataBook * databook = new DataBook();
 	this->WriteGrid( databook );
 	databook->WriteFile( file );
@@ -1199,7 +1199,7 @@ void ScalarGrid::ReadCalcGrid()
 {
 	std::fstream file;
 	std::string fileName = "scalar.ofl";
-	OpenPrjFile( file, fileName, std::ios_base::in | std::ios_base::binary );
+	Prj::OpenPrjFile( file, fileName, std::ios_base::in | std::ios_base::binary );
 	DataBook * databook = new DataBook();
 	databook->ReadFile( file );
 	this->ReadGrid( databook );

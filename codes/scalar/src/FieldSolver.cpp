@@ -751,7 +751,7 @@ void FieldSolver::Theory( ScalarGrid * grid, Real time, RealField & theory )
 void FieldSolver::ToTecplot( RealField & xList, RealField & varlist, std::string const & fileName )
 {
     std::fstream file;
-    OpenPrjFile( file, fileName, std::ios_base::out );
+    Prj::OpenPrjFile( file, fileName, std::ios_base::out );
 
     int nSize = xList.size();
     file << "TITLE = " << "\"OneFLOW X-Y Plot\"" << "\n";

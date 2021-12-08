@@ -131,7 +131,7 @@ void HeatFluxTask::CalcNodeValue()
 void HeatFluxTask::VisualizeWallNodeValue()
 {
     std::fstream file;
-    ONEFLOW::OpenPrjFile( file, ctrl.heatfluxFile, std::ios_base::out );
+    Prj::OpenPrjFile( file, ctrl.heatfluxFile, std::ios_base::out );
 
     int numberOfSubData = wallManager->patch.size();
     int iCount = 0;
