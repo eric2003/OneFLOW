@@ -29,31 +29,7 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-std::string PrjStatus::prjBaseDir = "";
-
-PrjStatus::PrjStatus()
-{
-    ;
-}
-
-PrjStatus::~PrjStatus()
-{
-    ;
-}
-
-void PrjStatus::SetPrjBaseDir( const std::string & prjName )
-{
-    std::string current_dir_now = RemoveEndSlash( SimuCtrl::current_dir );
-    std::string prj_name_now = RemoveFirstSlash( prjName );
-    ONEFLOW::StrIO << current_dir_now << "/" << prj_name_now;
-    if ( ! EndWithSlash( prj_name_now ) )
-    {
-        ONEFLOW::StrIO << "/";
-    }
-    PrjStatus::prjBaseDir = ONEFLOW::StrIO.str();
-    std::cout << " PrjStatus::prjBaseDir = " << PrjStatus::prjBaseDir << "\n";
-}
-
+std::string Prj::prjBaseDir = "";
 Prj::Prj()
 {
     ;
@@ -64,10 +40,23 @@ Prj::~Prj()
     ;
 }
 
+void Prj::SetPrjBaseDir( const std::string & prjName )
+{
+    std::string current_dir_now = RemoveEndSlash( SimuCtrl::current_dir );
+    std::string prj_name_now = RemoveFirstSlash( prjName );
+    ONEFLOW::StrIO << current_dir_now << "/" << prj_name_now;
+    if ( ! EndWithSlash( prj_name_now ) )
+    {
+        ONEFLOW::StrIO << "/";
+    }
+    Prj::prjBaseDir = ONEFLOW::StrIO.str();
+    std::cout << " Prj::prjBaseDir = " << Prj::prjBaseDir << "\n";
+}
+
 void Prj::OpenPrjFile( std::fstream & file, const std::string & fileName, const std::ios_base::openmode & openMode )
 {
     ONEFLOW::StrIO.ClearAll();
-    ONEFLOW::StrIO << PrjStatus::prjBaseDir << fileName;
+    ONEFLOW::StrIO << Prj::prjBaseDir << fileName;
 
     std::string prjFileName = ONEFLOW::StrIO.str();
 
@@ -95,7 +84,7 @@ void Prj::CloseFile( std::fstream & file )
 void Prj::MakePrjDir( const std::string & dirName )
 {
     ONEFLOW::StrIO.ClearAll();
-    ONEFLOW::StrIO << PrjStatus::prjBaseDir << dirName;
+    ONEFLOW::StrIO << Prj::prjBaseDir << dirName;
 
     std::string prjDirName = ONEFLOW::StrIO.str();
     //std::cout << " prjDirName = " << prjDirName << "\n";
@@ -133,7 +122,7 @@ std::string Prj::GetPrjFileName( const std::string & fileName )
 
     std::string fileNameNew = RemoveFirstSlash( fileName );
 
-    ONEFLOW::StrIO << PrjStatus::prjBaseDir << fileNameNew;
+    ONEFLOW::StrIO << Prj::prjBaseDir << fileNameNew;
 
     std::string prjFileName = ONEFLOW::StrIO.str();
 

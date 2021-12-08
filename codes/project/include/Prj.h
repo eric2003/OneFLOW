@@ -26,21 +26,14 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-class PrjStatus
-{
-public:
-    PrjStatus();
-    ~PrjStatus();
-public:
-    static std::string prjBaseDir;
-    static void SetPrjBaseDir( const std::string & prjName );
-};
-
 class Prj
 {
 public:
     Prj();
     ~Prj();
+public:
+    static std::string prjBaseDir;
+    static void SetPrjBaseDir( const std::string & prjName );
 public:
     static void OpenPrjFile( std::fstream & file, const std::string & fileName, const std::ios_base::openmode & openMode );
     static void OpenFile( std::fstream & file, const std::string & fileName, const std::ios_base::openmode & openMode );

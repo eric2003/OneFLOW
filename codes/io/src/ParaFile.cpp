@@ -301,7 +301,7 @@ void mytestjson()
 
 void ReadControlInfo()
 {
-    HXBcastString( PrjStatus::prjBaseDir, Parallel::serverid );
+    HXBcastString( Prj::prjBaseDir, Parallel::serverid );
 
     if ( Parallel::IsServer() )
     {
@@ -346,7 +346,7 @@ void ReadScriptFileNameList( std::vector< std::string > & scriptFileNameList )
         if ( ! flag ) break;
         std::string scriptFileName = ioFile.ReadNextWord();
         ONEFLOW::StrIO.ClearAll();
-        ONEFLOW::StrIO << PrjStatus::prjBaseDir << "script/" << scriptFileName;
+        ONEFLOW::StrIO << Prj::prjBaseDir << "script/" << scriptFileName;
         std::string fullScriptFileName = ONEFLOW::StrIO.str();
         scriptFileNameList.push_back( fullScriptFileName );
     }
