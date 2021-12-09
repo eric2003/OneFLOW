@@ -33,7 +33,14 @@ public:
     Prj();
     ~Prj();
 public:
+    static bool hx_debug;
+    static bool run_from_ide;
+    static std::string system_root;
+    static std::string current_dir;
+    static std::string execute_dir;
     static std::string prjBaseDir;
+public:
+    static void Init();
     static void SetPrjBaseDir( const std::string & prjName );
     static void ProcessCmdLineArgs( std::vector<std::string> &args );
 public:

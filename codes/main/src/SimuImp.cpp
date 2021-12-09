@@ -40,17 +40,11 @@ BeginNameSpace( ONEFLOW )
 SimuImp::SimuImp( std::vector<std::string> &args )
 {
     this->args = args;
-    this->ProcessCmdLineArgs( args );
+    Prj::ProcessCmdLineArgs( args );
 }
 
 SimuImp::~SimuImp()
 {
-}
-
-void SimuImp::ProcessCmdLineArgs( std::vector<std::string> &args )
-{
-    this->args = args;
-    Prj::ProcessCmdLineArgs( args );
 }
 
 void SimuImp::Run()

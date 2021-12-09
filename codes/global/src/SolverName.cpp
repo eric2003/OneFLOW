@@ -20,7 +20,7 @@ License
 
 \*---------------------------------------------------------------------------*/
 #include "SolverName.h"
-#include "SimuCtrl.h"
+#include "Prj.h"
 #include "OStream.h"
 #include "FileIO.h"
 #include "StrUtil.h"
@@ -35,7 +35,7 @@ void GetSolverFileNames( const std::string & solverName, StringField & fileNameL
 
     OStream ostr;
     ostr.ClearAll();
-    ostr << SimuCtrl::system_root << solverName << "/function/";
+    ostr << Prj::system_root << solverName << "/function/";
     std::string baseDir = ostr.str();
     ostr << "fileList.txt";
     std::string keyFileName = ostr.str();

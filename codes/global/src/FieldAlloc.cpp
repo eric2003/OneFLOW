@@ -20,7 +20,7 @@ License
 
 \*---------------------------------------------------------------------------*/
 #include "FieldAlloc.h"
-#include "SimuCtrl.h"
+#include "Prj.h"
 #include "FieldImp.h"
 #include "UsdPara.h"
 #include "SolverInfo.h"
@@ -55,7 +55,7 @@ void FieldAlloc::AllocateAllFields( int sTid, const std::string & basicString )
 void FieldAlloc::InitField( int sTid, const std::string & basicString )
 {
     ONEFLOW::StrIO.ClearAll();
-    ONEFLOW::StrIO << SimuCtrl::system_root << basicString << "/alloc/" << "init.txt";
+    ONEFLOW::StrIO << Prj::system_root << basicString << "/alloc/" << "init.txt";
     std::string fileName = ONEFLOW::StrIO.str();
 
     BoolIO boolIO;
@@ -143,7 +143,7 @@ void FieldAlloc::CalcInnerFieldFileName( const std::string & basicString, String
     basicNameList.push_back( "bc"       );
 
     ONEFLOW::StrIO.ClearAll();
-    ONEFLOW::StrIO << SimuCtrl::system_root << basicString << "/alloc/";
+    ONEFLOW::StrIO << Prj::system_root << basicString << "/alloc/";
     std::string rootString = ONEFLOW::StrIO.str();
 
     for ( int i = 0; i < basicNameList.size(); ++ i )
@@ -166,7 +166,7 @@ void FieldAlloc::CalcInterfaceFileName( const std::string & basicString, StringF
     basicNameList.push_back( "interOverset" );
 
     ONEFLOW::StrIO.ClearAll();
-    ONEFLOW::StrIO << SimuCtrl::system_root << basicString << "/alloc/";
+    ONEFLOW::StrIO << Prj::system_root << basicString << "/alloc/";
     std::string rootString = ONEFLOW::StrIO.str();
 
     for ( int i = 0; i < basicNameList.size(); ++ i )

@@ -38,7 +38,6 @@ public:
     void MainProcess();
     void PostProcess();
 protected:
-    void ProcessCmdLineArgs( std::vector<std::string> & args );
     void InitSimu();
     void RunSimu();
 public:
