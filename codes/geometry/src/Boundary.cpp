@@ -23,7 +23,7 @@ License
 #include "Boundary.h"
 #include "HXCgns.h"
 #include "Dimension.h"
-#include "FileUtil.h"
+
 #include "Prj.h"
 #include "BcRecord.h"
 

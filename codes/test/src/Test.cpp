@@ -21,7 +21,7 @@ along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 \*---------------------------------------------------------------------------*/
 #include "Test.h"
 #include "FileIO.h"
-#include "FileUtil.h"
+
 #include "Prj.h"
 #include <iostream>
 #include <fstream>

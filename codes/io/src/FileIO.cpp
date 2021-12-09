@@ -21,7 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "FileIO.h"
-#include "FileUtil.h"
+
 #include "Word.h"
 #include "CommentLine.h"
 #include "Prj.h"

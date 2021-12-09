@@ -42,7 +42,7 @@ License
 #include "ScalarAlloc.h"
 #include "SolverDef.h"
 #include "Prj.h"
-#include "FileUtil.h"
+
 #include "Parallel.h"
 #include "ScalarZone.h"
 #include "HXCgns.h"

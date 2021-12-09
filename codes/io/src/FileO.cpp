@@ -21,7 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "FileO.h"
-#include "FileUtil.h"
+
 #include "Prj.h"
 
 BeginNameSpace( ONEFLOW )

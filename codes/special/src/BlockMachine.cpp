@@ -24,7 +24,7 @@ License
 #include "LineMachine.h"
 #include "CurveInfo.h"
 #include "FileIO.h"
-#include "FileUtil.h"
+
 #include "BgGrid.h"
 #include "StrGrid.h"
 #include "GridState.h"

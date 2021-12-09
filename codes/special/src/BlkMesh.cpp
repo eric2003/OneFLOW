@@ -23,7 +23,7 @@ License
 #include "BlkMesh.h"
 #include "MLine.h"
 #include "MDomain.h"
-#include "FileUtil.h"
+
 #include "Prj.h"
 #include "Dimension.h"
 #include "BlockFaceSolver.h"
