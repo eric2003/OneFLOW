@@ -28,7 +28,7 @@ BeginNameSpace( ONEFLOW )
 
 typedef double Real;
 typedef std::size_t HXSize_t;
-typedef std::streamsize LLong;
+typedef std::streamsize HXLongLong_t;
 
 const double LARGE = 1.0e40;
 const double SMALL = 1.0e-40;

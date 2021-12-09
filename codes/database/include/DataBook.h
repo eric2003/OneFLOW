@@ -42,8 +42,8 @@ public:
 public:
     std::vector< DataPage * > * dataBook;
     HXSize_t currPageId;
-    LLong currPos;
-    LLong maxUnitSize;
+    HXLongLong_t currPos;
+    HXLongLong_t maxUnitSize;
 public:
     DataPage * GetCurrentPage();
     DataPage * GetPage( HXSize_t iPage );
@@ -52,11 +52,11 @@ public:
 protected:
     HXSize_t  GetNPage();
     void ResizeNPage( HXSize_t newNPage );
-    LLong  GetRemainingSizeOfCurrentPage();
-    void MoveForwardPosition( LLong dataSize );
+    HXLongLong_t  GetRemainingSizeOfCurrentPage();
+    void MoveForwardPosition( HXLongLong_t dataSize );
 public:
-    void Read ( void * data, LLong dataSize );
-    void Write( void * data, LLong dataSize );
+    void Read ( void * data, HXLongLong_t dataSize );
+    void Write( void * data, HXLongLong_t dataSize );
     void ReadFile ( std::fstream & file );
     void WriteFile( std::fstream & file );
 
@@ -65,8 +65,8 @@ public:
 
     void Write( std::ostringstream * oss );
 
-    LLong GetSize();
-    void ReSize( LLong nLength );
+    HXLongLong_t GetSize();
+    void ReSize( HXLongLong_t nLength );
 
     void Send( int pid, int tag );
     void Recv( int pid, int tag );
@@ -76,11 +76,11 @@ public:
     void SendRecv( int sendpid, int recvpid, int tag );
 
     void ToString( std::string & str );
-    void Append( void * data, LLong dataSize );
+    void Append( void * data, HXLongLong_t dataSize );
     void AppendString( std::string & cs );
 
-    void SecureRelativeSpace( LLong dataSize );
-    void SecureAbsoluteSpace( LLong needSize );
+    void SecureRelativeSpace( HXLongLong_t dataSize );
+    void SecureAbsoluteSpace( HXLongLong_t needSize );
     void MoveToBegin();
     void MoveToEnd();
 };
