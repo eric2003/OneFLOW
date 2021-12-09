@@ -634,13 +634,13 @@ void Plot3D::DumpBc( GridMediator * gridMediator )
 
 void Plot3D::ReadCoor( FileIO * ioFile, RealField & coordinate )
 {
-    UInt numberOfNodes = coordinate.size();
-    UInt i = 0;
+    HXSize_t numberOfNodes = coordinate.size();
+    HXSize_t i = 0;
     while ( i < numberOfNodes )
     {
         int num = 1;
         Real tmp = ioFile->ReadNextDigit< Real >( num );
-        for ( UInt j = 0; j < num; ++ j )
+        for ( HXSize_t j = 0; j < num; ++ j )
         {
             coordinate[ i ] = tmp;
             ++ i;

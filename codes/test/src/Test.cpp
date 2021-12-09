@@ -53,7 +53,7 @@ void Test::Run()
     title.push_back( "\"vencat\"" );
     title.push_back( "\"gvencat\"" );
 
-    for ( UInt i = 0; i < title.size(); ++ i )
+    for ( HXSize_t i = 0; i < title.size(); ++ i )
     {
         file << title[ i ] << std::endl;
     }

@@ -537,9 +537,9 @@ void UnsGrid::CalcFaceNormal1D()
 
 void UnsGrid::CalcCellCenterVol1D()
 {
-    UInt nFaces = this->faceMesh->GetNFace();
-    UInt nBFaces = this->faceMesh->GetNBFace();
-    UInt numberOfCells = this->cellMesh->GetNumberOfCells();
+    HXSize_t nFaces = this->faceMesh->GetNFace();
+    HXSize_t nBFaces = this->faceMesh->GetNBFace();
+    HXSize_t numberOfCells = this->cellMesh->GetNumberOfCells();
 
     RealField & xcc = this->cellMesh->xcc ;
     RealField & ycc = this->cellMesh->ycc ;
@@ -553,7 +553,7 @@ void UnsGrid::CalcCellCenterVol1D()
     CellTopo * cellTopo = this->cellMesh->cellTopo;
     FaceTopo * faceTopo = this->faceMesh->faceTopo;
 
-    for ( UInt iCell = 0; iCell < numberOfCells; ++ iCell )
+    for ( HXSize_t iCell = 0; iCell < numberOfCells; ++ iCell )
     {
         IntField & element = cellTopo->elements[ iCell ];
         int p1 = element[ 0 ];
@@ -570,9 +570,9 @@ void UnsGrid::CalcCellCenterVol1D()
 
 void UnsGrid::CalcGhostCellCenterVol1D()
 {
-    UInt nFaces = this->faceMesh->GetNFace();
-    UInt nBFaces = this->faceMesh->GetNBFace();
-    UInt numberOfCells = this->cellMesh->GetNumberOfCells();
+    HXSize_t nFaces = this->faceMesh->GetNFace();
+    HXSize_t nBFaces = this->faceMesh->GetNBFace();
+    HXSize_t numberOfCells = this->cellMesh->GetNumberOfCells();
 
     RealField & xcc = this->cellMesh->xcc ;
     RealField & ycc = this->cellMesh->ycc ;
@@ -593,7 +593,7 @@ void UnsGrid::CalcGhostCellCenterVol1D()
     FaceTopo * faceTopo = this->faceMesh->faceTopo;
 
     // For ghost cells
-    for ( UInt iFace = 0; iFace < nBFaces; ++ iFace )
+    for ( HXSize_t iFace = 0; iFace < nBFaces; ++ iFace )
     {
         int lc  = faceTopo->lCells[ iFace ];
         int rc = iFace + numberOfCells;
@@ -629,9 +629,9 @@ void UnsGrid::CalcFaceCenter2D()
 
 void UnsGrid::CalcCellCenterVol2D()
 {
-    UInt nFaces = this->faceMesh->GetNFace();
-    UInt nBFaces = this->faceMesh->GetNBFace();
-    UInt numberOfCells = this->cellMesh->GetNumberOfCells();
+    HXSize_t nFaces = this->faceMesh->GetNFace();
+    HXSize_t nBFaces = this->faceMesh->GetNBFace();
+    HXSize_t numberOfCells = this->cellMesh->GetNumberOfCells();
 
     RealField & xcc  = this->cellMesh->xcc ;
     RealField & ycc  = this->cellMesh->ycc ;
@@ -656,7 +656,7 @@ void UnsGrid::CalcCellCenterVol2D()
     zcc = 0;
     vol = 0;
 
-    for ( UInt iFace = 0; iFace < nBFaces; ++ iFace )
+    for ( HXSize_t iFace = 0; iFace < nBFaces; ++ iFace )
     {
         int lc = faceTopo->lCells[ iFace ];
         Real dot = ( xfc[ iFace ] * xfn[ iFace ] +
@@ -669,7 +669,7 @@ void UnsGrid::CalcCellCenterVol2D()
     }
 
     // For interior cell faces
-    for ( UInt iFace = nBFaces; iFace < nFaces; ++ iFace )
+    for ( HXSize_t iFace = nBFaces; iFace < nFaces; ++ iFace )
     {
         int lc = faceTopo->lCells[ iFace ];
         int rc = faceTopo->rCells[ iFace ];
@@ -687,10 +687,10 @@ void UnsGrid::CalcCellCenterVol2D()
         vol[ rc ] -= dot;
     }
 
-    UInt numberOfCellsHaveNegativeVolumes = 0;
+    HXSize_t numberOfCellsHaveNegativeVolumes = 0;
     Real minvol = LARGE, maxvol = 0.0;
-    UInt indexMinv = 0, indexMaxv = 0;
-    for ( UInt iCell = 0; iCell < numberOfCells; ++ iCell )
+    HXSize_t indexMinv = 0, indexMaxv = 0;
+    for ( HXSize_t iCell = 0; iCell < numberOfCells; ++ iCell )
     {
         Real tmp = 1.0 / ( 1.5 * vol[ iCell ] + SMALL );
         xcc [ iCell ] *= tmp;
@@ -716,7 +716,7 @@ void UnsGrid::CalcCellCenterVol2D()
     }
 
     // For ghost cells
-    for ( UInt iFace = 0; iFace < nBFaces; ++ iFace )
+    for ( HXSize_t iFace = 0; iFace < nBFaces; ++ iFace )
     {
         int lc = faceTopo->lCells[ iFace ];
         int rc = iFace + numberOfCells;
@@ -742,9 +742,9 @@ void UnsGrid::CalcCellCenterVol2D()
 
 void UnsGrid::CalcCellCenterVol3D()
 {
-    UInt nFaces = this->faceMesh->GetNFace();
-    UInt nBFaces = this->faceMesh->GetNBFace();
-    UInt numberOfCells = this->cellMesh->GetNumberOfCells();
+    HXSize_t nFaces = this->faceMesh->GetNFace();
+    HXSize_t nBFaces = this->faceMesh->GetNBFace();
+    HXSize_t numberOfCells = this->cellMesh->GetNumberOfCells();
 
     RealField & xcc  = this->cellMesh->xcc ;
     RealField & ycc  = this->cellMesh->ycc ;
@@ -773,15 +773,15 @@ void UnsGrid::CalcCellCenterVol3D()
     zcc  = 0;
     vol = 0;
 
-    for ( UInt iFace = 0; iFace < nFaces; ++ iFace )
+    for ( HXSize_t iFace = 0; iFace < nFaces; ++ iFace )
     {
         int lc = faceTopo->lCells[ iFace ];
         int rc = faceTopo->rCells[ iFace ];
 
         IntField & faceIndex = faceTopo->faces[ iFace ];
 
-        UInt faceNodeNumber = faceIndex.size();
-        for ( UInt iNode = 0; iNode < faceNodeNumber; ++ iNode )
+        HXSize_t faceNodeNumber = faceIndex.size();
+        for ( HXSize_t iNode = 0; iNode < faceNodeNumber; ++ iNode )
         {
             int index1 = iNode;
             int index2 = ( iNode + 1 ) % faceNodeNumber;
@@ -827,10 +827,10 @@ void UnsGrid::CalcCellCenterVol3D()
         }
     }
 
-    UInt cell = 0;
+    HXSize_t cell = 0;
     Real minvol = LARGE, maxvol = 0.0;
     int indexMinv = 0, indexMaxv = 0;
-    for ( UInt iCell = 0; iCell < numberOfCells; ++ iCell )
+    for ( HXSize_t iCell = 0; iCell < numberOfCells; ++ iCell )
     {
         Real tmp     = 1.0 / ( 4.0 * vol[ iCell ] + SMALL );
         xcc [ iCell ] *= tmp;

@@ -41,7 +41,7 @@ public:
     PointMap pointMap;
     HXVector< PointType > pointList;
 public:
-    UInt GetNPoint() { return pointList.size(); }
+    HXSize_t GetNPoint() { return pointList.size(); }
     int AddPoint( Real xm, Real ym, Real zm );
     int DeletePoint( Real xm, Real ym, Real zm );
     int DeletePoint( PointAction::PointType & point );

@@ -257,7 +257,7 @@ void Sod::Theory()
     title.push_back( "\"m\"" );
     title.push_back( "\"p\"" );
 
-    for ( UInt i = 0; i < title.size(); ++ i )
+    for ( HXSize_t i = 0; i < title.size(); ++ i )
     {
         file << title[ i ] << std::endl;
     }

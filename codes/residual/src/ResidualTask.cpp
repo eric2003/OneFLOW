@@ -159,7 +159,7 @@ void ResidualTask::DumpFile()
             title.push_back( AddString( "\"res",  iVar + 1, "\"" ) );
         }
 
-        for ( UInt iTitle = 0; iTitle < title.size(); ++ iTitle )
+        for ( HXSize_t iTitle = 0; iTitle < title.size(); ++ iTitle )
         {
             oss << title[ iTitle ] << std::endl;
         }

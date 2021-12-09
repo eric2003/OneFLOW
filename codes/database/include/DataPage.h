@@ -36,11 +36,11 @@ public:
 public:
     typedef std::vector< char > CharMemory;
 public:
-    UInt GetSize();
-    void Read ( void * data, UInt dataSize );
-    void Read ( void * data, UInt dataSize, UInt position );
-    void Write( void * data, UInt dataSize );
-    void Write( void * data, UInt dataSize, UInt position );
+    HXSize_t GetSize();
+    void Read ( void * data, HXSize_t dataSize );
+    void Read ( void * data, HXSize_t dataSize, HXSize_t position );
+    void Write( void * data, HXSize_t dataSize );
+    void Write( void * data, HXSize_t dataSize, HXSize_t position );
     void ReadFile ( std::fstream & file );
     void WriteFile( std::fstream & file );
     void ToString( std::string & str );
@@ -50,15 +50,15 @@ public:
 
     void MoveToBegin() { MoveToPosition( 0 ); };
     void MoveToEnd  () { currPos = GetSize(); };
-    void ReSize( UInt newSize );
+    void ReSize( HXSize_t newSize );
     void Send( int pId, int tag );
     void Recv( int pId, int tag );
     void Bcast( int rootid );
 protected:
-    void MoveToPosition( UInt position );
-    void MoveForwardPosition( UInt dataSize );
+    void MoveToPosition( HXSize_t position );
+    void MoveForwardPosition( HXSize_t dataSize );
 protected:
-    UInt currPos;
+    HXSize_t currPos;
     CharMemory * dataMemory;
 public:
     char * GetDataPointer( int begin ) { return &( ( * dataMemory )[ begin ] ); }

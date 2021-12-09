@@ -19,38 +19,19 @@ License
     along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 
 \*---------------------------------------------------------------------------*/
-
-
 #pragma once
-#include "HXDefine.h"
-#include <fstream>
-
+#include "Configure.h"
+#include <vector>
+#include <sstream>
 
 BeginNameSpace( ONEFLOW )
 
-class NodeMesh;
-class FaceMesh;
-class CellMesh;
-class Mesh;
+typedef double Real;
+typedef std::size_t HXSize_t;
+typedef std::streamsize LLong;
 
-class Visual
-{
-public:
-    Visual();
-    ~Visual();
-public:
-    static int numberOfWords;
-public:
-    static void SetNumberOfWords( int numberOfWords );
-    static void Show( Mesh * mesh );
-public:
-    static void DumpTitle( std::fstream & file, Mesh * mesh );
-    static void DumpCoordinate( std::fstream & file, Mesh * mesh );
-    static void DumpCoordinate( std::fstream & file, RealField & coordinate );
-    static void DumpFaceNodesLink( std::fstream & file, Mesh * mesh );
-    static void DumpFaceElementLink( std::fstream & file, Mesh * mesh );
-    static void DumpFaceElementLink( std::fstream & file, HXSize_t nFaces, HXSize_t numberOfElements, IntField & faceElementIndex );
-};
-
+const double LARGE = 1.0e40;
+const double SMALL = 1.0e-40;
+const double TINY  = 1.0e-40;
 
 EndNameSpace

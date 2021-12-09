@@ -43,7 +43,7 @@ DataPage::~DataPage()
     delete this->dataMemory;
 }
 
-void DataPage::MoveToPosition( UInt position )
+void DataPage::MoveToPosition( HXSize_t position )
 {
     if ( ( 0 < position ) && ( position < GetSize() ) )
     {
@@ -59,12 +59,12 @@ void DataPage::MoveToPosition( UInt position )
     }
 }
 
-void DataPage::MoveForwardPosition( UInt dataSize )
+void DataPage::MoveForwardPosition( HXSize_t dataSize )
 {
     this->currPos += dataSize;
 }
 
-UInt DataPage::GetSize()
+HXSize_t DataPage::GetSize()
 {
     return dataMemory->size();
 }
@@ -95,7 +95,7 @@ void DataPage::ToString( std::string & str )
     }
 }
 
-void DataPage::Write( void * data, UInt dataSize )
+void DataPage::Write( void * data, HXSize_t dataSize )
 {
     if ( dataSize <= 0 ) return;
 
@@ -103,33 +103,33 @@ void DataPage::Write( void * data, UInt dataSize )
     this->MoveForwardPosition( dataSize );
 }
 
-void DataPage::Read( void * data, UInt dataSize )
+void DataPage::Read( void * data, HXSize_t dataSize )
 {
     if ( dataSize <= 0 ) return;
     memcpy( data, this->GetCurrentDataPointer(), dataSize );
     this->MoveForwardPosition( dataSize );
 }
 
-void DataPage::Write( void * data, UInt dataSize, UInt position )
+void DataPage::Write( void * data, HXSize_t dataSize, HXSize_t position )
 {
     this->MoveToPosition( position );
     this->Write( data, dataSize );
 }
 
-void DataPage::Read( void * data, UInt dataSize, UInt position )
+void DataPage::Read( void * data, HXSize_t dataSize, HXSize_t position )
 {
     this->MoveToPosition( position );
     this->Read( data, dataSize );
 }
 
-void DataPage::ReSize( UInt newSize )
+void DataPage::ReSize( HXSize_t newSize )
 {
     this->dataMemory->resize( newSize );
 }
 
 void DataPage::Send( int pId, int tag )
 {
-    UInt nLength = this->GetSize();
+    HXSize_t nLength = this->GetSize();
 
     if ( nLength <= 0 ) return;
     ONEFLOW::HXSend( this->GetBeginDataPointer(), nLength, PL_CHAR, pId, tag );
@@ -137,7 +137,7 @@ void DataPage::Send( int pId, int tag )
 
 void DataPage::Recv( int pId, int tag )
 {
-    UInt nLength = this->GetSize();
+    HXSize_t nLength = this->GetSize();
 
     if ( nLength <= 0 ) return;
 
@@ -146,7 +146,7 @@ void DataPage::Recv( int pId, int tag )
 
 void DataPage::Bcast( int rootid )
 {
-    UInt nLength = this->GetSize();
+    HXSize_t nLength = this->GetSize();
 
     if ( nLength <= 0 ) return;
     HXBcast( this->GetBeginDataPointer(), nLength, rootid );
@@ -154,7 +154,7 @@ void DataPage::Bcast( int rootid )
 
 void DataPage::ReadFile( std::fstream & file )
 {
-    UInt nLength = this->GetSize();
+    HXSize_t nLength = this->GetSize();
 
     if ( nLength <= 0 ) return;
 
@@ -165,7 +165,7 @@ void DataPage::ReadFile( std::fstream & file )
 
 void DataPage::WriteFile( std::fstream & file )
 {
-    UInt nLength = this->GetSize();
+    HXSize_t nLength = this->GetSize();
 
     if ( nLength <= 0 )
     {

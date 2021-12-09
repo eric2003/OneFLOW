@@ -90,7 +90,7 @@ void TurbVelCut::DumpNormal()
     title.push_back( "\"y+\"" );
     title.push_back( "\"u+\"" );
 
-    for ( UInt i = 0; i < title.size(); ++ i )
+    for ( HXSize_t i = 0; i < title.size(); ++ i )
     {
         file << title[ i ] << std::endl;
     }
@@ -125,7 +125,7 @@ void TurbVelCut::DumpDetail()
     title.push_back( "\"utau\"" );
     title.push_back( "\"vis\"" );
 
-    for ( UInt i = 0; i < title.size(); ++ i )
+    for ( HXSize_t i = 0; i < title.size(); ++ i )
     {
         file << title[ i ] << std::endl;
     }
@@ -291,7 +291,7 @@ void TurbFriCut::Dump()
     title.push_back( "\"x\"" );
     title.push_back( "\"cf\"" );
 
-    for ( UInt i = 0; i < title.size(); ++ i )
+    for ( HXSize_t i = 0; i < title.size(); ++ i )
     {
         file << title[ i ] << std::endl;
     }

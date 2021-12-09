@@ -41,17 +41,17 @@ public:
     ~DataBook();
 public:
     std::vector< DataPage * > * dataBook;
-    UInt currPageId;
+    HXSize_t currPageId;
     LLong currPos;
     LLong maxUnitSize;
 public:
     DataPage * GetCurrentPage();
-    DataPage * GetPage( UInt iPage );
+    DataPage * GetPage( HXSize_t iPage );
     void Destroy( DataPage * dataPage );
-    void Erase( UInt startPage, UInt endPage );
+    void Erase( HXSize_t startPage, HXSize_t endPage );
 protected:
-    UInt  GetNPage();
-    void ResizeNPage( UInt newNPage );
+    HXSize_t  GetNPage();
+    void ResizeNPage( HXSize_t newNPage );
     LLong  GetRemainingSizeOfCurrentPage();
     void MoveForwardPosition( LLong dataSize );
 public:

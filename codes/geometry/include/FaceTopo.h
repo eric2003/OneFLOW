@@ -51,17 +51,17 @@ public:
     IntField lCells, rCells;
     IntField lPosition, rPosition;
 
-    UInt nBFaces;
+    HXSize_t nBFaces;
     BcManager * bcManager;
     Grid * grid;
 public:
     LinkField facesNew;
     IntField lCellsNew, rCellsNew;
 public:
-    UInt GetNFaces() { return fTypes.size();  }
-    UInt CalcTotalFaceNodes();
-    UInt GetNBFaces();
-    void SetNBFaces( UInt nBFaces );
+    HXSize_t GetNFaces() { return fTypes.size();  }
+    HXSize_t CalcTotalFaceNodes();
+    HXSize_t GetNBFaces();
+    void SetNBFaces( HXSize_t nBFaces );
 public:
     void ModifyFaceNodeId( IFaceLink * iFaceLink );
     void SetNewFace2Node( IFaceLink * iFaceLink );

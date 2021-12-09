@@ -126,7 +126,7 @@ void AerodynamicForceTask::Dump()
         title.push_back( "\"Cmy\"" );
         title.push_back( "\"Cmz\"" );
 
-        for ( UInt iTitle = 0; iTitle < title.size(); ++ iTitle )
+        for ( HXSize_t iTitle = 0; iTitle < title.size(); ++ iTitle )
         {
             oss << title[ iTitle ] << std::endl;
         }
@@ -251,7 +251,7 @@ void CalcAeroForce(int idump_pres)
 		title.push_back("\"z\"");
 		title.push_back("\"-cp\"");
 		title.push_back("\"cf\"");
-		for (UInt i = 0; i < title.size(); ++i)
+		for (HXSize_t i = 0; i < title.size(); ++i)
 		{
 			StrIO << title[i] << "\n";
 		}

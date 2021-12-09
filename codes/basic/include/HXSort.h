@@ -29,10 +29,10 @@ class HXSort
 {
 public:
     T value;
-    UInt index;
+    HXSize_t index;
 public:
     HXSort() {}
-    HXSort( const T & value, UInt index )
+    HXSort( const T & value, HXSize_t index )
     {
         this->value = value;
         this->index = index;

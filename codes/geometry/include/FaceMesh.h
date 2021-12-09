@@ -44,10 +44,10 @@ public:
     RealField vfx, vfy, vfz;
     RealField vfn;
 public:
-    UInt GetNFace();
-    UInt CalcTotalFaceNodes();
-    UInt GetNBFace();
-    void SetNBFace( UInt nBFaces );
+    HXSize_t GetNFace();
+    HXSize_t CalcTotalFaceNodes();
+    HXSize_t GetNBFace();
+    void SetNBFace( HXSize_t nBFaces );
     void CalcFaceNormal1D( NodeMesh * nodeMesh, CellMesh * cellMesh );
     void CalcFaceCenter1D( NodeMesh * nodeMesh );
     void CalcFaceNormal2D( NodeMesh * nodeMesh );

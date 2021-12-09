@@ -42,7 +42,7 @@ public:
     LinkField bcNameId;
     IntField bcType;
 public:
-    UInt GetNBcRegion() { return bcType.size(); }
+    HXSize_t GetNBcRegion() { return bcType.size(); }
 };
 
 class BcRecord
@@ -55,7 +55,7 @@ public:
     IntField bcNameId;
     BcInfo * bcInfo;
 public:
-    void Init( UInt nBFaces );
+    void Init( HXSize_t nBFaces );
     int GetNBFace();
     int CalcNIFace();
     int CalcNumWallFace();

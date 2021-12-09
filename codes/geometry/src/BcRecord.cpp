@@ -105,7 +105,7 @@ int BcRecord::GetNBFace()
     return bcType.size();
 }
 
-void BcRecord::Init( UInt nBFaces )
+void BcRecord::Init( HXSize_t nBFaces )
 {
     this->bcType.resize( nBFaces );
     this->bcNameId.resize( nBFaces );

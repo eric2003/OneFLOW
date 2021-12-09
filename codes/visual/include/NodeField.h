@@ -37,7 +37,7 @@ void ReorderList( HXVector< T > & x, IntField & indexList )
 {
     HXVector< T > tmp = x;
 
-    for ( UInt i = 0; i < indexList.size(); ++ i )
+    for ( HXSize_t i = 0; i < indexList.size(); ++ i )
     {
         x[ i ] = tmp[ indexList[ i ] ];
     }
