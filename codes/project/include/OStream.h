@@ -38,7 +38,5 @@ public:
     void ClearAll();
 };
 
-void Clear( std::ostringstream & oss );
-
 
 EndNameSpace

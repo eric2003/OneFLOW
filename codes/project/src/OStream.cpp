@@ -29,13 +29,8 @@ OStream StrIO;
 
 void OStream::ClearAll()
 {
+    this->clear();
     this->str("");
-}
-
-void Clear( std::ostringstream & oss )
-{
-    oss.clear( );
-    oss.str( "" );
 }
 
 EndNameSpace
