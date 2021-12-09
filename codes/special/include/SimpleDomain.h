@@ -23,7 +23,7 @@ License
 
 #pragma once
 #include "HXDefine.h"
-#include "Mid.h"
+#include "HXMid.h"
 #include "CalcCoor.h"
 #include <set>
 #include <map>

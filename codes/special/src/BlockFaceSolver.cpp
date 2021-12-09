@@ -99,9 +99,9 @@ Face2D * BlkFaceSolver::GetBlkFace2D( int blk, int face_id )
 }
 
 
-int BlkFaceSolver::FindFace( Mid<int> & face )
+int BlkFaceSolver::FindFace( HXMid<int> & face )
 {
-    std::set< Mid<int> >::iterator iter = this->refFaces.find( face );
+    std::set< HXMid<int> >::iterator iter = this->refFaces.find( face );
     if ( iter == this->refFaces.end() )
     {
         return ONEFLOW::INVALID_INDEX;
@@ -111,11 +111,11 @@ int BlkFaceSolver::FindFace( Mid<int> & face )
 
 int BlkFaceSolver::FindFaceId( IntField & face )
 {
-    Mid<int> fMid( face.size(), 0 );
+    HXMid<int> fMid( face.size(), 0 );
     fMid.data = face;
     std::sort( fMid.data.begin(), fMid.data.end() );
 
-    std::set< Mid<int> >::iterator iter = this->refFaces.find( fMid );
+    std::set< HXMid<int> >::iterator iter = this->refFaces.find( fMid );
     if ( iter == this->refFaces.end() )
     {
         return ONEFLOW::INVALID_INDEX;
@@ -212,7 +212,7 @@ void BlkFaceSolver::CreateFaceList()
     for ( int iFace = 0; iFace < nFaces; ++ iFace )
     {
         IntField & face = this->faceList[ iFace ];
-        Mid<int> fMid( face.size(), iFace );
+        HXMid<int> fMid( face.size(), iFace );
         fMid.id = iFace;
         fMid.data = face;
         std::sort( fMid.data.begin(), fMid.data.end() );
@@ -231,13 +231,13 @@ int BlkFaceSolver::FindLineId( IntField & line )
     return this->FindId( line, this->refLines );
 }
 
-int BlkFaceSolver::FindId( IntField & varlist, std::set< Mid<int> > &refSets )
+int BlkFaceSolver::FindId( IntField & varlist, std::set< HXMid<int> > &refSets )
 {
-    Mid<int> fMid( varlist.size(), 0 );
+    HXMid<int> fMid( varlist.size(), 0 );
     fMid.data = varlist;
     std::sort( fMid.data.begin(), fMid.data.end() );
 
-    std::set< Mid<int> >::iterator iter = refSets.find( fMid );
+    std::set< HXMid<int> >::iterator iter = refSets.find( fMid );
     if ( iter == refSets.end() )
     {
         return ONEFLOW::INVALID_INDEX;
@@ -264,7 +264,7 @@ void BlkFaceSolver::MyFaceAlloc()
     for ( int i = 0; i < nLine; ++ i )
     {
         IntField & line = this->lineList[ i ];
-        Mid<int> lMid( line.size(), i );
+        HXMid<int> lMid( line.size(), i );
         lMid.id = i;
         lMid.data = line;
         std::sort( lMid.data.begin(), lMid.data.end() );

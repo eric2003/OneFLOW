@@ -36,7 +36,7 @@ License
 #include "ZoneState.h"
 #include "StrUtil.h"
 #include "Prj.h"
-#include "Mid.h"
+#include "HXMid.h"
 #include "NodeMesh.h"
 #include "NsCtrl.h"
 #include <sstream>
@@ -129,7 +129,7 @@ void BcVisual::ResolveElementEdge()
     int nFaces = this->f2n.size();
     int nSize = 2;
 
-    std::set< Mid<int> > edgeSet;
+    std::set< HXMid<int> > edgeSet;
 
     for ( int fId = 0; fId < nFaces; ++ fId )
     {
@@ -152,11 +152,11 @@ void BcVisual::ResolveElementEdge()
             sort( sortedNodeId.begin(), sortedNodeId.end() );
             
             int eIdddd = this->e2n.size();
-            Mid<int> edge( nSize, eIdddd );
+            HXMid<int> edge( nSize, eIdddd );
             edge.data = sortedNodeId;
 
             int  edgeIndex;
-            std::set< Mid<int> >::iterator iter = edgeSet.find( edge );
+            std::set< HXMid<int> >::iterator iter = edgeSet.find( edge );
             if ( iter == edgeSet.end() )
             {
                 edgeIndex = -1;
