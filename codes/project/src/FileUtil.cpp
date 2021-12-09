@@ -21,10 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "FileUtil.h"
-#include "Word.h"
 #include "Stop.h"
-#include "BasicParallel.h"
-#include "LogFile.h"
 
 #ifdef _WINDOWS
 #include <windows.h>
