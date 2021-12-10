@@ -47,6 +47,7 @@ License
 #include "ScalarZone.h"
 #include "HXCgns.h"
 #include "HXMath.h"
+#include "TimeTest.h"
 #include <iostream>
 #include <vector>
 #include <algorithm>
@@ -91,6 +92,9 @@ void FieldSolver::Run()
 
     int scalar_flag = ONEFLOW::GetDataValue< int >("scalar_flag");
     Dim::SetDimension( ONEFLOW::GetDataValue< int >( "dimension" ) );
+
+    TimeTest ts;
+    ts.RunTest();
 
     if ( scalar_flag == 0 )
     {

@@ -19,25 +19,34 @@ License
     along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 
 \*---------------------------------------------------------------------------*/
-
 #pragma once
-#include "HXVector.h"
-#include "HXType.h"
-#include <set>
+#include "Configure.h"
+#include <chrono>
 #include <string>
+
 
 BeginNameSpace( ONEFLOW )
 
-typedef HXVector< Real > RealField;
-typedef HXVector< RealField > RealField2D;
-typedef HXVector< RealField2D > RealField3D;
-typedef HXVector< int > IntField;
-typedef HXVector< IntField > LinkField;
-typedef HXVector< std::string > StringField;
-typedef HXVector< bool > BoolField;
+class TimeTest
+{
+public:
+    using clock_type = std::chrono::time_point<std::chrono::system_clock>;
+public:
+    TimeTest();
+    ~TimeTest();
+public:
+    void Start();
+    void Stop();
 
-typedef std::set< int > IntSet;
+    double ElapsedMilliseconds();
+    double ElapsedSeconds();
+public:
+    void RunTest();
+private:
+    clock_type startTime;
+    clock_type endTime;
+    bool       bRunning = false;
+};
 
-typedef void( * VoidFunc )();
 
 EndNameSpace

@@ -1280,12 +1280,12 @@ void ScalarGrid::WriteGridFaceTopology( DataBook * databook )
 	std::cout << " Dumping this->fTypes \n";
 	ONEFLOW::HXWrite( databook, this->fTypes.data );
 
-	std::cout << "fTypes = \n";
-	for ( int iFace = 0; iFace < this->fTypes.data.size(); ++ iFace )
-	{
-		std::cout << this->fTypes.data[ iFace ] << " ";
-	}
-	std::cout << "\n";
+	//std::cout << "fTypes = \n";
+	//for ( int iFace = 0; iFace < this->fTypes.data.size(); ++ iFace )
+	//{
+	//	std::cout << this->fTypes.data[ iFace ] << " ";
+	//}
+	//std::cout << "\n";
 
 	IntField numFaceNode( this->nFaces );
 
@@ -1301,11 +1301,11 @@ void ScalarGrid::WriteGridFaceTopology( DataBook * databook )
 	int nsum = ONEFLOW::SUM( numFaceNode );
 	std::cout << " nsum = " << nsum << "\n";
 	std::cout << "numFaceNode = \n";
-	for ( int iFace = 0; iFace < numFaceNode.size(); ++ iFace )
-	{
-		std::cout << numFaceNode[ iFace ] << " ";
-	}
-	std::cout << "\n";
+	//for ( int iFace = 0; iFace < numFaceNode.size(); ++ iFace )
+	//{
+	//	std::cout << numFaceNode[ iFace ] << " ";
+	//}
+	//std::cout << "\n";
 
 	IntField faceNodeMem;
 
@@ -1335,12 +1335,12 @@ void ScalarGrid::ReadGridFaceTopology( DataBook * databook )
 
 	ONEFLOW::HXRead( databook, this->fTypes.data );
 
-	std::cout << "fTypes = \n";
-	for ( int iFace = 0; iFace < this->fTypes.data.size(); ++ iFace )
-	{
-		std::cout << this->fTypes.data[ iFace ] << " ";
-	}
-	std::cout << "\n";
+	//std::cout << "fTypes = \n";
+	//for ( int iFace = 0; iFace < this->fTypes.data.size(); ++ iFace )
+	//{
+	//	std::cout << this->fTypes.data[ iFace ] << " ";
+	//}
+	//std::cout << "\n";
 
 	IntField numFaceNode( this->nFaces );
 
@@ -1352,11 +1352,11 @@ void ScalarGrid::ReadGridFaceTopology( DataBook * databook )
 	std::cout << " nsum = " << nsum << "\n";
 	std::cout << " this->nFaces = " << this->nFaces << "\n";
 	std::cout << "numFaceNode = \n";
-	for ( int iFace = 0; iFace < numFaceNode.size(); ++ iFace )
-	{
-		std::cout << numFaceNode[ iFace ] << " ";
-	}
-	std::cout << "\n";
+	//for ( int iFace = 0; iFace < numFaceNode.size(); ++ iFace )
+	//{
+	//	std::cout << numFaceNode[ iFace ] << " ";
+	//}
+	//std::cout << "\n";
 
 	std::cout << "Setting the connection mode of face to point......\n";
 	IntField faceNodeMem( nsum );
