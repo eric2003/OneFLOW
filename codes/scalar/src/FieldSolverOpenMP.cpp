@@ -21,37 +21,14 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "FieldSolverOpenMP.h"
-#include "ScalarMetis.h"
-#include "InterFace.h"
-#include "CgnsZbase.h"
-#include "DataBook.h"
-#include "Dimension.h"
-#include "FieldPara.h"
-#include "Zone.h"
-#include "PIO.h"
 #include "DataBase.h"
-#include "StrUtil.h"
-#include "ScalarDataIO.h"
-#include "ScalarGrid.h"
-#include "MetisGrid.h"
-#include "ScalarField.h"
-#include "ScalarIFace.h"
-#include "ZoneState.h"
-#include "ActionState.h"
-#include "GridState.h"
-#include "ScalarFieldRecord.h"
-#include "ScalarAlloc.h"
-#include "SolverDef.h"
-#include "Prj.h"
-#include "Parallel.h"
-#include "ScalarZone.h"
-#include "HXCgns.h"
-#include "HXMath.h"
+#include "Dimension.h"
 #include "TimeTest.h"
-#include <iostream>
-#include <vector>
-#include <algorithm>
-
+#include "ScalarMetis.h"
+#include "FieldPara.h"
+#include "ZoneState.h"
+#include "ScalarZone.h"
+#include "HXMath.h"
 
 BeginNameSpace( ONEFLOW )
 

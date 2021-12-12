@@ -31,13 +31,13 @@ BeginNameSpace( ONEFLOW )
 void ToyModelSimu()
 {
     std::cout << "ToyModelSimu\n";
-    FieldSolver * fieldSolver = new FieldSolver();
-    fieldSolver->Run();
-    delete fieldSolver;
+    //FieldSolver * fieldSolver = new FieldSolver();
+    //fieldSolver->Run();
+    //delete fieldSolver;
 
-    //FieldSolverOpenMP * fieldSolverOpenMP = new FieldSolverOpenMP();
-    //fieldSolverOpenMP->Run();
-    //delete fieldSolverOpenMP;
+    FieldSolverOpenMP * fieldSolverOpenMP = new FieldSolverOpenMP();
+    fieldSolverOpenMP->Run();
+    delete fieldSolverOpenMP;
 
 }
 

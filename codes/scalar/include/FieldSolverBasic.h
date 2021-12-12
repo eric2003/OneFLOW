@@ -77,30 +77,14 @@ public:
     void CalcGridMetrics();
     void InitFlowField();
     void InitFlowField_Basic();
-    //void SolveFlowField();
-    //void SolveOneStep();
     void CommParallelInfo();
     void UploadInterface();
     void DownloadInterface();
     void UpdateInterface( TaskFunction sendAction, TaskFunction recvAction );
     void SwapInterfaceData( int iZone, int jZone, TaskFunction sendAction, TaskFunction recvAction );
 public:
-//    void Boundary();
-//    void GetQLQR();
-//    void CalcInvFlux();
-//    void UpdateResidual();
-//    void TimeIntergral();
-//    void Update();
-//public:
-//    void ZoneBoundary();
-//    void ZoneGetQLQR();
-//    void ZoneCalcInvFlux();
-//    void ZoneUpdateResidual();
-//    void ZoneTimeIntergral();
-//    void ZoneUpdate();
     void Visualize();
     void ToTecplot( RealField & xList, RealField & varlist, std::string const & fileName );
-    //void AddF2CField( ScalarGrid * grid, RealField & cField, RealField & fField );
     void Theory( ScalarGrid * grid, Real time, RealField & theory );
     void GetVisualData( DataBook * dataBook );
     void AddVisualData( RealField & qList, RealField & theoryList, RealField & xcoorList );
