@@ -243,16 +243,7 @@ void ScalarSolver::InitZoneFlowField()
 
 void ScalarSolver::Run()
 {
-    //FieldSolver * fieldSolver = new FieldSolver();
-    //fieldSolver->Run();
-    //delete fieldSolver;
-
-    //this->Init();
-
-    //this->SolveFlowField();
-
-    //this->Visual();
-   
+  
 }
 
 void ScalarSolver::RunTest( ScalarPara * para )

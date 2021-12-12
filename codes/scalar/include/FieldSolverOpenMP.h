@@ -19,35 +19,37 @@ License
     along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 
 \*---------------------------------------------------------------------------*/
-#pragma once
-#include "Configure.h"
-#include <chrono>
-#include <string>
 
+
+#pragma once
+#include "FieldSolverBasic.h"
 
 BeginNameSpace( ONEFLOW )
 
-class TimeTest
+class FieldSolverOpenMP : public FieldSolverBasic
 {
 public:
-    using clock_type = std::chrono::time_point<std::chrono::system_clock>;
+    FieldSolverOpenMP();
+    ~FieldSolverOpenMP();
 public:
-    TimeTest();
-    ~TimeTest();
+    virtual void Run();
 public:
-    void Restart();
-    void Stop();
-
-    double ElapsedMilliseconds();
-    double ElapsedSeconds();
-    void ShowTimeSpan( const std::string & title = "" );
+    void SolveFlowFieldOpenMP();
+    void SolveOneStepOpenMP();
+    void BoundaryOpenMP();
+    void GetQLQROpenMP();
+    void CalcInvFluxOpenMP();
+    void UpdateResidualOpenMP();
+    void TimeIntergralOpenMP();
+    void UpdateOpenMP();
 public:
-    void RunTest();
-private:
-    clock_type time_old;
-    clock_type time_now;
-    bool       bRunning = false;
+    void ZoneBoundaryOpenMP();
+    void ZoneGetQLQROpenMP();
+    void ZoneCalcInvFluxOpenMP();
+    void ZoneUpdateResidualOpenMP();
+    void ZoneTimeIntergralOpenMP();
+    void ZoneUpdateOpenMP();
+    void AddF2CFieldOpenMP( ScalarGrid * grid, RealField & cField, RealField & fField );
 };
-
 
 EndNameSpace

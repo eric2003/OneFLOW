@@ -22,6 +22,7 @@ License
 #include "SimpleSimu.h"
 #include "Scalar.h"
 #include "FieldSolver.h"
+#include "FieldSolverOpenMP.h"
 #include <iostream>
 
 
@@ -33,6 +34,11 @@ void ToyModelSimu()
     FieldSolver * fieldSolver = new FieldSolver();
     fieldSolver->Run();
     delete fieldSolver;
+
+    //FieldSolverOpenMP * fieldSolverOpenMP = new FieldSolverOpenMP();
+    //fieldSolverOpenMP->Run();
+    //delete fieldSolverOpenMP;
+
 }
 
 

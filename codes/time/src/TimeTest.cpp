@@ -28,7 +28,7 @@ BeginNameSpace( ONEFLOW )
 
 TimeTest::TimeTest()
 {
-    this->Start();
+    this->Restart();
 }
 
 TimeTest::~TimeTest()
@@ -36,33 +36,37 @@ TimeTest::~TimeTest()
     ;
 }
 
-void TimeTest::Start()
+void TimeTest::Restart()
 {
-    this->startTime = std::chrono::system_clock::now();
-    this->bRunning = true;
+    this->time_old = std::chrono::system_clock::now();
 }
 
 void TimeTest::Stop()
 {
-    this->endTime = std::chrono::system_clock::now();
-    this->bRunning = false;
+    this->time_now = std::chrono::system_clock::now();
 }
 
 double TimeTest::ElapsedMilliseconds()
 {
-    std::chrono::time_point<std::chrono::system_clock> endTime;
+    this->time_now = std::chrono::system_clock::now();
 
-    if ( bRunning )
-    {
-        this->endTime = std::chrono::system_clock::now();
-    }
-
-    return std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime).count();
+    return std::chrono::duration_cast<std::chrono::milliseconds>( this->time_now - this->time_old ).count();
 }
 
 double TimeTest::ElapsedSeconds()
 {
-    return ElapsedMilliseconds() / 1000.0;
+    return this->ElapsedMilliseconds() / 1000.0;
+}
+
+void TimeTest::ShowTimeSpan( const std::string & title )
+{
+    this->time_now = std::chrono::system_clock::now();
+
+    std::chrono::duration<double> elapsed = this->time_now - this->time_old;
+
+    std::cout << title << " time elapsed : " << elapsed.count() << " seconds" << "\n";
+
+    this->time_old = this->time_now;
 }
 
 void TimeTest::RunTest()
@@ -84,7 +88,7 @@ void TimeTest::RunTest()
 
     std::cout << "Elapsed time in seconds: "
         << std::chrono::duration_cast<std::chrono::seconds>(end - start).count()
-        << " sec";
+        << " sec" << std::endl;
 }
 
 
