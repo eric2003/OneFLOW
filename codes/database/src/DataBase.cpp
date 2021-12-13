@@ -91,7 +91,7 @@ void HXReadVoid( DataBook * dataBook, DataV * datav )
     datav->data->Read( dataBook, datav->size );
 }
 
-void ProcessData( const string & name, string * value, int type, int size )
+void ProcessData( const std::string & name, std::string * value, int type, int size )
 {
     DataV * datav = new DataV();
     datav->name = name;
@@ -99,7 +99,7 @@ void ProcessData( const string & name, string * value, int type, int size )
     datav->size = size;
     if ( type == ONEFLOW::HX_STRING )
     {
-        TDataObject< string > * stringObject = new TDataObject< string >( size );
+        TDataObject< std::string > * stringObject = new TDataObject< std::string >( size );
         stringObject->CopyValue( value );
         datav->data = stringObject;
     }
@@ -127,7 +127,7 @@ DataObject * CreateDataObject( int type, int size )
 {
     if ( type == ONEFLOW::HX_STRING )
     {
-        TDataObject< string > * stringObject = new TDataObject< string >( size );
+        TDataObject< std::string > * stringObject = new TDataObject< std::string >( size );
         return stringObject;
     }
     else if ( type == HX_INT )
@@ -162,19 +162,19 @@ void SetDataString( const std::string & varName, Real & value )
     SetData( varName, & value, HX_STRING, 1 );
 }
 
-PointerWrap * GetPointerWrap( DataField * dataField, const string & dataObjectName )
+PointerWrap * GetPointerWrap( DataField * dataField, const std::string & dataObjectName )
 {
     DataF * dataf = dataField->GetDataF( dataObjectName );
     return dataf->GetPointerWrap();
 }
 
-void CreateFieldPointer( DataBase * database, PointerWrap * pointerWrap, const string & dataObjectName )
+void CreateFieldPointer( DataBase * database, PointerWrap * pointerWrap, const std::string & dataObjectName )
 {
     DataF * dataf = new DataF( dataObjectName, pointerWrap );
     database->dataField->UpdateDataF( dataf );
 }
 
-void * GetFieldPointerVoid( DataBase * database, const string & dataObjectName )
+void * GetFieldPointerVoid( DataBase * database, const std::string & dataObjectName )
 {
     PointerWrap * pointerWrap = GetPointerWrap( database->dataField, dataObjectName );
     if ( pointerWrap )
@@ -185,7 +185,7 @@ void * GetFieldPointerVoid( DataBase * database, const string & dataObjectName )
     return 0;
 }
 
-void DumpDataBase( fstream & file )
+void DumpDataBase( std::fstream & file )
 {
     DataBase * dataBase = ONEFLOW::GetGlobalDataBase();
     dataBase->dataPara->DumpData( file );

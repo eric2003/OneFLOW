@@ -24,7 +24,7 @@ License
 #include "HXDefine.h"
 #include "GridDef.h"
 
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 
@@ -39,7 +39,7 @@ public:
     ~CalcGrid();
 public:
     Grids grids;
-    string gridFileName;
+    std::string gridFileName;
     IFaceLink * iFaceLink;
 public:
     void BuildInterfaceLink();
@@ -66,7 +66,7 @@ public:
     void GenerateMultiZoneCalcGrids( Grids & grids );
 };
 
-string GetTargetGridFileName();
+std::string GetTargetGridFileName();
 int GetIgnoreNoBc();
 
 void GenerateMultiZoneCalcGrids( Grids & grids );

@@ -26,7 +26,7 @@ License
 #include <vector>
 #include <string>
 #include <fstream>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 
@@ -36,20 +36,20 @@ public:
     Numpy();
     ~Numpy();
 public:
-    static void OpenPrjFile( fstream & file, const string & fileName, const ios_base::openmode & openMode );
-    static string AddFileName( const string & prefix, const string & fileName );
-    static void Ones( vector< double > & var );
-    static void Set( vector< double > & var, int st, int ed, double v );
-    static void Linspace( vector< double > & var, double st, double ed );
-    static void Plot( vector< double > & x, vector< double > & f );
-    static void Plot( const string & fileName, vector< double > & x, vector< double > & f );
-    static void Copy( vector< double > & a, vector< double > & b );
-    static void ToTecplot( const string & fileName, vector< double > & x, vector< double > & f );
-    static void ToTecplot( const string & fileName, vector< double > & x, vector< double > & u, vector< double > & v );
-    static void Analysis( const string & fileName, vector< double > & x, vector< vector< double > > & du );
-    static void AnalysisNew( const string & fileName, vector< vector< double > > & x, vector< vector< double > > & du );
-    static void DrawL1Norm( const string & fileName, vector< double > & dxList, vector< double > & l1NormList );
-    static void DrawNorms( const string & fileName, vector< double > & dxList, vector< double > & l1NormList, vector< double > & l2NormList );
+    static void OpenPrjFile( std::fstream & file, const std::string & fileName, const std::ios_base::openmode & openMode );
+    static std::string AddFileName( const std::string & prefix, const std::string & fileName );
+    static void Ones( std::vector< double > & var );
+    static void Set( std::vector< double > & var, int st, int ed, double v );
+    static void Linspace( std::vector< double > & var, double st, double ed );
+    static void Plot( std::vector< double > & x, std::vector< double > & f );
+    static void Plot( const std::string & fileName, std::vector< double > & x, std::vector< double > & f );
+    static void Copy( std::vector< double > & a, std::vector< double > & b );
+    static void ToTecplot( const std::string & fileName, std::vector< double > & x, std::vector< double > & f );
+    static void ToTecplot( const std::string & fileName, std::vector< double > & x, std::vector< double > & u, std::vector< double > & v );
+    static void Analysis( const std::string & fileName, std::vector< double > & x, std::vector< std::vector< double > > & du );
+    static void AnalysisNew( const std::string & fileName, std::vector< std::vector< double > > & x, std::vector< std::vector< double > > & du );
+    static void DrawL1Norm( const std::string & fileName, std::vector< double > & dxList, std::vector< double > & l1NormList );
+    static void DrawNorms( const std::string & fileName, std::vector< double > & dxList, std::vector< double > & l1NormList, std::vector< double > & l2NormList );
 
 };
 

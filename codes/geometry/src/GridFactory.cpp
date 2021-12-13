@@ -35,7 +35,7 @@ License
 #include "HXMath.h"
 #include "Partition.h"
 #include <iostream>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 
@@ -94,7 +94,7 @@ void GridFactory::PartGrid()
 
 void GridFactory::ConvertGrid()
 {
-    string sourceGridType = grid_para.filetype; 
+    std::string sourceGridType = grid_para.filetype; 
     if ( sourceGridType == "plot3d" )
     {
         this->Plot3DProcess();

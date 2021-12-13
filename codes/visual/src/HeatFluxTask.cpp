@@ -23,7 +23,7 @@ License
 #include "HeatFluxTask.h"
 #include "HeatFlux.h"
 #include "FaceJoint.h"
-#include "FileUtil.h"
+
 #include "Prj.h"
 #include "WallVisual.h"
 #include "AeroForceTask.h"
@@ -46,7 +46,7 @@ License
 #include "NodeMesh.h"
 #include <fstream>
 #include <iostream>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 
@@ -130,8 +130,8 @@ void HeatFluxTask::CalcNodeValue()
 
 void HeatFluxTask::VisualizeWallNodeValue()
 {
-    fstream file;
-    ONEFLOW::OpenPrjFile( file, ctrl.heatfluxFile, ios_base::out );
+    std::fstream file;
+    Prj::OpenPrjFile( file, ctrl.heatfluxFile, std::ios_base::out );
 
     int numberOfSubData = wallManager->patch.size();
     int iCount = 0;
@@ -141,7 +141,7 @@ void HeatFluxTask::VisualizeWallNodeValue()
         if ( basicWall->isValid ) iCount ++;
         basicWall->Visual( file );
     }
-    CloseFile( file );
+    Prj::CloseFile( file );
 }
 
 void CollectWallFaceNode()

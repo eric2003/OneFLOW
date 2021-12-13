@@ -29,7 +29,7 @@ License
 #include <fstream>
 #include <vector>
 #include <algorithm>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 
@@ -43,20 +43,20 @@ Post::~Post()
 
 void Post::Run()
 {
-    cout << " Post::Run()\n";
+    std::cout << " Post::Run()\n";
 
-    fstream file;
+    std::fstream file;
 
-    string fileName = "grid/wallaero.dat";
+    std::string fileName = "grid/wallaero.dat";
 
     //\t is the tab key
-    string separator = " =\r\n\t#$,;\"";
+    std::string separator = " =\r\n\t#$,;\"";
 
     FileIO ioFile;
-    ioFile.OpenPrjFile( fileName, ios_base::in );
+    ioFile.OpenPrjFile( fileName, std::ios_base::in );
     ioFile.SetDefaultSeparator( separator );
     int count = 0;
-    //vector< Real > xList, yList, zList;
+    //std::vector< Real > xList, yList, zList;
     MakeCurveClass makeCurve;
     while ( ! ioFile.ReachTheEndOfFile() )
     {
@@ -67,7 +67,7 @@ void Post::Run()
 
         if ( count <= 8 )
         {
-            cout << "header = ";
+            std::cout << "header = ";
             ioFile.DumpLineContentToScreen();
             continue;
         }
@@ -77,7 +77,7 @@ void Post::Run()
         Real z = ioFile.ReadNextDigit< Real >();
         Real cp = ioFile.ReadNextDigit< Real >();
         Real cf = ioFile.ReadNextDigit< Real >();
-        //cout << x << " " << y << " " << z << "\n";
+        //std::cout << x << " " << y << " " << z << "\n";
         //makeCurve.AddPoint( x, y, z );
         makeCurve.AddPointValue( x, y, z, cp, cf );
     }
@@ -147,7 +147,7 @@ PointEdgeClass::~PointEdgeClass()
 {
 }
 
-void PointEdgeClass::EdgeToPoint( vector< IntField > & edgeList )
+void PointEdgeClass::EdgeToPoint( std::vector< IntField > & edgeList )
 {
     for ( int i = 0; i < edgeList.size(); ++ i )
     {
@@ -156,7 +156,7 @@ void PointEdgeClass::EdgeToPoint( vector< IntField > & edgeList )
         this->idset.insert( pq[ 1 ] );
     }
 
-    for ( set<int>::iterator iter = idset.begin(); iter != idset.end(); ++ iter )
+    for ( std::set<int>::iterator iter = idset.begin(); iter != idset.end(); ++ iter )
     {
         this->idlist.push_back( * iter );
     }
@@ -172,7 +172,7 @@ CurveData::~CurveData()
     ;
 }
 
-void CurveData::SetFilePreStr( const string & file_prestr )
+void CurveData::SetFilePreStr( const std::string & file_prestr )
 {
     this->file_prestr = file_prestr;
 }
@@ -206,7 +206,7 @@ void CurveData::FindExtremePoint()
 
     for ( int p = 0; p < N; ++ p )
     {
-        cout << " p = " << p << " N = " << N << "\n";
+        std::cout << " p = " << p << " N = " << N << "\n";
         for ( int q = p + 1; q < N; ++ q )
         {
             for ( int r = q + 1; r < N; ++ r )
@@ -234,7 +234,7 @@ void CurveData::FindExtremePoint()
             count ++;
         }
     }
-    cout << "number of extreme points = " << count << " total points = " << N << "\n";
+    std::cout << "number of extreme points = " << count << " total points = " << N << "\n";
 }
 
 bool CurveData::InTriangle( int p, int q, int r, int s )
@@ -301,7 +301,7 @@ void CurveData::AddExtremeEdge( int p, int q )
 
     HXSort< IntField > edge( pq, id );
 
-    set < HXSort< IntField > >::iterator iter = this->searchEdgeList.find( edge );
+    std::set < HXSort< IntField > >::iterator iter = this->searchEdgeList.find( edge );
 
     if ( iter == this->searchEdgeList.end() )
     {
@@ -322,7 +322,7 @@ bool CurveData::FindEdge( int p, int q )
 
     HXSort< IntField > edge( pq, id );
 
-    set < HXSort< IntField > >::iterator iter = this->searchEdgeList.find( edge );
+    std::set < HXSort< IntField > >::iterator iter = this->searchEdgeList.find( edge );
 
     return iter != this->searchEdgeList.end();
 }
@@ -344,7 +344,7 @@ void CurveData::FindExtremeEdge()
 
     for ( int p = 0; p < N; ++ p ) //test
     {
-        cout << " p = " << p << " N = " << N << "\n";
+        std::cout << " p = " << p << " N = " << N << "\n";
         for ( int q = p + 1; q < N; ++ q ) //each
         {
             bool flag = CheckEdge( p, q ); //directed edge pq
@@ -380,7 +380,7 @@ bool CurveData::FindNearestPoint( int p0, int &pNearest )
     if ( idset.empty() ) return false;
     Real minds = LARGE;
     pNearest = -1;
-    for ( set< int >::iterator iter = idset.begin(); iter != idset.end(); ++ iter )
+    for ( std::set< int >::iterator iter = idset.begin(); iter != idset.end(); ++ iter )
     {
         int p1 = ( * iter );
         Real dx = xList[ p1 ] - xList[ p0 ];
@@ -409,9 +409,9 @@ int CurveData::FindNextExtremeEdgePoint( int p1, int p2 )
 {
     if ( p2p[ p2 ].size() != 1 )
     {
-        cout << " p2 = " << p2 << "p2p[ p2 ].size()=" << p2p[ p2 ].size() << "\n";
+        std::cout << " p2 = " << p2 << "p2p[ p2 ].size()=" << p2p[ p2 ].size() << "\n";
     }
-    for ( set<int>::iterator iter = p2p[ p2 ].begin(); iter != p2p[ p2 ].end(); ++ iter )
+    for ( std::set<int>::iterator iter = p2p[ p2 ].begin(); iter != p2p[ p2 ].end(); ++ iter )
     {
         int p3 = ( * iter );
         if ( p3 != p1 ) return p3;
@@ -435,7 +435,7 @@ bool CurveData::FindNextPoint( int p1, int & pNext, VectDir * vd )
     if ( idset.empty() ) return false;
     Real minds = LARGE;
     pNext = -1;
-    for ( set< int >::iterator iter = idset.begin(); iter != idset.end(); ++ iter )
+    for ( std::set< int >::iterator iter = idset.begin(); iter != idset.end(); ++ iter )
     {
         int p2 = ( * iter );
         Real dx = xList[ p2 ] - xList[ p1 ];
@@ -459,11 +459,11 @@ bool CurveData::FindNextPoint( int p1, int & pNext, VectDir * vd )
     int pCandidate = pNext;
     Real dCandidate = minds;
 
-    cout << " angle = " << angle << "\n";
+    std::cout << " angle = " << angle << "\n";
 
     minds = LARGE;
     pNext = -1;
-    for ( set< int >::iterator iter = idset.begin(); iter != idset.end(); ++ iter )
+    for ( std::set< int >::iterator iter = idset.begin(); iter != idset.end(); ++ iter )
     {
         int p2 = ( * iter );
         vecd.dx = xList[ p2 ] - xList[ p1 ];
@@ -471,7 +471,7 @@ bool CurveData::FindNextPoint( int p1, int & pNext, VectDir * vd )
         Real ds = DIST( vecd.dx, vecd.dy );
         vecd.Normalize();
         angle = vecd.Angle( vd );
-        cout << " angle = " << angle << " ds = " << ds << "\n";
+        std::cout << " angle = " << angle << " ds = " << ds << "\n";
         if ( angle >= 30 ) continue;
 
         if ( ds < minds )
@@ -481,7 +481,7 @@ bool CurveData::FindNextPoint( int p1, int & pNext, VectDir * vd )
         }
     }
 
-    cout << " pNext = " << pNext << "\n";
+    std::cout << " pNext = " << pNext << "\n";
 
     if ( pNext == - 1 )
     {
@@ -547,26 +547,26 @@ void CurveData::CreateXSortList()
 
 void CurveData::VisualCreateList()
 {
-    string fileName = AddString( "grid/", this->file_prestr, "createdwallaero.dat");
+    std::string fileName = AddString( "grid/", this->file_prestr, "createdwallaero.dat");
     VisualCreateList( this->newidlist, fileName );
 }
 
 
 void CurveData::VisualCurveValue()
 {
-    string fileName = AddString( "grid/", this->file_prestr, "createdwallaerovalue.dat");
+    std::string fileName = AddString( "grid/", this->file_prestr, "createdwallaerovalue.dat");
     VisualCurveValue( this->newidlist, fileName );
 }
 
 void CurveData::VisualCreateList( PointEdgeClass * pec )
 {
-    string fileName = AddString( "grid/", this->file_prestr, "created_pec_wallaero.dat");
+    std::string fileName = AddString( "grid/", this->file_prestr, "created_pec_wallaero.dat");
     VisualCreateList( pec->idlist, fileName );
 }
 
-void CurveData::VisualCreateList( vector<int> & newidlist, const string& fileName )
+void CurveData::VisualCreateList( std::vector<int> & newidlist, const std::string& fileName )
 {
-    vector< Real > x, y, z;
+    std::vector< Real > x, y, z;
     for ( int i = 0; i < newidlist.size(); ++ i )
     {
         int id = newidlist[ i ];
@@ -581,9 +581,9 @@ void CurveData::VisualCreateList( vector<int> & newidlist, const string& fileNam
     this->Visual( fileName, x, y, z );
 }
 
-void CurveData::VisualCurveValue( vector<int> & newidlist, const string& fileName )
+void CurveData::VisualCurveValue( std::vector<int> & newidlist, const std::string& fileName )
 {
-    vector< Real > x, y, z, cp, cf;
+    std::vector< Real > x, y, z, cp, cf;
     for ( int i = 0; i < newidlist.size(); ++ i )
     {
         int id = newidlist[ i ];
@@ -602,16 +602,16 @@ void CurveData::VisualCurveValue( vector<int> & newidlist, const string& fileNam
     this->VisualCurveValue( fileName, x, y, z, cp, cf );
 }
 
-void CurveData::Visual( const string & fileName )
+void CurveData::Visual( const std::string & fileName )
 {
     this->Visual( fileName, this->xList, this->yList, this->zList );
 }
 
-void CurveData::Visual( const string & fileName, vector< Real > & x, vector< Real > & y, vector< Real > & z )
+void CurveData::Visual( const std::string & fileName, std::vector< Real > & x, std::vector< Real > & y, std::vector< Real > & z )
 {
-    fstream file;
+    std::fstream file;
 
-    PIO::ParallelOpenPrj( file, fileName, ios_base::out );
+    PIO::OpenPrjFile( file, fileName, std::ios_base::out );
 
     StringField title;
     GetCurveTitle( title );
@@ -630,14 +630,14 @@ void CurveData::Visual( const string & fileName, vector< Real > & x, vector< Rea
         file << z[i] << "\n";
     }
 
-    PIO::Close( file );
+    PIO::CloseFile( file );
 }
 
-void CurveData::VisualCurveValue( const string & fileName, vector< Real > & x, vector< Real > & y, vector< Real > & z, vector< Real > & cp, vector< Real > & cf )
+void CurveData::VisualCurveValue( const std::string & fileName, std::vector< Real > & x, std::vector< Real > & y, std::vector< Real > & z, std::vector< Real > & cp, std::vector< Real > & cf )
 {
-    fstream file;
+    std::fstream file;
 
-    PIO::ParallelOpenPrj( file, fileName, ios_base::out );
+    PIO::OpenPrjFile( file, fileName, std::ios_base::out );
 
     StringField title;
     GetCurveValueTitle( title );
@@ -660,7 +660,7 @@ void CurveData::VisualCurveValue( const string & fileName, vector< Real > & x, v
         file << cf[i] << "\n";
     }
 
-    PIO::Close( file );
+    PIO::CloseFile( file );
 }
 
 MakeCurveClass::MakeCurveClass()
@@ -740,13 +740,13 @@ void MakeCurveClass::SplitCurve()
 
 void MakeCurveClass::Visual()
 {
-    string fileName = "grid/modifiedwallaero.dat";
+    std::string fileName = "grid/modifiedwallaero.dat";
     this->totalPart.Visual( fileName );
 
-    string fileName1 = "grid/mainwallaero.dat";
+    std::string fileName1 = "grid/mainwallaero.dat";
     this->mainPart.Visual( fileName1 );
 
-    string fileName2 = "grid/slapwallaero.dat";
+    std::string fileName2 = "grid/slapwallaero.dat";
     this->slapPart.Visual( fileName2 );
 }
 

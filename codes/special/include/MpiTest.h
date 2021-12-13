@@ -25,7 +25,7 @@ License
 #include "Configure.h"
 
 #include <string>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 

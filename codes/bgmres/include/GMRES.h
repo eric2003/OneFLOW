@@ -7,7 +7,6 @@
 #include "systemSolver.h"
 //#include<crtdbg.h>
 
-using namespace std;
 /** ************************************************************************
  * Update the current approximation to the solution to the linear
  * system. This assumes that the update is created using a GMRES
@@ -86,7 +85,7 @@ int GMRES
 	// Allocate the space for the givens rotations, and the upper
 	// Hessenburg matrix.
 	Double** H = ArrayUtils<Double>::twotensor((krylovDimension + 1) * Rank.COLNUMBER, krylovDimension * Rank.COLNUMBER);
-	/*cout << H[1][9] << endl;*/
+	/*cout << H[1][9] << std::endl;*/
 	// The Givens rotations include the sine and cosine term. The
 	// cosine term is in column zero, and the sine term is in column
 	// one.
@@ -339,12 +338,12 @@ int GMRES
 				}
 			rho = sqrt(rho);
 
-			//cout << "iteration:" << iteration << "residual:" << rho << endl;
-			/*ofstream file2("residual.txt", ios::app);
-			file2 << "residual:" << rho << endl;
+			//std::cout << "iteration:" << iteration << "residual:" << rho << std::endl;
+			/*ofstream file2("residual.txt", std::ios::app);
+			file2 << "residual:" << rho << std::endl;
 			file2.close();*/
 
-			//cout << tolerance * normRHS << endl;
+			//std::cout << tolerance * normRHS << std::endl;
 			if (rho < tolerance * normRHS)   //Is this method effective in bgmres
 			{
 				// We are close enough! Update the approximation.
@@ -371,7 +370,7 @@ int GMRES
 		(*residual) = precond->solve2((*linearization) * (*solution) - (*rhs));      //The third precond
 		Rank.residual = residual->norm();
 
-		//cout << "totalRestarts:" << totalRestarts << endl;
+		//std::cout << "totalRestarts:" << totalRestarts << std::endl;
 	} // while(numberRestarts,rho)
 
 

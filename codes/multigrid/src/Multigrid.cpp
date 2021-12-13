@@ -37,7 +37,7 @@ License
 #include "BgField.h"
 #include "TimeSpan.h"
 #include <iostream>
-using namespace std;
+
 
 
 BeginNameSpace( ONEFLOW )
@@ -179,8 +179,8 @@ void MG::OuterProcess( TimeSpan * timeSpan )
     {
         if ( Parallel::IsServer() )
         {
-            cout << "dumping field...";
-            cout << "  finished " << endl;
+            std::cout << "dumping field...";
+            std::cout << "  finished " << std::endl;
             timeSpan->ShowTimeSpan();
         }
     }

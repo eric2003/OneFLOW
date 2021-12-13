@@ -23,7 +23,6 @@ License
 #pragma once
 #include "Marray.h"
 #include "Multiarray.h"
-using namespace std;
 
 BeginNameSpace( ONEFLOW )
 

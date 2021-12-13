@@ -36,7 +36,7 @@ License
 #include "StrUtil.h"
 #include <iostream>
 #include <iomanip>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 
@@ -52,21 +52,9 @@ Grad::~Grad()
 
 void Grad::CalcGrad()
 {
-    if ( Iteration::outerSteps == -31 )
+    for ( int iEqu = 0; iEqu < nEqu; ++ iEqu )
     {
-        for ( int iEqu = 0; iEqu < nEqu; ++ iEqu )
-        {
-            //ONEFLOW::CalcGrad( ( * q )[ iEqu ], ( * dqdx )[ iEqu ], ( * dqdy )[ iEqu ], ( * dqdz )[ iEqu ] );
-            ONEFLOW::CalcGradGGCellWeightDebug( ( * q )[ iEqu ], ( * dqdx )[ iEqu ], ( * dqdy )[ iEqu ], ( * dqdz )[ iEqu ] );
-        }
-    }
-    else
-    {
-        for ( int iEqu = 0; iEqu < nEqu; ++ iEqu )
-        {
-            ONEFLOW::CalcGradGGCellWeight( ( * q )[ iEqu ], ( * dqdx )[ iEqu ], ( * dqdy )[ iEqu ], ( * dqdz )[ iEqu ] );
-        }
-
+        ONEFLOW::CalcGradGGCellWeight( ( * q )[ iEqu ], ( * dqdx )[ iEqu ], ( * dqdy )[ iEqu ], ( * dqdz )[ iEqu ] );
     }
 
     if ( Iteration::outerSteps == -31 )
@@ -74,8 +62,8 @@ void Grad::CalcGrad()
         Real mindiff = 1.0e-10;
         int idumpface = 1;
         int idumpcell = 0;
-        string fname = AddString( "grad.", name, ".debug" );
-        cout << "varname = " << name << "\n";
+        std::string fname = AddString( "grad.", name, ".debug" );
+        std::cout << "varname = " << name << "\n";
         HXDebug::DumpField( fname, q );
         HXDebug::CompareFile( 1.0e-12, idumpcell );
 
@@ -84,9 +72,9 @@ void Grad::CalcGrad()
         HXDebug::DumpField( "flowq.debug", qq );
         HXDebug::CompareFile( 1.0e-12, idumpcell );
 
-        string fnamedqdx = AddString( "grad.", name, ".dqdx.debug" );
-        string fnamedqdy = AddString( "grad.", name, ".dqdy.debug" );
-        string fnamedqdz = AddString( "grad.", name, ".dqdz.debug" );
+        std::string fnamedqdx = AddString( "grad.", name, ".dqdx.debug" );
+        std::string fnamedqdy = AddString( "grad.", name, ".dqdy.debug" );
+        std::string fnamedqdz = AddString( "grad.", name, ".dqdz.debug" );
 
         HXDebug::DumpField( fnamedqdx, dqdx );
         HXDebug::CompareFile( mindiff, idumpcell );

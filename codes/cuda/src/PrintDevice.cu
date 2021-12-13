@@ -2,25 +2,24 @@
 
 #include <cuda_runtime.h>
 #include <iostream>
-using namespace std;
 
 void printDeviceProp(const cudaDeviceProp& prop)
 {
-    cout << "Device Name : " << prop.name << "\n";
-    cout << "totalGlobalMem : " << prop.totalGlobalMem << "\n";
-    cout << "sharedMemPerBlock " << prop.sharedMemPerBlock << "\n";
-    cout << "regsPerBlock : " << prop.regsPerBlock << "\n";
-    cout << "warpSize :" << prop.warpSize << "\n";
-    cout << "memPitch : " << prop.memPitch << "\n";
-    cout << "maxThreadsPerBlock " << prop.maxThreadsPerBlock << "\n";
-    cout << "maxThreadsDim[0 - 2] : " << prop.maxThreadsDim[0] << " " << prop.maxThreadsDim[1] << " " << prop.maxThreadsDim[2] << "\n";
-    cout << "maxGridSize[0 - 2] " << prop.maxGridSize[0] << " " << prop.maxGridSize[1] << " " << prop.maxGridSize[2] << "\n";
-    cout << "totalConstMem : " << prop.totalConstMem << "\n";
-    cout << "major.minor : " << prop.major << "." << prop.minor << "\n";
-    cout << "clockRate : " << prop.clockRate << "\n";
-    cout << "textureAlignment :" << prop.textureAlignment << "\n";
-    cout << "deviceOverlap : " << prop.deviceOverlap << "\n";
-    cout << "multiProcessorCount : " << prop.multiProcessorCount << "\n";
+    std::cout << "Device Name : " << prop.name << "\n";
+    std::cout << "totalGlobalMem : " << prop.totalGlobalMem << "\n";
+    std::cout << "sharedMemPerBlock " << prop.sharedMemPerBlock << "\n";
+    std::cout << "regsPerBlock : " << prop.regsPerBlock << "\n";
+    std::cout << "warpSize :" << prop.warpSize << "\n";
+    std::cout << "memPitch : " << prop.memPitch << "\n";
+    std::cout << "maxThreadsPerBlock " << prop.maxThreadsPerBlock << "\n";
+    std::cout << "maxThreadsDim[0 - 2] : " << prop.maxThreadsDim[0] << " " << prop.maxThreadsDim[1] << " " << prop.maxThreadsDim[2] << "\n";
+    std::cout << "maxGridSize[0 - 2] " << prop.maxGridSize[0] << " " << prop.maxGridSize[1] << " " << prop.maxGridSize[2] << "\n";
+    std::cout << "totalConstMem : " << prop.totalConstMem << "\n";
+    std::cout << "major.minor : " << prop.major << "." << prop.minor << "\n";
+    std::cout << "clockRate : " << prop.clockRate << "\n";
+    std::cout << "textureAlignment :" << prop.textureAlignment << "\n";
+    std::cout << "deviceOverlap : " << prop.deviceOverlap << "\n";
+    std::cout << "multiProcessorCount : " << prop.multiProcessorCount << "\n";
 }
 
 bool InitCUDA()

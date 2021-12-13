@@ -31,7 +31,7 @@ License
 #include "FileIO.h"
 #include "HXMath.h"
 #include <iostream>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 
@@ -47,18 +47,18 @@ GridMachine::~GridMachine()
 
 void GridMachine::Run()
 {
-    string fileName = GetDataValue< string >( "gridLayoutFileName" );
+    std::string fileName = GetDataValue< std::string >( "gridLayoutFileName" );
     this->ReadScript( fileName );
     this->GeneGrid();
 }
 
-void GridMachine::ReadScript( const string & fileName )
+void GridMachine::ReadScript( const std::string & fileName )
 {
-    string separator = " =\r\n\t#$,;\"(){}";
+    std::string separator = " =\r\n\t#$,;\"(){}";
 
     FileIO ioFile;
 
-    ioFile.OpenPrjFile( fileName, ios_base::in );
+    ioFile.OpenPrjFile( fileName, std::ios_base::in );
     ioFile.SetDefaultSeparator( separator );
 
     while ( ! ioFile.ReachTheEndOfFile() )
@@ -66,8 +66,8 @@ void GridMachine::ReadScript( const string & fileName )
         bool resultFlag = ioFile.ReadNextMeaningfulLine();
         if ( ! resultFlag ) break;
 
-        string keyWord = ioFile.ReadNextWord();
-        string word;
+        std::string keyWord = ioFile.ReadNextWord();
+        std::string word;
 
         if ( keyWord == "Point" )
         {

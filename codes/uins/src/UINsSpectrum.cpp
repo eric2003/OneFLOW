@@ -36,7 +36,7 @@ License
 #include "UsdData.h"
 #include "Ctrl.h"
 #include <iostream>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 

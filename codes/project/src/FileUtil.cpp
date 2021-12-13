@@ -21,10 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "FileUtil.h"
-#include "Word.h"
 #include "Stop.h"
-#include "BasicParallel.h"
-#include "LogFile.h"
 
 #ifdef _WINDOWS
 #include <windows.h>
@@ -42,11 +39,10 @@ License
 #endif
 
 #include <iostream>
-using namespace std;
 
 BeginNameSpace( ONEFLOW )
 
-bool DirExist( const string & dirName )
+bool DirExist( const std::string & dirName )
 {
 #ifdef _WINDOWS
     bool flag = ( _access( dirName.c_str(), 0 ) == 0 );
@@ -57,22 +53,7 @@ bool DirExist( const string & dirName )
 #endif
 }
 
-//void MakeDir( const string & dirName )
-//{
-//    int flag;
-//#ifdef _WINDOWS
-//    flag = _mkdir( dirName.c_str() );
-//#else
-//    flag = mkdir( dirName.c_str(), S_IRWXU );
-//#endif
-//
-//    if ( flag == 0 )
-//    {
-//        cout << dirName << " directory has been created successfully !\n";
-//    }
-//}
-
-void MakeDir( const string & dirName )
+void MakeDir( const std::string & dirName )
 {
     int flag;
 #ifdef _WINDOWS
@@ -87,24 +68,24 @@ void MakeDir( const string & dirName )
 
     if ( flag == 0 )
     {
-        cout << dirName << " directory has been created successfully !\n";
+        std::cout << dirName << " directory has been created successfully !\n";
     }
 }
 
-string HX_GetExePath()
+std::string HX_GetExePath()
 {
     char buffer[ FILENAME_MAX ] = { 0 };
 #ifdef _WIN32
     GetModuleFileName( NULL, buffer, FILENAME_MAX );
 #else
-    ssize_t count = readlink( "/proc/self/exe", buffer, FILENAME_MAX );
+    std::size_t count = readlink( "/proc/self/exe", buffer, FILENAME_MAX );
 #endif
-    string::size_type pos = string( buffer ).find_last_of( "\\/" );
-    return string( buffer ).substr( 0, pos);
+    std::string::size_type pos = std::string( buffer ).find_last_of( "\\/" );
+    return std::string( buffer ).substr( 0, pos);
 }
 
 
-string HX_GetCurrentDir()
+std::string HX_GetCurrentDir()
 {
 #ifdef _WINDOWS
     char * cwd = _getcwd( 0, 0 );
@@ -116,19 +97,7 @@ string HX_GetCurrentDir()
     return working_dir ;
 }
 
-//string HX_GetCurrentDir()
-//{
-//#ifdef HX_GNU
-//    char * cwd = getcwd( 0, 0 ); 
-//#else
-//    char * cwd = _getcwd( 0, 0 );
-//#endif
-//    std::string working_dir( cwd ) ;
-//    std::free( cwd ) ;
-//    return working_dir ;
-//}
-
-bool EndWithSlash( const string & fileName )
+bool EndWithSlash( const std::string & fileName )
 {
     if ( EndWithForwardSlash( fileName ) ||
         EndWithBackwardSlash( fileName ) )
@@ -138,7 +107,7 @@ bool EndWithSlash( const string & fileName )
     return false;
 }
 
-bool EndWithBackwardSlash( const string & fileName )
+bool EndWithBackwardSlash( const std::string & fileName )
 {
     size_t pos = fileName.find_last_of("\\");
     size_t ss = fileName.size();
@@ -153,7 +122,7 @@ bool EndWithBackwardSlash( const string & fileName )
     }
 }
 
-bool EndWithForwardSlash( const string & fileName )
+bool EndWithForwardSlash( const std::string & fileName )
 {
     size_t pos = fileName.find_last_of("/");
     size_t ss = fileName.size();
@@ -168,7 +137,7 @@ bool EndWithForwardSlash( const string & fileName )
     }
 }
 
-bool StartWithForwardSlash( const string & fileName )
+bool StartWithForwardSlash( const std::string & fileName )
 {
     size_t pos = fileName.find_first_of("/");
     if ( fileName.size() == 0 )
@@ -183,7 +152,7 @@ bool StartWithForwardSlash( const string & fileName )
     return false;
 }
 
-string RemoveFirstSlash( const string & fileName )
+std::string RemoveFirstSlash( const std::string & fileName )
 {
     if ( StartWithForwardSlash( fileName ) )
     {
@@ -193,7 +162,7 @@ string RemoveFirstSlash( const string & fileName )
     return fileName;
 }
 
-string RemoveEndSlash( const string & fileName )
+std::string RemoveEndSlash( const std::string & fileName )
 {
     if ( EndWithSlash( fileName ) )
     {
@@ -204,49 +173,32 @@ string RemoveEndSlash( const string & fileName )
 
 }
 
-void OpenFile( fstream & file, const string & fileName, const ios_base::openmode & openMode )
+void GetFileNameExtension( const std::string & fullName, std::string & mainName, std::string & extensionName, const std::string & fileNameSeparator )
 {
-    file.open( fileName.c_str(), openMode );
-    if ( ! file )
-    {
-        cout << "could not open " << fileName << endl;
-        Stop( "" );
-    }
-}
-
-void CloseFile( fstream & file )
-{
-    file.close();
-    file.clear();
-}
-
-
-void GetFileNameExtension( const string & fullName, string & mainName, string & extensionName, const string & fileNameSeparator )
-{
-    basic_string <char>::size_type index;
+    std::basic_string <char>::size_type index;
 
     index         = fullName.find_last_of( fileNameSeparator );
     mainName      = fullName.substr( 0, index );
     extensionName = fullName.substr( index+1, fullName.length() - index - 1 );
 }
 
-void ModifyFileMainName( string & fileName,  const string & newMainName )
+void ModifyFileMainName( std::string & fileName,  const std::string & newMainName )
 {
-    string mainName, extensionName;
+    std::string mainName, extensionName;
     ONEFLOW::GetFileNameExtension( fileName, mainName, extensionName, "." );
 
-    ostringstream oss;
+    std::ostringstream oss;
     oss << newMainName << "." << extensionName;
 
     fileName = oss.str();
 }
 
-void ModifyFileExtensionName( string & fileName,  const string & newExtensionName )
+void ModifyFileExtensionName( std::string & fileName,  const std::string & newExtensionName )
 {
-    string mainName, extensionName;
+    std::string mainName, extensionName;
     ONEFLOW::GetFileNameExtension( fileName, mainName, extensionName, "." );
 
-    ostringstream oss;
+    std::ostringstream oss;
     oss << mainName << "." << newExtensionName;
 
     fileName = oss.str();

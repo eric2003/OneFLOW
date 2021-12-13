@@ -47,7 +47,7 @@ License
 #include "CellMesh.h"
 #include "CellTopo.h"
 #include <iostream>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 
@@ -598,7 +598,7 @@ void UINsVisterm::CalcINsSrc()
 		iinv.bvc[ug.cId] += iinv.bvt[ug.cId] -(*ug.cvol)[ug.cId] * (*uinsf.dqdy)[IIDX::IIP][ug.cId];
 		iinv.bwc[ug.cId] += iinv.bwt[ug.cId] - (*ug.cvol)[ug.cId] * (*uinsf.dqdz)[IIDX::IIP][ug.cId];
 
-		//cout << "iinv.buc=" << iinv.buc[ug.cId] <<"cId="<< ug.cId<< "\n";
+		//std::cout << "iinv.buc=" << iinv.buc[ug.cId] <<"cId="<< ug.cId<< "\n";
 
 		int fn = (*ug.c2f)[ug.cId].size();
 		if (ctrl.currTime == 0.001 && Iteration::innerSteps == 1)

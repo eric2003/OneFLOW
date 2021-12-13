@@ -23,7 +23,7 @@ License
 #include "MpiTest.h"
 #include "mpi.h"
 #include <iostream>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 
@@ -52,7 +52,7 @@ void MpiTest::HX_MPI_Init()
     MPI_Init( 0, 0 );
     MPI_Comm_size( MPI_COMM_WORLD, & nprocs );
     MPI_Comm_rank( MPI_COMM_WORLD, & myrank );
-    cout << "myrank = " << myrank << " nprocs = " << nprocs << "\n";
+    std::cout << "myrank = " << myrank << " nprocs = " << nprocs << "\n";
 }
 
 void MpiTest::HX_MPI_Final()

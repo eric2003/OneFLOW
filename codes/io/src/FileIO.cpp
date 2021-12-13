@@ -21,12 +21,11 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "FileIO.h"
-#include "FileUtil.h"
+
 #include "Word.h"
 #include "CommentLine.h"
 #include "Prj.h"
 #include <iostream>
-using namespace std;
 
 BeginNameSpace( ONEFLOW )
 
@@ -54,12 +53,12 @@ std::string * GetDefaultSeparatorOfWord()
 
 FileIO::FileIO()
 {
-    line        = new std::string;
-    separator   = new std::string;
-    file        = new fstream;
+    line        = new std::string();
+    separator   = new std::string();
+    //file        = new std::fstream();
     setfileFlag = 0;
     //\t is tab key
-    string keyWordSeparator = " =\r\n\t#$,;\"";
+    std::string keyWordSeparator = " =\r\n\t#$,;\"";
     this->SetDefaultSeparator( keyWordSeparator );
 
     this->commentLine = new CommentLine();
@@ -71,10 +70,6 @@ FileIO::~FileIO()
 {
     delete line;
     delete separator;
-    if ( setfileFlag == 0 )
-    {
-        delete file;
-    }
     delete this->commentLine;
 }
 
@@ -83,50 +78,40 @@ void FileIO::ResetCommentString(StringField& commentStringList)
     this->commentLine->ResetCommentString(commentStringList);
 }
 
-void FileIO::SetDefaultFile ( std::fstream * defaultFileIn )
-{
-    if ( setfileFlag == 0 )
-    {
-        delete file;
-    }
-    this->file  = defaultFileIn;
-    setfileFlag = 1;
-}
-
-void FileIO::OpenFile( const string & fileName, const ios_base::openmode & fileOpenMode )
+void FileIO::OpenFile( const std::string & fileName, const std::ios_base::openmode & fileOpenMode )
 {
     this->fileName     = fileName;
     this->fileOpenMode = fileOpenMode;
-    ONEFLOW::OpenFile( * file, fileName, fileOpenMode );
+    Prj::OpenFile( this->file, fileName, fileOpenMode );
 }
 
-void FileIO::OpenPrjFile( const string & fileName, const ios_base::openmode & fileOpenMode )
+void FileIO::OpenPrjFile( const std::string & fileName, const std::ios_base::openmode & fileOpenMode )
 {
     this->fileName     = fileName;
     this->fileOpenMode = fileOpenMode;
-    ONEFLOW::OpenPrjFile( * file, fileName, fileOpenMode );
+    Prj::OpenPrjFile( this->file, fileName, fileOpenMode );
 }
 
 void FileIO::CloseFile()
 {
-    ONEFLOW::CloseFile( * file );
+    Prj::CloseFile( this->file );
 }
 
 void FileIO::MarkCurrentFilePosition()
 {
-    filePosition = file->tellp();
+    filePosition = this->file.tellp();
 }
 
 void FileIO::MoveToPreviousFilePosition()
 {
-    file->seekp( filePosition );
+    this->file.seekp( filePosition );
 }
 
 bool FileIO::ReadNextMeaningfulLine()
 {
     while ( ! this->ReachTheEndOfFile() )
     {
-         Word::ReadNextLine( * file, * line );
+         Word::ReadNextLine( this->file, * line );
 
         if ( Word::IsEmptyLine  ( * line ) ||
              Word::IsCommentLine( * line, this->commentLine->commentdata ) )
@@ -140,7 +125,7 @@ bool FileIO::ReadNextMeaningfulLine()
 
 bool FileIO::ReachTheEndOfFile()
 {
-    if ( ( * file ).eof() )
+    if ( this->file.eof() )
     {
         return true;
     }
@@ -149,27 +134,27 @@ bool FileIO::ReachTheEndOfFile()
 
 void FileIO::SkipLines( int numberOfLinesToSkip )
 {
-     Word::SkipLines( * file, numberOfLinesToSkip );
+     Word::SkipLines( this->file, numberOfLinesToSkip );
 }
 
 bool FileIO::ReadNextNonEmptyLine()
 {
-    return Word::ReadNextNonEmptyLine( * this->file, * this->line );
+    return Word::ReadNextNonEmptyLine( this->file, * this->line );
 }
 
 void FileIO::DumpLineContentToScreen()
 {
-    cout << * line << endl;
+    std::cout << * line << std::endl;
 }
 
-void FileIO::SkipReadSymbol( const string & stringSymbol )
+void FileIO::SkipReadSymbol( const std::string & stringSymbol )
 {
     while ( ! this->ReachTheEndOfFile() )
     {
         bool resultFlag = this->ReadNextMeaningfulLine();
         if ( ! resultFlag ) break;
 
-        string word = this->ReadNextWord();
+        std::string word = this->ReadNextWord();
 
         if ( word == stringSymbol )
         {
@@ -188,7 +173,7 @@ void FileIO::SkipReadWholeBlock()
         bool resultFlag = this->ReadNextMeaningfulLine();
         if ( ! resultFlag ) break;
 
-        string word = this->ReadNextWord();
+        std::string word = this->ReadNextWord();
 
         if ( word == "{" )
         {
@@ -209,13 +194,13 @@ void FileIO::SkipReadWholeBlock()
 bool FileIO::NextWordIsEmpty()
 {
     std::string lineLeft = * this->line;
-    string word = Word::FindNextWord( lineLeft, * this->separator );
+    std::string word = Word::FindNextWord( lineLeft, * this->separator );
     return word == "";
 }
 
 std::string FileIO::ReadNextTrueWord()
 {
-    string word = Word::FindNextWord( * this->line, * this->separator );
+    std::string word = Word::FindNextWord( * this->line, * this->separator );
 
     if ( word == "" )
     {
@@ -228,36 +213,36 @@ std::string FileIO::ReadNextTrueWord()
 
 std::string FileIO::ReadNextWord()
 {
-    string word = Word::FindNextWord( * this->line, * this->separator );
+    std::string word = Word::FindNextWord( * this->line, * this->separator );
 
     return word;
 }
 
 std::string FileIO::ReadNextWord( const std::string & separator )
 {
-    string word = Word::FindNextWord( * this->line, separator );
+    std::string word = Word::FindNextWord( * this->line, separator );
     return word;
 }
 
-string FileIO::ReadNextWordToLowerCase()
+std::string FileIO::ReadNextWordToLowerCase()
 {
-    string word = Word::FindNextWord( * this->line, * this->separator );
+    std::string word = Word::FindNextWord( * this->line, * this->separator );
     Word::ToLowerCase( word );
     return word;
 }
 
-string FileIO::ReadNextWordToLowerCase( const std::string & separator )
+std::string FileIO::ReadNextWordToLowerCase( const std::string & separator )
 {
-    string word = Word::FindNextWord( * this->line, separator );
+    std::string word = Word::FindNextWord( * this->line, separator );
     Word::ToLowerCase( word );
     return word;
 }
 
-bool IsEmpty( fstream & file )
+bool IsEmpty( std::fstream & file )
 {
-    file.seekp( 0, ios::end );
-    streamoff i = file.tellp();
-    //cout << "ONEFLOW::IsEmpty( fstream & file ) = " << i << endl;
+    file.seekp( 0, std::ios::end );
+    std::streamoff i = file.tellp();
+    //std::cout << "ONEFLOW::IsEmpty( std::fstream & file ) = " << i << std::endl;
     if ( i ) return false;
     return true;
 }

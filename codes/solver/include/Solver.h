@@ -24,7 +24,7 @@ License
 #pragma once
 #include "HXDefine.h"
 #include <map>
-using namespace std;
+
 BeginNameSpace( ONEFLOW )
 
 class Solver;
@@ -45,9 +45,9 @@ public:
 public:
     virtual Solver * Clone() const = 0;
 public:
-    static Solver * SafeClone( const string & type );
-    static Solver * Register( const string & type, Solver * clone );
-    static map < string, Solver * > * classMap;
+    static Solver * SafeClone( const std::string & type );
+    static Solver * Register( const std::string & type, Solver * clone );
+    static std::map < std::string, Solver * > * classMap;
 public:
     int sid, sTid;
     int gridType;

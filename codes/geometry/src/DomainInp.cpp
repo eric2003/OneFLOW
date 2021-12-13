@@ -31,11 +31,11 @@ License
 #include "PointSearch.h"
 #include "BcRecord.h"
 #include "HXMath.h"
-#include "FileUtil.h"
 #include "Prj.h"
 #include "Partition.h"
 #include <iostream>
-using namespace std;
+#include<iomanip>
+
 
 BeginNameSpace( ONEFLOW )
 
@@ -242,9 +242,9 @@ void PatchBox::CalcNormal()
     smin[ b ] = - smin[ b ];
     smax[ b ] = - smax[ b ];
 
-    cout << smin[ 0 ] << " " << smax[ 0 ] << " " ;
-    cout << smin[ 1 ] << " " << smax[ 1 ] << " " ;
-    cout << smin[ 2 ] << " " << smax[ 2 ] << endl << endl;
+    std::cout << smin[ 0 ] << " " << smax[ 0 ] << " " ;
+    std::cout << smin[ 1 ] << " " << smax[ 1 ] << " " ;
+    std::cout << smin[ 2 ] << " " << smax[ 2 ] << std::endl << std::endl;
 
     int kkk = 1;
 }
@@ -323,8 +323,8 @@ void PBlkSet::Add( int idx, PBlk * pblk )
     int nSize = this->id.size();
     if ( idx < nSize )
     {
-        set< PBlk *, ComparePBlk > * pset = pinfo[ idx ];
-        set< PBlk *, ComparePBlk >::iterator iter;
+        std::set< PBlk *, ComparePBlk > * pset = pinfo[ idx ];
+        std::set< PBlk *, ComparePBlk >::iterator iter;
         iter = pset->find( pblk );
         if ( iter == pset->end() )
         {
@@ -338,7 +338,7 @@ void PBlkSet::Add( int idx, PBlk * pblk )
     else
     {
         this->ReSize( nSize + 1 );
-        set< PBlk *, ComparePBlk > * pset = new set< PBlk *, ComparePBlk >;
+        std::set< PBlk *, ComparePBlk > * pset = new std::set< PBlk *, ComparePBlk >;
         pinfo[ idx ] = pset;
         pset->insert( pblk );
         this->id[ idx ] = idx;
@@ -359,7 +359,7 @@ void PBlkSet::Analysys()
         ip = i;
         }
     }
-    cout << " maxpt = " << maxpt << " ip = " << ip << endl;
+    std::cout << " maxpt = " << maxpt << " ip = " << ip << std::endl;
 
     IntField multi_point;
     for ( int i = 0; i < nSize; ++ i )
@@ -408,9 +408,9 @@ void PBlkSet::CalcDomainPatch( int iZone, int jZone, MultiDomain & md )
     }
 }
 
-bool PBlkSet::BlkDomainInSet( int zoneid, int idomain, set< PBlk *, ComparePBlk > * pset, PBlk *& pblk )
+bool PBlkSet::BlkDomainInSet( int zoneid, int idomain, std::set< PBlk *, ComparePBlk > * pset, PBlk *& pblk )
 {
-    set< PBlk *, ComparePBlk >::iterator iter;
+    std::set< PBlk *, ComparePBlk >::iterator iter;
 
     for ( iter = pset->begin(); iter != pset->end(); ++ iter )
     {
@@ -467,7 +467,7 @@ bool PBlkSet::CheckPBlkList( HXVector< PBlk * > & pblk_list, PatchBox & box )
     int ijkv = iv + jv + kv;
     if ( ijkv < 2 )
     {
-        cout << " not a domain " << endl;
+        std::cout << " not a domain " << std::endl;
         return false;
     }
 
@@ -499,15 +499,15 @@ bool PBlkSet::CheckPBlkList( HXVector< PBlk * > & pblk_list, PatchBox & box )
 
     if ( ! flag )
     {
-        cout << " not a domain " << endl;
+        std::cout << " not a domain " << std::endl;
         return false;
     }
 
     box.Set( imin, imax, jmin, jmax, kmin, kmax );
-    cout << imin << " " << imax << endl;
-    cout << jmin << " " << jmax << endl;
-    cout << kmin << " " << kmax << endl;
-    cout << " is a domain " << endl;
+    std::cout << imin << " " << imax << std::endl;
+    std::cout << jmin << " " << jmax << std::endl;
+    std::cout << kmin << " " << kmax << std::endl;
+    std::cout << " is a domain " << std::endl;
     return true;
 }
 
@@ -520,8 +520,8 @@ bool PBlkSet::CrossDomain( int iZone, int idomain, int jZone, int jdomain, Patch
     for ( int i = 0; i < nSize; ++ i )
     {
         int nn = pinfo[ i ]->size();
-        set< PBlk *, ComparePBlk > * pset = pinfo[ i ];
-        set< PBlk *, ComparePBlk >::iterator iter;
+        std::set< PBlk *, ComparePBlk > * pset = pinfo[ i ];
+        std::set< PBlk *, ComparePBlk >::iterator iter;
 
         PBlk * pblk1 = 0;
         PBlk * pblk2 = 0;
@@ -538,7 +538,7 @@ bool PBlkSet::CrossDomain( int iZone, int idomain, int jZone, int jdomain, Patch
     }
     bool valid_i = CheckPBlkList( pblk1_list, box_i );
     bool valid_j = CheckPBlkList( pblk2_list, box_j );
-    cout << "zone[" << iZone << "][" << jZone << "] = " << idomain << ":" << jdomain << " num = " << cross.size() << endl;
+    std::cout << "zone[" << iZone << "][" << jZone << "] = " << idomain << ":" << jdomain << " num = " << cross.size() << std::endl;
     int kkk = 1;
     return valid_i && valid_j;
 }
@@ -658,8 +658,8 @@ void DomainInp::GeneInp()
     CgnsFactory * cgnsFactory = new CgnsFactory();
 
     GridMediator * gridMediator = new GridMediator();
-    gridMediator->gridFile = ONEFLOW::GetDataValue< string >( "sourceGridFileName" );
-    gridMediator->bcFile   = ONEFLOW::GetDataValue< string >( "sourceGridBcName" );
+    gridMediator->gridFile = ONEFLOW::GetDataValue< std::string >( "sourceGridFileName" );
+    gridMediator->bcFile   = ONEFLOW::GetDataValue< std::string >( "sourceGridBcName" );
     gridMediator->gridType = "plot3d";
 
     gridMediator->ReadPlot3DCoor();
@@ -684,7 +684,7 @@ void DomainInp::GetId( int zid, int i, int j, int k, int & id, GridMediator * gr
     int kkk = 1;
 }
 
-void DomainInp::DumpCoor( int zid, int i, int j, int k, GridMediator * gridMediator, fstream & file )
+void DomainInp::DumpCoor( int zid, int i, int j, int k, GridMediator * gridMediator, std::fstream & file )
 {
     StrGrid * grid = ONEFLOW::StrGridCast( gridMediator->gridVector[ zid ] );
     Field3D & xs = * grid->strx;
@@ -697,7 +697,7 @@ void DomainInp::DumpCoor( int zid, int i, int j, int k, GridMediator * gridMedia
     coor[ 1 ] = ys( i, j, k );
     coor[ 2 ] = zs( i, j, k );
 
-    file << coor[ 0 ] << " " << coor[ 1 ] << " " << coor[ 2 ] << endl;
+    file << coor[ 0 ] << " " << coor[ 1 ] << " " << coor[ 2 ] << std::endl;
 
 }
 
@@ -734,17 +734,17 @@ void DomainInp::FindPhysicalPatch( StrGrid * grid, MultiDomain * md, int zid, Ij
 
 void DomainInp::Dump( MultiDomain * md, GridMediator * gridMediator, PointSearch * pointSearch )
 {
-    fstream file;
-    string fileName = "test.inp";
-    ONEFLOW::OpenPrjFile( file, fileName, ios_base::out );
+    std::fstream file;
+    std::string fileName = "test.inp";
+    Prj::OpenPrjFile( file, fileName, std::ios_base::out );
 
     Grids grids = gridMediator->gridVector;
     int nZone = grids.size();
 
     int width = 5;
     int solver_id = 1;
-    file << setw( width ) << solver_id << endl;
-    file << setw( width ) << nZone << endl;
+    file << std::setw( width ) << solver_id << std::endl;
+    file << std::setw( width ) << nZone << std::endl;
     for ( int iZone = 0; iZone < nZone; ++ iZone )
     {
         StrGrid * grid = ONEFLOW::StrGridCast( grids[ iZone ] );
@@ -752,11 +752,11 @@ void DomainInp::Dump( MultiDomain * md, GridMediator * gridMediator, PointSearch
         int nj = grid->nj;
         int nk = grid->nk;
 
-        file << setw( width ) << ni;
-        file << setw( width ) << nj;
-        file << setw( width ) << nk << endl;
+        file << std::setw( width ) << ni;
+        file << std::setw( width ) << nj;
+        file << std::setw( width ) << nk << std::endl;
 
-        file << "zone" << iZone + 1 << endl;
+        file << "zone" << iZone + 1 << std::endl;
 
         IjkBox ijkBox;
         FindPhysicalPatch( grid, md, iZone, & ijkBox );
@@ -780,17 +780,17 @@ void DomainInp::Dump( MultiDomain * md, GridMediator * gridMediator, PointSearch
             }
         }
 
-        file << setw( width ) << count << endl;
+        file << std::setw( width ) << count << std::endl;
 
         for ( int i = 0; i < nn; ++ i )
         {
             if ( ijkBox.valid[ i ] == 1 )
             {
                 int bctype = 4;
-                file << setw( width ) << ijkBox.imin[ i ] << setw( width ) << ijkBox.imax[ i ];
-                file << setw( width ) << ijkBox.jmin[ i ] << setw( width ) << ijkBox.jmax[ i ];
-                file << setw( width ) << ijkBox.kmin[ i ] << setw( width ) << ijkBox.kmax[ i ];
-                file << setw( width ) << bctype << endl;
+                file << std::setw( width ) << ijkBox.imin[ i ] << std::setw( width ) << ijkBox.imax[ i ];
+                file << std::setw( width ) << ijkBox.jmin[ i ] << std::setw( width ) << ijkBox.jmax[ i ];
+                file << std::setw( width ) << ijkBox.kmin[ i ] << std::setw( width ) << ijkBox.kmax[ i ];
+                file << std::setw( width ) << bctype << std::endl;
             }
         }
 
@@ -837,19 +837,19 @@ void DomainInp::Dump( MultiDomain * md, GridMediator * gridMediator, PointSearch
             box2->CalcIdMap( box1 );
             box2->CalcNormal();
 
-            file << setw( width ) << box1->smin[ 0 ] << setw( width ) << box1->smax[ 0 ];
-            file << setw( width ) << box1->smin[ 1 ] << setw( width ) << box1->smax[ 1 ];
-            file << setw( width ) << box1->smin[ 2 ] << setw( width ) << box1->smax[ 2 ];
-            file << setw( width ) << -1 << endl;
-            file << setw( width ) << box2->smin[ 0 ] << setw( width ) << box2->smax[ 0 ];
-            file << setw( width ) << box2->smin[ 1 ] << setw( width ) << box2->smax[ 1 ];
-            file << setw( width ) << box2->smin[ 2 ] << setw( width ) << box2->smax[ 2 ];
-            file << setw( width ) << zid2 + 1 << endl;
+            file << std::setw( width ) << box1->smin[ 0 ] << std::setw( width ) << box1->smax[ 0 ];
+            file << std::setw( width ) << box1->smin[ 1 ] << std::setw( width ) << box1->smax[ 1 ];
+            file << std::setw( width ) << box1->smin[ 2 ] << std::setw( width ) << box1->smax[ 2 ];
+            file << std::setw( width ) << -1 << std::endl;
+            file << std::setw( width ) << box2->smin[ 0 ] << std::setw( width ) << box2->smax[ 0 ];
+            file << std::setw( width ) << box2->smin[ 1 ] << std::setw( width ) << box2->smax[ 1 ];
+            file << std::setw( width ) << box2->smin[ 2 ] << std::setw( width ) << box2->smax[ 2 ];
+            file << std::setw( width ) << zid2 + 1 << std::endl;
 
             int kkk = 1;
         }
     }
-    ONEFLOW::CloseFile( file );
+    Prj::CloseFile( file );
     int kkk = 1;
 }
 
@@ -873,7 +873,7 @@ void DomainInp::OutputInp( GridMediator * gridMediator )
         IjkBox ijkBox;
         ijkBox.CreateBox( ni, nj, nk );
 
-        cout << " block = " << iZone + 1 << "\n";
+        std::cout << " block = " << iZone + 1 << "\n";
         this->CalcFacePoint( grid, & pointSearch, & ijkBox, iZone, & pblkSet );
     }
     pblkSet.Analysys();

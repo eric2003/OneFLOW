@@ -28,7 +28,7 @@ License
 #include "HXMath.h"
 #include <iostream>
 #include <vector>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 
@@ -59,7 +59,7 @@ void ScalarZoneTmp::SetBc( int bcL, int bcR )
     this->bcTypeList.push_back( bcR );
 }
 
-void ScalarZoneTmp::InitField( vector< double > & uGlobal )
+void ScalarZoneTmp::InitField( std::vector< double > & uGlobal )
 {
     for ( int i = 0; i < nNodes; ++ i )
     {
@@ -84,7 +84,7 @@ void ScalarZoneTmp::UpdateUN()
     Numpy::Copy( u, un );
 }
 
-void ScalarZoneTmp::GatherField( vector< double > & ugfield )
+void ScalarZoneTmp::GatherField( std::vector< double > & ugfield )
 {
     for ( int i = 0; i < nNodes; ++ i )
     {
@@ -93,7 +93,7 @@ void ScalarZoneTmp::GatherField( vector< double > & ugfield )
     }
 }
 
-void ScalarZoneTmp::CompareField( vector< double > & uGlobal )
+void ScalarZoneTmp::CompareField( std::vector< double > & uGlobal )
 {
     for ( int i = 0; i < nNodes; ++ i )
     {
@@ -103,7 +103,7 @@ void ScalarZoneTmp::CompareField( vector< double > & uGlobal )
         double diff = ABS( ug - um );
         if ( diff > 1.0e-12 )
         {
-            cout << " i = " << i << "um = " << um << " ig = " << j << " ug = " << ug << "\n";
+            std::cout << " i = " << i << "um = " << um << " ig = " << j << " ug = " << ug << "\n";
         }
     }
 }
@@ -187,7 +187,7 @@ void ScalarSolver::SetScalarZone()
     int nZones = 4;
     int dn = nx / nZones;
 
-    vector< int > idxList( nZones + 1 );
+    std::vector< int > idxList( nZones + 1 );
     idxList[ 0 ] = 1;
     idxList[ nZones ] = nx;
     for ( int iZone = 1; iZone < nZones; ++ iZone )
@@ -209,7 +209,7 @@ void ScalarSolver::SetScalarZone()
         scalarZone->SetBc( bcL, bcR );
         
         this->scalarZones.push_back( scalarZone );
-        cout << " iZone = " << iZone << " nZones = " << nZones << " ist = " << ist << " ied = " << ied << "\n";
+        std::cout << " iZone = " << iZone << " nZones = " << nZones << " ist = " << ist << " ied = " << ied << "\n";
     }
 }
 
@@ -243,16 +243,7 @@ void ScalarSolver::InitZoneFlowField()
 
 void ScalarSolver::Run()
 {
-    //FieldSolver * fieldSolver = new FieldSolver();
-    //fieldSolver->Run();
-    //delete fieldSolver;
-
-    //this->Init();
-
-    //this->SolveFlowField();
-
-    //this->Visual();
-   
+  
 }
 
 void ScalarSolver::RunTest( ScalarPara * para )
@@ -318,7 +309,7 @@ void ScalarSolver::Visual()
     Numpy::ToTecplot( "theory_tec.plt", x, u, utheory );
     Numpy::ToTecplot( "du.plt", x, u, du );
     Numpy::ToTecplot( "dua.plt", x, utheory, dua );
-    vector< double > ugfield( u.size() );
+    std::vector< double > ugfield( u.size() );
 
     int nZones = this->scalarZones.size();
 
@@ -338,7 +329,7 @@ void ScalarSolver::Visual( ScalarPara * para )
     Numpy::Plot( x, u );
 
     double time_final = this->dt * nt;
-    cout << " nt = " << nt << "\n";
+    std::cout << " nt = " << nt << "\n";
     this->Theory( time_final );
 
     Numpy::Plot( "theory.plt", x, utheory );
@@ -356,7 +347,7 @@ void ScalarSolver::Visual( ScalarPara * para )
 void ScalarSolver::Boundary()
 {
     int nZones = this->scalarZones.size();
-    vector< double > bclist;
+    std::vector< double > bclist;
     for ( int iZone = 0; iZone < nZones; ++ iZone )
     {
         ScalarZoneTmp * scalarZone = this->scalarZones[ iZone ];
@@ -483,7 +474,7 @@ void ScalarSolver::CalcL1Norm()
         double du = ui - um;
         this->l1Norm += ABS( du ) * this->dx;
     }
-    cout << " this->l1Norm = " << this->l1Norm << "\n";
+    std::cout << " this->l1Norm = " << this->l1Norm << "\n";
 }
 
 void ScalarSolver::CalcL2Norm()
@@ -498,7 +489,7 @@ void ScalarSolver::CalcL2Norm()
         this->l2Norm += SQR( du ) * this->dx;
     }
     this->l2Norm = sqrt( this->l2Norm );
-    cout << " this->l2Norm = " << this->l2Norm << "\n";
+    std::cout << " this->l2Norm = " << this->l2Norm << "\n";
 }
 
 EndNameSpace

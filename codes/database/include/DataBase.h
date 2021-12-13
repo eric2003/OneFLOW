@@ -33,7 +33,6 @@ License
 #include <string>
 #include <set>
 #include <map>
-using namespace std;
 
 BeginNameSpace( ONEFLOW )
 
@@ -56,12 +55,12 @@ void HXWriteVoid( DataBook * dataBook, DataV * datav );
 void HXReadVoid( DataBook * dataBook, DataV * datav );
 
 DataBase * GetGlobalDataBase();
-void ProcessData( const string & name, string * value, int type, int size );
+void ProcessData( const std::string & name, std::string * value, int type, int size );
 DataObject * CreateDataObject( int type, int size );
 
 class DataBase;
 template < typename T >
-void SetData( const string & name, T * value, int type, int size );
+void SetData( const std::string & name, T * value, int type, int size );
 
 template < typename T >
 T GetDataValue( const std::string & varName, DataBase * database = ONEFLOW::GetGlobalDataBase() );
@@ -79,13 +78,13 @@ T GetDataValue( const std::string & varName, DataBase * database )
     }
     else
     {
-        cerr << "can't find:" << varName << " in database!!" << endl;
+        std::cerr << "can't find:" << varName << " in database!!" << std::endl;
         exit(EXIT_FAILURE);
     }   
 }
 
 template < typename T >
-void SetData( const string & name, T * value, int type, int size )
+void SetData( const std::string & name, T * value, int type, int size )
 {
     DataV * datav = new DataV();
     datav->name = name;
@@ -113,25 +112,25 @@ T * GetDataPointer( const std::string & varName )
 }
 
 class PointerWrap;
-PointerWrap * GetPointerWrap( DataField * dataField, const string & dataObjectName );
+PointerWrap * GetPointerWrap( DataField * dataField, const std::string & dataObjectName );
 
-void * GetFieldPointerVoid( DataBase * database, const string & dataObjectName );
+void * GetFieldPointerVoid( DataBase * database, const std::string & dataObjectName );
 
 template < typename T >
-T * GetFieldPointer( DataBase * database, const string & dataObjectName );
+T * GetFieldPointer( DataBase * database, const std::string & dataObjectName );
 template < typename T, typename TStorage >
-T * GetFieldPointer( TStorage * storage, const string & dataObjectName );
+T * GetFieldPointer( TStorage * storage, const std::string & dataObjectName );
 template < typename T >
-T & GetFieldReference( DataBase * database, const string & dataObjectName );
+T & GetFieldReference( DataBase * database, const std::string & dataObjectName );
 template < typename T, typename TStorage >
-T & GetFieldReference( TStorage * storage, const string & dataObjectName );
+T & GetFieldReference( TStorage * storage, const std::string & dataObjectName );
 
-void CreateFieldPointer( DataBase * database, PointerWrap * pointerWrap, const string & dataObjectName );
+void CreateFieldPointer( DataBase * database, PointerWrap * pointerWrap, const std::string & dataObjectName );
 template < typename TStorage >
-void CreateFieldPointer( TStorage * storage, PointerWrap * pointerWrap, const string & dataObjectName );
+void CreateFieldPointer( TStorage * storage, PointerWrap * pointerWrap, const std::string & dataObjectName );
 
 template < typename T >
-T * GetFieldPointer( DataBase * database, const string & dataObjectName )
+T * GetFieldPointer( DataBase * database, const std::string & dataObjectName )
 {
     void * p = GetFieldPointerVoid( database, dataObjectName );
     if ( p )
@@ -143,7 +142,7 @@ T * GetFieldPointer( DataBase * database, const string & dataObjectName )
 }
 
 template < typename T, typename TStorage >
-T * GetFieldPointer( TStorage * storage, const string & dataObjectName )
+T * GetFieldPointer( TStorage * storage, const std::string & dataObjectName )
 {
     DataBase * database = storage->GetDataBase();
     T * pointer = ONEFLOW::GetFieldPointer< T >( database, dataObjectName );
@@ -151,24 +150,24 @@ T * GetFieldPointer( TStorage * storage, const string & dataObjectName )
 }
 
 template < typename T >
-T & GetFieldReference( DataBase * database, const string & dataObjectName )
+T & GetFieldReference( DataBase * database, const std::string & dataObjectName )
 {
     return * ONEFLOW::GetFieldPointer< T >( database, dataObjectName );
 }
 
 template < typename T, typename TStorage >
-T & GetFieldReference( TStorage * storage, const string & dataObjectName )
+T & GetFieldReference( TStorage * storage, const std::string & dataObjectName )
 {
     return * ONEFLOW::GetFieldPointer< T, TStorage >( storage, dataObjectName );
 }
 
 template < typename TStorage >
-void CreateFieldPointer( TStorage * storage, PointerWrap * pointerWrap, const string & dataObjectName )
+void CreateFieldPointer( TStorage * storage, PointerWrap * pointerWrap, const std::string & dataObjectName )
 {
     DataBase * database = storage->GetDataBase();
     ONEFLOW::CreateFieldPointer( database, pointerWrap, dataObjectName );
 }
 
-void DumpDataBase( fstream & file );
+void DumpDataBase( std::fstream & file );
 
 EndNameSpace

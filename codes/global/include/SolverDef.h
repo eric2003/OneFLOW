@@ -23,7 +23,7 @@ License
 #include "HXDefine.h"
 #include <map>
 #include <string>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 
@@ -63,10 +63,10 @@ const int GREAT_ZERO  = 2;
 
 int GetOppositeSendRecv( int iSr );
 
-extern map< string, int > * solverTypeMap;
-extern map< string, int > * interfaceMap;
-extern map< string, int > * sendRecvMap;
-extern map< string, int > * fieldIdMap;
+extern std::map< std::string, int > * solverTypeMap;
+extern std::map< std::string, int > * interfaceMap;
+extern std::map< std::string, int > * sendRecvMap;
+extern std::map< std::string, int > * fieldIdMap;
 
 void CreateSysMap();
 

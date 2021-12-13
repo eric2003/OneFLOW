@@ -48,8 +48,8 @@ void Stoichiometric::Init( int nSpecies, int nReaction )
 
 void Stoichiometric::Read( FileIO * ioFile )
 {
-    string word;
-    string separator = " =\r\n#$,;\"'";
+    std::string word;
+    std::string separator = " =\r\n#$,;\"'";
 
     ioFile->SetDefaultSeparator( separator );
 

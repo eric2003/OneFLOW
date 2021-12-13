@@ -21,14 +21,22 @@ License
 \*---------------------------------------------------------------------------*/
 #pragma once
 #include "Configure.h"
-#include <string>
-using namespace std;
+#include <iomanip>
+#include <sstream>
+
 
 BeginNameSpace( ONEFLOW )
 
-#define Stop( _Expression ) ( ONEFLOW::StopProgramFunction( _Expression, __FILE__, __LINE__, __DATE__, __TIME__ ) )
-
-void StopProgramFunction( const string & stopInformation, const string & fileName, const int & fileLine, const string & dateName, const string & timeName );
+class OStream;
+extern OStream StrIO;
+class OStream : public std::ostringstream
+{
+public:
+    OStream() {}
+    ~OStream() {}
+public:
+    void ClearAll();
+};
 
 
 EndNameSpace

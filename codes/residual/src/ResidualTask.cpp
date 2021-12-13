@@ -38,7 +38,7 @@ License
 #include "UNsCom.h"
 #include <sstream>
 #include <iomanip>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 
@@ -94,8 +94,8 @@ void ResidualTask::CalcRes( int sTid, ResData & data )
             Real ress = ( * res )[ iEqu ][ cId ];
             if ( NotANumber( ress ) )
             {
-                cout << " iEqu = " << iEqu << " cId = " << cId << " grid->nCells = " << grid->nCells << "\n";
-                cout << " ress = " << ress << "\n";
+                std::cout << " iEqu = " << iEqu << " cId = " << cId << " grid->nCells = " << grid->nCells << "\n";
+                std::cout << " ress = " << ress << "\n";
                 Stop( "NotANumber" );
             }
             data.resave.res[ iEqu ] += SQR( ress );
@@ -139,12 +139,12 @@ void ResidualTask::PostDumpResiduals()
 
 void ResidualTask::DumpFile()
 {
-    ostringstream oss;
+    std::ostringstream oss;
 
-    fstream file;
+    std::fstream file;
     SolverInfo * solverInfo = SolverInfoFactory::GetSolverInfo( SolverState::tid );
-    string & fileName = solverInfo->resFileName;
-    PIO::ParallelOpenPrj( file, fileName, ios_base::out | ios_base::app );
+    std::string & fileName = solverInfo->resFileName;
+    PIO::OpenPrjFile( file, fileName, std::ios_base::out | std::ios_base::app );
 
     if ( IsEmpty( file ) )
     {
@@ -159,16 +159,16 @@ void ResidualTask::DumpFile()
             title.push_back( AddString( "\"res",  iVar + 1, "\"" ) );
         }
 
-        for ( UInt iTitle = 0; iTitle < title.size(); ++ iTitle )
+        for ( HXSize_t iTitle = 0; iTitle < title.size(); ++ iTitle )
         {
-            oss << title[ iTitle ] << endl;
+            oss << title[ iTitle ] << std::endl;
         }
     }
 
-    oss << setiosflags( ios::left );
-    oss << setprecision( 5 );
-    oss << setiosflags( ios::scientific );
-    oss << setiosflags( ios::showpoint );
+    oss << std::setiosflags( std::ios::left );
+    oss << std::setprecision( 5 );
+    oss << std::setiosflags( std::ios::scientific );
+    oss << std::setiosflags( std::ios::showpoint );
 
     oss << Iteration::outerSteps << " ";
     oss << Iteration::innerSteps << " ";
@@ -176,14 +176,14 @@ void ResidualTask::DumpFile()
     size_t nVar = this->data.resave.res.size();
     for ( int iVar = 0; iVar < nVar; ++ iVar )
     {
-        oss << setw( 13 ) << this->data.resave.res[ iVar ] << " ";
+        oss << std::setw( 13 ) << this->data.resave.res[ iVar ] << " ";
     }
 
-    oss << endl;
+    oss << std::endl;
 
     file << oss.str();
 
-    PIO::ParallelClose( file );
+    PIO::CloseFile( file );
 
 }
 
@@ -191,34 +191,34 @@ void ResidualTask::DumpScreen()
 {
     int maxId = this->data.resmax.CalcMaxId();
 
-    ostringstream oss;
+    std::ostringstream oss;
     if ( ( Iteration::outerSteps - 1 ) % 100 == 0 )
     {
-        oss << endl;
+        oss << std::endl;
         oss << "iter initer ave  max zone cell vol  nv \n";
     }
 
-    oss << setiosflags( ios::left );
-    oss << setprecision( 5 );
-    oss << setiosflags( ios::scientific );
-    oss << setiosflags( ios::showpoint );
+    oss << std::setiosflags( std::ios::left );
+    oss << std::setprecision( 5 );
+    oss << std::setiosflags( std::ios::scientific );
+    oss << std::setiosflags( std::ios::showpoint );
 
-    oss << setw( 7  ) << Iteration::outerSteps;
-    oss << setw( 7  ) << Iteration::innerSteps;
-    oss << setw( 13 ) << this->data.resave.res[ maxId ];
-    oss << setw( 13 ) << this->data.resmax.resmax[ maxId ];
-    oss << setw( 4  ) << this->data.resmax.zid[ maxId ] + 1;
+    oss << std::setw( 7  ) << Iteration::outerSteps;
+    oss << std::setw( 7  ) << Iteration::innerSteps;
+    oss << std::setw( 13 ) << this->data.resave.res[ maxId ];
+    oss << std::setw( 13 ) << this->data.resmax.resmax[ maxId ];
+    oss << std::setw( 4  ) << this->data.resmax.zid[ maxId ] + 1;
     oss << " ";
-    oss << setw( 6  ) << this->data.resmax.index[ maxId ];
+    oss << std::setw( 6  ) << this->data.resmax.index[ maxId ];
     oss << " ";
-    oss << resetiosflags( ios::scientific );
-    oss << setprecision( 3 );
-    oss << setw( 11 ) << this->data.resmax.vol[ maxId ];
+    oss << resetiosflags( std::ios::scientific );
+    oss << std::setprecision( 3 );
+    oss << std::setw( 11 ) << this->data.resmax.vol[ maxId ];
     oss << " ";
-    oss << setw( 3 )  << maxId + 1;
-    oss << endl;
+    oss << std::setw( 3 )  << maxId + 1;
+    oss << std::endl;
 
-    cout << oss.str();
+    std::cout << oss.str();
 }
 
 

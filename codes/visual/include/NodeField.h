@@ -27,7 +27,7 @@ License
 BeginNameSpace( ONEFLOW )
 
 MRField * AllocNodeVar( int nEqu = 1 );
-MRField * CreateNodeVar( const string & name );
+MRField * CreateNodeVar( const std::string & name );
 MRField * CreateNodeVar( RealField & qc );
 void CalcNodeVar( RealField & qNodeField, RealField & qField );
 void FixBcNodeVar( RealField & qNodeField, RealField & qField, RealField & nCount, int bcType, bool twoSide );
@@ -37,7 +37,7 @@ void ReorderList( HXVector< T > & x, IntField & indexList )
 {
     HXVector< T > tmp = x;
 
-    for ( UInt i = 0; i < indexList.size(); ++ i )
+    for ( HXSize_t i = 0; i < indexList.size(); ++ i )
     {
         x[ i ] = tmp[ indexList[ i ] ];
     }

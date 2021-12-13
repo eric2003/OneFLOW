@@ -24,7 +24,7 @@ License
 #pragma once
 #include "HXDefine.h"
 #include <string>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 
@@ -35,7 +35,7 @@ public:
     ~GridMachine();
 public:
     void Run();
-    void ReadScript( const string & fileName );
+    void ReadScript( const std::string & fileName );
     void GeneGrid();
 public:
     void GenerateFaceBlockLink();

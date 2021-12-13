@@ -54,16 +54,16 @@ public:
     static FieldWrap * CreateField();
     static FieldWrap * CreateField( int sTid );
     static FieldWrap * CreateField( int sTid, int level );
-    static FieldWrap * GetFieldWrap( const string & fieldName );
+    static FieldWrap * GetFieldWrap( const std::string & fieldName );
 public:
-    static void SetField( const string & fieldName, Real value );
-    static void SetField( int fieldId, const string & fieldName, int orderFlag );
-    static void SetUnsField( int fieldId, const string & fieldName, int orderFlag );
+    static void SetField( const std::string & fieldName, Real value );
+    static void SetField( int fieldId, const std::string & fieldName, int orderFlag );
+    static void SetUnsField( int fieldId, const std::string & fieldName, int orderFlag );
 public:
     static FieldWrap * GetFieldWrap( int fieldId );
     static MRField * GetUnsField( int fieldId );
-    static MRField * GetUnsField( Grid * grid, const string & fieldName );
-    static void GetSourceTargetField( Grid * grid, int fieldId, const string & fieldName, MRField *& sField, MRField *& tField, int orderFlag );
+    static MRField * GetUnsField( Grid * grid, const std::string & fieldName );
+    static void GetSourceTargetField( Grid * grid, int fieldId, const std::string & fieldName, MRField *& sField, MRField *& tField, int orderFlag );
 };
 
 void SetField( FieldWrap * fieldWrap, Real value );

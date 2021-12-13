@@ -34,9 +34,9 @@ License
 #include "HXMath.h"
 #include "DataBase.h"
 #include "FileIO.h"
-#include "FileUtil.h"
 #include <iostream>
-using namespace std;
+#include <iomanip>
+
 
 BeginNameSpace( ONEFLOW )
 
@@ -201,7 +201,7 @@ void Cylinder::QuarterCylinder()
     this->ToTecplot( "/grid/cylinder-tecplot.dat", & domain_data );
 }
 
-void Cylinder::DumpGrid( const string & fileName, DomainData * domain )
+void Cylinder::DumpGrid( const std::string & fileName, DomainData * domain )
 {
     RealField xN;
     RealField yN;
@@ -217,8 +217,8 @@ void Cylinder::DumpGrid( const string & fileName, DomainData * domain )
         }
     }
 
-    fstream file;
-    OpenPrjFile( file, fileName, ios_base::out | ios_base::binary );
+    std::fstream file;
+    Prj::OpenPrjFile( file, fileName, std::ios_base::out | std::ios_base::binary );
     int nZone = 1;
     int nk = 1;
     HXWrite( & file, nZone );
@@ -230,38 +230,38 @@ void Cylinder::DumpGrid( const string & fileName, DomainData * domain )
     HXWrite( & file, yN );
     HXWrite( & file, zN );
 
-    CloseFile( file );
+    Prj::CloseFile( file );
 }
 
-void Cylinder::DumpBcFile( const string & fileName, DomainData * domain, IntField & bcList )
+void Cylinder::DumpBcFile( const std::string & fileName, DomainData * domain, IntField & bcList )
 {
-    fstream file;
-    OpenPrjFile( file, fileName, ios_base::out );
+    std::fstream file;
+    Prj::OpenPrjFile( file, fileName, std::ios_base::out );
     int solver = 1;
-    string zName = "A";
+    std::string zName = "A";
     int nBc = 4;
-    file << solver << endl;
-    file << nZone << endl;
-    file << domain->ni << " " << domain->nj << endl;
-    file << zName << endl;
-    file << nBc << endl;
+    file << solver << std::endl;
+    file << nZone << std::endl;
+    file << domain->ni << " " << domain->nj << std::endl;
+    file << zName << std::endl;
+    file << nBc << std::endl;
 
     DumpBc( file, 1         , domain->ni, 1         , 1         , bcList[ 0 ] );
     DumpBc( file, 1         , domain->ni, domain->nj, domain->nj, bcList[ 1 ] );
     DumpBc( file, 1         , 1         , 1         , domain->nj, bcList[ 2 ] );
     DumpBc( file, domain->ni, domain->ni, 1         , domain->nj, bcList[ 3 ] );
 
-    CloseFile( file );
+    Prj::CloseFile( file );
 }
 
-void Cylinder::ToTecplot( const string & fileName, DomainData * domain )
+void Cylinder::ToTecplot( const std::string & fileName, DomainData * domain )
 {
     int ni = domain->ni;
     int nj = domain->nj;
     int nk = 1;
 
-    fstream file;
-    OpenPrjFile( file, fileName, ios_base::out );
+    std::fstream file;
+    Prj::OpenPrjFile( file, fileName, std::ios_base::out );
     file << " VARIABLES = \"X\" \"Y\" \"Z\"" << "\n";
     file << "ZONE DATAPACKING = BLOCK, I = " << ni << ", J = " << nj << ", K = " << nk << "\n";
 
@@ -269,7 +269,7 @@ void Cylinder::ToTecplot( const string & fileName, DomainData * domain )
     ONEFLOW::ToTecplot( file, domain->y, ni, nj, nk );
     ONEFLOW::ToTecplot( file, domain->z, ni, nj, nk );
 
-    CloseFile( file );
+    Prj::CloseFile( file );
 }
 
 void Cylinder::CalcCircleCenter( PointType & p1, PointType & p2, PointType & p0, PointType & pcenter )
@@ -286,12 +286,12 @@ void Cylinder::CalcCircleCenter( PointType & p1, PointType & p2, PointType & p0,
 
 void Cylinder::SetBoundaryGrid()
 {
-    string fileName = GetDataValue< string >( "gridLayoutFileName" );
-    string separator = " =\r\n\t#$,;\"";
+    std::string fileName = GetDataValue< std::string >( "gridLayoutFileName" );
+    std::string separator = " =\r\n\t#$,;\"";
 
     FileIO ioFile;
 
-    ioFile.OpenPrjFile( fileName, ios_base::in );
+    ioFile.OpenPrjFile( fileName, std::ios_base::in );
     ioFile.SetDefaultSeparator( separator );
 
     ioFile.ReadNextNonEmptyLine();
@@ -417,7 +417,7 @@ void Cylinder::GeneDomain()
     AlgebraInterpolation( domain_data.x, domain_data.y, domain_data.z, ni, nj, nbx, nby, nbz, this->beta );
 }
 
-void ToTecplot( fstream & file, RealField2D & coor, int ni, int nj, int nk )
+void ToTecplot( std::fstream & file, RealField2D & coor, int ni, int nj, int nk )
 {
     int numberOfWords = 5;
 
@@ -437,12 +437,12 @@ void ToTecplot( fstream & file, RealField2D & coor, int ni, int nj, int nk )
     if ( ( icount + 1 ) % numberOfWords != 0 ) file << "\n";
 }
 
-void DumpBc( fstream &file, int imin, int imax, int jmin, int jmax, int bcType )
+void DumpBc( std::fstream &file, int imin, int imax, int jmin, int jmax, int bcType )
 {
     int width = 5;
-    file << setw( width ) << imin << setw( width ) << imax;
-    file << setw( width ) << jmin << setw( width ) << jmax;
-    file << setw( width ) << bcType << endl;
+    file << std::setw( width ) << imin << std::setw( width ) << imax;
+    file << std::setw( width ) << jmin << std::setw( width ) << jmax;
+    file << std::setw( width ) << bcType << std::endl;
 }
 
 

@@ -38,7 +38,7 @@ License
 #include "SolverRegister.h"
 #include "DataBase.h"
 #include <iomanip>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 

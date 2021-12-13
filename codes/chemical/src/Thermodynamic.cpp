@@ -45,8 +45,8 @@ void ThermodynamicFunction::Init( int nTSpan, int nPolyCoef )
 
 void ThermodynamicFunction::ReadPolynomialCoefficient( FileIO * ioFile )
 {
-    string word;
-    string separator = " =\r\n#$,;\"'";
+    std::string word;
+    std::string separator = " =\r\n#$,;\"'";
 
     ioFile->SetDefaultSeparator( separator );
 
@@ -110,8 +110,8 @@ void Thermodynamic::Init( int nSpecies )
 
 void Thermodynamic::Read( FileIO * ioFile )
 {
-    string word;
-    string separator = " =\r\n#$,;\"'";
+    std::string word;
+    std::string separator = " =\r\n#$,;\"'";
 
     ioFile->SetDefaultSeparator( separator );
 

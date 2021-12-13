@@ -24,7 +24,7 @@ License
 #pragma once
 #include "HXDefine.h"
 #include <fstream>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 
@@ -44,12 +44,12 @@ public:
     static void SetNumberOfWords( int numberOfWords );
     static void Show( Mesh * mesh );
 public:
-    static void DumpTitle( fstream & file, Mesh * mesh );
-    static void DumpCoordinate( fstream & file, Mesh * mesh );
-    static void DumpCoordinate( fstream & file, RealField & coordinate );
-    static void DumpFaceNodesLink( fstream & file, Mesh * mesh );
-    static void DumpFaceElementLink( fstream & file, Mesh * mesh );
-    static void DumpFaceElementLink( fstream & file, UInt nFaces, UInt numberOfElements, IntField & faceElementIndex );
+    static void DumpTitle( std::fstream & file, Mesh * mesh );
+    static void DumpCoordinate( std::fstream & file, Mesh * mesh );
+    static void DumpCoordinate( std::fstream & file, RealField & coordinate );
+    static void DumpFaceNodesLink( std::fstream & file, Mesh * mesh );
+    static void DumpFaceElementLink( std::fstream & file, Mesh * mesh );
+    static void DumpFaceElementLink( std::fstream & file, HXSize_t nFaces, HXSize_t numberOfElements, IntField & faceElementIndex );
 };
 
 

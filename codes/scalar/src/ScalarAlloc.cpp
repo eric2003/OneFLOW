@@ -36,14 +36,14 @@ ScalarFieldProperty::~ScalarFieldProperty()
 {
 }
 
-void ScalarFieldProperty::AddField( const string & fieldName, int nEqu )
+void ScalarFieldProperty::AddField( const std::string & fieldName, int nEqu )
 {
     this->data[ fieldName ] = nEqu;
 }
 
-int ScalarFieldProperty::GetNEqu( const string & fileName )
+int ScalarFieldProperty::GetNEqu( const std::string & fileName )
 {
-    std::map< string, int >::iterator iter;
+    std::map< std::string, int >::iterator iter;
     iter = this->data.find( fileName );
     if ( iter != this->data.end() )
     {
@@ -98,7 +98,7 @@ void ScalarFieldManager::AllocateInterfaceField()
     ScalarIFace * scalarIFace = grid->scalarIFace;
 
     int nIFaces = scalarIFace->GetNIFaces();
-    //cout << " nIFaces = " << nIFaces << "\n";
+    //std::cout << " nIFaces = " << nIFaces << "\n";
 
     if ( nIFaces == 0 ) return;
 
@@ -128,11 +128,11 @@ void ScalarFieldManager::UploadInterfaceField()
     ScalarIFace * scalarIFace = grid->scalarIFace;
 
     int nIFaces = scalarIFace->GetNIFaces();
-    //cout << " nIFaces = " << nIFaces << "\n";
+    //std::cout << " nIFaces = " << nIFaces << "\n";
 
     if ( nIFaces == 0 ) return;
 
-    for ( std::map< string, int >::iterator iter = this->interfaceAlloc->data.begin(); iter != this->interfaceAlloc->data.end(); ++ iter )
+    for ( std::map< std::string, int >::iterator iter = this->interfaceAlloc->data.begin(); iter != this->interfaceAlloc->data.end(); ++ iter )
     {
         ONEFLOW::ScalarUploadInterfaceValue( grid, iter->first );
     }
@@ -144,17 +144,17 @@ void ScalarFieldManager::DownloadInterfaceField()
     ScalarIFace * scalarIFace = grid->scalarIFace;
 
     int nIFaces = scalarIFace->GetNIFaces();
-    //cout << " nIFaces = " << nIFaces << "\n";
+    //std::cout << " nIFaces = " << nIFaces << "\n";
 
     if ( nIFaces == 0 ) return;
 
-    for ( std::map< string, int >::iterator iter = this->interfaceAlloc->data.begin(); iter != this->interfaceAlloc->data.end(); ++ iter )
+    for ( std::map< std::string, int >::iterator iter = this->interfaceAlloc->data.begin(); iter != this->interfaceAlloc->data.end(); ++ iter )
     {
         ONEFLOW::ScalarDownloadInterfaceValue( grid, iter->first );
     }
 }
 
-void ScalarUploadInterfaceValue( ScalarGrid * grid, const string & name )
+void ScalarUploadInterfaceValue( ScalarGrid * grid, const std::string & name )
 {
     MRField * field2D = ONEFLOW::GetFieldPointer< MRField >( grid, name );
 
@@ -180,7 +180,7 @@ void ScalarUploadInterfaceValue( ScalarGrid * grid, const string & name )
     }
 }
 
-void ScalarDownloadInterfaceValue( ScalarGrid * grid, const string & name )
+void ScalarDownloadInterfaceValue( ScalarGrid * grid, const std::string & name )
 {
     MRField * field2D = ONEFLOW::GetFieldPointer< MRField >( grid, name );
 

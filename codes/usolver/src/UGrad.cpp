@@ -33,7 +33,7 @@ License
 #include "Zone.h"
 #include <iostream>
 #include <iomanip>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 
@@ -93,10 +93,6 @@ void CalcGradGGCellWeight( RealField & q, RealField & dqdx, RealField & dqdy, Re
 
     for ( int fId = 0; fId < ug.nFaces; ++ fId )
     {
-        if ( fId == 432 )
-        {
-            int kkk = 1;
-        }
         ug.fId = fId;
         ug.lc = ( * ug.lcf )[ ug.fId ];
         ug.rc = ( * ug.rcf )[ ug.fId ];
@@ -152,11 +148,12 @@ void CalcGradGGCellWeight( RealField & q, RealField & dqdx, RealField & dqdy, Re
     }
 }
 
+
 void CalcGradGGCellWeightDebug( RealField & q, RealField & dqdx, RealField & dqdy, RealField & dqdz )
 {
-    dqdx = 0;
-    dqdy = 0;
-    dqdz = 0;
+    dqdx = 0.0;
+    dqdy = 0.0;
+    dqdz = 0.0;
 
     for ( int fId = 0; fId < ug.nFaces; ++ fId )
     {
@@ -189,14 +186,6 @@ void CalcGradGGCellWeightDebug( RealField & q, RealField & dqdx, RealField & dqd
         dqdy[ ug.lc ] += fnya * value;
         dqdz[ ug.lc ] += fnza * value;
 
-        if ( ug.lc == 0 || ug.rc == 0 )
-        {
-            cout << " ug.lc = " << ug.lc << " ug.rc = " << ug.rc << "\n";
-            cout << " fId = " << fId << " value = " << setiosflags( ios::fixed ) << setprecision( 10 ) << value;
-            cout << " ql = " << setiosflags( ios::fixed ) << setprecision( 10 ) << q[ ug.lc ];
-            cout << " qr = " << setiosflags( ios::fixed ) << setprecision( 10 ) << q[ ug.rc ] << endl;
-        }
-
         if ( ug.fId < ug.nBFaces ) continue;
         dqdx[ ug.rc ] -= fnxa * value;
         dqdy[ ug.rc ] -= fnya * value;
@@ -221,6 +210,7 @@ void CalcGradGGCellWeightDebug( RealField & q, RealField & dqdx, RealField & dqd
         dqdy[ ug.rc ] = dqdy[ ug.lc ];
         dqdz[ ug.rc ] = dqdz[ ug.lc ];
     }
+
 }
 
 void CalcGradDebug( RealField & q, RealField & dqdx, RealField & dqdy, RealField & dqdz )
@@ -252,7 +242,7 @@ void CalcGradDebug( RealField & q, RealField & dqdx, RealField & dqdy, RealField
 
         if ( ug.lc == 0 || ug.rc == 0 )
         {
-            cout << " fId = " << fId << " value = " << value << " ql= " << q[ ug.lc ] << " qr = " << q[ ug.rc ] << endl;
+            std::cout << " fId = " << fId << " value = " << value << " ql= " << q[ ug.lc ] << " qr = " << q[ ug.rc ] << std::endl;
         }
 
         if ( ug.fId < ug.nBFaces ) continue;

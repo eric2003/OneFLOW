@@ -33,7 +33,7 @@ DataF::DataF()
     this->data = 0;
 }
 
-DataF::DataF( const string & name, PointerWrap * data )
+DataF::DataF( const std::string & name, PointerWrap * data )
 {
     this->name = name;
     this->data = data;
@@ -79,7 +79,7 @@ void DataField::UpdateDataF( DataF * dataf )
     }
 }
 
-DataF * DataField::GetDataF( const string & name )
+DataF * DataField::GetDataF( const std::string & name )
 {
     DataF * data = new DataF( name, 0 );
     DataSET::iterator iter = dataSet->find( data );
@@ -94,7 +94,7 @@ DataF * DataField::GetDataF( const string & name )
     }
 }
 
-void DataField::DeleteDataF( const string & name )
+void DataField::DeleteDataF( const std::string & name )
 {
     DataF * data = new DataF( name, 0 );
     DataSET::iterator iter = dataSet->find( data );

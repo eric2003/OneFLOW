@@ -24,7 +24,7 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-void GetSolverFileNames( const string & solverName, StringField & fileNameList );
+void GetSolverFileNames( const std::string & solverName, StringField & fileNameList );
 
 
 EndNameSpace

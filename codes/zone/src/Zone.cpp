@@ -40,7 +40,7 @@ License
 #include "Task.h"
 #include <iostream>
 #include <string>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 
@@ -107,8 +107,8 @@ void Zone::InitLayout( StringField & fileNameList )
     int nTZones = 0;
     for ( int iFile = 0; iFile < fileNameList.size(); ++ iFile )
     {
-        fstream file;
-        PIO::ParallelOpenPrj( file, fileNameList[ iFile ], ios_base::in|ios_base::binary );
+        std::fstream file;
+        PIO::OpenPrjFile( file, fileNameList[ iFile ], std::ios_base::in|std::ios_base::binary );
 
         int nZones = 0;
 
@@ -116,9 +116,9 @@ void Zone::InitLayout( StringField & fileNameList )
 
         nTZones += nZones;
 
-        PIO::ParallelClose( file );
+        PIO::CloseFile( file );
     }
-    cout << " nTZones = " << nTZones << endl;
+    std::cout << " nTZones = " << nTZones << std::endl;
     logFile << "  nTZones = " << nTZones << "\n";
 
     ZoneState::nZones = nTZones;

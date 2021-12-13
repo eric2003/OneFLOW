@@ -28,7 +28,7 @@ License
 #include "ActionState.h"
 #include "DataBook.h"
 #include <iostream>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 
@@ -63,16 +63,16 @@ void WriteBinaryFile()
 
 void WriteAsciiFile()
 {
-    string str;
+    std::string str;
     ActionState::dataBook->ToString( str );
     * ActionState::file << str;
 }
 
 void WriteScreen()
 {
-    string str;
+    std::string str;
     ActionState::dataBook->ToString( str );
-    cout << str;
+    std::cout << str;
 }
 
 EndNameSpace

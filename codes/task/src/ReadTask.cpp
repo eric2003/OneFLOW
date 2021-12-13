@@ -50,10 +50,10 @@ void CReadFile::Run()
 
 void CReadFile::ServerRead()
 {
-    fstream file;
+    std::fstream file;
     ActionState::file = & file;
 
-    PIO::ParallelOpenPrj();
+    PIO::OpenPrjFile();
 
     for ( int zId = 0; zId < ZoneState::nZones; ++ zId )
     {
@@ -62,7 +62,7 @@ void CReadFile::ServerRead()
         this->ServerRead( this->mainAction );
     }
 
-    PIO::ParallelClose();
+    PIO::CloseFile();
 }
 
 void CReadFile::ServerRead( VoidFunc mainAction )

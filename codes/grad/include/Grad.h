@@ -37,7 +37,7 @@ public:
     MRField * q;
     MRField * dqdx, * dqdy, * dqdz;
     MRField * bdqdx, * bdqdy, * bdqdz;
-    string name, namex, namey, namez;
+    std::string name, namex, namey, namez;
     int istore;
 public:
     virtual void Init(){};

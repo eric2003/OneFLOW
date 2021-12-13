@@ -21,26 +21,38 @@ License
 \*---------------------------------------------------------------------------*/
 #pragma once
 #include "Configure.h"
-#include <vector>
+#include <fstream>
 #include <string>
-using namespace std;
+#include <vector>
 
 BeginNameSpace( ONEFLOW )
 
-class SimuCtrl
+class Prj
 {
 public:
-    SimuCtrl();
-    ~SimuCtrl();
+    Prj();
+    ~Prj();
 public:
     static bool hx_debug;
     static bool run_from_ide;
-    static string system_root;
-    static string current_dir;
-    static string execute_dir;
+    static std::string system_root;
+    static std::string current_dir;
+    static std::string execute_dir;
+    static std::string prjBaseDir;
 public:
     static void Init();
-
+    static void SetPrjBaseDir( const std::string & prjName );
+    static void ProcessCmdLineArgs( std::vector<std::string> &args );
+public:
+    static void OpenPrjFile( std::fstream & file, const std::string & fileName, const std::ios_base::openmode & openMode );
+    static void OpenFile( std::fstream & file, const std::string & fileName, const std::ios_base::openmode & openMode );
+    static void CloseFile( std::fstream & file );
+    static void CreateDirIfNeeded( std::string & prjFileName );
+    static std::string GetPrjFileName( const std::string & fileName );
+    static std::string GetPrjDirName( const std::string & fileName );
+    static void MakePrjDir( const std::string & dirName );
 };
+
+
 
 EndNameSpace

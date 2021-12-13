@@ -29,7 +29,7 @@ License
 #include "Configure.h"
 #include <string>
 #include <vector>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 
@@ -77,8 +77,8 @@ void HXRecvChar( void * data, int size, int pid, int tag = 0 );
 int HXWait( PL_HXRequest * request );
 int HXWait( int count, PL_HXRequest * arrayOfRequests );
 
-void HXSendString( string & cs, int pid, int tag );
-void HXRecvString( string & cs, int pid, int tag );
+void HXSendString( std::string & cs, int pid, int tag );
+void HXRecvString( std::string & cs, int pid, int tag );
 
 template< typename T >
 void HXSmartSend( T * field, int nElement, int pid, int tag )

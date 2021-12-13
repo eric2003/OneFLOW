@@ -27,7 +27,7 @@ License
 #include <vector>
 #include <string>
 #include <map>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 
@@ -54,11 +54,11 @@ public:
 public:
     virtual Grid * Clone() const = 0;
 public:
-    static Grid * SafeClone( const string & type );
-    static Grid * Register( const string & type, Grid * clone );
-    static map < string, Grid * > * classMap;
+    static Grid * SafeClone( const std::string & type );
+    static Grid * Register( const std::string & type, Grid * clone );
+    static std::map < std::string, Grid * > * classMap;
 public:
-    string name;
+    std::string name;
     int dimension;
     int type, level;
     int id, localId;
@@ -82,8 +82,8 @@ public:
     bool IsTwoD();
     bool IsThreeD();
 public:
-    virtual void ReadGrid ( fstream & file ) {};
-    virtual void WriteGrid( fstream & file ) {};
+    virtual void ReadGrid ( std::fstream & file ) {};
+    virtual void WriteGrid( std::fstream & file ) {};
     virtual void Decode( DataBook * databook ){};
     virtual void Encode( DataBook * databook ){};
     virtual void ReadGrid( DataBook * databook ){};

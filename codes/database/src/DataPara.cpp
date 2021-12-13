@@ -24,7 +24,7 @@ License
 #include "DataObject.h"
 #include "DataBaseType.h"
 #include <iostream>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 
@@ -34,7 +34,7 @@ DataV::DataV()
     this->data = 0;
 }
 
-DataV::DataV( const string & name, int type, int size, DataObject * data )
+DataV::DataV( const std::string & name, int type, int size, DataObject * data )
 {
     this->name = name;
     this->type = type;
@@ -52,7 +52,7 @@ void DataV::Copy( DataV * inputData )
     this->data->Copy( inputData->data );
 }
 
-void DataV::Dump( fstream & file )
+void DataV::Dump( std::fstream & file )
 {
     file << name << " , " << DataBaseType::GetName( type ) << " : ";
     this->data->Dump( file );
@@ -91,7 +91,7 @@ void DataPara::UpdateDataPointer( DataV * data )
     dataSet->insert( data );
 }
 
-DataV * DataPara::GetDataPointer( const string & name )
+DataV * DataPara::GetDataPointer( const std::string & name )
 {
     DataV * data = new DataV( name, 0, 0, 0 );
     DataSET::iterator iter = dataSet->find( data );
@@ -106,7 +106,7 @@ DataV * DataPara::GetDataPointer( const string & name )
     }
 }
 
-void DataPara::DeleteDataPointer( const string & name )
+void DataPara::DeleteDataPointer( const std::string & name )
 {
     DataV * data = new DataV( name, 0, 0, 0 );
     DataSET::iterator iter = dataSet->find( data );
@@ -118,9 +118,9 @@ void DataPara::DeleteDataPointer( const string & name )
     delete data;
 }
 
-void DataPara::DumpData( fstream & file )
+void DataPara::DumpData( std::fstream & file )
 {
-    cout << " Dumping database:\n";
+    std::cout << " Dumping database:\n";
     int count = 0;
     for ( DataSET::iterator iter = this->dataSet->begin(); iter != this->dataSet->end(); ++ iter )
     {

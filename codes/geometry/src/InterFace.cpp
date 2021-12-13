@@ -32,7 +32,7 @@ License
 #include "SolverDef.h"
 #include "LogFile.h"
 #include <algorithm>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 
@@ -170,7 +170,7 @@ void InterFace::InitNeighborZoneInfo( int iNei, int iZone )
     InterfacePair * interfacePair = interFacePairs[ iNei ];
     interfacePair->nzid = iZone;
 
-    this->z2n.insert( pair< int, int >( iZone, iNei ) );
+    this->z2n.insert( std::pair< int, int >( iZone, iNei ) );
 
     int nIFaceCount = this->CalcNIFace( iNei );
 

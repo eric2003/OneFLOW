@@ -32,8 +32,8 @@ public:
     BcData();
     ~BcData();
 public:
-    void Init( const string & fileName );
-    void ReadList( const string & fileName );
+    void Init( const std::string & fileName );
+    void ReadList( const std::string & fileName );
     void ReadRegion();
 public:
     int nRegion;

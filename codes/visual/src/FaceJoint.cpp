@@ -263,7 +263,7 @@ void FaceJoint::AddFaceCenterValue( int nSolidCell, RealField & fcvIn )
     }
 }
 
-void FaceJoint::Visual( fstream & file )
+void FaceJoint::Visual( std::fstream & file )
 {
     if ( ! this->isValid ) return;
     LinkField & fLink = this->fLink;
@@ -311,9 +311,9 @@ void FaceJoint::Visual( fstream & file )
             ++ count4;
         }
     }
-    //cout << " number of TRI_3 is " << count3 << "\n";
-    //cout << " number of QUAD_4 is " << count4 << "\n";
-    //cout << " number of total faces are " << numberOfWallFaces << "\n";
+    //std::cout << " number of TRI_3 is " << count3 << "\n";
+    //std::cout << " number of QUAD_4 is " << count4 << "\n";
+    //std::cout << " number of total faces are " << numberOfWallFaces << "\n";
 
     int numberOfPoints = this->ps->GetNPoint();
 

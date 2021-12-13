@@ -28,7 +28,6 @@ License
 #include "Dimension.h"
 #include <iostream>
 #include <iomanip>
-using namespace std;
 
 BeginNameSpace( ONEFLOW )
 #ifdef ENABLE_CGNS
@@ -210,7 +209,7 @@ void CgnsCoor::ReadCgnsGridCoordinates()
     int zoneId = this->cgnsZone->zId;
 
     cg_ncoords( fileId, baseId, zoneId, & this->nCoor );
-    cout << "   this->nCoor = " << this->nCoor << "\n";
+    std::cout << "   this->nCoor = " << this->nCoor << "\n";
 
     int nNodes = this->GetNNode();
 
@@ -220,7 +219,7 @@ void CgnsCoor::ReadCgnsGridCoordinates()
         CgnsTraits::char33 coorName;
         int coordId = iCoor + 1;
         cg_coord_info( fileId, baseId, zoneId, coordId, & dataType, coorName );
-        cout << "   coorName = " << coorName << " dataType = " << dataType << " dataTypeName = " << DataTypeName[ dataType ] << "\n";
+        std::cout << "   coorName = " << coorName << " dataType = " << dataType << " dataTypeName = " << DataTypeName[ dataType ] << "\n";
         this->typeList[ iCoor ] = dataType;
         this->nNodeList[ iCoor ] = nNodes;
         this->coorNameList[ iCoor ] = coorName;
@@ -242,13 +241,13 @@ void CgnsCoor::ReadCgnsGridCoordinates( CgnsCoor * cgnsCoorIn )
     int baseId = this->cgnsZone->cgnsBase->baseId;
     int zoneId = this->cgnsZone->zId;
 
-    cout << " this->nCoor = " << this->nCoor << "\n";
+    std::cout << " this->nCoor = " << this->nCoor << "\n";
     this->nCoor = cgnsCoorIn->nCoor;
-    cout << " this->nCoor = " << this->nCoor << "\n";
+    std::cout << " this->nCoor = " << this->nCoor << "\n";
 
     int nNodes = this->GetNNode();
 
-    cout << " this->nNodes = " << this->nNodes << "\n";
+    std::cout << " this->nNodes = " << this->nNodes << "\n";
 
     this->typeList = cgnsCoorIn->typeList;
     this->nNodeList = cgnsCoorIn->nNodeList;
@@ -268,16 +267,16 @@ void CgnsCoor::DumpCgnsGridCoordinates()
     int baseId = this->cgnsZone->cgnsBase->baseId;
     int zoneId = this->cgnsZone->zId;
 
-     cout << "   this->nCoor = " << this->nCoor << "\n";
+     std::cout << "   this->nCoor = " << this->nCoor << "\n";
 
      for ( int iCoor = 0; iCoor < this->nCoor; ++ iCoor )
      {
          DataType_t dataType = this->typeList[ iCoor ];
-         string & coorName = this->coorNameList[ iCoor ];
+         std::string & coorName = this->coorNameList[ iCoor ];
           //Write the x-, y-, z-coordinates.
          int indexCoor = -1;
          cg_coord_write( fileId, baseId, zoneId, dataType, coorName.c_str(), this->GetCoor( iCoor ), &indexCoor );
-         cout << "   coorName = " << coorName << " dataType = " << dataType << " indexCoor = " << indexCoor << "\n";
+         std::cout << "   coorName = " << coorName << " dataType = " << dataType << " indexCoor = " << indexCoor << "\n";
      }
 }
 
@@ -315,7 +314,7 @@ void CgnsCoor::SetDimension()
         this->SetDimensionUns();
     }
 
-    cout << "   numberOfNodes = " << this->GetNNode() << " numberOfCells = " << this->GetNCell() << "\n";
+    std::cout << "   numberOfNodes = " << this->GetNNode() << " numberOfCells = " << this->GetNCell() << "\n";
 }
 
 void CgnsCoor::SetDimensionStr()
@@ -352,10 +351,10 @@ void CgnsCoor::SetDimensionStr()
     {
         cellSize[ 2 ] = isize[ j ++ ];
     }
-    cout << "   The Dimension Of Grid is : \n";
-    cout << "   I Direction " << setw( 10 ) << irmin[ 0 ] << setw( 10 ) << irmax[ 0 ] << "\n";
-    cout << "   J Direction " << setw( 10 ) << irmin[ 1 ] << setw( 10 ) << irmax[ 1 ] << "\n";
-    cout << "   K Direction " << setw( 10 ) << irmin[ 2 ] << setw( 10 ) << irmax[ 2 ] << "\n";
+    std::cout << "   The Dimension Of Grid is : \n";
+    std::cout << "   I Direction " << std::setw( 10 ) << irmin[ 0 ] << std::setw( 10 ) << irmax[ 0 ] << "\n";
+    std::cout << "   J Direction " << std::setw( 10 ) << irmin[ 1 ] << std::setw( 10 ) << irmax[ 1 ] << "\n";
+    std::cout << "   K Direction " << std::setw( 10 ) << irmin[ 2 ] << std::setw( 10 ) << irmax[ 2 ] << "\n";
     int nNodes = irmax[ 0 ] * irmax[ 1 ] * irmax[ 2 ];
     int nCells = cellSize[ 0 ] * cellSize[ 1 ] * cellSize[ 2 ];
     this->SetNNode( nNodes );
@@ -403,7 +402,7 @@ void CgnsCoor::SetDimension( CgnsCoor * cgnsCoorIn )
 
     this->cgnsZone->InitLgMapping();
 
-    cout << "   numberOfNodes = " << this->GetNNode() << " numberOfCells = " << this->GetNCell() << "\n";
+    std::cout << "   numberOfNodes = " << this->GetNNode() << " numberOfCells = " << this->GetNCell() << "\n";
 }
 
 

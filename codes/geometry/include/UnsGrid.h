@@ -66,7 +66,7 @@ public:
     void NormalizeBc();
 public:
     void GetMinMaxDistance( Real & dismin, Real & dismax ) override;
-    void WriteGrid( fstream & file );
+    void WriteGrid( std::fstream & file );
 public:
     void CalcMetrics() override;
     void CalcMetrics1D();

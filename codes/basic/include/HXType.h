@@ -20,19 +20,8 @@ License
 
 \*---------------------------------------------------------------------------*/
 #pragma once
-#include "Configure.h"
-#include <vector>
-#include <sstream>
-using namespace std;
+#include "HXTypeBasic.h"
 
 BeginNameSpace( ONEFLOW )
-
-typedef double Real;
-typedef std::size_t UInt;
-typedef streamsize LLong;
-
-const double LARGE = 1.0e40;
-const double SMALL = 1.0e-40;
-const double TINY  = 1.0e-40;
 
 EndNameSpace

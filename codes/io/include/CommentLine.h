@@ -22,7 +22,6 @@ License
 
 #pragma once
 #include "HXDefine.h"
-using namespace std;
 
 BeginNameSpace( ONEFLOW )
 
@@ -34,8 +33,8 @@ public:
 public:
     StringField commentdata;
 public:
-    void AddString( const string & cs );
-    void ResetCommentString(StringField& commentStringList);
+    void AddString( const std::string & cs );
+    void ResetCommentString( StringField& commentStringList );
 };
 
 EndNameSpace

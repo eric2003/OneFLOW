@@ -37,7 +37,7 @@ License
 #include "Ctrl.h"
 
 #include <iostream>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 
@@ -64,9 +64,9 @@ void NsCalcBc()
 	delete uNsBcSolver;
 }
 
-void NsCalcBcDebug( const string & title )
+void NsCalcBcDebug( const std::string & title )
 {
-	cout << title << "\n";
+	std::cout << title << "\n";
 	UNsBcSolver * uNsBcSolver = new UNsBcSolver();
 	uNsBcSolver->Init();
 	uNsBcSolver->CalcBc();
@@ -89,7 +89,7 @@ void NsCalcGamaT( int flag )
 	{
 		//if ( ZoneState::zid == 0 )
 		//{
-		//    cout << " ug.ist = " << ug.ist  << " ug.ied = " << ug.ied << "\n";
+		//    std::cout << " ug.ist = " << ug.ist  << " ug.ied = " << ug.ied << "\n";
 		//    int kkk = 1;
 		//}
 		Real oamw = one;

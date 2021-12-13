@@ -22,7 +22,7 @@ License
 
 #include "BasicParallel.h"
 #include <iostream>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 
@@ -70,7 +70,7 @@ int HXSize()
 
 std::string HXGetProcessorName()
 {
-    string procName = "";
+    std::string procName = "";
 #ifdef HX_PARALLEL
     char cName[ MPI_MAX_PROCESSOR_NAME ];
     int nLength = 0;
@@ -143,7 +143,7 @@ int HXWait( int count, PL_HXRequest * arrayOfRequests )
     return errorCode;
 }
 
-void HXSendString( string & cs, int pid, int tag )
+void HXSendString( std::string & cs, int pid, int tag )
 {
     int nLength = cs.length();
 
@@ -160,7 +160,7 @@ void HXSendString( string & cs, int pid, int tag )
     delete[] data;
 }
 
-void HXRecvString( string & cs, int pid, int tag )
+void HXRecvString( std::string & cs, int pid, int tag )
 {
     int nLength = 0;
     ONEFLOW::HXRecv( & nLength, 1, PL_INT, pid, tag );

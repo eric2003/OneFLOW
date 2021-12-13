@@ -22,7 +22,7 @@ License
 
 #include "BcData.h"
 #include "FileIO.h"
-#include "FileUtil.h"
+
 #include "Prj.h"
 
 BeginNameSpace( ONEFLOW )
@@ -35,7 +35,7 @@ BcData::~BcData()
 {
 }
 
-void BcData::Init( const string & fileName )
+void BcData::Init( const std::string & fileName )
 {
     this->ReadList( fileName );
     this->ReadRegion();
@@ -49,22 +49,22 @@ void BcData::Init( const string & fileName )
 
 void BcData::ReadRegion()
 {
-    fstream file;
-    string fileName = "grid/bcRegionMap.txt";
-    OpenPrjFile( file, fileName, ios_base::in );
+    std::fstream file;
+    std::string fileName = "grid/bcRegionMap.txt";
+    Prj::OpenPrjFile( file, fileName, std::ios_base::in );
 
     file >> nRegion;
 
-    CloseFile( file );
+    Prj::CloseFile( file );
 }
 
-void BcData::ReadList( const string & fileName )
+void BcData::ReadList( const std::string & fileName )
 {
     //\t is the tab key
-    string separator = " =\r\n\t#$,;\"";
+    std::string separator = " =\r\n\t#$,;\"";
 
     FileIO ioFile;
-    ioFile.OpenPrjFile( fileName, ios_base::in );
+    ioFile.OpenPrjFile( fileName, std::ios_base::in );
     ioFile.SetDefaultSeparator( separator );
 
     while ( ! ioFile.ReachTheEndOfFile() )

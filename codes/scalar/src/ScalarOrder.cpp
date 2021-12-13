@@ -27,7 +27,7 @@ License
 #include <iostream>
 #include <iomanip>
 #include <vector>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 
@@ -66,8 +66,8 @@ void ScalarOrder::Run1()
     para.dt = dt;
     para.nt = nt;
 
-    vector< vector< double > > duList;
-    vector< vector< double > > xList;
+    std::vector< std::vector< double > > duList;
+    std::vector< std::vector< double > > xList;
 
     int nTest = 5;
 
@@ -80,7 +80,7 @@ void ScalarOrder::Run1()
         para.dt = para.timeN / para.nt;
         para.nx = nx0 * icoef + 1;
         para.dx = len / ( para.nx - 1.0 );
-        cout << " i = " << i << " dt = " << para.dt << " para.nx=" << para.nx << "  para.dx = " << para.dx << "\n";
+        std::cout << " i = " << i << " dt = " << para.dt << " para.nx=" << para.nx << "  para.dx = " << para.dx << "\n";
         scalarSolver->RunTest( &para );
         duList.push_back( para.du );
         xList.push_back( para.x );
@@ -112,11 +112,11 @@ void ScalarOrder::Run()
     para.dt = dt;
     para.nt = nt;
 
-    vector< vector< double > > duList;
-    vector< vector< double > > xList;
+    std::vector< std::vector< double > > duList;
+    std::vector< std::vector< double > > xList;
 
-    vector< double > l1NormList, l2NormList;
-    vector< double > dxList;
+    std::vector< double > l1NormList, l2NormList;
+    std::vector< double > dxList;
 
     int nTest = 10;
 
@@ -132,7 +132,7 @@ void ScalarOrder::Run()
         //para.timeN = para.dt * para.nt;
         para.nt = nt * icoef;
         para.dt = para.timeN / para.nt;
-        cout << " i = " << i << " dt = " << para.dt << " para.nx=" << para.nx << "  para.dx = " << para.dx << "\n";
+        std::cout << " i = " << i << " dt = " << para.dt << " para.nx=" << para.nx << "  para.dx = " << para.dx << "\n";
         scalarSolver->RunTest( &para );
         duList.push_back( para.du );
         xList.push_back( para.x );
@@ -147,7 +147,7 @@ void ScalarOrder::Run()
     Numpy::DrawL1Norm( "l1Norm.plt", dxList, l1NormList );
     Numpy::DrawNorms( "l1l2Norm.plt", dxList, l1NormList, l2NormList );
 
-    vector< double > l1p, l2p;
+    std::vector< double > l1p, l2p;
     for ( int i = 1; i < l1NormList.size(); ++ i )
     {
         double r1 = l1NormList[ i - 1 ] / l1NormList[ i ];
@@ -157,9 +157,9 @@ void ScalarOrder::Run()
         l1p.push_back( or1 );
         l2p.push_back( or2 );
         int width = 8;
-        cout << " i = " << i;
-        cout << " order1 = " << setw( width ) << setiosflags( ios::fixed ) << setprecision( 6 ) << or1;
-        cout << " order2 = " << setw( width ) << setiosflags( ios::fixed ) << setprecision( 6 ) << or2 << "\n";
+        std::cout << " i = " << i;
+        std::cout << " order1 = " << std::setw( width ) << std::setiosflags( std::ios::fixed ) << std::setprecision( 6 ) << or1;
+        std::cout << " order2 = " << std::setw( width ) << std::setiosflags( std::ios::fixed ) << std::setprecision( 6 ) << or2 << "\n";
     }
     
 

@@ -26,7 +26,7 @@ License
 #include "HXDefine.h"
 #include <map>
 #include <string>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 class HXClone;
@@ -50,9 +50,9 @@ public:
 public:
     virtual HXClone * Clone() const = 0;
 public:
-    static HXClone * SafeClone( const string & type );
-    static HXClone * Register( const string & type, HXClone * clone );
-    static map < string, HXClone * > * classMap;
+    static HXClone * SafeClone( const std::string & type );
+    static HXClone * Register( const std::string & type, HXClone * clone );
+    static std::map < std::string, HXClone * > * classMap;
     StringField data;
 public:
     virtual void Solve(){};

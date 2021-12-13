@@ -22,7 +22,7 @@ License
 
 #include "UsdPara.h"
 #include <iostream>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 

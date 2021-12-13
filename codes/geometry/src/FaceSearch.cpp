@@ -28,7 +28,7 @@ License
 #include "Dimension.h"
 #include "Stop.h"
 #include <algorithm>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 
@@ -65,7 +65,7 @@ int FaceSearchBasic::AddFace( const IntField & faceNode )
     int fId = faceArray.size();
     FaceSort * faceSort = new FaceSort( faceNode, fId );
 
-    set< FaceSort *, CompareFace >::iterator iter = faceSet.find( faceSort );
+    std::set< FaceSort *, CompareFace >::iterator iter = faceSet.find( faceSort );
 
     if ( iter == faceSet.end() )
     {
@@ -85,7 +85,7 @@ int FaceSearchBasic::FindFace( const IntField & faceNode )
     int fId = faceArray.size();
     FaceSort * faceSort = new FaceSort( faceNode, fId );
 
-    set< FaceSort *, CompareFace >::iterator iter = faceSet.find( faceSort );
+    std::set< FaceSort *, CompareFace >::iterator iter = faceSet.find( faceSort );
     int face_id = -1;
     if ( iter != faceSet.end() )
     {
@@ -151,7 +151,7 @@ void FaceSearch::SplitQuad2Tri( FaceSort * pFaceSort )
         IntField & tri = triId[ iTri ];
 
         FaceSort * faceSort = new FaceSort( tri );
-        set< FaceSort *, CompareFace >::iterator iter = this->faceSet.find( faceSort );
+        std::set< FaceSort *, CompareFace >::iterator iter = this->faceSet.find( faceSort );
 
         if ( iter != this->faceSet.end() )
         {
@@ -183,7 +183,7 @@ void FaceSearch::SplitLine( FaceSort * pFaceSort )
         IntField & lId = lineId[ iLi ];
 
         FaceSort * faceSort = new FaceSort( lId );
-        set< FaceSort *, CompareFace >::iterator iter = this->faceSet.find( faceSort );
+        std::set< FaceSort *, CompareFace >::iterator iter = this->faceSet.find( faceSort );
 
         if ( iter != this->faceSet.end() )
         {

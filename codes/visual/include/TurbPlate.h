@@ -27,7 +27,7 @@ License
 #include "Plate.h"
 #include <sstream>
 #include <fstream>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 
@@ -43,7 +43,11 @@ public:
     ~TurbVelCut();
 public:
     void Dump();
-    void Dump( LamData * lamData, fstream & file, int axis );
+    void Dump( LamData * lamData, std::fstream & file, int axis );
+    void DumpDetail( LamData * lamData, std::fstream & file, int axis );
+public:
+    void DumpNormal();
+    void DumpDetail();
 };
 
 class TurbFriCut : public CuttingClass
@@ -53,7 +57,7 @@ public:
     ~TurbFriCut();
 public:
     void Dump();
-    void Dump( LamData * lamData, fstream & file, int axis );
+    void Dump( LamData * lamData, std::fstream & file, int axis );
 };
 
 class TurbFlatPlateTask : public Task

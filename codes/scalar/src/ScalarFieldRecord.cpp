@@ -25,7 +25,7 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-std::map< string, int > GFieldDim::data;
+std::map< std::string, int > GFieldDim::data;
 
 GFieldDim::GFieldDim()
 {
@@ -35,14 +35,14 @@ GFieldDim::~GFieldDim()
 {
 }
 
-void GFieldDim::AddField( const string & fileName, int nEqu )
+void GFieldDim::AddField( const std::string & fileName, int nEqu )
 {
     GFieldDim::data[ fileName ] = nEqu;
 }
 
-int GFieldDim::GetNEqu( const string & fileName )
+int GFieldDim::GetNEqu( const std::string & fileName )
 {
-    std::map< string, int >::iterator iter;
+    std::map< std::string, int >::iterator iter;
     iter = GFieldDim::data.find( fileName );
     if ( iter != GFieldDim::data.end() )
     {
@@ -75,7 +75,7 @@ void ScalarFieldRecord::AddFieldRecord( DataStorage * dataStorage, StringField &
 {
     for ( int iField = 0; iField < fieldNameList.size(); ++ iField )
     {
-        string & fieldName = fieldNameList[ iField ];
+        std::string & fieldName = fieldNameList[ iField ];
         MRField * field = ONEFLOW::GetFieldPointer< MRField >( dataStorage, fieldName );
         int nEqu = GFieldDim::GetNEqu( fieldName );
         this->AddField( field, nEqu );

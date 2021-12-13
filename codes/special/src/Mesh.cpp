@@ -37,7 +37,7 @@ License
 #include <algorithm>
 #include <iostream>
 #include <ctime>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 
@@ -60,10 +60,10 @@ int HXRandomClass::Random( int rangeMin, int rangeMax )
     return static_cast< int > ( value );
 }
 
-void HXRandomClass::RangeRandom( int rangeMin, int rangeMax, vector< int > & results )
+void HXRandomClass::RangeRandom( int rangeMin, int rangeMax, std::vector< int > & results )
 {
     int numberOfElements = results.size();
-    vector< int > flag( numberOfElements, 0 );
+    std::vector< int > flag( numberOfElements, 0 );
     for ( int iElement = 0; iElement< numberOfElements; ++ iElement )
     {
         int candidateNumber = - 1;
@@ -234,8 +234,8 @@ void SimpleMesh2D::ConstructElement()
 
 void SimpleMesh2D::PushElement( IntField & nodeArray1, IntField & nodeArray2, int shift )
 {
-    UInt numberOfNodes = nodeArray1.size();
-    for ( UInt iNode = 0; iNode < numberOfNodes - shift; ++ iNode )
+    HXSize_t numberOfNodes = nodeArray1.size();
+    for ( HXSize_t iNode = 0; iNode < numberOfNodes - shift; ++ iNode )
     {
         int iNode1 = iNode;
         int iNode2 = ( iNode + 1 ) % numberOfNodes;
@@ -359,7 +359,7 @@ Mesh::~Mesh()
 
 void Mesh::CreateMesh()
 {
-    cout << "Mesh::CreateMesh()\n";
+    std::cout << "Mesh::CreateMesh()\n";
     nodeMesh = new NodeMesh();
     faceMesh = new FaceMesh();
     cellMesh = new CellMesh();
@@ -375,15 +375,15 @@ void Mesh::CreateMesh()
 
 void Mesh::ConstructTopology()
 {
-    UInt numberOfNodes = this->nodeMesh->GetNumberOfNodes();
-    UInt numberOfCells = this->cellMesh->GetNumberOfCells();
-    set< HXSort< IntField > > faceSet;
+    HXSize_t numberOfNodes = this->nodeMesh->GetNumberOfNodes();
+    HXSize_t numberOfCells = this->cellMesh->GetNumberOfCells();
+    std::set< HXSort< IntField > > faceSet;
     HXSort< IntField > faceForSorting;
 
     CellTopo * cellTopo = this->cellMesh->cellTopo;
     FaceTopo * faceTopo = this->faceMesh->faceTopo;
 
-    for ( UInt iCell = 0; iCell < numberOfCells; ++ iCell )
+    for ( HXSize_t iCell = 0; iCell < numberOfCells; ++ iCell )
     {
         IntField & element = cellTopo->elements[ iCell ];
 
@@ -407,7 +407,7 @@ void Mesh::ConstructTopology()
             std::sort( faceNodeIndexArraySort.begin(), faceNodeIndexArraySort.end() );
             faceForSorting.value = faceNodeIndexArraySort;
 
-            set< HXSort< IntField > >::iterator iter = faceSet.find( faceForSorting );
+            std::set< HXSort< IntField > >::iterator iter = faceSet.find( faceForSorting );
             if ( iter == faceSet.end() )
             {
                 faceForSorting.index = faceSet.size();
@@ -441,7 +441,7 @@ void Mesh::ConstructTopology()
 
 void Mesh::SwapBoundary()
 {
-    UInt nFaces = this->faceMesh->GetNFace();
+    HXSize_t nFaces = this->faceMesh->GetNFace();
 
     IntField orderMapping( nFaces );
 
@@ -482,7 +482,7 @@ void Mesh::SwapBoundary()
         faceTopo->rCells[ iFace ] = rCellIndexSwap[ oldFaceIndex ];
     }
 
-    UInt numberOfCells = this->cellMesh->GetNumberOfCells();
+    HXSize_t numberOfCells = this->cellMesh->GetNumberOfCells();
 
     for ( int iFace = 0; iFace < nBFaces; ++ iFace )
     {
@@ -583,9 +583,9 @@ void Mesh::CalcFaceNormal1D()
 
 void Mesh::CalcCellCenterVol1D()
 {
-    UInt nFaces = this->faceMesh->GetNFace();
-    UInt nBFaces = this->faceMesh->GetNBFace();
-    UInt numberOfCells = this->cellMesh->GetNumberOfCells();
+    HXSize_t nFaces = this->faceMesh->GetNFace();
+    HXSize_t nBFaces = this->faceMesh->GetNBFace();
+    HXSize_t numberOfCells = this->cellMesh->GetNumberOfCells();
 
     RealField & xcc  = this->cellMesh->xcc ;
     RealField & ycc  = this->cellMesh->ycc ;
@@ -599,7 +599,7 @@ void Mesh::CalcCellCenterVol1D()
     CellTopo * cellTopo = this->cellMesh->cellTopo;
     FaceTopo * faceTopo = this->faceMesh->faceTopo;
 
-    for ( UInt iCell = 0; iCell < numberOfCells; ++ iCell )
+    for ( HXSize_t iCell = 0; iCell < numberOfCells; ++ iCell )
     {
         IntField & element = cellTopo->elements[ iCell ];
         int p1 = element[ 0 ];
@@ -616,9 +616,9 @@ void Mesh::CalcCellCenterVol1D()
 
 void Mesh::CalcGhostCellCenterVol1D()
 {
-    UInt nFaces = this->faceMesh->GetNFace();
-    UInt nBFaces = this->faceMesh->GetNBFace();
-    UInt numberOfCells = this->cellMesh->GetNumberOfCells();
+    HXSize_t nFaces = this->faceMesh->GetNFace();
+    HXSize_t nBFaces = this->faceMesh->GetNBFace();
+    HXSize_t numberOfCells = this->cellMesh->GetNumberOfCells();
 
     RealField & xcc  = this->cellMesh->xcc ;
     RealField & ycc  = this->cellMesh->ycc ;
@@ -639,7 +639,7 @@ void Mesh::CalcGhostCellCenterVol1D()
     FaceTopo * faceTopo = this->faceMesh->faceTopo;
 
     // For ghost cells
-    for ( UInt iFace = 0; iFace < nBFaces; ++ iFace )
+    for ( HXSize_t iFace = 0; iFace < nBFaces; ++ iFace )
     {
         int lc  = faceTopo->lCells[ iFace ];
         int rc = iFace + numberOfCells;
@@ -665,9 +665,9 @@ void Mesh::CalcGhostCellCenterVol1D()
 
 void Mesh::CalcCellCenterVol2D()
 {
-    UInt nFaces = this->faceMesh->GetNFace();
-    UInt nBFaces = this->faceMesh->GetNBFace();
-    UInt numberOfCells = this->cellMesh->GetNumberOfCells();
+    HXSize_t nFaces = this->faceMesh->GetNFace();
+    HXSize_t nBFaces = this->faceMesh->GetNBFace();
+    HXSize_t numberOfCells = this->cellMesh->GetNumberOfCells();
 
     RealField & xcc  = this->cellMesh->xcc ;
     RealField & ycc  = this->cellMesh->ycc ;
@@ -692,7 +692,7 @@ void Mesh::CalcCellCenterVol2D()
     zcc  = 0;
     vol = 0;
 
-    for ( UInt iFace = 0; iFace < nBFaces; ++ iFace )
+    for ( HXSize_t iFace = 0; iFace < nBFaces; ++ iFace )
     {
         int lc = faceTopo->lCells[ iFace ];
         Real dot = ( xfc[ iFace ] * xfn[ iFace ] +
@@ -705,7 +705,7 @@ void Mesh::CalcCellCenterVol2D()
     }
 
     // For interior cell faces
-    for ( UInt iFace = nBFaces; iFace < nFaces; ++ iFace )
+    for ( HXSize_t iFace = nBFaces; iFace < nFaces; ++ iFace )
     {
         int lc = faceTopo->lCells[ iFace ];
         int rc = faceTopo->rCells[ iFace ];
@@ -723,10 +723,10 @@ void Mesh::CalcCellCenterVol2D()
         vol[ rc ] -= dot;
     }
 
-    UInt numberOfCellsHaveNegativeVolumes = 0;
+    HXSize_t numberOfCellsHaveNegativeVolumes = 0;
     Real minvol = LARGE, maxvol = 0.0;
-    UInt indexMinv = 0, indexMaxv = 0;
-    for ( UInt iCell = 0; iCell < numberOfCells; ++ iCell )
+    HXSize_t indexMinv = 0, indexMaxv = 0;
+    for ( HXSize_t iCell = 0; iCell < numberOfCells; ++ iCell )
     {
         Real tmp = 1.0 / ( 1.5 * vol[ iCell ] + SMALL );
         xcc [ iCell ] *= tmp;
@@ -752,7 +752,7 @@ void Mesh::CalcCellCenterVol2D()
     }
 
     // For ghost cells
-    for ( UInt iFace = 0; iFace < nBFaces; ++ iFace )
+    for ( HXSize_t iFace = 0; iFace < nBFaces; ++ iFace )
     {
         int lc = faceTopo->lCells[ iFace ];
         int rc = iFace + numberOfCells;
@@ -778,9 +778,9 @@ void Mesh::CalcCellCenterVol2D()
 
 void Mesh::CalcCellCenterVol3D()
 {
-    UInt nFaces = this->faceMesh->GetNFace();
-    UInt nBFaces = this->faceMesh->GetNBFace();
-    UInt numberOfCells = this->cellMesh->GetNumberOfCells();
+    HXSize_t nFaces = this->faceMesh->GetNFace();
+    HXSize_t nBFaces = this->faceMesh->GetNBFace();
+    HXSize_t numberOfCells = this->cellMesh->GetNumberOfCells();
 
     RealField & xcc  = this->cellMesh->xcc ;
     RealField & ycc  = this->cellMesh->ycc ;
@@ -809,15 +809,15 @@ void Mesh::CalcCellCenterVol3D()
     zcc  = 0;
     vol = 0;
 
-    for ( UInt iFace = 0; iFace < nFaces; ++ iFace )
+    for ( HXSize_t iFace = 0; iFace < nFaces; ++ iFace )
     {
         int lc = faceTopo->lCells[ iFace ];
         int rc = faceTopo->rCells[ iFace ];
 
         IntField & faceIndex = faceTopo->faces[ iFace ];
 
-        UInt faceNodeNumber = faceIndex.size();
-        for ( UInt iNode = 0; iNode < faceNodeNumber; ++ iNode )
+        HXSize_t faceNodeNumber = faceIndex.size();
+        for ( HXSize_t iNode = 0; iNode < faceNodeNumber; ++ iNode )
         {
             int index1 = iNode;
             int index2 = ( iNode + 1 ) % faceNodeNumber;
@@ -858,10 +858,10 @@ void Mesh::CalcCellCenterVol3D()
         }
     }
 
-    UInt cell = 0;
+    HXSize_t cell = 0;
     Real minvol = LARGE, maxvol = 0.0;
     int indexMinv = 0, indexMaxv = 0;
-    for ( UInt iCell = 0; iCell < numberOfCells; ++ iCell )
+    for ( HXSize_t iCell = 0; iCell < numberOfCells; ++ iCell )
     {
         Real tmp     = 1.0 / ( 4.0 * vol[ iCell ] + SMALL );
         xcc [ iCell ] *= tmp;
@@ -887,7 +887,7 @@ void Mesh::CalcCellCenterVol3D()
         }
     }
 
-    if ( cell ) cout << cell << " cells have negative vols \n";
+    if ( cell ) std::cout << cell << " cells have negative vols \n";
 
     // For ghost cells
     for ( int iFace = 0; iFace < nBFaces; ++ iFace )

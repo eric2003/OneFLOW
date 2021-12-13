@@ -76,7 +76,7 @@ void NsCom::Init()
     reylref_dim = GetDataValue< Real >( "reylref_dim" );
 
     gasInfoStrategy = GetDataValue< int >( "gasInfoStrategy" );
-    gasModelFile = GetDataValue< string >( "gasModelFile" );
+    gasModelFile = GetDataValue< std::string >( "gasModelFile" );
     machStrategy = GetDataValue< int >( "machStrategy" );
 
     schmidtl = GetDataValue< Real >( "schmidtl" );

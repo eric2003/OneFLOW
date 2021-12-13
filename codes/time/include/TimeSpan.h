@@ -23,7 +23,7 @@ License
 #include "Configure.h"
 #include <string>
 #include <ctime>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 
@@ -36,7 +36,7 @@ public:
     clock_t t_old, t;
 public:
     void ResetTime();
-    void ShowTimeSpan( const string & title = "" );
+    void ShowTimeSpan( const std::string & title = "" );
 };
 
 

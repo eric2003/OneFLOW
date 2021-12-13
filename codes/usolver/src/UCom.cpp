@@ -32,10 +32,9 @@ License
 #include "Stop.h"
 #include "DataBase.h"
 #include "OStream.h"
-#include "FileUtil.h"
 #include "HXMath.h"
+#include "FileUtil.h"
 #include <iostream>
-using namespace std;
 
 BeginNameSpace( ONEFLOW )
 
@@ -137,9 +136,9 @@ void UGeom::DumpCellFace( int cId )
     int nFaces = ( * this->c2f )[ cId ].size();
     for ( int fId = 0; fId < nFaces; ++ fId )
     {
-        cout << ( * this->c2f )[ cId ][ fId ] << " ";
+        std::cout << ( * this->c2f )[ cId ][ fId ] << " ";
     }
-    cout << endl;
+    std::cout << std::endl;
 }
 
 void AddF2CField( MRField * cellField, MRField * faceField )
@@ -182,9 +181,9 @@ void AddF2CFieldDebug( MRField * cellField, MRField * faceField )
 
         if ( ug.lc == 9 || ug.rc == 9 )
         {
-            cout << " fId = " << fId << "\n";
+            std::cout << " fId = " << fId << "\n";
             int iEqu = 0;
-            cout << ( * faceField )[ iEqu ][ ug.fId ] << "\n";
+            std::cout << ( * faceField )[ iEqu ][ ug.fId ] << "\n";
         }
 
         for ( int iEqu = 0; iEqu < nEqu; ++ iEqu )
@@ -196,7 +195,7 @@ void AddF2CFieldDebug( MRField * cellField, MRField * faceField )
             for ( int iEqu = 0; iEqu < nEqu; ++ iEqu )
             {
                 int cc = 9;
-                cout << ( * cellField )[ iEqu ][ cc ] << "\n";
+                std::cout << ( * cellField )[ iEqu ][ cc ] << "\n";
             }
         }
     }
@@ -208,9 +207,9 @@ void AddF2CFieldDebug( MRField * cellField, MRField * faceField )
         ug.rc = ( * ug.rcf )[ ug.fId ];
         if ( ug.lc == 9 || ug.rc == 9 )
         {
-            cout << " fId = " << fId << "\n";
+            std::cout << " fId = " << fId << "\n";
             int iEqu = 0;
-            cout << ( * faceField )[ iEqu ][ ug.fId ] << "\n";
+            std::cout << ( * faceField )[ iEqu ][ ug.fId ] << "\n";
         }
 
         for ( int iEqu = 0; iEqu < nEqu; ++ iEqu )
@@ -223,7 +222,7 @@ void AddF2CFieldDebug( MRField * cellField, MRField * faceField )
             for ( int iEqu = 0; iEqu < nEqu; ++ iEqu )
             {
                 int cc = 9;
-                cout << ( * cellField )[ iEqu ][ cc ] << "\n";
+                std::cout << ( * cellField )[ iEqu ][ cc ] << "\n";
             }
         }
     }
@@ -231,13 +230,13 @@ void AddF2CFieldDebug( MRField * cellField, MRField * faceField )
     for ( int iEqu = 0; iEqu < nEqu; ++ iEqu )
     {
         int cc = 9;
-        cout << ( * cellField )[ iEqu ][ cc ] << "\n";
+        std::cout << ( * cellField )[ iEqu ][ cc ] << "\n";
     }
     int kkk = 1;
 }
 
-string HXDebug::fileName1;
-string HXDebug::fileName2;
+std::string HXDebug::fileName1;
+std::string HXDebug::fileName2;
 
 HXDebug::HXDebug()
 {
@@ -249,9 +248,9 @@ HXDebug::~HXDebug()
     ;
 }
 
-string HXDebug::GetFullFileName( const string & fileName, int startStrategy )
+std::string HXDebug::GetFullFileName( const std::string & fileName, int startStrategy )
 {
-    string newFileName = fileName;
+    std::string newFileName = fileName;
     if ( startStrategy == 1 )
     {
         newFileName = AddSymbolToFileName( fileName, "Continue" );
@@ -260,33 +259,33 @@ string HXDebug::GetFullFileName( const string & fileName, int startStrategy )
     ONEFLOW::StrIO.ClearAll();
     ONEFLOW::StrIO << "debug/" << newFileName;
 
-    string fullFileName = ONEFLOW::StrIO.str();
+    std::string fullFileName = ONEFLOW::StrIO.str();
     return fullFileName;
 }
 
-void HXDebug::DumpResField( const string & fileName )
+void HXDebug::DumpResField( const std::string & fileName )
 {
     UnsGrid * grid = Zone::GetUnsGrid();
     MRField * res = GetFieldPointer< MRField >( grid, "res" );
     HXDebug::DumpField( fileName, res );
 }
 
-void HXDebug::DumpField( const string & fileName, MRField * field )
+void HXDebug::DumpField( const std::string & fileName, MRField * field )
 {
-    fstream file;
+    std::fstream file;
 
     HXDebug::fileName1 = HXDebug::GetFullFileName( fileName, 0 );
     HXDebug::fileName2 = HXDebug::GetFullFileName( fileName, 1 );
 
-    string fullFileName = HXDebug::fileName1;
+    std::string fullFileName = HXDebug::fileName1;
     int startStrategy = ONEFLOW::GetDataValue< int >("startStrategy");
     if ( startStrategy == 1 )
     {
         fullFileName = HXDebug::fileName2;
-        cout << " HXDebug::fileName1 = " << HXDebug::fileName1 << " HXDebug::fileName2 = " << HXDebug::fileName2 << "\n";
+        std::cout << " HXDebug::fileName1 = " << HXDebug::fileName1 << " HXDebug::fileName2 = " << HXDebug::fileName2 << "\n";
     }
 
-    PIO::ParallelOpenPrj( file, fullFileName, ios_base::out );
+    PIO::OpenPrjFile( file, fullFileName, std::ios_base::out );
 
     int nEqu = field->GetNEqu();
 
@@ -299,20 +298,20 @@ void HXDebug::DumpField( const string & fileName, MRField * field )
         HXWrite( &file, ( * field )[ iEqu ] );
     }
 
-    PIO::Close( file );
+    PIO::CloseFile( file );
 }
 
-MRField * HXDebug::ReadField( const string & fileName )
+MRField * HXDebug::ReadField( const std::string & fileName )
 {
-    fstream file;
+    std::fstream file;
 
-    PIO::ParallelOpenPrj( file, fileName, ios_base::in );
+    PIO::OpenPrjFile( file, fileName, std::ios_base::in );
     int nEqu = 0;
     HXRead( & file, nEqu );
     int nCells = 0;
     HXRead( & file, nCells );
 
-    cout << " nEqu = " << nEqu << " nCells = " << nCells << "\n";
+    std::cout << " nEqu = " << nEqu << " nCells = " << nCells << "\n";
 
     MRField * field = new MRField( nEqu, nCells );
 
@@ -321,7 +320,7 @@ MRField * HXDebug::ReadField( const string & fileName )
         HXRead( &file, ( * field )[ iEqu ] );
     }
 
-    PIO::Close( file );
+    PIO::CloseFile( file );
 
     return field;
 }
@@ -345,9 +344,9 @@ void HXDebug::CompareFile( Real mindiff, int idump )
             Real diff = f1[ iCell ] - f2[ iCell ];
             if ( ABS( diff ) > mindiff )
             {
-                cout << " iEqu = " << iEqu << " iCell = " << iCell << " diff = " << diff << "\n";
-                cout << " v1 = " << setiosflags( ios::fixed ) << setprecision( 10 ) << f1[ iCell ];
-                cout << " v2 = " << setiosflags( ios::fixed ) << setprecision( 10 ) << f2[ iCell ] << "\n";
+                std::cout << " iEqu = " << iEqu << " iCell = " << iCell << " diff = " << diff << "\n";
+                std::cout << " v1 = " << std::setiosflags( std::ios::fixed ) << std::setprecision( 10 ) << f1[ iCell ];
+                std::cout << " v2 = " << std::setiosflags( std::ios::fixed ) << std::setprecision( 10 ) << f2[ iCell ] << "\n";
                 if ( idump == 0 )
                 {
                     HXDebug::DumpCellInfo( iCell );
@@ -374,7 +373,7 @@ void HXDebug::DumpCellInfo( int iCell )
         {
             bctype = ( * ug.bcRecord ).bcType[ fid ];
         }
-        cout << " fid = " << fid << " bctype = " << bctype << "\n";
+        std::cout << " fid = " << fid << " bctype = " << bctype << "\n";
     }
 }
 
@@ -391,7 +390,7 @@ void HXDebug::CheckNANField( MRField * field )
             Real value = ( * field )[ iEqu ][ iElem ];
             if ( NotANumber( value ) )
             {
-                cout << " iEqu = " << iEqu << " iElem = " << iElem << " nElems = " << nElems << " value = " << value << "\n";
+                std::cout << " iEqu = " << iEqu << " iElem = " << iElem << " nElems = " << nElems << " value = " << value << "\n";
                 Stop( "NotANumber" );
             }
         }

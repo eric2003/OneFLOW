@@ -22,7 +22,7 @@ License
 
 #include "Sutherland.h"
 #include <cmath>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 

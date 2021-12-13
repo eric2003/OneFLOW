@@ -648,7 +648,7 @@ enum ValueType {
   intValue,      ///< signed integer value
   uintValue,     ///< unsigned integer value
   realValue,     ///< double value
-  stringValue,   ///< UTF-8 string value
+  stringValue,   ///< UTF-8 std::string value
   booleanValue,  ///< bool value
   arrayValue,    ///< array value (ordered list)
   objectValue    ///< object value (collection of name/value pairs).

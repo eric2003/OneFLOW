@@ -4,9 +4,12 @@
 extern "C" {
 #endif
 
-void GetCudaDeviceCount( int &num_gpus );
+#ifdef ENABLE_CUDA
+
+void GetCudaDeviceCount( int & num_gpus );
+
+#endif
 
 #ifdef __cplusplus
 } // closing brace for extern "C"
 #endif
-

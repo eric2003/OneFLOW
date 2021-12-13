@@ -25,30 +25,30 @@ License
 BeginNameSpace( ONEFLOW )
 
 template< typename T >
-class Mid
+class HXMid
 {
 public:
-    int size, id;
+    std::size_t size, id;
     HXVector< T > data;
 public:
-    Mid();
-    Mid( int size, int id = 0 );
-    Mid( const Mid & rhs );
-    Mid & operator = ( const Mid & rhs );
-    ~Mid( void  );
+    HXMid();
+    HXMid( std::size_t size, std::size_t id = 0 );
+    HXMid( const HXMid & rhs );
+    HXMid & operator = ( const HXMid & rhs );
+    ~HXMid( void  );
 public:
-    bool operator < ( const Mid & rhs ) const;
+    bool operator < ( const HXMid & rhs ) const;
 };
 
 template < typename T >
-Mid<T>::Mid()
+HXMid<T>::HXMid()
 {
     this->size = 0;
     this->id   = 0;
 }
 
 template < typename T >
-Mid<T>::Mid( int size, int id )
+HXMid<T>::HXMid( std::size_t size, std::size_t id )
 {
     this->size = size;
     this->id   = id;
@@ -56,20 +56,20 @@ Mid<T>::Mid( int size, int id )
 }
 
 template < typename T >
-Mid<T>::Mid( const Mid<T> & rhs )
+HXMid<T>::HXMid( const HXMid<T> & rhs )
 {
     this->size = rhs.size;
     this->id   = rhs.id;
     this->data.resize( size );
 
-    for ( int i = 0; i < size; ++ i )
+    for ( std::size_t i = 0; i < size; ++ i )
     {
         this->data[ i ] = rhs.data[ i ];
     }
 }
 
 template < typename T >
-Mid<T> & Mid<T>::operator = ( const Mid<T> & rhs )
+HXMid<T> & HXMid<T>::operator = ( const HXMid<T> & rhs )
 {
     if ( this == & rhs ) return * this;
 
@@ -80,7 +80,7 @@ Mid<T> & Mid<T>::operator = ( const Mid<T> & rhs )
     }
 
     this->id   = rhs.id;
-    for ( int i = 0; i < size; ++ i )
+    for ( std::size_t i = 0; i < size; ++ i )
     {
         this->data[ i ] = rhs.data[ i ];
     }
@@ -89,15 +89,15 @@ Mid<T> & Mid<T>::operator = ( const Mid<T> & rhs )
 }
 
 template < typename T >
-Mid<T>::~Mid()
+HXMid<T>::~HXMid()
 {
 }
 
 template < typename T >
-bool Mid<T>::operator < ( const Mid<T> & rhs ) const
+bool HXMid<T>::operator < ( const HXMid<T> & rhs ) const
 {
     if ( this->size != rhs.size ) return this->size < rhs.size;
-    for ( int i = 0; i < this->size; ++ i )
+    for ( std::size_t i = 0; i < this->size; ++ i )
     {
         if ( this->data[ i ] != rhs.data[ i ] )
         {

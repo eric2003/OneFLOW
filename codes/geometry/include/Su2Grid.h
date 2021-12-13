@@ -26,7 +26,7 @@ License
 #include <vector>
 #include <string>
 #include <map>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 
@@ -55,7 +55,7 @@ public:
     VTK_CgnsMap();
     ~VTK_CgnsMap();
 public:
-    map< int, int > vtk2Cgns;
+    std::map< int, int > vtk2Cgns;
 public:
     void Init();
 };
@@ -68,8 +68,8 @@ public:
     Marker(){};
     ~Marker(){};
 public:
-    string name;
-    string bcName;
+    std::string name;
+    std::string bcName;
     int cgns_bcType;
     LinkField elems;
     IntField eTypes;
@@ -84,7 +84,7 @@ public:
 public:
     int vtk_type;
     int cgns_type;
-    string name;
+    std::string name;
     int nElem;
     LinkField elems;
 };
@@ -139,15 +139,15 @@ public:
     Su2Bc();
     ~Su2Bc();
 public:
-    set< string > bcList;
-    map<string, string> bcMap;
-    map<string, int> bcNameToValueMap;
+    std::set< std::string > bcList;
+    std::map<std::string, std::string> bcMap;
+    std::map<std::string, int> bcNameToValueMap;
 public:
     void Init();
-    void AddBc( string &geoName, string &bcName);
+    void AddBc( std::string &geoName, std::string &bcName);
     void Process(StringField& markerBCNameList, StringField& markerNameList);
-    string GetBcName( string& geoName );
-    int GetCgnsBcType(string& geoName);
+    std::string GetBcName( std::string& geoName );
+    int GetCgnsBcType(std::string& geoName);
 };
 
 class CgnsZone;
@@ -159,9 +159,9 @@ public:
     ~Su2Grid();
 public:
     void ReadSu2Grid( GridMediator * gridMediator );
-    void ReadSu2GridAscii( string & fileName );
+    void ReadSu2GridAscii( std::string & fileName );
     void Su2ToOneFlowGrid();
-    void MarkBoundary(string& su2cfgFile);
+    void MarkBoundary(std::string& su2cfgFile);
     void FillSU2CgnsZone( CgnsZone * cgnsZone );
 public:
     int ndim;

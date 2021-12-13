@@ -26,7 +26,7 @@ License
 #include "HXMath.h"
 #include "Stop.h"
 #include <iostream>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 
@@ -95,7 +95,7 @@ int PointSearch::AddPoint( RealField & coor )
     {
         if ( nodeList.size() > 1 )
         {
-            cout << "FATAL ERROR : nodeList.size() = " << nodeList.size()<<endl;
+            std::cout << "FATAL ERROR : nodeList.size() = " << nodeList.size() << std::endl;
             Stop("");
         }
         AdtNode * node =  nodeList[ 0 ];
@@ -158,7 +158,7 @@ int PointSearch::FindPoint( RealField & coordinate )
         if ( nodeList.size() > 1 )
         {
             int numberOfSize = nodeList.size();
-            cout << " impossible nodeList.size() = " << nodeList.size() << endl;
+            std::cout << " impossible nodeList.size() = " << nodeList.size() << std::endl;
             
             int kkk = 1;
             Stop( "" );

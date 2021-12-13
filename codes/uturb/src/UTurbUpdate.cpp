@@ -34,7 +34,7 @@ License
 #include "Iteration.h"
 #include <iostream>
 #include <iomanip>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 
@@ -155,9 +155,9 @@ void UTurbUpdate::PrepareData2Equ()
 
 void UTurbUpdate::DumpProbeInfo()
 {
-    cout << setprecision( 3 );
-    cout << "Warning : p = " << nscom.prim[ IDX::IP ] << ", r = " << nscom.prim[ IDX::IR ];
-    cout << " <-> zid = " << ZoneState::zid << ", cid = " << ug.cId << endl;
+    std::cout << std::setprecision( 3 );
+    std::cout << "Warning : p = " << nscom.prim[ IDX::IP ] << ", r = " << nscom.prim[ IDX::IR ];
+    std::cout << " <-> zid = " << ZoneState::zid << ", cid = " << ug.cId << std::endl;
 }
 
 void UTurbUpdate::SmoothTurbulentPoint()

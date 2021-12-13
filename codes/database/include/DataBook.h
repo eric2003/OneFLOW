@@ -26,7 +26,6 @@ License
 #include <vector>
 #include <string>
 #include <fstream>
-using namespace std;
 
 BeginNameSpace( ONEFLOW )
 
@@ -41,33 +40,33 @@ public:
     DataBook();
     ~DataBook();
 public:
-    vector< DataPage * > * dataBook;
-    UInt currPageId;
-    LLong currPos;
-    LLong maxUnitSize;
+    std::vector< DataPage * > * dataBook;
+    HXSize_t currPageId;
+    HXLongLong_t currPos;
+    HXLongLong_t maxUnitSize;
 public:
     DataPage * GetCurrentPage();
-    DataPage * GetPage( UInt iPage );
+    DataPage * GetPage( HXSize_t iPage );
     void Destroy( DataPage * dataPage );
-    void Erase( UInt startPage, UInt endPage );
+    void Erase( HXSize_t startPage, HXSize_t endPage );
 protected:
-    UInt  GetNPage();
-    void ResizeNPage( UInt newNPage );
-    LLong  GetRemainingSizeOfCurrentPage();
-    void MoveForwardPosition( LLong dataSize );
+    HXSize_t  GetNPage();
+    void ResizeNPage( HXSize_t newNPage );
+    HXLongLong_t  GetRemainingSizeOfCurrentPage();
+    void MoveForwardPosition( HXLongLong_t dataSize );
 public:
-    void Read ( void * data, LLong dataSize );
-    void Write( void * data, LLong dataSize );
-    void ReadFile ( fstream & file );
-    void WriteFile( fstream & file );
+    void Read ( void * data, HXLongLong_t dataSize );
+    void Write( void * data, HXLongLong_t dataSize );
+    void ReadFile ( std::fstream & file );
+    void WriteFile( std::fstream & file );
 
-    void ReadString ( string & cs );
-    void WriteString( string & cs );
+    void ReadString ( std::string & cs );
+    void WriteString( std::string & cs );
 
-    void Write( ostringstream * oss );
+    void Write( std::ostringstream * oss );
 
-    LLong GetSize();
-    void ReSize( LLong nLength );
+    HXLongLong_t GetSize();
+    void ReSize( HXLongLong_t nLength );
 
     void Send( int pid, int tag );
     void Recv( int pid, int tag );
@@ -76,16 +75,16 @@ public:
 
     void SendRecv( int sendpid, int recvpid, int tag );
 
-    void ToString( string & str );
-    void Append( void * data, LLong dataSize );
-    void AppendString( string & cs );
+    void ToString( std::string & str );
+    void Append( void * data, HXLongLong_t dataSize );
+    void AppendString( std::string & cs );
 
-    void SecureRelativeSpace( LLong dataSize );
-    void SecureAbsoluteSpace( LLong needSize );
+    void SecureRelativeSpace( HXLongLong_t dataSize );
+    void SecureAbsoluteSpace( HXLongLong_t needSize );
     void MoveToBegin();
     void MoveToEnd();
 };
 
-void ToDataBook( DataBook * dataBook, ostringstream & oss );
+void ToDataBook( DataBook * dataBook, std::ostringstream & oss );
 
 EndNameSpace

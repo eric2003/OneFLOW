@@ -21,27 +21,33 @@ License
 \*---------------------------------------------------------------------------*/
 #pragma once
 #include "Configure.h"
-#include "FileUtil.h"
-#include <fstream>
+#include <chrono>
 #include <string>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 
-class PrjStatus
+class TimeTest
 {
 public:
-    PrjStatus();
-    ~PrjStatus();
+    using clock_type = std::chrono::time_point<std::chrono::system_clock>;
 public:
-    static string prjBaseDir;
-    static void SetPrjBaseDir( const string & prjName );
+    TimeTest();
+    ~TimeTest();
+public:
+    void Restart();
+    void Stop();
+
+    double ElapsedMilliseconds();
+    double ElapsedSeconds();
+    void ShowTimeSpan( const std::string & title = "" );
+public:
+    void RunTest();
+private:
+    clock_type time_old;
+    clock_type time_now;
+    bool       bRunning = false;
 };
 
-void MakePrjDir( const string & dirName );
-
-void OpenPrjFile( fstream & file, const string & fileName, const ios_base::openmode & openMode );
-
-string GetPrjFileName( const string & fileName );
 
 EndNameSpace

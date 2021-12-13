@@ -30,7 +30,7 @@ License
 #include "HXMath.h"
 #include <iostream>
 #include <algorithm>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 
@@ -46,23 +46,23 @@ FaceTopo::~FaceTopo()
     delete bcManager;
 }
 
-UInt FaceTopo::CalcTotalFaceNodes()
+HXSize_t FaceTopo::CalcTotalFaceNodes()
 {
-    UInt totalNumFaceNodes = 0;
-    UInt nFaces = this->GetNFaces();
-    for ( UInt iFace = 0; iFace < nFaces; ++ iFace )
+    HXSize_t totalNumFaceNodes = 0;
+    HXSize_t nFaces = this->GetNFaces();
+    for ( HXSize_t iFace = 0; iFace < nFaces; ++ iFace )
     {
         totalNumFaceNodes += faces[ iFace ].size();
     }
     return totalNumFaceNodes;
 }
 
-UInt FaceTopo::GetNBFaces()
+HXSize_t FaceTopo::GetNBFaces()
 {
     return this->bcManager->bcRecord->GetNBFace();
 }
 
-void FaceTopo::SetNBFaces( UInt nBFaces )
+void FaceTopo::SetNBFaces( HXSize_t nBFaces )
 {
     this->bcManager->bcRecord->Init( nBFaces );
 }
@@ -263,7 +263,7 @@ void FaceTopo::ModifyBoundaryInformation( IFaceLink * iFaceLink )
             iFaceLink->l2gNew.push_back( gFid );
         }
     }
-    cout << "original number of interfaces = " << nIFaces << " new number of interfaces = " << nIFaceNew << endl;
+    std::cout << "original number of interfaces = " << nIFaces << " new number of interfaces = " << nIFaceNew << std::endl;
 
     this->ResetNumberOfBoundaryCondition( iFaceLink );
 }

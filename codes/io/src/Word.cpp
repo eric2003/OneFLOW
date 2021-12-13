@@ -22,7 +22,6 @@ License
 
 #include "Word.h"
 #include <algorithm>
-using namespace std;
 
 BeginNameSpace( ONEFLOW )
 
@@ -36,9 +35,9 @@ Word::~Word()
     ;
 }
 
-void Word::SkipLines( fstream & file, int numberOfLines )
+void Word::SkipLines( std::fstream & file, int numberOfLines )
 {
-    string line;
+    std::string line;
     for ( int iLine = 0; iLine < numberOfLines; ++ iLine )
     {
         Word::ReadNextLine( file, line );
@@ -46,14 +45,14 @@ void Word::SkipLines( fstream & file, int numberOfLines )
     }
 }
 
-void Word::ReadNextLine( fstream & file, string & line )
+void Word::ReadNextLine( std::fstream & file, std::string & line )
 {
     std::getline( file, line );
 }
 
-void Word::TrimBlanks( string & source )
+void Word::TrimBlanks( std::string & source )
 {
-    string::size_type firstIndex, nextIndex;
+    std::string::size_type firstIndex, nextIndex;
 
     firstIndex = source.find_first_not_of( " " );
     nextIndex  = source.find_last_not_of( " " );
@@ -61,15 +60,15 @@ void Word::TrimBlanks( string & source )
     source = source.substr( firstIndex, nextIndex - firstIndex + 1 );
 }
 
-bool Word::FindString( const string & source, const string & word )
+bool Word::FindString( const std::string & source, const std::string & word )
 {
-    return source.find( word ) != string::npos;
+    return source.find( word ) != std::string::npos;
 }
 
-string Word::TMP_FindNextWord( const string & source, string & word, const string & separator )
+std::string Word::TMP_FindNextWord( const std::string & source, std::string & word, const std::string & separator )
 {
-    string::size_type firstIndex, nextIndex, notFindIndex = string::npos;
-    string emptyString = "";
+    std::string::size_type firstIndex, nextIndex, notFindIndex = std::string::npos;
+    std::string emptyString = "";
     firstIndex = source.find_first_not_of( separator, 0 );
 
     if ( firstIndex == notFindIndex )
@@ -91,7 +90,7 @@ string Word::TMP_FindNextWord( const string & source, string & word, const strin
     return emptyString;
 }
 
-bool Word::IsEmptyLine( const string & line )
+bool Word::IsEmptyLine( const std::string & line )
 {
     if ( line == "" )
     {
@@ -99,40 +98,40 @@ bool Word::IsEmptyLine( const string & line )
     }
     else
     {
-        const string notReadableSeparator = " \r\n\t";
-        string word;
+        const std::string notReadableSeparator = " \r\n\t";
+        std::string word;
         Word::TMP_FindNextWord( line, word, notReadableSeparator );
         return word == "";
     }
 }
 
-bool Word::IsCommentLine( const string & line )
+bool Word::IsCommentLine( const std::string & line )
 {
-    const string notReadableSeparator = " \r\n\t";
-    string word;
+    const std::string notReadableSeparator = " \r\n\t";
+    std::string word;
     Word::TMP_FindNextWord( line, word, notReadableSeparator );
     return ( word.substr( 0, 1 ) == "#" ||
         word.substr( 0, 2 ) == "//" );
 }
 
-bool Word::IsCommentLine(const string& line, StringField &comlist )
+bool Word::IsCommentLine(const std::string& line, std::vector<std::string> &comlist )
 {
-    const string notReadableSeparator = " \r\n\t";
-    string word;
+    const std::string notReadableSeparator = " \r\n\t";
+    std::string word;
     Word::TMP_FindNextWord(line, word, notReadableSeparator);
     for (int i = 0; i < comlist.size(); ++ i)
     {
-        string & t = comlist[ i ];
+        std::string & t = comlist[ i ];
         int n = t.length();
         if ( word.substr(0, n) == t ) return true;
     }
     return false;
 }
 
-string Word::FindNextWord( string & source, const string & separator )
+std::string Word::FindNextWord( std::string & source, const std::string & separator )
 {
-    string::size_type firstIndex, nextIndex, notFindIndex = string::npos;
-    string emptyString = "";
+    std::string::size_type firstIndex, nextIndex, notFindIndex = std::string::npos;
+    std::string emptyString = "";
     firstIndex = source.find_first_not_of( separator, 0 );
 
     if ( firstIndex == notFindIndex )
@@ -143,30 +142,30 @@ string Word::FindNextWord( string & source, const string & separator )
     nextIndex = source.find_first_of( separator, firstIndex );
     if ( nextIndex == notFindIndex )
     {
-        string word = source.substr( firstIndex );
+        std::string word = source.substr( firstIndex );
         source = emptyString;
         return word;
     }
     else
     {
-        string word = source.substr( firstIndex, nextIndex - firstIndex );
+        std::string word = source.substr( firstIndex, nextIndex - firstIndex );
         source = source.substr( nextIndex );
         return word;
     }
     return emptyString;
 }
 
-void Word::ToLowerCase( string & word )
+void Word::ToLowerCase( std::string & word )
 {
     std::transform( word.begin(), word.end(), word.begin(), StringToLowerCase() );
 }
 
-void Word::ToUpperCase( string & word )
+void Word::ToUpperCase( std::string & word )
 {
     std::transform( word.begin(), word.end(), word.begin(), StringToUpperCase() );
 }
 
-bool Word::ReadNextNonEmptyLine( fstream & file, string & line )
+bool Word::ReadNextNonEmptyLine( std::fstream & file, std::string & line )
 {
     bool isSpaceLine = true;
 
@@ -174,7 +173,7 @@ bool Word::ReadNextNonEmptyLine( fstream & file, string & line )
     {
         Word::ReadNextLine( file, line );
 
-        for ( string::iterator iter = line.begin(); iter != line.end(); ++ iter )
+        for ( std::string::iterator iter = line.begin(); iter != line.end(); ++ iter )
         {
             if ( ! isspace( * iter ) )
             {
@@ -198,7 +197,7 @@ bool Word::ReadNextNonEmptyLine( fstream & file, string & line )
     return true;
 }
 
-bool Word::IsDigit( const string & word )
+bool Word::IsDigit( const std::string & word )
 {
     for ( int i = 0; i < word.size(); ++ i )
     {
