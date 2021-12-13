@@ -29,7 +29,7 @@ License
 #include "NodeMesh.h"
 #include <algorithm>
 #include <iostream>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 IFaceLink::IFaceLink( Grids & grids )
@@ -70,7 +70,7 @@ void IFaceLink::CreateLink( IntField & faceNode, int zid, int lCount )
 
     std::sort( faceNode.begin(), faceNode.end() );
     HXSort< IntField > face( faceNode, nTIFace );
-    set < HXSort< IntField > >::iterator iter = this->inFaceList.find( face );
+    std::set < HXSort< IntField > >::iterator iter = this->inFaceList.find( face );
 
     if ( iter == this->inFaceList.end() )
     {
@@ -130,16 +130,16 @@ void IFaceLink::MatchInterfaceTopology( Grid * grid )
         {
             if ( nIZone > 2 )
             {
-                //cout << " More than two faces coincide\n";
+                //std::cout << " More than two faces coincide\n";
             }
             else
             {
                 ++nPeoridic;
-                //cout << " Less than two faces coincide\n";
+                //std::cout << " Less than two faces coincide\n";
             }
-            //cout << " Current ZoneIndex  = " << grid->id << endl;
-            //cout << " nIZone = " << nIZone << endl;
-            //cout << " LocalInterface Index = " << iIFace << " nIFaces = " << nIFaces << endl;
+            //std::cout << " Current ZoneIndex  = " << grid->id << std::endl;
+            //std::cout << " nIZone = " << nIZone << std::endl;
+            //std::cout << " LocalInterface Index = " << iIFace << " nIFaces = " << nIFaces << std::endl;
         }
 
         for ( int iIZone = 0; iIZone < nIZone; ++ iIZone )
@@ -158,10 +158,10 @@ void IFaceLink::MatchInterfaceTopology( Grid * grid )
 
         //if ( ! flag )
         //{
-        //    cout << "LocalInterface Index = " << iIFace << " There is a problem in the input grid. Please check it carefully!\n";
+        //    std::cout << "LocalInterface Index = " << iIFace << " There is a problem in the input grid. Please check it carefully!\n";
         //}
     }
-    cout << " Total peoridic boundary faces = " << nPeoridic << "\n";
+    std::cout << " Total peoridic boundary faces = " << nPeoridic << "\n";
     if ( nPeoridic != 0 )
     {
         //this->MatchPeoridicInterface( grid );

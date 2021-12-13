@@ -21,12 +21,12 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "Atmosphere.h"
-#include "SimuCtrl.h"
+#include "Prj.h"
 #include "HXMath.h"
 #include "FileIO.h"
 #include <cmath>
 #include <iostream>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 
@@ -47,11 +47,11 @@ void Atmosphere::Init()
     if ( flag ) return;
     flag = true;
     FileIO ioFile;
-    string fileName = SimuCtrl::system_root +"physics/atmosphere.txt";
-    ioFile.OpenFile( fileName, ios_base::in );
+    std::string fileName = Prj::system_root +"physics/atmosphere.txt";
+    ioFile.OpenFile( fileName, std::ios_base::in );
 
     //\t is the tab key
-    string keyWordSeparator = " ()\r\n\t#$,;\"";
+    std::string keyWordSeparator = " ()\r\n\t#$,;\"";
     ioFile.SetDefaultSeparator( keyWordSeparator );
 
     while ( ! ioFile.ReachTheEndOfFile() )
@@ -116,7 +116,7 @@ void Atmosphere::GetAirPara( const Real & hKm, Real & temperature, Real & pressu
     soundSpeed = sqrt( gama * rGas * temperature );
     pressure = pressure * 100.0;
 
-    cout << pressure << " " << temperature << " " << density << " " << soundSpeed << "\n";
+    std::cout << pressure << " " << temperature << " " << density << " " << soundSpeed << "\n";
 }
 
 int Atmosphere::FindIndex( Real hMeter )

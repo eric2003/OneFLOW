@@ -44,7 +44,7 @@ License
 //#include "UINsUnsteady.h"
 #include "UINsBcSolver.h"
 #include <iostream>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 
@@ -86,7 +86,7 @@ void INsCalcGamaT(int flag)
 	{
 		//if ( ZoneState::zid == 0 )
 		//{
-		//    cout << " ug.ist = " << ug.ist  << " ug.ied = " << ug.ied << "\n";
+		//    std::cout << " ug.ist = " << ug.ist  << " ug.ied = " << ug.ied << "\n";
 		//    int kkk = 1;
 		//}
 		Real oamw = one;

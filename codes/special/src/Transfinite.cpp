@@ -26,7 +26,7 @@ License
 #include "DataBaseIO.h"
 #include "HXMath.h"
 #include <iostream>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 

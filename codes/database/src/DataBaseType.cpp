@@ -24,8 +24,8 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-map< int, string > DataBaseType::nameMap;
-map< string, int > DataBaseType::indexMap;
+std::map< int, std::string > DataBaseType::nameMap;
+std::map< std::string, int > DataBaseType::indexMap;
 bool DataBaseType::init_flag = false;
 
 DataBaseType::DataBaseType()
@@ -49,18 +49,18 @@ void DataBaseType::Init()
     DataBaseType::AddItem( "bool", HX_BOOL );
 }
 
-void DataBaseType::AddItem( const string &name, int index )
+void DataBaseType::AddItem( const std::string &name, int index )
 {
-    DataBaseType::indexMap.insert( pair< string, int >( name, index ) );
-    DataBaseType::nameMap.insert( pair< int, string >( index, name ) );
+    DataBaseType::indexMap.insert( std::pair< std::string, int >( name, index ) );
+    DataBaseType::nameMap.insert( std::pair< int, std::string >( index, name ) );
 }
 
-int DataBaseType::GetIndex( const string & name )
+int DataBaseType::GetIndex( const std::string & name )
 {
     return DataBaseType::indexMap[ name ];
 }
 
-string & DataBaseType::GetName( int index )
+std::string & DataBaseType::GetName( int index )
 {
     return DataBaseType::nameMap[ index ];
 }

@@ -22,10 +22,8 @@ License
 
 
 #pragma once
-#include "Configure.h"
 #include "HXVector.h"
 #include <string>
-using namespace std;
 
 BeginNameSpace( ONEFLOW )
 
@@ -42,10 +40,10 @@ public:
     typedef char char33[ 33 ];
 };
 
-string GetCgnsPointSetName         ( int cgnsPointSetType );
-string GetCgnsBcName( int cgnsBcType );
-string GetCgnsGridLocationName     ( int cgnsGridLocation );
-string GetCgnsZoneTypeName         ( int cgnsZoneType );
+std::string GetCgnsPointSetName         ( int cgnsPointSetType );
+std::string GetCgnsBcName( int cgnsBcType );
+std::string GetCgnsGridLocationName     ( int cgnsGridLocation );
+std::string GetCgnsZoneTypeName         ( int cgnsZoneType );
 
 #endif
 EndNameSpace

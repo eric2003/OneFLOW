@@ -26,7 +26,6 @@ License
 #include "CgnsFile.h"
 #include "Stop.h"
 #include <iostream>
-using namespace std;
 
 BeginNameSpace( ONEFLOW )
 #ifdef ENABLE_CGNS
@@ -52,7 +51,7 @@ void CgnsZbase::FreeCgnsBases()
     }
 }
 
-void CgnsZbase::OpenCgnsFile( const string & fileName, int cgnsOpenMode )
+void CgnsZbase::OpenCgnsFile( const std::string & fileName, int cgnsOpenMode )
 {
     this->cgnsFile->OpenCgnsFile( fileName, cgnsOpenMode );
 }
@@ -113,7 +112,7 @@ int CgnsZbase::GetSystemZoneType()
     return ZoneTypeUserDefined;
 }
 
-void CgnsZbase::ReadCgnsGrid( const string & fileName )
+void CgnsZbase::ReadCgnsGrid( const std::string & fileName )
 {
     this->OpenCgnsFile( fileName, CG_MODE_READ );
     this->ReadCgnsMultiBase();
@@ -136,7 +135,7 @@ void CgnsZbase::ReadNumCgnsBase()
 {
     //Determine the of bases in the grid
     cg_nbases( this->cgnsFile->fileId, & this->nBases );
-    cout << "   Total number of CGNS Base = " << this->nBases << "\n";
+    std::cout << "   Total number of CGNS Base = " << this->nBases << "\n";
 }
 
 void CgnsZbase::ConvertToInnerDataStandard()

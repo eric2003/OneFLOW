@@ -22,51 +22,50 @@ License
 
 
 #pragma once
-#include "HXType.h"
+#include "Configure.h"
 #include <vector>
-using namespace std;
 
 BeginNameSpace( ONEFLOW )
 
 template < typename T >
-class HXVector : public vector< T >
+class HXVector : public std::vector< T >
 {
 public:
     HXVector(){};
     ~HXVector(){};
-    HXVector( const UInt count )
-        : vector< T >( count )
+    HXVector( const std::size_t count )
+        : std::vector< T >( count )
     {
         ;
     }
-    HXVector( const UInt count, const T& value )
-        : vector< T >( count, value )
+    HXVector( const std::size_t count, const T& value )
+        : std::vector< T >( count, value )
     {
         ;
     }
     HXVector( T * first, T * last ) :
-        vector< T >( first, last )
+        std::vector< T >( first, last )
     {
         ;
     }
-    HXVector( const vector<T>& values )
+    HXVector( const std::vector<T>& values )
     {
         *this = values;
     }
 public:
     HXVector< T >& operator =( const T& value )
     {
-        for ( UInt i = 0; i < this->size(); ++ i )
+        for ( std::size_t i = 0; i < this->size(); ++ i )
         {
             ( *this )[ i ] = value;
         }
         return *this;
     }
 
-    HXVector< T >& operator =( const vector<T>& values )
+    HXVector< T >& operator =( const std::vector<T>& values )
     {
         ( *this ).resize( values.size() );
-        for ( UInt i = 0; i < this->size(); ++ i )
+        for ( std::size_t i = 0; i < this->size(); ++ i )
         {
             ( *this )[ i ] = values[ i ];
         }

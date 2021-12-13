@@ -23,12 +23,12 @@ License
 
 #pragma once
 #include "HXDefine.h"
-#include "Mid.h"
+#include "HXMid.h"
 #include "CalcCoor.h"
 #include <set>
 #include <map>
 #include <fstream>
-using namespace std;
+
 BeginNameSpace( ONEFLOW )
 
 class Block3D;
@@ -80,10 +80,10 @@ public:
 
     int ni, nj;
 public:
-    map< int, IntSet > pointToDomainMap;
-    map< int, IntSet > pointToPointMap;
-    map< int, IntSet > lineToDomainMap;
-    map< int, IntSet > pointToLineMap;
+    std::map< int, IntSet > pointToDomainMap;
+    std::map< int, IntSet > pointToPointMap;
+    std::map< int, IntSet > lineToDomainMap;
+    std::map< int, IntSet > pointToLineMap;
 };
 
 class DomData : public DomDataBasic
@@ -117,14 +117,14 @@ public:
     bool IsCornerPoints( int pt );
 };
 
-void ConstructInt2Map( int sid, int tid, map< int, IntSet > & dataMap );
-void ConstructIntList2Map( int tid, IntField & idList, map< int, IntSet > & dataMap );
-void ConstructLineToDomainMap( int tid, IntField & idList, map< int, IntSet > & dataMap );
-void ConstructPointToDomainMap( int tid, IntField & lineList, map< int, IntSet > & dataMap );
-void ConstructPointToPointMap( IntField & lineList, map< int, IntSet > & dataMap );
+void ConstructInt2Map( int sid, int tid, std::map< int, IntSet > & dataMap );
+void ConstructIntList2Map( int tid, IntField & idList, std::map< int, IntSet > & dataMap );
+void ConstructLineToDomainMap( int tid, IntField & idList, std::map< int, IntSet > & dataMap );
+void ConstructPointToDomainMap( int tid, IntField & lineList, std::map< int, IntSet > & dataMap );
+void ConstructPointToPointMap( IntField & lineList, std::map< int, IntSet > & dataMap );
 
-void ConstructPointToDomainMap( int tid, LinkField & pointIdLink, map< int, IntSet > & dataMap );
-void ConstructPointToPointMap( LinkField & pointIdLink, map< int, IntSet > & dataMap );
+void ConstructPointToDomainMap( int tid, LinkField & pointIdLink, std::map< int, IntSet > & dataMap );
+void ConstructPointToPointMap( LinkField & pointIdLink, std::map< int, IntSet > & dataMap );
 bool InArray( int ip, IntField & var_array );
 
 void GetPointIdLink( IntField & lineList, LinkField & pointIdLink );

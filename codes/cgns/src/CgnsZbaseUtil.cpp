@@ -33,7 +33,6 @@ License
 #include "GridPara.h"
 #include "GridMediator.h"
 #include <iostream>
-using namespace std;
 
 BeginNameSpace( ONEFLOW )
 #ifdef ENABLE_CGNS
@@ -95,7 +94,7 @@ void DumpCgnsMultiBase( CgnsZbase * myCgnsZbase, ZgridMediator * zgridMediator )
 
 void DumpCgnsGrid( CgnsZbase * myCgnsZbase, ZgridMediator * zgridMediator )
 {
-    string fileName = zgridMediator->GetTargetFile();
+    std::string fileName = zgridMediator->GetTargetFile();
     myCgnsZbase->cgnsFile->OpenCgnsFile( fileName, CG_MODE_WRITE );
     ONEFLOW::DumpCgnsMultiBase( myCgnsZbase, zgridMediator );
     myCgnsZbase->cgnsFile->CloseCgnsFile();

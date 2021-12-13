@@ -25,7 +25,7 @@ License
 #include "HXDefine.h"
 #include <fstream>
 #include <iomanip>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 
@@ -39,11 +39,11 @@ public:
     int nWidth;
     int nCount;
     std::string fileName;
-    ios_base::openmode fileOpenMode;
-    fstream * file;
-    string sep;
+    std::ios_base::openmode fileOpenMode;
+    std::fstream * file;
+    std::string sep;
 public:
-    void OpenPrjFile( const string & fileName, const ios_base::openmode & fileOpenMode );
+    void OpenPrjFile( const std::string & fileName, const std::ios_base::openmode & fileOpenMode );
     void CloseFile();
 
     void WriteEndLine()
@@ -60,7 +60,7 @@ public:
     template< typename T >
     void WriteFormat( const T & value )
     {
-        ( * file ) << setw( nWidth ) << value;
+        ( * file ) << std::setw( nWidth ) << value;
     }
 
     template< typename T >

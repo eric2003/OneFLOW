@@ -30,7 +30,7 @@ License
 #include "DataBase.h"
 #include "BcData.h"
 #include <iostream>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 
@@ -53,7 +53,7 @@ void NsSolver::StaticInit()
 
     ns_ctrl.Init();
     nscom.Init();
-    string fileName = "grid/ns_bc.txt";
+    std::string fileName = "grid/ns_bc.txt";
     ns_bc_data.Init( fileName );
 
     this->sTid = ONEFLOW::NS_SOLVER;
@@ -62,7 +62,7 @@ void NsSolver::StaticInit()
     solverInfo->nTEqu = nscom.nTEqu;
     solverInfo->registerInterface = 0;
     solverInfo->residualName = "res";
-    solverInfo->resFileName = GetDataValue< string >( "resFile" );
+    solverInfo->resFileName = GetDataValue< std::string >( "resFile" );
     solverInfo->gradString.push_back( "q"    );
     solverInfo->gradString.push_back( "dqdx" );
     solverInfo->gradString.push_back( "dqdy" );

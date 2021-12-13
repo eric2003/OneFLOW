@@ -19,23 +19,37 @@ License
     along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 
 \*---------------------------------------------------------------------------*/
-#include "Stop.h"
-#include <iostream>
-using namespace std;
+
+
+#pragma once
+#include "FieldSolverBasic.h"
 
 BeginNameSpace( ONEFLOW )
 
-void StopProgramFunction( const string & stopInformation, const string & fileName, const int & fileLine, const string & dateName, const string & timeName )
+class FieldSolverOpenMP : public FieldSolverBasic
 {
-    cout << endl;
-    cout << "++++++++++++++++++Stop Information  +++++++++++++++++++++++++++++\n";
-    cout <<  stopInformation << endl;
-    cout << " The stop filename is : " << fileName << endl;
-    cout << " at line " << fileLine << endl;
-    cout << " compiled on " << dateName << " at " << timeName << endl;
-    cout << "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n";
-    exit( 0 );
-}
-
+public:
+    FieldSolverOpenMP();
+    ~FieldSolverOpenMP();
+public:
+    virtual void Run();
+public:
+    void SolveFlowFieldOpenMP();
+    void SolveOneStepOpenMP();
+    void BoundaryOpenMP();
+    void GetQLQROpenMP();
+    void CalcInvFluxOpenMP();
+    void UpdateResidualOpenMP();
+    void TimeIntergralOpenMP();
+    void UpdateOpenMP();
+public:
+    void ZoneBoundaryOpenMP();
+    void ZoneGetQLQROpenMP();
+    void ZoneCalcInvFluxOpenMP();
+    void ZoneUpdateResidualOpenMP();
+    void ZoneTimeIntergralOpenMP();
+    void ZoneUpdateOpenMP();
+    void AddF2CFieldOpenMP( ScalarGrid * grid, RealField & cField, RealField & fField );
+};
 
 EndNameSpace

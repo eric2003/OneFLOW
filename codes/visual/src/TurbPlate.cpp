@@ -39,7 +39,7 @@ License
 #include "Boundary.h"
 #include <algorithm>
 #include <iomanip>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 
@@ -80,19 +80,19 @@ void TurbVelCut::Dump()
 
 void TurbVelCut::DumpNormal()
 {
-    string velocityFile = "results/turbplateflow.dat";
+    std::string velocityFile = "results/turbplateflow.dat";
 
-    fstream file;
-    PIO::ParallelOpenPrj( file, velocityFile, ios_base::out );
+    std::fstream file;
+    PIO::OpenPrjFile( file, velocityFile, std::ios_base::out );
     StringField title;
     title.push_back( "title=\"THE FLOW FIELD OF ONEFLOW\"" );
     title.push_back( "variables=" );
     title.push_back( "\"y+\"" );
     title.push_back( "\"u+\"" );
 
-    for ( UInt i = 0; i < title.size(); ++ i )
+    for ( HXSize_t i = 0; i < title.size(); ++ i )
     {
-        file << title[ i ] << endl;
+        file << title[ i ] << std::endl;
     }
 
     size_t nSlice = sliceData.size();
@@ -102,15 +102,15 @@ void TurbVelCut::DumpNormal()
         this->Dump( lamData, file, sliceInfo.dir2[ i ] );
     }
 
-    PIO::Close( file );
+    PIO::CloseFile( file );
 }
 
 void TurbVelCut::DumpDetail()
 {
-    string velocityFile = "results/turbplateflow_detail.dat";
+    std::string velocityFile = "results/turbplateflow_detail.dat";
 
-    fstream file;
-    PIO::ParallelOpenPrj( file, velocityFile, ios_base::out );
+    std::fstream file;
+    PIO::OpenPrjFile( file, velocityFile, std::ios_base::out );
     StringField title;
     title.push_back( "title=\"THE FLOW FIELD OF ONEFLOW\"" );
     title.push_back( "variables=" );
@@ -125,9 +125,9 @@ void TurbVelCut::DumpDetail()
     title.push_back( "\"utau\"" );
     title.push_back( "\"vis\"" );
 
-    for ( UInt i = 0; i < title.size(); ++ i )
+    for ( HXSize_t i = 0; i < title.size(); ++ i )
     {
-        file << title[ i ] << endl;
+        file << title[ i ] << std::endl;
     }
 
     size_t nSlice = sliceData.size();
@@ -137,10 +137,10 @@ void TurbVelCut::DumpDetail()
         this->DumpDetail( lamData, file, sliceInfo.dir2[ i ] );
     }
 
-    PIO::Close( file );
+    PIO::CloseFile( file );
 }
 
-void TurbVelCut::Dump( LamData * lamData, fstream & file, int axis )
+void TurbVelCut::Dump( LamData * lamData, std::fstream & file, int axis )
 {
     int nNodes = lamData->GetNNode();
 
@@ -193,14 +193,14 @@ void TurbVelCut::Dump( LamData * lamData, fstream & file, int axis )
         Real up = um / utau;
         Real yp = utau * ym * nscom.reynolds / ( vis / rm );
 
-        file << setiosflags( ios::left );
-        file << setiosflags( ios::scientific );
-        file << setprecision( 10 );
-        file << setw( wordWidth ) << yp << setw( wordWidth ) << up << endl;
+        file << std::setiosflags( std::ios::left );
+        file << std::setiosflags( std::ios::scientific );
+        file << std::setprecision( 10 );
+        file << std::setw( wordWidth ) << yp << std::setw( wordWidth ) << up << std::endl;
     }
 }
 
-void TurbVelCut::DumpDetail( LamData * lamData, fstream & file, int axis )
+void TurbVelCut::DumpDetail( LamData * lamData, std::fstream & file, int axis )
 {
     int nNodes = lamData->GetNNode();
 
@@ -253,17 +253,17 @@ void TurbVelCut::DumpDetail( LamData * lamData, fstream & file, int axis )
         Real up = um / utau;
         Real yp = utau * ym * nscom.reynolds / ( vis / rm );
 
-        file << setiosflags( ios::left );
-        file << setiosflags( ios::scientific );
-        //file << setprecision( 10 );
-        //file << setprecision( 12 );
-        file << setprecision( 14 );
-        file << setw( wordWidth ) << yp << setw( wordWidth ) << up;
-        file << setw( wordWidth ) << xm << setw( wordWidth ) << ym;
-        file << setw( wordWidth ) << rm << setw( wordWidth ) << pm;
-        file << setw( wordWidth ) << um << setw( wordWidth ) << vm;
-        file << setw( wordWidth ) << utau << setw( wordWidth ) << vis;
-        file << endl;
+        file << std::setiosflags( std::ios::left );
+        file << std::setiosflags( std::ios::scientific );
+        //file << std::setprecision( 10 );
+        //file << std::setprecision( 12 );
+        file << std::setprecision( 14 );
+        file << std::setw( wordWidth ) << yp << std::setw( wordWidth ) << up;
+        file << std::setw( wordWidth ) << xm << std::setw( wordWidth ) << ym;
+        file << std::setw( wordWidth ) << rm << std::setw( wordWidth ) << pm;
+        file << std::setw( wordWidth ) << um << std::setw( wordWidth ) << vm;
+        file << std::setw( wordWidth ) << utau << std::setw( wordWidth ) << vis;
+        file << std::endl;
     }
 }
 
@@ -281,19 +281,19 @@ TurbFriCut::~TurbFriCut()
 
 void TurbFriCut::Dump()
 {
-    string frictionFile = "results/turbplate_cf.dat";
+    std::string frictionFile = "results/turbplate_cf.dat";
 
-    fstream file;
-    PIO::ParallelOpenPrj( file, frictionFile, ios_base::out );
+    std::fstream file;
+    PIO::OpenPrjFile( file, frictionFile, std::ios_base::out );
     StringField title;
     title.push_back( "title=\"THE FLOW FIELD OF ONEFLOW\"" );
     title.push_back( "variables=" );
     title.push_back( "\"x\"" );
     title.push_back( "\"cf\"" );
 
-    for ( UInt i = 0; i < title.size(); ++ i )
+    for ( HXSize_t i = 0; i < title.size(); ++ i )
     {
-        file << title[ i ] << endl;
+        file << title[ i ] << std::endl;
     }
 
     size_t nSlice = sliceData.size();
@@ -303,10 +303,10 @@ void TurbFriCut::Dump()
         this->Dump( lamData, file, sliceInfo.dir2[ i ] );
     }
 
-    PIO::Close( file );
+    PIO::CloseFile( file );
 }
 
-void TurbFriCut::Dump( LamData * lamData, fstream & file, int axis )
+void TurbFriCut::Dump( LamData * lamData, std::fstream & file, int axis )
 {
     int nNodes = lamData->GetNNode();
 
@@ -343,10 +343,10 @@ void TurbFriCut::Dump( LamData * lamData, fstream & file, int axis )
         Real xf = rm * vel_inf * xm / vis * nscom.reynolds;
         Real cf = 2 * vis * dudy / nscom.reynolds;
 
-        file << setiosflags( ios::left );
-        file << setiosflags( ios::scientific );
-        file << setprecision( 10 );
-        file << setw( wordWidth ) << xf << setw( wordWidth ) << cf << endl;
+        file << std::setiosflags( std::ios::left );
+        file << std::setiosflags( std::ios::scientific );
+        file << std::setprecision( 10 );
+        file << std::setw( wordWidth ) << xf << std::setw( wordWidth ) << cf << std::endl;
     }
 }
 

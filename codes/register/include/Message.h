@@ -26,7 +26,7 @@ License
 #include "HXDefine.h"
 #include <map>
 #include <string>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 
@@ -36,14 +36,14 @@ public:
     MessageMap();
     ~MessageMap();
 public:
-    static map< string, int > * nameMap;
-    static map< int, string > * idMap;
+    static std::map< std::string, int > * nameMap;
+    static std::map< int, std::string > * idMap;
 public:
-    static void Register( const string & msgName );
-    static void Unregister( const string & msgName );
-    static int    GetMsgId( const string & msgName );
-    static string GetMsgName( int msgId );
-    static void ReadFile( const string & fileName );
+    static void Register( const std::string & msgName );
+    static void Unregister( const std::string & msgName );
+    static int    GetMsgId( const std::string & msgName );
+    static std::string GetMsgName( int msgId );
+    static void ReadFile( const std::string & fileName );
 public:
     static void Init();
     static void Free();

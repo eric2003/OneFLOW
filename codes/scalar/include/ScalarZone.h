@@ -26,7 +26,7 @@ along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 #include "GridDef.h"
 #include <fstream>
 #include <string>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 

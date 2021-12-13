@@ -116,8 +116,8 @@ void Chemical::ReadGasModel()
 {
     FileIO ioFile;
 
-    ioFile.OpenPrjFile( nscom.gasModelFile, ios_base::in );
-    string separator = " =\r\n#$,;\"'";
+    ioFile.OpenPrjFile( nscom.gasModelFile, std::ios_base::in );
+    std::string separator = " =\r\n#$,;\"'";
     ioFile.SetDefaultSeparator( separator );
 
     ioFile.SkipLines( 2 );

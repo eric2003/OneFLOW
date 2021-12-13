@@ -26,11 +26,11 @@ License
 #include "Constant.h"
 #include "HXMath.h"
 #include "HXCgns.h"
-#include "FileUtil.h"
+
 #include <iostream>
 #include <fstream>
 #include <vector>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 
@@ -81,12 +81,12 @@ Real ScalarField::SquareFun( Real xm )
     return 1.0;
 }
 
-void ScalarField::ToTecplot( RealList & varlist, string const & fileName )
+void ScalarField::ToTecplot( RealList & varlist, std::string const & fileName )
 {
     int nCells = grid->GetNCells();
 
-    fstream file;
-    OpenPrjFile( file, fileName, ios_base::out );
+    std::fstream file;
+    Prj::OpenPrjFile( file, fileName, std::ios_base::out );
 
     int nSize = nCells;
     file << "TITLE = " << "\"OneFLOW X-Y Plot\"" << "\n";
@@ -100,7 +100,7 @@ void ScalarField::ToTecplot( RealList & varlist, string const & fileName )
         file << xm << " " << fm << "\n";
     }
 
-    CloseFile( file );
+    Prj::CloseFile( file );
 }
 
 void ScalarField::SolveFlowField( FieldPara * para )
@@ -108,7 +108,7 @@ void ScalarField::SolveFlowField( FieldPara * para )
     this->para = para;
     for ( int n = 0; n < para->nt; ++ n )
     {
-        //cout << " iStep = " << n << " nStep = " << para->nt << "\n";
+        //std::cout << " iStep = " << n << " nStep = " << para->nt << "\n";
 
         this->SolveOneStep();
     }

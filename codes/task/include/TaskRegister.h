@@ -23,7 +23,7 @@ License
 
 #pragma once
 #include "HXDefine.h"
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 
@@ -45,9 +45,9 @@ public:
     ~TaskRegister();
 public:
     static HXVector< VoidFunc > * taskList;
-    static HXVector< string > * taskNameList;
+    static HXVector< std::string > * taskNameList;
 public:
-    static void Register( VoidFunc taskfun, string const & taskname );
+    static void Register( VoidFunc taskfun, std::string const & taskname );
     static void Run();
     static void Free();
 };

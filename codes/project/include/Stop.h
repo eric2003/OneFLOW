@@ -19,23 +19,15 @@ License
     along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 
 \*---------------------------------------------------------------------------*/
-
-#include "OStream.h"
-using namespace std;
+#pragma once
+#include "Configure.h"
+#include <string>
 
 BeginNameSpace( ONEFLOW )
 
-OStream StrIO;
+#define Stop( _Expression ) ( ONEFLOW::StopProgramFunction( _Expression, __FILE__, __LINE__, __DATE__, __TIME__ ) )
 
-void OStream::ClearAll()
-{
-    this->str("");
-}
+void StopProgramFunction( const std::string & stopInformation, const std::string & fileName, const int & fileLine, const std::string & dateName, const std::string & timeName );
 
-void Clear( ostringstream & oss )
-{
-    oss.clear( );
-    oss.str( "" );
-}
 
 EndNameSpace

@@ -25,7 +25,7 @@ License
 #include "HXDefine.h"
 #include "HXArray.h"
 #include <sstream>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 
@@ -44,7 +44,7 @@ public:
     Plot();
     ~Plot();
 public:
-    static ostringstream * oss;
+    static std::ostringstream * oss;
     static int nWords;
     static void DumpField( RealField & field );
     static void DumpField( IntField & l2g, RealField & x );

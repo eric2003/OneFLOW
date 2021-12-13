@@ -19,48 +19,22 @@ License
     along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 
 \*---------------------------------------------------------------------------*/
-#include "SimuCtrl.h"
-#include "FileUtil.h"
+#include "Stop.h"
 #include <iostream>
-using namespace std;
 
 BeginNameSpace( ONEFLOW )
 
-bool SimuCtrl::hx_debug = false;
-bool SimuCtrl::run_from_ide = false;
-string SimuCtrl::system_root = "";
-string SimuCtrl::execute_dir = "";
-string SimuCtrl::current_dir = "";
-
-SimuCtrl::SimuCtrl()
+void StopProgramFunction( const std::string & stopInformation, const std::string & fileName, const int & fileLine, const std::string & dateName, const std::string & timeName )
 {
-
+    std::cout << std::endl;
+    std::cout << "++++++++++++++++++Stop Information  +++++++++++++++++++++++++++++\n";
+    std::cout <<  stopInformation << std::endl;
+    std::cout << " The stop filename is : " << fileName << std::endl;
+    std::cout << " at line " << fileLine << std::endl;
+    std::cout << " compiled on " << dateName << " at " << timeName << std::endl;
+    std::cout << "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n";
+    exit( 0 );
 }
 
-SimuCtrl::~SimuCtrl()
-{
-}
-
-void SimuCtrl::Init()
-{
-    SimuCtrl::execute_dir = HX_GetExePath();
-    SimuCtrl::current_dir = HX_GetCurrentDir();
-
-    cout << " SimuCtrl::execute_dir = " << SimuCtrl::execute_dir << "\n";
-    cout << " SimuCtrl::current_dir = " << SimuCtrl::current_dir << "\n";
-
-    string local_root = "/system/";
-    if ( SimuCtrl::run_from_ide )
-    {
-        string current_dir_now = RemoveEndSlash( SimuCtrl::current_dir );
-        SimuCtrl::system_root = current_dir_now + local_root;
-    }
-    else
-    {
-        string execute_dir = RemoveEndSlash( SimuCtrl::execute_dir );
-        SimuCtrl::system_root = SimuCtrl::execute_dir + local_root;
-    }
-    cout << " SimuCtrl::system_root = " << SimuCtrl::system_root << "\n";
-}
 
 EndNameSpace

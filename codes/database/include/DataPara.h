@@ -25,7 +25,6 @@ License
 #include <set>
 #include <string>
 #include <fstream>
-using namespace std;
 
 BeginNameSpace( ONEFLOW )
 
@@ -35,16 +34,16 @@ class DataV
 {
 public:
     DataV();
-    DataV( const string & name, int type, int size, DataObject * data );
+    DataV( const std::string & name, int type, int size, DataObject * data );
     ~DataV();
 public:
-    string  name;
+    std::string  name;
     int     type;
     int     size;
     DataObject * data;
 public:
     void Copy( DataV * inputData );
-    void Dump( fstream & file );
+    void Dump( std::fstream & file );
 };
 
 class CompareDataV
@@ -62,17 +61,17 @@ public:
     DataPara();
     ~DataPara();
 public:
-    typedef set < DataV *, CompareDataV > DataSET;
+    typedef std::set< DataV *, CompareDataV > DataSET;
 protected:
     DataSET * dataSet;
 public:
     void UpdateDataPointer( DataV * data );
-    DataV * GetDataPointer( const string & name );
-    void DeleteDataPointer( const string & name );
+    DataV * GetDataPointer( const std::string & name );
+    void DeleteDataPointer( const std::string & name );
 
     DataSET * GetDataSet() { return dataSet; }
 public:
-    void DumpData( fstream & file );
+    void DumpData( std::fstream & file );
 };
 
 EndNameSpace

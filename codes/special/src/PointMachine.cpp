@@ -22,7 +22,7 @@ License
 
 #include "PointMachine.h"
 #include <iostream>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 

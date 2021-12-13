@@ -56,9 +56,7 @@
 #include <cstdlib>
 #include "util.h"
 
- //using namespace std;
-
-
+ 
  /** ************************************************************************
   * Template for allocating a five dimensional array.
   *

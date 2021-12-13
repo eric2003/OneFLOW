@@ -24,7 +24,6 @@ License
 #include "Configure.h"
 #include <set>
 #include <string>
-using namespace std;
 
 BeginNameSpace( ONEFLOW )
 
@@ -34,13 +33,13 @@ class DataF
 {
 public:
     DataF();
-    DataF( const string & name, PointerWrap * data );
+    DataF( const std::string & name, PointerWrap * data );
     ~DataF();
 public:
-    string  name;
+    std::string  name;
     PointerWrap * data;
 public:
-    string & GetName() { return name;  }
+    std::string & GetName() { return name;  }
     PointerWrap * GetPointerWrap() { return data;  }
 };
 
@@ -56,7 +55,7 @@ public:
 class DataField
 {
 public:
-    typedef set < DataF *, CompareDataF > DataSET;
+    typedef std::set< DataF *, CompareDataF > DataSET;
 public:
     DataField();
     ~DataField();
@@ -64,8 +63,8 @@ protected:
     DataSET * dataSet;
 public:
     void UpdateDataF( DataF * dataf );
-    DataF * GetDataF( const string & name );
-    void DeleteDataF( const string & name );
+    DataF * GetDataF( const std::string & name );
+    void DeleteDataF( const std::string & name );
 
     DataSET * GetDataSet() { return dataSet; }
 };

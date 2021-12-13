@@ -39,7 +39,7 @@ License
 #include "Dimension.h"
 #include <algorithm>
 #include <iostream>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 
@@ -178,7 +178,7 @@ void SDomain::SetRemainingCtrlPoint( IntField & idxList )
 
     CalcCoor coor;
     coor.SetCoor( mi, mj, mk );
-    coorMap->insert( pair<int, CalcCoor>( pt, coor ) );
+    coorMap->insert( std::pair<int, CalcCoor>( pt, coor ) );
 }
 
 
@@ -221,7 +221,7 @@ void SDomain::ConstructPointToPointMap()
     this->ConstructPointToPointMap( this->pointToPointMap );
 }
 
-void SDomain::ConstructPointToPointMap( map< int, IntSet > & pointToPointMap )
+void SDomain::ConstructPointToPointMap( std::map< int, IntSet > & pointToPointMap )
 {
     for ( int iMLine = 0; iMLine < mLineList.size(); ++ iMLine )
     {
@@ -233,7 +233,7 @@ void SDomain::ConstructPointToPointMap( map< int, IntSet > & pointToPointMap )
     }
 }
 
-void SDomain::ConstructPointToLineMap( map< int, IntSet > & pointToLineMap )
+void SDomain::ConstructPointToLineMap( std::map< int, IntSet > & pointToLineMap )
 {
     for ( int iMLine = 0; iMLine < mLineList.size(); ++ iMLine )
     {
@@ -257,7 +257,7 @@ void SDomain::GetPointIdLink( IntField & lineList, LinkField & pointIdLink )
     }
 }
 
-void SDomain::ConstructPointToDomainMap( map< int, IntSet > & pointToDomainMap )
+void SDomain::ConstructPointToDomainMap( std::map< int, IntSet > & pointToDomainMap )
 {
     for ( int iMLine = 0; iMLine < mLineList.size(); ++ iMLine )
     {
@@ -274,7 +274,7 @@ void SDomain::ConstructLineToDomainMap()
     this->ConstructLineToDomainMap( this->lineToDomainMap );
 }
 
-void SDomain::ConstructLineToDomainMap( map< int, IntSet > & lineToDomainMap )
+void SDomain::ConstructLineToDomainMap( std::map< int, IntSet > & lineToDomainMap )
 {
     for ( int iMLine = 0; iMLine < mLineList.size(); ++ iMLine )
     {
@@ -315,7 +315,7 @@ void SDomain::ConstructLocalTopoAsBlk2D()
         int k = kList[ iPoint ];
         CalcCoor c;
         c.SetCoor( i, j, k );
-        this->coorMap->insert( pair<int, CalcCoor>( pt, c ) );
+        this->coorMap->insert( std::pair<int, CalcCoor>( pt, c ) );
     }
 
     int nMLine = mLineList.size();
@@ -394,8 +394,8 @@ void SDomain::SetBlkBcMesh( Block3D * blk3d )
             ii = ci.i + cj.i - c1.i - 1;
             jj = ci.j + cj.j - c1.j - 1;
             kk = ci.k + cj.k - c1.k - 1;
-            //cout << " i,j = " << i << " " << j << " ni, nj = " << ni << " " << nj << "\n";
-            //cout << " ii,jj,kk = " << ii << " " << jj << " " << kk << "\n";
+            //std::cout << " i,j = " << i << " " << j << " ni, nj = " << ni << " " << nj << "\n";
+            //std::cout << " ii,jj,kk = " << ii << " " << jj << " " << kk << "\n";
             Real xm = x2d[ i0 ][ j0 ];
             Real ym = y2d[ i0 ][ j0 ];
             Real zm = z2d[ i0 ][ j0 ];
@@ -473,8 +473,8 @@ void SDomain::SetBlkBcMesh( Block2D * blk2d )
             ii = ci.i + cj.i - c1.i - 1;
             jj = ci.j + cj.j - c1.j - 1;
             kk = ci.k + cj.k - c1.k - 1;
-            //cout << " i,j = " << i << " " << j << " ni, nj = " << ni << " " << nj << "\n";
-            //cout << " ii,jj,kk = " << ii << " " << jj << " " << kk << "\n";
+            //std::cout << " i,j = " << i << " " << j << " ni, nj = " << ni << " " << nj << "\n";
+            //std::cout << " ii,jj,kk = " << ii << " " << jj << " " << kk << "\n";
             Real xm = x2d[ i0 ][ j0 ];
             Real ym = y2d[ i0 ][ j0 ];
             Real zm = z2d[ i0 ][ j0 ];
@@ -503,7 +503,7 @@ void SDomain::GenerateSDomainMesh()
     TransfiniteInterpolation( z2d, ni, nj );
 }
 
-void SDomain::GenerateSDomainMesh( fstream & file )
+void SDomain::GenerateSDomainMesh( std::fstream & file )
 {
     TransfiniteInterpolation( x2d, ni, nj );
     TransfiniteInterpolation( y2d, ni, nj );

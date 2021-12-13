@@ -50,10 +50,11 @@ License
 #include "DataBase.h"
 #include "DataBook.h"
 #include "Prj.h"
+
 #include <iostream>
 #include <vector>
 #include <algorithm>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 
@@ -144,7 +145,7 @@ void EList::AddElem( IntList &elem )
 	this->data.push_back( elem.data );
 }
 
-void EList::AddElem( vector< int > &elem )
+void EList::AddElem( std::vector< int > &elem )
 {
 	this->data.push_back( elem );
 }
@@ -190,7 +191,7 @@ void ScalarBcco::AddBcPoint( int bcVertex )
 
 void ScalarBcco::ScanBcFace( ScalarGrid * grid )
 {
-	cout << " BCTypeName = " << ONEFLOW::GetCgnsBcName( this->bcType ) << endl;
+	std::cout << " BCTypeName = " << ONEFLOW::GetCgnsBcName( this->bcType ) << std::endl;
 
 	IntSet bcVertex;
 	this->ProcessVertexBc( bcVertex );
@@ -228,7 +229,7 @@ void ScalarBccos::ScanBcFace( ScalarGrid * grid )
 {
 	for ( int iBoco = 0; iBoco < this->bccos.size(); ++ iBoco )
 	{
-		cout << " iBoco = " << iBoco << " ";
+		std::cout << " iBoco = " << iBoco << " ";
 		this->bccos[ iBoco ]->ScanBcFace( grid );
 	}
 }
@@ -546,8 +547,8 @@ void ScalarGrid::SetCgnsZone( CgnsZone * cgnsZone )
 
 void ScalarGrid::DumpCgnsGrid()
 {
-	fstream file;
-	string prjFileName = ONEFLOW::GetPrjFileName( "scalar.cgns" );
+	std::fstream file;
+	std::string prjFileName = Prj::GetPrjFileName( "scalar.cgns" );
 	CgnsZbase * cgnsZbase = new CgnsZbase();
 	cgnsZbase->nBases = 1;
 	cgnsZbase->InitCgnsBase();
@@ -573,7 +574,7 @@ void ScalarGrid::DumpCgnsGrid()
 	delete cgnsZbase;
 }
 
-void ScalarGrid::GenerateGridFromCgns( const string & prjFileName )
+void ScalarGrid::GenerateGridFromCgns( const std::string & prjFileName )
 {
 	CgnsZbase * cgnsZbase = new CgnsZbase();
 	cgnsZbase->OpenCgnsFile( prjFileName, CG_MODE_READ );
@@ -595,12 +596,12 @@ void ScalarGrid::ReadFromCgnsZbase( CgnsZbase * cgnsZbase )
 
 void ScalarGrid::ReadFromCgnsZone( CgnsZone * cgnsZone )
 {
-	cout << "   Convert Cgns Section Data to ScalarGrid......\n";
-	cout << "\n";
+	std::cout << "   Convert Cgns Section Data to ScalarGrid......\n";
+	std::cout << "\n";
 	CgnsZsection * cgnsZsection = cgnsZone->cgnsZsection;
 	for ( int iSection = 0; iSection < cgnsZsection->nSection; ++ iSection )
 	{
-		cout << "-->iSection     = " << iSection << " numberOfCgnsSections = " << cgnsZsection->nSection << "\n";
+		std::cout << "-->iSection     = " << iSection << " numberOfCgnsSections = " << cgnsZsection->nSection << "\n";
 		CgnsSection * cgnsSection = cgnsZsection->GetCgnsSection( iSection );
 
 		if ( ! ONEFLOW::IsBasicVolumeElementType( cgnsSection->eType ) ) continue;
@@ -698,7 +699,7 @@ void ScalarGrid::CalcFaceCenter1D()
 	this->nFaces = this->GetNFaces();
 	for ( int iFace = 0; iFace < this->nFaces; ++ iFace )
 	{
-		vector< int > & faceNodes = this->faces[ iFace ];
+		std::vector< int > & faceNodes = this->faces[ iFace ];
 		int p1 = faceNodes[ 0 ];
 		int p2 = faceNodes[ 0 ];
 		this->xfc[ iFace ] = half * ( this->xn[ p1 ] + this->xn[ p2 ] );
@@ -713,7 +714,7 @@ void ScalarGrid::CalcFaceCenter1D()
 //	
 //	for ( size_t iCell = 0; iCell < this->nCells; ++ iCell )
 //	{
-//		vector< int > & element = this->elements[ iCell ];
+//		std::vector< int > & element = this->elements[ iCell ];
 //		int p1 = element[ 0 ];
 //		int p2 = element[ 1 ];
 //		this->xcc[ iCell  ] = half * ( this->xn[ p1 ] + this->xn[ p2 ] );
@@ -737,7 +738,7 @@ void ScalarGrid::CalcCellCenter1D()
 	this->nBFaces = this->GetNBFaces();
 	for ( int iFace = 0; iFace < this->nBFaces; ++ iFace )
 	{
-		vector< int > & faceNodes = this->faces[ iFace ];
+		std::vector< int > & faceNodes = this->faces[ iFace ];
 		int lc  = this->lc[ iFace ];
 
 		int pt = faceNodes[ 0 ];
@@ -749,7 +750,7 @@ void ScalarGrid::CalcCellCenter1D()
 
 	for ( int iFace = nBFaces; iFace < this->nFaces; ++ iFace )
 	{
-		vector< int > & faceNodes = this->faces[ iFace ];
+		std::vector< int > & faceNodes = this->faces[ iFace ];
 		int lc  = this->lc[ iFace ];
 		int rc  = this->rc[ iFace ];
 
@@ -781,7 +782,7 @@ void ScalarGrid::CalcCellVolume1D()
 	this->nFaces = this->GetNFaces();
 	for ( int iFace = 0; iFace < this->nFaces; ++ iFace )
 	{
-		vector< int > & faceNodes = this->faces[ iFace ];
+		std::vector< int > & faceNodes = this->faces[ iFace ];
 		int lc  = this->lc[ iFace ];
 		int rc  = this->rc[ iFace ];
 
@@ -866,12 +867,12 @@ void ScalarGrid::CalcTopology()
 
 	this->nCells = this->GetNCells();
 
-	set< HXSort< IntField > > faceSet;
+	std::set< HXSort< IntField > > faceSet;
 	HXSort< IntField > faceForSorting;
 
 	for ( int iCell = 0; iCell < nCells; ++ iCell )
 	{
-		vector< int > & element = elements[ iCell ];
+		std::vector< int > & element = elements[ iCell ];
 
 		int eType = eTypes[ iCell ];
 
@@ -894,7 +895,7 @@ void ScalarGrid::CalcTopology()
 			std::sort( faceNodeIndexArraySort.begin(), faceNodeIndexArraySort.end() );
 			faceForSorting.value = faceNodeIndexArraySort;
 
-			set< HXSort< IntField > >::iterator iter = faceSet.find( faceForSorting );
+			std::set< HXSort< IntField > >::iterator iter = faceSet.find( faceForSorting );
 			if ( iter == faceSet.end() )
 			{
 				faceForSorting.index = faceSet.size();
@@ -996,7 +997,7 @@ void ScalarGrid::SetBcGhostCell()
 	}
 }
 
-bool ScalarGrid::CheckBcFace( IntSet & bcVertex, vector< int > & nodeId )
+bool ScalarGrid::CheckBcFace( IntSet & bcVertex, std::vector< int > & nodeId )
 {
 	int size = nodeId.size();
 	for ( int iNode = 0; iNode < size; ++ iNode )
@@ -1013,7 +1014,7 @@ bool ScalarGrid::CheckBcFace( IntSet & bcVertex, vector< int > & nodeId )
 void ScalarGrid::AllocateBc()
 {
 	this->nFaces = this->faces.GetNElements();
-	cout << " nFaces = " << nFaces << "\n";
+	std::cout << " nFaces = " << nFaces << "\n";
 
 	int nTraditionalBc = 0;
 	for ( int iFace = 0; iFace < nFaces; ++ iFace )
@@ -1024,7 +1025,7 @@ void ScalarGrid::AllocateBc()
 			++ nTraditionalBc;
 		}
 	}
-	cout << " nTraditionalBc = " << nTraditionalBc << "\n";
+	std::cout << " nTraditionalBc = " << nTraditionalBc << "\n";
 	this->bcTypes.Resize( nTraditionalBc );
 }
 
@@ -1047,7 +1048,7 @@ void ScalarGrid::ScanBcFace( IntSet& bcVertex, int bcType )
 		}
 	}
 
-	cout << " nFinalBcFace = " << nBcFaces_local << " bcType = " << bcType << endl;
+	std::cout << " nFinalBcFace = " << nBcFaces_local << " bcType = " << bcType << std::endl;
 	int kkk = 1;
 }
 
@@ -1118,7 +1119,7 @@ void ScalarGrid::Normalize()
 		if ( this->lc[ iFace ] < 0 )
 		{
 			//need to reverse the node ordering
-			vector< int > & face = this->faces[ iFace ];
+			std::vector< int > & face = this->faces[ iFace ];
 			std::reverse( face.begin(), face.end() );
 			// now reverse lc and rc
 			ONEFLOW::SWAP( this->lc[ iFace ], this->rc[ iFace ] );
@@ -1142,18 +1143,18 @@ void ScalarGrid::GetTId( int i_interface, int & tId )
 
 void ScalarGrid::DumpCalcGrid()
 {
-	cout << "Dumping unstructured grid data files......\n";
-	fstream file;
-	string fileName = "scalar.ofl";
-	OpenPrjFile( file, fileName, ios_base::out | ios_base::binary );
+	std::cout << "Dumping unstructured grid data files......\n";
+	std::fstream file;
+	std::string fileName = "scalar.ofl";
+	Prj::OpenPrjFile( file, fileName, std::ios_base::out | std::ios_base::binary );
 	DataBook * databook = new DataBook();
 	this->WriteGrid( databook );
 	databook->WriteFile( file );
 	delete databook;
-	CloseFile( file );
+	Prj::CloseFile( file );
 }
 
-void ScalarGrid::WriteGrid( fstream & file )
+void ScalarGrid::WriteGrid( std::fstream & file )
 {
 	DataBook * databook = new DataBook();
 	this->WriteGrid( databook );
@@ -1171,21 +1172,21 @@ void ScalarGrid::WriteGrid( DataBook * databook )
 	ONEFLOW::HXWrite( databook, this->nFaces );
 	ONEFLOW::HXWrite( databook, this->nCells );
 
-	cout << " number of nodes    : " << this->nNodes << endl;
-	cout << " number of surfaces : " << this->nFaces << endl;
-	cout << " number of elements : " << this->nCells << endl;
+	std::cout << " number of nodes    : " << this->nNodes << std::endl;
+	std::cout << " number of surfaces : " << this->nFaces << std::endl;
+	std::cout << " number of elements : " << this->nCells << std::endl;
 
 	//node
 	ONEFLOW::HXWrite( databook, this->xn.data );
 	ONEFLOW::HXWrite( databook, this->yn.data );
 	ONEFLOW::HXWrite( databook, this->zn.data );
 
-	cout << " dumping xn,yn,zn \n";
+	std::cout << " dumping xn,yn,zn \n";
 
 	ONEFLOW::HXWrite( databook, this->volBcType  );
-	cout << " this->volBcType = " << this->volBcType << "\n";
+	std::cout << " this->volBcType = " << this->volBcType << "\n";
 
-	cout << " dumping eTypes \n";
+	std::cout << " dumping eTypes \n";
 
 	//element
 	ONEFLOW::HXWrite( databook, this->eTypes.data );
@@ -1196,17 +1197,17 @@ void ScalarGrid::WriteGrid( DataBook * databook )
 
 void ScalarGrid::ReadCalcGrid()
 {
-	fstream file;
-	string fileName = "scalar.ofl";
-	OpenPrjFile( file, fileName, ios_base::in | ios_base::binary );
+	std::fstream file;
+	std::string fileName = "scalar.ofl";
+	Prj::OpenPrjFile( file, fileName, std::ios_base::in | std::ios_base::binary );
 	DataBook * databook = new DataBook();
 	databook->ReadFile( file );
 	this->ReadGrid( databook );
 	delete databook;
-	CloseFile( file );
+	Prj::CloseFile( file );
 }
 
-void ScalarGrid::ReadGrid( fstream & file )
+void ScalarGrid::ReadGrid( std::fstream & file )
 {
 	DataBook * databook = new DataBook();
 	databook->ReadFile( file );
@@ -1216,47 +1217,47 @@ void ScalarGrid::ReadGrid( fstream & file )
 
 void ScalarGrid::ReadGrid( DataBook * databook )
 {
-	cout << "Reading unstructured grid data files......\n";
+	std::cout << "Reading unstructured grid data files......\n";
 	//Read the number of nodes, number of elements and number of elements faces
 
-	cout << "Grid dimension = " << Dim::dimension << endl;
+	std::cout << "Grid dimension = " << Dim::dimension << std::endl;
 
 	ONEFLOW::HXRead( databook, this->nNodes );
 	ONEFLOW::HXRead( databook, this->nFaces );
 	ONEFLOW::HXRead( databook, this->nCells );
 
-	cout << " number of nodes    : " << this->nNodes << endl;
-	cout << " number of surfaces : " << this->nFaces << endl;
-	cout << " number of elements : " << this->nCells << endl;
+	std::cout << " number of nodes    : " << this->nNodes << std::endl;
+	std::cout << " number of surfaces : " << this->nFaces << std::endl;
+	std::cout << " number of elements : " << this->nCells << std::endl;
 
 	this->CreateNodes( this->nNodes );
 
-	cout << " Reading xn,yn,zn\n";
+	std::cout << " Reading xn,yn,zn\n";
 
 	ONEFLOW::HXRead( databook, this->xn.data );
 	ONEFLOW::HXRead( databook, this->yn.data );
 	ONEFLOW::HXRead( databook, this->zn.data );
 
-	cout << " Reading volBcType\n";
+	std::cout << " Reading volBcType\n";
 	this->volBcType = -1000;
 	ONEFLOW::HXRead( databook, this->volBcType  );
 
-	cout << " this->volBcType = " << this->volBcType << "\n";
+	std::cout << " this->volBcType = " << this->volBcType << "\n";
 
-	cout << " Reading eTypes\n";
+	std::cout << " Reading eTypes\n";
 
 	//element
 	this->eTypes.Resize( this->nCells );
 	ONEFLOW::HXRead( databook, this->eTypes.data );
 
-	cout << "The grid nodes have been read\n";
+	std::cout << "The grid nodes have been read\n";
 
 	//this->nodeMesh->CalcMinMaxBox();
 	this->ReadGridFaceTopology( databook );
 	this->ReadBoundaryTopology( databook );
 	this->NormalizeBc();
 
-	cout << "All the computing information is ready!\n";
+	std::cout << "All the computing information is ready!\n";
 }
 
 void ScalarGrid::NormalizeBc()
@@ -1276,15 +1277,15 @@ void ScalarGrid::CreateNodes( int numberOfNodes )
 
 void ScalarGrid::WriteGridFaceTopology( DataBook * databook )
 {
-	cout << " Dumping this->fTypes \n";
+	std::cout << " Dumping this->fTypes \n";
 	ONEFLOW::HXWrite( databook, this->fTypes.data );
 
-	cout << "fTypes = \n";
-	for ( int iFace = 0; iFace < this->fTypes.data.size(); ++ iFace )
-	{
-		cout << this->fTypes.data[ iFace ] << " ";
-	}
-	cout << "\n";
+	//std::cout << "fTypes = \n";
+	//for ( int iFace = 0; iFace < this->fTypes.data.size(); ++ iFace )
+	//{
+	//	std::cout << this->fTypes.data[ iFace ] << " ";
+	//}
+	//std::cout << "\n";
 
 	IntField numFaceNode( this->nFaces );
 
@@ -1293,18 +1294,18 @@ void ScalarGrid::WriteGridFaceTopology( DataBook * databook )
 		numFaceNode[ iFace ] = this->faces[ iFace ].size();
 	}
 
-	cout << " Dumping numFaceNode \n";
+	std::cout << " Dumping numFaceNode \n";
 
 	ONEFLOW::HXWrite( databook, numFaceNode );
 
 	int nsum = ONEFLOW::SUM( numFaceNode );
-	cout << " nsum = " << nsum << "\n";
-	cout << "numFaceNode = \n";
-	for ( int iFace = 0; iFace < numFaceNode.size(); ++ iFace )
-	{
-		cout << numFaceNode[ iFace ] << " ";
-	}
-	cout << "\n";
+	std::cout << " nsum = " << nsum << "\n";
+	std::cout << "numFaceNode = \n";
+	//for ( int iFace = 0; iFace < numFaceNode.size(); ++ iFace )
+	//{
+	//	std::cout << numFaceNode[ iFace ] << " ";
+	//}
+	//std::cout << "\n";
 
 	IntField faceNodeMem;
 
@@ -1316,7 +1317,7 @@ void ScalarGrid::WriteGridFaceTopology( DataBook * databook )
 			faceNodeMem.push_back( this->faces[ iFace ][ iNode ] );
 		}
 	}
-	cout << " Dumping faceNodeMem \n";
+	std::cout << " Dumping faceNodeMem \n";
 	ONEFLOW::HXWrite( databook, faceNodeMem );
 
 	ONEFLOW::HXWrite( databook, this->lc.data );
@@ -1330,36 +1331,36 @@ void ScalarGrid::ReadGridFaceTopology( DataBook * databook )
 	this->rc.Resize( this->nFaces );
 	this->fTypes.Resize( this->nFaces );
 
-	cout << " Reading this->fTypes\n";
+	std::cout << " Reading this->fTypes\n";
 
 	ONEFLOW::HXRead( databook, this->fTypes.data );
 
-	cout << "fTypes = \n";
-	for ( int iFace = 0; iFace < this->fTypes.data.size(); ++ iFace )
-	{
-		cout << this->fTypes.data[ iFace ] << " ";
-	}
-	cout << "\n";
+	//std::cout << "fTypes = \n";
+	//for ( int iFace = 0; iFace < this->fTypes.data.size(); ++ iFace )
+	//{
+	//	std::cout << this->fTypes.data[ iFace ] << " ";
+	//}
+	//std::cout << "\n";
 
 	IntField numFaceNode( this->nFaces );
 
-	cout << " Reading numFaceNode\n";
+	std::cout << " Reading numFaceNode\n";
 
 	ONEFLOW::HXRead( databook, numFaceNode );
 
 	int nsum = ONEFLOW::SUM( numFaceNode );
-	cout << " nsum = " << nsum << "\n";
-	cout << " this->nFaces = " << this->nFaces << "\n";
-	cout << "numFaceNode = \n";
-	for ( int iFace = 0; iFace < numFaceNode.size(); ++ iFace )
-	{
-		cout << numFaceNode[ iFace ] << " ";
-	}
-	cout << "\n";
+	std::cout << " nsum = " << nsum << "\n";
+	std::cout << " this->nFaces = " << this->nFaces << "\n";
+	std::cout << "numFaceNode = \n";
+	//for ( int iFace = 0; iFace < numFaceNode.size(); ++ iFace )
+	//{
+	//	std::cout << numFaceNode[ iFace ] << " ";
+	//}
+	//std::cout << "\n";
 
-	cout << "Setting the connection mode of face to point......\n";
+	std::cout << "Setting the connection mode of face to point......\n";
 	IntField faceNodeMem( nsum );
-	cout << " Reading faceNodeMem\n";
+	std::cout << " Reading faceNodeMem\n";
 	ONEFLOW::HXRead( databook, faceNodeMem );
 
 	int ipos = 0;
@@ -1373,7 +1374,7 @@ void ScalarGrid::ReadGridFaceTopology( DataBook * databook )
 		}
 	}
 
-	cout << "Setting the connection mode of face to cell......\n";
+	std::cout << "Setting the connection mode of face to cell......\n";
 
 	ONEFLOW::HXRead( databook, this->lc.data );
 	ONEFLOW::HXRead( databook, this->rc.data );
@@ -1383,7 +1384,7 @@ void ScalarGrid::ReadGridFaceTopology( DataBook * databook )
 		if ( this->lc[ iFace ] < 0 )
 		{
 			//need to reverse the node ordering
-			vector< int > & face = this->faces[ iFace ];
+			std::vector< int > & face = this->faces[ iFace ];
 			std::reverse( face.begin(), face.end() );
 			// now reverse leftCellIndex  and rightCellIndex
 			ONEFLOW::SWAP( this->lc[ iFace ], this->rc[ iFace ] );
@@ -1405,7 +1406,7 @@ void ScalarGrid::WriteBoundaryTopology( DataBook * databook )
 
 void ScalarGrid::ReadBoundaryTopology( DataBook * databook )
 {
-	cout << "Setting the boundary condition......\n";
+	std::cout << "Setting the boundary condition......\n";
 	ONEFLOW::HXRead( databook, this->nBFaces );
 
 	this->bcTypes.Resize( this->nBFaces );
@@ -1463,13 +1464,13 @@ void ScalarGrid::AddInterface( int global_interface_id, int neighbor_zoneid, int
 void ScalarGrid::ReconstructNode( ScalarGrid * ggrid )
 {
 	int nFaces = this->global_faceid.size();
-	set<int> nodeset;
+	std::set<int> nodeset;
 
 	for ( int iFace = 0; iFace < nFaces; ++ iFace )
 	{
 		//global face id
 		int iGFace = this->global_faceid[ iFace ];
-		vector< int > & face = ggrid->faces[ iGFace ];
+		std::vector< int > & face = ggrid->faces[ iGFace ];
 		int nNodes = face.size();
 		for ( int iNode = 0; iNode < nNodes; ++ iNode )
 		{
@@ -1478,16 +1479,16 @@ void ScalarGrid::ReconstructNode( ScalarGrid * ggrid )
 		this->faces.AddElem( face );
 	}
 
-	map<int, int> global_local_node;
+	std::map<int, int> global_local_node;
 	int count = 0;
-	for ( set<int>::iterator iter = nodeset.begin(); iter != nodeset.end(); ++ iter )
+	for ( std::set<int>::iterator iter = nodeset.begin(); iter != nodeset.end(); ++ iter )
 	{
-		global_local_node.insert( pair<int, int>( *iter, count ++ ) );
+		global_local_node.insert( std::pair<int, int>( *iter, count ++ ) );
 	}
 
 	for ( int iFace = 0; iFace < nFaces; ++ iFace )
 	{
-		vector< int > & face = this->faces[ iFace ];
+		std::vector< int > & face = this->faces[ iFace ];
 		int nNodes = face.size();
 		for ( int iNode = 0; iNode < nNodes; ++ iNode )
 		{
@@ -1496,7 +1497,7 @@ void ScalarGrid::ReconstructNode( ScalarGrid * ggrid )
 		}
 	}
 
-	for ( set<int>::iterator iter = nodeset.begin(); iter != nodeset.end(); ++ iter )
+	for ( std::set<int>::iterator iter = nodeset.begin(); iter != nodeset.end(); ++ iter )
 	{
 		int iNode = *iter;
 		Real xm = ggrid->xn[ iNode ];

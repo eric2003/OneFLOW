@@ -22,17 +22,23 @@ License
 #include "SimpleSimu.h"
 #include "Scalar.h"
 #include "FieldSolver.h"
+#include "FieldSolverOpenMP.h"
 #include <iostream>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 
 void ToyModelSimu()
 {
-    cout << "ToyModelSimu\n";
-    FieldSolver * fieldSolver = new FieldSolver();
-    fieldSolver->Run();
-    delete fieldSolver;
+    std::cout << "ToyModelSimu\n";
+    //FieldSolver * fieldSolver = new FieldSolver();
+    //fieldSolver->Run();
+    //delete fieldSolver;
+
+    FieldSolverOpenMP * fieldSolverOpenMP = new FieldSolverOpenMP();
+    fieldSolverOpenMP->Run();
+    delete fieldSolverOpenMP;
+
 }
 
 

@@ -33,7 +33,7 @@ License
 #include "HXMath.h"
 
 
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 
@@ -47,16 +47,16 @@ CellMesh::~CellMesh()
     delete cellTopo;
 }
 
-UInt CellMesh::GetNumberOfCells()
+HXSize_t CellMesh::GetNumberOfCells()
 { 
     return cellTopo->GetNumberOfCells(); 
 }
 
 void CellMesh::AllocateMetrics( FaceMesh * faceMesh )
 {
-    UInt numberOfCells = this->GetNumberOfCells();
-    UInt nBFaces = faceMesh->GetNBFace();
-    UInt nTCell = numberOfCells + nBFaces;
+    HXSize_t numberOfCells = this->GetNumberOfCells();
+    HXSize_t nBFaces = faceMesh->GetNBFace();
+    HXSize_t nTCell = numberOfCells + nBFaces;
     this->xcc.resize( nTCell );
     this->ycc.resize( nTCell );
     this->zcc.resize( nTCell );
@@ -66,7 +66,7 @@ void CellMesh::AllocateMetrics( FaceMesh * faceMesh )
 
 void CellMesh::AllocDist()
 {
-    UInt numberOfCells = this->GetNumberOfCells();
+    HXSize_t numberOfCells = this->GetNumberOfCells();
     dist.resize( numberOfCells );
 }
 

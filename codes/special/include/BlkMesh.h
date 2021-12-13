@@ -50,7 +50,7 @@ public:
 public:
     void AddLocalPt( int p1, int p2 );
     void AddLocalPt( int p1, int p2, int p3, int p4 );
-    void DumpInp( fstream & file );
+    void DumpInp( std::fstream & file );
     virtual int GetNSubDomain() { return 1;  };
 public:
     void Add( IntField &iList, IntField &jList, IntField &kList, int i, int j, int k );

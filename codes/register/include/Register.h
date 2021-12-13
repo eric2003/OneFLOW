@@ -25,7 +25,7 @@ License
 #include "HXDefine.h"
 #include <map>
 #include <string>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 class HXClone;
@@ -36,11 +36,11 @@ public:
     HXRegister();
     ~HXRegister();
 public:
-    map< string, HXClone * > data;
+    std::map< std::string, HXClone * > data;
 public:
     void FreeAll();
-    void Register( const string & cmdName, const string & className );
-    HXClone * GetClass( const string & cmdName );
+    void Register( const std::string & cmdName, const std::string & className );
+    HXClone * GetClass( const std::string & cmdName );
 };
 
 class MRegister
@@ -49,7 +49,7 @@ public:
     MRegister();
     ~MRegister();
 public:
-    vector< HXRegister * > data;
+    std::vector< HXRegister * > data;
     StringField fileNames;
 public:
     void SetSolverFileNames( StringField & fileNames );
@@ -59,7 +59,7 @@ public:
     void RegisterAll();
 private:
     void AllocateData();
-    void Register( const string & fileName, HXRegister * fRegister );
+    void Register( const std::string & fileName, HXRegister * fRegister );
 };
 
 
@@ -69,7 +69,7 @@ public:
     RegisterFactory();
     ~RegisterFactory();
 public:
-    static map< int, MRegister * > * data;
+    static std::map< int, MRegister * > * data;
 public:
     static void Init();
     static void AddMRegister( int registerId );

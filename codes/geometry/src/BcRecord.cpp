@@ -29,7 +29,6 @@ License
 #include "HXMath.h"
 #include "HXStd.h"
 #include <iostream>
-using namespace std;
 
 BeginNameSpace( ONEFLOW )
 
@@ -75,8 +74,8 @@ void BcRecord::CreateBcTypeRegion()
             bcUserTypeSet.insert( bcNameId );
         }
     }
-    //cout << " bcTypeSet.size() = " << bcTypeSet.size() << "\n";
-    //cout << " bcRegionNameSet.size() = " << bcRegionNameSet.size() << "\n";
+    //std::cout << " bcTypeSet.size() = " << bcTypeSet.size() << "\n";
+    //std::cout << " bcRegionNameSet.size() = " << bcRegionNameSet.size() << "\n";
 
     ONEFLOW::Set2Array( bcTypeSet, bcInfo->bcType );
 
@@ -106,7 +105,7 @@ int BcRecord::GetNBFace()
     return bcType.size();
 }
 
-void BcRecord::Init( UInt nBFaces )
+void BcRecord::Init( HXSize_t nBFaces )
 {
     this->bcType.resize( nBFaces );
     this->bcNameId.resize( nBFaces );

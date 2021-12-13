@@ -23,16 +23,15 @@ License
 #pragma once
 #include "HXVector.h"
 #include <set>
-using namespace std;
 
 BeginNameSpace( ONEFLOW )
 
 template < typename T >
-void Set2Array( set< T > & dataSet, HXVector< T > & dataArray )
+void Set2Array( std::set< T > & dataSet, HXVector< T > & dataArray )
 {
     dataArray.resize( 0 );
 
-    for ( typename set< T >::iterator iter = dataSet.begin(); iter != dataSet.end(); ++ iter )
+    for ( typename std::set< T >::iterator iter = dataSet.begin(); iter != dataSet.end(); ++ iter )
     {
         dataArray.push_back( * iter );
     }

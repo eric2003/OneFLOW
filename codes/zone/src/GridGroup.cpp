@@ -39,7 +39,7 @@ License
 #include "Task.h"
 #include <iostream>
 #include <string>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 
@@ -53,18 +53,18 @@ GridGroup::~GridGroup()
 {
 }
 
-void GridGroup::InitZoneLayout( const string & fileName )
+void GridGroup::InitZoneLayout( const std::string & fileName )
 {
-    fstream file;
-    PIO::ParallelOpenPrj( file, fileName, ios_base::in|ios_base::binary );
+    std::fstream file;
+    PIO::OpenPrjFile( file, fileName, std::ios_base::in|std::ios_base::binary );
 
     this->InitZoneLayout( file );
     this->SetMultiZoneLayout();
 
-    PIO::ParallelClose( file );
+    PIO::CloseFile( file );
 }
 
-void GridGroup::InitZoneLayout( fstream & file )
+void GridGroup::InitZoneLayout( std::fstream & file )
 {
     int fid = Parallel::GetFid();
 
@@ -98,11 +98,11 @@ void GridGroup::SetMultiZoneLayout()
     }
 }
 
-void GridGroup::ReadGrid( const string & fileName )
+void GridGroup::ReadGrid( const std::string & fileName )
 {
-    fstream file;
+    std::fstream file;
 
-    PIO::ParallelOpenPrj( file, fileName, ios_base::in|ios_base::binary );
+    PIO::OpenPrjFile( file, fileName, std::ios_base::in|std::ios_base::binary );
 
     this->InitZoneLayout( file );
     this->SetMultiZoneLayout();
@@ -113,10 +113,10 @@ void GridGroup::ReadGrid( const string & fileName )
         this->ReadGrid( file, zid );
     }
 
-    PIO::ParallelClose( file );
+    PIO::CloseFile( file );
 }
 
-void GridGroup::ReadGrid( fstream & file, int zid )
+void GridGroup::ReadGrid( std::fstream & file, int zid )
 {
     int spid = 0;
     int rpid = 0;
@@ -173,7 +173,7 @@ void GridGroup::CreateGridTest( int zoneId )
     Zone::AddScalarGrid( zoneId, grid );
 }
 
-void ReadAbstractData( fstream & file, DataBook * dataBook, int sendpid, int recvpid, int tag )
+void ReadAbstractData( std::fstream & file, DataBook * dataBook, int sendpid, int recvpid, int tag )
 {
     if ( Parallel::pid == sendpid )
     {

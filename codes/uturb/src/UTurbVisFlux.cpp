@@ -35,7 +35,7 @@ License
 #include "VisGrad.h"
 #include "HXMath.h"
 #include <iostream>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 

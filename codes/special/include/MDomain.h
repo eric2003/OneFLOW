@@ -23,13 +23,13 @@ License
 
 #pragma once
 #include "HXDefine.h"
-#include "Mid.h"
+#include "HXMid.h"
 #include "CalcCoor.h"
 #include "SimpleDomain.h"
 #include <set>
 #include <map>
 #include <fstream>
-using namespace std;
+
 BeginNameSpace( ONEFLOW )
 
 class Block2D;

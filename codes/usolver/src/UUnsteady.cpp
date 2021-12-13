@@ -26,7 +26,7 @@ License
 #include "Iteration.h"
 #include "UCom.h"
 #include <iostream>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 

@@ -34,7 +34,7 @@ License
 #include <cstring>
 #include <iostream>
 #include <iomanip>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 
@@ -91,9 +91,9 @@ void CgnsTest::Test()
 
 void CgnsTest::SetDefaultGridName()
 {
-    string gridName = "/grid/oneflow.cgns";
-    string prjFileName = ONEFLOW::GetPrjFileName( gridName );
-    cout << " CGNS File Name = " << prjFileName << "\n";
+    std::string gridName = "/grid/oneflow.cgns";
+    std::string prjFileName = Prj::GetPrjFileName( gridName );
+    std::cout << " CGNS File Name = " << prjFileName << "\n";
 
     this->fileName = prjFileName;
 }
@@ -132,11 +132,11 @@ void CgnsTest::ReadDescriptor()
 
 void CgnsTest::WriteEmptyCgnsFile()
 {
-    //cout << " CgnsTest::WriteEmptyCgnsFile() " << "\n";
+    //std::cout << " CgnsTest::WriteEmptyCgnsFile() " << "\n";
     CgnsFile * cgnsFile = new CgnsFile( "empty.cgns", CG_MODE_WRITE );
-    //cout << " 111 " << "\n";
+    //std::cout << " 111 " << "\n";
     delete cgnsFile;
-    //cout << " 222 " << "\n";
+    //std::cout << " 222 " << "\n";
 }
 
 void CgnsTest::ReadEmptyCgnsFile()
@@ -145,7 +145,7 @@ void CgnsTest::ReadEmptyCgnsFile()
     delete cgnsFile;
 }
 
-void CgnsTest::WriteDouble( const string & varName, const double & varValue )
+void CgnsTest::WriteDouble( const std::string & varName, const double & varValue )
 {
     int nDim = 1;
     cgsize_t ndims[ 1 ] = { 1 };
@@ -166,8 +166,8 @@ void CgnsTest::SetISize( cgsize_t * isize )
 
 void CgnsTest::TestCgnsLink()
 {
-    string fname    = "zones.cgns";
-    string linkname = "zones_link.cgns";
+    std::string fname    = "zones.cgns";
+    std::string linkname = "zones_link.cgns";
 
     cgsize_t isize[ 9 ];
     this->SetISize( isize );
@@ -178,7 +178,7 @@ void CgnsTest::TestCgnsLink()
 
     for ( int iZone = 0; iZone < nZones; ++ iZone )
     {
-        string name = AddString( "Zone", iZone + 1 );
+        std::string name = AddString( "Zone", iZone + 1 );
         cgnsBase->WriteZoneInfo( name, CGNS_ENUMV( Structured ), isize );
     }
     delete fileZone;
@@ -188,7 +188,7 @@ void CgnsTest::TestCgnsLink()
 
     for ( int iZone = 0; iZone < nZones; ++ iZone )
     {
-        string name = AddString( "Zone", iZone + 1 );
+        std::string name = AddString( "Zone", iZone + 1 );
         cgnsBaseM->WriteZoneInfo( name, CGNS_ENUMV( Structured ), isize );
     }
 
@@ -200,8 +200,8 @@ void CgnsTest::TestCgnsLink()
 
     for ( int iZone = 0; iZone < nZones; ++ iZone )
     {
-        string name     = AddString( "Link to Zone", iZone + 1 );
-        string linkpath = AddString( "/Base/Zone", iZone + 1 );
+        std::string name     = AddString( "Link to Zone", iZone + 1 );
+        std::string linkpath = AddString( "/Base/Zone", iZone + 1 );
 
         cg_link_write( name.c_str(), fname.c_str(), linkpath.c_str() );
     }
@@ -209,9 +209,9 @@ void CgnsTest::TestCgnsLink()
     delete fileLink;
 }
 
-void CgnsTest::GetArray( vector< vector< float > > & myfloat2d )
+void CgnsTest::GetArray( std::vector< std::vector< float > > & myfloat2d )
 {
-    vector< float > a1, a2, a3;
+    std::vector< float > a1, a2, a3;
     a1.push_back( 1 );
     a1.push_back( 2 );
     a1.push_back( 3 );
@@ -234,7 +234,7 @@ void CgnsTest::GetArray( vector< vector< float > > & myfloat2d )
 
 void CgnsTest::WriteArray()
 {
-    vector< vector< float > > myarray;
+    std::vector< std::vector< float > > myarray;
     this->GetArray( myarray );
 
     CgnsFile * cgnsFile = new CgnsFile( "array.cgns", CG_MODE_WRITE );
@@ -248,7 +248,7 @@ void CgnsTest::WriteArray()
 
 void CgnsTest::WriteArray( CgnsFile * cgnsFile, CgnsBase * cgnsBase )
 {
-    vector< vector< float > > myarray;
+    std::vector< std::vector< float > > myarray;
     this->GetArray( myarray );
 
     cgnsBase->GoToBase();
@@ -257,7 +257,7 @@ void CgnsTest::WriteArray( CgnsFile * cgnsFile, CgnsBase * cgnsBase )
 
     for ( int i = 0; i < myarray.size(); ++ i )
     {
-        string name = AddString( "MyArray", i + 1 );
+        std::string name = AddString( "MyArray", i + 1 );
         cgsize_t arraysize = myarray[ i ].size();
         cg_array_write( name.c_str(), CGNS_ENUMV( RealSingle ), 1, &arraysize, &myarray[ i ][ 0 ] );
         cgnsFile->GoPath( name );
@@ -270,7 +270,7 @@ void CgnsTest::WriteArray( CgnsFile * cgnsFile, CgnsBase * cgnsBase )
 
     for ( int i = 0; i < myarray.size(); ++ i )
     {
-        string name = AddString( "MyArray", i + 1 );
+        std::string name = AddString( "MyArray", i + 1 );
         cgsize_t arraysize = myarray[ i ].size();
         cg_array_write( name.c_str(), CGNS_ENUMV( RealSingle ), 1, &arraysize, &myarray[ i ][ 0 ] );
         cgnsFile->GoPath( name );
@@ -357,7 +357,7 @@ void CgnsTest::WriteConvergence()
     CgnsBase * cgnsBase = cgnsFile->WriteBase( "Base" );
     cgnsBase->GoToBase();
     const int nIterations = 20;
-    vector< double > cl( nIterations ), dl( 2 * nIterations );
+    std::vector< double > cl( nIterations ), dl( 2 * nIterations );
     /* create history array simple example: */
     for ( int n = 0; n < nIterations; ++ n )
     {
@@ -513,7 +513,7 @@ int CgnsTest::read_bcpnts_unst()
             &iptset,&npts,normalindex,&normallistflag,&normaldatatype,&ndataset);
         if (iptset != CGNS_ENUMV(PointList))
         {
-            printf("\nError.  For this program, BCs must be set up as PointList type %s\n",
+            printf("\nError.  For this program, BCs must be std::set up as PointList type %s\n",
                 PointSetTypeName[iptset]);
             return 1;
         }
@@ -689,7 +689,7 @@ int CgnsTest::write_grid_unst()
         y,&index_coord);
     cg_coord_write(index_file,index_base,index_zone,CGNS_ENUMV(RealDouble),"CoordinateZ",
         z,&index_coord);
-    /* set element connectivity: */
+    /* std::set element connectivity: */
     /* ---------------------------------------------------------- */
     /* do all the HEXA_8 elements (this part is mandatory): */
     /* maintain SIDS-standard ordering */
@@ -939,19 +939,19 @@ void CgnsTest::mytest_read()
     int iphysdim = -1;
 
     cgnsFile->ReadNumberOfBases();
-    cout << " cgnsFile->nBases = " << cgnsFile->nBases << "\n";
+    std::cout << " cgnsFile->nBases = " << cgnsFile->nBases << "\n";
 
     for ( int iBase = 0; iBase < cgnsFile->nBases; ++ iBase )
     {
         CgnsBase * cgnsBase = cgnsFile->CreateCgnsBase();
-        cout << " cgnsBase->baseId = " << cgnsBase->baseId << "\n";
+        std::cout << " cgnsBase->baseId = " << cgnsBase->baseId << "\n";
         cgnsBase->ReadCgnsBaseBasicInfo();
         cgnsBase->ReadNumberOfCgnsZones();
-        cout << " cgnsBase->nZones = " << cgnsBase->nZones << "\n";
+        std::cout << " cgnsBase->nZones = " << cgnsBase->nZones << "\n";
         for ( int iZone = 0; iZone < cgnsBase->nZones; ++ iZone )
         {
             CgnsZone * cgnsZone = cgnsBase->CreateCgnsZone();
-            cout << " cgnsZone->zId = " << cgnsZone->zId << "\n";
+            std::cout << " cgnsZone->zId = " << cgnsZone->zId << "\n";
 
             cgnsZone->ReadCgnsZoneAttribute();
             cgnsZone->ReadCgnsGridBoundary();
@@ -984,7 +984,7 @@ void CgnsTest::mytest_write()
     ipnts[ 0 ] = 0;
     icounts = 1;
 
-    string zoneName = "Zone1";
+    std::string zoneName = "Zone1";
     CgnsZone * cgnsZone = cgnsBase->WriteZoneInfo( zoneName, CGNS_ENUMV(Unstructured), isize[ 0 ] );
 
     CgnsZbcBoco * cgnsZbcBoco = cgnsZone->cgnsZbc->cgnsZbcBoco;

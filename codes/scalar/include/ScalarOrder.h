@@ -24,7 +24,7 @@ License
 #pragma once
 #include "Configure.h"
 #include <vector>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 
@@ -42,8 +42,8 @@ public:
     double c;
     double timeN;
     double l1Norm, l2Norm;
-    vector< double > x;
-    vector< double > du;
+    std::vector< double > x;
+    std::vector< double > du;
 };
 
 class ScalarOrder

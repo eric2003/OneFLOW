@@ -24,7 +24,7 @@ License
 #pragma once
 #include "HXDefine.h"
 #include <ios>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 
@@ -34,8 +34,8 @@ public:
     FileInfo();
     ~FileInfo();
 public:
-    string fileName;
-    ios_base::openmode openMode;
+    std::string fileName;
+    std::ios_base::openmode openMode;
 };
 
 EndNameSpace

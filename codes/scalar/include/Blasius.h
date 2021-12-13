@@ -24,7 +24,7 @@ License
 #pragma once
 #include "Configure.h"
 #include <vector>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 
@@ -35,14 +35,14 @@ public:
     ~Blasius();
 public:
     void Run();
-    void BlasiusFun( vector<double> &y, vector<double> &k );
+    void BlasiusFun( std::vector<double> &y, std::vector<double> &k );
     void rk4( double deta, int nStep );
     void Process();
 public:
     double alpha;
-    vector< double > etaList;
-    vector< double > F, Fx;
-    vector< double > f, fx;
+    std::vector< double > etaList;
+    std::vector< double > F, Fx;
+    std::vector< double > f, fx;
 };
 
 EndNameSpace

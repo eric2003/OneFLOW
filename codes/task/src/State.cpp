@@ -25,8 +25,8 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-string FileState::fileName;
-ios_base::openmode FileState::openMode;
+std::string FileState::fileName;
+std::ios_base::openmode FileState::openMode;
 
 FileState::FileState()
 {

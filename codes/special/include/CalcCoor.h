@@ -24,7 +24,7 @@ License
 #pragma once
 #include "HXDefine.h"
 #include <map>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 
@@ -40,7 +40,7 @@ public:
     void SetCoor( int i, int j, int k );
 };
 
-typedef map< int, CalcCoor > CoorMap;
+typedef std::map< int, CalcCoor > CoorMap;
 
 
 EndNameSpace

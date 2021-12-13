@@ -22,13 +22,9 @@ License
 
 
 #pragma once
-#include "HXDefine.h"
-#include <vector>
-#include <string>
-#include <fstream>
-#include <map>
 #include "HXCgns.h"
-using namespace std;
+#include "HXDefine.h"
+#include <string>
 
 BeginNameSpace( ONEFLOW )
 
@@ -47,7 +43,7 @@ public:
 public:
     int bcId;
     int nameId;
-    string name;
+    std::string name;
     double bc_double_id;
 
     BCType_t bcType;
@@ -88,7 +84,7 @@ public:
     void PrintCgnsBcBoco();
     void ExtractIJKRegionFromBcConn( IntField & ijkMin, IntField & ijkMax, CgIntField& bcConn );
     void ExtractIJKRegionFromBcConn( IntField & ijkMin, IntField & ijkMax );
-    void WriteCgnsBoco( const string & bocoName, BCType_t bocotype, PointSetType_t ptset_type, cgsize_t npnts, const cgsize_t * pnts );
+    void WriteCgnsBoco( const std::string & bocoName, BCType_t bocotype, PointSetType_t ptset_type, cgsize_t npnts, const cgsize_t * pnts );
 public:
     void CopyStrBcRegion( CgnsBcBoco * strBcRegion, CgInt& startId );
     void ReadCgnsBcBocoConnList( CgnsBcBoco * strBcRegion, CgInt & startId );

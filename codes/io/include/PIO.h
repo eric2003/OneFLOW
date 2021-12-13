@@ -25,7 +25,6 @@ License
 #include "Configure.h"
 #include <fstream>
 #include <string>
-using namespace std;
 
 BeginNameSpace( ONEFLOW )
 
@@ -35,15 +34,12 @@ public:
     PIO();
     ~PIO();
 public:
-    static string GetDirName( const string & fileName );
-    static void ParallelOpenPrj();
-    static void ParallelOpen( fstream & file, const string & fileName, const ios_base::openmode & openMode );
-    static void ParallelOpenPrj( fstream & file, const string & fileName, const ios_base::openmode & openMode );
-    static void Open( fstream & file, const string & fileName, const ios_base::openmode & openMode );
+    static void OpenPrjFile();
+    static void ParallelOpen( std::fstream & file, const std::string & fileName, const std::ios_base::openmode & openMode );
+    static void OpenPrjFile( std::fstream & file, const std::string & fileName, const std::ios_base::openmode & openMode );
 
-    static void ParallelClose( fstream & file );
-    static void ParallelClose();
-    static void Close( fstream & file );
+    static void CloseFile( std::fstream & file );
+    static void CloseFile();
 };
 
 

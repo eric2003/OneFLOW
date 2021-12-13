@@ -52,7 +52,7 @@ bool IsStrGrid( int gridTopo )
     return gridTopo == ONEFLOW::SMESH;
 }
 
-bool IsStrGrid( const string & gridTopo )
+bool IsStrGrid( const std::string & gridTopo )
 {
     return gridTopo == "s";
 }
@@ -62,7 +62,7 @@ bool IsUnsGrid( int gridTopo )
     return gridTopo == ONEFLOW::UMESH;
 }
 
-bool IsUnsGrid( const string & gridTopo )
+bool IsUnsGrid( const std::string & gridTopo )
 {
     return gridTopo == "u";
 }

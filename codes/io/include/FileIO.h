@@ -24,18 +24,18 @@ License
 #include <fstream>
 #include <sstream>
 #include "Word.h"
-using namespace std;
+#include "HXDefine.h"
 
 BeginNameSpace( ONEFLOW )
 
-const string whiteSpace = " ";
+const std::string whiteSpace = " ";
 
 void SetDefaultLine( std::string * defaultLineIn );
 std::string * GetDefaultLine();
 
 void SetDefaultSeparatorOfWord( std::string * separatorOfWordIn );
 std::string * GetDefaultSeparatorOfWord();
-typedef streamsize StreamSize;
+typedef std::streamsize StreamSize;
 
 class CommentLine;
 class FileIO
@@ -45,20 +45,20 @@ public:
     ~FileIO();
 protected:
     std::string * line, * separator;
-    fstream file;
+    std::fstream file;
     int setfileFlag;
 protected:
     std::string fileName;
-    ios_base::openmode fileOpenMode;
+    std::ios_base::openmode fileOpenMode;
     StreamSize filePosition;
     CommentLine * commentLine;
 public:
-    void OpenFile( const string & fileName, const ios_base::openmode & fileOpenMode );
-    void OpenPrjFile( const string & fileName, const ios_base::openmode & fileOpenMode );
+    void OpenFile( const std::string & fileName, const std::ios_base::openmode & fileOpenMode );
+    void OpenPrjFile( const std::string & fileName, const std::ios_base::openmode & fileOpenMode );
     void CloseFile();
     void MarkCurrentFilePosition();
     void MoveToPreviousFilePosition();
-    string & GetCurrentLine() { return * this->line; };
+    std::string & GetCurrentLine() { return * this->line; };
 public:
     void ResetCommentString( StringField &commentStringList );
     void SetDefaultSeparator( const std::string & separatorIn   ) { * this->separator = separatorIn; };
@@ -83,19 +83,19 @@ public:
     std::string ReadNextWordToLowerCase();
     std::string ReadNextWordToLowerCase( const std::string & separator );
 public:
-    void SkipReadSymbol( const string & stringSymbol );
+    void SkipReadSymbol( const std::string & stringSymbol );
     void SkipReadWholeBlock();
 public:
     template < typename T >
     friend inline FileIO & operator >> ( FileIO & textFileRead, T & value )
     {
-        fstream & file = * textFileRead.GetDefaultFile();
+        std::fstream & file = * textFileRead.GetDefaultFile();
         file >> value;
         return textFileRead;
     }
 
     template < typename T >
-    T ReadNextDigit( ios_base & ( * f )( ios_base & ) = & std::dec )
+    T ReadNextDigit( std::ios_base & ( * f )( std::ios_base & ) = & std::dec )
     {
         std::string word = FileIO::ReadNextTrueWord();
         T value = StringToDigit< T >( word, f );
@@ -103,14 +103,14 @@ public:
     }
 
     template < typename T >
-    T ReadNextDigit( int & num, ios_base & ( * f )( ios_base & ) = & std::dec )
+    T ReadNextDigit( int & num, std::ios_base & ( * f )( std::ios_base & ) = & std::dec )
     {
         std::string word = FileIO::ReadNextTrueWord();
         num = 1;
         bool flag = Word::FindString( word, "*" );
         if ( flag )
         {
-            string word_num = Word::FindNextWord( word, "*" );
+            std::string word_num = Word::FindNextWord( word, "*" );
             num = StringToDigit< int >( word_num, f );
             word = Word::FindNextWord( word, "*" );
         }
@@ -121,24 +121,24 @@ public:
 };
 
 template < typename T >
-inline T ReadNextDigit( ios_base & ( * f )( ios_base & ) = & std::dec )
+inline T ReadNextDigit( std::ios_base & ( * f )( std::ios_base & ) = & std::dec )
 {
     std::string * separatorOfWord = ONEFLOW::GetDefaultSeparatorOfWord();
     std::string * defaultLine     = ONEFLOW::GetDefaultLine();
 
-    string word = Word::FindNextWord( * defaultLine, * separatorOfWord );
+    std::string word = Word::FindNextWord( * defaultLine, * separatorOfWord );
     T value = ONEFLOW::StringToDigit< T >( word, f );
     return value;
 }
 
 template < typename T >
-inline T ReadNextDigit( std::string & source, const std::string & separatorOfWord, ios_base & ( * f )( ios_base & ) = & std::dec )
+inline T ReadNextDigit( std::string & source, const std::string & separatorOfWord, std::ios_base & ( * f )( std::ios_base & ) = & std::dec )
 {
-    string word = Word::FindNextWord( source, separatorOfWord );
+    std::string word = Word::FindNextWord( source, separatorOfWord );
     T value = ONEFLOW::StringToDigit< T >( word, f );
     return value;
 }
 
-bool IsEmpty( fstream & file );
+bool IsEmpty( std::fstream & file );
 
 EndNameSpace

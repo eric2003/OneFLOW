@@ -28,11 +28,11 @@ License
 #include "Zone.h"
 #include "ZoneState.h"
 #include <iostream>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 
-ostringstream MyStr;
+std::ostringstream MyStr;
 
 int Parallel::zoneMode = 0;
 int Parallel::mode = 0;
@@ -104,13 +104,13 @@ void Parallel::TestSayHelloFromEveryProcess()
     int serverid = Parallel::GetServerid();
     ONEFLOW::StrIO.ClearAll();
     ONEFLOW::StrIO << "Hello from process " << pid << " name = " << ONEFLOW::HXGetProcessorName();
-    string cs = ONEFLOW::StrIO.str();
-    //cout << cs << "\n";
+    std::string cs = ONEFLOW::StrIO.str();
+    //std::cout << cs << "\n";
 
     Parallel::CollectString( cs, serverid, Parallel::GetDefaultTag() );
 }
 
-void Parallel::CollectString( string & cs, int rootId, int tag )
+void Parallel::CollectString( std::string & cs, int rootId, int tag )
 {
     if ( Parallel::GetPid() != rootId )
     {
@@ -213,7 +213,7 @@ void HXSwapData( DataBook * dataBook, int spid, int rpid, int tag )
     }
 }
 
-void HXBcastString( string & cs, int pid )
+void HXBcastString( std::string & cs, int pid )
 {
     int nlen = -1;
     if ( pid == Parallel::pid )

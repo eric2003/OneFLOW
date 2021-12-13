@@ -25,25 +25,25 @@ License
 #include "HXDefine.h"
 #include "HXMath.h"
 #include <vector>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 
 template < typename T >
-T SUM( vector< T > & a );
+T SUM( std::vector< T > & a );
 
 template < typename T >
-T MaxField( vector< T > & field );
+T MaxField( std::vector< T > & field );
 
 template < typename T >
-T MinField( vector< T > & field );
+T MinField( std::vector< T > & field );
 
 template < typename T >
-inline T SUM( vector< T > & a )
+inline T SUM( std::vector< T > & a )
 {
     T sum = 0;
     int nElements = a.size();
-    for ( UInt iElement = 0; iElement < nElements; ++ iElement )
+    for ( HXSize_t iElement = 0; iElement < nElements; ++ iElement )
     {
         sum += a[ iElement ];
     }
@@ -51,12 +51,12 @@ inline T SUM( vector< T > & a )
 }
 
 template < typename T >
-inline T MaxField( vector< T > & field )
+inline T MaxField( std::vector< T > & field )
 {
     T maxValue = field[ 0 ];
 
-    UInt nElements = field.size();
-    for ( UInt iElement = 1; iElement < nElements; ++ iElement )
+    HXSize_t nElements = field.size();
+    for ( HXSize_t iElement = 1; iElement < nElements; ++ iElement )
     {
         maxValue = ONEFLOW::MAX( maxValue, field[ iElement ] );
     }
@@ -64,12 +64,12 @@ inline T MaxField( vector< T > & field )
 }
 
 template < typename T >
-inline T MinField( vector< T > & field )
+inline T MinField( std::vector< T > & field )
 {
     T minValue = field[ 0 ];
 
-    UInt nElements = field.size();
-    for ( UInt iElement = 1; iElement < nElements; ++ iElement )
+    HXSize_t nElements = field.size();
+    for ( HXSize_t iElement = 1; iElement < nElements; ++ iElement )
     {
         minValue = ONEFLOW::MIN( minValue, field[ iElement ] );
     }

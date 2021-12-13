@@ -42,7 +42,7 @@ void RegisterSolverVarMap( int sTid )
 void RegisterSolverTask( SolverRegData * regData )
 {
     int sTid = regData->sTid;
-    string &solverName = regData->solverName;
+    std::string &solverName = regData->solverName;
     VoidFunc func = regData->func;
     int baseKind = regData->baseKind;
     int dataFlag = regData->dataFlag;
@@ -58,7 +58,7 @@ void RegisterSolverTask( SolverRegData * regData )
     RegisterSolverFunc( sTid, solverName, func );
 }
 
-void RegisterSolverFunc( int sTid, const string & solverName, VoidFunc func )
+void RegisterSolverFunc( int sTid, const std::string & solverName, VoidFunc func )
 {
     func();
     MRegister * mRegister = RegisterFactory::GetMRegister( sTid );
@@ -74,7 +74,7 @@ void FreeSolverTask()
     SolverInfoFactory::Free();
 }
 
-void SetSolverFileNames( MRegister * mRegister, const string & solverName )
+void SetSolverFileNames( MRegister * mRegister, const std::string & solverName )
 {
     StringField fileNameList;
     ONEFLOW::GetSolverFileNames( solverName, fileNameList );

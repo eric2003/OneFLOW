@@ -20,6 +20,7 @@ License
 
 \*---------------------------------------------------------------------------*/
 #pragma once
+#include "HXType.h"
 #include "HXVector.h"
 
 BeginNameSpace( ONEFLOW )
@@ -32,10 +33,10 @@ public:
     {
     }
 
-    Marray( UInt nEqu, int numberOfCells )
+    Marray( HXSize_t nEqu, int numberOfCells )
     {
         data.resize( nEqu );
-        for ( UInt iEqu = 0; iEqu < nEqu; ++ iEqu )
+        for ( HXSize_t iEqu = 0; iEqu < nEqu; ++ iEqu )
         {
             data[ iEqu ].resize( numberOfCells );
         }
@@ -46,7 +47,7 @@ public:
 protected:
     HXVector< HXVector< T > > data;
 public:
-    UInt GetNEqu() { return data.size(); }
+    HXSize_t GetNEqu() { return data.size(); }
 
     HXVector< T > & operator[]( int iEqu )
     {
@@ -60,8 +61,8 @@ public:
 
     Marray< T > & operator = ( const T & value )
     {
-        UInt nEqu = this->GetNEqu();
-        for ( UInt iEqu = 0; iEqu < nEqu; ++ iEqu )
+        HXSize_t nEqu = this->GetNEqu();
+        for ( HXSize_t iEqu = 0; iEqu < nEqu; ++ iEqu )
         {
             data[ iEqu ] = value;
         }

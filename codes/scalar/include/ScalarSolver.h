@@ -24,7 +24,7 @@ License
 #pragma once
 #include "Configure.h"
 #include <vector>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 
@@ -39,11 +39,11 @@ public:
     ~ScalarZoneTmp();
 public:
     void Init( int ist, int ied );
-    void InitField( vector< double > & uGlobal );
+    void InitField( std::vector< double > & uGlobal );
     void Solve( double coef );
     void UpdateUN();
-    void GatherField( vector< double > & ugfield );
-    void CompareField( vector< double > & uGlobal );
+    void GatherField( std::vector< double > & ugfield );
+    void CompareField( std::vector< double > & uGlobal );
     void SetBc( int bcL, int bcR );
     double GetRightBcValue();
     void SetLeftBcValue( double lv );
@@ -51,12 +51,12 @@ public:
     int zoneid;
     int ist, ied;
     int nNodes;
-    vector< double > u;
-    vector< double > un;
-    vector< double > x;
+    std::vector< double > u;
+    std::vector< double > un;
+    std::vector< double > x;
 
-    vector< int > bcPointList;
-    vector< int > bcTypeList;
+    std::vector< int > bcPointList;
+    std::vector< int > bcTypeList;
 };
 
 class ScalarPara;
@@ -106,14 +106,14 @@ public:
     double dt;
     double c;
 
-    vector< double > u;
-    vector< double > un;
-    vector< double > x;
-    vector< ScalarZoneTmp * > scalarZones;
+    std::vector< double > u;
+    std::vector< double > un;
+    std::vector< double > x;
+    std::vector< ScalarZoneTmp * > scalarZones;
     ScalarGrid * scalarGrid;
 public:
-    vector< double > du, dua;
-    vector< double > utheory;
+    std::vector< double > du, dua;
+    std::vector< double > utheory;
     double l1Norm, l2Norm;
 };
 

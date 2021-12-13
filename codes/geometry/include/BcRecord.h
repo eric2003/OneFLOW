@@ -26,7 +26,6 @@ License
 #include <vector>
 #include <string>
 #include <map>
-using namespace std;
 
 BeginNameSpace( ONEFLOW )
 
@@ -43,7 +42,7 @@ public:
     LinkField bcNameId;
     IntField bcType;
 public:
-    UInt GetNBcRegion() { return bcType.size(); }
+    HXSize_t GetNBcRegion() { return bcType.size(); }
 };
 
 class BcRecord
@@ -56,7 +55,7 @@ public:
     IntField bcNameId;
     BcInfo * bcInfo;
 public:
-    void Init( UInt nBFaces );
+    void Init( HXSize_t nBFaces );
     int GetNBFace();
     int CalcNIFace();
     int CalcNumWallFace();
@@ -140,7 +139,7 @@ public:
 public:
     int rid;                         //region id
     int bcType;                      //boundary type
-    string regionName;               //boundary name
+    std::string regionName;               //boundary name
 public:
     BasicRegion * s;
     BasicRegion * t;

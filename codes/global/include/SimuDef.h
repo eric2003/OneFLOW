@@ -20,8 +20,9 @@ License
 
 \*---------------------------------------------------------------------------*/
 #pragma once
+#include "Configure.h"
 #include <map>
-#include "HXDefine.h"
+#include <string>
 
 BeginNameSpace( ONEFLOW )
 
@@ -38,7 +39,7 @@ enum class TaskEnum
     POST_TASK = 7
 };
 
-const map<string, TaskEnum> TaskFilter = 
+const std::map<std::string, TaskEnum> TaskFilter = 
 {
     {"Solve",TaskEnum::SOLVE_FIELD},
     {"Grid",TaskEnum::CREATE_GRID},
@@ -58,7 +59,7 @@ public:
     SimuState();
     virtual ~SimuState();
 public:
-    //According to the database parameters, set the corresponding value of simutask
+    //According to the database parameters, std::set the corresponding value of simutask
     void Init();
     //Returns the type of task to execute
     TaskEnum Task() const;

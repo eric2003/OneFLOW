@@ -25,7 +25,7 @@ License
 #include "Configure.h"
 #include "HXDefine.h"
 #include <iostream>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 
@@ -35,8 +35,8 @@ public:
     FileState();
     ~FileState();
 public:
-    static string fileName;
-    static ios_base::openmode openMode;
+    static std::string fileName;
+    static std::ios_base::openmode openMode;
 };
 
 EndNameSpace

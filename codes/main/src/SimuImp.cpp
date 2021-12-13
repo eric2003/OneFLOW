@@ -22,7 +22,6 @@ License
 #include "SimuImp.h"
 #include "SimuDef.h"
 #include "SimpleSimu.h"
-#include "SimuCtrl.h"
 #include "System.h"
 #include "FieldSimu.h"
 #include "MultiBlock.h"
@@ -34,32 +33,18 @@ License
 #include "Theory.h"
 #include "PostProcess.h"
 #include <iostream>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 
 SimuImp::SimuImp( std::vector<std::string> &args )
 {
     this->args = args;
-    this->ProcessCmdLineArgs( args );
+    Prj::ProcessCmdLineArgs( args );
 }
 
 SimuImp::~SimuImp()
 {
-}
-
-void SimuImp::ProcessCmdLineArgs( std::vector<std::string> &args )
-{
-    this->args = args;
-    string choise = args[ 1 ];
-    string prjName = args[ 2 ];
-    if ( choise == "d" )
-    {
-        SimuCtrl::hx_debug = true;
-        SimuCtrl::run_from_ide = true;
-    }
-    SimuCtrl::Init();
-    PrjStatus::SetPrjBaseDir( prjName );
 }
 
 void SimuImp::Run()
@@ -126,7 +111,7 @@ void SimuImp::RunSimu()
             break;
         default:
         {
-            cerr << "unknown simutask value!!" << endl;
+            std::cerr << "unknown simutask value!!" << std::endl;
             exit(EXIT_FAILURE);
         }
         break;
@@ -135,7 +120,7 @@ void SimuImp::RunSimu()
 
 void SimuImp::InitSimu()
 {
-    cout << " OneFLOW is running\n";
+    std::cout << " OneFLOW is running\n";
     ONEFLOW::SetUpParallelEnvironment();
     ONEFLOW::ReadControlInfo();
 }

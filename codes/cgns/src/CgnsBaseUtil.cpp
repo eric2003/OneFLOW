@@ -29,7 +29,7 @@ License
 #include "CgnsFamilyBc.h"
 #include "GridMediator.h"
 #include <iostream>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 
@@ -37,12 +37,12 @@ BeginNameSpace( ONEFLOW )
 
 void ReadAllCgnsZones( CgnsBase * myCgnsBase, CgnsBase * cgnsBaseIn )
 {
-    cout << "** Reading CGNS Grid In Base " << myCgnsBase->baseId << "\n";
-    cout << "   numberOfCgnsZones       = " << myCgnsBase->nZones << "\n\n";
+    std::cout << "** Reading CGNS Grid In Base " << myCgnsBase->baseId << "\n";
+    std::cout << "   numberOfCgnsZones       = " << myCgnsBase->nZones << "\n\n";
 
     for ( int iZone = 0; iZone < myCgnsBase->nZones; ++ iZone )
     {
-        cout << "==>iZone = " << iZone << " numberOfCgnsZones = " << myCgnsBase->nZones << "\n";
+        std::cout << "==>iZone = " << iZone << " numberOfCgnsZones = " << myCgnsBase->nZones << "\n";
         CgnsZone * cgnsZone = myCgnsBase->GetCgnsZone( iZone );
         CgnsZone * cgnsZoneIn = cgnsBaseIn->GetCgnsZone( iZone );
         ONEFLOW::ReadCgnsGrid( cgnsZone, cgnsZoneIn );
@@ -67,7 +67,7 @@ void DumpBase( CgnsBase * myCgnsBase, GridMediator * gridMediator )
 
     myCgnsBase->DumpCgnsBaseBasicInfo();
 
-    cout << " nZones = " << myCgnsBase->nZones << "\n";
+    std::cout << " nZones = " << myCgnsBase->nZones << "\n";
 
     for ( int iZone = 0; iZone < myCgnsBase->nZones; ++ iZone )
     {
@@ -81,7 +81,7 @@ void PrepareCgnsZone( CgnsBase * myCgnsBase, GridMediator * gridMediator )
 {
     GlobalGrid::SetCurrentGridMediator( gridMediator );
 
-    cout << " nZones = " << myCgnsBase->nZones << "\n";
+    std::cout << " nZones = " << myCgnsBase->nZones << "\n";
 
     for ( int iZone = 0; iZone < myCgnsBase->nZones; ++ iZone )
     {

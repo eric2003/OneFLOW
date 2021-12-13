@@ -22,7 +22,7 @@ along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 #pragma once
 #include "HXDefine.h"
 #include <string>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 class Test

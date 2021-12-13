@@ -26,7 +26,7 @@ License
 #include "DataBaseIO.h"
 #include <string>
 #include <vector>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 
@@ -36,7 +36,7 @@ void HXBcast( DataBook * dataBook, int rootid );
 void HXBcast( DATA_COMPRESS dataCompression, DATA_DECOMPRESS dataDecompression, int rootid );
 
 template< typename T >
-void HXReadBcast( fstream & file, T * field, int nElement, int pid );
+void HXReadBcast( std::fstream & file, T * field, int nElement, int pid );
 
 template< typename T >
 void HXBcast( T * field, int nElement, int pid );
@@ -57,7 +57,7 @@ public:
     static void TestSayHelloFromEveryProcess();
     static void SetDefaultTag( int defaultTagIn );
     static int GetDefaultTag();
-    static void CollectString( string & cs, int rootId, int tag );
+    static void CollectString( std::string & cs, int rootId, int tag );
     static bool IsServer();
     static int GetFid();
     static void GetSrPid( int zid, int & sPid, int & rPid );
@@ -72,7 +72,7 @@ protected:
 };
 
 template< typename T >
-void HXReadBcast( fstream & file, T * field, int nElement, int pid )
+void HXReadBcast( std::fstream & file, T * field, int nElement, int pid )
 {
     if ( nElement <= 0 ) return;
 
@@ -98,7 +98,7 @@ void HXBcast( T * field, int nElement, int pid )
 #endif
 }
 
-void HXBcastString( string & cs, int pid );
+void HXBcastString( std::string & cs, int pid );
 
 template< typename T >
 void HXSwapData( T * field, int nElement, int spid, int rpid, int tag = 0 )

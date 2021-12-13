@@ -30,7 +30,7 @@ License
 #include <algorithm>
 #include <fstream>
 #include <iostream>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 
@@ -50,7 +50,7 @@ void PointDebug::GetPoint( int index, Real & x, Real & y, Real & z )
 
 WallVisual::WallVisual()
 {
-    faceSet = new set< HXSort< IntField > >();
+    faceSet = new std::set< HXSort< IntField > >();
 }
 
 WallVisual::~WallVisual()
@@ -120,16 +120,16 @@ void WallVisual::BuildFaceTopo( IntField & faceNodeIndexArray, int loc_Face, int
     HXSort< IntField > faceForSorting;
     faceForSorting.value = faceNodeIndexArraySort;
 
-    set< HXSort< IntField > >::iterator iter = faceSet->find( faceForSorting );
+    std::set< HXSort< IntField > >::iterator iter = faceSet->find( faceForSorting );
     if ( iter == faceSet->end() )
     {
-        UInt oldFaceNumber = faceSet->size();
+        HXSize_t oldFaceNumber = faceSet->size();
         faceForSorting.index = oldFaceNumber;
 
         faceSet->insert( faceForSorting );
 
-        UInt fId = oldFaceNumber;
-        UInt newFaceNumber = fId + 1;
+        HXSize_t fId = oldFaceNumber;
+        HXSize_t newFaceNumber = fId + 1;
         lCell.resize( newFaceNumber );
         rCell.resize( newFaceNumber );
         lPos.resize( newFaceNumber );
@@ -183,11 +183,11 @@ void WallVisual::ConstructTopology2D()
 
 void WallVisual::ConstructTopology3D()
 {
-    UInt nCells = this->eLink.size();
+    HXSize_t nCells = this->eLink.size();
 
     HXSort< IntField > faceForSorting;
 
-    for ( UInt iCell = 0; iCell < nCells; ++ iCell )
+    for ( HXSize_t iCell = 0; iCell < nCells; ++ iCell )
     {
         IntField & element = this->eLink[ iCell ];
 
@@ -237,7 +237,7 @@ void WallVisual::ConstructTopology()
     }
 }
 
-void WallVisual::Visual( fstream & file, StringField & titleOfTecplot, RealField2D & qNodeField )
+void WallVisual::Visual( std::fstream & file, StringField & titleOfTecplot, RealField2D & qNodeField )
 {
     if ( Dim::dimension == TWO_D )
     {
@@ -249,10 +249,10 @@ void WallVisual::Visual( fstream & file, StringField & titleOfTecplot, RealField
     }
 }
 
-void WallVisual::Visual3D( fstream & file, StringField & titleOfTecplot, RealField2D & qNodeField )
+void WallVisual::Visual3D( std::fstream & file, StringField & titleOfTecplot, RealField2D & qNodeField )
 {
-    ostringstream oss;
-    for ( UInt i = 0; i < titleOfTecplot.size(); ++ i )
+    std::ostringstream oss;
+    for ( HXSize_t i = 0; i < titleOfTecplot.size(); ++ i )
     {
         oss << titleOfTecplot[ i ] << "\n";
     }
@@ -278,9 +278,9 @@ void WallVisual::Visual3D( fstream & file, StringField & titleOfTecplot, RealFie
     Plot::DumpField( yN );
     Plot::DumpField( zN );
 
-    UInt nEqu = qNodeField.size();
+    HXSize_t nEqu = qNodeField.size();
 
-    for ( UInt iEqu = 0; iEqu < nEqu; ++ iEqu )
+    for ( HXSize_t iEqu = 0; iEqu < nEqu; ++ iEqu )
     {
         Plot::DumpField( qNodeField[ iEqu ] );
     }
@@ -292,10 +292,10 @@ void WallVisual::Visual3D( fstream & file, StringField & titleOfTecplot, RealFie
     file << oss.str();
 }
 
-void WallVisual::VisualLine( fstream & file, StringField & titleOfTecplot, RealField2D & qNodeField )
+void WallVisual::VisualLine( std::fstream & file, StringField & titleOfTecplot, RealField2D & qNodeField )
 {
-    ostringstream oss;
-    for ( UInt i = 0; i < titleOfTecplot.size(); ++ i )
+    std::ostringstream oss;
+    for ( HXSize_t i = 0; i < titleOfTecplot.size(); ++ i )
     {
         oss << titleOfTecplot[ i ] << "\n";
     }

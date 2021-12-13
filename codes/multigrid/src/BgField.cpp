@@ -29,7 +29,6 @@ License
 #include "SolverMap.h"
 #include "FieldWrap.h"
 #include <iostream>
-using namespace std;
 
 BeginNameSpace( ONEFLOW )
 BasicBgField::BasicBgField()

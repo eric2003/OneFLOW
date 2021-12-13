@@ -25,7 +25,7 @@ License
 #include "Configure.h"
 #include "HXType.h"
 #include <vector>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 

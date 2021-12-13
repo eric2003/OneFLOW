@@ -38,7 +38,7 @@ License
 #include "HXMath.h"
 #include "DataStorage.h"
 #include <algorithm>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 
@@ -123,7 +123,7 @@ void SlipFace::InitNeighborZoneInfo( int iNei, int iZone )
     slipfacePair->zid = this->zoneid;
     slipfacePair->nzid = iZone;
 
-    this->z2n.insert( pair< int, int >( iZone, iNei ) );
+    this->z2n.insert( std::pair< int, int >( iZone, iNei ) );
 
     this->FillRecvId( iNei );
 }

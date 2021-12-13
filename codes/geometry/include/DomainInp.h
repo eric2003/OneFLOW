@@ -26,7 +26,7 @@ License
 #include <vector>
 #include <string>
 #include <fstream>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 
@@ -97,7 +97,7 @@ public:
     ~PBlkSet();
 public:
     IntField id;
-    HXVector< set< PBlk *, ComparePBlk > * > pinfo;
+    HXVector< std::set< PBlk *, ComparePBlk > * > pinfo;
 public:
     void ReSize( int nSize );
     void Add( int idx, PBlk * pblk );
@@ -105,7 +105,7 @@ public:
     void CalcDomainPatch( int nZone, MultiDomain & md );
     void CalcDomainPatch( int iZone, int jZone, MultiDomain & md );
     bool CrossDomain( int iZone, int idomain, int jZone, int jdomain, PatchBox & box_i, PatchBox & box_j );
-    bool BlkDomainInSet( int zoneid, int idomain, set< PBlk *, ComparePBlk > * pset, PBlk *& pblk );
+    bool BlkDomainInSet( int zoneid, int idomain, std::set< PBlk *, ComparePBlk > * pset, PBlk *& pblk );
     bool CheckPBlkList( HXVector< PBlk * > & pblk_list, PatchBox & box );
 
 };
@@ -159,7 +159,7 @@ public:
     void CalcDomainPatch( int nZone, GridMediator * gridMediator );
     void CalcDomainPatch( int iZone, int jZone, GridMediator * gridMediator );
     void GetId( int zid, int i, int j, int k, int & id, GridMediator * gridMediator, PointSearch * pointSearch );
-    void DumpCoor( int zid, int i, int j, int k, GridMediator * gridMediator, fstream & file );
+    void DumpCoor( int zid, int i, int j, int k, GridMediator * gridMediator, std::fstream & file );
     void Dump( MultiDomain * md, GridMediator * gridMediator, PointSearch * pointSearch );
     void FindPhysicalPatch( StrGrid * grid, MultiDomain * md, int zid, IjkBox * ijkBox );
 };

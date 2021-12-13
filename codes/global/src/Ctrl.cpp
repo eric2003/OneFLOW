@@ -51,7 +51,7 @@ void Ctrl::Init()
     this->inflowType = GetDataValue< int >( "inflowType" );
     this->ireadwdst = GetDataValue< int >( "ireadwdst" );
     this->showfield = GetDataValue< int >( "showfield" );
-    this->heatfluxFile = GetDataValue< string >( "heatfluxFile" );
+    this->heatfluxFile = GetDataValue< std::string >( "heatfluxFile" );
     this->addVisualizationSteps = GetDataValue< int >( "addVisualizationSteps" );
     
     
@@ -87,7 +87,7 @@ void Ctrl::Init()
     nrokplus = 0;
 }
 
-void CopyArray( RealField & arr, const string & name )
+void CopyArray( RealField & arr, const std::string & name )
 {
     int nElem = arr.size();
     Real * tmp = GetDataPointer< Real >( name );
@@ -110,7 +110,7 @@ VisModel::~VisModel()
 void VisModel::Init()
 {
     vismodel = GetDataValue< int >( "vismodel" );
-    visname  = GetDataValue< string >( "visname" );
+    visname  = GetDataValue< std::string >( "visname" );
 }
 
 EndNameSpace

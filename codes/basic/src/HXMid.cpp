@@ -20,7 +20,7 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "Mid.h"
+#include "HXMid.h"
 
 BeginNameSpace( ONEFLOW )
 

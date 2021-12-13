@@ -21,8 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "CommentLine.h"
-#include <iostream>
-using namespace std;
+#include <string>
 
 BeginNameSpace( ONEFLOW )
 
@@ -36,12 +35,12 @@ CommentLine::~CommentLine()
     ;
 }
 
-void CommentLine::AddString(const string& cs)
+void CommentLine::AddString( const std::string& cs )
 {
     this->commentdata.push_back(cs);
 }
 
-void CommentLine::ResetCommentString(StringField& commentStringList)
+void CommentLine::ResetCommentString( StringField& commentStringList )
 {
     this->commentdata = commentStringList;
 }

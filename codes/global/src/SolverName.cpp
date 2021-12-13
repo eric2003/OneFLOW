@@ -20,7 +20,7 @@ License
 
 \*---------------------------------------------------------------------------*/
 #include "SolverName.h"
-#include "SimuCtrl.h"
+#include "Prj.h"
 #include "OStream.h"
 #include "FileIO.h"
 #include "StrUtil.h"
@@ -28,27 +28,27 @@ License
 BeginNameSpace( ONEFLOW )
 
 
-void GetSolverFileNames( const string & solverName, StringField & fileNameList )
+void GetSolverFileNames( const std::string & solverName, StringField & fileNameList )
 {
     //\t is the tab key
-    string separator = " =\r\n\t#$,;\"()";
+    std::string separator = " =\r\n\t#$,;\"()";
 
     OStream ostr;
     ostr.ClearAll();
-    ostr << SimuCtrl::system_root << solverName << "/function/";
-    string baseDir = ostr.str();
+    ostr << Prj::system_root << solverName << "/function/";
+    std::string baseDir = ostr.str();
     ostr << "fileList.txt";
-    string keyFileName = ostr.str();
+    std::string keyFileName = ostr.str();
 
     FileIO ioFile;
-    ioFile.OpenFile( keyFileName, ios_base::in );
+    ioFile.OpenFile( keyFileName, std::ios_base::in );
     ioFile.SetDefaultSeparator( separator );
 
     while ( ! ioFile.ReachTheEndOfFile()  )
     {
         bool flag = ioFile.ReadNextNonEmptyLine();
         if ( ! flag ) break;
-        string fileName = ioFile.ReadNextWord();
+        std::string fileName = ioFile.ReadNextWord();
 
         fileName = AddString( baseDir, fileName );
 

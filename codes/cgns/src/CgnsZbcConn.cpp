@@ -38,7 +38,7 @@ License
 #include "BcRecord.h"
 #include <iostream>
 
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 #ifdef ENABLE_CGNS
@@ -80,7 +80,7 @@ void CgnsZbcConn::CreateCgnsZbc()
 
 void CgnsZbcConn::PrintZnconn()
 {
-    cout << "   nConn        = " << this->nConn << endl;
+    std::cout << "   nConn        = " << this->nConn << std::endl;
 }
 
 void CgnsZbcConn::ReadZnconn( int nConn )

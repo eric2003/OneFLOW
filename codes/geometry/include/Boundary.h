@@ -26,7 +26,7 @@ License
 #include <string>
 #include <map>
 #include <set>
-using namespace std;
+
 BeginNameSpace( ONEFLOW )
 
 class BC
@@ -70,8 +70,8 @@ public:
     ~BcTypeMap();
 private:
     int numberOfMaxBoundaryConditions;
-    map< int, int > cgns2OneFlow;
-    map< int, int > oneFlow2Cgns;
+    std::map< int, int > cgns2OneFlow;
+    std::map< int, int > oneFlow2Cgns;
 public:
     void Init();
     int OneFlow2Cgns( int oneflow_bctype );
@@ -88,10 +88,10 @@ protected:
 public:
     void AddName( const std::string & name );
     int  FindNameId( const std::string & name );
-    set< HXSort< std::string > > & GetNameMap() { return stringMap; }
+    std::set< HXSort< std::string > > & GetNameMap() { return stringMap; }
 };
 
-void DumpRegion( const string & fileName, CommonNameMap & nameMap );
+void DumpRegion( const std::string & fileName, CommonNameMap & nameMap );
 
 class RegionNameMap
 {

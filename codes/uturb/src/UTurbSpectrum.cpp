@@ -41,7 +41,7 @@ License
 #include "Ctrl.h"
 #include "NsIdx.h"
 #include <iostream>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 
@@ -59,8 +59,8 @@ void UTurbSpectrum::ReadTmp()
     static int iii = 0;
     if ( iii ) return;
     iii = 1;
-    fstream file;
-    file.open( "turbflowsrc.dat", ios_base::in | ios_base::binary );
+    std::fstream file;
+    file.open( "turbflowsrc.dat", std::ios_base::in | std::ios_base::binary );
     if ( ! file ) exit( 0 );
 
     uturbf.Init();
@@ -99,7 +99,7 @@ void UTurbSpectrum::ReadTmp()
         file.read( reinterpret_cast< char * >( & ( * uturbf.vist )[ 0 ][ cId ] ), sizeof( double ) );
     }
 
-    vector< Real > tmp1( ug.nTCell ), tmp2( ug.nTCell );
+    std::vector< Real > tmp1( ug.nTCell ), tmp2( ug.nTCell );
 
        for ( int cId = 0; cId < ug.nTCell; ++ cId )
     {

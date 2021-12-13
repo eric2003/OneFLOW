@@ -34,7 +34,7 @@ License
 #include "HXMath.h"
 #include "UNsLusgs.h"
 #include <iostream>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 

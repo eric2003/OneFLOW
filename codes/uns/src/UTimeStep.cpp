@@ -38,7 +38,7 @@ License
 #include "FieldBase.h"
 #include "Iteration.h"
 #include <iostream>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 
@@ -124,8 +124,8 @@ void UTimeStep::ReadTmp()
     static int iii = 0;
     if ( iii ) return;
     iii = 1;
-    fstream file;
-    file.open( "nsflow.dat", ios_base::in | ios_base::binary );
+    std::fstream file;
+    file.open( "nsflow.dat", std::ios_base::in | std::ios_base::binary );
     if ( ! file ) exit( 0 );
 
     unsf.Init();
@@ -148,7 +148,7 @@ void UTimeStep::ReadTmp()
         file.read( reinterpret_cast< char * >( & ( * unsf.vist )[ 0 ][ cId ] ), sizeof( double ) );
     }
 
-    vector< Real > tmp1( ug.nTCell ), tmp2( ug.nTCell );
+    std::vector< Real > tmp1( ug.nTCell ), tmp2( ug.nTCell );
 
     for ( int cId = 0; cId < ug.nTCell; ++ cId )
     {

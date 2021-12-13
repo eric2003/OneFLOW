@@ -80,7 +80,7 @@ public:
 public:
     void AddFacePoint( int nSolidCell, FaceJoint::PointLink & ptLink );
     void AddFaceCenterValue( int nSolidCell, RealField & fcvIn );
-    void Visual( fstream & file );
+    void Visual( std::fstream & file );
 };
 
 EndNameSpace

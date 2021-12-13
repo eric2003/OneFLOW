@@ -39,13 +39,13 @@ CgnsGlobal::~CgnsGlobal()
     ;
 }
 
-CgnsZone * CgnsGlobal::GetCgnsZoneByName( const string & zoneName )
+CgnsZone * CgnsGlobal::GetCgnsZoneByName( const std::string & zoneName )
 {
     CgnsBase * cgnsBase = cgnsbases->baseVector[ 0 ];
     return cgnsBase->GetCgnsZoneByName( zoneName );
 }
 
-CgnsZone * GetCgnsZoneByName( const string & zoneName )
+CgnsZone * GetCgnsZoneByName( const std::string & zoneName )
 {
     return cgns_global.GetCgnsZoneByName( zoneName );
 }

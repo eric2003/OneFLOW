@@ -35,17 +35,13 @@ License
 #include "myopenacc.h"
 #endif
 
+#include "HybridParallel.h"
 #include "jacobi.h"
-
 #include <stdio.h>
 #include <iostream>
-using namespace std;
-
-#include "HybridParallel.h"
 
 #include <iostream>
 #include <algorithm>
-using namespace std;
 
 BeginNameSpace( ONEFLOW )
 

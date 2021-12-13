@@ -21,26 +21,26 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "ParaFile.h"
-#include "FileUtil.h"
 #include "DataBase.h"
 #include "Parallel.h"
 #include "LogFile.h"
 #include "OStream.h"
 #include "Stop.h"
 #include "Prj.h"
+#include "FileUtil.h"
 #include "PIO.h"
 #include "json/json.h"
 #include <iostream>
 #include <string>
 #include <vector>
 #include <map>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 
-bool IsArrayParameter( const string & lineOfName )
+bool IsArrayParameter( const std::string & lineOfName )
 {
-    const string::size_type npos = - 1;
+    const std::string::size_type npos = - 1;
 
     if ( lineOfName.find_first_of( "[" ) == npos )
     {
@@ -60,7 +60,7 @@ void ReadOneFLOWScriptFile( FileIO & fileIO )
     //string name, word;
 
     //\t is the tab key
-    string keyWordSeparator = " =\r\n\t#$,;\"";
+    std::string keyWordSeparator = " =\r\n\t#$,;\"";
 
     fileIO.SetDefaultSeparator( keyWordSeparator );
 
@@ -71,7 +71,7 @@ void ReadOneFLOWScriptFile( FileIO & fileIO )
         bool resultFlag = fileIO.ReadNextMeaningfulLine();
         if ( ! resultFlag ) break;
 
-        string keyWord = fileIO.ReadNextWord();
+        std::string keyWord = fileIO.ReadNextWord();
 
         if ( keyWord == "" ) continue;
 
@@ -91,21 +91,21 @@ void ReadOneFLOWScriptFile( FileIO & fileIO )
 
 void AnalysisArrayParameter( FileIO & fileIO, int keyWordIndex )
 {
-    string errorMessage = "error in parameter file";
-    string commSeparator = "=\r\n\t#$,;\"";
+    std::string errorMessage = "error in parameter file";
+    std::string commSeparator = "=\r\n\t#$,;\"";
 
-    string ayrrayInfo = fileIO.ReadNextWord( commSeparator );
+    std::string ayrrayInfo = fileIO.ReadNextWord( commSeparator );
 
     //Array pattern
-    string arraySeparator = " =\r\n\t#$,;\"[]";
-    string arrayName, arraySizeName;
+    std::string arraySeparator = " =\r\n\t#$,;\"[]";
+    std::string arrayName, arraySizeName;
 
     arrayName = Word::FindNextWord( ayrrayInfo, arraySeparator );
     arraySizeName = Word::FindNextWord( ayrrayInfo, arraySeparator );
 
     int arraySize = ONEFLOW::GetParameterArraySize( arraySizeName );
 
-    string * valueContainer = new string[ arraySize ];
+    std::string * valueContainer = new std::string[ arraySize ];
 
     for ( int i = 0; i < arraySize; ++ i )
     {
@@ -128,13 +128,13 @@ void AnalysisArrayParameter( FileIO & fileIO, int keyWordIndex )
 
 int AnalysisScalarParameter( FileIO & fileIO, int keyWordIndex )
 {
-    string errorMessage = "error in parameter file";
-    string separator = " =\r\n\t#$,;\"";  //\t is tab key
+    std::string errorMessage = "error in parameter file";
+    std::string separator = " =\r\n\t#$,;\"";  //\t is tab key
 
-    string name = fileIO.ReadNextWord( separator );
+    std::string name = fileIO.ReadNextWord( separator );
 
     int arraySize = 1;
-    string * value = new string[ arraySize ];
+    std::string * value = new std::string[ arraySize ];
 
     value[ 0 ] = fileIO.ReadNextWord( separator );
 
@@ -145,7 +145,7 @@ int AnalysisScalarParameter( FileIO & fileIO, int keyWordIndex )
     return arraySize;
 }
 
-int GetParameterArraySize( const string & word )
+int GetParameterArraySize( const std::string & word )
 {
     int arraySize = - 1;
     if ( Word::IsDigit( word ) )
@@ -159,11 +159,11 @@ int GetParameterArraySize( const string & word )
     return arraySize;
 }
 
-void ReadOneFLOWScriptFile( const string & fileName )
+void ReadOneFLOWScriptFile( const std::string & fileName )
 {
     FileIO fileIO;
 
-    fileIO.OpenFile( fileName, ios_base::in );
+    fileIO.OpenFile( fileName, std::ios_base::in );
 
     ONEFLOW::ReadOneFLOWScriptFile( fileIO );
 
@@ -172,30 +172,30 @@ void ReadOneFLOWScriptFile( const string & fileName )
 
 void mytestjson();
 
-string GetJsonFileName( const string & fileName )
+std::string GetJsonFileName( const std::string & fileName )
 {
-    string mainName, extensionName;
+    std::string mainName, extensionName;
     ONEFLOW::GetFileNameExtension( fileName, mainName, extensionName, "." );
-    string newExtensionName = "json";
+    std::string newExtensionName = "json";
 
     ONEFLOW::StrIO.ClearAll();
     ONEFLOW::StrIO << mainName << "." << newExtensionName;
 
-    string newFileName = ONEFLOW::StrIO.str();
+    std::string newFileName = ONEFLOW::StrIO.str();
     return newFileName;
 }
 
-//void ReadOneFLOWScriptFile( const string & fileName )
+//void ReadOneFLOWScriptFile( const std::string & fileName )
 //{
-//    string jsonFileName = GetJsonFileName( fileName );
+//    std::string jsonFileName = GetJsonFileName( fileName );
 //
 //    FileIO fileIO;
-//    fileIO.OpenFile( fileName, ios_base::in );
+//    fileIO.OpenFile( fileName, std::ios_base::in );
 //
 //    //string name, word;
 //
 //    //\t is the tab key
-//    string keyWordSeparator = " =\r\n\t#$,;\"";
+//    std::string keyWordSeparator = " =\r\n\t#$,;\"";
 //
 //    fileIO.SetDefaultSeparator( keyWordSeparator );
 
@@ -208,15 +208,15 @@ string GetJsonFileName( const string & fileName )
 //        bool resultFlag = fileIO.ReadNextMeaningfulLine();
 //        if ( ! resultFlag ) break;
 //
-//        string keyWord = fileIO.ReadNextWord();
+//        std::string keyWord = fileIO.ReadNextWord();
 //
 //        if ( keyWord == "" ) continue;
 //
 //        int keyWordIndex = DataBaseType::GetIndex( keyWord );
 //
 //        Json::Value jsonItem;
-//        string varName;
-//        vector< string > varArray;
+//        std::string varName;
+//        std::vector< std::string > varArray;
 //        GetParaInfo( fileIO, varName, varArray );
 //        jsonItem[ "type" ] = keyWord;
 //        jsonItem[ "value" ] = varArray[0];
@@ -226,9 +226,9 @@ string GetJsonFileName( const string & fileName )
 //        ONEFLOW::ProcessData( varName, &varArray[0], keyWordIndex, varArray.size() );
 //    }
 //
-//    //cout << jsonRoot.toStyledString() << endl;
+//    //std::cout << jsonRoot.toStyledString() << std::endl;
 //
-//    //ofstream ofs;
+//    //std::ofstream ofs;
 //    //ofs.open( jsonFileName.c_str() );
 //    //ofs << jsonRoot.toStyledString();
 //    //ofs.close();
@@ -236,7 +236,7 @@ string GetJsonFileName( const string & fileName )
 //    fileIO.CloseFile();
 //}
 
-void GetParaInfo( FileIO & fileIO, string & varName, vector< string > & varArray )
+void GetParaInfo( FileIO & fileIO, std::string & varName, std::vector< std::string > & varArray )
 {
     if ( ONEFLOW::IsArrayParameter( fileIO.GetCurrentLine() ) )
     {
@@ -248,10 +248,10 @@ void GetParaInfo( FileIO & fileIO, string & varName, vector< string > & varArray
     }
 }
 
-void GetParaInfoScalar( FileIO & fileIO, string & varName, vector< string > & varArray )
+void GetParaInfoScalar( FileIO & fileIO, std::string & varName, std::vector< std::string > & varArray )
 {
-    string errorMessage = "error in parameter file";
-    string separator = " =\r\n\t#$,;\"";  //\t is tab key
+    std::string errorMessage = "error in parameter file";
+    std::string separator = " =\r\n\t#$,;\"";  //\t is tab key
 
     varName = fileIO.ReadNextWord( separator );
 
@@ -261,16 +261,16 @@ void GetParaInfoScalar( FileIO & fileIO, string & varName, vector< string > & va
     varArray[ 0 ] = fileIO.ReadNextWord( separator );
 }
 
-void GetParaInfoArray( FileIO & fileIO, string & varName, vector< string > & varArray )
+void GetParaInfoArray( FileIO & fileIO, std::string & varName, std::vector< std::string > & varArray )
 {
-    string errorMessage = "error in parameter file";
-    string commSeparator = "=\r\n\t#$,;\"";
+    std::string errorMessage = "error in parameter file";
+    std::string commSeparator = "=\r\n\t#$,;\"";
 
-    string ayrrayInfo = fileIO.ReadNextWord( commSeparator );
+    std::string ayrrayInfo = fileIO.ReadNextWord( commSeparator );
 
     //Array pattern
-    string arraySeparator = " =\r\n\t#$,;\"[]";
-    string arrayName, arraySizeName;
+    std::string arraySeparator = " =\r\n\t#$,;\"[]";
+    std::string arrayName, arraySizeName;
 
     arrayName = Word::FindNextWord( ayrrayInfo, arraySeparator );
     arraySizeName = Word::FindNextWord( ayrrayInfo, arraySeparator );
@@ -301,7 +301,7 @@ void mytestjson()
 
 void ReadControlInfo()
 {
-    HXBcastString( PrjStatus::prjBaseDir, Parallel::serverid );
+    HXBcastString( Prj::prjBaseDir, Parallel::serverid );
 
     if ( Parallel::IsServer() )
     {
@@ -316,38 +316,38 @@ void ReadControlInfo()
 void DumpDataBase()
 {
     DataBase * dataBase = ONEFLOW::GetGlobalDataBase();
-    fstream file;
-    string fileName = "/log/database.log";
-    PIO::ParallelOpenPrj( file, fileName, ios_base::out );
+    std::fstream file;
+    std::string fileName = "/log/database.log";
+    PIO::OpenPrjFile( file, fileName, std::ios_base::out );
     dataBase->dataPara->DumpData( file );
-    PIO::Close( file );
+    PIO::CloseFile( file );
 }
 
 void ReadPrjScript()
 {
-    vector< string > scriptFileNameList;
+    std::vector< std::string > scriptFileNameList;
     ONEFLOW::ReadScriptFileNameList( scriptFileNameList );
     ONEFLOW::ReadMultiScriptFiles( scriptFileNameList );
 }
 
-void ReadScriptFileNameList( vector< string > & scriptFileNameList )
+void ReadScriptFileNameList( std::vector< std::string > & scriptFileNameList )
 {
     FileIO ioFile;
 
-    ioFile.OpenPrjFile( "script/control.txt", ios_base::in );
+    ioFile.OpenPrjFile( "script/control.txt", std::ios_base::in );
 
     //\t is Tab Key
-    string keyWordSeparator = " ()\r\n\t#$,;\"";
+    std::string keyWordSeparator = " ()\r\n\t#$,;\"";
     ioFile.SetDefaultSeparator( keyWordSeparator );
 
     while ( ! ioFile.ReachTheEndOfFile()  )
     {
         bool flag = ioFile.ReadNextNonEmptyLine();
         if ( ! flag ) break;
-        string scriptFileName = ioFile.ReadNextWord();
+        std::string scriptFileName = ioFile.ReadNextWord();
         ONEFLOW::StrIO.ClearAll();
-        ONEFLOW::StrIO << PrjStatus::prjBaseDir << "script/" << scriptFileName;
-        string fullScriptFileName = ONEFLOW::StrIO.str();
+        ONEFLOW::StrIO << Prj::prjBaseDir << "script/" << scriptFileName;
+        std::string fullScriptFileName = ONEFLOW::StrIO.str();
         scriptFileNameList.push_back( fullScriptFileName );
     }
 
@@ -355,13 +355,13 @@ void ReadScriptFileNameList( vector< string > & scriptFileNameList )
 
 }
 
-void ReadMultiScriptFiles( vector< string > & scriptFileNameList )
+void ReadMultiScriptFiles( std::vector< std::string > & scriptFileNameList )
 {
     int numberOfParameterFiles = scriptFileNameList.size();
 
     for ( int iFile = 0; iFile < numberOfParameterFiles; ++ iFile )
     {
-        string & scriptFileName = scriptFileNameList[ iFile ];
+        std::string & scriptFileName = scriptFileNameList[ iFile ];
 
         ONEFLOW::ReadOneFLOWScriptFile( scriptFileName );
     }

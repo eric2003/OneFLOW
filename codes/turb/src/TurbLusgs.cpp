@@ -28,7 +28,7 @@ License
 #include "Parallel.h"
 #include "UCom.h"
 #include <iostream>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 
@@ -78,7 +78,7 @@ void TurbLusgs::DumpSweepInformation()
     int pid = ONEFLOW::Parallel::GetPid();
     if ( pid == ONEFLOW::Parallel::GetServerid() )
     {
-        cout << "Turb residual reduced by " << turblu.dmax << " with " << turblu.numberOfRealSweeps << " Sweeps\n";
+        std::cout << "Turb residual reduced by " << turblu.dmax << " with " << turblu.numberOfRealSweeps << " Sweeps\n";
     }
 }
 
@@ -101,7 +101,7 @@ void TurbLusgs::AddFluxIncrement()
     //{
     //    for ( int iEqu = 0; iEqu < turbcom.nEqu; ++ iEqu )
     //    {
-    //        cout << " add " << turblu.rhs0[ iEqu ] << " " << turblu.dfj[ iEqu ] << "\n";
+    //        std::cout << " add " << turblu.rhs0[ iEqu ] << " " << turblu.dfj[ iEqu ] << "\n";
     //    }
     //}
     

@@ -39,7 +39,7 @@ License
 #include "Boundary.h"
 #include <algorithm>
 #include <iomanip>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 
@@ -72,10 +72,10 @@ LamVelCut::~LamVelCut()
 
 void LamVelCut::Dump()
 {
-    string velocityFile = "results/flatplateflow.dat";
+    std::string velocityFile = "results/flatplateflow.dat";
 
-    fstream file;
-    PIO::ParallelOpenPrj( file, velocityFile, ios_base::out );
+    std::fstream file;
+    PIO::OpenPrjFile( file, velocityFile, std::ios_base::out );
     StringField title;
     title.push_back( "title=\"THE FLOW FIELD OF ONEFLOW\"" );
     title.push_back( "variables=" );
@@ -83,9 +83,9 @@ void LamVelCut::Dump()
     title.push_back( "\"u/U\"" );
     title.push_back( "\"v/U * sqrt( 2 * Rex )\"" );
 
-    for ( UInt i = 0; i < title.size(); ++ i )
+    for ( HXSize_t i = 0; i < title.size(); ++ i )
     {
-        file << title[ i ] << endl;
+        file << title[ i ] << std::endl;
     }
 
     int nSlice = sliceData.size();
@@ -95,10 +95,10 @@ void LamVelCut::Dump()
         this->Dump( lamData, file, sliceInfo.dir2[ i ] );
     }
 
-    PIO::Close( file );
+    PIO::CloseFile( file );
 }
 
-void LamVelCut::Dump( LamData * lamData, fstream & file, int axis )
+void LamVelCut::Dump( LamData * lamData, std::fstream & file, int axis )
 {
     int nNodes = lamData->GetNNode();
 
@@ -135,10 +135,10 @@ void LamVelCut::Dump( LamData * lamData, fstream & file, int axis )
         Real ut = um;
         Real vt = vm * sqrt( 2 * nscom.reynolds * vel_inf * xm / ( vis / rm ) );
 
-        file << setiosflags( ios::left );
-        file << setiosflags( ios::scientific );
-        file << setprecision( 10 );
-        file << setw( wordWidth ) << et << setw( wordWidth ) << ut << setw( wordWidth ) << vt << endl;
+        file << std::setiosflags( std::ios::left );
+        file << std::setiosflags( std::ios::scientific );
+        file << std::setprecision( 10 );
+        file << std::setw( wordWidth ) << et << std::setw( wordWidth ) << ut << std::setw( wordWidth ) << vt << std::endl;
     }
 }
 
@@ -156,19 +156,19 @@ LamFriCut::~LamFriCut()
 
 void LamFriCut::Dump()
 {
-    string frictionFile = "results/flatplate_cf.dat";
+    std::string frictionFile = "results/flatplate_cf.dat";
 
-    fstream file;
-    PIO::ParallelOpenPrj( file, frictionFile, ios_base::out );
+    std::fstream file;
+    PIO::OpenPrjFile( file, frictionFile, std::ios_base::out );
     StringField title;
     title.push_back( "title=\"THE FLOW FIELD OF ONEFLOW\"" );
     title.push_back( "variables=" );
     title.push_back( "\"x\"" );
     title.push_back( "\"cf\"" );
 
-    for ( UInt i = 0; i < title.size(); ++ i )
+    for ( HXSize_t i = 0; i < title.size(); ++ i )
     {
-        file << title[ i ] << endl;
+        file << title[ i ] << std::endl;
     }
 
     int nSlice = sliceData.size();
@@ -178,10 +178,10 @@ void LamFriCut::Dump()
         this->Dump( lamData, file, sliceInfo.dir2[ i ] );
     }
 
-    PIO::Close( file );
+    PIO::CloseFile( file );
 }
 
-void LamFriCut::Dump( LamData * lamData, fstream & file, int axis )
+void LamFriCut::Dump( LamData * lamData, std::fstream & file, int axis )
 {
     int nNodes = lamData->GetNNode();
 
@@ -218,10 +218,10 @@ void LamFriCut::Dump( LamData * lamData, fstream & file, int axis )
         Real xf = xm;
         Real cf = 2 * vis * dudy / nscom.reynolds;
 
-        file << setiosflags( ios::left );
-        file << setiosflags( ios::scientific );
-        file << setprecision( 10 );
-        file << setw( wordWidth ) << xf << setw( wordWidth ) << cf << endl;
+        file << std::setiosflags( std::ios::left );
+        file << std::setiosflags( std::ios::scientific );
+        file << std::setprecision( 10 );
+        file << std::setw( wordWidth ) << xf << std::setw( wordWidth ) << cf << std::endl;
     }
 }
 

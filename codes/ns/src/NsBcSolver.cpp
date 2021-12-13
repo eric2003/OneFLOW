@@ -32,7 +32,7 @@ License
 #include "Boundary.h"
 #include "Iteration.h"
 #include <iostream>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 
@@ -103,7 +103,7 @@ void NsBcSolver::SetBc()
     }
     else
     {
-        cout << "Error : Illegal BCtype ID " << ug.bctype << endl;
+        std::cout << "Error : Illegal BCtype ID " << ug.bctype << std::endl;
         Stop("");
     }
 }

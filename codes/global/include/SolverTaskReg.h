@@ -28,12 +28,12 @@ class SolverRegData;
 
 void RegisterSolverTask( SolverRegData * regData );
 void RegisterSolverVarMap( int sTid );
-void RegisterSolverFunc( int sTid, const string & solverName, VoidFunc func );
+void RegisterSolverFunc( int sTid, const std::string & solverName, VoidFunc func );
 
 void FreeSolverTask();
 
 class MRegister;
-void SetSolverFileNames( MRegister * mRegister, const string & solverName );
+void SetSolverFileNames( MRegister * mRegister, const std::string & solverName );
 
 
 EndNameSpace

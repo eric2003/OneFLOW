@@ -24,7 +24,7 @@ License
 #include "Ctrl.h"
 #include "HXMath.h"
 #include <iostream>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 
@@ -174,7 +174,7 @@ void UsdBasic::InitCoef()
     }
     else
     {
-        cout << " Error !!!!! linearTwoStepMethods = " << linearTwoStepMethods << endl;
+        std::cout << " Error !!!!! linearTwoStepMethods = " << linearTwoStepMethods << std::endl;
     }
 
     coeff[ 0 ] = thet;

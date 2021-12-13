@@ -49,8 +49,8 @@ void BlotterCurve::Init( int nSpecies )
 
 void BlotterCurve::Read( FileIO * ioFile )
 {
-    string word;
-    string separator = " =\r\n#$,;\"'";
+    std::string word;
+    std::string separator = " =\r\n#$,;\"'";
 
     ioFile->SetDefaultSeparator( separator );
 

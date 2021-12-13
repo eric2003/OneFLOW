@@ -24,7 +24,6 @@ License
 #include "CgnsBase.h"
 #include <iostream>
 #include <iomanip>
-using namespace std;
 
 BeginNameSpace( ONEFLOW )
 
@@ -40,7 +39,7 @@ CgnsVector::~CgnsVector()
 
 void CgnsVector::Create()
 {
-    cout << " CgnsVector::Create()\n";
+    std::cout << " CgnsVector::Create()\n";
     int nSize = dims[ 0 ];
     for ( int i = 1; i < ndim; ++ i )
     {
@@ -48,7 +47,7 @@ void CgnsVector::Create()
     }
 
     this->data = new VEC_DATA[ nSize ];
-    cout << " nSize = " << nSize << "\n";
+    std::cout << " nSize = " << nSize << "\n";
 }
 
 void CgnsVector::ReadArray()
@@ -63,13 +62,13 @@ void CgnsVector::ReadArrayInfo( int arrayId )
     this->arrayId = arrayId;
     cg_array_info( arrayId, name, &dataType, & this->ndim, this->dims );
 
-    cout << " iArray = " << arrayId << " arrayName = " << name << "\n";
-    cout << " ndim = " << ndim << " dims = ";
+    std::cout << " iArray = " << arrayId << " arrayName = " << name << "\n";
+    std::cout << " ndim = " << ndim << " dims = ";
     for ( int i = 0; i < ndim; ++ i )
     {
-        cout << dims[ i ] << " ";
+        std::cout << dims[ i ] << " ";
     }
-    cout << "\n";
+    std::cout << "\n";
 }
 
 void CgnsVector::ReadArrayContent()
@@ -86,9 +85,9 @@ void CgnsVector::PrintData()
         int n = dims[ i ];
         for ( int j = 0; j < n; ++ j )
         {
-            cout << this->data[ icount ++ ] << " ";
+            std::cout << this->data[ icount ++ ] << " ";
         }
-        cout << "\n";
+        std::cout << "\n";
     }
 }
 
@@ -125,7 +124,7 @@ void CgnsUserData::ReadUserData()
     int nUserData = -1;
     cg_nuser_data( & nUserData );
 
-    cout << " nUserData = " << nUserData << "\n";
+    std::cout << " nUserData = " << nUserData << "\n";
 
     for ( int iData = 0; iData < nUserData; ++ iData )
     {
@@ -135,7 +134,7 @@ void CgnsUserData::ReadUserData()
         char name[ 33 ];
         cg_user_data_read( iDataId, name );
 
-        cout << " iData = " << iData << " user data name = " << name << "\n";
+        std::cout << " iData = " << iData << " user data name = " << name << "\n";
 
         cgnsBase->GoToNode( "UserDefinedData_t", iDataId );
 
@@ -149,7 +148,7 @@ void CgnsZVector::ReadArray()
 {
     int nArrays = -1;
     cg_narrays( & nArrays );
-    cout << " narrays = " << nArrays << "\n";
+    std::cout << " narrays = " << nArrays << "\n";
     this->ReadArray( nArrays );
 }
 

@@ -69,7 +69,7 @@ Solution Poisson::operator*(class Solution vector)
 				data = A[col];
 				tmp[i-1][j] += data * vector(b,j);
 				result.setEntry(tmp[i-1][j],i-1,j);
-				/*cout << tmp[a-1][j] << endl;*/
+				/*cout << tmp[a-1][j] << std::endl;*/
 			}
 		}
 	}

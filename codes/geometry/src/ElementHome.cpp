@@ -50,7 +50,7 @@ void ElementHome::Initialize()
 
     ONEFLOW::CreatePointer( unitElement, numberOfUnitElement );
 
-    for ( UInt iUnitElement = 0; iUnitElement < numberOfUnitElement; ++ iUnitElement )
+    for ( HXSize_t iUnitElement = 0; iUnitElement < numberOfUnitElement; ++ iUnitElement )
     {
         unitElement[ iUnitElement ]->Initialize( iUnitElement );
     }

@@ -32,7 +32,7 @@ License
 #include "Cylinder.h"
 #include "CgnsTest.h"
 #include <iostream>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 

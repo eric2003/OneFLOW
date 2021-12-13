@@ -21,11 +21,11 @@ along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 \*---------------------------------------------------------------------------*/
 #include "Test.h"
 #include "FileIO.h"
-#include "FileUtil.h"
+
 #include "Prj.h"
 #include <iostream>
 #include <fstream>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 
@@ -44,8 +44,8 @@ void Test::Run()
     int ni = 101;
     Real xlen = 2.0;
     Real dx = xlen / ( ni - 1 );
-    fstream file;
-    OpenPrjFile( file, "/test/vencat.dat", ios_base::out );
+    std::fstream file;
+    Prj::OpenPrjFile( file, "/test/vencat.dat", std::ios_base::out );
     StringField title;
     title.push_back( "title=\"THE FLOW FIELD OF ONEFLOW\"" );
     title.push_back( "variables=" );
@@ -53,26 +53,26 @@ void Test::Run()
     title.push_back( "\"vencat\"" );
     title.push_back( "\"gvencat\"" );
 
-    for ( UInt i = 0; i < title.size(); ++ i )
+    for ( HXSize_t i = 0; i < title.size(); ++ i )
     {
-        file << title[ i ] << endl;
+        file << title[ i ] << std::endl;
     }
     int nj = 10;
     for ( int j = 0; j < nj; ++ j )
     {
         Real c = 2.0 + j;
-        file << " zone  i = " << ni << endl;
+        file << " zone  i = " << ni << std::endl;
         for ( int i = 0; i < ni; ++ i )
         {
             Real x = i * dx;
             Real f = VencatC( x, c );
             Real g = f * x;
-            //cout << x << " " << f << endl;
-            file << x << " " << f << " " << g << endl;
+            //std::cout << x << " " << f << std::endl;
+            file << x << " " << f << " " << g << std::endl;
         }
     }
 
-    CloseFile( file );
+    Prj::CloseFile( file );
 }
 
 Real Test::Vencat( Real x )

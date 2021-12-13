@@ -25,7 +25,6 @@ License
 #include "HXDefine.h"
 #include "HXCgns.h"
 #include <string>
-using namespace std;
 
 BeginNameSpace( ONEFLOW )
 
@@ -51,8 +50,8 @@ public:
     PointSetType_t donorPointSetType;
     DataType_t     donorDataType;
 
-    string connName;
-    string donorZoneName;
+    std::string connName;
+    std::string donorZoneName;
 
     CgnsZone * cgnsZone;
     int bcId;

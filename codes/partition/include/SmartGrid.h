@@ -25,7 +25,7 @@ License
 #include "HXDefine.h"
 #include "PointFactory.h"
 #include <map>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 
@@ -36,12 +36,12 @@ public:
     ~PointAction();
 public:
     typedef Point< Real > PointType;
-    typedef map< PointType , int, PointCompare< Real > > PointMap;
+    typedef std::map< PointType , int, PointCompare< Real > > PointMap;
 public:
     PointMap pointMap;
     HXVector< PointType > pointList;
 public:
-    UInt GetNPoint() { return pointList.size(); }
+    HXSize_t GetNPoint() { return pointList.size(); }
     int AddPoint( Real xm, Real ym, Real zm );
     int DeletePoint( Real xm, Real ym, Real zm );
     int DeletePoint( PointAction::PointType & point );
@@ -59,8 +59,8 @@ public:
     Ids();
     ~Ids();
 public:
-    vector< int > ids;
-    vector< int > sorted_ids;
+    std::vector< int > ids;
+    std::vector< int > sorted_ids;
     int type;
 };
 
@@ -76,14 +76,14 @@ public:
     IdTool() ;
     ~IdTool();
 public:
-   typedef map< Ids, int, CompareIds > IDSMap;
+   typedef std::map< Ids, int, CompareIds > IDSMap;
    IDSMap ids_map;
-   vector< Ids > ids_list;
+   std::vector< Ids > ids_list;
    Ids vint;
 public:
     bool NotFind( IDSMap::iterator & iter );
-    IDSMap::iterator FindIds( const vector< int > & ids, int type );
-    int AddIds( vector< int > & ids, int type );
+    IDSMap::iterator FindIds( const std::vector< int > & ids, int type );
+    int AddIds( std::vector< int > & ids, int type );
     int AddData();
     void ModifyDataIndex( const Ids &var, int new_id );
 };
@@ -97,25 +97,25 @@ public:
     ~TopoSort();
 public:
     IdTool faceIdTool;
-    vector< int > real_face;
+    std::vector< int > real_face;
 public:
-    vector< int > lc, rc;
-    vector< int > lc_pos, rc_pos;
-    vector< int > fTypes;
-    vector< int > fBcTypes;
-    vector< int > bcTypes;
+    std::vector< int > lc, rc;
+    std::vector< int > lc_pos, rc_pos;
+    std::vector< int > fTypes;
+    std::vector< int > fBcTypes;
+    std::vector< int > bcTypes;
     int nCells;
 public:
-    void GetElementFace( UnitElement * unitElement, vector< int > & element, int facePos, vector< int > & face, int & faceType );
-    void AddSingleFace( UnitElement * unitElement, vector< int > & element, int facePos, int  iCell );
+    void GetElementFace( UnitElement * unitElement, std::vector< int > & element, int facePos, std::vector< int > & face, int & faceType );
+    void AddSingleFace( UnitElement * unitElement, std::vector< int > & element, int facePos, int  iCell );
     void ModifyFace( int face_id, int iCell, int face_pos );
     void AddNewFace( int iCell, int face_pos, int faceType );
-    void AddElementFaces( vector< int > & element, int eType, int iCell );
+    void AddElementFaces( std::vector< int > & element, int eType, int iCell );
 public:
     void ReorderFaces();
-    void CalcOrderMap( vector<int > & orderMap );
-    void ReOrder( vector< int > & varList, vector< int > & orderMap );
-    void ReOrderMapdata( IdTool & faceIdTool, vector< int > & orderMap );
+    void CalcOrderMap( std::vector<int > & orderMap );
+    void ReOrder( std::vector< int > & varList, std::vector< int > & orderMap );
+    void ReOrderMapdata( IdTool & faceIdTool, std::vector< int > & orderMap );
     void TopoPostprocess();
 public:
     void ScanBcFace();
@@ -132,7 +132,7 @@ public:
 public:
     void CalcTopology();
 public:
-    typedef map< Ids, int, CompareIds > PointMap;
+    typedef std::map< Ids, int, CompareIds > PointMap;
 public:
     IdTool elementIdTool;
 public:
@@ -145,7 +145,7 @@ public:
 //    MyBcRegion();
 //    ~MyBcRegion();
 //public:
-//    string name;
+//    std::string name;
 //
 //};
 //
@@ -156,7 +156,7 @@ public:
 //    BcAction();
 //    ~BcAction();
 //public:
-//    void CreatBCRegion( const string "LeftOutFlow", ONEFLOW::BCOutflow );
+//    void CreatBCRegion( const std::string "LeftOutFlow", ONEFLOW::BCOutflow );
 //};
 
 
@@ -179,7 +179,7 @@ public:
     void CalcTopology();
     void TopoPostprocess();
     void ReorderFaces();
-    void CalcOrderMap( vector< int > & orderMap );
+    void CalcOrderMap( std::vector< int > & orderMap );
 };
 
 

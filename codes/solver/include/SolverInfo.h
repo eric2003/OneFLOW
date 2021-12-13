@@ -24,7 +24,7 @@ License
 #pragma once
 #include "HXDefine.h"
 #include <map>
-using namespace std;
+
 BeginNameSpace( ONEFLOW )
 
 class SolverInfo
@@ -39,8 +39,8 @@ public:
     int numberOfImplicitSweeps;
     StringField gradString;
     StringField implicitString;
-    string residualName;
-    string resFileName;
+    std::string residualName;
+    std::string resFileName;
     Real residual;
     Real conver;
 public:
@@ -57,7 +57,7 @@ public:
     SolverInfoFactory();
     ~SolverInfoFactory();
 public:
-    static map< int, SolverInfo * > * data;
+    static std::map< int, SolverInfo * > * data;
 public:
     static void Init();
     static void Free();

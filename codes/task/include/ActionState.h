@@ -20,10 +20,9 @@ along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 
 \*---------------------------------------------------------------------------*/
 #pragma once
-#include "HXDefine.h"
+#include "Configure.h"
 #include <fstream>
 #include <string>
-using namespace std;
 
 BeginNameSpace( ONEFLOW )
 
@@ -36,9 +35,9 @@ public:
     ~ActionState();
 public:
     static DataBook * dataBook;
-    static fstream * file;
-    static string fileName;
-    static ios_base::openmode openMode;
+    static std::fstream * file;
+    static std::string fileName;
+    static std::ios_base::openmode openMode;
 };
 
 EndNameSpace

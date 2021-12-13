@@ -92,7 +92,7 @@ void SolveMRhs::BGMRES()
 
 #define SOLUTION
 #ifdef SOLUTION
-	/*ofstream file("solution.txt", ios::app);
+	/*ofstream file("solution.txt", std::ios::app);
 	int lupe;
 	int innerlupe;
 	for (lupe = 0; lupe < Rank.RANKNUMBER; ++lupe)
@@ -100,10 +100,10 @@ void SolveMRhs::BGMRES()
 		for (innerlupe = 0; innerlupe < Rank.COLNUMBER; ++innerlupe)
 		{
 			file << lupe << "," << (*x)(lupe, innerlupe)
-				<< endl;
+				<< std::endl;
 		}
 	}
-	file << time << endl;
+	file << time << std::endl;
 	file.close();*/
 	
 #endif

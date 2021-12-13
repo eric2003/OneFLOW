@@ -26,7 +26,7 @@ License
 #include <list>
 #include <string>
 #include <map>
-using namespace std;
+
 
 BeginNameSpace( ONEFLOW )
 
@@ -39,10 +39,10 @@ public:
 public:
     IntField iminList, imaxList, jminList, jmaxList, kminList, kmaxList, bcTypeList;
 public:
-    map< string, int > boundaryMap;
+    std::map< std::string, int > boundaryMap;
 public:
     void ConstructBcMap();
-    int GetBcType( const string & bcTypeName );
+    int GetBcType( const std::string & bcTypeName );
 public:
     void PushBc( int imin, int imax, int jmin, int jmax, int kmin, int kmax, int bcType );
     void SetBcRegion( StrGrid * grid );

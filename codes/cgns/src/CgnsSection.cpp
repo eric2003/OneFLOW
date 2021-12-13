@@ -32,7 +32,6 @@ License
 #include "LogFile.h"
 
 #include <iostream>
-using namespace std;
 
 BeginNameSpace( ONEFLOW )
 #ifdef ENABLE_CGNS
@@ -52,11 +51,11 @@ CgnsSection::~CgnsSection()
 
 void CgnsSection::ConvertToInnerDataStandard()
 {
-    //cout << "++++++++++++++++++++++++++++++++++++++++\n";
-    //cout << "++++++++++++++++++++++++++++++++++++++++\n";
-    //cout << "ConvertToInnerDataStandard\n";
-    //cout << "++++++++++++++++++++++++++++++++++++++++\n";
-    //cout << "++++++++++++++++++++++++++++++++++++++++\n";
+    //std::cout << "++++++++++++++++++++++++++++++++++++++++\n";
+    //std::cout << "++++++++++++++++++++++++++++++++++++++++\n";
+    //std::cout << "ConvertToInnerDataStandard\n";
+    //std::cout << "++++++++++++++++++++++++++++++++++++++++\n";
+    //std::cout << "++++++++++++++++++++++++++++++++++++++++\n";
     this->startId -= 1;
     this->endId   -= 1;
 
@@ -135,7 +134,7 @@ void CgnsSection::DumpCgnsSection()
 
 }
 
-void CgnsSection::SetSectionInfo( const string & sectionName, int elemType, int startId, int endId )
+void CgnsSection::SetSectionInfo( const std::string & sectionName, int elemType, int startId, int endId )
 {
     this->sectionName = sectionName;
     this->eType = elemType;
@@ -156,9 +155,9 @@ void CgnsSection::ReadCgnsSectionInfo()
 
     this->sectionName = cgnsSectionName;
 
-    cout << "   Section Name = " << cgnsSectionName << "\n";
-    cout << "   Section Type = " << ElementTypeName[ elementType ] << "\n";
-    cout << "   startId, endId = " << this->startId << " " << this->endId << "\n";
+    std::cout << "   Section Name = " << cgnsSectionName << "\n";
+    std::cout << "   Section Type = " << ElementTypeName[ elementType ] << "\n";
+    std::cout << "   startId, endId = " << this->startId << " " << this->endId << "\n";
     this->eType = elementType;
 
     if ( IsMixedSection() )
@@ -171,10 +170,10 @@ void CgnsSection::ReadCgnsSectionInfo()
 
 void CgnsSection::DumpCgnsSectionInfo()
 {
-    cout << "   Section Name = " << sectionName << "\n";
-    cout << "   Section Type = " << ElementTypeName[ eType ] << "\n";
-    cout << "   startId, endId = " << this->startId << " " << this->endId << "\n";
-    cout << "   nbndry, iparentflag = " << this->nbndry << " " << this->iparentflag << "\n";
+    std::cout << "   Section Name = " << sectionName << "\n";
+    std::cout << "   Section Type = " << ElementTypeName[ eType ] << "\n";
+    std::cout << "   startId, endId = " << this->startId << " " << this->endId << "\n";
+    std::cout << "   nbndry, iparentflag = " << this->nbndry << " " << this->iparentflag << "\n";
 }
 
 void CgnsSection::CreateConnList()
