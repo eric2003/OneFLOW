@@ -538,4 +538,174 @@ void MyZoneUpdateCuda(Real *q, Real *res, int nCells)
     cudaFree(dev_res);
 }
 
+void TestAdd()
+{
+    const int arraySize = 5;
+    int a[arraySize] = { 1, 2, 3, 4, 5 };
+    int b[arraySize] = { 10, 20, 30, 40, 50 };
+    int c[arraySize] = { 0 };
+
+    // Add vectors in parallel.
+    addWithCuda( a, b, c, arraySize);
+
+    printf("{1,2,3,4,5} + {10,20,30,40,50} = {%d,%d,%d,%d,%d}\n",
+        c[0], c[1], c[2], c[3], c[4]);
+
+    cudaDeviceReset();
+}
+
+void TestAddReal()
+{
+    const int arraySize = 5;
+    Real a[arraySize] = { 1.1, 2.2, 3.3, 4.4, 5.5 };
+    Real b[arraySize] = { 10, 20, 30, 40, 50 };
+    Real c[arraySize] = { 0 };
+
+    // Add vectors in parallel.
+    addRealWithCuda( a, b, c, arraySize);
+
+    printf("{1.1, 2.2, 3.3, 4.4, 5.5} + {10,20,30,40,50} = {%f,%f,%f,%f,%f}\n",
+        c[0], c[1], c[2], c[3], c[4]);
+
+    cudaDeviceReset();
+}
+
+void TestAddRealSwap()
+{
+    const int arraySize = 5;
+    Real a[arraySize] = { 1.1, 2.2, 3.3, 4.4, 5.5 };
+    Real b[arraySize] = { 10, 20, 30, 40, 50 };
+    int  id[arraySize] = { 4, 3, 2, 1, 0 };
+    Real c[arraySize] = { 0 };
+
+    // Add vectors in parallel.
+    addRealSwapWithCuda( a, b, id, c, arraySize);
+    //51.1,42.2,33.3,24.4,15.5
+    printf("{1.1, 2.2, 3.3, 4.4, 5.5} + {10,20,30,40,50} = {%f,%f,%f,%f,%f}\n",
+        c[0], c[1], c[2], c[3], c[4]);
+
+    cudaDeviceReset();
+}
+
+void TestVectorAddRealSwap()
+{
+    const int arraySize = 5;
+    std::vector<Real> a = { 1.1, 2.2, 3.3, 4.4, 5.5 };
+    std::vector<Real> b = { 10, 20, 30, 40, 50 };
+    std::vector<int>  id = { 4, 3, 2, 1, 0 };
+    std::vector<Real> c = { 0,0,0,0,0 };
+
+    // Add vectors in parallel.
+    addRealSwapWithCuda( &a[0], &b[0], &id[0], &c[0], arraySize);
+    //51.1,42.2,33.3,24.4,15.5
+    printf("TestVectorAddRealSwap {1.1, 2.2, 3.3, 4.4, 5.5} + {10,20,30,40,50} = {%f,%f,%f,%f,%f}\n",
+        c[0], c[1], c[2], c[3], c[4]);
+
+    cudaDeviceReset();
+}
+
+void TestVectorSetRealSwap()
+{
+    const int arraySize = 5;
+    std::vector<Real> a = { 1.1, 2.2, 3.3, 4.4, 5.5 };
+    std::vector<int>  id = { 4, 3, 2, 1, 0 };
+    std::vector<Real> c = { 0,0,0,0,0 };
+
+    // Add vectors in parallel.
+    setRealSwapWithCuda( &a[0], &id[0], &c[0], arraySize);
+    printf("TestVectorSetRealSwap  = {%f,%f,%f,%f,%f}\n",
+        c[0], c[1], c[2], c[3], c[4]);
+
+    cudaDeviceReset();
+}
+
+void TestVectorSetRealSwapNew()
+{
+    const int arraySize = 5;
+    std::vector<int>  id = { 4, 3, 2, 1, 0 };
+    std::vector<Real> a = { 0,0,0,0,0 };
+    std::vector<Real> b = { 1.1, 2.2, 3.3, 4.4, 5.5 };
+
+    // Add vectors in parallel.
+    setRealSwapWithCudaNew( &a[0], &b[0], &id[0], arraySize);
+    printf("TestVectorSetRealSwapNew a  = {%f,%f,%f,%f,%f}\n",
+        a[0], a[1], a[2], a[3], a[4]);
+
+    cudaDeviceReset();
+}
+
+void SetRealSwapWithCudaNewRealProblemCpu(Real *a, Real *b, int * id, unsigned int nFaces, unsigned int nCells)
+{
+    for ( int iFace = 0; iFace < nFaces; ++ iFace )
+    {
+        int j = id[ iFace ];
+
+        a[ iFace ] = b[ j ];
+    }
+}
+
+//void TestVectorSetRealSwapNewRealProblem()
+//{
+//    ScalarGrid * grid = ScalarZone::GetGrid();
+//    int nFaces = grid->GetNFaces();
+//    int nCells = grid->GetNCells();
+//
+//    //RealField & q   = GetFieldReference< MRField > ( grid, "q" ).AsOneD();
+//    //RealField & qf1 = GetFieldReference< MRField > ( grid, "qf1" ).AsOneD();
+//    //RealField & qf2 = GetFieldReference< MRField > ( grid, "qf2" ).AsOneD();
+//
+//    RealField q   = GetFieldReference< MRField > ( grid, "q" ).AsOneD();
+//    RealField qf1 = GetFieldReference< MRField > ( grid, "qf1" ).AsOneD();
+//    RealField qf2 = GetFieldReference< MRField > ( grid, "qf2" ).AsOneD();
+//
+//
+//    //std::vector<Real> qq =
+//
+//    setRealSwapWithCudaNewRealProblem( &qf1[0], &q[0], &grid->lc.data[0], nFaces, nCells );
+//    printf("TestVectorSetRealSwapNewRealProblem a  = {%f,%f,%f,%f,%f}\n",
+//        qf1[0], qf1[1], qf1[2], qf1[3], qf1[4]);
+//
+//    cudaDeviceReset();
+//
+//    SetRealSwapWithCudaNewRealProblemCpu( &qf1[0], &q[0], &grid->lc.data[0], nFaces, nCells );
+//    printf("TestVectorSetRealSwapNewRealProblem a111  = {%f,%f,%f,%f,%f}\n",
+//        qf1[0], qf1[1], qf1[2], qf1[3], qf1[4]);
+//    cudaDeviceReset();
+//
+//    std::vector<int> id(nFaces);
+//    for( int i = 0; i < nFaces; ++ i )
+//    {
+//        id[i] = i;
+//    }
+//    std::vector<Real> xx(nFaces, 0);
+//    std::vector<Real> yy(nFaces, 1);
+//    setRealSwapWithCudaNewRealProblem( &xx[0], &yy[0], &id[0], nFaces, nFaces );
+//    printf("TestVectorSetRealSwapNewRealProblem xx  = {%f,%f,%f,%f,%f}\n",
+//        xx[0], xx[1], xx[2], xx[3], xx[4]);
+//    cudaDeviceReset();
+//
+//    setRealSwapWithCudaNew( &xx[0], &yy[0], &id[0], nFaces);
+//    printf("TestVectorSetRealSwapNew xx111  = {%f,%f,%f,%f,%f}\n",
+//        xx[0], xx[1], xx[2], xx[3], xx[4]);
+//    cudaDeviceReset();
+//    TestVectorSetRealSwapNew();
+//    cudaDeviceReset();
+//    //int nnn = 6;
+//    //int nnn = 10; //ok
+//    //int nnn = 2000; //error
+//    //int nnn = 1000; 
+//    int nnn = 5000; 
+//    std::vector<int>  iddd = { 4, 3, 2, 1, 0 };
+//    std::vector<Real> a(nnn, 0);
+//    std::vector<Real> b = { 1.1, 2.2, 3.3, 4.4, 5.5 };
+//    b.resize( nnn );
+//    iddd.resize( nnn );
+//
+//    // Add vectors in parallel.
+//    setRealSwapWithCudaNew( &a[0], &b[0], &iddd[0], nnn);
+//    printf("TestVectorSetRealSwapNew a1  = {%f,%f,%f,%f,%f}\n",
+//        a[0], a[1], a[2], a[3], a[4]);
+//    int kkk = 1;
+//}
+
 EndNameSpace
