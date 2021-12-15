@@ -22,10 +22,9 @@ License
 
 #include "AAASolverCuda.h"
 #include "HXMath.h"
-#include "Constant.h"
 #ifdef ENABLE_CUDA
+#include "Constant.h"
 #include <cuda_runtime.h>
-#endif
 #include <iostream>
 
 BeginNameSpace( ONEFLOW )
@@ -709,3 +708,4 @@ void SetRealSwapWithCudaNewRealProblemCpu(Real *a, Real *b, int * id, unsigned i
 //}
 
 EndNameSpace
+#endif

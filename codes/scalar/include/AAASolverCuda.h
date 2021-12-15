@@ -22,15 +22,16 @@ License
 
 
 #pragma once
+
 #include "Configure.h"
 #include "HXType.h"
 
 BeginNameSpace( ONEFLOW )
 
+#ifdef ENABLE_CUDA
 void SetValueWithCuda(Real *aface, Real *bcell, int *id, unsigned int nFaces, unsigned int nTCells);
 void MyCalcInvFluxCuda(Real *qf1, Real *qf2, Real *invflux, Real *xfn, Real *yfn, Real *zfn, Real *area, int nFaces);
 void MyAddF2CFieldCuda(Real *fField, Real *cField, int *lc, int * rc, int nBFaces, int nFaces, int nTCells);
-//void MyZoneTimeIntergralCuda(Real *res, Real *vol, Real dt, int nCells, int nTCells);
 void MyZoneTimeIntergralCuda(Real *res, Real *vol, Real dt, int nCells);
 void MyZoneUpdateCuda(Real *q, Real *res, int nCells);
 
@@ -40,5 +41,6 @@ void addRealSwapWithCuda(Real *a, Real *b, int * id, Real *c, unsigned int nElem
 void setRealSwapWithCuda(Real *a, int * id, Real *c, unsigned int nElems);
 void setRealSwapWithCudaNew(Real *a, Real *b, int * id,  unsigned int nElems);
 void setRealSwapWithCudaNewRealProblem(Real *a, Real *b, int * id, unsigned int nFaces, unsigned int nCells);
+#endif
 
 EndNameSpace

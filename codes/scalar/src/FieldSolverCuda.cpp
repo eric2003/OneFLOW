@@ -161,61 +161,13 @@ void FieldSolverCuda::ZoneGetQLQR()
     RealField & qf2 = GetFieldReference< MRField > ( grid, "qf2" ).AsOneD();
 
 #ifdef ENABLE_CUDA
-    //TestAdd();
-    //TestAddReal();
-    //TestAddRealSwap();
-    //TestVectorAddRealSwap();
-    //TestVectorSetRealSwap();
-    //TestVectorSetRealSwapNew();
-    //TestVectorSetRealSwapNewRealProblem();
     int nBFaces = grid->GetNBFaces();
     int nCells = grid->GetNCells();
     int nTCells = nCells + nBFaces;
-    //int nTCells = nCells;
     SetValueWithCuda(&qf1[0], &q[0], &grid->lc.data[0], nFaces, nTCells);
     SetValueWithCuda(&qf2[0], &q[0], &grid->rc.data[0], nFaces, nTCells);
-    int kkk = 1;
-    //for ( int iFace = 0; iFace < nFaces; ++ iFace )
-    //{
-    //    int lc = grid->lc[ iFace ];
-    //    int rc = grid->rc[ iFace ];
-
-    //    qf1[ iFace ] = q[ lc ];
-    //    qf2[ iFace ] = q[ rc ];
-    //}
-#else
-    for ( int iFace = 0; iFace < nFaces; ++ iFace )
-    {
-        int lc = grid->lc[ iFace ];
-        int rc = grid->rc[ iFace ];
-
-        qf1[ iFace ] = q[ lc ];
-        qf2[ iFace ] = q[ rc ];
-    }
 #endif
 }
-
-//void FieldSolverCuda::ZoneGetQLQR()
-//{
-//    ScalarGrid * grid = ScalarZone::GetGrid();
-//    int nFaces = grid->GetNFaces();
-//
-//    RealField & q   = GetFieldReference< MRField > ( grid, "q" ).AsOneD();
-//    RealField & qf1 = GetFieldReference< MRField > ( grid, "qf1" ).AsOneD();
-//    RealField & qf2 = GetFieldReference< MRField > ( grid, "qf2" ).AsOneD();
-//
-//    //int nCells = grid->GetNCells();
-//    //SetValueWithCuda(&qf1[0], &q[0], &grid->lc[0], nFaces, nCells);
-//    //SetValueWithCuda(&qf2[0], &q[0], &grid->rc[0], nFaces, nCells);
-//    for ( int iFace = 0; iFace < nFaces; ++ iFace )
-//    {
-//        int lc = grid->lc[ iFace ];
-//        int rc = grid->rc[ iFace ];
-//
-//        qf1[ iFace ] = q[ lc ];
-//        qf2[ iFace ] = q[ rc ];
-//    }
-//}
 
 void FieldSolverCuda::CalcInvFlux()
 {
@@ -223,7 +175,8 @@ void FieldSolverCuda::CalcInvFlux()
     {
         if ( ! ZoneState::IsValidZone( iZone ) ) continue;
         ZoneState::zid = iZone;
-        this->ZoneCalcInvFlux();
+        //this->ZoneCalcInvFlux();
+        this->ZoneCalcInvFluxCuda();
     }
 }
 
@@ -283,8 +236,9 @@ void FieldSolverCuda::ZoneCalcInvFluxCuda()
     Real vxr = 1.0;
     Real vyr = 0.0;
     Real vzr = 0.0;
-
+#ifdef ENABLE_CUDA
     MyCalcInvFluxCuda(&qf1[0], &qf2[0], &invflux[0], &grid->xfn.data[0], &grid->yfn.data[0], &grid->zfn.data[0], &grid->area.data[0], nFaces);
+#endif
 }
 
 void FieldSolverCuda::UpdateResidual()
@@ -306,8 +260,6 @@ void FieldSolverCuda::ZoneUpdateResidual()
 
     res = 0;
     //this->AddF2CField( grid, res, invflux );
-    //RealField tmp_res = res;
-    //this->AddF2CField( grid, tmp_res, invflux );
     this->AddF2CFieldCuda( grid, res, invflux );
     int kkk = 1;
 }
@@ -339,8 +291,9 @@ void FieldSolverCuda::AddF2CFieldCuda( ScalarGrid * grid, RealField & cField, Re
     int nBFaces = grid->GetNBFaces();
     int nCells = grid->GetNCells();
     int nTCells = nCells + nBFaces;
-
+#ifdef ENABLE_CUDA
     MyAddF2CFieldCuda(&fField[0], &cField[0], &grid->lc.data[0], &grid->rc.data[0], nBFaces, nFaces, nTCells);
+#endif
 }
 
 void FieldSolverCuda::TimeIntergral()
@@ -377,8 +330,9 @@ void FieldSolverCuda::ZoneTimeIntergralCuda()
     int nCells = grid->GetNCells();
     int nBFaces = grid->GetNBFaces();
     int nTCells = nCells + nBFaces;
-    //MyZoneTimeIntergralCuda(&res[0], &grid->vol.data[0], para->dt, nCells, nTCells);
+#ifdef ENABLE_CUDA
     MyZoneTimeIntergralCuda(&res[0], &grid->vol.data[0], para->dt, nCells);
+#endif
     int kkk = 1;
 }
 
@@ -414,7 +368,9 @@ void FieldSolverCuda::ZoneUpdateCuda()
     RealField & res = GetFieldReference< MRField > ( grid, "res" ).AsOneD();
 
     int nCells = grid->GetNCells();
+#ifdef ENABLE_CUDA
     MyZoneUpdateCuda(&q[0], &res[0], nCells);
+#endif
 }
 
 
