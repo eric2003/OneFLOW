@@ -19,32 +19,41 @@ License
     along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 
 \*---------------------------------------------------------------------------*/
-#include "SimpleSimu.h"
-#include "Scalar.h"
-#include "FieldSolver.h"
-#include "FieldSolverOpenMP.h"
-#include "FieldSolverCuda.h"
-#include <iostream>
 
+
+#pragma once
+#include "FieldSolverBasic.h"
 
 BeginNameSpace( ONEFLOW )
 
-void ToyModelSimu()
+class FieldSolverCuda : public FieldSolverBasic
 {
-    std::cout << "ToyModelSimu\n";
-    //FieldSolver * fieldSolver = new FieldSolver();
-    //fieldSolver->Run();
-    //delete fieldSolver;
-
-    //FieldSolverOpenMP * fieldSolverOpenMP = new FieldSolverOpenMP();
-    //fieldSolverOpenMP->Run();
-    //delete fieldSolverOpenMP;
-
-    FieldSolverCuda * fieldSolverCuda = new FieldSolverCuda();
-    fieldSolverCuda->Run();
-    delete fieldSolverCuda;
-
-}
-
+public:
+    FieldSolverCuda();
+    ~FieldSolverCuda();
+public:
+    virtual void Run();
+public:
+    void SolveFlowField();
+    void SolveOneStep();
+    void Boundary();
+    void GetQLQR();
+    void CalcInvFlux();
+    void UpdateResidual();
+    void TimeIntergral();
+    void Update();
+public:
+    void ZoneBoundary();
+    void ZoneGetQLQR();
+    void ZoneCalcInvFlux();
+    void ZoneCalcInvFluxCuda();
+    void ZoneUpdateResidual();
+    void ZoneTimeIntergral();
+    void ZoneTimeIntergralCuda();
+    void ZoneUpdate();
+    void ZoneUpdateCuda();
+    void AddF2CField( ScalarGrid * grid, RealField & cField, RealField & fField );
+    void AddF2CFieldCuda( ScalarGrid * grid, RealField & cField, RealField & fField );
+};
 
 EndNameSpace

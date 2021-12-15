@@ -175,6 +175,9 @@ public:
     IntList lpos;
     IntList rpos;
 
+    std::vector<int> cell2faces;
+    std::vector<int> c2fpos;
+
     //global faceid
     std::vector<int> global_faceid;
 
