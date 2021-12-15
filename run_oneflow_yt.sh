@@ -1,13 +1,14 @@
 prj_dir=${PWD}
+mkdir build
 cd build
 module avail
 module purge
 module load gnu8/8.3.0
-module load nvhpc/21.9
+module load nvhpc/21.7
 module load cmake/gcc-8.3.0/3.21.1
-module load metis/nvhpc-21.9/5.1.0
-module load hdf5/nvhpc-21.9/1.8.22
-module load cgns/nvhpc-21.9/4.2.0
+module load metis/nvhpc-21.7/5.1.0
+module load hdf5/nvhpc-21.7/1.8.22
+module load cgns/nvhpc-21.7/4.2.0
 pwd
 root_dir=${PWD}
 echo "root_dir=$root_dir"
