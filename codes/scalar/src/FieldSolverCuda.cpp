@@ -36,9 +36,6 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-__global__ void SetValueKernel(Real *dev_a, Real *dev_b, int *dev_c );
-void SetValueWithCuda(Real *aface, Real *bcell, int *id, unsigned int nFaces, unsigned int nCells);
-
 FieldSolverCuda::FieldSolverCuda()
 {
 }
