@@ -29,8 +29,8 @@ License
 #include "ZoneState.h"
 #include "ScalarZone.h"
 #include "HXMath.h"
-#include "AAASolverCuda.h"
 #ifdef ENABLE_CUDA
+#include "SolverDevice.h"
 #include <cuda_runtime.h>
 #endif
 
@@ -164,8 +164,8 @@ void FieldSolverCuda::ZoneGetQLQR()
     int nBFaces = grid->GetNBFaces();
     int nCells = grid->GetNCells();
     int nTCells = nCells + nBFaces;
-    SetValueWithCuda(&qf1[0], &q[0], &grid->lc.data[0], nFaces, nTCells);
-    SetValueWithCuda(&qf2[0], &q[0], &grid->rc.data[0], nFaces, nTCells);
+    SetFaceValueCuda(&qf1[0], &q[0], &grid->lc.data[0], nFaces, nTCells);
+    SetFaceValueCuda(&qf2[0], &q[0], &grid->rc.data[0], nFaces, nTCells);
 #endif
 }
 
@@ -259,7 +259,6 @@ void FieldSolverCuda::ZoneUpdateResidual()
     RealField & invflux = GetFieldReference< MRField > ( grid, "invflux" ).AsOneD();
 
     res = 0;
-    //this->AddF2CField( grid, res, invflux );
     this->AddF2CFieldCuda( grid, res, invflux );
     int kkk = 1;
 }
@@ -302,7 +301,6 @@ void FieldSolverCuda::TimeIntergral()
     {
         if ( ! ZoneState::IsValidZone( iZone ) ) continue;
         ZoneState::zid = iZone;
-        //this->ZoneTimeIntergral();
         this->ZoneTimeIntergralCuda();
     }
 }
@@ -342,7 +340,6 @@ void FieldSolverCuda::Update()
     {
         if ( ! ZoneState::IsValidZone( iZone ) ) continue;
         ZoneState::zid = iZone;
-        //this->ZoneUpdate();
         this->ZoneUpdateCuda();
     }
 }

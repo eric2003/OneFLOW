@@ -20,7 +20,7 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "AAASolverCuda.h"
+#include "SolverDevice.h"
 #include "HXMath.h"
 #ifdef ENABLE_CUDA
 #include "Constant.h"
@@ -39,13 +39,13 @@ __global__ void SetValueKernel(Real *dev_a, Real *dev_b, int *dev_id )
     dev_a[ iface ] = dev_b[ icell ];
 }
 
-__global__ void SetValueKernelReal(Real *dev_a, Real *dev_b, int *dev_id, int nFaces, int nTCells )
+__global__ void SetFaceValueCudaDevice(Real *fField, Real *cField, int *iField, int nFaces )
 {
-    int iface = blockDim.x * blockIdx.x + threadIdx.x;
-    if ( iface < nFaces )
+    int iFace = blockDim.x * blockIdx.x + threadIdx.x;
+    if ( iFace < nFaces )
     {
-        int jcell = dev_id[ iface ];
-        dev_a[iface] = dev_b[jcell];
+        int iCell = iField[ iFace ];
+        fField[ iFace ] = cField[ iCell ];
     }
 }
 
@@ -367,36 +367,36 @@ void setRealSwapWithCudaNewRealProblem(Real *a, Real *b, int * id, unsigned int 
     cudaFree(dev_id);
 }
 
-void SetValueWithCuda(Real *aface, Real *bcell, int *id, unsigned int nFaces, unsigned int nTCells)
+void SetFaceValueCuda(Real *fField, Real *cField, int *iField, int nFaces, int nTCells)
 {
-    Real *dev_a = 0;
-    Real *dev_b = 0;
-    int *dev_id = 0;
+    Real *dev_fField = 0;
+    Real *dev_cField = 0;
+    int *dev_iField = 0;
 
     cudaSetDevice(0);
 
-    cudaMalloc((void**)&dev_a, nFaces * sizeof(Real));
-    cudaMalloc((void**)&dev_b, nTCells * sizeof(Real));
-    cudaMalloc((void**)&dev_id, nFaces * sizeof(int));
+    cudaMalloc((void**)&dev_fField, nFaces * sizeof(Real));
+    cudaMalloc((void**)&dev_cField, nTCells * sizeof(Real));
+    cudaMalloc((void**)&dev_iField, nFaces * sizeof(int));
 
-    cudaMemcpy(dev_a, aface, nFaces * sizeof(Real), cudaMemcpyHostToDevice);
-    cudaMemcpy(dev_b, bcell, nTCells * sizeof(Real), cudaMemcpyHostToDevice);
-    cudaMemcpy(dev_id, id, nFaces * sizeof(int), cudaMemcpyHostToDevice);
+    cudaMemcpy(dev_fField, fField, nFaces * sizeof(Real), cudaMemcpyHostToDevice);
+    cudaMemcpy(dev_cField, cField, nTCells * sizeof(Real), cudaMemcpyHostToDevice);
+    cudaMemcpy(dev_iField, iField, nFaces * sizeof(int), cudaMemcpyHostToDevice);
 
     int threadsPerBlock = 256;
     int blocksPerGrid = (nFaces + threadsPerBlock - 1) / threadsPerBlock;
 
     //printf("CUDA kernel launch with %d blocks of %d threads\n", blocksPerGrid, threadsPerBlock);
 
-    SetValueKernelReal<<<blocksPerGrid, threadsPerBlock>>>(dev_a, dev_b, dev_id, nFaces, nTCells );
+    SetFaceValueCudaDevice<<<blocksPerGrid, threadsPerBlock>>>(dev_fField, dev_cField, dev_iField, nFaces );
 
     cudaDeviceSynchronize();
 
-    cudaMemcpy(aface, dev_a, nFaces * sizeof(Real), cudaMemcpyDeviceToHost);
+    cudaMemcpy(fField, dev_fField, nFaces * sizeof(Real), cudaMemcpyDeviceToHost);
 
-    cudaFree(dev_a);
-    cudaFree(dev_b);
-    cudaFree(dev_id);
+    cudaFree(dev_fField);
+    cudaFree(dev_cField);
+    cudaFree(dev_iField);
 }
 
 void MyCalcInvFluxCuda(Real *qf1, Real *qf2, Real *invflux, Real *xfn, Real *yfn, Real *zfn, Real *area, int nFaces)
