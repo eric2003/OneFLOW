@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-    Copyright (C) 2017-2021 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2022 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -65,7 +65,6 @@ void CgnsBcBoco::Init()
 
 void CgnsBcBoco::ConvertToInnerDataStandard()
 {
-    //对于各种情况均成立
     for ( int eId = 0; eId < this->nElements; ++ eId )
     {
         this->connList[ eId ] -= 1;
@@ -329,7 +328,7 @@ void CgnsBcBoco::ReadCgnsBcBocoConnList()
 
     int cgnsNormalList;
 
-    // Read the element ID’s.
+    // Read the element IDs.
     cg_boco_read( fileId, baseId, zId, this->bcId, & connList[ 0 ], & cgnsNormalList );
     int kkk = 1;
 }
