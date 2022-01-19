@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-    Copyright (C) 2017-2021 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2022 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -32,10 +32,9 @@ License
 #include "Stop.h"
 #include "DataBase.h"
 #include "OStream.h"
-#include "FileUtil.h"
 #include "HXMath.h"
+#include "FileUtil.h"
 #include <iostream>
-
 
 BeginNameSpace( ONEFLOW )
 

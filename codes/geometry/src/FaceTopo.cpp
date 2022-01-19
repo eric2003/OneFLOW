@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-    Copyright (C) 2017-2021 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2022 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -46,23 +46,23 @@ FaceTopo::~FaceTopo()
     delete bcManager;
 }
 
-UInt FaceTopo::CalcTotalFaceNodes()
+HXSize_t FaceTopo::CalcTotalFaceNodes()
 {
-    UInt totalNumFaceNodes = 0;
-    UInt nFaces = this->GetNFaces();
-    for ( UInt iFace = 0; iFace < nFaces; ++ iFace )
+    HXSize_t totalNumFaceNodes = 0;
+    HXSize_t nFaces = this->GetNFaces();
+    for ( HXSize_t iFace = 0; iFace < nFaces; ++ iFace )
     {
         totalNumFaceNodes += faces[ iFace ].size();
     }
     return totalNumFaceNodes;
 }
 
-UInt FaceTopo::GetNBFaces()
+HXSize_t FaceTopo::GetNBFaces()
 {
     return this->bcManager->bcRecord->GetNBFace();
 }
 
-void FaceTopo::SetNBFaces( UInt nBFaces )
+void FaceTopo::SetNBFaces( HXSize_t nBFaces )
 {
     this->bcManager->bcRecord->Init( nBFaces );
 }

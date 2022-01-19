@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-    Copyright (C) 2017-2021 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2022 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -253,7 +253,7 @@ void HXWrite( TIO * tio, HXVector< T > & field )
 template < typename T >
 void HXWriteVector( std::fstream * file, std::vector< T > & field )
 {
-    UInt nElement = static_cast<int> (field.size());
+    HXSize_t nElement = static_cast<int> (field.size());
     HXWrite( file, & field[ 0 ], nElement );
 }
 
@@ -272,9 +272,9 @@ void HXWrite( std::fstream * file, HXVector< T > & field )
 template < typename vect2D >
 void HXReadVector2D( DataBook * dataBook, vect2D & field2D )
 {
-    UInt nElem = field2D.size();
+    HXSize_t nElem = field2D.size();
     if ( nElem == 0 ) return;
-    for ( UInt iElem = 0; iElem < nElem; ++ iElem )
+    for ( HXSize_t iElem = 0; iElem < nElem; ++ iElem )
     {
         auto & field = field2D[ iElem ];
 
@@ -301,9 +301,9 @@ void HXRead( DataBook * dataBook, HXVector< HXVector< T > > & field2D )
 template < typename vect2D >
 void HXWriteVector2D( DataBook * dataBook, vect2D & field2D )
 {
-    UInt nElem = field2D.size();
+    HXSize_t nElem = field2D.size();
     if ( nElem == 0 ) return;
-    for ( UInt iElem = 0; iElem < nElem; ++ iElem )
+    for ( HXSize_t iElem = 0; iElem < nElem; ++ iElem )
     {
         auto & field = field2D[ iElem ];
 
@@ -342,7 +342,7 @@ void HXAppend( DataBook * dataBook, T * field, int nElement )
 template < typename T >
 void HXAppendVector( DataBook * dataBook, std::vector< T > & field )
 {
-    UInt nElement = field.size();
+    HXSize_t nElement = field.size();
     if ( nElement <= 0 ) return;
     dataBook->Append( & field[ 0 ], nElement * sizeof( T ) );
 }
@@ -362,13 +362,13 @@ void HXAppend( DataBook * dataBook, HXVector< T > & field )
 template < typename vect2D >
 void HXAppendVector2D( DataBook * dataBook, vect2D & field2D )
 {
-    UInt nElem = field2D.size();
+    HXSize_t nElem = field2D.size();
     if ( nElem == 0 ) return;
-    for ( UInt iElem = 0; iElem < nElem; ++ iElem )
+    for ( HXSize_t iElem = 0; iElem < nElem; ++ iElem )
     {
         auto & field = field2D[ iElem ];
 
-        UInt nSubElem = field.size();
+        HXSize_t nSubElem = field.size();
         HXAppend( dataBook, nSubElem );
 
         HXAppend( dataBook, field );

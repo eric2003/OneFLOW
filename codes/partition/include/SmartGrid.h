@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-    Copyright (C) 2017-2021 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2022 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -41,7 +41,7 @@ public:
     PointMap pointMap;
     HXVector< PointType > pointList;
 public:
-    UInt GetNPoint() { return pointList.size(); }
+    HXSize_t GetNPoint() { return pointList.size(); }
     int AddPoint( Real xm, Real ym, Real zm );
     int DeletePoint( Real xm, Real ym, Real zm );
     int DeletePoint( PointAction::PointType & point );

@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-    Copyright (C) 2017-2021 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2022 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -24,7 +24,7 @@ License
 #pragma once
 #include "HXDefine.h"
 #include "HXCgns.h"
-#include "Mid.h"
+#include "HXMid.h"
 #include <vector>
 #include <set>
 
@@ -40,14 +40,14 @@ public:
     FaceSolver();
     ~FaceSolver();
 public:
-    std::set< Mid<int> > * refFaces;
+    std::set< HXMid<int> > * refFaces;
     IntField * faceBcKey;
     IntField * faceBcType;
     LinkField * childFid;
 public:
     FaceTopo * faceTopo;
 public:
-    int FindFace( Mid<int> & face );
+    int FindFace( HXMid<int> & face );
     bool CheckBcFace( IntSet & bcVertex, IntField & nodeId );
     void ScanElementFace( CgIntField & eNodeId, int eType, int eId );
     void ScanBcFace( IntSet & bcVertex, int bcType, int bcNameId );

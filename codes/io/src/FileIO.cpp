@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-    Copyright (C) 2017-2021 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2022 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -21,7 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "FileIO.h"
-#include "FileUtil.h"
+
 #include "Word.h"
 #include "CommentLine.h"
 #include "Prj.h"
@@ -82,19 +82,19 @@ void FileIO::OpenFile( const std::string & fileName, const std::ios_base::openmo
 {
     this->fileName     = fileName;
     this->fileOpenMode = fileOpenMode;
-    ONEFLOW::OpenFile( this->file, fileName, fileOpenMode );
+    Prj::OpenFile( this->file, fileName, fileOpenMode );
 }
 
 void FileIO::OpenPrjFile( const std::string & fileName, const std::ios_base::openmode & fileOpenMode )
 {
     this->fileName     = fileName;
     this->fileOpenMode = fileOpenMode;
-    ONEFLOW::OpenPrjFile( this->file, fileName, fileOpenMode );
+    Prj::OpenPrjFile( this->file, fileName, fileOpenMode );
 }
 
 void FileIO::CloseFile()
 {
-    ONEFLOW::CloseFile( this->file );
+    Prj::CloseFile( this->file );
 }
 
 void FileIO::MarkCurrentFilePosition()

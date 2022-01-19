@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-    Copyright (C) 2017-2021 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2022 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -69,17 +69,17 @@ void Visual::DumpTitle( std::fstream & file, Mesh * mesh )
     titleOfTecplot.push_back( "\"y\"" );
     titleOfTecplot.push_back( "\"z\"" );
 
-    for ( UInt i = 0; i < titleOfTecplot.size(); ++ i )
+    for ( HXSize_t i = 0; i < titleOfTecplot.size(); ++ i )
     {
         file << titleOfTecplot[ i ] << std::endl;
     }
 
-    UInt totalNumFaceNodes = mesh->faceMesh->CalcTotalFaceNodes();
-    UInt nFaces = mesh->faceMesh->GetNFace();
-    UInt numberOfNodes = mesh->nodeMesh->GetNumberOfNodes();
-    UInt numberOfCells = mesh->cellMesh->GetNumberOfCells();
+    HXSize_t totalNumFaceNodes = mesh->faceMesh->CalcTotalFaceNodes();
+    HXSize_t nFaces = mesh->faceMesh->GetNFace();
+    HXSize_t numberOfNodes = mesh->nodeMesh->GetNumberOfNodes();
+    HXSize_t numberOfCells = mesh->cellMesh->GetNumberOfCells();
 
-    UInt numberOfWordsInEachLine = 5;
+    HXSize_t numberOfWordsInEachLine = 5;
 
     file << "ZONE\n";
     file << "ZoneType = FEPolygon\n";
@@ -101,8 +101,8 @@ void Visual::DumpCoordinate( std::fstream & file, Mesh * mesh )
 
 void Visual::DumpCoordinate( std::fstream & file, RealField & coordinate )
 {
-    UInt numberOfNodes = coordinate.size();
-    for ( UInt iNode = 0; iNode < numberOfNodes; ++ iNode )
+    HXSize_t numberOfNodes = coordinate.size();
+    for ( HXSize_t iNode = 0; iNode < numberOfNodes; ++ iNode )
     {
         file << coordinate[ iNode ] << " ";
         if ( ( iNode + 1 ) % Visual::numberOfWords == 0 ) file << std::endl;
@@ -113,9 +113,9 @@ void Visual::DumpCoordinate( std::fstream & file, RealField & coordinate )
 
 void Visual::DumpFaceNodesLink( std::fstream & file, Mesh * mesh )
 {
-    UInt nodeCount = 0;
-    UInt nFaces = mesh->faceMesh->GetNFace();
-    for ( UInt iFace = 0; iFace < nFaces; ++ iFace )
+    HXSize_t nodeCount = 0;
+    HXSize_t nFaces = mesh->faceMesh->GetNFace();
+    for ( HXSize_t iFace = 0; iFace < nFaces; ++ iFace )
     {
         int numberOfNodesOnFace = mesh->faceMesh->faceTopo->faces[ iFace ].size();
         for ( int iNodeOfFace = 0; iNodeOfFace < numberOfNodesOnFace; ++ iNodeOfFace )
@@ -130,16 +130,16 @@ void Visual::DumpFaceNodesLink( std::fstream & file, Mesh * mesh )
 
 void Visual::DumpFaceElementLink( std::fstream & file, Mesh * mesh )
 {
-    UInt nFaces = mesh->faceMesh->GetNFace();
-    UInt numberOfCells = mesh->cellMesh->GetNumberOfCells();
+    HXSize_t nFaces = mesh->faceMesh->GetNFace();
+    HXSize_t numberOfCells = mesh->cellMesh->GetNumberOfCells();
 
     Visual::DumpFaceElementLink( file, nFaces, numberOfCells, mesh->faceMesh->faceTopo->lCells );
     Visual::DumpFaceElementLink( file, nFaces, numberOfCells, mesh->faceMesh->faceTopo->rCells );
 }
 
-void Visual::DumpFaceElementLink( std::fstream & file, UInt nFaces, UInt numberOfElements, IntField & faceElementIndex )
+void Visual::DumpFaceElementLink( std::fstream & file, HXSize_t nFaces, HXSize_t numberOfElements, IntField & faceElementIndex )
 {
-    for ( UInt iFace = 0; iFace < nFaces; ++ iFace )
+    for ( HXSize_t iFace = 0; iFace < nFaces; ++ iFace )
     {
         int elementIndex = faceElementIndex[ iFace ] + 1;
         if ( elementIndex > numberOfElements || elementIndex < 0 ) elementIndex = 0;

@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-    Copyright (C) 2017-2021 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2022 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -37,7 +37,7 @@ void ReorderList( HXVector< T > & x, IntField & indexList )
 {
     HXVector< T > tmp = x;
 
-    for ( UInt i = 0; i < indexList.size(); ++ i )
+    for ( HXSize_t i = 0; i < indexList.size(); ++ i )
     {
         x[ i ] = tmp[ indexList[ i ] ];
     }

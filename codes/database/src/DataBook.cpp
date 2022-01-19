@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-    Copyright (C) 2017-2021 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2022 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -44,14 +44,14 @@ DataBook::DataBook()
 
 DataBook::~DataBook()
 {
-    for ( UInt i = 0; i < dataBook->size(); ++ i )
+    for ( HXSize_t i = 0; i < dataBook->size(); ++ i )
     {
         delete ( * dataBook )[ i ];
     }
     delete dataBook;
 }
 
-UInt DataBook::GetNPage()
+HXSize_t DataBook::GetNPage()
 {
     return dataBook->size();
 }
@@ -62,26 +62,26 @@ DataPage * DataBook::GetCurrentPage()
     return ( * dataBook )[ currPageId ];
 }
 
-DataPage * DataBook::GetPage( UInt iPage )
+DataPage * DataBook::GetPage( HXSize_t iPage )
 {
     return ( * dataBook )[ iPage ];
 }
 
-char * MovePointer( void * data, LLong dataSize )
+char * MovePointer( void * data, HXLongLong_t dataSize )
 {
     return reinterpret_cast< char * >( data ) + dataSize;
 }
 
-void DataBook::MoveForwardPosition( LLong dataSize )
+void DataBook::MoveForwardPosition( HXLongLong_t dataSize )
 {
     this->currPos += dataSize;
 }
 
-void DataBook::Read( void * data, LLong dataSize )
+void DataBook::Read( void * data, HXLongLong_t dataSize )
 {
     if ( dataSize <= 0 ) return;
 
-    LLong remainingSize = this->GetRemainingSizeOfCurrentPage();
+    HXLongLong_t remainingSize = this->GetRemainingSizeOfCurrentPage();
 
     if ( remainingSize >= dataSize )
     {
@@ -94,19 +94,19 @@ void DataBook::Read( void * data, LLong dataSize )
         this->MoveForwardPosition( remainingSize );
 
         void * newData = ONEFLOW::MovePointer( data, remainingSize );
-        LLong newSize = dataSize - remainingSize;
+        HXLongLong_t newSize = dataSize - remainingSize;
 
         this->Read( newData, newSize );
     }
 }
 
-void DataBook::Write( void * data, LLong dataSize )
+void DataBook::Write( void * data, HXLongLong_t dataSize )
 {
     if ( dataSize <= 0 ) return;
 
     this->SecureRelativeSpace( dataSize );
 
-    LLong remainingSize = this->GetRemainingSizeOfCurrentPage();
+    HXLongLong_t remainingSize = this->GetRemainingSizeOfCurrentPage();
 
     if ( remainingSize >= dataSize )
     {
@@ -121,7 +121,7 @@ void DataBook::Write( void * data, LLong dataSize )
 
         void * newData = ONEFLOW::MovePointer( data, remainingSize );
 
-        LLong  newSize = dataSize - remainingSize;
+        HXLongLong_t  newSize = dataSize - remainingSize;
 
         this->Write( newData, newSize );
     }
@@ -129,8 +129,8 @@ void DataBook::Write( void * data, LLong dataSize )
 
 void DataBook::ReadString( std::string & cs )
 {
-    UInt nLength = 0;
-    this->Read( & nLength, sizeof( UInt ) );
+    HXSize_t nLength = 0;
+    this->Read( & nLength, sizeof( HXSize_t ) );
 
     char * data = new char[ nLength + 1 ];
 
@@ -143,9 +143,9 @@ void DataBook::ReadString( std::string & cs )
 
 void DataBook::WriteString( std::string & cs )
 {
-    UInt nLength = cs.length();
+    HXSize_t nLength = cs.length();
 
-    this->Write( & nLength, sizeof( UInt ) );
+    this->Write( & nLength, sizeof( HXSize_t ) );
 
     char * data = new char[ nLength + 1 ];
 
@@ -166,13 +166,13 @@ void DataBook::AppendString( std::string & cs )
 void DataBook::Write( std::ostringstream * oss )
 {
     std::string str = oss->str();
-    UInt stringSize = str.size();
+    HXSize_t stringSize = str.size();
     this->Write( const_cast< char * >( str.c_str() ), stringSize * sizeof( char ) );
 }
 
-LLong DataBook::GetSize()
+HXLongLong_t DataBook::GetSize()
 {
-    LLong sum = 0;
+    HXLongLong_t sum = 0;
     for ( int iPage = 0; iPage < this->GetNPage(); ++ iPage )
     {
         sum += this->GetPage( iPage )->GetSize();
@@ -180,13 +180,13 @@ LLong DataBook::GetSize()
     return sum;
 }
 
-void DataBook::ReSize( LLong nLength )
+void DataBook::ReSize( HXLongLong_t nLength )
 {
     if ( nLength <= 0 )
     {
         if ( nLength == 0 )
         {
-            for ( UInt iPage = 0; iPage < this->GetNPage(); ++ iPage )
+            for ( HXSize_t iPage = 0; iPage < this->GetNPage(); ++ iPage )
             {
                 this->GetPage( iPage )->ReSize( 0 );
             }
@@ -195,21 +195,21 @@ void DataBook::ReSize( LLong nLength )
     }
 
     //23 divided by 3 is 7, remainder 2.
-    UInt nPage = nLength / maxUnitSize;
-    LLong remainder = nLength % maxUnitSize;
+    HXSize_t nPage = nLength / maxUnitSize;
+    HXLongLong_t remainder = nLength % maxUnitSize;
 
-    UInt additionalPage = 0;
+    HXSize_t additionalPage = 0;
     if ( remainder )
     {
         additionalPage = 1;
     }
 
-    UInt newNPage = nPage + additionalPage;
+    HXSize_t newNPage = nPage + additionalPage;
     this->ResizeNPage( newNPage );
 
-    for ( UInt iPage = 0; iPage < this->GetNPage(); ++ iPage )
+    for ( HXSize_t iPage = 0; iPage < this->GetNPage(); ++ iPage )
     {
-        LLong needSize = maxUnitSize;
+        HXLongLong_t needSize = maxUnitSize;
         if ( iPage == nPage )
         {
             needSize = remainder;
@@ -218,9 +218,9 @@ void DataBook::ReSize( LLong nLength )
     }
 }
 
-void DataBook::ResizeNPage( UInt newNPage )
+void DataBook::ResizeNPage( HXSize_t newNPage )
 {
-    UInt oldNPage = this->GetNPage();
+    HXSize_t oldNPage = this->GetNPage();
 
     if ( newNPage <= oldNPage )
     {
@@ -229,24 +229,24 @@ void DataBook::ResizeNPage( UInt newNPage )
     }
     else
     {
-        UInt iPageStart = oldNPage;
-        UInt iPageEnd = newNPage;
+        HXSize_t iPageStart = oldNPage;
+        HXSize_t iPageEnd = newNPage;
 
-        for ( UInt iPage = iPageStart; iPage != iPageEnd; ++ iPage )
+        for ( HXSize_t iPage = iPageStart; iPage != iPageEnd; ++ iPage )
         {
             dataBook->push_back( new DataPage() );
         }
     }
 }
 
-void DataBook::SecureRelativeSpace( LLong dataSize )
+void DataBook::SecureRelativeSpace( HXLongLong_t dataSize )
 {
-    LLong needSize = this->currPos + dataSize;
+    HXLongLong_t needSize = this->currPos + dataSize;
 
     this->SecureAbsoluteSpace( needSize );
 }
 
-void DataBook::SecureAbsoluteSpace( LLong needSize )
+void DataBook::SecureAbsoluteSpace( HXLongLong_t needSize )
 {
     //If there is enough space, there is no need to allocate
     //This can cause some std::string problems, and if not ReSize, there may be superfluous characters
@@ -268,15 +268,15 @@ void DataBook::MoveToBegin()
 void DataBook::MoveToEnd()
 {
     this->currPos = this->GetSize();
-    for ( UInt iPage = 0; iPage < this->GetNPage(); ++ iPage )
+    for ( HXSize_t iPage = 0; iPage < this->GetNPage(); ++ iPage )
     {
         this->GetPage( iPage )->MoveToEnd();
     }
 }
 
-LLong DataBook::GetRemainingSizeOfCurrentPage()
+HXLongLong_t DataBook::GetRemainingSizeOfCurrentPage()
 {
-    LLong remainder = this->currPos % maxUnitSize;
+    HXLongLong_t remainder = this->currPos % maxUnitSize;
     return maxUnitSize - remainder;
 }
 
@@ -285,7 +285,7 @@ void DataBook::ReadFile( std::fstream & file )
     //Read the contents of file into DataBook
     //And for DataBook, the process is counter, equivalent to writing
 
-    LLong nLength = 0;
+    HXLongLong_t nLength = 0;
     ONEFLOW::HXRead( & file, nLength );
 
     if ( nLength <= 0 ) return;
@@ -300,7 +300,7 @@ void DataBook::ReadFile( std::fstream & file )
 
 void DataBook::WriteFile( std::fstream & file )
 {
-    LLong nLength = this->GetSize();
+    HXLongLong_t nLength = this->GetSize();
 
     //Whether or not nLength is less than zero, you need to write the file
     ONEFLOW::HXWrite( & file, nLength );
@@ -309,7 +309,7 @@ void DataBook::WriteFile( std::fstream & file )
         return;
     }
 
-    for ( UInt iPage = 0; iPage < this->GetNPage(); ++ iPage )
+    for ( HXSize_t iPage = 0; iPage < this->GetNPage(); ++ iPage )
     {
         this->GetPage( iPage )->WriteFile( file );
     }
@@ -317,16 +317,16 @@ void DataBook::WriteFile( std::fstream & file )
 
 void DataBook::ToString( std::string & str )
 {
-    for ( UInt iPage = 0; iPage < this->GetNPage(); ++ iPage )
+    for ( HXSize_t iPage = 0; iPage < this->GetNPage(); ++ iPage )
     {
         this->GetPage( iPage )->ToString( str );
     }
 }
 
-void DataBook::Append( void * data, LLong dataSize )
+void DataBook::Append( void * data, HXLongLong_t dataSize )
 {
     this->MoveToEnd();
-    LLong needSize = this->GetSize() + dataSize;
+    HXLongLong_t needSize = this->GetSize() + dataSize;
     this->SecureAbsoluteSpace( needSize );
 
     this->GetCurrentPage()->Write( data, dataSize );
@@ -337,9 +337,9 @@ void DataBook::Destroy( DataPage * dataPage )
     delete dataPage;
 }
 
-void DataBook::Erase( UInt startPage, UInt endPage )
+void DataBook::Erase( HXSize_t startPage, HXSize_t endPage )
 {
-    for ( UInt iPage = startPage; iPage != endPage; ++ iPage )
+    for ( HXSize_t iPage = startPage; iPage != endPage; ++ iPage )
     {
         this->Destroy( GetPage( iPage ) );
     }
@@ -347,14 +347,14 @@ void DataBook::Erase( UInt startPage, UInt endPage )
 
 void DataBook::Send( int pid, int tag )
 {
-    LLong nLength = this->GetSize();
+    HXLongLong_t nLength = this->GetSize();
 
     ONEFLOW::HXSend( & nLength, 1, PL_LONG_LONG_INT, pid, tag );
 
     //It is necessary to judge the zero of data length
     if ( nLength <= 0 ) return;
 
-    for ( UInt iPage = 0; iPage < this->GetNPage(); ++ iPage )
+    for ( HXSize_t iPage = 0; iPage < this->GetNPage(); ++ iPage )
     {
         this->GetPage( iPage )->Send( pid, tag );
     }
@@ -362,7 +362,7 @@ void DataBook::Send( int pid, int tag )
 
 void DataBook::Recv( int pid, int tag )
 {
-    LLong nLength = 0;
+    HXLongLong_t nLength = 0;
 
     ONEFLOW::HXRecv( & nLength, 1, PL_LONG_LONG_INT, pid, tag );
 
@@ -373,7 +373,7 @@ void DataBook::Recv( int pid, int tag )
 
     this->SecureAbsoluteSpace( nLength );
 
-    for ( UInt iPage = 0; iPage < this->GetNPage(); ++ iPage )
+    for ( HXSize_t iPage = 0; iPage < this->GetNPage(); ++ iPage )
     {
         this->GetPage( iPage )->Recv( pid, tag );
     }
@@ -395,7 +395,7 @@ void DataBook::SendRecv( int sendpid, int recvpid, int tag )
 
 void DataBook::Bcast( int rootid )
 {
-    LLong nLength = this->GetSize();
+    HXLongLong_t nLength = this->GetSize();
 
     HXBcast( & nLength, 1, rootid );
 
@@ -409,7 +409,7 @@ void DataBook::Bcast( int rootid )
         this->SecureAbsoluteSpace( nLength );
     }
 
-    for ( UInt iPage = 0; iPage < this->GetNPage(); ++ iPage )
+    for ( HXSize_t iPage = 0; iPage < this->GetNPage(); ++ iPage )
     {
         this->GetPage( iPage )->Bcast( rootid );
     }

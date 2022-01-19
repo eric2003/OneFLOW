@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-    Copyright (C) 2017-2021 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2022 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -23,8 +23,7 @@ License
 #include "MsgMapImp.h"
 #include "Message.h"
 #include "FileIO.h"
-#include "FileUtil.h"
-#include "SimuCtrl.h"
+#include "Prj.h"
 #include <iostream>
 
 
@@ -47,7 +46,7 @@ void GetMsgFileNameList( StringField & fileNameList )
 {
     //\t is the tab key
     std::string separator  = " =\r\n\t#$,;\"()";
-    std::string msgFileName = SimuCtrl::system_root + "action/" + "actionFileList.txt";
+    std::string msgFileName = Prj::system_root + "action/" + "actionFileList.txt";
 
     FileIO ioFile;
     ioFile.OpenFile( msgFileName, std::ios_base::in );
@@ -58,7 +57,7 @@ void GetMsgFileNameList( StringField & fileNameList )
         bool flag = ioFile.ReadNextNonEmptyLine();
         if ( ! flag ) break;
         std::string fileName = ioFile.ReadNextWord();
-        std::string fullPathFileName = SimuCtrl::system_root + "action/" + fileName;
+        std::string fullPathFileName = Prj::system_root + "action/" + fileName;
         fileNameList.push_back( fullPathFileName );
     }
 

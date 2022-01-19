@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-    Copyright (C) 2017-2021 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2022 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -36,7 +36,7 @@ FaceSolver::FaceSolver()
     this->faceBcType = new IntField();
     this->childFid = new LinkField();
 
-    this->refFaces = new std::set< Mid<int> >();
+    this->refFaces = new std::set< HXMid<int> >();
     this->faceTopo = new FaceTopo();
 }
 
@@ -50,9 +50,9 @@ FaceSolver::~FaceSolver()
     delete this->faceTopo;
 }
 
-int FaceSolver::FindFace( Mid<int> & face )
+int FaceSolver::FindFace( HXMid<int> & face )
 {
-    std::set< Mid<int> >::iterator iter = this->refFaces->find( face );
+    std::set< HXMid<int> >::iterator iter = this->refFaces->find( face );
     if ( iter == this->refFaces->end() )
     {
         return ONEFLOW::INVALID_INDEX;
@@ -94,7 +94,7 @@ void FaceSolver::ScanElementFace( CgIntField & eNodeId, int eType, int eId )
             aNodeId.push_back( eNodeId[ rNodeId[ iNode ] ] );
         }                                                              
 
-        Mid<int> fMid( nNodes, this->faceTopo->faces.size() );
+        HXMid<int> fMid( nNodes, this->faceTopo->faces.size() );
         fMid.data = aNodeId;
         std::sort( fMid.data.begin(), fMid.data.end() );
         int gFid = this->FindFace( fMid );

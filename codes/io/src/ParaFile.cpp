@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-    Copyright (C) 2017-2021 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2022 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -21,13 +21,13 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "ParaFile.h"
-#include "FileUtil.h"
 #include "DataBase.h"
 #include "Parallel.h"
 #include "LogFile.h"
 #include "OStream.h"
 #include "Stop.h"
 #include "Prj.h"
+#include "FileUtil.h"
 #include "PIO.h"
 #include "json/json.h"
 #include <iostream>
@@ -301,7 +301,7 @@ void mytestjson()
 
 void ReadControlInfo()
 {
-    HXBcastString( PrjStatus::prjBaseDir, Parallel::serverid );
+    HXBcastString( Prj::prjBaseDir, Parallel::serverid );
 
     if ( Parallel::IsServer() )
     {
@@ -346,7 +346,7 @@ void ReadScriptFileNameList( std::vector< std::string > & scriptFileNameList )
         if ( ! flag ) break;
         std::string scriptFileName = ioFile.ReadNextWord();
         ONEFLOW::StrIO.ClearAll();
-        ONEFLOW::StrIO << PrjStatus::prjBaseDir << "script/" << scriptFileName;
+        ONEFLOW::StrIO << Prj::prjBaseDir << "script/" << scriptFileName;
         std::string fullScriptFileName = ONEFLOW::StrIO.str();
         scriptFileNameList.push_back( fullScriptFileName );
     }

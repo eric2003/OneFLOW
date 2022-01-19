@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-    Copyright (C) 2017-2021 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2022 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -26,7 +26,7 @@ License
 #include "Constant.h"
 #include "HXMath.h"
 #include "HXCgns.h"
-#include "FileUtil.h"
+
 #include <iostream>
 #include <fstream>
 #include <vector>
@@ -86,7 +86,7 @@ void ScalarField::ToTecplot( RealList & varlist, std::string const & fileName )
     int nCells = grid->GetNCells();
 
     std::fstream file;
-    OpenPrjFile( file, fileName, std::ios_base::out );
+    Prj::OpenPrjFile( file, fileName, std::ios_base::out );
 
     int nSize = nCells;
     file << "TITLE = " << "\"OneFLOW X-Y Plot\"" << "\n";
@@ -100,7 +100,7 @@ void ScalarField::ToTecplot( RealList & varlist, std::string const & fileName )
         file << xm << " " << fm << "\n";
     }
 
-    CloseFile( file );
+    Prj::CloseFile( file );
 }
 
 void ScalarField::SolveFlowField( FieldPara * para )

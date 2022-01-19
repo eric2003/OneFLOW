@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-    Copyright (C) 2017-2021 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2022 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -41,8 +41,8 @@ public:
     RealField dist;
     RealField span;
 public:
-    UInt GetNumberOfCells();
-    UInt GetNumberOfTotalCells() { return vol.size(); }
+    HXSize_t GetNumberOfCells();
+    HXSize_t GetNumberOfTotalCells() { return vol.size(); }
     void AllocateMetrics( FaceMesh * faceMesh );
     void AllocDist();
     void ReadDist();

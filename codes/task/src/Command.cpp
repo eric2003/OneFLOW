@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-    Copyright (C) 2017-2021 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2022 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -37,7 +37,7 @@ Command::Command()
 
 Command::~Command()
 {
-    for ( UInt iTask = 0; iTask < tasks->size(); ++ iTask )
+    for ( HXSize_t iTask = 0; iTask < tasks->size(); ++ iTask )
     {
         delete ( * tasks )[ iTask ];
     }
@@ -59,7 +59,7 @@ SimpleCmd::~SimpleCmd()
 
 void SimpleCmd::Execute()
 {
-    for ( UInt iTask = 0; iTask < tasks->size(); ++ iTask )
+    for ( HXSize_t iTask = 0; iTask < tasks->size(); ++ iTask )
     {
         Task * task = ( * tasks )[ iTask ];
         TaskState::task = task;
@@ -109,8 +109,8 @@ void CMD::Clear()
 
 void CMD::ExecuteCmd()
 {
-    UInt nCmd = CMD::cmdList->size();
-    for ( UInt iCmd = 0; iCmd < nCmd; ++ iCmd )
+    HXSize_t nCmd = CMD::cmdList->size();
+    for ( HXSize_t iCmd = 0; iCmd < nCmd; ++ iCmd )
     {
         Command * cmd = ( * CMD::cmdList )[ iCmd ];
         //CMD::ShowCmdInfo( cmd, iCmd );
@@ -123,7 +123,7 @@ void CMD::ExecuteCmd()
 void CMD::ShowCmdInfo( Command * cmd, int iCmd )
 {
     HXVector< Task * > * tasks = cmd->tasks;
-    for ( UInt i = 0; i < tasks->size(); ++ i )
+    for ( HXSize_t i = 0; i < tasks->size(); ++ i )
     {
         Task * task = ( * tasks ) [ i ];
         int iTaskGlobal = iCmd + i;

@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-    Copyright (C) 2017-2021 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2022 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -24,7 +24,7 @@ License
 #include "Block3D.h"
 #include "MLine.h"
 #include "MDomain.h"
-#include "FileUtil.h"
+
 #include "Prj.h"
 #include "Dimension.h"
 #include "BlockFaceSolver.h"
@@ -288,7 +288,7 @@ void Block3D::CreateBlockMesh()
 void Block3D::GenerateBlockMesh()
 {
     std::fstream file;
-    OpenPrjFile( file, "grid/blkfaceplot.dat", std::ios_base::out );
+    Prj::OpenPrjFile( file, "grid/blkfaceplot.dat", std::ios_base::out );
     file << " VARIABLES = \"X\", \"Y\", \"Z\" \n";
     file << " ZONE I = " << ni << ", J = " << nj << " F = POINT \n";
     for ( int j = 0; j < nj; ++ j )
@@ -338,7 +338,7 @@ void Block3D::GenerateBlockMesh()
             file << x3d[ ni - 1 ][ j ][ k ] << " " << y3d[ ni-1 ][ j ][ k ] << " " << z3d[ ni-1 ][ j ][ k ] << "\n";
         }
     }
-    CloseFile( file );
+    Prj::CloseFile( file );
     TransfiniteInterpolation( x3d, ni, nj, nk );
     TransfiniteInterpolation( y3d, ni, nj, nk );
     TransfiniteInterpolation( z3d, ni, nj, nk );
@@ -357,7 +357,7 @@ void Block3D::GenerateBlockMesh()
     //}
 
 
-    OpenPrjFile( file, "grid/blkplot.dat", std::ios_base::out );
+    Prj::OpenPrjFile( file, "grid/blkplot.dat", std::ios_base::out );
     file << " VARIABLES = \"X\", \"Y\", \"Z\" \n";
     file << " ZONE I = " << ni << ", J = " << nj << ", K = " << nk << " F = POINT \n";
     for ( int k = 0; k < nk; ++ k )
@@ -370,9 +370,9 @@ void Block3D::GenerateBlockMesh()
             }
         }
     }
-    CloseFile( file );
+    Prj::CloseFile( file );
 
-    OpenPrjFile( file, "grid/blkfaceplot111.dat", std::ios_base::out );
+    Prj::OpenPrjFile( file, "grid/blkfaceplot111.dat", std::ios_base::out );
     file << " VARIABLES = \"X\", \"Y\", \"Z\" \n";
     file << " ZONE I = " << ni << ", J = " << nj << " F = POINT \n";
     for ( int j = 0; j < nj; ++ j )
@@ -422,7 +422,7 @@ void Block3D::GenerateBlockMesh()
             file << x3d[ ni - 1 ][ j ][ k ] << " " << y3d[ ni-1 ][ j ][ k ] << " " << z3d[ ni-1 ][ j ][ k ] << "\n";
         }
     }
-    CloseFile( file );
+    Prj::CloseFile( file );
     int kkk = 1;
 }
 

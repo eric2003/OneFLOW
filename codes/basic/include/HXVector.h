@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-    Copyright (C) 2017-2021 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2022 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -22,7 +22,7 @@ License
 
 
 #pragma once
-#include "HXType.h"
+#include "Configure.h"
 #include <vector>
 
 BeginNameSpace( ONEFLOW )
@@ -33,12 +33,12 @@ class HXVector : public std::vector< T >
 public:
     HXVector(){};
     ~HXVector(){};
-    HXVector( const UInt count )
+    HXVector( const std::size_t count )
         : std::vector< T >( count )
     {
         ;
     }
-    HXVector( const UInt count, const T& value )
+    HXVector( const std::size_t count, const T& value )
         : std::vector< T >( count, value )
     {
         ;
@@ -55,7 +55,7 @@ public:
 public:
     HXVector< T >& operator =( const T& value )
     {
-        for ( UInt i = 0; i < this->size(); ++ i )
+        for ( std::size_t i = 0; i < this->size(); ++ i )
         {
             ( *this )[ i ] = value;
         }
@@ -65,7 +65,7 @@ public:
     HXVector< T >& operator =( const std::vector<T>& values )
     {
         ( *this ).resize( values.size() );
-        for ( UInt i = 0; i < this->size(); ++ i )
+        for ( std::size_t i = 0; i < this->size(); ++ i )
         {
             ( *this )[ i ] = values[ i ];
         }

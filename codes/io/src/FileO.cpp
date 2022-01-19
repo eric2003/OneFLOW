@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-    Copyright (C) 2017-2021 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2022 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -21,7 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "FileO.h"
-#include "FileUtil.h"
+
 #include "Prj.h"
 
 BeginNameSpace( ONEFLOW )
@@ -44,12 +44,12 @@ void FileO::OpenPrjFile( const std::string & fileName, const std::ios_base::open
 {
     this->fileName     = fileName;
     this->fileOpenMode = fileOpenMode;
-    ONEFLOW::OpenPrjFile( * file, fileName, fileOpenMode );
+    Prj::OpenPrjFile( * file, fileName, fileOpenMode );
 }
 
 void FileO::CloseFile()
 {
-    ONEFLOW::CloseFile( * file );
+    Prj::CloseFile( * file );
 }
 
 void FileO::DumpCoorAscii( RealField & coor )

@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
 OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-Copyright (C) 2017-2021 He Xin and the OneFLOW contributors.
+Copyright (C) 2017-2022 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
 This file is part of OneFLOW.
@@ -21,7 +21,7 @@ along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 \*---------------------------------------------------------------------------*/
 #include "Test.h"
 #include "FileIO.h"
-#include "FileUtil.h"
+
 #include "Prj.h"
 #include <iostream>
 #include <fstream>
@@ -45,7 +45,7 @@ void Test::Run()
     Real xlen = 2.0;
     Real dx = xlen / ( ni - 1 );
     std::fstream file;
-    OpenPrjFile( file, "/test/vencat.dat", std::ios_base::out );
+    Prj::OpenPrjFile( file, "/test/vencat.dat", std::ios_base::out );
     StringField title;
     title.push_back( "title=\"THE FLOW FIELD OF ONEFLOW\"" );
     title.push_back( "variables=" );
@@ -53,7 +53,7 @@ void Test::Run()
     title.push_back( "\"vencat\"" );
     title.push_back( "\"gvencat\"" );
 
-    for ( UInt i = 0; i < title.size(); ++ i )
+    for ( HXSize_t i = 0; i < title.size(); ++ i )
     {
         file << title[ i ] << std::endl;
     }
@@ -72,7 +72,7 @@ void Test::Run()
         }
     }
 
-    CloseFile( file );
+    Prj::CloseFile( file );
 }
 
 Real Test::Vencat( Real x )

@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-    Copyright (C) 2017-2021 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2022 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -174,6 +174,9 @@ public:
     IntList rc;
     IntList lpos;
     IntList rpos;
+
+    std::vector<int> cell2faces;
+    std::vector<int> c2fpos;
 
     //global faceid
     std::vector<int> global_faceid;

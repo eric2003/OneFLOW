@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-    Copyright (C) 2017-2021 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2022 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -19,26 +19,28 @@ License
     along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 
 \*---------------------------------------------------------------------------*/
+
+
 #pragma once
+
 #include "Configure.h"
-#include <string>
+#include "HXType.h"
 
 BeginNameSpace( ONEFLOW )
 
-class SimuCtrl
-{
-public:
-    SimuCtrl();
-    ~SimuCtrl();
-public:
-    static bool hx_debug;
-    static bool run_from_ide;
-    static std::string system_root;
-    static std::string current_dir;
-    static std::string execute_dir;
-public:
-    static void Init();
+#ifdef ENABLE_CUDA
+void SetFaceValueCuda(Real *aface, Real *bcell, int *id, int nFaces, int nTCells);
+void MyCalcInvFluxCuda(Real *qf1, Real *qf2, Real *invflux, Real *xfn, Real *yfn, Real *zfn, Real *area, int nFaces);
+void MyAddF2CFieldCuda(Real *fField, Real *cField, int *lc, int * rc, int nBFaces, int nFaces, int nTCells);
+void MyZoneTimeIntergralCuda(Real *res, Real *vol, Real dt, int nCells);
+void MyZoneUpdateCuda(Real *q, Real *res, int nCells);
 
-};
+void addWithCuda(int *a, int *b, int *c, unsigned int nElems);
+void addRealWithCuda(Real *a, Real *b, Real *c, unsigned int nElems);
+void addRealSwapWithCuda(Real *a, Real *b, int * id, Real *c, unsigned int nElems);
+void setRealSwapWithCuda(Real *a, int * id, Real *c, unsigned int nElems);
+void setRealSwapWithCudaNew(Real *a, Real *b, int * id,  unsigned int nElems);
+void setRealSwapWithCudaNewRealProblem(Real *a, Real *b, int * id, unsigned int nFaces, unsigned int nCells);
+#endif
 
 EndNameSpace

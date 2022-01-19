@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-    Copyright (C) 2017-2021 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2022 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -158,7 +158,7 @@ void G2LMapping::GetXadjAdjncy( UnsGrid * ggrid, std::vector<idx_t> & xadj, std:
     for ( int iCell = 0; iCell < nCells; ++ iCell )
     {
         xadj[ iCell + 1 ] = xadj[ iCell ] + c2c[ iCell ].size();
-        for ( UInt j = 0; j < c2c[ iCell ].size(); ++ j )
+        for ( HXSize_t j = 0; j < c2c[ iCell ].size(); ++ j )
         {
             adjncy[ iCount ++ ] = c2c[ iCell ][ j ];
         }

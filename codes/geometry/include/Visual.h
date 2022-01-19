@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-    Copyright (C) 2017-2021 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2022 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -49,7 +49,7 @@ public:
     static void DumpCoordinate( std::fstream & file, RealField & coordinate );
     static void DumpFaceNodesLink( std::fstream & file, Mesh * mesh );
     static void DumpFaceElementLink( std::fstream & file, Mesh * mesh );
-    static void DumpFaceElementLink( std::fstream & file, UInt nFaces, UInt numberOfElements, IntField & faceElementIndex );
+    static void DumpFaceElementLink( std::fstream & file, HXSize_t nFaces, HXSize_t numberOfElements, IntField & faceElementIndex );
 };
 
 

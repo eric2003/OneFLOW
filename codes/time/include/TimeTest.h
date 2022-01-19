@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-    Copyright (C) 2017-2021 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2022 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -19,22 +19,35 @@ License
     along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 
 \*---------------------------------------------------------------------------*/
-#include "Stop.h"
-#include <iostream>
+#pragma once
+#include "Configure.h"
+#include <chrono>
+#include <string>
+
 
 BeginNameSpace( ONEFLOW )
 
-void StopProgramFunction( const std::string & stopInformation, const std::string & fileName, const int & fileLine, const std::string & dateName, const std::string & timeName )
+class TimeTest
 {
-    std::cout << std::endl;
-    std::cout << "++++++++++++++++++Stop Information  +++++++++++++++++++++++++++++\n";
-    std::cout <<  stopInformation << std::endl;
-    std::cout << " The stop filename is : " << fileName << std::endl;
-    std::cout << " at line " << fileLine << std::endl;
-    std::cout << " compiled on " << dateName << " at " << timeName << std::endl;
-    std::cout << "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n";
-    exit( 0 );
-}
+public:
+    using clock_type = std::chrono::time_point<std::chrono::system_clock>;
+public:
+    TimeTest();
+    ~TimeTest();
+public:
+    void Restart();
+    void Stop();
+
+    double ElapsedMilliseconds();
+    double ElapsedSeconds();
+    void ShowTimeSpan( const std::string & title = "" );
+public:
+    void RunTest();
+private:
+    clock_type time_old;
+    clock_type time_now;
+    bool       bRunning = false;
+};
 
 
 EndNameSpace

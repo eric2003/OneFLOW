@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-    Copyright (C) 2017-2021 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2022 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -20,7 +20,7 @@ License
 
 \*---------------------------------------------------------------------------*/
 #include "SolverName.h"
-#include "SimuCtrl.h"
+#include "Prj.h"
 #include "OStream.h"
 #include "FileIO.h"
 #include "StrUtil.h"
@@ -35,7 +35,7 @@ void GetSolverFileNames( const std::string & solverName, StringField & fileNameL
 
     OStream ostr;
     ostr.ClearAll();
-    ostr << SimuCtrl::system_root << solverName << "/function/";
+    ostr << Prj::system_root << solverName << "/function/";
     std::string baseDir = ostr.str();
     ostr << "fileList.txt";
     std::string keyFileName = ostr.str();

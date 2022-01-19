@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-    Copyright (C) 2017-2021 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2022 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -21,24 +21,13 @@ License
 \*---------------------------------------------------------------------------*/
 #pragma once
 #include "Configure.h"
-#include <iomanip>
-#include <sstream>
-
+#include <string>
 
 BeginNameSpace( ONEFLOW )
 
-class OStream;
-extern OStream StrIO;
-class OStream : public std::ostringstream
-{
-public:
-    OStream() {}
-    ~OStream() {}
-public:
-    void ClearAll();
-};
+#define Stop( _Expression ) ( ONEFLOW::StopProgramFunction( _Expression, __FILE__, __LINE__, __DATE__, __TIME__ ) )
 
-void Clear( std::ostringstream & oss );
+void StopProgramFunction( const std::string & stopInformation, const std::string & fileName, const int & fileLine, const std::string & dateName, const std::string & timeName );
 
 
 EndNameSpace

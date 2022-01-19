@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-    Copyright (C) 2017-2021 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2022 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -23,7 +23,7 @@ License
 #include "Sod.h"
 #include "CurveLine.h"
 #include "CurveMesh.h"
-#include "FileUtil.h"
+
 #include "Prj.h"
 #include "DataBaseIO.h"
 #include "Boundary.h"
@@ -86,7 +86,7 @@ void Sod::SodGrid()
     }
 
     std::fstream file;
-    OpenPrjFile( file, "/grid/sod2d.grd", std::ios_base::out|std::ios_base::binary );
+    Prj::OpenPrjFile( file, "/grid/sod2d.grd", std::ios_base::out|std::ios_base::binary );
     int nZone = 1;
     int nk = 1;
     HXWrite( & file, nZone );
@@ -98,9 +98,9 @@ void Sod::SodGrid()
     HXWrite( & file, yN );
     HXWrite( & file, zN );
 
-    CloseFile( file );
+    Prj::CloseFile( file );
 
-    OpenPrjFile( file, "/grid/sod2d.inp", std::ios_base::out );
+    Prj::OpenPrjFile( file, "/grid/sod2d.inp", std::ios_base::out );
     int solver = 1;
     std::string zName = "A";
     int nBc = 4;
@@ -113,7 +113,7 @@ void Sod::SodGrid()
     file << 1  << " " << ni  << " " << nj  << " " << nj  << " " << BC::SYMMETRY << std::endl;
     file << 1  << " " << 1  << " " << 1  << " " << nj  << " " << BC::OUTFLOW << std::endl;
     file << ni  << " " << ni  << " " << 1  << " " << nj  << " " << BC::OUTFLOW << std::endl;
-    CloseFile( file );
+    Prj::CloseFile( file );
 }
 
 void Sod::Theory()
@@ -247,7 +247,7 @@ void Sod::Theory()
 
     //Write out to files.
     std::fstream file;
-    OpenPrjFile( file, "/grid/sod_theory.dat", std::ios_base::out );
+    Prj::OpenPrjFile( file, "/grid/sod_theory.dat", std::ios_base::out );
     StringField title;
     title.push_back( "title=\"THE FLOW FIELD OF ONEFLOW\"" );
     title.push_back( "variables=" );
@@ -257,7 +257,7 @@ void Sod::Theory()
     title.push_back( "\"m\"" );
     title.push_back( "\"p\"" );
 
-    for ( UInt i = 0; i < title.size(); ++ i )
+    for ( HXSize_t i = 0; i < title.size(); ++ i )
     {
         file << title[ i ] << std::endl;
     }
@@ -286,7 +286,7 @@ void Sod::Theory()
     file << xs << " " << r2 << " " << u2 << " " << rmach2 << " " << p2 << std::endl;
     file << xs << " " << r1 << " " << u1 << " " << rmach1 << " " << p1 << std::endl;
     file << xr << " " << r1 << " " << u1 << " " << rmach1 << " " << p1 << std::endl;
-    CloseFile( file );
+    Prj::CloseFile( file );
 }
 
 void Sod::sp2p1( Real gam, Real p1, Real a1, Real p4, Real a4, Real & p2p1, int & iterr, Real tol )

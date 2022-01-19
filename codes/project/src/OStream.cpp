@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-    Copyright (C) 2017-2021 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2022 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -19,7 +19,18 @@ License
     along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 
 \*---------------------------------------------------------------------------*/
-#pragma once
 
-#define BeginNameSpace( space ) namespace space {
-#define EndNameSpace }
+#include "OStream.h"
+
+
+BeginNameSpace( ONEFLOW )
+
+OStream StrIO;
+
+void OStream::ClearAll()
+{
+    this->clear();
+    this->str("");
+}
+
+EndNameSpace

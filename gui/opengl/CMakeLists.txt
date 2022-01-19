@@ -4,11 +4,14 @@ set ( PRJ_SRC_LIST )
 set ( PRJ_LIBRARIES )
 set ( PRJ_INCLUDE_DIRS )
 
-set ( MY_GLFW "d:/software/GLFW" )
-set ( MY_GLAD "d:/software/glad" )
+#set ( MY_GLFW "d:/software/GLFW" )
+#set ( MY_GLAD "d:/software/glad" )
+set ( MY_GLFW "/home/kylinlu/work_gitlab/oneflow/glfw" )
+set ( MY_GLAD "/home/kylinlu/work_gitlab/oneflow/glad" )
 
 set ( MY_GLFW_INC "${MY_GLFW}/include" )
-set ( MY_GLFW_LIB "${MY_GLFW}/lib/glfw3dll.lib" )
+set ( MY_GLFW_LIB "${MY_GLFW}/build/src/libglfw.so" )
+#set ( MY_GLFW_LIB "${MY_GLFW}/lib/glfw3dll.lib" )
 
 set ( MY_GLAD_INC "${MY_GLAD}/include" )
 set ( MY_GLAD_SRC "${MY_GLAD}/src" )

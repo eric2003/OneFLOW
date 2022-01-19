@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-    Copyright (C) 2017-2021 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2022 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -22,7 +22,7 @@ License
 
 #include "BcData.h"
 #include "FileIO.h"
-#include "FileUtil.h"
+
 #include "Prj.h"
 
 BeginNameSpace( ONEFLOW )
@@ -51,11 +51,11 @@ void BcData::ReadRegion()
 {
     std::fstream file;
     std::string fileName = "grid/bcRegionMap.txt";
-    OpenPrjFile( file, fileName, std::ios_base::in );
+    Prj::OpenPrjFile( file, fileName, std::ios_base::in );
 
     file >> nRegion;
 
-    CloseFile( file );
+    Prj::CloseFile( file );
 }
 
 void BcData::ReadList( const std::string & fileName )

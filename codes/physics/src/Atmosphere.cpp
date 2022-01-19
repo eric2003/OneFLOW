@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-    Copyright (C) 2017-2021 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2022 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -21,7 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "Atmosphere.h"
-#include "SimuCtrl.h"
+#include "Prj.h"
 #include "HXMath.h"
 #include "FileIO.h"
 #include <cmath>
@@ -47,7 +47,7 @@ void Atmosphere::Init()
     if ( flag ) return;
     flag = true;
     FileIO ioFile;
-    std::string fileName = SimuCtrl::system_root +"physics/atmosphere.txt";
+    std::string fileName = Prj::system_root +"physics/atmosphere.txt";
     ioFile.OpenFile( fileName, std::ios_base::in );
 
     //\t is the tab key

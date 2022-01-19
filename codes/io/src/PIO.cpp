@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-    Copyright (C) 2017-2021 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2022 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -23,7 +23,7 @@ License
 #include "PIO.h"
 #include "Parallel.h"
 #include "OStream.h"
-#include "FileUtil.h"
+
 #include "FileInfo.h"
 #include "Stop.h"
 #include "Prj.h"
@@ -49,14 +49,14 @@ void PIO::ParallelOpen( std::fstream & file, const std::string & fileName, const
 {
     if ( Parallel::pid != Parallel::GetFid() ) return;
 
-    ONEFLOW::OpenFile( file, fileName, openMode );
+    Prj::OpenFile( file, fileName, openMode );
 }
 
 void PIO::OpenPrjFile( std::fstream & file, const std::string & fileName, const std::ios_base::openmode & openMode )
 {
     if ( Parallel::pid != Parallel::GetFid() ) return;
 
-    ONEFLOW::OpenPrjFile( file, fileName, openMode );
+    Prj::OpenPrjFile( file, fileName, openMode );
 }
 
 void PIO::OpenPrjFile()
@@ -73,7 +73,7 @@ void PIO::CloseFile( std::fstream & file )
 {
     if ( Parallel::pid != Parallel::GetFid() ) return;
 
-    ONEFLOW::CloseFile( file );
+    Prj::CloseFile( file );
 }
 
 

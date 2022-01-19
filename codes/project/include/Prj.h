@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-    Copyright (C) 2017-2021 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2022 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -23,27 +23,36 @@ License
 #include "Configure.h"
 #include <fstream>
 #include <string>
+#include <vector>
 
 BeginNameSpace( ONEFLOW )
 
-class PrjStatus
+class Prj
 {
 public:
-    PrjStatus();
-    ~PrjStatus();
+    Prj();
+    ~Prj();
 public:
+    static bool hx_debug;
+    static bool run_from_ide;
+    static std::string system_root;
+    static std::string current_dir;
+    static std::string execute_dir;
     static std::string prjBaseDir;
+public:
+    static void Init();
     static void SetPrjBaseDir( const std::string & prjName );
+    static void ProcessCmdLineArgs( std::vector<std::string> &args );
+public:
+    static void OpenPrjFile( std::fstream & file, const std::string & fileName, const std::ios_base::openmode & openMode );
+    static void OpenFile( std::fstream & file, const std::string & fileName, const std::ios_base::openmode & openMode );
+    static void CloseFile( std::fstream & file );
+    static void CreateDirIfNeeded( std::string & prjFileName );
+    static std::string GetPrjFileName( const std::string & fileName );
+    static std::string GetPrjDirName( const std::string & fileName );
+    static void MakePrjDir( const std::string & dirName );
 };
 
-void MakePrjDir( const std::string & dirName );
 
-void OpenPrjFile( std::fstream & file, const std::string & fileName, const std::ios_base::openmode & openMode );
-
-std::string GetPrjFileName( const std::string & fileName );
-std::string GetPrjDirName( const std::string & fileName );
-
-void OpenFile( std::fstream & file, const std::string & fileName, const std::ios_base::openmode & openMode );
-void CloseFile( std::fstream & file );
 
 EndNameSpace

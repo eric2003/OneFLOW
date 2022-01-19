@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-    Copyright (C) 2017-2021 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2022 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -41,15 +41,15 @@ void OpenLogFile( int logFileIndex, std::fstream & file )
 
     if ( ifReWrite == 0 )
     {
-        ONEFLOW::MakePrjDir( "log" );
+        Prj::MakePrjDir( "log" );
 
-        ONEFLOW::OpenPrjFile( file, fileName, std::ios_base::out | std::ios_base::trunc );
+        Prj::OpenPrjFile( file, fileName, std::ios_base::out | std::ios_base::trunc );
 
         ifReWrite = 1;
     }
     else
     {
-        ONEFLOW::OpenPrjFile( file, fileName, std::ios_base::out | std::ios_base::app );
+        Prj::OpenPrjFile( file, fileName, std::ios_base::out | std::ios_base::app );
     }
 }
 

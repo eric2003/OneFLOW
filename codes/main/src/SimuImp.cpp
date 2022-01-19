@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-    Copyright (C) 2017-2021 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2022 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -22,7 +22,6 @@ License
 #include "SimuImp.h"
 #include "SimuDef.h"
 #include "SimpleSimu.h"
-#include "SimuCtrl.h"
 #include "System.h"
 #include "FieldSimu.h"
 #include "MultiBlock.h"
@@ -41,25 +40,11 @@ BeginNameSpace( ONEFLOW )
 SimuImp::SimuImp( std::vector<std::string> &args )
 {
     this->args = args;
-    this->ProcessCmdLineArgs( args );
+    Prj::ProcessCmdLineArgs( args );
 }
 
 SimuImp::~SimuImp()
 {
-}
-
-void SimuImp::ProcessCmdLineArgs( std::vector<std::string> &args )
-{
-    this->args = args;
-    std::string choise = args[ 1 ];
-    std::string prjName = args[ 2 ];
-    if ( choise == "d" )
-    {
-        SimuCtrl::hx_debug = true;
-        SimuCtrl::run_from_ide = true;
-    }
-    SimuCtrl::Init();
-    PrjStatus::SetPrjBaseDir( prjName );
 }
 
 void SimuImp::Run()

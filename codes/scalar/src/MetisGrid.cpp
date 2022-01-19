@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-    Copyright (C) 2017-2021 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2022 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -285,10 +285,6 @@ void GridPartition::ReconstructInterfaceTopo()
 		{
 			ScalarIFaceIJ & iFaceIJ = ( * this->grids )[ iZone ]->scalarIFace->data[ iNei ];
 			int jZone =  iFaceIJ.zonej;
-			//iZone的第iNei个邻居为jZone,iZone和jZone的交界面的global interface id为iFaceIJ.iglobalfaces,
-			//iFaceIJ.target_ifaces是这些interface在jZone里面的局部id
-			//这些id由jZone计算发送给iZone的里iNei个信息存储
-			//实际上这个信息iZone用不到，是jZone接收时使用的。
 			std::cout << " iZone = " << iZone << " iNei = " << iNei << " jZone = " << jZone << "\n";
 			( * this->grids )[ jZone ]->scalarIFace->CalcLocalInterfaceId( iZone, iFaceIJ.iglobalfaces, iFaceIJ.target_ifaces );
 		}

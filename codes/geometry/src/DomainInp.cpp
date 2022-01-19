@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-    Copyright (C) 2017-2021 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2022 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -31,10 +31,10 @@ License
 #include "PointSearch.h"
 #include "BcRecord.h"
 #include "HXMath.h"
-#include "FileUtil.h"
 #include "Prj.h"
 #include "Partition.h"
 #include <iostream>
+#include<iomanip>
 
 
 BeginNameSpace( ONEFLOW )
@@ -736,7 +736,7 @@ void DomainInp::Dump( MultiDomain * md, GridMediator * gridMediator, PointSearch
 {
     std::fstream file;
     std::string fileName = "test.inp";
-    ONEFLOW::OpenPrjFile( file, fileName, std::ios_base::out );
+    Prj::OpenPrjFile( file, fileName, std::ios_base::out );
 
     Grids grids = gridMediator->gridVector;
     int nZone = grids.size();
@@ -849,7 +849,7 @@ void DomainInp::Dump( MultiDomain * md, GridMediator * gridMediator, PointSearch
             int kkk = 1;
         }
     }
-    ONEFLOW::CloseFile( file );
+    Prj::CloseFile( file );
     int kkk = 1;
 }
 

@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-    Copyright (C) 2017-2021 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2022 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -23,7 +23,7 @@ License
 #include "Boundary.h"
 #include "HXCgns.h"
 #include "Dimension.h"
-#include "FileUtil.h"
+
 #include "Prj.h"
 #include "BcRecord.h"
 
@@ -225,7 +225,7 @@ int CommonNameMap::FindNameId( const std::string & name )
 void DumpRegion( const std::string & fileName, CommonNameMap & nameMap )
 {
     std::fstream file;
-    ONEFLOW::OpenPrjFile( file, fileName, std::ios_base::out );
+    Prj::OpenPrjFile( file, fileName, std::ios_base::out );
 
     std::set< HXSort< std::string > > & stringMap = nameMap.GetNameMap();
 
@@ -235,7 +235,7 @@ void DumpRegion( const std::string & fileName, CommonNameMap & nameMap )
     {
         file << iter->index << " " << iter->value << std::endl;
     }
-    CloseFile( file );
+    Prj::CloseFile( file );
 }
 
 CommonNameMap RegionNameMap::nameMap;

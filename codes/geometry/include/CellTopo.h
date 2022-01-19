@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-    Copyright (C) 2017-2021 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2022 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -45,7 +45,7 @@ public:
     void PushElement( int p1, int p2, int p3, int p4, int elementType );
 public:
     void Alloc( int nCells );
-    UInt GetNumberOfCells() { return eTypes.size(); }
+    HXSize_t GetNumberOfCells() { return eTypes.size(); }
     void CalcC2f( FaceTopo * faceTopo );
     void CalcC2C( FaceTopo * faceTopo );
 };

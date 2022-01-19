@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-    Copyright (C) 2017-2021 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2022 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -38,7 +38,6 @@ public:
     void MainProcess();
     void PostProcess();
 protected:
-    void ProcessCmdLineArgs( std::vector<std::string> & args );
     void InitSimu();
     void RunSimu();
 public:

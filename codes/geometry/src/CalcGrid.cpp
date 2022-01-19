@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-    Copyright (C) 2017-2021 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2022 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -36,7 +36,7 @@ License
 #include "DataBase.h"
 #include "DataBaseIO.h"
 #include "Boundary.h"
-#include "FileUtil.h"
+
 #include "Stop.h"
 #include "Prj.h"
 #include "HXPointer.h"
@@ -97,7 +97,7 @@ void CalcGrid::Dump()
 {
     //std::cout << __FUNCTION__ << std::endl;
     std::fstream file;
-    OpenPrjFile( file, gridFileName, std::ios_base::out|std::ios_base::binary|std::ios_base::trunc );
+    Prj::OpenPrjFile( file, gridFileName, std::ios_base::out|std::ios_base::binary|std::ios_base::trunc );
     int nZone = static_cast<int>(grids.size());
 
     ZoneState::pid.resize( nZone );
@@ -119,7 +119,7 @@ void CalcGrid::Dump()
         grids[ iZone ]->WriteGrid( file );
     }
 
-    ONEFLOW::CloseFile( file );
+    Prj::CloseFile( file );
 }
 
 void CalcGrid::Post()

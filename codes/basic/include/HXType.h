@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-    Copyright (C) 2017-2021 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2022 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -20,18 +20,8 @@ License
 
 \*---------------------------------------------------------------------------*/
 #pragma once
-#include "Configure.h"
-#include <vector>
-#include <sstream>
+#include "HXTypeBasic.h"
 
 BeginNameSpace( ONEFLOW )
-
-typedef double Real;
-typedef std::size_t UInt;
-typedef std::streamsize LLong;
-
-const double LARGE = 1.0e40;
-const double SMALL = 1.0e-40;
-const double TINY  = 1.0e-40;
 
 EndNameSpace

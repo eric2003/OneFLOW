@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-    Copyright (C) 2017-2021 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2022 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -50,7 +50,7 @@ void ElementHome::Initialize()
 
     ONEFLOW::CreatePointer( unitElement, numberOfUnitElement );
 
-    for ( UInt iUnitElement = 0; iUnitElement < numberOfUnitElement; ++ iUnitElement )
+    for ( HXSize_t iUnitElement = 0; iUnitElement < numberOfUnitElement; ++ iUnitElement )
     {
         unitElement[ iUnitElement ]->Initialize( iUnitElement );
     }

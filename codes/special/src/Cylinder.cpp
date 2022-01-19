@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-    Copyright (C) 2017-2021 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2022 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -34,8 +34,8 @@ License
 #include "HXMath.h"
 #include "DataBase.h"
 #include "FileIO.h"
-#include "FileUtil.h"
 #include <iostream>
+#include <iomanip>
 
 
 BeginNameSpace( ONEFLOW )
@@ -218,7 +218,7 @@ void Cylinder::DumpGrid( const std::string & fileName, DomainData * domain )
     }
 
     std::fstream file;
-    OpenPrjFile( file, fileName, std::ios_base::out | std::ios_base::binary );
+    Prj::OpenPrjFile( file, fileName, std::ios_base::out | std::ios_base::binary );
     int nZone = 1;
     int nk = 1;
     HXWrite( & file, nZone );
@@ -230,13 +230,13 @@ void Cylinder::DumpGrid( const std::string & fileName, DomainData * domain )
     HXWrite( & file, yN );
     HXWrite( & file, zN );
 
-    CloseFile( file );
+    Prj::CloseFile( file );
 }
 
 void Cylinder::DumpBcFile( const std::string & fileName, DomainData * domain, IntField & bcList )
 {
     std::fstream file;
-    OpenPrjFile( file, fileName, std::ios_base::out );
+    Prj::OpenPrjFile( file, fileName, std::ios_base::out );
     int solver = 1;
     std::string zName = "A";
     int nBc = 4;
@@ -251,7 +251,7 @@ void Cylinder::DumpBcFile( const std::string & fileName, DomainData * domain, In
     DumpBc( file, 1         , 1         , 1         , domain->nj, bcList[ 2 ] );
     DumpBc( file, domain->ni, domain->ni, 1         , domain->nj, bcList[ 3 ] );
 
-    CloseFile( file );
+    Prj::CloseFile( file );
 }
 
 void Cylinder::ToTecplot( const std::string & fileName, DomainData * domain )
@@ -261,7 +261,7 @@ void Cylinder::ToTecplot( const std::string & fileName, DomainData * domain )
     int nk = 1;
 
     std::fstream file;
-    OpenPrjFile( file, fileName, std::ios_base::out );
+    Prj::OpenPrjFile( file, fileName, std::ios_base::out );
     file << " VARIABLES = \"X\" \"Y\" \"Z\"" << "\n";
     file << "ZONE DATAPACKING = BLOCK, I = " << ni << ", J = " << nj << ", K = " << nk << "\n";
 
@@ -269,7 +269,7 @@ void Cylinder::ToTecplot( const std::string & fileName, DomainData * domain )
     ONEFLOW::ToTecplot( file, domain->y, ni, nj, nk );
     ONEFLOW::ToTecplot( file, domain->z, ni, nj, nk );
 
-    CloseFile( file );
+    Prj::CloseFile( file );
 }
 
 void Cylinder::CalcCircleCenter( PointType & p1, PointType & p2, PointType & p0, PointType & pcenter )

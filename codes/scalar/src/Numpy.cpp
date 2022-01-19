@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-    Copyright (C) 2017-2021 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2022 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -23,7 +23,7 @@ License
 #include "Numpy.h"
 #include "Prj.h"
 #include "StrUtil.h"
-#include "FileUtil.h"
+
 #include <iostream>
 #include <fstream>
 #include <vector>
@@ -48,7 +48,7 @@ std::string Numpy::AddFileName( const std::string & prefix, const std::string & 
 void Numpy::OpenPrjFile( std::fstream & file, const std::string & fileName, const std::ios_base::openmode & openMode )
 {
     std::string fileNameNew = Numpy::AddFileName( "results", fileName );
-    ONEFLOW::OpenPrjFile( file, fileNameNew, std::ios_base::out );
+    Prj::OpenPrjFile( file, fileNameNew, std::ios_base::out );
 }
 
 void Numpy::Ones( std::vector< double > & var )
@@ -105,7 +105,7 @@ void Numpy::Plot( const std::string & fileName, std::vector< double > & x, std::
         file << x[ i ] << " " << f[ i ] << " ";
     }
 
-    CloseFile( file );
+    Prj::CloseFile( file );
 }
 
 void Numpy::ToTecplot( const std::string & fileName, std::vector< double > & x, std::vector< double > & f )
@@ -122,7 +122,7 @@ void Numpy::ToTecplot( const std::string & fileName, std::vector< double > & x, 
         file << x[ i ] << " " << f[ i ] << "\n";
     }
 
-    CloseFile( file );
+    Prj::CloseFile( file );
 }
 
 void Numpy::ToTecplot( const std::string & fileName, std::vector< double > & x, std::vector< double > & u, std::vector< double > & v )
@@ -139,7 +139,7 @@ void Numpy::ToTecplot( const std::string & fileName, std::vector< double > & x, 
         file << x[ i ] << " " << u[ i ] << " " << v[ i ]  << "\n";
     }
 
-    CloseFile( file );
+    Prj::CloseFile( file );
 }
 
 void Numpy::Analysis( const std::string & fileName, std::vector< double > & x, std::vector< std::vector< double > > & du )
@@ -161,7 +161,7 @@ void Numpy::Analysis( const std::string & fileName, std::vector< double > & x, s
         file << std::endl;
     }
 
-    CloseFile( file );
+    Prj::CloseFile( file );
 }
 
 void Numpy::AnalysisNew( const std::string & fileName, std::vector< std::vector< double > > & x, std::vector< std::vector< double > > & du )
@@ -181,7 +181,7 @@ void Numpy::AnalysisNew( const std::string & fileName, std::vector< std::vector<
         }
     }
 
-    CloseFile( file );
+    Prj::CloseFile( file );
 }
 
 void Numpy::DrawL1Norm( const std::string & fileName, std::vector< double > & dxList, std::vector< double > & l1NormList )
@@ -199,7 +199,7 @@ void Numpy::DrawL1Norm( const std::string & fileName, std::vector< double > & dx
         file << dxList[ i ] << " " << l1NormList[ i ] << std::endl;
     }
 
-    CloseFile( file );
+    Prj::CloseFile( file );
 }
 
 void Numpy::DrawNorms( const std::string & fileName, std::vector< double > & dxList, std::vector< double > & l1NormList, std::vector< double > & l2NormList )
@@ -216,7 +216,7 @@ void Numpy::DrawNorms( const std::string & fileName, std::vector< double > & dxL
     {
         file << dxList[ i ] << " " << l1NormList[ i ] << " " << l2NormList[ i ] << std::endl;
     }
-    CloseFile( file );
+    Prj::CloseFile( file );
 }
 
 

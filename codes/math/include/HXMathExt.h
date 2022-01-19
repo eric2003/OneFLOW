@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-    Copyright (C) 2017-2021 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2022 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -43,7 +43,7 @@ inline T SUM( std::vector< T > & a )
 {
     T sum = 0;
     int nElements = a.size();
-    for ( UInt iElement = 0; iElement < nElements; ++ iElement )
+    for ( HXSize_t iElement = 0; iElement < nElements; ++ iElement )
     {
         sum += a[ iElement ];
     }
@@ -55,8 +55,8 @@ inline T MaxField( std::vector< T > & field )
 {
     T maxValue = field[ 0 ];
 
-    UInt nElements = field.size();
-    for ( UInt iElement = 1; iElement < nElements; ++ iElement )
+    HXSize_t nElements = field.size();
+    for ( HXSize_t iElement = 1; iElement < nElements; ++ iElement )
     {
         maxValue = ONEFLOW::MAX( maxValue, field[ iElement ] );
     }
@@ -68,8 +68,8 @@ inline T MinField( std::vector< T > & field )
 {
     T minValue = field[ 0 ];
 
-    UInt nElements = field.size();
-    for ( UInt iElement = 1; iElement < nElements; ++ iElement )
+    HXSize_t nElements = field.size();
+    for ( HXSize_t iElement = 1; iElement < nElements; ++ iElement )
     {
         minValue = ONEFLOW::MIN( minValue, field[ iElement ] );
     }

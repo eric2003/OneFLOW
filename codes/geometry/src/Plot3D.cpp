@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-    Copyright (C) 2017-2021 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2022 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -31,7 +31,7 @@ License
 #include "GridState.h"
 #include "FileIO.h"
 #include "FileO.h"
-#include "FileUtil.h"
+
 #include "Dimension.h"
 #include "HXMath.h"
 #include "Zone.h"
@@ -93,7 +93,7 @@ void Plot3D::ReadCoorBinary( GridMediator * gridMediator )
     std::string separator  = " =\r\n\t#$,;";
 
     std::fstream file;
-    ONEFLOW::OpenPrjFile( file, fileName, std::ios_base::in|std::ios_base::binary );
+    Prj::OpenPrjFile( file, fileName, std::ios_base::in|std::ios_base::binary );
 
     HXRead( & file, gridMediator->numberOfZones );
     gridMediator->gridVector.resize( gridMediator->numberOfZones );
@@ -157,7 +157,7 @@ void Plot3D::ReadCoorBinary( GridMediator * gridMediator )
         }
     }
 
-    ONEFLOW::CloseFile( file );
+    Prj::CloseFile( file );
 }
 
 void Plot3D::DumpCoorBinary( GridMediator * gridMediator )
@@ -165,7 +165,7 @@ void Plot3D::DumpCoorBinary( GridMediator * gridMediator )
     std::string & fileName = gridMediator->gridFile;
 
     std::fstream file;
-    ONEFLOW::OpenPrjFile( file, fileName, std::ios_base::out|std::ios_base::binary );
+    Prj::OpenPrjFile( file, fileName, std::ios_base::out|std::ios_base::binary );
 
     int numberOfZones = gridMediator->numberOfZones;
     HXWrite( & file, numberOfZones );
@@ -217,7 +217,7 @@ void Plot3D::DumpCoorBinary( GridMediator * gridMediator )
         }
     }
 
-    ONEFLOW::CloseFile( file );
+    Prj::CloseFile( file );
 }
 
 void Plot3D::ReadCoorAscii( GridMediator * gridMediator )
@@ -536,7 +536,7 @@ void Plot3D::DumpBc( GridMediator * gridMediator )
     std::string & bcName = gridMediator->bcFile;
 
     std::fstream file;
-    OpenPrjFile( file, bcName, std::ios_base::out );
+    Prj::OpenPrjFile( file, bcName, std::ios_base::out );
 
     int flowSolverIndex = 1;
     file << flowSolverIndex << "\n";
@@ -629,18 +629,18 @@ void Plot3D::DumpBc( GridMediator * gridMediator )
         }
     }
 
-    CloseFile( file );
+    Prj::CloseFile( file );
 }
 
 void Plot3D::ReadCoor( FileIO * ioFile, RealField & coordinate )
 {
-    UInt numberOfNodes = coordinate.size();
-    UInt i = 0;
+    HXSize_t numberOfNodes = coordinate.size();
+    HXSize_t i = 0;
     while ( i < numberOfNodes )
     {
         int num = 1;
         Real tmp = ioFile->ReadNextDigit< Real >( num );
-        for ( UInt j = 0; j < num; ++ j )
+        for ( HXSize_t j = 0; j < num; ++ j )
         {
             coordinate[ i ] = tmp;
             ++ i;

@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-    Copyright (C) 2017-2021 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2022 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -22,6 +22,8 @@ License
 #include "SimpleSimu.h"
 #include "Scalar.h"
 #include "FieldSolver.h"
+#include "FieldSolverOpenMP.h"
+#include "FieldSolverCuda.h"
 #include <iostream>
 
 
@@ -30,9 +32,18 @@ BeginNameSpace( ONEFLOW )
 void ToyModelSimu()
 {
     std::cout << "ToyModelSimu\n";
-    FieldSolver * fieldSolver = new FieldSolver();
-    fieldSolver->Run();
-    delete fieldSolver;
+    //FieldSolver * fieldSolver = new FieldSolver();
+    //fieldSolver->Run();
+    //delete fieldSolver;
+
+    //FieldSolverOpenMP * fieldSolverOpenMP = new FieldSolverOpenMP();
+    //fieldSolverOpenMP->Run();
+    //delete fieldSolverOpenMP;
+
+    FieldSolverCuda * fieldSolverCuda = new FieldSolverCuda();
+    fieldSolverCuda->Run();
+    delete fieldSolverCuda;
+
 }
 
 

@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-    Copyright (C) 2017-2021 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2022 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -39,22 +39,49 @@ FieldPara::~FieldPara()
     ;
 }
 
+//void FieldPara::Init()
+//{
+//    //this->nx = 41;
+//    //this->len = 2.0;
+//    //this->dx = len / ( nx - 1.0 );
+//    ////this->nt = 25;
+//    //this->nt = 25;
+//    //this->dt = 0.025;
+//    //this->c  = 1;
+//
+//    this->nx  = ONEFLOW::GetDataValue< int >("scalar_nx");
+//    this->len = ONEFLOW::GetDataValue< int >("scalar_len");
+//    this->nt  = ONEFLOW::GetDataValue< int >("scalar_nt");
+//    this->dt  = ONEFLOW::GetDataValue< Real >("scalar_dt");
+//    this->c   = ONEFLOW::GetDataValue< Real >("scalar_c");
+//    this->dx  = this->len / ( this->nx - 1.0 );
+//}
+
 void FieldPara::Init()
 {
-    //this->nx = 41;
-    //this->len = 2.0;
-    //this->dx = len / ( nx - 1.0 );
-    ////this->nt = 25;
-    //this->nt = 25;
-    //this->dt = 0.025;
-    //this->c  = 1;
+    int nbase = 40;
+    int base_nt = 25;
 
     this->nx  = ONEFLOW::GetDataValue< int >("scalar_nx");
     this->len = ONEFLOW::GetDataValue< int >("scalar_len");
-    this->nt  = ONEFLOW::GetDataValue< int >("scalar_nt");
-    this->dt  = ONEFLOW::GetDataValue< Real >("scalar_dt");
     this->c   = ONEFLOW::GetDataValue< Real >("scalar_c");
-    this->dx  = this->len / ( this->nx - 1.0 );
+
+    double base_dx =  this->len / nbase;
+    double base_dt = 0.025;
+    double cfl = base_dt / base_dx;
+
+    double total_t = 25 * 0.025;
+
+    this->dx = len / ( this->nx - 1.0 );
+    int nratio = ( this->nx - 1 ) / nbase;
+    this->dt = base_dt / nratio;
+    this->nt  = base_nt * nratio;
+    std::cout << " nratio = " << nratio << "\n";
+    std::cout << " this->dt = " << this->dt << "\n";
+    std::cout << " this->nt = " << this->nt << "\n";
+    std::cout << " this->dx = " << this->dx << "\n";
+    std::cout << "  dx = " << base_dx / nratio << "\n";
 }
+
 
 EndNameSpace

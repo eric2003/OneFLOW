@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-    Copyright (C) 2017-2021 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2022 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -42,7 +42,7 @@ License
 #include "ScalarAlloc.h"
 #include "SolverDef.h"
 #include "Prj.h"
-#include "FileUtil.h"
+
 #include "Parallel.h"
 #include "ScalarZone.h"
 #include "HXCgns.h"
@@ -138,7 +138,7 @@ void ScalarMetis::Create1DMeshFromCgns()
     std::string scalar_grid_filename = ONEFLOW::GetDataValue< std::string >("scalar_grid_filename");
     std::string scalar_cgns_filename = ONEFLOW::GetDataValue< std::string >("scalar_cgns_filename");
 
-    std::string cgnsprjFileName = ONEFLOW::GetPrjFileName( scalar_cgns_filename );
+    std::string cgnsprjFileName = Prj::GetPrjFileName( scalar_cgns_filename );
 
     grid->GenerateGridFromCgns( cgnsprjFileName );
     grid->CalcTopology();
@@ -163,7 +163,7 @@ void ScalarMetisAddZoneGrid( std::vector< ScalarGrid * > & part_grids )
 void ScalarReadGrid( const std::string & gridFileName, std::vector< ScalarGrid * > & grids )
 {
     std::fstream file;
-    OpenPrjFile( file, gridFileName, std::ios_base::in|std::ios_base::binary );
+    Prj::OpenPrjFile( file, gridFileName, std::ios_base::in|std::ios_base::binary );
 
     int nZone = -1;
 
@@ -193,7 +193,7 @@ void ScalarReadGrid( const std::string & gridFileName, std::vector< ScalarGrid *
         grids.push_back( grid );
     }
 
-    ONEFLOW::CloseFile( file );
+    Prj::CloseFile( file );
 }
 
 void ScalarDumpGrid( const std::string & gridFileName, ScalarGrid * grid )
@@ -206,7 +206,7 @@ void ScalarDumpGrid( const std::string & gridFileName, ScalarGrid * grid )
 void ScalarDumpGrid( const std::string & gridFileName, std::vector< ScalarGrid * > & grids )
 {
     std::fstream file;
-    OpenPrjFile( file, gridFileName, std::ios_base::out|std::ios_base::binary|std::ios_base::trunc );
+    Prj::OpenPrjFile( file, gridFileName, std::ios_base::out|std::ios_base::binary|std::ios_base::trunc );
     int nZone = static_cast<int>( grids.size() );
 
     ZoneState::pid.resize( nZone );
@@ -228,7 +228,7 @@ void ScalarDumpGrid( const std::string & gridFileName, std::vector< ScalarGrid *
         grids[ iZone ]->WriteGrid( file );
     }
 
-    ONEFLOW::CloseFile( file );
+    Prj::CloseFile( file );
 }
 
 

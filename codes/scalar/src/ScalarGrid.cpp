@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-    Copyright (C) 2017-2021 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2022 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -50,7 +50,7 @@ License
 #include "DataBase.h"
 #include "DataBook.h"
 #include "Prj.h"
-#include "FileUtil.h"
+
 #include <iostream>
 #include <vector>
 #include <algorithm>
@@ -548,7 +548,7 @@ void ScalarGrid::SetCgnsZone( CgnsZone * cgnsZone )
 void ScalarGrid::DumpCgnsGrid()
 {
 	std::fstream file;
-	std::string prjFileName = ONEFLOW::GetPrjFileName( "scalar.cgns" );
+	std::string prjFileName = Prj::GetPrjFileName( "scalar.cgns" );
 	CgnsZbase * cgnsZbase = new CgnsZbase();
 	cgnsZbase->nBases = 1;
 	cgnsZbase->InitCgnsBase();
@@ -1145,13 +1145,13 @@ void ScalarGrid::DumpCalcGrid()
 {
 	std::cout << "Dumping unstructured grid data files......\n";
 	std::fstream file;
-std::string fileName = "scalar.ofl";
-	OpenPrjFile( file, fileName, std::ios_base::out | std::ios_base::binary );
+	std::string fileName = "scalar.ofl";
+	Prj::OpenPrjFile( file, fileName, std::ios_base::out | std::ios_base::binary );
 	DataBook * databook = new DataBook();
 	this->WriteGrid( databook );
 	databook->WriteFile( file );
 	delete databook;
-	CloseFile( file );
+	Prj::CloseFile( file );
 }
 
 void ScalarGrid::WriteGrid( std::fstream & file )
@@ -1199,12 +1199,12 @@ void ScalarGrid::ReadCalcGrid()
 {
 	std::fstream file;
 	std::string fileName = "scalar.ofl";
-	OpenPrjFile( file, fileName, std::ios_base::in | std::ios_base::binary );
+	Prj::OpenPrjFile( file, fileName, std::ios_base::in | std::ios_base::binary );
 	DataBook * databook = new DataBook();
 	databook->ReadFile( file );
 	this->ReadGrid( databook );
 	delete databook;
-	CloseFile( file );
+	Prj::CloseFile( file );
 }
 
 void ScalarGrid::ReadGrid( std::fstream & file )
@@ -1280,12 +1280,12 @@ void ScalarGrid::WriteGridFaceTopology( DataBook * databook )
 	std::cout << " Dumping this->fTypes \n";
 	ONEFLOW::HXWrite( databook, this->fTypes.data );
 
-	std::cout << "fTypes = \n";
-	for ( int iFace = 0; iFace < this->fTypes.data.size(); ++ iFace )
-	{
-		std::cout << this->fTypes.data[ iFace ] << " ";
-	}
-	std::cout << "\n";
+	//std::cout << "fTypes = \n";
+	//for ( int iFace = 0; iFace < this->fTypes.data.size(); ++ iFace )
+	//{
+	//	std::cout << this->fTypes.data[ iFace ] << " ";
+	//}
+	//std::cout << "\n";
 
 	IntField numFaceNode( this->nFaces );
 
@@ -1301,11 +1301,11 @@ void ScalarGrid::WriteGridFaceTopology( DataBook * databook )
 	int nsum = ONEFLOW::SUM( numFaceNode );
 	std::cout << " nsum = " << nsum << "\n";
 	std::cout << "numFaceNode = \n";
-	for ( int iFace = 0; iFace < numFaceNode.size(); ++ iFace )
-	{
-		std::cout << numFaceNode[ iFace ] << " ";
-	}
-	std::cout << "\n";
+	//for ( int iFace = 0; iFace < numFaceNode.size(); ++ iFace )
+	//{
+	//	std::cout << numFaceNode[ iFace ] << " ";
+	//}
+	//std::cout << "\n";
 
 	IntField faceNodeMem;
 
@@ -1335,12 +1335,12 @@ void ScalarGrid::ReadGridFaceTopology( DataBook * databook )
 
 	ONEFLOW::HXRead( databook, this->fTypes.data );
 
-	std::cout << "fTypes = \n";
-	for ( int iFace = 0; iFace < this->fTypes.data.size(); ++ iFace )
-	{
-		std::cout << this->fTypes.data[ iFace ] << " ";
-	}
-	std::cout << "\n";
+	//std::cout << "fTypes = \n";
+	//for ( int iFace = 0; iFace < this->fTypes.data.size(); ++ iFace )
+	//{
+	//	std::cout << this->fTypes.data[ iFace ] << " ";
+	//}
+	//std::cout << "\n";
 
 	IntField numFaceNode( this->nFaces );
 
@@ -1352,11 +1352,11 @@ void ScalarGrid::ReadGridFaceTopology( DataBook * databook )
 	std::cout << " nsum = " << nsum << "\n";
 	std::cout << " this->nFaces = " << this->nFaces << "\n";
 	std::cout << "numFaceNode = \n";
-	for ( int iFace = 0; iFace < numFaceNode.size(); ++ iFace )
-	{
-		std::cout << numFaceNode[ iFace ] << " ";
-	}
-	std::cout << "\n";
+	//for ( int iFace = 0; iFace < numFaceNode.size(); ++ iFace )
+	//{
+	//	std::cout << numFaceNode[ iFace ] << " ";
+	//}
+	//std::cout << "\n";
 
 	std::cout << "Setting the connection mode of face to point......\n";
 	IntField faceNodeMem( nsum );

@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-    Copyright (C) 2017-2021 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2022 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -19,15 +19,37 @@ License
     along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 
 \*---------------------------------------------------------------------------*/
+
+
 #pragma once
-#include "Configure.h"
-#include <string>
+#include "FieldSolverBasic.h"
 
 BeginNameSpace( ONEFLOW )
 
-#define Stop( _Expression ) ( ONEFLOW::StopProgramFunction( _Expression, __FILE__, __LINE__, __DATE__, __TIME__ ) )
-
-void StopProgramFunction( const std::string & stopInformation, const std::string & fileName, const int & fileLine, const std::string & dateName, const std::string & timeName );
-
+class FieldSolverOpenMP : public FieldSolverBasic
+{
+public:
+    FieldSolverOpenMP();
+    ~FieldSolverOpenMP();
+public:
+    virtual void Run();
+public:
+    void SolveFlowFieldOpenMP();
+    void SolveOneStepOpenMP();
+    void BoundaryOpenMP();
+    void GetQLQROpenMP();
+    void CalcInvFluxOpenMP();
+    void UpdateResidualOpenMP();
+    void TimeIntergralOpenMP();
+    void UpdateOpenMP();
+public:
+    void ZoneBoundaryOpenMP();
+    void ZoneGetQLQROpenMP();
+    void ZoneCalcInvFluxOpenMP();
+    void ZoneUpdateResidualOpenMP();
+    void ZoneTimeIntergralOpenMP();
+    void ZoneUpdateOpenMP();
+    void AddF2CFieldOpenMP( ScalarGrid * grid, RealField & cField, RealField & fField );
+};
 
 EndNameSpace

@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-    Copyright (C) 2017-2021 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2022 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -19,23 +19,19 @@ License
     along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 
 \*---------------------------------------------------------------------------*/
-
-#include "OStream.h"
-
+#pragma once
+#include "Configure.h"
+#include <vector>
+#include <sstream>
 
 BeginNameSpace( ONEFLOW )
 
-OStream StrIO;
+typedef double Real;
+typedef std::size_t HXSize_t;
+typedef std::streamsize HXLongLong_t;
 
-void OStream::ClearAll()
-{
-    this->str("");
-}
-
-void Clear( std::ostringstream & oss )
-{
-    oss.clear( );
-    oss.str( "" );
-}
+const double LARGE = 1.0e40;
+const double SMALL = 1.0e-40;
+const double TINY  = 1.0e-40;
 
 EndNameSpace

@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-    Copyright (C) 2017-2021 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2022 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -80,11 +80,11 @@ int LineMachine::AddLine( int p1, int p2 )
 
     int n = this->refLines.size();
 
-    Mid<int> fMid( 2, n + 1 );
+    HXMid<int> fMid( 2, n + 1 );
     fMid.data = line;
     std::sort( fMid.data.begin(), fMid.data.end() );
 
-    std::set< Mid<int> >::iterator iter = this->refLines.find( fMid );
+    std::set< HXMid<int> >::iterator iter = this->refLines.find( fMid );
     if ( iter == this->refLines.end() )
     {
         this->refLines.insert( fMid );

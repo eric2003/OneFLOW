@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-    Copyright (C) 2017-2021 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2022 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -24,7 +24,7 @@ License
 #include "LineMachine.h"
 #include "CurveInfo.h"
 #include "FileIO.h"
-#include "FileUtil.h"
+
 #include "BgGrid.h"
 #include "StrGrid.h"
 #include "GridState.h"

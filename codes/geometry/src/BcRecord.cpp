@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-    Copyright (C) 2017-2021 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2022 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -105,7 +105,7 @@ int BcRecord::GetNBFace()
     return bcType.size();
 }
 
-void BcRecord::Init( UInt nBFaces )
+void BcRecord::Init( HXSize_t nBFaces )
 {
     this->bcType.resize( nBFaces );
     this->bcNameId.resize( nBFaces );
