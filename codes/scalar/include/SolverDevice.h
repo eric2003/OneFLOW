@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-    Copyright (C) 2017-2021 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2022 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -29,7 +29,7 @@ License
 BeginNameSpace( ONEFLOW )
 
 #ifdef ENABLE_CUDA
-void SetValueWithCuda(Real *aface, Real *bcell, int *id, unsigned int nFaces, unsigned int nTCells);
+void SetFaceValueCuda(Real *aface, Real *bcell, int *id, int nFaces, int nTCells);
 void MyCalcInvFluxCuda(Real *qf1, Real *qf2, Real *invflux, Real *xfn, Real *yfn, Real *zfn, Real *area, int nFaces);
 void MyAddF2CFieldCuda(Real *fField, Real *cField, int *lc, int * rc, int nBFaces, int nFaces, int nTCells);
 void MyZoneTimeIntergralCuda(Real *res, Real *vol, Real dt, int nCells);

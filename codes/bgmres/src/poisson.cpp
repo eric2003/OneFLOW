@@ -20,7 +20,7 @@ Poisson::Poisson(int number, int ranknumber)
 	A  = ArrayUtils<double>::onetensor(number);
 	IA = ArrayUtils<int>::onetensor(number);
 	JA = ArrayUtils<int>::onetensor(number);
-	coeMatrix(A,IA,JA);  //按行存储方法
+	coeMatrix(A,IA,JA);
 }
 
 
