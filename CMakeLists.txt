@@ -2,13 +2,13 @@ cmake_minimum_required ( VERSION 3.15 )
 
 message ( STATUS "The CMAKE_VERSION is ${CMAKE_VERSION}." )
 include ( "${CMAKE_CURRENT_SOURCE_DIR}/project-meta-info.in" )
-		
+
 project ( OneFLOW
           VERSION ${project_version}
           DESCRIPTION ${project_description}
           HOMEPAGE_URL ${project_homepage}
           LANGUAGES CXX
-	     )
+         )
 
 message ( STATUS "CMAKE_PROJECT_NAME    = ${CMAKE_PROJECT_NAME}" )
 message ( STATUS "PROJECT_VERSION_MAJOR = ${PROJECT_VERSION_MAJOR}" )
