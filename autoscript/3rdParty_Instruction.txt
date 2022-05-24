@@ -4,8 +4,8 @@ mkdir hdf5-1.8.22-install
 cd hdf5-1.8.22
 make build
 cd build
-cmake .. -DCMAKE_C_COMPILER=${MPI_HOME}/bin/mpicc
-cmake .. -DHDF5_ENABLE_PARALLEL=ON -DHDF5_ENABLE_LARGE_FILE=ON -DCMAKE_INSTALL_PREFIX=../../hdf5-1.8.22-install -DHDF5_BUILD_GENERATORS=ON -DALLOW_UNSUPPORTED=ON
+cmake .. -DCMAKE_C_COMPILER=gcc
+cmake .. (-DHDF5_ENABLE_PARALLEL=ON) -DHDF5_ENABLE_LARGE_FILE=ON -DCMAKE_INSTALL_PREFIX=../../hdf5-1.8.22-install -DHDF5_BUILD_GENERATORS=ON
 make -j8
 make install
 
@@ -14,14 +14,11 @@ tar xvf CGNS-4.2.0.tar.gz
 mkdir CGNS-4.2.0-install
 cd CGNS-4.2.0 && mkdir build && cd build
 
-# Only build basic
-cmake .. -DCGNS_ENABLE_HDF5=ON -DCGNS_ENABLE_LEGACY=ON -DHDF5_DIR=/share/software/hdf5/hdf5-1.8.22/build -DCMAKE_INSTALL_PREFIX=../../CGNS-4.2.0-install
-
 # build cgns tools and tests
 # Modify CMakeLists.txt add this line:
 set(OpenGL_GL_PREFERENCE LEGACY)
-cmake .. -DCMAKE_C_COMPILER=${MPI_HOME}/bin/mpicc
-cmake .. -DBUILD_TESTING=ON -DCGNS_ENABLE_LEGACY=ON -DCGNS_ENABLE_HDF5=ON -DCGNS_BUILD_CGNSTOOLS=ON -DCGNS_BUILD_SHARED=ON -DCGNS_BUILD_TESTING=ON -DCGNS_ENABLE_TESTS=ON -DCGNS_USE_SHARED=ON -DCMAKE_INSTALL_PREFIX=../../CGNS-4.2.0-install
+cmake .. -DCMAKE_C_COMPILER=gcc
+cmake .. -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++ -DBUILD_TESTING=ON -DCGNS_ENABLE_LEGACY=ON -DCGNS_ENABLE_HDF5=ON -DCGNS_BUILD_CGNSTOOLS=ON -DCGNS_BUILD_SHARED=ON -DCGNS_BUILD_TESTING=ON -DCGNS_ENABLE_TESTS=ON -DCGNS_USE_SHARED=ON -DHDF5_LIBRARIES=/work/home/luql/software/hdf5-1.12.2-install/lib/libhdf5.so -DHDF5_INCLUDE_DIRS=/work/home/luql/software/hdf5-1.12.2-install/include -DHDF5_DIR=/work/home/luql/software/hdf5-1.12.2-install/cmake -DCMAKE_INSTALL_PREFIX=../../CGNS-install
 
 # For Debian
 sudo apt-get install libxmu-dev # may need to install this
