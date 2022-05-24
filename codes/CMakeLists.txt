@@ -15,14 +15,17 @@ list ( APPEND PRJ_COMPILE_FEATURES cxx_std_17 )
 list ( APPEND PRJ_COMPILE_DEF _HAS_STD_BYTE=0 )
 
 set ( oneAPI_LIB_DIR )
-
+set ( LIB_COMPILER_TYPE VS2022 )
+#set ( LIB_COMPILER_TYPE oneAPI2022 )
+set ( LIB_TYPE STATIC )
 if ( CMAKE_SYSTEM_NAME MATCHES "Linux" )
 elseif ( CMAKE_SYSTEM_NAME MATCHES "Windows" )
     #Cancel the warning of fopen in C language
     list ( APPEND PRJ_COMPILE_DEF _CRT_SECURE_NO_WARNINGS )
-    set ( METIS_ROOT "C:/METIS/METIS-oneAPI2022-STATIC" )
+    set ( METIS_ROOT "C:/METIS/METIS-${LIB_COMPILER_TYPE}-STATIC" )
     set ( oneAPI_LIB_DIR "C:/Program Files (x86)/Intel/oneAPI/compiler/latest/windows/compiler/lib/intel64/" )
     list ( APPEND PRJ_LINK_DIRS ${oneAPI_LIB_DIR} )
+    #list ( APPEND PRJ_COMPILE_DEF USE_METIS_DLL )
 endif()
 
 set ( BIT64_FLAG TRUE CACHE BOOL "64bit or 32bit code" )
