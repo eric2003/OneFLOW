@@ -308,7 +308,7 @@ void Solver::Visualize( CfdPara * cfd_para, Geom * geom )
                 q_global.insert( q_global.end(), qvec[ ip ].begin() + 2, qvec[ ip ].end() - 1 );
             }
         }
-        x_global.insert( x_global.end(), geom->xcoor_global + 1, geom->xcoor_global + Geom_t::ni_global + 1 );
+        x_global.insert( x_global.end(), Geom_t::xcoor_global + 1, Geom_t::xcoor_global + Geom_t::ni_global + 1 );
         std::vector<float> theory;
         theory.resize( x_global.size() );
         Theory( cfd_para->simu_time, cfd_para->cspeed, theory, x_global );

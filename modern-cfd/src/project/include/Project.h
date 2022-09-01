@@ -25,12 +25,15 @@ along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 class Project
 {
 public:
-    Project( int argc, char ** argv );
+    Project();
     ~Project();
 public:
     static std::string system_root;
     static std::string current_dir;
     static std::string execute_dir;
-    static std::string prj_basedir;
+    static std::string prj_rootdir;
+public:
+    static void Init( int argc, char **argv );
+    static void SetProjectRootDir( const std::string & prjName );
 };
 

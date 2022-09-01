@@ -38,7 +38,7 @@ void CfdPara::Init( Geom * geom )
     this->cfl = 0.5;
     this->simu_time = 0.625;
     this->cspeed = 1.0;
-    this->dt = geom->dx * cfl / cspeed;
+    this->dt = Geom_t::dx * cfl / cspeed;
     this->fnt = ( simu_time + SMALL ) / dt;
     this->nt = fnt;
 }

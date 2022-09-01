@@ -24,9 +24,13 @@ along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 #include "Solver.h"
 #include "Cmpi.h"
 #include "CfdPara.h"
+#include "Project.h"
+#include <iostream>
 
 Simu::Simu(int argc, char **argv)
 {
+    //std::cout << "argv[0]=" << argv[0] << "\n";
+    Project::Init( argc, argv );
     Cmpi::Init( argc, argv );
 }
 
@@ -56,4 +60,5 @@ void Simu::Run()
     delete cfd_para;
     delete geom;
     delete solver;
+    Geom_t::Finalize();
 }

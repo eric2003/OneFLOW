@@ -31,14 +31,18 @@ public:
     ~Geom_t();
 public:
     static void Init();
+    static void Finalize();
 public:
     static int ni_ghost;
     static int ni_global;
     static int ni_global_total;
+    static float * xcoor_global;
+    static float dx;
 public:
     static std::vector<int> zone_nis;
     static std::vector<int> proc_ids;
     static std::vector<int> zone_ids;
+public:
 };
 
 class Geom
@@ -56,13 +60,9 @@ public:
     int nZones;
     int ni;
     int ni_total;
-    float * xcoor_global;
     float * xcoor;
 public:
-    float xlen;
-    float dx;
     float * ds;
-    float xmin, xmax;
 public:
     BoundarySolver * bcSolver;
 };
