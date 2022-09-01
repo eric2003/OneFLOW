@@ -165,12 +165,13 @@ function InstallMETIS() {
     Write-Host "ls..."
     ls
     cd build
-    $metis_prefix = "C:/METIS/"
+    #$metis_prefix = "C:/METIS/"
+    $metis_prefix = "C:/METIS/METIS-VS2022-STATIC/"
     cmake ../
     cmake --build . --parallel 4 --config release
     cmake --install . --prefix $metis_prefix
-	cd ../../
-	pwd
+    cd ../../
+    pwd
     Write-Host "METIS-5.1.0 installation complete..."
 }
 
@@ -215,11 +216,11 @@ function ExitDownload() {
 }
 
 function CompileOneFLOW() {
-	Write-Host "Compile OneFLOW ..."
-	mkdir build
-	cd build
-	cmake ../
-	$oneflow_prefix = "C:/OneFLOW"
+    Write-Host "Compile OneFLOW ..."
+    mkdir build
+    cd build
+    cmake ../
+    $oneflow_prefix = "C:/OneFLOW"
     $oneflow_bin = $oneflow_prefix + "/bin"
     cmake --build . --parallel 4 --config release
     cmake --install . --prefix $oneflow_prefix
@@ -228,13 +229,13 @@ function CompileOneFLOW() {
 }
 
 function main() {
-	InitDownload
+    InitDownload
     InstallMSMPI
     InstallHDF5
     InstallCGNS
     InstallMETIS
-	ExitDownload
-	CompileOneFLOW
+    ExitDownload
+    CompileOneFLOW
 }
 
 main

@@ -93,7 +93,7 @@ __global__ void MyAddF2CFieldCudaDevice(Real * fField, Real * cField, int * lc, 
         int lc_ = lc[ iFace ];
         Real value = fField[ iFace ];
         //cField[ lc_ ] -= fField[ iFace ];
-        atomicAdd( &cField[ lc_ ], - value );
+        //atomicAdd( &cField[ lc_ ], - value );
     }
     else if ( ( iFace >= nBFaces ) && ( iFace < nFaces ) )
     {
@@ -103,8 +103,8 @@ __global__ void MyAddF2CFieldCudaDevice(Real * fField, Real * cField, int * lc, 
         Real value = fField[ iFace ];
         //cField[ lc_ ] -= fField[ iFace ];
         //cField[ rc_ ] += fField[ iFace ];
-        atomicAdd( &cField[ lc_ ], - value );
-        atomicAdd( &cField[ rc_ ], value );
+        //atomicAdd( &cField[ lc_ ], - value );
+        //atomicAdd( &cField[ rc_ ], value );
     }
 }
 
@@ -470,8 +470,8 @@ void MyAddF2CFieldCuda(Real *fField, Real *cField, int *lc, int * rc, int nBFace
     int threadsPerBlock = 256;
     int blocksPerGrid = (nFaces + threadsPerBlock - 1) / threadsPerBlock;
 
-    MyAddF2CFieldCudaDevice<<<blocksPerGrid, threadsPerBlock>>>(dev_fField, dev_cField, dev_lc, dev_rc, nBFaces, nFaces );
-    //MyAddF2CFieldCudaDeviceNoAtomic<<<blocksPerGrid, threadsPerBlock>>>(dev_fField, dev_cField, dev_lc, dev_rc, nBFaces, nFaces );
+    //MyAddF2CFieldCudaDevice<<<blocksPerGrid, threadsPerBlock>>>(dev_fField, dev_cField, dev_lc, dev_rc, nBFaces, nFaces );
+    MyAddF2CFieldCudaDeviceNoAtomic<<<blocksPerGrid, threadsPerBlock>>>(dev_fField, dev_cField, dev_lc, dev_rc, nBFaces, nFaces );
 
     cudaDeviceSynchronize();
 

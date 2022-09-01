@@ -1,0 +1,49 @@
+/*---------------------------------------------------------------------------*\
+OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
+Copyright (C) 2017-2022 He Xin and the OneFLOW contributors.
+-------------------------------------------------------------------------------
+License
+This file is part of OneFLOW.
+
+OneFLOW is free software: you can redistribute it and/or modify it
+under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+OneFLOW is distributed in the hope that it will be useful, but WITHOUT
+ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+for more details.
+
+You should have received a copy of the GNU General Public License
+along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
+
+\*---------------------------------------------------------------------------*/
+
+#include "SolverDetailCpu.h"
+#include "Cmpi.h"
+#include <cstdio>
+
+void SolverInitCpu()
+{
+    Cmpi::num_gpus = 0;
+    std::printf("no CUDA capable devices were detected\n");
+}
+
+void CfdCopyVectorCpu( float * a, float * b, int ni )
+{
+    for ( int i = 0; i < ni; ++ i )
+    {
+        a[ i ] = b[ i ];
+    }
+}
+
+void CfdScalarUpdateCpu( float * q, float * qn, float c, float * timestep, float * ds, int ni )
+{
+    for ( int i = 1; i < ni + 1; ++ i )
+    {
+        float cfl = c * timestep[ i ] / ds[ i ];
+        q[ i ] = qn[ i ] - cfl * ( qn[ i ] - qn[ i - 1 ] );
+    }
+}
+
