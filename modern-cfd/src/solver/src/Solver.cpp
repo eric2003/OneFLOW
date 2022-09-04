@@ -32,6 +32,9 @@ along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 #include "Geom.h"
 #include "CfdPara.h"
 #include "Visual.h"
+#ifdef PRJ_ENABLE_CGNS
+#include <cgnslib.h>
+#endif
 
 float SquareFun( float xm )
 {
@@ -133,7 +136,9 @@ void Solver::SolveField( CfdPara * cfd_para, Geom * geom )
     //{
     //    qn[ i ] = q[ i ];
     //}
-    for ( int n = 0; n < cfd_para->nt; ++ n )
+    //for ( int n = 0; n < cfd_para->nt; ++ n )
+    int n = 0;
+    while ( n < cfd_para->nt )
     {
         if ( geom->zoneId == 0 )
         {
@@ -155,6 +160,7 @@ void Solver::SolveField( CfdPara * cfd_para, Geom * geom )
             CfdCopyVector( qn, q, geom->ni_total );
         }
         CfdScalarUpdate(this->q, this->qn, cfd_para->cspeed, this->timestep, geom->ds, geom->ni );
+        ++ n;
     }
 }
 

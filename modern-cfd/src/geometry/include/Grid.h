@@ -38,8 +38,8 @@ class BoundarySolver;
 class InterfaceSolver;
 
 const int BCInterface = -1;
-const int BCInflow = 1;
-const int BCOutflow = 2;
+//const int BCInflow = 1;
+//const int BCOutflow = 2;
 
 class BcTypeMap
 {

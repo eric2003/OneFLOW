@@ -29,7 +29,6 @@ along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 
 Simu::Simu(int argc, char **argv)
 {
-    //std::cout << "argv[0]=" << argv[0] << "\n";
     Project::Init( argc, argv );
     Cmpi::Init( argc, argv );
 }

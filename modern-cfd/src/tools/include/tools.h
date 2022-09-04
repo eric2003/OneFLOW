@@ -20,49 +20,18 @@ along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 
 \*---------------------------------------------------------------------------*/
 #pragma once
-#include <vector>
+#include <string>
+#include <sstream>
 
-class BoundarySolver;
-
-class Geom_t
+template <class... Ts>
+std::string add_string( Ts const&... args )
 {
-public:
-    Geom_t();
-    ~Geom_t();
-public:
-    static void Init();
-    static void Finalize();
-    static void DumpGrid();
-public:
-    static int ni_ghost;
-    static int ni_global;
-    static int ni_global_total;
-    static float * xcoor_global;
-    static float dx;
-public:
-    static std::vector<int> zone_nis;
-    static std::vector<int> proc_ids;
-    static std::vector<int> zone_ids;
-public:
-};
+    std::ostringstream oss;
+    ((oss << args), ... );
+    return oss.str();
+}
 
-class Geom
-{
-public:
-    Geom();
-    ~Geom();
-public:
-    void Init();
-    void GenerateGrid();
-    void ComputeGeom();
-public:
-    int zoneId;
-    int nZones;
-    int ni;
-    int ni_total;
-    float * xcoor;
-public:
-    float * ds;
-public:
-    BoundarySolver * bcSolver;
-};
+template <class... Ts>
+void print_all(std::ostream& os, Ts const&... args) {
+    ((os << args << "\n" ), ... );
+}

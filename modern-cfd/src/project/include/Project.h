@@ -32,8 +32,13 @@ public:
     static std::string current_dir;
     static std::string execute_dir;
     static std::string prj_rootdir;
+    static std::string prj_dir;
+    static std::string prj_grid_dir;
+    static std::string prj_script_dir;
+    static std::string prj_log_dir;
 public:
     static void Init( int argc, char **argv );
     static void SetProjectRootDir( const std::string & prjName );
+    static void SetProjectDir( const std::string & prjName );
 };
 

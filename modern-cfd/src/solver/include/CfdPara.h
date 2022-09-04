@@ -36,6 +36,7 @@ public:
     ~CfdPara();
 public:
     void Init( Geom * geom );
+    void ReadJsonCfdFile();
 public:
     int nt;
     int irestart; //0 restart, 1 continue
