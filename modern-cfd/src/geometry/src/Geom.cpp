@@ -22,8 +22,11 @@ along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 #include "Geom.h"
 #include "Cmpi.h"
 #include "Grid.h"
-#include <iostream>
 #include "Project.h"
+#ifdef PRJ_ENABLE_CGNS
+#include "cgnstest.h"
+#endif
+#include <iostream>
 
 void HXGenerateGrid( int ni, float xmin, float xmax, float * xcoor )
 {
@@ -60,6 +63,12 @@ Geom_t::~Geom_t()
 
 void Geom_t::Init()
 {
+#ifdef PRJ_ENABLE_CGNS
+    if ( Cmpi::pid == 0 )
+    {
+        //TestCgnsLink();
+    }
+#endif
     Geom_t::ni_global = 41;
     //Geom_t::ni_global = 401;
     //Geom_t::ni_global = 4001;
@@ -94,12 +103,25 @@ void Geom_t::Init()
 
     Geom_t::xcoor_global = new float[ Geom_t::ni_global_total ];
     ::HXGenerateGrid( Geom_t::ni_global, xmin, xmax, Geom_t::xcoor_global );
+    if ( Cmpi::pid == 0 )
+    {
+        Geom_t::DumpGrid();
+    }
 }
 
 void Geom_t::Finalize()
 {
     delete [] Geom_t::xcoor_global;
     Geom_t::xcoor_global = 0;
+}
+
+void Geom_t::DumpGrid()
+{
+
+#ifdef PRJ_ENABLE_CGNS
+    ::cgns_dump_grid( Geom_t::xcoor_global+1, Geom_t::ni_global, "oneflow-1d.cgns" );
+#endif
+
 }
 
 Geom::Geom()
@@ -126,21 +148,6 @@ void Geom::Init()
     this->bcSolver = new BoundarySolver{};
     this->bcSolver->zoneId = zoneId;
     this->bcSolver->Init( zoneId, nZones, this->ni );
-}
-
-void Geom::GenerateGrid( int ni, float xmin, float xmax, float * xcoor )
-{
-    float dx = ( xmax - xmin ) / ( ni - 1 );
-    int ist = 0;
-    int ied = ni + 1;
-    for ( int i = 1; i <= ni; ++ i )
-    {
-        float xm = xmin + ( i - 1 ) * dx;
-
-        xcoor[ i ] = xm;
-    }
-    xcoor[ ist ] = 2 * xcoor[ ist + 1 ] - xcoor[ ist + 2 ];
-    xcoor[ ied ] = 2 * xcoor[ ied - 1 ] - xcoor[ ied - 2 ];
 }
 
 void Geom::GenerateGrid()

@@ -27,6 +27,9 @@ along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 #include <algorithm>
 #include "Cmpi.h"
 #include "Geom.h"
+#ifdef PRJ_ENABLE_CGNS
+#include <cgnslib.h>
+#endif
 
 Grid::Grid()
 {

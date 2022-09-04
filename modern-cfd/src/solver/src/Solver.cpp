@@ -26,13 +26,15 @@ along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 #include <set>
 #include <map>
 #include <fstream>
+#include <omp.h>
 #include "Cmpi.h"
 #include "Grid.h"
 #include "Geom.h"
 #include "CfdPara.h"
-#include <omp.h>
-#include "matplotlibcppModified.h"
-namespace plt = matplotlibcpp;
+#include "Visual.h"
+#ifdef PRJ_ENABLE_CGNS
+#include <cgnslib.h>
+#endif
 
 float SquareFun( float xm )
 {
@@ -54,43 +56,6 @@ void Theory( float time, float c, std::vector<float>& theory, std::vector<float>
         float fm = SquareFun( xm_new );
         theory[i] = fm;
     }
-}
-
-void Visual( float * q, float * xcoor, int ni, const std::string & fileName )
-{
-    std::vector<float> qv{ q + 1, q + ni };
-    std::vector<float> xv{ xcoor + 1, xcoor + ni };
-    // Set the size of output image to 1200x780 pixels
-    plt::figure_size(1200, 780);
-    // Plot line from given x and y data. Color is selected automatically.
-    plt::plot(xv, qv, {{"label", "calc"}});
-    // Add graph title
-    plt::title("1d convection");
-    plt::xlabel("x");
-    plt::ylabel("u");
-    // Enable legend.
-    plt::legend();
-
-    // Save the image (file format is determined by the extension)
-    plt::savefig( fileName.c_str() );
-}
-
-void Visual( std::vector<float> & q, std::vector<float> & theory, std::vector<float> & x,  const std::string & fileName )
-{
-    // Set the size of output image to 1200x780 pixels
-    plt::figure_size(1200, 780);
-    // Plot line from given x and y data. Color is selected automatically.
-    plt::plot( x, q, { {"label", "OneFLOW"}, {"marker", "o" } } );
-    plt::plot(x, theory, {{"label", "theory"}});
-    // Add graph title
-    plt::title("1d convection");
-    plt::xlabel("x");
-    plt::ylabel("u");
-    // Enable legend.
-    plt::legend();
-
-    // Save the image (file format is determined by the extension)
-    plt::savefig( fileName.c_str() );
 }
 
 Solver::Solver()
@@ -147,15 +112,6 @@ void Solver::SetInflowField( CfdPara * cfd_para, Geom * geom )
     }
 }
 
-void Solver::ReadField( CfdPara * cfd_para, Geom * geom )
-{
-    for ( int i = 0; i < geom->ni_total; ++ i )
-    {
-        float fm = SquareFun( geom->xcoor[ i ] );
-        this->q[ i ] = fm;
-    }
-}
-
 void Solver::CfdSolve( CfdPara * cfd_para, Geom * geom )
 {
     this->AllocateField( geom );
@@ -180,7 +136,9 @@ void Solver::SolveField( CfdPara * cfd_para, Geom * geom )
     //{
     //    qn[ i ] = q[ i ];
     //}
-    for ( int n = 0; n < cfd_para->nt; ++ n )
+    //for ( int n = 0; n < cfd_para->nt; ++ n )
+    int n = 0;
+    while ( n < cfd_para->nt )
     {
         if ( geom->zoneId == 0 )
         {
@@ -202,6 +160,7 @@ void Solver::SolveField( CfdPara * cfd_para, Geom * geom )
             CfdCopyVector( qn, q, geom->ni_total );
         }
         CfdScalarUpdate(this->q, this->qn, cfd_para->cspeed, this->timestep, geom->ds, geom->ni );
+        ++ n;
     }
 }
 
@@ -247,6 +206,25 @@ void Solver::BoundaryInterface( float * q, Geom * geom )
     }
 }
 
+void Solver::ReadField( CfdPara * cfd_para, Geom * geom )
+{
+    for ( int i = 0; i < geom->ni_total; ++ i )
+    {
+        float fm = SquareFun( geom->xcoor[ i ] );
+        this->q[ i ] = fm;
+    }
+
+    //char buffer[ 50 ];
+    //std::sprintf( buffer, "./flow%d.dat", geom->zoneId );
+    //std::fstream file;
+    //file.open( buffer, std::fstream::out | std::fstream::binary );
+
+    //int ni_total = geom->ni_total;
+    //file.write( reinterpret_cast<char *>(&ni_total), sizeof(int) );
+    //file.write( reinterpret_cast<char *>(this->q), ni_total * sizeof(float) );
+    //file.close();
+}
+
 void Solver::SaveField( CfdPara * cfd_para, Geom * geom )
 {
     char buffer[ 50 ];
@@ -255,8 +233,8 @@ void Solver::SaveField( CfdPara * cfd_para, Geom * geom )
     file.open( buffer, std::fstream::out | std::fstream::binary );
 
     int ni_total = geom->ni_total;
-    file.write(reinterpret_cast<char *>(&ni_total), sizeof(int) );
-    file.write(reinterpret_cast<char *>(this->q), ni_total * sizeof(float) );
+    file.write( reinterpret_cast<char *>(&ni_total), sizeof(int) );
+    file.write( reinterpret_cast<char *>(this->q), ni_total * sizeof(float) );
     file.close();
 }
 
