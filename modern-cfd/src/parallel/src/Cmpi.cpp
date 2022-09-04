@@ -23,9 +23,10 @@ along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 
 int Cmpi::pid = 0;
 int Cmpi::nproc = 1;
-int Cmpi::serverid = 0;
+int Cmpi::server_id = 0;
 int Cmpi::num_gpus = 0;
 int Cmpi::num_cpus = 1;
+ServerCout Cmpi::server_out;
 
 Cmpi::Cmpi()
 {
@@ -51,4 +52,19 @@ void Cmpi::Finalize()
 #ifdef PRJ_ENABLE_MPI
     MPI_Finalize();
 #endif
+}
+
+bool Cmpi::IsServer()
+{
+    return Cmpi::pid == Cmpi::server_id;
+}
+
+ServerCout::ServerCout()
+{
+    ;
+}
+
+ServerCout::~ServerCout()
+{
+    ;
 }

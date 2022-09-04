@@ -29,8 +29,8 @@ along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 
 Simu::Simu(int argc, char **argv)
 {
-    Project::Init( argc, argv );
     Cmpi::Init( argc, argv );
+    Project::Init( argc, argv );
 }
 
 Simu::~Simu()
@@ -52,7 +52,7 @@ void Simu::Run()
 
     //cfd parameter
     CfdPara * cfd_para = new CfdPara{};
-    cfd_para->Init( geom );
+    cfd_para->Init();
 
     Solver * solver = new Solver{};
     solver->Run( cfd_para, geom );

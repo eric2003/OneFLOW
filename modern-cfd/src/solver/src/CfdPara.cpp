@@ -20,7 +20,7 @@ along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 
 \*---------------------------------------------------------------------------*/
 #include "CfdPara.h"
-#include "Geom.h"
+#include "Cmpi.h"
 #include "Project.h"
 #include "tools.h"
 #include <json/json.h>
@@ -37,23 +37,20 @@ CfdPara::~CfdPara()
     ;
 }
 
-void CfdPara::Init( Geom * geom )
+void CfdPara::Init()
 {
     this->ReadJsonCfdFile();
     //this->irestart = 0;
     //this->cfl = 0.5;
     //this->simu_time = 0.625;
     //this->cspeed = 1.0;
-    this->dt = Geom_t::dx * cfl / cspeed;
-    this->fnt = ( simu_time + SMALL ) / dt;
-    this->nt = fnt;
 }
 
 void CfdPara::ReadJsonCfdFile()
 {
-    std::cout << " ReadJsonCfdFile() Project::prj_grid_dir = " << Project::prj_grid_dir << "\n";
-    std::cout << " ReadJsonCfdFile() Project::prj_script_dir = " << Project::prj_script_dir << "\n";
-    std::cout << " ReadJsonCfdFile() Project::prj_log_dir = " << Project::prj_log_dir << "\n";
+    Cmpi::server_out << " ReadJsonCfdFile() Project::prj_grid_dir = " << Project::prj_grid_dir << "\n";
+    Cmpi::server_out << " ReadJsonCfdFile() Project::prj_script_dir = " << Project::prj_script_dir << "\n";
+    Cmpi::server_out << " ReadJsonCfdFile() Project::prj_log_dir = " << Project::prj_log_dir << "\n";
 
     Json::Value root;
     std::ifstream ifs;
@@ -65,7 +62,7 @@ void CfdPara::ReadJsonCfdFile()
     JSONCPP_STRING errs;
     if ( !Json::parseFromStream(builder, ifs, &root, &errs) )
     {
-        std::cout << errs << std::endl;
+        Cmpi::server_out << errs << "\n";
         exit( 1 );
     }
 
@@ -79,19 +76,19 @@ void CfdPara::ReadJsonCfdFile()
         this->cfl = item[ "cfl" ].asFloat();
         this->simu_time = item[ "simu_time" ].asFloat();
 
-        std::cout << "cfl = " << this->cfl << std::endl;
-        std::cout << "simu_time = " << this->simu_time << std::endl;
-        std::cout << "cspeed = " << this->cspeed  << std::endl;
+        Cmpi::server_out << "cfl = " << this->cfl << "\n";
+        Cmpi::server_out << "simu_time = " << this->simu_time << "\n";
+        Cmpi::server_out << "cspeed = " << this->cspeed << "\n";
     }
     else
     {
-        std::cout << "root is not object " << std::endl;
+        Cmpi::server_out << "root is not object " << "\n";
     }
 
-    std::cout << root << std::endl;
-    std::cout << "--------------------------------" << std::endl;
+    Cmpi::server_out << root << "\n";
+    Cmpi::server_out << "--------------------------------" << "\n";
     std::string myJsonString = root.toStyledString();
-    std::cout << myJsonString << std::endl;
+    Cmpi::server_out << myJsonString << "\n";
 
 }
 

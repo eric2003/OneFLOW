@@ -21,6 +21,7 @@ along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 \*---------------------------------------------------------------------------*/
 #include "Project.h"
 #include "tools.h"
+#include "Cmpi.h"
 #include <filesystem>
 #include <iostream>
 
@@ -45,19 +46,20 @@ std::string get_exe_fullpath( const std::string &exeName )
 {
     std::filesystem::path full_path;
     full_path = std::filesystem::current_path();
-    std::cout << "std::filesystem::absolute(exeName) = " << std::filesystem::absolute(exeName) << std::endl;
+    Cmpi::server_out << "std::filesystem::absolute(exeName) = " << std::filesystem::absolute( exeName ) << "\n";
     return std::filesystem::absolute( exeName ).parent_path().string();
 }
 
 
 void Project::Init(int argc, char **argv)
 {
-    std::cout << "argv[0]=" << argv[0] << "\n";
+    Cmpi::server_out << "argv[0]=" << argv[ 0 ] << "\n";
+
     Project::execute_dir = get_exe_fullpath( argv[0] );
     Project::current_dir = std::filesystem::current_path().string();
 
-    std::cout << " Project::execute_dir = " << Project::execute_dir << "\n";
-    std::cout << " Project::current_dir = " << Project::current_dir << "\n";
+    Cmpi::server_out << " Project::execute_dir = " << Project::execute_dir << "\n";
+    Cmpi::server_out << " Project::current_dir = " << Project::current_dir << "\n";
 
     Project::prj_rootdir = Project::current_dir;
     Project::prj_grid_dir = "grid";
@@ -65,13 +67,13 @@ void Project::Init(int argc, char **argv)
     Project::prj_log_dir = "log";
 
     //Project::SetProjectRootDir("workdir/oneflow1d");
-    std::cout << " Project::prj_rootdir = " << Project::prj_rootdir << "\n";
+    Cmpi::server_out << " Project::prj_rootdir = " << Project::prj_rootdir << "\n";
     //std::cout << "std::filesystem::current_path().parent_path() = " << std::filesystem::current_path().parent_path() << "\n";
     //std::cout << "std::filesystem::current_path().parent_path().parent_path() = " << std::filesystem::current_path().parent_path().parent_path() << "\n";
     Project::prj_rootdir = std::filesystem::current_path().parent_path().parent_path().string() + "/project_tmp";
-    std::cout << " Project::prj_rootdir = " << Project::prj_rootdir << "\n";
+    Cmpi::server_out << " Project::prj_rootdir = " << Project::prj_rootdir << "\n";
     Project::SetProjectDir( "myprj" );
-    std::cout << " Project::prj_dir = " << Project::prj_dir << "\n";
+    Cmpi::server_out << " Project::prj_dir = " << Project::prj_dir << "\n";
 }
 
 void Project::SetProjectDir( const std::string & prjName )
@@ -80,15 +82,15 @@ void Project::SetProjectDir( const std::string & prjName )
     Project::prj_grid_dir = add_string( Project::prj_dir, "/", "grid" );
     Project::prj_script_dir = add_string( Project::prj_dir, "/", "script" );
     Project::prj_log_dir = add_string( Project::prj_dir, "/", "log" );
-    std::cout << " Project::prj_grid_dir = " << Project::prj_grid_dir << "\n";
-    std::cout << " Project::prj_script_dir = " << Project::prj_script_dir << "\n";
-    std::cout << " Project::prj_log_dir = " << Project::prj_log_dir << "\n";
+    Cmpi::server_out << " Project::prj_grid_dir = " << Project::prj_grid_dir << "\n";
+    Cmpi::server_out << " Project::prj_script_dir = " << Project::prj_script_dir << "\n";
+    Cmpi::server_out << " Project::prj_log_dir = " << Project::prj_log_dir << "\n";
 }
 
 void Project::SetProjectRootDir( const std::string & prjName )
 {
     std::filesystem::path myprjpath = prjName;
-    std::cout << " prjName = " << prjName << std::endl;
+    Cmpi::server_out << " prjName = " << prjName << "\n";
 
     if ( myprjpath.is_relative() )
     {

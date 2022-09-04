@@ -49,6 +49,7 @@ public:
     float * q;
     float * qn;
     float * timestep;
+    float time_now, dt;
 
 };
 

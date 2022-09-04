@@ -26,6 +26,7 @@ along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 #include <set>
 #include <map>
 #include <fstream>
+#include <iostream>
 #include <omp.h>
 #include "Cmpi.h"
 #include "Grid.h"
@@ -124,10 +125,13 @@ void Solver::CfdSolve( CfdPara * cfd_para, Geom * geom )
 
 void Solver::Timestep( CfdPara * cfd_para, Geom * geom )
 {
+    this->dt = std::numeric_limits<float>::max();
     for ( int i = 0; i < geom->ni_total; ++ i )
     {
         this->timestep[ i ] = geom->ds[ i ] * cfd_para->cfl / cfd_para->cspeed;
+        this->dt = std::min( this->timestep[ i ], this->dt );
     }
+    //std::cout << " this->dt = " << this->dt << std::endl;
 }
 
 void Solver::SolveField( CfdPara * cfd_para, Geom * geom )
@@ -136,13 +140,18 @@ void Solver::SolveField( CfdPara * cfd_para, Geom * geom )
     //{
     //    qn[ i ] = q[ i ];
     //}
-    //for ( int n = 0; n < cfd_para->nt; ++ n )
     int n = 0;
-    while ( n < cfd_para->nt )
+    this->time_now = 0.0;
+    std::printf( " this->time_now = %f, cfd_para->simu_time = %f \n", this->time_now, cfd_para->simu_time );
+    this->Timestep( cfd_para, geom );
+    int ntimestep = cfd_para->simu_time / this->dt;
+    while ( ( this->time_now < cfd_para->simu_time ) &&
+            ( std::abs(this->time_now-cfd_para->simu_time) > std::numeric_limits<float>::epsilon() ) )
     {
-        if ( geom->zoneId == 0 )
+        if ( Cmpi::IsServer() )
         {
-            std::printf( " iStep = %d, nStep = %d \n", n + 1, cfd_para->nt );
+            std::printf( " iStep = %d, nStep = %d \n", n + 1, ntimestep );
+            //std::printf( " this->time_now = %f, cfd_para->simu_time = %f \n", this->time_now, cfd_para->simu_time );
         }
 
         this->Boundary( q, geom );
@@ -161,6 +170,7 @@ void Solver::SolveField( CfdPara * cfd_para, Geom * geom )
         }
         CfdScalarUpdate(this->q, this->qn, cfd_para->cspeed, this->timestep, geom->ds, geom->ni );
         ++ n;
+        this->time_now += this->dt;
     }
 }
 

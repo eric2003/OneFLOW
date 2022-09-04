@@ -27,22 +27,17 @@ along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 
 #define SMALL 1.0e-10
 
-class Geom;
-
 class CfdPara
 {
 public:
     CfdPara();
     ~CfdPara();
 public:
-    void Init( Geom * geom );
+    void Init();
     void ReadJsonCfdFile();
 public:
-    int nt;
     int irestart; //0 restart, 1 continue
     float cfl;
     float simu_time;
     float cspeed;
-    float dt;
-    float fnt;
 };

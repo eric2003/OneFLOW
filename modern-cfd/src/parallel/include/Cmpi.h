@@ -24,6 +24,11 @@ along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 #ifdef PRJ_ENABLE_MPI
 #include <mpi.h>
 #endif
+
+#include <iostream>
+
+class ServerCout;
+
 class Cmpi
 {
 public:
@@ -32,11 +37,46 @@ public:
 public:
     static void Init(int argc, char **argv);
     static void Finalize();
+    static bool IsServer();
 public:
     static int pid;
     static int nproc;
-    static int serverid;
+    static int server_id;
     static int num_gpus;
     static int num_cpus;
+    static ServerCout server_out;
+public:
+    template <typename... Args>
+    static void printf( char const * const format, Args&&... args )
+    {
+        if ( Cmpi::IsServer() )
+        {
+            std::printf( format, args... );
+        }
+    }
 };
+
+class ServerCout
+{
+public:
+    ServerCout();
+    ~ServerCout();
+public:
+    ServerCout&  operator<<(ServerCout&(* _Pfn)(ServerCout&) ) {
+        return _Pfn(*this);
+    }
+};
+
+template< typename T >
+ServerCout & operator << ( ServerCout & sout, const T & value )
+{
+    if ( Cmpi::IsServer() )
+    {
+        std::cout << value;
+    }
+    return sout;
+}
+
+
+
 
