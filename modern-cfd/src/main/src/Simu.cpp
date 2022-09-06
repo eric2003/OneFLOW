@@ -30,50 +30,53 @@ along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 #include <iostream>
 #include <fstream>
 
-void SolveField()
-{
-    //cfd parameter
-    CfdPara * cfd_para = new CfdPara{};
-    cfd_para->Init();
 
+//void GenerateGrid()
+//{
+//    Geom_t::Init();
+//    Geom_t::LoadGrid();
+//    Geom_t::Finalize();
+//}
+
+//void ReadGrid( const std::string & gridName )
+//{
+//    std::string fullGridName = add_string( Project::prj_grid_dir, "/", gridName );
+//    Geom_t::Init();
+//    Geom_t::ReadGrid( fullGridName );
+//    Geom_t::Finalize();
+//}
+
+FieldSolver_t::FieldSolver_t()
+{
+    this->cfd_para = new CfdPara{};
+}
+
+FieldSolver_t::~FieldSolver_t()
+{
+    delete this->cfd_para;
+}
+
+
+void FieldSolver_t::Init( Json::Value & root )
+{
+    this->cfd_para->Init( root );
+}
+
+void FieldSolver_t::Run()
+{
     Geom_t::Init();
-    Geom_t::GenerateGrid();
+    Geom_t::LoadGrid();
     Geom * geom = new Geom{};
     geom->Init();
     geom->GenerateGrid();
     geom->ComputeGeom();
 
     Solver * solver = new Solver{};
-    solver->Run( cfd_para, geom );
+    solver->Run( this->cfd_para, geom );
     delete cfd_para;
     delete geom;
     delete solver;
     Geom_t::Finalize();
-}
-
-void GenerateGrid()
-{
-    Geom_t::Init();
-    Geom_t::GenerateGrid();
-    Geom_t::Finalize();
-}
-
-void ReadGrid( const std::string & gridName )
-{
-    std::string fullGridName = add_string( Project::prj_grid_dir, "/", gridName );
-    Geom_t::Init();
-    Geom_t::ReadGrid( fullGridName );
-    Geom_t::Finalize();
-}
-
-void FieldSolver_t::Init( Json::Value & root )
-{
-    ;
-}
-
-void FieldSolver_t::Run()
-{
-    ::SolveField();
 }
 
 void GridSolver_t::Init( Json::Value & root )
@@ -89,14 +92,9 @@ void GridSolver_t::Init( Json::Value & root )
 
 void GridSolver_t::Run()
 {
-    if ( this->gridobj == 1 )
-    {
-        ::ReadGrid( this->gridName );
-    }
-    else
-    {
-        ::GenerateGrid();
-    }
+    Geom_t::Init();
+    Geom_t::LoadGrid();
+    Geom_t::Finalize();
 }
 
 Simu::Simu(int argc, char **argv)

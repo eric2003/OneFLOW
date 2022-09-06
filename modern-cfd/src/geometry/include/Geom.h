@@ -33,10 +33,13 @@ public:
 public:
     static void Init();
     static void Finalize();
+    static void LoadGrid();
     static void DumpGrid( const std::string & fileName );
     static void GenerateGrid();
     static void ReadGrid( const std::string & gridName );
 public:
+    static int gridobj;
+    static std::string gridName;
     static int ni_ghost;
     static int ni_global;
     static int ni_global_total;

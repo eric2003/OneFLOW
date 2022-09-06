@@ -40,14 +40,17 @@ public:
     virtual void Run() {};
 };
 
+class CfdPara;
 class FieldSolver_t : public Solver_t
 {
 public:
-    FieldSolver_t() {};
-    ~FieldSolver_t() {};
+    FieldSolver_t();
+    ~FieldSolver_t();
 public:
     void Init( Json::Value & root ) override;
     void Run() override;
+private:
+    CfdPara * cfd_para;
 };
 
 class GridSolver_t : public Solver_t

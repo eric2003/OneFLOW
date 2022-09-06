@@ -63,6 +63,8 @@ int Geom_t::ni_global = 1;
 int Geom_t::ni_global_total = -1;
 float * Geom_t::xcoor_global = 0;
 float Geom_t::dx = -1.0;
+int Geom_t::gridobj = 1;
+std::string Geom_t::gridName;
 
 std::vector<int> Geom_t::zone_nis;
 std::vector<int> Geom_t::proc_ids;
@@ -84,12 +86,45 @@ void Geom_t::Init()
         //TestCgnsLink();
     }
 #endif
+    Geom_t::gridName = add_string( Project::prj_grid_dir, "/", Geom_t::gridName );
+    //Geom_t::ni_global = 41;
+    //Geom_t::ni_ghost = 2;
+    //Geom_t::ni_global_total = Geom_t::ni_global + Geom_t::ni_ghost;
+
+    //int nZones = Cmpi::nproc;
+    //Geom_t::zone_nis.resize( nZones );
+    //int grid_ni = ( Geom_t::ni_global + nZones - 1 ) / nZones;
+    //int ni_last = Geom_t::ni_global - ( nZones - 1 ) * ( grid_ni - 1 );
+
+    //for ( int i = 0; i < nZones - 1; ++ i )
+    //{
+    //    Geom_t::zone_nis[i] = grid_ni;
+    //}
+    //Geom_t::zone_nis[nZones - 1] = ni_last;
+    //std::printf( "zone ni----------------------\n" );
+    //for ( int i = 0; i < nZones; ++ i )
+    //{
+    //    std::printf( "%d ", Geom_t::zone_nis[i] );
+    //}
+    //std::printf( "\n" );
+}
+
+void Geom_t::Finalize()
+{
+    delete [] Geom_t::xcoor_global;
+    Geom_t::xcoor_global = 0;
+}
+
+void Geom_t::DumpGrid( const std::string & fileName )
+{
+#ifdef PRJ_ENABLE_CGNS
+    ::cgns_dump_grid( Geom_t::xcoor_global+1, Geom_t::ni_global, fileName );
+#endif
+}
+
+void Geom_t::GenerateGrid()
+{
     Geom_t::ni_global = 41;
-    //Geom_t::ni_global = 401;
-    //Geom_t::ni_global = 4001;
-    //Geom_t::ni_global = 40001;
-    //Geom_t::ni_global = 400001;
-    //Geom_t::ni_global = 4000001;
     Geom_t::ni_ghost = 2;
     Geom_t::ni_global_total = Geom_t::ni_global + Geom_t::ni_ghost;
 
@@ -109,32 +144,14 @@ void Geom_t::Init()
         std::printf( "%d ", Geom_t::zone_nis[i] );
     }
     std::printf( "\n" );
-}
-
-void Geom_t::Finalize()
-{
-    delete [] Geom_t::xcoor_global;
-    Geom_t::xcoor_global = 0;
-}
-
-void Geom_t::DumpGrid( const std::string & fileName )
-{
-#ifdef PRJ_ENABLE_CGNS
-    ::cgns_dump_grid( Geom_t::xcoor_global+1, Geom_t::ni_global, fileName );
-#endif
-}
-
-void Geom_t::GenerateGrid()
-{
-    float xmin = 0.0;
-    float xmax = 2.0;
 
     Geom_t::xcoor_global = new float[ Geom_t::ni_global_total ];
+    float xmin = 0.0;
+    float xmax = 2.0;
     ::HXGenerateGrid( Geom_t::ni_global, xmin, xmax, Geom_t::xcoor_global );
     if ( Cmpi::pid == 0 )
     {
-        std::string fileName = add_string( Project::prj_grid_dir, "/", "oneflow-1d.cgns" );
-        Geom_t::DumpGrid( fileName );
+        Geom_t::DumpGrid( Geom_t::gridName );
     }
 }
 
@@ -150,6 +167,35 @@ void Geom_t::ReadGrid( const std::string &gridName )
         Geom_t::ni_global_total = Geom_t::ni_global + Geom_t::ni_ghost;
         Geom_t::xcoor_global = new float[ Geom_t::ni_global_total ];
         ::CopyGrid( xcoor, xcoor_global );
+
+        int nZones = Cmpi::nproc;
+        Geom_t::zone_nis.resize( nZones );
+        int grid_ni = ( Geom_t::ni_global + nZones - 1 ) / nZones;
+        int ni_last = Geom_t::ni_global - ( nZones - 1 ) * ( grid_ni - 1 );
+
+        for ( int i = 0; i < nZones - 1; ++ i )
+        {
+            Geom_t::zone_nis[i] = grid_ni;
+        }
+        Geom_t::zone_nis[nZones - 1] = ni_last;
+        std::printf( "zone ni----------------------\n" );
+        for ( int i = 0; i < nZones; ++ i )
+        {
+            std::printf( "%d ", Geom_t::zone_nis[i] );
+        }
+        std::printf( "\n" );
+    }
+}
+
+void Geom_t::LoadGrid()
+{
+    if ( Geom_t::gridobj == 0 )
+    {
+        Geom_t::GenerateGrid();
+    }
+    else
+    {
+        Geom_t::ReadGrid( Geom_t::gridName );
     }
 }
 
@@ -209,11 +255,6 @@ void Geom::GenerateGrid()
     }
 
     std::printf("print xcoor: process id = %d Cmpi::nproc = %d\n", Cmpi::pid, Cmpi::nproc );
-    for ( int i = 0; i < this->ni_total; ++ i )
-    {
-        //std::printf("%f ", this->xcoor[ i ] );
-    }
-    std::printf("\n");
 }
 
 void Geom::ComputeGeom()
