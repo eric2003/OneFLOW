@@ -65,6 +65,7 @@ void CfdPara::ReadJsonCfdFile()
         Cmpi::server_out << errs << "\n";
         exit( 1 );
     }
+    ifs.close();
 
     if ( root.isObject() )
     {

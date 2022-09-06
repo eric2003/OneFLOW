@@ -35,35 +35,44 @@ class CgnsBase;
 class Cgns_t
 {
 public:
+    typedef char char33[ 33 ];
+public:
     static int file_id, base_id, zone_id;
+    static int nbases, nzones, nbccos;
+    static CGNS_ENUMT( ZoneType_t ) zone_type;
     static int coor_id, bc_id;
     static int cell_dim, phys_dim;
+    static cgsize_t isize[ 9 ];
+    static cgsize_t irmin[3], irmax[3], cellsize[3];
+    static cgsize_t nnodes, ncells;
 public:
     static void WriteBase( const std::string & baseName );
     static void SetISize( cgsize_t * isize, std::vector<int> & dim_array );
     static void SetDimArray( std::vector<int> & dim_array, int ni, int nj, int nk );
     static void SetDimArray( std::vector<int> & dim_array, int ni, int nj );
     static void SetDimArray( std::vector<int> & dim_array, int ni );
+    static void SetDimensionStr( cgsize_t * isize );
     static void SetStructuredIpnts( cgsize_t * ipnts, int ilo, int jlo, int klo, int ihi, int jhi, int khi );
     static void SetStructuredIpnts( cgsize_t * ipnts, int ilo, int jlo, int ihi, int jhi );
     static void SetStructuredIpnts( cgsize_t * ipnts, int ilo );
 };
 
-class CgnsBase
+class CgnsZone
 {
 public:
-    CgnsBase();
-    ~CgnsBase();
+    CgnsZone() {};
+    ~CgnsZone() {};
 public:
-    ;
+    cgsize_t isize[ 9 ];
+    cgsize_t irmin[3], irmax[3];
 };
 
 void cgns_write_base_test();
 
 void TestCgnsLink();
 int cgnstest();
+void cgns_read_grid( std::vector<float> & xcoor, const std::string & filename );
 void cgns_dump_grid( float * xcoor, int ni, const std::string & filename );
 void cgns_dump_grid();
 void cgns_dump_grid_1d();
-void fill_isize( cgsize_t * isize, std::vector<int> & dim_array );
 #endif

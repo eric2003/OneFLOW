@@ -21,6 +21,7 @@ along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 \*---------------------------------------------------------------------------*/
 #pragma once
 #include <vector>
+#include <string>
 
 class BoundarySolver;
 
@@ -32,7 +33,9 @@ public:
 public:
     static void Init();
     static void Finalize();
-    static void DumpGrid();
+    static void DumpGrid( const std::string & fileName );
+    static void GenerateGrid();
+    static void ReadGrid( const std::string & gridName );
 public:
     static int ni_ghost;
     static int ni_global;

@@ -22,8 +22,11 @@ along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 #include "Project.h"
 #include "tools.h"
 #include "Cmpi.h"
+#include <json/json.h>
 #include <filesystem>
 #include <iostream>
+#include <fstream>
+#include <map>
 
 std::string Project::system_root;
 std::string Project::current_dir;
@@ -33,6 +36,7 @@ std::string Project::prj_dir;
 std::string Project::prj_grid_dir;
 std::string Project::prj_script_dir;
 std::string Project::prj_log_dir;
+std::string Project::simu_task_name;
 
 Project::Project()
 {
@@ -68,11 +72,15 @@ void Project::Init(int argc, char **argv)
 
     //Project::SetProjectRootDir("workdir/oneflow1d");
     Cmpi::server_out << " Project::prj_rootdir = " << Project::prj_rootdir << "\n";
-    //std::cout << "std::filesystem::current_path().parent_path() = " << std::filesystem::current_path().parent_path() << "\n";
-    //std::cout << "std::filesystem::current_path().parent_path().parent_path() = " << std::filesystem::current_path().parent_path().parent_path() << "\n";
     Project::prj_rootdir = std::filesystem::current_path().parent_path().parent_path().string() + "/project_tmp";
     Cmpi::server_out << " Project::prj_rootdir = " << Project::prj_rootdir << "\n";
-    Project::SetProjectDir( "myprj" );
+    std::string prjName = "myprj";
+    if ( argc > 1 )
+    {
+        Cmpi::server_out << "argv[1] = " << argv[1] << "\n";
+        prjName = argv[ 1 ];
+    }
+    Project::SetProjectDir( prjName );
     Cmpi::server_out << " Project::prj_dir = " << Project::prj_dir << "\n";
 }
 
@@ -98,3 +106,56 @@ void Project::SetProjectRootDir( const std::string & prjName )
         Project::prj_rootdir = add_string( Project::current_dir, "/", prjName );
     }
 }
+
+//void Project::ReadControlParameter()
+//{
+//    Cmpi::server_out << " ReadControlParameter() Project::prj_grid_dir = " << Project::prj_grid_dir << "\n";
+//    Cmpi::server_out << " ReadControlParameter() Project::prj_script_dir = " << Project::prj_script_dir << "\n";
+//    Cmpi::server_out << " ReadControlParameter() Project::prj_log_dir = " << Project::prj_log_dir << "\n";
+//
+//    Json::Value root;
+//    std::ifstream ifs;
+//    std::string filename = ::add_string( Project::prj_script_dir, "/cfd.json" );
+//    ifs.open( filename );
+//
+//    Json::CharReaderBuilder builder;
+//    builder[ "collectComments" ] = true;
+//    JSONCPP_STRING errs;
+//    if ( !Json::parseFromStream(builder, ifs, &root, &errs) )
+//    {
+//        Cmpi::server_out << errs << "\n";
+//        exit( 1 );
+//    }
+//
+//    ifs.close();
+//
+//    if ( root.isObject() )
+//    {
+//        std::cout << "root is object " << std::endl;
+//        Project::simu_task_name = root[ "simutask" ].asString();
+//        TaskLineEnum simu_task = Project::GetTaskLine();
+//        Run( root );
+//    }
+//    else
+//    {
+//        Cmpi::server_out << "root is not object " << "\n";
+//    }
+//}
+
+//const std::map<std::string, TaskLineEnum> taskFilter = 
+//{
+//    {"undefined",TaskLineEnum::UNDEFINED},
+//    {"solve_field",TaskLineEnum::SOLVE_FIELD},
+//    {"grid_gen",TaskLineEnum::GRID_GEN}
+//};
+//
+//TaskLineEnum Project::GetTaskLine()
+//{
+//    TaskLineEnum simu_task = TaskLineEnum::UNDEFINED;
+//    const std::string& taskStr = Project::simu_task_name;
+//    if ( taskFilter.find(taskStr) != taskFilter.end() )
+//    {
+//        simu_task = taskFilter.at(taskStr);
+//    }
+//    return simu_task;
+//}

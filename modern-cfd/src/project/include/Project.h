@@ -37,8 +37,13 @@ public:
     static std::string prj_script_dir;
     static std::string prj_log_dir;
 public:
+    static std::string simu_task_name;
+public:
     static void Init( int argc, char **argv );
     static void SetProjectRootDir( const std::string & prjName );
     static void SetProjectDir( const std::string & prjName );
+    //static void ReadControlParameter();
+public:
+    //static TaskLineEnum GetTaskLine();
 };
 
