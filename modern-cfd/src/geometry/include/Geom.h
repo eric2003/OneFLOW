@@ -37,6 +37,7 @@ public:
     static void DumpGrid( const std::string & fileName );
     static void GenerateGrid();
     static void ReadGrid( const std::string & gridName );
+    static void ReadAndModifyGrid( const std::string & gridName );
 public:
     static int gridobj;
     static std::string gridName;

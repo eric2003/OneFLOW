@@ -50,6 +50,7 @@ public:
     float * qn;
     float * timestep;
     float time_now, dt;
+    int iterstep;
 
 };
 

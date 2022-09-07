@@ -187,15 +187,52 @@ void Geom_t::ReadGrid( const std::string &gridName )
     }
 }
 
+void Geom_t::ReadAndModifyGrid( const std::string &gridName )
+{
+    if ( Cmpi::pid == 0 )
+    {
+        std::vector<float> xcoor;
+        ::cgns_read_and_modify_grid( xcoor, gridName );
+        int ni = xcoor.size();
+        Geom_t::ni_global = ni;
+        Geom_t::ni_ghost = 2;
+        Geom_t::ni_global_total = Geom_t::ni_global + Geom_t::ni_ghost;
+        Geom_t::xcoor_global = new float[ Geom_t::ni_global_total ];
+        ::CopyGrid( xcoor, xcoor_global );
+
+        int nZones = Cmpi::nproc;
+        Geom_t::zone_nis.resize( nZones );
+        int grid_ni = ( Geom_t::ni_global + nZones - 1 ) / nZones;
+        int ni_last = Geom_t::ni_global - ( nZones - 1 ) * ( grid_ni - 1 );
+
+        for ( int i = 0; i < nZones - 1; ++ i )
+        {
+            Geom_t::zone_nis[i] = grid_ni;
+        }
+        Geom_t::zone_nis[nZones - 1] = ni_last;
+        std::printf( "zone ni----------------------\n" );
+        for ( int i = 0; i < nZones; ++ i )
+        {
+            std::printf( "%d ", Geom_t::zone_nis[i] );
+        }
+        std::printf( "\n" );
+    }
+}
+
+
 void Geom_t::LoadGrid()
 {
     if ( Geom_t::gridobj == 0 )
     {
         Geom_t::GenerateGrid();
     }
-    else
+    else if ( Geom_t::gridobj == 1 )
     {
         Geom_t::ReadGrid( Geom_t::gridName );
+    }
+    else if ( Geom_t::gridobj == 2 )
+    {
+        Geom_t::ReadAndModifyGrid( Geom_t::gridName );
     }
 }
 

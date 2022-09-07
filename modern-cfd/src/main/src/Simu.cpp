@@ -31,21 +31,6 @@ along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 #include <fstream>
 
 
-//void GenerateGrid()
-//{
-//    Geom_t::Init();
-//    Geom_t::LoadGrid();
-//    Geom_t::Finalize();
-//}
-
-//void ReadGrid( const std::string & gridName )
-//{
-//    std::string fullGridName = add_string( Project::prj_grid_dir, "/", gridName );
-//    Geom_t::Init();
-//    Geom_t::ReadGrid( fullGridName );
-//    Geom_t::Finalize();
-//}
-
 FieldSolver_t::FieldSolver_t()
 {
     this->cfd_para = new CfdPara{};
@@ -83,10 +68,18 @@ void GridSolver_t::Init( Json::Value & root )
 {
     Json::Value item = root[ "gridgen" ];
     std::string gridobj_str = item[ "gridobj" ].asString();
-    this->gridName = item[ "name" ].asString();
+    Geom_t::gridName = item[ "gridfile" ].asString();
     if ( gridobj_str == "read" )
     {
-        this->gridobj = 1;
+        Geom_t::gridobj = 1;
+    }
+    else if ( gridobj_str == "modify" )
+    {
+        Geom_t::gridobj = 2;
+    }
+    else
+    {
+        Geom_t::gridobj = 0;
     }
 }
 
