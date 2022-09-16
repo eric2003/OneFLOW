@@ -1,0 +1,1 @@
+cmake  ../ -D CMAKE_TOOLCHAIN_FILE="c:/dev/vcpkg/scripts/buildsystems/vcpkg.cmake"

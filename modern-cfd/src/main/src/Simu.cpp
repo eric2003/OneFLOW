@@ -95,6 +95,10 @@ Simu::Simu(int argc, char **argv)
     this->solver_t = 0;
     Cmpi::Init( argc, argv );
     Project::Init( argc, argv );
+
+    std::string str = R"(this "word" is escaped)";
+    std::cout << " str = " << str << "\n";
+    int kkk = 1;
 }
 
 Simu::~Simu()

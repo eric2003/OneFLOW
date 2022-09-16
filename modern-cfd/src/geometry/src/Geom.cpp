@@ -87,26 +87,6 @@ void Geom_t::Init()
     }
 #endif
     Geom_t::gridName = add_string( Project::prj_grid_dir, "/", Geom_t::gridName );
-    //Geom_t::ni_global = 41;
-    //Geom_t::ni_ghost = 2;
-    //Geom_t::ni_global_total = Geom_t::ni_global + Geom_t::ni_ghost;
-
-    //int nZones = Cmpi::nproc;
-    //Geom_t::zone_nis.resize( nZones );
-    //int grid_ni = ( Geom_t::ni_global + nZones - 1 ) / nZones;
-    //int ni_last = Geom_t::ni_global - ( nZones - 1 ) * ( grid_ni - 1 );
-
-    //for ( int i = 0; i < nZones - 1; ++ i )
-    //{
-    //    Geom_t::zone_nis[i] = grid_ni;
-    //}
-    //Geom_t::zone_nis[nZones - 1] = ni_last;
-    //std::printf( "zone ni----------------------\n" );
-    //for ( int i = 0; i < nZones; ++ i )
-    //{
-    //    std::printf( "%d ", Geom_t::zone_nis[i] );
-    //}
-    //std::printf( "\n" );
 }
 
 void Geom_t::Finalize()

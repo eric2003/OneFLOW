@@ -411,7 +411,15 @@ void ModifyFieldExample()
                 q_tmp[ i ] = ii_count_tmp + i;
             }
             ii_count_tmp += 100;
+            //std::cout << alignl( 10, "abcd" ) << ":" << " haha\n";
+            //std::cout << alignl( 10, "abcde" ) << ":" << " haha\n";
+            //std::cout << alignl( 10, "abcdefgh" ) << ":" << " haha\n";
+            //std::cout << alignl( 10, "abcdefghijklnm" ) << ":" << " haha\n";
 
+            //std::cout << alignr( 10, "abcd" ) << ":" << " haha\n";
+            //std::cout << alignr( 10, "abcde" ) << ":" << " haha\n";
+            //std::cout << alignr( 10, "abcdefgh" ) << ":" << " haha\n";
+            //std::cout << alignr( 10, "abcdefghijklnm" ) << ":" << " haha\n";
             int ifld = -1;
             cg_field_write( Cgns_t::file_id, Cgns_t::base_id, Cgns_t::zone_id, Cgns_t::sols_id, dataType, field_name, q_tmp.data(), &ifld);
         }
