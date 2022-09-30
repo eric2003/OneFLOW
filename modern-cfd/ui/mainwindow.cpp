@@ -1,3 +1,24 @@
+/*---------------------------------------------------------------------------*\
+OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
+Copyright (C) 2017-2022 He Xin and the OneFLOW contributors.
+-------------------------------------------------------------------------------
+License
+This file is part of OneFLOW.
+
+OneFLOW is free software: you can redistribute it and/or modify it
+under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+OneFLOW is distributed in the hope that it will be useful, but WITHOUT
+ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+for more details.
+
+You should have received a copy of the GNU General Public License
+along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
+
+\*---------------------------------------------------------------------------*/
 #include "mainwindow.h"
 #include "./ui_mainwindow.h"
 #include <QMenuBar>
@@ -10,7 +31,10 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonArray>
+#include <QTextEdit>
+#include <QLineEdit>
 #include <iostream>
+#include "MyDataBase.h"
 
 void PrintDateInfo()
 {
@@ -39,7 +63,7 @@ MainWindow::MainWindow(QWidget *parent)
     ui->setupUi(this);
     this->process = 0;
     this->initMenu();
-    this->setWindowTitle( "OneFLOW-CFD GUI" );
+    this->setWindowTitle( "OneFLOW-CFD Workbench" );
     this->Run();
 }
 
@@ -73,6 +97,33 @@ void MainWindow::initMenu()
 
     pAction = new QAction( tr("Close"), pFile );
     pFile->addAction( pAction );
+
+    this->lineEdit = new QLineEdit( this );
+    this->lineEdit->setStyle( QStyleFactory::create( "windows" ) );
+    this->lineEdit->setGeometry( QRect(100, 360, 600, 20) );
+
+    this->lineEditCmd = new QLineEdit( this );
+    this->lineEditCmd->setStyle( QStyleFactory::create( "windows" ) );
+    this->lineEditCmd->setGeometry( QRect(100, 400, 600, 20) );
+
+    QProcess::connect( this->lineEdit, & QLineEdit::returnPressed, this, & MainWindow::OnReturn );
+    QProcess::connect( this->lineEditCmd, & QLineEdit::returnPressed, this, & MainWindow::OnReturnCmd );
+
+    this->cmdEdit = new QTextEdit( this );
+
+    this->cmdEdit->setStyle( QStyleFactory::create( "windows" ) );
+    this->cmdEdit->setGeometry( QRect(100, 440, 600, 200) );
+
+    this->treeWidget = new QTreeWidget( this );
+    this->treeWidget->setStyle( QStyleFactory::create( "windows" ) );
+    this->treeWidget->setGeometry(QRect(100, 50, 600, 300));
+    this->treeWidget->setColumnCount( 1 );
+    QStringList labels;
+    labels << QString::fromLocal8Bit("CFD参数");
+    this->treeWidget->setHeaderLabels( labels );
+    this->treeWidget->header()->setSectionResizeMode(QHeaderView::Stretch);
+    this->treeWidget->setContextMenuPolicy(Qt::CustomContextMenu);
+
     //Tool Layer
     //Function Layer
     //Resource Layer
@@ -108,6 +159,18 @@ void MainWindow::initMenu()
     //Automatic optimization of target platforms
     //Unleash the Creativity
     //Flexible of coding languages
+    //Game Object, property, behavior
+    //Componenet Composition
+    //Events
+    //Message sending and handling
+    //Decoupling event sending handling
+    //Scene Management
+    //Deal with architecture of modern
+    //computer with complex
+    //combination of CPU and GPU
+    //Lighting,Material,Shader
+    //Physical-Based Material PBR
+
 
 
 }
@@ -138,121 +201,27 @@ void MainWindow::Run()
 
     this->process = new QProcess( this );
     QObject::connect( this->process, &QProcess::readyReadStandardOutput, this, &MainWindow::onReadLineData );
+
+    this->procCmd = new QProcess( this );
+    QObject::connect( this->procCmd, &QProcess::readyRead, this, &MainWindow::myReadyRead);
+    QObject::connect( this->procCmd, &QProcess::readyReadStandardOutput, this, &MainWindow::readOutput);
+
     //"D:/github/OneFLOW/modern-cfd/build/ui/OneFLOW-1D.exe"
     //"D:/github/OneFLOW/modern-cfd/build/bin/OneFLOW-1D.exe"
 
     QString program = "D:/github/OneFLOW/modern-cfd/build/bin/OneFLOW-1D.exe";
     QStringList args;
     args.append( "cgns_read_modify_cgnsflow" );
-    this->process->start( program, args );
-    //this->displayTree();
-    //this->displayMyTree();
+    //this->process->start( program, args );
+    QStringList args_test;
+    args_test << "-uroot" << "-p123456";
+    this->process->start( "mysqlsh.exe", args_test );
+
     this->displayJsonTree();
-    
-}
+    this->RunCmd();
 
-void MainWindow::onReadData()
-{
-    qDebug() << "MainWindow::onReadData()\n";
-    qDebug() << this->process->readAllStandardOutput();
-}
-
-void MainWindow::readOutput()
-{
-    qDebug() << "MainWindow::readOutput()\n";
-    while( this->process->canReadLine() )
-    {
-        qDebug() << this->process->readLine() << "\n";
-    }
-}
-
-void MainWindow::onReadLineData()
-{
-    qDebug() << "MainWindow::onReadData()\n";
-    while( this->process->canReadLine() )
-    {
-        QByteArray qByteRead =  this->process->readLine();
-        //qDebug() <<  QString::fromLocal8Bit( qByteRead ).trimmed();
-        qDebug() <<  qPrintable( QString::fromLocal8Bit( qByteRead ).trimmed() );
-    }
-}
-
-void MainWindow::displayTree()
-{
-    QTreeWidget *treeWidget = new QTreeWidget(this);
-    treeWidget->setGeometry(QRect(100, 100, 300, 300));
-    //treeWidget->setColumnCount(1);
-    treeWidget->setColumnCount(2);
-    QList<QTreeWidgetItem *> items;
-    for ( int i = 0; i < 10; ++ i )
-    {
-        items.append(new QTreeWidgetItem(static_cast<QTreeWidget *>(nullptr), QStringList(QString("item: %1").arg(i))));
-    }
-
-    treeWidget->insertTopLevelItems(0, items);
-    //treeWidget->insertTopLevelItems(1, items);
-
-    QList<QTreeWidgetItem *> items1;
-
-    for ( int i = 0; i < 10; ++ i )
-    {
-        items1.append(new QTreeWidgetItem(static_cast<QTreeWidget *>(nullptr), QStringList(QString("item: %1").arg(100+i))));
-    }
-        
-    //treeWidget->insertTopLevelItems(1, items1);
-}
-
-void MainWindow::displayMyTree()
-{
-    QTreeWidget *treeWidget = new QTreeWidget(this);
-    treeWidget->setStyle( QStyleFactory::create( "windows" ) );
-    treeWidget->setGeometry(QRect(100, 100, 600, 300));
-    treeWidget->setColumnCount( 2 );
-    treeWidget->setColumnWidth(0, 200 );
-    treeWidget->setColumnWidth(1, 200 );
-    QStringList labels;
-    labels << "FileName" << "FilePath";
-    treeWidget->setHeaderLabels( labels );
-    treeWidget->header()->setSectionResizeMode(QHeaderView::Stretch);
-    treeWidget->setContextMenuPolicy(Qt::CustomContextMenu);
-
-    QStyle *style = treeWidget->style();
-    QIcon bookmarkIcon;
-    bookmarkIcon.addPixmap( style->standardPixmap( QStyle::SP_FileIcon ) );
-
-    QTreeWidgetItem * root = new QTreeWidgetItem( treeWidget );
-    treeWidget->addTopLevelItem( root );
-    root->setIcon( 0, bookmarkIcon );
-    root->setExpanded( true );
-    root->setText( 0, "RootFile" );
-    root->setText( 1, "Root File Path" );
-
-    QTreeWidgetItem * child1 = new QTreeWidgetItem();
-    root->addChild( child1 );
-    child1->setText( 0, "Child1File" );
-    child1->setText( 1, "Child1 File Path" );
-
-    QTreeWidgetItem * child2 = new QTreeWidgetItem();
-    root->addChild( child2 );
-    child2->setText( 0, "Child2File" );
-    child2->setText( 1, "Child2 File Path" );
-
-    QTreeWidgetItem * root1 = new QTreeWidgetItem( treeWidget );
-    treeWidget->addTopLevelItem( root1 );
-    root1->setExpanded( true );
-    root1->setText( 0, "Root1File" );
-    root1->setText( 1, "Root1 File Path" );
-
-    QTreeWidgetItem * child11 = new QTreeWidgetItem();
-    root1->addChild( child11 );
-    child11->setText( 0, "Child11File" );
-    child11->setText( 1, "Child11 File Path" );
-
-    QTreeWidgetItem * child12 = new QTreeWidgetItem();
-    root1->addChild( child12 );
-    child12->setText( 0, "Child12File" );
-    child12->setText( 1, "Child12 File Path" );
-
+    MyDataBase mydb;
+    mydb.Run();
 }
 
 void AnalysisJsonValue( QJsonValue & value );
@@ -312,7 +281,6 @@ void MainWindow::displayJsonTree()
     QByteArray data = myFile.readAll();
     QJsonParseError err;
     QJsonDocument json_doc = QJsonDocument::fromJson( data, & err );
-    QTreeWidget *treeWidget = new QTreeWidget(this);
     if ( json_doc.isNull() )
     {
         qDebug() << err.errorString();
@@ -325,15 +293,6 @@ void MainWindow::displayJsonTree()
 
     QByteArray request_body = json_doc.toJson( QJsonDocument::JsonFormat::Indented );
     qDebug() << request_body;
-
-    treeWidget->setStyle( QStyleFactory::create( "windows" ) );
-    treeWidget->setGeometry(QRect(100, 100, 600, 300));
-    treeWidget->setColumnCount( 1 );
-    QStringList labels;
-    labels << QString::fromLocal8Bit("CFD参数");
-    treeWidget->setHeaderLabels( labels );
-    treeWidget->header()->setSectionResizeMode(QHeaderView::Stretch);
-    treeWidget->setContextMenuPolicy(Qt::CustomContextMenu);
 
     QTreeWidgetItem * current_item = new QTreeWidgetItem();
 
@@ -425,4 +384,107 @@ void MainWindow::AnalysisJsonValue( QJsonValue & value, QTreeWidgetItem * root )
     else if ( value.isDouble() )
     {
     }
+}
+
+void MainWindow::RunCmd()
+{
+    QString myCommand = "dir";
+
+    QStringList argument;
+    argument << "/c" << myCommand;
+    this->procCmd->start("cmd", QStringList()<<"/c"<<"ping www.baidu.com");
+}
+
+void MainWindow::myReadyRead()
+{
+    qDebug() << Q_FUNC_INFO;
+}
+
+void MainWindow::readOutput()
+{
+    qDebug() << Q_FUNC_INFO;
+    //QByteArray qByteRead = this->procCmd->readAllStandardOutput();
+    //qDebug() <<  qPrintable( QString::fromLocal8Bit( qByteRead ).trimmed() );
+    //if ( qByteRead.contains("enter your name") ) {
+    //    this->procCmd->write( QString("myname" + QString("\n")).toLatin1()) ;
+    //    qDebug() << this->procCmd->readAllStandardOutput();
+    //}
+
+    //this->procCmd->write( QString("myname" + QString("\n") ).toLatin1());
+    QByteArray qByteRead = this->procCmd->readAll() + this->procCmd->readAllStandardOutput();
+    this->cmdEdit->append( QString::fromLocal8Bit( qByteRead ) );
+}
+
+void MainWindow::onReadLineData()
+{
+    qDebug() << Q_FUNC_INFO;
+    while( this->process->canReadLine() )
+    {
+        QByteArray qByteRead =  this->process->readLine();
+        //qDebug() <<  QString::fromLocal8Bit( qByteRead ).trimmed();
+        qDebug() <<  qPrintable( QString::fromLocal8Bit( qByteRead ).trimmed() );
+    }
+}
+
+void MainWindow::OnReturn()
+{
+    qDebug() << Q_FUNC_INFO;
+    QString cmdString = this->lineEdit->text();
+    qDebug() << cmdString;
+    this->cmdEdit->append( cmdString );
+    this->ExecuteCommand( cmdString );
+}
+
+void MainWindow::OnReturnCmd()
+{
+    qDebug() << Q_FUNC_INFO;
+    QString cmdString = this->lineEditCmd->text();
+    qDebug() << cmdString;
+    this->cmdEdit->append( cmdString );
+    this->ExecuteCmdCommand( cmdString );
+}
+
+void MainWindow::ExecuteCmdCommand( const QString & myCommand )
+{
+    qDebug() << Q_FUNC_INFO;
+    qDebug() << "begin MainWindow::ExecuteCmdCommand myCommand = " << myCommand;
+    this->procCmd->start("cmd", QStringList() << "/c" << myCommand );
+
+    this->procCmd->waitForStarted();
+    this->procCmd->waitForFinished();
+    QByteArray cmd_byte_error = this->procCmd->readAllStandardError();
+
+    QString cmd_error = QString::fromLocal8Bit( cmd_byte_error );
+    this->cmdEdit->append( cmd_error );
+    qDebug() << "end MainWindow::ExecuteCmdCommand myCommand";
+}
+
+void MainWindow::ExecuteCommand( const QString & myCommand )
+{
+    qDebug() << Q_FUNC_INFO;
+    qDebug() << "begin MainWindow::ExecuteCommand myCommand = " << myCommand;
+
+    QStringList strList =  myCommand.split( " " );
+    if ( strList.size() == 0 )
+    {
+        return;
+    }
+    QStringList args;
+    this->procCmd->setProgram( strList[ 0 ] );
+
+    for ( int i = 1; i < strList.size(); ++ i )
+    {
+        args << strList[ i ];
+    }
+
+    this->procCmd->setArguments( args );
+    this->procCmd->start();
+
+    this->procCmd->waitForStarted();
+    this->procCmd->waitForFinished();
+    QByteArray cmd_byte_error = this->procCmd->readAllStandardError();
+
+    QString cmd_error = QString::fromLocal8Bit( cmd_byte_error );
+    this->cmdEdit->append( cmd_error );
+    qDebug() << "end MainWindow::ExecuteCommand myCommand";
 }

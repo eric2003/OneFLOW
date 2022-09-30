@@ -19,15 +19,26 @@ You should have received a copy of the GNU General Public License
 along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 
 \*---------------------------------------------------------------------------*/
-#include "mainwindow.h"
-#include <QApplication>
-#include <QDir>
+#pragma once
+#include <QtSql>
+#include <QString>
 
-int main(int argc, char *argv[])
+class MyDataBase
 {
-    QApplication a(argc, argv);
-
-    MainWindow w;
-    w.show();
-    return a.exec();
-}
+public:
+    MyDataBase();
+    ~MyDataBase();
+    QString connName;
+    QString dbName;
+    QSqlDatabase db;
+public:
+    bool CreateConnDataBase( const QString & connName );
+    bool CreateNewDataBase( const QString & dataBaseName );
+    void Run();
+public:
+    void InsertPrjName( const QString & tableName, const int & prjId, const QString & prjName );
+    void DeletePjrRecord( const QString & tableName, const QString & prjName );
+    void ModifyPjrRecord( const QString & tableName, const int & prjId, const QString & prjName );
+    void QueryPjrRecordByName( const QString & tableName, const QString & prjName );
+    void QueryTable( const QString & tableName );
+};

@@ -10,6 +10,8 @@ QT_END_NAMESPACE
 class QProcess;
 class QTreeWidget;
 class QTreeWidgetItem;
+class QTextEdit;
+class QLineEdit;
 
 class MainWindow : public QMainWindow
 {
@@ -22,17 +24,26 @@ public:
     void initMenu();
     void Run();
 public:
-    void onReadData();
+    void myReadyRead();
     void readOutput();
     void onReadLineData();
-    void displayTree();
-    void displayMyTree();
+    void OnReturn();
+    void OnReturnCmd();
+    void ExecuteCommand( const QString & cmd );
+    void ExecuteCmdCommand( const QString & cmd );
+public:
     void displayJsonTree();
     void AnalysisJsonObj( QJsonObject & jsonObj, QTreeWidgetItem * item );
     void AnalysisJsonValue( QJsonValue & value, QTreeWidgetItem * item );
     void SetItem( QTreeWidgetItem * item, QString & keyname, QJsonValue & obj_value );
+    void RunCmd();
 private:
     Ui::MainWindow *ui;
+    QTreeWidget * treeWidget;
+    QTextEdit * cmdEdit;
+    QLineEdit * lineEdit;
+    QLineEdit * lineEditCmd;
     QProcess * process;
+    QProcess * procCmd;
 };
 #endif // MAINWINDOW_H
