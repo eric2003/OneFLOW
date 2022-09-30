@@ -25,39 +25,169 @@ along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 #include "Cmpi.h"
 #include "CfdPara.h"
 #include "Project.h"
+#include "tools.h"
+#include <json/json.h>
 #include <iostream>
+#include <fstream>
+
+
+FieldSolver_t::FieldSolver_t()
+{
+    this->cfd_para = new CfdPara{};
+}
+
+FieldSolver_t::~FieldSolver_t()
+{
+    delete this->cfd_para;
+}
+
+
+void FieldSolver_t::Init( Json::Value & root )
+{
+    this->cfd_para->Init( root );
+}
+
+void FieldSolver_t::Run()
+{
+    Geom_t::Init();
+    Geom_t::LoadGrid();
+    Geom * geom = new Geom{};
+    geom->Init();
+    geom->GenerateGrid();
+    geom->ComputeGeom();
+
+    Solver * solver = new Solver{};
+    solver->Run( this->cfd_para, geom );
+    delete cfd_para;
+    delete geom;
+    delete solver;
+    Geom_t::Finalize();
+}
+
+void GridSolver_t::Init( Json::Value & root )
+{
+    Json::Value item = root[ "gridgen" ];
+    std::string gridobj_str = item[ "gridobj" ].asString();
+    Geom_t::gridName = item[ "gridfile" ].asString();
+    if ( gridobj_str == "read" )
+    {
+        Geom_t::gridobj = 1;
+    }
+    else if ( gridobj_str == "modify" )
+    {
+        Geom_t::gridobj = 2;
+    }
+    else
+    {
+        Geom_t::gridobj = 0;
+    }
+}
+
+void GridSolver_t::Run()
+{
+    Geom_t::Init();
+    Geom_t::LoadGrid();
+    Geom_t::Finalize();
+}
 
 Simu::Simu(int argc, char **argv)
 {
-    Project::Init( argc, argv );
+    this->solver_t = 0;
     Cmpi::Init( argc, argv );
+    Project::Init( argc, argv );
+
+    std::string str = R"(this "word" is escaped)";
+    std::cout << " str = " << str << "\n";
+    int kkk = 1;
 }
 
 Simu::~Simu()
 {
     Cmpi::Finalize();
+    delete this->solver_t;
 }
 
 void Simu::Init(int argc, char **argv)
 {
 }
 
+void Simu::ReadControlParameter()
+{
+    Cmpi::server_out << " Simu::ReadControlParameter() Project::prj_grid_dir = " << Project::prj_grid_dir << "\n";
+    Cmpi::server_out << " Simu::ReadControlParameter() Project::prj_script_dir = " << Project::prj_script_dir << "\n";
+    Cmpi::server_out << " Simu::ReadControlParameter() Project::prj_log_dir = " << Project::prj_log_dir << "\n";
+
+    Json::Value root;
+    std::ifstream ifs;
+    std::string filename = ::add_string( Project::prj_script_dir, "/cfd.json" );
+    ifs.open( filename );
+
+    Json::CharReaderBuilder builder;
+    builder[ "collectComments" ] = true;
+    JSONCPP_STRING errs;
+    if ( !Json::parseFromStream(builder, ifs, &root, &errs) )
+    {
+        Cmpi::server_out << errs << "\n";
+        exit( 1 );
+    }
+
+    ifs.close();
+
+    if ( root.isObject() )
+    {
+        std::cout << "root is object " << std::endl;
+        Project::simu_task_name = root[ "simutask" ].asString();
+        this->Process( root );
+    }
+    else
+    {
+        Cmpi::server_out << "root is not object " << "\n";
+    }
+
+}
+
+void Simu::Process( Json::Value & root )
+{
+    TaskLineEnum simu_task = this->GetTaskLine();
+    switch ( simu_task )
+    {
+    case TaskLineEnum::SOLVE_FIELD:
+        this->solver_t = new FieldSolver_t();
+        this->solver_t->Init( root );
+        break;
+    case TaskLineEnum::GRID_GEN:
+        this->solver_t = new GridSolver_t();
+        this->solver_t->Init( root );
+        break;
+    default:
+    {
+        std::cerr << "unknown simu_task value!" << std::endl;
+        std::exit( EXIT_FAILURE );
+    }
+    break;
+    }
+}
+
 void Simu::Run()
 {
-    Geom_t::Init();
-    Geom * geom = new Geom{};
-    geom->Init();
-    geom->GenerateGrid();
-    geom->ComputeGeom();
+    this->ReadControlParameter();
+    this->solver_t->Run();
+}
 
-    //cfd parameter
-    CfdPara * cfd_para = new CfdPara{};
-    cfd_para->Init( geom );
+const std::map<std::string, TaskLineEnum> taskFilter = 
+{
+    {"undefined",TaskLineEnum::UNDEFINED},
+    {"solve_field",TaskLineEnum::SOLVE_FIELD},
+    {"grid_gen",TaskLineEnum::GRID_GEN}
+};
 
-    Solver * solver = new Solver{};
-    solver->Run( cfd_para, geom );
-    delete cfd_para;
-    delete geom;
-    delete solver;
-    Geom_t::Finalize();
+TaskLineEnum Simu::GetTaskLine()
+{
+    TaskLineEnum simu_task = TaskLineEnum::UNDEFINED;
+    const std::string& taskStr = Project::simu_task_name;
+    if ( taskFilter.find(taskStr) != taskFilter.end() )
+    {
+        simu_task = taskFilter.at(taskStr);
+    }
+    return simu_task;
 }

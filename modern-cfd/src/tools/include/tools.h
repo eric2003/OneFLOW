@@ -23,6 +23,8 @@ along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 #include <string>
 #include <sstream>
 
+//using uint = std::size_t;
+
 template <class... Ts>
 std::string add_string( Ts const&... args )
 {
@@ -35,3 +37,28 @@ template <class... Ts>
 void print_all(std::ostream& os, Ts const&... args) {
     ((os << args << "\n" ), ... );
 }
+
+inline std::string alignl(const std::size_t n, const std::string& x="")
+{
+	// converts x to string with spaces behind such that length is n if x is not longer than n
+	std::string s = x;
+	for ( std::size_t i = x.length(); i < n; ++ i )
+	{
+		s += " ";
+	}
+	return s;
+}
+
+inline std::string alignr(const std::size_t n, const std::string& x="")
+{
+	// converts x to string with spaces behind such that length is n if x is not longer than n
+	std::string s = "";
+	for ( std::size_t i = x.length(); i < n; ++ i )
+	{
+		s += " ";
+	}
+	s += x;
+	return s;
+}
+
+

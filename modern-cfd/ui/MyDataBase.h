@@ -20,56 +20,25 @@ along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 
 \*---------------------------------------------------------------------------*/
 #pragma once
-#include <vector>
-#include <string>
+#include <QtSql>
+#include <QString>
 
-class BoundarySolver;
-
-class Geom_t
+class MyDataBase
 {
 public:
-    Geom_t();
-    ~Geom_t();
+    MyDataBase();
+    ~MyDataBase();
+    QString connName;
+    QString dbName;
+    QSqlDatabase db;
 public:
-    static void Init();
-    static void Finalize();
-    static void LoadGrid();
-    static void DumpGrid( const std::string & fileName );
-    static void GenerateGrid();
-    static void ReadGrid( const std::string & gridName );
-    static void ReadAndModifyGrid( const std::string & gridName );
+    bool CreateConnDataBase( const QString & connName );
+    bool CreateNewDataBase( const QString & dataBaseName );
+    void Run();
 public:
-    static int gridobj;
-    static std::string gridName;
-    static int ni_ghost;
-    static int ni_global;
-    static int ni_global_total;
-    static float * xcoor_global;
-    static float dx;
-public:
-    static std::vector<int> zone_nis;
-    static std::vector<int> proc_ids;
-    static std::vector<int> zone_ids;
-public:
-};
-
-class Geom
-{
-public:
-    Geom();
-    ~Geom();
-public:
-    void Init();
-    void GenerateGrid();
-    void ComputeGeom();
-public:
-    int zoneId;
-    int nZones;
-    int ni;
-    int ni_total;
-    float * xcoor;
-public:
-    float * ds;
-public:
-    BoundarySolver * bcSolver;
+    void InsertPrjName( const QString & tableName, const int & prjId, const QString & prjName );
+    void DeletePjrRecord( const QString & tableName, const QString & prjName );
+    void ModifyPjrRecord( const QString & tableName, const int & prjId, const QString & prjName );
+    void QueryPjrRecordByName( const QString & tableName, const QString & prjName );
+    void QueryTable( const QString & tableName );
 };

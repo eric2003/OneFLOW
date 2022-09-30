@@ -19,64 +19,15 @@ You should have received a copy of the GNU General Public License
 along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 
 \*---------------------------------------------------------------------------*/
+#include "mainwindow.h"
+#include <QApplication>
+#include <QDir>
 
-#pragma once
-#ifdef PRJ_ENABLE_MPI
-#include <mpi.h>
-#endif
-
-#include <iostream>
-
-class ServerCout;
-
-class Cmpi
+int main(int argc, char *argv[])
 {
-public:
-    Cmpi();
-    ~Cmpi();
-public:
-    static void Init(int argc, char **argv);
-    static void Finalize();
-    static bool IsServer();
-public:
-    static int pid;
-    static int nproc;
-    static int server_id;
-    static int num_gpus;
-    static int num_cpus;
-    static ServerCout server_out;
-public:
-    template <typename... Args>
-    static void printf( char const * const format, Args&&... args )
-    {
-        if ( Cmpi::IsServer() )
-        {
-            std::printf( format, args... );
-        }
-    }
-};
+    QApplication a(argc, argv);
 
-class ServerCout
-{
-public:
-    ServerCout();
-    ~ServerCout();
-public:
-    ServerCout&  operator<<(ServerCout&(* _Pfn)(ServerCout&) ) {
-        return _Pfn(*this);
-    }
-};
-
-template< typename T >
-ServerCout & operator << ( ServerCout & sout, const T & value )
-{
-    if ( Cmpi::IsServer() )
-    {
-        std::cout << value;
-    }
-    return sout;
+    MainWindow w;
+    w.show();
+    return a.exec();
 }
-
-
-
-

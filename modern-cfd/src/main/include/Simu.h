@@ -20,6 +20,52 @@ along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 
 \*---------------------------------------------------------------------------*/
 #pragma once
+#include <json/json.h>
+
+//Types of problem solving
+enum class TaskLineEnum
+{
+    UNDEFINED = 0,
+    SOLVE_FIELD = 1,
+    GRID_GEN = 2
+};
+
+class Solver_t
+{
+public:
+    Solver_t() {};
+    ~Solver_t() {};
+public:
+    virtual void Init( Json::Value & root ) {};
+    virtual void Run() {};
+};
+
+class CfdPara;
+class FieldSolver_t : public Solver_t
+{
+public:
+    FieldSolver_t();
+    ~FieldSolver_t();
+public:
+    void Init( Json::Value & root ) override;
+    void Run() override;
+private:
+    CfdPara * cfd_para;
+};
+
+class GridSolver_t : public Solver_t
+{
+public:
+    GridSolver_t() {};
+    ~GridSolver_t() {};
+public:
+    void Init( Json::Value & root ) override;
+    void Run() override;
+private:
+    int gridobj;
+    std::string gridName;
+};
+
 
 class Simu
 {
@@ -29,5 +75,10 @@ public:
 public:
     void Init( int argc, char ** argv );
     void Run();
+    void ReadControlParameter();
+    void Process( Json::Value & root );
+public:
+    TaskLineEnum GetTaskLine();
+    Solver_t * solver_t;
 };
 

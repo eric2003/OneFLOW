@@ -42,3 +42,9 @@ target_compile_definitions ( ${PROJECT_NAME}
     PRIVATE
        ${PRJ_COMPILE_DEFINITIONS} 
 )
+
+install ( TARGETS ${PROJECT_NAME}
+    RUNTIME DESTINATION bin 
+    LIBRARY DESTINATION lib
+    ARCHIVE DESTINATION lib
+)

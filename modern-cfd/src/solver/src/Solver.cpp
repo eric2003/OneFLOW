@@ -22,10 +22,13 @@ along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "Solver.h"
 #include "SolverDetail.h"
+#include "Project.h"
+#include "tools.h"
 #include <string>
 #include <set>
 #include <map>
 #include <fstream>
+#include <iostream>
 #include <omp.h>
 #include "Cmpi.h"
 #include "Grid.h"
@@ -105,6 +108,8 @@ void Solver::InitField( CfdPara * cfd_para, Geom * geom )
 
 void Solver::SetInflowField( CfdPara * cfd_para, Geom * geom )
 {
+    this->iterstep = 0;
+    this->time_now = 0.0;
     for ( int i = 0; i < geom->ni_total; ++ i )
     {
         float fm = SquareFun( geom->xcoor[ i ] );
@@ -124,31 +129,32 @@ void Solver::CfdSolve( CfdPara * cfd_para, Geom * geom )
 
 void Solver::Timestep( CfdPara * cfd_para, Geom * geom )
 {
+    this->dt = std::numeric_limits<float>::max();
     for ( int i = 0; i < geom->ni_total; ++ i )
     {
         this->timestep[ i ] = geom->ds[ i ] * cfd_para->cfl / cfd_para->cspeed;
+        this->dt = std::min( this->timestep[ i ], this->dt );
     }
+    //std::cout << " this->dt = " << this->dt << std::endl;
 }
 
 void Solver::SolveField( CfdPara * cfd_para, Geom * geom )
 {
-    //for ( int i = 0; i < geom->ni_total; ++ i )
-    //{
-    //    qn[ i ] = q[ i ];
-    //}
-    //for ( int n = 0; n < cfd_para->nt; ++ n )
-    int n = 0;
-    while ( n < cfd_para->nt )
+    std::printf( " this->time_now = %f, cfd_para->simu_time = %f \n", this->time_now, cfd_para->simu_time );
+    this->Timestep( cfd_para, geom );
+    int ntimestep = cfd_para->simu_time / this->dt;
+    while ( ( this->time_now < cfd_para->simu_time ) &&
+            ( std::abs(this->time_now-cfd_para->simu_time) > std::numeric_limits<float>::epsilon() ) )
     {
-        if ( geom->zoneId == 0 )
+        if ( Cmpi::IsServer() )
         {
-            std::printf( " iStep = %d, nStep = %d \n", n + 1, cfd_para->nt );
+            std::printf( " iStep = %d, nStep = %d \n", this->iterstep + 1, ntimestep );
+            //std::printf( " this->time_now = %f, cfd_para->simu_time = %f \n", this->time_now, cfd_para->simu_time );
         }
 
         this->Boundary( q, geom );
         this->Timestep( cfd_para, geom );
 
-        //int nCpuThreads = 4;
         int nCpuThreads = 1;
         omp_set_num_threads( nCpuThreads );
         #pragma omp parallel
@@ -160,7 +166,13 @@ void Solver::SolveField( CfdPara * cfd_para, Geom * geom )
             CfdCopyVector( qn, q, geom->ni_total );
         }
         CfdScalarUpdate(this->q, this->qn, cfd_para->cspeed, this->timestep, geom->ds, geom->ni );
-        ++ n;
+        ++ this->iterstep;
+        this->time_now += this->dt;
+        if ( this->iterstep % 10 == 0 )
+        {
+            this->SaveField( cfd_para, geom );
+            //std::cin.get();
+        }
     }
 }
 
@@ -208,31 +220,35 @@ void Solver::BoundaryInterface( float * q, Geom * geom )
 
 void Solver::ReadField( CfdPara * cfd_para, Geom * geom )
 {
-    for ( int i = 0; i < geom->ni_total; ++ i )
-    {
-        float fm = SquareFun( geom->xcoor[ i ] );
-        this->q[ i ] = fm;
-    }
+    //for ( int i = 0; i < geom->ni_total; ++ i )
+    //{
+    //    float fm = SquareFun( geom->xcoor[ i ] );
+    //    this->q[ i ] = fm;
+    //}
 
-    //char buffer[ 50 ];
-    //std::sprintf( buffer, "./flow%d.dat", geom->zoneId );
-    //std::fstream file;
-    //file.open( buffer, std::fstream::out | std::fstream::binary );
+    std::string filename = add_string( Project::prj_results_dir, "./flow", geom->zoneId, ".dat" );
+    std::fstream file;
+    file.open( filename.c_str(), std::fstream::in | std::fstream::binary);
 
-    //int ni_total = geom->ni_total;
-    //file.write( reinterpret_cast<char *>(&ni_total), sizeof(int) );
-    //file.write( reinterpret_cast<char *>(this->q), ni_total * sizeof(float) );
-    //file.close();
+    int ni_total = geom->ni_total;
+    file.read( reinterpret_cast<char *>(&this->iterstep), sizeof(int) );
+    file.read( reinterpret_cast<char *>(&this->time_now), sizeof(float) );
+    std::printf( "ReadField: this->iterstep = %d, this->time_now = %f, cfd_para->simu_time = %f \n", this->iterstep, this->time_now, cfd_para->simu_time );
+    file.read( reinterpret_cast<char *>(&ni_total), sizeof(int) );
+    file.read( reinterpret_cast<char *>(this->q), ni_total * sizeof(float) );
+    file.close();
 }
 
 void Solver::SaveField( CfdPara * cfd_para, Geom * geom )
 {
-    char buffer[ 50 ];
-    std::sprintf( buffer, "./flow%d.dat", geom->zoneId );
+    std::string filename = add_string( Project::prj_results_dir, "./flow", geom->zoneId, ".dat" );
     std::fstream file;
-    file.open( buffer, std::fstream::out | std::fstream::binary );
+    file.open( filename.c_str(), std::fstream::out | std::fstream::binary);
 
     int ni_total = geom->ni_total;
+    std::printf( "SaveField: this->iterstep = %d, this->time_now = %f, cfd_para->simu_time = %f \n", this->iterstep, this->time_now, cfd_para->simu_time );
+    file.write( reinterpret_cast<char *>(&this->iterstep), sizeof(int) );
+    file.write( reinterpret_cast<char *>(&this->time_now), sizeof(float) );
     file.write( reinterpret_cast<char *>(&ni_total), sizeof(int) );
     file.write( reinterpret_cast<char *>(this->q), ni_total * sizeof(float) );
     file.close();
@@ -240,9 +256,8 @@ void Solver::SaveField( CfdPara * cfd_para, Geom * geom )
 
 void Solver::Visualize( CfdPara * cfd_para, Geom * geom )
 {
-    char buffer[ 50 ];
-    std::sprintf( buffer, "./cfd%d.png", geom->zoneId );
-    Visual( this->q, geom->xcoor, geom->ni, buffer );
+    std::string filename = add_string( Project::prj_results_dir, "./cfd", geom->zoneId, ".png" );
+    Visual( this->q, geom->xcoor, geom->ni, filename );
 
     std::vector<float> q_global;
     std::vector<float> x_global;
@@ -291,7 +306,8 @@ void Solver::Visualize( CfdPara * cfd_para, Geom * geom )
         theory.resize( x_global.size() );
         Theory( cfd_para->simu_time, cfd_para->cspeed, theory, x_global );
         //Visual( q_global, theory, x_global, "./cfd.png" );
-        Visual( q_global, theory, x_global, "./cfd.pdf" );
+        std::string visual_filename = add_string( Project::prj_results_dir, "./cfd.pdf" );
+        Visual( q_global, theory, x_global, visual_filename );
     }
 }
 
