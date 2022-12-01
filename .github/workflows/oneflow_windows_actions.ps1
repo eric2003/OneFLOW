@@ -128,13 +128,13 @@ function InstallCGNS() {
     Write-Host "local Env:HDF5_DIR = $Env:HDF5_DIR"
     $Env:HDF5_DIR = $tmp;
     Write-Host "now Env:HDF5_DIR = $Env:HDF5_DIR"
-    $cgns_prefix = "C:/cgns"
+    $cgns_prefix = "C:/dev/cgns"
     $cgns_bin = $cgns_prefix + "/bin"
     cmake -DCGNS_ENABLE_64BIT="ON" `
           -DCGNS_ENABLE_HDF5="ON" `
           -DCGNS_BUILD_SHARED="ON" `
           ../		  
-    #      -DCMAKE_INSTALL_PREFIX="C:/cgns" ../
+    #      -DCMAKE_INSTALL_PREFIX="C:/dev/cgns" ../
     cmake --build . --parallel 4 --config release
     cmake --install . --prefix $cgns_prefix
     AddMachinePath( $cgns_bin )

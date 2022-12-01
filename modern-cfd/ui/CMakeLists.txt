@@ -67,34 +67,19 @@ target_compile_definitions ( ${GUI_NAME}
        ${PRJ_COMPILE_DEFINITIONS} 
 )
 
-get_target_property( my_location Qt6::windeployqt IMPORTED_LOCATION )
-get_target_property( my_location_exe Qt6::windeployqt IMPORTED_LOCATION_<CONFIG> )
-get_target_property( my_location_debug Qt6::windeployqt IMPORTED_LOCATION_DEBUG )
-get_target_property( my_location_release Qt6::windeployqt IMPORTED_LOCATION_RELEASE )
+get_target_property( windeployqt_location Qt6::windeployqt IMPORTED_LOCATION )
+get_target_property( windeployqt_debug Qt6::windeployqt IMPORTED_LOCATION_DEBUG )
+get_target_property( windeployqt_release Qt6::windeployqt IMPORTED_LOCATION_RELEASE )
 
-message ( STATUS "my_location = ${my_location}" )
-message ( STATUS "my_location_exe = ${my_location_exe}" )
-message ( STATUS "my_location_debug = ${my_location_debug}" )
-message ( STATUS "my_location_release = ${my_location_release}" )
+message ( STATUS "windeployqt_location = ${my_location}" )
+message ( STATUS "windeployqt_debug = ${windeployqt_debug}" )
+message ( STATUS "windeployqt_release = ${windeployqt_release}" )
 message ( STATUS "OUTPUT_BIN_DIR = ${OUTPUT_BIN_DIR}" )
-message ( STATUS "OUTPUT_BIN_DIR/GUI_NAME = ${OUTPUT_BIN_DIR}/${GUI_NAME}" )
-
-#add_custom_command ( TARGET ${GUI_NAME}
-#                    POST_BUILD
-#					COMMAND echo Qt6::windeployqt=$<$<CONFIG:Debug>:${my_location_debug}> $<$<CONFIG:Release>:${my_location_release}>
-#					COMMAND echo "Qt6::windeployqt=$<$<CONFIG:Debug>:${my_location_debug}> $<$<CONFIG:Release>:${my_location_release}>"
-#					COMMAND echo TARGET_FILE:${GUI_NAME}=$<TARGET_FILE:${GUI_NAME}>
-#					COMMAND echo TARGET_FILE:${GUI_NAME}="$<TARGET_FILE:${GUI_NAME}>"
-#					COMMAND $<$<CONFIG:Debug>:${my_location_debug}> $<$<CONFIG:Release>:${my_location_release}> "$<TARGET_FILE:${GUI_NAME}>"
-#					COMMAND $<$<CONFIG:Debug>:${my_location_debug}> $<$<CONFIG:Release>:${my_location_release}> $<TARGET_FILE:${GUI_NAME}>
-#                    COMMENT "Run Qt6::windeployqt" )
 
 add_custom_command ( TARGET ${GUI_NAME}
                     POST_BUILD
-					COMMAND echo Qt6::windeployqt=$<$<CONFIG:Debug>:${my_location_debug}> $<$<CONFIG:Release>:${my_location_release}>
-					#COMMAND C:/dev/vcpkg/installed/x64-windows/tools/Qt6/bin/windeployqt.exe $<TARGET_FILE:${GUI_NAME}>
-					COMMAND $<$<CONFIG:Debug>:${my_location_debug}>$<$<CONFIG:Release>:${my_location_release}> $<TARGET_FILE:${GUI_NAME}>
-                    COMMENT "Run MyQt6::windeployqt" )
+					COMMAND $<$<CONFIG:Debug>:${windeployqt_debug}>$<$<CONFIG:Release>:${windeployqt_release}> $<TARGET_FILE:${GUI_NAME}>
+                    COMMENT "Run Qt6::windeployqt" )
 
 
 message ( STATUS "CMAKE_SOURCE_DIR = ${CMAKE_SOURCE_DIR}" )
@@ -114,24 +99,10 @@ message ( STATUS "PRJ_BIN_DIR = ${PRJ_BIN_DIR}" )
 
 add_custom_command ( TARGET ${GUI_NAME}
                     POST_BUILD
-                    COMMAND echo "RUN POST-BUILD CUSTOM COMMAND"
-                    COMMENT "Run custom command" )
-					
-add_custom_command ( TARGET ${GUI_NAME}
-                    POST_BUILD
-                    COMMAND echo "RUN POST-BUILD CUSTOM COMMAND111111111111"
-                    COMMENT "Run custom command" )
-
-add_custom_command ( TARGET ${GUI_NAME}
-                    POST_BUILD
                     COMMAND echo CONFIG=$<CONFIG>
                     COMMENT "Run custom command" )
 					
-add_custom_command ( TARGET ${GUI_NAME}
-                    POST_BUILD
-                    COMMAND echo my_location_debug=${my_location_debug}
-                    COMMENT "Run custom command" )
-					
+				
 add_custom_command ( TARGET ${GUI_NAME}
                     POST_BUILD
                     COMMAND echo my_location_exe=${my_location_exe}
