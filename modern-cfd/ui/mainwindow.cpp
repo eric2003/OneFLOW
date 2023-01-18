@@ -170,6 +170,17 @@ void MainWindow::initMenu()
     //combination of CPU and GPU
     //Lighting,Material,Shader
     //Physical-Based Material PBR
+    //Layered ASM
+    //Animation Blend Tree
+    //LERP Blend Node
+    //Terminal node
+    //Clip,blend,ASM
+    //Unreal Animation Blueprint Control
+    //IK(Inverse Kinematics)
+    //FK(Forward Kinematics)
+    //Heuristics Algorithm
+    //Separating Axis Theorem(SAT)-Convexity
+
 
 
 
@@ -273,6 +284,7 @@ void AnalysisJsonValue( QJsonValue & value )
 void MainWindow::displayJsonTree()
 {
     QString jsonFile = "D:/github/OneFLOW/modern-cfd/project_tmp/cgns_read_modify_cgnsflow/script/cfd.json";
+    //QString jsonFile = "D:/github/OneFLOW/modern-cfd/project_tmp/cgns_read_modify_cgnsflow/script/cfd2.json";
     QFile myFile( jsonFile );
     if ( !myFile.open( QFile::ReadOnly ) )
     {
