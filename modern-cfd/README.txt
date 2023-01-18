@@ -1,5 +1,7 @@
 cmake  ../ -D CMAKE_TOOLCHAIN_FILE="c:/dev/vcpkg/scripts/buildsystems/vcpkg.cmake"
 cmake .. -D CMAKE_PREFIX_PATH:PATH=C:/local/Qt/6.3.2/msvc2019_64/
+cmake .. -D CMAKE_PREFIX_PATH:PATH=C:/local/Qt/Qt6.4.0/6.4.0/msvc2019_64/
+c:\local\Qt\Qt6.4.0\
 cmake --build .
 C:\local\Qt\6.3.2\msvc2019_64\bin\windeployqt.exe .\Debug\testprj.exe
 .\Debug\testprj.exe
