@@ -1,6 +1,7 @@
 CUDA
 ==================================
 
+Compute Unified Device Architecture
 
 #. `NVIDIA CUDA 编程指南 <https://docs.nvidia.com/cuda/cuda-c-programming-guide/>`_
 #. `CUDA Toolkit 下载和文档 <https://docs.nvidia.com/cuda/cuda-c-programming-guide/>`_
