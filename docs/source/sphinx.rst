@@ -29,12 +29,14 @@ Building your HTML documentation
 
 `Getting Started with Sphinx <https://docs.readthedocs.io/en/stable/intro/getting-started-with-sphinx.html>`_
 
-#. `Sphinx 官方网站 <https://www.sphinx-doc.org/>`_
-#. `Sphinx Github仓库 <https://github.com/sphinx-doc/sphinx/>`_
-#. `Sphinx 文档 <https://www.sphinx-doc.org/>`_
-#. `Sphinx 主题库 <https://sphinx-themes.org/>`_
-#. `Sphinx 扩展库 <https://sphinx-extensions.readthedocs.io/>`_
+#. `Sphinx Official Website <https://www.sphinx-doc.org/>`_
+#. `Sphinx Github Repository <https://github.com/sphinx-doc/sphinx/>`_
+#. `Sphinx Documentation <https://www.sphinx-doc.org/>`_
+#. `Sphinx Themes <https://sphinx-themes.org/>`_
+#. `Sphinx Extensions <https://sphinx-extensions.readthedocs.io/>`_
 #. `Read the Docs <https://readthedocs.org/>`_
+#. `reStructuredText Manual <https://restructuredtextmenu.readthedocs.io/>`_
+
 
 
 

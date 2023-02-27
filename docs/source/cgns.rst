@@ -12,9 +12,9 @@ There are also open-source tools and libraries available for CGNS format, includ
 Overall, CGNS format and library are important and useful tools in the field of CFD, simplifying and accelerating the storage, transmission, and processing of CFD data.
 
 
-#. `CGNS和hdf5编译链接相关文章链接整理 <https://zhuanlan.zhihu.com/p/452874893/>`_
-#. `CGNS官方网站 <https://cgns.github.io/>`_
-#. `CGNS标准文档 <https://cgns.github.io/CGNS_docs_current/>`_
-#. `CGNS代码库 <https://github.com/CGNS/CGNS/>`_
+#. `CGNS and HDF5 compiling and linking related article links compilation <https://zhuanlan.zhihu.com/p/452874893/>`_
+#. `CGNS official website <https://cgns.github.io/>`_
+#. `CGNS standard document <https://cgns.github.io/CGNS_docs_current/>`_
+#. `CGNS code repository <https://github.com/CGNS/CGNS/>`_
 
 
