@@ -2,7 +2,7 @@ MPI
 ==================================
 
 
-#. `MPI 官方文档 <https://www.mpi-forum.org/docs/>`_
+#. `MPI official document <https://www.mpi-forum.org/docs/>`_
 #. `MPICH <https://www.mpich.org/documentation/>`_
 #. `OpenMPI <https://www.open-mpi.org/doc/>`_
 #. `Message Passing Interface (MPI) - LLNL HPC Tutorials <https://hpc-tutorials.llnl.gov/mpi/>`_
