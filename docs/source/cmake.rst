@@ -60,5 +60,21 @@ View Help
 #. `CMake official GitHub repository <https://github.com/Kitware/CMake/>`_
 #. `Compilation of links related to CMake from beginner to expert series <https://zhuanlan.zhihu.com/p/393316878/>`_
 
+CMake+Qt Example
+::
+
+ cmake .. -D CMAKE_PREFIX_PATH:PATH=C:/local/Qt/Qt6.4.0/6.4.0/msvc2019_64/
+ cmake --build .
+ C:/local/Qt/Qt6.4.0/6.4.0/msvc2019_64/bin/windeployqt.exe .\Debug\testprj.exe
+ 
+CMake+HDF5 Example(powershell)
+::
+
+ $env:HDF5_DIR = "c:/dev/HDF_Group/HDF5/1.14.0/cmake/"
+ $env:path += ";C:/dev/HDF_Group/HDF5/1.14.0/bin/"
+ cmake ..
+ cmake --build .
+
+
 
 
