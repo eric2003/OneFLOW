@@ -23,8 +23,8 @@ OneFLOW is a general-purpose, unstructured Computational Fluid Dynamics (CFD) so
    :hidden:
    :maxdepth: 2
    :caption: Reference
-
-   /cfd
+   
+   /cfd/index
    /cgns
    /cmake
    /cuda
