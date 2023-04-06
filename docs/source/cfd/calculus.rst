@@ -212,7 +212,7 @@ Calculus
   \end{align}
   
 更准确的叙述：  
-如果函数 :math:`u=\phi(x,y)` 在点 :math:`(x,y)` 具有对 :math:`x` 及对 :math:`y`的偏导数，函数 :math:`v=\psi(y)` 在点 :math:`y` 可导，函数 :math:`z(u,v)=f(u,v)` 在对应点
+如果函数 :math:`u=\phi(x,y)` 在点 :math:`(x,y)` 具有对 :math:`x` 及对 :math:`y` 的偏导数，函数 :math:`v=\psi(y)` 在点 :math:`y` 可导，函数 :math:`z(u,v)=f(u,v)` 在对应点
 :math:`(u,v)` 具有连续偏导数，那么复合函数 :math:`\hat{z}(x,y)=f(\phi(x,y),\psi(y))=\hat{f}(x,y)` 在点 :math:`(x,y)` 的两个偏导数都存在，且有
 
 .. math::
