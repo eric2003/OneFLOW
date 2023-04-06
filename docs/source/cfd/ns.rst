@@ -58,8 +58,3 @@ fluid dynamics (e.g. in Bird et al., 1962; Fox and McDonald, 1982) and will not
 be repeated here. The mass, momentum and scalar conservation equations 
 will be presented in the next three sections. For convenience, a fixed CV will 
 be considered; :math:`\Omega` represents the CV volume and S its surface.  
-  
-Arbitrary Lagrangian-Eulerian (ALE) and Computational Fluid Dynamics (CFD)
----------------------------------------------------------------------------
-#. `Arbitrary Lagrangian-Eulerian (ALE) and Computational Fluid Dynamics (CFD) <https://2021.help.altair.com/2021/hwsolvers/rad/topics/solvers/rad/arbitrary_lagrangian_eulerian_computational_fluid_dynamics_c.htm>`_
-#. `ALE formula <https://max.book118.com/html/2016/1212/71106288.shtm>`_

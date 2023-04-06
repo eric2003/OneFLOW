@@ -7,7 +7,7 @@ Sphinx
 
    This project is under active development.
 
-Quick start
+Quick start
 --------------
 
 Assuming you have Python already, install Sphinx:
@@ -36,6 +36,9 @@ Building your HTML documentation
 #. `Sphinx Extensions <https://sphinx-extensions.readthedocs.io/>`_
 #. `Read the Docs <https://readthedocs.org/>`_
 #. `reStructuredText Manual <https://restructuredtextmenu.readthedocs.io/>`_
+#. `reStructuredText:Markup Syntax and Parser Component of Docutils <https://restructuredtextmenu.readthedocs.io/>`_
+#. `Quick reStructuredText <https://docutils.sourceforge.io/docs/user/rst/quickref.html>`_
+#. `Create Documentation with RST, Sphinx, Sublime, and GitHub <https://docutils.sourceforge.io/rst.html>`_
 
 
 
