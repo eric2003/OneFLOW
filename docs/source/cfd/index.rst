@@ -10,6 +10,7 @@ CFD (Computational Fluid Dynamics) is a method of simulating physical phenomena 
    /cfd/leibniz
    /cfd/field
    /cfd/calculus
+   /cfd/jacobian
    /cfd/ale
    /cfd/codes
    

@@ -58,3 +58,169 @@ fluid dynamics (e.g. in Bird et al., 1962; Fox and McDonald, 1982) and will not
 be repeated here. The mass, momentum and scalar conservation equations 
 will be presented in the next three sections. For convenience, a fixed CV will 
 be considered; :math:`\Omega` represents the CV volume and S its surface.  
+
+
+Conservation Equations
+------------------------------
+
+Conservation Laws
+`````````````````````````````
+One group of the fundamental equations of continuum mechanics arises from the conservation
+laws. These equations must always be satisfied by physical systems. Four conservation laws
+relevant to thermomechanical systems are considered here:
+
+#. Conservation of mass
+#. Conservation of linear momentum, often called conservation of momentum
+#. Conservation of energy
+#. Conservation of angular momentum.
+
+The conservation laws are also known as balance laws, for example, the conservation of
+energy is often called the balance of energy.
+
+Material Time Derivative of an Integral and Reynolds’ Transport Theorem
+```````````````````````````````````````````````````````````````````````````````````````
+The material time derivative of an integral is the rate of change of an integral on a material
+domain. A material domain moves with the material, so that the material points on the
+boundary remain on the boundary and no mass flux occurs across the boundaries. A material
+domain is analogous to a Lagrangian mesh; a Lagrangian element or group of Lagrangian elements is a nice example of a material domain. The various forms for material time derivatives
+of integrals are called Reynolds’ transport theorem.
+
+The material time derivative of an integral is defined by
+
+.. math::
+  \frac{\mathrm{D} }{\mathrm{D} t}\int\limits_{\Omega }^{}f(\mathbf{x},t)\mathrm{d}\Omega 
+  =\lim_{\Delta  t \to 0}\cfrac{1}{\Delta  t }\left ( \int\limits_{\Omega_{\tau+\Delta t} }f(\mathbf{x},{\tau+\Delta t})\mathrm{d}\Omega-\int\limits_{\Omega_{\tau} }f(\mathbf{x},\tau )\mathrm{d}\Omega \right )
+  
+where :math:`\Omega_{\tau}`
+t is the spatial domain at time :math:`{\tau}` and :math:`\Omega_{\tau+\Delta t}` is the spatial domain occupied by the same
+material points at time :math:`{\tau+\Delta t}`. The notation on the left-hand side is a little confusing because it
+appears to refer to a single spatial domain. However, in this notation, which is standard, the material derivative on the integral implies that the domain Ω is a material domain. We now
+transform both integrals on the RHS to the reference domain:
+
+.. math::
+  \frac{\mathrm{D} }{\mathrm{D} t}\int\limits_{\Omega }f(\mathbf{x},t)\mathrm{d}\Omega 
+  =\lim_{\Delta  t \to 0}\cfrac{1}{\Delta  t }\left ( \int\limits_{\Omega_{0} }f(\mathbf{X},{\tau+\Delta t})J(\mathbf{X},{\tau+\Delta t})\mathrm{d}\Omega_{0}-\int\limits_{\Omega_{0} }f(\mathbf{X},\tau )J(\mathbf{X},\tau )\mathrm{d}\Omega_{0} \right )
+  
+With this change in the domain of integration, :math:`{f}` becomes a function of the material coordinates, that is, :math:`f(\mathbf{\Phi}(\mathbf{X},t),t)\equiv f\circ \mathbf{\Phi}`.
+
+Since the domain of integration is now independent of time, we can pull the limit operation
+inside the integral and take the limit, which yields  
+
+.. math::
+  \frac{\mathrm{D} }{\mathrm{D} t}\int\limits_{\Omega }f(\mathbf{x},t)\mathrm{d}\Omega 
+  =\int\limits_{\Omega_{0} }\frac{\partial }{\partial t}[f(\mathbf{X},t)J(\mathbf{X},t)] \mathrm{d}\Omega_{0}
+  
+The partial derivative with respect to time in the integrand is a material time derivative since
+the independent space variables are the material coordinates. We next use the product rule for
+derivatives on the previous:
+
+.. math::
+  \begin{align}
+  \frac{\mathrm{D} }{\mathrm{D} t}\int\limits_{\Omega }f(\mathbf{x},t)\mathrm{d}\Omega 
+  =\int\limits_{\Omega_{0} }\frac{\partial }{\partial t}[f(\mathbf{X},t)J(\mathbf{X},t)] \mathrm{d}\Omega_{0}\\
+  =\int\limits_{\Omega_{0} }(\frac{\partial f(\mathbf{X},t)}{\partial t}J(\mathbf{X},t)+f(\mathbf{X},t)\frac{\partial J(\mathbf{X},t)}{\partial t}) \mathrm{d}\Omega_{0}\\
+  \end{align}
+
+-
+
+.. math::  
+  \begin{align}
+  \frac{\mathrm{D} }{\mathrm{D} t}\int\limits_{\Omega }f(\mathbf{x},t)\mathrm{d}\Omega 
+  =\int\limits_{\Omega_{0} }\frac{\partial }{\partial t}[f(\mathbf{X},t)J(\mathbf{X},t)] \mathrm{d}\Omega_{0}\\
+  =\int\limits_{\Omega_{0} }(\frac{\partial f(\mathbf{X},t)}{\partial t}J(\mathbf{X},t)+f(\mathbf{X},t)\frac{\partial J(\mathbf{X},t)}{\partial t}) \mathrm{d}\Omega_{0}\\
+  =\int\limits_{\Omega_{0} }(\frac{\partial f(\mathbf{X},t)}{\partial t}J(\mathbf{X},t)+f(\mathbf{X},t)J(\mathbf{X},t)\frac{\partial v_{k}}{\partial x_{k}}) \mathrm{d}\Omega_{0}\\
+  \end{align}
+  
+We can now transform the RHS integral to the current domain and change the
+independent variables to an Eulerian description, which gives
+
+.. math:: 
+  \begin{align}
+  \frac{\mathrm{D} }{\mathrm{D} t}\int\limits_{\Omega }f(\mathbf{x},t)\mathrm{d}\Omega 
+  =\int\limits_{\Omega }(\frac{D f(\mathbf{x},t)}{D t}+f(\mathbf{x},t)\frac{\partial v_{k}}{\partial x_{k}}) \mathrm{d}\Omega\\
+  \end{align}
+  
+where we have used :math:`{D f(\mathbf{x},t)}/{D t}\equiv \partial f(\mathbf{X},t)/\partial t`. This is one form of
+Reynolds’ transport theorem. 
+ 
+.. math:: 
+  \cfrac{\mathrm{D}  f}{\mathrm{D} t}=\cfrac{\partial f}{\partial t}+v_{i} \cfrac{\partial f}{\partial x_{i}}=\cfrac{\partial f}{\partial t}+\mathbf{v} \cdot \nabla f=\cfrac{\partial f}{\partial t}+\mathbf{v} \cdot \operatorname{grad} f \\
+  
+-  
+  
+.. math::   
+  \begin{array}{l}
+  \cfrac{\mathrm{D} f(\mathbf{x},t)}{\mathrm{D} t}&=\cfrac{\partial f(\mathbf{x},t)}{\partial t}+v_{i}(\mathbf{x},t) \cfrac{\partial f(\mathbf{x},t)}{\partial x_{i}}\\
+  &=\cfrac{\partial f(\mathbf{x},t)}{\partial t}+\mathbf{v}(\mathbf{x},t) \cdot \nabla f(\mathbf{x},t)\\
+  &=\cfrac{\partial f(\mathbf{x},t)}{\partial t}+\mathbf{v}(\mathbf{x},t) \cdot \operatorname{grad} f(\mathbf{x},t) \\
+  \end{array}  
+
+-  
+  
+.. math:: 
+  \begin{align}
+  \frac{\mathrm{D} }{\mathrm{D} t}\int\limits_{\Omega }f(\mathbf{x},t)\mathrm{d}\Omega 
+  &=\int\limits_{\Omega }(\frac{D f(\mathbf{x},t)}{D t}+f(\mathbf{x},t)\frac{\partial v_{k}}{\partial x_{k}}) \mathrm{d}\Omega\\
+  &=\int\limits_{\Omega }(\cfrac{\partial f(\mathbf{x},t)}{\partial t}+v_{k}(\mathbf{x},t) \cfrac{\partial f(\mathbf{x},t)}{\partial x_{k}}+f(\mathbf{x},t)\frac{\partial v_{k}}{\partial x_{k}}) \mathrm{d}\Omega\\
+  &=\int\limits_{\Omega }(\cfrac{\partial f(\mathbf{x},t)}{\partial t}+\cfrac{\partial (v_{k}(\mathbf{x},t)f(\mathbf{x},t))}{\partial x_{k}}) \mathrm{d}\Omega\\
+  \end{align}
+  
+which can be written in tensor form as
+
+.. math:: 
+  \begin{align}
+  \frac{\mathrm{D} }{\mathrm{D} t}\int\limits_{\Omega }f(\mathbf{x},t)\mathrm{d}\Omega 
+  &=\int\limits_{\Omega }(\cfrac{\partial f(\mathbf{x},t)}{\partial t}+\mathrm{div}\ (\mathbf{v}(\mathbf{x},t)\cdot f(\mathbf{x},t)) \mathrm{d}\Omega\\
+  &=\int\limits_{\Omega }(\cfrac{\partial f(\mathbf{x},t)}{\partial t}+\nabla\cdot(\mathbf{v}(\mathbf{x},t)\cdot f(\mathbf{x},t)) \mathrm{d}\Omega\\
+  \end{align}
+
+-
+  
+.. math::
+  \begin{align}
+  \frac{\mathrm{D} }{\mathrm{D} t}\int\limits_{\Omega }f(\mathbf{x},t)\mathrm{d}\Omega 
+  &=\int\limits_{\Omega }(\cfrac{\partial f(\mathbf{x},t)}{\partial t}) \mathrm{d}\Omega
+  +\int\limits_{\Omega }(\nabla\cdot(\mathbf{v}(\mathbf{x},t)\cdot f(\mathbf{x},t)) \mathrm{d}\Omega\\
+  &=\int\limits_{\Omega }(\cfrac{\partial f(\mathbf{x},t)}{\partial t}) \mathrm{d}\Omega
+  +\int\limits_{\Gamma }f(\mathbf{x},t)(\mathbf{v}(\mathbf{x},t)\cdot \mathbf{n}(\mathbf{x},t)) \mathrm{d}\Gamma \\
+  &=\int\limits_{\Omega }(\cfrac{\partial f(\mathbf{x},t)}{\partial t}) \mathrm{d}\Omega
+  +\int\limits_{\Gamma }f(\mathbf{x},t)({v}_{k}(\mathbf{x},t){n}_{k}(\mathbf{x},t)) \mathrm{d}\Gamma \\
+  \end{align}
+  
+Mass Conservation
+-------------------
+
+The mass :math:`m(\Omega)` of a material domain:math:`\Omega` is given by
+
+.. math::
+  m(\Omega)=\int\limits_{\Omega }\rho (\mathbf{x},t) \mathrm{d}\Omega  
+  
+where :math:`\rho (\mathbf{x},t)` is the density. Mass conservation requires that the mass of any material domain
+be constant, since no material flows through the boundaries of a material domain and we are
+not considering mass to energy conversion. Therefore, according to the principle of mass
+conservation, the material time derivative of :math:`m(\Omega)` vanishes, that is,  
+
+.. math::
+  \cfrac{\mathrm{D} m(\Omega)}{\mathrm{D} t} =\cfrac{\mathrm{D}}{\mathrm{D} t}\int\limits_{\Omega }\rho (\mathbf{x},t) \mathrm{d}\Omega=0
+  
+Applying Reynolds’ theorem
+
+.. math::
+  \frac{\mathrm{D} }{\mathrm{D} t}\int\limits_{\Omega }\rho(\mathbf{x},t)\mathrm{d}\Omega 
+  =\int\limits_{\Omega }(\frac{D \rho(\mathbf{x},t)}{D t}+\rho(\mathbf{x},t)\frac{\partial v_{k}}{\partial x_{k}}) \mathrm{d}\Omega=0\\
+
+-
+
+.. math::
+  \frac{\mathrm{D} }{\mathrm{D} t}\int\limits_{\Omega }\rho(\mathbf{x},t)\mathrm{d}\Omega 
+  =\int\limits_{\Omega }(\frac{D \rho(\mathbf{x},t)}{D t}+\rho(\mathbf{x},t)\nabla \mathbf{v}) \mathrm{d}\Omega=0\\  
+  
+-
+
+.. math::  
+  \frac{D \rho(\mathbf{x},t)}{D t}+\rho(\mathbf{x},t)\frac{\partial v_{k}}{\partial x_{k}}=0
+  
+- 
+ 
+.. math::  
+  \frac{D \rho(\mathbf{x},t)}{D t}+\rho(\mathbf{x},t)\nabla \cdot\mathbf{v}=0  
