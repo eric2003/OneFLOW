@@ -30,3 +30,6 @@ exclude_patterns = []
 #html_theme = 'classic'
 html_theme = 'sphinx_rtd_theme'
 html_static_path = ['_static']
+
+#math_number_all = True  # Set this option to True if you want all displayed math to be numbered. The default is False.
+math_eqref_format = 'Eq.{number}'  # gets rendered as, for example, Eq.10.
