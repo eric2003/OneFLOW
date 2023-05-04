@@ -11,8 +11,6 @@ Arbitrary Lagrangian-Eulerian (ALE)
 #. `image-to-latex <https://github.com/kingyiusuen/image-to-latex/>`_
 
 
-
-
 Eulerian and Lagrangian Descriptions
 ---------------------------------------------------------------------------
 In the mathematics and continuum mechanics literature (cf. Marsden and Hughes, 1983),
@@ -28,39 +26,152 @@ Lagrangian and Eulerian viewpoints
 ---------------------------------------------------------------------------
 
 Two domains are commonly used in continuum mechanics: the material domain :math:`R_{X} \subset \mathbb{R}^{n_{\text {sd }}}`,
-with :math:`n_{\text {sd }}` spatial dimensions, made up of material particles :math:`X`, and the spatial domain :math:`R_{\boldsymbol{x}}`,
-consisting of spatial points :math:`\boldsymbol{x}`.
+with :math:`n_{\text {sd }}` spatial dimensions, made up of material particles :math:`\mathbf{X}`, and the spatial domain :math:`R_{\mathbf{x}}`,
+consisting of spatial points :math:`\mathbf{x}`.
 
 .. image:: images/ale1.png
    :width: 600
 
 .. math::
   \begin{aligned}
-    \boldsymbol{\varphi}: R_{\boldsymbol{X}} \times\left[t_{0}, t_{\text {final }}]\right. & \longrightarrow R_{\boldsymbol{x}} \times\left[t_{0}, t_{\text {final }}]\right. \\
-    (\boldsymbol{X}, t) & \longmapsto \boldsymbol{\varphi}(\boldsymbol{X}, t)=(\boldsymbol{x}, t)
+    \boldsymbol{\varphi}: R_{\mathbf{X}} \times\left[t_{0}, t_{\text {final }}]\right. & \longrightarrow R_{\mathbf{x}} \times\left[t_{0}, t_{\text {final }}]\right. \\
+    (\mathbf{X}, t) & \longmapsto \boldsymbol{\varphi}(\mathbf{X}, t)=(\mathbf{x}, t)
   \end{aligned}
   
-which allows us to link :math:`X` and :math:`\boldsymbol{x}` in time by the law of motion, namely
+which allows us to link :math:`\mathbf{X}` and :math:`\mathbf{x}` in time by the law of motion, namely
 
 .. math::
-  \boldsymbol{x}=\boldsymbol{x}(\boldsymbol{X}, t), \quad t=t
+  \mathbf{x}=\mathbf{x}(\mathbf{X}, t), \quad t=t
   
-which explicitly states the particular nature of :math:`\boldsymbol{\varphi}` : first, the spatial coordinates :math:`\boldsymbol{x}` depend both
-on the material particle, :math:`\boldsymbol{X}` , and time :math:`t` , and, second, physical time is measured by the same
+for two dimensions:
+
+.. math:: 
+  \mathbf{x}=\begin{bmatrix}
+   x_{1}\\ x_{2}
+  \end{bmatrix} \quad or \quad\mathbf{x}=\begin{bmatrix}
+   x\\y
+  \end{bmatrix} 
+  
+-
+
+.. math:: 
+  \mathbf{X}=\begin{bmatrix}
+  X_{1}\\ X_{2}
+  \end{bmatrix} \quad or \quad\mathbf{X}=\begin{bmatrix}
+  X\\Y
+  \end{bmatrix}
+  
+-
+
+.. math:: 
+  \begin{align}
+  x_{1}=x_{1}(X_{1},X_{2},t)=\varphi_{1}(X_{1},X_{2},t)\\
+  x_{2}=x_{2}(X_{1},X_{2},t)=\varphi_{2}(X_{1},X_{2},t)
+  \end{align} 
+
+The matrix
+
+.. math::
+  J(u,v)=\cfrac{\partial (x,y)}{\partial (u,v)} =\cfrac{\partial (x(u,v),y(u,v))}{\partial (u,v)}=\begin{bmatrix}
+  \cfrac{\partial x(u,v)}{\partial u} & \cfrac{\partial x(u,v)}{\partial v}\\
+  \cfrac{\partial y(u,v)}{\partial u}&\cfrac{\partial y(u,v)}{\partial v}
+  \end{bmatrix}
+
+-
+  
+.. math::
+  J(u,v)=\cfrac{\partial (x,y)}{\partial (u,v)} =\begin{bmatrix}
+  \cfrac{\partial x}{\partial u} & \cfrac{\partial x}{\partial v}\\
+  \cfrac{\partial y}{\partial u}&\cfrac{\partial y}{\partial v}
+  \end{bmatrix} 
+  
+-
+  
+.. math::
+  J(X_{1},X_{2})=\cfrac{\partial (x_{1},x_{2})}{\partial (X_{1},X_{2})} =\begin{bmatrix}
+  \cfrac{\partial x_{1}}{\partial X_{1}} & \cfrac{\partial x_{1}}{\partial X_{2}}\\
+  \cfrac{\partial x_{2}}{\partial X_{1}}&\cfrac{\partial x_{2}}{\partial X_{2}}
+  \end{bmatrix} 
+  
+-
+  
+.. math::  
+  J(X,Y)=\cfrac{\partial (x,y)}{\partial (X,Y)} =\begin{bmatrix}
+  \cfrac{\partial x}{\partial X} & \cfrac{\partial x}{\partial Y}\\
+  \cfrac{\partial y}{\partial X} & \cfrac{\partial y}{\partial Y}
+  \end{bmatrix}
+  
+-
+  
+.. math:: 
+  J(\mathbf{X})=\cfrac{\partial (\mathbf{x})}{\partial (\mathbf{X})} =
+  \cfrac{\partial \mathbf{x}}{\partial \mathbf{X}} =\begin{bmatrix}
+  \cfrac{\partial x_{1}}{\partial X_{1}} & \cfrac{\partial x_{1}}{\partial X_{2}}\\
+  \cfrac{\partial x_{2}}{\partial X_{1}} & \cfrac{\partial x_{2}}{\partial X_{2}}
+  \end{bmatrix} 
+  
+-
+  
+.. math:: 
+  (\mathbf{x},t)={\stackrel\frown{\mathbf{x}} }=\begin{bmatrix}
+  x_{1}\\x_{2}\\t
+ \end{bmatrix}
+ 
+-
+  
+.. math::
+  \begin{align}
+  x_{1}=x_{1}(X_{1},X_{2},t)=\varphi_{1}(X_{1},X_{2},t)\\
+  x_{2}=x_{2}(X_{1},X_{2},t)=\varphi_{2}(X_{1},X_{2},t)\\
+  t=\varphi_{3}(X_{1},X_{2},t)\\
+  \end{align} 
+  
+-
+  
+.. math:: 
+  J(X_{1},X_{2},t)=\cfrac{\partial (x_{1},x_{2},t)}{\partial (X_{1},X_{2},t)} =\begin{bmatrix}
+  \cfrac{\partial x_{1}}{\partial X_{1}} & \cfrac{\partial x_{1}}{\partial X_{2}}& \cfrac{\partial x_{1}}{\partial t}\\
+  \cfrac{\partial x_{2}}{\partial X_{1}} & \cfrac{\partial x_{2}}{\partial X_{2}}& \cfrac{\partial x_{2}}{\partial t}\\
+  \cfrac{\partial t}{\partial X_{1}} & \cfrac{\partial t}{\partial X_{2}}& \cfrac{\partial t}{\partial t}\\
+  \end{bmatrix} 
+  
+-
+  
+.. math:: 
+  J(X_{1},X_{2},t)=\cfrac{\partial (x_{1},x_{2},t)}{\partial (X_{1},X_{2},t)} =\begin{bmatrix}
+  \cfrac{\partial x_{1}}{\partial X_{1}} & \cfrac{\partial x_{1}}{\partial X_{2}}& v_{1}\\
+  \cfrac{\partial x_{2}}{\partial X_{1}} & \cfrac{\partial x_{2}}{\partial X_{2}}& v_{2}\\
+  0 & 0 & 1\\
+  \end{bmatrix} 
+  
+which explicitly states the particular nature of :math:`\boldsymbol{\varphi}` : first, the spatial coordinates :math:`\mathbf{x}` depend both
+on the material particle, :math:`\mathbf{X}` , and time :math:`t` , and, second, physical time is measured by the same
 variable :math:`t` in both material and spatial domains. For every fixed instant :math:`t`, the mapping :math:`\boldsymbol{\varphi}` defines
 a configuration in the spatial domain. It is convenient to employ a matrix representation for
 the gradient of :math:`\boldsymbol{\varphi}`,
 
 .. math::
-  \frac{\partial \boldsymbol{\varphi}}{\partial(\boldsymbol{X}, t)}=\left(\begin{array}{cc}
-  \frac{\partial \boldsymbol{x}}{\partial \boldsymbol{X}} & \boldsymbol{v} \\
+  \frac{\partial ({\varphi}_{1},{\varphi}_{2},t)}{\partial(X_{1},X_{2}, t)}=
+  \frac{\partial \boldsymbol{\varphi}}{\partial(\mathbf{X}, t)}=\left(\begin{array}{cc}
+  \frac{\partial \mathbf{x}}{\partial \mathbf{X}} & \mathbf{v} \\
   \mathbf{0}^{\mathrm{T}} & 1
   \end{array}\right)  
   
-where :math:`\mathbf{0}^{\mathrm{T}}` is a null row-vector and the material velocity :math:`\boldsymbol{v}` is
+where :math:`\mathbf{0}^{\mathrm{T}}` is a null row-vector and the material velocity :math:`\mathbf{v}` is
 
 .. math::
-  \boldsymbol{v}(\boldsymbol{X}, t)=\left.\frac{\partial \boldsymbol{x}}{\partial t}\right|_{\boldsymbol{x}}  
+  \mathbf{v}(\mathbf{X}, t)=\left.\frac{\partial \mathbf{x}(\mathbf{X}, t)}{\partial t}\right|_{\mathbf{X}}  
+  
+-
+
+.. math::  
+  \mathbf{v}=\begin{bmatrix}
+   v_{1}\\v_{2}
+  \end{bmatrix}=
+  \begin{bmatrix}
+   \cfrac{\partial x_{1}(X_{1},X_{2},t)}{\partial t}\Bigg|_{\mathbf{X}} \\
+   \cfrac{\partial x_{2}(X_{1},X_{2},t)}{\partial t}\Bigg|_{\mathbf{X}} 
+  \end{bmatrix}  
   
 ALE kinematical description
 ---------------------------------------------------------------------------
@@ -68,8 +179,8 @@ ALE kinematical description
 .. image:: images/ale2.png
    :width: 500
    
-In the ALE description of motion, neither the material configuration :math:`R_{\boldsymbol{X}}` nor the spatial
-configuration :math:`R_{\boldsymbol{x}}` is taken as the reference. Thus, a third domain is needed: the referential
+In the ALE description of motion, neither the material configuration :math:`R_{\mathbf{X}}` nor the spatial
+configuration :math:`R_{\mathbf{x}}` is taken as the reference. Thus, a third domain is needed: the referential
 configuration :math:`R_{\boldsymbol{\chi}}` where reference coordinates :math:`\boldsymbol{\chi}` are introduced to identify the grid points.
 Figure above shows these domains and the one-to-one transformations relating the configurations.
 The referential domain :math:`R_{\boldsymbol{\chi}}` is mapped into the material and spatial domains by :math:`\boldsymbol{\Psi}` and :math:`\boldsymbol{\varphi}`
@@ -78,22 +189,69 @@ that, of course, the three mappings :math:`\boldsymbol{\Psi}`, :math:`\boldsymbo
   
 .. math::
   \begin{aligned}
-  \boldsymbol{\Phi}: R_{\boldsymbol{\chi}} \times\left[t_0, t_{\text {final }}]\right. & \longrightarrow R_{\boldsymbol{x}} \times\left[t_0, t_{\text {final }}]\right. \\
-  (\boldsymbol{\chi}, t) & \longmapsto \boldsymbol{\Phi}(\boldsymbol{\chi}, t)=(\boldsymbol{x}, t)
+  \boldsymbol{\Phi}: R_{\boldsymbol{\chi}} \times\left[t_0, t_{\text {final }}]\right. & \longrightarrow R_{\mathbf{x}} \times\left[t_0, t_{\text {final }}]\right. \\
+  (\boldsymbol{\chi}, t) & \longmapsto \boldsymbol{\Phi}(\boldsymbol{\chi}, t)=(\mathbf{x}, t)
   \end{aligned}
+  
+-  
+  
+.. math::
+  \begin{align}
+  x_{1}=x_{1}(\chi_{1},\chi_{2},t)=\phi_{1}(\chi_{1},\chi_{2},t)\\
+  x_{2}=x_{2}(\chi_{1},\chi_{2},t)=\phi_{2}(\chi_{1},\chi_{2},t)\\
+  \end{align} 
+
+-
+  
+.. math::  
+  J(\chi_{1},\chi_{2})=\cfrac{\partial (x_{1},x_{2})}{\partial (\chi_{1},\chi_{2})} =\begin{bmatrix}
+  \cfrac{\partial x_{1}}{\partial \chi_{1}} & \cfrac{\partial x_{1}}{\partial \chi_{2}}\\
+  \cfrac{\partial x_{2}}{\partial \chi_{1}} & \cfrac{\partial x_{2}}{\partial \chi_{2}}
+  \end{bmatrix}   
+  
+-
+  
+.. math::  
+  J(\chi_{1},\chi_{2},t)=\cfrac{\partial (x_{1},x_{2},t)}{\partial (\chi_{1},\chi_{2},t)} =\begin{bmatrix}
+  \cfrac{\partial x_{1}}{\partial \chi_{1}} & \cfrac{\partial x_{1}}{\partial \chi_{2}}& \cfrac{\partial x_{1}}{\partial t}\\
+  \cfrac{\partial x_{2}}{\partial \chi_{1}} & \cfrac{\partial x_{2}}{\partial \chi_{2}}& \cfrac{\partial x_{2}}{\partial t}\\
+  \cfrac{\partial t}{\partial \chi_{1}} & \cfrac{\partial t}{\partial \chi_{2}}& \cfrac{\partial t}{\partial t}\\
+  \end{bmatrix}
+
+-
+  
+.. math:: 
+   J(\chi_{1},\chi_{2},t)=\cfrac{\partial (x_{1},x_{2},t)}{\partial (\chi_{1},\chi_{2},t)} =\begin{bmatrix}
+  \cfrac{\partial x_{1}}{\partial \chi_{1}} & \cfrac{\partial x_{1}}{\partial \chi_{2}}& \hat{v}_{1}\\
+  \cfrac{\partial x_{2}}{\partial \chi_{1}} & \cfrac{\partial x_{2}}{\partial \chi_{2}}& \hat{v}_{2}\\
+  0 & 0& 1\\
+  \end{bmatrix}
+
+-
+  
+.. math:: 
+  \mathbf{\hat{v}}=\begin{bmatrix}
+   \hat{v}_{1}\\\hat{v}_{2}
+  \end{bmatrix}=\begin{bmatrix}
+   \hat{v}_{1}(\chi_{1},\chi_{2},t)\\\hat{v}_{2}(\chi_{1},\chi_{2},t)
+  \end{bmatrix}=
+  \begin{bmatrix}
+   \cfrac{\partial x_{1}(\chi_{1},\chi_{2},t)}{\partial t}\Bigg|_{\boldsymbol{\chi}} \\
+   \cfrac{\partial x_{2}(\chi_{1},\chi_{2},t)}{\partial t}\Bigg|_{\boldsymbol{\chi}} 
+  \end{bmatrix}  
   
 and its gradient is
 
 .. math::
   \frac{\partial \boldsymbol{\Phi}}{\partial(\boldsymbol{\chi}, t)}=\left(\begin{array}{ll}
-  \frac{\partial \boldsymbol{x}}{\partial \boldsymbol{\chi}} & \hat{\boldsymbol{v}} \\
+  \frac{\partial \mathbf{x}}{\partial \boldsymbol{\chi}} & \hat{\mathbf{v}} \\
   \mathbf{0}^{\mathrm{T}} & 1
   \end{array}\right)
   
 where now, the mesh velocity
 
 .. math::
-  \hat{\boldsymbol{v}}(\boldsymbol{\chi}, t)=\left.\frac{\partial \boldsymbol{x}}{\partial t}\right|_{\boldsymbol{\chi}}
+  \hat{\mathbf{v}}(\boldsymbol{\chi}, t)=\left.\frac{\partial \mathbf{x}(\boldsymbol{\chi}, t)}{\partial t}\right|_{\boldsymbol{\chi}}
   
 is involved. Note that both the material and the mesh move with respect to the laboratory.
 Thus, the corresponding material and mesh velocities have been defined by deriving the
@@ -103,79 +261,465 @@ Finally, regarding :math:`\boldsymbol{\Psi}`, it is convenient to represent dire
 
 .. math::
   \begin{aligned}
-  \boldsymbol{\Psi}^{-1}: R_{\boldsymbol{X}} \times\left[t_0, t_{\text {final }}]\right. & \longrightarrow R_{\boldsymbol{\chi}} \times\left[t_0, t_{\text {final }}]\right. \\
-  (\boldsymbol{X}, t) & \longmapsto \boldsymbol{\Psi}^{-1}(\boldsymbol{X}, t)=(\boldsymbol{\chi}, t)
+  \boldsymbol{\Psi}^{-1}: R_{\mathbf{X}} \times\left[t_0, t_{\text {final }}]\right. & \longrightarrow R_{\boldsymbol{\chi}} \times\left[t_0, t_{\text {final }}]\right. \\
+  (\mathbf{X}, t) & \longmapsto \boldsymbol{\Psi}^{-1}(\mathbf{X}, t)=(\boldsymbol{\chi}, t)
   \end{aligned}
+  
+-
+  
+.. math::
+  \begin{align}
+  \chi_{1}=\chi_{1}(X_{1},X_{2},t)=\psi^{-1}_{1}(X_{1},X_{2},t)\\
+  \chi_{2}=\chi_{2}(X_{1},X_{2},t)=\psi^{-1}_{2}(X_{1},X_{2},t)\\
+  \end{align} 
+  
+-
+  
+.. math::
+  J(X_{1},X_{2},t)=\cfrac{\partial (\chi_{1},\chi_{2},t)}{\partial (X_{1},X_{2},t)} =\begin{bmatrix}
+  \cfrac{\partial \chi_{1}}{\partial X_{1}} & \cfrac{\partial \chi_{1}}{\partial X_{2}}& \cfrac{\partial \chi_{1}}{\partial t}\\
+  \cfrac{\partial \chi_{2}}{\partial X_{1}} & \cfrac{\partial \chi_{2}}{\partial X_{2}}& \cfrac{\partial \chi_{2}}{\partial t}\\
+  \cfrac{\partial t}{\partial X_{1}} & \cfrac{\partial t}{\partial X_{2}}& \cfrac{\partial t}{\partial t}\\
+  \end{bmatrix} 
+  
+-
+  
+.. math::  
+  J(X_{1},X_{2},t)=\cfrac{\partial (\chi_{1},\chi_{2},t)}{\partial (X_{1},X_{2},t)} =\begin{bmatrix}
+  \cfrac{\partial \chi_{1}}{\partial X_{1}} & \cfrac{\partial \chi_{1}}{\partial X_{2}}& w_{1}\\
+  \cfrac{\partial \chi_{2}}{\partial X_{1}} & \cfrac{\partial \chi_{2}}{\partial X_{2}}& w_{2}\\
+  0 & 0& 1\\
+  \end{bmatrix}
+  
+-
+  
+.. math::  
+  \mathbf{w}=\begin{bmatrix}
+  {w}_{1}\\{w}_{2}
+  \end{bmatrix}=\begin{bmatrix}
+  {w}_{1}(X_{1},X_{2},t)\\{w}_{2}(X_{1},X_{2},t)
+  \end{bmatrix}=
+  \begin{bmatrix}
+  \left.\cfrac{\partial \chi_{1}(X_{1},X_{2},t)}{\partial t}\right|_{\mathbf{X}} \\
+  \left.\cfrac{\partial \chi_{2}(X_{1},X_{2},t)}{\partial t}\right|_{\mathbf{X}} 
+  \end{bmatrix}  
+  
+-
+  
+.. math::    
+  {\mathbf{w}}(\mathbf{X}, t)=\left.\frac{\partial \boldsymbol{\chi}(\mathbf{X}, t)}{\partial t}\right|_{\mathbf{X}}  
   
 and its gradient is
 
 .. math::
-  \frac{\partial \boldsymbol{\Psi}^{-1}}{\partial(\boldsymbol{X}, t)}=\left(\begin{array}{cc}
-  \frac{\partial \boldsymbol{\chi}}{\partial \boldsymbol{X}} & \boldsymbol{w} \\
+  \frac{\partial \boldsymbol{\Psi}^{-1}}{\partial(\mathbf{X}, t)}=\left(\begin{array}{cc}
+  \frac{\partial \boldsymbol{\chi}}{\partial \mathbf{X}} & \mathbf{w} \\
   \mathbf{0}^{\mathrm{T}} & 1
   \end{array}\right)
   
-where the velocity :math:`\boldsymbol{w}` is defined as  
+where the velocity :math:`\mathbf{w}` is defined as  
 
-.. math::
-  \boldsymbol{w}=\left.\frac{\partial \boldsymbol{\chi}}{\partial t}\right|_{\boldsymbol{X}}
+.. math::    
+  {\mathbf{w}}(\mathbf{X}, t)=\left.\frac{\partial \boldsymbol{\chi}(\mathbf{X}, t)}{\partial t}\right|_{\mathbf{X}} 
   
 and can be interpreted as the particle velocity in the referential domain, since it measures
-the time variation of the referential coordinate :math:`\boldsymbol{\chi}` holding the material particle :math:`\boldsymbol{X}` fixed. The
-relation between velocities :math:`\boldsymbol{v}`, :math:`\hat{\boldsymbol{v}}`, and :math:`\boldsymbol{w}` can be obtained by differentiating :math:`\boldsymbol{\varphi}=\boldsymbol{\Phi} \circ \boldsymbol{\Psi}^{-1}`,
+the time variation of the referential coordinate :math:`\boldsymbol{\chi}` holding the material particle :math:`\mathbf{X}` fixed. The
+relation between velocities :math:`\mathbf{v}`, :math:`\hat{\mathbf{v}}`, and :math:`\mathbf{w}` can be obtained by differentiating :math:`\boldsymbol{\varphi}=\boldsymbol{\Phi} \circ \boldsymbol{\Psi}^{-1}`,
 
 .. math::
   \begin{aligned}
-  \frac{\partial \boldsymbol{\varphi}}{\partial(\boldsymbol{X}, t)}(\boldsymbol{X}, t) & =\frac{\partial \boldsymbol{\Phi}}{\partial(\boldsymbol{\chi}, t)}\left(\boldsymbol{\Psi}^{-1}(\boldsymbol{X}, t)\right) \frac{\partial \boldsymbol{\Psi}^{-1}}{\partial(\boldsymbol{X}, t)}(\boldsymbol{X}, t) \\
-  & =\frac{\partial \boldsymbol{\Phi}}{\partial(\boldsymbol{\chi}, t)}(\boldsymbol{\chi}, t) \quad \frac{\partial \boldsymbol{\Psi}^{-1}}{\partial(\boldsymbol{X}, t)}(\boldsymbol{X}, t)
+  x_{1}={\varphi}_{1}(X_{1},X_{2},t)=\phi_{1}(\chi_{1}(X_{1},X_{2},t),\chi_{2}(X_{1},X_{2},t),t)
+  =\phi_{1}(\psi^{-1}_{1}(X_{1},X_{2},t),\psi^{-1}_{2}(X_{1},X_{2},t),t)\\
+  x_{2}={\varphi}_{2}(X_{1},X_{2},t)=\phi_{2}(\chi_{1}(X_{1},X_{2},t),\chi_{2}(X_{1},X_{2},t),t)
+  =\phi_{2}(\psi^{-1}_{1}(X_{1},X_{2},t),\psi^{-1}_{2}(X_{1},X_{2},t),t)\\
   \end{aligned}
+  
+-
+  
+.. math::
+  \begin{aligned}
+  \cfrac{\partial {\varphi}_{1}(X_{1},X_{2},t)}{\partial X_{1}} =
+  \cfrac{\partial \phi_{1}(\chi_{1}(X_{1},X_{2},t),\chi_{2}(X_{1},X_{2},t),t)}{\partial \chi_{1}}\cdot \frac{\partial \psi^{-1}_{1}(X_{1},X_{2},t)}{\partial X_{1}}\\ 
+  +\cfrac{\partial \phi_{1}(\chi_{1}(X_{1},X_{2},t),\chi_{2}(X_{1},X_{2},t),t)}{\partial \chi_{2}}\cdot \frac{\partial \psi^{-1}_{2}(X_{1},X_{2},t)}{\partial X_{1}} 
+  \end{aligned}
+  
+ 
+-
+
+.. math::  
+  \begin{aligned}
+  \cfrac{\partial {\varphi}_{i}(X_{1},X_{2},t)}{\partial X_{j}} =
+  \cfrac{\partial \phi_{i}(\chi_{1}(X_{1},X_{2},t),\chi_{2}(X_{1},X_{2},t),t)}{\partial \chi_{k}}\cdot \frac{\partial \psi^{-1}_{k}(X_{1},X_{2},t)}{\partial X_{j}}\\ 
+  \end{aligned}  
+  
+-
+
+.. math:: 
+  \begin{bmatrix}
+  \cfrac{\partial {\varphi}_{i}(X_{1},X_{2},t)}{\partial X_{j}}
+  \end{bmatrix}=\cfrac{\partial {\varphi}(X_{1},X_{2},t)}{\partial (X_{1},X_{2},t)}=\frac{\partial \boldsymbol{\varphi}(\mathbf{X}, t)}{\partial(\mathbf{X}, t)}
+  
+ 
+-
+
+.. math::  
+  \cfrac{\partial {\varphi}(X_{1},X_{2},t)}{\partial (X_{1},X_{2},t)}=\begin{bmatrix}
+  \cfrac{\partial {\varphi}_{1}(X_{1},X_{2},t)}{\partial X_{1}} & \cfrac{\partial {\varphi}_{1}(X_{1},X_{2},t)}{\partial X_{2}} &\cfrac{\partial {\varphi}_{1}(X_{1},X_{2},t)}{\partial t} \\
+  \cfrac{\partial {\varphi}_{2}(X_{1},X_{2},t)}{\partial X_{1}} & \cfrac{\partial {\varphi}_{2}(X_{1},X_{2},t)}{\partial X_{2}} &\cfrac{\partial {\varphi}_{2}(X_{1},X_{2},t)}{\partial t} \\
+  \cfrac{\partial t}{\partial X_{1}} & \cfrac{\partial t}{\partial X_{2}} &\cfrac{\partial t}{\partial t} \\
+  \end{bmatrix}
+  
+-
+
+.. math::   
+  \begin{bmatrix}
+  \cfrac{\partial \phi_{i}(\chi_{1}(X_{1},X_{2},t),\chi_{2}(X_{1},X_{2},t),t)}{\partial \chi_{k}}
+  \end{bmatrix}=\cfrac{\partial {\phi}(\chi_{1},\chi_{2},t)}{\partial (\chi_{1},\chi_{2},t)}=
+  \frac{\partial \boldsymbol{\Phi}(\boldsymbol{\chi}, t)}{\partial(\boldsymbol{\chi}, t)}  
+  
+-
+
+.. math::  
+  \cfrac{\partial {\phi}(\chi_{1},\chi_{2},t)}{\partial (\chi_{1},\chi_{2},t)}=\begin{bmatrix}
+  \cfrac{\partial {\phi}_{1}(\chi_{1},\chi_{2},t)}{\partial \chi_{1}} & \cfrac{\partial {\phi}_{1}(\chi_{1},\chi_{2},t)}{\partial \chi_{2}} &\cfrac{\partial {\phi}_{1}(\chi_{1},\chi_{2},t)}{\partial t} \\
+  \cfrac{\partial {\phi}_{2}(\chi_{1},\chi_{2},t)}{\partial \chi_{1}} & \cfrac{\partial {\phi}_{2}(\chi_{1},\chi_{2},t)}{\partial \chi_{2}} &\cfrac{\partial {\phi}_{2}(\chi_{1},\chi_{2},t)}{\partial t} \\
+  \cfrac{\partial t}{\partial \chi_{1}} & \cfrac{\partial t}{\partial \chi_{2}} &\cfrac{\partial t}{\partial t} \\
+  \end{bmatrix}  
+
+-
+
+.. math:: 
+  \begin{bmatrix}
+  \cfrac{\partial \psi^{-1}_{k}(X_{1},X_{2},t)}{\partial X_{j}}
+  \end{bmatrix}=\cfrac{\partial \psi^{-1}(X_{1},X_{2},t)}{\partial (X_{1},X_{2},t)}=
+  \cfrac{\partial \boldsymbol{\Psi}^{-1}(\boldsymbol{X}, t)}{\partial(\boldsymbol{X}, t)}
+
+-
+
+.. math:: 
+  \cfrac{\partial {\psi}^{-1}(X_{1},X_{2},t)}{\partial (X_{1},X_{2},t)}=\begin{bmatrix}
+  \cfrac{\partial {\psi}^{-1}_{1}(X_{1},X_{2},t)}{\partial X_{1}} & \cfrac{\partial {\psi}^{-1}_{1}(X_{1},X_{2},t)}{\partial X_{2}} &\cfrac{\partial {\psi}^{-1}_{1}(X_{1},X_{2},t)}{\partial t} \\
+  \cfrac{\partial {\psi}^{-1}_{2}(X_{1},X_{2},t)}{\partial X_{1}} & \cfrac{\partial {\psi}^{-1}_{2}(X_{1},X_{2},t)}{\partial X_{2}} &\cfrac{\partial {\psi}^{-1}_{2}(X_{1},X_{2},t)}{\partial t} \\
+  \cfrac{\partial t}{\partial X_{1}} & \cfrac{\partial t}{\partial X_{2}} &\cfrac{\partial t}{\partial t} \\
+  \end{bmatrix}
+  
+-
+
+.. math:: 
+  \cfrac{\partial {\varphi}(X_{1},X_{2},t)}{\partial (X_{1},X_{2},t)}=
+  \cfrac{\partial {\phi}(\chi_{1},\chi_{2},t)}{\partial (\chi_{1},\chi_{2},t)} \cdot 
+  \cfrac{\partial \psi^{-1}(X_{1},X_{2},t)}{\partial (X_{1},X_{2},t)}  
+  
+
+-
+
+.. math::
+  \begin{aligned}
+  \cfrac{\partial \boldsymbol{\varphi}}{\partial(\mathbf{X}, t)}(\mathbf{X}, t) & =\frac{\partial \boldsymbol{\Phi}}{\partial(\boldsymbol{\chi}, t)}\left(\boldsymbol{\Psi}^{-1}(\mathbf{X}, t)\right) \cfrac{\partial \boldsymbol{\Psi}^{-1}}{\partial(\mathbf{X}, t)}(\mathbf{X}, t) \\
+  & =\cfrac{\partial \boldsymbol{\Phi}}{\partial(\boldsymbol{\chi}, t)}(\boldsymbol{\chi}, t) \quad \cfrac{\partial \boldsymbol{\Psi}^{-1}}{\partial(\mathbf{X}, t)}(\mathbf{X}, t)
+  \end{aligned}
+  
   
 or, in matrix format:
 
-.. math::
-  \left(\begin{array}{cc}
-  \frac{\partial \boldsymbol{x}}{\partial \boldsymbol{X}} & \boldsymbol{v} \\
+.. math::  
+  \begin{bmatrix}
+  \cfrac{\partial \mathbf{x}}{\partial \mathbf{X}} & \mathbf{v} \\
   \mathbf{0}^T & 1
-  \end{array}\right)=\left(\begin{array}{ll}
-  \frac{\partial \boldsymbol{x}}{\partial \boldsymbol{\chi}} & \hat{\boldsymbol{v}} \\
+  \end{bmatrix}=
+  \begin{bmatrix}
+  \cfrac{\partial \mathbf{x}}{\partial \boldsymbol{\chi}} & \hat{\mathbf{v}} \\
   \mathbf{0}^T & 1
-  \end{array}\right)\left(\begin{array}{cc}
-  \frac{\partial \boldsymbol{\chi}}{\partial \boldsymbol{X}} & \boldsymbol{w} \\
+  \end{bmatrix}\cdot 
+  \begin{bmatrix}
+  \cfrac{\partial \boldsymbol{\chi}}{\partial \mathbf{X}} & \mathbf{w} \\
   \mathbf{0}^T & 1
-  \end{array}\right)
+  \end{bmatrix}  
   
 which yields, after block multiplication,
 
 .. math::
-  \boldsymbol{v}=\hat{\boldsymbol{v}}+\frac{\partial \boldsymbol{x}}{\partial \chi} \cdot \boldsymbol{w}
+  \mathbf{v}=\hat{\mathbf{v}}+\cfrac{\partial \mathbf{x}}{\partial \boldsymbol\chi} \cdot \mathbf{w}
 
 This equation may be rewritten as
 
 .. math::
-  \boldsymbol{c}:=\boldsymbol{v}-\hat{\boldsymbol{v}}=\frac{\partial \boldsymbol{x}}{\partial \chi} \cdot \boldsymbol{w}
+  \mathbf{c}:=\mathbf{v}-\hat{\mathbf{v}}=\cfrac{\partial \mathbf{x}}{\partial \boldsymbol\chi} \cdot \mathbf{w}
+  
+-
+
+.. math::
+  \mathbf{v}(\mathbf{X}, t)=\left.\frac{\partial \mathbf{x}(\mathbf{X}, t)}{\partial t}\right|_{\mathbf{X}} 
+
+-
+  
+.. math::
+  \hat{\mathbf{v}}(\boldsymbol{\chi}, t)=\left.\frac{\partial \mathbf{x}(\boldsymbol{\chi}, t)}{\partial t}\right|_{\boldsymbol{\chi}}
+
+-
+
+.. math::    
+  {\mathbf{w}}(\mathbf{X}, t)=\left.\frac{\partial \boldsymbol{\chi}(\mathbf{X}, t)}{\partial t}\right|_{\mathbf{X}} 
+
+The convective velocity :math:`\mathbf{c}`, should not be confused with :math:`\mathbf{w}`.
+As stated before, :math:`\mathbf{w}` is the particle velocity as seen from the referential domain :math:`R\boldsymbol{\chi}`, whereas :math:`\mathbf{c}` is
+the particle velocity relative to the mesh as seen from the spatial domain :math:`R\mathbf{x}` (both :math:`\mathbf{v}` and :math:`\hat{\mathbf{v}}` are
+variations of coordinate :math:`\mathbf{x}`). 
   
 Material, spatial, and referential time derivatives
 ---------------------------------------------------------------------------
 
 In order to relate the time derivative in the material, spatial, and referential domains, let
-a scalar physical quantity be described by :math:`f(\boldsymbol{x}, t)`, :math:`f^{*}(\boldsymbol{\chi}, t)`, and :math:`f^{* *}(\boldsymbol{X}, t)` in the spatial,
+a scalar physical quantity be described by :math:`f(\mathbf{x}, t)`, :math:`f^{*}(\boldsymbol{\chi}, t)`, and :math:`f^{* *}(\mathbf{X}, t)` in the spatial,
 referential, and material domains respectively. Stars are employed to emphasize that the
 functional forms are, in general, different.
 
-Since the particle motion :math:`\boldsymbol{\varphi}` is a mapping, the spatial description :math:`f(\boldsymbol{x}, t)`, and the material
-description :math:`f^{* *}(\boldsymbol{X}, t)` of the physical quantity can be related as
+Since the particle motion :math:`\boldsymbol{\varphi}` is a mapping, the spatial description :math:`f(\mathbf{x}, t)`, and the material
+description :math:`f^{* *}(\mathbf{X}, t)` of the physical quantity can be related as
 
 .. math::
-  f^{* *}(\boldsymbol{X}, t)=f(\boldsymbol{\varphi}(\boldsymbol{X}, t)) \quad or \quad f^{* *}=f \circ \boldsymbol{\varphi}
+  f^{* *}(\mathbf{X}, t)=f(\boldsymbol{\varphi}(\mathbf{X}, t),t) \quad or \quad f^{* *}=f \circ \boldsymbol{\varphi}
+  
+-
+  
+.. math::  
+  f^{* *}(X_{1},X_{2}, t)=f({\varphi}_{1}(X_{1},X_{2}, t),{\varphi}_{2}(X_{1},X_{2}, t), t)  
+  
+-
+  
+.. math::  
+  \begin{align}
+  \cfrac{\partial f^{* *}(X_{1},X_{2}, t)}{\partial X_{1}}=
+  \cfrac{\partial f({\varphi}_{1}(X_{1},X_{2}, t),{\varphi}_{2}(X_{1},X_{2}, t), t)}{\partial x_{1}}\cdot  
+  \cfrac{\partial{\varphi}_{1}(X_{1},X_{2}, t)}{\partial X_{1}}\\
+  +\cfrac{\partial f({\varphi}_{1}(X_{1},X_{2}, t),{\varphi}_{2}(X_{1},X_{2}, t), t)}{\partial x_{2}}\cdot  
+  \cfrac{\partial{\varphi}_{2}(X_{1},X_{2}, t)}{\partial X_{1}}\\
+  \end{align}
+ 
+-
+  
+.. math::  
+  \begin{align}
+  \cfrac{\partial f^{* *}(X_{1},X_{2}, t)}{\partial X_{2}}=
+  \cfrac{\partial f({\varphi}_{1}(X_{1},X_{2}, t),{\varphi}_{2}(X_{1},X_{2}, t), t)}{\partial x_{1}}\cdot  
+  \cfrac{\partial{\varphi}_{1}(X_{1},X_{2}, t)}{\partial X_{2}}\\
+  +\cfrac{\partial f({\varphi}_{1}(X_{1},X_{2}, t),{\varphi}_{2}(X_{1},X_{2}, t), t)}{\partial x_{2}}\cdot  
+  \cfrac{\partial{\varphi}_{2}(X_{1},X_{2}, t)}{\partial X_{2}}\\
+  \end{align} 
+
+-
+  
+.. math:: 
+  \begin{align}
+  \cfrac{\partial f^{* *}(X_{1},X_{2}, t)}{\partial X_{j}}=
+  \cfrac{\partial f({\varphi}_{1}(X_{1},X_{2}, t),{\varphi}_{2}(X_{1},X_{2}, t), t)}{\partial x_{k}}\cdot  
+  \cfrac{\partial{\varphi}_{k}(X_{1},X_{2}, t)}{\partial X_{j}}\\
+  \end{align}  
   
 The gradient of this expression can be easily computed as
 
 .. math::
-  \frac{\partial f^{* *}}{\partial(\boldsymbol{X}, t)}(\boldsymbol{X}, t)=\frac{\partial f}{\partial(\boldsymbol{x}, t)}(\boldsymbol{x}, t) \quad \frac{\partial \boldsymbol{\varphi}}{\partial(\boldsymbol{X}, t)}(\boldsymbol{X}, t)
+  \frac{\partial f^{* *}}{\partial(\mathbf{X}, t)}(\mathbf{X}, t)=\frac{\partial f}{\partial(\mathbf{x}, t)}(\mathbf{x}, t) \quad \frac{\partial \boldsymbol{\varphi}}{\partial(\mathbf{X}, t)}(\mathbf{X}, t)
   
+which is amenable to the matrix form 
+
+.. math::
+  \cfrac{\partial f^{* *}(X_{1},X_{2}, t)}{\partial (X_{1},X_{2}, t)}=
+  \begin{bmatrix}
+    \cfrac{\partial f^{* *}(X_{1},X_{2}, t)}{\partial X_{1}}&
+    \cfrac{\partial f^{* *}(X_{1},X_{2}, t)}{\partial X_{2}} &
+    \cfrac{\partial f^{* *}(X_{1},X_{2}, t)}{\partial t}
+  \end{bmatrix}
+  
+-
+  
+.. math::
+  \cfrac{\partial f(x_{1},x_{2}, t)}{\partial (x_{1},x_{2}, t)}=
+  \begin{bmatrix}
+    \cfrac{\partial f(x_{1},x_{2}, t)}{\partial x_{1}}&
+    \cfrac{\partial f(x_{1},x_{2}, t)}{\partial x_{2}} &
+    \cfrac{\partial f(x_{1},x_{2}, t)}{\partial t}
+  \end{bmatrix}
+  
+-
+  
+.. math::
+  \cfrac{\partial f(x_{1},x_{2}, t)}{\partial (x_{1},x_{2}, t)}=
+  \begin{bmatrix}
+    \cfrac{\partial f(x_{1},x_{2}, t)}{\partial x_{1}}&
+    \cfrac{\partial f(x_{1},x_{2}, t)}{\partial x_{2}} &
+    \cfrac{\partial f(x_{1},x_{2}, t)}{\partial t}
+  \end{bmatrix}
+  
+-
+  
+.. math::
+  \cfrac{\partial (x_{1},x_{2}, t)}{\partial (X_{1},X_{2}, t)}=
+  \begin{bmatrix}
+  \cfrac{\partial x_{1}}{\partial X_{1}}&
+  \cfrac{\partial x_{1}}{\partial X_{2}} &
+  \cfrac{\partial x_{1}}{\partial t}\\
+  \cfrac{\partial x_{2}}{\partial X_{1}}&
+  \cfrac{\partial x_{2}}{\partial X_{2}} &
+  \cfrac{\partial x_{2}}{\partial t}\\
+  \cfrac{\partial t}{\partial X_{1}}&
+  \cfrac{\partial t}{\partial X_{2}} &
+  \cfrac{\partial t}{\partial t}\\
+  \end{bmatrix}
+  
+which is amenable to the matrix form
+
+.. math::
+  \begin{bmatrix}
+  \cfrac{\partial f^{**}}{\partial \mathbf{X}}&
+  \cfrac{\partial f^{**}}{\partial t}
+  \end{bmatrix}=
+  \begin{bmatrix}
+  \cfrac{\partial f}{\partial \mathbf{x}}&
+  \cfrac{\partial f}{\partial t}
+  \end{bmatrix}
+  \begin{bmatrix}
+  \cfrac{\partial \mathbf{x}}{\partial \mathbf{X}}&
+  \mathbf{v}\\
+  \mathbf{0}^{T}&1
+  \end{bmatrix}
+  
+which renders, after block multiplication, a first expression, which is obvious, that is,
+:math:`({\partial f^{**}}/{\partial \mathbf{X}})=({\partial f}/{\partial \mathbf{x}})({\partial \mathbf{x}}/{\partial \mathbf{X}})`); however, the second one is more interesting:  
+
+.. math::
+  \cfrac{\partial f^{**}(X_{1},X_{2},t)}{\partial t}=\cfrac{\partial f(x_{1},x_{2},t)}{\partial t}+\cfrac{\partial f(x_{1},x_{2},t)}{\partial \mathbf{x}}\cdot \mathbf{v}(X_{1},X_{2},t)
+  
+-
+  
+.. math::
+  \cfrac{\partial f^{**}}{\partial t}=\cfrac{\partial f}{\partial t}+\cfrac{\partial f}{\partial \mathbf{x}}\cdot \mathbf{v}
+  
+Note that this is the well-known equation that relates the material and the spatial time
+derivatives. Dropping the stars to ease the notation, this relation is finally cast as
+
+.. math::
+  \cfrac{\partial f}{\partial t}\Bigg|_{\mathbf{X}}=\cfrac{\partial f}{\partial t}\Bigg|_{\mathbf{x}}+ \mathbf{v}\cdot \nabla f \quad or \quad 
+  \cfrac{\mathrm{d} f}{\mathrm{d} t}=\cfrac{\partial f}{\partial t}+ \mathbf{v}\cdot \nabla f
+  
+which can be interpreted in the usual way: the variation of a physical quantity for a given
+particle :math:`\mathbf{X}` is the local variation plus a convective term taking into account the relative motion
+between the material and spatial (laboratory) systems. Moreover, in order not to overload the
+rest of the text with notation, except for the specific sections, the material time derivative is
+denoted as  
+
+.. math::
+  \frac{\mathrm{d} \cdot }{\mathrm{d} t} :=\cfrac{\partial \cdot }{\partial t}\bigg|_{\mathbf{X}}
+  
+and the spatial time derivative as
+
+.. math::
+  \cfrac{\partial  \ \cdot }{\partial t} :=\cfrac{\partial  \ \cdot }{\partial t}\bigg|_{\mathbf{x}}
+  
+The relation between material and spatial time derivatives is now extended to include the
+referential time derivative. With the help of mapping :math:`\mathbf{\Psi}`, the transformation from the referential
+description :math:`f^{*}(\boldsymbol{\chi},t)` of the scalar physical quantity to the material description :math:`f^{**}(\mathbf{X},t)` can
+be written as 
+ 
+.. math::
+  f^{**}=f^{*}\circ \mathbf{\Psi}^{-1}
+  
+and its gradient can be easily computed as
+
+.. math::
+  \cfrac{\partial f^{**}}{\partial (\mathbf X,t)}(\mathbf X,t)=\cfrac{\partial f^{*}}{\partial (\boldsymbol \chi,t)}(\boldsymbol \chi,t)\quad \cfrac{\partial\mathbf{\Psi}^{-1}}{\partial (\mathbf X,t)}(\mathbf X,t)
+  
+or, in matrix form
+
+.. math::
+  \begin{bmatrix}
+  \cfrac{\partial f^{**}}{\partial \mathbf{X}}&
+  \cfrac{\partial f^{**}}{\partial t}
+  \end{bmatrix}=
+  \begin{bmatrix}
+  \cfrac{\partial f^{*}}{\partial \boldsymbol{\chi}}&
+  \cfrac{\partial f^{*}}{\partial t}
+  \end{bmatrix}
+  \begin{bmatrix}
+  \cfrac{\partial \boldsymbol{\chi}}{\partial \mathbf{X}}&
+  \mathbf{w}\\
+  \mathbf{0}^{T}&1
+  \end{bmatrix}
+  
+which renders, after block multiplication,
+
+.. math::
+  \cfrac{\partial f^{**}}{\partial t}=\cfrac{\partial f^{*}}{\partial t}+\cfrac{\partial f^{*}}{\partial \boldsymbol \chi}\cdot \mathbf{w}  
+  
+Note that this equation relates the material and the referential time derivatives. However,
+it also requires the evaluation of the gradient of the considered quantity in the referential
+domain. This can be done, but in computational mechanics it is usually easier to work in the
+spatial (or material) domain. Moreover, in fluids, constitutive relations are naturally expressed
+in the spatial configuration and the Cauchy stress tensor, which will be introduced next, is
+the natural measure for stresses. Thus, using the definition of w , the
+previous equation may be rearranged into  
+
+.. math::
+  \cfrac{\partial f^{**}}{\partial t}=\cfrac{\partial f^{*}}{\partial t}+\cfrac{\partial f}{\partial \mathbf{x}}\cdot \mathbf{c}
+  
+The fundamental ALE relation between material time derivatives, referential time derivatives,
+and spatial gradient is finally cast as (stars dropped)
+
+.. math::
+  \cfrac{\partial f}{\partial t}\bigg|_{\mathbf{X}}=\cfrac{\partial f}{\partial t}\bigg|_{\boldsymbol{\chi }}+\cfrac{\partial f}{\partial \mathbf{x}}\cdot \mathbf{c}
+  =\cfrac{\partial f}{\partial t}\bigg|_{\boldsymbol{\chi }}+ \mathbf{c}\cdot \nabla f
+  
+and shows that the time derivative of the physical quantity :math:`f` for a given particle :math:`\mathbf{X}`, that is,
+its material derivative, is its local derivative (with the reference coordinate :math:`\boldsymbol{\chi}` held fixed) plus
+a convective term taking into account the relative velocity :math:`\mathbf{c}` between the material and the
+reference system. This equation is equivalent to equation (19) but in the ALE formulation,
+that is, when :math:`(\boldsymbol{\chi},t)` is the reference. 
+
+Time derivative of integrals over moving volumes
+-------------------------------------------------- 
+
+Consider thus a material volume Vt bounded by a smooth closed surface :math:`S_{t}` whose points
+at time t move with the material velocity :math:`\mathbf{v}=\mathbf{v}(\mathbf{x},t)` where :math:`\mathbf{x}\in S_{t}`. A material volume is a
+volume that permanently contains the same particles of the continuum under consideration.
+The material time derivative of the integral of a scalar function :math:`f(\mathbf{x}, t)` (note that :math:`f` is defined
+in the spatial domain) over the time-varying material volume :math:`V_{t}` is given by the following
+well-known expression, often referred to as Reynolds transport theorem (see, for instance,
+Belytschko et al, 2000 for a detailed proof):
+
+.. math::
+  \frac{\mathrm{d}}{\mathrm{d} t} \int_{V_{t}} f(\mathbf{x}, t) \mathrm{d} V=\int_{V_{c} \equiv V_{t}} \frac{\partial f(\mathbf{x}, t)}{\partial t} \mathrm{~d} V+\int_{S_{c} \equiv S_{t}} f(\mathbf{x}, t) \mathbf{v} \cdot \mathbf{n} \mathrm{d} S
+  
+which holds for smooth functions :math:`f(\mathbf{x}, t)`. The volume integral in the right-hand side is defined
+over a control volume :math:`V_{c}` (fixed in space), which coincides with the moving material volume
+:math:`V_{t}` at the considered instant, :math:`t`, in time. Similarly, the fixed control surface :math:`S_{c}` coincides at
+time :math:`t` with the closed surface :math:`S_{t}` bounding the material volume :math:`V_{t}`. In the surface integral, :math:`\mathbf{n}`
+denotes the unit outward normal to the surface :math:`S_{t}` at time :math:`t`, and :math:`\mathbf{v}` is the material velocity of
+points of the boundary :math:`S_{t}`. The first term in the right-hand side is the local
+time derivative of the volume integral. The boundary integral represents the flux of the scalar
+quantity :math:`f` across the fixed boundary of the control volume :math:`V_{c} \equiv V_{t}`.
+
+Noting that
+
+.. math::
+  \int_{S_{c} } f(\mathbf{x}, t) \mathbf{v} \cdot \mathbf{n} \mathrm{d} S=
+  \int_{V_{c} } \nabla \cdot (f \mathbf{v})  \mathrm{d} V
+  
+one obtains the alternative form of Reynolds transport theorem:
+
+.. math::
+  \frac{\mathrm{d}}{\mathrm{d} t} \int_{V_{t}} f(\mathbf{x}, t) \mathrm{d} V=\int_{V_{c} \equiv V_{t}} \left ( \frac{\partial f(\mathbf{x}, t)}{\partial t} +\nabla \cdot (f \mathbf{v}) \right ) \mathrm{~d} V
+  
+Similar forms hold for the material derivative of the volume integral of a vector quantity.
+Analogous formulae can be developed in the ALE context, that is, with a referential time
+derivative. In this case, however, the characterizing velocity is no longer the material velocity
+:math:`\mathbf{v}`, but the grid velocity :math:`\mathbf{\hat{v}}`.  
+
   
 Material Motion, Mesh Displacement, Mesh Velocity,and Mesh Acceleration
 ---------------------------------------------------------------------------
+To establish the integral form of the basic conservation laws for mass, momentum, and energy,
+we also need to consider the rate of change of integrals of scalar and vector functions over a
+moving volume occupied by fluid
 
 In an ALE method, both the motion of the mesh and the material must be described. The
 motion of the material is described as before by:
