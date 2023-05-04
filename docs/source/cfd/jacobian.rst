@@ -8,7 +8,7 @@ Reference
 #. `Jacobian matrix and determinant <https://en.wikipedia.org/wiki/Jacobian_matrix_and_determinant/>`_
 #. `A Gentle Introduction to the Jacobian <https://machinelearningmastery.com/a-gentle-introduction-to-the-jacobian/>`_
 #. `Jacobian <https://mathworld.wolfram.com/Jacobian.html>`_
-
+#. `Change of Variables in Multiple Integrals (Jacobians) <https://math.libretexts.org/Courses/Monroe_Community_College/MTH_212_Calculus_III/Chapter_14%3A_Multiple_Integration/14.7%3A_Change_of_Variables_in_Multiple_Integrals_(Jacobians)/>`_
 
 
 The Jacobian Matrix
