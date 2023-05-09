@@ -1115,3 +1115,52 @@ Primitive form of the Navier-Stokes equations
 
 .. math::
   \text{div }(\mathbf{T}\cdot\mathbf{v}) = \mathbf{v}\cdot(\text{div }\mathbf{T}^{\text{T}})+\text{tr}(\mathbf{T}\cdot \text{grad }\mathbf{v})  
+  
+-
+
+.. math:: 
+  \begin{align}
+  \cfrac{\text{d} \alpha}{\text{d} t} & = \cfrac{\partial \alpha}{\partial t}+u\cfrac{\partial \alpha}{\partial x}+v\cfrac{\partial \alpha}{\partial y}+w\cfrac{\partial \alpha}{\partial z}\\
+  &= \cfrac{\partial \alpha}{\partial t}+\mathbf{v}\cdot \text{ grad } \alpha\\
+  &= \cfrac{\partial \alpha}{\partial t}+\mathbf{v}\cdot \nabla \alpha\\
+  \end{align}  
+  
+-
+
+.. math:: 
+  \cfrac{\text{d} f}{\text{d} t}=\cfrac{\partial f}{\partial t}\Bigg|_{\boldsymbol{\xi}}
+  =\cfrac{\partial f}{\partial t}\Bigg|_{\boldsymbol{\chi}}+\cfrac{\partial f}{\partial \mathbf{x}}\cdot \mathbf{c}
+  =\cfrac{\partial f}{\partial t}\Bigg|_{\boldsymbol{\chi}}+\mathbf{c} \cdot \nabla {f}\\  
+  
+-
+
+.. math:: 
+  \cfrac{\text{d} f}{\text{d} t} = \cfrac{\partial f}{\partial t}\Bigg|_{\boldsymbol{\chi}}
+  +{c}_{1}  \cfrac{\partial f}{\partial x}
+  +{c}_{2}  \cfrac{\partial f}{\partial y}
+  +{c}_{3}  \cfrac{\partial f}{\partial z}
+  
+-
+
+.. math:: 
+  \begin{align}
+  \cfrac{\text{d} u}{\text{d} t} &= \cfrac{\partial u}{\partial t}\Bigg|_{\boldsymbol{\chi}}
+  +{c}_{1}  \cfrac{\partial u}{\partial x}
+  +{c}_{2}  \cfrac{\partial u}{\partial y}
+  +{c}_{3}  \cfrac{\partial u}{\partial z}\\
+  \cfrac{\text{d} v}{\text{d} t} &= \cfrac{\partial v}{\partial t}\Bigg|_{\boldsymbol{\chi}}
+  +{c}_{1}  \cfrac{\partial v}{\partial x}
+  +{c}_{2}  \cfrac{\partial v}{\partial y}
+  +{c}_{3}  \cfrac{\partial v}{\partial z}\\
+  \cfrac{\text{d} w}{\text{d} t} &= \cfrac{\partial w}{\partial t}\Bigg|_{\boldsymbol{\chi}}
+  +{c}_{1}  \cfrac{\partial w}{\partial x}
+  +{c}_{2}  \cfrac{\partial w}{\partial y}
+  +{c}_{3}  \cfrac{\partial w}{\partial z}\\
+  \end{align}
+  
+-
+
+.. math:: 
+  \cfrac{\text{d} \mathbf{v}}{\text{d} t} = \cfrac{\partial \mathbf{v}}{\partial t}\Bigg|_{\boldsymbol{\chi}}
+  +(\mathbf{c}\cdot \nabla) \mathbf{v}
+  
