@@ -1226,3 +1226,135 @@ One then has the important identities
   \int\limits_{S} (\mathbf{u}\otimes \mathbf{n})\text{d} S  &= \int\limits_{V} \text{grad }\mathbf{u} \text{d} V\\
   \int\limits_{S} \mathbf{u}\cdot\mathbf{T}\cdot \mathbf{n} \text{d} S  &= \int\limits_{V} \text{div }(\mathbf{T}^{\text{T}}\cdot \mathbf{u}) \text{d} V\\
   \end{align}
+
+Some formulation:
+
+.. math::
+  \text{div}(\mathbf{T}\cdot \mathbf{a})=\mathbf{a}\cdot\text{div}(\mathbf{T}^{\text{T}})+\text{tr}(\mathbf{T}\text{ grad }\mathbf{a})  
+  
+-
+  
+.. math::
+  \mathbf{T}=\begin{bmatrix}
+  T_{11}& T_{12} & T_{13}\\
+  T_{21}& T_{22} & T_{23}\\
+  T_{31}& T_{32} & T_{33}\\
+  \end{bmatrix} \quad
+  \mathbf{T}^{\text{T}}=\begin{bmatrix}
+  T_{11}& T_{21} & T_{31}\\
+  T_{12}& T_{22} & T_{32}\\
+  T_{13}& T_{23} & T_{33}\\
+  \end{bmatrix} \quad
+  \mathbf{a}=\begin{bmatrix}
+  a_{1}\\  a_{2}\\  a_{3}\\
+  \end{bmatrix}
+  
+-
+  
+.. math::
+  \text{grad } \mathbf{a}=\cfrac{\partial a_{i}}{\partial x_{j}}=\begin{bmatrix}
+  \cfrac{\partial a_{1}}{\partial x_{1}}&
+  \cfrac{\partial a_{1}}{\partial x_{2}}&
+  \cfrac{\partial a_{1}}{\partial x_{3}}\\
+  \cfrac{\partial a_{2}}{\partial x_{1}}&
+  \cfrac{\partial a_{2}}{\partial x_{2}}&
+  \cfrac{\partial a_{2}}{\partial x_{3}}\\
+  \cfrac{\partial a_{3}}{\partial x_{1}}&
+  \cfrac{\partial a_{3}}{\partial x_{2}}&
+  \cfrac{\partial a_{3}}{\partial x_{3}}\\
+  \end{bmatrix}  
+  
+-
+  
+.. math::
+  \mathbf{T}\text{ grad } \mathbf{a}=T_{ik}\cfrac{\partial a_{k}}{\partial x_{j}}  
+  
+-
+  
+.. math::  
+  \text{tr}(\mathbf{T}\text{ grad } \mathbf{a})=T_{ik}\cfrac{\partial a_{k}}{\partial x_{i}}=
+  \begin{bmatrix}
+  \quad(T_{11}\cfrac{\partial a_{1}}{\partial x_{1}}+
+  T_{12}\cfrac{\partial a_{2}}{\partial x_{1}}+
+  T_{13}\cfrac{\partial a_{3}}{\partial x_{1}})\\
+  +(T_{21}\cfrac{\partial a_{1}}{\partial x_{2}}+
+  T_{22}\cfrac{\partial a_{2}}{\partial x_{2}}+
+  T_{23}\cfrac{\partial a_{3}}{\partial x_{2}})\\
+  +(T_{31}\cfrac{\partial a_{1}}{\partial x_{3}}+
+  T_{32}\cfrac{\partial a_{2}}{\partial x_{3}}+
+  T_{33}\cfrac{\partial a_{3}}{\partial x_{3}})\\
+  \end{bmatrix}
+
+-
+  
+.. math::    
+  \text{div}\mathbf{T}=\cfrac{\partial T_{ij}}{\partial x_{j}}=\begin{bmatrix}
+  \cfrac{\partial T_{11}}{\partial x_{1}}
+  +\cfrac{\partial T_{12}}{\partial x_{2}}
+  +\cfrac{\partial T_{13}}{\partial x_{3}}\\
+  \cfrac{\partial T_{21}}{\partial x_{1}}
+  +\cfrac{\partial T_{22}}{\partial x_{2}}
+  +\cfrac{\partial T_{23}}{\partial x_{3}}\\
+  \cfrac{\partial T_{31}}{\partial x_{1}}
+  +\cfrac{\partial T_{32}}{\partial x_{2}}
+  +\cfrac{\partial T_{33}}{\partial x_{3}}\\
+  \end{bmatrix}  
+  
+  
+-
+  
+.. math::     
+  \mathbf{T}^{\text{T}}=\begin{bmatrix}
+  T_{11}& T_{21} & T_{31}\\
+  T_{12}& T_{22} & T_{32}\\
+  T_{13}& T_{23} & T_{33}\\
+  \end{bmatrix} 
+  
+-
+  
+.. math::  
+  \text{div}\mathbf{T}^{\text{T}}=\cfrac{\partial T_{ji}}{\partial x_{j}}=\begin{bmatrix}
+   \cfrac{\partial T_{11}}{\partial x_{1}}
+  +\cfrac{\partial T_{21}}{\partial x_{2}}
+  +\cfrac{\partial T_{31}}{\partial x_{3}}\\
+   \cfrac{\partial T_{12}}{\partial x_{1}}
+  +\cfrac{\partial T_{22}}{\partial x_{2}}
+  +\cfrac{\partial T_{32}}{\partial x_{3}}\\
+   \cfrac{\partial T_{13}}{\partial x_{1}}
+  +\cfrac{\partial T_{23}}{\partial x_{2}}
+  +\cfrac{\partial T_{33}}{\partial x_{3}}\\
+  \end{bmatrix}
+  
+-
+  
+.. math::   
+  \mathbf{a}\cdot \text{div}\mathbf{T}^{\text{T}}=a_{i}\cfrac{\partial T_{ji}}{\partial x_{j}}=\begin{bmatrix}
+  \quad a_{1}(\cfrac{\partial T_{11}}{\partial x_{1}}
+  +\cfrac{\partial T_{21}}{\partial x_{2}}
+  +\cfrac{\partial T_{31}}{\partial x_{3}})\\
+  +a{2}(\cfrac{\partial T_{12}}{\partial x_{1}}
+  +\cfrac{\partial T_{22}}{\partial x_{2}}
+  +\cfrac{\partial T_{32}}{\partial x_{3}})\\
+  +a{3}(\cfrac{\partial T_{13}}{\partial x_{1}}
+  +\cfrac{\partial T_{23}}{\partial x_{2}}
+  +\cfrac{\partial T_{33}}{\partial x_{3}})\\
+  \end{bmatrix}
+  
+-
+  
+.. math:: 
+  \begin{array}{c}
+  \mathbf{T}\cdot\mathbf{a}=T_{ij}a_{j}\\
+  \text{div }(\mathbf{T}\cdot\mathbf{a})=\cfrac{\partial (T_{ij}a_{j})}{\partial x_{i}}
+  =T_{ij}\cfrac{\partial (a_{j})}{\partial x_{i}}+a_{j}\cfrac{\partial (T_{ij})}{\partial x_{i}}
+  \end{array} 
+  
+-
+  
+.. math:: 
+  \begin{align}
+  \text{div }(\mathbf{T}\cdot\mathbf{a})
+  & = \cfrac{\partial (T_{ij}a_{j})}{\partial x_{i}}\\
+  & = T_{ij}\cfrac{\partial (a_{j})}{\partial x_{i}}+a_{j}\cfrac{\partial (T_{ij})}{\partial x_{i}}\\
+  & = \text{tr}(\mathbf{T}\text{ grad } \mathbf{a})+\mathbf{a}\cdot \text{div}(\mathbf{T}^{\text{T}})
+  \end{align}  

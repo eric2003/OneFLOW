@@ -294,9 +294,159 @@ readily obtained from the corresponding well-known Eulerian forms
 .. math::
   \begin{align}
   &Mass:     &\frac{\mathrm{d} \rho}{\mathrm{d} t}  &= \left.\frac{\partial \rho}{\partial t}\right|_{\mathbf{x}}+\mathbf{v} \cdot \nabla \rho  = -\rho {\nabla} \cdot \mathbf{v} \\
-  &Momentum:  &\rho \frac{\mathrm{d} \mathbf{v}}{\mathrm{d} t}  &= \rho\left(\left.\frac{\partial \mathbf{v}}{\partial t}\right|_{\mathbf{x}}+(\mathbf{v} \cdot {\nabla}) \mathbf{v}\right)  = {\nabla} \cdot \boldsymbol{\sigma}+\rho \mathbf{b} \\
-  &Energy:   &\rho \frac{\mathrm{d} E}{\mathrm{~d} t}  &= \rho\left(\left.\frac{\partial E}{\partial t}\right|_{\mathbf{x}}+\mathbf{v} \cdot \nabla E\right)  = \nabla \cdot(\boldsymbol{\sigma} \cdot \mathbf{v})+\mathbf{v} \cdot \rho \mathbf{b} 
+  &Momentum:  &\rho \frac{\mathrm{d} \mathbf{v}}{\mathrm{d} t}  &= \rho\left(\left.\frac{\partial \mathbf{v}}{\partial t}\right|_{\mathbf{x}}+(\mathbf{v} \cdot {\nabla}) \mathbf{v}\right)  = {\nabla} \cdot [\boldsymbol{\sigma}^{\text{T}}]+\rho \mathbf{b} \\
+  &Energy:   &\rho \frac{\mathrm{d} E}{\mathrm{~d} t}  &= \rho\left(\left.\frac{\partial E}{\partial t}\right|_{\mathbf{x}}+\mathbf{v} \cdot \nabla E\right)  = \nabla \cdot(\boldsymbol{\sigma} \cdot \mathbf{v})-\nabla\cdot\mathbf{q}+\mathbf{v} \cdot \rho \mathbf{b} 
   \end{align}
+  
+Conservation forms
+
+.. math::
+  \begin{align}
+  &Mass:     &\cfrac{\partial\rho}{\partial t}\quad+\text{div }(\rho\mathbf{v})\quad\quad=&0\\
+  &Momentum: & \cfrac{\partial(\rho\mathbf{v})}{\partial t}+\text{div }(\rho\mathbf{v}\otimes\mathbf{v})=& \text{div }\boldsymbol\sigma +\rho \mathbf{b}\\
+  &Energy:   & \cfrac{\partial (\rho E)}{\partial t}+\text{div } \left((\rho E)\mathbf{v}\right)=&\text{div }(\boldsymbol{\sigma}\cdot\mathbf{v})-\text{div }\mathbf{ q}+\mathbf{v}\cdot\rho \mathbf{b}+\rho s  \\
+  \end{align}
+
+-
+  
+.. math::
+  \begin{align}
+  &Mass:     &\cfrac{\partial\rho}{\partial t}\quad+\text{div }(\rho\mathbf{v})\quad\quad=&0\\
+  &Momentum: &\cfrac{\partial(\rho\mathbf{v})}{\partial t}+\text{div }(\rho\mathbf{v}\otimes\mathbf{v})=& \text{div }\boldsymbol\tau-\text{grad }p+\rho \mathbf{b}\\
+  &Energy:   &\cfrac{\partial (\rho E)}{\partial t}+\text{div } \left((\rho H)\mathbf{v}\right)=&\text{div }(\boldsymbol{\tau}\cdot\mathbf{v})-\text{div }\mathbf{ q}+\mathbf{v}\cdot\rho \mathbf{b}+\rho s  \\
+  \end{align}
+  
+-
+  
+.. math::
+  \begin{align}
+  &Mass:     &\cfrac{\partial\rho}{\partial t}\quad+\nabla\cdot(\rho\mathbf{v})\quad\quad=&0\\
+  &Momentum: & \cfrac{\partial(\rho\mathbf{v})}{\partial t}+\nabla[(\rho\mathbf{v}\otimes\mathbf{v})^{\text{T}}]=& \nabla[\boldsymbol\sigma^{\text{T}}] +\rho \mathbf{b}\\
+  &Energy:   & \cfrac{\partial (\rho E)}{\partial t}+\nabla\cdot \left((\rho E)\mathbf{v}\right)=&\nabla\cdot(\boldsymbol{\sigma}\cdot\mathbf{v})-\nabla\cdot\mathbf{ q}+\mathbf{v}\cdot\rho \mathbf{b}+\rho s  \\
+  \end{align}  
+  
+Mass Conservation
+
+.. math::
+  \begin{align}
+  \cfrac{\text{d}f}{\text{d}t}&=\cfrac{\partial f}{\partial t}+\mathbf{v}\cdot (\text{grad }f)\\
+  &=\cfrac{\partial f}{\partial t}+\mathbf{v}\cdot (\nabla f)\\
+  &=\cfrac{\partial f}{\partial t}+(\mathbf{v}\cdot \nabla) f\\
+  \end{align}
+
+-  
+  
+.. math::
+  \begin{align}
+  \cfrac{\text{d}\rho}{\text{d}t}&=\cfrac{\partial \rho}{\partial t}+\mathbf{v}\cdot (\text{grad }\rho)\\
+  &=\cfrac{\partial \rho}{\partial t}+\mathbf{v}\cdot (\nabla \rho)\\
+  &=\cfrac{\partial \rho}{\partial t}+(\mathbf{v}\cdot \nabla) \rho\\
+  \end{align}
+  
+-  
+
+.. math::
+  \cfrac{\text{d}\rho}{\text{d}t}+\rho\text{div }\mathbf{v}=0
+  
+-  
+
+.. math::
+  \cfrac{\text{d}\rho}{\text{d}t}=\cfrac{\partial \rho}{\partial t}+(\mathbf{v}\cdot \nabla) \rho=-\rho\text{div }\mathbf{v}\\  
+
+-  
+
+.. math::
+  \cfrac{\text{d}\rho}{\text{d}t}=\cfrac{\partial \rho}{\partial t}+(\mathbf{v}\cdot \nabla) \rho=-\rho\nabla\cdot\mathbf{v}\\  
+
+-
+  
+.. math::
+  \cfrac{\partial\rho}{\partial t}+\text{div }(\rho\mathbf{v})=0\\
+  
+Conservation of Linear Momentum  
+
+.. math:: 
+  \begin{align}
+  \cfrac{\text{d} \mathbf{v}}{\text{d} t} & = \cfrac{\partial \mathbf{v}}{\partial t}+[(\text{grad }\mathbf{v})][\mathbf{v}]\\
+  \cfrac{\text{d} \mathbf{v}}{\text{d} t} & = \cfrac{\partial \mathbf{v}}{\partial t}+[\nabla \mathbf{v}]^{\text{T}}[\mathbf{v}] \\
+  \cfrac{\text{d} \mathbf{v}}{\text{d} t} & = \cfrac{\partial \mathbf{v}}{\partial t}+ (\mathbf{v}\cdot \nabla)\mathbf{v} \\
+  \cfrac{\text{d} \boldsymbol{\alpha}}{\text{d} t} & = \cfrac{\partial \boldsymbol{\alpha}}{\partial t}+ (\mathbf{v}\cdot \nabla)\boldsymbol{\alpha} \\
+  \end{align} 
+
+-  
+
+.. math::  
+  \cfrac{\text{d}}{\text{d} t}\int\limits_{\Omega}\rho\mathbf{v}\text{d}{\Omega} 
+  =\int\limits_{\Omega}\rho\cfrac{\text{d}\mathbf{v}}{\text{d} t}\text{d}{\Omega}\\ 
+
+-  
+
+.. math::  
+  \rho\cfrac{\text{d}\mathbf{v}}{\text{d} t}=\nabla\cdot([\boldsymbol{\sigma}]^{\text{T}})+\rho\mathbf{b}\equiv \text{div}\boldsymbol\sigma+\rho\mathbf{b}  
+
+-  
+
+.. math::  
+  \rho\cfrac{\text{d}\mathbf{v}}{\text{d}t}=\rho\left(\cfrac{\partial \mathbf{v}}{\partial t}+(\mathbf{v}\cdot \nabla) (\mathbf{v})\right)
+  = \nabla\cdot([\boldsymbol{\sigma}]^{\text{T}})+\rho\mathbf{b}\equiv \text{div}\boldsymbol\sigma+\rho\mathbf{b}\\
+  
+-  
+
+.. math::    
+  \cfrac{\partial(\rho\mathbf{v})}{\partial t}+\text{div }(\rho\mathbf{v}\otimes\mathbf{v})
+  = \text{div }\boldsymbol\sigma +\rho \mathbf{b}
+  
+Conservation of Energy
+  
+.. math:: 
+  \begin{array}{c}
+  \displaystyle \cfrac{\text{d}}{\text{d} t}\int\limits_{\Omega}(\rho E)\text{d}\Omega=\int\limits_{\Omega}\left(\cfrac{\text{d}(\rho E)}{\text{d} t}+(\rho E)\cfrac{\partial v_{i}}{\partial  x_{i}}\right)\text{d}\Omega  \\
+  \displaystyle \cfrac{\text{d}(\rho E)}{\text{d} t}= E\cfrac{\text{d}(\rho)}{\text{d} t}+\rho \cfrac{\text{d}( E)}{\text{d} t}\\
+  \displaystyle \cfrac{\text{d}(\rho E)}{\text{d} t}= -E\rho\text{div } \mathbf{v}+\rho \cfrac{\text{d}( E)}{\text{d} t}\\
+  \displaystyle \cfrac{\text{d}(\rho E)}{\text{d} t}+(\rho E)\text{div } \mathbf{v}= \rho \cfrac{\text{d}( E)}{\text{d} t}\\
+  \displaystyle \cfrac{\text{d}}{\text{d} t}\int\limits_{\Omega}(\rho E)\text{d}\Omega=\int\limits_{\Omega}\left(\rho \cfrac{\text{d}( E)}{\text{d} t}\right)\text{d}\Omega  \\
+  \end{array}
+  
+Generally, there are
+
+.. math:: 
+  \cfrac{\text{d}}{\text{d} t}\int\limits_{\Omega}(\rho f)\text{d}\Omega=\int\limits_{\Omega}\left(\rho \cfrac{\text{d}( f)}{\text{d} t}\right)\text{d}\Omega  \\
+  
+-
+
+.. math::
+  \begin{align}
+  \cfrac{\text{d}E}{\text{d}t}&=\cfrac{\partial E}{\partial t}+\mathbf{v}\cdot (\text{grad }E)\\
+  &=\cfrac{\partial E}{\partial t}+\mathbf{v}\cdot (\nabla E)\\
+  &=\cfrac{\partial E}{\partial t}+(\mathbf{v}\cdot \nabla) E\\
+  \end{align}
+ 
+-
+
+.. math::
+  \begin{align}
+  \rho\cfrac{\text{d}E}{\text{d}t}&=\rho\cfrac{\partial E}{\partial t}+\rho\mathbf{v}\cdot (\text{grad }E)\\
+  &=\rho\cfrac{\partial E}{\partial t}+\rho\mathbf{v}\cdot (\nabla E)\\
+  &=\rho\cfrac{\partial E}{\partial t}+(\mathbf{v}\cdot \nabla) (\rho E)\\
+  \end{align}  
+  
+-
+
+.. math::
+  \begin{align}
+  \rho\cfrac{\text{d}E}{\text{d}t}
+  &=\rho(\cfrac{\partial E}{\partial t}+(\mathbf{v}\cdot \nabla) E)=
+ \text{div }(\boldsymbol{\sigma}\cdot\mathbf{v})-\text{div }\mathbf{ q}+\mathbf{v}\cdot\rho \mathbf{b}+\rho s  \\\\
+  \end{align}  
+  
+-
+
+.. math::
+  \begin{align}
+  \cfrac{\text{d}}{\text{d}t}\int\limits_{\Omega}(\rho E)\text{d}\Omega
+  & = \int\limits_{\Omega}\left(\cfrac{\partial (\rho E)}{\partial t}+\text{div } \left((\rho E)\mathbf{v}\right)\right)\text{d}\Omega \\
+  & = \int\limits_{\Omega}(\text{div }(\boldsymbol{\sigma}\cdot\mathbf{v})-\text{div }\mathbf{ q}+\mathbf{v}\cdot\rho \mathbf{b}+\rho s)\text{d}\Omega\\  
+  \end{align}   
   
 where :math:`\rho` is the mass density, :math:`\mathbf{v}` is the material velocity vector, :math:`\boldsymbol{\sigma}` denotes the Cauchy stress
 tensor, :math:`\mathbf{b}` is the specific body force vector, and E is the specific total energy. Only mechanical
