@@ -477,18 +477,436 @@ where :math:`\nabla \mathbf{v}` is the spatial velocity gradient.
   +\cfrac{\partial \rho}{\partial x_{3}}\mathbf{e_{3}}
 
 All one has to do to obtain the ALE form of the above conservation equations is to replace
-in the various convective terms, the material velocity :math:`\mathbf{v}` with the convective velocity :math:`\mathbf{c}=\mathbf{v}-\hat {\mathbf{v}}`.
+in the various convective terms, the material velocity :math:`\mathbf{v}` with the convective velocity :math:`\mathbf{c}=\mathbf{v}-\hat {\mathbf{v}}`
+and :math:`\hat {\mathbf{v}}` is the mesh velocity.
+ 
 The result is
 
 .. math::
   \begin{align}
   &Mass:     &\frac{\mathrm{d} \rho}{\mathrm{d} t}  &= \left.\frac{\partial \rho}{\partial t}\right|_{\boldsymbol\chi}+\mathbf{c} \cdot \nabla \rho  = -\rho {\nabla} \cdot \mathbf{v} \\
   &Momentum:  &\rho \frac{\mathrm{d} \mathbf{v}}{\mathrm{d} t}  &= \rho\left(\left.\frac{\partial \mathbf{v}}{\partial t}\right|_{\boldsymbol\chi}+(\mathbf{c} \cdot {\nabla}) \mathbf{v}\right)  = {\nabla} \cdot \boldsymbol{\sigma}+\rho \mathbf{b} \\
-  &Energy:   &\rho \frac{\mathrm{d} E}{\mathrm{~d} t}  &= \rho\left(\left.\frac{\partial E}{\partial t}\right|_{\boldsymbol\chi}+\mathbf{c} \cdot \nabla E\right)  = \nabla \cdot(\boldsymbol{\sigma} \cdot \mathbf{v})+\mathbf{v} \cdot \rho \mathbf{b} 
+  &Energy:   &\rho \frac{\mathrm{d} E}{\mathrm{~d} t}  &= \rho\left(\left.\frac{\partial E}{\partial t}\right|_{\boldsymbol\chi}+\mathbf{c} \cdot \nabla E\right)  = \nabla \cdot(\boldsymbol{\sigma} \cdot \mathbf{v})-\nabla\cdot\mathbf{q}+\mathbf{v} \cdot \rho \mathbf{b} \\
   \end{align}
+  
+ALE Mass Conservation
+`````````````````````````
+.. math::
+  \cfrac{\text{d} f}{\text{d} t}=\cfrac{\partial f}{\partial t}\Bigg|_{\boldsymbol{\xi}}
+  =\cfrac{\partial f}{\partial t}\Bigg|_{\boldsymbol{\chi}}+\cfrac{\partial f}{\partial \mathbf{x}}\cdot \mathbf{c}
+  =\cfrac{\partial f}{\partial t}\Bigg|_{\boldsymbol{\chi}}+\mathbf{c} \cdot \nabla {f}\\ 
+  
+-
+  
+.. math:: 
+  \cfrac{\text{d} \rho}{\text{d} t}=\cfrac{\partial \rho}{\partial t}\Bigg|_{\boldsymbol{\xi}}
+  =\cfrac{\partial \rho}{\partial t}\Bigg|_{\boldsymbol{\chi}}+\cfrac{\partial \rho}{\partial \mathbf{x}}\cdot \mathbf{c}
+  =\cfrac{\partial \rho}{\partial t}\Bigg|_{\boldsymbol{\chi}}+\mathbf{c} \cdot \nabla {\rho}\\   
+  
+-
+  
+.. math:: 
+  \cfrac{\text{d} \rho}{\text{d} t}=\cfrac{\partial \rho}{\partial t}\Bigg|_{\boldsymbol{\chi}}+\mathbf{c} \cdot \nabla {\rho}\\   
+  
+-
+  
+.. math:: 
+  \cfrac{\text{d} \rho}{\text{d} t}=\cfrac{\partial \rho}{\partial t}\Bigg|_{\mathbf{x}}+\mathbf{v} \cdot \nabla {\rho}
+   =\frac{\partial \rho}{\partial t}\Bigg|_{\boldsymbol\chi}+\mathbf{c} \cdot \nabla \rho  = -\rho {\nabla} \cdot \mathbf{v}  
+   
+-
+  
+.. math:: 
+   \frac{\partial \rho}{\partial t}\Bigg|_{\boldsymbol\chi}+\mathbf{c} \cdot \nabla \rho  = -\rho {\nabla} \cdot \mathbf{v}     
+   
+Conservation forms   
 
+.. math:: 
+  \begin{array}{c}
+  \displaystyle \frac{\partial \rho}{\partial t}\Bigg|_{\boldsymbol\chi}+\mathbf{c} \cdot \nabla \rho +\rho {\nabla} \cdot \mathbf{v} = 0\\
+  \displaystyle \frac{\partial \rho}{\partial t}\Bigg|_{\boldsymbol\chi}+\mathbf{c} \cdot \nabla \rho +\rho {\nabla} \cdot (\mathbf{v}-\mathbf{\hat{v}}+\mathbf{\hat{v}}) = 0\\
+  \displaystyle \frac{\partial \rho}{\partial t}\Bigg|_{\boldsymbol\chi}+\mathbf{c} \cdot \nabla \rho +\rho {\nabla} \cdot (\mathbf{c}+\mathbf{\hat{v}}) = 0\\
+  \displaystyle \frac{\partial \rho}{\partial t}\Bigg|_{\boldsymbol\chi}+{\nabla}\cdot(\rho\mathbf{c})+\rho {\nabla} \cdot (\mathbf{\hat{v}}) = 0
+  \end{array}
+
+-
+  
+.. math:: 
+  \begin{array}{c}
+  \displaystyle \frac{\partial \rho}{\partial t}\Bigg|_{\boldsymbol\chi}+\mathbf{c} \cdot \nabla \rho +\rho {\nabla} \cdot \mathbf{v} = 0\\
+  \displaystyle \frac{\partial \rho}{\partial t}\Bigg|_{\boldsymbol\chi}+(\mathbf{v}-\mathbf{\hat{v}}) \cdot \nabla \rho +\rho {\nabla} \cdot (\mathbf{v}) = 0\\
+  \displaystyle \frac{\partial \rho}{\partial t}\Bigg|_{\boldsymbol\chi}+\mathbf{v}\cdot \nabla \rho -\mathbf{\hat{v}}\cdot \nabla \rho+\rho {\nabla} \cdot (\mathbf{v}) = 0\\
+  \displaystyle \frac{\partial \rho}{\partial t}\Bigg|_{\boldsymbol\chi}+{\nabla}\cdot(\rho\mathbf{v})-\mathbf{\hat{v}}\cdot \nabla \rho = 0
+  \end{array} 
+  
+-
+  
+.. math:: 
+  \frac{\partial \rho}{\partial t}\Bigg|_{\boldsymbol\chi}+{\nabla}\cdot(\rho\mathbf{c})+\rho {\nabla} \cdot (\mathbf{\hat{v}}) = 0  
+
+-
+  
+.. math:: 
+  \frac{\partial \rho}{\partial t}\Bigg|_{\boldsymbol\chi}+{\nabla}\cdot(\rho\mathbf{v})-\mathbf{\hat{v}}\cdot \nabla \rho = 0
+
+-
+  
+.. math:: 
+  \frac{\partial \rho}{\partial t}\Bigg|_{\boldsymbol\chi}
+  +\frac{\partial (\rho c_{1})}{\partial x_{1}}
+  +\frac{\partial (\rho c_{2})}{\partial x_{2}}
+  +\frac{\partial (\rho c_{3})}{\partial x_{3}}
+  +\rho(\frac{\partial \hat{v}_{1}}{\partial x_{1}}
+       +\frac{\partial \hat{v}_{2}}{\partial x_{2}}
+       +\frac{\partial \hat{v}_{3}}{\partial x_{3}})
+  = 0  
+  
+-
+  
+.. math:: 
+  \frac{\partial \rho}{\partial t}\Bigg|_{\boldsymbol\chi}
+  +\frac{\partial (\rho v_{1})}{\partial x_{1}}
+  +\frac{\partial (\rho v_{2})}{\partial x_{2}}
+  +\frac{\partial (\rho v_{3})}{\partial x_{3}}
+  +(\hat{v}_{1}\frac{\partial \rho}{\partial x_{1}}
+   +\hat{v}_{2}\frac{\partial \rho}{\partial x_{2}}
+   +\hat{v}_{3}\frac{\partial \rho}{\partial x_{3}})
+  = 0    
+  
+ALE Conservation of Linear Momentum
+``````````````````````````````````````````````````  
+
+.. math:: 
+  \cfrac{\text{d} v_{1}}{\text{d} t}=\cfrac{\partial v_{1}}{\partial t}\Bigg|_{\boldsymbol{\xi}}
+  =\cfrac{\partial v_{1}}{\partial t}\Bigg|_{\boldsymbol{\chi}}+\cfrac{\partial f}{\partial \mathbf{x}}\cdot \mathbf{c}
+  =\cfrac{\partial v_{1}}{\partial t}\Bigg|_{\boldsymbol{\chi}}+(\mathbf{c} \cdot \nabla ){v_{1}}\\ 
+  
+-
+  
+.. math:: 
+  \begin{array}{c}
+   \cfrac{\text{d} v_{1}}{\text{d} t}=\cfrac{\partial v_{1}}{\partial t}\Bigg|_{\boldsymbol{\xi}}
+  =\cfrac{\partial v_{1}}{\partial t}\Bigg|_{\boldsymbol{\chi}}+\cfrac{\partial v_{1}}{\partial \mathbf{x}}\cdot \mathbf{c}
+  =\cfrac{\partial v_{1}}{\partial t}\Bigg|_{\boldsymbol{\chi}}+(\mathbf{c} \cdot \nabla ){v_{1}}\\
+   \cfrac{\text{d} v_{2}}{\text{d} t}=\cfrac{\partial v_{2}}{\partial t}\Bigg|_{\boldsymbol{\xi}}
+  =\cfrac{\partial v_{2}}{\partial t}\Bigg|_{\boldsymbol{\chi}}+\cfrac{\partial v_{2}}{\partial \mathbf{x}}\cdot \mathbf{c}
+  =\cfrac{\partial v_{2}}{\partial t}\Bigg|_{\boldsymbol{\chi}}+(\mathbf{c} \cdot \nabla ){v_{2}}\\
+   \cfrac{\text{d} v_{3}}{\text{d} t}=\cfrac{\partial v_{3}}{\partial t}\Bigg|_{\boldsymbol{\xi}}
+  =\cfrac{\partial v_{3}}{\partial t}\Bigg|_{\boldsymbol{\chi}}+\cfrac{\partial v_{3}}{\partial \mathbf{x}}\cdot \mathbf{c}
+  =\cfrac{\partial v_{3}}{\partial t}\Bigg|_{\boldsymbol{\chi}}+(\mathbf{c} \cdot \nabla ){v_{3}}\\  
+  \end{array} 
+
+-
+  
+.. math::   
+   \cfrac{\text{d} \mathbf{v}}{\text{d} t}=\cfrac{\partial \mathbf{v}}{\partial t}\Bigg|_{\boldsymbol{\xi}}
+  =\cfrac{\partial \mathbf{v}}{\partial t}\Bigg|_{\boldsymbol{\chi}}+\cfrac{\partial \mathbf{v}}{\partial \mathbf{x}}\cdot \mathbf{c}
+  =\cfrac{\partial \mathbf{v}}{\partial t}\Bigg|_{\boldsymbol{\chi}}+(\mathbf{c} \cdot \nabla ){\mathbf{v}}\\
+  
+-
+  
+.. math::  
+   \rho\cfrac{\text{d} \mathbf{v}}{\text{d} t}=\rho\cfrac{\partial \mathbf{v}}{\partial t}\Bigg|_{\boldsymbol{\xi}}
+  =\rho\left(\cfrac{\partial \mathbf{v}}{\partial t}\Bigg|_{\boldsymbol{\chi}}+\cfrac{\partial \mathbf{v}}{\partial \mathbf{x}}\cdot \mathbf{c}\right)
+  =\rho\left(\cfrac{\partial \mathbf{v}}{\partial t}\Bigg|_{\boldsymbol{\chi}}+(\mathbf{c} \cdot \nabla ){\mathbf{v}}\right)\\  
+  
+-
+  
+.. math:: 
+   \rho\cfrac{\text{d} \mathbf{v}}{\text{d} t}
+  =\rho\left(\cfrac{\partial \mathbf{v}}{\partial t}\Bigg|_{\boldsymbol{\chi}}+(\mathbf{c} \cdot \nabla ){\mathbf{v}}\right)\\  
+
+-
+  
+.. math::    
+   \rho\cfrac{\text{d} \mathbf{v}}{\text{d} t}
+  =\rho\left(\cfrac{\partial \mathbf{v}}{\partial t}\Bigg|_{\boldsymbol{\chi}}+(\mathbf{c} \cdot \nabla ){\mathbf{v}}\right) 
+  =\text{div }\boldsymbol{\sigma}+\rho \mathbf{b} \\ 
+  
+-
+  
+.. math::   
+  \rho\cfrac{\text{d} \mathbf{v}}{\text{d} t}
+  =\rho\left(\cfrac{\partial \mathbf{v}}{\partial t}\Bigg|_{\boldsymbol{\chi}}+(\mathbf{c} \cdot \nabla ){\mathbf{v}}\right) 
+  =\nabla \cdot\left[\boldsymbol{\sigma}^{\mathrm{T}}\right]+\rho \mathbf{b} \\
+
+Conservation form
+  
+.. math::   
+  \cfrac{\text{d}}{\text{d} t}\int\limits_{\Omega}(\rho f)\text{d}\Omega=\int\limits_{\Omega}\left(\cfrac{\text{d}(\rho f)}{\text{d} t}+(\rho f)\cfrac{\partial v_{i}}{\partial  x_{i}}\right)\text{d}\Omega   
+  
+-
+  
+.. math::   
+  \cfrac{\text{d}}{\text{d} t}\int\limits_{\Omega}(\rho \mathbf{v})\text{d}\Omega=\int\limits_{\Omega}\left(\cfrac{\text{d}(\rho \mathbf{v})}{\text{d} t}+(\rho \mathbf{v})\cfrac{\partial v_{i}}{\partial  x_{i}}\right)\text{d}\Omega   
+  
+-
+  
+.. math::
+  \cfrac{\text{d}}{\text{d} t}\int\limits_{\Omega}(\rho \mathbf{v})\text{d}\Omega=\int\limits_{\Omega}\left(\cfrac{\text{d}(\rho \mathbf{v})}{\text{d} t}+(\rho \mathbf{v})(\text{div }\mathbf{v})\right)\text{d}\Omega   
+  
+-
+  
+.. math::
+   \cfrac{\text{d} (\rho\mathbf{v})}{\text{d} t}=\cfrac{\partial (\rho\mathbf{v})}{\partial t}\Bigg|_{\boldsymbol{\xi}}
+  =\cfrac{\partial (\rho\mathbf{v})}{\partial t}\Bigg|_{\boldsymbol{\chi}}+\cfrac{\partial (\rho\mathbf{v})}{\partial \mathbf{x}}\cdot \mathbf{c}
+  =\cfrac{\partial (\rho\mathbf{v})}{\partial t}\Bigg|_{\boldsymbol{\chi}}+(\mathbf{c} \cdot \nabla )(\rho\mathbf{v})\\  
+  
+-
+  
+.. math:: 
+  \cfrac{\text{d}(\rho \mathbf{v})}{\text{d} t}+(\rho \mathbf{v})(\text{div }\mathbf{v})=\cfrac{\partial (\rho\mathbf{v})}{\partial t}\Bigg|_{\boldsymbol{\chi}}+(\mathbf{c} \cdot \nabla )(\rho\mathbf{v})+(\rho \mathbf{v})(\text{div }\mathbf{v})
+
+-
+  
+.. math::  
+  \text{div}(\mathbf{a}\otimes \mathbf{b})=[\text{grad}(\mathbf{a})]\cdot\mathbf{b}+\mathbf{a}\text{ div}(\mathbf{b})  
+  
+Let :math:`\mathbf{a}=\rho\mathbf{v}`, :math:`\mathbf{v}=\mathbf{v}`, then
+
+.. math::  
+  \text{div}((\rho\mathbf{v})\otimes \mathbf{v})=[\text{grad}(\rho\mathbf{v})]\cdot\mathbf{v}+(\rho\mathbf{v})\text{ div}(\mathbf{v})\\  
+  
+-
+  
+.. math::   
+  [\text{grad}(\rho\mathbf{v})]\cdot\mathbf{v}=(\mathbf{v} \cdot \nabla )(\rho\mathbf{v})
+  
+-
+  
+.. math::
+  \frac{\partial (\rho\mathbf{v})}{\partial t}\Bigg|_{\boldsymbol\chi}
+  =\rho\frac{\partial (\mathbf{v})}{\partial t}\Bigg|_{\boldsymbol\chi}
+  +\mathbf{v}\frac{\partial (\rho)}{\partial t}\Bigg|_{\boldsymbol\chi} 
+  
+-
+  
+.. math::
+  \rho\frac{\partial (\mathbf{v})}{\partial t}\Bigg|_{\boldsymbol\chi}=\frac{\partial (\rho\mathbf{v})}{\partial t}\Bigg|_{\boldsymbol\chi}-\mathbf{v}\frac{\partial (\rho)}{\partial t}\Bigg|_{\boldsymbol\chi}
+
+-
+  
+.. math::
+  \rho\frac{\partial (\mathbf{v})}{\partial t}\Bigg|_{\boldsymbol\chi}+(\rho \mathbf{c}\cdot\nabla)\mathbf{v}
+  =\frac{\partial (\rho\mathbf{v})}{\partial t}\Bigg|_{\boldsymbol\chi}
+  -\mathbf{v}\frac{\partial (\rho)}{\partial t}\Bigg|_{\boldsymbol\chi}
+  +(\rho \mathbf{c}\cdot\nabla)\mathbf{v}
+  
+-
+  
+.. math::
+  \frac{\partial \rho}{\partial t}\Bigg|_{\boldsymbol\chi}=-\mathbf{c} \cdot \nabla \rho  -\rho {\nabla} \cdot \mathbf{v} \\  
+ 
+-
+  
+.. math::
+  \mathbf{v}\frac{\partial \rho}{\partial t}\Bigg|_{\boldsymbol\chi}=-\mathbf{v}(\mathbf{c} \cdot \nabla \rho)  -(\rho\mathbf{v})( {\nabla} \cdot \mathbf{v})
+  
+-
+  
+.. math::
+  \rho\frac{\partial (\mathbf{v})}{\partial t}\Bigg|_{\boldsymbol\chi}+(\rho \mathbf{c}\cdot\nabla)\mathbf{v}
+  =\frac{\partial (\rho\mathbf{v})}{\partial t}\Bigg|_{\boldsymbol\chi}
+  +\mathbf{v}(\mathbf{c} \cdot \nabla \rho) +(\rho\mathbf{v})( {\nabla} \cdot \mathbf{v})
+  +(\rho \mathbf{c}\cdot\nabla)\mathbf{v}
+  
+-
+  
+.. math::
+  \mathbf{v}(\mathbf{c} \cdot \nabla \rho)+(\rho \mathbf{c}\cdot\nabla)\mathbf{v}
+  =(\mathbf{c} \cdot \nabla)(\rho\mathbf{v})
+  =[\text{grad}(\rho\mathbf{v})]\cdot \mathbf{c}
+  
+-
+  
+.. math::
+  \rho\frac{\partial (\mathbf{v})}{\partial t}\Bigg|_{\boldsymbol\chi}+(\rho \mathbf{c}\cdot\nabla)\mathbf{v}
+  =\frac{\partial (\rho\mathbf{v})}{\partial t}\Bigg|_{\boldsymbol\chi}
+  +(\mathbf{c} \cdot \nabla)(\rho\mathbf{v}) +(\rho\mathbf{v})( {\nabla} \cdot \mathbf{v})  
+  
+-
+  
+.. math::
+  \begin{align}
+  &(\mathbf{c} \cdot \nabla)(\rho\mathbf{v}) +(\rho\mathbf{v})( {\nabla} \cdot \mathbf{v})\\ & = c_{j}\cfrac{\partial(\rho v_{i}) }{\partial x_{j}}+(\rho v_{i})\cfrac{\partial( v_{j}) }{\partial x_{j}}\\ & = (v_{j}-\hat{v}_{j})\cfrac{\partial(\rho v_{i}) }{\partial x_{j}}+(\rho v_{i})\cfrac{\partial(v_{j}) }{\partial x_{j}}\\ & = (v_{j})\cfrac{\partial(\rho v_{i}) }{\partial x_{j}}+(\rho v_{i})\cfrac{\partial(v_{j}) }{\partial x_{j}}-\hat{v}_{j}\cfrac{\partial(\rho v_{i}) }{\partial x_{k}}\\ & = \cfrac{\partial(\rho v_{i}v_{j}) }{\partial x_{j}}-\hat{v}_{j}\cfrac{\partial(\rho v_{i}) }{\partial x_{j}}
+  \end{align}
+  
+-
+  
+.. math::
+   \begin{align}
+   &(\mathbf{c} \cdot \nabla)(\rho\mathbf{v}) +(\rho\mathbf{v})( {\nabla} \cdot \mathbf{v})\\ 
+  =&(\mathbf{c} \cdot \nabla)(\rho\mathbf{v}) +(\rho\mathbf{v})( {\nabla} \cdot (\mathbf{c}+\mathbf{\hat{v}}))\\
+  =&\text{div }(\rho\mathbf{v}\otimes\mathbf{c}) +(\rho\mathbf{v})( {\nabla} \cdot (\mathbf{\hat{v}}))\\
+  \end{align}  
+  
+-
+  
+.. math::
+  \begin{align}
+   &(\mathbf{c} \cdot \nabla)(\rho\mathbf{v}) +(\rho\mathbf{v})( {\nabla} \cdot \mathbf{v})\\ 
+  =&((\mathbf{v}-\mathbf{\hat{v}}) \cdot \nabla)(\rho\mathbf{v}) +(\rho\mathbf{v})( {\nabla} \cdot \mathbf{v})\\ 
+  =&\text{div }(\rho\mathbf{v}\otimes\mathbf{v}) -(\mathbf{\hat{v}} \cdot \nabla)(\rho\mathbf{v})\\
+  \end{align}  
+
+-
+  
+.. math::
+   \begin{align}
+   &(\mathbf{c} \cdot \nabla)(\rho\mathbf{v}) +(\rho\mathbf{v})( {\nabla} \cdot \mathbf{v})\\ 
+  =&(\mathbf{c} \cdot \nabla)(\rho\mathbf{v}) +(\rho\mathbf{v})( {\nabla} \cdot (\mathbf{c}+\mathbf{\hat{v}}))\\
+  =&\text{div }(\rho\mathbf{v}\otimes\mathbf{c}) +(\rho\mathbf{v})( {\nabla} \cdot (\mathbf{\hat{v}}))\\
+  \end{align}
+  
+-
+  
+.. math::
+  \cfrac{\partial (\rho\mathbf{v})}{\partial t}\Bigg|_{\boldsymbol{\chi}}
+  +\text{div }(\rho\mathbf{v}\otimes\mathbf{v}) -(\mathbf{\hat{v}} \cdot \nabla)(\rho\mathbf{v})
+  =\text{div }\boldsymbol{\sigma}+\rho\mathbf{b}\\  
+  
+-
+  
+.. math::
+  \cfrac{\partial (\rho\mathbf{v})}{\partial t}\Bigg|_{\boldsymbol{\chi}}
+  +\text{div }(\rho\mathbf{v}\otimes\mathbf{c}) +(\rho\mathbf{v})( {\nabla} \cdot \mathbf{\hat{v}})
+  =\text{div }\boldsymbol{\sigma}+\rho\mathbf{b}\\ 
+  
+ALE Conservation of Energy
+``````````````````````````````````
+
+.. math::
+  \rho \frac{\mathrm{d} E}{\mathrm{~d} t}  = \rho\left(\frac{\partial E}{\partial t}\Bigg|_{\boldsymbol\chi}+(\mathbf{c} \cdot \nabla) E\right)  = \nabla \cdot(\boldsymbol{\sigma} \cdot \mathbf{v})+\mathbf{v} \cdot \rho \mathbf{b} 
+
+Conservation form
+
+.. math::
+  \rho \frac{\mathrm{d} E}{\mathrm{~d} t}  = \rho\left(\frac{\partial E}{\partial t}\Bigg|_{\boldsymbol\chi}+(\mathbf{c} \cdot \nabla) E\right)  = \nabla \cdot(\boldsymbol{\sigma} \cdot \mathbf{v})+\mathbf{v} \cdot \rho \mathbf{b} 
+
+-
+  
+.. math::
+  \begin{align}
+  &\displaystyle  \rho\frac{\partial E}{\partial t}\Bigg|_{\boldsymbol\chi}+\rho(\mathbf{c} \cdot \nabla) E\\
+  =& \rho\frac{\partial E}{\partial t}\Bigg|_{\boldsymbol\chi}+E\frac{\partial\rho}{\partial t}\Bigg|_{\boldsymbol\chi}-E\frac{\partial\rho}{\partial t}\Bigg|_{\boldsymbol\chi}
+  +\rho(\mathbf{c} \cdot \nabla) E \\
+  =&\frac{\partial (\rho E)}{\partial t}\Bigg|_{\boldsymbol\chi}-E\frac{\partial\rho}{\partial t}\Bigg|_{\boldsymbol\chi}
+  +\rho(\mathbf{c} \cdot \nabla) E \\
+  \end{align}
+  
+-
+  
+.. math::
+  \displaystyle \frac{\partial \rho}{\partial t}\Bigg|_{\boldsymbol\chi}=-\mathbf{c} \cdot \nabla \rho -\rho {\nabla} \cdot \mathbf{v}  
+
+-
+  
+.. math::
+  E\frac{\partial \rho}{\partial t}\Bigg|_{\boldsymbol\chi}=-(E\mathbf{c}) \cdot \nabla \rho -(\rho E )({\nabla} \cdot \mathbf{v})  
+  
+-
+  
+.. math::
+  \begin{align}
+  -E\frac{\partial\rho}{\partial t}\Bigg|_{\boldsymbol\chi}+\rho(\mathbf{c} \cdot \nabla) E 
+  & = (E\mathbf{c}) \cdot \nabla \rho +(\rho E )({\nabla} \cdot \mathbf{v})+\rho(\mathbf{c} \cdot \nabla) E\\
+   & = (\rho E )({\nabla} \cdot \mathbf{v})+(\mathbf{c} \cdot \nabla) (\rho E)
+  \end{align}
+  
+-
+  
+.. math::
+  \begin{align}
+  -E\frac{\partial\rho}{\partial t}\Bigg|_{\boldsymbol\chi}+\rho(\mathbf{c} \cdot \nabla) E 
+  & = (E\mathbf{c}) \cdot \nabla \rho +(\rho E )({\nabla} \cdot \mathbf{v})+\rho(\mathbf{c} \cdot \nabla) E\\
+   & = (\rho E )({\nabla} \cdot \mathbf{v})+(\mathbf{c} \cdot \nabla) (\rho E)\\
+   & = (\rho E )({\nabla} \cdot (\mathbf{c}+\mathbf{\hat{v}}))+(\mathbf{c} \cdot \nabla) (\rho E)\\
+   & = (\rho E )({\nabla} \cdot \mathbf{c})+(\rho E )({\nabla} \cdot \mathbf{\hat{v}})+(\mathbf{c} \cdot \nabla) (\rho E)\\
+   & = {\nabla} \cdot (\rho E \mathbf{c})+(\rho E )({\nabla} \cdot \mathbf{\hat{v}})\\
+  \end{align}
+  
+-
+  
+.. math::  
+  \begin{align}
+  -E\frac{\partial\rho}{\partial t}\Bigg|_{\boldsymbol\chi}+\rho(\mathbf{c} \cdot \nabla) E 
+  & = (E\mathbf{c}) \cdot \nabla \rho +(\rho E )({\nabla} \cdot \mathbf{v})+\rho(\mathbf{c} \cdot \nabla) E\\
+   & = (\rho E )({\nabla} \cdot \mathbf{v})+(\mathbf{c} \cdot \nabla) (\rho E)\\
+   & = (\rho E )({\nabla} \cdot \mathbf{v})+((\mathbf{v}-\mathbf{\hat{v}}) \cdot \nabla) (\rho E)\\
+   & = (\rho E )({\nabla} \cdot \mathbf{v})+(\mathbf{v} \cdot \nabla) (\rho E)-(\mathbf{\hat{v}} \cdot \nabla) (\rho E)\\
+   & = {\nabla} \cdot (\rho E \mathbf{v})+(\mathbf{\hat{v}} \cdot \nabla) (\rho E)\\
+  \end{align}
+  
+-
+  
+.. math:: 
+  \frac{\partial (\rho E)}{\partial t}\Bigg|_{\boldsymbol\chi}+{\nabla} \cdot (\rho E \mathbf{v})+(\mathbf{\hat{v}} \cdot \nabla) (\rho E)
+  =\nabla \cdot(\boldsymbol{\sigma} \cdot \mathbf{v})+\mathbf{v} \cdot \rho \mathbf{b}
+  
+-
+  
+.. math:: 
+  \frac{\partial (\rho E)}{\partial t}\Bigg|_{\boldsymbol\chi}+{\nabla} \cdot (\rho E \mathbf{c})+(\rho E )({\nabla} \cdot \mathbf{\hat{v}}) 
+  =\nabla \cdot(\boldsymbol{\sigma} \cdot \mathbf{v})+\mathbf{v} \cdot \rho \mathbf{b}  
+  
+Differential forms of ALE Conservation 
+```````````````````````````````````````````
+
+.. math::
+  \begin{align}
+  &Mass:     &\frac{\mathrm{d} \rho}{\mathrm{d} t}  &= \left.\frac{\partial \rho}{\partial t}\right|_{\boldsymbol\chi}+\mathbf{c} \cdot \nabla \rho  = -\rho {\nabla} \cdot \mathbf{v} \\
+  &Momentum:  &\rho \frac{\mathrm{d} \mathbf{v}}{\mathrm{d} t}  &= \rho\left(\left.\frac{\partial \mathbf{v}}{\partial t}\right|_{\boldsymbol\chi}+(\mathbf{c} \cdot {\nabla}) \mathbf{v}\right)  = {\nabla} \cdot \boldsymbol{\sigma}+\rho \mathbf{b} \\
+  &Energy:   &\rho \frac{\mathrm{d} E}{\mathrm{~d} t}  &= \rho\left(\left.\frac{\partial E}{\partial t}\right|_{\boldsymbol\chi}+\mathbf{c} \cdot \nabla E\right)  = \nabla \cdot(\boldsymbol{\sigma} \cdot \mathbf{v})-\nabla\cdot\mathbf{q}+\mathbf{v} \cdot \rho \mathbf{b} \\
+  \end{align}
+  
+-  
+
+.. math:: 
+  \begin{align}
+  Mass\quad\quad\quad:     &\frac{\partial \rho}{\partial t}\Bigg|_{\boldsymbol\chi}+{\nabla}\cdot(\rho\mathbf{v})-(\mathbf{\hat{v}}\cdot \nabla)( \rho) = 0\\
+  Momentum:  & \cfrac{\partial (\rho\mathbf{v})}{\partial t}\Bigg|_{\boldsymbol{\chi}}  +\text{div }(\rho\mathbf{v}\otimes\mathbf{v}) -(\mathbf{\hat{v}} \cdot \nabla)(\rho\mathbf{v})= {\nabla} \cdot \boldsymbol{\sigma}+\rho \mathbf{b} \\
+  Energy\quad\quad:   &\frac{\partial (\rho E)}{\partial t}\Bigg|_{\boldsymbol\chi}+{\nabla} \cdot (\rho E \mathbf{v})+(\mathbf{\hat{v}} \cdot \nabla) (\rho E) = \nabla \cdot(\boldsymbol{\sigma} \cdot \mathbf{v})-\nabla\cdot\mathbf{q}+\mathbf{v} \cdot \rho \mathbf{b} \\
+  \end{align}
+  
+-  
+
+.. math::
+  \begin{align}
+  Mass\quad\quad\quad&:     \frac{\partial \rho}{\partial t}\Bigg|_{\boldsymbol\chi}+{\nabla}\cdot(\rho\mathbf{c})+(\rho) ({\nabla} \cdot \mathbf{\hat{v}}) = 0  \\
+  Momentum&:   \cfrac{\partial (\rho\mathbf{v})}{\partial t}\Bigg|_{\boldsymbol{\chi}}+\text{div }(\rho\mathbf{v}\otimes\mathbf{c}) +(\rho\mathbf{v})( {\nabla} \cdot \mathbf{\hat{v}})= {\nabla} \cdot \boldsymbol{\sigma}+\rho \mathbf{b} \\
+  Energy\quad\quad&:    \frac{\partial (\rho E)}{\partial t}\Bigg|_{\boldsymbol\chi}+{\nabla} \cdot (\rho E \mathbf{c})+(\rho E )({\nabla} \cdot \mathbf{\hat{v}}) = \nabla \cdot(\boldsymbol{\sigma} \cdot \mathbf{v})-\nabla\cdot\mathbf{q}+\mathbf{v} \cdot \rho \mathbf{b} \\
+  \end{align}
+  
+  
+    
+    
+    
 Integral forms  
 `````````````````````````
+
+.. math::
+  \cfrac{\text{d}m_{sys}}{\text{d}t}=\cfrac{\text{d}}{\text{d}t}\int_{\text{V}_t}\rho \text{d}V
+  +\int_{\text{S}_t}\rho\mathbf{c}\cdot\mathbf{n}\text{d}S=0
+  
+- 
+ 
+.. math::  
+  \cfrac{\text{d}(mV)_{sys}}{\text{d}t}=\cfrac{\text{d}}{\text{d}t}\int_{\text{V}_t}(\rho\mathbf{v}) \text{d}V
+  +\int_{\text{S}_t}(\rho\mathbf{v})\mathbf{c}\cdot\mathbf{n}\text{d}S
+  =\int_{\text{S}_t}(\boldsymbol\sigma\cdot\mathbf{n})\text{d}S
+  
+- 
+ 
+.. math::  
+  \cfrac{\text{d}(mE)_{sys}}{\text{d}t}=\cfrac{\text{d}}{\text{d}t}\int_{\text{V}_t}(\rho E) \text{d}V
+  +\int_{\text{S}_t}(\rho E)\mathbf{c}\cdot\mathbf{n}\text{d}S
+  =\int_{\text{S}_t}(\boldsymbol\sigma\cdot\mathbf{v}\cdot\mathbf{n})\text{d}S
+  
+- 
+ 
+.. math:: 
+  \cfrac{\text{d}}{\text{d}t}\int_{\text{V}_t}(\rho f) \text{d}V
+  =\lim_{\Delta t \to 0} \cfrac{\displaystyle \int_{\text{V}_{t+\Delta t}}(\rho E) \text{d}V-\int_{\text{V}_{t}}(\rho E) \text{d}V}{\Delta t}
 
 Navier–Stokes equations
 -----------------------------------------

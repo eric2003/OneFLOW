@@ -3,11 +3,12 @@ CFD & CAE Videos
 
 Bilibili Video
 ----------------------
-#. `CFD从0到1-曾导SJTU <https://www.bilibili.com/video/BV1Bo4y1s7NZ/>`_
+#. `计算流体力学（CFD）入门 课程合集持续更新中 天津大学刘建新 <https://www.bilibili.com/video/BV1vE411W7kV/>`_
 #. `现代流体力学数值模拟方法——西北工业大学（2022秋） <https://www.bilibili.com/video/BV1oS4y1t7e5/>`_
 #. `国科大计算流体力学录像2020年春季学期|CFD课程—李新亮老师 <https://www.bilibili.com/video/BV1JT4y1r74p/>`_
 #. `李新亮老师的计算流体力学（CFD）课程视频 2020 <https://www.bilibili.com/video/BV1m7411K7ig/>`_
 #. `计算流体力学（CFD）李新亮老师（带PPT课件） <https://www.bilibili.com/video/BV1s54y1N7sD/>`_
+#. `CFD从0到1-曾导SJTU <https://www.bilibili.com/video/BV1Bo4y1s7NZ/>`_
 #. `CFD有限体积法：基础篇-犀利程 <https://www.bilibili.com/video/BV1wQ4y1k77R/>`_
 #. `推荐一本极好的CFD入门书籍，作者代码功底深厚 <https://www.bilibili.com/video/BV1WP4y1L7ch/>`_
 #. `有限元基础编程 <https://www.bilibili.com/video/BV1zF411w73W/>`_
