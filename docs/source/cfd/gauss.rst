@@ -24,6 +24,44 @@ theorem of Gauss states that (in symbolic and index notation)
 
 .. math::
   \int\limits_{S}{v}_{i}\cdot{n}_{i}\text{d}S=\int\limits_{V}\cfrac{\partial {v}_{i}}{\partial {x}_{i}}\text{d}V\\
+  
+The divergence theorem is also called Gauss’s theorem, named after the
+German mathematician Johann Carl Friedrich Gauss (1777–1855). The
+divergence theorem allows us to transform a volume integral of the divergence of a vector into an area integral over the surface that defines the volume.
+For any vector :math:`\vec{G}`, the divergence of :math:`\vec{G}` is defined as :math:`\nabla \cdot \vec{G}`, and the divergence theorm is 
+written as 
+
+.. math::
+  \int_{V}\nabla\cdot\vec{G}=\oint_{A}\vec{G}\cdot\vec{n}dA
+  
+-
+  
+.. math::
+  \vec{G}=g_{1}(x,y,z)\vec{i}+g_{2}(x,y,z)\vec{j}+g_{3}(x,y,z)\vec{k}
+  =\begin{bmatrix}
+   g_{1}(x,y,z)\\g_{2}(x,y,z)\\g_{3}(x,y,z)
+  \end{bmatrix}\\ 
+  
+-
+  
+.. math::
+  \nabla \cdot \vec{G}=\cfrac{\partial g_{1}}{\partial x}+\cfrac{\partial g_{2}}{\partial y}+\cfrac{\partial g_{3}}{\partial z} 
+  
+-
+  
+.. math::
+  \vec{G}\cdot\vec{n}=g_{1}n_{1}+g_{2}n_{2}+g_{3}n_{3}=g_{1}n_{x}+g_{2}n_{y}+g_{3}n_{z}  
+  
+-
+  
+.. math::  
+  \vec{n}=n_{1}\vec{i}+n_{2}\vec{j}+n_{3}\vec{k}=n_{x}\vec{i}+n_{y}\vec{j}+n_{z}\vec{k}
+  =\begin{bmatrix}
+   n_{1}\\n_{2}\\n_{3}
+  \end{bmatrix}
+  =\begin{bmatrix}
+   n_{x}\\n_{y}\\n_{z}
+  \end{bmatrix}\\  
 
 The Divergence Theorem-tensors  
 ------------------------------------

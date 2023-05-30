@@ -841,7 +841,7 @@ Applying Cauchy’s law and Gauss’s theorem to the traction boundary integrals
 then
   
 .. math:: 
-  \int\limits_{\Gamma} \mathbf{v} \cdot \mathbf{t} d \Gamma  =\int\limits_{\Gamma} \mathbf{n} \ cdot \boldsymbol{\sigma} \cdot \mathbf{v} d \Gamma=\int\limits_{\Gamma} n_{i} \sigma_{i j} v_{j} d \Gamma
+  \int\limits_{\Gamma} \mathbf{v} \cdot \mathbf{t} d \Gamma  =\int\limits_{\Gamma} \mathbf{n} \cdot \boldsymbol{\sigma} \cdot \mathbf{v} d \Gamma=\int\limits_{\Gamma} n_{i} \sigma_{i j} v_{j} d \Gamma
   =\int\limits_{\Omega}\left(\cfrac{\partial (\sigma_{i j} v_{j})}{\partial x_{i}}\right)d \Omega
   =\int\limits_{\Omega}\left(\text{div }(\boldsymbol{\sigma}\cdot\mathbf{v})\right)d \Omega \\
   
