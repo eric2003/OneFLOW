@@ -8,6 +8,7 @@ Bilibili Video
 #. `国科大计算流体力学录像2020年春季学期|CFD课程—李新亮老师 <https://www.bilibili.com/video/BV1JT4y1r74p/>`_
 #. `李新亮老师的计算流体力学（CFD）课程视频 2020 <https://www.bilibili.com/video/BV1m7411K7ig/>`_
 #. `计算流体力学（CFD）李新亮老师（带PPT课件） <https://www.bilibili.com/video/BV1s54y1N7sD/>`_
+#. `CFD计算流体力学-CFD编程-非常基础篇 <https://www.bilibili.com/video/BV1tk4y1s7F5/>`_
 #. `CFD从0到1-曾导SJTU <https://www.bilibili.com/video/BV1Bo4y1s7NZ/>`_
 #. `CFD有限体积法：基础篇-犀利程 <https://www.bilibili.com/video/BV1wQ4y1k77R/>`_
 #. `推荐一本极好的CFD入门书籍，作者代码功底深厚 <https://www.bilibili.com/video/BV1WP4y1L7ch/>`_
@@ -45,6 +46,33 @@ Youtuber
 #. `sandip mazumder <https://www.youtube.com/@sandipmazumder171/>`_
 #. `Tom Rocks Maths <https://www.youtube.com/@TomRocksMaths/>`_
 #. `Thomas Kim <https://www.youtube.com/@siliconiens/>`_
+
+Youtube Video
+------------------------
+#. `Introduction to Computational Fluid Dynamics (CFD) - Prof. S. A. E. Miller, Ph.D. <https://www.youtube.com/watch?v=01X5ECv3qIU&list=PLbiOzt50Bx-kV3Lcn5piPyV9EvpmOybJR/>`_
+#. `Quickersim CFD course is a complete training on Computational Fluid Dynamics (CFD) conducted by Bartosz Górecki, PhD. <https://www.youtube.com/watch?v=z6Bt-k1me9w&list=PLZsgQL03AlrcmFMnkFOWDpMsiK4mmDli2&index=2/>`_
+#. `Computational Fluid Dynamics - Milovan Perić <https://www.youtube.com/watch?v=1yNhkIM5iQM/>`_
+ 
+
+
+
+
+Homepage
+------------------------------------
+#. `Michael Zingale <https://zingale.github.io/codes.html>`_
+#. `Notes on Project Work, CFD, Programming and Computing <http://www.thevisualroom.com/>`_
+
+
+Article
+--------------------------------------------------------------
+#. `CFD Julia: A Learning Module Structuring an Introductory Course on Computational Fluid Dynamics <https://www.mdpi.com/2311-5521/4/3/159/>`_
+#. `二期班培训讲义全开源-二期培训(十周)讲义(30次授课内容) <https://q8frym1nsp.feishu.cn/docx/FIg5dgAk0oD0o9xo8bpc9knonUf/>`_
+
+
+Codes
+----------------------------
+#. `CFD_Julia Python and C++ Implementation <https://github.com/fengyiqi/cfd_practice/>`_
+
 
 
 
