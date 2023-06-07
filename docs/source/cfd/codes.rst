@@ -108,6 +108,7 @@ Open-Source CFD codes
 #. `DualSPHysics: C++/CUDA/OpenMP based Smoothed Particle Hydrodynamics (SPH) Solver. <https://github.com/DualSPHysics/DualSPHysics/>`_
 #. `SPHYSICS: SPH Free-surface Flow Solver. <https://wiki.manchester.ac.uk/sphysics/>`_
 #. `FluidX3D: The fastest and most memory efficient lattice Boltzmann CFD software. <https://github.com/ProjectPhysX/FluidX3D/>`_
+#. `HORSES: a High Order Spectral Element Solver. <https://github.com/horsescfd/HORSES2D/>`_
 
 
 
