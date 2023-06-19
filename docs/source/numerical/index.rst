@@ -7,6 +7,7 @@ Numerical analysis is a branch of mathematics that solves continuous problems us
    :maxdepth: 1
 
    /numerical/tdma
+   /numerical/ctdma
 
    
    
