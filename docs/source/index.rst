@@ -40,5 +40,6 @@ OneFLOW is a general-purpose, unstructured Computational Fluid Dynamics (CFD) so
    /qt
    /python
    /julia
+   /powershell
    /sphinx
 

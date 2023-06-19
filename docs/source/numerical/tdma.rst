@@ -7,6 +7,7 @@ Tridiagonal matrix algorithm
 #. `Tridiagonal_matrix_algorithm：Thomas Algorithm(TDMA) <https://en.wikibooks.org/wiki/Algorithm_Implementation/Linear_Algebra/Tridiagonal_matrix_algorithm>`_
 #. `Tri-Diagonal Matrix Algorithm <http://www.thevisualroom.com/tri_diagonal_matrix.html>`_
 #. `Understanding the TDMA/Thomas algorithm and its Implementation in Python <https://www.researchgate.net/publication/364389215_Understanding_the_TDMAThomas_algorithm_and_its_Implementation_in_Python/>`_
+#. `Thomas Algorithm for Tridiagonal Matrix <https://matlabgeeks.weebly.com/uploads/8/0/4/8/8048228/001-thomas_algorithm_for_tridiagonal_matrix-v16.pdf>`_
 
 
 In numerical linear algebra, the tridiagonal matrix algorithm, also known as the Thomas algorithm (named after Llewellyn Thomas), is a simplified form of Gaussian elimination that can be used to solve tridiagonal systems of equations.

@@ -6,6 +6,7 @@ CFD Examples 1D
 #. `Runge Kutta methods <https://www.cfd-online.com/Wiki/Runge_Kutta_methods/>`_
 #. `MATHEMATICA TUTORIAL for the First Course. Part III: Runge--Kutta 3. <https://www.cfm.brown.edu/people/dobrush/am33/Mathematica/ch3/RK3.html>`_
 #. `Runge-Kutta Integrator Overview: All Purpose Numerical Integration of Differential Equations <https://www.youtube.com/watch?v=HOWJp8NV5xU/>`_
+#. `Coding a Fourth-Order Runge-Kutta Integrator in Python and Matlab <https://www.youtube.com/watch?v=vNoFdtcPFdk/>`_
 
 
 Runge-Kutta

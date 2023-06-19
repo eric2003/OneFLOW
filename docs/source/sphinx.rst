@@ -15,6 +15,11 @@ Assuming you have Python already, install Sphinx:
 
     pip install sphinx
 
+windows install sphinx
+::
+
+    pip install -U sphinx
+
 Now that you have added some files and content, let’s make a first build of the docs. A build is started with the sphinx-build program:
 ::
 
@@ -26,6 +31,12 @@ Building your HTML documentation
 ::
 
     sphinx-build -b html source/ build/html
+
+Install sphinx-rtd-theme
+::
+
+    pip install sphinx-rtd-theme
+
 
 `Getting Started with Sphinx <https://docs.readthedocs.io/en/stable/intro/getting-started-with-sphinx.html>`_
 
@@ -39,6 +50,8 @@ Building your HTML documentation
 #. `reStructuredText:Markup Syntax and Parser Component of Docutils <https://restructuredtextmenu.readthedocs.io/>`_
 #. `Quick reStructuredText <https://docutils.sourceforge.io/docs/user/rst/quickref.html>`_
 #. `Create Documentation with RST, Sphinx, Sublime, and GitHub <https://docutils.sourceforge.io/rst.html>`_
+#. `sphinx-lesson: structured lessons with Sphinx <https://coderefinery.github.io/sphinx-lesson/>`_
+
 
 
 
