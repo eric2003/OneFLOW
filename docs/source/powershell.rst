@@ -13,6 +13,17 @@ show path
 
     $env:path
 
+Remove
+::
+
+  Remove-Item * -Recurse -Force
+  
+or
+
+::
+
+  rm * -Recurse -Force  
+
 
 
 

@@ -13,6 +13,9 @@ LaTeX website
 #. `LaTeX Wikibook: a comprehensive guide to LaTeX <https://en.wikibooks.org/wiki/LaTeX/>`_
 #. `The Not So Short Introduction to LATEX 2ε <https://cs.brown.edu/about/system/managed/latex/doc/lshort.pdf>`_
 #. `The Not So Short Introduction to LaTeX <https://github.com/oetiker/lshort/>`_
+#. `List of LaTeX symbols <https://latex-programming.fandom.com/wiki/List_of_LaTeX_symbols/>`_
+#. `latex中花体字母编写汇总 <https://www.cnblogs.com/hundredtwo-kk/p/16418548.html>`_
+
 
 
 Online LaTeX editors
@@ -2148,9 +2151,17 @@ Output:
   \ce{Zn^2+  <=>[+ 2OH-][+ 2H+]  $\underset{\text{amphoteres Hydroxid}}{\ce{Zn(OH)2 v}}$
   <=>[+ 2OH-][+ 2H+]  $\underset{\text{Hydroxozikat}}{\ce{[Zn(OH)4]^2-}}$} 
 
-   
-   
-   
+Big
+---------------------
+Input: 
+::
+
+  ( \big( \Big( \bigg( \Bigg(
+  
+Output:
+
+.. math::  
+   ( \big( \Big( \bigg( \Bigg(
 
 
 

@@ -59,7 +59,7 @@ Youtube Video
 
 Homepage
 ------------------------------------
-#. `Michael Zingale <https://zingale.github.io/codes.html>`_
+#. `Michael Zingale Homepage <https://zingale.github.io/codes.html>`_
 #. `Notes on Project Work, CFD, Programming and Computing <http://www.thevisualroom.com/>`_
 
 
@@ -72,6 +72,10 @@ Article
 Codes
 ----------------------------
 #. `CFD_Julia Python and C++ Implementation <https://github.com/fengyiqi/cfd_practice/>`_
+#. `Astrophysics Simulation Codes <https://zingale.github.io/codes.html>`_
+#. `Michael Zingale <https://github.com/zingale/>`_
+
+
 
 
 

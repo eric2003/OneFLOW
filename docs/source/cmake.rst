@@ -76,5 +76,32 @@ CMake+HDF5 Example(powershell)
  cmake --build .
 
 
+Debug
+::
+
+  cmake -DCMAKE_BUILD_TYPE=Debug ..
+  
+Debug
+::
+
+  cmake --build . --parallel 4 --config Debug  
+  
+Release
+::
+
+  cmake -DCMAKE_BUILD_TYPE=Release ..  
+  
+Release
+::
+
+  cmake --build . --parallel 4 --config Release
+  
+Install
+::
+
+  cmake --install . --prefix "c:/dev/myprj/"  
+  
+ 
+
 
 
