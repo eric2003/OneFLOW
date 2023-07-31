@@ -67,3 +67,59 @@ The classical adjoint matrix should not be confused with the adjoint matrix. The
   \vdots& \vdots &  &\vdots \\
   A_{1n}&A_{2n}  &\cdots   & A_{nn}\\
   \end{bmatrix}  
+  
+Transpose
+----------------------
+`Transpose <https://en.wikipedia.org/wiki/Transpose/>`_
+
+Formally, the :math:`i`-th row, :math:`j`-th column element of :math:`\mathbf{A}^{\text{T}}` is the :math:`j`-th row, :math:`i`-th column element of :math:`\mathbf{A}`:  
+
+.. math::
+  [\mathbf{A}^{\text{T}}]_{ij}=[\mathbf{A}]_{ji}
+  
+Properties
+````````````````````
+
+Let :math:`\mathbf{A}` and :math:`\mathbf{B}` be matrices and :math:`c` be a scalar.  
+
+1. 
+
+.. math::
+  {\displaystyle \left(\mathbf {A} ^{\operatorname {T} }\right)^{\operatorname {T} }=\mathbf {A} .}
+  
+2. 
+
+.. math::
+  {\displaystyle \left(\mathbf {A} +\mathbf {B} \right)^{\operatorname {T} }=\mathbf {A} ^{\operatorname {T} }+\mathbf {B} ^{\operatorname {T} }.}
+  
+3. 
+
+.. math::  
+  {\displaystyle \left(\mathbf {AB} \right)^{\operatorname {T} }=\mathbf {B} ^{\operatorname {T} }\mathbf {A} ^{\operatorname {T} }.}
+  
+  
+What are Eigenvalues?
+---------------------------------------
+The eigenvalue is explained to be a scalar associated with a linear set of equations which, when multiplied by a nonzero vector, equals to the vector obtained by transformation operating on the vector.
+
+Let us consider :math:`k \times k` square matrix :math:`A` and :math:`\mathbf{v}` be a vector, then :math:`\lambda` is a scalar quantity represented in the following way:
+
+.. math::
+  A\mathbf{v} = \lambda\mathbf{v}
+
+Here, :math:`\lambda` is considered to be the eigenvalue of matrix :math:`A`.
+
+The above equation can also be written as:
+
+.. math::
+  (A – \lambda I) = 0
+
+Where “:math:`I`” is the identity matrix of the same order as :math:`A`.
+
+This equation can be represented in the determinant of matrix form.
+
+.. math::
+  |A – \lambda I| = 0
+ 
+The above relation enables us to calculate eigenvalues :math:`\lambda` easily.
+

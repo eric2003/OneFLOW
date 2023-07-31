@@ -44,3 +44,11 @@ CFD benchmark cases
 #. `国产CFD开源软件OneFLOW+Two-Dimensional Poisson Equation+Spectral method简单测试 <https://zhuanlan.zhihu.com/p/638970775/>`_
 #. `国产CFD开源软件OneFLOW+Two-Dimensional Poisson Equation+Spectral Vs CDS order简单测试 <https://zhuanlan.zhihu.com/p/639049947/>`_
 #. `国产CFD开源软件OneFLOW+Two-Dimensional Poisson Equation+Gauss-Seidel method简单测试 <https://zhuanlan.zhihu.com/p/641180890/>`_
+#. `国产CFD开源软件OneFLOW+One-Dimensional Poisson Equation+Gaussian elimination简单测试 <https://zhuanlan.zhihu.com/p/642688717/>`_
+#. `国产CFD开源软件OneFLOW+One-Dimensional Poisson Equation+Steepest Descent简单测试 <https://zhuanlan.zhihu.com/p/642749705/>`_
+#. `国产CFD开源软件OneFLOW+One-Dimensional Poisson Equation+Conjugate Gradients简单测试 <https://zhuanlan.zhihu.com/p/642790857/>`_
+#. `国产CFD开源软件OneFLOW+1d Poisson+Steepest Descent修正简单测试 <https://zhuanlan.zhihu.com/p/642924639/>`_
+#. `国产CFD开源软件OneFLOW+1d Poisson+Steepest Descent Version 2简单测试 <https://zhuanlan.zhihu.com/p/642945070/>`_
+#. `国产CFD开源软件OneFLOW+1d Poisson+Conjugate Gradients Version 2简单测试 <https://zhuanlan.zhihu.com/p/643019408/>`_
+#. `国产CFD开源软件OneFLOW+2d Poisson+Conjugate Gradients简单测试 <https://zhuanlan.zhihu.com/p/643463586/>`_
+#. `国产CFD开源软件OneFLOW+2d Poisson+Conjugate Gradients case2简单测试 <https://zhuanlan.zhihu.com/p/643684539/>`_

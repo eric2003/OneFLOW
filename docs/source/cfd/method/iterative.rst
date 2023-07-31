@@ -7,6 +7,7 @@ Iterative Solver
 #. `Numerical Methods for Elliptic Equations <http://www.fem.unicamp.br/~phoenics/SITE_PHOENICS/Apostilas/CFD-1_U%20Michigan_Hong/Lecture11.pdf>`_
 #. `Iterative Methods: Part 2 <https://crunchingnumbers.live/2017/07/09/iterative-methods-part-2/>`_
 #. `FFTW Tutorial <https://github.com/jonathanschilling/fftw_tutorial/>`_
+#. `Finite difference method for 1D Poisson equation with mixed boundary conditions <https://mathematica.stackexchange.com/questions/220627/finite-difference-method-for-1d-poisson-equation-with-mixed-boundary-conditions/>`_
 
 
 Iterative Solver 
@@ -685,3 +686,1045 @@ then
 .. math::
   u_{i,j}^{(k+1)}=u_{i,j}^{(k)}+\cfrac{r_{i,j}}{d_{i,j}}
   
+  
+Non-Stationary Methods: Conjugate Gradient Algorithm
+------------------------------------------------------------
+#. `共轭梯度法-苏州大学 <https://www.bilibili.com/video/BV16a4y1t76z/>`_
+#. `数值分析2020春苏州大学 <https://www.bilibili.com/video/BV18741177td/>`_
+#. `Linear Conjugate Gradient Algorithm <https://indrag49.github.io/Numerical-Optimization/conjugate-gradient-methods-1.html>`_
+#. `Gradient Descent <https://ml-cheatsheet.readthedocs.io/en/latest/gradient_descent.html>`_
+#. `如何通俗地解释梯度下降法 <https://www.bilibili.com/video/BV1a94y1S7PP/>`_
+#. `One-Dimensional Gradient Descent <https://d2l.ai/chapter_optimization/gd.html>`_
+#. `Easiest Way to Understand Gradient Descent Step by Step <https://www.youtube.com/watch?v=wRCczEGBi1g>`_
+#. `The Concept of Conjugate Gradient Descent in Python <https://ikuz.eu/machine-learning-and-computer-science/the-concept-of-conjugate-gradient-descent-in-python/>`_
+#. `Complete Step-by-step Conjugate Gradient Algorithm from Scratch <https://towardsdatascience.com/complete-step-by-step-conjugate-gradient-algorithm-from-scratch-202c07fb52a8/>`_
+#. `Conjugate Gradient Descent <https://gregorygundersen.com/blog/2022/03/20/conjugate-gradient-descent/>`_
+#. `Descent method — Steepest descent and conjugate gradient in Python <https://sophiamyang.github.io/DS/optimization/descentmethod2/descentmethod2.html>`_
+#. `Finite difference method for 1D Poisson equation with mixed boundary conditions <https://mathematica.stackexchange.com/questions/220627/finite-difference-method-for-1d-poisson-equation-with-mixed-boundary-conditions/>`_
+
+Non-stationary methods differ from stationary methods in that the iterative matrix changes at every iteration. These methods work by forming a basis of a sequence of matrix powers times the initial residual.
+The basis is called as the Krylov subspace and mathematically given by :math:`\mathcal{K}_{n}(\mathbf{A},\mathbf{b})=\text{span}\{\mathbf{b},\mathbf{A}\mathbf{b},\mathbf{A}^{2}\mathbf{b},\cdots,\mathbf{A}^{n-1}\mathbf{b}\}`.
+The approximate solution to the linear system is found by minimizing the residual over the subspace formed. In this paper, we discuss the conjugate gradient method which is one of the most effective methods for symmetric positive definite systems.
+
+The conjugate gradient method proceeds by calculating the vector sequence of successive approximate solution, residual corresponding the approximate solution, and search direction used in updating the solution and residuals. The approximate solution
+:math:`\mathbf{u}^{(k)}` is updated at every iteration by a scalar multiple :math:`\alpha_{k}` of the search direction vector
+:math:`\mathbf{p}^{(k)}`:
+
+.. math::
+  \mathbf{u}^{(k+1)}=\mathbf{u}^{(k)}+\alpha_{k}\mathbf{p}^{(k)}
+  
+Correspondingly, the residuals :math:`\mathbf{r}^{(k)}` are updated as
+
+.. math::
+  \mathbf{r}^{(k+1)}=\mathbf{r}^{(k)}+\alpha_{k}\mathbf{q}^{(k)}  
+  
+where 
+
+.. math::
+  \mathbf{q}^{(k)}=\mathbf{A}\mathbf{p}^{(k)}
+  
+The search directions are then updated using the residuals
+
+.. math::
+  \mathbf{p}^{(k+1)}=\mathbf{r}^{(k+1)}+\beta{k}\mathbf{p}^{(k)}  
+  
+  
+where the choice :math:`\beta_{k}=\cfrac{{\mathbf{r}^{(k)}}^{\mathbf{T}}\mathbf{r}^{(k)}}{{\mathbf{r}^{(k-1)}}^{\mathbf{T}}\mathbf{r}^{(k-1)}}` 
+ensures that :math:`\mathbf{p}^{(k+1)}` and :math:`\mathbf{r}^{(k+1)}` are orthogonal to all previous :math:`\mathbf{A}\mathbf{p}^{(k)}`
+and :math:`\mathbf{r}^{(k)}` respectively. 
+
+Conjugate gradient algorithm
+----------------------------------------
+1. Given :math:`\mathbf{b}`
+2. Given matrix operator :math:`\mathbf{A}`
+3. :math:`\mathbf{u}^{(0)}=\mathbf{b}`
+4. :math:`\mathbf{r}^{(0)}=\mathbf{b}-\mathbf{A}\mathbf{u}^{(0)}`
+5. :math:`\mathbf{p}^{(0)}=\mathbf{r}^{(0)}`
+6. :math:`k=0`
+7. :math:`\rho_{0}={\mathbf{r}^{(0)}}^{\mathbf{T}}\mathbf{r}^{(0)}`
+8. while tolerance met ( or :math:`k<N` ) do
+9.    :math:`\mathbf{q}^{(k)}=\mathbf{A}\mathbf{p}^{(k)}`
+10.   :math:`\alpha_{k}=\cfrac{\rho_{k}}{{\mathbf{p}^{(k)}}^{\mathbf{T}}\mathbf{q}^{(k)}}`
+11.   :math:`\mathbf{u}^{(k+1)}=\mathbf{u}^{(k)}+\alpha_{k}\mathbf{p}^{(k)}`
+12.   :math:`\mathbf{r}^{(k+1)}=\mathbf{r}^{(k)}-\alpha_{k}\mathbf{q}^{(k)}`
+13.   :math:`\rho_{k+1}={\mathbf{r}^{(k+1)}}^{\mathbf{T}}\mathbf{r}^{(k+1)}`
+14.   :math:`\beta_{k}=\cfrac{\rho_{k+1}}{\rho_{k}}`
+15.   :math:`\mathbf{p}^{(k+1)}=\mathbf{r}^{(k+1)}+\beta_{k}\mathbf{p}^{(k)}`
+16.   check convergence; continue if necessary
+17.   :math:`k\gets k+1`
+18. end while 
+
+Linear Conjugate Gradient Algorithm
+----------------------------------------
+
+  
+Steepest Descent Algorithm  
+
+1. Given any initial value :math:`\mathbf{x}_{0}` calculate the residual :math:`\mathbf{r}_{0}=\mathbf{b}-\mathbf{A}\mathbf{x}_{0}`.
+2. Go along the selected direction :math:`\mathbf{p}=\mathbf{r}_{0}`, calculate
+
+.. math::
+  \alpha =\cfrac{(\mathbf{r}_{0},\mathbf{r}_{0})}{(\mathbf{A}\mathbf{r}_{0},\mathbf{r}_{0})} 
+  
+update
+
+.. math::
+  \mathbf{x}_{1}=\mathbf{x}_{0}+\alpha \mathbf{r}_{0}  
+
+3. Repeat  
+
+The Method of Steepest Descent
+---------------------------------------  
+Suppose we want to find the minimizer of an objective function, having the quadratic form:
+
+.. math::
+  f(\mathbf{x})=\cfrac{1}{2} \mathbf{x}^{\text{T}}\mathbf{A}\mathbf{x}-\mathbf{x}^{\text{T}} \mathbf{b}
+  
+where :math:`\mathbf{A}` is a :math:`n\times n` symmetric positive definite matrix. 
+Since :math:`\mathbf{A}` is positive definite, the minimum value point of the quadratic function :math:`f(\mathbf{x})` must exist and be a stagnation point:
+
+.. math::
+  f(\mathbf{x}^{*})=\text{min}f(\mathbf{x})\quad\Leftrightarrow \quad
+  \nabla f(\mathbf{x}^{*})=\mathbf{A}\mathbf{x}^{*}-\mathbf{b}=0
+  
+Calculate the gradient first
+
+.. math::
+  \begin{array}{l}
+  \displaystyle f(\mathbf{x})=\cfrac{1}{2}\sum_{j=1}^{n}\sum_{k=1}^{n}a_{kj}x_{k}x_{j}-\sum_{j=1}^{n}x_{j}b_{j}\\
+  \displaystyle \cfrac{\partial f}{\partial x_{l}}=\cfrac{1}{2}\sum_{k=1}^{n}a_{kl}x_{k}
+  +\cfrac{1}{2}\sum_{j=1}^{n}a_{lj}x_{j}-b_{l}=\sum_{k=1}^{n}a_{kl}x_{k}-b_{l}\\
+  \nabla f=\text{grad } f=\mathbf{A}\mathbf{x}-\mathbf{b}
+  \end{array}
+  
+1. Given any initial value :math:`\mathbf{x}_{0}` calculate the residual :math:`\mathbf{r}_{0}=\mathbf{b}-\mathbf{A}\mathbf{x}_{0}`.
+2. Go along the selected direction :math:`\mathbf{p}`, for example, :math:`\mathbf{p}=\mathbf{r}_{0}` direction
+
+.. math::
+  \mathbf{x}_{1}= \mathbf{x}_{0}+\alpha \ast \mathbf{p}
+
+-
+
+.. math::
+  \begin{array}{l}
+  \nabla f=\text{grad } f=\mathbf{A}\mathbf{x}-\mathbf{b}\\
+  \mathbf{r}_{0}=\mathbf{b}-\mathbf{A}\mathbf{x}_{0}\\
+  \nabla f\bigg|_{x=x_{1}}\cdot\mathbf{p}=(\mathbf{r}_{1},\mathbf{p})=(\mathbf{b}-\mathbf{A}\mathbf{x}_{1},\mathbf{p})=0\\
+  (\mathbf{b}-\mathbf{A}\mathbf{x}_{1},\mathbf{p})=
+  (\mathbf{b}-\mathbf{A}\mathbf{x}_{0}-\alpha\mathbf{A}\mathbf{p},\mathbf{p})=
+  (\mathbf{r}_{0}-\alpha\mathbf{A}\mathbf{p},\mathbf{p})=0\\
+  \Rightarrow \alpha =\cfrac{(\mathbf{r}_{0},\mathbf{p})}{(\mathbf{A}\mathbf{p},\mathbf{p})} 
+  \end{array}  
+  
+Gradient
+
+.. math::
+  \begin{array}{l}
+  \nabla f=\text{grad } f=\mathbf{A}\mathbf{x}-\mathbf{b}\\
+  -\nabla f=-\text{grad } f=\mathbf{b}-\mathbf{A}\mathbf{x}\\
+  \end{array}
+
+-
+  
+.. math::
+  \begin{array}{l}
+  f(\mathbf{x})=\cfrac{1}{2} \mathbf{x}^{\text{T}}\mathbf{A}\mathbf{x}-\mathbf{x}^{\text{T}} \mathbf{b}\\
+  f(\mathbf{x}_{1})=\cfrac{1}{2} \mathbf{x}_{1}^{\text{T}}\mathbf{A}\mathbf{x}_{1}-\mathbf{x}_{1}^{\text{T}} \mathbf{b}\\
+  \mathbf{x}_{1}= \mathbf{x}_{0}+\alpha \ast \mathbf{p}\\
+  f(\mathbf{x}_{1})=\hat{f}(\alpha)=\cfrac{1}{2} {(\mathbf{x}_{0}+\alpha \ast \mathbf{p})}^{\text{T}}\mathbf{A}{(\mathbf{x}_{0}+\alpha \ast \mathbf{p})}-{(\mathbf{x}_{0}+\alpha \ast \mathbf{p})}^{\text{T}} \mathbf{b}\\
+  \end{array}  
+  
+-
+  
+.. math::
+  \begin{array}{l}
+  f(\mathbf{x}_{1})=\hat{f}(\alpha)=\cfrac{1}{2} {(\mathbf{x}_{0}+\alpha \ast \mathbf{p})}^{\text{T}}\mathbf{A}{(\mathbf{x}_{0}+\alpha \ast \mathbf{p})}-{(\mathbf{x}_{0}+\alpha \ast \mathbf{p})}^{\text{T}} \mathbf{b}\\
+  \cfrac{d\hat{f}}{d\alpha} =\cfrac{1}{2}\mathbf{p}^{\text{T}}\mathbf{A}{(\mathbf{x}_{0}+\alpha \ast \mathbf{p})}
+  +\cfrac{1}{2} {(\mathbf{x}_{0}+\alpha \ast \mathbf{p})}^{\text{T}}\mathbf{A}\mathbf{p}-\mathbf{p}^{\text{T}}\mathbf{b}\\
+  \cfrac{d\hat{f}}{d\alpha} =\cfrac{1}{2}\mathbf{p}^{\text{T}}\mathbf{A}\mathbf{x}_{0}
+  +\cfrac{1}{2}\alpha \mathbf{p}^{\text{T}}\mathbf{A}{(\mathbf{p})}
+  +\cfrac{1}{2} {(\mathbf{x}_{0})}^{\text{T}}\mathbf{A}\mathbf{p}
+  +\cfrac{1}{2}\alpha  {( \mathbf{p})}^{\text{T}}\mathbf{A}\mathbf{p}
+  -\mathbf{p}^{\text{T}}\mathbf{b}\\
+  \cfrac{d\hat{f}}{d\alpha} =\cfrac{1}{2}\mathbf{p}^{\text{T}}\mathbf{A}\mathbf{x}_{0}
+  +\cfrac{1}{2} {(\mathbf{x}_{0})}^{\text{T}}\mathbf{A}\mathbf{p}
+  +\alpha  {( \mathbf{p})}^{\text{T}}\mathbf{A}\mathbf{p}
+  -\mathbf{p}^{\text{T}}\mathbf{b}\\
+  \end{array}
+
+-
+  
+.. math::  
+  {\displaystyle \left(\mathbf {AB} \right)^{\operatorname {T} }=\mathbf {B} ^{\operatorname {T} }\mathbf {A} ^{\operatorname {T} }.}  
+  
+-
+  
+.. math:: 
+  \begin{array}{l}
+  {\displaystyle \left(\mathbf {AB} \right)^{\operatorname {T} }=\mathbf {B} ^{\operatorname {T} }\mathbf {A} ^{\operatorname {T} }}  \\
+  (\mathbf{p}^{\text{T}}(\mathbf{A}\mathbf{x}_{0}))^{\text{T}}=(\mathbf{A}\mathbf{x}_{0})^{\text{T}}(\mathbf{p}^{\text{T}})^{\text{T}}
+  =(\mathbf{A}\mathbf{x}_{0})^{\text{T}}\mathbf{p}=\mathbf{x}_{0}^{\text{T}}\mathbf{A}^{\text{T}}\mathbf{p}
+  \end{array} 
+
+where :math:`\mathbf{A}` is a :math:`n\times n` symmetric positive definite matrix. 
+then
+
+.. math:: 
+  \mathbf {A}=\mathbf {A}^{\text{T}}\\
+
+-
+
+.. math:: 
+  \mathbf{x}_{0}^{\text{T}}\mathbf{A}^{\text{T}}\mathbf{p}=\mathbf{x}_{0}^{\text{T}}\mathbf{A}\mathbf{p}
+
+  
+Here again :math:`\mathbf{p}^{\text{T}}\mathbf{A}\mathbf{x}_{0}`, 
+:math:`{(\mathbf{x}_{0})}^{\text{T}}\mathbf{A}\mathbf{p}`  and :math:`\mathbf{p}^{\text{T}}\mathbf{b}` are scalars.
+then,
+
+.. math:: 
+  \begin{array}{l}
+  (\mathbf{p}^{\text{T}}\mathbf{A}\mathbf{x}_{0})^{\text{T}}=\mathbf{p}^{\text{T}}\mathbf{A}\mathbf{x}_{0}\\
+  ({(\mathbf{x}_{0})}^{\text{T}}\mathbf{A}\mathbf{p})^{\text{T}}={(\mathbf{x}_{0})}^{\text{T}}\mathbf{A}\mathbf{p}\\
+  (\mathbf{p}^{\text{T}}\mathbf{b})^{\text{T}}=\mathbf{p}^{\text{T}}\mathbf{b}
+  \end{array}
+  
+-
+  
+.. math:: 
+  \begin{array}{l}
+  \cfrac{d\hat{f}}{d\alpha} =\cfrac{1}{2}\mathbf{p}^{\text{T}}\mathbf{A}\mathbf{x}_{0}
+  +\cfrac{1}{2} {(\mathbf{x}_{0})}^{\text{T}}\mathbf{A}\mathbf{p}
+  +\alpha  {( \mathbf{p})}^{\text{T}}\mathbf{A}\mathbf{p}
+  -\mathbf{p}^{\text{T}}\mathbf{b}=0\\
+  \cfrac{d\hat{f}}{d\alpha} =\mathbf{p}^{\text{T}}\mathbf{A}\mathbf{x}_{0}
+  +\alpha  {( \mathbf{p})}^{\text{T}}\mathbf{A}\mathbf{p}
+  -\mathbf{p}^{\text{T}}\mathbf{b}=0\\
+  \alpha  {( \mathbf{p})}^{\text{T}}\mathbf{A}\mathbf{p}=\mathbf{p}^{\text{T}}(\mathbf{b}-\mathbf{A}\mathbf{x}_{0})\\
+  \alpha=\cfrac{\mathbf{p}^{\text{T}}(\mathbf{b}-\mathbf{A}\mathbf{x}_{0})}
+  {{( \mathbf{p})}^{\text{T}}\mathbf{A}\mathbf{p}} 
+  \end{array}
+  
+-
+  
+.. math::
+  \begin{array}{l}
+  \mathbf{r}_{0}=\mathbf{b}-\mathbf{A}\mathbf{x}_{0}\\
+  -\nabla f(\mathbf{x}_{0})=\mathbf{b}-\mathbf{A}\mathbf{x}_{0}=\mathbf{r}_{0}\\
+  \end{array}   
+  
+-
+  
+.. math::
+  \begin{array}{l}
+  \alpha=\cfrac{\mathbf{p}^{\text{T}}(\mathbf{b}-\mathbf{A}\mathbf{x}_{0})}
+  {{( \mathbf{p})}^{\text{T}}\mathbf{A}\mathbf{p}} \\
+  \alpha=\cfrac{\mathbf{p}^{\text{T}}(-\nabla f(\mathbf{x}_{0}))}
+  {{( \mathbf{p})}^{\text{T}}\mathbf{A}\mathbf{p}} \\
+  \alpha=\cfrac{\mathbf{p}^{\text{T}}(\mathbf{r}_{0})}
+  {{( \mathbf{p})}^{\text{T}}\mathbf{A}\mathbf{p}} \\
+  \end{array}  
+  
+Inner product
+  
+.. math::
+  \left \langle \mathbf{x},\mathbf{y} \right \rangle= \mathbf{x}^{\text{T}}\mathbf{y}\\ 
+
+then
+
+.. math::
+  \alpha=\cfrac{\mathbf{p}^{\text{T}}(\mathbf{r}_{0})}
+  {{( \mathbf{p})}^{\text{T}}\mathbf{A}\mathbf{p}}=
+  \cfrac{\left \langle \mathbf{p},\mathbf{r}_{0} \right \rangle}{\left \langle \mathbf{p},\mathbf{A}\mathbf{p} \right \rangle}
+  =\cfrac{\left \langle \mathbf{r}_{0},\mathbf{p} \right \rangle}{\left \langle \mathbf{A}\mathbf{p},\mathbf{p} \right \rangle} 
+  
+We can also write it as
+
+1. Given any initial value :math:`\mathbf{x}_{0}` calculate the residual :math:`-\nabla f(\mathbf{x}_{0})=\mathbf{r}_{0}=\mathbf{b}-\mathbf{A}\mathbf{x}_{0}`.
+2. Go along the selected direction :math:`\mathbf{p}_{0}=\mathbf{r}_{0}=-\nabla f(\mathbf{x}_{0})`, calculate
+
+.. math::
+  \begin{array}{l}
+  \alpha_{0} =\cfrac{(\mathbf{r}_{0},\mathbf{p}_{0})}{(\mathbf{A}\mathbf{p}_{0},\mathbf{p}_{0})} \\
+  \mathbf{x}_{1}= \mathbf{x}_{0}+\alpha_{0} \ast \mathbf{p}_{0}\\
+  \end{array}
+
+3. Go along the selected direction :math:`\mathbf{p}_{1}=\mathbf{r}_{1}=-\nabla f(\mathbf{x}_{1})=\mathbf{b}-\mathbf{A}\mathbf{x}_{1}`, calculate
+
+.. math::  
+  \begin{array}{l}
+  \alpha_{1} =\cfrac{(\mathbf{r}_{1},\mathbf{p}_{1})}{(\mathbf{A}\mathbf{p}_{1},\mathbf{p}_{1})} \\
+  \mathbf{x}_{2}= \mathbf{x}_{1}+\alpha_{1} \ast \mathbf{p}_{1}\\
+  \end{array} 
+  
+4. Go along the selected direction :math:`\mathbf{p}_{k}=\mathbf{r}_{k}=-\nabla f(\mathbf{x}_{k})=\mathbf{b}-\mathbf{A}\mathbf{x}_{k}`, calculate  
+
+.. math::  
+  \begin{array}{l}
+  \alpha_{k} =\cfrac{(\mathbf{r}_{k},\mathbf{p}_{k})}{(\mathbf{A}\mathbf{p}_{k},\mathbf{p}_{k})} \\
+  \mathbf{x}_{k+1}= \mathbf{x}_{k}+\alpha_{k} \ast \mathbf{p}_{k}\\
+  \end{array}   
+
+A-orthogonality
+------------------------
+Let :math:`\mathbf{A}` be a symmetric and positive definite matrix. Two vectors :math:`\mathbf{u}` and :math:`\mathbf{v}` are :math:`\mathbf{A}`-orthogonal if
+
+.. math::
+  \mathbf{u}^{\text{T}}\mathbf{A}\mathbf{v}=0,\quad \mathbf{u}\ne\mathbf{v}
+
+Suppose that :math:`\{\mathbf{p}_{k}\}` is a sequence of :math:`n` mutually conjugate directions. Then the :math:`\mathbf{p}_{k}` form a basis of :math:`\mathbf{R}^{n}`, so
+we can expand the solution :math:`\mathbf{x}_{*}` of :math:`\mathbf{A}\mathbf{a}=\mathbf{b}` in this basis:
+
+.. math::
+  \mathbf{x}_{*} = \sum_{i=1}^{n}\alpha_{i}\mathbf{p}_{i}
+  
+The coefficients are given by
+
+.. math::
+  \mathbf{b}= \mathbf{A}\mathbf{x}_{*} = \sum_{i=1}^{n}\alpha_{i}\mathbf{A}\mathbf{p}_{i}
+
+The conjugate gradient method 
+-----------------------------------
+
+Matrix :math:`\mathbf{A}` is symmetric and positive definite, we say that two non-zero vectors :math:`\mathbf{u}` and :math:`\mathbf{v}` are conjugate (with respect to :math:`\mathbf{A}`) if
+
+.. math::
+  (\mathbf{u},\mathbf{v})_{\mathbf{A}}=(\mathbf{A}\mathbf{u},\mathbf{v})=\mathbf{v}^{\text{T}}\mathbf{A}\mathbf{u}=
+  \sum_{j=1}^{n}\sum_{k=1}^{n}a_{jk}u_{j}v{k}=0
+  
+So, two vectors are conjugate if they are orthogonal with respect to this inner product. Being conjugate
+is a symmetric relation: if :math:`\mathbf{u}` is conjugate to :math:`\mathbf{v}`, then :math:`\mathbf{v}` is conjugate to :math:`\mathbf{u}`. (Note: This notion of conjugate is
+not related to the notion of complex conjugate.)  
+
+1. Given any initial value :math:`\mathbf{x}_{0}` calculate the residual :math:`\mathbf{r}_{0}=\mathbf{b}-\mathbf{A}\mathbf{x}_{0}`.
+2. Go along the selected direction :math:`\mathbf{p}_{0}=\mathbf{r}_{0}`, calculate
+
+.. math::
+  \mathbf{x}_{1}= \mathbf{x}_{0}+\alpha_{0} \ast \mathbf{p}_{0}, 
+  \quad \alpha_{0} =\cfrac{(\mathbf{r}_{0},\mathbf{p}_{0})}{(\mathbf{A}\mathbf{p}_{0},\mathbf{p}_{0})} 
+  
+3. A new residual :math:`\mathbf{r}_{1}=\mathbf{b}-\mathbf{A}\mathbf{x}_{1}` is obtained from :math:`\mathbf{x}_{1}`, and based on :math:`\mathbf{r}_{1}`, A projection is made on :math:`\mathbf{p}_{0}` to obtain a new forward direction :math:`\mathbf{p}_{1}`  
+
+.. math::
+  \begin{array}{l}
+  \mathbf{p}_{1}= \mathbf{r}_{1}-\beta_{1} \ast \mathbf{p}_{0}, 
+  \quad \beta_{1} =\cfrac{(\mathbf{A}\mathbf{p}_{0},\mathbf{r}_{1})}{(\mathbf{A}\mathbf{p}_{0},\mathbf{p}_{0})} 
+  \end{array}
+
+  
+3. Repeat  
+
+.. math::
+  \mathbf{x}_{k+1}= \mathbf{x}_{k}+\alpha_{k} \ast \mathbf{p}_{k}\to \mathbf{r}_{k+1}\to \mathbf{p}_{k+1}\to \mathbf{x}_{k+2}
+  
+-
+  
+.. math::
+  \left\{\begin{array}{ll}
+  \mathbf{r}_{0}=\mathbf{b}-\mathbf{A}\mathbf{x}_{0}, & \mathbf{p}_{0}=\mathbf{r}_{0}\\
+  \mathbf{x}_{k+1}= \mathbf{x}_{k}+\alpha_{k} \ast \mathbf{p}_{k}\to &\mathbf{r}_{k+1}=\mathbf{p}_{k+1}
+  \end{array}\right.
+  \Rightarrow 
+  \left\{\begin{array}{ll}
+  \mathbf{r}_{0},\mathbf{r}_{1},\cdots,\mathbf{r}_{n}\\
+  \mathbf{p}_{0},\mathbf{p}_{1},\cdots,\mathbf{p}_{n}\\
+  \end{array}\right.  
+  
+Suppose we want to find the minimizer of an objective function, having the quadratic form:
+
+.. math::
+  f(\mathbf{x})=\cfrac{1}{2} \mathbf{x}^{\text{T}}\mathbf{A}\mathbf{x}-\mathbf{x}^{\text{T}} \mathbf{b}
+  
+Gradient
+
+.. math::
+  \begin{array}{l}
+  \nabla f=\text{grad } f=\mathbf{A}\mathbf{x}-\mathbf{b}\\
+  -\nabla f=-\text{grad } f=\mathbf{b}-\mathbf{A}\mathbf{x}\\
+  \end{array}
+
+We can also write it as
+
+1. Given any initial value :math:`\mathbf{x}_{0}` calculate the residual :math:`-\nabla f(\mathbf{x}_{0})=\mathbf{r}_{0}=\mathbf{b}-\mathbf{A}\mathbf{x}_{0}`.
+2. Go along the selected direction :math:`\mathbf{p}_{0}=\mathbf{r}_{0}=-\nabla f(\mathbf{x}_{0})`, calculate
+
+.. math::
+  \begin{array}{l}
+  \alpha_{0} =\cfrac{(\mathbf{r}_{0},\mathbf{p}_{0})}{(\mathbf{A}\mathbf{p}_{0},\mathbf{p}_{0})} \\
+  \mathbf{x}_{1}= \mathbf{x}_{0}+\alpha_{0} \ast \mathbf{p}_{0}\\
+  \end{array}
+  
+3. A new residual :math:`-\nabla f(\mathbf{x}_{1})=\mathbf{r}_{1}=\mathbf{b}-\mathbf{A}\mathbf{x}_{1}` is obtained from :math:`\mathbf{x}_{1}`, and based on :math:`\mathbf{r}_{1}`, A projection is made on :math:`\mathbf{p}_{0}` to obtain a new forward direction :math:`\mathbf{p}_{1}`    
+
+.. math::
+  \begin{array}{l}
+  \mathbf{p}_{1}= \mathbf{r}_{1}-\beta_{1} \ast \mathbf{p}_{0}, 
+  \quad \beta_{1} =\cfrac{(\mathbf{A}\mathbf{p}_{0},\mathbf{r}_{1})}{(\mathbf{A}\mathbf{p}_{0},\mathbf{p}_{0})} 
+  \end{array}
+  
+-
+  
+.. math::
+  \begin{array}{l}
+  \alpha_{1} =\cfrac{(\mathbf{r}_{1},\mathbf{p}_{1})}{(\mathbf{A}\mathbf{p}_{1},\mathbf{p}_{1})} \\
+  \mathbf{x}_{2}= \mathbf{x}_{1}+\alpha_{1} \ast \mathbf{p}_{1}\\
+  \end{array}  
+  
+
+4. A new residual :math:`-\nabla f(\mathbf{x}_{k})=\mathbf{r}_{k}=\mathbf{b}-\mathbf{A}\mathbf{x}_{k}` is obtained from :math:`\mathbf{x}_{k}`, and based on :math:`\mathbf{r}_{k}`, A projection is made on :math:`\mathbf{p}_{k-1}` to obtain a new forward direction :math:`\mathbf{p}_{k}`    
+
+.. math::
+  \begin{array}{l}
+  \mathbf{p}_{k}= \mathbf{r}_{k}-\beta_{k} \ast \mathbf{p}_{k-1}, 
+  \quad \beta_{k} =\cfrac{(\mathbf{A}\mathbf{p}_{k-1},\mathbf{r}_{k})}{(\mathbf{A}\mathbf{p}_{k-1},\mathbf{p}_{k-1})} 
+  \end{array}
+  
+-
+  
+.. math::
+  \begin{array}{l}
+  \alpha_{k} =\cfrac{(\mathbf{r}_{k},\mathbf{p}_{k})}{(\mathbf{A}\mathbf{p}_{k},\mathbf{p}_{k})} \\
+  \mathbf{x}_{k+1}= \mathbf{x}_{k}+\alpha_{k} \ast \mathbf{p}_{k}\\
+  \end{array}
+  
+Example 1  
+-----------------------------------------------------------------
+Solve :math:`\mathbf{A}\mathbf{x}=\mathbf{b}`
+
+where
+
+.. math:: 
+  \mathbf{A} =\begin{bmatrix}
+  3&2 \\
+  2&6
+  \end{bmatrix}\quad
+  \mathbf{x}=\begin{bmatrix}
+  x_{1}\\x_{2}
+  \end{bmatrix}\quad
+  \mathbf{b}=\begin{bmatrix}
+  2\\-8
+  \end{bmatrix}
+  
+The quadratic form:
+
+.. math:: 
+  f(\mathbf{x})=\cfrac{1}{2}\mathbf{x}^{\text{T}}\mathbf{A}\mathbf{x}-\mathbf{b}^{\text{T}}\mathbf{x}
+  
+-
+  
+.. math:: 
+  \begin{array}{l}
+  f(\mathbf{x})=\cfrac{1}{2}\begin{bmatrix}
+    x_{1}&x_{2}
+  \end{bmatrix}
+   \begin{bmatrix}
+    a_{11}& a_{12}\\
+    a_{21}&a_{22}
+  \end{bmatrix}\begin{bmatrix}
+   x_{1}\\x_{2}
+  \end{bmatrix}
+  -\begin{bmatrix}
+    b_{1}&b_{2}
+  \end{bmatrix}\begin{bmatrix}
+   x_{1}\\x_{2}
+  \end{bmatrix}\\
+  f(\mathbf{x})=\cfrac{1}{2}\begin{bmatrix}
+    x_{1}&x_{2}
+  \end{bmatrix}\begin{bmatrix}
+   a_{11}x_{1}+a_{12}x_{2}\\a_{21}x_{1}+a_{22}x_{2}
+  \end{bmatrix}-b_{1}x_{1}-b_{2}x_{2}\\
+  f(\mathbf{x})=\cfrac{1}{2}(a_{11}x_{1}^{2}+a_{12}x_{1}x_{2}+a_{21}x_{1}x_{2}+a_{22}x_{2}^{2})-b_{1}x_{1}-b_{2}x_{2}
+  \end{array}
+  
+In general
+  
+.. math:: 
+  f(\mathbf{x})=\cfrac{1}{2}a_{ij}x_{i}x_{j}-b_{j}x_{j}  
+  
+The exact solution
+
+.. math:: 
+  \mathbf{x}=\begin{bmatrix}
+  x_{1}\\x_{2}
+  \end{bmatrix}=
+  \begin{bmatrix}
+  2\\-2
+  \end{bmatrix}
+  
+  
+using steepest descent method
+`````````````````````````````````````````
+1. Given any initial value :math:`\mathbf{x}_{0}` calculate the residual :math:`-\nabla f(\mathbf{x}_{0})=\mathbf{r}_{0}=\mathbf{b}-\mathbf{A}\mathbf{x}_{0}`.
+
+.. math:: 
+  \mathbf{x}_{0}=
+  \begin{bmatrix}
+  0\\0
+  \end{bmatrix}
+  
+-
+  
+.. math::   
+  -\nabla f(\mathbf{x}_{0})=\mathbf{r}_{0}=\mathbf{b}-\mathbf{A}\mathbf{x}_{0}=\mathbf{b}=
+  \begin{bmatrix}
+  2\\-8
+  \end{bmatrix}
+  
+2. Go along the selected direction :math:`\mathbf{p}_{0}=\mathbf{r}_{0}=-\nabla f(\mathbf{x}_{0})`, calculate
+
+.. math::
+  \begin{array}{l}
+  \alpha_{0} =\cfrac{(\mathbf{r}_{0},\mathbf{p}_{0})}{(\mathbf{A}\mathbf{p}_{0},\mathbf{p}_{0})} \\
+  \mathbf{r}_{0}=[2,-8]^{\text{T}}\\
+  \mathbf{A}\mathbf{p}_{0}=[-10,44]^{\text{T}}\\
+  (\mathbf{r}_{0},\mathbf{p}_{0})=2*2+8*8=68\\
+  (\mathbf{A}\mathbf{p}_{0},\mathbf{p}_{0})=332\\
+  \alpha_{0}=68/332=0.2048\\
+  \mathbf{x}_{1}= \mathbf{x}_{0}+\alpha_{0} \ast \mathbf{p}_{0}=[0.4096,-1.6386]^{\text{T}}\\
+  \end{array}
+  
+3. Go along the selected direction :math:`\mathbf{p}_{1}=\mathbf{r}_{1}=-\nabla f(\mathbf{x}_{1})=\mathbf{b}-\mathbf{A}\mathbf{x}_{1}=[4.0482,1.0120]^{\text{T}}`, calculate
+
+.. math::  
+  \begin{array}{l}
+  \alpha_{1} =\cfrac{(\mathbf{r}_{1},\mathbf{p}_{1})}{(\mathbf{A}\mathbf{p}_{1},\mathbf{p}_{1})} \\
+  \mathbf{x}_{2}= \mathbf{x}_{1}+\alpha_{1} \ast \mathbf{p}_{1}\\
+  \end{array}   
+  
+using conjugate gradient method
+`````````````````````````````````````````
+1. Given any initial value :math:`\mathbf{x}_{0}` calculate the residual :math:`-\nabla f(\mathbf{x}_{0})=\mathbf{r}_{0}=\mathbf{b}-\mathbf{A}\mathbf{x}_{0}`.
+
+.. math:: 
+  \mathbf{x}_{0}=
+  \begin{bmatrix}
+  0\\0
+  \end{bmatrix}
+  
+-
+  
+.. math::   
+  -\nabla f(\mathbf{x}_{0})=\mathbf{r}_{0}=\mathbf{b}-\mathbf{A}\mathbf{x}_{0}=\mathbf{b}=
+  \begin{bmatrix}
+  2\\-8
+  \end{bmatrix}
+  
+2. Go along the selected direction :math:`\mathbf{p}_{0}=\mathbf{r}_{0}=-\nabla f(\mathbf{x}_{0})=[2,-8]^{\text{T}}`, calculate
+
+.. math::
+  \begin{array}{l}
+  \alpha_{0} =\cfrac{(\mathbf{r}_{0},\mathbf{p}_{0})}{(\mathbf{A}\mathbf{p}_{0},\mathbf{p}_{0})} \\
+  \mathbf{r}_{0}=[2,-8]^{\text{T}}\\
+  \mathbf{A}\mathbf{p}_{0}=[-10,44]^{\text{T}}\\
+  (\mathbf{r}_{0},\mathbf{p}_{0})=2*2+8*8=68\\
+  (\mathbf{A}\mathbf{p}_{0},\mathbf{p}_{0})=332\\
+  \alpha_{0}=68/332=0.2048\\
+  \mathbf{x}_{1}= \mathbf{x}_{0}+\alpha_{0} \ast \mathbf{p}_{0}=[0.4096,-1.6386]^{\text{T}}\\
+  \end{array}
+  
+3. A new residual :math:`-\nabla f(\mathbf{x}_{1})=\mathbf{r}_{1}=\mathbf{b}-\mathbf{A}\mathbf{x}_{1}=[4.0482,1.0120]^{\text{T}}` is obtained from :math:`\mathbf{x}_{1}`, and based on :math:`\mathbf{r}_{1}`, A projection is made on :math:`\mathbf{p}_{0}` to obtain a new forward direction :math:`\mathbf{p}_{1}`    
+
+.. math::
+  \begin{array}{l}
+  \quad \beta_{1} =\cfrac{(\mathbf{A}\mathbf{p}_{0},\mathbf{r}_{1})}{(\mathbf{A}\mathbf{p}_{0},\mathbf{p}_{0})}=-0.2561 \\
+  \mathbf{p}_{1}= \mathbf{r}_{1}-\beta_{1} \ast \mathbf{p}_{0} =[4.5603,-1.0364]^{\text{T}}
+  \end{array}
+  
+-
+  
+.. math::
+  \begin{array}{l}
+  \alpha_{1} =\cfrac{(\mathbf{r}_{1},\mathbf{p}_{1})}{(\mathbf{A}\mathbf{p}_{1},\mathbf{p}_{1})}=0.3487 \\
+  \mathbf{x}_{2}= \mathbf{x}_{1}+\alpha_{1} \ast \mathbf{p}_{1}=[2,-2]^{\text{T}}\\
+  \end{array}    
+  
+ 
+Solving the 1D Poisson equation using conjugate gradient method
+-----------------------------------------------------------------
+Consider the 1D Poisson equation
+
+.. math::
+  \cfrac{d^{2}u}{dx^{2}} =f(x)=-1
+  
+on :math:`\Omega=[0,1]` with boundary conditions
+  
+.. math:: 
+  \begin{array}{l}
+  u(0)=0\\
+  u'(1)=\cfrac{du}{dx}\bigg|_{x=1}=0 
+  \end{array}
+  
+which has analytical solution
+
+.. math:: 
+  u=x-\cfrac{1}{2}x^{2}
+
+We we will use this specific example to investigate various approaches to solving partial differential equations with finite differences, in which we discretize the domain by defining :math:`N` equally
+spaced points  
+
+.. math:: 
+  \begin{array}{l}
+  \cfrac{u_{i+1}-2u_{i}+u_{i-1}}{\Delta x^{2}} =f_{i}\\
+  {u_{i+1}-2u_{i}+u_{i-1}}={\Delta x^{2}}f_{i}\\
+  -u_{i-1}+2u_{i}-u_{i+1}=-{\Delta x^{2}}f_{i}={\Delta x^{2}}\\
+  \end{array}  
+
+The boundary conditions require special care. For :math:`x = 0` we have a Dirichlet boundary condition
+which allows us to fix the value :math:`u_{1} = 0`. For :math:`x = 1` we have a Neumann boundary condition
+:math:`du/dx = 0`. This is a symmetry boundary condition, so that in this case we can imagine a ’ghost’
+point :math:`u_{N+1}` which is always equal to :math:`u_{N-1}`. This leads to the expression for point :math:`x_{N}`:  
+
+
+.. math:: 
+  \begin{array}{l}
+  u_{N}=u_{N-1}+\cfrac{1}{2}\Delta x^{2}\\
+  \end{array}
+  
+  
+then
+
+.. math:: 
+  \begin{array}{l}
+  -u_{i-1}+2u_{i}-u_{i+1}={\Delta x^{2}}\\
+  -u_{1}+2u_{2}-u_{3}={\Delta x^{2}}\\
+  -u_{2}+2u_{3}-u_{4}={\Delta x^{2}}\\
+  \cdots\\
+ -u_{N-3}+2u_{N-2}-u_{N-1}={\Delta x^{2}}\\
+ -u_{N-2}+2u_{N-1}-u_{N}={\Delta x^{2}}\\
+  \end{array}   
+  
+-
+  
+.. math::   
+  \begin{array}{l}
+  0+2u_{2}-u_{3}={\Delta x^{2}}\\
+  -u_{2}+2u_{3}-u_{4}={\Delta x^{2}}\\
+  \cdots\\
+  -u_{N-3}+2u_{N-2}-u_{N-1}={\Delta x^{2}}\\
+  -u_{N-2}+2u_{N-1}-(u_{N-1}+\cfrac{1}{2}\Delta x^{2} )={\Delta x^{2}}\\
+  \end{array}  
+  
+-
+  
+.. math::   
+  \begin{array}{l}
+  0+2u_{2}-u_{3}={\Delta x^{2}}\\
+  -u_{2}+2u_{3}-u_{4}={\Delta x^{2}}\\
+  \cdots\\
+ -u_{N-3}+2u_{N-2}-u_{N-1}={\Delta x^{2}}\\
+ -u_{N-2}+u_{N-1}=\cfrac{3}{2}{\Delta x^{2}}\\
+  \end{array}    
+    
+-
+  
+.. math::   
+  \begin{array}{l}
+  2u_{2}-u_{3}={\Delta x^{2}}\\
+  -u_{2}+2u_{3}-u_{4}={\Delta x^{2}}\\
+  \cdots\\
+ -u_{N-3}+2u_{N-2}-u_{N-1}={\Delta x^{2}}\\
+ -u_{N-2}+u_{N-1}=\cfrac{3}{2}{\Delta x^{2}}\\
+  \end{array}    
+
+  
+This can be written as  
+  
+.. math::     
+  \mathbf{A}\mathbf{u}=\mathbf{b}  
+  
+where(for :math:`N=5`)
+
+.. math::  
+  \mathbf{A}=
+  \begin{bmatrix}
+  2& -1 & 0& 0& 0\\
+  -1& 2 & -1& 0& 0\\
+  0&-1& 2 & -1& 0\\
+  0&0&-1& 2 & -1\\
+   0&0 &0 &-1  &1
+  \end{bmatrix}  
+  
+-
+  
+.. math::   
+  \mathbf{u}=\begin{bmatrix}
+   u_{2}\\u_{3}\\u_{4}\\u_{5}\\u_{6}
+  \end{bmatrix}=\mathbf{v}=
+  \begin{bmatrix}
+  v_{1}\\v_{2}\\v_{3}\\v_{4}\\v_{5}
+  \end{bmatrix}  
+  
+-
+  
+.. math:: 
+  \mathbf{b}=
+  \begin{bmatrix}
+  \Delta x^{2}\\\Delta x^{2}\\\Delta x^{2}\\\Delta x^{2}\\\cfrac{3}{2}\Delta x^{2}
+  \end{bmatrix}
+  
+-
+  
+.. math:: 
+  \begin{array}{l}
+  1&\underbrace{\Delta x}& 2&\underbrace{\Delta x}&3&\underbrace{\Delta x}&4&\underbrace{\Delta x}&5&\underbrace{\Delta x}&6&\underbrace{\Delta x}&7\\
+  &&v_{1}&&v_{2}&&v_{3}&&v_{4}&&v_{5}\\
+  \end{array}
+  
+-
+  
+.. math:: 
+  \begin{array}{l}
+  N_{\text{Points}}=7\\
+  N=N_{\text{Points}}-2=5\\
+  \Delta x=\cfrac{1}{N_{\text{Points}}-1} =\cfrac{1}{7-1}=\cfrac{1}{6}\\
+  \Delta x^{2}=\cfrac{1}{36}\\
+  \cfrac{3}{2}\Delta x^{2}=\cfrac{3}{72}\\
+  \end{array} 
+  
+-
+  
+.. math:: 
+  \begin{array}{l}
+  x_{1}=0\Delta x=0\\
+  x_{2}=1\Delta x=1/6\\
+  x_{3}=2\Delta x=2/6\\
+  x_{4}=3\Delta x=3/6\\
+  x_{5}=4\Delta x=4/6\\
+  x_{6}=5\Delta x=5/6\\
+  x_{7}=6\Delta x=1\\
+  \end{array}  
+  
+  
+   
+Solve :math:`\mathbf{A}\mathbf{x}=\mathbf{b}`
+
+where
+
+.. math::  
+  \mathbf{A}=
+  \begin{bmatrix}
+  2& -1 & 0& 0& 0\\
+  -1& 2 & -1& 0& 0\\
+  0&-1& 2 & -1& 0\\
+  0&0&-1& 2 & -1\\
+   0&0 &0 &-1  &1
+  \end{bmatrix}  
+  
+-
+  
+.. math::   
+  \mathbf{v}=
+  \begin{bmatrix}
+  v_{1}\\v_{2}\\v_{3}\\v_{4}\\v_{5}
+  \end{bmatrix}    
+  
+-
+  
+.. math::   
+  \mathbf{b}=
+  \begin{bmatrix}
+  \Delta x^{2}\\\Delta x^{2}\\\Delta x^{2}\\\Delta x^{2}\\\cfrac{1}{2}\Delta x^{2}
+  \end{bmatrix}
+  =  \begin{bmatrix}
+  \cfrac{1}{36} \\\cfrac{1}{36} \\\cfrac{1}{36} \\\cfrac{1}{36} \\\cfrac{1}{72} 
+  \end{bmatrix}  
+  
+
+The quadratic form:
+
+.. math:: 
+  f(\mathbf{v})=\cfrac{1}{2}\mathbf{v}^{\text{T}}\mathbf{A}\mathbf{v}-\mathbf{b}^{\text{T}}\mathbf{v}
+  
+The exact soltion:
+
+.. math:: 
+  u(x)=x-\cfrac{1}{2}x^{2}\\
+  
+-
+  
+.. math:: 
+  \mathbf{u}=\begin{bmatrix}
+  u(0)\\u(1/6)\\u(2/6)\\u(3/6)\\u(4/6)\\u(5/6)\\u(1)
+  \end{bmatrix}
+  =\begin{bmatrix}
+  0\\11/72\\20/72\\27/72\\32/72\\35/72\\36/72
+  \end{bmatrix}
+  =\begin{bmatrix}
+  0\\0.1528\\0.2778\\0.3750\\0.4444\\0.4861\\0.5000
+  \end{bmatrix}
+  
+
+another form
+-----------------------
+
+.. math:: 
+  \cfrac{u_{i-1}-2u_{i}+u_{i+1}}{\Delta x^{2}} =f_{i}=-1
+
+-
+  
+.. math::   
+  \begin{array}{l}
+  \cfrac{u_{1}-2u_{2}+u_{3}}{\Delta x^{2}} =f_{2}=-1\\
+  \cfrac{u_{2}-2u_{3}+u_{4}}{\Delta x^{2}} =f_{3}=-1\\
+  \cdots\\
+  \cfrac{u_{i-1}-2u_{i}+u_{i+1}}{\Delta x^{2}} =f_{i}=-1\\
+  \cdots\\
+  \cfrac{u_{N-3}-2u_{N-2}+u_{N-1}}{\Delta x^{2}} =f_{N-2}=-1\\
+  \cfrac{u_{N-2}-2u_{N-1}+u_{N}}{\Delta x^{2}} =f_{N-1}=-1\\
+  \end{array}
+  
+-
+  
+.. math:: 
+  \begin{array}{l}
+  u_{1}=0\\
+  u_{N}=u_{N-1}+\cfrac{1}{2}\Delta x^{2} \\
+  \end{array}  
+  
+  
+-
+  
+.. math:: 
+  \begin{array}{l}
+  u_{1}=0\\
+  \cfrac{u_{1}-2u_{2}+u_{3}}{\Delta x^{2}} =f_{2}=-1\\
+  \cfrac{-2u_{2}+u_{3}}{\Delta x^{2}} =f_{2}-\cfrac{u_{1}}{\Delta x^{2}}=-1-\cfrac{u_{1}}{\Delta x^{2}}=-1\\
+  \cfrac{-2u_{2}+u_{3}}{\Delta x^{2}} =\hat{f}_{2}=f_{2}-\cfrac{u_{1}}{\Delta x^{2}}=-1-\cfrac{u_{1}}{\Delta x^{2}}=-1\\
+  \end{array}  
+
+-
+  
+.. math:: 
+  \begin{array}{l}
+  u_{N}=u_{N-1}+\cfrac{1}{2}\Delta x^{2} \\
+  \cfrac{u_{N-2}-2u_{N-1}+u_{N}}{\Delta x^{2}} =f_{N-1}=-1\\
+  \cfrac{u_{N-2}-2u_{N-1}+u_{N-1}+\cfrac{1}{2}\Delta x^{2}}{\Delta x^{2}} =f_{N-1}=-1\\
+  \cfrac{u_{N-2}-u_{N-1}}{\Delta x^{2}} =\hat{f}_{N-1}=f_{N-1}-\cfrac{1}{2}=-\cfrac{3}{2}\\
+  \end{array}  
+  
+Let
+
+.. math::
+  \mathbf{u}=\begin{bmatrix}
+  u_{2}\\u_{3}\\\vdots\\u_{N-2}\\u_{N-1}
+  \end{bmatrix}
+  
+then
+
+.. math::
+  \mathbf{A}\mathbf{u}=\mathbf{f}
+  
+where
+
+.. math::
+  \mathbf{f}=\begin{bmatrix}
+  \hat{f}_{2}\\f_{3}\\\vdots\\f_{N-2}\\\hat{f}_{N-1}
+  \end{bmatrix}=\begin{bmatrix}
+  -1\\-1\\\vdots\\-1\\-3/2
+  \end{bmatrix}
+
+-
+  
+.. math::
+  \mathbf{A}\mathbf{u}=\begin{bmatrix}
+  \cfrac{-2u_{2}+u_{3}}{\Delta x^{2}}\\
+  \cfrac{u_{2}-2u_{3}+u_{4}}{\Delta x^{2}}\\
+  \vdots\\
+  \cfrac{u_{N-3}-2u_{N-2}+u_{N-1}}{\Delta x^{2}}\\
+  \cfrac{u_{N-2}-u_{N-1}}{\Delta x^{2}}
+  \end{bmatrix}  
+  
+using the Method of Steepest Descent
+
+Let :math:`\mathbf{b}=\mathbf{f}`, then
+  
+.. math::
+  g(\mathbf{u})=\cfrac{1}{2} \mathbf{u}^{\text{T}}\mathbf{A}\mathbf{u}-\mathbf{b}^{\text{T}}\mathbf{u}
+
+1. Given any initial value :math:`\mathbf{u}_{0}` calculate the residual :math:`-\nabla g(\mathbf{u}_{0})=\mathbf{r}_{0}=\mathbf{b}-\mathbf{A}\mathbf{u}_{0}`.
+2. Go along the selected direction :math:`\mathbf{p}_{0}=\mathbf{r}_{0}=-\nabla g(\mathbf{u}_{0})`, calculate
+
+.. math::
+  \begin{array}{l}
+  \alpha_{0} =\cfrac{(\mathbf{r}_{0},\mathbf{p}_{0})}{(\mathbf{A}\mathbf{p}_{0},\mathbf{p}_{0})} \\
+  \mathbf{u}_{1}= \mathbf{u}_{0}+\alpha_{0} \ast \mathbf{p}_{0}\\
+  \end{array}
+  
+where 
+
+.. math::
+  \mathbf{A}\mathbf{p}_{0}=\begin{bmatrix}
+  \cfrac{-2p_{2}^{(0)}+p_{3}^{(0)}}{\Delta x^{2}}\\
+  \cfrac{p_{2}^{(0)}-2p_{3}^{(0)}+p_{4}^{(0)}}{\Delta x^{2}}\\
+  \vdots\\
+  \cfrac{p_{N-3}^{(0)}-2p_{N-2}^{(0)}+p_{N-1}^{(0)}}{\Delta x^{2}}\\
+  \cfrac{p_{N-2}^{(0)}-p_{N-1}^{(0)}}{\Delta x^{2}}
+  \end{bmatrix}  
+
+3. Go along the selected direction :math:`\mathbf{p}_{1}=\mathbf{r}_{1}=-\nabla g(\mathbf{u}_{1})=\mathbf{b}-\mathbf{A}\mathbf{u}_{1}`, calculate
+
+.. math::  
+  \begin{array}{l}
+  \alpha_{1} =\cfrac{(\mathbf{r}_{1},\mathbf{p}_{1})}{(\mathbf{A}\mathbf{p}_{1},\mathbf{p}_{1})} \\
+  \mathbf{u}_{2}= \mathbf{u}_{1}+\alpha_{1} \ast \mathbf{p}_{1}\\
+  \end{array} 
+  
+where   
+  
+.. math::
+  \mathbf{A}\mathbf{p}_{1}=\begin{bmatrix}
+  \cfrac{-2p_{2}^{(1)}+p_{3}^{(1)}}{\Delta x^{2}}\\
+  \cfrac{p_{2}^{(1)}-2p_{3}^{(1)}+p_{4}^{(1)}}{\Delta x^{2}}\\
+  \vdots\\
+  \cfrac{p_{N-3}^{(1)}-2p_{N-2}^{(1)}+p_{N-1}^{(1)}}{\Delta x^{2}}\\
+  \cfrac{p_{N-2}^{(1)}-p_{N-1}^{(1)}}{\Delta x^{2}}
+  \end{bmatrix}    
+  
+4. Go along the selected direction :math:`\mathbf{p}_{k}=\mathbf{r}_{k}=-\nabla g(\mathbf{u}_{k})=\mathbf{b}-\mathbf{A}\mathbf{u}_{k}`, calculate  
+
+.. math::  
+  \begin{array}{l}
+  \alpha_{k} =\cfrac{(\mathbf{r}_{k},\mathbf{p}_{k})}{(\mathbf{A}\mathbf{p}_{k},\mathbf{p}_{k})} \\
+  \mathbf{u}_{k+1}= \mathbf{u}_{k}+\alpha_{k} \ast \mathbf{p}_{k}\\
+  \end{array}   
+  
+where   
+  
+.. math::
+  \mathbf{A}\mathbf{p}_{k}=\begin{bmatrix}
+  \cfrac{-2p_{2}^{(k)}+p_{3}^{(k)}}{\Delta x^{2}}\\
+  \cfrac{p_{2}^{(k)}-2p_{3}^{(k)}+p_{4}^{(k)}}{\Delta x^{2}}\\
+  \vdots\\
+  \cfrac{p_{N-3}^{(k)}-2p_{N-2}^{(k)}+p_{N-1}^{(k)}}{\Delta x^{2}}\\
+  \cfrac{p_{N-2}^{(k)}-p_{N-1}^{(k)}}{\Delta x^{2}}
+  \end{bmatrix}     
+  
+The conjugate gradient method from code
+----------------------------------------------
+1. Given any initial value :math:`\mathbf{x}_{0}` calculate the residual :math:`-\nabla f(\mathbf{x}_{0})=\mathbf{r}_{0}=\mathbf{b}-\mathbf{A}\mathbf{x}_{0}`.
+2. Go along the selected direction :math:`\mathbf{p}_{0}=\mathbf{r}_{0}=-\nabla f(\mathbf{x}_{0})`, calculate
+
+.. math::
+  \begin{array}{l}
+  \mathbf{r}_{0}=\mathbf{b}-\mathbf{A}\mathbf{x}_{0}\\
+  \mathbf{p}_{0}=\mathbf{r}_{0}\\
+  \delta_{new}=(\mathbf{r}_{0},\mathbf{r}_{0})\\
+  \text{while_loop:}\\
+  \alpha_{k} =\cfrac{(\mathbf{r}_{k},\mathbf{r}_{k})}{(\mathbf{A}\mathbf{p}_{k},\mathbf{p}_{k})} \\
+  \mathbf{x}_{k+1}= \mathbf{x}_{k}+\alpha_{k} \ast \mathbf{p}_{k}\\
+  \mathbf{r}_{k+1}=\mathbf{b}-\mathbf{A}\mathbf{x}_{k+1}\\
+  \delta_{old}=\delta_{new}\\
+  \delta_{new}=(\mathbf{r}_{k+1},\mathbf{r}_{k+1})\\
+  \beta_{k}=\cfrac{\delta_{new}}{\delta_{old}}=\cfrac{(\mathbf{r}_{k+1},\mathbf{r}_{k+1})}{(\mathbf{r}_{k},\mathbf{r}_{k})}\\
+  \mathbf{p}_{k+1}=\mathbf{r}_{k+1}+\beta_{k}\mathbf{p}_{k}
+  \end{array}
+  
+-
+  
+.. math::  
+  \begin{array}{l}
+  \mathbf{r}_{k}=\mathbf{b}-\mathbf{A}\mathbf{x}_{k}\\
+  \mathbf{r}_{k+1}=\mathbf{b}-\mathbf{A}\mathbf{x}_{k+1}\\
+  \mathbf{r}_{k+1}-\mathbf{r}_{k}=-\mathbf{A}(\mathbf{x}_{k+1}-\mathbf{x}_{k})\\
+  \mathbf{x}_{k+1}= \mathbf{x}_{k}+\alpha_{k} \ast \mathbf{p}_{k}\\
+  \mathbf{r}_{k+1}-\mathbf{r}_{k}=-\mathbf{A}(\mathbf{x}_{k+1}-\mathbf{x}_{k})=-\alpha_{k} \mathbf{A} \mathbf{p}_{k}\\
+  \mathbf{r}_{k+1}-\mathbf{r}_{k}=-\alpha_{k} \mathbf{A} \mathbf{p}_{k}\\
+  \mathbf{r}_{k+1}=\mathbf{r}_{k}-\alpha_{k} \mathbf{A} \mathbf{p}_{k}\\
+  \end{array}  
+  
+Solving the 2D Poisson equation
+-------------------------------------
+Consider the 2D Poisson equation
+
+.. math::
+  \cfrac{\partial^{2}u}{\partial x^{2}}+\cfrac{\partial^{2}u}{\partial x^{2}} =f(x,y)=-1
+  
+on :math:`\Omega=[0,1]\times[0,1]` with boundary conditions
+  
+.. math:: 
+  \begin{array}{l}
+  u(0,j)=0\\
+  u'(1,j)=\cfrac{\partial u}{\partial x}\bigg|_{x=1}=0 
+  \end{array}
+  
+which has analytical solution
+
+.. math:: 
+  u(x,y)=x-\cfrac{1}{2}x^{2}
+
+We we will use this specific example to investigate various approaches to solving partial differential equations with finite differences, in which we discretize the domain by defining :math:`N` equally
+spaced points  
+
+.. math:: 
+  \begin{array}{l}
+  \cfrac{u_{i+1,j}-2u_{i,j}+u_{i-1,j}}{\Delta x^{2}} 
+  + \cfrac{u_{i,j+1}-2u_{i,j}+u_{i,j-1}}{\Delta y^{2}} =f_{i,j}\\
+  \cfrac{u_{i-1,j}-2u_{i,j}+u_{i+1,j}}{\Delta x^{2}} 
+  + \cfrac{u_{i,j-1}-2u_{i,j}+u_{i,j+1}}{\Delta y^{2}} =f_{i,j}\\
+  \end{array}  
+
+The boundary conditions require special care. For :math:`x = 0` we have a Dirichlet boundary condition
+which allows us to fix the value :math:`u_{1} = 0`. For :math:`x = 1` we have a Neumann boundary condition
+:math:`du/dx = 0`. This is a symmetry boundary condition, so that in this case we can imagine a ’ghost’
+point :math:`u_{M+1,j}` which is always equal to :math:`u_{M-1,j}`. This leads to the expression for point :math:`x_{M,j}`  
+
+
+.. math:: 
+  \begin{array}{l}
+  u_{M,j}=u_{M-1,j}+\cfrac{1}{2}\Delta x^{2}\\
+  \end{array}
+  
+  
+then
+
+.. math:: 
+  \begin{array}{l}
+  j=2\\
+  \cfrac{u_{i-1,2}-2u_{i,2}+u_{i+1,2}}{\Delta x^{2}} 
+  + \cfrac{u_{i,2-1}-2u_{i,2}+u_{i,2+1}}{\Delta y^{2}} =f_{i,2}\\
+  \cfrac{u_{i-1,2}-2u_{i,2}+u_{i+1,2}}{\Delta x^{2}} 
+  + \cfrac{u_{i,1}-2u_{i,2}+u_{i,3}}{\Delta y^{2}} =f_{i,2}\\
+  \cfrac{u_{i-1,2}-2u_{i,2}+u_{i+1,2}}{\Delta x^{2}} 
+  + \cfrac{-u_{i,2}+u_{i,3}}{\Delta y^{2}} =f_{i,2}\\
+  \end{array}  
+
+-
+  
+.. math:: 
+  \begin{array}{l}
+  j=N-1\\
+  \cfrac{u_{i-1,N-1}-2u_{i,N-1}+u_{i+1,N-1}}{\Delta x^{2}} 
+  + \cfrac{u_{i,N-1-1}-2u_{i,N-1}+u_{i,N-1+1}}{\Delta y^{2}} =f_{N-1,2}\\
+  \cfrac{u_{i-1,N-1}-2u_{i,N-1}+u_{i+1,N-1}}{\Delta x^{2}} 
+  + \cfrac{u_{i,N-2}-2u_{i,N-1}+u_{i,N}}{\Delta y^{2}} =f_{N-1,2}\\
+  \cfrac{u_{i-1,N-1}-2u_{i,N-1}+u_{i+1,N-1}}{\Delta x^{2}} 
+  + \cfrac{u_{i,N-2}-u_{i,N-1}}{\Delta y^{2}} =f_{N-1,2}\\
+  \end{array}
+  
+-
+  
+.. math:: 
+  \begin{array}{l}
+  i=2\\
+  \cfrac{u_{2-1,j}-2u_{2,j}+u_{2+1,j}}{\Delta x^{2}} 
+  + \cfrac{u_{2,j-1}-2u_{2,j}+u_{2,j+1}}{\Delta y^{2}} =f_{2,j}\\
+  \cfrac{u_{1,j}-2u_{2,j}+u_{3,j}}{\Delta x^{2}} 
+  + \cfrac{u_{2,j-1}-2u_{2,j}+u_{2,j+1}}{\Delta y^{2}} =f_{2,j}\\
+  \cfrac{-2u_{2,j}+u_{3,j}}{\Delta x^{2}} 
+  + \cfrac{u_{2,j-1}-2u_{2,j}+u_{2,j+1}}{\Delta y^{2}} =f_{2,j}\\
+  \end{array}  
+  
+-
+  
+.. math:: 
+  \begin{array}{l}
+  i=M-1\\
+  \cfrac{u_{M-1-1,j}-2u_{M-1,j}+u_{M-1+1,j}}{\Delta x^{2}} 
+  + \cfrac{u_{M-1,j-1}-2u_{M-1,j}+u_{M-1,j+1}}{\Delta y^{2}} =f_{M-1,j}\\
+  \cfrac{u_{M-2,j}-2u_{M-1,j}+u_{M,j}}{\Delta x^{2}} 
+  + \cfrac{u_{M-1,j-1}-2u_{M-1,j}+u_{M-1,j+1}}{\Delta y^{2}} =f_{M-1,j}\\
+  \cfrac{u_{M-2,j}-2u_{M-1,j}+u_{M-1,j}+\cfrac{1}{2}\Delta x^{2}}{\Delta x^{2}} 
+  + \cfrac{u_{M-1,j-1}-2u_{M-1,j}+u_{M-1,j+1}}{\Delta y^{2}} =f_{M-1,j}\\
+  \cfrac{u_{M-2,j}-u_{M-1,j}}{\Delta x^{2}} 
+  + \cfrac{u_{M-1,j-1}-2u_{M-1,j}+u_{M-1,j+1}}{\Delta y^{2}} =f_{M-1,j}-\cfrac{1}{2}\\
+  \end{array} 
