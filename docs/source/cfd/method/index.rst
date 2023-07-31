@@ -7,6 +7,5 @@ CFD Methods
    /cfd/method/spectrum
    /cfd/method/fourier
    /cfd/method/iterative
-   
-
-   
+   /cfd/method/multigrid
+   /cfd/method/multigrid1
