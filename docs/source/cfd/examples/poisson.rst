@@ -573,3 +573,11 @@ Implement
   \text{allocate } B[N,N]\\
   B[j,n]=\text{ sin }\cfrac{\pi m{j}}{N}
   \end{array}
+
+
+Multigrid Framework
+----------------------
+The multigrid framework is one of the most efficient iterative algorithm to solve the linear system of equations arising due to the discretization of the Poisson equation. The multigrid framework works on the principle that low wavenumber errors on fine grid behave like a high wavenumber error on a coarse grid. In the multigrid framework, we restrict the residuals on the fine grid to the coarser grid. The restricted residual is then relaxed to resolve the low wavenumber errors and the correction to the solution is prolongated back to the fine grid. We can use any of the iterative methods like Jacobi, Gauss-Seidel method for relaxation. The algorithm can be implemented recursively on the hierarchy of grids to get faster convergence.
+
+
+.. math::

@@ -1,0 +1,4 @@
+Residual details: 
+L-2 Norm = 5.4159704841842945e-11
+Maximum Norm = 1.7411139197065495e-10
+Iterations =  386

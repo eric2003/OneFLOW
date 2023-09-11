@@ -191,7 +191,6 @@ int main( int argc, char **argv )
 	dumpfield( x, y, f, un, ue, nx, ny, field_initial );
 	field_initial.close();
 
-
 	//create output file for L2-norm
 	std::fstream outfile;
 	outfile.open( "output.txt", std::ios_base::out );
