@@ -9,6 +9,7 @@ CFD Examples
    /cfd/examples/euler1d
    /cfd/examples/sod
    /cfd/examples/poisson
+   /cfd/examples/vortex
    
 Verification and Validation
 ----------------------------------   
@@ -52,3 +53,5 @@ CFD benchmark cases
 #. `国产CFD开源软件OneFLOW+1d Poisson+Conjugate Gradients Version 2简单测试 <https://zhuanlan.zhihu.com/p/643019408/>`_
 #. `国产CFD开源软件OneFLOW+2d Poisson+Conjugate Gradients简单测试 <https://zhuanlan.zhihu.com/p/643463586/>`_
 #. `国产CFD开源软件OneFLOW+2d Poisson+Conjugate Gradients case2简单测试 <https://zhuanlan.zhihu.com/p/643684539/>`_
+#. `国产CFD开源软件OneFLOW+2d Lid-Driven Cavity Problem简单测试 <https://zhuanlan.zhihu.com/p/653052932/>`_
+#. `国产CFD开源软件OneFLOW+2d Lid-Driven Cavity Problem version2简单测试 <https://zhuanlan.zhihu.com/p/655670561/>`_
