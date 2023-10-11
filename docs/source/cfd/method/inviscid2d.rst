@@ -2,6 +2,7 @@ Incompressible Navier-Stokes Equation
 =======================================
 
 #. `Vorticity Stream Function Formulation <http://www.fem.unicamp.br/~phoenics/SITE_PHOENICS/Apostilas/CFD-1_U%20Michigan_Hong/Lecture05.pdf>`_
+#. `Streamfunction-Vorticity Formulation <https://www.iist.ac.in/sites/default/files/people/psi-omega.pdf>`_
 
 Incompressible N-S Equation in 2D
 --------------------------------------
@@ -595,3 +596,37 @@ Bottom and top boundary
   \omega_{i,1}=\cfrac{-4\psi_{i,2}+\cfrac{1}{2}\psi_{i,3}}{(\Delta y)^{2}} 
   +O(\Delta y)^{2}\\
   \end{array}    
+  
+Hybrid Arakawa-Spectral Solver
+-------------------------------------
+In this section, instead of using a fully explicit method in time for solving 2D incompressible Navier-Stokes equation,
+we show how to design hybrid explicit and implicit scheme. The nonlinear Jacobian term in vorticity Equation is treated explicitly using third-order Runge-Kutta scheme, and we treat the viscous term implicitly using the Crank-Nicolson scheme. This type of hybrid approach is useful when we design solvers for wall-bounded flows, where we cluster the grid in the boundary layer. 
+
+we can re-write Equation
+
+.. math::
+  \cfrac{\partial \omega}{\partial t}+\cfrac{\partial \psi}{\partial y}\cfrac{\partial \omega}{\partial x}-\cfrac{\partial \psi}{\partial x}\cfrac{\partial \omega}{\partial y}
+  =\nu\bigg(\cfrac{\partial ^{2}\omega}{\partial x^{2}}+\cfrac{\partial ^{2}\omega}{\partial y^{2}} \bigg)\\
+  
+with nonlinear Jacobian term on the right hand side  
+
+.. math::
+  \cfrac{\partial \omega}{\partial t} =-J(\omega,\psi)+\nu\nabla^{2}\omega
+  
+The hybrid third-order Runge-Kutta/Crank-Nicolson scheme can be written as  
+
+.. math::
+  \begin{array}{l}
+  \omega^{(1)}=\omega^{(n)}+\gamma_{1}\Delta t(-J^{(n)})+\rho_{1}\Delta t(-J^{(n-1)})+\cfrac{\alpha_{1}\Delta t\nu}{2}\nabla\ ^{2}(\omega^{(1)}+\omega^{(n)})\\
+  \omega^{(2)}=\omega^{(1)}+\gamma_{2}\Delta t(-J^{(1)})+\rho_{2}\Delta t(-J^{(n)})+\cfrac{\alpha_{2}\Delta t\nu}{2}\nabla\ ^{2}(\omega^{(1)}+\omega^{(2)})\\
+  \omega^{(n+1)}=\omega^{(2)}+\gamma_{3}\Delta t(-J^{(2)})+\rho_{3}\Delta t(-J^{(1)})+\cfrac{\alpha_{3}\Delta t\nu}{2}\nabla\ ^{2}(\omega^{(n+1)}+\omega^{(2)})
+  \end{array}
+  
+-
+
+.. math::
+  \begin{array}{l}
+  \alpha_{1}=\cfrac{8}{15}, \alpha_{2}=\cfrac{2}{15}, \alpha_{3}=\cfrac{1}{3}\\
+  \gamma_{1}=\cfrac{8}{15}, \gamma_{2}=\cfrac{5}{12}, \gamma_{3}=\cfrac{3}{4}\\
+  \rho_{1}=0, \rho_{2}=-\cfrac{17}{60}, \rho_{3}=-\cfrac{5}{12}\\
+  \end{array}  

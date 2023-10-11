@@ -52,7 +52,8 @@ Youtube Video
 #. `Introduction to Computational Fluid Dynamics (CFD) - Prof. S. A. E. Miller, Ph.D. <https://www.youtube.com/watch?v=01X5ECv3qIU&list=PLbiOzt50Bx-kV3Lcn5piPyV9EvpmOybJR/>`_
 #. `Quickersim CFD course is a complete training on Computational Fluid Dynamics (CFD) conducted by Bartosz Górecki, PhD. <https://www.youtube.com/watch?v=z6Bt-k1me9w&list=PLZsgQL03AlrcmFMnkFOWDpMsiK4mmDli2&index=2/>`_
 #. `Computational Fluid Dynamics - Milovan Perić <https://www.youtube.com/watch?v=1yNhkIM5iQM/>`_
- 
+#. `CFD Course - QuickerSim Ltd <https://www.youtube.com/playlist?list=PLZsgQL03AlrcmFMnkFOWDpMsiK4mmDli2/>`_
+
 
 
 
