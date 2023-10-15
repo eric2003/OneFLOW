@@ -46,6 +46,8 @@ Youtuber
 #. `sandip mazumder <https://www.youtube.com/@sandipmazumder171/>`_
 #. `Tom Rocks Maths <https://www.youtube.com/@TomRocksMaths/>`_
 #. `Thomas Kim <https://www.youtube.com/@siliconiens/>`_
+#. `Sebastian Lague <https://www.youtube.com/@SebastianLague/>`_
+
 
 Youtube Video
 ------------------------
@@ -53,10 +55,6 @@ Youtube Video
 #. `Quickersim CFD course is a complete training on Computational Fluid Dynamics (CFD) conducted by Bartosz Górecki, PhD. <https://www.youtube.com/watch?v=z6Bt-k1me9w&list=PLZsgQL03AlrcmFMnkFOWDpMsiK4mmDli2&index=2/>`_
 #. `Computational Fluid Dynamics - Milovan Perić <https://www.youtube.com/watch?v=1yNhkIM5iQM/>`_
 #. `CFD Course - QuickerSim Ltd <https://www.youtube.com/playlist?list=PLZsgQL03AlrcmFMnkFOWDpMsiK4mmDli2/>`_
-
-
-
-
 
 Homepage
 ------------------------------------
@@ -75,6 +73,12 @@ Codes
 #. `CFD_Julia Python and C++ Implementation <https://github.com/fengyiqi/cfd_practice/>`_
 #. `Astrophysics Simulation Codes <https://zingale.github.io/codes.html>`_
 #. `Michael Zingale <https://github.com/zingale/>`_
+
+
+Coding Adventure
+-----------------------
+#. `Coding Adventure: Chess <https://www.youtube.com/watch?v=U4ogK0MIzqk/>`_
+
 
 
 

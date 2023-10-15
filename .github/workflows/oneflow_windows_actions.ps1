@@ -166,7 +166,7 @@ function InstallMETIS() {
     ls
     cd build
     #$metis_prefix = "C:/METIS/"
-    $metis_prefix = "C:/METIS/METIS-VS2022-STATIC/"
+    $metis_prefix = "C:/dev/METIS/METIS-VS2022-STATIC/"
     cmake ../
     cmake --build . --parallel 4 --config release
     cmake --install . --prefix $metis_prefix
