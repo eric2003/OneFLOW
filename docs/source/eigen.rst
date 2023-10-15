@@ -11,6 +11,8 @@ Eigen3
 #. `Matrix Manipulations in C++ using Eigen Library <https://iamfaisalkhan.com/matrix-manipulations-using-eigen-cplusplus/>`_
 #. `分布式并行计算笔记-MPI+openmp+Eigen <https://zhuanlan.zhihu.com/p/573503615/>`_
 #. `上海交大超算平台用户手册 Eigen <https://docs.hpc.sjtu.edu.cn/app/compilers_and_languages/eigen.html>`_
+#. `Kalman Filter: How to Implement in C++ with Eigen <https://codingcorner.org/kalman-filter-cpp-eigen-cmake/>`_
+#. `Eigen 3.3.7 <https://apolo-docs.readthedocs.io/en/latest/software/scientific_libraries/eigen/eigen-3.3.7/index.html>`_
 
 
 
