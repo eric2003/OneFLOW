@@ -114,9 +114,9 @@ function InstallCGNS() {
     DownloadCGNS    
     Write-Host "Installing CGNS..."
     $zipexe = "C:/Program Files/7-zip/7z.exe" 
-    Start-Process $zipexe -Wait -ArgumentList 'x ./CGNS-4.2.0.zip'
+    Start-Process $zipexe -Wait -ArgumentList 'x ./CGNS-4.4.0.zip'
     ls
-    cd CGNS-4.2.0
+    cd CGNS-4.4.0
     ls
     Write-Host "mkdir build..."
     mkdir build
