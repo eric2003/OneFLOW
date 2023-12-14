@@ -37,6 +37,16 @@ Install sphinx-rtd-theme
 
     pip install sphinx-rtd-theme
 
+Get Sphinx version
+::
+
+    sphinx-build --version
+
+Sphinx Quick start
+::
+
+    sphinx-quickstart
+
 
 `Getting Started with Sphinx <https://docs.readthedocs.io/en/stable/intro/getting-started-with-sphinx.html>`_
 

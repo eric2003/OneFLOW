@@ -47,6 +47,7 @@ Youtuber
 #. `Tom Rocks Maths <https://www.youtube.com/@TomRocksMaths/>`_
 #. `Thomas Kim <https://www.youtube.com/@siliconiens/>`_
 #. `Sebastian Lague <https://www.youtube.com/@SebastianLague/>`_
+#. `Zach Star <https://www.youtube.com/@zachstar/>`_
 
 
 Youtube Video

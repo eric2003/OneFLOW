@@ -50,6 +50,7 @@ public:
 
     IntField lCells, rCells;
     IntField lPosition, rPosition;
+    IntField faceFlags;
 
     HXSize_t nBFaces;
     BcManager * bcManager;
@@ -62,6 +63,7 @@ public:
     HXSize_t CalcTotalFaceNodes();
     HXSize_t GetNBFaces();
     void SetNBFaces( HXSize_t nBFaces );
+    void ResizeAll();
 public:
     void ModifyFaceNodeId( IFaceLink * iFaceLink );
     void SetNewFace2Node( IFaceLink * iFaceLink );

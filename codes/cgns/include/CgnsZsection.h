@@ -44,6 +44,7 @@ public:
 public:
     void AddCgnsSection( CgnsSection * cgnsSection );
     CgnsSection * GetCgnsSection( int iSection );
+    bool HasPolygonSection();
     void CreateCgnsSection();
     void CreateConnList();
     void ConvertToInnerDataStandard();

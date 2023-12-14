@@ -70,7 +70,6 @@ public:
 public:
     void Create();
     void SetPeriodicBc();
-    void InitElement( GridElem * ge );
     void ConstructCgnsGridPoints( PointFactory * point_factory );
     void SetElementTypeAndNode( ElemFeature  * elem_feature );
     void InitLgMapping();

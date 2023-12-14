@@ -33,6 +33,7 @@ BeginNameSpace( ONEFLOW )
 class PointFactory;
 class ElemFeature;
 class FaceTopo;
+class CgnsSection;
 
 class FaceSolver
 {
@@ -54,6 +55,10 @@ public:
     void ScanBcFaceDetail( IntSet & bcVertex, int bcType, int bcNameId );
     void ScanInterfaceBc();
     int GetNSimpleFace();
+public:
+    void ResizeAll();
+    void ScanPolygonFace( CgnsSection * cgnsSection );
+    void ScanPolyhedronElement( CgnsSection * cgnsSection );
 };
 
 EndNameSpace

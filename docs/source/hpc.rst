@@ -10,6 +10,8 @@ HPC technology plays an important role in many fields of research and applicatio
 #. `The TOP500 website, which ranks the world's most powerful supercomputers <https://www.top500.org/>`_
 #. `Case Western Reserve HPC <https://sites.google.com/a/case.edu/hpcc/>`_
 #. `Uni.lu High Performance Computing (HPC) Tutorials <https://ulhpc-tutorials.readthedocs.io/>`_
+#. `HPC Group University of Basel <https://github.com/unibas-dmi-hpc/>`_
+
 
 
 

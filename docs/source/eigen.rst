@@ -13,6 +13,7 @@ Eigen3
 #. `上海交大超算平台用户手册 Eigen <https://docs.hpc.sjtu.edu.cn/app/compilers_and_languages/eigen.html>`_
 #. `Kalman Filter: How to Implement in C++ with Eigen <https://codingcorner.org/kalman-filter-cpp-eigen-cmake/>`_
 #. `Eigen 3.3.7 <https://apolo-docs.readthedocs.io/en/latest/software/scientific_libraries/eigen/eigen-3.3.7/index.html>`_
+#. `Eigen 3.4.0 devdocs <https://devdocs.io/eigen3/>`_
 
 
 

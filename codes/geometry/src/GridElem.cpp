@@ -38,6 +38,8 @@ License
 #include "NodeMesh.h"
 #include "GridState.h"
 #include "BgGrid.h"
+#include "CgnsZsection.h"
+#include "CgnsSection.h"
 #include <iostream>
 #include <iomanip>
 
@@ -120,6 +122,20 @@ void GridElem::CreateGrid( HXVector< CgnsZone * > cgnsZones, int iZone )
 
 void GridElem::PrepareUnsCalcGrid()
 {
+    CgnsZone * zone = this->GetCgnsZone(0);
+    bool flag = zone->cgnsZsection->HasPolygonSection();
+    if ( flag )
+    {
+        this->PrepareUnsCalcGridPolyhedron();
+    }
+    else
+    {
+        this->PrepareUnsCalcGridNormal();
+    }
+}
+
+void GridElem::PrepareUnsCalcGridNormal()
+{
     std::cout << " InitCgnsElements()\n";
     this->InitCgnsElements();
     std::cout << " ScanElements()\n";
@@ -133,6 +149,56 @@ void GridElem::PrepareUnsCalcGrid()
     this->GenerateCalcElement();
 }
 
+void GridElem::PrepareUnsCalcGridPolyhedron()
+{
+    std::cout << " ScanPolygonFace()\n";
+    this->ScanPolygonFace();
+    this->ScanBcFace();
+    this->GenerateCalcElement();
+}
+
+void GridElem::ScanPolygonFace()
+{
+    int nZone = this->GetNZones();
+    for ( int iZone = 0; iZone < nZone; ++ iZone )
+    {
+        CgnsZone * cgnsZone = this->GetCgnsZone( iZone );
+
+        cgnsZone->ConstructCgnsGridPoints( this->point_factory );
+
+        //Scan NGON_n PolygonFace
+        int nSections = cgnsZone->cgnsZsection->nSection;
+        for ( int iSection = 0; iSection < nSections; ++ iSection )
+        {
+            CgnsSection * cgnsSection = cgnsZone->cgnsZsection->GetCgnsSection( iSection );
+            if ( cgnsSection->eType != NGON_n ) continue;
+            this->face_solver->ScanPolygonFace( cgnsSection );
+        }
+        //Scan NFACE_n PolyhedronElement
+        for ( int iSection = 0; iSection < nSections; ++ iSection )
+        {
+            CgnsSection * cgnsSection = cgnsZone->cgnsZsection->GetCgnsSection( iSection );
+            if ( cgnsSection->eType != NFACE_n ) continue;
+            this->face_solver->ScanPolyhedronElement( cgnsSection );
+            this->SetPolyhedronElementType( cgnsSection );
+        }
+
+        int nFaces = this->face_solver->faceTopo->faces.size();
+        int kkk = 1;
+    }
+    //int kkk = 1;
+}
+
+void GridElem::SetPolyhedronElementType( CgnsSection * cgnsSection )
+{
+    for ( int iElem = 0; iElem < cgnsSection->nElement; ++ iElem )
+    {
+        int e_type = cgnsSection->eTypeList[ iElem ];
+
+        this->elem_feature->eTypes->push_back( e_type );
+    }
+}
+
 void GridElem::InitCgnsElements()
 {
     int nZone = this->GetNZones();
@@ -140,7 +206,8 @@ void GridElem::InitCgnsElements()
     {
         CgnsZone * cgnsZone = this->GetCgnsZone( iZone );
         
-        cgnsZone->InitElement( this );
+        cgnsZone->ConstructCgnsGridPoints( this->point_factory );
+        cgnsZone->SetElementTypeAndNode( this->elem_feature );
     }
 }
 
@@ -281,8 +348,9 @@ void GridElem::CalcBoundaryType( UnsGrid * grid )
     for ( IntSet::iterator iter = originalBcSet.begin(); iter != originalBcSet.end(); ++ iter )
     {
         int oriBcType = * iter;
-        std::cout << " Boundary Type = " << std::setw( 3 ) << oriBcType << "  Name = " << std::setiosflags(std::ios::left) << std::setw( 23 ) << GetCgnsBcName( oriBcType );
-        std::cout << " Face = " << nBFaceSub[ iCount ] << std::endl;
+        std::cout << " Boundary Type = " << std::setiosflags( std::ios::right ) << std::setw( 3 ) << oriBcType;
+        std::cout << "  Name = " << std::setw( 23 ) << GetCgnsBcName( oriBcType );
+        std::cout << " Face = " << std::setw( 6 ) << nBFaceSub[ iCount ] << std::endl;
         ++ iCount;
     }
     std::cout << std::endl;

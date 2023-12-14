@@ -34,6 +34,7 @@ class ElemFeature;
 class FaceSolver;
 class Grid;
 class UnsGrid;
+class CgnsSection;
 
 int OneFlow2CgnsZoneType( int zoneType );
 int Cgns2OneFlowZoneType( int zoneType );
@@ -57,6 +58,7 @@ public:
 public:
     void CreateGrid( HXVector< CgnsZone * > cgnsZones, int iZone );
     void PrepareUnsCalcGrid();
+    void PrepareUnsCalcGridNormal();
     void InitCgnsElements();
     void ScanBcFace();
     void GenerateCalcElement();
@@ -64,6 +66,10 @@ public:
     void GenerateCalcGrid( Grid * grid );
     void CalcBoundaryType( UnsGrid * grid );
     void ReorderLink( UnsGrid * grid );
+public:
+    void PrepareUnsCalcGridPolyhedron();
+    void ScanPolygonFace();
+    void SetPolyhedronElementType( CgnsSection * cgnsSection );
 };
 
 class ZgridElem

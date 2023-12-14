@@ -59,18 +59,43 @@ void CgnsSection::ConvertToInnerDataStandard()
     this->startId -= 1;
     this->endId   -= 1;
 
-    for ( int iElem = 0; iElem < this->nElement; ++ iElem )
+    if ( this->eType == MIXED )
     {
-        int e_type = this->eTypeList[ iElem ];
-        int npe;
-        cg_npe( static_cast< ElementType_t >( e_type ), & npe );
-        int pos = ePosList[ iElem ] + this->pos_shift;
-        for ( int iNode = 0; iNode < npe; ++ iNode )
+        for ( int iElem = 0; iElem < this->nElement; ++ iElem )
         {
-            int id = pos + iNode;
-            this->connList[ id ] -= 1;
+            int e_type = this->eTypeList[ iElem ];
+            int npe;
+            cg_npe( static_cast< ElementType_t >( e_type ), & npe );
+            int pos = ePosList[ iElem ] + this->pos_shift;
+            for ( int iNode = 0; iNode < npe; ++ iNode )
+            {
+                int id = pos + iNode;
+                this->connList[ id ] -= 1;
+            }
         }
     }
+    else if ( this->eType == NFACE_n )
+    {
+        for ( int i = 0; i < this->connList.size(); ++ i )
+        {
+            int id = this->connList[ i ];
+            int newId = std::abs( id ) - 1;
+            if ( id < 0 )
+            {
+                newId = - std::abs( newId );
+            }
+            this->connList[ i ] = newId;
+        }
+    }
+    else
+    {
+        //other cases, include NGON_n
+        for ( int i = 0; i < this->connList.size(); ++ i )
+        {
+            this->connList[ i ] -= 1;
+        }
+    }
+
     int kkk = 1;
 }
 
@@ -82,13 +107,29 @@ CgInt * CgnsSection::GetAddress( CgInt eId )
 
 void CgnsSection::GetElementNodeId( CgInt eId, CgIntField & eNodeId )
 {
-    int eNodeNumber  = ONEFLOW::GetElementNodeNumbers( this->eTypeList[ eId ] );
-    CgInt * eAddress = this->GetAddress( eId );
-
-    eNodeId.resize( 0 );
-    for ( int iNode = 0; iNode < eNodeNumber; ++ iNode )
+    if ( this->eType != NGON_n )
     {
-        eNodeId.push_back( eAddress[ iNode ] );
+        int eNodeNumber = ONEFLOW::GetElementNodeNumbers( this->eTypeList[ eId ] );
+        CgInt * eAddress = this->GetAddress( eId );
+
+        eNodeId.resize( 0 );
+        for ( int iNode = 0; iNode < eNodeNumber; ++ iNode )
+        {
+            eNodeId.push_back( eAddress[ iNode ] );
+        }
+    }
+    else
+    {
+        //PolygonFace NGON_n
+        int st = this->ePosList[ eId ];
+        int ed = this->ePosList[ eId + 1 ];
+        int nNode = ed - st;
+        eNodeId.resize( 0 );
+        for ( int i = st; i < ed; ++ i )
+        {
+            int node = this->connList[ i ];
+            eNodeId.push_back( node );
+        }
     }
 }
 
@@ -160,12 +201,17 @@ void CgnsSection::ReadCgnsSectionInfo()
     std::cout << "   startId, endId = " << this->startId << " " << this->endId << "\n";
     this->eType = elementType;
 
-    if ( IsMixedSection() )
-    {
-        elementDataSize = -1;
-        cg_ElementDataSize( fileId, baseId, zId, this->id, & elementDataSize );
-        this->pos_shift = 1;
-    }
+    this->elementDataSize = -1;
+    cg_ElementDataSize( fileId, baseId, zId, this->id, & this->elementDataSize );
+
+    std::cout << "   elementDataSize = " << elementDataSize << "\n";
+
+    //if ( this->IsMixedSection() )
+    //{
+    //    this->pos_shift = 1;
+    //    //this->conn_offsets.resize(this->nElements+1);
+    //    //cg_poly_elements_read ( fileId, baseId, zoneId, sectionId, this->conn.data(), this->conn_offsets.data(), 0 );
+    //}
 }
 
 void CgnsSection::DumpCgnsSectionInfo()
@@ -235,7 +281,14 @@ void CgnsSection::ReadCgnsSectionConnectionList()
     {
         addr = & iparentdata[ 0 ];
     }
-    cg_elements_read( fileId, baseId, zId, this->id, & this->connList[ 0 ], addr );
+
+    cg_elements_read( fileId, baseId, zId, this->id, this->connList.data(), addr );
+
+    if ( this->eType == NGON_n || this->eType == NFACE_n )
+    {
+        this->pos_shift = 1;
+        cg_poly_elements_read ( fileId, baseId, zId, this->id, this->connList.data(), this->ePosList.data(), 0 );
+    }
 }
 
 void CgnsSection::DumpCgnsSectionConnectionList()
@@ -251,11 +304,11 @@ void CgnsSection::DumpCgnsSectionConnectionList()
 
 void CgnsSection::SetElemPosition()
 {
-    if ( IsMixedSection() )
+    if (  this->eType == MIXED )
     {
         this->SetElemPositionMixed();
     }
-    else
+    else if ( this->eType != NGON_n && this->eType != NFACE_n )
     {
         this->SetElemPositionOri();
     }
@@ -276,8 +329,6 @@ void CgnsSection::SetElemPositionOri()
 
 void CgnsSection::SetElemPositionMixed()
 {
-    //ePosList.resize( this->nElement + 1 );
-    //eTypeList.resize( this->nElement );
     int pos = 0;
     ePosList[ 0 ] = pos;
     for ( int iElem = 0; iElem < this->nElement; ++ iElem )
@@ -287,6 +338,7 @@ void CgnsSection::SetElemPositionMixed()
         int npe;
         cg_npe( static_cast< ElementType_t >( e_type ), & npe );
         pos += npe + this->pos_shift;
+
         ePosList[ iElem + 1 ] = pos;
     }
 }

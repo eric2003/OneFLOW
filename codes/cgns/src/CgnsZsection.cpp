@@ -68,6 +68,20 @@ bool CgnsZsection::ExistSection( const std::string & sectionName )
     return false;
 }
 
+bool CgnsZsection::HasPolygonSection()
+{
+    for ( int iSection = 0; iSection <  this->cgnsSections.size(); ++ iSection )
+    {
+        CgnsSection * cgnsSection = this->GetCgnsSection( iSection );
+        if ( cgnsSection->eType == NGON_n ||
+             cgnsSection->eType == NFACE_n )
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
 void CgnsZsection::CreateCgnsSection()
 {
     for ( int iSection = 0; iSection < this->nSection; ++ iSection )

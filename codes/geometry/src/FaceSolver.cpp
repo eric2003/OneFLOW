@@ -24,6 +24,7 @@ License
 #include "ElementHome.h"
 #include "Stop.h"
 #include "FaceTopo.h"
+#include "CgnsSection.h"
 #include <iostream>
 #include <algorithm>
 
@@ -74,6 +75,81 @@ bool FaceSolver::CheckBcFace( IntSet & bcVertex, IntField & nodeId )
     return true;
 }
 
+void FaceSolver::ScanPolygonFace( CgnsSection * cgnsSection )
+{
+    std::vector<int> faceNodes;
+    for ( int iElem = 0; iElem < cgnsSection->nElement; ++ iElem )
+    {
+        int st = cgnsSection->ePosList[ iElem ];
+        int ed = cgnsSection->ePosList[ iElem + 1 ];
+        int nNode = ed - st;
+        faceNodes.resize( 0 );
+        for ( int i = st; i < ed; ++ i )
+        {
+            int node = cgnsSection->connList[ i ];
+            faceNodes.push_back( node );
+        }
+        HXMid<int> fMid( nNode, this->refFaces->size() );
+        fMid.data = faceNodes;
+        std::sort( fMid.data.begin(), fMid.data.end() );
+        int gFid = this->FindFace( fMid );
+        if ( gFid == ONEFLOW::INVALID_INDEX )
+        {
+            this->refFaces->insert( fMid );
+            this->faceTopo->faces.push_back( faceNodes );
+            this->faceTopo->fTypes.push_back(cgnsSection->eType);
+            this->faceTopo->faceFlags.push_back(0);
+        }
+        int kkk = 1;
+    }
+    int kkk = 1;
+}
+
+void FaceSolver::ResizeAll()
+{
+    this->faceTopo->ResizeAll();
+    int nFaces = this->faceTopo->faces.size();
+    this->faceBcType->resize( nFaces );
+    this->faceBcKey->resize( nFaces );
+    this->childFid->resize( nFaces );
+}
+
+void FaceSolver::ScanPolyhedronElement( CgnsSection * cgnsSection )
+{
+    std::vector<int> faceIds;
+    for ( int iElem = 0; iElem < cgnsSection->nElement; ++ iElem )
+    {
+        int st = cgnsSection->ePosList[ iElem ];
+        int ed = cgnsSection->ePosList[ iElem + 1 ];
+        int nFace = ed - st;
+        faceIds.resize( 0 );
+        for ( int i = st; i < ed; ++ i )
+        {
+            int polygonFaceId = std::abs(cgnsSection->connList[ i ]);
+            faceIds.push_back( polygonFaceId );
+
+            int faceFlags = this->faceTopo->faceFlags[ polygonFaceId ];
+
+            if ( faceFlags == 0 ) //face left element not set
+            {
+                this->ResizeAll();
+                this->faceTopo->faceFlags[ polygonFaceId ] = 1;
+                this->faceTopo->lCells[ polygonFaceId ] = iElem;
+                this->faceTopo->rCells[ polygonFaceId ] = ONEFLOW::INVALID_INDEX;
+
+                (*this->faceBcType)[ polygonFaceId ] = ONEFLOW::INVALID_INDEX;
+                (*this->faceBcKey )[ polygonFaceId ] = ONEFLOW::INVALID_INDEX;
+            }
+            else
+            {
+                this->faceTopo->rCells[ polygonFaceId ] = iElem;
+            }
+
+        }
+        int kkk = 1;
+    }
+    int kkk = 1;
+}
 
 void FaceSolver::ScanElementFace( CgIntField & eNodeId, int eType, int eId )
 {

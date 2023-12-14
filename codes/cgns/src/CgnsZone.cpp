@@ -99,12 +99,6 @@ void CgnsZone::Create()
     this->cgnsCoor = new CgnsCoor( this );
 }
 
-void CgnsZone::InitElement( GridElem * ge )
-{
-    this->ConstructCgnsGridPoints( ge->point_factory );
-    this->SetElementTypeAndNode( ge->elem_feature );
-}
-
 void CgnsZone::SetPeriodicBc()
 {
     this->cgnsZbc->SetPeriodicBc();
