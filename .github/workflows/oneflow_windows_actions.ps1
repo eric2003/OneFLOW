@@ -100,9 +100,9 @@ function InstallHDF5() {
     
     Write-Host "Checking Env:HDF5_DIR..."
     Write-Host "Env:HDF5_DIR = $Env:HDF5_DIR"
-	
-	cd ..
-	pwd	
+
+    cd ..
+    pwd
     
     Write-Host "HDF5-1.10.7 installation complete..."
     #$Program_Dir = "C:/Program Files"
@@ -114,9 +114,10 @@ function InstallCGNS() {
     DownloadCGNS    
     Write-Host "Installing CGNS..."
     $zipexe = "C:/Program Files/7-zip/7z.exe" 
-    Start-Process $zipexe -Wait -ArgumentList 'x ./CGNS-4.4.0.zip'
+    $cgns_version = "4.4.0"
+    Start-Process $zipexe -Wait -ArgumentList 'x ./CGNS-$cgns_version.zip'
     ls
-    cd CGNS-4.4.0
+    cd CGNS-$cgns_version
     ls
     Write-Host "mkdir build..."
     mkdir build
@@ -129,7 +130,7 @@ function InstallCGNS() {
     $Env:HDF5_DIR = $tmp;
     Write-Host "now Env:HDF5_DIR = $Env:HDF5_DIR"
     #$cgns_prefix = "C:/dev/cgns"
-    $cgns_prefix = "C:/dev/cgns/4.4.0"
+    $cgns_prefix = "C:/dev/cgns/$cgns_version"
     $cgns_bin = $cgns_prefix + "/bin"
     cmake -DCGNS_ENABLE_64BIT="ON" `
           -DCGNS_ENABLE_HDF5="ON" `
@@ -139,9 +140,9 @@ function InstallCGNS() {
     cmake --build . --parallel 4 --config release
     cmake --install . --prefix $cgns_prefix
     AddMachinePath( $cgns_bin )
-	cd ../../
-	pwd
-    Write-Host "CGNS-4.2.0 installation complete..."
+    cd ../../
+    pwd
+    Write-Host "CGNS-$cgns_version installation complete..."
 }
 
 function DownloadMETIS() {
@@ -190,10 +191,11 @@ function DownloadHDF5() {
 }
 
 function DownloadCGNS() {
-    Write-Host "Downloading CGNS-4.4.0..."
+    $cgns_version = "4.4.0"
+    Write-Host "Downloading CGNS-$cgns_version..."
     $download_url = "https://github.com/CGNS/CGNS/archive/refs/tags/"
-    $cgns_filename = "v4.4.0.zip"
-    $cgns_real_filename = "CGNS-4.4.0.zip"  
+    $cgns_filename = "v$cgns_version.zip"
+    $cgns_real_filename = "CGNS-$cgns_version.zip"  
     $cgns_webfilename = $download_url + $cgns_filename
     
     Write-Host "download_url is $download_url"
@@ -204,7 +206,7 @@ function DownloadCGNS() {
     #MyDownloadFile( $cgns_webfilename )
     MyDownloadFile2 $cgns_webfilename $cgns_real_filename
     ls
-    Write-Host "CGNS-4.4.0 downloading complete"
+    Write-Host "CGNS-$cgns_version downloading complete"
 }
 
 function InitDownload() {
@@ -226,7 +228,7 @@ function CompileOneFLOW() {
     cmake --build . --parallel 4 --config release
     cmake --install . --prefix $oneflow_prefix
     AddMachinePath( $oneflow_bin )
-	Write-Host "Compile OneFLOW complete..."
+    Write-Host "Compile OneFLOW complete..."
 }
 
 function main() {
