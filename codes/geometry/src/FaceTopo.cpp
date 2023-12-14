@@ -36,14 +36,13 @@ BeginNameSpace( ONEFLOW )
 
 FaceTopo::FaceTopo()
 {
-    grid = 0;
-
-    bcManager = new BcManager();
+    this->grid = 0;
+    this->bcManager = new BcManager();
 }
 
 FaceTopo::~FaceTopo()
 {
-    delete bcManager;
+    delete this->bcManager;
 }
 
 HXSize_t FaceTopo::CalcTotalFaceNodes()
@@ -65,6 +64,15 @@ HXSize_t FaceTopo::GetNBFaces()
 void FaceTopo::SetNBFaces( HXSize_t nBFaces )
 {
     this->bcManager->bcRecord->Init( nBFaces );
+}
+
+void FaceTopo::ResizeAll()
+{
+    int nFaces = this->faces.size();
+    this->lCells.resize( nFaces );
+    this->rCells.resize( nFaces );
+    this->lPosition.resize( nFaces );
+    this->rPosition.resize( nFaces );
 }
 
 void FaceTopo::ModifyFaceNodeId( IFaceLink * iFaceLink )

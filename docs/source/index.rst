@@ -27,30 +27,40 @@ OneFLOW is a general-purpose, unstructured Computational Fluid Dynamics (CFD) so
    :caption: Reference
    
    /cfd/index
-   /numerical/index
-   /cpp/index
    /cgns
+   /chatgpt
+   /cpp/index
    /cmake
+   /cmd
    /cuda
+   /eigen   
+   /git   
+   /fortran
+   /hdf5
    /hpc
+   /install/index   
+   /julia
+   /jupyter   
    /latex
-   /eigen
+   /makefile
    /metis
    /modules
    /mpi
+   /numerical/index   
+   /oneapi
+   /oneflow
    /openacc
    /opencl
    /opengl
    /openmp
-   /qt
-   /python/index
-   /julia
-   /jupyter
-   /taichi
    /powershell
-   /git
+   /python/index   
+   /qt
+   /science
    /sphinx
+   /system/index
+   /taichi
+   /tcltk
+   /tecplot
+   /test
    /vcpkg
-   /install/index
-   /chatgpt
-

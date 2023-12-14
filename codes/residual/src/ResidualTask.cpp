@@ -211,7 +211,7 @@ void ResidualTask::DumpScreen()
     oss << " ";
     oss << std::setw( 6  ) << this->data.resmax.index[ maxId ];
     oss << " ";
-    oss << resetiosflags( std::ios::scientific );
+    oss << std::resetiosflags( std::ios::scientific );
     oss << std::setprecision( 3 );
     oss << std::setw( 11 ) << this->data.resmax.vol[ maxId ];
     oss << " ";

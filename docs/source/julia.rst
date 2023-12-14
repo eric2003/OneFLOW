@@ -8,6 +8,7 @@ Julia
 #. `Julia Documentation <https://docs.julialang.org/>`_
 #. `Package to call Python functions from the Julia language <https://github.com/JuliaPy/PyCall.jl>`_
 #. `CFD_Julia系列链接整理 <https://zhuanlan.zhihu.com/p/523584688/>`_
+#. `Calling C and Fortran Code <https://julia-cn.readthedocs.io/pt-br/latest/manual/calling-c-and-fortran-code.html>`_
 
 
 import Pkg

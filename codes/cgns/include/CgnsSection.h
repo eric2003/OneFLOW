@@ -44,9 +44,9 @@ public:
     CgInt startId, endId;
     int connSize;
     CgIntField connList;
+    CgIntField ePosList;
 
     IntField eTypeList;
-    IntField ePosList;
     int pos_shift;
 
     std::string sectionName;
