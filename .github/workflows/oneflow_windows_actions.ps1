@@ -128,12 +128,13 @@ function InstallCGNS() {
     Write-Host "local Env:HDF5_DIR = $Env:HDF5_DIR"
     $Env:HDF5_DIR = $tmp;
     Write-Host "now Env:HDF5_DIR = $Env:HDF5_DIR"
-    $cgns_prefix = "C:/dev/cgns"
+    #$cgns_prefix = "C:/dev/cgns"
+    $cgns_prefix = "C:/dev/cgns/4.4.0"
     $cgns_bin = $cgns_prefix + "/bin"
     cmake -DCGNS_ENABLE_64BIT="ON" `
           -DCGNS_ENABLE_HDF5="ON" `
           -DCGNS_BUILD_SHARED="ON" `
-          ../		  
+          ../
     #      -DCMAKE_INSTALL_PREFIX="C:/dev/cgns" ../
     cmake --build . --parallel 4 --config release
     cmake --install . --prefix $cgns_prefix
@@ -189,10 +190,10 @@ function DownloadHDF5() {
 }
 
 function DownloadCGNS() {
-    Write-Host "Downloading CGNS-4.2.0..."
+    Write-Host "Downloading CGNS-4.4.0..."
     $download_url = "https://github.com/CGNS/CGNS/archive/refs/tags/"
-    $cgns_filename = "v4.2.0.zip"
-    $cgns_real_filename = "CGNS-4.2.0.zip"  
+    $cgns_filename = "v4.4.0.zip"
+    $cgns_real_filename = "CGNS-4.4.0.zip"  
     $cgns_webfilename = $download_url + $cgns_filename
     
     Write-Host "download_url is $download_url"
@@ -203,7 +204,7 @@ function DownloadCGNS() {
     #MyDownloadFile( $cgns_webfilename )
     MyDownloadFile2 $cgns_webfilename $cgns_real_filename
     ls
-    Write-Host "CGNS-4.2.0 downloading complete"
+    Write-Host "CGNS-4.4.0 downloading complete"
 }
 
 function InitDownload() {
