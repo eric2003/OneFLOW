@@ -62,6 +62,13 @@ Sphinx Quick start
 #. `Create Documentation with RST, Sphinx, Sublime, and GitHub <https://docutils.sourceforge.io/rst.html>`_
 #. `sphinx-lesson: structured lessons with Sphinx <https://coderefinery.github.io/sphinx-lesson/>`_
 
+read the docs
+-------------------
+Organizations
+ModernCFD
+https://github.com/ModernCFD
+
+
 
 
 

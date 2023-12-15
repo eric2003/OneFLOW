@@ -7,6 +7,8 @@ OneFLOW is a general-purpose, unstructured Computational Fluid Dynamics (CFD) so
 
 `OneFLOW CFD : Github <https://github.com/eric2003/OneFLOW/>`_
 
+`OneFLOW Scientific Computation Document <https://oneflow-cfd.readthedocs.io/en/latest/>`_
+
 .. toctree::
    :hidden:
    :maxdepth: 2
