@@ -77,7 +77,6 @@ function InstallMSMPI() {
 }
 
 function DownloadHDF5() {
-    #$hdf5_version_name = "hdf5-1.10.7"
     $global:hdf5_major = 1
     $global:hdf5_minor = 14
     $global:hdf5_patch = 3
@@ -87,7 +86,6 @@ function DownloadHDF5() {
     $global:hdf5_version_name = "$hdf5_dir2"
     Write-Host "Downloading $hdf5_version_name..."
     $hdf5_url = "https://support.hdfgroup.org/ftp/HDF5/releases/$hdf5_dir1/$hdf5_dir2/bin/windows/"
-    #$hdf5_name         = "hdf5-1.10.7-Std-win10_64-vs16"
     $hdf5_name         = "$hdf5_version_name-Std-win10_64-vs17"
     $global:hdf5_package_name = $hdf5_name + ".zip"
     $hdf5_web_addr = $hdf5_url + $hdf5_package_name
@@ -103,13 +101,11 @@ function InstallHDF5() {
     $zipexe = "C:/Program Files/7-zip/7z.exe" 
     $arg = "x ./$global:hdf5_package_name"
     Start-Process $zipexe -Wait -ArgumentList $arg
-    #Start-Process $zipexe -Wait -ArgumentList 'x ./hdf5-1.10.7-Std-win10_64-vs16.zip'
     ls
     cd hdf
     ls
     Write-Host "Installing $hdf5_version_name_upper..."
     $arg1 = "/quiet /qn /i $hdf5_version_name_upper-win64.msi"
-    #Start-Process -FilePath msiexec.exe -ArgumentList "/quiet /qn /i HDF5-1.10.7-win64.msi" -Wait
     Start-Process -FilePath msiexec.exe -ArgumentList $arg1 -Wait
     Write-Host "$hdf5_version_name_upper installation complete"
     $HDF5_InstallDir = "C:/Program Files/HDF_Group/HDF5/$hdf5_major.$hdf5_minor.$hdf5_patch"
@@ -119,6 +115,8 @@ function InstallHDF5() {
     $hdf5_dir_varName = "HDF5_DIR"
     #$hdf5_dir_varValue = "C:\Program Files\HDF_Group\HDF5\1.10.7\cmake"
     $hdf5_dir_varValue = "$HDF5_InstallDir/cmake"
+    Write-Host "hdf5_dir_varName = $hdf5_dir_varName"
+    Write-Host "hdf5_dir_varValue = $hdf5_dir_varValue"
     ModifyMachineEnvironmentVariable $hdf5_dir_varName $hdf5_dir_varValue
     
     Write-Host "Checking Env:HDF5_DIR..."
@@ -150,7 +148,6 @@ function InstallCGNS() {
     Write-Host "local Env:HDF5_DIR = $Env:HDF5_DIR"
     $Env:HDF5_DIR = $tmp;
     Write-Host "now Env:HDF5_DIR = $Env:HDF5_DIR"
-    #$cgns_prefix = "C:/dev/cgns"
     $cgns_prefix = "C:/dev/cgns/$cgns_version"
     $cgns_bin = $cgns_prefix + "/bin"
     cmake -DCGNS_ENABLE_64BIT="ON" `
@@ -188,7 +185,6 @@ function InstallMETIS() {
     Write-Host "ls..."
     ls
     cd build
-    #$metis_prefix = "C:/METIS/"
     $metis_prefix = "C:/dev/METIS/METIS-VS2022-STATIC/"
     cmake ../
     cmake --build . --parallel 4 --config release
@@ -199,7 +195,6 @@ function InstallMETIS() {
 }
 
 function DownloadCGNS() {
-    #$cgns_version = "4.4.0"
     Write-Host "Downloading CGNS-$cgns_version..."
     $download_url = "https://github.com/CGNS/CGNS/archive/refs/tags/"
     $cgns_filename = "v$cgns_version.zip"
@@ -218,12 +213,12 @@ function DownloadCGNS() {
 }
 
 function InitDownload() {
-	mkdir download
-	cd download
+    mkdir download
+    cd download
 }
 
 function ExitDownload() {
-	cd ..
+    cd ..
 }
 
 function CompileOneFLOW() {
