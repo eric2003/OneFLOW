@@ -76,26 +76,49 @@ function InstallMSMPI() {
     mpiexec 
 }
 
+function DownloadHDF5() {
+    #$hdf5_version_name = "hdf5-1.10.7"
+    $global:hdf5_major = 1
+    $global:hdf5_minor = 14
+    $global:hdf5_patch = 3
+    $hdf5_main_name = "hdf5"
+    $hdf5_dir1 = "$hdf5_main_name-$hdf5_major.$hdf5_minor"
+    $hdf5_dir2 = "$hdf5_dir1.$hdf5_patch"
+    $global:hdf5_version_name = "$hdf5_dir2"
+    Write-Host "Downloading $hdf5_version_name..."
+    $hdf5_url = "https://support.hdfgroup.org/ftp/HDF5/releases/$hdf5_dir1/$hdf5_dir2/bin/windows/"
+    #$hdf5_name         = "hdf5-1.10.7-Std-win10_64-vs16"
+    $hdf5_name         = "$hdf5_version_name-Std-win10_64-vs17"
+    $global:hdf5_package_name = $hdf5_name + ".zip"
+    $hdf5_web_addr = $hdf5_url + $hdf5_package_name
+          
+    MyDownloadFile( $hdf5_web_addr )
+    ls
+    Write-Host "$hdf5_version_name downloading complete"
+}
+
 function InstallHDF5() {
+    $hdf5_version_name_upper = $hdf5_version_name.ToUpper()
     DownloadHDF5
-    Write-Host "Installing HDF5-1.10.7..."
     $zipexe = "C:/Program Files/7-zip/7z.exe" 
-    #Write-Host "ls C:/Program Files/7-zip"
-    #ls "C:/Program Files/7-zip"
-    
-    Start-Process $zipexe -Wait -ArgumentList 'x ./hdf5-1.10.7-Std-win10_64-vs16.zip'
+    $arg = "x ./$global:hdf5_package_name"
+    Start-Process $zipexe -Wait -ArgumentList $arg
+    #Start-Process $zipexe -Wait -ArgumentList 'x ./hdf5-1.10.7-Std-win10_64-vs16.zip'
     ls
     cd hdf
     ls
-    Write-Host "Installing HDF5-1.10.7..."
-    Start-Process -FilePath msiexec.exe -ArgumentList "/quiet /qn /i HDF5-1.10.7-win64.msi" -Wait
-    Write-Host "HDF5-1.10.7 installation complete"
-    $HDF5_InstallDir = "C:/Program Files/HDF_Group/HDF5/1.10.7"
+    Write-Host "Installing $hdf5_version_name_upper..."
+    $arg1 = "/quiet /qn /i $hdf5_version_name_upper-win64.msi"
+    #Start-Process -FilePath msiexec.exe -ArgumentList "/quiet /qn /i HDF5-1.10.7-win64.msi" -Wait
+    Start-Process -FilePath msiexec.exe -ArgumentList $arg1 -Wait
+    Write-Host "$hdf5_version_name_upper installation complete"
+    $HDF5_InstallDir = "C:/Program Files/HDF_Group/HDF5/$hdf5_major.$hdf5_minor.$hdf5_patch"
     Write-Host "ls $HDF5_InstallDir"
     ls $HDF5_InstallDir
     
     $hdf5_dir_varName = "HDF5_DIR"
-    $hdf5_dir_varValue = "C:\Program Files\HDF_Group\HDF5\1.10.7\cmake"
+    #$hdf5_dir_varValue = "C:\Program Files\HDF_Group\HDF5\1.10.7\cmake"
+    $hdf5_dir_varValue = "$HDF5_InstallDir/cmake"
     ModifyMachineEnvironmentVariable $hdf5_dir_varName $hdf5_dir_varValue
     
     Write-Host "Checking Env:HDF5_DIR..."
@@ -104,17 +127,14 @@ function InstallHDF5() {
     cd ..
     pwd
     
-    Write-Host "HDF5-1.10.7 installation complete..."
-    #$Program_Dir = "C:/Program Files"
-    #Write-Host "ls $Program_Dir"
-    #ls $Program_Dir
+    Write-Host "$hdf5_version_name_upper installation complete..."
 }
 
 function InstallCGNS() {
+    $global:cgns_version = "4.4.0"
     DownloadCGNS    
     Write-Host "Installing CGNS..."
     $zipexe = "C:/Program Files/7-zip/7z.exe" 
-    $cgns_version = "4.4.0"
     $arg = "x ./CGNS-$cgns_version.zip"
     Start-Process $zipexe -Wait -ArgumentList $arg
     ls
@@ -178,21 +198,8 @@ function InstallMETIS() {
     Write-Host "METIS-5.1.0 installation complete..."
 }
 
-function DownloadHDF5() {
-    $hdf5_version_name = "hdf5-1.10.7"
-    Write-Host "Downloading $hdf5_version_name..."
-    $hdf5_url          = "https://support.hdfgroup.org/ftp/HDF5/releases/hdf5-1.10/hdf5-1.10.7/bin/windows/"
-    $hdf5_name         = "hdf5-1.10.7-Std-win10_64-vs16"
-    $hdf5_package_name = $hdf5_name + ".zip"
-    $hdf5_web_addr = $hdf5_url + $hdf5_package_name
-          
-    MyDownloadFile( $hdf5_web_addr )
-    ls
-    Write-Host "$hdf5_version_name downloading complete"
-}
-
 function DownloadCGNS() {
-    $cgns_version = "4.4.0"
+    #$cgns_version = "4.4.0"
     Write-Host "Downloading CGNS-$cgns_version..."
     $download_url = "https://github.com/CGNS/CGNS/archive/refs/tags/"
     $cgns_filename = "v$cgns_version.zip"
