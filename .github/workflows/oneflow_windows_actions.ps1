@@ -98,8 +98,8 @@ function DownloadHDF5() {
 }
 
 function InstallHDF5() {
-    $hdf5_version_name_upper = $hdf5_version_name.ToUpper()
     DownloadHDF5
+    $hdf5_version_name_upper = $hdf5_version_name.ToUpper()
     $zipexe = "C:/Program Files/7-zip/7z.exe" 
     $arg = "x ./$global:hdf5_package_name"
     Start-Process $zipexe -Wait -ArgumentList $arg
