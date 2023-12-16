@@ -5,13 +5,13 @@ function AddMachinePath( $varPath ) {
 }
 
 function GetMachineEnvironmentVariable( $varName ) {
-    $varValue = [environment]::GetEnvironmentvariable($varName , [System.EnvironmentVariableTarget]::Machine)
+    $varValue = [System.Environment]::GetEnvironmentvariable($varName , [System.EnvironmentVariableTarget]::Machine)
     $varValue
 }
 
 function ModifyMachineEnvironmentVariable( $varName, $varValue ) {
     $target = "Machine"
-    [Environment]::SetEnvironmentVariable($varName, $varValue, $target)
+    [System.Environment]::SetEnvironmentVariable($varName, $varValue, $target)
 }
 
 function MyGetFileName( $filePath ) {
@@ -121,6 +121,11 @@ function InstallHDF5() {
     
     Write-Host "Checking Env:HDF5_DIR..."
     Write-Host "Env:HDF5_DIR = $Env:HDF5_DIR"
+    $tmp = GetMachineEnvironmentVariable("HDF5_DIR")
+    Write-Host "tmp = $tmp"
+    $tmp1 = GetMachineEnvironmentVariable("$hdf5_dir_varName")
+    Write-Host "tmp1 = $tmp1"
+
 
     cd ..
     pwd
