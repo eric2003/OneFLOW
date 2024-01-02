@@ -106,4 +106,4 @@ The current OneFLOW release has been coordinated by the OneFLOW International De
 
 如果在编译和运行代码中遇到问题，可随时通过邮件联系。
 
-Copyright 2017-2023, He Xin, and the OneFLOW contributors.
+Copyright 2017-2024, He Xin, and the OneFLOW contributors.

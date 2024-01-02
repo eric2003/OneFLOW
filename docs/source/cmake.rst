@@ -734,3 +734,87 @@ cmake --build . --target print results:
   set_property(TARGET demo PROPERTY
                IMPORTED_LOCATION "./bin/demo")
 
+bigobj problem
+
+.. code-block:: cmake
+
+  if ( MSVC )
+    target_compile_options( testprj 
+      PRIVATE
+        /bigobj
+    )
+  endif()
+  
+string(REGEX REPLACE 
+
+.. code-block:: cmake
+
+  set(myString "Hello, World!")
+  string(REGEX REPLACE "Hello" "Hi" myOutString ${myString})
+  message ( STATUS "myString = ${myString}" )
+  message ( STATUS "myOutString = ${myOutString}" )
+  
+results:
+::
+
+  -- myString = Hello, World!
+  -- myOutString = Hi, World!  
+  
+  
+在CMake中，使用message(TRACE ...)命令可以输出跟踪级别的消息。这些消息通常用于调试目的，但默认情况下，CMake可能不会显示跟踪级别的消息。
+
+要查看跟踪级别的消息，可以在运行CMake时设置CMAKE_MESSAGE_LOG_LEVEL变量为TRACE。例如，在命令行中运行以下命令：  
+
+::
+
+  cmake -DCMAKE_MESSAGE_LOG_LEVEL=TRACE /path/to/your/source
+  
+message的高级使用-指定日志级别 message([<mode>] "message")
+它的级别有--log-level = <ERROR|WARNING|NOTICE|STATUS|VERBOSE|DEBUG|TRACE>  
+
+cmake -E
+--------------
+::
+
+  Usage: C:\Program Files\CMake\bin\cmake.exe -E <command> [arguments...]
+  Available commands:
+    capabilities              - Report capabilities built into cmake in JSON format
+    cat [--] <files>...       - concat the files and print them to the standard output
+    chdir dir cmd [args...]   - run command in a given directory
+    compare_files [--ignore-eol] file1 file2
+                                - check if file1 is same as file2
+    copy <file>... destination  - copy files to destination (either file or directory)
+    copy_directory <dir>... destination   - copy content of <dir>... directories to 'destination' directory
+    copy_directory_if_different <dir>... destination   - copy changed content of <dir>... directories to 'destination' directory
+    copy_if_different <file>... destination  - copy files if it has changed
+    echo [<string>...]        - displays arguments as text
+    echo_append [<string>...] - displays arguments as text but no new line
+    env [--unset=NAME ...] [NAME=VALUE ...] [--] <command> [<arg>...]
+                              - run command in a modified environment
+    environment               - display the current environment
+    make_directory <dir>...   - create parent and <dir> directories
+    md5sum <file>...          - create MD5 checksum of files
+    sha1sum <file>...         - create SHA1 checksum of files
+    sha224sum <file>...       - create SHA224 checksum of files
+    sha256sum <file>...       - create SHA256 checksum of files
+    sha384sum <file>...       - create SHA384 checksum of files
+    sha512sum <file>...       - create SHA512 checksum of files
+    remove [-f] <file>...     - remove the file(s), use -f to force it (deprecated: use rm instead)
+    remove_directory <dir>... - remove directories and their contents (deprecated: use rm instead)
+    rename oldname newname    - rename a file or directory (on one volume)
+    rm [-rRf] [--] <file/dir>... - remove files or directories, use -f to force it, r or R to remove directories and their contents recursively
+    sleep <number>...         - sleep for given number of seconds
+    tar [cxt][vf][zjJ] file.tar [file/dir1 file/dir2 ...]
+                              - create or extract a tar or zip archive
+    time command [args...]    - run command and display elapsed time
+    touch <file>...           - touch a <file>.
+    touch_nocreate <file>...  - touch a <file> but do not create it.
+    create_symlink old new    - create a symbolic link new -> old
+    create_hardlink old new   - create a hard link new -> old
+    true                      - do nothing with an exit code of 0
+    false                     - do nothing with an exit code of 1
+  Available on Windows only:
+    delete_regv key           - delete registry value
+    env_vs8_wince sdkname     - displays a batch file which sets the environment for the provided Windows CE SDK installed in VS2005
+    env_vs9_wince sdkname     - displays a batch file which sets the environment for the provided Windows CE SDK installed in VS2008
+    write_regv key value      - write registry value

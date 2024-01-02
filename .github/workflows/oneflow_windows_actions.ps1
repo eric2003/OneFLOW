@@ -113,7 +113,6 @@ function InstallHDF5() {
     ls $HDF5_InstallDir
     
     $hdf5_dir_varName = "HDF5_DIR"
-    #$hdf5_dir_varValue = "C:\Program Files\HDF_Group\HDF5\1.10.7\cmake"
     $hdf5_dir_varValue = "$HDF5_InstallDir/cmake"
     Write-Host "hdf5_dir_varName = $hdf5_dir_varName"
     Write-Host "hdf5_dir_varValue = $hdf5_dir_varValue"

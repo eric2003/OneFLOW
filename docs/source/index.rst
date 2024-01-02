@@ -35,6 +35,7 @@ OneFLOW is a general-purpose, unstructured Computational Fluid Dynamics (CFD) so
    /cmake
    /cmd
    /cuda
+   /design_patterns
    /eigen   
    /git   
    /fortran
@@ -58,6 +59,7 @@ OneFLOW is a general-purpose, unstructured Computational Fluid Dynamics (CFD) so
    /powershell
    /python/index   
    /qt
+   /regex
    /science
    /sphinx
    /system/index
@@ -65,4 +67,7 @@ OneFLOW is a general-purpose, unstructured Computational Fluid Dynamics (CFD) so
    /tcltk
    /tecplot
    /test
+   /unreal_engine
    /vcpkg
+   /yaml
+   

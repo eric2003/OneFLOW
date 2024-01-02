@@ -11,6 +11,21 @@ Python Tutorial
 #. `Python for Scientific Computing <https://sbu-python-class.github.io/python-science/Introduction.html>`_
 
 
+uninstall pip:
+::
+
+   python -m pip uninstall pip
+   py.exe -m pip uninstall pip
+   py.exe -m ensurepip –upgrade
+
+install pip:
+::
+
+  curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
+  py.exe get-pip.py
+  
+
+
 ModuleNotFoundError: No module named 'scipy':
 ::
 
