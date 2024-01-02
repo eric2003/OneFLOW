@@ -9,6 +9,8 @@ Qt is a cross-platform application development framework that allows developers 
 #. `Qt 6.3.1 C++ GUI Development Tutorial <https://zhuanlan.zhihu.com/p/565557087/>`_
 #. `Qt6+windeployqt Series Link Compilation <https://zhuanlan.zhihu.com/p/566839520/>`_
 #. `QMYSQL driver 6.6.1 <https://github.com/thecodemonkey86/qt_mysql_driver/>`_
+#. `《Qt 5.9 C++开发指南》2021 完整版 <https://www.bilibili.com/video/BV1AX4y1w7Nt/>`_
+#. `Qt6.3.1 C++ GUI开发教程（完整版） <https://www.bilibili.com/video/BV1G94y1Q7h6/>`_
 
 
 Building from source (Qt6/CMake)

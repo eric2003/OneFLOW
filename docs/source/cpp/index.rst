@@ -50,7 +50,38 @@ ModuleNotFoundError: No module named 'scipy':
    :maxdepth: 1
 
    /cpp/time
-
    
+CppCon 2019
+--------------   
+#. `C++ Design Patterns: From C++03 to C++17 - Fedor Pikus - CppCon 2019 <https://www.youtube.com/watch?v=MdtYi0vvct0/>`_
    
+CppCon 2022
+--------------   
+#. `Using Modern C++ to Eliminate Virtual Functions - Jonathan Gopel - CppCon 2022 <https://www.youtube.com/watch?v=gTNJXVmuRRA/>`_
 
+CppCon 2023
+--------------   
+#. `C++ Modules: Getting Started Today - Andreas Weis - CppCon 2023 <https://www.youtube.com/watch?v=_x9K9_q2ZXE/>`_
+
+
+CppNow 2023
+--------------   
+#. `Applicative: The Forgotten Functional Pattern in C++ - Ben Deane - CppNow 2023 <https://www.youtube.com/watch?v=At-b4PHNxMg/>`_
+#. `What is Low Latency C++? (Part 1) - Timur Doumler - CppNow 2023 <https://www.youtube.com/watch?v=EzmNeAhWqVs/>`_
+#. `What is Low Latency C++? (Part 2) - Timur Doumler - CppNow 2023 <https://www.youtube.com/watch?v=5uIsadq-nyk/>`_
+#. `Reflect *this!: Design and Implementation of a Mixin Library with Static Reflection - Andy Soffer <https://www.youtube.com/watch?v=kFChd-RrSP8/>`_
+
+C++ on Sea 2023
+-----------------------
+#. `New Algorithms in C++23 - Conor Hoekstra - C++ on Sea 2023 <https://www.youtube.com/watch?v=uYFRnsMD9ks/>`_
+#. `Templates Made Easy With C++20 - Roth Michaels - C++ on Sea 2023 <https://www.youtube.com/watch?v=z8e5cyZJtUw/>`_
+#. `A Safer Iteration Model for C++ - Tristan Brindle - C++ on Sea 2023 <https://www.youtube.com/watch?v=4dADc4RRC48/>`_
+#. `Employing Modern C++ for High Performance Delta-Coding Compression - Eduardo Madrid - C++ on Sea <https://www.youtube.com/watch?v=CZMuMINaS5Q/>`_
+#. `*(char*)0 = 0; - What Does the C++ Programmer Intend With This Code? - JF Bastien - C++ on Sea 2023 <https://www.youtube.com/watch?v=dFIqNZ8VbRY/>`_
+#. `The C++ rvalue Lifetime Disaster - Arno Schoedl - C++ on Sea 2023 <https://www.youtube.com/watch?v=9V195P3Tv_8/>`_
+#. `C++ Features You Might Not Know - Jonathan Müller - C++ on Sea 2023 <https://www.youtube.com/watch?v=zGWj7Qo_POY/>`_
+
+
+Modern Cpp
+---------------------
+#. `Modern C++入门到精通系列链接 <https://zhuanlan.zhihu.com/p/463638993/>`_ 
