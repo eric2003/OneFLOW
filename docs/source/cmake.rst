@@ -71,8 +71,15 @@ CMAKE_PREFIX_PATH
 #. `C++ Modules in 2023 <https://www.youtube.com/watch?v=vAjEkIy43-c/>`_
 #. `C++ Features You Might Not Know - Jonathan Müller - C++ on Sea 2023 <https://www.youtube.com/watch?v=zGWj7Qo_POY/>`_
 
+Set Start project(Visual Studio)
+::
 
-
+  if (MSVC)
+    set_property ( DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+      PROPERTY 
+         VS_STARTUP_PROJECT ${PROJECT_NAME}
+    )
+  endif () 
 
 CMake+Qt Example
 ::
@@ -818,3 +825,36 @@ cmake -E
     env_vs8_wince sdkname     - displays a batch file which sets the environment for the provided Windows CE SDK installed in VS2005
     env_vs9_wince sdkname     - displays a batch file which sets the environment for the provided Windows CE SDK installed in VS2008
     write_regv key value      - write registry value
+
+Fortran CMake
+::
+
+  cmake_minimum_required(VERSION 3.28)
+  
+  project ( testprj )
+  
+  set ( PRJ_COMPILE_FEATURES )
+  set ( PRJ_COMPILE_DEFINITIONS )
+  
+  enable_language(Fortran)
+  
+  if (MSVC)
+    set_property ( DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+      PROPERTY 
+         VS_STARTUP_PROJECT ${PROJECT_NAME}
+    )
+  endif ()  
+  
+  add_executable( ${PROJECT_NAME}
+      main.f90
+  )
+  
+  target_compile_features ( ${PROJECT_NAME} 
+  	PRIVATE 
+  		${PRJ_COMPILE_FEATURES}
+  )
+  
+  target_compile_definitions ( ${PROJECT_NAME}
+  	PRIVATE
+  	   ${PRJ_COMPILE_DEFINITIONS} 
+  )

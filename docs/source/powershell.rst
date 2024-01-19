@@ -5,6 +5,7 @@ PowerShell
 ---------------------------------
 #. `PowerShell相关链接 <https://zhuanlan.zhihu.com/p/481907978/>`_
 #. `Manage GitHub with PowerShell <https://www.youtube.com/watch?v=w8tFyophdBA/>`_
+#. `PowerShell For Beginners Full Course | PowerShell Beginner tutorial Full Course <https://www.youtube.com/watch?v=UVUd9_k9C6A/>`_
 
 
 You can edit your Microsoft.VSCode_profile.ps1 file (full path can be found when you type $profile in the editor and remove all code referring to anaconda. To open the profile file, type notepad $profile in the terminal. 
@@ -220,3 +221,52 @@ Find PowerShell 7 (x64)
   ----                 -------------         ------ ----
   -a----        2023/11/11      1:59         280000 pwsh.exe
 
+Write-Output
+-----------------------------------
+::
+
+  $array=@(1,2,3,5,6,7,8);
+  Write-Output "array.Length=$($array.Length)"
+  typical results:
+  array.Length=7
+  
+Write-Output
+-----------------------------------
+::
+
+  $pets = @{Cat = 'Frisky'; Dog = 'Spot'; Fish = 'Nimo'; Hamster = 'Whiskers'}
+  Write-Output "`$pets=$pets"
+  $pets
+  Write-Output "`$pets.Cat=$($pets.Cat)"
+  Write-Output "`$pets.Dog=$($pets.Dog)"
+  Write-Output "`$pets.Fish=$($pets.Fish)"
+  Write-Output "`$pets.Hamster=$($pets.Hamster)"
+  $pets=System.Collections.Hashtable
+  
+  Name                           Value
+  ----                           -----
+  Fish                           Nimo
+  Cat                            Frisky
+  Hamster                        Whiskers
+  Dog                            Spot
+  $pets.Cat=Frisky
+  $pets.Dog=Spot
+  $pets.Fish=Nimo
+  $pets.Hamster=Whiskers  
+
+
+Get-Command -Name
+--------------------------------
+::
+  
+  Get-Command -Name "sort.exe"  
+  CommandType     Name        Version    Source
+  -----------     ----        -------    ------
+  Application     sort.exe    10.0.22... C:\Windows\system32\sort.exe  
+  
+  
+msiexec.exe
+--------------------------------
+::
+
+   msiexec.exe /i 

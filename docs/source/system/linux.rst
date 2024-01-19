@@ -76,3 +76,7 @@ check ubuntu ``version`` method 3
   eric@eric-virtual-machine:~$  uname -a
   Linux eric-virtual-machine 6.2.0-37-generic #38~22.04.1-Ubuntu SMP PREEMPT_DYNAMIC Thu Nov  2 18:01:13 UTC 2 x86_64 x86_64 x86_64 GNU/Linux
 
+
+Vim
+`````````````````
+#. `Linux vi/vim <https://www.runoob.com/linux/linux-vim.html>`_
