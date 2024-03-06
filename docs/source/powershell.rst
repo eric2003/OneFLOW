@@ -269,4 +269,19 @@ msiexec.exe
 --------------------------------
 ::
 
-   msiexec.exe /i 
+   msiexec.exe /i D:\work\batch_work\ModernBatchFiles\codes\download\03\msmpisdk.msi
+   
+How to install MSI file to the custom directory using PowerShell?
+----------------------------------------------------------------------   
+#. `How to install MSI file to the custom directory using PowerShell? <https://www.youtube.com/watch?v=dnZcZCHdx0k/>`_
+
+To install the MSI file to the custom directory using PowerShell, we can use the TARGETDIR, INSTALLDIR, INSTALLPATH, etc arguments for the custom path, depending upon the MSI file that it supports.
+::
+
+  msiexec /i "C:\temp\7z1900-x64.msi" INSTALLDIR="D:\ProgramFiles\7zip" /quiet
+  
+The above command can be run into PowerShell and cmd both but you can’t control the process that to wait until the installation finishes. To control the above command, we can use the Start-Process cmdlet in PowerShell.
+::
+
+  Start-Process -FilePath "C:\windows\system32\msiexec.exe" -ArgumentList "/i
+  C:\temp\7z1900-x64.msi INSTALLDIR='D:\ProgramFiles\7zip' /quiet" -Wait
