@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vortex-Merger Problem &mdash; Scientific Computing 1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../_static/documentation_options.js?v=f2a433a1"></script>
+        <script src="../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="CFD Methods" href="../method/index.html" />
+    <link rel="prev" title="Poisson Equation" href="poisson.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            Scientific Computing
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Get started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../info.html">OneFLOW</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../user.html">THEORY</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../bash.html">Bash</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">CFD</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../ns.html">Navier–Stokes equations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../leibniz.html">Leibniz integral</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../rtt.html">Reynolds’ transport theorem</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../mass.html">Conservation Of Mass</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../momenum.html">Momentum Analysis Of Flow Systems</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../energy.html">Conservation Of Energy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../ns-integral.html">ALE Form of Conservation Equations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../curvilinear.html">Generalized Curvilinear Coordinate System</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../curvilinear3d.html">Generalized Curvilinear Coordinate System(3D)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../vector.html">Vector &amp; Tensor</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../matrix.html">Matrix</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../calculus.html">Calculus</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../substitution.html">Substitution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../jacobian.html">Jacobian matrix</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../gauss.html">Gauss’s Theorem</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../strain.html">Strain Measures</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../ale.html">Arbitrary Lagrangian-Eulerian</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../ale1d.html">ALE 1D</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../deformation.html">Deformation and Motion</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../derivative.html">Fluid Derivative</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../material_derivative.html">Material Time Derivative</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../scheme/index.html">CFD Schemes</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="index.html">CFD Examples</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="1d.html">CFD Examples 1D</a></li>
+<li class="toctree-l3"><a class="reference internal" href="burgers.html">Inviscid Burgers Equation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="euler1d.html">One-Dimensional Euler Solver</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sod.html">Sod’s shock-tube problem</a></li>
+<li class="toctree-l3"><a class="reference internal" href="poisson.html">Poisson Equation</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Vortex-Merger Problem</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#vortex-merger">Vortex-Merger</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#taylorgreen-vortex">Taylor–Green vortex</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="index.html#verification-and-validation">Verification and Validation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="index.html#cfd-benchmark-cases">CFD benchmark cases</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../method/index.html">CFD Methods</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../codes.html">Reference Codes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../videos.html">CFD &amp; CAE Videos</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../books.html">Books</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../docs.html">Documents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../cgns.html">CGNS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../chatgpt.html">CHATGPT</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../cpp/index.html">CPP</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../cmake.html">CMake</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../cmd.html">Cmd</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../cuda.html">CUDA</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../design_patterns.html">Design Patterns</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../eigen.html">Eigen3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../git.html">Git</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../git.html#contexts">Contexts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fortran.html">Fortran</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../hdf5.html">HDF5</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../hpc.html">HPC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../install/index.html">Install</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../julia.html">Julia</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../jupyter.html">Jupyter Notebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../latex.html">LaTeX</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../makefile.html">Makefile</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../metis.html">METIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../mkdocs.html">MkDocs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../modules.html">Environment Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../mpi.html">MPI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../numerical/index.html">Numerical analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../oneapi.html">oneAPI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../oneflow.html">OneFLOW-CFD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../openacc.html">OpenACC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../opencl.html">OpenCL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../opengl.html">OpenGL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../openmp.html">OpenMP</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../powershell.html">PowerShell</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../python/index.html">Python</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../qt.html">Qt</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../regex.html">Regular Expressions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../science.html">Science</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sphinx.html">Sphinx</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../system/index.html">System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../taichi.html">Taichi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tcltk.html">Tcl/tk</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tecplot.html">Tecplot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../test.html">Test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../unreal_engine.html">Unreal Engine</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../vcpkg.html">vcpkg</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../yaml.html">yaml</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Scientific Computing</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">CFD</a></li>
+          <li class="breadcrumb-item"><a href="index.html">CFD Examples</a></li>
+      <li class="breadcrumb-item active">Vortex-Merger Problem</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/cfd/examples/vortex.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="vortex-merger-problem">
+<h1>Vortex-Merger Problem<a class="headerlink" href="#vortex-merger-problem" title="Link to this heading"></a></h1>
+<ol class="arabic simple">
+<li><p><a class="reference external" href="https://www.mdpi.com/2311-5521/4/3/159/">CFD Julia: A Learning Module Structuring an Introductory Course on Computational Fluid Dynamics</a></p></li>
+<li><p><cite>San, O.; Staples, A.E. High-order methods for decaying two-dimensional homogeneous isotropic turbulence. Comput. Fluids 2012, 63, 105–127.</cite></p></li>
+<li><p><cite>Meunier, P.; Le Dizes, S.; Leweke, T. Physics of vortex merging. Comptes Rendus Phys. 2005, 6, 431–450.</cite></p></li>
+<li><p><cite>San, O.; Staples, A.E. A coarse-grid projection method for accelerating incompressible flow computations. J. Comput. Phys. 2013, 233, 480–508.</cite></p></li>
+<li><p><a class="reference external" href="https://asmedigitalcollection.asme.org/verification/article-abstract/8/2/021003/1163559/Code-Verification-for-the-SENSEI-CFD-Code?redirectedFrom=fulltext">Code Verification for the SENSEI CFD Code</a></p></li>
+<li><p><a class="reference external" href="https://scholar.google.com/citations?user=tRtBtbIAAAAJ&amp;hl=en">Weicheng Xue</a></p></li>
+</ol>
+<section id="vortex-merger">
+<h2>Vortex-Merger<a class="headerlink" href="#vortex-merger" title="Link to this heading"></a></h2>
+<p>We demonstrate the two-dimensional Navier-Stokes solver for the domain with periodic boundary condition using vortex-merger problem.
+The merging process occurs when two vortices of the same sign with parallel axes are within a certain critical distance from each other.
+The two vortices merge to form a single vortex. It is a two-dimensional process and is one of the fundamental processes of fluid motion and it plays a key role in a variety of simulations, such as decaying two-dimensional turbulence, three-dimensional turbulence, and mixing layers.
+This phenomenon also occurs in other fields such as astrophysics, meteorology, and geophysics.</p>
+<p>We use the Cartesian computational domain <span class="math notranslate nohighlight">\((x,y)\in[0,2\pi]\times[0,2\pi]\)</span> and divide it into <span class="math notranslate nohighlight">\(128\times 128\)</span> grid resolution.
+The vorticity equation for the vortex-merger problem is same as the lid-driven cavity problem. We use <span class="math notranslate nohighlight">\(Re=2000\)</span> and integrate the solution from time
+<span class="math notranslate nohighlight">\(t=0\)</span> to <span class="math notranslate nohighlight">\(t=20\)</span> with <span class="math notranslate nohighlight">\(\Delta t=0.01\)</span>. We use third-order Runge-Kutta method for time integration similar to the lid-driven cavity problem.</p>
+</section>
+<section id="taylorgreen-vortex">
+<h2>Taylor–Green vortex<a class="headerlink" href="#taylorgreen-vortex" title="Link to this heading"></a></h2>
+<p>The Taylor–Green vortex problem is the two-dimensional,
+unsteady flow of a decaying vortex, which is an exact closed form
+solution to the incompressible Navier–Stokes equations in Cartesian coordinates. The exact solution of this vortex flow in a
+<span class="math notranslate nohighlight">\([0,2\pi]\times[0,2\pi]\)</span> domain with periodic boundary conditions is given by</p>
+<div class="math notranslate nohighlight">
+\[\omega^{e}(x,y,t)=2\kappa \cos(\kappa x)\cos(\kappa y)e^{-2\kappa^{2}t/Re}\]</div>
+<p>where <span class="math notranslate nohighlight">\(\kappa\)</span> is an integer which represents the number of vortices in
+each direction. In order to quantify the effective order of accuracy
+for each scheme, using the difference between exact and computed
+solutions, we compute the discrete <span class="math notranslate nohighlight">\(L_{2}\)</span> norm as</p>
+<div class="math notranslate nohighlight">
+\[\|\omega\|_{L_{2}}=\sqrt{\cfrac{1}{N_xN_y}\sum_{i=1}^{N_{x}}\sum_{j=1}^{N_{y}}|\omega_{i,j}^{e}-\omega_{i,j}|^{2}}\]</div>
+<p>In order to test the spatial convergence rate, we first perform
+numerical simulations for <span class="math notranslate nohighlight">\(Re = 1\)</span> and <span class="math notranslate nohighlight">\(\kappa = 4\)</span> with all the spatial
+schemes introduced earlier using the third-order TVD Runge–Kutta
+scheme with <span class="math notranslate nohighlight">\(\Delta t=10^{-4}\)</span>.  We choose this small time step (wherein
+the maximum CFL number is around 0.002 for the <span class="math notranslate nohighlight">\(128^{2}\)</span> resolution case)
+to eliminate possible temporal discretization errors due to the Runge–Kutta time integration schemes.
+A study with <span class="math notranslate nohighlight">\(\Delta t=2\times 10^{-4},10^{-4}\)</span>, and <span class="math notranslate nohighlight">\(\Delta t=5\times 10^{-5}\)</span> shows that the predicted flow
+field is independent of <span class="math notranslate nohighlight">\(\Delta t\)</span>. To further verify whether the simulations are independent of the errors associated with temporal
+discretization, we also run the same computations using the fourth-order Runge Kutta scheme, which yields exactly the same results.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="poisson.html" class="btn btn-neutral float-left" title="Poisson Equation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../method/index.html" class="btn btn-neutral float-right" title="CFD Methods" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2017~2024, eric.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

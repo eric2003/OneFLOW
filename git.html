@@ -1,0 +1,927 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Git &mdash; Scientific Computing 1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js?v=5d32c60e"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="_static/documentation_options.js?v=f2a433a1"></script>
+        <script src="_static/doctools.js?v=888ff710"></script>
+        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Fortran" href="fortran.html" />
+    <link rel="prev" title="Eigen3" href="eigen.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Scientific Computing
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Get started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="info.html">OneFLOW</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="user.html">THEORY</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="bash.html">Bash</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cfd/index.html">CFD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cgns.html">CGNS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="chatgpt.html">CHATGPT</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cpp/index.html">CPP</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cmake.html">CMake</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cmd.html">Cmd</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cuda.html">CUDA</a></li>
+<li class="toctree-l1"><a class="reference internal" href="design_patterns.html">Design Patterns</a></li>
+<li class="toctree-l1"><a class="reference internal" href="eigen.html">Eigen3</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Git</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#id1">Git</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id5">GitHub Actions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="#contexts">Contexts</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#how-to-pass-data-between-workflows-in-github-actions">How To Pass Data Between Workflows in GitHub Actions?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#rest-api">REST API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#github-actions-windows-msys2-ms-mpi">GitHub Actions Windows MSYS2 MS-MPI</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="fortran.html">Fortran</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hdf5.html">HDF5</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hpc.html">HPC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="install/index.html">Install</a></li>
+<li class="toctree-l1"><a class="reference internal" href="julia.html">Julia</a></li>
+<li class="toctree-l1"><a class="reference internal" href="jupyter.html">Jupyter Notebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="latex.html">LaTeX</a></li>
+<li class="toctree-l1"><a class="reference internal" href="makefile.html">Makefile</a></li>
+<li class="toctree-l1"><a class="reference internal" href="metis.html">METIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mkdocs.html">MkDocs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modules.html">Environment Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mpi.html">MPI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="numerical/index.html">Numerical analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="oneapi.html">oneAPI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="oneflow.html">OneFLOW-CFD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="openacc.html">OpenACC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="opencl.html">OpenCL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="opengl.html">OpenGL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="openmp.html">OpenMP</a></li>
+<li class="toctree-l1"><a class="reference internal" href="powershell.html">PowerShell</a></li>
+<li class="toctree-l1"><a class="reference internal" href="python/index.html">Python</a></li>
+<li class="toctree-l1"><a class="reference internal" href="qt.html">Qt</a></li>
+<li class="toctree-l1"><a class="reference internal" href="regex.html">Regular Expressions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="science.html">Science</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sphinx.html">Sphinx</a></li>
+<li class="toctree-l1"><a class="reference internal" href="system/index.html">System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="taichi.html">Taichi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tcltk.html">Tcl/tk</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tecplot.html">Tecplot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="test.html">Test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="unreal_engine.html">Unreal Engine</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vcpkg.html">vcpkg</a></li>
+<li class="toctree-l1"><a class="reference internal" href="yaml.html">yaml</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Scientific Computing</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Git</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/git.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="git">
+<h1>Git<a class="headerlink" href="#git" title="Link to this heading"></a></h1>
+<section id="id1">
+<h2>Git<a class="headerlink" href="#id1" title="Link to this heading"></a></h2>
+<ol class="arabic simple">
+<li><p><a class="reference external" href="https://www.runoob.com/git/git-push.html">Git 教程</a></p></li>
+<li><p><a class="reference external" href="https://zhuanlan.zhihu.com/p/503890935/">Git系列链接整理</a></p></li>
+<li><p><a class="reference external" href="http://www.pedestrian.com.cn/misc/git/git_normal.html#id2">git常用命令</a></p></li>
+<li><p><a class="reference external" href="https://zhuanlan.zhihu.com/p/388642124/">github actions 从入门到精通系列链接整理</a></p></li>
+</ol>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="o">--</span><span class="n">version</span>
+<span class="n">Typical</span> <span class="n">results</span><span class="p">:</span>
+<span class="n">PS</span> <span class="n">C</span><span class="p">:</span>\<span class="n">Users</span>\<span class="n">eric</span><span class="o">&gt;</span> <span class="n">git</span> <span class="o">--</span><span class="n">version</span>
+<span class="n">git</span> <span class="n">version</span> <span class="mf">2.43.0</span><span class="o">.</span><span class="n">windows</span><span class="mf">.1</span>
+</pre></div>
+</div>
+<p>查看远程仓库</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">remote</span> <span class="o">-</span><span class="n">v</span>
+<span class="n">Typical</span> <span class="n">results</span><span class="p">:</span>
+<span class="n">PS</span> <span class="n">D</span><span class="p">:</span>\<span class="n">github</span>\<span class="n">OneFLOW</span><span class="o">&gt;</span> <span class="n">git</span> <span class="n">remote</span> <span class="o">-</span><span class="n">v</span>
+<span class="n">origin</span>  <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">eric2003</span><span class="o">/</span><span class="n">OneFLOW</span><span class="o">.</span><span class="n">git</span> <span class="p">(</span><span class="n">fetch</span><span class="p">)</span>
+<span class="n">origin</span>  <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">eric2003</span><span class="o">/</span><span class="n">OneFLOW</span><span class="o">.</span><span class="n">git</span> <span class="p">(</span><span class="n">push</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">add</span> <span class="o">.</span>
+<span class="n">git</span> <span class="n">commit</span> <span class="o">-</span><span class="n">m</span> <span class="s2">&quot;first update&quot;</span>
+<span class="n">git</span> <span class="n">push</span> <span class="n">origin</span> <span class="n">main</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">config</span> <span class="o">--</span><span class="nb">list</span> <span class="o">--</span><span class="n">show</span><span class="o">-</span><span class="n">origin</span>
+<span class="n">Typical</span> <span class="n">results</span><span class="p">:</span>
+<span class="n">file</span><span class="p">:</span><span class="n">C</span><span class="p">:</span><span class="o">/</span><span class="n">Users</span><span class="o">/</span><span class="n">eric</span><span class="o">/.</span><span class="n">gitconfig</span>
+</pre></div>
+</div>
+<ol class="arabic simple">
+<li><p><a class="reference external" href="https://tsengbatty.medium.com/git-%E8%B8%A9%E5%9D%91%E7%B4%80%E9%8C%84-%E4%BA%8C-git-clone-with-ssh-keys-%E6%88%96-https-%E8%A8%AD%E5%AE%9A%E6%AD%A5%E9%A9%9F-bdb721bd7cf2/">git clone with SSH keys 或 HTTPS 設定步驟</a></p></li>
+</ol>
+<p>Check for an existing SSH key</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>ls -al ~/.ssh
+Typical results:
+$ ls -al ~/.ssh
+ls: cannot access &#39;/c/Users/eric/.ssh&#39;: No such file or directory
+</pre></div>
+</div>
+<p>If you don’t see any output or that directory doesn’t exist (you get a No such file or directory message), then run:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>mkdir $HOME/.ssh
+</pre></div>
+</div>
+<p>Then generate a new set of keys with:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">ssh</span><span class="o">-</span><span class="n">keygen</span> <span class="o">-</span><span class="n">t</span> <span class="n">rsa</span> <span class="o">-</span><span class="n">b</span> <span class="mi">4096</span> <span class="o">-</span><span class="n">C</span> <span class="n">your</span><span class="nd">@email</span><span class="o">.</span><span class="n">com</span>
+</pre></div>
+</div>
+<p>#. <a class="reference external" href="https://mingda.dev/2022/05/23/removing-passphrase-from-ssh-private-key/">如何清空ssh私钥对应的passphrase？</a></p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">ssh</span><span class="o">-</span><span class="n">keygen</span> <span class="o">-</span><span class="n">p</span>
+</pre></div>
+</div>
+<p>git clone REPOSITORY.git by ssh</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">clone</span> <span class="n">git</span><span class="nd">@github</span><span class="o">.</span><span class="n">com</span><span class="p">:</span><span class="n">USERNAME</span><span class="o">/</span><span class="n">REPOSITORY</span><span class="o">.</span><span class="n">git</span>
+</pre></div>
+</div>
+<p>The authenticity of host ‘github.com (192.30.255.113)’ can’t be established.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">ssh</span><span class="o">-</span><span class="n">keyscan</span> <span class="n">github</span><span class="o">.</span><span class="n">com</span> <span class="o">&gt;&gt;</span> <span class="o">~/.</span><span class="n">ssh</span><span class="o">/</span><span class="n">known_hosts</span>
+</pre></div>
+</div>
+<p>測試是否設定成功 &amp; 設定 SSH agent</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>ssh -T git@github.com
+PS C:\Users\eric&gt; ssh -T git@github.com
+The authenticity of host &#39;github.com (192.30.255.113)&#39; can&#39;t be established.
+ED25519 key fingerprint is ****.
+This key is not known by any other names
+Are you sure you want to continue connecting (yes/no/[fingerprint])? yes
+Warning: Permanently added &#39;github.com&#39; (ED25519) to the list of known hosts.
+Hi eric2003! You&#39;ve successfully authenticated, but GitHub does not provide shell access.
+</pre></div>
+</div>
+<p>Recv failure: Connection was reset</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">config</span> <span class="o">--</span><span class="k">global</span> <span class="o">--</span><span class="n">unset</span> <span class="n">http</span><span class="o">.</span><span class="n">proxy</span>
+<span class="n">git</span> <span class="n">config</span> <span class="o">--</span><span class="k">global</span> <span class="o">--</span><span class="n">unset</span> <span class="n">https</span><span class="o">.</span><span class="n">proxy</span>
+<span class="n">ipconfig</span> <span class="o">/</span><span class="n">flushdns</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">config</span> <span class="o">--</span><span class="k">global</span> <span class="n">http</span><span class="o">.</span><span class="n">proxy</span> <span class="n">http</span><span class="p">:</span><span class="o">//</span><span class="mf">127.0.0.1</span><span class="p">:</span><span class="mi">1234</span>
+<span class="n">git</span> <span class="n">config</span> <span class="o">--</span><span class="k">global</span> <span class="n">https</span><span class="o">.</span><span class="n">proxy</span> <span class="n">http</span><span class="p">:</span><span class="o">//</span><span class="mf">127.0.0.1</span><span class="p">:</span><span class="mi">1234</span>
+</pre></div>
+</div>
+<p>Download your recovery codes
+You can use recovery codes as a second factor to authenticate in case you lose access to your device. We recommend saving them with a secure password manager such as 1Password, Authy, or Keeper.</p>
+<p>git tag</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">tag</span> <span class="mf">0.0.4</span>
+</pre></div>
+</div>
+<p>git branch</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">branch</span>
+</pre></div>
+</div>
+<p>git log</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">log</span>
+<span class="n">Typical</span> <span class="n">results</span><span class="p">:</span>
+<span class="n">PS</span> <span class="n">D</span><span class="p">:</span>\<span class="n">work</span>\<span class="n">github_work</span>\<span class="n">Foo</span><span class="o">&gt;</span> <span class="n">git</span> <span class="n">log</span>
+<span class="n">commit</span> <span class="mi">9</span><span class="n">b79604a930bf3f02f4eb9647b4316257d31866c</span> <span class="p">(</span><span class="n">HEAD</span> <span class="o">-&gt;</span> <span class="n">main</span><span class="p">,</span> <span class="n">origin</span><span class="o">/</span><span class="n">main</span><span class="p">,</span> <span class="n">origin</span><span class="o">/</span><span class="n">HEAD</span><span class="p">)</span>
+<span class="n">Author</span><span class="p">:</span> <span class="n">eric</span> <span class="o">&lt;****</span><span class="nd">@hotmail</span><span class="o">.</span><span class="n">com</span><span class="o">&gt;</span>
+<span class="n">Date</span><span class="p">:</span>   <span class="n">Tue</span> <span class="n">Dec</span> <span class="mi">5</span> <span class="mi">18</span><span class="p">:</span><span class="mi">55</span><span class="p">:</span><span class="mi">47</span> <span class="mi">2023</span> <span class="o">+</span><span class="mi">0800</span>
+
+    <span class="n">add</span> <span class="n">Foo</span><span class="p">:</span><span class="n">Foo</span> <span class="n">ALIAS</span>
+
+<span class="n">commit</span> <span class="mi">0</span><span class="n">c34e18006d72918b170d91b4508690ae94f7517</span> <span class="p">(</span><span class="n">tag</span><span class="p">:</span> <span class="mf">0.0.3</span><span class="p">)</span>
+<span class="n">Author</span><span class="p">:</span> <span class="n">eric</span> <span class="o">&lt;****</span><span class="nd">@hotmail</span><span class="o">.</span><span class="n">com</span><span class="o">&gt;</span>
+<span class="n">Date</span><span class="p">:</span>   <span class="n">Mon</span> <span class="n">Dec</span> <span class="mi">4</span> <span class="mi">22</span><span class="p">:</span><span class="mi">17</span><span class="p">:</span><span class="mi">12</span> <span class="mi">2023</span> <span class="o">+</span><span class="mi">0800</span>
+
+    <span class="n">add</span> <span class="n">config</span><span class="o">.</span><span class="n">cmake</span><span class="o">.</span><span class="ow">in</span>
+
+<span class="n">commit</span> <span class="mi">7</span><span class="n">fa1ed87c1c8efc8f95d67cbcf7574731270162b</span> <span class="p">(</span><span class="n">tag</span><span class="p">:</span> <span class="mf">0.0.2</span><span class="p">)</span>
+<span class="n">Author</span><span class="p">:</span> <span class="n">eric</span> <span class="o">&lt;****</span><span class="nd">@hotmail</span><span class="o">.</span><span class="n">com</span><span class="o">&gt;</span>
+<span class="n">Date</span><span class="p">:</span>   <span class="n">Tue</span> <span class="n">Nov</span> <span class="mi">28</span> <span class="mi">18</span><span class="p">:</span><span class="mi">27</span><span class="p">:</span><span class="mi">21</span> <span class="mi">2023</span> <span class="o">+</span><span class="mi">0800</span>
+
+    <span class="n">add</span> <span class="n">install</span>
+
+<span class="n">commit</span> <span class="n">c3f207cc80128b37acfa93a51731a0515a0bb5ad</span> <span class="p">(</span><span class="n">tag</span><span class="p">:</span> <span class="mf">0.0.1</span><span class="p">)</span>
+<span class="n">Author</span><span class="p">:</span> <span class="n">eric</span> <span class="o">&lt;****</span><span class="nd">@hotmail</span><span class="o">.</span><span class="n">com</span><span class="o">&gt;</span>
+<span class="n">Date</span><span class="p">:</span>   <span class="n">Tue</span> <span class="n">Nov</span> <span class="mi">28</span> <span class="mi">15</span><span class="p">:</span><span class="mi">59</span><span class="p">:</span><span class="mi">27</span> <span class="mi">2023</span> <span class="o">+</span><span class="mi">0800</span>
+
+    <span class="n">add</span> <span class="n">foo</span>
+
+<span class="n">commit</span> <span class="mf">8e5</span><span class="n">d2f82edd4c875076094360ca8d710b909f38a</span>
+<span class="n">Author</span><span class="p">:</span> <span class="n">eric</span> <span class="o">&lt;****</span><span class="nd">@hotmail</span><span class="o">.</span><span class="n">com</span><span class="o">&gt;</span>
+<span class="n">Date</span><span class="p">:</span>   <span class="n">Tue</span> <span class="n">Nov</span> <span class="mi">28</span> <span class="mi">15</span><span class="p">:</span><span class="mi">28</span><span class="p">:</span><span class="mi">46</span> <span class="mi">2023</span> <span class="o">+</span><span class="mi">0800</span>
+
+    <span class="n">Initial</span> <span class="n">commit</span>
+</pre></div>
+</div>
+<p>quit git log</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">q</span>
+</pre></div>
+</div>
+<p>git log pretty</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">log</span> <span class="o">--</span><span class="n">pretty</span><span class="o">=</span><span class="n">oneline</span> <span class="o">--</span><span class="n">abbrev</span><span class="o">-</span><span class="n">commit</span>
+<span class="n">Typical</span> <span class="n">results</span><span class="p">:</span>
+<span class="n">PS</span> <span class="n">D</span><span class="p">:</span>\<span class="n">work</span>\<span class="n">github_work</span>\<span class="n">Foo</span><span class="o">&gt;</span> <span class="n">git</span> <span class="n">log</span> <span class="o">--</span><span class="n">pretty</span><span class="o">=</span><span class="n">oneline</span> <span class="o">--</span><span class="n">abbrev</span><span class="o">-</span><span class="n">commit</span>
+<span class="mi">9</span><span class="n">b79604</span> <span class="p">(</span><span class="n">HEAD</span> <span class="o">-&gt;</span> <span class="n">main</span><span class="p">,</span> <span class="n">origin</span><span class="o">/</span><span class="n">main</span><span class="p">,</span> <span class="n">origin</span><span class="o">/</span><span class="n">HEAD</span><span class="p">)</span> <span class="n">add</span> <span class="n">Foo</span><span class="p">:</span><span class="n">Foo</span> <span class="n">ALIAS</span>
+<span class="mi">0</span><span class="n">c34e18</span> <span class="p">(</span><span class="n">tag</span><span class="p">:</span> <span class="mf">0.0.3</span><span class="p">)</span> <span class="n">add</span> <span class="n">config</span><span class="o">.</span><span class="n">cmake</span><span class="o">.</span><span class="ow">in</span>
+<span class="mi">7</span><span class="n">fa1ed8</span> <span class="p">(</span><span class="n">tag</span><span class="p">:</span> <span class="mf">0.0.2</span><span class="p">)</span> <span class="n">add</span> <span class="n">install</span>
+<span class="n">c3f207c</span> <span class="p">(</span><span class="n">tag</span><span class="p">:</span> <span class="mf">0.0.1</span><span class="p">)</span> <span class="n">add</span> <span class="n">foo</span>
+<span class="mf">8e5</span><span class="n">d2f8</span> <span class="n">Initial</span> <span class="n">commit</span>
+</pre></div>
+</div>
+<p>git tag</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">tag</span> <span class="o">-</span><span class="n">a</span> <span class="n">v0</span><span class="mf">.0.4</span> <span class="mi">9</span><span class="n">b79604</span>
+<span class="n">Typical</span> <span class="n">results</span><span class="p">:</span>
+<span class="n">PS</span> <span class="n">D</span><span class="p">:</span>\<span class="n">work</span>\<span class="n">github_work</span>\<span class="n">Foo</span><span class="o">&gt;</span> <span class="n">git</span> <span class="n">tag</span> <span class="o">-</span><span class="n">a</span> <span class="n">v0</span><span class="mf">.0.4</span> <span class="mi">9</span><span class="n">b79604</span>
+<span class="n">PS</span> <span class="n">D</span><span class="p">:</span>\<span class="n">work</span>\<span class="n">github_work</span>\<span class="n">Foo</span><span class="o">&gt;</span> <span class="n">git</span> <span class="n">tag</span>
+<span class="mf">0.0.1</span>
+<span class="mf">0.0.2</span>
+<span class="mf">0.0.3</span>
+<span class="n">v0</span><span class="mf">.0.4</span>
+</pre></div>
+</div>
+<p>git tag quit</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span> 保存并退出：
+（1）按 **Esc**键退出编辑模式，英文模式下输入 :wq ，然后回车(write and quit)。
+（2）按 Esc 键退出编辑模式，大写英文模式下输入 ZZ ，然后回车。
+
+ 不保存退出：
+ 按 **Esc**键退出编辑模式，英文模式下输入 :q! ，然后回车。
+ 按 **Esc**键退出编辑模式，英文模式下输入 :qa! ，然后回车。
+</pre></div>
+</div>
+<p>git tag modify</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">tag</span> <span class="n">new</span><span class="o">-</span><span class="n">tag</span><span class="o">-</span><span class="n">name</span> <span class="n">old</span><span class="o">-</span><span class="n">tag</span><span class="o">-</span><span class="n">name</span>
+<span class="n">git</span> <span class="n">tag</span> <span class="o">-</span><span class="n">d</span> <span class="n">old</span><span class="o">-</span><span class="n">tag</span><span class="o">-</span><span class="n">name</span>
+</pre></div>
+</div>
+<p>git tag modify example</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">tag</span> <span class="mf">0.0.4</span> <span class="n">v0</span><span class="mf">.0.4</span>
+<span class="n">git</span> <span class="n">tag</span> <span class="o">-</span><span class="n">d</span> <span class="n">v0</span><span class="mf">.0.4</span>
+<span class="n">Typical</span> <span class="n">results</span><span class="p">:</span>
+<span class="n">PS</span> <span class="n">D</span><span class="p">:</span>\<span class="n">work</span>\<span class="n">github_work</span>\<span class="n">Foo</span><span class="o">&gt;</span> <span class="n">git</span> <span class="n">tag</span> <span class="mf">0.0.4</span> <span class="n">v0</span><span class="mf">.0.4</span>
+<span class="n">PS</span> <span class="n">D</span><span class="p">:</span>\<span class="n">work</span>\<span class="n">github_work</span>\<span class="n">Foo</span><span class="o">&gt;</span> <span class="n">git</span> <span class="n">tag</span> <span class="o">-</span><span class="n">d</span> <span class="n">v0</span><span class="mf">.0.4</span>
+<span class="n">Deleted</span> <span class="n">tag</span> <span class="s1">&#39;v0.0.4&#39;</span> <span class="p">(</span><span class="n">was</span> <span class="mi">623</span><span class="n">a70e</span><span class="p">)</span>
+<span class="n">PS</span> <span class="n">D</span><span class="p">:</span>\<span class="n">work</span>\<span class="n">github_work</span>\<span class="n">Foo</span><span class="o">&gt;</span> <span class="n">git</span> <span class="n">tag</span>
+<span class="mf">0.0.1</span>
+<span class="mf">0.0.2</span>
+<span class="mf">0.0.3</span>
+<span class="mf">0.0.4</span>
+</pre></div>
+</div>
+<p>git remote -v</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">PS</span> <span class="n">D</span><span class="p">:</span>\<span class="n">work</span>\<span class="n">github_work</span>\<span class="n">Foo</span><span class="o">&gt;</span> <span class="n">git</span> <span class="n">remote</span> <span class="o">-</span><span class="n">v</span>
+<span class="n">origin</span>  <span class="n">git</span><span class="nd">@github</span><span class="o">.</span><span class="n">com</span><span class="p">:</span><span class="n">eric2003</span><span class="o">/</span><span class="n">Foo</span><span class="o">.</span><span class="n">git</span> <span class="p">(</span><span class="n">fetch</span><span class="p">)</span>
+<span class="n">origin</span>  <span class="n">git</span><span class="nd">@github</span><span class="o">.</span><span class="n">com</span><span class="p">:</span><span class="n">eric2003</span><span class="o">/</span><span class="n">Foo</span><span class="o">.</span><span class="n">git</span> <span class="p">(</span><span class="n">push</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>git push –tags</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">push</span> <span class="o">--</span><span class="n">tags</span>
+<span class="n">Typical</span> <span class="n">results</span><span class="p">:</span>
+<span class="n">PS</span> <span class="n">D</span><span class="p">:</span>\<span class="n">work</span>\<span class="n">github_work</span>\<span class="n">Foo</span><span class="o">&gt;</span> <span class="n">git</span> <span class="n">push</span> <span class="o">--</span><span class="n">tags</span>
+<span class="n">Enumerating</span> <span class="n">objects</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="n">done</span><span class="o">.</span>
+<span class="n">Counting</span> <span class="n">objects</span><span class="p">:</span> <span class="mi">100</span><span class="o">%</span> <span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="mi">1</span><span class="p">),</span> <span class="n">done</span><span class="o">.</span>
+<span class="n">Writing</span> <span class="n">objects</span><span class="p">:</span> <span class="mi">100</span><span class="o">%</span> <span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="mi">1</span><span class="p">),</span> <span class="mi">162</span> <span class="nb">bytes</span> <span class="o">|</span> <span class="mf">162.00</span> <span class="n">KiB</span><span class="o">/</span><span class="n">s</span><span class="p">,</span> <span class="n">done</span><span class="o">.</span>
+<span class="n">Total</span> <span class="mi">1</span> <span class="p">(</span><span class="n">delta</span> <span class="mi">0</span><span class="p">),</span> <span class="n">reused</span> <span class="mi">0</span> <span class="p">(</span><span class="n">delta</span> <span class="mi">0</span><span class="p">),</span> <span class="n">pack</span><span class="o">-</span><span class="n">reused</span> <span class="mi">0</span>
+<span class="n">To</span> <span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="p">:</span><span class="n">eric2003</span><span class="o">/</span><span class="n">Foo</span><span class="o">.</span><span class="n">git</span>
+ <span class="o">*</span> <span class="p">[</span><span class="n">new</span> <span class="n">tag</span><span class="p">]</span>         <span class="mf">0.0.4</span> <span class="o">-&gt;</span> <span class="mf">0.0.4</span>
+</pre></div>
+</div>
+<p>gist.github.com</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">gist</span><span class="o">.</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">eric2003</span>
+</pre></div>
+</div>
+<p>example</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">add</span> <span class="o">.</span>
+<span class="n">git</span> <span class="n">commit</span> <span class="o">-</span><span class="n">m</span> <span class="s2">&quot;add version&quot;</span>
+<span class="n">git</span> <span class="n">tag</span> <span class="o">-</span><span class="n">a</span> <span class="n">v0</span><span class="mf">.0.5</span> <span class="o">-</span><span class="n">m</span> <span class="s2">&quot;New release for v0.0.5&quot;</span>
+<span class="n">git</span> <span class="n">push</span> <span class="n">origin</span> <span class="n">main</span>
+<span class="n">git</span> <span class="n">push</span> <span class="o">--</span><span class="n">tags</span>
+</pre></div>
+</div>
+<p>new-branch</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">checkout</span> <span class="o">-</span><span class="n">b</span> <span class="n">new</span><span class="o">-</span><span class="n">branch</span>
+<span class="n">git</span> <span class="n">checkout</span> <span class="o">-</span><span class="n">b</span> <span class="n">develop</span>
+</pre></div>
+</div>
+</section>
+<section id="id5">
+<h2>GitHub Actions<a class="headerlink" href="#id5" title="Link to this heading"></a></h2>
+<ol class="arabic simple">
+<li><p><a class="reference external" href="https://cristianadam.eu/20191222/using-github-actions-with-c-plus-plus-and-cmake/">Using GitHub Actions with C++ and CMake</a></p></li>
+<li><p><a class="reference external" href="https://www.youtube.com/watch?v=ylEy4eLdhFs/">GitHub Actions Step by Step DEMO for Beginners</a></p></li>
+<li><p><a class="reference external" href="https://www.youtube.com/watch?v=TLB5MY9BBa4/">GitHub Actions Tutorial | From Zero to Hero in 90 minutes (Environments, Secrets, Runners, etc)</a></p></li>
+<li><p><a class="reference external" href="https://www.youtube.com/watch?v=w_37LDOy4sI/">GitHub Actions: Approvals, Environments and Visualization DEEP DIVE</a></p></li>
+<li><p><a class="reference external" href="https://www.youtube.com/watch?v=2yHRq7aWDKM/">GitHub Actions Secrets: Security Best Practices</a></p></li>
+<li><p><a class="reference external" href="https://www.bilibili.com/video/BV1pf4y1776s/">使用 GitHub Actions 实现持续集成与持续部署</a></p></li>
+</ol>
+</section>
+</section>
+<section id="contexts">
+<h1>Contexts<a class="headerlink" href="#contexts" title="Link to this heading"></a></h1>
+<ol class="arabic simple">
+<li><p><a class="reference external" href="https://docs.github.com/en/actions/learn-github-actions/contexts/">Contexts</a></p></li>
+</ol>
+<p>echo</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">ubuntu</span><span class="p">:</span>
+<span class="n">echo</span> <span class="s2">&quot;GITHUB_ACTION=$GITHUB_ACTION.&quot;</span>
+<span class="n">windows</span><span class="p">:</span>
+<span class="n">echo</span> <span class="s2">&quot;GITHUB_ACTION=$env:GITHUB_ACTION.&quot;</span>
+</pre></div>
+</div>
+<p>Github Project Info</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">name</span><span class="p">:</span> <span class="n">GitHub</span> <span class="n">Default</span> <span class="n">environment</span> <span class="n">variables</span>
+<span class="n">on</span><span class="p">:</span> <span class="p">[</span><span class="n">push</span><span class="p">]</span>
+<span class="n">jobs</span><span class="p">:</span>
+  <span class="n">Display</span><span class="o">-</span><span class="n">GitHub</span><span class="o">-</span><span class="n">Default</span><span class="o">-</span><span class="n">environment</span><span class="o">-</span><span class="n">variables</span><span class="p">:</span>
+    <span class="n">runs</span><span class="o">-</span><span class="n">on</span><span class="p">:</span> <span class="n">ubuntu</span><span class="o">-</span><span class="n">latest</span>
+    <span class="n">steps</span><span class="p">:</span>
+      <span class="o">-</span> <span class="n">name</span><span class="p">:</span> <span class="n">Default</span><span class="o">-</span><span class="n">environment</span><span class="o">-</span><span class="n">variables</span>
+        <span class="n">run</span><span class="p">:</span> <span class="o">|</span>
+          <span class="n">echo</span> <span class="s2">&quot;CI=$CI.&quot;</span>
+          <span class="n">echo</span> <span class="s2">&quot;RUNNER_OS=$RUNNER_OS.&quot;</span>
+          <span class="n">echo</span> <span class="s2">&quot;GITHUB_ACTION=$GITHUB_ACTION.&quot;</span>
+          <span class="n">echo</span> <span class="s2">&quot;GITHUB_ACTION_PATH=$GITHUB_ACTION_PATH.&quot;</span>
+          <span class="n">echo</span> <span class="s2">&quot;GITHUB_ACTION_REPOSITORY=$GITHUB_ACTION_REPOSITORY.&quot;</span>
+          <span class="n">echo</span> <span class="s2">&quot;GITHUB_ACTIONS=$GITHUB_ACTIONS.&quot;</span>
+          <span class="n">echo</span> <span class="s2">&quot;GITHUB_ACTOR=$GITHUB_ACTOR.&quot;</span>
+          <span class="n">echo</span> <span class="s2">&quot;GITHUB_ACTOR_ID=$GITHUB_ACTOR_ID.&quot;</span>
+          <span class="n">echo</span> <span class="s2">&quot;GITHUB_API_URL=$GITHUB_API_URL.&quot;</span>
+          <span class="n">echo</span> <span class="s2">&quot;GITHUB_BASE_REF=$GITHUB_BASE_REF.&quot;</span>
+          <span class="n">echo</span> <span class="s2">&quot;GITHUB_ENV=$GITHUB_ENV.&quot;</span>
+          <span class="n">echo</span> <span class="s2">&quot;GITHUB_EVENT_NAME=$GITHUB_EVENT_NAME.&quot;</span>
+          <span class="n">echo</span> <span class="s2">&quot;GITHUB_EVENT_PATH=$GITHUB_EVENT_PATH.&quot;</span>
+          <span class="n">echo</span> <span class="s2">&quot;GITHUB_GRAPHQL_URL=$GITHUB_GRAPHQL_URL.&quot;</span>
+          <span class="n">echo</span> <span class="s2">&quot;GITHUB_HEAD_REF=$GITHUB_HEAD_REF.&quot;</span>
+          <span class="n">echo</span> <span class="s2">&quot;GITHUB_JOB=$GITHUB_JOB.&quot;</span>
+          <span class="n">echo</span> <span class="s2">&quot;GITHUB_OUTPUT=$GITHUB_OUTPUT.&quot;</span>
+          <span class="n">echo</span> <span class="s2">&quot;GITHUB_PATH=$GITHUB_PATH.&quot;</span>
+          <span class="n">echo</span> <span class="s2">&quot;GITHUB_REF=$GITHUB_REF.&quot;</span>
+          <span class="n">echo</span> <span class="s2">&quot;GITHUB_REF_NAME=$GITHUB_REF_NAME.&quot;</span>
+          <span class="n">echo</span> <span class="s2">&quot;GITHUB_REF_PROTECTED=$GITHUB_REF_PROTECTED.&quot;</span>
+          <span class="n">echo</span> <span class="s2">&quot;GITHUB_REF_TYPE=$GITHUB_REF_TYPE.&quot;</span>
+          <span class="n">echo</span> <span class="s2">&quot;GITHUB_REPOSITORY=$GITHUB_REPOSITORY.&quot;</span>
+          <span class="n">echo</span> <span class="s2">&quot;GITHUB_REPOSITORY_ID=$GITHUB_REPOSITORY_ID.&quot;</span>
+          <span class="n">echo</span> <span class="s2">&quot;GITHUB_REPOSITORY_OWNER=$GITHUB_REPOSITORY_OWNER.&quot;</span>
+          <span class="n">echo</span> <span class="s2">&quot;GITHUB_REPOSITORY_OWNER_ID=$GITHUB_REPOSITORY_OWNER_ID.&quot;</span>
+          <span class="n">echo</span> <span class="s2">&quot;GITHUB_RETENTION_DAYS=$GITHUB_RETENTION_DAYS.&quot;</span>
+          <span class="n">echo</span> <span class="s2">&quot;GITHUB_RUN_ATTEMPT=$GITHUB_RUN_ATTEMPT.&quot;</span>
+          <span class="n">echo</span> <span class="s2">&quot;GITHUB_RUN_ID=$GITHUB_RUN_ID.&quot;</span>
+          <span class="n">echo</span> <span class="s2">&quot;GITHUB_RUN_NUMBER=$GITHUB_RUN_NUMBER.&quot;</span>
+          <span class="n">echo</span> <span class="s2">&quot;GITHUB_SERVER_URL=$GITHUB_SERVER_URL.&quot;</span>
+          <span class="n">echo</span> <span class="s2">&quot;GITHUB_SHA=$GITHUB_SHA.&quot;</span>
+          <span class="n">echo</span> <span class="s2">&quot;GITHUB_STEP_SUMMARY=$GITHUB_STEP_SUMMARY.&quot;</span>
+          <span class="n">echo</span> <span class="s2">&quot;GITHUB_TRIGGERING_ACTOR=$GITHUB_TRIGGERING_ACTOR.&quot;</span>
+          <span class="n">echo</span> <span class="s2">&quot;GITHUB_WORKFLOW=$GITHUB_WORKFLOW.&quot;</span>
+          <span class="n">echo</span> <span class="s2">&quot;GITHUB_WORKFLOW_REF=$GITHUB_WORKFLOW_REF.&quot;</span>
+          <span class="n">echo</span> <span class="s2">&quot;GITHUB_WORKFLOW_SHA=$GITHUB_WORKFLOW_SHA.&quot;</span>
+          <span class="n">echo</span> <span class="s2">&quot;GITHUB_WORKSPACE=$GITHUB_WORKSPACE.&quot;</span>
+          <span class="n">echo</span> <span class="s2">&quot;RUNNER_ARCH=$RUNNER_ARCH.&quot;</span>
+          <span class="n">echo</span> <span class="s2">&quot;RUNNER_DEBUG=$RUNNER_DEBUG.&quot;</span>
+          <span class="n">echo</span> <span class="s2">&quot;RUNNER_NAME=$RUNNER_NAME.&quot;</span>
+          <span class="n">echo</span> <span class="s2">&quot;RUNNER_OS=$RUNNER_OS.&quot;</span>
+          <span class="n">echo</span> <span class="s2">&quot;RUNNER_TEMP=$RUNNER_TEMP.&quot;</span>
+          <span class="n">echo</span> <span class="s2">&quot;RUNNER_TOOL_CACHE=$RUNNER_TOOL_CACHE.&quot;</span>
+</pre></div>
+</div>
+<p>Results</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Run</span> <span class="n">echo</span> <span class="s2">&quot;CI=$CI.&quot;</span>
+<span class="n">CI</span><span class="o">=</span><span class="n">true</span><span class="o">.</span>
+<span class="n">RUNNER_OS</span><span class="o">=</span><span class="n">Linux</span><span class="o">.</span>
+<span class="n">GITHUB_ACTION</span><span class="o">=</span><span class="n">__run</span><span class="o">.</span>
+<span class="n">GITHUB_ACTION_PATH</span><span class="o">=.</span>
+<span class="n">GITHUB_ACTION_REPOSITORY</span><span class="o">=.</span>
+<span class="n">GITHUB_ACTIONS</span><span class="o">=</span><span class="n">true</span><span class="o">.</span>
+<span class="n">GITHUB_ACTOR</span><span class="o">=</span><span class="n">eric2003</span><span class="o">.</span>
+<span class="n">GITHUB_ACTOR_ID</span><span class="o">=</span><span class="mf">7891909.</span>
+<span class="n">GITHUB_API_URL</span><span class="o">=</span><span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">api</span><span class="o">.</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">.</span>
+<span class="n">GITHUB_BASE_REF</span><span class="o">=.</span>
+<span class="n">GITHUB_ENV</span><span class="o">=/</span><span class="n">home</span><span class="o">/</span><span class="n">runner</span><span class="o">/</span><span class="n">work</span><span class="o">/</span><span class="n">_temp</span><span class="o">/</span><span class="n">_runner_file_commands</span><span class="o">/</span><span class="n">set_env_0b71d8bf</span><span class="o">-</span><span class="mi">192</span><span class="n">c</span><span class="o">-</span><span class="mi">41</span><span class="n">be</span><span class="o">-</span><span class="n">b943</span><span class="o">-</span><span class="mi">63</span><span class="n">d02078de36</span><span class="o">.</span>
+<span class="n">GITHUB_EVENT_NAME</span><span class="o">=</span><span class="n">push</span><span class="o">.</span>
+<span class="n">GITHUB_EVENT_PATH</span><span class="o">=/</span><span class="n">home</span><span class="o">/</span><span class="n">runner</span><span class="o">/</span><span class="n">work</span><span class="o">/</span><span class="n">_temp</span><span class="o">/</span><span class="n">_github_workflow</span><span class="o">/</span><span class="n">event</span><span class="o">.</span><span class="n">json</span><span class="o">.</span>
+<span class="n">GITHUB_GRAPHQL_URL</span><span class="o">=</span><span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">api</span><span class="o">.</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">graphql</span><span class="o">.</span>
+<span class="n">GITHUB_HEAD_REF</span><span class="o">=.</span>
+<span class="n">GITHUB_JOB</span><span class="o">=</span><span class="n">Display</span><span class="o">-</span><span class="n">GitHub</span><span class="o">-</span><span class="n">Default</span><span class="o">-</span><span class="n">environment</span><span class="o">-</span><span class="n">variables</span><span class="o">.</span>
+<span class="n">GITHUB_OUTPUT</span><span class="o">=/</span><span class="n">home</span><span class="o">/</span><span class="n">runner</span><span class="o">/</span><span class="n">work</span><span class="o">/</span><span class="n">_temp</span><span class="o">/</span><span class="n">_runner_file_commands</span><span class="o">/</span><span class="n">set_output_0b71d8bf</span><span class="o">-</span><span class="mi">192</span><span class="n">c</span><span class="o">-</span><span class="mi">41</span><span class="n">be</span><span class="o">-</span><span class="n">b943</span><span class="o">-</span><span class="mi">63</span><span class="n">d02078de36</span><span class="o">.</span>
+<span class="n">GITHUB_PATH</span><span class="o">=/</span><span class="n">home</span><span class="o">/</span><span class="n">runner</span><span class="o">/</span><span class="n">work</span><span class="o">/</span><span class="n">_temp</span><span class="o">/</span><span class="n">_runner_file_commands</span><span class="o">/</span><span class="n">add_path_0b71d8bf</span><span class="o">-</span><span class="mi">192</span><span class="n">c</span><span class="o">-</span><span class="mi">41</span><span class="n">be</span><span class="o">-</span><span class="n">b943</span><span class="o">-</span><span class="mi">63</span><span class="n">d02078de36</span><span class="o">.</span>
+<span class="n">GITHUB_REF</span><span class="o">=</span><span class="n">refs</span><span class="o">/</span><span class="n">heads</span><span class="o">/</span><span class="n">develop</span><span class="o">.</span>
+<span class="n">GITHUB_REF_NAME</span><span class="o">=</span><span class="n">develop</span><span class="o">.</span>
+<span class="n">GITHUB_REF_PROTECTED</span><span class="o">=</span><span class="n">false</span><span class="o">.</span>
+<span class="n">GITHUB_REF_TYPE</span><span class="o">=</span><span class="n">branch</span><span class="o">.</span>
+<span class="n">GITHUB_REPOSITORY</span><span class="o">=</span><span class="n">eric2003</span><span class="o">/</span><span class="n">ModernPrj</span><span class="o">.</span>
+<span class="n">GITHUB_REPOSITORY_ID</span><span class="o">=</span><span class="mf">735798203.</span>
+<span class="n">GITHUB_REPOSITORY_OWNER</span><span class="o">=</span><span class="n">eric2003</span><span class="o">.</span>
+<span class="n">GITHUB_REPOSITORY_OWNER_ID</span><span class="o">=</span><span class="mf">7891909.</span>
+<span class="n">GITHUB_RETENTION_DAYS</span><span class="o">=</span><span class="mf">90.</span>
+<span class="n">GITHUB_RUN_ATTEMPT</span><span class="o">=</span><span class="mf">1.</span>
+<span class="n">GITHUB_RUN_ID</span><span class="o">=</span><span class="mf">7354347118.</span>
+<span class="n">GITHUB_RUN_NUMBER</span><span class="o">=</span><span class="mf">4.</span>
+<span class="n">GITHUB_SERVER_URL</span><span class="o">=</span><span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">.</span>
+<span class="n">GITHUB_SHA</span><span class="o">=</span><span class="n">f62ec4d27ca3c57169a8f108fb46574cfa785098</span><span class="o">.</span>
+<span class="n">GITHUB_STEP_SUMMARY</span><span class="o">=/</span><span class="n">home</span><span class="o">/</span><span class="n">runner</span><span class="o">/</span><span class="n">work</span><span class="o">/</span><span class="n">_temp</span><span class="o">/</span><span class="n">_runner_file_commands</span><span class="o">/</span><span class="n">step_summary_0b71d8bf</span><span class="o">-</span><span class="mi">192</span><span class="n">c</span><span class="o">-</span><span class="mi">41</span><span class="n">be</span><span class="o">-</span><span class="n">b943</span><span class="o">-</span><span class="mi">63</span><span class="n">d02078de36</span><span class="o">.</span>
+<span class="n">GITHUB_TRIGGERING_ACTOR</span><span class="o">=</span><span class="n">eric2003</span><span class="o">.</span>
+<span class="n">GITHUB_WORKFLOW</span><span class="o">=</span><span class="n">GitHub</span> <span class="n">Default</span> <span class="n">environment</span> <span class="n">variables</span><span class="o">.</span>
+<span class="n">GITHUB_WORKFLOW_REF</span><span class="o">=</span><span class="n">eric2003</span><span class="o">/</span><span class="n">ModernPrj</span><span class="o">/.</span><span class="n">github</span><span class="o">/</span><span class="n">workflows</span><span class="o">/</span><span class="n">default</span><span class="o">-</span><span class="n">environment</span><span class="o">-</span><span class="n">variables</span><span class="o">.</span><span class="n">yml</span><span class="nd">@refs</span><span class="o">/</span><span class="n">heads</span><span class="o">/</span><span class="n">develop</span><span class="o">.</span>
+<span class="n">GITHUB_WORKFLOW_SHA</span><span class="o">=</span><span class="n">f62ec4d27ca3c57169a8f108fb46574cfa785098</span><span class="o">.</span>
+<span class="n">GITHUB_WORKSPACE</span><span class="o">=/</span><span class="n">home</span><span class="o">/</span><span class="n">runner</span><span class="o">/</span><span class="n">work</span><span class="o">/</span><span class="n">ModernPrj</span><span class="o">/</span><span class="n">ModernPrj</span><span class="o">.</span>
+<span class="n">RUNNER_ARCH</span><span class="o">=</span><span class="n">X64</span><span class="o">.</span>
+<span class="n">RUNNER_DEBUG</span><span class="o">=.</span>
+<span class="n">RUNNER_NAME</span><span class="o">=</span><span class="n">GitHub</span> <span class="n">Actions</span> <span class="mf">4.</span>
+<span class="n">RUNNER_OS</span><span class="o">=</span><span class="n">Linux</span><span class="o">.</span>
+<span class="n">RUNNER_TEMP</span><span class="o">=/</span><span class="n">home</span><span class="o">/</span><span class="n">runner</span><span class="o">/</span><span class="n">work</span><span class="o">/</span><span class="n">_temp</span><span class="o">.</span>
+<span class="n">RUNNER_TOOL_CACHE</span><span class="o">=/</span><span class="n">opt</span><span class="o">/</span><span class="n">hostedtoolcache</span><span class="o">.</span>
+</pre></div>
+</div>
+<p>Github Project Multi Platform Info</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>name: GitHub Environment Variables
+on: [push]
+jobs:
+  my_job:
+    runs-on: ${{matrix.os}}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    steps:
+      - name: Default-environment-variables
+        run: |
+          echo &quot;github.action=${{ github.action }}.&quot;
+          echo &quot;github.action_path=${{ github.action_path }}.&quot;
+          echo &quot;github.action_ref=${{ github.action_ref }}.&quot;
+          echo &quot;github.action_repository=${{ github.action_repository }}.&quot;
+          echo &quot;github.action_status=${{ github.action_status }}.&quot;
+          echo &quot;github.actor=${{ github.actor }}.&quot;
+          echo &quot;github.actor_id=${{ github.actor_id }}.&quot;
+          echo &quot;github.api_url=${{ github.api_url }}.&quot;
+          echo &quot;github.base_ref=${{ github.base_ref }}.&quot;
+          echo &quot;github.env=${{ github.env }}.&quot;
+          echo &quot;github.event=${{ github.event }}.&quot;
+          echo &quot;github.event_name=${{ github.event_name }}.&quot;
+          echo &quot;github.event_path=${{ github.event_path }}.&quot;
+          echo &quot;github.graphql_url=${{ github.graphql_url }}.&quot;
+          echo &quot;github.head_ref=${{ github.head_ref }}.&quot;
+          echo &quot;github.job=${{ github.job }}.&quot;
+          echo &quot;github.path=${{ github.path }}.&quot;
+          echo &quot;github.ref=${{ github.ref }}.&quot;
+          echo &quot;github.ref_name=${{ github.ref_name }}.&quot;
+          echo &quot;github.ref_protected=${{ github.ref_protected }}.&quot;
+          echo &quot;github.ref_type=${{ github.ref_type }}.&quot;
+          echo &quot;github.repository=${{ github.repository }}.&quot;
+          echo &quot;github.repository_id=${{ github.repository_id }}.&quot;
+          echo &quot;github.repository_owner=${{ github.repository_owner }}.&quot;
+          echo &quot;github.repositoryUrl=${{ github.repositoryUrl }}.&quot;
+          echo &quot;github.retention_days=${{ github.retention_days }}.&quot;
+          echo &quot;github.run_id=${{ github.run_id }}.&quot;
+          echo &quot;github.run_number=${{ github.run_number }}.&quot;
+          echo &quot;github.run_attempt=${{ github.run_attempt }}.&quot;
+          echo &quot;github.secret_source=${{ github.secret_source }}.&quot;
+          echo &quot;github.server_url=${{ github.server_url }}.&quot;
+          echo &quot;github.sha=${{ github.sha }}.&quot;
+          echo &quot;github.token=${{ github.token }}.&quot;
+          echo &quot;github.triggering_actor=${{ github.triggering_actor }}.&quot;
+          echo &quot;github.workflow=${{ github.workflow }}.&quot;
+          echo &quot;github.workflow_ref=${{ github.workflow_ref }}.&quot;
+          echo &quot;github.workflow_sha=${{ github.workflow_sha }}.&quot;
+          echo &quot;github.workspace=${{ github.workspace }}.&quot;
+</pre></div>
+</div>
+<p>Ubuntu Results:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">github</span><span class="o">.</span><span class="n">action</span><span class="o">=</span><span class="n">__run</span><span class="o">.</span>
+<span class="n">github</span><span class="o">.</span><span class="n">action_path</span><span class="o">=.</span>
+<span class="n">github</span><span class="o">.</span><span class="n">action_ref</span><span class="o">=.</span>
+<span class="n">github</span><span class="o">.</span><span class="n">action_repository</span><span class="o">=.</span>
+<span class="n">github</span><span class="o">.</span><span class="n">action_status</span><span class="o">=.</span>
+<span class="n">github</span><span class="o">.</span><span class="n">actor</span><span class="o">=</span><span class="n">eric2003</span><span class="o">.</span>
+<span class="n">github</span><span class="o">.</span><span class="n">actor_id</span><span class="o">=</span><span class="mf">7891909.</span>
+<span class="n">github</span><span class="o">.</span><span class="n">api_url</span><span class="o">=</span><span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">api</span><span class="o">.</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">.</span>
+<span class="n">github</span><span class="o">.</span><span class="n">base_ref</span><span class="o">=.</span>
+<span class="n">github</span><span class="o">.</span><span class="n">env</span><span class="o">=/</span><span class="n">home</span><span class="o">/</span><span class="n">runner</span><span class="o">/</span><span class="n">work</span><span class="o">/</span><span class="n">_temp</span><span class="o">/</span><span class="n">_runner_file_commands</span><span class="o">/</span><span class="n">set_env_20bde834</span><span class="o">-</span><span class="mi">6</span><span class="n">a27</span><span class="o">-</span><span class="mi">4</span><span class="n">b10</span><span class="o">-</span><span class="n">b3f6</span><span class="o">-</span><span class="mf">789728256309.</span>
+<span class="n">github</span><span class="o">.</span><span class="n">event</span><span class="o">=</span><span class="n">Object</span><span class="o">.</span>
+<span class="n">github</span><span class="o">.</span><span class="n">event_name</span><span class="o">=</span><span class="n">push</span><span class="o">.</span>
+<span class="n">github</span><span class="o">.</span><span class="n">event_path</span><span class="o">=/</span><span class="n">home</span><span class="o">/</span><span class="n">runner</span><span class="o">/</span><span class="n">work</span><span class="o">/</span><span class="n">_temp</span><span class="o">/</span><span class="n">_github_workflow</span><span class="o">/</span><span class="n">event</span><span class="o">.</span><span class="n">json</span><span class="o">.</span>
+<span class="n">github</span><span class="o">.</span><span class="n">graphql_url</span><span class="o">=</span><span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">api</span><span class="o">.</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">graphql</span><span class="o">.</span>
+<span class="n">github</span><span class="o">.</span><span class="n">head_ref</span><span class="o">=.</span>
+<span class="n">github</span><span class="o">.</span><span class="n">job</span><span class="o">=</span><span class="n">my_job</span><span class="o">.</span>
+<span class="n">github</span><span class="o">.</span><span class="n">path</span><span class="o">=/</span><span class="n">home</span><span class="o">/</span><span class="n">runner</span><span class="o">/</span><span class="n">work</span><span class="o">/</span><span class="n">_temp</span><span class="o">/</span><span class="n">_runner_file_commands</span><span class="o">/</span><span class="n">add_path_20bde834</span><span class="o">-</span><span class="mi">6</span><span class="n">a27</span><span class="o">-</span><span class="mi">4</span><span class="n">b10</span><span class="o">-</span><span class="n">b3f6</span><span class="o">-</span><span class="mf">789728256309.</span>
+<span class="n">github</span><span class="o">.</span><span class="n">ref</span><span class="o">=</span><span class="n">refs</span><span class="o">/</span><span class="n">heads</span><span class="o">/</span><span class="n">develop</span><span class="o">.</span>
+<span class="n">github</span><span class="o">.</span><span class="n">ref_name</span><span class="o">=</span><span class="n">develop</span><span class="o">.</span>
+<span class="n">github</span><span class="o">.</span><span class="n">ref_protected</span><span class="o">=</span><span class="n">false</span><span class="o">.</span>
+<span class="n">github</span><span class="o">.</span><span class="n">ref_type</span><span class="o">=</span><span class="n">branch</span><span class="o">.</span>
+<span class="n">github</span><span class="o">.</span><span class="n">repository</span><span class="o">=</span><span class="n">eric2003</span><span class="o">/</span><span class="n">ModernPrj</span><span class="o">.</span>
+<span class="n">github</span><span class="o">.</span><span class="n">repository_id</span><span class="o">=</span><span class="mf">735798203.</span>
+<span class="n">github</span><span class="o">.</span><span class="n">repository_owner</span><span class="o">=</span><span class="n">eric2003</span><span class="o">.</span>
+<span class="n">github</span><span class="o">.</span><span class="n">repositoryUrl</span><span class="o">=</span><span class="n">git</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">eric2003</span><span class="o">/</span><span class="n">ModernPrj</span><span class="o">.</span><span class="n">git</span><span class="o">.</span>
+<span class="n">github</span><span class="o">.</span><span class="n">retention_days</span><span class="o">=</span><span class="mf">90.</span>
+<span class="n">github</span><span class="o">.</span><span class="n">run_id</span><span class="o">=</span><span class="mf">7355184823.</span>
+<span class="n">github</span><span class="o">.</span><span class="n">run_number</span><span class="o">=</span><span class="mf">9.</span>
+<span class="n">github</span><span class="o">.</span><span class="n">run_attempt</span><span class="o">=</span><span class="mf">1.</span>
+<span class="n">github</span><span class="o">.</span><span class="n">secret_source</span><span class="o">=</span><span class="n">Actions</span><span class="o">.</span>
+<span class="n">github</span><span class="o">.</span><span class="n">server_url</span><span class="o">=</span><span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">.</span>
+<span class="n">github</span><span class="o">.</span><span class="n">sha</span><span class="o">=</span><span class="mi">99107</span><span class="n">ae8911cfc72716aecaf56232ad44606bae9</span><span class="o">.</span>
+<span class="n">github</span><span class="o">.</span><span class="n">token</span><span class="o">=***.</span>
+<span class="n">github</span><span class="o">.</span><span class="n">triggering_actor</span><span class="o">=</span><span class="n">eric2003</span><span class="o">.</span>
+<span class="n">github</span><span class="o">.</span><span class="n">workflow</span><span class="o">=</span><span class="n">GitHub</span> <span class="n">Environment</span> <span class="n">Variables</span><span class="o">.</span>
+<span class="n">github</span><span class="o">.</span><span class="n">workflow_ref</span><span class="o">=</span><span class="n">eric2003</span><span class="o">/</span><span class="n">ModernPrj</span><span class="o">/.</span><span class="n">github</span><span class="o">/</span><span class="n">workflows</span><span class="o">/</span><span class="n">default</span><span class="o">-</span><span class="n">environment</span><span class="o">-</span><span class="n">variables</span><span class="o">.</span><span class="n">yml</span><span class="nd">@refs</span><span class="o">/</span><span class="n">heads</span><span class="o">/</span><span class="n">develop</span><span class="o">.</span>
+<span class="n">github</span><span class="o">.</span><span class="n">workflow_sha</span><span class="o">=</span><span class="mi">99107</span><span class="n">ae8911cfc72716aecaf56232ad44606bae9</span><span class="o">.</span>
+<span class="n">github</span><span class="o">.</span><span class="n">workspace</span><span class="o">=/</span><span class="n">home</span><span class="o">/</span><span class="n">runner</span><span class="o">/</span><span class="n">work</span><span class="o">/</span><span class="n">ModernPrj</span><span class="o">/</span><span class="n">ModernPrj</span><span class="o">.</span>
+</pre></div>
+</div>
+<p>Windows Results:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">github</span><span class="o">.</span><span class="n">action</span><span class="o">=</span><span class="n">__run</span><span class="o">.</span>
+<span class="n">github</span><span class="o">.</span><span class="n">action_path</span><span class="o">=.</span>
+<span class="n">github</span><span class="o">.</span><span class="n">action_ref</span><span class="o">=.</span>
+<span class="n">github</span><span class="o">.</span><span class="n">action_repository</span><span class="o">=.</span>
+<span class="n">github</span><span class="o">.</span><span class="n">action_status</span><span class="o">=.</span>
+<span class="n">github</span><span class="o">.</span><span class="n">actor</span><span class="o">=</span><span class="n">eric2003</span><span class="o">.</span>
+<span class="n">github</span><span class="o">.</span><span class="n">actor_id</span><span class="o">=</span><span class="mf">7891909.</span>
+<span class="n">github</span><span class="o">.</span><span class="n">api_url</span><span class="o">=</span><span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">api</span><span class="o">.</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">.</span>
+<span class="n">github</span><span class="o">.</span><span class="n">base_ref</span><span class="o">=.</span>
+<span class="n">github</span><span class="o">.</span><span class="n">env</span><span class="o">=</span><span class="n">D</span><span class="p">:</span>\<span class="n">a</span>\<span class="n">_temp</span>\<span class="n">_runner_file_commands</span>\<span class="n">set_env_c7524d19</span><span class="o">-</span><span class="n">ed50</span><span class="o">-</span><span class="mi">4919</span><span class="o">-</span><span class="n">b0ae</span><span class="o">-</span><span class="mi">70648</span><span class="n">f47e68c</span><span class="o">.</span>
+<span class="n">github</span><span class="o">.</span><span class="n">event</span><span class="o">=</span><span class="n">Object</span><span class="o">.</span>
+<span class="n">github</span><span class="o">.</span><span class="n">event_name</span><span class="o">=</span><span class="n">push</span><span class="o">.</span>
+<span class="n">github</span><span class="o">.</span><span class="n">event_path</span><span class="o">=</span><span class="n">D</span><span class="p">:</span>\<span class="n">a</span>\<span class="n">_temp</span>\<span class="n">_github_workflow</span>\<span class="n">event</span><span class="o">.</span><span class="n">json</span><span class="o">.</span>
+<span class="n">github</span><span class="o">.</span><span class="n">graphql_url</span><span class="o">=</span><span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">api</span><span class="o">.</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">graphql</span><span class="o">.</span>
+<span class="n">github</span><span class="o">.</span><span class="n">head_ref</span><span class="o">=.</span>
+<span class="n">github</span><span class="o">.</span><span class="n">job</span><span class="o">=</span><span class="n">my_job</span><span class="o">.</span>
+<span class="n">github</span><span class="o">.</span><span class="n">path</span><span class="o">=</span><span class="n">D</span><span class="p">:</span>\<span class="n">a</span>\<span class="n">_temp</span>\<span class="n">_runner_file_commands</span>\<span class="n">add_path_c7524d19</span><span class="o">-</span><span class="n">ed50</span><span class="o">-</span><span class="mi">4919</span><span class="o">-</span><span class="n">b0ae</span><span class="o">-</span><span class="mi">70648</span><span class="n">f47e68c</span><span class="o">.</span>
+<span class="n">github</span><span class="o">.</span><span class="n">ref</span><span class="o">=</span><span class="n">refs</span><span class="o">/</span><span class="n">heads</span><span class="o">/</span><span class="n">develop</span><span class="o">.</span>
+<span class="n">github</span><span class="o">.</span><span class="n">ref_name</span><span class="o">=</span><span class="n">develop</span><span class="o">.</span>
+<span class="n">github</span><span class="o">.</span><span class="n">ref_protected</span><span class="o">=</span><span class="n">false</span><span class="o">.</span>
+<span class="n">github</span><span class="o">.</span><span class="n">ref_type</span><span class="o">=</span><span class="n">branch</span><span class="o">.</span>
+<span class="n">github</span><span class="o">.</span><span class="n">repository</span><span class="o">=</span><span class="n">eric2003</span><span class="o">/</span><span class="n">ModernPrj</span><span class="o">.</span>
+<span class="n">github</span><span class="o">.</span><span class="n">repository_id</span><span class="o">=</span><span class="mf">735798203.</span>
+<span class="n">github</span><span class="o">.</span><span class="n">repository_owner</span><span class="o">=</span><span class="n">eric2003</span><span class="o">.</span>
+<span class="n">github</span><span class="o">.</span><span class="n">repositoryUrl</span><span class="o">=</span><span class="n">git</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">eric2003</span><span class="o">/</span><span class="n">ModernPrj</span><span class="o">.</span><span class="n">git</span><span class="o">.</span>
+<span class="n">github</span><span class="o">.</span><span class="n">retention_days</span><span class="o">=</span><span class="mf">90.</span>
+<span class="n">github</span><span class="o">.</span><span class="n">run_id</span><span class="o">=</span><span class="mf">7355184823.</span>
+<span class="n">github</span><span class="o">.</span><span class="n">run_number</span><span class="o">=</span><span class="mf">9.</span>
+<span class="n">github</span><span class="o">.</span><span class="n">run_attempt</span><span class="o">=</span><span class="mf">1.</span>
+<span class="n">github</span><span class="o">.</span><span class="n">secret_source</span><span class="o">=</span><span class="n">Actions</span><span class="o">.</span>
+<span class="n">github</span><span class="o">.</span><span class="n">server_url</span><span class="o">=</span><span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">.</span>
+<span class="n">github</span><span class="o">.</span><span class="n">sha</span><span class="o">=</span><span class="mi">99107</span><span class="n">ae8911cfc72716aecaf56232ad44606bae9</span><span class="o">.</span>
+<span class="n">github</span><span class="o">.</span><span class="n">token</span><span class="o">=***.</span>
+<span class="n">github</span><span class="o">.</span><span class="n">triggering_actor</span><span class="o">=</span><span class="n">eric2003</span><span class="o">.</span>
+<span class="n">github</span><span class="o">.</span><span class="n">workflow</span><span class="o">=</span><span class="n">GitHub</span> <span class="n">Environment</span> <span class="n">Variables</span><span class="o">.</span>
+<span class="n">github</span><span class="o">.</span><span class="n">workflow_ref</span><span class="o">=</span><span class="n">eric2003</span><span class="o">/</span><span class="n">ModernPrj</span><span class="o">/.</span><span class="n">github</span><span class="o">/</span><span class="n">workflows</span><span class="o">/</span><span class="n">default</span><span class="o">-</span><span class="n">environment</span><span class="o">-</span><span class="n">variables</span><span class="o">.</span><span class="n">yml</span><span class="nd">@refs</span><span class="o">/</span><span class="n">heads</span><span class="o">/</span><span class="n">develop</span><span class="o">.</span>
+<span class="n">github</span><span class="o">.</span><span class="n">workflow_sha</span><span class="o">=</span><span class="mi">99107</span><span class="n">ae8911cfc72716aecaf56232ad44606bae9</span><span class="o">.</span>
+<span class="n">github</span><span class="o">.</span><span class="n">workspace</span><span class="o">=</span><span class="n">D</span><span class="p">:</span>\<span class="n">a</span>\<span class="n">ModernPrj</span>\<span class="n">ModernPrj</span><span class="o">.</span>
+</pre></div>
+</div>
+<p>Run echo “$GITHUB_CONTEXT”</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+  <span class="s2">&quot;token&quot;</span><span class="p">:</span> <span class="s2">&quot;***&quot;</span><span class="p">,</span>
+  <span class="s2">&quot;job&quot;</span><span class="p">:</span> <span class="s2">&quot;dump_contexts_to_log&quot;</span><span class="p">,</span>
+  <span class="s2">&quot;ref&quot;</span><span class="p">:</span> <span class="s2">&quot;refs/heads/develop&quot;</span><span class="p">,</span>
+  <span class="s2">&quot;sha&quot;</span><span class="p">:</span> <span class="s2">&quot;8d54f5ef375c67b2b7fee9a49f03213b96eba3f9&quot;</span><span class="p">,</span>
+  <span class="s2">&quot;repository&quot;</span><span class="p">:</span> <span class="s2">&quot;eric2003/ModernPrj&quot;</span><span class="p">,</span>
+  <span class="s2">&quot;repository_owner&quot;</span><span class="p">:</span> <span class="s2">&quot;eric2003&quot;</span><span class="p">,</span>
+  <span class="s2">&quot;repository_owner_id&quot;</span><span class="p">:</span> <span class="s2">&quot;7891909&quot;</span><span class="p">,</span>
+  <span class="s2">&quot;repositoryUrl&quot;</span><span class="p">:</span> <span class="s2">&quot;git://github.com/eric2003/ModernPrj.git&quot;</span><span class="p">,</span>
+  <span class="s2">&quot;run_id&quot;</span><span class="p">:</span> <span class="s2">&quot;7357250199&quot;</span><span class="p">,</span>
+  <span class="s2">&quot;run_number&quot;</span><span class="p">:</span> <span class="s2">&quot;1&quot;</span><span class="p">,</span>
+  <span class="s2">&quot;retention_days&quot;</span><span class="p">:</span> <span class="s2">&quot;90&quot;</span><span class="p">,</span>
+  <span class="s2">&quot;run_attempt&quot;</span><span class="p">:</span> <span class="s2">&quot;1&quot;</span><span class="p">,</span>
+  <span class="s2">&quot;artifact_cache_size_limit&quot;</span><span class="p">:</span> <span class="s2">&quot;10&quot;</span><span class="p">,</span>
+  <span class="s2">&quot;repository_visibility&quot;</span><span class="p">:</span> <span class="s2">&quot;public&quot;</span><span class="p">,</span>
+  <span class="s2">&quot;repo-self-hosted-runners-disabled&quot;</span><span class="p">:</span> <span class="n">false</span><span class="p">,</span>
+  <span class="s2">&quot;enterprise-managed-business-id&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+  <span class="s2">&quot;repository_id&quot;</span><span class="p">:</span> <span class="s2">&quot;735798203&quot;</span><span class="p">,</span>
+  <span class="s2">&quot;actor_id&quot;</span><span class="p">:</span> <span class="s2">&quot;7891909&quot;</span><span class="p">,</span>
+  <span class="s2">&quot;actor&quot;</span><span class="p">:</span> <span class="s2">&quot;eric2003&quot;</span><span class="p">,</span>
+  <span class="s2">&quot;triggering_actor&quot;</span><span class="p">:</span> <span class="s2">&quot;eric2003&quot;</span><span class="p">,</span>
+  <span class="s2">&quot;workflow&quot;</span><span class="p">:</span> <span class="s2">&quot;Context testing&quot;</span><span class="p">,</span>
+  <span class="s2">&quot;head_ref&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+  <span class="s2">&quot;base_ref&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+  <span class="s2">&quot;event_name&quot;</span><span class="p">:</span> <span class="s2">&quot;push&quot;</span><span class="p">,</span>
+  <span class="s2">&quot;event&quot;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="s2">&quot;after&quot;</span><span class="p">:</span> <span class="s2">&quot;8d54f5ef375c67b2b7fee9a49f03213b96eba3f9&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;base_ref&quot;</span><span class="p">:</span> <span class="n">null</span><span class="p">,</span>
+    <span class="s2">&quot;before&quot;</span><span class="p">:</span> <span class="s2">&quot;99107ae8911cfc72716aecaf56232ad44606bae9&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;commits&quot;</span><span class="p">:</span> <span class="p">[</span>
+      <span class="p">{</span>
+        <span class="s2">&quot;author&quot;</span><span class="p">:</span> <span class="p">{</span>
+          <span class="s2">&quot;email&quot;</span><span class="p">:</span> <span class="s2">&quot;fantasy_2003_@hotmail.com&quot;</span><span class="p">,</span>
+          <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;eric&quot;</span><span class="p">,</span>
+          <span class="s2">&quot;username&quot;</span><span class="p">:</span> <span class="s2">&quot;eric2003&quot;</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;committer&quot;</span><span class="p">:</span> <span class="p">{</span>
+          <span class="s2">&quot;email&quot;</span><span class="p">:</span> <span class="s2">&quot;fantasy_2003_@hotmail.com&quot;</span><span class="p">,</span>
+          <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;eric&quot;</span><span class="p">,</span>
+          <span class="s2">&quot;username&quot;</span><span class="p">:</span> <span class="s2">&quot;eric2003&quot;</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;distinct&quot;</span><span class="p">:</span> <span class="n">true</span><span class="p">,</span>
+        <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;8d54f5ef375c67b2b7fee9a49f03213b96eba3f9&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="s2">&quot;add context.ymal&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;timestamp&quot;</span><span class="p">:</span> <span class="s2">&quot;2023-12-29T22:00:21+08:00&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;tree_id&quot;</span><span class="p">:</span> <span class="s2">&quot;4a07e48baec9177de003b537b74e3930c0416c65&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;url&quot;</span><span class="p">:</span> <span class="s2">&quot;https://github.com/eric2003/ModernPrj/commit/8d54f5ef375c67b2b7fee9a49f03213b96eba3f9&quot;</span>
+      <span class="p">}</span>
+    <span class="p">],</span>
+    <span class="s2">&quot;compare&quot;</span><span class="p">:</span> <span class="s2">&quot;https://github.com/eric2003/ModernPrj/compare/99107ae8911c...8d54f5ef375c&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;created&quot;</span><span class="p">:</span> <span class="n">false</span><span class="p">,</span>
+    <span class="s2">&quot;deleted&quot;</span><span class="p">:</span> <span class="n">false</span><span class="p">,</span>
+    <span class="s2">&quot;forced&quot;</span><span class="p">:</span> <span class="n">false</span><span class="p">,</span>
+    <span class="s2">&quot;head_commit&quot;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="s2">&quot;author&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;email&quot;</span><span class="p">:</span> <span class="s2">&quot;fantasy_2003_@hotmail.com&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;eric&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;username&quot;</span><span class="p">:</span> <span class="s2">&quot;eric2003&quot;</span>
+      <span class="p">},</span>
+      <span class="s2">&quot;committer&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;email&quot;</span><span class="p">:</span> <span class="s2">&quot;fantasy_2003_@hotmail.com&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;eric&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;username&quot;</span><span class="p">:</span> <span class="s2">&quot;eric2003&quot;</span>
+      <span class="p">},</span>
+      <span class="s2">&quot;distinct&quot;</span><span class="p">:</span> <span class="n">true</span><span class="p">,</span>
+      <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;8d54f5ef375c67b2b7fee9a49f03213b96eba3f9&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="s2">&quot;add context.ymal&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;timestamp&quot;</span><span class="p">:</span> <span class="s2">&quot;2023-12-29T22:00:21+08:00&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;tree_id&quot;</span><span class="p">:</span> <span class="s2">&quot;4a07e48baec9177de003b537b74e3930c0416c65&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;url&quot;</span><span class="p">:</span> <span class="s2">&quot;https://github.com/eric2003/ModernPrj/commit/8d54f5ef375c67b2b7fee9a49f03213b96eba3f9&quot;</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;pusher&quot;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="s2">&quot;email&quot;</span><span class="p">:</span> <span class="s2">&quot;fantasy_2003_@hotmail.com&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;eric2003&quot;</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;ref&quot;</span><span class="p">:</span> <span class="s2">&quot;refs/heads/develop&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;repository&quot;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="s2">&quot;allow_forking&quot;</span><span class="p">:</span> <span class="n">true</span><span class="p">,</span>
+      <span class="s2">&quot;archive_url&quot;</span><span class="p">:</span> <span class="s2">&quot;https://api.github.com/repos/eric2003/ModernPrj/</span><span class="si">{archive_format}</span><span class="s2">{/ref}&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;archived&quot;</span><span class="p">:</span> <span class="n">false</span><span class="p">,</span>
+      <span class="s2">&quot;assignees_url&quot;</span><span class="p">:</span> <span class="s2">&quot;https://api.github.com/repos/eric2003/ModernPrj/assignees{/user}&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;blobs_url&quot;</span><span class="p">:</span> <span class="s2">&quot;https://api.github.com/repos/eric2003/ModernPrj/git/blobs{/sha}&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;branches_url&quot;</span><span class="p">:</span> <span class="s2">&quot;https://api.github.com/repos/eric2003/ModernPrj/branches{/branch}&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;clone_url&quot;</span><span class="p">:</span> <span class="s2">&quot;https://github.com/eric2003/ModernPrj.git&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;collaborators_url&quot;</span><span class="p">:</span> <span class="s2">&quot;https://api.github.com/repos/eric2003/ModernPrj/collaborators{/collaborator}&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;comments_url&quot;</span><span class="p">:</span> <span class="s2">&quot;https://api.github.com/repos/eric2003/ModernPrj/comments{/number}&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;commits_url&quot;</span><span class="p">:</span> <span class="s2">&quot;https://api.github.com/repos/eric2003/ModernPrj/commits{/sha}&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;compare_url&quot;</span><span class="p">:</span> <span class="s2">&quot;https://api.github.com/repos/eric2003/ModernPrj/compare/</span><span class="si">{base}</span><span class="s2">...</span><span class="si">{head}</span><span class="s2">&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;contents_url&quot;</span><span class="p">:</span> <span class="s2">&quot;https://api.github.com/repos/eric2003/ModernPrj/contents/{+path}&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;contributors_url&quot;</span><span class="p">:</span> <span class="s2">&quot;https://api.github.com/repos/eric2003/ModernPrj/contributors&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;created_at&quot;</span><span class="p">:</span> <span class="mi">1703569045</span><span class="p">,</span>
+      <span class="s2">&quot;default_branch&quot;</span><span class="p">:</span> <span class="s2">&quot;main&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;deployments_url&quot;</span><span class="p">:</span> <span class="s2">&quot;https://api.github.com/repos/eric2003/ModernPrj/deployments&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="n">null</span><span class="p">,</span>
+      <span class="s2">&quot;disabled&quot;</span><span class="p">:</span> <span class="n">false</span><span class="p">,</span>
+      <span class="s2">&quot;downloads_url&quot;</span><span class="p">:</span> <span class="s2">&quot;https://api.github.com/repos/eric2003/ModernPrj/downloads&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;events_url&quot;</span><span class="p">:</span> <span class="s2">&quot;https://api.github.com/repos/eric2003/ModernPrj/events&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;fork&quot;</span><span class="p">:</span> <span class="n">false</span><span class="p">,</span>
+      <span class="s2">&quot;forks&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+      <span class="s2">&quot;forks_count&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+      <span class="s2">&quot;forks_url&quot;</span><span class="p">:</span> <span class="s2">&quot;https://api.github.com/repos/eric2003/ModernPrj/forks&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;full_name&quot;</span><span class="p">:</span> <span class="s2">&quot;eric2003/ModernPrj&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;git_commits_url&quot;</span><span class="p">:</span> <span class="s2">&quot;https://api.github.com/repos/eric2003/ModernPrj/git/commits{/sha}&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;git_refs_url&quot;</span><span class="p">:</span> <span class="s2">&quot;https://api.github.com/repos/eric2003/ModernPrj/git/refs{/sha}&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;git_tags_url&quot;</span><span class="p">:</span> <span class="s2">&quot;https://api.github.com/repos/eric2003/ModernPrj/git/tags{/sha}&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;git_url&quot;</span><span class="p">:</span> <span class="s2">&quot;git://github.com/eric2003/ModernPrj.git&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;has_discussions&quot;</span><span class="p">:</span> <span class="n">false</span><span class="p">,</span>
+      <span class="s2">&quot;has_downloads&quot;</span><span class="p">:</span> <span class="n">true</span><span class="p">,</span>
+      <span class="s2">&quot;has_issues&quot;</span><span class="p">:</span> <span class="n">true</span><span class="p">,</span>
+      <span class="s2">&quot;has_pages&quot;</span><span class="p">:</span> <span class="n">false</span><span class="p">,</span>
+      <span class="s2">&quot;has_projects&quot;</span><span class="p">:</span> <span class="n">true</span><span class="p">,</span>
+      <span class="s2">&quot;has_wiki&quot;</span><span class="p">:</span> <span class="n">true</span><span class="p">,</span>
+      <span class="s2">&quot;homepage&quot;</span><span class="p">:</span> <span class="n">null</span><span class="p">,</span>
+      <span class="s2">&quot;hooks_url&quot;</span><span class="p">:</span> <span class="s2">&quot;https://api.github.com/repos/eric2003/ModernPrj/hooks&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;html_url&quot;</span><span class="p">:</span> <span class="s2">&quot;https://github.com/eric2003/ModernPrj&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">735798203</span><span class="p">,</span>
+      <span class="s2">&quot;is_template&quot;</span><span class="p">:</span> <span class="n">false</span><span class="p">,</span>
+      <span class="s2">&quot;issue_comment_url&quot;</span><span class="p">:</span> <span class="s2">&quot;https://api.github.com/repos/eric2003/ModernPrj/issues/comments{/number}&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;issue_events_url&quot;</span><span class="p">:</span> <span class="s2">&quot;https://api.github.com/repos/eric2003/ModernPrj/issues/events{/number}&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;issues_url&quot;</span><span class="p">:</span> <span class="s2">&quot;https://api.github.com/repos/eric2003/ModernPrj/issues{/number}&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;keys_url&quot;</span><span class="p">:</span> <span class="s2">&quot;https://api.github.com/repos/eric2003/ModernPrj/keys{/key_id}&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;labels_url&quot;</span><span class="p">:</span> <span class="s2">&quot;https://api.github.com/repos/eric2003/ModernPrj/labels{/name}&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;language&quot;</span><span class="p">:</span> <span class="s2">&quot;C++&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;languages_url&quot;</span><span class="p">:</span> <span class="s2">&quot;https://api.github.com/repos/eric2003/ModernPrj/languages&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;license&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;key&quot;</span><span class="p">:</span> <span class="s2">&quot;mit&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;MIT License&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;node_id&quot;</span><span class="p">:</span> <span class="s2">&quot;MDc6TGljZW5zZTEz&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;spdx_id&quot;</span><span class="p">:</span> <span class="s2">&quot;MIT&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;url&quot;</span><span class="p">:</span> <span class="s2">&quot;https://api.github.com/licenses/mit&quot;</span>
+      <span class="p">},</span>
+      <span class="s2">&quot;master_branch&quot;</span><span class="p">:</span> <span class="s2">&quot;main&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;merges_url&quot;</span><span class="p">:</span> <span class="s2">&quot;https://api.github.com/repos/eric2003/ModernPrj/merges&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;milestones_url&quot;</span><span class="p">:</span> <span class="s2">&quot;https://api.github.com/repos/eric2003/ModernPrj/milestones{/number}&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;mirror_url&quot;</span><span class="p">:</span> <span class="n">null</span><span class="p">,</span>
+      <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;ModernPrj&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;node_id&quot;</span><span class="p">:</span> <span class="s2">&quot;R_kgDOK9tjuw&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;notifications_url&quot;</span><span class="p">:</span> <span class="s2">&quot;https://api.github.com/repos/eric2003/ModernPrj/notifications{?since,all,participating}&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;open_issues&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+      <span class="s2">&quot;open_issues_count&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+      <span class="s2">&quot;owner&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;avatar_url&quot;</span><span class="p">:</span> <span class="s2">&quot;https://avatars.githubusercontent.com/u/7891909?v=4&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;email&quot;</span><span class="p">:</span> <span class="s2">&quot;fantasy_2003_@hotmail.com&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;events_url&quot;</span><span class="p">:</span> <span class="s2">&quot;https://api.github.com/users/eric2003/events{/privacy}&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;followers_url&quot;</span><span class="p">:</span> <span class="s2">&quot;https://api.github.com/users/eric2003/followers&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;following_url&quot;</span><span class="p">:</span> <span class="s2">&quot;https://api.github.com/users/eric2003/following{/other_user}&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;gists_url&quot;</span><span class="p">:</span> <span class="s2">&quot;https://api.github.com/users/eric2003/gists{/gist_id}&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;gravatar_id&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;html_url&quot;</span><span class="p">:</span> <span class="s2">&quot;https://github.com/eric2003&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">7891909</span><span class="p">,</span>
+        <span class="s2">&quot;login&quot;</span><span class="p">:</span> <span class="s2">&quot;eric2003&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;eric2003&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;node_id&quot;</span><span class="p">:</span> <span class="s2">&quot;MDQ6VXNlcjc4OTE5MDk=&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;organizations_url&quot;</span><span class="p">:</span> <span class="s2">&quot;https://api.github.com/users/eric2003/orgs&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;received_events_url&quot;</span><span class="p">:</span> <span class="s2">&quot;https://api.github.com/users/eric2003/received_events&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;repos_url&quot;</span><span class="p">:</span> <span class="s2">&quot;https://api.github.com/users/eric2003/repos&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;site_admin&quot;</span><span class="p">:</span> <span class="n">false</span><span class="p">,</span>
+        <span class="s2">&quot;starred_url&quot;</span><span class="p">:</span> <span class="s2">&quot;https://api.github.com/users/eric2003/starred{/owner}{/repo}&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;subscriptions_url&quot;</span><span class="p">:</span> <span class="s2">&quot;https://api.github.com/users/eric2003/subscriptions&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;User&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;url&quot;</span><span class="p">:</span> <span class="s2">&quot;https://api.github.com/users/eric2003&quot;</span>
+      <span class="p">},</span>
+      <span class="s2">&quot;private&quot;</span><span class="p">:</span> <span class="n">false</span><span class="p">,</span>
+      <span class="s2">&quot;pulls_url&quot;</span><span class="p">:</span> <span class="s2">&quot;https://api.github.com/repos/eric2003/ModernPrj/pulls{/number}&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;pushed_at&quot;</span><span class="p">:</span> <span class="mi">1703858432</span><span class="p">,</span>
+      <span class="s2">&quot;releases_url&quot;</span><span class="p">:</span> <span class="s2">&quot;https://api.github.com/repos/eric2003/ModernPrj/releases{/id}&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;size&quot;</span><span class="p">:</span> <span class="mi">17</span><span class="p">,</span>
+      <span class="s2">&quot;ssh_url&quot;</span><span class="p">:</span> <span class="s2">&quot;git@github.com:eric2003/ModernPrj.git&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;stargazers&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+      <span class="s2">&quot;stargazers_count&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+      <span class="s2">&quot;stargazers_url&quot;</span><span class="p">:</span> <span class="s2">&quot;https://api.github.com/repos/eric2003/ModernPrj/stargazers&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;statuses_url&quot;</span><span class="p">:</span> <span class="s2">&quot;https://api.github.com/repos/eric2003/ModernPrj/statuses/</span><span class="si">{sha}</span><span class="s2">&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;subscribers_url&quot;</span><span class="p">:</span> <span class="s2">&quot;https://api.github.com/repos/eric2003/ModernPrj/subscribers&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;subscription_url&quot;</span><span class="p">:</span> <span class="s2">&quot;https://api.github.com/repos/eric2003/ModernPrj/subscription&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;svn_url&quot;</span><span class="p">:</span> <span class="s2">&quot;https://github.com/eric2003/ModernPrj&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;tags_url&quot;</span><span class="p">:</span> <span class="s2">&quot;https://api.github.com/repos/eric2003/ModernPrj/tags&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;teams_url&quot;</span><span class="p">:</span> <span class="s2">&quot;https://api.github.com/repos/eric2003/ModernPrj/teams&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;topics&quot;</span><span class="p">:</span> <span class="p">[],</span>
+      <span class="s2">&quot;trees_url&quot;</span><span class="p">:</span> <span class="s2">&quot;https://api.github.com/repos/eric2003/ModernPrj/git/trees{/sha}&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;updated_at&quot;</span><span class="p">:</span> <span class="s2">&quot;2023-12-27T10:36:17Z&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;url&quot;</span><span class="p">:</span> <span class="s2">&quot;https://github.com/eric2003/ModernPrj&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;visibility&quot;</span><span class="p">:</span> <span class="s2">&quot;public&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;watchers&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+      <span class="s2">&quot;watchers_count&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+      <span class="s2">&quot;web_commit_signoff_required&quot;</span><span class="p">:</span> <span class="n">false</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;sender&quot;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="s2">&quot;avatar_url&quot;</span><span class="p">:</span> <span class="s2">&quot;https://avatars.githubusercontent.com/u/7891909?v=4&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;events_url&quot;</span><span class="p">:</span> <span class="s2">&quot;https://api.github.com/users/eric2003/events{/privacy}&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;followers_url&quot;</span><span class="p">:</span> <span class="s2">&quot;https://api.github.com/users/eric2003/followers&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;following_url&quot;</span><span class="p">:</span> <span class="s2">&quot;https://api.github.com/users/eric2003/following{/other_user}&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;gists_url&quot;</span><span class="p">:</span> <span class="s2">&quot;https://api.github.com/users/eric2003/gists{/gist_id}&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;gravatar_id&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;html_url&quot;</span><span class="p">:</span> <span class="s2">&quot;https://github.com/eric2003&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">7891909</span><span class="p">,</span>
+      <span class="s2">&quot;login&quot;</span><span class="p">:</span> <span class="s2">&quot;eric2003&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;node_id&quot;</span><span class="p">:</span> <span class="s2">&quot;MDQ6VXNlcjc4OTE5MDk=&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;organizations_url&quot;</span><span class="p">:</span> <span class="s2">&quot;https://api.github.com/users/eric2003/orgs&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;received_events_url&quot;</span><span class="p">:</span> <span class="s2">&quot;https://api.github.com/users/eric2003/received_events&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;repos_url&quot;</span><span class="p">:</span> <span class="s2">&quot;https://api.github.com/users/eric2003/repos&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;site_admin&quot;</span><span class="p">:</span> <span class="n">false</span><span class="p">,</span>
+      <span class="s2">&quot;starred_url&quot;</span><span class="p">:</span> <span class="s2">&quot;https://api.github.com/users/eric2003/starred{/owner}{/repo}&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;subscriptions_url&quot;</span><span class="p">:</span> <span class="s2">&quot;https://api.github.com/users/eric2003/subscriptions&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;User&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;url&quot;</span><span class="p">:</span> <span class="s2">&quot;https://api.github.com/users/eric2003&quot;</span>
+    <span class="p">}</span>
+  <span class="p">},</span>
+  <span class="s2">&quot;server_url&quot;</span><span class="p">:</span> <span class="s2">&quot;https://github.com&quot;</span><span class="p">,</span>
+  <span class="s2">&quot;api_url&quot;</span><span class="p">:</span> <span class="s2">&quot;https://api.github.com&quot;</span><span class="p">,</span>
+  <span class="s2">&quot;graphql_url&quot;</span><span class="p">:</span> <span class="s2">&quot;https://api.github.com/graphql&quot;</span><span class="p">,</span>
+  <span class="s2">&quot;ref_name&quot;</span><span class="p">:</span> <span class="s2">&quot;develop&quot;</span><span class="p">,</span>
+  <span class="s2">&quot;ref_protected&quot;</span><span class="p">:</span> <span class="n">false</span><span class="p">,</span>
+  <span class="s2">&quot;ref_type&quot;</span><span class="p">:</span> <span class="s2">&quot;branch&quot;</span><span class="p">,</span>
+  <span class="s2">&quot;secret_source&quot;</span><span class="p">:</span> <span class="s2">&quot;Actions&quot;</span><span class="p">,</span>
+  <span class="s2">&quot;workflow_ref&quot;</span><span class="p">:</span> <span class="s2">&quot;eric2003/ModernPrj/.github/workflows/context.yml@refs/heads/develop&quot;</span><span class="p">,</span>
+  <span class="s2">&quot;workflow_sha&quot;</span><span class="p">:</span> <span class="s2">&quot;8d54f5ef375c67b2b7fee9a49f03213b96eba3f9&quot;</span><span class="p">,</span>
+  <span class="s2">&quot;workspace&quot;</span><span class="p">:</span> <span class="s2">&quot;/home/runner/work/ModernPrj/ModernPrj&quot;</span><span class="p">,</span>
+  <span class="s2">&quot;action&quot;</span><span class="p">:</span> <span class="s2">&quot;__run&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Run echo “$JOB_CONTEXT”</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+  <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;success&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Run echo “$STEPS_CONTEXT”</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{}</span>
+</pre></div>
+</div>
+<p>Run echo “$RUNNER_CONTEXT”</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+  <span class="s2">&quot;os&quot;</span><span class="p">:</span> <span class="s2">&quot;Linux&quot;</span><span class="p">,</span>
+  <span class="s2">&quot;arch&quot;</span><span class="p">:</span> <span class="s2">&quot;X64&quot;</span><span class="p">,</span>
+  <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;GitHub Actions 5&quot;</span><span class="p">,</span>
+  <span class="s2">&quot;environment&quot;</span><span class="p">:</span> <span class="s2">&quot;github-hosted&quot;</span><span class="p">,</span>
+  <span class="s2">&quot;tool_cache&quot;</span><span class="p">:</span> <span class="s2">&quot;/opt/hostedtoolcache&quot;</span><span class="p">,</span>
+  <span class="s2">&quot;temp&quot;</span><span class="p">:</span> <span class="s2">&quot;/home/runner/work/_temp&quot;</span><span class="p">,</span>
+  <span class="s2">&quot;workspace&quot;</span><span class="p">:</span> <span class="s2">&quot;/home/runner/work/ModernPrj&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Run echo “$STRATEGY_CONTEXT”</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+  <span class="s2">&quot;fail-fast&quot;</span><span class="p">:</span> <span class="n">true</span><span class="p">,</span>
+  <span class="s2">&quot;job-index&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+  <span class="s2">&quot;job-total&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+  <span class="s2">&quot;max-parallel&quot;</span><span class="p">:</span> <span class="mi">1</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Run echo “$MATRIX_CONTEXT”</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">null</span>
+</pre></div>
+</div>
+<section id="how-to-pass-data-between-workflows-in-github-actions">
+<h2>How To Pass Data Between Workflows in GitHub Actions?<a class="headerlink" href="#how-to-pass-data-between-workflows-in-github-actions" title="Link to this heading"></a></h2>
+<ol class="arabic simple">
+<li><p><a class="reference external" href="https://codersee.com/how-to-pass-data-between-workflows-in-github-actions/">How To Pass Data Between Workflows in GitHub Actions?</a></p></li>
+</ol>
+</section>
+<section id="rest-api">
+<h2>REST API<a class="headerlink" href="#rest-api" title="Link to this heading"></a></h2>
+<ol class="arabic simple">
+<li><p><a class="reference external" href="https://docs.github.com/en/rest/actions/secrets?apiVersion=2022-11-28/">GitHub Actions Secrets</a></p></li>
+</ol>
+</section>
+<section id="github-actions-windows-msys2-ms-mpi">
+<h2>GitHub Actions Windows MSYS2 MS-MPI<a class="headerlink" href="#github-actions-windows-msys2-ms-mpi" title="Link to this heading"></a></h2>
+<ol class="arabic simple">
+<li><p><a class="reference external" href="https://www.scivision.dev/github-actions-windows-mpi-msys/">GitHub Actions Windows MSYS2 MS-MPI</a></p></li>
+</ol>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="eigen.html" class="btn btn-neutral float-left" title="Eigen3" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="fortran.html" class="btn btn-neutral float-right" title="Fortran" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2017~2024, eric.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

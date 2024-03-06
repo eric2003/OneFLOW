@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PowerShell &mdash; Scientific Computing 1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js?v=5d32c60e"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="_static/documentation_options.js?v=f2a433a1"></script>
+        <script src="_static/doctools.js?v=888ff710"></script>
+        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Python" href="python/index.html" />
+    <link rel="prev" title="OpenMP" href="openmp.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Scientific Computing
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Get started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="info.html">OneFLOW</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="user.html">THEORY</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="bash.html">Bash</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cfd/index.html">CFD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cgns.html">CGNS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="chatgpt.html">CHATGPT</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cpp/index.html">CPP</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cmake.html">CMake</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cmd.html">Cmd</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cuda.html">CUDA</a></li>
+<li class="toctree-l1"><a class="reference internal" href="design_patterns.html">Design Patterns</a></li>
+<li class="toctree-l1"><a class="reference internal" href="eigen.html">Eigen3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="git.html">Git</a></li>
+<li class="toctree-l1"><a class="reference internal" href="git.html#contexts">Contexts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fortran.html">Fortran</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hdf5.html">HDF5</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hpc.html">HPC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="install/index.html">Install</a></li>
+<li class="toctree-l1"><a class="reference internal" href="julia.html">Julia</a></li>
+<li class="toctree-l1"><a class="reference internal" href="jupyter.html">Jupyter Notebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="latex.html">LaTeX</a></li>
+<li class="toctree-l1"><a class="reference internal" href="makefile.html">Makefile</a></li>
+<li class="toctree-l1"><a class="reference internal" href="metis.html">METIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mkdocs.html">MkDocs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modules.html">Environment Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mpi.html">MPI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="numerical/index.html">Numerical analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="oneapi.html">oneAPI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="oneflow.html">OneFLOW-CFD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="openacc.html">OpenACC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="opencl.html">OpenCL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="opengl.html">OpenGL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="openmp.html">OpenMP</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">PowerShell</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#id1">PowerShell</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#how-to-check-powershell-version-1">How to Check PowerShell version 1</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#how-to-check-powershell-version-2">How to Check PowerShell version 2</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#how-to-check-powershell-version-3">How to Check PowerShell version 3</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#how-to-check-powershell-version-4">How to Check PowerShell version 4</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#how-to-check-powershell-version-5">How to Check PowerShell version 5</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#search-for-the-latest-version-of-powershell">Search for the latest version of PowerShell</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#install-powershell-or-powershell-preview-using-the-id-parameter">Install PowerShell or PowerShell Preview using the id parameter</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#check-64bit-environment">check 64bit Environment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#display-all-environment-variables">Display all environment variables</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#display-programfiles-variable">Display ProgramFiles variable</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#display-programfiles-x86-variable">Display ProgramFiles(x86) variable</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#show-path">show path</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#remove">Remove</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#start-testprj-sln-from-powershell">Start testprj.sln from powershell</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#add-environment-variables">Add Environment variables</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#find-program">Find program</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#find-powershell">Find powershell</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#find-powershell-7-x64">Find PowerShell 7 (x64)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#write-output">Write-Output</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id3">Write-Output</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#get-command-name">Get-Command -Name</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#msiexec-exe">msiexec.exe</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#how-to-install-msi-file-to-the-custom-directory-using-powershell">How to install MSI file to the custom directory using PowerShell?</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="python/index.html">Python</a></li>
+<li class="toctree-l1"><a class="reference internal" href="qt.html">Qt</a></li>
+<li class="toctree-l1"><a class="reference internal" href="regex.html">Regular Expressions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="science.html">Science</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sphinx.html">Sphinx</a></li>
+<li class="toctree-l1"><a class="reference internal" href="system/index.html">System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="taichi.html">Taichi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tcltk.html">Tcl/tk</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tecplot.html">Tecplot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="test.html">Test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="unreal_engine.html">Unreal Engine</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vcpkg.html">vcpkg</a></li>
+<li class="toctree-l1"><a class="reference internal" href="yaml.html">yaml</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Scientific Computing</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">PowerShell</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/powershell.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="powershell">
+<h1>PowerShell<a class="headerlink" href="#powershell" title="Link to this heading"></a></h1>
+<section id="id1">
+<h2>PowerShell<a class="headerlink" href="#id1" title="Link to this heading"></a></h2>
+<ol class="arabic simple">
+<li><p><a class="reference external" href="https://zhuanlan.zhihu.com/p/481907978/">PowerShell相关链接</a></p></li>
+<li><p><a class="reference external" href="https://www.youtube.com/watch?v=w8tFyophdBA/">Manage GitHub with PowerShell</a></p></li>
+<li><p><a class="reference external" href="https://www.youtube.com/watch?v=UVUd9_k9C6A/">PowerShell For Beginners Full Course | PowerShell Beginner tutorial Full Course</a></p></li>
+</ol>
+<p>You can edit your Microsoft.VSCode_profile.ps1 file (full path can be found when you type $profile in the editor and remove all code referring to anaconda. To open the profile file, type notepad $profile in the terminal.</p>
+<p><a class="reference external" href="https://www.howtogeek.com/731885/how-to-check-the-powershell-version-in-windows-10/">How to Check the PowerShell Version in Windows 10</a></p>
+</section>
+<section id="how-to-check-powershell-version-1">
+<h2>How to Check PowerShell version 1<a class="headerlink" href="#how-to-check-powershell-version-1" title="Link to this heading"></a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$PSVersionTable.PSVersion
+result:
+PS C:\Users\eric&gt; $PSVersionTable.PSVersion
+
+Major  Minor  Build  Revision
+-----  -----  -----  --------
+5      1      22621  2506
+</pre></div>
+</div>
+</section>
+<section id="how-to-check-powershell-version-2">
+<h2>How to Check PowerShell version 2<a class="headerlink" href="#how-to-check-powershell-version-2" title="Link to this heading"></a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$host.version
+result:
+PS C:\Users\eric&gt; $host.version
+
+Major  Minor  Build  Revision
+-----  -----  -----  --------
+5      1      22621  2506
+</pre></div>
+</div>
+</section>
+<section id="how-to-check-powershell-version-3">
+<h2>How to Check PowerShell version 3<a class="headerlink" href="#how-to-check-powershell-version-3" title="Link to this heading"></a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$PSVersionTable
+result:
+PS C:\Users\eric&gt; $PSVersionTable
+
+Name                           Value
+----                           -----
+PSVersion                      5.1.22621.2506
+PSEdition                      Desktop
+PSCompatibleVersions           {1.0, 2.0, 3.0, 4.0...}
+BuildVersion                   10.0.22621.2506
+CLRVersion                     4.0.30319.42000
+WSManStackVersion              3.0
+PSRemotingProtocolVersion      2.3
+SerializationVersion           1.1.0.1
+</pre></div>
+</div>
+</section>
+<section id="how-to-check-powershell-version-4">
+<h2>How to Check PowerShell version 4<a class="headerlink" href="#how-to-check-powershell-version-4" title="Link to this heading"></a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">get</span><span class="o">-</span><span class="n">host</span>
+<span class="n">result</span><span class="p">:</span>
+<span class="n">PS</span> <span class="n">C</span><span class="p">:</span>\<span class="n">Users</span>\<span class="n">eric</span><span class="o">&gt;</span> <span class="n">get</span><span class="o">-</span><span class="n">host</span>
+
+<span class="n">Name</span>             <span class="p">:</span> <span class="n">ConsoleHost</span>
+<span class="n">Version</span>          <span class="p">:</span> <span class="mf">5.1.22621.2506</span>
+<span class="n">InstanceId</span>       <span class="p">:</span> <span class="mi">50</span><span class="n">fd2681</span><span class="o">-</span><span class="n">bc46</span><span class="o">-</span><span class="mi">4</span><span class="n">bbd</span><span class="o">-</span><span class="n">b763</span><span class="o">-</span><span class="mi">2</span><span class="n">a879fd4f6bb</span>
+<span class="n">UI</span>               <span class="p">:</span> <span class="n">System</span><span class="o">.</span><span class="n">Management</span><span class="o">.</span><span class="n">Automation</span><span class="o">.</span><span class="n">Internal</span><span class="o">.</span><span class="n">Host</span><span class="o">.</span><span class="n">InternalHostUserInterface</span>
+<span class="n">CurrentCulture</span>   <span class="p">:</span> <span class="n">zh</span><span class="o">-</span><span class="n">CN</span>
+<span class="n">CurrentUICulture</span> <span class="p">:</span> <span class="n">zh</span><span class="o">-</span><span class="n">CN</span>
+<span class="n">PrivateData</span>      <span class="p">:</span> <span class="n">Microsoft</span><span class="o">.</span><span class="n">PowerShell</span><span class="o">.</span><span class="n">ConsoleHost</span><span class="o">+</span><span class="n">ConsoleColorProxy</span>
+<span class="n">DebuggerEnabled</span>  <span class="p">:</span> <span class="kc">True</span>
+<span class="n">IsRunspacePushed</span> <span class="p">:</span> <span class="kc">False</span>
+<span class="n">Runspace</span>         <span class="p">:</span> <span class="n">System</span><span class="o">.</span><span class="n">Management</span><span class="o">.</span><span class="n">Automation</span><span class="o">.</span><span class="n">Runspaces</span><span class="o">.</span><span class="n">LocalRunspace</span>
+</pre></div>
+</div>
+</section>
+<section id="how-to-check-powershell-version-5">
+<h2>How to Check PowerShell version 5<a class="headerlink" href="#how-to-check-powershell-version-5" title="Link to this heading"></a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">host</span>
+<span class="n">result</span><span class="p">:</span>
+<span class="n">PS</span> <span class="n">C</span><span class="p">:</span>\<span class="n">Users</span>\<span class="n">eric</span><span class="o">&gt;</span> <span class="n">host</span>
+
+<span class="n">Name</span>             <span class="p">:</span> <span class="n">ConsoleHost</span>
+<span class="n">Version</span>          <span class="p">:</span> <span class="mf">5.1.22621.2506</span>
+<span class="n">InstanceId</span>       <span class="p">:</span> <span class="mi">50</span><span class="n">fd2681</span><span class="o">-</span><span class="n">bc46</span><span class="o">-</span><span class="mi">4</span><span class="n">bbd</span><span class="o">-</span><span class="n">b763</span><span class="o">-</span><span class="mi">2</span><span class="n">a879fd4f6bb</span>
+<span class="n">UI</span>               <span class="p">:</span> <span class="n">System</span><span class="o">.</span><span class="n">Management</span><span class="o">.</span><span class="n">Automation</span><span class="o">.</span><span class="n">Internal</span><span class="o">.</span><span class="n">Host</span><span class="o">.</span><span class="n">InternalHostUserInterface</span>
+<span class="n">CurrentCulture</span>   <span class="p">:</span> <span class="n">zh</span><span class="o">-</span><span class="n">CN</span>
+<span class="n">CurrentUICulture</span> <span class="p">:</span> <span class="n">zh</span><span class="o">-</span><span class="n">CN</span>
+<span class="n">PrivateData</span>      <span class="p">:</span> <span class="n">Microsoft</span><span class="o">.</span><span class="n">PowerShell</span><span class="o">.</span><span class="n">ConsoleHost</span><span class="o">+</span><span class="n">ConsoleColorProxy</span>
+<span class="n">DebuggerEnabled</span>  <span class="p">:</span> <span class="kc">True</span>
+<span class="n">IsRunspacePushed</span> <span class="p">:</span> <span class="kc">False</span>
+<span class="n">Runspace</span>         <span class="p">:</span> <span class="n">System</span><span class="o">.</span><span class="n">Management</span><span class="o">.</span><span class="n">Automation</span><span class="o">.</span><span class="n">Runspaces</span><span class="o">.</span><span class="n">LocalRunspace</span>
+</pre></div>
+</div>
+</section>
+<section id="search-for-the-latest-version-of-powershell">
+<h2>Search for the latest version of PowerShell<a class="headerlink" href="#search-for-the-latest-version-of-powershell" title="Link to this heading"></a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">winget</span> <span class="n">search</span> <span class="n">Microsoft</span><span class="o">.</span><span class="n">PowerShell</span>
+<span class="n">result</span><span class="p">:</span>
+<span class="n">PS</span> <span class="n">C</span><span class="p">:</span>\<span class="n">Users</span>\<span class="n">eric</span><span class="o">&gt;</span> <span class="n">winget</span> <span class="n">search</span> <span class="n">Microsoft</span><span class="o">.</span><span class="n">PowerShell</span>
+<span class="n">名称</span>               <span class="n">ID</span>                           <span class="n">版本</span>      <span class="n">源</span>
+<span class="o">-----------------------------------------------------------------</span>
+<span class="n">PowerShell</span>         <span class="n">Microsoft</span><span class="o">.</span><span class="n">PowerShell</span>         <span class="mf">7.4.0.0</span>   <span class="n">winget</span>
+<span class="n">PowerShell</span> <span class="n">Preview</span> <span class="n">Microsoft</span><span class="o">.</span><span class="n">PowerShell</span><span class="o">.</span><span class="n">Preview</span> <span class="mf">7.4.0.101</span> <span class="n">winget</span>
+</pre></div>
+</div>
+</section>
+<section id="install-powershell-or-powershell-preview-using-the-id-parameter">
+<h2>Install PowerShell or PowerShell Preview using the id parameter<a class="headerlink" href="#install-powershell-or-powershell-preview-using-the-id-parameter" title="Link to this heading"></a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>winget install --id Microsoft.Powershell --source winget
+PS C:\Users\eric&gt; winget install --id Microsoft.Powershell --source winget
+已找到 PowerShell [Microsoft.PowerShell] 版本 7.4.0.0
+此应用程序由其所有者授权给你。
+Microsoft 对第三方程序包概不负责，也不向第三方程序包授予任何许可证。
+正在下载 https://github.com/PowerShell/PowerShell/releases/download/v7.4.0/PowerShell-7.4.0-win-x64.msi
+  ██████████████████████████████   103 MB /  103 MB
+已成功验证安装程序哈希
+正在启动程序包安装...
+已成功安装
+</pre></div>
+</div>
+</section>
+<section id="check-64bit-environment">
+<h2>check 64bit Environment<a class="headerlink" href="#check-64bit-environment" title="Link to this heading"></a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">Environment</span><span class="p">]::</span><span class="n">Is64BitProcess</span>
+</pre></div>
+</div>
+</section>
+<section id="display-all-environment-variables">
+<h2>Display all environment variables<a class="headerlink" href="#display-all-environment-variables" title="Link to this heading"></a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">gci</span> <span class="n">env</span><span class="p">:</span>
+<span class="n">ls</span> <span class="n">env</span><span class="p">:</span>
+</pre></div>
+</div>
+<p>Some variables</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">ProgramData</span>                    <span class="n">C</span><span class="p">:</span>\<span class="n">ProgramData</span>
+<span class="n">ProgramFiles</span>                   <span class="n">C</span><span class="p">:</span>\<span class="n">Program</span> <span class="n">Files</span>
+<span class="n">ProgramFiles</span><span class="p">(</span><span class="n">x86</span><span class="p">)</span>              <span class="n">C</span><span class="p">:</span>\<span class="n">Program</span> <span class="n">Files</span> <span class="p">(</span><span class="n">x86</span><span class="p">)</span>
+<span class="n">ProgramW6432</span>                   <span class="n">C</span><span class="p">:</span>\<span class="n">Program</span> <span class="n">Files</span>
+</pre></div>
+</div>
+</section>
+<section id="display-programfiles-variable">
+<h2>Display ProgramFiles variable<a class="headerlink" href="#display-programfiles-variable" title="Link to this heading"></a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$env:ProgramFiles
+</pre></div>
+</div>
+</section>
+<section id="display-programfiles-x86-variable">
+<h2>Display ProgramFiles(x86) variable<a class="headerlink" href="#display-programfiles-x86-variable" title="Link to this heading"></a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>${Env:ProgramFiles(x86)}
+or
+[Environment]::GetEnvironmentVariable(&quot;ProgramFiles(x86)&quot;)
+</pre></div>
+</div>
+</section>
+<section id="show-path">
+<h2>show path<a class="headerlink" href="#show-path" title="Link to this heading"></a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$env:path
+</pre></div>
+</div>
+</section>
+<section id="remove">
+<h2>Remove<a class="headerlink" href="#remove" title="Link to this heading"></a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Remove</span><span class="o">-</span><span class="n">Item</span> <span class="o">*</span> <span class="o">-</span><span class="n">Recurse</span> <span class="o">-</span><span class="n">Force</span>
+</pre></div>
+</div>
+<p>or</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">rm</span> <span class="o">*</span> <span class="o">-</span><span class="n">Recurse</span> <span class="o">-</span><span class="n">Force</span>
+</pre></div>
+</div>
+</section>
+<section id="start-testprj-sln-from-powershell">
+<h2>Start testprj.sln from powershell<a class="headerlink" href="#start-testprj-sln-from-powershell" title="Link to this heading"></a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&amp;</span> <span class="o">./</span><span class="n">testprj</span><span class="o">.</span><span class="n">sln</span>
+</pre></div>
+</div>
+</section>
+<section id="add-environment-variables">
+<h2>Add Environment variables<a class="headerlink" href="#add-environment-variables" title="Link to this heading"></a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$env:path = &quot;c:\dev\mingw64\bin\;&quot;+$env:path
+</pre></div>
+</div>
+</section>
+<section id="find-program">
+<h2>Find program<a class="headerlink" href="#find-program" title="Link to this heading"></a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Get</span><span class="o">-</span><span class="n">Command</span> <span class="n">gcc</span>
+<span class="n">Results</span>
+<span class="n">PS</span> <span class="n">C</span><span class="p">:</span>\<span class="n">Users</span>\<span class="n">eric</span><span class="o">&gt;</span>  <span class="n">Get</span><span class="o">-</span><span class="n">Command</span> <span class="n">gcc</span>
+
+<span class="n">CommandType</span>     <span class="n">Name</span>           <span class="n">Version</span>    <span class="n">Source</span>
+<span class="o">-----------</span>     <span class="o">----</span>           <span class="o">-------</span>    <span class="o">------</span>
+<span class="n">Application</span>     <span class="n">gcc</span><span class="o">.</span><span class="n">exe</span>        <span class="mf">0.0.0.0</span>    <span class="n">c</span><span class="p">:</span>\<span class="n">dev</span>\<span class="n">mingw64</span>\<span class="nb">bin</span>\<span class="n">gcc</span><span class="o">.</span><span class="n">exe</span>
+</pre></div>
+</div>
+</section>
+<section id="find-powershell">
+<h2>Find powershell<a class="headerlink" href="#find-powershell" title="Link to this heading"></a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">PS</span> <span class="n">C</span><span class="p">:</span>\<span class="n">Users</span>\<span class="n">eric</span><span class="o">&gt;</span> <span class="n">Get</span><span class="o">-</span><span class="n">Command</span> <span class="n">powershell</span>
+
+<span class="n">CommandType</span>     <span class="n">Name</span>           <span class="n">Version</span>    <span class="n">Source</span>
+<span class="o">-----------</span>     <span class="o">----</span>           <span class="o">-------</span>    <span class="o">------</span>
+<span class="n">Application</span>     <span class="n">powershell</span><span class="o">.</span><span class="n">exe</span> <span class="mf">10.0.22</span><span class="o">...</span> <span class="n">C</span><span class="p">:</span>\<span class="n">Windows</span>\<span class="n">System32</span>\<span class="n">WindowsPowerShell</span>\<span class="o">...</span>
+</pre></div>
+</div>
+</section>
+<section id="find-powershell-7-x64">
+<h2>Find PowerShell 7 (x64)<a class="headerlink" href="#find-powershell-7-x64" title="Link to this heading"></a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Get</span><span class="o">-</span><span class="n">ChildItem</span> <span class="o">-</span><span class="n">Path</span> <span class="n">c</span><span class="p">:</span>\ <span class="o">-</span><span class="n">Recurse</span> <span class="n">pwsh</span><span class="o">.</span><span class="n">exe</span>
+<span class="n">results</span><span class="p">:</span>
+<span class="n">PS</span> <span class="n">C</span><span class="p">:</span>\<span class="n">Users</span>\<span class="n">eric</span><span class="o">&gt;</span> <span class="n">Get</span><span class="o">-</span><span class="n">ChildItem</span> <span class="o">-</span><span class="n">Path</span> <span class="n">c</span><span class="p">:</span>\ <span class="o">-</span><span class="n">Recurse</span> <span class="n">pwsh</span><span class="o">.</span><span class="n">exe</span>
+  <span class="n">目录</span><span class="p">:</span> <span class="n">C</span><span class="p">:</span>\<span class="n">Program</span> <span class="n">Files</span>\<span class="n">PowerShell</span>\<span class="mi">7</span>
+<span class="n">Mode</span>                 <span class="n">LastWriteTime</span>         <span class="n">Length</span> <span class="n">Name</span>
+<span class="o">----</span>                 <span class="o">-------------</span>         <span class="o">------</span> <span class="o">----</span>
+<span class="o">-</span><span class="n">a</span><span class="o">----</span>        <span class="mi">2023</span><span class="o">/</span><span class="mi">11</span><span class="o">/</span><span class="mi">11</span>      <span class="mi">1</span><span class="p">:</span><span class="mi">59</span>         <span class="mi">280000</span> <span class="n">pwsh</span><span class="o">.</span><span class="n">exe</span>
+</pre></div>
+</div>
+</section>
+<section id="write-output">
+<h2>Write-Output<a class="headerlink" href="#write-output" title="Link to this heading"></a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$array=@(1,2,3,5,6,7,8);
+Write-Output &quot;array.Length=$($array.Length)&quot;
+typical results:
+array.Length=7
+</pre></div>
+</div>
+</section>
+<section id="id3">
+<h2>Write-Output<a class="headerlink" href="#id3" title="Link to this heading"></a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$pets = @{Cat = &#39;Frisky&#39;; Dog = &#39;Spot&#39;; Fish = &#39;Nimo&#39;; Hamster = &#39;Whiskers&#39;}
+Write-Output &quot;`$pets=$pets&quot;
+$pets
+Write-Output &quot;`$pets.Cat=$($pets.Cat)&quot;
+Write-Output &quot;`$pets.Dog=$($pets.Dog)&quot;
+Write-Output &quot;`$pets.Fish=$($pets.Fish)&quot;
+Write-Output &quot;`$pets.Hamster=$($pets.Hamster)&quot;
+$pets=System.Collections.Hashtable
+
+Name                           Value
+----                           -----
+Fish                           Nimo
+Cat                            Frisky
+Hamster                        Whiskers
+Dog                            Spot
+$pets.Cat=Frisky
+$pets.Dog=Spot
+$pets.Fish=Nimo
+$pets.Hamster=Whiskers
+</pre></div>
+</div>
+</section>
+<section id="get-command-name">
+<h2>Get-Command -Name<a class="headerlink" href="#get-command-name" title="Link to this heading"></a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Get</span><span class="o">-</span><span class="n">Command</span> <span class="o">-</span><span class="n">Name</span> <span class="s2">&quot;sort.exe&quot;</span>
+<span class="n">CommandType</span>     <span class="n">Name</span>        <span class="n">Version</span>    <span class="n">Source</span>
+<span class="o">-----------</span>     <span class="o">----</span>        <span class="o">-------</span>    <span class="o">------</span>
+<span class="n">Application</span>     <span class="n">sort</span><span class="o">.</span><span class="n">exe</span>    <span class="mf">10.0.22</span><span class="o">...</span> <span class="n">C</span><span class="p">:</span>\<span class="n">Windows</span>\<span class="n">system32</span>\<span class="n">sort</span><span class="o">.</span><span class="n">exe</span>
+</pre></div>
+</div>
+</section>
+<section id="msiexec-exe">
+<h2>msiexec.exe<a class="headerlink" href="#msiexec-exe" title="Link to this heading"></a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">msiexec</span><span class="o">.</span><span class="n">exe</span> <span class="o">/</span><span class="n">i</span> <span class="n">D</span><span class="p">:</span>\<span class="n">work</span>\<span class="n">batch_work</span>\<span class="n">ModernBatchFiles</span>\<span class="n">codes</span>\<span class="n">download</span>\<span class="mi">03</span>\<span class="n">msmpisdk</span><span class="o">.</span><span class="n">msi</span>
+</pre></div>
+</div>
+</section>
+<section id="how-to-install-msi-file-to-the-custom-directory-using-powershell">
+<h2>How to install MSI file to the custom directory using PowerShell?<a class="headerlink" href="#how-to-install-msi-file-to-the-custom-directory-using-powershell" title="Link to this heading"></a></h2>
+<ol class="arabic simple">
+<li><p><a class="reference external" href="https://www.youtube.com/watch?v=dnZcZCHdx0k/">How to install MSI file to the custom directory using PowerShell?</a></p></li>
+</ol>
+<p>To install the MSI file to the custom directory using PowerShell, we can use the TARGETDIR, INSTALLDIR, INSTALLPATH, etc arguments for the custom path, depending upon the MSI file that it supports.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">msiexec</span> <span class="o">/</span><span class="n">i</span> <span class="s2">&quot;C:</span><span class="se">\t</span><span class="s2">emp</span><span class="se">\7</span><span class="s2">z1900-x64.msi&quot;</span> <span class="n">INSTALLDIR</span><span class="o">=</span><span class="s2">&quot;D:\ProgramFiles</span><span class="se">\7</span><span class="s2">zip&quot;</span> <span class="o">/</span><span class="n">quiet</span>
+</pre></div>
+</div>
+<p>The above command can be run into PowerShell and cmd both but you can’t control the process that to wait until the installation finishes. To control the above command, we can use the Start-Process cmdlet in PowerShell.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Start</span><span class="o">-</span><span class="n">Process</span> <span class="o">-</span><span class="n">FilePath</span> <span class="s2">&quot;C:\windows\system32\msiexec.exe&quot;</span> <span class="o">-</span><span class="n">ArgumentList</span> <span class="s2">&quot;/i</span>
+<span class="n">C</span><span class="p">:</span>\<span class="n">temp</span>\<span class="mi">7</span><span class="n">z1900</span><span class="o">-</span><span class="n">x64</span><span class="o">.</span><span class="n">msi</span> <span class="n">INSTALLDIR</span><span class="o">=</span><span class="s1">&#39;D:\ProgramFiles</span><span class="se">\7</span><span class="s1">zip&#39;</span> <span class="o">/</span><span class="n">quiet</span><span class="s2">&quot; -Wait</span>
+</pre></div>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="openmp.html" class="btn btn-neutral float-left" title="OpenMP" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="python/index.html" class="btn btn-neutral float-right" title="Python" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2017~2024, eric.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ALE Form of Conservation Equations &mdash; Scientific Computing 1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../_static/documentation_options.js?v=f2a433a1"></script>
+        <script src="../_static/doctools.js?v=888ff710"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Generalized Curvilinear Coordinate System" href="curvilinear.html" />
+    <link rel="prev" title="Conservation Of Energy" href="energy.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Scientific Computing
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Get started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../info.html">OneFLOW</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../user.html">THEORY</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../bash.html">Bash</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">CFD</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="ns.html">Navier–Stokes equations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="leibniz.html">Leibniz integral</a></li>
+<li class="toctree-l2"><a class="reference internal" href="rtt.html">Reynolds’ transport theorem</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mass.html">Conservation Of Mass</a></li>
+<li class="toctree-l2"><a class="reference internal" href="momenum.html">Momentum Analysis Of Flow Systems</a></li>
+<li class="toctree-l2"><a class="reference internal" href="energy.html">Conservation Of Energy</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">ALE Form of Conservation Equations</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#differential-forms">Differential forms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#integral-forms">Integral forms</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="curvilinear.html">Generalized Curvilinear Coordinate System</a></li>
+<li class="toctree-l2"><a class="reference internal" href="curvilinear3d.html">Generalized Curvilinear Coordinate System(3D)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="vector.html">Vector &amp; Tensor</a></li>
+<li class="toctree-l2"><a class="reference internal" href="matrix.html">Matrix</a></li>
+<li class="toctree-l2"><a class="reference internal" href="calculus.html">Calculus</a></li>
+<li class="toctree-l2"><a class="reference internal" href="substitution.html">Substitution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="jacobian.html">Jacobian matrix</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gauss.html">Gauss’s Theorem</a></li>
+<li class="toctree-l2"><a class="reference internal" href="strain.html">Strain Measures</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ale.html">Arbitrary Lagrangian-Eulerian</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ale1d.html">ALE 1D</a></li>
+<li class="toctree-l2"><a class="reference internal" href="deformation.html">Deformation and Motion</a></li>
+<li class="toctree-l2"><a class="reference internal" href="derivative.html">Fluid Derivative</a></li>
+<li class="toctree-l2"><a class="reference internal" href="material_derivative.html">Material Time Derivative</a></li>
+<li class="toctree-l2"><a class="reference internal" href="scheme/index.html">CFD Schemes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="examples/index.html">CFD Examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="method/index.html">CFD Methods</a></li>
+<li class="toctree-l2"><a class="reference internal" href="codes.html">Reference Codes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="videos.html">CFD &amp; CAE Videos</a></li>
+<li class="toctree-l2"><a class="reference internal" href="books.html">Books</a></li>
+<li class="toctree-l2"><a class="reference internal" href="docs.html">Documents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../cgns.html">CGNS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../chatgpt.html">CHATGPT</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cpp/index.html">CPP</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cmake.html">CMake</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cmd.html">Cmd</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cuda.html">CUDA</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../design_patterns.html">Design Patterns</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../eigen.html">Eigen3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../git.html">Git</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../git.html#contexts">Contexts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fortran.html">Fortran</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../hdf5.html">HDF5</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../hpc.html">HPC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../install/index.html">Install</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../julia.html">Julia</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../jupyter.html">Jupyter Notebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../latex.html">LaTeX</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../makefile.html">Makefile</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../metis.html">METIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../mkdocs.html">MkDocs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../modules.html">Environment Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../mpi.html">MPI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../numerical/index.html">Numerical analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../oneapi.html">oneAPI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../oneflow.html">OneFLOW-CFD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../openacc.html">OpenACC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../opencl.html">OpenCL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../opengl.html">OpenGL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../openmp.html">OpenMP</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../powershell.html">PowerShell</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../python/index.html">Python</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../qt.html">Qt</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../regex.html">Regular Expressions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../science.html">Science</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sphinx.html">Sphinx</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../system/index.html">System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../taichi.html">Taichi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tcltk.html">Tcl/tk</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tecplot.html">Tecplot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../test.html">Test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../unreal_engine.html">Unreal Engine</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../vcpkg.html">vcpkg</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../yaml.html">yaml</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Scientific Computing</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">CFD</a></li>
+      <li class="breadcrumb-item active">ALE Form of Conservation Equations</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/cfd/ns-integral.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="ale-form-of-conservation-equations">
+<h1>ALE Form of Conservation Equations<a class="headerlink" href="#ale-form-of-conservation-equations" title="Link to this heading"></a></h1>
+<section id="differential-forms">
+<h2>Differential forms<a class="headerlink" href="#differential-forms" title="Link to this heading"></a></h2>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+&amp;Mass:     &amp;\frac{\mathrm{d} \rho}{\mathrm{d} t}  &amp;= \left.\frac{\partial \rho}{\partial t}\right|_{\boldsymbol\chi}+\mathbf{c} \cdot \nabla \rho  = -\rho {\nabla} \cdot \mathbf{v} \\
+&amp;Momentum:  &amp;\rho \frac{\mathrm{d} \mathbf{v}}{\mathrm{d} t}  &amp;= \rho\left(\left.\frac{\partial \mathbf{v}}{\partial t}\right|_{\boldsymbol\chi}+(\mathbf{c} \cdot {\nabla}) \mathbf{v}\right)  = {\nabla} \cdot \boldsymbol{\sigma}+\rho \mathbf{b} \\
+&amp;Energy:   &amp;\rho \frac{\mathrm{d} E}{\mathrm{~d} t}  &amp;= \rho\left(\left.\frac{\partial E}{\partial t}\right|_{\boldsymbol\chi}+\mathbf{c} \cdot \nabla E\right)  = \nabla \cdot(\boldsymbol{\sigma} \cdot \mathbf{v})-\nabla\cdot\mathbf{q}+\mathbf{v} \cdot \rho \mathbf{b} \\
+\end{align}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+Mass\quad\quad\quad:     &amp;\frac{\partial \rho}{\partial t}\Bigg|_{\boldsymbol\chi}+{\nabla}\cdot(\rho\mathbf{v})-(\mathbf{\hat{v}}\cdot \nabla)( \rho) = 0\\
+Momentum:  &amp; \cfrac{\partial (\rho\mathbf{v})}{\partial t}\Bigg|_{\boldsymbol{\chi}}  +\text{div }(\rho\mathbf{v}\otimes\mathbf{v}) -(\mathbf{\hat{v}} \cdot \nabla)(\rho\mathbf{v})= {\nabla} \cdot \boldsymbol{\sigma}+\rho \mathbf{b} \\
+Energy\quad\quad:   &amp;\frac{\partial (\rho E)}{\partial t}\Bigg|_{\boldsymbol\chi}+{\nabla} \cdot (\rho E \mathbf{v})+(\mathbf{\hat{v}} \cdot \nabla) (\rho E) = \nabla \cdot(\boldsymbol{\sigma} \cdot \mathbf{v})-\nabla\cdot\mathbf{q}+\mathbf{v} \cdot \rho \mathbf{b} \\
+\end{align}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+Mass\quad\quad\quad&amp;:     \frac{\partial \rho}{\partial t}\Bigg|_{\boldsymbol\chi}+{\nabla}\cdot(\rho\mathbf{c})+(\rho) ({\nabla} \cdot \mathbf{\hat{v}}) = 0  \\
+Momentum&amp;:   \cfrac{\partial (\rho\mathbf{v})}{\partial t}\Bigg|_{\boldsymbol{\chi}}+\text{div }(\rho\mathbf{v}\otimes\mathbf{c}) +(\rho\mathbf{v})( {\nabla} \cdot \mathbf{\hat{v}})= {\nabla} \cdot \boldsymbol{\sigma}+\rho \mathbf{b} \\
+Energy\quad\quad&amp;:    \frac{\partial (\rho E)}{\partial t}\Bigg|_{\boldsymbol\chi}+{\nabla} \cdot (\rho E \mathbf{c})+(\rho E )({\nabla} \cdot \mathbf{\hat{v}}) = \nabla \cdot(\boldsymbol{\sigma} \cdot \mathbf{v})-\nabla\cdot\mathbf{q}+\mathbf{v} \cdot \rho \mathbf{b} \\
+\end{align}\end{split}\]</div>
+</section>
+<section id="integral-forms">
+<h2>Integral forms<a class="headerlink" href="#integral-forms" title="Link to this heading"></a></h2>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+\displaystyle \cfrac{\text{d}(m)_{sys}}{\text{d}t}=\cfrac{\text{d}}{\text{d}t}\int_{\text{V}_t}\rho \text{d}V
++\int_{\text{S}_t}\rho\mathbf{c}\cdot\mathbf{n}\text{d}S=0\\
+\displaystyle \cfrac{\text{d}(mV)_{sys}}{\text{d}t}=\cfrac{\text{d}}{\text{d}t}\int_{\text{V}_t}(\rho\mathbf{v}) \text{d}V
++\int_{\text{S}_t}(\rho\mathbf{v})\mathbf{c}\cdot\mathbf{n}\text{d}S
+=\int_{\text{S}_t}(\boldsymbol\sigma\cdot\mathbf{n})\text{d}S\\
+\displaystyle\cfrac{\text{d}(mE)_{sys}}{\text{d}t}=\cfrac{\text{d}}{\text{d}t}\int_{\text{V}_t}(\rho E) \text{d}V
++\int_{\text{S}_t}(\rho E)\mathbf{c}\cdot\mathbf{n}\text{d}S
+=\int_{\text{S}_t}(\boldsymbol\sigma\cdot\mathbf{v}\cdot\mathbf{n}-\mathbf{q}\cdot\mathbf{n})\text{d}S
+\end{array}\end{split}\]</div>
+<p>where</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\boldsymbol\sigma =\begin{bmatrix}
+\sigma_{11}&amp; \sigma_{12} &amp; \sigma_{13}\\
+\sigma_{21}&amp; \sigma_{22} &amp; \sigma_{23}\\
+\sigma_{31}&amp; \sigma_{32} &amp; \sigma_{33}\\
+\end{bmatrix}
+=\begin{bmatrix}
+\sigma_{xx}&amp; \sigma_{xy} &amp; \sigma_{xz}\\
+\sigma_{yx}&amp; \sigma_{yy} &amp; \sigma_{yz}\\
+\sigma_{zx}&amp; \sigma_{zy} &amp; \sigma_{zz}\\
+\end{bmatrix}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}[\boldsymbol{\tau}\cdot \mathbf{n}]=
+\begin{bmatrix}
+  {\tau}_{xx}&amp; {\tau}_{xy} &amp; {\tau}_{xz}\\
+  {\tau}_{yx}&amp; {\tau}_{yy} &amp; {\tau}_{yz}\\
+  {\tau}_{zx}&amp; {\tau}_{zy} &amp; {\tau}_{zz}\\
+\end{bmatrix}
+\begin{bmatrix}
+  n_{x}\\ n_{y}\\  n_{z}\\
+\end{bmatrix}
+=\begin{bmatrix}
+  {\tau}_{xx}n_{x}+{\tau}_{xy}n_{y}+{\tau}_{xz}n_{z}\\
+  {\tau}_{yx}n_{x}+{\tau}_{yy}n_{y}+{\tau}_{yz}n_{z}\\
+  {\tau}_{zx}n_{x}+{\tau}_{zy}n_{y}+{\tau}_{zz}n_{z}\\
+\end{bmatrix}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}[\boldsymbol{\sigma}\cdot \mathbf{n}]=
+\begin{bmatrix}
+  {\sigma}_{xx}&amp; {\sigma}_{xy} &amp; {\sigma}_{xz}\\
+  {\sigma}_{yx}&amp; {\sigma}_{yy} &amp; {\sigma}_{yz}\\
+  {\sigma}_{zx}&amp; {\sigma}_{zy} &amp; {\sigma}_{zz}\\
+\end{bmatrix}
+\begin{bmatrix}
+  n_{x}\\ n_{y}\\  n_{z}\\
+\end{bmatrix}
+=\begin{bmatrix}
+  {\sigma}_{xx}n_{x}+{\sigma}_{xy}n_{y}+{\sigma}_{xz}n_{z}\\
+  {\sigma}_{yx}n_{x}+{\sigma}_{yy}n_{y}+{\sigma}_{yz}n_{z}\\
+  {\sigma}_{zx}n_{x}+{\sigma}_{zy}n_{y}+{\sigma}_{zz}n_{z}\\
+\end{bmatrix}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+\begin{bmatrix}
+  {\sigma}_{xx}n_{x}+{\sigma}_{xy}n_{y}+{\sigma}_{xz}n_{z}\\
+  {\sigma}_{yx}n_{x}+{\sigma}_{yy}n_{y}+{\sigma}_{yz}n_{z}\\
+  {\sigma}_{zx}n_{x}+{\sigma}_{zy}n_{y}+{\sigma}_{zz}n_{z}\\
+\end{bmatrix} &amp; = \begin{bmatrix}
+  ({\tau}_{xx}-p)n_{x}+{\tau}_{xy}n_{y}+{\tau}_{xz}n_{z}\\
+  {\tau}_{yx}n_{x}+({\tau}_{yy}-p)n_{y}+{\tau}_{yz}n_{z}\\
+  {\tau}_{zx}n_{x}+{\tau}_{zy}n_{y}+({\tau}_{zz}n_{z}-p)\\
+\end{bmatrix} \\&amp; = \begin{bmatrix}
+  {\tau}_{xx}n_{x}+{\tau}_{xy}n_{y}+{\tau}_{xz}n_{z}\\
+  {\tau}_{yx}n_{x}+{\tau}_{yy}n_{y}+{\tau}_{yz}n_{z}\\
+  {\tau}_{zx}n_{x}+{\tau}_{zy}n_{y}+{\tau}_{zz}n_{z}\\
+\end{bmatrix}
+-\begin{bmatrix}
+  n_{x}\\ n_{y}\\n_{z}\\
+\end{bmatrix}p
+\end{align}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{c}
+{\tau}_{nx}={\tau}_{xx}n_{x}+{\tau}_{xy}n_{y}+{\tau}_{xz}n_{z}\\
+{\tau}_{ny}={\tau}_{yx}n_{x}+{\tau}_{yy}n_{y}+{\tau}_{yz}n_{z}\\
+{\tau}_{nz}={\tau}_{zx}n_{x}+{\tau}_{zy}n_{y}+{\tau}_{zz}n_{z}\\
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}[\boldsymbol{\sigma}\cdot \mathbf{n}]
+=\begin{bmatrix}
+  {\tau}_{nx}-n_{x}p\\
+  {\tau}_{ny}-n_{y}p\\
+  {\tau}_{nz}-n_{z}p\\
+\end{bmatrix}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[[\mathbf{q}\cdot \mathbf{n}]
+=q_{n}={q}_{x}n_{x}+{q}_{y}n_{y}+{q}_{z}n_{z}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}[\boldsymbol{\tau}\cdot \mathbf{v}]=
+\begin{bmatrix}
+  {\tau}_{xx}&amp; {\tau}_{xy} &amp; {\tau}_{xz}\\
+  {\tau}_{yx}&amp; {\tau}_{yy} &amp; {\tau}_{yz}\\
+  {\tau}_{zx}&amp; {\tau}_{zy} &amp; {\tau}_{zz}\\
+\end{bmatrix}
+\begin{bmatrix}
+  u\\ v\\  w\\
+\end{bmatrix}
+=\begin{bmatrix}
+  {\tau}_{xx}u+{\tau}_{xy}v+{\tau}_{xz}w\\
+  {\tau}_{yx}u+{\tau}_{yy}v+{\tau}_{yz}w\\
+  {\tau}_{zx}u+{\tau}_{zy}v+{\tau}_{zz}w\\
+\end{bmatrix}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{c}
+[\mathbf{q}\cdot \mathbf{n}]
+=q_{n}={q}_{x}n_{x}+{q}_{y}n_{y}+{q}_{z}n_{z}\\
+{\tau}_{vx}={\tau}_{xx}u+{\tau}_{xy}v+{\tau}_{xz}w\\
+{\tau}_{vy}={\tau}_{yx}u+{\tau}_{yy}v+{\tau}_{yz}w\\
+{\tau}_{vz}={\tau}_{zx}u+{\tau}_{zy}v+{\tau}_{zz}w\\
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}[\boldsymbol{\tau}\cdot \mathbf{v}]\cdot\mathbf{n}
+=\begin{bmatrix}
+  {\tau}_{xx}u+{\tau}_{xy}v+{\tau}_{xz}w\\
+  {\tau}_{yx}u+{\tau}_{yy}v+{\tau}_{yz}w\\
+  {\tau}_{zx}u+{\tau}_{zy}v+{\tau}_{zz}w\\
+\end{bmatrix}\cdot
+\begin{bmatrix}
+  {n}_{x}\\{n}_{y}\\{n}_{z}
+\end{bmatrix}
+=\begin{bmatrix}
+  \quad {n}_{x}({\tau}_{xx}u+{\tau}_{xy}v+{\tau}_{xz}w)\\
+  +{n}_{y}({\tau}_{yx}u+{\tau}_{yy}v+{\tau}_{yz}w)\\
+  +{n}_{z}({\tau}_{zx}u+{\tau}_{zy}v+{\tau}_{zz}w)\\
+\end{bmatrix}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}[\boldsymbol{\sigma}\cdot \mathbf{v}]\cdot\mathbf{n}
+=\begin{bmatrix}
+  \quad {n}_{x}(({\tau}_{xx}-p)u+{\tau}_{xy}v+{\tau}_{xz}w)\\
+  +{n}_{y}({\tau}_{yx}u+({\tau}_{yy}-p)v+{\tau}_{yz}w)\\
+  +{n}_{z}({\tau}_{zx}u+{\tau}_{zy}v+({\tau}_{zz}-p)w)\\
+\end{bmatrix}
+=\begin{bmatrix}
+  \quad {n}_{x}({\tau}_{xx}u+{\tau}_{xy}v+{\tau}_{xz}w)- {n}_{x}up\\
+  +{n}_{y}({\tau}_{yx}u+{\tau}_{yy}v+{\tau}_{yz}w)- {n}_{y}vp\\
+  +{n}_{z}({\tau}_{zx}u+{\tau}_{zy}v+{\tau}_{zz}w)- {n}_{z}wp\\
+\end{bmatrix}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[[\boldsymbol{\sigma}\cdot \mathbf{v}]\cdot\mathbf{n}
+={n}_{x}({\tau}_{vx})+{n}_{y}({\tau}_{vy})+{n}_{z}({\tau}_{vz})- v_{n}p\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+\rho E (v_{n}-{v}_{gn})+ v_{n}p &amp; = \rho E (v_{n}-{v}_{gn})+ (v_{n}-{v}_{gn})p+{v}_{gn}p\\
+&amp;= (\rho E +p)(v_{n}-{v}_{gn})+{v}_{gn}p\\
+&amp;= (\rho H)(v_{n}-{v}_{gn})+{v}_{gn}p\\
+\end{align}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}(\rho\mathbf{v})\mathbf{c}\cdot\mathbf{n}+p\mathbf{n}
+=\begin{bmatrix}
+\rho u\widetilde{v}_{n}+n_{x}p\\
+\rho v\widetilde{v}_{n}+n_{y}p\\
+\rho w\widetilde{v}_{n}+n_{z}p\\
+\end{bmatrix}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+v_{n}\ \ &amp;=n_{x}u+n_{y}v+n_{z}w\\
+v_{gn}\ &amp;=n_{x}u_{g}+n_{y}v_{g}+n_{z}w_{g}\\
+\widetilde{v}_{n}\ \ &amp;=v_{n}-v_{gn}
+\end{align}\end{split}\]</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="energy.html" class="btn btn-neutral float-left" title="Conservation Of Energy" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="curvilinear.html" class="btn btn-neutral float-right" title="Generalized Curvilinear Coordinate System" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2017~2024, eric.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

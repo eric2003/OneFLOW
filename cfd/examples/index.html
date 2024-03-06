@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CFD Examples &mdash; Scientific Computing 1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../_static/documentation_options.js?v=f2a433a1"></script>
+        <script src="../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="CFD Examples 1D" href="1d.html" />
+    <link rel="prev" title="Rusanov Riemann Solver" href="../scheme/rusanov.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            Scientific Computing
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Get started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../info.html">OneFLOW</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../user.html">THEORY</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../bash.html">Bash</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">CFD</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../ns.html">Navier–Stokes equations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../leibniz.html">Leibniz integral</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../rtt.html">Reynolds’ transport theorem</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../mass.html">Conservation Of Mass</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../momenum.html">Momentum Analysis Of Flow Systems</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../energy.html">Conservation Of Energy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../ns-integral.html">ALE Form of Conservation Equations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../curvilinear.html">Generalized Curvilinear Coordinate System</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../curvilinear3d.html">Generalized Curvilinear Coordinate System(3D)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../vector.html">Vector &amp; Tensor</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../matrix.html">Matrix</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../calculus.html">Calculus</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../substitution.html">Substitution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../jacobian.html">Jacobian matrix</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../gauss.html">Gauss’s Theorem</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../strain.html">Strain Measures</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../ale.html">Arbitrary Lagrangian-Eulerian</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../ale1d.html">ALE 1D</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../deformation.html">Deformation and Motion</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../derivative.html">Fluid Derivative</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../material_derivative.html">Material Time Derivative</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../scheme/index.html">CFD Schemes</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">CFD Examples</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="1d.html">CFD Examples 1D</a></li>
+<li class="toctree-l3"><a class="reference internal" href="burgers.html">Inviscid Burgers Equation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="euler1d.html">One-Dimensional Euler Solver</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sod.html">Sod’s shock-tube problem</a></li>
+<li class="toctree-l3"><a class="reference internal" href="poisson.html">Poisson Equation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="vortex.html">Vortex-Merger Problem</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#verification-and-validation">Verification and Validation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#cfd-benchmark-cases">CFD benchmark cases</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../method/index.html">CFD Methods</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../codes.html">Reference Codes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../videos.html">CFD &amp; CAE Videos</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../books.html">Books</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../docs.html">Documents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../cgns.html">CGNS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../chatgpt.html">CHATGPT</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../cpp/index.html">CPP</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../cmake.html">CMake</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../cmd.html">Cmd</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../cuda.html">CUDA</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../design_patterns.html">Design Patterns</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../eigen.html">Eigen3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../git.html">Git</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../git.html#contexts">Contexts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fortran.html">Fortran</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../hdf5.html">HDF5</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../hpc.html">HPC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../install/index.html">Install</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../julia.html">Julia</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../jupyter.html">Jupyter Notebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../latex.html">LaTeX</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../makefile.html">Makefile</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../metis.html">METIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../mkdocs.html">MkDocs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../modules.html">Environment Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../mpi.html">MPI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../numerical/index.html">Numerical analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../oneapi.html">oneAPI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../oneflow.html">OneFLOW-CFD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../openacc.html">OpenACC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../opencl.html">OpenCL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../opengl.html">OpenGL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../openmp.html">OpenMP</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../powershell.html">PowerShell</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../python/index.html">Python</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../qt.html">Qt</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../regex.html">Regular Expressions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../science.html">Science</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sphinx.html">Sphinx</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../system/index.html">System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../taichi.html">Taichi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tcltk.html">Tcl/tk</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tecplot.html">Tecplot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../test.html">Test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../unreal_engine.html">Unreal Engine</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../vcpkg.html">vcpkg</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../yaml.html">yaml</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Scientific Computing</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">CFD</a></li>
+      <li class="breadcrumb-item active">CFD Examples</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/cfd/examples/index.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="cfd-examples">
+<h1>CFD Examples<a class="headerlink" href="#cfd-examples" title="Link to this heading"></a></h1>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="1d.html">CFD Examples 1D</a></li>
+<li class="toctree-l1"><a class="reference internal" href="burgers.html">Inviscid Burgers Equation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="euler1d.html">One-Dimensional Euler Solver</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sod.html">Sod’s shock-tube problem</a></li>
+<li class="toctree-l1"><a class="reference internal" href="poisson.html">Poisson Equation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vortex.html">Vortex-Merger Problem</a></li>
+</ul>
+</div>
+<section id="verification-and-validation">
+<h2>Verification and Validation<a class="headerlink" href="#verification-and-validation" title="Link to this heading"></a></h2>
+<ol class="arabic simple">
+<li><p><a class="reference external" href="https://www.grc.nasa.gov/WWW/wind/valid/archive.html">NPARC Alliance Verification and Validation Archive</a></p></li>
+<li><p><a class="reference external" href="http://www.mathematik.tu-dortmund.de/~featflow/en/benchmarks/cfdbenchmarking.html">The CFD Benchmarking Project</a></p></li>
+</ol>
+</section>
+<section id="cfd-benchmark-cases">
+<h2>CFD benchmark cases<a class="headerlink" href="#cfd-benchmark-cases" title="Link to this heading"></a></h2>
+<ol class="arabic simple">
+<li><p><a class="reference external" href="https://zhuanlan.zhihu.com/p/633958824/">国产CFD开源软件OneFLOW求解一维热传导方程简单测试（FTCS）</a></p></li>
+<li><p><a class="reference external" href="https://zhuanlan.zhihu.com/p/634135352/">国产CFD开源软件OneFLOW求解一维热传导方程简单测试（third-order Runge-Kutta）</a></p></li>
+<li><p><a class="reference external" href="https://zhuanlan.zhihu.com/p/634523630/">国产CFD开源软件OneFLOW求解一维热传导方程简单测试（third-order Runge-Kutta version1）</a></p></li>
+<li><p><a class="reference external" href="https://zhuanlan.zhihu.com/p/634535987/">国产CFD开源软件OneFLOW求解一维热传导方程简单测试（third-order Runge-Kutta version2）</a></p></li>
+<li><p><a class="reference external" href="https://zhuanlan.zhihu.com/p/634542690/">国产CFD开源软件OneFLOW求解一维热传导方程简单测试（third-order Runge-Kutta version3）</a></p></li>
+<li><p><a class="reference external" href="https://zhuanlan.zhihu.com/p/635032590/">国产CFD开源软件OneFLOW加入Tridiagonal matrix algorithm简单测试</a></p></li>
+<li><p><a class="reference external" href="https://zhuanlan.zhihu.com/p/635151240/">国产CFD开源软件OneFLOW求解一维热传导方程简单测试（Crank–Nicolson scheme）</a></p></li>
+<li><p><a class="reference external" href="https://zhuanlan.zhihu.com/p/635285343/">国产CFD开源软件OneFLOW求解一维热传导方程简单测试（Crank–Nicolson scheme version2）</a></p></li>
+<li><p><a class="reference external" href="https://zhuanlan.zhihu.com/p/635285343/">国产CFD开源软件OneFLOW求解一维热传导方程简单测试（Implicit Compact Pade (ICP) Scheme）</a></p></li>
+<li><p><a class="reference external" href="https://zhuanlan.zhihu.com/p/452618460/">国产CFD开源软件OneFLOW求解一维热传导方程简单测试（ICP Scheme version2）</a></p></li>
+<li><p><a class="reference external" href="https://zhuanlan.zhihu.com/p/635944748/">国产CFD开源软件OneFLOW求解Non-Conservative Form Inviscid Burgers Equation简单测试（WENO-5 Scheme）</a></p></li>
+<li><p><a class="reference external" href="https://zhuanlan.zhihu.com/p/636244104/">国产CFD开源软件OneFLOW+Inviscid Burgers Equation+WENO-5 Scheme+Periodic BC简单测试</a></p></li>
+<li><p><a class="reference external" href="https://zhuanlan.zhihu.com/p/636358402/">国产CFD开源软件OneFLOW+Inviscid Burgers Equation+CRWENO-5 Scheme+Dirichlet BC简单测试</a></p></li>
+<li><p><a class="reference external" href="https://zhuanlan.zhihu.com/p/636446507/">国产CFD开源软件OneFLOW+Inviscid Burgers Equation+CRWENO-5 Scheme+Dirichlet BC Version2简单测试</a></p></li>
+<li><p><a class="reference external" href="https://zhuanlan.zhihu.com/p/636601000/">国产CFD开源软件OneFLOW+Inviscid Burgers Equation+CRWENO-5 Scheme+Periodic BC简单测试</a></p></li>
+<li><p><a class="reference external" href="https://zhuanlan.zhihu.com/p/637006326/">国产CFD开源软件OneFLOW+Inviscid Burgers Equation+WENO-5+Flux Splitting简单测试</a></p></li>
+<li><p><a class="reference external" href="https://zhuanlan.zhihu.com/p/637114522/">国产CFD开源软件OneFLOW+Inviscid Burgers Equation+WENO-5+Rusanov Scheme简单测试</a></p></li>
+<li><p><a class="reference external" href="https://zhuanlan.zhihu.com/p/637826361/">国产CFD开源软件OneFLOW+Sod shock tube exact solution简单测试</a></p></li>
+<li><p><a class="reference external" href="https://zhuanlan.zhihu.com/p/638053845/">国产CFD开源软件OneFLOW+Sod shock tube+WENO-5+Roe Scheme简单测试</a></p></li>
+<li><p><a class="reference external" href="https://zhuanlan.zhihu.com/p/638166059/">国产CFD开源软件OneFLOW+Sod shock tube+WENO-5+HLLC Scheme简单测试</a></p></li>
+<li><p><a class="reference external" href="https://zhuanlan.zhihu.com/p/638222605/">国产CFD开源软件OneFLOW+Sod shock tube+WENO-5+Rusanov Scheme简单测试</a></p></li>
+<li><p><a class="reference external" href="https://zhuanlan.zhihu.com/p/638838427/">国产CFD开源软件OneFLOW+Two-Dimensional Poisson Equation+fft简单测试</a></p></li>
+<li><p><a class="reference external" href="https://zhuanlan.zhihu.com/p/638861390/">国产CFD开源软件OneFLOW+Two-Dimensional Poisson Equation+fft version2简单测试</a></p></li>
+<li><p><a class="reference external" href="https://zhuanlan.zhihu.com/p/638970775/">国产CFD开源软件OneFLOW+Two-Dimensional Poisson Equation+Spectral method简单测试</a></p></li>
+<li><p><a class="reference external" href="https://zhuanlan.zhihu.com/p/639049947/">国产CFD开源软件OneFLOW+Two-Dimensional Poisson Equation+Spectral Vs CDS order简单测试</a></p></li>
+<li><p><a class="reference external" href="https://zhuanlan.zhihu.com/p/641180890/">国产CFD开源软件OneFLOW+Two-Dimensional Poisson Equation+Gauss-Seidel method简单测试</a></p></li>
+<li><p><a class="reference external" href="https://zhuanlan.zhihu.com/p/642688717/">国产CFD开源软件OneFLOW+One-Dimensional Poisson Equation+Gaussian elimination简单测试</a></p></li>
+<li><p><a class="reference external" href="https://zhuanlan.zhihu.com/p/642749705/">国产CFD开源软件OneFLOW+One-Dimensional Poisson Equation+Steepest Descent简单测试</a></p></li>
+<li><p><a class="reference external" href="https://zhuanlan.zhihu.com/p/642790857/">国产CFD开源软件OneFLOW+One-Dimensional Poisson Equation+Conjugate Gradients简单测试</a></p></li>
+<li><p><a class="reference external" href="https://zhuanlan.zhihu.com/p/642924639/">国产CFD开源软件OneFLOW+1d Poisson+Steepest Descent修正简单测试</a></p></li>
+<li><p><a class="reference external" href="https://zhuanlan.zhihu.com/p/642945070/">国产CFD开源软件OneFLOW+1d Poisson+Steepest Descent Version 2简单测试</a></p></li>
+<li><p><a class="reference external" href="https://zhuanlan.zhihu.com/p/643019408/">国产CFD开源软件OneFLOW+1d Poisson+Conjugate Gradients Version 2简单测试</a></p></li>
+<li><p><a class="reference external" href="https://zhuanlan.zhihu.com/p/643463586/">国产CFD开源软件OneFLOW+2d Poisson+Conjugate Gradients简单测试</a></p></li>
+<li><p><a class="reference external" href="https://zhuanlan.zhihu.com/p/643684539/">国产CFD开源软件OneFLOW+2d Poisson+Conjugate Gradients case2简单测试</a></p></li>
+<li><p><a class="reference external" href="https://zhuanlan.zhihu.com/p/653052932/">国产CFD开源软件OneFLOW+2d Lid-Driven Cavity Problem简单测试</a></p></li>
+<li><p><a class="reference external" href="https://zhuanlan.zhihu.com/p/655670561/">国产CFD开源软件OneFLOW+2d Lid-Driven Cavity Problem version2简单测试</a></p></li>
+</ol>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../scheme/rusanov.html" class="btn btn-neutral float-left" title="Rusanov Riemann Solver" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="1d.html" class="btn btn-neutral float-right" title="CFD Examples 1D" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2017~2024, eric.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

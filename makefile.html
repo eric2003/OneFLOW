@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Makefile &mdash; Scientific Computing 1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js?v=5d32c60e"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="_static/documentation_options.js?v=f2a433a1"></script>
+        <script src="_static/doctools.js?v=888ff710"></script>
+        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="METIS" href="metis.html" />
+    <link rel="prev" title="LaTeX" href="latex.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Scientific Computing
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Get started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="info.html">OneFLOW</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="user.html">THEORY</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="bash.html">Bash</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cfd/index.html">CFD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cgns.html">CGNS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="chatgpt.html">CHATGPT</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cpp/index.html">CPP</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cmake.html">CMake</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cmd.html">Cmd</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cuda.html">CUDA</a></li>
+<li class="toctree-l1"><a class="reference internal" href="design_patterns.html">Design Patterns</a></li>
+<li class="toctree-l1"><a class="reference internal" href="eigen.html">Eigen3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="git.html">Git</a></li>
+<li class="toctree-l1"><a class="reference internal" href="git.html#contexts">Contexts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fortran.html">Fortran</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hdf5.html">HDF5</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hpc.html">HPC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="install/index.html">Install</a></li>
+<li class="toctree-l1"><a class="reference internal" href="julia.html">Julia</a></li>
+<li class="toctree-l1"><a class="reference internal" href="jupyter.html">Jupyter Notebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="latex.html">LaTeX</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Makefile</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#the-wildcard-function">The Wildcard Function</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#the-patsubst-function">The Patsubst Function</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#phony-targets">Phony Targets</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#automatic-variables">Automatic Variables</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#pattern-rule-examples">Pattern Rule Examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#print">print $&#64;</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#fortran-makefile">Fortran Makefile</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="metis.html">METIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mkdocs.html">MkDocs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modules.html">Environment Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mpi.html">MPI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="numerical/index.html">Numerical analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="oneapi.html">oneAPI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="oneflow.html">OneFLOW-CFD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="openacc.html">OpenACC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="opencl.html">OpenCL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="opengl.html">OpenGL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="openmp.html">OpenMP</a></li>
+<li class="toctree-l1"><a class="reference internal" href="powershell.html">PowerShell</a></li>
+<li class="toctree-l1"><a class="reference internal" href="python/index.html">Python</a></li>
+<li class="toctree-l1"><a class="reference internal" href="qt.html">Qt</a></li>
+<li class="toctree-l1"><a class="reference internal" href="regex.html">Regular Expressions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="science.html">Science</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sphinx.html">Sphinx</a></li>
+<li class="toctree-l1"><a class="reference internal" href="system/index.html">System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="taichi.html">Taichi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tcltk.html">Tcl/tk</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tecplot.html">Tecplot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="test.html">Test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="unreal_engine.html">Unreal Engine</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vcpkg.html">vcpkg</a></li>
+<li class="toctree-l1"><a class="reference internal" href="yaml.html">yaml</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Scientific Computing</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Makefile</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/makefile.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="makefile">
+<h1>Makefile<a class="headerlink" href="#makefile" title="Link to this heading"></a></h1>
+<ol class="arabic simple">
+<li><p><a class="reference external" href="https://zhuanlan.zhihu.com/p/398677004/">Makefile从入门到精通系列链接整理</a></p></li>
+<li><p><a class="reference external" href="https://gist.github.com/francois-rozet/c8efb19f66fed666263641d4e40f8863/">Step-by-step Makefile tutorial</a></p></li>
+<li><p><a class="reference external" href="https://cloud.tencent.com/developer/article/2055032/">makefile 常用函数notdir、wildcard、patsubst</a></p></li>
+<li><p><a class="reference external" href="https://aoterodelaroza.github.io/devnotes/modern-fortran-makefiles/">Writing Makefiles for Modern Fortran</a></p></li>
+</ol>
+<section id="the-wildcard-function">
+<h2>The Wildcard Function<a class="headerlink" href="#the-wildcard-function" title="Link to this heading"></a></h2>
+<ol class="arabic simple">
+<li><p><a class="reference external" href="https://www.gnu.org/software/make/manual/html_node/Wildcard-Function.html">The Function wildcard</a></p></li>
+<li><p><a class="reference external" href="https://earthly.dev/blog/using-makefile-wildcards/">Using Makefile Wildcards</a></p></li>
+<li><p><a class="reference external" href="https://seisman.github.io/how-to-write-makefile/introduction.html">跟我一起写Makefile 1.0 文档</a></p></li>
+<li><p><a class="reference external" href="https://makefiletutorial.com/">Makefile Tutorial By Example</a></p></li>
+<li><p><a class="reference external" href="https://zhuanlan.zhihu.com/p/396719316/">Makefile的相关资源（不定期更新）</a></p></li>
+<li><p><a class="reference external" href="https://www.cnblogs.com/paul-617/p/15501875.html">makefile详解</a></p></li>
+</ol>
+<p>One use of the wildcard function is to get a list of all the C source files in a directory, like this:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$(wildcard *.c)
+</pre></div>
+</div>
+</section>
+<section id="the-patsubst-function">
+<h2>The Patsubst Function<a class="headerlink" href="#the-patsubst-function" title="Link to this heading"></a></h2>
+<ol class="arabic simple">
+<li><p><a class="reference external" href="https://www.gnu.org/software/make/manual/html_node/Text-Functions.html">Functions for String Substitution and Analysis</a></p></li>
+<li><p><a class="reference external" href="https://learn.microsoft.com/en-us/cpp/build/reference/nmake-function-patsubst?view=msvc-170/">patsubst, patsubsti NMAKE functions</a></p></li>
+</ol>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$(patsubst pattern,replacement,text)
+</pre></div>
+</div>
+<p>We can change the list of C source files into a list of object files by replacing the ‘.c’ suffix with ‘.o’ in the result, like this:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$(patsubst %.c,%.o,$(wildcard *.c))
+</pre></div>
+</div>
+<p>Thus, a makefile to compile all C source files in the directory and then link them together could be written as follows:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>objects := $(patsubst %.c,%.o,$(wildcard *.c))
+
+foo : $(objects)
+        cc -o foo $(objects)
+</pre></div>
+</div>
+</section>
+<section id="phony-targets">
+<h2>Phony Targets<a class="headerlink" href="#phony-targets" title="Link to this heading"></a></h2>
+<ol class="arabic simple">
+<li><p><a class="reference external" href="https://www.gnu.org/software/make/manual/html_node/Phony-Targets.html">4.6 Phony Targets</a></p></li>
+<li><p><a class="reference external" href="https://stackoverflow.com/questions/2145590/what-is-the-purpose-of-phony-in-a-makefile/">What is the purpose of .PHONY in a Makefile?</a></p></li>
+</ol>
+<p>Let’s assume you have install target, which is a very common in makefiles. If you do not use .PHONY, and a file named install exists in the same directory as the Makefile, then make install will do nothing. This is because Make interprets the rule to mean “execute such-and-such recipe to create the file named install”. Since the file is already there, and its dependencies didn’t change, nothing will be done.</p>
+<p>However if you make the install target PHONY, it will tell the make tool that the target is fictional, and that make should not expect it to create the actual file. Hence it will not check whether the install file exists, meaning: a) its behavior will not be altered if the file does exist and b) extra stat() will not be called.</p>
+<p>Generally all targets in your Makefile which do not produce an output file with the same name as the target name should be PHONY. This typically includes all, install, clean, distclean, and so on.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">.</span><span class="n">PHONY</span><span class="p">:</span> <span class="n">clean</span>
+<span class="n">clean</span><span class="p">:</span>
+        <span class="n">rm</span> <span class="o">*.</span><span class="n">o</span> <span class="n">temp</span>
+</pre></div>
+</div>
+</section>
+<section id="automatic-variables">
+<h2>Automatic Variables<a class="headerlink" href="#automatic-variables" title="Link to this heading"></a></h2>
+<ol class="arabic simple">
+<li><p><a class="reference external" href="https://www.gnu.org/software/make/manual/html_node/Automatic-Variables.html">10.5.3 Automatic Variables</a></p></li>
+</ol>
+<p>自动变量，最常用包括：</p>
+<p>$&#64;用于表示一个规则中的目标。当我们的一个规则中有多个目标时，$&#64;所指的是其中任何造成命令被运行的目标。
+$^则表示的是规则中的所有先择条件。
+$&lt;表示的是规则中的第一个先决条件。</p>
+<p>$&#64;  表示目標文件</p>
+<p>$^  表示所有的依賴文件</p>
+<p>$&lt;  表示第一個依賴文件</p>
+<p>$?  表示比目標還要新的依賴文件列表</p>
+<p>Makefile有三个非常有用的变量。分别是$&#64;，$^，$&lt;代表的意义分别是：</p>
+<p>$&#64;–目标文件，$^–所有的依赖文件，$&lt;–第一个依赖文件。</p>
+</section>
+<section id="pattern-rule-examples">
+<h2>Pattern Rule Examples<a class="headerlink" href="#pattern-rule-examples" title="Link to this heading"></a></h2>
+<p>Here are some examples of pattern rules actually predefined in make. First, the rule that compiles ‘.c’ files into ‘.o’ files:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>%.o : %.c
+        $(CC) -c $(CFLAGS) $(CPPFLAGS) $&lt; -o $@
+</pre></div>
+</div>
+<p>defines a rule that can make any file x.o from x.c. The recipe uses the automatic variables ‘$&#64;’ and ‘$&lt;’ to substitute the names of the target file and the source file in each case where the rule applies (see Automatic Variables).</p>
+</section>
+<section id="print">
+<h2>print $&#64;<a class="headerlink" href="#print" title="Link to this heading"></a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>echo \$$@
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>@echo \$$@ = $@
+@echo \$$&lt; = $&lt;
+@echo \$$^ = $^
+</pre></div>
+</div>
+</section>
+<section id="fortran-makefile">
+<h2>Fortran Makefile<a class="headerlink" href="#fortran-makefile" title="Link to this heading"></a></h2>
+<p>Example 1</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>FC = gfortran
+FFLAGS = -O3 -Wall
+SRC = $(wildcard *.f90)
+OBJ = $(SRC:.f90=.o)
+$(info SRC=$(SRC))
+$(info OBJ=$(OBJ))
+
+%.o : %.f90
+      $(FC) $(FFLAGS) -o $@ -c $&lt;
+
+testprj: $(OBJ)
+      $(FC) $(FFLAGS) -o $@ $^
+      @echo &quot;echo1= \$$@ = $@ &quot;
+      @echo &quot;echo2= \$$^ = $^ &quot;
+      @echo &quot;echo3= \$$&lt; = $&lt; &quot;
+      $(info $$@ = $@)
+      $(info $$^ = $^)
+      $(info $$&lt; = $&lt;)
+
+
+.PHONY: clean
+clean :
+      rm *.o testprj
+</pre></div>
+</div>
+<p>windows make</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">mingw32</span><span class="o">-</span><span class="n">make</span><span class="o">.</span><span class="n">exe</span>
+</pre></div>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="latex.html" class="btn btn-neutral float-left" title="LaTeX" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="metis.html" class="btn btn-neutral float-right" title="METIS" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2017~2024, eric.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

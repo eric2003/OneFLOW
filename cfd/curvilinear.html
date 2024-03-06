@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Generalized Curvilinear Coordinate System &mdash; Scientific Computing 1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../_static/documentation_options.js?v=f2a433a1"></script>
+        <script src="../_static/doctools.js?v=888ff710"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Generalized Curvilinear Coordinate System(3D)" href="curvilinear3d.html" />
+    <link rel="prev" title="ALE Form of Conservation Equations" href="ns-integral.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Scientific Computing
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Get started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../info.html">OneFLOW</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../user.html">THEORY</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../bash.html">Bash</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">CFD</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="ns.html">Navier–Stokes equations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="leibniz.html">Leibniz integral</a></li>
+<li class="toctree-l2"><a class="reference internal" href="rtt.html">Reynolds’ transport theorem</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mass.html">Conservation Of Mass</a></li>
+<li class="toctree-l2"><a class="reference internal" href="momenum.html">Momentum Analysis Of Flow Systems</a></li>
+<li class="toctree-l2"><a class="reference internal" href="energy.html">Conservation Of Energy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ns-integral.html">ALE Form of Conservation Equations</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Generalized Curvilinear Coordinate System</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#two-dimension-static-grid">two dimension static grid</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#two-dimension-dynamic-grid">two dimension dynamic grid</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="curvilinear3d.html">Generalized Curvilinear Coordinate System(3D)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="vector.html">Vector &amp; Tensor</a></li>
+<li class="toctree-l2"><a class="reference internal" href="matrix.html">Matrix</a></li>
+<li class="toctree-l2"><a class="reference internal" href="calculus.html">Calculus</a></li>
+<li class="toctree-l2"><a class="reference internal" href="substitution.html">Substitution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="jacobian.html">Jacobian matrix</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gauss.html">Gauss’s Theorem</a></li>
+<li class="toctree-l2"><a class="reference internal" href="strain.html">Strain Measures</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ale.html">Arbitrary Lagrangian-Eulerian</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ale1d.html">ALE 1D</a></li>
+<li class="toctree-l2"><a class="reference internal" href="deformation.html">Deformation and Motion</a></li>
+<li class="toctree-l2"><a class="reference internal" href="derivative.html">Fluid Derivative</a></li>
+<li class="toctree-l2"><a class="reference internal" href="material_derivative.html">Material Time Derivative</a></li>
+<li class="toctree-l2"><a class="reference internal" href="scheme/index.html">CFD Schemes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="examples/index.html">CFD Examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="method/index.html">CFD Methods</a></li>
+<li class="toctree-l2"><a class="reference internal" href="codes.html">Reference Codes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="videos.html">CFD &amp; CAE Videos</a></li>
+<li class="toctree-l2"><a class="reference internal" href="books.html">Books</a></li>
+<li class="toctree-l2"><a class="reference internal" href="docs.html">Documents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../cgns.html">CGNS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../chatgpt.html">CHATGPT</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cpp/index.html">CPP</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cmake.html">CMake</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cmd.html">Cmd</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cuda.html">CUDA</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../design_patterns.html">Design Patterns</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../eigen.html">Eigen3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../git.html">Git</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../git.html#contexts">Contexts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fortran.html">Fortran</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../hdf5.html">HDF5</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../hpc.html">HPC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../install/index.html">Install</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../julia.html">Julia</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../jupyter.html">Jupyter Notebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../latex.html">LaTeX</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../makefile.html">Makefile</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../metis.html">METIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../mkdocs.html">MkDocs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../modules.html">Environment Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../mpi.html">MPI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../numerical/index.html">Numerical analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../oneapi.html">oneAPI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../oneflow.html">OneFLOW-CFD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../openacc.html">OpenACC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../opencl.html">OpenCL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../opengl.html">OpenGL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../openmp.html">OpenMP</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../powershell.html">PowerShell</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../python/index.html">Python</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../qt.html">Qt</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../regex.html">Regular Expressions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../science.html">Science</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sphinx.html">Sphinx</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../system/index.html">System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../taichi.html">Taichi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tcltk.html">Tcl/tk</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tecplot.html">Tecplot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../test.html">Test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../unreal_engine.html">Unreal Engine</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../vcpkg.html">vcpkg</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../yaml.html">yaml</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Scientific Computing</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">CFD</a></li>
+      <li class="breadcrumb-item active">Generalized Curvilinear Coordinate System</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/cfd/curvilinear.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="generalized-curvilinear-coordinate-system">
+<h1>Generalized Curvilinear Coordinate System<a class="headerlink" href="#generalized-curvilinear-coordinate-system" title="Link to this heading"></a></h1>
+<ul class="simple">
+<li><p>The Geometric Conservation Law - A link between finite-difference and finite-volume methods of flow computation on moving grids</p></li>
+<li><p>Development of CFD Algorithms for Transient and Steady Aerodynamics- Fergal Boyle [Thesis]</p></li>
+</ul>
+<section id="two-dimension-static-grid">
+<h2>two dimension static grid<a class="headerlink" href="#two-dimension-static-grid" title="Link to this heading"></a></h2>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{c}
+x=x(\xi,\eta)=\phi_{1}(\xi,\eta)\\
+y=y(\xi,\eta)=\phi_{2}(\xi,\eta)\\
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{c}
+\xi=\xi(x,y)=\psi_{1}(x,y)\\
+\eta=\eta(x,y)=\psi_{2}(x,y)\\
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{c}
+\cfrac{\partial f}{\partial x}=\cfrac{\partial f}{\partial \xi}\cfrac{\partial \xi}{\partial x}+
+\cfrac{\partial f}{\partial \eta}\cfrac{\partial \eta}{\partial x}\\
+\cfrac{\partial f}{\partial y}=\cfrac{\partial f}{\partial \xi}\cfrac{\partial \xi}{\partial y}+
+\cfrac{\partial f}{\partial \eta}\cfrac{\partial \eta}{\partial y}\\
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{c}
+dx=x_{\xi}d\xi+x_{\eta}d\eta=({\phi_{1}})_{\xi}d\xi+({\phi_{1}})_{\eta}d\eta\\
+dy=y_{\xi}d\xi+y_{\eta}d\eta=({\phi_{2}})_{\xi}d\xi+({\phi_{2}})_{\eta}d\eta\\
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{c}
+\begin{bmatrix}
+ dx\\dy
+\end{bmatrix}
+=\begin{bmatrix}
+  x_{\xi}&amp; x_{\eta}\\
+  y_{\xi}&amp; y_{\eta}\\
+\end{bmatrix}\begin{bmatrix}
+ d\xi\\d\eta
+\end{bmatrix}
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{c}
+d{\xi}={\xi}_{x}dx+{\xi}_{y}dy=(\psi_{1})_{x}dx+(\psi_{1})_{y}dy\\
+d{\eta}={\eta}_{x}dx+{\eta}_{y}dy=(\psi_{2})_{x}dx+(\psi_{2})_{y}dy\\
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{bmatrix}
+ d\xi\\d\eta
+\end{bmatrix}
+=\begin{bmatrix}
+ {\xi}_{x}&amp; {\xi}_{y}\\
+ {\eta}_{x}&amp; {\eta}_{y}\\
+\end{bmatrix}\begin{bmatrix}
+ dx\\dy
+\end{bmatrix}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{bmatrix}
+ d\xi\\d\eta
+\end{bmatrix}
+=\begin{bmatrix}
+ {\xi}_{x}&amp; {\xi}_{y}\\
+ {\eta}_{x}&amp; {\eta}_{y}\\
+\end{bmatrix}\begin{bmatrix}
+ dx\\dy
+\end{bmatrix}
+= \begin{bmatrix}
+ {\xi}_{x}&amp; {\xi}_{y}\\
+ {\eta}_{x}&amp; {\eta}_{y}\\
+\end{bmatrix}
+\begin{bmatrix}
+  x_{\xi}&amp; x_{\eta}\\
+  y_{\xi}&amp; y_{\eta}\\
+\end{bmatrix}\begin{bmatrix}
+ d\xi\\d\eta
+\end{bmatrix}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{bmatrix}
+ {\xi}_{x}&amp; {\xi}_{y}\\
+ {\eta}_{x}&amp; {\eta}_{y}\\
+\end{bmatrix}
+\begin{bmatrix}
+  x_{\xi}&amp; x_{\eta}\\
+  y_{\xi}&amp; y_{\eta}\\
+\end{bmatrix}=I\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{bmatrix}
+ {\xi}_{x}&amp; {\xi}_{y}\\
+ {\eta}_{x}&amp; {\eta}_{y}\\
+\end{bmatrix}=
+\begin{bmatrix}
+  x_{\xi}&amp; x_{\eta}\\
+  y_{\xi}&amp; y_{\eta}\\
+\end{bmatrix}^{-1}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{bmatrix}
+  x_{\xi}&amp; x_{\eta}\\
+  y_{\xi}&amp; y_{\eta}\\
+\end{bmatrix}=\begin{bmatrix}
+{\xi}_{x}&amp; {\xi}_{y}\\
+{\eta}_{x}&amp; {\eta}_{y}\\
+\end{bmatrix}^{-1}\end{split}\]</div>
+<p>inverse of matrix</p>
+<div class="math notranslate nohighlight">
+\[\mathbf{A}^{-1}=\cfrac{1}{\text{det}(\mathbf{A})}\text{adj}(\mathbf{A})=\cfrac{1}{|\mathbf{A}|}\mathbf{A}^{*}\]</div>
+<p>For example,find the inverse matrix of the second-order matrix <span class="math notranslate nohighlight">\(\mathbf{A}=\begin{pmatrix}a&amp; b\\c&amp;d\end{pmatrix}\)</span></p>
+<div class="math notranslate nohighlight">
+\[|\mathbf{A}|=ad-bc\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\mathbf{A}^{*}=\begin{pmatrix}d&amp; -b\\-c&amp;a\end{pmatrix}\\\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\mathbf{A}^{-1}=\cfrac{1}{|\mathbf{A}|}\mathbf{A}^{*} =\cfrac{1}{ad-bc}\begin{pmatrix}d&amp; -b\\-c&amp;a\end{pmatrix}\end{split}\]</div>
+<p>Let</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\mathbf{A}=\begin{bmatrix}x_{\xi}&amp; x_{\eta}\\y_{\xi}&amp; y_{\eta}\\\end{bmatrix}\end{split}\]</div>
+<p>then</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}|\mathbf{A}|=x_{\xi}y_{\eta}-x_{\eta}y_{\xi}\\\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\mathbf{A}^{*}=\begin{pmatrix}y_{\eta}&amp; -x_{\eta}\\-y_{\xi}&amp;x_{\xi}\end{pmatrix}\\\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\mathbf{A}^{-1}=\cfrac{1}{|\mathbf{A}|}\mathbf{A}^{*} =\cfrac{1}{x_{\xi}y_{\eta}-x_{\eta}y_{\xi}}\begin{pmatrix}y_{\eta}&amp; -x_{\eta}\\-y_{\xi}&amp;x_{\xi}\end{pmatrix}\\\end{split}\]</div>
+<p>Let</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}J=\begin{vmatrix}x_{\xi}&amp; x_{\eta}\\y_{\xi}&amp; y_{\eta}\\\end{vmatrix}\end{split}\]</div>
+<p>then</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{bmatrix}{\xi}_{x}&amp; {\xi}_{y}\\{\eta}_{x}&amp; {\eta}_{y}\\\end{bmatrix} =\cfrac{1}{J}\begin{bmatrix}y_{\eta}&amp; -x_{\eta}\\-y_{\xi}&amp;x_{\xi}\end{bmatrix}\\\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{c}
+{\xi}_{x}=\cfrac{1}{J}(y_{\eta})\quad{\xi}_{y}=\cfrac{1}{J}(-x_{\eta})\\
+{\eta}_{x}=\cfrac{1}{J}(-y_{\xi})\quad{\eta}_{y}=\cfrac{1}{J}(x_{\xi})\\
+\end{array}\end{split}\]</div>
+<p>Equations in Cartesian Coordinates</p>
+<div class="math notranslate nohighlight">
+\[\cfrac{\partial u}{\partial t}+\cfrac{\partial E}{\partial x}+\cfrac{\partial F}{\partial y}=0\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{c}
+\cfrac{\partial E}{\partial x}=\cfrac{\partial E}{\partial \xi}\cfrac{\partial \xi}{\partial x}+\cfrac{\partial E}{\partial \eta}\cfrac{\partial \eta}{\partial x}\\
+\cfrac{\partial F}{\partial y}=\cfrac{\partial F}{\partial \xi}\cfrac{\partial \xi}{\partial y}+\cfrac{\partial F}{\partial \eta}\cfrac{\partial \eta}{\partial y}\\
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\cfrac{\partial u}{\partial t}+\cfrac{\partial E}{\partial \xi}\cfrac{\partial \xi}{\partial x}+\cfrac{\partial E}{\partial \eta}\cfrac{\partial \eta}{\partial x}
++\cfrac{\partial F}{\partial \xi}\cfrac{\partial \xi}{\partial y}+\cfrac{\partial F}{\partial \eta}\cfrac{\partial \eta}{\partial y}=0\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\cfrac{\partial u}{\partial t}+\cfrac{\partial E}{\partial \xi}\cfrac{\partial \xi}{\partial x}+\cfrac{\partial F}{\partial \xi}\cfrac{\partial \xi}{\partial y}+\cfrac{\partial E}{\partial \eta}\cfrac{\partial \eta}{\partial x}
++\cfrac{\partial F}{\partial \eta}\cfrac{\partial \eta}{\partial y}=0\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[J\cfrac{\partial u}{\partial t}+J\cfrac{\partial E}{\partial \xi}\cfrac{\partial \xi}{\partial x}+J\cfrac{\partial F}{\partial \xi}\cfrac{\partial \xi}{\partial y}+J\cfrac{\partial E}{\partial \eta}\cfrac{\partial \eta}{\partial x}
++J\cfrac{\partial F}{\partial \eta}\cfrac{\partial \eta}{\partial y}=0\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\cfrac{\partial (EJ\cfrac{\partial \xi}{\partial x})}{\partial \xi}=\cfrac{\partial E}{\partial \xi}(J\cfrac{\partial \xi}{\partial x})+E\cfrac{\partial (J\cfrac{\partial \xi}{\partial x})}{\partial \xi}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\cfrac{\partial (EJ\cfrac{\partial \eta}{\partial x})}{\partial \eta}=\cfrac{\partial E}{\partial \eta}(J\cfrac{\partial \eta}{\partial x})+E\cfrac{\partial (J\cfrac{\partial \eta}{\partial x})}{\partial \eta}\\\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\cfrac{\partial (FJ\cfrac{\partial \xi}{\partial y})}{\partial \xi}=\cfrac{\partial F}{\partial \xi}(J\cfrac{\partial \xi}{\partial y})+F\cfrac{\partial (J\cfrac{\partial \xi}{\partial y})}{\partial \xi}\\\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\cfrac{\partial (FJ\cfrac{\partial \eta}{\partial y})}{\partial \eta}=\cfrac{\partial F}{\partial \eta}(J\cfrac{\partial \eta}{\partial y})+F\cfrac{\partial (J\cfrac{\partial \eta}{\partial y})}{\partial \eta}\\\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[E\cfrac{\partial (J\cfrac{\partial \xi}{\partial x})}{\partial \xi}
++E\cfrac{\partial (J\cfrac{\partial \eta}{\partial x})}{\partial \eta}
+=E(\cfrac{\partial (y_{\eta})}{\partial \xi}+\cfrac{\partial (-y_{\xi})}{\partial \eta})=0\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[F\cfrac{\partial (J\cfrac{\partial \xi}{\partial y})}{\partial \xi}
++F\cfrac{\partial (J\cfrac{\partial \eta}{\partial y})}{\partial \eta}
+=F(\cfrac{\partial (-x_{\eta})}{\partial \xi}+\cfrac{\partial (x_{\xi})}{\partial \eta})=0\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[J\cfrac{\partial u}{\partial t}
++\cfrac{\partial (EJ\cfrac{\partial \xi}{\partial x})}{\partial \xi}
++\cfrac{\partial (FJ\cfrac{\partial \xi}{\partial y})}{\partial \xi}
++\cfrac{\partial (EJ\cfrac{\partial \eta}{\partial x})}{\partial \eta}
++\cfrac{\partial (FJ\cfrac{\partial \eta}{\partial y})}{\partial \eta}=0\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[J\cfrac{\partial u}{\partial t}
++\cfrac{\partial (EJ\cfrac{\partial \xi}{\partial x})}{\partial \xi}
++\cfrac{\partial (FJ\cfrac{\partial \xi}{\partial y})}{\partial \xi}
++\cfrac{\partial (EJ\cfrac{\partial \eta}{\partial x})}{\partial \eta}
++\cfrac{\partial (FJ\cfrac{\partial \eta}{\partial y})}{\partial \eta}=0\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[J\cfrac{\partial u}{\partial t}
++\cfrac{\partial (J(\xi_{x}E+\xi_{y}F))}{\partial \xi}
++\cfrac{\partial (J(\eta_{x}E+\eta_{y}F))}{\partial \eta}
+=0\]</div>
+</section>
+<section id="two-dimension-dynamic-grid">
+<h2>two dimension dynamic grid<a class="headerlink" href="#two-dimension-dynamic-grid" title="Link to this heading"></a></h2>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+x &amp; = x(\xi,\eta,\tau)  = \phi_{1}(\xi,\eta,\tau)\\
+y &amp; = y(\xi,\eta,\tau)  = \phi_{2}(\xi,\eta,\tau)\\
+t &amp; = \tau
+\end{align}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+\xi &amp; = \xi(x,y,t)  = \psi_{1}(x,y,t)\\
+\eta &amp; = \eta(x,y,t)  = \psi_{2}(x,y,t)\\
+\tau&amp;=t
+\end{align}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}J=\cfrac{\partial (x,y)}{\partial (\xi,\eta)}=\begin{vmatrix}x_{\xi}&amp; x_{\eta}\\y_{\xi}&amp; y_{\eta}\\\end{vmatrix}\end{split}\]</div>
+<p>Equations in general curvilinear coordinate system</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}J(y_{1},y_{2},y_{3})=\cfrac{\partial (y_{1},y_{2},y_{3})}{\partial (\xi_{1},\xi_{2},\xi_{3})}
+=\begin{vmatrix}
+\cfrac{\partial y_{1}}{\partial \xi_{1}}&amp;
+\cfrac{\partial y_{1}}{\partial \xi_{2}}&amp;
+\cfrac{\partial y_{1}}{\partial \xi_{3}} \\
+\cfrac{\partial y_{2}}{\partial \xi_{1}}&amp;
+\cfrac{\partial y_{2}}{\partial \xi_{2}}&amp;
+\cfrac{\partial y_{2}}{\partial \xi_{3}} \\
+\cfrac{\partial y_{3}}{\partial \xi_{1}}&amp;
+\cfrac{\partial y_{3}}{\partial \xi_{2}}&amp;
+\cfrac{\partial y_{3}}{\partial \xi_{3}} \\
+\end{vmatrix}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\cfrac{\partial (y_{1},y_{2},\cdots,y_{i},y_{i+1},\cdots,y_{n})}{\partial (\xi_{1},\xi_{2},\cdots,\xi_{n})}
+=-\cfrac{\partial (y_{1},y_{2},\cdots,y_{i+1},y_{i},\cdots,y_{n})}{\partial (\xi_{1},\xi_{2},\cdots,\xi_{n})}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\cfrac{\partial (y_{1},y_{2},\cdots,y_{i},y_{i+1},\cdots,y_{n})}{\partial (\xi_{1},\xi_{2},\cdots,\xi_{n})}
+=\begin{vmatrix}
+\cfrac{\partial y_{1}}{\partial \xi_{1}}&amp; \cfrac{\partial y_{1}}{\partial \xi_{2}}&amp;\cdots  &amp; \cfrac{\partial y_{1}}{\partial \xi_{n}}\\
+\cfrac{\partial y_{2}}{\partial \xi_{1}}&amp; \cfrac{\partial y_{2}}{\partial \xi_{2}}&amp;\cdots  &amp; \cfrac{\partial y_{2}}{\partial \xi_{n}}\\
+\vdots &amp; \vdots&amp;\ddots   &amp; \vdots\\
+\cfrac{\partial y_{i}}{\partial \xi_{1}}&amp; \cfrac{\partial y_{i}}{\partial \xi_{2}}&amp;\cdots  &amp; \cfrac{\partial y_{i}}{\partial \xi_{n}}\\
+\cfrac{\partial y_{i+1}}{\partial \xi_{1}}&amp; \cfrac{\partial y_{i+1}}{\partial \xi_{2}}&amp;\cdots  &amp; \cfrac{\partial y_{i+1}}{\partial \xi_{n}}\\
+\vdots &amp; \vdots&amp;\ddots   &amp; \vdots\\
+\cfrac{\partial y_{n}}{\partial \xi_{1}}&amp; \cfrac{\partial y_{n}}{\partial \xi_{2}}&amp;\cdots  &amp; \cfrac{\partial y_{n}}{\partial \xi_{n}}\\
+\end{vmatrix}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\cfrac{\partial (y_{1},y_{2},\cdots,y_{i+1},y_{i},\cdots,y_{n})}{\partial (\xi_{1},\xi_{2},\cdots,\xi_{n})}
+=\begin{vmatrix}
+\cfrac{\partial y_{1}}{\partial \xi_{1}}&amp; \cfrac{\partial y_{1}}{\partial \xi_{2}}&amp;\cdots  &amp; \cfrac{\partial y_{1}}{\partial \xi_{n}}\\
+\cfrac{\partial y_{2}}{\partial \xi_{1}}&amp; \cfrac{\partial y_{2}}{\partial \xi_{2}}&amp;\cdots  &amp; \cfrac{\partial y_{2}}{\partial \xi_{n}}\\
+\vdots &amp; \vdots&amp;\ddots   &amp; \vdots\\
+\cfrac{\partial y_{i+1}}{\partial \xi_{1}}&amp; \cfrac{\partial y_{i+1}}{\partial \xi_{2}}&amp;\cdots  &amp; \cfrac{\partial y_{i+1}}{\partial \xi_{n}}\\
+\cfrac{\partial y_{i}}{\partial \xi_{1}}&amp; \cfrac{\partial y_{i}}{\partial \xi_{2}}&amp;\cdots  &amp; \cfrac{\partial y_{i}}{\partial \xi_{n}}\\
+\vdots &amp; \vdots&amp;\ddots   &amp; \vdots\\
+\cfrac{\partial y_{n}}{\partial \xi_{1}}&amp; \cfrac{\partial y_{n}}{\partial \xi_{2}}&amp;\cdots  &amp; \cfrac{\partial y_{n}}{\partial \xi_{n}}\\
+\end{vmatrix}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\cfrac{\partial (y_{1},y_{2},\cdots,y_{n})}{\partial (\xi_{1},\xi_{2},\cdots,\xi_{i},\xi_{i+1},\cdots,\xi_{n})}
+=-\cfrac{\partial (y_{1},y_{2},\cdots,y_{n})}{\partial (\xi_{1},\xi_{2},\cdots,\xi_{i+1},\xi_{i},\cdots,\xi_{n})}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\cfrac{\partial (y_{1},y_{2},\cdots,y_{n})}{\partial (\xi_{1},\xi_{2},\cdots,\xi_{i},\xi_{i+1},\cdots,\xi_{n})}
+=\begin{vmatrix}
+\cfrac{\partial y_{1}}{\partial \xi_{1}}&amp;
+\cfrac{\partial y_{1}}{\partial \xi_{2}}&amp;
+\cdots&amp;
+\cfrac{\partial y_{1}}{\partial \xi_{i}}&amp;
+\cfrac{\partial y_{1}}{\partial \xi_{i+1}}&amp;
+\cdots&amp;
+\cfrac{\partial y_{1}}{\partial \xi_{n}}\\
+\cfrac{\partial y_{2}}{\partial \xi_{1}}&amp;
+\cfrac{\partial y_{2}}{\partial \xi_{2}}&amp;
+\cdots&amp;
+\cfrac{\partial y_{2}}{\partial \xi_{i}}&amp;
+\cfrac{\partial y_{2}}{\partial \xi_{i+1}}&amp;
+\cdots&amp;
+\cfrac{\partial y_{2}}{\partial \xi_{n}}\\
+\vdots &amp; \vdots&amp;\ddots   &amp; \vdots&amp; \vdots&amp;\ddots&amp; \vdots\\
+\cfrac{\partial y_{n}}{\partial \xi_{1}}&amp;
+\cfrac{\partial y_{n}}{\partial \xi_{2}}&amp;
+\cdots&amp;
+\cfrac{\partial y_{n}}{\partial \xi_{i}}&amp;
+\cfrac{\partial y_{n}}{\partial \xi_{i+1}}&amp;
+\cdots&amp;
+\cfrac{\partial y_{n}}{\partial \xi_{n}}\\
+\end{vmatrix}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\cfrac{\partial (y_{1},y_{2},\cdots,y_{n})}{\partial (\xi_{1},\xi_{2},\cdots,\xi_{i+1},\xi_{i},\cdots,\xi_{n})}
+=\begin{vmatrix}
+\cfrac{\partial y_{1}}{\partial \xi_{1}}&amp;
+\cfrac{\partial y_{1}}{\partial \xi_{2}}&amp;
+\cdots&amp;
+\cfrac{\partial y_{1}}{\partial \xi_{i+1}}&amp;
+\cfrac{\partial y_{1}}{\partial \xi_{i}}&amp;
+\cdots&amp;
+\cfrac{\partial y_{1}}{\partial \xi_{n}}\\
+\cfrac{\partial y_{2}}{\partial \xi_{1}}&amp;
+\cfrac{\partial y_{2}}{\partial \xi_{2}}&amp;
+\cdots&amp;
+\cfrac{\partial y_{2}}{\partial \xi_{i+1}}&amp;
+\cfrac{\partial y_{2}}{\partial \xi_{i}}&amp;
+\cdots&amp;
+\cfrac{\partial y_{2}}{\partial \xi_{n}}\\
+\vdots &amp; \vdots&amp;\ddots   &amp; \vdots&amp; \vdots&amp;\ddots&amp; \vdots\\
+\cfrac{\partial y_{n}}{\partial \xi_{1}}&amp;
+\cfrac{\partial y_{n}}{\partial \xi_{2}}&amp;
+\cdots&amp;
+\cfrac{\partial y_{n}}{\partial \xi_{i+1}}&amp;
+\cfrac{\partial y_{n}}{\partial \xi_{i}}&amp;
+\cdots&amp;
+\cfrac{\partial y_{n}}{\partial \xi_{n}}\\
+\end{vmatrix}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\cfrac{\partial (y_{1},y_{2},\cdots,y_{n})}{\partial (\xi_{1},\xi_{2},\cdots,\xi_{n})}
+=\begin{vmatrix}
+\cfrac{\partial y_{1}}{\partial \xi_{1}}&amp;
+\cfrac{\partial y_{1}}{\partial \xi_{2}}&amp;
+\cdots&amp;
+\cfrac{\partial y_{1}}{\partial \xi_{n}}\\
+\cfrac{\partial y_{2}}{\partial \xi_{1}}&amp;
+\cfrac{\partial y_{2}}{\partial \xi_{2}}&amp;
+\cdots&amp;
+\cfrac{\partial y_{2}}{\partial \xi_{n}}\\
+\vdots &amp; \vdots&amp;\ddots   &amp; \vdots\\
+\cfrac{\partial y_{n}}{\partial \xi_{1}}&amp;
+\cfrac{\partial y_{n}}{\partial \xi_{2}}&amp;
+\cdots&amp;
+\cfrac{\partial y_{n}}{\partial \xi_{n}}\\
+\end{vmatrix}\end{split}\]</div>
+<p>When there are common variables between <span class="math notranslate nohighlight">\(y_{i}\)</span> and <span class="math notranslate nohighlight">\(\xi_{i}\)</span>, then determinant reduction occurs, such as</p>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\cfrac{\partial (\xi_{1},y_{2},\cdots,y_{n})}{\partial (\xi_{1},\xi_{2},\cdots,\xi_{n})}
+=\begin{vmatrix}
+\cfrac{\partial \xi_{1}}{\partial \xi_{1}}&amp;
+\cfrac{\partial \xi_{1}}{\partial \xi_{2}}&amp;
+\cdots&amp;
+\cfrac{\partial \xi_{1}}{\partial \xi_{n}}\\
+\cfrac{\partial y_{2}}{\partial \xi_{1}}&amp;
+\cfrac{\partial y_{2}}{\partial \xi_{2}}&amp;
+\cdots&amp;
+\cfrac{\partial y_{2}}{\partial \xi_{n}}\\
+\vdots &amp; \vdots&amp;\ddots   &amp; \vdots\\
+\cfrac{\partial y_{n}}{\partial \xi_{1}}&amp;
+\cfrac{\partial y_{n}}{\partial \xi_{2}}&amp;
+\cdots&amp;
+\cfrac{\partial y_{n}}{\partial \xi_{n}}\\
+\end{vmatrix}=
+\begin{vmatrix}
+1&amp;
+0&amp;
+\cdots&amp;
+0\\
+\cfrac{\partial y_{2}}{\partial \xi_{1}}&amp;
+\cfrac{\partial y_{2}}{\partial \xi_{2}}&amp;
+\cdots&amp;
+\cfrac{\partial y_{2}}{\partial \xi_{n}}\\
+\vdots &amp; \vdots&amp;\ddots   &amp; \vdots\\
+\cfrac{\partial y_{n}}{\partial \xi_{1}}&amp;
+\cfrac{\partial y_{n}}{\partial \xi_{2}}&amp;
+\cdots&amp;
+\cfrac{\partial y_{n}}{\partial \xi_{n}}\\
+\end{vmatrix}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\cfrac{\partial (\xi_{1},y_{2},\cdots,y_{n})}{\partial (\xi_{1},\xi_{2},\cdots,\xi_{n})}
+=\cfrac{\partial (y_{2},\cdots,y_{n})}{\partial (\xi_{2},\cdots,\xi_{n})}=
+\begin{vmatrix}
+\cfrac{\partial y_{2}}{\partial \xi_{2}}&amp;
+\cdots&amp;
+\cfrac{\partial y_{2}}{\partial \xi_{n}}\\
+\vdots &amp; \ddots   &amp; \vdots\\
+\cfrac{\partial y_{n}}{\partial \xi_{2}}&amp;
+\cdots&amp;
+\cfrac{\partial y_{n}}{\partial \xi_{n}}\\
+\end{vmatrix}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\cfrac{\partial (y_{1},y_{2},\cdots,y_{n})}{\partial (\xi_{1},\xi_{2},\cdots,\xi_{n})}
+=\cfrac{\partial (y_{1},y_{2},\cdots,y_{n})/\partial (\zeta_{1},\zeta_{2},\cdots,\zeta_{n})}{\partial (\xi_{1},\xi_{2},\cdots,\xi_{n})/\partial (\zeta_{1},\zeta_{2},\cdots,\zeta_{n})}=\cfrac{J(y_{1},y_{2},\cdots,y_{n})}{J(\xi_{1},\xi_{2},\cdots,\xi_{n})}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\cfrac{\partial U}{\partial t}+\cfrac{\partial E}{\partial x}+\cfrac{\partial F}{\partial y}=0\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{c}
+q_{0}=U,q_{1}=E,q_{2}=F\\
+x_{0}=t,x_{1}=x,x_{2}=y\\
+\xi_{0}=t,\xi_{1}=\xi,\xi_{2}=\eta\\
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\cfrac{\partial q_{i}}{\partial x_{i}}=0\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[Q_{k}=Jq_{i}\cfrac{\partial \xi_{k}}{\partial x_{i}}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+Q_{k} &amp; = Jq_{0}\cfrac{\partial \xi_{k}}{\partial x_{0}}
+   +Jq_{1}\cfrac{\partial \xi_{k}}{\partial x_{1}}
+   +Jq_{2}\cfrac{\partial \xi_{k}}{\partial x_{2}}\\
+&amp; = Jq_{0}\cfrac{\partial \xi_{k}}{\partial t}
+   +Jq_{1}\cfrac{\partial \xi_{k}}{\partial x}
+   +Jq_{2}\cfrac{\partial \xi_{k}}{\partial y}
+\end{align}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{align}
+Q_{0}
+&amp; = Jq_{0}\cfrac{\partial t}{\partial t}
+   +Jq_{1}\cfrac{\partial t}{\partial x}
+   +Jq_{2}\cfrac{\partial t}{\partial y}=Jq_{0}
+\end{align}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{align}
+Q_{1}
+&amp; = Jq_{0}\cfrac{\partial \xi}{\partial t}
+   +Jq_{1}\cfrac{\partial \xi}{\partial x}
+   +Jq_{2}\cfrac{\partial \xi}{\partial y}
+\end{align}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{align}
+Q_{2}
+&amp; = Jq_{0}\cfrac{\partial \eta}{\partial t}
+   +Jq_{1}\cfrac{\partial \eta}{\partial x}
+   +Jq_{2}\cfrac{\partial \eta}{\partial y}
+\end{align}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\cfrac{\partial U}{\partial t}
+=\cfrac{\partial U}{\partial \tau}\cfrac{\partial \tau}{\partial t}
++\cfrac{\partial U}{\partial \xi}\cfrac{\partial \xi}{\partial t}
++\cfrac{\partial U}{\partial \eta}\cfrac{\partial \eta}{\partial t}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\cfrac{\partial U(x,y,t)}{\partial t}
+=\cfrac{\partial \hat{U}(\xi,\eta,\tau)}{\partial \tau}\cfrac{\partial \tau}{\partial t}
++\cfrac{\partial \hat{U}(\xi,\eta,\tau)}{\partial \xi}\cfrac{\partial \xi}{\partial t}
++\cfrac{\partial \hat{U}(\xi,\eta,\tau)}{\partial \eta}\cfrac{\partial \eta}{\partial t}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{align}
+Q_{0}
+&amp; = JU\cfrac{\partial t}{\partial t}
+   +JE\cfrac{\partial t}{\partial x}
+   +JF\cfrac{\partial t}{\partial y}=JU
+\end{align}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{align}
+Q_{1}
+&amp; = UJ\cfrac{\partial \xi}{\partial t}
+   +EJ\cfrac{\partial \xi}{\partial x}
+   +FJ\cfrac{\partial \xi}{\partial y}
+\end{align}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{align}
+Q_{2}
+&amp; = UJ\cfrac{\partial \eta}{\partial t}
+   +EJ\cfrac{\partial \eta}{\partial x}
+   +FJ\cfrac{\partial \eta}{\partial y}
+\end{align}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\cfrac{\partial (UJ\cfrac{\partial \xi}{\partial t})}{\partial \xi}=
+\cfrac{\partial (U)}{\partial \xi}(J\cfrac{\partial \xi}{\partial t})+
+(U)\cfrac{\partial }{\partial \xi}(J\cfrac{\partial \xi}{\partial t})\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+x &amp; = x(\xi,\eta,\tau)  = \phi_{1}(\xi,\eta,\tau)\\
+y &amp; = y(\xi,\eta,\tau)  = \phi_{2}(\xi,\eta,\tau)\\
+t &amp; = t(\xi,\eta,\tau)=\phi_{0}(\xi,\eta,\tau)=\tau\\
+\end{align}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+\xi &amp; = \xi(x,y,t)  = \psi_{1}(x,y,t)\\
+\eta &amp; = \eta(x,y,t)  = \psi_{2}(x,y,t)\\
+\tau&amp;=\tau(x,y,t)= \psi_{0}(x,y,t)=t
+\end{align}\end{split}\]</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="ns-integral.html" class="btn btn-neutral float-left" title="ALE Form of Conservation Equations" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="curvilinear3d.html" class="btn btn-neutral float-right" title="Generalized Curvilinear Coordinate System(3D)" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2017~2024, eric.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

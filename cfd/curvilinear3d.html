@@ -1,0 +1,1078 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Generalized Curvilinear Coordinate System(3D) &mdash; Scientific Computing 1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../_static/documentation_options.js?v=f2a433a1"></script>
+        <script src="../_static/doctools.js?v=888ff710"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Vector &amp; Tensor" href="vector.html" />
+    <link rel="prev" title="Generalized Curvilinear Coordinate System" href="curvilinear.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Scientific Computing
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Get started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../info.html">OneFLOW</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../user.html">THEORY</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../bash.html">Bash</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">CFD</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="ns.html">Navier–Stokes equations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="leibniz.html">Leibniz integral</a></li>
+<li class="toctree-l2"><a class="reference internal" href="rtt.html">Reynolds’ transport theorem</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mass.html">Conservation Of Mass</a></li>
+<li class="toctree-l2"><a class="reference internal" href="momenum.html">Momentum Analysis Of Flow Systems</a></li>
+<li class="toctree-l2"><a class="reference internal" href="energy.html">Conservation Of Energy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ns-integral.html">ALE Form of Conservation Equations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="curvilinear.html">Generalized Curvilinear Coordinate System</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Generalized Curvilinear Coordinate System(3D)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#applying-the-curvilinear-transformation">Applying the Curvilinear Transformation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#euler-equations-in-cartesian-coordinates">Euler Equations in Cartesian Coordinates</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="vector.html">Vector &amp; Tensor</a></li>
+<li class="toctree-l2"><a class="reference internal" href="matrix.html">Matrix</a></li>
+<li class="toctree-l2"><a class="reference internal" href="calculus.html">Calculus</a></li>
+<li class="toctree-l2"><a class="reference internal" href="substitution.html">Substitution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="jacobian.html">Jacobian matrix</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gauss.html">Gauss’s Theorem</a></li>
+<li class="toctree-l2"><a class="reference internal" href="strain.html">Strain Measures</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ale.html">Arbitrary Lagrangian-Eulerian</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ale1d.html">ALE 1D</a></li>
+<li class="toctree-l2"><a class="reference internal" href="deformation.html">Deformation and Motion</a></li>
+<li class="toctree-l2"><a class="reference internal" href="derivative.html">Fluid Derivative</a></li>
+<li class="toctree-l2"><a class="reference internal" href="material_derivative.html">Material Time Derivative</a></li>
+<li class="toctree-l2"><a class="reference internal" href="scheme/index.html">CFD Schemes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="examples/index.html">CFD Examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="method/index.html">CFD Methods</a></li>
+<li class="toctree-l2"><a class="reference internal" href="codes.html">Reference Codes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="videos.html">CFD &amp; CAE Videos</a></li>
+<li class="toctree-l2"><a class="reference internal" href="books.html">Books</a></li>
+<li class="toctree-l2"><a class="reference internal" href="docs.html">Documents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../cgns.html">CGNS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../chatgpt.html">CHATGPT</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cpp/index.html">CPP</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cmake.html">CMake</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cmd.html">Cmd</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cuda.html">CUDA</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../design_patterns.html">Design Patterns</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../eigen.html">Eigen3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../git.html">Git</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../git.html#contexts">Contexts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fortran.html">Fortran</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../hdf5.html">HDF5</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../hpc.html">HPC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../install/index.html">Install</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../julia.html">Julia</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../jupyter.html">Jupyter Notebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../latex.html">LaTeX</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../makefile.html">Makefile</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../metis.html">METIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../mkdocs.html">MkDocs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../modules.html">Environment Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../mpi.html">MPI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../numerical/index.html">Numerical analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../oneapi.html">oneAPI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../oneflow.html">OneFLOW-CFD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../openacc.html">OpenACC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../opencl.html">OpenCL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../opengl.html">OpenGL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../openmp.html">OpenMP</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../powershell.html">PowerShell</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../python/index.html">Python</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../qt.html">Qt</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../regex.html">Regular Expressions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../science.html">Science</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sphinx.html">Sphinx</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../system/index.html">System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../taichi.html">Taichi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tcltk.html">Tcl/tk</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tecplot.html">Tecplot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../test.html">Test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../unreal_engine.html">Unreal Engine</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../vcpkg.html">vcpkg</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../yaml.html">yaml</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Scientific Computing</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">CFD</a></li>
+      <li class="breadcrumb-item active">Generalized Curvilinear Coordinate System(3D)</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/cfd/curvilinear3d.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="generalized-curvilinear-coordinate-system-3d">
+<h1>Generalized Curvilinear Coordinate System(3D)<a class="headerlink" href="#generalized-curvilinear-coordinate-system-3d" title="Link to this heading"></a></h1>
+<ul class="simple">
+<li><p>The Geometric Conservation Law - A link between finite-difference and finite-volume methods of flow computation on moving grids</p></li>
+<li><p>Development of CFD Algorithms for Transient and Steady Aerodynamics- Fergal Boyle [Thesis]</p></li>
+</ul>
+<section id="applying-the-curvilinear-transformation">
+<h2>Applying the Curvilinear Transformation<a class="headerlink" href="#applying-the-curvilinear-transformation" title="Link to this heading"></a></h2>
+<p>The general curvilinear axes for a time-dependent curvilinear coordinate system are:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+\xi &amp; = \xi(x,y,z,t)\\
+\eta &amp; = \eta(x,y,z,t)\\
+\zeta &amp; = \zeta (x,y,z,t)\\
+\tau&amp;=\tau(x,y,z,t)= t
+\end{align}\end{split}\]</div>
+<p>Using the chain rule for a function of multiple variables, the Cartesian derivatives can be written in terms of the curvilinear derivatives as:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+\cfrac{\partial }{\partial x}
+&amp; = \xi_{x} \cfrac{\partial}{\partial \xi}
+ + \eta_{x} \cfrac{\partial}{\partial \eta}
+ + \zeta_{x} \cfrac{\partial}{\partial \zeta}
+ + \tau_{x} \cfrac{\partial}{\partial \tau}\\
+\cfrac{\partial }{\partial y}
+&amp; = \xi_{y} \cfrac{\partial}{\partial \xi}
+ + \eta_{y} \cfrac{\partial}{\partial \eta}
+ + \zeta_{y} \cfrac{\partial}{\partial \zeta}
+ + \tau_{y} \cfrac{\partial}{\partial \tau}\\
+\cfrac{\partial }{\partial z}
+&amp; = \xi_{z} \cfrac{\partial}{\partial \xi}
+ + \eta_{z} \cfrac{\partial}{\partial \eta}
+ + \zeta_{z} \cfrac{\partial}{\partial \zeta}
+ + \tau_{z} \cfrac{\partial}{\partial \tau}\\
+\cfrac{\partial }{\partial t}
+&amp; = \xi_{t} \cfrac{\partial}{\partial \xi}
+ + \eta_{t} \cfrac{\partial}{\partial \eta}
+ + \zeta_{t} \cfrac{\partial}{\partial \zeta}
+ + \tau_{t} \cfrac{\partial}{\partial \tau}
+\end{align}\end{split}\]</div>
+<p>where <span class="math notranslate nohighlight">\(\xi_{x},\xi_{y},\xi_{z},\xi_{t},\eta_{x},\eta_{y},\eta_{z},\eta_{t},\zeta_{x},\zeta_{y},\zeta_{z},\zeta_{t}\)</span>  are the metrics of the
+transformation. (noting that <span class="math notranslate nohighlight">\(\tau_{x}=\tau_{y}=\tau_{z}=0\)</span> and <span class="math notranslate nohighlight">\(\tau_{t}=1\)</span>). The above equation can be written in the following matrix form:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\left[\begin{array}{c}
+\frac{\partial}{\partial x} \\
+\frac{\partial}{\partial y} \\
+\frac{\partial}{\partial z} \\
+\frac{\partial}{\partial t}
+\end{array}\right]=\left[\begin{array}{llll}
+\xi_{x} &amp; \eta_{x} &amp; \zeta_{x} &amp; 0 \\
+\xi_{y} &amp; \eta_{y} &amp; \zeta_{y} &amp; 0 \\
+\xi_{z} &amp; \eta_{z} &amp; \zeta_{z} &amp; 0 \\
+\xi_{t} &amp; \eta_{t} &amp; \zeta_{t} &amp; 1
+\end{array}\right]\left[\begin{array}{c}
+\frac{\partial}{\partial \xi} \\
+\frac{\partial}{\partial \eta} \\
+\frac{\partial}{\partial \zeta} \\
+\frac{\partial}{\partial \tau}
+\end{array}\right]\end{split}\]</div>
+<p>It is also possible to expand the curvilinear derivatives in terms of the Cartesian derivatives with the aid of the chain rule:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{aligned}
+\frac{\partial}{\partial \xi} &amp; =x_{\xi} \frac{\partial}{\partial x}+y_{\xi} \frac{\partial}{\partial y}+z_{\xi} \frac{\partial}{\partial z}+t_{\xi} \frac{\partial}{\partial t} \\
+\frac{\partial}{\partial \eta} &amp; =x_{\eta} \frac{\partial}{\partial x}+y_{\eta} \frac{\partial}{\partial y}+z_{\eta} \frac{\partial}{\partial z}+t_{\eta} \frac{\partial}{\partial t} \\
+\frac{\partial}{\partial \zeta} &amp; =x_{\zeta} \frac{\partial}{\partial x}+y_{\zeta} \frac{\partial}{\partial y}+z_{\zeta} \frac{\partial}{\partial z}+t_{\zeta} \frac{\partial}{\partial t} \\
+\frac{\partial}{\partial \tau} &amp; =x_{\tau} \frac{\partial}{\partial x}+y_{\tau} \frac{\partial}{\partial y}+z_{\tau} \frac{\partial}{\partial z}+t_{\tau} \frac{\partial}{\partial t}
+\end{aligned}\end{split}\]</div>
+<p>Note again that <span class="math notranslate nohighlight">\(t_{\xi}=t_{\eta}=t_{\zeta}=0\)</span> and <span class="math notranslate nohighlight">\(t_{\tau}=1\)</span>. The equation set above can also be written in matrix form:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\left[\begin{array}{c}
+\frac{\partial}{\partial \xi} \\
+\frac{\partial}{\partial \eta} \\
+\frac{\partial}{\partial \zeta} \\
+\frac{\partial}{\partial \tau}
+\end{array}\right]
+=\left[\begin{array}{llll}
+{x}_{\xi} &amp; {y}_{\xi}&amp; {z}_{\xi} &amp; 0 \\
+{x}_{\eta} &amp; {y}_{\eta}&amp; {z}_{\eta} &amp; 0 \\
+{x}_{\zeta} &amp; {y}_{\zeta}&amp; {z}_{\zeta} &amp; 0 \\
+x_{\tau} &amp; y_{\tau} &amp; z_{\tau} &amp; 1
+\end{array}\right]=\left[\begin{array}{c}
+\frac{\partial}{\partial x} \\
+\frac{\partial}{\partial y} \\
+\frac{\partial}{\partial z} \\
+\frac{\partial}{\partial t}
+\end{array}\right]\end{split}\]</div>
+<p>Comparing the above equation sets, it is evident that the following holds true:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\left[\begin{array}{llll}
+\xi_{x} &amp; \eta_{x} &amp; \zeta_{x} &amp; 0 \\
+\xi_{y} &amp; \eta_{y} &amp; \zeta_{y} &amp; 0 \\
+\xi_{z} &amp; \eta_{z} &amp; \zeta_{z} &amp; 0 \\
+\xi_{t} &amp; \eta_{t} &amp; \zeta_{t} &amp; 1
+\end{array}\right]=
+\left[\begin{array}{llll}
+{x}_{\xi} &amp; {y}_{\xi}&amp; {z}_{\xi} &amp; 0 \\
+{x}_{\eta} &amp; {y}_{\eta}&amp; {z}_{\eta} &amp; 0 \\
+{x}_{\zeta} &amp; {y}_{\zeta}&amp; {z}_{\zeta} &amp; 0 \\
+x_{\tau} &amp; y_{\tau} &amp; z_{\tau} &amp; 1
+\end{array}\right]^{-1}\end{split}\]</div>
+<p>If the 4x4 matrix on the right-hand side is inverted, it is then possible to solve for the metrics of the transformation.
+The inverse of a matrix <span class="math notranslate nohighlight">\(\mathbf{D}\)</span> can be obtained using the following expression:</p>
+<div class="math notranslate nohighlight">
+\[\mathbf{D}=\frac{1}{determinant(\mathbf{D})}adjoint(\mathbf{D})\]</div>
+<p>Let</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}A=\left[\begin{array}{llll}
+{x}_{\xi} &amp; {y}_{\xi}&amp; {z}_{\xi} &amp; 0 \\
+{x}_{\eta} &amp; {y}_{\eta}&amp; {z}_{\eta} &amp; 0 \\
+{x}_{\zeta} &amp; {y}_{\zeta}&amp; {z}_{\zeta} &amp; 0 \\
+x_{\tau} &amp; y_{\tau} &amp; z_{\tau} &amp; 1
+\end{array}\right]\end{split}\]</div>
+<p>The determinant of the matrix <span class="math notranslate nohighlight">\(A\)</span> is:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\text{det}{A}=
+\left|\begin{array}{llll}
+{x}_{\xi} &amp; {y}_{\xi}&amp; {z}_{\xi} &amp; 0 \\
+{x}_{\eta} &amp; {y}_{\eta}&amp; {z}_{\eta} &amp; 0 \\
+{x}_{\zeta} &amp; {y}_{\zeta}&amp; {z}_{\zeta} &amp; 0 \\
+x_{\tau} &amp; y_{\tau} &amp; z_{\tau} &amp; 1
+\end{array}\right|
+={x}_{\xi}({y}_{\eta}{z}_{\zeta}-{z}_{\eta}{y}_{\zeta})
+-{y}_{\xi}({x}_{\eta}{z}_{\zeta}-{z}_{\eta}{x}_{\zeta})
++{z}_{\xi}({x}_{\eta}{y}_{\zeta}-{y}_{\eta}{x}_{\zeta})\end{split}\]</div>
+<p>The Jacobian of the inverse transformation is defined as:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}J^{-1}=\cfrac{\partial (x,y,z,t)}{\partial (\xi,\eta,\zeta,\tau)}=
+\left|\begin{array}{llll}
+{x}_{\xi} &amp; {y}_{\xi}&amp; {z}_{\xi} &amp; 0 \\
+{x}_{\eta} &amp; {y}_{\eta}&amp; {z}_{\eta} &amp; 0 \\
+{x}_{\zeta} &amp; {y}_{\zeta}&amp; {z}_{\zeta} &amp; 0 \\
+x_{\tau} &amp; y_{\tau} &amp; z_{\tau} &amp; 1
+\end{array}\right|\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[J^{-1}=\text{det}({A})\]</div>
+<p>Following the matrix inversion the metrics of the transformation are evaluated as:</p>
+<div class="math notranslate nohighlight">
+\[A^{-1}=\cfrac{1}{\text{det}{A}}A^{*}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\mathbf{A}^{*}=\begin{bmatrix}
+A_{11}&amp;A_{21}  &amp;\cdots   &amp; A_{n1}\\
+A_{12}&amp;A_{22}  &amp;\cdots   &amp; A_{n2}\\
+\vdots&amp; \vdots &amp;  &amp;\vdots \\
+A_{1n}&amp;A_{2n}  &amp;\cdots   &amp; A_{nn}\\
+\end{bmatrix}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[A_{ij}=(-1)^{i+j}M_{ij}\]</div>
+<p>then</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}A^{-1}=J\begin{bmatrix}
+A_{11}&amp; A_{21} &amp; A_{31} &amp; A_{41}\\
+A_{12}&amp; A_{22} &amp; A_{32} &amp; A_{42}\\
+A_{13}&amp; A_{23} &amp; A_{33} &amp; A_{43}\\
+A_{14}&amp; A_{24} &amp; A_{34} &amp; A_{44}\\
+\end{bmatrix}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\left[\begin{array}{llll}
+\xi_{x} &amp; \eta_{x} &amp; \zeta_{x} &amp; 0 \\
+\xi_{y} &amp; \eta_{y} &amp; \zeta_{y} &amp; 0 \\
+\xi_{z} &amp; \eta_{z} &amp; \zeta_{z} &amp; 0 \\
+\xi_{t} &amp; \eta_{t} &amp; \zeta_{t} &amp; 1
+\end{array}\right]=
+A^{-1}=J\begin{bmatrix}
+A_{11}&amp; A_{21} &amp; A_{31} &amp; A_{41}\\
+A_{12}&amp; A_{22} &amp; A_{32} &amp; A_{42}\\
+A_{13}&amp; A_{23} &amp; A_{33} &amp; A_{43}\\
+A_{14}&amp; A_{24} &amp; A_{34} &amp; A_{44}\\
+\end{bmatrix}\end{split}\]</div>
+<p>specifically:</p>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}A_{11}=
++\left|\begin{array}{llll}
+{y}_{\eta}&amp; {z}_{\eta} &amp; 0 \\
+{y}_{\zeta}&amp; {z}_{\zeta} &amp; 0 \\
+ y_{\tau} &amp; z_{\tau} &amp; 1
+\end{array}\right| =+({y}_{\eta}{z}_{\zeta}-{z}_{\eta}{y}_{\zeta})\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}A_{12}=
+-\left|\begin{array}{llll}
+{x}_{\eta} &amp; {z}_{\eta} &amp; 0 \\
+{x}_{\zeta} &amp; {z}_{\zeta} &amp; 0 \\
+x_{\tau} &amp;  z_{\tau} &amp; 1
+\end{array}\right| =-({x}_{\eta}{z}_{\zeta}-{z}_{\eta}{x}_{\zeta})\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}A_{13}
+=+  \left|\begin{array}{llll}
+{x}_{\eta} &amp; {y}_{\eta} &amp; 0 \\
+{x}_{\zeta} &amp; {y}_{\zeta} &amp; 0 \\
+x_{\tau} &amp; y_{\tau}  &amp; 1
+\end{array}\right| =+({x}_{\eta}{y}_{\zeta}-{y}_{\eta}{x}_{\zeta}) \\\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+ A_{14} &amp; = - \left|\begin{array}{lll}
+ {x}_{\eta} &amp; {y}_{\eta}&amp; {z}_{\eta}\\
+ {x}_{\zeta} &amp; {y}_{\zeta}&amp; {z}_{\zeta} \\
+ x_{\tau} &amp; y_{\tau} &amp; z_{\tau}
+ \end{array}\right| = -x_{\tau}\left|\begin{array}{ll}
+ {y}_{\eta}&amp; {z}_{\eta}\\
+ {y}_{\zeta}&amp; {z}_{\zeta} \\
+ \end{array}\right|
+ +y_{\tau}\left|\begin{array}{ll}
+ {x}_{\eta} &amp; {z}_{\eta}\\
+ {x}_{\zeta} &amp; {z}_{\zeta} \\
+\end{array}\right|
+-z_{\tau}\left|\begin{array}{ll}
+ {x}_{\eta} &amp; {y}_{\eta}\\
+ {x}_{\zeta} &amp; {y}_{\zeta} \\
+\end{array}\right|\\
+ &amp;=-x_{\tau}({y}_{\eta}{z}_{\zeta}-{y}_{\zeta}{z}_{\eta})
+ -y_{\tau}({z}_{\eta}{x}_{\zeta}-{z}_{\zeta}{x}_{\eta})
+ -z_{\tau}({x}_{\eta}{y}_{\zeta}-{x}_{\zeta}{y}_{\eta})
+ \end{align}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}A_{21}
+=-\left|\begin{array}{llll}
+{y}_{\xi}&amp; {z}_{\xi} &amp; 0 \\
+{y}_{\zeta}&amp; {z}_{\zeta} &amp; 0 \\
+y_{\tau} &amp; z_{\tau} &amp; 1
+\end{array}\right| =-({y}_{\xi}{z}_{\zeta}-{z}_{\xi}{y}_{\zeta})\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}A_{22}
+= +\left|\begin{array}{llll}
+{x}_{\xi} &amp; {z}_{\xi} &amp; 0 \\
+{x}_{\zeta} &amp; {z}_{\zeta} &amp; 0 \\
+x_{\tau}  &amp; z_{\tau} &amp; 1
+\end{array}\right| =({x}_{\xi}{z}_{\zeta}-{z}_{\xi}{x}_{\zeta})\\\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}A_{23}
+=- \left|\begin{array}{llll}
+{x}_{\xi} &amp; {y}_{\xi} &amp; 0 \\
+{x}_{\zeta} &amp; {y}_{\zeta} &amp; 0 \\
+x_{\tau} &amp; y_{\tau}  &amp; 1
+\end{array}\right|=- ({x}_{\xi}{y}_{\zeta}-{y}_{\xi}{x}_{\zeta})\\\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+A_{24} &amp; = + \left|\begin{array}{llll}
+{x}_{\xi} &amp; {y}_{\xi}&amp; {z}_{\xi}\\
+{x}_{\zeta} &amp; {y}_{\zeta}&amp; {z}_{\zeta} \\
+x_{\tau} &amp; y_{\tau} &amp; z_{\tau}
+\end{array}\right|  = x_{\tau}\left|\begin{array}{llll}
+{y}_{\xi}&amp; {z}_{\xi}\\
+{y}_{\zeta}&amp; {z}_{\zeta} \\
+\end{array}\right|
+-y_{\tau}\left|\begin{array}{llll}
+{x}_{\xi} &amp; {z}_{\xi}\\
+{x}_{\zeta} &amp; {z}_{\zeta} \\
+\end{array}\right|
++z_{\tau}\left|\begin{array}{llll}
+{x}_{\xi} &amp; {y}_{\xi}\\
+{x}_{\zeta} &amp; {y}_{\zeta} \\
+\end{array}\right|\\
+&amp;=x_{\tau}({y}_{\xi}{z}_{\zeta}-{z}_{\xi}{y}_{\zeta})
+-y_{\tau}({x}_{\xi}{z}_{\zeta}-{z}_{\xi}{x}_{\zeta})
++z_{\tau}({x}_{\xi}{y}_{\zeta}-{y}_{\xi}{x}_{\zeta})
+\end{align}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}A_{31}
+= + \left|\begin{array}{llll}
+ {y}_{\xi}&amp; {z}_{\xi} &amp; 0 \\
+ {y}_{\eta}&amp; {z}_{\eta} &amp; 0 \\
+ y_{\tau} &amp; z_{\tau} &amp; 1
+\end{array}\right|=+({y}_{\xi}{z}_{\eta}-{z}_{\xi}{y}_{\eta})\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}A_{32}
+=- \left|\begin{array}{llll}
+{x}_{\xi} &amp;  {z}_{\xi} &amp; 0 \\
+{x}_{\eta} &amp;  {z}_{\eta} &amp; 0 \\
+x_{\tau} &amp; z_{\tau} &amp; 1
+\end{array}\right| =-({x}_{\xi}{z}_{\eta}-{z}_{\xi}{x}_{\eta})\\\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}A_{33}
+= +\left|\begin{array}{llll}
+{x}_{\xi} &amp; {y}_{\xi} &amp; 0 \\
+{x}_{\eta} &amp; {y}_{\eta} &amp; 0 \\
+x_{\tau} &amp; y_{\tau}  &amp; 1
+\end{array}\right| =+({x}_{\xi}{y}_{\eta}-{y}_{\xi}{x}_{\eta})\\\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+A_{34}
+&amp;=-\left|\begin{array}{llll}
+{x}_{\xi} &amp; {y}_{\xi}&amp; {z}_{\xi}  \\
+{x}_{\eta} &amp; {y}_{\eta}&amp; {z}_{\eta}  \\
+x_{\tau} &amp; y_{\tau} &amp; z_{\tau}
+\end{array}\right|
+=-x_{\tau}\left|\begin{array}{llll}
+ {y}_{\xi}&amp; {z}_{\xi}  \\
+ {y}_{\eta}&amp; {z}_{\eta}  \\
+\end{array}\right|
++y_{\tau}\left|\begin{array}{llll}
+{x}_{\xi} &amp;  {z}_{\xi}  \\
+{x}_{\eta} &amp; {z}_{\eta}  \\
+\end{array}\right|
+-z_{\tau}\left|\begin{array}{llll}
+{x}_{\xi} &amp; {y}_{\xi}  \\
+{x}_{\eta} &amp; {y}_{\eta} \\
+\end{array}\right|\\
+&amp;=-x_{\tau}({y}_{\xi}{z}_{\eta}-{z}_{\xi}{y}_{\eta})
++y_{\tau}({x}_{\xi}{z}_{\eta}-{z}_{\xi}{x}_{\eta})
+-z_{\tau}({x}_{\xi}{y}_{\eta}-{y}_{\xi}{x}_{\eta})\\
+\end{align}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}A_{41}
+=-\left|\begin{array}{llll}
+ {y}_{\xi}&amp; {z}_{\xi} &amp; 0 \\
+ {y}_{\eta}&amp; {z}_{\eta} &amp; 0 \\
+ {y}_{\zeta}&amp; {z}_{\zeta} &amp; 0 \\
+\end{array}\right| =0\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}A_{42}
+=+\left|\begin{array}{llll}
+{x}_{\xi} &amp;  {z}_{\xi} &amp; 0 \\
+{x}_{\eta} &amp; {z}_{\eta} &amp; 0 \\
+{x}_{\zeta} &amp; {z}_{\zeta} &amp; 0 \\
+\end{array}\right|=0\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}A_{43}
+=-\left|\begin{array}{llll}
+{x}_{\xi} &amp; {y}_{\xi} &amp; 0 \\
+{x}_{\eta} &amp; {y}_{\eta} &amp; 0 \\
+{x}_{\zeta} &amp; {y}_{\zeta} &amp; 0 \\
+\end{array}\right|=0\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}A_{44}
+=+ \left|\begin{array}{llll}
+{x}_{\xi} &amp; {y}_{\xi}&amp; {z}_{\xi}\\
+{x}_{\eta} &amp; {y}_{\eta}&amp; {z}_{\eta} \\
+{x}_{\zeta} &amp; {y}_{\zeta}&amp; {z}_{\zeta} \\
+\end{array}\right|=J^{-1}\end{split}\]</div>
+<p>Finally:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+\xi_{x} = JA_{11} &amp; = +J({y}_{\eta}{z}_{\zeta}-{z}_{\eta}{y}_{\zeta})\\
+\xi_{y} = JA_{12} &amp; = -J({x}_{\eta}{z}_{\zeta}-{z}_{\eta}{x}_{\zeta})\\
+\xi_{z} = JA_{13} &amp; = +J({x}_{\eta}{y}_{\zeta}-{y}_{\eta}{x}_{\zeta})\\
+\xi_{t} = JA_{14} &amp; = +J(-x_{\tau}({y}_{\eta}{z}_{\zeta}-{y}_{\zeta}{z}_{\eta})
+-y_{\tau}({z}_{\eta}{x}_{\zeta}-{z}_{\zeta}{x}_{\eta})
+-z_{\tau}({x}_{\eta}{y}_{\zeta}-{x}_{\zeta}{y}_{\eta}))\\
+&amp; = -x_{\tau}\xi_{x}-y_{\tau}\xi_{y}-z_{\tau}\xi_{z}
+\end{align}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+\eta_{x} = JA_{21} &amp; = -J({y}_{\xi}{z}_{\zeta}-{z}_{\xi}{y}_{\zeta})\\
+\eta_{y} = JA_{22} &amp; = +J({x}_{\xi}{z}_{\zeta}-{z}_{\xi}{x}_{\zeta})\\
+\eta_{z} = JA_{23} &amp; = -J({x}_{\xi}{y}_{\zeta}-{y}_{\xi}{x}_{\zeta})\\
+\eta_{t} = JA_{24} &amp; = +J(x_{\tau}({y}_{\xi}{z}_{\zeta}-{z}_{\xi}{y}_{\zeta})
+-y_{\tau}({x}_{\xi}{z}_{\zeta}-{z}_{\xi}{x}_{\zeta})
++z_{\tau}({x}_{\xi}{y}_{\zeta}-{y}_{\xi}{x}_{\zeta}))\\
+&amp; = -x_{\tau}\eta_{x}-y_{\tau}\eta_{y}-z_{\tau}\eta_{z}
+\end{align}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+\zeta_{x} = JA_{31} &amp; = +J({y}_{\xi}{z}_{\eta}-{z}_{\xi}{y}_{\eta})\\
+\zeta_{y} = JA_{32} &amp; = -J({x}_{\xi}{z}_{\eta}-{z}_{\xi}{x}_{\eta})\\
+\zeta_{z} = JA_{33} &amp; = +J({x}_{\xi}{y}_{\eta}-{y}_{\xi}{x}_{\eta})\\
+\zeta_{t} = JA_{34} &amp; = +J(-x_{\tau}({y}_{\xi}{z}_{\eta}-{z}_{\xi}{y}_{\eta})
++y_{\tau}({x}_{\xi}{z}_{\eta}-{z}_{\xi}{x}_{\eta})
+-z_{\tau}({x}_{\xi}{y}_{\eta}-{y}_{\xi}{x}_{\eta}))\\
+&amp; = -x_{\tau}\zeta_{x}-y_{\tau}\zeta_{y}-z_{\tau}\zeta_{z}
+\end{align}\end{split}\]</div>
+</section>
+<section id="euler-equations-in-cartesian-coordinates">
+<h2>Euler Equations in Cartesian Coordinates<a class="headerlink" href="#euler-equations-in-cartesian-coordinates" title="Link to this heading"></a></h2>
+<p>The partial differential equation form of the non-dimensional, three-dimensional, Euler equations in Cartesian coordinates in an inertial
+reference frame, neglecting volumetric heat addition and body forces, is:</p>
+<div class="math notranslate nohighlight">
+\[\cfrac{\partial \mathbf{q}}{\partial \text{t}}+
+\cfrac{\partial \mathbf{f}}{\partial \text{x}}+
+\cfrac{\partial \mathbf{g}}{\partial \text{y}}+
+\cfrac{\partial \mathbf{h}}{\partial \text{z}}=0\]</div>
+<p>where the vector of sonserved variables, <span class="math notranslate nohighlight">\(\mathbf{q}\)</span>  , and the vectors of the inviscid flux terms,
+<span class="math notranslate nohighlight">\(\mathbf{f}\)</span>, <span class="math notranslate nohighlight">\(\mathbf{g}\)</span>, and <span class="math notranslate nohighlight">\(\mathbf{h}\)</span>, are:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+\mathbf{q}=\begin{bmatrix}
+ \rho\\ \rho u\\ \rho v\\ \rho w \\ \rho E\\
+\end{bmatrix} \quad
+\mathbf{f}=\begin{bmatrix}
+ \rho u\\ \rho uu+p\\ \rho vu\\ \rho wu \\ \rho Hu\\
+\end{bmatrix} \quad
+\mathbf{g}=\begin{bmatrix}
+ \rho v\\ \rho uv\\ \rho vv+p\\ \rho wv \\ \rho Hv\\
+\end{bmatrix} \quad
+\mathbf{h}=\begin{bmatrix}
+ \rho w\\ \rho uw\\ \rho vw\\ \rho ww+p \\ \rho Hw\\
+\end{bmatrix} \quad
+\end{array}\end{split}\]</div>
+<p>where <span class="math notranslate nohighlight">\(\rho\)</span> is the density, <span class="math notranslate nohighlight">\(p\)</span> is the static pressure, <span class="math notranslate nohighlight">\(u\)</span>, <span class="math notranslate nohighlight">\(v\)</span> and <span class="math notranslate nohighlight">\(w\)</span> are the Cartesian
+velocity components in the <span class="math notranslate nohighlight">\(x\)</span>, <span class="math notranslate nohighlight">\(y\)</span> and <span class="math notranslate nohighlight">\(z\)</span> directions respectively, <span class="math notranslate nohighlight">\(E\)</span> is the total energy perunit mass
+and <span class="math notranslate nohighlight">\(H\)</span> is the total enthalpy per unit mass.</p>
+<div class="math notranslate nohighlight">
+\[\cfrac{\partial\mathbf{q} }{\partial \text{t}}
+= \xi_{t} \cfrac{\partial \mathbf{\hat{q}}}{\partial \xi}
++ \eta_{t} \cfrac{\partial\mathbf{\hat{q}}}{\partial \eta}
++ \zeta_{t} \cfrac{\partial\mathbf{\hat{q}}}{\partial \zeta}
++ \tau_{t} \cfrac{\partial\mathbf{\hat{q}}}{\partial \tau}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\cfrac{\partial \mathbf{f}}{\partial \text{x}}
+&amp; = \xi_{x} \cfrac{\partial\mathbf{\hat{f}}}{\partial \xi}
++ \eta_{x} \cfrac{\partial\mathbf{\hat{f}}}{\partial \eta}
++ \zeta_{x} \cfrac{\partial\mathbf{\hat{f}}}{\partial \zeta}
++ \tau_{x} \cfrac{\partial\mathbf{\hat{f}}}{\partial \tau}\\\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\cfrac{\partial \mathbf{g}}{\partial \text{y}}
+= \xi_{y} \cfrac{\partial\mathbf{\hat{g}}}{\partial \xi}
++ \eta_{y} \cfrac{\partial\mathbf{\hat{g}}}{\partial \eta}
++ \zeta_{y} \cfrac{\partial\mathbf{\hat{g}}}{\partial \zeta}
++ \tau_{y} \cfrac{\partial\mathbf{\hat{g}}}{\partial \tau}\\\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\cfrac{\partial \mathbf{h}}{\partial \text{z}}
+= \xi_{z} \cfrac{\partial\mathbf{\hat{h}}}{\partial \xi}
++ \eta_{z} \cfrac{\partial\mathbf{\hat{h}}}{\partial \eta}
++ \zeta_{z} \cfrac{\partial\mathbf{\hat{h}}}{\partial \zeta}
++ \tau_{z} \cfrac{\partial\mathbf{\hat{h}}}{\partial \tau}\\\end{split}\]</div>
+<p>multiply by <span class="math notranslate nohighlight">\(J^{-1}\)</span> to get:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}J^{-1}(\cfrac{\partial \mathbf{q}}{\partial \text{t}}+
+\cfrac{\partial \mathbf{f}}{\partial \text{x}}+
+\cfrac{\partial \mathbf{g}}{\partial \text{y}}+
+\cfrac{\partial \mathbf{h}}{\partial \text{z}})=0\\\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+0 &amp; = \hat\xi_{t} \cfrac{\partial \mathbf{\hat{q}}}{\partial \xi}
++ \hat\eta_{t} \cfrac{\partial\mathbf{\hat{q}}}{\partial \eta}
++ \hat\zeta_{t} \cfrac{\partial\mathbf{\hat{q}}}{\partial \zeta}
++ \hat\tau_{t} \cfrac{\partial\mathbf{\hat{q}}}{\partial \tau}\\
+&amp;+  \hat\xi_{x} \cfrac{\partial\mathbf{\hat{f}}}{\partial \xi}
++ \hat\eta_{x} \cfrac{\partial\mathbf{\hat{f}}}{\partial \eta}
++ \hat\zeta_{x} \cfrac{\partial\mathbf{\hat{f}}}{\partial \zeta}
++ \hat\tau_{x} \cfrac{\partial\mathbf{\hat{f}}}{\partial \tau}\\
+&amp;+ \hat\xi_{y} \cfrac{\partial\mathbf{\hat{g}}}{\partial \xi}
++ \hat\eta_{y} \cfrac{\partial\mathbf{\hat{g}}}{\partial \eta}
++ \hat\zeta_{y} \cfrac{\partial\mathbf{\hat{g}}}{\partial \zeta}
++ \hat\tau_{y} \cfrac{\partial\mathbf{\hat{g}}}{\partial \tau}\\
+&amp;+  \hat\xi_{z} \cfrac{\partial\mathbf{\hat{h}}}{\partial \xi}
++ \hat\eta_{z} \cfrac{\partial\mathbf{\hat{h}}}{\partial \eta}
++ \hat\zeta_{z} \cfrac{\partial\mathbf{\hat{h}}}{\partial \zeta}
++ \hat\tau_{z} \cfrac{\partial\mathbf{\hat{h}}}{\partial \tau}\\
+\end{align}\end{split}\]</div>
+<p>where</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+(\hat\xi_{x},\hat\xi_{y},\hat\xi_{z},\hat\xi_{t}) &amp; = J^{-1}(\xi_{x},\xi_{y},\xi_{z},\xi_{t})\\
+(\hat\eta_{x},\hat\eta_{y},\hat\eta_{z},\hat\eta_{t}) &amp; = J^{-1}(\eta_{x},\eta_{y},\eta_{z},\eta_{t})\\
+(\hat\zeta_{x},\hat\zeta_{y},\hat\zeta_{z},\hat\zeta_{t}) &amp; = J^{-1}(\zeta_{x},\zeta_{y},\zeta_{z},\zeta_{t})\\
+(\hat\tau_{x},\hat\tau_{y},\hat\tau_{z},\hat\tau_{t}) &amp; = J^{-1}(\tau_{x},\tau_{y},\tau_{z},\tau_{t})  = J^{-1}(0,0,0,1)\\
+\end{align}\end{split}\]</div>
+<p>then</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+0 &amp; = \cfrac{\partial (\hat\xi_{t}\mathbf{\hat{q}})}{\partial \xi}
++ \cfrac{\partial(\hat\eta_{t}\mathbf{\hat{q}})}{\partial \eta}
++\cfrac{\partial(\hat\zeta_{t}\mathbf{\hat{q}})}{\partial \zeta}
++ \cfrac{\partial(\hat\tau_{t}\mathbf{\hat{q}})}{\partial \tau}\\
+&amp;-\mathbf{\hat{q}}
+(\cfrac{\partial (\hat\tau_{t}\equiv J^{-1})}{\partial \tau}
++\cfrac{\partial (\hat\xi_{t})}{\partial \xi}
++\cfrac{\partial(\hat\eta_{t})}{\partial \eta}
++\cfrac{\partial(\hat\zeta_{t})}{\partial \zeta}
+)\\
+&amp;+  \cfrac{\partial(\hat\xi_{x}\mathbf{\hat{f}})}{\partial \xi}
++ \cfrac{\partial(\hat\eta_{x}\mathbf{\hat{f}})}{\partial \eta}
++ \cfrac{\partial(\hat\zeta_{x}\mathbf{\hat{f}})}{\partial \zeta}
++ \cfrac{\partial(\hat\tau_{x}\mathbf{\hat{f}}\equiv 0)}{\partial \tau}\\
+&amp;- \mathbf{\hat{f}}(\cfrac{\partial(\hat\xi_{x})}{\partial \xi}
++\cfrac{\partial(\hat\eta_{x})}{\partial \eta}
++\cfrac{\partial(\hat\zeta_{x})}{\partial \zeta}
+)\\
+&amp;+ \cfrac{\partial(\hat\xi_{y} \mathbf{\hat{g}})}{\partial \xi}
++ \cfrac{\partial(\hat\eta_{y}\mathbf{\hat{g}})}{\partial \eta}
++ \cfrac{\partial(\hat\zeta_{y}\mathbf{\hat{g}})}{\partial \zeta}
++ \cfrac{\partial(\hat\tau_{y}\mathbf{\hat{g}}\equiv 0)}{\partial \tau}\\
+&amp;-\mathbf{\hat{g}}( \cfrac{\partial(\hat\xi_{y})}{\partial \xi}
++ \cfrac{\partial(\hat\eta_{y})}{\partial \eta}
++ \cfrac{\partial(\hat\zeta_{y})}{\partial \zeta})\\
+&amp;+  \cfrac{\partial(\hat\xi_{z}\mathbf{\hat{h}})}{\partial \xi}
++ \cfrac{\partial(\hat\eta_{z}\mathbf{\hat{h}})}{\partial \eta}
++ \cfrac{\partial(\hat\zeta_{z}\mathbf{\hat{h}})}{\partial \zeta}
++ \cfrac{\partial(\hat\tau_{z}\mathbf{\hat{h}}\equiv 0)}{\partial \tau}\\
+&amp;-\mathbf{\hat{h}}(\cfrac{\partial(\hat\xi_{z})}{\partial \xi}
++ \cfrac{\partial(\hat\eta_{z})}{\partial \eta}
++ \cfrac{\partial(\hat\zeta_{z})}{\partial \zeta})
+\end{align}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+&amp;\cfrac{\partial(\hat\xi_{x})}{\partial \xi}
++\cfrac{\partial(\hat\eta_{x})}{\partial \eta}
++\cfrac{\partial(\hat\zeta_{x})}{\partial \zeta}\\
+&amp; = \cfrac{\partial({y}_{\eta}{z}_{\zeta}-{z}_{\eta}{y}_{\zeta})}{\partial \xi}
++\cfrac{\partial({z}_{\xi}{y}_{\zeta}-{y}_{\xi}{z}_{\zeta})}{\partial \eta}
++\cfrac{\partial({y}_{\xi}{z}_{\eta}-{z}_{\xi}{y}_{\eta})}{\partial \zeta}\\
+&amp;=({y}_{\xi\eta}{z}_{\zeta}+{y}_{\eta}{z}_{\xi\zeta}-{z}_{\xi\eta}{y}_{\zeta}-{z}_{\eta}{y}_{\xi\zeta})\\
+&amp;+({z}_{\xi\eta}{y}_{\zeta}+{z}_{\xi}{y}_{\eta\zeta}-{y}_{\xi\eta}{z}_{\zeta}-{y}_{\xi}{z}_{\eta\zeta})\\
+&amp;+({y}_{\xi\zeta}{z}_{\eta}+{y}_{\xi}{z}_{\eta\zeta}-{z}_{\xi\zeta}{y}_{\eta}-{z}_{\xi}{y}_{\eta\zeta})\\
+&amp;={y}_{\xi}({z}_{\eta\zeta}-{z}_{\eta\zeta})+{y}_{\eta}({z}_{\xi\zeta}-{z}_{\xi\zeta})+{y}_{\zeta}({z}_{\xi\eta}-{z}_{\xi\eta})\\
+&amp;+{z}_{\xi}({y}_{\eta\zeta}-{y}_{\eta\zeta})+{z}_{\eta}(-{y}_{\xi\zeta}+{y}_{\xi\zeta})+{z}_{\zeta}({y}_{\xi\eta}-{y}_{\xi\eta})\\
+&amp;=0
+\end{align}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+&amp;\cfrac{\partial(\hat\xi_{y})}{\partial \xi}
++ \cfrac{\partial(\hat\eta_{y})}{\partial \eta}
++ \cfrac{\partial(\hat\zeta_{y})}{\partial \zeta}\\
+&amp;=\cfrac{\partial({z}_{\eta}{x}_{\zeta}-{x}_{\eta}{z}_{\zeta})}{\partial \xi}
++\cfrac{\partial({x}_{\xi}{z}_{\zeta}-{z}_{\xi}{x}_{\zeta})}{\partial \eta}
++\cfrac{\partial({z}_{\xi}{x}_{\eta}-{x}_{\xi}{z}_{\eta})}{\partial \zeta}\\
+&amp;={z}_{\xi\eta}{x}_{\zeta}+{z}_{\eta}{x}_{\xi\zeta}-{x}_{\xi\eta}{z}_{\zeta}-{x}_{\eta}{z}_{\xi\zeta}\\
+&amp;+{x}_{\xi\eta}{z}_{\zeta}+{x}_{\xi}{z}_{\eta\zeta}-{z}_{\xi\eta}{x}_{\zeta}-{z}_{\xi}{x}_{\eta\zeta}\\
+&amp;+{z}_{\xi\zeta}{x}_{\eta}+{z}_{\xi}{x}_{\eta\zeta}-{x}_{\xi\zeta}{z}_{\eta}-{x}_{\xi}{z}_{\eta\zeta}\\
+&amp;={x}_{\xi}({z}_{\eta\zeta}-{z}_{\eta\zeta})+{x}_{\eta}(-{z}_{\xi\zeta}+{z}_{\xi\zeta})+{x}_{\zeta}({z}_{\xi\eta}-{z}_{\xi\eta})\\
+&amp;+{z}_{\xi}(-{x}_{\eta\zeta}+{x}_{\eta\zeta})+{z}_{\eta}({x}_{\xi\zeta}-{x}_{\xi\zeta})+{z}_{\zeta}(-{x}_{\xi\eta}+{x}_{\xi\eta})\\
+&amp;=0
+\end{align}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+&amp;\cfrac{\partial(\hat\xi_{z})}{\partial \xi}
+  + \cfrac{\partial(\hat\eta_{z})}{\partial \eta}
+  + \cfrac{\partial(\hat\zeta_{z})}{\partial \zeta}\\
+&amp;=\cfrac{\partial({x}_{\eta}{y}_{\zeta}-{y}_{\eta}{x}_{\zeta})}{\partial \xi}
+  + \cfrac{\partial({y}_{\xi}{x}_{\zeta}-{x}_{\xi}{y}_{\zeta})}{\partial \eta}
+  + \cfrac{\partial({x}_{\xi}{y}_{\eta}-{y}_{\xi}{x}_{\eta})}{\partial \zeta}\\
+&amp;={x}_{\xi\eta}{y}_{\zeta}+{x}_{\eta}{y}_{\xi\zeta}-{y}_{\xi\eta}{x}_{\zeta}-{y}_{\eta}{x}_{\xi\zeta}\\
+&amp;+{y}_{\xi\eta}{x}_{\zeta}+{y}_{\xi}{x}_{\eta\zeta}-{x}_{\xi\eta}{y}_{\zeta}-{x}_{\xi}{y}_{\eta\zeta}\\
+&amp;+{x}_{\xi\zeta}{y}_{\eta}+{x}_{\xi}{y}_{\eta\zeta}-{y}_{\xi\zeta}{x}_{\eta}-{y}_{\xi}{x}_{\eta\zeta}\\
+&amp;={x}_{\xi}(-{y}_{\eta\zeta}+{y}_{\eta\zeta})+{x}_{\eta}({y}_{\xi\zeta}-{y}_{\xi\zeta})+{x}_{\zeta}(-{y}_{\xi\eta}+{y}_{\xi\eta})\\
+&amp;+{y}_{\xi}({x}_{\eta\zeta}-{x}_{\eta\zeta})+{y}_{\eta}(-{x}_{\xi\zeta}+{x}_{\xi\zeta})+{y}_{\zeta}({x}_{\xi\eta}-{x}_{\xi\eta})\\
+&amp;=0
+\end{align}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+&amp;\cfrac{\partial (\hat\xi_{t})}{\partial \xi}
+ +\cfrac{\partial(\hat\eta_{t})}{\partial \eta}
+ +\cfrac{\partial(\hat\zeta_{t})}{\partial \zeta}\\
+&amp;=\cfrac{\partial (-x_{\tau}\hat\xi_{x}-y_{\tau}\hat\xi_{y}-z_{\tau}\hat\xi_{z})}{\partial \xi}
+ +\cfrac{\partial(-x_{\tau}\hat\eta_{x}-y_{\tau}\hat\eta_{y}-z_{\tau}\hat\eta_{z})}{\partial \eta}
+ +\cfrac{\partial(-x_{\tau}\hat\zeta_{x}-y_{\tau}\hat\zeta_{y}-z_{\tau}\hat\zeta_{z})}{\partial \zeta}\\
+&amp;=-x_{\tau}(\cfrac{\partial\hat\xi_{x}}{\partial \xi}
+           +\cfrac{\partial\hat\eta_{x}}{\partial \eta}
+           +\cfrac{\partial\hat\zeta_{x}}{\partial \zeta})
+-y_{\tau}(\cfrac{\partial\hat\xi_{y}}{\partial \xi}
+           +\cfrac{\partial\hat\eta_{y}}{\partial \eta}
+           +\cfrac{\partial\hat\zeta_{y}}{\partial \zeta})
+-z_{\tau}(\cfrac{\partial\hat\xi_{z}}{\partial \xi}
+           +\cfrac{\partial\hat\eta_{z}}{\partial \eta}
+           +\cfrac{\partial\hat\zeta_{z}}{\partial \zeta})\\
+&amp;(-\hat\xi_{x}x_{\xi\tau}-\hat\xi_{y}y_{\xi\tau}-\hat\xi_{z}z_{\xi\tau})
++(-\hat\eta_{x}x_{\eta\tau}-\hat\eta_{y}y_{\eta\tau}-\hat\eta_{z}z_{\eta\tau})
++(-\hat\zeta_{x}x_{\zeta\tau}-\hat\zeta_{y}y_{\zeta\tau}-\hat\zeta_{z}z_{\zeta\tau})\\
+&amp;=(-\hat\xi_{x}x_{\xi\tau}-\hat\xi_{y}y_{\xi\tau}-\hat\xi_{z}z_{\xi\tau})
++(-\hat\eta_{x}x_{\eta\tau}-\hat\eta_{y}y_{\eta\tau}-\hat\eta_{z}z_{\eta\tau})
++(-\hat\zeta_{x}x_{\zeta\tau}-\hat\zeta_{y}y_{\zeta\tau}-\hat\zeta_{z}z_{\zeta\tau})
+\end{align}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+J^{-1}
+&amp; = {x}_{\xi}({y}_{\eta}{z}_{\zeta}-{z}_{\eta}{y}_{\zeta})
+  - {y}_{\xi}({x}_{\eta}{z}_{\zeta}-{z}_{\eta}{x}_{\zeta})
+  + {z}_{\xi}({x}_{\eta}{y}_{\zeta}-{y}_{\eta}{x}_{\zeta}) \\
+&amp; = {x}_{\eta}({y}_{\zeta}{z}_{\xi}-{y}_{\xi}{z}_{\zeta})
+  + {y}_{\eta}({x}_{\xi}{z}_{\zeta}-{z}_{\xi}{x}_{\zeta})
+  + {z}_{\eta}({x}_{\zeta}{y}_{\xi}-{x}_{\xi}{y}_{\zeta}) \\
+&amp; = {x}_{\zeta}({y}_{\xi}{z}_{\eta}-{z}_{\xi}{y}_{\zeta})
+  + {y}_{\zeta}({z}_{\xi}{x}_{\eta}-{x}_{\xi}{z}_{\eta})
+  + {z}_{\zeta}({x}_{\xi}{y}_{\eta}-{y}_{\xi}{x}_{\eta}) \\
+\end{align}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+J^{-1}
+&amp; = {x}_{\xi}({y}_{\eta}{z}_{\zeta}-{z}_{\eta}{y}_{\zeta})
+  + {y}_{\xi}({z}_{\eta}{x}_{\zeta}-{x}_{\eta}{z}_{\zeta})
+  + {z}_{\xi}({x}_{\eta}{y}_{\zeta}-{y}_{\eta}{x}_{\zeta}) \\
+&amp; = {x}_{\eta}({y}_{\zeta}{z}_{\xi}-{z}_{\zeta}{y}_{\xi})
+  + {y}_{\eta}({z}_{\zeta}{x}_{\xi}-{x}_{\zeta}{z}_{\xi})
+  + {z}_{\eta}({x}_{\zeta}{y}_{\xi}-{y}_{\zeta}{x}_{\xi}) \\
+&amp; = {x}_{\zeta}({y}_{\xi}{z}_{\eta}-{z}_{\xi}{y}_{\zeta})
+  + {y}_{\zeta}({z}_{\xi}{x}_{\eta}-{x}_{\xi}{z}_{\eta})
+  + {z}_{\zeta}({x}_{\xi}{y}_{\eta}-{y}_{\xi}{x}_{\eta}) \\
+\end{align}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+J^{-1} &amp; = x_{\xi}\hat\xi_{x}+y_{\xi}\hat\xi_{y}+z_{\xi}\hat\xi_{z}\\
+       &amp; = x_{\eta}\hat\eta_{x}+y_{\eta}\hat\eta_{y}+z_{\eta}\hat\eta_{z}\\
+       &amp; = x_{\zeta}\hat\zeta_{x}+y_{\zeta}\hat\zeta_{y}+z_{\zeta}\hat\zeta_{z}\\
+\end{align}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+1 &amp; = x_{\xi}\xi_{x}+y_{\xi}\xi_{y}+z_{\xi}\xi_{z}\\
+       &amp; = x_{\eta}\eta_{x}+y_{\eta}\eta_{y}+z_{\eta}\eta_{z}\\
+       &amp; = x_{\zeta}\zeta_{x}+y_{\zeta}\zeta_{y}+z_{\zeta}\zeta_{z}\\
+\end{align}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+\xi_{t} &amp;= -x_{\tau}\xi_{x}-y_{\tau}\xi_{y}-z_{\tau}\xi_{z}\\
+\eta_{t} &amp;= -x_{\tau}\eta_{x}-y_{\tau}\eta_{y}-z_{\tau}\eta_{z}\\
+\zeta_{t} &amp;= -x_{\tau}\zeta_{x}-y_{\tau}\zeta_{y}-z_{\tau}\zeta_{z}\\
+\end{align}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+\hat\xi_{t} &amp;= -x_{\tau}\hat\xi_{x}-y_{\tau}\hat\xi_{y}-z_{\tau}\hat\xi_{z}\\
+\hat\eta_{t} &amp;= -x_{\tau}\hat\eta_{x}-y_{\tau}\hat\eta_{y}-z_{\tau}\hat\eta_{z}\\
+\hat\zeta_{t} &amp;= -x_{\tau}\hat\zeta_{x}-y_{\tau}\hat\zeta_{y}-z_{\tau}\hat\zeta_{z}\\
+\end{align}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+&amp;\cfrac{\partial (\hat\xi_{t})}{\partial \xi}
+ +\cfrac{\partial(\hat\eta_{t})}{\partial \eta}
+ +\cfrac{\partial(\hat\zeta_{t})}{\partial \zeta}\\
+&amp;=(-\hat\xi_{x}x_{\xi\tau}-\hat\xi_{y}y_{\xi\tau}-\hat\xi_{z}z_{\xi\tau})
++(-\hat\eta_{x}x_{\eta\tau}-\hat\eta_{y}y_{\eta\tau}-\hat\eta_{z}z_{\eta\tau})
++(-\hat\zeta_{x}x_{\zeta\tau}-\hat\zeta_{y}y_{\zeta\tau}-\hat\zeta_{z}z_{\zeta\tau})
+\end{align}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{c}
+\hat{\xi}_{x}=({y}_{\eta}{z}_{\zeta}-{z}_{\eta}{y}_{\zeta})\\
+\hat{\xi}_{y}=({z}_{\eta}{x}_{\zeta}-{x}_{\eta}{z}_{\zeta})\\
+\hat{\xi}_{z}=({x}_{\eta}{y}_{\zeta}-{y}_{\eta}{x}_{\zeta})\\
+\hat{\xi}_{x\tau}=({y}_{\eta\tau}{z}_{\zeta}+{y}_{\eta}{z}_{\zeta\tau}-{z}_{\eta\tau}{y}_{\zeta}-{z}_{\eta}{y}_{\zeta\tau})\\
+\hat{\xi}_{y\tau}=({z}_{\eta\tau}{x}_{\zeta}+{z}_{\eta}{x}_{\zeta\tau}-{x}_{\eta\tau}{z}_{\zeta}-{x}_{\eta}{z}_{\zeta\tau})\\
+\hat{\xi}_{z\tau}=({x}_{\eta\tau}{y}_{\zeta}+{x}_{\eta}{y}_{\zeta\tau}-{y}_{\eta\tau}{x}_{\zeta}-{y}_{\eta}{x}_{\zeta\tau})\\
+x_{\xi}\hat{\xi}_{x\tau}=x_{\xi}({y}_{\eta\tau}{z}_{\zeta}+{y}_{\eta}{z}_{\zeta\tau}-{z}_{\eta\tau}{y}_{\zeta}-{z}_{\eta}{y}_{\zeta\tau})\\
+y_{\xi}\hat{\xi}_{y\tau}=y_{\xi}({z}_{\eta\tau}{x}_{\zeta}+{z}_{\eta}{x}_{\zeta\tau}-{x}_{\eta\tau}{z}_{\zeta}-{x}_{\eta}{z}_{\zeta\tau})\\
+z_{\xi}\hat{\xi}_{z\tau}=z_{\xi}({x}_{\eta\tau}{y}_{\zeta}+{x}_{\eta}{y}_{\zeta\tau}-{y}_{\eta\tau}{x}_{\zeta}-{y}_{\eta}{x}_{\zeta\tau})\\
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+x_{\xi}\hat{\xi}_{x\tau}+y_{\xi}\hat{\xi}_{y\tau}+z_{\xi}\hat{\xi}_{z\tau}
+&amp; = x_{\xi}({y}_{\eta\tau}{z}_{\zeta}+{y}_{\eta}{z}_{\zeta\tau}-{z}_{\eta\tau}{y}_{\zeta}-{z}_{\eta}{y}_{\zeta\tau})\\
+&amp; + y_{\xi}({z}_{\eta\tau}{x}_{\zeta}+{z}_{\eta}{x}_{\zeta\tau}-{x}_{\eta\tau}{z}_{\zeta}-{x}_{\eta}{z}_{\zeta\tau})\\
+&amp; + z_{\xi}({x}_{\eta\tau}{y}_{\zeta}+{x}_{\eta}{y}_{\zeta\tau}-{y}_{\eta\tau}{x}_{\zeta}-{y}_{\eta}{x}_{\zeta\tau})\\
+&amp;={x}_{\eta\tau}({y}_{\zeta}z_{\xi}-{z}_{\zeta}y_{\xi})
++{y}_{\eta\tau}(x_{\xi}{z}_{\zeta}-z_{\xi}{x}_{\zeta})
++{z}_{\eta\tau}(y_{\xi}{x}_{\zeta}-x_{\xi}{y}_{\zeta})\\
+&amp;+{x}_{\zeta\tau}(y_{\xi}{z}_{\eta}-z_{\xi}{y}_{\eta})
++{y}_{\zeta\tau}(z_{\xi}{x}_{\eta}-x_{\xi}{z}_{\eta})
++{z}_{\zeta\tau}(x_{\xi}{y}_{\eta}-y_{\xi}{x}_{\eta})
+\end{align}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+\hat\eta_{x} &amp; = +({z}_{\xi}{y}_{\zeta}-{y}_{\xi}{z}_{\zeta})\\
+\hat\eta_{y} &amp; = +({x}_{\xi}{z}_{\zeta}-{z}_{\xi}{x}_{\zeta})\\
+\hat\eta_{z} &amp; = +({y}_{\xi}{x}_{\zeta}-{x}_{\xi}{y}_{\zeta})\\
+\end{align}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+\hat\zeta_{x} &amp; = +({y}_{\xi}{z}_{\eta}-{z}_{\xi}{y}_{\eta})\\
+\hat\zeta_{y} &amp; = +({z}_{\xi}{x}_{\eta}-{x}_{\xi}{z}_{\eta})\\
+\hat\zeta_{z} &amp; = +({x}_{\xi}{y}_{\eta}-{y}_{\xi}{x}_{\eta})\\
+\end{align}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+x_{\xi}\hat{\xi}_{x\tau}+y_{\xi}\hat{\xi}_{y\tau}+z_{\xi}\hat{\xi}_{z\tau}
+&amp;={x}_{\eta\tau}({y}_{\zeta}z_{\xi}-{z}_{\zeta}y_{\xi})
++{y}_{\eta\tau}(x_{\xi}{z}_{\zeta}-z_{\xi}{x}_{\zeta})
++{z}_{\eta\tau}(y_{\xi}{x}_{\zeta}-x_{\xi}{y}_{\zeta})\\
+&amp;+{x}_{\zeta\tau}(y_{\xi}{z}_{\eta}-z_{\xi}{y}_{\eta})
++{y}_{\zeta\tau}(z_{\xi}{x}_{\eta}-x_{\xi}{z}_{\eta})
++{z}_{\zeta\tau}(x_{\xi}{y}_{\eta}-y_{\xi}{x}_{\eta})\\
+&amp;={x}_{\eta\tau}(\hat\eta_{x})
++{y}_{\eta\tau}(\hat\eta_{y})
++{z}_{\eta\tau}(\hat\eta_{z})\\
+&amp;+{x}_{\zeta\tau}(\hat\zeta_{x})
++{y}_{\zeta\tau}(\hat\zeta_{y})
++{z}_{\zeta\tau}(\hat\zeta_{z})\\
+\end{align}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+\cfrac{\partial J^{-1}}{\partial \tau}=\cfrac{\partial (x_{\xi}\hat\xi_{x}+y_{\xi}\hat\xi_{y}+z_{\xi}\hat\xi_{z})}{\partial \tau}
+=(x_{\xi\tau}\hat\xi_{x}+y_{\xi\tau}\hat\xi_{y}+z_{\xi\tau}\hat\xi_{z})
++(x_{\xi}\hat\xi_{x\tau}+y_{\xi}\hat\xi_{y\tau}+z_{\xi}\hat\xi_{z\tau})\\
+\end{align}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+&amp;\cfrac{\partial J^{-1}}{\partial \tau}+  \cfrac{\partial (\hat\xi_{t})}{\partial \xi}
+ +\cfrac{\partial(\hat\eta_{t})}{\partial \eta}
+ +\cfrac{\partial(\hat\zeta_{t})}{\partial \zeta}\\
+&amp; = (x_{\xi\tau}\hat\xi_{x}+y_{\xi\tau}\hat\xi_{y}+z_{\xi\tau}\hat\xi_{z})
++(x_{\xi}\hat\xi_{x\tau}+y_{\xi}\hat\xi_{y\tau}+z_{\xi}\hat\xi_{z\tau})\\
+&amp; + (-\hat\xi_{x}x_{\xi\tau}-\hat\xi_{y}y_{\xi\tau}-\hat\xi_{z}z_{\xi\tau})
++(-\hat\eta_{x}x_{\eta\tau}-\hat\eta_{y}y_{\eta\tau}-\hat\eta_{z}z_{\eta\tau})
++(-\hat\zeta_{x}x_{\zeta\tau}-\hat\zeta_{y}y_{\zeta\tau}-\hat\zeta_{z}z_{\zeta\tau})\\
+&amp;=(x_{\xi}\hat\xi_{x\tau}+y_{\xi}\hat\xi_{y\tau}+z_{\xi}\hat\xi_{z\tau})+(-\hat\eta_{x}x_{\eta\tau}-\hat\eta_{y}y_{\eta\tau}-\hat\eta_{z}z_{\eta\tau})
++(-\hat\zeta_{x}x_{\zeta\tau}-\hat\zeta_{y}y_{\zeta\tau}-\hat\zeta_{z}z_{\zeta\tau})\\
+&amp;=0
+\end{align}\end{split}\]</div>
+<p>Therefor the general curvilinear equation can now be expressed:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+\cfrac{\partial(J^{-1}\hat{\mathbf{q}})}{\partial t}
+&amp;+\cfrac{\partial}{\partial \xi}[\hat\xi_{t}\hat{\mathbf{q}}+\hat\xi_{x}\hat{\mathbf{f}}+\hat\xi_{y}\hat{\mathbf{g}}+\hat\xi_{z}\hat{\mathbf{h}}]\\
+&amp;+\cfrac{\partial}{\partial \eta}[\hat\eta_{t}\hat{\mathbf{q}}+\hat\eta_{x}\hat{\mathbf{f}}+\hat\eta_{y}\hat{\mathbf{g}}+\hat\eta_{z}\hat{\mathbf{h}}]\\
+&amp;+\cfrac{\partial}{\partial \zeta}[\hat\zeta_{t}\hat{\mathbf{q}}+\hat\zeta_{x}\hat{\mathbf{f}}+\hat\zeta_{y}\hat{\mathbf{g}}+\hat\zeta_{z}\hat{\mathbf{h}}]\\
+&amp;=0
+\end{align}\end{split}\]</div>
+<p>or in the more compact form:</p>
+<div class="math notranslate nohighlight">
+\[\begin{align}
+\cfrac{\partial(J^{-1}{\mathbf{Q}})}{\partial \tau}
++\cfrac{\partial{\mathbf{F}}}{\partial \xi}
++\cfrac{\partial{\mathbf{G}}}{\partial \eta}
++\cfrac{\partial{\mathbf{H}}}{\partial \zeta}
+=0
+\end{align}\]</div>
+<p>where the vector of conserved variables, <span class="math notranslate nohighlight">\(\mathbf{Q}\)</span>, and the vector of inviscid flux terms, <span class="math notranslate nohighlight">\(\mathbf{F}\)</span>,
+<span class="math notranslate nohighlight">\(\mathbf{G}\)</span> and <span class="math notranslate nohighlight">\(\mathbf{H}\)</span>, are:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\mathbf{Q}=\mathbf{\hat{q}}=\begin{bmatrix}
+\rho\\ \rho u \\ \rho v \\ \rho w\\ \rho E
+\end{bmatrix}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\mathbf{F}=\hat\xi_{t}\hat{\mathbf{q}}+\hat\xi_{x}\hat{\mathbf{f}}+\hat\xi_{y}\hat{\mathbf{g}}+\hat\xi_{z}\hat{\mathbf{h}}=\begin{bmatrix}
+\rho U\\
+\rho u U + \hat\xi_{x}p\\
+\rho v U + \hat\xi_{y}p\\
+\rho w U + \hat\xi_{z}p\\
+\rho H U - \hat\xi_{t}p\\
+\end{bmatrix}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\mathbf{G}=\hat\eta_{t}\hat{\mathbf{q}}+\hat\eta_{x}\hat{\mathbf{f}}+\hat\eta_{y}\hat{\mathbf{g}}+\hat\eta_{z}\hat{\mathbf{h}}=\begin{bmatrix}
+\rho V\\
+\rho u V + \hat\eta_{x}p\\
+\rho v V + \hat\eta_{y}p\\
+\rho w V + \hat\eta_{z}p\\
+\rho H V - \hat\eta_{t}p\\
+\end{bmatrix}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\mathbf{H}=\hat\zeta_{t}\hat{\mathbf{q}}+\hat\zeta_{x}\hat{\mathbf{f}}+\hat\zeta_{y}\hat{\mathbf{g}}+\hat\zeta_{z}\hat{\mathbf{h}}=\begin{bmatrix}
+\rho W\\
+\rho u W + \hat\zeta_{x}p\\
+\rho v W + \hat\zeta_{y}p\\
+\rho w W + \hat\zeta_{z}p\\
+\rho H W - \hat\zeta_{t}p\\
+\end{bmatrix}\end{split}\]</div>
+<p><span class="math notranslate nohighlight">\(U\)</span>, <span class="math notranslate nohighlight">\(V\)</span> and <span class="math notranslate nohighlight">\(W\)</span> are the contravariant velocity components in the <span class="math notranslate nohighlight">\(\xi\)</span>, <span class="math notranslate nohighlight">\(\eta\)</span> and <span class="math notranslate nohighlight">\(\zeta\)</span>
+directions and are defined as:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+U &amp; = \hat\xi_{x}u+\hat\xi_{y}v+\hat\xi_{z}w+\hat\xi_{t}\\
+V &amp; = \hat\eta_{x}u+\hat\eta_{y}v+\hat\eta_{z}w+\hat\eta_{t}\\
+W &amp; = \hat\zeta_{x}u+\hat\zeta_{y}v+\hat\zeta_{z}w+\hat\zeta_{t}\\
+\end{align}\end{split}\]</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="curvilinear.html" class="btn btn-neutral float-left" title="Generalized Curvilinear Coordinate System" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="vector.html" class="btn btn-neutral float-right" title="Vector &amp; Tensor" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2017~2024, eric.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

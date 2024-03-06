@@ -1,0 +1,1844 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Navier–Stokes equations &mdash; Scientific Computing 1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../_static/documentation_options.js?v=f2a433a1"></script>
+        <script src="../_static/doctools.js?v=888ff710"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Leibniz integral" href="leibniz.html" />
+    <link rel="prev" title="CFD" href="index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Scientific Computing
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Get started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../info.html">OneFLOW</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../user.html">THEORY</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../bash.html">Bash</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">CFD</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Navier–Stokes equations</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#control-mass-cm-control-volume-cv">Control Mass(CM) &amp;Control Volume (CV)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#reynolds-transport-theorem">Reynolds’ transport theorem</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#conservation-equations">Conservation Equations</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#conservation-laws">Conservation Laws</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#material-time-derivative-of-an-integral-and-reynolds-transport-theorem">Material Time Derivative of an Integral and Reynolds’ Transport Theorem</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#mass-conservation">Mass Conservation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#conservation-of-linear-momentum">Conservation of Linear Momentum</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ale-form-of-conservation-equations">ALE Form of Conservation Equations</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#differential-forms">Differential forms</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ale-mass-conservation">ALE Mass Conservation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ale-conservation-of-linear-momentum">ALE Conservation of Linear Momentum</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ale-conservation-of-energy">ALE Conservation of Energy</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#differential-forms-of-ale-conservation">Differential forms of ALE Conservation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#integral-forms">Integral forms</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#id1">Navier–Stokes equations</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="leibniz.html">Leibniz integral</a></li>
+<li class="toctree-l2"><a class="reference internal" href="rtt.html">Reynolds’ transport theorem</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mass.html">Conservation Of Mass</a></li>
+<li class="toctree-l2"><a class="reference internal" href="momenum.html">Momentum Analysis Of Flow Systems</a></li>
+<li class="toctree-l2"><a class="reference internal" href="energy.html">Conservation Of Energy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ns-integral.html">ALE Form of Conservation Equations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="curvilinear.html">Generalized Curvilinear Coordinate System</a></li>
+<li class="toctree-l2"><a class="reference internal" href="curvilinear3d.html">Generalized Curvilinear Coordinate System(3D)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="vector.html">Vector &amp; Tensor</a></li>
+<li class="toctree-l2"><a class="reference internal" href="matrix.html">Matrix</a></li>
+<li class="toctree-l2"><a class="reference internal" href="calculus.html">Calculus</a></li>
+<li class="toctree-l2"><a class="reference internal" href="substitution.html">Substitution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="jacobian.html">Jacobian matrix</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gauss.html">Gauss’s Theorem</a></li>
+<li class="toctree-l2"><a class="reference internal" href="strain.html">Strain Measures</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ale.html">Arbitrary Lagrangian-Eulerian</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ale1d.html">ALE 1D</a></li>
+<li class="toctree-l2"><a class="reference internal" href="deformation.html">Deformation and Motion</a></li>
+<li class="toctree-l2"><a class="reference internal" href="derivative.html">Fluid Derivative</a></li>
+<li class="toctree-l2"><a class="reference internal" href="material_derivative.html">Material Time Derivative</a></li>
+<li class="toctree-l2"><a class="reference internal" href="scheme/index.html">CFD Schemes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="examples/index.html">CFD Examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="method/index.html">CFD Methods</a></li>
+<li class="toctree-l2"><a class="reference internal" href="codes.html">Reference Codes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="videos.html">CFD &amp; CAE Videos</a></li>
+<li class="toctree-l2"><a class="reference internal" href="books.html">Books</a></li>
+<li class="toctree-l2"><a class="reference internal" href="docs.html">Documents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../cgns.html">CGNS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../chatgpt.html">CHATGPT</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cpp/index.html">CPP</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cmake.html">CMake</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cmd.html">Cmd</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cuda.html">CUDA</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../design_patterns.html">Design Patterns</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../eigen.html">Eigen3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../git.html">Git</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../git.html#contexts">Contexts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fortran.html">Fortran</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../hdf5.html">HDF5</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../hpc.html">HPC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../install/index.html">Install</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../julia.html">Julia</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../jupyter.html">Jupyter Notebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../latex.html">LaTeX</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../makefile.html">Makefile</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../metis.html">METIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../mkdocs.html">MkDocs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../modules.html">Environment Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../mpi.html">MPI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../numerical/index.html">Numerical analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../oneapi.html">oneAPI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../oneflow.html">OneFLOW-CFD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../openacc.html">OpenACC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../opencl.html">OpenCL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../opengl.html">OpenGL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../openmp.html">OpenMP</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../powershell.html">PowerShell</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../python/index.html">Python</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../qt.html">Qt</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../regex.html">Regular Expressions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../science.html">Science</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sphinx.html">Sphinx</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../system/index.html">System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../taichi.html">Taichi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tcltk.html">Tcl/tk</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tecplot.html">Tecplot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../test.html">Test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../unreal_engine.html">Unreal Engine</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../vcpkg.html">vcpkg</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../yaml.html">yaml</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Scientific Computing</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">CFD</a></li>
+      <li class="breadcrumb-item active">Navier–Stokes equations</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/cfd/ns.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="navierstokes-equations">
+<h1>Navier–Stokes equations<a class="headerlink" href="#navierstokes-equations" title="Link to this heading"></a></h1>
+<p>In physics, the Navier–Stokes equations (/nævˈjeɪ stoʊks/ nav-YAY STOHKS) are partial differential equations which describe the motion of viscous fluid substances, named after French engineer and physicist Claude-Louis Navier and Anglo-Irish physicist and mathematician George Gabriel Stokes. They were developed over several decades of progressively building the theories, from 1822 (Navier) to 1842-1850 (Stokes).</p>
+<section id="control-mass-cm-control-volume-cv">
+<h2>Control Mass(CM) &amp;Control Volume (CV)<a class="headerlink" href="#control-mass-cm-control-volume-cv" title="Link to this heading"></a></h2>
+<p>Conservation laws can be derived by considering a given quantity of matter or
+control mass (CM) and its extensive properties, such as mass, momentum and
+energy. This approach is used to study the dynamics of solid bodies, where the
+CM (sometimes called the system) is easily identified. In fluid flows, however,
+it is difficult to follow a parcel of matter. It is more convenient to deal with
+the flow within a certain spatial region we call a control volume (CV), rather
+than in a parcel of matter which quickly passes through the region of interest.
+This method of analysis is called the control volume approach.</p>
+<p>Examples are density <span class="math notranslate nohighlight">\(\rho\)</span> (mass per unit volume)
+and velocity <span class="math notranslate nohighlight">\(v \mathbf{v} \boldsymbol{v}\)</span> (momentum per unit mass).</p>
+<p>If <span class="math notranslate nohighlight">\(\phi\)</span> is any conserved intensive property (for mass conservation, <span class="math notranslate nohighlight">\(\phi=1\)</span>;  for
+momentum conservation, <span class="math notranslate nohighlight">\(\phi=\boldsymbol{v}\)</span>;  for conservation of a scalar, <span class="math notranslate nohighlight">\(\phi\)</span> represents the
+conserved property per unit mass), then the corresponding extensive property
+<span class="math notranslate nohighlight">\(\Phi\)</span> can be expressed as:</p>
+<div class="math notranslate nohighlight">
+\[\Phi =\int_{\Omega _{CM} } \rho \phi d\Omega\]</div>
+<p>where <span class="math notranslate nohighlight">\(\Omega_{CM}\)</span> stands for volume occupied by the CM.</p>
+</section>
+<section id="reynolds-transport-theorem">
+<h2>Reynolds’ transport theorem<a class="headerlink" href="#reynolds-transport-theorem" title="Link to this heading"></a></h2>
+<div class="math notranslate nohighlight">
+\[\cfrac{\mathrm{d}}{\mathrm{d}t}\int_{\Omega(t)} \mathbf{f}~\text{dV} =
+\int_{\Omega(t)} \frac{\partial \mathbf{f}}{\partial t}~\text{dV} + \int_{\partial \Omega(t)} (\mathbf{v}_{\mathrm{b}}\cdot\mathbf{n})\mathbf{f}~\text{dA}~ ~\]</div>
+<div class="math notranslate nohighlight">
+\[\frac{\mathrm{d}}{\mathrm{d} t} \int_{\Omega_{\mathrm{CM}}} \rho \phi \mathrm{d} \Omega=
+\frac{\mathrm{d}}{\mathrm{d} t} \int_{\Omega_{\mathrm{CV}}} \rho \phi \mathrm{d} \Omega+
+\int_{S_{\mathrm{CV}}} \rho \phi\left(\boldsymbol{v}-\boldsymbol{v}_{\mathrm{b}}\right) \cdot n \mathrm{~d} S\]</div>
+<p>where <span class="math notranslate nohighlight">\(\Omega_{\mathrm{CV}}\)</span> is the CV volume, <span class="math notranslate nohighlight">\(S_{\mathrm{CV}}\)</span> is the surface enclosing CV, <span class="math notranslate nohighlight">\(\boldsymbol{n}\)</span> is the unit
+vector orthogonal to <span class="math notranslate nohighlight">\(S_{\mathrm{CV}}\)</span> and directed outwards, <span class="math notranslate nohighlight">\(\boldsymbol{v}\)</span> is the fluid velocity and <span class="math notranslate nohighlight">\(\boldsymbol{v}_{\mathrm{b}}\)</span>
+is the velocity with which the CV surface is moving. For a fixed CV, which
+we shall be considering most of the time, <span class="math notranslate nohighlight">\(\boldsymbol{v}_{\mathrm{b}}=0\)</span> and the first derivative
+on the right hand side becomes a local (partial) derivative. This equation
+states that the rate of change of the amount of the property in the control
+mass, <span class="math notranslate nohighlight">\(\Phi\)</span>, is the rate of change of the property within the control volume plus
+the net flux of it through the CV boundary due to fluid motion relative to
+CV boundary. The last term is usually called the convective (or sometimes,
+advective) flux of <span class="math notranslate nohighlight">\(\phi\)</span> through the CV boundary. If the CV moves so that its
+boundary coincides with the boundary of a control mass, then <span class="math notranslate nohighlight">\(\boldsymbol{v}=\boldsymbol{v}_{\mathrm{b}}\)</span>  and
+this term will be zero as required.
+A detailed derivation of this equation is given in in many textbooks on
+fluid dynamics (e.g. in Bird et al., 1962; Fox and McDonald, 1982) and will not
+be repeated here. The mass, momentum and scalar conservation equations
+will be presented in the next three sections. For convenience, a fixed CV will
+be considered; <span class="math notranslate nohighlight">\(\Omega\)</span> represents the CV volume and S its surface.</p>
+</section>
+<section id="conservation-equations">
+<h2>Conservation Equations<a class="headerlink" href="#conservation-equations" title="Link to this heading"></a></h2>
+<section id="conservation-laws">
+<h3>Conservation Laws<a class="headerlink" href="#conservation-laws" title="Link to this heading"></a></h3>
+<p>One group of the fundamental equations of continuum mechanics arises from the conservation
+laws. These equations must always be satisfied by physical systems. Four conservation laws
+relevant to thermomechanical systems are considered here:</p>
+<ol class="arabic simple">
+<li><p>Conservation of mass</p></li>
+<li><p>Conservation of linear momentum, often called conservation of momentum</p></li>
+<li><p>Conservation of energy</p></li>
+<li><p>Conservation of angular momentum.</p></li>
+</ol>
+<p>The conservation laws are also known as balance laws, for example, the conservation of
+energy is often called the balance of energy.</p>
+</section>
+<section id="material-time-derivative-of-an-integral-and-reynolds-transport-theorem">
+<h3>Material Time Derivative of an Integral and Reynolds’ Transport Theorem<a class="headerlink" href="#material-time-derivative-of-an-integral-and-reynolds-transport-theorem" title="Link to this heading"></a></h3>
+<p>The material time derivative of an integral is the rate of change of an integral on a material
+domain. A material domain moves with the material, so that the material points on the
+boundary remain on the boundary and no mass flux occurs across the boundaries. A material
+domain is analogous to a Lagrangian mesh; a Lagrangian element or group of Lagrangian elements is a nice example of a material domain. The various forms for material time derivatives
+of integrals are called Reynolds’ transport theorem.</p>
+<p>The material time derivative of an integral is defined by</p>
+<div class="math notranslate nohighlight">
+\[\frac{\mathrm{D} }{\mathrm{D} t}\int\limits_{\Omega }^{}f(\mathbf{x},t)\mathrm{d}\Omega
+=\lim_{\Delta  t \to 0}\cfrac{1}{\Delta  t }\left ( \int\limits_{\Omega_{\tau+\Delta t} }f(\mathbf{x},{\tau+\Delta t})\mathrm{d}\Omega-\int\limits_{\Omega_{\tau} }f(\mathbf{x},\tau )\mathrm{d}\Omega \right )\]</div>
+<p>where <span class="math notranslate nohighlight">\(\Omega_{\tau}\)</span>
+t is the spatial domain at time <span class="math notranslate nohighlight">\({\tau}\)</span> and <span class="math notranslate nohighlight">\(\Omega_{\tau+\Delta t}\)</span> is the spatial domain occupied by the same
+material points at time <span class="math notranslate nohighlight">\({\tau+\Delta t}\)</span>. The notation on the left-hand side is a little confusing because it
+appears to refer to a single spatial domain. However, in this notation, which is standard, the material derivative on the integral implies that the domain Ω is a material domain. We now
+transform both integrals on the RHS to the reference domain:</p>
+<div class="math notranslate nohighlight">
+\[\frac{\mathrm{D} }{\mathrm{D} t}\int\limits_{\Omega }f(\mathbf{x},t)\mathrm{d}\Omega
+=\lim_{\Delta  t \to 0}\cfrac{1}{\Delta  t }\left ( \int\limits_{\Omega_{0} }f(\mathbf{X},{\tau+\Delta t})J(\mathbf{X},{\tau+\Delta t})\mathrm{d}\Omega_{0}-\int\limits_{\Omega_{0} }f(\mathbf{X},\tau )J(\mathbf{X},\tau )\mathrm{d}\Omega_{0} \right )\]</div>
+<p>With this change in the domain of integration, <span class="math notranslate nohighlight">\({f}\)</span> becomes a function of the material coordinates, that is, <span class="math notranslate nohighlight">\(f(\mathbf{\Phi}(\mathbf{X},t),t)\equiv f\circ \mathbf{\Phi}\)</span>.</p>
+<p>Since the domain of integration is now independent of time, we can pull the limit operation
+inside the integral and take the limit, which yields</p>
+<div class="math notranslate nohighlight">
+\[\frac{\mathrm{D} }{\mathrm{D} t}\int\limits_{\Omega }f(\mathbf{x},t)\mathrm{d}\Omega
+=\int\limits_{\Omega_{0} }\frac{\partial }{\partial t}[f(\mathbf{X},t)J(\mathbf{X},t)] \mathrm{d}\Omega_{0}\]</div>
+<p>The partial derivative with respect to time in the integrand is a material time derivative since
+the independent space variables are the material coordinates. We next use the product rule for
+derivatives on the previous:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+\frac{\mathrm{D} }{\mathrm{D} t}\int\limits_{\Omega }f(\mathbf{x},t)\mathrm{d}\Omega
+=\int\limits_{\Omega_{0} }\frac{\partial }{\partial t}[f(\mathbf{X},t)J(\mathbf{X},t)] \mathrm{d}\Omega_{0}\\
+=\int\limits_{\Omega_{0} }(\frac{\partial f(\mathbf{X},t)}{\partial t}J(\mathbf{X},t)+f(\mathbf{X},t)\frac{\partial J(\mathbf{X},t)}{\partial t}) \mathrm{d}\Omega_{0}\\
+\end{align}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+\frac{\mathrm{D} }{\mathrm{D} t}\int\limits_{\Omega }f(\mathbf{x},t)\mathrm{d}\Omega
+=\int\limits_{\Omega_{0} }\frac{\partial }{\partial t}[f(\mathbf{X},t)J(\mathbf{X},t)] \mathrm{d}\Omega_{0}\\
+=\int\limits_{\Omega_{0} }(\frac{\partial f(\mathbf{X},t)}{\partial t}J(\mathbf{X},t)+f(\mathbf{X},t)\frac{\partial J(\mathbf{X},t)}{\partial t}) \mathrm{d}\Omega_{0}\\
+=\int\limits_{\Omega_{0} }(\frac{\partial f(\mathbf{X},t)}{\partial t}J(\mathbf{X},t)+f(\mathbf{X},t)J(\mathbf{X},t)\frac{\partial v_{k}}{\partial x_{k}}) \mathrm{d}\Omega_{0}\\
+\end{align}\end{split}\]</div>
+<p>We can now transform the RHS integral to the current domain and change the
+independent variables to an Eulerian description, which gives</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+\frac{\mathrm{D} }{\mathrm{D} t}\int\limits_{\Omega }f(\mathbf{x},t)\mathrm{d}\Omega
+=\int\limits_{\Omega }(\frac{D f(\mathbf{x},t)}{D t}+f(\mathbf{x},t)\frac{\partial v_{k}}{\partial x_{k}}) \mathrm{d}\Omega\\
+\end{align}\end{split}\]</div>
+<p>where we have used <span class="math notranslate nohighlight">\({D f(\mathbf{x},t)}/{D t}\equiv \partial f(\mathbf{X},t)/\partial t\)</span>. This is one form of
+Reynolds’ transport theorem.</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\cfrac{\mathrm{D}  f}{\mathrm{D} t}=\cfrac{\partial f}{\partial t}+v_{i} \cfrac{\partial f}{\partial x_{i}}=\cfrac{\partial f}{\partial t}+\mathbf{v} \cdot \nabla f=\cfrac{\partial f}{\partial t}+\mathbf{v} \cdot \operatorname{grad} f \\\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+\cfrac{\mathrm{D} f(\mathbf{x},t)}{\mathrm{D} t}&amp;=\cfrac{\partial f(\mathbf{x},t)}{\partial t}+v_{i}(\mathbf{x},t) \cfrac{\partial f(\mathbf{x},t)}{\partial x_{i}}\\
+&amp;=\cfrac{\partial f(\mathbf{x},t)}{\partial t}+\mathbf{v}(\mathbf{x},t) \cdot \nabla f(\mathbf{x},t)\\
+&amp;=\cfrac{\partial f(\mathbf{x},t)}{\partial t}+\mathbf{v}(\mathbf{x},t) \cdot \operatorname{grad} f(\mathbf{x},t) \\
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+\frac{\mathrm{D} }{\mathrm{D} t}\int\limits_{\Omega }f(\mathbf{x},t)\mathrm{d}\Omega
+&amp;=\int\limits_{\Omega }(\frac{D f(\mathbf{x},t)}{D t}+f(\mathbf{x},t)\frac{\partial v_{k}}{\partial x_{k}}) \mathrm{d}\Omega\\
+&amp;=\int\limits_{\Omega }(\cfrac{\partial f(\mathbf{x},t)}{\partial t}+v_{k}(\mathbf{x},t) \cfrac{\partial f(\mathbf{x},t)}{\partial x_{k}}+f(\mathbf{x},t)\frac{\partial v_{k}}{\partial x_{k}}) \mathrm{d}\Omega\\
+&amp;=\int\limits_{\Omega }(\cfrac{\partial f(\mathbf{x},t)}{\partial t}+\cfrac{\partial (v_{k}(\mathbf{x},t)f(\mathbf{x},t))}{\partial x_{k}}) \mathrm{d}\Omega\\
+\end{align}\end{split}\]</div>
+<p>which can be written in tensor form as</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+\frac{\mathrm{D} }{\mathrm{D} t}\int\limits_{\Omega }f(\mathbf{x},t)\mathrm{d}\Omega
+&amp;=\int\limits_{\Omega }(\cfrac{\partial f(\mathbf{x},t)}{\partial t}+\mathrm{div}\ (\mathbf{v}(\mathbf{x},t)\cdot f(\mathbf{x},t)) \mathrm{d}\Omega\\
+&amp;=\int\limits_{\Omega }(\cfrac{\partial f(\mathbf{x},t)}{\partial t}+\nabla\cdot(\mathbf{v}(\mathbf{x},t)\cdot f(\mathbf{x},t)) \mathrm{d}\Omega\\
+\end{align}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+\frac{\mathrm{D} }{\mathrm{D} t}\int\limits_{\Omega }f(\mathbf{x},t)\mathrm{d}\Omega
+&amp;=\int\limits_{\Omega }(\cfrac{\partial f(\mathbf{x},t)}{\partial t}) \mathrm{d}\Omega
++\int\limits_{\Omega }(\nabla\cdot(\mathbf{v}(\mathbf{x},t)\cdot f(\mathbf{x},t)) \mathrm{d}\Omega\\
+&amp;=\int\limits_{\Omega }(\cfrac{\partial f(\mathbf{x},t)}{\partial t}) \mathrm{d}\Omega
++\int\limits_{\Gamma }f(\mathbf{x},t)(\mathbf{v}(\mathbf{x},t)\cdot \mathbf{n}(\mathbf{x},t)) \mathrm{d}\Gamma \\
+&amp;=\int\limits_{\Omega }(\cfrac{\partial f(\mathbf{x},t)}{\partial t}) \mathrm{d}\Omega
++\int\limits_{\Gamma }f(\mathbf{x},t)({v}_{k}(\mathbf{x},t){n}_{k}(\mathbf{x},t)) \mathrm{d}\Gamma \\
+\end{align}\end{split}\]</div>
+</section>
+</section>
+<section id="mass-conservation">
+<h2>Mass Conservation<a class="headerlink" href="#mass-conservation" title="Link to this heading"></a></h2>
+<p>The mass <span class="math notranslate nohighlight">\(m(\Omega)\)</span> of a material domain:math:<cite>Omega</cite> is given by</p>
+<div class="math notranslate nohighlight">
+\[m(\Omega)=\int\limits_{\Omega }\rho (\mathbf{x},t) \mathrm{d}\Omega\]</div>
+<p>where <span class="math notranslate nohighlight">\(\rho (\mathbf{x},t)\)</span> is the density. Mass conservation requires that the mass of any material domain
+be constant, since no material flows through the boundaries of a material domain and we are
+not considering mass to energy conversion. Therefore, according to the principle of mass
+conservation, the material time derivative of <span class="math notranslate nohighlight">\(m(\Omega)\)</span> vanishes, that is,</p>
+<div class="math notranslate nohighlight">
+\[\cfrac{\mathrm{D} m(\Omega)}{\mathrm{D} t} =\cfrac{\mathrm{D}}{\mathrm{D} t}\int\limits_{\Omega }\rho (\mathbf{x},t) \mathrm{d}\Omega=0\]</div>
+<p>Applying Reynolds’ theorem</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\frac{\mathrm{D} }{\mathrm{D} t}\int\limits_{\Omega }\rho(\mathbf{x},t)\mathrm{d}\Omega
+=\int\limits_{\Omega }(\frac{D \rho(\mathbf{x},t)}{D t}+\rho(\mathbf{x},t)\frac{\partial v_{k}}{\partial x_{k}}) \mathrm{d}\Omega=0\\\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\frac{\mathrm{D} }{\mathrm{D} t}\int\limits_{\Omega }\rho(\mathbf{x},t)\mathrm{d}\Omega
+=\int\limits_{\Omega }(\frac{D \rho(\mathbf{x},t)}{D t}+\rho(\mathbf{x},t)\nabla \mathbf{v}) \mathrm{d}\Omega=0\\\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\frac{D \rho(\mathbf{x},t)}{D t}+\rho(\mathbf{x},t)\frac{\partial v_{k}}{\partial x_{k}}=0\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\frac{D \rho(\mathbf{x},t)}{D t}+\rho(\mathbf{x},t)\nabla \cdot\mathbf{v}=0\]</div>
+</section>
+<section id="conservation-of-linear-momentum">
+<h2>Conservation of Linear Momentum<a class="headerlink" href="#conservation-of-linear-momentum" title="Link to this heading"></a></h2>
+<p>The equation emanating from the principle of linear momentum conservation is a key equation
+in nonlinear finite element procedures. Linear momentum conservation is equivalent to
+Newton’s second law of motion, which relates the forces acting on a body to its acceleration.
+The principle is often called the momentum conservation principle, or the balance of
+momentum principle.</p>
+<p>We will here state the principle in integral form and then derive an equivalent partial
+differential equation. We consider an arbitrary domain <span class="math notranslate nohighlight">\(\Omega\)</span> with boundary <span class="math notranslate nohighlight">\(\Gamma\)</span> subjected to body
+forces <span class="math notranslate nohighlight">\(\rho \mathbf{b}\)</span> and to surface tractions <span class="math notranslate nohighlight">\(\mathbf{t}\)</span>, where <span class="math notranslate nohighlight">\(\mathbf{b}\)</span> is a force per unit mass and <span class="math notranslate nohighlight">\(\mathbf{t}\)</span> is a force per unit
+area. The total force is given by</p>
+<div class="math notranslate nohighlight">
+\[\mathbf {f}(t)=\int\limits_{\Omega }\rho(\mathbf{x},t)\mathbf{b}(\mathbf{x},t)\mathrm{d}\Omega
++\int\limits_{\Gamma  }\mathbf{t}(\mathbf{x},t)\mathrm{d}\Gamma\]</div>
+<p>The linear momentum is given by</p>
+<div class="math notranslate nohighlight">
+\[\mathbf {p}(t)=\int\limits_{\Omega }\rho(\mathbf{x},t)\mathbf{v}(\mathbf{x},t)\mathrm{d}\Omega\]</div>
+<p>where <span class="math notranslate nohighlight">\(\rho\mathbf{v}\)</span> is the linear momentum per unit volume.</p>
+<p>Newton’s second law of motion for a continuum, the momentum conservation principle,
+states that the material time derivative of the linear momentum equals the net force.</p>
+<div class="math notranslate nohighlight">
+\[\cfrac{\mathrm{D} \mathbf{p}(t)}{\mathrm{D} t} = \mathbf {f}(t)\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\cfrac{\mathrm{D} }{\mathrm{D} t}\int\limits_{\Omega }\rho(\mathbf{x},t)\mathbf{v}(\mathbf{x},t)\mathrm{d}\Omega
+=\int\limits_{\Omega }\rho(\mathbf{x},t)\mathbf{b}(\mathbf{x},t)\mathrm{d}\Omega
++\int\limits_{\Gamma  }\mathbf{t}(\mathbf{x},t)\mathrm{d}\Gamma\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+\frac{\mathrm{D} }{\mathrm{D} t}\int\limits_{\Omega }f(\mathbf{x},t)\mathrm{d}\Omega
+=\int\limits_{\Omega }(\frac{D f(\mathbf{x},t)}{D t}+f(\mathbf{x},t)\frac{\partial v_{k}}{\partial x_{k}}) \mathrm{d}\Omega\\
+\end{align}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+\frac{\mathrm{D} }{\mathrm{D} t}\int\limits_{\Omega }\rho(\mathbf{x},t)\mathbf{v}(\mathbf{x},t)\mathrm{d}\Omega
+=\int\limits_{\Omega }\left (\frac{D (\rho(\mathbf{x},t)\mathbf{v}(\mathbf{x},t))}{D t}+(\rho(\mathbf{x},t)\mathbf{v}(\mathbf{x},t))\nabla \cdot \mathbf{v}(\mathbf{x},t) \right)\mathrm{d}\Omega\\
+\end{align}\end{split}\]</div>
+</section>
+<section id="ale-form-of-conservation-equations">
+<h2>ALE Form of Conservation Equations<a class="headerlink" href="#ale-form-of-conservation-equations" title="Link to this heading"></a></h2>
+<p>To serve as an introduction to the discussion of ALE finite element and finite volume models,
+we establish in this section the differential and integral forms of the conservation equations for
+mass, momentum, and energy.</p>
+<section id="differential-forms">
+<h3>Differential forms<a class="headerlink" href="#differential-forms" title="Link to this heading"></a></h3>
+<p>The ALE differential form of the conservation equations for mass, momentum, and energy are
+readily obtained from the corresponding well-known Eulerian forms</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+&amp;Mass:     &amp;\frac{\mathrm{d} \rho}{\mathrm{d} t}  &amp;= \left.\frac{\partial \rho}{\partial t}\right|_{\mathbf{x}}+\mathbf{v} \cdot \nabla \rho  = -\rho {\nabla} \cdot \mathbf{v} \\
+&amp;Momentum:  &amp;\rho \frac{\mathrm{d} \mathbf{v}}{\mathrm{d} t}  &amp;= \rho\left(\left.\frac{\partial \mathbf{v}}{\partial t}\right|_{\mathbf{x}}+(\mathbf{v} \cdot {\nabla}) \mathbf{v}\right)  = {\nabla} \cdot [\boldsymbol{\sigma}^{\text{T}}]+\rho \mathbf{b} \\
+&amp;Energy:   &amp;\rho \frac{\mathrm{d} E}{\mathrm{~d} t}  &amp;= \rho\left(\left.\frac{\partial E}{\partial t}\right|_{\mathbf{x}}+\mathbf{v} \cdot \nabla E\right)  = \nabla \cdot(\boldsymbol{\sigma} \cdot \mathbf{v})-\nabla\cdot\mathbf{q}+\mathbf{v} \cdot \rho \mathbf{b}
+\end{align}\end{split}\]</div>
+<p>Conservation forms</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+&amp;Mass:     &amp;\cfrac{\partial\rho}{\partial t}\quad+\text{div }(\rho\mathbf{v})\quad\quad=&amp;0\\
+&amp;Momentum: &amp; \cfrac{\partial(\rho\mathbf{v})}{\partial t}+\text{div }(\rho\mathbf{v}\otimes\mathbf{v})=&amp; \text{div }\boldsymbol\sigma +\rho \mathbf{b}\\
+&amp;Energy:   &amp; \cfrac{\partial (\rho E)}{\partial t}+\text{div } \left((\rho E)\mathbf{v}\right)=&amp;\text{div }(\boldsymbol{\sigma}\cdot\mathbf{v})-\text{div }\mathbf{ q}+\mathbf{v}\cdot\rho \mathbf{b}+\rho s  \\
+\end{align}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+&amp;Mass:     &amp;\cfrac{\partial\rho}{\partial t}\quad+\text{div }(\rho\mathbf{v})\quad\quad=&amp;0\\
+&amp;Momentum: &amp;\cfrac{\partial(\rho\mathbf{v})}{\partial t}+\text{div }(\rho\mathbf{v}\otimes\mathbf{v})=&amp; \text{div }\boldsymbol\tau-\text{grad }p+\rho \mathbf{b}\\
+&amp;Energy:   &amp;\cfrac{\partial (\rho E)}{\partial t}+\text{div } \left((\rho H)\mathbf{v}\right)=&amp;\text{div }(\boldsymbol{\tau}\cdot\mathbf{v})-\text{div }\mathbf{ q}+\mathbf{v}\cdot\rho \mathbf{b}+\rho s  \\
+\end{align}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+&amp;Mass:     &amp;\cfrac{\partial\rho}{\partial t}\quad+\nabla\cdot(\rho\mathbf{v})\quad\quad=&amp;0\\
+&amp;Momentum: &amp; \cfrac{\partial(\rho\mathbf{v})}{\partial t}+\nabla[(\rho\mathbf{v}\otimes\mathbf{v})^{\text{T}}]=&amp; \nabla[\boldsymbol\sigma^{\text{T}}] +\rho \mathbf{b}\\
+&amp;Energy:   &amp; \cfrac{\partial (\rho E)}{\partial t}+\nabla\cdot \left((\rho E)\mathbf{v}\right)=&amp;\nabla\cdot(\boldsymbol{\sigma}\cdot\mathbf{v})-\nabla\cdot\mathbf{ q}+\mathbf{v}\cdot\rho \mathbf{b}+\rho s  \\
+\end{align}\end{split}\]</div>
+<p>Mass Conservation</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+\cfrac{\text{d}f}{\text{d}t}&amp;=\cfrac{\partial f}{\partial t}+\mathbf{v}\cdot (\text{grad }f)\\
+&amp;=\cfrac{\partial f}{\partial t}+\mathbf{v}\cdot (\nabla f)\\
+&amp;=\cfrac{\partial f}{\partial t}+(\mathbf{v}\cdot \nabla) f\\
+\end{align}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+\cfrac{\text{d}\rho}{\text{d}t}&amp;=\cfrac{\partial \rho}{\partial t}+\mathbf{v}\cdot (\text{grad }\rho)\\
+&amp;=\cfrac{\partial \rho}{\partial t}+\mathbf{v}\cdot (\nabla \rho)\\
+&amp;=\cfrac{\partial \rho}{\partial t}+(\mathbf{v}\cdot \nabla) \rho\\
+\end{align}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\cfrac{\text{d}\rho}{\text{d}t}+\rho\text{div }\mathbf{v}=0\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\cfrac{\text{d}\rho}{\text{d}t}=\cfrac{\partial \rho}{\partial t}+(\mathbf{v}\cdot \nabla) \rho=-\rho\text{div }\mathbf{v}\\\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\cfrac{\text{d}\rho}{\text{d}t}=\cfrac{\partial \rho}{\partial t}+(\mathbf{v}\cdot \nabla) \rho=-\rho\nabla\cdot\mathbf{v}\\\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\cfrac{\partial\rho}{\partial t}+\text{div }(\rho\mathbf{v})=0\\\end{split}\]</div>
+<p>Conservation of Linear Momentum</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+\cfrac{\text{d} \mathbf{v}}{\text{d} t} &amp; = \cfrac{\partial \mathbf{v}}{\partial t}+[(\text{grad }\mathbf{v})][\mathbf{v}]\\
+\cfrac{\text{d} \mathbf{v}}{\text{d} t} &amp; = \cfrac{\partial \mathbf{v}}{\partial t}+[\nabla \mathbf{v}]^{\text{T}}[\mathbf{v}] \\
+\cfrac{\text{d} \mathbf{v}}{\text{d} t} &amp; = \cfrac{\partial \mathbf{v}}{\partial t}+ (\mathbf{v}\cdot \nabla)\mathbf{v} \\
+\cfrac{\text{d} \boldsymbol{\alpha}}{\text{d} t} &amp; = \cfrac{\partial \boldsymbol{\alpha}}{\partial t}+ (\mathbf{v}\cdot \nabla)\boldsymbol{\alpha} \\
+\end{align}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\cfrac{\text{d}}{\text{d} t}\int\limits_{\Omega}\rho\mathbf{v}\text{d}{\Omega}
+=\int\limits_{\Omega}\rho\cfrac{\text{d}\mathbf{v}}{\text{d} t}\text{d}{\Omega}\\\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\rho\cfrac{\text{d}\mathbf{v}}{\text{d} t}=\nabla\cdot([\boldsymbol{\sigma}]^{\text{T}})+\rho\mathbf{b}\equiv \text{div}\boldsymbol\sigma+\rho\mathbf{b}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\rho\cfrac{\text{d}\mathbf{v}}{\text{d}t}=\rho\left(\cfrac{\partial \mathbf{v}}{\partial t}+(\mathbf{v}\cdot \nabla) (\mathbf{v})\right)
+= \nabla\cdot([\boldsymbol{\sigma}]^{\text{T}})+\rho\mathbf{b}\equiv \text{div}\boldsymbol\sigma+\rho\mathbf{b}\\\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\cfrac{\partial(\rho\mathbf{v})}{\partial t}+\text{div }(\rho\mathbf{v}\otimes\mathbf{v})
+= \text{div }\boldsymbol\sigma +\rho \mathbf{b}\]</div>
+<p>Conservation of Energy</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{c}
+\displaystyle \cfrac{\text{d}}{\text{d} t}\int\limits_{\Omega}(\rho E)\text{d}\Omega=\int\limits_{\Omega}\left(\cfrac{\text{d}(\rho E)}{\text{d} t}+(\rho E)\cfrac{\partial v_{i}}{\partial  x_{i}}\right)\text{d}\Omega  \\
+\displaystyle \cfrac{\text{d}(\rho E)}{\text{d} t}= E\cfrac{\text{d}(\rho)}{\text{d} t}+\rho \cfrac{\text{d}( E)}{\text{d} t}\\
+\displaystyle \cfrac{\text{d}(\rho E)}{\text{d} t}= -E\rho\text{div } \mathbf{v}+\rho \cfrac{\text{d}( E)}{\text{d} t}\\
+\displaystyle \cfrac{\text{d}(\rho E)}{\text{d} t}+(\rho E)\text{div } \mathbf{v}= \rho \cfrac{\text{d}( E)}{\text{d} t}\\
+\displaystyle \cfrac{\text{d}}{\text{d} t}\int\limits_{\Omega}(\rho E)\text{d}\Omega=\int\limits_{\Omega}\left(\rho \cfrac{\text{d}( E)}{\text{d} t}\right)\text{d}\Omega  \\
+\end{array}\end{split}\]</div>
+<p>Generally, there are</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\cfrac{\text{d}}{\text{d} t}\int\limits_{\Omega}(\rho f)\text{d}\Omega=\int\limits_{\Omega}\left(\rho \cfrac{\text{d}( f)}{\text{d} t}\right)\text{d}\Omega  \\\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+\cfrac{\text{d}E}{\text{d}t}&amp;=\cfrac{\partial E}{\partial t}+\mathbf{v}\cdot (\text{grad }E)\\
+&amp;=\cfrac{\partial E}{\partial t}+\mathbf{v}\cdot (\nabla E)\\
+&amp;=\cfrac{\partial E}{\partial t}+(\mathbf{v}\cdot \nabla) E\\
+\end{align}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+\rho\cfrac{\text{d}E}{\text{d}t}&amp;=\rho\cfrac{\partial E}{\partial t}+\rho\mathbf{v}\cdot (\text{grad }E)\\
+&amp;=\rho\cfrac{\partial E}{\partial t}+\rho\mathbf{v}\cdot (\nabla E)\\
+&amp;=\rho\cfrac{\partial E}{\partial t}+(\mathbf{v}\cdot \nabla) (\rho E)\\
+\end{align}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+ \rho\cfrac{\text{d}E}{\text{d}t}
+ &amp;=\rho(\cfrac{\partial E}{\partial t}+(\mathbf{v}\cdot \nabla) E)=
+\text{div }(\boldsymbol{\sigma}\cdot\mathbf{v})-\text{div }\mathbf{ q}+\mathbf{v}\cdot\rho \mathbf{b}+\rho s  \\\\
+ \end{align}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+\cfrac{\text{d}}{\text{d}t}\int\limits_{\Omega}(\rho E)\text{d}\Omega
+&amp; = \int\limits_{\Omega}\left(\cfrac{\partial (\rho E)}{\partial t}+\text{div } \left((\rho E)\mathbf{v}\right)\right)\text{d}\Omega \\
+&amp; = \int\limits_{\Omega}(\text{div }(\boldsymbol{\sigma}\cdot\mathbf{v})-\text{div }\mathbf{ q}+\mathbf{v}\cdot\rho \mathbf{b}+\rho s)\text{d}\Omega\\
+\end{align}\end{split}\]</div>
+<p>where <span class="math notranslate nohighlight">\(\rho\)</span> is the mass density, <span class="math notranslate nohighlight">\(\mathbf{v}\)</span> is the material velocity vector, <span class="math notranslate nohighlight">\(\boldsymbol{\sigma}\)</span> denotes the Cauchy stress
+tensor, <span class="math notranslate nohighlight">\(\mathbf{b}\)</span> is the specific body force vector, and E is the specific total energy. Only mechanical
+energies are considered in the above form of the energy equation. Note that the stress term in
+the same equation can be rewritten in the form</p>
+<div class="math notranslate nohighlight">
+\[{\nabla} \cdot(\boldsymbol{\sigma} \cdot \mathbf{v})=\frac{\partial\left(\sigma_{i j} v_{j}\right)}{\partial x_{i}}=\frac{\partial \sigma_{i j}}{\partial x_{i}} v_{j}+\sigma_{i j} \frac{\partial v_{j}}{\partial x_{i}}=({\nabla} \cdot \boldsymbol{\sigma}) \cdot \mathbf{v}+\boldsymbol{\sigma}: {\nabla} \mathbf{v}\]</div>
+<p>where <span class="math notranslate nohighlight">\(\nabla \mathbf{v}\)</span> is the spatial velocity gradient.</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\nabla \rho=\begin{bmatrix}
+\cfrac{\partial \rho}{\partial x}\\
+\cfrac{\partial \rho}{\partial y}\\
+\cfrac{\partial \rho}{\partial x}
+\end{bmatrix}
+=\begin{bmatrix}
+\cfrac{\partial \rho}{\partial x_{1}}\\
+\cfrac{\partial \rho}{\partial x_{2}}\\
+\cfrac{\partial \rho}{\partial x_{3}}
+\end{bmatrix}
+=\cfrac{\partial \rho}{\partial x}\mathbf{i}
++\cfrac{\partial \rho}{\partial y}\mathbf{j}
++\cfrac{\partial \rho}{\partial z}\mathbf{k}
+=\cfrac{\partial \rho}{\partial x_{1}}\mathbf{e_{1}}
++\cfrac{\partial \rho}{\partial x_{2}}\mathbf{e_{2}}
++\cfrac{\partial \rho}{\partial x_{3}}\mathbf{e_{3}}\end{split}\]</div>
+<p>All one has to do to obtain the ALE form of the above conservation equations is to replace
+in the various convective terms, the material velocity <span class="math notranslate nohighlight">\(\mathbf{v}\)</span> with the convective velocity <span class="math notranslate nohighlight">\(\mathbf{c}=\mathbf{v}-\hat {\mathbf{v}}\)</span>
+and <span class="math notranslate nohighlight">\(\hat {\mathbf{v}}\)</span> is the mesh velocity.</p>
+<p>The result is</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+&amp;Mass:     &amp;\frac{\mathrm{d} \rho}{\mathrm{d} t}  &amp;= \left.\frac{\partial \rho}{\partial t}\right|_{\boldsymbol\chi}+\mathbf{c} \cdot \nabla \rho  = -\rho {\nabla} \cdot \mathbf{v} \\
+&amp;Momentum:  &amp;\rho \frac{\mathrm{d} \mathbf{v}}{\mathrm{d} t}  &amp;= \rho\left(\left.\frac{\partial \mathbf{v}}{\partial t}\right|_{\boldsymbol\chi}+(\mathbf{c} \cdot {\nabla}) \mathbf{v}\right)  = {\nabla} \cdot \boldsymbol{\sigma}+\rho \mathbf{b} \\
+&amp;Energy:   &amp;\rho \frac{\mathrm{d} E}{\mathrm{~d} t}  &amp;= \rho\left(\left.\frac{\partial E}{\partial t}\right|_{\boldsymbol\chi}+\mathbf{c} \cdot \nabla E\right)  = \nabla \cdot(\boldsymbol{\sigma} \cdot \mathbf{v})-\nabla\cdot\mathbf{q}+\mathbf{v} \cdot \rho \mathbf{b} \\
+\end{align}\end{split}\]</div>
+</section>
+<section id="ale-mass-conservation">
+<h3>ALE Mass Conservation<a class="headerlink" href="#ale-mass-conservation" title="Link to this heading"></a></h3>
+<div class="math notranslate nohighlight">
+\[\begin{split}\cfrac{\text{d} f}{\text{d} t}=\cfrac{\partial f}{\partial t}\Bigg|_{\boldsymbol{\xi}}
+=\cfrac{\partial f}{\partial t}\Bigg|_{\boldsymbol{\chi}}+\cfrac{\partial f}{\partial \mathbf{x}}\cdot \mathbf{c}
+=\cfrac{\partial f}{\partial t}\Bigg|_{\boldsymbol{\chi}}+\mathbf{c} \cdot \nabla {f}\\\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\cfrac{\text{d} \rho}{\text{d} t}=\cfrac{\partial \rho}{\partial t}\Bigg|_{\boldsymbol{\xi}}
+=\cfrac{\partial \rho}{\partial t}\Bigg|_{\boldsymbol{\chi}}+\cfrac{\partial \rho}{\partial \mathbf{x}}\cdot \mathbf{c}
+=\cfrac{\partial \rho}{\partial t}\Bigg|_{\boldsymbol{\chi}}+\mathbf{c} \cdot \nabla {\rho}\\\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\cfrac{\text{d} \rho}{\text{d} t}=\cfrac{\partial \rho}{\partial t}\Bigg|_{\boldsymbol{\chi}}+\mathbf{c} \cdot \nabla {\rho}\\\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\cfrac{\text{d} \rho}{\text{d} t}=\cfrac{\partial \rho}{\partial t}\Bigg|_{\mathbf{x}}+\mathbf{v} \cdot \nabla {\rho}
+ =\frac{\partial \rho}{\partial t}\Bigg|_{\boldsymbol\chi}+\mathbf{c} \cdot \nabla \rho  = -\rho {\nabla} \cdot \mathbf{v}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\frac{\partial \rho}{\partial t}\Bigg|_{\boldsymbol\chi}+\mathbf{c} \cdot \nabla \rho  = -\rho {\nabla} \cdot \mathbf{v}\]</div>
+<p>Conservation forms</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{c}
+\displaystyle \frac{\partial \rho}{\partial t}\Bigg|_{\boldsymbol\chi}+\mathbf{c} \cdot \nabla \rho +\rho {\nabla} \cdot \mathbf{v} = 0\\
+\displaystyle \frac{\partial \rho}{\partial t}\Bigg|_{\boldsymbol\chi}+\mathbf{c} \cdot \nabla \rho +\rho {\nabla} \cdot (\mathbf{v}-\mathbf{\hat{v}}+\mathbf{\hat{v}}) = 0\\
+\displaystyle \frac{\partial \rho}{\partial t}\Bigg|_{\boldsymbol\chi}+\mathbf{c} \cdot \nabla \rho +\rho {\nabla} \cdot (\mathbf{c}+\mathbf{\hat{v}}) = 0\\
+\displaystyle \frac{\partial \rho}{\partial t}\Bigg|_{\boldsymbol\chi}+{\nabla}\cdot(\rho\mathbf{c})+\rho {\nabla} \cdot (\mathbf{\hat{v}}) = 0
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{c}
+\displaystyle \frac{\partial \rho}{\partial t}\Bigg|_{\boldsymbol\chi}+\mathbf{c} \cdot \nabla \rho +\rho {\nabla} \cdot \mathbf{v} = 0\\
+\displaystyle \frac{\partial \rho}{\partial t}\Bigg|_{\boldsymbol\chi}+(\mathbf{v}-\mathbf{\hat{v}}) \cdot \nabla \rho +\rho {\nabla} \cdot (\mathbf{v}) = 0\\
+\displaystyle \frac{\partial \rho}{\partial t}\Bigg|_{\boldsymbol\chi}+\mathbf{v}\cdot \nabla \rho -\mathbf{\hat{v}}\cdot \nabla \rho+\rho {\nabla} \cdot (\mathbf{v}) = 0\\
+\displaystyle \frac{\partial \rho}{\partial t}\Bigg|_{\boldsymbol\chi}+{\nabla}\cdot(\rho\mathbf{v})-\mathbf{\hat{v}}\cdot \nabla \rho = 0
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\frac{\partial \rho}{\partial t}\Bigg|_{\boldsymbol\chi}+{\nabla}\cdot(\rho\mathbf{c})+\rho {\nabla} \cdot (\mathbf{\hat{v}}) = 0\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\frac{\partial \rho}{\partial t}\Bigg|_{\boldsymbol\chi}+{\nabla}\cdot(\rho\mathbf{v})-\mathbf{\hat{v}}\cdot \nabla \rho = 0\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\frac{\partial \rho}{\partial t}\Bigg|_{\boldsymbol\chi}
++\frac{\partial (\rho c_{1})}{\partial x_{1}}
++\frac{\partial (\rho c_{2})}{\partial x_{2}}
++\frac{\partial (\rho c_{3})}{\partial x_{3}}
++\rho(\frac{\partial \hat{v}_{1}}{\partial x_{1}}
+     +\frac{\partial \hat{v}_{2}}{\partial x_{2}}
+     +\frac{\partial \hat{v}_{3}}{\partial x_{3}})
+= 0\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\frac{\partial \rho}{\partial t}\Bigg|_{\boldsymbol\chi}
++\frac{\partial (\rho v_{1})}{\partial x_{1}}
++\frac{\partial (\rho v_{2})}{\partial x_{2}}
++\frac{\partial (\rho v_{3})}{\partial x_{3}}
++(\hat{v}_{1}\frac{\partial \rho}{\partial x_{1}}
+ +\hat{v}_{2}\frac{\partial \rho}{\partial x_{2}}
+ +\hat{v}_{3}\frac{\partial \rho}{\partial x_{3}})
+= 0\]</div>
+</section>
+<section id="ale-conservation-of-linear-momentum">
+<h3>ALE Conservation of Linear Momentum<a class="headerlink" href="#ale-conservation-of-linear-momentum" title="Link to this heading"></a></h3>
+<div class="math notranslate nohighlight">
+\[\begin{split}\cfrac{\text{d} v_{1}}{\text{d} t}=\cfrac{\partial v_{1}}{\partial t}\Bigg|_{\boldsymbol{\xi}}
+=\cfrac{\partial v_{1}}{\partial t}\Bigg|_{\boldsymbol{\chi}}+\cfrac{\partial f}{\partial \mathbf{x}}\cdot \mathbf{c}
+=\cfrac{\partial v_{1}}{\partial t}\Bigg|_{\boldsymbol{\chi}}+(\mathbf{c} \cdot \nabla ){v_{1}}\\\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{c}
+ \cfrac{\text{d} v_{1}}{\text{d} t}=\cfrac{\partial v_{1}}{\partial t}\Bigg|_{\boldsymbol{\xi}}
+=\cfrac{\partial v_{1}}{\partial t}\Bigg|_{\boldsymbol{\chi}}+\cfrac{\partial v_{1}}{\partial \mathbf{x}}\cdot \mathbf{c}
+=\cfrac{\partial v_{1}}{\partial t}\Bigg|_{\boldsymbol{\chi}}+(\mathbf{c} \cdot \nabla ){v_{1}}\\
+ \cfrac{\text{d} v_{2}}{\text{d} t}=\cfrac{\partial v_{2}}{\partial t}\Bigg|_{\boldsymbol{\xi}}
+=\cfrac{\partial v_{2}}{\partial t}\Bigg|_{\boldsymbol{\chi}}+\cfrac{\partial v_{2}}{\partial \mathbf{x}}\cdot \mathbf{c}
+=\cfrac{\partial v_{2}}{\partial t}\Bigg|_{\boldsymbol{\chi}}+(\mathbf{c} \cdot \nabla ){v_{2}}\\
+ \cfrac{\text{d} v_{3}}{\text{d} t}=\cfrac{\partial v_{3}}{\partial t}\Bigg|_{\boldsymbol{\xi}}
+=\cfrac{\partial v_{3}}{\partial t}\Bigg|_{\boldsymbol{\chi}}+\cfrac{\partial v_{3}}{\partial \mathbf{x}}\cdot \mathbf{c}
+=\cfrac{\partial v_{3}}{\partial t}\Bigg|_{\boldsymbol{\chi}}+(\mathbf{c} \cdot \nabla ){v_{3}}\\
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\cfrac{\text{d} \mathbf{v}}{\text{d} t}=\cfrac{\partial \mathbf{v}}{\partial t}\Bigg|_{\boldsymbol{\xi}}
+=\cfrac{\partial \mathbf{v}}{\partial t}\Bigg|_{\boldsymbol{\chi}}+\cfrac{\partial \mathbf{v}}{\partial \mathbf{x}}\cdot \mathbf{c}
+=\cfrac{\partial \mathbf{v}}{\partial t}\Bigg|_{\boldsymbol{\chi}}+(\mathbf{c} \cdot \nabla ){\mathbf{v}}\\\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\rho\cfrac{\text{d} \mathbf{v}}{\text{d} t}=\rho\cfrac{\partial \mathbf{v}}{\partial t}\Bigg|_{\boldsymbol{\xi}}
+=\rho\left(\cfrac{\partial \mathbf{v}}{\partial t}\Bigg|_{\boldsymbol{\chi}}+\cfrac{\partial \mathbf{v}}{\partial \mathbf{x}}\cdot \mathbf{c}\right)
+=\rho\left(\cfrac{\partial \mathbf{v}}{\partial t}\Bigg|_{\boldsymbol{\chi}}+(\mathbf{c} \cdot \nabla ){\mathbf{v}}\right)\\\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\rho\cfrac{\text{d} \mathbf{v}}{\text{d} t}
+=\rho\left(\cfrac{\partial \mathbf{v}}{\partial t}\Bigg|_{\boldsymbol{\chi}}+(\mathbf{c} \cdot \nabla ){\mathbf{v}}\right)\\\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\rho\cfrac{\text{d} \mathbf{v}}{\text{d} t}
+=\rho\left(\cfrac{\partial \mathbf{v}}{\partial t}\Bigg|_{\boldsymbol{\chi}}+(\mathbf{c} \cdot \nabla ){\mathbf{v}}\right)
+=\text{div }\boldsymbol{\sigma}+\rho \mathbf{b} \\\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\rho\cfrac{\text{d} \mathbf{v}}{\text{d} t}
+=\rho\left(\cfrac{\partial \mathbf{v}}{\partial t}\Bigg|_{\boldsymbol{\chi}}+(\mathbf{c} \cdot \nabla ){\mathbf{v}}\right)
+=\nabla \cdot\left[\boldsymbol{\sigma}^{\mathrm{T}}\right]+\rho \mathbf{b} \\\end{split}\]</div>
+<p>Conservation form</p>
+<div class="math notranslate nohighlight">
+\[\cfrac{\text{d}}{\text{d} t}\int\limits_{\Omega}(\rho f)\text{d}\Omega=\int\limits_{\Omega}\left(\cfrac{\text{d}(\rho f)}{\text{d} t}+(\rho f)\cfrac{\partial v_{i}}{\partial  x_{i}}\right)\text{d}\Omega\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\cfrac{\text{d}}{\text{d} t}\int\limits_{\Omega}(\rho \mathbf{v})\text{d}\Omega=\int\limits_{\Omega}\left(\cfrac{\text{d}(\rho \mathbf{v})}{\text{d} t}+(\rho \mathbf{v})\cfrac{\partial v_{i}}{\partial  x_{i}}\right)\text{d}\Omega\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\cfrac{\text{d}}{\text{d} t}\int\limits_{\Omega}(\rho \mathbf{v})\text{d}\Omega=\int\limits_{\Omega}\left(\cfrac{\text{d}(\rho \mathbf{v})}{\text{d} t}+(\rho \mathbf{v})(\text{div }\mathbf{v})\right)\text{d}\Omega\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\cfrac{\text{d} (\rho\mathbf{v})}{\text{d} t}=\cfrac{\partial (\rho\mathbf{v})}{\partial t}\Bigg|_{\boldsymbol{\xi}}
+=\cfrac{\partial (\rho\mathbf{v})}{\partial t}\Bigg|_{\boldsymbol{\chi}}+\cfrac{\partial (\rho\mathbf{v})}{\partial \mathbf{x}}\cdot \mathbf{c}
+=\cfrac{\partial (\rho\mathbf{v})}{\partial t}\Bigg|_{\boldsymbol{\chi}}+(\mathbf{c} \cdot \nabla )(\rho\mathbf{v})\\\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\cfrac{\text{d}(\rho \mathbf{v})}{\text{d} t}+(\rho \mathbf{v})(\text{div }\mathbf{v})=\cfrac{\partial (\rho\mathbf{v})}{\partial t}\Bigg|_{\boldsymbol{\chi}}+(\mathbf{c} \cdot \nabla )(\rho\mathbf{v})+(\rho \mathbf{v})(\text{div }\mathbf{v})\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\text{div}(\mathbf{a}\otimes \mathbf{b})=[\text{grad}(\mathbf{a})]\cdot\mathbf{b}+\mathbf{a}\text{ div}(\mathbf{b})\]</div>
+<p>Let <span class="math notranslate nohighlight">\(\mathbf{a}=\rho\mathbf{v}\)</span>, <span class="math notranslate nohighlight">\(\mathbf{v}=\mathbf{v}\)</span>, then</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\text{div}((\rho\mathbf{v})\otimes \mathbf{v})=[\text{grad}(\rho\mathbf{v})]\cdot\mathbf{v}+(\rho\mathbf{v})\text{ div}(\mathbf{v})\\\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[[\text{grad}(\rho\mathbf{v})]\cdot\mathbf{v}=(\mathbf{v} \cdot \nabla )(\rho\mathbf{v})\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\frac{\partial (\rho\mathbf{v})}{\partial t}\Bigg|_{\boldsymbol\chi}
+=\rho\frac{\partial (\mathbf{v})}{\partial t}\Bigg|_{\boldsymbol\chi}
++\mathbf{v}\frac{\partial (\rho)}{\partial t}\Bigg|_{\boldsymbol\chi}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\rho\frac{\partial (\mathbf{v})}{\partial t}\Bigg|_{\boldsymbol\chi}=\frac{\partial (\rho\mathbf{v})}{\partial t}\Bigg|_{\boldsymbol\chi}-\mathbf{v}\frac{\partial (\rho)}{\partial t}\Bigg|_{\boldsymbol\chi}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\rho\frac{\partial (\mathbf{v})}{\partial t}\Bigg|_{\boldsymbol\chi}+(\rho \mathbf{c}\cdot\nabla)\mathbf{v}
+=\frac{\partial (\rho\mathbf{v})}{\partial t}\Bigg|_{\boldsymbol\chi}
+-\mathbf{v}\frac{\partial (\rho)}{\partial t}\Bigg|_{\boldsymbol\chi}
++(\rho \mathbf{c}\cdot\nabla)\mathbf{v}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\frac{\partial \rho}{\partial t}\Bigg|_{\boldsymbol\chi}=-\mathbf{c} \cdot \nabla \rho  -\rho {\nabla} \cdot \mathbf{v} \\\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\mathbf{v}\frac{\partial \rho}{\partial t}\Bigg|_{\boldsymbol\chi}=-\mathbf{v}(\mathbf{c} \cdot \nabla \rho)  -(\rho\mathbf{v})( {\nabla} \cdot \mathbf{v})\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\rho\frac{\partial (\mathbf{v})}{\partial t}\Bigg|_{\boldsymbol\chi}+(\rho \mathbf{c}\cdot\nabla)\mathbf{v}
+=\frac{\partial (\rho\mathbf{v})}{\partial t}\Bigg|_{\boldsymbol\chi}
++\mathbf{v}(\mathbf{c} \cdot \nabla \rho) +(\rho\mathbf{v})( {\nabla} \cdot \mathbf{v})
++(\rho \mathbf{c}\cdot\nabla)\mathbf{v}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\mathbf{v}(\mathbf{c} \cdot \nabla \rho)+(\rho \mathbf{c}\cdot\nabla)\mathbf{v}
+=(\mathbf{c} \cdot \nabla)(\rho\mathbf{v})
+=[\text{grad}(\rho\mathbf{v})]\cdot \mathbf{c}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\rho\frac{\partial (\mathbf{v})}{\partial t}\Bigg|_{\boldsymbol\chi}+(\rho \mathbf{c}\cdot\nabla)\mathbf{v}
+=\frac{\partial (\rho\mathbf{v})}{\partial t}\Bigg|_{\boldsymbol\chi}
++(\mathbf{c} \cdot \nabla)(\rho\mathbf{v}) +(\rho\mathbf{v})( {\nabla} \cdot \mathbf{v})\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+&amp;(\mathbf{c} \cdot \nabla)(\rho\mathbf{v}) +(\rho\mathbf{v})( {\nabla} \cdot \mathbf{v})\\ &amp; = c_{j}\cfrac{\partial(\rho v_{i}) }{\partial x_{j}}+(\rho v_{i})\cfrac{\partial( v_{j}) }{\partial x_{j}}\\ &amp; = (v_{j}-\hat{v}_{j})\cfrac{\partial(\rho v_{i}) }{\partial x_{j}}+(\rho v_{i})\cfrac{\partial(v_{j}) }{\partial x_{j}}\\ &amp; = (v_{j})\cfrac{\partial(\rho v_{i}) }{\partial x_{j}}+(\rho v_{i})\cfrac{\partial(v_{j}) }{\partial x_{j}}-\hat{v}_{j}\cfrac{\partial(\rho v_{i}) }{\partial x_{k}}\\ &amp; = \cfrac{\partial(\rho v_{i}v_{j}) }{\partial x_{j}}-\hat{v}_{j}\cfrac{\partial(\rho v_{i}) }{\partial x_{j}}
+\end{align}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+ &amp;(\mathbf{c} \cdot \nabla)(\rho\mathbf{v}) +(\rho\mathbf{v})( {\nabla} \cdot \mathbf{v})\\
+=&amp;(\mathbf{c} \cdot \nabla)(\rho\mathbf{v}) +(\rho\mathbf{v})( {\nabla} \cdot (\mathbf{c}+\mathbf{\hat{v}}))\\
+=&amp;\text{div }(\rho\mathbf{v}\otimes\mathbf{c}) +(\rho\mathbf{v})( {\nabla} \cdot (\mathbf{\hat{v}}))\\
+\end{align}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+ &amp;(\mathbf{c} \cdot \nabla)(\rho\mathbf{v}) +(\rho\mathbf{v})( {\nabla} \cdot \mathbf{v})\\
+=&amp;((\mathbf{v}-\mathbf{\hat{v}}) \cdot \nabla)(\rho\mathbf{v}) +(\rho\mathbf{v})( {\nabla} \cdot \mathbf{v})\\
+=&amp;\text{div }(\rho\mathbf{v}\otimes\mathbf{v}) -(\mathbf{\hat{v}} \cdot \nabla)(\rho\mathbf{v})\\
+\end{align}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+ &amp;(\mathbf{c} \cdot \nabla)(\rho\mathbf{v}) +(\rho\mathbf{v})( {\nabla} \cdot \mathbf{v})\\
+=&amp;(\mathbf{c} \cdot \nabla)(\rho\mathbf{v}) +(\rho\mathbf{v})( {\nabla} \cdot (\mathbf{c}+\mathbf{\hat{v}}))\\
+=&amp;\text{div }(\rho\mathbf{v}\otimes\mathbf{c}) +(\rho\mathbf{v})( {\nabla} \cdot (\mathbf{\hat{v}}))\\
+\end{align}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\cfrac{\partial (\rho\mathbf{v})}{\partial t}\Bigg|_{\boldsymbol{\chi}}
++\text{div }(\rho\mathbf{v}\otimes\mathbf{v}) -(\mathbf{\hat{v}} \cdot \nabla)(\rho\mathbf{v})
+=\text{div }\boldsymbol{\sigma}+\rho\mathbf{b}\\\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\cfrac{\partial (\rho\mathbf{v})}{\partial t}\Bigg|_{\boldsymbol{\chi}}
++\text{div }(\rho\mathbf{v}\otimes\mathbf{c}) +(\rho\mathbf{v})( {\nabla} \cdot \mathbf{\hat{v}})
+=\text{div }\boldsymbol{\sigma}+\rho\mathbf{b}\\\end{split}\]</div>
+</section>
+<section id="ale-conservation-of-energy">
+<h3>ALE Conservation of Energy<a class="headerlink" href="#ale-conservation-of-energy" title="Link to this heading"></a></h3>
+<div class="math notranslate nohighlight">
+\[\rho \frac{\mathrm{d} E}{\mathrm{~d} t}  = \rho\left(\frac{\partial E}{\partial t}\Bigg|_{\boldsymbol\chi}+(\mathbf{c} \cdot \nabla) E\right)  = \nabla \cdot(\boldsymbol{\sigma} \cdot \mathbf{v})+\mathbf{v} \cdot \rho \mathbf{b}\]</div>
+<p>Conservation form</p>
+<div class="math notranslate nohighlight">
+\[\rho \frac{\mathrm{d} E}{\mathrm{~d} t}  = \rho\left(\frac{\partial E}{\partial t}\Bigg|_{\boldsymbol\chi}+(\mathbf{c} \cdot \nabla) E\right)  = \nabla \cdot(\boldsymbol{\sigma} \cdot \mathbf{v})+\mathbf{v} \cdot \rho \mathbf{b}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+&amp;\displaystyle  \rho\frac{\partial E}{\partial t}\Bigg|_{\boldsymbol\chi}+\rho(\mathbf{c} \cdot \nabla) E\\
+=&amp; \rho\frac{\partial E}{\partial t}\Bigg|_{\boldsymbol\chi}+E\frac{\partial\rho}{\partial t}\Bigg|_{\boldsymbol\chi}-E\frac{\partial\rho}{\partial t}\Bigg|_{\boldsymbol\chi}
++\rho(\mathbf{c} \cdot \nabla) E \\
+=&amp;\frac{\partial (\rho E)}{\partial t}\Bigg|_{\boldsymbol\chi}-E\frac{\partial\rho}{\partial t}\Bigg|_{\boldsymbol\chi}
++\rho(\mathbf{c} \cdot \nabla) E \\
+\end{align}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\displaystyle \frac{\partial \rho}{\partial t}\Bigg|_{\boldsymbol\chi}=-\mathbf{c} \cdot \nabla \rho -\rho {\nabla} \cdot \mathbf{v}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[E\frac{\partial \rho}{\partial t}\Bigg|_{\boldsymbol\chi}=-(E\mathbf{c}) \cdot \nabla \rho -(\rho E )({\nabla} \cdot \mathbf{v})\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+-E\frac{\partial\rho}{\partial t}\Bigg|_{\boldsymbol\chi}+\rho(\mathbf{c} \cdot \nabla) E
+&amp; = (E\mathbf{c}) \cdot \nabla \rho +(\rho E )({\nabla} \cdot \mathbf{v})+\rho(\mathbf{c} \cdot \nabla) E\\
+ &amp; = (\rho E )({\nabla} \cdot \mathbf{v})+(\mathbf{c} \cdot \nabla) (\rho E)
+\end{align}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+-E\frac{\partial\rho}{\partial t}\Bigg|_{\boldsymbol\chi}+\rho(\mathbf{c} \cdot \nabla) E
+&amp; = (E\mathbf{c}) \cdot \nabla \rho +(\rho E )({\nabla} \cdot \mathbf{v})+\rho(\mathbf{c} \cdot \nabla) E\\
+ &amp; = (\rho E )({\nabla} \cdot \mathbf{v})+(\mathbf{c} \cdot \nabla) (\rho E)\\
+ &amp; = (\rho E )({\nabla} \cdot (\mathbf{c}+\mathbf{\hat{v}}))+(\mathbf{c} \cdot \nabla) (\rho E)\\
+ &amp; = (\rho E )({\nabla} \cdot \mathbf{c})+(\rho E )({\nabla} \cdot \mathbf{\hat{v}})+(\mathbf{c} \cdot \nabla) (\rho E)\\
+ &amp; = {\nabla} \cdot (\rho E \mathbf{c})+(\rho E )({\nabla} \cdot \mathbf{\hat{v}})\\
+\end{align}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+-E\frac{\partial\rho}{\partial t}\Bigg|_{\boldsymbol\chi}+\rho(\mathbf{c} \cdot \nabla) E
+&amp; = (E\mathbf{c}) \cdot \nabla \rho +(\rho E )({\nabla} \cdot \mathbf{v})+\rho(\mathbf{c} \cdot \nabla) E\\
+ &amp; = (\rho E )({\nabla} \cdot \mathbf{v})+(\mathbf{c} \cdot \nabla) (\rho E)\\
+ &amp; = (\rho E )({\nabla} \cdot \mathbf{v})+((\mathbf{v}-\mathbf{\hat{v}}) \cdot \nabla) (\rho E)\\
+ &amp; = (\rho E )({\nabla} \cdot \mathbf{v})+(\mathbf{v} \cdot \nabla) (\rho E)-(\mathbf{\hat{v}} \cdot \nabla) (\rho E)\\
+ &amp; = {\nabla} \cdot (\rho E \mathbf{v})+(\mathbf{\hat{v}} \cdot \nabla) (\rho E)\\
+\end{align}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\frac{\partial (\rho E)}{\partial t}\Bigg|_{\boldsymbol\chi}+{\nabla} \cdot (\rho E \mathbf{v})+(\mathbf{\hat{v}} \cdot \nabla) (\rho E)
+=\nabla \cdot(\boldsymbol{\sigma} \cdot \mathbf{v})+\mathbf{v} \cdot \rho \mathbf{b}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\frac{\partial (\rho E)}{\partial t}\Bigg|_{\boldsymbol\chi}+{\nabla} \cdot (\rho E \mathbf{c})+(\rho E )({\nabla} \cdot \mathbf{\hat{v}})
+=\nabla \cdot(\boldsymbol{\sigma} \cdot \mathbf{v})+\mathbf{v} \cdot \rho \mathbf{b}\]</div>
+</section>
+<section id="differential-forms-of-ale-conservation">
+<h3>Differential forms of ALE Conservation<a class="headerlink" href="#differential-forms-of-ale-conservation" title="Link to this heading"></a></h3>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+&amp;Mass:     &amp;\frac{\mathrm{d} \rho}{\mathrm{d} t}  &amp;= \left.\frac{\partial \rho}{\partial t}\right|_{\boldsymbol\chi}+\mathbf{c} \cdot \nabla \rho  = -\rho {\nabla} \cdot \mathbf{v} \\
+&amp;Momentum:  &amp;\rho \frac{\mathrm{d} \mathbf{v}}{\mathrm{d} t}  &amp;= \rho\left(\left.\frac{\partial \mathbf{v}}{\partial t}\right|_{\boldsymbol\chi}+(\mathbf{c} \cdot {\nabla}) \mathbf{v}\right)  = {\nabla} \cdot \boldsymbol{\sigma}+\rho \mathbf{b} \\
+&amp;Energy:   &amp;\rho \frac{\mathrm{d} E}{\mathrm{~d} t}  &amp;= \rho\left(\left.\frac{\partial E}{\partial t}\right|_{\boldsymbol\chi}+\mathbf{c} \cdot \nabla E\right)  = \nabla \cdot(\boldsymbol{\sigma} \cdot \mathbf{v})-\nabla\cdot\mathbf{q}+\mathbf{v} \cdot \rho \mathbf{b} \\
+\end{align}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+Mass\quad\quad\quad:     &amp;\frac{\partial \rho}{\partial t}\Bigg|_{\boldsymbol\chi}+{\nabla}\cdot(\rho\mathbf{v})-(\mathbf{\hat{v}}\cdot \nabla)( \rho) = 0\\
+Momentum:  &amp; \cfrac{\partial (\rho\mathbf{v})}{\partial t}\Bigg|_{\boldsymbol{\chi}}  +\text{div }(\rho\mathbf{v}\otimes\mathbf{v}) -(\mathbf{\hat{v}} \cdot \nabla)(\rho\mathbf{v})= {\nabla} \cdot \boldsymbol{\sigma}+\rho \mathbf{b} \\
+Energy\quad\quad:   &amp;\frac{\partial (\rho E)}{\partial t}\Bigg|_{\boldsymbol\chi}+{\nabla} \cdot (\rho E \mathbf{v})+(\mathbf{\hat{v}} \cdot \nabla) (\rho E) = \nabla \cdot(\boldsymbol{\sigma} \cdot \mathbf{v})-\nabla\cdot\mathbf{q}+\mathbf{v} \cdot \rho \mathbf{b} \\
+\end{align}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+Mass\quad\quad\quad&amp;:     \frac{\partial \rho}{\partial t}\Bigg|_{\boldsymbol\chi}+{\nabla}\cdot(\rho\mathbf{c})+(\rho) ({\nabla} \cdot \mathbf{\hat{v}}) = 0  \\
+Momentum&amp;:   \cfrac{\partial (\rho\mathbf{v})}{\partial t}\Bigg|_{\boldsymbol{\chi}}+\text{div }(\rho\mathbf{v}\otimes\mathbf{c}) +(\rho\mathbf{v})( {\nabla} \cdot \mathbf{\hat{v}})= {\nabla} \cdot \boldsymbol{\sigma}+\rho \mathbf{b} \\
+Energy\quad\quad&amp;:    \frac{\partial (\rho E)}{\partial t}\Bigg|_{\boldsymbol\chi}+{\nabla} \cdot (\rho E \mathbf{c})+(\rho E )({\nabla} \cdot \mathbf{\hat{v}}) = \nabla \cdot(\boldsymbol{\sigma} \cdot \mathbf{v})-\nabla\cdot\mathbf{q}+\mathbf{v} \cdot \rho \mathbf{b} \\
+\end{align}\end{split}\]</div>
+</section>
+<section id="integral-forms">
+<h3>Integral forms<a class="headerlink" href="#integral-forms" title="Link to this heading"></a></h3>
+<div class="math notranslate nohighlight">
+\[\cfrac{\text{d}m_{sys}}{\text{d}t}=\cfrac{\text{d}}{\text{d}t}\int_{\text{V}_t}\rho \text{d}V
++\int_{\text{S}_t}\rho\mathbf{c}\cdot\mathbf{n}\text{d}S=0\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\cfrac{\text{d}(mV)_{sys}}{\text{d}t}=\cfrac{\text{d}}{\text{d}t}\int_{\text{V}_t}(\rho\mathbf{v}) \text{d}V
++\int_{\text{S}_t}(\rho\mathbf{v})\mathbf{c}\cdot\mathbf{n}\text{d}S
+=\int_{\text{S}_t}(\boldsymbol\sigma\cdot\mathbf{n})\text{d}S\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\cfrac{\text{d}(mE)_{sys}}{\text{d}t}=\cfrac{\text{d}}{\text{d}t}\int_{\text{V}_t}(\rho E) \text{d}V
++\int_{\text{S}_t}(\rho E)\mathbf{c}\cdot\mathbf{n}\text{d}S
+=\int_{\text{S}_t}(\boldsymbol\sigma\cdot\mathbf{v}\cdot\mathbf{n})\text{d}S\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\cfrac{\text{d}}{\text{d}t}\int_{\text{V}_t}(\rho f) \text{d}V
+=\lim_{\Delta t \to 0} \cfrac{\displaystyle \int_{\text{V}_{t+\Delta t}}(\rho E) \text{d}V-\int_{\text{V}_{t}}(\rho E) \text{d}V}{\Delta t}\]</div>
+</section>
+</section>
+<section id="id1">
+<h2>Navier–Stokes equations<a class="headerlink" href="#id1" title="Link to this heading"></a></h2>
+<div class="math notranslate nohighlight">
+\[\cfrac{\partial \mathbf{Q}}{\partial t}
++\cfrac{\partial \mathbf{E}}{\partial x}
++\cfrac{\partial \mathbf{F}}{\partial y}
++\cfrac{\partial \mathbf{G}}{\partial z}
+=\cfrac{\partial \mathbf{E}_{v}}{\partial x}
++\cfrac{\partial \mathbf{F}_{v}}{\partial y}
++\cfrac{\partial \mathbf{G}_{v}}{\partial z}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+\mathbf{Q}=\begin{bmatrix}
+\rho  \\
+\rho u \\
+\rho v  \\
+\rho w  \\
+\rho E  \\
+\end{bmatrix}
+\quad
+\mathbf{E}=\begin{bmatrix}
+\rho u \\
+\rho uu+p \\
+\rho uv  \\
+\rho uw  \\
+\rho uH  \\
+\end{bmatrix}
+\quad
+\mathbf{F}=\begin{bmatrix}
+\rho v \\
+\rho vu \\
+\rho vv+p  \\
+\rho vw  \\
+\rho vH  \\
+\end{bmatrix}
+\quad
+\mathbf{G}=\begin{bmatrix}
+\rho w \\
+\rho wu \\
+\rho wv  \\
+\rho ww+p  \\
+\rho wH  \\
+\end{bmatrix}
+\end{align}\end{split}\]</div>
+<p><span class="math notranslate nohighlight">\(E\)</span> is the specific total energy, and <span class="math notranslate nohighlight">\(H\)</span> is the specific total enthalpy</p>
+<div class="math notranslate nohighlight">
+\[E=\frac{1}{\gamma-1} \frac{p}{\rho}+\frac{1}{2} (u^{2}+v^{2}+w^{2})=\frac{1}{\gamma-1} \frac{p}{\rho}+\frac{1}{2} \mathbf{v}^{2}\]</div>
+<div class="math notranslate nohighlight">
+\[H=E+\frac{p}{\rho}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\mathbf{E}_{v}=\begin{bmatrix}
+0 \\
+\tau_{xx} \\
+\tau_{yx}  \\
+\tau_{zx}  \\
+\tau_{vx}-q_{x}\\
+\end{bmatrix}
+\quad
+\mathbf{F}_{v}=\begin{bmatrix}
+0 \\
+\tau_{xy} \\
+\tau_{yy}  \\
+\tau_{zy}  \\
+\tau_{vy}-q_{y} \\
+\end{bmatrix}
+\quad
+\mathbf{G}_{v}=\begin{bmatrix}
+0 \\
+\tau_{xz} \\
+\tau_{yz}  \\
+\tau_{zz}  \\
+\tau_{vz}-q_{z} \\
+\end{bmatrix}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+\tau_{vx}=\tau_{xx}u+\tau_{xy}v+\tau_{xz}w\\
+\tau_{vy}=\tau_{yx}u+\tau_{yy}v+\tau_{yz}w\\
+\tau_{vz}=\tau_{zx}u+\tau_{zy}v+\tau_{zz}w\\
+\end{align}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\mathbf{q}=\begin{bmatrix}
+q_{x}\\
+q_{y}\\
+q_{z}
+\end{bmatrix}=\begin{bmatrix}
+-k\cfrac{\partial T}{\partial x}\\
+-k\cfrac{\partial T}{\partial y}\\
+-k\cfrac{\partial T}{\partial z}
+\end{bmatrix}\end{split}\]</div>
+<p>The heat conductivity <span class="math notranslate nohighlight">\(\kappa\)</span> can be evaluated through the viscosity coefficient <span class="math notranslate nohighlight">\(\mu\)</span> by utilizing the definition of the Prandtl number <span class="math notranslate nohighlight">\(Pr\)</span>,</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}Pr=\frac{c_{p}\mu }{\kappa }=\frac{\gamma R \mu}{\kappa (\gamma -1)}\Longrightarrow \kappa= \frac{\gamma R \mu}{Pr(\gamma -1)}\\\end{split}\]</div>
+<p>viscous stress tensor:</p>
+<div class="math notranslate nohighlight">
+\[\boldsymbol{\tau} = \lambda (\text{div }\mathbf{v})\mathbf{I}+\mu[(\text{grad }\mathbf{v})+(\text{grad }\mathbf{v})^{\text{T}}]\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\boldsymbol\tau =\begin{bmatrix}
+\tau_{xx}&amp; \tau_{xy} &amp; \tau_{xz}\\
+\tau_{yx}&amp; \tau_{yy} &amp; \tau_{yz}\\
+\tau_{zx}&amp; \tau_{zy} &amp; \tau_{zz}\\
+\end{bmatrix}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\text{div }\mathbf{v}=\cfrac{\partial u}{\partial x}+\cfrac{\partial v}{\partial y}+\cfrac{\partial w}{\partial z}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\lambda (\text{div }\mathbf{v})\mathbf{I}=\lambda \begin{bmatrix}
+\cfrac{\partial u}{\partial x}+\cfrac{\partial v}{\partial y}+\cfrac{\partial w}{\partial z}&amp; 0 &amp; 0\\
+0&amp; \cfrac{\partial u}{\partial x}+\cfrac{\partial v}{\partial y}+\cfrac{\partial w}{\partial z} &amp; 0\\
+0&amp; 0 &amp; \cfrac{\partial u}{\partial x}+\cfrac{\partial v}{\partial y}+\cfrac{\partial w}{\partial z}\\
+\end{bmatrix}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\lambda (\text{div }\mathbf{v})\mathbf{I}=\lambda \begin{bmatrix}
+\text{div }\mathbf{v}&amp; 0 &amp; 0\\
+0&amp; \text{div }\mathbf{v} &amp; 0\\
+0&amp; 0 &amp; \text{div }\mathbf{v}\\
+\end{bmatrix}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\text{grad }\mathbf{v}=[\nabla \mathbf{v}]^{\text T}=\begin{bmatrix}
+\cfrac{\partial u}{\partial x}&amp; \cfrac{\partial v}{\partial x} &amp; \cfrac{\partial w}{\partial x}\\
+\cfrac{\partial u}{\partial y}&amp; \cfrac{\partial v}{\partial y} &amp; \cfrac{\partial w}{\partial y}\\
+\cfrac{\partial u}{\partial z}&amp; \cfrac{\partial v}{\partial z} &amp; \cfrac{\partial w}{\partial z}\\
+\end{bmatrix}^{\text T} = \begin{bmatrix}
+\cfrac{\partial u}{\partial x}&amp; \cfrac{\partial u}{\partial y} &amp; \cfrac{\partial u}{\partial z}\\
+\cfrac{\partial v}{\partial x}&amp; \cfrac{\partial v}{\partial y} &amp; \cfrac{\partial v}{\partial z}\\
+\cfrac{\partial w}{\partial x}&amp; \cfrac{\partial w}{\partial y} &amp; \cfrac{\partial w}{\partial z}\\
+\end{bmatrix}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}(\text{grad }\mathbf{v})^{\text{T}}=[\nabla \mathbf{v}]=\begin{bmatrix}
+\cfrac{\partial u}{\partial x}&amp; \cfrac{\partial v}{\partial x} &amp; \cfrac{\partial w}{\partial x}\\
+\cfrac{\partial u}{\partial y}&amp; \cfrac{\partial v}{\partial y} &amp; \cfrac{\partial w}{\partial y}\\
+\cfrac{\partial u}{\partial z}&amp; \cfrac{\partial v}{\partial z} &amp; \cfrac{\partial w}{\partial z}\\
+\end{bmatrix}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\mu[(\text{grad }\mathbf{v})+(\text{grad }\mathbf{v})^{\text{T}}]=
+\mu([\nabla \mathbf{v}]^{\text{T}}+[\nabla \mathbf{v}])=
+\mu\begin{bmatrix}
+\cfrac{\partial u}{\partial x}+\cfrac{\partial u}{\partial x}&amp; \cfrac{\partial u}{\partial y}+\cfrac{\partial v}{\partial x} &amp; \cfrac{\partial u}{\partial z}+\cfrac{\partial w}{\partial x}\\
+\cfrac{\partial v}{\partial x}+\cfrac{\partial u}{\partial y}&amp; \cfrac{\partial v}{\partial y}+\cfrac{\partial v}{\partial y} &amp; \cfrac{\partial v}{\partial z}+\cfrac{\partial w}{\partial y}\\
+\cfrac{\partial w}{\partial x}+\cfrac{\partial u}{\partial z}&amp; \cfrac{\partial w}{\partial y}+\cfrac{\partial v}{\partial z} &amp; \cfrac{\partial w}{\partial z}+\cfrac{\partial w}{\partial z}\\
+\end{bmatrix}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+\tau_{xx} &amp; = \lambda \left ( \cfrac{\partial u}{\partial x}+
+                          \cfrac{\partial v}{\partial y}+
+                          \cfrac{\partial w}{\partial z} \right ) +
+                   2\mu \cfrac{\partial u}{\partial x}\\
+\tau_{yy} &amp; = \lambda \left ( \cfrac{\partial u}{\partial x}+
+                          \cfrac{\partial v}{\partial y}+
+                          \cfrac{\partial w}{\partial z} \right ) +
+                   2\mu \cfrac{\partial v}{\partial y}\\
+\tau_{zz} &amp; = \lambda \left ( \cfrac{\partial u}{\partial x}+
+                          \cfrac{\partial v}{\partial y}+
+                          \cfrac{\partial w}{\partial z} \right ) +
+                   2\mu \cfrac{\partial w}{\partial z}\\
+\end{align}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+\tau_{xy} &amp; = \mu \left ( \cfrac{\partial u}{\partial y}+
+                          \cfrac{\partial v}{\partial x}\right )
+\quad
+\tau_{yx}  = \mu \left ( \cfrac{\partial v}{\partial x}+
+                          \cfrac{\partial u}{\partial y}\right )\\
+\tau_{xz} &amp; = \mu \left ( \cfrac{\partial u}{\partial z}+
+                          \cfrac{\partial w}{\partial x}\right )
+\quad
+\tau_{zx}  = \mu \left ( \cfrac{\partial w}{\partial x}+
+                          \cfrac{\partial u}{\partial z}\right )\\
+\tau_{yz} &amp; = \mu \left ( \cfrac{\partial v}{\partial z}+
+                          \cfrac{\partial w}{\partial y}\right )
+\quad
+\tau_{zy}  = \mu \left ( \cfrac{\partial w}{\partial y}+
+                          \cfrac{\partial v}{\partial z}\right )\\
+\end{align}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\tau_{xx}+\tau_{yy}+\tau_{zz}=(3\lambda+2\mu) \left ( \cfrac{\partial u}{\partial x}+
+                          \cfrac{\partial v}{\partial y}+
+                          \cfrac{\partial w}{\partial z} \right )
+=(3\lambda+2\mu)\text{div }\mathbf{v}=(3\lambda+2\mu)(\nabla \cdot \mathbf{v})\]</div>
+<p>Stokes’ hypothesis states that the bulk viscosity of a Newtonian fluid can be set to zero.</p>
+<div class="math notranslate nohighlight">
+\[3\lambda +2\mu = 0\Longrightarrow \lambda=-\cfrac{2}{3} \mu\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\tau_{xx}+\tau_{yy}+\tau_{zz}=(3\lambda+2\mu) \left ( \cfrac{\partial u}{\partial x}+
+                          \cfrac{\partial v}{\partial y}+
+                          \cfrac{\partial w}{\partial z} \right )=0\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+\tau_{xx} &amp; = \frac{2}{3} \mu\left ( 2 \frac{\partial u}{\partial x}- \frac{\partial v}{\partial y}-\frac{\partial w}{\partial z}\right )\\
+\tau_{yy} &amp; = \frac{2}{3} \mu\left ( 2 \frac{\partial v}{\partial y}- \frac{\partial w}{\partial z}-\frac{\partial u}{\partial x}\right )\\
+\tau_{zz} &amp; = \frac{2}{3} \mu\left ( 2 \frac{\partial w}{\partial z}- \frac{\partial u}{\partial x}-\frac{\partial v}{\partial y}\right )\\
+\end{align}\end{split}\]</div>
+<p>The stress tensor</p>
+<div class="math notranslate nohighlight">
+\[\boldsymbol\sigma =-p\mathbf{I}+\boldsymbol{\tau}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\sigma_{ij}=-p\delta_{ij}+\mu \left ( \cfrac{\partial u_{i}}{\partial x_{j}}+ \cfrac{\partial u_{j}}{\partial x_{i}} \right )+\delta_{ij}\lambda  \nabla \cdot \mathbf{v}\]</div>
+<p>total stress tensor- Cauchy stress tensor</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\boldsymbol\sigma =\begin{bmatrix}
+\sigma_{xx}&amp; \sigma_{xy} &amp; \sigma_{xz}\\
+\sigma_{yx}&amp; \sigma_{yy} &amp; \sigma_{yz}\\
+\sigma_{zx}&amp; \sigma_{zy} &amp; \sigma_{zz}\\
+\end{bmatrix}\end{split}\]</div>
+<p>the deviatoric or viscous stress tensor.</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\boldsymbol\tau =\begin{bmatrix}
+\tau_{xx}&amp; \tau_{xy} &amp; \tau_{xz}\\
+\tau_{yx}&amp; \tau_{yy} &amp; \tau_{yz}\\
+\tau_{zx}&amp; \tau_{zy} &amp; \tau_{zz}\\
+\end{bmatrix}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+\boldsymbol\sigma &amp; = -\begin{bmatrix}
+p&amp; 0 &amp; 0\\
+0&amp; p &amp; 0\\
+0&amp; 0 &amp; p\\
+\end{bmatrix}+
+\begin{bmatrix}
+\tau_{xx}&amp; \tau_{xy} &amp; \tau_{xz}\\
+\tau_{yx}&amp; \tau_{yy} &amp; \tau_{yz}\\
+\tau_{zx}&amp; \tau_{zy} &amp; \tau_{zz}\\
+\end{bmatrix}
+\end{align}=-p\mathbf{I}+\boldsymbol\tau\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\boldsymbol\sigma =
+\begin{bmatrix}
+\tau_{xx}-p&amp; \tau_{xy} &amp; \tau_{xz}\\
+\tau_{yx}&amp; \tau_{yy}-p &amp; \tau_{yz}\\
+\tau_{zx}&amp; \tau_{zy} &amp; \tau_{zz}-p\\
+\end{bmatrix}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+\sigma_{xx}&amp;=\tau_{xx}-p\\
+\sigma_{yy}&amp;=\tau_{yy}-p\\
+\sigma_{zz}&amp;=\tau_{zz}-p\\
+\end{align}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+p &amp; = -\frac{1}{3}[ (\sigma_{xx}+\sigma_{yy}+\sigma_{zz})-(\tau_{xx}+\tau_{yy}+\tau_{zz})]\\
+&amp; = -\frac{1}{3}(\sigma_{xx}+\sigma_{yy}+\sigma_{zz})
+\end{align}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\text{div }\boldsymbol\tau=\nabla \cdot (\boldsymbol{\tau}^{\text{T}})=\cfrac{\partial \tau_{ij} }{\partial x_{j}}=
+\begin{bmatrix}
+\cfrac{\partial \tau_{11} }{\partial x_{1}}+
+\cfrac{\partial \tau_{12} }{\partial x_{2}}+
+\cfrac{\partial \tau_{13} }{\partial x_{3}}\\
+\cfrac{\partial \tau_{21} }{\partial x_{1}}+
+\cfrac{\partial \tau_{22} }{\partial x_{2}}+
+\cfrac{\partial \tau_{23} }{\partial x_{3}}\\
+\cfrac{\partial \tau_{31} }{\partial x_{1}}+
+\cfrac{\partial \tau_{32} }{\partial x_{2}}+
+\cfrac{\partial \tau_{33} }{\partial x_{3}}\\
+\end{bmatrix}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\text{div }\boldsymbol\tau=\nabla \cdot (\boldsymbol{\tau}^{\text{T}})=\cfrac{\partial \tau_{ij} }{\partial x_{j}}=
+\begin{bmatrix}
+\cfrac{\partial \tau_{xx} }{\partial x}+
+\cfrac{\partial \tau_{xy} }{\partial y}+
+\cfrac{\partial \tau_{xz} }{\partial z}\\
+\cfrac{\partial \tau_{yx} }{\partial x}+
+\cfrac{\partial \tau_{yy} }{\partial y}+
+\cfrac{\partial \tau_{yz} }{\partial z}\\
+\cfrac{\partial \tau_{zx} }{\partial x}+
+\cfrac{\partial \tau_{zy} }{\partial y}+
+\cfrac{\partial \tau_{zz} }{\partial z}\\
+\end{bmatrix}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+\text{div }\boldsymbol\tau &amp; = \nabla \cdot (\boldsymbol{\tau}^{\text{T}})
+= \cfrac{\partial \tau_{ij} }{\partial x_{j}} \\
+&amp; = \left ( \cfrac{\partial \tau_{xx} }{\partial x}+
+\cfrac{\partial \tau_{xy} }{\partial y}+
+\cfrac{\partial \tau_{xz} }{\partial z} \right )\mathbf{i}\\
+&amp;+  \left (  \cfrac{\partial \tau_{yx} }{\partial x}+
+\cfrac{\partial \tau_{yy} }{\partial y}+
+\cfrac{\partial \tau_{yz} }{\partial z}\\ \right )\mathbf{j}\\
+&amp;+ \left (  \cfrac{\partial \tau_{zx} }{\partial x}+
+\cfrac{\partial \tau_{zy} }{\partial y}+
+\cfrac{\partial \tau_{zz} }{\partial z}\ \right )\mathbf{k}
+\end{align}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}[\boldsymbol{\tau}\cdot \mathbf{v}]=
+\begin{bmatrix}
+  {\tau}_{xx}&amp; {\tau}_{xy} &amp; {\tau}_{xz}\\
+  {\tau}_{yx}&amp; {\tau}_{yy} &amp; {\tau}_{yz}\\
+  {\tau}_{zx}&amp; {\tau}_{zy} &amp; {\tau}_{zz}\\
+\end{bmatrix}
+\begin{bmatrix}
+  u\\ v\\  w\\
+\end{bmatrix}
+=\begin{bmatrix}
+  {\tau}_{xx}u+{\tau}_{xy}v+{\tau}_{xz}w\\
+  {\tau}_{yx}u+{\tau}_{yy}v+{\tau}_{yz}w\\
+  {\tau}_{zx}u+{\tau}_{zy}v+{\tau}_{zz}w\\
+\end{bmatrix}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+[\boldsymbol\tau \cdot \mathbf{v}]
+&amp;=(\tau_{xx}u+\tau_{xy}v+\tau_{xz}w)\mathbf{i}\\
+&amp;+(\tau_{yx}u+\tau_{yy}v+\tau_{yz}w)\mathbf{j}\\
+&amp;+(\tau_{zx}u+\tau_{zy}v+\tau_{zz}w)\mathbf{k}
+\end{align}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+\text{div }[\boldsymbol\tau \cdot \mathbf{v}]&amp;=\nabla \cdot [\boldsymbol\tau \cdot \mathbf{v}]\\
+&amp;=\cfrac{\partial(\tau_{xx}u+\tau_{xy}v+\tau_{xz}w) }{\partial x}\\
+&amp;+\cfrac{\partial(\tau_{yx}u+\tau_{yy}v+\tau_{yz}w) }{\partial y}\\
+&amp;+\cfrac{\partial(\tau_{zx}u+\tau_{zy}v+\tau_{zz}w) }{\partial z}\\
+\end{align}\end{split}\]</div>
+<p>Conservative form of the Navier-Stokes equations</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+\cfrac{\partial \rho}{\partial t}+\text{div }(\rho\mathbf{v})=0\\
+\cfrac{\partial (\rho\mathbf{v})}{\partial t}+\text{div }(\rho\mathbf{v}\otimes\mathbf{v})=\text{div }\boldsymbol\sigma\\
+\cfrac{\partial (\rho E)}{\partial t}+\text{div }(\rho\mathbf{v}H)=\text{div }(\boldsymbol\tau\cdot\mathbf{v})-\text{div }\mathbf{q}\\
+\end{align}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\mathbf{vv}\equiv \mathbf{v\otimes v}=[\mathbf{v}][\mathbf{v}]^{\text{T}}=\begin{bmatrix}
+u\\v\\w
+\end{bmatrix}\begin{bmatrix}
+ u&amp; v &amp;w
+\end{bmatrix}=\begin{bmatrix}
+uu &amp;uv  &amp;uw \\
+vu &amp;vv  &amp;vw \\
+wu &amp;wv  &amp;ww \\
+\end{bmatrix}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\text{div }(\mathbf{vv})\equiv \text{div }(\mathbf{v\otimes v}) = \text{div }(\mathbf{F})\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\mathbf{F}=\begin{bmatrix}
+uu &amp;uv  &amp;uw \\
+vu &amp;vv  &amp;vw \\
+wu &amp;wv  &amp;ww \\
+\end{bmatrix}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\text{div}\mathbf{F} = \nabla \cdot (\mathbf{F}^{\text T})=
+\begin{bmatrix}
+ \cfrac{\partial {F_{xx}}}{\partial x}
++\cfrac{\partial {F_{xy}}}{\partial y}
++\cfrac{\partial {F_{xz}}}{\partial z}\\
+ \cfrac{\partial {F_{yx}}}{\partial x}
++\cfrac{\partial {F_{yy}}}{\partial y}
++\cfrac{\partial {F_{yz}}}{\partial z}\\
+ \cfrac{\partial {F_{zx}}}{\partial x}
++\cfrac{\partial {F_{zy}}}{\partial y}
++\cfrac{\partial {F_{zz}}}{\partial z}\\
+\end{bmatrix}  =
+\begin{bmatrix}
+ \cfrac{\partial {(uu)}}{\partial x}
++\cfrac{\partial {(uv)}}{\partial y}
++\cfrac{\partial {(uw)}}{\partial z}\\
+ \cfrac{\partial {(vu)}}{\partial x}
++\cfrac{\partial {(vv)}}{\partial y}
++\cfrac{\partial {(vw)}}{\partial z}\\
+ \cfrac{\partial {(wu)}}{\partial x}
++\cfrac{\partial {(wv)}}{\partial y}
++\cfrac{\partial {(ww)}}{\partial z}\\
+\end{bmatrix}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+\text{div}\boldsymbol{\sigma}  = \nabla \cdot [\boldsymbol{\sigma}]^{\text T} &amp; = \begin{bmatrix}
+ \cfrac{\partial {{\sigma}_{xx}}}{\partial x}
++\cfrac{\partial {{\sigma}_{xy}}}{\partial y}
++\cfrac{\partial {{\sigma}_{xz}}}{\partial z}\\
+ \cfrac{\partial {{\sigma}_{yx}}}{\partial x}
++\cfrac{\partial {{\sigma}_{yy}}}{\partial y}
++\cfrac{\partial {{\sigma}_{yz}}}{\partial z}\\
+ \cfrac{\partial {{\sigma}_{zx}}}{\partial x}
++\cfrac{\partial {{\sigma}_{zy}}}{\partial y}
++\cfrac{\partial {{\sigma}_{zz}}}{\partial z}\\
+\end{bmatrix} \\&amp; = \begin{bmatrix}
+ \cfrac{\partial {({\tau}_{xx}-p)}}{\partial x}
++\cfrac{\partial {{\tau}_{xy}}}{\partial y}
++\cfrac{\partial {{\tau}_{xz}}}{\partial z}\\
+ \cfrac{\partial {{\tau}_{yx}}}{\partial x}
++\cfrac{\partial {({\tau}_{yy}-p})}{\partial y}
++\cfrac{\partial {{\tau}_{yz}}}{\partial z}\\
+ \cfrac{\partial {{\tau}_{zx}}}{\partial x}
++\cfrac{\partial {{\tau}_{zy}}}{\partial y}
++\cfrac{\partial {({\tau}_{zz}-p)}}{\partial z}\\
+\end{bmatrix}\\
+&amp; = \begin{bmatrix}
+ \cfrac{\partial {{\tau}_{xx}}}{\partial x}
++\cfrac{\partial {{\tau}_{xy}}}{\partial y}
++\cfrac{\partial {{\tau}_{xz}}}{\partial z}\\
+ \cfrac{\partial {{\tau}_{yx}}}{\partial x}
++\cfrac{\partial {{\tau}_{yy}}}{\partial y}
++\cfrac{\partial {{\tau}_{yz}}}{\partial z}\\
+ \cfrac{\partial {{\tau}_{zx}}}{\partial x}
++\cfrac{\partial {{\tau}_{zy}}}{\partial y}
++\cfrac{\partial {{\tau}_{zz}}}{\partial z}\\
+\end{bmatrix}-
+\begin{bmatrix}
+\cfrac{\partial {p}}{\partial x}\\
+\cfrac{\partial {p}}{\partial y}\\
+\cfrac{\partial {p}}{\partial z}\\
+\end{bmatrix}
+\end{align}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\text{div }\boldsymbol{\sigma}  = \nabla \cdot [\boldsymbol{\sigma}]^{\text T}
+=\text{div }\boldsymbol{\tau}-\text{grad }p
+=\text{div }\boldsymbol{\tau}-\nabla p
+=\nabla \cdot [\boldsymbol{\tau}]^{\text T}-\nabla p\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+\text{div }\mathbf{q}  = \nabla \cdot\mathbf{q} &amp; = \
+\begin{bmatrix}
+\cfrac{\partial {q}}{\partial x}\\
+\cfrac{\partial {q}}{\partial y}\\
+\cfrac{\partial {q}}{\partial z}\\
+\end{bmatrix}
+\end{align}\end{split}\]</div>
+<p>Primitive form of the Navier-Stokes equations</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+\cfrac{\text{d} \rho}{\text{d} t}+\rho\text{ div }\mathbf{v} &amp; = 0\\
+\rho\cfrac{\text{d} \mathbf{v}}{\text{d} t}=\text{div }\boldsymbol\sigma&amp;=\text{div }\boldsymbol\tau-\text{grad }p\\
+\cfrac{\text{d} p}{\text{d} t}+\gamma p\text{ div }\mathbf{v}&amp;=(\gamma-1)[\boldsymbol\tau:\text{grad }\mathbf{v}-\text{div }\mathbf{q}]\\
+\end{align}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+\cfrac{\text{d} \alpha}{\text{d} t} &amp; = \cfrac{\partial \alpha}{\partial t}+u\cfrac{\partial \alpha}{\partial x}+v\cfrac{\partial \alpha}{\partial y}+w\cfrac{\partial \alpha}{\partial z}\\
+&amp;= \cfrac{\partial \alpha}{\partial t}+\mathbf{v}\cdot \text{ grad } \alpha\\
+&amp;= \cfrac{\partial \alpha}{\partial t}+\mathbf{v}\cdot \nabla \alpha\\
+\end{align}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\text{div }(\phi\mathbf{v})=\phi\text{ div }\mathbf{v}+\mathbf{v}\cdot \text{ grad }\phi\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\text{div }(\rho\mathbf{v})=\rho\text{ div }\mathbf{v}+\mathbf{v}\cdot \text{ grad }\rho\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\cfrac{\text{d} \rho}{\text{d} t}= \cfrac{\partial \rho}{\partial t}+\mathbf{v}\cdot \text{ grad } \rho\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+\cfrac{\partial \rho}{\partial t}+\text{div }(\rho\mathbf{v}) &amp; = \cfrac{\partial \rho}{\partial t}+\rho\text{ div }\mathbf{v}+\mathbf{v}\cdot \text{ grad }\rho \\
+ &amp;= \cfrac{\text{d} \rho}{\text{d} t}+\rho\text{ div }\mathbf{v}
+\end{align}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+\cfrac{\text{d} u}{\text{d} t} &amp; = \cfrac{\partial u}{\partial t}+\mathbf{v}\cdot \text{ grad } u\\
+\cfrac{\text{d} v}{\text{d} t} &amp; = \cfrac{\partial v}{\partial t}+\mathbf{v}\cdot \text{ grad } v\\
+\cfrac{\text{d} w}{\text{d} t} &amp; = \cfrac{\partial w}{\partial t}+\mathbf{v}\cdot \text{ grad } w\\
+\end{align}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+\mathbf{v}\cdot \text{ grad } u &amp; = u\cfrac{\partial u}{\partial x}+v\cfrac{\partial u}{\partial y}+w\cfrac{\partial u}{\partial z}\\
+\mathbf{v}\cdot \text{ grad } v &amp; = u\cfrac{\partial v}{\partial x}+v\cfrac{\partial v}{\partial y}+w\cfrac{\partial v}{\partial z}\\
+\mathbf{v}\cdot \text{ grad } w &amp; = u\cfrac{\partial w}{\partial x}+v\cfrac{\partial w}{\partial y}+w\cfrac{\partial w}{\partial z}\\
+\end{align}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}(\text{grad }\mathbf{v})^{\text{T}}=[\nabla \mathbf{v}]=\begin{bmatrix}
+\cfrac{\partial u}{\partial x}&amp; \cfrac{\partial v}{\partial x} &amp; \cfrac{\partial w}{\partial x}\\
+\cfrac{\partial u}{\partial y}&amp; \cfrac{\partial v}{\partial y} &amp; \cfrac{\partial w}{\partial y}\\
+\cfrac{\partial u}{\partial z}&amp; \cfrac{\partial v}{\partial z} &amp; \cfrac{\partial w}{\partial z}\\
+\end{bmatrix}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+[\mathbf{v}^{\text{T}}][(\text{grad }\mathbf{v})^{\text{T}}] &amp; = [\mathbf{v}^{\text{T}}][\nabla \mathbf{v}]  = \begin{bmatrix}
+u&amp;v  &amp;w
+\end{bmatrix}
+\begin{bmatrix}
+\cfrac{\partial u}{\partial x}&amp; \cfrac{\partial v}{\partial x} &amp; \cfrac{\partial w}{\partial x}\\
+\cfrac{\partial u}{\partial y}&amp; \cfrac{\partial v}{\partial y} &amp; \cfrac{\partial w}{\partial y}\\
+\cfrac{\partial u}{\partial z}&amp; \cfrac{\partial v}{\partial z} &amp; \cfrac{\partial w}{\partial z}\\
+\end{bmatrix}\\
+&amp;=\begin{bmatrix}
+u\cfrac{\partial u}{\partial x}+v\cfrac{\partial u}{\partial y}+w\cfrac{\partial u}{\partial z}\\
+u\cfrac{\partial v}{\partial x}+v\cfrac{\partial v}{\partial y}+w\cfrac{\partial v}{\partial z}\\
+u\cfrac{\partial w}{\partial x}+v\cfrac{\partial w}{\partial y}+w\cfrac{\partial w}{\partial z}\\
+\end{bmatrix}^{\text{T}}
+\end{align}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[(\mathbf{A}\mathbf{B})^{\text{T}}=\mathbf{B}^{\text{T}}\mathbf{A}^{\text{T}}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+[(\text{grad }\mathbf{v})][\mathbf{v}] &amp; = [\nabla \mathbf{v}]^{\text{T}}[\mathbf{v}]  =
+\begin{bmatrix}
+\cfrac{\partial u}{\partial x}&amp; \cfrac{\partial u}{\partial y} &amp; \cfrac{\partial u}{\partial y}\\
+\cfrac{\partial v}{\partial x}&amp; \cfrac{\partial v}{\partial y} &amp; \cfrac{\partial v}{\partial y}\\
+\cfrac{\partial w}{\partial x}&amp; \cfrac{\partial w}{\partial y} &amp; \cfrac{\partial w}{\partial y}\\
+\end{bmatrix}
+\begin{bmatrix}
+u\\v\\w\\
+\end{bmatrix}
+\\
+&amp;=\begin{bmatrix}
+u\cfrac{\partial u}{\partial x}+v\cfrac{\partial u}{\partial y}+w\cfrac{\partial u}{\partial z}\\
+u\cfrac{\partial v}{\partial x}+v\cfrac{\partial v}{\partial y}+w\cfrac{\partial v}{\partial z}\\
+u\cfrac{\partial w}{\partial x}+v\cfrac{\partial w}{\partial y}+w\cfrac{\partial w}{\partial z}\\
+\end{bmatrix}
+\end{align}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+\cfrac{\text{d} \mathbf{v}}{\text{d} t} &amp; = \cfrac{\partial \mathbf{v}}{\partial t}+[(\text{grad }\mathbf{v})][\mathbf{v}]\\
+\cfrac{\text{d} \mathbf{v}}{\text{d} t} &amp; = \cfrac{\partial \mathbf{v}}{\partial t}+[\nabla \mathbf{v}]^{\text{T}}[\mathbf{v}] \\
+\cfrac{\text{d} \mathbf{v}}{\text{d} t} &amp; = \cfrac{\partial \mathbf{v}}{\partial t}+ (\mathbf{v}\cdot \nabla)\mathbf{v} \\
+\cfrac{\text{d} \boldsymbol{\alpha}}{\text{d} t} &amp; = \cfrac{\partial \boldsymbol{\alpha}}{\partial t}+ (\mathbf{v}\cdot \nabla)\boldsymbol{\alpha} \\
+\end{align}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+ (\mathbf{a}\otimes \mathbf{b})\cdot \mathbf{c}&amp;=\mathbf{a}(\mathbf{b}\cdot\mathbf{c})\\
+\text{div }(\mathbf{a}\otimes \mathbf{b}) &amp; = (\text{grad }\mathbf{a})\cdot \mathbf{b}+\mathbf{a}\text{ div }\mathbf{b}\\
+\text{div }(\phi \mathbf{T}) &amp; = \mathbf{T}\cdot (\text{grad }\phi)+\phi\text{ div }\mathbf{T}\\
+\text{div }(\phi (\mathbf{a}\otimes \mathbf{b})) &amp; = (\mathbf{a}\otimes \mathbf{b})\cdot (\text{grad }\phi)+\phi\text{ div }(\mathbf{a}\otimes \mathbf{b})\\
+ (\mathbf{a}\otimes \mathbf{b})\cdot (\text{grad }\phi)&amp;=\mathbf{a}(\mathbf{b}\cdot(\text{grad }\phi))
+\end{align}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+\text{div }(\rho(\mathbf{v}\otimes \mathbf{v})) &amp; = (\mathbf{v}\otimes \mathbf{v})\cdot (\text{grad }\rho)+\rho\text{ div }(\mathbf{a}\otimes \mathbf{b})\\
+\text{div }(\rho(\mathbf{v}\otimes \mathbf{v})) &amp; = {\mathbf{v}}(\mathbf{v}\cdot (\text{grad }\rho))+\rho\text{ div }(\mathbf{v}\otimes \mathbf{v})\\
+\end{align}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{c}
+\cfrac{\text{d} \rho}{\text{d} t}  = \cfrac{\partial \rho}{\partial t}+\mathbf{v}\cdot \text{grad }\rho\\
+\cfrac{\text{d} \rho}{\text{d} t} - \cfrac{\partial \rho}{\partial t}=\mathbf{v}\cdot \text{grad }\rho\\
+\mathbf{v}\cdot \text{grad }\rho=\cfrac{\text{d} \rho}{\text{d} t} - \cfrac{\partial \rho}{\partial t}\\
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\mathbf{v}(\mathbf{v}\cdot \text{grad }\rho)=\mathbf{v}\cfrac{\text{d} \rho}{\text{d} t} - \mathbf{v}\cfrac{\partial \rho}{\partial t}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+\rho  \cfrac{\text{d} \mathbf{v}}{\text{d} t} &amp; = \rho\cfrac{\partial \mathbf{v}}{\partial t}+\rho[(\text{grad }\mathbf{v})][\mathbf{v}]\\
+\rho\cfrac{\text{d} \mathbf{v}}{\text{d} t} &amp; = \rho\cfrac{\partial \mathbf{v}}{\partial t}+\rho[\nabla \mathbf{v}]^{\text{T}}[\mathbf{v}] \\
+\end{align}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+\cfrac{\partial (\rho\mathbf{v})}{\partial t}=\rho\cfrac{\partial \mathbf{v}}{\partial t}+\mathbf{v}\cfrac{\partial \rho}{\partial t}\\
+\rho\cfrac{\partial \mathbf{v}}{\partial t}=  \cfrac{\partial (\rho\mathbf{v})}{\partial t}-\mathbf{v}\cfrac{\partial \rho}{\partial t}\\
+\end{align}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+&amp;\cfrac{\partial (\rho\mathbf{v})}{\partial t}+\text{div }(\rho\mathbf{v}\otimes\mathbf{v}) \\
+=&amp; \cfrac{\partial (\rho\mathbf{v})}{\partial t}+{\mathbf{v}}(\mathbf{v}\cdot (\text{grad }\rho))+\rho\text{ div }(\mathbf{v}\otimes \mathbf{v})\\
+=&amp; \rho\cfrac{\partial \mathbf{v}}{\partial t}+\mathbf{v}\cfrac{\partial \rho}{\partial t}+{\mathbf{v}}(\mathbf{v}\cdot (\text{grad }\rho))+\rho\text{ div }(\mathbf{v}\otimes \mathbf{v})\\
+=&amp; \rho\cfrac{\partial \mathbf{v}}{\partial t}+\mathbf{v}\cfrac{\partial \rho}{\partial t}+[\mathbf{v}\cfrac{\text{d} \rho}{\text{d} t} - \mathbf{v}\cfrac{\partial \rho}{\partial t}]+\rho\text{ div }(\mathbf{v}\otimes \mathbf{v})\\
+=&amp; \rho\cfrac{\partial \mathbf{v}}{\partial t}+\mathbf{v}\cfrac{\text{d} \rho}{\text{d} t}+\rho\text{ div }(\mathbf{v}\otimes \mathbf{v})\\
+\end{align}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+\rho\cfrac{\partial \mathbf{v}}{\partial t}&amp;= \rho  \cfrac{\text{d} \mathbf{v}}{\text{d} t} -\rho[(\text{grad }\mathbf{v})][\mathbf{v}]\\
+\rho\cfrac{\partial \mathbf{v}}{\partial t}&amp;= \rho  \cfrac{\text{d} \mathbf{v}}{\text{d} t} -\rho[\nabla \mathbf{v}]^{\text{T}}[\mathbf{v}]\\
+\end{align}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+&amp;\cfrac{\partial (\rho\mathbf{v})}{\partial t}+\text{div }(\rho\mathbf{v}\otimes\mathbf{v}) \\
+=&amp; \rho\cfrac{\partial \mathbf{v}}{\partial t}+\mathbf{v}\cfrac{\text{d} \rho}{\text{d} t}+\rho\text{ div }(\mathbf{v}\otimes \mathbf{v})\\
+=&amp; (\rho  \cfrac{\text{d} \mathbf{v}}{\text{d} t} -\rho[(\text{grad }\mathbf{v})][\mathbf{v}])+\mathbf{v}\cfrac{\text{d} \rho}{\text{d} t}+\rho\text{ div }(\mathbf{v}\otimes \mathbf{v})\\
+=&amp; \rho  \cfrac{\text{d} \mathbf{v}}{\text{d} t}+\mathbf{v}\cfrac{\text{d} \rho}{\text{d} t}-\rho[(\text{grad }\mathbf{v})][\mathbf{v}]+\rho\text{ div }(\mathbf{v}\otimes \mathbf{v})\\
+\end{align}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+\text{div }(\mathbf{v}\otimes \mathbf{v}) &amp; = (\text{grad }\mathbf{v})\cdot \mathbf{v}+\mathbf{v}\text{ div }\mathbf{v}\\
+\rho \text{ div }(\mathbf{v}\otimes \mathbf{v}) &amp; = \rho (\text{grad }\mathbf{v})\cdot \mathbf{v}+\rho \mathbf{v}\text{ div }\mathbf{v}\\
+\end{align}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+&amp;\cfrac{\partial (\rho\mathbf{v})}{\partial t}+\text{div }(\rho\mathbf{v}\otimes\mathbf{v}) \\
+=&amp; \rho  \cfrac{\text{d} \mathbf{v}}{\text{d} t}+\mathbf{v}\cfrac{\text{d} \rho}{\text{d} t}-\rho[(\text{grad }\mathbf{v})][\mathbf{v}]+\rho\text{ div }(\mathbf{v}\otimes \mathbf{v})\\
+=&amp; \rho  \cfrac{\text{d} \mathbf{v}}{\text{d} t}+\mathbf{v}\cfrac{\text{d} \rho}{\text{d} t}-\rho[(\text{grad }\mathbf{v})][\mathbf{v}]+\rho (\text{grad }\mathbf{v})\cdot \mathbf{v}+\rho \mathbf{v}\text{ div }\mathbf{v}\\
+=&amp; \rho  \cfrac{\text{d} \mathbf{v}}{\text{d} t}+\mathbf{v}\cfrac{\text{d} \rho}{\text{d} t}+\rho \mathbf{v}\text{ div }\mathbf{v}\\
+=&amp; \rho  \cfrac{\text{d} \mathbf{v}}{\text{d} t}+\mathbf{v}(\cfrac{\text{d} \rho}{\text{d} t}+\rho \text{ div }\mathbf{v})\\
+=&amp; \rho  \cfrac{\text{d} \mathbf{v}}{\text{d} t}+\mathbf{v}\cdot(0)\\
+=&amp; \rho  \cfrac{\text{d} \mathbf{v}}{\text{d} t}\\
+\end{align}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\mathbf{A}:\mathbf{B}=\text{tr}(\mathbf{A}^{\text{T}}\mathbf{B})
+=\text{tr}(\mathbf{A}\mathbf{B}^{\text{T}})
+=\text{tr}(\mathbf{B}^{\text{T}}\mathbf{A})
+=\text{tr}(\mathbf{B}\mathbf{A}^{\text{T}})\\\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\text{div }(\mathbf{T}\cdot\mathbf{v}) = \mathbf{v}\cdot(\text{div }\mathbf{T}^{\text{T}})+\text{tr}(\mathbf{T}\cdot \text{grad }\mathbf{v})\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+\cfrac{\text{d} \alpha}{\text{d} t} &amp; = \cfrac{\partial \alpha}{\partial t}+u\cfrac{\partial \alpha}{\partial x}+v\cfrac{\partial \alpha}{\partial y}+w\cfrac{\partial \alpha}{\partial z}\\
+&amp;= \cfrac{\partial \alpha}{\partial t}+\mathbf{v}\cdot \text{ grad } \alpha\\
+&amp;= \cfrac{\partial \alpha}{\partial t}+\mathbf{v}\cdot \nabla \alpha\\
+\end{align}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\cfrac{\text{d} f}{\text{d} t}=\cfrac{\partial f}{\partial t}\Bigg|_{\boldsymbol{\xi}}
+=\cfrac{\partial f}{\partial t}\Bigg|_{\boldsymbol{\chi}}+\cfrac{\partial f}{\partial \mathbf{x}}\cdot \mathbf{c}
+=\cfrac{\partial f}{\partial t}\Bigg|_{\boldsymbol{\chi}}+\mathbf{c} \cdot \nabla {f}\\\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\cfrac{\text{d} f}{\text{d} t} = \cfrac{\partial f}{\partial t}\Bigg|_{\boldsymbol{\chi}}
++{c}_{1}  \cfrac{\partial f}{\partial x}
++{c}_{2}  \cfrac{\partial f}{\partial y}
++{c}_{3}  \cfrac{\partial f}{\partial z}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+\cfrac{\text{d} u}{\text{d} t} &amp;= \cfrac{\partial u}{\partial t}\Bigg|_{\boldsymbol{\chi}}
++{c}_{1}  \cfrac{\partial u}{\partial x}
++{c}_{2}  \cfrac{\partial u}{\partial y}
++{c}_{3}  \cfrac{\partial u}{\partial z}\\
+\cfrac{\text{d} v}{\text{d} t} &amp;= \cfrac{\partial v}{\partial t}\Bigg|_{\boldsymbol{\chi}}
++{c}_{1}  \cfrac{\partial v}{\partial x}
++{c}_{2}  \cfrac{\partial v}{\partial y}
++{c}_{3}  \cfrac{\partial v}{\partial z}\\
+\cfrac{\text{d} w}{\text{d} t} &amp;= \cfrac{\partial w}{\partial t}\Bigg|_{\boldsymbol{\chi}}
++{c}_{1}  \cfrac{\partial w}{\partial x}
++{c}_{2}  \cfrac{\partial w}{\partial y}
++{c}_{3}  \cfrac{\partial w}{\partial z}\\
+\end{align}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\cfrac{\text{d} \mathbf{v}}{\text{d} t} = \cfrac{\partial \mathbf{v}}{\partial t}\Bigg|_{\boldsymbol{\chi}}
++(\mathbf{c}\cdot \nabla) \mathbf{v}\]</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="index.html" class="btn btn-neutral float-left" title="CFD" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="leibniz.html" class="btn btn-neutral float-right" title="Leibniz integral" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2017~2024, eric.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

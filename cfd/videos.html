@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CFD &amp; CAE Videos &mdash; Scientific Computing 1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../_static/documentation_options.js?v=f2a433a1"></script>
+        <script src="../_static/doctools.js?v=888ff710"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Books" href="books.html" />
+    <link rel="prev" title="Reference Codes" href="codes.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Scientific Computing
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Get started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../info.html">OneFLOW</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../user.html">THEORY</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../bash.html">Bash</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">CFD</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="ns.html">Navier–Stokes equations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="leibniz.html">Leibniz integral</a></li>
+<li class="toctree-l2"><a class="reference internal" href="rtt.html">Reynolds’ transport theorem</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mass.html">Conservation Of Mass</a></li>
+<li class="toctree-l2"><a class="reference internal" href="momenum.html">Momentum Analysis Of Flow Systems</a></li>
+<li class="toctree-l2"><a class="reference internal" href="energy.html">Conservation Of Energy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ns-integral.html">ALE Form of Conservation Equations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="curvilinear.html">Generalized Curvilinear Coordinate System</a></li>
+<li class="toctree-l2"><a class="reference internal" href="curvilinear3d.html">Generalized Curvilinear Coordinate System(3D)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="vector.html">Vector &amp; Tensor</a></li>
+<li class="toctree-l2"><a class="reference internal" href="matrix.html">Matrix</a></li>
+<li class="toctree-l2"><a class="reference internal" href="calculus.html">Calculus</a></li>
+<li class="toctree-l2"><a class="reference internal" href="substitution.html">Substitution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="jacobian.html">Jacobian matrix</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gauss.html">Gauss’s Theorem</a></li>
+<li class="toctree-l2"><a class="reference internal" href="strain.html">Strain Measures</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ale.html">Arbitrary Lagrangian-Eulerian</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ale1d.html">ALE 1D</a></li>
+<li class="toctree-l2"><a class="reference internal" href="deformation.html">Deformation and Motion</a></li>
+<li class="toctree-l2"><a class="reference internal" href="derivative.html">Fluid Derivative</a></li>
+<li class="toctree-l2"><a class="reference internal" href="material_derivative.html">Material Time Derivative</a></li>
+<li class="toctree-l2"><a class="reference internal" href="scheme/index.html">CFD Schemes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="examples/index.html">CFD Examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="method/index.html">CFD Methods</a></li>
+<li class="toctree-l2"><a class="reference internal" href="codes.html">Reference Codes</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">CFD &amp; CAE Videos</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#bilibili-video">Bilibili Video</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#bilibili-content-creator">Bilibili Content Creator</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#youtuber">Youtuber</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#youtube-video">Youtube Video</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#homepage">Homepage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#article">Article</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#codes">Codes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#coding-adventure">Coding Adventure</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="books.html">Books</a></li>
+<li class="toctree-l2"><a class="reference internal" href="docs.html">Documents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../cgns.html">CGNS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../chatgpt.html">CHATGPT</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cpp/index.html">CPP</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cmake.html">CMake</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cmd.html">Cmd</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cuda.html">CUDA</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../design_patterns.html">Design Patterns</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../eigen.html">Eigen3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../git.html">Git</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../git.html#contexts">Contexts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fortran.html">Fortran</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../hdf5.html">HDF5</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../hpc.html">HPC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../install/index.html">Install</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../julia.html">Julia</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../jupyter.html">Jupyter Notebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../latex.html">LaTeX</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../makefile.html">Makefile</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../metis.html">METIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../mkdocs.html">MkDocs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../modules.html">Environment Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../mpi.html">MPI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../numerical/index.html">Numerical analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../oneapi.html">oneAPI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../oneflow.html">OneFLOW-CFD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../openacc.html">OpenACC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../opencl.html">OpenCL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../opengl.html">OpenGL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../openmp.html">OpenMP</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../powershell.html">PowerShell</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../python/index.html">Python</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../qt.html">Qt</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../regex.html">Regular Expressions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../science.html">Science</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sphinx.html">Sphinx</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../system/index.html">System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../taichi.html">Taichi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tcltk.html">Tcl/tk</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tecplot.html">Tecplot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../test.html">Test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../unreal_engine.html">Unreal Engine</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../vcpkg.html">vcpkg</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../yaml.html">yaml</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Scientific Computing</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">CFD</a></li>
+      <li class="breadcrumb-item active">CFD &amp; CAE Videos</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/cfd/videos.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="cfd-cae-videos">
+<h1>CFD &amp; CAE Videos<a class="headerlink" href="#cfd-cae-videos" title="Link to this heading"></a></h1>
+<section id="bilibili-video">
+<h2>Bilibili Video<a class="headerlink" href="#bilibili-video" title="Link to this heading"></a></h2>
+<ol class="arabic simple">
+<li><p><a class="reference external" href="https://www.bilibili.com/video/BV1vE411W7kV/">计算流体力学（CFD）入门 课程合集持续更新中 天津大学刘建新</a></p></li>
+<li><p><a class="reference external" href="https://www.bilibili.com/video/BV1oS4y1t7e5/">现代流体力学数值模拟方法——西北工业大学（2022秋）</a></p></li>
+<li><p><a class="reference external" href="https://www.bilibili.com/video/BV1JT4y1r74p/">国科大计算流体力学录像2020年春季学期|CFD课程—李新亮老师</a></p></li>
+<li><p><a class="reference external" href="https://www.bilibili.com/video/BV1m7411K7ig/">李新亮老师的计算流体力学（CFD）课程视频 2020</a></p></li>
+<li><p><a class="reference external" href="https://www.bilibili.com/video/BV1s54y1N7sD/">计算流体力学（CFD）李新亮老师（带PPT课件）</a></p></li>
+<li><p><a class="reference external" href="https://www.bilibili.com/video/BV1tk4y1s7F5/">CFD计算流体力学-CFD编程-非常基础篇</a></p></li>
+<li><p><a class="reference external" href="https://www.bilibili.com/video/BV1Bo4y1s7NZ/">CFD从0到1-曾导SJTU</a></p></li>
+<li><p><a class="reference external" href="https://www.bilibili.com/video/BV1wQ4y1k77R/">CFD有限体积法：基础篇-犀利程</a></p></li>
+<li><p><a class="reference external" href="https://www.bilibili.com/video/BV1WP4y1L7ch/">推荐一本极好的CFD入门书籍，作者代码功底深厚</a></p></li>
+<li><p><a class="reference external" href="https://www.bilibili.com/video/BV1zF411w73W/">有限元基础编程</a></p></li>
+<li><p><a class="reference external" href="https://www.bilibili.com/video/BV1p84y1z74P/">有限元编程书籍强烈推荐！！！</a></p></li>
+<li><p><a class="reference external" href="https://www.bilibili.com/video/BV1d4411i7Wr/">《有限元分析及应用》清华大学 曾攀老师主讲（全13章）</a></p></li>
+<li><p><a class="reference external" href="https://www.bilibili.com/video/BV1EL411A7gu/">【国外最好CFD理论讲解】中文字幕合集</a></p></li>
+<li><p><a class="reference external" href="https://www.bilibili.com/video/BV1tg4y1n77Q/">CFD之道|计算流体力学入门</a></p></li>
+<li><p><a class="reference external" href="https://www.bilibili.com/video/BV1vY4y1r7TG/">无痛苦CFD系列课程(持续更新中，欢迎参与制作）</a></p></li>
+<li><p><a class="reference external" href="https://www.bilibili.com/video/BV1WP4y1L7ch/">推荐一本极好的CFD入门书籍，作者代码功底深厚|Red-Green鲤鱼</a></p></li>
+<li><p><a class="reference external" href="https://www.bilibili.com/video/BV1Eb4y1t74e/">可能是目前全网最好的CFD入门编程课，没有之一|大官人学CFD</a></p></li>
+<li><p><a class="reference external" href="https://www.bilibili.com/video/BV1nY4y1a7XS/">计算流体力学（CFD）概论完整课程，从入门到实际应用—佛罗里达大学课程，中文字幕</a></p></li>
+<li><p><a class="reference external" href="https://www.bilibili.com/video/BV1wZ4y117ns/">使用MATLAB进行计算流体力学CFD分析 (ICFDM)完整课程-中文字幕</a></p></li>
+<li><p><a class="reference external" href="https://www.bilibili.com/video/BV1Zv411t7Lj/">有限元基础编程-何晓明-2020-11-29</a></p></li>
+<li><p><a class="reference external" href="https://www.bilibili.com/video/BV1f44y1271A/">多物理场有限元软件 MOOSE Virtual Workshop (Summer 2020)</a></p></li>
+<li><p><a class="reference external" href="https://www.bilibili.com/video/BV17D4y1o7J2/">蒙特卡洛（Monte Carlo, MCMC）方法的原理和应用</a></p></li>
+</ol>
+</section>
+<section id="bilibili-content-creator">
+<h2>Bilibili Content Creator<a class="headerlink" href="#bilibili-content-creator" title="Link to this heading"></a></h2>
+<ol class="arabic simple">
+<li><p><a class="reference external" href="https://space.bilibili.com/196986312/">大官人学CFD</a></p></li>
+<li><p><a class="reference external" href="https://space.bilibili.com/14767534/">犀利程</a></p></li>
+<li><p><a class="reference external" href="https://space.bilibili.com/176075/">新世纪之光-天津大学刘建新</a></p></li>
+<li><p><a class="reference external" href="https://space.bilibili.com/384325406/">Red-Green鲤鱼</a></p></li>
+<li><p><a class="reference external" href="https://space.bilibili.com/518794423/">曾导SJTU</a></p></li>
+<li><p><a class="reference external" href="https://space.bilibili.com/77228658/">口算N-S方程</a></p></li>
+<li><p><a class="reference external" href="https://space.bilibili.com/1995395805/">科博朕</a></p></li>
+<li><p><a class="reference external" href="https://space.bilibili.com/393390076/">国家天元数学东北中心</a></p></li>
+<li><p><a class="reference external" href="https://space.bilibili.com/39105925/">开源视界</a></p></li>
+<li><p><a class="reference external" href="https://space.bilibili.com/22179951/">北斗导航Compass-朱帅臣</a></p></li>
+</ol>
+</section>
+<section id="youtuber">
+<h2>Youtuber<a class="headerlink" href="#youtuber" title="Link to this heading"></a></h2>
+<ol class="arabic simple">
+<li><p><a class="reference external" href="https://www.youtube.com/&#64;sandipmazumder171/">sandip mazumder</a></p></li>
+<li><p><a class="reference external" href="https://www.youtube.com/&#64;TomRocksMaths/">Tom Rocks Maths</a></p></li>
+<li><p><a class="reference external" href="https://www.youtube.com/&#64;siliconiens/">Thomas Kim</a></p></li>
+<li><p><a class="reference external" href="https://www.youtube.com/&#64;SebastianLague/">Sebastian Lague</a></p></li>
+<li><p><a class="reference external" href="https://www.youtube.com/&#64;zachstar/">Zach Star</a></p></li>
+</ol>
+</section>
+<section id="youtube-video">
+<h2>Youtube Video<a class="headerlink" href="#youtube-video" title="Link to this heading"></a></h2>
+<ol class="arabic simple">
+<li><p><a class="reference external" href="https://www.youtube.com/watch?v=01X5ECv3qIU&amp;list=PLbiOzt50Bx-kV3Lcn5piPyV9EvpmOybJR/">Introduction to Computational Fluid Dynamics (CFD) - Prof. S. A. E. Miller, Ph.D.</a></p></li>
+<li><p><a class="reference external" href="https://www.youtube.com/watch?v=z6Bt-k1me9w&amp;list=PLZsgQL03AlrcmFMnkFOWDpMsiK4mmDli2&amp;index=2/">Quickersim CFD course is a complete training on Computational Fluid Dynamics (CFD) conducted by Bartosz Górecki, PhD.</a></p></li>
+<li><p><a class="reference external" href="https://www.youtube.com/watch?v=1yNhkIM5iQM/">Computational Fluid Dynamics - Milovan Perić</a></p></li>
+<li><p><a class="reference external" href="https://www.youtube.com/playlist?list=PLZsgQL03AlrcmFMnkFOWDpMsiK4mmDli2/">CFD Course - QuickerSim Ltd</a></p></li>
+</ol>
+</section>
+<section id="homepage">
+<h2>Homepage<a class="headerlink" href="#homepage" title="Link to this heading"></a></h2>
+<ol class="arabic simple">
+<li><p><a class="reference external" href="https://zingale.github.io/codes.html">Michael Zingale Homepage</a></p></li>
+<li><p><a class="reference external" href="http://www.thevisualroom.com/">Notes on Project Work, CFD, Programming and Computing</a></p></li>
+</ol>
+</section>
+<section id="article">
+<h2>Article<a class="headerlink" href="#article" title="Link to this heading"></a></h2>
+<ol class="arabic simple">
+<li><p><a class="reference external" href="https://www.mdpi.com/2311-5521/4/3/159/">CFD Julia: A Learning Module Structuring an Introductory Course on Computational Fluid Dynamics</a></p></li>
+<li><p><a class="reference external" href="https://q8frym1nsp.feishu.cn/docx/FIg5dgAk0oD0o9xo8bpc9knonUf/">二期班培训讲义全开源-二期培训(十周)讲义(30次授课内容)</a></p></li>
+</ol>
+</section>
+<section id="codes">
+<h2>Codes<a class="headerlink" href="#codes" title="Link to this heading"></a></h2>
+<ol class="arabic simple">
+<li><p><a class="reference external" href="https://github.com/fengyiqi/cfd_practice/">CFD_Julia Python and C++ Implementation</a></p></li>
+<li><p><a class="reference external" href="https://zingale.github.io/codes.html">Astrophysics Simulation Codes</a></p></li>
+<li><p><a class="reference external" href="https://github.com/zingale/">Michael Zingale</a></p></li>
+</ol>
+</section>
+<section id="coding-adventure">
+<h2>Coding Adventure<a class="headerlink" href="#coding-adventure" title="Link to this heading"></a></h2>
+<ol class="arabic simple">
+<li><p><a class="reference external" href="https://www.youtube.com/watch?v=U4ogK0MIzqk/">Coding Adventure: Chess</a></p></li>
+</ol>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="codes.html" class="btn btn-neutral float-left" title="Reference Codes" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="books.html" class="btn btn-neutral float-right" title="Books" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2017~2024, eric.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

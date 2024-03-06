@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Substitution &mdash; Scientific Computing 1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../_static/documentation_options.js?v=f2a433a1"></script>
+        <script src="../_static/doctools.js?v=888ff710"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Jacobian matrix" href="jacobian.html" />
+    <link rel="prev" title="Calculus" href="calculus.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Scientific Computing
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Get started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../info.html">OneFLOW</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../user.html">THEORY</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../bash.html">Bash</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">CFD</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="ns.html">Navier–Stokes equations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="leibniz.html">Leibniz integral</a></li>
+<li class="toctree-l2"><a class="reference internal" href="rtt.html">Reynolds’ transport theorem</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mass.html">Conservation Of Mass</a></li>
+<li class="toctree-l2"><a class="reference internal" href="momenum.html">Momentum Analysis Of Flow Systems</a></li>
+<li class="toctree-l2"><a class="reference internal" href="energy.html">Conservation Of Energy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ns-integral.html">ALE Form of Conservation Equations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="curvilinear.html">Generalized Curvilinear Coordinate System</a></li>
+<li class="toctree-l2"><a class="reference internal" href="curvilinear3d.html">Generalized Curvilinear Coordinate System(3D)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="vector.html">Vector &amp; Tensor</a></li>
+<li class="toctree-l2"><a class="reference internal" href="matrix.html">Matrix</a></li>
+<li class="toctree-l2"><a class="reference internal" href="calculus.html">Calculus</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Substitution</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#substitution-for-integrals">Substitution for Integrals</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id1">Substitution Rule for Indefinite Integrals</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#substitution-in-definite-integrals">Substitution In Definite Integrals</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#substitution-rule-for-indefinite-integrals-version-2">Substitution Rule for Indefinite Integrals( version 2)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#substitution-in-definite-integrals-version-2">Substitution In Definite Integrals( version 2)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#some-example">Some Example</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#a-better-understanding-of-this-formula">A better understanding of this formula</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="jacobian.html">Jacobian matrix</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gauss.html">Gauss’s Theorem</a></li>
+<li class="toctree-l2"><a class="reference internal" href="strain.html">Strain Measures</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ale.html">Arbitrary Lagrangian-Eulerian</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ale1d.html">ALE 1D</a></li>
+<li class="toctree-l2"><a class="reference internal" href="deformation.html">Deformation and Motion</a></li>
+<li class="toctree-l2"><a class="reference internal" href="derivative.html">Fluid Derivative</a></li>
+<li class="toctree-l2"><a class="reference internal" href="material_derivative.html">Material Time Derivative</a></li>
+<li class="toctree-l2"><a class="reference internal" href="scheme/index.html">CFD Schemes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="examples/index.html">CFD Examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="method/index.html">CFD Methods</a></li>
+<li class="toctree-l2"><a class="reference internal" href="codes.html">Reference Codes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="videos.html">CFD &amp; CAE Videos</a></li>
+<li class="toctree-l2"><a class="reference internal" href="books.html">Books</a></li>
+<li class="toctree-l2"><a class="reference internal" href="docs.html">Documents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../cgns.html">CGNS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../chatgpt.html">CHATGPT</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cpp/index.html">CPP</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cmake.html">CMake</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cmd.html">Cmd</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cuda.html">CUDA</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../design_patterns.html">Design Patterns</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../eigen.html">Eigen3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../git.html">Git</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../git.html#contexts">Contexts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fortran.html">Fortran</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../hdf5.html">HDF5</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../hpc.html">HPC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../install/index.html">Install</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../julia.html">Julia</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../jupyter.html">Jupyter Notebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../latex.html">LaTeX</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../makefile.html">Makefile</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../metis.html">METIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../mkdocs.html">MkDocs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../modules.html">Environment Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../mpi.html">MPI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../numerical/index.html">Numerical analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../oneapi.html">oneAPI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../oneflow.html">OneFLOW-CFD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../openacc.html">OpenACC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../opencl.html">OpenCL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../opengl.html">OpenGL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../openmp.html">OpenMP</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../powershell.html">PowerShell</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../python/index.html">Python</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../qt.html">Qt</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../regex.html">Regular Expressions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../science.html">Science</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sphinx.html">Sphinx</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../system/index.html">System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../taichi.html">Taichi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tcltk.html">Tcl/tk</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tecplot.html">Tecplot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../test.html">Test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../unreal_engine.html">Unreal Engine</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../vcpkg.html">vcpkg</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../yaml.html">yaml</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Scientific Computing</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">CFD</a></li>
+      <li class="breadcrumb-item active">Substitution</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/cfd/substitution.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="substitution">
+<h1>Substitution<a class="headerlink" href="#substitution" title="Link to this heading"></a></h1>
+<section id="substitution-for-integrals">
+<h2>Substitution for Integrals<a class="headerlink" href="#substitution-for-integrals" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><a class="reference external" href="https://web.ma.utexas.edu/users/m408n/m408c/CurrentWeb/LM5-5-7.php/">Substitution for Definite Integrals</a></p></li>
+<li><p><a class="reference external" href="https://math.libretexts.org/Courses/Mount_Royal_University/MATH_1200%3A_Calculus_for_Scientists_I/4%3A_Integral_Calculus/4.7%3A_Definite_integrals_by_substitution.">Substitution for Definite Integrals-math.libretexts.org</a></p></li>
+<li><p><a class="reference external" href="https://www.nagwa.com/en/explainers/816185750769/">Lesson Explainer: Integration by Substitution: Definite Integrals</a></p></li>
+<li><p><a class="reference external" href="https://www.sfu.ca/math-coursenotes/Math%20158%20Course%20Notes/sec_SubRule.html">Substitution Rule for Indefinite Integrals</a></p></li>
+</ul>
+</section>
+<section id="id1">
+<h2>Substitution Rule for Indefinite Integrals<a class="headerlink" href="#id1" title="Link to this heading"></a></h2>
+<p>If <span class="math notranslate nohighlight">\(u=g(x)\)</span> is a differential function whose range is an interval <span class="math notranslate nohighlight">\(I\)</span>, and <span class="math notranslate nohighlight">\(f\)</span> is continuous on <span class="math notranslate nohighlight">\(I\)</span>, then</p>
+<div class="math notranslate nohighlight">
+\[\int f(g(x))\cdot {g}'(x)dx = \int f(u)du\]</div>
+<p>Proof</p>
+<p>By the Chain Rule, <span class="math notranslate nohighlight">\(F(g(x))\)</span> is an antiderivative of <span class="math notranslate nohighlight">\(f(g(x))\cdot {g}'(x)\)</span> whenever <span class="math notranslate nohighlight">\(F\)</span> is an antiderivative of <span class="math notranslate nohighlight">\(f\)</span>, beacuse</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+\cfrac{d}{dx}F(g(x)) &amp; = {F}'(g(x))\cdot {g}'(x)\\ &amp; = f(g(x)){g}'(x)
+\end{align}\end{split}\]</div>
+<p>If we make the substitution <span class="math notranslate nohighlight">\(u=g(x)\)</span>, then</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+\int f(g(x))\cdot {g}'(x)dx &amp;= \int \cfrac{d}{dx}F(g(x))dx\\
+&amp;=F(g(x))+C\\
+&amp;=F(u)+C\\
+&amp;=\int {F}'(u)du\\
+&amp;=\int f(u)du\\
+\end{align}\end{split}\]</div>
+</section>
+<section id="substitution-in-definite-integrals">
+<h2>Substitution In Definite Integrals<a class="headerlink" href="#substitution-in-definite-integrals" title="Link to this heading"></a></h2>
+<p>If <span class="math notranslate nohighlight">\({g}'\)</span> is continuous on the interval <span class="math notranslate nohighlight">\([a,b]\)</span> and <span class="math notranslate nohighlight">\(f\)</span> is continuous on the range of
+<span class="math notranslate nohighlight">\(g(x)=u\)</span>, then</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\int_{a}^{b}f(g(x))\cdot {g}'(x)dx=\int_{g(a)}^{g(b)}f(u)du\\\end{split}\]</div>
+<p>Proof</p>
+<p>Let <span class="math notranslate nohighlight">\(F\)</span> denote any antiderivative of <span class="math notranslate nohighlight">\(f\)</span>. Then,</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{aligned}
+\int_{a}^{b} f(g(x)) \cdot g^{\prime}(x) d x &amp; =F(g(x))\Bigg ]_{x=a}^{x=b} \\
+&amp; =F(g(b))-F(g(a)) \\
+&amp; =F(u)\Bigg]_{u=g(a)}^{u=g(b)} \\
+&amp; =\int_{g(a)}^{g(b)} f(u) d u .
+\end{aligned}\end{split}\]</div>
+</section>
+<section id="substitution-rule-for-indefinite-integrals-version-2">
+<h2>Substitution Rule for Indefinite Integrals( version 2)<a class="headerlink" href="#substitution-rule-for-indefinite-integrals-version-2" title="Link to this heading"></a></h2>
+<p>For convenience, swap <span class="math notranslate nohighlight">\(x\)</span> and <span class="math notranslate nohighlight">\(u\)</span></p>
+<p>If <span class="math notranslate nohighlight">\(x=g(u)\)</span> is a differential function whose range is an interval <span class="math notranslate nohighlight">\(I\)</span>, and <span class="math notranslate nohighlight">\(f\)</span> is continuous on <span class="math notranslate nohighlight">\(I\)</span>, then</p>
+<div class="math notranslate nohighlight">
+\[\int f(x)dx = \int f(g(u))\cdot {g}'(u)du\]</div>
+<p>Proof</p>
+<p>By the Chain Rule, <span class="math notranslate nohighlight">\(F(g(u))\)</span> is an antiderivative of <span class="math notranslate nohighlight">\(f(g(u))\cdot {g}'(u)\)</span> whenever <span class="math notranslate nohighlight">\(F\)</span> is an antiderivative of <span class="math notranslate nohighlight">\(f\)</span>, beacuse</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+\cfrac{d}{du}F(g(u)) &amp; = {F}'(g(u))\cdot {g}'(u)\\ &amp; = f(g(u)){g}'(u)
+\end{align}\end{split}\]</div>
+<p>If we make the substitution <span class="math notranslate nohighlight">\(x=g(u)\)</span>, then</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+\int f(g(u))\cdot {g}'(u)du &amp;= \int \cfrac{d}{du}F(g(u))du\\
+&amp;=F(g(u))+C\\
+&amp;=F(x)+C\\
+&amp;=\int {F}'(x)dx\\
+&amp;=\int f(x)dx\\
+\end{align}\end{split}\]</div>
+</section>
+<section id="substitution-in-definite-integrals-version-2">
+<h2>Substitution In Definite Integrals( version 2)<a class="headerlink" href="#substitution-in-definite-integrals-version-2" title="Link to this heading"></a></h2>
+<p>If <span class="math notranslate nohighlight">\({g}'\)</span> is continuous on the interval <span class="math notranslate nohighlight">\([a,b]\)</span> and <span class="math notranslate nohighlight">\(f\)</span> is continuous on the range of
+<span class="math notranslate nohighlight">\(g(u)=x\)</span>, then</p>
+<div class="math notranslate nohighlight">
+\[\int_{g(a)}^{g(b)}f(x)dx=\int_{a}^{b}f(g(u))\cdot {g}'(u)du\]</div>
+<p>Proof</p>
+<p>Let <span class="math notranslate nohighlight">\(F\)</span> denote any antiderivative of <span class="math notranslate nohighlight">\(f\)</span>. Then,</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{aligned}
+\int_{a}^{b} f(g(x)) \cdot g^{\prime}(x) d x &amp; =F(g(x))\Bigg ]_{x=a}^{x=b} \\
+&amp; =F(g(b))-F(g(a)) \\
+&amp; =F(u)\Bigg]_{u=g(a)}^{u=g(b)} \\
+&amp; =\int_{g(a)}^{g(b)} f(u) d u .
+\end{aligned}\end{split}\]</div>
+</section>
+<section id="some-example">
+<h2>Some Example<a class="headerlink" href="#some-example" title="Link to this heading"></a></h2>
+<div class="math notranslate nohighlight">
+\[\int_{g(a)}^{g(b)}f(x)dx=\int_{a}^{b}f(g(u)){g}'(u) du\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}x=g(u)\\\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\left\{\begin{matrix}
+u=a,&amp; x=g(a)\\
+u=b,&amp; x=g(b)\\
+\end{matrix}\right.\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\int_{g(a)}^{g(b)}f(x)dx=\int_{a}^{b}f(g(u))J(u) du\\\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}J(u)=\text{det}\begin{bmatrix}
+\cfrac{\partial x}{\partial u}
+\end{bmatrix}=\text{det}\begin{bmatrix}
+\cfrac{\partial g}{\partial u}
+\end{bmatrix}=\text{det}\begin{bmatrix}
+\cfrac{\text{d} g}{\text{d} u}
+\end{bmatrix}=\text{det}\begin{bmatrix}
+ {g}'(u)
+\end{bmatrix}={g}'(u)\\\end{split}\]</div>
+<p>Example 1:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}x=g(u,t)=(1-u)t+\frac{1}{2}ut^2+u \\\end{split}\]</div>
+<div class="math notranslate nohighlight">
+\[\begin{split}\left\{\begin{matrix}
+u=0,t=1,&amp; x=g(u,t)=g(0,1)=1\\
+u=1,t=1,&amp; x=g(u,t)=g(1,1)=\frac{1}{2}+1\\
+\end{matrix}\right.\end{split}\]</div>
+<p>Let</p>
+<div class="math notranslate nohighlight">
+\[f(x,t)\equiv 1\]</div>
+<p>then there is</p>
+<div class="math notranslate nohighlight">
+\[\int_{g(a,t)}^{g(b,t)}f(x,t)dx=\int_{1}^{1+\frac{1}{2} }1dx=\frac{1}{2}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\cfrac{\partial g(u,t)}{\partial u}=\cfrac{\partial [(1-u)t+\frac{1}{2}ut^2+u]}{\partial u}=-t+\frac{1}{2}t^2+1\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\cfrac{\partial g(u,t)}{\partial u}\Bigg|_{t=1}=\cfrac{\partial [(1-u)t+\frac{1}{2}ut^2+u]}{\partial u}\Bigg|_{t=1}=(-t+\frac{1}{2}t^2+1)\Bigg|_{t=1}=\frac{1}{2}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\int_{g(a,t)}^{g(b,t)}f(x,t)dx=\int_{a(t)}^{b(t)}f(g(u,t),t)\cfrac{\partial g(u,t)}{\partial u} du\\\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\int_{a(t)}^{b(t)}f(g(u,t),t)\cfrac{\partial g(u,t)}{\partial u} du=\int_{0}^{1}1\times\frac{1}{2} du=\frac{1}{2}\]</div>
+<p>Let</p>
+<div class="math notranslate nohighlight">
+\[f(x,t)\equiv x\]</div>
+<p>then there is</p>
+<div class="math notranslate nohighlight">
+\[\int_{g(a,t)}^{g(b,t)}f(x,t)dx=\int_{1}^{1+\frac{1}{2} }xdx=\frac{1}{2}x^2\Bigg|_{1}^{1+\frac{1}{2}}
+=\frac{1}{2}((\frac{3}{2})^2-1^{2})=\frac{5}{8}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\cfrac{\partial g(u,t)}{\partial u}\Bigg|_{t=1}=\cfrac{\partial [(1-u)t+\frac{1}{2}ut^2+u]}{\partial u}\Bigg|_{t=1}=(-t+\frac{1}{2}t^2+1)\Bigg|_{t=1}=\frac{1}{2}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\int_{g(a,t)}^{g(b,t)}f(x,t)dx=\int_{a(t)}^{b(t)}f(g(u,t),t)\cfrac{\partial g(u,t)}{\partial u} du\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}x=g(u,t)=(1-u)t+\frac{1}{2}ut^2+u \\\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+\displaystyle \int_{a(t)}^{b(t)}f(g(u,t),t)\cfrac{\partial g(u,t)}{\partial u} du &amp; = \int_{0}^{1}((1-u)1+\frac{1}{2}u1^2+u)\times\frac{1}{2} du\\
+\displaystyle &amp; = \int_{0}^{1}(1+\frac{1}{2}u)\times\frac{1}{2} du\\
+\displaystyle&amp; = \frac{1}{2}(u+\frac{1}{4}u^2)\Bigg|_{0}^{1}\\
+\displaystyle&amp; = \frac{1}{2}(1+\frac{1}{4})\\
+&amp; = \frac{5}{8}
+\end{align}\end{split}\]</div>
+<p>Example 2:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+x=g(u,t)\\
+f(x,t)=f(g(u,t),t)=\hat{f}(u,t)\\
+\cfrac{\text{d}\hat{f}(u,t)}{\text{d}t}\equiv \cfrac{\partial \hat{f}(u,t)}{\partial t}
+=\cfrac{\partial {f}(x,t)}{\partial t}+\cfrac{\partial {f}(x,t)}{\partial x}\cfrac{\partial {g}(u,t)}{\partial t}\\
+\cfrac{\text{d}\hat{f}}{\text{d}t}\equiv \cfrac{\partial \hat{f}}{\partial t}
+=\cfrac{\partial {f}}{\partial t}+\cfrac{\partial {f}}{\partial x}\cfrac{\partial {g}}{\partial t}
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}x=g(u,t)=(1-u)t+\frac{1}{2}ut^2+u \\\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+f(x,t)= xt \\
+f(x,t)= xt=((1-u)t+\frac{1}{2}ut^2+u)t=\hat{f}(u,t) \\
+\hat{f}(u,t)=((1-u)t+\frac{1}{2}ut^2+u)t=((1-u)t^2+\frac{1}{2}ut^3+ut)
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\cfrac{\text{d}\hat{f}(u,t)}{\partial t}\equiv\cfrac{\partial \hat{f}(u,t)}{\partial t}
+=\cfrac{\partial ((1-u)t^2+\cfrac{1}{2}ut^3+ut)}{\partial t}
+=(2(1-u)t+3\cfrac{1}{2}ut^2+u)\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\cfrac{\partial f(x,t)}{\partial t}=x,\quad\cfrac{\partial f(x,t)}{\partial x}=t\\\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+\cfrac{\partial x}{\partial t} &amp; = \cfrac{\partial g(u,t)}{\partial t}\\
+ &amp; = \cfrac{\partial ((1-u)t+\frac{1}{2}ut^2+u)}{\partial t}\\
+ &amp; = (1-u)+ut
+\end{align}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+ \cfrac{\text{d}f(x,t)}{\text{d} t} &amp; = \cfrac{\partial {f}(x,t)}{\partial t}+\cfrac{\partial {f}(x,t)}{\partial x}\cfrac{\partial {g}(u,t)}{\partial t}\\
+ &amp; = x+t((1-u)+ut)\\
+ &amp; = x+((1-u)t+ut^2)\\
+ &amp; = ((1-u)t+\frac{1}{2}ut^2+u)+((1-u)t+ut^2)\\
+ &amp; = (2(1-u)t+\frac{3}{2}ut^2+u)\\
+\end{align}\end{split}\]</div>
+</section>
+<section id="a-better-understanding-of-this-formula">
+<h2>A better understanding of this formula<a class="headerlink" href="#a-better-understanding-of-this-formula" title="Link to this heading"></a></h2>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{c}
+x=g(u,t)=(1-u)t+\cfrac{1}{2}ut^2+u\\
+{g}'(u,t)=\cfrac{\partial g(u,t)}{\partial u}=-t+\cfrac{1}{2}t^2+1\\
+\displaystyle \int_{g(a)}^{g(b)}\cfrac{d  f(x,t)}{dt} dx=\int_{a}^{b}\cfrac{\partial \hat{f}(u,t)}{\partial t}{g}'(u,t) du
+\end{array}\end{split}\]</div>
+<p>Proof:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{c}
+\displaystyle h(x,t)\equiv \cfrac{d  f(x,t)}{dt}\\
+\displaystyle \hat{h}(u,t)\equiv \cfrac{\partial \hat{f}(u,t)}{\partial t}\\
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[h(x,t) = \hat{h}(u,t)\]</div>
+<p>By the Chain Rule, <span class="math notranslate nohighlight">\(F(g(u))\)</span> is an antiderivative of <span class="math notranslate nohighlight">\(h(g(u))\cdot {g}'(u)\)</span> whenever <span class="math notranslate nohighlight">\(F\)</span>
+is an antiderivative of <span class="math notranslate nohighlight">\(h\)</span>, beacuse</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+\cfrac{d}{du}F(g(u)) &amp; = {F}'(g(u))\cdot {g}'(u)\\ &amp; = h(g(u)){g}'(u)
+\end{align}\end{split}\]</div>
+<p>If we make the substitution <span class="math notranslate nohighlight">\(x=g(u,t)\)</span>, then</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+\int h(g(u))\cdot {g}'(u)du &amp;= \int \cfrac{d}{du}F(g(u))du\\
+&amp;=F(g(u))+C\\
+&amp;=F(x)+C\\
+&amp;=\int {F}'(x)dx\\
+&amp;=\int h(x)dx\\
+\end{align}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\int h(x)dx = \int h(g(u))\cdot {g}'(u)du\]</div>
+<p>Continue to prove</p>
+<p>If <span class="math notranslate nohighlight">\({g}'\)</span> is continuous on the interval <span class="math notranslate nohighlight">\([a,b]\)</span> and <span class="math notranslate nohighlight">\(h\)</span> is continuous on the range of
+<span class="math notranslate nohighlight">\(g(u,t)=x\)</span>, then</p>
+<div class="math notranslate nohighlight">
+\[\int_{g(a)}^{g(b)}h(x)dx=\int_{a}^{b}h(g(u))\cdot {g}'(u)du\]</div>
+<p>Proof</p>
+<p>Let <span class="math notranslate nohighlight">\(F\)</span> denote any antiderivative of <span class="math notranslate nohighlight">\(h\)</span>. Then,</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{aligned}
+\int_{a}^{b} h(g(x)) \cdot g^{\prime}(x) d x &amp; =F(g(x))\Bigg ]_{x=a}^{x=b} \\
+&amp; =F(g(b))-F(g(a)) \\
+&amp; =F(u)\Bigg]_{u=g(a)}^{u=g(b)} \\
+&amp; =\int_{g(a)}^{g(b)} h(u) d u .
+\end{aligned}\end{split}\]</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="calculus.html" class="btn btn-neutral float-left" title="Calculus" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="jacobian.html" class="btn btn-neutral float-right" title="Jacobian matrix" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2017~2024, eric.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

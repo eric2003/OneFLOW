@@ -1,0 +1,1050 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Material Time Derivative &mdash; Scientific Computing 1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../_static/documentation_options.js?v=f2a433a1"></script>
+        <script src="../_static/doctools.js?v=888ff710"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="CFD Schemes" href="scheme/index.html" />
+    <link rel="prev" title="Fluid Derivative" href="derivative.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Scientific Computing
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Get started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../info.html">OneFLOW</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../user.html">THEORY</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../bash.html">Bash</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">CFD</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="ns.html">Navier–Stokes equations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="leibniz.html">Leibniz integral</a></li>
+<li class="toctree-l2"><a class="reference internal" href="rtt.html">Reynolds’ transport theorem</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mass.html">Conservation Of Mass</a></li>
+<li class="toctree-l2"><a class="reference internal" href="momenum.html">Momentum Analysis Of Flow Systems</a></li>
+<li class="toctree-l2"><a class="reference internal" href="energy.html">Conservation Of Energy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ns-integral.html">ALE Form of Conservation Equations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="curvilinear.html">Generalized Curvilinear Coordinate System</a></li>
+<li class="toctree-l2"><a class="reference internal" href="curvilinear3d.html">Generalized Curvilinear Coordinate System(3D)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="vector.html">Vector &amp; Tensor</a></li>
+<li class="toctree-l2"><a class="reference internal" href="matrix.html">Matrix</a></li>
+<li class="toctree-l2"><a class="reference internal" href="calculus.html">Calculus</a></li>
+<li class="toctree-l2"><a class="reference internal" href="substitution.html">Substitution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="jacobian.html">Jacobian matrix</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gauss.html">Gauss’s Theorem</a></li>
+<li class="toctree-l2"><a class="reference internal" href="strain.html">Strain Measures</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ale.html">Arbitrary Lagrangian-Eulerian</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ale1d.html">ALE 1D</a></li>
+<li class="toctree-l2"><a class="reference internal" href="deformation.html">Deformation and Motion</a></li>
+<li class="toctree-l2"><a class="reference internal" href="derivative.html">Fluid Derivative</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Material Time Derivative</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#mass-conservation">Mass Conservation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#conservation-of-linear-momentum">Conservation of Linear Momentum</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#reynolds-theorem-for-a-density-weighted-integrand">Reynolds’ Theorem for a Density-Weighted Integrand</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#conservation-of-energy">Conservation of Energy</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="scheme/index.html">CFD Schemes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="examples/index.html">CFD Examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="method/index.html">CFD Methods</a></li>
+<li class="toctree-l2"><a class="reference internal" href="codes.html">Reference Codes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="videos.html">CFD &amp; CAE Videos</a></li>
+<li class="toctree-l2"><a class="reference internal" href="books.html">Books</a></li>
+<li class="toctree-l2"><a class="reference internal" href="docs.html">Documents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../cgns.html">CGNS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../chatgpt.html">CHATGPT</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cpp/index.html">CPP</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cmake.html">CMake</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cmd.html">Cmd</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cuda.html">CUDA</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../design_patterns.html">Design Patterns</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../eigen.html">Eigen3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../git.html">Git</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../git.html#contexts">Contexts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fortran.html">Fortran</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../hdf5.html">HDF5</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../hpc.html">HPC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../install/index.html">Install</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../julia.html">Julia</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../jupyter.html">Jupyter Notebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../latex.html">LaTeX</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../makefile.html">Makefile</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../metis.html">METIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../mkdocs.html">MkDocs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../modules.html">Environment Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../mpi.html">MPI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../numerical/index.html">Numerical analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../oneapi.html">oneAPI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../oneflow.html">OneFLOW-CFD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../openacc.html">OpenACC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../opencl.html">OpenCL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../opengl.html">OpenGL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../openmp.html">OpenMP</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../powershell.html">PowerShell</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../python/index.html">Python</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../qt.html">Qt</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../regex.html">Regular Expressions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../science.html">Science</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sphinx.html">Sphinx</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../system/index.html">System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../taichi.html">Taichi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tcltk.html">Tcl/tk</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tecplot.html">Tecplot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../test.html">Test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../unreal_engine.html">Unreal Engine</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../vcpkg.html">vcpkg</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../yaml.html">yaml</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Scientific Computing</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">CFD</a></li>
+      <li class="breadcrumb-item active">Material Time Derivative</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/cfd/material_derivative.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="material-time-derivative">
+<h1>Material Time Derivative<a class="headerlink" href="#material-time-derivative" title="Link to this heading"></a></h1>
+<p>The material time derivative of an integral is the rate of change of an integral on a material
+domain. A material domain moves with the material, so that the material points on the
+boundary remain on the boundary and no mass flux occurs across the boundaries. A material
+domain is analogous to a Lagrangian mesh; a Lagrangian element or group of Lagrangian elements is a nice example of a material domain. The various forms for material time derivatives
+of integrals are called Reynolds’ transport theorem.</p>
+<p>The material time derivative of an integral is defined by</p>
+<div class="math notranslate nohighlight">
+\[\cfrac{\text{d}}{\text{d}t}\int\limits_{\Omega}f\text{d}\Omega=\lim_{\Delta t \to 0} \cfrac{1}{\Delta t}
+\left(\int\limits_{\Omega_{\tau+\Delta t}}f(\mathbf{x},{\tau+\Delta t})\text{d}\Omega-\int\limits_{\Omega_{\tau}}f(\mathbf{x},{\tau})\text{d}\Omega\right)\]</div>
+<p>where <span class="math notranslate nohighlight">\(\Omega_{\tau}\)</span> is the spatial domain at time <span class="math notranslate nohighlight">\(t\)</span> and <span class="math notranslate nohighlight">\(\Omega_{\tau+\Delta t}\)</span> is the spatial domain occupied by the same
+material points at time <span class="math notranslate nohighlight">\(\Omega_{\tau+\Delta t}\)</span>. The notation on the left-hand side is a little confusing because it
+appears to refer to a single spatial domain. However, in this notation, which is standard, the material derivative on the integral implies that the domain Ω is a material domain. We now
+transform both integrals on the RHS to the reference domain using</p>
+<div class="math notranslate nohighlight">
+\[\int\limits_{\Omega}f(\mathbf{x}, t)\text{d}\Omega=\int\limits_{\Omega_{0}}f(\boldsymbol\phi(\mathbf{X},t), t)J\text{d}\Omega_{0}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\mathbf{F}=\cfrac{\partial (x_{1},x_{2},x_{3})}{\partial (X_{1},X_{2},X_{3})}=
+\begin{bmatrix}
+\cfrac{\partial x_{1}}{\partial X_{1}}&amp; \cfrac{\partial x_{1}}{\partial X_{2}} &amp; \cfrac{\partial x_{1}}{\partial X_{3}}\\
+\cfrac{\partial x_{2}}{\partial X_{1}}&amp; \cfrac{\partial x_{2}}{\partial X_{2}} &amp; \cfrac{\partial x_{2}}{\partial X_{3}}\\
+\cfrac{\partial x_{3}}{\partial X_{1}}&amp; \cfrac{\partial x_{3}}{\partial X_{2}} &amp; \cfrac{\partial x_{3}}{\partial X_{3}}\\
+\end{bmatrix}
+=\begin{bmatrix}
+\cfrac{\partial x}{\partial X}&amp; \cfrac{\partial x}{\partial Y} &amp; \cfrac{\partial x}{\partial Z}\\
+\cfrac{\partial y}{\partial X}&amp; \cfrac{\partial y}{\partial Y} &amp; \cfrac{\partial y}{\partial Z}\\
+\cfrac{\partial z}{\partial X}&amp; \cfrac{\partial z}{\partial Y} &amp; \cfrac{\partial z}{\partial Z}\\
+\end{bmatrix}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}J=J(X_{1},X_{2},X_{3})=\text{det}(\mathbf{F})=\left | \cfrac{ \partial(x_{1},x_{2},x_{3})}{\partial (X_{1},X_{2},X_{3})} \right |=
+\begin{vmatrix}
+\cfrac{\partial x_{1}}{\partial X_{1}}&amp; \cfrac{\partial x_{1}}{\partial X_{2}} &amp; \cfrac{\partial x_{1}}{\partial X_{3}}\\
+\cfrac{\partial x_{2}}{\partial X_{1}}&amp; \cfrac{\partial x_{2}}{\partial X_{2}} &amp; \cfrac{\partial x_{2}}{\partial X_{3}}\\
+\cfrac{\partial x_{3}}{\partial X_{1}}&amp; \cfrac{\partial x_{3}}{\partial X_{2}} &amp; \cfrac{\partial x_{3}}{\partial X_{3}}\\
+\end{vmatrix}
+=\begin{vmatrix}
+\cfrac{\partial x}{\partial X}&amp; \cfrac{\partial x}{\partial Y} &amp; \cfrac{\partial x}{\partial Z}\\
+\cfrac{\partial y}{\partial X}&amp; \cfrac{\partial y}{\partial Y} &amp; \cfrac{\partial y}{\partial Z}\\
+\cfrac{\partial z}{\partial X}&amp; \cfrac{\partial z}{\partial Y} &amp; \cfrac{\partial z}{\partial Z}\\
+\end{vmatrix}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\cfrac{\text{d}}{\text{d}t}\int\limits_{\Omega}f\text{d}\Omega=\lim_{\Delta t \to 0} \cfrac{1}{\Delta t}
+\left(\int\limits_{\Omega_{0}}f(\mathbf{X},{\tau+\Delta t})J(\mathbf{X},{\tau+\Delta t})\text{d}\Omega_{0}-\int\limits_{\Omega_{0}}f(\mathbf{X},{\tau})J(\mathbf{X},{\tau})\text{d}\Omega_{0}\right)\]</div>
+<p>With this change in the domain of integration, <span class="math notranslate nohighlight">\(f\)</span> becomes a function of the material coordinates, that is,
+<span class="math notranslate nohighlight">\(f(\boldsymbol\phi(\mathbf{X},t), t)\equiv f\circ \boldsymbol\phi\)</span>.</p>
+<p>Since the domain of integration is now independent of time, we can pull the limit operation
+inside the integral and take the limit, which yields</p>
+<div class="math notranslate nohighlight">
+\[\cfrac{\text{d}}{\text{d}t}\int\limits_{\Omega}f\text{d}\Omega=\int\limits_{\Omega_{0}}\cfrac{\partial}{\partial t}( f(\mathbf{X},{t})J(\mathbf{X},{t}))\text{d}\Omega_{0}\]</div>
+<p>The partial derivative with respect to time in the integrand is a material time derivative since
+the independent space variables are the material coordinates. We next use the product rule for
+derivatives on the previous:</p>
+<div class="math notranslate nohighlight">
+\[\cfrac{\text{d}}{\text{d}t}\int\limits_{\Omega}f\text{d}\Omega=\int\limits_{\Omega_{0}}\cfrac{\partial}{\partial t}( f(\mathbf{X},{t})J(\mathbf{X},{t}))\text{d}\Omega_{0}
+=\int\limits_{\Omega_{0}}\left(\cfrac{\partial f(\mathbf{X},{t})}{\partial t}J(\mathbf{X},{t})+ f(\mathbf{X},{t})\cfrac{\partial J(\mathbf{X},{t})}{\partial t}\right)\text{d}\Omega_{0}\]</div>
+<p>Bearing in mind that the partial time derivatives are material time derivatives, we can obtain</p>
+<div class="math notranslate nohighlight">
+\[\cfrac{\text{d}J}{\text{d}t}=J ( \text{div } \mathbf{v})=J ( \nabla \cdot \mathbf{v})=J(\cfrac{\partial v_{k} }{\partial x_{k}})\]</div>
+<p>We can now transform the RHS integral to the current domain and change the
+independent variables to an Eulerian description, which gives</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+&amp;\int\limits_{\Omega_{0}}\left(\cfrac{\partial f(\mathbf{X},{t})}{\partial t}J(\mathbf{X},{t})+ f(\mathbf{X},{t})\cfrac{\partial J(\mathbf{X},{t})}{\partial t}\right)\text{d}\Omega_{0}\\
+= &amp;\int\limits_{\Omega_{0}}\left(\cfrac{\partial f(\mathbf{X},{t})}{\partial t}J(\mathbf{X},{t})+ f(\mathbf{X},{t})J(\mathbf{X},{t}) ( \cfrac{\partial v_{k} }{\partial x_{k}})\right)\text{d}\Omega_{0}\\
+= &amp;\int\limits_{\Omega_{0}}\left(\cfrac{\partial f(\mathbf{X},{t})}{\partial t}+ f(\mathbf{X},{t}) ( \cfrac{\partial v_{k} }{\partial x_{k}})\right)J(\mathbf{X},{t})\text{d}\Omega_{0}\\
+= &amp;\int\limits_{\Omega}\left(\cfrac{\text{d}f(\mathbf{x},{t})}{\text{d} t}+ f(\mathbf{x},{t}) ( \cfrac{\partial v_{k} }{\partial x_{k}})\right)\text{d}\Omega\\
+\end{align}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\cfrac{\text{d}}{\text{d}t}\int\limits_{\Omega}f\text{d}\Omega=\int\limits_{\Omega}\left(\cfrac{\text{d}f(\mathbf{x},{t})}{\text{d} t}+ f(\mathbf{x},{t}) ( \cfrac{\partial v_{k} }{\partial x_{k}})\right)\text{d}\Omega\\\end{split}\]</div>
+<p>This is one form of Reynolds’ transport theorem.</p>
+<p>An alternative form of Reynolds’ transport theorem can be obtained by the definition of the
+material time derivative. This gives</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+\displaystyle\cfrac{\text{d}}{\text{d}t}\int\limits_{\Omega}f\text{d}\Omega &amp; = \int\limits_{\Omega}\left(\cfrac{\partial f(\mathbf{x},{t})}{\partial t}+v_{k}\cfrac{\partial f(\mathbf{x},{t})}{\partial x_{k}}+ f(\mathbf{x},{t}) ( \cfrac{\partial v_{k} }{\partial x_{k}})\right)\text{d}\Omega\\
+&amp;  = \int\limits_{\Omega}\left(\cfrac{\partial f(\mathbf{x},{t})}{\partial t}+\cfrac{\partial (v_{k}f(\mathbf{x},{t}))}{\partial x_{k}}\right)\text{d}\Omega
+\end{align}\end{split}\]</div>
+<p>which can be written in tensor form as</p>
+<div class="math notranslate nohighlight">
+\[\displaystyle\cfrac{\text{d}}{\text{d}t}\int\limits_{\Omega}f\text{d}\Omega
+= \int\limits_{\Omega}\left(\cfrac{\partial f(\mathbf{x},{t})}{\partial t}+\text{div } \left(\mathbf{v}f(\mathbf{x},{t})\right)\right)\text{d}\Omega\]</div>
+<p>Using Gauss’s theorem on the second term of the RHS, which gives</p>
+<div class="math notranslate nohighlight">
+\[\cfrac{\text{d}}{\text{d} t} \int\limits_{\Omega} f \text{d} \Omega=\int\limits_{\Omega} \cfrac{\partial f}{\partial t} \text{d} \Omega+\int\limits_{\Gamma} f v_{i} n_{i} \text{d} \Gamma \quad \text { or } \quad \frac{\text{d}}{\text{d} t} \int\limits_{\Omega} f \text{d} \Omega=\int\limits_{\Omega} \frac{\partial f}{\partial t} \text{d} \Omega+\int\limits_{\Gamma} f \mathbf{v} \cdot \mathbf{n} \text{d} \Gamma\]</div>
+<p>where the product <span class="math notranslate nohighlight">\(f\mathbf{v}\)</span> is assumed to be <span class="math notranslate nohighlight">\(C_{0}\)</span> in <span class="math notranslate nohighlight">\(\Omega\)</span>. Reynolds’ transport theorem, which in the
+above has been given for a scalar, applies to a tensor of any order. Thus to apply it to a firstorder tensor (vector) <span class="math notranslate nohighlight">\(g_{k}\)</span>, replace <span class="math notranslate nohighlight">\(f\)</span> by <span class="math notranslate nohighlight">\(g_{k}\)</span>, which gives</p>
+<div class="math notranslate nohighlight">
+\[\cfrac{\text{d}}{\text{d} t} \int\limits_{\Omega} g_{k} \text{d} \Omega=\int\limits_{\Omega}\left(\frac{\partial g_{k}}{\partial t}+\frac{\partial\left(v_{i} g_{k}\right)}{\partial x_{i}}\right) \text{d} \Omega\]</div>
+<section id="mass-conservation">
+<h2>Mass Conservation<a class="headerlink" href="#mass-conservation" title="Link to this heading"></a></h2>
+<p>The mass <span class="math notranslate nohighlight">\(m(\Omega)\)</span> of a material domain <span class="math notranslate nohighlight">\(\Omega\)</span> is given by</p>
+<div class="math notranslate nohighlight">
+\[m(\Omega)=\int\limits_{\Omega}\rho(\mathbf{x},t)\text{d}\Omega\]</div>
+<p>where <span class="math notranslate nohighlight">\(\rho(\mathbf{x},t)\)</span> is the density. Mass conservation requires that the mass of any material domain
+be constant, since no material flows through the boundaries of a material domain and we are
+not considering mass to energy conversion. Therefore, according to the principle of mass
+conservation, the material time derivative of <span class="math notranslate nohighlight">\(m(\Omega)\)</span> vanishes, that is,</p>
+<div class="math notranslate nohighlight">
+\[\cfrac{\text{d}m}{\text{d} t}=\cfrac{\text{d}}{\text{d} t}\int\limits_{\Omega}\rho\text{d}{\Omega}=0\]</div>
+<p>Applying Reynolds’ theorem, yields</p>
+<div class="math notranslate nohighlight">
+\[\int\limits_{\Omega}\left(\cfrac{\text{d}\rho}{\text{d} t} +\rho\text{ div }\mathbf{v}\right) \text{d} \Omega=0\]</div>
+<p>Since this holds for any subdomain <span class="math notranslate nohighlight">\(\Omega\)</span>, so:</p>
+<div class="math notranslate nohighlight">
+\[\cfrac{\text{d}\rho}{\text{d} t} +\rho\text{ div }\mathbf{v}=0\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+\displaystyle \cfrac{\text{d}\rho}{\text{d} t} +\rho\text{ div }\mathbf{v} &amp; = 0\\
+\displaystyle \cfrac{\text{d}\rho}{\text{d} t} +\rho\cfrac{\partial v_{i}}{\partial x_{i}} &amp; = 0\\
+\displaystyle \cfrac{\text{d}\rho}{\text{d} t} +\rho v_{i,i} &amp; = 0\\
+\displaystyle \dot{\rho} +\rho v_{i,i} &amp; = 0\\
+\end{align}\end{split}\]</div>
+<p>The above is the equation of mass conservation, often called the continuity equation. It is a
+first-order partial differential equation.</p>
+<p>The continuity equation can be written in the form</p>
+<div class="math notranslate nohighlight">
+\[\cfrac{\partial\rho}{\partial t}+v_{i} \cfrac{\partial\rho}{\partial x_{i}}+\rho\cfrac{\partial v_{i}}{\partial x_{i}}
+= \cfrac{\partial\rho}{\partial t}+ \cfrac{\partial(\rho v_{i})}{\partial x_{i}}
+= \cfrac{\partial\rho}{\partial t}+ (\rho v_{i})_{,i}=0\]</div>
+<p>This is called the conservative form of the mass conservation equation. It is often preferred in
+computational fluid dynamics because discretizations are thought to enforce mass
+conservation more accurately.</p>
+</section>
+<section id="conservation-of-linear-momentum">
+<h2>Conservation of Linear Momentum<a class="headerlink" href="#conservation-of-linear-momentum" title="Link to this heading"></a></h2>
+<p>The equation emanating from the principle of linear momentum conservation is a key equation
+in nonlinear finite element procedures. Linear momentum conservation is equivalent to
+Newton’s second law of motion, which relates the forces acting on a body to its acceleration.
+The principle is often called the momentum conservation principle, or the balance of
+momentum principle.</p>
+<p>We will here state the principle in integral form and then derive an equivalent partial
+differential equation. We consider an arbitrary domain <span class="math notranslate nohighlight">\(\Omega\)</span> with boundary <span class="math notranslate nohighlight">\(\Gamma\)</span> subjected to body
+forces <span class="math notranslate nohighlight">\(\rho \mathbf{b}\)</span> and to surface tractions <span class="math notranslate nohighlight">\(\mathbf{t}\)</span>, where <span class="math notranslate nohighlight">\(\mathbf{b}\)</span> is a force per unit mass and <span class="math notranslate nohighlight">\(\mathbf{t}\)</span> is a force per unit
+area. The total force is given by</p>
+<div class="math notranslate nohighlight">
+\[\mathbf{f}(t)=\int\limits_{\Omega}\rho\mathbf{b}(\mathbf{x},t)\text{d}{\Omega}+\int\limits_{\Omega}\mathbf{t}(\mathbf{x},t)\text{d}{\Gamma}\]</div>
+<p>The linear momentum is given by</p>
+<div class="math notranslate nohighlight">
+\[\mathbf{p}(t)=\int\limits_{\Omega}\rho\mathbf{v}(\mathbf{x},t)\text{d}{\Omega}\]</div>
+<p>Newton’s second law of motion for a continuum, the momentum conservation principle,
+states that the material time derivative of the linear momentum equals the net force.</p>
+<div class="math notranslate nohighlight">
+\[\cfrac{\text{d}\mathbf{p}}{\text{d} t}=\mathbf{f}
+\Rightarrow \cfrac{\text{d}}{\text{d} t}\int\limits_{\Omega}\rho\mathbf{v}(\mathbf{x},t)\text{d}{\Omega}
+=\int\limits_{\Omega}\rho\mathbf{b}(\mathbf{x},t)\text{d}{\Omega}
++\int\limits_{\Omega}\mathbf{t}(\mathbf{x},t)\text{d}{\Gamma}\]</div>
+<p>Reynolds’ transport theorem applied to the LHS integral gives</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+\cfrac{\text{d}}{\text{d} t}\int\limits_{\Omega}\rho\mathbf{v}\text{d}{\Omega} &amp; = \int\limits_{\Omega}\left(\cfrac{\text{d}}{\text{d} t}(\rho\mathbf{v})+(\text{div }\mathbf{v})(\rho\mathbf{v})\right)\text{d}{\Omega}\\
+&amp;=\int\limits_{\Omega}\left(\rho\cfrac{\text{d}\mathbf{v}}{\text{d} t}+\mathbf{v}\cfrac{\text{d}\rho}{\text{d} t}+(\text{div }\mathbf{v})(\rho\mathbf{v})\right)\text{d}{\Omega}\\
+&amp;=\int\limits_{\Omega}\left(\rho\cfrac{\text{d}\mathbf{v}}{\text{d} t}+\mathbf{v}(\cfrac{\text{d}\rho}{\text{d} t}+\rho\text{ div }\mathbf{v})\right)\text{d}{\Omega}\\
+\end{align}\end{split}\]</div>
+<p>The term multiplying the velocity in the RHS of the above can be recognized as the continuity equation, which vanishes, giving</p>
+<div class="math notranslate nohighlight">
+\[\cfrac{\text{d}\rho}{\text{d} t} +\rho\text{ div }\mathbf{v}=0\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\cfrac{\text{d}}{\text{d} t}\int\limits_{\Omega}\rho\mathbf{v}\text{d}{\Omega}
+&amp;=\int\limits_{\Omega}\rho\cfrac{\text{d}\mathbf{v}}{\text{d} t}\text{d}{\Omega}\\\end{split}\]</div>
+<p>To convert the second term on the RHS to a domain integral, we invoke Cauchy’s
+relation and Gauss’s theorem in sequence, giving</p>
+<div class="math notranslate nohighlight">
+\[\int\limits_{\Gamma}\mathbf{t}\text{d}{\Gamma}=\int\limits_{\Gamma}\mathbf{n}\cdot\boldsymbol{\sigma}\text{d}{\Gamma}
+=\int\limits_{\Omega}\nabla\cdot\boldsymbol{\sigma}\text{d}{\Omega} \quad\times\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\int\limits_{\Gamma}\mathbf{t}\text{d}{\Gamma}=\int\limits_{\Gamma}\boldsymbol{\sigma}\cdot\mathbf{n}\text{d}{\Gamma}
+=\int\limits_{\Omega}\text{div }\boldsymbol{\sigma}\text{d}{\Omega}
+=\int\limits_{\Omega}\nabla\cdot ([\boldsymbol{\sigma}]^{\text{T}})\text{d}{\Omega}
+\quad\checkmark\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\boldsymbol\sigma=
+\begin{bmatrix}
+\sigma_{11}&amp; \sigma_{12} &amp; \sigma_{13}\\
+\sigma_{21}&amp; \sigma_{22} &amp; \sigma_{23}\\
+\sigma_{31}&amp; \sigma_{32} &amp; \sigma_{33}\\
+\end{bmatrix}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\text{div}\mathbf{T} = \nabla \cdot (\mathbf{T}^{\text T})
+=\cfrac{\partial T_{ij}}{\partial x_{j}}=
+\begin{bmatrix}
+ \cfrac{\partial {T_{11}}}{\partial x_{1}}
++\cfrac{\partial {T_{12}}}{\partial x_{2}}
++\cfrac{\partial {T_{13}}}{\partial x_{3}}\\
+ \cfrac{\partial {T_{21}}}{\partial x_{1}}
++\cfrac{\partial {T_{22}}}{\partial x_{2}}
++\cfrac{\partial {T_{23}}}{\partial x_{3}}\\
+ \cfrac{\partial {T_{31}}}{\partial x_{1}}
++\cfrac{\partial {T_{32}}}{\partial x_{2}}
++\cfrac{\partial {T_{33}}}{\partial x_{3}}\\
+\end{bmatrix}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\text{div }\boldsymbol{\sigma} = \nabla \cdot (\boldsymbol{\sigma}^{\text T})
+=\cfrac{\partial {\sigma}_{ij}}{\partial x_{j}}=
+\begin{bmatrix}
+ \cfrac{\partial {{\sigma}_{11}}}{\partial x_{1}}
++\cfrac{\partial {{\sigma}_{12}}}{\partial x_{2}}
++\cfrac{\partial {{\sigma}_{13}}}{\partial x_{3}}\\
+ \cfrac{\partial {{\sigma}_{21}}}{\partial x_{1}}
++\cfrac{\partial {{\sigma}_{22}}}{\partial x_{2}}
++\cfrac{\partial {{\sigma}_{23}}}{\partial x_{3}}\\
+ \cfrac{\partial {{\sigma}_{31}}}{\partial x_{1}}
++\cfrac{\partial {{\sigma}_{32}}}{\partial x_{2}}
++\cfrac{\partial {{\sigma}_{33}}}{\partial x_{3}}\\
+\end{bmatrix}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\int\limits_{\Gamma}{t}_{j}\text{d}{\Gamma}=\int\limits_{\Gamma}{n}_{i}\cdot{\sigma}_{ij}\text{d}{\Gamma}
+=\int\limits_{\Omega}\cfrac{\partial {\sigma}_{ij}}{\partial x_{i}}\text{d}{\Omega} \quad\times\\\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}t_{j}=n_{1}\sigma_{1j}+n_{2}\sigma_{2j}+n_{3}\sigma_{3j} \quad\times\\\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{c}
+t_{1}=n_{1}\sigma_{11}+n_{2}\sigma_{21}+n_{3}\sigma_{31}\\
+t_{2}=n_{1}\sigma_{12}+n_{2}\sigma_{22}+n_{3}\sigma_{32}\\
+t_{3}=n_{1}\sigma_{13}+n_{2}\sigma_{23}+n_{3}\sigma_{33}\\
+\end{array}  \quad\times\\\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\int\limits_{\Gamma}{t}_{i}\text{d}{\Gamma}=\int\limits_{\Gamma}{\sigma}_{ij}\cdot{n}_{j}\text{d}{\Gamma}
+=\int\limits_{\Omega}\cfrac{\partial {\sigma}_{ij}}{\partial x_{j}}\text{d}{\Omega} \quad\checkmark\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}t_{i}=\sigma_{i1}n_{1}+\sigma_{i2}n_{2}+\sigma_{i3}n_{3}  \quad\checkmark \\\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{c}
+t_{1}=\sigma_{11}n_{1}+\sigma_{12}n_{2}+\sigma_{13}n_{3}\\
+t_{2}=\sigma_{21}n_{1}+\sigma_{22}n_{2}+\sigma_{23}n_{3}\\
+t_{3}=\sigma_{31}n_{1}+\sigma_{32}n_{2}+\sigma_{33}n_{3}\\
+\end{array}    \quad\checkmark \\\end{split}\]</div>
+<p>Note that since the normal is to the left on the boundary integral, the divergence is to the left
+and contracts with the first index on the stress tensor. When the divergence operator acts on
+the first index of the stress tensor it is called the left divergence operator and is placed to the
+left. When it acts on the second index, it is placed to the right and called the right divergence.
+Since the Cauchy stress is symmetric, the left and right divergence operators have the same
+effect. However, in contrast to linear continuum mechanics, in nonlinear continuum mechanics
+it is important to become accustomed to placing the divergence operator where it belongs
+because some stress tensors, such as the nominal stress, are not symmetric. When the stress is
+not symmetric, the left and right divergence operators lead to different results. In this book we
+use the convention that the divergence and gradient operators are placed on the left and the
+normal appears on the left in the surface integrals.</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\int\limits_{\Omega}\left(\rho\cfrac{\text{d}\mathbf{v}}{\text{d} t}-\rho\mathbf{b}-\nabla\cdot\boldsymbol\sigma\right)\text{d}{\Omega}=0\quad\times\\\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\int\limits_{\Omega}\left(\rho\cfrac{\text{d}\mathbf{v}}{\text{d} t}-\rho\mathbf{b}-\nabla\cdot([\boldsymbol{\sigma}]^{\text{T}})\right)\text{d}{\Omega}=0\quad\checkmark \\\end{split}\]</div>
+<p>Therefore, if the integrand is <span class="math notranslate nohighlight">\(C_{1}\)</span>, the above formula holds for an arbitrary domain, yields</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\rho\cfrac{\text{d}\mathbf{v}}{\text{d} t}=\nabla\cdot\boldsymbol\sigma+\rho\mathbf{b}\equiv \text{div}\boldsymbol\sigma+\rho\mathbf{b} \quad\times\\\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\rho\cfrac{\text{d}\mathbf{v}}{\text{d} t}=\nabla\cdot([\boldsymbol{\sigma}]^{\text{T}})+\rho\mathbf{b}\equiv \text{div}\boldsymbol\sigma+\rho\mathbf{b} \quad\checkmark \\\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\rho\cfrac{\text{d}{v}_{i}}{\text{d} t}=\cfrac{\partial \sigma_{ji}}{\partial x_{j}}+\rho b_{i}\quad\times\\\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\rho\cfrac{\text{d}{v}_{i}}{\text{d} t}=\cfrac{\partial \sigma_{ij}}{\partial x_{j}}+\rho b_{i}\quad\checkmark \\\end{split}\]</div>
+<p>This is called the momentum equation; it is also called the balance of linear momentum
+equation. The LHS term represents the change in momentum, since it is a product of the
+acceleration and the density; it is also called the inertial or kinetic term. The first term on
+the RHS is the net resultant internal force per unit volume due to the divergence of the
+stress field.</p>
+<p>This form of the momentum equation is applicable to both Lagrangian and Eulerian descriptions. In a Lagrangian description, the dependent variables are assumed to be functions of the
+Lagrangian coordinates <span class="math notranslate nohighlight">\(\mathbf{X}\)</span> and time <span class="math notranslate nohighlight">\(t\)</span>, so the momentum equation is</p>
+<div class="math notranslate nohighlight">
+\[\rho(\mathbf{X},t)\cfrac{\partial \mathbf{v}(\mathbf{X},t)}{\partial t}
+=\text{div }\boldsymbol\sigma(\boldsymbol\phi^{-1}(\mathbf{x},t),t)
++\rho(\mathbf{X},t)\mathbf{b}(\mathbf{X},t)\]</div>
+<p>Note that the stress must be expressed as a function of the Eulerian coordinates through the
+inverse of the motion <span class="math notranslate nohighlight">\(\boldsymbol\phi^{-1}(\mathbf{x},t)\)</span> so that the spatial divergence of the stress field can be evaluated,
+but it is considered a function of <span class="math notranslate nohighlight">\(\mathbf{X}\)</span> and time <span class="math notranslate nohighlight">\(t\)</span>, <span class="math notranslate nohighlight">\(\boldsymbol\sigma(\mathbf{X},t)\)</span>. The material derivative of the velocity
+with respect to time becomes a partial derivative with respect to time when the
+independent variables are changed from <span class="math notranslate nohighlight">\(\mathbf{x}\)</span> to <span class="math notranslate nohighlight">\(\mathbf{X}\)</span>.</p>
+<p>This would not be considered a true Lagrangian description in classical texts on continuum
+mechanics because of the appearance of the derivative with respect to Eulerian coordinates.
+However, the essential feature of a Lagrangian description is that the independent variables
+are the Lagrangian (material) coordinates. This requirement is met by this, and we will see in
+the development of the updated Lagrangian finite element method that this form of the
+momentum equation can be discretized with a Lagrangian mesh.</p>
+<p>In an Eulerian description, the material derivative of the velocity is written out
+and all variables are considered functions of the Eulerian coordinates:</p>
+<div class="math notranslate nohighlight">
+\[\rho(\mathbf{x},t)\left(\cfrac{\partial \mathbf{v}(\mathbf{x},t)}{\partial t}+(\mathbf{v}(\mathbf{x},t)\cdot \nabla )\mathbf{v}(\mathbf{x},t)\right )
+=\text{div }\boldsymbol\sigma(\mathbf{x},t)
++\rho(\mathbf{x},t)\mathbf{b}(\mathbf{x},t)\]</div>
+<p>or</p>
+<div class="math notranslate nohighlight">
+\[\rho\left(\cfrac{\partial {v}_{i}}{\partial t}+({v}_{j}\cdot\cfrac{\partial}{\partial x_{j}} ){v}_{i}\right )=\cfrac{\partial\sigma_{ij}}{\partial x_{j}} +\rho b_{i}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\rho\left(\cfrac{\partial {v}_{i}}{\partial t}+{v}_{j}\cdot\cfrac{\partial {v}_{i}}{\partial x_{j}} \right )=\cfrac{\partial\sigma_{ij}}{\partial x_{j}} +\rho b_{i}\\\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+\cfrac{\text{d} \mathbf{v}}{\text{d} t} &amp; = \cfrac{\partial \mathbf{v}}{\partial t}+[(\text{grad }\mathbf{v})][\mathbf{v}]\\
+\cfrac{\text{d} \mathbf{v}}{\text{d} t} &amp; = \cfrac{\partial \mathbf{v}}{\partial t}+[\nabla \mathbf{v}]^{\text{T}}[\mathbf{v}] \\
+\cfrac{\text{d} \mathbf{v}}{\text{d} t} &amp; = \cfrac{\partial \mathbf{v}}{\partial t}+ (\mathbf{v}\cdot \nabla)\mathbf{v} \\
+\cfrac{\text{d} \boldsymbol{\alpha}}{\text{d} t} &amp; = \cfrac{\partial \boldsymbol{\alpha}}{\partial t}+ (\mathbf{v}\cdot \nabla)\boldsymbol{\alpha} \\
+\end{align}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\cfrac{\text{d}(f(\mathbf{x},t)g(\mathbf{x},t))}{\text{d} t}
+=g(\mathbf{x},t)\cfrac{\text{d}f(\mathbf{x},t)}{\text{d} t}+f(\mathbf{x},t)\cfrac{\text{d}g(\mathbf{x},t)}{\text{d} t}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\cfrac{\text{d}f(\mathbf{x},t)}{\text{d} t}=\cfrac{\partial f(\mathbf{x},t)}{\partial  t}+v_{i}\cfrac{\partial f(\mathbf{x},t)}{\partial  x_{i}}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\cfrac{\text{d}(f\cdot g)}{\text{d} t}=\cfrac{\partial(f\cdot g)}{\partial  t}+v_{i}\cfrac{\partial (f\cdot g)}{\partial  x_{i}}\]</div>
+<p>Reynolds’ transport theorem</p>
+<div class="math notranslate nohighlight">
+\[\cfrac{\text{d}}{\text{d} t}\int\limits_{\Omega}f\text{d}\Omega=\int\limits_{\Omega}\left(\cfrac{\text{d}(f)}{\text{d} t}+(f)\cfrac{\partial v_{i}}{\partial  x_{i}}\right)\text{d}\Omega\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{c}
+\displaystyle  \cfrac{\text{d}}{\text{d} t}\int\limits_{\Omega}(f\cdot g_{1})\text{d}\Omega=\int\limits_{\Omega}\left(\cfrac{\text{d}(f\cdot g_{1})}{\text{d} t}+(f\cdot g_{1})\cfrac{\partial v_{i}}{\partial  x_{i}}\right)\text{d}\Omega\\
+\displaystyle  \cfrac{\text{d}}{\text{d} t}\int\limits_{\Omega}(f\cdot g_{2})\text{d}\Omega=\int\limits_{\Omega}\left(\cfrac{\text{d}(f\cdot g_{2})}{\text{d} t}+(f\cdot g_{2})\cfrac{\partial v_{i}}{\partial  x_{i}}\right)\text{d}\Omega\\
+\displaystyle  \cfrac{\text{d}}{\text{d} t}\int\limits_{\Omega}(f\cdot g_{3})\text{d}\Omega=\int\limits_{\Omega}\left(\cfrac{\text{d}(f\cdot g_{3})}{\text{d} t}+(f\cdot g_{3})\cfrac{\partial v_{i}}{\partial  x_{i}}\right)\text{d}\Omega
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\cfrac{\text{d}}{\text{d} t}\int\limits_{\Omega}(f\cdot \mathbf{g})\text{d}\Omega=\int\limits_{\Omega}\left(\cfrac{\text{d}(f\cdot \mathbf{g})}{\text{d} t}+(f\cdot \mathbf{g})\cfrac{\partial v_{i}}{\partial  x_{i}}\right)\text{d}\Omega\]</div>
+<p>Partial derivative</p>
+<div class="math notranslate nohighlight">
+\[\cfrac{\text{d}}{\text{d} t}\int\limits_{\Omega}(f)\text{d}\Omega=\int\limits_{\Omega}\left(\cfrac{\partial(f)}{\partial t}+v_{i}\cfrac{\partial (f)}{\partial  x_{i}}+(f)\cfrac{\partial v_{i}}{\partial  x_{i}}\right)\text{d}\Omega
+=\int\limits_{\Omega}\left(\cfrac{\partial(f)}{\partial t}+\cfrac{\partial (v_{i}\cdot f)}{\partial  x_{i}}\right)\text{d}\Omega\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{c}
+\displaystyle  \cfrac{\text{d}}{\text{d} t}\int\limits_{\Omega}(f\cdot g_{1})\text{d}\Omega=\int\limits_{\Omega}\left(\cfrac{\partial(f\cdot g_{1})}{\partial t}+\cfrac{\partial (v_{i}\cdot f\cdot g_{1})}{\partial  x_{i}}\right)\text{d}\Omega\\
+\displaystyle  \cfrac{\text{d}}{\text{d} t}\int\limits_{\Omega}(f\cdot g_{2})\text{d}\Omega=\int\limits_{\Omega}\left(\cfrac{\partial(f\cdot g_{2})}{\partial t}+\cfrac{\partial (v_{i}\cdot f\cdot g_{2})}{\partial  x_{i}}\right)\text{d}\Omega\\
+\displaystyle  \cfrac{\text{d}}{\text{d} t}\int\limits_{\Omega}(f\cdot g_{3})\text{d}\Omega=\int\limits_{\Omega}\left(\cfrac{\partial(f\cdot g_{3})}{\partial t}+\cfrac{\partial (v_{i}\cdot f\cdot g_{3})}{\partial  x_{i}}\right)\text{d}\Omega\\
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\displaystyle  \cfrac{\text{d}}{\text{d} t}\int\limits_{\Omega}(f\cdot \mathbf{g})\text{d}\Omega=\int\limits_{\Omega}\left(\cfrac{\partial(f\cdot \mathbf{g})}{\partial t}+\cfrac{\partial (v_{i}\cdot f\cdot \mathbf{g})}{\partial  x_{i}}\right)\text{d}\Omega\\\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\cfrac{\text{d}(f\cdot \mathbf{g})}{\text{d} t}+(f\cdot \mathbf{g})\cfrac{\partial v_{i}}{\partial  x_{i}}=
+\cfrac{\partial(f\cdot \mathbf{g})}{\partial t}+\cfrac{\partial (v_{i}\cdot f\cdot \mathbf{g})}{\partial  x_{i}}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\cfrac{\text{d}(f\cdot \mathbf{g})}{\text{d} t}+(f\cdot \mathbf{g})\cfrac{\partial v_{i}}{\partial  x_{i}}=
+\cfrac{\partial(f\cdot \mathbf{g})}{\partial t}+\cfrac{\partial (v_{i}\cdot f\cdot \mathbf{g})}{\partial  x_{i}}
+=\cfrac{\partial(f\cdot \mathbf{g})}{\partial t}+( f\cdot \mathbf{g})\cfrac{\partial (v_{i})}{\partial  x_{i}}
++(v_{i})\cfrac{\partial ( f\cdot \mathbf{g})}{\partial  x_{i}}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\cfrac{\text{d}(f\cdot \mathbf{g})}{\text{d} t}
+=\cfrac{\partial(f\cdot \mathbf{g})}{\partial t}+v_{i}\cfrac{\partial ( f\cdot \mathbf{g})}{\partial  x_{i}}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\cfrac{\text{d}(f\cdot \mathbf{g})}{\text{d} t}
+=\cfrac{\partial(f\cdot \mathbf{g})}{\partial t}
++v_{1}\cfrac{\partial ( f\cdot \mathbf{g})}{\partial  x_{1}}
++v_{2}\cfrac{\partial ( f\cdot \mathbf{g})}{\partial  x_{2}}
++v_{3}\cfrac{\partial ( f\cdot \mathbf{g})}{\partial  x_{3}}\\\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\cfrac{\text{d}(f\cdot \mathbf{g})}{\text{d} t}
+=\cfrac{\partial(f\cdot \mathbf{g})}{\partial t}+(\mathbf{v}\cdot\nabla ) ( f\cdot \mathbf{g})\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\cfrac{\text{d}(f\cdot \mathbf{g})}{\text{d} t}
+=\cfrac{\partial(f\cdot \mathbf{g})}{\partial t}+(\mathbf{v}\cdot\nabla )\begin{bmatrix}
+ ( f\cdot {g}_{1})\\( f\cdot {g}_{2})\\( f\cdot {g}_{3})
+\end{bmatrix}
+=\cfrac{\partial(f\cdot \mathbf{g})}{\partial t}+\begin{bmatrix}
+ (\mathbf{v}\cdot\nabla )( f\cdot {g}_{1})\\(\mathbf{v}\cdot\nabla )( f\cdot {g}_{2})\\(\mathbf{v}\cdot\nabla )( f\cdot {g}_{3})
+\end{bmatrix}\end{split}\]</div>
+<p>For scalar</p>
+<div class="math notranslate nohighlight">
+\[(\mathbf{v}\cdot\nabla)(f)=(\mathbf{v})\cdot(\nabla f)=v_{i}\cfrac{\partial f}{\partial x_{i}}
+=v_{1}\cfrac{\partial f}{\partial x_{1}}
++v_{2}\cfrac{\partial f}{\partial x_{2}}
++v_{3}\cfrac{\partial f}{\partial x_{3}}\]</div>
+<p>For vector</p>
+<div class="math notranslate nohighlight">
+\[\cfrac{\text{d}(\mathbf{g})}{\text{d} t}
+=\cfrac{\partial(\mathbf{g})}{\partial t}+(\mathbf{v}\cdot\nabla ) ( \mathbf{g})\]</div>
+<ul class="simple">
+<li><p><a class="reference external" href="https://en.wikipedia.org/wiki/Vector_calculus_identities">Vector calculus</a></p></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\nabla \mathbf{a}=\left[\cfrac{\partial a_{j}}{\partial x_{i}}\right]_{ij}
+=\begin{bmatrix}
+\cfrac{\partial a_{1}}{\partial x_{1}}&amp; \cfrac{\partial a_{2}}{\partial x_{1}} &amp; \cfrac{\partial a_{3}}{\partial x_{1}}\\
+\cfrac{\partial a_{1}}{\partial x_{2}}&amp; \cfrac{\partial a_{2}}{\partial x_{2}} &amp; \cfrac{\partial a_{3}}{\partial x_{2}}\\
+\cfrac{\partial a_{1}}{\partial x_{3}}&amp; \cfrac{\partial a_{2}}{\partial x_{3}} &amp; \cfrac{\partial a_{3}}{\partial x_{3}}\\
+\end{bmatrix}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\text{grad } \mathbf{a}=\left[\cfrac{\partial a_{i}}{\partial x_{j}}\right]_{ij}
+=\begin{bmatrix}
+\cfrac{\partial a_{1}}{\partial x_{1}}&amp; \cfrac{\partial a_{1}}{\partial x_{2}} &amp; \cfrac{\partial a_{1}}{\partial x_{3}}\\
+\cfrac{\partial a_{2}}{\partial x_{1}}&amp; \cfrac{\partial a_{2}}{\partial x_{2}} &amp; \cfrac{\partial a_{2}}{\partial x_{3}}\\
+\cfrac{\partial a_{3}}{\partial x_{1}}&amp; \cfrac{\partial a_{3}}{\partial x_{2}} &amp; \cfrac{\partial a_{3}}{\partial x_{3}}\\
+\end{bmatrix}=(\nabla \mathbf{a})^{\text{T}}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}[\text{grad } \mathbf{a}]\cdot  \mathbf{b}
+=\begin{bmatrix}
+\cfrac{\partial a_{1}}{\partial x_{1}}&amp; \cfrac{\partial a_{1}}{\partial x_{2}} &amp; \cfrac{\partial a_{1}}{\partial x_{3}}\\
+\cfrac{\partial a_{2}}{\partial x_{1}}&amp; \cfrac{\partial a_{2}}{\partial x_{2}} &amp; \cfrac{\partial a_{2}}{\partial x_{3}}\\
+\cfrac{\partial a_{3}}{\partial x_{1}}&amp; \cfrac{\partial a_{3}}{\partial x_{2}} &amp; \cfrac{\partial a_{3}}{\partial x_{3}}\\
+\end{bmatrix}
+\begin{bmatrix}
+b_{1}\\b_{2}\\b_{3}\\
+\end{bmatrix}
+=\begin{bmatrix}
+b_{1}\cfrac{\partial a_{1}}{\partial x_{1}}
++b_{2}\cfrac{\partial a_{1}}{\partial x_{2}}
++b_{3}\cfrac{\partial a_{1}}{\partial x_{3}}\\
+ b_{1}\cfrac{\partial a_{2}}{\partial x_{1}}
++b_{2}\cfrac{\partial a_{2}}{\partial x_{2}}
++b_{3}\cfrac{\partial a_{2}}{\partial x_{3}}\\
+ b_{1}\cfrac{\partial a_{3}}{\partial x_{1}}
++b_{2}\cfrac{\partial a_{3}}{\partial x_{2}}
++b_{3}\cfrac{\partial a_{3}}{\partial x_{3}}\\
+\end{bmatrix}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}[\text{grad }(\rho \mathbf{v})]\cdot  \mathbf{v}
+=\begin{bmatrix}
+\cfrac{\partial (\rho v_{1})}{\partial x_{1}}&amp; \cfrac{\partial (\rho v_{1})}{\partial x_{2}} &amp; \cfrac{\partial (\rho v_{1})}{\partial x_{3}}\\
+\cfrac{\partial (\rho v_{2})}{\partial x_{1}}&amp; \cfrac{\partial (\rho v_{2})}{\partial x_{2}} &amp; \cfrac{\partial (\rho v_{2})}{\partial x_{3}}\\
+\cfrac{\partial (\rho v_{3})}{\partial x_{1}}&amp; \cfrac{\partial (\rho v_{3})}{\partial x_{2}} &amp; \cfrac{\partial (\rho v_{3})}{\partial x_{3}}\\
+\end{bmatrix}
+\begin{bmatrix}
+v_{1}\\v_{2}\\v_{3}\\
+\end{bmatrix}
+=\begin{bmatrix}
+ v_{1}\cfrac{\partial (\rho v_{1})}{\partial x_{1}}
++v_{2}\cfrac{\partial (\rho v_{1})}{\partial x_{2}}
++v_{3}\cfrac{\partial (\rho v_{1})}{\partial x_{3}}\\
+ v_{1}\cfrac{\partial (\rho v_{2})}{\partial x_{1}}
++v_{2}\cfrac{\partial (\rho v_{2})}{\partial x_{2}}
++v_{3}\cfrac{\partial (\rho v_{2})}{\partial x_{3}}\\
+ v_{1}\cfrac{\partial (\rho v_{3})}{\partial x_{1}}
++v_{2}\cfrac{\partial (\rho v_{3})}{\partial x_{2}}
++v_{3}\cfrac{\partial (\rho v_{3})}{\partial x_{3}}\\
+\end{bmatrix}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+(\mathbf{v}\cdot\nabla ) ( \rho\mathbf{v})
+&amp; = v_{1}\cfrac{\partial( \rho\mathbf{v})}{\partial x_{1}}
++v_{2}\cfrac{\partial( \rho\mathbf{v})}{\partial x_{2}}
++v_{3}\cfrac{\partial( \rho\mathbf{v})}{\partial x_{3}}\\
+&amp;=\begin{bmatrix}
+\displaystyle v_{1}\cfrac{\partial( \rho{v}_{1})}{\partial x_{1}}
++v_{2}\cfrac{\partial( \rho{v}_{1})}{\partial x_{2}}
++v_{3}\cfrac{\partial( \rho{v}_{1})}{\partial x_{3}}\\
+\displaystyle v_{1}\cfrac{\partial( \rho{v}_{2})}{\partial x_{1}}
++v_{2}\cfrac{\partial( \rho{v}_{2})}{\partial x_{2}}
++v_{3}\cfrac{\partial( \rho{v}_{2})}{\partial x_{3}}\\
+\displaystyle v_{1}\cfrac{\partial( \rho{v}_{3})}{\partial x_{1}}
++v_{2}\cfrac{\partial( \rho{v}_{3})}{\partial x_{2}}
++v_{3}\cfrac{\partial( \rho{v}_{3})}{\partial x_{3}}\\
+\end{bmatrix}
+\end{align}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[[\text{grad } \mathbf{g}]\cdot  \mathbf{v}=(\mathbf{v}\cdot\nabla ) ( \mathbf{g}) =v_{j}\cfrac{\partial g_{i}}{\partial x_{j}}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+\cfrac{\text{d}(f\cdot\mathbf{g})}{\text{d} t} &amp; = \cfrac{\partial(f\cdot\mathbf{g})}{\partial t}+(\mathbf{v}\cdot\nabla ) ( f\cdot\mathbf{g}) \\ &amp; = \cfrac{\partial(f\cdot\mathbf{g})}{\partial t}+[\text{grad } (f\cdot\mathbf{g})]\cdot  \mathbf{v}
+\end{align}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+\cfrac{\text{d}(\rho\mathbf{v})}{\text{d} t} &amp; = \cfrac{\partial(\rho\mathbf{v})}{\partial t}+(\mathbf{v}\cdot\nabla ) ( \rho\mathbf{v}) \\ &amp; = \cfrac{\partial(\rho\mathbf{v})}{\partial t}+[\text{grad } (\rho\mathbf{v})]\cdot  \mathbf{v}
+\end{align}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\cfrac{\text{d}(\rho\mathbf{v})}{\text{d} t}  = \cfrac{\partial(\rho\mathbf{v})}{\partial t}+(\mathbf{v}\cdot\nabla ) ( \rho\mathbf{v}) \quad\checkmark\\\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\cfrac{\text{d}(\rho\mathbf{v})}{\text{d} t} = \cfrac{\partial(\rho\mathbf{v})}{\partial t}+[\text{grad } (\rho\mathbf{v})]\cdot  \mathbf{v} \quad\checkmark\\\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\cfrac{\text{d}(\rho\mathbf{v})}{\text{d} t} = \cfrac{\partial(\rho\mathbf{v})}{\partial t}+\mathbf{v}\cdot[\text{grad } (\rho\mathbf{v})] \quad\times\\\end{split}\]</div>
+<p>This is called the conservative form of the momentum equation. In the conservative form, the
+momentum per unit volume <span class="math notranslate nohighlight">\(\rho\mathbf{v}\)</span> is a dependent variable. This variant of the momentum equation
+is said to observe momentum conservation more accurately</p>
+<div class="math notranslate nohighlight">
+\[\cfrac{\text{d}}{\text{d}t}\int\limits_{\Omega}(\rho\mathbf{v})\text{d}\Omega=\int\limits_{\Omega}(\rho\cfrac{\text{d}\mathbf{v}}{\text{d}t})\text{d}\Omega\]</div>
+<p>but</p>
+<div class="math notranslate nohighlight">
+\[\cfrac{\text{d}(\rho\mathbf{v})}{\text{d}t}=\rho\cfrac{\text{d}\mathbf{v}}{\text{d}t}+\mathbf{v}\cfrac{\text{d}\rho}{\text{d}t}\ne \rho\cfrac{\text{d}\mathbf{v}}{\text{d}t}\]</div>
+<p>Divergence</p>
+<div class="math notranslate nohighlight">
+\[\text{div}(\mathbf{a}\otimes \mathbf{b})=[\text{grad}(\mathbf{a})]\cdot\mathbf{b}+\mathbf{a}\text{ div}(\mathbf{b})\]</div>
+<p>Let <span class="math notranslate nohighlight">\(\mathbf{a}=\rho\mathbf{v}\)</span>, <span class="math notranslate nohighlight">\(\mathbf{v}=\mathbf{v}\)</span>, then</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\text{div}((\rho\mathbf{v})\otimes \mathbf{v})=[\text{grad}(\rho\mathbf{v})]\cdot\mathbf{v}+(\rho\mathbf{v})\text{ div}(\mathbf{v})\\\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+\cfrac{\text{d}}{\text{d} t}\int\limits_{\Omega}\rho\mathbf{v}\text{d}{\Omega} &amp; = \int\limits_{\Omega}\left(\cfrac{\text{d}}{\text{d} t}(\rho\mathbf{v})+(\text{div }\mathbf{v})(\rho\mathbf{v})\right)\text{d}{\Omega}\\
+&amp; = \int\limits_{\Omega}\left(\cfrac{\partial(\rho\mathbf{v})}{\partial t}+[\text{grad } (\rho\mathbf{v})]\cdot  \mathbf{v}+(\text{div }\mathbf{v})(\rho\mathbf{v})\right)\text{d}{\Omega}\\
+&amp; = \int\limits_{\Omega}\left(\cfrac{\partial(\rho\mathbf{v})}{\partial t}+\text{div}((\rho\mathbf{v})\otimes \mathbf{v})\right)\text{d}{\Omega}\\
+&amp; = \int\limits_{\Omega}\left(\cfrac{\partial(\rho\mathbf{v})}{\partial t}+\text{div}(\rho\mathbf{v}\otimes \mathbf{v})\right)\text{d}{\Omega}\\
+\end{align}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\cfrac{\text{d}}{\text{d} t}\int\limits_{\Omega}\rho\mathbf{v}\text{d}{\Omega}
+= \int\limits_{\Omega}\left(\cfrac{\partial(\rho\mathbf{v})}{\partial t}+\text{div}(\rho\mathbf{v}\otimes \mathbf{v})\right)\text{d}{\Omega}\\\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\cfrac{\text{d}(\rho\mathbf{v})}{\text{d} t}\ne\cfrac{\partial(\rho\mathbf{v})}{\partial t}+\text{div}(\rho\mathbf{v}\otimes \mathbf{v})\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\cfrac{\text{d}}{\text{d} t}\int\limits_{\Omega}\rho\mathbf{v}\text{d}{\Omega}
+= \int\limits_{\Omega}\left(\cfrac{\partial(\rho\mathbf{v})}{\partial t}+\text{div}(\rho\mathbf{v}\otimes \mathbf{v})\right)\text{d}{\Omega}
+=\int\limits_{\Omega}\left(\text{div }\boldsymbol\sigma +\rho \mathbf{b}\right)\text{d}{\Omega}\\\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\cfrac{\partial(\rho\mathbf{v})}{\partial t}+\text{div}(\rho\mathbf{v}\otimes \mathbf{v})=\text{div }\boldsymbol\sigma +\rho \mathbf{b}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+\displaystyle\cfrac{\text{d}(\rho\mathbf{v})}{\text{d} t} &amp; = \cfrac{\partial(\rho\mathbf{v})}{\partial t}+(\mathbf{v}\cdot\nabla ) ( \rho\mathbf{v}) \quad\checkmark\\
+\displaystyle\cfrac{\text{d}(\rho\mathbf{v})}{\text{d} t} &amp; = \cfrac{\partial(\rho\mathbf{v})}{\partial t}+[\text{grad } (\rho\mathbf{v})]\cdot  \mathbf{v} \quad\checkmark\\
+\displaystyle\cfrac{\text{d}(\rho\mathbf{v})}{\text{d} t} &amp; = \cfrac{\partial(\rho\mathbf{v})}{\partial t}+\mathbf{v}\cdot[\text{grad } (\rho\mathbf{v})] \quad\times\\
+\end{align}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+\displaystyle\cfrac{\text{d}(\rho\mathbf{v})}{\text{d} t}&amp; = \cfrac{\partial(\rho\mathbf{v})}{\partial t}+(\mathbf{v}\cdot\nabla ) ( \rho\mathbf{v})=\text{div }\boldsymbol\sigma +\rho \mathbf{b} \quad\times\\
+\displaystyle\cfrac{\text{d}(\rho\mathbf{v})}{\text{d} t}&amp; = \cfrac{\partial(\rho\mathbf{v})}{\partial t}+[\text{grad } (\rho\mathbf{v})]\cdot  \mathbf{v}=\text{div }\boldsymbol\sigma +\rho \mathbf{b} \quad\times\\
+\displaystyle\cfrac{\text{d}(\rho\mathbf{v})}{\text{d} t}&amp; = \cfrac{\partial(\rho\mathbf{v})}{\partial t}+\mathbf{v}\cdot[\text{grad } (\rho\mathbf{v})]=\text{div }\boldsymbol\sigma +\rho \mathbf{b} \quad\times\\
+\end{align}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+\cfrac{\text{d}}{\text{d} t}(\rho\mathbf{v})+(\text{div }\mathbf{v})(\rho\mathbf{v}) &amp;= \cfrac{\partial(\rho\mathbf{v})}{\partial t}+[\text{grad } (\rho\mathbf{v})]\cdot  \mathbf{v}+(\text{div }\mathbf{v})(\rho\mathbf{v})\\
+ &amp; = \cfrac{\partial(\rho\mathbf{v})}{\partial t}+\text{div }(\rho\mathbf{v}\otimes\mathbf{v})\\
+ &amp; = \text{div }\boldsymbol\sigma +\rho \mathbf{b} \quad\checkmark\\
+\end{align}\end{split}\]</div>
+</section>
+<section id="reynolds-theorem-for-a-density-weighted-integrand">
+<h2>Reynolds’ Theorem for a Density-Weighted Integrand<a class="headerlink" href="#reynolds-theorem-for-a-density-weighted-integrand" title="Link to this heading"></a></h2>
+<p>The material time derivative of an integral in which the integrand is a product of the density and a function f is given by</p>
+<div class="math notranslate nohighlight">
+\[\cfrac{\text{d}}{\text{d}t}\int\limits_{\Omega}(\rho f)\text{d}\Omega=\int\limits_{\Omega}(\rho\cfrac{\text{d}f}{\text{d}t})\text{d}\Omega\]</div>
+<p>This holds for a tensor of any order and is a consequence of Reynolds’ theorem and mass
+conservation; it is another variant of Reynolds’ theorem.</p>
+</section>
+<section id="conservation-of-energy">
+<h2>Conservation of Energy<a class="headerlink" href="#conservation-of-energy" title="Link to this heading"></a></h2>
+<p>We consider thermomechanical processes where the only sources of energy are mechanical
+work and heat. The principle of conservation of energy, that is, the energy balance principle,
+states that the rate of change of total energy is equal to the work done by the body forces and
+surface tractions plus the heat energy delivered to the body by the heat flux and other sources
+of heat. The internal energy per unit volume is denoted by <span class="math notranslate nohighlight">\(\rho E_{int}\)</span> where <span class="math notranslate nohighlight">\(E_{int}\)</span> is the internal
+energy per unit mass. The heat flux per unit area is denoted by a vector <span class="math notranslate nohighlight">\(\mathbf{q}\)</span>, in units of power
+per area, and the heat source per unit volume is denoted by <span class="math notranslate nohighlight">\(\rho s\)</span>. The conservation of energy
+then requires that the rate of change of the total energy in the body, which includes both
+internal energy and kinetic energy, equals the power of the applied forces and the energy
+added to the body by heat conduction and any heat sources.</p>
+<p>The rate of change of the total energy in the body is given by</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+\displaystyle P^{tot} &amp; = P^{int}+P^{kin}\\
+\displaystyle P^{int} &amp; = \cfrac{\text{d}}{\text{d}t}\int\limits_{\Omega}(\rho E^{int})\text{d}\Omega\\
+\displaystyle P^{kin} &amp; = \cfrac{\text{d}}{\text{d}t}\int\limits_{\Omega}(\cfrac{1}{2}\rho \mathbf{v}\cdot\mathbf{v})\text{d}\Omega\\
+\end{align}\end{split}\]</div>
+<p>where <span class="math notranslate nohighlight">\(P^{int}\)</span> denotes the rate of change of internal energy and <span class="math notranslate nohighlight">\(P^{kin}\)</span> the rate of change of the
+kinetic energy. The rate of work by the body forces in the domain and the tractions on the
+surface is</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+\displaystyle P^{ext}  &amp; = \int\limits_{\Omega}(\mathbf{v}\cdot\rho \mathbf{b})\text{d}\Omega+
+\int\limits_{\Gamma}(\mathbf{v}\cdot \mathbf{t})\text{d}\Gamma\\
+&amp; = \int\limits_{\Omega}({v}_{i}\cdot\rho {b}_{i})\text{d}\Omega+
+\int\limits_{\Gamma}({v}_{i}\cdot {t}_{i})\text{d}\Gamma\\\\
+\end{align}\end{split}\]</div>
+<p>The power supplied by heat sources <span class="math notranslate nohighlight">\(s\)</span> and the heat flux <span class="math notranslate nohighlight">\(\mathbf{q}\)</span> is</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+\displaystyle P^{heat}  &amp; = \int\limits_{\Omega}(\rho s)\text{d}\Omega
+-\int\limits_{\Gamma}(\mathbf{n}\cdot \mathbf{q})\text{d}\Gamma\\
+ &amp; = \int\limits_{\Omega}(\rho s)\text{d}\Omega
+-\int\limits_{\Gamma}({n}_{i}\cdot {q}_{i})\text{d}\Gamma\\
+\end{align}\end{split}\]</div>
+<p>where the sign of the heat flux term is negative since positive heat flow is out of the body.</p>
+<p>The statement of the conservation of energy is</p>
+<div class="math notranslate nohighlight">
+\[P^{tot} = P^{ext}+P^{heat}\]</div>
+<p>that is, the rate of change of the total energy in the body (consisting of the internal and kinetic
+energies) is equal to the rate of work by the external forces and rate of work provided by heat flux
+and energy sources. This is known as the first law of thermodynamics. The disposition of the
+internal energy depends on the material. In an elastic material, it is stored as elastic internal energy
+and is fully recoverable upon unloading. In an elastic–plastic material, some of the internal energy
+is converted to heat and some is dissipated in changes of the internal structure of the material.</p>
+<div class="math notranslate nohighlight">
+\[\cfrac{\text{d}}{\text{d}t}\int\limits_{\Omega}(\rho E^{int}+\cfrac{1}{2}\rho \mathbf{v}\cdot\mathbf{v})\text{d}\Omega
+=\int\limits_{\Omega}(\mathbf{v}\cdot\rho \mathbf{b})\text{d}\Omega+
+\int\limits_{\Gamma}(\mathbf{v}\cdot \mathbf{t})\text{d}\Gamma
++\int\limits_{\Omega}(\rho s)\text{d}\Omega
+-\int\limits_{\Gamma}(\mathbf{n}\cdot \mathbf{q})\text{d}\Gamma\]</div>
+<p>The Divergence Theorem-vector</p>
+<div class="math notranslate nohighlight">
+\[\int\limits_{S}\mathbf{v}\cdot\mathbf{n}\text{d}S=\int\limits_{V}\text{div }\mathbf{v}\text{d}V\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\int\limits_{S}{v}_{i}\cdot{n}_{i}\text{d}S=\int\limits_{V}\cfrac{\partial {v}_{i}}{\partial {x}_{i}}\text{d}V\\\end{split}\]</div>
+<p>Applying Cauchy’s law and Gauss’s theorem to the traction boundary integrals yields:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\int\limits_{\Gamma} n_{i} \sigma_{i j} v_{j} d \Gamma
+=\int\limits_{\Omega}\left(\cfrac{\partial (\sigma_{i j} v_{j})}{\partial x_{i}}\right)d \Omega \\
+=\int\limits_{\Omega}\left(\sigma_{i j}\cfrac{\partial ( v_{j})}{\partial x_{i}}+v_{j}\cfrac{\partial ( \sigma_{i j})}{\partial x_{i}}\right)d \Omega \\\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\int\limits_{\Gamma} n_{i} \sigma_{i j} v_{j} d \Gamma
+=\int\limits_{\Omega}\left(\cfrac{\partial (\sigma_{i j} v_{j})}{\partial x_{i}}\right)d \Omega \\
+=\int\limits_{\Omega}\left(\text{div }(\boldsymbol{\sigma}\cdot\mathbf{v})\right)d \Omega \\\end{split}\]</div>
+<p>then</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\int\limits_{\Gamma} \mathbf{v} \cdot \mathbf{t} d \Gamma  =\int\limits_{\Gamma} \mathbf{n} \cdot \boldsymbol{\sigma} \cdot \mathbf{v} d \Gamma=\int\limits_{\Gamma} n_{i} \sigma_{i j} v_{j} d \Gamma
+=\int\limits_{\Omega}\left(\cfrac{\partial (\sigma_{i j} v_{j})}{\partial x_{i}}\right)d \Omega
+=\int\limits_{\Omega}\left(\text{div }(\boldsymbol{\sigma}\cdot\mathbf{v})\right)d \Omega \\\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\int\limits_{\Gamma}(\mathbf{n}\cdot \mathbf{q})\text{d}\Gamma
+=\int\limits_{\Omega}\text{div }\mathbf{ q}\text{d}\Omega
+=\int\limits_{\Omega}\nabla\cdot\mathbf{ q}\text{d}\Omega
+=\int\limits_{\Omega}\cfrac{\partial q_{i}}{\partial x_{i}}\text{d}\Omega\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\int\limits_{\Gamma} \mathbf{v} \cdot \mathbf{t} d \Gamma-\int\limits_{\Gamma}(\mathbf{n}\cdot \mathbf{q})\text{d}\Gamma
+= \int\limits_{\Omega}\left(\text{div }(\boldsymbol{\sigma}\cdot\mathbf{v})-\text{div }\mathbf{ q}\right)d \Omega\\\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\rho E=\rho E^{int}+\cfrac{1}{2}\rho \mathbf{v}\cdot\mathbf{v}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\cfrac{\text{d}}{\text{d} t}\int\limits_{\Omega}f\text{d}\Omega=\int\limits_{\Omega}\left(\cfrac{\text{d}(f)}{\text{d} t}+(f)\cfrac{\partial v_{i}}{\partial  x_{i}}\right)\text{d}\Omega\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\cfrac{\text{d}}{\text{d} t}\int\limits_{\Omega}(\rho E)\text{d}\Omega=\int\limits_{\Omega}\left(\cfrac{\text{d}(\rho E)}{\text{d} t}+(\rho E)\cfrac{\partial v_{i}}{\partial  x_{i}}\right)\text{d}\Omega\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\cfrac{\text{d}}{\text{d}t}\int\limits_{\Omega}(\rho E)\text{d}\Omega
+=\int\limits_{\Omega}(\mathbf{v}\cdot\rho \mathbf{b}+\rho s)\text{d}\Omega+
+\int\limits_{\Gamma}(\mathbf{v}\cdot \mathbf{t})\text{d}\Gamma
+-\int\limits_{\Gamma}(\mathbf{n}\cdot \mathbf{q})\text{d}\Gamma\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\cfrac{\text{d}}{\text{d}t}\int\limits_{\Omega}(\rho E)\text{d}\Omega
+=\int\limits_{\Omega}(\mathbf{v}\cdot\rho \mathbf{b}+\rho s+\text{div }(\boldsymbol{\sigma}\cdot\mathbf{v})-\text{div }\mathbf{ q})\text{d}\Omega\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\cfrac{\text{d}}{\text{d}t}\int\limits_{\Omega}f\text{d}\Omega
+= \int\limits_{\Omega}\left(\cfrac{\partial f}{\partial t}+\text{div } \left(\mathbf{v}f\right)\right)\text{d}\Omega\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\cfrac{\text{d}}{\text{d}t}\int\limits_{\Omega}(\rho E)\text{d}\Omega
+= \int\limits_{\Omega}\left(\cfrac{\partial (\rho E)}{\partial t}+\text{div } \left((\rho E)\mathbf{v}\right)\right)\text{d}\Omega\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+\cfrac{\text{d}}{\text{d}t}\int\limits_{\Omega}(\rho E)\text{d}\Omega
+&amp; = \int\limits_{\Omega}\left(\cfrac{\partial (\rho E)}{\partial t}+\text{div } \left((\rho E)\mathbf{v}\right)\right)\text{d}\Omega \\
+&amp; = \int\limits_{\Omega}(\text{div }(\boldsymbol{\sigma}\cdot\mathbf{v})-\text{div }\mathbf{ q}+\mathbf{v}\cdot\rho \mathbf{b}+\rho s)\text{d}\Omega\\
+\end{align}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{c}
+\text{div }(\mathbf{T}\cdot\mathbf{a})
+= \text{tr}(\mathbf{T}\text{ grad } \mathbf{a})+\mathbf{a}\cdot \text{div}(\mathbf{T}^{\text{T}})\\
+\text{div }(\boldsymbol{\sigma}\cdot\mathbf{v})
+= \text{tr}(\boldsymbol{\sigma}\text{ grad } \mathbf{v})+\mathbf{v}\cdot \text{div}(\boldsymbol{\sigma}^{\text{T}})\\
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\cfrac{\partial (\rho E)}{\partial t}+\text{div } \left((\rho E)\mathbf{v}\right)=\text{div }(\boldsymbol{\sigma}\cdot\mathbf{v})-\text{div }\mathbf{ q}+\mathbf{v}\cdot\rho \mathbf{b}+\rho s\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\boldsymbol\sigma=\boldsymbol\tau-p\mathbf{I}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\text{div }(\boldsymbol{\sigma}\cdot\mathbf{v})=\text{div }(\boldsymbol{\tau}\cdot\mathbf{v}-p\mathbf{v})\\\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\cfrac{\partial (\rho E)}{\partial t}+\text{div } \left((\rho E+p)\mathbf{v}\right)=\text{div }(\boldsymbol{\tau}\cdot\mathbf{v})-\text{div }\mathbf{ q}+\mathbf{v}\cdot\rho \mathbf{b}+\rho s\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\cfrac{\partial (\rho E)}{\partial t}+\text{div } \left(\rho H\mathbf{v}\right)=\text{div }(\boldsymbol{\tau}\cdot\mathbf{v})-\text{div }\mathbf{ q}+\mathbf{v}\cdot\rho \mathbf{b}+\rho s\]</div>
+<p>where</p>
+<div class="math notranslate nohighlight">
+\[\rho H=\rho E+p; \quad H=E+p/\rho\]</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="derivative.html" class="btn btn-neutral float-left" title="Fluid Derivative" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="scheme/index.html" class="btn btn-neutral float-right" title="CFD Schemes" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2017~2024, eric.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Leibniz integral &mdash; Scientific Computing 1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../_static/documentation_options.js?v=f2a433a1"></script>
+        <script src="../_static/doctools.js?v=888ff710"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Reynolds’ transport theorem" href="rtt.html" />
+    <link rel="prev" title="Navier–Stokes equations" href="ns.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Scientific Computing
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Get started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../info.html">OneFLOW</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../user.html">THEORY</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../bash.html">Bash</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">CFD</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="ns.html">Navier–Stokes equations</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Leibniz integral</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#integration-by-substitution">Integration by substitution</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#leibniz-integral-rule">Leibniz integral rule</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#green-s-theorem">Green’s theorem</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="rtt.html">Reynolds’ transport theorem</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mass.html">Conservation Of Mass</a></li>
+<li class="toctree-l2"><a class="reference internal" href="momenum.html">Momentum Analysis Of Flow Systems</a></li>
+<li class="toctree-l2"><a class="reference internal" href="energy.html">Conservation Of Energy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ns-integral.html">ALE Form of Conservation Equations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="curvilinear.html">Generalized Curvilinear Coordinate System</a></li>
+<li class="toctree-l2"><a class="reference internal" href="curvilinear3d.html">Generalized Curvilinear Coordinate System(3D)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="vector.html">Vector &amp; Tensor</a></li>
+<li class="toctree-l2"><a class="reference internal" href="matrix.html">Matrix</a></li>
+<li class="toctree-l2"><a class="reference internal" href="calculus.html">Calculus</a></li>
+<li class="toctree-l2"><a class="reference internal" href="substitution.html">Substitution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="jacobian.html">Jacobian matrix</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gauss.html">Gauss’s Theorem</a></li>
+<li class="toctree-l2"><a class="reference internal" href="strain.html">Strain Measures</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ale.html">Arbitrary Lagrangian-Eulerian</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ale1d.html">ALE 1D</a></li>
+<li class="toctree-l2"><a class="reference internal" href="deformation.html">Deformation and Motion</a></li>
+<li class="toctree-l2"><a class="reference internal" href="derivative.html">Fluid Derivative</a></li>
+<li class="toctree-l2"><a class="reference internal" href="material_derivative.html">Material Time Derivative</a></li>
+<li class="toctree-l2"><a class="reference internal" href="scheme/index.html">CFD Schemes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="examples/index.html">CFD Examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="method/index.html">CFD Methods</a></li>
+<li class="toctree-l2"><a class="reference internal" href="codes.html">Reference Codes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="videos.html">CFD &amp; CAE Videos</a></li>
+<li class="toctree-l2"><a class="reference internal" href="books.html">Books</a></li>
+<li class="toctree-l2"><a class="reference internal" href="docs.html">Documents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../cgns.html">CGNS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../chatgpt.html">CHATGPT</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cpp/index.html">CPP</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cmake.html">CMake</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cmd.html">Cmd</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cuda.html">CUDA</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../design_patterns.html">Design Patterns</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../eigen.html">Eigen3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../git.html">Git</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../git.html#contexts">Contexts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fortran.html">Fortran</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../hdf5.html">HDF5</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../hpc.html">HPC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../install/index.html">Install</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../julia.html">Julia</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../jupyter.html">Jupyter Notebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../latex.html">LaTeX</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../makefile.html">Makefile</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../metis.html">METIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../mkdocs.html">MkDocs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../modules.html">Environment Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../mpi.html">MPI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../numerical/index.html">Numerical analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../oneapi.html">oneAPI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../oneflow.html">OneFLOW-CFD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../openacc.html">OpenACC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../opencl.html">OpenCL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../opengl.html">OpenGL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../openmp.html">OpenMP</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../powershell.html">PowerShell</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../python/index.html">Python</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../qt.html">Qt</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../regex.html">Regular Expressions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../science.html">Science</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sphinx.html">Sphinx</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../system/index.html">System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../taichi.html">Taichi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tcltk.html">Tcl/tk</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tecplot.html">Tecplot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../test.html">Test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../unreal_engine.html">Unreal Engine</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../vcpkg.html">vcpkg</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../yaml.html">yaml</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Scientific Computing</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">CFD</a></li>
+      <li class="breadcrumb-item active">Leibniz integral</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/cfd/leibniz.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="leibniz-integral">
+<h1>Leibniz integral<a class="headerlink" href="#leibniz-integral" title="Link to this heading"></a></h1>
+<section id="integration-by-substitution">
+<h2>Integration by substitution<a class="headerlink" href="#integration-by-substitution" title="Link to this heading"></a></h2>
+<div class="math notranslate nohighlight">
+\[\int_{a}^{b} f(x)dx=\int_{\alpha }^{\beta } f(\varphi(t)){\varphi}' (t)dt\]</div>
+</section>
+<section id="leibniz-integral-rule">
+<h2>Leibniz integral rule<a class="headerlink" href="#leibniz-integral-rule" title="Link to this heading"></a></h2>
+<ol class="arabic simple">
+<li><p><a class="reference external" href="https://en.wikipedia.org/wiki/Leibniz_integral_rule">Leibniz integral rule</a></p></li>
+<li><p><a class="reference external" href="https://zhuanlan.zhihu.com/p/547766124">How to take the derivative of the integral?</a></p></li>
+</ol>
+<p>General form: differentiation under the integral sign</p>
+<div class="math notranslate nohighlight">
+\[\int_{a(x)}^{b(x)} f\left ( x,t \right ) dt\]</div>
+<p>Theorem — Let f(x,t) be a function such that both <span class="math notranslate nohighlight">\(f\left ( x,t \right )\)</span> are continuous it t and x in some
+region of the xt-plane, including <span class="math notranslate nohighlight">\(a(x)\le t\le b(x),x_{0} \le x\le x_{1}\)</span>. Also suppose that the functions <span class="math notranslate nohighlight">\(a(x)\)</span> and
+functions <span class="math notranslate nohighlight">\(b(x)\)</span> are both continuous and both have continuous derivatives for <span class="math notranslate nohighlight">\(x_{0} \le x\le x_{1}\)</span>.Then for <span class="math notranslate nohighlight">\(x_{0} \le x\le x_{1}\)</span>,</p>
+<div class="math notranslate nohighlight">
+\[{\displaystyle {\frac {d}{dx}}\left(\int _{a(x)}^{b(x)}f(x,t)\,dt\right)=f{\big (}x,b(x){\big )}\cdot {\frac {d}{dx}}b(x)-f{\big (}x,a(x){\big )}\cdot {\frac {d}{dx}}a(x)+\int _{a(x)}^{b(x)}{\frac {\partial }{\partial x}}f(x,t)\,dt.}\]</div>
+<p>The right hand side may also be written using Lagrange’s notation as:</p>
+<div class="math notranslate nohighlight">
+\[{\textstyle f(x,b(x))\,b^{\prime }(x)-f(x,a(x))\,a^{\prime }(x)+\displaystyle \int _{a(x)}^{b(x)}f_{x}(x,t)\,dt.}\]</div>
+<p>another form</p>
+<div class="math notranslate nohighlight">
+\[\Phi(x)=\int_{\alpha(x) }^{\beta(x)} f(x, y) dy\]</div>
+<div class="math notranslate nohighlight">
+\[\Phi(t)=\int_{\alpha(t) }^{\beta(t)} f(t, x) dx\]</div>
+<div class="math notranslate nohighlight">
+\[\Phi(t)=\int_{\alpha(t) }^{\beta(t)} F(x, t) dx\]</div>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+  \frac{\mathrm{d} \Phi(t)}{\mathrm{d} t}&amp;=\frac{\Phi(t+\Delta t)-\Phi(t)}{\Delta t}\\
+&amp;=\int_{\alpha(t) }^{\beta(t)}\frac{ F(x, t+\Delta t)-F(x, t)}{\Delta t} dx\\
+ &amp;+\frac{1}{\Delta t}\int_{\beta(t) }^{\beta(t+\Delta t)}{ F(x, t+\Delta t)} dx \\
+ &amp;-\frac{1}{\Delta t}\int_{\alpha(t) }^{\alpha(t+\Delta t)}{ F(x, t+\Delta t)} dx
+\end{align}\end{split}\]</div>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+  \frac{\mathrm{d} \Phi(t)}{\mathrm{d} t}&amp;=\frac{\mathrm{d} }{\mathrm{d} t}\int_{\alpha(t) }^{\beta(t)}F(x, t) dx\\\\
+&amp;=\int_{\alpha(t) }^{\beta(t)}\frac{\partial F(x, t)}{\partial t} dx
+ +[ F(\beta(t), t)\dot{\beta}(t) - F(\alpha(t), t)\dot{\alpha}(t) ]\\
+\end{align}\end{split}\]</div>
+<p>This can also be written as</p>
+<div class="math notranslate nohighlight">
+\[\cfrac{\mathrm{d}}{\mathrm{d}t}{\int_{g(t)}^{h(t)}F(x,t)\mathrm{d}x }={\int_{g(t)}^{h(t)}\frac{\partial F(x,t)}{\partial t}\mathrm{d}x }+\left \{ F[h(t),t]\dot{h}(t)-F[g(t),t]\dot{g}(t) \right \}\]</div>
+<p>One proof runs as follows, modulo precisely stated hypotheses and some analytic
+details. Set</p>
+<div class="math notranslate nohighlight">
+\[\Phi(u, v, t)=\int_{u}^{v} F(x, t) d x\]</div>
+<p><span class="math notranslate nohighlight">\(u = g(t)\)</span>, and <span class="math notranslate nohighlight">\(v = h(t)\)</span>. By the chain rule</p>
+<div class="math notranslate nohighlight">
+\[\frac{d}{d t} \Phi[g(t), h(t), t]=\left(\frac{\partial \Phi}{\partial u} \dot{g}+\frac{\partial \Phi}{\partial v} h\right)+\frac{\partial \Phi}{\partial t}\]</div>
+<p>The first two terms are bracketed because they measure all changes due to variation
+of the interval of integration [g(t), h(t)], and they are evaluated by applying the
+Fundamental Theorem to <span class="math notranslate nohighlight">\(\Phi(u, v, t)=\int_{u}^{v} F(x, t) d x\)</span>. The third term measures change due to variation of
+the integrand. If enough smoothness is assumed to justify interchange of the integration and differentiation operators, then</p>
+<div class="math notranslate nohighlight">
+\[\frac{\partial \Phi}{\partial t}=\frac{\partial}{\partial t} \int_{u}^{v} F(x, t) d x=\int_{u}^{v} \frac{\partial F(x, t)}{\partial t} d x .\]</div>
+<p>Another proof</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{aligned}
+  \phi_{t}(u) &amp; =x(u, t), \\
+  \phi_{t}:[a, b] &amp; \rightarrow\left[\phi_{t}(a), \phi_{t}(b)\right]=[g(t), h(t)]=C_{t} .
+\end{aligned}\end{split}\]</div>
+<p>By the formula for change of variable in a simple integral</p>
+<div class="math notranslate nohighlight">
+\[\int_{g(t)}^{h(t)} F(x) d x=\int_{\phi_{t}(a)}^{\phi_{t}(b)} F(x) d x=\int_{a}^{b} F[x(u, t)] \frac{\partial x}{\partial u} d u .\]</div>
+<p>This transition is excellent, because it has changed the integral over a moving domain
+to one over a fixed domain. We pay for this fixed domain with a time-varying integrand. No matter, we like it; we thrive on differentiation under the integral sign:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{aligned}
+  \frac{\mathrm{d} }{\mathrm{d} t} \int_{g(t)}^{h(t)} F(x) d x
+  &amp;=\frac{\mathrm{d} }{\mathrm{d} t} \int_{a}^{b} F[x(u, t)] \frac{\partial x(u, t)}{\partial u} d u \\
+  &amp;=\int_{a}^{b}\frac{\partial}{\partial t}\left \{  F[x(u, t)] \frac{\partial x(u, t)}{\partial u}\right \}d u \\
+  &amp;=\int_{a}^{b}\left \{\frac{\partial F[x(u, t)]}{\partial x}\frac{\partial x(u, t)}{\partial t}  \frac{\partial x(u, t)}{\partial u}+F[x(u, t)]\frac{\partial x^{2} (u, t)}{\partial u\partial t}\right \}d u \\
+\end{aligned}\end{split}\]</div>
+<p>The fixed domain has done its job, and we return to the moving domain. The instantaneous velocity is <span class="math notranslate nohighlight">\(v = v(u, t) = \partial x(u, t)/ {\partial t}\)</span>, which we also consider as a function of <span class="math notranslate nohighlight">\(x\)</span>
+and <span class="math notranslate nohighlight">\(t\)</span> via the transformation <span class="math notranslate nohighlight">\((u, t) \leftrightarrow (x, t)\)</span>. When <span class="math notranslate nohighlight">\(t\)</span> is fixed,</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{aligned}
+  \frac{\partial x^{2} (u, t)}{\partial u\partial t}&amp;=\frac{\partial v(u, t)}{\partial u}\\
+  &amp;=\cfrac{\cfrac{\partial v(u, t)}{\partial u}}{\cfrac{\partial x(u, t)}{\partial u}} {\frac{\partial x(u, t)}{\partial u}} \\
+  &amp;={\cfrac{\partial v(u, t)}{\partial x(u, t)}}{\cfrac{\partial x(u, t)}{\partial u}}
+\end{aligned}\end{split}\]</div>
+<p>hence</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{aligned}
+  &amp;\int_{a}^{b}\left \{\frac{\partial F[x(u, t)]}{\partial x}\frac{\partial x(u, t)}{\partial t}  \frac{\partial x(u, t)}{\partial u}+F[x(u, t)]\frac{\partial x^{2} (u, t)}{\partial u\partial t}\right \}d u \\
+  =&amp;\int_{a}^{b}\left \{\frac{\partial F[x(u, t)]}{\partial x}\frac{\partial x(u, t)}{\partial t}  \frac{\partial x(u, t)}{\partial u}+F[x(u, t)]{\cfrac{\partial v(u, t)}{\partial x(u, t)}}{\cfrac{\partial x(u, t)}{\partial u}}\right \}d u \\
+  =&amp;\int_{a}^{b}\left \{\frac{\partial F[x(u, t)]}{\partial x}\frac{\partial x(u, t)}{\partial t}  +F[x(u, t)]{\cfrac{\partial v(u, t)}{\partial x(u, t)}}\right \}{\cfrac{\partial x(u, t)}{\partial u}}d u \\
+  =&amp;\int_{\phi_{t}(a)}^{\phi_{t}(b)}\left \{\frac{\partial F[x(u, t)]}{\partial x}\frac{\partial x(u, t)}{\partial t}  +F[x(u, t)]{\cfrac{\partial v(u, t)}{\partial x(u, t)}}\right \}d x \\
+\end{aligned}\end{split}\]</div>
+<p>that is</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{aligned}
+  &amp;\int_{\phi_{t}(a)}^{\phi_{t}(b)}\left \{\frac{\partial F[x(u, t)]}{\partial x}\frac{\partial x(u, t)}{\partial t}  +F[x(u, t)]{\cfrac{\partial v(u, t)}{\partial x(u, t)}}\right \}d x \\
+  =&amp;\int_{\phi_{t}(a)}^{\phi_{t}(b)}\frac{\partial }{\partial x} [F[x(u, t)]v(u, t)]d x \\
+  =&amp;\int_{g(t)}^{h(t)}\frac{\partial }{\partial x} [F[x(u, t)]v(u, t)]d x
+\end{aligned}\end{split}\]</div>
+<p>Two-dimensional, time-dependent case</p>
+<p>We are also given a function <span class="math notranslate nohighlight">\(F(x, y, t)\)</span>. The problem is to find</p>
+<div class="math notranslate nohighlight">
+\[\frac{\mathrm{d} }{\mathrm{d} t}\iint_{D(t)}^{} F(x,y,t)dxdy\]</div>
+<p>Certainly our first move should be separation of boundary variation from integrand variation. This is easy enough by the chain rule device in the first section
+and results in</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{aligned}
+  &amp;\frac{\mathrm{d} }{\mathrm{d} t}\iint_{D(t)}^{} F(x,y,t)dxdy{\Bigg|}_{t=t_{0} }\\
+  =&amp;\frac{\mathrm{d} }{\mathrm{d} t}\iint_{D(t)}^{} F(x,y,t_{0})dxdy{\Bigg|}_{t=t_{0} }+
+  \iint_{D(t_{0})}^{} \frac{\partial F(x,y,t)}{\partial t}{\Bigg|}_{t=t_{0} }dxdy
+\end{aligned}\end{split}\]</div>
+<p>This is routine. The essence of the problem is to find</p>
+<div class="math notranslate nohighlight">
+\[\frac{\mathrm{d} }{\mathrm{d} t}\iint_{D(t)}^{} F(x,y)dxdy\]</div>
+<p>Let <span class="math notranslate nohighlight">\(\mathbf{v}=\mathbf{v}(x, y, t)\)</span> denote the velocity vector at a boundary point <span class="math notranslate nohighlight">\((x, y)\)</span> of <span class="math notranslate nohighlight">\(Dt\)</span> and let <span class="math notranslate nohighlight">\(n\)</span>
+denote the outward unit normal. In the difference</p>
+<div class="math notranslate nohighlight">
+\[\iint_{D(t+\Delta t )}^{} F(x,y)dxdy-\iint_{D(t)}^{} F(x,y)dxdy\]</div>
+<p>everything in the overlap of <span class="math notranslate nohighlight">\(D(t)\)</span> and <span class="math notranslate nohighlight">\(D(t+\Delta t)\)</span> cancels; only the thin boundary strip makes
+a contribution. From the detail, this contribution is</p>
+<div class="math notranslate nohighlight">
+\[F(x,y)(\mathbf{v}\Delta t)\cdot(\mathbf{n}ds)\]</div>
+<p>up to higher order differentials, where <span class="math notranslate nohighlight">\(ds\)</span>  is the element of arc length.
+Hence</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{aligned}
+  &amp;\lim_{\Delta t \to 0} \cfrac{1}{\Delta t}\left \{  \iint_{D(t+\Delta t )}^{} F(x,y)dxdy-\iint_{D(t)}^{} F(x,y)dxdy\right \}\\
+  =&amp;\lim_{\Delta t \to 0}\cfrac{1}{\Delta t}\int_{\partial D(t)}^{} F(x,y)(\mathbf{v}\Delta t)\cdot(\mathbf{n}ds)
+\end{aligned}\end{split}\]</div>
+<div class="math notranslate nohighlight">
+\[\cfrac{\mathrm{d} }{\mathrm{d} t}\iint_{D(t)}^{} F(x,y)dxdy  =
+\int_{\partial D(t)}^{} F(x,y){\mathbf{v}}\cdot{\mathbf{n}}ds\]</div>
+<p>where <span class="math notranslate nohighlight">\(\partial\)</span> a denotes boundary. Before taking limits, we compute <span class="math notranslate nohighlight">\({\mathbf{v}}\cdot{\mathbf{n}}ds\)</span>. We rotate the
+unit tangent <span class="math notranslate nohighlight">\((dy/ds,-dx/ds)\)</span> backwards through a right angle to obtain <span class="math notranslate nohighlight">\(\mathbf{n}=(dy/ds,-dx/ds)\)</span>, hence</p>
+<div class="math notranslate nohighlight">
+\[\mathbf{n}=(dy/ds,-dx/ds)=(u,v)\cdot(dy,-dx)=udy-vdx\]</div>
+<p>Therefore</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{aligned}
+  \cfrac{\mathrm{d} }{\mathrm{d} t}\iint_{D(t)}^{} F(x,y)dxdy  =&amp;
+  \int_{\partial D(t)}^{} F(x,y){\mathbf{v}}\cdot{\mathbf{n}}ds \\
+  =&amp;\int_{\partial D(t)}^{} F(x,y)(u,v)\cdot(dy,-dx) \\
+  =&amp;\int_{\partial D(t)}^{} F(x,y)(udy-vdx)\\
+  =&amp;\int_{\partial D(t)}^{} (-F(x,y)vdx+F(x,y)udy)
+\end{aligned}\end{split}\]</div>
+<p>We can transform the boundary integral into an integral over D, by Green’s Theorem.</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{aligned}
+  P(x,y)&amp;\equiv -F(x,y)v(x,y)\\
+  Q(x,y)&amp;\equiv F(x,y)u(x,y)
+\end{aligned}\end{split}\]</div>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{aligned}
+  (\cfrac{\partial Q(x,y)}{\partial x}-\cfrac{\partial P(x,y)}{\partial y})=
+  &amp;(\cfrac{\partial [F(x,y)u(x,y)]}{\partial x}-\cfrac{\partial [-F(x,y)v(x,y)]}{\partial y})\\
+  =&amp;(\cfrac{\partial [F(x,y)u(x,y)]}{\partial x}+\cfrac{\partial [F(x,y)v(x,y)]}{\partial y})\\
+  =&amp;(\cfrac{\partial [F(x,y)u(x,y)]}{\partial x}+\cfrac{\partial [F(x,y)v(x,y)]}{\partial y})\\
+\end{aligned}\end{split}\]</div>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{aligned}
+  \cfrac{\partial [F(x,y)u(x,y)]}{\partial x}-\cfrac{\partial [-F(x,y)v(x,y)]}{\partial y}=&amp;\\
+  \cfrac{\partial [F(x,y)u(x,y)]}{\partial x}+\cfrac{\partial [F(x,y)v(x,y)]}{\partial y}=\mathrm{div} \left \{ F(x,y)\mathbf{v(x,y)}  \right \} \\
+  \cfrac{\partial (F u)}{\partial x}+\cfrac{\partial (F v)}{\partial y}=\mathrm{div} ( F\mathbf{v} )
+\end{aligned}\end{split}\]</div>
+<div class="math notranslate nohighlight">
+\[\cfrac{\partial (F u)}{\partial x}+\cfrac{\partial (F v)}{\partial y}=\mathrm{div} ( F\mathbf{v} )= \nabla \cdot( F\mathbf{v} )\]</div>
+<p>Here</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{aligned}
+  \mathrm{div} ( F\mathbf{v} )\equiv\nabla \cdot( F\mathbf{v} )=&amp;\cfrac{\partial (F u)}{\partial x}+\cfrac{\partial (F v)}{\partial y}\\
+  =&amp;F \nabla \cdot \mathbf{v}+\mathbf{v} \cdot \nabla F  \\
+  =&amp;\nabla F \cdot \mathbf{v} + F \nabla \cdot \mathbf{v}
+\end{aligned}\end{split}\]</div>
+<div class="math notranslate nohighlight">
+\[\nabla \cdot(\phi  \mathbf{v})=\phi \nabla \cdot \mathbf{v}+\mathbf{v} \cdot \nabla \phi\]</div>
+<div class="math notranslate nohighlight">
+\[\nabla \cdot(F  \mathbf{v})=F \nabla \cdot \mathbf{v}+\mathbf{v} \cdot \nabla F\]</div>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{aligned}
+  &amp;\frac{\mathrm{d} }{\mathrm{d} t}\iint_{D(t)}^{} F(x,y,t)dxdy\\
+\end{aligned}\end{split}\]</div>
+<div class="math notranslate nohighlight">
+\[\begin{aligned}
+  \frac{\mathrm{d} }{\mathrm{d} t}\iint_{D(t)}^{} F(x,y,t)dxdy
+  =\int_{\partial D(t)}^{} F(x,y){\mathbf{v}}\cdot{\mathbf{n}}ds+
+  \iint_{D(t)}^{} \frac{\partial F(x,y,t)}{\partial t}dxdy
+\end{aligned}\]</div>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{aligned}
+  \frac{\mathrm{d} }{\mathrm{d} t}\iint_{D(t)}^{} F(x,y,t)dxdy
+  =&amp;\iint_{D(t)}^{} \nabla \cdot(F  \mathbf{v})dxdy+
+  \iint_{D(t)}^{} \frac{\partial F(x,y,t)}{\partial t}dxdy\\
+  =&amp;\iint_{D(t)}^{} \left \{\nabla \cdot(F  \mathbf{v})+\cfrac{\partial F(x,y,t)}{\partial t}\right \}dxdy
+\end{aligned}\end{split}\]</div>
+<p>A space formula.</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{aligned}
+  \frac{d}{d t} \iiint_{D_{t}} F(\mathbf{x}, t) d x d y d z &amp; =\iint_{\partial D_{t}} F \mathbf{v} \cdot \mathbf{n} dS+\iiint_{D_{t}} \frac{\partial F}{\partial t} d x d y d z \\
+\end{aligned}\end{split}\]</div>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{aligned}
+  \frac{d}{d t} \iiint_{D_{t}} F(\mathbf{x}, t) d x d y d z &amp; =\iint_{\partial D_{t}} F \mathbf{v} \cdot d\mathbf{S} +\iiint_{D_{t}} \frac{\partial F}{\partial t} d x d y d z \\
+\end{aligned}\end{split}\]</div>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{aligned}
+  \frac{d}{d t} \iiint_{D_{t}} F(\mathbf{x}, t) d x d y d z &amp; =
+  \iiint_{D_{t}}\left[\operatorname{div}(F \mathbf{v})+\frac{\partial F}{\partial t}\right] d x d y d z\\
+  &amp;=\iiint_{D_{t}}\left[\nabla \cdot(F  \mathbf{v})+\frac{\partial F}{\partial t}\right] d x d y d z\\
+\end{aligned}\end{split}\]</div>
+</section>
+<section id="green-s-theorem">
+<h2>Green’s theorem<a class="headerlink" href="#green-s-theorem" title="Link to this heading"></a></h2>
+<ol class="arabic simple">
+<li><p><a class="reference external" href="https://en.wikipedia.org/wiki/Green%27s_theorem">Green’s theorem</a></p></li>
+</ol>
+<p>Let C be a positively oriented, piecewise smooth, simple closed curve in a plane, and let D be the region bounded by C. If L and M are functions of (x, y) defined on an open region containing D and have continuous partial derivatives there, then</p>
+<div class="math notranslate nohighlight">
+\[\oint_{C}^{} (Ldx+Mdy)=\iint_{D}^{} (\cfrac{\partial M}{\partial x}-\cfrac{\partial L}{\partial y})dxdy\]</div>
+<p>where the path of integration along C is anticlockwise.</p>
+<p>This formula can also be written as</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\oint_{C}^{} (P(x,y)dx+Q(x,y)dy)=\iint_{D}^{} (\cfrac{\partial Q}{\partial x}-\cfrac{\partial P}{\partial y})dxdy\\\end{split}\]</div>
+<p>A Leibniz integral rule for a two dimensional surface moving in three dimensional space is[3][4]</p>
+<div class="math notranslate nohighlight">
+\[{\displaystyle {\frac {d}{dt}}\iint _{\Sigma (t)}\mathbf {F} (\mathbf {r} ,t)\cdot d\mathbf {A} =\iint _{\Sigma (t)}\left(\mathbf {F} _{t}(\mathbf {r} ,t)+\left[\nabla \cdot \mathbf {F} (\mathbf {r} ,t)\right]\mathbf {v} \right)\cdot d\mathbf {A} -\oint _{\partial \Sigma (t)}\left[\mathbf {v} \times \mathbf {F} (\mathbf {r} ,t)\right]\cdot d\mathbf {s} ,}\]</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="ns.html" class="btn btn-neutral float-left" title="Navier–Stokes equations" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="rtt.html" class="btn btn-neutral float-right" title="Reynolds’ transport theorem" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2017~2024, eric.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

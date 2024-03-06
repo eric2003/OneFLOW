@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Calculus &mdash; Scientific Computing 1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../_static/documentation_options.js?v=f2a433a1"></script>
+        <script src="../_static/doctools.js?v=888ff710"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Substitution" href="substitution.html" />
+    <link rel="prev" title="Matrix" href="matrix.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Scientific Computing
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Get started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../info.html">OneFLOW</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../user.html">THEORY</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../bash.html">Bash</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">CFD</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="ns.html">Navier–Stokes equations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="leibniz.html">Leibniz integral</a></li>
+<li class="toctree-l2"><a class="reference internal" href="rtt.html">Reynolds’ transport theorem</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mass.html">Conservation Of Mass</a></li>
+<li class="toctree-l2"><a class="reference internal" href="momenum.html">Momentum Analysis Of Flow Systems</a></li>
+<li class="toctree-l2"><a class="reference internal" href="energy.html">Conservation Of Energy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ns-integral.html">ALE Form of Conservation Equations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="curvilinear.html">Generalized Curvilinear Coordinate System</a></li>
+<li class="toctree-l2"><a class="reference internal" href="curvilinear3d.html">Generalized Curvilinear Coordinate System(3D)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="vector.html">Vector &amp; Tensor</a></li>
+<li class="toctree-l2"><a class="reference internal" href="matrix.html">Matrix</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Calculus</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id2">一元复合函数的求导法则</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#id3">定理 1</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#id4">多元复合函数的求导法则</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#id5">定理 1</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id6">定理 2</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id7">定理 3</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="substitution.html">Substitution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="jacobian.html">Jacobian matrix</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gauss.html">Gauss’s Theorem</a></li>
+<li class="toctree-l2"><a class="reference internal" href="strain.html">Strain Measures</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ale.html">Arbitrary Lagrangian-Eulerian</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ale1d.html">ALE 1D</a></li>
+<li class="toctree-l2"><a class="reference internal" href="deformation.html">Deformation and Motion</a></li>
+<li class="toctree-l2"><a class="reference internal" href="derivative.html">Fluid Derivative</a></li>
+<li class="toctree-l2"><a class="reference internal" href="material_derivative.html">Material Time Derivative</a></li>
+<li class="toctree-l2"><a class="reference internal" href="scheme/index.html">CFD Schemes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="examples/index.html">CFD Examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="method/index.html">CFD Methods</a></li>
+<li class="toctree-l2"><a class="reference internal" href="codes.html">Reference Codes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="videos.html">CFD &amp; CAE Videos</a></li>
+<li class="toctree-l2"><a class="reference internal" href="books.html">Books</a></li>
+<li class="toctree-l2"><a class="reference internal" href="docs.html">Documents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../cgns.html">CGNS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../chatgpt.html">CHATGPT</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cpp/index.html">CPP</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cmake.html">CMake</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cmd.html">Cmd</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cuda.html">CUDA</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../design_patterns.html">Design Patterns</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../eigen.html">Eigen3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../git.html">Git</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../git.html#contexts">Contexts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fortran.html">Fortran</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../hdf5.html">HDF5</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../hpc.html">HPC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../install/index.html">Install</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../julia.html">Julia</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../jupyter.html">Jupyter Notebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../latex.html">LaTeX</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../makefile.html">Makefile</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../metis.html">METIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../mkdocs.html">MkDocs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../modules.html">Environment Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../mpi.html">MPI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../numerical/index.html">Numerical analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../oneapi.html">oneAPI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../oneflow.html">OneFLOW-CFD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../openacc.html">OpenACC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../opencl.html">OpenCL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../opengl.html">OpenGL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../openmp.html">OpenMP</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../powershell.html">PowerShell</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../python/index.html">Python</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../qt.html">Qt</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../regex.html">Regular Expressions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../science.html">Science</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sphinx.html">Sphinx</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../system/index.html">System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../taichi.html">Taichi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tcltk.html">Tcl/tk</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tecplot.html">Tecplot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../test.html">Test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../unreal_engine.html">Unreal Engine</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../vcpkg.html">vcpkg</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../yaml.html">yaml</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Scientific Computing</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">CFD</a></li>
+      <li class="breadcrumb-item active">Calculus</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/cfd/calculus.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="calculus">
+<h1>Calculus<a class="headerlink" href="#calculus" title="Link to this heading"></a></h1>
+<ul class="simple">
+<li><p><a class="reference external" href="https://www.bilibili.com/video/BV1Eb411u7Fw/">《高等数学》同济版 全程教学视频（宋浩老师）</a></p></li>
+</ul>
+<section id="id2">
+<h2>一元复合函数的求导法则<a class="headerlink" href="#id2" title="Link to this heading"></a></h2>
+<section id="id3">
+<h3>定理 1<a class="headerlink" href="#id3" title="Link to this heading"></a></h3>
+<p>如果函数 <span class="math notranslate nohighlight">\(u=g(x)\)</span> 在点 <span class="math notranslate nohighlight">\(x\)</span> 可导，而函数 <span class="math notranslate nohighlight">\(y=f(u)\)</span> 在对应点
+<span class="math notranslate nohighlight">\(u=g(x)\)</span> 可导，那么复合函数 <span class="math notranslate nohighlight">\(y=f(g(x))\)</span> 在点 <span class="math notranslate nohighlight">\(x\)</span> 可导，且有</p>
+<div class="math notranslate nohighlight">
+\[\frac{\mathrm{d} y}{\mathrm{d} x}={f}'(u) \cdot {g}'(x) \quad  or \quad
+\frac{\mathrm{d} y}{\mathrm{d} x}=\frac{\mathrm{d} y}{\mathrm{d} u}\cdot \frac{\mathrm{d} u}{\mathrm{d} x}\]</div>
+<p>严格来说函数 <span class="math notranslate nohighlight">\(y=f(u)\)</span> 实际上只是 <span class="math notranslate nohighlight">\(u\)</span> 的函数，并不是 <span class="math notranslate nohighlight">\(x\)</span> 的函数。
+而 <span class="math notranslate nohighlight">\(h(x)=(f\circ g)(x)\)</span> 才是 <span class="math notranslate nohighlight">\(x\)</span> 的函数。这种记号上的随意会在复杂问题上造成困扰。</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+  \cfrac{h(x+\triangle x)-h(x)}{\triangle x } &amp;=\cfrac{f(g(x+\triangle x))-f(g(x))}{\triangle x }\\
+  &amp;=\cfrac{[f(g(x+\triangle x))-f(g(x))]}{[g(x+\triangle x)-g(x)]}\cfrac{[g(x+\triangle x)-g(x)]}{\triangle x }
+\end{align}\end{split}\]</div>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+  \lim_{\triangle x \to 0}\cfrac{h(x+\triangle x)-h(x)}{\triangle x } &amp;=\lim_{\triangle x \to 0}\cfrac{f(g(x+\triangle x))-f(g(x))}{\triangle x }\\
+  &amp;=\lim_{\triangle x \to 0}\cfrac{[f(g(x+\triangle x))-f(g(x))]}{[g(x+\triangle x)-g(x)]}\cfrac{[g(x+\triangle x)-g(x)]}{\triangle x }\\
+  &amp;=\frac{\mathrm{d} f(u)}{\mathrm{d} u} \Bigg|_{u=g(x)} \cdot \frac{\mathrm{d} g(x)}{\mathrm{d} x} \Bigg|_{x=x}
+\end{align}\end{split}\]</div>
+<p>也就是说，如果把函数 <span class="math notranslate nohighlight">\(y\)</span> 定义成 <span class="math notranslate nohighlight">\(y=f(u)\)</span> ，那么复合函数就不要记作 <span class="math notranslate nohighlight">\(y\)</span> ，这有歧义。这里不妨记作 <span class="math notranslate nohighlight">\(h\)</span> ,
+一般来说，<span class="math notranslate nohighlight">\(h\)</span> 和 <span class="math notranslate nohighlight">\(f\)</span> 的表达式显然不是一回事，这是两个不同的函数。
+一般有：</p>
+<div class="math notranslate nohighlight">
+\[\begin{align}
+  y_{0}=f(u_{0})= f(u(x_{0} ))=  f(u(x ))\Bigg|_{x=x_{0}}
+\end{align}\]</div>
+<p>举个例子：</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+  y(u)=f(u)=2u\\
+  u(x)=g(x)=sin(x)\\
+  h(x)=f(g(x))=(f \circ g)(x)=2sin(x)
+\end{align}\end{split}\]</div>
+<p>显然，这里的函数 <span class="math notranslate nohighlight">\(y\)</span> 和 函数 <span class="math notranslate nohighlight">\(h\)</span> 不是一回事。
+我们可以将变量换为任何记号，比如 <span class="math notranslate nohighlight">\(y(u)=f(u)=2u\)</span> 或者 <span class="math notranslate nohighlight">\(y(t)=f(t)=2t\)</span> 或者 <span class="math notranslate nohighlight">\(y(x)=f(x)=2x\)</span>
+对于函数 <span class="math notranslate nohighlight">\(h\)</span> 有 <span class="math notranslate nohighlight">\(h(x)=2sin(x)\)</span> ,如果此时也记做 <span class="math notranslate nohighlight">\(y(x)=2sin(x)\)</span> 则会造成歧义。</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+  y(u)=f(u)=2u\\
+  u(x)=g(x)=sin(x)\\
+ \hat{y}(x)=h(x)=f(g(x))=(f \circ g)(x)=2sin(x)
+\end{align}\end{split}\]</div>
+<p>这里的函数 <span class="math notranslate nohighlight">\(y\)</span> 和 函数 <span class="math notranslate nohighlight">\(\hat{y}\)</span> 应该加以区分。</p>
+<div class="math notranslate nohighlight">
+\[y(sin(x))=f(sin(x))=\hat{y}(x)=2sin(x)\]</div>
+<p>从这个角度来说，定理更合理的表述应该是：</p>
+<p>如果函数 <span class="math notranslate nohighlight">\(u=g(x)\)</span> 在点 <span class="math notranslate nohighlight">\(x\)</span> 可导，而函数 <span class="math notranslate nohighlight">\(y=f(u)\)</span> 在对应点
+<span class="math notranslate nohighlight">\(u=g(x)\)</span> 可导，那么复合函数 <span class="math notranslate nohighlight">\(\hat{y}=f(g(x))\)</span> 在点 <span class="math notranslate nohighlight">\(x\)</span> 可导，且有</p>
+<div class="math notranslate nohighlight">
+\[\frac{\mathrm{d} \hat{y}(x)}{\mathrm{d} x}={f}'(u) \cdot {g}'(x) \quad  or \quad
+\frac{\mathrm{d} \hat{y}(x)}{\mathrm{d} x}=\frac{\mathrm{d} y(u)}{\mathrm{d} u}\cdot \frac{\mathrm{d} u(x)}{\mathrm{d} x}\]</div>
+</section>
+</section>
+<section id="id4">
+<h2>多元复合函数的求导法则<a class="headerlink" href="#id4" title="Link to this heading"></a></h2>
+<section id="id5">
+<h3>定理 1<a class="headerlink" href="#id5" title="Link to this heading"></a></h3>
+<p>如果函数 <span class="math notranslate nohighlight">\(u=\phi(t)\)</span> 及 <span class="math notranslate nohighlight">\(v=\psi(t)\)</span> 都在点 <span class="math notranslate nohighlight">\(t\)</span> 可导，函数 <span class="math notranslate nohighlight">\(z=f(u,v)\)</span> 在对应点
+<span class="math notranslate nohighlight">\((u,v)\)</span> 具有连续偏导数，那么复合函数 <span class="math notranslate nohighlight">\(z=f(\phi(t),\psi(t))\)</span> 在点 <span class="math notranslate nohighlight">\(t\)</span> 可导，且有</p>
+<div class="math notranslate nohighlight">
+\[\frac{\mathrm{d} z}{\mathrm{d} t}=\frac{\partial z}{\partial u} \frac{\mathrm{d} u}{\mathrm{d} t}+
+\frac{\partial z}{\partial v} \frac{\mathrm{d} v}{\mathrm{d} t}\]</div>
+<p>更准确的叙述：
+如果函数 <span class="math notranslate nohighlight">\(u=\phi(t)\)</span> 及 <span class="math notranslate nohighlight">\(v=\psi(t)\)</span> 都在点 <span class="math notranslate nohighlight">\(t\)</span> 可导，函数 <span class="math notranslate nohighlight">\(z(u,v)=f(u,v)\)</span> 在对应点
+<span class="math notranslate nohighlight">\((u,v)\)</span> 具有连续偏导数，那么复合函数 <span class="math notranslate nohighlight">\(\hat{z}(t)=f(\phi(t),\psi(t))\)</span> 在点 <span class="math notranslate nohighlight">\(t\)</span> 可导，且有</p>
+<div class="math notranslate nohighlight">
+\[\frac{\mathrm{d} \hat{z}(t)}{\mathrm{d} t}=\frac{\partial z(u,v)}{\partial u} \frac{\mathrm{d} u(t)}{\mathrm{d} t}+
+\frac{\partial z(u,v)}{\partial v} \frac{\mathrm{d} v(t)}{\mathrm{d} t}\]</div>
+<p>即：</p>
+<div class="math notranslate nohighlight">
+\[\frac{\mathrm{d} \hat{z}(t)}{\mathrm{d} t}=\frac{\partial z(u,v)}{\partial u} \frac{\mathrm{d} u(t)}{\mathrm{d} t}+
+\frac{\partial z(u,v)}{\partial v} \frac{\mathrm{d} v(t)}{\mathrm{d} t}\]</div>
+</section>
+<section id="id6">
+<h3>定理 2<a class="headerlink" href="#id6" title="Link to this heading"></a></h3>
+<p>如果函数 <span class="math notranslate nohighlight">\(u=\phi(x,y)\)</span> 及 <span class="math notranslate nohighlight">\(v=\psi(x,y)\)</span> 都在点 <span class="math notranslate nohighlight">\((x,y)\)</span> 具有对 <span class="math notranslate nohighlight">\(x\)</span> 及对 <span class="math notranslate nohighlight">\(y\)</span> 的偏导数，函数 <span class="math notranslate nohighlight">\(z=f(u,v)\)</span> 在对应点
+<span class="math notranslate nohighlight">\((u,v)\)</span> 具有连续偏导数，那么复合函数 <span class="math notranslate nohighlight">\(z=f(\phi(x,y),\psi(x,y))\)</span> 在点 <span class="math notranslate nohighlight">\((x,y)\)</span> 的两个偏导数都存在，且有</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+  \frac{\partial z}{\partial x} &amp; = \frac{\partial z}{\partial u} \frac{\partial u}{\partial x}+
+  \frac{\partial z}{\partial v} \frac{\partial v}{\partial x}\\
+  \frac{\partial z}{\partial y} &amp; = \frac{\partial z}{\partial u} \frac{\partial u}{\partial y}+
+  \frac{\partial z}{\partial v} \frac{\partial v}{\partial y}\\
+\end{align}\end{split}\]</div>
+<p>类似的，设 <span class="math notranslate nohighlight">\(u=\phi(x,y)\)</span> 、<span class="math notranslate nohighlight">\(v=\psi(x,y)\)</span> 及 <span class="math notranslate nohighlight">\(w=\omega(x,y)\)</span> 都在点 <span class="math notranslate nohighlight">\((x,y)\)</span> 具有对 <span class="math notranslate nohighlight">\(x\)</span> 及对 <span class="math notranslate nohighlight">\(y\)</span> 的偏导数，函数 <span class="math notranslate nohighlight">\(z=f(u,v,w)\)</span> 在对应点
+<span class="math notranslate nohighlight">\((u,v,w)\)</span> 具有连续偏导数，那么复合函数</p>
+<div class="math notranslate nohighlight">
+\[z=f(\phi(x,y),\psi(x,y),\omega(x,y))\]</div>
+<p>在点 <span class="math notranslate nohighlight">\((x,y)\)</span> 的两个偏导数都存在，且有</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+  \frac{\partial z}{\partial x} &amp; = \frac{\partial z}{\partial u} \frac{\partial u}{\partial x}+
+  \frac{\partial z}{\partial v} \frac{\partial v}{\partial x}+
+  \frac{\partial z}{\partial w} \frac{\partial w}{\partial x}\\
+  \frac{\partial z}{\partial y} &amp; = \frac{\partial z}{\partial u} \frac{\partial u}{\partial y}+
+  \frac{\partial z}{\partial v} \frac{\partial v}{\partial y}+
+  \frac{\partial z}{\partial w} \frac{\partial w}{\partial y}
+\end{align}\end{split}\]</div>
+<p>更准确的叙述：
+如果函数 <span class="math notranslate nohighlight">\(u=\phi(x,y)\)</span> 及 <span class="math notranslate nohighlight">\(v=\psi(x,y)\)</span> 都在点 <span class="math notranslate nohighlight">\((x,y)\)</span> 具有对 <span class="math notranslate nohighlight">\(x\)</span> 及对 <span class="math notranslate nohighlight">\(y\)</span> 的偏导数，函数 <span class="math notranslate nohighlight">\(z(u,v)=f(u,v)\)</span> 在对应点
+<span class="math notranslate nohighlight">\((u,v)\)</span> 具有连续偏导数，那么复合函数 <span class="math notranslate nohighlight">\(\hat{z}(x,y)=f(\phi(x,y),\psi(x,y))\)</span> 在点 <span class="math notranslate nohighlight">\((x,y)\)</span> 的两个偏导数都存在，且有</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+  \frac{\partial \hat{z}(x,y)}{\partial x} &amp; = \frac{\partial z(u,v)}{\partial u} \frac{\partial u(x,y)}{\partial x}+
+  \frac{\partial z(u,v)}{\partial v} \frac{\partial v(x,y)}{\partial x}\\
+  \frac{\partial \hat{z}(x,y)}{\partial y} &amp; = \frac{\partial z(u,v)}{\partial u} \frac{\partial u(x,y)}{\partial y}+
+  \frac{\partial z(u,v)}{\partial v} \frac{\partial v(x,y)}{\partial y}\\
+\end{align}\end{split}\]</div>
+<p>类似的，设 <span class="math notranslate nohighlight">\(u=\phi(x,y)\)</span> 、<span class="math notranslate nohighlight">\(v=\psi(x,y)\)</span> 及 <span class="math notranslate nohighlight">\(w=\omega(x,y)\)</span> 都在点 <span class="math notranslate nohighlight">\((x,y)\)</span> 具有对 <span class="math notranslate nohighlight">\(x\)</span> 及对 <span class="math notranslate nohighlight">\(y\)</span> 的偏导数，函数 <span class="math notranslate nohighlight">\(z(u,v,w)=f(u,v,w)\)</span> 在对应点
+<span class="math notranslate nohighlight">\((u,v,w)\)</span> 具有连续偏导数，那么复合函数</p>
+<div class="math notranslate nohighlight">
+\[\hat{z}(x,y)=f(\phi(x,y),\psi(x,y),\omega(x,y))\]</div>
+<p>在点 <span class="math notranslate nohighlight">\((x,y)\)</span> 的两个偏导数都存在，且有</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+  \frac{\partial \hat{z}(x,y)}{\partial x} &amp; = \frac{\partial z(u,v,w)}{\partial u} \frac{\partial u(x,y)}{\partial x}+
+  \frac{\partial z(u,v,w)}{\partial v} \frac{\partial v(x,y)}{\partial x}+
+  \frac{\partial z(u,v,w)}{\partial w} \frac{\partial w(x,y)}{\partial x}\\
+  \frac{\partial \hat{z}(x,y)}{\partial y} &amp; = \frac{\partial z(u,v,w)}{\partial u} \frac{\partial u(x,y)}{\partial y}+
+  \frac{\partial z(u,v,w)}{\partial v} \frac{\partial v(x,y)}{\partial y}+
+  \frac{\partial z(u,v,w)}{\partial w} \frac{\partial w(x,y)}{\partial y}
+\end{align}\end{split}\]</div>
+</section>
+<section id="id7">
+<h3>定理 3<a class="headerlink" href="#id7" title="Link to this heading"></a></h3>
+<p>如果函数 <span class="math notranslate nohighlight">\(u=\phi(x,y)\)</span> 在点 <span class="math notranslate nohighlight">\((x,y)\)</span> 具有对 <span class="math notranslate nohighlight">\(x\)</span> 及对 <span class="math notranslate nohighlight">\(y`的偏导数，函数 :math:`v=\psi(y)\)</span> 在点 <span class="math notranslate nohighlight">\(y\)</span> 可导，函数 <span class="math notranslate nohighlight">\(z=f(u,v)\)</span> 在对应点
+<span class="math notranslate nohighlight">\((u,v)\)</span> 具有连续偏导数，那么复合函数 <span class="math notranslate nohighlight">\(z=f(\phi(x,y),\psi(y))\)</span> 在点 <span class="math notranslate nohighlight">\((x,y)\)</span> 的两个偏导数都存在，且有</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+  \frac{\partial z}{\partial x} &amp; = \frac{\partial z}{\partial u} \frac{\partial u}{\partial x}\\
+  \frac{\partial z}{\partial y} &amp; = \frac{\partial z}{\partial u} \frac{\partial u}{\partial y}+
+  \frac{\partial z}{\partial v} \frac{\mathrm{d} v}{\mathrm{d} y}\\
+\end{align}\end{split}\]</div>
+<p>如果复合函数的某些中间变量本身又是复合函数的自变量
+设 <span class="math notranslate nohighlight">\(u=\phi(x,y)\)</span> 、<span class="math notranslate nohighlight">\(v=x\)</span> 及 <span class="math notranslate nohighlight">\(w=y\)</span> 都在点 <span class="math notranslate nohighlight">\((x,y)\)</span> 具有对 <span class="math notranslate nohighlight">\(x\)</span> 及对 <span class="math notranslate nohighlight">\(y\)</span> 的偏导数，函数 <span class="math notranslate nohighlight">\(z=f(u,v,w)\)</span> 即 <span class="math notranslate nohighlight">\(z=f(u,x,y)\)</span> 在对应点
+<span class="math notranslate nohighlight">\((u,v,w)\)</span> 具有连续偏导数，那么复合函数</p>
+<div class="math notranslate nohighlight">
+\[z=f(\phi(x,y),x,y)\]</div>
+<p>有</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+  \frac{\partial v}{\partial x}&amp;=1, \quad \frac{\partial v}{\partial y}=0\\
+  \frac{\partial w}{\partial x}&amp;=0, \quad \frac{\partial w}{\partial y}=1
+\end{align}\end{split}\]</div>
+<p>继续，有</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+  \frac{\partial z}{\partial x} &amp; = \frac{\partial z}{\partial u} \frac{\partial u}{\partial x}+
+  \frac{\partial z}{\partial v} \cdot 1+
+  \frac{\partial z}{\partial w} \cdot 0\\
+  \frac{\partial z}{\partial y} &amp; = \frac{\partial z}{\partial u} \frac{\partial u}{\partial y}+
+  \frac{\partial z}{\partial v} \cdot 0+
+  \frac{\partial z}{\partial w} \cdot 1
+\end{align}\end{split}\]</div>
+<p>继续，有</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+  \frac{\partial z}{\partial x} &amp; = \frac{\partial z}{\partial u} \frac{\partial u}{\partial x}+
+  \frac{\partial z}{\partial v}\\
+  \frac{\partial z}{\partial y} &amp; = \frac{\partial z}{\partial u} \frac{\partial u}{\partial y}+
+  \frac{\partial z}{\partial w}
+\end{align}\end{split}\]</div>
+<p>更准确的叙述：
+如果函数 <span class="math notranslate nohighlight">\(u=\phi(x,y)\)</span> 在点 <span class="math notranslate nohighlight">\((x,y)\)</span> 具有对 <span class="math notranslate nohighlight">\(x\)</span> 及对 <span class="math notranslate nohighlight">\(y\)</span> 的偏导数，函数 <span class="math notranslate nohighlight">\(v=\psi(y)\)</span> 在点 <span class="math notranslate nohighlight">\(y\)</span> 可导，函数 <span class="math notranslate nohighlight">\(z(u,v)=f(u,v)\)</span> 在对应点
+<span class="math notranslate nohighlight">\((u,v)\)</span> 具有连续偏导数，那么复合函数 <span class="math notranslate nohighlight">\(\hat{z}(x,y)=f(\phi(x,y),\psi(y))=\hat{f}(x,y)\)</span> 在点 <span class="math notranslate nohighlight">\((x,y)\)</span> 的两个偏导数都存在，且有</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+  \frac{\partial \hat{z}(x,y)}{\partial x} &amp; = \frac{\partial z(u,v)}{\partial u} \frac{\partial u(x,y)}{\partial x}+
+  \frac{\partial z(u,v)}{\partial v} \cancelto{0}{\frac{\partial v(x,y)}{\partial x}}\\
+  \frac{\partial \hat{z}(x,y)}{\partial y} &amp; = \frac{\partial z(u,v)}{\partial u} \frac{\partial u(x,y)}{\partial y}+
+  \frac{\partial z(u,v)}{\partial v} \cancelto{\frac{\mathrm{d} v(y)}{\mathrm{d} y}}{\frac{\partial v(x,y)}{\partial y}}
+\end{align}\end{split}\]</div>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+  \frac{\partial \hat{z}(x,y)}{\partial x} &amp; = \frac{\partial z(u,v)}{\partial u} \frac{\partial u(x,y)}{\partial x}\\
+  \frac{\partial \hat{z}(x,y)}{\partial y} &amp; = \frac{\partial z(u,v)}{\partial u} \frac{\partial u(x,y)}{\partial y}+
+  \frac{\partial z(u,v)}{\partial v} {\frac{\mathrm{d} v(y)}{\mathrm{d} y}}
+\end{align}\end{split}\]</div>
+<p>如果复合函数的某些中间变量本身又是复合函数的自变量
+设 <span class="math notranslate nohighlight">\(u=\phi(x,y)\)</span> 、<span class="math notranslate nohighlight">\(v=x\)</span> 及 <span class="math notranslate nohighlight">\(w=y\)</span> 都在点 <span class="math notranslate nohighlight">\((x,y)\)</span> 具有对 <span class="math notranslate nohighlight">\(x\)</span> 及对 <span class="math notranslate nohighlight">\(y\)</span> 的偏导数，函数 <span class="math notranslate nohighlight">\(z(u,v,w)=f(u,v,w)\)</span> 即 <span class="math notranslate nohighlight">\(z=f(u,x,y)\)</span> 在对应点
+<span class="math notranslate nohighlight">\((u,v,w)\)</span> 具有连续偏导数，那么复合函数</p>
+<div class="math notranslate nohighlight">
+\[\hat{z}(x,y)=f(\phi(x,y),x,y)=\hat{f}(x,y)\]</div>
+<p>有：</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+  \frac{\partial \hat{z}(x,y)}{\partial x} &amp; = \frac{\partial z(u,v,w)}{\partial u} \frac{\partial u(x,y)}{\partial x}+
+  \frac{\partial z(u,v,w)}{\partial v} \frac{\partial v(x,y)}{\partial x}+
+  \frac{\partial z(u,v,w)}{\partial w} \frac{\partial w(x,y)}{\partial x}\\
+  \frac{\partial \hat{z}(x,y)}{\partial y} &amp; = \frac{\partial z(u,v,w)}{\partial u} \frac{\partial u(x,y)}{\partial y}+
+  \frac{\partial z(u,v,w)}{\partial v} \frac{\partial v(x,y)}{\partial y}+
+  \frac{\partial z(u,v,w)}{\partial w} \frac{\partial w(x,y)}{\partial y}
+\end{align}\end{split}\]</div>
+<p>继续，有：</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+  \frac{\partial \hat{z}(x,y)}{\partial x} &amp; = \frac{\partial z(u,v,w)}{\partial u} \frac{\partial u(x,y)}{\partial x}+
+  \frac{\partial z(u,v,w)}{\partial v} \cancelto{1}{\frac{\partial v(x,y)}{\partial x}}+
+  \frac{\partial z(u,v,w)}{\partial w} \cancelto{0}{\frac{\partial w(x,y)}{\partial x}}\\
+  \frac{\partial \hat{z}(x,y)}{\partial y} &amp; = \frac{\partial z(u,v,w)}{\partial u} \frac{\partial u(x,y)}{\partial y}+
+  \frac{\partial z(u,v,w)}{\partial v} \cancelto{0}{\frac{\partial v(x,y)}{\partial y}}+
+  \frac{\partial z(u,v,w)}{\partial w} \cancelto{1}{\frac{\partial w(x,y)}{\partial y}}
+\end{align}\end{split}\]</div>
+<p>即：</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+  \frac{\partial \hat{z}(x,y)}{\partial x} &amp; = \frac{\partial z(u,v,w)}{\partial u} \frac{\partial u(x,y)}{\partial x}+
+  \frac{\partial z(u,v,w)}{\partial v}\\
+  \frac{\partial \hat{z}(x,y)}{\partial y} &amp; = \frac{\partial z(u,v,w)}{\partial u} \frac{\partial u(x,y)}{\partial y}+
+  \frac{\partial z(u,v,w)}{\partial w}
+\end{align}\end{split}\]</div>
+<p>即：</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+  \frac{\partial \hat{z}(x,y)}{\partial x} &amp; = \frac{\partial z(u,v,w)}{\partial u} \frac{\partial u(x,y)}{\partial x}+
+  \frac{\partial z(u,v,w)}{\partial x}\\
+  \frac{\partial \hat{z}(x,y)}{\partial y} &amp; = \frac{\partial z(u,v,w)}{\partial u} \frac{\partial u(x,y)}{\partial y}+
+  \frac{\partial z(u,v,w)}{\partial y}
+\end{align}\end{split}\]</div>
+<p>也可以写成：</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+  \frac{\partial \hat{z}(x,y)}{\partial x} &amp; = \frac{\partial f(u,v,w)}{\partial u} \frac{\partial u(x,y)}{\partial x}+
+  \frac{\partial f(u,v,w)}{\partial x}\\
+  \frac{\partial \hat{z}(x,y)}{\partial y} &amp; = \frac{\partial f(u,v,w)}{\partial u} \frac{\partial u(x,y)}{\partial y}+
+  \frac{\partial f(u,v,w)}{\partial y}
+\end{align}\end{split}\]</div>
+<p>继续，也可以写成：</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+  \frac{\partial \hat{z}(x,y)}{\partial x} &amp; = \frac{\partial f(u,x,y)}{\partial u} \frac{\partial u(x,y)}{\partial x}+
+  \frac{\partial f(u,x,y)}{\partial x}\\
+  \frac{\partial \hat{z}(x,y)}{\partial y} &amp; = \frac{\partial f(u,x,y)}{\partial u} \frac{\partial u(x,y)}{\partial y}+
+  \frac{\partial f(u,x,y)}{\partial y}
+\end{align}\end{split}\]</div>
+<p>需要注意的是，虽然数值上有：</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+  \hat{z}(x,y)&amp;= \hat{f}(x,y)=z(u(x,y),x,y)=f(u(x,y),x,y)\\
+\end{align}\end{split}\]</div>
+<p>但是，函数形式上</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+  \hat{z}&amp;\ne z\\
+  \hat{f}&amp;\ne f\\
+  \hat{z}&amp;\equiv \hat{f}\\
+  {z}&amp;\equiv {f}\\
+\end{align}\end{split}\]</div>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="matrix.html" class="btn btn-neutral float-left" title="Matrix" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="substitution.html" class="btn btn-neutral float-right" title="Substitution" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2017~2024, eric.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

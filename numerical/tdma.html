@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tridiagonal matrix algorithm &mdash; Scientific Computing 1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../_static/documentation_options.js?v=f2a433a1"></script>
+        <script src="../_static/doctools.js?v=888ff710"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Cyclic Tridiagonal Systems" href="ctdma.html" />
+    <link rel="prev" title="Numerical analysis" href="index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Scientific Computing
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Get started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../info.html">OneFLOW</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../user.html">THEORY</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../bash.html">Bash</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cfd/index.html">CFD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cgns.html">CGNS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../chatgpt.html">CHATGPT</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cpp/index.html">CPP</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cmake.html">CMake</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cmd.html">Cmd</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cuda.html">CUDA</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../design_patterns.html">Design Patterns</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../eigen.html">Eigen3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../git.html">Git</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../git.html#contexts">Contexts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fortran.html">Fortran</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../hdf5.html">HDF5</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../hpc.html">HPC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../install/index.html">Install</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../julia.html">Julia</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../jupyter.html">Jupyter Notebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../latex.html">LaTeX</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../makefile.html">Makefile</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../metis.html">METIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../mkdocs.html">MkDocs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../modules.html">Environment Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../mpi.html">MPI</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Numerical analysis</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Tridiagonal matrix algorithm</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ctdma.html">Cyclic Tridiagonal Systems</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fourier_transform.html">FOURIER TRANSFORMS</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fftw.html">FFTW</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../oneapi.html">oneAPI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../oneflow.html">OneFLOW-CFD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../openacc.html">OpenACC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../opencl.html">OpenCL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../opengl.html">OpenGL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../openmp.html">OpenMP</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../powershell.html">PowerShell</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../python/index.html">Python</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../qt.html">Qt</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../regex.html">Regular Expressions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../science.html">Science</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sphinx.html">Sphinx</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../system/index.html">System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../taichi.html">Taichi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tcltk.html">Tcl/tk</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tecplot.html">Tecplot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../test.html">Test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../unreal_engine.html">Unreal Engine</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../vcpkg.html">vcpkg</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../yaml.html">yaml</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Scientific Computing</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Numerical analysis</a></li>
+      <li class="breadcrumb-item active">Tridiagonal matrix algorithm</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/numerical/tdma.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="tridiagonal-matrix-algorithm">
+<h1>Tridiagonal matrix algorithm<a class="headerlink" href="#tridiagonal-matrix-algorithm" title="Link to this heading"></a></h1>
+<ol class="arabic simple">
+<li><p><a class="reference external" href="https://en.wikipedia.org/wiki/Tridiagonal_matrix_algorithm/">Tridiagonal matrix algorithm</a></p></li>
+<li><p><a class="reference external" href="http://www.industrial-maths.com/ms6021_thomas.pdf">Tridiagonal Matrices: Thomas Algorithm</a></p></li>
+<li><p><a class="reference external" href="https://www.cnblogs.com/xpvincent/archive/2013/01/25/2877411.html">三对角矩阵(Tridiagonal Matrices)的求法：Thomas Algorithm(TDMA)</a></p></li>
+<li><p><a class="reference external" href="https://en.wikibooks.org/wiki/Algorithm_Implementation/Linear_Algebra/Tridiagonal_matrix_algorithm">Tridiagonal_matrix_algorithm：Thomas Algorithm(TDMA)</a></p></li>
+<li><p><a class="reference external" href="http://www.thevisualroom.com/tri_diagonal_matrix.html">Tri-Diagonal Matrix Algorithm</a></p></li>
+<li><p><a class="reference external" href="https://www.researchgate.net/publication/364389215_Understanding_the_TDMAThomas_algorithm_and_its_Implementation_in_Python/">Understanding the TDMA/Thomas algorithm and its Implementation in Python</a></p></li>
+<li><p><a class="reference external" href="https://matlabgeeks.weebly.com/uploads/8/0/4/8/8048228/001-thomas_algorithm_for_tridiagonal_matrix-v16.pdf">Thomas Algorithm for Tridiagonal Matrix</a></p></li>
+</ol>
+<p>In numerical linear algebra, the tridiagonal matrix algorithm, also known as the Thomas algorithm (named after Llewellyn Thomas), is a simplified form of Gaussian elimination that can be used to solve tridiagonal systems of equations.
+A tridiagonal system for <span class="math notranslate nohighlight">\(n\)</span> unknowns may be written as</p>
+<div class="math notranslate nohighlight">
+\[a_{i}x_{i-1}+b_{i}x_{i}+c_{i}x_{i+1}=d_{i}\]</div>
+<p>where <span class="math notranslate nohighlight">\(a_{1}=0\)</span> and <span class="math notranslate nohighlight">\(c_{n}=0\)</span></p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\left[\begin{array}{ccccc}
+b_{1} &amp; c_{1} &amp; &amp; &amp; 0 \\
+a_{2} &amp; b_{2} &amp; c_{2} &amp; &amp; \\
+&amp; a_{3} &amp; b_{3} &amp; \ddots &amp; \\
+&amp; &amp; \ddots &amp; \ddots &amp; c_{n-1} \\
+0 &amp; &amp; &amp; a_{n} &amp; b_{n}
+\end{array}\right]\left[\begin{array}{c}
+x_{1} \\
+x_{2} \\
+x_{3} \\
+\vdots \\
+x_{n}
+\end{array}\right]=\left[\begin{array}{c}
+d_{1} \\
+d_{2} \\
+d_{3} \\
+\vdots \\
+d_{n}
+\end{array}\right]\end{split}\]</div>
+<p>The following is an example to deduce the solution process</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\left[\begin{array}{cccccc}
+b_{1} &amp; c_{1} &amp; 0 &amp; 0 &amp; 0 &amp; 0 \\
+a_{2} &amp; b_{2} &amp; c_{2} &amp; 0 &amp; 0 &amp; 0 \\
+0 &amp; a_{3} &amp; b_{3} &amp; c_{3} &amp; 0 &amp; 0 \\
+0 &amp; 0 &amp; a_{4} &amp; b_{4} &amp; c_{4} &amp; 0 \\
+0 &amp; 0 &amp; 0 &amp; a_{5} &amp; b_{5} &amp; c_{5} \\
+0 &amp; 0 &amp; 0 &amp; 0 &amp; a_{6} &amp; b_{6}
+\end{array}\right]\left[\begin{array}{l}
+x_{1} \\
+x_{2} \\
+x_{3} \\
+x_{4} \\
+x_{5} \\
+x_{6}
+\end{array}\right]=\left[\begin{array}{l}
+d_{1} \\
+d_{2} \\
+d_{3} \\
+d_{4} \\
+d_{5} \\
+d_{6}
+\end{array}\right]\end{split}\]</div>
+<p>Step 1: Transform the matrix into an upper triangular matrix
+First, the coefficient matrix in the above formula should be changed into an upper triangular matrix.</p>
+<div class="math notranslate nohighlight">
+\[b_{1}x_{1}+c_{1}x_{2}=d_{1}\]</div>
+<p>Divide the above formula by b1:</p>
+<div class="math notranslate nohighlight">
+\[x_{1}+\cfrac{c_{1}}{b_{1}}x_{2}=\cfrac{d_{1}}{b_{1}}\]</div>
+<p>can be written as:</p>
+<div class="math notranslate nohighlight">
+\[x_{1}+\gamma_{1} x_{2}=\rho_{1},\quad\gamma_{1}=\cfrac{c_{1}}{b_{1}},\quad\rho_{1}=\cfrac{d_{1}}{b_{1}}\]</div>
+<p>So the matrix equation can be written as:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\left[\begin{array}{cccccc}
+1 &amp; \gamma_{1} &amp; 0 &amp; 0 &amp; 0 &amp; 0 \\
+a_{2} &amp; b_{2} &amp; c_{2} &amp; 0 &amp; 0 &amp; 0 \\
+0 &amp; a_{3} &amp; b_{3} &amp; c_{3} &amp; 0 &amp; 0 \\
+0 &amp; 0 &amp; a_{4} &amp; b_{4} &amp; c_{4} &amp; 0 \\
+0 &amp; 0 &amp; 0 &amp; a_{5} &amp; b_{5} &amp; c_{5} \\
+0 &amp; 0 &amp; 0 &amp; 0 &amp; a_{6} &amp; b_{6}
+\end{array}\right]\left[\begin{array}{l}
+x_{1} \\
+x_{2} \\
+x_{3} \\
+x_{4} \\
+x_{5} \\
+x_{6}
+\end{array}\right]=\left[\begin{array}{l}
+\rho_{1} \\
+d_{2} \\
+d_{3} \\
+d_{4} \\
+d_{5} \\
+d_{6}
+\end{array}\right]\end{split}\]</div>
+<p>second line:</p>
+<div class="math notranslate nohighlight">
+\[a_{2}x_{1}+b_{2}x_{2}+c_{2}x_{3}=d_{2}\]</div>
+<p>Multiply the transformed first line by <span class="math notranslate nohighlight">\(a_{2}\)</span>, and then subtract it from the second line to eliminate <span class="math notranslate nohighlight">\(x_{1}\)</span>, and get:</p>
+<div class="math notranslate nohighlight">
+\[(b_{2}-a_{2}\gamma_{1})x_{2}+c_{2}x_{3}=d_{2}-a_{2}\rho_{1}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[x_{2}+\cfrac{c_{2}}{(b_{2}-a_{2}\gamma_{1})}x_{3}=\cfrac{d_{2}-a_{2}\rho_{1}}{(b_{2}-a_{2}\gamma_{1})}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}x_{2}+\gamma_{2}x_{3}=\rho_{2},\quad
+\gamma_{2}=\cfrac{c_{2}}{(b_{2}-a_{2}\gamma_{1})},\quad\rho_{2}=\cfrac{d_{2}-a_{2}\rho_{1}}{(b_{2}-a_{2}\gamma_{1})}\\\end{split}\]</div>
+<p>So the new matrix equation is:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\left[\begin{array}{cccccc}
+1 &amp; \gamma_{1} &amp; 0 &amp; 0 &amp; 0 &amp; 0 \\
+0 &amp; 1 &amp; \gamma_{2} &amp; 0 &amp; 0 &amp; 0 \\
+0 &amp; a_{3} &amp; b_{3} &amp; c_{3} &amp; 0 &amp; 0 \\
+0 &amp; 0 &amp; a_{4} &amp; b_{4} &amp; c_{4} &amp; 0 \\
+0 &amp; 0 &amp; 0 &amp; a_{5} &amp; b_{5} &amp; c_{5} \\
+0 &amp; 0 &amp; 0 &amp; 0 &amp; a_{6} &amp; b_{6}
+\end{array}\right]\left[\begin{array}{l}
+x_{1} \\
+x_{2} \\
+x_{3} \\
+x_{4} \\
+x_{5} \\
+x_{6}
+\end{array}\right]=\left[\begin{array}{l}
+\rho_{1} \\
+\rho_{2} \\
+d_{3} \\
+d_{4} \\
+d_{5} \\
+d_{6}
+\end{array}\right]\end{split}\]</div>
+<p>In the same way,</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}x_{3}+\gamma_{3}x_{4}=\rho_{3},\quad
+\gamma_{3}=\cfrac{c_{3}}{(b_{3}-a_{3}\gamma_{2})},\quad\rho_{3}=\cfrac{d_{3}-a_{3}\rho_{2}}{(b_{3}-a_{3}\gamma_{2})}\\\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}x_{4}+\gamma_{4}x_{5}=\rho_{4},\quad
+\gamma_{4}=\cfrac{c_{4}}{(b_{4}-a_{4}\gamma_{3})},\quad\rho_{4}=\cfrac{d_{4}-a_{4}\rho_{3}}{(b_{4}-a_{4}\gamma_{3})}\\\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}x_{5}+\gamma_{5}x_{6}=\rho_{5},\quad
+\gamma_{5}=\cfrac{c_{5}}{(b_{5}-a_{5}\gamma_{4})},\quad\rho_{5}=\cfrac{d_{5}-a_{5}\rho_{4}}{(b_{5}-a_{5}\gamma_{4})}\\\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[x_{6}=\rho_{6},\quad\rho_{6}=\cfrac{d_{6}-a_{6}\rho_{5}}{(b_{6}-a_{6}\gamma_{5})}\]</div>
+<p>Finally, the new upper triangular matrix formula is obtained as:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\left[\begin{array}{cccccc}
+1 &amp; \gamma_{1} &amp; 0 &amp; 0 &amp; 0 &amp; 0 \\
+0 &amp; 1 &amp; \gamma_{2} &amp; 0 &amp; 0 &amp; 0 \\
+0 &amp; 0 &amp; 1 &amp; \gamma_{3} &amp; 0 &amp; 0 \\
+0 &amp; 0 &amp; 0 &amp; 1 &amp; \gamma_{4} &amp; 0 \\
+0 &amp; 0 &amp; 0 &amp; 0 &amp; 1 &amp; \gamma_{5} \\
+0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 1
+\end{array}\right]\left[\begin{array}{l}
+x_{1} \\
+x_{2} \\
+x_{3} \\
+x_{4} \\
+x_{5} \\
+x_{6}
+\end{array}\right]=\left[\begin{array}{l}
+\rho_{1} \\
+\rho_{2} \\
+\rho_{3} \\
+\rho_{4} \\
+\rho_{5} \\
+\rho_{6}
+\end{array}\right]\end{split}\]</div>
+<p>Step 2: Solving
+The reverse order of <span class="math notranslate nohighlight">\(x\)</span> can be obtained as follows:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+x_{6}=\rho_{6}\\
+x_{5}=\rho_{5}-\gamma_{5}x_{6}\\
+x_{4}=\rho_{4}-\gamma_{4}x_{5}\\
+x_{3}=\rho_{3}-\gamma_{3}x_{4}\\
+x_{2}=\rho_{2}-\gamma_{2}x_{3}\\
+x_{1}=\rho_{1}-\gamma_{1}x_{2}\\
+\end{array}\end{split}\]</div>
+<p>In general, the following relation holds</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+x_{n}=\rho_{n}\\
+x_{i}=\rho_{i}-\gamma_{i}x_{i+1};\quad i=n-1,n-2,\cdots,1
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\rho_{i}=\left\{\begin{array}{l}
+\cfrac{d_{1}}{b_{1}}\ \ \quad \quad \quad;&amp; i=1\\
+\cfrac{d_{i}-a_{i}\rho_{i-1}}{b_{i}-a_{i}\gamma_{i-1}};&amp;i=2,3,\cdots,n
+\end{array}\right.\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\gamma_{i}=\left\{\begin{array}{l}
+\cfrac{c_{1}}{b_{1}}\ \ \quad \quad \quad;&amp; i=1\\
+\cfrac{c_{i}}{b_{i}-a_{i}\gamma_{i-1}};&amp;i=2,3,\cdots,n-1
+\end{array}\right.\end{split}\]</div>
+<p>We can rewrite this as</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\hat{c}_{i}=\left\{\begin{array}{l}
+\cfrac{c_{1}}{b_{1}}\ \ \quad \quad \quad;&amp; i=1\\
+\cfrac{c_{i}}{b_{i}-a_{i}\hat{c}_{i-1}};&amp;i=2,3,\cdots,n-1
+\end{array}\right.\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\hat{d}_{i}=\left\{\begin{array}{l}
+\cfrac{d_{1}}{b_{1}}\ \ \quad \quad \quad;&amp; i=1\\
+\cfrac{d_{i}-a_{i}\hat{d}_{i-1}}{b_{i}-a_{i}\hat{c}_{i-1}};&amp;i=2,3,\cdots,n
+\end{array}\right.\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}{x}_{i}=\left\{\begin{array}{l}
+\hat{d}_{n}\;\; \quad \quad \quad;&amp; i=n\\
+\hat{d}_{i}-\hat{c}_{i}{x}_{i+1};&amp;i=n-1,n-2,\cdots,1
+\end{array}\right.\end{split}\]</div>
+<p>Problem 1. Solve the following Tridiagonal matrix using the Thomas algorithm:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\left[\begin{array}{crccr}
+2 &amp; -1 &amp; 0 &amp; 0 &amp; 0 \\
+-1 &amp; 2 &amp; -1 &amp; 0 &amp; 0 \\
+0 &amp; -1 &amp; 2 &amp; -1 &amp; 0 \\
+0 &amp; 0 &amp; -1 &amp; 2 &amp; -1 \\
+0 &amp; 0 &amp; 0 &amp; -1 &amp; 2
+\end{array}\right]\left[\begin{array}{l}
+x_{1} \\
+x_{2} \\
+x_{3} \\
+x_{4} \\
+x_{5}
+\end{array}\right]=\left[\begin{array}{l}
+1 \\
+1 \\
+1 \\
+1 \\
+1
+\end{array}\right]\end{split}\]</div>
+<p>Results:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\left[\begin{array}{l}
+x_{1} \\
+x_{2} \\
+x_{3} \\
+x_{4} \\
+x_{5}
+\end{array}\right]=\left[\begin{array}{l}
+2.5 \\
+4.0 \\
+4.5 \\
+4.0 \\
+2.5
+\end{array}\right]\end{split}\]</div>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="index.html" class="btn btn-neutral float-left" title="Numerical analysis" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="ctdma.html" class="btn btn-neutral float-right" title="Cyclic Tridiagonal Systems" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2017~2024, eric.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,932 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Multigrid Poisson Solver &mdash; Scientific Computing 1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../_static/documentation_options.js?v=f2a433a1"></script>
+        <script src="../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Vorticity Stream Function" href="vorticitystream.html" />
+    <link rel="prev" title="MULTIGRID Continued" href="multigrid1.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            Scientific Computing
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Get started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../info.html">OneFLOW</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../user.html">THEORY</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../bash.html">Bash</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">CFD</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../ns.html">Navier–Stokes equations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../leibniz.html">Leibniz integral</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../rtt.html">Reynolds’ transport theorem</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../mass.html">Conservation Of Mass</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../momenum.html">Momentum Analysis Of Flow Systems</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../energy.html">Conservation Of Energy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../ns-integral.html">ALE Form of Conservation Equations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../curvilinear.html">Generalized Curvilinear Coordinate System</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../curvilinear3d.html">Generalized Curvilinear Coordinate System(3D)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../vector.html">Vector &amp; Tensor</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../matrix.html">Matrix</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../calculus.html">Calculus</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../substitution.html">Substitution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../jacobian.html">Jacobian matrix</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../gauss.html">Gauss’s Theorem</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../strain.html">Strain Measures</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../ale.html">Arbitrary Lagrangian-Eulerian</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../ale1d.html">ALE 1D</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../deformation.html">Deformation and Motion</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../derivative.html">Fluid Derivative</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../material_derivative.html">Material Time Derivative</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../scheme/index.html">CFD Schemes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/index.html">CFD Examples</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="index.html">CFD Methods</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="spectrum.html">Spectral Methods</a></li>
+<li class="toctree-l3"><a class="reference internal" href="fourier.html">Fourier Series</a></li>
+<li class="toctree-l3"><a class="reference internal" href="iterative.html">Iterative Solver</a></li>
+<li class="toctree-l3"><a class="reference internal" href="multigrid.html">MULTIGRID</a></li>
+<li class="toctree-l3"><a class="reference internal" href="multigrid1.html">MULTIGRID Continued</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Multigrid Poisson Solver</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#problem-description">Problem Description</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#discretization">Discretization</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#forming-the-linear-system">Forming the Linear System</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#classical-iterative-methods">Classical Iterative Methods</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#algorithm-1-multigrid-v-cycle">Algorithm 1 Multigrid V-Cycle</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#restriction-operator">Restriction Operator</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#prolongation-operator">Prolongation Operator</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#restriction-operator-continue">Restriction Operator Continue</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#interpolation-or-prolongation">Interpolation or Prolongation</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="vorticitystream.html">Vorticity Stream Function</a></li>
+<li class="toctree-l3"><a class="reference internal" href="inviscid2d.html">Incompressible Navier-Stokes Equation</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../codes.html">Reference Codes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../videos.html">CFD &amp; CAE Videos</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../books.html">Books</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../docs.html">Documents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../cgns.html">CGNS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../chatgpt.html">CHATGPT</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../cpp/index.html">CPP</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../cmake.html">CMake</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../cmd.html">Cmd</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../cuda.html">CUDA</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../design_patterns.html">Design Patterns</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../eigen.html">Eigen3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../git.html">Git</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../git.html#contexts">Contexts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fortran.html">Fortran</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../hdf5.html">HDF5</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../hpc.html">HPC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../install/index.html">Install</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../julia.html">Julia</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../jupyter.html">Jupyter Notebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../latex.html">LaTeX</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../makefile.html">Makefile</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../metis.html">METIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../mkdocs.html">MkDocs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../modules.html">Environment Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../mpi.html">MPI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../numerical/index.html">Numerical analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../oneapi.html">oneAPI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../oneflow.html">OneFLOW-CFD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../openacc.html">OpenACC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../opencl.html">OpenCL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../opengl.html">OpenGL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../openmp.html">OpenMP</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../powershell.html">PowerShell</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../python/index.html">Python</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../qt.html">Qt</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../regex.html">Regular Expressions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../science.html">Science</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sphinx.html">Sphinx</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../system/index.html">System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../taichi.html">Taichi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tcltk.html">Tcl/tk</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tecplot.html">Tecplot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../test.html">Test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../unreal_engine.html">Unreal Engine</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../vcpkg.html">vcpkg</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../yaml.html">yaml</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Scientific Computing</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">CFD</a></li>
+          <li class="breadcrumb-item"><a href="index.html">CFD Methods</a></li>
+      <li class="breadcrumb-item active">Multigrid Poisson Solver</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/cfd/method/multigrid2.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="multigrid-poisson-solver">
+<h1>Multigrid Poisson Solver<a class="headerlink" href="#multigrid-poisson-solver" title="Link to this heading"></a></h1>
+<ol class="arabic simple">
+<li><p><a class="reference external" href="https://people.math.sc.edu/Burkardt/c_src/multigrid_poisson_1d/multigrid_poisson_1d.html">Multigrid Solver for 1D Poisson Problem</a></p></li>
+<li><p><a class="reference external" href="https://web.stanford.edu/class/cs315b/projects/multigrid_poisson/multigrid_poisson_slides.pdf">Final Project: A Parallel Multigrid Poisson Solver</a></p></li>
+</ol>
+<section id="problem-description">
+<h2>Problem Description<a class="headerlink" href="#problem-description" title="Link to this heading"></a></h2>
+<p>We are interested in solving the Poisson equation, which can be expressed
+in a domain <span class="math notranslate nohighlight">\(\Omega\subset \mathbb{R}^{n}\)</span> with a boundary <span class="math notranslate nohighlight">\(\partial\Omega\)</span> as</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\left\{\begin{array}{l}
+-a\nabla^{2}\phi=f&amp; \text{in }\Omega\\
+\phi=g&amp; \text{on }\partial\Omega
+\end{array}\right.\end{split}\]</div>
+<p>where <span class="math notranslate nohighlight">\(a\)</span> is a known constant, <span class="math notranslate nohighlight">\(\nabla^{2}=\nabla\cdot\nabla(\cdot)\)</span> is the Laplacian operator, <span class="math notranslate nohighlight">\(\phi=\phi(\vec{x})\)</span>
+is our scalar variable that is a function of space, and <span class="math notranslate nohighlight">\(f=f(\vec{x})\)</span> is a forcing function. The second line represents a Dirichlet
+condition on the boundary <span class="math notranslate nohighlight">\(\partial\Omega\)</span>, where <span class="math notranslate nohighlight">\(g=g(\vec{x})\)</span> is a prescribed function along the boundary.</p>
+</section>
+<section id="discretization">
+<h2>Discretization<a class="headerlink" href="#discretization" title="Link to this heading"></a></h2>
+<p>Let <span class="math notranslate nohighlight">\(\Omega\)</span> represent a 2D square domain given by <span class="math notranslate nohighlight">\([0, 1] \times [0, 1]\)</span>. We choose to discretize the above equation using a 2nd-order
+finite difference approximation on a cartesian mesh composed of a number <span class="math notranslate nohighlight">\(N\)</span> nodes in the x- and y-directions
+with uniform spacing <span class="math notranslate nohighlight">\(h\)</span>. The value of <span class="math notranslate nohighlight">\(\psi\)</span> on the 2D cartesian mesh can then be approximated
+for each node <span class="math notranslate nohighlight">\(\{i, j\}\)</span> in the interior of the computational domain as</p>
+<div class="math notranslate nohighlight">
+\[-\cfrac{a}{h^{2}} (\phi_{i,j-1}+\phi_{i-1,j}-4\phi_{i,j}+\phi_{i+1,j}+\phi_{i,j+1})=f_{i,j},\quad i,j=2,3,\cdots,N-1\]</div>
+<p>where the subscripts <span class="math notranslate nohighlight">\(i\)</span> and <span class="math notranslate nohighlight">\(j\)</span> represent the indices of the current node in the computational domain for the
+<span class="math notranslate nohighlight">\(x\)</span>- and <span class="math notranslate nohighlight">\(y\)</span> -directions, respectively. Assuming a Dirichlet boundary condition specifies the values for <span class="math notranslate nohighlight">\(\phi\)</span> on the
+boundary of the domain, we can consider the values for <span class="math notranslate nohighlight">\(\phi_{1,j}\)</span>, <span class="math notranslate nohighlight">\(\phi_{N,j}\)</span> , <span class="math notranslate nohighlight">\(\phi_{i,1}\)</span>, and <span class="math notranslate nohighlight">\(\phi_{i,N}\)</span>
+known. The result is a system of <span class="math notranslate nohighlight">\((N − 2) \times (N − 2)\)</span> linear equations for the unknown
+values of <span class="math notranslate nohighlight">\(\phi_{i,j}\)</span> in the interior of the domain.</p>
+</section>
+<section id="forming-the-linear-system">
+<h2>Forming the Linear System<a class="headerlink" href="#forming-the-linear-system" title="Link to this heading"></a></h2>
+<figure class="align-center" id="id1">
+<a class="reference internal image-reference" href="../../_images/multigrid6.png"><img alt="../../_images/multigrid6.png" src="../../_images/multigrid6.png" style="width: 600px;" /></a>
+<figcaption>
+<p><span class="caption-text">2D uniform mesh featuring a discretization with a 5-point stencil.</span><a class="headerlink" href="#id1" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<p>We have freedom in deciding how to organize and ultimately solve the system of linear equations. Given a natural ordering of the unknowns and the 5-point stencil, we can express the full
+linear system:</p>
+<div class="math notranslate nohighlight">
+\[A\Phi=\mathbf{f}\]</div>
+<p>where the matrix <span class="math notranslate nohighlight">\(A\)</span> is banded as a result of the structured mesh discretization and is given by</p>
+<figure class="align-center" id="id2">
+<a class="reference internal image-reference" href="../../_images/multigrid7.png"><img alt="../../_images/multigrid7.png" src="../../_images/multigrid7.png" style="width: 800px;" /></a>
+<figcaption>
+<p><span class="caption-text">Mesh</span><a class="headerlink" href="#id2" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<figure class="align-center" id="id3">
+<a class="reference internal image-reference" href="../../_images/multigrid8.png"><img alt="../../_images/multigrid8.png" src="../../_images/multigrid8.png" style="width: 800px;" /></a>
+<figcaption>
+<p><span class="caption-text">Mesh</span><a class="headerlink" href="#id3" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<div class="math notranslate nohighlight">
+\[\cfrac{\phi_{i-1,j}-2\phi_{i,j}+\phi_{i+1,j}}{\Delta x^{2}}+\cfrac{\phi_{i,j-1}-2\phi_{i,j}+\phi_{i,j+1}}{\Delta y^{2}}=f_{i,j}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+\Delta x=\cfrac{L_{x}}{M}=\cfrac{x_{\max}-x_{\min}}{M}=h_{x}\\
+\Delta y=\cfrac{L_{y}}{N}=\cfrac{y_{\max}-y_{\min}}{N}=h_{y}\\
+x_{i,j}=x_{\min}+i*h_{x},\quad i=0,1,\cdots,M\\
+y_{i,j}=y_{\min}+j*h_{y},\quad j=0,1,\cdots,N\\
+\end{array}\end{split}\]</div>
+<p>Let</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+L_{x}=L_{y}=1 \\
+M=N=4 \\
+\end{array}\end{split}\]</div>
+<p>then  1d case</p>
+<div class="math notranslate nohighlight">
+\[\cfrac{\phi_{i-1}-2\phi_{i}+\phi_{i+1}}{\Delta x^{2}}=f_{i}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+\cfrac{\phi_{0}-2\phi_{1}+\phi_{2}}{\Delta x^{2}}=f_{1}\\
+\cfrac{\phi_{1}-2\phi_{2}+\phi_{3}}{\Delta x^{2}}=f_{2}\\
+\cfrac{\phi_{2}-2\phi_{3}+\phi_{4}}{\Delta x^{2}}=f_{3}\\
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\Delta x=\cfrac{1}{N}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}A=\begin{bmatrix}
+\cfrac{-2}{\Delta x^{2}}&amp;\cfrac{1}{\Delta x^{2}}&amp;0\\
+\cfrac{1}{\Delta x^{2}}&amp;\cfrac{-2}{\Delta x^{2}}&amp;\cfrac{1}{\Delta x^{2}}\\
+0&amp;\cfrac{1}{\Delta x^{2}}&amp;\cfrac{-2}{\Delta x^{2}}
+\end{bmatrix}=\cfrac{1}{\Delta x^{2}}\begin{bmatrix}
+{-2}&amp;{1}&amp;0\\
+{1}&amp;{-2}&amp;{1}\\
+0&amp;{1}&amp;{-2}
+\end{bmatrix}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\boldsymbol{\phi}=\begin{bmatrix}
+\phi_{1}\\
+\phi_{2}\\
+\phi_{3}\\
+\end{bmatrix}\quad
+\mathbf{f}=\begin{bmatrix}
+f_{1}\\
+f_{2}\\
+f_{3}\\
+\end{bmatrix}\end{split}\]</div>
+<p>2d case</p>
+<figure class="align-center" id="id4">
+<a class="reference internal image-reference" href="../../_images/multigrid7.png"><img alt="../../_images/multigrid7.png" src="../../_images/multigrid7.png" style="width: 800px;" /></a>
+<figcaption>
+<p><span class="caption-text">Mesh</span><a class="headerlink" href="#id4" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+\cfrac{\phi_{i-1,j}-2\phi_{i,j}+\phi_{i+1,j}}{\Delta x^{2}}+\cfrac{\phi_{i,j-1}-2\phi_{i,j}+\phi_{i,j+1}}{\Delta y^{2}}=f_{i,j}\\
+\cfrac{\phi_{0,j}-2\phi_{1,j}+\phi_{2,j}}{\Delta x^{2}}+\cfrac{\phi_{1,j-1}-2\phi_{1,j}+\phi_{1,j+1}}{\Delta y^{2}}=f_{1,j}\\
+\cfrac{\phi_{1,j}-2\phi_{2,j}+\phi_{3,j}}{\Delta x^{2}}+\cfrac{\phi_{2,j-1}-2\phi_{2,j}+\phi_{2,j+1}}{\Delta y^{2}}=f_{2,j}\\
+\cfrac{\phi_{2,j}-2\phi_{3,j}+\phi_{4,j}}{\Delta x^{2}}+\cfrac{\phi_{3,j-1}-2\phi_{3,j}+\phi_{3,j+1}}{\Delta y^{2}}=f_{3,j}\\
+\end{array}\end{split}\]</div>
+<p><span class="math notranslate nohighlight">\(j=1\)</span>:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+\cfrac{\phi_{0,1}-2\phi_{1,1}+\phi_{2,1}}{\Delta x^{2}}+\cfrac{\phi_{1,0}-2\phi_{1,1}+\phi_{1,2}}{\Delta y^{2}}=f_{1,1}\\
+\cfrac{\phi_{1,1}-2\phi_{2,1}+\phi_{3,1}}{\Delta x^{2}}+\cfrac{\phi_{2,0}-2\phi_{2,1}+\phi_{2,2}}{\Delta y^{2}}=f_{2,1}\\
+\cfrac{\phi_{2,1}-2\phi_{3,1}+\phi_{4,1}}{\Delta x^{2}}+\cfrac{\phi_{3,0}-2\phi_{3,1}+\phi_{3,2}}{\Delta y^{2}}=f_{3,1}\\
+\end{array}\end{split}\]</div>
+<p><span class="math notranslate nohighlight">\(j=2\)</span>:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+\cfrac{\phi_{0,2}-2\phi_{1,2}+\phi_{2,2}}{\Delta x^{2}}+\cfrac{\phi_{1,1}-2\phi_{1,2}+\phi_{1,3}}{\Delta y^{2}}=f_{1,2}\\
+\cfrac{\phi_{1,2}-2\phi_{2,2}+\phi_{3,2}}{\Delta x^{2}}+\cfrac{\phi_{2,1}-2\phi_{2,2}+\phi_{2,3}}{\Delta y^{2}}=f_{2,2}\\
+\cfrac{\phi_{2,2}-2\phi_{3,2}+\phi_{4,2}}{\Delta x^{2}}+\cfrac{\phi_{3,1}-2\phi_{3,2}+\phi_{3,3}}{\Delta y^{2}}=f_{3,2}\\
+\end{array}\end{split}\]</div>
+<p><span class="math notranslate nohighlight">\(j=3\)</span>:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+\cfrac{\phi_{0,3}-2\phi_{1,3}+\phi_{2,3}}{\Delta x^{2}}+\cfrac{\phi_{1,2}-2\phi_{1,3}+\phi_{1,4}}{\Delta y^{2}}=f_{1,3}\\
+\cfrac{\phi_{1,3}-2\phi_{2,3}+\phi_{3,3}}{\Delta x^{2}}+\cfrac{\phi_{2,2}-2\phi_{2,3}+\phi_{2,4}}{\Delta y^{2}}=f_{2,3}\\
+\cfrac{\phi_{2,3}-2\phi_{3,3}+\phi_{4,3}}{\Delta x^{2}}+\cfrac{\phi_{3,2}-2\phi_{3,3}+\phi_{3,4}}{\Delta y^{2}}=f_{3,3}\\
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\Phi=\begin{bmatrix}
+{\phi}_{1,1}\\{\phi}_{2,1}\\{\phi}_{3,1}\\
+{\phi}_{1,2}\\{\phi}_{2,2}\\{\phi}_{3,2}\\
+{\phi}_{1,3}\\{\phi}_{2,3}\\{\phi}_{3,3}\\
+\end{bmatrix}=
+\begin{bmatrix}
+ \hat{\phi}_{1}\\\hat{\phi}_{2} \\\hat{\phi}_{3}\\
+ \hat{\phi}_{4}\\\hat{\phi}_{5} \\\hat{\phi}_{6}\\
+ \hat{\phi}_{7}\\\hat{\phi}_{8} \\\hat{\phi}_{9}\\
+\end{bmatrix}
+\quad \mathbf{f}=\begin{bmatrix}
+{f}_{1,1}\\{f}_{2,1}\\{f}_{3,1}\\
+{f}_{1,2}\\{f}_{2,2}\\{f}_{3,2}\\
+{f}_{1,3}\\{f}_{2,3}\\{f}_{3,3}\\
+\end{bmatrix}=
+\begin{bmatrix}
+ \hat{f}_{1}\\\hat{f}_{2} \\\hat{f}_{3}\\
+ \hat{f}_{4}\\\hat{f}_{5} \\\hat{f}_{6}\\
+ \hat{f}_{7}\\\hat{f}_{8} \\\hat{f}_{9}\\
+\end{bmatrix}
+\quad A\Phi=\mathbf{f}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}A=\begin{bmatrix}
+a_{11}&amp;a_{12}&amp;a_{13}&amp;a_{14}&amp;a_{15}&amp;a_{16}&amp;a_{17}&amp;a_{18}&amp;a_{19} \\
+a_{21}&amp;a_{22}&amp;a_{23}&amp;a_{24}&amp;a_{25}&amp;a_{26}&amp;a_{27}&amp;a_{28}&amp;a_{29} \\
+a_{31}&amp;a_{32}&amp;a_{33}&amp;a_{34}&amp;a_{35}&amp;a_{36}&amp;a_{37}&amp;a_{38}&amp;a_{39} \\
+a_{41}&amp;a_{42}&amp;a_{43}&amp;a_{44}&amp;a_{45}&amp;a_{46}&amp;a_{47}&amp;a_{48}&amp;a_{49} \\
+a_{51}&amp;a_{52}&amp;a_{53}&amp;a_{54}&amp;a_{55}&amp;a_{56}&amp;a_{57}&amp;a_{58}&amp;a_{59} \\
+a_{61}&amp;a_{62}&amp;a_{63}&amp;a_{64}&amp;a_{65}&amp;a_{66}&amp;a_{67}&amp;a_{68}&amp;a_{69} \\
+a_{71}&amp;a_{72}&amp;a_{73}&amp;a_{74}&amp;a_{75}&amp;a_{76}&amp;a_{77}&amp;a_{78}&amp;a_{79} \\
+a_{81}&amp;a_{82}&amp;a_{83}&amp;a_{84}&amp;a_{85}&amp;a_{86}&amp;a_{87}&amp;a_{88}&amp;a_{89} \\
+a_{91}&amp;a_{92}&amp;a_{93}&amp;a_{94}&amp;a_{95}&amp;a_{96}&amp;a_{97}&amp;a_{98}&amp;a_{99} \\
+\end{bmatrix}\end{split}\]</div>
+<p>or</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}A=\begin{bmatrix}
+a_{1,(1,1)}&amp;a_{1,(2,1)}&amp;a_{1,(3,1)}&amp;a_{1,(1,2)}&amp;a_{1,(2,2)}&amp;a_{1,(3,2)}&amp;a_{1,(1,3)}&amp;a_{1,(2,3)}&amp;a_{1,(3,3)} \\
+a_{2,(1,1)}&amp;a_{2,(2,1)}&amp;a_{2,(3,1)}&amp;a_{2,(1,2)}&amp;a_{2,(2,2)}&amp;a_{2,(3,2)}&amp;a_{2,(1,3)}&amp;a_{2,(2,3)}&amp;a_{2,(3,3)} \\
+a_{3,(1,1)}&amp;a_{3,(2,1)}&amp;a_{3,(3,1)}&amp;a_{3,(1,2)}&amp;a_{3,(2,2)}&amp;a_{3,(3,2)}&amp;a_{3,(1,3)}&amp;a_{3,(2,3)}&amp;a_{3,(3,3)} \\
+a_{4,(1,1)}&amp;a_{4,(2,1)}&amp;a_{4,(3,1)}&amp;a_{4,(1,2)}&amp;a_{4,(2,2)}&amp;a_{4,(3,2)}&amp;a_{4,(1,3)}&amp;a_{4,(2,3)}&amp;a_{4,(3,3)} \\
+a_{5,(1,1)}&amp;a_{5,(2,1)}&amp;a_{5,(3,1)}&amp;a_{5,(1,2)}&amp;a_{5,(2,2)}&amp;a_{5,(3,2)}&amp;a_{5,(1,3)}&amp;a_{5,(2,3)}&amp;a_{5,(3,3)} \\
+a_{6,(1,1)}&amp;a_{6,(2,1)}&amp;a_{6,(3,1)}&amp;a_{6,(1,2)}&amp;a_{6,(2,2)}&amp;a_{6,(3,2)}&amp;a_{6,(1,3)}&amp;a_{6,(2,3)}&amp;a_{6,(3,3)} \\
+a_{7,(1,1)}&amp;a_{7,(2,1)}&amp;a_{7,(3,1)}&amp;a_{7,(1,2)}&amp;a_{7,(2,2)}&amp;a_{7,(3,2)}&amp;a_{7,(1,3)}&amp;a_{7,(2,3)}&amp;a_{7,(3,3)} \\
+a_{8,(1,1)}&amp;a_{8,(2,1)}&amp;a_{8,(3,1)}&amp;a_{8,(1,2)}&amp;a_{8,(2,2)}&amp;a_{8,(3,2)}&amp;a_{8,(1,3)}&amp;a_{8,(2,3)}&amp;a_{8,(3,3)} \\
+a_{9,(1,1)}&amp;a_{9,(2,1)}&amp;a_{9,(3,1)}&amp;a_{9,(1,2)}&amp;a_{9,(2,2)}&amp;a_{9,(3,2)}&amp;a_{9,(1,3)}&amp;a_{9,(2,3)}&amp;a_{9,(3,3)} \\
+\end{bmatrix}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+\cfrac{\phi_{i-1,j}-2\phi_{i,j}+\phi_{i+1,j}}{\Delta x^{2}}+\cfrac{\phi_{i,j-1}-2\phi_{i,j}+\phi_{i,j+1}}{\Delta y^{2}}=f_{i,j}\\
+\cfrac{1}{\Delta y^{2}}\phi_{i,j-1}+\cfrac{1}{\Delta x^{2}} \phi_{i-1,j}-\bigg(\cfrac{2}{\Delta x^{2}}+\cfrac{2}{\Delta y^{2}} \bigg)\phi_{i,j}
++\cfrac{1}{\Delta x^{2}} \phi_{i+1,j}+\cfrac{1}{\Delta y^{2}} \phi_{i,j+1}=f_{i,j}\\
+a\phi_{i,j-1}+b \phi_{i-1,j}+c\phi_{i,j}
++d \phi_{i+1,j}+e\phi_{i,j+1}=f_{i,j}\\
+a=\cfrac{1}{\Delta y^{2}},b=\cfrac{1}{\Delta x^{2}},c=-\bigg(\cfrac{2}{\Delta x^{2}}+\cfrac{2}{\Delta y^{2}} \bigg),  d=\cfrac{1}{\Delta x^{2}},e=\cfrac{1}{\Delta y^{2}}\\
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+a\phi_{i,j-1}+b \phi_{i-1,j}+c\phi_{i,j}+d \phi_{i+1,j}+e\phi_{i,j+1}=f_{i,j}\\
+a\phi_{1,0}+b \phi_{0,1}+c\phi_{1,1}+d \phi_{2,1}+e\phi_{1,2}=f_{1,1}\\
+a\phi_{2,0}+b \phi_{1,1}+c\phi_{2,1}+d \phi_{3,1}+e\phi_{2,2}=f_{2,1}\\
+a\phi_{3,0}+b \phi_{2,1}+c\phi_{3,1}+d \phi_{4,1}+e\phi_{3,2}=f_{3,1}\\
+a\phi_{1,1}+b \phi_{0,2}+c\phi_{1,2}+d \phi_{2,2}+e\phi_{1,3}=f_{1,2}\\
+a\phi_{2,1}+b \phi_{1,2}+c\phi_{2,2}+d \phi_{3,2}+e\phi_{2,3}=f_{2,2}\\
+a\phi_{3,1}+b \phi_{2,2}+c\phi_{3,2}+d \phi_{4,2}+e\phi_{3,3}=f_{3,2}\\
+a\phi_{1,2}+b \phi_{0,3}+c\phi_{1,3}+d \phi_{2,3}+e\phi_{1,4}=f_{1,3}\\
+a\phi_{2,2}+b \phi_{1,3}+c\phi_{2,3}+d \phi_{3,3}+e\phi_{2,4}=f_{2,3}\\
+a\phi_{3,2}+b \phi_{2,3}+c\phi_{3,3}+d \phi_{4,3}+e\phi_{3,4}=f_{3,3}\\
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}A=\begin{bmatrix}
+c&amp;d&amp;0&amp;e&amp;0&amp;0&amp;0&amp;0&amp;0 \\
+b&amp;c&amp;d&amp;0&amp;e&amp;0&amp;0&amp;0&amp;0 \\
+0&amp;b&amp;c&amp;0&amp;0&amp;e&amp;0&amp;0&amp;0 \\
+a&amp;0&amp;0&amp;c&amp;d&amp;0&amp;e&amp;0&amp;0 \\
+0&amp;a&amp;0&amp;b&amp;c&amp;d&amp;0&amp;e&amp;0 \\
+0&amp;0&amp;a&amp;0&amp;b&amp;c&amp;0&amp;0&amp;e \\
+0&amp;0&amp;0&amp;a&amp;0&amp;0&amp;c&amp;d&amp;0 \\
+0&amp;0&amp;0&amp;0&amp;a&amp;0&amp;b&amp;c&amp;d \\
+0&amp;0&amp;0&amp;0&amp;0&amp;a&amp;0&amp;b&amp;c \\
+\end{bmatrix}\end{split}\]</div>
+</section>
+<section id="classical-iterative-methods">
+<h2>Classical Iterative Methods<a class="headerlink" href="#classical-iterative-methods" title="Link to this heading"></a></h2>
+<p>At this point, a number of methods can be employed for solving the linear system in Eqn. 3, but we will
+focus on the classical iterative methods in this project. The Gauss-Seidel will serve as an example in the
+discussion below. Starting with a linear system</p>
+<p>Geometric Multigrid
+For typical iterative numerical solution methods, high-frequency (local) errors in the solution are well-damped, while lower frequency (global) errors are poorly damped. Therefore, the low-frequency errors are
+difficult to eliminate, which leads to slower solver convergence, especially on fine meshes. The key idea behind
+multigrid is that effective rates of convergence at all scales can be maintained in a solver by leveraging a
+sequence of grids at various resolutions. With geometric multigrid, multiple levels of physical grids with
+varying resolution are used to provide better approximations of the solution with each step of an iterative
+solution method (i.e., a multigrid cycle).</p>
+<p>To illustrate the basic components of linear multigrid for elliptic problems, define the error in the
+solution to be the difference between the solution <span class="math notranslate nohighlight">\(\Phi\)</span> and the approximation to the solution <span class="math notranslate nohighlight">\(\tilde{\Phi}\)</span>, or</p>
+<div class="math notranslate nohighlight">
+\[\mathbf{e}={\Phi} -\tilde{\Phi}\]</div>
+<p>where <span class="math notranslate nohighlight">\(e\)</span> is the error vector (one value per node in the computational mesh). We can also define a residual
+vector <span class="math notranslate nohighlight">\(r\)</span>, which is a measure of how well the discretized governing equations are being satisfied by our
+numerical solution procedure, as</p>
+<div class="math notranslate nohighlight">
+\[\mathbf{r}=\mathbf{f}-A\tilde{\Phi}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+\mathbf{e}={\Phi} -\tilde{\Phi} \\
+A(\tilde{\Phi}+\mathbf{e})=\mathbf{f}\\
+A\mathbf{e}=\mathbf{r}\\
+\end{array}\end{split}\]</div>
+<p>which relates the error in the solution to the residual. Eqn. <span class="math notranslate nohighlight">\(A\mathbf{e}=\mathbf{r}\)</span> allows us to compute a measure of the error
+on coarser mesh levels after transferring the values of the residual from the fine mesh level onto the coarse
+level (restriction). After calculating e on a coarse level, we can form a correction to the solution on the fine
+mesh as</p>
+<div class="math notranslate nohighlight">
+\[{\Phi}=\tilde{\Phi}+\mathbf{e}\]</div>
+<p>upon transferring the error up to a fine mesh from the coarse mesh level below (prolongation). Furthermore,
+we can apply these ideas recursively over an entire set of grids of various resolutions to complete a full
+multigrid cycle, such as the V-cycle detailed in Alg. 1.</p>
+<p>During a multigrid V-cycle, the solution is first approximated using several smoothing iterations with a
+method like Gauss-Seidel on the finest mesh (pre-smoothing), and then the residual is transferred to the first
+coarse level, where additional smoothing iterations occur. This restriction followed by smoothing continues
+recursively until the coarsest mesh level is reached (the downstroke of the cycle). After performing some
+smoothing iterations on the coarsest level, a correction for the solution values is transferred to the finer mesh
+level above. This upward stroke of the cycle with prolongation and smoothing continues until a correction
+is finally applied to the solution on the finest mesh. Typically, several final smoothing iterations (post-smoothing) are performed on the finest mesh before moving on to the next multigrid cycle. The downstroke
+and upstroke of the cycle form a V-shape when viewed graphically, as in Fig. 3. Other cycles are possible,
+and W-cycles are common, for instance.</p>
+</section>
+<section id="algorithm-1-multigrid-v-cycle">
+<h2>Algorithm 1 Multigrid V-Cycle<a class="headerlink" href="#algorithm-1-multigrid-v-cycle" title="Link to this heading"></a></h2>
+<ol class="arabic simple">
+<li><p><span class="math notranslate nohighlight">\(\text{procedure MULTIGRID_CYCLE}(\Phi,\mathbf{f},l), \quad \text{ l is the current mesh level}\)</span></p></li>
+<li><p><span class="math notranslate nohighlight">\(\quad\quad\Phi^{l}\leftarrow \text{GAUSS_SEIDEL}(\Phi^{l},\mathbf{f}^{l}) \quad \text{ Pre-smoothing of the solution }\)</span></p></li>
+<li><p><span class="math notranslate nohighlight">\(\quad\quad\text{if l&lt; n_levels then}\)</span></p></li>
+<li><p><span class="math notranslate nohighlight">\(\quad\quad\quad\Phi^{l+1}\leftarrow 0\)</span></p></li>
+<li><p><span class="math notranslate nohighlight">\(\quad\quad\quad\mathbf{f}^{l+1}\leftarrow \text{RESTRICT}(\Phi^{l},\mathbf{f}^{l})\)</span></p></li>
+<li><p><span class="math notranslate nohighlight">\(\quad\quad\quad\text{MULTIGRID_CYCLE}(\Phi,\mathbf{f},l+1)\quad\quad\quad \text{Recursive call}\)</span></p></li>
+<li><p><span class="math notranslate nohighlight">\(\quad\quad\quad\Phi^{l}\leftarrow\text{PROLONGATE}(\Phi^{l+1},\mathbf{f}^{l+1})\)</span></p></li>
+<li><p><span class="math notranslate nohighlight">\(\quad\quad\Phi^{l}\leftarrow \text{GAUSS_SEIDEL}(\Phi^{l},\mathbf{f}^{l}) \quad \text{ Post-smoothing of the solution }\)</span></p></li>
+</ol>
+</section>
+<section id="restriction-operator">
+<h2>Restriction Operator<a class="headerlink" href="#restriction-operator" title="Link to this heading"></a></h2>
+<p>For our discretized Poisson problem, we can express the value of the residual <span class="math notranslate nohighlight">\(\mathbf{r}\)</span> from Eqn. <span class="math notranslate nohighlight">\(\mathbf{r}=\mathbf{f}-A\tilde{\Phi}\)</span> at each node as</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+-\cfrac{a}{h^{2}} (\phi_{i,j-1}+\phi_{i-1,j}-4\phi_{i,j}+\phi_{i+1,j}+\phi_{i,j+1})=f_{i,j}\\
+-(\phi_{i,j-1}+\phi_{i-1,j}-4\phi_{i,j}+\phi_{i+1,j}+\phi_{i,j+1})=\cfrac{h^{2}}{a}f_{i,j}=\tilde{f}_{i,j}\\
+A\Phi=\mathbf{f}\\
+\mathbf{r}=\mathbf{f}-A\Phi\\
+r_{i,j}=\cfrac{h^{2}}{a}f_{i,j}+(\phi_{i,j-1}+\phi_{i-1,j}-4\phi_{i,j}+\phi_{i+1,j}+\phi_{i,j+1})
+\end{array}\end{split}\]</div>
+<p>After computing <span class="math notranslate nohighlight">\(\mathbf{r}\)</span>, we restrict the values down to the next coarse level to form the right-hand side of
+Eqn. <span class="math notranslate nohighlight">\(A\mathbf{e}=\mathbf{r}\)</span>. For a weighted restriction, we will include information from all of the fine nodes that surround a
+particular coarse mesh node. To accomplish this, we will set the residual at a coarse mesh node to be the
+sum of a contribution from the coincident node (1/4 of the value), the nodes that are part of the stencil in
+the north, south, east, and west directions (1/8 of the value), and the diagonal neighbors, i.e., north-east,
+north-west, south-east, and south-west (1/16 of the value).</p>
+</section>
+<section id="prolongation-operator">
+<h2>Prolongation Operator<a class="headerlink" href="#prolongation-operator" title="Link to this heading"></a></h2>
+<p>A prolongation operation is one that transfers the correction from a coarse mesh to a fine mesh. Similar to
+the weighted method for restriction, we will perform a weighted prolongation by setting the correction at a
+fine mesh node to be the value of the correction at a coincident coarse node, if applicable, or as the sum of
+a contribution from the coarse nodes that are nearest in the north, south, east, and west directions (1/2 of
+the value) and the nearest diagonal neighbors, i.e., north-east, north-west, south-east, and south-west (1/4
+of the value).</p>
+</section>
+<section id="restriction-operator-continue">
+<h2>Restriction Operator Continue<a class="headerlink" href="#restriction-operator-continue" title="Link to this heading"></a></h2>
+<p>The second class of intergrid transfer operations involves moving vectors from
+a fine grid to a coarse grid. They are generally called restriction operators and are
+denoted by <span class="math notranslate nohighlight">\(I_{h}^{2h}\)</span>. The most obvious restriction operator is injection. It is defined by
+<span class="math notranslate nohighlight">\(I_{h}^{2h}\mathbf{v}^{h}=\mathbf{v}^{2h}\)</span>, where</p>
+<div class="math notranslate nohighlight">
+\[v_{j}^{2h}=v_{2j}^{h}\]</div>
+<figure class="align-center" id="id5">
+<a class="reference internal image-reference" href="../../_images/multigrid9.png"><img alt="../../_images/multigrid9.png" src="../../_images/multigrid9.png" style="width: 800px;" /></a>
+<figcaption>
+<p><span class="caption-text">1d case</span><a class="headerlink" href="#id5" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+v_{0}^{2h}=v_{0}^{h}\\
+v_{1}^{2h}=v_{2}^{h}\\
+v_{2}^{2h}=v_{4}^{h}\\
+\end{array}\end{split}\]</div>
+<p>In other words, with injection, the coarse-grid vector simply takes its value directly
+from the corresponding fine-grid point.
+An alternate restriction operator, called full weighting, is defined by  <span class="math notranslate nohighlight">\(I_{h}^{2h}\mathbf{v}^{h}=\mathbf{v}^{2h}\)</span>, where</p>
+<div class="math notranslate nohighlight">
+\[v_{j}^{2h}=\cfrac{1}{4}(v_{2j-1}^{h}+2v_{2j}^{h}+v_{2j+1}^{h}),\quad 1\le j \le \cfrac{n}{2}-1.\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+v_{j}^{2h}=\cfrac{1}{4}(v_{2j-1}^{h}+2v_{2j}^{h}+v_{2j+1}^{h}),\quad 1\le j \le \cfrac{n}{2}-1.\\
+v_{0}^{2h}=\cfrac{1}{4}(v_{-1}^{h}+2v_{0}^{h}+v_{1}^{h})\\
+v_{1}^{2h}=\cfrac{1}{4}(v_{1}^{h}+2v_{2}^{h}+v_{3}^{h})\\
+v_{2}^{2h}=\cfrac{1}{4}(v_{3}^{h}+2v_{4}^{h}+v_{5}^{h})\\
+\end{array}\end{split}\]</div>
+<p>The fact that the interpolation operator and the full weighting operator are transposes of each other up to a constant is called a variational property and will soon
+be of importance.</p>
+<p>For the sake of completeness, we give the full weighting operator in two dimensions. It is just an averaging of the fine-grid nearest neighbors. Letting <span class="math notranslate nohighlight">\(I_{h}^{2h}\mathbf{v}^{h}=\mathbf{v}^{2h}\)</span>,
+we have that</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+v_{i,j}^{2h}=\cfrac{1}{16}[v_{2i-1,2j-1}^{h}+v_{2i-1,2j+1}^{h}+v_{2i+1,2j-1}^{h}+v_{2i+1,2j+1}^{h}\\
++2(v_{2i,2j-1}^{h}+v_{2i,2j+1}^{h}+v_{2i+1,2j}^{h}+v_{2i-1,2j}^{h})\\
++4v_{2i,2j}^{h}],\quad 1\le i,j \le \cfrac{n}{2}-1.\\
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{bmatrix}
+\cfrac{1}{16}v_{2i-1,2j-1}^{h}&amp; \cfrac{1}{8}v_{2i,2j-1}^{h} &amp;\cfrac{1}{16}v_{2i+1,2j-1}^{h} \\
+\cfrac{1}{8}v_{2i-1,2j}^{h} &amp; \cfrac{1}{4}v_{2i,2j}^{h}&amp; \cfrac{1}{8}v_{2i+1,2j}^{h}\\
+\cfrac{1}{16}v_{2i-1,2j+1}^{h}&amp; \cfrac{1}{8}v_{2i,2j+1}^{h} &amp;\cfrac{1}{16}v_{2i+1,2j+1}^{h}
+\end{bmatrix}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{bmatrix}
+{2i-1,2j+1}&amp; {2i,2j+1} &amp;{2i+1,2j+1} \\
+{2i-1,2j} &amp; {2i,2j}&amp; {2i+1,2j}\\
+{2i-1,2j-1}&amp; {2i,2j-1} &amp;{2i+1,2j-1} \\
+\end{bmatrix}\end{split}\]</div>
+<p>index</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{bmatrix}
+{2i-1,2j-1}&amp; {2i,2j-1} &amp;{2i+1,2j-1} \\
+{2i-1,2j} &amp; {2i,2j}&amp; {2i+1,2j}\\
+{2i-1,2j+1}&amp; {2i,2j+1} &amp;{2i+1,2j+1}
+\end{bmatrix}\end{split}\]</div>
+<figure class="align-center" id="id6">
+<a class="reference internal image-reference" href="../../_images/multigrid10.png"><img alt="../../_images/multigrid10.png" src="../../_images/multigrid10.png" style="width: 800px;" /></a>
+<figcaption>
+<p><span class="caption-text">2d case</span><a class="headerlink" href="#id6" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<p>(1,1)</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{bmatrix}
+{1,3}&amp; {2,3} &amp;{3,3}\\
+{1,2} &amp; {2,2}&amp; {3,2}\\
+{1,1}&amp; {2,1} &amp;{3,1} \\
+\end{bmatrix}\end{split}\]</div>
+<p>left bottom corner point (0,0)</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{bmatrix}
+{-1,1}&amp; {0,1} &amp;{1,1}\\
+{-1,0} &amp; {0,0}&amp; {1,0}\\
+{-1,-1}&amp; {0,-1} &amp;{1,-1} \\
+\end{bmatrix}\end{split}\]</div>
+<p>bottom boundary (1,0)</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{bmatrix}
+{1,1}&amp; {2,1} &amp;{3,1}\\
+{1,0} &amp; {2,0}&amp; {3,0}\\
+{1,-1}&amp; {2,-1} &amp;{3,-1} \\
+\end{bmatrix}\end{split}\]</div>
+<p>right bottom corner point (2,0)</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{bmatrix}
+{3,1}&amp; {4,1} &amp;{5,1}\\
+{3,0}&amp; {4,0}&amp; {5,0}\\
+{3,-1}&amp; {4,-1} &amp;{5,-1} \\
+\end{bmatrix}\end{split}\]</div>
+<p>left top corner point (0,2)</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{bmatrix}
+{-1,5}&amp; {0,5} &amp;{1,5}\\
+{-1,4} &amp; {0,4}&amp; {1,4}\\
+{-1,3}&amp; {0,3} &amp;{1,3} \\
+\end{bmatrix}\end{split}\]</div>
+<p>right top corner point (2,2)</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{bmatrix}
+{3,5}&amp; {4,5}&amp;{5,5}\\
+{3,4}&amp; {4,4}&amp;{5,4}\\
+{3,3}&amp; {4,3}&amp;{5,3}\\
+\end{bmatrix}\end{split}\]</div>
+<p>top boundary (1,2)</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{bmatrix}
+{1,5}&amp; {2,5} &amp;{3,5} \\
+{1,4} &amp; {2,4}&amp; {3,4}\\
+{1,3}&amp; {2,3} &amp;{3,3} \\
+\end{bmatrix}\end{split}\]</div>
+<p>left boundary (0,1)</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{bmatrix}
+{-1,3}&amp; {0,3} &amp;{1,3} \\
+{-1,2} &amp; {0,2}&amp; {1,2}\\
+{-1,1}&amp; {0,1} &amp;{1,1} \\
+\end{bmatrix}\end{split}\]</div>
+<p>right boundary (2,1)</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{bmatrix}
+{3,3}&amp; {4,3} &amp;{5,3} \\
+{3,2} &amp; {4,2}&amp; {5,2}\\
+{3,1}&amp; {4,1} &amp;{5,1} \\
+\end{bmatrix}\end{split}\]</div>
+</section>
+<section id="interpolation-or-prolongation">
+<h2>Interpolation or Prolongation<a class="headerlink" href="#interpolation-or-prolongation" title="Link to this heading"></a></h2>
+<p>In our discussion of intergrid transfers, we consider only the case in which the
+coarse grid has twice the grid spacing of the next finest grid. This is a nearly
+universal practice, because there is usually no advantage in using grid spacings
+with ratios other than 2. Think for a moment about the step in the correction
+scheme that requires transferring the error approximation <span class="math notranslate nohighlight">\(\mathbf{e}^{2h}\)</span> from the coarse grid
+<span class="math notranslate nohighlight">\(\Omega^{2h}\)</span> to the fine grid <span class="math notranslate nohighlight">\(\Omega^{h}\)</span>. This is a common procedure in numerical analysis and is
+generally called interpolation or prolongation. Many interpolation methods could
+be used. Fortunately, for most multigrid purposes, the simplest of these is quite
+effective. For this reason, we consider only linear interpolation.</p>
+<p>The linear interpolation operator will be denoted <span class="math notranslate nohighlight">\(I_{2h}^{h}\)</span>. It takes coarse-grid vectors and produces fine-grid vectors according to the rule <span class="math notranslate nohighlight">\(I_{2h}^{h}\mathbf{v}^{2h}=\mathbf{v}^{h}\)</span>, where</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+v_{2j}^{h}=v_{j}^{2h}\\
+v_{2j+1}^{h}=\cfrac{1}{2}( v_{j}^{2h}+v_{j+1}^{2h}),\quad 0\le j\le \cfrac{n}{2}-1.\\
+\end{array}\end{split}\]</div>
+<figure class="align-center" id="id7">
+<a class="reference internal image-reference" href="../../_images/multigrid9.png"><img alt="../../_images/multigrid9.png" src="../../_images/multigrid9.png" style="width: 800px;" /></a>
+<figcaption>
+<p><span class="caption-text">1d case</span><a class="headerlink" href="#id7" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+v_{0}^{h}=v_{0}^{2h}\\
+v_{1}^{h}=\cfrac{1}{2}( v_{0}^{2h}+v_{1}^{2h})\\
+v_{2}^{h}=v_{1}^{2h}\\
+v_{3}^{h}=\cfrac{1}{2}( v_{1}^{2h}+v_{2}^{2h})\\
+v_{4}^{h}=v_{2}^{2h}\\
+\end{array}\end{split}\]</div>
+<p>For two-dimensional problems, the interpolation operator may be defined in a
+similar way. If we let  <span class="math notranslate nohighlight">\(I_{2h}^{h}\mathbf{v}^{2h}=\mathbf{v}^{h}\)</span>, then the components of <span class="math notranslate nohighlight">\(\mathbf{v}^{h}\)</span> are given by</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+v_{2i,2j}^{h}=v_{i,j}^{2h}\\
+v_{2i+1,2j}^{h}=\cfrac{1}{2}( v_{i,j}^{2h}+v_{i+1,j}^{2h})\\
+v_{2i,2j+1}^{h}=\cfrac{1}{2}( v_{i,j}^{2h}+v_{i,j+1}^{2h})\\
+v_{2i+1,2j+1}^{h}=\cfrac{1}{4}( v_{i,j}^{2h}+v_{i+1,j}^{2h}+v_{i,j+1}^{2h}+v_{i+1,j+1}^{2h})\quad 0\le j\le \cfrac{n}{2}-1.\\
+\end{array}\end{split}\]</div>
+<figure class="align-center" id="id8">
+<a class="reference internal image-reference" href="../../_images/multigrid10.png"><img alt="../../_images/multigrid10.png" src="../../_images/multigrid10.png" style="width: 800px;" /></a>
+<figcaption>
+<p><span class="caption-text">2d case</span><a class="headerlink" href="#id8" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+v_{2i,2j}^{h}=v_{i,j}^{2h}\\
+v_{2i+1,2j}^{h}=\cfrac{1}{2}( v_{i,j}^{2h}+v_{i+1,j}^{2h})\\
+v_{2i,2j+1}^{h}=\cfrac{1}{2}( v_{i,j}^{2h}+v_{i,j+1}^{2h})\\
+v_{2i+1,2j+1}^{h}=\cfrac{1}{4}( v_{i,j}^{2h}+v_{i+1,j}^{2h}+v_{i,j+1}^{2h}+v_{i+1,j+1}^{2h})\quad 0\le j\le \cfrac{n}{2}-1.\\
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+v_{0,0}^{h}=v_{0,0}^{2h}\\
+v_{1,0}^{h}=\cfrac{1}{2}( v_{0,0}^{2h}+v_{1,0}^{2h})\\
+v_{0,1}^{h}=\cfrac{1}{2}( v_{0,0}^{2h}+v_{0,1}^{2h})\\
+v_{1,1}^{h}=\cfrac{1}{4}( v_{0,0}^{2h}+v_{1,0}^{2h}+v_{0,1}^{2h}+v_{1,1}^{2h})\\
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+v_{2,0}^{h}=v_{1,0}^{2h}\\
+v_{3,0}^{h}=\cfrac{1}{2}( v_{1,0}^{2h}+v_{2,0}^{2h})\\
+v_{2,1}^{h}=\cfrac{1}{2}( v_{1,0}^{2h}+v_{1,1}^{2h})\\
+v_{3,1}^{h}=\cfrac{1}{4}( v_{1,0}^{2h}+v_{2,0}^{2h}+v_{1,1}^{2h}+v_{2,1}^{2h})\\
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+v_{4,0}^{h}=v_{2,0}^{2h}\\
+v_{5,0}^{h}=\cfrac{1}{2}( v_{2,0}^{2h}+v_{3,0}^{2h})\\
+v_{4,1}^{h}=\cfrac{1}{2}( v_{2,0}^{2h}+v_{2,1}^{2h})\\
+v_{5,1}^{h}=\cfrac{1}{4}( v_{2,0}^{2h}+v_{3,0}^{2h}+v_{2,1}^{2h}+v_{3,1}^{2h})\\
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+v_{0,2}^{h}=v_{0,j}^{2h}\\
+v_{1,2}^{h}=\cfrac{1}{2}( v_{0,1}^{2h}+v_{1,1}^{2h})\\
+v_{0,3}^{h}=\cfrac{1}{2}( v_{0,1}^{2h}+v_{0,2}^{2h})\\
+v_{1,3}^{h}=\cfrac{1}{4}( v_{0,1}^{2h}+v_{1,1}^{2h}+v_{0,2}^{2h}+v_{1,2}^{2h})\\
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+v_{2,2}^{h}=v_{1,1}^{2h}\\
+v_{3,2}^{h}=\cfrac{1}{2}( v_{1,1}^{2h}+v_{2,1}^{2h})\\
+v_{2,3}^{h}=\cfrac{1}{2}( v_{1,1}^{2h}+v_{1,2}^{2h})\\
+v_{3,3}^{h}=\cfrac{1}{4}( v_{1,1}^{2h}+v_{2,1}^{2h}+v_{1,2}^{2h}+v_{2,2}^{2h})\\
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+v_{4,2}^{h}=v_{2,1}^{2h}\\
+v_{5,2}^{h}=\cfrac{1}{2}( v_{2,1}^{2h}+v_{3,1}^{2h})\\
+v_{4,3}^{h}=\cfrac{1}{2}( v_{2,1}^{2h}+v_{2,2}^{2h})\\
+v_{5,3}^{h}=\cfrac{1}{4}( v_{2,1}^{2h}+v_{3,1}^{2h}+v_{2,2}^{2h}+v_{3,2}^{2h})\\
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+v_{0,4}^{h}=v_{0,2}^{2h}\\
+v_{1,4}^{h}=\cfrac{1}{2}( v_{0,2}^{2h}+v_{1,2}^{2h})\\
+v_{0,5}^{h}=\cfrac{1}{2}( v_{0,2}^{2h}+v_{0,3}^{2h})\\
+v_{1,5}^{h}=\cfrac{1}{4}( v_{0,2}^{2h}+v_{1,2}^{2h}+v_{0,3}^{2h}+v_{1,3}^{2h})\\
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+v_{2,4}^{h}=v_{1,2}^{2h}\\
+v_{3,4}^{h}=\cfrac{1}{2}( v_{1,2}^{2h}+v_{2,2}^{2h})\\
+v_{2,5}^{h}=\cfrac{1}{2}( v_{1,2}^{2h}+v_{1,3}^{2h})\\
+v_{3,5}^{h}=\cfrac{1}{4}( v_{1,2}^{2h}+v_{2,2}^{2h}+v_{1,3}^{2h}+v_{2,3}^{2h})\\
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+v_{4,4}^{h}=v_{2,2}^{2h}\\
+v_{5,4}^{h}=\cfrac{1}{2}( v_{2,2}^{2h}+v_{3,2}^{2h})\\
+v_{4,5}^{h}=\cfrac{1}{2}( v_{2,2}^{2h}+v_{2,3}^{2h})\\
+v_{5,5}^{h}=\cfrac{1}{4}( v_{2,2}^{2h}+v_{3,2}^{2h}+v_{2,3}^{2h}+v_{3,3}^{2h})\\
+\end{array}\end{split}\]</div>
+<p>Left, Right Boundary</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+v_{2i,2j}^{h}=v_{i,j}^{2h}\\
+v_{2i,2j+1}^{h}=\cfrac{1}{2}( v_{i,j}^{2h}+v_{i,j+1}^{2h})\\
+\end{array}\end{split}\]</div>
+<p>Bottom, Top Boundary</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+v_{2i,2j}^{h}=v_{i,j}^{2h}\\
+v_{2i+1,2j}^{h}=\cfrac{1}{2}( v_{i,j}^{2h}+v_{i+1,j}^{2h})\\
+\end{array}\end{split}\]</div>
+<p>Left Boundary</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+v_{0,2j}^{h}=v_{0,j}^{2h}\\
+v_{0,2j+1}^{h}=\cfrac{1}{2}( v_{0,j}^{2h}+v_{0,j+1}^{2h})\\
+\end{array}\end{split}\]</div>
+<p>Right Boundary</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+v_{2*nxc,2j}^{h}=v_{nxc,j}^{2h}\\
+v_{2*nxc,2j+1}^{h}=\cfrac{1}{2}( v_{nxc,j}^{2h}+v_{nxc,j+1}^{2h})\\
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+v_{nxf,2j}^{h}=v_{nxc,j}^{2h}\\
+v_{nxf,2j+1}^{h}=\cfrac{1}{2}( v_{nxc,j}^{2h}+v_{nxc,j+1}^{2h})\\
+\end{array}\end{split}\]</div>
+<p>Bottom Boundary</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+v_{2i,0}^{h}=v_{i,0}^{2h}\\
+v_{2i+1,0}^{h}=\cfrac{1}{2}( v_{i,0}^{2h}+v_{i+1,0}^{2h})\\
+\end{array}\end{split}\]</div>
+<p>Top Boundary</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+v_{2i,2*nyc}^{h}=v_{i,nyc}^{2h}\\
+v_{2i+1,2*nyc}^{h}=\cfrac{1}{2}( v_{i,nyc}^{2h}+v_{i+1,nyc}^{2h})\\
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+v_{2i,nyf}^{h}=v_{i,nyc}^{2h}\\
+v_{2i+1,nyf}^{h}=\cfrac{1}{2}( v_{i,nyc}^{2h}+v_{i+1,nyc}^{2h})\\
+\end{array}\end{split}\]</div>
+<p>Left Boundary</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+v_{0,2j}^{h}=v_{0,j}^{2h},\quad j=0,1,\cdots,nyc;\quad 2j=0,2,\cdots,nyf;\\
+v_{0,2j+1}^{h}=\cfrac{1}{2}( v_{0,j}^{2h}+v_{0,j+1}^{2h}),\\
+j=0,1,\cdots,nyc-1;\\
+j+1=1,2,\cdots,nyc;\\
+\{j,j+1\}=\{0,1\},\{1,2\},\cdots,\{nyc-1,nyc\};\\
+2j+1=1,3,\cdots,2nyc-1=1,3,\cdots,nyf-1;
+\end{array}\end{split}\]</div>
+<p>Right Boundary</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+v_{nxf,2j}^{h}=v_{nxc,j}^{2h},\quad j=0,1,\cdots,nyc;\quad 2j=0,2,\cdots,nyf;\\
+v_{nxf,2j+1}^{h}=\cfrac{1}{2}( v_{nxc,j}^{2h}+v_{nxc,j+1}^{2h}),\\
+j=0,1,\cdots,nyc-1;\\
+j+1=1,2,\cdots,nyc;\\
+\{j,j+1\}=\{0,1\},\{1,2\},\cdots,\{nyc-1,nyc\};\\
+2j+1=1,3,\cdots,2nyc-1=1,3,\cdots,nyf-1;
+\end{array}\end{split}\]</div>
+<p>Bottom Boundary</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+v_{2i,0}^{h}=v_{i,0}^{2h},\quad i=0,1,\cdots,nxc;\quad 2i=0,2,\cdots,nxf;\\
+v_{2i+1,0}^{h}=\cfrac{1}{2}( v_{i,0}^{2h}+v_{i+1,0}^{2h})\\
+i=0,1,\cdots,nxc-1;\\
+i+1=1,2,\cdots,nxc;\\
+\{i,i+1\}=\{0,1\},\{1,2\},\cdots,\{nxc-1,nxc\};\\
+2i+1=1,3,\cdots,2nxc-1=1,3,\cdots,nxf-1;
+\end{array}\end{split}\]</div>
+<p>Top Boundary</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+v_{2i,nyf}^{h}=v_{i,nyc}^{2h},\quad i=0,1,\cdots,nxc;\quad 2i=0,2,\cdots,nxf;\\
+v_{2i+1,nyf}^{h}=\cfrac{1}{2}( v_{i,nyc}^{2h}+v_{i+1,nyc}^{2h})\\
+i=0,1,\cdots,nxc-1;\\
+i+1=1,2,\cdots,nxc;\\
+\{i,i+1\}=\{0,1\},\{1,2\},\cdots,\{nxc-1,nxc\};\\
+2i+1=1,3,\cdots,2nxc-1=1,3,\cdots,nxf-1;
+\end{array}\end{split}\]</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="multigrid1.html" class="btn btn-neutral float-left" title="MULTIGRID Continued" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="vorticitystream.html" class="btn btn-neutral float-right" title="Vorticity Stream Function" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2017~2024, eric.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

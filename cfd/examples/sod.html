@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sod’s shock-tube problem &mdash; Scientific Computing 1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../_static/documentation_options.js?v=f2a433a1"></script>
+        <script src="../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Poisson Equation" href="poisson.html" />
+    <link rel="prev" title="One-Dimensional Euler Solver" href="euler1d.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            Scientific Computing
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Get started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../info.html">OneFLOW</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../user.html">THEORY</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../bash.html">Bash</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">CFD</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../ns.html">Navier–Stokes equations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../leibniz.html">Leibniz integral</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../rtt.html">Reynolds’ transport theorem</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../mass.html">Conservation Of Mass</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../momenum.html">Momentum Analysis Of Flow Systems</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../energy.html">Conservation Of Energy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../ns-integral.html">ALE Form of Conservation Equations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../curvilinear.html">Generalized Curvilinear Coordinate System</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../curvilinear3d.html">Generalized Curvilinear Coordinate System(3D)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../vector.html">Vector &amp; Tensor</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../matrix.html">Matrix</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../calculus.html">Calculus</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../substitution.html">Substitution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../jacobian.html">Jacobian matrix</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../gauss.html">Gauss’s Theorem</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../strain.html">Strain Measures</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../ale.html">Arbitrary Lagrangian-Eulerian</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../ale1d.html">ALE 1D</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../deformation.html">Deformation and Motion</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../derivative.html">Fluid Derivative</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../material_derivative.html">Material Time Derivative</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../scheme/index.html">CFD Schemes</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="index.html">CFD Examples</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="1d.html">CFD Examples 1D</a></li>
+<li class="toctree-l3"><a class="reference internal" href="burgers.html">Inviscid Burgers Equation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="euler1d.html">One-Dimensional Euler Solver</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Sod’s shock-tube problem</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#exact-solution-for-the-sod-s-shock-tube-problem">Exact solution for the Sod’s shock-tube problem</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#stationary-normal-shock-wave">Stationary normal shock wave</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#moving-normal-shock-waves">MOVING NORMAL SHOCK WAVES</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#hugoniot-equation">Hugoniot equation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#incident-and-reflected-expansion-waves">INCIDENT AND REFLECTED EXPANSION WAVES</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#shock-tube-relations">SHOCK TUBE RELATIONS</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#code-implementation-details">Code implementation details</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#newton-secant-method">Newton-secant method</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="poisson.html">Poisson Equation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="vortex.html">Vortex-Merger Problem</a></li>
+<li class="toctree-l3"><a class="reference internal" href="index.html#verification-and-validation">Verification and Validation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="index.html#cfd-benchmark-cases">CFD benchmark cases</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../method/index.html">CFD Methods</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../codes.html">Reference Codes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../videos.html">CFD &amp; CAE Videos</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../books.html">Books</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../docs.html">Documents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../cgns.html">CGNS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../chatgpt.html">CHATGPT</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../cpp/index.html">CPP</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../cmake.html">CMake</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../cmd.html">Cmd</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../cuda.html">CUDA</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../design_patterns.html">Design Patterns</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../eigen.html">Eigen3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../git.html">Git</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../git.html#contexts">Contexts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fortran.html">Fortran</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../hdf5.html">HDF5</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../hpc.html">HPC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../install/index.html">Install</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../julia.html">Julia</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../jupyter.html">Jupyter Notebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../latex.html">LaTeX</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../makefile.html">Makefile</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../metis.html">METIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../mkdocs.html">MkDocs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../modules.html">Environment Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../mpi.html">MPI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../numerical/index.html">Numerical analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../oneapi.html">oneAPI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../oneflow.html">OneFLOW-CFD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../openacc.html">OpenACC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../opencl.html">OpenCL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../opengl.html">OpenGL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../openmp.html">OpenMP</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../powershell.html">PowerShell</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../python/index.html">Python</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../qt.html">Qt</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../regex.html">Regular Expressions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../science.html">Science</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sphinx.html">Sphinx</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../system/index.html">System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../taichi.html">Taichi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tcltk.html">Tcl/tk</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tecplot.html">Tecplot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../test.html">Test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../unreal_engine.html">Unreal Engine</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../vcpkg.html">vcpkg</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../yaml.html">yaml</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Scientific Computing</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">CFD</a></li>
+          <li class="breadcrumb-item"><a href="index.html">CFD Examples</a></li>
+      <li class="breadcrumb-item active">Sod’s shock-tube problem</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/cfd/examples/sod.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="sod-s-shock-tube-problem">
+<h1>Sod’s shock-tube problem<a class="headerlink" href="#sod-s-shock-tube-problem" title="Link to this heading"></a></h1>
+<p>J.D. Anderson, Modern Compressible Flow (1984)</p>
+<ol class="arabic simple">
+<li><p><a class="reference external" href="https://www.sciencedirect.com/science/article/pii/S2468227620303112/">The Sod gasdynamics problem as a tool for benchmarking face flux construction in the finite volume method</a></p></li>
+<li><p><a class="reference external" href="https://www.scielo.org.mx/pdf/rmfe/v59n1/v59n1a5.pdf">Exact solution of the 1D riemann problem in Newtonian and relativistic hydrodynamics</a></p></li>
+<li><p><a class="reference external" href="https://github.com/ibackus/sod-shocktube/">Sod shock tube calculator</a></p></li>
+<li><p><a class="reference external" href="https://help.sim-flow.com/validation/sod-shock/">Sod Shock Tube Problem - CFD Simulation</a></p></li>
+</ol>
+<section id="exact-solution-for-the-sod-s-shock-tube-problem">
+<h2>Exact solution for the Sod’s shock-tube problem<a class="headerlink" href="#exact-solution-for-the-sod-s-shock-tube-problem" title="Link to this heading"></a></h2>
+<figure class="align-center" id="id1">
+<a class="reference internal image-reference" href="../../_images/sod1.png"><img alt="../../_images/sod1.png" src="../../_images/sod1.png" style="width: 800px;" /></a>
+<figcaption>
+<p><span class="caption-text">Schematic of stationary and moving shock waves.</span><a class="headerlink" href="#id1" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+</section>
+<section id="stationary-normal-shock-wave">
+<h2>Stationary normal shock wave<a class="headerlink" href="#stationary-normal-shock-wave" title="Link to this heading"></a></h2>
+<p>The continuity, momentum, and energy equations of stationary shock waves are, respectively,</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{c}
+\rho_{1} u_{1}=\rho_{2} u_{2}\\
+p_{1}+\rho_{1} {u}_{1}^{2}=p_{2}+\rho_{2} {u}_{2}^{2}\\
+h_{1}+\cfrac{1}{2}{u}_{1}^{2}=h_{2}+\cfrac{1}{2}{u}_{2}^{2}
+\end{array}\end{split}\]</div>
+<p>where</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+u_{1} =\text{ velocity of the gas ahead of the shock wave, relative to the wave }\\
+u_{2} =\text{ velocity of gas behind the shock wave, relative to the wave }
+\end{array}\end{split}\]</div>
+</section>
+<section id="moving-normal-shock-waves">
+<h2>MOVING NORMAL SHOCK WAVES<a class="headerlink" href="#moving-normal-shock-waves" title="Link to this heading"></a></h2>
+<figure class="align-center" id="id2">
+<a class="reference internal image-reference" href="../../_images/sod2.png"><img alt="../../_images/sod2.png" src="../../_images/sod2.png" style="width: 800px;" /></a>
+<figcaption>
+<p><span class="caption-text">Initial conditions in a pressure-drivenshock tube.</span><a class="headerlink" href="#id2" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<figure class="align-center" id="id3">
+<a class="reference internal image-reference" href="../../_images/sod3.png"><img alt="../../_images/sod3.png" src="../../_images/sod3.png" style="width: 800px;" /></a>
+<figcaption>
+<p><span class="caption-text">Flow in a shock tube after the diaphragm is broken.</span><a class="headerlink" href="#id3" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<p>The moving normal-shock continuity, momentum, and energy equations, are</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{c}
+\rho_{1} W=\rho_{2} (W-u_{p})\\
+p_{1}+\rho_{1} W^{2}=p_{2}+\rho_{2} (W-u_{p})^{2}\\
+h_{1}+\cfrac{1}{2}W^{2}=h_{2}+\cfrac{1}{2}(W-u_{p})^{2}
+\end{array}\end{split}\]</div>
+<p>Let us rearrange thcse equations into a more convenient form.</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}W-u_{p}=W\cfrac{\rho_{1}}{\rho_{2}}\\\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{c}
+p_{1}+\rho_{1} W^{2}=p_{2}+\rho_{2} (W-u_{p})^{2}=p_{2}+\rho_{2} (W\cfrac{\rho_{1}}{\rho_{2}})^{2}\\
+p_{1}+\rho_{1} W^{2}=p_{2}+ \rho_{1}W^{2} (\cfrac{\rho_{1}}{\rho_{2}})\\
+\end{array}\end{split}\]</div>
+<p>and rearranging,</p>
+<div class="math notranslate nohighlight">
+\[p_{2}-p_{1}=\rho_{1} W^{2}(1-\cfrac{\rho_{1}}{\rho_{2}})\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+W^{2}=\cfrac{p_{2}-p_{1}}{\rho_{1}(1-\cfrac{\rho_{1}}{\rho_{2}})}\\
+W^{2}=\cfrac{(p_{2}-p_{1})\rho_{2}}{\rho_{1}(\rho_{2}-\rho_{1})}
+=\cfrac{p_{2}-p_{1}}{\rho_{2}-\rho_{1}}\left(\cfrac{\rho_{2}}{\rho_{1}}\right)\\
+W^{2}=\cfrac{p_{2}-p_{1}}{\rho_{2}-\rho_{1}}\left(\cfrac{\rho_{2}}{\rho_{1}}\right)\\
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{c}
+W= (W-u_{p})\left(\cfrac{\rho_{2}}{\rho_{1}}\right)\\
+W^{2}=(W-u_{p})^{2}\left(\cfrac{\rho_{2}}{\rho_{1}}\right)^{2}\\
+W^{2}=\cfrac{p_{2}-p_{1}}{\rho_{2}-\rho_{1}}\left(\cfrac{\rho_{2}}{\rho_{1}}\right)\\
+(W-u_{p})^{2}\left(\cfrac{\rho_{2}}{\rho_{1}}\right)=\cfrac{p_{2}-p_{1}}{\rho_{2}-\rho_{1}}
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[(W-u_{p})^{2}=\cfrac{p_{2}-p_{1}}{\rho_{2}-\rho_{1}}\left(\cfrac{\rho_{1}}{\rho_{2}}\right)\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[h=e+p/\rho\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+h_{1}+\cfrac{1}{2}W^{2} &amp; = h_{2}+\cfrac{1}{2}(W-u_{p})^{2}\\
+&amp;\Rightarrow e_{1}+\cfrac{p_{1}}{\rho_{1}}
++\cfrac{1}{2}\left[\cfrac{p_{2}-p_{1}}{\rho_{2}-\rho_{1}}\left(\cfrac{\rho_{2}}{\rho_{1}}\right)\right]\\ &amp; = e_{2}+\cfrac{p_{2}}{\rho_{2}}
++\cfrac{1}{2}\left[\cfrac{p_{2}-p_{1}}{\rho_{2}-\rho_{1}}\left(\cfrac{\rho_{1}}{\rho_{2}}\right)\right]
+\end{align}\end{split}\]</div>
+<p>The above equation algebraically simplifies to</p>
+<div class="math notranslate nohighlight">
+\[\begin{align}
+e_{2}-e_{1}=
+\cfrac{p_{1}}{\rho_{1}}-\cfrac{p_{2}}{\rho_{2}}
++\cfrac{1}{2}\left[\cfrac{p_{2}-p_{1}}{\rho_{2}-\rho_{1}}\left(\cfrac{\rho_{2}}{\rho_{1}}\right)\right]
+-\cfrac{1}{2}\left[\cfrac{p_{2}-p_{1}}{\rho_{2}-\rho_{1}}\left(\cfrac{\rho_{1}}{\rho_{2}}\right)\right]
+\end{align}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+e_{2}-e_{1}=
+\cfrac{p_{1}}{\rho_{1}}-\cfrac{p_{2}}{\rho_{2}}
++\cfrac{1}{2}\left[\cfrac{p_{2}-p_{1}}{\rho_{2}-\rho_{1}}\left(\cfrac{\rho_{2}}{\rho_{1}}-\cfrac{\rho_{1}}{\rho_{2}}\right)\right]\\
+e_{2}-e_{1}=
+\cfrac{p_{1}}{\rho_{1}}-\cfrac{p_{2}}{\rho_{2}}
++\cfrac{1}{2}\left[\cfrac{p_{2}-p_{1}}{\rho_{2}-\rho_{1}}\left(\cfrac{(\rho_{2})^{2}-(\rho_{1})^{2}}{\rho_{1}\rho_{2}}\right)\right]\\
+e_{2}-e_{1}=
+\cfrac{p_{1}}{\rho_{1}}-\cfrac{p_{2}}{\rho_{2}}
++\cfrac{1}{2}\left[\cfrac{(p_{2}-p_{1})(\rho_{2}+\rho_{1})}{\rho_{1}\rho_{2}}\right]\\
+\end{align}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+e_{2}-e_{1}=
+\cfrac{p_{1}}{\rho_{1}}-\cfrac{p_{2}}{\rho_{2}}
++\cfrac{1}{2}\left[{(p_{2}-p_{1})\left(\cfrac{1}{\rho_{1}}+\cfrac{1}{\rho_{2}}\right)}\right]\\
+e_{2}-e_{1}=
+p_{1}\left(\cfrac{1}{\rho_{1}}-\cfrac{1}{2}\left(\cfrac{1}{\rho_{1}}+\cfrac{1}{\rho_{2}}\right)\right)
++p_{2}\left(-\cfrac{1}{\rho_{2}}+\cfrac{1}{2}\left(\cfrac{1}{\rho_{1}}+\cfrac{1}{\rho_{2}}\right)\right)\\
+e_{2}-e_{1}=
+\cfrac{1}{2}p_{1}\left(\cfrac{1}{\rho_{1}}-\cfrac{1}{\rho_{2}}\right)
+-\cfrac{1}{2}p_{2}\left(\cfrac{1}{\rho_{2}}-\cfrac{1}{\rho_{1}}\right)\\
+e_{2}-e_{1}=
+\cfrac{1}{2}(p_{1}+p_{2})\left(\cfrac{1}{\rho_{1}}-\cfrac{1}{\rho_{2}}\right)
+\end{align}\end{split}\]</div>
+</section>
+<section id="hugoniot-equation">
+<h2>Hugoniot equation<a class="headerlink" href="#hugoniot-equation" title="Link to this heading"></a></h2>
+<div class="math notranslate nohighlight">
+\[e_{2}-e_{1}=
+\cfrac{1}{2}(p_{1}+p_{2})\left(\cfrac{1}{\rho_{1}}-\cfrac{1}{\rho_{2}}\right)\]</div>
+<p>or</p>
+<div class="math notranslate nohighlight">
+\[e_{2}-e_{1}=
+\cfrac{1}{2}(p_{1}+p_{2})\left(\nu_{1}-\nu_{2}\right)\]</div>
+<p>where <span class="math notranslate nohighlight">\(\nu\)</span> is specific volume, It is the reciprocal of density <span class="math notranslate nohighlight">\(\rho\)</span>.</p>
+<p>Hugoniot equation, and is identically the same form for a stationary shock. In hindsight, this is to be expected; the Hugoniot
+equation relates changes of thermodynamic variables across a normal shock wave,
+and these are physically independent of whether or not the shock is moving.</p>
+<p>Let us specialize to the case of a calorically perfect gas. In this case, <span class="math notranslate nohighlight">\(e=c_{v}T\)</span> and <span class="math notranslate nohighlight">\(\nu=RT/p\)</span>, hence</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+c_{v}=\cfrac{1}{\gamma-1}R\\
+e=c_{v}T=\cfrac{1}{\gamma-1}RT\\
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+\cfrac{1}{\gamma-1}R(T_{2}-T_{1})=
+  \cfrac{1}{2}(p_{1}+p_{2})\left(\cfrac{RT_{1}}{p_{1}}-\cfrac{RT_{2}}{p_{2}}\right)\\
+\cfrac{1}{\gamma-1}R(\cfrac{T_{2}}{T_{1}}-1)=
+  \cfrac{1}{2}(p_{1}+p_{2})\left(\cfrac{R}{p_{1}}-\cfrac{R}{p_{2}}\cfrac{T_{2}}{T_{1}}\right)\\
+\cfrac{1}{\gamma-1}(\cfrac{T_{2}}{T_{1}}-1)=
+  \cfrac{1}{2}(p_{1}+p_{2})\left(\cfrac{1}{p_{1}}-\cfrac{1}{p_{2}}\cfrac{T_{2}}{T_{1}}\right)\\
+(\cfrac{T_{2}}{T_{1}}-1)=
+  \cfrac{1}{2}({\gamma-1})(p_{1}+p_{2})\left(\cfrac{1}{p_{1}}-\cfrac{1}{p_{2}}\cfrac{T_{2}}{T_{1}}\right)\\
+\cfrac{T_{2}}{T_{1}}=
+  1+\cfrac{1}{2}({\gamma-1})(p_{1}+p_{2})\left(\cfrac{1}{p_{1}}-\cfrac{1}{p_{2}}\cfrac{T_{2}}{T_{1}}\right)\\
+\cfrac{T_{2}}{T_{1}}=
+  1+\cfrac{1}{2}({\gamma-1})(p_{1}+p_{2})\left(\cfrac{1}{p_{1}}\right)
+-\cfrac{1}{2}({\gamma-1})(p_{1}+p_{2})\left(\cfrac{1}{p_{2}}\cfrac{T_{2}}{T_{1}}\right)
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+\cfrac{T_{2}}{T_{1}}\left(1+\cfrac{1}{2}({\gamma-1})\left(1+\cfrac{p_{1}}{p_{2}}\right)\right)=
+  1+\cfrac{1}{2}({\gamma-1})\left(1+\cfrac{p_{2}}{p_{1}}\right)\\
+\cfrac{T_{2}}{T_{1}}=
+  \cfrac{\left(1+\cfrac{1}{2}({\gamma-1})\left(1+\cfrac{p_{2}}{p_{1}}\right)\right)}
+{\left(1+\cfrac{1}{2}({\gamma-1})\left(1+\cfrac{p_{1}}{p_{2}}\right)\right)}\\
+\cfrac{T_{2}}{T_{1}}=
+  \cfrac{\left(1+\cfrac{1}{2}({\gamma-1})+\cfrac{1}{2}({\gamma-1})\left(\cfrac{p_{2}}{p_{1}}\right)\right)}
+{\left(1+\cfrac{1}{2}({\gamma-1})+\cfrac{1}{2}({\gamma-1})\left(\cfrac{p_{1}}{p_{2}}\right)\right)}\\
+\cfrac{T_{2}}{T_{1}}=
+  \cfrac{\left(\cfrac{1}{2}({\gamma+1})+\cfrac{1}{2}({\gamma-1})\left(\cfrac{p_{2}}{p_{1}}\right)\right)}
+{\left(\cfrac{1}{2}({\gamma+1})+\cfrac{1}{2}({\gamma-1})\left(\cfrac{p_{1}}{p_{2}}\right)\right)}\\
+\cfrac{T_{2}}{T_{1}}=
+  \cfrac{\left(({\gamma+1})+({\gamma-1})\left(\cfrac{p_{2}}{p_{1}}\right)\right)}
+{\left(({\gamma+1})+({\gamma-1})\left(\cfrac{p_{1}}{p_{2}}\right)\right)}\\
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{c}
+\cfrac{T_{2}}{T_{1}}=
+  \cfrac{\left(\cfrac{\gamma+1}{\gamma-1}+\left(\cfrac{p_{2}}{p_{1}}\right)\right)}
+{\left(\cfrac{\gamma+1}{\gamma-1}+\left(\cfrac{p_{1}}{p_{2}}\right)\right)}\\
+\cfrac{T_{2}}{T_{1}}=
+  \cfrac{\left(\cfrac{p_{2}}{p_{1}}\right)\left(\cfrac{\gamma+1}{\gamma-1}+\left(\cfrac{p_{2}}{p_{1}}\right)\right)}
+{\left(\cfrac{p_{2}}{p_{1}}\right)\left(\cfrac{\gamma+1}{\gamma-1}+\left(\cfrac{p_{1}}{p_{2}}\right)\right)}\\
+\cfrac{T_{2}}{T_{1}}=
+  \cfrac{\left(\cfrac{p_{2}}{p_{1}}\right)\left(\cfrac{\gamma+1}{\gamma-1}+\left(\cfrac{p_{2}}{p_{1}}\right)\right)}
+{\left(\cfrac{\gamma+1}{\gamma-1}\left(\cfrac{p_{2}}{p_{1}}\right)+1\right)}\\
+\cfrac{T_{2}}{T_{1}}=\cfrac{p_{2}}{p_{1}}
+  \left(\cfrac{\cfrac{\gamma+1}{\gamma-1}+\cfrac{p_{2}}{p_{1}}}
+{1+\cfrac{\gamma+1}{\gamma-1}\cfrac{p_{2}}{p_{1}}}\right)\\
+\end{array}\end{split}\]</div>
+<p>Similarly,</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+p=\rho RT\Rightarrow T=\cfrac{p}{\rho R}\\
+\cfrac{T_{2}}{T_{1}}=\cfrac{p_{2}}{p_{1}}
+  \left(\cfrac{\cfrac{\gamma+1}{\gamma-1}+\cfrac{p_{2}}{p_{1}}}
+{1+\cfrac{\gamma+1}{\gamma-1}\cfrac{p_{2}}{p_{1}}}\right)\\
+\cfrac{T_{2}}{T_{1}}=\cfrac{\rho_{2} RT_{2}}{\rho_{1} RT_{1}}
+  \left(\cfrac{\cfrac{\gamma+1}{\gamma-1}+\cfrac{p_{2}}{p_{1}}}
+{1+\cfrac{\gamma+1}{\gamma-1}\cfrac{p_{2}}{p_{1}}}\right)\\
+1=\cfrac{\rho_{2} }{\rho_{1}}
+  \left(\cfrac{\cfrac{\gamma+1}{\gamma-1}+\cfrac{p_{2}}{p_{1}}}
+{1+\cfrac{\gamma+1}{\gamma-1}\cfrac{p_{2}}{p_{1}}}\right)\\
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+\cfrac{{1+\cfrac{\gamma+1}{\gamma-1}\cfrac{p_{2}}{p_{1}}}}{\cfrac{\gamma+1}{\gamma-1}+\cfrac{p_{2}}{p_{1}}}=\cfrac{\rho_{2} }{\rho_{1}}\\
+\cfrac{\rho_{2} }{\rho_{1}}=\cfrac{{1+\cfrac{\gamma+1}{\gamma-1}\cfrac{p_{2}}{p_{1}}}}{\cfrac{\gamma+1}{\gamma-1}+\cfrac{p_{2}}{p_{1}}}\\
+\end{array}\end{split}\]</div>
+<p>Define the moving shock Mach number as</p>
+<div class="math notranslate nohighlight">
+\[M_{s}=\cfrac{W}{a_{1}}\]</div>
+</section>
+<section id="incident-and-reflected-expansion-waves">
+<h2>INCIDENT AND REFLECTED EXPANSION WAVES<a class="headerlink" href="#incident-and-reflected-expansion-waves" title="Link to this heading"></a></h2>
+<figure class="align-center" id="id4">
+<a class="reference internal image-reference" href="../../_images/sod6.png"><img alt="../../_images/sod6.png" src="../../_images/sod6.png" style="width: 800px;" /></a>
+<figcaption>
+<p><span class="caption-text">The <span class="math notranslate nohighlight">\(C_{+}\)</span> and <span class="math notranslate nohighlight">\(C_{-}\)</span> characteristics for a centered expansion wave(on an xt diagram).</span><a class="headerlink" href="#id4" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<div class="math notranslate nohighlight">
+\[\cfrac{a}{a_{4}}=1-\cfrac{\gamma-1}{2}\left(\cfrac{u}{a_{4}} \right)\]</div>
+<p>To obtain the variation of properties in a centered expansion wave as a funclion
+of x and t. The equation of any C characteristic is</p>
+<div class="math notranslate nohighlight">
+\[\cfrac{dx}{dt}=u-a\]</div>
+<p>or, because the characteristic ib a straight line through the origin</p>
+<div class="math notranslate nohighlight">
+\[x=(u-a)t\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+\cfrac{a}{a_{4}}=1-\cfrac{\gamma-1}{2}\left(\cfrac{u}{a_{4}} \right)\\
+a=a_{4}-\cfrac{\gamma-1}{2}u\\
+u-a=u-a_{4}+\cfrac{\gamma-1}{2}u\\
+u-a=-a_{4}+\cfrac{\gamma+1}{2}u\\
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+x=(u-a)t\\
+x=(-a_{4}+\cfrac{\gamma+1}{2}u)t\\
+\cfrac{x}{t}=(-a_{4}+\cfrac{\gamma+1}{2}u)\\
+\cfrac{x}{t}+a_{4}=\cfrac{\gamma+1}{2}u\\
+\cfrac{2}{\gamma+1}\left( {\cfrac{x}{t}+a_{4}}\right)=u\\
+u=\cfrac{2}{\gamma+1}\left( {\cfrac{x}{t}+a_{4}}\right)\\
+\end{array}\end{split}\]</div>
+</section>
+<section id="shock-tube-relations">
+<h2>SHOCK TUBE RELATIONS<a class="headerlink" href="#shock-tube-relations" title="Link to this heading"></a></h2>
+<figure class="align-center" id="id5">
+<a class="reference internal image-reference" href="../../_images/sod3.png"><img alt="../../_images/sod3.png" src="../../_images/sod3.png" style="width: 800px;" /></a>
+<figcaption>
+<p><span class="caption-text">Flow in a shock tube after the diaphragm is broken.</span><a class="headerlink" href="#id5" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<figure class="align-center" id="id6">
+<a class="reference internal image-reference" href="../../_images/sod5.png"><img alt="../../_images/sod5.png" src="../../_images/sod5.png" style="width: 600px;" /></a>
+<figcaption>
+<p><span class="caption-text">Schematic shock tube problem with pressure distribution for pre- and post-diaphragm removal.</span><a class="headerlink" href="#id6" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<figure class="align-center" id="id7">
+<a class="reference internal image-reference" href="../../_images/sod4.png"><img alt="../../_images/sod4.png" src="../../_images/sod4.png" style="width: 600px;" /></a>
+<figcaption>
+<p><span class="caption-text">Diagram of the shock, expansion waves and contact surface.</span><a class="headerlink" href="#id7" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+p_{3}=p_{2}\\
+u_{3}=u_{2}=u_{p}
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[u_{p}=u_{2}=\cfrac{a_{1}}{\gamma_{1}}\left(\cfrac{p_{2}}{p_{1}}-1\right)\left(\cfrac{\cfrac{2\gamma_{1}}{\gamma_{1}+1}}{\cfrac{p_{2}}{p_{1}}+\cfrac{\gamma_{1}-1}{\gamma_{1}+1}}\right)^{1/2}\]</div>
+<p>between the head and tail of the expansion wave</p>
+<div class="math notranslate nohighlight">
+\[\cfrac{p_{3}}{p_{4}}=\left[1-\cfrac{\gamma_{4}}{2}\left(\cfrac{u_{3}}{u_{4}}\right)\right]^{\cfrac{2\gamma_{4}}{\gamma_{4}-1}}\]</div>
+<p><span class="math notranslate nohighlight">\(\cfrac{p2}{p1}\)</span>:</p>
+<div class="math notranslate nohighlight">
+\[\cfrac{p_{4}}{p_{1}}=\cfrac{p_{2}}{p_{1}}
+\left\{1-\cfrac{(\gamma_{4}-1)\left(\cfrac{a_{1}}{a_{4}}\right)\left(\cfrac{p_{2}}{p_{1}}-1\right)}
+{\sqrt{2\gamma_{1}\left[2\gamma_{1}+(\gamma_{1}+1)\left(\cfrac{p_{2}}{p_{1}}-1\right)\right]}}\right\}
+^{\cfrac{-2\gamma_{4}}{\gamma_{4}-1}}\]</div>
+<p>The analysis of the flow of a calorically perfect gas in a shock tube is now
+straightforward. For a given diaphragm pressure ratio <span class="math notranslate nohighlight">\(p4/p1\)</span>:</p>
+<ol class="arabic simple">
+<li><p>Calculate <span class="math notranslate nohighlight">\(p2/p1\)</span>. This defines the strength of the incident shock wave.</p></li>
+</ol>
+<div class="math notranslate nohighlight">
+\[\cfrac{p_{4}}{p_{1}}=\cfrac{p_{2}}{p_{1}}
+\left\{1-\cfrac{(\gamma_{4}-1)\left(\cfrac{a_{1}}{a_{4}}\right)\left(\cfrac{p_{2}}{p_{1}}-1\right)}
+{\sqrt{2\gamma_{1}\left[2\gamma_{1}+(\gamma_{1}+1)\left(\cfrac{p_{2}}{p_{1}}-1\right)\right]}}\right\}
+^{\cfrac{-2\gamma_{4}}{\gamma_{4}-1}}\]</div>
+<ol class="arabic simple" start="2">
+<li><p>Calculate all other incident shock properties:</p></li>
+</ol>
+<div class="math notranslate nohighlight">
+\[\begin{split}\cfrac{T_{2}}{T_{1}}=\cfrac{p_{2}}{p_{1}}
+  \left(\cfrac{\cfrac{\gamma+1}{\gamma-1}+\cfrac{p_{2}}{p_{1}}}
+{1+\cfrac{\gamma+1}{\gamma-1}\cfrac{p_{2}}{p_{1}}}\right)\\\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\cfrac{\rho_{2} }{\rho_{1}}=\cfrac{{1+\cfrac{\gamma+1}{\gamma-1}\cfrac{p_{2}}{p_{1}}}}{\cfrac{\gamma+1}{\gamma-1}+\cfrac{p_{2}}{p_{1}}}\\\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[W=a_{1}\sqrt{\cfrac{\gamma+1}{2\gamma}\left(\cfrac{p_{2}}{p_{1}}-1\right)+1}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[u_{p}=u_{2}=\cfrac{a_{1}}{\gamma_{1}}\left(\cfrac{p_{2}}{p_{1}}-1\right)\left(\cfrac{\cfrac{2\gamma_{1}}{\gamma_{1}+1}}{\cfrac{p_{2}}{p_{1}}+\cfrac{\gamma_{1}-1}{\gamma_{1}+1}}\right)^{1/2}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+p_{3}=p_{2}\\
+u_{3}=u_{2}=u_{p}
+\end{array}\end{split}\]</div>
+<ol class="arabic simple" start="3">
+<li><p>Calculate <span class="math notranslate nohighlight">\(p_{3}/p_{4}=(p_{3}/p_{1})/(p_{4}/p_{1})=(p_{2}/p_{1})/(p_{4}/p_{1})\)</span>. This defines the strength of the incident expansion wave.</p></li>
+<li><p>All other thermodynamic properties immediately behind the expansion wave can be found from the isentropic relations</p></li>
+</ol>
+<div class="math notranslate nohighlight">
+\[\cfrac{p_{3}}{p_{4}}=\left(\cfrac{\rho_{3}}{\rho_{4}}\right)^{\gamma}=\left(\cfrac{T_{3}}{T_{4}}\right)^{\cfrac{\gamma}{\gamma -1}}\]</div>
+<ol class="arabic simple" start="5">
+<li><p>Calculate the local properties inside the expansion wave:</p></li>
+</ol>
+<div class="math notranslate nohighlight">
+\[\cfrac{a}{a_{4}}=1-\cfrac{\gamma-1}{2}\left(\cfrac{u}{a_{4}} \right)\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[u=\cfrac{2}{\gamma+1}\left(a_{4}+\cfrac{x}{t} \right )\]</div>
+<p>Equation holds for the region between the head and tail of the centered expansion wave
+i.e., <span class="math notranslate nohighlight">\(-a_{4}\le \cfrac{x}{t}\le u_{3}-a_{3}\)</span></p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+x_{\text{head}} = x_{\text{diaphragm}}+(u_{4}-a_{4})\times t\\
+x_{\text{tail}} = x_{\text{diaphragm}}+(u_{3}-a_{3})\times t\\
+x_{\text{head}}-x_{\text{tail}}=\left\{(u_{4}-a_{4})-(u_{3}-a_{3})\right\}\times t\\
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+u=\cfrac{2}{\gamma+1}\left(a_{4}+\cfrac{x}{t} \right )\\
+u=\cfrac{2a_{4}}{\gamma+1}+\cfrac{2}{\gamma+1}\cfrac{x}{t}\\
+u_{\text{head}}=\cfrac{2a_{4}}{\gamma+1}+\cfrac{2}{\gamma+1}\cfrac{x_{\text{head}}}{t}\\
+u-u_{\text{head}}=\cfrac{2}{\gamma+1}\cfrac{x-x_{\text{head}}}{t}\\
+u-u_{\text{head}}\propto x-x_{\text{head}}\\
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+u_{\text{head}}=\cfrac{2a_{4}}{\gamma+1}+\cfrac{2}{\gamma+1}\cfrac{x_{\text{head}}}{t}\\
+u_{\text{tail}}=\cfrac{2a_{4}}{\gamma+1}+\cfrac{2}{\gamma+1}\cfrac{x_{\text{tail}}}{t}\\
+u_{\text{tail}}-u_{\text{head}}=\cfrac{2}{\gamma+1}\cfrac{x_{\text{tail}}-x_{\text{head}}}{t}\\
+u-u_{\text{head}}=\cfrac{2}{\gamma+1}\cfrac{x-x_{\text{head}}}{t}\\
+\cfrac{u-u_{\text{head}}}{u_{\text{tail}}-u_{\text{head}}} =\cfrac{x-x_{\text{head}}}{x_{\text{tail}}-x_{\text{head}}} \\
+\end{array}\end{split}\]</div>
+</section>
+<section id="code-implementation-details">
+<h2>Code implementation details<a class="headerlink" href="#code-implementation-details" title="Link to this heading"></a></h2>
+<p>Set initial states (non-dimensional).</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+  p_{4} = 1.0;\\
+  r_{4} = 1.0;\\
+  u_{4} = 0.0;\\
+\\
+  p_{1} = 0.1;\\
+  r_{1} = 0.125;\\
+  u_{1} = 0.0;\\
+\end{array}\end{split}\]</div>
+<p>Set dimensions of shocktube.</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{c}
+  x_{l} = 0.0;\\
+  x_{r} = 1.0;\\
+  x_{d} = 0.5;\\
+\end{array}\end{split}\]</div>
+<p>Calc acoustic velocities.</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{c}
+  a_{1} = \sqrt{ \gamma \cfrac{p_{1}}{\rho_{1}}}\\
+  a_{4} = \sqrt{ \gamma \cfrac{p_{4}}{\rho_{4}}}\\
+\end{array}\end{split}\]</div>
+<p>Use a Newton-secant iteration to compute p2p1.</p>
+<div class="math notranslate nohighlight">
+\[\cfrac{p_{4}}{p_{1}}=\cfrac{p_{2}}{p_{1}}
+\left\{1-\cfrac{(\gamma_{4}-1)\left(\cfrac{a_{1}}{a_{4}}\right)\left(\cfrac{p_{2}}{p_{1}}-1\right)}
+{\sqrt{2\gamma_{1}\left[2\gamma_{1}+(\gamma_{1}+1)\left(\cfrac{p_{2}}{p_{1}}-1\right)\right]}}\right\}
+^{\cfrac{-2\gamma_{4}}{\gamma_{4}-1}}\]</div>
+<p>Calculate all other incident shock properties:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\cfrac{T_{2}}{T_{1}}=\cfrac{p_{2}}{p_{1}}
+  \left(\cfrac{\cfrac{\gamma+1}{\gamma-1}+\cfrac{p_{2}}{p_{1}}}
+{1+\cfrac{\gamma+1}{\gamma-1}\cfrac{p_{2}}{p_{1}}}\right)\\\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\cfrac{\rho_{2} }{\rho_{1}}=\cfrac{{1+\cfrac{\gamma+1}{\gamma-1}\cfrac{p_{2}}{p_{1}}}}{\cfrac{\gamma+1}{\gamma-1}+\cfrac{p_{2}}{p_{1}}}\\\end{split}\]</div>
+<p>Calculate shock-wave speed.</p>
+<div class="math notranslate nohighlight">
+\[W=a_{1}\sqrt{\cfrac{\gamma+1}{2\gamma}\left(\cfrac{p_{2}}{p_{1}}-1\right)+1}\]</div>
+<p>Calculate Shock location.</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}x_{\text{shock}} = x_{\text{diaphragm}}+W\times t;\\\end{split}\]</div>
+<p>Calculate State 2.</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+p_{2}=\cfrac{p_{2}}{p_{1}}p_{1}\\
+{\rho}_{2}=\cfrac{{\rho}_{2}}{{\rho}_{1}}{\rho}_{1}\\
+a_{2}=\sqrt{\gamma \cfrac{p_{2}}{\rho_{2}} }
+\end{array}\end{split}\]</div>
+<p>Calculate State 3.</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}p_{3} = p_{2}\\\end{split}\]</div>
+<p>Isentropic between 3 and 4.</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+\cfrac{\rho_{3}}{\rho_{4}}=\left(\cfrac{p_{3}}{p_{4}}\right)^{\cfrac{1}{\gamma}}\\
+a_{3}=\sqrt{\gamma \cfrac{p_{3}}{\rho_{3}} }
+\end{array}\end{split}\]</div>
+<p>Calculate the speed of contact discontinuity.</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+u_{p}=\cfrac{a_{1}}{\gamma_{1}}\left(\cfrac{p_{2}}{p_{1}}-1\right)\left(\cfrac{\cfrac{2\gamma_{1}}{\gamma_{1}+1}}{\cfrac{p_{2}}{p_{1}}+\cfrac{\gamma_{1}-1}{\gamma_{1}+1}}\right)^{\cfrac{1}{2}}\\
+u_{2}=u_{p}\\
+u_{3}=u_{p}\\
+\end{array}\end{split}\]</div>
+<p>Calculate Mach numbers.</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+M_{1}=\cfrac{u_{1}}{a_{1}}\\
+M_{2}=\cfrac{u_{2}}{a_{2}}\\
+M_{3}=\cfrac{u_{3}}{a_{3}}\\
+M_{4}=\cfrac{u_{4}}{a_{4}}\\
+\end{array}\end{split}\]</div>
+<p>Calculate the location of contact discontinuity.</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}x_{\text{contact discontinuity}}=x_{\text{diaphragm}}+u_{p}\times t\\\end{split}\]</div>
+<p>Calculate the location of expansion region.</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+x_{\text{expansion head}} &amp; = x_{\text{diaphragm}}+(u_{4}-a_{4})\times t\\
+x_{\text{expansion   tail}} &amp; = x_{\text{diaphragm}}+(u_{3}-a_{3})\times t\\
+\end{align}\end{split}\]</div>
+<p>Calculate all other expansion wave properties:</p>
+<div class="math notranslate nohighlight">
+\[x_{\text{expansion}}=x_{\text{expansion head}}+dx_{\text{expansion}}*\cfrac{i}{n_{\text{ expansion points}}}\]</div>
+<p>Let</p>
+<div class="math notranslate nohighlight">
+\[x=x_{\text{expansion}}\]</div>
+<p>then</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+u(x)=u_{\text{head}}+(u_{\text{tail}}-u_{\text{head}})\cfrac{x-x_{\text{head}}}{x_{\text{tail}}-x_{\text{head}}} \\
+u(x)=u_{4}+(u_{3}-u_{4})\cfrac{x-x_{\text{head}}}{x_{\text{tail}}-x_{\text{head}}} \\
+u_{4}=0\\
+u(x)=(u_{3})\cfrac{x-x_{\text{head}}}{x_{\text{tail}}-x_{\text{head}}} \\
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+\cfrac{p(x)}{p_{4}}=\left[1-\cfrac{\gamma-1}{2}\left(\cfrac{u(x)}{a_{4}} \right)\right]^{\cfrac{2\gamma }{\gamma-1} }\\
+\cfrac{\rho(x)}{\rho_{4}}=\left[1-\cfrac{\gamma-1}{2}\left(\cfrac{u(x)}{a_{4}} \right)\right]^{\cfrac{2 }{\gamma-1} }\\
+M(x)=\cfrac{u(x)}{\sqrt{\gamma \cfrac{p(x)}{\rho (x)} } }
+\end{array}\end{split}\]</div>
+</section>
+<section id="newton-secant-method">
+<h2>Newton-secant method<a class="headerlink" href="#newton-secant-method" title="Link to this heading"></a></h2>
+<p>Use a Newton-secant iteration to compute p2p1.</p>
+<div class="math notranslate nohighlight">
+\[\cfrac{p_{4}}{p_{1}}=\cfrac{p_{2}}{p_{1}}
+\left\{1-\cfrac{(\gamma_{4}-1)\left(\cfrac{a_{1}}{a_{4}}\right)\left(\cfrac{p_{2}}{p_{1}}-1\right)}
+{\sqrt{2\gamma_{1}\left[2\gamma_{1}+(\gamma_{1}+1)\left(\cfrac{p_{2}}{p_{1}}-1\right)\right]}}\right\}
+^{\cfrac{-2\gamma_{4}}{\gamma_{4}-1}}\]</div>
+<p>Let <span class="math notranslate nohighlight">\(x=p_{2}/p_{1}\)</span>
+Initialize x for starting guess</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+x=0.9\cfrac{p_{4}}{p_{1}}\\
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[f=\cfrac{p_{4}}{p_{1}}-x\times\left\{1-\cfrac{(\gamma-1)(\cfrac{a_{1}}{a_{4}} )(x-1)}{\sqrt{2\gamma [2\gamma+(\gamma +1)(x-1)]}} \right \}
+^{-\cfrac{2\gamma }{\gamma -1} }\]</div>
+<p>Perturb <span class="math notranslate nohighlight">\(x\)</span></p>
+<div class="math notranslate nohighlight">
+\[\hat{x}=0.95x\]</div>
+<p>Begin iteration</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+\text{iter} = 0\\
+\text{itmax} = 20\\
+\end{array}\end{split}\]</div>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+  \text{while True:}\\
+      iter &amp; = iter + 1\\
+\hat{f}&amp;=\cfrac{p_{4}}{p_{1}}-\hat{x}\times\left\{1-\cfrac{(\gamma-1)(\cfrac{a_{1}}{a_{4}} )(\hat{x}-1)}{\sqrt{2\gamma [2\gamma+(\gamma +1)(\hat{x}-1)]}} \right \}
+^{-\cfrac{2\gamma }{\gamma -1} }\\
+\text{if}&amp;\text{ abs}( \hat{f} ) \le \text{tol or iter} \ge \text{itmax:}\\
+\quad &amp;\quad\quad\text{   break}\\
+     \widetilde{x}&amp;= \hat{x}- \hat{f} * ( \hat{x}- x) / ( \hat{f} - f);\\
+      x&amp;= \hat{x};\\
+      f&amp;= \hat{f};\\
+      \hat{x}&amp;= \widetilde{x};\\
+\end{align}\end{split}\]</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="euler1d.html" class="btn btn-neutral float-left" title="One-Dimensional Euler Solver" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="poisson.html" class="btn btn-neutral float-right" title="Poisson Equation" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2017~2024, eric.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

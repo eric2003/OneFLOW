@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Inviscid Burgers Equation &mdash; Scientific Computing 1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../_static/documentation_options.js?v=f2a433a1"></script>
+        <script src="../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="One-Dimensional Euler Solver" href="euler1d.html" />
+    <link rel="prev" title="CFD Examples 1D" href="1d.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            Scientific Computing
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Get started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../info.html">OneFLOW</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../user.html">THEORY</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../bash.html">Bash</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">CFD</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../ns.html">Navier–Stokes equations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../leibniz.html">Leibniz integral</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../rtt.html">Reynolds’ transport theorem</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../mass.html">Conservation Of Mass</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../momenum.html">Momentum Analysis Of Flow Systems</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../energy.html">Conservation Of Energy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../ns-integral.html">ALE Form of Conservation Equations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../curvilinear.html">Generalized Curvilinear Coordinate System</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../curvilinear3d.html">Generalized Curvilinear Coordinate System(3D)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../vector.html">Vector &amp; Tensor</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../matrix.html">Matrix</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../calculus.html">Calculus</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../substitution.html">Substitution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../jacobian.html">Jacobian matrix</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../gauss.html">Gauss’s Theorem</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../strain.html">Strain Measures</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../ale.html">Arbitrary Lagrangian-Eulerian</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../ale1d.html">ALE 1D</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../deformation.html">Deformation and Motion</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../derivative.html">Fluid Derivative</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../material_derivative.html">Material Time Derivative</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../scheme/index.html">CFD Schemes</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="index.html">CFD Examples</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="1d.html">CFD Examples 1D</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Inviscid Burgers Equation</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#inviscid-burgers-equation-non-conservative-form">Inviscid Burgers Equation: Non-Conservative Form</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#inviscid-burgers-equation-conservative-form">Inviscid Burgers Equation: Conservative Form</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#flux-splitting">Flux Splitting</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#riemann-solver-rusanov-scheme">Riemann Solver: Rusanov Scheme</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="euler1d.html">One-Dimensional Euler Solver</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sod.html">Sod’s shock-tube problem</a></li>
+<li class="toctree-l3"><a class="reference internal" href="poisson.html">Poisson Equation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="vortex.html">Vortex-Merger Problem</a></li>
+<li class="toctree-l3"><a class="reference internal" href="index.html#verification-and-validation">Verification and Validation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="index.html#cfd-benchmark-cases">CFD benchmark cases</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../method/index.html">CFD Methods</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../codes.html">Reference Codes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../videos.html">CFD &amp; CAE Videos</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../books.html">Books</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../docs.html">Documents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../cgns.html">CGNS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../chatgpt.html">CHATGPT</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../cpp/index.html">CPP</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../cmake.html">CMake</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../cmd.html">Cmd</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../cuda.html">CUDA</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../design_patterns.html">Design Patterns</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../eigen.html">Eigen3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../git.html">Git</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../git.html#contexts">Contexts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fortran.html">Fortran</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../hdf5.html">HDF5</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../hpc.html">HPC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../install/index.html">Install</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../julia.html">Julia</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../jupyter.html">Jupyter Notebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../latex.html">LaTeX</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../makefile.html">Makefile</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../metis.html">METIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../mkdocs.html">MkDocs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../modules.html">Environment Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../mpi.html">MPI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../numerical/index.html">Numerical analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../oneapi.html">oneAPI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../oneflow.html">OneFLOW-CFD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../openacc.html">OpenACC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../opencl.html">OpenCL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../opengl.html">OpenGL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../openmp.html">OpenMP</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../powershell.html">PowerShell</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../python/index.html">Python</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../qt.html">Qt</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../regex.html">Regular Expressions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../science.html">Science</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sphinx.html">Sphinx</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../system/index.html">System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../taichi.html">Taichi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tcltk.html">Tcl/tk</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tecplot.html">Tecplot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../test.html">Test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../unreal_engine.html">Unreal Engine</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../vcpkg.html">vcpkg</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../yaml.html">yaml</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Scientific Computing</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">CFD</a></li>
+          <li class="breadcrumb-item"><a href="index.html">CFD Examples</a></li>
+      <li class="breadcrumb-item active">Inviscid Burgers Equation</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/cfd/examples/burgers.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="inviscid-burgers-equation">
+<h1>Inviscid Burgers Equation<a class="headerlink" href="#inviscid-burgers-equation" title="Link to this heading"></a></h1>
+<ol class="arabic simple">
+<li><p><a class="reference external" href="https://www.mdpi.com/2311-5521/4/3/159/">CFD Julia: A Learning Module Structuring an Introductory Course on Computational Fluid Dynamics</a></p></li>
+</ol>
+<section id="inviscid-burgers-equation-non-conservative-form">
+<h2>Inviscid Burgers Equation: Non-Conservative Form<a class="headerlink" href="#inviscid-burgers-equation-non-conservative-form" title="Link to this heading"></a></h2>
+<p>In this section, we discuss the solution of the inviscid Burgers equation which is a nonlinear hyperbolic partial differential equation.
+The hyperbolic equations admit discontinuities, and the numerical schemes used for solving hyperbolic PDEs need to be higher-order accurate for smooth solutions, and non-oscillatory for discontinuous solutions.
+The inviscid Burgers equation is given below</p>
+<div class="math notranslate nohighlight">
+\[\cfrac{\partial u}{\partial t}+u\cfrac{\partial u}{\partial x}=0\]</div>
+</section>
+<section id="inviscid-burgers-equation-conservative-form">
+<h2>Inviscid Burgers Equation: Conservative Form<a class="headerlink" href="#inviscid-burgers-equation-conservative-form" title="Link to this heading"></a></h2>
+<p>In this section, we explain two approaches for solving the inviscid Burgers equation in its conservative form. The inviscid Burgers equation can be represented in the conservative form as below</p>
+<div class="math notranslate nohighlight">
+\[\cfrac{\partial u}{\partial t}+\cfrac{\partial f}{\partial x}=0\]</div>
+<p>where</p>
+<div class="math notranslate nohighlight">
+\[f=\cfrac{u^{2}}{2}\]</div>
+<p>The <span class="math notranslate nohighlight">\(f\)</span> is termed as the flux. We need to modify the grid arrangement to solve the inviscid Burgers equation in its conservative form.</p>
+<figure class="align-center" id="id1">
+<a class="reference internal image-reference" href="../../_images/weno2.png"><img alt="../../_images/weno2.png" src="../../_images/weno2.png" style="width: 800px;" /></a>
+<figcaption>
+<p><span class="caption-text">Finite difference grid for one-dimensional problems where the the solution is stored at the center of the cells. The flux is also computed at left and right boundary. The stencil required for reconstruction of left and right side flux is highlighted with blue rectangle. Ghost points are shown by red color.</span><a class="headerlink" href="#id1" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<p>The solution field is stored at the center of each cell and this type of grid is primarily used for finite volume discretization. We explain two approaches to compute the nonlinear term in the inviscid Burgers equation.</p>
+<div class="math notranslate nohighlight">
+\[\Delta x=x_{i+1/2}-x_{i-1/2}\]</div>
+</section>
+<section id="flux-splitting">
+<h2>Flux Splitting<a class="headerlink" href="#flux-splitting" title="Link to this heading"></a></h2>
+<p>The conservative form of the inviscid Burgers equation allows us to use the flux splitting method and WENO reconstruction to compute the flux at the interface. In this method, we first compute the flux <span class="math notranslate nohighlight">\(f\)</span> at the nodal points. The nonlinear advection term of the inviscid Burgers equation is computed as</p>
+<div class="math notranslate nohighlight">
+\[\cfrac{\partial f}{\partial x}\Bigg|_{x=x_{i}}=\cfrac{f_{i+1/2}-f_{i-1/2}}{\Delta x}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\cfrac{\partial f}{\partial x}\Bigg|_{x=x_{i}}=\cfrac{f^{L}_{i+1/2}-f^{L}_{i-1/2}}{\Delta x}+\cfrac{f^{R}_{i+1/2}-f^{R}_{i-1/2}}{\Delta x}\]</div>
+<p>at a particular node <span class="math notranslate nohighlight">\(i\)</span>, The superscripts <span class="math notranslate nohighlight">\(L\)</span> and <span class="math notranslate nohighlight">\(R\)</span> refer to the positive and negative flux component at the interface and the subscripts
+<span class="math notranslate nohighlight">\(i-1/2\)</span> and <span class="math notranslate nohighlight">\(i+1/2\)</span> for the left and right side interface of the nodal point <span class="math notranslate nohighlight">\(i\)</span>.
+We use WENO-5 reconstruction  to compute the left and right side flux at the interface. First, we compute the flux at nodal points and then split it into positive and negative components. This process is called as Lax-Friedrichs flux splitting and the positive and negative component of the flux at a nodal location is calculated as</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+f^{+}_{i}=\cfrac{1}{2}(f_{i}+au_{i})\\
+f^{-}_{i}=\cfrac{1}{2}(f_{i}-au_{i})\\
+\end{array}\end{split}\]</div>
+<p>where <span class="math notranslate nohighlight">\(a\)</span> is the absolute value of the flux Jacobian(<span class="math notranslate nohighlight">\(a=\left | \cfrac{\partial f}{\partial u} \right |\)</span>)   We chose the values of
+<span class="math notranslate nohighlight">\(a\)</span> as the maximum value of <span class="math notranslate nohighlight">\(u_{i}\)</span> over the stencil used for WENO-5 reconstruction, i.e.,</p>
+<div class="math notranslate nohighlight">
+\[a=max(|u_{i-2}|,|u_{i-1}|,|u_{i}|,|u_{i+1}|,|u_{i+2}|)\]</div>
+<p>Once we split the nodal flux into its positive and negative component we reconstruct the left and right side fluxes at the interface using WENO-5 scheme using below formulas</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+f^{L}_{i+1/2} &amp; = w^{L}_{0}(\cfrac{1}{3}f^{+}_{i-2}-\cfrac{7}{6}f^{+}_{i-1}+\cfrac{11}{6}f^{+}_{i})\\
+              &amp;+w^{L}_{1}(-\cfrac{1}{6}f^{+}_{i-1}+\cfrac{5}{6}f^{+}_{i}+\cfrac{1}{3}f^{+}_{i+1})\\
+              &amp;+w^{L}_{2}(\cfrac{1}{3}f^{+}_{i}+\cfrac{5}{6}f^{+}_{i+1}-\cfrac{1}{6}f^{+}_{i+2})\\
+f^{R}_{i-1/2}&amp; = w^{R}_{0}(-\cfrac{1}{6}f^{-}_{i-2}+\cfrac{5}{6}f^{-}_{i-1}+\cfrac{1}{3}f^{-}_{i})\\
+             &amp; + w^{R}_{1}(\cfrac{1}{3}f^{-}_{i-1}+\cfrac{5}{6}f^{-}_{i}-\cfrac{1}{6}f^{-}_{i+1})\\
+             &amp; + w^{R}_{2}(\cfrac{11}{6}f^{-}_{i}-\cfrac{7}{6}f^{-}_{i+1}+\cfrac{1}{3}f^{-}_{i+2})
+\end{align}\end{split}\]</div>
+<p>We use the third-order Runge-Kutta numerical scheme for time integration and periodic boundary condition for the domain. For the conservative form, we need three ghost points on left and right sides, since we compute the flux at the left and right boundary of the domain also. The periodic boundary condition for fluxes at ghost points is given by</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+f_{-1}=f_{N-1}\\
+f_{-2}=f_{N-2}\\
+f_{-3}=f_{N-3}\\
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+f_{N}=f_{0}\\
+f_{N+1}=f_{1}\\
+f_{N+2}=f_{2}\\
+\end{array}\end{split}\]</div>
+<p>flux jacobian:</p>
+<div class="math notranslate nohighlight">
+\[a_{i}=\left | \cfrac{\partial f}{\partial u} \right |=max(|u_{i-2}|,|u_{i-1}|,|u_{i}|,|u_{i+1}|,|u_{i+2}|)\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+a_{0}=max(|u_{0-2}|,|u_{0-1}|,|u_{0}|,|u_{0+1}|,|u_{0+2}|) \\
+a_{1}=max(|u_{1-2}|,|u_{1-1}|,|u_{1}|,|u_{1+1}|,|u_{1+2}|) \\
+a_{2}=max(|u_{2-2}|,|u_{2-1}|,|u_{2}|,|u_{2+1}|,|u_{2+2}|) \\
+\cdots\\
+a_{i}=max(|u_{i-2}|,|u_{i-1}|,|u_{i}|,|u_{i+1}|,|u_{i+2}|) \\
+\cdots\\
+a_{N-3}=max(|u_{N-3-2}|,|u_{N-3-1}|,|u_{N-3}|,|u_{N-3+1}|,|u_{N-3+2}|) \\
+a_{N-2}=max(|u_{N-2-2}|,|u_{N-2-1}|,|u_{N-2}|,|u_{N-2+1}|,|u_{N-2+2}|) \\
+a_{N-1}=max(|u_{N-1-2}|,|u_{N-1-1}|,|u_{N-1}|,|u_{N-1+1}|,|u_{N-1+2}|) \\
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+a_{0}=max(|u_{-2}|,|u_{-1}|,|u_{0}|,|u_{1}|,|u_{2}|) \\
+a_{1}=max(|u_{-1}|,|u_{0}|,|u_{1}|,|u_{2}|,|u_{3}|) \\
+a_{2}=max(|u_{0}|,|u_{1}|,|u_{2}|,|u_{3}|,|u_{4}|) \\
+\cdots\\
+a_{i}=max(|u_{i-2}|,|u_{i-1}|,|u_{i}|,|u_{i+1}|,|u_{i+2}|) \\
+\cdots\\
+a_{N-3}=max(|u_{N-5}|,|u_{N-4}|,|u_{N-3}|,|u_{N-2}|,|u_{N-1}|) \\
+a_{N-2}=max(|u_{N-4}|,|u_{N-3}|,|u_{N-2}|,|u_{N-1}|,|u_{N}|) \\
+a_{N-1}=max(|u_{N-3}|,|u_{N-2}|,|u_{N-1}|,|u_{N}|,|u_{N+1}|) \\
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+a_{0}=max(|u_{N-2}|,|u_{N-1}|,|u_{0}|,|u_{1}|,|u_{2}|) \\
+a_{1}=max(|u_{N-1}|,|u_{0}|,|u_{1}|,|u_{2}|,|u_{3}|) \\
+a_{2}=max(|u_{0}|,|u_{1}|,|u_{2}|,|u_{3}|,|u_{4}|) \\
+\cdots\\
+a_{i}=max(|u_{i-2}|,|u_{i-1}|,|u_{i}|,|u_{i+1}|,|u_{i+2}|) \\
+\cdots\\
+a_{N-3}=max(|u_{N-5}|,|u_{N-4}|,|u_{N-3}|,|u_{N-2}|,|u_{N-1}|) \\
+a_{N-2}=max(|u_{N-4}|,|u_{N-3}|,|u_{N-2}|,|u_{N-1}|,|u_{0}|) \\
+a_{N-1}=max(|u_{N-3}|,|u_{N-2}|,|u_{N-1}|,|u_{0}|,|u_{1}|) \\
+\end{array}\end{split}\]</div>
+<p>flux at left interface:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+f^{L}_{i+1/2}=stencil(i-2,i-1,i,i+1,i+2)\\
+f^{R}_{i-1/2}=stencil(i-2,i-1,i,i+1,i+2)\\
+f^{R}_{i+1/2}=stencil(i-1,i,i+1,i+2,i+3)\\
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+f^{L}_{-1+1/2}=stencil(-1-2,-1-1,-1,-1+1,-1+2)\\
+f^{L}_{0+1/2}=stencil(0-2,0-1,0,0+1,0+2)\\
+f^{L}_{1+1/2}=stencil(1-2,1-1,1,1+1,1+2)\\
+\cdots\\
+f^{L}_{i+1/2}=stencil(i-2,i-1,i,i+1,i+2)\\
+\cdots\\
+f^{L}_{N-3+1/2}=stencil(N-3-2,N-3-1,N-3,N-3+1,N-3+2)\\
+f^{L}_{N-2+1/2}=stencil(N-2-2,N-2-1,N-2,N-2+1,N-2+2)\\
+f^{L}_{N-1+1/2}=stencil(N-1-2,N-1-1,N-1,N-1+1,N-1+2)\\
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+f^{L}_{-1/2}\equiv \hat{f}^{L}_{0}=stencil(-3,-2,-1,0,1)\\
+f^{L}_{1/2}\equiv \hat{f}^{L}_{1}=stencil(-2,-1,0,1,2)\\
+f^{L}_{3/2}\equiv \hat{f}^{L}_{2}=stencil(-1,0,1,2,3)\\
+\cdots\\
+f^{L}_{i+1/2}\equiv \hat{f}^{L}_{i+1}=stencil(i-2,i-1,i,i+1,i+2)\\
+\cdots\\
+f^{L}_{N-5/2}\equiv \hat{f}^{L}_{N-2}=stencil(N-5,N-4,N-3,N-2,N-1)\\
+f^{L}_{N-3/2}\equiv \hat{f}^{L}_{N-1}=stencil(N-4,N-3,N-2,N-1,N)\\
+f^{L}_{N-1/2}\equiv \hat{f}^{L}_{N}=stencil(N-3,N-2,N-1,N,N+1)\\
+\end{array}\end{split}\]</div>
+<p>Use the periodic boundary conditions</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+f^{L}_{-1/2}\equiv \hat{f}^{L}_{0}=stencil(N-3,N-2,N-1,0,1)\\
+f^{L}_{1/2}\equiv \hat{f}^{L}_{1}=stencil(N-2,N-1,0,1,2)\\
+f^{L}_{3/2}\equiv \hat{f}^{L}_{2}=stencil(N-1,0,1,2,3)\\
+\cdots\\
+f^{L}_{i+1/2}\equiv \hat{f}^{L}_{i+1}=stencil(i-2,i-1,i,i+1,i+2)\\
+\cdots\\
+f^{L}_{N-5/2}\equiv \hat{f}^{L}_{N-2}=stencil(N-5,N-4,N-3,N-2,N-1)\\
+f^{L}_{N-3/2}\equiv \hat{f}^{L}_{N-1}=stencil(N-4,N-3,N-2,N-1,0)\\
+f^{L}_{N-1/2}\equiv \hat{f}^{L}_{N}=stencil(N-3,N-2,N-1,0,1)\\
+\end{array}\end{split}\]</div>
+<p>flux at right interface:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+f^{R}_{-1+1/2}=stencil(-1-1,-1,-1+1,-1+2,-1+3)\\
+f^{R}_{0+1/2}=stencil(0-1,0,0+1,0+2,0+3)\\
+f^{R}_{1+1/2}=stencil(1-1,1,1+1,1+2,1+3)\\
+\cdots\\
+f^{R}_{i+1/2}=stencil(i-1,i,i+1,i+2,i+3)\\
+\cdots\\
+f^{R}_{N-4+1/2}=stencil(N-4-1,N-4,N-4+1,N-4+2,N-4+3)\\
+f^{R}_{N-3+1/2}=stencil(N-3-1,N-3,N-3+1,N-3+2,N-3+3)\\
+f^{R}_{N-2+1/2}=stencil(N-2-1,N-2,N-2+1,N-2+2,N-2+3)\\
+f^{R}_{N-1+1/2}=stencil(N-1-1,N-1,N-1+1,N-1+2,N-1+3)\\
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+f^{R}_{-1/2}\equiv \hat{f}^{R}_{0}=stencil(-2,-1,0,1,2)\\
+f^{R}_{1/2}\equiv \hat{f}^{R}_{1}=stencil(-1,0,1,2,3)\\
+f^{R}_{3/2}\equiv \hat{f}^{R}_{2}=stencil(0,1,2,3,4)\\
+\cdots\\
+f^{R}_{i+1/2}\equiv \hat{f}^{R}_{i+1}=stencil(i-1,i,i+1,i+2,i+3)\\
+\cdots\\
+f^{R}_{N-7/2}\equiv \hat{f}^{R}_{N-3}=stencil(N-5,N-4,N-3,N-2,N-1)\\
+f^{R}_{N-5/2}\equiv \hat{f}^{R}_{N-2}=stencil(N-4,N-3,N-2,N-1,N)\\
+f^{R}_{N-3/2}\equiv \hat{f}^{R}_{N-1}=stencil(N-3,N-2,N-1,N,N+1)\\
+f^{R}_{N-1/2}\equiv \hat{f}^{R}_{N}=stencil(N-2,N-1,N,N+1,N+2)\\
+\end{array}\end{split}\]</div>
+<p>Use the periodic boundary conditions</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+f^{R}_{-1/2}\equiv \hat{f}^{R}_{0}=stencil(N-2,N-1,0,1,2)\\
+f^{R}_{1/2}\equiv \hat{f}^{R}_{1}=stencil(N-1,0,1,2,3)\\
+f^{R}_{3/2}\equiv \hat{f}^{R}_{2}=stencil(0,1,2,3,4)\\
+\cdots\\
+f^{R}_{i+1/2}\equiv \hat{f}^{R}_{i+1}=stencil(i-1,i,i+1,i+2,i+3)\\
+\cdots\\
+f^{R}_{N-7/2}\equiv \hat{f}^{R}_{N-3}=stencil(N-5,N-4,N-3,N-2,N-1)\\
+f^{R}_{N-5/2}\equiv \hat{f}^{R}_{N-2}=stencil(N-4,N-3,N-2,N-1,0)\\
+f^{R}_{N-3/2}\equiv \hat{f}^{R}_{N-1}=stencil(N-3,N-2,N-1,0,1)\\
+f^{R}_{N-1/2}\equiv \hat{f}^{R}_{N}=stencil(N-2,N-1,0,1,2)\\
+\end{array}\end{split}\]</div>
+</section>
+<section id="riemann-solver-rusanov-scheme">
+<h2>Riemann Solver: Rusanov Scheme<a class="headerlink" href="#riemann-solver-rusanov-scheme" title="Link to this heading"></a></h2>
+<p>Riemann solvers are used for accurate and efficient simulations of Euler equations along with higher-order WENO schemes.
+In this method, first, we reconstruct the left and right side fluxes at the interface similar to the inviscid Burgers equation in non-conservative form. Once we have
+<span class="math notranslate nohighlight">\(f^{L}_{i+1/2}\)</span> and <span class="math notranslate nohighlight">\(f^{R}_{i+1/2}\)</span> reconstructed, we use Riemann solvers to compute the fluxes at the interface.</p>
+<p>We use a simple Rusanov scheme as the Riemann solver. The Rusanov scheme uses maximum local wave propagation speed to compute the flux as follows</p>
+<div class="math notranslate nohighlight">
+\[f_{i+1/2}=\frac{1}{2}(f^{L}_{i+1/2}+f^{R}_{i+1/2})-\frac{1}{2}c_{i+1/2}(u^{R}_{i+1/2}-u^{L}_{i+1/2})\]</div>
+<p>where <span class="math notranslate nohighlight">\(f^{L}\)</span> is the flux component using the right reconstructed state <span class="math notranslate nohighlight">\(f^{L}_{i+1/2}=f(u^{L}_{i+1/2})\)</span> and <span class="math notranslate nohighlight">\(f^{R}\)</span>
+is the flux component using the right reconstructed state <span class="math notranslate nohighlight">\(f^{R}_{i+1/2}=f(u^{R}_{i+1/2})\)</span>. Here, <span class="math notranslate nohighlight">\(c_{i+1/2}\)</span>
+is the local wave propagation speed which is obtained by taking the maximum absolute value of the eigenvalues corresponding to
+the Jacobian, <span class="math notranslate nohighlight">\(\cfrac{\partial f}{\partial u}=u\)</span>, between cells <span class="math notranslate nohighlight">\(i\)</span> and <span class="math notranslate nohighlight">\(i+1\)</span> can be obtained as</p>
+<div class="math notranslate nohighlight">
+\[c_{i+1/2}=\text{max}(|u_{i}|,|u_{i+1}|)\]</div>
+<p>or in a wider stencil as shown in Equation</p>
+<div class="math notranslate nohighlight">
+\[c_{i+1/2}=\left | \cfrac{\partial f}{\partial u} \right |=max(|u_{i-2}|,|u_{i-1}|,|u_{i}|,|u_{i+1}|,|u_{i+2}|)\]</div>
+<p>flux:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+f(u) &amp; = \cfrac{u^2}{2}\\
+f^{L}_{i+1/2} &amp; = f(u^{L}_{i+1/2}) = \cfrac{({u^{L}_{i+1/2}})^{2}}{2}\\
+f^{R}_{i+1/2} &amp; = f(u^{R}_{i+1/2}) = \cfrac{({u^{R}_{i+1/2}})^{2}}{2}\\
+\end{align}\end{split}\]</div>
+<p>local wave propagation speed:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+c_{-1+1/2} &amp; = \text{max}(|u_{-1}|,|u_{-1+1}|)\\
+c_{0+1/2} &amp; = \text{max}(|u_{0}|,|u_{0+1}|)\\
+\cdots\\
+c_{i+1/2} &amp; = \text{max}(|u_{i}|,|u_{i+1}|)\\
+\cdots\\
+c_{N-2+1/2} &amp; = \text{max}(|u_{N-2}|,|u_{N-2+1}|)\\
+c_{N-1+1/2} &amp; = \text{max}(|u_{N-1}|,|u_{N-1+1}|)\\
+\end{align}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+c_{-1/2} \equiv \hat{c}(0) = \text{max}(|u_{-1}|,|u_{0}|)\\
+c_{+1/2} \equiv \hat{c}(1) = \text{max}(|u_{0}|,|u_{1}|)\\
+\cdots\\
+c_{i+1/2} \equiv \hat{c}(i+1) = \text{max}(|u_{i}|,|u_{i+1}|)\\
+\cdots\\
+c_{N-3/2} \equiv \hat{c}(N-1) = \text{max}(|u_{N-2}|,|u_{N-1}|)\\
+c_{N-1/2} \equiv \hat{c}(N) = \text{max}(|u_{N-1}|,|u_{N}|)\\
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+c_{-1/2} \equiv \hat{c}(0) = \text{max}(|u_{N-1}|,|u_{0}|)\\
+c_{+1/2} \equiv \hat{c}(1) = \text{max}(|u_{0}|,|u_{1}|)\\
+\cdots\\
+c_{i+1/2} \equiv \hat{c}(i+1) = \text{max}(|u_{i}|,|u_{i+1}|)\\
+\cdots\\
+c_{N-3/2} \equiv \hat{c}(N-1) = \text{max}(|u_{N-2}|,|u_{N-1}|)\\
+c_{N-1/2} \equiv \hat{c}(N) = \text{max}(|u_{N-1}|,|u_{0}|)\\
+\end{array}\end{split}\]</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="1d.html" class="btn btn-neutral float-left" title="CFD Examples 1D" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="euler1d.html" class="btn btn-neutral float-right" title="One-Dimensional Euler Solver" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2017~2024, eric.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

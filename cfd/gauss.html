@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gauss’s Theorem &mdash; Scientific Computing 1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../_static/documentation_options.js?v=f2a433a1"></script>
+        <script src="../_static/doctools.js?v=888ff710"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Strain Measures" href="strain.html" />
+    <link rel="prev" title="Jacobian matrix" href="jacobian.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Scientific Computing
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Get started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../info.html">OneFLOW</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../user.html">THEORY</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../bash.html">Bash</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">CFD</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="ns.html">Navier–Stokes equations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="leibniz.html">Leibniz integral</a></li>
+<li class="toctree-l2"><a class="reference internal" href="rtt.html">Reynolds’ transport theorem</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mass.html">Conservation Of Mass</a></li>
+<li class="toctree-l2"><a class="reference internal" href="momenum.html">Momentum Analysis Of Flow Systems</a></li>
+<li class="toctree-l2"><a class="reference internal" href="energy.html">Conservation Of Energy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ns-integral.html">ALE Form of Conservation Equations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="curvilinear.html">Generalized Curvilinear Coordinate System</a></li>
+<li class="toctree-l2"><a class="reference internal" href="curvilinear3d.html">Generalized Curvilinear Coordinate System(3D)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="vector.html">Vector &amp; Tensor</a></li>
+<li class="toctree-l2"><a class="reference internal" href="matrix.html">Matrix</a></li>
+<li class="toctree-l2"><a class="reference internal" href="calculus.html">Calculus</a></li>
+<li class="toctree-l2"><a class="reference internal" href="substitution.html">Substitution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="jacobian.html">Jacobian matrix</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Gauss’s Theorem</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#the-divergence-theorem-vector">The Divergence Theorem-vector</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#the-divergence-theorem-tensors">The Divergence Theorem-tensors</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="strain.html">Strain Measures</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ale.html">Arbitrary Lagrangian-Eulerian</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ale1d.html">ALE 1D</a></li>
+<li class="toctree-l2"><a class="reference internal" href="deformation.html">Deformation and Motion</a></li>
+<li class="toctree-l2"><a class="reference internal" href="derivative.html">Fluid Derivative</a></li>
+<li class="toctree-l2"><a class="reference internal" href="material_derivative.html">Material Time Derivative</a></li>
+<li class="toctree-l2"><a class="reference internal" href="scheme/index.html">CFD Schemes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="examples/index.html">CFD Examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="method/index.html">CFD Methods</a></li>
+<li class="toctree-l2"><a class="reference internal" href="codes.html">Reference Codes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="videos.html">CFD &amp; CAE Videos</a></li>
+<li class="toctree-l2"><a class="reference internal" href="books.html">Books</a></li>
+<li class="toctree-l2"><a class="reference internal" href="docs.html">Documents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../cgns.html">CGNS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../chatgpt.html">CHATGPT</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cpp/index.html">CPP</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cmake.html">CMake</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cmd.html">Cmd</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cuda.html">CUDA</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../design_patterns.html">Design Patterns</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../eigen.html">Eigen3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../git.html">Git</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../git.html#contexts">Contexts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fortran.html">Fortran</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../hdf5.html">HDF5</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../hpc.html">HPC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../install/index.html">Install</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../julia.html">Julia</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../jupyter.html">Jupyter Notebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../latex.html">LaTeX</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../makefile.html">Makefile</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../metis.html">METIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../mkdocs.html">MkDocs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../modules.html">Environment Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../mpi.html">MPI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../numerical/index.html">Numerical analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../oneapi.html">oneAPI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../oneflow.html">OneFLOW-CFD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../openacc.html">OpenACC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../opencl.html">OpenCL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../opengl.html">OpenGL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../openmp.html">OpenMP</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../powershell.html">PowerShell</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../python/index.html">Python</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../qt.html">Qt</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../regex.html">Regular Expressions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../science.html">Science</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sphinx.html">Sphinx</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../system/index.html">System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../taichi.html">Taichi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tcltk.html">Tcl/tk</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tecplot.html">Tecplot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../test.html">Test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../unreal_engine.html">Unreal Engine</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../vcpkg.html">vcpkg</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../yaml.html">yaml</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Scientific Computing</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">CFD</a></li>
+      <li class="breadcrumb-item active">Gauss’s Theorem</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/cfd/gauss.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="gausss-theorem">
+<h1>Gauss’s Theorem<a class="headerlink" href="#gausss-theorem" title="Link to this heading"></a></h1>
+<p>In the derivation of the conservation equations, Gauss’s theorem is frequently used. This theorem relates integrals over a domain to an integral over the boundary of this domain. It can be
+used to relate a volume integral to a surface integral or an area integral to a contour integral.</p>
+<p>Gauss’s theorem states that when <span class="math notranslate nohighlight">\(f(\mathbf{x})\)</span> is piecewise continuously differentiable, that is, a
+<span class="math notranslate nohighlight">\(C^{0}\)</span> function, then</p>
+<div class="math notranslate nohighlight">
+\[\int\limits_{\Omega}\cfrac{\partial f(\mathbf{x},t)}{\partial x_{i}}\text{d}\Omega=\int\limits_{\Gamma} n_{i}f(\mathbf{x}) d \Gamma\]</div>
+<section id="the-divergence-theorem-vector">
+<h2>The Divergence Theorem-vector<a class="headerlink" href="#the-divergence-theorem-vector" title="Link to this heading"></a></h2>
+<p>Consider an arbitrary differentiable vector field <span class="math notranslate nohighlight">\(v(\mathbf{x},t)\)</span> defined in some finite region of
+physical space. Let <span class="math notranslate nohighlight">\(V\)</span> be a volume in this space with a closed surface S bounding the
+volume, and let the outward normal to this bounding surface be <span class="math notranslate nohighlight">\(\mathbf{n}\)</span>. The divergence
+theorem of Gauss states that (in symbolic and index notation)</p>
+<div class="math notranslate nohighlight">
+\[\int\limits_{S}\mathbf{v}\cdot\mathbf{n}\text{d}S=\int\limits_{V}\text{div }\mathbf{v}\text{d}V\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\int\limits_{S}{v}_{i}\cdot{n}_{i}\text{d}S=\int\limits_{V}\cfrac{\partial {v}_{i}}{\partial {x}_{i}}\text{d}V\\\end{split}\]</div>
+<p>The divergence theorem is also called Gauss’s theorem, named after the
+German mathematician Johann Carl Friedrich Gauss (1777–1855). The
+divergence theorem allows us to transform a volume integral of the divergence of a vector into an area integral over the surface that defines the volume.
+For any vector <span class="math notranslate nohighlight">\(\vec{G}\)</span>, the divergence of <span class="math notranslate nohighlight">\(\vec{G}\)</span> is defined as <span class="math notranslate nohighlight">\(\nabla \cdot \vec{G}\)</span>, and the divergence theorm is
+written as</p>
+<div class="math notranslate nohighlight">
+\[\int_{V}\nabla\cdot\vec{G}=\oint_{A}\vec{G}\cdot\vec{n}dA\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\vec{G}=g_{1}(x,y,z)\vec{i}+g_{2}(x,y,z)\vec{j}+g_{3}(x,y,z)\vec{k}
+=\begin{bmatrix}
+ g_{1}(x,y,z)\\g_{2}(x,y,z)\\g_{3}(x,y,z)
+\end{bmatrix}\\\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\nabla \cdot \vec{G}=\cfrac{\partial g_{1}}{\partial x}+\cfrac{\partial g_{2}}{\partial y}+\cfrac{\partial g_{3}}{\partial z}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\vec{G}\cdot\vec{n}=g_{1}n_{1}+g_{2}n_{2}+g_{3}n_{3}=g_{1}n_{x}+g_{2}n_{y}+g_{3}n_{z}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\vec{n}=n_{1}\vec{i}+n_{2}\vec{j}+n_{3}\vec{k}=n_{x}\vec{i}+n_{y}\vec{j}+n_{z}\vec{k}
+=\begin{bmatrix}
+ n_{1}\\n_{2}\\n_{3}
+\end{bmatrix}
+=\begin{bmatrix}
+ n_{x}\\n_{y}\\n_{z}
+\end{bmatrix}\\\end{split}\]</div>
+</section>
+<section id="the-divergence-theorem-tensors">
+<h2>The Divergence Theorem-tensors<a class="headerlink" href="#the-divergence-theorem-tensors" title="Link to this heading"></a></h2>
+<p>Consider an arbitrary differentiable tensor field <span class="math notranslate nohighlight">\(T_{ij\cdots k}(\mathbf{x},t)\)</span> defined in some finite region of
+physical space. Let <span class="math notranslate nohighlight">\(S\)</span> be a closed surface bounding a volume <span class="math notranslate nohighlight">\(V\)</span> in this space, and let the
+outward normal to <span class="math notranslate nohighlight">\(S\)</span> be <span class="math notranslate nohighlight">\(\mathbf{n}\)</span>. The divergence theorem of Gauss then states that</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\int\limits_{S}T_{ij\cdots k}\cdot{n}_{k}\text{d}S=\int\limits_{V}\cfrac{\partial T_{ij\cdots k}}{\partial {x}_{k}}\text{d}V\\\end{split}\]</div>
+<p>For a second order tensor,</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\int\limits_{S}\mathbf{T}\cdot\mathbf{n}\text{d}S=\int\limits_{V}\text{div }\mathbf{T}\text{d}V\\\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\int\limits_{S}{T}_{ij}\cdot{n}_{j}\text{d}S=\int\limits_{V}\cfrac{\partial {T}_{ij}}{\partial {x}_{j}}\text{d}V\\\end{split}\]</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="jacobian.html" class="btn btn-neutral float-left" title="Jacobian matrix" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="strain.html" class="btn btn-neutral float-right" title="Strain Measures" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2017~2024, eric.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

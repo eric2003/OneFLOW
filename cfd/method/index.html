@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CFD Methods &mdash; Scientific Computing 1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../_static/documentation_options.js?v=f2a433a1"></script>
+        <script src="../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Spectral Methods" href="spectrum.html" />
+    <link rel="prev" title="Vortex-Merger Problem" href="../examples/vortex.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            Scientific Computing
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Get started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../info.html">OneFLOW</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../user.html">THEORY</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../bash.html">Bash</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">CFD</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../ns.html">Navier–Stokes equations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../leibniz.html">Leibniz integral</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../rtt.html">Reynolds’ transport theorem</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../mass.html">Conservation Of Mass</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../momenum.html">Momentum Analysis Of Flow Systems</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../energy.html">Conservation Of Energy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../ns-integral.html">ALE Form of Conservation Equations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../curvilinear.html">Generalized Curvilinear Coordinate System</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../curvilinear3d.html">Generalized Curvilinear Coordinate System(3D)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../vector.html">Vector &amp; Tensor</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../matrix.html">Matrix</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../calculus.html">Calculus</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../substitution.html">Substitution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../jacobian.html">Jacobian matrix</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../gauss.html">Gauss’s Theorem</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../strain.html">Strain Measures</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../ale.html">Arbitrary Lagrangian-Eulerian</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../ale1d.html">ALE 1D</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../deformation.html">Deformation and Motion</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../derivative.html">Fluid Derivative</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../material_derivative.html">Material Time Derivative</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../scheme/index.html">CFD Schemes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/index.html">CFD Examples</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">CFD Methods</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="spectrum.html">Spectral Methods</a></li>
+<li class="toctree-l3"><a class="reference internal" href="fourier.html">Fourier Series</a></li>
+<li class="toctree-l3"><a class="reference internal" href="iterative.html">Iterative Solver</a></li>
+<li class="toctree-l3"><a class="reference internal" href="multigrid.html">MULTIGRID</a></li>
+<li class="toctree-l3"><a class="reference internal" href="multigrid1.html">MULTIGRID Continued</a></li>
+<li class="toctree-l3"><a class="reference internal" href="multigrid2.html">Multigrid Poisson Solver</a></li>
+<li class="toctree-l3"><a class="reference internal" href="vorticitystream.html">Vorticity Stream Function</a></li>
+<li class="toctree-l3"><a class="reference internal" href="inviscid2d.html">Incompressible Navier-Stokes Equation</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../codes.html">Reference Codes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../videos.html">CFD &amp; CAE Videos</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../books.html">Books</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../docs.html">Documents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../cgns.html">CGNS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../chatgpt.html">CHATGPT</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../cpp/index.html">CPP</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../cmake.html">CMake</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../cmd.html">Cmd</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../cuda.html">CUDA</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../design_patterns.html">Design Patterns</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../eigen.html">Eigen3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../git.html">Git</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../git.html#contexts">Contexts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fortran.html">Fortran</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../hdf5.html">HDF5</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../hpc.html">HPC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../install/index.html">Install</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../julia.html">Julia</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../jupyter.html">Jupyter Notebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../latex.html">LaTeX</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../makefile.html">Makefile</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../metis.html">METIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../mkdocs.html">MkDocs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../modules.html">Environment Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../mpi.html">MPI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../numerical/index.html">Numerical analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../oneapi.html">oneAPI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../oneflow.html">OneFLOW-CFD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../openacc.html">OpenACC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../opencl.html">OpenCL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../opengl.html">OpenGL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../openmp.html">OpenMP</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../powershell.html">PowerShell</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../python/index.html">Python</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../qt.html">Qt</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../regex.html">Regular Expressions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../science.html">Science</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sphinx.html">Sphinx</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../system/index.html">System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../taichi.html">Taichi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tcltk.html">Tcl/tk</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tecplot.html">Tecplot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../test.html">Test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../unreal_engine.html">Unreal Engine</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../vcpkg.html">vcpkg</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../yaml.html">yaml</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Scientific Computing</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">CFD</a></li>
+      <li class="breadcrumb-item active">CFD Methods</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/cfd/method/index.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="cfd-methods">
+<h1>CFD Methods<a class="headerlink" href="#cfd-methods" title="Link to this heading"></a></h1>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="spectrum.html">Spectral Methods</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="spectrum.html#examples-of-spectral-methods">Examples of spectral methods</a></li>
+<li class="toctree-l2"><a class="reference internal" href="spectrum.html#example-1-of-spectral-methods">Example 1 of spectral methods</a></li>
+<li class="toctree-l2"><a class="reference internal" href="spectrum.html#example-2-of-spectral-methods">Example 2 of spectral methods</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="fourier.html">Fourier Series</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="fourier.html#wave-mathematical-representation">Wave mathematical representation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fourier.html#orthogonal-function-system-and-series-expansions-of-function">Orthogonal Function System and Series Expansions of Function</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fourier.html#the-fourier-series-of-the-period-t-2l">The Fourier series of the period <span class="math notranslate nohighlight">\(T=2L\)</span></a></li>
+<li class="toctree-l2"><a class="reference internal" href="fourier.html#the-fourier-series-of-the-period-t-2-pi">The Fourier series of the period <span class="math notranslate nohighlight">\(T=2\pi\)</span></a></li>
+<li class="toctree-l2"><a class="reference internal" href="fourier.html#fourier-series-of-odd-and-even-functions-t-2-pi">Fourier series of odd and even functions <span class="math notranslate nohighlight">\(T=2\pi\)</span></a></li>
+<li class="toctree-l2"><a class="reference internal" href="fourier.html#even-and-odd-extensions">Even and Odd Extensions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fourier.html#period-and-angular-frequency">Period and Angular Frequency</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fourier.html#complex-form-of-fourier-series">Complex Form of Fourier Series</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fourier.html#applications-of-fourier-series-to-differential-equations">Applications of Fourier Series to Differential Equations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fourier.html#discrete-fourier-transform-dft-and-its-relation-to-fourier-series">Discrete Fourier Transform (DFT) and its Relation to Fourier Series</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fourier.html#id5">Fourier Series</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fourier.html#definition-of-the-fourier-transform-and-its-inverse">Definition of the Fourier Transform and its inverse</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fourier.html#integration-by-parts">Integration by parts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fourier.html#fourier-transforms-of-derivatives">Fourier Transforms of derivatives</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fourier.html#the-fourier-transform-of-a-second-derivative">The Fourier Transform of a second derivative</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fourier.html#fourier-transform-solutions-of-pdes">Fourier Transform solutions of PDEs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fourier.html#fourier-sine-and-cosine-transforms">Fourier Sine and Cosine Transforms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fourier.html#some-fourier-sine-transform-examples">Some Fourier Sine Transform examples.</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fourier.html#the-discrete-fourier-transform">The Discrete Fourier Transform</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="iterative.html">Iterative Solver</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="iterative.html#id1">Iterative Solver</a></li>
+<li class="toctree-l2"><a class="reference internal" href="iterative.html#stationary-methods-gauss-seidel">Stationary Methods: Gauss-Seidel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="iterative.html#jacobi-s-method">Jacobi’s Method</a></li>
+<li class="toctree-l2"><a class="reference internal" href="iterative.html#gauss-seidel-iterative-method">Gauss-Seidel iterative method</a></li>
+<li class="toctree-l2"><a class="reference internal" href="iterative.html#why-the-matrix-based-formula-works">Why the matrix-based formula works</a></li>
+<li class="toctree-l2"><a class="reference internal" href="iterative.html#solving-the-1d-poisson-equation-using-finite-differences">Solving the 1D Poisson equation using finite differences</a></li>
+<li class="toctree-l2"><a class="reference internal" href="iterative.html#solving-the-2d-poisson-equation-using-finite-differences">Solving the 2D Poisson equation using finite differences</a></li>
+<li class="toctree-l2"><a class="reference internal" href="iterative.html#non-stationary-methods-conjugate-gradient-algorithm">Non-Stationary Methods: Conjugate Gradient Algorithm</a></li>
+<li class="toctree-l2"><a class="reference internal" href="iterative.html#conjugate-gradient-algorithm">Conjugate gradient algorithm</a></li>
+<li class="toctree-l2"><a class="reference internal" href="iterative.html#id6">Linear Conjugate Gradient Algorithm</a></li>
+<li class="toctree-l2"><a class="reference internal" href="iterative.html#the-method-of-steepest-descent">The Method of Steepest Descent</a></li>
+<li class="toctree-l2"><a class="reference internal" href="iterative.html#a-orthogonality">A-orthogonality</a></li>
+<li class="toctree-l2"><a class="reference internal" href="iterative.html#the-conjugate-gradient-method">The conjugate gradient method</a></li>
+<li class="toctree-l2"><a class="reference internal" href="iterative.html#example-1">Example 1</a></li>
+<li class="toctree-l2"><a class="reference internal" href="iterative.html#solving-the-1d-poisson-equation-using-conjugate-gradient-method">Solving the 1D Poisson equation using conjugate gradient method</a></li>
+<li class="toctree-l2"><a class="reference internal" href="iterative.html#another-form">another form</a></li>
+<li class="toctree-l2"><a class="reference internal" href="iterative.html#the-conjugate-gradient-method-from-code">The conjugate gradient method from code</a></li>
+<li class="toctree-l2"><a class="reference internal" href="iterative.html#solving-the-2d-poisson-equation">Solving the 2D Poisson equation</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="multigrid.html">MULTIGRID</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="multigrid.html#multigrid-framework">Multigrid Framework</a></li>
+<li class="toctree-l2"><a class="reference internal" href="multigrid.html#basic-iterative-methods">Basic Iterative Methods</a></li>
+<li class="toctree-l2"><a class="reference internal" href="multigrid.html#residuals-and-errors">Residuals and Errors.</a></li>
+<li class="toctree-l2"><a class="reference internal" href="multigrid.html#model-problems">Model Problems</a></li>
+<li class="toctree-l2"><a class="reference internal" href="multigrid.html#gaussseidel-method">Gauss–Seidel method</a></li>
+<li class="toctree-l2"><a class="reference internal" href="multigrid.html#matrix-norms">Matrix Norms.</a></li>
+<li class="toctree-l2"><a class="reference internal" href="multigrid.html#interpreting-the-spectral-radius">Interpreting the Spectral Radius.</a></li>
+<li class="toctree-l2"><a class="reference internal" href="multigrid.html#eigenvalues-of-the-model-problem">Eigenvalues of the model problem</a></li>
+<li class="toctree-l2"><a class="reference internal" href="multigrid.html#numerical-experiments">Numerical experiments</a></li>
+<li class="toctree-l2"><a class="reference internal" href="multigrid.html#gaussseidel-iteration-matrix">Gauss–Seidel iteration matrix</a></li>
+<li class="toctree-l2"><a class="reference internal" href="multigrid.html#gaussseidel-eigenvalues-and-eigenvectors">Gauss–Seidel eigenvalues and eigenvectors.</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="multigrid1.html">MULTIGRID Continued</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="multigrid1.html#elements-of-multigrid">Elements of Multigrid</a></li>
+<li class="toctree-l2"><a class="reference internal" href="multigrid1.html#two-grid-correction-scheme">Two-Grid Correction Scheme</a></li>
+<li class="toctree-l2"><a class="reference internal" href="multigrid1.html#numerical-example">Numerical example.</a></li>
+<li class="toctree-l2"><a class="reference internal" href="multigrid1.html#v-cycle-scheme">V-Cycle Scheme</a></li>
+<li class="toctree-l2"><a class="reference internal" href="multigrid1.html#v-cycle-scheme-recursive-definition">V-Cycle Scheme (Recursive Definition)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="multigrid1.html#cycle-scheme">µ-Cycle Scheme</a></li>
+<li class="toctree-l2"><a class="reference internal" href="multigrid1.html#full-multigrid-v-cycle-recursive-form">Full Multigrid V-Cycle (Recursive Form)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="multigrid1.html#full-multigrid-v-cycle">Full Multigrid V-Cycle</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="multigrid2.html">Multigrid Poisson Solver</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="multigrid2.html#problem-description">Problem Description</a></li>
+<li class="toctree-l2"><a class="reference internal" href="multigrid2.html#discretization">Discretization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="multigrid2.html#forming-the-linear-system">Forming the Linear System</a></li>
+<li class="toctree-l2"><a class="reference internal" href="multigrid2.html#classical-iterative-methods">Classical Iterative Methods</a></li>
+<li class="toctree-l2"><a class="reference internal" href="multigrid2.html#algorithm-1-multigrid-v-cycle">Algorithm 1 Multigrid V-Cycle</a></li>
+<li class="toctree-l2"><a class="reference internal" href="multigrid2.html#restriction-operator">Restriction Operator</a></li>
+<li class="toctree-l2"><a class="reference internal" href="multigrid2.html#prolongation-operator">Prolongation Operator</a></li>
+<li class="toctree-l2"><a class="reference internal" href="multigrid2.html#restriction-operator-continue">Restriction Operator Continue</a></li>
+<li class="toctree-l2"><a class="reference internal" href="multigrid2.html#interpolation-or-prolongation">Interpolation or Prolongation</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="vorticitystream.html">Vorticity Stream Function</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="vorticitystream.html#incompressible-n-s-equation-in-2d">Incompressible N-S Equation in 2D</a></li>
+<li class="toctree-l2"><a class="reference internal" href="vorticitystream.html#nondimensionalization">Nondimensionalization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="vorticitystream.html#the-vorticity-equation">The Vorticity Equation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="vorticitystream.html#the-stream-function-equation">The Stream Function Equation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="vorticitystream.html#boundary-conditions-for-the-stream-function">Boundary Conditions for the Stream Function</a></li>
+<li class="toctree-l2"><a class="reference internal" href="vorticitystream.html#discretizing-the-domain">Discretizing the Domain</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="inviscid2d.html">Incompressible Navier-Stokes Equation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="inviscid2d.html#incompressible-n-s-equation-in-2d">Incompressible N-S Equation in 2D</a></li>
+<li class="toctree-l2"><a class="reference internal" href="inviscid2d.html#lid-driven-cavity-problem">Lid-Driven Cavity Problem</a></li>
+<li class="toctree-l2"><a class="reference internal" href="inviscid2d.html#stream-function-equation">Stream Function Equation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="inviscid2d.html#boundary-conditions">Boundary Conditions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="inviscid2d.html#body-surface">Body Surface</a></li>
+<li class="toctree-l2"><a class="reference internal" href="inviscid2d.html#hybrid-arakawa-spectral-solver">Hybrid Arakawa-Spectral Solver</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../examples/vortex.html" class="btn btn-neutral float-left" title="Vortex-Merger Problem" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="spectrum.html" class="btn btn-neutral float-right" title="Spectral Methods" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2017~2024, eric.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

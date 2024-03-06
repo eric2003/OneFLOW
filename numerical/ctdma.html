@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cyclic Tridiagonal Systems &mdash; Scientific Computing 1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../_static/documentation_options.js?v=f2a433a1"></script>
+        <script src="../_static/doctools.js?v=888ff710"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="FOURIER TRANSFORMS" href="fourier_transform.html" />
+    <link rel="prev" title="Tridiagonal matrix algorithm" href="tdma.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Scientific Computing
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Get started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../info.html">OneFLOW</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../user.html">THEORY</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../bash.html">Bash</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cfd/index.html">CFD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cgns.html">CGNS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../chatgpt.html">CHATGPT</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cpp/index.html">CPP</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cmake.html">CMake</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cmd.html">Cmd</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cuda.html">CUDA</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../design_patterns.html">Design Patterns</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../eigen.html">Eigen3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../git.html">Git</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../git.html#contexts">Contexts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fortran.html">Fortran</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../hdf5.html">HDF5</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../hpc.html">HPC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../install/index.html">Install</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../julia.html">Julia</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../jupyter.html">Jupyter Notebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../latex.html">LaTeX</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../makefile.html">Makefile</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../metis.html">METIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../mkdocs.html">MkDocs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../modules.html">Environment Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../mpi.html">MPI</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Numerical analysis</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="tdma.html">Tridiagonal matrix algorithm</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Cyclic Tridiagonal Systems</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#sherman-morrison-formula">Sherman-Morrison Formula</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id1">Cyclic Tridiagonal Systems</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="fourier_transform.html">FOURIER TRANSFORMS</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fftw.html">FFTW</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../oneapi.html">oneAPI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../oneflow.html">OneFLOW-CFD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../openacc.html">OpenACC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../opencl.html">OpenCL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../opengl.html">OpenGL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../openmp.html">OpenMP</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../powershell.html">PowerShell</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../python/index.html">Python</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../qt.html">Qt</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../regex.html">Regular Expressions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../science.html">Science</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sphinx.html">Sphinx</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../system/index.html">System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../taichi.html">Taichi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tcltk.html">Tcl/tk</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tecplot.html">Tecplot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../test.html">Test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../unreal_engine.html">Unreal Engine</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../vcpkg.html">vcpkg</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../yaml.html">yaml</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Scientific Computing</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Numerical analysis</a></li>
+      <li class="breadcrumb-item active">Cyclic Tridiagonal Systems</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/numerical/ctdma.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="cyclic-tridiagonal-systems">
+<h1>Cyclic Tridiagonal Systems<a class="headerlink" href="#cyclic-tridiagonal-systems" title="Link to this heading"></a></h1>
+<ol class="arabic simple">
+<li><p><a class="reference external" href="https://en.wikipedia.org/wiki/Tridiagonal_matrix_algorithm/">Tridiagonal matrix algorithm</a></p></li>
+</ol>
+<section id="sherman-morrison-formula">
+<h2>Sherman-Morrison Formula<a class="headerlink" href="#sherman-morrison-formula" title="Link to this heading"></a></h2>
+<p>Suppose that you have already obtained, by herculean effort, the inverse matrix
+<span class="math notranslate nohighlight">\(\mathbf{A}^{−1}\)</span> of a square matrix <span class="math notranslate nohighlight">\(\mathbf{A}\)</span>. Now you want to make a “small” change in <span class="math notranslate nohighlight">\(\mathbf{A}\)</span>, for
+example change one element <span class="math notranslate nohighlight">\(a_{ij}\)</span>, or a few elements, or one row, or one column.
+Is there any way of calculating the corresponding change in <span class="math notranslate nohighlight">\(\mathbf{A}^{−1}\)</span> without repeating
+your difficult labors? Yes, if your change is of the form</p>
+<div class="math notranslate nohighlight">
+\[\mathbf{A}\to (\mathbf{A}+\mathbf{u}\otimes\mathbf{v})\]</div>
+<p>for some vectors <span class="math notranslate nohighlight">\(\mathbf{u}\)</span> and <span class="math notranslate nohighlight">\(\mathbf{v}\)</span>. If <span class="math notranslate nohighlight">\(\mathbf{u}\)</span> is a unit vector <span class="math notranslate nohighlight">\(\mathbf{e}_{i}\)</span>, then (2.7.1) adds the components
+of <span class="math notranslate nohighlight">\(\mathbf{v}\)</span> to the <span class="math notranslate nohighlight">\(i\text{th}\)</span> row. (Recall that <span class="math notranslate nohighlight">\(\mathbf{u}\otimes\mathbf{v}\)</span> is a matrix whose <span class="math notranslate nohighlight">\(i\)</span>, <span class="math notranslate nohighlight">\(j\text{th}\)</span> element is the product
+of the <span class="math notranslate nohighlight">\(i\text{th}\)</span> component of <span class="math notranslate nohighlight">\(\mathbf{u}\)</span> and the <span class="math notranslate nohighlight">\(j\text{th}\)</span> component of <span class="math notranslate nohighlight">\(\mathbf{v}\)</span>.) If v is a unit vector e j, then
+(2.7.1) adds the components of <span class="math notranslate nohighlight">\(\mathbf{u}\)</span> to the <span class="math notranslate nohighlight">\(j\text{th}\)</span> column. If both <span class="math notranslate nohighlight">\(\mathbf{u}\)</span> and <span class="math notranslate nohighlight">\(\mathbf{v}\)</span> are proportional
+to unit vectors <span class="math notranslate nohighlight">\(\mathbf{e}_{i}\)</span> and <span class="math notranslate nohighlight">\(\mathbf{e}_{j}\)</span> respectively, then a term is added only to the element <span class="math notranslate nohighlight">\(a_{ij}\)</span>.</p>
+<p>The Sherman-Morrison formula gives the inverse <span class="math notranslate nohighlight">\((\mathbf{A}+\mathbf{u}\otimes\mathbf{v})^{-1}\)</span>, and is derived
+briefly as follows:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{aligned}
+(\mathbf{A}+\mathbf{u} \otimes \mathbf{v})^{-1} &amp; =\left(\mathbf{1}+\mathbf{A}^{-1} \cdot \mathbf{u} \otimes \mathbf{v}\right)^{-1} \cdot \mathbf{A}^{-1} \\
+&amp; =\left(\mathbf{1}-\mathbf{A}^{-1} \cdot \mathbf{u} \otimes \mathbf{v}+\mathbf{A}^{-1} \cdot \mathbf{u} \otimes \mathbf{v} \cdot \mathbf{A}^{-1} \cdot \mathbf{u} \otimes \mathbf{v}-\ldots\right) \cdot \mathbf{A}^{-1} \\
+&amp; =\mathbf{A}^{-1}-\mathbf{A}^{-1} \cdot \mathbf{u} \otimes \mathbf{v} \cdot \mathbf{A}^{-1}\left(1-\lambda+\lambda^{2}-\ldots\right) \\
+&amp; =\mathbf{A}^{-1}-\frac{\left(\mathbf{A}^{-1} \cdot \mathbf{u}\right) \otimes\left(\mathbf{v} \cdot \mathbf{A}^{-1}\right)}{1+\lambda}
+\end{aligned}\end{split}\]</div>
+<p>where</p>
+<div class="math notranslate nohighlight">
+\[\lambda\equiv \mathbf{v}\cdot\mathbf{A}^{-1} \cdot \mathbf{u}\]</div>
+<p>The second line of (2.7.2) is a formal power series expansion. In the third line, the
+associativity of outer and inner products is used to factor out the scalars <span class="math notranslate nohighlight">\(\lambda\)</span>.</p>
+<p>The use of (2.7.2) is this: Given <span class="math notranslate nohighlight">\(\mathbf{A}^{-1}\)</span> and the vectors <span class="math notranslate nohighlight">\(\mathbf{u}\)</span> and <span class="math notranslate nohighlight">\(\mathbf{v}\)</span>, we need only
+perform two matrix multiplications and a vector dot product,</p>
+<div class="math notranslate nohighlight">
+\[\mathbf{z}\equiv\mathbf{A}^{-1} \cdot \mathbf{u}\quad \mathbf{w}\equiv(\mathbf{A}^{-1})^{T} \cdot \mathbf{v}\quad\lambda =\mathbf{v}\cdot\mathbf{z}\]</div>
+<p>to get the desired change in the inverse</p>
+<div class="math notranslate nohighlight">
+\[\mathbf{A}^{-1}\to \mathbf{A}^{-1}-\cfrac{\mathbf{z}\otimes\mathbf{w}}{1+\lambda}\]</div>
+<p>For some other sparse problems, the Sherman-Morrison formula cannot be
+directly applied for the simple reason that storage of the whole inverse matrix <span class="math notranslate nohighlight">\(\mathbf{A}^{-1}\)</span>
+is not feasible. If you want to add only a single correction of the form <span class="math notranslate nohighlight">\(\mathbf{u}\otimes\mathbf{v}\)</span>,
+and solve the linear system</p>
+<div class="math notranslate nohighlight">
+\[(\mathbf{A}+\mathbf{u}\otimes\mathbf{v})\cdot\mathbf{x}=\mathbf{b}\]</div>
+<p>then you proceed as follows. Using the fast method that is presumed available for
+the matrix <span class="math notranslate nohighlight">\(\mathbf{A}\)</span>, solve the two auxiliary problems</p>
+<div class="math notranslate nohighlight">
+\[\mathbf{A}\cdot\mathbf{y}=\mathbf{b}\quad \mathbf{A}\cdot\mathbf{z}=\mathbf{u}\]</div>
+<p>for the vectors <span class="math notranslate nohighlight">\(\mathbf{y}\)</span> and <span class="math notranslate nohighlight">\(\mathbf{z}\)</span>. In terms of these,</p>
+<div class="math notranslate nohighlight">
+\[\mathbf{x}=\mathbf{y}-\left[\cfrac{\mathbf{v}\cdot\mathbf{y}}{1+(\mathbf{v}\cdot\mathbf{z})}\right]\mathbf{z}\]</div>
+<p>as we see by multiplying (2.7.2) on the right by <span class="math notranslate nohighlight">\(\mathbf{b}\)</span>.</p>
+</section>
+<section id="id1">
+<h2>Cyclic Tridiagonal Systems<a class="headerlink" href="#id1" title="Link to this heading"></a></h2>
+<p>So-called cyclic tridiagonal systems occur quite frequently, and are a good
+example of how to use the Sherman-Morrison formula in the manner just described.
+The equations have the form</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\left[\begin{array}{ccccccc}
+b_{1} &amp; c_{1} &amp; 0 &amp; \cdots &amp; &amp; &amp; \beta \\
+a_{2} &amp; b_{2} &amp; c_{2} &amp; \cdots &amp; &amp; &amp; \\
+&amp; &amp; &amp; \cdots &amp; &amp; &amp; \\
+&amp; &amp; &amp; \cdots &amp; a_{N-1} &amp; b_{N-1} &amp; c_{N-1} \\
+\alpha &amp; &amp; &amp; \cdots &amp; 0 &amp; a_{N} &amp; b_{N}
+\end{array}\right] \cdot\left[\begin{array}{c}
+x_{1} \\
+x_{2} \\
+\cdots \\
+x_{N-1} \\
+x_{N}
+\end{array}\right]=\left[\begin{array}{c}
+r_{1} \\
+r_{2} \\
+\cdots \\
+r_{N-1} \\
+r_{N}
+\end{array}\right]\end{split}\]</div>
+<p>This is a tridiagonal system, except for the matrix elements <span class="math notranslate nohighlight">\(\alpha\)</span> and <span class="math notranslate nohighlight">\(\beta\)</span> in the corners.
+Forms like this are typically generated by finite-differencing differential equations
+with periodic boundary conditions</p>
+<p>We use the Sherman-Morrison formula, treating the system as tridiagonal plus
+a correction. In the notation of equation, define vectors <span class="math notranslate nohighlight">\(\mathbf{u}\)</span> and <span class="math notranslate nohighlight">\(\mathbf{v}\)</span> to be</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\mathbf{u}=\left[\begin{array}{c}
+\gamma\\0\\ \vdots\\0\\ \alpha
+\end{array}\right] \quad
+\mathbf{v}=\left[\begin{array}{c}
+1\\0\\ \vdots\\0\\ \beta/\gamma
+\end{array}\right]\\\end{split}\]</div>
+<p>Here <span class="math notranslate nohighlight">\(\gamma\)</span> is arbitrary for the moment. Then the matrix <span class="math notranslate nohighlight">\(\mathbf{A}\)</span> is the tridiagonal part of the
+matrix in (2.7.9), with two terms modified:</p>
+<div class="math notranslate nohighlight">
+\[b'_{1}=b_{1}-\gamma, \quad b'_{N}=b_{N}-\alpha\beta/\gamma\]</div>
+<p>We now solve equations (2.7.7) with the standard tridiagonal algorithm, and then
+get the solution from equation (2.7.8)</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\mathbf{A}=\left[\begin{array}{ccccccc}
+b'_{1} &amp; c_{1} &amp; 0 &amp; \cdots &amp; &amp; &amp;  \\
+a_{2} &amp; b_{2} &amp; c_{2} &amp; \cdots &amp; &amp; &amp; \\
+&amp; &amp; &amp; \cdots &amp; &amp; &amp; \\
+&amp; &amp; &amp; \cdots &amp; a_{N-1} &amp; b_{N-1} &amp; c_{N-1} \\
+ &amp; &amp; &amp; \cdots &amp; 0 &amp; a_{N} &amp; b'_{N}
+\end{array}\right]\end{split}\]</div>
+<p>The routine cyclic below implements this algorithm. We choose the arbitrary
+parameter <span class="math notranslate nohighlight">\(\gamma=-b_{1}\)</span> to avoid loss of precision by subtraction in the first of equations.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="tdma.html" class="btn btn-neutral float-left" title="Tridiagonal matrix algorithm" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="fourier_transform.html" class="btn btn-neutral float-right" title="FOURIER TRANSFORMS" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2017~2024, eric.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

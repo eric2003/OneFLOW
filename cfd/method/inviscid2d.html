@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Incompressible Navier-Stokes Equation &mdash; Scientific Computing 1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../_static/documentation_options.js?v=f2a433a1"></script>
+        <script src="../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Reference Codes" href="../codes.html" />
+    <link rel="prev" title="Vorticity Stream Function" href="vorticitystream.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            Scientific Computing
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Get started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../info.html">OneFLOW</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../user.html">THEORY</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../bash.html">Bash</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">CFD</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../ns.html">Navier–Stokes equations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../leibniz.html">Leibniz integral</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../rtt.html">Reynolds’ transport theorem</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../mass.html">Conservation Of Mass</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../momenum.html">Momentum Analysis Of Flow Systems</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../energy.html">Conservation Of Energy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../ns-integral.html">ALE Form of Conservation Equations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../curvilinear.html">Generalized Curvilinear Coordinate System</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../curvilinear3d.html">Generalized Curvilinear Coordinate System(3D)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../vector.html">Vector &amp; Tensor</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../matrix.html">Matrix</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../calculus.html">Calculus</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../substitution.html">Substitution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../jacobian.html">Jacobian matrix</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../gauss.html">Gauss’s Theorem</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../strain.html">Strain Measures</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../ale.html">Arbitrary Lagrangian-Eulerian</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../ale1d.html">ALE 1D</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../deformation.html">Deformation and Motion</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../derivative.html">Fluid Derivative</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../material_derivative.html">Material Time Derivative</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../scheme/index.html">CFD Schemes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/index.html">CFD Examples</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="index.html">CFD Methods</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="spectrum.html">Spectral Methods</a></li>
+<li class="toctree-l3"><a class="reference internal" href="fourier.html">Fourier Series</a></li>
+<li class="toctree-l3"><a class="reference internal" href="iterative.html">Iterative Solver</a></li>
+<li class="toctree-l3"><a class="reference internal" href="multigrid.html">MULTIGRID</a></li>
+<li class="toctree-l3"><a class="reference internal" href="multigrid1.html">MULTIGRID Continued</a></li>
+<li class="toctree-l3"><a class="reference internal" href="multigrid2.html">Multigrid Poisson Solver</a></li>
+<li class="toctree-l3"><a class="reference internal" href="vorticitystream.html">Vorticity Stream Function</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Incompressible Navier-Stokes Equation</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#incompressible-n-s-equation-in-2d">Incompressible N-S Equation in 2D</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lid-driven-cavity-problem">Lid-Driven Cavity Problem</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#stream-function-equation">Stream Function Equation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#boundary-conditions">Boundary Conditions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#body-surface">Body Surface</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#hybrid-arakawa-spectral-solver">Hybrid Arakawa-Spectral Solver</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../codes.html">Reference Codes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../videos.html">CFD &amp; CAE Videos</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../books.html">Books</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../docs.html">Documents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../cgns.html">CGNS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../chatgpt.html">CHATGPT</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../cpp/index.html">CPP</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../cmake.html">CMake</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../cmd.html">Cmd</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../cuda.html">CUDA</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../design_patterns.html">Design Patterns</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../eigen.html">Eigen3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../git.html">Git</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../git.html#contexts">Contexts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fortran.html">Fortran</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../hdf5.html">HDF5</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../hpc.html">HPC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../install/index.html">Install</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../julia.html">Julia</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../jupyter.html">Jupyter Notebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../latex.html">LaTeX</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../makefile.html">Makefile</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../metis.html">METIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../mkdocs.html">MkDocs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../modules.html">Environment Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../mpi.html">MPI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../numerical/index.html">Numerical analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../oneapi.html">oneAPI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../oneflow.html">OneFLOW-CFD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../openacc.html">OpenACC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../opencl.html">OpenCL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../opengl.html">OpenGL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../openmp.html">OpenMP</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../powershell.html">PowerShell</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../python/index.html">Python</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../qt.html">Qt</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../regex.html">Regular Expressions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../science.html">Science</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sphinx.html">Sphinx</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../system/index.html">System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../taichi.html">Taichi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tcltk.html">Tcl/tk</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tecplot.html">Tecplot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../test.html">Test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../unreal_engine.html">Unreal Engine</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../vcpkg.html">vcpkg</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../yaml.html">yaml</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Scientific Computing</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">CFD</a></li>
+          <li class="breadcrumb-item"><a href="index.html">CFD Methods</a></li>
+      <li class="breadcrumb-item active">Incompressible Navier-Stokes Equation</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/cfd/method/inviscid2d.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="incompressible-navier-stokes-equation">
+<h1>Incompressible Navier-Stokes Equation<a class="headerlink" href="#incompressible-navier-stokes-equation" title="Link to this heading"></a></h1>
+<ol class="arabic simple">
+<li><p><a class="reference external" href="http://www.fem.unicamp.br/~phoenics/SITE_PHOENICS/Apostilas/CFD-1_U%20Michigan_Hong/Lecture05.pdf">Vorticity Stream Function Formulation</a></p></li>
+<li><p><a class="reference external" href="https://www.iist.ac.in/sites/default/files/people/psi-omega.pdf">Streamfunction-Vorticity Formulation</a></p></li>
+</ol>
+<section id="incompressible-n-s-equation-in-2d">
+<h2>Incompressible N-S Equation in 2D<a class="headerlink" href="#incompressible-n-s-equation-in-2d" title="Link to this heading"></a></h2>
+<p>The Navier-Stokes equations for incompressible flow can be written as</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+\nabla\cdot\mathbf{u}=0\\
+\cfrac{\partial \mathbf{u}}{\partial t}+\mathbf{u}\cdot\nabla\mathbf{u}=-\cfrac{1}{\rho}\nabla p+\nu\nabla^{2}\mathbf{u}
+\end{array}\end{split}\]</div>
+<p>where <span class="math notranslate nohighlight">\(\mathbf{u}=[u,v]^{T}\)</span> is the velocity vector, <span class="math notranslate nohighlight">\(t\)</span> is the time, <span class="math notranslate nohighlight">\(\rho\)</span> is the density,
+<span class="math notranslate nohighlight">\(p\)</span> is pressure, and <span class="math notranslate nohighlight">\(\nu\)</span> is the kinematic viscosity. By taking curl of above equation and using <span class="math notranslate nohighlight">\(\nabla\times\mathbf{u}=\mathbf{\omega}\)</span>,
+we can derive the vorticity equation</p>
+<div class="math notranslate nohighlight">
+\[\nabla\times\cfrac{\partial \mathbf{u}}{\partial t}+\nabla\times(\mathbf{u}\cdot\nabla\mathbf{u})=-\nabla\times(\cfrac{1}{\rho}\nabla p)+\nabla\times(\nu\nabla^{2}\mathbf{u})\]</div>
+<p>The first term on the left side and last term on the right side becomes</p>
+<div class="math notranslate nohighlight">
+\[\nabla\times\cfrac{\partial \mathbf{u}}{\partial t}=\cfrac{\partial \mathbf{\omega}}{\partial t};\quad\nabla\times(\nu\nabla^{2}\mathbf{u})=\nu\nabla^{2}\mathbf{\omega}\]</div>
+<p>Applying the identity <span class="math notranslate nohighlight">\(\nabla\times\nabla f=0\)</span> for any scalar function <span class="math notranslate nohighlight">\(f\)</span>, the pressure term vanishes for the incompressible flow since the density is constant</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+\nabla\times(\cfrac{1}{\rho}\nabla p)=\nabla\times\bigg(\nabla \bigg(\cfrac{p}{\rho}\bigg)\bigg)\\
+\nabla\times\bigg(\nabla \bigg(\cfrac{p}{\rho}\bigg)\bigg)=\nabla\times\nabla\bigg(\cfrac{p}{\rho}\bigg)=0\\
+\end{array}\end{split}\]</div>
+<p>The <span class="math notranslate nohighlight">\(\nu\nabla^{2}\mathbf{u}\)</span> can be writtern as</p>
+<div class="math notranslate nohighlight">
+\[\mathbf{u}\cdot\nabla\mathbf{u}=\cfrac{1}{2} \nabla(\mathbf{u}\cdot\mathbf{u})-\mathbf{u}\times(\nabla\times\mathbf{u})
+=\nabla(\cfrac{\mathbf{u}^{2}}{2} )-\mathbf{u}\times\boldsymbol{\omega}\]</div>
+<p>where <span class="math notranslate nohighlight">\(\mathbf{u}^{2}=\mathbf{u}\cdot\mathbf{u}\)</span></p>
+<p>The <span class="math notranslate nohighlight">\(\nabla\times(\nu\nabla^{2}\mathbf{u})\)</span> can be writtern as</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+\nabla\times(\mathbf{u}\cdot\nabla\mathbf{u})=\nabla\times\bigg(\nabla\bigg(\cfrac{\mathbf{u}^{2}}{2}\bigg)\bigg)-\nabla\times\mathbf{u}\times\boldsymbol{\omega}\\
+\nabla\times\nabla\bigg(\cfrac{\mathbf{u}^{2}}{2}\bigg)=0\\
+\nabla\times(\mathbf{u}\cdot\nabla\mathbf{u})=-\nabla\times\mathbf{u}\times\boldsymbol{\omega}=\nabla\times\boldsymbol{\omega}\times\mathbf{u}\\
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\nabla\times(\mathbf{v}_{1}\times\mathbf{v}_{2})
+=\mathbf{v}_{1}(\nabla\cdot\mathbf{v}_{2})-\mathbf{v}_{2}(\nabla\cdot\mathbf{v}_{1})
++(\mathbf{v}_{2}\cdot\nabla)\mathbf{v}_{1}-(\mathbf{v}_{1}\cdot\nabla)\mathbf{v}_{2}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\nabla\times(\mathbf{u}\cdot\nabla\mathbf{u})=\nabla\times\boldsymbol{\omega}\times\mathbf{u}
+=\boldsymbol{\omega}(\nabla\cdot\mathbf{u})-\mathbf{u}(\nabla\cdot\boldsymbol{\omega})
++(\mathbf{u}\cdot\nabla)\boldsymbol{\omega}-(\boldsymbol{\omega}\cdot\nabla)\mathbf{u}\\\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+\nabla\cdot(\nabla\times\mathbf{a})=0\\
+\boldsymbol{\omega}=\nabla\times\mathbf{u}\\
+\nabla\cdot\boldsymbol{\omega}=\nabla\cdot(\nabla\times\mathbf{u})=0\\
+\end{array}\end{split}\]</div>
+<p>incompressible flow</p>
+<div class="math notranslate nohighlight">
+\[\nabla\cdot\mathbf{u}=0\]</div>
+<p>and the vortex stretching term vanishes in two-dimensional flows</p>
+<div class="math notranslate nohighlight">
+\[(\omega_{x}=0,\omega_{y}=0,\omega_{z}=\omega)\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+(\boldsymbol{\omega}\cdot\nabla)\mathbf{u}=\omega_{x}\cfrac{\partial u}{\partial x}+\omega_{y}\cfrac{\partial v}{\partial y}+\omega_{z}\cfrac{\partial w}{\partial z} \\
+(\boldsymbol{\omega}\cdot\nabla)\mathbf{u}=0\cfrac{\partial u}{\partial x}+0\cfrac{\partial v}{\partial y}+\omega_{z}0=0 \\
+\end{array}\end{split}\]</div>
+<p>We can further use below relations for two-dimensional flows</p>
+<div class="math notranslate nohighlight">
+\[(\mathbf{u}\cdot\nabla)\boldsymbol{\omega}=u\cfrac{\partial \omega}{\partial x}+ v\cfrac{\partial \omega}{\partial y}\]</div>
+<p>and introducing a streamfunction with the following definitions:</p>
+<div class="math notranslate nohighlight">
+\[u=\cfrac{\partial \psi}{\partial y}, \text{ and } v=-\cfrac{\partial \psi}{\partial x}\]</div>
+<p>then the advection term becomes (i.e., sometimes called nonlinear Jacobian)</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}(\mathbf{u}\cdot\nabla)\boldsymbol{\omega}=\cfrac{\partial \psi}{\partial y}\cfrac{\partial \omega}{\partial x}-\cfrac{\partial \psi}{\partial x}\cfrac{\partial \omega}{\partial y}\\\end{split}\]</div>
+<p>The vorticity equation for two-dimensional incompressible flow becomes</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\cfrac{\partial \omega}{\partial t}+\cfrac{\partial \psi}{\partial y}\cfrac{\partial \omega}{\partial x}-\cfrac{\partial \psi}{\partial x}\cfrac{\partial \omega}{\partial y}
+=\nu\bigg(\cfrac{\partial ^{2}\omega}{\partial x^{2}}+\cfrac{\partial ^{2}\omega}{\partial y^{2}} \bigg)\\\end{split}\]</div>
+<p>The kinematic relationship between streamfunction and vorticity is given by a Poisson equation</p>
+<div class="math notranslate nohighlight">
+\[\cfrac{\partial ^{2}\psi}{\partial x^{2}}+\cfrac{\partial ^{2}\psi}{\partial y^{2}}=-\omega\]</div>
+<p>The vorticity-streamfunction formulation has several advantages over solving original equations.
+It eliminates the pressure term from the momentum equation and hence, there is no odd-even coupling between the pressure and velocity. We can use vorticity-streamfunction formulation directly on the collocated grid instead of using staggered grid. The number of equations to be solved in the vorticity-streamfunction formulation is also less than primitive variable formulation as it satisfies the divergence-free condition.</p>
+<p>We use third-order Runge-Kutta numerical scheme for the time integration.
+The right hand side terms in Equation is discretized using the second-order central difference scheme similar to the diffusion term in heat equation.
+The nonlinear terms in Equation is defined as the Jacobian</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}J(\omega,\psi)=\cfrac{\partial \psi}{\partial y}\cfrac{\partial \omega}{\partial x}-\cfrac{\partial \psi}{\partial x}\cfrac{\partial \omega}{\partial y}\\\end{split}\]</div>
+<p>This numerical scheme has conservation of energy, enstrophy and skew symmetry property and avoids computational instabilities arising from nonlinear interactions.
+The second-order Arakawa scheme is given below</p>
+<div class="math notranslate nohighlight">
+\[J(\omega,\psi)=\cfrac{J_{1}(\omega,\psi)+J_{2}(\omega,\psi)+J_{3}(\omega,\psi)}{3}\]</div>
+<p>where the discrete parts of the Jacobian are</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+ J_{1}(\omega,\psi)=\cfrac{1}{4\Delta x\Delta y}\bigg\{(\omega_{i+1,j}-\omega_{i-1,j})(\psi_{i,j+1}-\psi_{i,j-1})
+-(\omega_{i,j+1}-\omega_{i,j-1})(\psi_{i+1,j}-\psi_{i-1,j})\bigg\}\\
+ J_{2}(\omega,\psi)=\cfrac{1}{4\Delta x\Delta y}\bigg\{\\
++\omega_{i+1,j}(\psi_{i+1,j+1}-\psi_{i+1,j-1})\\
+-\omega_{i-1,j}(\psi_{i-1,j+1}-\psi_{i-1,j-1})\\
+-\omega_{i,j+1}(\psi_{i+1,j+1}-\psi_{i-1,j+1})\\
++\omega_{i,j-1}(\psi_{i+1,j-1}-\psi_{i-1,j-1})\bigg\}\\
+ J_{3}(\omega,\psi)=\cfrac{1}{4\Delta x\Delta y}\bigg\{\\
++\omega_{i+1,j+1}(\psi_{i,j+1}-\psi_{i+1,j})\\
+-\omega_{i-1,j-1}(\psi_{i-1,j}-\psi_{i,j-1})\\
+-\omega_{i-1,j+1}(\psi_{i,j+1}-\psi_{i-1,j})\\
++\omega_{i+1,j-1}(\psi_{i+1,j}-\psi_{i,j-1})
+\bigg\}\\
+\end{array}\end{split}\]</div>
+</section>
+<section id="lid-driven-cavity-problem">
+<h2>Lid-Driven Cavity Problem<a class="headerlink" href="#lid-driven-cavity-problem" title="Link to this heading"></a></h2>
+<p>We test our two-dimensional Navier-Stokes solver using the lid-driven cavity benchmark problem for viscous incompressible flow. The problem deals with a square cavity consisting of three rigid walls with no-slip conditions and a lid moving with a tangential unit velocity. The density of the fluid is taken to be unity.
+Therefore, we get <span class="math notranslate nohighlight">\(\nu=1/{Re}\)</span>, where <span class="math notranslate nohighlight">\(Re\)</span> is the Reynolds number of flow. The vorticity equation for lid-driven cavity problem can be written as</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\cfrac{\partial \omega}{\partial t} =-\bigg(\cfrac{\partial \psi}{\partial y}\cfrac{\partial \omega}{\partial x}-\cfrac{\partial \psi}{\partial x}\cfrac{\partial \omega}{\partial y}\bigg)
++\cfrac{1}{Re}\bigg(\cfrac{\partial ^{2}\omega}{\partial x^{2}}+\cfrac{\partial ^{2}\omega}{\partial y^{2}} \bigg)\\\end{split}\]</div>
+<p>The computational domain is square in shape with <span class="math notranslate nohighlight">\((𝑥,𝑦)\in [0,1]\times[0,1]\)</span>. We divide the computational domain into <span class="math notranslate nohighlight">\(64×64\)</span> grid resolution. All the walls have Dirichlet boundary conditions.
+We perform time integration from time <span class="math notranslate nohighlight">\(𝑡=0\)</span> to <span class="math notranslate nohighlight">\(𝑡=10\)</span> to make sure that steady state is reached and the residual reaches below <span class="math notranslate nohighlight">\(10^{−6}\)</span>. The residual is defined as the <span class="math notranslate nohighlight">\(𝐿_{2}\)</span> norm of the difference between two consecutive solutions.
+At each step of the Runge-Kutta numerical scheme, we also update the boundary condition for vorticity and solve equation to update streamfunction. Any of the Poisson solvers mentioned can be used to solve this equation. We use fast sine transform Poisson solver to get streamfunction from vorticity field as we have Dirichlet boundary conditions for all four walls.</p>
+</section>
+<section id="stream-function-equation">
+<h2>Stream Function Equation<a class="headerlink" href="#stream-function-equation" title="Link to this heading"></a></h2>
+<p>The stream function equation is given by</p>
+<div class="math notranslate nohighlight">
+\[\cfrac{\partial ^{2}\psi}{\partial x^{2}}+\cfrac{\partial ^{2}\psi}{\partial y^{2}}=-\omega\]</div>
+<p>which is classified as an elliptic equation. The point Gauss-Seidel formulation yeilds</p>
+<div class="math notranslate nohighlight">
+\[\psi_{i,j}^{k+1}=\cfrac{1}{2(1+\beta^{2})}[(\Delta x)^{2}\omega_{i,j}^{n+1}+\psi_{i+1,j}^{k}+\psi_{i-1,j}^{k+1}+\beta^{2}(\psi_{i,j+1}^{k}+\psi_{i,j-1}^{k+1})]\]</div>
+<p>where <span class="math notranslate nohighlight">\(\beta=\cfrac{\Delta x}{\Delta y}\)</span>.</p>
+<p>The computation begins with the solution of the vorticity equation within the domain. Subsequently, the vorticity is updated and the equation
+is solved for the stream function <span class="math notranslate nohighlight">\(\psi\)</span>. The process is repeated until desired solution is reached.</p>
+</section>
+<section id="boundary-conditions">
+<h2>Boundary Conditions<a class="headerlink" href="#boundary-conditions" title="Link to this heading"></a></h2>
+<p>In order to solve the vorticity transport and the stream function equations by the numerical scheme described in the previous section, boundary conditions must be prescribed.
+Generally speaking, boundary conditions are categorized into the following five groups: body surface, far-field, symmetry line, inflow, and outflow boundaries.
+The specification of boundary conditions for the primitive variable in each category was discussed previously.
+In this section the boundary conditions for the stream function and vorticity are explored.</p>
+</section>
+<section id="body-surface">
+<h2>Body Surface<a class="headerlink" href="#body-surface" title="Link to this heading"></a></h2>
+<p>A solid surface can be considered as stream line and, therefore, the stream function is constant and its value may be assigned arbitrarily.
+As mentioned previously, boundary conditions for the vorticity do not exist. Therefore, a set of boundary conditions must be constructed.
+The procedure involves the stream function equation along Taylor series expansion of stream function. As a result,
+a different formulation with various orders of approximation can be derived. At this point, the construction of a first-order expression is illustrated.
+Subsequently, a second-order relation is provided. For illustration purposes, assume non-porous and stationary surfaces and a rectangular domain.</p>
+<figure class="align-center" id="id1">
+<a class="reference internal image-reference" href="../../_images/stream9.png"><img alt="../../_images/stream9.png" src="../../_images/stream9.png" style="width: 600px;" /></a>
+<figcaption>
+<p><span class="caption-text">The rectangular cavity with fixed surfaces.</span><a class="headerlink" href="#id1" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<p>The expression for the vorticity to be applied at boundary A is determined initially and, subsequently, the result extended to the other boundaries
+at B, C, and D.</p>
+<div class="math notranslate nohighlight">
+\[u=\cfrac{\partial \psi}{\partial y},\quad v=-\cfrac{\partial \psi}{\partial x}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\cfrac{\partial ^{2}\psi}{\partial x^{2}}+\cfrac{\partial ^{2}\psi}{\partial y^{2}}=-\omega\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\bigg(\cfrac{\partial ^{2}\psi}{\partial x^{2}}+\cfrac{\partial ^{2}\psi}{\partial y^{2}}\bigg)_{1,j}=-\omega_{1,j}\]</div>
+<p>Along the surface, the stream function is constant, and its value may be specified arbitrarily; for example, <span class="math notranslate nohighlight">\(\psi_{1,j}=\psi_{1}\)</span>. Then along A,</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+u=\cfrac{\partial \psi}{\partial y}\\
+u_{1,j}=\cfrac{\partial \psi}{\partial y}\bigg|_{1,j}=0\\
+\cfrac{\partial ^{2}\psi}{\partial y^{2}}\bigg|_{1,j}=0\\
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\bigg(\cfrac{\partial ^{2}\psi}{\partial x^{2}}\bigg)_{1,j}=-\omega_{1,j}\]</div>
+<p>To obtain an expression for the second-order derivative in the equation above, consider the Taylor series expansion</p>
+<div class="math notranslate nohighlight">
+\[\psi_{2,j}=\psi_{1,j}+\cfrac{\partial \psi}{\partial x} \bigg|_{1,j}\Delta x
++\cfrac{\partial ^{2}\psi}{\partial x^{2}} \bigg|_{1,j}\cfrac{(\Delta x)^{2}}{2} +\cdots\]</div>
+<p>Along boundary A</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}v_{1,j}=-\cfrac{\partial \psi}{\partial x}\bigg|_{1,j}=0\\\end{split}\]</div>
+<p>Therefore,</p>
+<div class="math notranslate nohighlight">
+\[\psi_{2,j}=\psi_{1,j}
++\cfrac{\partial ^{2}\psi}{\partial x^{2}} \bigg|_{1,j}\cfrac{(\Delta x)^{2}}{2} +O(\Delta x)^{3}\]</div>
+<p>from which</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\cfrac{\partial ^{2}\psi}{\partial x^{2}} \bigg|_{1,j}=\cfrac{2(\psi_{2,j}-\psi_{1,j})}{(\Delta x)^{2}}
++O(\Delta x)\\\end{split}\]</div>
+<p>Substitution the above equation into  <span class="math notranslate nohighlight">\(\bigg(\cfrac{\partial ^{2}\psi}{\partial x^{2}}\bigg)_{1,j}=-\omega_{1,j}\)</span> yields</p>
+<div class="math notranslate nohighlight">
+\[\omega_{1,j}=\cfrac{2(\psi_{1,j}-\psi_{2,j})}{(\Delta x)^{2}}\]</div>
+<p>A Similar procedure is used to derive the boundary conditions at boundaries B, C, and D. The appropriate expressions are, respectively,</p>
+<p>Along boundary B</p>
+<div class="math notranslate nohighlight">
+\[\omega_{IM,j}=-\bigg(\cfrac{\partial ^{2}\psi}{\partial x^{2}}\bigg)_{IM,j}=\cfrac{2(\psi_{IM,j}-\psi_{IM-1,j})}{(\Delta x)^{2}}\]</div>
+<p>Along boundary C</p>
+<div class="math notranslate nohighlight">
+\[\omega_{i,1}=-\bigg(\cfrac{\partial ^{2}\psi}{\partial y^{2}}\bigg)_{i,1}=\cfrac{2(\psi_{i,1}-\psi_{i,2})}{(\Delta y)^{2}}\]</div>
+<p>Along boundary D</p>
+<div class="math notranslate nohighlight">
+\[\omega_{i,JM}=-\bigg(\cfrac{\partial ^{2}\psi}{\partial y^{2}}\bigg)_{i,JM}=\cfrac{2(\psi_{i,JM}-\psi_{i,JM-1})}{(\Delta y)^{2}}\]</div>
+<p>Now suppose a boundary is moving with some specified velocity. For example, assume that the upper surface is moving to the right with a
+constant velocity <span class="math notranslate nohighlight">\(u_{0}\)</span>. Following the procedure described previously, the Taylor series expansion yields</p>
+<div class="math notranslate nohighlight">
+\[\psi_{i,j-1}=\psi_{i,j}
+-\cfrac{\partial \psi}{\partial y} \bigg|_{i,j}\Delta y
++\cfrac{\partial ^{2}\psi}{\partial y^{2}} \bigg|_{i,j}\cfrac{(\Delta y)^{2}}{2}+\cdots\]</div>
+<p>or</p>
+<div class="math notranslate nohighlight">
+\[\psi_{i,JM-1}=\psi_{i,JM}
+-u_{0}\Delta y -\omega_{i,JM}\cfrac{(\Delta y)^{2}}{2}\]</div>
+<p>from which</p>
+<div class="math notranslate nohighlight">
+\[\omega_{i,JM}=\cfrac{2(\psi_{i,JM}-\psi_{i,JM-1})}{\Delta y^{2}} -
+\cfrac{2u_{0}}{\Delta y}\]</div>
+<p>Left and Right boundary</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+\omega_{1,j}=\cfrac{2(\psi_{1,j}-\psi_{2,j})}{(\Delta x)^{2}}+O(\Delta x)\\
+\omega_{IM,j}=\cfrac{2(\psi_{IM,j}-\psi_{IM-1,j})}{(\Delta x)^{2}}+O(\Delta x)\\
+\omega_{1,j}=\cfrac{2(0-\psi_{2,j})}{(\Delta x)^{2}}+O(\Delta x)\\
+\omega_{IM,j}=\cfrac{2(0-\psi_{IM-1,j})}{(\Delta x)^{2}}+O(\Delta x)\\
+\omega_{1,j}=\cfrac{-2\psi_{2,j}}{(\Delta x)^{2}}+O(\Delta x)\\
+\omega_{IM,j}=\cfrac{-2\psi_{IM-1,j}}{(\Delta x)^{2}}+O(\Delta x)\\
+\end{array}\end{split}\]</div>
+<p>Bottom and Top boundary</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+\omega_{i,1}=\cfrac{2(\psi_{i,1}-\psi_{i,2})}{(\Delta y)^{2}}+O(\Delta x)\\
+\omega_{i,JM}=\cfrac{2(\psi_{i,JM}-\psi_{i,JM-1})}{(\Delta y)^{2}}-\cfrac{2u_{0}}{\Delta y}+O(\Delta x)\\
+\omega_{i,1}=\cfrac{2(0-\psi_{i,2})}{(\Delta y)^{2}}+O(\Delta x)\\
+\omega_{i,JM}=\cfrac{2(0-\psi_{i,JM-1})}{(\Delta y)^{2}}-\cfrac{2u_{0}}{\Delta y}+O(\Delta x)\\
+\omega_{i,1}=\cfrac{-2\psi_{i,2}}{(\Delta y)^{2}}+O(\Delta x)\\
+\omega_{i,JM}=\cfrac{-2\psi_{i,JM-1}}{(\Delta y)^{2}}-\cfrac{2u_{0}}{\Delta y}+O(\Delta x)\\
+\end{array}\end{split}\]</div>
+<p>Second-order</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+\psi_{2,j}=\psi_{1,j}+\cfrac{\partial \psi}{\partial x} \bigg|_{1,j}\Delta x
++\cfrac{\partial ^{2}\psi}{\partial x^{2}} \bigg|_{1,j}\cfrac{(\Delta x)^{2}}{2}
++\cfrac{\partial ^{3}\psi}{\partial x^{3}} \bigg|_{1,j}\cfrac{(\Delta x)^{3}}{6} +O(\Delta x)^{4}\\
+\psi_{3,j}=\psi_{1,j}+\cfrac{\partial \psi}{\partial x} \bigg|_{1,j}2\Delta x
++\cfrac{\partial ^{2}\psi}{\partial x^{2}} \bigg|_{1,j}\cfrac{(2\Delta x)^{2}}{2}
++\cfrac{\partial ^{3}\psi}{\partial x^{3}} \bigg|_{1,j}\cfrac{(2\Delta x)^{3}}{6} +O(\Delta x)^{4}
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+8\psi_{2,j}=8\psi_{1,j}
++\cfrac{\partial ^{2}\psi}{\partial x^{2}} \bigg|_{1,j}8\cfrac{(\Delta x)^{2}}{2}
++\cfrac{\partial ^{3}\psi}{\partial x^{3}} \bigg|_{1,j}8\cfrac{(\Delta x)^{3}}{6} +O(\Delta x)^{4}\\
+\psi_{3,j}=\psi_{1,j}
++\cfrac{\partial ^{2}\psi}{\partial x^{2}} \bigg|_{1,j}\cfrac{(2\Delta x)^{2}}{2}
++\cfrac{\partial ^{3}\psi}{\partial x^{3}} \bigg|_{1,j}\cfrac{(2\Delta x)^{3}}{6} +O(\Delta x)^{4}
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+8\psi_{2,j}-\psi_{3,j}=7\psi_{1,j}+\cfrac{\partial ^{2}\psi}{\partial x^{2}} \bigg|_{1,j}2(\Delta x)^{2}+O(\Delta x)^{4}\\
+8\psi_{2,j}-\psi_{3,j}=7\psi_{1,j}-\omega_{1,j}2(\Delta x)^{2}+O(\Delta x)^{4}\\
+\omega_{1,j}=\cfrac{\psi_{3,j}-8\psi_{2,j}+7\psi_{1,j}}{2(\Delta x)^{2}}+O(\Delta x)^{2}\\
+\end{array}\end{split}\]</div>
+<p>i=IM</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+\psi_{i-1,j}=\psi_{i,j}+\cfrac{\partial \psi}{\partial x} \bigg|_{i,j}(-\Delta x)
++\cfrac{\partial ^{2}\psi}{\partial x^{2}} \bigg|_{i,j}\cfrac{(-\Delta x)^{2}}{2}
++\cfrac{\partial ^{3}\psi}{\partial x^{3}} \bigg|_{i,j}\cfrac{(-\Delta x)^{3}}{6} +O(\Delta x)^{4}\\
+\psi_{i-2,j}=\psi_{i,j}+\cfrac{\partial \psi}{\partial x} \bigg|_{i,j}(-2\Delta x)
++\cfrac{\partial ^{2}\psi}{\partial x^{2}} \bigg|_{i,j}\cfrac{(-2\Delta x)^{2}}{2}
++\cfrac{\partial ^{3}\psi}{\partial x^{3}} \bigg|_{i,j}\cfrac{(-2\Delta x)^{3}}{6} +O(\Delta x)^{4}
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+8\psi_{i-1,j}=8\psi_{i,j}+\cfrac{\partial \psi}{\partial x} \bigg|_{i,j}(-8\Delta x)
++\cfrac{\partial ^{2}\psi}{\partial x^{2}} \bigg|_{i,j}8\cfrac{(-\Delta x)^{2}}{2}
++\cfrac{\partial ^{3}\psi}{\partial x^{3}} \bigg|_{i,j}8\cfrac{(-\Delta x)^{3}}{6} +O(\Delta x)^{4}\\
+\psi_{i-2,j}=\psi_{i,j}+\cfrac{\partial \psi}{\partial x} \bigg|_{i,j}(-2\Delta x)
++\cfrac{\partial ^{2}\psi}{\partial x^{2}} \bigg|_{i,j}\cfrac{(-2\Delta x)^{2}}{2}
++\cfrac{\partial ^{3}\psi}{\partial x^{3}} \bigg|_{i,j}\cfrac{(-2\Delta x)^{3}}{6} +O(\Delta x)^{4}\\
+8\psi_{i-1,j}-\psi_{i-2,j}=7\psi_{i,j}+\cfrac{\partial \psi}{\partial x} \bigg|_{i,j}(-6\Delta x)
++\cfrac{\partial ^{2}\psi}{\partial x^{2}} \bigg|_{i,j}2(\Delta x)^{2}
++O(\Delta x)^{4}\\
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+0=\cfrac{7\psi_{i,j}-8\psi_{i-1,j}+\psi_{i-2,j}}{2(\Delta x)^{2}} +\cfrac{\partial \psi}{\partial x} \bigg|_{i,j}\cfrac{-6\Delta x}{2(\Delta x)^{2}}
++\cfrac{\partial ^{2}\psi}{\partial x^{2}} \bigg|_{i,j}
++O(\Delta x)^{2}\\
+0=\cfrac{7\psi_{IM,j}-8\psi_{IM-1,j}+\psi_{IM-2,j}}{2(\Delta x)^{2}} +\cfrac{\partial \psi}{\partial x} \bigg|_{IM,j}\cfrac{-3}{\Delta x}
++\cfrac{\partial ^{2}\psi}{\partial x^{2}} \bigg|_{IM,j}
++O(\Delta x)^{2}\\
+0=\cfrac{7\psi_{IM,j}-8\psi_{IM-1,j}+\psi_{IM-2,j}}{2(\Delta x)^{2}} +\cfrac{\partial \psi}{\partial x} \bigg|_{IM,j}\cfrac{-3}{\Delta x}
+-\omega_{IM,j}+O(\Delta x)^{2}\\
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+\omega_{IM,j}=\cfrac{7\psi_{IM,j}-8\psi_{IM-1,j}+\psi_{IM-2,j}}{2(\Delta x)^{2}}
++O(\Delta x)^{2}\\
+\end{array}\end{split}\]</div>
+<p>Compare the difference between the two formulas</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+\omega_{1,j}=\cfrac{\psi_{3,j}-8\psi_{2,j}+7\psi_{1,j}}{2(\Delta x)^{2}}+O(\Delta x)^{2}\\
+\omega_{IM,j}=\cfrac{7\psi_{IM,j}-8\psi_{IM-1,j}+\psi_{IM-2,j}}{2(\Delta x)^{2}}
++O(\Delta x)^{2}\\
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+\omega_{1,j}=\cfrac{\psi_{3,j}-8\psi_{2,j}+7\times0}{2(\Delta x)^{2}}+O(\Delta x)^{2}\\
+\omega_{IM,j}=\cfrac{7\times0-8\psi_{IM-1,j}+\psi_{IM-2,j}}{2(\Delta x)^{2}}
++O(\Delta x)^{2}\\
+\omega_{1,j}=\cfrac{\psi_{3,j}-8\psi_{2,j}}{2(\Delta x)^{2}}+O(\Delta x)^{2}\\
+\omega_{IM,j}=\cfrac{-8\psi_{IM-1,j}+\psi_{IM-2,j}}{2(\Delta x)^{2}}
++O(\Delta x)^{2}\\
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+\omega_{1,j}=\cfrac{\cfrac{1}{2} \psi_{3,j}-4\psi_{2,j}}{(\Delta x)^{2}}+O(\Delta x)^{2}\\
+\omega_{IM,j}=\cfrac{-4\psi_{IM-1,j}+\cfrac{1}{2}\psi_{IM-2,j}}{(\Delta x)^{2}}
++O(\Delta x)^{2}\\
+\end{array}\end{split}\]</div>
+<p>For a moving boundary with a constant velocity of <span class="math notranslate nohighlight">\(u_{0}\)</span> at <span class="math notranslate nohighlight">\(j=JM\)</span>, one has</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+\psi_{i,j-1}=\psi_{i,j}
+-\cfrac{\partial \psi}{\partial y} \bigg|_{i,j}\Delta y
++\cfrac{\partial ^{2}\psi}{\partial y^{2}} \bigg|_{i,j}\cfrac{(-\Delta y)^{2}}{2}
++\cfrac{\partial ^{3}\psi}{\partial y^{3}} \bigg|_{i,j}\cfrac{(-\Delta y)^{3}}{6}+O(\Delta y)^{4}\\
+\psi_{i,j-2}=\psi_{i,j}
+-\cfrac{\partial \psi}{\partial y} \bigg|_{i,j}2\Delta y
++\cfrac{\partial ^{2}\psi}{\partial y^{2}} \bigg|_{i,j}\cfrac{(-2\Delta y)^{2}}{2}
++\cfrac{\partial ^{3}\psi}{\partial y^{3}} \bigg|_{i,j}\cfrac{(-2\Delta y)^{3}}{6}+O(\Delta y)^{4}\\
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+8\psi_{i,j-1}=8\psi_{i,j}
+-\cfrac{\partial \psi}{\partial y} \bigg|_{i,j}8\Delta y
++\cfrac{\partial ^{2}\psi}{\partial y^{2}} \bigg|_{i,j}8\cfrac{(-\Delta y)^{2}}{2}
++\cfrac{\partial ^{3}\psi}{\partial y^{3}} \bigg|_{i,j}8\cfrac{(-\Delta y)^{3}}{6}+O(\Delta y)^{4}\\
+\psi_{i,j-2}=\psi_{i,j}
+-\cfrac{\partial \psi}{\partial y} \bigg|_{i,j}2\Delta y
++\cfrac{\partial ^{2}\psi}{\partial y^{2}} \bigg|_{i,j}\cfrac{(-2\Delta y)^{2}}{2}
++\cfrac{\partial ^{3}\psi}{\partial y^{3}} \bigg|_{i,j}\cfrac{(-2\Delta y)^{3}}{6}+O(\Delta y)^{4}\\
+8\psi_{i,j-1}-\psi_{i,j-2}=7\psi_{i,j}
+-\cfrac{\partial \psi}{\partial y} \bigg|_{i,j}6\Delta y
++\cfrac{\partial ^{2}\psi}{\partial y^{2}} \bigg|_{i,j}2(\Delta y)^{2}
++O(\Delta y)^{4}\\
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+u=\cfrac{\partial \psi}{\partial y},u_{0}=\cfrac{\partial \psi}{\partial y}\bigg|_{i,JM}\\
+8\psi_{i,j-1}-\psi_{i,j-2}=7\psi_{i,j}
+-\cfrac{\partial \psi}{\partial y} \bigg|_{i,j}6\Delta y
++\cfrac{\partial ^{2}\psi}{\partial y^{2}} \bigg|_{i,j}2(\Delta y)^{2}
++O(\Delta y)^{4}\\
+\cfrac{8\psi_{i,j-1}-\psi_{i,j-2}-7\psi_{i,j}}{2(\Delta y)^{2}} =
+-\cfrac{\partial \psi}{\partial y} \bigg|_{i,j}\cfrac{6\Delta y}{2(\Delta y)^{2}}
++\cfrac{\partial ^{2}\psi}{\partial y^{2}} \bigg|_{i,j}
++O(\Delta y)^{2}\\
+\cfrac{8\psi_{i,j-1}-\psi_{i,j-2}-7\psi_{i,j}}{2(\Delta y)^{2}} =
+-\cfrac{\partial \psi}{\partial y} \bigg|_{i,j}\cfrac{3}{\Delta y}
++\cfrac{\partial ^{2}\psi}{\partial y^{2}} \bigg|_{i,j}
++O(\Delta y)^{2}\\
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+u=\cfrac{\partial \psi}{\partial y},u_{0}=\cfrac{\partial \psi}{\partial y}\bigg|_{i,JM}\\
+ \omega_{i,j}=-\cfrac{8\psi_{i,j-1}-\psi_{i,j-2}-7\psi_{i,j}}{2(\Delta y)^{2}}
+-u_{0}\cfrac{3}{\Delta y} \\
+ \omega_{i,JM}=-\cfrac{8\psi_{i,JM-1}-\psi_{i,JM-2}-7\psi_{i,JM}}{2(\Delta y)^{2}}
+-u_{0}\cfrac{3}{\Delta y}
++O(\Delta y)^{2}\\
+ \omega_{i,JM}=\cfrac{\psi_{i,JM-2}-8\psi_{i,JM-1}+7\psi_{i,JM}}{2(\Delta y)^{2}}
+-u_{0}\cfrac{3}{\Delta y}
++O(\Delta y)^{2}\\
+\end{array}\end{split}\]</div>
+<p>For a moving boundary with a constant velocity of <span class="math notranslate nohighlight">\(u_{1}\)</span> at <span class="math notranslate nohighlight">\(j=1\)</span>, one has</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+\psi_{i,j+1}=\psi_{i,j}
++\cfrac{\partial \psi}{\partial y} \bigg|_{i,j}\Delta y
++\cfrac{\partial ^{2}\psi}{\partial y^{2}} \bigg|_{i,j}\cfrac{(\Delta y)^{2}}{2}
++\cfrac{\partial ^{3}\psi}{\partial y^{3}} \bigg|_{i,j}\cfrac{(\Delta y)^{3}}{6}+O(\Delta y)^{4}\\
+\psi_{i,j+2}=\psi_{i,j}
++\cfrac{\partial \psi}{\partial y} \bigg|_{i,j}2\Delta y
++\cfrac{\partial ^{2}\psi}{\partial y^{2}} \bigg|_{i,j}\cfrac{(2\Delta y)^{2}}{2}
++\cfrac{\partial ^{3}\psi}{\partial y^{3}} \bigg|_{i,j}\cfrac{(2\Delta y)^{3}}{6}+O(\Delta y)^{4}\\
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+8\psi_{i,j+1}=8\psi_{i,j}
++\cfrac{\partial \psi}{\partial y} \bigg|_{i,j}8\Delta y
++\cfrac{\partial ^{2}\psi}{\partial y^{2}} \bigg|_{i,j}8\cfrac{(\Delta y)^{2}}{2}
++\cfrac{\partial ^{3}\psi}{\partial y^{3}} \bigg|_{i,j}8\cfrac{(\Delta y)^{3}}{6}+O(\Delta y)^{4}\\
+\psi_{i,j+2}=\psi_{i,j}
++\cfrac{\partial \psi}{\partial y} \bigg|_{i,j}2\Delta y
++\cfrac{\partial ^{2}\psi}{\partial y^{2}} \bigg|_{i,j}\cfrac{(2\Delta y)^{2}}{2}
++\cfrac{\partial ^{3}\psi}{\partial y^{3}} \bigg|_{i,j}\cfrac{(2\Delta y)^{3}}{6}+O(\Delta y)^{4}\\
+8\psi_{i,j+1}-\psi_{i,j+2}=7\psi_{i,j}
++\cfrac{\partial \psi}{\partial y} \bigg|_{i,j}6\Delta y
++\cfrac{\partial ^{2}\psi}{\partial y^{2}} \bigg|_{i,j}2(\Delta y)^{2}
++O(\Delta y)^{4}\\
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+0=\cfrac{7\psi_{i,j}-8\psi_{i,j+1}+\psi_{i,j+2}}{2(\Delta y)^{2}}
++\cfrac{\partial \psi}{\partial y} \bigg|_{i,j}\cfrac{3}{\Delta y}
++\cfrac{\partial ^{2}\psi}{\partial y^{2}} \bigg|_{i,j}+O(\Delta y)^{2}\\
+\omega_{i,j}=\cfrac{7\psi_{i,j}-8\psi_{i,j+1}+\psi_{i,j+2}}{2(\Delta y)^{2}}
++\cfrac{\partial \psi}{\partial y} \bigg|_{i,j}\cfrac{3}{\Delta y}
++O(\Delta y)^{2}\\
+\omega_{i,1}=\cfrac{7\psi_{i,1}-8\psi_{i,2}+\psi_{i,3}}{2(\Delta y)^{2}}
++\cfrac{\partial \psi}{\partial y} \bigg|_{i,1}\cfrac{3}{\Delta y}
++O(\Delta y)^{2}\\
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+\omega_{i,1}=\cfrac{7\psi_{i,1}-8\psi_{i,2}+\psi_{i,3}}{2(\Delta y)^{2}}
++\cfrac{\partial \psi}{\partial y} \bigg|_{i,1}\cfrac{3}{\Delta y}
++O(\Delta y)^{2}\\
+\omega_{i,1}=\cfrac{7\psi_{i,1}-8\psi_{i,2}+\psi_{i,3}}{2(\Delta y)^{2}}
++u_{1}\cfrac{3}{\Delta y}
++O(\Delta y)^{2}\\
+\end{array}\end{split}\]</div>
+<p>Bottom and top boundary</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+u=\cfrac{\partial \psi}{\partial y},u_{0}=\cfrac{\partial \psi}{\partial y}\bigg|_{i,JM}\\
+ \omega_{i,j}=-\cfrac{8\psi_{i,j-1}-\psi_{i,j-2}-7\psi_{i,j}}{2(\Delta y)^{2}}
+-u_{0}\cfrac{3}{\Delta y} \\
+ \omega_{i,JM}=-\cfrac{8\psi_{i,JM-1}-\psi_{i,JM-2}-7\psi_{i,JM}}{2(\Delta y)^{2}}
+-u_{0}\cfrac{3}{\Delta y}
++O(\Delta y)^{2}\\
+ \omega_{i,JM}=\cfrac{\psi_{i,JM-2}-8\psi_{i,JM-1}+7\psi_{i,JM}}{2(\Delta y)^{2}}
+-u_{0}\cfrac{3}{\Delta y}
++O(\Delta y)^{2}\\
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+ \omega_{i,JM}=\cfrac{\psi_{i,JM-2}-8\psi_{i,JM-1}+7\times 0}{2(\Delta y)^{2}}
+-u_{0}\cfrac{3}{\Delta y} +O(\Delta y)^{2}\\
+\omega_{i,1}=\cfrac{7\times 0-8\psi_{i,2}+\psi_{i,3}}{2(\Delta y)^{2}}
++0\cfrac{3}{\Delta y}+O(\Delta y)^{2}\\
+ \omega_{i,JM}=\cfrac{\psi_{i,JM-2}-8\psi_{i,JM-1}}{2(\Delta y)^{2}}
+-u_{0}\cfrac{3}{\Delta y} +O(\Delta y)^{2}\\
+\omega_{i,1}=\cfrac{-8\psi_{i,2}+\psi_{i,3}}{2(\Delta y)^{2}}
++O(\Delta y)^{2}\\
+ \omega_{i,JM}=\cfrac{\cfrac{1}{2} \psi_{i,JM-2}-4\psi_{i,JM-1}}{(\Delta y)^{2}}
+-u_{0}\cfrac{3}{\Delta y} +O(\Delta y)^{2}\\
+\omega_{i,1}=\cfrac{-4\psi_{i,2}+\cfrac{1}{2}\psi_{i,3}}{(\Delta y)^{2}}
++O(\Delta y)^{2}\\
+\end{array}\end{split}\]</div>
+</section>
+<section id="hybrid-arakawa-spectral-solver">
+<h2>Hybrid Arakawa-Spectral Solver<a class="headerlink" href="#hybrid-arakawa-spectral-solver" title="Link to this heading"></a></h2>
+<p>In this section, instead of using a fully explicit method in time for solving 2D incompressible Navier-Stokes equation,
+we show how to design hybrid explicit and implicit scheme. The nonlinear Jacobian term in vorticity Equation is treated explicitly using third-order Runge-Kutta scheme, and we treat the viscous term implicitly using the Crank-Nicolson scheme. This type of hybrid approach is useful when we design solvers for wall-bounded flows, where we cluster the grid in the boundary layer.</p>
+<p>we can re-write Equation</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\cfrac{\partial \omega}{\partial t}+\cfrac{\partial \psi}{\partial y}\cfrac{\partial \omega}{\partial x}-\cfrac{\partial \psi}{\partial x}\cfrac{\partial \omega}{\partial y}
+=\nu\bigg(\cfrac{\partial ^{2}\omega}{\partial x^{2}}+\cfrac{\partial ^{2}\omega}{\partial y^{2}} \bigg)\\\end{split}\]</div>
+<p>with nonlinear Jacobian term on the right hand side</p>
+<div class="math notranslate nohighlight">
+\[\cfrac{\partial \omega}{\partial t} =-J(\omega,\psi)+\nu\nabla^{2}\omega\]</div>
+<p>The hybrid third-order Runge-Kutta/Crank-Nicolson scheme can be written as</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+\omega^{(1)}=\omega^{(n)}+\gamma_{1}\Delta t(-J^{(n)})+\rho_{1}\Delta t(-J^{(n-1)})+\cfrac{\alpha_{1}\Delta t\nu}{2}\nabla\ ^{2}(\omega^{(1)}+\omega^{(n)})\\
+\omega^{(2)}=\omega^{(1)}+\gamma_{2}\Delta t(-J^{(1)})+\rho_{2}\Delta t(-J^{(n)})+\cfrac{\alpha_{2}\Delta t\nu}{2}\nabla\ ^{2}(\omega^{(1)}+\omega^{(2)})\\
+\omega^{(n+1)}=\omega^{(2)}+\gamma_{3}\Delta t(-J^{(2)})+\rho_{3}\Delta t(-J^{(1)})+\cfrac{\alpha_{3}\Delta t\nu}{2}\nabla\ ^{2}(\omega^{(n+1)}+\omega^{(2)})
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+\alpha_{1}=\cfrac{8}{15}, \alpha_{2}=\cfrac{2}{15}, \alpha_{3}=\cfrac{1}{3}\\
+\gamma_{1}=\cfrac{8}{15}, \gamma_{2}=\cfrac{5}{12}, \gamma_{3}=\cfrac{3}{4}\\
+\rho_{1}=0, \rho_{2}=-\cfrac{17}{60}, \rho_{3}=-\cfrac{5}{12}\\
+\end{array}\end{split}\]</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="vorticitystream.html" class="btn btn-neutral float-left" title="Vorticity Stream Function" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../codes.html" class="btn btn-neutral float-right" title="Reference Codes" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2017~2024, eric.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

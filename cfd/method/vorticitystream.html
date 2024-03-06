@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vorticity Stream Function &mdash; Scientific Computing 1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../_static/documentation_options.js?v=f2a433a1"></script>
+        <script src="../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Incompressible Navier-Stokes Equation" href="inviscid2d.html" />
+    <link rel="prev" title="Multigrid Poisson Solver" href="multigrid2.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            Scientific Computing
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Get started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../info.html">OneFLOW</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../user.html">THEORY</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../bash.html">Bash</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">CFD</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../ns.html">Navier–Stokes equations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../leibniz.html">Leibniz integral</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../rtt.html">Reynolds’ transport theorem</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../mass.html">Conservation Of Mass</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../momenum.html">Momentum Analysis Of Flow Systems</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../energy.html">Conservation Of Energy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../ns-integral.html">ALE Form of Conservation Equations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../curvilinear.html">Generalized Curvilinear Coordinate System</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../curvilinear3d.html">Generalized Curvilinear Coordinate System(3D)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../vector.html">Vector &amp; Tensor</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../matrix.html">Matrix</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../calculus.html">Calculus</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../substitution.html">Substitution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../jacobian.html">Jacobian matrix</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../gauss.html">Gauss’s Theorem</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../strain.html">Strain Measures</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../ale.html">Arbitrary Lagrangian-Eulerian</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../ale1d.html">ALE 1D</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../deformation.html">Deformation and Motion</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../derivative.html">Fluid Derivative</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../material_derivative.html">Material Time Derivative</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../scheme/index.html">CFD Schemes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/index.html">CFD Examples</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="index.html">CFD Methods</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="spectrum.html">Spectral Methods</a></li>
+<li class="toctree-l3"><a class="reference internal" href="fourier.html">Fourier Series</a></li>
+<li class="toctree-l3"><a class="reference internal" href="iterative.html">Iterative Solver</a></li>
+<li class="toctree-l3"><a class="reference internal" href="multigrid.html">MULTIGRID</a></li>
+<li class="toctree-l3"><a class="reference internal" href="multigrid1.html">MULTIGRID Continued</a></li>
+<li class="toctree-l3"><a class="reference internal" href="multigrid2.html">Multigrid Poisson Solver</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Vorticity Stream Function</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#incompressible-n-s-equation-in-2d">Incompressible N-S Equation in 2D</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#nondimensionalization">Nondimensionalization</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#the-vorticity-equation">The Vorticity Equation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#the-stream-function-equation">The Stream Function Equation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#boundary-conditions-for-the-stream-function">Boundary Conditions for the Stream Function</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#discretizing-the-domain">Discretizing the Domain</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="inviscid2d.html">Incompressible Navier-Stokes Equation</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../codes.html">Reference Codes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../videos.html">CFD &amp; CAE Videos</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../books.html">Books</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../docs.html">Documents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../cgns.html">CGNS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../chatgpt.html">CHATGPT</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../cpp/index.html">CPP</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../cmake.html">CMake</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../cmd.html">Cmd</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../cuda.html">CUDA</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../design_patterns.html">Design Patterns</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../eigen.html">Eigen3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../git.html">Git</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../git.html#contexts">Contexts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fortran.html">Fortran</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../hdf5.html">HDF5</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../hpc.html">HPC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../install/index.html">Install</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../julia.html">Julia</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../jupyter.html">Jupyter Notebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../latex.html">LaTeX</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../makefile.html">Makefile</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../metis.html">METIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../mkdocs.html">MkDocs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../modules.html">Environment Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../mpi.html">MPI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../numerical/index.html">Numerical analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../oneapi.html">oneAPI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../oneflow.html">OneFLOW-CFD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../openacc.html">OpenACC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../opencl.html">OpenCL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../opengl.html">OpenGL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../openmp.html">OpenMP</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../powershell.html">PowerShell</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../python/index.html">Python</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../qt.html">Qt</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../regex.html">Regular Expressions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../science.html">Science</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sphinx.html">Sphinx</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../system/index.html">System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../taichi.html">Taichi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tcltk.html">Tcl/tk</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tecplot.html">Tecplot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../test.html">Test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../unreal_engine.html">Unreal Engine</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../vcpkg.html">vcpkg</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../yaml.html">yaml</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Scientific Computing</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">CFD</a></li>
+          <li class="breadcrumb-item"><a href="index.html">CFD Methods</a></li>
+      <li class="breadcrumb-item active">Vorticity Stream Function</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/cfd/method/vorticitystream.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="vorticity-stream-function">
+<h1>Vorticity Stream Function<a class="headerlink" href="#vorticity-stream-function" title="Link to this heading"></a></h1>
+<ol class="arabic simple">
+<li><p><a class="reference external" href="http://www.fem.unicamp.br/~phoenics/SITE_PHOENICS/Apostilas/CFD-1_U%20Michigan_Hong/Lecture05.pdf">Vorticity Stream Function Formulation</a></p></li>
+</ol>
+<section id="incompressible-n-s-equation-in-2d">
+<h2>Incompressible N-S Equation in 2D<a class="headerlink" href="#incompressible-n-s-equation-in-2d" title="Link to this heading"></a></h2>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+\cfrac{\partial u}{\partial t} +u\cfrac{\partial u}{\partial x}+v\cfrac{\partial u}{\partial y}=
+-\cfrac{1}{\rho}\cfrac{\partial p}{\partial x}+\nu\bigg(\cfrac{\partial ^{2}u}{\partial x^{2}}+\cfrac{\partial ^{2}u}{\partial y^{2}}\bigg)\\
+\cfrac{\partial v}{\partial t} +u\cfrac{\partial v}{\partial x}+v\cfrac{\partial v}{\partial y}=
+-\cfrac{1}{\rho}\cfrac{\partial p}{\partial y}+\nu\bigg(\cfrac{\partial ^{2}v}{\partial x^{2}}+\cfrac{\partial ^{2}v}{\partial y^{2}}\bigg)\\
+\end{array}\end{split}\]</div>
+</section>
+<section id="nondimensionalization">
+<h2>Nondimensionalization<a class="headerlink" href="#nondimensionalization" title="Link to this heading"></a></h2>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+\widetilde{u}=\cfrac{u}{U},\widetilde{x}=\cfrac{x}{L},t=t\cfrac{U}{L},
+\widetilde{p}=\cfrac{p}{\rho U^{2}}\\
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+\cfrac{\partial \widetilde{u}}{\partial \widetilde{t}} +\widetilde{u}\cfrac{\partial \widetilde{u}}{\partial \widetilde{x}}+\widetilde{v}\cfrac{\partial \widetilde{u}}{\partial \widetilde{y}}=
+-\cfrac{1}{\rho}\cfrac{\partial p}{\partial \widetilde{x}}+\cfrac{1}{Re}\bigg(\cfrac{\partial ^{2}\widetilde{u}}{\partial \widetilde{x}^{2}}+\cfrac{\partial ^{2}\widetilde{u}}{\partial \widetilde{y}^{2}}\bigg)\\
+\cfrac{\partial \widetilde{v}}{\partial \widetilde{t}} +\widetilde{u}\cfrac{\partial \widetilde{v}}{\partial \widetilde{x}}+\widetilde{v}\cfrac{\partial \widetilde{v}}{\partial \widetilde{y}}=
+-\cfrac{1}{\rho}\cfrac{\partial p}{\partial \widetilde{y}}+\cfrac{1}{Re}\bigg(\cfrac{\partial ^{2}\widetilde{v}}{\partial \widetilde{x}^{2}}+\cfrac{\partial ^{2}\widetilde{v}}{\partial \widetilde{y}^{2}}\bigg)\\
+\end{array}\end{split}\]</div>
+</section>
+<section id="the-vorticity-equation">
+<h2>The Vorticity Equation<a class="headerlink" href="#the-vorticity-equation" title="Link to this heading"></a></h2>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+-\cfrac{\partial}{\partial y} &amp;\bigg[\cfrac{\partial {u}}{\partial {t}} +{u}\cfrac{\partial {u}}{\partial {x}}+{v}\cfrac{\partial {u}}{\partial {y}}  = -\cfrac{1}{\rho}\cfrac{\partial p}{\partial {x}}+\cfrac{1}{Re}\bigg(\cfrac{\partial ^{2}{u}}{\partial {x}^{2}}+\cfrac{\partial ^{2}{u}}{\partial {y}^{2}}\bigg)\bigg]\\
+\cfrac{\partial}{\partial x} &amp;\bigg[\cfrac{\partial {v}}{\partial {t}} +{u}\cfrac{\partial {v}}{\partial {x}}+{v}\cfrac{\partial {v}}{\partial {y}}  = -\cfrac{1}{\rho}\cfrac{\partial p}{\partial {y}}+\cfrac{1}{Re}\bigg(\cfrac{\partial ^{2}{v}}{\partial {x}^{2}}+\cfrac{\partial ^{2}{v}}{\partial {y}^{2}}\bigg)\bigg]\\
+\end{align}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+\omega=\cfrac{\partial v}{\partial x} -\cfrac{\partial u}{\partial y}\\
+-\cfrac{\partial}{\partial y} \bigg(\cfrac{\partial ^{2}{u}}{\partial {x}^{2}}+\cfrac{\partial ^{2}{u}}{\partial {y}^{2}}\bigg)
++\cfrac{\partial}{\partial x}\bigg(\cfrac{\partial ^{2}{v}}{\partial {x}^{2}}+\cfrac{\partial ^{2}{v}}{\partial {y}^{2}}\bigg)
+=\bigg(\cfrac{\partial ^{2}{\omega}}{\partial {x}^{2}}+\cfrac{\partial ^{2}{\omega}}{\partial {y}^{2}}\bigg)
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\cfrac{\partial {\omega}}{\partial {t}} +{u}\cfrac{\partial {\omega}}{\partial {x}}+{v}\cfrac{\partial {\omega}}{\partial {y}}  = \cfrac{1}{Re}\bigg(\cfrac{\partial ^{2}{\omega}}{\partial {x}^{2}}+\cfrac{\partial ^{2}{\omega}}{\partial {y}^{2}}\bigg)\]</div>
+</section>
+<section id="the-stream-function-equation">
+<h2>The Stream Function Equation<a class="headerlink" href="#the-stream-function-equation" title="Link to this heading"></a></h2>
+<p>Define the stream function</p>
+<div class="math notranslate nohighlight">
+\[\begin{array}{l}
+u=\cfrac{\partial \psi}{\partial y},\quad v=-\cfrac{\partial \psi}{\partial x}
+\end{array}\]</div>
+<p>which automatically satisfies the incompressibility conditions</p>
+<div class="math notranslate nohighlight">
+\[\cfrac{\partial u}{\partial x} +\cfrac{\partial v}{\partial y}=0\]</div>
+<p>by substituting</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\cfrac{\partial}{\partial x}\cfrac{\partial \psi}{\partial y} -\cfrac{\partial}{\partial y}\cfrac{\partial \psi}{\partial x}=0\\\end{split}\]</div>
+<p>Substituting</p>
+<div class="math notranslate nohighlight">
+\[u=\cfrac{\partial \psi}{\partial y},\quad v=-\cfrac{\partial \psi}{\partial x}\]</div>
+<p>into the definition of the vorticity</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\omega=\cfrac{\partial v}{\partial x} -\cfrac{\partial u}{\partial y}\\\end{split}\]</div>
+<p>yields</p>
+<div class="math notranslate nohighlight">
+\[\cfrac{\partial ^{2}{\psi}}{\partial {x}^{2}}+\cfrac{\partial ^{2}{\psi}}{\partial {y}^{2}}=-\omega\]</div>
+<p>The Navier-Stokes equations in vorticity-stream function form are:</p>
+<p>Advection/diffusion equation</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\cfrac{\partial {\omega}}{\partial {t}} +\cfrac{\partial \psi}{\partial y}\cfrac{\partial {\omega}}{\partial {x}}-\cfrac{\partial \psi}{\partial x}\cfrac{\partial {\omega}}{\partial {y}}  = \cfrac{1}{Re}\bigg(\cfrac{\partial ^{2}{\omega}}{\partial {x}^{2}}+\cfrac{\partial ^{2}{\omega}}{\partial {y}^{2}}\bigg)\\\end{split}\]</div>
+<p>Elliptic equation</p>
+<div class="math notranslate nohighlight">
+\[\cfrac{\partial ^{2}{\psi}}{\partial {x}^{2}}+\cfrac{\partial ^{2}{\psi}}{\partial {y}^{2}}=-\omega\]</div>
+</section>
+<section id="boundary-conditions-for-the-stream-function">
+<h2>Boundary Conditions for the Stream Function<a class="headerlink" href="#boundary-conditions-for-the-stream-function" title="Link to this heading"></a></h2>
+<p>At the right and the left boundary:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+u=0\Rightarrow \cfrac{\partial \psi}{\partial y} =0\\
+\Rightarrow \psi=Constant
+\end{array}\end{split}\]</div>
+<p>At the top and the bottom boundary:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+v=0\Rightarrow \cfrac{\partial \psi}{\partial x} =0\\
+\Rightarrow \psi=Constant
+\end{array}\end{split}\]</div>
+<p>Since the boundaries meet, the constant must be the same on all boundaries</p>
+<div class="math notranslate nohighlight">
+\[\psi=Constant\]</div>
+<p>The normal velocity is zero since the stream function
+is a constant on the wall, but the zero tangential
+velocity must be enforced</p>
+<p>At the right and left boundary:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}v=0\Rightarrow \cfrac{\partial \psi}{\partial x} =0\\\end{split}\]</div>
+<p>At the bottom boundary:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}u=0\Rightarrow \cfrac{\partial \psi}{\partial y} =0\\\end{split}\]</div>
+<p>At the top boundary:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}u=U_{wall}\Rightarrow \cfrac{\partial \psi}{\partial y} =U_{wall}\\\end{split}\]</div>
+<p>The wall vorticity must be found from the streamfunction.
+The stream function is constant on the walls.</p>
+<p>At the right and the left boundary:</p>
+<div class="math notranslate nohighlight">
+\[\cfrac{\partial ^{2}{\psi}}{\partial {x}^{2}}+\cfrac{\partial ^{2}{\psi}}{\partial {y}^{2}}=-\omega
+\Rightarrow \omega_{wall}=-\cfrac{\partial ^{2}{\psi}}{\partial {x}^{2}}\]</div>
+<p>Similarly, at the top and the bottom boundary:</p>
+<div class="math notranslate nohighlight">
+\[\cfrac{\partial ^{2}{\psi}}{\partial {x}^{2}}+\cfrac{\partial ^{2}{\psi}}{\partial {y}^{2}}=-\omega
+\Rightarrow \omega_{wall}=-\cfrac{\partial ^{2}{\psi}}{\partial {y}^{2}}\]</div>
+<figure class="align-center" id="id1">
+<a class="reference internal image-reference" href="../../_images/stream1.png"><img alt="../../_images/stream1.png" src="../../_images/stream1.png" style="width: 600px;" /></a>
+<figcaption>
+<p><span class="caption-text">boundary</span><a class="headerlink" href="#id1" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+</section>
+<section id="discretizing-the-domain">
+<h2>Discretizing the Domain<a class="headerlink" href="#discretizing-the-domain" title="Link to this heading"></a></h2>
+<p>Uniform mesh (h=constant)</p>
+<figure class="align-center" id="id2">
+<a class="reference internal image-reference" href="../../_images/stream2.png"><img alt="../../_images/stream2.png" src="../../_images/stream2.png" style="width: 600px;" /></a>
+<figcaption>
+<p><span class="caption-text">mesh</span><a class="headerlink" href="#id2" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<p>When using FINITE DIFFERENCE approximations,
+the values of <span class="math notranslate nohighlight">\(f\)</span> are stored at discrete points and the
+derivatives of the function are approximated using a
+Taylor series:</p>
+<p>Start by expressing the value of <span class="math notranslate nohighlight">\(f(x+h)\)</span> and <span class="math notranslate nohighlight">\(f(x-h)\)</span>
+in terms of <span class="math notranslate nohighlight">\(f(x)\)</span></p>
+<figure class="align-center">
+<a class="reference internal image-reference" href="../../_images/stream3.png"><img alt="../../_images/stream3.png" src="../../_images/stream3.png" style="width: 600px;" /></a>
+</figure>
+<p>Finite Difference Approximations</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+\cfrac{\partial f(x)}{\partial x}=\cfrac{f(x+h)-f(x-h)}{2h}+\cfrac{\partial^{3} f(x)}{\partial x^{3}}\cfrac{h^{2}}{6}+\cdots \\
+\cfrac{\partial ^{2}f(x)}{\partial x^{2}}=\cfrac{f(x+h)-2f(x)+f(x-h)}{h^{2}}+\cfrac{\partial^{4} f(x)}{\partial x^{4}}\cfrac{h^{2}}{12}+\cdots \\
+\cfrac{\partial f(t)}{\partial t}=\cfrac{f(t+\Delta t)-f(\Delta t)}{\Delta t}+\cfrac{\partial^{2} f(t)}{\partial t^{2}}\cfrac{\Delta t}{2}+\cdots \\
+\end{array}\end{split}\]</div>
+<p>For a two-dimensional flow discretize the variables on
+a two-dimensional grid</p>
+<figure class="align-center">
+<a class="reference internal image-reference" href="../../_images/stream4.png"><img alt="../../_images/stream4.png" src="../../_images/stream4.png" style="width: 600px;" /></a>
+</figure>
+<p>Laplacian</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+\cfrac{\partial ^{2}{f}}{\partial {x}^{2}}+\cfrac{\partial ^{2}{f}}{\partial {y}^{2}} &amp; = \cfrac{f_{i+1,j}^{n}-2f_{i,j}^{n}+f_{i-1,j}^{n}}{h^{2}}
++\cfrac{f_{i,j+1}^{n}-2f_{i,j}^{n}+f_{i,j-1}^{n}}{h^{2}} \\ &amp; = \cfrac{f_{i+1,j}^{n}+f_{i-1,j}^{n}+f_{i,j+1}^{n}+f_{i,j-1}^{n}-4f_{i,j}^{n}}{h^{2}}
+\end{align}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\cfrac{\partial {\omega}}{\partial {t}} +\cfrac{\partial \psi}{\partial y}\cfrac{\partial {\omega}}{\partial {x}}-\cfrac{\partial \psi}{\partial x}\cfrac{\partial {\omega}}{\partial {y}}  = \cfrac{1}{Re}\bigg(\cfrac{\partial ^{2}{\omega}}{\partial {x}^{2}}+\cfrac{\partial ^{2}{\omega}}{\partial {y}^{2}}\bigg)\\\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\cfrac{\partial {\omega}}{\partial {t}} =-\cfrac{\partial \psi}{\partial y}\cfrac{\partial {\omega}}{\partial {x}}+\cfrac{\partial \psi}{\partial x}\cfrac{\partial {\omega}}{\partial {y}}  + \cfrac{1}{Re}\bigg(\cfrac{\partial ^{2}{\omega}}{\partial {x}^{2}}+\cfrac{\partial ^{2}{\omega}}{\partial {y}^{2}}\bigg)\\\end{split}\]</div>
+<p>Using these approximations, the vorticity equation becomes:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+\cfrac{{\omega}_{i,j}^{n+1}-{\omega}_{i,j}^{n}}{\Delta{t}} &amp; =
+-\bigg(\cfrac{\psi_{i,j+1}^{n}-\psi_{i,j-1}^{n}}{2h}\bigg)\bigg(\cfrac{\omega_{i+1,j}^{n}-\omega_{i-1,j}^{n}}{2h}\bigg)
++\bigg(\cfrac{\psi_{i+1,j}^{n}-\psi_{i-1,j}^{n}}{2h}\bigg)\bigg(\cfrac{\omega_{i,j+1}^{n}-\omega_{i,j-1}^{n}}{2h}\bigg)\\
+&amp;+\cfrac{1}{Re}\bigg(\cfrac{\omega_{i+1,j}^{n}+\omega_{i-1,j}^{n}+\omega_{i,j+1}^{n}+\omega_{i,j-1}^{n}-4\omega_{i,j}^{n}}{h^{2}} \bigg)
+\end{align}\end{split}\]</div>
+<p>The vorticity at the new time is given by:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+{\omega}_{i,j}^{n+1}={\omega}_{i,j}^{n}+ {\Delta{t}} \bigg[
+-\bigg(\cfrac{\psi_{i,j+1}^{n}-\psi_{i,j-1}^{n}}{2h}\bigg)\bigg(\cfrac{\omega_{i+1,j}^{n}-\omega_{i-1,j}^{n}}{2h}\bigg)\\
++\bigg(\cfrac{\psi_{i+1,j}^{n}-\psi_{i-1,j}^{n}}{2h}\bigg)\bigg(\cfrac{\omega_{i,j+1}^{n}-\omega_{i,j-1}^{n}}{2h}\bigg)\\
++\cfrac{1}{Re}\bigg(\cfrac{\omega_{i+1,j}^{n}+\omega_{i-1,j}^{n}+\omega_{i,j+1}^{n}+\omega_{i,j-1}^{n}-4\omega_{i,j}^{n}}{h^{2}} \bigg)\bigg]
+\end{array}\end{split}\]</div>
+<p>The stream function equation is:</p>
+<div class="math notranslate nohighlight">
+\[\cfrac{\partial ^{2}\psi}{\partial x^{2}} +
+\cfrac{\partial ^{2}\psi}{\partial y^{2}} =-\omega\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\cfrac{\psi_{i+1,j}^{n}+\psi_{i-1,j}^{n}+\psi_{i,j+1}^{n}+\psi_{i,j-1}^{n}-4\psi_{i,j}^{n} }{h^{2}}=-\omega_{i,j}^{n}\]</div>
+<p>Discretized Domain</p>
+<figure class="align-center" id="id3">
+<a class="reference internal image-reference" href="../../_images/stream5.png"><img alt="../../_images/stream5.png" src="../../_images/stream5.png" style="width: 600px;" /></a>
+<figcaption>
+<p><span class="caption-text">Discretized Domain</span><a class="headerlink" href="#id3" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<p>Discrete Boundary Condition</p>
+<figure class="align-center" id="id4">
+<a class="reference internal image-reference" href="../../_images/stream6.png"><img alt="../../_images/stream6.png" src="../../_images/stream6.png" style="width: 600px;" /></a>
+<figcaption>
+<p><span class="caption-text">Discrete Boundary Condition</span><a class="headerlink" href="#id4" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<div class="math notranslate nohighlight">
+\[\psi_{i,j=2}=\psi_{i,j=1}+\cfrac{\partial\psi_{i,j=1}}{\partial y} h+\cfrac{\partial ^{2}\psi_{i,j=1}}{\partial y^{2}}\cfrac{h^{2}}{2} +O(h^{3})\]</div>
+<p>Using:</p>
+<div class="math notranslate nohighlight">
+\[\omega_{wall}=-\cfrac{\partial ^{2}\psi_{i,j=1}}{\partial y^{2}} ;\quad U_{wall}=\cfrac{\partial\psi_{i,j=1}}{\partial y}\]</div>
+<p>This becomes:</p>
+<div class="math notranslate nohighlight">
+\[\psi_{i,j=2}=\psi_{i,j=1}+U_{wall}h-\omega_{wall}\cfrac{h^{2}}{2} +O(h^{3})\]</div>
+<p>Solving for the wall vorticity:</p>
+<div class="math notranslate nohighlight">
+\[\omega_{wall}=(\psi_{i,j=1}-\psi_{i,j=2})\cfrac{2}{h^{2}}+U_{wall}\cfrac{2}{h} +O(h)\]</div>
+<p>At the bottom wall (j=1)</p>
+<div class="math notranslate nohighlight">
+\[\omega_{wall}=(\psi_{i,j=1}-\psi_{i,j=2})\cfrac{2}{h^{2}}+U_{wall}\cfrac{2}{h} +O(h)\]</div>
+<p>Similarly, at the bottom wall (j=ny):</p>
+<div class="math notranslate nohighlight">
+\[\omega_{wall}=(\psi_{i,j=ny}-\psi_{i,j=ny-1})\cfrac{2}{h^{2}}-U_{wall}\cfrac{2}{h} +O(h)\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\psi_{i,j=ny-1}=\psi_{i,j=ny}+\cfrac{\partial\psi_{i,j=ny}}{\partial y} (-h)+\cfrac{\partial ^{2}\psi_{i,j=ny}}{\partial y^{2}}\cfrac{h^{2}}{2} +O(h^{3})\]</div>
+<p>Using:</p>
+<div class="math notranslate nohighlight">
+\[\omega_{wall}=-\cfrac{\partial ^{2}\psi_{i,j=ny}}{\partial y^{2}} ;\quad U_{wall}=\cfrac{\partial\psi_{i,j=ny}}{\partial y}\]</div>
+<p>This becomes:</p>
+<div class="math notranslate nohighlight">
+\[\psi_{i,j=ny-1}=\psi_{i,j=ny}+U_{wall}(-h)-\omega_{wall}\cfrac{h^{2}}{2} +O(h^{3})\]</div>
+<p>Solving for the wall vorticity:</p>
+<div class="math notranslate nohighlight">
+\[\omega_{wall}=(\psi_{i,j=ny}-\psi_{i,j=ny-1})\cfrac{2}{h^{2}} -U_{wall}\cfrac{2}{h}  +O(h)\]</div>
+<p>At the left wall (i=1):</p>
+<div class="math notranslate nohighlight">
+\[\psi_{i=2,j}=\psi_{i=1,j}+\cfrac{\partial\psi_{i=1,j}}{\partial x} h+\cfrac{\partial ^{2}\psi_{i=1,j}}{\partial x^{2}}\cfrac{h^{2}}{2} +O(h^{3})\]</div>
+<p>Using:</p>
+<div class="math notranslate nohighlight">
+\[\omega_{wall}=-\cfrac{\partial ^{2}\psi_{i=1,j}}{\partial x^{2}} ;\quad 0=\cfrac{\partial\psi_{i=1,j}}{\partial x}\]</div>
+<p>This becomes:</p>
+<div class="math notranslate nohighlight">
+\[\psi_{i=2,j}=\psi_{i=1,j}+0h-\omega_{wall}\cfrac{h^{2}}{2} +O(h^{3})\]</div>
+<p>Solving for the wall vorticity:</p>
+<div class="math notranslate nohighlight">
+\[\omega_{wall}=(\psi_{i=1,j}-\psi_{i=2,j})\cfrac{2}{h^{2}} +0 \cfrac{2}{h} +O(h)\]</div>
+<p>At the right wall (i=nx):</p>
+<div class="math notranslate nohighlight">
+\[\psi_{i=nx-1,j}=\psi_{i=nx,j}+\cfrac{\partial\psi_{i=nx,j}}{\partial x} (-h)+\cfrac{\partial ^{2}\psi_{i=nx,j}}{\partial x^{2}}\cfrac{h^{2}}{2} +O(h^{3})\]</div>
+<p>Using:</p>
+<div class="math notranslate nohighlight">
+\[\omega_{wall}=-\cfrac{\partial ^{2}\psi_{i=nx,j}}{\partial x^{2}} ;\quad 0=\cfrac{\partial\psi_{i=nx,j}}{\partial x}\]</div>
+<p>Solving for the wall vorticity:</p>
+<div class="math notranslate nohighlight">
+\[\omega_{wall}=(\psi_{i=nx,j}-\psi_{i=nx-1,j})\cfrac{2}{h^{2}} -0\cfrac{2}{h} +O(h)\]</div>
+<p>Solving the elliptic equation:</p>
+<div class="math notranslate nohighlight">
+\[\cfrac{\psi_{i+1,j}^{n}+\psi_{i-1,j}^{n}+\psi_{i,j+1}^{n}+\psi_{i,j-1}^{n}-4\psi_{i,j}^{n} }{h^{2}}=-\omega_{i,j}^{n}\]</div>
+<p>Rewrite as</p>
+<div class="math notranslate nohighlight">
+\[\psi_{i,j}^{n}=\cfrac{1}{4} \bigg(\psi_{i+1,j}^{n}+\psi_{i-1,j}^{n}+\psi_{i,j+1}^{n}+\psi_{i,j-1}^{n}+\omega_{i,j}^{n}{h^{2}} \bigg)\]</div>
+<figure class="align-center">
+<a class="reference internal image-reference" href="../../_images/stream7.png"><img alt="../../_images/stream7.png" src="../../_images/stream7.png" style="width: 600px;" /></a>
+</figure>
+<p>If the grid points are done in order, half of the points have
+already been updated</p>
+<figure class="align-center">
+<a class="reference internal image-reference" href="../../_images/stream8.png"><img alt="../../_images/stream8.png" src="../../_images/stream8.png" style="width: 600px;" /></a>
+</figure>
+<p>Successive Over Relaxation (SOR)</p>
+<div class="math notranslate nohighlight">
+\[\psi_{i,j}^{n+1}=\beta\cfrac{1}{4} \bigg(\psi_{i+1,j}^{n}+\psi_{i-1,j}^{n}+\psi_{i,j+1}^{n}+\psi_{i,j-1}^{n}+\omega_{i,j}^{n}{h^{2}} \bigg)+(1-\beta)\psi_{i,j}^{n}\]</div>
+<p>Limitations on the time step</p>
+<div class="math notranslate nohighlight">
+\[\cfrac{v\Delta t}{h^{2}}\le\cfrac{1}{4}  \quad\quad \cfrac{(|u|+|v|)\Delta t}{v} \le2\]</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="multigrid2.html" class="btn btn-neutral float-left" title="Multigrid Poisson Solver" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="inviscid2d.html" class="btn btn-neutral float-right" title="Incompressible Navier-Stokes Equation" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2017~2024, eric.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

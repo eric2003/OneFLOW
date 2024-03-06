@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Spectral Methods &mdash; Scientific Computing 1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../_static/documentation_options.js?v=f2a433a1"></script>
+        <script src="../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Fourier Series" href="fourier.html" />
+    <link rel="prev" title="CFD Methods" href="index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            Scientific Computing
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Get started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../info.html">OneFLOW</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../user.html">THEORY</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../bash.html">Bash</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">CFD</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../ns.html">Navier–Stokes equations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../leibniz.html">Leibniz integral</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../rtt.html">Reynolds’ transport theorem</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../mass.html">Conservation Of Mass</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../momenum.html">Momentum Analysis Of Flow Systems</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../energy.html">Conservation Of Energy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../ns-integral.html">ALE Form of Conservation Equations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../curvilinear.html">Generalized Curvilinear Coordinate System</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../curvilinear3d.html">Generalized Curvilinear Coordinate System(3D)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../vector.html">Vector &amp; Tensor</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../matrix.html">Matrix</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../calculus.html">Calculus</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../substitution.html">Substitution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../jacobian.html">Jacobian matrix</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../gauss.html">Gauss’s Theorem</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../strain.html">Strain Measures</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../ale.html">Arbitrary Lagrangian-Eulerian</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../ale1d.html">ALE 1D</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../deformation.html">Deformation and Motion</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../derivative.html">Fluid Derivative</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../material_derivative.html">Material Time Derivative</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../scheme/index.html">CFD Schemes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/index.html">CFD Examples</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="index.html">CFD Methods</a><ul class="current">
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Spectral Methods</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#examples-of-spectral-methods">Examples of spectral methods</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#example-1-of-spectral-methods">Example 1 of spectral methods</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#example-2-of-spectral-methods">Example 2 of spectral methods</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="fourier.html">Fourier Series</a></li>
+<li class="toctree-l3"><a class="reference internal" href="iterative.html">Iterative Solver</a></li>
+<li class="toctree-l3"><a class="reference internal" href="multigrid.html">MULTIGRID</a></li>
+<li class="toctree-l3"><a class="reference internal" href="multigrid1.html">MULTIGRID Continued</a></li>
+<li class="toctree-l3"><a class="reference internal" href="multigrid2.html">Multigrid Poisson Solver</a></li>
+<li class="toctree-l3"><a class="reference internal" href="vorticitystream.html">Vorticity Stream Function</a></li>
+<li class="toctree-l3"><a class="reference internal" href="inviscid2d.html">Incompressible Navier-Stokes Equation</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../codes.html">Reference Codes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../videos.html">CFD &amp; CAE Videos</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../books.html">Books</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../docs.html">Documents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../cgns.html">CGNS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../chatgpt.html">CHATGPT</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../cpp/index.html">CPP</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../cmake.html">CMake</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../cmd.html">Cmd</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../cuda.html">CUDA</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../design_patterns.html">Design Patterns</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../eigen.html">Eigen3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../git.html">Git</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../git.html#contexts">Contexts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fortran.html">Fortran</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../hdf5.html">HDF5</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../hpc.html">HPC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../install/index.html">Install</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../julia.html">Julia</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../jupyter.html">Jupyter Notebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../latex.html">LaTeX</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../makefile.html">Makefile</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../metis.html">METIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../mkdocs.html">MkDocs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../modules.html">Environment Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../mpi.html">MPI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../numerical/index.html">Numerical analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../oneapi.html">oneAPI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../oneflow.html">OneFLOW-CFD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../openacc.html">OpenACC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../opencl.html">OpenCL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../opengl.html">OpenGL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../openmp.html">OpenMP</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../powershell.html">PowerShell</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../python/index.html">Python</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../qt.html">Qt</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../regex.html">Regular Expressions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../science.html">Science</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sphinx.html">Sphinx</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../system/index.html">System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../taichi.html">Taichi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tcltk.html">Tcl/tk</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tecplot.html">Tecplot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../test.html">Test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../unreal_engine.html">Unreal Engine</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../vcpkg.html">vcpkg</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../yaml.html">yaml</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Scientific Computing</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">CFD</a></li>
+          <li class="breadcrumb-item"><a href="index.html">CFD Methods</a></li>
+      <li class="breadcrumb-item active">Spectral Methods</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/cfd/method/spectrum.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="spectral-methods">
+<h1>Spectral Methods<a class="headerlink" href="#spectral-methods" title="Link to this heading"></a></h1>
+<ol class="arabic simple">
+<li><p><a class="reference external" href="https://www.youtube.com/watch?v=ymsY8IFbOwY/">Scientific Computing || 02 Week 7 19 1 Introduction to spectral methods 10 46</a></p></li>
+<li><p><a class="reference external" href="https://www.youtube.com/watch?v=rsdqvrldgHM/">Introduction to Spectral Methods for Partial Differential Equations</a></p></li>
+<li><p><a class="reference external" href="https://mathworld.wolfram.com/FourierSeries.html">Fourier Series</a></p></li>
+<li><p><a class="reference external" href="https://www.youtube.com/watch?v=wbk6QaTzqOY/">Spectral Numerical Method</a></p></li>
+</ol>
+<section id="examples-of-spectral-methods">
+<h2>Examples of spectral methods<a class="headerlink" href="#examples-of-spectral-methods" title="Link to this heading"></a></h2>
+<p>Here we presume an understanding of basic multivariate calculus and Fourier series. If <span class="math notranslate nohighlight">\(g(x,y)\)</span> is a known, complex-valued
+function of two real variables, and <span class="math notranslate nohighlight">\(g\)</span> is periodic in x and y ( that is, <span class="math notranslate nohighlight">\(g(x,y)=g(x+2\pi,y)=g(x,y+2\pi)\)</span> ) then wei are
+interested in  finding a function <span class="math notranslate nohighlight">\(f(x,y)\)</span> so that</p>
+<div class="math notranslate nohighlight">
+\[\left(\cfrac{\partial }{\partial x^{2}}+\cfrac{\partial }{\partial y^{2}} \right)f(x,y)=g(x,y)\quad \text{for all }x,y\]</div>
+<p>where the expression on the left denotes the second partial derivatives of <span class="math notranslate nohighlight">\(f\)</span> in <span class="math notranslate nohighlight">\(x\)</span> and <span class="math notranslate nohighlight">\(y\)</span> respectively.
+This is the Poisson equation, and can be physically interpreted as some sort of heat conduction problem, or a problem in potential theory, among other possibilities.
+If we write <span class="math notranslate nohighlight">\(f\)</span> and <span class="math notranslate nohighlight">\(g\)</span> in Fourier series:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{c}
+f=\sum a_{j,k}e^{\mathbf{i}(jx+ky)}\\
+g=\sum b_{j,k}e^{\mathbf{i}(jx+ky)}
+\end{array}\end{split}\]</div>
+<p>and substitute into the differential equation, we obtain this equation:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+\cfrac{\partial f}{\partial x}=\sum j\mathbf{i}a_{j,k}e^{\mathbf{i}(jx+ky)}\\
+\cfrac{\partial^{2} f}{\partial x^{2}}=-\sum j^{2}a_{j,k}e^{\mathbf{i}(jx+ky)}\\
+\cfrac{\partial f}{\partial y}=\sum k\mathbf{i}a_{j,k}e^{\mathbf{i}(jx+ky)}\\
+\cfrac{\partial ^{2}f}{\partial y^{2}}=-\sum k^{2}a_{j,k}e^{\mathbf{i}(jx+ky)}\\
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+-\sum (j^{2}+k^{2})a_{j,k}e^{\mathbf{i}(jx+ky)}=\sum b_{j,k}e^{\mathbf{i}(jx+ky)}\\
+-(j^{2}+k^{2})a_{j,k}=b_{j,k}
+\end{array}\end{split}\]</div>
+<p>We have exchanged partial differentiation with an infinite sum, which is legitimate if we assume for instance that <span class="math notranslate nohighlight">\(f\)</span> has a continuous second derivative. By the uniqueness theorem for Fourier expansions, we must then equate the Fourier coefficients term by term, giving</p>
+<div class="math notranslate nohighlight">
+\[\begin{array}{l}
+a_{j,k}=-\cfrac{b_{j,k}}{j^{2}+k^{2}}
+\end{array}\]</div>
+</section>
+<section id="example-1-of-spectral-methods">
+<h2>Example 1 of spectral methods<a class="headerlink" href="#example-1-of-spectral-methods" title="Link to this heading"></a></h2>
+<p>Consider the following PDE with constant <span class="math notranslate nohighlight">\(a\)</span></p>
+<div class="math notranslate nohighlight">
+\[\cfrac{\partial u}{\partial t}=a\cfrac{\partial u}{\partial x}\]</div>
+<p>Represent the solution <span class="math notranslate nohighlight">\(u(x,t)\)</span> as</p>
+<div class="math notranslate nohighlight">
+\[u(x,t)=\sum_{n}\hat{u}_{n}(t)\phi_{n}(x)\]</div>
+<p>where <span class="math notranslate nohighlight">\(\phi_{n}\)</span> are some basis functions and <span class="math notranslate nohighlight">\(\hat{u}_{n}\)</span> are corresponding weighting factors.</p>
+<p>In a spectral method we take <span class="math notranslate nohighlight">\(\phi_{n}\)</span> as <span class="math notranslate nohighlight">\(e^{\mathbf{i}2\pi n\cfrac{x}{L}}=\text{cos}(2\pi n\cfrac{x}{L})+\mathbf{i}\text{sin}(2\pi n\cfrac{x}{L})\)</span>,
+where <span class="math notranslate nohighlight">\(\mathbf{i}\)</span> is the imaginary number and <span class="math notranslate nohighlight">\(L\)</span> is the domian size.</p>
+<ul class="simple">
+<li><p>Here, <span class="math notranslate nohighlight">\(\phi_{n}\)</span> are periodic functions and we assume periodic boundary conditions.</p></li>
+<li><p>This gives <span class="math notranslate nohighlight">\(u\)</span> as a discrete inverse Fourier transform, and we take a(truncated) summation from <span class="math notranslate nohighlight">\(n=-N/2+1\)</span> to <span class="math notranslate nohighlight">\(n=N/2\)</span>.</p></li>
+</ul>
+<p>This results in</p>
+<div class="math notranslate nohighlight">
+\[u(x,t)=\sum_{n=-N/2+1}^{N/2}\hat{u}_{n}(t)e^{\mathbf{i}{2\pi}\cfrac{nx}{L}}\]</div>
+<p>In particular, consider a grid of <span class="math notranslate nohighlight">\(N\)</span> points with uniform spacing <span class="math notranslate nohighlight">\(\Delta x\)</span>. If the points are indexed by <span class="math notranslate nohighlight">\(j\)</span>, starting at <span class="math notranslate nohighlight">\(j=0\)</span>,
+we have <span class="math notranslate nohighlight">\(\Delta x=\cfrac{L}{N}\)</span>, and <span class="math notranslate nohighlight">\(x_{j}=j\Delta x = j\cfrac{L}{N}\)</span>. Let <span class="math notranslate nohighlight">\(u_{j}=u(x_{j})\)</span>,</p>
+<p>Then the inverse discrete Fourier transform(IDFT) of <span class="math notranslate nohighlight">\(\hat{u}_{n}\)</span> evaluated at grid points <span class="math notranslate nohighlight">\(x_{j}\)</span> and denoted
+<span class="math notranslate nohighlight">\(F^{-1}\)</span>, is given by</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+\displaystyle u(x_{j},t)=\sum_{n=-N/2+1}^{N/2}\hat{u}_{n}(t)e^{\mathbf{i}{2\pi}\cfrac{nx_{j}}{L}}\\
+\displaystyle u(x_{j},t)=u_{j}(t)=\sum_{n=-N/2+1}^{N/2}\hat{u}_{n}(t)e^{\mathbf{i}{2\pi}\cfrac{nj\Delta x}{L}}\\
+\displaystyle u(x_{j},t)=u_{j}(t)=\sum_{n=-N/2+1}^{N/2}\hat{u}_{n}(t)e^{\mathbf{i}{2\pi}\cfrac{nj}{L}\cfrac{L}{N}}\\
+\displaystyle u(x_{j},t)=u_{j}(t)=\sum_{n=-N/2+1}^{N/2}\hat{u}_{n}(t)e^{\mathbf{i}{2\pi}\cfrac{nj}{N}}\\
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}u(x_{j},t)=u_{j}(t)=F^{-1}(\hat{u}_{n}(t))=\sum_{n=-N/2+1}^{N/2}\hat{u}_{n}(t)e^{\mathbf{i}{2\pi}\cfrac{nj}{N}},j=0,\cdots,n-1.\\\end{split}\]</div>
+<p>or</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}u_{j}=F^{-1}(\hat{u}_{n})=\sum_{n=-N/2+1}^{N/2}\hat{u}_{n}e^{\mathbf{i}{2\pi}\cfrac{nj}{N}},j=0,\cdots,n-1.\\\end{split}\]</div>
+<p>The corresponding discrete Fourier transform(DFT) is given by</p>
+<div class="math notranslate nohighlight">
+\[\hat{u}_{n}=F(u_{j})=\cfrac{1}{N}\sum_{j=0}^{N-1}u_{j}e^{-\mathbf{i}{2\pi}\cfrac{nj}{N}},n=-\cfrac{N}{2}+1,\cdots,\cfrac{N}{2}\]</div>
+<p>Consider the PDE</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+\displaystyle u(x,t)=\sum_{n=-N/2+1}^{N/2}\hat{u}_{n}(t)e^{\mathbf{i}{2\pi}\cfrac{nx}{L}}\\
+\displaystyle \cfrac{\partial u(x,t)}{\partial t}=\sum_{n=-N/2+1}^{N/2}\cfrac{\partial\hat{u}_{n}(t)}{\partial t} e^{\mathbf{i}{2\pi}\cfrac{nx}{L}}\\
+\displaystyle \cfrac{\partial u(x,t)}{\partial x}={\mathbf{i}{2\pi}\cfrac{n}{L}}\sum_{n=-N/2+1}^{N/2}\hat{u}_{n}(t) e^{\mathbf{i}{2\pi}\cfrac{nx}{L}}\\
+\end{array}\end{split}\]</div>
+<p>then</p>
+<div class="math notranslate nohighlight">
+\[\displaystyle \sum_{n=-N/2+1}^{N/2}\cfrac{\partial\hat{u}_{n}(t)}{\partial t} e^{\mathbf{i}{2\pi}\cfrac{nx}{L}}
+=a{\mathbf{i}{2\pi}\cfrac{n}{L}}\sum_{n=-N/2+1}^{N/2}\hat{u}_{n}(t) e^{\mathbf{i}{2\pi}\cfrac{nx}{L}}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\cfrac{\partial\hat{u}_{n}(t)}{\partial t}=a{\mathbf{i}{2\pi}\cfrac{n}{L}}\hat{u}_{n}\]</div>
+<p>Given some initial condition for <span class="math notranslate nohighlight">\(u_{j}\)</span>, we can use the DFT to compute the initial <span class="math notranslate nohighlight">\(\hat{u}_{n}\)</span>. This ODE can ten be
+solved for <span class="math notranslate nohighlight">\(\hat{u}_{n}(t)\)</span>. Then <span class="math notranslate nohighlight">\({u}_{j}(t)\)</span> can be computed form <span class="math notranslate nohighlight">\(\hat{u}_{n}(t)\)</span> using the IDFT.
+Note, for this particular problem, the ODE has a simple analytic solution:</p>
+<div class="math notranslate nohighlight">
+\[\hat{u}_{n}(t)=\hat{u}_{n}(0)e^{\left(a\mathbf{i}{2\pi}\cfrac{n}{L}\right)t}\]</div>
+</section>
+<section id="example-2-of-spectral-methods">
+<h2>Example 2 of spectral methods<a class="headerlink" href="#example-2-of-spectral-methods" title="Link to this heading"></a></h2>
+<p>Consider the following PDE:</p>
+<div class="math notranslate nohighlight">
+\[\cfrac{\partial ^{2}u}{\partial x^{2}} +\cfrac{\partial ^{2}u}{\partial y^{2}}=f(x,y)\]</div>
+<p>Represent the solution <span class="math notranslate nohighlight">\(u(x,y)\)</span> as</p>
+<div class="math notranslate nohighlight">
+\[u(x,y)=\sum_{m,n}\hat{u}_{m,n}\phi_{m}(x)\phi_{n}(y)\]</div>
+<p>where <span class="math notranslate nohighlight">\(\phi_{m}\)</span> and <span class="math notranslate nohighlight">\(\phi_{n}\)</span> are some basis functions and <span class="math notranslate nohighlight">\(\hat{u}_{m,n}\)</span> are corresponding weighting factors.</p>
+<p>In a spectral method we take</p>
+<div class="math notranslate nohighlight">
+\[\phi_{m}(x)=e^{\mathbf{i}2\pi m\cfrac{x}{L_{x}}}=\text{cos}(2\pi m\cfrac{x}{L_{x}})+\mathbf{i}\text{sin}(2\pi m\cfrac{x}{L_{x}})\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\phi_{n}(y)=e^{\mathbf{i}2\pi n\cfrac{y}{L_{y}}}=\text{cos}(2\pi n\cfrac{y}{L_{y}})+\mathbf{i}\text{sin}(2\pi n\cfrac{y}{L_{y}})\]</div>
+<p>where <span class="math notranslate nohighlight">\(\mathbf{i}\)</span> is the imaginary number. <span class="math notranslate nohighlight">\(L_{x}\)</span> and <span class="math notranslate nohighlight">\(L_{y}\)</span> are <span class="math notranslate nohighlight">\(x\)</span> and <span class="math notranslate nohighlight">\(y\)</span> direction Length.
+then</p>
+<div class="math notranslate nohighlight">
+\[u(x,y)=\sum_{m=-M/2+1}^{M/2}\sum_{n=-N/2+1}^{N/2}\hat{u}_{m,n}e^{\mathbf{i}2\pi m\cfrac{x}{L_{x}}}e^{\mathbf{i}2\pi n\cfrac{y}{L_{y}}}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[u(x,y)=\sum_{m=-M/2+1}^{M/2}\sum_{n=-N/2+1}^{N/2}\hat{u}_{m,n}e^{\mathbf{i}2\pi(m\cfrac{x}{L_{x}}+n\cfrac{y}{L_{y}}) }\]</div>
+<p>Let</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{c}
+\Delta x = \cfrac{L_{x}}{M}， x_{i}=i\Delta x= i\cfrac{L_{x}}{M} \\
+\Delta y = \cfrac{L_{y}}{N}， y_{j}=j\Delta y= j\cfrac{L_{y}}{N} \\
+\end{array}\end{split}\]</div>
+<p>Then the inverse discrete Fourier transform(IDFT):</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+\displaystyle u(x,y)=\sum_{m=-M/2+1}^{M/2}\sum_{n=-N/2+1}^{N/2}\hat{u}_{m,n}e^{\mathbf{i}2\pi(m\cfrac{x}{L_{x}}+n\cfrac{y}{L_{y}}) }\\
+\displaystyle u(x_{i},y_{j})=\sum_{m=-M/2+1}^{M/2}\sum_{n=-N/2+1}^{N/2}\hat{u}_{m,n}e^{\mathbf{i}2\pi(m\cfrac{x_{i}}{L_{x}}+n\cfrac{y_{j}}{L_{y}}) }\\
+\displaystyle u(x_{i},y_{j})=\sum_{m=-M/2+1}^{M/2}\sum_{n=-N/2+1}^{N/2}\hat{u}_{m,n}e^{\mathbf{i}2\pi(m\cfrac{i\Delta x}{L_{x}}+n\cfrac{j\Delta y}{L_{y}}) }\\
+\displaystyle u(x_{i},y_{j})=\sum_{m=-M/2+1}^{M/2}\sum_{n=-N/2+1}^{N/2}\hat{u}_{m,n}e^{\mathbf{i}2\pi(m\cfrac{iL_{x}/M}{L_{x}}+n\cfrac{jL_{y}/N}{L_{y}}) }\\
+\displaystyle u(x_{i},y_{j})=\sum_{m=-M/2+1}^{M/2}\sum_{n=-N/2+1}^{N/2}\hat{u}_{m,n}e^{\mathbf{i}2\pi(\cfrac{im}{M}+\cfrac{jn}{N}) }\\
+\end{array}\end{split}\]</div>
+<p>or</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}u_{i,j}=\sum_{m=-M/2+1}^{M/2}\sum_{n=-N/2+1}^{N/2}\hat{u}_{m,n}e^{\mathbf{i}2\pi(\cfrac{im}{M}+\cfrac{jn}{N}) }\\\end{split}\]</div>
+<p>and</p>
+<div class="math notranslate nohighlight">
+\[i=0,1,\cdots,M-1; \quad j=0,1,\cdots ,N-1\]</div>
+<p>The corresponding discrete Fourier transform(DFT) is given by</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\hat{u}_{m,n}=\cfrac{1}{MN} \sum_{i=0}^{M-1}\sum_{j=0}^{N-1}u_{i,j}e^{-\mathbf{i}2\pi(\cfrac{im}{M}+\cfrac{jn}{N}) }\\\end{split}\]</div>
+<p>where</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+m=-\cfrac{M}{2}+1,\cdots,\cfrac{M}{2}\\
+n=-\cfrac{N}{2}+1,\cdots,\cfrac{N}{2}\\
+\end{array}\end{split}\]</div>
+<p>Consider the PDE:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+\displaystyle u(x,y)=\sum_{m=-M/2+1}^{M/2}\sum_{n=-N/2+1}^{N/2}\hat{u}_{m,n}e^{\mathbf{i}2\pi m\cfrac{x}{L_{x}}}e^{\mathbf{i}2\pi n\cfrac{y}{L_{y}}}\\
+\displaystyle \cfrac{\partial u(x,y)}{\partial x} ={\mathbf{i}2\pi m\cfrac{1}{L_{x}}}\sum_{m=-M/2+1}^{M/2}\sum_{n=-N/2+1}^{N/2}\hat{u}_{m,n}e^{\mathbf{i}2\pi m\cfrac{x}{L_{x}}}e^{\mathbf{i}2\pi n\cfrac{y}{L_{y}}}\\
+\displaystyle \cfrac{\partial ^{2}u(x,y)}{\partial x^{2}} =\left\{\mathbf{i}2\pi m\cfrac{1}{L_{x}}\right\}^{2}\sum_{m=-M/2+1}^{M/2}\sum_{n=-N/2+1}^{N/2}\hat{u}_{m,n}e^{\mathbf{i}2\pi m\cfrac{x}{L_{x}}}e^{\mathbf{i}2\pi n\cfrac{y}{L_{y}}}\\
+\displaystyle \cfrac{\partial u(x,y)}{\partial y} ={\mathbf{i}2\pi n\cfrac{1}{L_{y}}}\sum_{m=-M/2+1}^{M/2}\sum_{n=-N/2+1}^{N/2}\hat{u}_{m,n}e^{\mathbf{i}2\pi m\cfrac{x}{L_{x}}}e^{\mathbf{i}2\pi n\cfrac{y}{L_{y}}}\\
+\displaystyle \cfrac{\partial ^{2}u(x,y)}{\partial y^{2}} =\left\{\mathbf{i}2\pi n\cfrac{1}{L_{y}}\right\}^{2}\sum_{m=-M/2+1}^{M/2}\sum_{n=-N/2+1}^{N/2}\hat{u}_{m,n}e^{\mathbf{i}2\pi m\cfrac{x}{L_{x}}}e^{\mathbf{i}2\pi n\cfrac{y}{L_{y}}}\\
+\end{array}\end{split}\]</div>
+<p>and</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}f(x,y)=\sum_{m=-M/2+1}^{M/2}\sum_{n=-N/2+1}^{N/2}\hat{f}_{m,n}e^{\mathbf{i}2\pi m\cfrac{x}{L_{x}}}e^{\mathbf{i}2\pi n\cfrac{y}{L_{y}}}\\\end{split}\]</div>
+<p>then</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+\cfrac{\partial ^{2}u}{\partial x^{2}} +\cfrac{\partial ^{2}u}{\partial y^{2}}=f(x,y)\\
+\displaystyle \Rightarrow \sum_{m=-M/2+1}^{M/2}\sum_{n=-N/2+1}^{N/2}e^{\mathbf{i}2\pi m\cfrac{x}{L_{x}}}e^{\mathbf{i}2\pi n\cfrac{y}{L_{y}}}\hat{u}_{m,n}\left\{\left(\mathbf{i}2\pi m\cfrac{1}{L_{x}}\right )^2+\left(\mathbf{i}2\pi n\cfrac{1}{L_{y}}\right )^2\right\}\\
+\displaystyle = \sum_{m=-M/2+1}^{M/2}\sum_{n=-N/2+1}^{N/2}e^{\mathbf{i}2\pi m\cfrac{x}{L_{x}}}e^{\mathbf{i}2\pi n\cfrac{y}{L_{y}}}\hat{f}_{m,n}
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\hat{u}_{m,n}\left\{\left(\mathbf{i}2\pi m\cfrac{1}{L_{x}}\right )^2+\left(\mathbf{i}2\pi n\cfrac{1}{L_{y}}\right )^2\right\}=\hat{f}_{m,n}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+-\hat{u}_{m,n}\left\{\left(\cfrac{2\pi m}{L_{x}}\right )^2+\left(\cfrac{2\pi n}{L_{y}}\right )^2\right\}=\hat{f}_{m,n}\\
+\hat{u}_{m,n}
+=-\cfrac{\hat{f}_{m,n}}{\left(\cfrac{2\pi m}{L_{x}}\right )^2+\left(\cfrac{2\pi n}{L_{y}}\right )^2}\\
+\end{array}\end{split}\]</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="index.html" class="btn btn-neutral float-left" title="CFD Methods" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="fourier.html" class="btn btn-neutral float-right" title="Fourier Series" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2017~2024, eric.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

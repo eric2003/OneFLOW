@@ -1,0 +1,946 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Fourier Series &mdash; Scientific Computing 1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../_static/documentation_options.js?v=f2a433a1"></script>
+        <script src="../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Iterative Solver" href="iterative.html" />
+    <link rel="prev" title="Spectral Methods" href="spectrum.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            Scientific Computing
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Get started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../info.html">OneFLOW</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../user.html">THEORY</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../bash.html">Bash</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">CFD</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../ns.html">Navier–Stokes equations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../leibniz.html">Leibniz integral</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../rtt.html">Reynolds’ transport theorem</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../mass.html">Conservation Of Mass</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../momenum.html">Momentum Analysis Of Flow Systems</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../energy.html">Conservation Of Energy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../ns-integral.html">ALE Form of Conservation Equations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../curvilinear.html">Generalized Curvilinear Coordinate System</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../curvilinear3d.html">Generalized Curvilinear Coordinate System(3D)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../vector.html">Vector &amp; Tensor</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../matrix.html">Matrix</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../calculus.html">Calculus</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../substitution.html">Substitution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../jacobian.html">Jacobian matrix</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../gauss.html">Gauss’s Theorem</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../strain.html">Strain Measures</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../ale.html">Arbitrary Lagrangian-Eulerian</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../ale1d.html">ALE 1D</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../deformation.html">Deformation and Motion</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../derivative.html">Fluid Derivative</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../material_derivative.html">Material Time Derivative</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../scheme/index.html">CFD Schemes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/index.html">CFD Examples</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="index.html">CFD Methods</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="spectrum.html">Spectral Methods</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Fourier Series</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#wave-mathematical-representation">Wave mathematical representation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#orthogonal-function-system-and-series-expansions-of-function">Orthogonal Function System and Series Expansions of Function</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#the-fourier-series-of-the-period-t-2l">The Fourier series of the period <span class="math notranslate nohighlight">\(T=2L\)</span></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#the-fourier-series-of-the-period-t-2-pi">The Fourier series of the period <span class="math notranslate nohighlight">\(T=2\pi\)</span></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#fourier-series-of-odd-and-even-functions-t-2-pi">Fourier series of odd and even functions <span class="math notranslate nohighlight">\(T=2\pi\)</span></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#even-and-odd-extensions">Even and Odd Extensions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#period-and-angular-frequency">Period and Angular Frequency</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#complex-form-of-fourier-series">Complex Form of Fourier Series</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#applications-of-fourier-series-to-differential-equations">Applications of Fourier Series to Differential Equations</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#discrete-fourier-transform-dft-and-its-relation-to-fourier-series">Discrete Fourier Transform (DFT) and its Relation to Fourier Series</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id5">Fourier Series</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#definition-of-the-fourier-transform-and-its-inverse">Definition of the Fourier Transform and its inverse</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#integration-by-parts">Integration by parts</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#fourier-transforms-of-derivatives">Fourier Transforms of derivatives</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#the-fourier-transform-of-a-second-derivative">The Fourier Transform of a second derivative</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#fourier-transform-solutions-of-pdes">Fourier Transform solutions of PDEs</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#fourier-sine-and-cosine-transforms">Fourier Sine and Cosine Transforms</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#some-fourier-sine-transform-examples">Some Fourier Sine Transform examples.</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#the-discrete-fourier-transform">The Discrete Fourier Transform</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="iterative.html">Iterative Solver</a></li>
+<li class="toctree-l3"><a class="reference internal" href="multigrid.html">MULTIGRID</a></li>
+<li class="toctree-l3"><a class="reference internal" href="multigrid1.html">MULTIGRID Continued</a></li>
+<li class="toctree-l3"><a class="reference internal" href="multigrid2.html">Multigrid Poisson Solver</a></li>
+<li class="toctree-l3"><a class="reference internal" href="vorticitystream.html">Vorticity Stream Function</a></li>
+<li class="toctree-l3"><a class="reference internal" href="inviscid2d.html">Incompressible Navier-Stokes Equation</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../codes.html">Reference Codes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../videos.html">CFD &amp; CAE Videos</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../books.html">Books</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../docs.html">Documents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../cgns.html">CGNS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../chatgpt.html">CHATGPT</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../cpp/index.html">CPP</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../cmake.html">CMake</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../cmd.html">Cmd</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../cuda.html">CUDA</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../design_patterns.html">Design Patterns</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../eigen.html">Eigen3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../git.html">Git</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../git.html#contexts">Contexts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fortran.html">Fortran</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../hdf5.html">HDF5</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../hpc.html">HPC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../install/index.html">Install</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../julia.html">Julia</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../jupyter.html">Jupyter Notebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../latex.html">LaTeX</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../makefile.html">Makefile</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../metis.html">METIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../mkdocs.html">MkDocs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../modules.html">Environment Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../mpi.html">MPI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../numerical/index.html">Numerical analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../oneapi.html">oneAPI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../oneflow.html">OneFLOW-CFD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../openacc.html">OpenACC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../opencl.html">OpenCL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../opengl.html">OpenGL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../openmp.html">OpenMP</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../powershell.html">PowerShell</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../python/index.html">Python</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../qt.html">Qt</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../regex.html">Regular Expressions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../science.html">Science</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sphinx.html">Sphinx</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../system/index.html">System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../taichi.html">Taichi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tcltk.html">Tcl/tk</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tecplot.html">Tecplot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../test.html">Test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../unreal_engine.html">Unreal Engine</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../vcpkg.html">vcpkg</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../yaml.html">yaml</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Scientific Computing</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">CFD</a></li>
+          <li class="breadcrumb-item"><a href="index.html">CFD Methods</a></li>
+      <li class="breadcrumb-item active">Fourier Series</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/cfd/method/fourier.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="fourier-series">
+<h1>Fourier Series<a class="headerlink" href="#fourier-series" title="Link to this heading"></a></h1>
+<ol class="arabic simple">
+<li><p><a class="reference external" href="https://www.youtube.com/watch?v=h7apO7q16V0/">The Fast Fourier Transform (FFT): Most Ingenious Algorithm Ever?</a></p></li>
+</ol>
+<section id="wave-mathematical-representation">
+<h2>Wave mathematical representation<a class="headerlink" href="#wave-mathematical-representation" title="Link to this heading"></a></h2>
+<p>Traveling sinusoidal waves are often represented mathematically in terms of their velocity <span class="math notranslate nohighlight">\(v\)</span> (in the <span class="math notranslate nohighlight">\(x\)</span> direction), frequency <span class="math notranslate nohighlight">\(f\)</span> and wavelength <span class="math notranslate nohighlight">\(\lambda\)</span> as:</p>
+<div class="math notranslate nohighlight">
+\[y(x,t)=A\text{cos}(2\pi(\cfrac{x}{\lambda}-ft))=A\text{cos}(\cfrac{2\pi}{\lambda} (x-vt))\]</div>
+<p>where <span class="math notranslate nohighlight">\(y\)</span> is the value of the wave at any position <span class="math notranslate nohighlight">\(x\)</span> and time <span class="math notranslate nohighlight">\(t\)</span>, and <span class="math notranslate nohighlight">\(A\)</span> is the amplitude of the wave.
+They are also commonly expressed in terms of wavenumber <span class="math notranslate nohighlight">\(k\)</span> (<span class="math notranslate nohighlight">\(2\pi\)</span> times the reciprocal of wavelength) and angular frequency <span class="math notranslate nohighlight">\(\omega\)</span> (<span class="math notranslate nohighlight">\(2\pi\)</span> times the frequency) as:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}y(x,t)=A\text{cos}(kx-\omega t)=A\text{cos}(k(x-vt))\\\end{split}\]</div>
+<p>in which wavelength and wavenumber are related to velocity and frequency as:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}k=\cfrac{2\pi}{\lambda}= \cfrac{2\pi f}{v}=\cfrac{\omega}{v}\\\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[f=\cfrac{1}{T},T=\cfrac{1}{f}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[v=\cfrac{\lambda }{T}=f\lambda,\lambda=vT,T=\cfrac{\lambda}{v}\]</div>
+<p>where <span class="math notranslate nohighlight">\(T\)</span> is period.</p>
+<p>angular frequency</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\omega=\cfrac{2\pi}{T}=2\pi f=2\pi \cfrac{v}{\lambda}=kv \\\end{split}\]</div>
+</section>
+<section id="orthogonal-function-system-and-series-expansions-of-function">
+<h2>Orthogonal Function System and Series Expansions of Function<a class="headerlink" href="#orthogonal-function-system-and-series-expansions-of-function" title="Link to this heading"></a></h2>
+<p>In scientific experiments and engineering, we often face a
+periodic motion in which the periodic motion is seen most,
+such as spring shock, ball pendulum phenomenon, and
+spring rebound phenomenon in high school physics
+phenomena, etc., they can be described with a sine function</p>
+</section>
+<section id="the-fourier-series-of-the-period-t-2l">
+<h2>The Fourier series of the period <span class="math notranslate nohighlight">\(T=2L\)</span><a class="headerlink" href="#the-fourier-series-of-the-period-t-2l" title="Link to this heading"></a></h2>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+\displaystyle f(x)=\cfrac{a_{0}}{2}+\sum_{n=1}^{\infty}(a_{n}\text{cos}\cfrac{n\pi x}{L}+b_{n}\text{sin}\cfrac{n\pi x}{L} )\\
+\displaystyle a_{n}=\cfrac{1}{L}\int_{-L}^{L} f(x)\text{cos}\cfrac{n\pi x}{L}dx\quad(n=0,1,2,\dots)\\
+\displaystyle b_{n}=\cfrac{1}{L}\int_{-L}^{L} f(x)\text{sin}\cfrac{n\pi x}{L}dx\quad(n=1,2,3,\dots)
+\end{array}\end{split}\]</div>
+</section>
+<section id="the-fourier-series-of-the-period-t-2-pi">
+<h2>The Fourier series of the period <span class="math notranslate nohighlight">\(T=2\pi\)</span><a class="headerlink" href="#the-fourier-series-of-the-period-t-2-pi" title="Link to this heading"></a></h2>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+\displaystyle f(x)=\cfrac{a_{0}}{2}+\sum_{n=1}^{\infty}(a_{n}\text{cos}\cfrac{n\pi x}{\pi}+b_{n}\text{sin}\cfrac{n\pi x}{\pi} )\\
+\displaystyle a_{n}=\cfrac{1}{\pi}\int_{-\pi}^{\pi} f(x)\text{cos}\cfrac{n\pi x}{\pi}dx\quad(n=0,1,2,\dots)\\
+\displaystyle b_{n}=\cfrac{1}{\pi}\int_{-\pi}^{\pi} f(x)\text{sin}\cfrac{n\pi x}{\pi}dx\quad(n=1,2,3,\dots)
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+\displaystyle f(x)=\cfrac{a_{0}}{2}+\sum_{n=1}^{\infty}(a_{n}\text{cos}(nx)+b_{n}\text{sin}(nx) )\\
+\displaystyle a_{n}=\cfrac{1}{\pi}\int_{-\pi}^{\pi} f(x)\text{cos}(nx) dx\quad(n=0,1,2,\dots)\\
+\displaystyle b_{n}=\cfrac{1}{\pi}\int_{-\pi}^{\pi} f(x)\text{sin}(nx)dx\quad(n=1,2,3,\dots)
+\end{array}\end{split}\]</div>
+</section>
+<section id="fourier-series-of-odd-and-even-functions-t-2-pi">
+<h2>Fourier series of odd and even functions <span class="math notranslate nohighlight">\(T=2\pi\)</span><a class="headerlink" href="#fourier-series-of-odd-and-even-functions-t-2-pi" title="Link to this heading"></a></h2>
+<p>Since the integral of an odd function over a symmetric interval is zero, the integral of an even function over a symmetric interval is twice the integral over a half interval</p>
+<p>odd functions:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+\displaystyle f(x)=\sum_{n=1}^{\infty}(b_{n}\text{sin}(nx) )\\
+\displaystyle a_{n}=0\quad(n=0,1,2,\dots)\\
+\displaystyle b_{n}=\cfrac{2}{\pi}\int_{0}^{\pi} f(x)\text{sin}(nx)dx\quad(n=1,2,3,\dots)
+\end{array}\end{split}\]</div>
+<p>even functions:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+\displaystyle f(x)=\cfrac{a_{0}}{2}+\sum_{n=1}^{\infty}(a_{n}\text{cos}(nx))\\
+\displaystyle a_{n}=\cfrac{2}{\pi}\int_{0}^{\pi} f(x)\text{cos}(nx) dx\quad(n=0,1,2,\dots)\\
+\displaystyle b_{n}=0\quad(n=1,2,3,\dots)
+\end{array}\end{split}\]</div>
+</section>
+<section id="even-and-odd-extensions">
+<h2>Even and Odd Extensions<a class="headerlink" href="#even-and-odd-extensions" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><a class="reference external" href="https://math24.net/even-odd-extensions.html">Even and Odd Extensions</a></p></li>
+</ul>
+<p>Suppose that a function <span class="math notranslate nohighlight">\(f(x)\)</span> is piecewise continuous and defined on the interval <span class="math notranslate nohighlight">\([0,\pi]\)</span>. To find its Fourier series, we first extend this function to the interval <span class="math notranslate nohighlight">\([-\pi,\pi]\)</span>. This can be done in two ways:</p>
+<ul class="simple">
+<li><p>We can construct the even extension of <span class="math notranslate nohighlight">\(f(x)\)</span>:</p></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}f_{\text{even}}(x)=\left\{\begin{array}{l}
+f(-x),-\pi\le x\lt0&amp;\\
+f(x)\quad,0\le x\le\pi\\
+\end{array}\right.\end{split}\]</div>
+<ul class="simple">
+<li><p>or the odd extension of <span class="math notranslate nohighlight">\(f(x)\)</span>:</p></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}f_{\text{odd}}(x)=\left\{\begin{array}{l}
+-f(-x),-\pi\le x\lt0&amp;\\
+f(x)\quad,0\le x\le\pi\\
+\end{array}\right.\end{split}\]</div>
+<p>For the even function, the Fourier series is called the Fourier Cosine series and is given by</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}f_{\text{even}}(x)=\cfrac{a_{0}}{2}+\sum_{n=1}^{\infty}a_{n}\text{cos }nx\\\end{split}\]</div>
+<p>where</p>
+<div class="math notranslate nohighlight">
+\[a_{n}=\cfrac{2}{\pi}\int_{0}^{\pi} f(x)\text{ cos }nx dx\quad(n=0,1,2,3,\dots)\]</div>
+<p>Respectively, for the odd function, the Fourier series is called the Fourier Sine series and is given by</p>
+<div class="math notranslate nohighlight">
+\[f_{\text{odd}}(x)=\sum_{n=1}^{\infty}b_{n}\text{sin }nx\]</div>
+<p>where the Fourier coefficients are</p>
+<div class="math notranslate nohighlight">
+\[b_{n}=\cfrac{2}{\pi}\int_{0}^{\pi} f(x)\text{sin }nxdx\quad(n=1,2,3,\dots)\]</div>
+<p>We can also define the Fourier Sine and Cosine series for a function with an arbitrary period <span class="math notranslate nohighlight">\(2L\)</span>.
+Let <span class="math notranslate nohighlight">\(f(x)\)</span> be defined on the interval <span class="math notranslate nohighlight">\([0,L]\)</span>. Using even extension of the function to interval <span class="math notranslate nohighlight">\([-L,L]\)</span>, we obtain</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}f_{\text{even}}(x)=\cfrac{a_{0}}{2}+\sum_{n=1}^{\infty}a_{n}\text{cos }\cfrac{n\pi x}{L}\\\end{split}\]</div>
+<p>where</p>
+<div class="math notranslate nohighlight">
+\[a_{n}=\cfrac{2}{L}\int_{0}^{L} f(x)\text{ cos }\cfrac{n\pi x}{L} dx\quad(n=0,1,2,3,\dots)\]</div>
+<p>Respectively, for the odd function, the Fourier series is called the Fourier Sine series and is given by</p>
+<div class="math notranslate nohighlight">
+\[f_{\text{odd}}(x)=\sum_{n=1}^{\infty}b_{n}\text{sin }\cfrac{n\pi x}{L}\]</div>
+<p>where the Fourier coefficients are</p>
+<div class="math notranslate nohighlight">
+\[b_{n}=\cfrac{2}{L}\int_{0}^{L} f(x)\text{sin }\cfrac{n\pi x}{L}dx\quad(n=1,2,3,\dots)\]</div>
+</section>
+<section id="period-and-angular-frequency">
+<h2>Period and Angular Frequency<a class="headerlink" href="#period-and-angular-frequency" title="Link to this heading"></a></h2>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+T=2\pi,\quad\omega=\cfrac{2\pi}{T} =\cfrac{2\pi}{2\pi}=1\\
+T=2L,\quad\omega=\cfrac{2\pi}{T} =\cfrac{2\pi}{L}\\
+\end{array}\end{split}\]</div>
+</section>
+<section id="complex-form-of-fourier-series">
+<h2>Complex Form of Fourier Series<a class="headerlink" href="#complex-form-of-fourier-series" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><a class="reference external" href="https://math24.net/complex-form-fourier-series.html">Complex Form of Fourier Series</a></p></li>
+</ul>
+<p>Let the function <span class="math notranslate nohighlight">\(f(x)\)</span> be defined on the interval <span class="math notranslate nohighlight">\([-\pi,\pi]\)</span>.
+we can write the Fourier series of the function in complex form:</p>
+<div class="math notranslate nohighlight">
+\[f(x)=\sum_{n=-\infty }^{\infty}c_{n}e^{\mathbf{i}nx}\]</div>
+<p>Here we have used the following notations:</p>
+<div class="math notranslate nohighlight">
+\[c_{0}=\cfrac{a_{0}}{2},\quad c_{n}=\cfrac{a_{n}-ib_{n}}{2},\quad c_{-n}=\cfrac{a_{n}+ib_{n}}{2}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+\displaystyle a_{n}=\cfrac{1}{\pi}\int_{-\pi}^{\pi} f(x)\text{cos}(nx) dx\quad(n=0,1,2,\dots)\\
+\displaystyle b_{n}=\cfrac{1}{\pi}\int_{-\pi}^{\pi} f(x)\text{sin}(nx)dx\quad(n=1,2,3,\dots)\\
+\end{array}\end{split}\]</div>
+<p>The coefficients <span class="math notranslate nohighlight">\(c_{n}\)</span> are called complex Fourier coefficients. They are defined by the formulas</p>
+<div class="math notranslate nohighlight">
+\[c_{n}=\cfrac{1}{2\pi}\int_{-\pi}^{\pi} f(x)e^{-\mathbf{i}nx}dx,\quad(n=0,\pm1,\pm2,\dots)\]</div>
+<p>If necessary to expand a function <span class="math notranslate nohighlight">\(f(x)\)</span> of period <span class="math notranslate nohighlight">\(2L\)</span>, we can use the following expressions:</p>
+<div class="math notranslate nohighlight">
+\[f(x)=\sum_{n=-\infty }^{\infty}c_{n}e^{\mathbf{i}\cfrac{n\pi x}{L}}\]</div>
+<p>where</p>
+<div class="math notranslate nohighlight">
+\[c_{n}=\cfrac{1}{2L}\int_{-L}^{L} f(x)e^{-\mathbf{i}\cfrac{n\pi x}{L}}dx,\quad(n=0,\pm1,\pm2,\dots)\]</div>
+<p>Expand a function <span class="math notranslate nohighlight">\(f(x)\)</span> of period <span class="math notranslate nohighlight">\(T\)</span>:</p>
+<div class="math notranslate nohighlight">
+\[f(x)=\sum_{n=-\infty }^{\infty}c_{n}e^{\mathbf{i}\cfrac{2\pi nx}{T}}\]</div>
+<p>where</p>
+<div class="math notranslate nohighlight">
+\[c_{n}=\cfrac{1}{T}\int_{-T/2}^{T/2} f(x)e^{-\mathbf{i}\cfrac{2\pi nx}{T}}dx,\quad(n=0,\pm1,\pm2,\dots)\]</div>
+</section>
+<section id="applications-of-fourier-series-to-differential-equations">
+<h2>Applications of Fourier Series to Differential Equations<a class="headerlink" href="#applications-of-fourier-series-to-differential-equations" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><a class="reference external" href="https://math24.net/fourier-series-applications-differential-equations.html">Applications of Fourier Series to Differential Equations</a></p></li>
+</ul>
+</section>
+<section id="discrete-fourier-transform-dft-and-its-relation-to-fourier-series">
+<h2>Discrete Fourier Transform (DFT) and its Relation to Fourier Series<a class="headerlink" href="#discrete-fourier-transform-dft-and-its-relation-to-fourier-series" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><a class="reference external" href="https://www.youtube.com/watch?v=6ncRdqf2nYs/">Discrete Fourier Transform (DFT) and its Relation to Fourier Series</a></p></li>
+</ul>
+<p>Fourier Series of a function <span class="math notranslate nohighlight">\(f(t)\)</span> of period <span class="math notranslate nohighlight">\(T\)</span>:</p>
+<div class="math notranslate nohighlight">
+\[f(t)=\sum_{n=-\infty }^{\infty}c_{n}e^{\mathbf{i}\cfrac{2\pi nt}{T}}\]</div>
+<p>where</p>
+<div class="math notranslate nohighlight">
+\[c_{n}=\cfrac{1}{T}\int_{-T/2}^{T/2} f(t)e^{-\mathbf{i}\cfrac{2\pi nt}{T}}dt,\quad(n=0,\pm1,\pm2,\dots)\]</div>
+<p>Discrete Fourier Transform:</p>
+<p>Let <span class="math notranslate nohighlight">\(\Delta t=\cfrac{T}{N}\)</span>, then</p>
+<div class="math notranslate nohighlight">
+\[t_{i}=i\Delta t,\quad (i=0,1,2,\dots,N-1)\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+t_{0}=0\\
+t_{1}=\Delta t\\
+t_{2}=2\Delta t\\
+\dots\\
+t_{i}=i\Delta t\\
+\dots\\
+t_{N-1}=(N-1)\Delta t\\
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+\displaystyle f(t)=\sum_{n=-\infty }^{\infty}c_{n}e^{\mathbf{i}\cfrac{2\pi nt}{T}}\\
+\displaystyle f_{0}=f(t_{0})=\sum_{n=-\infty }^{\infty}c_{n}e^{\mathbf{i}\cfrac{2\pi nt_{0}}{T}}\\
+\displaystyle f_{1}=f(t_{1})=\sum_{n=-\infty }^{\infty}c_{n}e^{\mathbf{i}\cfrac{2\pi nt_{1}}{T}}\\
+\displaystyle f_{2}=f(t_{2})=\sum_{n=-\infty }^{\infty}c_{n}e^{\mathbf{i}\cfrac{2\pi nt_{2}}{T}}\\
+\dots\\
+\displaystyle f_{i}=f(t_{i})=\sum_{n=-\infty }^{\infty}c_{n}e^{\mathbf{i}\cfrac{2\pi nt_{i}}{T}}\\
+\dots\\
+\displaystyle f_{N-1}=f(t_{N-1})=\sum_{n=-\infty }^{\infty}c_{n}e^{\mathbf{i}\cfrac{2\pi nt_{N-1}}{T}}\\
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+\displaystyle f(t)=\sum_{n=-\infty }^{\infty}c_{n}e^{\mathbf{i}\cfrac{2\pi nt}{T}}\\
+\displaystyle f_{0}=f(0)=\sum_{n=-\infty }^{\infty}c_{n}e^{\mathbf{i}\cfrac{2\pi n}{T}0}\\
+\displaystyle f_{1}=f(\Delta t)=\sum_{n=-\infty }^{\infty}c_{n}e^{\mathbf{i}\cfrac{2\pi n}{T}\Delta t}\\
+\displaystyle f_{2}=f(2\Delta t)=\sum_{n=-\infty }^{\infty}c_{n}e^{\mathbf{i}\cfrac{2\pi n}{T}2\Delta t}\\
+\dots\\
+\displaystyle f_{i}=f(i\Delta t)=\sum_{n=-\infty }^{\infty}c_{n}e^{\mathbf{i}\cfrac{2\pi n}{T}i\Delta t}\\
+\dots\\
+\displaystyle f_{N-1}=f((N-1)\Delta t)=\sum_{n=-\infty }^{\infty}c_{n}e^{\mathbf{i}\cfrac{2\pi n}{T}(N-1)\Delta t}\\
+\end{array}\end{split}\]</div>
+<p>The coefficients <span class="math notranslate nohighlight">\(c_{n}\)</span></p>
+<div class="math notranslate nohighlight">
+\[c_{n}=\cfrac{1}{T}\int_{-T/2}^{T/2} f(t)e^{-\mathbf{i}\cfrac{2\pi nt}{T}}dt,\quad(n=0,\pm1,\pm2,\dots)\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[c_{n}=\cfrac{1}{T}\int_{0}^{T} f(t)e^{-\mathbf{i}\cfrac{2\pi nt}{T}}dt,\quad(n=0,\pm1,\pm2,\dots)\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[c_{n}=\cfrac{1}{T}\int_{0}^{T} f(t)e^{-\mathbf{i}\cfrac{2\pi nt}{T}}dt\approx\cfrac{1}{T}\sum_{i=0}^{N-1}f(i\Delta t)e^{-\mathbf{i}\cfrac{2\pi n}{T}(i\Delta t)}\Delta t,\quad(n=0,\pm1,\pm2,\dots)\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[c_{n}=\cfrac{1}{N\Delta t}\sum_{i=0}^{N-1}f(i\Delta t)e^{-\mathbf{i}\cfrac{2\pi n}{N\Delta t}(i\Delta t)}\Delta t,\quad(n=0,\pm1,\pm2,\dots)\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[c_{n}=\cfrac{1}{N}\sum_{i=0}^{N-1}f(i\Delta t)e^{-\mathbf{i}\cfrac{2\pi n}{N}i},\quad(n=0,\pm1,\pm2,\dots)\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[c_{n}=\cfrac{1}{N}\sum_{i=0}^{N-1}f_{i}e^{-\mathbf{i}\cfrac{2\pi n}{N}i},\quad(n=0,\pm1,\pm2,\dots)\]</div>
+<p>or</p>
+<div class="math notranslate nohighlight">
+\[c_{n}=\cfrac{1}{N}\sum_{k=0}^{N-1}f_{k}e^{-\mathbf{i}\cfrac{2\pi n}{N}k},\quad(n=0,\pm1,\pm2,\dots)\]</div>
+</section>
+<section id="id5">
+<h2>Fourier Series<a class="headerlink" href="#id5" title="Link to this heading"></a></h2>
+<ol class="arabic simple">
+<li><p><a class="reference external" href="https://www.youtube.com/watch?v=OyNOCs13t-g/">Fourier Series Coefficients (In 10 Minutes)</a></p></li>
+</ol>
+<div class="math notranslate nohighlight">
+\[f(x)=a_{0}+\sum_{n=1}^{\infty }\left(a_{n}\text{cos}\left(\cfrac{\pi nx}{L} \right)+b_{n}\text{sin}\left(\cfrac{\pi nx}{L} \right)\right)\]</div>
+<p>Note-the argument of the trig functions has been tweaked to account for the fact <span class="math notranslate nohighlight">\(f(x)\)</span> has period <span class="math notranslate nohighlight">\(2L\)</span>.</p>
+<div class="math notranslate nohighlight">
+\[\text{cos}(nx)\longrightarrow \text{cos}(\cfrac{\pi nx}{L})\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+\int_{-L}^{L}f(x)dx &amp; = \int_{-L}^{L}a_{0}dx+\int_{-L}^{L}\sum_{n = 1}^{\infty }\left(a_{n}\text{cos}\bigg(\cfrac{\pi nx}{L} \bigg)+b_{n}\text{sin}\bigg(\cfrac{\pi nx}{L} \bigg)\right)dx\\
+&amp;=\int_{-L}^{L}a_{0}dx
++\int_{-L}^{L}\sum_{n = 1}^{\infty }\left(a_{n}\text{cos}\bigg( \cfrac{\pi nx}{L} \bigg)\right)dx
++\int_{-L}^{L}\sum_{n = 1}^{\infty }\left(b_{n}\text{sin}\bigg(\cfrac{\pi nx}{L} \bigg)\right)dx\\
+&amp;=\int_{-L}^{L}a_{0}dx
++\sum_{n = 1}^{\infty }a_{n}\int_{-L}^{L}\text{cos}\bigg( \cfrac{\pi nx}{L} \bigg)dx
++\sum_{n = 1}^{\infty }b_{n}\int_{-L}^{L}\text{sin}\bigg( \cfrac{\pi nx}{L} \bigg)dx
+\end{align}\end{split}\]</div>
+<p>Note: you can’t always switch the order of integration and summation with infinite sums and improper integrals. In this case, we can.</p>
+<div class="math notranslate nohighlight">
+\[\int_{-L}^{L}\text{cos}\bigg( \cfrac{\pi nx}{L} \bigg)dx=\cfrac{L}{\pi n} \int_{-\pi n}^{\pi n}\text{cos}(u)du\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\cfrac{L}{\pi n} \int_{-\pi n}^{\pi n}\text{cos}(u)du=\cfrac{L}{\pi n} \big[\text{sin}(u)\big]_{-\pi n}^{\pi n}=0\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\int_{-L}^{L}\text{sin}\bigg( \cfrac{\pi nx}{L} \bigg)dx=\cfrac{L}{\pi n} \int_{-\pi n}^{\pi n}\text{sin}(u)du\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\cfrac{L}{\pi n} \int_{-\pi n}^{\pi n}\text{sin}(u)du=-\cfrac{L}{\pi n} \big[\text{cos}(u)\big]_{-\pi n}^{\pi n}=0\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\text{sin}(\pi n)=0=\text{sin}(-\pi n)\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\text{cos}(\pi n)=\text{cos}(-\pi n)\]</div>
+<p>so</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+\int_{-L}^{L}f(x)dx &amp; = \int_{-L}^{L}(a_{0})dx\\
+&amp; = a_{0} \int_{-L}^{L}dx=a_{0}[x]_{-L}^{L}=a_{0}2L
+\end{align}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[a_{0}=\bigg(\cfrac{1}{2L}\bigg)\int_{-L}^{L}f(x)dx\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[a_{n}=\cfrac{1}{L} \int_{-L}^{L}f(x)\text{cos}\bigg(\cfrac{\pi nx}{L} \bigg)dx\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[b_{n}=\cfrac{1}{L} \int_{-L}^{L}f(x)\text{sin}\bigg(\cfrac{\pi nx}{L} \bigg)dx\]</div>
+</section>
+<section id="definition-of-the-fourier-transform-and-its-inverse">
+<h2>Definition of the Fourier Transform and its inverse<a class="headerlink" href="#definition-of-the-fourier-transform-and-its-inverse" title="Link to this heading"></a></h2>
+<p>The so-called Fourier Transform pair is defined this way,</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{c}
+\displaystyle \mathcal{F}[f(x)]=\int_{-\infty}^{\infty}f(x)e^{-\mathbf{i}\omega x}dx=F(\omega)\\
+\displaystyle \mathcal{F}^{-1}[F(\omega)]=\cfrac{1}{2\pi} \int_{-\infty}^{\infty}F(\omega)e^{\mathbf{i}\omega x}d\omega=f(x)
+\end{array}\end{split}\]</div>
+<p>or</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{c}
+\displaystyle F(\omega)=\int_{-\infty}^{\infty}f(x)e^{-\mathbf{i}\omega x}dx\\
+\displaystyle f(x)=\cfrac{1}{2\pi} \int_{-\infty}^{\infty}F(\omega)e^ {\mathbf{i}\omega x}d\omega\\
+\end{array}\end{split}\]</div>
+</section>
+<section id="integration-by-parts">
+<h2>Integration by parts<a class="headerlink" href="#integration-by-parts" title="Link to this heading"></a></h2>
+<p>The integration by parts formula states:</p>
+<div class="math notranslate nohighlight">
+\[\int_{a}^{b}u(x)v'(x)dx =[u(x)v(x)]_{a}^{b}-\int_{a}^{b}u'(x)v(x)dx\]</div>
+</section>
+<section id="fourier-transforms-of-derivatives">
+<h2>Fourier Transforms of derivatives<a class="headerlink" href="#fourier-transforms-of-derivatives" title="Link to this heading"></a></h2>
+<p>We shall find the Fourier Transform of <span class="math notranslate nohighlight">\(f'(x)\)</span>:</p>
+<div class="math notranslate nohighlight">
+\[\mathcal{F}[f'(x)]=\int_{-\infty}^{\infty}f'(x)e^{-\mathbf{i}\omega x}dx\]</div>
+<p>Let <span class="math notranslate nohighlight">\(u(x)=e^{-\mathbf{i}\omega x},v(x)=f(x)\)</span>, then</p>
+<div class="math notranslate nohighlight">
+\[\mathcal{F}[f'(x)]=\int_{-\infty}^{\infty}e^{-\mathbf{i}\omega x}f'(x)dx=[e^{-\mathbf{i}\omega x}f(x)]_{-\infty}^{\infty}
+-(-\mathbf{i}\omega)\int_{-\infty}^{\infty}e^{-\mathbf{i}\omega x}f(x)dx\]</div>
+<p>for</p>
+<div class="math notranslate nohighlight">
+\[f\to 0\quad \text{as }|x|\to\infty\]</div>
+<p>then</p>
+<div class="math notranslate nohighlight">
+\[[e^{-\mathbf{i}\omega x}f(x)]_{-\infty}^{\infty}=0\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\mathcal{F}[f'(x)]=(\mathbf{i}\omega)\int_{-\infty}^{\infty}e^{-\mathbf{i}\omega x}f(x)dx=(\mathbf{i}\omega)F(\omega)\]</div>
+<p>The most important aspect of this analysis was the assumption that <span class="math notranslate nohighlight">\(f\)</span> tends to zero as <span class="math notranslate nohighlight">\(x\)</span> tends to
+<span class="math notranslate nohighlight">\(\pm \infty\)</span>. This was one of the sufficient conditions that were stated</p>
+<p>Subject to having <span class="math notranslate nohighlight">\(f\to 0\)</span> as <span class="math notranslate nohighlight">\(|x|\to\infty\)</span>, an <span class="math notranslate nohighlight">\(x\)</span>-derivative in the spatial domain is equivalent to
+multiplication by <span class="math notranslate nohighlight">\(j\omega\)</span> in the frequency domain.</p>
+</section>
+<section id="the-fourier-transform-of-a-second-derivative">
+<h2>The Fourier Transform of a second derivative<a class="headerlink" href="#the-fourier-transform-of-a-second-derivative" title="Link to this heading"></a></h2>
+<p>We shall follow the same idea but will integrate by parts twice.</p>
+<p>We shall find the Fourier Transform of <span class="math notranslate nohighlight">\(f''(x)\)</span>:</p>
+<div class="math notranslate nohighlight">
+\[\mathcal{F}[f''(x)]=\int_{-\infty}^{\infty}f''(x)e^{-\mathbf{i}\omega x}dx\]</div>
+<p>The integration by parts formula states:</p>
+<div class="math notranslate nohighlight">
+\[\int_{a}^{b}u(x)v'(x)dx =[u(x)v(x)]_{a}^{b}-\int_{a}^{b}u'(x)v(x)dx\]</div>
+<p>Let <span class="math notranslate nohighlight">\(u(x)=e^{-\mathbf{i}\omega x},v(x)=f'(x)\)</span>, then</p>
+<div class="math notranslate nohighlight">
+\[u'(x)=(-\mathbf{i}\omega)e^{-\mathbf{i}\omega x},v'(x)=f''(x)\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\mathcal{F}[f''(x)]=\int_{-\infty}^{\infty}e^{-\mathbf{i}\omega x}f''(x)dx=[e^{-\mathbf{i}\omega x}f'(x)]_{-\infty}^{\infty}
+-(-\mathbf{i}\omega)\int_{-\infty}^{\infty}e^{-\mathbf{i}\omega x}f'(x)dx\]</div>
+<p>due to</p>
+<div class="math notranslate nohighlight">
+\[\mathcal{F}[f'(x)]=\int_{-\infty}^{\infty}e^{-\mathbf{i}\omega x}f'(x)dx=[e^{-\mathbf{i}\omega x}f(x)]_{-\infty}^{\infty}
+-(-\mathbf{i}\omega)\int_{-\infty}^{\infty}e^{-\mathbf{i}\omega x}f(x)dx\]</div>
+<p>and</p>
+<div class="math notranslate nohighlight">
+\[f\to 0\quad \text{as }|x|\to\infty\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[f'\to 0\quad \text{as }|x|\to\infty\]</div>
+<p>then</p>
+<div class="math notranslate nohighlight">
+\[[e^{-\mathbf{i}\omega x}f(x)]_{-\infty}^{\infty}=0\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[[e^{-\mathbf{i}\omega x}f'(x)]_{-\infty}^{\infty}=0\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\mathcal{F}[f'(x)]=\int_{-\infty}^{\infty}e^{-\mathbf{i}\omega x}f'(x)dx=
+-(-\mathbf{i}\omega)\int_{-\infty}^{\infty}e^{-\mathbf{i}\omega x}f(x)dx=(\mathbf{i}\omega)F(\omega)\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\mathcal{F}[f''(x)]=\int_{-\infty}^{\infty}e^{-\mathbf{i}\omega x}f''(x)dx=
+(\mathbf{i}\omega)\int_{-\infty}^{\infty}e^{-\mathbf{i}\omega x}f'(x)dx=(\mathbf{i}\omega)^{2}F(\omega)\]</div>
+<p>Thus we need both <span class="math notranslate nohighlight">\(f\)</span> and <span class="math notranslate nohighlight">\(f'\)</span> to tend to zero as <span class="math notranslate nohighlight">\(x\to\pm\infty\)</span> for this result to be valid. The manner in
+which this analysis proceeds tells us that there is a simple rule for yet higher derivatives, namely that</p>
+<div class="math notranslate nohighlight">
+\[\mathcal{F}\bigg[\cfrac{d^{n}f}{dx^{n}}\bigg]=(\mathbf{i}\omega)^{n}F(\omega)\]</div>
+<p>provided that <span class="math notranslate nohighlight">\(f\)</span> and its first <span class="math notranslate nohighlight">\(n-1\)</span> derivatives tend to zero when <span class="math notranslate nohighlight">\(|x|\)</span> is large.</p>
+</section>
+<section id="fourier-transform-solutions-of-pdes">
+<h2>Fourier Transform solutions of PDEs<a class="headerlink" href="#fourier-transform-solutions-of-pdes" title="Link to this heading"></a></h2>
+<section id="solutions-of-fouriers-equation">
+<h3>Solutions of Fourier’s equation<a class="headerlink" href="#solutions-of-fouriers-equation" title="Link to this heading"></a></h3>
+<p>We will solve Fourier’s equation</p>
+<div class="math notranslate nohighlight">
+\[\cfrac{\partial T}{\partial t}=\alpha\cfrac{\partial ^{2}T}{\partial x^{2}}\]</div>
+<p>subject to the initial condition that</p>
+<div class="math notranslate nohighlight">
+\[T=f(x)\quad \text { at } t=0\]</div>
+<p>We have to assume that the initial temperature profile, <span class="math notranslate nohighlight">\(f(x)\)</span>, must decay to zero as <span class="math notranslate nohighlight">\(x\to \pm \infty\)</span> in
+order to be able to use Fourier Transforms. The solution procedure follows three steps:</p>
+<ol class="lowerroman simple">
+<li><p>take the Fourier Transform of the given equation,</p></li>
+<li><p>solve the transformed equation,</p></li>
+<li><p>take the inverse Fourier Transform to find the desired solution.</p></li>
+</ol>
+<p>Note: In many cases the final answer has to be written in terms of an integral, but sometimes one
+may be able to find an explicit expression for the solution.</p>
+<p>First we let <span class="math notranslate nohighlight">\(\hat{T}(\omega,t)\)</span> be the Fourier Transform of <span class="math notranslate nohighlight">\(T(x,t)\)</span> with respect to <span class="math notranslate nohighlight">\(x\)</span>. Thus,</p>
+<div class="math notranslate nohighlight">
+\[\hat{T}(\omega,t)=\mathcal{F}[T(x,t)]=\int_{-\infty}^{\infty}T(x,t)e^{-\mathbf{i}\omega x}dx\]</div>
+<p>Now we’ll take the Fourier Transform of the second derivative:</p>
+<div class="math notranslate nohighlight">
+\[\mathcal{F}\bigg[\cfrac{\partial ^{2}T(x,t)}{\partial x^{2}} \bigg]=\int_{-\infty}^{\infty}\cfrac{\partial ^{2}T(x,t)}{\partial x^{2}}e^{-\mathbf{i}\omega x}dx=-\omega^{2}F(\omega)=-\omega^{2}\hat{T}(\omega)\]</div>
+<p>Note that we have used the facts that both <span class="math notranslate nohighlight">\(T\)</span> and its <span class="math notranslate nohighlight">\(x\)</span>-derivative tend to zero as <span class="math notranslate nohighlight">\(x\to\pm\infty\)</span>.
+The Fourier Transform of the time-derivative term is relatively straightforward:</p>
+<div class="math notranslate nohighlight">
+\[\mathcal{F}\bigg[\cfrac{\partial T(x,t)}{\partial t} \bigg]=\int_{-\infty}^{\infty}\cfrac{\partial T(x,t)}{\partial t}e^{-\mathbf{i}\omega x}dx
+=\cfrac{\partial }{\partial t} \int_{-\infty}^{\infty}T(x,t)e^{-\mathbf{i}\omega x}dx
+=\cfrac{\partial\hat{T}(\omega) }{\partial t}\]</div>
+<p>Note that we have effectively swapped the order of differentiation with respect to <span class="math notranslate nohighlight">\(t\)</span> and integration
+with respect to <span class="math notranslate nohighlight">\(x\)</span> when deriving this result.</p>
+<p>Now Fourier’s equation, is transformed to</p>
+<div class="math notranslate nohighlight">
+\[\cfrac{\partial\hat{T}(\omega) }{\partial t}=-\alpha\omega^{2}\hat{T}(\omega)\]</div>
+<p>This ordinary differential equation has the solution,</p>
+<div class="math notranslate nohighlight">
+\[\hat{T}(\omega)={A}(\omega)e^{-\alpha\omega^{2}t}\]</div>
+<p>where the ‘constant of integration’ may be treated as a function of <span class="math notranslate nohighlight">\(\omega\)</span>. While this treatment might
+seem strange, the ordinary differential equation has <span class="math notranslate nohighlight">\(t\)</span> as its independent variable, and therefore <span class="math notranslate nohighlight">\(\omega\)</span> is
+simply a passive parameter. Therefore it makes sense to ensure that <span class="math notranslate nohighlight">\(A\)</span> is as general as possible by
+allowing it to vary with <span class="math notranslate nohighlight">\(\omega\)</span>.</p>
+<p>The constant of integration may be found by applying an appropriate initial condition, but the only
+one which is available at present is :</p>
+<div class="math notranslate nohighlight">
+\[T=f(x)\quad \text { at } t=0\]</div>
+<p>However, we may take the Fourier Transform of this to obtain</p>
+<div class="math notranslate nohighlight">
+\[\hat{T}(\omega)=\mathcal{F}[f(x)]=F(\omega)\quad \text { at } t=0\]</div>
+<p>Therefore the setting of <span class="math notranslate nohighlight">\(t = 0\)</span> yields</p>
+<div class="math notranslate nohighlight">
+\[A=F\]</div>
+<p>and so the Fourier Transform of the desired solution is,</p>
+<div class="math notranslate nohighlight">
+\[\hat{T}(\omega)={F}(\omega)e^{-\alpha\omega^{2}t}\]</div>
+<p>We may now apply the formula for the inverse Fourier Transform to obtain the final
+solution,</p>
+<div class="math notranslate nohighlight">
+\[T(x,t)=\cfrac{1}{2\pi } \int_{-\infty}^{\infty}F(\omega )e^{-\alpha \omega ^{2}t}e^{\mathbf{i}\omega x}d\omega\]</div>
+<p>It is difficult to simplify this final integral in any meaningful way, and therefore we have to leave it
+as it is. Clearly, for any chosen pair of values of <span class="math notranslate nohighlight">\(x\)</span> and <span class="math notranslate nohighlight">\(t\)</span> the integral may be evaluated numerically
+with ease and to any desired accuracy. If a sufficient number of pairs of <span class="math notranslate nohighlight">\(x\)</span> and <span class="math notranslate nohighlight">\(t\)</span> are used it becomes
+possible to obtain either a contour plot of the evolution of <span class="math notranslate nohighlight">\(T\)</span> in space and time, or else to show how
+the temperature profile varies with time.</p>
+</section>
+</section>
+<section id="fourier-sine-and-cosine-transforms">
+<h2>Fourier Sine and Cosine Transforms<a class="headerlink" href="#fourier-sine-and-cosine-transforms" title="Link to this heading"></a></h2>
+<p>When solving partial differential equations in an infinite domain (i.e. in <span class="math notranslate nohighlight">\(-\infty &lt;x&lt;\infty\)</span> ), it is often
+necessary to use the Fourier Transform. However, not all problems are defined on an infinite domain,
+but some are defined on a semi–infinite domain (<span class="math notranslate nohighlight">\(0 \le x&lt;\infty\)</span>). This where we need to use either
+the Fourier Sine Transform (FST) or the Fourier Cosine Transform (FCT).</p>
+<p>The FCT and the FST are intimately related to the Fourier Transform and they and their inverses
+may be derived from it and its inverse. The Fourier Cosine Transform pair is given by</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{c}
+\displaystyle F_{c}(\omega)=\mathcal{F}_{c}[f(x)]=\int_{0}^{\infty}f(x)\text{cos}(\omega x)dx\\
+\displaystyle f(x)=\mathcal{F}_{c}^{-1}[F_{c}(\omega)]=\cfrac{2}{\pi} \int_{-\infty}^{\infty}F_{c}(\omega)\text{cos}(\omega x)d\omega
+\end{array}\end{split}\]</div>
+<p>The Fourier Sine Transform pair is given by</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{c}
+\displaystyle F_{s}(\omega)=\mathcal{F}_{s}[f(x)]=\int_{0}^{\infty}f(x)\text{sin}(\omega x)dx\\
+\displaystyle f(x)=\mathcal{F}_{s}^{-1}[F_{s}(\omega)]=\cfrac{2}{\pi} \int_{-\infty}^{\infty}F_{s}(\omega)\text{sin}(\omega x)d\omega
+\end{array}\end{split}\]</div>
+<p>If we are solving an equation for <span class="math notranslate nohighlight">\(u(x, y)\)</span>, say, where transforms are being taken in the <span class="math notranslate nohighlight">\(x\)</span>-direction,
+then the FST is used when <span class="math notranslate nohighlight">\(u(x, y)\)</span> is given on the boundary <span class="math notranslate nohighlight">\(x = 0\)</span>, and that the FCT is used when
+the first <span class="math notranslate nohighlight">\(x\)</span>-derivative of <span class="math notranslate nohighlight">\(u(x, y)\)</span> is given on <span class="math notranslate nohighlight">\(x = 0\)</span>. The reasons for this are technical, and they arise
+naturally during the integration by parts process for evaluating the transforms of derivatives.</p>
+</section>
+<section id="some-fourier-sine-transform-examples">
+<h2>Some Fourier Sine Transform examples.<a class="headerlink" href="#some-fourier-sine-transform-examples" title="Link to this heading"></a></h2>
+<section id="example-1">
+<h3>Example 1<a class="headerlink" href="#example-1" title="Link to this heading"></a></h3>
+<p>We will consider the following unsteady one-dimensional heat transfer problem. A semi-infinite solid,
+which occupies the region, <span class="math notranslate nohighlight">\(0 \le x&lt;\infty\)</span>, has the temperature profile, <span class="math notranslate nohighlight">\(T = f(x)\)</span>, at <span class="math notranslate nohighlight">\(t = 0\)</span>. However,
+the <span class="math notranslate nohighlight">\(x = 0\)</span> end of this region is maintained at the temperature, <span class="math notranslate nohighlight">\(T = 0\)</span>. Determine the evolution of
+the temperature profile</p>
+<p>Let <span class="math notranslate nohighlight">\(\hat{T}_{s}(\omega,t)\)</span> be the Fourier Sine Transform of <span class="math notranslate nohighlight">\(T(x, t)\)</span> with respect to <span class="math notranslate nohighlight">\(x\)</span>, i.e. that</p>
+<div class="math notranslate nohighlight">
+\[\hat{T}_{s}(\omega,t) =\mathcal{F}_{s}[T(x,t)]=\int_{0}^{\infty}T(x,t)\text{sin}(\omega x)dx\]</div>
+<p>Let <span class="math notranslate nohighlight">\(\hat{T}_{c}(\omega,t)\)</span> be the Fourier Cosine Transform of <span class="math notranslate nohighlight">\(T(x, t)\)</span> with respect to <span class="math notranslate nohighlight">\(x\)</span>, i.e. that</p>
+<div class="math notranslate nohighlight">
+\[\hat{T}_{c}(\omega,t) =\mathcal{F}_{c}[T(x,t)]=\int_{0}^{\infty}T(x,t)\text{cos}(\omega x)dx\]</div>
+<p>We will solve Fourier’s equation</p>
+<div class="math notranslate nohighlight">
+\[\cfrac{\partial T}{\partial t}=\alpha\cfrac{\partial ^{2}T}{\partial x^{2}}\]</div>
+<p>subject to the initial condition that</p>
+<div class="math notranslate nohighlight">
+\[T=f(x)\quad \text { at } t=0\]</div>
+<p>Therefore we will need to take the Fourier Sine Transform of this equation.
+Beginning with the time-derivative term, we get</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+\displaystyle \mathcal{F}_{s}[T(x,t)]=\int_{0}^{\infty}T(x,t)\text{sin}(\omega x)dx=\hat{T}_{s}(\omega)\\
+\displaystyle \mathcal{F}_{s}\bigg[\cfrac{\partial T(x,t)}{\partial t} \bigg]=\int_{0}^{\infty}\cfrac{\partial T(x,t)}{\partial t} \text{sin}(\omega x)dx
+=\cfrac{\partial }{\partial t}\int_{0}^{\infty}T(x,t)\text{sin}(\omega x)dx
+=\cfrac{\partial \hat{T}_{s}(\omega) }{\partial t}
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\mathcal{F}_{s}\bigg[\cfrac{\partial T(x,t)}{\partial x} \bigg]=\int_{0}^{\infty}\cfrac{\partial T(x,t)}{\partial x} \text{sin}(\omega x)dx\]</div>
+<p>The integration by parts formula states:</p>
+<div class="math notranslate nohighlight">
+\[\int_{a}^{b}u(x)v'(x)dx =[u(x)v(x)]_{a}^{b}-\int_{a}^{b}u'(x)v(x)dx\]</div>
+<p>Let <span class="math notranslate nohighlight">\(u(x)=\text{sin}(\omega x),v(x)= T(x,t)\)</span>, then</p>
+<div class="math notranslate nohighlight">
+\[u'(x)=\omega\text{cos}(\omega x)\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\int_{0}^{\infty}\cfrac{\partial T(x,t)}{\partial x} \text{sin}(\omega x)dx
+=\bigg[\text{sin}(\omega x)T(x,t)\bigg]_{0}^{\infty}
+-\omega\int_{0}^{\infty} T(x,t)\text{cos}(\omega x)dx\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+\text{sin}(\omega 0)=\text{sin}(0)=0\\
+T(x,t)\to 0\quad \text{as }x\to\infty\\
+\bigg[\text{sin}(\omega x)T(x,t)\bigg]_{0}^{\infty}=0
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\mathcal{F}_{s}\bigg[\cfrac{\partial T(x,t)}{\partial x} \bigg]=\int_{0}^{\infty}\cfrac{\partial T(x,t)}{\partial x} \text{sin}(\omega x)dx
+=-\omega\int_{0}^{\infty} T(x,t)\text{cos}(\omega x)dx\]</div>
+<p>we will need to take the Fourier Cosine Transform of this equation.
+Beginning with the time-derivative term, we get</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+\displaystyle \mathcal{F}_{c}[T(x,t)]=\int_{0}^{\infty}T(x,t)\text{cos}(\omega x)dx=\hat{T}_{c}(\omega)\\
+\displaystyle \mathcal{F}_{c}\bigg[\cfrac{\partial T(x,t)}{\partial x} \bigg]=\int_{0}^{\infty}\cfrac{\partial T(x,t)}{\partial x} \text{cos}(\omega x)dx
+\end{array}\end{split}\]</div>
+<p>Let <span class="math notranslate nohighlight">\(u(x)=\text{cos}(\omega x),v(x)= T(x,t)\)</span>, then</p>
+<div class="math notranslate nohighlight">
+\[u'(x)=-\omega\text{sin}(\omega x)\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+\displaystyle\int_{0}^{\infty}\cfrac{\partial T(x,t)}{\partial x} \text{cos}(\omega x)dx
+&amp; = \bigg[\text{cos}(\omega x)T(x,t)\bigg]_{0}^{\infty}
++\omega\int_{0}^{\infty} T(x,t)\text{sin}(\omega x)dx \\
+&amp; = \bigg[\text{cos}(\omega x)T(x,t)\bigg]_{0}^{\infty}
++\omega \hat{T}_{s}(\omega)
+\end{align}\end{split}\]</div>
+<p>The Sine Transform of a second derivative</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\mathcal{F}_{s}\bigg[\cfrac{\partial ^{2}T(x,t)}{\partial x^{2}} \bigg]=\int_{0}^{\infty}\cfrac{\partial ^{2}T(x,t)}{\partial x^{2}} \text{sin}(\omega x)dx\\\end{split}\]</div>
+<p>Let <span class="math notranslate nohighlight">\(u(x)=\text{sin}(\omega x),v(x)= \cfrac{\partial T(x,t)}{\partial x}\)</span>, then</p>
+<div class="math notranslate nohighlight">
+\[u'(x)=\omega\text{cos}(\omega x)\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\int_{0}^{\infty}\cfrac{\partial T(x,t)}{\partial x} \text{cos}(\omega x)dx\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+\int_{0}^{\infty}\cfrac{\partial ^{2}T(x,t)}{\partial x^{2}} \text{sin}(\omega x)dx &amp; = \bigg[\text{sin}(\omega x)\cfrac{\partial T(x,t)}{\partial x} \bigg]_{0}^{\infty}
+-\omega\int_{0}^{\infty}\cfrac{\partial T(x,t)}{\partial x} \text{cos}(\omega x)dx\\
+&amp;=\bigg[\text{sin}(\omega x)\cfrac{\partial T(x,t)}{\partial x} \bigg]_{0}^{\infty}
+-\omega\bigg\{\bigg[\text{cos}(\omega x)T(x,t)\bigg]_{0}^{\infty}
+  +\omega \hat{T}_{s}(\omega)\bigg\}\\
+&amp;=\bigg[\text{sin}(\omega x)\cfrac{\partial T(x,t)}{\partial x} \bigg]_{0}^{\infty}
+-\omega\bigg[\text{cos}(\omega x)T(x,t)\bigg]_{0}^{\infty}-\omega^{2} \hat{T}_{s}(\omega)
+\end{align}\end{split}\]</div>
+<p>Note that we had to use the <span class="math notranslate nohighlight">\(T = 0 \text{ at }x = 0\)</span> boundary condition.
+Note also that, if the boundary condition at <span class="math notranslate nohighlight">\(x = 0\)</span> had been
+a Neumann condition (the gradient of <span class="math notranslate nohighlight">\(T\)</span> is specified) then we would not be able to proceed further
+because the value of <span class="math notranslate nohighlight">\(T\)</span> at <span class="math notranslate nohighlight">\(x = 0\)</span> is needed there. Thus the Fourier Sine Transform must be used
+with Dirichlet boundary conditions.</p>
+<div class="math notranslate nohighlight">
+\[\mathcal{F}_{s}\bigg[\cfrac{\partial ^{2}T(x,t)}{\partial x^{2}}\bigg] =\int_{0}^{\infty}\cfrac{\partial ^{2}T(x,t)}{\partial x^{2}} \text{sin}(\omega x)dx
+=-\omega^{2} \hat{T}_{s}(\omega)\]</div>
+<p>We also assumed that <span class="math notranslate nohighlight">\(T(x,t)\)</span> and its derivatives decay to zero as <span class="math notranslate nohighlight">\(x\to\infty\)</span>. Therefore Fourier’s equation
+transforms to,</p>
+<div class="math notranslate nohighlight">
+\[\cfrac{\partial \hat{T}_{s}(\omega)}{\partial t}=-\alpha\omega^{2} \hat{T}_{s}(\omega)\]</div>
+<p>and the solution is,</p>
+<div class="math notranslate nohighlight">
+\[\hat{T}_{s}(\omega)=A(\omega)e^{-\alpha\omega^{2}t}\]</div>
+<p>where A(ω) is the arbitrary constant. The given initial condition is
+that <span class="math notranslate nohighlight">\(T = f(x)\)</span> when <span class="math notranslate nohighlight">\(t = 0\)</span>; on taking the Fourier Sine Transform of this, we obtain the transformed
+version, namely,</p>
+<div class="math notranslate nohighlight">
+\[\hat{T}_{s}(\omega)=\mathcal{F}_{s}[f(x)]={F}_{s}(\omega)\quad\text{when }t=0\]</div>
+<p>Substitution yields <span class="math notranslate nohighlight">\(A = {F}_s\)</span>, and hence</p>
+<div class="math notranslate nohighlight">
+\[\hat{T}_{s}(\omega)={F}_s(\omega)e^{-\alpha\omega^{2}t}\]</div>
+<p>The final solution is obtained by taking the inverse Fourier Sine Transform of this; we get,</p>
+<div class="math notranslate nohighlight">
+\[T(x,t)=\mathcal{F}_{s}^{-1}[\hat{T}_{s}(\omega)]=\cfrac{2}{\pi}\int_{0}^{\infty}F_{s}(\omega) e^{-\alpha \omega ^{2}t}\text{sin}(\omega x)d\omega\]</div>
+</section>
+</section>
+<section id="the-discrete-fourier-transform">
+<h2>The Discrete Fourier Transform<a class="headerlink" href="#the-discrete-fourier-transform" title="Link to this heading"></a></h2>
+<p>The Discrete Fourier Transform (DFT) is the equivalent of the continuous Fourier
+Transform for signals known only at <span class="math notranslate nohighlight">\(N\)</span> instants separated by sample times <span class="math notranslate nohighlight">\(T\)</span> (i.e.
+a finite sequence of data).</p>
+<p>Let <span class="math notranslate nohighlight">\(f(t)\)</span> be the continuous signal which is the source of the data. Let <span class="math notranslate nohighlight">\(N\)</span> samples
+be denoted <span class="math notranslate nohighlight">\(f[0],f[1],f[2],\dots,f[k],\dots,f[N-1]\)</span>.</p>
+<p>The Fourier Transform of the original signal, <span class="math notranslate nohighlight">\(f(t)\)</span>, would be</p>
+<div class="math notranslate nohighlight">
+\[F(\omega)=\int_{-\infty}^{\infty}f(t)e^{\mathbf{i}\omega t}dt\]</div>
+<p>We could regard each sample <span class="math notranslate nohighlight">\(f[k]\)</span> as an impulse having area <span class="math notranslate nohighlight">\(f[k]\)</span>. Then, since the integrand exists only at the sample points:</p>
+<div class="math notranslate nohighlight">
+\[F(\omega)=\int_{-\infty}^{\infty}f(t)e^{\mathbf{i}\omega t}dt\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+F(\omega) &amp; = \int_{-\infty}^{\infty}f(t)e^{-\mathbf{i}\omega t}dt  = \int_{0}^{(N-1)T}f(t)e^{-\mathbf{i}\omega t}dt\\
+&amp; = f[0]e^{-\mathbf{i}0}+f[1]e^{-\mathbf{i}\omega T}+f[2]e^{-\mathbf{i}\omega 2T}
++\dots+f[k]e^{-\mathbf{i}\omega kT}+\dots+f[N-1]e^{-\mathbf{i}\omega (N-1)T}
+\end{align}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[F(\omega) =\sum_{k=0}^{N-1}f[k]e^{-\mathbf{i}\omega kT}\]</div>
+<p>We could in principle evaluate this for any <span class="math notranslate nohighlight">\(\omega\)</span>, but with only <span class="math notranslate nohighlight">\(N\)</span> data points to start
+with, only <span class="math notranslate nohighlight">\(N\)</span> final outputs will be significant.</p>
+<p>You may remember that the continuous Fourier transform could be evaluated
+over a finite interval (usually the fundamental period <span class="math notranslate nohighlight">\(T_{0}\)</span> ) rather than from <span class="math notranslate nohighlight">\(-\infty\)</span> to
+<span class="math notranslate nohighlight">\(+\infty\)</span> if the waveform was periodic. Similarly, since there are only a finite number
+of input data points, the DFT treats the data as if it were periodic (i.e. <span class="math notranslate nohighlight">\(f(N)\)</span> to <span class="math notranslate nohighlight">\(f(2N-1)\)</span> is the same as
+<span class="math notranslate nohighlight">\(f(0)\)</span> to <span class="math notranslate nohighlight">\(f(N-1)\)</span> ).</p>
+<p>Since the operation treats the data as if it were periodic, we evaluate the
+DFT equation for the fundamental frequency (one cycle per sequence, <span class="math notranslate nohighlight">\(\cfrac{1}{NT}\)</span> Hz, <span class="math notranslate nohighlight">\(\cfrac{2\pi}{NT}\)</span> rad/sec.)
+and its harmonics (not forgetting the d.c. component (or average) at <span class="math notranslate nohighlight">\(\omega=0\)</span>).
+i.e. set</p>
+<div class="math notranslate nohighlight">
+\[\omega=0,\cfrac{2\pi}{NT},\cfrac{2\pi\cdot2}{NT},\dots,\cfrac{2\pi\cdot n}{NT},\dots,\cfrac{2\pi\cdot (N-1)}{NT}\]</div>
+<p>or, in general</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+\displaystyle F(\omega) =\sum_{k=0}^{N-1}f[k]e^{-\mathbf{i}\omega kT}\\
+\displaystyle F(\cfrac{2\pi\cdot n}{NT}) =\sum_{k=0}^{N-1}f[k]e^{-\mathbf{i}\cfrac{2\pi\cdot n}{NT} kT}
+=\sum_{k=0}^{N-1}f[k]e^{-\mathbf{i}\cfrac{2\pi}{N} nk}\\
+\displaystyle \tilde F(n) =\sum_{k=0}^{N-1}f[k]e^{-\mathbf{i}\cfrac{2\pi}{N} nk}\\
+\end{array}\end{split}\]</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="spectrum.html" class="btn btn-neutral float-left" title="Spectral Methods" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="iterative.html" class="btn btn-neutral float-right" title="Iterative Solver" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2017~2024, eric.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

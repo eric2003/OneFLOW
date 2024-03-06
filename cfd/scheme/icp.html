@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Implicit Compact Pade (ICP) Scheme &mdash; Scientific Computing 1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../_static/documentation_options.js?v=f2a433a1"></script>
+        <script src="../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="WENO schemes" href="weno.html" />
+    <link rel="prev" title="CFD Schemes" href="index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            Scientific Computing
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Get started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../info.html">OneFLOW</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../user.html">THEORY</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../bash.html">Bash</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">CFD</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../ns.html">Navier–Stokes equations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../leibniz.html">Leibniz integral</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../rtt.html">Reynolds’ transport theorem</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../mass.html">Conservation Of Mass</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../momenum.html">Momentum Analysis Of Flow Systems</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../energy.html">Conservation Of Energy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../ns-integral.html">ALE Form of Conservation Equations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../curvilinear.html">Generalized Curvilinear Coordinate System</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../curvilinear3d.html">Generalized Curvilinear Coordinate System(3D)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../vector.html">Vector &amp; Tensor</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../matrix.html">Matrix</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../calculus.html">Calculus</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../substitution.html">Substitution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../jacobian.html">Jacobian matrix</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../gauss.html">Gauss’s Theorem</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../strain.html">Strain Measures</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../ale.html">Arbitrary Lagrangian-Eulerian</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../ale1d.html">ALE 1D</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../deformation.html">Deformation and Motion</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../derivative.html">Fluid Derivative</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../material_derivative.html">Material Time Derivative</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="index.html">CFD Schemes</a><ul class="current">
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Implicit Compact Pade (ICP) Scheme</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#approximation-of-first-derivative">Approximation of First Derivative</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#approximation-of-second-derivative">Approximation of Second Derivative</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="weno.html">WENO schemes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="hllc.html">HLLC Riemann Solver</a></li>
+<li class="toctree-l3"><a class="reference internal" href="rusanov.html">Rusanov Riemann Solver</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/index.html">CFD Examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../method/index.html">CFD Methods</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../codes.html">Reference Codes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../videos.html">CFD &amp; CAE Videos</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../books.html">Books</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../docs.html">Documents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../cgns.html">CGNS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../chatgpt.html">CHATGPT</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../cpp/index.html">CPP</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../cmake.html">CMake</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../cmd.html">Cmd</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../cuda.html">CUDA</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../design_patterns.html">Design Patterns</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../eigen.html">Eigen3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../git.html">Git</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../git.html#contexts">Contexts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fortran.html">Fortran</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../hdf5.html">HDF5</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../hpc.html">HPC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../install/index.html">Install</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../julia.html">Julia</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../jupyter.html">Jupyter Notebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../latex.html">LaTeX</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../makefile.html">Makefile</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../metis.html">METIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../mkdocs.html">MkDocs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../modules.html">Environment Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../mpi.html">MPI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../numerical/index.html">Numerical analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../oneapi.html">oneAPI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../oneflow.html">OneFLOW-CFD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../openacc.html">OpenACC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../opencl.html">OpenCL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../opengl.html">OpenGL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../openmp.html">OpenMP</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../powershell.html">PowerShell</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../python/index.html">Python</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../qt.html">Qt</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../regex.html">Regular Expressions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../science.html">Science</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sphinx.html">Sphinx</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../system/index.html">System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../taichi.html">Taichi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tcltk.html">Tcl/tk</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tecplot.html">Tecplot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../test.html">Test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../unreal_engine.html">Unreal Engine</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../vcpkg.html">vcpkg</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../yaml.html">yaml</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Scientific Computing</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">CFD</a></li>
+          <li class="breadcrumb-item"><a href="index.html">CFD Schemes</a></li>
+      <li class="breadcrumb-item active">Implicit Compact Pade (ICP) Scheme</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/cfd/scheme/icp.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="implicit-compact-pade-icp-scheme">
+<h1>Implicit Compact Pade (ICP) Scheme<a class="headerlink" href="#implicit-compact-pade-icp-scheme" title="Link to this heading"></a></h1>
+<ol class="arabic simple">
+<li><p><a class="reference external" href="https://www.mdpi.com/2311-5521/4/3/159/">CFD Julia: A Learning Module Structuring an Introductory Course on Computational Fluid Dynamics</a></p></li>
+<li><p><a class="reference external" href="https://en.wikipedia.org/wiki/Compact_finite_difference">Compact finite difference</a></p></li>
+<li><p><a class="reference external" href="https://people.bath.ac.uk/ensdasr/COMPACT/dasr.compact.pdf">AN INTRODUCTION TO COMPACT FINITE DIFFERENCE</a></p></li>
+<li><p><a class="reference external" href="https://www.mdpi.com/2227-7390/9/19/2508/">Two-Dimensional Compact-Finite-Difference Schemes for Solving the bi-Laplacian Operator with Homogeneous Wall-Normal Derivatives</a></p></li>
+</ol>
+<section id="approximation-of-first-derivative">
+<h2>Approximation of First Derivative<a class="headerlink" href="#approximation-of-first-derivative" title="Link to this heading"></a></h2>
+<p>Given the values of a function on a set of nodes the finite
+difference approximation to the derivative of the function is
+expressed as a linear combination of the given function
+values. For simplicity consider a uniformly spaced mesh
+where the nodes are indexed by <span class="math notranslate nohighlight">\(i\)</span>. The independent variable
+at the nodes is <span class="math notranslate nohighlight">\(x_{i}=h(i-1)\)</span> for <span class="math notranslate nohighlight">\(1\le i\le N\)</span> and the function
+values at the nodes <span class="math notranslate nohighlight">\(f_{i}=f(x_{i})\)</span> are given. The finite difference
+approximation <span class="math notranslate nohighlight">\({f}'_{i}\)</span> to the first derivative <span class="math notranslate nohighlight">\((df/dx)(x_{i})\)</span> at the node
+<span class="math notranslate nohighlight">\(i\)</span> depends on the function values at nodes near <span class="math notranslate nohighlight">\(i\)</span>.
+For second- and fourth-order central differences the
+approximation <span class="math notranslate nohighlight">\({f}'_{i}\)</span> depends on the sets <span class="math notranslate nohighlight">\((f_{i-1},f_{i+1})\)</span> and
+<span class="math notranslate nohighlight">\((f_{i-2},f_{i-1},f_{i+1},f_{i+2})\)</span>, respectively. In the spectral
+methods, however, the value off <span class="math notranslate nohighlight">\({f}'_{i}\)</span> depends on all the nodal
+values. The Pade or compact finite difference schemes mimic this global dependence. The schemes
+presented here are generalizations of the Pade scheme.</p>
+<p>These generalizations are derived by writing approximations of the form:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+&amp;\beta{f}'_{i-2}+\alpha{f}'_{i-1}+{f}'_{i}+\alpha{f}'_{i+1}+\beta{f}'_{i+2}\\
+  = &amp;c\cfrac{{f}_{i+3}-{f}_{i-3}}{6h}+b\cfrac{{f}_{i+2}-{f}_{i-2}}{4h}+a\cfrac{{f}_{i+1}-{f}_{i-1}}{2h}
+\end{align}\end{split}\]</div>
+</section>
+<section id="approximation-of-second-derivative">
+<h2>Approximation of Second Derivative<a class="headerlink" href="#approximation-of-second-derivative" title="Link to this heading"></a></h2>
+<p>The derivation of compact approximations for the second
+derivative proceeds exactly analogous to the first derivative.
+Once again the starting point is a relation of the form</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+&amp;\beta{f}''_{i-2}+\alpha{f}''_{i-1}+{f}''_{i}+\alpha{f}''_{i+1}+\beta{f}''_{i+2}\\
+= &amp;c\cfrac{{f}_{i+3}-2{f}_{i}+{f}_{i-3}}{9h^{2}}+b\cfrac{{f}_{i+2}-2{f}_{i}+{f}_{i-2}}{4h^{2}}+a\cfrac{{f}_{i+1}-2{f}_{i}+{f}_{i-1}}{h^{2}}
+\end{align}\end{split}\]</div>
+<p>where <span class="math notranslate nohighlight">\({f}''_{i}\)</span> represents the finite difference approximation to
+the second derivative at node <span class="math notranslate nohighlight">\(i\)</span>. The relations between the
+coefficients <span class="math notranslate nohighlight">\(a,b,c\)</span> and <span class="math notranslate nohighlight">\(\alpha,\beta\)</span> are derived by matching the
+Taylor series coefficients of various orders. The first unmatched coefficient determines the formal truncation
+error of the approximation. These constraints are:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+a+b+c &amp; = 1+2\alpha+2\beta\quad\text{(second order)}\\
+a+2^{2}b+3^{2}c &amp; = \cfrac{4!}{2!}(\alpha+2^{2}\beta)\quad\text{(fourth order)}\\
+a+2^{4}b+3^{4}c &amp; = \cfrac{6!}{4!}(\alpha+2^{4}\beta)\quad\text{(sixth   order)}\\
+a+2^{6}b+3^{6}c &amp; = \cfrac{8!}{6!}(\alpha+2^{6}\beta)\quad\text{(eighth  order)}\\
+a+2^{8}b+3^{8}c &amp; = \cfrac{10!}{8!}(\alpha+2^{8}\beta)\quad\text{(tenth  order)}\\
+\end{align}\end{split}\]</div>
+<p>By choosing <span class="math notranslate nohighlight">\(\beta=0\)</span> and <span class="math notranslate nohighlight">\(c = 0\)</span> a one-parameter family of
+fourth-order schemes is generated. This family has</p>
+<div class="math notranslate nohighlight">
+\[\beta=0,\quad c=0,\quad a=\cfrac{4}{3}(1-\alpha),\quad b=\cfrac{1}{3}(-1+10\alpha)\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{c}
+\beta=0,c=0\\
+a+2^{2}b+3^{2}c  = \cfrac{4!}{2!}(\alpha+2^{2}\beta)\quad\text{(fourth order)}\\
+\Rightarrow a+2^{2}b  = \cfrac{4!}{2!}(\alpha)\quad\text{(fourth order)}\\
+\Rightarrow a+4b  = 4\times 3(\alpha)\quad\text{(fourth order)}\\
+\cfrac{4}{3}(1-\alpha)+4\times \cfrac{1}{3}(-1+10\alpha)
+=\cfrac{4}{3}-\cfrac{4}{3}\alpha-\cfrac{4}{3}+\cfrac{4}{3}(10\alpha)=\cfrac{4}{3}(9\alpha)=4\times (3\alpha)
+\end{array}\end{split}\]</div>
+<p>For <span class="math notranslate nohighlight">\(\alpha=\cfrac{1}{10}\)</span>  the classical Pade scheme is recovered.</p>
+<p>then</p>
+<div class="math notranslate nohighlight">
+\[\alpha=\cfrac{1}{10},\quad \beta=0,\quad b=0, \quad c=0,\quad a=\cfrac{4}{3}(1-\cfrac{1}{10})=\cfrac{12}{10}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\cfrac{1}{10}{f}''_{i-1}+{f}''_{i}+\cfrac{1}{10}{f}''_{i+1}=\cfrac{12}{10}\left(\cfrac{{f}_{i+1}-2{f}_{i}+{f}_{i-1}}{h^{2}}\right)\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\cfrac{1}{12}{f}''_{i-1}+\cfrac{10}{12}{f}''_{i}+\cfrac{1}{12}{f}''_{i+1}=\cfrac{{f}_{i+1}-2{f}_{i}+{f}_{i-1}}{h^{2}}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\cfrac{\partial u}{\partial t}=\alpha\cfrac{\partial ^{2} u}{\partial x^{2}}\Rightarrow
+\cfrac{\partial ^{2} u}{\partial x^{2}}=\cfrac{1}{\alpha}\cfrac{\partial u}{\partial t}\]</div>
+<p>We usually use the order of accuracy as an indicator of the ability of finite difference schemes to approximate the exact solution as it tells us how the discretization error will reduce with mesh refinement. Another way of measuring the order of accuracy is the modified wavenumber approach. In this approach, we see how much the modified wave number is different from the true wave number. The solution of a nonlinear partial differential equation usually contains several frequencies and the modified wavenumber approach provides a way to assess how well the different components of the solution are represented.
+The modified wavenumber varies for every finite difference scheme and can be found using Fourier analysis of the differencing scheme.</p>
+<p>Compact finite difference schemes have very good resolution characteristics and can be used for capturing high-frequency waves.
+In compact formulation, we express the derivative of a function as a linear combination of values of function defined on a set of nodes.
+The compact method tries to mimic global dependence and hence has good resolution characteristics. Lele investigated the behavior of compact finite difference schemes for approximating a first and second derivative. The fourth-order accurate approximation to the second derivative is given by</p>
+<div class="math notranslate nohighlight">
+\[\left.\frac{1}{12} \frac{\partial^{2} u}{\partial x^{2}}\right|_{i-1}+\left.\frac{10}{12} \frac{\partial^{2} u}{\partial x^{2}}\right|_{i}+\left.\frac{1}{12} \frac{\partial^{2} u}{\partial x^{2}}\right|_{i+1}=\frac{u_{i-1}-2 u_{i}+u_{i+1}}{\Delta x^{2}}\]</div>
+<p>Taking the linear combination of heat equation and using the same coefficients as the above equation, we get</p>
+<div class="math notranslate nohighlight">
+\[\left.\frac{1}{12} \frac{\partial u}{\partial t}\right|_{i-1}+\left.\frac{10}{12} \frac{\partial u}{\partial t}\right|_{i}+\left.\frac{1}{12} \frac{\partial u}{\partial t}\right|_{i+1}=\alpha\frac{u_{i-1}-2 u_{i}+u_{i+1}}{\Delta x^{2}}\]</div>
+<p>We then use Crank-Nicolson numerical scheme for time discretization and we arrive to below equation</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+&amp;\frac{1}{12} \frac{u^{n+1}_{i-1}-u^{n}_{i-1}}{\Delta t}+\frac{10}{12} \frac{u^{n+1}_{i}-u^{n}_{i}}{\Delta t}+\frac{1}{12} \frac{u^{n+1}_{i+1}-u^{n}_{i+1}}{\Delta t}\\
+ = &amp;\frac{\alpha}{2\Delta x^{2}}  (u^{n+1}_{i-1}-2 u^{n+1}_{i}+u^{n+1}_{i+1}+u^{n}_{i-1}-2 u^{n}_{i}+u^{n}_{i+1})
+\end{align}\end{split}\]</div>
+<p>Simplifying above equation, we get the implicit compact Pade (ICP) scheme for heat equation</p>
+<div class="math notranslate nohighlight">
+\[a_{i}u^{n+1}_{i-1}+b_{i}u^{n+1}_{i}+c_{i}u^{n+1}_{i+1}=d_{i}\]</div>
+<p>where</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+a_{i}=\cfrac{12}{\Delta x^{2}}-\cfrac{2}{\alpha\Delta t}\\
+b_{i}=\cfrac{-24}{\Delta x^{2}}-\cfrac{20}{\alpha\Delta t}\\
+c_{i}=\cfrac{12}{\Delta x^{2}}-\cfrac{2}{\alpha\Delta t}\\
+d_{i}=\cfrac{-2}{\alpha\Delta t}(u^{n+1}_{i-1}+10 u^{n+1}_{i}+u^{n+1}_{i+1})
+-\cfrac{12}{\Delta x^{2}}(u^{n}_{i-1}-2 u^{n}_{i}+u^{n}_{i+1})\\
+\end{array}\end{split}\]</div>
+<p>proof:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+&amp;\frac{1}{12\Delta t}u^{n+1}_{i-1}- \frac{1}{12\Delta t}u^{n}_{i-1}+\frac{10}{12\Delta t}u^{n+1}_{i} -\frac{10}{12\Delta t}u^{n}_{i}+\frac{1}{12\Delta t}u^{n+1}_{i+1}-\frac{1}{12\Delta t}u^{n}_{i+1}\\
+= &amp;\frac{\alpha}{2\Delta x^{2}}  (u^{n+1}_{i-1}-2 u^{n+1}_{i}+u^{n+1}_{i+1}+u^{n}_{i-1}-2 u^{n}_{i}+u^{n}_{i+1})
+\end{align}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+&amp;(\frac{1}{12\Delta t}-\frac{\alpha}{2\Delta x^{2}})u^{n+1}_{i-1}- \frac{1}{12\Delta t}u^{n}_{i-1}\\
++&amp;(\frac{10}{12\Delta t}+\frac{2\alpha}{2\Delta x^{2}})u^{n+1}_{i} -\frac{10}{12\Delta t}u^{n}_{i}\\
++&amp;(\frac{1}{12\Delta t}-\frac{\alpha}{2\Delta x^{2}})u^{n+1}_{i+1}-\frac{1}{12\Delta t}u^{n}_{i+1}\\
+=&amp;\frac{\alpha}{2\Delta x^{2}}  (u^{n}_{i-1}-2 u^{n}_{i}+u^{n}_{i+1})
+\end{align}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+&amp;(\frac{1}{12\Delta t}-\frac{\alpha}{2\Delta x^{2}})u^{n+1}_{i-1}
++(\frac{10}{12\Delta t}+\frac{2\alpha}{2\Delta x^{2}})u^{n+1}_{i}
++(\frac{1}{12\Delta t}-\frac{\alpha}{2\Delta x^{2}})u^{n+1}_{i+1}\\
+=&amp;\frac{\alpha}{2\Delta x^{2}}  (u^{n}_{i-1}-2 u^{n}_{i}+u^{n}_{i+1})
+ + \frac{1}{12\Delta t}u^{n}_{i-1}
+ + \frac{10}{12\Delta t}u^{n}_{i}
+ + \frac{1}{12\Delta t}u^{n}_{i+1}
+\end{align}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+&amp;(\frac{1}{12}-\frac{\alpha\Delta t}{2\Delta x^{2}})u^{n+1}_{i-1}
++(\frac{10}{12}+\frac{2\alpha\Delta t}{2\Delta x^{2}})u^{n+1}_{i}
++(\frac{1}{12}-\frac{\alpha\Delta t}{2\Delta x^{2}})u^{n+1}_{i+1}\\
+=&amp;\frac{\alpha\Delta t}{2\Delta x^{2}}  (u^{n}_{i-1}-2 u^{n}_{i}+u^{n}_{i+1})
+ + \frac{1}{12}u^{n}_{i-1}
+ + \frac{10}{12}u^{n}_{i}
+ + \frac{1}{12}u^{n}_{i+1}
+\end{align}\end{split}\]</div>
+<p>Simplifying above equation, we get the implicit compact Pade (ICP) scheme for heat equation</p>
+<div class="math notranslate nohighlight">
+\[a_{i}u^{n+1}_{i-1}+b_{i}u^{n+1}_{i}+c_{i}u^{n+1}_{i+1}=d_{i}\]</div>
+<p>where</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+a_{i}=\cfrac{1}{12}-\cfrac{\alpha\Delta t}{2\Delta x^{2}}\\
+b_{i}=\cfrac{10}{12}+2\cfrac{\alpha\Delta t}{2\Delta x^{2}}\\
+c_{i}=\cfrac{1}{12}-\cfrac{\alpha\Delta t}{2\Delta x^{2}}\\
+d_{i}=\cfrac{\alpha\Delta t}{2\Delta x^{2}}  (u^{n}_{i-1}-2 u^{n}_{i}+u^{n}_{i+1})
+ + \cfrac{1}{12}u^{n}_{i-1}
+ + \cfrac{10}{12}u^{n}_{i}
+ + \cfrac{1}{12}u^{n}_{i+1}\\
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+a_{i}=\cfrac{1}{12}-\cfrac{\alpha\Delta t}{2\Delta x^{2}}\\
+b_{i}=\cfrac{10}{12}+2\cfrac{\alpha\Delta t}{2\Delta x^{2}}\\
+c_{i}=\cfrac{1}{12}-\cfrac{\alpha\Delta t}{2\Delta x^{2}}\\
+d_{i}=(\cfrac{1}{12}+\cfrac{\alpha\Delta t}{2\Delta x^{2}})u^{n}_{i-1}+(\cfrac{10}{12}-2\cfrac{\alpha\Delta t}{2\Delta x^{2}})u^{n}_{i}+(\cfrac{1}{12}+\cfrac{\alpha\Delta t}{2\Delta x^{2}}) u^{n}_{i+1}
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+a_{i}=\cfrac{1}{12}-\cfrac{\alpha\Delta t}{2\Delta x^{2}}\quad \hat{a}_{i}=\cfrac{1}{12}+\cfrac{\alpha\Delta t}{2\Delta x^{2}}\\
+b_{i}=\cfrac{10}{12}+2\cfrac{\alpha\Delta t}{2\Delta x^{2}}\quad \hat{b}_{i}=\cfrac{10}{12}-2\cfrac{\alpha\Delta t}{2\Delta x^{2}}\\
+c_{i}=\cfrac{1}{12}-\cfrac{\alpha\Delta t}{2\Delta x^{2}}\quad \hat{c}_{i}=\cfrac{1}{12}+\cfrac{\alpha\Delta t}{2\Delta x^{2}}\\
+d_{i}=\hat{a}_{i}u^{n}_{i-1}+ \hat{b}_{i}u^{n}_{i}+\hat{c}_{i}u^{n}_{i+1}
+\end{array}\end{split}\]</div>
+<p>version 2</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+a_{i}=12\cfrac{1}{12}-12\cfrac{\alpha\Delta t}{2\Delta x^{2}}\\
+b_{i}=12\cfrac{10}{12}+12\times2\cfrac{\alpha\Delta t}{2\Delta x^{2}}\\
+c_{i}=12\cfrac{1}{12}-12\cfrac{\alpha\Delta t}{2\Delta x^{2}}\\
+d_{i}=(12\cfrac{1}{12}+12\cfrac{\alpha\Delta t}{2\Delta x^{2}})u^{n}_{i-1}+(12\cfrac{10}{12}-12\times2\cfrac{\alpha\Delta t}{2\Delta x^{2}})u^{n}_{i}+(12\cfrac{1}{12}+12\cfrac{\alpha\Delta t}{2\Delta x^{2}}) u^{n}_{i+1}
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+a_{i}=\cfrac{1}{1}-12\cfrac{\alpha\Delta t}{2\Delta x^{2}}\\
+b_{i}=\cfrac{10}{1}+12\times2\cfrac{\alpha\Delta t}{2\Delta x^{2}}\\
+c_{i}=\cfrac{1}{1}-12\cfrac{\alpha\Delta t}{2\Delta x^{2}}\\
+d_{i}=(\cfrac{1}{1}+12\cfrac{\alpha\Delta t}{2\Delta x^{2}})u^{n}_{i-1}+(\cfrac{10}{1}-12\times2\cfrac{\alpha\Delta t}{2\Delta x^{2}})u^{n}_{i}+(\cfrac{1}{1}+12\cfrac{\alpha\Delta t}{2\Delta x^{2}}) u^{n}_{i+1}
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+a_{i}=\cfrac{1}{\alpha\Delta t}-\cfrac{12}{2\Delta x^{2}}\\
+b_{i}=\cfrac{10}{\alpha\Delta t}+24\cfrac{1}{2\Delta x^{2}}\\
+c_{i}=\cfrac{1}{\alpha\Delta t}-\cfrac{12}{2\Delta x^{2}}\\
+d_{i}=(\cfrac{1}{\alpha\Delta t}+\cfrac{12}{2\Delta x^{2}})u^{n}_{i-1}+(\cfrac{10}{\alpha\Delta t}-\cfrac{24}{2\Delta x^{2}})u^{n}_{i}+(\cfrac{1}{\alpha\Delta t}+\cfrac{12}{2\Delta x^{2}}) u^{n}_{i+1}
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+a_{i}=\cfrac{2}{\alpha\Delta t}-\cfrac{12}{\Delta x^{2}}\\
+b_{i}=\cfrac{20}{\alpha\Delta t}+\cfrac{24}{\Delta x^{2}}\\
+c_{i}=\cfrac{2}{\alpha\Delta t}-\cfrac{12}{\Delta x^{2}}\\
+d_{i}=(\cfrac{2}{\alpha\Delta t}+\cfrac{12}{\Delta x^{2}})u^{n}_{i-1}+(\cfrac{20}{\alpha\Delta t}-\cfrac{24}{\Delta x^{2}})u^{n}_{i}+(\cfrac{2}{\alpha\Delta t}+\cfrac{12}{\Delta x^{2}}) u^{n}_{i+1}
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+a_{i}=\cfrac{2}{\alpha\Delta t}-\cfrac{12}{\Delta x^{2}}\\
+b_{i}=\cfrac{20}{\alpha\Delta t}+\cfrac{24}{\Delta x^{2}}\\
+c_{i}=\cfrac{2}{\alpha\Delta t}-\cfrac{12}{\Delta x^{2}}\\
+d_{i}=\cfrac{2}{\alpha\Delta t}(u^{n}_{i-1}+10u^{n}_{i}+u^{n}_{i+1})
++\cfrac{12}{\Delta x^{2}}(u^{n}_{i-1}-2u^{n}_{i}+u^{n}_{i+1})\\
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+ a_{i}=\cfrac{12}{\Delta x^{2}}-\cfrac{2}{\alpha\Delta t}\\
+ b_{i}=\cfrac{-24}{\Delta x^{2}}+\cfrac{-20}{\alpha\Delta t}\\
+ c_{i}=\cfrac{12}{\Delta x^{2}}-\cfrac{2}{\alpha\Delta t}\\
+ d_{i}=\cfrac{-2}{\alpha\Delta t}(u^{n}_{i-1}+10u^{n}_{i}+u^{n}_{i+1})
++\cfrac{-12}{\Delta x^{2}}(u^{n}_{i-1}-2u^{n}_{i}+u^{n}_{i+1})\\
+ \end{array}\end{split}\]</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="index.html" class="btn btn-neutral float-left" title="CFD Schemes" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="weno.html" class="btn btn-neutral float-right" title="WENO schemes" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2017~2024, eric.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

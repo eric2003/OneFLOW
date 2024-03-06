@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CGNS &mdash; Scientific Computing 1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js?v=5d32c60e"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="_static/documentation_options.js?v=f2a433a1"></script>
+        <script src="_static/doctools.js?v=888ff710"></script>
+        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="CHATGPT" href="chatgpt.html" />
+    <link rel="prev" title="Documents" href="cfd/docs.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Scientific Computing
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Get started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="info.html">OneFLOW</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="user.html">THEORY</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="bash.html">Bash</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cfd/index.html">CFD</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">CGNS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="chatgpt.html">CHATGPT</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cpp/index.html">CPP</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cmake.html">CMake</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cmd.html">Cmd</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cuda.html">CUDA</a></li>
+<li class="toctree-l1"><a class="reference internal" href="design_patterns.html">Design Patterns</a></li>
+<li class="toctree-l1"><a class="reference internal" href="eigen.html">Eigen3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="git.html">Git</a></li>
+<li class="toctree-l1"><a class="reference internal" href="git.html#contexts">Contexts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fortran.html">Fortran</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hdf5.html">HDF5</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hpc.html">HPC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="install/index.html">Install</a></li>
+<li class="toctree-l1"><a class="reference internal" href="julia.html">Julia</a></li>
+<li class="toctree-l1"><a class="reference internal" href="jupyter.html">Jupyter Notebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="latex.html">LaTeX</a></li>
+<li class="toctree-l1"><a class="reference internal" href="makefile.html">Makefile</a></li>
+<li class="toctree-l1"><a class="reference internal" href="metis.html">METIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mkdocs.html">MkDocs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modules.html">Environment Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mpi.html">MPI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="numerical/index.html">Numerical analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="oneapi.html">oneAPI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="oneflow.html">OneFLOW-CFD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="openacc.html">OpenACC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="opencl.html">OpenCL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="opengl.html">OpenGL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="openmp.html">OpenMP</a></li>
+<li class="toctree-l1"><a class="reference internal" href="powershell.html">PowerShell</a></li>
+<li class="toctree-l1"><a class="reference internal" href="python/index.html">Python</a></li>
+<li class="toctree-l1"><a class="reference internal" href="qt.html">Qt</a></li>
+<li class="toctree-l1"><a class="reference internal" href="regex.html">Regular Expressions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="science.html">Science</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sphinx.html">Sphinx</a></li>
+<li class="toctree-l1"><a class="reference internal" href="system/index.html">System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="taichi.html">Taichi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tcltk.html">Tcl/tk</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tecplot.html">Tecplot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="test.html">Test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="unreal_engine.html">Unreal Engine</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vcpkg.html">vcpkg</a></li>
+<li class="toctree-l1"><a class="reference internal" href="yaml.html">yaml</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Scientific Computing</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">CGNS</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/cgns.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="cgns">
+<h1>CGNS<a class="headerlink" href="#cgns" title="Link to this heading"></a></h1>
+<p>CGNS (Computational Fluid Dynamics General Notation System) is a universal file format and library for storing and exchanging computational fluid dynamics (CFD) data.</p>
+<p>The CGNS format is scalable and portable, making it suitable for various CFD applications and tools. It provides a standardized way to describe and transmit CFD grids, flow fields, and other related data, enabling data exchange and interoperability between different CFD software.</p>
+<p>The CGNS format contains a hierarchical structure and supports multiple grid types (such as structured, unstructured, hybrid grids, etc.) and cell types (such as triangles, tetrahedrons, hexahedrons, etc.). It also supports multiple bases and zones, allowing for separate processing and storage of different flow fields.</p>
+<p>There are also open-source tools and libraries available for CGNS format, including CGNS API (C, Fortran, and Python), HDF5 library (for storing and reading CGNS files), ParaView (for visualizing CGNS data), and more.</p>
+<p>Overall, CGNS format and library are important and useful tools in the field of CFD, simplifying and accelerating the storage, transmission, and processing of CFD data.</p>
+<ol class="arabic simple">
+<li><p><a class="reference external" href="https://zhuanlan.zhihu.com/p/452874893/">CGNS and HDF5 compiling and linking related article links compilation</a></p></li>
+<li><p><a class="reference external" href="https://cgns.github.io/">CGNS official website</a></p></li>
+<li><p><a class="reference external" href="https://cgns.github.io/CGNS_docs_current/">CGNS standard document</a></p></li>
+<li><p><a class="reference external" href="https://github.com/CGNS/CGNS/">CGNS code repository</a></p></li>
+<li><p><a class="reference external" href="https://zhuanlan.zhihu.com/p/661758085/">CGNS4.4.0源码下载地址</a></p></li>
+<li><p><a class="reference external" href="https://zhuanlan.zhihu.com/p/560341685/">CGNS从入门到精通系列链接整理</a></p></li>
+<li><p><a class="reference external" href="https://cgns.github.io/CGNS_docs_current/sids/conv.html#unst_example/">unst_example</a></p></li>
+</ol>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>cmake -DCMAKE_INSTALL_PREFIX=c:/dev/cgns/4.4.0 .. `
+      -DCGNS_ENABLE_HDF5=ON `
+      -DCGNS_BUILD_SHARED=ON `
+      -DCGNS_USE_SHARED=ON `
+      -DCGNS_BUILD_TESTING=ON `
+      -DCGNS_ENABLE_TESTS=ON `
+      -DCGNS_BUILD_CGNSTOOLS=ON `
+      -DHDF5_DIR=&quot;c:/dev/HDF_Group/HDF5/1.14.2/cmake&quot;
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cd</span> <span class="n">d</span><span class="p">:</span>\<span class="n">work</span>\<span class="n">cgns_work</span>\<span class="n">CGNS</span><span class="o">-</span><span class="mf">4.4.0</span>\<span class="n">build</span>\
+</pre></div>
+</div>
+<p>set oneAPI environment</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cmd</span><span class="o">.</span><span class="n">exe</span> <span class="s2">&quot;/K&quot;</span> <span class="s1">&#39;&quot;C:\Program Files (x86)\Intel\oneAPI\setvars.bat&quot; &amp;&amp; powershell&#39;</span>
+</pre></div>
+</div>
+<p>Compile CGNS with HDF5</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>cmake -DCMAKE_INSTALL_PREFIX=c:/dev/cgns/4.4.0 .. `
+      -DCMAKE_BUILD_TYPE=Release `
+      -DCGNS_ENABLE_HDF5=ON `
+      -DCGNS_ENABLE_64BIT=ON `
+      -DCGNS_ENABLE_FORTRAN=ON `
+      -DCGNS_ENABLE_TESTS=ON `
+      -DCGNS_BUILD_SHARED=ON `
+      -DCGNS_USE_SHARED=ON `
+      -DCGNS_BUILD_TESTING=ON `
+      -DCGNS_BUILD_CGNSTOOLS=ON `
+      -DHDF5_DIR=&quot;c:/dev/HDF_Group/HDF5/1.14.2/cmake&quot;
+cmake --build . --parallel 4 --config Release
+cmake --install . --config Release --prefix c:/dev/cgns/4.4.0
+</pre></div>
+</div>
+<p>Compile CGNS without HDF5</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>cmake -DCMAKE_INSTALL_PREFIX=c:/dev/cgns/4.4.0 .. `
+      -DCMAKE_BUILD_TYPE=Release `
+      -DCGNS_ENABLE_HDF5=OFF `
+      -DCGNS_ENABLE_64BIT=ON `
+      -DCGNS_ENABLE_FORTRAN=ON `
+      -DCGNS_ENABLE_TESTS=OFF `
+      -DCGNS_BUILD_SHARED=OFF `
+      -DCGNS_USE_SHARED=OFF
+</pre></div>
+</div>
+<p>Compile CGNS without HDF5 BUILD_SHARED</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>cmake -DCMAKE_INSTALL_PREFIX=c:/dev/cgns/4.4.0 .. `
+      -DCMAKE_BUILD_TYPE=Release `
+      -DCGNS_ENABLE_HDF5=OFF `
+      -DCGNS_ENABLE_64BIT=ON `
+      -DCGNS_ENABLE_FORTRAN=ON `
+      -DCGNS_ENABLE_TESTS=OFF `
+      -DCGNS_BUILD_SHARED=ON `
+      -DCGNS_USE_SHARED=OFF
+</pre></div>
+</div>
+<p>Modify CGNS CMake for mixed Fortran C</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>#add_library(cgns_shared SHARED ${cgns_FILES} $&lt;$&lt;BOOL:${CGNS_ENABLE_FORTRAN}&gt;:$&lt;TARGET_OBJECTS:cgns_f2c&gt;&gt;)
+add_library(cgns_shared SHARED ${cgns_FILES} )
+target_link_directories( cgns_shared PRIVATE ${CMAKE_Fortran_IMPLICIT_LINK_DIRECTORIES} )
+target_link_libraries(cgns_shared
+    PRIVATE $&lt;$&lt;BOOL:${CGNS_ENABLE_FORTRAN}&gt;:$&lt;TARGET_OBJECTS:cgns_f2c&gt;&gt;
+)
+</pre></div>
+</div>
+<p>Start cmake gui from the command line</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&amp;</span> <span class="s2">&quot;C:\Program Files\CMake</span><span class="se">\b</span><span class="s2">in\cmake-gui.exe&quot;</span>
+</pre></div>
+</div>
+<p>powershell add environmental path</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$env:path += &quot;;C:/dev/cgns/4.4.0/bin/&quot;
+$env:path += &quot;;C:/dev/HDF_Group/HDF5/1.14.2/bin/&quot;
+</pre></div>
+</div>
+<p>cgnsview</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>modify
+proc file_stats {} {
+  global ProgData
+  set ProgData(file,size) &quot;[file size $ProgData(file,name)] bytes&quot;
+to
+proc file_stats {} {
+  global ProgData
+  set ProgData(file,size) &quot;[file size $ProgData(file,name)] bytes&quot;
+  if { [ catch {CGIOopen $ProgData(file)} msg] } {
+      return $msg
+  }
+</pre></div>
+</div>
+<ol class="arabic simple">
+<li><p><a class="reference external" href="https://cgns.github.io/CGNS_docs_current/sids/conv.html#unst_tetra/">unst_tetra</a></p></li>
+</ol>
+<p>For all element types except MIXED, ElementConnectivity contains the list of nodes for each element. If the elements are sorted, then it must first list the connectivity of the boundary elements, then that of the interior elements.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">ElementConnectivity</span> <span class="o">=</span> <span class="n">Node11</span><span class="p">,</span> <span class="n">Node21</span><span class="p">,</span> <span class="o">...</span> <span class="n">NodeN1</span><span class="p">,</span>
+                      <span class="n">Node12</span><span class="p">,</span> <span class="n">Node22</span><span class="p">,</span> <span class="o">...</span> <span class="n">NodeN2</span><span class="p">,</span>
+                      <span class="o">...</span>
+                      <span class="n">Node1M</span><span class="p">,</span> <span class="n">Node2M</span><span class="p">,</span> <span class="o">...</span> <span class="n">NodeNM</span>
+</pre></div>
+</div>
+<p>where M is the total number of elements (i.e., ElementSize), and N is the number of nodes per element.
+ElementDataSize indicates the total size (number of integers) of the array ElementConnectivity. For all element types except MIXED, NGON_n, and NFACE_n, ElementDataSize is given by:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">ElementDataSize</span> <span class="o">=</span> <span class="n">ElementSize</span> <span class="o">*</span> <span class="n">NPE</span><span class="p">[</span><span class="n">ElementType</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>where NPE[ElementType] is a function returning the number of nodes for the given ElementType. For example, NPE[HEXA_8]=8.
+When the section ElementType is MIXED, the data array ElementConnectivity contains one extra integer per element, to hold each individual element type:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">ElementConnectivity</span> <span class="o">=</span> <span class="n">Etype1</span><span class="p">,</span> <span class="n">Node11</span><span class="p">,</span> <span class="n">Node21</span><span class="p">,</span> <span class="o">...</span> <span class="n">NodeN1</span><span class="p">,</span>
+                      <span class="n">Etype2</span><span class="p">,</span> <span class="n">Node12</span><span class="p">,</span> <span class="n">Node22</span><span class="p">,</span> <span class="o">...</span> <span class="n">NodeN2</span><span class="p">,</span>
+                      <span class="o">...</span>
+                      <span class="n">EtypeM</span><span class="p">,</span> <span class="n">Node1M</span><span class="p">,</span> <span class="n">Node2M</span><span class="p">,</span> <span class="o">...</span> <span class="n">NodeNM</span>
+</pre></div>
+</div>
+<p>where again M is the total number of elements, and Ni is the number of nodes in element i. The data array ElementStartOffset contains the starting positions of each element in the ElementConnectivity data array and its last value corresponds to the ElementConnectivity total size:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">ElementStartOffset</span>  <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">NPE</span><span class="p">[</span><span class="n">Etype1</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="o">...</span> <span class="n">ElementStartOffset</span><span class="p">[</span><span class="n">n</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">NPE</span><span class="p">[</span><span class="n">Etypen</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span>
+                      <span class="o">...</span><span class="p">,</span> <span class="n">ElementStartOffset</span><span class="p">[</span><span class="n">M</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">NPE</span><span class="p">[</span><span class="n">EtypeM</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">=</span> <span class="n">ElementDataSize</span>
+</pre></div>
+</div>
+<p>In the case of MIXED element section, ElementDataSize is given by:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>ElementDataSize = ∑(NPE[ElementTypen] + 1)
+</pre></div>
+</div>
+<p>where the summation is over n, and n represents a specific element type.
+Arbitrary polyhedral elements may be defined using the NGON_n and NFACE_n element types. The NGON_n element type is used to specify all the faces in the grid, and the NFACE_n element type is then used to define the polyhedral elements as a collection of these faces. Except for boundary faces, each face of a polyhedral element must be shared by another polyhedral element.</p>
+<p>For example, for NGON_n, the data array ElementConnectivity contains a list of nodes making up each face in the grid while ElementStartOffset provides the starting position of each face in the ElementConnectivity array:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">ElementConnectivity</span> <span class="o">=</span> <span class="n">Node11</span><span class="p">,</span> <span class="n">Node21</span><span class="p">,</span> <span class="o">...</span> <span class="n">NodeN1</span><span class="p">,</span>
+                      <span class="n">Node12</span><span class="p">,</span> <span class="n">Node22</span><span class="p">,</span> <span class="o">...</span> <span class="n">NodeN2</span><span class="p">,</span>
+                      <span class="o">...</span>
+                      <span class="n">Node1M</span><span class="p">,</span> <span class="n">Node2M</span><span class="p">,</span> <span class="o">...</span> <span class="n">NodeNM</span>
+
+<span class="n">ElementStartOffset</span>  <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">Nnodes1</span><span class="p">,</span> <span class="n">Nnodes1</span> <span class="o">+</span> <span class="n">Nnodes2</span><span class="p">,</span> <span class="o">...</span>
+                      <span class="o">...</span><span class="p">,</span> <span class="n">ElementStartOffset</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">Nnodesi</span><span class="p">,</span>
+                      <span class="o">...</span><span class="p">,</span> <span class="n">ElementStartOffset</span><span class="p">[</span><span class="n">M</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">NnodesM</span> <span class="o">=</span> <span class="n">ElementDataSize</span>
+</pre></div>
+</div>
+<p>where here M is the total number of faces, and Nnodesi is the number of nodes in face i. The ElementDataSize is the total number of nodes defining all the faces. Note that the number of nodes in face i is given by:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Nnodesi</span> <span class="o">=</span> <span class="n">ElementStartOffset</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">ElementStartOffset</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>Then for NFACE_n, ElementConnectivity contains the list of face elements making up each polyhedral element, while ElementStartOffset provides the starting position of each polyhedral element in the ElementConnectivity array:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">ElementConnectivity</span> <span class="o">=</span> <span class="n">Face11</span><span class="p">,</span> <span class="n">Face21</span><span class="p">,</span> <span class="o">...</span> <span class="n">FaceN1</span><span class="p">,</span>
+                      <span class="n">Face12</span><span class="p">,</span> <span class="n">Face22</span><span class="p">,</span> <span class="o">...</span> <span class="n">FaceN2</span><span class="p">,</span>
+                      <span class="o">...</span>
+                      <span class="n">Face1M</span><span class="p">,</span> <span class="n">Face2M</span><span class="p">,</span> <span class="o">...</span> <span class="n">FaceNM</span>
+
+<span class="n">ElementStartOffset</span>  <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">Nfaces1</span><span class="p">,</span> <span class="n">Nfaces1</span> <span class="o">+</span> <span class="n">Nfaces2</span><span class="p">,</span> <span class="o">...</span>
+                      <span class="o">...</span><span class="p">,</span> <span class="n">ElementStartOffset</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">Nfacesi</span><span class="p">,</span>
+                      <span class="o">...</span><span class="p">,</span> <span class="n">ElementStartOffset</span><span class="p">[</span><span class="n">M</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">NfacesM</span> <span class="o">=</span> <span class="n">ElementDataSize</span>
+</pre></div>
+</div>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="cfd/docs.html" class="btn btn-neutral float-left" title="Documents" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="chatgpt.html" class="btn btn-neutral float-right" title="CHATGPT" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2017~2024, eric.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

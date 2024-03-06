@@ -1,0 +1,1891 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LaTeX &mdash; Scientific Computing 1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js?v=5d32c60e"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="_static/documentation_options.js?v=f2a433a1"></script>
+        <script src="_static/doctools.js?v=888ff710"></script>
+        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Makefile" href="makefile.html" />
+    <link rel="prev" title="Jupyter Notebook" href="jupyter.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Scientific Computing
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Get started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="info.html">OneFLOW</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="user.html">THEORY</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="bash.html">Bash</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cfd/index.html">CFD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cgns.html">CGNS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="chatgpt.html">CHATGPT</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cpp/index.html">CPP</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cmake.html">CMake</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cmd.html">Cmd</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cuda.html">CUDA</a></li>
+<li class="toctree-l1"><a class="reference internal" href="design_patterns.html">Design Patterns</a></li>
+<li class="toctree-l1"><a class="reference internal" href="eigen.html">Eigen3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="git.html">Git</a></li>
+<li class="toctree-l1"><a class="reference internal" href="git.html#contexts">Contexts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fortran.html">Fortran</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hdf5.html">HDF5</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hpc.html">HPC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="install/index.html">Install</a></li>
+<li class="toctree-l1"><a class="reference internal" href="julia.html">Julia</a></li>
+<li class="toctree-l1"><a class="reference internal" href="jupyter.html">Jupyter Notebook</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">LaTeX</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#latex-website">LaTeX website</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#online-latex-editors">Online LaTeX editors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#common-symbols">Common symbols</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#binary-operations">Binary operations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#binary-relations">Binary relations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#arrows">Arrows</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#others">Others</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#greek-alphabet">Greek alphabet</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#lowercase">Lowercase</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#uppercase">Uppercase</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id2">Others</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#fractions-derivative">Fractions &amp; Derivative</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#fractions">Fractions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#derivative">Derivative</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#modular-arithmetic">Modular arithmetic</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#radicals">Radicals</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#superscript-and-subscript">Superscript and Subscript</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#accents-and-others">Accents and Others</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#limits-class">Limits class</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#limits">Limits</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#logarithms-and-exponentials">Logarithms and exponentials</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#bounds">Bounds</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#trigonometry-class">Trigonometry class</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#trigonometric-functions">Trigonometric functions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#inverse-trigonometric-functions">Inverse trigonometric functions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#hyperbolic-functions">Hyperbolic functions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#inverse-hyperbolic-functions">Inverse hyperbolic functions</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#integral-operation">Integral operation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#integral">Integral</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#double-integral">Double integral</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#triple-integral">Triple integral</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#closed-line-or-path-integral">Closed line or path integral</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#summation">Summation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#product-and-coproduct">Product and coproduct</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#union-and-intersection">Union and intersection</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#disjunction-and-cojunction">Disjunction and cojunction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#brackets">Brackets</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#matrix">Matrix</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#formula-template">Formula Template</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#algebra">Algebra</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#space">Space</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#geometry">Geometry</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#inequality">Inequality</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id3">Integral</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id4">Matrix</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#triangle">Triangle</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#statistics">Statistics</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#sequence">Sequence</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#physics">Physics</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#chemical">Chemical</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#big">Big</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="makefile.html">Makefile</a></li>
+<li class="toctree-l1"><a class="reference internal" href="metis.html">METIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mkdocs.html">MkDocs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modules.html">Environment Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mpi.html">MPI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="numerical/index.html">Numerical analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="oneapi.html">oneAPI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="oneflow.html">OneFLOW-CFD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="openacc.html">OpenACC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="opencl.html">OpenCL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="opengl.html">OpenGL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="openmp.html">OpenMP</a></li>
+<li class="toctree-l1"><a class="reference internal" href="powershell.html">PowerShell</a></li>
+<li class="toctree-l1"><a class="reference internal" href="python/index.html">Python</a></li>
+<li class="toctree-l1"><a class="reference internal" href="qt.html">Qt</a></li>
+<li class="toctree-l1"><a class="reference internal" href="regex.html">Regular Expressions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="science.html">Science</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sphinx.html">Sphinx</a></li>
+<li class="toctree-l1"><a class="reference internal" href="system/index.html">System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="taichi.html">Taichi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tcltk.html">Tcl/tk</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tecplot.html">Tecplot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="test.html">Test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="unreal_engine.html">Unreal Engine</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vcpkg.html">vcpkg</a></li>
+<li class="toctree-l1"><a class="reference internal" href="yaml.html">yaml</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Scientific Computing</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">LaTeX</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/latex.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="latex">
+<h1>LaTeX<a class="headerlink" href="#latex" title="Link to this heading"></a></h1>
+<p>LaTeX is a high-quality typesetting system used to create professional-looking documents, such as academic papers, books, and presentations. LaTeX source code is a markup language similar to programming languages that you can use to indicate the layout, fonts, graphics, mathematical symbols, and more in your document.</p>
+<p>Here are some useful links related to LaTeX:</p>
+<section id="latex-website">
+<h2>LaTeX website<a class="headerlink" href="#latex-website" title="Link to this heading"></a></h2>
+<ol class="arabic simple">
+<li><p><a class="reference external" href="https://www.latex-project.org/">LaTeX Project: official website for the LaTeX Project</a></p></li>
+<li><p><a class="reference external" href="https://www.overleaf.com/">Overleaf: an online LaTeX editor</a></p></li>
+<li><p><a class="reference external" href="https://en.wikibooks.org/wiki/LaTeX/">LaTeX Wikibook: a comprehensive guide to LaTeX</a></p></li>
+<li><p><a class="reference external" href="https://cs.brown.edu/about/system/managed/latex/doc/lshort.pdf">The Not So Short Introduction to LATEX 2ε</a></p></li>
+<li><p><a class="reference external" href="https://github.com/oetiker/lshort/">The Not So Short Introduction to LaTeX</a></p></li>
+<li><p><a class="reference external" href="https://latex-programming.fandom.com/wiki/List_of_LaTeX_symbols/">List of LaTeX symbols</a></p></li>
+<li><p><a class="reference external" href="https://www.cnblogs.com/hundredtwo-kk/p/16418548.html">latex中花体字母编写汇总</a></p></li>
+</ol>
+</section>
+<section id="online-latex-editors">
+<h2>Online LaTeX editors<a class="headerlink" href="#online-latex-editors" title="Link to this heading"></a></h2>
+<ol class="arabic simple">
+<li><p><a class="reference external" href="https://www.latexlive.com/">LaTeXLive</a></p></li>
+<li><p><a class="reference external" href="https://editor.codecogs.com/">Codecogs</a></p></li>
+</ol>
+</section>
+<section id="common-symbols">
+<h2>Common symbols<a class="headerlink" href="#common-symbols" title="Link to this heading"></a></h2>
+<section id="binary-operations">
+<h3>Binary operations<a class="headerlink" href="#binary-operations" title="Link to this heading"></a></h3>
+<p>Input:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">+</span> <span class="o">-</span> \<span class="n">times</span>  <span class="p">{</span>\<span class="n">div</span><span class="p">}</span> \<span class="n">pm</span> \<span class="n">mp</span> \<span class="n">triangleleft</span> \<span class="n">triangleright</span> \<span class="n">cdot</span> \<span class="n">setminus</span> \<span class="n">star</span> \<span class="n">ast</span> \<span class="n">cup</span> \<span class="n">cap</span> \<span class="n">sqcup</span>
+</pre></div>
+</div>
+<p>Output:</p>
+<div class="math notranslate nohighlight">
+\[+ - \times  {\div} \pm \mp \triangleleft \triangleright \cdot \setminus \star \ast \cup \cap \sqcup\]</div>
+<p>Input:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>\<span class="n">sqcap</span> \<span class="n">vee</span> \<span class="n">wedge</span> \<span class="n">circ</span> \<span class="n">bullet</span> \<span class="n">oplus</span> \<span class="n">ominus</span> \<span class="n">odot</span> \<span class="n">oslash</span> \<span class="n">otimes</span> \<span class="n">bigcirc</span> \<span class="n">diamond</span> \<span class="n">uplus</span> \<span class="n">bigtriangleup</span> \<span class="n">bigtriangledown</span>
+</pre></div>
+</div>
+<p>Output:</p>
+<div class="math notranslate nohighlight">
+\[\sqcap \vee \wedge \circ \bullet \oplus \ominus \odot \oslash \otimes \bigcirc \diamond \uplus \bigtriangleup \bigtriangledown\]</div>
+<p>Input:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>\<span class="n">lhd</span> \<span class="n">rhd</span> \<span class="n">unlhd</span> \<span class="n">unrhd</span> \<span class="n">amalg</span> \<span class="n">wr</span> \<span class="n">dagger</span> \<span class="n">ddagger</span>
+</pre></div>
+</div>
+<p>Output:</p>
+<div class="math notranslate nohighlight">
+\[\lhd \rhd \unlhd \unrhd \amalg \wr \dagger \ddagger\]</div>
+</section>
+<section id="binary-relations">
+<h3>Binary relations<a class="headerlink" href="#binary-relations" title="Link to this heading"></a></h3>
+<p>Input:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&lt;</span> <span class="o">&gt;</span> <span class="o">=</span> \<span class="n">le</span> \<span class="n">ge</span> \<span class="n">equiv</span> \<span class="n">ll</span> \<span class="n">gg</span> \<span class="n">doteq</span> \<span class="n">prec</span> \<span class="n">succ</span> \<span class="n">sim</span> \<span class="n">preceq</span> \<span class="n">succeq</span> \<span class="n">simeq</span>
+</pre></div>
+</div>
+<p>Output:</p>
+<div class="math notranslate nohighlight">
+\[&lt; &gt; = \le \ge \equiv \ll \gg \doteq \prec \succ \sim \preceq \succeq \simeq\]</div>
+<p>Input:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>\<span class="n">approx</span> \<span class="n">subset</span> \<span class="n">supset</span> \<span class="n">subseteq</span> \<span class="n">supseteq</span> \<span class="n">sqsubset</span> \<span class="n">sqsupset</span> \<span class="n">sqsubseteq</span> \<span class="n">sqsupseteq</span> \<span class="n">cong</span> \<span class="n">Join</span> \<span class="n">bowtie</span> \<span class="n">propto</span> \<span class="ow">in</span> \<span class="n">ni</span>
+</pre></div>
+</div>
+<p>Output:</p>
+<div class="math notranslate nohighlight">
+\[\approx \subset \supset \subseteq \supseteq \sqsubset \sqsupset \sqsubseteq \sqsupseteq \cong \Join \bowtie \propto \in \ni\]</div>
+<p>Input:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>\<span class="n">vdash</span> \<span class="n">dashv</span> \<span class="n">models</span> \<span class="n">mid</span> \<span class="n">parallel</span> \<span class="n">perp</span> \<span class="n">smile</span> \<span class="n">frown</span> \<span class="n">asymp</span> <span class="p">:</span> \<span class="n">notin</span> \<span class="n">ne</span>
+</pre></div>
+</div>
+<p>Output:</p>
+<div class="math notranslate nohighlight">
+\[\vdash \dashv \models \mid \parallel \perp \smile \frown \asymp : \notin \ne\]</div>
+</section>
+<section id="arrows">
+<h3>Arrows<a class="headerlink" href="#arrows" title="Link to this heading"></a></h3>
+<p>Input:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>\<span class="n">gets</span> \<span class="n">to</span> \<span class="n">longleftarrow</span> \<span class="n">longrightarrow</span> \<span class="n">uparrow</span> \<span class="n">downarrow</span> \<span class="n">updownarrow</span> \<span class="n">leftrightarrow</span>
+\<span class="n">Uparrow</span> \<span class="n">Downarrow</span> \<span class="n">Updownarrow</span> \<span class="n">longleftrightarrow</span> \<span class="n">Leftarrow</span> \<span class="n">Longleftarrow</span> \<span class="n">Rightarrow</span>
+</pre></div>
+</div>
+<p>Output:</p>
+<div class="math notranslate nohighlight">
+\[\gets \to \longleftarrow \longrightarrow \uparrow \downarrow \updownarrow \leftrightarrow
+\Uparrow \Downarrow \Updownarrow \longleftrightarrow \Leftarrow \Longleftarrow \Rightarrow\]</div>
+<p>Input:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>\<span class="n">Longrightarrow</span> \<span class="n">Leftrightarrow</span> \<span class="n">Longleftrightarrow</span> \<span class="n">mapsto</span> \<span class="n">longmapsto</span> \<span class="n">nearrow</span> \<span class="n">searrow</span>
+\<span class="n">swarrow</span> \<span class="n">nwarrow</span> \<span class="n">hookleftarrow</span> \<span class="n">hookrightarrow</span> \<span class="n">rightleftharpoons</span> \<span class="n">iff</span>
+</pre></div>
+</div>
+<p>Output:</p>
+<div class="math notranslate nohighlight">
+\[\Longrightarrow \Leftrightarrow \Longleftrightarrow \mapsto \longmapsto \nearrow \searrow
+\swarrow \nwarrow \hookleftarrow \hookrightarrow \rightleftharpoons \iff\]</div>
+<p>Input:</p>
+<dl class="simple">
+<dt>::</dt><dd><p>leftharpoonup rightharpoonup leftharpoondown rightharpoondown</p>
+</dd>
+</dl>
+<p>Output:</p>
+<div class="math notranslate nohighlight">
+\[\leftharpoonup \rightharpoonup \leftharpoondown \rightharpoondown\]</div>
+</section>
+<section id="others">
+<h3>Others<a class="headerlink" href="#others" title="Link to this heading"></a></h3>
+<p>Input:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>\<span class="n">because</span> \<span class="n">therefore</span> \<span class="n">dots</span> \<span class="n">cdots</span> \<span class="n">vdots</span> \<span class="n">ddots</span> \<span class="n">forall</span> \<span class="n">exists</span> \<span class="n">nexists</span>
+\<span class="n">Finv</span> \<span class="n">neg</span> \<span class="n">prime</span> \<span class="n">emptyset</span> \<span class="n">infty</span> \<span class="n">nabla</span>
+</pre></div>
+</div>
+<p>Output:</p>
+<div class="math notranslate nohighlight">
+\[\because \therefore \dots \cdots \vdots \ddots \forall \exists \nexists
+\Finv \neg \prime \emptyset \infty \nabla\]</div>
+<p>Input:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>\<span class="n">triangle</span> \<span class="n">Box</span> \<span class="n">Diamond</span> \<span class="n">bot</span> \<span class="n">top</span> \<span class="n">angle</span> \<span class="n">measuredangle</span> \<span class="n">sphericalangle</span> \<span class="n">surd</span> \<span class="n">diamondsuit</span>
+\<span class="n">heartsuit</span> \<span class="n">clubsuit</span> \<span class="n">spadesuit</span> \<span class="n">flat</span> \<span class="n">natural</span> \<span class="n">sharp</span>
+</pre></div>
+</div>
+<p>Output:</p>
+<div class="math notranslate nohighlight">
+\[\triangle \Box \Diamond \bot \top \angle \measuredangle \sphericalangle \surd \diamondsuit
+\heartsuit \clubsuit \spadesuit \flat \natural \sharp\]</div>
+</section>
+</section>
+<section id="greek-alphabet">
+<h2>Greek alphabet<a class="headerlink" href="#greek-alphabet" title="Link to this heading"></a></h2>
+<section id="lowercase">
+<h3>Lowercase<a class="headerlink" href="#lowercase" title="Link to this heading"></a></h3>
+<p>Input:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>\<span class="n">alpha</span> \<span class="n">beta</span> \<span class="n">gamma</span> \<span class="n">delta</span> \<span class="n">epsilon</span> \<span class="n">varepsilon</span> \<span class="n">zeta</span> \<span class="n">eta</span> \<span class="n">theta</span> \<span class="n">vartheta</span> \<span class="n">iota</span> \<span class="n">kappa</span> \<span class="k">lambda</span> \<span class="n">mu</span>
+</pre></div>
+</div>
+<p>Output:</p>
+<div class="math notranslate nohighlight">
+\[\alpha \beta \gamma \delta \epsilon \varepsilon \zeta \eta \theta \vartheta \iota \kappa \lambda \mu\]</div>
+<p>Input:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>\<span class="n">nu</span> \<span class="n">xi</span>  <span class="n">o</span> \<span class="n">pi</span> \<span class="n">varpi</span> \<span class="n">rho</span> \<span class="n">varrho</span> \<span class="n">sigma</span> \<span class="n">varsigma</span> \<span class="n">tau</span> \<span class="n">upsilon</span> \<span class="n">phi</span> \<span class="n">varphi</span> \<span class="n">chi</span> \<span class="n">psi</span> \<span class="n">omega</span>
+</pre></div>
+</div>
+<p>Output:</p>
+<div class="math notranslate nohighlight">
+\[\nu \xi  o \pi \varpi \rho \varrho \sigma \varsigma \tau \upsilon \phi \varphi \chi \psi \omega\]</div>
+</section>
+<section id="uppercase">
+<h3>Uppercase<a class="headerlink" href="#uppercase" title="Link to this heading"></a></h3>
+<p>Input:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>\<span class="n">Gamma</span> \<span class="n">Delta</span> \<span class="n">Theta</span> \<span class="n">Lambda</span> \<span class="n">Xi</span> \<span class="n">Pi</span> \<span class="n">Sigma</span> \<span class="n">Upsilon</span> \<span class="n">Phi</span> \<span class="n">Psi</span> \<span class="n">Omega</span>
+</pre></div>
+</div>
+<p>Output:</p>
+<div class="math notranslate nohighlight">
+\[\Gamma \Delta \Theta \Lambda \Xi \Pi \Sigma \Upsilon \Phi \Psi \Omega\]</div>
+</section>
+<section id="id2">
+<h3>Others<a class="headerlink" href="#id2" title="Link to this heading"></a></h3>
+<p>Input:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>\<span class="n">hbar</span> \<span class="n">imath</span> \<span class="n">jmath</span> \<span class="n">ell</span> \<span class="n">Re</span> \<span class="n">Im</span> \<span class="n">aleph</span> \<span class="n">beth</span> \<span class="n">gimel</span> \<span class="n">daleth</span> \<span class="n">wp</span> \<span class="n">mho</span> \<span class="n">backepsilon</span> \<span class="n">partial</span>
+</pre></div>
+</div>
+<p>Output:</p>
+<div class="math notranslate nohighlight">
+\[\hbar \imath \jmath \ell \Re \Im \aleph \beth \gimel \daleth \wp \mho \backepsilon \partial\]</div>
+<p>Input:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>\<span class="n">eth</span> \<span class="n">Bbbk</span> \<span class="n">complement</span> \<span class="n">circledS</span> \<span class="n">S</span> \<span class="n">mathbb</span><span class="p">{</span><span class="n">a</span><span class="p">}</span> \<span class="n">mathfrak</span><span class="p">{</span><span class="n">a</span><span class="p">}</span> \<span class="n">mathcal</span><span class="p">{</span><span class="n">a</span><span class="p">}</span> \<span class="n">mathrm</span> <span class="p">{</span><span class="n">a</span><span class="p">}</span> \<span class="n">mathrm</span><span class="p">{</span><span class="n">def</span><span class="p">}</span>
+</pre></div>
+</div>
+<p>Output:</p>
+<div class="math notranslate nohighlight">
+\[\eth \Bbbk \complement \circledS \S \mathbb{a} \mathfrak{a} \mathcal{a} \mathrm {a} \mathrm{def}\]</div>
+</section>
+</section>
+<section id="fractions-derivative">
+<h2>Fractions &amp; Derivative<a class="headerlink" href="#fractions-derivative" title="Link to this heading"></a></h2>
+<section id="fractions">
+<h3>Fractions<a class="headerlink" href="#fractions" title="Link to this heading"></a></h3>
+<p>Input:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>\<span class="n">frac</span><span class="p">{</span><span class="n">a</span><span class="p">}{</span><span class="n">b</span><span class="p">}</span> \<span class="n">tfrac</span><span class="p">{</span><span class="n">a</span><span class="p">}{</span><span class="n">b</span><span class="p">}</span> \<span class="n">mathrm</span><span class="p">{</span><span class="n">d</span><span class="p">}</span><span class="n">t</span> \<span class="n">frac</span><span class="p">{</span>\<span class="n">mathrm</span><span class="p">{</span><span class="n">d</span><span class="p">}</span> <span class="n">y</span><span class="p">}{</span>\<span class="n">mathrm</span><span class="p">{</span><span class="n">d</span><span class="p">}</span> <span class="n">x</span><span class="p">}</span> \<span class="n">partial</span> <span class="n">t</span>
+\<span class="n">frac</span><span class="p">{</span>\<span class="n">partial</span> <span class="n">y</span><span class="p">}{</span>\<span class="n">partial</span> <span class="n">x</span><span class="p">}</span> \<span class="n">nabla</span>\<span class="n">psi</span>
+\<span class="n">frac</span><span class="p">{</span>\<span class="n">partial</span><span class="o">^</span><span class="mi">2</span><span class="p">}{</span>\<span class="n">partial</span> <span class="n">x_1</span>\<span class="n">partial</span> <span class="n">x_2</span><span class="p">}</span><span class="n">y</span>
+</pre></div>
+</div>
+<p>Output:</p>
+<div class="math notranslate nohighlight">
+\[\frac{a}{b} \tfrac{a}{b} \mathrm{d}t \frac{\mathrm{d} y}{\mathrm{d} x} \partial t
+\frac{\partial y}{\partial x} \nabla\psi
+ \frac{\partial^2}{\partial x_1\partial x_2}y\]</div>
+<p>Input:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>\<span class="n">cfrac</span><span class="p">{</span><span class="mi">1</span><span class="p">}{</span><span class="n">a</span> <span class="o">+</span> \<span class="n">cfrac</span><span class="p">{</span><span class="mi">7</span><span class="p">}{</span><span class="n">b</span> <span class="o">+</span> \<span class="n">cfrac</span><span class="p">{</span><span class="mi">2</span><span class="p">}{</span><span class="mi">9</span><span class="p">}}}</span> <span class="o">=</span><span class="n">c</span>
+</pre></div>
+</div>
+<p>Output:</p>
+<div class="math notranslate nohighlight">
+\[\cfrac{1}{a + \cfrac{7}{b + \cfrac{2}{9}}} =c\]</div>
+<p>Input:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>\<span class="n">begin</span><span class="p">{</span><span class="n">equation</span><span class="p">}</span>
+  <span class="n">x</span> <span class="o">=</span> <span class="n">a_0</span> <span class="o">+</span> \<span class="n">cfrac</span><span class="p">{</span><span class="mi">1</span><span class="p">}{</span><span class="n">a_1</span>
+          <span class="o">+</span> \<span class="n">cfrac</span><span class="p">{</span><span class="mi">1</span><span class="p">}{</span><span class="n">a_2</span>
+          <span class="o">+</span> \<span class="n">cfrac</span><span class="p">{</span><span class="mi">1</span><span class="p">}{</span><span class="n">a_3</span> <span class="o">+</span> \<span class="n">cfrac</span><span class="p">{</span><span class="mi">1</span><span class="p">}{</span><span class="n">a_4</span><span class="p">}</span> <span class="p">}</span> <span class="p">}</span> <span class="p">}</span>
+\<span class="n">end</span><span class="p">{</span><span class="n">equation</span><span class="p">}</span>
+</pre></div>
+</div>
+<p>Output:</p>
+<div class="math notranslate nohighlight">
+\[\begin{equation}
+  x = a_0 + \cfrac{1}{a_1
+          + \cfrac{1}{a_2
+          + \cfrac{1}{a_3 + \cfrac{1}{a_4} } } }
+\end{equation}\]</div>
+</section>
+<section id="derivative">
+<h3>Derivative<a class="headerlink" href="#derivative" title="Link to this heading"></a></h3>
+<p>Input:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>\<span class="n">dot</span><span class="p">{</span><span class="n">a</span><span class="p">}</span> \<span class="n">ddot</span><span class="p">{</span><span class="n">a</span><span class="p">}</span> <span class="p">{</span><span class="n">f</span><span class="p">}</span><span class="s1">&#39; </span><span class="si">{f}</span><span class="s1">&#39;&#39; </span><span class="si">{f}</span><span class="s1">^{(n)}</span>
+</pre></div>
+</div>
+<p>Output:</p>
+<div class="math notranslate nohighlight">
+\[\dot{a} \ddot{a} {f}' {f}'' {f}^{(n)}\]</div>
+</section>
+<section id="modular-arithmetic">
+<h3>Modular arithmetic<a class="headerlink" href="#modular-arithmetic" title="Link to this heading"></a></h3>
+<p>Input:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">a</span> \<span class="n">bmod</span> <span class="n">b</span> <span class="n">a</span> \<span class="n">equiv</span> <span class="n">b</span> \<span class="n">pmod</span><span class="p">{</span><span class="n">m</span><span class="p">}</span> \<span class="n">gcd</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span> \<span class="n">operatorname</span><span class="p">{</span><span class="n">lcm</span><span class="p">}(</span><span class="n">m</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Output:</p>
+<div class="math notranslate nohighlight">
+\[a \bmod b a \equiv b \pmod{m} \gcd(m, n) \operatorname{lcm}(m, n)\]</div>
+</section>
+<section id="radicals">
+<h3>Radicals<a class="headerlink" href="#radicals" title="Link to this heading"></a></h3>
+<p>Input:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>\<span class="n">sqrt</span><span class="p">{</span><span class="n">x</span><span class="p">}</span> \<span class="n">sqrt</span><span class="p">[</span><span class="n">n</span><span class="p">]{</span><span class="n">x</span><span class="p">}</span>
+</pre></div>
+</div>
+<p>Output:</p>
+<div class="math notranslate nohighlight">
+\[\sqrt{x} \sqrt[n]{x}\]</div>
+</section>
+<section id="superscript-and-subscript">
+<h3>Superscript and Subscript<a class="headerlink" href="#superscript-and-subscript" title="Link to this heading"></a></h3>
+<p>Input:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">x</span><span class="o">^</span><span class="p">{</span><span class="n">a</span><span class="p">}</span> \  <span class="n">x_</span><span class="p">{</span><span class="n">a</span><span class="p">}</span> \ <span class="n">x_</span><span class="p">{</span><span class="n">a</span><span class="p">}</span><span class="o">^</span><span class="p">{</span><span class="n">b</span><span class="p">}</span> \ <span class="p">{</span><span class="n">_</span><span class="p">{</span><span class="n">a</span><span class="p">}</span><span class="o">^</span><span class="p">{</span><span class="n">b</span><span class="p">}</span><span class="n">x</span><span class="p">}</span> \ \<span class="n">sideset</span><span class="p">{</span><span class="n">_1</span><span class="o">^</span><span class="mi">2</span><span class="p">}{</span><span class="n">_3</span><span class="o">^</span><span class="mi">4</span><span class="p">}</span><span class="n">X_a</span><span class="o">^</span><span class="n">b</span>
+</pre></div>
+</div>
+<p>Output:</p>
+<div class="math notranslate nohighlight">
+\[x^{a} \  x_{a} \ x_{a}^{b} \ {_{a}^{b}x} \ \sideset{_1^2}{_3^4}X_a^b\]</div>
+</section>
+<section id="accents-and-others">
+<h3>Accents and Others<a class="headerlink" href="#accents-and-others" title="Link to this heading"></a></h3>
+<p>Input:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>\<span class="n">hat</span><span class="p">{</span><span class="n">a</span><span class="p">}</span>  \<span class="n">check</span><span class="p">{</span><span class="n">a</span><span class="p">}</span> \<span class="n">grave</span><span class="p">{</span><span class="n">a</span><span class="p">}</span> \<span class="n">acute</span><span class="p">{</span><span class="n">a</span><span class="p">}</span> \<span class="n">tilde</span><span class="p">{</span><span class="n">a</span><span class="p">}</span> \<span class="n">breve</span><span class="p">{</span><span class="n">a</span><span class="p">}</span> \<span class="n">bar</span><span class="p">{</span><span class="n">a</span><span class="p">}</span> \<span class="n">vec</span><span class="p">{</span><span class="n">a</span><span class="p">}</span> \<span class="ow">not</span><span class="p">{</span><span class="n">a</span><span class="p">}</span>
+</pre></div>
+</div>
+<p>Output:</p>
+<div class="math notranslate nohighlight">
+\[\hat{a}  \check{a} \grave{a} \acute{a} \tilde{a} \breve{a} \bar{a} \vec{a} \not{a}\]</div>
+<p>Input:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mi">37</span><span class="o">^</span><span class="p">{</span>\<span class="n">circ</span><span class="p">}</span> \ \<span class="n">widetilde</span><span class="p">{</span><span class="n">abc</span><span class="p">}</span> \ \<span class="n">widehat</span><span class="p">{</span><span class="n">abc</span><span class="p">}</span> \ \<span class="n">overleftarrow</span><span class="p">{</span><span class="n">abc</span><span class="p">}</span> \ \<span class="n">overrightarrow</span><span class="p">{</span><span class="n">abc</span><span class="p">}</span>
+</pre></div>
+</div>
+<p>Output:</p>
+<div class="math notranslate nohighlight">
+\[37^{\circ} \ \widetilde{abc} \ \widehat{abc} \ \overleftarrow{abc} \ \overrightarrow{abc}\]</div>
+<p>Input:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>\<span class="n">overline</span><span class="p">{</span><span class="n">abc</span><span class="p">}</span> \ \<span class="n">underline</span><span class="p">{</span><span class="n">abc</span><span class="p">}</span> \  \<span class="n">overbrace</span><span class="p">{</span><span class="n">abc</span><span class="p">}</span> \ \<span class="n">underbrace</span><span class="p">{</span><span class="n">abc</span><span class="p">}</span>
+</pre></div>
+</div>
+<p>Output:</p>
+<div class="math notranslate nohighlight">
+\[\overline{abc} \ \underline{abc} \  \overbrace{abc} \ \underbrace{abc}\]</div>
+<p>Input:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>\<span class="n">overset</span><span class="p">{</span><span class="n">x</span><span class="p">}{</span><span class="n">abc</span><span class="p">}</span> \ \<span class="n">underset</span><span class="p">{</span><span class="n">x</span><span class="p">}{</span><span class="n">abc</span><span class="p">}</span> \ \<span class="n">stackrel</span>\<span class="n">frown</span><span class="p">{</span><span class="n">AB</span><span class="p">}</span> \ \<span class="n">overline</span><span class="p">{</span><span class="n">AB</span><span class="p">}</span> \ \<span class="n">overleftrightarrow</span><span class="p">{</span><span class="n">AB</span><span class="p">}</span>
+</pre></div>
+</div>
+<p>Output:</p>
+<div class="math notranslate nohighlight">
+\[\overset{x}{abc} \ \underset{x}{abc} \ \stackrel\frown{AB} \ \overline{AB} \ \overleftrightarrow{AB}\]</div>
+<p>Input:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>\<span class="n">overset</span><span class="p">{</span><span class="n">a</span><span class="p">}{</span>\<span class="n">leftarrow</span><span class="p">}</span> \ \<span class="n">overset</span><span class="p">{</span><span class="n">a</span><span class="p">}{</span>\<span class="n">rightarrow</span><span class="p">}</span> \ \<span class="n">xleftarrow</span><span class="p">[</span><span class="n">abc</span><span class="p">]{</span><span class="n">x</span><span class="p">}</span> \ \<span class="n">xrightarrow</span><span class="p">[</span><span class="n">abc</span><span class="p">]{</span><span class="n">x</span><span class="p">}</span>
+</pre></div>
+</div>
+<p>Output:</p>
+<div class="math notranslate nohighlight">
+\[\overset{a}{\leftarrow} \ \overset{a}{\rightarrow} \ \xleftarrow[abc]{x} \ \xrightarrow[abc]{x}\]</div>
+</section>
+</section>
+<section id="limits-class">
+<h2>Limits class<a class="headerlink" href="#limits-class" title="Link to this heading"></a></h2>
+<section id="limits">
+<h3>Limits<a class="headerlink" href="#limits" title="Link to this heading"></a></h3>
+<p>Input:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>\<span class="n">lim</span><span class="p">{</span><span class="n">a</span><span class="p">}</span> \ \<span class="n">lim_</span><span class="p">{</span><span class="n">x</span> \<span class="n">to</span> <span class="mi">0</span><span class="p">}</span> \ \<span class="n">lim_</span><span class="p">{</span><span class="n">x</span> \<span class="n">to</span> \<span class="n">infty</span><span class="p">}</span> \<span class="n">textstyle</span> \ \<span class="n">lim_</span><span class="p">{</span><span class="n">x</span> \<span class="n">to</span> <span class="mi">0</span><span class="p">}</span> \<span class="n">max_x</span><span class="p">{</span><span class="n">y</span><span class="p">}</span> \<span class="n">min_x</span><span class="p">{</span><span class="n">y</span><span class="p">}</span>
+</pre></div>
+</div>
+<p>Output:</p>
+<div class="math notranslate nohighlight">
+\[\lim{a} \ \lim_{x \to 0} \ \lim_{x \to \infty} \textstyle \ \lim_{x \to 0} \max_x{y} \min_x{y}\]</div>
+</section>
+<section id="logarithms-and-exponentials">
+<h3>Logarithms and exponentials<a class="headerlink" href="#logarithms-and-exponentials" title="Link to this heading"></a></h3>
+<p>Input:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>\<span class="n">log_</span><span class="p">{</span><span class="n">a</span><span class="p">}{</span><span class="n">b</span><span class="p">}</span> \ \<span class="n">lg_</span><span class="p">{</span><span class="n">a</span><span class="p">}{</span><span class="n">b</span><span class="p">}</span> \ \<span class="n">ln_</span><span class="p">{</span><span class="n">a</span><span class="p">}{</span><span class="n">b</span><span class="p">}</span> \ \<span class="n">exp</span> <span class="n">a</span>
+</pre></div>
+</div>
+<p>Output:</p>
+<div class="math notranslate nohighlight">
+\[\log_{a}{b} \ \lg_{a}{b} \ \ln_{a}{b} \ \exp a\]</div>
+</section>
+<section id="bounds">
+<h3>Bounds<a class="headerlink" href="#bounds" title="Link to this heading"></a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>\<span class="nb">min</span> <span class="n">x</span> \<span class="nb">max</span> <span class="n">y</span> \<span class="n">sup</span> <span class="n">t</span> \<span class="n">inf</span> <span class="n">s</span> \<span class="n">lim</span> <span class="n">u</span> \<span class="n">limsup</span> <span class="n">w</span> \<span class="n">liminf</span> <span class="n">v</span> \<span class="n">dim</span> <span class="n">p</span> \<span class="n">ker</span>\<span class="n">phi</span>
+</pre></div>
+</div>
+<p>Output:</p>
+<div class="math notranslate nohighlight">
+\[\min x \max y \sup t \inf s \lim u \limsup w \liminf v \dim p \ker\phi\]</div>
+</section>
+</section>
+<section id="trigonometry-class">
+<h2>Trigonometry class<a class="headerlink" href="#trigonometry-class" title="Link to this heading"></a></h2>
+<section id="trigonometric-functions">
+<h3>Trigonometric functions<a class="headerlink" href="#trigonometric-functions" title="Link to this heading"></a></h3>
+<p>Input:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>\<span class="n">sin</span> <span class="n">x</span> \<span class="n">cos</span> <span class="n">x</span> \<span class="n">tan</span> <span class="n">x</span> \<span class="n">cot</span> <span class="n">x</span> \<span class="n">sec</span> <span class="n">x</span> \<span class="n">csc</span> <span class="n">x</span>
+</pre></div>
+</div>
+<p>Output:</p>
+<div class="math notranslate nohighlight">
+\[\sin x \cos x \tan x \cot x \sec x \csc x\]</div>
+</section>
+<section id="inverse-trigonometric-functions">
+<h3>Inverse trigonometric functions<a class="headerlink" href="#inverse-trigonometric-functions" title="Link to this heading"></a></h3>
+<p>Input:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>\<span class="n">sin</span><span class="o">^</span><span class="p">{</span><span class="o">-</span><span class="mi">1</span><span class="p">}</span> <span class="n">x</span> \<span class="n">cos</span><span class="o">^</span><span class="p">{</span><span class="o">-</span><span class="mi">1</span><span class="p">}</span> <span class="n">x</span> \<span class="n">tan</span><span class="o">^</span><span class="p">{</span><span class="o">-</span><span class="mi">1</span><span class="p">}</span> <span class="n">x</span> \<span class="n">cot</span><span class="o">^</span><span class="p">{</span><span class="o">-</span><span class="mi">1</span><span class="p">}</span> <span class="n">x</span> \<span class="n">sec</span><span class="o">^</span><span class="p">{</span><span class="o">-</span><span class="mi">1</span><span class="p">}</span> <span class="n">x</span> \<span class="n">arcsin</span> <span class="n">x</span>  \<span class="n">arccos</span> <span class="n">x</span>
+</pre></div>
+</div>
+<p>Output:</p>
+<div class="math notranslate nohighlight">
+\[\sin^{-1} x \cos^{-1} x \tan^{-1} x \cot^{-1} x \sec^{-1} x \arcsin x  \arccos x\]</div>
+<p>Input:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>\<span class="n">arctan</span> <span class="n">x</span> \<span class="n">operatorname</span><span class="p">{</span><span class="n">arccot</span><span class="p">}</span> <span class="n">x</span> \<span class="n">operatorname</span><span class="p">{</span><span class="n">arcsec</span><span class="p">}</span> <span class="n">x</span> \<span class="n">operatorname</span><span class="p">{</span><span class="n">arccos</span><span class="p">}</span> <span class="n">x</span>
+</pre></div>
+</div>
+<p>Output:</p>
+<div class="math notranslate nohighlight">
+\[\arctan x \operatorname{arccot} x \operatorname{arcsec} x \operatorname{arccos} x\]</div>
+</section>
+<section id="hyperbolic-functions">
+<h3>Hyperbolic functions<a class="headerlink" href="#hyperbolic-functions" title="Link to this heading"></a></h3>
+<p>Input:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>\<span class="n">sinh</span> <span class="n">x</span> \<span class="n">cosh</span> <span class="n">x</span> \<span class="n">tanh</span> <span class="n">x</span> \<span class="n">coth</span> <span class="n">x</span> \<span class="n">operatorname</span><span class="p">{</span><span class="n">sech</span><span class="p">}</span> <span class="n">x</span> \<span class="n">operatorname</span><span class="p">{</span><span class="n">csch</span><span class="p">}</span> <span class="n">x</span>
+</pre></div>
+</div>
+<p>Output:</p>
+<div class="math notranslate nohighlight">
+\[\sinh x \cosh x \tanh x \coth x \operatorname{sech} x \operatorname{csch} x\]</div>
+</section>
+<section id="inverse-hyperbolic-functions">
+<h3>Inverse hyperbolic functions<a class="headerlink" href="#inverse-hyperbolic-functions" title="Link to this heading"></a></h3>
+<p>Input:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>\<span class="n">sinh</span><span class="o">^</span><span class="p">{</span><span class="o">-</span><span class="mi">1</span><span class="p">}</span> <span class="n">x</span> \<span class="n">cosh</span><span class="o">^</span><span class="p">{</span><span class="o">-</span><span class="mi">1</span><span class="p">}</span> <span class="n">x</span> \<span class="n">tanh</span><span class="o">^</span><span class="p">{</span><span class="o">-</span><span class="mi">1</span><span class="p">}</span> <span class="n">x</span> \<span class="n">coth</span><span class="o">^</span><span class="p">{</span><span class="o">-</span><span class="mi">1</span><span class="p">}</span> <span class="n">x</span>
+\<span class="n">operatorname</span><span class="p">{</span><span class="n">sech</span><span class="p">}</span><span class="o">^</span><span class="p">{</span><span class="o">-</span><span class="mi">1</span><span class="p">}</span> <span class="n">x</span> \<span class="n">operatorname</span><span class="p">{</span><span class="n">csch</span><span class="p">}</span><span class="o">^</span><span class="p">{</span><span class="o">-</span><span class="mi">1</span><span class="p">}</span><span class="n">x</span>
+</pre></div>
+</div>
+<p>Output:</p>
+<div class="math notranslate nohighlight">
+\[\sinh^{-1} x \cosh^{-1} x \tanh^{-1} x \coth^{-1} x
+\operatorname{sech}^{-1} x \operatorname{csch}^{-1}x\]</div>
+</section>
+</section>
+<section id="integral-operation">
+<h2>Integral operation<a class="headerlink" href="#integral-operation" title="Link to this heading"></a></h2>
+<section id="integral">
+<h3>Integral<a class="headerlink" href="#integral" title="Link to this heading"></a></h3>
+<p>Input:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>\<span class="nb">int</span> <span class="n">x</span> \<span class="n">int_</span><span class="p">{</span><span class="n">a</span><span class="p">}</span><span class="o">^</span><span class="p">{</span><span class="n">b</span><span class="p">}</span> <span class="n">x</span> \<span class="nb">int</span>\<span class="n">limits_</span><span class="p">{</span><span class="n">a</span><span class="p">}</span><span class="o">^</span><span class="p">{</span><span class="n">b</span><span class="p">}</span> <span class="n">x</span>
+</pre></div>
+</div>
+<p>Output:</p>
+<div class="math notranslate nohighlight">
+\[\int x \int_{a}^{b} x \int\limits_{a}^{b} x\]</div>
+</section>
+<section id="double-integral">
+<h3>Double integral<a class="headerlink" href="#double-integral" title="Link to this heading"></a></h3>
+<p>Input:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>\<span class="n">iint</span> <span class="n">x</span> \<span class="n">iint_</span><span class="p">{</span><span class="n">a</span><span class="p">}</span><span class="o">^</span><span class="p">{</span><span class="n">b</span><span class="p">}</span> <span class="n">x</span> \<span class="n">iint</span>\<span class="n">limits_</span><span class="p">{</span><span class="n">a</span><span class="p">}</span><span class="o">^</span><span class="p">{</span><span class="n">b</span><span class="p">}</span> <span class="n">x</span>
+</pre></div>
+</div>
+<p>Output:</p>
+<div class="math notranslate nohighlight">
+\[\iint x \iint_{a}^{b} x \iint\limits_{a}^{b} x\]</div>
+</section>
+<section id="triple-integral">
+<h3>Triple integral<a class="headerlink" href="#triple-integral" title="Link to this heading"></a></h3>
+<p>Input:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>\<span class="n">iiint</span> <span class="n">x</span> \<span class="n">iiint_</span><span class="p">{</span><span class="n">a</span><span class="p">}</span><span class="o">^</span><span class="p">{</span><span class="n">b</span><span class="p">}</span> <span class="n">x</span> \<span class="n">iiint</span>\<span class="n">limits_</span><span class="p">{</span><span class="n">a</span><span class="p">}</span><span class="o">^</span><span class="p">{</span><span class="n">b</span><span class="p">}</span> <span class="n">x</span>
+</pre></div>
+</div>
+<p>Output:</p>
+<div class="math notranslate nohighlight">
+\[\iiint x \iiint_{a}^{b} x \iiint\limits_{a}^{b} x\]</div>
+</section>
+<section id="closed-line-or-path-integral">
+<h3>Closed line or path integral<a class="headerlink" href="#closed-line-or-path-integral" title="Link to this heading"></a></h3>
+<p>Input:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>\<span class="n">oint</span> <span class="n">x</span> \<span class="n">oint_</span><span class="p">{</span><span class="n">a</span><span class="p">}</span><span class="o">^</span><span class="p">{</span><span class="n">b</span><span class="p">}</span>  <span class="n">x</span>
+</pre></div>
+</div>
+<p>Output:</p>
+<div class="math notranslate nohighlight">
+\[\oint x \oint_{a}^{b}  x\]</div>
+</section>
+<section id="summation">
+<h3>Summation<a class="headerlink" href="#summation" title="Link to this heading"></a></h3>
+<p>Input:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>\<span class="nb">sum</span> <span class="n">s</span> \<span class="n">sum_</span><span class="p">{</span><span class="n">a</span><span class="p">}</span><span class="o">^</span><span class="p">{</span><span class="n">b</span><span class="p">}</span> <span class="n">s</span>  <span class="p">{</span>\<span class="n">textstyle</span> \<span class="n">sum_</span><span class="p">{</span><span class="n">a</span><span class="p">}</span><span class="o">^</span><span class="p">{</span><span class="n">b</span><span class="p">}}</span> <span class="n">s</span>
+</pre></div>
+</div>
+<p>Output:</p>
+<div class="math notranslate nohighlight">
+\[\sum s \sum_{a}^{b} s  {\textstyle \sum_{a}^{b}} s\]</div>
+</section>
+<section id="product-and-coproduct">
+<h3>Product and coproduct<a class="headerlink" href="#product-and-coproduct" title="Link to this heading"></a></h3>
+<p>Input:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>\<span class="n">prod</span> \<span class="n">prod_</span><span class="p">{</span><span class="n">a</span><span class="p">}</span><span class="o">^</span><span class="p">{</span><span class="n">b</span><span class="p">}</span>  <span class="p">{</span>\<span class="n">textstyle</span> \<span class="n">prod_</span><span class="p">{</span><span class="n">a</span><span class="p">}</span><span class="o">^</span><span class="p">{</span><span class="n">b</span><span class="p">}}</span> \<span class="n">coprod</span> \<span class="n">coprod_</span><span class="p">{</span><span class="n">a</span><span class="p">}</span><span class="o">^</span><span class="p">{</span><span class="n">b</span><span class="p">}</span>  <span class="p">{</span>\<span class="n">textstyle</span> \<span class="n">coprod_</span><span class="p">{</span><span class="n">a</span><span class="p">}</span><span class="o">^</span><span class="p">{</span><span class="n">b</span><span class="p">}}</span>
+</pre></div>
+</div>
+<p>Output:</p>
+<div class="math notranslate nohighlight">
+\[\prod \prod_{a}^{b}  {\textstyle \prod_{a}^{b}} \coprod \coprod_{a}^{b}  {\textstyle \coprod_{a}^{b}}\]</div>
+</section>
+<section id="union-and-intersection">
+<h3>Union and intersection<a class="headerlink" href="#union-and-intersection" title="Link to this heading"></a></h3>
+<p>Input:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>\<span class="n">bigcup</span> \<span class="n">bigcup_</span><span class="p">{</span><span class="n">a</span><span class="p">}</span><span class="o">^</span><span class="p">{</span><span class="n">b</span><span class="p">}</span>  <span class="p">{</span>\<span class="n">textstyle</span> \<span class="n">bigcup_</span><span class="p">{</span><span class="n">a</span><span class="p">}</span><span class="o">^</span><span class="p">{</span><span class="n">b</span><span class="p">}}</span>
+\<span class="n">bigcap</span> \<span class="n">bigcap_</span><span class="p">{</span><span class="n">a</span><span class="p">}</span><span class="o">^</span><span class="p">{</span><span class="n">b</span><span class="p">}</span>  <span class="p">{</span>\<span class="n">textstyle</span> \<span class="n">bigcap_</span><span class="p">{</span><span class="n">a</span><span class="p">}</span><span class="o">^</span><span class="p">{</span><span class="n">b</span><span class="p">}}</span>
+</pre></div>
+</div>
+<p>Output:</p>
+<div class="math notranslate nohighlight">
+\[\bigcup \bigcup_{a}^{b}  {\textstyle \bigcup_{a}^{b}}
+\bigcap \bigcap_{a}^{b}  {\textstyle \bigcap_{a}^{b}}\]</div>
+</section>
+<section id="disjunction-and-cojunction">
+<h3>Disjunction and cojunction<a class="headerlink" href="#disjunction-and-cojunction" title="Link to this heading"></a></h3>
+<p>Input:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>\<span class="n">bigvee</span> \<span class="n">bigvee_</span><span class="p">{</span><span class="n">a</span><span class="p">}</span><span class="o">^</span><span class="p">{</span><span class="n">b</span><span class="p">}</span>  <span class="p">{</span>\<span class="n">textstyle</span> \<span class="n">bigvee_</span><span class="p">{</span><span class="n">a</span><span class="p">}</span><span class="o">^</span><span class="p">{</span><span class="n">b</span><span class="p">}}</span>
+\<span class="n">bigwedge</span> \<span class="n">bigwedge_</span><span class="p">{</span><span class="n">a</span><span class="p">}</span><span class="o">^</span><span class="p">{</span><span class="n">b</span><span class="p">}</span>  <span class="p">{</span>\<span class="n">textstyle</span> \<span class="n">bigwedge_</span><span class="p">{</span><span class="n">a</span><span class="p">}</span><span class="o">^</span><span class="p">{</span><span class="n">b</span><span class="p">}}</span>
+</pre></div>
+</div>
+<p>Output:</p>
+<div class="math notranslate nohighlight">
+\[\bigvee \bigvee_{a}^{b}  {\textstyle \bigvee_{a}^{b}}
+\bigwedge \bigwedge_{a}^{b}  {\textstyle \bigwedge_{a}^{b}}\]</div>
+</section>
+<section id="brackets">
+<h3>Brackets<a class="headerlink" href="#brackets" title="Link to this heading"></a></h3>
+<p>Input:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>\<span class="n">left</span> <span class="p">(</span> <span class="n">a</span> \<span class="n">right</span> <span class="p">)</span>
+\<span class="n">left</span> <span class="p">[</span> <span class="n">a</span> \<span class="n">right</span> <span class="p">]</span>
+\<span class="n">left</span> \<span class="n">langle</span> <span class="n">a</span> \<span class="n">right</span> \<span class="n">rangle</span>
+\<span class="n">left</span> \<span class="p">{</span> <span class="n">a</span> \<span class="n">right</span> \<span class="p">}</span>
+\<span class="n">left</span> <span class="o">|</span> <span class="n">a</span> \<span class="n">right</span> <span class="o">|</span>
+\<span class="n">left</span> \<span class="o">|</span> <span class="n">a</span> \<span class="n">right</span> \<span class="o">|</span>
+\<span class="n">left</span> \<span class="n">lfloor</span> <span class="n">a</span> \<span class="n">right</span> \<span class="n">rfloor</span>
+\<span class="n">left</span> \<span class="n">lceil</span> <span class="n">a</span> \<span class="n">right</span> \<span class="n">rceil</span>
+</pre></div>
+</div>
+<p>Output:</p>
+<div class="math notranslate nohighlight">
+\[\left ( a \right )
+\left [ a \right ]
+\left \langle a \right \rangle
+\left \{ a \right \}
+\left | a \right |
+\left \| a \right \|
+\left \lfloor a \right \rfloor
+\left \lceil a \right \rceil\]</div>
+<p>Input:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>\<span class="n">binom</span><span class="p">{</span><span class="n">n</span><span class="p">}{</span><span class="n">r</span><span class="p">}</span>
+\<span class="n">left</span> <span class="p">[</span> <span class="mi">0</span><span class="p">,</span><span class="mi">1</span> \<span class="n">right</span> <span class="p">)</span>
+\<span class="n">left</span> \<span class="n">langle</span> \<span class="n">psi</span> \<span class="n">right</span> <span class="o">|</span>
+\<span class="n">left</span> <span class="o">|</span> \<span class="n">psi</span>  \<span class="n">right</span> \<span class="n">rangle</span>
+\<span class="n">left</span> \<span class="n">langle</span> \<span class="n">psi</span>  <span class="o">|</span> \<span class="n">psi</span>  \<span class="n">right</span> \<span class="n">rangle</span>
+</pre></div>
+</div>
+<p>Output:</p>
+<div class="math notranslate nohighlight">
+\[\binom{n}{r}
+\left [ 0,1 \right )
+\left \langle \psi \right |
+\left | \psi  \right \rangle
+\left \langle \psi  | \psi  \right \rangle\]</div>
+</section>
+<section id="matrix">
+<h3>Matrix<a class="headerlink" href="#matrix" title="Link to this heading"></a></h3>
+<p>Input:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>\<span class="n">begin</span><span class="p">{</span><span class="n">matrix</span><span class="p">}</span>
+  <span class="mi">1</span><span class="o">&amp;</span><span class="mi">2</span>  <span class="o">&amp;</span><span class="mi">3</span> \\
+  <span class="mi">4</span><span class="o">&amp;</span><span class="mi">5</span>  <span class="o">&amp;</span><span class="mi">6</span>
+\<span class="n">end</span><span class="p">{</span><span class="n">matrix</span><span class="p">}</span>
+</pre></div>
+</div>
+<p>Output:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{matrix}
+  1&amp;2  &amp;3 \\
+  4&amp;5  &amp;6
+\end{matrix}\end{split}\]</div>
+<p>Input:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>\<span class="n">begin</span><span class="p">{</span><span class="n">bmatrix</span><span class="p">}</span>
+  <span class="mi">1</span><span class="o">&amp;</span><span class="mi">2</span>  <span class="o">&amp;</span><span class="mi">3</span> \\
+  <span class="mi">4</span><span class="o">&amp;</span><span class="mi">5</span>  <span class="o">&amp;</span><span class="mi">6</span>
+\<span class="n">end</span><span class="p">{</span><span class="n">bmatrix</span><span class="p">}</span>
+</pre></div>
+</div>
+<p>Output:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{bmatrix}
+  1&amp;2  &amp;3 \\
+  4&amp;5  &amp;6
+\end{bmatrix}\end{split}\]</div>
+<p>Input:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>\<span class="n">begin</span><span class="p">{</span><span class="n">pmatrix</span><span class="p">}</span>
+  <span class="mi">1</span><span class="o">&amp;</span><span class="mi">2</span>  <span class="o">&amp;</span><span class="mi">3</span> \\
+  <span class="mi">4</span><span class="o">&amp;</span><span class="mi">5</span>  <span class="o">&amp;</span><span class="mi">6</span>
+\<span class="n">end</span><span class="p">{</span><span class="n">pmatrix</span><span class="p">}</span>
+</pre></div>
+</div>
+<p>Output:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{pmatrix}
+  1&amp;2  &amp;3 \\
+  4&amp;5  &amp;6
+\end{pmatrix}\end{split}\]</div>
+<p>Input:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>\<span class="n">begin</span><span class="p">{</span><span class="n">vmatrix</span><span class="p">}</span>
+  <span class="mi">1</span><span class="o">&amp;</span><span class="mi">2</span>  <span class="o">&amp;</span><span class="mi">3</span> \\
+  <span class="mi">4</span><span class="o">&amp;</span><span class="mi">5</span>  <span class="o">&amp;</span><span class="mi">6</span>
+\<span class="n">end</span><span class="p">{</span><span class="n">vmatrix</span><span class="p">}</span>
+</pre></div>
+</div>
+<p>Output:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{vmatrix}
+  1&amp;2  &amp;3 \\
+  4&amp;5  &amp;6
+\end{vmatrix}\end{split}\]</div>
+<p>Input:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>\<span class="n">begin</span><span class="p">{</span><span class="n">Vmatrix</span><span class="p">}</span>
+  <span class="mi">1</span><span class="o">&amp;</span><span class="mi">2</span>  <span class="o">&amp;</span><span class="mi">3</span> \\
+  <span class="mi">4</span><span class="o">&amp;</span><span class="mi">5</span>  <span class="o">&amp;</span><span class="mi">6</span>
+\<span class="n">end</span><span class="p">{</span><span class="n">Vmatrix</span><span class="p">}</span>
+</pre></div>
+</div>
+<p>Output:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{Vmatrix}
+  1&amp;2  &amp;3 \\
+  4&amp;5  &amp;6
+\end{Vmatrix}\end{split}\]</div>
+<p>Input:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>\<span class="n">begin</span><span class="p">{</span><span class="n">Bmatrix</span><span class="p">}</span>
+  <span class="mi">1</span><span class="o">&amp;</span><span class="mi">2</span>  <span class="o">&amp;</span><span class="mi">3</span> \\
+  <span class="mi">4</span><span class="o">&amp;</span><span class="mi">5</span>  <span class="o">&amp;</span><span class="mi">6</span>
+\<span class="n">end</span><span class="p">{</span><span class="n">Bmatrix</span><span class="p">}</span>
+</pre></div>
+</div>
+<p>Output:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{Bmatrix}
+  1&amp;2  &amp;3 \\
+  4&amp;5  &amp;6
+\end{Bmatrix}\end{split}\]</div>
+<p>Input:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>\<span class="n">left</span>\<span class="p">{</span>\<span class="n">begin</span><span class="p">{</span><span class="n">matrix</span><span class="p">}</span>
+  <span class="mi">1</span><span class="o">&amp;</span><span class="mi">2</span>  <span class="o">&amp;</span><span class="mi">3</span> \\
+  <span class="mi">4</span><span class="o">&amp;</span><span class="mi">5</span>  <span class="o">&amp;</span><span class="mi">6</span>
+\<span class="n">end</span><span class="p">{</span><span class="n">matrix</span><span class="p">}</span>\<span class="n">right</span><span class="o">.</span>
+</pre></div>
+</div>
+<p>Output:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\left\{\begin{matrix}
+  1&amp;2  &amp;3 \\
+  4&amp;5  &amp;6
+\end{matrix}\right.\end{split}\]</div>
+<p>Input:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>\<span class="n">left</span><span class="o">.</span>\<span class="n">begin</span><span class="p">{</span><span class="n">matrix</span><span class="p">}</span>
+  <span class="mi">1</span><span class="o">&amp;</span><span class="mi">2</span>  <span class="o">&amp;</span><span class="mi">3</span> \\
+  <span class="mi">4</span><span class="o">&amp;</span><span class="mi">5</span>  <span class="o">&amp;</span><span class="mi">6</span>
+\<span class="n">end</span><span class="p">{</span><span class="n">matrix</span><span class="p">}</span>\<span class="n">right</span>\<span class="p">}</span>
+</pre></div>
+</div>
+<p>Output:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\left.\begin{matrix}
+  1&amp;2  &amp;3 \\
+  4&amp;5  &amp;6
+\end{matrix}\right\}\end{split}\]</div>
+<p>Input:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>\<span class="n">begin</span><span class="p">{</span><span class="n">cases</span><span class="p">}</span>
+  <span class="mi">1</span><span class="o">&amp;</span> \<span class="n">text</span><span class="p">{</span> <span class="k">if</span> <span class="p">}</span> <span class="n">x</span><span class="o">=</span> <span class="mi">2</span>\\
+  <span class="mi">3</span><span class="o">&amp;</span> \<span class="n">text</span><span class="p">{</span> <span class="k">if</span> <span class="p">}</span> <span class="n">x</span><span class="o">=</span><span class="mi">4</span>
+\<span class="n">end</span><span class="p">{</span><span class="n">cases</span><span class="p">}</span>
+</pre></div>
+</div>
+<p>Output:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{cases}
+  1&amp; \text{ if } x= 2\\
+  3&amp; \text{ if } x=4
+\end{cases}\end{split}\]</div>
+<p>Input:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>\<span class="n">begin</span><span class="p">{</span><span class="n">align</span><span class="o">*</span><span class="p">}</span>
+  <span class="n">y</span><span class="o">&amp;=</span><span class="mi">1</span> \\
+  <span class="n">x</span><span class="o">&amp;=</span><span class="mi">2</span>
+\<span class="n">end</span><span class="p">{</span><span class="n">align</span><span class="o">*</span><span class="p">}</span>
+</pre></div>
+</div>
+<p>Output:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align*}
+  y&amp;=1 \\
+  x&amp;=2
+\end{align*}\end{split}\]</div>
+</section>
+</section>
+<section id="formula-template">
+<h2>Formula Template<a class="headerlink" href="#formula-template" title="Link to this heading"></a></h2>
+<section id="algebra">
+<h3>Algebra<a class="headerlink" href="#algebra" title="Link to this heading"></a></h3>
+<p>Input:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>\<span class="n">left</span><span class="p">(</span><span class="n">x</span><span class="o">-</span><span class="mi">1</span>\<span class="n">right</span><span class="p">)</span>\<span class="n">left</span><span class="p">(</span><span class="n">x</span><span class="o">+</span><span class="mi">3</span>\<span class="n">right</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Output:</p>
+<div class="math notranslate nohighlight">
+\[\left(x-1\right)\left(x+3\right)\]</div>
+<p>Input:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>\<span class="n">sqrt</span><span class="p">{</span><span class="n">a</span><span class="o">^</span><span class="mi">2</span><span class="o">+</span><span class="n">b</span><span class="o">^</span><span class="mi">2</span><span class="p">}</span>
+</pre></div>
+</div>
+<p>Output:</p>
+<div class="math notranslate nohighlight">
+\[\sqrt{a^2+b^2}\]</div>
+<p>Input:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>\<span class="n">frac</span><span class="p">{</span><span class="n">a</span><span class="p">}{</span><span class="n">b</span><span class="p">}</span>\<span class="n">pm</span> \<span class="n">frac</span><span class="p">{</span><span class="n">c</span><span class="p">}{</span><span class="n">d</span><span class="p">}</span><span class="o">=</span> \<span class="n">frac</span><span class="p">{</span><span class="n">ad</span> \<span class="n">pm</span> <span class="n">bc</span><span class="p">}{</span><span class="n">bd</span><span class="p">}</span>
+</pre></div>
+</div>
+<p>Output:</p>
+<div class="math notranslate nohighlight">
+\[\frac{a}{b}\pm \frac{c}{d}= \frac{ad \pm bc}{bd}\]</div>
+<p>Input:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>\<span class="n">frac</span><span class="p">{</span><span class="mi">1</span><span class="p">}{</span>\<span class="n">sqrt</span><span class="p">{</span><span class="n">a</span><span class="p">}}</span><span class="o">=</span>\<span class="n">frac</span><span class="p">{</span>\<span class="n">sqrt</span><span class="p">{</span><span class="n">a</span><span class="p">}}{</span><span class="n">a</span><span class="p">},</span><span class="n">a</span>\<span class="n">ge</span> <span class="mi">0</span>\<span class="n">frac</span><span class="p">{</span><span class="mi">1</span><span class="p">}{</span>\<span class="n">sqrt</span><span class="p">{</span><span class="n">a</span><span class="p">}}</span><span class="o">=</span>\<span class="n">frac</span><span class="p">{</span>\<span class="n">sqrt</span><span class="p">{</span><span class="n">a</span><span class="p">}}{</span><span class="n">a</span><span class="p">},</span><span class="n">a</span>\<span class="n">ge</span> <span class="mi">0</span>
+</pre></div>
+</div>
+<p>Output:</p>
+<div class="math notranslate nohighlight">
+\[\frac{1}{\sqrt{a}}=\frac{\sqrt{a}}{a},a\ge 0\frac{1}{\sqrt{a}}=\frac{\sqrt{a}}{a},a\ge 0\]</div>
+<p>Input:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">x</span> <span class="o">=</span><span class="p">{</span><span class="o">-</span><span class="n">b</span> \<span class="n">pm</span> \<span class="n">sqrt</span><span class="p">{</span><span class="n">b</span><span class="o">^</span><span class="mi">2</span><span class="o">-</span><span class="mi">4</span><span class="n">ac</span><span class="p">}</span>\<span class="n">over</span> <span class="mi">2</span><span class="n">a</span><span class="p">}</span>
+</pre></div>
+</div>
+<p>Output:</p>
+<div class="math notranslate nohighlight">
+\[x ={-b \pm \sqrt{b^2-4ac}\over 2a}\]</div>
+<p>Input:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>\<span class="n">left</span>\<span class="p">{</span>\<span class="n">begin</span><span class="p">{</span><span class="n">matrix</span><span class="p">}</span>
+  <span class="n">x</span><span class="o">=</span><span class="n">a</span> <span class="o">+</span> <span class="n">r</span>\<span class="n">text</span><span class="p">{</span><span class="n">cos</span><span class="p">}</span>\<span class="n">theta</span> \\
+  <span class="n">y</span><span class="o">=</span><span class="n">b</span> <span class="o">+</span> <span class="n">r</span>\<span class="n">text</span><span class="p">{</span><span class="n">sin</span><span class="p">}</span>\<span class="n">theta</span>
+\<span class="n">end</span><span class="p">{</span><span class="n">matrix</span><span class="p">}</span>\<span class="n">right</span><span class="o">.</span>
+</pre></div>
+</div>
+<p>Output:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\left\{\begin{matrix}
+  x=a + r\text{cos}\theta \\
+  y=b + r\text{sin}\theta
+\end{matrix}\right.\end{split}\]</div>
+<p>Input:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>\<span class="n">left</span> <span class="p">(</span> \<span class="n">frac</span><span class="p">{</span><span class="n">a</span><span class="p">}{</span><span class="n">b</span><span class="p">}</span>\<span class="n">right</span> <span class="p">)</span><span class="o">^</span><span class="p">{</span><span class="n">n</span><span class="p">}</span><span class="o">=</span> \<span class="n">frac</span><span class="p">{</span><span class="n">a</span><span class="o">^</span><span class="p">{</span><span class="n">n</span><span class="p">}}{</span><span class="n">b</span><span class="o">^</span><span class="p">{</span><span class="n">n</span><span class="p">}}</span>
+</pre></div>
+</div>
+<p>Output:</p>
+<div class="math notranslate nohighlight">
+\[\left ( \frac{a}{b}\right )^{n}= \frac{a^{n}}{b^{n}}\]</div>
+<p>Input:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>\<span class="n">frac</span><span class="p">{</span><span class="n">x</span><span class="o">^</span><span class="p">{</span><span class="mi">2</span><span class="p">}}{</span><span class="n">a</span><span class="o">^</span><span class="p">{</span><span class="mi">2</span><span class="p">}}</span><span class="o">-</span>\<span class="n">frac</span><span class="p">{</span><span class="n">y</span><span class="o">^</span><span class="p">{</span><span class="mi">2</span><span class="p">}}{</span><span class="n">b</span><span class="o">^</span><span class="p">{</span><span class="mi">2</span><span class="p">}}</span><span class="o">=</span><span class="mi">1</span>
+</pre></div>
+</div>
+<p>Output:</p>
+<div class="math notranslate nohighlight">
+\[\frac{x^{2}}{a^{2}}-\frac{y^{2}}{b^{2}}=1\]</div>
+<p>Input:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>\<span class="n">sqrt</span><span class="p">[</span><span class="n">n</span><span class="p">]{</span><span class="n">a</span><span class="o">^</span><span class="p">{</span><span class="n">n</span><span class="p">}}</span><span class="o">=</span>\<span class="n">left</span> <span class="p">(</span> \<span class="n">sqrt</span><span class="p">[</span><span class="n">n</span><span class="p">]{</span><span class="n">a</span><span class="p">}</span>\<span class="n">right</span> <span class="p">)</span><span class="o">^</span><span class="p">{</span><span class="n">n</span><span class="p">}</span>
+</pre></div>
+</div>
+<p>Output:</p>
+<div class="math notranslate nohighlight">
+\[\sqrt[n]{a^{n}}=\left ( \sqrt[n]{a}\right )^{n}\]</div>
+<p>Input:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">y</span><span class="o">-</span><span class="n">y_</span><span class="p">{</span><span class="mi">1</span><span class="p">}</span><span class="o">=</span><span class="n">k</span> \<span class="n">left</span><span class="p">(</span> <span class="n">x</span><span class="o">-</span><span class="n">x_</span><span class="p">{</span><span class="mi">1</span><span class="p">}</span>\<span class="n">right</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Output:</p>
+<div class="math notranslate nohighlight">
+\[y-y_{1}=k \left( x-x_{1}\right)\]</div>
+<p>Input:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>\<span class="n">begin</span><span class="p">{</span><span class="n">array</span><span class="p">}{</span><span class="n">l</span><span class="p">}</span>
+  \<span class="n">text</span><span class="p">{</span><span class="n">For</span> <span class="n">equations</span> <span class="n">of</span> <span class="n">the</span> <span class="n">form</span><span class="p">:</span> <span class="p">}</span><span class="n">x</span><span class="o">^</span><span class="p">{</span><span class="mi">3</span><span class="p">}</span><span class="o">-</span><span class="mi">1</span><span class="o">=</span><span class="mi">0</span> \\
+  \<span class="n">text</span><span class="p">{</span><span class="n">let</span><span class="p">}</span>\<span class="n">text</span><span class="p">{:}</span>\<span class="n">omega</span> <span class="o">=</span>\<span class="n">frac</span><span class="p">{</span><span class="o">-</span><span class="mi">1</span><span class="o">+</span>\<span class="n">sqrt</span><span class="p">{</span><span class="mi">3</span><span class="p">}</span><span class="n">i</span><span class="p">}{</span><span class="mi">2</span><span class="p">}</span> \\
+  <span class="n">x_</span><span class="p">{</span><span class="mi">1</span><span class="p">}</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">x_</span><span class="p">{</span><span class="mi">2</span><span class="p">}</span><span class="o">=</span> \<span class="n">omega</span> <span class="o">=</span>\<span class="n">frac</span><span class="p">{</span><span class="o">-</span><span class="mi">1</span><span class="o">+</span>\<span class="n">sqrt</span><span class="p">{</span><span class="mi">3</span><span class="p">}</span><span class="n">i</span><span class="p">}{</span><span class="mi">2</span><span class="p">}</span> \\
+  <span class="n">x_</span><span class="p">{</span><span class="mi">3</span><span class="p">}</span><span class="o">=</span> \<span class="n">omega</span> <span class="o">^</span><span class="p">{</span><span class="mi">2</span><span class="p">}</span><span class="o">=</span>\<span class="n">frac</span><span class="p">{</span><span class="o">-</span><span class="mi">1</span><span class="o">-</span>\<span class="n">sqrt</span><span class="p">{</span><span class="mi">3</span><span class="p">}</span><span class="n">i</span><span class="p">}{</span><span class="mi">2</span><span class="p">}</span>
+\<span class="n">end</span><span class="p">{</span><span class="n">array</span><span class="p">}</span>
+</pre></div>
+</div>
+<p>Output:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+  \text{For equations of the form: }x^{3}-1=0 \\
+  \text{let}\text{:}\omega =\frac{-1+\sqrt{3}i}{2} \\
+  x_{1}=1,x_{2}= \omega =\frac{-1+\sqrt{3}i}{2} \\
+  x_{3}= \omega ^{2}=\frac{-1-\sqrt{3}i}{2}
+\end{array}\end{split}\]</div>
+<p>Input:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>\<span class="n">begin</span><span class="p">{</span><span class="n">array</span><span class="p">}{</span><span class="n">l</span><span class="p">}</span>
+  <span class="n">a</span>\<span class="n">mathop</span><span class="p">{{</span><span class="n">x</span><span class="p">}}</span>\<span class="n">nolimits</span><span class="o">^</span><span class="p">{{</span><span class="mi">2</span><span class="p">}}</span><span class="o">+</span><span class="n">bx</span><span class="o">+</span><span class="n">c</span><span class="o">=</span><span class="mi">0</span> \\
+  \<span class="n">Delta</span> <span class="o">=</span>\<span class="n">mathop</span><span class="p">{{</span><span class="n">b</span><span class="p">}}</span>\<span class="n">nolimits</span><span class="o">^</span><span class="p">{{</span><span class="mi">2</span><span class="p">}}</span><span class="o">-</span><span class="mi">4</span><span class="n">ac</span> \\
+  \<span class="n">mathop</span><span class="p">{{</span><span class="n">x</span><span class="p">}}</span>\<span class="n">nolimits_</span><span class="p">{{</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">}}</span><span class="o">=</span>\<span class="n">frac</span><span class="p">{{</span><span class="o">-</span><span class="n">b</span> \<span class="n">pm</span>
+  \<span class="n">sqrt</span><span class="p">{{</span>\<span class="n">mathop</span><span class="p">{{</span><span class="n">b</span><span class="p">}}</span>\<span class="n">nolimits</span><span class="o">^</span><span class="p">{{</span><span class="mi">2</span><span class="p">}}</span><span class="o">-</span><span class="mi">4</span><span class="n">ac</span><span class="p">}}}}{{</span><span class="mi">2</span><span class="n">a</span><span class="p">}}</span> \\
+  \<span class="n">mathop</span><span class="p">{{</span><span class="n">x</span><span class="p">}}</span>\<span class="n">nolimits_</span><span class="p">{{</span><span class="mi">1</span><span class="p">}}</span><span class="o">+</span>\<span class="n">mathop</span><span class="p">{{</span><span class="n">x</span><span class="p">}}</span>\<span class="n">nolimits_</span><span class="p">{{</span><span class="mi">2</span><span class="p">}}</span><span class="o">=-</span>\<span class="n">frac</span><span class="p">{{</span><span class="n">b</span><span class="p">}}{{</span><span class="n">a</span><span class="p">}}</span> \\
+  \<span class="n">mathop</span><span class="p">{{</span><span class="n">x</span><span class="p">}}</span>\<span class="n">nolimits_</span><span class="p">{{</span><span class="mi">1</span><span class="p">}}</span>\<span class="n">mathop</span><span class="p">{{</span><span class="n">x</span><span class="p">}}</span>\<span class="n">nolimits_</span><span class="p">{{</span><span class="mi">2</span><span class="p">}}</span><span class="o">=</span>\<span class="n">frac</span><span class="p">{{</span><span class="n">c</span><span class="p">}}{{</span><span class="n">a</span><span class="p">}}</span>
+\<span class="n">end</span><span class="p">{</span><span class="n">array</span><span class="p">}</span>
+</pre></div>
+</div>
+<p>Output:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+  a\mathop{{x}}\nolimits^{{2}}+bx+c=0 \\
+  \Delta =\mathop{{b}}\nolimits^{{2}}-4ac \\
+  \mathop{{x}}\nolimits_{{1,2}}=\frac{{-b \pm
+  \sqrt{{\mathop{{b}}\nolimits^{{2}}-4ac}}}}{{2a}} \\
+  \mathop{{x}}\nolimits_{{1}}+\mathop{{x}}\nolimits_{{2}}=-\frac{{b}}{{a}} \\
+  \mathop{{x}}\nolimits_{{1}}\mathop{{x}}\nolimits_{{2}}=\frac{{c}}{{a}}
+\end{array}\end{split}\]</div>
+<p>Input:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>\<span class="n">begin</span><span class="p">{</span><span class="n">array</span><span class="p">}{</span><span class="n">l</span><span class="p">}</span>
+  <span class="n">a</span>\<span class="n">mathop</span><span class="p">{{</span><span class="n">x</span><span class="p">}}</span>\<span class="n">nolimits</span><span class="o">^</span><span class="p">{{</span><span class="mi">2</span><span class="p">}}</span><span class="o">+</span><span class="n">bx</span><span class="o">+</span><span class="n">c</span><span class="o">=</span><span class="mi">0</span> \\
+  \<span class="n">Delta</span> <span class="o">=</span>\<span class="n">mathop</span><span class="p">{{</span><span class="n">b</span><span class="p">}}</span>\<span class="n">nolimits</span><span class="o">^</span><span class="p">{{</span><span class="mi">2</span><span class="p">}}</span><span class="o">-</span><span class="mi">4</span><span class="n">ac</span> \\
+  \<span class="n">left</span>\<span class="p">{</span>\<span class="n">begin</span><span class="p">{</span><span class="n">matrix</span><span class="p">}</span>
+  \<span class="n">Delta</span> \<span class="n">gt</span> <span class="mi">0</span>\<span class="n">text</span><span class="p">{</span> <span class="n">The</span> <span class="n">equation</span> <span class="n">has</span> <span class="n">two</span> <span class="n">distinct</span> <span class="n">real</span> <span class="n">roots</span><span class="p">}</span> \\
+  \<span class="n">Delta</span> <span class="o">=</span> <span class="mi">0</span>\<span class="n">text</span><span class="p">{</span> <span class="n">The</span> <span class="n">equation</span> <span class="n">has</span> <span class="n">two</span> <span class="n">equal</span> <span class="n">real</span> <span class="n">roots</span><span class="p">}</span> \\
+  \<span class="n">Delta</span> \<span class="n">lt</span> <span class="mi">0</span>\<span class="n">text</span><span class="p">{</span> <span class="n">The</span> <span class="n">equation</span> <span class="n">has</span> <span class="n">two</span> <span class="nb">complex</span> <span class="n">roots</span><span class="p">}</span>
+  \<span class="n">end</span><span class="p">{</span><span class="n">matrix</span><span class="p">}</span>\<span class="n">right</span><span class="o">.</span>
+\<span class="n">end</span><span class="p">{</span><span class="n">array</span><span class="p">}</span>
+</pre></div>
+</div>
+<p>Output:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+  a\mathop{{x}}\nolimits^{{2}}+bx+c=0 \\
+  \Delta =\mathop{{b}}\nolimits^{{2}}-4ac \\
+  \left\{\begin{matrix}
+  \Delta \gt 0\text{ The equation has two distinct real roots} \\
+  \Delta = 0  \text{ The equation has two equal real roots }\quad \\
+  \Delta \lt 0\text{ The equation has two complex roots}\qquad
+  \end{matrix}\right.
+\end{array}\end{split}\]</div>
+</section>
+<section id="space">
+<h3>Space<a class="headerlink" href="#space" title="Link to this heading"></a></h3>
+<p>Input:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>\begin{array}{l}
+  a\quad b \\
+  a\qquad b \\
+  a\enspace b \\
+  a\;b \\
+  a\:b \\
+  a\,b \\
+  a\!b
+\end{array}
+</pre></div>
+</div>
+<p>Output:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+  a\quad b \\
+  a\qquad b \\
+  a\enspace b \\
+  a\;b \\
+  a\:b \\
+  a\,b \\
+  a\!b
+\end{array}\end{split}\]</div>
+</section>
+<section id="geometry">
+<h3>Geometry<a class="headerlink" href="#geometry" title="Link to this heading"></a></h3>
+<p>Input:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>\<span class="n">begin</span><span class="p">{</span><span class="n">array</span><span class="p">}{</span><span class="n">l</span><span class="p">}</span>
+  \<span class="n">Delta</span> <span class="n">A</span> <span class="n">B</span> <span class="n">C</span> \\
+  <span class="n">l</span> \<span class="n">perp</span> \<span class="n">beta</span> <span class="p">,</span><span class="n">l</span> \<span class="n">subset</span> \<span class="n">alpha</span> \<span class="n">Rightarrow</span> \<span class="n">alpha</span> \<span class="n">perp</span> \<span class="n">beta</span> \\
+  <span class="n">a</span> \<span class="n">parallel</span> <span class="n">c</span><span class="p">,</span><span class="n">b</span> \<span class="n">parallel</span> <span class="n">c</span> \<span class="n">Rightarrow</span> <span class="n">a</span> \<span class="n">parallel</span> <span class="n">b</span> \\
+  <span class="n">P</span> \<span class="ow">in</span> \<span class="n">alpha</span> <span class="p">,</span><span class="n">P</span> \<span class="ow">in</span> \<span class="n">beta</span> <span class="p">,</span> \<span class="n">alpha</span> \<span class="n">cap</span> \<span class="n">beta</span> <span class="o">=</span><span class="n">l</span> \<span class="n">Rightarrow</span> <span class="n">P</span> \<span class="ow">in</span> <span class="n">l</span> \\
+  <span class="n">A</span> \<span class="ow">in</span> <span class="n">l</span><span class="p">,</span><span class="n">B</span> \<span class="ow">in</span> <span class="n">l</span><span class="p">,</span><span class="n">A</span> \<span class="ow">in</span> \<span class="n">alpha</span> <span class="p">,</span><span class="n">B</span> \<span class="ow">in</span> \<span class="n">alpha</span> \<span class="n">Rightarrow</span> <span class="n">l</span> \<span class="n">subset</span> \<span class="n">alpha</span>
+\<span class="n">end</span><span class="p">{</span><span class="n">array</span><span class="p">}</span>
+</pre></div>
+</div>
+<p>Output:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+  \Delta A B C \\
+  l \perp \beta ,l \subset \alpha \Rightarrow \alpha \perp \beta \\
+  a \parallel c,b \parallel c \Rightarrow a \parallel b \\
+  P \in \alpha ,P \in \beta , \alpha \cap \beta =l \Rightarrow P \in l \\
+  A \in l,B \in l,A \in \alpha ,B \in \alpha \Rightarrow l \subset \alpha
+\end{array}\end{split}\]</div>
+<p>Input:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>\<span class="n">left</span><span class="o">.</span>\<span class="n">begin</span><span class="p">{</span><span class="n">matrix</span><span class="p">}</span>
+  <span class="n">a</span> \<span class="n">perp</span> \<span class="n">alpha</span> \\
+  <span class="n">b</span> \<span class="n">perp</span> \<span class="n">alpha</span>
+\<span class="n">end</span><span class="p">{</span><span class="n">matrix</span><span class="p">}</span>\<span class="n">right</span>\<span class="p">}</span>\<span class="n">Rightarrow</span> <span class="n">a</span> \<span class="n">parallel</span> <span class="n">b</span>
+</pre></div>
+</div>
+<p>Output:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\left.\begin{matrix}
+  a \perp \alpha \\
+  b \perp \alpha
+\end{matrix}\right\}\Rightarrow a \parallel b\end{split}\]</div>
+<p>Input:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>\<span class="n">left</span><span class="o">.</span>\<span class="n">begin</span><span class="p">{</span><span class="n">matrix</span><span class="p">}</span>
+  <span class="n">a</span> \<span class="n">subset</span> \<span class="n">beta</span> <span class="p">,</span><span class="n">b</span> \<span class="n">subset</span> \<span class="n">beta</span> <span class="p">,</span><span class="n">a</span> \<span class="n">cap</span> <span class="n">b</span><span class="o">=</span><span class="n">P</span> \\
+  <span class="n">a</span> \<span class="n">parallel</span> \<span class="n">partial</span> <span class="p">,</span><span class="n">b</span> \<span class="n">parallel</span> \<span class="n">partial</span>
+\<span class="n">end</span><span class="p">{</span><span class="n">matrix</span><span class="p">}</span>\<span class="n">right</span>\<span class="p">}</span>\<span class="n">Rightarrow</span> \<span class="n">beta</span> \<span class="n">parallel</span> \<span class="n">alpha</span>
+</pre></div>
+</div>
+<p>Output:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\left.\begin{matrix}
+  a \subset \beta ,b \subset \beta ,a \cap b=P \\
+  a \parallel \partial ,b \parallel \partial
+\end{matrix}\right\}\Rightarrow \beta \parallel \alpha\end{split}\]</div>
+<p>Input:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>\<span class="n">begin</span><span class="p">{</span><span class="n">array</span><span class="p">}{</span><span class="n">c</span><span class="p">}</span>
+  \<span class="n">alpha</span> \<span class="n">perp</span> \<span class="n">beta</span> <span class="p">,</span> \<span class="n">alpha</span> \<span class="n">cap</span> \<span class="n">beta</span> <span class="o">=</span><span class="n">l</span><span class="p">,</span><span class="n">a</span> \<span class="n">subset</span> \<span class="n">alpha</span> <span class="p">,</span><span class="n">a</span> \<span class="n">perp</span> <span class="n">l</span>  \<span class="n">Rightarrow</span> <span class="n">a</span> \<span class="n">perp</span> \<span class="n">beta</span>  \\
+  \<span class="n">alpha</span> \<span class="n">parallel</span> \<span class="n">beta</span> <span class="p">,</span> \<span class="n">gamma</span> \<span class="n">cap</span> \<span class="n">alpha</span> <span class="o">=</span><span class="n">a</span><span class="p">,</span> \<span class="n">gamma</span> \<span class="n">cap</span> \<span class="n">beta</span> <span class="o">=</span><span class="n">b</span> \<span class="n">Rightarrow</span> <span class="n">a</span> \<span class="n">parallel</span> <span class="n">b</span> \\
+  <span class="n">a</span><span class="o">^</span><span class="p">{</span><span class="mi">2</span><span class="p">}</span><span class="o">+</span><span class="n">b</span><span class="o">^</span><span class="p">{</span><span class="mi">2</span><span class="p">}</span><span class="o">=</span><span class="n">c</span><span class="o">^</span><span class="p">{</span><span class="mi">2</span><span class="p">}</span>
+\<span class="n">end</span><span class="p">{</span><span class="n">array</span><span class="p">}</span>
+</pre></div>
+</div>
+<p>Output:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{c}
+  \alpha \perp \beta , \alpha \cap \beta =l,a \subset \alpha ,a \perp l  \Rightarrow a \perp \beta  \\
+  \alpha \parallel \beta , \gamma \cap \alpha =a, \gamma \cap \beta =b \Rightarrow a \parallel b \\
+  a^{2}+b^{2}=c^{2}
+\end{array}\end{split}\]</div>
+</section>
+<section id="inequality">
+<h3>Inequality<a class="headerlink" href="#inequality" title="Link to this heading"></a></h3>
+<p>Input:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>\<span class="n">begin</span><span class="p">{</span><span class="n">array</span><span class="p">}{</span><span class="n">c</span><span class="p">}</span>
+  <span class="n">a</span> <span class="o">&gt;</span> <span class="n">b</span><span class="p">,</span><span class="n">b</span> <span class="o">&gt;</span> <span class="n">c</span> \<span class="n">Rightarrow</span> <span class="n">a</span> <span class="o">&gt;</span> <span class="n">c</span>  \\
+  <span class="n">a</span> <span class="o">&gt;</span> <span class="n">b</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span><span class="n">c</span> <span class="o">&gt;</span> <span class="n">d</span> <span class="o">&gt;</span> <span class="mi">0</span> \<span class="n">Rightarrow</span> <span class="n">ac</span> <span class="o">&gt;</span> <span class="n">bd</span>   \\
+  <span class="n">a</span> <span class="o">&gt;</span> <span class="n">b</span><span class="p">,</span><span class="n">c</span> <span class="o">&gt;</span> <span class="n">d</span> \<span class="n">Rightarrow</span> <span class="n">a</span><span class="o">+</span><span class="n">c</span> <span class="o">&gt;</span> <span class="n">b</span><span class="o">+</span><span class="n">d</span> \\
+  \<span class="n">left</span> <span class="o">|</span> <span class="n">a</span><span class="o">-</span><span class="n">b</span> \<span class="n">right</span> <span class="o">|</span> \<span class="n">geqslant</span> \<span class="n">left</span> <span class="o">|</span> <span class="n">a</span> \<span class="n">right</span> <span class="o">|</span> <span class="o">-</span>\<span class="n">left</span> <span class="o">|</span> <span class="n">b</span> \<span class="n">right</span> <span class="o">|</span> \\
+  \<span class="n">left</span> <span class="o">|</span> <span class="n">a</span> \<span class="n">right</span> <span class="o">|</span>\<span class="n">leqslant</span> <span class="n">b</span> \<span class="n">Rightarrow</span> <span class="o">-</span><span class="n">b</span> \<span class="n">leqslant</span> <span class="n">a</span> \<span class="n">leqslant</span> \<span class="n">left</span> <span class="o">|</span> <span class="n">b</span> \<span class="n">right</span> <span class="o">|</span> \\
+  <span class="o">-</span>\<span class="n">left</span> <span class="o">|</span> <span class="n">a</span> \<span class="n">right</span> <span class="o">|</span>\<span class="n">leq</span> <span class="n">a</span>\<span class="n">leqslant</span> \<span class="n">left</span> <span class="o">|</span> <span class="n">a</span> \<span class="n">right</span> <span class="o">|</span>   \\
+  \<span class="n">left</span> <span class="o">|</span> <span class="n">a</span><span class="o">+</span><span class="n">b</span> \<span class="n">right</span> <span class="o">|</span> \<span class="n">leqslant</span> \<span class="n">left</span> <span class="o">|</span> <span class="n">a</span> \<span class="n">right</span> <span class="o">|</span> <span class="o">+</span> \<span class="n">left</span> <span class="o">|</span> <span class="n">b</span> \<span class="n">right</span> <span class="o">|</span>
+\<span class="n">end</span><span class="p">{</span><span class="n">array</span><span class="p">}</span>
+</pre></div>
+</div>
+<p>Output:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{c}
+  a &gt; b,b &gt; c \Rightarrow a &gt; c  \\
+  a &gt; b &gt; 0,c &gt; d &gt; 0 \Rightarrow ac &gt; bd   \\
+  a &gt; b,c &gt; d \Rightarrow a+c &gt; b+d \\
+  \left | a-b \right | \geqslant \left | a \right | -\left | b \right | \\
+  \left | a \right |\leqslant b \Rightarrow -b \leqslant a \leqslant \left | b \right | \\
+  -\left | a \right |\leq a\leqslant \left | a \right |   \\
+  \left | a+b \right | \leqslant \left | a \right | + \left | b \right |
+\end{array}\end{split}\]</div>
+<p>Input:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>\<span class="n">begin</span><span class="p">{</span><span class="n">array</span><span class="p">}{</span><span class="n">c</span><span class="p">}</span>
+  <span class="n">a</span> \<span class="n">gt</span> <span class="n">b</span><span class="p">,</span><span class="n">c</span> \<span class="n">gt</span> <span class="mi">0</span> \<span class="n">Rightarrow</span> <span class="n">ac</span> \<span class="n">gt</span> <span class="n">bc</span> \\
+  <span class="n">a</span> \<span class="n">gt</span> <span class="n">b</span><span class="p">,</span><span class="n">c</span> \<span class="n">lt</span> <span class="mi">0</span> \<span class="n">Rightarrow</span> <span class="n">ac</span> \<span class="n">lt</span> <span class="n">bc</span>
+\<span class="n">end</span><span class="p">{</span><span class="n">array</span><span class="p">}</span>
+</pre></div>
+</div>
+<p>Output:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{c}
+  a \gt b,c \gt 0 \Rightarrow ac \gt bc \\
+  a \gt b,c \lt 0 \Rightarrow ac \lt bc
+\end{array}\end{split}\]</div>
+<p>Input:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>\<span class="n">begin</span><span class="p">{</span><span class="n">array</span><span class="p">}{</span><span class="n">c</span><span class="p">}</span>
+  <span class="n">a</span> \<span class="n">gt</span> <span class="n">b</span> \<span class="n">gt</span> <span class="mi">0</span><span class="p">,</span><span class="n">n</span> \<span class="ow">in</span> <span class="n">N</span><span class="o">^</span><span class="p">{</span>\<span class="n">ast</span><span class="p">},</span><span class="n">n</span> \<span class="n">gt</span> <span class="mi">1</span> \\
+  \<span class="n">Rightarrow</span> <span class="n">a</span><span class="o">^</span><span class="p">{</span><span class="n">n</span><span class="p">}</span>\<span class="n">gt</span> <span class="n">b</span><span class="o">^</span><span class="p">{</span><span class="n">n</span><span class="p">},</span> \<span class="n">sqrt</span><span class="p">[</span><span class="n">n</span><span class="p">]{</span><span class="n">a</span><span class="p">}</span>\<span class="n">gt</span> \<span class="n">sqrt</span><span class="p">[</span><span class="n">n</span><span class="p">]{</span><span class="n">b</span><span class="p">}</span>
+\<span class="n">end</span><span class="p">{</span><span class="n">array</span><span class="p">}</span>
+</pre></div>
+</div>
+<p>Output:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{c}
+  a \gt b \gt 0,n \in N^{\ast},n \gt 1 \\
+  \Rightarrow a^{n}\gt b^{n}, \sqrt[n]{a}\gt \sqrt[n]{b}
+\end{array}\end{split}\]</div>
+<p>Input:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>\left( \sum_{k=1}^n a_k b_k \right)^{\!\!2}\leq
+\left( \sum_{k=1}^n a_k^2 \right) \left( \sum_{k=1}^n b_k^2 \right)
+</pre></div>
+</div>
+<p>Output:</p>
+<div class="math notranslate nohighlight">
+\[\left( \sum_{k=1}^n a_k b_k \right)^{\!\!2}\leq
+\left( \sum_{k=1}^n a_k^2 \right) \left( \sum_{k=1}^n b_k^2 \right)\]</div>
+<p>Input:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>\<span class="n">begin</span><span class="p">{</span><span class="n">array</span><span class="p">}{</span><span class="n">c</span><span class="p">}</span>
+  <span class="n">a</span><span class="p">,</span><span class="n">b</span> \<span class="ow">in</span> <span class="n">R</span><span class="o">^</span><span class="p">{</span><span class="o">+</span><span class="p">}</span> \\
+  \<span class="n">Rightarrow</span> \<span class="n">frac</span><span class="p">{</span><span class="n">a</span><span class="o">+</span><span class="n">b</span><span class="p">}{{</span><span class="mi">2</span><span class="p">}}</span>\<span class="n">ge</span> \<span class="n">sqrt</span><span class="p">{</span><span class="n">ab</span><span class="p">}</span> \\
+  \<span class="n">left</span><span class="p">(</span> \<span class="n">text</span><span class="p">{</span><span class="n">Equality</span> <span class="n">holds</span> <span class="k">if</span> <span class="ow">and</span> <span class="n">only</span> <span class="k">if</span> <span class="p">}</span><span class="n">a</span><span class="o">=</span><span class="n">b</span>\<span class="n">right</span><span class="p">)</span>
+\<span class="n">end</span><span class="p">{</span><span class="n">array</span><span class="p">}</span>
+</pre></div>
+</div>
+<p>Output:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{c}
+  a,b \in R^{+} \\
+  \Rightarrow \frac{a+b}{{2}}\ge \sqrt{ab} \\
+  \left( \text{Equality holds if and only if }a=b\right)
+\end{array}\end{split}\]</div>
+<p>Input:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>\<span class="n">begin</span><span class="p">{</span><span class="n">array</span><span class="p">}{</span><span class="n">c</span><span class="p">}</span>
+  <span class="n">a</span><span class="p">,</span><span class="n">b</span> \<span class="ow">in</span> <span class="n">R</span> \\
+  \<span class="n">Rightarrow</span> <span class="n">a</span><span class="o">^</span><span class="p">{</span><span class="mi">2</span><span class="p">}</span><span class="o">+</span><span class="n">b</span><span class="o">^</span><span class="p">{</span><span class="mi">2</span><span class="p">}</span>\<span class="n">ge</span> <span class="mi">2</span><span class="n">ab</span> \\
+  \<span class="n">left</span><span class="p">(</span> \<span class="n">text</span><span class="p">{</span><span class="n">Equality</span> <span class="n">holds</span> <span class="k">if</span> <span class="ow">and</span> <span class="n">only</span> <span class="k">if</span> <span class="p">}</span><span class="n">a</span><span class="o">=</span><span class="n">b</span>\<span class="n">right</span><span class="p">)</span>
+\<span class="n">end</span><span class="p">{</span><span class="n">array</span><span class="p">}</span>
+</pre></div>
+</div>
+<p>Output:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{c}
+  a,b \in R \\
+  \Rightarrow a^{2}+b^{2}\ge 2ab \\
+  \left( \text{Equality holds if and only if }a=b\right)
+\end{array}\end{split}\]</div>
+<p>Input:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>\<span class="n">begin</span><span class="p">{</span><span class="n">array</span><span class="p">}{</span><span class="n">c</span><span class="p">}</span>
+  <span class="n">H_</span><span class="p">{</span><span class="n">n</span><span class="p">}</span><span class="o">=</span>\<span class="n">frac</span><span class="p">{</span><span class="n">n</span><span class="p">}{</span>\<span class="nb">sum</span> \<span class="n">limits_</span><span class="p">{</span><span class="n">i</span><span class="o">=</span><span class="mi">1</span><span class="p">}</span><span class="o">^</span><span class="p">{</span><span class="n">n</span><span class="p">}</span>\<span class="n">frac</span><span class="p">{</span><span class="mi">1</span><span class="p">}{</span><span class="n">x_</span><span class="p">{</span><span class="n">i</span><span class="p">}}}</span><span class="o">=</span> \<span class="n">frac</span><span class="p">{</span><span class="n">n</span><span class="p">}{</span>\<span class="n">frac</span><span class="p">{</span><span class="mi">1</span><span class="p">}{</span><span class="n">x_</span><span class="p">{</span><span class="mi">1</span><span class="p">}}</span><span class="o">+</span> \<span class="n">frac</span><span class="p">{</span><span class="mi">1</span><span class="p">}{</span><span class="n">x_</span><span class="p">{</span><span class="mi">2</span><span class="p">}}</span><span class="o">+</span> \<span class="n">cdots</span> <span class="o">+</span> \<span class="n">frac</span><span class="p">{</span><span class="mi">1</span><span class="p">}{</span><span class="n">x_</span><span class="p">{</span><span class="n">n</span><span class="p">}}}</span> \\
+  <span class="n">G_</span><span class="p">{</span><span class="n">n</span><span class="p">}</span><span class="o">=</span>\<span class="n">sqrt</span><span class="p">[</span><span class="n">n</span><span class="p">]{</span>\<span class="n">prod</span> \<span class="n">limits_</span><span class="p">{</span><span class="n">i</span><span class="o">=</span><span class="mi">1</span><span class="p">}</span><span class="o">^</span><span class="p">{</span><span class="n">n</span><span class="p">}</span><span class="n">x_</span><span class="p">{</span><span class="n">i</span><span class="p">}}</span><span class="o">=</span> \<span class="n">sqrt</span><span class="p">[</span><span class="n">n</span><span class="p">]{</span><span class="n">x_</span><span class="p">{</span><span class="mi">1</span><span class="p">}</span><span class="n">x_</span><span class="p">{</span><span class="mi">2</span><span class="p">}</span>\<span class="n">cdots</span> <span class="n">x_</span><span class="p">{</span><span class="n">n</span><span class="p">}}</span> \\
+  <span class="n">A_</span><span class="p">{</span><span class="n">n</span><span class="p">}</span><span class="o">=</span>\<span class="n">frac</span><span class="p">{</span><span class="mi">1</span><span class="p">}{</span><span class="n">n</span><span class="p">}</span>\<span class="nb">sum</span> \<span class="n">limits_</span><span class="p">{</span><span class="n">i</span><span class="o">=</span><span class="mi">1</span><span class="p">}</span><span class="o">^</span><span class="p">{</span><span class="n">n</span><span class="p">}</span><span class="n">x_</span><span class="p">{</span><span class="n">i</span><span class="p">}</span><span class="o">=</span>\<span class="n">frac</span><span class="p">{</span><span class="n">x_</span><span class="p">{</span><span class="mi">1</span><span class="p">}</span><span class="o">+</span> <span class="n">x_</span><span class="p">{</span><span class="mi">2</span><span class="p">}</span><span class="o">+</span> \<span class="n">cdots</span> <span class="o">+</span> <span class="n">x_</span><span class="p">{</span><span class="n">n</span><span class="p">}}{</span><span class="n">n</span><span class="p">}</span> \\
+  <span class="n">Q_</span><span class="p">{</span><span class="n">n</span><span class="p">}</span><span class="o">=</span>\<span class="n">sqrt</span><span class="p">{</span>\<span class="nb">sum</span> \<span class="n">limits_</span><span class="p">{</span><span class="n">i</span><span class="o">=</span><span class="mi">1</span><span class="p">}</span><span class="o">^</span><span class="p">{</span><span class="n">n</span><span class="p">}</span><span class="n">x_</span><span class="p">{</span><span class="n">i</span><span class="p">}</span><span class="o">^</span><span class="p">{</span><span class="mi">2</span><span class="p">}}</span><span class="o">=</span> \<span class="n">sqrt</span><span class="p">{</span>\<span class="n">frac</span><span class="p">{</span><span class="n">x_</span><span class="p">{</span><span class="mi">1</span><span class="p">}</span><span class="o">^</span><span class="p">{</span><span class="mi">2</span><span class="p">}</span><span class="o">+</span> <span class="n">x_</span><span class="p">{</span><span class="mi">2</span><span class="p">}</span><span class="o">^</span><span class="p">{</span><span class="mi">2</span><span class="p">}</span><span class="o">+</span> \<span class="n">cdots</span> <span class="o">+</span> <span class="n">x_</span><span class="p">{</span><span class="n">n</span><span class="p">}</span><span class="o">^</span><span class="p">{</span><span class="mi">2</span><span class="p">}}{</span><span class="n">n</span><span class="p">}}</span> \\
+  <span class="n">H_</span><span class="p">{</span><span class="n">n</span><span class="p">}</span>\<span class="n">leq</span> <span class="n">G_</span><span class="p">{</span><span class="n">n</span><span class="p">}</span>\<span class="n">leq</span> <span class="n">A_</span><span class="p">{</span><span class="n">n</span><span class="p">}</span>\<span class="n">leq</span> <span class="n">Q_</span><span class="p">{</span><span class="n">n</span><span class="p">}</span>
+\<span class="n">end</span><span class="p">{</span><span class="n">array</span><span class="p">}</span>
+</pre></div>
+</div>
+<p>Output:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{c}
+  H_{n}=\frac{n}{\sum \limits_{i=1}^{n}\frac{1}{x_{i}}}= \frac{n}{\frac{1}{x_{1}}+ \frac{1}{x_{2}}+ \cdots + \frac{1}{x_{n}}} \\
+  G_{n}=\sqrt[n]{\prod \limits_{i=1}^{n}x_{i}}= \sqrt[n]{x_{1}x_{2}\cdots x_{n}} \\
+  A_{n}=\frac{1}{n}\sum \limits_{i=1}^{n}x_{i}=\frac{x_{1}+ x_{2}+ \cdots + x_{n}}{n} \\
+  Q_{n}=\sqrt{\sum \limits_{i=1}^{n}x_{i}^{2}}= \sqrt{\frac{x_{1}^{2}+ x_{2}^{2}+ \cdots + x_{n}^{2}}{n}} \\
+  H_{n}\leq G_{n}\leq A_{n}\leq Q_{n}
+\end{array}\end{split}\]</div>
+</section>
+<section id="id3">
+<h3>Integral<a class="headerlink" href="#id3" title="Link to this heading"></a></h3>
+<p>Input:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>\<span class="n">begin</span><span class="p">{</span><span class="n">array</span><span class="p">}{</span><span class="n">l</span><span class="p">}</span>
+  \<span class="n">frac</span><span class="p">{</span>\<span class="n">mathrm</span><span class="p">{</span><span class="n">d</span><span class="p">}}{</span>\<span class="n">mathrm</span><span class="p">{</span><span class="n">d</span><span class="p">}</span><span class="n">x</span><span class="p">}</span><span class="n">x</span><span class="o">^</span><span class="n">n</span><span class="o">=</span><span class="n">nx</span><span class="o">^</span><span class="p">{</span><span class="n">n</span><span class="o">-</span><span class="mi">1</span><span class="p">}</span> \\
+  \<span class="n">frac</span><span class="p">{</span>\<span class="n">mathrm</span><span class="p">{</span><span class="n">d</span><span class="p">}}{</span>\<span class="n">mathrm</span><span class="p">{</span><span class="n">d</span><span class="p">}</span><span class="n">x</span><span class="p">}</span>\<span class="n">ln</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">=</span>\<span class="n">frac</span><span class="p">{</span><span class="mi">1</span><span class="p">}{</span><span class="n">x</span><span class="p">}</span>  \\
+  \<span class="n">frac</span><span class="p">{</span>\<span class="n">mathrm</span><span class="p">{</span><span class="n">d</span><span class="p">}}{</span>\<span class="n">mathrm</span><span class="p">{</span><span class="n">d</span><span class="p">}</span><span class="n">x</span><span class="p">}</span>\<span class="n">cos</span> <span class="n">x</span><span class="o">=-</span>\<span class="n">sin</span> <span class="n">x</span>   \\
+  \<span class="n">frac</span><span class="p">{</span>\<span class="n">mathrm</span><span class="p">{</span><span class="n">d</span><span class="p">}}{</span>\<span class="n">mathrm</span><span class="p">{</span><span class="n">d</span><span class="p">}</span><span class="n">x</span><span class="p">}</span>\<span class="n">tan</span> <span class="n">x</span><span class="o">=</span>\<span class="n">sec</span><span class="o">^</span><span class="mi">2</span> <span class="n">x</span>   \\
+  \<span class="nb">int</span> \<span class="n">frac</span><span class="p">{</span><span class="mi">1</span><span class="p">}{</span><span class="n">x</span><span class="p">}</span>\<span class="n">mathrm</span><span class="p">{</span><span class="n">d</span><span class="p">}</span><span class="n">x</span><span class="o">=</span> \<span class="n">ln</span> \<span class="n">left</span><span class="o">|</span> <span class="n">x</span> \<span class="n">right</span><span class="o">|</span> <span class="o">+</span><span class="n">C</span> \\
+  \<span class="nb">int</span> \<span class="n">frac</span><span class="p">{</span><span class="mi">1</span><span class="p">}{</span><span class="mi">1</span><span class="o">+</span><span class="n">x</span><span class="o">^</span><span class="p">{</span><span class="mi">2</span><span class="p">}}</span>\<span class="n">mathrm</span><span class="p">{</span><span class="n">d</span><span class="p">}</span><span class="n">x</span><span class="o">=</span> \<span class="n">arctan</span> <span class="n">x</span> <span class="o">+</span><span class="n">C</span> \\
+  <span class="n">f</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">=</span> \<span class="n">int_</span><span class="p">{</span><span class="o">-</span>\<span class="n">infty</span><span class="p">}</span><span class="o">^</span>\<span class="n">infty</span>  \<span class="n">hat</span> <span class="n">f</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>\<span class="n">xi</span>\<span class="p">,</span><span class="n">e</span><span class="o">^</span><span class="p">{</span><span class="mi">2</span> \<span class="n">pi</span> <span class="n">i</span> \<span class="n">xi</span> <span class="n">x</span><span class="p">}</span>  \<span class="p">,</span>\<span class="n">mathrm</span><span class="p">{</span><span class="n">d</span><span class="p">}</span>\<span class="n">xi</span>
+\<span class="n">end</span><span class="p">{</span><span class="n">array</span><span class="p">}</span>
+</pre></div>
+</div>
+<p>Output:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+  \frac{\mathrm{d}}{\mathrm{d}x}x^n=nx^{n-1} \\
+  \frac{\mathrm{d}}{\mathrm{d}x}\ln(x)=\frac{1}{x}  \\
+  \frac{\mathrm{d}}{\mathrm{d}x}\cos x=-\sin x   \\
+  \frac{\mathrm{d}}{\mathrm{d}x}\tan x=\sec^2 x   \\
+  \int \frac{1}{x}\mathrm{d}x= \ln \left| x \right| +C \\
+  \int \frac{1}{1+x^{2}}\mathrm{d}x= \arctan x +C \\
+  f(x) = \int_{-\infty}^\infty  \hat f(x)\xi\,e^{2 \pi i \xi x}  \,\mathrm{d}\xi
+\end{array}\end{split}\]</div>
+<p>Input:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>\<span class="n">begin</span><span class="p">{</span><span class="n">array</span><span class="p">}{</span><span class="n">l</span><span class="p">}</span>
+  \<span class="n">frac</span><span class="p">{</span>\<span class="n">mathrm</span><span class="p">{</span><span class="n">d</span><span class="p">}}{</span>\<span class="n">mathrm</span><span class="p">{</span><span class="n">d</span><span class="p">}</span><span class="n">x</span><span class="p">}</span><span class="n">e</span><span class="o">^</span><span class="p">{</span><span class="n">ax</span><span class="p">}</span><span class="o">=</span><span class="n">a</span>\<span class="p">,</span><span class="n">e</span><span class="o">^</span><span class="p">{</span><span class="n">ax</span><span class="p">}</span>  \\
+  \<span class="n">frac</span><span class="p">{</span>\<span class="n">mathrm</span><span class="p">{</span><span class="n">d</span><span class="p">}}{</span>\<span class="n">mathrm</span><span class="p">{</span><span class="n">d</span><span class="p">}</span><span class="n">x</span><span class="p">}</span>\<span class="n">sin</span> <span class="n">x</span><span class="o">=</span>\<span class="n">cos</span> <span class="n">x</span>   \\
+  \<span class="nb">int</span> <span class="n">k</span>\<span class="n">mathrm</span><span class="p">{</span><span class="n">d</span><span class="p">}</span><span class="n">x</span> <span class="o">=</span> <span class="n">kx</span><span class="o">+</span><span class="n">C</span>   \\
+  \<span class="n">frac</span><span class="p">{</span>\<span class="n">mathrm</span><span class="p">{</span><span class="n">d</span><span class="p">}}{</span>\<span class="n">mathrm</span><span class="p">{</span><span class="n">d</span><span class="p">}</span><span class="n">x</span><span class="p">}</span>\<span class="n">cot</span> <span class="n">x</span><span class="o">=-</span>\<span class="n">csc</span><span class="o">^</span><span class="mi">2</span> <span class="n">x</span>    \\
+  \<span class="nb">int</span> \<span class="n">frac</span><span class="p">{</span><span class="mi">1</span><span class="p">}{</span>\<span class="n">sqrt</span><span class="p">{</span><span class="mi">1</span><span class="o">-</span><span class="n">x</span><span class="o">^</span><span class="p">{</span><span class="mi">2</span><span class="p">}}}</span>\<span class="n">mathrm</span><span class="p">{</span><span class="n">d</span><span class="p">}</span><span class="n">x</span><span class="o">=</span> \<span class="n">arcsin</span> <span class="n">x</span> <span class="o">+</span><span class="n">C</span>   \\
+  \<span class="nb">int</span> <span class="n">u</span> \<span class="n">frac</span><span class="p">{</span>\<span class="n">mathrm</span><span class="p">{</span><span class="n">d</span><span class="p">}</span><span class="n">v</span><span class="p">}{</span>\<span class="n">mathrm</span><span class="p">{</span><span class="n">d</span><span class="p">}</span><span class="n">x</span><span class="p">}</span>\<span class="p">,</span>\<span class="n">mathrm</span><span class="p">{</span><span class="n">d</span><span class="p">}</span><span class="n">x</span><span class="o">=</span><span class="n">uv</span><span class="o">-</span>\<span class="nb">int</span> \<span class="n">frac</span><span class="p">{</span>\<span class="n">mathrm</span><span class="p">{</span><span class="n">d</span><span class="p">}</span><span class="n">u</span><span class="p">}{</span>\<span class="n">mathrm</span><span class="p">{</span><span class="n">d</span><span class="p">}</span><span class="n">x</span><span class="p">}</span><span class="n">v</span>\<span class="p">,</span>\<span class="n">mathrm</span><span class="p">{</span><span class="n">d</span><span class="p">}</span><span class="n">x</span>  \\
+  \<span class="nb">int</span> <span class="n">x</span><span class="o">^</span><span class="p">{</span>\<span class="n">mu</span><span class="p">}</span>\<span class="n">mathrm</span><span class="p">{</span><span class="n">d</span><span class="p">}</span><span class="n">x</span><span class="o">=</span>\<span class="n">frac</span><span class="p">{</span><span class="n">x</span><span class="o">^</span><span class="p">{</span>\<span class="n">mu</span> <span class="o">+</span><span class="mi">1</span><span class="p">}}{</span>\<span class="n">mu</span> <span class="o">+</span><span class="mi">1</span><span class="p">}</span><span class="o">+</span><span class="n">C</span><span class="p">,</span> \<span class="n">left</span><span class="p">({</span>\<span class="n">mu</span> \<span class="n">neq</span> <span class="o">-</span><span class="mi">1</span><span class="p">}</span>\<span class="n">right</span><span class="p">)</span>
+\<span class="n">end</span><span class="p">{</span><span class="n">array</span><span class="p">}</span>
+</pre></div>
+</div>
+<p>Output:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+  \frac{\mathrm{d}}{\mathrm{d}x}e^{ax}=a\,e^{ax}  \\
+  \frac{\mathrm{d}}{\mathrm{d}x}\sin x=\cos x   \\
+  \int k\mathrm{d}x = kx+C   \\
+  \frac{\mathrm{d}}{\mathrm{d}x}\cot x=-\csc^2 x    \\
+  \int \frac{1}{\sqrt{1-x^{2}}}\mathrm{d}x= \arcsin x +C   \\
+  \int u \frac{\mathrm{d}v}{\mathrm{d}x}\,\mathrm{d}x=uv-\int \frac{\mathrm{d}u}{\mathrm{d}x}v\,\mathrm{d}x  \\
+  \int x^{\mu}\mathrm{d}x=\frac{x^{\mu +1}}{\mu +1}+C, \left({\mu \neq -1}\right)
+\end{array}\end{split}\]</div>
+</section>
+<section id="id4">
+<h3>Matrix<a class="headerlink" href="#id4" title="Link to this heading"></a></h3>
+<p>Input:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>\<span class="n">begin</span><span class="p">{</span><span class="n">pmatrix</span><span class="p">}</span>
+  <span class="mi">1</span> <span class="o">&amp;</span> <span class="mi">0</span> \\
+  <span class="mi">0</span> <span class="o">&amp;</span> <span class="mi">1</span>
+\<span class="n">end</span><span class="p">{</span><span class="n">pmatrix</span><span class="p">}</span>
+</pre></div>
+</div>
+<p>Output:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{pmatrix}
+  1 &amp; 0 \\
+  0 &amp; 1
+\end{pmatrix}\end{split}\]</div>
+<p>Input:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>\<span class="n">begin</span><span class="p">{</span><span class="n">pmatrix</span><span class="p">}</span>
+  <span class="n">a_</span><span class="p">{</span><span class="mi">11</span><span class="p">}</span> <span class="o">&amp;</span> <span class="n">a_</span><span class="p">{</span><span class="mi">12</span><span class="p">}</span> <span class="o">&amp;</span> <span class="n">a_</span><span class="p">{</span><span class="mi">13</span><span class="p">}</span> \\
+  <span class="n">a_</span><span class="p">{</span><span class="mi">21</span><span class="p">}</span> <span class="o">&amp;</span> <span class="n">a_</span><span class="p">{</span><span class="mi">22</span><span class="p">}</span> <span class="o">&amp;</span> <span class="n">a_</span><span class="p">{</span><span class="mi">23</span><span class="p">}</span> \\
+  <span class="n">a_</span><span class="p">{</span><span class="mi">31</span><span class="p">}</span> <span class="o">&amp;</span> <span class="n">a_</span><span class="p">{</span><span class="mi">32</span><span class="p">}</span> <span class="o">&amp;</span> <span class="n">a_</span><span class="p">{</span><span class="mi">33</span><span class="p">}</span>
+\<span class="n">end</span><span class="p">{</span><span class="n">pmatrix</span><span class="p">}</span>
+</pre></div>
+</div>
+<p>Output:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{pmatrix}
+  a_{11} &amp; a_{12} &amp; a_{13} \\
+  a_{21} &amp; a_{22} &amp; a_{23} \\
+  a_{31} &amp; a_{32} &amp; a_{33}
+\end{pmatrix}\end{split}\]</div>
+<p>Input:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>\<span class="n">begin</span><span class="p">{</span><span class="n">pmatrix</span><span class="p">}</span>
+  <span class="n">a_</span><span class="p">{</span><span class="mi">11</span><span class="p">}</span> <span class="o">&amp;</span> \<span class="n">cdots</span> <span class="o">&amp;</span> <span class="n">a_</span><span class="p">{</span><span class="mi">1</span><span class="n">n</span><span class="p">}</span> \\
+  \<span class="n">vdots</span> <span class="o">&amp;</span> \<span class="n">ddots</span> <span class="o">&amp;</span> \<span class="n">vdots</span> \\
+  <span class="n">a_</span><span class="p">{</span><span class="n">m1</span><span class="p">}</span> <span class="o">&amp;</span> \<span class="n">cdots</span> <span class="o">&amp;</span> <span class="n">a_</span><span class="p">{</span><span class="n">mn</span><span class="p">}</span>
+\<span class="n">end</span><span class="p">{</span><span class="n">pmatrix</span><span class="p">}</span>
+</pre></div>
+</div>
+<p>Output:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{pmatrix}
+  a_{11} &amp; \cdots &amp; a_{1n} \\
+  \vdots &amp; \ddots &amp; \vdots \\
+  a_{m1} &amp; \cdots &amp; a_{mn}
+\end{pmatrix}\end{split}\]</div>
+<p>Input:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">O</span> <span class="o">=</span> \<span class="n">begin</span><span class="p">{</span><span class="n">bmatrix</span><span class="p">}</span>
+  <span class="mi">0</span> <span class="o">&amp;</span> <span class="mi">0</span> <span class="o">&amp;</span> \<span class="n">cdots</span> <span class="o">&amp;</span> <span class="mi">0</span> \\
+  <span class="mi">0</span> <span class="o">&amp;</span> <span class="mi">0</span> <span class="o">&amp;</span> \<span class="n">cdots</span> <span class="o">&amp;</span> <span class="mi">0</span> \\
+  \<span class="n">vdots</span> <span class="o">&amp;</span> \<span class="n">vdots</span> <span class="o">&amp;</span> \<span class="n">ddots</span> <span class="o">&amp;</span> \<span class="n">vdots</span> \\
+  <span class="mi">0</span> <span class="o">&amp;</span> <span class="mi">0</span> <span class="o">&amp;</span> \<span class="n">cdots</span> <span class="o">&amp;</span> <span class="mi">0</span>
+\<span class="n">end</span><span class="p">{</span><span class="n">bmatrix</span><span class="p">}</span>
+</pre></div>
+</div>
+<p>Output:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}O = \begin{bmatrix}
+  0 &amp; 0 &amp; \cdots &amp; 0 \\
+  0 &amp; 0 &amp; \cdots &amp; 0 \\
+  \vdots &amp; \vdots &amp; \ddots &amp; \vdots \\
+  0 &amp; 0 &amp; \cdots &amp; 0
+\end{bmatrix}\end{split}\]</div>
+<p>Input:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">A_</span><span class="p">{</span><span class="n">m</span>\<span class="n">times</span> <span class="n">n</span><span class="p">}</span><span class="o">=</span>
+\<span class="n">begin</span><span class="p">{</span><span class="n">bmatrix</span><span class="p">}</span>
+  <span class="n">a_</span><span class="p">{</span><span class="mi">11</span><span class="p">}</span><span class="o">&amp;</span> <span class="n">a_</span><span class="p">{</span><span class="mi">12</span><span class="p">}</span><span class="o">&amp;</span> \<span class="n">cdots</span>  <span class="o">&amp;</span> <span class="n">a_</span><span class="p">{</span><span class="mi">1</span><span class="n">n</span><span class="p">}</span> \\
+  <span class="n">a_</span><span class="p">{</span><span class="mi">21</span><span class="p">}</span><span class="o">&amp;</span> <span class="n">a_</span><span class="p">{</span><span class="mi">22</span><span class="p">}</span><span class="o">&amp;</span> \<span class="n">cdots</span>  <span class="o">&amp;</span> <span class="n">a_</span><span class="p">{</span><span class="mi">2</span><span class="n">n</span><span class="p">}</span> \\
+  \<span class="n">vdots</span> <span class="o">&amp;</span> \<span class="n">vdots</span> <span class="o">&amp;</span> \<span class="n">ddots</span> <span class="o">&amp;</span> \<span class="n">vdots</span> \\
+  <span class="n">a_</span><span class="p">{</span><span class="n">m1</span><span class="p">}</span><span class="o">&amp;</span> <span class="n">a_</span><span class="p">{</span><span class="n">m2</span><span class="p">}</span><span class="o">&amp;</span> \<span class="n">cdots</span>  <span class="o">&amp;</span> <span class="n">a_</span><span class="p">{</span><span class="n">mn</span><span class="p">}</span>
+\<span class="n">end</span><span class="p">{</span><span class="n">bmatrix</span><span class="p">}</span>
+<span class="o">=</span>\<span class="n">left</span> <span class="p">[</span> <span class="n">a_</span><span class="p">{</span><span class="n">ij</span><span class="p">}</span>\<span class="n">right</span> <span class="p">]</span>
+</pre></div>
+</div>
+<p>Output:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}A_{m\times n}=
+\begin{bmatrix}
+  a_{11}&amp; a_{12}&amp; \cdots  &amp; a_{1n} \\
+  a_{21}&amp; a_{22}&amp; \cdots  &amp; a_{2n} \\
+  \vdots &amp; \vdots &amp; \ddots &amp; \vdots \\
+  a_{m1}&amp; a_{m2}&amp; \cdots  &amp; a_{mn}
+\end{bmatrix}
+=\left [ a_{ij}\right ]\end{split}\]</div>
+<p>Input:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>\<span class="n">begin</span><span class="p">{</span><span class="n">array</span><span class="p">}{</span><span class="n">c</span><span class="p">}</span>
+  <span class="n">A</span><span class="o">=</span><span class="p">{</span>\<span class="n">left</span><span class="p">[</span> <span class="n">a_</span><span class="p">{</span><span class="n">ij</span><span class="p">}</span>\<span class="n">right</span><span class="p">]</span><span class="n">_</span><span class="p">{</span><span class="n">m</span> \<span class="n">times</span> <span class="n">n</span><span class="p">}},</span><span class="n">B</span><span class="o">=</span><span class="p">{</span>\<span class="n">left</span><span class="p">[</span> <span class="n">b_</span><span class="p">{</span><span class="n">ij</span><span class="p">}</span>\<span class="n">right</span><span class="p">]</span><span class="n">_</span><span class="p">{</span><span class="n">n</span> \<span class="n">times</span> <span class="n">s</span><span class="p">}}</span> \\
+  <span class="n">c_</span><span class="p">{</span><span class="n">ij</span><span class="p">}</span><span class="o">=</span> \<span class="nb">sum</span> \<span class="n">limits_</span><span class="p">{</span><span class="n">k</span><span class="o">=</span><span class="mi">1</span><span class="p">}</span><span class="o">^</span><span class="p">{{</span><span class="n">n</span><span class="p">}}</span><span class="n">a_</span><span class="p">{</span><span class="n">ik</span><span class="p">}</span><span class="n">b_</span><span class="p">{</span><span class="n">kj</span><span class="p">}</span> \\
+  <span class="n">C</span><span class="o">=</span><span class="n">AB</span><span class="o">=</span>\<span class="n">left</span><span class="p">[</span> <span class="n">c_</span><span class="p">{</span><span class="n">ij</span><span class="p">}</span>\<span class="n">right</span><span class="p">]</span><span class="n">_</span><span class="p">{</span><span class="n">m</span> \<span class="n">times</span> <span class="n">s</span><span class="p">}</span>
+  <span class="o">=</span> \<span class="n">left</span><span class="p">[</span> \<span class="nb">sum</span> \<span class="n">limits_</span><span class="p">{</span><span class="n">k</span><span class="o">=</span><span class="mi">1</span><span class="p">}</span><span class="o">^</span><span class="p">{</span><span class="n">n</span><span class="p">}</span><span class="n">a_</span><span class="p">{</span><span class="n">ik</span><span class="p">}</span><span class="n">b_</span><span class="p">{</span><span class="n">kj</span><span class="p">}</span>\<span class="n">right</span><span class="p">]</span><span class="n">_</span><span class="p">{</span><span class="n">m</span> \<span class="n">times</span> <span class="n">s</span><span class="p">}</span>
+\<span class="n">end</span><span class="p">{</span><span class="n">array</span><span class="p">}</span>
+</pre></div>
+</div>
+<p>Output:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{c}
+  A={\left[ a_{ij}\right]_{m \times n}},B={\left[ b_{ij}\right]_{n \times s}} \\
+  c_{ij}= \sum \limits_{k=1}^{{n}}a_{ik}b_{kj} \\
+  C=AB=\left[ c_{ij}\right]_{m \times s}
+  = \left[ \sum \limits_{k=1}^{n}a_{ik}b_{kj}\right]_{m \times s}
+\end{array}\end{split}\]</div>
+<p>Input:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>\<span class="n">mathbf</span><span class="p">{</span><span class="n">V</span><span class="p">}</span><span class="n">_1</span> \<span class="n">times</span> \<span class="n">mathbf</span><span class="p">{</span><span class="n">V</span><span class="p">}</span><span class="n">_2</span> <span class="o">=</span>
+\<span class="n">begin</span><span class="p">{</span><span class="n">vmatrix</span><span class="p">}</span>
+  \<span class="n">mathbf</span><span class="p">{</span><span class="n">i</span><span class="p">}</span><span class="o">&amp;</span> \<span class="n">mathbf</span><span class="p">{</span><span class="n">j</span><span class="p">}</span><span class="o">&amp;</span> \<span class="n">mathbf</span><span class="p">{</span><span class="n">k</span><span class="p">}</span> \\
+  \<span class="n">frac</span><span class="p">{</span>\<span class="n">partial</span> <span class="n">X</span><span class="p">}{</span>\<span class="n">partial</span> <span class="n">u</span><span class="p">}</span><span class="o">&amp;</span> \<span class="n">frac</span><span class="p">{</span>\<span class="n">partial</span> <span class="n">Y</span><span class="p">}{</span>\<span class="n">partial</span> <span class="n">u</span><span class="p">}</span><span class="o">&amp;</span> <span class="mi">0</span> \\
+  \<span class="n">frac</span><span class="p">{</span>\<span class="n">partial</span> <span class="n">X</span><span class="p">}{</span>\<span class="n">partial</span> <span class="n">v</span><span class="p">}</span><span class="o">&amp;</span> \<span class="n">frac</span><span class="p">{</span>\<span class="n">partial</span> <span class="n">Y</span><span class="p">}{</span>\<span class="n">partial</span> <span class="n">v</span><span class="p">}</span><span class="o">&amp;</span> <span class="mi">0</span> \\
+\<span class="n">end</span><span class="p">{</span><span class="n">vmatrix</span><span class="p">}</span>
+</pre></div>
+</div>
+<p>Output:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\mathbf{V}_1 \times \mathbf{V}_2 =
+\begin{vmatrix}
+  \mathbf{i}&amp; \mathbf{j}&amp; \mathbf{k} \\
+  \frac{\partial X}{\partial u}&amp; \frac{\partial Y}{\partial u}&amp; 0 \\
+  \frac{\partial X}{\partial v}&amp; \frac{\partial Y}{\partial v}&amp; 0 \\
+\end{vmatrix}\end{split}\]</div>
+<p>Input:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>\<span class="n">begin</span><span class="p">{</span><span class="n">array</span><span class="p">}{</span><span class="n">c</span><span class="p">}</span>
+  <span class="n">A</span><span class="o">=</span><span class="n">A</span><span class="o">^</span><span class="p">{</span><span class="n">T</span><span class="p">}</span>  \\
+  <span class="n">A</span><span class="o">=-</span><span class="n">A</span><span class="o">^</span><span class="p">{</span><span class="n">T</span><span class="p">}</span>
+\<span class="n">end</span><span class="p">{</span><span class="n">array</span><span class="p">}</span>
+</pre></div>
+</div>
+<p>Output:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{c}
+  A=A^{T}  \\
+  A=-A^{T}
+\end{array}\end{split}\]</div>
+</section>
+<section id="triangle">
+<h3>Triangle<a class="headerlink" href="#triangle" title="Link to this heading"></a></h3>
+<p>Input:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>\<span class="n">begin</span><span class="p">{</span><span class="n">array</span><span class="p">}{</span><span class="n">l</span><span class="p">}</span>
+  <span class="n">e</span><span class="o">^</span><span class="p">{</span><span class="n">i</span> \<span class="n">theta</span><span class="p">}</span>  \\
+  \<span class="n">text</span><span class="p">{</span><span class="n">sin</span><span class="p">}</span><span class="o">^</span><span class="p">{</span><span class="mi">2</span><span class="p">}</span>\<span class="n">frac</span><span class="p">{</span>\<span class="n">alpha</span><span class="p">}{</span><span class="mi">2</span><span class="p">}</span><span class="o">=</span>\<span class="n">frac</span><span class="p">{</span><span class="mi">1</span><span class="o">-</span> \<span class="n">text</span><span class="p">{</span><span class="n">cos</span><span class="p">}</span>\<span class="n">alpha</span><span class="p">}{</span><span class="mi">2</span><span class="p">}</span>  \\
+  \<span class="n">text</span><span class="p">{</span><span class="n">tan</span><span class="p">}</span>\<span class="n">frac</span><span class="p">{</span>\<span class="n">alpha</span><span class="p">}{</span><span class="mi">2</span><span class="p">}</span><span class="o">=</span>\<span class="n">frac</span><span class="p">{</span>\<span class="n">text</span><span class="p">{</span><span class="n">sin</span><span class="p">}</span>\<span class="n">alpha</span><span class="p">}{</span><span class="mi">1</span><span class="o">+</span> \<span class="n">text</span><span class="p">{</span><span class="n">cos</span><span class="p">}</span>\<span class="n">alpha</span><span class="p">}</span> \\
+  \<span class="n">sin</span> \<span class="n">alpha</span> <span class="o">-</span> \<span class="n">sin</span> \<span class="n">beta</span> <span class="o">=</span><span class="mi">2</span> \<span class="n">cos</span> \<span class="n">frac</span><span class="p">{</span>\<span class="n">alpha</span> <span class="o">+</span> \<span class="n">beta</span><span class="p">}{</span><span class="mi">2</span><span class="p">}</span>\<span class="n">sin</span> \<span class="n">frac</span><span class="p">{</span>\<span class="n">alpha</span> <span class="o">-</span> \<span class="n">beta</span><span class="p">}{</span><span class="mi">2</span><span class="p">}</span> \\
+  \<span class="n">cos</span> \<span class="n">alpha</span> <span class="o">-</span> \<span class="n">cos</span> \<span class="n">beta</span> <span class="o">=-</span><span class="mi">2</span>\<span class="n">sin</span> \<span class="n">frac</span><span class="p">{</span>\<span class="n">alpha</span> <span class="o">+</span> \<span class="n">beta</span><span class="p">}{</span><span class="mi">2</span><span class="p">}</span>\<span class="n">sin</span> \<span class="n">frac</span><span class="p">{</span>\<span class="n">alpha</span> <span class="o">-</span> \<span class="n">beta</span><span class="p">}{</span><span class="mi">2</span><span class="p">}</span> \\
+  \<span class="n">frac</span><span class="p">{</span>\<span class="n">sin</span> <span class="n">A</span><span class="p">}{</span><span class="n">a</span><span class="p">}</span><span class="o">=</span>\<span class="n">frac</span><span class="p">{</span>\<span class="n">sin</span> <span class="n">B</span><span class="p">}{</span><span class="n">b</span><span class="p">}</span><span class="o">=</span>\<span class="n">frac</span><span class="p">{</span>\<span class="n">sin</span> <span class="n">C</span><span class="p">}{</span><span class="n">c</span><span class="p">}</span><span class="o">=</span>\<span class="n">frac</span><span class="p">{</span><span class="mi">1</span><span class="p">}{</span><span class="mi">2</span><span class="n">R</span><span class="p">}</span> \\
+  \<span class="n">sin</span> \<span class="n">left</span> <span class="p">(</span> \<span class="n">frac</span><span class="p">{</span>\<span class="n">pi</span><span class="p">}{</span><span class="mi">2</span><span class="p">}</span><span class="o">+</span>\<span class="n">alpha</span> \<span class="n">right</span> <span class="p">)</span> <span class="o">=</span> \<span class="n">cos</span> \<span class="n">alpha</span>
+\<span class="n">end</span><span class="p">{</span><span class="n">array</span><span class="p">}</span>
+</pre></div>
+</div>
+<p>Output:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+  e^{i \theta}  \\
+  \text{sin}^{2}\frac{\alpha}{2}=\frac{1- \text{cos}\alpha}{2}  \\
+  \text{tan}\frac{\alpha}{2}=\frac{\text{sin}\alpha}{1+ \text{cos}\alpha} \\
+  \sin \alpha - \sin \beta =2 \cos \frac{\alpha + \beta}{2}\sin \frac{\alpha - \beta}{2} \\
+  \cos \alpha - \cos \beta =-2\sin \frac{\alpha + \beta}{2}\sin \frac{\alpha - \beta}{2} \\
+  \frac{\sin A}{a}=\frac{\sin B}{b}=\frac{\sin C}{c}=\frac{1}{2R} \\
+  \sin \left ( \frac{\pi}{2}+\alpha \right ) = \cos \alpha
+\end{array}\end{split}\]</div>
+<p>Input:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>\<span class="n">begin</span><span class="p">{</span><span class="n">array</span><span class="p">}{</span><span class="n">l</span><span class="p">}</span>
+  \<span class="n">left</span><span class="p">(</span>\<span class="n">frac</span><span class="p">{</span>\<span class="n">pi</span><span class="p">}{</span><span class="mi">2</span><span class="p">}</span><span class="o">-</span>\<span class="n">theta</span> \<span class="n">right</span> <span class="p">)</span>   \\
+  \<span class="n">text</span><span class="p">{</span><span class="n">cos</span><span class="p">}</span><span class="o">^</span><span class="p">{</span><span class="mi">2</span><span class="p">}</span>\<span class="n">frac</span><span class="p">{</span>\<span class="n">alpha</span><span class="p">}{</span><span class="mi">2</span><span class="p">}</span><span class="o">=</span>\<span class="n">frac</span><span class="p">{</span><span class="mi">1</span><span class="o">+</span> \<span class="n">text</span><span class="p">{</span><span class="n">cos</span><span class="p">}</span>\<span class="n">alpha</span><span class="p">}{</span><span class="mi">2</span><span class="p">}</span>   \\
+  \<span class="n">sin</span> \<span class="n">alpha</span> <span class="o">+</span> \<span class="n">sin</span> \<span class="n">beta</span> <span class="o">=</span><span class="mi">2</span> \<span class="n">sin</span> \<span class="n">frac</span><span class="p">{</span>\<span class="n">alpha</span> <span class="o">+</span> \<span class="n">beta</span><span class="p">}{</span><span class="mi">2</span><span class="p">}</span>\<span class="n">cos</span> \<span class="n">frac</span><span class="p">{</span>\<span class="n">alpha</span> <span class="o">-</span> \<span class="n">beta</span><span class="p">}{</span><span class="mi">2</span><span class="p">}</span>  \\
+  \<span class="n">cos</span> \<span class="n">alpha</span> <span class="o">+</span> \<span class="n">cos</span> \<span class="n">beta</span> <span class="o">=</span><span class="mi">2</span> \<span class="n">cos</span> \<span class="n">frac</span><span class="p">{</span>\<span class="n">alpha</span> <span class="o">+</span> \<span class="n">beta</span><span class="p">}{</span><span class="mi">2</span><span class="p">}</span>\<span class="n">cos</span> \<span class="n">frac</span><span class="p">{</span>\<span class="n">alpha</span> <span class="o">-</span> \<span class="n">beta</span><span class="p">}{</span><span class="mi">2</span><span class="p">}</span>  \\
+  <span class="n">a</span><span class="o">^</span><span class="p">{</span><span class="mi">2</span><span class="p">}</span><span class="o">=</span><span class="n">b</span><span class="o">^</span><span class="p">{</span><span class="mi">2</span><span class="p">}</span><span class="o">+</span><span class="n">c</span><span class="o">^</span><span class="p">{</span><span class="mi">2</span><span class="p">}</span><span class="o">-</span><span class="mi">2</span><span class="n">bc</span>\<span class="n">cos</span> <span class="n">A</span>  \\
+  \<span class="n">sin</span> \<span class="n">left</span> <span class="p">(</span> \<span class="n">frac</span><span class="p">{</span>\<span class="n">pi</span><span class="p">}{</span><span class="mi">2</span><span class="p">}</span><span class="o">-</span>\<span class="n">alpha</span> \<span class="n">right</span> <span class="p">)</span> <span class="o">=</span> \<span class="n">cos</span> \<span class="n">alpha</span>
+\<span class="n">end</span><span class="p">{</span><span class="n">array</span><span class="p">}</span>
+</pre></div>
+</div>
+<p>Output:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+  \left(\frac{\pi}{2}-\theta \right )   \\
+  \text{cos}^{2}\frac{\alpha}{2}=\frac{1+ \text{cos}\alpha}{2}   \\
+  \sin \alpha + \sin \beta =2 \sin \frac{\alpha + \beta}{2}\cos \frac{\alpha - \beta}{2}  \\
+  \cos \alpha + \cos \beta =2 \cos \frac{\alpha + \beta}{2}\cos \frac{\alpha - \beta}{2}  \\
+  a^{2}=b^{2}+c^{2}-2bc\cos A  \\
+  \sin \left ( \frac{\pi}{2}-\alpha \right ) = \cos \alpha
+\end{array}\end{split}\]</div>
+</section>
+<section id="statistics">
+<h3>Statistics<a class="headerlink" href="#statistics" title="Link to this heading"></a></h3>
+<p>Input:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>\<span class="n">begin</span><span class="p">{</span><span class="n">array</span><span class="p">}{</span><span class="n">l</span><span class="p">}</span>
+  <span class="n">C_</span><span class="p">{</span><span class="n">r</span><span class="p">}</span><span class="o">^</span><span class="p">{</span><span class="n">n</span><span class="p">}</span>    \\
+  \<span class="n">sum_</span><span class="p">{</span><span class="n">i</span><span class="o">=</span><span class="mi">1</span><span class="p">}</span><span class="o">^</span><span class="p">{</span><span class="n">n</span><span class="p">}{</span><span class="n">X_i</span><span class="p">}</span>    \\
+  <span class="n">X_1</span><span class="p">,</span> \<span class="n">cdots</span><span class="p">,</span><span class="n">X_n</span>   \\
+  \<span class="n">sum_</span><span class="p">{</span><span class="n">i</span><span class="o">=</span><span class="mi">1</span><span class="p">}</span><span class="o">^</span><span class="p">{</span><span class="n">n</span><span class="p">}{(</span><span class="n">X_i</span> <span class="o">-</span> \<span class="n">overline</span><span class="p">{</span><span class="n">X</span><span class="p">})</span><span class="o">^</span><span class="mi">2</span><span class="p">}</span>   \\
+  <span class="n">P</span><span class="p">(</span><span class="n">E</span><span class="p">)</span> <span class="o">=</span><span class="p">{</span><span class="n">n</span> \<span class="n">choose</span> <span class="n">k</span><span class="p">}</span><span class="n">p</span><span class="o">^</span><span class="n">k</span> <span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">p</span><span class="p">)</span><span class="o">^</span><span class="p">{</span><span class="n">n</span><span class="o">-</span><span class="n">k</span><span class="p">}</span>   \\
+\<span class="n">end</span><span class="p">{</span><span class="n">array</span><span class="p">}</span>
+</pre></div>
+</div>
+<p>Output:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+  C_{r}^{n}    \\
+  \sum_{i=1}^{n}{X_i}    \\
+  X_1, \cdots,X_n   \\
+  \sum_{i=1}^{n}{(X_i - \overline{X})^2}   \\
+  P(E) ={n \choose k}p^k (1-p)^{n-k}   \\
+\end{array}\end{split}\]</div>
+<p>Input:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>\begin{array}{l}
+  \frac{n!}{r!(n-r)!}    \\
+  \sum_{i=1}^{n}{X_i^2}     \\
+  \frac{x-\mu}{\sigma}   \\
+  P \left( A \right) = \lim \limits_{n \to \infty}f_{n}\left ( A \right )    \\
+\end{array}
+</pre></div>
+</div>
+<p>Output:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+  \frac{n!}{r!(n-r)!}    \\
+  \sum_{i=1}^{n}{X_i^2}     \\
+  \frac{x-\mu}{\sigma}   \\
+  P \left( A \right) = \lim \limits_{n \to \infty}f_{n}\left ( A \right )    \\
+\end{array}\end{split}\]</div>
+<p>Input:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">P</span> \<span class="n">left</span><span class="p">(</span> \<span class="n">bigcup</span> \<span class="n">limits_</span><span class="p">{</span><span class="n">i</span><span class="o">=</span><span class="mi">1</span><span class="p">}</span><span class="o">^</span><span class="p">{</span><span class="o">+</span> \<span class="n">infty</span><span class="p">}</span><span class="n">A_</span><span class="p">{</span><span class="n">i</span><span class="p">}</span>\<span class="n">right</span><span class="p">)</span> <span class="o">=</span>
+\<span class="n">prod</span> \<span class="n">limits_</span><span class="p">{</span><span class="n">i</span><span class="o">=</span><span class="mi">1</span><span class="p">}</span><span class="o">^</span><span class="p">{</span><span class="o">+</span> \<span class="n">infty</span><span class="p">}</span><span class="n">P</span><span class="p">{</span>\<span class="n">left</span><span class="p">(</span> <span class="n">A_</span><span class="p">{</span><span class="n">i</span><span class="p">}</span>\<span class="n">right</span><span class="p">)}</span>
+</pre></div>
+</div>
+<p>Output:</p>
+<div class="math notranslate nohighlight">
+\[P \left( \bigcup \limits_{i=1}^{+ \infty}A_{i}\right) =
+\prod \limits_{i=1}^{+ \infty}P{\left( A_{i}\right)}\]</div>
+<p>Input:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">P</span> \<span class="n">left</span><span class="p">(</span> \<span class="n">bigcup</span> \<span class="n">limits_</span><span class="p">{</span><span class="n">i</span><span class="o">=</span><span class="mi">1</span><span class="p">}</span><span class="o">^</span><span class="p">{</span><span class="n">n</span><span class="p">}</span><span class="n">A_</span><span class="p">{</span><span class="n">i</span><span class="p">}</span>\<span class="n">right</span><span class="p">)</span> <span class="o">=</span>
+\<span class="n">prod</span> \<span class="n">limits_</span><span class="p">{</span><span class="n">i</span><span class="o">=</span><span class="mi">1</span><span class="p">}</span><span class="o">^</span><span class="p">{</span><span class="n">n</span><span class="p">}</span><span class="n">P</span> \<span class="n">left</span><span class="p">(</span> <span class="n">A_</span><span class="p">{</span><span class="n">i</span><span class="p">}</span>\<span class="n">right</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Output:</p>
+<div class="math notranslate nohighlight">
+\[P \left( \bigcup \limits_{i=1}^{n}A_{i}\right) =
+\prod \limits_{i=1}^{n}P \left( A_{i}\right)\]</div>
+<p>Input:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>\<span class="n">begin</span><span class="p">{</span><span class="n">array</span><span class="p">}{</span><span class="n">c</span><span class="p">}</span>
+  \<span class="n">forall</span> <span class="n">A</span> \<span class="ow">in</span> <span class="n">S</span> \\
+  <span class="n">P</span> \<span class="n">left</span><span class="p">(</span> <span class="n">A</span> \<span class="n">right</span><span class="p">)</span> \<span class="n">ge</span> <span class="mi">0</span>
+\<span class="n">end</span><span class="p">{</span><span class="n">array</span><span class="p">}</span>
+</pre></div>
+</div>
+<p>Output:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{c}
+  \forall A \in S \\
+  P \left( A \right) \ge 0
+\end{array}\end{split}\]</div>
+<p>Input:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>\<span class="n">begin</span><span class="p">{</span><span class="n">array</span><span class="p">}{</span><span class="n">c</span><span class="p">}</span>
+  <span class="n">P</span> \<span class="n">left</span><span class="p">(</span> \<span class="n">emptyset</span> \<span class="n">right</span><span class="p">)</span> <span class="o">=</span><span class="mi">0</span> \\
+  <span class="n">P</span> \<span class="n">left</span><span class="p">(</span> <span class="n">S</span> \<span class="n">right</span><span class="p">)</span> <span class="o">=</span><span class="mi">1</span>
+\<span class="n">end</span><span class="p">{</span><span class="n">array</span><span class="p">}</span>
+</pre></div>
+</div>
+<p>Output:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{c}
+  P \left( \emptyset \right) =0 \\
+  P \left( S \right) =1
+\end{array}\end{split}\]</div>
+<p>Input:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>\<span class="n">begin</span><span class="p">{</span><span class="n">array</span><span class="p">}{</span><span class="n">c</span><span class="p">}</span>
+  <span class="n">S</span><span class="o">=</span> \<span class="n">binom</span><span class="p">{</span><span class="n">N</span><span class="p">}{</span><span class="n">n</span><span class="p">},</span><span class="n">A_</span><span class="p">{</span><span class="n">k</span><span class="p">}</span><span class="o">=</span>\<span class="n">binom</span><span class="p">{</span><span class="n">M</span><span class="p">}{</span><span class="n">k</span><span class="p">}</span>\<span class="n">cdot</span> \<span class="n">binom</span><span class="p">{</span><span class="n">N</span><span class="o">-</span><span class="n">M</span><span class="p">}{</span><span class="n">n</span><span class="o">-</span><span class="n">k</span><span class="p">}</span> \\
+  <span class="n">P</span>\<span class="n">left</span> <span class="p">(</span> <span class="n">A_</span><span class="p">{</span><span class="n">k</span><span class="p">}</span>\<span class="n">right</span> <span class="p">)</span> <span class="o">=</span> \<span class="n">frac</span><span class="p">{</span>\<span class="n">binom</span><span class="p">{</span><span class="n">M</span><span class="p">}{</span><span class="n">k</span><span class="p">}</span>\<span class="n">cdot</span> \<span class="n">binom</span><span class="p">{</span><span class="n">N</span><span class="o">-</span><span class="n">M</span><span class="p">}{</span><span class="n">n</span><span class="o">-</span><span class="n">k</span><span class="p">}}{</span>\<span class="n">binom</span><span class="p">{</span><span class="n">N</span><span class="p">}{</span><span class="n">n</span><span class="p">}}</span>
+\<span class="n">end</span><span class="p">{</span><span class="n">array</span><span class="p">}</span>
+</pre></div>
+</div>
+<p>Output:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{c}
+  S= \binom{N}{n},A_{k}=\binom{M}{k}\cdot \binom{N-M}{n-k} \\
+  P\left ( A_{k}\right ) = \frac{\binom{M}{k}\cdot \binom{N-M}{n-k}}{\binom{N}{n}}
+\end{array}\end{split}\]</div>
+<p>Input:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>\begin{array}{c}
+  P_{n}=n! \\
+  A_{n}^{k}=\frac{n!}{\left( n-k \left) !\right. \right.}
+\end{array}
+</pre></div>
+</div>
+<p>Output:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{c}
+  P_{n}=n! \\
+  A_{n}^{k}=\frac{n!}{\left( n-k \left) !\right. \right.}
+\end{array}\end{split}\]</div>
+<p>Input:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>\<span class="n">begin</span><span class="p">{</span><span class="n">array</span><span class="p">}{</span><span class="n">c</span><span class="p">}</span>
+  \<span class="n">text</span><span class="p">{</span><span class="n">If</span> <span class="p">}</span> <span class="n">P</span><span class="p">(</span><span class="n">AB</span><span class="p">)</span> <span class="o">=</span> <span class="n">P</span><span class="p">(</span><span class="n">A</span><span class="p">)</span><span class="n">P</span><span class="p">(</span><span class="n">B</span><span class="p">)</span> \\
+  \<span class="n">text</span><span class="p">{</span><span class="n">then</span> <span class="p">}</span> <span class="n">P</span><span class="p">(</span><span class="n">A</span><span class="o">|</span><span class="n">B</span><span class="p">)</span> <span class="o">=</span> \<span class="n">dfrac</span><span class="p">{</span><span class="n">P</span><span class="p">(</span><span class="n">B</span><span class="p">)}{</span><span class="mi">1</span><span class="o">-</span><span class="n">P</span><span class="p">(</span>\<span class="n">overline</span><span class="p">{</span><span class="n">B</span><span class="p">})}</span>
+\<span class="n">end</span><span class="p">{</span><span class="n">array</span><span class="p">}</span>
+</pre></div>
+</div>
+<p>Output:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{c}
+  \text{If } P(AB) = P(A)P(B) \\
+  \text{then } P(A|B) = \dfrac{P(B)}{1-P(\overline{B})}
+\end{array}\end{split}\]</div>
+</section>
+<section id="sequence">
+<h3>Sequence<a class="headerlink" href="#sequence" title="Link to this heading"></a></h3>
+<p>Input:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>\<span class="n">begin</span><span class="p">{</span><span class="n">array</span><span class="p">}{</span><span class="n">l</span><span class="p">}</span>
+  <span class="n">a_</span><span class="p">{</span><span class="n">n</span><span class="p">}</span><span class="o">=</span><span class="n">a_</span><span class="p">{</span><span class="mi">1</span><span class="p">}</span><span class="n">q</span><span class="o">^</span><span class="p">{</span><span class="n">n</span><span class="o">-</span><span class="mi">1</span><span class="p">}</span>  \\
+  <span class="n">S_</span><span class="p">{</span><span class="n">n</span><span class="p">}</span><span class="o">=</span><span class="n">na_</span><span class="p">{</span><span class="mi">1</span><span class="p">}</span><span class="o">+</span>\<span class="n">frac</span><span class="p">{</span><span class="n">n</span> \<span class="n">left</span><span class="p">(</span> <span class="n">n</span><span class="o">-</span><span class="mi">1</span> \<span class="n">right</span><span class="p">)}{{</span><span class="mi">2</span><span class="p">}}</span><span class="n">d</span> \\
+  \<span class="n">frac</span><span class="p">{</span><span class="mi">1</span><span class="p">}{</span><span class="n">n</span> \<span class="n">left</span><span class="p">(</span> <span class="n">n</span><span class="o">+</span><span class="n">k</span> \<span class="n">right</span><span class="p">)}</span><span class="o">=</span> \<span class="n">frac</span><span class="p">{</span><span class="mi">1</span><span class="p">}{</span><span class="n">k</span><span class="p">}</span>\<span class="n">left</span><span class="p">(</span> \<span class="n">frac</span><span class="p">{</span><span class="mi">1</span><span class="p">}{</span><span class="n">n</span><span class="p">}</span><span class="o">-</span>\<span class="n">frac</span><span class="p">{</span><span class="mi">1</span><span class="p">}{</span><span class="n">n</span><span class="o">+</span><span class="n">k</span><span class="p">}</span>\<span class="n">right</span><span class="p">)</span> \\
+  \<span class="n">frac</span><span class="p">{</span><span class="mi">1</span><span class="p">}{</span><span class="mi">4</span><span class="n">n</span><span class="o">^</span><span class="p">{</span><span class="mi">2</span><span class="p">}</span><span class="o">-</span><span class="mi">1</span><span class="p">}</span><span class="o">=</span>\<span class="n">frac</span><span class="p">{</span><span class="mi">1</span><span class="p">}{</span><span class="mi">2</span><span class="p">}</span>\<span class="n">left</span><span class="p">(</span> \<span class="n">frac</span><span class="p">{</span><span class="mi">1</span><span class="p">}{</span><span class="mi">2</span><span class="n">n</span><span class="o">-</span><span class="mi">1</span><span class="p">}</span><span class="o">-</span>\<span class="n">frac</span><span class="p">{</span><span class="mi">1</span><span class="p">}{</span><span class="mi">2</span><span class="n">n</span><span class="o">+</span><span class="mi">1</span><span class="p">}</span>\<span class="n">right</span><span class="p">)</span> \\
+\<span class="n">end</span><span class="p">{</span><span class="n">array</span><span class="p">}</span>
+</pre></div>
+</div>
+<p>Output:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+  a_{n}=a_{1}q^{n-1}  \\
+  S_{n}=na_{1}+\frac{n \left( n-1 \right)}{{2}}d \\
+  \frac{1}{n \left( n+k \right)}= \frac{1}{k}\left( \frac{1}{n}-\frac{1}{n+k}\right) \\
+  \frac{1}{4n^{2}-1}=\frac{1}{2}\left( \frac{1}{2n-1}-\frac{1}{2n+1}\right) \\
+\end{array}\end{split}\]</div>
+<p>Input:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>\begin{array}{l}
+  a_{n}=a_{1}+ \left( n-1 \left) d\right. \right.   \\
+  S_{n}=\frac{n \left( a_{1}+a_{n}\right)}{2} \\
+  \frac{1}{n^{2}-1}= \frac{1}{2}\left( \frac{1}{n-1}-\frac{1}{n+1}\right)  \\
+  \frac{n+1}{n \left( n-1 \left) \cdot 2^{n}\right. \right.}=
+  \frac{1}{\left( n-1 \left) \cdot 2^{n-1}\right. \right.}-\frac{1}{n \cdot 2^{n}}  \\
+  (1+x)^{n} =1 + \frac{nx}{1!} + \frac{n(n-1)x^{2}}{2!} + \cdots
+\end{array}
+</pre></div>
+</div>
+<p>Output:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+  a_{n}=a_{1}+ \left( n-1 \left) d\right. \right.   \\
+  S_{n}=\frac{n \left( a_{1}+a_{n}\right)}{2} \\
+  \frac{1}{n^{2}-1}= \frac{1}{2}\left( \frac{1}{n-1}-\frac{1}{n+1}\right)  \\
+  \frac{n+1}{n \left( n-1 \left) \cdot 2^{n}\right. \right.}=
+  \frac{1}{\left( n-1 \left) \cdot 2^{n-1}\right. \right.}-\frac{1}{n \cdot 2^{n}}  \\
+  (1+x)^{n} =1 + \frac{nx}{1!} + \frac{n(n-1)x^{2}}{2!} + \cdots
+\end{array}\end{split}\]</div>
+<p>Input:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>\<span class="n">begin</span><span class="p">{</span><span class="n">array</span><span class="p">}{</span><span class="n">c</span><span class="p">}</span>
+  \<span class="n">text</span><span class="p">{</span><span class="n">If</span><span class="p">}</span>\<span class="n">left</span> \<span class="p">{</span><span class="n">a_</span><span class="p">{</span><span class="n">n</span><span class="p">}</span>\<span class="n">right</span> \<span class="p">},</span>\<span class="n">left</span> \<span class="p">{</span><span class="n">b_</span><span class="p">{</span><span class="n">n</span><span class="p">}</span>\<span class="n">right</span> \<span class="p">}</span>\<span class="n">text</span><span class="p">{</span><span class="n">are</span> <span class="n">arithmetic</span> <span class="n">progressions</span><span class="p">},</span> \\
+  \<span class="n">text</span><span class="p">{</span><span class="n">then</span><span class="p">}</span>\<span class="n">left</span> \<span class="p">{</span><span class="n">a_</span><span class="p">{</span><span class="n">n</span><span class="p">}</span><span class="o">+</span> <span class="n">b_</span><span class="p">{</span><span class="n">n</span><span class="p">}</span>\<span class="n">right</span> \<span class="p">}</span>\<span class="n">text</span><span class="p">{</span><span class="ow">is</span> <span class="n">an</span> <span class="n">arithmetic</span> <span class="n">progression</span><span class="o">.</span><span class="p">}</span>
+\<span class="n">end</span><span class="p">{</span><span class="n">array</span><span class="p">}</span>
+</pre></div>
+</div>
+<p>Output:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{c}
+  \text{If}\left \{a_{n}\right \},\left \{b_{n}\right \}\text{are arithmetic progressions}, \\
+  \text{then}\left \{a_{n}+ b_{n}\right \}\text{is an arithmetic progression.}
+\end{array}\end{split}\]</div>
+</section>
+<section id="physics">
+<h3>Physics<a class="headerlink" href="#physics" title="Link to this heading"></a></h3>
+<p>Input:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>\sum {{{ \mathord{ \buildrel{ \lower3pt \hbox{$ \scriptscriptstyle \rightharpoonup$}} \over F} }_i}} =
+\frac{{d \mathord{ \buildrel{ \lower3pt \hbox{$ \scriptscriptstyle \rightharpoonup$}} \over v} }}{{dt}} = 0
+</pre></div>
+</div>
+<p>Output:</p>
+<div class="math notranslate nohighlight">
+\[\sum {{{ \mathord{ \buildrel{ \lower3pt \hbox{$ \scriptscriptstyle \rightharpoonup$}} \over F} }_i}} =
+\frac{{d \mathord{ \buildrel{ \lower3pt \hbox{$ \scriptscriptstyle \rightharpoonup$}} \over v} }}{{dt}} = 0\]</div>
+<p>Input:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>{{ \mathord{ \buildrel{ \lower3pt \hbox{$ \scriptscriptstyle \rightharpoonup$}} \over F} }_{12}} =
+  - {{ \mathord{ \buildrel{ \lower3pt \hbox{$ \scriptscriptstyle \rightharpoonup$}}  \over F} }_{21}}
+</pre></div>
+</div>
+<p>Output:</p>
+<div class="math notranslate nohighlight">
+\[{{ \mathord{ \buildrel{ \lower3pt \hbox{$ \scriptscriptstyle \rightharpoonup$}} \over F} }_{12}} =
+  - {{ \mathord{ \buildrel{ \lower3pt \hbox{$ \scriptscriptstyle \rightharpoonup$}}  \over F} }_{21}}\]</div>
+<p>Input:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>\mathord{ \buildrel{ \lower3pt \hbox{$ \scriptscriptstyle \rightharpoonup$}}  \over F}  =
+ k \frac{{Qq}}{{{r^2}}} \hat{r}
+</pre></div>
+</div>
+<p>Output:</p>
+<div class="math notranslate nohighlight">
+\[\mathord{ \buildrel{ \lower3pt \hbox{$ \scriptscriptstyle \rightharpoonup$}}  \over F}  =
+ k \frac{{Qq}}{{{r^2}}} \hat{r}\]</div>
+<p>Input:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>d \mathord{ \buildrel{ \lower3pt \hbox{$ \scriptscriptstyle \rightharpoonup$}} \over B} =
+\frac{{{ \mu _0}}}{{4 \pi }} \frac{{Idl \times \mathord{ \buildrel{ \lower3pt \hbox{$ \scriptscriptstyle \rightharpoonup$}} \over r} }}{{{r^3}}} =
+\frac{{{ \mu _0}}}{{4 \pi }} \frac{{Idl \sin \theta }}{{{r^2}}}
+</pre></div>
+</div>
+<p>Output:</p>
+<div class="math notranslate nohighlight">
+\[d \mathord{ \buildrel{ \lower3pt \hbox{$ \scriptscriptstyle \rightharpoonup$}} \over B} =
+\frac{{{ \mu _0}}}{{4 \pi }} \frac{{Idl \times \mathord{ \buildrel{ \lower3pt \hbox{$ \scriptscriptstyle \rightharpoonup$}} \over r} }}{{{r^3}}} =
+\frac{{{ \mu _0}}}{{4 \pi }} \frac{{Idl \sin \theta }}{{{r^2}}}\]</div>
+<p>Input:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">E</span> <span class="o">=</span> <span class="n">n</span><span class="p">{{</span> \<span class="n">Delta</span> \<span class="n">Phi</span> <span class="p">}</span> \<span class="n">over</span> <span class="p">{</span>\<span class="n">Delta</span> <span class="p">{</span><span class="n">t</span><span class="p">}</span> <span class="p">}}</span>
+</pre></div>
+</div>
+<p>Output:</p>
+<div class="math notranslate nohighlight">
+\[E = n{{ \Delta \Phi } \over {\Delta {t} }}\]</div>
+<p>Input:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>\oint { \mathord{ \buildrel{ \lower3pt \hbox{$ \scriptscriptstyle \rightharpoonup$}} \over E} \cdot {d\mathord{\buildrel{\lower3pt\hbox{$\scriptscriptstyle\rightharpoonup$}}\over l}}  =
+- {{d{\varphi _B}} \over {dt}}}
+</pre></div>
+</div>
+<p>Output:</p>
+<div class="math notranslate nohighlight">
+\[\oint { \mathord{ \buildrel{ \lower3pt \hbox{$ \scriptscriptstyle \rightharpoonup$}} \over E} \cdot {d\mathord{\buildrel{\lower3pt\hbox{$\scriptscriptstyle\rightharpoonup$}}\over l}}  =
+- {{d{\varphi _B}} \over {dt}}}\]</div>
+<p>Input:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Q</span> <span class="o">=</span> <span class="n">I</span> <span class="o">^</span> <span class="p">{</span> <span class="mi">2</span> <span class="p">}</span> <span class="n">R</span> \<span class="n">mathrm</span> <span class="p">{</span> <span class="n">t</span> <span class="p">}</span>
+</pre></div>
+</div>
+<p>Output:</p>
+<div class="math notranslate nohighlight">
+\[Q = I ^ { 2 } R \mathrm { t }\]</div>
+<p>Input:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="n">E_k</span><span class="p">}</span> <span class="o">=</span> <span class="n">hv</span> <span class="o">-</span> <span class="p">{</span><span class="n">W_0</span><span class="p">}</span>
+</pre></div>
+</div>
+<p>Output:</p>
+<div class="math notranslate nohighlight">
+\[{E_k} = hv - {W_0}\]</div>
+<p>Input:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>\<span class="n">Delta</span> <span class="p">{</span><span class="n">x</span><span class="p">}</span> \<span class="n">Delta</span> <span class="p">{</span><span class="n">p</span><span class="p">}</span> \<span class="n">ge</span> \<span class="n">frac</span><span class="p">{</span><span class="n">h</span><span class="p">}{{</span><span class="mi">4</span> \<span class="n">pi</span> <span class="p">}}</span>
+</pre></div>
+</div>
+<p>Output:</p>
+<div class="math notranslate nohighlight">
+\[\Delta {x} \Delta {p} \ge \frac{h}{{4 \pi }}\]</div>
+<p>Input:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="n">y_0</span><span class="p">}</span> <span class="o">=</span> <span class="n">A</span> \<span class="n">cos</span> <span class="p">(</span> \<span class="n">omega</span> <span class="p">{</span><span class="n">t</span><span class="p">}</span> <span class="o">+</span> <span class="p">{</span> \<span class="n">varphi</span> <span class="n">_0</span><span class="p">})</span>
+</pre></div>
+</div>
+<p>Output:</p>
+<div class="math notranslate nohighlight">
+\[{y_0} = A \cos ( \omega {t} + { \varphi _0})\]</div>
+<p>Input:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>\mathord{ \buildrel{ \lower3pt \hbox{$ \scriptscriptstyle \rightharpoonup$}} \over F}  =
+m \mathord{ \buildrel{ \lower3pt \hbox{$ \scriptscriptstyle \rightharpoonup$}}  \over a}  =
+m \frac{{{d^2} \mathord{ \buildrel{ \lower3pt \hbox{$ \scriptscriptstyle \rightharpoonup$}} \over r} }}{{d{t^2}}}
+</pre></div>
+</div>
+<p>Output:</p>
+<div class="math notranslate nohighlight">
+\[\mathord{ \buildrel{ \lower3pt \hbox{$ \scriptscriptstyle \rightharpoonup$}} \over F}  =
+m \mathord{ \buildrel{ \lower3pt \hbox{$ \scriptscriptstyle \rightharpoonup$}}  \over a}  =
+m \frac{{{d^2} \mathord{ \buildrel{ \lower3pt \hbox{$ \scriptscriptstyle \rightharpoonup$}} \over r} }}{{d{t^2}}}\]</div>
+<p>Input:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="n">E_p</span><span class="p">}</span> <span class="o">=</span> <span class="o">-</span>\<span class="n">frac</span><span class="p">{{</span><span class="n">GMm</span><span class="p">}}{</span><span class="n">r</span><span class="p">}</span>
+</pre></div>
+</div>
+<p>Output:</p>
+<div class="math notranslate nohighlight">
+\[{E_p} = -\frac{{GMm}}{r}\]</div>
+<p>Input:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>\oint_L { \mathord{ \buildrel{ \lower3pt \hbox{$ \scriptscriptstyle \rightharpoonup$}} \over E} }
+\cdot { \rm{d}} \mathord{ \buildrel{ \lower3pt \hbox{$ \scriptscriptstyle \rightharpoonup$}}  \over l}  = 0
+</pre></div>
+</div>
+<p>Output:</p>
+<div class="math notranslate nohighlight">
+\[\oint_L { \mathord{ \buildrel{ \lower3pt \hbox{$ \scriptscriptstyle \rightharpoonup$}} \over E} }
+\cdot { \rm{d}} \mathord{ \buildrel{ \lower3pt \hbox{$ \scriptscriptstyle \rightharpoonup$}}  \over l}  = 0\]</div>
+<p>Input:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">d</span> \<span class="n">vec</span><span class="p">{</span><span class="n">F</span><span class="p">}</span><span class="o">=</span> <span class="n">Id</span> \<span class="n">vec</span><span class="p">{</span><span class="n">l</span><span class="p">}</span> \<span class="n">times</span> \<span class="n">vec</span><span class="p">{</span><span class="n">B</span><span class="p">}</span>
+</pre></div>
+</div>
+<p>Output:</p>
+<div class="math notranslate nohighlight">
+\[d \vec{F}= Id \vec{l} \times \vec{B}\]</div>
+<p>Input:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>\mathop \Phi \nolimits_e =
+\oint { \mathord{ \buildrel{ \lower3pt \hbox{$ \scriptscriptstyle \rightharpoonup$}} \over E} \cdot {d \mathord{ \buildrel{ \lower3pt \hbox{$ \scriptscriptstyle \rightharpoonup$}} \over S}}  =
+{1 \over {{\varepsilon _0}}}\sum {q} }
+</pre></div>
+</div>
+<p>Output:</p>
+<div class="math notranslate nohighlight">
+\[\mathop \Phi \nolimits_e =
+\oint { \mathord{ \buildrel{ \lower3pt \hbox{$ \scriptscriptstyle \rightharpoonup$}} \over E} \cdot {d \mathord{ \buildrel{ \lower3pt \hbox{$ \scriptscriptstyle \rightharpoonup$}} \over S}}  =
+{1 \over {{\varepsilon _0}}}\sum {q} }\]</div>
+<p>Input:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>\oint { \mathord{ \buildrel{ \lower3pt \hbox{$ \scriptscriptstyle \rightharpoonup$}} \over B}
+\cdot {d \mathord{ \buildrel{ \lower3pt \hbox{$ \scriptscriptstyle \rightharpoonup$}} \over l}}  =
+{ \mu _0}} I + { \mu _0}{I_d}
+</pre></div>
+</div>
+<p>Output:</p>
+<div class="math notranslate nohighlight">
+\[\oint { \mathord{ \buildrel{ \lower3pt \hbox{$ \scriptscriptstyle \rightharpoonup$}} \over B}
+\cdot {d \mathord{ \buildrel{ \lower3pt \hbox{$ \scriptscriptstyle \rightharpoonup$}} \over l}}  =
+{ \mu _0}} I + { \mu _0}{I_d}\]</div>
+<p>Input:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">F</span> <span class="o">=</span> <span class="n">G</span><span class="p">{{</span><span class="n">Mm</span><span class="p">}</span> \<span class="n">over</span> <span class="p">{{</span><span class="n">r</span><span class="o">^</span><span class="mi">2</span><span class="p">}}}</span>
+</pre></div>
+</div>
+<p>Output:</p>
+<div class="math notranslate nohighlight">
+\[F = G{{Mm} \over {{r^2}}}\]</div>
+<p>Input:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>\<span class="k">lambda</span> <span class="o">=</span> \<span class="n">frac</span><span class="p">{{</span> \<span class="n">frac</span><span class="p">{{{</span><span class="n">c</span><span class="o">^</span><span class="mi">2</span><span class="p">}}}{</span><span class="n">v</span><span class="p">}}}{{</span> \<span class="n">frac</span><span class="p">{{</span><span class="n">m</span><span class="p">{</span><span class="n">c</span><span class="o">^</span><span class="mi">2</span><span class="p">}}}{</span><span class="n">h</span><span class="p">}}}</span> <span class="o">=</span> \<span class="n">frac</span><span class="p">{</span><span class="n">h</span><span class="p">}{{</span><span class="n">mv</span><span class="p">}}</span> <span class="o">=</span> \<span class="n">frac</span><span class="p">{</span><span class="n">h</span><span class="p">}{</span><span class="n">p</span><span class="p">}</span>
+</pre></div>
+</div>
+<p>Output:</p>
+<div class="math notranslate nohighlight">
+\[\lambda = \frac{{ \frac{{{c^2}}}{v}}}{{ \frac{{m{c^2}}}{h}}} = \frac{h}{{mv}} = \frac{h}{p}\]</div>
+<p>Input:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">l</span> <span class="o">=</span> <span class="p">{</span><span class="n">l_0</span><span class="p">}</span> \<span class="n">sqrt</span> <span class="p">{</span><span class="mi">1</span> <span class="o">-</span> <span class="p">{{(</span> \<span class="n">frac</span><span class="p">{</span><span class="n">v</span><span class="p">}{</span><span class="n">c</span><span class="p">})}</span><span class="o">^</span><span class="mi">2</span><span class="p">}}</span>
+</pre></div>
+</div>
+<p>Output:</p>
+<div class="math notranslate nohighlight">
+\[l = {l_0} \sqrt {1 - {{( \frac{v}{c})}^2}}\]</div>
+<p>Input:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">y</span><span class="p">(</span><span class="n">t</span><span class="p">)</span> <span class="o">=</span> <span class="n">A</span> \<span class="n">cos</span> <span class="p">(</span> \<span class="n">frac</span><span class="p">{{</span><span class="mi">2</span> \<span class="n">pi</span> <span class="p">{</span><span class="n">x</span><span class="p">}}}{</span> \<span class="k">lambda</span> <span class="p">}</span> <span class="o">+</span>  \<span class="n">varphi</span> <span class="p">)</span>
+</pre></div>
+</div>
+<p>Output:</p>
+<div class="math notranslate nohighlight">
+\[y(t) = A \cos ( \frac{{2 \pi {x}}}{ \lambda } +  \varphi )\]</div>
+<p>Input:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>\<span class="n">begin</span><span class="p">{</span><span class="n">array</span><span class="p">}{</span><span class="n">l</span><span class="p">}</span>
+  \<span class="n">nabla</span> \<span class="n">cdot</span> \<span class="n">mathbf</span><span class="p">{</span><span class="n">E</span><span class="p">}</span> <span class="o">=</span>\<span class="n">cfrac</span><span class="p">{</span>\<span class="n">rho</span><span class="p">}{</span>\<span class="n">varepsilon</span> <span class="n">_0</span><span class="p">}</span>  \\
+  \<span class="n">nabla</span> \<span class="n">cdot</span> \<span class="n">mathbf</span><span class="p">{</span><span class="n">B</span><span class="p">}</span> <span class="o">=</span> <span class="mi">0</span> \\
+  \<span class="n">nabla</span> \<span class="n">times</span>  \<span class="n">mathbf</span><span class="p">{</span><span class="n">E</span><span class="p">}</span> <span class="o">=</span> <span class="o">-</span>\<span class="n">cfrac</span><span class="p">{</span>\<span class="n">partial</span> \<span class="n">mathbf</span><span class="p">{</span><span class="n">B</span><span class="p">}}{</span>\<span class="n">partial</span> <span class="n">t</span> <span class="p">}</span>  \\
+  \<span class="n">nabla</span> \<span class="n">times</span>  \<span class="n">mathbf</span><span class="p">{</span><span class="n">B</span><span class="p">}</span> <span class="o">=</span> \<span class="n">mu</span> <span class="n">_0</span>\<span class="n">mathbf</span><span class="p">{</span><span class="n">J</span><span class="p">}</span> <span class="o">+</span> \<span class="n">mu</span> <span class="n">_0</span>\<span class="n">varepsilon_0</span> \<span class="n">cfrac</span><span class="p">{</span>\<span class="n">partial</span> \<span class="n">mathbf</span><span class="p">{</span><span class="n">E</span><span class="p">}}{</span>\<span class="n">partial</span> <span class="n">t</span> <span class="p">}</span>
+\<span class="n">end</span><span class="p">{</span><span class="n">array</span><span class="p">}</span>
+</pre></div>
+</div>
+<p>Output:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+  \nabla \cdot \mathbf{E} =\cfrac{\rho}{\varepsilon _0}  \\
+  \nabla \cdot \mathbf{B} = 0 \\
+  \nabla \times  \mathbf{E} = -\cfrac{\partial \mathbf{B}}{\partial t }  \\
+  \nabla \times  \mathbf{B} = \mu _0\mathbf{J} + \mu _0\varepsilon_0 \cfrac{\partial \mathbf{E}}{\partial t }
+\end{array}\end{split}\]</div>
+<p>Input:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">%</span><span class="n">Unicode</span> <span class="n">extension</span> <span class="n">support</span> <span class="n">needs</span> <span class="n">to</span> <span class="n">be</span> <span class="n">enabled</span> <span class="ow">in</span> <span class="n">settings</span> <span class="k">for</span> <span class="n">this</span> <span class="n">formula</span><span class="o">.</span>
+\<span class="n">begin</span><span class="p">{</span><span class="n">array</span><span class="p">}{</span><span class="n">l</span><span class="p">}</span>
+  <span class="p">{</span>\<span class="n">huge</span> \<span class="n">unicode</span><span class="p">{</span><span class="mi">8751</span><span class="p">}}</span><span class="n">_</span>\<span class="n">mathbb</span><span class="p">{</span><span class="n">S</span><span class="p">}</span>  \<span class="n">mathbf</span><span class="p">{</span><span class="n">E</span><span class="p">}</span> \<span class="n">cdot</span>\<span class="n">mathrm</span><span class="p">{</span><span class="n">d</span><span class="p">}</span><span class="n">s</span><span class="o">=</span> \<span class="n">cfrac</span><span class="p">{</span><span class="n">Q</span><span class="p">}{</span>\<span class="n">varepsilon_0</span><span class="p">}</span>  \\
+  <span class="p">{</span>\<span class="n">huge</span> \<span class="n">unicode</span><span class="p">{</span><span class="mi">8751</span><span class="p">}}</span><span class="n">_</span>\<span class="n">mathbb</span><span class="p">{</span><span class="n">S</span><span class="p">}</span>  \<span class="n">mathbf</span><span class="p">{</span><span class="n">B</span><span class="p">}</span> \<span class="n">cdot</span>\<span class="n">mathrm</span><span class="p">{</span><span class="n">d</span><span class="p">}</span><span class="n">s</span><span class="o">=</span> <span class="mi">0</span> \\
+  <span class="p">{</span>\<span class="n">huge</span> \<span class="n">oint</span><span class="p">}</span><span class="n">_</span><span class="p">{</span>\<span class="n">mathbb</span><span class="p">{</span><span class="n">L</span><span class="p">}}</span><span class="o">^</span><span class="p">{}</span> \<span class="n">mathbf</span><span class="p">{</span><span class="n">E</span><span class="p">}</span> \<span class="n">cdot</span> \<span class="n">mathrm</span><span class="p">{</span><span class="n">d</span><span class="p">}</span><span class="n">l</span><span class="o">=-</span>\<span class="n">cfrac</span><span class="p">{</span>\<span class="n">mathrm</span><span class="p">{</span><span class="n">d</span><span class="p">}</span>\<span class="n">Phi</span> <span class="n">_</span><span class="p">{</span>\<span class="n">mathbf</span><span class="p">{</span><span class="n">B</span><span class="p">}}}{</span>\<span class="n">mathrm</span><span class="p">{</span><span class="n">d</span><span class="p">}</span><span class="n">t</span> <span class="p">}</span>  \\
+  <span class="p">{</span>\<span class="n">huge</span> \<span class="n">oint</span><span class="p">}</span><span class="n">_</span><span class="p">{</span>\<span class="n">mathbb</span><span class="p">{</span><span class="n">L</span><span class="p">}}</span><span class="o">^</span><span class="p">{}</span> \<span class="n">mathbf</span><span class="p">{</span><span class="n">B</span><span class="p">}</span> \<span class="n">cdot</span> \<span class="n">mathrm</span><span class="p">{</span><span class="n">d</span><span class="p">}</span><span class="n">l</span><span class="o">=</span>\<span class="n">mu_0I</span><span class="o">+</span> \<span class="n">mu_0</span> \<span class="n">varepsilon_0</span>\<span class="n">cfrac</span><span class="p">{</span>\<span class="n">mathrm</span><span class="p">{</span><span class="n">d</span><span class="p">}</span>\<span class="n">Phi</span> <span class="n">_</span><span class="p">{</span>\<span class="n">mathbf</span><span class="p">{</span><span class="n">E</span><span class="p">}}}{</span>\<span class="n">mathrm</span><span class="p">{</span><span class="n">d</span><span class="p">}</span><span class="n">t</span> <span class="p">}</span>
+\<span class="n">end</span><span class="p">{</span><span class="n">array</span><span class="p">}</span>
+</pre></div>
+</div>
+<p>Output:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}%Unicode extension support needs to be enabled in settings for this formula.
+\begin{array}{l}
+  {\huge \unicode{8751}}_\mathbb{S}  \mathbf{E} \cdot\mathrm{d}s= \cfrac{Q}{\varepsilon_0}  \\
+  {\huge \unicode{8751}}_\mathbb{S}  \mathbf{B} \cdot\mathrm{d}s= 0 \\
+  {\huge \oint}_{\mathbb{L}}^{} \mathbf{E} \cdot \mathrm{d}l=-\cfrac{\mathrm{d}\Phi _{\mathbf{B}}}{\mathrm{d}t }  \\
+  {\huge \oint}_{\mathbb{L}}^{} \mathbf{B} \cdot \mathrm{d}l=\mu_0I+ \mu_0 \varepsilon_0\cfrac{\mathrm{d}\Phi _{\mathbf{E}}}{\mathrm{d}t }
+\end{array}\end{split}\]</div>
+<p>Input:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>\<span class="n">begin</span><span class="p">{</span><span class="n">array</span><span class="p">}{</span><span class="n">l</span><span class="p">}</span>
+  \<span class="n">nabla</span> \<span class="n">cdot</span> \<span class="n">mathbf</span><span class="p">{</span><span class="n">D</span><span class="p">}</span> <span class="o">=</span>\<span class="n">rho</span> <span class="n">_f</span> \\
+  \<span class="n">nabla</span> \<span class="n">cdot</span> \<span class="n">mathbf</span><span class="p">{</span><span class="n">B</span><span class="p">}</span> <span class="o">=</span> <span class="mi">0</span> \\
+  \<span class="n">nabla</span> \<span class="n">times</span>  \<span class="n">mathbf</span><span class="p">{</span><span class="n">E</span><span class="p">}</span> <span class="o">=</span> <span class="o">-</span>\<span class="n">cfrac</span><span class="p">{</span>\<span class="n">partial</span> \<span class="n">mathbf</span><span class="p">{</span><span class="n">B</span><span class="p">}}{</span>\<span class="n">partial</span> <span class="n">t</span> <span class="p">}</span>  \\
+  \<span class="n">nabla</span> \<span class="n">times</span>  \<span class="n">mathbf</span><span class="p">{</span><span class="n">H</span><span class="p">}</span> <span class="o">=</span> \<span class="n">mathbf</span><span class="p">{</span><span class="n">J</span><span class="p">}</span><span class="n">_f</span> <span class="o">+</span>  \<span class="n">cfrac</span><span class="p">{</span>\<span class="n">partial</span> \<span class="n">mathbf</span><span class="p">{</span><span class="n">D</span><span class="p">}}{</span>\<span class="n">partial</span> <span class="n">t</span> <span class="p">}</span>
+\<span class="n">end</span><span class="p">{</span><span class="n">array</span><span class="p">}</span>
+</pre></div>
+</div>
+<p>Output:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+  \nabla \cdot \mathbf{D} =\rho _f \\
+  \nabla \cdot \mathbf{B} = 0 \\
+  \nabla \times  \mathbf{E} = -\cfrac{\partial \mathbf{B}}{\partial t }  \\
+  \nabla \times  \mathbf{H} = \mathbf{J}_f +  \cfrac{\partial \mathbf{D}}{\partial t }
+\end{array}\end{split}\]</div>
+<p>Input:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">%</span><span class="n">Unicode</span> <span class="n">extension</span> <span class="n">support</span> <span class="n">needs</span> <span class="n">to</span> <span class="n">be</span> <span class="n">enabled</span> <span class="ow">in</span> <span class="n">settings</span> <span class="k">for</span> <span class="n">this</span> <span class="n">formula</span><span class="o">.</span>
+\<span class="n">begin</span><span class="p">{</span><span class="n">array</span><span class="p">}{</span><span class="n">l</span><span class="p">}</span>
+  <span class="p">{</span>\<span class="n">huge</span> \<span class="n">unicode</span><span class="p">{</span><span class="mi">8751</span><span class="p">}}</span><span class="n">_</span>\<span class="n">mathbb</span><span class="p">{</span><span class="n">S</span><span class="p">}</span>  \<span class="n">mathbf</span><span class="p">{</span><span class="n">D</span><span class="p">}</span> \<span class="n">cdot</span>\<span class="n">mathrm</span><span class="p">{</span><span class="n">d</span><span class="p">}</span><span class="n">s</span><span class="o">=</span> <span class="n">Q_f</span> \\
+  <span class="p">{</span>\<span class="n">huge</span> \<span class="n">unicode</span><span class="p">{</span><span class="mi">8751</span><span class="p">}}</span><span class="n">_</span>\<span class="n">mathbb</span><span class="p">{</span><span class="n">S</span><span class="p">}</span>  \<span class="n">mathbf</span><span class="p">{</span><span class="n">B</span><span class="p">}</span> \<span class="n">cdot</span>\<span class="n">mathrm</span><span class="p">{</span><span class="n">d</span><span class="p">}</span><span class="n">s</span><span class="o">=</span> <span class="mi">0</span> \\
+  <span class="p">{</span>\<span class="n">huge</span> \<span class="n">oint</span><span class="p">}</span><span class="n">_</span><span class="p">{</span>\<span class="n">mathbb</span><span class="p">{</span><span class="n">L</span><span class="p">}}</span><span class="o">^</span><span class="p">{}</span> \<span class="n">mathbf</span><span class="p">{</span><span class="n">E</span><span class="p">}</span> \<span class="n">cdot</span> \<span class="n">mathrm</span><span class="p">{</span><span class="n">d</span><span class="p">}</span><span class="n">l</span><span class="o">=-</span>\<span class="n">cfrac</span><span class="p">{</span>\<span class="n">mathrm</span><span class="p">{</span><span class="n">d</span><span class="p">}</span>\<span class="n">Phi</span> <span class="n">_</span><span class="p">{</span>\<span class="n">mathbf</span><span class="p">{</span><span class="n">B</span><span class="p">}}}{</span>\<span class="n">mathrm</span><span class="p">{</span><span class="n">d</span><span class="p">}</span><span class="n">t</span> <span class="p">}</span>  \\
+  <span class="p">{</span>\<span class="n">huge</span> \<span class="n">oint</span><span class="p">}</span><span class="n">_</span><span class="p">{</span>\<span class="n">mathbb</span><span class="p">{</span><span class="n">L</span><span class="p">}}</span><span class="o">^</span><span class="p">{}</span> \<span class="n">mathbf</span><span class="p">{</span><span class="n">H</span><span class="p">}</span> \<span class="n">cdot</span> \<span class="n">mathrm</span><span class="p">{</span><span class="n">d</span><span class="p">}</span><span class="n">l</span><span class="o">=</span><span class="n">I_f</span><span class="o">+</span>\<span class="n">cfrac</span><span class="p">{</span>\<span class="n">mathrm</span><span class="p">{</span><span class="n">d</span><span class="p">}</span>\<span class="n">Phi</span> <span class="n">_</span><span class="p">{</span>\<span class="n">mathbf</span><span class="p">{</span><span class="n">D</span><span class="p">}}}{</span>\<span class="n">mathrm</span><span class="p">{</span><span class="n">d</span><span class="p">}</span><span class="n">t</span> <span class="p">}</span>
+\<span class="n">end</span><span class="p">{</span><span class="n">array</span><span class="p">}</span>
+</pre></div>
+</div>
+<p>Output:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}%Unicode extension support needs to be enabled in settings for this formula.
+\begin{array}{l}
+  {\huge \unicode{8751}}_\mathbb{S}  \mathbf{D} \cdot\mathrm{d}s= Q_f \\
+  {\huge \unicode{8751}}_\mathbb{S}  \mathbf{B} \cdot\mathrm{d}s= 0 \\
+  {\huge \oint}_{\mathbb{L}}^{} \mathbf{E} \cdot \mathrm{d}l=-\cfrac{\mathrm{d}\Phi _{\mathbf{B}}}{\mathrm{d}t }  \\
+  {\huge \oint}_{\mathbb{L}}^{} \mathbf{H} \cdot \mathrm{d}l=I_f+\cfrac{\mathrm{d}\Phi _{\mathbf{D}}}{\mathrm{d}t }
+\end{array}\end{split}\]</div>
+</section>
+<section id="chemical">
+<h3>Chemical<a class="headerlink" href="#chemical" title="Link to this heading"></a></h3>
+<p>Input:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>%This formula requires enabling the mhchem extension support in the 【Settings】.
+\ce{SO4^2- + Ba^2+ -&gt; BaSO4 v}
+</pre></div>
+</div>
+<p>Output:</p>
+<div class="math notranslate nohighlight">
+\[%This formula requires enabling the mhchem extension support in the 【Settings】.
+\ce{SO4^2- + Ba^2+ -&gt; BaSO4 v}\]</div>
+<p>Input:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>\<span class="n">ce</span><span class="p">{</span><span class="n">A</span> <span class="n">v</span> <span class="n">B</span> <span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">B</span> <span class="o">^</span> <span class="n">B</span> <span class="p">(</span><span class="o">^</span><span class="p">)}</span>
+</pre></div>
+</div>
+<p>Output:</p>
+<div class="math notranslate nohighlight">
+\[\ce{A v B (v) -&gt; B ^ B (^)}\]</div>
+<p>Input:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>\ce{Hg^2+ -&gt;[I-]  $\underset{\mathrm{red}}{\ce{HgI2}}$  -&gt;[I-]  $\underset{\mathrm{red}}{\ce{[Hg^{II}I4]^2-}}$}
+</pre></div>
+</div>
+<p>Output:</p>
+<div class="math notranslate nohighlight">
+\[\ce{Hg^2+ -&gt;[I-]  $\underset{\mathrm{red}}{\ce{HgI2}}$  -&gt;[I-]  $\underset{\mathrm{red}}{\ce{[Hg^{II}I4]^2-}}$}\]</div>
+<p>Input:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>\ce{Zn^2+  &lt;=&gt;[+ 2OH-][+ 2H+]  $\underset{\text{amphoteres Hydroxid}}{\ce{Zn(OH)2 v}}$
+&lt;=&gt;[+ 2OH-][+ 2H+]  $\underset{\text{Hydroxozikat}}{\ce{[Zn(OH)4]^2-}}$}
+</pre></div>
+</div>
+<p>Output:</p>
+<div class="math notranslate nohighlight">
+\[\ce{Zn^2+  &lt;=&gt;[+ 2OH-][+ 2H+]  $\underset{\text{amphoteres Hydroxid}}{\ce{Zn(OH)2 v}}$
+&lt;=&gt;[+ 2OH-][+ 2H+]  $\underset{\text{Hydroxozikat}}{\ce{[Zn(OH)4]^2-}}$}\]</div>
+</section>
+</section>
+<section id="big">
+<h2>Big<a class="headerlink" href="#big" title="Link to this heading"></a></h2>
+<p>Input:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">(</span> \<span class="n">big</span><span class="p">(</span> \<span class="n">Big</span><span class="p">(</span> \<span class="n">bigg</span><span class="p">(</span> \<span class="n">Bigg</span><span class="p">(</span>
+</pre></div>
+</div>
+<p>Output:</p>
+<div class="math notranslate nohighlight">
+\[( \big( \Big( \bigg( \Bigg(\]</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="jupyter.html" class="btn btn-neutral float-left" title="Jupyter Notebook" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="makefile.html" class="btn btn-neutral float-right" title="Makefile" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2017~2024, eric.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,1475 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vector &amp; Tensor &mdash; Scientific Computing 1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../_static/documentation_options.js?v=f2a433a1"></script>
+        <script src="../_static/doctools.js?v=888ff710"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Matrix" href="matrix.html" />
+    <link rel="prev" title="Generalized Curvilinear Coordinate System(3D)" href="curvilinear3d.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Scientific Computing
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Get started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../info.html">OneFLOW</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../user.html">THEORY</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../bash.html">Bash</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">CFD</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="ns.html">Navier–Stokes equations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="leibniz.html">Leibniz integral</a></li>
+<li class="toctree-l2"><a class="reference internal" href="rtt.html">Reynolds’ transport theorem</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mass.html">Conservation Of Mass</a></li>
+<li class="toctree-l2"><a class="reference internal" href="momenum.html">Momentum Analysis Of Flow Systems</a></li>
+<li class="toctree-l2"><a class="reference internal" href="energy.html">Conservation Of Energy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ns-integral.html">ALE Form of Conservation Equations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="curvilinear.html">Generalized Curvilinear Coordinate System</a></li>
+<li class="toctree-l2"><a class="reference internal" href="curvilinear3d.html">Generalized Curvilinear Coordinate System(3D)</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Vector &amp; Tensor</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#vectors-and-vector-operations">Vectors and Vector Operations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#the-cross-product-of-two-vectors">The Cross Product of Two Vectors</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#gradient">Gradient</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#divergence">Divergence</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#gradient-of-a-scalar-and-directional-derivatives">Gradient of a Scalar and Directional Derivatives</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#operations-on-the-nabla-operator">Operations on the Nabla Operator</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#additional-vector-operations">Additional Vector Operations</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#the-dyad-the-tensor-product">The Dyad (the tensor product)</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#tensors-and-tensor-operation">Tensors and Tensor Operation</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#second-order-tensors">Second Order Tensors</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#second-order-tensor-as-a-dyadic">Second Order Tensor as a Dyadic</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tensor-product-of-matrices">Tensor Product of Matrices</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#dyadic-product">Dyadic Product</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#the-gradient-of-a-vector-functions">The Gradient of a Vector Functions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#divergence-of-tensor-functions">Divergence of Tensor Functions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#double-contraction">Double Contraction</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#hadamard-product">Hadamard product</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#double-dot-product-of-2-matrices">Double-Dot Product of 2 Matrices</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#trace-linear-algebra">Trace (linear algebra)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#the-divergence-theorem">The Divergence Theorem</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="matrix.html">Matrix</a></li>
+<li class="toctree-l2"><a class="reference internal" href="calculus.html">Calculus</a></li>
+<li class="toctree-l2"><a class="reference internal" href="substitution.html">Substitution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="jacobian.html">Jacobian matrix</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gauss.html">Gauss’s Theorem</a></li>
+<li class="toctree-l2"><a class="reference internal" href="strain.html">Strain Measures</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ale.html">Arbitrary Lagrangian-Eulerian</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ale1d.html">ALE 1D</a></li>
+<li class="toctree-l2"><a class="reference internal" href="deformation.html">Deformation and Motion</a></li>
+<li class="toctree-l2"><a class="reference internal" href="derivative.html">Fluid Derivative</a></li>
+<li class="toctree-l2"><a class="reference internal" href="material_derivative.html">Material Time Derivative</a></li>
+<li class="toctree-l2"><a class="reference internal" href="scheme/index.html">CFD Schemes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="examples/index.html">CFD Examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="method/index.html">CFD Methods</a></li>
+<li class="toctree-l2"><a class="reference internal" href="codes.html">Reference Codes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="videos.html">CFD &amp; CAE Videos</a></li>
+<li class="toctree-l2"><a class="reference internal" href="books.html">Books</a></li>
+<li class="toctree-l2"><a class="reference internal" href="docs.html">Documents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../cgns.html">CGNS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../chatgpt.html">CHATGPT</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cpp/index.html">CPP</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cmake.html">CMake</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cmd.html">Cmd</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cuda.html">CUDA</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../design_patterns.html">Design Patterns</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../eigen.html">Eigen3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../git.html">Git</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../git.html#contexts">Contexts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fortran.html">Fortran</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../hdf5.html">HDF5</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../hpc.html">HPC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../install/index.html">Install</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../julia.html">Julia</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../jupyter.html">Jupyter Notebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../latex.html">LaTeX</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../makefile.html">Makefile</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../metis.html">METIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../mkdocs.html">MkDocs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../modules.html">Environment Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../mpi.html">MPI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../numerical/index.html">Numerical analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../oneapi.html">oneAPI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../oneflow.html">OneFLOW-CFD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../openacc.html">OpenACC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../opencl.html">OpenCL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../opengl.html">OpenGL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../openmp.html">OpenMP</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../powershell.html">PowerShell</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../python/index.html">Python</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../qt.html">Qt</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../regex.html">Regular Expressions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../science.html">Science</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sphinx.html">Sphinx</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../system/index.html">System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../taichi.html">Taichi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tcltk.html">Tcl/tk</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tecplot.html">Tecplot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../test.html">Test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../unreal_engine.html">Unreal Engine</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../vcpkg.html">vcpkg</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../yaml.html">yaml</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Scientific Computing</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">CFD</a></li>
+      <li class="breadcrumb-item active">Vector &amp; Tensor</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/cfd/vector.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="vector-tensor">
+<h1>Vector &amp; Tensor<a class="headerlink" href="#vector-tensor" title="Link to this heading"></a></h1>
+<section id="vectors-and-vector-operations">
+<h2>Vectors and Vector Operations<a class="headerlink" href="#vectors-and-vector-operations" title="Link to this heading"></a></h2>
+<div class="math notranslate nohighlight">
+\[\mathbf{a}=a_{x}\mathbf{i}+a_{y}\mathbf{j}+a_{z}\mathbf{k}\]</div>
+<div class="math notranslate nohighlight">
+\[\begin{split}\mathbf{a}=\begin{bmatrix}
+ a_{x} \\
+ a_{y}\\
+ a_{z}
+\end{bmatrix}\end{split}\]</div>
+<div class="math notranslate nohighlight">
+\[\mathbf{a}^{T}=\begin{bmatrix}
+ a_{x} &amp;
+ a_{y} &amp;
+ a_{z}
+\end{bmatrix}\]</div>
+<div class="math notranslate nohighlight">
+\[\mathbf{v}=u\mathbf{i}+v\mathbf{j}+w\mathbf{k}\]</div>
+<div class="math notranslate nohighlight">
+\[\begin{split}\mathbf{v}=\begin{bmatrix}
+ u \\
+ v\\
+ w
+\end{bmatrix}\end{split}\]</div>
+<div class="math notranslate nohighlight">
+\[\mathbf{v}^{T}=\begin{bmatrix}
+ u &amp;
+ v &amp;
+ w
+\end{bmatrix}\]</div>
+</section>
+<section id="the-cross-product-of-two-vectors">
+<h2>The Cross Product of Two Vectors<a class="headerlink" href="#the-cross-product-of-two-vectors" title="Link to this heading"></a></h2>
+<p>It is then clear that the cross product of two collinear vectors is zero as they
+define no area, and that the cross product of two orthogonal unit vectors is a unit
+vector perpendicular to the two unit vectors. Adopting the right hand rule to define
+the direction of the resulting vector, the following cross product operations hold:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+  \mathbf{i}\times \mathbf{i}&amp;=\mathbf{j}\times \mathbf{j}=\mathbf{k}\times \mathbf{k}=0 \\
+  \mathbf{i}\times \mathbf{j}&amp;=\mathbf{k}=-\mathbf{j}\times \mathbf{i}\\
+  \mathbf{j}\times \mathbf{k}&amp;=\mathbf{i}=-\mathbf{k}\times \mathbf{j} \\
+  \mathbf{k}\times \mathbf{i}&amp;=\mathbf{j}=-\mathbf{i}\times \mathbf{k} \\
+\end{align}\end{split}\]</div>
+<p>Using the above relations, the cross product of two vectors in terms of their
+Cartesian components is given by</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+\mathbf{a}\times \mathbf{b}&amp;=(a_{x}\mathbf{i}+a_{y}\mathbf{j}+a_{z}\mathbf{k}) \times (b_{x}\mathbf{i}+b_{y}\mathbf{j}+b_{z}\mathbf{k})\\
+&amp;=(a_{x}b_{x}\mathbf{i}\times\mathbf{i}+a_{x}b_{y}\mathbf{i}\times\mathbf{j}+a_{x}b_{z}\mathbf{i}\times\mathbf{k})\\
+&amp;+(a_{y}b_{x}\mathbf{j}\times\mathbf{i}+a_{y}b_{y}\mathbf{j}\times\mathbf{j}+a_{y}b_{z}\mathbf{j}\times\mathbf{k})\\
+&amp;+(a_{z}b_{x}\mathbf{k}\times\mathbf{i}+a_{z}b_{y}\mathbf{k}\times\mathbf{j}+a_{z}b_{z}\mathbf{k}\times\mathbf{k})\\
+&amp;=(a_{x}b_{x}0+a_{x}b_{y}\mathbf{k}+a_{x}b_{z}\mathbf{(-j)})\\
+&amp;+(a_{y}b_{x}\mathbf{(-k)}+a_{y}b_{y}0+a_{y}b_{z}\mathbf{i}\\
+&amp;+(a_{z}b_{x}\mathbf{j}+a_{z}b_{y}\mathbf{(-i)}+a_{z}b_{z}0)\\
+&amp;=(a_{y}b_{z}-a_{z}b_{y})\mathbf{i}
++(a_{z}b_{x}-a_{x}b_{z})\mathbf{j}
++(a_{x}b_{y}-a_{y}b_{x})\mathbf{k}
+\end{align}\end{split}\]</div>
+<p>which can be written using determinant notation as</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+\mathbf{a}\times \mathbf{b}&amp;=
+    \begin{vmatrix}
+      \mathbf{i}&amp; \mathbf{j} &amp; \mathbf{k}\\
+      a_{x} &amp;  a_{y}&amp;a_{z}\\
+      b_{x} &amp;  b_{y}&amp;b_{z}
+    \end{vmatrix} \\
+    &amp;=(a_{y}b_{z}-a_{z}b_{y})\mathbf{i}
+     +(a_{z}b_{x}-a_{x}b_{z})\mathbf{j}
+     +(a_{x}b_{y}-a_{y}b_{x})\mathbf{k}
+\end{align}\end{split}\]</div>
+</section>
+<section id="gradient">
+<h2>Gradient<a class="headerlink" href="#gradient" title="Link to this heading"></a></h2>
+<div class="math notranslate nohighlight">
+\[grad\varphi =\frac{\partial \varphi}{\partial x}\mathbf{i}+\frac{\partial \varphi}{\partial y}\mathbf{j}+\frac{\partial \varphi}{\partial z}\mathbf{k}\]</div>
+</section>
+<section id="divergence">
+<h2>Divergence<a class="headerlink" href="#divergence" title="Link to this heading"></a></h2>
+<div class="math notranslate nohighlight">
+\[div \mathbf{a} =\frac{\partial a_{x} }{\partial x}+\frac{\partial a_{y}}{\partial y}+\frac{\partial a_{z}}{\partial z}\]</div>
+</section>
+<section id="gradient-of-a-scalar-and-directional-derivatives">
+<h2>Gradient of a Scalar and Directional Derivatives<a class="headerlink" href="#gradient-of-a-scalar-and-directional-derivatives" title="Link to this heading"></a></h2>
+<p>An important vector operator, which arises frequently in fluid dynamics, is the “del”
+(or “nabla”) operator defined as</p>
+<div class="math notranslate nohighlight">
+\[\nabla=\frac{\partial}{\partial x} \mathbf{i}+\frac{\partial}{\partial y} \mathbf{j}+\frac{\partial}{\partial z} \mathbf{k}\]</div>
+<p>When the “del” operator is applied on a scalar variable s it results in the gradient of <span class="math notranslate nohighlight">\(\varphi\)</span> given by</p>
+<div class="math notranslate nohighlight">
+\[\nabla\varphi=\frac{\partial\varphi}{\partial x} \mathbf{i}+\frac{\partial\varphi}{\partial y} \mathbf{j}+\frac{\partial\varphi}{\partial z} \mathbf{k}\]</div>
+</section>
+<section id="operations-on-the-nabla-operator">
+<h2>Operations on the Nabla Operator<a class="headerlink" href="#operations-on-the-nabla-operator" title="Link to this heading"></a></h2>
+<div class="math notranslate nohighlight">
+\[\nabla \cdot \mathbf{v}=\frac{\partial u}{\partial x}+\frac{\partial v}{\partial y}+\frac{\partial w}{\partial z}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\nabla^{2} =\nabla \cdot \nabla=\frac{\partial^{2} }{\partial x^{2}}+\frac{\partial^{2}}{\partial y^{2}}+\frac{\partial^{2}}{\partial z^{2}}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\nabla^{2}\varphi  =\nabla \cdot \nabla{\varphi}=\frac{\partial^{2}{\varphi} }{\partial x^{2}}+\frac{\partial^{2}{\varphi}}{\partial y^{2}}+\frac{\partial^{2}{\varphi}}{\partial z^{2}}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\nabla^{2}\mathbf{v}=\nabla^{2}(u\mathbf{i}+v\mathbf{j}+w\mathbf{k}) =(\nabla^{2}u)\mathbf{i}+(\nabla^{2}v)\mathbf{j}+(\nabla^{2}w)\mathbf{k}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+\nabla\times \mathbf{a}&amp;=(\cfrac{\partial}{\partial x} \mathbf{i}+\cfrac{\partial}{\partial y} \mathbf{j}+\cfrac{\partial}{\partial z} \mathbf{k})
+ \times (a_{x} \mathbf{i}+a_{y}\mathbf{j}+a_{z}\mathbf{k}) \\
+&amp;=\begin{vmatrix}
+  \mathbf{i}&amp; \mathbf{j} &amp; \mathbf{k}\\
+  \cfrac{\partial}{\partial x}&amp; \cfrac{\partial}{\partial y} &amp; \cfrac{\partial}{\partial z}\\
+  a_{x} &amp;  a_{y}&amp;a_{z}
+\end{vmatrix}\\
+&amp;=\left ( \cfrac{\partial a_{z} }{\partial y} -\cfrac{\partial a_{y}}{\partial z}\right ) \mathbf{i}+
+  \left ( \cfrac{\partial a_{x} }{\partial z} -\cfrac{\partial a_{z}}{\partial x}\right ) \mathbf{j}+
+  \left ( \cfrac{\partial a_{y} }{\partial x} -\cfrac{\partial a_{x}}{\partial y}\right ) \mathbf{k}
+\end{align}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+\nabla\times \mathbf{v}&amp;=
+\begin{vmatrix}
+  \mathbf{i}&amp; \mathbf{j} &amp; \mathbf{k}\\
+  \cfrac{\partial}{\partial x}&amp; \cfrac{\partial}{\partial y} &amp; \cfrac{\partial}{\partial z}\\
+  u &amp;  v&amp;w
+\end{vmatrix}\\
+&amp;=\left ( \cfrac{\partial w }{\partial y} -\cfrac{\partial v}{\partial z}\right ) \mathbf{i}+
+  \left ( \cfrac{\partial u }{\partial z} -\cfrac{\partial w}{\partial x}\right ) \mathbf{j}+
+  \left ( \cfrac{\partial v }{\partial x} -\cfrac{\partial u}{\partial y}\right ) \mathbf{k}
+\end{align}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{aligned}
+{[(\mathbf{v} \cdot \nabla) \mathbf{v}] } &amp; =(u \mathbf{i}+v \mathbf{j}+w \mathbf{k}) \cdot\left(\frac{\partial}{\partial x} \mathbf{i}+\frac{\partial}{\partial y} \mathbf{j}+\frac{\partial}{\partial z} \mathbf{k}\right)(u \mathbf{i}+v \mathbf{j}+w \mathbf{k}) \\
+&amp; =\left(u \frac{\partial}{\partial x}+v \frac{\partial}{\partial y}+w \frac{\partial}{\partial z}\right)(u \mathbf{i}+v \mathbf{j}+w \mathbf{k}) \\
+&amp; =\left(u \frac{\partial u}{\partial x}+v \frac{\partial u}{\partial y}+w \frac{\partial u}{\partial z}\right) \mathbf{i} \\
+&amp; +\left(u \frac{\partial v}{\partial x}+v \frac{\partial v}{\partial y}+w \frac{\partial v}{\partial z}\right) \mathbf{j} \\
+&amp; +\left(u \frac{\partial w}{\partial x}+v \frac{\partial w}{\partial y}+w \frac{\partial w}{\partial z}\right) \mathbf{k}
+\end{aligned}\end{split}\]</div>
+</section>
+<section id="additional-vector-operations">
+<h2>Additional Vector Operations<a class="headerlink" href="#additional-vector-operations" title="Link to this heading"></a></h2>
+<div class="math notranslate nohighlight">
+\[\nabla \times ( \mathbf{v_{1}} \times \mathbf{v_{2}}) =(\nabla\cdot\mathbf{v_{2}}+ \mathbf{v_{2}}\cdot\nabla)\mathbf{v_{1}}-(\nabla\cdot\mathbf{v_{1}}+\mathbf{v_{1}}\cdot\nabla)\mathbf{v_{2}}\]</div>
+<div class="math notranslate nohighlight">
+\[\nabla \times ( \mathbf{v} \times \mathbf{F}) =(\nabla\cdot\mathbf{F}+ \mathbf{F}\cdot\nabla)\mathbf{v}-(\nabla\cdot\mathbf{v}+\mathbf{v}\cdot\nabla)\mathbf{F}\]</div>
+<div class="math notranslate nohighlight">
+\[\nabla \cdot(\phi  \mathbf{v})=\phi \nabla \cdot \mathbf{v}+\mathbf{v} \cdot \nabla \phi\]</div>
+<section id="the-dyad-the-tensor-product">
+<h3>The Dyad (the tensor product)<a class="headerlink" href="#the-dyad-the-tensor-product" title="Link to this heading"></a></h3>
+<p>The vector dot product and vector cross product have been considered in previous
+sections. A third vector product, the tensor product (or dyadic product), is important in
+the analysis of tensors of order 2 or more. The tensor product of two vectors u and v is
+written as</p>
+<div class="math notranslate nohighlight">
+\[\mathbf{u} \otimes \mathbf{v}\]</div>
+<p>This tensor product is itself a tensor of order two, and is called dyad:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+ &amp;\mathbf{u} \cdot \mathbf{v}   &amp;\text{ is a scalar}\, \quad  &amp;\text{(a zeroth order tensor)}\\
+ &amp;\mathbf{u} \times \mathbf{v}  &amp;\text{ is a vector} \quad  &amp;\text{(a first order tensor)}\quad\\
+ &amp;\mathbf{u} \otimes \mathbf{v} &amp;\text{ is a dyad }\,\, \quad  &amp;\text{(a second order tensor)}
+\end{align}\end{split}\]</div>
+<p>It is best to define this dyad by what it does: it transforms a vector <span class="math notranslate nohighlight">\(\mathbf{w}\)</span> into another vector
+with the direction of <span class="math notranslate nohighlight">\(\mathbf{u}\)</span> according to the rule</p>
+<div class="math notranslate nohighlight">
+\[(\mathbf{u} \otimes \mathbf{v})\mathbf{w}=\mathbf{u}(\mathbf{v}\cdot\mathbf{w}) \quad \text{The Dyad Transformation}\]</div>
+<p>The following important relations follow from the above definition</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}((\mathbf{u} \otimes \mathbf{v})\mathbf{w})\otimes\mathbf{x}=\mathbf{u}(\mathbf{v}\cdot\mathbf{w})\otimes\mathbf{x}=(\mathbf{v}\cdot\mathbf{w})(\mathbf{u}\otimes\mathbf{x})\\\end{split}\]</div>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+\mathbf{a}=a_{i}\mathbf{e}_{i}=&amp;a_{1}\mathbf{e}_{1}+a_{2}\mathbf{e}_{2}+\cdots +a_{n}\mathbf{e}_{n}\\
+\mathbf{b}=b_{i}\mathbf{e}_{i}=&amp;b_{1}\mathbf{e}_{1}+b_{2}\mathbf{e}_{2}+\cdots +b_{n}\mathbf{e}_{n}\\
+\end{align}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\mathbf{a}\mathbf{b}=\mathbf{a}\otimes \mathbf{b}=a_{i}b_{j}\mathbf{e}_{i}\otimes\mathbf{e}_{j}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\mathbf{a}\mathbf{b}=\mathbf{a}\otimes \mathbf{b}=(\mathbf{a})(\mathbf{b}^{\text{T}})
+=\begin{bmatrix}
+ a_{1}\\
+ a_{2}\\
+ \vdots\\
+ a_{n}\\
+\end{bmatrix}
+\begin{bmatrix}
+ b_{1}&amp;b_{2}&amp;\cdots &amp;b_{n}\\
+\end{bmatrix}
+=\begin{bmatrix}
+ a_{1}b_{1}&amp;a_{1}b_{2}&amp;\cdots &amp;a_{1}b_{n}\\
+ a_{2}b_{1}&amp;a_{2}b_{2}&amp;\cdots &amp;a_{2}b_{n}\\
+ \vdots &amp;\vdots&amp;\ddots &amp;\vdots\\
+ a_{n}b_{1}&amp;a_{n}b_{2}&amp;\cdots &amp;a_{n}b_{n}\\
+\end{bmatrix}\end{split}\]</div>
+<p>The following identities are a direct consequence of the definition of the tensor product:</p>
+<ul class="simple">
+<li><p>Compatible with scalar multiplication:</p></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[(\alpha\mathbf{a})\otimes\mathbf{b}=\mathbf{a}\otimes(\alpha\mathbf{b})=\alpha(\mathbf{a}\otimes\mathbf{b})\]</div>
+<ul class="simple">
+<li><p>Distributive over vector addition:</p></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+\mathbf{a}\otimes(\mathbf{b}+\mathbf{c})=\mathbf{a}\otimes\mathbf{b}+\mathbf{a}\otimes\mathbf{c}\\
+(\mathbf{a}+\mathbf{b})\otimes\mathbf{c}=\mathbf{a}\otimes\mathbf{c}+\mathbf{b}\otimes\mathbf{c}\\
+\end{align}\end{split}\]</div>
+<p>Product of dyadic and vector
+There are four operations defined on a vector and dyadic, constructed from the products defined on vectors.</p>
+<p>Dot product</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+\mathbf{c}\cdot(\mathbf{a}\otimes\mathbf{b})=(\mathbf{c}\cdot\mathbf{a})\mathbf{b}\\
+(\mathbf{a}\otimes\mathbf{b})\cdot\mathbf{c}=\mathbf{a}(\mathbf{b}\cdot\mathbf{c})\\
+\end{align}\end{split}\]</div>
+<p>Cross product</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+\mathbf{c}\times(\mathbf{a}\otimes\mathbf{b})=(\mathbf{c}\times\mathbf{a})\otimes\mathbf{b}\\
+(\mathbf{a}\otimes\mathbf{b})\times\mathbf{c}=\mathbf{a}\otimes(\mathbf{b}\times\mathbf{c})\\
+\end{align}\end{split}\]</div>
+</section>
+</section>
+<section id="tensors-and-tensor-operation">
+<h2>Tensors and Tensor Operation<a class="headerlink" href="#tensors-and-tensor-operation" title="Link to this heading"></a></h2>
+<p>Tensors can be thought of as extensions to the ideas already used when defining
+quantities like scalars and vectors. A scalar is a tensor of rank zero, and a
+vector is a tensor of rank one. Tensors of higher rank (2, 3, etc.) can be developed
+and their main use is to manipulate and transform sets of equations.</p>
+<p>Let <span class="math notranslate nohighlight">\(x\)</span>, <span class="math notranslate nohighlight">\(y\)</span> and <span class="math notranslate nohighlight">\(z\)</span> represent the directions in an orthonormal Cartesian coordinate
+system, then the stress tensor <span class="math notranslate nohighlight">\(\tau\)</span> and its transpose designated with superscript <span class="math notranslate nohighlight">\(T({\tau}^{T})\)</span>
+are represented in terms of their components as</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\tau=\begin{bmatrix}
+\tau_{xx}&amp; \tau_{xy} &amp; \tau_{xz}\\
+\tau_{yx}&amp; \tau_{yy} &amp; \tau_{yz}\\
+\tau_{zx}&amp; \tau_{zy} &amp; \tau_{zz}\\
+\end{bmatrix}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\tau^{T}=\begin{bmatrix}
+\tau_{xx}&amp; \tau_{yx} &amp; \tau_{zx}\\
+\tau_{xy}&amp; \tau_{yy} &amp; \tau_{xy}\\
+\tau_{xz}&amp; \tau_{yz} &amp; \tau_{zz}\\
+\end{bmatrix}\end{split}\]</div>
+<p>Similar to writing a vector in terms of its components, defining the unit vectors <span class="math notranslate nohighlight">\(\mathbf{i}\)</span>, <span class="math notranslate nohighlight">\(\mathbf{j}\)</span>,
+and <span class="math notranslate nohighlight">\(\mathbf{k}\)</span> in the <span class="math notranslate nohighlight">\(x\)</span>, <span class="math notranslate nohighlight">\(y\)</span> and <span class="math notranslate nohighlight">\(z\)</span> direction, respectively, the tensor <span class="math notranslate nohighlight">\(\tau\)</span> given can be
+written in terms of its components as</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+\boldsymbol{\tau}
+&amp; = \mathbf{ii}\tau_{xx}+\mathbf{ij}\tau_{xy}+\mathbf{ik}\tau_{xz}\\
+   &amp; + \mathbf{ji}\tau_{yx}+\mathbf{jj}\tau_{yy}+\mathbf{jk}\tau_{yz}\\
+   &amp; + \mathbf{ki}\tau_{zx}+\mathbf{kj}\tau_{zy}+\mathbf{kk}\tau_{zz}\\
+\end{align}\end{split}\]</div>
+<section id="second-order-tensors">
+<h3>Second Order Tensors<a class="headerlink" href="#second-order-tensors" title="Link to this heading"></a></h3>
+<p>A second-order tensor <span class="math notranslate nohighlight">\(\mathbf{T}\)</span> may be defined as an operator that acts on a vector <span class="math notranslate nohighlight">\(\mathbf{u}\)</span> generating
+another vector <span class="math notranslate nohighlight">\(\mathbf{v}\)</span>, so that <span class="math notranslate nohighlight">\(\mathbf{T}(\mathbf{u})=\mathbf{v}\)</span> or</p>
+<div class="math notranslate nohighlight">
+\[\mathbf{T}(\mathbf{u})  = \mathbf{v} \quad or \quad  \mathbf{T}\cdot {\mathbf{u}} = \mathbf{v} \quad or \quad \mathbf{T}{\mathbf{u}}  = \mathbf{v}\]</div>
+</section>
+<section id="second-order-tensor-as-a-dyadic">
+<h3>Second Order Tensor as a Dyadic<a class="headerlink" href="#second-order-tensor-as-a-dyadic" title="Link to this heading"></a></h3>
+<p>In what follows, it will be shown that a second order tensor can always be written as a
+dyadic involving the Cartesian base vectors <span class="math notranslate nohighlight">\(\mathbf{e}_{i}\)</span></p>
+<p>Consider an arbitrary second-order tensor <span class="math notranslate nohighlight">\(\mathbf{T}\)</span> which operates on <span class="math notranslate nohighlight">\(\mathbf{a}\)</span> to produce <span class="math notranslate nohighlight">\(\mathbf{b}\)</span>, <span class="math notranslate nohighlight">\(\mathbf{T}(\mathbf{a})=\mathbf{b}\)</span>,
+or <span class="math notranslate nohighlight">\(\mathbf{T}(a_{i}\mathbf{e}_{i})=\mathbf{b}\)</span>. From the linearity of <span class="math notranslate nohighlight">\(\mathbf{T}\)</span>,</p>
+<div class="math notranslate nohighlight">
+\[a_{1}\mathbf{T}(\mathbf{e}_{1})+a_{2}\mathbf{T}(\mathbf{e}_{2})+a_{3}\mathbf{T}(\mathbf{e}_{3})=\mathbf{b}\]</div>
+<p>Just as <span class="math notranslate nohighlight">\(\mathbf{T}\)</span> transforms <span class="math notranslate nohighlight">\(\mathbf{a}\)</span> into <span class="math notranslate nohighlight">\(\mathbf{b}\)</span>, it transforms the base vectors <span class="math notranslate nohighlight">\(\mathbf{e}_{i}\)</span> into some other vectors;
+suppose that <span class="math notranslate nohighlight">\(\mathbf{T}(\mathbf{e}_{1})=\mathbf{u},\mathbf{T}(\mathbf{e}_{2})=\mathbf{v},\mathbf{T}(\mathbf{e}_{3})=\mathbf{w}\)</span>, then</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{aligned}
+\mathbf{b} &amp; =a_{1} \mathbf{u}+a_{2} \mathbf{v}+a_{3} \mathbf{w} \\
+&amp; =\left(\mathbf{a} \cdot \mathbf{e}_{1}\right) \mathbf{u}+\left(\mathbf{a} \cdot \mathbf{e}_{2}\right) \mathbf{v}+\left(\mathbf{a} \cdot \mathbf{e}_{3}\right) \mathbf{w} \\
+&amp; =\left(\mathbf{u} \otimes \mathbf{e}_{1}\right)\cdot  \mathbf{a}+\left(\mathbf{v} \otimes \mathbf{e}_{2}\right)\cdot  \mathbf{a}+\left(\mathbf{w} \otimes \mathbf{e}_{3}\right)\cdot  \mathbf{a} \\
+&amp; =\left[\mathbf{u} \otimes \mathbf{e}_{1}+\mathbf{v} \otimes \mathbf{e}_{2}+\mathbf{w} \otimes \mathbf{e}_{3}\right] \cdot \mathbf{a}
+\end{aligned}\end{split}\]</div>
+<p>and so</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+&amp;\mathbf{T}(\mathbf{a})=\mathbf{T}\cdot\mathbf{a}=\mathbf{b}=(\mathbf{u} \otimes \mathbf{e}_{1}+\mathbf{v} \otimes \mathbf{e}_{2}+\mathbf{w} \otimes \mathbf{e}_{3})\cdot \mathbf{a}\\
+&amp;\Longrightarrow \mathbf{T}=\mathbf{u} \otimes \mathbf{e}_{1}+\mathbf{v} \otimes \mathbf{e}_{2}+\mathbf{w} \otimes \mathbf{e}_{3}
+\end{align}\end{split}\]</div>
+<p>which is indeed a dyadic.</p>
+<div class="math notranslate nohighlight">
+\[\mathbf{u}=u_{i}\mathbf{e}_{i}\quad \mathbf{v}=v_{i}\mathbf{e}_{i}\quad \mathbf{w}=w_{i}\mathbf{e}_{i}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+\mathbf{T}&amp;=\mathbf{u} \otimes \mathbf{e}_{1}+\mathbf{v} \otimes \mathbf{e}_{2}+\mathbf{w} \otimes \mathbf{e}_{3}\\
+&amp;=(u_{i}\mathbf{e}_{i})\otimes \mathbf{e}_{1}+(v_{i}\mathbf{e}_{i})\otimes \mathbf{e}_{2}+(w_{i}\mathbf{e}_{i})\otimes \mathbf{e}_{3}\\
+&amp;=(T_{i1}\mathbf{e}_{i})\otimes \mathbf{e}_{1}+(T_{i2}\mathbf{e}_{i})\otimes \mathbf{e}_{2}+(T_{i3}\mathbf{e}_{i})\otimes \mathbf{e}_{3}\\
+&amp;=(T_{ij}\mathbf{e}_{i})\otimes \mathbf{e}_{j}\\
+&amp;=T_{ij}(\mathbf{e}_{i}\otimes \mathbf{e}_{j})
+\end{align}\end{split}\]</div>
+<p>Cartesian components of a Second Order Tensor</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\mathbf{T}\cdot\mathbf{e}_{k} =T_{ij}(\mathbf{e}_{i}\otimes \mathbf{e}_{j})\cdot\mathbf{e}_{k}=
+T_{ij}\mathbf{e}_{i}(\mathbf{e}_{j}\cdot\mathbf{e}_{k})=T_{ij}\mathbf{e}_{i}\delta_{jk} =T_{ik}\mathbf{e}_{i}\\\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\mathbf{e}_{m}\cdot(\mathbf{T}\cdot\mathbf{e}_{k}) =\mathbf{e}_{m}\cdot(T_{ik}\mathbf{e}_{i})
+=T_{ik}(\mathbf{e}_{m}\cdot\mathbf{e}_{i})=T_{ik}\delta_{mi}=T_{mk}\\\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\mathbf{e}_{i}\cdot(\mathbf{T}\cdot\mathbf{e}_{j})=\mathbf{e}_{i}\cdot\mathbf{T}\cdot\mathbf{e}_{j}=T_{ij}\\\end{split}\]</div>
+<p>Matrix multiplication is associative
+Even though matrix multiplication is not commutative, it is associative in the following sense. If <span class="math notranslate nohighlight">\(\mathbf{A}\)</span>
+is an <span class="math notranslate nohighlight">\(m\times p\)</span> matrix, <span class="math notranslate nohighlight">\(\mathbf{B}\)</span> is a <span class="math notranslate nohighlight">\(p\times q\)</span> matrix, and <span class="math notranslate nohighlight">\(\mathbf{C}\)</span> is a <span class="math notranslate nohighlight">\(q\times n\)</span> matrix, then</p>
+<div class="math notranslate nohighlight">
+\[\mathbf{A}(\mathbf{B}\mathbf{C})=(\mathbf{A}\mathbf{B})\mathbf{C}\]</div>
+</section>
+<section id="tensor-product-of-matrices">
+<h3>Tensor Product of Matrices<a class="headerlink" href="#tensor-product-of-matrices" title="Link to this heading"></a></h3>
+<ol class="arabic simple">
+<li><p><a class="reference external" href="https://stemandmusic.in/maths/mvt-algebra/matrixTP.php">Tensor Product of Matrices</a></p></li>
+</ol>
+<ul class="simple">
+<li><p>Tensor Product is a Special Type of Kronecker Product carried out between a Co-Vector (Row Matrix) and Some Other Tensor whose Rank is Greater than or Equal to 1.</p></li>
+<li><p>Tensor Product Always increases the Rank of the Tensor that the Co-Vector is operating upon.</p></li>
+<li><p>Tensor Product of 2 Vectors/Column Matrices is also called Outer Product of Vectors.</p></li>
+<li><p>Let’s consider 2 Column Matrices (or Vectors), a <span class="math notranslate nohighlight">\(m \times 1\)</span> Matrix <span class="math notranslate nohighlight">\(\mathbf{A}\)</span> and a <span class="math notranslate nohighlight">\(n \times 1\)</span> Matrix <span class="math notranslate nohighlight">\(\mathbf{B}\)</span> given as follows</p></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+\mathbf{A}=\begin{bmatrix}
+ a_{1} \\
+ a_{2} \\
+ \vdots \\
+ a_{m} \\
+\end{bmatrix}
+\quad
+\mathbf{B}=\begin{bmatrix}
+ a_{1} \\
+ a_{2} \\
+ \vdots \\
+ a_{m} \\
+\end{bmatrix}
+\end{align}\end{split}\]</div>
+<p>The Tensor Product of Vector Matrix <span class="math notranslate nohighlight">\(\mathbf{A}\)</span> with Vector Matrix <span class="math notranslate nohighlight">\(\mathbf{B}\)</span> is given as</p>
+</section>
+<section id="dyadic-product">
+<h3>Dyadic Product<a class="headerlink" href="#dyadic-product" title="Link to this heading"></a></h3>
+<ol class="arabic simple">
+<li><p><a class="reference external" href="https://en.wikipedia.org/wiki/Dyadics">Dyadics</a></p></li>
+<li><p><a class="reference external" href="https://stemandmusic.in/maths/mvt-algebra/vectorDyad.php">Dyads and Dyadics</a></p></li>
+</ol>
+<p>tensor product</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\mathbf{u}=\begin{bmatrix}
+ u_{1}\\u_{2}\\u_{3}
+\end{bmatrix}=u_{1}\mathbf{i}+u_{2}\mathbf{j}+u_{3}\mathbf{k}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\mathbf{v}=\begin{bmatrix}
+v_{1}\\v_{2}\\v_{3}
+\end{bmatrix}=v_{1}\mathbf{i}+v_{2}\mathbf{j}+v_{3}\mathbf{k}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\mathbf{uv}\equiv \mathbf{u\otimes v}=\mathbf{uv^{T} }=\begin{bmatrix}
+u_{1}\\u_{2}\\u_{3}
+\end{bmatrix}\begin{bmatrix}
+ v_{1}&amp; v_{2} &amp;v_{3}
+\end{bmatrix}=\begin{bmatrix}
+u_{1}v_{1} &amp;u_{1}v_{2}  &amp;u_{1}v_{3} \\
+u_{2}v_{1} &amp;u_{2}v_{2}  &amp;u_{2}v_{3} \\
+u_{3}v_{1} &amp;u_{3}v_{2}  &amp;u_{3}v_{3} \\
+\end{bmatrix}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+(\mathbf{a}\mathbf{b})\cdot \mathbf{c} &amp; = \mathbf{a}(\mathbf{b}\cdot \mathbf{c})\\
+\mathbf{a}\cdot (\mathbf{b}\mathbf{c}) &amp; = (\mathbf{a}\cdot \mathbf{b})\mathbf{c}\\
+\end{align}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\mathbf{i}=\begin{bmatrix}
+ 1\\0\\0
+\end{bmatrix}\quad
+\mathbf{j}=\begin{bmatrix}
+ 0\\1\\0
+\end{bmatrix}\quad
+\mathbf{k}=\begin{bmatrix}
+ 0\\0\\1
+\end{bmatrix}\end{split}\]</div>
+<p>tensor product</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{matrix}
+\mathbf{ii}\equiv \mathbf{i\otimes i}=\mathbf{ii^{T} }&amp; \mathbf{ij}\equiv \mathbf{i\otimes j}=\mathbf{ij^{T} } &amp; \mathbf{ik}\equiv \mathbf{i\otimes k}=\mathbf{ik^{T} }\\
+\mathbf{ji}\equiv \mathbf{j\otimes i}=\mathbf{ji^{T} }&amp; \mathbf{jj}\equiv \mathbf{j\otimes j}=\mathbf{jj^{T} } &amp; \mathbf{jk}\equiv \mathbf{j\otimes k}=\mathbf{jk^{T} }\\
+\mathbf{ki}\equiv \mathbf{k\otimes i}=\mathbf{ki^{T} }&amp; \mathbf{kj}\equiv \mathbf{k\otimes j}=\mathbf{kj^{T} } &amp; \mathbf{kk}\equiv \mathbf{k\otimes k}=\mathbf{kk^{T} }\\
+\end{matrix}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\mathbf{ii}=\begin{bmatrix}
+ 1&amp;0&amp;0\\
+ 0&amp;0&amp;0\\
+ 0&amp;0&amp;0
+\end{bmatrix} \quad
+\mathbf{ij}=\begin{bmatrix}
+ 0&amp;1&amp;0\\
+ 0&amp;0&amp;0\\
+ 0&amp;0&amp;0
+\end{bmatrix} \quad
+\mathbf{ik}=\begin{bmatrix}
+ 0&amp;0&amp;1\\
+ 0&amp;0&amp;0\\
+ 0&amp;0&amp;0
+\end{bmatrix}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\mathbf{ji}=\begin{bmatrix}
+ 0&amp;0&amp;0\\
+ 1&amp;0&amp;0\\
+ 0&amp;0&amp;0
+\end{bmatrix} \quad
+\mathbf{jj}=\begin{bmatrix}
+ 0&amp;0&amp;0\\
+ 0&amp;1&amp;0\\
+ 0&amp;0&amp;0
+\end{bmatrix} \quad
+\mathbf{jk}=\begin{bmatrix}
+ 0&amp;0&amp;0\\
+ 0&amp;0&amp;1\\
+ 0&amp;0&amp;0
+\end{bmatrix}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\mathbf{ki}=\begin{bmatrix}
+ 0&amp;0&amp;0\\
+ 0&amp;0&amp;0\\
+ 1&amp;0&amp;0
+\end{bmatrix} \quad
+\mathbf{kj}=\begin{bmatrix}
+ 0&amp;0&amp;0\\
+ 0&amp;0&amp;0\\
+ 0&amp;1&amp;0
+\end{bmatrix} \quad
+\mathbf{kk}=\begin{bmatrix}
+ 0&amp;0&amp;0\\
+ 0&amp;0&amp;0\\
+ 0&amp;0&amp;1
+\end{bmatrix}\end{split}\]</div>
+<p>the dyadic product of a vector <span class="math notranslate nohighlight">\(\mathbf{v}\)</span> by itself, arising in the formulation of the momentum equation of fluid
+flow, gives</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+\mathbf{vv} &amp; = (u\mathbf{i}+v\mathbf{j}+w\mathbf{k})\\
+&amp;=uu\mathbf{ii}+uv\mathbf{ij}+uw\mathbf{ik}\\
+&amp;+vu\mathbf{ji}+vv\mathbf{jj}+vw\mathbf{jk}\\
+&amp;+wu\mathbf{ki}+wv\mathbf{kj}+ww\mathbf{kk}\\
+\end{align}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\mathbf{vv}=\begin{bmatrix}
+uu&amp; uv &amp; uw\\
+vu&amp; vv &amp; vw\\
+wu&amp; wv &amp; ww\\
+\end{bmatrix}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\mathbf{vv}=\begin{bmatrix}
+v_{x}v_{x}&amp; v_{x}v_{y} &amp; v_{x}v_{z}\\
+v_{y}v_{x}&amp; v_{y}v_{y} &amp; v_{y}v_{z}\\
+v_{z}v_{x}&amp; v_{z}v_{y} &amp; v_{z}v_{z}\\
+\end{bmatrix}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\mathbf{vv}=\begin{bmatrix}
+  v_{1}v_{1}&amp; v_{1}v_{2} &amp; v_{1}v_{3}\\
+  v_{2}v_{1}&amp; v_{2}v_{2} &amp; v_{2}v_{3}\\
+  v_{3}v_{1}&amp; v_{3}v_{2} &amp; v_{3}v_{3}\\
+\end{bmatrix}\end{split}\]</div>
+</section>
+<section id="the-gradient-of-a-vector-functions">
+<h3>The Gradient of a Vector Functions<a class="headerlink" href="#the-gradient-of-a-vector-functions" title="Link to this heading"></a></h3>
+<p>The gradient of a vector field is defined to be the second-order tensor</p>
+<div class="math notranslate nohighlight">
+\[\text {grad }\mathbf{a}=\cfrac{\partial \mathbf{a}}{\partial x_{j}}\otimes \mathbf{e}_{j}
+=\cfrac{\partial {a}_{i}}{\partial x_{j}}\mathbf{e}_{i}\otimes \mathbf{e}_{j}\]</div>
+<p>In matrix notation,</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\text {grad }\mathbf{a}=\left[\begin{array}{lll}
+\cfrac{\partial a_{1}}{\partial x_{1}} &amp; \cfrac{\partial a_{1}}{\partial x_{2}} &amp; \cfrac{\partial a_{1}}{\partial x_{3}} \\
+\cfrac{\partial a_{2}}{\partial x_{1}} &amp; \cfrac{\partial a_{2}}{\partial x_{2}} &amp; \cfrac{\partial a_{2}}{\partial x_{3}} \\
+\cfrac{\partial a_{3}}{\partial x_{1}} &amp; \cfrac{\partial a_{3}}{\partial x_{2}} &amp; \cfrac{\partial a_{3}}{\partial x_{3}}
+\end{array}\right]\end{split}\]</div>
+<p>Although for a scalar field <span class="math notranslate nohighlight">\(\text{grad}\phi\)</span> is equivalent to <span class="math notranslate nohighlight">\(\nabla \phi\)</span>, note that the gradient  of a vector field
+is not the same as <span class="math notranslate nohighlight">\(\nabla \otimes \mathbf{a}\)</span>. In fact</p>
+<div class="math notranslate nohighlight">
+\[(\nabla \otimes \mathbf{a})^{\text{T}}=\text{grad }\mathbf{a}\]</div>
+<p>since</p>
+<div class="math notranslate nohighlight">
+\[\nabla \otimes \mathbf{a}=\mathbf{e}_{i} \frac{\partial}{\partial x_{i}} \otimes a_{j} \mathbf{e}_{j}=\frac{\partial a_{j}}{\partial x_{i}} \mathbf{e}_{i} \otimes \mathbf{e}_{j}\]</div>
+<p>These two different definitions of the gradient of a vector <span class="math notranslate nohighlight">\(({\partial a_{i}}/{\partial x_{j}}) \mathbf{e}_{i} \otimes \mathbf{e}_{j}\)</span>
+and <span class="math notranslate nohighlight">\(({\partial a_{j}}/{\partial x_{i}}) \mathbf{e}_{i} \otimes \mathbf{e}_{j}\)</span> , are both commonly used. In what follows, they will be distinguished by
+labeling the former as <span class="math notranslate nohighlight">\(\text{grad }\mathbf{a}\)</span> (which will be called the gradient of <span class="math notranslate nohighlight">\(\mathbf{a}\)</span> ) and the latter as <span class="math notranslate nohighlight">\(\nabla \otimes \mathbf{a}\)</span>.</p>
+<p>Note the following:</p>
+<ul class="simple">
+<li><p>in much of the literature, <span class="math notranslate nohighlight">\(\nabla \otimes \mathbf{a}\)</span> is written in the contracted form <span class="math notranslate nohighlight">\(\nabla \mathbf{a}\)</span>, but the more explicit version is used here.</p></li>
+<li><p>some authors define the operation of through <span class="math notranslate nohighlight">\(\nabla \otimes(\cdot)\equiv ({\partial (\cdot)}/{\partial x_{i}})\otimes \mathbf{e}_{i}\)</span> so that <span class="math notranslate nohighlight">\(\nabla \otimes \mathbf{a}=\text{grad}\mathbf{a}=({\partial a_{i}}/{\partial x_{j}}) \mathbf{e}_{i} \otimes \mathbf{e}_{j}\)</span></p></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+\nabla \otimes(\mathbf{a})&amp;=({\partial (\mathbf{a})}/{\partial x_{i}})\otimes \mathbf{e}_{i}\\
+&amp;=({\partial (a_{j}\mathbf{e}_{j})}/{\partial x_{i}})\otimes \mathbf{e}_{i}\\
+&amp;=({\partial (a_{j})}/{\partial x_{i}})\mathbf{e}_{j}\otimes \mathbf{e}_{i}\\
+&amp;=({\partial a_{i}}/{\partial x_{j}})\mathbf{e}_{i}\otimes \mathbf{e}_{j}\\
+\end{align}\end{split}\]</div>
+<p>The <span class="math notranslate nohighlight">\(\nabla {\mathbf{v}}\)</span> is a tensor given by</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+\nabla {\mathbf{v}}&amp;=\nabla \otimes{\mathbf{v}}=(\nabla) ({\mathbf{v}})^{\text T}\\
+&amp;=\begin{bmatrix}
+\cfrac{\partial }{\partial x}\\
+\cfrac{\partial }{\partial y}\\
+\cfrac{\partial }{\partial z}\\
+\end{bmatrix}
+\begin{bmatrix}
+u&amp;v&amp;w
+\end{bmatrix}=
+\begin{bmatrix}
+\cfrac{\partial u}{\partial x}&amp; \cfrac{\partial v}{\partial x} &amp; \cfrac{\partial w}{\partial x}\\
+\cfrac{\partial u}{\partial y}&amp; \cfrac{\partial v}{\partial y} &amp; \cfrac{\partial w}{\partial y}\\
+\cfrac{\partial u}{\partial z}&amp; \cfrac{\partial v}{\partial z} &amp; \cfrac{\partial w}{\partial z}\\
+\end{bmatrix}
+\end{align}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+\nabla \mathbf{v} &amp; = (\cfrac {\partial }{\partial x}\mathbf{i}+\cfrac {\partial }{\partial y}\mathbf{j}+\cfrac {\partial }{\partial z}\mathbf{k})(u\mathbf{i}+v\mathbf{j}+w\mathbf{k})\\
+&amp;=\cfrac{\partial u}{\partial x}\mathbf{ii}+\cfrac{\partial v}{\partial x}\mathbf{ij}+\cfrac{\partial w}{\partial x}\mathbf{ik}\\
+&amp;+\cfrac{\partial u}{\partial y}\mathbf{ji}+\cfrac{\partial v}{\partial y}\mathbf{jj}+\cfrac{\partial w}{\partial y}\mathbf{jk}\\
+&amp;+\cfrac{\partial u}{\partial z}\mathbf{ki}+\cfrac{\partial v}{\partial z}\mathbf{kj}+\cfrac{\partial w}{\partial z}\mathbf{kk}\\
+\end{align}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\nabla \mathbf{v}=\begin{bmatrix}
+\cfrac{\partial u}{\partial x}&amp; \cfrac{\partial v}{\partial x} &amp; \cfrac{\partial w}{\partial x}\\
+\cfrac{\partial u}{\partial y}&amp; \cfrac{\partial v}{\partial y} &amp; \cfrac{\partial w}{\partial y}\\
+\cfrac{\partial u}{\partial z}&amp; \cfrac{\partial v}{\partial z} &amp; \cfrac{\partial w}{\partial z}\\
+\end{bmatrix}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\text{grad}\mathbf{v}=(\nabla \mathbf{v})^{\text T}=\begin{bmatrix}
+\cfrac{\partial u}{\partial x}&amp; \cfrac{\partial v}{\partial x} &amp; \cfrac{\partial w}{\partial x}\\
+\cfrac{\partial u}{\partial y}&amp; \cfrac{\partial v}{\partial y} &amp; \cfrac{\partial w}{\partial y}\\
+\cfrac{\partial u}{\partial z}&amp; \cfrac{\partial v}{\partial z} &amp; \cfrac{\partial w}{\partial z}\\
+\end{bmatrix}^{\text T} = \begin{bmatrix}
+\cfrac{\partial u}{\partial x}&amp; \cfrac{\partial u}{\partial y} &amp; \cfrac{\partial u}{\partial z}\\
+\cfrac{\partial v}{\partial x}&amp; \cfrac{\partial v}{\partial y} &amp; \cfrac{\partial v}{\partial z}\\
+\cfrac{\partial w}{\partial x}&amp; \cfrac{\partial w}{\partial y} &amp; \cfrac{\partial w}{\partial z}\\
+\end{bmatrix}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\nabla \mathbf{v}=\begin{bmatrix}
+\cfrac{\partial v_{1}}{\partial x_{1}}&amp; \cfrac{\partial v_{2}}{\partial x_{1}} &amp; \cfrac{\partial v_{3}}{\partial x_{1}}\\
+\cfrac{\partial v_{1}}{\partial x_{2}}&amp; \cfrac{\partial v_{2}}{\partial x_{2}} &amp; \cfrac{\partial v_{3}}{\partial x_{2}}\\
+\cfrac{\partial v_{1}}{\partial x_{3}}&amp; \cfrac{\partial v_{2}}{\partial x_{3}} &amp; \cfrac{\partial v_{3}}{\partial x_{3}}\\
+\end{bmatrix} \quad or\quad \left.(\nabla \mathbf{v})\right|_{i,j}=\cfrac{\partial v_{j}}{\partial x_{i}}\end{split}\]</div>
+</section>
+<section id="divergence-of-tensor-functions">
+<h3>Divergence of Tensor Functions<a class="headerlink" href="#divergence-of-tensor-functions" title="Link to this heading"></a></h3>
+<p>the divergence of a second order tensor <span class="math notranslate nohighlight">\(\mathbf{T}\)</span> is defined to be the vector</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+\text{div}\mathbf{T} &amp; = \text{grad}\mathbf{T}:\mathbf{I}  = \cfrac{\partial \mathbf{T}}{\partial x_{i}}\mathbf{e}_{i}  = \cfrac{\partial ({T_{jk}\mathbf{e}_{j}\otimes \mathbf{e}_{k})}}{\partial x_{i}}\mathbf{e}_{i}  = \cfrac{\partial ({T_{jk})}}{\partial x_{i}}(\mathbf{e}_{j}\otimes \mathbf{e}_{k})\mathbf{e}_{i} \\
+&amp;= \cfrac{\partial ({T_{jk})}}{\partial x_{i}}\mathbf{e}_{j}(\mathbf{e}_{k}\cdot\mathbf{e}_{i})\\
+&amp;= \cfrac{\partial ({T_{ji})}}{\partial x_{i}}\mathbf{e}_{j}\\
+&amp;= \cfrac{\partial ({T_{ij})}}{\partial x_{j}}\mathbf{e}_{i}\\
+\end{align}\end{split}\]</div>
+<p>One also has</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+\nabla \cdot \mathbf{T} &amp; = \left ( \mathbf{e}_{i}\cfrac{\partial}{\partial x_{i}} \right )\cdot  \left (  {T_{jk}\mathbf{e}_{j}\otimes \mathbf{e}_{k}}\right ) \\
+&amp;= \left ( \cfrac{\partial T_{jk}}{\partial x_{i}} \right )\mathbf{e}_{i}\cdot  \left (  {\mathbf{e}_{j}\otimes \mathbf{e}_{k}}\right ) \\
+&amp;= \left ( \cfrac{\partial T_{jk}}{\partial x_{i}} \right )(\mathbf{e}_{i}\cdot \mathbf{e}_{j}) \mathbf{e}_{k} \\
+&amp;= \left ( \cfrac{\partial T_{ik}}{\partial x_{i}} \right ) \mathbf{e}_{k} \\
+&amp;= \cfrac{\partial\left ( { T_{ji}} \right )}{{\partial x_{j}}} \mathbf{e}_{i} \\
+\end{align}\end{split}\]</div>
+<p>so that</p>
+<div class="math notranslate nohighlight">
+\[\text{div}\mathbf{T}  =\nabla \cdot \mathbf{T}^{\text{T}}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+\text{div}\mathbf{T} &amp; =
+\cfrac{\partial ({T_{ij})}}{\partial x_{j}}\mathbf{e}_{i}=
+\left \{ \cfrac{\partial ({T_{1j})}}{\partial x_{j}}\right \}\mathbf{e}_{1}+
+\left \{ \cfrac{\partial ({T_{2j})}}{\partial x_{j}}\right \}\mathbf{e}_{2}+
+\left \{ \cfrac{\partial ({T_{3j})}}{\partial x_{j}}\right \}\mathbf{e}_{3} \\
+&amp;=\left \{ \cfrac{\partial ({T_{11})}}{\partial x_{1}}
+          +\cfrac{\partial ({T_{12})}}{\partial x_{2}}
+          +\cfrac{\partial ({T_{13})}}{\partial x_{3}}\right \}\mathbf{e}_{1}\\
+&amp;+\left \{ \cfrac{\partial ({T_{21})}}{\partial x_{1}}
+          +\cfrac{\partial ({T_{22})}}{\partial x_{2}}
+          +\cfrac{\partial ({T_{23})}}{\partial x_{3}}\right \}\mathbf{e}_{2}\\
+&amp;+\left \{ \cfrac{\partial ({T_{31})}}{\partial x_{1}}
+          +\cfrac{\partial ({T_{32})}}{\partial x_{2}}
+          +\cfrac{\partial ({T_{33})}}{\partial x_{3}}\right \}\mathbf{e}_{3}\\
+\end{align}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\text{div}\mathbf{T} = \begin{bmatrix}
+ \cfrac{\partial {T_{11}}}{\partial x_{1}}
++\cfrac{\partial {T_{12}}}{\partial x_{2}}
++\cfrac{\partial {T_{13}}}{\partial x_{3}}\\
+ \cfrac{\partial {T_{21}}}{\partial x_{1}}
++\cfrac{\partial {T_{22}}}{\partial x_{2}}
++\cfrac{\partial {T_{23}}}{\partial x_{3}}\\
+ \cfrac{\partial {T_{31}}}{\partial x_{1}}
++\cfrac{\partial {T_{32}}}{\partial x_{2}}
++\cfrac{\partial {T_{33}}}{\partial x_{3}}\\
+\end{bmatrix}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+\nabla \cdot \mathbf{T} &amp; =
+\cfrac{\partial\left ( { T_{ji}} \right )}{{\partial x_{j}}} \mathbf{e}_{i}=
+\left \{ \cfrac{\partial ({T_{j1})}}{\partial x_{j}}\right \}\mathbf{e}_{1}+
+\left \{ \cfrac{\partial ({T_{j2})}}{\partial x_{j}}\right \}\mathbf{e}_{2}+
+\left \{ \cfrac{\partial ({T_{j3})}}{\partial x_{j}}\right \}\mathbf{e}_{3} \\
+&amp;=\left \{ \cfrac{\partial ({T_{11})}}{\partial x_{1}}
+          +\cfrac{\partial ({T_{21})}}{\partial x_{2}}
+          +\cfrac{\partial ({T_{31})}}{\partial x_{3}}\right \}\mathbf{e}_{1}\\
+&amp;+\left \{ \cfrac{\partial ({T_{12})}}{\partial x_{1}}
+          +\cfrac{\partial ({T_{22})}}{\partial x_{2}}
+          +\cfrac{\partial ({T_{32})}}{\partial x_{3}}\right \}\mathbf{e}_{2}\\
+&amp;+\left \{ \cfrac{\partial ({T_{13})}}{\partial x_{1}}
+          +\cfrac{\partial ({T_{23})}}{\partial x_{2}}
+          +\cfrac{\partial ({T_{33})}}{\partial x_{3}}\right \}\mathbf{e}_{3}\\
+\end{align}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\nabla \cdot \mathbf{T} = \begin{bmatrix}
+ \cfrac{\partial {T_{11}}}{\partial x_{1}}
++\cfrac{\partial {T_{21}}}{\partial x_{2}}
++\cfrac{\partial {T_{31}}}{\partial x_{3}}\\
+ \cfrac{\partial {T_{12}}}{\partial x_{1}}
++\cfrac{\partial {T_{22}}}{\partial x_{2}}
++\cfrac{\partial {T_{32}}}{\partial x_{3}}\\
+ \cfrac{\partial {T_{13}}}{\partial x_{1}}
++\cfrac{\partial {T_{23}}}{\partial x_{2}}
++\cfrac{\partial {T_{33}}}{\partial x_{3}}\\
+\end{bmatrix}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\nabla \cdot \mathbf{T} = \begin{bmatrix}
+ \cfrac{\partial {T_{xx}}}{\partial x}
++\cfrac{\partial {T_{yx}}}{\partial y}
++\cfrac{\partial {T_{zx}}}{\partial z}\\
+ \cfrac{\partial {T_{xy}}}{\partial x}
++\cfrac{\partial {T_{yy}}}{\partial y}
++\cfrac{\partial {T_{zy}}}{\partial z}\\
+ \cfrac{\partial {T_{xz}}}{\partial x}
++\cfrac{\partial {T_{yz}}}{\partial y}
++\cfrac{\partial {T_{zz}}}{\partial z}\\
+\end{bmatrix}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\text{div}\mathbf{T} = \nabla \cdot (\mathbf{T}^{\text T})=
+\begin{bmatrix}
+ \cfrac{\partial {T_{11}}}{\partial x_{1}}
++\cfrac{\partial {T_{12}}}{\partial x_{2}}
++\cfrac{\partial {T_{13}}}{\partial x_{3}}\\
+ \cfrac{\partial {T_{21}}}{\partial x_{1}}
++\cfrac{\partial {T_{22}}}{\partial x_{2}}
++\cfrac{\partial {T_{23}}}{\partial x_{3}}\\
+ \cfrac{\partial {T_{31}}}{\partial x_{1}}
++\cfrac{\partial {T_{32}}}{\partial x_{2}}
++\cfrac{\partial {T_{33}}}{\partial x_{3}}\\
+\end{bmatrix}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\text{div}\mathbf{T} = \nabla \cdot (\mathbf{T}^{\text T})=
+\begin{bmatrix}
+ \cfrac{\partial {T_{xx}}}{\partial x}
++\cfrac{\partial {T_{xy}}}{\partial y}
++\cfrac{\partial {T_{xz}}}{\partial z}\\
+ \cfrac{\partial {T_{yx}}}{\partial x}
++\cfrac{\partial {T_{yy}}}{\partial y}
++\cfrac{\partial {T_{yz}}}{\partial z}\\
+ \cfrac{\partial {T_{zx}}}{\partial x}
++\cfrac{\partial {T_{zy}}}{\partial y}
++\cfrac{\partial {T_{zz}}}{\partial z}\\
+\end{bmatrix}\end{split}\]</div>
+<p>The dot product of a tensor <span class="math notranslate nohighlight">\(\boldsymbol{\tau}\)</span> by a vector <span class="math notranslate nohighlight">\(\mathbf{v}\)</span> results in the following vector:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}[\boldsymbol\tau \cdot \mathbf{v}]&amp; = \begin{pmatrix}
+   \mathbf{ii}\tau_{xx}+\mathbf{ij}\tau_{xy}+\mathbf{ik}\tau_{xz}\\
+ + \mathbf{ji}\tau_{yx}+\mathbf{jj}\tau_{yy}+\mathbf{jk}\tau_{yz}\\
+ + \mathbf{ki}\tau_{zx}+\mathbf{kj}\tau_{zy}+\mathbf{kk}\tau_{zz}\\
+\end{pmatrix}
+\cdot (u\mathbf{i}+v\mathbf{j}+w\mathbf{k})\end{split}\]</div>
+<p>which upon expanding becomes</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+[\boldsymbol\tau \cdot \mathbf{v}]&amp; = \begin{pmatrix}
+   \mathbf{ii}\tau_{xx}+\mathbf{ij}\tau_{xy}+\mathbf{ik}\tau_{xz}\\
+ + \mathbf{ji}\tau_{yx}+\mathbf{jj}\tau_{yy}+\mathbf{jk}\tau_{yz}\\
+ + \mathbf{ki}\tau_{zx}+\mathbf{kj}\tau_{zy}+\mathbf{kk}\tau_{zz}\\
+\end{pmatrix}
+\cdot (u\mathbf{i}+v\mathbf{j}+w\mathbf{k})\\
+&amp;=\begin{pmatrix}
+   \mathbf{ii}\tau_{xx}+\mathbf{ij}\tau_{xy}+\mathbf{ik}\tau_{xz}\\
+ + \mathbf{ji}\tau_{yx}+\mathbf{jj}\tau_{yy}+\mathbf{jk}\tau_{yz}\\
+ + \mathbf{ki}\tau_{zx}+\mathbf{kj}\tau_{zy}+\mathbf{kk}\tau_{zz}\\
+\end{pmatrix} \cdot u\mathbf{i}\\
+&amp;+\begin{pmatrix}
+   \mathbf{ii}\tau_{xx}+\mathbf{ij}\tau_{xy}+\mathbf{ik}\tau_{xz}\\
+ + \mathbf{ji}\tau_{yx}+\mathbf{jj}\tau_{yy}+\mathbf{jk}\tau_{yz}\\
+ + \mathbf{ki}\tau_{zx}+\mathbf{kj}\tau_{zy}+\mathbf{kk}\tau_{zz}\\
+\end{pmatrix} \cdot v\mathbf{j}\\
+&amp;+\begin{pmatrix}
+   \mathbf{ii}\tau_{xx}+\mathbf{ij}\tau_{xy}+\mathbf{ik}\tau_{xz}\\
+ + \mathbf{ji}\tau_{yx}+\mathbf{jj}\tau_{yy}+\mathbf{jk}\tau_{yz}\\
+ + \mathbf{ki}\tau_{zx}+\mathbf{kj}\tau_{zy}+\mathbf{kk}\tau_{zz}\\
+\end{pmatrix} \cdot w\mathbf{k}\\
+\end{align}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{bmatrix}
+\mathbf{ii}\cdot \mathbf{i}=\mathbf{i}&amp; \mathbf{ij}\cdot \mathbf{i}=\mathbf{0} &amp; \mathbf{ik}\cdot \mathbf{i}=\mathbf{0}\\
+\mathbf{ji}\cdot \mathbf{i}=\mathbf{j}&amp;  \mathbf{jj}\cdot \mathbf{i}=\mathbf{0}&amp; \mathbf{jk}\cdot \mathbf{i}=\mathbf{0}\\
+\mathbf{ki}\cdot \mathbf{i}=\mathbf{k}&amp;  \mathbf{kj}\cdot \mathbf{i}=\mathbf{0}&amp;\mathbf{kk}\cdot \mathbf{i}=\mathbf{0}\\
+\mathbf{ii}\cdot \mathbf{j}=\mathbf{0}&amp;\mathbf{ij}\cdot \mathbf{j}=\mathbf{i}&amp;\mathbf{ik}\cdot \mathbf{j}=\mathbf{0}\\
+\mathbf{ji}\cdot \mathbf{j}=\mathbf{0}&amp;\mathbf{jj}\cdot \mathbf{j}=\mathbf{j}&amp;\mathbf{jk}\cdot \mathbf{j}=\mathbf{0}\\
+\mathbf{ki}\cdot \mathbf{j}=\mathbf{0}&amp;\mathbf{kj}\cdot \mathbf{j}=\mathbf{k}&amp;\mathbf{kk}\cdot \mathbf{j}=\mathbf{0}\\
+\mathbf{ii}\cdot \mathbf{k}=\mathbf{0}&amp;\mathbf{ij}\cdot \mathbf{k}=\mathbf{0}&amp;\mathbf{ik}\cdot \mathbf{k}=\mathbf{i}\\
+\mathbf{ji}\cdot \mathbf{k}=\mathbf{0}&amp;\mathbf{jj}\cdot \mathbf{k}=\mathbf{0}&amp;\mathbf{jk}\cdot \mathbf{k}=\mathbf{j}\\
+\mathbf{ki}\cdot \mathbf{k}=\mathbf{0}&amp;\mathbf{kj}\cdot \mathbf{k}=\mathbf{0}&amp;\mathbf{kk}\cdot \mathbf{k}=\mathbf{k}\\
+\end{bmatrix}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{pmatrix}
+   \mathbf{ii}\tau_{xx}+\mathbf{ij}\tau_{xy}+\mathbf{ik}\tau_{xz}\\
+ + \mathbf{ji}\tau_{yx}+\mathbf{jj}\tau_{yy}+\mathbf{jk}\tau_{yz}\\
+ + \mathbf{ki}\tau_{zx}+\mathbf{kj}\tau_{zy}+\mathbf{kk}\tau_{zz}\\
+\end{pmatrix} \cdot u\mathbf{i}=u(\tau_{xx}\mathbf{i}+\tau_{yx}\mathbf{j}+\tau_{zx}\mathbf{k})\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{pmatrix}
+ \mathbf{ii}\tau_{xx}+\mathbf{ij}\tau_{xy}+\mathbf{ik}\tau_{xz}\\
++ \mathbf{ji}\tau_{yx}+\mathbf{jj}\tau_{yy}+\mathbf{jk}\tau_{yz}\\
++ \mathbf{ki}\tau_{zx}+\mathbf{kj}\tau_{zy}+\mathbf{kk}\tau_{zz}\\
+\end{pmatrix} \cdot v\mathbf{j}=v(\tau_{xy}\mathbf{i}+\tau_{yy}\mathbf{j}+\tau_{zy}\mathbf{k})\\\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{pmatrix}
+ \mathbf{ii}\tau_{xx}+\mathbf{ij}\tau_{xy}+\mathbf{ik}\tau_{xz}\\
++ \mathbf{ji}\tau_{yx}+\mathbf{jj}\tau_{yy}+\mathbf{jk}\tau_{yz}\\
++ \mathbf{ki}\tau_{zx}+\mathbf{kj}\tau_{zy}+\mathbf{kk}\tau_{zz}\\
+\end{pmatrix} \cdot w\mathbf{k}=w(\tau_{xz}\mathbf{i}+\tau_{yz}\mathbf{j}+\tau_{zz}\mathbf{k})\\\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+[\boldsymbol\tau \cdot \mathbf{v}] &amp; = u(\tau_{xx}\mathbf{i}+\tau_{yx}\mathbf{j}+\tau_{zx}\mathbf{k})\\
+&amp;+v(\tau_{xy}\mathbf{i}+\tau_{yy}\mathbf{j}+\tau_{zy}\mathbf{k})\\
+&amp;+w(\tau_{xz}\mathbf{i}+\tau_{yz}\mathbf{j}+\tau_{zz}\mathbf{k})\\
+&amp;=(\tau_{xx}u+\tau_{xy}v+\tau_{xz}w)\mathbf{i}\\
+&amp;+(\tau_{yx}u+\tau_{yy}v+\tau_{yz}w)\mathbf{j}\\
+&amp;+(\tau_{zx}u+\tau_{zy}v+\tau_{zz}w)\mathbf{k}
+\end{align}\end{split}\]</div>
+<p>The above equation can be derived using matrix multiplication as</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}[\boldsymbol{\tau}\cdot \mathbf{v}]=
+\begin{bmatrix}
+  {\tau}_{xx}&amp; {\tau}_{xy} &amp; {\tau}_{xz}\\
+  {\tau}_{yx}&amp; {\tau}_{yy} &amp; {\tau}_{yz}\\
+  {\tau}_{zx}&amp; {\tau}_{zy} &amp; {\tau}_{zz}\\
+\end{bmatrix}
+\begin{bmatrix}
+  u\\ v\\  w\\
+\end{bmatrix}
+=\begin{bmatrix}
+  {\tau}_{xx}u+{\tau}_{xy}v+{\tau}_{xz}w\\
+  {\tau}_{yx}u+{\tau}_{yy}v+{\tau}_{yz}w\\
+  {\tau}_{zx}u+{\tau}_{zy}v+{\tau}_{zz}w\\
+\end{bmatrix}\end{split}\]</div>
+<p>In a similar way the divergence of a tensor <span class="math notranslate nohighlight">\(\boldsymbol{\tau}\)</span> is found to be a vector given by</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\text{div }\boldsymbol{\tau} = \nabla \cdot (\boldsymbol{\tau}^{\text T})=
+\begin{bmatrix}
+ \cfrac{\partial {{\tau}_{xx}}}{\partial x}
++\cfrac{\partial {{\tau}_{xy}}}{\partial y}
++\cfrac{\partial {{\tau}_{xz}}}{\partial z}\\
+ \cfrac{\partial {{\tau}_{yx}}}{\partial x}
++\cfrac{\partial {{\tau}_{yy}}}{\partial y}
++\cfrac{\partial {{\tau}_{yz}}}{\partial z}\\
+ \cfrac{\partial {{\tau}_{zx}}}{\partial x}
++\cfrac{\partial {{\tau}_{zy}}}{\partial y}
++\cfrac{\partial {{\tau}_{zz}}}{\partial z}\\
+\end{bmatrix}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}[\nabla \cdot \boldsymbol{\tau}^{\text{T}}]=
+\begin{bmatrix}
+  \cfrac{\partial }{\partial x}&amp;\cfrac{\partial }{\partial y}  &amp;\cfrac{\partial }{\partial z}
+\end{bmatrix}
+\begin{bmatrix}
+  {\tau}_{xx}&amp; {\tau}_{yx} &amp; {\tau}_{zx}\\
+  {\tau}_{xy}&amp; {\tau}_{yy} &amp; {\tau}_{zy}\\
+  {\tau}_{xz}&amp; {\tau}_{yz} &amp; {\tau}_{zz}\\
+\end{bmatrix}
+=\begin{bmatrix}
+  \cfrac{\partial{\tau}_{xx} }{\partial x}+
+  \cfrac{\partial{\tau}_{xy} }{\partial y}+
+  \cfrac{\partial{\tau}_{xz} }{\partial z}\\
+  \cfrac{\partial{\tau}_{yx} }{\partial x}+
+  \cfrac{\partial{\tau}_{yy} }{\partial y}+
+  \cfrac{\partial{\tau}_{yz} }{\partial z}\\
+  \cfrac{\partial{\tau}_{zx} }{\partial x}+
+  \cfrac{\partial{\tau}_{zy} }{\partial y}+
+  \cfrac{\partial{\tau}_{zz} }{\partial z}\\
+\end{bmatrix}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+[\nabla \cdot \boldsymbol{\tau}] &amp; = (\cfrac{\partial{\tau}_{xx} }{\partial x}+
+ \cfrac{\partial{\tau}_{yx} }{\partial y}+
+ \cfrac{\partial{\tau}_{zx} }{\partial z})\mathbf{i}\\
+&amp;+(\cfrac{\partial{\tau}_{xy} }{\partial x}+
+ \cfrac{\partial{\tau}_{yy} }{\partial y}+
+ \cfrac{\partial{\tau}_{zy} }{\partial z})\mathbf{j}\\
+&amp;+(\cfrac{\partial{\tau}_{xz} }{\partial x}+
+ \cfrac{\partial{\tau}_{yz} }{\partial y}+
+ \cfrac{\partial{\tau}_{zz} }{\partial z})\mathbf{k}
+\end{align}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}[\nabla \cdot \boldsymbol{\tau}]=
+\begin{bmatrix}
+  \cfrac{\partial }{\partial x}&amp;\cfrac{\partial }{\partial y}  &amp;\cfrac{\partial }{\partial z}
+\end{bmatrix}
+\begin{bmatrix}
+  {\tau}_{xx}&amp; {\tau}_{xy} &amp; {\tau}_{xz}\\
+  {\tau}_{yx}&amp; {\tau}_{yy} &amp; {\tau}_{yz}\\
+  {\tau}_{zx}&amp; {\tau}_{zy} &amp; {\tau}_{zz}\\
+\end{bmatrix}
+=\begin{bmatrix}
+  \cfrac{\partial{\tau}_{xx} }{\partial x}+
+  \cfrac{\partial{\tau}_{yx} }{\partial y}+
+  \cfrac{\partial{\tau}_{zx} }{\partial z}\\
+  \cfrac{\partial{\tau}_{xy} }{\partial x}+
+  \cfrac{\partial{\tau}_{yy} }{\partial y}+
+  \cfrac{\partial{\tau}_{zy} }{\partial z}\\
+  \cfrac{\partial{\tau}_{xz} }{\partial x}+
+  \cfrac{\partial{\tau}_{yz} }{\partial y}+
+  \cfrac{\partial{\tau}_{zz} }{\partial z}\\
+\end{bmatrix}\begin{aligned}
+\end{aligned}\end{split}\]</div>
+</section>
+<section id="double-contraction">
+<h3>Double Contraction<a class="headerlink" href="#double-contraction" title="Link to this heading"></a></h3>
+<p>Double contraction, as the name implies, contracts the tensors twice as much a simple
+contraction. Thus, where the sum of the orders of two tensors is reduced by two in the
+simple contraction, the sum of the orders is reduced by four in double contraction. The
+double contraction is denoted by a colon (:), e.g. <span class="math notranslate nohighlight">\(\mathbf{A}:\mathbf{B}\)</span>.</p>
+<div class="math notranslate nohighlight">
+\[\mathbf{A}:\mathbf{B}={A}_{ij}{B}_{ij}\]</div>
+</section>
+<section id="hadamard-product">
+<h3>Hadamard product<a class="headerlink" href="#hadamard-product" title="Link to this heading"></a></h3>
+<ol class="arabic simple">
+<li><p><a class="reference external" href="https://en.wikipedia.org/wiki/Hadamard_product_(matrices)">Hadamard product (matrices)</a></p></li>
+</ol>
+<p>For two matrices A and B of the same dimension m × n, the Hadamard product
+is a matrix of the same dimension as the operands, with elements given by</p>
+<div class="math notranslate nohighlight">
+\[(A\circ B)_{ij}=(A\odot B)_{ij}=(A)_{ij}(B)_{ij}\]</div>
+<p>Hadamard Product or Element Wise Matrix Multiplication between any number of Matrices can be done if all the Matrices have Same Number of Rows and Same Number of Columns. The Resultant Matrix also has the Same Number of Rows and Columns as the input Matrices.</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}A=\begin{bmatrix}
+a_{11}&amp;a_{12}  &amp; \cdots  &amp;a_{1n} \\
+a_{21}&amp;a_{22}  &amp;  \cdots&amp;a_{2n} \\
+\vdots &amp; \vdots  &amp; \ddots  &amp; \vdots\\
+a_{m1}&amp;a_{m2}  &amp; \cdots &amp;a_{mn}
+\end{bmatrix}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}B=\begin{bmatrix}
+b_{11}&amp;b_{12}  &amp; \cdots  &amp;b_{1n} \\
+b_{21}&amp;b_{22}  &amp;  \cdots &amp;b_{2n} \\
+\vdots &amp; \vdots  &amp; \ddots  &amp; \vdots\\
+b_{m1}&amp;b_{m2}  &amp; \cdots &amp;b_{mn}
+\end{bmatrix}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+ A\circ B  = B\circ A &amp; = \begin{bmatrix}
+ a_{11}&amp;a_{12}  &amp; \cdots  &amp;a_{1n} \\
+ a_{21}&amp;a_{22}  &amp;  \cdots&amp;a_{2n} \\
+ \vdots &amp; \vdots  &amp; \ddots  &amp; \vdots\\
+ a_{m1}&amp;a_{m2}  &amp; \cdots &amp;a_{mn}
+ \end{bmatrix}\circ
+\begin{bmatrix}
+ b_{11}&amp;b_{12}  &amp; \cdots  &amp;b_{1n} \\
+ b_{21}&amp;b_{22}  &amp;  \cdots&amp;b_{2n} \\
+ \vdots &amp; \vdots  &amp; \ddots  &amp; \vdots\\
+ b_{m1}&amp;b_{m2}  &amp; \cdots &amp;b_{mn}
+ \end{bmatrix} \\
+ &amp; = \begin{bmatrix}
+ a_{11}\circ b_{11}&amp;a_{12}\circ b_{12}  &amp; \cdots  &amp;a_{1n}\circ b_{1n} \\
+ a_{21}\circ b_{21}&amp;a_{22}\circ b_{22}  &amp;  \cdots&amp;a_{2n}\circ b_{2n} \\
+ \vdots &amp; \vdots  &amp; \ddots  &amp; \vdots\\
+ a_{m1}\circ b_{m1}&amp;a_{m2}\circ b_{m2}  &amp; \cdots &amp;a_{mn}\circ b_{mn}
+ \end{bmatrix}
+ \end{align}\end{split}\]</div>
+</section>
+<section id="double-dot-product-of-2-matrices">
+<h3>Double-Dot Product of 2 Matrices<a class="headerlink" href="#double-dot-product-of-2-matrices" title="Link to this heading"></a></h3>
+<ol class="arabic simple">
+<li><p><a class="reference external" href="https://stemandmusic.in/maths/mvt-algebra/matrixDDP.php">Double-Dot Product of 2 Matrices</a></p></li>
+</ol>
+<ul class="simple">
+<li><p>Double-Dot Product between any 2 Matrices can be done if Both the Matrices have Same Number of Rows and Same Number of Columns. The Double-Dot Product of 2 Matrices is a Scalar Value.</p></li>
+<li><p>The Double-Dot Product of 2 Matrices is calculated by Calculating their Hadamard Product and Adding up all the Elements of the Resulting Matrix.</p></li>
+<li><p>Given 2 <span class="math notranslate nohighlight">\(m\times n\)</span> Matrices, Matrix <span class="math notranslate nohighlight">\(A\)</span> having elements <span class="math notranslate nohighlight">\(a_{ij}\)</span> Matrix <span class="math notranslate nohighlight">\(B\)</span> having elements <span class="math notranslate nohighlight">\(b_{ij}\)</span> as following</p></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}A=\begin{bmatrix}
+a_{11}&amp;a_{12}  &amp; \cdots  &amp;a_{1n} \\
+a_{21}&amp;a_{22}  &amp;  \cdots&amp;a_{2n} \\
+\vdots &amp; \vdots  &amp; \ddots  &amp; \vdots\\
+a_{m1}&amp;a_{m2}  &amp; \cdots &amp;a_{mn}
+\end{bmatrix}
+\quad
+B=\begin{bmatrix}
+b_{11}&amp;b_{12}  &amp; \cdots  &amp;b_{1n} \\
+b_{21}&amp;b_{22}  &amp;  \cdots &amp;b_{2n} \\
+\vdots &amp; \vdots  &amp; \ddots  &amp; \vdots\\
+b_{m1}&amp;b_{m2}  &amp; \cdots &amp;b_{mn}
+\end{bmatrix}\end{split}\]</div>
+<p>The Double-Dot Product of Matrices <span class="math notranslate nohighlight">\(A\)</span> and Matrices <span class="math notranslate nohighlight">\(B\)</span> is calculated as</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+\mathbf{A}: \mathbf{B}  = \mathbf{B}: \mathbf{A} =a_{ij}\circ b_{ij}&amp; = a_{11} \circ b_{11}+a_{12} \circ b_{12}+\cdots+a_{1 n} \circ b_{1 n}\\
+&amp;+a_{21} \circ b_{21}+a_{22} \circ b_{22}+\cdots+a_{2 n} \circ b_{2 n}\\
+&amp;+\cdots\\
+&amp;+a_{m 1} \circ b_{m 1}+a_{m 2} \circ b_{m 2}+\cdots+a_{m n} \circ b_{m n}
+\end{align}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+\mathbf{A}: \mathbf{B}  = \mathbf{B}: \mathbf{A} =a_{ij}\cdot b_{ij}&amp; = a_{11}\cdot   b_{11}+a_{12} \cdot b_{12}+\cdots+a_{1 n} \cdot  b_{1 n}\\
+&amp;+a_{21} \cdot  b_{21}+a_{22} \cdot  b_{22}+\cdots+a_{2 n} \cdot b_{2 n}\\
+&amp;+\cdots\\
+&amp;+a_{m 1} \cdot  b_{m 1}+a_{m 2} \cdot  b_{m 2}+\cdots+a_{m n} \cdot  b_{m n}
+\end{align}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+\mathbf{A}: \mathbf{B}  = \mathbf{B}: \mathbf{A} =a_{ij} b_{ij}&amp; = a_{11} b_{11}+a_{12}  b_{12}+\cdots+a_{1 n}  b_{1 n}\\
+&amp;+a_{21} b_{21}+a_{22} b_{22}+\cdots+a_{2 n} \cdot b_{2 n}\\
+&amp;+\cdots\\
+&amp;+a_{m 1}  b_{m 1}+a_{m 2}   b_{m 2}+\cdots+a_{m n}  b_{m n}
+\end{align}\end{split}\]</div>
+<ul class="simple">
+<li><p>Alternative Way to Calculate the Double-Dot Product of 2 Matrices is to find the Trace of following Inner/Dot Product of the 2 Matrices</p></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{align}
+\mathbf{A}: \mathbf{B}  = \mathbf{B}: \mathbf{A}
+ =Trace(\mathbf{A}\mathbf{B}^T)=Trace(\mathbf{B}^T\mathbf{A})
+ =Trace(\mathbf{B}\mathbf{A}^T)=Trace(\mathbf{A}^T\mathbf{B})
+\end{align}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{align}
+(\mathbf{a}\mathbf{b}):(\mathbf{c}\mathbf{d})=(\mathbf{a}\cdot \mathbf{c})(\mathbf{b}\cdot\mathbf{d})
+\end{align}\]</div>
+</section>
+<section id="trace-linear-algebra">
+<h3>Trace (linear algebra)<a class="headerlink" href="#trace-linear-algebra" title="Link to this heading"></a></h3>
+<ol class="arabic simple">
+<li><p><a class="reference external" href="https://en.wikipedia.org/wiki/Trace_(linear_algebra)">Trace (linear algebra)</a></p></li>
+</ol>
+<p>The trace of an <span class="math notranslate nohighlight">\(n\times n\)</span> square matrix <span class="math notranslate nohighlight">\(\mathbf{A}\)</span> is defined as</p>
+<div class="math notranslate nohighlight">
+\[\mathrm{tr}(\mathbf{A})=a_{ii}=a_{11}+a_{22}+\cdots +a_{nn}\]</div>
+<p>The double dot product of two tensors <span class="math notranslate nohighlight">\(\boldsymbol{\tau}\)</span>  and <span class="math notranslate nohighlight">\(\nabla \mathbf{v}\)</span> is a scalar computed as</p>
+</section>
+<section id="the-divergence-theorem">
+<h3>The Divergence Theorem<a class="headerlink" href="#the-divergence-theorem" title="Link to this heading"></a></h3>
+<p>Consider an arbitrary differentiable vector field <span class="math notranslate nohighlight">\(\mathbf{v}(\mathbf{x},t)\)</span> defined in some finite region of
+physical space. Let <span class="math notranslate nohighlight">\(V\)</span> be a volume in this space with a closed surface <span class="math notranslate nohighlight">\(S\)</span> bounding the
+volume, and let the outward normal to this bounding surface be <span class="math notranslate nohighlight">\(\mathbf{n}\)</span>. The <strong>divergence
+theorem of Gauss</strong> states that (in symbolic and index notation)</p>
+<div class="math notranslate nohighlight">
+\[\int\limits_{S} \mathbf{v}\cdot \mathbf{n}\text{d}S=\int\limits_{V} \text{div }\mathbf{v}\text{d}V\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\int\limits_{S} v_{i}n_{i}\text{d}S = \int\limits_{V} \cfrac{\partial v_{i}}{\partial x_{i}}\text{d}V\]</div>
+<p>and one has the following useful identities</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+\int\limits_{S} \phi\mathbf{v}\cdot \mathbf{n}\text{d}S &amp; = \int\limits_{V} \text{div}(\phi\mathbf{v})\text{d}V\\
+\int\limits_{S} \phi \mathbf{n}\text{d}S &amp; = \int\limits_{V} \text{grad}(\phi)\text{d}V\\
+\int\limits_{S} \mathbf{n}\times \mathbf{v}\text{d}S &amp; = \int\limits_{V} \text{curl}(\mathbf{v})\text{d}V\\
+\end{align}\end{split}\]</div>
+<p>The divergence theorem can be extended to the case of higher-order tensors.</p>
+<p>Consider an arbitrary differentiable tensor field <span class="math notranslate nohighlight">\(T_{ij\cdots k}(\mathbf{x},t)\)</span> defined in some finite region of
+physical space. Let <span class="math notranslate nohighlight">\(S\)</span> be a closed surface bounding a volume <span class="math notranslate nohighlight">\(V\)</span> in this space, and let the
+outward normal to <span class="math notranslate nohighlight">\(S\)</span> be <span class="math notranslate nohighlight">\(\mathbf{n}\)</span>. The divergence theorem of Gauss then states that</p>
+<div class="math notranslate nohighlight">
+\[\int\limits_{S} T_{i j \cdots k} n_{k} \text{d} S=\int\limits_{V} \frac{\partial T_{i j \cdots k}}{\partial x_{k}} \text{d} V\]</div>
+<p>For a second order tensor,</p>
+<div class="math notranslate nohighlight">
+\[\int\limits_{S} \mathbf{T}\cdot \mathbf{n} \text{d} S  = \int\limits_{V} \text{div } \mathbf{T} \text{d} V\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\int\limits_{S} {T}_{ij}n_{ij} \text{d} S  = \int\limits_{V} \frac{\partial T_{ij}}{\partial x_{j}} \text{d} V\]</div>
+<p>One then has the important identities</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+\int\limits_{S} (\phi\mathbf{T})\cdot \mathbf{n} \text{d} S  &amp;= \int\limits_{V} \text{div }(\phi\mathbf{T}) \text{d} V\\
+\int\limits_{S} (\mathbf{u}\otimes \mathbf{n})\text{d} S  &amp;= \int\limits_{V} \text{grad }\mathbf{u} \text{d} V\\
+\int\limits_{S} \mathbf{u}\cdot\mathbf{T}\cdot \mathbf{n} \text{d} S  &amp;= \int\limits_{V} \text{div }(\mathbf{T}^{\text{T}}\cdot \mathbf{u}) \text{d} V\\
+\end{align}\end{split}\]</div>
+<p>Some formulation:</p>
+<div class="math notranslate nohighlight">
+\[\text{div}(\mathbf{T}\cdot \mathbf{a})=\mathbf{a}\cdot\text{div}(\mathbf{T}^{\text{T}})+\text{tr}(\mathbf{T}\text{ grad }\mathbf{a})\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\mathbf{T}=\begin{bmatrix}
+T_{11}&amp; T_{12} &amp; T_{13}\\
+T_{21}&amp; T_{22} &amp; T_{23}\\
+T_{31}&amp; T_{32} &amp; T_{33}\\
+\end{bmatrix} \quad
+\mathbf{T}^{\text{T}}=\begin{bmatrix}
+T_{11}&amp; T_{21} &amp; T_{31}\\
+T_{12}&amp; T_{22} &amp; T_{32}\\
+T_{13}&amp; T_{23} &amp; T_{33}\\
+\end{bmatrix} \quad
+\mathbf{a}=\begin{bmatrix}
+a_{1}\\  a_{2}\\  a_{3}\\
+\end{bmatrix}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\text{grad } \mathbf{a}=\cfrac{\partial a_{i}}{\partial x_{j}}=\begin{bmatrix}
+\cfrac{\partial a_{1}}{\partial x_{1}}&amp;
+\cfrac{\partial a_{1}}{\partial x_{2}}&amp;
+\cfrac{\partial a_{1}}{\partial x_{3}}\\
+\cfrac{\partial a_{2}}{\partial x_{1}}&amp;
+\cfrac{\partial a_{2}}{\partial x_{2}}&amp;
+\cfrac{\partial a_{2}}{\partial x_{3}}\\
+\cfrac{\partial a_{3}}{\partial x_{1}}&amp;
+\cfrac{\partial a_{3}}{\partial x_{2}}&amp;
+\cfrac{\partial a_{3}}{\partial x_{3}}\\
+\end{bmatrix}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\mathbf{T}\text{ grad } \mathbf{a}=T_{ik}\cfrac{\partial a_{k}}{\partial x_{j}}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\text{tr}(\mathbf{T}\text{ grad } \mathbf{a})=T_{ik}\cfrac{\partial a_{k}}{\partial x_{i}}=
+\begin{bmatrix}
+\quad(T_{11}\cfrac{\partial a_{1}}{\partial x_{1}}+
+T_{12}\cfrac{\partial a_{2}}{\partial x_{1}}+
+T_{13}\cfrac{\partial a_{3}}{\partial x_{1}})\\
++(T_{21}\cfrac{\partial a_{1}}{\partial x_{2}}+
+T_{22}\cfrac{\partial a_{2}}{\partial x_{2}}+
+T_{23}\cfrac{\partial a_{3}}{\partial x_{2}})\\
++(T_{31}\cfrac{\partial a_{1}}{\partial x_{3}}+
+T_{32}\cfrac{\partial a_{2}}{\partial x_{3}}+
+T_{33}\cfrac{\partial a_{3}}{\partial x_{3}})\\
+\end{bmatrix}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\text{div}\mathbf{T}=\cfrac{\partial T_{ij}}{\partial x_{j}}=\begin{bmatrix}
+\cfrac{\partial T_{11}}{\partial x_{1}}
++\cfrac{\partial T_{12}}{\partial x_{2}}
++\cfrac{\partial T_{13}}{\partial x_{3}}\\
+\cfrac{\partial T_{21}}{\partial x_{1}}
++\cfrac{\partial T_{22}}{\partial x_{2}}
++\cfrac{\partial T_{23}}{\partial x_{3}}\\
+\cfrac{\partial T_{31}}{\partial x_{1}}
++\cfrac{\partial T_{32}}{\partial x_{2}}
++\cfrac{\partial T_{33}}{\partial x_{3}}\\
+\end{bmatrix}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\mathbf{T}^{\text{T}}=\begin{bmatrix}
+T_{11}&amp; T_{21} &amp; T_{31}\\
+T_{12}&amp; T_{22} &amp; T_{32}\\
+T_{13}&amp; T_{23} &amp; T_{33}\\
+\end{bmatrix}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\text{div}\mathbf{T}^{\text{T}}=\cfrac{\partial T_{ji}}{\partial x_{j}}=\begin{bmatrix}
+ \cfrac{\partial T_{11}}{\partial x_{1}}
++\cfrac{\partial T_{21}}{\partial x_{2}}
++\cfrac{\partial T_{31}}{\partial x_{3}}\\
+ \cfrac{\partial T_{12}}{\partial x_{1}}
++\cfrac{\partial T_{22}}{\partial x_{2}}
++\cfrac{\partial T_{32}}{\partial x_{3}}\\
+ \cfrac{\partial T_{13}}{\partial x_{1}}
++\cfrac{\partial T_{23}}{\partial x_{2}}
++\cfrac{\partial T_{33}}{\partial x_{3}}\\
+\end{bmatrix}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\mathbf{a}\cdot \text{div}\mathbf{T}^{\text{T}}=a_{i}\cfrac{\partial T_{ji}}{\partial x_{j}}=\begin{bmatrix}
+\quad a_{1}(\cfrac{\partial T_{11}}{\partial x_{1}}
++\cfrac{\partial T_{21}}{\partial x_{2}}
++\cfrac{\partial T_{31}}{\partial x_{3}})\\
++a{2}(\cfrac{\partial T_{12}}{\partial x_{1}}
++\cfrac{\partial T_{22}}{\partial x_{2}}
++\cfrac{\partial T_{32}}{\partial x_{3}})\\
++a{3}(\cfrac{\partial T_{13}}{\partial x_{1}}
++\cfrac{\partial T_{23}}{\partial x_{2}}
++\cfrac{\partial T_{33}}{\partial x_{3}})\\
+\end{bmatrix}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{c}
+\mathbf{T}\cdot\mathbf{a}=T_{ij}a_{j}\\
+\text{div }(\mathbf{T}\cdot\mathbf{a})=\cfrac{\partial (T_{ij}a_{j})}{\partial x_{i}}
+=T_{ij}\cfrac{\partial (a_{j})}{\partial x_{i}}+a_{j}\cfrac{\partial (T_{ij})}{\partial x_{i}}
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+\text{div }(\mathbf{T}\cdot\mathbf{a})
+&amp; = \cfrac{\partial (T_{ij}a_{j})}{\partial x_{i}}\\
+&amp; = T_{ij}\cfrac{\partial (a_{j})}{\partial x_{i}}+a_{j}\cfrac{\partial (T_{ij})}{\partial x_{i}}\\
+&amp; = \text{tr}(\mathbf{T}\text{ grad } \mathbf{a})+\mathbf{a}\cdot \text{div}(\mathbf{T}^{\text{T}})
+\end{align}\end{split}\]</div>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="curvilinear3d.html" class="btn btn-neutral float-left" title="Generalized Curvilinear Coordinate System(3D)" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="matrix.html" class="btn btn-neutral float-right" title="Matrix" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2017~2024, eric.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

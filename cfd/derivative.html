@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Fluid Derivative &mdash; Scientific Computing 1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../_static/documentation_options.js?v=f2a433a1"></script>
+        <script src="../_static/doctools.js?v=888ff710"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Material Time Derivative" href="material_derivative.html" />
+    <link rel="prev" title="Deformation and Motion" href="deformation.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Scientific Computing
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Get started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../info.html">OneFLOW</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../user.html">THEORY</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../bash.html">Bash</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">CFD</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="ns.html">Navier–Stokes equations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="leibniz.html">Leibniz integral</a></li>
+<li class="toctree-l2"><a class="reference internal" href="rtt.html">Reynolds’ transport theorem</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mass.html">Conservation Of Mass</a></li>
+<li class="toctree-l2"><a class="reference internal" href="momenum.html">Momentum Analysis Of Flow Systems</a></li>
+<li class="toctree-l2"><a class="reference internal" href="energy.html">Conservation Of Energy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ns-integral.html">ALE Form of Conservation Equations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="curvilinear.html">Generalized Curvilinear Coordinate System</a></li>
+<li class="toctree-l2"><a class="reference internal" href="curvilinear3d.html">Generalized Curvilinear Coordinate System(3D)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="vector.html">Vector &amp; Tensor</a></li>
+<li class="toctree-l2"><a class="reference internal" href="matrix.html">Matrix</a></li>
+<li class="toctree-l2"><a class="reference internal" href="calculus.html">Calculus</a></li>
+<li class="toctree-l2"><a class="reference internal" href="substitution.html">Substitution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="jacobian.html">Jacobian matrix</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gauss.html">Gauss’s Theorem</a></li>
+<li class="toctree-l2"><a class="reference internal" href="strain.html">Strain Measures</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ale.html">Arbitrary Lagrangian-Eulerian</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ale1d.html">ALE 1D</a></li>
+<li class="toctree-l2"><a class="reference internal" href="deformation.html">Deformation and Motion</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Fluid Derivative</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#eulerian-description">Eulerian Description</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#lagrangian-description">Lagrangian Description</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#interconversion-of-the-two-descriptions">Interconversion of the two descriptions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ale-description">ALE Description</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#material-spatial-and-referential-time-derivatives">Material, spatial, and referential time derivatives</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="material_derivative.html">Material Time Derivative</a></li>
+<li class="toctree-l2"><a class="reference internal" href="scheme/index.html">CFD Schemes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="examples/index.html">CFD Examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="method/index.html">CFD Methods</a></li>
+<li class="toctree-l2"><a class="reference internal" href="codes.html">Reference Codes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="videos.html">CFD &amp; CAE Videos</a></li>
+<li class="toctree-l2"><a class="reference internal" href="books.html">Books</a></li>
+<li class="toctree-l2"><a class="reference internal" href="docs.html">Documents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../cgns.html">CGNS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../chatgpt.html">CHATGPT</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cpp/index.html">CPP</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cmake.html">CMake</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cmd.html">Cmd</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cuda.html">CUDA</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../design_patterns.html">Design Patterns</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../eigen.html">Eigen3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../git.html">Git</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../git.html#contexts">Contexts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fortran.html">Fortran</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../hdf5.html">HDF5</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../hpc.html">HPC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../install/index.html">Install</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../julia.html">Julia</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../jupyter.html">Jupyter Notebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../latex.html">LaTeX</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../makefile.html">Makefile</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../metis.html">METIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../mkdocs.html">MkDocs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../modules.html">Environment Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../mpi.html">MPI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../numerical/index.html">Numerical analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../oneapi.html">oneAPI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../oneflow.html">OneFLOW-CFD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../openacc.html">OpenACC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../opencl.html">OpenCL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../opengl.html">OpenGL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../openmp.html">OpenMP</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../powershell.html">PowerShell</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../python/index.html">Python</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../qt.html">Qt</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../regex.html">Regular Expressions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../science.html">Science</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sphinx.html">Sphinx</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../system/index.html">System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../taichi.html">Taichi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tcltk.html">Tcl/tk</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tecplot.html">Tecplot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../test.html">Test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../unreal_engine.html">Unreal Engine</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../vcpkg.html">vcpkg</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../yaml.html">yaml</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Scientific Computing</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">CFD</a></li>
+      <li class="breadcrumb-item active">Fluid Derivative</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/cfd/derivative.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="fluid-derivative">
+<h1>Fluid Derivative<a class="headerlink" href="#fluid-derivative" title="Link to this heading"></a></h1>
+<p>The derivative (rate of change) of a field variable <span class="math notranslate nohighlight">\(\phi(t,\mathbf{x}(t))\)</span>, which may be a scalar
+or a vector quantity representing density, velocity, temperature, etc., with respect to
+a fixed position in space is called the Eulerian derivative <span class="math notranslate nohighlight">\(\cfrac{\partial \phi}{\partial t}\)</span> while the
+derivative following a moving fluid parcel is called the Lagrangian, substantial, or
+material derivative and is denoted by <span class="math notranslate nohighlight">\(\cfrac{D \phi}{D t}\)</span>. The substantial derivative of variable <span class="math notranslate nohighlight">\(\phi\)</span>, which can be derived through application of the chain rule to account for
+changes induced by all independent variables along the path, is given by</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+\cfrac{D \phi}{D t} &amp; = \cfrac{\partial \phi}{\partial t} \cfrac{d t}{d t}+\cfrac{\partial \phi}{\partial x} \underbrace{\cfrac{d x}{d t}}_{u}+\cfrac{\partial \phi}{\partial y} \underbrace{\cfrac{d y}{d t}}_{v}+\cfrac{\partial \phi}{\partial z} \underbrace{\cfrac{d z}{d t}}_{w} \\ &amp; = \cfrac{\partial \phi}{\partial t}+u \cfrac{\partial \phi}{\partial x}+v \cfrac{\partial \phi}{\partial y}+w \cfrac{\partial \phi}{\partial z} \\ &amp; = \cfrac{\partial \phi}{\underbrace{\partial t}_{\text {local rate }}}+\underbrace{\mathbf{v} \cdot \nabla \phi}_{\begin{array}{c}
+\text { convective rate } \\
+\text { of change }
+\end{array}} \\
+\end{align}\end{split}\]</div>
+<section id="eulerian-description">
+<h2>Eulerian Description<a class="headerlink" href="#eulerian-description" title="Link to this heading"></a></h2>
+<p>This method focuses on a fixed point in the flow field space, and it expresses some physical quantity of the fluid mass flowing through any fixed point in the space at each moment
+as a function of the position <span class="math notranslate nohighlight">\(\mathbf{r}\)</span> and time <span class="math notranslate nohighlight">\(t\)</span> of that point.</p>
+<div class="math notranslate nohighlight">
+\[\phi=\phi(\mathbf{r},t)\]</div>
+</section>
+<section id="lagrangian-description">
+<h2>Lagrangian Description<a class="headerlink" href="#lagrangian-description" title="Link to this heading"></a></h2>
+<p>This method focuses on a certain fluid particle, rather than a fixed point in space,
+and it specifies the physical quantity of any particle in the process of motion as a function of
+the vector variable marking the fluid particle <span class="math notranslate nohighlight">\(\boldsymbol{\xi}\)</span> and time <span class="math notranslate nohighlight">\(t\)</span></p>
+<div class="math notranslate nohighlight">
+\[\phi=\phi(\boldsymbol{\xi},t)\]</div>
+<p>It is not difficult to understand that any definite fluid particle can be identified
+by three corresponding numbers <span class="math notranslate nohighlight">\((\xi_{1},\xi_{2},\xi_{3})\)</span>. For example, these three numbers can be taken as the vector-radius components corresponding to
+the position  <span class="math notranslate nohighlight">\(P\)</span> of the particle at an initial moment, ie.</p>
+<div class="math notranslate nohighlight">
+\[\boldsymbol{\xi}(P)=\mathbf{r}(P,t_{0})\]</div>
+</section>
+<section id="interconversion-of-the-two-descriptions">
+<h2>Interconversion of the two descriptions<a class="headerlink" href="#interconversion-of-the-two-descriptions" title="Link to this heading"></a></h2>
+<div class="math notranslate nohighlight">
+\[\mathbf{r} = \mathbf{r}(\boldsymbol{\xi},t)\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+x_{1}=\varphi_{1}(\xi_{1},\xi_{2},t)\\
+x_{2}=\varphi_{2}(\xi_{1},\xi_{2},t)\\
+\end{align}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+\xi_{1}=\varphi^{-1}_{1}(x_{1},x_{2},t)\\
+\xi_{2}=\varphi^{-1}_{2}(x_{1},x_{2},t)\\
+\end{align}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+(\xi_{1},\xi_{2}) = const\\
+x_{1} = \varphi_{1}(\xi_{1},\xi_{2},t)=\hat{x}_{1}(t)\\
+x_{2} = \varphi_{2}(\xi_{1},\xi_{2},t)=\hat{x}_{2}(t)\\
+f(\xi_{1},\xi_{2},t) = f(\xi_{1}(x_{1},x_{2},t),\xi_{2}(x_{1},x_{2},t),t)=\hat{f}(x_{1},x_{2},t)={f}^{*}(\hat{x}_{1},\hat{x}_{2},t)\\
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+\cfrac{\partial f(\xi_{1},\xi_{2},t)}{\partial t} &amp; = \cfrac{\text{d} {f}^{*}(\hat{x}_{1}(t),\hat{x}_{2}(t),t)}{\text{d} t}\\
+&amp; = \cfrac{\partial {f}^{*}(\hat{x}_{1}(t),\hat{x}_{2}(t),t)}{\partial t}\cfrac{\text{d} t}{\text{d} t}\\
+&amp;+\cfrac{\partial {f}^{*}(\hat{x}_{1}(t),\hat{x}_{2}(t),t)}{\partial \hat{x}_{1}}\cfrac{\text{d} \hat{x}_{1}(t)}{\text{d} t}\\
+&amp;+\cfrac{\partial {f}^{*}(\hat{x}_{1}(t),\hat{x}_{2}(t),t)}{\partial \hat{x}_{2}}\cfrac{\text{d} \hat{x}_{2}(t)}{\text{d} t}\\
+\end{align}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+\cfrac{\partial f(\xi_{1},\xi_{2},t)}{\partial t} &amp; = \cfrac{\text{d} \hat{f}(x_{1},x_{2},t)}{\text{d} t}\\
+&amp; = \cfrac{\partial \hat{f}(x_{1},x_{2},t)}{\partial t}\cfrac{\text{d} t}{\text{d} t}\\
+&amp;+\cfrac{\partial \hat{f}(x_{1},x_{2},t)}{\partial x_{1}}\cfrac{\partial {x}_{1}(\xi_{1},\xi_{2},t)}{\partial t}\\
+&amp;+\cfrac{\partial \hat{f}(x_{1},x_{2},t)}{\partial x_{2}}\cfrac{\partial {x}_{2}(\xi_{1},\xi_{2},t)}{\partial t}\\
+\end{align}\end{split}\]</div>
+</section>
+<section id="ale-description">
+<h2>ALE Description<a class="headerlink" href="#ale-description" title="Link to this heading"></a></h2>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+\chi_{1}=\psi^{-1}_{1}(\xi_{1},\xi_{2},t)\\
+\chi_{2}=\psi^{-1}_{2}(\xi_{1},\xi_{2},t)\\
+\end{align}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+\xi_{1}=\psi_{1}(\chi_{1},\chi_{2},t)\\
+\xi_{2}=\psi_{2}(\chi_{1},\chi_{2},t)\\
+\end{align}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+(\xi_{1},\xi_{2})=const\\
+\chi_{1}=\psi^{-1}_{1}(\xi_{1},\xi_{2},t)=\hat{\psi}^{-1}_{1}(t)\\
+\chi_{2}=\psi^{-1}_{2}(\xi_{1},\xi_{2},t)=\hat{\psi}^{-1}_{2}(t)\\
+f(\xi_{1},\xi_{2},t) = f(\psi_{1}(\chi_{1},\chi_{2},t),\psi_{2}(\chi_{1},\chi_{2},t),t)=\overline{f}(\chi_{1},\chi_{2},t)=\overline{f}^{*}(\hat{\psi}^{-1}_{1}(t),\hat{\psi}^{-1}_{2}(t),t)\\
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+\cfrac{\partial f(\xi_{1},\xi_{2},t)}{\partial t} &amp; = \cfrac{\text{d} \overline{f}^{*}(\hat{\psi}^{-1}_{1}(t),\hat{\psi}^{-1}_{2}(t),t)}{\text{d} t}\\
+&amp; = \cfrac{\partial \overline{f}^{*}(\hat{\psi}^{-1}_{1}(t),\hat{\psi}^{-1}_{2}(t),t)}{\partial t}\cfrac{\text{d} t}{\text{d} t}\\
+&amp;+\cfrac{\partial \overline{f}^{*}(\hat{\psi}^{-1}_{1}(t),\hat{\psi}^{-1}_{2}(t),t)}{\partial \chi_{1}}\cfrac{\text{d} \hat{\psi}^{-1}_{1}(t)}{\text{d} t}\\
+&amp;+\cfrac{\partial \overline{f}^{*}(\hat{\psi}^{-1}_{1}(t),\hat{\psi}^{-1}_{2}(t),t)}{\partial \chi_{2}}\cfrac{\text{d} \hat{\psi}^{-1}_{2}(t)}{\text{d} t}\\
+\end{align}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+\cfrac{\partial f(\xi_{1},\xi_{2},t)}{\partial t} &amp;= \cfrac{\text{d} \overline{f}(\chi_{1},\chi_{2},t)}{\text{d} t}\\
+ &amp;= \cfrac{\partial \overline{f}(\chi_{1},\chi_{2},t)}{\partial t}\cfrac{\text{d} t}{\text{d} t}\\
+&amp;+\cfrac{\partial\overline{f}(\chi_{1},\chi_{2},t)}{\partial \chi_{1}}\cfrac{\partial \psi^{-1}_{1}(\xi_{1},\xi_{2},t)}{\partial t}\\
+&amp;+\cfrac{\partial\overline{f}(\chi_{1},\chi_{2},t)}{\partial \chi_{2}}\cfrac{\partial \psi^{-1}_{2}(\xi_{1},\xi_{2},t)}{\partial t}\\
+\end{align}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+x_{1} &amp; = \varphi_{1}(\xi_{1},\xi_{2},t) = \phi_{1}(\chi_{1},\chi_{2},t)=\phi_{1}(\psi^{-1}_{1}(\xi_{1},\xi_{2},t),\psi^{-1}_{2}(\xi_{1},\xi_{2},t),t)\\
+x_{2} &amp; = \varphi_{2}(\xi_{1},\xi_{2},t) = \phi_{2}(\chi_{1},\chi_{2},t)=\phi_{2}(\psi^{-1}_{1}(\xi_{1},\xi_{2},t),\psi^{-1}_{2}(\xi_{1},\xi_{2},t),t)\\
+\end{align}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+v_{1}&amp;=v_{1}(\xi_{1},\xi_{2},t)=\cfrac{\partial \varphi_{1}(\xi_{1},\xi_{2},t)}{\partial t}\\
+&amp;=\cfrac{\partial \phi_{1}(\chi_{1},\chi_{2},t)}{\partial t}
++\cfrac{\partial \phi_{1}(\chi_{1},\chi_{2},t)}{\partial \chi_{1}}\cdot
+ \cfrac{\partial \psi^{-1}_{1}(\xi_{1},\xi_{2},t)}{\partial t}
++\cfrac{\partial \phi_{1}(\chi_{1},\chi_{2},t)}{\partial \chi_{2}}\cdot
+ \cfrac{\partial \psi^{-1}_{2}(\xi_{1},\xi_{2},t)}{\partial t}\\
+v_{2}&amp;=v_{2}(\xi_{1},\xi_{2},t)=\cfrac{\partial \varphi_{2}(\xi_{1},\xi_{2},t)}{\partial t}\\
+&amp;=\cfrac{\partial \phi_{2}(\chi_{1},\chi_{2},t)}{\partial t}
++\cfrac{\partial \phi_{2}(\chi_{1},\chi_{2},t)}{\partial \chi_{1}}\cdot
+ \cfrac{\partial \psi^{-1}_{1}(\xi_{1},\xi_{2},t)}{\partial t}
++\cfrac{\partial \phi_{2}(\chi_{1},\chi_{2},t)}{\partial \chi_{2}}\cdot
+ \cfrac{\partial \psi^{-1}_{2}(\xi_{1},\xi_{2},t)}{\partial t}\\
+\end{align}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+v_{j} &amp; = v_{j}(\xi_{1},\xi_{2},t)  = \cfrac{\partial \varphi_{j}(\xi_{1},\xi_{2},t)}{\partial t}\\
+ &amp; = \cfrac{\partial \phi_{j}(\chi_{1},\chi_{2},t)}{\partial t}
++\cfrac{\partial \phi_{j}(\chi_{1},\chi_{2},t)}{\partial \chi_{1}}\cdot
+ \cfrac{\partial \psi^{-1}_{1}(\xi_{1},\xi_{2},t)}{\partial t}
++\cfrac{\partial \phi_{j}(\chi_{1},\chi_{2},t)}{\partial \chi_{2}}\cdot
+ \cfrac{\partial \psi^{-1}_{2}(\xi_{1},\xi_{2},t)}{\partial t}\\
+\end{align}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+v_{j} &amp; = v_{j}(\xi_{1},\xi_{2},t)  = \cfrac{\partial \varphi_{j}(\xi_{1},\xi_{2},t)}{\partial t}\\
+ &amp; = \cfrac{\partial \phi_{j}(\chi_{1},\chi_{2},t)}{\partial t}
++\cfrac{\partial \phi_{j}(\chi_{1},\chi_{2},t)}{\partial \chi_{k}}\cdot
+ \cfrac{\partial \psi^{-1}_{k}(\xi_{1},\xi_{2},t)}{\partial t}\\
+\end{align}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+v_{j} &amp; = v_{j}(\boldsymbol\xi,t)  =
+\hat v_{j}(\boldsymbol\chi,t)
++\cfrac{\partial x_{j}(\boldsymbol\chi,t)}{\partial \chi_{k}(\boldsymbol\xi,t)}\cdot
+\cfrac{\partial \chi_{k}(\boldsymbol\xi,t)}{\partial t}\\
+\end{align}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[w_{k}=w_{k}(\xi_{1},\xi_{2},t)=w_{k}(\boldsymbol\xi,t)=\cfrac{\partial \chi_{k}(\xi_{1},\xi_{2},t)}{\partial t}=\cfrac{\partial \chi_{k}(\boldsymbol\xi,t)}{\partial t}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+c_{j}=v_{j}(\boldsymbol\xi,t)-\hat v_{j}(\boldsymbol\chi,t)&amp;=\cfrac{\partial x_{j}(\boldsymbol\chi,t)}{\partial \chi_{k}(\boldsymbol\xi,t)}\cdot
+ \cfrac{\partial \chi_{k}(\boldsymbol\xi,t)}{\partial t}\\
+&amp;=\cfrac{\partial x_{j}(\boldsymbol\chi,t)}{\partial \chi_{k}(\boldsymbol\xi,t)}\cdot w_{k}(\boldsymbol\xi,t)\\
+&amp;=\cfrac{\partial x_{j}}{\partial \chi_{k}}\cdot w_{k}\\
+\end{align}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\underbrace{\mathbf{c}}_{\text{convective velocity}}=\underbrace{\mathbf{v}}_{\text{fluid velocity}}-\underbrace{\hat{\mathbf{v}}}_{\text{mesh velocity}}=\cfrac{\partial x_{j}}{\partial \chi_{k}}\cdot \underbrace{w_{k}}_{\text{referential velocity}}\]</div>
+</section>
+<section id="material-spatial-and-referential-time-derivatives">
+<h2>Material, spatial, and referential time derivatives<a class="headerlink" href="#material-spatial-and-referential-time-derivatives" title="Link to this heading"></a></h2>
+<p>In order to relate the time derivative in the material, spatial,
+and referential domains, let a scalar physical quantity be
+described by <span class="math notranslate nohighlight">\(f(\mathbf{x},t)\)</span>, <span class="math notranslate nohighlight">\(f^{*}(\boldsymbol{\chi},t)\)</span>, and <span class="math notranslate nohighlight">\(f^{**}(\boldsymbol{\xi},t)\)</span> in the spatial,
+referential, and material domains respectively. Stars are
+employed to emphasize that the functional forms are, in
+general, different.</p>
+<div class="math notranslate nohighlight">
+\[f^{**}(\boldsymbol{\xi},t)=f(\mathbf{x},t)=f(\boldsymbol{\varphi}(\boldsymbol{\xi},t),t)\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\cfrac{\text{d}F(t)}{\text{d}t}=\cfrac{\partial f^{**}(\boldsymbol{\xi},t)}{\partial t}
+=\cfrac{\partial f(\mathbf{x},t)}{\partial t}+\cfrac{\partial f(\mathbf{x},t)}{\partial x_{j}(\boldsymbol{\xi},t)}\cdot\cfrac{\partial x_{j}(\boldsymbol{\xi},t)}{\partial t} \\\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\text{grad }f=\nabla f =\begin{bmatrix}
+\cfrac{\partial f(\mathbf{x},t)}{\partial \mathbf{x}}
+\end{bmatrix}^{\text{T}}
+=\begin{bmatrix}
+ \cfrac{\partial f(\mathbf{x},t)}{\partial {x}_{1}}\\
+ \cfrac{\partial f(\mathbf{x},t)}{\partial {x}_{2}}
+\end{bmatrix}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\mathbf{v}=\begin{bmatrix}
+\cfrac{\partial x_{1}(\boldsymbol{\xi},t)}{\partial t}\\
+\cfrac{\partial x_{2}(\boldsymbol{\xi},t)}{\partial t}
+\end{bmatrix}
+=\begin{bmatrix}
+\cfrac{\partial x_{1}}{\partial t}\Bigg|_{\boldsymbol{\xi}}\\
+\cfrac{\partial x_{2}}{\partial t}\Bigg|_{\boldsymbol{\xi}}
+\end{bmatrix}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\cfrac{\partial f^{**}}{\partial t}
+=\cfrac{\partial f}{\partial t}+\cfrac{\partial f}{\partial\mathbf{x}}\cdot\mathbf{v}\]</div>
+<p>Note that this is the well-known equation that relates the
+material and the spatial time derivatives. Dropping the stars
+to ease the notation, this relation is finally cast as</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+\cfrac{\text{d} f}{\text{d} t}=\cfrac{\partial f}{\partial t}\Bigg|_{\boldsymbol{\xi}}
+=\cfrac{\partial f}{\partial t}\Bigg|_{\mathbf{x}}+\mathbf{v}\cdot\nabla f\\
+\end{align}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+\cfrac{\text{d} f}{\text{d} t}=\cfrac{\partial f}{\partial t}\Bigg|_{\boldsymbol{\xi}}
+=\cfrac{\partial f}{\partial t}\Bigg|_{\mathbf{x}}+\mathbf{v}\cdot\nabla f\\
+\end{align}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\cfrac{\text{d} f}{\text{d} t}=\cfrac{\partial f}{\partial t}+\mathbf{v}\cdot\nabla f\]</div>
+<p>With the help of mapping <span class="math notranslate nohighlight">\(\boldsymbol{\psi}\)</span>, the transformation from
+the referential description <span class="math notranslate nohighlight">\(f^{*}(\boldsymbol{\chi},t)\)</span> of the scalar physical
+quantity to the material description <span class="math notranslate nohighlight">\(f^{**}(\boldsymbol{\xi},t)\)</span> can be written
+as</p>
+<div class="math notranslate nohighlight">
+\[f^{**}(\boldsymbol{\xi},t)=f^{*}(\boldsymbol{\chi},t)=f^{*}(\boldsymbol{\psi}^{-1}(\boldsymbol{\xi},t),t)\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\cfrac{\text{d}F(t)}{\text{d}t}=\cfrac{\partial f^{**}(\boldsymbol{\xi},t)}{\partial t}
+=\cfrac{\partial f^{*}(\boldsymbol{\chi},t)}{\partial t}+\cfrac{\partial f^{*}(\boldsymbol{\chi},t)}{\partial \chi_{j}(\boldsymbol{\xi},t)}\cdot\cfrac{\partial \chi_{j}(\boldsymbol{\xi},t)}{\partial t} \\\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\cfrac{\partial f^{**}(\boldsymbol{\xi},t)}{\partial t}
+=\cfrac{\partial f^{*}(\boldsymbol{\chi},t)}{\partial t}+\cfrac{\partial f^{*}(\boldsymbol{\chi},t)}{\partial\boldsymbol{\chi}(\boldsymbol{\xi},t)}\cdot\mathbf{w}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\mathbf{w}=\begin{bmatrix}
+\cfrac{\partial \chi_{1}(\boldsymbol{\xi},t)}{\partial t}\\
+\cfrac{\partial \chi_{2}(\boldsymbol{\xi},t)}{\partial t}\\
+\end{bmatrix}=
+\begin{bmatrix}
+\cfrac{\partial \chi_{1}}{\partial t}\Bigg|_{\boldsymbol{\xi}}\\
+\cfrac{\partial \chi_{2}}{\partial t}\Bigg|_{\boldsymbol{\xi}}\\
+\end{bmatrix}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\cfrac{\partial f^{**}}{\partial t}
+=\cfrac{\partial f^{*}}{\partial t}+\cfrac{\partial f^{*}}{\partial\boldsymbol{\chi}}\cdot\mathbf{w}\]</div>
+<p>Note that this equation relates the material and the referential time derivatives. However, it also requires the
+evaluation of the gradient of the considered quantity in
+the referential domain. This can be done, but in computational mechanics it is usually easier to work in the spatial
+(or material) domain.</p>
+<div class="math notranslate nohighlight">
+\[f^{**}(\boldsymbol{\xi},t)=f^{*}(\boldsymbol{\chi},t)=f(\mathbf{x},t) =f(\boldsymbol{\phi}(\boldsymbol{\chi},t),t)\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[f^{*}(\boldsymbol{\chi},t)=f(\boldsymbol{\phi}(\boldsymbol{\chi},t),t)\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\cfrac{\partial f^{*}(\boldsymbol{\chi},t)}{\partial {\chi}_{j}}=
+\cfrac{\partial f(\boldsymbol{\phi}(\boldsymbol{\chi},t),t)}{\partial {x}_{k}}\cdot
+\cfrac{\partial {\phi}_{k}(\boldsymbol{\chi},t)}{\partial {\chi}_{j}}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\cfrac{\partial f^{*}(\boldsymbol{\chi},t)}{\partial {\chi}_{j}}=
+\cfrac{\partial f(\mathbf{x},t)}{\partial {x}_{k}}\cdot
+\cfrac{\partial {x}_{k}(\boldsymbol{\chi},t)}{\partial {\chi}_{j}}\\\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\cfrac{\text{d}F(t)}{\text{d}t}=\cfrac{\partial f^{**}(\boldsymbol{\xi},t)}{\partial t}
+=\cfrac{\partial f^{*}(\boldsymbol{\chi},t)}{\partial t}+\cfrac{\partial f^{*}(\boldsymbol{\chi},t)}{\partial \chi_{j}(\boldsymbol{\xi},t)}\cdot\cfrac{\partial \chi_{j}(\boldsymbol{\xi},t)}{\partial t} \\
+=\cfrac{\partial f^{*}(\boldsymbol{\chi},t)}{\partial t}+\cfrac{\partial f(\mathbf{x},t)}{\partial {x}_{k}}\cdot
+\cfrac{\partial {x}_{k}(\boldsymbol{\chi},t)}{\partial {\chi}_{j}}\cdot\cfrac{\partial \chi_{j}(\boldsymbol{\xi},t)}{\partial t} \\\end{split}\]</div>
+<p>Thus, using the definition of <span class="math notranslate nohighlight">\(w\)</span>, the previous equation may be rearranged into</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+c_{j}=v_{j}(\boldsymbol\xi,t)-\hat v_{j}(\boldsymbol\chi,t)&amp;=\cfrac{\partial x_{j}(\boldsymbol\chi,t)}{\partial \chi_{k}(\boldsymbol\xi,t)}\cdot
+ \cfrac{\partial \chi_{k}(\boldsymbol\xi,t)}{\partial t}\\
+&amp;=\cfrac{\partial x_{j}(\boldsymbol\chi,t)}{\partial \chi_{k}(\boldsymbol\xi,t)}\cdot w_{k}(\boldsymbol\xi,t)\\
+&amp;=\cfrac{\partial x_{j}}{\partial \chi_{k}}\cdot w_{k}\\
+\end{align}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+c_{k}=v_{k}(\boldsymbol\xi,t)-\hat v_{k}(\boldsymbol\chi,t)
+&amp;=\cfrac{\partial x_{k}(\boldsymbol\chi,t)}{\partial \chi_{j}(\boldsymbol\xi,t)}\cdot
+ \cfrac{\partial \chi_{j}(\boldsymbol\xi,t)}{\partial t}\\
+&amp;=\cfrac{\partial x_{k}(\boldsymbol\chi,t)}{\partial \chi_{j}(\boldsymbol\xi,t)}\cdot w_{j}(\boldsymbol\xi,t)\\
+&amp;=\cfrac{\partial x_{k}}{\partial \chi_{j}}\cdot w_{j}\\
+\end{align}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\cfrac{\text{d}F(t)}{\text{d}t}=\cfrac{\partial f^{**}}{\partial t}
+=\cfrac{\partial f^{*}}{\partial t}+\cfrac{\partial f}{\partial \mathbf{x}}\cdot \mathbf{c}\]</div>
+<p>The fundamental ALE relation between material time
+derivatives, referential time derivatives, and spatial gradient
+is finally cast as (stars dropped)</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\cfrac{\text{d} f}{\text{d} t}=\cfrac{\partial f}{\partial t}\Bigg|_{\boldsymbol{\xi}}
+=\cfrac{\partial f}{\partial t}\Bigg|_{\boldsymbol{\chi}}+\cfrac{\partial f}{\partial \mathbf{x}}\cdot \mathbf{c}
+=\cfrac{\partial f}{\partial t}\Bigg|_{\boldsymbol{\chi}}+\mathbf{c} \cdot \nabla {f}\\\end{split}\]</div>
+<p>and shows that the time derivative of the physical quantity
+f for a given particle <span class="math notranslate nohighlight">\(\boldsymbol{\xi}\)</span>, that is, its material derivative,
+is its local derivative (with the reference coordinate <span class="math notranslate nohighlight">\(\boldsymbol{\chi}\)</span> held
+fixed) plus a convective term taking into account the relative
+velocity <span class="math notranslate nohighlight">\(\mathbf{c}\)</span> between the material and the reference system.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="deformation.html" class="btn btn-neutral float-left" title="Deformation and Motion" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="material_derivative.html" class="btn btn-neutral float-right" title="Material Time Derivative" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2017~2024, eric.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

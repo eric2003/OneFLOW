@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Strain Measures &mdash; Scientific Computing 1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../_static/documentation_options.js?v=f2a433a1"></script>
+        <script src="../_static/doctools.js?v=888ff710"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Arbitrary Lagrangian-Eulerian" href="ale.html" />
+    <link rel="prev" title="Gauss’s Theorem" href="gauss.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Scientific Computing
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Get started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../info.html">OneFLOW</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../user.html">THEORY</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../bash.html">Bash</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">CFD</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="ns.html">Navier–Stokes equations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="leibniz.html">Leibniz integral</a></li>
+<li class="toctree-l2"><a class="reference internal" href="rtt.html">Reynolds’ transport theorem</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mass.html">Conservation Of Mass</a></li>
+<li class="toctree-l2"><a class="reference internal" href="momenum.html">Momentum Analysis Of Flow Systems</a></li>
+<li class="toctree-l2"><a class="reference internal" href="energy.html">Conservation Of Energy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ns-integral.html">ALE Form of Conservation Equations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="curvilinear.html">Generalized Curvilinear Coordinate System</a></li>
+<li class="toctree-l2"><a class="reference internal" href="curvilinear3d.html">Generalized Curvilinear Coordinate System(3D)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="vector.html">Vector &amp; Tensor</a></li>
+<li class="toctree-l2"><a class="reference internal" href="matrix.html">Matrix</a></li>
+<li class="toctree-l2"><a class="reference internal" href="calculus.html">Calculus</a></li>
+<li class="toctree-l2"><a class="reference internal" href="substitution.html">Substitution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="jacobian.html">Jacobian matrix</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gauss.html">Gauss’s Theorem</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Strain Measures</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#deformation-gradient">Deformation Gradient</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id1">Strain Measures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#green-strain-tensor">Green Strain Tensor</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#rate-of-deformation">Rate-of-Deformation</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="ale.html">Arbitrary Lagrangian-Eulerian</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ale1d.html">ALE 1D</a></li>
+<li class="toctree-l2"><a class="reference internal" href="deformation.html">Deformation and Motion</a></li>
+<li class="toctree-l2"><a class="reference internal" href="derivative.html">Fluid Derivative</a></li>
+<li class="toctree-l2"><a class="reference internal" href="material_derivative.html">Material Time Derivative</a></li>
+<li class="toctree-l2"><a class="reference internal" href="scheme/index.html">CFD Schemes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="examples/index.html">CFD Examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="method/index.html">CFD Methods</a></li>
+<li class="toctree-l2"><a class="reference internal" href="codes.html">Reference Codes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="videos.html">CFD &amp; CAE Videos</a></li>
+<li class="toctree-l2"><a class="reference internal" href="books.html">Books</a></li>
+<li class="toctree-l2"><a class="reference internal" href="docs.html">Documents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../cgns.html">CGNS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../chatgpt.html">CHATGPT</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cpp/index.html">CPP</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cmake.html">CMake</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cmd.html">Cmd</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cuda.html">CUDA</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../design_patterns.html">Design Patterns</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../eigen.html">Eigen3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../git.html">Git</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../git.html#contexts">Contexts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fortran.html">Fortran</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../hdf5.html">HDF5</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../hpc.html">HPC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../install/index.html">Install</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../julia.html">Julia</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../jupyter.html">Jupyter Notebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../latex.html">LaTeX</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../makefile.html">Makefile</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../metis.html">METIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../mkdocs.html">MkDocs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../modules.html">Environment Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../mpi.html">MPI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../numerical/index.html">Numerical analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../oneapi.html">oneAPI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../oneflow.html">OneFLOW-CFD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../openacc.html">OpenACC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../opencl.html">OpenCL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../opengl.html">OpenGL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../openmp.html">OpenMP</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../powershell.html">PowerShell</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../python/index.html">Python</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../qt.html">Qt</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../regex.html">Regular Expressions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../science.html">Science</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sphinx.html">Sphinx</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../system/index.html">System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../taichi.html">Taichi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tcltk.html">Tcl/tk</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tecplot.html">Tecplot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../test.html">Test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../unreal_engine.html">Unreal Engine</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../vcpkg.html">vcpkg</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../yaml.html">yaml</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Scientific Computing</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">CFD</a></li>
+      <li class="breadcrumb-item active">Strain Measures</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/cfd/strain.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="strain-measures">
+<h1>Strain Measures<a class="headerlink" href="#strain-measures" title="Link to this heading"></a></h1>
+<section id="deformation-gradient">
+<h2>Deformation Gradient<a class="headerlink" href="#deformation-gradient" title="Link to this heading"></a></h2>
+<p>The description of deformation and the measure of strain are essential parts of nonlinear
+continuum mechanics. An important variable in the characterization of deformation is the
+deformation gradient. The deformation gradient is defined by</p>
+<div class="math notranslate nohighlight">
+\[F_{ij}=\cfrac{\partial \phi_{i}}{\partial X_{j}}=\cfrac{\partial x_{i}}{\partial X_{j}}\]</div>
+<p>or</p>
+<div class="math notranslate nohighlight">
+\[\mathbf{F}=\cfrac{\partial \boldsymbol\phi}{\partial \mathbf{X}}=\cfrac{\partial \mathbf{x}}{\partial \mathbf{X}}
+=(\nabla_{0}\boldsymbol\phi)^{\text{T}}\]</div>
+<p>In the terminology of mathematics, the deformation gradient <span class="math notranslate nohighlight">\(F\)</span> is the Jacobian matrix of the
+motion <span class="math notranslate nohighlight">\(\boldsymbol\phi(\mathbf{X}, t)\)</span>. Note in the above that the first index of <span class="math notranslate nohighlight">\(F_{ij}\)</span> refers to the motion, the second to the
+partial derivative. The operator <span class="math notranslate nohighlight">\(\nabla_{0}\)</span> is the left gradient with respect to the material coordinates.</p>
+<p>If we consider an infinitesimal line segment <span class="math notranslate nohighlight">\(d\mathbf{X}\)</span> in the reference configuration, then the corresponding line segment <span class="math notranslate nohighlight">\(d\mathbf{x}\)</span> in the current configuration is
+given by</p>
+<div class="math notranslate nohighlight">
+\[d\mathbf{x}=\mathbf{F}\cdot d\mathbf{X}\]</div>
+<p>or</p>
+<div class="math notranslate nohighlight">
+\[d{x}_{i}={F}_{ij}\cdot d{X}_{j}\]</div>
+<p>In the above expression, the dot could have been omitted between the <span class="math notranslate nohighlight">\(\mathbf{F}\)</span> and <span class="math notranslate nohighlight">\(d\mathbf{X}\)</span>, since the
+expression is also valid as a matrix expression. We have retained it to conform to our convention
+of always explicitly indicating contractions in tensor expressions.</p>
+<p>In two dimensions, the deformation gradient in a rectangular coordinate system is given by</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\mathbf{F}=\left[\begin{array}{ll}
+\cfrac{\partial x_{1}}{\partial X_{1}} &amp; \cfrac{\partial x_{1}}{\partial X_{2}} \\
+\cfrac{\partial x_{2}}{\partial X_{1}} &amp; \cfrac{\partial x_{2}}{\partial X_{2}}
+\end{array}\right]=\left[\begin{array}{ll}
+\cfrac{\partial x}{\partial X} &amp; \cfrac{\partial x}{\partial Y} \\
+\cfrac{\partial y}{\partial X} &amp; \cfrac{\partial y}{\partial Y}
+\end{array}\right]\end{split}\]</div>
+<p>As can be seen in the above, in writing a second-order tensor in matrix form, we use the first
+index for the row number, and the second index for the column number. Note that <span class="math notranslate nohighlight">\(\mathbf{F}\)</span> is the
+transpose of the left-gradient.</p>
+<p>The determinant of <span class="math notranslate nohighlight">\(\mathbf{F}\)</span> is denoted by <span class="math notranslate nohighlight">\(J\)</span> and called the Jacobian determinant or the determinant of the deformation gradient</p>
+<div class="math notranslate nohighlight">
+\[J=\text{det}(\mathbf{F})\]</div>
+<p>The Jacobian determinant can be used to relate integrals in the current and reference configurations by</p>
+<div class="math notranslate nohighlight">
+\[\int\limits_{\Omega}f(\mathbf{x},t)\text{d}\Omega=\int\limits_{\Omega}f(\boldsymbol\phi(\mathbf{X},t),t)J\text{d}\Omega_{0}\]</div>
+<p>or</p>
+<div class="math notranslate nohighlight">
+\[\int\limits_{\Omega}f\text{d}\Omega=\int\limits_{\Omega}fJ\text{d}\Omega_{0}\]</div>
+<p>or in two dimensions</p>
+<div class="math notranslate nohighlight">
+\[\int\limits_{\Omega}f(x,y)\text{d}x\text{d}y=\int\limits_{\Omega}f(X,Y)J\text{d}X\text{d}Y\]</div>
+<p>The material derivative of the Jacobian determinant is given by</p>
+<div class="math notranslate nohighlight">
+\[\cfrac{\text{d}J}{\text{d}t}=\dot{J} =J\text{ div }\mathbf{v}=J\cfrac{\partial{v}_{i}}{\partial{x}_{i}}\]</div>
+</section>
+<section id="id1">
+<h2>Strain Measures<a class="headerlink" href="#id1" title="Link to this heading"></a></h2>
+<p>In contrast to linear elasticity, many different measures of strain and strain rate are used in
+nonlinear continuum mechanics. Only two of these measures are considered here:</p>
+<ol class="arabic simple">
+<li><p>The Green (Green–Lagrange) strain, E.</p></li>
+<li><p>The rate-of-deformation tensor, D</p></li>
+</ol>
+</section>
+<section id="green-strain-tensor">
+<h2>Green Strain Tensor<a class="headerlink" href="#green-strain-tensor" title="Link to this heading"></a></h2>
+<p>The Green strain tensor <span class="math notranslate nohighlight">\(E\)</span> is defined by</p>
+<div class="math notranslate nohighlight">
+\[ds^{2}-dS^{2}=2d\mathbf{X}\cdot\mathbf{E}\cdot d\mathbf{X}\]</div>
+<p>or</p>
+<div class="math notranslate nohighlight">
+\[dx_{i}dx_{i}-dX_{i}dX_{i}=2dX_{i}E_{ij}dX_{j}\]</div>
+</section>
+<section id="rate-of-deformation">
+<h2>Rate-of-Deformation<a class="headerlink" href="#rate-of-deformation" title="Link to this heading"></a></h2>
+<p>The second kinematic measure to be considered here is the rate-of-deformation <span class="math notranslate nohighlight">\(\mathbf{D}\)</span>. It is also
+called the velocity strain. In contrast to the Green strain tensor, it is a rate measure of
+deformation.</p>
+<p>To develop an expression for the rate-of-deformation, we first define the velocity
+gradient <span class="math notranslate nohighlight">\(\mathbf{L}\)</span> by</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\mathbf{L}=\cfrac{\partial \mathbf{v}}{\partial \mathbf{x}}=\text{grad }\mathbf{v}=(\nabla \mathbf{v})^{\text{T}}\\\end{split}\]</div>
+<p>or</p>
+<div class="math notranslate nohighlight">
+\[L_{ij} = \cfrac{\partial v_{i}}{\partial x_{j}}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\text{d}\mathbf{v}=\mathbf{L}\cdot \text{d}\mathbf{x}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\text{d}{v}_{i}=L_{ij}\text{d}{x}_{j}\]</div>
+<p>We have shown several tensor forms of the definition, but we will primarily use the indicial
+form. The symbol <span class="math notranslate nohighlight">\(\nabla\)</span> preceding the function denotes the left spatial gradient of the function: in a spatial gradient, the derivatives are taken with respect
+to the spatial (Eulerian) coordinates. The symbol <span class="math notranslate nohighlight">\(\nabla\)</span> specifies the spatial gradient; <span class="math notranslate nohighlight">\(\nabla_{0}\)</span> is the
+material gradient.</p>
+<p>The velocity gradient tensor can be decomposed into symmetric and skew-symmetric
+parts by</p>
+<div class="math notranslate nohighlight">
+\[\mathbf{L}=\cfrac{1}{2}(\mathbf{L}+\mathbf{L}^{\text{T}})+\cfrac{1}{2}(\mathbf{L}-\mathbf{L}^{\text{T}})\]</div>
+<p>or</p>
+<div class="math notranslate nohighlight">
+\[L_{ij}=\cfrac{1}{2}({L}_{ij}+{L}_{ji})+\cfrac{1}{2}({L}_{ij}-{L}_{ji})\]</div>
+<p>This is a standard decomposition of a second-order tensor or square matrix: any secondorder tensor can be expressed as the sum of its symmetric and skew-symmetric parts in this
+manner.</p>
+<p>The rate-of-deformation <span class="math notranslate nohighlight">\(\mathbf{D}\)</span> is defined as the symmetric part of <span class="math notranslate nohighlight">\(\mathbf{L}\)</span> and the spin <span class="math notranslate nohighlight">\(\mathbf{W}\)</span> is the skew-symmetric part of <span class="math notranslate nohighlight">\(\mathbf{L}\)</span>. Using these definitions, we can write</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\mathbf{D}=\cfrac{1}{2}(\mathbf{L}+\mathbf{L}^{\text{T}}) \quad or \quad
+D_{ij}=\cfrac{1}{2}\left(\cfrac{\partial v_{i}}{\partial x_{j}}+\cfrac{\partial v_{j}}{\partial x_{i}}\right)\\\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\mathbf{W}=\cfrac{1}{2}(\mathbf{L}-\mathbf{L}^{\text{T}}) \quad or \quad
+W_{ij}=\cfrac{1}{2}\left(\cfrac{\partial v_{i}}{\partial x_{j}}-\cfrac{\partial v_{j}}{\partial x_{i}}\right)\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\mathbf{L}=(\nabla\mathbf{v})^{\text{T}}=\mathbf{D}+\mathbf{W} \quad or \quad {L}_{ij}=\cfrac{\partial v_{i}}{\partial x_{j}}={D}_{ij}+{W}_{ij}\\\end{split}\]</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="gauss.html" class="btn btn-neutral float-left" title="Gauss’s Theorem" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="ale.html" class="btn btn-neutral float-right" title="Arbitrary Lagrangian-Eulerian" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2017~2024, eric.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

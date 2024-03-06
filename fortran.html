@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Fortran &mdash; Scientific Computing 1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js?v=5d32c60e"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="_static/documentation_options.js?v=f2a433a1"></script>
+        <script src="_static/doctools.js?v=888ff710"></script>
+        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="HDF5" href="hdf5.html" />
+    <link rel="prev" title="Git" href="git.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Scientific Computing
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Get started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="info.html">OneFLOW</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="user.html">THEORY</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="bash.html">Bash</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cfd/index.html">CFD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cgns.html">CGNS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="chatgpt.html">CHATGPT</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cpp/index.html">CPP</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cmake.html">CMake</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cmd.html">Cmd</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cuda.html">CUDA</a></li>
+<li class="toctree-l1"><a class="reference internal" href="design_patterns.html">Design Patterns</a></li>
+<li class="toctree-l1"><a class="reference internal" href="eigen.html">Eigen3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="git.html">Git</a></li>
+<li class="toctree-l1"><a class="reference internal" href="git.html#contexts">Contexts</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Fortran</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#compiling-the-source-code">Compiling the source code</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#building-dynamic-link-libraries">Building Dynamic-Link Libraries</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#building-shared-libraries">Building Shared Libraries</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#fortran-formats">Fortran Formats</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mixed-programming">Mixed-Programming</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#fortran2018-examples">fortran2018-examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#fortran-fortran-series-link">FORTRAN系列链接整理(FORTRAN series link)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#example1">Example1</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#example2">Example2</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="hdf5.html">HDF5</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hpc.html">HPC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="install/index.html">Install</a></li>
+<li class="toctree-l1"><a class="reference internal" href="julia.html">Julia</a></li>
+<li class="toctree-l1"><a class="reference internal" href="jupyter.html">Jupyter Notebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="latex.html">LaTeX</a></li>
+<li class="toctree-l1"><a class="reference internal" href="makefile.html">Makefile</a></li>
+<li class="toctree-l1"><a class="reference internal" href="metis.html">METIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mkdocs.html">MkDocs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modules.html">Environment Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mpi.html">MPI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="numerical/index.html">Numerical analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="oneapi.html">oneAPI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="oneflow.html">OneFLOW-CFD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="openacc.html">OpenACC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="opencl.html">OpenCL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="opengl.html">OpenGL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="openmp.html">OpenMP</a></li>
+<li class="toctree-l1"><a class="reference internal" href="powershell.html">PowerShell</a></li>
+<li class="toctree-l1"><a class="reference internal" href="python/index.html">Python</a></li>
+<li class="toctree-l1"><a class="reference internal" href="qt.html">Qt</a></li>
+<li class="toctree-l1"><a class="reference internal" href="regex.html">Regular Expressions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="science.html">Science</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sphinx.html">Sphinx</a></li>
+<li class="toctree-l1"><a class="reference internal" href="system/index.html">System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="taichi.html">Taichi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tcltk.html">Tcl/tk</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tecplot.html">Tecplot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="test.html">Test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="unreal_engine.html">Unreal Engine</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vcpkg.html">vcpkg</a></li>
+<li class="toctree-l1"><a class="reference internal" href="yaml.html">yaml</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Scientific Computing</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Fortran</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/fortran.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="fortran">
+<h1>Fortran<a class="headerlink" href="#fortran" title="Link to this heading"></a></h1>
+<p>Fortran, as derived from Formula Translating System, is a general-purpose, imperative programming language. It is used for numeric and scientific computing.</p>
+<ol class="arabic simple">
+<li><p><a class="reference external" href="https://fortran-lang.org/">Fortran Programming Language</a></p></li>
+<li><p><a class="reference external" href="https://www.tutorialspoint.com/fortran/index.htm">Fortran Tutorial</a></p></li>
+<li><p><a class="reference external" href="https://gcc.gnu.org/onlinedocs/gfortran.pdf">Getting started with gfortran (PDF)</a></p></li>
+<li><p><a class="reference external" href="https://man7.org/linux/man-pages/man1/gfortran.1.html">gfortran(1) — Linux manual page</a></p></li>
+<li><p><a class="reference external" href="https://gcc.gnu.org/wiki/GFortranGettingStarted/">Using GNU Fortran</a></p></li>
+<li><p><a class="reference external" href="https://ourcodingclub.github.io/tutorials/fortran-intro/">INTRODUCTION TO FORTRAN</a></p></li>
+<li><p><a class="reference external" href="http://magnin.plil.net/spip.php?article97">GNU Fortran compiler (gfortran)</a></p></li>
+<li><p><a class="reference external" href="https://community.intel.com/t5/Intel-Fortran-Compiler/LINK-fatal-error-LNK1104-cannot-open-file-ifmodintr-lib/td-p/933371/">LINK : fatal error LNK1104: cannot open file ‘ifmodintr.lib’</a></p></li>
+<li><p><a class="reference external" href="https://www.intel.com/content/www/us/en/developer/articles/technical/configuring-visual-studio-for-mixed-language-applications.html">Configuring Visual Studio for Mixed-Language Applications</a></p></li>
+<li><p><a class="reference external" href="https://www.kitware.com/fortran-for-cc-developers-made-easier-with-cmake/">Fortran for C/C++ developers made easier with CMake</a></p></li>
+<li><p><a class="reference external" href="http://www.yolinux.com/TUTORIALS/LinuxTutorialMixingFortranAndC.html">Using C/C++ and Fortran together</a></p></li>
+<li><p><a class="reference external" href="https://www.youtube.com/watch?v=urcy6-kXZDw/">Calling Fortran From C - Part 1: Hello, World</a></p></li>
+<li><p><a class="reference external" href="https://www.youtube.com/watch?v=LmVUTWQDdC4/">Calling Fortran From C - Part 2: A Simple Function</a></p></li>
+<li><p><a class="reference external" href="https://www.youtube.com/watch?v=_h8eZ7vI_uw/">Calling Fortran From C - Part 3: Arrays and Matrices</a></p></li>
+<li><p><a class="reference external" href="https://www.cnblogs.com/snake553/p/6962386.html">Fortran与C/C++混合编程示例</a></p></li>
+<li><p><a class="reference external" href="https://zhejianggaoxiao.github.io/2017/03/15/C%E4%B8%8EFortran%E6%B7%B7%E5%90%88%E7%BC%96%E7%A8%8B/">C与Fortran混合编程</a></p></li>
+<li><p><a class="reference external" href="https://zhuanlan.zhihu.com/p/455728972/">Visual Studio 中 Fortran 和 C 的混合编程</a></p></li>
+<li><p><a class="reference external" href="https://wiki.ubuntu.org.cn/Mix_C_Fortran/">Mix C Fortran</a></p></li>
+<li><p><a class="reference external" href="https://docs.oracle.com/cd/E19205-01/820-1204/6nct259sc/index.html">C-Fortran 接口</a></p></li>
+<li><p><a class="reference external" href="https://www.jianshu.com/p/aefef17cef69/">Fortran-C-CPP混合编程-1</a></p></li>
+<li><p><a class="reference external" href="https://www.ibm.com/docs/zh/openxl-fortran-aix/17.1.1?topic=calls-mixing-fortran-c/">混合 Fortran 和 C++</a></p></li>
+<li><p><a class="reference external" href="https://www.bilibili.com/video/BV1XD4y1S7jz/">Windows系统下Fortran编程</a></p></li>
+<li><p><a class="reference external" href="https://blog.csdn.net/weixin_41124748/article/details/120037882/">VS2019中C++与Fortran的混合编程</a></p></li>
+<li><p><a class="reference external" href="https://github.com/aerosayan/fortran-c-interop/">Fortran C/C++ interoperability</a></p></li>
+<li><p><a class="reference external" href="https://degenerateconic.com/a-modern-fortran-scientific-programming-ecosystem.html">A Modern Fortran Scientific Programming Ecosystem</a></p></li>
+<li><p><a class="reference external" href="https://indico.cern.ch/event/403113/contributions/1847270/attachments/1123921/1603880/03_Intel_C__Fortran_Compiler.pdf">Intel® C++ &amp; Fortran Compiler</a></p></li>
+<li><p><a class="reference external" href="https://www.youtube.com/watch?v=ProXdx6xJb8/">Fortran Programming Tutorials (Revised)</a></p></li>
+<li><p><a class="reference external" href="https://wiki.usask.ca/pages/viewpage.action?pageId=1955337523">Compiling C/C++/Fortran code</a></p></li>
+<li><p><a class="reference external" href="https://www.youtube.com/watch?v=Tl3Ph-4dMTI/">Fortran with CMake (Simple Tutorial)</a></p></li>
+<li><p><a class="reference external" href="https://www.youtube.com/watch?v=tdjo1OI-30g/">Modern Fortran: Concurrency and Parallelism</a></p></li>
+<li><p><a class="reference external" href="https://www.youtube.com/watch?v=tGSoCvTLfkw/">Parallel programming without MPI - Using coarrays in Fortran</a></p></li>
+<li><p><a class="reference external" href="https://lagrange.mechse.illinois.edu/f90_mod_deps/">Fortran 90 Module Dependencies</a></p></li>
+<li><p><a class="reference external" href="https://modern-fortran-in-science-and-technology.readthedocs.io/en/latest/index.html">Modern Fortran in Science and Technology</a></p></li>
+<li><p><a class="reference external" href="https://aoterodelaroza.github.io/devnotes/modern-fortran-makefiles/">Writing Makefiles for Modern Fortran</a></p></li>
+<li><p><a class="reference external" href="https://enccs.github.io/cmake-workshop/cxx-fortran/">Mixing C++ and Fortran</a></p></li>
+<li><p><a class="reference external" href="https://riptutorial.com/fortran/">Getting started with Fortran</a></p></li>
+<li><p><a class="reference external" href="https://iraspa.org/blog/visual-studio-code-c-cpp-fortran-with-multiple-source-files/">Visual Studio Code C/C++/Fortran with Multiple Source Files</a></p></li>
+<li><p><a class="reference external" href="https://kacv.net/brad/engr325/gfortrancompile.pdf">Using gfortran with external libraries and module files</a></p></li>
+<li><p><a class="reference external" href="https://gcc.gnu.org/wiki/GfortranApps">GfortranApps</a></p></li>
+<li><p><a class="reference external" href="https://www.youtube.com/watch?v=kzloL99wtN0/">Setting Up Windows For Fortran Development</a></p></li>
+<li><p><a class="reference external" href="https://github.com/rabbiabram/awesome-fortran/">Awesome Fortran</a></p></li>
+</ol>
+<section id="compiling-the-source-code">
+<h2>Compiling the source code<a class="headerlink" href="#compiling-the-source-code" title="Link to this heading"></a></h2>
+<p>But the basics are simple enough. Take the gfortran compiler, part of the GNU compiler collection. To compile a simple program as the one above, that consists of one source file, you run the following command, assuming the source code is stored in the file “hello.f90”:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">gfortran</span> <span class="o">-</span><span class="n">c</span> <span class="n">hello</span><span class="o">.</span><span class="n">f90</span>
+</pre></div>
+</div>
+<p>This results in a file “hello.o” (as the gfortran compiler uses “.o” as the extension for the object files).</p>
+<p>The option “-c” means: only compile the source files. If you were to leave it out, then the default action of the compiler is to compile the source file and start the linker to build the actual executable program. The command:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">gfortran</span> <span class="n">hello</span><span class="o">.</span><span class="n">f90</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">gfortran</span> <span class="n">hello</span><span class="o">.</span><span class="n">f90</span> <span class="o">-</span><span class="n">o</span> <span class="n">main</span>
+</pre></div>
+</div>
+</section>
+<section id="building-dynamic-link-libraries">
+<h2>Building Dynamic-Link Libraries<a class="headerlink" href="#building-dynamic-link-libraries" title="Link to this heading"></a></h2>
+<ol class="arabic simple">
+<li><p><a class="reference external" href="https://www.intel.com/content/www/us/en/docs/fortran-compiler/developer-reference-build-windows-applications/15-0/building-dynamic-link-libraries.html">Building Dynamic-Link Libraries</a></p></li>
+</ol>
+<p>There is one more thing to be aware of: On Windows you must explicitly specify that a procedure is to be exported, i.e. is visible in the dynamic library. There are several ways — depending on the compiler you use — to achieve this. One method is via a so-called compiler directive:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>subroutine myroutine( ... )
+!GCC$ ATTRIBUTES DLLEXPORT:: myroutine
+</pre></div>
+</div>
+<p>Or, with the Intel Fortran compiler:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>subroutine myroutine( ... )
+!DEC$ ATTRIBUTES DLLEXPORT:: myroutine
+</pre></div>
+</div>
+<p>Sample program: C calling Fortran</p>
+<ol class="arabic simple">
+<li><p><a class="reference external" href="https://www.ibm.com/docs/en/xl-c-aix/13.1.0?topic=fortran-sample-program-calling/">Sample program: C calling Fortran</a></p></li>
+<li><p><a class="reference external" href="https://gcc.gnu.org/wiki/GFortranGettingStarted">Compiling a mixed C-Fortran program (main program is Fortran)</a></p></li>
+<li><p><a class="reference external" href="https://w.astro.berkeley.edu/~wright/f2c.html">C-Fortran Interface-</a></p></li>
+<li><p><a class="reference external" href="https://www.youtube.com/watch?v=1mdI-M94vDc/">FortranCon2020 [SP]: Shroud: generate Fortran wrappers for C and C++ libraries</a></p></li>
+</ol>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cmd</span><span class="o">.</span><span class="n">exe</span> <span class="s2">&quot;/K&quot;</span> <span class="s1">&#39;&quot;C:\Program Files (x86)\Intel\oneAPI\setvars.bat&quot; &amp;&amp; powershell&#39;</span>
+</pre></div>
+</div>
+<p>Temporarily change the value of the environment variable PATH</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$env:path += &quot;;d:\work\fortran_work\ModernFortran\codes\windows\shared-lib\01\&quot;
+</pre></div>
+</div>
+</section>
+<section id="building-shared-libraries">
+<h2>Building Shared Libraries<a class="headerlink" href="#building-shared-libraries" title="Link to this heading"></a></h2>
+<ol class="arabic simple">
+<li><p><a class="reference external" href="https://manuals.dianafea.com/d102/Analys/node622.html">A.1.1 Building Shared Libraries</a></p></li>
+<li><p><a class="reference external" href="https://www1.udel.edu/topics_css/software/special/language/fortran/fortran-docs/fortran-libraries1.html">Creating FORTRAN Libraries</a></p></li>
+</ol>
+</section>
+<section id="fortran-formats">
+<h2>Fortran Formats<a class="headerlink" href="#fortran-formats" title="Link to this heading"></a></h2>
+<ol class="arabic simple">
+<li><p><a class="reference external" href="https://pages.mtu.edu/~shene/COURSES/cs201/NOTES/chap05/format.html">Fortran Formats</a></p></li>
+</ol>
+</section>
+<section id="mixed-programming">
+<h2>Mixed-Programming<a class="headerlink" href="#mixed-programming" title="Link to this heading"></a></h2>
+<ol class="arabic simple">
+<li><p><a class="reference external" href="https://faculty.sites.iastate.edu/keinert/files/inline-files/calling.pdf">CALLING FORTRAN SUBROUTINES FROM FORTRAN, C, AND C++</a></p></li>
+<li><p><a class="reference external" href="https://docs.oracle.com/cd/E19422-01/819-3685/11_cfort.html">C-Fortran Interface</a></p></li>
+<li><p><a class="reference external" href="http://fcode.cn/guide-61-1.html">新语法系列 之 interface 功能详解</a></p></li>
+<li><p><a class="reference external" href="https://community.intel.com/t5/Intel-Fortran-Compiler/Calling-C-from-FORTRAN/td-p/985459">Calling ‘C’ from FORTRAN</a></p></li>
+<li><p><a class="reference external" href="https://fortran-lang.discourse.group/t/calling-c-from-fortran/3402">Calling C++ from Fortran</a></p></li>
+<li><p><a class="reference external" href="http://www.idris.fr/eng/jean-zay/cpu/jean-zay-cpu-fortran_c-eng.html">Jean Zay: Calling C functions from Fortran</a></p></li>
+<li><p><a class="reference external" href="https://hackmd.io/&#64;python-fortran-interface/rySynUcYd">Writing a Fortran-C interface</a></p></li>
+<li><p><a class="reference external" href="https://doku.lrz.de/files/10746213/10746217/1/1684600341047/Advanced_Fortran_Interop.pdf">Interoperation of Fortran with C</a></p></li>
+<li><p><a class="reference external" href="https://gcc.gnu.org/onlinedocs/gfortran/ISO_005fC_005fBINDING.html">ISO_C_BINDING</a></p></li>
+<li><p><a class="reference external" href="https://fortran-lang.discourse.group/t/iso-c-binding-looking-for-practical-example-of-how-it-helps-with-mangling/3393">Iso_c_binding: Looking for practical example of how it helps with mangling</a></p></li>
+<li><p><a class="reference external" href="https://craftofcoding.wordpress.com/2018/01/29/interoperability-calling-fortran-from-c-i/">Interoperability : Calling Fortran from C (i)</a></p></li>
+<li><p><a class="reference external" href="https://enccs.github.io/cmake-workshop/cxx-fortran/">Mixing C++ and Fortran</a></p></li>
+<li><p><a class="reference external" href="https://www.youtube.com/watch?v=aUSokzzsEko/">Philip Semanchuk| Python, C, C++, and Fortran Relationship Status: It’s Not That Complicated</a></p></li>
+<li><p><a class="reference external" href="https://indico.ictp.it/event/a13229/session/2/contribution/11/material/0/0.pdf">Mixing C, C++, and Fortran</a></p></li>
+<li><p><a class="reference external" href="https://gcc.gnu.org/onlinedocs/gfortran/Interoperable-Subroutines-and-Functions.html">Interoperable-Subroutines-and-Functions</a></p></li>
+<li><p><a class="reference external" href="https://doku.lrz.de/files/10746213/10746217/1/1684600341047/Advanced_Fortran_Interop.pdf">Interoperation of Fortran with C</a></p></li>
+<li><p><a class="reference external" href="https://fortran-lang.discourse.group/t/iso-c-binding-looking-for-practical-example-of-how-it-helps-with-mangling/3393">Iso_c_binding: Looking for practical example of how it helps with mangling</a></p></li>
+<li><p><a class="reference external" href="https://fortran-lang.org/learn/building_programs/managing_libraries/">Managing libraries (static and dynamic libraries)</a></p></li>
+<li><p><a class="reference external" href="http://www.starlink.ac.uk/docs/sun209.htx/sun209se5.html">More on Calling C from FORTRAN</a></p></li>
+<li><p><a class="reference external" href="https://abhila.sh/writing/1.0/cfmix.html">Mixed C/Fortran Programming</a></p></li>
+<li><p><a class="reference external" href="https://docs.oracle.com/cd/E19422-01/819-3685/11_cfort.html">C-Fortran Interface</a></p></li>
+<li><p><a class="reference external" href="https://riptutorial.com/fortran/example/7150/c-structs-in-fortran/">C structs in Fortran</a></p></li>
+<li><p><a class="reference external" href="https://github.com/wallytutor/medium-articles/tree/main/medium/2023-05-25-Calling-Fortran-From-C%2B%2B/interoperability-with-c">Using Fortran from C/C++</a></p></li>
+</ol>
+</section>
+<section id="fortran2018-examples">
+<h2>fortran2018-examples<a class="headerlink" href="#fortran2018-examples" title="Link to this heading"></a></h2>
+<ol class="arabic simple">
+<li><p><a class="reference external" href="https://github.com/scivision/fortran2018-examples/">fortran2018-examples</a></p></li>
+<li><p><a class="reference external" href="https://github.com/scivision/fortran-cpp-interface/">fortran-cpp-interface</a></p></li>
+<li><p><a class="reference external" href="https://github.com/scivision/fortran-submodule/">fortran-submodule</a></p></li>
+<li><p><a class="reference external" href="https://github.com/scivision/fortran-mpi-examples/">Fortran MPI Examples</a></p></li>
+<li><p><a class="reference external" href="https://github.com/scivision/fortran-parallel-examples/">Fortran Parallel Examples</a></p></li>
+<li><p><a class="reference external" href="https://github.com/scivision/sparse-fortran/">Sparse Fortran libraries</a></p></li>
+<li><p><a class="reference external" href="https://github.com/geospace-code/nc4fortran/">Object-oriented Fortran NetCDF4 interface</a></p></li>
+<li><p><a class="reference external" href="https://github.com/geospace-code/">Geospace code</a></p></li>
+</ol>
+</section>
+<section id="fortran-fortran-series-link">
+<h2>FORTRAN系列链接整理(FORTRAN series link)<a class="headerlink" href="#fortran-fortran-series-link" title="Link to this heading"></a></h2>
+<ol class="arabic simple">
+<li><p><a class="reference external" href="https://zhuanlan.zhihu.com/p/662370470/">FORTRAN系列链接整理</a></p></li>
+<li><p><a class="reference external" href="https://zhuanlan.zhihu.com/p/662369466/">ubuntu22.04下查看gfortran版本号</a></p></li>
+<li><p><a class="reference external" href="https://zhuanlan.zhihu.com/p/662372522/">ubuntu22.04+gfortran11.4.0编译运行Fortran-Hello, World示例代码</a></p></li>
+<li><p><a class="reference external" href="https://zhuanlan.zhihu.com/p/662383565/">ubuntu22.04+gfortran11.4.0编译运行Fortran-Hello, World示例代码 version 1</a></p></li>
+<li><p><a class="reference external" href="https://zhuanlan.zhihu.com/p/662416747/">ubuntu22.04+gfortran11.4.0编译运行Fortran-Hello, World示例代码 version 2</a></p></li>
+<li><p><a class="reference external" href="https://zhuanlan.zhihu.com/p/662423621/">ubuntu22.04+gfortran11.4.0编译运行Fortran-addNumbers示例代码</a></p></li>
+<li><p><a class="reference external" href="https://zhuanlan.zhihu.com/p/662434505/">ubuntu22.04+gfortran11.4.0编译运行Fortran-testingInt示例代码</a></p></li>
+<li><p><a class="reference external" href="https://zhuanlan.zhihu.com/p/662436799/">ubuntu22.04+gfortran11.4.0编译运行Fortran-testingInt+integer+kind示例代码</a></p></li>
+<li><p><a class="reference external" href="https://zhuanlan.zhihu.com/p/662447514/">ubuntu22.04+gfortran11.4.0编译运行Fortran-division+Real Type示例代码</a></p></li>
+<li><p><a class="reference external" href="https://zhuanlan.zhihu.com/p/662450844/">ubuntu22.04+gfortran11.4.0编译运行Fortran-variableTesting示例代码</a></p></li>
+<li><p><a class="reference external" href="https://zhuanlan.zhihu.com/p/662955043/">ubuntu+gfortran+创建并使用subroutine+static lib简单测试</a></p></li>
+<li><p><a class="reference external" href="https://zhuanlan.zhihu.com/p/664984017/">ubuntu+gcc+gfortran+c调用Fortran+static lib简单测试</a></p></li>
+<li><p><a class="reference external" href="https://zhuanlan.zhihu.com/p/665024598/">windows11+oneAPI+icx+ifort+c调用Fortran+static lib简单测试</a></p></li>
+<li><p><a class="reference external" href="https://zhuanlan.zhihu.com/p/665032940/">ubuntu+gcc+gfortran+c调用Fortran+static lib v1简单测试</a></p></li>
+<li><p><a class="reference external" href="https://zhuanlan.zhihu.com/p/665063802/">windows11+oneAPI+icx+ifort+c调用Fortran+(module)+static lib简单测试</a></p></li>
+<li><p><a class="reference external" href="https://zhuanlan.zhihu.com/p/665069959/">windows11+oneAPI+icx+ifort+c调用Fortran+(module)+static lib v1简单测试</a></p></li>
+<li><p><a class="reference external" href="https://zhuanlan.zhihu.com/p/665072636/">ubuntu+gcc+gfortran+c调用Fortran+(multiple modules+files)+static lib简单测试</a></p></li>
+<li><p><a class="reference external" href="https://zhuanlan.zhihu.com/p/665079819/">ubuntu+gcc+gfortran+c调用Fortran+(multiple modules+files)+static lib v1简单测试</a></p></li>
+<li><p><a class="reference external" href="https://zhuanlan.zhihu.com/p/665080732/">ubuntu+gcc+gfortran+c调用Fortran+(multiple modules+files)+static lib v2简单测试</a></p></li>
+<li><p><a class="reference external" href="https://zhuanlan.zhihu.com/p/665088630/">windows11+oneAPI+icx+ifort+c调用Fortran+(multiple modules+files)+static lib简单测试</a></p></li>
+<li><p><a class="reference external" href="https://zhuanlan.zhihu.com/p/665091815/">windows11+oneAPI+icx+ifort+c调用Fortran+(multiple modules+files)+static lib v1简单测试</a></p></li>
+<li><p><a class="reference external" href="https://zhuanlan.zhihu.com/p/665093599/">windows11+oneAPI+icx+ifort+c调用Fortran+(multiple modules+files)+static lib v2简单测试</a></p></li>
+<li><p><a class="reference external" href="https://zhuanlan.zhihu.com/p/665097378/">ubuntu+gcc+gfortran+c调用Fortran+(multiple modules+subroutines+files)+static lib简单测试</a></p></li>
+<li><p><a class="reference external" href="https://zhuanlan.zhihu.com/p/665099647/">ubuntu+gcc+gfortran+c调用Fortran+(multiple modules+subroutines+files)+static lib v1简单测试</a></p></li>
+<li><p><a class="reference external" href="https://zhuanlan.zhihu.com/p/665102187/">windows11+oneAPI+icx+ifort+c调用Fortran+(multiple modules+subroutines+files)+static lib简单测试</a></p></li>
+<li><p><a class="reference external" href="https://zhuanlan.zhihu.com/p/665103808/">windows11+oneAPI+icx+ifort+c调用Fortran+(multiple modules+subroutines+files)+static lib v1 简单测试</a></p></li>
+<li><p><a class="reference external" href="https://zhuanlan.zhihu.com/p/665106327/">windows11+oneAPI+icx+ifort+c调用Fortran+static lib v1简单测试</a></p></li>
+<li><p><a class="reference external" href="https://zhuanlan.zhihu.com/p/665123140/">ubuntu+gcc+gfortran+c调用Fortran+(single subroutine)+shared lib简单测试</a></p></li>
+<li><p><a class="reference external" href="https://zhuanlan.zhihu.com/p/665126451/">windows11+oneAPI+icx+ifort+c调用Fortran+(single subroutine)+shared lib简单测试</a></p></li>
+<li><p><a class="reference external" href="https://zhuanlan.zhihu.com/p/665136987/">ubuntu+gcc+gfortran+c调用Fortran+(single subroutine)+shared lib v1简单测试</a></p></li>
+<li><p><a class="reference external" href="https://zhuanlan.zhihu.com/p/665138079/">ubuntu+gcc+gfortran+c调用Fortran+(single module)+shared lib 简单测试</a></p></li>
+<li><p><a class="reference external" href="https://zhuanlan.zhihu.com/p/665140915/">windows11+oneAPI+icx+ifort+c调用Fortran+(single module)+shared lib简单测试</a></p></li>
+<li><p><a class="reference external" href="https://zhuanlan.zhihu.com/p/665155494/">windows11+oneAPI+icx+ifort+c调用Fortran+(single module)+shared lib v1简单测试</a></p></li>
+<li><p><a class="reference external" href="https://zhuanlan.zhihu.com/p/665156269/">ubuntu+gcc+gfortran+c调用Fortran+(single module)+shared lib v1简单测试</a></p></li>
+<li><p><a class="reference external" href="https://zhuanlan.zhihu.com/p/665157654/">ubuntu+gcc+gfortran+c调用Fortran+(multiple modules+files)+shared lib简单测试</a></p></li>
+<li><p><a class="reference external" href="https://zhuanlan.zhihu.com/p/665159392/">windows11+oneAPI+icx+ifort+c调用Fortran+(multiple modules+files)+shared lib简单测试</a></p></li>
+<li><p><a class="reference external" href="https://zhuanlan.zhihu.com/p/665176299/">windows11+oneAPI+icx+ifort+c调用Fortran+(multiple modules+files)+shared lib v1简单测试</a></p></li>
+<li><p><a class="reference external" href="https://zhuanlan.zhihu.com/p/665177428/">ubuntu+gcc+gfortran+c调用Fortran+(multiple modules+files)+shared lib v1简单测试</a></p></li>
+<li><p><a class="reference external" href="https://zhuanlan.zhihu.com/p/665179293/">windows11+oneAPI+icx+ifort+c调用Fortran+(multiple modules+subroutines+files)+shared lib 简单测试</a></p></li>
+<li><p><a class="reference external" href="https://zhuanlan.zhihu.com/p/665181216/">windows11+oneAPI+icx+ifort+c调用Fortran+(multiple modules+subroutines+files)+shared lib v1 简单测试</a></p></li>
+<li><p><a class="reference external" href="https://zhuanlan.zhihu.com/p/665182857/">ubuntu+gcc+gfortran+c调用Fortran+(multiple modules+subroutines+files)+shared lib简单测试</a></p></li>
+<li><p><a class="reference external" href="https://zhuanlan.zhihu.com/p/665184053/">ubuntu+gcc+gfortran+c调用Fortran+(multiple modules+subroutines+files)+shared lib v1简单测试</a></p></li>
+<li><p><a class="reference external" href="https://zhuanlan.zhihu.com/p/665236262/">windows11+oneAPI+icx+ifort+Fortran调用c+say_hello+static lib 简单测试</a></p></li>
+<li><p><a class="reference external" href="https://zhuanlan.zhihu.com/p/665252985/">windows11+oneAPI+icx+ifort+Fortran调用c+say_hello+shared lib 简单测试</a></p></li>
+<li><p><a class="reference external" href="https://zhuanlan.zhihu.com/p/665289536/">windows11+oneAPI+icx+ifort+Fortran调用c+print_string+static lib 简单测试</a></p></li>
+<li><p><a class="reference external" href="https://zhuanlan.zhihu.com/p/665326639/">windows11+oneAPI+icx+ifort+Fortran调用c+print_string+shared lib 简单测试</a></p></li>
+<li><p><a class="reference external" href="https://zhuanlan.zhihu.com/p/665329906/">ubuntu+gcc+gfortran+Fortran调用c+print_string+static lib 简单测试</a></p></li>
+<li><p><a class="reference external" href="https://zhuanlan.zhihu.com/p/665333322/">ubuntu+gcc+gfortran+Fortran调用c+print_string+shared lib 简单测试</a></p></li>
+<li><p><a class="reference external" href="https://zhuanlan.zhihu.com/p/665345253/">windows11+oneAPI+icx+ifort+Fortran调用c+c_add_integer+static lib 简单测试</a></p></li>
+<li><p><a class="reference external" href="https://zhuanlan.zhihu.com/p/665347386/">windows11+oneAPI+icx+ifort+Fortran调用c+c_add_integer+shared lib 简单测试</a></p></li>
+</ol>
+<p>main.c</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">extern</span> <span class="n">void</span> <span class="n">show_N1</span><span class="p">();</span>
+<span class="n">extern</span> <span class="n">void</span> <span class="n">show_N2</span><span class="p">();</span>
+<span class="n">extern</span> <span class="n">void</span> <span class="n">show_N3</span><span class="p">();</span>
+
+<span class="nb">int</span> <span class="n">main</span><span class="p">(</span><span class="nb">int</span> <span class="n">argc</span><span class="p">,</span> <span class="n">char</span> <span class="o">*</span><span class="n">argv</span><span class="p">[])</span>
+<span class="p">{</span>
+    <span class="n">show_N1</span><span class="p">();</span>
+    <span class="n">show_N2</span><span class="p">();</span>
+    <span class="n">show_N3</span><span class="p">();</span>
+
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>onemod.f90</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">module</span> <span class="n">onemod</span>
+<span class="n">implicit</span> <span class="n">none</span>
+
+   <span class="n">integer</span><span class="p">,</span> <span class="n">parameter</span> <span class="p">::</span> <span class="n">N</span> <span class="o">=</span> <span class="mi">1024</span>
+
+<span class="n">contains</span>
+   <span class="n">subroutine</span> <span class="n">show_N</span><span class="p">()</span> <span class="n">bind</span><span class="p">(</span><span class="n">C</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;show_N&#39;</span><span class="p">)</span>
+      <span class="nb">print</span><span class="o">*</span><span class="p">,</span> <span class="s2">&quot;N = &quot;</span><span class="p">,</span> <span class="n">N</span>
+   <span class="n">end</span> <span class="n">subroutine</span> <span class="n">show_N</span>
+
+<span class="n">end</span> <span class="n">module</span> <span class="n">onemod</span>
+</pre></div>
+</div>
+<p>Ubuntu+gcc+gfortran</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ gfortran -c onemod.f90
+$ gfortran -c twomods.f90
+$ ar r mods.a onemod.o twomods.o
+------------------------------------------
+check mods.a
+------------------------------------------
+$ nm mods.a
+------------------------------------------
+test(fortran)
+$ gfortran -c main.f90 -I../
+$ gfortran -o testprj main.o ../mods.a
+------------------------------------------
+test(c)
+$ gcc -c main.c
+$ gcc -o testprj main.o ../mods.a -lgfortran
+</pre></div>
+</div>
+<p>Windows11+oneAPI+icx+ifort</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ cmd.exe &quot;/K&quot; &#39;&quot;C:\Program Files (x86)\Intel\oneAPI\setvars.bat&quot; &amp;&amp; powershell&#39;
+
+$ ifort -c onemod.f90
+$ lib /OUT:onemod.lib onemod.obj
+----------------------------------
+check onemod.lib
+------------------------------------------
+$ dumpbin /symbols onemod.lib
+------------------------------------------
+test(fortran)
+$ ifort -c main.f90
+$ ifort -o testprj main.obj ../onemod.lib
+-------------------------------------
+test(c)
+$ icx -c main.c
+$ icx -o testprj main.obj ../onemod.lib
+</pre></div>
+</div>
+<p>Dumpbin</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">PS</span> <span class="n">D</span><span class="p">:</span>\<span class="n">work</span>\<span class="n">fortran_work</span>\<span class="n">ModernFortran</span>\<span class="n">codes</span>\<span class="n">windows</span>\<span class="n">c</span><span class="o">-</span><span class="n">call</span><span class="o">-</span><span class="n">fortran</span><span class="o">-</span><span class="n">lib</span>\<span class="n">static</span>\<span class="mi">01</span><span class="o">&gt;</span> <span class="n">dumpbin</span> <span class="o">/</span><span class="n">symbols</span> <span class="n">sub</span><span class="o">.</span><span class="n">lib</span>
+<span class="n">Microsoft</span> <span class="p">(</span><span class="n">R</span><span class="p">)</span> <span class="n">COFF</span><span class="o">/</span><span class="n">PE</span> <span class="n">Dumper</span> <span class="n">Version</span> <span class="mf">14.37.32825.0</span>
+<span class="n">Copyright</span> <span class="p">(</span><span class="n">C</span><span class="p">)</span> <span class="n">Microsoft</span> <span class="n">Corporation</span><span class="o">.</span>  <span class="n">All</span> <span class="n">rights</span> <span class="n">reserved</span><span class="o">.</span>
+
+
+<span class="n">Dump</span> <span class="n">of</span> <span class="n">file</span> <span class="n">sub</span><span class="o">.</span><span class="n">lib</span>
+
+<span class="n">File</span> <span class="n">Type</span><span class="p">:</span> <span class="n">LIBRARY</span>
+
+<span class="n">COFF</span> <span class="n">SYMBOL</span> <span class="n">TABLE</span>
+<span class="mi">000</span> <span class="mi">00000000</span> <span class="n">SECT1</span>  <span class="n">notype</span>       <span class="n">Static</span>       <span class="o">|</span> <span class="o">.</span><span class="n">text</span>
+    <span class="n">Section</span> <span class="n">length</span>   <span class="mi">50</span><span class="p">,</span> <span class="c1">#relocs    3, #linenums    0, checksum        0</span>
+<span class="mi">002</span> <span class="mi">00000000</span> <span class="n">SECT1</span>  <span class="n">notype</span> <span class="p">()</span>    <span class="n">External</span>     <span class="o">|</span> <span class="n">sub_</span>
+<span class="mi">003</span> <span class="mi">00000000</span> <span class="n">SECT2</span>  <span class="n">notype</span>       <span class="n">Static</span>       <span class="o">|</span> <span class="o">.</span><span class="n">rdata</span>
+    <span class="n">Section</span> <span class="n">length</span>   <span class="mi">10</span><span class="p">,</span> <span class="c1">#relocs    0, #linenums    0, checksum        0</span>
+<span class="mi">005</span> <span class="mi">00000008</span> <span class="n">SECT2</span>  <span class="n">notype</span>       <span class="n">Static</span>       <span class="o">|</span> <span class="n">__STRLITPACK_1</span>
+<span class="mi">006</span> <span class="mi">00000000</span> <span class="n">UNDEF</span>  <span class="n">notype</span> <span class="p">()</span>    <span class="n">External</span>     <span class="o">|</span> <span class="n">for_write_seq_lis</span>
+<span class="mi">007</span> <span class="mi">00000000</span> <span class="n">SECT3</span>  <span class="n">notype</span>       <span class="n">Static</span>       <span class="o">|</span> <span class="o">.</span><span class="n">xdata</span>
+    <span class="n">Section</span> <span class="n">length</span>    <span class="mi">8</span><span class="p">,</span> <span class="c1">#relocs    0, #linenums    0, checksum        0</span>
+<span class="mi">009</span> <span class="mi">00000000</span> <span class="n">SECT4</span>  <span class="n">notype</span>       <span class="n">Static</span>       <span class="o">|</span> <span class="o">.</span><span class="n">pdata</span>
+    <span class="n">Section</span> <span class="n">length</span>    <span class="n">C</span><span class="p">,</span> <span class="c1">#relocs    3, #linenums    0, checksum        0</span>
+<span class="mi">00</span><span class="n">B</span> <span class="mi">00000000</span> <span class="n">SECT2</span>  <span class="n">notype</span>       <span class="n">Static</span>       <span class="o">|</span> <span class="n">__STRLITPACK_3</span><span class="mf">.0.1</span>
+<span class="mi">00</span><span class="n">C</span> <span class="mi">00000000</span> <span class="n">UNDEF</span>  <span class="n">notype</span> <span class="p">()</span>    <span class="n">External</span>     <span class="o">|</span> <span class="n">__ImageBase</span>
+<span class="mi">00</span><span class="n">D</span> <span class="mi">00000000</span> <span class="n">SECT5</span>  <span class="n">notype</span>       <span class="n">Static</span>       <span class="o">|</span> <span class="o">.</span><span class="n">drectve</span>
+    <span class="n">Section</span> <span class="n">length</span>   <span class="n">B9</span><span class="p">,</span> <span class="c1">#relocs    0, #linenums    0, checksum        0</span>
+
+<span class="n">String</span> <span class="n">Table</span> <span class="n">Size</span> <span class="o">=</span> <span class="mh">0x44</span> <span class="nb">bytes</span>
+
+  <span class="n">Summary</span>
+
+          <span class="n">B9</span> <span class="o">.</span><span class="n">drectve</span>
+           <span class="n">C</span> <span class="o">.</span><span class="n">pdata</span>
+          <span class="mi">10</span> <span class="o">.</span><span class="n">rdata</span>
+          <span class="mi">50</span> <span class="o">.</span><span class="n">text</span>
+           <span class="mi">8</span> <span class="o">.</span><span class="n">xdata</span>
+</pre></div>
+</div>
+</section>
+<section id="example1">
+<h2>Example1<a class="headerlink" href="#example1" title="Link to this heading"></a></h2>
+<p>main.c</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">extern</span> <span class="n">void</span> <span class="n">hello_print</span><span class="p">();</span>
+<span class="nb">int</span> <span class="n">main</span><span class="p">(</span> <span class="nb">int</span> <span class="n">argc</span><span class="p">,</span> <span class="n">char</span><span class="o">**</span><span class="n">argv</span> <span class="p">)</span>
+<span class="p">{</span>
+      <span class="n">hello_print</span><span class="p">();</span>
+      <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>sub.c</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1">#include &lt;stdio.h&gt;</span>
+
+<span class="n">void</span> <span class="n">hello_print</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s2">&quot;hello!</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Windows11+oneAPI+icx</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>cd d:\work\modern_cmake_work\ModernCMake\codes\cmake\add_library\test\07b\build\
+$ cmd.exe &quot;/K&quot; &#39;&quot;C:\Program Files (x86)\Intel\oneAPI\setvars.bat&quot; &amp;&amp; powershell&#39;
+$ icx -c ../sub.c
+$ icx -c ../main.c
+$ icx -o testprj main.obj sub.obj
+</pre></div>
+</div>
+<p>Windows11+oneAPI+icx static lib</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>cd d:\work\modern_cmake_work\ModernCMake\codes\cmake\add_library\test\07c\build\
+$ cmd.exe &quot;/K&quot; &#39;&quot;C:\Program Files (x86)\Intel\oneAPI\setvars.bat&quot; &amp;&amp; powershell&#39;
+$ icx -c ../sub.c
+$ lib /OUT:sub.lib sub.obj
+$ icx -c ../main.c
+$ icx -o testprj main.obj sub.lib
+</pre></div>
+</div>
+<p>Windows11+oneAPI+icx static lib+CMake</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>cmake_minimum_required ( VERSION 3.28 )
+
+project ( testprj )
+
+add_library(sub OBJECT sub.c)
+
+add_executable ( ${PROJECT_NAME}
+    main.c
+)
+
+target_link_libraries( ${PROJECT_NAME}
+    PRIVATE
+        sub
+)
+</pre></div>
+</div>
+<p>Windows11+oneAPI+icx static lib+CMake v1</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>cmake_minimum_required ( VERSION 3.28 )
+
+project ( testprj )
+
+add_library(sub OBJECT sub.c)
+
+add_executable ( ${PROJECT_NAME}
+    main.c
+)
+
+target_link_libraries( ${PROJECT_NAME}
+    PRIVATE
+        $&lt;TARGET_OBJECTS:sub&gt;
+)
+
+get_target_property(prj_LINK_LIBRARIES ${PROJECT_NAME}  LINK_LIBRARIES)
+
+add_custom_target ( print
+    ${CMAKE_COMMAND} -E
+    echo
+    prj_LINK_LIBRARIES = ${prj_LINK_LIBRARIES} &amp;
+    echo
+    TARGET_OBJECTS:sub = $&lt;TARGET_OBJECTS:sub&gt;
+)
+</pre></div>
+</div>
+<p>Windows11+oneAPI+icx static lib+CMake v2</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>cmake_minimum_required ( VERSION 3.28 )
+
+project ( testprj )
+
+add_library(sub OBJECT sub.c)
+
+add_executable ( ${PROJECT_NAME}
+    main.c
+    $&lt;TARGET_OBJECTS:sub&gt;
+)
+
+message ( STATUS &quot;sub = ${sub}&quot; )
+
+get_target_property(prj_LINK_LIBRARIES ${PROJECT_NAME}  LINK_LIBRARIES)
+
+add_custom_target ( print
+    ${CMAKE_COMMAND} -E
+    echo
+    prj_LINK_LIBRARIES = ${prj_LINK_LIBRARIES} &amp;
+    echo
+    TARGET_OBJECTS:sub = $&lt;TARGET_OBJECTS:sub&gt;
+)
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cmake</span> <span class="o">..</span>
+<span class="n">cmake</span> <span class="o">--</span><span class="n">build</span> <span class="o">.</span> <span class="o">--</span><span class="n">target</span> <span class="nb">print</span>
+<span class="n">cmake</span> <span class="o">--</span><span class="n">build</span> <span class="o">.</span> <span class="o">--</span><span class="n">config</span> <span class="n">Debug</span> <span class="o">--</span><span class="n">target</span> <span class="nb">print</span>
+<span class="n">cmake</span> <span class="o">--</span><span class="n">build</span> <span class="o">.</span> <span class="o">--</span><span class="n">config</span> <span class="n">Release</span> <span class="o">--</span><span class="n">target</span> <span class="nb">print</span>
+</pre></div>
+</div>
+</section>
+<section id="example2">
+<h2>Example2<a class="headerlink" href="#example2" title="Link to this heading"></a></h2>
+<p>sub.c</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1">#include &lt;stdio.h&gt;</span>
+
+<span class="n">void</span> <span class="n">hello_print</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s2">&quot;hello!</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>main.c</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">extern</span> <span class="n">void</span> <span class="n">hello_print</span><span class="p">();</span>
+<span class="nb">int</span> <span class="n">main</span><span class="p">(</span> <span class="nb">int</span> <span class="n">argc</span><span class="p">,</span> <span class="n">char</span><span class="o">**</span><span class="n">argv</span> <span class="p">)</span>
+<span class="p">{</span>
+      <span class="n">hello_print</span><span class="p">();</span>
+      <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>fmain.f90</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">program</span> <span class="n">main</span>
+  <span class="n">implicit</span> <span class="n">none</span>
+
+  <span class="n">interface</span>
+    <span class="n">subroutine</span> <span class="n">fortran_hello_print</span><span class="p">()</span> <span class="n">bind</span><span class="p">(</span><span class="n">C</span><span class="p">,</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;hello_print&#39;</span><span class="p">)</span>
+    <span class="n">end</span> <span class="n">subroutine</span> <span class="n">fortran_hello_print</span>
+  <span class="n">end</span> <span class="n">interface</span>
+
+  <span class="n">call</span> <span class="n">fortran_hello_print</span><span class="p">()</span>
+
+<span class="n">end</span> <span class="n">program</span> <span class="n">main</span>
+</pre></div>
+</div>
+<p>Windows11+oneAPI+icx+ifort+CMake</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>cmake_minimum_required ( VERSION 3.28 )
+
+project ( testprj )
+
+add_library(sub OBJECT sub.c)
+
+add_executable ( CPrj
+    main.c
+)
+
+enable_language(Fortran)
+
+add_executable ( FPrj
+    fmain.f90
+)
+
+target_link_libraries( CPrj
+    PRIVATE
+        $&lt;TARGET_OBJECTS:sub&gt;
+)
+
+target_link_libraries( FPrj
+    PRIVATE
+        $&lt;TARGET_OBJECTS:sub&gt;
+)
+
+get_target_property(cprj_LINK_LIBRARIES CPrj LINK_LIBRARIES)
+get_target_property(fprj_LINK_LIBRARIES FPrj LINK_LIBRARIES)
+
+add_custom_target ( print
+    ${CMAKE_COMMAND} -E
+    echo
+    cprj_LINK_LIBRARIES = ${cprj_LINK_LIBRARIES} &amp;
+    echo
+    fprj_LINK_LIBRARIES = ${fprj_LINK_LIBRARIES} &amp;
+    echo
+    TARGET_OBJECTS:sub = $&lt;TARGET_OBJECTS:sub&gt;
+)
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cmake</span> <span class="o">..</span>
+<span class="n">cmake</span> <span class="o">--</span><span class="n">build</span> <span class="o">.</span> <span class="o">--</span><span class="n">target</span> <span class="nb">print</span>
+<span class="n">cmake</span> <span class="o">--</span><span class="n">build</span> <span class="o">.</span> <span class="o">--</span><span class="n">config</span> <span class="n">Debug</span> <span class="o">--</span><span class="n">target</span> <span class="nb">print</span>
+<span class="n">cmake</span> <span class="o">--</span><span class="n">build</span> <span class="o">.</span> <span class="o">--</span><span class="n">config</span> <span class="n">Release</span> <span class="o">--</span><span class="n">target</span> <span class="nb">print</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Run</span> <span class="n">Build</span> <span class="n">Command</span><span class="p">(</span><span class="n">s</span><span class="p">):</span> <span class="s2">&quot;C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/devenv.com&quot;</span> <span class="n">IntelFortranImplicit</span><span class="o">.</span><span class="n">sln</span> <span class="o">/</span><span class="n">build</span> <span class="n">Debug</span> <span class="o">/</span><span class="n">project</span> <span class="n">ALL_BUILD</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">C</span><span class="p">:</span>\<span class="n">ProgramData</span>\<span class="n">Microsoft</span>\<span class="n">Windows</span>\<span class="n">Start</span> <span class="n">Menu</span>\<span class="n">Programs</span>\<span class="n">Visual</span> <span class="n">Studio</span> <span class="mi">2022</span>\<span class="n">Visual</span> <span class="n">Studio</span> <span class="n">Tools</span>
+<span class="n">C</span><span class="p">:</span>\<span class="n">ProgramData</span>\<span class="n">Microsoft</span>\<span class="n">Windows</span>\<span class="n">Start</span> <span class="n">Menu</span>\<span class="n">Programs</span>\<span class="n">Visual</span> <span class="n">Studio</span> <span class="mi">2022</span>\<span class="n">Visual</span> <span class="n">Studio</span> <span class="n">Tools</span>\<span class="n">Developer</span> <span class="n">Command</span> <span class="n">Prompt</span> <span class="k">for</span> <span class="n">VS</span> <span class="mf">2022.</span><span class="n">lnk</span>
+<span class="o">%</span><span class="n">comspec</span><span class="o">%</span> <span class="o">/</span><span class="n">k</span> <span class="s2">&quot;C:\Program Files\Microsoft Visual Studio</span><span class="se">\202</span><span class="s2">2\Community\Common7\Tools\VsDevCmd.bat&quot;</span>
+</pre></div>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="git.html" class="btn btn-neutral float-left" title="Git" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="hdf5.html" class="btn btn-neutral float-right" title="HDF5" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2017~2024, eric.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

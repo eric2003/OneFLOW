@@ -1,0 +1,945 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CMake &mdash; Scientific Computing 1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js?v=5d32c60e"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="_static/documentation_options.js?v=f2a433a1"></script>
+        <script src="_static/doctools.js?v=888ff710"></script>
+        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Cmd" href="cmd.html" />
+    <link rel="prev" title="Modern C++" href="cpp/modern_cpp.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Scientific Computing
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Get started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="info.html">OneFLOW</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="user.html">THEORY</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="bash.html">Bash</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cfd/index.html">CFD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cgns.html">CGNS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="chatgpt.html">CHATGPT</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cpp/index.html">CPP</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">CMake</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#cmake-help-property-list">CMake –help-property-list</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#cmake-importing-exporting">CMake+importing-exporting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#cmake-fetchcontent-vs-externalproject">CMake FetchContent vs. ExternalProject</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#unit-testing-with-ctest">Unit testing with CTest</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#cmake-e">cmake -E</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="cmd.html">Cmd</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cuda.html">CUDA</a></li>
+<li class="toctree-l1"><a class="reference internal" href="design_patterns.html">Design Patterns</a></li>
+<li class="toctree-l1"><a class="reference internal" href="eigen.html">Eigen3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="git.html">Git</a></li>
+<li class="toctree-l1"><a class="reference internal" href="git.html#contexts">Contexts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fortran.html">Fortran</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hdf5.html">HDF5</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hpc.html">HPC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="install/index.html">Install</a></li>
+<li class="toctree-l1"><a class="reference internal" href="julia.html">Julia</a></li>
+<li class="toctree-l1"><a class="reference internal" href="jupyter.html">Jupyter Notebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="latex.html">LaTeX</a></li>
+<li class="toctree-l1"><a class="reference internal" href="makefile.html">Makefile</a></li>
+<li class="toctree-l1"><a class="reference internal" href="metis.html">METIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mkdocs.html">MkDocs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modules.html">Environment Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mpi.html">MPI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="numerical/index.html">Numerical analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="oneapi.html">oneAPI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="oneflow.html">OneFLOW-CFD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="openacc.html">OpenACC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="opencl.html">OpenCL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="opengl.html">OpenGL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="openmp.html">OpenMP</a></li>
+<li class="toctree-l1"><a class="reference internal" href="powershell.html">PowerShell</a></li>
+<li class="toctree-l1"><a class="reference internal" href="python/index.html">Python</a></li>
+<li class="toctree-l1"><a class="reference internal" href="qt.html">Qt</a></li>
+<li class="toctree-l1"><a class="reference internal" href="regex.html">Regular Expressions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="science.html">Science</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sphinx.html">Sphinx</a></li>
+<li class="toctree-l1"><a class="reference internal" href="system/index.html">System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="taichi.html">Taichi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tcltk.html">Tcl/tk</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tecplot.html">Tecplot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="test.html">Test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="unreal_engine.html">Unreal Engine</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vcpkg.html">vcpkg</a></li>
+<li class="toctree-l1"><a class="reference internal" href="yaml.html">yaml</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Scientific Computing</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">CMake</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/cmake.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="cmake">
+<h1>CMake<a class="headerlink" href="#cmake" title="Link to this heading"></a></h1>
+<p>CMake is a cross-platform build system generator. It allows you to define a build process in a high-level language and generates native build files such as Makefiles or Visual Studio projects for different platforms and compilers. This allows you to build your software in a consistent and reproducible way across multiple platforms and development environments.</p>
+<p>CMake uses a simple, declarative syntax that is easy to learn and understand. You define your project’s source files, libraries, and executable targets in a CMakeLists.txt file, and CMake takes care of the rest. You can also use CMake to configure your project with different build options, such as enabling or disabling certain features or selecting different build configurations.</p>
+<p>CMake supports a wide variety of platforms and compilers, including Windows, Linux, macOS, and many embedded platforms. It can generate build files for a variety of build systems, including Make, Ninja, and Visual Studio. CMake can also integrate with popular IDEs such as Visual Studio, Eclipse, and Xcode, making it easy to use with your favorite development tools.</p>
+<p>Overall, CMake provides a powerful and flexible build system that can simplify your build process and make your software more portable and maintainable.</p>
+<p>Generate a Project Buildsystem</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cmake</span> <span class="p">[</span><span class="o">&lt;</span><span class="n">options</span><span class="o">&gt;</span><span class="p">]</span> <span class="o">&lt;</span><span class="n">path</span><span class="o">-</span><span class="n">to</span><span class="o">-</span><span class="n">source</span> <span class="o">|</span> <span class="n">path</span><span class="o">-</span><span class="n">to</span><span class="o">-</span><span class="n">existing</span><span class="o">-</span><span class="n">build</span><span class="o">&gt;</span>
+<span class="n">cmake</span> <span class="p">[</span><span class="o">&lt;</span><span class="n">options</span><span class="o">&gt;</span><span class="p">]</span> <span class="o">-</span><span class="n">S</span> <span class="o">&lt;</span><span class="n">path</span><span class="o">-</span><span class="n">to</span><span class="o">-</span><span class="n">source</span><span class="o">&gt;</span> <span class="o">-</span><span class="n">B</span> <span class="o">&lt;</span><span class="n">path</span><span class="o">-</span><span class="n">to</span><span class="o">-</span><span class="n">build</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+<p>Build a Project</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cmake</span> <span class="o">--</span><span class="n">build</span> <span class="o">&lt;</span><span class="nb">dir</span><span class="o">&gt;</span> <span class="p">[</span><span class="o">&lt;</span><span class="n">options</span><span class="o">&gt;</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span> <span class="o">&lt;</span><span class="n">build</span><span class="o">-</span><span class="n">tool</span><span class="o">-</span><span class="n">options</span><span class="o">&gt;</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>Install a Project</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cmake</span> <span class="o">--</span><span class="n">install</span> <span class="o">&lt;</span><span class="nb">dir</span><span class="o">&gt;</span> <span class="p">[</span><span class="o">&lt;</span><span class="n">options</span><span class="o">&gt;</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>Open a Project</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cmake</span> <span class="o">--</span><span class="nb">open</span> <span class="o">&lt;</span><span class="nb">dir</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+<p>Run a Script</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cmake</span> <span class="p">[</span><span class="o">-</span><span class="n">D</span> <span class="o">&lt;</span><span class="n">var</span><span class="o">&gt;=&lt;</span><span class="n">value</span><span class="o">&gt;</span><span class="p">]</span><span class="o">...</span> <span class="o">-</span><span class="n">P</span> <span class="o">&lt;</span><span class="n">cmake</span><span class="o">-</span><span class="n">script</span><span class="o">-</span><span class="n">file</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+<p>Run a Command-Line Tool</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cmake</span> <span class="o">-</span><span class="n">E</span> <span class="o">&lt;</span><span class="n">command</span><span class="o">&gt;</span> <span class="p">[</span><span class="o">&lt;</span><span class="n">options</span><span class="o">&gt;</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>Run the Find-Package Tool</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cmake</span> <span class="o">--</span><span class="n">find</span><span class="o">-</span><span class="n">package</span> <span class="p">[</span><span class="o">&lt;</span><span class="n">options</span><span class="o">&gt;</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>Run a Workflow Preset</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cmake</span> <span class="o">--</span><span class="n">workflow</span> <span class="p">[</span><span class="o">&lt;</span><span class="n">options</span><span class="o">&gt;</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>View Help</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cmake</span> <span class="o">--</span><span class="n">help</span><span class="p">[</span><span class="o">-&lt;</span><span class="n">topic</span><span class="o">&gt;</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>CMAKE_PREFIX_PATH</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cmake</span> <span class="o">..</span> <span class="o">-</span><span class="n">D</span> <span class="n">CMAKE_PREFIX_PATH</span><span class="p">:</span><span class="n">PATH</span><span class="o">=</span><span class="s2">&quot;c:/dev/googletest;c:/dev/cgns/&quot;</span>
+</pre></div>
+</div>
+<ol class="arabic simple">
+<li><p><a class="reference external" href="https://cmake.org/documentation/">CMake official documentation</a></p></li>
+<li><p><a class="reference external" href="https://cmake.org/cmake/help/latest/guide/tutorial/">CMake official tutorial</a></p></li>
+<li><p><a class="reference external" href="https://github.com/Kitware/CMake/">CMake official GitHub repository</a></p></li>
+<li><p><a class="reference external" href="https://zhuanlan.zhihu.com/p/393316878/">Compilation of links related to CMake from beginner to expert series</a></p></li>
+<li><p><a class="reference external" href="https://enccs.github.io/cmake-workshop/">CMake hands-on workshop</a></p></li>
+<li><p><a class="reference external" href="https://www.youtube.com/watch?v=5X803cXe02Y/">import CMake, CMake and C++20 Modules - Bill Hoffman - CppCon 2022</a></p></li>
+<li><p><a class="reference external" href="https://www.youtube.com/watch?v=c563KgO-uf4/">import CMake: // 2023 State of C++20 modules in CMake - Bill Hoffman - CppNow 2023</a></p></li>
+<li><p><a class="reference external" href="https://www.youtube.com/watch?v=DJTEUFRslbI/">So, You Want to Use C++ Modules … Cross-Platform? - Daniela Engert - C++ on Sea 2023</a></p></li>
+<li><p><a class="reference external" href="https://www.youtube.com/watch?v=vAjEkIy43-c/">C++ Modules in 2023</a></p></li>
+<li><p><a class="reference external" href="https://www.youtube.com/watch?v=zGWj7Qo_POY/">C++ Features You Might Not Know - Jonathan Müller - C++ on Sea 2023</a></p></li>
+</ol>
+<p>Set Start project(Visual Studio)</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>if (MSVC)
+  set_property ( DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+    PROPERTY
+       VS_STARTUP_PROJECT ${PROJECT_NAME}
+  )
+endif ()
+</pre></div>
+</div>
+<p>CMake+Qt Example</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cmake</span> <span class="o">..</span> <span class="o">-</span><span class="n">D</span> <span class="n">CMAKE_PREFIX_PATH</span><span class="p">:</span><span class="n">PATH</span><span class="o">=</span><span class="n">C</span><span class="p">:</span><span class="o">/</span><span class="n">local</span><span class="o">/</span><span class="n">Qt</span><span class="o">/</span><span class="n">Qt6</span><span class="mf">.4.0</span><span class="o">/</span><span class="mf">6.4.0</span><span class="o">/</span><span class="n">msvc2019_64</span><span class="o">/</span>
+<span class="n">cmake</span> <span class="o">--</span><span class="n">build</span> <span class="o">.</span>
+<span class="n">C</span><span class="p">:</span><span class="o">/</span><span class="n">local</span><span class="o">/</span><span class="n">Qt</span><span class="o">/</span><span class="n">Qt6</span><span class="mf">.4.0</span><span class="o">/</span><span class="mf">6.4.0</span><span class="o">/</span><span class="n">msvc2019_64</span><span class="o">/</span><span class="nb">bin</span><span class="o">/</span><span class="n">windeployqt</span><span class="o">.</span><span class="n">exe</span> <span class="o">.</span>\<span class="n">Debug</span>\<span class="n">testprj</span><span class="o">.</span><span class="n">exe</span>
+</pre></div>
+</div>
+<p>CMake+HDF5 Example(powershell)</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$env:HDF5_DIR = &quot;c:/dev/HDF_Group/HDF5/1.14.0/cmake/&quot;
+$env:path += &quot;;C:/dev/HDF_Group/HDF5/1.14.0/bin/&quot;
+cmake ..
+cmake --build .
+</pre></div>
+</div>
+<p>Debug</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cmake</span> <span class="o">-</span><span class="n">DCMAKE_BUILD_TYPE</span><span class="o">=</span><span class="n">Debug</span> <span class="o">..</span>
+</pre></div>
+</div>
+<p>Debug</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cmake</span> <span class="o">--</span><span class="n">build</span> <span class="o">.</span> <span class="o">--</span><span class="n">parallel</span> <span class="mi">4</span> <span class="o">--</span><span class="n">config</span> <span class="n">Debug</span>
+</pre></div>
+</div>
+<p>Release</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cmake</span> <span class="o">-</span><span class="n">DCMAKE_BUILD_TYPE</span><span class="o">=</span><span class="n">Release</span> <span class="o">..</span>
+</pre></div>
+</div>
+<p>Release</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cmake</span> <span class="o">--</span><span class="n">build</span> <span class="o">.</span> <span class="o">--</span><span class="n">parallel</span> <span class="mi">4</span> <span class="o">--</span><span class="n">config</span> <span class="n">Release</span>
+</pre></div>
+</div>
+<p>Install</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cmake</span> <span class="o">--</span><span class="n">install</span> <span class="o">.</span> <span class="o">--</span><span class="n">prefix</span> <span class="s2">&quot;c:/dev/myprj/&quot;</span>
+<span class="ow">or</span>
+<span class="n">cmake</span> <span class="o">--</span><span class="n">install</span> <span class="o">.</span> <span class="o">--</span><span class="n">prefix</span> <span class="s2">&quot;c:/dev/myprj/&quot;</span>  <span class="o">--</span><span class="n">config</span> <span class="n">Debug</span>
+</pre></div>
+</div>
+<p>Display all current environment variables</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cmake</span> <span class="o">-</span><span class="n">E</span> <span class="n">environment</span>
+</pre></div>
+</div>
+<p>$ENV</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">message</span> <span class="p">(</span> <span class="n">STATUS</span> <span class="s2">&quot;ENV</span><span class="si">{OS}</span><span class="s2"> = $ENV</span><span class="si">{OS}</span><span class="s2">&quot;</span> <span class="p">)</span>
+</pre></div>
+</div>
+<p>Some system variables</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">ProgramData</span>                    <span class="n">C</span><span class="p">:</span>\<span class="n">ProgramData</span>
+<span class="n">ProgramFiles</span>                   <span class="n">C</span><span class="p">:</span>\<span class="n">Program</span> <span class="n">Files</span>
+<span class="n">ProgramFiles</span><span class="p">(</span><span class="n">x86</span><span class="p">)</span>              <span class="n">C</span><span class="p">:</span>\<span class="n">Program</span> <span class="n">Files</span> <span class="p">(</span><span class="n">x86</span><span class="p">)</span>
+<span class="n">ProgramW6432</span>                   <span class="n">C</span><span class="p">:</span>\<span class="n">Program</span> <span class="n">Files</span>
+</pre></div>
+</div>
+<p>Display ProgramFiles(x86) variable</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">message</span> <span class="p">(</span> <span class="n">STATUS</span> <span class="s2">&quot;ENV{ProgramFiles\(x86\)} = $ENV{ProgramFiles\(x86\)}&quot;</span> <span class="p">)</span>
+</pre></div>
+</div>
+<p>Powershell Remove</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Remove</span><span class="o">-</span><span class="n">Item</span> <span class="o">*</span> <span class="o">-</span><span class="n">Recurse</span> <span class="o">-</span><span class="n">Force</span>
+</pre></div>
+</div>
+<p>Save CMake output to file</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cmake</span> <span class="o">..</span> <span class="o">&gt;&gt;</span> <span class="n">output_file</span><span class="o">.</span><span class="n">txt</span> <span class="mi">2</span><span class="o">&gt;&amp;</span><span class="mi">1</span>
+<span class="ow">or</span>
+<span class="n">cmake</span> <span class="o">--</span><span class="n">version</span> <span class="o">|</span> <span class="n">Set</span><span class="o">-</span><span class="n">Content</span> <span class="o">-</span><span class="n">Path</span> <span class="n">AAA</span><span class="o">.</span><span class="n">txt</span>
+<span class="ow">or</span>
+<span class="n">cmake</span> <span class="o">--</span><span class="n">version</span> <span class="o">|</span> <span class="n">Out</span><span class="o">-</span><span class="n">File</span> <span class="o">-</span><span class="n">FilePath</span> <span class="n">C</span><span class="p">:</span>\<span class="n">TestDir</span>\<span class="n">AliasNames</span><span class="o">.</span><span class="n">txt</span>
+</pre></div>
+</div>
+<p>trace</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cmake</span> <span class="o">--</span><span class="n">trace</span> <span class="o">..</span> <span class="o">&gt;&gt;</span> <span class="n">output</span><span class="o">.</span><span class="n">txt</span> <span class="mi">2</span><span class="o">&gt;&amp;</span><span class="mi">1</span>
+</pre></div>
+</div>
+<p>default trace</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>CMakeDetermineSystem
+configure_file(${CMAKE_ROOT}/Modules/
+CMakeSystem.cmake.in ${CMAKE_PLATFORM_INFO_DIR}/CMakeSystem.cmake @ONLY )
+CMakeSystemSpecificInitialize
+CMakeDetermineCCompiler
+CMakeDetermineCompiler
+CMakeDetermineCompilerId
+CMakeCompilerIdDetection
+ARMCC-DetermineCompiler
+ARMClang-DetermineCompiler
+AppleClang-DetermineCompiler
+Clang-DetermineCompilerInternal
+Borland-DetermineCompiler
+Bruce-C-DetermineCompiler
+Clang-DetermineCompilerInternal
+Compaq-C-DetermineCompiler
+Cray-DetermineCompiler
+CrayClang-DetermineCompiler
+Embarcadero-DetermineCompiler
+Fujitsu-DetermineCompiler
+FujitsuClang-DetermineCompiler
+GHS-DetermineCompiler
+GNU-C-DetermineCompiler
+HP-C-DetermineCompiler
+IAR-DetermineCompiler
+IBMClang-C-DetermineCompiler
+Intel-DetermineCompiler
+IntelLLVM-DetermineCompiler
+NVIDIA-DetermineCompiler
+OrangeC-DetermineCompiler
+PathScale-DetermineCompiler
+SDCC-C-DetermineCompiler
+SunPro-C-DetermineCompiler
+TI-DetermineCompiler
+Tasking-DetermineCompiler
+VisualAge-C-DetermineCompiler
+IBMCPP-C-DetermineVersionInternal
+Watcom-DetermineCompiler
+XL-C-DetermineCompiler
+XLClang-C-DetermineCompiler
+zOS-C-DetermineCompiler
+CMakeFindBinUtils
+D:/work/modern_cmake_work/ModernCMake/codes/cmake/trace/01/build/CMakeFiles/3.28.0-rc4/CMakeCCompiler.cmake
+CMakeDetermineCXXCompiler
+D:/work/modern_cmake_work/ModernCMake/codes/cmake/trace/01/build/CMakeFiles/3.28.0-rc4/CMakeCXXCompiler.cmake
+CMakeSystemSpecificInformation
+CMakeGenericSystem
+CMakeInitializeConfigs
+Windows
+WindowsPaths
+CMakeCInformation
+CMakeLanguageInformation
+MSVC-C
+MSVC
+CMakeCommonCompilerMacros
+CMakeCInformation
+Windows-MSVC-C
+Windows-MSVC
+CMakeDetermineRCCompiler
+CMakeRCCompiler
+D:/work/modern_cmake_work/ModernCMake/codes/cmake/trace/01/build/CMakeFiles/3.28.0-rc4/CMakeRCCompiler.cmake
+CMakeRCInformation
+CMakeTestRCCompiler
+CMakeCommonLanguageInclude
+CMakeTestCCompiler
+CMakeTestCompilerCommon
+CMakeDetermineCompilerABI
+CMakeParseImplicitIncludeInfo
+CMakeParseLibraryArchitecture
+D:/work/modern_cmake_work/ModernCMake/codes/cmake/trace/01/build/CMakeFiles/CMakeScratch/TryCompile-6now2o/CMakeLists.txt
+Windows-Initialize
+CMakeDetermineCompileFeatures
+FeatureTesting
+</pre></div>
+</div>
+<p>Find CUDA IMPORTED_TARGETS</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>cmake_minimum_required ( VERSION 3.28 )
+
+project ( testprj )
+
+find_package ( CUDAToolkit )
+
+get_directory_property( my_import_targets DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} IMPORTED_TARGETS )
+
+message( STATUS &quot;my_import_targets=${my_import_targets}&quot; )
+</pre></div>
+</div>
+<p>results</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">my_import_targets</span><span class="o">=</span><span class="n">CUDA</span><span class="p">::</span><span class="n">toolkit</span><span class="p">;</span><span class="n">CUDA</span><span class="p">::</span><span class="n">cuda_driver</span><span class="p">;</span><span class="n">CUDA</span><span class="p">::</span><span class="n">cudart</span><span class="p">;</span><span class="n">CUDA</span><span class="p">::</span><span class="n">cudart_static</span><span class="p">;</span><span class="n">CUDA</span><span class="p">::</span><span class="n">cudart_static_deps</span><span class="p">;</span>
+<span class="n">CUDA</span><span class="p">::</span><span class="n">cublasLt</span><span class="p">;</span><span class="n">CUDA</span><span class="p">::</span><span class="n">cublas</span><span class="p">;</span><span class="n">CUDA</span><span class="p">::</span><span class="n">cufft</span><span class="p">;</span><span class="n">CUDA</span><span class="p">::</span><span class="n">curand</span><span class="p">;</span><span class="n">CUDA</span><span class="p">::</span><span class="n">cusparse</span><span class="p">;</span><span class="n">CUDA</span><span class="p">::</span><span class="n">nppc</span><span class="p">;</span><span class="n">CUDA</span><span class="p">::</span><span class="n">nvjpeg</span><span class="p">;</span><span class="n">CUDA</span><span class="p">::</span><span class="n">cufftw</span><span class="p">;</span>
+<span class="n">CUDA</span><span class="p">::</span><span class="n">cusolver</span><span class="p">;</span><span class="n">CUDA</span><span class="p">::</span><span class="n">nppial</span><span class="p">;</span><span class="n">CUDA</span><span class="p">::</span><span class="n">nppicc</span><span class="p">;</span><span class="n">CUDA</span><span class="p">::</span><span class="n">nppidei</span><span class="p">;</span><span class="n">CUDA</span><span class="p">::</span><span class="n">nppif</span><span class="p">;</span><span class="n">CUDA</span><span class="p">::</span><span class="n">nppig</span><span class="p">;</span><span class="n">CUDA</span><span class="p">::</span><span class="n">nppim</span><span class="p">;</span><span class="n">CUDA</span><span class="p">::</span><span class="n">nppist</span><span class="p">;</span>
+<span class="n">CUDA</span><span class="p">::</span><span class="n">nppitc</span><span class="p">;</span><span class="n">CUDA</span><span class="p">::</span><span class="n">npps</span><span class="p">;</span><span class="n">CUDA</span><span class="p">::</span><span class="n">nppisu</span><span class="p">;</span><span class="n">CUDA</span><span class="p">::</span><span class="n">cupti</span><span class="p">;</span><span class="n">CUDA</span><span class="p">::</span><span class="n">nvrtc</span><span class="p">;</span><span class="n">CUDA</span><span class="p">::</span><span class="n">nvml</span><span class="p">;</span><span class="n">CUDA</span><span class="p">::</span><span class="n">nvToolsExt</span><span class="p">;</span><span class="n">CUDA</span><span class="p">::</span><span class="n">OpenCL</span>
+</pre></div>
+</div>
+<p>vcpkg</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cmake</span> <span class="o">-</span><span class="n">DCMAKE_TOOLCHAIN_FILE</span><span class="o">=</span><span class="s2">&quot;C:/dev/vcpkg/scripts/buildsystems/vcpkg.cmake&quot;</span> <span class="o">..</span>
+</pre></div>
+</div>
+<section id="cmake-help-property-list">
+<h2>CMake –help-property-list<a class="headerlink" href="#cmake-help-property-list" title="Link to this heading"></a></h2>
+<ol class="arabic simple">
+<li><p><a class="reference external" href="https://zhuanlan.zhihu.com/p/536789898/">CMake –help-property-list</a></p></li>
+</ol>
+<p>generator_expressions</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>add_custom_target ( print
+    ${CMAKE_COMMAND} -E
+    echo
+    BUILD_INTERFACE:a = $&lt;BUILD_INTERFACE:a&gt; &amp;
+    echo
+    INSTALL_INTERFACE:a = $&lt;INSTALL_INTERFACE:a&gt;
+)
+</pre></div>
+</div>
+<p>target print</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cmake</span> <span class="o">--</span><span class="n">build</span> <span class="o">.</span> <span class="o">--</span><span class="n">target</span> <span class="nb">print</span>
+<span class="n">cmake</span> <span class="o">--</span><span class="n">build</span> <span class="o">.</span> <span class="o">--</span><span class="n">config</span> <span class="n">Debug</span> <span class="o">--</span><span class="n">target</span> <span class="nb">print</span>
+<span class="n">cmake</span> <span class="o">--</span><span class="n">build</span> <span class="o">.</span> <span class="o">--</span><span class="n">config</span> <span class="n">Release</span> <span class="o">--</span><span class="n">target</span> <span class="nb">print</span>
+</pre></div>
+</div>
+<p>print_variables</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">include</span><span class="p">(</span><span class="n">CMakePrintHelpers</span><span class="p">)</span>
+<span class="n">cmake_print_variables</span><span class="p">(</span><span class="n">CMAKE_C_COMPILER</span> <span class="n">CMAKE_MAJOR_VERSION</span> <span class="n">DOES_NOT_EXIST</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>print_properties</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>include(CMakePrintHelpers)
+cmake_print_properties(
+  TARGETS ${PROJECT_NAME}
+  PROPERTIES LINK_LIBRARIES
+)
+
+cmake_print_properties(
+  TARGETS ${PROJECT_NAME}
+  PROPERTIES COMPILE_FEATURES
+)
+</pre></div>
+</div>
+<p>print_properties function</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>function(print_varname inputVarName )
+    message ( STATUS &quot;inputVarName    = ${inputVarName}&quot; )
+    get_property( variableNames DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VARIABLES)
+    list (SORT variableNames )
+    foreach ( varName ${variableNames})
+        string( TOUPPER ${varName} upperVarName )
+        string ( FIND ${upperVarName} ${inputVarName} myloc )
+        if ( myloc GREATER_EQUAL 0 )
+            message( STATUS &quot;${varName}&quot; )
+        endif ()
+    endforeach()
+endfunction()
+
+function(print_varname_value inputVarName )
+    message ( STATUS &quot;inputVarName    = ${inputVarName}&quot; )
+    get_property( variableNames DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VARIABLES)
+    list (SORT variableNames )
+    foreach ( varName ${variableNames})
+        string( TOUPPER ${varName} upperVarName )
+        string ( FIND ${upperVarName} ${inputVarName} myloc )
+        if ( myloc GREATER_EQUAL 0 )
+            message( STATUS &quot;${varName}=${${varName}}&quot; )
+        endif ()
+    endforeach()
+endfunction()
+
+print_varname( &quot;INCLUDE&quot; )
+print_varname( &quot;LIB&quot; )
+print_varname( &quot;EIGEN&quot; )
+</pre></div>
+</div>
+<p>print_target_properties:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>function(my_print_target_properties targetname )
+    include(CMakePrintHelpers)
+    message ( STATUS &quot;targetname = ${targetname}&quot; )
+    set( props ${ARGN} )
+    foreach ( prop IN LISTS props )
+        cmake_print_properties(
+          TARGETS ${targetname}
+          PROPERTIES ${prop}
+        )
+    endforeach()
+endfunction()
+</pre></div>
+</div>
+<p>some property</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">COMPILE_DEFINITIONS</span>
+<span class="n">COMPILE_DEFINITIONS_</span><span class="o">&lt;</span><span class="n">CONFIG</span><span class="o">&gt;</span>
+<span class="n">COMPILE_FEATURES</span>
+<span class="n">COMPILE_FLAGS</span>
+<span class="n">COMPILE_OPTIONS</span>
+<span class="n">DEFINITIONS</span>
+<span class="n">ENABLED_FEATURES</span>
+<span class="n">ENABLED_LANGUAGES</span>
+<span class="n">ENABLE_EXPORTS</span>
+<span class="n">HEADER_DIRS</span>
+<span class="n">IMPORTED</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>function(print_arguments)
+  foreach(arg ${ARGN})
+    message(&quot;Argument: ${arg}&quot;)
+  endforeach()
+endfunction()
+
+print_arguments(&quot;Hello&quot; &quot;World&quot; &quot;CMake&quot;)
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>function(print_var var)
+  message( STATUS &quot;ARGC: ${ARGC}&quot; )
+  message( STATUS &quot;ARGV: ${ARGV}&quot; )
+  message( STATUS &quot;ARGN: ${ARGN}&quot; )
+  foreach(arg IN LISTS ${ARGN})
+    message(&quot;Argument: ${arg}&quot;)
+  endforeach()
+endfunction()
+
+#print_var() #error
+print_var(a)
+print_var(a b)
+print_var(a b c)
+</pre></div>
+</div>
+<p>results:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">--</span> <span class="n">ARGC</span><span class="p">:</span> <span class="mi">1</span>
+<span class="o">--</span> <span class="n">ARGV</span><span class="p">:</span> <span class="n">a</span>
+<span class="o">--</span> <span class="n">ARGN</span><span class="p">:</span>
+<span class="o">--</span> <span class="n">ARGC</span><span class="p">:</span> <span class="mi">2</span>
+<span class="o">--</span> <span class="n">ARGV</span><span class="p">:</span> <span class="n">a</span><span class="p">;</span><span class="n">b</span>
+<span class="o">--</span> <span class="n">ARGN</span><span class="p">:</span> <span class="n">b</span>
+<span class="o">--</span> <span class="n">ARGC</span><span class="p">:</span> <span class="mi">3</span>
+<span class="o">--</span> <span class="n">ARGV</span><span class="p">:</span> <span class="n">a</span><span class="p">;</span><span class="n">b</span><span class="p">;</span><span class="n">c</span>
+<span class="o">--</span> <span class="n">ARGN</span><span class="p">:</span> <span class="n">b</span><span class="p">;</span><span class="n">c</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>function(echo_target tgt)
+    if(NOT TARGET ${tgt})
+        message(&quot;There is no target named &#39;${tgt}&#39;&quot;)
+        return()
+    endif()
+
+    set(props
+        DEBUG_OUTPUT_NAME
+        DEBUG_POSTFIX
+        RELEASE_OUTPUT_NAME
+        ...
+        LINK_SEARCH_START_STATIC
+        LOCATION
+        LOCATION_DEBUG
+        ...
+        WIN32_EXECUTABLE
+        XCODE_ATTRIBUTE_WHATEVER
+    )
+    message(STATUS &quot;======================== ${tgt} ========================&quot;)
+
+    # Push the current (NEW) CMake policy onto the stack, and apply the OLD policy.
+    cmake_policy(PUSH)
+    cmake_policy(SET CMP0026 OLD)
+
+    foreach(p ${props})
+        # v for value, d for defined, s for set
+        get_property(v TARGET ${tgt} PROPERTY ${p})
+        get_property(d TARGET ${tgt} PROPERTY ${p} DEFINED)
+        get_property(s TARGET ${tgt} PROPERTY ${p} SET)
+        # only produce output for values that are set
+        if(s)
+            message(STATUS &quot;tgt=&#39;${tgt}&#39; p=&#39;${p}&#39;&quot;)
+            message(STATUS &quot;  value=&#39;${v}&#39;&quot;)
+            message(STATUS &quot;  defined=&#39;${d}&#39;&quot;)
+            message(STATUS &quot;  set=&#39;${s}&#39;&quot;)
+            message(STATUS &quot;&quot;)
+        endif()
+    endforeach()
+
+    # Pop the previous policy from the stack to re-apply the NEW behavior.
+    cmake_policy(POP)
+
+    message(STATUS &quot;&quot;)
+endfunction()
+</pre></div>
+</div>
+<p>configure_file</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">option</span><span class="p">(</span><span class="n">FOO_ENABLE</span> <span class="s2">&quot;Enable Foo&quot;</span> <span class="n">ON</span><span class="p">)</span>
+<span class="k">if</span><span class="p">(</span><span class="n">FOO_ENABLE</span><span class="p">)</span>
+  <span class="nb">set</span><span class="p">(</span><span class="n">FOO_STRING</span> <span class="s2">&quot;foo&quot;</span><span class="p">)</span>
+<span class="n">endif</span><span class="p">()</span>
+<span class="n">configure_file</span><span class="p">(</span><span class="n">foo</span><span class="o">.</span><span class="n">h</span><span class="o">.</span><span class="ow">in</span> <span class="n">foo</span><span class="o">.</span><span class="n">h</span> <span class="nd">@ONLY</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>foo.h.in</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1">#cmakedefine FOO_ENABLE</span>
+<span class="c1">#cmakedefine FOO_STRING &quot;@FOO_STRING@&quot;</span>
+</pre></div>
+</div>
+<p>foo.h</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1">#define FOO_ENABLE</span>
+<span class="c1">#define FOO_STRING &quot;foo&quot;</span>
+</pre></div>
+</div>
+<p>configure_file example 2</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nb">set</span><span class="p">(</span><span class="n">A_ENABLE</span> <span class="n">ON</span><span class="p">)</span>
+<span class="nb">set</span><span class="p">(</span><span class="n">B_ENABLE</span> <span class="n">ON</span><span class="p">)</span>
+<span class="nb">set</span><span class="p">(</span><span class="n">C_ENABLE</span> <span class="n">OFF</span><span class="p">)</span>
+<span class="nb">set</span><span class="p">(</span><span class="n">FOO_STRING</span> <span class="s2">&quot;foo&quot;</span><span class="p">)</span>
+<span class="n">configure_file</span><span class="p">(</span><span class="n">foo</span><span class="o">.</span><span class="n">h</span><span class="o">.</span><span class="ow">in</span> <span class="n">foo</span><span class="o">.</span><span class="n">h</span> <span class="nd">@ONLY</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>foo.h.in</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1">#cmakedefine A_ENABLE</span>
+<span class="c1">#cmakedefine01 B_ENABLE</span>
+<span class="c1">#cmakedefine01 C_ENABLE</span>
+<span class="c1">#cmakedefine FOO_STRING &quot;@FOO_STRING@&quot;</span>
+</pre></div>
+</div>
+<p>foo.h</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1">#define A_ENABLE</span>
+<span class="c1">#define B_ENABLE 1</span>
+<span class="c1">#define C_ENABLE 0</span>
+<span class="c1">#define FOO_STRING &quot;foo&quot;</span>
+</pre></div>
+</div>
+<p>Foo lib</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">d</span><span class="p">:</span>\<span class="n">work</span>\<span class="n">github_work</span>\<span class="n">Foo</span>\
+</pre></div>
+</div>
+</section>
+<section id="cmake-importing-exporting">
+<h2>CMake+importing-exporting<a class="headerlink" href="#cmake-importing-exporting" title="Link to this heading"></a></h2>
+<ol class="arabic simple">
+<li><p><a class="reference external" href="https://zhuanlan.zhihu.com/p/533480192/">CMake+importing-exporting系列链接整理</a></p></li>
+</ol>
+<p>CMAKE_PREFIX_PATH</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cmake</span> <span class="o">-</span><span class="n">D</span> <span class="n">CMAKE_PREFIX_PATH</span><span class="o">=</span><span class="s2">&quot;C:/local/MyInstall/MathFunctions&quot;</span> <span class="o">..</span>
+</pre></div>
+</div>
+<p>Import target “Foo::Foo” for configuration “Debug”</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">set_property</span><span class="p">(</span><span class="n">TARGET</span> <span class="n">Foo</span><span class="p">::</span><span class="n">Foo</span> <span class="n">APPEND</span> <span class="n">PROPERTY</span> <span class="n">IMPORTED_CONFIGURATIONS</span> <span class="n">DEBUG</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>DCMAKE_VERBOSE_MAKEFILE</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cmake</span> <span class="o">-</span><span class="n">DCMAKE_VERBOSE_MAKEFILE</span><span class="p">:</span><span class="n">BOOL</span><span class="o">=</span><span class="n">ON</span> <span class="o">..</span>
+</pre></div>
+</div>
+</section>
+<section id="cmake-fetchcontent-vs-externalproject">
+<h2>CMake FetchContent vs. ExternalProject<a class="headerlink" href="#cmake-fetchcontent-vs-externalproject" title="Link to this heading"></a></h2>
+<ol class="arabic simple">
+<li><p><a class="reference external" href="https://www.scivision.dev/cmake-fetchcontent-vs-external-project/">CMake FetchContent vs. ExternalProject</a></p></li>
+</ol>
+<p>add_test</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cmake_minimum_required</span> <span class="p">(</span> <span class="n">VERSION</span> <span class="mf">3.28</span> <span class="p">)</span>
+
+<span class="n">project</span> <span class="p">(</span> <span class="n">testprj</span> <span class="p">)</span>
+
+<span class="n">add_executable</span><span class="p">(</span> <span class="n">testprj</span> <span class="p">)</span>
+
+<span class="n">target_sources</span><span class="p">(</span> <span class="n">testprj</span>
+    <span class="n">PRIVATE</span>
+      <span class="n">main</span><span class="o">.</span><span class="n">cpp</span>
+<span class="p">)</span>
+
+<span class="c1"># Enable testing</span>
+<span class="n">enable_testing</span><span class="p">()</span>
+
+<span class="c1"># Add a test</span>
+<span class="n">add_test</span><span class="p">(</span>
+    <span class="n">NAME</span> <span class="n">MyTest</span>
+    <span class="n">COMMAND</span> <span class="n">testprj</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>ctest</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cmake</span> <span class="o">..</span>
+<span class="n">cmake</span> <span class="o">--</span><span class="n">build</span> <span class="o">.</span>
+<span class="n">ctest</span> <span class="o">-</span><span class="n">C</span> <span class="n">Debug</span>
+</pre></div>
+</div>
+<p>add_test example 1
+main.cpp</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1">#include &lt;iostream&gt;</span>
+<span class="c1">#include &lt;cmath&gt;</span>
+<span class="c1">#include &lt;string&gt;</span>
+
+<span class="nb">int</span> <span class="n">main</span><span class="p">(</span> <span class="nb">int</span> <span class="n">argc</span><span class="p">,</span> <span class="n">char</span> <span class="o">**</span> <span class="n">argv</span> <span class="p">)</span>
+<span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span> <span class="n">argc</span> <span class="o">&lt;</span> <span class="mi">2</span> <span class="p">)</span> <span class="p">{</span>
+      <span class="o">//</span> <span class="n">report</span> <span class="n">version</span>
+      <span class="n">std</span><span class="p">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">argv</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="p">::</span><span class="n">endl</span><span class="p">;</span>
+      <span class="n">std</span><span class="p">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s2">&quot;Usage: &quot;</span> <span class="o">&lt;&lt;</span> <span class="n">argv</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;&lt;</span> <span class="s2">&quot; number&quot;</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="p">::</span><span class="n">endl</span><span class="p">;</span>
+      <span class="k">return</span> <span class="mi">1</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="o">//</span> <span class="n">convert</span> <span class="nb">input</span> <span class="n">to</span> <span class="n">double</span>
+    <span class="n">const</span> <span class="n">double</span> <span class="n">inputValue</span> <span class="o">=</span> <span class="n">std</span><span class="p">::</span><span class="n">stod</span><span class="p">(</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">]);</span>
+
+    <span class="n">const</span> <span class="n">double</span> <span class="n">outputValue</span> <span class="o">=</span> <span class="n">std</span><span class="p">::</span><span class="n">sqrt</span><span class="p">(</span><span class="n">inputValue</span><span class="p">);</span>
+
+    <span class="n">std</span><span class="p">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s2">&quot;The square root of &quot;</span> <span class="o">&lt;&lt;</span> <span class="n">inputValue</span> <span class="o">&lt;&lt;</span> <span class="s2">&quot; is &quot;</span> <span class="o">&lt;&lt;</span> <span class="n">outputValue</span>
+              <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="p">::</span><span class="n">endl</span><span class="p">;</span>
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>CMakeList.txt</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cmake_minimum_required</span> <span class="p">(</span> <span class="n">VERSION</span> <span class="mf">3.28</span> <span class="p">)</span>
+
+<span class="n">project</span> <span class="p">(</span> <span class="n">testprj</span> <span class="p">)</span>
+
+<span class="n">add_executable</span><span class="p">(</span> <span class="n">testprj</span> <span class="p">)</span>
+
+<span class="n">target_sources</span><span class="p">(</span> <span class="n">testprj</span>
+    <span class="n">PRIVATE</span>
+      <span class="n">main</span><span class="o">.</span><span class="n">cpp</span>
+<span class="p">)</span>
+
+<span class="c1"># Enable testing</span>
+<span class="n">enable_testing</span><span class="p">()</span>
+
+<span class="c1"># does the usage message work?</span>
+<span class="n">add_test</span><span class="p">(</span><span class="n">NAME</span> <span class="n">Usage</span> <span class="n">COMMAND</span> <span class="n">testprj</span><span class="p">)</span>
+<span class="c1"># Add a test</span>
+<span class="n">set_tests_properties</span><span class="p">(</span><span class="n">Usage</span>
+  <span class="n">PROPERTIES</span> <span class="n">PASS_REGULAR_EXPRESSION</span> <span class="s2">&quot;Usage:.*number&quot;</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>ctest</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cmake</span> <span class="o">..</span>
+<span class="n">cmake</span> <span class="o">--</span><span class="n">build</span> <span class="o">.</span>
+<span class="n">ctest</span> <span class="o">-</span><span class="n">C</span> <span class="n">Debug</span>
+<span class="n">results</span><span class="p">:</span>
+<span class="n">PS</span> <span class="n">D</span><span class="p">:</span>\<span class="n">work</span>\<span class="n">modern_cmake_work</span>\<span class="n">ModernCMake</span>\<span class="n">codes</span>\<span class="n">cmake</span>\<span class="n">add_test</span>\<span class="mi">04</span>\<span class="n">build</span><span class="o">&gt;</span> <span class="n">ctest</span> <span class="o">-</span><span class="n">C</span> <span class="n">Debug</span>
+<span class="n">Test</span> <span class="n">project</span> <span class="n">D</span><span class="p">:</span><span class="o">/</span><span class="n">work</span><span class="o">/</span><span class="n">modern_cmake_work</span><span class="o">/</span><span class="n">ModernCMake</span><span class="o">/</span><span class="n">codes</span><span class="o">/</span><span class="n">cmake</span><span class="o">/</span><span class="n">add_test</span><span class="o">/</span><span class="mi">04</span><span class="o">/</span><span class="n">build</span>
+    <span class="n">Start</span> <span class="mi">1</span><span class="p">:</span> <span class="n">Usage</span>
+<span class="mi">1</span><span class="o">/</span><span class="mi">1</span> <span class="n">Test</span> <span class="c1">#1: Usage ............................   Passed    0.04 sec</span>
+
+<span class="mi">100</span><span class="o">%</span> <span class="n">tests</span> <span class="n">passed</span><span class="p">,</span> <span class="mi">0</span> <span class="n">tests</span> <span class="n">failed</span> <span class="n">out</span> <span class="n">of</span> <span class="mi">1</span>
+
+<span class="n">Total</span> <span class="n">Test</span> <span class="n">time</span> <span class="p">(</span><span class="n">real</span><span class="p">)</span> <span class="o">=</span>   <span class="mf">0.04</span> <span class="n">sec</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>当使用ctest命令时，您可以使用这些参数来控制测试的行为。以下是一些具体的例子：
+
+使用EXCLUDE_REGEX参数排除特定的测试用例：
+
+ctest -E &quot;slow_tests&quot;  # 排除名称中包含&quot;slow_tests&quot;的测试用例
+使用INCLUDE_REGEX参数只运行特定的测试用例：
+
+ctest -R &quot;test_[0-9]&quot;  # 只运行名称以&quot;test_&quot;开头并且后面跟着一个数字的测试用例
+使用TIMEOUT参数设置测试用例的超时时间：
+
+ctest --timeout 300  # 设置测试用例的超时时间为300秒
+使用LABELS参数标记测试用例：
+
+ctest -L &quot;unit_tests&quot;  # 只运行标记为&quot;unit_tests&quot;的测试用例
+这些参数可以单独使用，也可以组合使用来满足具体的测试需求。您可以根据项目的实际情况选择适合的参数来控制测试的行为。
+</pre></div>
+</div>
+</section>
+<section id="unit-testing-with-ctest">
+<h2>Unit testing with CTest<a class="headerlink" href="#unit-testing-with-ctest" title="Link to this heading"></a></h2>
+<ol class="arabic simple">
+<li><p><a class="reference external" href="https://bertvandenbroucke.netlify.app/2019/12/12/unit-testing-with-ctest/">Unit testing with CTest</a></p></li>
+<li><p><a class="reference external" href="https://cloud.tencent.com/developer/ask/sof/113372642/">CMake的PASS_REGULAR_EXPRESSION如何匹配多行输出？</a></p></li>
+<li><p><a class="reference external" href="https://www.youtube.com/watch?v=YlIqlVVJWuo/">Automated Testing with CMake, CTest and CDash</a></p></li>
+<li><p><a class="reference external" href="https://www.youtube.com/watch?v=pxJoVRfpRPE/">Do you even test? (your code with CMake)</a></p></li>
+<li><p><a class="reference external" href="https://www.youtube.com/watch?v=JJqRlSTQlh4/">Google Test and Mock Platform, Complete Tutorial. Part 1: Google Test</a></p></li>
+</ol>
+<p>googletest imported targets</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>find_package(GTest REQUIRED)
+
+get_directory_property( my_import_targets DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} IMPORTED_TARGETS )
+
+message( STATUS &quot;my_import_targets=${my_import_targets}&quot; )
+
+results:
+-- Found GTest: C:/dev/googletest/lib/cmake/GTest/GTestConfig.cmake (found version &quot;1.14.0&quot;)
+-- my_import_targets=GTest::gtest;GTest::gtest_main;GTest::gmock;GTest::gmock_main;GTest::GTest;GTest::Main
+</pre></div>
+</div>
+<p>declare our test, by specifying which command to run:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>add_test(
+  NAME cpp_test
+  COMMAND $&lt;TARGET_FILE:cpp_test&gt;
+)
+</pre></div>
+</div>
+<div class="highlight-cmake notranslate"><div class="highlight"><pre><span></span><span class="nb">add_test</span><span class="p">(</span>
+<span class="w">  </span><span class="s">NAME</span><span class="w"> </span><span class="s">testprj</span>
+<span class="w">  </span><span class="s">COMMAND</span><span class="w"> </span><span class="o">$&lt;</span><span class="nv">TARGET_FILE:testprj</span><span class="o">&gt;</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>cmake –build . –target print results:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">PS</span> <span class="n">D</span><span class="p">:</span>\<span class="n">work</span>\<span class="n">modern_cmake_work</span>\<span class="n">ModernCMake</span>\<span class="n">codes</span>\<span class="n">cmake</span>\<span class="n">add_test</span>\<span class="mi">06</span>\<span class="n">build</span><span class="o">&gt;</span> <span class="n">cmake</span> <span class="o">--</span><span class="n">build</span> <span class="o">.</span> <span class="o">--</span><span class="n">target</span> <span class="nb">print</span>
+<span class="n">适用于</span> <span class="o">.</span><span class="n">NET</span> <span class="n">Framework</span> <span class="n">MSBuild</span> <span class="n">版本</span> <span class="mf">17.8.3</span><span class="o">+</span><span class="mf">195e7</span><span class="n">f5a3</span>
+
+  <span class="n">testprj</span><span class="o">.</span><span class="n">vcxproj</span> <span class="o">-&gt;</span> <span class="n">D</span><span class="p">:</span>\<span class="n">work</span>\<span class="n">modern_cmake_work</span>\<span class="n">ModernCMake</span>\<span class="n">codes</span>\<span class="n">cmake</span>\<span class="n">add_test</span>\<span class="mi">06</span>\<span class="n">build</span>\<span class="n">Debug</span>\<span class="n">testprj</span><span class="o">.</span><span class="n">exe</span>
+  <span class="mi">1</span><span class="o">&gt;</span>
+  <span class="n">TARGET_FILE</span><span class="p">:</span><span class="n">testprj</span> <span class="o">=</span> <span class="n">D</span><span class="p">:</span><span class="o">/</span><span class="n">work</span><span class="o">/</span><span class="n">modern_cmake_work</span><span class="o">/</span><span class="n">ModernCMake</span><span class="o">/</span><span class="n">codes</span><span class="o">/</span><span class="n">cmake</span><span class="o">/</span><span class="n">add_test</span><span class="o">/</span><span class="mi">06</span><span class="o">/</span><span class="n">build</span><span class="o">/</span><span class="n">Debug</span><span class="o">/</span><span class="n">testprj</span><span class="o">.</span><span class="n">exe</span>
+</pre></div>
+</div>
+<p>导入库文件
+使用add_library命令，通过指定IMPORTED选项表明这是一个导入的库文件，通过设置其属性指明其路径：</p>
+<div class="highlight-cmake notranslate"><div class="highlight"><pre><span></span><span class="nb">add_library</span><span class="p">(</span><span class="s">math</span><span class="w"> </span><span class="s">STATIC</span><span class="w"> </span><span class="s">IMPORTED</span><span class="p">)</span>
+<span class="nb">set_property</span><span class="p">(</span><span class="s">TARGET</span><span class="w"> </span><span class="s">math</span><span class="w"> </span><span class="s">PROPERTY</span>
+<span class="w">             </span><span class="s">IMPORTED_LOCATION</span><span class="w"> </span><span class="s2">&quot;./lib/libmath.a&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>对于库文件的路径，也可以使用find_library命令来查找，比如在lib目录下查找math的Realse和Debug版本：</p>
+<div class="highlight-cmake notranslate"><div class="highlight"><pre><span></span><span class="nb">find_library</span><span class="p">(</span><span class="s">LIB_MATH_DEBUG</span><span class="w"> </span><span class="s">mathd</span><span class="w"> </span><span class="s">HINTS</span><span class="w"> </span><span class="s2">&quot;./lib&quot;</span><span class="p">)</span>
+<span class="nb">find_library</span><span class="p">(</span><span class="s">LIB_MATH_RELEASE</span><span class="w"> </span><span class="s">math</span><span class="w"> </span><span class="s">HINTS</span><span class="w"> </span><span class="s2">&quot;./lib&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>对于不同的编译类型，可以通过IMPORTED_LOCATION_&lt;CONFIG&gt;来指明不同编译类型对应的库文件路径：</p>
+<div class="highlight-cmake notranslate"><div class="highlight"><pre><span></span><span class="nb">add_library</span><span class="p">(</span><span class="s">math</span><span class="w"> </span><span class="s">STATIC</span><span class="w"> </span><span class="s">IMPORTED</span><span class="w"> </span><span class="s">GLOBAL</span><span class="p">)</span>
+<span class="nb">set_target_properties</span><span class="p">(</span><span class="s">math</span><span class="w"> </span><span class="s">PROPERTIES</span>
+<span class="w">  </span><span class="s">IMPORTED_LOCATION</span><span class="w"> </span><span class="s2">&quot;${LIB_MATH_RELEASE}&quot;</span>
+<span class="w">  </span><span class="s">IMPORTED_LOCATION_DEBUG</span><span class="w"> </span><span class="s2">&quot;${LIB_MATH_DEBUG}&quot;</span>
+<span class="w">  </span><span class="s">IMPORTED_CONFIGURATIONS</span><span class="w"> </span><span class="s2">&quot;RELEASE;DEBUG&quot;</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>导入成功以后，就可以将该库链接到其他目标上，但是导入的目标不可以被install。
+这里以导入静态库为例，导入动态库或其他类型也是类似的操作，只需要将文件类型STATIC修改成对应的文件类型即可。</p>
+<p>导入可执行文件
+这个不是那么常用，为了文章完整性，顺便提一下。是和导入库文件类似的：</p>
+<div class="highlight-cmake notranslate"><div class="highlight"><pre><span></span><span class="nb">add_executable</span><span class="p">(</span><span class="s">demo</span><span class="w"> </span><span class="s">IMPORTED</span><span class="p">)</span>
+<span class="nb">set_property</span><span class="p">(</span><span class="s">TARGET</span><span class="w"> </span><span class="s">demo</span><span class="w"> </span><span class="s">PROPERTY</span>
+<span class="w">             </span><span class="s">IMPORTED_LOCATION</span><span class="w"> </span><span class="s2">&quot;./bin/demo&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>bigobj problem</p>
+<div class="highlight-cmake notranslate"><div class="highlight"><pre><span></span><span class="nb">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="s">MSVC</span><span class="w"> </span><span class="p">)</span>
+<span class="w">  </span><span class="nb">target_compile_options</span><span class="p">(</span><span class="w"> </span><span class="s">testprj</span>
+<span class="w">    </span><span class="s">PRIVATE</span>
+<span class="w">      </span><span class="s">/bigobj</span>
+<span class="w">  </span><span class="p">)</span>
+<span class="nb">endif</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>string(REGEX REPLACE</p>
+<div class="highlight-cmake notranslate"><div class="highlight"><pre><span></span><span class="nb">set</span><span class="p">(</span><span class="s">myString</span><span class="w"> </span><span class="s2">&quot;Hello, World!&quot;</span><span class="p">)</span>
+<span class="nb">string</span><span class="p">(</span><span class="s">REGEX</span><span class="w"> </span><span class="s">REPLACE</span><span class="w"> </span><span class="s2">&quot;Hello&quot;</span><span class="w"> </span><span class="s2">&quot;Hi&quot;</span><span class="w"> </span><span class="s">myOutString</span><span class="w"> </span><span class="o">${</span><span class="nv">myString</span><span class="o">}</span><span class="p">)</span>
+<span class="nb">message</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="s">STATUS</span><span class="w"> </span><span class="s2">&quot;myString = ${myString}&quot;</span><span class="w"> </span><span class="p">)</span>
+<span class="nb">message</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="s">STATUS</span><span class="w"> </span><span class="s2">&quot;myOutString = ${myOutString}&quot;</span><span class="w"> </span><span class="p">)</span>
+</pre></div>
+</div>
+<p>results:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>-- myString = Hello, World!
+-- myOutString = Hi, World!
+</pre></div>
+</div>
+<p>在CMake中，使用message(TRACE …)命令可以输出跟踪级别的消息。这些消息通常用于调试目的，但默认情况下，CMake可能不会显示跟踪级别的消息。</p>
+<p>要查看跟踪级别的消息，可以在运行CMake时设置CMAKE_MESSAGE_LOG_LEVEL变量为TRACE。例如，在命令行中运行以下命令：</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cmake</span> <span class="o">-</span><span class="n">DCMAKE_MESSAGE_LOG_LEVEL</span><span class="o">=</span><span class="n">TRACE</span> <span class="o">/</span><span class="n">path</span><span class="o">/</span><span class="n">to</span><span class="o">/</span><span class="n">your</span><span class="o">/</span><span class="n">source</span>
+</pre></div>
+</div>
+<p>message的高级使用-指定日志级别 message([&lt;mode&gt;] “message”)
+它的级别有–log-level = &lt;ERROR|WARNING|NOTICE|STATUS|VERBOSE|DEBUG|TRACE&gt;</p>
+</section>
+<section id="cmake-e">
+<h2>cmake -E<a class="headerlink" href="#cmake-e" title="Link to this heading"></a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Usage</span><span class="p">:</span> <span class="n">C</span><span class="p">:</span>\<span class="n">Program</span> <span class="n">Files</span>\<span class="n">CMake</span>\<span class="nb">bin</span>\<span class="n">cmake</span><span class="o">.</span><span class="n">exe</span> <span class="o">-</span><span class="n">E</span> <span class="o">&lt;</span><span class="n">command</span><span class="o">&gt;</span> <span class="p">[</span><span class="n">arguments</span><span class="o">...</span><span class="p">]</span>
+<span class="n">Available</span> <span class="n">commands</span><span class="p">:</span>
+  <span class="n">capabilities</span>              <span class="o">-</span> <span class="n">Report</span> <span class="n">capabilities</span> <span class="n">built</span> <span class="n">into</span> <span class="n">cmake</span> <span class="ow">in</span> <span class="n">JSON</span> <span class="nb">format</span>
+  <span class="n">cat</span> <span class="p">[</span><span class="o">--</span><span class="p">]</span> <span class="o">&lt;</span><span class="n">files</span><span class="o">&gt;...</span>       <span class="o">-</span> <span class="n">concat</span> <span class="n">the</span> <span class="n">files</span> <span class="ow">and</span> <span class="nb">print</span> <span class="n">them</span> <span class="n">to</span> <span class="n">the</span> <span class="n">standard</span> <span class="n">output</span>
+  <span class="n">chdir</span> <span class="nb">dir</span> <span class="n">cmd</span> <span class="p">[</span><span class="n">args</span><span class="o">...</span><span class="p">]</span>   <span class="o">-</span> <span class="n">run</span> <span class="n">command</span> <span class="ow">in</span> <span class="n">a</span> <span class="n">given</span> <span class="n">directory</span>
+  <span class="n">compare_files</span> <span class="p">[</span><span class="o">--</span><span class="n">ignore</span><span class="o">-</span><span class="n">eol</span><span class="p">]</span> <span class="n">file1</span> <span class="n">file2</span>
+                              <span class="o">-</span> <span class="n">check</span> <span class="k">if</span> <span class="n">file1</span> <span class="ow">is</span> <span class="n">same</span> <span class="k">as</span> <span class="n">file2</span>
+  <span class="n">copy</span> <span class="o">&lt;</span><span class="n">file</span><span class="o">&gt;...</span> <span class="n">destination</span>  <span class="o">-</span> <span class="n">copy</span> <span class="n">files</span> <span class="n">to</span> <span class="n">destination</span> <span class="p">(</span><span class="n">either</span> <span class="n">file</span> <span class="ow">or</span> <span class="n">directory</span><span class="p">)</span>
+  <span class="n">copy_directory</span> <span class="o">&lt;</span><span class="nb">dir</span><span class="o">&gt;...</span> <span class="n">destination</span>   <span class="o">-</span> <span class="n">copy</span> <span class="n">content</span> <span class="n">of</span> <span class="o">&lt;</span><span class="nb">dir</span><span class="o">&gt;...</span> <span class="n">directories</span> <span class="n">to</span> <span class="s1">&#39;destination&#39;</span> <span class="n">directory</span>
+  <span class="n">copy_directory_if_different</span> <span class="o">&lt;</span><span class="nb">dir</span><span class="o">&gt;...</span> <span class="n">destination</span>   <span class="o">-</span> <span class="n">copy</span> <span class="n">changed</span> <span class="n">content</span> <span class="n">of</span> <span class="o">&lt;</span><span class="nb">dir</span><span class="o">&gt;...</span> <span class="n">directories</span> <span class="n">to</span> <span class="s1">&#39;destination&#39;</span> <span class="n">directory</span>
+  <span class="n">copy_if_different</span> <span class="o">&lt;</span><span class="n">file</span><span class="o">&gt;...</span> <span class="n">destination</span>  <span class="o">-</span> <span class="n">copy</span> <span class="n">files</span> <span class="k">if</span> <span class="n">it</span> <span class="n">has</span> <span class="n">changed</span>
+  <span class="n">echo</span> <span class="p">[</span><span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;...</span><span class="p">]</span>        <span class="o">-</span> <span class="n">displays</span> <span class="n">arguments</span> <span class="k">as</span> <span class="n">text</span>
+  <span class="n">echo_append</span> <span class="p">[</span><span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;...</span><span class="p">]</span> <span class="o">-</span> <span class="n">displays</span> <span class="n">arguments</span> <span class="k">as</span> <span class="n">text</span> <span class="n">but</span> <span class="n">no</span> <span class="n">new</span> <span class="n">line</span>
+  <span class="n">env</span> <span class="p">[</span><span class="o">--</span><span class="n">unset</span><span class="o">=</span><span class="n">NAME</span> <span class="o">...</span><span class="p">]</span> <span class="p">[</span><span class="n">NAME</span><span class="o">=</span><span class="n">VALUE</span> <span class="o">...</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="p">]</span> <span class="o">&lt;</span><span class="n">command</span><span class="o">&gt;</span> <span class="p">[</span><span class="o">&lt;</span><span class="n">arg</span><span class="o">&gt;...</span><span class="p">]</span>
+                            <span class="o">-</span> <span class="n">run</span> <span class="n">command</span> <span class="ow">in</span> <span class="n">a</span> <span class="n">modified</span> <span class="n">environment</span>
+  <span class="n">environment</span>               <span class="o">-</span> <span class="n">display</span> <span class="n">the</span> <span class="n">current</span> <span class="n">environment</span>
+  <span class="n">make_directory</span> <span class="o">&lt;</span><span class="nb">dir</span><span class="o">&gt;...</span>   <span class="o">-</span> <span class="n">create</span> <span class="n">parent</span> <span class="ow">and</span> <span class="o">&lt;</span><span class="nb">dir</span><span class="o">&gt;</span> <span class="n">directories</span>
+  <span class="n">md5sum</span> <span class="o">&lt;</span><span class="n">file</span><span class="o">&gt;...</span>          <span class="o">-</span> <span class="n">create</span> <span class="n">MD5</span> <span class="n">checksum</span> <span class="n">of</span> <span class="n">files</span>
+  <span class="n">sha1sum</span> <span class="o">&lt;</span><span class="n">file</span><span class="o">&gt;...</span>         <span class="o">-</span> <span class="n">create</span> <span class="n">SHA1</span> <span class="n">checksum</span> <span class="n">of</span> <span class="n">files</span>
+  <span class="n">sha224sum</span> <span class="o">&lt;</span><span class="n">file</span><span class="o">&gt;...</span>       <span class="o">-</span> <span class="n">create</span> <span class="n">SHA224</span> <span class="n">checksum</span> <span class="n">of</span> <span class="n">files</span>
+  <span class="n">sha256sum</span> <span class="o">&lt;</span><span class="n">file</span><span class="o">&gt;...</span>       <span class="o">-</span> <span class="n">create</span> <span class="n">SHA256</span> <span class="n">checksum</span> <span class="n">of</span> <span class="n">files</span>
+  <span class="n">sha384sum</span> <span class="o">&lt;</span><span class="n">file</span><span class="o">&gt;...</span>       <span class="o">-</span> <span class="n">create</span> <span class="n">SHA384</span> <span class="n">checksum</span> <span class="n">of</span> <span class="n">files</span>
+  <span class="n">sha512sum</span> <span class="o">&lt;</span><span class="n">file</span><span class="o">&gt;...</span>       <span class="o">-</span> <span class="n">create</span> <span class="n">SHA512</span> <span class="n">checksum</span> <span class="n">of</span> <span class="n">files</span>
+  <span class="n">remove</span> <span class="p">[</span><span class="o">-</span><span class="n">f</span><span class="p">]</span> <span class="o">&lt;</span><span class="n">file</span><span class="o">&gt;...</span>     <span class="o">-</span> <span class="n">remove</span> <span class="n">the</span> <span class="n">file</span><span class="p">(</span><span class="n">s</span><span class="p">),</span> <span class="n">use</span> <span class="o">-</span><span class="n">f</span> <span class="n">to</span> <span class="n">force</span> <span class="n">it</span> <span class="p">(</span><span class="n">deprecated</span><span class="p">:</span> <span class="n">use</span> <span class="n">rm</span> <span class="n">instead</span><span class="p">)</span>
+  <span class="n">remove_directory</span> <span class="o">&lt;</span><span class="nb">dir</span><span class="o">&gt;...</span> <span class="o">-</span> <span class="n">remove</span> <span class="n">directories</span> <span class="ow">and</span> <span class="n">their</span> <span class="n">contents</span> <span class="p">(</span><span class="n">deprecated</span><span class="p">:</span> <span class="n">use</span> <span class="n">rm</span> <span class="n">instead</span><span class="p">)</span>
+  <span class="n">rename</span> <span class="n">oldname</span> <span class="n">newname</span>    <span class="o">-</span> <span class="n">rename</span> <span class="n">a</span> <span class="n">file</span> <span class="ow">or</span> <span class="n">directory</span> <span class="p">(</span><span class="n">on</span> <span class="n">one</span> <span class="n">volume</span><span class="p">)</span>
+  <span class="n">rm</span> <span class="p">[</span><span class="o">-</span><span class="n">rRf</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="p">]</span> <span class="o">&lt;</span><span class="n">file</span><span class="o">/</span><span class="nb">dir</span><span class="o">&gt;...</span> <span class="o">-</span> <span class="n">remove</span> <span class="n">files</span> <span class="ow">or</span> <span class="n">directories</span><span class="p">,</span> <span class="n">use</span> <span class="o">-</span><span class="n">f</span> <span class="n">to</span> <span class="n">force</span> <span class="n">it</span><span class="p">,</span> <span class="n">r</span> <span class="ow">or</span> <span class="n">R</span> <span class="n">to</span> <span class="n">remove</span> <span class="n">directories</span> <span class="ow">and</span> <span class="n">their</span> <span class="n">contents</span> <span class="n">recursively</span>
+  <span class="n">sleep</span> <span class="o">&lt;</span><span class="n">number</span><span class="o">&gt;...</span>         <span class="o">-</span> <span class="n">sleep</span> <span class="k">for</span> <span class="n">given</span> <span class="n">number</span> <span class="n">of</span> <span class="n">seconds</span>
+  <span class="n">tar</span> <span class="p">[</span><span class="n">cxt</span><span class="p">][</span><span class="n">vf</span><span class="p">][</span><span class="n">zjJ</span><span class="p">]</span> <span class="n">file</span><span class="o">.</span><span class="n">tar</span> <span class="p">[</span><span class="n">file</span><span class="o">/</span><span class="n">dir1</span> <span class="n">file</span><span class="o">/</span><span class="n">dir2</span> <span class="o">...</span><span class="p">]</span>
+                            <span class="o">-</span> <span class="n">create</span> <span class="ow">or</span> <span class="n">extract</span> <span class="n">a</span> <span class="n">tar</span> <span class="ow">or</span> <span class="nb">zip</span> <span class="n">archive</span>
+  <span class="n">time</span> <span class="n">command</span> <span class="p">[</span><span class="n">args</span><span class="o">...</span><span class="p">]</span>    <span class="o">-</span> <span class="n">run</span> <span class="n">command</span> <span class="ow">and</span> <span class="n">display</span> <span class="n">elapsed</span> <span class="n">time</span>
+  <span class="n">touch</span> <span class="o">&lt;</span><span class="n">file</span><span class="o">&gt;...</span>           <span class="o">-</span> <span class="n">touch</span> <span class="n">a</span> <span class="o">&lt;</span><span class="n">file</span><span class="o">&gt;.</span>
+  <span class="n">touch_nocreate</span> <span class="o">&lt;</span><span class="n">file</span><span class="o">&gt;...</span>  <span class="o">-</span> <span class="n">touch</span> <span class="n">a</span> <span class="o">&lt;</span><span class="n">file</span><span class="o">&gt;</span> <span class="n">but</span> <span class="n">do</span> <span class="ow">not</span> <span class="n">create</span> <span class="n">it</span><span class="o">.</span>
+  <span class="n">create_symlink</span> <span class="n">old</span> <span class="n">new</span>    <span class="o">-</span> <span class="n">create</span> <span class="n">a</span> <span class="n">symbolic</span> <span class="n">link</span> <span class="n">new</span> <span class="o">-&gt;</span> <span class="n">old</span>
+  <span class="n">create_hardlink</span> <span class="n">old</span> <span class="n">new</span>   <span class="o">-</span> <span class="n">create</span> <span class="n">a</span> <span class="n">hard</span> <span class="n">link</span> <span class="n">new</span> <span class="o">-&gt;</span> <span class="n">old</span>
+  <span class="n">true</span>                      <span class="o">-</span> <span class="n">do</span> <span class="n">nothing</span> <span class="k">with</span> <span class="n">an</span> <span class="n">exit</span> <span class="n">code</span> <span class="n">of</span> <span class="mi">0</span>
+  <span class="n">false</span>                     <span class="o">-</span> <span class="n">do</span> <span class="n">nothing</span> <span class="k">with</span> <span class="n">an</span> <span class="n">exit</span> <span class="n">code</span> <span class="n">of</span> <span class="mi">1</span>
+<span class="n">Available</span> <span class="n">on</span> <span class="n">Windows</span> <span class="n">only</span><span class="p">:</span>
+  <span class="n">delete_regv</span> <span class="n">key</span>           <span class="o">-</span> <span class="n">delete</span> <span class="n">registry</span> <span class="n">value</span>
+  <span class="n">env_vs8_wince</span> <span class="n">sdkname</span>     <span class="o">-</span> <span class="n">displays</span> <span class="n">a</span> <span class="n">batch</span> <span class="n">file</span> <span class="n">which</span> <span class="n">sets</span> <span class="n">the</span> <span class="n">environment</span> <span class="k">for</span> <span class="n">the</span> <span class="n">provided</span> <span class="n">Windows</span> <span class="n">CE</span> <span class="n">SDK</span> <span class="n">installed</span> <span class="ow">in</span> <span class="n">VS2005</span>
+  <span class="n">env_vs9_wince</span> <span class="n">sdkname</span>     <span class="o">-</span> <span class="n">displays</span> <span class="n">a</span> <span class="n">batch</span> <span class="n">file</span> <span class="n">which</span> <span class="n">sets</span> <span class="n">the</span> <span class="n">environment</span> <span class="k">for</span> <span class="n">the</span> <span class="n">provided</span> <span class="n">Windows</span> <span class="n">CE</span> <span class="n">SDK</span> <span class="n">installed</span> <span class="ow">in</span> <span class="n">VS2008</span>
+  <span class="n">write_regv</span> <span class="n">key</span> <span class="n">value</span>      <span class="o">-</span> <span class="n">write</span> <span class="n">registry</span> <span class="n">value</span>
+</pre></div>
+</div>
+<p>Fortran CMake</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>cmake_minimum_required(VERSION 3.28)
+
+project ( testprj )
+
+set ( PRJ_COMPILE_FEATURES )
+set ( PRJ_COMPILE_DEFINITIONS )
+
+enable_language(Fortran)
+
+if (MSVC)
+  set_property ( DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+    PROPERTY
+       VS_STARTUP_PROJECT ${PROJECT_NAME}
+  )
+endif ()
+
+add_executable( ${PROJECT_NAME}
+    main.f90
+)
+
+target_compile_features ( ${PROJECT_NAME}
+      PRIVATE
+              ${PRJ_COMPILE_FEATURES}
+)
+
+target_compile_definitions ( ${PROJECT_NAME}
+      PRIVATE
+         ${PRJ_COMPILE_DEFINITIONS}
+)
+</pre></div>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="cpp/modern_cpp.html" class="btn btn-neutral float-left" title="Modern C++" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="cmd.html" class="btn btn-neutral float-right" title="Cmd" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2017~2024, eric.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

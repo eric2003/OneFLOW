@@ -1,0 +1,1424 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MULTIGRID &mdash; Scientific Computing 1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../_static/documentation_options.js?v=f2a433a1"></script>
+        <script src="../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="MULTIGRID Continued" href="multigrid1.html" />
+    <link rel="prev" title="Iterative Solver" href="iterative.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            Scientific Computing
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Get started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../info.html">OneFLOW</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../user.html">THEORY</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../bash.html">Bash</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">CFD</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../ns.html">Navier–Stokes equations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../leibniz.html">Leibniz integral</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../rtt.html">Reynolds’ transport theorem</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../mass.html">Conservation Of Mass</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../momenum.html">Momentum Analysis Of Flow Systems</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../energy.html">Conservation Of Energy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../ns-integral.html">ALE Form of Conservation Equations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../curvilinear.html">Generalized Curvilinear Coordinate System</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../curvilinear3d.html">Generalized Curvilinear Coordinate System(3D)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../vector.html">Vector &amp; Tensor</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../matrix.html">Matrix</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../calculus.html">Calculus</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../substitution.html">Substitution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../jacobian.html">Jacobian matrix</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../gauss.html">Gauss’s Theorem</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../strain.html">Strain Measures</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../ale.html">Arbitrary Lagrangian-Eulerian</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../ale1d.html">ALE 1D</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../deformation.html">Deformation and Motion</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../derivative.html">Fluid Derivative</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../material_derivative.html">Material Time Derivative</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../scheme/index.html">CFD Schemes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/index.html">CFD Examples</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="index.html">CFD Methods</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="spectrum.html">Spectral Methods</a></li>
+<li class="toctree-l3"><a class="reference internal" href="fourier.html">Fourier Series</a></li>
+<li class="toctree-l3"><a class="reference internal" href="iterative.html">Iterative Solver</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">MULTIGRID</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#multigrid-framework">Multigrid Framework</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#basic-iterative-methods">Basic Iterative Methods</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#residuals-and-errors">Residuals and Errors.</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#model-problems">Model Problems</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#gaussseidel-method">Gauss–Seidel method</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#matrix-norms">Matrix Norms.</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#interpreting-the-spectral-radius">Interpreting the Spectral Radius.</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#eigenvalues-of-the-model-problem">Eigenvalues of the model problem</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#numerical-experiments">Numerical experiments</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#gaussseidel-iteration-matrix">Gauss–Seidel iteration matrix</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#gaussseidel-eigenvalues-and-eigenvectors">Gauss–Seidel eigenvalues and eigenvectors.</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="multigrid1.html">MULTIGRID Continued</a></li>
+<li class="toctree-l3"><a class="reference internal" href="multigrid2.html">Multigrid Poisson Solver</a></li>
+<li class="toctree-l3"><a class="reference internal" href="vorticitystream.html">Vorticity Stream Function</a></li>
+<li class="toctree-l3"><a class="reference internal" href="inviscid2d.html">Incompressible Navier-Stokes Equation</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../codes.html">Reference Codes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../videos.html">CFD &amp; CAE Videos</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../books.html">Books</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../docs.html">Documents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../cgns.html">CGNS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../chatgpt.html">CHATGPT</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../cpp/index.html">CPP</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../cmake.html">CMake</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../cmd.html">Cmd</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../cuda.html">CUDA</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../design_patterns.html">Design Patterns</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../eigen.html">Eigen3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../git.html">Git</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../git.html#contexts">Contexts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fortran.html">Fortran</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../hdf5.html">HDF5</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../hpc.html">HPC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../install/index.html">Install</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../julia.html">Julia</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../jupyter.html">Jupyter Notebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../latex.html">LaTeX</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../makefile.html">Makefile</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../metis.html">METIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../mkdocs.html">MkDocs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../modules.html">Environment Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../mpi.html">MPI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../numerical/index.html">Numerical analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../oneapi.html">oneAPI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../oneflow.html">OneFLOW-CFD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../openacc.html">OpenACC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../opencl.html">OpenCL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../opengl.html">OpenGL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../openmp.html">OpenMP</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../powershell.html">PowerShell</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../python/index.html">Python</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../qt.html">Qt</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../regex.html">Regular Expressions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../science.html">Science</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sphinx.html">Sphinx</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../system/index.html">System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../taichi.html">Taichi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tcltk.html">Tcl/tk</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tecplot.html">Tecplot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../test.html">Test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../unreal_engine.html">Unreal Engine</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../vcpkg.html">vcpkg</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../yaml.html">yaml</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Scientific Computing</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">CFD</a></li>
+          <li class="breadcrumb-item"><a href="index.html">CFD Methods</a></li>
+      <li class="breadcrumb-item active">MULTIGRID</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/cfd/method/multigrid.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="multigrid">
+<h1>MULTIGRID<a class="headerlink" href="#multigrid" title="Link to this heading"></a></h1>
+<ol class="arabic simple">
+<li><p><a class="reference external" href="https://people.math.sc.edu/Burkardt/c_src/multigrid_poisson_1d/multigrid_poisson_1d.html">Multigrid Solver for 1D Poisson Problem</a></p></li>
+<li><p><a class="reference external" href="https://www.damtp.cam.ac.uk/user/hf323/M21-II-NA/demos/multigrid/multigrid.html">Multigrid methods</a></p></li>
+<li><p><a class="reference external" href="https://www.youtube.com/watch?v=jqwyl9m5euI/">MIT Numerical Methods for PDE Lecture 6: Walkthough of a multigrid solver</a></p></li>
+<li><p><a class="reference external" href="http://bender.astro.sunysb.edu/classes/numerical_methods/lectures/elliptic-multigrid.pdf">Elliptic Problems / Multigrid</a></p></li>
+<li><p><a class="reference external" href="http://bender.astro.sunysb.edu/classes/numerical_methods/">numerical methods</a></p></li>
+<li><p><a class="reference external" href="https://zhuanlan.zhihu.com/p/337970166/">多重网格法 (Multigrid Method) 简述和示例</a></p></li>
+<li><p><a class="reference external" href="https://amgcl.readthedocs.io/en/latest/amg_overview.html">Algebraic Multigrid</a></p></li>
+<li><p><a class="reference external" href="https://www.wias-berlin.de/people/john/LEHRE/MULTIGRID/multigrid_7.pdf">Algebraic Multigrid Methods</a></p></li>
+<li><p><a class="reference external" href="https://www.scai.fraunhofer.de/content/dam/scai/de/documents/AllgemeineDokumentensammlung/SchnelleLoeser/SAMG/AMG_Introduction.pdf">Algebraic Multigrid AMG-An Introduction with Applications</a></p></li>
+<li><p><a class="reference external" href="https://math.mit.edu/classes/18.086/2006/">Mathematical Methods for Engineers II</a></p></li>
+</ol>
+<section id="multigrid-framework">
+<h2>Multigrid Framework<a class="headerlink" href="#multigrid-framework" title="Link to this heading"></a></h2>
+<p>We saw the rate of convergence for iterative methods depends upon the iteration matrix.
+Point iterative methods like Jacobi and Gauss-Seidel methods have large eigenvalue and hence the slow convergence. As the grid becomes finer, the maximum eigenvalue of the iteration matrix becomes close to 1.
+Therefore, for very high-resolution simulation, these iterative methods are not feasible due to the large computational time required for residuals to go below some specified tolerance.</p>
+<p>The multigrid framework is one of the most efficient iterative algorithm to solve the linear system of equations arising due to the discretization of the Poisson equation. The multigrid framework works on the principle that low wavenumber errors on fine grid behave like a high wavenumber error on a coarse grid. In the multigrid framework, we restrict the residuals on the fine grid to the coarser grid.
+The restricted residual is then relaxed to resolve the low wavenumber errors and the correction to the solution is prolongated back to the fine grid. We can use any of the iterative methods like Jacobi, Gauss-Seidel method for relaxation. The algorithm can be implemented recursively on the hierarchy of grids to get faster convergence.</p>
+</section>
+<section id="basic-iterative-methods">
+<h2>Basic Iterative Methods<a class="headerlink" href="#basic-iterative-methods" title="Link to this heading"></a></h2>
+<p>We now consider how model problems might be treated using conventional iterative or relaxation methods. We first establish the notation for this
+and all remaining chapters. Let</p>
+<div class="math notranslate nohighlight">
+\[A\mathbf{u}=\mathbf{f}\]</div>
+<p>denote a system of linear equations. We always use <span class="math notranslate nohighlight">\(\mathbf{u}\)</span> to
+denote the exact solution of this system and <span class="math notranslate nohighlight">\(\mathbf{v}\)</span> to denote an approximation to the
+exact solution, perhaps generated by some iterative method. Bold symbols, such as
+<span class="math notranslate nohighlight">\(\mathbf{u}\)</span> and <span class="math notranslate nohighlight">\(\mathbf{v}\)</span>, represent vectors, while the <span class="math notranslate nohighlight">\(j\text{th}\)</span> components of these vectors are denoted
+by <span class="math notranslate nohighlight">\({u}_{j}\)</span> and <span class="math notranslate nohighlight">\({v}_{j}\)</span>. In later chapters, we need to associate <span class="math notranslate nohighlight">\(\mathbf{u}\)</span> and <span class="math notranslate nohighlight">\(\mathbf{v}\)</span> with a particular
+grid, say <span class="math notranslate nohighlight">\({\Omega}^{h}\)</span>. In this case, the notation <span class="math notranslate nohighlight">\({u}^{h}\)</span> and <span class="math notranslate nohighlight">\({v}^{h}\)</span> is used.</p>
+<p>Suppose that the system <span class="math notranslate nohighlight">\(A\mathbf{u}=\mathbf{f}\)</span> has a unique solution and that <span class="math notranslate nohighlight">\(\mathbf{v}\)</span> is a computed
+approximation to <span class="math notranslate nohighlight">\(\mathbf{u}\)</span>. There are two important measures of <span class="math notranslate nohighlight">\(\mathbf{v}\)</span> as an approximation
+to <span class="math notranslate nohighlight">\(\mathbf{u}\)</span>. One is the error (or algebraic error) and is given simply by</p>
+<div class="math notranslate nohighlight">
+\[\mathbf{e}=\mathbf{u}-\mathbf{v}\]</div>
+<p>The error is also a vector and its magnitude may be measured by any of the standard
+vector norms. The most commonly used norms for this purpose are the maximum
+(or infinity) norm and the Euclidean or 2-norm, defined, respectively, by</p>
+<div class="math notranslate nohighlight">
+\[\|\mathbf{e}\|_{\infty }=\underset{1\le j\le n }{\text{max}}|e_{j}|\quad \text{and }
+\|\mathbf{e}\|_{2}=\Bigg\{{\sum_{j=1}^{n}e_{j}^{2}}\Bigg\}^{1/2}\]</div>
+<p>Unfortunately, the error is just as inaccessible as the exact solution itself. However, a computable measure of how well <span class="math notranslate nohighlight">\(\mathbf{v}\)</span> approximates <span class="math notranslate nohighlight">\(\mathbf{u}\)</span> is the residual, given
+by</p>
+<div class="math notranslate nohighlight">
+\[\mathbf{r}=\mathbf{f}-A\mathbf{v}\]</div>
+<p>The residual is simply the amount by which the approximation <span class="math notranslate nohighlight">\(\mathbf{v}\)</span> fails to satisfy
+the original problem <span class="math notranslate nohighlight">\(A\mathbf{u}=\mathbf{f}\)</span>. It is also a vector and its size may be measured by
+the same norm used for the error. By the uniqueness of the solution, <span class="math notranslate nohighlight">\(\mathbf{r}=0\)</span> if and
+only if <span class="math notranslate nohighlight">\(\mathbf{e}=0\)</span>. However, it may not be true that when <span class="math notranslate nohighlight">\(\mathbf{r}\)</span> is small in norm, <span class="math notranslate nohighlight">\(\mathbf{e}\)</span> is also
+small in norm.</p>
+</section>
+<section id="residuals-and-errors">
+<h2>Residuals and Errors.<a class="headerlink" href="#residuals-and-errors" title="Link to this heading"></a></h2>
+<p>A residual may be defined for any numerical approximation and, in many cases, a small residual does not necessarily imply a small
+error. This is certainly true for systems of linear equations, as shown by the
+following two problems:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{pmatrix}
+1&amp; -1\\
+21&amp;-20
+\end{pmatrix}
+\begin{pmatrix}
+u_{1}\\u_{2}
+\end{pmatrix}=
+\begin{pmatrix}
+-1\\-19
+\end{pmatrix}\end{split}\]</div>
+<p>and</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{pmatrix}
+1&amp; -1\\
+3&amp;-1
+\end{pmatrix}
+\begin{pmatrix}
+u_{1}\\u_{2}
+\end{pmatrix}=
+\begin{pmatrix}
+-1\\1
+\end{pmatrix}\end{split}\]</div>
+<p>Both systems have the exact solution <span class="math notranslate nohighlight">\(\mathbf{u}=(1,2)^{T}\)</span>. Suppose we have computed
+the approximation <span class="math notranslate nohighlight">\(\mathbf{v}=(1.95, 3)^{T}\)</span>. The error in this approximation is <span class="math notranslate nohighlight">\(\mathbf{e}=(-0.95, -1)^{T}\)</span>,
+for which <span class="math notranslate nohighlight">\(\|\mathbf{e}\|_{2}=1.379\)</span>. The norm of the residual in <span class="math notranslate nohighlight">\(\mathbf{v}\)</span> for the
+first system is <span class="math notranslate nohighlight">\(\|\mathbf{r}_{1}\|_{2}=0.071\)</span>, while the residual norm for the second system is
+<span class="math notranslate nohighlight">\(\|\mathbf{r}_{2}\|_{2}=1.851\)</span>. Clearly, the relatively small residual for the first system does
+not reflect the rather large error.</p>
+<p>Remembering that <span class="math notranslate nohighlight">\(A\mathbf{u}=\mathbf{f}\)</span> and using the definitions of <span class="math notranslate nohighlight">\(\mathbf{r}\)</span> and <span class="math notranslate nohighlight">\(\mathbf{e}\)</span>, we can derive
+an extremely important relationship between the error and the residual:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+A\mathbf{u}=\mathbf{f}\\
+\mathbf{r}=\mathbf{f}-A\mathbf{v}\\
+A\mathbf{u}=\mathbf{f}=\mathbf{r}+A\mathbf{v}\\
+\mathbf{r}=A(\mathbf{u}-\mathbf{v})\\
+\mathbf{r}=A\mathbf{e}\\
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[A\mathbf{e}=\mathbf{r}\]</div>
+<p>We call this relationship the residual equation. It says that the error satisfies the
+same set of equations as the unknown <span class="math notranslate nohighlight">\(\mathbf{u}\)</span> when <span class="math notranslate nohighlight">\(\mathbf{f}\)</span> is replaced by the residual <span class="math notranslate nohighlight">\(\mathbf{r}\)</span>. The
+residual equation plays a vital role in multigrid methods and it is used repeatedly
+throughout this tutorial.</p>
+<p>We can now anticipate, in an imprecise way, how the residual equation can be
+used to great advantage. Suppose that an approximation <span class="math notranslate nohighlight">\(\mathbf{v}\)</span> has been computed
+by some method. It is easy to compute the residual <span class="math notranslate nohighlight">\(\mathbf{r}=\mathbf{f}-\mathbf{A}\mathbf{v}\)</span>. To improve the
+approximation <span class="math notranslate nohighlight">\(\mathbf{v}\)</span>, we might solve the residual equation for e and then compute a
+new approximation using the definition of the error</p>
+<div class="math notranslate nohighlight">
+\[\mathbf{u}=\mathbf{v}+\mathbf{e}\]</div>
+<p>In practice, this method must be applied more carefully than we have indicated.
+Nevertheless, this idea of residual correction is very important in all that follows.</p>
+</section>
+<section id="model-problems">
+<h2>Model Problems<a class="headerlink" href="#model-problems" title="Link to this heading"></a></h2>
+<p>Multigrid methods were originally applied to simple boundary value problems that
+arise in many physical applications. For simplicity and for historical reasons, these
+problems provide a natural introduction to multigrid methods. As an example,
+consider the two-point boundary value problem that describes the steady-state
+temperature distribution in a long uniform rod. It is given by the second-order
+boundary value problem</p>
+<div class="math notranslate nohighlight">
+\[-\cfrac{\text{d}^{2}u}{\text{d}u^{2}} +\sigma u(x)=f(x),\quad 0&lt;x&lt;1,\quad\sigma \ge 0\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[u(0)=u(1)=0\]</div>
+<p>While this problem can be handled analytically, our present aim is to consider
+numerical methods. Many such approaches are possible, the simplest of which is a
+finite difference method. The domain of the problem <span class="math notranslate nohighlight">\(\{x:0\le x\le 1\}\)</span> is partitioned into <span class="math notranslate nohighlight">\(n\)</span> subintervals
+by introducing the grid points <span class="math notranslate nohighlight">\(x_{j}= jh\)</span>, where <span class="math notranslate nohighlight">\(h = 1/n\)</span> is the constant width of the
+subintervals.</p>
+<p>At each of the <span class="math notranslate nohighlight">\(n−1\)</span> interior grid points, the original differential equation is
+replaced by a second-order finite difference approximation. In making this replacement, we also introduce <span class="math notranslate nohighlight">\(v_{j}\)</span> as an approximation to the exact solution <span class="math notranslate nohighlight">\(u(x_{j})\)</span>. This
+approximate solution may now be represented by a vector <span class="math notranslate nohighlight">\(\mathbf{v}=(v_{1}, . . . , v_{n-1})^{T}\)</span>,
+whose components satisfy the <span class="math notranslate nohighlight">\(n−1\)</span> linear equations</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{c}
+\cfrac{-v_{j-1}+2v_{j}-v_{j+1}}{h^{2}}+\sigma v_{j}=f(x_{j}), \quad 1\le j\le n-1,\\
+v_{0}=v_{n}=0
+\end{array}\end{split}\]</div>
+<figure class="align-center" id="id1">
+<a class="reference internal image-reference" href="../../_images/multigrid1.png"><img alt="../../_images/multigrid1.png" src="../../_images/multigrid1.png" style="width: 800px;" /></a>
+<figcaption>
+<p><span class="caption-text">One-dimensional grid on the interval <span class="math notranslate nohighlight">\(0\le x\le 1\)</span>. The grid spacing is <span class="math notranslate nohighlight">\(h=\cfrac{1}{n}\)</span> and the jth grid point is <span class="math notranslate nohighlight">\(x_{j} = jh\)</span> for <span class="math notranslate nohighlight">\(0\le j\le n\)</span>.</span><a class="headerlink" href="#id1" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<p>Defining <span class="math notranslate nohighlight">\(\mathbf{f}=(f(x_{1}),\cdots,f(x_{n-1}))^{T}=(f_{1},\cdots,f_{n-1})^{T}\)</span>, the vector of right-side
+values, we may also represent this system of linear equations in matrix form as</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\cfrac{1}{h^{2}}\begin{bmatrix}
+2+\sigma h^{2}&amp;-1 \\
+-1&amp;2+\sigma h^{2}&amp;-1 \\
+&amp;\cdot&amp;\cdot&amp;\cdot \\
+&amp;&amp;\cdot&amp;\cdot&amp;\cdot \\
+&amp;&amp;&amp;\cdot&amp;\cdot&amp;-1\\
+&amp;&amp;&amp;&amp;-1&amp;2+\sigma h^{2}&amp;\\
+\end{bmatrix}
+\begin{bmatrix}
+v_{1}\\\cdot\\\cdot\\\cdot\\\cdot\\v_{n-1}
+\end{bmatrix}
+=\begin{bmatrix}
+f_{1}\\\cdot\\\cdot\\\cdot\\\cdot\\f_{n-1}
+\end{bmatrix}\end{split}\]</div>
+<p>or even more compactly as <span class="math notranslate nohighlight">\(A\mathbf{v}=\mathbf{f}\)</span>. The matrix <span class="math notranslate nohighlight">\(A\)</span> is <span class="math notranslate nohighlight">\((n-1)\times(n-1)\)</span>, tridiagonal,symmetric, and positive definite.</p>
+<p>We now turn to relaxation methods for our first model problem  with <span class="math notranslate nohighlight">\(\sigma = 0\)</span>.
+Multiplying that equation by <span class="math notranslate nohighlight">\(h^{2}\)</span> for convenience, the discrete problem becomes</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{c}
+{-u_{j-1}+2u_{j}-u_{j+1}}={h^{2}}f_{j}, \quad 1\le j\le n-1,\\
+u_{0}=u_{n}=0
+\end{array}\end{split}\]</div>
+<p>One of the simplest schemes is the Jacobi (or simultaneous displacement) method.
+It is produced by solving the <span class="math notranslate nohighlight">\(j\text{th}\)</span> equation for the <span class="math notranslate nohighlight">\(j\text{th}\)</span> unknown and using
+the current approximation for the <span class="math notranslate nohighlight">\((j −1)\text{st}\)</span> and <span class="math notranslate nohighlight">\((j+1)\text{st}\)</span> unknowns. Applied to the
+vector of current approximations, this produces an iteration scheme that may be
+written in component form as</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}v_{j}^{1}=\cfrac{1}{2}(v_{j-1}^{0}+v_{j+1}^{0}+{h^{2}}f_{j}), \quad 1\le j\le n-1,\\\end{split}\]</div>
+<p>To keep the notation as simple as possible, the current approximation (or the
+initial guess on the first iteration) is denoted <span class="math notranslate nohighlight">\(v^{(0)}\)</span>, while the new, updated approximation is denoted <span class="math notranslate nohighlight">\(v^{(1)}\)</span>. In practice, once all of the <span class="math notranslate nohighlight">\(v^{(1)}\)</span> components have been
+computed, the procedure is repeated, with <span class="math notranslate nohighlight">\(v^{(1)}\)</span> playing the role of <span class="math notranslate nohighlight">\(v^{(0)}\)</span>. These iteration sweeps are continued until (ideally) convergence to the solution is obtained.</p>
+<p>It is important to express these relaxation schemes in matrix form, as well as
+component form. We split the matrix <span class="math notranslate nohighlight">\(A\)</span> in the form</p>
+<div class="math notranslate nohighlight">
+\[A=D-L-U\]</div>
+<p>where <span class="math notranslate nohighlight">\(D\)</span> is the diagonal of <span class="math notranslate nohighlight">\(A\)</span>, and <span class="math notranslate nohighlight">\(−L\)</span> and <span class="math notranslate nohighlight">\(−U\)</span> are the strictly lower and upper
+triangular parts of <span class="math notranslate nohighlight">\(A\)</span>, respectively. Including the <span class="math notranslate nohighlight">\(h^{2}\)</span> term in the vector <span class="math notranslate nohighlight">\(\mathbf{f}\)</span>, then
+<span class="math notranslate nohighlight">\(A\mathbf{u}=\mathbf{f}\)</span> becomes</p>
+<div class="math notranslate nohighlight">
+\[(D-L-U)\mathbf{u}=\mathbf{f}\]</div>
+<p>Isolating the diagonal terms of <span class="math notranslate nohighlight">\(A\)</span>, we have</p>
+<div class="math notranslate nohighlight">
+\[D\mathbf{u}=(L+U)\mathbf{u}+\mathbf{f}\]</div>
+<p>or</p>
+<div class="math notranslate nohighlight">
+\[\mathbf{u}=D^{-1}(L+U)\mathbf{u}+D^{-1}\mathbf{f}\]</div>
+<p>Multiplying by <span class="math notranslate nohighlight">\(D^{-1}\)</span> corresponds exactly to solving the <span class="math notranslate nohighlight">\(j\text{th}\)</span> equation for <span class="math notranslate nohighlight">\(u_{j}\)</span>, for
+<span class="math notranslate nohighlight">\(1 \le j \le n − 1\)</span>. If we define the Jacobi iteration matrix by</p>
+<div class="math notranslate nohighlight">
+\[R_{J}=D^{-1}(L+U)\]</div>
+<p>then the Jacobi method appears in matrix form as</p>
+<div class="math notranslate nohighlight">
+\[\mathbf{v}^{(1)}=R_{J}\mathbf{v}^{(0)}+D^{-1}\mathbf{f}\]</div>
+<p>There is a simple but important modification that can be made to the Jacobi
+iteration. As before, we compute the new Jacobi iterates using</p>
+<div class="math notranslate nohighlight">
+\[v_{j}^{*}=\cfrac{1}{2}(v_{j-1}^{(0)}+v_{j+1}^{(0)}+{h^{2}}f_{j}), \quad 1\le j\le n-1.\]</div>
+<p>However, <span class="math notranslate nohighlight">\(v_{j}^{*}\)</span> is now only an intermediate value. The new iterate is given by the
+weighted average</p>
+<div class="math notranslate nohighlight">
+\[v_{j}^{*}=(1-\omega)v_{j}^{(0)}+\omega v_{j}^{*}=v_{j}^{(0)}+\omega(v_{j}^{*}-v_{j}^{(0)}), \quad 1\le j\le n-1\]</div>
+<p>where <span class="math notranslate nohighlight">\(\omega \in \mathbf{R}\)</span> is a weighting factor that may be chosen. This generates an entire
+family of iterations called the weighted or damped Jacobi method. Notice that <span class="math notranslate nohighlight">\(\omega = 1\)</span>
+yields the original Jacobi iteration.</p>
+<p>In matrix form, the weighted Jacobi method is given by</p>
+<div class="math notranslate nohighlight">
+\[\mathbf{v}^{(1)}=[(1-\omega)I+\omega R_{J}]\mathbf{v}^{(0)}+\omega D^{-1}\mathbf{f}\]</div>
+<p>If we define the weighted Jacobi iteration matrix by</p>
+<div class="math notranslate nohighlight">
+\[R_{\omega}=(1-\omega)I+\omega R_{J}\]</div>
+<p>then the method may be expressed as</p>
+<div class="math notranslate nohighlight">
+\[\mathbf{v}^{(1)}=R_{\omega}\mathbf{v}^{(0)}+\omega D^{-1}\mathbf{f}\]</div>
+<p>We should note in passing that the weighted Jacobi iteration can also be written
+in the form</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+\mathbf{r}=\mathbf{f}-A\mathbf{v}\\
+\mathbf{v}^{(1)}=[(1-\omega)I+\omega R_{J}]\mathbf{v}^{(0)}+\omega D^{-1}\mathbf{f}\\
+\mathbf{v}^{(1)}=[(1-\omega)I+\omega R_{J}]\mathbf{v}^{(0)}+\omega D^{-1}(\mathbf{r}^{(0)}+A\mathbf{v}^{(0)})\\
+\mathbf{v}^{(1)}=[(1-\omega)I+\omega (R_{J}+D^{-1}A)]\mathbf{v}^{(0)}+\omega D^{-1}\mathbf{r}^{(0)}\\
+R_{J}=D^{-1}(L+U)\\
+A=D-L-U,\quad D^{-1}A=I-D^{-1}(L+U)=I-R_{J}\\
+\mathbf{v}^{(1)}=\mathbf{v}^{(0)}+\omega D^{-1}\mathbf{r}^{(0)}\\
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\mathbf{v}^{(1)}=\mathbf{v}^{(0)}+\omega D^{-1}\mathbf{r}^{(0)}\]</div>
+<p>This says that the new approximation is obtained from the current one by adding
+an appropriate weighting of the residual.</p>
+<p>This is just one example of a stationary linear iteration. This term refers to the
+fact that the update rule is linear in the unknown <span class="math notranslate nohighlight">\(\mathbf{v}\)</span> and does not change from one
+iteration to the next. We can say more about such iterations in general. Recalling
+that <span class="math notranslate nohighlight">\(\mathbf{e} = \mathbf{u} − \mathbf{v}\)</span> and <span class="math notranslate nohighlight">\(A\mathbf{e}=\mathbf{r}\)</span>, we have</p>
+<div class="math notranslate nohighlight">
+\[\mathbf{u} − \mathbf{v}=A^{-1}\mathbf{r}\]</div>
+<p>Identifying <span class="math notranslate nohighlight">\(\mathbf{v}\)</span> with the current approximation <span class="math notranslate nohighlight">\(\mathbf{v}^{(0)}\)</span> and <span class="math notranslate nohighlight">\(\mathbf{u}\)</span> with the new approximation <span class="math notranslate nohighlight">\(\mathbf{v}^{(1)}\)</span>, an iteration may be formed by taking</p>
+<div class="math notranslate nohighlight">
+\[\mathbf{v}^{(1)}=\mathbf{v}^{(0)}+B\mathbf{r}^{(0)}\]</div>
+<p>where <span class="math notranslate nohighlight">\(B\)</span> is an approximation to <span class="math notranslate nohighlight">\(A^{-1}\)</span>. If <span class="math notranslate nohighlight">\(B\)</span> can be chosen “close” to <span class="math notranslate nohighlight">\(A^{-1}\)</span>, then the
+iteration should be effective.</p>
+<p>It is useful to examine this general form of iteration a bit further. Rewriting
+expression above, we see that</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+\mathbf{r}^{(0)} = \mathbf{f}-A\mathbf{v}^{(0)}\\
+\mathbf{v}^{(1)} = \mathbf{v}^{(0)}+B\mathbf{r}^{(0)} &amp; = \mathbf{v}^{(0)}+B(\mathbf{f}-A\mathbf{v}^{(0)})\\
+&amp;=(I-BA)\mathbf{v}^{(0)}+B\mathbf{f}\\
+&amp;=R\mathbf{v}^{(0)}+B\mathbf{f}\\
+\end{align}\end{split}\]</div>
+<p>where we have defined the general iteration matrix as <span class="math notranslate nohighlight">\(R = I − BA\)</span>. It can also be
+shown that <span class="math notranslate nohighlight">\(m\)</span> sweeps of this iteration result in</p>
+<div class="math notranslate nohighlight">
+\[\mathbf{v}^{(m)}=R^{m}\mathbf{v}^{(0)}+C(\mathbf{f})\]</div>
+<p>where <span class="math notranslate nohighlight">\(C(\mathbf{f})\)</span> represents a series of operations on <span class="math notranslate nohighlight">\(\mathbf{f}\)</span>.</p>
+<p>Before analyzing or implementing these methods, we present a few more of
+the basic iterative schemes. Weighted Jacobi computes all components of the new
+approximation before using any of them. This requires <span class="math notranslate nohighlight">\(2n\)</span> storage locations for the
+approximation vector. It also means that new information cannot be used as soon
+as it is available.</p>
+<p>The Gauss–Seidel method incorporates a simple change: components of the new
+approximation are used as soon as they are computed. This means that components
+of the approximation vector <span class="math notranslate nohighlight">\(\mathbf{v}\)</span> are overwritten as soon as they are updated. This
+small change reduces the storage requirement for the approximation vector to only <span class="math notranslate nohighlight">\(n\)</span> locations. The Gauss–Seidel method is also equivalent to successively setting
+each component of the residual vector to zero and solving for the corresponding component of the solution. When applied to the model problem, this
+method may be expressed in component form as</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}v_{j}\longleftarrow \cfrac{1}{2}(v_{j-1}+v_{j+1}+{h^{2}}f_{j}), \quad 1\le j\le n-1,\\\end{split}\]</div>
+<p>where the arrow notation stands for replacement or overwriting.</p>
+<p>Once again it is useful to express this method in matrix form. Splitting the
+matrix <span class="math notranslate nohighlight">\(A\)</span> in the form <span class="math notranslate nohighlight">\(A = D − L − U\)</span>, we can now write the original system of
+equations as</p>
+<div class="math notranslate nohighlight">
+\[(D-L)\mathbf{u}=U\mathbf{u}+\mathbf{f}\]</div>
+<p>or</p>
+<div class="math notranslate nohighlight">
+\[\mathbf{u}=(D-L)^{-1}U\mathbf{u}+(D-L)^{-1}\mathbf{f}\]</div>
+<p>This representation corresponds to solving the <span class="math notranslate nohighlight">\(j\text{th}\)</span> equation for <span class="math notranslate nohighlight">\(u_j\)</span> and using new
+approximations for components <span class="math notranslate nohighlight">\(1, 2, \cdots, j − 1\)</span>. Defining the Gauss–Seidel iteration
+matrix by</p>
+<div class="math notranslate nohighlight">
+\[R_{G}=(D-L)^{-1}U\]</div>
+<p>we can express the method as</p>
+<div class="math notranslate nohighlight">
+\[\mathbf{v}=R_{G}\mathbf{v}+(D-L)^{-1}\mathbf{f}\]</div>
+<p>Finally, we look at one important variation on the Gauss–Seidel iteration. For
+weighted Jacobi, the order in which the components of <span class="math notranslate nohighlight">\(\mathbf{v}\)</span> are updated is immaterial,
+since components are never overwritten. However, for Gauss–Seidel, the order of
+updating is significant. Instead of sweeping through the components (equivalently,
+the grid points) in ascending order, we could sweep through the components in
+descending order or we might alternate between ascending and descending orders.
+The latter procedure is called the symmetric Gauss–Seidel method.</p>
+<p>Another effective alternative is to update all the even components first by the
+expression</p>
+<div class="math notranslate nohighlight">
+\[v_{2j}\longleftarrow \cfrac{1}{2}(v_{2j-1}+v_{2j+1}+{h^{2}}f_{2j})\]</div>
+<p>and then update all the odd components using</p>
+<div class="math notranslate nohighlight">
+\[v_{2j+1}\longleftarrow \cfrac{1}{2}(v_{2j}+v_{2j+2}+{h^{2}}f_{2j+1})\]</div>
+<p>This strategy leads to the red-black Gauss–Seidel method, which is illustrated in
+following figure for both one-dimensional and two-dimensional grids. Notice that the red
+points correspond to even-indexed points in one dimension and to points whose
+index sum is even in two dimensions (assuming that <span class="math notranslate nohighlight">\(i = 0\)</span> and <span class="math notranslate nohighlight">\(j = 0\)</span> corresponds
+to a boundary). The red points also correspond to what we soon call coarse-grid
+points.</p>
+<figure class="align-center" id="id2">
+<a class="reference internal image-reference" href="../../_images/multigrid2.png"><img alt="../../_images/multigrid2.png" src="../../_images/multigrid2.png" style="width: 800px;" /></a>
+<figcaption>
+<p><span class="caption-text">A one-dimensional grid (top) and a two-dimensional grid (bottom),
+showing the red points (◦) and the black points (•) for red-black relaxation.</span><a class="headerlink" href="#id2" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<p>The advantages of red-black over regular Gauss–Seidel are not immediately
+apparent; the issue is often problem-dependent. However, red-black Gauss–Seidel
+does have a clear advantage in terms of parallel computation. The red points need
+only the black points for their updating and may therefore be updated in any order.
+This work represents <span class="math notranslate nohighlight">\(\cfrac{n}{2}\)</span> (or <span class="math notranslate nohighlight">\(\cfrac{n^{2}}{2}\)</span> in two dimensions) independent tasks that can be
+distributed among several independent processors. In a similar way, the black sweep
+can also be done by several independent processors. (The Jacobi iteration is also
+well-suited to parallel computation.)</p>
+<p>There are many more basic iterative methods. However, we have seen enough
+of the essential methods to move ahead toward multigrid. First, it is important to
+gain some understanding of how these basic iterations perform. We proceed both
+by analysis and by experimentation.</p>
+<p>When studying stationary linear iterations, it is sufficient to work with the
+homogeneous linear system <span class="math notranslate nohighlight">\(A\mathbf{u}=0\)</span> and use arbitrary initial guesses to start the
+relaxation scheme. One reason for doing this is that the exact solution
+is known (<span class="math notranslate nohighlight">\(\mathbf{u}=0\)</span>) and the error in an approximation <span class="math notranslate nohighlight">\(\mathbf{v}\)</span> is simply <span class="math notranslate nohighlight">\(-\mathbf{v}\)</span>. Therefore, we
+return to the one-dimensional model problem with <span class="math notranslate nohighlight">\(\mathbf{f}=0\)</span>. It appears as</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{c}
+-u_{j-1}+2u_{j}-u_{j+1}=0, \quad 1\le j\le n-1,\\
+u_{0}=u_{n}=0
+\end{array}\end{split}\]</div>
+<p>We obtain some valuable insight by applying various iterations to this system
+of equations with an initial guess consisting of the vectors (or Fourier modes)</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}v_{j}=\text{sin}\bigg(\cfrac{jk\pi}{n}\bigg) \quad 0\le j\le n,\quad 1\le k\le n-1,\\\end{split}\]</div>
+<p>Recall that <span class="math notranslate nohighlight">\(j\)</span> denotes the component (or associated grid point) of the vector <span class="math notranslate nohighlight">\(\mathbf{v}\)</span>. The
+integer <span class="math notranslate nohighlight">\(k\)</span> now makes its first appearance. It is called the wavenumber (or frequency)
+and it indicates the number of half sine waves that constitute <span class="math notranslate nohighlight">\(\mathbf{v}\)</span> on the domain of
+the problem. We use <span class="math notranslate nohighlight">\(\mathbf{v}_{k}\)</span> to designate the entire vector <span class="math notranslate nohighlight">\(\mathbf{v}\)</span> with wavenumber <span class="math notranslate nohighlight">\(k\)</span>.
+The following figure illustrates initial guesses <span class="math notranslate nohighlight">\(\mathbf{v}_{1}\)</span>, <span class="math notranslate nohighlight">\(\mathbf{v}_{3}\)</span>, and <span class="math notranslate nohighlight">\(\mathbf{v}_{6}\)</span>. Notice that small values of
+<span class="math notranslate nohighlight">\(k\)</span> correspond to long, smooth waves, while large values of <span class="math notranslate nohighlight">\(k\)</span> correspond to highly
+oscillatory waves. We now explore how Fourier modes behave under iteration.</p>
+<figure class="align-center" id="id3">
+<a class="reference internal image-reference" href="../../_images/multigrid3.png"><img alt="../../_images/multigrid3.png" src="../../_images/multigrid3.png" style="width: 800px;" /></a>
+<figcaption>
+<p><span class="caption-text">The modes <span class="math notranslate nohighlight">\(v_{j}=\text{sin}\bigg(\cfrac{jk\pi}{n}\bigg)\)</span>, <span class="math notranslate nohighlight">\(0 \le j \le n\)</span>, with wavenumbers <span class="math notranslate nohighlight">\(k = 1, 3, 61\)</span>.
+The <span class="math notranslate nohighlight">\(k\text{th}\)</span> mode consists of <span class="math notranslate nohighlight">\(\cfrac{k}{2}\)</span> full sine waves on the interval.</span><a class="headerlink" href="#id3" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<p>We first apply the weighted Jacobi iteration with <span class="math notranslate nohighlight">\(\omega=\cfrac{2}{3}\)</span> to problem (2.3) on
+a grid with <span class="math notranslate nohighlight">\(n = 64\)</span> points. Beginning with initial guesses of <span class="math notranslate nohighlight">\(\mathbf{v}_{1}\)</span>, <span class="math notranslate nohighlight">\(\mathbf{v}_{3}\)</span>, and <span class="math notranslate nohighlight">\(\mathbf{v}_{6}\)</span>, the
+iteration is applied 100 times. Recall that the error is just <span class="math notranslate nohighlight">\(-\mathbf{v}\)</span>. Figure 2.3(a) shows
+a plot of the maximum norm of the error versus the iteration number</p>
+<div class="math notranslate nohighlight">
+\[h=\cfrac{1}{n}\]</div>
+<p>Let <span class="math notranslate nohighlight">\(\sigma = 0\)</span></p>
+<p>then</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}A=\cfrac{1}{h^{2}}\begin{bmatrix}
+2&amp;  -1&amp;  &amp;  &amp;  &amp; \\
+-1&amp;  2&amp;-1  &amp;  &amp;  &amp; \\
+&amp;  \cdot&amp;  \cdot&amp; \cdot &amp;  &amp; \\
+&amp;  &amp;  \cdot&amp;  \cdot&amp;  \cdot&amp; \\
+&amp;  &amp;  &amp;  \cdot&amp;  \cdot&amp;-1 \\
+&amp;  &amp;  &amp;  &amp; -1 &amp;2
+\end{bmatrix}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[A=D-L-U\]</div>
+<p>where</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}D=\cfrac{1}{h^{2}}\begin{bmatrix}
+2&amp;  &amp;  &amp;  &amp;  &amp; \\
+&amp;  2&amp;  &amp;  &amp;  &amp; \\
+&amp;  &amp;  \cdot&amp;  &amp;  &amp; \\
+&amp;  &amp;  &amp;  \cdot&amp;  &amp; \\
+&amp;  &amp;  &amp;  &amp;  \cdot&amp; \\
+&amp;  &amp;  &amp;  &amp;  &amp;2
+\end{bmatrix}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}L=\cfrac{1}{h^{2}}\begin{bmatrix}
+0&amp;  &amp;  &amp;  &amp;  &amp; 0\\
+1&amp;  0&amp;  &amp;  &amp;  &amp; \\
+0&amp;  1&amp;  \cdot&amp;  &amp;  &amp; \\
+&amp;  0&amp;  \cdot&amp;  \cdot&amp;  &amp; \\
+&amp;  &amp; \cdot &amp;  \cdot&amp;  \cdot&amp; \\
+0&amp;  &amp;  &amp;  0&amp; 1 &amp;0
+\end{bmatrix}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}U=\cfrac{1}{h^{2}}\begin{bmatrix}
+0&amp;  1&amp; 0 &amp;  &amp;  &amp; 0\\
+0&amp;  0&amp;1  &amp;0  &amp;  &amp; \\
+&amp;  \cdot&amp;  \cdot&amp; \cdot &amp;  &amp; \\
+&amp;  &amp;  \cdot&amp;  \cdot&amp;  \cdot&amp;0 \\
+&amp;  &amp;  &amp;  \cdot&amp;  \cdot&amp;1 \\
+0&amp;  &amp;  &amp;  &amp; 0 &amp;0
+\end{bmatrix}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}D^{-1}=\cfrac{h^{2}}{2}\begin{bmatrix}
+1&amp;  &amp;  &amp;  &amp;  &amp; \\
+&amp;  1&amp;  &amp;  &amp;  &amp; \\
+&amp;  &amp;  \cdot&amp;  &amp;  &amp; \\
+&amp;  &amp;  &amp;  \cdot&amp;  &amp; \\
+&amp;  &amp;  &amp;  &amp;  \cdot&amp; \\
+&amp;  &amp;  &amp;  &amp;  &amp;1
+\end{bmatrix}=\cfrac{h^{2}}{2}I\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}L+U=\cfrac{1}{h^{2}}\begin{bmatrix}
+0&amp;  1&amp;  &amp;  &amp;  &amp; \\
+1&amp;  0&amp;1  &amp;  &amp;  &amp; \\
+&amp;  \cdot&amp;  \cdot&amp; \cdot &amp;  &amp; \\
+&amp;  &amp;  \cdot&amp;  \cdot&amp;  \cdot&amp; \\
+&amp;  &amp;  &amp;  \cdot&amp;  \cdot&amp;1 \\
+&amp;  &amp;  &amp;  &amp; 1 &amp;0
+\end{bmatrix}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}R_{J}=D^{-1}(L+U)=\cfrac{1}{2}\begin{bmatrix}
+0&amp;  1&amp;  &amp;  &amp;  &amp; \\
+1&amp;  0&amp;1  &amp;  &amp;  &amp; \\
+&amp;  \cdot&amp;  \cdot&amp; \cdot &amp;  &amp; \\
+&amp;  &amp;  \cdot&amp;  \cdot&amp;  \cdot&amp; \\
+&amp;  &amp;  &amp;  1&amp;  0&amp;1 \\
+&amp;  &amp;  &amp;  &amp; 1 &amp;0
+\end{bmatrix}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}R_{\omega}=(1-\omega)I+\omega R_{J}=\begin{bmatrix}
+1-\omega&amp;  \cfrac{1}{2}\omega&amp;  &amp;  &amp;  &amp; \\
+\cfrac{1}{2}\omega&amp;  1-\omega&amp;\cfrac{1}{2}\omega  &amp;  &amp;  &amp; \\
+&amp;  \cdot&amp;  \cdot&amp; \cdot &amp;  &amp; \\
+&amp;  &amp;  \cdot&amp;  \cdot&amp;  \cdot&amp; \\
+&amp;  &amp;  &amp;  \cfrac{1}{2}\omega&amp;  1-\omega&amp;\cfrac{1}{2}\omega \\
+&amp;  &amp;  &amp;  &amp; \cfrac{1}{2}\omega &amp;1-\omega
+\end{bmatrix}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\cfrac{\omega}{2} A=\cfrac{1}{h^{2}}\begin{bmatrix}
+\omega&amp;  -\cfrac{1}{2}\omega&amp;  &amp;  &amp;  &amp; \\
+-\cfrac{1}{2}\omega&amp;  \omega&amp;-\cfrac{1}{2}\omega  &amp;  &amp;  &amp; \\
+&amp;  \cdot&amp;  \cdot&amp; \cdot &amp;  &amp; \\
+&amp;  &amp;  \cdot&amp;  \cdot&amp;  \cdot&amp; \\
+&amp;  &amp;  &amp;  -\cfrac{1}{2}\omega&amp;  \omega&amp;-\cfrac{1}{2}\omega \\
+&amp;  &amp;  &amp;  &amp; -\cfrac{1}{2}\omega &amp;\omega
+\end{bmatrix}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}I-\cfrac{\omega}{2} Ah^{2}=\begin{bmatrix}
+1-\omega&amp;  \cfrac{1}{2}\omega&amp;  &amp;  &amp;  &amp; \\
+\cfrac{1}{2}\omega&amp;  1-\omega&amp;\cfrac{1}{2}\omega  &amp;  &amp;  &amp; \\
+&amp;  \cdot&amp;  \cdot&amp; \cdot &amp;  &amp; \\
+&amp;  &amp;  \cdot&amp;  \cdot&amp;  \cdot&amp; \\
+&amp;  &amp;  &amp;  \cfrac{1}{2}\omega&amp;  1-\omega&amp;\cfrac{1}{2}\omega \\
+&amp;  &amp;  &amp;  &amp; \cfrac{1}{2}\omega &amp;1-\omega
+\end{bmatrix}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\mathbf{v}^{(1)}=R_{\omega}\mathbf{v}^{(0)}+\omega D^{-1}\mathbf{f}=R_{\omega}\mathbf{v}^{(0)}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\mathbf{v}^{(1)}=R_{\omega}\mathbf{v}^{(0)}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+A\mathbf{u}=\mathbf{f}\\
+\mathbf{e}=\mathbf{u}-\mathbf{v}\\
+\mathbf{r}=\mathbf{f}-A\mathbf{v}\\
+\mathbf{r}=A\mathbf{e}\\
+\end{array}\end{split}\]</div>
+<p>Let <span class="math notranslate nohighlight">\(\mathbf{f}=0\)</span>, then</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+A\mathbf{u}=0\\
+\mathbf{u}=0\\
+\mathbf{e}=0-\mathbf{v}=-\mathbf{v}\\
+\mathbf{r}=-A\mathbf{v}\\
+\end{array}\end{split}\]</div>
+</section>
+<section id="gaussseidel-method">
+<h2>Gauss–Seidel method<a class="headerlink" href="#gaussseidel-method" title="Link to this heading"></a></h2>
+<p>The Gauss–Seidel method incorporates a simple change: components of the new
+approximation are used as soon as they are computed. This means that components
+of the approximation vector <span class="math notranslate nohighlight">\(\mathbf{v}\)</span> are overwritten as soon as they are updated. This
+small change reduces the storage requirement for the approximation vector to only <span class="math notranslate nohighlight">\(n\)</span> locations. The Gauss–Seidel method is also equivalent to successively setting
+each component of the residual vector to zero and solving for the corresponding component of the solution. When applied to the model problem, this
+method may be expressed in component form as</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}v_{j}\longleftarrow \cfrac{1}{2}(v_{j-1}+v_{j+1}+{h^{2}}f_{j}), \quad 1\le j\le n-1,\\\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}D-L=\cfrac{1}{h^{2}}\begin{bmatrix}
+2&amp;  0&amp;  &amp;  &amp;  &amp; \\
+-1&amp;  2&amp;0  &amp;  &amp;  &amp; \\
+&amp;  \cdot&amp;  \cdot&amp; \cdot &amp;  &amp; \\
+&amp;  &amp;  \cdot&amp;  \cdot&amp;  \cdot&amp; \\
+&amp;  &amp;  &amp;  \cdot&amp;  \cdot&amp;0 \\
+&amp;  &amp;  &amp;  &amp; -1 &amp;2
+\end{bmatrix}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}U=\cfrac{1}{h^{2}}\begin{bmatrix}
+0&amp;  1&amp; 0 &amp;  &amp;  &amp; 0\\
+0&amp;  0&amp;1  &amp;0  &amp;  &amp; \\
+&amp;  \cdot&amp;  \cdot&amp; \cdot &amp;  &amp; \\
+&amp;  &amp;  \cdot&amp;  \cdot&amp;  \cdot&amp;0 \\
+&amp;  &amp;  &amp;  \cdot&amp;  \cdot&amp;1 \\
+0&amp;  &amp;  &amp;  &amp; 0 &amp;0
+\end{bmatrix}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[R_{G}=(D-L)^{-1}U\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}A=\begin{bmatrix}
+2&amp;  0&amp;  &amp;  &amp;  &amp; \\
+-1&amp;  2&amp;0  &amp;  &amp;  &amp; \\
+&amp;  \cdot&amp;  \cdot&amp; \cdot &amp;  &amp; \\
+&amp;  &amp;  \cdot&amp;  \cdot&amp;  \cdot&amp; \\
+&amp;  &amp;  &amp;  \cdot&amp;  \cdot&amp;0 \\
+&amp;  &amp;  &amp;  &amp; -1 &amp;2
+\end{bmatrix}\end{split}\]</div>
+<p>With some experimental evidence in hand, we now turn to a more analytical
+approach. Each of the methods discussed so far may be represented in the form</p>
+<div class="math notranslate nohighlight">
+\[\mathbf{v}^{(1)}=R\mathbf{v}^{(0)}+\mathbf{g}\]</div>
+<p>where <span class="math notranslate nohighlight">\(R\)</span> is one of the iteration matrices derived earlier. Furthermore, all of these
+methods are designed such that the exact solution, <span class="math notranslate nohighlight">\(\mathbf{u}\)</span>, is a fixed point of the iteration.
+This means that iteration does not change the exact solution:</p>
+<div class="math notranslate nohighlight">
+\[\mathbf{u}=R\mathbf{u}+\mathbf{g}\]</div>
+<p>Subtracting these last two expressions, we find that</p>
+<div class="math notranslate nohighlight">
+\[\mathbf{e}^{(1)}=R\mathbf{e}^{(0)}\]</div>
+<p>Repeating this argument, it follows that after <span class="math notranslate nohighlight">\(m\)</span> relaxation sweeps, the error in
+the <span class="math notranslate nohighlight">\(m\text{th}\)</span> approximation is given by</p>
+<div class="math notranslate nohighlight">
+\[\mathbf{e}^{(m)}=R^{m}\mathbf{e}^{(0)}\]</div>
+</section>
+<section id="matrix-norms">
+<h2>Matrix Norms.<a class="headerlink" href="#matrix-norms" title="Link to this heading"></a></h2>
+<p>Matrix norms can be defined in terms of the commonly used
+vector norms. Let <span class="math notranslate nohighlight">\(A\)</span> be an <span class="math notranslate nohighlight">\(n\times n\)</span> matrix with elements <span class="math notranslate nohighlight">\(a_{ij}\)</span>. Consider the vector
+norm <span class="math notranslate nohighlight">\(\|\mathbf{x}\|_{p}\)</span> defined by</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+\|\mathbf{x}\|_{p}=\bigg(\sum_{i=1}^{n}|x_{i}|^{p}\bigg)^{1/p},\quad 1\le p\lt\infty\\
+\|\mathbf{x}\|_{\infty}=\underset{1\le i\le n}{\text{sup}} |x_{i}|
+\end{array}\end{split}\]</div>
+<p>The matrix norm induced by the vector norm <span class="math notranslate nohighlight">\(\|\cdot\|_{p}\)</span> is defined by</p>
+<div class="math notranslate nohighlight">
+\[\|A\|_{p}=\underset{x\ne 0}{\text{sup}}\cfrac{\|A\mathbf{x}\|_{p}}{\|\mathbf{x}\|_{p}}\]</div>
+<p>While not obvious without some computation, this definition leads to the following matrix norms induced by the vector norms</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+\displaystyle \|A\|_{1}=\text{max}_{j}\sum_{i=1}^{n}|a_{ij}|\quad(\text{maximum column sum})\\
+\displaystyle \|A\|_{\infty}=\text{max}_{i}\sum_{j=1}^{n}|a_{ij}|\quad(\text{maximum row sum})\\
+\displaystyle \|A\|_{2}=\sqrt{\text{spectral radius of }A^{T}A}
+\end{array}\end{split}\]</div>
+<p>Recall that the spectral radius of a matrix is given by</p>
+<div class="math notranslate nohighlight">
+\[\rho(A)=\max|\lambda(A)|\]</div>
+<p>where <span class="math notranslate nohighlight">\(\lambda(A)\)</span> denotes the eigenvalues of <span class="math notranslate nohighlight">\(A\)</span>. For symmetric matrices, the matrix
+<span class="math notranslate nohighlight">\(2-\text{norm}\)</span> is just the spectral radius of <span class="math notranslate nohighlight">\(A\)</span>:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\displaystyle \|A\|_{2}=\sqrt{\rho(A^{T}A)}=\sqrt{\rho(A^{2})}=\rho(A)\\\end{split}\]</div>
+<p>If we now choose a particular vector norm and its associated matrix norm, it is
+possible to bound the error after <span class="math notranslate nohighlight">\(m\)</span> iterations by</p>
+<div class="math notranslate nohighlight">
+\[\|\mathbf{e}^{(m)}\|\le \|R\|^{m}\|\mathbf{e}^{(0)}\|\]</div>
+<p>This leads us to conclude that if <span class="math notranslate nohighlight">\(\|R\|&lt;1\)</span>, then the error is forced to zero as the
+iteration proceeds.
+It is shown in many standard texts that</p>
+<div class="math notranslate nohighlight">
+\[\underset{m\to\infty}{\lim}R^{m}=0\quad \text{if and only if }\quad \rho(R) &lt; 1\]</div>
+<p>Therefore, it follows that the iteration associated with the matrix <span class="math notranslate nohighlight">\(R\)</span> converges for
+all initial guesses if and only if <span class="math notranslate nohighlight">\(\rho(R)&lt;1\)</span>.</p>
+<p>The spectral radius <span class="math notranslate nohighlight">\(\rho(R)\)</span> is also called the asymptotic convergence factor when
+it appears in the context of iterative methods. It has some useful interpretations.
+First, it is roughly the worst factor by which the error is reduced with each relaxation sweep. By the following argument, it also tells us approximately how many
+iterations are required to reduce the error by a factor of <span class="math notranslate nohighlight">\(10^{−d}\)</span>. Let <span class="math notranslate nohighlight">\(m\)</span> be the smallest
+integer that satisfies</p>
+<div class="math notranslate nohighlight">
+\[\cfrac{\|\mathbf{e}^{(m)}\|}{\|\mathbf{e}^{(0)}\|} \le 10^{-d}\]</div>
+<p>This condition will be approximately satisfied if</p>
+<div class="math notranslate nohighlight">
+\[[\rho(R)]^{m}\le 10^{-d}\]</div>
+<p>Solving for <span class="math notranslate nohighlight">\(m\)</span>, we have</p>
+<div class="math notranslate nohighlight">
+\[m\ge\cfrac{d}{\log_{10}[\rho(R)]}\]</div>
+<p>The quantity − <span class="math notranslate nohighlight">\(\log_{10}[\rho(R)]\)</span> is called the asymptotic convergence rate. Its reciprocal
+gives the approximate number of iterations required to reduce the error by one
+decimal digit. We see that as <span class="math notranslate nohighlight">\(\rho(R)\)</span> approaches 1, the convergence rate decreases.
+Small values of <span class="math notranslate nohighlight">\(\rho(R)\)</span> (that is, <span class="math notranslate nohighlight">\(\rho(R)\)</span> positive and near zero) give a high convergence
+rate.</p>
+</section>
+<section id="interpreting-the-spectral-radius">
+<h2>Interpreting the Spectral Radius.<a class="headerlink" href="#interpreting-the-spectral-radius" title="Link to this heading"></a></h2>
+<p>The spectral radius is considered to be
+an asymptotic measure of convergence because it predicts the worst-case error
+reduction over many iterations. It can be shown that, in any vector norm</p>
+<div class="math notranslate nohighlight">
+\[\rho(R)=\underset{m\to\infty}{\lim}\|R^{m}\|^{1/m}\]</div>
+<p>Therefore, in terms of error reduction, we have</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\rho(R)=\underset{m\to\infty}{\lim}\sup\bigg(\cfrac{\|\mathbf{e}^{(m)}\|}{\|\mathbf{e}^{(0)}\|} \bigg)^{1/m}\\\end{split}\]</div>
+<p>However, the spectral radius does not, in general, predict the behavior of the
+error norm for a single iteration. For example, consider the matrix</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}R=\begin{pmatrix}
+0&amp; 100\\
+0&amp;0
+\end{pmatrix}\end{split}\]</div>
+<p>Clearly, <span class="math notranslate nohighlight">\(\rho(R) = 0\)</span>. But if we start with <span class="math notranslate nohighlight">\(\mathbf{e}^{(0)} = (0, 1)^{T}\)</span> and compute <span class="math notranslate nohighlight">\(\mathbf{e}^{(1)}= R\mathbf{e}^{(0)}\)</span>,
+then the convergence factor is</p>
+<div class="math notranslate nohighlight">
+\[\cfrac{\|\mathbf{e}^{(1)}\|_{2}}{\|\mathbf{e}^{(0)}\|_{2}} =100\]</div>
+<p>The next iterate achieves the asymptotic estimate, <span class="math notranslate nohighlight">\(\rho(R) = 0\)</span>, because <span class="math notranslate nohighlight">\(\mathbf{e}^{(2)}=0\)</span>.
+A better worst-case estimate of error reduction for one or a few iterations is
+given by the matrix norm <span class="math notranslate nohighlight">\(\|R^{(1)}\|_{2}\)</span>. For the above example, we have <span class="math notranslate nohighlight">\(\|R\|_{2}=100\)</span>.
+The discrepancy between the asymptotic convergence factor, <span class="math notranslate nohighlight">\(\rho(R)\)</span>, and
+the worst-case estimate, <span class="math notranslate nohighlight">\(\|R\|_{2}\)</span>, disappears when <span class="math notranslate nohighlight">\(R\)</span> is symmetric because then
+<span class="math notranslate nohighlight">\(\rho(R) = \|R\|_{2}\)</span>.</p>
+<p>Written in this form, it follows that the eigenvalues of <span class="math notranslate nohighlight">\(R_{\omega}\)</span> and <span class="math notranslate nohighlight">\(A\)</span> are related by</p>
+<div class="math notranslate nohighlight">
+\[\lambda({R_{\omega}})=1-\cfrac{\omega}{2} \lambda(A)\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+A\mathbf{v} = \lambda\mathbf{v}\\
+A\mathbf{v} = \lambda_{A}\mathbf{v}\\
+R_{\omega}=I-\cfrac{\omega}{2}A\\
+R_{\omega}\mathbf{v}=(I-\cfrac{\omega}{2}A)\mathbf{v}=\lambda_{\omega}\mathbf{v}\\
+I\mathbf{v}-\cfrac{\omega}{2}A\mathbf{v}=\lambda_{\omega}\mathbf{v}\\
+I\mathbf{v}-\cfrac{\omega}{2}\lambda_{A}\mathbf{v}=\lambda_{\omega}\mathbf{v}\\
+\lambda_{\omega}=1-\cfrac{\omega}{2}\lambda_{A}
+\end{array}\end{split}\]</div>
+</section>
+<section id="eigenvalues-of-the-model-problem">
+<h2>Eigenvalues of the model problem<a class="headerlink" href="#eigenvalues-of-the-model-problem" title="Link to this heading"></a></h2>
+<p>Compute the eigenvalues of the
+matrix A of the one-dimensional model problem. (Hint: Write out a typical
+equation of the system <span class="math notranslate nohighlight">\(A\mathbf{w}=\lambda \mathbf{w}\)</span> with <span class="math notranslate nohighlight">\(w_{0} = w_{n} = 0\)</span>. Notice that vectors of
+the form <span class="math notranslate nohighlight">\(w_{j} = \sin(\cfrac{jk\pi}{n})\)</span> , <span class="math notranslate nohighlight">\(1 \le k \le n − 1, 0 \le j \le n\)</span>, satisfy the boundary
+conditions.) How many distinct eigenvalues are there? Compute <span class="math notranslate nohighlight">\(\lambda_{1}, \lambda_{2}, \lambda_{n−2},
+\lambda_{n−1}\)</span>, when <span class="math notranslate nohighlight">\(n = 32\)</span>.</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}A=\begin{bmatrix}
+2&amp;  -1&amp;  &amp;  &amp;  &amp; \\
+-1&amp;  2&amp;-1  &amp;  &amp;  &amp; \\
+&amp;  \cdot&amp;  \cdot&amp; \cdot &amp;  &amp; \\
+&amp;  &amp;  \cdot&amp;  \cdot&amp;  \cdot&amp; \\
+&amp;  &amp;  &amp;  -1&amp;  2&amp;-1 \\
+&amp;  &amp;  &amp;  &amp; -1 &amp;2
+\end{bmatrix}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\mathbf{w}=\begin{bmatrix}
+w_{1}\\ w_{2}\\\vdots\\w_{n-1}
+\end{bmatrix}=\begin{bmatrix}
+\sin\bigg(\cfrac{1k\pi}{n} \bigg)\\ \sin\bigg(\cfrac{2k\pi}{n} \bigg)\\\vdots\\\sin\bigg(\cfrac{(n-1)k\pi}{n} \bigg)
+\end{bmatrix}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+2\sin\bigg(\cfrac{1k\pi}{n} \bigg)-\sin\bigg(\cfrac{2k\pi}{n} \bigg)=\lambda_{m}\sin\bigg(\cfrac{1k\pi}{n} \bigg)\\
+-\sin\bigg(\cfrac{1k\pi}{n} \bigg)+2\sin\bigg(\cfrac{2k\pi}{n} \bigg)-\sin\bigg(\cfrac{3k\pi}{n} \bigg)=\lambda_{m}\sin\bigg(\cfrac{2k\pi}{n} \bigg)\\
+-\sin\bigg(\cfrac{2k\pi}{n} \bigg)+2\sin\bigg(\cfrac{3k\pi}{n} \bigg)-\sin\bigg(\cfrac{4k\pi}{n} \bigg)=\lambda_{m}\sin\bigg(\cfrac{3k\pi}{n} \bigg)\\
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+(2-\lambda_{m})\sin\bigg(\cfrac{1k\pi}{n} \bigg)=\sin\bigg(\cfrac{2k\pi}{n} \bigg)\\
+(2-\lambda_{m})\sin\bigg(\cfrac{2k\pi}{n} \bigg)=\sin\bigg(\cfrac{1k\pi}{n} \bigg)+\sin\bigg(\cfrac{3k\pi}{n} \bigg)\\
+(2-\lambda_{m})\sin\bigg(\cfrac{3k\pi}{n} \bigg)=\sin\bigg(\cfrac{2k\pi}{n} \bigg)+\sin\bigg(\cfrac{4k\pi}{n} \bigg)\\
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+\sin(A)+\sin(B)=2\sin\bigg(\cfrac{A+B}{2}\bigg)\cos\bigg(\cfrac{A-B}{2}\bigg)\\
+\sin(A)-\sin(B)=2\cos\bigg(\cfrac{A+B}{2}\bigg)\sin\bigg(\cfrac{A-B}{2}\bigg)\\
+\cos(A)+\cos(B)=2\cos\bigg(\cfrac{A+B}{2}\bigg)\cos\bigg(\cfrac{A-B}{2}\bigg)\\
+\cos(A)-\cos(B)=-2\sin\bigg(\cfrac{A+B}{2}\bigg)\sin\bigg(\cfrac{A-B}{2}\bigg)\\
+\sin(A+B)=\sin(A)\cos(B)+\cos(A)\sin(B)\\
+\sin(A-B)=\sin(A)\cos(B)-\cos(A)\sin(B)\\
+\cos(A+B)=\cos(A)\cos(B)-\sin(A)\sin(B)\\
+\cos(A-B)=\cos(A)\cos(B)+\sin(A)\sin(B)\\
+\sin(2A)=2\sin(A)\cos(A)\\
+\cos(2A)=2\cos^{2}(A)-1\\
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+\sin(2A)=2\sin(A)\cos(A)\\
+\sin\bigg(\cfrac{2k\pi}{n} \bigg)=2\sin\bigg(\cfrac{k\pi}{n} \bigg)\cos\bigg(\cfrac{k\pi}{n} \bigg)
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\sin\bigg(\cfrac{1k\pi}{n} \bigg)+\sin\bigg(\cfrac{3k\pi}{n} \bigg)
+=2\sin\bigg(\cfrac{4k\pi}{2n}\bigg)\cos\bigg(\cfrac{-2k\pi}{2n}\bigg)
+=2\sin\bigg(\cfrac{2k\pi}{n}\bigg)\cos\bigg(\cfrac{k\pi}{n}\bigg)\\\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+\sin(2A)=2\sin(A)\cos(A)\\
+\cos(2A)=2\cos^{2}(A)-1\\
+1-\cos(2A)=2-2\cos^{2}(A)=2\sin^{2}(A)\\
+\sin\bigg(\cfrac{2k\pi}{n} \bigg)=2\sin\bigg(\cfrac{k\pi}{n} \bigg)\cos\bigg(\cfrac{k\pi}{n} \bigg)\\
+(2-\lambda_{m})\sin\bigg(\cfrac{1k\pi}{n} \bigg)=\sin\bigg(\cfrac{2k\pi}{n} \bigg)=2\sin\bigg(\cfrac{k\pi}{n} \bigg)\cos\bigg(\cfrac{k\pi}{n} \bigg)\\
+(2-\lambda_{m})=2\cos\bigg(\cfrac{k\pi}{n} \bigg)\\
+\lambda_{m}=2\bigg(1-\cos\bigg(\cfrac{k\pi}{n} \bigg)\bigg)=4\sin^{2}(\cfrac{k\pi}{2n})\\
+\lambda_{m}=4\sin^{2}(\cfrac{k\pi}{2n})\\
+\end{array}\end{split}\]</div>
+<p>so that the eigenvalues of <span class="math notranslate nohighlight">\(A\)</span> are</p>
+<div class="math notranslate nohighlight">
+\[\lambda_{k}(A)=4\sin^{2}\bigg(\cfrac{k\pi}{2n}\bigg),\quad 1\le k\le n-1\]</div>
+<p>We have established the importance of the spectral radius of the iteration matrix
+in analyzing the convergence properties of relaxation methods. Now it is time to
+compute some spectral radii. Consider the weighted Jacobi iteration applied to the
+one-dimensional model problem. Recalling that <span class="math notranslate nohighlight">\(R_{\omega} = (1 − \omega)I + \omega R_{J}\)</span>, we have</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}R_{\omega}=I-\cfrac{\omega}{2}\begin{bmatrix}
+2&amp;  -1&amp;  &amp;  &amp;  &amp; \\
+-1&amp;  2&amp;-1  &amp;  &amp;  &amp; \\
+&amp;  \cdot&amp;  \cdot&amp; \cdot &amp;  &amp; \\
+&amp;  &amp;  \cdot&amp;  \cdot&amp;  \cdot&amp; \\
+&amp;  &amp;  &amp;  -1&amp;  2&amp;-1 \\
+&amp;  &amp;  &amp;  &amp; -1 &amp;2
+\end{bmatrix}\end{split}\]</div>
+<p>Written in this form, it follows that the eigenvalues of <span class="math notranslate nohighlight">\(R_{\omega}\)</span> and <span class="math notranslate nohighlight">\(A\)</span> are related by</p>
+<div class="math notranslate nohighlight">
+\[\lambda({R_{\omega}})=1-\cfrac{\omega}{2} \lambda(A)\]</div>
+<p>The problem becomes one of finding the eigenvalues of the original matrix <span class="math notranslate nohighlight">\(A\)</span>. This
+useful exercise may be done in several different ways. The result is that the eigenvalues of <span class="math notranslate nohighlight">\(A\)</span> are</p>
+<div class="math notranslate nohighlight">
+\[\lambda_{k}(A)=4\sin^{2}\bigg(\cfrac{k\pi}{2n} \bigg),\quad 1\le k \le n-1\]</div>
+<p>Also of interest are the corresponding eigenvectors of <span class="math notranslate nohighlight">\(A\)</span>. In all that follows, we
+let <span class="math notranslate nohighlight">\(\omega_{k,j}\)</span> be the <span class="math notranslate nohighlight">\(j\text{th}\)</span> component of the <span class="math notranslate nohighlight">\(k\text{th}\)</span> eigenvector, <span class="math notranslate nohighlight">\(\boldsymbol{\omega}_{k}\)</span>. The eigenvectors of <span class="math notranslate nohighlight">\(A\)</span>
+are then given by</p>
+<div class="math notranslate nohighlight">
+\[\omega_{k,j}=\sin\bigg(\cfrac{jk\pi}{n}\bigg),\quad 1\le k \le n-1,\quad 0 \le j \le n\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\boldsymbol{\omega}_{k}=\begin{bmatrix}
+\omega_{1}\\ \omega_{2}\\\vdots\\\omega_{n-1}
+\end{bmatrix}=\begin{bmatrix}
+\sin\bigg(\cfrac{1k\pi}{n} \bigg)\\ \sin\bigg(\cfrac{2k\pi}{n} \bigg)\\\vdots\\\sin\bigg(\cfrac{(n-1)k\pi}{n} \bigg)
+\end{bmatrix}\end{split}\]</div>
+<p>while the eigenvectors of <span class="math notranslate nohighlight">\(R_{\omega}\)</span> are the same as the eigenvectors of <span class="math notranslate nohighlight">\(A\)</span> (Exercise 10). It
+is important to note that if <span class="math notranslate nohighlight">\(0 &lt; \omega \le 1\)</span>, then <span class="math notranslate nohighlight">\(|\lambda_{k}(R_{\omega})| &lt; 1\)</span> and the weighted Jacobi
+iteration converges. We return to these convergence properties in more detail after
+a small detour.</p>
+<p>The eigenvectors of the matrix A are important in much of the following discussion. They correspond very closely to the eigenfunctions of the continuous model
+problem. Just as we can expand fairly arbitrary functions using this set of eigenfunctions, it is also possible to expand arbitrary vectors in terms of a set of eigenvectors.
+Let <span class="math notranslate nohighlight">\(\mathbf{e}^{(0)}\)</span> be the error in an initial guess used in the weighted Jacobi method. Then
+it is possible to represent <span class="math notranslate nohighlight">\(\mathbf{e}^{(0)}\)</span> using the eigenvectors of <span class="math notranslate nohighlight">\(A\)</span> in the form</p>
+<div class="math notranslate nohighlight">
+\[\mathbf{e}^{(0)}=\sum_{k=1}^{n-1}c_{k}\boldsymbol{\omega}_{k}\]</div>
+<p>where the coefficients <span class="math notranslate nohighlight">\(c_{k}\in \mathbf{R}\)</span> give the “amount” of each mode in the error. We
+have seen that after <span class="math notranslate nohighlight">\(m\)</span> sweeps of the iteration, the error is given by</p>
+<div class="math notranslate nohighlight">
+\[\mathbf{e}^{(m)}=R_{\omega}^{m}\mathbf{e}^{(0)}\]</div>
+<p>Using the eigenvector expansion for <span class="math notranslate nohighlight">\(\mathbf{e}^{(0)}\)</span>, we have</p>
+<div class="math notranslate nohighlight">
+\[\mathbf{e}^{(m)}=R_{\omega}^{m}\mathbf{e}^{(0)}
+=\sum_{k=1}^{n-1}c_{k}R_{\omega}^{m}\boldsymbol{\omega}_{k}
+=\sum_{k=1}^{n-1}c_{k}\lambda (R_{\omega})\boldsymbol{\omega}_{k}\]</div>
+<p>The last equality follows because the eigenvectors of <span class="math notranslate nohighlight">\(A\)</span> and <span class="math notranslate nohighlight">\(R_{\omega}\)</span> are the same; therefore, <span class="math notranslate nohighlight">\(R_{\omega}\boldsymbol{\omega}_{k}=\lambda_{k} (R_{\omega})\boldsymbol{\omega}_{k}\)</span>.</p>
+<p>This expansion for <span class="math notranslate nohighlight">\(\mathbf{e}^{(m)}\)</span> shows that after <span class="math notranslate nohighlight">\(m\)</span> iterations, the <span class="math notranslate nohighlight">\(k\text{th}\)</span> mode of the
+initial error has been reduced by a factor of <span class="math notranslate nohighlight">\(\lambda_{k} (R_{\omega})\)</span>. It should also be noted that
+the weighted Jacobi method does not mix modes: when applied to a single mode,
+the iteration can change the amplitude of that mode, but it cannot convert that
+mode into different modes. In other words, the Fourier modes are also eigenvectors
+of the iteration matrix. As we will see, this property is not shared by all stationary
+iterations.</p>
+<p>To develop some familiarity with these Fourier modes, Fig. 2.6 shows them on
+a grid with <span class="math notranslate nohighlight">\(n = 12\)</span> points. Notice that the <span class="math notranslate nohighlight">\(k\text{th}\)</span> mode consists of <span class="math notranslate nohighlight">\(\cfrac{k}{2}\)</span> full sine waves
+and has a wavelength of <span class="math notranslate nohighlight">\(l=\cfrac{24h}{k}=\cfrac{2}{k}\)</span> (the entire interval has length 1). The <span class="math notranslate nohighlight">\(k=\cfrac{n}{2}\)</span>
+mode has a wavelength of <span class="math notranslate nohighlight">\(l=4h\)</span> and the <span class="math notranslate nohighlight">\(k = n − 1\)</span> mode has a wavelength of
+almost <span class="math notranslate nohighlight">\(l=2h\)</span>. Waves with wavenumbers greater than <span class="math notranslate nohighlight">\(n\)</span> (wavelengths less than <span class="math notranslate nohighlight">\(2h\)</span>)
+cannot be represented on the grid. In fact (Exercise 12), through the phenomenon
+of aliasing, a wave with a wavelength less than <span class="math notranslate nohighlight">\(2h\)</span> actually appears on the grid with
+a wavelength greater than <span class="math notranslate nohighlight">\(2h\)</span>.</p>
+<p>At this point, it is important to establish some terminology that is used throughout the remainder of the tutorial. We need some qualitative terms for the various
+Fourier modes that have been discussed. The modes in the lower half of the spectrum, with wavenumbers in the range <span class="math notranslate nohighlight">\(1 \le k &lt; n2\)</span>, are called low-frequency or smooth
+modes. The modes in the upper half of the spectrum, with <span class="math notranslate nohighlight">\(n2 \le k \le n − 1\)</span>, are
+called high-frequency or oscillatory modes.</p>
+<p>Having taken this excursion through Fourier modes, we now return to the analysis of the weighted Jacobi method. We established that the eigenvalues of the
+iteration matrix are given by</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+\lambda({R_{\omega}})=1-\cfrac{\omega}{2} \lambda(A)\\
+\lambda_{k}(A)=4\sin^{2}\bigg(\cfrac{k\pi}{2n}\bigg),\quad 1\le k\le n-1\\
+\lambda_{k}(R_{\omega})=1-2\omega\sin^{2}\bigg(\cfrac{k\pi}{2n}\bigg),\quad 1\le k\le n-1
+\end{array}\end{split}\]</div>
+<p>What choice of <span class="math notranslate nohighlight">\(\omega\)</span> gives the best iterative scheme?</p>
+<p>Recall that for <span class="math notranslate nohighlight">\(0 &lt; \omega\le 1\)</span>, we have <span class="math notranslate nohighlight">\(|\lambda_{k}(R_{\omega})|&lt;1\)</span>. We would like to find the
+value of <span class="math notranslate nohighlight">\(\omega\)</span> that makes <span class="math notranslate nohighlight">\(|\lambda_{k}(R_{\omega})|\)</span> as small as possible for all <span class="math notranslate nohighlight">\(1 \le k \le n − 1\)</span>. Figure
+2.7 is a plot of the eigenvalues <span class="math notranslate nohighlight">\(\lambda_{k}\)</span> for four different values of <span class="math notranslate nohighlight">\(\omega\)</span>. Notice that for all
+values of <span class="math notranslate nohighlight">\(\omega\)</span> satisfying <span class="math notranslate nohighlight">\(0&lt;\omega\le 1\)</span>,</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+\lambda_{k}(R_{\omega})=1-2\omega\sin^{2}\bigg(\cfrac{k\pi}{2n}\bigg),\quad 1\le k\le n-1\\
+\lambda_{1}(R_{\omega})=1-2\omega\sin^{2}\bigg(\cfrac{1\pi}{2n}\bigg)\\
+\lambda_{2}(R_{\omega})=1-2\omega\sin^{2}\bigg(\cfrac{2\pi}{2n}\bigg)\\
+\lambda_{1}(R_{\omega})=1-2\omega\sin^{2}\bigg(\cfrac{1\pi}{2n}\bigg)
+=1-2\omega\sin^{2}\bigg(\cfrac{\pi h}{2}\bigg)\approx 1-\cfrac{\omega\pi^{2}h^{2}}{2} \\
+\end{array}\end{split}\]</div>
+<p>This fact implies that <span class="math notranslate nohighlight">\(\lambda_{1}\)</span>, the eigenvalue associated with the smoothest mode, will
+always be close to 1. Therefore, no value of <span class="math notranslate nohighlight">\(\omega\)</span> will reduce the smooth components
+of the error effectively. Furthermore, the smaller the grid spacing <span class="math notranslate nohighlight">\(h\)</span>, the closer <span class="math notranslate nohighlight">\(\lambda_{1}\)</span> is
+to 1. Any attempt to improve the accuracy of the solution (by decreasing the grid
+spacing) will only worsen the convergence of the smooth components of the error.
+Most basic relaxation schemes share this ironic limitation.</p>
+<p>Having accepted the fact that no value of <span class="math notranslate nohighlight">\(\omega\)</span> damps the smooth components
+satisfactorily, we ask what value of <span class="math notranslate nohighlight">\(\omega\)</span> provides the best damping of the oscillatory
+components (those with <span class="math notranslate nohighlight">\(n2 \le k \le n − 1\)</span>). We could impose this condition by
+requiring that</p>
+<div class="math notranslate nohighlight">
+\[\lambda_{n/2}(R_{\omega})=-\lambda_{n}(R_{\omega})\]</div>
+<p>Solving this equation for ω leads to the optimal value <span class="math notranslate nohighlight">\(\omega=\cfrac{2}{3}\)</span>.</p>
+<p>We also find (Exercise 13) that with <span class="math notranslate nohighlight">\(\omega=\cfrac{2}{3}\)</span>, <span class="math notranslate nohighlight">\(|\lambda_{k}| &lt; \cfrac{1}{3}\)</span> for all <span class="math notranslate nohighlight">\(n2 \le k \le n − 1\)</span>.
+This says that the oscillatory components are reduced at least by a factor of three
+with each relaxation. This damping factor for the oscillatory modes is an important property of any relaxation scheme and is called the smoothing factor of the scheme.
+An important property of the basic relaxation scheme that underlies much of the
+power of multigrid methods is that the smoothing factor is not only small, but also
+independent of the grid spacing <span class="math notranslate nohighlight">\(h\)</span>.</p>
+<p>We now turn to some numerical experiments to illustrate the analytical results
+that have just been obtained. Once again, the weighted Jacobi method is applied
+to the one-dimensional model problem <span class="math notranslate nohighlight">\(A\mathbf{u} = 0\)</span> on a grid with <span class="math notranslate nohighlight">\(n = 64\)</span> points. We
+use initial guesses (which are also initial errors) consisting of single modes with
+wavenumbers <span class="math notranslate nohighlight">\(1 \le k \le n − 1\)</span>. Figure 2.8 shows how the method performs in terms
+of different wavenumbers. Specifically, the wavenumber of the initial error is plotted
+against the number of iterations required to reduce the norm of the initial error by
+a factor of 100. This experiment is done for weighting factors of <span class="math notranslate nohighlight">\(\omega = 1\)</span> and <span class="math notranslate nohighlight">\(\omega = \cfrac{2}{3}\)</span>.</p>
+<p>With <span class="math notranslate nohighlight">\(\omega =1\)</span>, both the high- and low-frequency components of the error are
+damped very slowly. Components with wavenumbers near <span class="math notranslate nohighlight">\(n2\)</span> are damped rapidly.
+This behavior is consistent with the eigenvalue curves of Fig. 2.7. We see a quite
+different behavior in Fig. 2.8(b) with <span class="math notranslate nohighlight">\(\omega =\cfrac{2}{3}\)</span>. Recall that <span class="math notranslate nohighlight">\(\omega =\cfrac{2}{3}\)</span> was chosen to
+give preferential damping to the oscillatory components. Indeed, the smooth waves
+are damped very slowly, while the upper half of the spectrum (<span class="math notranslate nohighlight">\(k \ge n2\)</span>) shows rapid
+convergence. Again, this is consistent with Fig. 2.7.</p>
+<p>Another perspective on these convergence properties is provided in Figure 2.9.
+This time the actual approximations are plotted. The weighted Jacobi method
+with <span class="math notranslate nohighlight">\(\omega =\cfrac{2}{3}\)</span> is applied to the same model problem on a grid with <span class="math notranslate nohighlight">\(n = 64\)</span> points.
+Figure 2.9(a) shows the error with wavenumber <span class="math notranslate nohighlight">\(k = 3\)</span> after one relaxation sweep
+(left plot) and after 10 relaxation sweeps (right plot). This smooth component is
+damped very slowly. Figure 2.9(b) shows a more oscillatory error (<span class="math notranslate nohighlight">\(k = 16\)</span>) after one
+and after 10 iterations. The damping is now much more dramatic. Notice also, as
+mentioned before, that the weighted Jacobi method preserves modes: once a <span class="math notranslate nohighlight">\(k = 3\)</span>
+mode, always a <span class="math notranslate nohighlight">\(k = 3\)</span> mode.</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+y(x)=A\cos(2\pi(\cfrac{x}{\lambda}))\\
+\omega_{k,j}=\sin\bigg(\cfrac{jk\pi}{n} \bigg),\quad 0\le j\le n\\
+h=\Delta x=\cfrac{L}{n}=\cfrac{1}{n}\\
+x=jh=j\Delta x=\cfrac{jL}{n}=\cfrac{j}{n}\\
+\omega_{k,j}=\sin\bigg({xk\pi} \bigg)=\sin\bigg(2\pi\cfrac{k x}{2} \bigg)
+=\sin\bigg(2\pi\cfrac{x}{\cfrac{2}{k}} \bigg)\\
+l=wavelength=\lambda=\cfrac{2}{k}
+\end{array}\end{split}\]</div>
+<p>To develop some familiarity with these Fourier modes, Fig. 2.6 shows them on
+a grid with <span class="math notranslate nohighlight">\(n = 12\)</span> points. Notice that the <span class="math notranslate nohighlight">\(k\text{th}\)</span> mode consists of <span class="math notranslate nohighlight">\(\cfrac{k}{2}\)</span> full sine waves
+and has a wavelength of <span class="math notranslate nohighlight">\(l=\cfrac{24h}{k}=\cfrac{2}{k}\)</span> (the entire interval has length 1). The <span class="math notranslate nohighlight">\(k=\cfrac{n}{2}\)</span>
+mode has a wavelength of <span class="math notranslate nohighlight">\(l=4h\)</span> and the <span class="math notranslate nohighlight">\(k = n − 1\)</span> mode has a wavelength of
+almost <span class="math notranslate nohighlight">\(l=2h\)</span>. Waves with wavenumbers greater than <span class="math notranslate nohighlight">\(n\)</span> (wavelengths less than <span class="math notranslate nohighlight">\(2h\)</span>)
+cannot be represented on the grid. In fact (Exercise 12), through the phenomenon
+of aliasing, a wave with a wavelength less than <span class="math notranslate nohighlight">\(2h\)</span> actually appears on the grid with
+a wavelength greater than <span class="math notranslate nohighlight">\(2h\)</span>.</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+n=12\\
+h=1/n=1/12\\
+l=wavelength=\lambda=\cfrac{2}{k}\\
+\omega_{k,j}=\sin\bigg(\cfrac{jk\pi}{n} \bigg),\quad 0\le j\le n\\
+k=1:\omega_{1,j}=\sin\bigg(\cfrac{j\pi}{n} \bigg)=\sin\bigg(\cfrac{j\pi}{12} \bigg)\\
+l=\cfrac{2}{k}=2=2n\cfrac{1}{n}=2nh=24h
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+n=12\\
+h=1/n=1/12\\
+l=wavelength=\lambda=\cfrac{2}{k}\\
+\omega_{k,j}=\sin\bigg(\cfrac{jk\pi}{n} \bigg),\quad 0\le j\le n\\
+k=1:\omega_{1,j}=\sin\bigg(\cfrac{j\pi}{n} \bigg)=\sin\bigg(\cfrac{j\pi}{12} \bigg)\\
+l=\cfrac{2}{k}=2=2n\cfrac{1}{n}=2nh=24h\\
+k=2:\omega_{2,j}=\sin\bigg(\cfrac{2j\pi}{n} \bigg)=\sin\bigg(\cfrac{j\pi}{6} \bigg)\\
+l=\cfrac{2}{k}=1=n\cfrac{1}{n}=nh=12h\\
+k=3:\omega_{3,j}=\sin\bigg(\cfrac{3j\pi}{n} \bigg)=\sin\bigg(\cfrac{j\pi}{4} \bigg)\\
+l=\cfrac{2}{k}=\cfrac{2}{3}=\cfrac{2}{3}n\cfrac{1}{n}=8h\\
+k=4:\omega_{4,j}=\sin\bigg(\cfrac{4j\pi}{n} \bigg)=\sin\bigg(\cfrac{j\pi}{3} \bigg)\\
+l=\cfrac{2}{k}=\cfrac{1}{2}=\cfrac{1}{2}n\cfrac{1}{n}=6h\\
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+n=12\\
+h=1/n=1/12\\
+l=wavelength=\lambda=\cfrac{2}{k}\\
+\omega_{k,j}=\sin\bigg(\cfrac{jk\pi}{n} \bigg),\quad 0\le j\le n\\
+k=6:\omega_{6,j}=\sin\bigg(\cfrac{6j\pi}{n} \bigg)=\sin\bigg(\cfrac{j\pi}{2} \bigg)\\
+l=\cfrac{2}{k}=\cfrac{2}{6}=\cfrac{1}{3}n\cfrac{1}{n}=4h\\
+k=8:\omega_{8,j}=\sin\bigg(\cfrac{8j\pi}{n} \bigg)=\sin\bigg(\cfrac{2j\pi}{3} \bigg)\\
+l=\cfrac{2}{k}=\cfrac{2}{8}=\cfrac{1}{4}n\cfrac{1}{n}=3h\\
+k=9:\omega_{9,j}=\sin\bigg(\cfrac{9j\pi}{n} \bigg)=\sin\bigg(\cfrac{3j\pi}{4} \bigg)\\
+l=\cfrac{2}{k}=\cfrac{2}{9}=\cfrac{2}{9}n\cfrac{1}{n}=\cfrac{8}{3}h\\
+\end{array}\end{split}\]</div>
+</section>
+<section id="numerical-experiments">
+<h2>Numerical experiments<a class="headerlink" href="#numerical-experiments" title="Link to this heading"></a></h2>
+<div class="math notranslate nohighlight">
+\[\begin{split}R_{\omega}=(1-\omega)I+\omega R_{J}=\begin{bmatrix}
+1-\omega&amp;  \cfrac{1}{2}\omega&amp;  &amp;  &amp;  &amp; \\
+\cfrac{1}{2}\omega&amp;  1-\omega&amp;\cfrac{1}{2}\omega  &amp;  &amp;  &amp; \\
+&amp;  \cdot&amp;  \cdot&amp; \cdot &amp;  &amp; \\
+&amp;  &amp;  \cdot&amp;  \cdot&amp;  \cdot&amp; \\
+&amp;  &amp;  &amp;  \cfrac{1}{2}\omega&amp;  1-\omega&amp;\cfrac{1}{2}\omega \\
+&amp;  &amp;  &amp;  &amp; \cfrac{1}{2}\omega &amp;1-\omega
+\end{bmatrix}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\mathbf{v}^{(1)}=R_{\omega}\mathbf{v}^{(0)}+\omega D^{-1}\mathbf{f}=R_{\omega}\mathbf{v}^{(0)}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\mathbf{v}^{(1)}=R_{\omega}\mathbf{v}^{(0)}\]</div>
+</section>
+<section id="gaussseidel-iteration-matrix">
+<h2>Gauss–Seidel iteration matrix<a class="headerlink" href="#gaussseidel-iteration-matrix" title="Link to this heading"></a></h2>
+<p>We have belabored the discussion of the weighted Jacobi method because it is
+easy to analyze and because it shares many properties with other basic relaxation
+schemes. In much less detail, let us look at the Gauss–Seidel iteration. We can
+show (Exercise 14) that the Gauss–Seidel iteration matrix for the model problem
+(matrix <span class="math notranslate nohighlight">\(A\)</span>) has eigenvalues</p>
+<div class="math notranslate nohighlight">
+\[\lambda(R_{G})=\cos^{2}\bigg(\cfrac{k\pi}{n} \bigg), \quad 1\le k\le n-1\]</div>
+<p>These eigenvalues, must be interpreted carefully.
+We see that when <span class="math notranslate nohighlight">\(k\)</span> is close to 1 or <span class="math notranslate nohighlight">\(n\)</span>, the corresponding eigenvalues are close to 1
+and convergence is slow. However, the eigenvectors of <span class="math notranslate nohighlight">\(R_{G}\)</span> are given by (Exercise
+14)</p>
+<div class="math notranslate nohighlight">
+\[\omega_{k,j}=\bigg[\cos\bigg(\cfrac{k\pi}{n}\bigg)\bigg]^{j}\sin\bigg(\cfrac{jk\pi}{n}\bigg)\]</div>
+<p>where <span class="math notranslate nohighlight">\(0 \le j \le n\)</span> and <span class="math notranslate nohighlight">\(1 \le k \le n − 1\)</span>. These eigenvectors do not coincide with the
+eigenvectors of <span class="math notranslate nohighlight">\(A\)</span>. Therefore, <span class="math notranslate nohighlight">\(\lambda_{k}(R_{G})\)</span> gives the convergence rate, not for the kth
+mode of <span class="math notranslate nohighlight">\(A\)</span>, but for the kth eigenvector of <span class="math notranslate nohighlight">\(R_{G}\)</span>.</p>
+</section>
+<section id="gaussseidel-eigenvalues-and-eigenvectors">
+<h2>Gauss–Seidel eigenvalues and eigenvectors.<a class="headerlink" href="#gaussseidel-eigenvalues-and-eigenvectors" title="Link to this heading"></a></h2>
+<p>(a) Show that the eigenvalue problem for the Gauss–Seidel iteration matrix, <span class="math notranslate nohighlight">\(R_{G}\mathbf{w}=\lambda \mathbf{w}\)</span>,
+may be expressed in the form <span class="math notranslate nohighlight">\(U\mathbf{w}=(D − L)\lambda I \mathbf{w}\)</span>, where
+<span class="math notranslate nohighlight">\(U\)</span>, <span class="math notranslate nohighlight">\(L\)</span>, <span class="math notranslate nohighlight">\(D\)</span> are defined in the text.</p>
+<p>(b) Write out the equations of this system and note the boundary condition <span class="math notranslate nohighlight">\(w_{0}=w_{n}=0\)</span>. Look for solutions of this system of equations of the form
+<span class="math notranslate nohighlight">\(w_{j} = \mu_{j}\)</span>, where <span class="math notranslate nohighlight">\(\mu \in C\)</span> must be determined. Show that the boundary
+conditions can be satisfied only if <span class="math notranslate nohighlight">\(\lambda = \lambda_{k} = \cos^{2}\bigg(\cfrac{k\pi}{n}\bigg)\)</span>, <span class="math notranslate nohighlight">\(\quad 1\le k \le n-1\)</span>.</p>
+<p>(c) Show that the eigenvector associated with <span class="math notranslate nohighlight">\(\lambda_{k}\)</span> is
+<span class="math notranslate nohighlight">\(w_{k,j} = \bigg[\cos\bigg( \cfrac{k\pi}{n}\bigg)\bigg]^{j}\sin\bigg( \cfrac{jk\pi}{n}\bigg)\)</span></p>
+<p>Once again it is useful to express this method in matrix form. Splitting the
+matrix <span class="math notranslate nohighlight">\(A\)</span> in the form <span class="math notranslate nohighlight">\(A = D − L − U\)</span>, we can now write the original system of
+equations as</p>
+<div class="math notranslate nohighlight">
+\[A\mathbf{u}=\mathbf{f}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[(D-L)\mathbf{u}=U\mathbf{u}+\mathbf{f}\]</div>
+<p>or</p>
+<div class="math notranslate nohighlight">
+\[\mathbf{u}=(D-L)^{-1}U\mathbf{u}+(D-L)^{-1}\mathbf{f}\]</div>
+<p>This representation corresponds to solving the <span class="math notranslate nohighlight">\(j\text{th}\)</span> equation for <span class="math notranslate nohighlight">\(u_j\)</span> and using new
+approximations for components <span class="math notranslate nohighlight">\(1, 2, \cdots, j − 1\)</span>. Defining the Gauss–Seidel iteration
+matrix by</p>
+<div class="math notranslate nohighlight">
+\[R_{G}=(D-L)^{-1}U\]</div>
+<p>we can express the method as</p>
+<div class="math notranslate nohighlight">
+\[\mathbf{v}=R_{G}\mathbf{v}+(D-L)^{-1}\mathbf{f}\]</div>
+<p>Let</p>
+<div class="math notranslate nohighlight">
+\[\mathbf{f}=0\]</div>
+<p>then</p>
+<div class="math notranslate nohighlight">
+\[\mathbf{u}=R_{G}\mathbf{u}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+R_{G}\mathbf{w}=\lambda\mathbf{w}\\
+(D-L)^{-1}U\mathbf{w}=\lambda\mathbf{w}\\
+U\mathbf{w}=(D-L)\lambda\mathbf{w}\\
+U\mathbf{w}=(D-L)\lambda I\mathbf{w}\\
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}D-L=\begin{bmatrix}
+2&amp;  0&amp;  &amp;  &amp;  &amp; \\
+-1&amp;  2&amp;0  &amp;  &amp;  &amp; \\
+&amp;  \cdot&amp;  \cdot&amp; \cdot &amp;  &amp; \\
+&amp;  &amp;  \cdot&amp;  \cdot&amp;  \cdot&amp; \\
+&amp;  &amp;  &amp;  -1&amp;  2&amp;0 \\
+&amp;  &amp;  &amp;  &amp; -1 &amp;2
+\end{bmatrix}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}U=\begin{bmatrix}
+0&amp;  1&amp; 0 &amp;  &amp;  &amp; 0\\
+0&amp;  0&amp;1  &amp;0  &amp;  &amp; \\
+&amp;  \cdot&amp;  \cdot&amp; \cdot &amp;  &amp; \\
+&amp;  &amp;  \cdot&amp;  \cdot&amp;  \cdot&amp;0 \\
+&amp;  &amp;  &amp;  0&amp;  0&amp;1 \\
+0&amp;  &amp;  &amp;  &amp; 0 &amp;0
+\end{bmatrix}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}U\mathbf{w}=\begin{bmatrix}
+0&amp;  1&amp; 0 &amp;  &amp;  &amp; 0\\
+0&amp;  0&amp;1  &amp;0  &amp;  &amp; \\
+&amp;  \cdot&amp;  \cdot&amp; \cdot &amp;  &amp; \\
+&amp;  &amp;  \cdot&amp;  \cdot&amp;  \cdot&amp;0 \\
+&amp;  &amp;  &amp;  0&amp;  0&amp;1 \\
+0&amp;  &amp;  &amp;  &amp; 0 &amp;0
+\end{bmatrix}\begin{bmatrix}
+ w_{1}\\w_{2}\\\vdots\\w_{n-2}\\w_{n-1}
+\end{bmatrix}=\begin{bmatrix}
+ w_{2}\\w_{3}\\\vdots\\w_{n-2}\\w_{n-1}\\0
+\end{bmatrix}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}(D-L)\lambda \mathbf{w}=\lambda \begin{bmatrix}
+2&amp;  0&amp;  &amp;  &amp;  &amp; \\
+-1&amp;  2&amp;0  &amp;  &amp;  &amp; \\
+&amp;  \cdot&amp;  \cdot&amp; \cdot &amp;  &amp; \\
+&amp;  &amp;  \cdot&amp;  \cdot&amp;  \cdot&amp; \\
+&amp;  &amp;  &amp;  -1&amp;  2&amp;0 \\
+&amp;  &amp;  &amp;  &amp; -1 &amp;2
+\end{bmatrix}\begin{bmatrix}
+ w_{1}\\w_{2}\\\vdots\\w_{n-2}\\w_{n-1}
+\end{bmatrix}=\lambda\begin{bmatrix}
+ 2w_{1}\\-w_{1}+2w_{2}\\-w_{2}+2w_{3}\\\vdots\\-w_{n-2}+2w_{n-1}
+\end{bmatrix}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{bmatrix}
+ w_{2}\\w_{3}\\\vdots\\w_{n-2}\\w_{n-1}\\0
+\end{bmatrix} =\lambda\begin{bmatrix}
+ 2w_{1}\\-w_{1}+2w_{2}\\-w_{2}+2w_{3}\\\vdots\\-w_{n-3}+2w_{n-2}\\-w_{n-2}+2w_{n-1}
+\end{bmatrix}
+\Rightarrow \begin{bmatrix}
+w_{2}=2\lambda w_{1}\\
+w_{3}=\lambda(-w_{1}+2w_{2})\\
+w_{4}=\lambda(-w_{2}+2w_{3})\\
+\vdots\\
+w_{n-1}=\lambda(-w_{n-3}+2w_{n-2})\\
+0=\lambda(-w_{n-2}+2w_{n-1})
+\end{bmatrix}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\{w_{k,j}\}=\begin{bmatrix}
+ w_{1}\\w_{2}\\\vdots\\w_{n-2}\\w_{n-1}
+\end{bmatrix}=\begin{bmatrix}
+ \sqrt{\lambda_{k}}\sin\bigg(\cfrac{k\pi}{n}\bigg) \\
+ (\sqrt{\lambda_{k}})^{2}\sin\bigg(\cfrac{2k\pi}{n}\bigg) \\
+ \vdots\\
+  (\sqrt{\lambda_{k}})^{n-2}\sin\bigg(\cfrac{(n-2)k\pi}{n}\bigg)\\
+ (\sqrt{\lambda_{k}})^{n-1}\sin\bigg(\cfrac{(n-1)k\pi}{n}\bigg)\\
+\end{bmatrix}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\lambda=\lambda_{k}=\cos^{2}\bigg(\cfrac{k\pi}{n}\bigg),\quad 1\le k \le n-1 \\\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+\lambda=\lambda_{k}=\cos^{2}\bigg(\cfrac{k\pi}{n}\bigg),\quad 1\le k \le n-1 \\
+(\sqrt{\lambda_{k}})^{2}\sin\bigg(\cfrac{2k\pi}{n}\bigg) \\
+\cfrac{w_{2}}{w_{1}} =\cfrac{(\sqrt{\lambda_{k}})^{2}\sin\bigg(\cfrac{2k\pi}{n}\bigg) }{\sqrt{\lambda_{k}}\sin\bigg(\cfrac{k\pi}{n}\bigg)}
+=\cfrac{\sqrt{\lambda_{k}}2\sin\bigg(\cfrac{k\pi}{n}\bigg)\cos\bigg(\cfrac{k\pi}{n}\bigg)}{\sin\bigg(\cfrac{k\pi}{n}\bigg)}
+={2\sqrt{\lambda_{k}}\cos\bigg(\cfrac{k\pi}{n}\bigg)}
+=2\lambda_{k}
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+w_{3} &amp; = \lambda(-w_{1}+2w_{2})\\
+\lambda  = \cfrac{w_{3}}{-w_{1}+2w_{2}} &amp; = \cfrac{(\sqrt{\lambda_{k}})^{3}\sin\bigg(\cfrac{3k\pi}{n}\bigg)}{-\sqrt{\lambda_{k}}\sin\bigg(\cfrac{k\pi}{n}\bigg)+2(\sqrt{\lambda_{k}})^{2}\sin\bigg(\cfrac{2k\pi}{n}\bigg)} \\&amp; = \cfrac{(\sqrt{\lambda_{k}})^{2}\sin\bigg(\cfrac{3k\pi}{n}\bigg)}{-\sin\bigg(\cfrac{k\pi}{n}\bigg)+2(\sqrt{\lambda_{k}})\sin\bigg(\cfrac{2k\pi}{n}\bigg)}
+\end{align}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+&amp;-\sin\bigg(\cfrac{k\pi}{n}\bigg)+2(\sqrt{\lambda_{k}})\sin\bigg(\cfrac{2k\pi}{n}\bigg)\\ &amp; = -\sin\bigg(\cfrac{k\pi}{n}\bigg)+2\cos\bigg(\cfrac{k\pi}{n}\bigg)2\cos\bigg(\cfrac{k\pi}{n}\bigg)\sin\bigg(\cfrac{k\pi}{n}\bigg)\\ &amp; = \sin\bigg(\cfrac{k\pi}{n}\bigg)\bigg(-1+4\cos^{2}\bigg(\cfrac{k\pi}{n}\bigg)\bigg)
+\end{align}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+\sin\bigg(\cfrac{3k\pi}{n}\bigg)=\sin\bigg(\cfrac{k\pi}{n}\bigg)\cos\bigg(\cfrac{2k\pi}{n}\bigg)
++\cos\bigg(\cfrac{k\pi}{n}\bigg)\sin\bigg(\cfrac{2k\pi}{n}\bigg)\\
+=\sin\bigg(\cfrac{k\pi}{n}\bigg)\bigg(2\cos^{2}\bigg(\cfrac{k\pi}{n}\bigg)-1\bigg)
++\cos\bigg(\cfrac{k\pi}{n}\bigg)2\sin\bigg(\cfrac{k\pi}{n}\bigg)\cos\bigg(\cfrac{k\pi}{n}\bigg)\\
+=\sin\bigg(\cfrac{k\pi}{n}\bigg)\bigg(4\cos^{2}\bigg(\cfrac{k\pi}{n}\bigg)-1\bigg)\\
+\end{array}\end{split}\]</div>
+<p>Basis of Eigenvectors and Principal Vectors Associated with Gauss-Seidel Matrix of A Tridiag [-1 2 -1]</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="iterative.html" class="btn btn-neutral float-left" title="Iterative Solver" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="multigrid1.html" class="btn btn-neutral float-right" title="MULTIGRID Continued" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2017~2024, eric.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

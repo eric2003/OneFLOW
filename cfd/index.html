@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CFD &mdash; Scientific Computing 1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../_static/documentation_options.js?v=f2a433a1"></script>
+        <script src="../_static/doctools.js?v=888ff710"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Navier–Stokes equations" href="ns.html" />
+    <link rel="prev" title="Bash" href="../bash.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Scientific Computing
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Get started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../info.html">OneFLOW</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../user.html">THEORY</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../bash.html">Bash</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">CFD</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="ns.html">Navier–Stokes equations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="leibniz.html">Leibniz integral</a></li>
+<li class="toctree-l2"><a class="reference internal" href="rtt.html">Reynolds’ transport theorem</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mass.html">Conservation Of Mass</a></li>
+<li class="toctree-l2"><a class="reference internal" href="momenum.html">Momentum Analysis Of Flow Systems</a></li>
+<li class="toctree-l2"><a class="reference internal" href="energy.html">Conservation Of Energy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ns-integral.html">ALE Form of Conservation Equations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="curvilinear.html">Generalized Curvilinear Coordinate System</a></li>
+<li class="toctree-l2"><a class="reference internal" href="curvilinear3d.html">Generalized Curvilinear Coordinate System(3D)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="vector.html">Vector &amp; Tensor</a></li>
+<li class="toctree-l2"><a class="reference internal" href="matrix.html">Matrix</a></li>
+<li class="toctree-l2"><a class="reference internal" href="calculus.html">Calculus</a></li>
+<li class="toctree-l2"><a class="reference internal" href="substitution.html">Substitution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="jacobian.html">Jacobian matrix</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gauss.html">Gauss’s Theorem</a></li>
+<li class="toctree-l2"><a class="reference internal" href="strain.html">Strain Measures</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ale.html">Arbitrary Lagrangian-Eulerian</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ale1d.html">ALE 1D</a></li>
+<li class="toctree-l2"><a class="reference internal" href="deformation.html">Deformation and Motion</a></li>
+<li class="toctree-l2"><a class="reference internal" href="derivative.html">Fluid Derivative</a></li>
+<li class="toctree-l2"><a class="reference internal" href="material_derivative.html">Material Time Derivative</a></li>
+<li class="toctree-l2"><a class="reference internal" href="scheme/index.html">CFD Schemes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="examples/index.html">CFD Examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="method/index.html">CFD Methods</a></li>
+<li class="toctree-l2"><a class="reference internal" href="codes.html">Reference Codes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="videos.html">CFD &amp; CAE Videos</a></li>
+<li class="toctree-l2"><a class="reference internal" href="books.html">Books</a></li>
+<li class="toctree-l2"><a class="reference internal" href="docs.html">Documents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../cgns.html">CGNS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../chatgpt.html">CHATGPT</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cpp/index.html">CPP</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cmake.html">CMake</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cmd.html">Cmd</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cuda.html">CUDA</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../design_patterns.html">Design Patterns</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../eigen.html">Eigen3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../git.html">Git</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../git.html#contexts">Contexts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fortran.html">Fortran</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../hdf5.html">HDF5</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../hpc.html">HPC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../install/index.html">Install</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../julia.html">Julia</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../jupyter.html">Jupyter Notebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../latex.html">LaTeX</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../makefile.html">Makefile</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../metis.html">METIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../mkdocs.html">MkDocs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../modules.html">Environment Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../mpi.html">MPI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../numerical/index.html">Numerical analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../oneapi.html">oneAPI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../oneflow.html">OneFLOW-CFD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../openacc.html">OpenACC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../opencl.html">OpenCL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../opengl.html">OpenGL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../openmp.html">OpenMP</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../powershell.html">PowerShell</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../python/index.html">Python</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../qt.html">Qt</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../regex.html">Regular Expressions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../science.html">Science</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sphinx.html">Sphinx</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../system/index.html">System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../taichi.html">Taichi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tcltk.html">Tcl/tk</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tecplot.html">Tecplot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../test.html">Test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../unreal_engine.html">Unreal Engine</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../vcpkg.html">vcpkg</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../yaml.html">yaml</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Scientific Computing</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">CFD</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/cfd/index.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="cfd">
+<h1>CFD<a class="headerlink" href="#cfd" title="Link to this heading"></a></h1>
+<p>CFD (Computational Fluid Dynamics) is a method of simulating physical phenomena such as fluid motion, heat and mass transfer using computer algorithms. CFD can be used to predict and optimize fluid dynamic phenomena such as gas and liquid flows, combustion processes, heat transfer, and aerodynamics. It is widely used in various engineering fields, such as aviation, automotive, energy, construction, environmental, biomedical, as well as scientific research and development. CFD technology typically requires knowledge from multiple disciplines such as numerical analysis, mathematics, physics, and computer science to study and apply.</p>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="ns.html">Navier–Stokes equations</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="ns.html#control-mass-cm-control-volume-cv">Control Mass(CM) &amp;Control Volume (CV)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ns.html#reynolds-transport-theorem">Reynolds’ transport theorem</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ns.html#conservation-equations">Conservation Equations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ns.html#mass-conservation">Mass Conservation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ns.html#conservation-of-linear-momentum">Conservation of Linear Momentum</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ns.html#ale-form-of-conservation-equations">ALE Form of Conservation Equations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ns.html#id1">Navier–Stokes equations</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="leibniz.html">Leibniz integral</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="leibniz.html#integration-by-substitution">Integration by substitution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="leibniz.html#leibniz-integral-rule">Leibniz integral rule</a></li>
+<li class="toctree-l2"><a class="reference internal" href="leibniz.html#green-s-theorem">Green’s theorem</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="rtt.html">Reynolds’ transport theorem</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mass.html">Conservation Of Mass</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="mass.html#derivation-using-the-divergence-theorem">Derivation Using the Divergence Theorem</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="momenum.html">Momentum Analysis Of Flow Systems</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="momenum.html#forces-acting-on-a-control-volume">Forces Acting On A Control Volume</a></li>
+<li class="toctree-l2"><a class="reference internal" href="momenum.html#the-differential-linear-momentum-equation-cauchy-s-equation">The Differential Linear Momentum Equation-Cauchy’s Equation</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="energy.html">Conservation Of Energy</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="energy.html#conservation-of-energy-principle">conservation of energy principle,</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="ns-integral.html">ALE Form of Conservation Equations</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="ns-integral.html#differential-forms">Differential forms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ns-integral.html#integral-forms">Integral forms</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="curvilinear.html">Generalized Curvilinear Coordinate System</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="curvilinear.html#two-dimension-static-grid">two dimension static grid</a></li>
+<li class="toctree-l2"><a class="reference internal" href="curvilinear.html#two-dimension-dynamic-grid">two dimension dynamic grid</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="curvilinear3d.html">Generalized Curvilinear Coordinate System(3D)</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="curvilinear3d.html#applying-the-curvilinear-transformation">Applying the Curvilinear Transformation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="curvilinear3d.html#euler-equations-in-cartesian-coordinates">Euler Equations in Cartesian Coordinates</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="vector.html">Vector &amp; Tensor</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="vector.html#vectors-and-vector-operations">Vectors and Vector Operations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="vector.html#the-cross-product-of-two-vectors">The Cross Product of Two Vectors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="vector.html#gradient">Gradient</a></li>
+<li class="toctree-l2"><a class="reference internal" href="vector.html#divergence">Divergence</a></li>
+<li class="toctree-l2"><a class="reference internal" href="vector.html#gradient-of-a-scalar-and-directional-derivatives">Gradient of a Scalar and Directional Derivatives</a></li>
+<li class="toctree-l2"><a class="reference internal" href="vector.html#operations-on-the-nabla-operator">Operations on the Nabla Operator</a></li>
+<li class="toctree-l2"><a class="reference internal" href="vector.html#additional-vector-operations">Additional Vector Operations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="vector.html#tensors-and-tensor-operation">Tensors and Tensor Operation</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="matrix.html">Matrix</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="matrix.html#classical-adjoint-adjugate-matrix">Classical Adjoint (Adjugate) Matrix</a></li>
+<li class="toctree-l2"><a class="reference internal" href="matrix.html#cofactor-formula">Cofactor Formula</a></li>
+<li class="toctree-l2"><a class="reference internal" href="matrix.html#minors-and-cofactors">Minors and Cofactors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="matrix.html#transpose">Transpose</a></li>
+<li class="toctree-l2"><a class="reference internal" href="matrix.html#what-are-eigenvalues">What are Eigenvalues?</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="calculus.html">Calculus</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="calculus.html#id2">一元复合函数的求导法则</a></li>
+<li class="toctree-l2"><a class="reference internal" href="calculus.html#id4">多元复合函数的求导法则</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="substitution.html">Substitution</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="substitution.html#substitution-for-integrals">Substitution for Integrals</a></li>
+<li class="toctree-l2"><a class="reference internal" href="substitution.html#id1">Substitution Rule for Indefinite Integrals</a></li>
+<li class="toctree-l2"><a class="reference internal" href="substitution.html#substitution-in-definite-integrals">Substitution In Definite Integrals</a></li>
+<li class="toctree-l2"><a class="reference internal" href="substitution.html#substitution-rule-for-indefinite-integrals-version-2">Substitution Rule for Indefinite Integrals( version 2)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="substitution.html#substitution-in-definite-integrals-version-2">Substitution In Definite Integrals( version 2)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="substitution.html#some-example">Some Example</a></li>
+<li class="toctree-l2"><a class="reference internal" href="substitution.html#a-better-understanding-of-this-formula">A better understanding of this formula</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="jacobian.html">Jacobian matrix</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="jacobian.html#reference">Reference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="jacobian.html#the-jacobian-matrix">The Jacobian Matrix</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="gauss.html">Gauss’s Theorem</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="gauss.html#the-divergence-theorem-vector">The Divergence Theorem-vector</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gauss.html#the-divergence-theorem-tensors">The Divergence Theorem-tensors</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="strain.html">Strain Measures</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="strain.html#deformation-gradient">Deformation Gradient</a></li>
+<li class="toctree-l2"><a class="reference internal" href="strain.html#id1">Strain Measures</a></li>
+<li class="toctree-l2"><a class="reference internal" href="strain.html#green-strain-tensor">Green Strain Tensor</a></li>
+<li class="toctree-l2"><a class="reference internal" href="strain.html#rate-of-deformation">Rate-of-Deformation</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="ale.html">Arbitrary Lagrangian-Eulerian</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="ale.html#arbitrary-lagrangian-eulerian-ale">Arbitrary Lagrangian-Eulerian (ALE)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ale.html#eulerian-and-lagrangian-descriptions">Eulerian and Lagrangian Descriptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ale.html#lagrangian-and-eulerian-viewpoints">Lagrangian and Eulerian viewpoints</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ale.html#ale-kinematical-description">ALE kinematical description</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ale.html#material-spatial-and-referential-time-derivatives">Material, spatial, and referential time derivatives</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ale.html#time-derivative-of-integrals-over-moving-volumes">Time derivative of integrals over moving volumes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ale.html#material-motion-mesh-displacement-mesh-velocity-and-mesh-acceleration">Material Motion, Mesh Displacement, Mesh Velocity,and Mesh Acceleration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ale.html#material-time-derivative-and-convective-velocity">Material Time Derivative and Convective Velocity</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ale.html#relationship-of-ale-description-to-eulerian-and-lagrangian-descriptions">Relationship of ALE Description to Eulerian and Lagrangian Descriptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ale.html#displacement-velocity-and-acceleration">Displacement, Velocity and Acceleration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ale.html#motion">Motion</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ale.html#deformation-gradient">Deformation Gradient</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ale.html#mesh-descriptions">Mesh Descriptions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="ale1d.html">ALE 1D</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="ale1d.html#substitution-for-integrals">Substitution for Integrals</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ale1d.html#some-example">Some Example</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="deformation.html">Deformation and Motion</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="deformation.html#definitions">Definitions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="derivative.html">Fluid Derivative</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="derivative.html#eulerian-description">Eulerian Description</a></li>
+<li class="toctree-l2"><a class="reference internal" href="derivative.html#lagrangian-description">Lagrangian Description</a></li>
+<li class="toctree-l2"><a class="reference internal" href="derivative.html#interconversion-of-the-two-descriptions">Interconversion of the two descriptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="derivative.html#ale-description">ALE Description</a></li>
+<li class="toctree-l2"><a class="reference internal" href="derivative.html#material-spatial-and-referential-time-derivatives">Material, spatial, and referential time derivatives</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="material_derivative.html">Material Time Derivative</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="material_derivative.html#mass-conservation">Mass Conservation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="material_derivative.html#conservation-of-linear-momentum">Conservation of Linear Momentum</a></li>
+<li class="toctree-l2"><a class="reference internal" href="material_derivative.html#reynolds-theorem-for-a-density-weighted-integrand">Reynolds’ Theorem for a Density-Weighted Integrand</a></li>
+<li class="toctree-l2"><a class="reference internal" href="material_derivative.html#conservation-of-energy">Conservation of Energy</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="scheme/index.html">CFD Schemes</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="scheme/icp.html">Implicit Compact Pade (ICP) Scheme</a></li>
+<li class="toctree-l2"><a class="reference internal" href="scheme/weno.html">WENO schemes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="scheme/hllc.html">HLLC Riemann Solver</a></li>
+<li class="toctree-l2"><a class="reference internal" href="scheme/rusanov.html">Rusanov Riemann Solver</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="examples/index.html">CFD Examples</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="examples/1d.html">CFD Examples 1D</a></li>
+<li class="toctree-l2"><a class="reference internal" href="examples/burgers.html">Inviscid Burgers Equation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="examples/euler1d.html">One-Dimensional Euler Solver</a></li>
+<li class="toctree-l2"><a class="reference internal" href="examples/sod.html">Sod’s shock-tube problem</a></li>
+<li class="toctree-l2"><a class="reference internal" href="examples/poisson.html">Poisson Equation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="examples/vortex.html">Vortex-Merger Problem</a></li>
+<li class="toctree-l2"><a class="reference internal" href="examples/index.html#verification-and-validation">Verification and Validation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="examples/index.html#cfd-benchmark-cases">CFD benchmark cases</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="method/index.html">CFD Methods</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="method/spectrum.html">Spectral Methods</a></li>
+<li class="toctree-l2"><a class="reference internal" href="method/fourier.html">Fourier Series</a></li>
+<li class="toctree-l2"><a class="reference internal" href="method/iterative.html">Iterative Solver</a></li>
+<li class="toctree-l2"><a class="reference internal" href="method/multigrid.html">MULTIGRID</a></li>
+<li class="toctree-l2"><a class="reference internal" href="method/multigrid1.html">MULTIGRID Continued</a></li>
+<li class="toctree-l2"><a class="reference internal" href="method/multigrid2.html">Multigrid Poisson Solver</a></li>
+<li class="toctree-l2"><a class="reference internal" href="method/vorticitystream.html">Vorticity Stream Function</a></li>
+<li class="toctree-l2"><a class="reference internal" href="method/inviscid2d.html">Incompressible Navier-Stokes Equation</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="codes.html">Reference Codes</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="codes.html#open-source-cfd-codes">Open-Source CFD codes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="codes.html#grid-generation">Grid generation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="codes.html#visualization">Visualization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="codes.html#famous-cfd-codes">Famous CFD codes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="codes.html#closed-source-cfd-codes">Closed-Source CFD codes</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="videos.html">CFD &amp; CAE Videos</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="videos.html#bilibili-video">Bilibili Video</a></li>
+<li class="toctree-l2"><a class="reference internal" href="videos.html#bilibili-content-creator">Bilibili Content Creator</a></li>
+<li class="toctree-l2"><a class="reference internal" href="videos.html#youtuber">Youtuber</a></li>
+<li class="toctree-l2"><a class="reference internal" href="videos.html#youtube-video">Youtube Video</a></li>
+<li class="toctree-l2"><a class="reference internal" href="videos.html#homepage">Homepage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="videos.html#article">Article</a></li>
+<li class="toctree-l2"><a class="reference internal" href="videos.html#codes">Codes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="videos.html#coding-adventure">Coding Adventure</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="books.html">Books</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="books.html#cfd-book">CFD Book</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="docs.html">Documents</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="docs.html#online-documents">OnLine Documents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="docs.html#people">People</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../bash.html" class="btn btn-neutral float-left" title="Bash" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="ns.html" class="btn btn-neutral float-right" title="Navier–Stokes equations" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2017~2024, eric.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

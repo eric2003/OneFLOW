@@ -1,0 +1,861 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MULTIGRID Continued &mdash; Scientific Computing 1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../_static/documentation_options.js?v=f2a433a1"></script>
+        <script src="../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Multigrid Poisson Solver" href="multigrid2.html" />
+    <link rel="prev" title="MULTIGRID" href="multigrid.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            Scientific Computing
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Get started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../info.html">OneFLOW</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../user.html">THEORY</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../bash.html">Bash</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">CFD</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../ns.html">Navier–Stokes equations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../leibniz.html">Leibniz integral</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../rtt.html">Reynolds’ transport theorem</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../mass.html">Conservation Of Mass</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../momenum.html">Momentum Analysis Of Flow Systems</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../energy.html">Conservation Of Energy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../ns-integral.html">ALE Form of Conservation Equations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../curvilinear.html">Generalized Curvilinear Coordinate System</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../curvilinear3d.html">Generalized Curvilinear Coordinate System(3D)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../vector.html">Vector &amp; Tensor</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../matrix.html">Matrix</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../calculus.html">Calculus</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../substitution.html">Substitution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../jacobian.html">Jacobian matrix</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../gauss.html">Gauss’s Theorem</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../strain.html">Strain Measures</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../ale.html">Arbitrary Lagrangian-Eulerian</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../ale1d.html">ALE 1D</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../deformation.html">Deformation and Motion</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../derivative.html">Fluid Derivative</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../material_derivative.html">Material Time Derivative</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../scheme/index.html">CFD Schemes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/index.html">CFD Examples</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="index.html">CFD Methods</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="spectrum.html">Spectral Methods</a></li>
+<li class="toctree-l3"><a class="reference internal" href="fourier.html">Fourier Series</a></li>
+<li class="toctree-l3"><a class="reference internal" href="iterative.html">Iterative Solver</a></li>
+<li class="toctree-l3"><a class="reference internal" href="multigrid.html">MULTIGRID</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">MULTIGRID Continued</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#elements-of-multigrid">Elements of Multigrid</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#two-grid-correction-scheme">Two-Grid Correction Scheme</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#numerical-example">Numerical example.</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#v-cycle-scheme">V-Cycle Scheme</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#v-cycle-scheme-recursive-definition">V-Cycle Scheme (Recursive Definition)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cycle-scheme">µ-Cycle Scheme</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#full-multigrid-v-cycle-recursive-form">Full Multigrid V-Cycle (Recursive Form)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#full-multigrid-v-cycle">Full Multigrid V-Cycle</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="multigrid2.html">Multigrid Poisson Solver</a></li>
+<li class="toctree-l3"><a class="reference internal" href="vorticitystream.html">Vorticity Stream Function</a></li>
+<li class="toctree-l3"><a class="reference internal" href="inviscid2d.html">Incompressible Navier-Stokes Equation</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../codes.html">Reference Codes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../videos.html">CFD &amp; CAE Videos</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../books.html">Books</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../docs.html">Documents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../cgns.html">CGNS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../chatgpt.html">CHATGPT</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../cpp/index.html">CPP</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../cmake.html">CMake</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../cmd.html">Cmd</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../cuda.html">CUDA</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../design_patterns.html">Design Patterns</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../eigen.html">Eigen3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../git.html">Git</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../git.html#contexts">Contexts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fortran.html">Fortran</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../hdf5.html">HDF5</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../hpc.html">HPC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../install/index.html">Install</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../julia.html">Julia</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../jupyter.html">Jupyter Notebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../latex.html">LaTeX</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../makefile.html">Makefile</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../metis.html">METIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../mkdocs.html">MkDocs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../modules.html">Environment Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../mpi.html">MPI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../numerical/index.html">Numerical analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../oneapi.html">oneAPI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../oneflow.html">OneFLOW-CFD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../openacc.html">OpenACC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../opencl.html">OpenCL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../opengl.html">OpenGL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../openmp.html">OpenMP</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../powershell.html">PowerShell</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../python/index.html">Python</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../qt.html">Qt</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../regex.html">Regular Expressions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../science.html">Science</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sphinx.html">Sphinx</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../system/index.html">System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../taichi.html">Taichi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tcltk.html">Tcl/tk</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tecplot.html">Tecplot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../test.html">Test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../unreal_engine.html">Unreal Engine</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../vcpkg.html">vcpkg</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../yaml.html">yaml</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Scientific Computing</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">CFD</a></li>
+          <li class="breadcrumb-item"><a href="index.html">CFD Methods</a></li>
+      <li class="breadcrumb-item active">MULTIGRID Continued</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/cfd/method/multigrid1.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="multigrid-continued">
+<h1>MULTIGRID Continued<a class="headerlink" href="#multigrid-continued" title="Link to this heading"></a></h1>
+<ol class="arabic simple">
+<li><p><a class="reference external" href="https://people.math.sc.edu/Burkardt/c_src/multigrid_poisson_1d/multigrid_poisson_1d.html">Multigrid Solver for 1D Poisson Problem</a></p></li>
+<li><p><a class="reference external" href="https://www.damtp.cam.ac.uk/user/hf323/M21-II-NA/demos/multigrid/multigrid.html">Multigrid methods</a></p></li>
+<li><p><a class="reference external" href="https://www.youtube.com/watch?v=jqwyl9m5euI/">MIT Numerical Methods for PDE Lecture 6: Walkthough of a multigrid solver</a></p></li>
+<li><p><a class="reference external" href="http://bender.astro.sunysb.edu/classes/numerical_methods/lectures/elliptic-multigrid.pdf">Elliptic Problems / Multigrid</a></p></li>
+<li><p><a class="reference external" href="http://bender.astro.sunysb.edu/classes/numerical_methods/">numerical methods</a></p></li>
+<li><p><a class="reference external" href="https://zhuanlan.zhihu.com/p/337970166/">多重网格法 (Multigrid Method) 简述和示例</a></p></li>
+<li><p><a class="reference external" href="https://amgcl.readthedocs.io/en/latest/amg_overview.html">Algebraic Multigrid</a></p></li>
+<li><p><a class="reference external" href="https://www.wias-berlin.de/people/john/LEHRE/MULTIGRID/multigrid_7.pdf">Algebraic Multigrid Methods</a></p></li>
+<li><p><a class="reference external" href="https://www.scai.fraunhofer.de/content/dam/scai/de/documents/AllgemeineDokumentensammlung/SchnelleLoeser/SAMG/AMG_Introduction.pdf">Algebraic Multigrid AMG-An Introduction with Applications</a></p></li>
+<li><p><a class="reference external" href="https://math.mit.edu/classes/18.086/2006/">Mathematical Methods for Engineers II</a></p></li>
+<li><p><a class="reference external" href="https://math.mit.edu/~cperezar/18.336.html">Fast Methods for Partial Differential and Integral Equations Fall 2017</a></p></li>
+<li><p><a class="reference external" href="http://www.math.pitt.edu/~sussmanm/3040Summer14/multigrid.pdf">Multigrid solvers</a></p></li>
+<li><p><a class="reference external" href="https://abhila.sh/writing/2/multigrid.html">multigrid preconditioned Krylov solver</a></p></li>
+<li><p><a class="reference external" href="http://www.hector.ac.uk/cse/distributedcse/reports/citcom/Citcom/3_Multigrids.html">3.1 Multigrid Methods</a></p></li>
+<li><p><a class="reference external" href="https://github.com/lukeolson/copper-multigrid-tutorial/">copper-multigrid-tutorial</a></p></li>
+<li><p><a class="reference external" href="https://tbetcke.github.io/hpc_lecture_notes/multigrid.html">Multigrid Methods-Techniques of High-Performance Computing</a></p></li>
+<li><p><a class="reference external" href="https://people.eecs.berkeley.edu/~demmel/">James Demmel</a></p></li>
+</ol>
+<section id="elements-of-multigrid">
+<h2>Elements of Multigrid<a class="headerlink" href="#elements-of-multigrid" title="Link to this heading"></a></h2>
+<p>Through analysis and experimentation, we have examined some of the basic iterative methods. Our discoveries have formed the beginnings of what we might call
+a spectral (or Fourier mode) picture of relaxation schemes. As we proceed, more
+essential details of this picture will become clear. So far we have established that
+many standard iterative methods possess the smoothing property. This property
+makes these methods very effective at eliminating the high-frequency or oscillatory
+components of the error, while leaving the low-frequency or smooth components relatively unchanged. The immediate issue is whether these methods can be modified
+in some way to make them effective on all error components.</p>
+<p>One way to improve a relaxation scheme, at least in its early stages, is to use
+a good initial guess. A well-known technique for obtaining an improved initial
+guess is to perform some preliminary iterations on a coarse grid. Relaxation on a
+coarse grid is less expensive because there are fewer unknowns to be updated. Also,
+because the convergence factor behaves like <span class="math notranslate nohighlight">\(1 − O(h^{2})\)</span>, the coarse grid will have a
+marginally improved convergence rate. This line of reasoning at least suggests that
+coarse grids might be worth considering.</p>
+<p>With the coarse grid idea in mind, we can think more carefully about its implications. Recall that most basic relaxation schemes suffer in the presence of smooth
+components of the error. Assume that a particular relaxation scheme has been applied until only smooth error components remain. We now ask what these smooth
+components look like on a coarser grid. A smooth
+wave with <span class="math notranslate nohighlight">\(k = 4\)</span> on a grid Ωh with <span class="math notranslate nohighlight">\(n = 12\)</span> points has been projected directly to
+the grid <span class="math notranslate nohighlight">\(\Omega^{2h}\)</span> with <span class="math notranslate nohighlight">\(n = 6\)</span> points. On this coarse grid, the original wave still has a
+wavenumber of <span class="math notranslate nohighlight">\(k = 4\)</span>. We see that a smooth wave on <span class="math notranslate nohighlight">\(\Omega^{h}\)</span> looks more oscillatory on
+<span class="math notranslate nohighlight">\(\Omega^{2h}\)</span>.</p>
+<p>To be more precise, note that the grid points of the coarse grid <span class="math notranslate nohighlight">\(\Omega^{2h}\)</span> are the
+even-numbered grid points of the fine grid <span class="math notranslate nohighlight">\(\Omega^{h}\)</span>. Consider the <span class="math notranslate nohighlight">\(k\text{th}\)</span> mode on the fine
+grid evaluated at the even-numbered grid points. If <span class="math notranslate nohighlight">\(1 \le k &lt; \cfrac{n}{2}\)</span>, its components
+may be written as</p>
+<div class="math notranslate nohighlight">
+\[\omega_{k,2j}^{h}=\sin\bigg(\cfrac{2jk\pi}{n}\bigg)=\sin\bigg(\cfrac{jk\pi}{n/2}\bigg)=\omega_{k,j}^{2h},
+\quad 1 \le k \lt \cfrac{n}{2}\]</div>
+<p>Notice that superscripts have been used to indicate the grids on which the vectors
+are defined. From this identity, we see that the <span class="math notranslate nohighlight">\(k\text{th}\)</span> mode on <span class="math notranslate nohighlight">\(\Omega^{h}\)</span> becomes the <span class="math notranslate nohighlight">\(k\text{th}\)</span>
+mode on <span class="math notranslate nohighlight">\(\Omega^{2h}\)</span>; this fact is easier to understand by noting that there are half as many
+modes on <span class="math notranslate nohighlight">\(\Omega^{2h}\)</span> as there are on <span class="math notranslate nohighlight">\(\Omega^{h}\)</span>. The important consequence of this fact is that
+in passing from the fine grid to the coarse grid, a mode becomes more oscillatory.
+This is true provided that <span class="math notranslate nohighlight">\(1 \le k &lt; \cfrac{n}{2}\)</span>. It should be verified that the <span class="math notranslate nohighlight">\(k = \cfrac{n}{2}\)</span> mode
+on <span class="math notranslate nohighlight">\(\Omega^{h}\)</span> becomes the zero vector on <span class="math notranslate nohighlight">\(\Omega^{2h}\)</span>.</p>
+<p>As an aside, it is worth mentioning that fine-grid modes with <span class="math notranslate nohighlight">\(k &gt; \cfrac{n}{2}\)</span> undergo
+a more curious transformation. Through the phenomenon of aliasing mentioned
+earlier, the kth mode on <span class="math notranslate nohighlight">\(\Omega^{h}\)</span> becomes the (n − k)th mode on <span class="math notranslate nohighlight">\(\Omega^{2h}\)</span> when <span class="math notranslate nohighlight">\(k &gt; \cfrac{n}{2}\)</span>. In other words, the oscillatory modes of <span class="math notranslate nohighlight">\(\Omega^{h}\)</span> are misrepresented as
+relatively smooth modes on <span class="math notranslate nohighlight">\(\Omega^{2h}\)</span>.</p>
+<p>The important point is that smooth modes on a fine grid look less smooth on
+a coarse grid. This suggests that when relaxation begins to stall, signaling the
+predominance of smooth error modes, it is advisable to move to a coarser grid;
+there, the smooth error modes appear more oscillatory and relaxation will be more
+effective. The question is: how do we move to a coarser grid and relax on the more
+oscillatory error modes?</p>
+<p>It is at this point that multigrid begins to come together like a jigsaw puzzle.
+We must keep all of the related facts in mind. Recall that we have an equation
+for the error itself, namely, the residual equation. If <span class="math notranslate nohighlight">\(\mathbf{v}\)</span> is an approximation to the
+exact solution <span class="math notranslate nohighlight">\(\mathbf{u}\)</span>, then the error <span class="math notranslate nohighlight">\(\mathbf{e}=\mathbf{u}-\mathbf{v}\)</span> satisfies</p>
+<div class="math notranslate nohighlight">
+\[A\mathbf{e}=\mathbf{r}=\mathbf{f}-A\mathbf{v}\]</div>
+<p>which says that we can relax directly on the error by using the residual equation.
+There is another argument that justifies the use of the residual equation:</p>
+<p>Relaxation on the original equation <span class="math notranslate nohighlight">\(A\mathbf{u}=\mathbf{f}\)</span> with an arbitrary initial
+guess <span class="math notranslate nohighlight">\(\mathbf{v}\)</span> is equivalent to relaxing on the residual equation <span class="math notranslate nohighlight">\(A\mathbf{e}=\mathbf{r}\)</span> with
+the specific initial guess <span class="math notranslate nohighlight">\(\mathbf{e}=0\)</span>.</p>
+<p>This intimate connection between the original and the residual equations further
+motivates the use of the residual equation.</p>
+<p>We must now gather these loosely connected ideas. We know that many relaxation schemes possess the smoothing property. This leads us to consider using
+coarser grids during the computation to focus the relaxation on the oscillatory
+components of the error. In addition, there seems to be good reason to involve
+the residual equation in the picture. We now try to give these ideas a little more
+definition by proposing two strategies.</p>
+<p>We begin by proposing a strategy that uses coarse grids to obtain better initial
+guesses.</p>
+<ul class="simple">
+<li><p>Relax on <span class="math notranslate nohighlight">\(A\mathbf{u}=\mathbf{f}\)</span> on a very coarse grid to obtain an initial guess for the next finer grid.</p></li>
+<li><p>…</p></li>
+<li><p>Relax on <span class="math notranslate nohighlight">\(A\mathbf{u}=\mathbf{f}\)</span> on <span class="math notranslate nohighlight">\(\Omega^{4h}\)</span> to obtain an initial guess for <span class="math notranslate nohighlight">\(\Omega^{2h}\)</span>.</p></li>
+<li><p>Relax on <span class="math notranslate nohighlight">\(A\mathbf{u}=\mathbf{f}\)</span> on <span class="math notranslate nohighlight">\(\Omega^{2h}\)</span> to obtain an initial guess for <span class="math notranslate nohighlight">\(\Omega^{h}\)</span>.</p></li>
+<li><p>Relax on <span class="math notranslate nohighlight">\(A\mathbf{u}=\mathbf{f}\)</span> on <span class="math notranslate nohighlight">\(\Omega^{h}\)</span> to obtain a final approximation to the solution.</p></li>
+</ul>
+<p>This idea of using coarser grids to generate improved initial guesses is the basis
+of a strategy called nested iteration. Although the approach is attractive, it also
+leaves some questions. For instance, what does it mean to relax on <span class="math notranslate nohighlight">\(A\mathbf{u}=\mathbf{f}\)</span> on <span class="math notranslate nohighlight">\(\Omega^{2h}\)</span>?
+We must somehow define the original problem on the coarser grids. Also, what
+happens if, having once reached the fine grid, there are still smooth components
+in the error? We may have obtained some improvement by using the coarse grids,
+but the final iteration will stall if smooth components still remain. We return to
+these questions and find answers that will allow us to use nested iteration in a very
+powerful way.</p>
+<figure class="align-center" id="id2">
+<a class="reference internal image-reference" href="../../_images/multigrid1.png"><img alt="../../_images/multigrid1.png" src="../../_images/multigrid1.png" style="width: 800px;" /></a>
+<figcaption>
+<p><span class="caption-text">One-dimensional grid on the interval <span class="math notranslate nohighlight">\(0\le x\le 1\)</span>. The grid spacing is <span class="math notranslate nohighlight">\(h=\cfrac{1}{n}\)</span> and the <span class="math notranslate nohighlight">\(j\text{th}\)</span> grid point is <span class="math notranslate nohighlight">\(x_{j} = jh\quad\)</span> for <span class="math notranslate nohighlight">\(\quad 0\le j\le n\)</span>.</span><a class="headerlink" href="#id2" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<div class="math notranslate nohighlight">
+\[\begin{align}
+\omega_{k,j}=\sin\bigg(\cfrac{jk\pi}{n}\bigg),
+\quad 1 \le k \lt n-1,\quad 0 \le j \le n
+\end{align}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+L=1\\
+\Omega^{h}:\Delta x=h=\cfrac{L}{n}=\cfrac{1}{n},\text{ ngridpoint}=n\\
+\Omega^{2h}:\Delta x=2h=\cfrac{L}{n/2}=\cfrac{2}{n},\text{ ngridpoint}=\cfrac{n}{2}\\
+\Omega^{4h}:\Delta x=4h=\cfrac{L}{n/4}=\cfrac{4}{n},\text{ ngridpoint}=\cfrac{n}{4}\\
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{align}
+\omega_{k,j}=\sin\bigg(\cfrac{jk\pi}{n}\bigg),
+\quad 1 \le k \lt n-1,\quad 0 \le j \le n
+\end{align}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+L=1\\
+\Omega^{h}:\Delta x=h=\cfrac{1}{n},\text{ ngridpoint}=n=1/h\\
+\omega_{k,j}^{h}=\sin\bigg(\cfrac{jk\pi}{n}\bigg)=\sin\bigg(jk\pi h\bigg),\quad 0 \le j \le n\\
+\Omega^{2h}:\Delta x=2h=\cfrac{L}{n/2}=\cfrac{2}{n},\text{ ngridpoint}=\cfrac{n}{2}\\
+\omega_{k,j}^{2h}=\sin\bigg(\cfrac{jk\pi}{n/2}\bigg)=\sin\bigg(\cfrac{2jk\pi}{n}\bigg)=\sin\bigg(jk\pi 2h\bigg),\quad 0 \le j \le \cfrac{n}{2}\\
+\Omega^{4h}:\Delta x=4h=\cfrac{L}{n/4}=\cfrac{4}{n},\text{ ngridpoint}=\cfrac{n}{4}\\
+\omega_{k,j}^{4h}=\sin\bigg(\cfrac{jk\pi}{n/4}\bigg)=\sin\bigg(\cfrac{4jk\pi}{n}\bigg)=\sin\bigg(jk\pi 4h\bigg),\quad 0 \le j \le \cfrac{n}{4}\\
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+L=1\\
+\Omega^{h}:\Delta x=h=\cfrac{1}{n},\text{ ngridpoint}=n=1/h\\
+\omega_{k,j}^{h}=\sin\bigg(\cfrac{jk\pi}{n}\bigg)=\sin\bigg(jk\pi h\bigg),\quad 0 \le j \le n\\
+\omega_{k,2j}^{h}=\sin\bigg(\cfrac{2jk\pi}{n}\bigg)=\sin\bigg(2jk\pi h\bigg),\quad 0 \le 2j \le n\\
+\Omega^{2h}:\Delta x=2h=\cfrac{L}{n/2}=\cfrac{2}{n},\text{ ngridpoint}=\cfrac{n}{2}\\
+\omega_{k,j}^{2h}=\sin\bigg(\cfrac{jk\pi}{n/2}\bigg)=\sin\bigg(\cfrac{2jk\pi}{n}\bigg)=\sin\bigg(jk\pi 2h\bigg),\quad 0 \le j \le \cfrac{n}{2}\\
+\omega_{k,2j}^{h}=\sin\bigg(\cfrac{2jk\pi}{n}\bigg)=\sin\bigg(2jk\pi h\bigg)=\omega_{k,j}^{2h},\quad 0 \le j \le \cfrac{n}{2}\\
+\end{array}\end{split}\]</div>
+<p>This idea of using coarser grids to generate improved initial guesses is the basis
+of a strategy called nested iteration. Although the approach is attractive, it also
+leaves some questions. For instance, what does it mean to relax on <span class="math notranslate nohighlight">\(A\mathbf{u} = \mathbf{f}\)</span> on <span class="math notranslate nohighlight">\(\Omega^{2h}\)</span>?
+We must somehow define the original problem on the coarser grids. Also, what
+happens if, having once reached the fine grid, there are still smooth components
+in the error? We may have obtained some improvement by using the coarse grids,
+but the final iteration will stall if smooth components still remain. We return to
+these questions and find answers that will allow us to use nested iteration in a very
+powerful way.</p>
+<p>A second strategy incorporates the idea of using the residual equation to relax
+on the error. It can be represented by the following procedure:</p>
+<ul class="simple">
+<li><p>Relax on <span class="math notranslate nohighlight">\(A\mathbf{u} = \mathbf{f}\)</span> on <span class="math notranslate nohighlight">\(\Omega^{h}\)</span> to obtain an approximation <span class="math notranslate nohighlight">\(\mathbf{v}^{h}\)</span>.</p></li>
+<li><p>Compute the residual <span class="math notranslate nohighlight">\(\mathbf{r}=\mathbf{f}-A\mathbf{v}^{h}\)</span>.
+Relax on the residual equation <span class="math notranslate nohighlight">\(A\mathbf{e} = \mathbf{r}\)</span> on <span class="math notranslate nohighlight">\(\Omega^{2h}\)</span> to obtain
+an approximation to the error <span class="math notranslate nohighlight">\(\mathbf{e}^{2h}\)</span>.</p></li>
+<li><p>Correct the approximation obtained on <span class="math notranslate nohighlight">\(\Omega^{h}\)</span> with the error estimate obtained
+on <span class="math notranslate nohighlight">\(\Omega^{2h} : \mathbf{v}^{h} \leftarrow \mathbf{v}^{h} + \mathbf{e}^{2h}\)</span>.</p></li>
+</ul>
+<p>This procedure is the basis of what is called the correction scheme. Having
+relaxed on the fine grid until convergence deteriorates, we relax on the residual
+equation on a coarser grid to obtain an approximation to the error itself. We then
+return to the fine grid to correct the approximation first obtained there.</p>
+<p>There is a rationale for using this correction strategy, but it also leaves some
+questions to be answered. For instance, what does it mean to relax on <span class="math notranslate nohighlight">\(A\mathbf{e} = \mathbf{r}\)</span> on
+<span class="math notranslate nohighlight">\(\Omega^{2h}\)</span>? To answer this question, we first need to know how to compute the residual
+on <span class="math notranslate nohighlight">\(\Omega^{h}\)</span> and transfer it to <span class="math notranslate nohighlight">\(\Omega^{2h}\)</span>. We also need to know how to relax on <span class="math notranslate nohighlight">\(\Omega^{2h}\)</span> and what
+initial guess should be used. Moreover, how do we transfer the error estimate from
+<span class="math notranslate nohighlight">\(\Omega^{2h}\)</span> back to <span class="math notranslate nohighlight">\(\Omega^{h}\)</span>? These questions suggest that we need mechanisms for transferring
+information between the grids. We now turn to this important consideration.</p>
+<p>In our discussion of intergrid transfers, we consider only the case in which the
+coarse grid has twice the grid spacing of the next finest grid. This is a nearly
+universal practice, because there is usually no advantage in using grid spacings
+with ratios other than 2. Think for a moment about the step in the correction
+scheme that requires transferring the error approximation <span class="math notranslate nohighlight">\(\mathbf{e}^{2h}\)</span> from the coarse grid
+<span class="math notranslate nohighlight">\(\Omega^{2h}\)</span> to the fine grid <span class="math notranslate nohighlight">\(\Omega^{h}\)</span>. This is a common procedure in numerical analysis and is
+generally called interpolation or prolongation. Many interpolation methods could
+be used. Fortunately, for most multigrid purposes, the simplest of these is quite
+effective. For this reason, we consider only linear interpolation.</p>
+<p>The linear interpolation operator will be denoted <span class="math notranslate nohighlight">\(I_{2h}^{h}\)</span>. It takes coarse-grid vectors and produces fine-grid vectors according to the rule <span class="math notranslate nohighlight">\(I_{2h}^{h}\mathbf{v}^{2h}=\mathbf{v}^{h}\)</span>, where</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+v_{2j}^{h}=v_{j}^{2h}\\
+v_{2j+1}^{h}=\cfrac{1}{2}(v_{j}^{2h}+v_{j+1}^{2h}),\quad 0\le j\le\cfrac{n}{2}-1\\
+\end{array}\end{split}\]</div>
+<p>At even-numbered fine-grid points,
+the values of the vector are transferred directly from <span class="math notranslate nohighlight">\(\Omega^{2h}\)</span> to <span class="math notranslate nohighlight">\(\Omega^{h}\)</span>. At odd-numbered
+fine-grid points, the value of <span class="math notranslate nohighlight">\(\mathbf{v}^{h}\)</span> is the average of the adjacent coarse-grid values.</p>
+<p>In anticipation of discussions to come, we note that <span class="math notranslate nohighlight">\(I_{2h}^{h}\)</span> is a linear operator from
+<span class="math notranslate nohighlight">\(\mathbf{R}^{\cfrac{n}{2}-1}\)</span> to <span class="math notranslate nohighlight">\(\mathbf{R}^{n-1}\)</span>. It has full rank and the trivial null space, <span class="math notranslate nohighlight">\(\mathcal{N} = {0}\)</span>. For the case
+n = 8, this operator has the form</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}I_{2h}^{h}\mathbf{v}^{2h}=\cfrac{1}{2} \begin{bmatrix}
+1&amp;  &amp; \\
+2&amp;  &amp; \\
+1&amp;  1&amp;\\
+&amp;  2&amp;\\
+&amp;  1&amp;1\\
+&amp;  &amp;2\\
+&amp;  &amp;1\\
+\end{bmatrix}\begin{bmatrix}
+v_{1}\\v_{2}\\v_{3}\\
+\end{bmatrix}_{2h}=\begin{bmatrix}
+v_{1}\\v_{2}\\v_{3}\\
+v_{4}\\v_{5}\\v_{6}\\
+v_{7}\\
+\end{bmatrix}_{h}
+=\mathbf{v}^{h}\end{split}\]</div>
+<p>How well does this interpolation process work? First assume that the “real”
+error (which is not known exactly) is a smooth vector on the fine grid. Assume also that a coarse-grid approximation to the error has been determined on <span class="math notranslate nohighlight">\(\Omega^{2h}\)</span>
+and that this approximation is exact at the coarse-grid points. When this coarsegrid approximation is interpolated to the fine grid, the interpolant is also smooth.
+Therefore, we expect a relatively good approximation to the fine-grid error. By contrast, if the “real” error is oscillatory, even a very good
+coarse-grid approximation may produce an interpolant that is not very accurate.</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}I_{2h}^{h}\mathbf{v}^{2h}=\begin{bmatrix}
+\cfrac{1}{2}(v_{1} )_{2h}=(v_{1})_{h}\\
+\cfrac{1}{2}\times2(v_{1} )_{2h}=(v_{2})_{h}\\
+\cfrac{1}{2}((v_{1} )_{2h}+(v_{2} )_{2h})=(v_{3})_{h}\\
+\cfrac{1}{2}(2(v_{2} )_{2h})=(v_{4})_{h}\\
+\cfrac{1}{2}((v_{2} )_{2h}+(v_{3} )_{2h})=(v_{5})_{h}\\
+\cfrac{1}{2}(2(v_{3} )_{2h})=(v_{6})_{h}\\
+\cfrac{1}{2}((v_{3} )_{2h})=(v_{7})_{h}\\
+\end{bmatrix}=\begin{bmatrix}
+(v_{1})_{h}\\
+(v_{2})_{h}\\
+(v_{3})_{h}\\
+(v_{4})_{h}\\
+(v_{5})_{h}\\
+(v_{6})_{h}\\
+(v_{7})_{h}\\
+\end{bmatrix}\end{split}\]</div>
+<figure class="align-center">
+<a class="reference internal image-reference" href="../../_images/multigrid4.png"><img alt="../../_images/multigrid4.png" src="../../_images/multigrid4.png" style="width: 800px;" /></a>
+</figure>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+v_{2j}^{h}=v_{j}^{2h}\\
+v_{2j+1}^{h}=\cfrac{1}{2}(v_{j}^{2h}+v_{j+1}^{2h}),\quad 0\le j\le \cfrac{n}{2}-1 \\
+\text{let } n=8, \text{ then } \quad \cfrac{n}{2}-1=3,\quad j=0,1,2,3\\
+v_{j}^{2h}=(v_{0}^{2h},v_{1}^{2h},v_{2}^{2h},v_{3}^{2h},v_{4}^{2h}),\quad(j=0,1,2,3,4)\\
+v_{2j}^{h}=(v_{0}^{h},v_{2}^{h},v_{4}^{h},v_{6}^{h},v_{8}^{h}),\quad(j=0,1,2,3,4)\\
+v_{2j+1}^{h}=(v_{2\times0+1}^{h},v_{2\times1+1}^{h},v_{2\times2+1}^{h},v_{2\times3+1}^{h}),\quad(j=0,1,2,3)\\
+v_{2j+1}^{h}=(v_{1}^{h},v_{3}^{h},v_{5}^{h},v_{7}^{h}),\quad(j=0,1,2,3)\\
+v_{2j+1}^{h}=(\cfrac{1}{2}(v_{0}^{2h}+v_{1}^{2h}),\cfrac{1}{2}(v_{1}^{2h}+v_{2}^{2h}),\cfrac{1}{2}(v_{2}^{2h}+v_{3}^{2h}),\cfrac{1}{2}(v_{3}^{2h}+v_{4}^{2h})),\quad(j=0,1,2,3)\\
+\end{array}\end{split}\]</div>
+<p>We now have a well-defined way to transfer vectors between fine and coarse
+grids. Therefore, we can return to the correction scheme and make it precise. To
+do this, we define the following two-grid correction scheme.</p>
+</section>
+<section id="two-grid-correction-scheme">
+<h2>Two-Grid Correction Scheme<a class="headerlink" href="#two-grid-correction-scheme" title="Link to this heading"></a></h2>
+<div class="math notranslate nohighlight">
+\[\mathbf{v}^{h}\leftarrow MG(\mathbf{v}^{h},\mathbf{f}^{h})\]</div>
+<ul class="simple">
+<li><p>Relex <span class="math notranslate nohighlight">\(\nu_{1}\)</span> times on <span class="math notranslate nohighlight">\(A^{h}\mathbf{u}^{h}=\mathbf{f}^{h}\)</span> on <span class="math notranslate nohighlight">\(\Omega^{h}\)</span> with initial guess <span class="math notranslate nohighlight">\(\mathbf{v}^{h}\)</span>.</p></li>
+<li><p>Compute the fine-grid residual <span class="math notranslate nohighlight">\(\mathbf{r}^{h}=\mathbf{f}^{h}-A^{h}\mathbf{v}^{h}\)</span> and restrict it to the coarse grid by <span class="math notranslate nohighlight">\(\mathbf{r}^{2h}=I_{h}^{2h}\mathbf{r}^{h}\)</span></p></li>
+<li><p>Solve <span class="math notranslate nohighlight">\(A^{2h}\mathbf{e}^{2h}=\mathbf{r}^{2h}\)</span> on <span class="math notranslate nohighlight">\(\Omega^{2h}\)</span>.</p></li>
+<li><p>Interpolate the coarse-grid error to the fine grid by <span class="math notranslate nohighlight">\(\mathbf{e}^{h}=I_{2h}^{h}\mathbf{e}^{2h}\)</span> and correct the fine-grid approximation by <span class="math notranslate nohighlight">\(\mathbf{v}^{h}\leftarrow\mathbf{v}^{h}+\mathbf{e}^{h}\)</span></p></li>
+<li><p>Relex <span class="math notranslate nohighlight">\(\nu_{2}\)</span> times on <span class="math notranslate nohighlight">\(A^{h}\mathbf{u}^{h}=\mathbf{f}^{h}\)</span> on <span class="math notranslate nohighlight">\(\Omega^{h}\)</span> with initial guess <span class="math notranslate nohighlight">\(\mathbf{v}^{h}\)</span>.</p></li>
+</ul>
+<p>This procedure is simply the original correction scheme, now refined by the
+use of the intergrid transfer operators. We relax on the fine grid until it ceases
+to be worthwhile; in practice, <span class="math notranslate nohighlight">\(\nu_{1}\)</span> is often 1, 2, or 3. The residual of the current
+approximation is computed on <span class="math notranslate nohighlight">\(\Omega^{h}\)</span> and then transferred by a restriction operator
+to the coarse grid. As it stands, the procedure calls for the exact solution of the
+residual equation on <span class="math notranslate nohighlight">\(\Omega^{2h}\)</span>, which may not be possible. However, if the coarse-grid
+error can at least be approximated, it is then interpolated up to the fine grid, where
+it is used to correct the fine-grid approximation. This is followed by <span class="math notranslate nohighlight">\(\nu_{2}\)</span> additional
+fine-grid relaxation sweeps.</p>
+<p>Several comments are in order. First, notice that the superscripts <span class="math notranslate nohighlight">\(h\)</span> or <span class="math notranslate nohighlight">\(2h\)</span> are
+essential to indicate the grid on which a particular vector or matrix is defined.
+Second, all of the quantities in the above procedure are well defined except for <span class="math notranslate nohighlight">\(A^{2h}\)</span>.
+For the moment, we take <span class="math notranslate nohighlight">\(A^{2h}\)</span> simply to be the result of discretizing the problem
+on <span class="math notranslate nohighlight">\(\Omega^{2h}\)</span>. Finally, the integers <span class="math notranslate nohighlight">\(\nu_{1}\)</span> and <span class="math notranslate nohighlight">\(\nu_{2}\)</span> are parameters in the scheme that control
+the number of relaxation sweeps before and after visiting the coarse grid. They
+are usually fixed at the start, based on either theoretical considerations or on past
+experimental results.</p>
+<p>It is important to appreciate the complementarity at work in the process. Relaxation on the fine grid eliminates the oscillatory components of the error, leaving
+a relatively smooth error. Assuming the residual equation can be solved accurately
+on <span class="math notranslate nohighlight">\(\Omega^{2h}\)</span>, it is still important to transfer the error accurately back to the fine grid.
+Because the error is smooth, interpolation should work very well and the correction
+of the fine-grid solution should be effective.</p>
+</section>
+<section id="numerical-example">
+<h2>Numerical example.<a class="headerlink" href="#numerical-example" title="Link to this heading"></a></h2>
+<p>A numerical example will be helpful. Consider the weighted Jacobi method with <span class="math notranslate nohighlight">\(\omega=\cfrac{2}{3}\)</span> applied to the one-dimensional model problem <span class="math notranslate nohighlight">\(A\mathbf{u}=0\)</span>
+on a grid with <span class="math notranslate nohighlight">\(n = 64\)</span> points. We use an initial guess,</p>
+<div class="math notranslate nohighlight">
+\[v_{j}^{h}=\cfrac{1}{2}\bigg[\sin\bigg(\cfrac{16j\pi}{n}\bigg)+\sin\bigg(\cfrac{40j\pi}{n}\bigg)\bigg]\]</div>
+<p>consisting of the <span class="math notranslate nohighlight">\(k = 16\)</span> and <span class="math notranslate nohighlight">\(k = 40\)</span> modes. The following two-grid correction
+scheme is used:</p>
+<ul class="simple">
+<li><p>Relex three times on <span class="math notranslate nohighlight">\(A^{h}\mathbf{u}^{h}=0\)</span> on <span class="math notranslate nohighlight">\(\Omega^{h}\)</span> with initial <span class="math notranslate nohighlight">\(\mathbf{v}^{h}\)</span>.</p></li>
+<li><p>Compute <span class="math notranslate nohighlight">\(\mathbf{r}^{2h}=I_{h}^{2h}\mathbf{r}^{h}\)</span>.</p></li>
+<li><p>Relex three times on <span class="math notranslate nohighlight">\(A^{2h}\mathbf{e}^{2h}=\mathbf{r}^{2h}\)</span> on <span class="math notranslate nohighlight">\(\Omega^{2h}\)</span> with initial guess <span class="math notranslate nohighlight">\(\mathbf{e}^{2h}=0\)</span></p></li>
+<li><p>Correct the fine-grid approximation: <span class="math notranslate nohighlight">\(\mathbf{v}^{h}\leftarrow\mathbf{v}^{h}+I_{2h}^{h}\mathbf{e}^{2h}\)</span>.</p></li>
+<li><p>Relex three times on <span class="math notranslate nohighlight">\(A^{h}\mathbf{u}^{h}=0\)</span> on <span class="math notranslate nohighlight">\(\Omega^{h}\)</span> with initial <span class="math notranslate nohighlight">\(\mathbf{v}^{h}\)</span>.</p></li>
+</ul>
+<p>Let <span class="math notranslate nohighlight">\(\mathbf{f}=0\)</span>, then</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+A\mathbf{u}=0\\
+\mathbf{u}=0\\
+\mathbf{e}=\mathbf{u}-\mathbf{v}=0-\mathbf{v}=-\mathbf{v}\\
+\mathbf{r}=\mathbf{f}-A\mathbf{u}=0-A\mathbf{u}=-A\mathbf{v}\\
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}A=\begin{bmatrix}
+2&amp;  -1&amp;  &amp;  &amp;  &amp; \\
+-1&amp;  2&amp;-1  &amp;  &amp;  &amp; \\
+&amp;  \cdot&amp;  \cdot&amp; \cdot &amp;  &amp; \\
+&amp;  &amp;  \cdot&amp;  \cdot&amp;  \cdot&amp; \\
+&amp;  &amp;  &amp;  -1&amp;  2&amp;-1 \\
+&amp;  &amp;  &amp;  &amp; -1 &amp;2
+\end{bmatrix}\end{split}\]</div>
+<ul class="simple">
+<li><p>Relex <span class="math notranslate nohighlight">\(\nu_{1}\)</span> times on <span class="math notranslate nohighlight">\(A^{h}\mathbf{u}^{h}=\mathbf{f}^{h}\)</span> on <span class="math notranslate nohighlight">\(\Omega^{h}\)</span> with initial guess <span class="math notranslate nohighlight">\(\mathbf{v}^{h}\)</span>.</p></li>
+<li><p>Compute the fine-grid residual <span class="math notranslate nohighlight">\(\mathbf{r}^{h}=\mathbf{f}^{h}-A^{h}\mathbf{v}^{h}=-A^{h}\mathbf{v}^{h}\)</span> and restrict it to the coarse grid by <span class="math notranslate nohighlight">\(\mathbf{r}^{2h}=I_{h}^{2h}\mathbf{r}^{h}\)</span></p></li>
+<li><p>Solve <span class="math notranslate nohighlight">\(A^{2h}\mathbf{e}^{2h}=\mathbf{r}^{2h}\)</span> on <span class="math notranslate nohighlight">\(\Omega^{2h}\)</span>.</p></li>
+<li><p>Interpolate the coarse-grid error to the fine grid by <span class="math notranslate nohighlight">\(\mathbf{e}^{h}=I_{2h}^{h}\mathbf{e}^{2h}\)</span> and correct the fine-grid approximation by <span class="math notranslate nohighlight">\(\mathbf{v}^{h}\leftarrow\mathbf{v}^{h}+\mathbf{e}^{h}\)</span></p></li>
+<li><p>Relex <span class="math notranslate nohighlight">\(\nu_{2}\)</span> times on <span class="math notranslate nohighlight">\(A^{h}\mathbf{u}^{h}=\mathbf{f}^{h}\)</span> on <span class="math notranslate nohighlight">\(\Omega^{h}\)</span> with initial guess <span class="math notranslate nohighlight">\(\mathbf{v}^{h}\)</span>.</p></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+2v_{1}-v_{2}=-r_{1}\\
+-v_{1}+2v_{2}-v_{3}=-r_{2}\\
+-v_{2}+2v_{3}-v_{4}=-r_{3}\\
+\cdots \\
+-v_{n-3}+2v_{n-2}-v_{n-1}=-r_{n-2}\\
+-v_{n-2}+2v_{n-1}=-r_{n-1}\\
+\end{array}\end{split}\]</div>
+<p>Let <span class="math notranslate nohighlight">\(n=8\)</span>, then</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+2v_{1}-v_{2}=-r_{1}\\
+-v_{1}+2v_{2}-v_{3}=-r_{2}\\
+-v_{2}+2v_{3}-v_{4}=-r_{3}\\
+-v_{3}+2v_{4}-v_{5}=-r_{4}\\
+-v_{4}+2v_{5}-v_{6}=-r_{5}\\
+-v_{5}+2v_{6}-v_{7}=-r_{6}\\
+-v_{6}+2v_{7}=-r_{7}\\
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+\cfrac{-v_{j-1}+2v_{j}-v_{j+1}}{h^{2}} =f_{j}\\
+-v_{j-1}+2v_{j}-v_{j+1} =h^{2}f_{j}\\
+v_{j} =\cfrac{1}{2}( v_{j-1}+v_{j+1}+h^{2}f_{j})\\
+v_{j}^{(*)}=\cfrac{1}{2}(v_{j-1}^{(k-1)}+v_{j+1}^{(k-1)}+h^{2}f_{j})\\
+v_{j}^{(k)}=(1-\omega)v_{j}^{(k-1)}+\omega v_{j}^{(*)}\\
+v_{j}^{(k)}=(1-\omega)v_{j}^{(k-1)}+\omega \cfrac{1}{2}(v_{j-1}^{(k-1)}+v_{j+1}^{(k-1)}+h^{2}f_{j})\\
+v_{j}^{(k)}=\bigg(\cfrac{1}{2}\omega v_{j-1}^{(k-1)}+(1-\omega)v_{j}^{(k-1)}+\cfrac{1}{2}\omega v_{j+1}^{(k-1)}\bigg)+\omega h^{2}f_{j}\\
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+A=D-L-U\\
+A\mathbf{u}=\mathbf{f}\\
+(D-L-U)\mathbf{u}=\mathbf{f}\\
+D\mathbf{u}=(L+U)\mathbf{u}+\mathbf{f}\\
+\mathbf{u}=D^{-1}(L+U)\mathbf{u}+D^{-1}\mathbf{f}\\
+\mathbf{u}^{(k+1)}=D^{-1}(L+U)\mathbf{u}^{(k)}+D^{-1}\mathbf{f}\\
+\mathbf{u}^{(*)}=D^{-1}(L+U)\mathbf{u}^{(k)}+D^{-1}\mathbf{f}\\
+\mathbf{u}^{(k+1)}=\omega(D^{-1}(L+U)\mathbf{u}^{(k)}+D^{-1}\mathbf{f})+(1-\omega)\mathbf{u}^{(k)}\\
+\mathbf{u}^{(k+1)}=[(1-\omega)I+\omega(D^{-1}(L+U)]\mathbf{u}^{(k)}+\omega D^{-1}\mathbf{f}\\
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}A=\begin{bmatrix}
+2&amp;  -1&amp;  &amp;  &amp;  &amp; \\
+-1&amp;  2&amp;-1  &amp;  &amp;  &amp; \\
+&amp;  \cdot&amp;  \cdot&amp; \cdot &amp;  &amp; \\
+&amp;  &amp;  \cdot&amp;  \cdot&amp;  \cdot&amp; \\
+&amp;  &amp;  &amp;  -1&amp;  2&amp;-1 \\
+&amp;  &amp;  &amp;  &amp; -1 &amp;2
+\end{bmatrix}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}D=\begin{bmatrix}
+2&amp;  0&amp;  &amp;  &amp;  &amp; \\
+0&amp;  2&amp;0  &amp;  &amp;  &amp; \\
+&amp;  \cdot&amp;  \cdot&amp; \cdot &amp;  &amp; \\
+&amp;  &amp;  \cdot&amp;  \cdot&amp;  \cdot&amp; \\
+&amp;  &amp;  &amp;  0&amp;  2&amp;0 \\
+&amp;  &amp;  &amp;  &amp; 0 &amp;2
+\end{bmatrix}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}D^{-1}=\begin{bmatrix}
+\cfrac{1}{2}&amp;  0&amp;  &amp;  &amp;  &amp; \\
+0&amp;  \cfrac{1}{2}&amp;0  &amp;  &amp;  &amp; \\
+&amp;  \cdot&amp;  \cdot&amp; \cdot &amp;  &amp; \\
+&amp;  &amp;  \cdot&amp;  \cdot&amp;  \cdot&amp; \\
+&amp;  &amp;  &amp;  0&amp;  \cfrac{1}{2}&amp;0 \\
+&amp;  &amp;  &amp;  &amp; 0 &amp;\cfrac{1}{2}
+\end{bmatrix}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}L+U=\begin{bmatrix}
+0&amp;  1&amp;  &amp;  &amp;  &amp; \\
+1&amp;  0&amp;1  &amp;  &amp;  &amp; \\
+&amp;  \cdot&amp;  \cdot&amp; \cdot &amp;  &amp; \\
+&amp;  &amp;  \cdot&amp;  \cdot&amp;  \cdot&amp; \\
+&amp;  &amp;  &amp;  1&amp;  0&amp;1 \\
+&amp;  &amp;  &amp;  &amp; 1 &amp;0
+\end{bmatrix}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}D^{-1}(L+U)=\begin{bmatrix}
+0&amp;  \cfrac{1}{2}&amp;  &amp;  &amp;  &amp; \\
+\cfrac{1}{2}&amp;  0&amp;\cfrac{1}{2}  &amp;  &amp;  &amp; \\
+&amp;  \cdot&amp;  \cdot&amp; \cdot &amp;  &amp; \\
+&amp;  &amp;  \cdot&amp;  \cdot&amp;  \cdot&amp; \\
+&amp;  &amp;  &amp;  \cfrac{1}{2}&amp;  0&amp;\cfrac{1}{2} \\
+&amp;  &amp;  &amp;  &amp; \cfrac{1}{2} &amp;0
+\end{bmatrix}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}[(1-\omega)I+\omega(D^{-1}(L+U)]=\begin{bmatrix}
+1-\omega&amp;  \cfrac{1}{2}\omega&amp;  &amp;  &amp;  &amp; \\
+\cfrac{1}{2}\omega&amp;  1-\omega&amp;\cfrac{1}{2}\omega  &amp;  &amp;  &amp; \\
+&amp;  \cdot&amp;  \cdot&amp; \cdot &amp;  &amp; \\
+&amp;  &amp;  \cdot&amp;  \cdot&amp;  \cdot&amp; \\
+&amp;  &amp;  &amp;  \cfrac{1}{2}\omega&amp;  1-\omega&amp;\cfrac{1}{2}\omega \\
+&amp;  &amp;  &amp;  &amp; \cfrac{1}{2}\omega &amp;1-\omega
+\end{bmatrix}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+\mathbf{u}^{(k+1)}=[(1-\omega)I+\omega(D^{-1}(L+U)]\mathbf{u}^{(k)}+\omega D^{-1}\mathbf{f}\\
+\mathbf{u}_{j}^{(k+1)}=[\cfrac{1}{2}\omega\mathbf{u}_{j-1}^{(k)}+(1-\omega)\mathbf{u}_{j}^{(k)}+\cfrac{1}{2}\omega\mathbf{u}_{j+1}^{(k)}]+\cfrac{1}{2}\omega\mathbf{f}\\
+\end{array}\end{split}\]</div>
+<p>The second class of intergrid transfer operations involves moving vectors from
+a fine grid to a coarse grid. They are generally called restriction operators and are
+denoted by <span class="math notranslate nohighlight">\(I_{h}^{2h}\)</span>. The most obvious restriction operator is injection. It is defined by
+<span class="math notranslate nohighlight">\(I_{h}^{2h}\mathbf{v}^{h}=\mathbf{v}^{2h}\)</span>, where</p>
+<div class="math notranslate nohighlight">
+\[v_{j}^{2h} = v_{2j}^{h}\]</div>
+<p>The two-grid correction scheme, as outlined above, leaves one looming procedural question: what is the best way to solve the coarse-grid problem <span class="math notranslate nohighlight">\(A^{2h}\mathbf{e}^{2h}=\mathbf{r}^{2h}\)</span>?
+The answer may be apparent, particularly to those who think recursively. The
+coarse-grid problem is not much different from the original problem. Therefore, we
+can apply the two-grid correction scheme to the residual equation on <span class="math notranslate nohighlight">\(Ω^{2h}\)</span>, which
+means relaxing there and then moving to <span class="math notranslate nohighlight">\(Ω^{4h}\)</span> for the correction step. We can repeat this process on successively coarser grids until a direct solution of the residual
+equation is possible.</p>
+<p>To facilitate the description of this procedure, some economy of notation is desirable. The same notation is used for the computer implementation of the resulting
+algorithm. We call the right-side vector of the residual equation <span class="math notranslate nohighlight">\(\mathbf{f}^{2h}\)</span>, rather than
+<span class="math notranslate nohighlight">\(\mathbf{r}^{2h}\)</span>, because it is just another right-side vector. Instead of calling the solution of the
+residual equation <span class="math notranslate nohighlight">\(\mathbf{e}^{2h}\)</span>, we use <span class="math notranslate nohighlight">\(\mathbf{u}^{2h}\)</span> because it is just a solution vector. We can then
+use <span class="math notranslate nohighlight">\(\mathbf{v}^{2h}\)</span> to denote approximations to <span class="math notranslate nohighlight">\(\mathbf{u}^{2h}\)</span>. These changes simplify the notation, but
+it is still important to remember the meaning of these variables.
+One more point needs to be addressed: what initial guess do we use for <span class="math notranslate nohighlight">\(\mathbf{v}^{2h}\)</span> on
+the first visit to <span class="math notranslate nohighlight">\(Ω^{2h}\)</span>? Because there is presumably no information available about
+the solution, <span class="math notranslate nohighlight">\(\mathbf{u}^{2h}\)</span>, we simply choose <span class="math notranslate nohighlight">\(\mathbf{v}^{2h}=0\)</span>. Here then is the two-grid correction
+scheme, now imbedded within itself. We assume that there are <span class="math notranslate nohighlight">\(l &gt; 1\)</span> grids with
+grid spacings <span class="math notranslate nohighlight">\(h, 2h, 4h, . . . , Lh = 2^{l-1}h\)</span>.</p>
+</section>
+<section id="v-cycle-scheme">
+<h2>V-Cycle Scheme<a class="headerlink" href="#v-cycle-scheme" title="Link to this heading"></a></h2>
+<div class="math notranslate nohighlight">
+\[\mathbf{v}^{h}\leftarrow V^{h}(\mathbf{v}^{h},\mathbf{f}^{h})\]</div>
+<ul class="simple">
+<li><p>Relex <span class="math notranslate nohighlight">\(\nu_{1}\)</span> times on <span class="math notranslate nohighlight">\(A^{h}\mathbf{u}^{h}=\mathbf{f}^{h}\)</span> on <span class="math notranslate nohighlight">\(\Omega^{h}\)</span> with initial guess <span class="math notranslate nohighlight">\(\mathbf{v}^{h}\)</span>.</p></li>
+<li><dl class="simple">
+<dt>Compute the fine-grid residual <span class="math notranslate nohighlight">\(\mathbf{r}^{h}=\mathbf{f}^{h}-A^{h}\mathbf{v}^{h}\)</span> and restrict it to the coarse grid by <span class="math notranslate nohighlight">\(\mathbf{r}^{2h}=I_{h}^{2h}\mathbf{r}^{h}\)</span></dt><dd><ul>
+<li><p>Relax on <span class="math notranslate nohighlight">\(A^{2h}\mathbf{u}^{2h}=\mathbf{f}^{2h}\)</span> <span class="math notranslate nohighlight">\(\nu_{1}\)</span> times with initial guess <span class="math notranslate nohighlight">\(\mathbf{v}^{2h}=0\)</span> ( <span class="math notranslate nohighlight">\(A^{2h}\mathbf{e}^{2h}=\mathbf{r}^{2h}\)</span> )</p></li>
+<li><p>Relax on <span class="math notranslate nohighlight">\(A^{2h}\mathbf{u}^{2h}=\mathbf{f}^{2h}\)</span> <span class="math notranslate nohighlight">\(\nu_{2}\)</span> times with initial guess <span class="math notranslate nohighlight">\(\mathbf{v}^{2h}\)</span></p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><p>Correct the fine-grid approximation <span class="math notranslate nohighlight">\(\mathbf{v}^{h}\leftarrow\mathbf{v}^{h}+I_{2h}^{h}\mathbf{e}^{2h}\)</span></p></li>
+<li><p>Relex <span class="math notranslate nohighlight">\(\nu_{2}\)</span> times on <span class="math notranslate nohighlight">\(A^{h}\mathbf{u}^{h}=\mathbf{f}^{h}\)</span> on <span class="math notranslate nohighlight">\(\Omega^{h}\)</span> with initial guess <span class="math notranslate nohighlight">\(\mathbf{v}^{h}\)</span>.</p></li>
+</ul>
+</section>
+<section id="v-cycle-scheme-recursive-definition">
+<h2>V-Cycle Scheme (Recursive Definition)<a class="headerlink" href="#v-cycle-scheme-recursive-definition" title="Link to this heading"></a></h2>
+<div class="math notranslate nohighlight">
+\[\mathbf{v}^{h}\leftarrow V^{h}(\mathbf{v}^{h},\mathbf{f}^{h})\]</div>
+<ol class="arabic simple">
+<li><p>Relex <span class="math notranslate nohighlight">\(\nu_{1}\)</span> times on <span class="math notranslate nohighlight">\(A^{h}\mathbf{u}^{h}=\mathbf{f}^{h}\)</span> on <span class="math notranslate nohighlight">\(\Omega^{h}\)</span> with initial guess <span class="math notranslate nohighlight">\(\mathbf{v}^{h}\)</span>.</p></li>
+<li><p>If <span class="math notranslate nohighlight">\(\Omega^{h}\)</span> = coarsest grid, then go to step 4.</p></li>
+</ol>
+<blockquote>
+<div><p>Else</p>
+</div></blockquote>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+\mathbf{f}^{2h}\leftarrow I_{h}^{2h}(\mathbf{f}^{h}-A^{h}\mathbf{v}^{h}),\\
+\mathbf{v}^{2h}\leftarrow 0,\\
+\mathbf{v}^{2h}\leftarrow V^{2h}(\mathbf{v}^{2h},\mathbf{f}^{2h})
+\end{array}\end{split}\]</div>
+<ol class="arabic simple" start="3">
+<li><p>Correct <span class="math notranslate nohighlight">\(\mathbf{v}^{h}\leftarrow v^{h}+I_{2h}^{h}\mathbf{v}^{2h}\)</span>.</p></li>
+<li><p>Relax <span class="math notranslate nohighlight">\(\nu_{2}\)</span> times on <span class="math notranslate nohighlight">\(A^{h}\mathbf{u}^{h}=\mathbf{f}^{h}\)</span> with initial guess <span class="math notranslate nohighlight">\(\mathbf{v}^{h}\)</span>.</p></li>
+</ol>
+<p>The V-cycle is just one of a family of multigrid cycling schemes. The entire
+family is called the µ-cycle method and is defined recursively by the following.</p>
+</section>
+<section id="cycle-scheme">
+<h2>µ-Cycle Scheme<a class="headerlink" href="#cycle-scheme" title="Link to this heading"></a></h2>
+<div class="math notranslate nohighlight">
+\[\mathbf{v}^{h}\leftarrow M^{h}(\mathbf{v}^{h},\mathbf{f}^{h})\]</div>
+<ol class="arabic simple">
+<li><p>Relex <span class="math notranslate nohighlight">\(\nu_{1}\)</span> times on <span class="math notranslate nohighlight">\(A^{h}\mathbf{u}^{h}=\mathbf{f}^{h}\)</span> on <span class="math notranslate nohighlight">\(\Omega^{h}\)</span> with initial guess <span class="math notranslate nohighlight">\(\mathbf{v}^{h}\)</span>.</p></li>
+<li><p>If <span class="math notranslate nohighlight">\(\Omega^{h}\)</span> = coarsest grid, then go to step 4.</p></li>
+</ol>
+<blockquote>
+<div><p>Else</p>
+</div></blockquote>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+\mathbf{f}^{2h}\leftarrow I_{h}^{2h}(\mathbf{f}^{h}-A^{h}\mathbf{v}^{h}),\\
+\mathbf{v}^{2h}\leftarrow 0,\\
+\mathbf{v}^{2h}\leftarrow M^{2h}(\mathbf{v}^{2h},\mathbf{f}^{2h}) \quad \mu \text{ times}.
+\end{array}\end{split}\]</div>
+<ol class="arabic simple" start="3">
+<li><p>Correct <span class="math notranslate nohighlight">\(\mathbf{v}^{h}\leftarrow v^{h}+I_{2h}^{h}\mathbf{v}^{2h}\)</span>.</p></li>
+<li><p>Relax <span class="math notranslate nohighlight">\(\nu_{2}\)</span> times on <span class="math notranslate nohighlight">\(A^{h}\mathbf{u}^{h}=\mathbf{f}^{h}\)</span> with initial guess <span class="math notranslate nohighlight">\(\mathbf{v}^{h}\)</span>.</p></li>
+</ol>
+<figure class="align-center" id="id3">
+<a class="reference internal image-reference" href="../../_images/multigrid5.png"><img alt="../../_images/multigrid5.png" src="../../_images/multigrid5.png" style="width: 600px;" /></a>
+<figcaption>
+<p><span class="caption-text">Schedule of grids for (a) V-cycle, (b) W-cycle, and (c) FMG scheme,
+all on four levels.</span><a class="headerlink" href="#id3" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<p>In practice, only <span class="math notranslate nohighlight">\(\mu=1\)</span> (which gives the V-cycle) and <span class="math notranslate nohighlight">\(\mu=2\)</span> are used. The above figure
+shows the schedule of grids for <span class="math notranslate nohighlight">\(\mu=2\)</span> and the resulting W-cycle. We refer
+to a V-cycle with <span class="math notranslate nohighlight">\(\nu_{1}\)</span> relaxation sweeps before the correction step and <span class="math notranslate nohighlight">\(\nu_{2}\)</span> relaxation
+sweeps after the correction step as a <span class="math notranslate nohighlight">\(V(\nu_{1},\nu_{2})\)</span>-cycle, with a similar notation for
+W-cycles.</p>
+<p>We originally stated that two ideas would lead to multigrid. So far we have
+developed only the correction scheme. The nested iteration idea has yet to be
+explored. Recall that nested iteration uses coarse grids to obtain improved initial
+guesses for fine-grid problems. In looking at the V-cycle, we might ask how to
+obtain an informed initial guess for the first fine-grid relaxation. Nested iteration
+would suggest solving a problem on <span class="math notranslate nohighlight">\(\Omega^{2h}\)</span>. But how can we obtain a good initial
+guess for the <span class="math notranslate nohighlight">\(\Omega^{2h}\)</span> problem? Nested iteration sends us to <span class="math notranslate nohighlight">\(\Omega^{4h}\)</span>. Clearly, we are on
+another recursive path that leads to the coarsest grid.
+The algorithm that joins nested iteration with the V-cycle is called the full
+multigrid V-cycle (FMG) . Given first in explicit terms, it appears as follows.</p>
+<p>We initialize the coarse-grid right sides by transferring <span class="math notranslate nohighlight">\(\mathbf{f}^{h}\)</span> from the fine grid. Another option is to use the original right-side function <span class="math notranslate nohighlight">\(\mathbf{f}\)</span>. The cycling parameter,
+<span class="math notranslate nohighlight">\(\nu_{0}\)</span>, sets the number of V-cycles done at each level. It is generally determined by
+a previous numerical experiment; <span class="math notranslate nohighlight">\(\nu_{0}=1\)</span> is the most common choice. Expressed
+recursively, the algorithm has the following compact form.</p>
+</section>
+<section id="full-multigrid-v-cycle-recursive-form">
+<h2>Full Multigrid V-Cycle (Recursive Form)<a class="headerlink" href="#full-multigrid-v-cycle-recursive-form" title="Link to this heading"></a></h2>
+<div class="math notranslate nohighlight">
+\[\mathbf{v}^{h}\leftarrow FMG^{h}(\mathbf{f}^{h})\]</div>
+<ol class="arabic simple">
+<li><p>If <span class="math notranslate nohighlight">\(\Omega^{h}\)</span> = coarsest grid, set <span class="math notranslate nohighlight">\(\mathbf{v}^{h}\leftarrow 0\)</span> and go to step 3.</p></li>
+</ol>
+<blockquote>
+<div><p>Else</p>
+</div></blockquote>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+\mathbf{f}^{2h}\leftarrow I_{h}^{2h}(\mathbf{f}^{h}),\\
+\mathbf{v}^{2h}\leftarrow FMG^{2h}(\mathbf{f}^{2h}).
+\end{array}\end{split}\]</div>
+<ol class="arabic simple" start="2">
+<li><p>Correct <span class="math notranslate nohighlight">\(\mathbf{v}^{h}\leftarrow \mathbf{v}^{h}+I_{2h}^{h}\mathbf{v}^{2h}\)</span>.</p></li>
+<li><p><span class="math notranslate nohighlight">\(\mathbf{v}^{h}\leftarrow V^{h}(\mathbf{v}^{h},\mathbf{f}^{h})\)</span> <span class="math notranslate nohighlight">\(\nu_{0}\)</span> times.</p></li>
+</ol>
+</section>
+<section id="full-multigrid-v-cycle">
+<h2>Full Multigrid V-Cycle<a class="headerlink" href="#full-multigrid-v-cycle" title="Link to this heading"></a></h2>
+<div class="math notranslate nohighlight">
+\[\mathbf{v}^{h}\leftarrow FMG^{h}(\mathbf{v}^{h},\mathbf{f}^{h})\]</div>
+<ol class="arabic simple">
+<li><p>Compute residual</p></li>
+</ol>
+<div class="math notranslate nohighlight">
+\[\mathbf{r}^{h}=\mathbf{f}^{h}-A^{h}\mathbf{v}^{h}\]</div>
+<ol class="arabic simple" start="2">
+<li><p>Restrict residual</p></li>
+</ol>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+\mathbf{r}^{2h}=I_{h}^{2h}(\mathbf{r}^{h})\\
+\mathbf{r}^{4h}=I_{2h}^{4h}(\mathbf{r}^{2h})\\
+\mathbf{r}^{8h}=I_{4h}^{8h}(\mathbf{r}^{4h})\\
+\mathbf{r}^{16h}=I_{8h}^{16h}(\mathbf{r}^{8h})\\
+\end{array}\end{split}\]</div>
+<ol class="arabic simple" start="3">
+<li><p>Solve Error Equation</p></li>
+</ol>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+\mathbf{e}^{16h}\leftarrow 0\\
+\text{Solve }A^{16h}\mathbf{e}^{16h}=\mathbf{r}^{16h}\\
+\text{Interpolation: }\quad\mathbf{e}^{8h}=I_{16h}^{8h}\mathbf{e}^{16h}\\
+\text{Solve }A^{8h}\mathbf{e}^{8h}=\mathbf{r}^{8h}\\
+\text{Interpolation: }\quad\mathbf{e}^{4h}=I_{8h}^{4h}\mathbf{e}^{8h}\\
+\text{Solve }A^{4h}\mathbf{e}^{4h}=\mathbf{r}^{4h}\\
+\text{Interpolation: }\quad\mathbf{e}^{2h}=I_{4h}^{2h}\mathbf{e}^{4h}\\
+\text{Solve }A^{2h}\mathbf{e}^{2h}=\mathbf{r}^{2h}\\
+\text{Interpolation: }\quad\mathbf{e}^{h}=I_{2h}^{h}\mathbf{e}^{2h}\\
+\text{Solve }A^{h}\mathbf{e}^{h}=\mathbf{r}^{h}\\
+\end{array}\end{split}\]</div>
+<ol class="arabic simple" start="4">
+<li><p>Correct result</p></li>
+</ol>
+<div class="math notranslate nohighlight">
+\[\mathbf{v}^{h}=\mathbf{v}^{h}+\mathbf{e}^{h}\]</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="multigrid.html" class="btn btn-neutral float-left" title="MULTIGRID" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="multigrid2.html" class="btn btn-neutral float-right" title="Multigrid Poisson Solver" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2017~2024, eric.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

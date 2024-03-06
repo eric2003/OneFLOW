@@ -1,0 +1,1048 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FOURIER TRANSFORMS &mdash; Scientific Computing 1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../_static/documentation_options.js?v=f2a433a1"></script>
+        <script src="../_static/doctools.js?v=888ff710"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="FFTW" href="fftw.html" />
+    <link rel="prev" title="Cyclic Tridiagonal Systems" href="ctdma.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Scientific Computing
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Get started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../info.html">OneFLOW</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../user.html">THEORY</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../bash.html">Bash</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cfd/index.html">CFD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cgns.html">CGNS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../chatgpt.html">CHATGPT</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cpp/index.html">CPP</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cmake.html">CMake</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cmd.html">Cmd</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cuda.html">CUDA</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../design_patterns.html">Design Patterns</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../eigen.html">Eigen3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../git.html">Git</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../git.html#contexts">Contexts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fortran.html">Fortran</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../hdf5.html">HDF5</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../hpc.html">HPC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../install/index.html">Install</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../julia.html">Julia</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../jupyter.html">Jupyter Notebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../latex.html">LaTeX</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../makefile.html">Makefile</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../metis.html">METIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../mkdocs.html">MkDocs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../modules.html">Environment Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../mpi.html">MPI</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Numerical analysis</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="tdma.html">Tridiagonal matrix algorithm</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ctdma.html">Cyclic Tridiagonal Systems</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">FOURIER TRANSFORMS</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#inner-products-of-functions-and-vectors">Inner products of functions and vectors</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fourier-series">Fourier series</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#discrete-fourier-transform">Discrete Fourier transform</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#basic-properties-of-complex-roots-of-units">Basic properties of complex roots of units.</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#the-2d-discrete-fourier-transform">The 2D Discrete Fourier Transform</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#evaluation">Evaluation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id1">FFT</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#euler-s-formula">Euler’s formula</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id2">Discrete Fourier transform</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#program-flow-chart">Program flow chart</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#discrete-sine-transform-dst">Discrete Sine Transform(DST)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#example-n-4">Example <span class="math notranslate nohighlight">\(n = 4\)</span>:</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="fftw.html">FFTW</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../oneapi.html">oneAPI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../oneflow.html">OneFLOW-CFD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../openacc.html">OpenACC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../opencl.html">OpenCL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../opengl.html">OpenGL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../openmp.html">OpenMP</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../powershell.html">PowerShell</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../python/index.html">Python</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../qt.html">Qt</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../regex.html">Regular Expressions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../science.html">Science</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sphinx.html">Sphinx</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../system/index.html">System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../taichi.html">Taichi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tcltk.html">Tcl/tk</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tecplot.html">Tecplot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../test.html">Test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../unreal_engine.html">Unreal Engine</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../vcpkg.html">vcpkg</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../yaml.html">yaml</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Scientific Computing</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Numerical analysis</a></li>
+      <li class="breadcrumb-item active">FOURIER TRANSFORMS</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/numerical/fourier_transform.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="fourier-transforms">
+<h1>FOURIER TRANSFORMS<a class="headerlink" href="#fourier-transforms" title="Link to this heading"></a></h1>
+<ol class="arabic simple">
+<li><p><a class="reference external" href="https://www.youtube.com/watch?v=mkGsMWi_j4Q/">Discrete Fourier Transform - Simple Step by Step</a></p></li>
+<li><p><a class="reference external" href="https://www.youtube.com/watch?v=Iz6C1ny-F2Q/">The Two-Dimensional Discrete Fourier Transform</a></p></li>
+<li><p><a class="reference external" href="https://www.youtube.com/watch?v=v743U7gvLq0/">How the 2D FFT works</a></p></li>
+<li><p><a class="reference external" href="https://www.youtube.com/watch?v=3gAZ0U66AEA/">2D Fourier Transform Explained with Examples</a></p></li>
+<li><p><a class="reference external" href="https://www.youtube.com/watch?v=7AddavtPWqM/">2 Dimensional Discrete Fourier Transform</a></p></li>
+<li><p><a class="reference external" href="https://www.bilibili.com/video/BV1Y7411W73U/">具体学习并实现快速傅里叶变换（FFT）</a></p></li>
+<li><p><a class="reference external" href="https://www.netlib.org/fftpack/">fftpack</a></p></li>
+<li><p><a class="reference external" href="https://www.netlib.org/">Netlib Repository</a></p></li>
+<li><p><a class="reference external" href="https://pythonnumericalmethods.berkeley.edu/notebooks/Index.html">Python Programming and Numerical Methods - A Guide for Engineers and Scientists</a></p></li>
+<li><p><a class="reference external" href="https://www.fftw.org/fftw3_doc/index.html">fftw3_doc</a></p></li>
+</ol>
+<section id="inner-products-of-functions-and-vectors">
+<h2>Inner products of functions and vectors<a class="headerlink" href="#inner-products-of-functions-and-vectors" title="Link to this heading"></a></h2>
+<p>In this section, we will make use of inner products and norms of functions. In
+particular, we will use the common Hermitian inner product for functions <span class="math notranslate nohighlight">\(f(x)\)</span>
+and <span class="math notranslate nohighlight">\(g(x)\)</span> defined for <span class="math notranslate nohighlight">\(x\)</span> on a domain <span class="math notranslate nohighlight">\(x\in [a,b]\)</span>:</p>
+<div class="math notranslate nohighlight">
+\[\langle {f(x), \text{cos}(kx)} \rangle=\int^{b}_{a}f(x)\bar{g}(x)dx\]</div>
+<p>where <span class="math notranslate nohighlight">\(\bar{g}\)</span> denotes the complex conjugate.</p>
+<p>The inner product of functions may seem strange or unmotivated at first,
+but this definition becomes clear when we consider the inner product of vectors
+of data. In particular, if we discretize the functions f(x) and g(x) into vectors
+of data, as in following figure.</p>
+<figure class="align-center" id="id3">
+<a class="reference internal image-reference" href="../_images/inner_product1.png"><img alt="../_images/inner_product1.png" src="../_images/inner_product1.png" style="width: 600px;" /></a>
+<figcaption>
+<p><span class="caption-text">Discretized functions used to illustrate the inner product</span><a class="headerlink" href="#id3" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<p>we would like the vector inner product to converge to
+the function inner product as the sampling resolution is increased. The inner
+product of the data vectors <span class="math notranslate nohighlight">\(\mathbf{f}=[f_{1},f_{2},\cdots,f_{n}]^{T}\)</span> and
+<span class="math notranslate nohighlight">\(\mathbf{g}=[g_{1},g_{2},\cdots,g_{n}]^{T}\)</span> is defined by:</p>
+<div class="math notranslate nohighlight">
+\[\langle {f, g} \rangle=g*f=\sum^{n}_{k=1}(f_{k}\bar{g}_{k})=\sum^{n}_{k=1}f(x_{k})\bar{g}(x_{k})\]</div>
+<p>The magnitude of this inner product will grow as more data points are added;
+i.e., as <span class="math notranslate nohighlight">\(n\)</span> increases. Thus, we may normalize by <span class="math notranslate nohighlight">\(\Delta x=\cfrac{b-a}{n-1}\)</span>:</p>
+<div class="math notranslate nohighlight">
+\[\cfrac{b-a}{n-1} \langle {f, g} \rangle=\sum^{n}_{k=1}f(x_{k})\bar{g}(x_{k})\Delta x\]</div>
+<p>which is the Riemann approximation to the continuous function inner product.
+It is now clear that as we take the limit of <span class="math notranslate nohighlight">\(n\rightarrow \infty\)</span> (i.e., infinite data resolution, with <span class="math notranslate nohighlight">\(\Delta x\rightarrow 0\)</span>), the vector inner product converges to the inner product of
+functions in integral form.</p>
+<p>This inner product also induces a norm on functions, given by</p>
+<div class="math notranslate nohighlight">
+\[\|f\|_{2}=( \langle {f,f} \rangle )^{1/2}=\sqrt{\langle {f,f} \rangle} = \left(\int^{b}_{a}f(x)\bar{f}(x)\right)^{1/2}\]</div>
+<p>The set of all functions with bounded norm define the set of square integrable
+functions, denoted by <span class="math notranslate nohighlight">\(L^{2}([a,b])\)</span>; this is also known as the set of Lebesgue integrable functions. The interval <span class="math notranslate nohighlight">\([a,b]\)</span> may also be chosen to be infinite (e.g.,
+<span class="math notranslate nohighlight">\((-\infty,\infty)\)</span>), semi-infinite (e.g., <span class="math notranslate nohighlight">\([a,\infty)\)</span>), or periodic (e.g., <span class="math notranslate nohighlight">\([-\pi,\pi]\)</span>).
+A fun example of a function in <span class="math notranslate nohighlight">\(L^{2}([1,\infty))\)</span> is <span class="math notranslate nohighlight">\(f(x) = 1/x\)</span>. The square of <span class="math notranslate nohighlight">\(f\)</span> has finite integral
+from <span class="math notranslate nohighlight">\(1\)</span> to <span class="math notranslate nohighlight">\(\infty\)</span>, although the integral of the function itself diverges. The shape
+obtained by rotating this function about the x-axis is known as Gabriel’s horn, as the volume is finite (related to the integral of <span class="math notranslate nohighlight">\(f^{2}\)</span>), while the surface area is
+infinite (related to the integral of <span class="math notranslate nohighlight">\(f\)</span>).</p>
+<p>As in finite-dimensional vector spaces, the inner product may be used to
+project a function into an new coordinate system defined by a basis of orthogonal functions. A Fourier series representation of a function <span class="math notranslate nohighlight">\(f\)</span> is precisely a
+projection of this function onto the orthogonal set of sine and cosine functions with integer period on the domain <span class="math notranslate nohighlight">\([a,b]\)</span>. This is the subject of the following sections.</p>
+</section>
+<section id="fourier-series">
+<h2>Fourier series<a class="headerlink" href="#fourier-series" title="Link to this heading"></a></h2>
+<p>A fundamental result in Fourier analysis is that if <span class="math notranslate nohighlight">\(f(x)\)</span> is periodic and piecewise
+smooth, then it can be written in terms of a Fourier series, which is an infinite
+sum of cosines and sines of increasing frequency. In particular, if <span class="math notranslate nohighlight">\(f(x)\)</span> is <span class="math notranslate nohighlight">\(2\pi\)</span>-
+periodic, it may be written as:</p>
+<div class="math notranslate nohighlight">
+\[f(x)=\cfrac{a_{0}}{2} +\sum_{k=1}^{\infty} (a_{k}\text{cos}(kx)+b_{k}\text{sin}(kx))\]</div>
+<p>The coefficients <span class="math notranslate nohighlight">\(a_{k}\)</span> and <span class="math notranslate nohighlight">\(b_{k}\)</span> are given by</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{c}
+\displaystyle a_{k}=\cfrac{1}{\pi}\int^{\pi}_{-\pi }f(x)\text{cos}(kx)dx\\
+\displaystyle b_{k}=\cfrac{1}{\pi}\int^{\pi}_{-\pi }f(x)\text{sin}(kx)dx
+\end{array}\end{split}\]</div>
+<p>which may be viewed as the coordinates obtained by projecting the function
+onto the orthogonal cosine and sine basis <span class="math notranslate nohighlight">\(\{\text{cos}(kx),\text{sin}(kx)\}^{\infty}_{k=0}\)</span>.
+In other words, the above integrals may be re-written in terms of the inner product as:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{c}
+a_{k}=\cfrac{1}{\|\text{cos}(kx)\|^{2}}\left \langle {f(x), \text{cos}(kx)} \right \rangle\\
+b_{k}=\cfrac{1}{\|\text{sin}(kx)\|^{2}}\left \langle {f(x), \text{sin}(kx)} \right \rangle\\
+\end{array}\end{split}\]</div>
+<p>where <span class="math notranslate nohighlight">\(\|\text{cos}(kx)\|^{2}=\|\text{sin}(kx)\|^{2}=\pi\)</span>. This factor of <span class="math notranslate nohighlight">\(\cfrac{1}{\pi}\)</span> is easy to verify by
+numerically integrating <span class="math notranslate nohighlight">\(\text{cos}(x)^{2}\)</span> and <span class="math notranslate nohighlight">\(\text{sin}(x)^{2}\)</span> from <span class="math notranslate nohighlight">\(-{\pi}\)</span> to <span class="math notranslate nohighlight">\({\pi}\)</span>.</p>
+</section>
+<section id="discrete-fourier-transform">
+<h2>Discrete Fourier transform<a class="headerlink" href="#discrete-fourier-transform" title="Link to this heading"></a></h2>
+<p>Although we will always use the FFT for computations, it is illustrative to begin
+with the simplest formulation of the DFT. The discrete Fourier transform is
+given by:</p>
+<div class="math notranslate nohighlight">
+\[\hat{f}_{k}=\sum^{n-1}_{j=0}f_{j}e^{\cfrac{-\mathbf{i}2\pi jk}{n}}\]</div>
+<p>and the inverse discrete Fourier transform (iDFT) is given by:</p>
+<div class="math notranslate nohighlight">
+\[{f}_{k}=\cfrac{1}{n}\sum^{n-1}_{j=0}\hat{f}_{j}e^{\cfrac{\mathbf{i}2\pi jk}{n}}\]</div>
+<p>Thus, the DFT is a linear operator (i.e., a matrix) that maps the data points in <span class="math notranslate nohighlight">\(f\)</span>
+to the frequency domain <span class="math notranslate nohighlight">\(\hat{f}\)</span>:</p>
+<div class="math notranslate nohighlight">
+\[\{f_{1},f_{2},\cdots,f_{n}\} \overset{\text{DFT}}{\Longrightarrow  } \{\hat{f}_{1},\hat{f}_{2},\cdots,\hat{f}_{n}\}\]</div>
+<p>For a given number of points <span class="math notranslate nohighlight">\(n\)</span>, the DFT represents the data using sine and
+cosine functions with integer multiples of a fundamental frequency, <span class="math notranslate nohighlight">\(\omega=e^{\cfrac{-\mathbf{i}2\pi }{n}}\)</span>.
+The DFT may be computed by matrix multiplication:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\left[\begin{array}{c}
+\hat{f}_{1}\\\hat{f}_{2}\\\hat{f}_{3}\\\vdots\\\hat{f}_{n}
+\end{array}\right]
+=\left[\begin{array}{c}
+1&amp;1&amp;1&amp;\cdots &amp;1\\
+1&amp;\omega_{n}&amp;\omega^{2}_{n}&amp;\cdots &amp;\omega^{n-1}_{n}\\
+1&amp;\omega^{2}_{n}&amp;\omega^{4}_{n}&amp;\cdots &amp;\omega^{2(n-1)}_{n}\\
+\vdots&amp;\vdots&amp;\vdots&amp;\ddots&amp;\vdots\\
+1&amp;\omega^{n-1}_{n}&amp;\omega^{2(n-1)}_{n}&amp;\cdots &amp;\omega^{(n-1)^2}_{n}\\
+\end{array}\right]\left[\begin{array}{c}
+f_{1}\\f_{2}\\f_{3}\\\vdots\\f_{n}
+\end{array}\right]\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\hat{f}_{k}=\sum^{n-1}_{j=0}f_{j}e^{\cfrac{-\mathbf{i}2\pi}{n}kj}=\sum^{n-1}_{j=0}f_{j}\omega_{n}^{kj}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\omega_{n}=e^{\cfrac{-\mathbf{i}2\pi }{n}}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\hat{f}_{k}  = f_{0}\omega_{n}^{k0}+f_{1}\omega_{n}^{k1}+\cdots+f_{n-1}\omega_{n}^{k(n-1)}\\\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+\displaystyle \hat{f}_{0}  = f_{0}\omega_{n}^{00}+f_{1}\omega_{n}^{01}+f_{2}\omega_{n}^{02}+\cdots+f_{n-1}\omega_{n}^{0(n-1)}\\
+\displaystyle \hat{f}_{1}  = f_{0}\omega_{n}^{10}+f_{1}\omega_{n}^{11}+f_{2}\omega_{n}^{12}+\cdots+f_{n-1}\omega_{n}^{1(n-1)}\\
+\displaystyle \hat{f}_{2}  = f_{0}\omega_{n}^{20}+f_{1}\omega_{n}^{21}+f_{1}\omega_{n}^{22}+\cdots+f_{n-1}\omega_{n}^{2(n-1)}\\
+\cdots\\
+\displaystyle \hat{f}_{k}  = f_{0}\omega_{n}^{k0}+f_{1}\omega_{n}^{k1}+f_{2}\omega_{n}^{k2}+\cdots+f_{n-1}\omega_{n}^{k(n-1)}\\
+\cdots\\
+\displaystyle \hat{f}_{n-2}  = f_{0}\omega_{n}^{(n-2)0}+f_{1}\omega_{n}^{(n-2)1}+f_{2}\omega_{n}^{(n-2)2}+\cdots+f_{n-1}\omega_{n}^{(n-2)(n-1)}\\
+\displaystyle \hat{f}_{n-1}  = f_{0}\omega_{n}^{(n-1)0}+f_{1}\omega_{n}^{(n-1)1}+f_{2}\omega_{n}^{(n-1)2}+\cdots+f_{n-1}\omega_{n}^{(n-1)(n-1)}\\
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+\displaystyle \hat{f}_{0}  = f_{0}\times1+f_{1}\times1+f_{2}\times1+\cdots+f_{n-1}\times1\\
+\displaystyle \hat{f}_{1}  = f_{0}\times1+f_{1}\omega_{n}^{1\times1}+f_{2}\omega_{n}^{2\times1}+\cdots+f_{n-1}\omega_{n}^{(n-1)\times1}\\
+\displaystyle \hat{f}_{2}  = f_{0}\times1+f_{1}\omega_{n}^{1\times2}+f_{1}\omega_{n}^{2\times2}+\cdots+f_{n-1}\omega_{n}^{(n-1)\times2}\\
+\cdots\\
+\displaystyle \hat{f}_{k}  = f_{0}\times1+f_{1}\omega_{n}^{1\times k}+f_{2}\omega_{n}^{2\times k}+\cdots+f_{n-1}\omega_{n}^{(n-1)\times k}\\
+\cdots\\
+\displaystyle \hat{f}_{n-2}  = f_{0}\times1+f_{1}\omega_{n}^{1\times(n-2)}+f_{2}\omega_{n}^{2\times(n-2)}+\cdots+f_{n-1}\omega_{n}^{(n-1)\times(n-2)}\\
+\displaystyle \hat{f}_{n-1}  = f_{0}\times1+f_{1}\omega_{n}^{1\times(n-1)}+f_{2}\omega_{n}^{2\times(n-1)}+\cdots+f_{n-1}\omega_{n}^{(n-1)\times(n-1)}\\
+\end{array}\end{split}\]</div>
+</section>
+<section id="basic-properties-of-complex-roots-of-units">
+<h2>Basic properties of complex roots of units.<a class="headerlink" href="#basic-properties-of-complex-roots-of-units" title="Link to this heading"></a></h2>
+<p>Elimination lemma</p>
+<div class="math notranslate nohighlight">
+\[\omega_{jn}^{jk}=\omega_{n}^{k}\]</div>
+<p>proof:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+\omega_{n}=e^{\cfrac{2\pi\mathbf{i}}{n}}\\
+\omega_{n}^{k}=e^{\mathbf{i}\cfrac{2\pi k}{n}}\\
+\omega_{jn}^{jk}=e^{\mathbf{i}\cfrac{2\pi jk}{jn}}=e^{\mathbf{i}\cfrac{2\pi k}{n}}\\
+\omega_{n}^{n/2}=e^{\mathbf{i}\cfrac{2\pi n/2}{n}}=e^{\mathbf{i}\pi}=-1\\
+\omega_{n\times2/n}^{n/2\times2/n}=\omega_{2}=e^{\mathbf{i}\cfrac{2\pi n/2\times2/n}{n\times2/n}}=e^{\mathbf{i}\cfrac{2\pi }{2}}=-1\\
+\end{array}\end{split}\]</div>
+<p>Bind-in-half lemma:</p>
+<div class="math notranslate nohighlight">
+\[(\omega_{n}^{k+\frac{n}{2}})^{2}=(\omega_{n}^{k})^{2}=\omega_{n/2}^{k}\]</div>
+<p>proof:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+\omega_{n}^{k+\frac{n}{2}}=\omega_{n}^{k}\omega_{n}^{\frac{n}{2}}=\omega_{n}^{k}\omega_{2}=-\omega_{n}^{k}\\
+(\omega_{n}^{k})^{2}=\omega_{n}^{2k}=\omega_{\frac{n}{2}}^{k}\\
+\omega_{n}^{j+\frac{n}{2}}=-\omega_{n}^{j}\\
+\end{array}\end{split}\]</div>
+<p>Summation lemma:</p>
+<div class="math notranslate nohighlight">
+\[\sum_{i=0}^{n-1}(\omega_{n}^{k})^{i}=\cfrac{(\omega_{n}^{k})^{n}-1}{\omega_{n}^{k}-1}=\cfrac{(\omega_{n}^{n})^{k}-1}{\omega_{n}^{k}-1}
+=\cfrac{(1)^{k}-1}{\omega_{n}^{k}-1}=0\]</div>
+</section>
+<section id="the-2d-discrete-fourier-transform">
+<h2>The 2D Discrete Fourier Transform<a class="headerlink" href="#the-2d-discrete-fourier-transform" title="Link to this heading"></a></h2>
+<div class="math notranslate nohighlight">
+\[\hat{f}(m,n)=\sum_{i=0}^{M-1}\sum_{j=0}^{N-1}f(i,j)e^{-\mathbf{i}2\pi\left(\cfrac{mi}{M}+\cfrac{nj}{N}\right)}\]</div>
+<p>the inverse discrete Fourier transform (iDFT) is given by</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}{f}(i,j)=\cfrac{1}{MN}\sum_{m=0}^{M-1}\sum_{n=0}^{N-1}\hat{f}(m,n)e^{\mathbf{i}2\pi\left(\cfrac{mi}{M}+\cfrac{nj}{N}\right)}\\\end{split}\]</div>
+</section>
+<section id="evaluation">
+<h2>Evaluation<a class="headerlink" href="#evaluation" title="Link to this heading"></a></h2>
+<div class="math notranslate nohighlight">
+\[P(x)=3x^{5}+2x^{4}+x^{3}+7x^{2}+5x+1\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[P(x)=\underbrace{(2x^{4}+7x^{2}+1)}_{P_{e}(x^{2})}+x\underbrace{(3x^{4}+x^{2}+5)}_{P_{o}(x^{2})}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[P(x)=P_{e}(x^{2})+xP_{o}(x^{2})\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[P(x)=p_{0}+p_{1}x+p_{2}x^{2}+\dots +p_{n-1}x^{n-1}\]</div>
+<p>Evaluate at <span class="math notranslate nohighlight">\(n\)</span> points <span class="math notranslate nohighlight">\(\pm x_{1}, \pm x_{2},\dots,\pm x_{n/2}\)</span></p>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+P(x):[p_{0},p_{1},\dots,p_{n-1}]\\
+\text{Evaluate }[\pm x_{1}, \pm x_{2},\dots,\pm x_{n/2}]
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[P(x)=P_{e}(x^{2})+xP_{o}(x^{2})\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+P_{e}(x^{2}):[p_{0},p_{2},\dots,p_{n-2}]\\
+\text{Evaluate }[x_{1}^{2},x_{2}^{2},\dots,x_{n/2}^{2}]\\
+[P_{e}(x_{1}^{2}),P_{e}(x_{2}^{2}),\dots,P_{e}(x_{n/2}^{2})]
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+P_{o}(x^{2}):[p_{1},p_{3},\dots,p_{n-1}]\\
+\text{Evaluate }[x_{1}^{2},x_{2}^{2},\dots,x_{n/2}^{2}]\\
+[P_{o}(x_{1}^{2}),P_{o}(x_{2}^{2}),\dots,P_{o}(x_{n/2}^{2})]
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+P(x_{i})=P_{e}(x_{i}^{2})+x_{i}P_{o}(x_{i}^{2})\\
+P(-x_{i})=P_{e}(x_{i}^{2})-x_{i}P_{o}(x_{i}^{2})\\
+i=\{1,2,\dots,n/2\}
+\end{array}\end{split}\]</div>
+</section>
+<section id="id1">
+<h2>FFT<a class="headerlink" href="#id1" title="Link to this heading"></a></h2>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+P(x):[p_{0},p_{1},\dots,p_{n-1}]\\
+\text{FFT }\omega=e^{\cfrac{2\pi\mathbf{i}}{n}}[\omega^{0}, \omega^{1},\dots,\omega^{n-1}]
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+P_{e}(x^{2}):[p_{0},p_{2},\dots,p_{n-2}]\\
+\text{FFT }[\omega^{0},\omega^{2},\dots,\omega^{n-2}]\\
+y_{e}=[P_{e}(\omega^{0}),P_{e}(\omega^{2}),\dots,P_{e}(\omega^{n-2})]
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+P_{o}(x^{2}):[p_{1},p_{3},\dots,p_{n-1}]\\
+\text{FFT }[\omega^{0},\omega^{2},\dots,\omega^{n-2}]\\
+y_{o}=[P_{o}(\omega^{0}),P_{o}(\omega^{2}),\dots,P_{o}(\omega^{n-2})]
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+P(\omega^{j})=P_{e}(\omega^{2j})+\omega^{j}P_{o}(\omega^{2j}) \\
+P(-\omega^{j})=P_{e}(\omega^{2j})-\omega^{j}P_{o}(\omega^{2j}) \\
+j\in \{0,1,\dots,(n/2-1)\}
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+P(\omega^{j})=y_{e}[j]+\omega^{j}y_{o}[j] \\
+P(-\omega^{j})=y_{e}[j]-\omega^{j}y_{o}[j] \\
+j\in \{0,1,\dots,(n/2-1)\}
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+y_{e}[j]= P_{e}(\omega^{2j})\\
+y_{o}[j]= P_{o}(\omega^{2j})\\
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[y=[P(\omega^{0}),P(\omega^{1}),\dots,P(\omega^{n-1})]\]</div>
+<p>python code</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span> <span class="mi">10</span> <span class="p">):</span>
+  <span class="n">nn</span><span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">n</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span>
+  <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;n=&quot;</span><span class="p">,</span><span class="n">n</span><span class="p">,</span><span class="s2">&quot;n/2=&quot;</span><span class="p">,</span><span class="n">n</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span><span class="s2">&quot;int(n/2)=&quot;</span><span class="p">,</span><span class="n">nn</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>results:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">n</span><span class="o">=</span> <span class="mi">0</span> <span class="n">n</span><span class="o">/</span><span class="mi">2</span><span class="o">=</span> <span class="mf">0.0</span> <span class="nb">int</span><span class="p">(</span><span class="n">n</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span><span class="o">=</span> <span class="mi">0</span>
+<span class="n">n</span><span class="o">=</span> <span class="mi">1</span> <span class="n">n</span><span class="o">/</span><span class="mi">2</span><span class="o">=</span> <span class="mf">0.5</span> <span class="nb">int</span><span class="p">(</span><span class="n">n</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span><span class="o">=</span> <span class="mi">0</span>
+<span class="n">n</span><span class="o">=</span> <span class="mi">2</span> <span class="n">n</span><span class="o">/</span><span class="mi">2</span><span class="o">=</span> <span class="mf">1.0</span> <span class="nb">int</span><span class="p">(</span><span class="n">n</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span><span class="o">=</span> <span class="mi">1</span>
+<span class="n">n</span><span class="o">=</span> <span class="mi">3</span> <span class="n">n</span><span class="o">/</span><span class="mi">2</span><span class="o">=</span> <span class="mf">1.5</span> <span class="nb">int</span><span class="p">(</span><span class="n">n</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span><span class="o">=</span> <span class="mi">1</span>
+<span class="n">n</span><span class="o">=</span> <span class="mi">4</span> <span class="n">n</span><span class="o">/</span><span class="mi">2</span><span class="o">=</span> <span class="mf">2.0</span> <span class="nb">int</span><span class="p">(</span><span class="n">n</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span><span class="o">=</span> <span class="mi">2</span>
+<span class="n">n</span><span class="o">=</span> <span class="mi">5</span> <span class="n">n</span><span class="o">/</span><span class="mi">2</span><span class="o">=</span> <span class="mf">2.5</span> <span class="nb">int</span><span class="p">(</span><span class="n">n</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span><span class="o">=</span> <span class="mi">2</span>
+<span class="n">n</span><span class="o">=</span> <span class="mi">6</span> <span class="n">n</span><span class="o">/</span><span class="mi">2</span><span class="o">=</span> <span class="mf">3.0</span> <span class="nb">int</span><span class="p">(</span><span class="n">n</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span><span class="o">=</span> <span class="mi">3</span>
+<span class="n">n</span><span class="o">=</span> <span class="mi">7</span> <span class="n">n</span><span class="o">/</span><span class="mi">2</span><span class="o">=</span> <span class="mf">3.5</span> <span class="nb">int</span><span class="p">(</span><span class="n">n</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span><span class="o">=</span> <span class="mi">3</span>
+<span class="n">n</span><span class="o">=</span> <span class="mi">8</span> <span class="n">n</span><span class="o">/</span><span class="mi">2</span><span class="o">=</span> <span class="mf">4.0</span> <span class="nb">int</span><span class="p">(</span><span class="n">n</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span><span class="o">=</span> <span class="mi">4</span>
+<span class="n">n</span><span class="o">=</span> <span class="mi">9</span> <span class="n">n</span><span class="o">/</span><span class="mi">2</span><span class="o">=</span> <span class="mf">4.5</span> <span class="nb">int</span><span class="p">(</span><span class="n">n</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span><span class="o">=</span> <span class="mi">4</span>
+</pre></div>
+</div>
+</section>
+<section id="euler-s-formula">
+<h2>Euler’s formula<a class="headerlink" href="#euler-s-formula" title="Link to this heading"></a></h2>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+e^{\mathbf{i}\theta }=\text{cos}{\theta}+\mathbf{i}\text{sin}{\theta}\\
+\text{cos}{\theta}=\cfrac{e^{\mathbf{i}\theta}+e^{-\mathbf{i}\theta}}{2}\\
+\text{sin}{\theta}=\cfrac{e^{\mathbf{i}\theta}-e^{-\mathbf{i}\theta}}{2\mathbf{i}}\\
+\end{array}\end{split}\]</div>
+</section>
+<section id="id2">
+<h2>Discrete Fourier transform<a class="headerlink" href="#id2" title="Link to this heading"></a></h2>
+<div class="math notranslate nohighlight">
+\[\begin{array}{l}
+\displaystyle \hat{f}_{k}=\sum_{j=0}^{n-1}{f}_{j}e^{-\cfrac{\mathbf{i}2\pi jk}{n}}
+=\sum_{j=0}^{n-1}{f}_{j}\{\text{cos}\cfrac{2\pi jk}{n}-\mathbf{i}\text{sin}\cfrac{2\pi jk}{n}\}
+\end{array}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\omega_{n}^{k}=e^{-\cfrac{\mathbf{i}2\pi k}{n}}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+\displaystyle \hat{f}_{k}=\sum_{j=0}^{n-1}{f}_{j}e^{-\cfrac{\mathbf{i}2\pi jk}{n}}\\
+=f_{0}e^{-\cfrac{\mathbf{i}2\pi k}{n}0}+f_{1}e^{-\cfrac{\mathbf{i}2\pi k}{n}1}
++f_{2}e^{-\cfrac{\mathbf{i}2\pi k}{n}2}+\dots+f_{j}e^{-\cfrac{\mathbf{i}2\pi k}{n}j}+\dots
++f_{n-1}e^{-\cfrac{\mathbf{i}2\pi k}{n}(n-1)}
+\end{array}\end{split}\]</div>
+<p>Compared</p>
+<div class="math notranslate nohighlight">
+\[P(x)=p_{0}+p_{1}x+p_{2}x^{2}+\dots +p_{n-1}x^{n-1}\]</div>
+<p>algorithm</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+a^{m}\cdot a^{n}=a^{m+n}\\
+(a^{m})^{n}=a^{mn}\\
+\cfrac{a^{m}}{a^{n}}=a^{m-n}\\
+(ab)^{m}=a^{m}b^{m}\\
+\end{array}\end{split}\]</div>
+<p>fk</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+\omega_{n}^{k}=e^{-\cfrac{\mathbf{i}2\pi k}{n}} \\
+\displaystyle \hat{f}_{k}=\sum_{j=0}^{n-1}{f}_{j}e^{-\cfrac{\mathbf{i}2\pi jk}{n}}
+=\sum_{j=0}^{n-1}{f}_{j}{(\omega_{n}^{k})}^j\\
+=f_{0}{(\omega_{n}^{k})}^{0}+f_{1}{(\omega_{n}^{k})}^{1}
++f_{2}{(\omega_{n}^{k})}^{2}+\dots+f_{j}{(\omega_{n}^{k})}^{j}+\dots
++f_{n-1}{(\omega_{n}^{k})}^{n-1}
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+\hat{f}_{0}
+=f_{0}{(\omega_{n}^{0})}^{0}+f_{1}{(\omega_{n}^{0})}^{1}
++f_{2}{(\omega_{n}^{0})}^{2}+\dots+f_{j}{(\omega_{n}^{0})}^{j}+\dots
++f_{n-1}{(\omega_{n}^{0})}^{n-1}\\
+\hat{f}_{1}
+=f_{0}{(\omega_{n}^{1})}^{0}+f_{1}{(\omega_{n}^{1})}^{1}
++f_{2}{(\omega_{n}^{1})}^{2}+\dots+f_{j}{(\omega_{n}^{1})}^{j}+\dots
++f_{n-1}{(\omega_{n}^{1})}^{n-1}\\
+\hat{f}_{2}
+=f_{0}{(\omega_{n}^{2})}^{0}+f_{1}{(\omega_{n}^{2})}^{1}
++f_{2}{(\omega_{n}^{2})}^{2}+\dots+f_{j}{(\omega_{n}^{2})}^{j}+\dots
++f_{n-1}{(\omega_{n}^{2})}^{n-1}\\
+\cdots\\
+\hat{f}_{k}
+=f_{0}{(\omega_{n}^{k})}^{0}+f_{1}{(\omega_{n}^{k})}^{1}
++f_{2}{(\omega_{n}^{k})}^{2}+\dots+f_{j}{(\omega_{n}^{k})}^{j}+\dots
++f_{n-1}{(\omega_{n}^{k})}^{n-1}\\
+\cdots\\
+\hat{f}_{n-1}
+=f_{0}{(\omega_{n}^{n-1})}^{0}+f_{1}{(\omega_{n}^{n-1})}^{1}
++f_{2}{(\omega_{n}^{n-1})}^{2}+\dots+f_{j}{(\omega_{n}^{n-1})}^{j}+\dots
++f_{n-1}{(\omega_{n}^{n-1})}^{n-1}\\
+\end{array}\end{split}\]</div>
+<p>Let</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\hat{F}(x)
+=f_{0}+f_{1}x
++f_{2}x^{2}+\dots
++f_{n-1}x^{n-1}\\\end{split}\]</div>
+<p>then</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+\hat{F}(x)=f_{0}+f_{1}x+f_{2}x^{2}+\dots+f_{n-1}x^{n-1}\\
+\hat{F}(x)=P_{e}(x^{2})+xP_{o}(x^{2})\\
+\hat{f}_{0}=\hat{F}(x_{0})=P_{e}(x_{0}^{2})+x_{0}P_{o}(x_{0}^{2})\\
+\hat{f}_{1}=\hat{F}(x_{1})=P_{e}(x_{1}^{2})+x_{1}P_{o}(x_{1}^{2})\\
+\hat{f}_{2}=\hat{F}(x_{2})=P_{e}(x_{2}^{2})+x_{2}P_{o}(x_{2}^{2})\\
+\cdots\\
+\hat{f}_{j}=\hat{F}(x_{j})=P_{e}(x_{j}^{2})+x_{j}P_{o}(x_{j}^{2})\\
+\cdots\\
+\hat{f}_{n-1}=\hat{F}(x_{n-1})=P_{e}(x_{n-1}^{2})+x_{n-1}P_{o}(x_{n-1}^{2})\\
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+\hat{F}(x)=f_{0}+f_{1}x+f_{2}x^{2}+\dots+f_{n-1}x^{n-1}\\
+\hat{F}(x)=P_{e}(x^{2})+xP_{o}(x^{2})\\
+ n=1,\hat{F}(x)=f_{0}\\
+ n=2,\hat{F}(x)=f_{0}+f_{1}x\\
+ n=3,\hat{F}(x)=f_{0}+f_{1}x+f_{2}x^{2}\\
+ n=4,\hat{F}(x)=f_{0}+f_{1}x+f_{2}x^{2}+f_{3}x^{3}\\
+ n=5,\hat{F}(x)=f_{0}+f_{1}x+f_{2}x^{2}+f_{3}x^{3}+f_{4}x^{4}\\
+ n=6,\hat{F}(x)=f_{0}+f_{1}x+f_{2}x^{2}+f_{3}x^{3}+f_{4}x^{4}+f_{5}x^{5}\\
+ n=7,\hat{F}(x)=f_{0}+f_{1}x+f_{2}x^{2}+f_{3}x^{3}+f_{4}x^{4}+f_{5}x^{5}+f_{6}x^{6}\\
+ n=8,\hat{F}(x)=f_{0}+f_{1}x+f_{2}x^{2}+f_{3}x^{3}+f_{4}x^{4}+f_{5}x^{5}+f_{6}x^{6}+f_{7}x^{7}\\
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+\hat{F}(x)=f_{0}+f_{1}x+f_{2}x^{2}+\dots+f_{n-1}x^{n-1}\\
+\hat{F}(x)=P_{e}(x^{2})+xP_{o}(x^{2})\\
+ n=1\\
+ \hat{F}(x)=f_{0}\\
+ P_{e}(x^{2})=f_{0},P_{o}(x^{2})=0\\\\
+ n=2\\
+ \hat{F}(x)=f_{0}+f_{1}x\\
+ P_{e}(x^{2})=f_{0},P_{o}(x^{2})=f_{1}\\\\
+ n=3\\
+ \hat{F}(x)=f_{0}+f_{1}x+f_{2}x^{2}\\
+ P_{e}(x^{2})=f_{0}+f_{2}x^{2},P_{o}(x^{2})=f_{1}\\\\
+ n=4\\
+ \hat{F}(x)=f_{0}+f_{1}x+f_{2}x^{2}+f_{3}x^{3}\\
+ P_{e}(x^{2})=f_{0}+f_{2}x^{2},P_{o}(x^{2})=f_{1}+f_{3}x^{2}\\\\
+ n=5\\
+ \hat{F}(x)=f_{0}+f_{1}x+f_{2}x^{2}+f_{3}x^{3}+f_{4}x^{4}\\
+ P_{e}(x^{2})=f_{0}+f_{2}x^{2}+f_{4}x^{4},P_{o}(x^{2})=f_{1}+f_{3}x^{2}\\\\
+ n=6\\
+ \hat{F}(x)=f_{0}+f_{1}x+f_{2}x^{2}+f_{3}x^{3}+f_{4}x^{4}+f_{5}x^{5}\\
+ P_{e}(x^{2})=f_{0}+f_{2}x^{2}+f_{4}x^{4},P_{o}(x^{2})=f_{1}+f_{3}x^{2}+f_{5}x^{4}\\\\
+ n=7\\
+ \hat{F}(x)=f_{0}+f_{1}x+f_{2}x^{2}+f_{3}x^{3}+f_{4}x^{4}+f_{5}x^{5}+f_{6}x^{6}\\
+ P_{e}(x^{2})=f_{0}+f_{2}x^{2}+f_{4}x^{4}+f_{6}x^{6},P_{o}(x^{2})=f_{1}+f_{3}x^{2}+f_{5}x^{4}\\\\
+ n=8\\
+ \hat{F}(x)=f_{0}+f_{1}x+f_{2}x^{2}+f_{3}x^{3}+f_{4}x^{4}+f_{5}x^{5}+f_{6}x^{6}+f_{7}x^{7}\\
+ P_{e}(x^{2})=f_{0}+f_{2}x^{2}+f_{4}x^{4}+f_{6}x^{6},P_{o}(x^{2})=f_{1}+f_{3}x^{2}+f_{5}x^{4}+f_{7}x^{6}\\\\
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+\omega_{n}^{k}=e^{-\cfrac{\mathbf{i}2\pi k}{n}} \\
+n=2\\
+\omega_{2}^{k}=e^{-\cfrac{\mathbf{i}2\pi k}{2}}\\
+\omega_{2}^{0}=1\\
+\omega_{2}^{1}=e^{-\cfrac{\mathbf{i}2\pi\times 1}{2}}=-1 \\\\
+\hat{f}_{0}
+=f_{0}{(\omega_{2}^{0})}^{0}+f_{1}{(\omega_{2}^{0})}^{1}\\
+\hat{f}_{1}
+=f_{0}{(\omega_{2}^{1})}^{0}+f_{1}{(\omega_{2}^{1})}^{1}\\
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+\omega_{n}^{k}=e^{-\cfrac{\mathbf{i}2\pi k}{n}} \\
+\omega_{n}^{k+n/2}=e^{-\cfrac{\mathbf{i}2\pi (k+n/2)}{n}}
+ =e^{-\cfrac{\mathbf{i}2\pi k}{n}}e^{-\cfrac{\mathbf{i}2\pi (n/2)}{n}}
+ =-e^{-\cfrac{\mathbf{i}2\pi k}{n}}
+ =-\omega_{n}^{k}\\
+\omega_{n}^{k+n/2}=-\omega_{n}^{k}\\
+\end{array}\end{split}\]</div>
+</section>
+<section id="program-flow-chart">
+<h2>Program flow chart<a class="headerlink" href="#program-flow-chart" title="Link to this heading"></a></h2>
+<ol class="arabic simple">
+<li></li>
+</ol>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+F(x)=f_{0}+f_{1}x+f_{2}x^{2}+f_{3}x^{3}\\
+F(x_{0})=f_{0}+f_{1}x_{0}+f_{2}(x_{0})^{2}+f_{3}(x_{0})^{3}\\
+F(x_{1})=f_{0}+f_{1}x_{1}+f_{2}(x_{1})^{2}+f_{3}(x_{1})^{3}\\
+F(x_{2})=f_{0}+f_{1}x_{2}+f_{2}(x_{2})^{2}+f_{3}(x_{2})^{3}\\
+F(x_{3})=f_{0}+f_{1}x_{3}+f_{2}(x_{3})^{2}+f_{3}(x_{3})^{3}\\
+\end{array}\end{split}\]</div>
+<ol class="arabic simple" start="2">
+<li></li>
+</ol>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="p">(</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">4</span><span class="p">;</span> <span class="o">++</span> <span class="n">i</span> <span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">xm</span><span class="o">=</span><span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
+    <span class="n">F</span><span class="p">(</span><span class="n">xm</span><span class="p">)</span><span class="o">=</span><span class="n">f0</span> <span class="o">+</span> <span class="n">f1</span><span class="o">*</span><span class="n">xm</span> <span class="o">+</span> <span class="n">f2</span><span class="o">*</span><span class="n">xm</span><span class="o">^</span><span class="mi">2</span> <span class="o">+</span> <span class="n">f3</span><span class="o">*</span><span class="n">xm</span><span class="o">^</span><span class="mi">3</span>
+    <span class="n">Pec</span> <span class="o">=</span> <span class="p">[</span><span class="n">f0</span><span class="p">,</span> <span class="n">f2</span><span class="p">]</span>
+    <span class="n">Solve</span><span class="p">(</span><span class="n">Pec</span><span class="p">)</span>
+    <span class="n">Poc</span> <span class="o">=</span> <span class="p">[</span><span class="n">f1</span><span class="p">,</span> <span class="n">f3</span><span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+n=4,x=var=e^{-\mathbf{i}\cfrac{2\pi}{n}}=e^{-\mathbf{i}\cfrac{2\pi}{4}}\\
+F(x)=f_{0}+f_{1}x+f_{2}x^{2}+f_{3}x^{3}\\
+F(x)=f_{0}+f_{2}x^{2}+x(f_{1}+f_{3}x^{2})\\
+P_{e}(x^{2})=f_{0}+f_{2}x^{2},P_{o}(x^{2})=f_{1}+f_{3}x^{2}\\
+F(x)=P_{e}(x^{2})+xP_{o}(x^{2})\\
+n=2,x^2=y=e^{-\mathbf{i}\cfrac{2\pi}{n}}=\bigg[e^{-\mathbf{i}\cfrac{2\pi}{4}}\bigg]^2\\
+P_{e}(x^{2})=f_{0}+f_{2}x^{2}=f_{0}+x^{2}f_{2}\\
+P_{e}(y)=f_{0}+y\cdot f_{2}\\
+Q_{e}(y)=f_{0},Q_{o}(y)=f_{2}\\
+P_{e}(y)=Q_{e}(y)+yQ_{o}(y)\\\\
+P_{o}(x^{2})=f_{1}+f_{3}x^{2}=f_{1}+x^{2}f_{3}\\
+P_{o}(y)=f_{1}+yf_{3}\\
+R_{e}(y)=f_{1},R_{o}(y)=f_{3}\\
+P_{o}(y)=R_{e}(y)+yR_{o}(y)\\
+\end{array}\end{split}\]</div>
+</section>
+<section id="discrete-sine-transform-dst">
+<h2>Discrete Sine Transform(DST)<a class="headerlink" href="#discrete-sine-transform-dst" title="Link to this heading"></a></h2>
+<div class="math notranslate nohighlight">
+\[\hat{f}_{k}=\sum_{j=0}^{n-1}{f}_{j}\text{ sin}\cfrac{\pi jk}{n}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+\displaystyle \hat{f}_{k}=\sum_{j=0}^{n-1}{f}_{j}\text{ sin}\cfrac{\pi jk}{n}\\
+\displaystyle \hat{f}_{k}
+={f}_{0}\text{ sin}\cfrac{\pi k\cdot 0}{n}
++{f}_{1}\text{ sin}\cfrac{\pi k\cdot 1}{n}
++\cdots
++{f}_{j}\text{ sin}\cfrac{\pi k\cdot j}{n}
++\cdots
++{f}_{n-1}\text{ sin}\cfrac{\pi k\cdot (n-1)}{n}\\
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+\displaystyle \hat{f}_{k}=\sum_{j=0}^{n-1}{f}_{j}\text{ sin}\cfrac{\pi jk}{n}\\
+\text{sin}{\theta}=\cfrac{e^{\mathbf{i}\theta}-e^{-\mathbf{i}\theta}}{2\mathbf{i}}\\
+\text{ sin}\cfrac{\pi jk}{n}=\cfrac{e^{\mathbf{i}\cfrac{\pi jk}{n}}-e^{-\mathbf{i}\cfrac{\pi jk}{n}}}{2\mathbf{i}}\\
+\displaystyle \hat{f}_{k}=\sum_{j=0}^{n-1}{f}_{j}\cfrac{e^{\mathbf{i}\cfrac{\pi jk}{n}}-e^{-\mathbf{i}\cfrac{\pi jk}{n}}}{2\mathbf{i}}\\
+\displaystyle \hat{f}_{k}
+=\sum_{j=0}^{n-1}\cfrac{1}{2\mathbf{i}} {f}_{j}{e^{\mathbf{i}\cfrac{\pi jk}{n}}}
+-\sum_{j=0}^{n-1}\cfrac{1}{2\mathbf{i}} {f}_{j}{e^{-\mathbf{i}\cfrac{\pi jk}{n}}}\\
+\hat{f}_{k}=\cfrac{1}{2\mathbf{i}}(\hat{f}_{k1}-\hat{f}_{k2})
+ =-\cfrac{1}{2}\mathbf{i}(\hat{f}_{k1}-\hat{f}_{k2})
+ =\cfrac{1}{2}\mathbf{i}(\hat{f}_{k2}-\hat{f}_{k1})\\
+\displaystyle \hat{f}_{k1}=\sum_{j=0}^{n-1}{f}_{j}{e^{\mathbf{i}\cfrac{\pi jk}{n}}}\\
+\displaystyle \hat{f}_{k2}=\sum_{j=0}^{n-1}{f}_{j}{e^{-\mathbf{i}\cfrac{\pi jk}{n}}}\\
+\end{array}\end{split}\]</div>
+<p>Let</p>
+<div class="math notranslate nohighlight">
+\[\tilde{\omega}_{n}^{k}=e^{-\mathbf{i}\cfrac{\pi jk}{n}}\]</div>
+<p>then</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+\tilde{\omega}_{n}^{k}=e^{-\mathbf{i}\cfrac{\pi k}{n}}\\
+\displaystyle \hat{f}_{k2}
+=\sum_{j=0}^{n-1}{f}_{j}{e^{-\mathbf{i}\cfrac{\pi jk}{n}}}
+=\sum_{j=0}^{n-1}{f}_{j}\bigg(e^{-\mathbf{i}\cfrac{\pi k}{n}}\bigg)^{j}
+=\sum_{j=0}^{n-1}{f}_{j}\bigg(\tilde{\omega}_{n}^{k}\bigg)^{j}\\
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+\omega_{n}^{k}=e^{-\cfrac{\mathbf{i}2\pi k}{n}} \\
+\omega_{n}^{k+n/2}=e^{-\cfrac{\mathbf{i}2\pi (k+n/2)}{n}}
+ =e^{-\cfrac{\mathbf{i}2\pi k}{n}}e^{-\cfrac{\mathbf{i}2\pi (n/2)}{n}}
+ =-e^{-\cfrac{\mathbf{i}2\pi k}{n}}
+ =-\omega_{n}^{k}\\
+\omega_{n}^{k+n/2}=-\omega_{n}^{k}\\
+\tilde{\omega}_{n}^{k}=e^{-\cfrac{\mathbf{i}\pi k}{n}}\\
+\tilde{\omega}_{n}^{k+n/2}=e^{-\cfrac{\mathbf{i}\pi (k+n/2)}{n}}
+=e^{-\cfrac{\mathbf{i}\pi k}{n}}e^{-\cfrac{\mathbf{i}\pi }{2}}=-\mathbf{i}e^{-\cfrac{\mathbf{i}\pi k}{n}}\\
+\tilde{\omega}_{n}^{k+n/2}=-\mathbf{i}\tilde{\omega}_{n}^{k}\\
+\bar{\omega}_{n}^{k}=e^{+\cfrac{\mathbf{i}\pi k}{n}}\\
+\bar{\omega}_{n}^{k+n/2}=e^{+\cfrac{\mathbf{i}\pi (k+n/2)}{n}}
+=e^{+\cfrac{\mathbf{i}\pi k}{n}}e^{+\cfrac{\mathbf{i}\pi }{2}}=+\mathbf{i}e^{+\cfrac{\mathbf{i}\pi k}{n}}\\
+\bar{\omega}_{n}^{k+n/2}=+\mathbf{i}\bar{\omega}_{n}^{k}\\
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+\tilde{\omega}_{n}^{k}=e^{-\cfrac{\mathbf{i}\pi k}{n}}\\
+\displaystyle \tilde{f}_{k}=\sum_{j=0}^{n-1}{f}_{j}{e^{-\mathbf{i}\cfrac{\pi jk}{n}}}
+=\sum_{j=0}^{n-1}{f}_{j}(\tilde{\omega}_{n}^{k})^{j}\\
+\displaystyle \tilde{f}_{k}
+={f}_{0}(\tilde{\omega}_{n}^{k})^{0}
++{f}_{1}(\tilde{\omega}_{n}^{k})^{1}
++{f}_{2}(\tilde{\omega}_{n}^{k})^{2}
++\dots
++{f}_{j}(\tilde{\omega}_{n}^{k})^{j}
++\dots
++{f}_{n-1}(\tilde{\omega}_{n}^{k})^{n-1}
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+\displaystyle \tilde{f}_{0}
+={f}_{0}(\tilde{\omega}_{n}^{0})^{0}
++{f}_{1}(\tilde{\omega}_{n}^{0})^{1}
++{f}_{2}(\tilde{\omega}_{n}^{0})^{2}
++\dots
++{f}_{j}(\tilde{\omega}_{n}^{0})^{j}
++\dots
++{f}_{n-1}(\tilde{\omega}_{n}^{0})^{n-1}\\
+\displaystyle \tilde{f}_{1}
+={f}_{0}(\tilde{\omega}_{n}^{1})^{0}
++{f}_{1}(\tilde{\omega}_{n}^{1})^{1}
++{f}_{2}(\tilde{\omega}_{n}^{1})^{2}
++\dots
++{f}_{j}(\tilde{\omega}_{n}^{1})^{j}
++\dots
++{f}_{n-1}(\tilde{\omega}_{n}^{1})^{n-1}\\
+\displaystyle \tilde{f}_{2}
+={f}_{0}(\tilde{\omega}_{n}^{2})^{0}
++{f}_{1}(\tilde{\omega}_{n}^{2})^{1}
++{f}_{2}(\tilde{\omega}_{n}^{2})^{2}
++\dots
++{f}_{j}(\tilde{\omega}_{n}^{2})^{j}
++\dots
++{f}_{n-1}(\tilde{\omega}_{n}^{2})^{n-1}\\
+\cdots\\
+\displaystyle \tilde{f}_{k}
+={f}_{0}(\tilde{\omega}_{n}^{k})^{0}
++{f}_{1}(\tilde{\omega}_{n}^{k})^{1}
++{f}_{2}(\tilde{\omega}_{n}^{k})^{2}
++\dots
++{f}_{j}(\tilde{\omega}_{n}^{k})^{j}
++\dots
++{f}_{n-1}(\tilde{\omega}_{n}^{k})^{n-1}\\
+\cdots\\
+\displaystyle \tilde{f}_{n-1}
+={f}_{0}(\tilde{\omega}_{n}^{n-1})^{0}
++{f}_{1}(\tilde{\omega}_{n}^{n-1})^{1}
++{f}_{2}(\tilde{\omega}_{n}^{n-1})^{2}
++\dots
++{f}_{j}(\tilde{\omega}_{n}^{n-1})^{j}
++\dots
++{f}_{n-1}(\tilde{\omega}_{n}^{n-1})^{n-1}\\
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+\displaystyle \tilde{f}_{0}=P(\tilde{\omega}_{n}^{0})
+=P_{e}([\tilde{\omega}_{n}^{0}]^{2})+{\tilde{\omega}_{n}^{0}}P_{o}([\tilde{\omega}_{n}^{0}]^{2})\\
+\displaystyle \tilde{f}_{1}=P(\tilde{\omega}_{n}^{1})
+=P_{e}([\tilde{\omega}_{n}^{1}]^{2})+{\tilde{\omega}_{n}^{1}}P_{o}([\tilde{\omega}_{n}^{1}]^{2})\\
+\displaystyle \tilde{f}_{2}=P(\tilde{\omega}_{n}^{2})
+=P_{e}([\tilde{\omega}_{n}^{2}]^{2})+{\tilde{\omega}_{n}^{2}}P_{o}([\tilde{\omega}_{n}^{2}]^{2})\\
+\cdots\\
+\displaystyle \tilde{f}_{k}=P(\tilde{\omega}_{n}^{k})
+=P_{e}([\tilde{\omega}_{n}^{k}]^{2})+{\tilde{\omega}_{n}^{k}}P_{o}([\tilde{\omega}_{n}^{k}]^{2})\\
+\cdots\\
+\displaystyle \tilde{f}_{n-1}=P(\tilde{\omega}_{n}^{n-1})
+=P_{e}([\tilde{\omega}_{n}^{n-1}]^{2})+{\tilde{\omega}_{n}^{n-1}}P_{o}([\tilde{\omega}_{n}^{n-1}]^{2})\\
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+\displaystyle \tilde{f}_{0}=P(\tilde{\omega}_{n}^{0})
+=P_{e}([\tilde{\omega}_{n}^{0}]^{2})+{\tilde{\omega}_{n}^{0}}P_{o}([\tilde{\omega}_{n}^{0}]^{2})\\
+\displaystyle \tilde{f}_{1}=P(\tilde{\omega}_{n}^{1})
+=P_{e}([\tilde{\omega}_{n}^{1}]^{2})+{\tilde{\omega}_{n}^{1}}P_{o}([\tilde{\omega}_{n}^{1}]^{2})\\
+\displaystyle \tilde{f}_{2}=P(\tilde{\omega}_{n}^{2})
+=P_{e}([\tilde{\omega}_{n}^{2}]^{2})+{\tilde{\omega}_{n}^{2}}P_{o}([\tilde{\omega}_{n}^{2}]^{2})\\
+\cdots\\
+\displaystyle \tilde{f}_{\frac{n}{2}-1}=P(\tilde{\omega}_{n}^{\frac{n}{2}-1})
+=P_{e}([\tilde{\omega}_{n}^{\frac{n}{2}-1}]^{2})+{\tilde{\omega}_{n}^{\frac{n}{2}-1}}P_{o}([\tilde{\omega}_{n}^{\frac{n}{2}-1}]^{2})\\
+\displaystyle \tilde{f}_{\frac{n}{2}}=P(\tilde{\omega}_{n}^{\frac{n}{2}})
+=P_{e}([\tilde{\omega}_{n}^{\frac{n}{2}}]^{2})+{\tilde{\omega}_{n}^{\frac{n}{2}}}P_{o}([\tilde{\omega}_{n}^{\frac{n}{2}}]^{2})\\
+\displaystyle \tilde{f}_{\frac{n}{2}+1}=P(\tilde{\omega}_{n}^{\frac{n}{2}+1})
+=P_{e}([\tilde{\omega}_{n}^{\frac{n}{2}+1}]^{2})+{\tilde{\omega}_{n}^{\frac{n}{2}+1}}P_{o}([\tilde{\omega}_{n}^{\frac{n}{2}+1}]^{2})\\
+\cdots\\
+\displaystyle \tilde{f}_{\frac{n}{2}+k}=P(\tilde{\omega}_{n}^{\frac{n}{2}+k})
+=P_{e}([\tilde{\omega}_{n}^{\frac{n}{2}+k}]^{2})+{\tilde{\omega}_{n}^{\frac{n}{2}+k}}P_{o}([\tilde{\omega}_{n}^{\frac{n}{2}+k}]^{2})\\
+\cdots\\
+\displaystyle \tilde{f}_{\frac{n}{2}+\frac{n}{2}-1}=P(\tilde{\omega}_{n}^{\frac{n}{2}+\frac{n}{2}-1})
+=P_{e}([\tilde{\omega}_{n}^{\frac{n}{2}+\frac{n}{2}-1}]^{2})+{\tilde{\omega}_{n}^{\frac{n}{2}+\frac{n}{2}-1}}P_{o}([\tilde{\omega}_{n}^{\frac{n}{2}+\frac{n}{2}-1}]^{2})\\
+\end{array}\end{split}\]</div>
+<p>for</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\tilde{\omega}_{n}^{k+n/2}=\tilde{\omega}_{n}^{n/2+k}=-\mathbf{i}\tilde{\omega}_{n}^{k}\\\end{split}\]</div>
+<p>then</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+\tilde{\omega}_{n}^{k+n/2}=\tilde{\omega}_{n}^{n/2+k}=-\mathbf{i}\tilde{\omega}_{n}^{k}\\
+\displaystyle \tilde{f}_{\frac{n}{2}+k}=P(\tilde{\omega}_{n}^{\frac{n}{2}+k})
+=P_{e}([\tilde{\omega}_{n}^{\frac{n}{2}+k}]^{2})+{\tilde{\omega}_{n}^{\frac{n}{2}+k}}P_{o}([\tilde{\omega}_{n}^{\frac{n}{2}+k}]^{2})\\
+\displaystyle \tilde{f}_{\frac{n}{2}+k}=P(-\mathbf{i}\tilde{\omega}_{n}^{k})
+=P_{e}([-\mathbf{i}\tilde{\omega}_{n}^{k}]^{2})+{[-\mathbf{i}\tilde{\omega}_{n}^{k}]}P_{o}([-\mathbf{i}\tilde{\omega}_{n}^{k}]^{2})\\
+\displaystyle \tilde{f}_{\frac{n}{2}+k}=P(-\mathbf{i}\tilde{\omega}_{n}^{k})
+=P_{e}(-[\tilde{\omega}_{n}^{k}]^{2})+{[-\mathbf{i}\tilde{\omega}_{n}^{k}]}P_{o}(-[\tilde{\omega}_{n}^{k}]^{2})\\
+\end{array}\end{split}\]</div>
+</section>
+<section id="example-n-4">
+<h2>Example <span class="math notranslate nohighlight">\(n = 4\)</span>:<a class="headerlink" href="#example-n-4" title="Link to this heading"></a></h2>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+\tilde{\omega}_{n}^{k}=e^{-\cfrac{\mathbf{i}\pi k}{n} }\\
+\tilde{\omega}_{n}^{n/2+k}=-\mathbf{i}\tilde{\omega}_{n}^{k}\\
+\tilde{\omega}_{4}^{2+k}=-\mathbf{i}\tilde{\omega}_{4}^{k}\\
+\tilde{\omega}_{4}^{2}=-\mathbf{i}\tilde{\omega}_{4}^{0}\\
+\tilde{\omega}_{4}^{3}=-\mathbf{i}\tilde{\omega}_{4}^{1}\\
+\tilde{\omega}_{4}^{0}=e^{-\cfrac{\mathbf{i}\pi 0}{4} }=1\\
+\tilde{\omega}_{4}^{1}=e^{-\cfrac{\mathbf{i}\pi 1}{4} }=\text{cos}{\cfrac{\pi}{4}}-\mathbf{i}\text{sin}{\cfrac{\pi}{4}}\\
+\tilde{\omega}_{4}^{2}=e^{-\cfrac{\mathbf{i}\pi 2}{4} }=0-1\mathbf{i}=-\mathbf{i}\tilde{\omega}_{4}^{0}\\
+\tilde{\omega}_{4}^{3}=e^{-\cfrac{\mathbf{i}\pi 3}{4} }=-\text{cos}{\cfrac{\pi}{4}}+\mathbf{i}\text{sin}{\cfrac{\pi}{4}}
+=-\text{sin}{\cfrac{\pi}{4}}+\mathbf{i}\text{cos}{\cfrac{\pi}{4}}=-\mathbf{i}\tilde{\omega}_{4}^{1}\\
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+F(x)=f_{0}+f_{1}x+f_{2}x^{2}+f_{3}x^{3}\\
+F(x)=f_{0}+f_{2}x^{2}+x(f_{1}+f_{3}x^{2})\\
+P_{e}(x^{2})=f_{0}+f_{2}x^{2},P_{o}(x^{2})=f_{1}+f_{3}x^{2}\\
+F(x)=P_{e}(x^{2})+xP_{o}(x^{2})\\
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+\text{input: }P=[f_{0},f_{1},f_{2},f_{3}]\\
+n=len(P)=4\\
+x_{0}=\tilde{\omega}_{4}^{0}\\
+x_{1}=\tilde{\omega}_{4}^{1}\\
+x_{2}=\tilde{\omega}_{4}^{2}=-\mathbf{i}\tilde{\omega}_{4}^{0}\\
+x_{3}=\tilde{\omega}_{4}^{3}=-\mathbf{i}\tilde{\omega}_{4}^{1}\\
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+\tilde{\omega}_{n}^{k}=e^{-\cfrac{\mathbf{i}\pi k}{n}},
+(\tilde{\omega}_{n}^{k})^{2}=e^{-\cfrac{\mathbf{i}\pi k}{n/2}}\\
+x_{0}=\tilde{\omega}_{4}^{0},(x_{0})^{2}=\tilde{\omega}_{2}^{0}\\
+x_{1}=\tilde{\omega}_{4}^{1},(x_{1})^{2}=\tilde{\omega}_{2}^{1}\\
+x_{2}=\tilde{\omega}_{4}^{2},(x_{2})^{2}=\tilde{\omega}_{2}^{2}\\
+x_{3}=\tilde{\omega}_{4}^{3},(x_{3})^{2}=\tilde{\omega}_{2}^{3}\\
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+P=[f_{0},f_{1},f_{2},f_{3}]\\
+F(x)=f_{0}+f_{1}x+f_{2}x^{2}+f_{3}x^{3}\\
+F(x)=f_{0}+f_{2}x^{2}+x(f_{1}+f_{3}x^{2})\\
+P_{e}(x^{2})=f_{0}+f_{2}x^{2},P_{o}(x^{2})=f_{1}+f_{3}x^{2}\\
+F(x)=P_{e}(x^{2})+xP_{o}(x^{2})\\
+F(x_{0})=P_{e}((x_{0})^{2})+(x_{0})P_{o}((x_{0})^{2})\\
+F(x_{1})=P_{e}((x_{1})^{2})+(x_{1})P_{o}((x_{1})^{2})\\
+F(x_{2})=P_{e}((x_{2})^{2})+(x_{1})P_{o}((x_{2})^{2})\\
+F(x_{3})=P_{e}((x_{3})^{2})+(x_{1})P_{o}((x_{3})^{2})\\
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+P_{e}(x^{2})=f_{0}+f_{2}x^{2}\\
+P_{e}((x_{0})^{2})=f_{0}+f_{2}(x_{0})^{2}\\
+P_{e}((x_{1})^{2})=f_{0}+f_{2}(x_{1})^{2}\\
+P_{e}((x_{2})^{2})=f_{0}+f_{2}(x_{2})^{2}\\
+P_{e}((x_{3})^{2})=f_{0}+f_{2}(x_{3})^{2}\\
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+P_{e}(\tilde{x})=f_{0}+f_{2}\tilde{x}\\
+P_{e}(\tilde{x}_{0})=f_{0}+f_{2}\tilde{x}_{0}\\
+P_{e}(\tilde{x}_{1})=f_{0}+f_{2}\tilde{x}_{1}\\
+P_{e}(\tilde{x}_{2})=f_{0}+f_{2}\tilde{x}_{2}\\
+P_{e}(\tilde{x}_{3})=f_{0}+f_{2}\tilde{x}_{3}\\
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+P_{e}(\tilde{x})=f_{0}+f_{2}\tilde{x}\\
+Q_{e}(\tilde{x}^{2})=f_{0}\\
+Q_{o}(\tilde{x}^{2})=f_{2}\\
+P_{e}(\tilde{x})=Q_{e}(\tilde{x}^{2})+\tilde{x}Q_{o}(\tilde{x}^{2})\\
+Q_{e}(\tilde{x}_{0}^{2})=f_{0}\\
+Q_{e}(\tilde{x}_{1}^{2})=f_{0}\\
+Q_{e}(\tilde{x}_{2}^{2})=f_{0}\\
+Q_{e}(\tilde{x}_{3}^{2})=f_{0}\\
+Q_{o}(\tilde{x}_{0}^{2})=f_{2}\\
+Q_{o}(\tilde{x}_{1}^{2})=f_{2}\\
+Q_{o}(\tilde{x}_{2}^{2})=f_{2}\\
+Q_{o}(\tilde{x}_{3}^{2})=f_{2}\\
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+P_{e}(x^{2})=f_{0}+f_{2}x^{2}\\
+\text{input:} [f_{0},f_{2},n=2,w_{n}^{k}=e^{\cfrac{-\mathbf{i}\pi k}{n} }]\\
+\text{input:} [w_{2}^{k}=e^{\cfrac{-\mathbf{i}\pi k}{2} },k=0,1]\\
+[x_{0},x_{1},x_{2},x_{3}:w_{4}^{k}=e^{\cfrac{-\mathbf{i}\pi k}{4} },k=0,1,2,3]\\
+[(x_{0})^{2},(x_{1})^{2},(x_{2})^{2},(x_{3})^{2}:w_{2}^{k}=e^{\cfrac{-\mathbf{i}\pi k}{2} },k=0,1,2,3]\\
+[\tilde{x}_{k}=(x_{k})^{2}=w_{2}^{k}=e^{\cfrac{-\mathbf{i}\pi k}{2} },k=0,1,2,3]\\
+P_{e}(\tilde{x}_{k})=f_{0}+\tilde{x}_{k}f_{2}\\
+[f_{0},n=1],[f_{2},n=1]\\
+P_{e}((x_{0})^{2})=f_{0}+f_{2}(x_{0})^{2}\\
+P_{e}((x_{1})^{2})=f_{0}+f_{2}(x_{1})^{2}\\
+P_{e}((x_{2})^{2})=f_{0}+f_{2}(x_{2})^{2}\\
+P_{e}((x_{3})^{2})=f_{0}+f_{2}(x_{3})^{2}\\
+\end{array}\end{split}\]</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="ctdma.html" class="btn btn-neutral float-left" title="Cyclic Tridiagonal Systems" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="fftw.html" class="btn btn-neutral float-right" title="FFTW" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2017~2024, eric.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

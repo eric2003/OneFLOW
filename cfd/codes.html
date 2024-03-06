@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Reference Codes &mdash; Scientific Computing 1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../_static/documentation_options.js?v=f2a433a1"></script>
+        <script src="../_static/doctools.js?v=888ff710"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="CFD &amp; CAE Videos" href="videos.html" />
+    <link rel="prev" title="Incompressible Navier-Stokes Equation" href="method/inviscid2d.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Scientific Computing
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Get started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../info.html">OneFLOW</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../user.html">THEORY</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../bash.html">Bash</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">CFD</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="ns.html">Navier–Stokes equations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="leibniz.html">Leibniz integral</a></li>
+<li class="toctree-l2"><a class="reference internal" href="rtt.html">Reynolds’ transport theorem</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mass.html">Conservation Of Mass</a></li>
+<li class="toctree-l2"><a class="reference internal" href="momenum.html">Momentum Analysis Of Flow Systems</a></li>
+<li class="toctree-l2"><a class="reference internal" href="energy.html">Conservation Of Energy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ns-integral.html">ALE Form of Conservation Equations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="curvilinear.html">Generalized Curvilinear Coordinate System</a></li>
+<li class="toctree-l2"><a class="reference internal" href="curvilinear3d.html">Generalized Curvilinear Coordinate System(3D)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="vector.html">Vector &amp; Tensor</a></li>
+<li class="toctree-l2"><a class="reference internal" href="matrix.html">Matrix</a></li>
+<li class="toctree-l2"><a class="reference internal" href="calculus.html">Calculus</a></li>
+<li class="toctree-l2"><a class="reference internal" href="substitution.html">Substitution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="jacobian.html">Jacobian matrix</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gauss.html">Gauss’s Theorem</a></li>
+<li class="toctree-l2"><a class="reference internal" href="strain.html">Strain Measures</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ale.html">Arbitrary Lagrangian-Eulerian</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ale1d.html">ALE 1D</a></li>
+<li class="toctree-l2"><a class="reference internal" href="deformation.html">Deformation and Motion</a></li>
+<li class="toctree-l2"><a class="reference internal" href="derivative.html">Fluid Derivative</a></li>
+<li class="toctree-l2"><a class="reference internal" href="material_derivative.html">Material Time Derivative</a></li>
+<li class="toctree-l2"><a class="reference internal" href="scheme/index.html">CFD Schemes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="examples/index.html">CFD Examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="method/index.html">CFD Methods</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Reference Codes</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#open-source-cfd-codes">Open-Source CFD codes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#grid-generation">Grid generation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#visualization">Visualization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#famous-cfd-codes">Famous CFD codes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#closed-source-cfd-codes">Closed-Source CFD codes</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="videos.html">CFD &amp; CAE Videos</a></li>
+<li class="toctree-l2"><a class="reference internal" href="books.html">Books</a></li>
+<li class="toctree-l2"><a class="reference internal" href="docs.html">Documents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../cgns.html">CGNS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../chatgpt.html">CHATGPT</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cpp/index.html">CPP</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cmake.html">CMake</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cmd.html">Cmd</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cuda.html">CUDA</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../design_patterns.html">Design Patterns</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../eigen.html">Eigen3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../git.html">Git</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../git.html#contexts">Contexts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fortran.html">Fortran</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../hdf5.html">HDF5</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../hpc.html">HPC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../install/index.html">Install</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../julia.html">Julia</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../jupyter.html">Jupyter Notebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../latex.html">LaTeX</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../makefile.html">Makefile</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../metis.html">METIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../mkdocs.html">MkDocs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../modules.html">Environment Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../mpi.html">MPI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../numerical/index.html">Numerical analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../oneapi.html">oneAPI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../oneflow.html">OneFLOW-CFD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../openacc.html">OpenACC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../opencl.html">OpenCL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../opengl.html">OpenGL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../openmp.html">OpenMP</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../powershell.html">PowerShell</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../python/index.html">Python</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../qt.html">Qt</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../regex.html">Regular Expressions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../science.html">Science</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sphinx.html">Sphinx</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../system/index.html">System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../taichi.html">Taichi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tcltk.html">Tcl/tk</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tecplot.html">Tecplot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../test.html">Test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../unreal_engine.html">Unreal Engine</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../vcpkg.html">vcpkg</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../yaml.html">yaml</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Scientific Computing</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">CFD</a></li>
+      <li class="breadcrumb-item active">Reference Codes</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/cfd/codes.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="reference-codes">
+<h1>Reference Codes<a class="headerlink" href="#reference-codes" title="Link to this heading"></a></h1>
+<p>CFD (Computational Fluid Dynamics) is a method of simulating physical phenomena such as fluid motion, heat and mass transfer using computer algorithms. CFD can be used to predict and optimize fluid dynamic phenomena such as gas and liquid flows, combustion processes, heat transfer, and aerodynamics. It is widely used in various engineering fields, such as aviation, automotive, energy, construction, environmental, biomedical, as well as scientific research and development. CFD technology typically requires knowledge from multiple disciplines such as numerical analysis, mathematics, physics, and computer science to study and apply.</p>
+<section id="open-source-cfd-codes">
+<h2>Open-Source CFD codes<a class="headerlink" href="#open-source-cfd-codes" title="Link to this heading"></a></h2>
+<ol class="arabic simple">
+<li><p><a class="reference external" href="https://www.cfd-online.com/Wiki/Codes">An overview of both free and commercial CFD software</a></p></li>
+<li><p><a class="reference external" href="https://www.openfoam.com/">OpenFOAM</a></p></li>
+<li><p><a class="reference external" href="https://su2code.github.io/">SU2</a></p></li>
+<li><p><a class="reference external" href="https://nek5000.mcs.anl.gov/">Nek5000</a></p></li>
+<li><p><a class="reference external" href="https://www.code-saturne.org/">Code_Saturne</a></p></li>
+<li><p><a class="reference external" href="https://www.openlb.net/">OpenLB</a></p></li>
+<li><p><a class="reference external" href="https://fenicsproject.org/">FEniCS Project</a></p></li>
+<li><p><a class="reference external" href="https://www.liggghts.com/">LIGGGHTS</a></p></li>
+<li><p><a class="reference external" href="https://adfc.sourceforge.net/">ADFC</a></p></li>
+<li><p><a class="reference external" href="https://www.partenovcfd.com/">Partenov CFD</a></p></li>
+<li><p><a class="reference external" href="https://people.eng.unimelb.edu.au/daltonh/downloads/arb/">arb multiphysics finite volume solver</a></p></li>
+<li><p><a class="reference external" href="http://www.dhondt.de/">CalculiX-A Free Software Three-Dimensional Structural Finite Element Program</a></p></li>
+<li><p><a class="reference external" href="https://github.com/CaNS-World/CaNS/">CaNS</a></p></li>
+<li><p><a class="reference external" href="https://sourceforge.net/projects/cfd2d/">CFD2D</a></p></li>
+<li><p><a class="reference external" href="https://sourceforge.net/projects/cfd2k/">CFD2k</a></p></li>
+<li><p><a class="reference external" href="http://depts.washington.edu/clawpack/">CLAWPACK</a></p></li>
+<li><p><a class="reference external" href="https://github.com/andrealani/COOLFluiD/wiki/">COOLFluiD</a></p></li>
+<li><p><a class="reference external" href="https://duns.sourceforge.net/">DUNS</a></p></li>
+<li><p><a class="reference external" href="https://www.dolfyn.net/">Dolfyn</a></p></li>
+<li><p><a class="reference external" href="https://www.dune-project.org/">Dune</a></p></li>
+<li><p><a class="reference external" href="https://docs.snic.se/wiki/Edge">Edge</a></p></li>
+<li><p><a class="reference external" href="https://www.csc.fi/web/elmer/">ELMER</a></p></li>
+<li><p><a class="reference external" href="https://flubiopetsc.github.io/flubiopetsc/">FLUBIO-PETSc</a></p></li>
+<li><p><a class="reference external" href="https://fluidsim.readthedocs.io/">Fluidsim Document</a></p></li>
+<li><p><a class="reference external" href="https://foss.heptapod.net/fluiddyn/fluidsim/">Fluidsim</a></p></li>
+<li><p><a class="reference external" href="https://freefem.org/">FreeFEM</a></p></li>
+<li><p><a class="reference external" href="https://gfs.sourceforge.net/">Gerris Flow Solver</a></p></li>
+<li><p><a class="reference external" href="http://www.hiflow3.org/">HiFlow3</a></p></li>
+<li><p><a class="reference external" href="https://github.com/IBAMR/IBAMR/">IBAMR</a></p></li>
+<li><p><a class="reference external" href="https://www.imtek.uni-freiburg.de/simulation/mathematica/IMSweb/">IMTEK Mathematica Supplement</a></p></li>
+<li><p><a class="reference external" href="https://inavier.sourceforge.net/">iNavier</a></p></li>
+<li><p><a class="reference external" href="https://isaac-cfd.sourceforge.net/">ISAAC</a></p></li>
+<li><p><a class="reference external" href="https://github.com/KratosMultiphysics/Kratos/wiki/">KRATOS Multiphysics</a></p></li>
+<li><p><a class="reference external" href="https://mfix.netl.doe.gov/">MFIX</a></p></li>
+<li><p><a class="reference external" href="https://www.nektar.info/">Nektar++</a></p></li>
+<li><p><a class="reference external" href="https://github.com/cpraveen/nuwtun/">NUWTUN</a></p></li>
+<li><p><a class="reference external" href="https://github.com/eric2003/OneFLOW/">OneFLOW</a></p></li>
+<li><p><a class="reference external" href="https://sourceforge.net/projects/openflower/">OpenFlower</a></p></li>
+<li><p><a class="reference external" href="https://github.com/sergeas67/openhyperflow2d/">OpenHyperflow2D</a></p></li>
+<li><p><a class="reference external" href="https://openfvm.sourceforge.net/">OpenFVM</a></p></li>
+<li><p><a class="reference external" href="https://palabos.unige.ch/">Palabos</a></p></li>
+<li><p><a class="reference external" href="https://cimec.org.ar/foswiki/Main/Cimec/PETScFEM/">PETSc-FEM</a></p></li>
+<li><p><a class="reference external" href="http://www.mathematik.tu-dortmund.de/~featflow/en/index.html">FEATFLOW</a></p></li>
+<li><p><a class="reference external" href="https://www.pyfr.org/">PyFR</a></p></li>
+<li><p><a class="reference external" href="https://reef3d.wordpress.com/">REEF3D</a></p></li>
+<li><p><a class="reference external" href="https://www.marin.nl/en/facilities-and-tools/software/refresco/">ReFRESCO</a></p></li>
+<li><p><a class="reference external" href="https://membres-ljk.imag.fr/Pierre.Saramito/rheolef/html/index.html">Rheolef</a></p></li>
+<li><p><a class="reference external" href="https://users.monash.edu.au/~bburn/semtex.html">Semtex</a></p></li>
+<li><p><a class="reference external" href="https://slfcfd.sourceforge.net/">SLFCFD</a></p></li>
+<li><p><a class="reference external" href="https://folk.ntnu.no/nilsol/cfd/">SSIIM</a></p></li>
+<li><p><a class="reference external" href="https://github.com/CFD-GO/TCLB/">TCLB</a></p></li>
+<li><p><a class="reference external" href="https://tochnog.sourceforge.net/">Tochnog</a></p></li>
+<li><p><a class="reference external" href="https://github.com/cea-trust-platform/TrioCFD-code/">TrioCFD</a></p></li>
+<li><p><a class="reference external" href="http://tycho-cfd.at/">TYCHO</a></p></li>
+<li><p><a class="reference external" href="https://typhon.sourceforge.net/spip/">Typhon solver</a></p></li>
+<li><p><a class="reference external" href="http://www.uintah.utah.edu/">Uintah Computational Framework</a></p></li>
+<li><p><a class="reference external" href="https://github.com/mfem/mfem/">MFEM</a></p></li>
+<li><p><a class="reference external" href="https://glvis.org/">GLVis</a></p></li>
+<li><p><a class="reference external" href="https://github.com/AMReX-Codes/amrex/">AMReX: Software Framework for Block Structured AMR</a></p></li>
+<li><p><a class="reference external" href="http://www.sparselizard.org/">Sparselizard</a></p></li>
+<li><p><a class="reference external" href="https://github.com/xiaoyeli/superlu_dist/">SuperLU_DIST</a></p></li>
+<li><p><a class="reference external" href="https://github.com/AMReX-Combustion/PeleC/">PeleC: An adaptive mesh refinement solver for compressible reacting flows</a></p></li>
+<li><p><a class="reference external" href="https://github.com/LLNL/axom/">Axom: CS infrastructure components for HPC applications</a></p></li>
+<li><p><a class="reference external" href="https://github.com/CEED/libCEED/">libCEED: Efficient Extensible Discretization</a></p></li>
+<li><p><a class="reference external" href="https://github.com/hypre-space/hypre/">HYPRE: Parallel solvers for sparse linear systems featuring multigrid methods</a></p></li>
+<li><p><a class="reference external" href="https://eigen.tuxfamily.org/index.php?title=Main_Page">Eigen</a></p></li>
+<li><p><a class="reference external" href="https://github.com/taichi-dev/taichi">Taichi Lang: Productive &amp; portable high-performance programming in Python.</a></p></li>
+<li><p><a class="reference external" href="http://libmesh.github.io/index.html">libMesh</a></p></li>
+<li><p><a class="reference external" href="https://www.lammps.org/">LAMMPS Molecular Dynamics Simulator</a></p></li>
+<li><p><a class="reference external" href="https://github.com/sparta/sparta/">SPARTA：Stochastic PArallel Rarefied-gas Time-accurate Analyzer.</a></p></li>
+<li><p><a class="reference external" href="https://github.com/MASTmultiphysics/mast-multiphysics/">MAST: Multidisciplinary-design Adaptation and Sensitivity Toolkit</a></p></li>
+<li><p><a class="reference external" href="https://ucns3d.com/">UCNS3D</a></p></li>
+<li><p><a class="reference external" href="https://github.com/sandialabs/Albany/">Albany: Sandia National Laboratories’ Albany multiphysics code</a></p></li>
+<li><p><a class="reference external" href="https://github.com/lethe-cfd/lethe/">Lethe: CFD/DEM/CFD-DEM project</a></p></li>
+<li><p><a class="reference external" href="https://github.com/mlwong/HAMeRS/">HAMeRS: Hydrodynamics Adaptive Mesh Refinement Simulator</a></p></li>
+<li><p><a class="reference external" href="https://github.com/synthetik-technologies/blastfoam/">blastFoam: high-explosive detonation, explosive safety and air blast</a></p></li>
+<li><p><a class="reference external" href="https://github.com/lanl/vpic/">VPIC: Vector Particle-In-Cell (VPIC) Project</a></p></li>
+<li><p><a class="reference external" href="https://github.com/boutproject/BOUT-dev/">BOUT++: Plasma fluid finite-difference simulation code in curvilinear coordinate systems</a></p></li>
+<li><p><a class="reference external" href="https://github.com/KaHIP/KaHIP/">KaHIP: Karlsruhe HIGH Quality Partitioning.</a></p></li>
+<li><p><a class="reference external" href="https://github.com/ElmerCSC/elmerfem/">Elmer FEM.</a></p></li>
+<li><p><a class="reference external" href="https://www.geometrictools.com/">Geometric Tools Engine.</a></p></li>
+<li><p><a class="reference external" href="https://mfix.netl.doe.gov/products/mfix/">MFiX: Open Source Multiphase Flow Modeling for Real-world Applications</a></p></li>
+<li><p><a class="reference external" href="https://github.com/code-mphi/ECOGEN/">ECOGEN: a CFD plateform written in C++ object oriented programming langage</a></p></li>
+<li><p><a class="reference external" href="https://github.com/AndreWeiner/machine-learning-applied-to-cfd/">machine-learning-applied-to-cfd</a></p></li>
+<li><p><a class="reference external" href="https://github.com/FEST3D/FEST-3D/">FEST-3D: Finite-volume Explicit STructured 3-Dimensional</a></p></li>
+<li><p><a class="reference external" href="https://www.cgal.org/">CGAL: The Computational Geometry Algorithms Library</a></p></li>
+<li><p><a class="reference external" href="https://github.com/rrsharma/MPI-C-Jacobi-and-Red-Black-Gauss-Seidel-Poisson-Solvers/">MPI/C: Jacobi and Red-Black Gauss Seidel Poisson Solvers</a></p></li>
+<li><p><a class="reference external" href="https://github.com/pencil-code/pencil-code/">Pencil: A high-order finite-difference code for compressible hydrodynamic flows</a></p></li>
+<li><p><a class="reference external" href="https://dev.opencascade.org/">Open CASCADE: an open-source full-scale 3D geometry library</a></p></li>
+<li><p><a class="reference external" href="https://github.com/Open-Cascade-SAS/OCCT/">OCCT: an open-source software development platform for 3D CAD, CAM, CAE</a></p></li>
+<li><p><a class="reference external" href="https://github.com/mlivesu/cinolib/">CinoLib: a C++ library for processing polygonal and polyhedral meshes.</a></p></li>
+<li><p><a class="reference external" href="https://github.com/openscad/openscad/">OpenSCAD: a software for creating solid 3D CAD objects.</a></p></li>
+<li><p><a class="reference external" href="https://github.com/Yixin-Hu/TetWild/">TetWild: Tetrahedral Meshing in the Wild.</a></p></li>
+<li><p><a class="reference external" href="https://github.com/orbingol/NURBS-Python/">NURBS-Python (geomdl): Object-oriented pure Python B-Spline and NURBS library.</a></p></li>
+<li><p><a class="reference external" href="https://github.com/MmgTools/mmg/">mmg: Surface and volume remeshers.</a></p></li>
+<li><p><a class="reference external" href="https://github.com/pyvista/pyiges/">pyIGES: Python IGES Reader.</a></p></li>
+<li><p><a class="reference external" href="https://github.com/juj/MathGeoLib/">MathGeoLib: A C++ library for linear algebra and geometry manipulation for computer graphics.</a></p></li>
+<li><p><a class="reference external" href="https://github.com/libigl/libigl/">libigl: A simple C++ geometry processing library.</a></p></li>
+<li><p><a class="reference external" href="https://github.com/fougue/mayo/">Mayo: the opensource 3D CAD viewer and converter.</a></p></li>
+<li><p><a class="reference external" href="https://github.com/google/jax-cfd/">JAX-CFD: Computational Fluid Dynamics in JAX.</a></p></li>
+<li><p><a class="reference external" href="https://github.com/DualSPHysics/DualSPHysics/">DualSPHysics: C++/CUDA/OpenMP based Smoothed Particle Hydrodynamics (SPH) Solver.</a></p></li>
+<li><p><a class="reference external" href="https://wiki.manchester.ac.uk/sphysics/">SPHYSICS: SPH Free-surface Flow Solver.</a></p></li>
+<li><p><a class="reference external" href="https://github.com/ProjectPhysX/FluidX3D/">FluidX3D: The fastest and most memory efficient lattice Boltzmann CFD software.</a></p></li>
+<li><p><a class="reference external" href="https://github.com/horsescfd/HORSES2D/">HORSES: a High Order Spectral Element Solver.</a></p></li>
+</ol>
+</section>
+<section id="grid-generation">
+<h2>Grid generation<a class="headerlink" href="#grid-generation" title="Link to this heading"></a></h2>
+<ol class="arabic simple">
+<li><p><a class="reference external" href="http://www.ae.metu.edu.tr/tuncer/ae546/prj/delaundo/">Delaundo</a></p></li>
+<li><p><a class="reference external" href="https://github.com/enGits/engrid/">ENGRID</a></p></li>
+<li><p><a class="reference external" href="https://gmsh.info/">GMSH</a></p></li>
+<li><p><a class="reference external" href="https://github.com/sakov/gridgen-c/">gridgen-c</a></p></li>
+<li><p><a class="reference external" href="https://www.ccad.uiowa.edu/MIMX/projects/IA-FEMesh/">IA-FEMesh</a></p></li>
+<li><p><a class="reference external" href="https://sourceforge.net/projects/netgen-mesher/">Netgen Mesh Generator</a></p></li>
+<li><p><a class="reference external" href="https://www.salome-platform.org/">SALOME</a></p></li>
+<li><p><a class="reference external" href="https://wias-berlin.de/software/index.jsp?id=TetGen&amp;lang=1/">TETGEN</a></p></li>
+<li><p><a class="reference external" href="http://www.cs.cmu.edu/~quake/triangle.html">Triangle</a></p></li>
+<li><p><a class="reference external" href="https://www.twinmesh.com/">TwinMesh</a></p></li>
+<li><p><a class="reference external" href="https://www.gridpro.com/">GridPro</a></p></li>
+</ol>
+</section>
+<section id="visualization">
+<h2>Visualization<a class="headerlink" href="#visualization" title="Link to this heading"></a></h2>
+<ol class="arabic simple">
+<li><p><a class="reference external" href="https://www.hlrs.de/solutions/types-of-computing/visualization/covise/">COVISE</a></p></li>
+<li><p><a class="reference external" href="https://www.mps.mpg.de/dislin/">DISLIN</a></p></li>
+<li><p><a class="reference external" href="http://generalmeshviewer.com/">GMV</a></p></li>
+<li><p><a class="reference external" href="http://www.gnuplot.info/">Gnuplot</a></p></li>
+<li><p><a class="reference external" href="https://gri.sourceforge.net/">GRI</a></p></li>
+<li><p><a class="reference external" href="https://mayavi.sourceforge.net/">Mayavi</a></p></li>
+<li><p><a class="reference external" href="https://www.paraview.org/">ParaView</a></p></li>
+<li><p><a class="reference external" href="http://www.vapor.ucar.edu/">VAPOR</a></p></li>
+<li><p><a class="reference external" href="http://www-sop.inria.fr/sinus/Softs/vigie.html">Vigie</a></p></li>
+<li><p><a class="reference external" href="https://visit-dav.github.io/visit-website/">Visit</a></p></li>
+<li><p><a class="reference external" href="https://visnow.icm.edu.pl/">Visnow</a></p></li>
+<li><p><a class="reference external" href="https://vtk.org/">VTK</a></p></li>
+<li><p><a class="reference external" href="https://www.ilight.com/">Fieldview</a></p></li>
+<li><p><a class="reference external" href="https://www.tecplot.com/">TECPLOT</a></p></li>
+</ol>
+</section>
+<section id="famous-cfd-codes">
+<h2>Famous CFD codes<a class="headerlink" href="#famous-cfd-codes" title="Link to this heading"></a></h2>
+<ol class="arabic simple">
+<li><p><a class="reference external" href="https://overflow.larc.nasa.gov/">NASA OVERFLOW Overset Grid CFD Flow Solver</a></p></li>
+<li><p><a class="reference external" href="https://www.comsol.com/multiphysics/">COMSOL Multiphysics</a></p></li>
+<li><p><a class="reference external" href="https://plm.sw.siemens.com/en-US/simcenter/fluids-thermal-simulation/">Simcenter fluids and thermal simulation products</a></p></li>
+<li><p><a class="reference external" href="https://www.airflowsciences.com/">Airflow Sciences Corporation</a></p></li>
+</ol>
+</section>
+<section id="closed-source-cfd-codes">
+<h2>Closed-Source CFD codes<a class="headerlink" href="#closed-source-cfd-codes" title="Link to this heading"></a></h2>
+<ol class="arabic simple">
+<li><p><a class="reference external" href="https://www.flow3d.com/">flow3d</a></p></li>
+</ol>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="method/inviscid2d.html" class="btn btn-neutral float-left" title="Incompressible Navier-Stokes Equation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="videos.html" class="btn btn-neutral float-right" title="CFD &amp; CAE Videos" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2017~2024, eric.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

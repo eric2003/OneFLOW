@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CFD Examples 1D &mdash; Scientific Computing 1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../_static/documentation_options.js?v=f2a433a1"></script>
+        <script src="../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Inviscid Burgers Equation" href="burgers.html" />
+    <link rel="prev" title="CFD Examples" href="index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            Scientific Computing
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Get started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../info.html">OneFLOW</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../user.html">THEORY</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../bash.html">Bash</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">CFD</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../ns.html">Navier–Stokes equations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../leibniz.html">Leibniz integral</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../rtt.html">Reynolds’ transport theorem</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../mass.html">Conservation Of Mass</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../momenum.html">Momentum Analysis Of Flow Systems</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../energy.html">Conservation Of Energy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../ns-integral.html">ALE Form of Conservation Equations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../curvilinear.html">Generalized Curvilinear Coordinate System</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../curvilinear3d.html">Generalized Curvilinear Coordinate System(3D)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../vector.html">Vector &amp; Tensor</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../matrix.html">Matrix</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../calculus.html">Calculus</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../substitution.html">Substitution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../jacobian.html">Jacobian matrix</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../gauss.html">Gauss’s Theorem</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../strain.html">Strain Measures</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../ale.html">Arbitrary Lagrangian-Eulerian</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../ale1d.html">ALE 1D</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../deformation.html">Deformation and Motion</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../derivative.html">Fluid Derivative</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../material_derivative.html">Material Time Derivative</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../scheme/index.html">CFD Schemes</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="index.html">CFD Examples</a><ul class="current">
+<li class="toctree-l3 current"><a class="current reference internal" href="#">CFD Examples 1D</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#runge-kutta">Runge-Kutta</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#heat-equation">Heat Equation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#forward-time-central-space-ftcs-scheme">Forward Time Central Space (FTCS) Scheme</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#runge-kutta-numerical-scheme">Runge-Kutta Numerical Scheme</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cranknicolson-method">Crank–Nicolson method</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#example-1d-diffusion">Example: 1D diffusion</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="burgers.html">Inviscid Burgers Equation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="euler1d.html">One-Dimensional Euler Solver</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sod.html">Sod’s shock-tube problem</a></li>
+<li class="toctree-l3"><a class="reference internal" href="poisson.html">Poisson Equation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="vortex.html">Vortex-Merger Problem</a></li>
+<li class="toctree-l3"><a class="reference internal" href="index.html#verification-and-validation">Verification and Validation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="index.html#cfd-benchmark-cases">CFD benchmark cases</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../method/index.html">CFD Methods</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../codes.html">Reference Codes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../videos.html">CFD &amp; CAE Videos</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../books.html">Books</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../docs.html">Documents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../cgns.html">CGNS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../chatgpt.html">CHATGPT</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../cpp/index.html">CPP</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../cmake.html">CMake</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../cmd.html">Cmd</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../cuda.html">CUDA</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../design_patterns.html">Design Patterns</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../eigen.html">Eigen3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../git.html">Git</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../git.html#contexts">Contexts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fortran.html">Fortran</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../hdf5.html">HDF5</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../hpc.html">HPC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../install/index.html">Install</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../julia.html">Julia</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../jupyter.html">Jupyter Notebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../latex.html">LaTeX</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../makefile.html">Makefile</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../metis.html">METIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../mkdocs.html">MkDocs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../modules.html">Environment Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../mpi.html">MPI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../numerical/index.html">Numerical analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../oneapi.html">oneAPI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../oneflow.html">OneFLOW-CFD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../openacc.html">OpenACC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../opencl.html">OpenCL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../opengl.html">OpenGL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../openmp.html">OpenMP</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../powershell.html">PowerShell</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../python/index.html">Python</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../qt.html">Qt</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../regex.html">Regular Expressions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../science.html">Science</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sphinx.html">Sphinx</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../system/index.html">System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../taichi.html">Taichi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tcltk.html">Tcl/tk</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tecplot.html">Tecplot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../test.html">Test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../unreal_engine.html">Unreal Engine</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../vcpkg.html">vcpkg</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../yaml.html">yaml</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Scientific Computing</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">CFD</a></li>
+          <li class="breadcrumb-item"><a href="index.html">CFD Examples</a></li>
+      <li class="breadcrumb-item active">CFD Examples 1D</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/cfd/examples/1d.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="cfd-examples-1d">
+<h1>CFD Examples 1D<a class="headerlink" href="#cfd-examples-1d" title="Link to this heading"></a></h1>
+<ol class="arabic simple">
+<li><p><a class="reference external" href="https://www.mdpi.com/2311-5521/4/3/159/">CFD Julia: A Learning Module Structuring an Introductory Course on Computational Fluid Dynamics</a></p></li>
+<li><p><a class="reference external" href="https://www.researchgate.net/publication/257143364_Third-Order_Improved_Runge-Kutta_Method_for_Solving_Ordinary_Differential_Equation/">Third-Order Improved Runge-Kutta Method for Solving Ordinary Differential Equation</a></p></li>
+<li><p><a class="reference external" href="https://www.cfd-online.com/Wiki/Runge_Kutta_methods/">Runge Kutta methods</a></p></li>
+<li><p><a class="reference external" href="https://www.cfm.brown.edu/people/dobrush/am33/Mathematica/ch3/RK3.html">MATHEMATICA TUTORIAL for the First Course. Part III: Runge–Kutta 3.</a></p></li>
+<li><p><a class="reference external" href="https://www.youtube.com/watch?v=HOWJp8NV5xU/">Runge-Kutta Integrator Overview: All Purpose Numerical Integration of Differential Equations</a></p></li>
+<li><p><a class="reference external" href="https://www.youtube.com/watch?v=vNoFdtcPFdk/">Coding a Fourth-Order Runge-Kutta Integrator in Python and Matlab</a></p></li>
+</ol>
+<section id="runge-kutta">
+<h2>Runge-Kutta<a class="headerlink" href="#runge-kutta" title="Link to this heading"></a></h2>
+<p>Consider an ordinary differential equation of the form <span class="math notranslate nohighlight">\(\cfrac{dy}{dx} = f(x, y)\)</span> with initial condition <span class="math notranslate nohighlight">\(y(x_0) = y_0\)</span>. For this, we can define the formulas for Runge-Kutta methods as follows.</p>
+<p>Third-order version1:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+k_1=f(x_{n},y_{n})\\
+k_2=f(x_{n}+\cfrac{1}{2}h,y_{n}+\cfrac{1}{2}hk_{1})\\
+k_3=f(x_{0}+h,y_{n}-hk_{1}+2hk_{2})\\
+y_{n+1}=y_{n}+\cfrac{1}{6}h(k_{1}+4k_{2}+k_{3})\\
+\end{array}\end{split}\]</div>
+<p>Third-order version2:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+k_1=f(x_{n},y_{n})\\
+k_2=f(x_{n}+\cfrac{1}{3}h,y_{n}+\cfrac{1}{3}hk_{1})\\
+k_3=f(x_{n}+\cfrac{2}{3}h,y_{n}+\cfrac{2}{3}hk_{2})\\
+y_{n+1}=y_{n}+\cfrac{1}{4}h(k_{1}+3k_{3})\\
+\end{array}\end{split}\]</div>
+<p>Third-order version3: (Ralston formula)</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+k_1=f(x_{n},y_{n})\\
+k_2=f(x_{n}+\cfrac{1}{2}h,y_{n}+\cfrac{1}{2}hk_{1})\\
+k_3=f(x_{n}+\cfrac{3}{4}h,y_{n}+\cfrac{3}{4}hk_{2})\\
+y_{n+1}=y_{n}+\cfrac{1}{9}h(2k_{1}+3k_{2}+4k_{3})\\
+\end{array}\end{split}\]</div>
+<p>Third order TVD Runge-Kutta method</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+u^{(1)}=u^{n}+\Delta tL(u^{n})\\
+u^{(2)}=\cfrac{3}{4}u^{n}+\cfrac{1}{4}u^{(1)}+\cfrac{1}{4}\Delta tL(u^{(1)})\\
+u^{n+1}=\cfrac{1}{3}u^{n}+\cfrac{2}{3}u^{(2)}+\cfrac{2}{3}\Delta tL(u^{(2)})\\
+\end{array}\end{split}\]</div>
+<p>Let us split the interval <span class="math notranslate nohighlight">\([x_{0}, x_{*}]\)</span> into <span class="math notranslate nohighlight">\(n\)</span> equal segments of length <span class="math notranslate nohighlight">\(h = (x_{*} − x_{0})/n\)</span>. Let
+<span class="math notranslate nohighlight">\(y_{1}, . . . , y_{n}\)</span> denote the approximate values of the function <span class="math notranslate nohighlight">\(y(x)\)</span> at the partitioning points
+<span class="math notranslate nohighlight">\(x_{1}, . . . , x_{n} = x_{*}\)</span>. The discrete set of points <span class="math notranslate nohighlight">\(X_{h} = \{ x_{0}, x_{1}, \dots, x_{n}\}\)</span> is called a mesh, the
+individual points <span class="math notranslate nohighlight">\(x_{k}\)</span> are mesh nodes, and <span class="math notranslate nohighlight">\(h\)</span> is a mesh increment or step size.</p>
+<div class="math notranslate nohighlight">
+\[x_{k} = x_{0} + kh\]</div>
+<p>Heat Equation</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+\cfrac{\partial u}{ \partial t}=\alpha \cfrac{\partial ^{2}u}{ \partial x^{2}}=f(t,u)=g(u)\\
+u\sim y\rightarrow \cfrac{\partial y}{ \partial t}=\alpha \cfrac{\partial ^{2}y}{ \partial x^{2}}=f(t,y)=g(y)\\
+\end{array}\end{split}\]</div>
+<p>Third-order Runge-Kutta version1:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+h=\Delta t\\
+\displaystyle k_{1}=f(t_{n},u_{n})=\alpha \cfrac{\partial ^{2}u}{\partial x^{2}}\Bigg|_{(t_{n},u_{n})} =L(u_{n})\\
+\displaystyle k_{2}=f(t_{n}+\frac{1}{2}h,u_{n}+\frac{1}{2}hk_{1})=\alpha \cfrac{\partial ^{2}u}{\partial x^{2}}\Bigg|_{(t_{n}+\frac{1}{2}h,u_{n}+\frac{1}{2}hk_{1})} =L(u_{n}+\frac{1}{2}hk_{1})\\
+\displaystyle k_{3}=f(t_{n}+h,u_{n}+h(-k_{1}+2k_{2}))=\alpha \cfrac{\partial ^{2}u}{\partial x^{2}}\Bigg|_{(t_{n}+h,u_{n}+h(-k_{1}+2k_{2}))} =L(u_{n}+h(-k_{1}+2k_{2}))\\
+\displaystyle u_{n+1}=u_{n}+\frac{1}{6}h(k_{1}+4k_{2}+k_{3})
+\end{array}\end{split}\]</div>
+<p>Specifically</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+h=\Delta t\\
+\displaystyle k_{1}=\alpha \cfrac{u^{n}_{i+1}-2u^{n}_{i}+u^{n}_{i-1}}{\Delta x^{2}}=L(u_{n})\\
+u^{(1)}_i=u_{n}+\frac{1}{2}hk_{1}=u_{n}+\frac{1}{2}\Delta tL(u_{n})\\
+\displaystyle k_{2}=\alpha \cfrac{u^{(1)}_{i+1}-2u^{(1)}_{i}+u^{(1)}_{i-1}}{\Delta x^{2}}=L(u_{n}+\frac{1}{2}hk_{1})=L(u^{(1)})\\
+u^{(2)}_i=u_{n}+h(-k_{1}+2k_{2})\\
+\displaystyle k_{3}=\alpha \cfrac{u^{(2)}_{i+1}-2u^{(2)}_{i}+u^{(2)}_{i-1}}{\Delta x^{2}} =L(u^{(2)})\\
+\displaystyle u_{n+1}=u_{n}+\frac{1}{6}h(k_{1}+4k_{2}+k_{3})
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+h=\Delta t\\
+\displaystyle \hat{k}_{1}=hk_{1}=\alpha \Delta t\cfrac{u^{n}_{i+1}-2u^{n}_{i}+u^{n}_{i-1}}{\Delta x^{2}}=\Delta tL(u_{n})\\
+u^{(1)}_i=u_{n}+\frac{1}{2}\hat{k}_{1}=u_{n}+\frac{1}{2}\Delta tL(u_{n})\\
+\displaystyle \hat{k}_{2}=hk_{2}=\alpha \Delta t\cfrac{u^{(1)}_{i+1}-2u^{(1)}_{i}+u^{(1)}_{i-1}}{\Delta x^{2}}=\Delta tL(u_{n}+\frac{1}{2}hk_{1})=\Delta tL(u^{(1)})\\
+u^{(2)}_i=u_{n}+h(-k_{1}+2k_{2})=u_{n}+(-\hat{k}_{1}+2\hat{k}_{2})\\
+\displaystyle \hat{k}_{3}=hk_{3}=\alpha \Delta t\cfrac{u^{(2)}_{i+1}-2u^{(2)}_{i}+u^{(2)}_{i-1}}{\Delta x^{2}} =\Delta tL(u^{(2)})\\
+\displaystyle u_{n+1}=u_{n}+\frac{1}{6}(\hat{k}_{1}+4\hat{k}_{2}+\hat{k}_{3})
+\end{array}\end{split}\]</div>
+<p>Third-order Runge-Kutta version2:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+h=\Delta t\\
+\displaystyle \hat{k}_{1}=hf(t_{n},u_{n})=\alpha \Delta t\cfrac{\partial ^{2}u}{\partial x^{2}}\Bigg|_{(t_{n},u_{n})} =\Delta tL(u_{n})\\
+\displaystyle \hat{k}_{2}=hf(t_{n}+\frac{1}{3}h,u_{n}+\frac{1}{3}\hat{k}_{1})=\alpha\Delta t\cfrac{\partial ^{2}u}{\partial x^{2}}\Bigg|_{(t_{n}+\frac{1}{3}h,u_{n}+\frac{1}{3}\hat{k}_{1})} =\Delta tL(u_{n}+\frac{1}{3}\hat{k}_{1})\\
+\displaystyle \hat{k}_{3}=hf(t_{n}+\frac{2}{3}h,u_{n}+\frac{2}{3}\hat{k}_{2})=\alpha\Delta t\cfrac{\partial ^{2}u}{\partial x^{2}}\Bigg|_{(t_{n}+\frac{2}{3}h,u_{n}+\frac{2}{3}\hat{k}_{2})} =\Delta tL(u_{n}+\frac{2}{3}\hat{k}_{2})\\
+\displaystyle u_{n+1}=u_{n}+\frac{1}{4}(\hat{k}_{1}+3\hat{k}_{3})
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+h=\Delta t\\
+\displaystyle \hat{k}_{1}=hk_{1}=\alpha \Delta t\cfrac{u^{n}_{i+1}-2u^{n}_{i}+u^{n}_{i-1}}{\Delta x^{2}}=\Delta tL(u_{n})\\
+u^{(1)}_i=u_{n}+\frac{1}{3}\hat{k}_{1}=u_{n}+\frac{1}{3}\Delta tL(u_{n})\\
+\displaystyle \hat{k}_{2}=hk_{2}=\alpha \Delta t\cfrac{u^{(1)}_{i+1}-2u^{(1)}_{i}+u^{(1)}_{i-1}}{\Delta x^{2}}=\Delta tL(u_{n}+\frac{1}{3}hk_{1})=\Delta tL(u^{(1)})\\
+u^{(2)}_i=u_{n}+\frac{2}{3}\hat{k}_{2}\\
+\displaystyle \hat{k}_{3}=hk_{3}=\alpha \Delta t\cfrac{u^{(2)}_{i+1}-2u^{(2)}_{i}+u^{(2)}_{i-1}}{\Delta x^{2}} =\Delta tL(u^{(2)})\\
+\displaystyle u_{n+1}=u_{n}+\frac{1}{4}(\hat{k}_{1}+3\hat{k}_{3})
+\end{array}\end{split}\]</div>
+<p>Third-order Runge-Kutta version3(Ralston formula):</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+h=\Delta t\\
+\displaystyle \hat{k}_{1}=hf(t_{n},u_{n})=\alpha \Delta t\cfrac{\partial ^{2}u}{\partial x^{2}}\Bigg|_{(t_{n},u_{n})} =\Delta tL(u_{n})\\
+\displaystyle \hat{k}_{2}=hf(t_{n}+\frac{1}{2}h,u_{n}+\frac{1}{2}\hat{k}_{1})=\alpha\Delta t\cfrac{\partial ^{2}u}{\partial x^{2}}\Bigg|_{(t_{n}+\frac{1}{2}h,u_{n}+\frac{1}{2}\hat{k}_{1})} =\Delta tL(u_{n}+\frac{1}{2}\hat{k}_{1})\\
+\displaystyle \hat{k}_{3}=hf(t_{n}+\frac{3}{4}h,u_{n}+\frac{3}{4}\hat{k}_{2})=\alpha\Delta t\cfrac{\partial ^{2}u}{\partial x^{2}}\Bigg|_{(t_{n}+\frac{3}{4}h,u_{n}+\frac{3}{4}\hat{k}_{2})} =\Delta tL(u_{n}+\frac{3}{4}\hat{k}_{2})\\
+\displaystyle u_{n+1}=u_{n}+\frac{1}{9}(2\hat{k}_{1}+3\hat{k}_{2}+4\hat{k}_{3})
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+h=\Delta t\\
+\displaystyle \hat{k}_{1}=hk_{1}=\alpha \Delta t\cfrac{u^{n}_{i+1}-2u^{n}_{i}+u^{n}_{i-1}}{\Delta x^{2}}=\Delta tL(u_{n})\\
+u^{(1)}_i=u_{n}+\frac{1}{2}\hat{k}_{1}=u_{n}+\frac{1}{2}\Delta tL(u_{n})\\
+\displaystyle \hat{k}_{2}=hk_{2}=\alpha \Delta t\cfrac{u^{(1)}_{i+1}-2u^{(1)}_{i}+u^{(1)}_{i-1}}{\Delta x^{2}}=\Delta tL(u_{n}+\frac{1}{2}hk_{1})=\Delta tL(u^{(1)})\\
+u^{(2)}_i=u_{n}+\frac{3}{4}\hat{k}_{2}\\
+\displaystyle \hat{k}_{3}=hk_{3}=\alpha \Delta t\cfrac{u^{(2)}_{i+1}-2u^{(2)}_{i}+u^{(2)}_{i-1}}{\Delta x^{2}} =\Delta tL(u^{(2)})\\
+\displaystyle u_{n+1}=u_{n}+\frac{1}{9}(2\hat{k}_{1}+3\hat{k}_{2}+4\hat{k}_{3})
+\end{array}\end{split}\]</div>
+<p>Third order TVD Runge-Kutta method</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+\hat{k}_{1}=\alpha\Delta t\cfrac{u_{i+1}^{(n)}-2 u_{i}^{(n)}+u_{i-1}^{(n)}}{\Delta x^{2}}\\
+u_{i}^{(1)} = u_{i}^{(n)}+\hat{k}_{1}\\
+\hat{k}_{2}=\alpha\Delta t\cfrac{u_{i+1}^{(1)}-2 u_{i}^{(1)}+u_{i-1}^{(1)}}{\Delta x^{2}}\\
+u_{i}^{(2)} = u_{i}^{(n)}+\frac{1}{4} \hat{k}_{1}+\frac{1}{4}\hat{k}_{2} \\
+\hat{k}_{3}=\alpha\Delta t\cfrac{u_{i+1}^{(2)}-2 u_{i}^{(2)}+u_{i-1}^{(2)}}{\Delta x^{2}}\\
+u_{i}^{(n+1)} = u_{i}^{(n)}+\frac{1}{6} (\hat{k}_{1}+\hat{k}_{2}+4\hat{k}_{3})\
+\end{array}\end{split}\]</div>
+<p>Equivalent to</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+u_{i}^{(1)} &amp; = u_{i}^{(n)}+\frac{\alpha \Delta t}{\Delta x^{2}}\left(u_{i+1}^{(n)}-2 u_{i}^{(n)}+u_{i-1}^{(n)}\right),\\
+u_{i}^{(2)}  &amp; = \frac{3}{4} u_{i}^{(n)}+\frac{1}{4} u_{i}^{(1)}+\frac{1}{4}\frac{\alpha \Delta t}{ \Delta x^{2}}\left(u_{i+1}^{(1)}-2 u_{i}^{(1)}+u_{i-1}^{(1)}\right) \\
+u_{i}^{(n+1)}  &amp; = \frac{1}{3} u_{i}^{(n)}+\frac{2}{3} u_{i}^{(2)}+\frac{2}{3}\frac{\alpha \Delta t}{\Delta x^{2}}\left(u_{i+1}^{(2)}-2 u_{i}^{(2)}+u_{i-1}^{(2)}\right) .
+\end{align}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+u^{(1)}=u^{n}+\Delta tL(u^{n})\\
+u^{(2)}=\cfrac{3}{4}u^{n}+\cfrac{1}{4}u^{(1)}+\cfrac{1}{4}\Delta tL(u^{(1)})\\
+u^{n+1}=\cfrac{1}{3}u^{n}+\cfrac{2}{3}u^{(2)}+\cfrac{2}{3}\Delta tL(u^{(2)})\\
+\end{array}\end{split}\]</div>
+</section>
+<section id="heat-equation">
+<h2>Heat Equation<a class="headerlink" href="#heat-equation" title="Link to this heading"></a></h2>
+<p>The one-dimensional heat equation is given as</p>
+<div class="math notranslate nohighlight">
+\[\cfrac{\partial u}{ \partial t}=\alpha \cfrac{\partial ^{2}u}{ \partial x^{2}}\]</div>
+<p>where <span class="math notranslate nohighlight">\(u\)</span> is the field variable, <span class="math notranslate nohighlight">\(t\)</span> is the time variable, and <span class="math notranslate nohighlight">\(\alpha\)</span> is the diffusivity of the medium. The heat
+equation describes the evolution of the field variable over time in a medium.</p>
+</section>
+<section id="forward-time-central-space-ftcs-scheme">
+<h2>Forward Time Central Space (FTCS) Scheme<a class="headerlink" href="#forward-time-central-space-ftcs-scheme" title="Link to this heading"></a></h2>
+<div class="math notranslate nohighlight">
+\[\frac{u_{i}^{(n+1)}-u_{i}^{(n)}}{\Delta t}=\alpha \frac{u_{i+1}^{(n)}-2 u_{i}^{(n)}+u_{i-1}^{(n)}}{\Delta x^{2}},\]</div>
+<p>we can re-write the above equation as an explicit update formula</p>
+<div class="math notranslate nohighlight">
+\[u_{i}^{(n+1)}=u_{i}^{(n)}+\alpha \cfrac{\Delta t}{\Delta x^{2}}({u_{i+1}^{(n)}-2 u_{i}^{(n)}+u_{i-1}^{(n)}})\]</div>
+<p>We use the computational domain <span class="math notranslate nohighlight">\(x\in [-1,1]\)</span> and <span class="math notranslate nohighlight">\(\alpha=1/\pi^{2}\)</span>. The initial condition is
+<span class="math notranslate nohighlight">\(u(t=0,x)=-sin(\pi x)\)</span>. The analytical solution to the one-dimensional heat equation is given by</p>
+<div class="math notranslate nohighlight">
+\[u(t,x)=-e^{-t}sin(\pi x)\]</div>
+<p>We use <span class="math notranslate nohighlight">\(\Delta x=0.025\)</span> and <span class="math notranslate nohighlight">\(\Delta 𝑡=0.0025\)</span> for spatial and temporal discretization.</p>
+</section>
+<section id="runge-kutta-numerical-scheme">
+<h2>Runge-Kutta Numerical Scheme<a class="headerlink" href="#runge-kutta-numerical-scheme" title="Link to this heading"></a></h2>
+<p>Runge-Kutta methods tries to improve the accuracy of temporal term by evaluating <span class="math notranslate nohighlight">\(f\)</span> at intermediate points between <span class="math notranslate nohighlight">\(t_n\)</span>
+and <span class="math notranslate nohighlight">\(t_{n+1}\)</span>. The additional steps lead to an increase in computational time, but the temporal accuracy is increased.
+The time integration of the heat equation using third-order Runge-Kutta scheme is given below:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+u_{i}^{(1)} &amp; = u_{i}^{(n)}+\frac{\alpha \Delta t}{\Delta x^{2}}\left(u_{i+1}^{(n)}-2 u_{i}^{(n)}+u_{i-1}^{(n)}\right),\\
+u_{i}^{(2)}  &amp; = \frac{3}{4} u_{i}^{(n)}+\frac{1}{4} u_{i}^{(1)}+\frac{1}{4}\frac{\alpha \Delta t}{ \Delta x^{2}}\left(u_{i+1}^{(1)}-2 u_{i}^{(1)}+u_{i-1}^{(1)}\right) \\
+u_{i}^{(n+1)}  &amp; = \frac{1}{3} u_{i}^{(n)}+\frac{2}{3} u_{i}^{(2)}+\frac{2}{3}\frac{\alpha \Delta t}{\Delta x^{2}}\left(u_{i+1}^{(2)}-2 u_{i}^{(2)}+u_{i-1}^{(2)}\right) .
+\end{align}\end{split}\]</div>
+</section>
+<section id="cranknicolson-method">
+<h2>Crank–Nicolson method<a class="headerlink" href="#cranknicolson-method" title="Link to this heading"></a></h2>
+<p><a class="reference external" href="https://en.wikipedia.org/wiki/Crank%E2%80%93Nicolson_method/">Crank–Nicolson method</a></p>
+<p>The Crank–Nicolson method is based on the trapezoidal rule, giving second-order convergence in time.
+For example, in one dimension, suppose the partial differential equation is</p>
+<div class="math notranslate nohighlight">
+\[\frac{\partial u}{\partial t}=F\left(u, x, t, \frac{\partial u}{\partial x}, \frac{\partial^{2} u}{\partial x^{2}}\right) .\]</div>
+<p>Letting <span class="math notranslate nohighlight">\(u(i\Delta x, n\Delta t)=u^{n}_{i}\)</span> and <span class="math notranslate nohighlight">\(F^{n}_{i}=F\)</span> evaluated for <span class="math notranslate nohighlight">\(i\)</span>, <span class="math notranslate nohighlight">\(n\)</span> and <span class="math notranslate nohighlight">\(u^{n}_{i}\)</span>,
+the equation for Crank-Nicolson method is a combination of the forward Euler method at <span class="math notranslate nohighlight">\(n\)</span> and the backward Euler method at
+<span class="math notranslate nohighlight">\(n+1\)</span></p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{|l|l|}
+\hline \frac{u_{i}^{n+1}-u_{i}^{n}}{\Delta t}=F_{i}^{n}\left(u, x, t, \frac{\partial u}{\partial x}, \frac{\partial^{2} u}{\partial x^{2}}\right) &amp; \text { forward Euler } \\
+\hline \frac{u_{i}^{n+1}-u_{i}^{n}}{\Delta t}=F_{i}^{n+1}\left(u, x, t, \frac{\partial u}{\partial x}, \frac{\partial^{2} u}{\partial x^{2}}\right) &amp; \text { backward Euler } \\
+\hline \frac{u_{i}^{n+1}-u_{i}^{n}}{\Delta t}=\frac{1}{2}\left[F_{i}^{n+1}\left(u, x, t, \frac{\partial u}{\partial x}, \frac{\partial^{2} u}{\partial x^{2}}\right)+F_{i}^{n}\left(u, x, t, \frac{\partial u}{\partial x}, \frac{\partial^{2} u}{\partial x^{2}}\right)\right] &amp; \text { Crank-Nicolson } \\
+\hline
+\end{array}\end{split}\]</div>
+<p>Note that this is an implicit method: to get the “next” value of u in time, a system of algebraic equations must be solved. If the partial differential equation is nonlinear, the discretization will also be nonlinear, so that advancing in time will involve the solution of a system of nonlinear algebraic equations, though linearizations are possible. In many problems, especially linear diffusion, the algebraic problem is tridiagonal and may be efficiently solved with the tridiagonal matrix algorithm.</p>
+</section>
+<section id="example-1d-diffusion">
+<h2>Example: 1D diffusion<a class="headerlink" href="#example-1d-diffusion" title="Link to this heading"></a></h2>
+<p>The Crank–Nicolson method is often applied to diffusion problems. As an example, for linear diffusion,</p>
+<div class="math notranslate nohighlight">
+\[\cfrac{\partial u}{ \partial t}=\alpha \cfrac{\partial ^{2}u}{ \partial x^{2}}\]</div>
+<p>applying a finite difference spatial discretization for the right-hand side, the Crank–Nicolson discretization is then</p>
+<div class="math notranslate nohighlight">
+\[\cfrac{u^{n+1}_{i}-u^{n}_{i}}{\Delta t}=\cfrac{1}{2}\cfrac{\alpha}{\Delta x^{2}}
+\left[(u^{n+1}_{i+1}-2u^{n+1}_{i}+u^{n+1}_{i-1})+(u^{n}_{i+1}-2u^{n}_{i}+u^{n}_{i-1})\right]\]</div>
+<p>or, letting <span class="math notranslate nohighlight">\(r=\cfrac{1}{2}\cfrac{\alpha\Delta t}{\Delta x^{2}}\)</span>,</p>
+<div class="math notranslate nohighlight">
+\[-ru^{n+1}_{i+1}+(1+2r)u^{n+1}_{i}-ru^{n+1}_{i-1}=ru^{n}_{i+1}+(1-2r)u^{n}_{i}+ru^{n}_{i-1}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[-ru^{n+1}_{i-1}+(1+2r)u^{n+1}_{i}-ru^{n+1}_{i+1}=ru^{n}_{i-1}+(1-2r)u^{n}_{i}+ru^{n}_{i+1}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+1:-ru^{n+1}_{0}+(1+2r)u^{n+1}_{1}-ru^{n+1}_{2}=d_{1}\\
+2:-ru^{n+1}_{1}+(1+2r)u^{n+1}_{2}-ru^{n+1}_{3}=d_{2}\\
+3:-ru^{n+1}_{2}+(1+2r)u^{n+1}_{3}-ru^{n+1}_{4}=d_{3}\\
+\cdots \\
+i:-ru^{n+1}_{i-1}+(1+2r)u^{n+1}_{i}-ru^{n+1}_{i+1}=d_{i}\\
+\cdots \\
+N-2:-ru^{n+1}_{N-3}+(1+2r)u^{n+1}_{N-2}-ru^{n+1}_{N-1}=d_{N-2}\\
+N-1:-ru^{n+1}_{N-2}+(1+2r)u^{n+1}_{N-1}-ru^{n+1}_{N}=d_{N-1}\\
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[d_{i}=ru^{n}_{i-1}+(1-2r)u^{n}_{i}+ru^{n}_{i+1}\]</div>
+<p>We can rewrite this as</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+1:(1+2r)u^{n+1}_{1}-ru^{n+1}_{2}=d_{1}+ru^{n+1}_{0}\\
+2:-ru^{n+1}_{1}+(1+2r)u^{n+1}_{2}-ru^{n+1}_{3}=d_{2}\\
+3:-ru^{n+1}_{2}+(1+2r)u^{n+1}_{3}-ru^{n+1}_{4}=d_{3}\\
+\cdots \\
+i:-ru^{n+1}_{i-1}+(1+2r)u^{n+1}_{i}-ru^{n+1}_{i+1}=d_{i}\\
+\cdots \\
+N-2:-ru^{n+1}_{N-3}+(1+2r)u^{n+1}_{N-2}-ru^{n+1}_{N-1}=d_{N-2}\\
+N-1:-ru^{n+1}_{N-2}+(1+2r)u^{n+1}_{N-1}=d_{N-1}+ru^{n+1}_{N}\\
+\end{array}\end{split}\]</div>
+<p>An illustration of a tridiagonal system is given in the following Equation.</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{bmatrix}
+b_{1}&amp;c_{1}  &amp;0&amp;\cdots &amp;0 \\
+a_{2}&amp;b_{2}&amp;c_{2}  &amp;\cdots &amp;0 \\
+\vdots&amp;\vdots&amp;  &amp; &amp;\vdots \\
+0&amp;\cdots&amp;a_{N-2}  &amp;b_{N-2} &amp;c_{N-2} \\
+0&amp;0&amp;\cdots  &amp;a_{N-1} &amp;b_{N-1} \\
+\end{bmatrix}
+\begin{bmatrix}
+u_{1}\\u_{2}\\\vdots \\u_{N-2}\\u_{N-1}
+\end{bmatrix}
+=\begin{bmatrix}
+\hat{d}_{1}\\ \hat{d}_{2}\\ \vdots \\ \hat{d}_{N-2}\\ \hat{d}_{N-1}
+\end{bmatrix}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{bmatrix}
+1+2r&amp;-r  &amp;0&amp;\cdots &amp;0 \\
+-r&amp;1+2r&amp;-r  &amp;\cdots &amp;0 \\
+\vdots&amp;\vdots&amp;  &amp; &amp;\vdots \\
+0&amp;\cdots&amp;-r  &amp;1+2r &amp;-r \\
+0&amp;0&amp;\cdots  &amp;-r &amp;1+2r \\
+\end{bmatrix}
+\begin{bmatrix}
+u_{1}\\u_{2}\\\vdots \\u_{N-2}\\u_{N-1}
+\end{bmatrix}
+=\begin{bmatrix}
+\hat{d}_{1}\\ \hat{d}_{2}\\ \vdots \\ \hat{d}_{N-2}\\ \hat{d}_{N-1}
+\end{bmatrix}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+a_{1}=0,b_{1}=1+2r,c_{1}=-r\\
+a_{2}=-r,b_{2}=1+2r,c_{2}=-r\\
+a_{3}=-r,b_{3}=1+2r,c_{3}=-r\\
+\cdots\\
+a_{i}=-r,b_{i}=1+2r,c_{i}=-r\\
+\cdots\\
+a_{N-2}=-r,b_{N-2}=1+2r,c_{N-2}=-r\\
+a_{N-1}=-r,b_{N-1}=1+2r,c_{N-1}=0\\
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{bmatrix}
+\hat{d}_{1}\\ \hat{d}_{2}\\ \vdots \\ \hat{d}_{N-2}\\ \hat{d}_{N-1}
+\end{bmatrix}   =\begin{bmatrix}
+{d}_{1}+ru^{n+1}_{0}\\ {d}_{2}\\ \vdots \\ {d}_{N-2}\\ {d}_{N-1}+ru^{n+1}_{N}
+\end{bmatrix} =\begin{bmatrix}
+r{u}^{n}_{0}+(1-2r){u}^{n}_{1}+r{u}^{n}_{2}+ru^{n+1}_{0}\\
+r{u}^{n}_{1}+(1-2r){u}^{n}_{2}+r{u}^{n}_{3}\\
+\vdots \\
+r{u}^{n}_{N-3}+(1-2r){u}^{n}_{N-2}+r{u}^{n}_{N-1}\\
+r{u}^{n}_{N-2}+(1-2r){u}^{n}_{N-1}+r{u}^{n}_{N}+ru^{n+1}_{N}
+\end{bmatrix}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{bmatrix}
+{a}_{1}\\ {a}_{2}\\ \vdots \\ {a}_{N-2}\\ {a}_{N-1}
+\end{bmatrix}   =
+\begin{bmatrix}
+{a}[0]\\ {a}[1]\\ \vdots \\ {a}[N-3]\\ {a}[N-2]
+\end{bmatrix}  =
+\begin{bmatrix}
+0\\ -r\\ \vdots \\ -r\\ -r
+\end{bmatrix}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{bmatrix}
+{b}_{1}\\ {b}_{2}\\ \vdots \\ {b}_{N-2}\\ {b}_{N-1}
+\end{bmatrix}   =
+\begin{bmatrix}
+{b}[0]\\ {b}[1]\\ \vdots \\ {b}[N-3]\\ {b}[N-2]
+\end{bmatrix}  =
+\begin{bmatrix}
+1+2r\\ 1+2r\\ \vdots \\ 1+2r\\ 1+2r
+\end{bmatrix}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{bmatrix}
+{c}_{1}\\ {c}_{2}\\ \vdots \\ {c}_{N-2}\\ {c}_{N-1}
+\end{bmatrix}   =
+\begin{bmatrix}
+{c}[0]\\ {c}[1]\\ \vdots \\ {c}[N-3]\\ {c}[N-2]
+\end{bmatrix}  =
+\begin{bmatrix}
+-r\\ -r\\ \vdots \\ -r\\ 0
+\end{bmatrix}\end{split}\]</div>
+<p>The Thomas algorithm used for solving the tridiagonal matrix is ：</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+1:\text{Given a,b,c,d}\\
+2:\text{Allocate q}\quad\quad\diamondsuit \text{Storage of superdiagonal array }\\
+3:u_1=d_1/b_{1}\\
+4:\text{ for i=2 to N do}\quad\quad\diamondsuit\text{Forward elimination }\\
+5:\quad q_{i}=c_{i-1}/b_{i-1}\\
+6:\quad b_{i}=b_{i}-q_{i}a_{i}\\
+7:\quad u_{i}=(d_{i}-a_{i}u_{i-1})/b_{i}\\
+8:\text{end for}\\
+9:\text{ for i=N-1 to 1 do}\\
+10:\quad u_{i}=(u_{i}-q_{i+1}u_{i+1})\quad\quad\diamondsuit\text{Backward substitution }\\
+11:\text{end for}\\
+\end{array}\end{split}\]</div>
+<p>Matrix Configuration</p>
+<p>Tri-diagonal systems for <span class="math notranslate nohighlight">\(nx+1\)</span> unknowns may be written as:</p>
+<div class="math notranslate nohighlight">
+\[a_{i}u_{i-1}+b_{i}u_{i}+c_{i}u_{i+1}=d_{i}\]</div>
+<p>Boundary points: <span class="math notranslate nohighlight">\((1,nx+1)\)</span>, inner points: <span class="math notranslate nohighlight">\((2,3,\cdots,nx-1,nx)\)</span></p>
+<p>We know the values at the boundaries (<span class="math notranslate nohighlight">\(B\)</span>):</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+u_{1} &amp; = B_{1}\\
+u_{nx+1} &amp; = B_{nx+1}\\
+\end{align}\end{split}\]</div>
+<p>the coefficient at the boundaries (<span class="math notranslate nohighlight">\(B\)</span>):</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+a_{1} &amp; = 0\\
+b_{1} &amp; = 1\\
+c_{1} &amp; = 0\\
+a_{nx+1} &amp; = 0\\
+b_{nx+1} &amp; = 1\\
+c_{nx+1} &amp; = 0\\
+\end{align}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+a_{1}u_{0}+b_{1}u_{1}+c_{1}u_{2}&amp;=0u_{0}+u_{1}+0u_{2} = u_{1}=B_{1}\\
+a_{nx+1}u_{nx}+b_{nx+1}u_{nx+1}+c_{nx+1}u_{nx+2}&amp;=0u_{nx}+u_{nx+1}+0u_{nx+2}  = u_{nx+1}=B_{nx+1}\\
+\end{array}\end{split}\]</div>
+<p>So the matrix looks like this, with known coefficients <span class="math notranslate nohighlight">\(a,b,c,d\)</span>. The vector <span class="math notranslate nohighlight">\(u\)</span> is unknown.</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\left[\begin{array}{cccccc}
+1 &amp; 0 &amp; 0 &amp; \cdots &amp; &amp; 0 \\
+a_{2} &amp; b_{2} &amp; c_{2} &amp; &amp; &amp; \\
+0 &amp; a_{3} &amp; b_{3} &amp; c_{3} &amp; &amp; \\
+\vdots &amp; &amp; \ddots &amp; \ddots &amp; \ddots &amp; \vdots \\
+&amp; &amp; a_{n x-1} &amp; b_{n x-1} &amp; c_{n x-1} &amp; 0 \\
+0 &amp; &amp; &amp; a_{n x} &amp; b_{n x} &amp; c_{n x} \\
+&amp; &amp; \cdots &amp; 0 &amp; 0 &amp; 1
+\end{array}\right]\left[\begin{array}{c}
+u_{1} \\
+u_{2} \\
+u_{3} \\
+\vdots \\
+u_{n x-1} \\
+u_{n x} \\
+u_{n x+1}
+\end{array}\right]=\left[\begin{array}{c}
+B_{1} \\
+d_{2} \\
+d_{3} \\
+\vdots \\
+d_{n x-1} \\
+d_{n x} \\
+B_{n x+1}
+\end{array}\right]\end{split}\]</div>
+<p>Subscripts count from zero</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\left[\begin{array}{cccccc}
+1 &amp; 0 &amp; 0 &amp; \cdots &amp; &amp; 0 \\
+a_{1} &amp; b_{1} &amp; c_{1} &amp; &amp; &amp; \\
+0 &amp; a_{2} &amp; b_{2} &amp; c_{2} &amp; &amp; \\
+\vdots &amp; &amp; \ddots &amp; \ddots &amp; \ddots &amp; \vdots \\
+&amp; &amp; a_{n x-2} &amp; b_{n x-2} &amp; c_{n x-2} &amp; 0 \\
+0 &amp; &amp; &amp; a_{n x-1} &amp; b_{n x-1} &amp; c_{n x-1} \\
+&amp; &amp; \cdots &amp; 0 &amp; 0 &amp; 1
+\end{array}\right]\left[\begin{array}{c}
+u_{0} \\
+u_{1} \\
+u_{2} \\
+\vdots \\
+u_{n x-2} \\
+u_{n x-1} \\
+u_{n x}
+\end{array}\right]=\left[\begin{array}{c}
+B_{0} \\
+d_{1} \\
+d_{2} \\
+\vdots \\
+d_{n x-2} \\
+d_{n x-1} \\
+B_{n x}
+\end{array}\right]\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\left[\begin{array}{cccccc}
+b_{0} &amp; c_{0} &amp; 0 &amp; \cdots &amp; &amp; 0 \\
+a_{1} &amp; b_{1} &amp; c_{1} &amp; &amp; &amp; \\
+0 &amp; a_{2} &amp; b_{2} &amp; c_{2} &amp; &amp; \\
+\vdots &amp; &amp; \ddots &amp; \ddots &amp; \ddots &amp; \vdots \\
+&amp; &amp; a_{n x-2} &amp; b_{n x-2} &amp; c_{n x-2} &amp; 0 \\
+0 &amp; &amp; &amp; a_{n x-1} &amp; b_{n x-1} &amp; c_{n x-1} \\
+&amp; &amp; \cdots &amp; 0 &amp; a_{n x} &amp; b_{n x}
+\end{array}\right]\left[\begin{array}{c}
+u_{0} \\
+u_{1} \\
+u_{2} \\
+\vdots \\
+u_{n x-2} \\
+u_{n x-1} \\
+u_{n x}
+\end{array}\right]=\left[\begin{array}{c}
+B_{0} \\
+d_{1} \\
+d_{2} \\
+\vdots \\
+d_{n x-2} \\
+d_{n x-1} \\
+B_{n x}
+\end{array}\right]\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[a_{1} = 0,\quad b_{1}  = 1, \quad c_{1}= 0\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[a_{nx+1} = 0,\quad b_{nx+1}=1,\quad c_{nx+1} = 0\]</div>
+<ol class="arabic simple">
+<li><p>1D heat equation: Forward time central space (FTCS) scheme</p></li>
+<li><p>1D heat equation: Runge-Kutta Numerical Scheme</p></li>
+</ol>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="index.html" class="btn btn-neutral float-left" title="CFD Examples" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="burgers.html" class="btn btn-neutral float-right" title="Inviscid Burgers Equation" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2017~2024, eric.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

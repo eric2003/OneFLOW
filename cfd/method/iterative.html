@@ -1,0 +1,1770 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Iterative Solver &mdash; Scientific Computing 1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../_static/documentation_options.js?v=f2a433a1"></script>
+        <script src="../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="MULTIGRID" href="multigrid.html" />
+    <link rel="prev" title="Fourier Series" href="fourier.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            Scientific Computing
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Get started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../info.html">OneFLOW</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../user.html">THEORY</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../bash.html">Bash</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">CFD</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../ns.html">Navier–Stokes equations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../leibniz.html">Leibniz integral</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../rtt.html">Reynolds’ transport theorem</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../mass.html">Conservation Of Mass</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../momenum.html">Momentum Analysis Of Flow Systems</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../energy.html">Conservation Of Energy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../ns-integral.html">ALE Form of Conservation Equations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../curvilinear.html">Generalized Curvilinear Coordinate System</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../curvilinear3d.html">Generalized Curvilinear Coordinate System(3D)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../vector.html">Vector &amp; Tensor</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../matrix.html">Matrix</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../calculus.html">Calculus</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../substitution.html">Substitution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../jacobian.html">Jacobian matrix</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../gauss.html">Gauss’s Theorem</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../strain.html">Strain Measures</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../ale.html">Arbitrary Lagrangian-Eulerian</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../ale1d.html">ALE 1D</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../deformation.html">Deformation and Motion</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../derivative.html">Fluid Derivative</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../material_derivative.html">Material Time Derivative</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../scheme/index.html">CFD Schemes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/index.html">CFD Examples</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="index.html">CFD Methods</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="spectrum.html">Spectral Methods</a></li>
+<li class="toctree-l3"><a class="reference internal" href="fourier.html">Fourier Series</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Iterative Solver</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#id1">Iterative Solver</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#stationary-methods-gauss-seidel">Stationary Methods: Gauss-Seidel</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#jacobi-s-method">Jacobi’s Method</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#gauss-seidel-iterative-method">Gauss-Seidel iterative method</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#why-the-matrix-based-formula-works">Why the matrix-based formula works</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#solving-the-1d-poisson-equation-using-finite-differences">Solving the 1D Poisson equation using finite differences</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#solving-the-2d-poisson-equation-using-finite-differences">Solving the 2D Poisson equation using finite differences</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#non-stationary-methods-conjugate-gradient-algorithm">Non-Stationary Methods: Conjugate Gradient Algorithm</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#conjugate-gradient-algorithm">Conjugate gradient algorithm</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id6">Linear Conjugate Gradient Algorithm</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#the-method-of-steepest-descent">The Method of Steepest Descent</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#a-orthogonality">A-orthogonality</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#the-conjugate-gradient-method">The conjugate gradient method</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#example-1">Example 1</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#solving-the-1d-poisson-equation-using-conjugate-gradient-method">Solving the 1D Poisson equation using conjugate gradient method</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#another-form">another form</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#the-conjugate-gradient-method-from-code">The conjugate gradient method from code</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#solving-the-2d-poisson-equation">Solving the 2D Poisson equation</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="multigrid.html">MULTIGRID</a></li>
+<li class="toctree-l3"><a class="reference internal" href="multigrid1.html">MULTIGRID Continued</a></li>
+<li class="toctree-l3"><a class="reference internal" href="multigrid2.html">Multigrid Poisson Solver</a></li>
+<li class="toctree-l3"><a class="reference internal" href="vorticitystream.html">Vorticity Stream Function</a></li>
+<li class="toctree-l3"><a class="reference internal" href="inviscid2d.html">Incompressible Navier-Stokes Equation</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../codes.html">Reference Codes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../videos.html">CFD &amp; CAE Videos</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../books.html">Books</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../docs.html">Documents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../cgns.html">CGNS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../chatgpt.html">CHATGPT</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../cpp/index.html">CPP</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../cmake.html">CMake</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../cmd.html">Cmd</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../cuda.html">CUDA</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../design_patterns.html">Design Patterns</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../eigen.html">Eigen3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../git.html">Git</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../git.html#contexts">Contexts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../fortran.html">Fortran</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../hdf5.html">HDF5</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../hpc.html">HPC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../install/index.html">Install</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../julia.html">Julia</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../jupyter.html">Jupyter Notebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../latex.html">LaTeX</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../makefile.html">Makefile</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../metis.html">METIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../mkdocs.html">MkDocs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../modules.html">Environment Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../mpi.html">MPI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../numerical/index.html">Numerical analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../oneapi.html">oneAPI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../oneflow.html">OneFLOW-CFD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../openacc.html">OpenACC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../opencl.html">OpenCL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../opengl.html">OpenGL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../openmp.html">OpenMP</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../powershell.html">PowerShell</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../python/index.html">Python</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../qt.html">Qt</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../regex.html">Regular Expressions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../science.html">Science</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sphinx.html">Sphinx</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../system/index.html">System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../taichi.html">Taichi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tcltk.html">Tcl/tk</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tecplot.html">Tecplot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../test.html">Test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../unreal_engine.html">Unreal Engine</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../vcpkg.html">vcpkg</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../yaml.html">yaml</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Scientific Computing</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">CFD</a></li>
+          <li class="breadcrumb-item"><a href="index.html">CFD Methods</a></li>
+      <li class="breadcrumb-item active">Iterative Solver</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/cfd/method/iterative.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="iterative-solver">
+<h1>Iterative Solver<a class="headerlink" href="#iterative-solver" title="Link to this heading"></a></h1>
+<ol class="arabic simple">
+<li><p><a class="reference external" href="https://www.youtube.com/watch?v=ymsY8IFbOwY/">Scientific Computing || 02 Week 7 19 1 Introduction to spectral methods 10 46</a></p></li>
+<li><p><a class="reference external" href="https://people.eecs.berkeley.edu/~demmel/cs267/lecture24/lecture24.html">Solving the Discrete Poisson Equation using Jacobi, SOR, Conjugate Gradients, and the FFT</a></p></li>
+<li><p><a class="reference external" href="https://aquaulb.github.io/book_solving_pde_mooc/solving_pde_mooc/notebooks/05_IterativeMethods/05_01_Iteration_and_2D.html">Iteration methods</a></p></li>
+<li><p><a class="reference external" href="http://www.fem.unicamp.br/~phoenics/SITE_PHOENICS/Apostilas/CFD-1_U%20Michigan_Hong/Lecture11.pdf">Numerical Methods for Elliptic Equations</a></p></li>
+<li><p><a class="reference external" href="https://crunchingnumbers.live/2017/07/09/iterative-methods-part-2/">Iterative Methods: Part 2</a></p></li>
+<li><p><a class="reference external" href="https://github.com/jonathanschilling/fftw_tutorial/">FFTW Tutorial</a></p></li>
+<li><p><a class="reference external" href="https://mathematica.stackexchange.com/questions/220627/finite-difference-method-for-1d-poisson-equation-with-mixed-boundary-conditions/">Finite difference method for 1D Poisson equation with mixed boundary conditions</a></p></li>
+</ol>
+<section id="id1">
+<h2>Iterative Solver<a class="headerlink" href="#id1" title="Link to this heading"></a></h2>
+<p>Iterative methods use successive approximations to obtain the most accurate solution to a linear system at every iteration step. These methods start with an initial guess and proceed to generate a sequence of approximations, in which the k-th approximation is derived from the previous ones. There are two main types of iterative methods. Stationary methods that are easy to understand and are simple to implement, but are not very effective. Non-stationary methods which are based on the idea of the sequence of orthogonal vectors. We would like to recommend a text by Barrett et al. which provides a good discussion on the implementation of iterative methods for solving a linear system of equations.</p>
+</section>
+<section id="stationary-methods-gauss-seidel">
+<h2>Stationary Methods: Gauss-Seidel<a class="headerlink" href="#stationary-methods-gauss-seidel" title="Link to this heading"></a></h2>
+<p>The iterative methods work by splitting the matrix <span class="math notranslate nohighlight">\(\mathbf{A}\)</span> into</p>
+<div class="math notranslate nohighlight">
+\[\mathbf{A}=\mathbf{M}-\mathbf{P}\]</div>
+<p>Equation</p>
+<div class="math notranslate nohighlight">
+\[\mathbf{A}\mathbf{u}=\mathbf{b}\]</div>
+<p>becomes</p>
+<div class="math notranslate nohighlight">
+\[\mathbf{M}\mathbf{u}=\mathbf{P}\mathbf{u}+\mathbf{b}\]</div>
+<p>The solution at <span class="math notranslate nohighlight">\((k+1)\)</span> iteration is given by</p>
+<div class="math notranslate nohighlight">
+\[\mathbf{M}\mathbf{u}^{(k+1)}=\mathbf{P}\mathbf{u}^{(k+1)}+\mathbf{b}\]</div>
+<p>If we take the difference between the above two equations, we get the evolution of error as
+<span class="math notranslate nohighlight">\(\epsilon^{(k+1)}=\mathbf{M}^{-1}\mathbf{P}\epsilon^{(k)}\)</span>. For the solution to converge to the exact solution and the error to go to zero,
+the largest eigenvalue of iteration matrix <span class="math notranslate nohighlight">\(\mathbf{M}^{-1}\mathbf{P}\)</span> should be less than 1.  The approximate number of iterations required for the error
+<span class="math notranslate nohighlight">\(\epsilon\)</span> to go below some specified tolerance <span class="math notranslate nohighlight">\(\delta\)</span> is given by</p>
+<div class="math notranslate nohighlight">
+\[Q=\cfrac{\text{ln}(\delta)}{\text{ln}(\lambda_{1})}\]</div>
+<p>where <span class="math notranslate nohighlight">\(Q\)</span> is the number of iterations and <span class="math notranslate nohighlight">\(\lambda_{1}\)</span> is the maximum eigenvalue of iteration matrix <span class="math notranslate nohighlight">\(\mathbf{M}^{-1}\mathbf{P}\)</span>.
+If the convergence tolerance is specified to be <span class="math notranslate nohighlight">\(1\times10^{-5}\)</span> then the number of iterations for convergence will be <span class="math notranslate nohighlight">\(Q=1146\)</span> and
+<span class="math notranslate nohighlight">\(Q=23,020\)</span> for <span class="math notranslate nohighlight">\(\lambda_{1}=0.99\)</span> and <span class="math notranslate nohighlight">\(\lambda_{1}=0.9995\)</span> respectively. Therefore, the maximum eigenvalue of the iteration matrix should be less for faster convergence. When we implement iterative methods, we do not form the matrix
+<span class="math notranslate nohighlight">\(\mathbf{M}\)</span> and <span class="math notranslate nohighlight">\(\mathbf{P}\)</span>. Equation <span class="math notranslate nohighlight">\(\mathbf{M}\mathbf{u}^{(k+1)}=\mathbf{P}\mathbf{u}^{(k+1)}+\mathbf{b}\)</span> is just the matrix representation of the iterative method. In matrix terms, the Gauss-Seidel method can be expressed as</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+\mathbf{M}= \mathbf{D}-\mathbf{L}\\
+\mathbf{u}^{(k+1)}=(\mathbf{D}-\mathbf{L})^{-1}\mathbf{P}\mathbf{u}^{(k)}+\mathbf{M}^{-1}\mathbf{b}
+\end{array}\end{split}\]</div>
+<p>where <span class="math notranslate nohighlight">\(\mathbf{D}\)</span>, <span class="math notranslate nohighlight">\(\mathbf{L}\)</span> and <span class="math notranslate nohighlight">\(\mathbf{U}\)</span> represent the diagonal, the strictly lower-triangular, and the strictly upper-triangular parts of
+<span class="math notranslate nohighlight">\(\mathbf{A}\)</span> respectively. We do not explicitly construct the matrices <span class="math notranslate nohighlight">\(\mathbf{D}\)</span>, <span class="math notranslate nohighlight">\(\mathbf{L}\)</span> and <span class="math notranslate nohighlight">\(\mathbf{U}\)</span>, instead we use the update formula based on data vectors (i.e., we obtain a vector once a matrix operates on a vector).</p>
+<p>The update formulas for Gauss-Seidel iterations if we iterate from left to right and from bottom to top can be written as</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+d=\cfrac{-2}{\Delta x^2}+\cfrac{-2}{\Delta y^2}\\
+u_{i,j}^{(k+1)}=u_{i,j}^{(k)}+\cfrac{r_{i,j}}{d} \\
+r_{i,j}=f_{i,j}^{(k)}-\cfrac{u_{i-1,j}^{(k)}-2u_{i,j}^{(k)}+u_{i+1,j}^{(k)}}{\Delta x^{2}}
+-\cfrac{u_{i,j-1}^{(k)}-2u_{i,j}^{(k)}+u_{i,j+1}^{(k)}}{\Delta y^{2}}
+\end{array}\end{split}\]</div>
+<p>where we define an operator</p>
+<div class="math notranslate nohighlight">
+\[Au_{i,j}=\cfrac{u_{i-1,j}^{(k)}-2u_{i,j}^{(k)}+u_{i+1,j}^{(k)}}{\Delta x^{2}}
++\cfrac{u_{i,j-1}^{(k)}-2u_{i,j}^{(k)}+u_{i,j+1}^{(k)}}{\Delta y^{2}}\]</div>
+</section>
+<section id="jacobi-s-method">
+<h2>Jacobi’s Method<a class="headerlink" href="#jacobi-s-method" title="Link to this heading"></a></h2>
+<p>Iterative Methods for Solving <span class="math notranslate nohighlight">\(\mathbf{A}\mathbf{x}=\mathbf{b}\)</span> - Jacobi’s Method</p>
+<p>Two assumptions made on Jacobi Method:</p>
+<ol class="arabic simple">
+<li><p>The system given by</p></li>
+</ol>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+a_{11}x_{1}+a_{12}x_{2}+\cdots +a_{1n}x_{n}=b_{1}\\
+a_{21}x_{1}+a_{22}x_{2}+\cdots +a_{2n}x_{n}=b_{2}\\
+\cdots \\
+a_{n1}x_{1}+a_{n2}x_{2}+\cdots +a_{nn}x_{n}=b_{n}\\
+\end{array}\end{split}\]</div>
+<p>Has a unique solution.</p>
+<p>2. The coefficient matrix has no zeros on its main diagonal, namely
+<span class="math notranslate nohighlight">\(a_{11},a_{22},\cdots,a_{nn}\)</span> are nonzeros.</p>
+<p>Main idea of Jacobi:</p>
+<p>To begin, solve the <span class="math notranslate nohighlight">\(1^{st}\)</span> equation for <span class="math notranslate nohighlight">\(x_{1}\)</span>, the <span class="math notranslate nohighlight">\(2^{nd}\)</span> equation <span class="math notranslate nohighlight">\(x_{2}\)</span> for and so on to obtain the rewritten equations:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+x_{1}=\cfrac{1}{a_{11}}(b_{1}-a_{12}x_{2}-a_{13}x_{3}-\cdots-a_{1n}x_{n})\\
+x_{2}=\cfrac{1}{a_{22}}(b_{2}-a_{21}x_{1}-a_{23}x_{3}-\cdots-a_{2n}x_{n})\\
+\cdots \\
+x_{n}=\cfrac{1}{a_{nn}}(b_{n}-a_{n1}x_{1}-a_{n2}x_{2}-\cdots-a_{n,n-1}x_{n-1})\\
+\end{array}\end{split}\]</div>
+<p>Then make an initial guess of the solution <span class="math notranslate nohighlight">\(x^{(0)}=(x_{1}^{(0)},x_{2}^{(0)},x_{3}^{(0)},\cdots,x_{n}^{(0)})\)</span>.
+Substitute these values into the right hand side the of the rewritten equations to obtain the first approximation,
+<span class="math notranslate nohighlight">\((x_{1}^{(1)},x_{2}^{(1)},x_{3}^{(1)},\cdots,x_{n}^{(1)})\)</span>.
+This accomplishes one iteration. In the same way, the second approximation <span class="math notranslate nohighlight">\((x_{1}^{(2)},x_{2}^{(2)},x_{3}^{(2)},\cdots,x_{n}^{(2)})\)</span> is computed by substituting the first approximation’s <span class="math notranslate nohighlight">\(x\)</span>-
+values into the right hand side of the rewritten equations.</p>
+<p>By repeated iterations, we form a sequence of approximations <span class="math notranslate nohighlight">\(\mathbf{x}^{(k)}=(x_{1}^{(2)},x_{2}^{(2)},x_{3}^{(2)},\cdots,x_{n}^{(2)})^{T},k=1,2,3,\cdots\)</span></p>
+<p>For each <span class="math notranslate nohighlight">\(k \ge 1\)</span>, generate the components <span class="math notranslate nohighlight">\(x_{i}^{(k)}\)</span> of <span class="math notranslate nohighlight">\(\mathbf{x}^{(k)}\)</span> from <span class="math notranslate nohighlight">\(\mathbf{x}^{(k-1)}\)</span> by</p>
+<div class="math notranslate nohighlight">
+\[x_{i}^{(k)}=\cfrac{1}{a_{ii}} \bigg[\sum_{j=1,j\ne i}^{n}(-a_{ij}x_{j}^{(k-1)})+b_{i}\bigg]\]</div>
+<p>for</p>
+<div class="math notranslate nohighlight">
+\[i=1,2,\cdots,n\]</div>
+<p>The Jacobi Method in Matrix Form</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\mathbf{A}=\begin{bmatrix}
+a_{11}&amp;a_{12}&amp;\cdots&amp;a_{1n} \\
+a_{21}&amp;a_{22}&amp;\cdots&amp;a_{2n} \\
+\vdots&amp;\vdots  &amp; \ddots  &amp;\vdots\\
+a_{n1}&amp;a_{n2}&amp;\cdots&amp;a_{nn} \\
+\end{bmatrix}\end{split}\]</div>
+<p>and</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\mathbf{b}=\begin{bmatrix}
+b_{1}\\ b_{2}\\\vdots\\ b_{n}
+\end{bmatrix}\end{split}\]</div>
+<p>for</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\mathbf{x}=\begin{bmatrix}
+x_{1}\\ x_{2}\\\vdots\\ x_{n}
+\end{bmatrix}\end{split}\]</div>
+<p>We split <span class="math notranslate nohighlight">\(\mathbf{A}\)</span> into</p>
+<div class="math notranslate nohighlight">
+\[\mathbf{A}=\mathbf{L}+\mathbf{D}+\mathbf{U}\]</div>
+<p>where</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\mathbf{L}=\begin{bmatrix}
+0&amp;0&amp;\cdots&amp;0 \\
+a_{21}&amp;0&amp;\cdots&amp;0 \\
+\vdots&amp;\vdots  &amp; \ddots  &amp;\vdots\\
+a_{n1}&amp;a_{n2}&amp;\cdots&amp;0\\
+\end{bmatrix}\quad
+\mathbf{D}=\begin{bmatrix}
+a_{11}&amp;0&amp;\cdots&amp;0 \\
+0&amp;a_{22}&amp;\cdots&amp;0 \\
+\vdots&amp;\vdots  &amp; \ddots  &amp;\vdots\\
+0&amp;0&amp;\cdots&amp;a_{nn}\\
+\end{bmatrix}\quad
+\mathbf{U}=\begin{bmatrix}
+0&amp;a_{12}&amp;\cdots&amp;a_{1n} \\
+0&amp;0&amp;\cdots&amp;a_{2n} \\
+\vdots&amp;\vdots  &amp; \ddots  &amp;\vdots\\
+0&amp;0&amp;\cdots&amp;0\\
+\end{bmatrix}\quad\end{split}\]</div>
+<p><span class="math notranslate nohighlight">\(\mathbf{A}\mathbf{x}=\mathbf{b}\)</span> is transformed into</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+(\mathbf{L}+\mathbf{D}+\mathbf{U})\mathbf{x}=\mathbf{b}\\
+{\mathbf{D}}\mathbf{x}=\mathbf{b}-(\mathbf{L}+\mathbf{U})\mathbf{x}\\
+\mathbf{x}= {\mathbf{D}^{-1}}\mathbf{b}-{\mathbf{D}^{-1}}(\mathbf{L}+\mathbf{U})\mathbf{x}\\
+\end{array}\end{split}\]</div>
+<p>where</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\mathbf{D}^{-1}=\begin{bmatrix}
+\cfrac{1}{a_{11}} &amp;0&amp;\cdots&amp;0 \\
+0&amp;\cfrac{1}{a_{22}}&amp;\cdots&amp;0 \\
+\vdots&amp;\vdots  &amp; \ddots  &amp;\vdots\\
+0&amp;0&amp;\cdots&amp;\cfrac{1}{a_{nn}}\\
+\end{bmatrix}\quad\end{split}\]</div>
+<p>The matrix form of Jacobi iterative method is</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\mathbf{x}^{(k+1)}= -{\mathbf{D}^{-1}}(\mathbf{L}+\mathbf{U})\mathbf{x}^{(k)}+{\mathbf{D}^{-1}}\mathbf{b}\quad k=1,2,3\\\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+a_{11}x_{1}^{(k+1)}+a_{12}x_{2}^{(k)}+\cdots +a_{1n}x_{n}^{(k)}=b_{1}\\
+a_{21}x_{1}^{(k)}+a_{22}x_{2}^{(k+1)}+\cdots +a_{2n}x_{n}^{(k)}=b_{2}\\
+\cdots \\
+a_{n1}x_{1}^{(k)}+a_{n2}x_{2}^{(k)}+\cdots +a_{nn}x_{n}^{(k+1)}=b_{n}\\
+\end{array}\end{split}\]</div>
+</section>
+<section id="gauss-seidel-iterative-method">
+<h2>Gauss-Seidel iterative method<a class="headerlink" href="#gauss-seidel-iterative-method" title="Link to this heading"></a></h2>
+<p>For each <span class="math notranslate nohighlight">\(k \ge 1\)</span>, generate the components <span class="math notranslate nohighlight">\(x_{i}^{(k)}\)</span> of <span class="math notranslate nohighlight">\(\mathbf{x}^{(k)}\)</span> from <span class="math notranslate nohighlight">\(\mathbf{x}^{(k-1)}\)</span> by</p>
+<div class="math notranslate nohighlight">
+\[x_{i}^{(k)}=\cfrac{1}{a_{ii}} \bigg[-\sum_{j=1}^{i-1}(a_{ij}x_{j}^{(k)})-\sum_{j=i+1}^{n}(a_{ij}x_{j}^{(k-1)})+b_{i}\bigg]\]</div>
+<p>Namely,</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+a_{11}x_{1}^{(k+1)}+a_{12}x_{2}^{(k)}+a_{13}x_{3}^{(k)}+\cdots +a_{1n}x_{n}^{(k)}=b_{1}\\
+a_{21}x_{1}^{(k+1)}+a_{22}x_{2}^{(k+1)}+a_{23}x_{3}^{(k)}+\cdots +a_{2n}x_{n}^{(k)}=b_{2}\\
+a_{31}x_{1}^{(k+1)}+a_{32}x_{2}^{(k+1)}+a_{33}x_{3}^{(k+1)}+\cdots +a_{2n}x_{n}^{(k)}=b_{3}\\
+\cdots \\
+a_{n1}x_{1}^{(k+1)}+a_{n2}x_{2}^{(k+1)}+a_{n3}x_{3}^{(k+1)}+\cdots +a_{nn}x_{n}^{(k+1)}=b_{n}\\
+\end{array}\end{split}\]</div>
+<p>Matrix-based formula</p>
+<p>The solution is obtained iteratively via</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+(\mathbf{L}+\mathbf{D})\mathbf{x}^{(k+1)}+\mathbf{U}\mathbf{x}^{(k)}=\mathbf{b}\\
+(\mathbf{L}+\mathbf{D})\mathbf{x}^{(k+1)}=\mathbf{b}-\mathbf{U}\mathbf{x}^{(k)}\\
+\mathbf{L}_{*}=\mathbf{L}+\mathbf{D}\\
+\mathbf{L}_{*}\mathbf{x}^{(k+1)}=\mathbf{b}-\mathbf{U}\mathbf{x}^{(k)}\\
+\end{array}\end{split}\]</div>
+</section>
+<section id="why-the-matrix-based-formula-works">
+<h2>Why the matrix-based formula works<a class="headerlink" href="#why-the-matrix-based-formula-works" title="Link to this heading"></a></h2>
+<p>The system of linear equations may be rewritten as:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+\mathbf{A}\mathbf{x}=\mathbf{b}\\
+(\mathbf{L}_{*}+\mathbf{U})\mathbf{x}=\mathbf{b}\\
+\mathbf{L}_{*}\mathbf{x}+\mathbf{U}\mathbf{x}=\mathbf{b}\\
+\mathbf{L}_{*}\mathbf{x}=\mathbf{b}-\mathbf{U}\mathbf{x}\\
+\mathbf{x}=\mathbf{L}_{*}^{-1}(\mathbf{b}-\mathbf{U}\mathbf{x})\\
+\end{array}\end{split}\]</div>
+<p>The Gauss–Seidel method now solves the left hand side of this expression for <span class="math notranslate nohighlight">\(\mathbf{x}\)</span>, using previous value for
+<span class="math notranslate nohighlight">\(\mathbf{x}\)</span>, on the right hand side. Analytically, this may be written as:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\mathbf{x}^{(k+1)}=\mathbf{L}_{*}^{-1}(\mathbf{b}-\mathbf{U}\mathbf{x}^{(k)})\\\end{split}\]</div>
+</section>
+<section id="solving-the-1d-poisson-equation-using-finite-differences">
+<h2>Solving the 1D Poisson equation using finite differences<a class="headerlink" href="#solving-the-1d-poisson-equation-using-finite-differences" title="Link to this heading"></a></h2>
+<p>Consider the 1D Poisson equation</p>
+<div class="math notranslate nohighlight">
+\[\cfrac{d^{2}u}{dx^{2}} =f(x)=-1\]</div>
+<p>on <span class="math notranslate nohighlight">\(\Omega=[0,1]\)</span> with boundary conditions</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+u(0)=0\\
+u'(1)=\cfrac{du}{dx}\bigg|_{x=1}=0
+\end{array}\end{split}\]</div>
+<p>which has analytical solution</p>
+<div class="math notranslate nohighlight">
+\[u=x-\cfrac{1}{2}x^{2}\]</div>
+<section id="finite-differences">
+<h3>Finite differences<a class="headerlink" href="#finite-differences" title="Link to this heading"></a></h3>
+<p>We we will use this specific example to investigate various approaches to solving partial differential equations with finite differences, in which we discretize the domain by defining <span class="math notranslate nohighlight">\(N\)</span> equally
+spaced points</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+\cfrac{u_{i+1}-2u_{i}+u_{i-1}}{\Delta x^{2}} =f_{i}\\
+{u_{i+1}-2u_{i}+u_{i-1}}={\Delta x^{2}}f_{i}\\
+\end{array}\end{split}\]</div>
+<p>The boundary conditions require special care. For <span class="math notranslate nohighlight">\(x=0\)</span> we have a Dirichlet boundary condition
+which allows us to fix the value <span class="math notranslate nohighlight">\(u_{1}=0\)</span>. For <span class="math notranslate nohighlight">\(x=1\)</span> we have a Neumann boundary condition
+<span class="math notranslate nohighlight">\(du/dx = 0\)</span>. This is a symmetry boundary condition, so that in this case we can imagine a ’ghost’
+point <span class="math notranslate nohighlight">\(u_{N+1}\)</span> which is always equal to <span class="math notranslate nohighlight">\(u_{N-1}\)</span>. This leads to the expression for point <span class="math notranslate nohighlight">\(x_{N}\)</span>:</p>
+<div class="math notranslate nohighlight">
+\[u_{N}=u_{N-1}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+\cfrac{u_{i+1}-2u_{i}+u_{i-1}}{\Delta x^{2}} =f_{i}\\
+{u_{i+1}-2u_{i}+u_{i-1}}={\Delta x^{2}}f_{i}=b{i}\\
+{u_{i+1}-2u_{i}+u_{i-1}}=b_{i}\\
+u_{i-1}-2u_{i}+u_{i+1}=b_{i}\\
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+u_{2-1}-2u_{2}+u_{2+1}=b_{2}\\
+u_{3-1}-2u_{3}+u_{3+1}=b_{3}\\
+\cdots\\
+u_{i-1}-2u_{i}+u_{i+1}=b_{i}\\
+\cdots\\
+u_{N-1-1}-2u_{N-1}+u_{N-1+1}=b_{N-1}\\
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+u_{1}-2u_{2}+u_{3}=b_{2}\\
+u_{2}-2u_{3}+u_{4}=b_{3}\\
+\cdots\\
+u_{i-1}-2u_{i}+u_{i+1}=b_{i}\\
+\cdots\\
+u_{N-2}-2u_{N-1}+u_{N}=b_{N-1}\\
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+-2u_{2}+u_{3}=b_{2}-u_{1}=\hat{b}_{2}\\
+u_{2}-2u_{3}+u_{4}=b_{3}=\hat{b}_{3}\\
+\cdots\\
+u_{i-1}-2u_{i}+u_{i+1}=b_{i}=\hat{b}_{i}\\
+\cdots\\
+u_{N-3}-2u_{N-2}+u_{N-1}=b_{N-2}=\hat{b}_{N-2}\\
+u_{N-2}-2u_{N-1}=b_{N-1}-u_{N}=\hat{b}_{N-1}\\
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{bmatrix}
+-2&amp;1  &amp;0 &amp;\cdots&amp;\cdots&amp;0\\
+1&amp; -2 &amp; 1&amp;\ddots&amp;&amp;\vdots\\
+0&amp;1&amp; -2 &amp; 1&amp;\ddots&amp;\vdots\\
+\vdots&amp;\ddots&amp;\ddots&amp;\ddots&amp;\ddots&amp;0  \\
+\vdots&amp;&amp;\ddots&amp;1&amp; -2 &amp; 1\\
+0&amp;\cdots&amp;\cdots&amp; 0&amp;1&amp;-2 \\
+\end{bmatrix}
+\begin{bmatrix}
+u_{2}\\u_{3}\\\vdots\\u_{i}\\\vdots\\u_{N-2}\\u_{N-1}
+\end{bmatrix}=
+\begin{bmatrix}
+\hat{b}_{2}\\\hat{b}_{3}\\\vdots\\\hat{b}_{i}\\\vdots\\\hat{b}_{N-2}\\\hat{b}_{N-1}
+\end{bmatrix}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\mathbf{A}=
+\begin{bmatrix}
+-2&amp;1  &amp;0 &amp;\cdots&amp;\cdots&amp;0\\
+1&amp; -2 &amp; 1&amp;\ddots&amp;&amp;\vdots\\
+0&amp;1&amp; -2 &amp; 1&amp;\ddots&amp;\vdots\\
+\vdots&amp;\ddots&amp;\ddots&amp;\ddots&amp;\ddots&amp;0  \\
+\vdots&amp;&amp;\ddots&amp;1&amp; -2 &amp; 1\\
+0&amp;\cdots&amp;\cdots&amp; 0&amp;1&amp;-2 \\
+\end{bmatrix}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+a_{ii}=-2\\
+a_{i,i+1}=1\\
+a_{i+1,i}=1\\
+\text{else}\\
+a_{i,j}=0\\
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+-2u_{2}^{(k+1)}+u_{3}^{(k)}=\hat{b}_{2}\\
+u_{2}^{(k+1)}-2u_{3}^{(k+1)}+u_{4}^{(k)}=\hat{b}_{3}\\
+u_{3}^{(k+1)}-2u_{4}^{(k+1)}+u_{5}^{(k)}=\hat{b}_{4}\\
+\cdots\\
+u_{i-1}^{(k+1)}-2u_{i}^{(k+1)}+u_{i+1}^{(k)}=\hat{b}_{i}\\
+\cdots\\
+u_{N-3}^{(k+1)}-2u_{N-2}^{(k+1)}+u_{N-1}^{(k)}=\hat{b}_{N-2}\\
+u_{N-2}^{(k+1)}-2u_{N-1}^{(k+1)}=\hat{b}_{N-1}\\
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+\displaystyle \cfrac{u_{i-1}-2u_{i}+u_{i+1}}{\Delta x^{2}} =f_{i}\\
+\displaystyle \cfrac{u_{i-1}^{(k+1)}-2u_{i}^{(k+1)}+u_{i+1}^{(k)}}{\Delta x^{2}} =f_{i}\\
+\displaystyle \cfrac{u_{i-1}^{(k+1)}-2u_{i}^{(k)}+2u_{i}^{(k)}-2u_{i}^{(k+1)}+u_{i+1}^{(k)}}{\Delta x^{2}} =f_{i}\\
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+\displaystyle \cfrac{u_{i-1}^{(k+1)}-2u_{i}^{(k)}-2(u_{i}^{(k+1)}-u_{i}^{(k)})+u_{i+1}^{(k)}}{\Delta x^{2}} =f_{i}\\
+\displaystyle \cfrac{u_{i-1}^{(k+1)}-2u_{i}^{(k)}+u_{i+1}^{(k)}}{\Delta x^{2}}
+-\cfrac{2}{\Delta x^{2}}(u_{i}^{(k+1)}-u_{i}^{(k)})=f_{i}\\
+-\cfrac{2}{\Delta x^{2}}(u_{i}^{(k+1)}-u_{i}^{(k)})=f_{i}-\displaystyle \cfrac{u_{i-1}^{(k+1)}-2u_{i}^{(k)}+u_{i+1}^{(k)}}{\Delta x^{2}}\\
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+u_{i}^{(k+1)}-u_{i}^{(k)}=\cfrac{1}{-\cfrac{2}{\Delta x^{2}}} \Bigg\{f_{i}-\displaystyle \cfrac{u_{i-1}^{(k+1)}-2u_{i}^{(k)}+u_{i+1}^{(k)}}{\Delta x^{2}}\Bigg\}\\
+u_{i}^{(k+1)}=u_{i}^{(k)}+\cfrac{1}{-\cfrac{2}{\Delta x^{2}}} \Bigg\{f_{i}-\displaystyle \cfrac{u_{i-1}^{(k+1)}-2u_{i}^{(k)}+u_{i+1}^{(k)}}{\Delta x^{2}}\Bigg\}\\
+\end{array}\end{split}\]</div>
+<p>Let</p>
+<div class="math notranslate nohighlight">
+\[r_{i}=f_{i}-\displaystyle \cfrac{u_{i-1}^{(k+1)}-2u_{i}^{(k)}+u_{i+1}^{(k)}}{\Delta x^{2}}\]</div>
+<p>then</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+d_{i}= -\cfrac{2}{\Delta x^{2}}\\
+u_{i}^{(k+1)}=u_{i}^{(k)}+\cfrac{1}{-\cfrac{2}{\Delta x^{2}}}r_{i}\\
+u_{i}^{(k+1)}=u_{i}^{(k)}+\cfrac{1}{d_{i}}r_{i}\\
+\end{array}\end{split}\]</div>
+</section>
+</section>
+<section id="solving-the-2d-poisson-equation-using-finite-differences">
+<h2>Solving the 2D Poisson equation using finite differences<a class="headerlink" href="#solving-the-2d-poisson-equation-using-finite-differences" title="Link to this heading"></a></h2>
+<div class="math notranslate nohighlight">
+\[\begin{split}\displaystyle \cfrac{u_{i-1,j}-2u_{i,j}+u_{i+1,j}}{\Delta x^{2}}
++\cfrac{u_{i,j-1}-2u_{i,j}+u_{i,j+1}}{\Delta y^{2}}
+=f_{i,j}\\\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+\displaystyle \cfrac{u_{2-1,j}-2u_{2,j}+u_{2+1,j}}{\Delta x^{2}}
++\cfrac{u_{2,j-1}-2u_{2,j}+u_{2,j+1}}{\Delta y^{2}} =f_{2,j}\\
+\displaystyle \cfrac{u_{3-1,j}-2u_{3,j}+u_{3+1,j}}{\Delta x^{2}}
++\cfrac{u_{3,j-1}-2u_{3,j}+u_{3,j+1}}{\Delta y^{2}} =f_{3,j}\\
+\cdots \\
+\displaystyle \cfrac{u_{i-1,j}-2u_{i,j}+u_{i+1,j}}{\Delta x^{2}}
++\cfrac{u_{i,j-1}-2u_{i,j}+u_{i,j+1}}{\Delta y^{2}} =f_{i,j}\\
+\cdots \\
+\displaystyle \cfrac{u_{m-1-1,j}-2u_{m-1,j}+u_{m-1+1,j}}{\Delta x^{2}}
++\cfrac{u_{m-1,j-1}-2u_{m-1,j}+u_{m-1,j+1}}{\Delta y^{2}} =f_{m-1,j}\\
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+\displaystyle \cfrac{u_{1,j}-2u_{2,j}+u_{3,j}}{\Delta x^{2}}
++\cfrac{u_{2,j-1}-2u_{2,j}+u_{2,j+1}}{\Delta y^{2}} =f_{2,j}\\
+\displaystyle \cfrac{u_{2,j}-2u_{3,j}+u_{4,j}}{\Delta x^{2}}
++\cfrac{u_{3,j-1}-2u_{3,j}+u_{3,j+1}}{\Delta y^{2}} =f_{3,j}\\
+\cdots \\
+\displaystyle \cfrac{u_{i-1,j}-2u_{i,j}+u_{i+1,j}}{\Delta x^{2}}
++\cfrac{u_{i,j-1}-2u_{i,j}+u_{i,j+1}}{\Delta y^{2}} =f_{i,j}\\
+\cdots \\
+\displaystyle \cfrac{u_{m-2,j}-2u_{m-1,j}+u_{m,j}}{\Delta x^{2}}
++\cfrac{u_{m-1,j-1}-2u_{m-1,j}+u_{m-1,j+1}}{\Delta y^{2}} =f_{m-1,j}\\
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+\displaystyle \cfrac{u_{1,2}-2u_{2,2}+u_{3,2}}{\Delta x^{2}}
++\cfrac{u_{2,1}-2u_{2,2}+u_{2,3}}{\Delta y^{2}} =f_{2,2}\\
+\displaystyle \cfrac{u_{2,2}-2u_{3,2}+u_{4,2}}{\Delta x^{2}}
++\cfrac{u_{3,1}-2u_{3,2}+u_{3,3}}{\Delta y^{2}} =f_{3,2}\\
+\cdots \\
+\displaystyle \cfrac{u_{i-1,2}-2u_{i,2}+u_{i+1,2}}{\Delta x^{2}}
++\cfrac{u_{i,1}-2u_{i,2}+u_{i,3}}{\Delta y^{2}} =f_{i,2}\\
+\cdots \\
+\displaystyle \cfrac{u_{m-2,2}-2u_{m-1,2}+u_{m,2}}{\Delta x^{2}}
++\cfrac{u_{m-1,1}-2u_{m-1,2}+u_{m-1,3}}{\Delta y^{2}} =f_{m-1,2}\\
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+\displaystyle \cfrac{u_{1,3}-2u_{2,3}+u_{3,3}}{\Delta x^{2}}
++\cfrac{u_{2,2}-2u_{2,3}+u_{2,4}}{\Delta y^{2}} =f_{2,3}\\
+\displaystyle \cfrac{u_{2,3}-2u_{3,3}+u_{4,3}}{\Delta x^{2}}
++\cfrac{u_{3,2}-2u_{3,3}+u_{3,4}}{\Delta y^{2}} =f_{3,3}\\
+\cdots \\
+\displaystyle \cfrac{u_{i-1,3}-2u_{i,3}+u_{i+1,3}}{\Delta x^{2}}
++\cfrac{u_{i,2}-2u_{i,3}+u_{i,4}}{\Delta y^{2}} =f_{i,3}\\
+\cdots \\
+\displaystyle \cfrac{u_{m-2,3}-2u_{m-1,3}+u_{m,3}}{\Delta x^{2}}
++\cfrac{u_{m-1,2}-2u_{m-1,3}+u_{m-1,4}}{\Delta y^{2}} =f_{m-1,3}\\
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+\displaystyle \cfrac{u_{1,n-1}-2u_{2,n-1}+u_{3,n-1}}{\Delta x^{2}}
++\cfrac{u_{2,n-2}-2u_{2,n-1}+u_{2,n}}{\Delta y^{2}} =f_{2,n-1}\\
+\displaystyle \cfrac{u_{2,n-1}-2u_{3,n-1}+u_{4,n-1}}{\Delta x^{2}}
++\cfrac{u_{3,n-2}-2u_{3,n-1}+u_{3,n}}{\Delta y^{2}} =f_{3,n-1}\\
+\cdots \\
+\displaystyle \cfrac{u_{i-1,n-1}-2u_{i,n-1}+u_{i+1,n-1}}{\Delta x^{2}}
++\cfrac{u_{i,n-2}-2u_{i,n-1}+u_{i,n}}{\Delta y^{2}} =f_{i,n-1}\\
+\cdots \\
+\displaystyle \cfrac{u_{m-2,n-1}-2u_{m-1,n-1}+u_{m,n-1}}{\Delta x^{2}}
++\cfrac{u_{m-1,n-1}-2u_{m-1,n-1}+u_{m-1,n}}{\Delta y^{2}} =f_{m-1,n-1}\\
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\mathbf{u}=\begin{bmatrix}
+u_{2,2}\\u_{3,2}\\\vdots\\u_{m-1,2}\\
+u_{2,3}\\u_{3,3}\\\vdots\\u_{m-1,3}\\
+\vdots\\
+u_{2,n-1}\\u_{3,n-1}\\\vdots\\u_{m-1,n-1}\\
+\end{bmatrix}\quad
+\mathbf{f}=\begin{bmatrix}
+f_{2,2}\\f_{3,2}\\\vdots\\f_{m-1,2}\\
+f_{2,3}\\f_{3,3}\\\vdots\\f_{m-1,3}\\
+\vdots\\
+f_{2,n-1}\\f_{3,n-1}\\\vdots\\f_{m-1,n-1}\\
+\end{bmatrix}\quad\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\displaystyle \cfrac{u_{i-1,j}-2u_{i,j}+u_{i+1,j}}{\Delta x^{2}}
++\cfrac{u_{i,j-1}-2u_{i,j}+u_{i,j+1}}{\Delta y^{2}}
+=f_{i,j}\\\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\cfrac{1}{\Delta x^{2}}u_{i-1,j}
+-(\cfrac{2}{\Delta x^{2}}+\cfrac{2}{\Delta y^{2}})u_{i,j}
++\cfrac{1}{\Delta x^{2}}u_{i+1,j}
++\cfrac{1}{\Delta y^{2}}u_{i,j-1}
++\cfrac{1}{\Delta y^{2}}u_{i,j+1}
+=f_{i,j}\\\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+a=\cfrac{1}{\Delta x^{2}},
+b=-(\cfrac{2}{\Delta x^{2}}+\cfrac{2}{\Delta y^{2}}),
+c=\cfrac{1}{\Delta x^{2}},
+d=\cfrac{1}{\Delta y^{2}},
+e=\cfrac{1}{\Delta y^{2}}\\
+au_{i-1,j}+bu_{i,j}+cu_{i+1,j}+du_{i,j-1}+eu_{i,j+1}  =f_{i,j}\\
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+bu_{2,2}+cu_{3,2}+eu_{2,3}=f_{2,2}-au_{1,2}-du_{2,1}=\hat{f}_{2,2}\\
+au_{2,2}+bu_{3,2}+cu_{4,2}+eu_{3,3}=f_{3,2}-du_{3,1}=\hat{f}_{3,2}\\
+au_{3,2}+bu_{4,2}+cu_{5,2}+eu_{4,3}=f_{4,2}-du_{4,1}=\hat{f}_{4,2}\\
+\cdots \\
+au_{i-1,2}+bu_{i,2}+cu_{i+1,2}+eu_{i,3}=f_{i,2}-du_{i,1}=\hat{f}_{i,2}\\
+\cdots \\
+au_{m-2,2}+bu_{m-1,2}+cu_{m,2}+eu_{m-1,3}=f_{m-1,2}-du_{m-1,1}=\hat{f}_{m-1,2}\\
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+au_{i-1,j}+bu_{i,j}+cu_{i+1,j}+du_{i,j-1}+eu_{i,j+1}=f_{i,j}\\
+au_{i-1,3}+bu_{i,3}+cu_{i+1,3}+du_{i,2}+eu_{i,4}=f_{i,3}\\
+bu_{2,3}+cu_{3,3}+du_{2,2}+eu_{2,4}=f_{2,3}-au_{1,3}=\hat{f}_{2,3}\\
+du_{2,2}+bu_{2,3}+cu_{3,3}+eu_{2,4}=f_{2,3}-au_{1,3}=\hat{f}_{2,3}\\
+au_{2,3}+bu_{3,3}+cu_{4,3}+du_{3,2}+eu_{3,4}=f_{3,3}=\hat{f}_{3,3}\\
+du_{3,2}+au_{2,3}+bu_{3,3}+cu_{4,3}+eu_{3,4}=f_{3,3}=\hat{f}_{3,3}\\
+au_{3,3}+bu_{4,3}+cu_{5,3}+du_{4,2}+eu_{4,4}=f_{4,3}=\hat{f}_{4,3}\\
+\cdots\\
+au_{m-2,3}+bu_{m-1,3}+cu_{m,3}+du_{m-1,2}+eu_{m-1,4}=f_{m-1,3}=\hat{f}_{m-1,3}\\
+du_{m-1,2}+au_{m-2,3}+bu_{m-1,3}+cu_{m,3}+eu_{m-1,4}=f_{m-1,3}=\hat{f}_{m-1,3}\\
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{bmatrix}
+b&amp; c &amp;0&amp;\cdots &amp;e &amp;\cdots&amp;\cdots&amp;&amp;0\\
+a&amp; b &amp;c&amp;\ddots&amp;\ &amp;\ddots&amp;&amp;&amp;\vdots\\
+0&amp;a&amp; b &amp;c&amp;\ddots &amp;&amp;\ddots&amp;&amp;\vdots\\
+\vdots&amp;\ddots &amp;\ddots&amp;\ddots&amp;&amp;\ddots&amp;&amp;&amp;e\\
+d&amp; &amp;\ddots&amp;\ddots&amp;&amp;\ddots&amp;&amp;&amp;\vdots\\
+\vdots&amp;\ddots   &amp; &amp; &amp;\ddots&amp;a&amp; b &amp;c&amp;0\\
+\vdots&amp;  &amp;\ddots&amp;&amp;&amp;\ddots&amp;a&amp; b &amp;c\\
+0&amp;\cdots  &amp;&amp;d&amp;\cdots&amp;&amp;0&amp;a&amp; b\\
+\end{bmatrix}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}au_{i-1,j}^{(k+1)}+bu_{i,j}^{(k+1)}+cu_{i+1,j}^{(k)}+du_{i,j-1}^{(k+1)}+eu_{i,j+1}^{(k)}  =f_{i,j}\\\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\displaystyle \cfrac{u_{i-1,j}^{(k+1)}-2u_{i,j}^{(k+1)}+u_{i+1,j}^{(k)}}{\Delta x^{2}}
++\cfrac{u_{i,j-1}^{(k+1)}-2u_{i,j}^{(k+1)}+u_{i,j+1}^{(k)}}{\Delta y^{2}}
+=f_{i,j}\\\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+\displaystyle \cfrac{u_{i-1,j}^{(k+1)}-2u_{i,j}^{(k+1)}+u_{i+1,j}^{(k)}}{\Delta x^{2}}
++\cfrac{u_{i,j-1}^{(k+1)}-2u_{i,j}^{(k+1)}+u_{i,j+1}^{(k)}}{\Delta y^{2}}
+=f_{i,j}\\
+\displaystyle \cfrac{u_{i-1,j}^{(k+1)}-2u_{i,j}^{(k)}-2(u_{i,j}^{(k+1)}-u_{i,j}^{(k)})+u_{i+1,j}^{(k)}}{\Delta x^{2}}
++\cfrac{u_{i,j-1}^{(k+1)}-2u_{i,j}^{(k)}-2(u_{i,j}^{(k+1)}-u_{i,j}^{(k)})+u_{i,j+1}^{(k)}}{\Delta y^{2}}
+=f_{i,j}\\
+\displaystyle \cfrac{u_{i-1,j}^{(k+1)}-2u_{i,j}^{(k)}+u_{i+1,j}^{(k)}}{\Delta x^{2}}+\cfrac{-2}{\Delta x^{2}}(u_{i,j}^{(k+1)}-u_{i,j}^{(k)})\\
++\cfrac{u_{i,j-1}^{(k+1)}-2u_{i,j}^{(k)}+u_{i,j+1}^{(k)}}{\Delta y^{2}} +\cfrac{-2}{\Delta y^{2}}(u_{i,j}^{(k+1)}-u_{i,j}^{(k)})
+=f_{i,j}\\
+\displaystyle \cfrac{u_{i-1,j}^{(k+1)}-2u_{i,j}^{(k)}+u_{i+1,j}^{(k)}}{\Delta x^{2}}
++\cfrac{u_{i,j-1}^{(k+1)}-2u_{i,j}^{(k)}+u_{i,j+1}^{(k)}}{\Delta y^{2}}
++\bigg\{\cfrac{-2}{\Delta x^{2}}+\cfrac{-2}{\Delta y^{2}}\bigg\}(u_{i,j}^{(k+1)}-u_{i,j}^{(k)})
+=f_{i,j}\\
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\displaystyle \bigg\{\cfrac{-2}{\Delta x^{2}}+\cfrac{-2}{\Delta y^{2}}\bigg\}(u_{i,j}^{(k+1)}-u_{i,j}^{(k)}) =f_{i,j}-\cfrac{u_{i-1,j}^{(k+1)}-2u_{i,j}^{(k)}+u_{i+1,j}^{(k)}}{\Delta x^{2}}
+-\cfrac{u_{i,j-1}^{(k+1)}-2u_{i,j}^{(k)}+u_{i,j+1}^{(k)}}{\Delta y^{2}}\\\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+u_{i,j}^{(k+1)}-u_{i,j}^{(k)}
+ =\cfrac{f_{i,j}-\cfrac{u_{i-1,j}^{(k+1)}-2u_{i,j}^{(k)}+u_{i+1,j}^{(k)}}{\Delta x^{2}}
+-\cfrac{u_{i,j-1}^{(k+1)}-2u_{i,j}^{(k)}+u_{i,j+1}^{(k)}}{\Delta y^{2}}}{\cfrac{-2}{\Delta x^{2}}+\cfrac{-2}{\Delta y^{2}}} \\
+u_{i,j}^{(k+1)}
+ =u_{i,j}^{(k)}+\cfrac{f_{i,j}-\cfrac{u_{i-1,j}^{(k+1)}-2u_{i,j}^{(k)}+u_{i+1,j}^{(k)}}{\Delta x^{2}}
+-\cfrac{u_{i,j-1}^{(k+1)}-2u_{i,j}^{(k)}+u_{i,j+1}^{(k)}}{\Delta y^{2}}}{\cfrac{-2}{\Delta x^{2}}+\cfrac{-2}{\Delta y^{2}}} \\
+\end{array}\end{split}\]</div>
+<p>Let</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+r_{i,j}=f_{i,j}-\Bigg[\cfrac{u_{i-1,j}^{(k+1)}-2u_{i,j}^{(k)}+u_{i+1,j}^{(k)}}{\Delta x^{2}}
++\cfrac{u_{i,j-1}^{(k+1)}-2u_{i,j}^{(k)}+u_{i,j+1}^{(k)}}{\Delta y^{2}}\Bigg]\\
+d_{i,j}=\cfrac{-2}{\Delta x^{2}}+\cfrac{-2}{\Delta y^{2}}
+\end{array}\end{split}\]</div>
+<p>then</p>
+<div class="math notranslate nohighlight">
+\[u_{i,j}^{(k+1)}=u_{i,j}^{(k)}+\cfrac{r_{i,j}}{d_{i,j}}\]</div>
+</section>
+<section id="non-stationary-methods-conjugate-gradient-algorithm">
+<h2>Non-Stationary Methods: Conjugate Gradient Algorithm<a class="headerlink" href="#non-stationary-methods-conjugate-gradient-algorithm" title="Link to this heading"></a></h2>
+<ol class="arabic simple">
+<li><p><a class="reference external" href="https://www.bilibili.com/video/BV16a4y1t76z/">共轭梯度法-苏州大学</a></p></li>
+<li><p><a class="reference external" href="https://www.bilibili.com/video/BV18741177td/">数值分析2020春苏州大学</a></p></li>
+<li><p><a class="reference external" href="https://indrag49.github.io/Numerical-Optimization/conjugate-gradient-methods-1.html">Linear Conjugate Gradient Algorithm</a></p></li>
+<li><p><a class="reference external" href="https://ml-cheatsheet.readthedocs.io/en/latest/gradient_descent.html">Gradient Descent</a></p></li>
+<li><p><a class="reference external" href="https://www.bilibili.com/video/BV1a94y1S7PP/">如何通俗地解释梯度下降法</a></p></li>
+<li><p><a class="reference external" href="https://d2l.ai/chapter_optimization/gd.html">One-Dimensional Gradient Descent</a></p></li>
+<li><p><a class="reference external" href="https://www.youtube.com/watch?v=wRCczEGBi1g">Easiest Way to Understand Gradient Descent Step by Step</a></p></li>
+<li><p><a class="reference external" href="https://ikuz.eu/machine-learning-and-computer-science/the-concept-of-conjugate-gradient-descent-in-python/">The Concept of Conjugate Gradient Descent in Python</a></p></li>
+<li><p><a class="reference external" href="https://towardsdatascience.com/complete-step-by-step-conjugate-gradient-algorithm-from-scratch-202c07fb52a8/">Complete Step-by-step Conjugate Gradient Algorithm from Scratch</a></p></li>
+<li><p><a class="reference external" href="https://gregorygundersen.com/blog/2022/03/20/conjugate-gradient-descent/">Conjugate Gradient Descent</a></p></li>
+<li><p><a class="reference external" href="https://sophiamyang.github.io/DS/optimization/descentmethod2/descentmethod2.html">Descent method — Steepest descent and conjugate gradient in Python</a></p></li>
+<li><p><a class="reference external" href="https://mathematica.stackexchange.com/questions/220627/finite-difference-method-for-1d-poisson-equation-with-mixed-boundary-conditions/">Finite difference method for 1D Poisson equation with mixed boundary conditions</a></p></li>
+</ol>
+<p>Non-stationary methods differ from stationary methods in that the iterative matrix changes at every iteration. These methods work by forming a basis of a sequence of matrix powers times the initial residual.
+The basis is called as the Krylov subspace and mathematically given by <span class="math notranslate nohighlight">\(\mathcal{K}_{n}(\mathbf{A},\mathbf{b})=\text{span}\{\mathbf{b},\mathbf{A}\mathbf{b},\mathbf{A}^{2}\mathbf{b},\cdots,\mathbf{A}^{n-1}\mathbf{b}\}\)</span>.
+The approximate solution to the linear system is found by minimizing the residual over the subspace formed. In this paper, we discuss the conjugate gradient method which is one of the most effective methods for symmetric positive definite systems.</p>
+<p>The conjugate gradient method proceeds by calculating the vector sequence of successive approximate solution, residual corresponding the approximate solution, and search direction used in updating the solution and residuals. The approximate solution
+<span class="math notranslate nohighlight">\(\mathbf{u}^{(k)}\)</span> is updated at every iteration by a scalar multiple <span class="math notranslate nohighlight">\(\alpha_{k}\)</span> of the search direction vector
+<span class="math notranslate nohighlight">\(\mathbf{p}^{(k)}\)</span>:</p>
+<div class="math notranslate nohighlight">
+\[\mathbf{u}^{(k+1)}=\mathbf{u}^{(k)}+\alpha_{k}\mathbf{p}^{(k)}\]</div>
+<p>Correspondingly, the residuals <span class="math notranslate nohighlight">\(\mathbf{r}^{(k)}\)</span> are updated as</p>
+<div class="math notranslate nohighlight">
+\[\mathbf{r}^{(k+1)}=\mathbf{r}^{(k)}+\alpha_{k}\mathbf{q}^{(k)}\]</div>
+<p>where</p>
+<div class="math notranslate nohighlight">
+\[\mathbf{q}^{(k)}=\mathbf{A}\mathbf{p}^{(k)}\]</div>
+<p>The search directions are then updated using the residuals</p>
+<div class="math notranslate nohighlight">
+\[\mathbf{p}^{(k+1)}=\mathbf{r}^{(k+1)}+\beta{k}\mathbf{p}^{(k)}\]</div>
+<p>where the choice <span class="math notranslate nohighlight">\(\beta_{k}=\cfrac{{\mathbf{r}^{(k)}}^{\mathbf{T}}\mathbf{r}^{(k)}}{{\mathbf{r}^{(k-1)}}^{\mathbf{T}}\mathbf{r}^{(k-1)}}\)</span>
+ensures that <span class="math notranslate nohighlight">\(\mathbf{p}^{(k+1)}\)</span> and <span class="math notranslate nohighlight">\(\mathbf{r}^{(k+1)}\)</span> are orthogonal to all previous <span class="math notranslate nohighlight">\(\mathbf{A}\mathbf{p}^{(k)}\)</span>
+and <span class="math notranslate nohighlight">\(\mathbf{r}^{(k)}\)</span> respectively.</p>
+</section>
+<section id="conjugate-gradient-algorithm">
+<h2>Conjugate gradient algorithm<a class="headerlink" href="#conjugate-gradient-algorithm" title="Link to this heading"></a></h2>
+<ol class="arabic simple">
+<li><p>Given <span class="math notranslate nohighlight">\(\mathbf{b}\)</span></p></li>
+<li><p>Given matrix operator <span class="math notranslate nohighlight">\(\mathbf{A}\)</span></p></li>
+<li><p><span class="math notranslate nohighlight">\(\mathbf{u}^{(0)}=\mathbf{b}\)</span></p></li>
+<li><p><span class="math notranslate nohighlight">\(\mathbf{r}^{(0)}=\mathbf{b}-\mathbf{A}\mathbf{u}^{(0)}\)</span></p></li>
+<li><p><span class="math notranslate nohighlight">\(\mathbf{p}^{(0)}=\mathbf{r}^{(0)}\)</span></p></li>
+<li><p><span class="math notranslate nohighlight">\(k=0\)</span></p></li>
+<li><p><span class="math notranslate nohighlight">\(\rho_{0}={\mathbf{r}^{(0)}}^{\mathbf{T}}\mathbf{r}^{(0)}\)</span></p></li>
+<li><p>while tolerance met ( or <span class="math notranslate nohighlight">\(k&lt;N\)</span> ) do</p></li>
+<li><p><span class="math notranslate nohighlight">\(\mathbf{q}^{(k)}=\mathbf{A}\mathbf{p}^{(k)}\)</span></p></li>
+<li><p><span class="math notranslate nohighlight">\(\alpha_{k}=\cfrac{\rho_{k}}{{\mathbf{p}^{(k)}}^{\mathbf{T}}\mathbf{q}^{(k)}}\)</span></p></li>
+<li><p><span class="math notranslate nohighlight">\(\mathbf{u}^{(k+1)}=\mathbf{u}^{(k)}+\alpha_{k}\mathbf{p}^{(k)}\)</span></p></li>
+<li><p><span class="math notranslate nohighlight">\(\mathbf{r}^{(k+1)}=\mathbf{r}^{(k)}-\alpha_{k}\mathbf{q}^{(k)}\)</span></p></li>
+<li><p><span class="math notranslate nohighlight">\(\rho_{k+1}={\mathbf{r}^{(k+1)}}^{\mathbf{T}}\mathbf{r}^{(k+1)}\)</span></p></li>
+<li><p><span class="math notranslate nohighlight">\(\beta_{k}=\cfrac{\rho_{k+1}}{\rho_{k}}\)</span></p></li>
+<li><p><span class="math notranslate nohighlight">\(\mathbf{p}^{(k+1)}=\mathbf{r}^{(k+1)}+\beta_{k}\mathbf{p}^{(k)}\)</span></p></li>
+<li><p>check convergence; continue if necessary</p></li>
+<li><p><span class="math notranslate nohighlight">\(k\gets k+1\)</span></p></li>
+<li><p>end while</p></li>
+</ol>
+</section>
+<section id="id6">
+<h2>Linear Conjugate Gradient Algorithm<a class="headerlink" href="#id6" title="Link to this heading"></a></h2>
+<p>Steepest Descent Algorithm</p>
+<ol class="arabic simple">
+<li><p>Given any initial value <span class="math notranslate nohighlight">\(\mathbf{x}_{0}\)</span> calculate the residual <span class="math notranslate nohighlight">\(\mathbf{r}_{0}=\mathbf{b}-\mathbf{A}\mathbf{x}_{0}\)</span>.</p></li>
+<li><p>Go along the selected direction <span class="math notranslate nohighlight">\(\mathbf{p}=\mathbf{r}_{0}\)</span>, calculate</p></li>
+</ol>
+<div class="math notranslate nohighlight">
+\[\alpha =\cfrac{(\mathbf{r}_{0},\mathbf{r}_{0})}{(\mathbf{A}\mathbf{r}_{0},\mathbf{r}_{0})}\]</div>
+<p>update</p>
+<div class="math notranslate nohighlight">
+\[\mathbf{x}_{1}=\mathbf{x}_{0}+\alpha \mathbf{r}_{0}\]</div>
+<ol class="arabic simple" start="3">
+<li><p>Repeat</p></li>
+</ol>
+</section>
+<section id="the-method-of-steepest-descent">
+<h2>The Method of Steepest Descent<a class="headerlink" href="#the-method-of-steepest-descent" title="Link to this heading"></a></h2>
+<p>Suppose we want to find the minimizer of an objective function, having the quadratic form:</p>
+<div class="math notranslate nohighlight">
+\[f(\mathbf{x})=\cfrac{1}{2} \mathbf{x}^{\text{T}}\mathbf{A}\mathbf{x}-\mathbf{x}^{\text{T}} \mathbf{b}\]</div>
+<p>where <span class="math notranslate nohighlight">\(\mathbf{A}\)</span> is a <span class="math notranslate nohighlight">\(n\times n\)</span> symmetric positive definite matrix.
+Since <span class="math notranslate nohighlight">\(\mathbf{A}\)</span> is positive definite, the minimum value point of the quadratic function <span class="math notranslate nohighlight">\(f(\mathbf{x})\)</span> must exist and be a stagnation point:</p>
+<div class="math notranslate nohighlight">
+\[f(\mathbf{x}^{*})=\text{min}f(\mathbf{x})\quad\Leftrightarrow \quad
+\nabla f(\mathbf{x}^{*})=\mathbf{A}\mathbf{x}^{*}-\mathbf{b}=0\]</div>
+<p>Calculate the gradient first</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+\displaystyle f(\mathbf{x})=\cfrac{1}{2}\sum_{j=1}^{n}\sum_{k=1}^{n}a_{kj}x_{k}x_{j}-\sum_{j=1}^{n}x_{j}b_{j}\\
+\displaystyle \cfrac{\partial f}{\partial x_{l}}=\cfrac{1}{2}\sum_{k=1}^{n}a_{kl}x_{k}
++\cfrac{1}{2}\sum_{j=1}^{n}a_{lj}x_{j}-b_{l}=\sum_{k=1}^{n}a_{kl}x_{k}-b_{l}\\
+\nabla f=\text{grad } f=\mathbf{A}\mathbf{x}-\mathbf{b}
+\end{array}\end{split}\]</div>
+<ol class="arabic simple">
+<li><p>Given any initial value <span class="math notranslate nohighlight">\(\mathbf{x}_{0}\)</span> calculate the residual <span class="math notranslate nohighlight">\(\mathbf{r}_{0}=\mathbf{b}-\mathbf{A}\mathbf{x}_{0}\)</span>.</p></li>
+<li><p>Go along the selected direction <span class="math notranslate nohighlight">\(\mathbf{p}\)</span>, for example, <span class="math notranslate nohighlight">\(\mathbf{p}=\mathbf{r}_{0}\)</span> direction</p></li>
+</ol>
+<div class="math notranslate nohighlight">
+\[\mathbf{x}_{1}= \mathbf{x}_{0}+\alpha \ast \mathbf{p}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+\nabla f=\text{grad } f=\mathbf{A}\mathbf{x}-\mathbf{b}\\
+\mathbf{r}_{0}=\mathbf{b}-\mathbf{A}\mathbf{x}_{0}\\
+\nabla f\bigg|_{x=x_{1}}\cdot\mathbf{p}=(\mathbf{r}_{1},\mathbf{p})=(\mathbf{b}-\mathbf{A}\mathbf{x}_{1},\mathbf{p})=0\\
+(\mathbf{b}-\mathbf{A}\mathbf{x}_{1},\mathbf{p})=
+(\mathbf{b}-\mathbf{A}\mathbf{x}_{0}-\alpha\mathbf{A}\mathbf{p},\mathbf{p})=
+(\mathbf{r}_{0}-\alpha\mathbf{A}\mathbf{p},\mathbf{p})=0\\
+\Rightarrow \alpha =\cfrac{(\mathbf{r}_{0},\mathbf{p})}{(\mathbf{A}\mathbf{p},\mathbf{p})}
+\end{array}\end{split}\]</div>
+<p>Gradient</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+\nabla f=\text{grad } f=\mathbf{A}\mathbf{x}-\mathbf{b}\\
+-\nabla f=-\text{grad } f=\mathbf{b}-\mathbf{A}\mathbf{x}\\
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+f(\mathbf{x})=\cfrac{1}{2} \mathbf{x}^{\text{T}}\mathbf{A}\mathbf{x}-\mathbf{x}^{\text{T}} \mathbf{b}\\
+f(\mathbf{x}_{1})=\cfrac{1}{2} \mathbf{x}_{1}^{\text{T}}\mathbf{A}\mathbf{x}_{1}-\mathbf{x}_{1}^{\text{T}} \mathbf{b}\\
+\mathbf{x}_{1}= \mathbf{x}_{0}+\alpha \ast \mathbf{p}\\
+f(\mathbf{x}_{1})=\hat{f}(\alpha)=\cfrac{1}{2} {(\mathbf{x}_{0}+\alpha \ast \mathbf{p})}^{\text{T}}\mathbf{A}{(\mathbf{x}_{0}+\alpha \ast \mathbf{p})}-{(\mathbf{x}_{0}+\alpha \ast \mathbf{p})}^{\text{T}} \mathbf{b}\\
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+f(\mathbf{x}_{1})=\hat{f}(\alpha)=\cfrac{1}{2} {(\mathbf{x}_{0}+\alpha \ast \mathbf{p})}^{\text{T}}\mathbf{A}{(\mathbf{x}_{0}+\alpha \ast \mathbf{p})}-{(\mathbf{x}_{0}+\alpha \ast \mathbf{p})}^{\text{T}} \mathbf{b}\\
+\cfrac{d\hat{f}}{d\alpha} =\cfrac{1}{2}\mathbf{p}^{\text{T}}\mathbf{A}{(\mathbf{x}_{0}+\alpha \ast \mathbf{p})}
++\cfrac{1}{2} {(\mathbf{x}_{0}+\alpha \ast \mathbf{p})}^{\text{T}}\mathbf{A}\mathbf{p}-\mathbf{p}^{\text{T}}\mathbf{b}\\
+\cfrac{d\hat{f}}{d\alpha} =\cfrac{1}{2}\mathbf{p}^{\text{T}}\mathbf{A}\mathbf{x}_{0}
++\cfrac{1}{2}\alpha \mathbf{p}^{\text{T}}\mathbf{A}{(\mathbf{p})}
++\cfrac{1}{2} {(\mathbf{x}_{0})}^{\text{T}}\mathbf{A}\mathbf{p}
++\cfrac{1}{2}\alpha  {( \mathbf{p})}^{\text{T}}\mathbf{A}\mathbf{p}
+-\mathbf{p}^{\text{T}}\mathbf{b}\\
+\cfrac{d\hat{f}}{d\alpha} =\cfrac{1}{2}\mathbf{p}^{\text{T}}\mathbf{A}\mathbf{x}_{0}
++\cfrac{1}{2} {(\mathbf{x}_{0})}^{\text{T}}\mathbf{A}\mathbf{p}
++\alpha  {( \mathbf{p})}^{\text{T}}\mathbf{A}\mathbf{p}
+-\mathbf{p}^{\text{T}}\mathbf{b}\\
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[{\displaystyle \left(\mathbf {AB} \right)^{\operatorname {T} }=\mathbf {B} ^{\operatorname {T} }\mathbf {A} ^{\operatorname {T} }.}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+{\displaystyle \left(\mathbf {AB} \right)^{\operatorname {T} }=\mathbf {B} ^{\operatorname {T} }\mathbf {A} ^{\operatorname {T} }}  \\
+(\mathbf{p}^{\text{T}}(\mathbf{A}\mathbf{x}_{0}))^{\text{T}}=(\mathbf{A}\mathbf{x}_{0})^{\text{T}}(\mathbf{p}^{\text{T}})^{\text{T}}
+=(\mathbf{A}\mathbf{x}_{0})^{\text{T}}\mathbf{p}=\mathbf{x}_{0}^{\text{T}}\mathbf{A}^{\text{T}}\mathbf{p}
+\end{array}\end{split}\]</div>
+<p>where <span class="math notranslate nohighlight">\(\mathbf{A}\)</span> is a <span class="math notranslate nohighlight">\(n\times n\)</span> symmetric positive definite matrix.
+then</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\mathbf {A}=\mathbf {A}^{\text{T}}\\\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\mathbf{x}_{0}^{\text{T}}\mathbf{A}^{\text{T}}\mathbf{p}=\mathbf{x}_{0}^{\text{T}}\mathbf{A}\mathbf{p}\]</div>
+<p>Here again <span class="math notranslate nohighlight">\(\mathbf{p}^{\text{T}}\mathbf{A}\mathbf{x}_{0}\)</span>,
+<span class="math notranslate nohighlight">\({(\mathbf{x}_{0})}^{\text{T}}\mathbf{A}\mathbf{p}\)</span>  and <span class="math notranslate nohighlight">\(\mathbf{p}^{\text{T}}\mathbf{b}\)</span> are scalars.
+then,</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+(\mathbf{p}^{\text{T}}\mathbf{A}\mathbf{x}_{0})^{\text{T}}=\mathbf{p}^{\text{T}}\mathbf{A}\mathbf{x}_{0}\\
+({(\mathbf{x}_{0})}^{\text{T}}\mathbf{A}\mathbf{p})^{\text{T}}={(\mathbf{x}_{0})}^{\text{T}}\mathbf{A}\mathbf{p}\\
+(\mathbf{p}^{\text{T}}\mathbf{b})^{\text{T}}=\mathbf{p}^{\text{T}}\mathbf{b}
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+\cfrac{d\hat{f}}{d\alpha} =\cfrac{1}{2}\mathbf{p}^{\text{T}}\mathbf{A}\mathbf{x}_{0}
++\cfrac{1}{2} {(\mathbf{x}_{0})}^{\text{T}}\mathbf{A}\mathbf{p}
++\alpha  {( \mathbf{p})}^{\text{T}}\mathbf{A}\mathbf{p}
+-\mathbf{p}^{\text{T}}\mathbf{b}=0\\
+\cfrac{d\hat{f}}{d\alpha} =\mathbf{p}^{\text{T}}\mathbf{A}\mathbf{x}_{0}
++\alpha  {( \mathbf{p})}^{\text{T}}\mathbf{A}\mathbf{p}
+-\mathbf{p}^{\text{T}}\mathbf{b}=0\\
+\alpha  {( \mathbf{p})}^{\text{T}}\mathbf{A}\mathbf{p}=\mathbf{p}^{\text{T}}(\mathbf{b}-\mathbf{A}\mathbf{x}_{0})\\
+\alpha=\cfrac{\mathbf{p}^{\text{T}}(\mathbf{b}-\mathbf{A}\mathbf{x}_{0})}
+{{( \mathbf{p})}^{\text{T}}\mathbf{A}\mathbf{p}}
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+\mathbf{r}_{0}=\mathbf{b}-\mathbf{A}\mathbf{x}_{0}\\
+-\nabla f(\mathbf{x}_{0})=\mathbf{b}-\mathbf{A}\mathbf{x}_{0}=\mathbf{r}_{0}\\
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+\alpha=\cfrac{\mathbf{p}^{\text{T}}(\mathbf{b}-\mathbf{A}\mathbf{x}_{0})}
+{{( \mathbf{p})}^{\text{T}}\mathbf{A}\mathbf{p}} \\
+\alpha=\cfrac{\mathbf{p}^{\text{T}}(-\nabla f(\mathbf{x}_{0}))}
+{{( \mathbf{p})}^{\text{T}}\mathbf{A}\mathbf{p}} \\
+\alpha=\cfrac{\mathbf{p}^{\text{T}}(\mathbf{r}_{0})}
+{{( \mathbf{p})}^{\text{T}}\mathbf{A}\mathbf{p}} \\
+\end{array}\end{split}\]</div>
+<p>Inner product</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\left \langle \mathbf{x},\mathbf{y} \right \rangle= \mathbf{x}^{\text{T}}\mathbf{y}\\\end{split}\]</div>
+<p>then</p>
+<div class="math notranslate nohighlight">
+\[\alpha=\cfrac{\mathbf{p}^{\text{T}}(\mathbf{r}_{0})}
+{{( \mathbf{p})}^{\text{T}}\mathbf{A}\mathbf{p}}=
+\cfrac{\left \langle \mathbf{p},\mathbf{r}_{0} \right \rangle}{\left \langle \mathbf{p},\mathbf{A}\mathbf{p} \right \rangle}
+=\cfrac{\left \langle \mathbf{r}_{0},\mathbf{p} \right \rangle}{\left \langle \mathbf{A}\mathbf{p},\mathbf{p} \right \rangle}\]</div>
+<p>We can also write it as</p>
+<ol class="arabic simple">
+<li><p>Given any initial value <span class="math notranslate nohighlight">\(\mathbf{x}_{0}\)</span> calculate the residual <span class="math notranslate nohighlight">\(-\nabla f(\mathbf{x}_{0})=\mathbf{r}_{0}=\mathbf{b}-\mathbf{A}\mathbf{x}_{0}\)</span>.</p></li>
+<li><p>Go along the selected direction <span class="math notranslate nohighlight">\(\mathbf{p}_{0}=\mathbf{r}_{0}=-\nabla f(\mathbf{x}_{0})\)</span>, calculate</p></li>
+</ol>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+\alpha_{0} =\cfrac{(\mathbf{r}_{0},\mathbf{p}_{0})}{(\mathbf{A}\mathbf{p}_{0},\mathbf{p}_{0})} \\
+\mathbf{x}_{1}= \mathbf{x}_{0}+\alpha_{0} \ast \mathbf{p}_{0}\\
+\end{array}\end{split}\]</div>
+<ol class="arabic simple" start="3">
+<li><p>Go along the selected direction <span class="math notranslate nohighlight">\(\mathbf{p}_{1}=\mathbf{r}_{1}=-\nabla f(\mathbf{x}_{1})=\mathbf{b}-\mathbf{A}\mathbf{x}_{1}\)</span>, calculate</p></li>
+</ol>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+\alpha_{1} =\cfrac{(\mathbf{r}_{1},\mathbf{p}_{1})}{(\mathbf{A}\mathbf{p}_{1},\mathbf{p}_{1})} \\
+\mathbf{x}_{2}= \mathbf{x}_{1}+\alpha_{1} \ast \mathbf{p}_{1}\\
+\end{array}\end{split}\]</div>
+<ol class="arabic simple" start="4">
+<li><p>Go along the selected direction <span class="math notranslate nohighlight">\(\mathbf{p}_{k}=\mathbf{r}_{k}=-\nabla f(\mathbf{x}_{k})=\mathbf{b}-\mathbf{A}\mathbf{x}_{k}\)</span>, calculate</p></li>
+</ol>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+\alpha_{k} =\cfrac{(\mathbf{r}_{k},\mathbf{p}_{k})}{(\mathbf{A}\mathbf{p}_{k},\mathbf{p}_{k})} \\
+\mathbf{x}_{k+1}= \mathbf{x}_{k}+\alpha_{k} \ast \mathbf{p}_{k}\\
+\end{array}\end{split}\]</div>
+</section>
+<section id="a-orthogonality">
+<h2>A-orthogonality<a class="headerlink" href="#a-orthogonality" title="Link to this heading"></a></h2>
+<p>Let <span class="math notranslate nohighlight">\(\mathbf{A}\)</span> be a symmetric and positive definite matrix. Two vectors <span class="math notranslate nohighlight">\(\mathbf{u}\)</span> and <span class="math notranslate nohighlight">\(\mathbf{v}\)</span> are <span class="math notranslate nohighlight">\(\mathbf{A}\)</span>-orthogonal if</p>
+<div class="math notranslate nohighlight">
+\[\mathbf{u}^{\text{T}}\mathbf{A}\mathbf{v}=0,\quad \mathbf{u}\ne\mathbf{v}\]</div>
+<p>Suppose that <span class="math notranslate nohighlight">\(\{\mathbf{p}_{k}\}\)</span> is a sequence of <span class="math notranslate nohighlight">\(n\)</span> mutually conjugate directions. Then the <span class="math notranslate nohighlight">\(\mathbf{p}_{k}\)</span> form a basis of <span class="math notranslate nohighlight">\(\mathbf{R}^{n}\)</span>, so
+we can expand the solution <span class="math notranslate nohighlight">\(\mathbf{x}_{*}\)</span> of <span class="math notranslate nohighlight">\(\mathbf{A}\mathbf{a}=\mathbf{b}\)</span> in this basis:</p>
+<div class="math notranslate nohighlight">
+\[\mathbf{x}_{*} = \sum_{i=1}^{n}\alpha_{i}\mathbf{p}_{i}\]</div>
+<p>The coefficients are given by</p>
+<div class="math notranslate nohighlight">
+\[\mathbf{b}= \mathbf{A}\mathbf{x}_{*} = \sum_{i=1}^{n}\alpha_{i}\mathbf{A}\mathbf{p}_{i}\]</div>
+</section>
+<section id="the-conjugate-gradient-method">
+<h2>The conjugate gradient method<a class="headerlink" href="#the-conjugate-gradient-method" title="Link to this heading"></a></h2>
+<p>Matrix <span class="math notranslate nohighlight">\(\mathbf{A}\)</span> is symmetric and positive definite, we say that two non-zero vectors <span class="math notranslate nohighlight">\(\mathbf{u}\)</span> and <span class="math notranslate nohighlight">\(\mathbf{v}\)</span> are conjugate (with respect to <span class="math notranslate nohighlight">\(\mathbf{A}\)</span>) if</p>
+<div class="math notranslate nohighlight">
+\[(\mathbf{u},\mathbf{v})_{\mathbf{A}}=(\mathbf{A}\mathbf{u},\mathbf{v})=\mathbf{v}^{\text{T}}\mathbf{A}\mathbf{u}=
+\sum_{j=1}^{n}\sum_{k=1}^{n}a_{jk}u_{j}v{k}=0\]</div>
+<p>So, two vectors are conjugate if they are orthogonal with respect to this inner product. Being conjugate
+is a symmetric relation: if <span class="math notranslate nohighlight">\(\mathbf{u}\)</span> is conjugate to <span class="math notranslate nohighlight">\(\mathbf{v}\)</span>, then <span class="math notranslate nohighlight">\(\mathbf{v}\)</span> is conjugate to <span class="math notranslate nohighlight">\(\mathbf{u}\)</span>. (Note: This notion of conjugate is
+not related to the notion of complex conjugate.)</p>
+<ol class="arabic simple">
+<li><p>Given any initial value <span class="math notranslate nohighlight">\(\mathbf{x}_{0}\)</span> calculate the residual <span class="math notranslate nohighlight">\(\mathbf{r}_{0}=\mathbf{b}-\mathbf{A}\mathbf{x}_{0}\)</span>.</p></li>
+<li><p>Go along the selected direction <span class="math notranslate nohighlight">\(\mathbf{p}_{0}=\mathbf{r}_{0}\)</span>, calculate</p></li>
+</ol>
+<div class="math notranslate nohighlight">
+\[\mathbf{x}_{1}= \mathbf{x}_{0}+\alpha_{0} \ast \mathbf{p}_{0},
+\quad \alpha_{0} =\cfrac{(\mathbf{r}_{0},\mathbf{p}_{0})}{(\mathbf{A}\mathbf{p}_{0},\mathbf{p}_{0})}\]</div>
+<ol class="arabic simple" start="3">
+<li><p>A new residual <span class="math notranslate nohighlight">\(\mathbf{r}_{1}=\mathbf{b}-\mathbf{A}\mathbf{x}_{1}\)</span> is obtained from <span class="math notranslate nohighlight">\(\mathbf{x}_{1}\)</span>, and based on <span class="math notranslate nohighlight">\(\mathbf{r}_{1}\)</span>, A projection is made on <span class="math notranslate nohighlight">\(\mathbf{p}_{0}\)</span> to obtain a new forward direction <span class="math notranslate nohighlight">\(\mathbf{p}_{1}\)</span></p></li>
+</ol>
+<div class="math notranslate nohighlight">
+\[\begin{array}{l}
+\mathbf{p}_{1}= \mathbf{r}_{1}-\beta_{1} \ast \mathbf{p}_{0},
+\quad \beta_{1} =\cfrac{(\mathbf{A}\mathbf{p}_{0},\mathbf{r}_{1})}{(\mathbf{A}\mathbf{p}_{0},\mathbf{p}_{0})}
+\end{array}\]</div>
+<ol class="arabic simple" start="3">
+<li><p>Repeat</p></li>
+</ol>
+<div class="math notranslate nohighlight">
+\[\mathbf{x}_{k+1}= \mathbf{x}_{k}+\alpha_{k} \ast \mathbf{p}_{k}\to \mathbf{r}_{k+1}\to \mathbf{p}_{k+1}\to \mathbf{x}_{k+2}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\left\{\begin{array}{ll}
+\mathbf{r}_{0}=\mathbf{b}-\mathbf{A}\mathbf{x}_{0}, &amp; \mathbf{p}_{0}=\mathbf{r}_{0}\\
+\mathbf{x}_{k+1}= \mathbf{x}_{k}+\alpha_{k} \ast \mathbf{p}_{k}\to &amp;\mathbf{r}_{k+1}=\mathbf{p}_{k+1}
+\end{array}\right.
+\Rightarrow
+\left\{\begin{array}{ll}
+\mathbf{r}_{0},\mathbf{r}_{1},\cdots,\mathbf{r}_{n}\\
+\mathbf{p}_{0},\mathbf{p}_{1},\cdots,\mathbf{p}_{n}\\
+\end{array}\right.\end{split}\]</div>
+<p>Suppose we want to find the minimizer of an objective function, having the quadratic form:</p>
+<div class="math notranslate nohighlight">
+\[f(\mathbf{x})=\cfrac{1}{2} \mathbf{x}^{\text{T}}\mathbf{A}\mathbf{x}-\mathbf{x}^{\text{T}} \mathbf{b}\]</div>
+<p>Gradient</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+\nabla f=\text{grad } f=\mathbf{A}\mathbf{x}-\mathbf{b}\\
+-\nabla f=-\text{grad } f=\mathbf{b}-\mathbf{A}\mathbf{x}\\
+\end{array}\end{split}\]</div>
+<p>We can also write it as</p>
+<ol class="arabic simple">
+<li><p>Given any initial value <span class="math notranslate nohighlight">\(\mathbf{x}_{0}\)</span> calculate the residual <span class="math notranslate nohighlight">\(-\nabla f(\mathbf{x}_{0})=\mathbf{r}_{0}=\mathbf{b}-\mathbf{A}\mathbf{x}_{0}\)</span>.</p></li>
+<li><p>Go along the selected direction <span class="math notranslate nohighlight">\(\mathbf{p}_{0}=\mathbf{r}_{0}=-\nabla f(\mathbf{x}_{0})\)</span>, calculate</p></li>
+</ol>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+\alpha_{0} =\cfrac{(\mathbf{r}_{0},\mathbf{p}_{0})}{(\mathbf{A}\mathbf{p}_{0},\mathbf{p}_{0})} \\
+\mathbf{x}_{1}= \mathbf{x}_{0}+\alpha_{0} \ast \mathbf{p}_{0}\\
+\end{array}\end{split}\]</div>
+<ol class="arabic simple" start="3">
+<li><p>A new residual <span class="math notranslate nohighlight">\(-\nabla f(\mathbf{x}_{1})=\mathbf{r}_{1}=\mathbf{b}-\mathbf{A}\mathbf{x}_{1}\)</span> is obtained from <span class="math notranslate nohighlight">\(\mathbf{x}_{1}\)</span>, and based on <span class="math notranslate nohighlight">\(\mathbf{r}_{1}\)</span>, A projection is made on <span class="math notranslate nohighlight">\(\mathbf{p}_{0}\)</span> to obtain a new forward direction <span class="math notranslate nohighlight">\(\mathbf{p}_{1}\)</span></p></li>
+</ol>
+<div class="math notranslate nohighlight">
+\[\begin{array}{l}
+\mathbf{p}_{1}= \mathbf{r}_{1}-\beta_{1} \ast \mathbf{p}_{0},
+\quad \beta_{1} =\cfrac{(\mathbf{A}\mathbf{p}_{0},\mathbf{r}_{1})}{(\mathbf{A}\mathbf{p}_{0},\mathbf{p}_{0})}
+\end{array}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+\alpha_{1} =\cfrac{(\mathbf{r}_{1},\mathbf{p}_{1})}{(\mathbf{A}\mathbf{p}_{1},\mathbf{p}_{1})} \\
+\mathbf{x}_{2}= \mathbf{x}_{1}+\alpha_{1} \ast \mathbf{p}_{1}\\
+\end{array}\end{split}\]</div>
+<ol class="arabic simple" start="4">
+<li><p>A new residual <span class="math notranslate nohighlight">\(-\nabla f(\mathbf{x}_{k})=\mathbf{r}_{k}=\mathbf{b}-\mathbf{A}\mathbf{x}_{k}\)</span> is obtained from <span class="math notranslate nohighlight">\(\mathbf{x}_{k}\)</span>, and based on <span class="math notranslate nohighlight">\(\mathbf{r}_{k}\)</span>, A projection is made on <span class="math notranslate nohighlight">\(\mathbf{p}_{k-1}\)</span> to obtain a new forward direction <span class="math notranslate nohighlight">\(\mathbf{p}_{k}\)</span></p></li>
+</ol>
+<div class="math notranslate nohighlight">
+\[\begin{array}{l}
+\mathbf{p}_{k}= \mathbf{r}_{k}-\beta_{k} \ast \mathbf{p}_{k-1},
+\quad \beta_{k} =\cfrac{(\mathbf{A}\mathbf{p}_{k-1},\mathbf{r}_{k})}{(\mathbf{A}\mathbf{p}_{k-1},\mathbf{p}_{k-1})}
+\end{array}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+\alpha_{k} =\cfrac{(\mathbf{r}_{k},\mathbf{p}_{k})}{(\mathbf{A}\mathbf{p}_{k},\mathbf{p}_{k})} \\
+\mathbf{x}_{k+1}= \mathbf{x}_{k}+\alpha_{k} \ast \mathbf{p}_{k}\\
+\end{array}\end{split}\]</div>
+</section>
+<section id="example-1">
+<h2>Example 1<a class="headerlink" href="#example-1" title="Link to this heading"></a></h2>
+<p>Solve <span class="math notranslate nohighlight">\(\mathbf{A}\mathbf{x}=\mathbf{b}\)</span></p>
+<p>where</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\mathbf{A} =\begin{bmatrix}
+3&amp;2 \\
+2&amp;6
+\end{bmatrix}\quad
+\mathbf{x}=\begin{bmatrix}
+x_{1}\\x_{2}
+\end{bmatrix}\quad
+\mathbf{b}=\begin{bmatrix}
+2\\-8
+\end{bmatrix}\end{split}\]</div>
+<p>The quadratic form:</p>
+<div class="math notranslate nohighlight">
+\[f(\mathbf{x})=\cfrac{1}{2}\mathbf{x}^{\text{T}}\mathbf{A}\mathbf{x}-\mathbf{b}^{\text{T}}\mathbf{x}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+f(\mathbf{x})=\cfrac{1}{2}\begin{bmatrix}
+  x_{1}&amp;x_{2}
+\end{bmatrix}
+ \begin{bmatrix}
+  a_{11}&amp; a_{12}\\
+  a_{21}&amp;a_{22}
+\end{bmatrix}\begin{bmatrix}
+ x_{1}\\x_{2}
+\end{bmatrix}
+-\begin{bmatrix}
+  b_{1}&amp;b_{2}
+\end{bmatrix}\begin{bmatrix}
+ x_{1}\\x_{2}
+\end{bmatrix}\\
+f(\mathbf{x})=\cfrac{1}{2}\begin{bmatrix}
+  x_{1}&amp;x_{2}
+\end{bmatrix}\begin{bmatrix}
+ a_{11}x_{1}+a_{12}x_{2}\\a_{21}x_{1}+a_{22}x_{2}
+\end{bmatrix}-b_{1}x_{1}-b_{2}x_{2}\\
+f(\mathbf{x})=\cfrac{1}{2}(a_{11}x_{1}^{2}+a_{12}x_{1}x_{2}+a_{21}x_{1}x_{2}+a_{22}x_{2}^{2})-b_{1}x_{1}-b_{2}x_{2}
+\end{array}\end{split}\]</div>
+<p>In general</p>
+<div class="math notranslate nohighlight">
+\[f(\mathbf{x})=\cfrac{1}{2}a_{ij}x_{i}x_{j}-b_{j}x_{j}\]</div>
+<p>The exact solution</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\mathbf{x}=\begin{bmatrix}
+x_{1}\\x_{2}
+\end{bmatrix}=
+\begin{bmatrix}
+2\\-2
+\end{bmatrix}\end{split}\]</div>
+<section id="using-steepest-descent-method">
+<h3>using steepest descent method<a class="headerlink" href="#using-steepest-descent-method" title="Link to this heading"></a></h3>
+<ol class="arabic simple">
+<li><p>Given any initial value <span class="math notranslate nohighlight">\(\mathbf{x}_{0}\)</span> calculate the residual <span class="math notranslate nohighlight">\(-\nabla f(\mathbf{x}_{0})=\mathbf{r}_{0}=\mathbf{b}-\mathbf{A}\mathbf{x}_{0}\)</span>.</p></li>
+</ol>
+<div class="math notranslate nohighlight">
+\[\begin{split}\mathbf{x}_{0}=
+\begin{bmatrix}
+0\\0
+\end{bmatrix}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}-\nabla f(\mathbf{x}_{0})=\mathbf{r}_{0}=\mathbf{b}-\mathbf{A}\mathbf{x}_{0}=\mathbf{b}=
+\begin{bmatrix}
+2\\-8
+\end{bmatrix}\end{split}\]</div>
+<ol class="arabic simple" start="2">
+<li><p>Go along the selected direction <span class="math notranslate nohighlight">\(\mathbf{p}_{0}=\mathbf{r}_{0}=-\nabla f(\mathbf{x}_{0})\)</span>, calculate</p></li>
+</ol>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+\alpha_{0} =\cfrac{(\mathbf{r}_{0},\mathbf{p}_{0})}{(\mathbf{A}\mathbf{p}_{0},\mathbf{p}_{0})} \\
+\mathbf{r}_{0}=[2,-8]^{\text{T}}\\
+\mathbf{A}\mathbf{p}_{0}=[-10,44]^{\text{T}}\\
+(\mathbf{r}_{0},\mathbf{p}_{0})=2*2+8*8=68\\
+(\mathbf{A}\mathbf{p}_{0},\mathbf{p}_{0})=332\\
+\alpha_{0}=68/332=0.2048\\
+\mathbf{x}_{1}= \mathbf{x}_{0}+\alpha_{0} \ast \mathbf{p}_{0}=[0.4096,-1.6386]^{\text{T}}\\
+\end{array}\end{split}\]</div>
+<ol class="arabic simple" start="3">
+<li><p>Go along the selected direction <span class="math notranslate nohighlight">\(\mathbf{p}_{1}=\mathbf{r}_{1}=-\nabla f(\mathbf{x}_{1})=\mathbf{b}-\mathbf{A}\mathbf{x}_{1}=[4.0482,1.0120]^{\text{T}}\)</span>, calculate</p></li>
+</ol>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+\alpha_{1} =\cfrac{(\mathbf{r}_{1},\mathbf{p}_{1})}{(\mathbf{A}\mathbf{p}_{1},\mathbf{p}_{1})} \\
+\mathbf{x}_{2}= \mathbf{x}_{1}+\alpha_{1} \ast \mathbf{p}_{1}\\
+\end{array}\end{split}\]</div>
+</section>
+<section id="using-conjugate-gradient-method">
+<h3>using conjugate gradient method<a class="headerlink" href="#using-conjugate-gradient-method" title="Link to this heading"></a></h3>
+<ol class="arabic simple">
+<li><p>Given any initial value <span class="math notranslate nohighlight">\(\mathbf{x}_{0}\)</span> calculate the residual <span class="math notranslate nohighlight">\(-\nabla f(\mathbf{x}_{0})=\mathbf{r}_{0}=\mathbf{b}-\mathbf{A}\mathbf{x}_{0}\)</span>.</p></li>
+</ol>
+<div class="math notranslate nohighlight">
+\[\begin{split}\mathbf{x}_{0}=
+\begin{bmatrix}
+0\\0
+\end{bmatrix}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}-\nabla f(\mathbf{x}_{0})=\mathbf{r}_{0}=\mathbf{b}-\mathbf{A}\mathbf{x}_{0}=\mathbf{b}=
+\begin{bmatrix}
+2\\-8
+\end{bmatrix}\end{split}\]</div>
+<ol class="arabic simple" start="2">
+<li><p>Go along the selected direction <span class="math notranslate nohighlight">\(\mathbf{p}_{0}=\mathbf{r}_{0}=-\nabla f(\mathbf{x}_{0})=[2,-8]^{\text{T}}\)</span>, calculate</p></li>
+</ol>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+\alpha_{0} =\cfrac{(\mathbf{r}_{0},\mathbf{p}_{0})}{(\mathbf{A}\mathbf{p}_{0},\mathbf{p}_{0})} \\
+\mathbf{r}_{0}=[2,-8]^{\text{T}}\\
+\mathbf{A}\mathbf{p}_{0}=[-10,44]^{\text{T}}\\
+(\mathbf{r}_{0},\mathbf{p}_{0})=2*2+8*8=68\\
+(\mathbf{A}\mathbf{p}_{0},\mathbf{p}_{0})=332\\
+\alpha_{0}=68/332=0.2048\\
+\mathbf{x}_{1}= \mathbf{x}_{0}+\alpha_{0} \ast \mathbf{p}_{0}=[0.4096,-1.6386]^{\text{T}}\\
+\end{array}\end{split}\]</div>
+<ol class="arabic simple" start="3">
+<li><p>A new residual <span class="math notranslate nohighlight">\(-\nabla f(\mathbf{x}_{1})=\mathbf{r}_{1}=\mathbf{b}-\mathbf{A}\mathbf{x}_{1}=[4.0482,1.0120]^{\text{T}}\)</span> is obtained from <span class="math notranslate nohighlight">\(\mathbf{x}_{1}\)</span>, and based on <span class="math notranslate nohighlight">\(\mathbf{r}_{1}\)</span>, A projection is made on <span class="math notranslate nohighlight">\(\mathbf{p}_{0}\)</span> to obtain a new forward direction <span class="math notranslate nohighlight">\(\mathbf{p}_{1}\)</span></p></li>
+</ol>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+\quad \beta_{1} =\cfrac{(\mathbf{A}\mathbf{p}_{0},\mathbf{r}_{1})}{(\mathbf{A}\mathbf{p}_{0},\mathbf{p}_{0})}=-0.2561 \\
+\mathbf{p}_{1}= \mathbf{r}_{1}-\beta_{1} \ast \mathbf{p}_{0} =[4.5603,-1.0364]^{\text{T}}
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+\alpha_{1} =\cfrac{(\mathbf{r}_{1},\mathbf{p}_{1})}{(\mathbf{A}\mathbf{p}_{1},\mathbf{p}_{1})}=0.3487 \\
+\mathbf{x}_{2}= \mathbf{x}_{1}+\alpha_{1} \ast \mathbf{p}_{1}=[2,-2]^{\text{T}}\\
+\end{array}\end{split}\]</div>
+</section>
+</section>
+<section id="solving-the-1d-poisson-equation-using-conjugate-gradient-method">
+<h2>Solving the 1D Poisson equation using conjugate gradient method<a class="headerlink" href="#solving-the-1d-poisson-equation-using-conjugate-gradient-method" title="Link to this heading"></a></h2>
+<p>Consider the 1D Poisson equation</p>
+<div class="math notranslate nohighlight">
+\[\cfrac{d^{2}u}{dx^{2}} =f(x)=-1\]</div>
+<p>on <span class="math notranslate nohighlight">\(\Omega=[0,1]\)</span> with boundary conditions</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+u(0)=0\\
+u'(1)=\cfrac{du}{dx}\bigg|_{x=1}=0
+\end{array}\end{split}\]</div>
+<p>which has analytical solution</p>
+<div class="math notranslate nohighlight">
+\[u=x-\cfrac{1}{2}x^{2}\]</div>
+<p>We we will use this specific example to investigate various approaches to solving partial differential equations with finite differences, in which we discretize the domain by defining <span class="math notranslate nohighlight">\(N\)</span> equally
+spaced points</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+\cfrac{u_{i+1}-2u_{i}+u_{i-1}}{\Delta x^{2}} =f_{i}\\
+{u_{i+1}-2u_{i}+u_{i-1}}={\Delta x^{2}}f_{i}\\
+-u_{i-1}+2u_{i}-u_{i+1}=-{\Delta x^{2}}f_{i}={\Delta x^{2}}\\
+\end{array}\end{split}\]</div>
+<p>The boundary conditions require special care. For <span class="math notranslate nohighlight">\(x = 0\)</span> we have a Dirichlet boundary condition
+which allows us to fix the value <span class="math notranslate nohighlight">\(u_{1} = 0\)</span>. For <span class="math notranslate nohighlight">\(x = 1\)</span> we have a Neumann boundary condition
+<span class="math notranslate nohighlight">\(du/dx = 0\)</span>. This is a symmetry boundary condition, so that in this case we can imagine a ’ghost’
+point <span class="math notranslate nohighlight">\(u_{N+1}\)</span> which is always equal to <span class="math notranslate nohighlight">\(u_{N-1}\)</span>. This leads to the expression for point <span class="math notranslate nohighlight">\(x_{N}\)</span>:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+u_{N}=u_{N-1}+\cfrac{1}{2}\Delta x^{2}\\
+\end{array}\end{split}\]</div>
+<p>then</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+ -u_{i-1}+2u_{i}-u_{i+1}={\Delta x^{2}}\\
+ -u_{1}+2u_{2}-u_{3}={\Delta x^{2}}\\
+ -u_{2}+2u_{3}-u_{4}={\Delta x^{2}}\\
+ \cdots\\
+-u_{N-3}+2u_{N-2}-u_{N-1}={\Delta x^{2}}\\
+-u_{N-2}+2u_{N-1}-u_{N}={\Delta x^{2}}\\
+ \end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+0+2u_{2}-u_{3}={\Delta x^{2}}\\
+-u_{2}+2u_{3}-u_{4}={\Delta x^{2}}\\
+\cdots\\
+-u_{N-3}+2u_{N-2}-u_{N-1}={\Delta x^{2}}\\
+-u_{N-2}+2u_{N-1}-(u_{N-1}+\cfrac{1}{2}\Delta x^{2} )={\Delta x^{2}}\\
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+ 0+2u_{2}-u_{3}={\Delta x^{2}}\\
+ -u_{2}+2u_{3}-u_{4}={\Delta x^{2}}\\
+ \cdots\\
+-u_{N-3}+2u_{N-2}-u_{N-1}={\Delta x^{2}}\\
+-u_{N-2}+u_{N-1}=\cfrac{3}{2}{\Delta x^{2}}\\
+ \end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+ 2u_{2}-u_{3}={\Delta x^{2}}\\
+ -u_{2}+2u_{3}-u_{4}={\Delta x^{2}}\\
+ \cdots\\
+-u_{N-3}+2u_{N-2}-u_{N-1}={\Delta x^{2}}\\
+-u_{N-2}+u_{N-1}=\cfrac{3}{2}{\Delta x^{2}}\\
+ \end{array}\end{split}\]</div>
+<p>This can be written as</p>
+<div class="math notranslate nohighlight">
+\[\mathbf{A}\mathbf{u}=\mathbf{b}\]</div>
+<p>where(for <span class="math notranslate nohighlight">\(N=5\)</span>)</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\mathbf{A}=
+\begin{bmatrix}
+2&amp; -1 &amp; 0&amp; 0&amp; 0\\
+-1&amp; 2 &amp; -1&amp; 0&amp; 0\\
+0&amp;-1&amp; 2 &amp; -1&amp; 0\\
+0&amp;0&amp;-1&amp; 2 &amp; -1\\
+ 0&amp;0 &amp;0 &amp;-1  &amp;1
+\end{bmatrix}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\mathbf{u}=\begin{bmatrix}
+ u_{2}\\u_{3}\\u_{4}\\u_{5}\\u_{6}
+\end{bmatrix}=\mathbf{v}=
+\begin{bmatrix}
+v_{1}\\v_{2}\\v_{3}\\v_{4}\\v_{5}
+\end{bmatrix}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\mathbf{b}=
+\begin{bmatrix}
+\Delta x^{2}\\\Delta x^{2}\\\Delta x^{2}\\\Delta x^{2}\\\cfrac{3}{2}\Delta x^{2}
+\end{bmatrix}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+1&amp;\underbrace{\Delta x}&amp; 2&amp;\underbrace{\Delta x}&amp;3&amp;\underbrace{\Delta x}&amp;4&amp;\underbrace{\Delta x}&amp;5&amp;\underbrace{\Delta x}&amp;6&amp;\underbrace{\Delta x}&amp;7\\
+&amp;&amp;v_{1}&amp;&amp;v_{2}&amp;&amp;v_{3}&amp;&amp;v_{4}&amp;&amp;v_{5}\\
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+N_{\text{Points}}=7\\
+N=N_{\text{Points}}-2=5\\
+\Delta x=\cfrac{1}{N_{\text{Points}}-1} =\cfrac{1}{7-1}=\cfrac{1}{6}\\
+\Delta x^{2}=\cfrac{1}{36}\\
+\cfrac{3}{2}\Delta x^{2}=\cfrac{3}{72}\\
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+x_{1}=0\Delta x=0\\
+x_{2}=1\Delta x=1/6\\
+x_{3}=2\Delta x=2/6\\
+x_{4}=3\Delta x=3/6\\
+x_{5}=4\Delta x=4/6\\
+x_{6}=5\Delta x=5/6\\
+x_{7}=6\Delta x=1\\
+\end{array}\end{split}\]</div>
+<p>Solve <span class="math notranslate nohighlight">\(\mathbf{A}\mathbf{x}=\mathbf{b}\)</span></p>
+<p>where</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\mathbf{A}=
+\begin{bmatrix}
+2&amp; -1 &amp; 0&amp; 0&amp; 0\\
+-1&amp; 2 &amp; -1&amp; 0&amp; 0\\
+0&amp;-1&amp; 2 &amp; -1&amp; 0\\
+0&amp;0&amp;-1&amp; 2 &amp; -1\\
+ 0&amp;0 &amp;0 &amp;-1  &amp;1
+\end{bmatrix}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\mathbf{v}=
+\begin{bmatrix}
+v_{1}\\v_{2}\\v_{3}\\v_{4}\\v_{5}
+\end{bmatrix}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\mathbf{b}=
+\begin{bmatrix}
+\Delta x^{2}\\\Delta x^{2}\\\Delta x^{2}\\\Delta x^{2}\\\cfrac{1}{2}\Delta x^{2}
+\end{bmatrix}
+=  \begin{bmatrix}
+\cfrac{1}{36} \\\cfrac{1}{36} \\\cfrac{1}{36} \\\cfrac{1}{36} \\\cfrac{1}{72}
+\end{bmatrix}\end{split}\]</div>
+<p>The quadratic form:</p>
+<div class="math notranslate nohighlight">
+\[f(\mathbf{v})=\cfrac{1}{2}\mathbf{v}^{\text{T}}\mathbf{A}\mathbf{v}-\mathbf{b}^{\text{T}}\mathbf{v}\]</div>
+<p>The exact soltion:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}u(x)=x-\cfrac{1}{2}x^{2}\\\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\mathbf{u}=\begin{bmatrix}
+u(0)\\u(1/6)\\u(2/6)\\u(3/6)\\u(4/6)\\u(5/6)\\u(1)
+\end{bmatrix}
+=\begin{bmatrix}
+0\\11/72\\20/72\\27/72\\32/72\\35/72\\36/72
+\end{bmatrix}
+=\begin{bmatrix}
+0\\0.1528\\0.2778\\0.3750\\0.4444\\0.4861\\0.5000
+\end{bmatrix}\end{split}\]</div>
+</section>
+<section id="another-form">
+<h2>another form<a class="headerlink" href="#another-form" title="Link to this heading"></a></h2>
+<div class="math notranslate nohighlight">
+\[\cfrac{u_{i-1}-2u_{i}+u_{i+1}}{\Delta x^{2}} =f_{i}=-1\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+\cfrac{u_{1}-2u_{2}+u_{3}}{\Delta x^{2}} =f_{2}=-1\\
+\cfrac{u_{2}-2u_{3}+u_{4}}{\Delta x^{2}} =f_{3}=-1\\
+\cdots\\
+\cfrac{u_{i-1}-2u_{i}+u_{i+1}}{\Delta x^{2}} =f_{i}=-1\\
+\cdots\\
+\cfrac{u_{N-3}-2u_{N-2}+u_{N-1}}{\Delta x^{2}} =f_{N-2}=-1\\
+\cfrac{u_{N-2}-2u_{N-1}+u_{N}}{\Delta x^{2}} =f_{N-1}=-1\\
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+u_{1}=0\\
+u_{N}=u_{N-1}+\cfrac{1}{2}\Delta x^{2} \\
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+u_{1}=0\\
+\cfrac{u_{1}-2u_{2}+u_{3}}{\Delta x^{2}} =f_{2}=-1\\
+\cfrac{-2u_{2}+u_{3}}{\Delta x^{2}} =f_{2}-\cfrac{u_{1}}{\Delta x^{2}}=-1-\cfrac{u_{1}}{\Delta x^{2}}=-1\\
+\cfrac{-2u_{2}+u_{3}}{\Delta x^{2}} =\hat{f}_{2}=f_{2}-\cfrac{u_{1}}{\Delta x^{2}}=-1-\cfrac{u_{1}}{\Delta x^{2}}=-1\\
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+u_{N}=u_{N-1}+\cfrac{1}{2}\Delta x^{2} \\
+\cfrac{u_{N-2}-2u_{N-1}+u_{N}}{\Delta x^{2}} =f_{N-1}=-1\\
+\cfrac{u_{N-2}-2u_{N-1}+u_{N-1}+\cfrac{1}{2}\Delta x^{2}}{\Delta x^{2}} =f_{N-1}=-1\\
+\cfrac{u_{N-2}-u_{N-1}}{\Delta x^{2}} =\hat{f}_{N-1}=f_{N-1}-\cfrac{1}{2}=-\cfrac{3}{2}\\
+\end{array}\end{split}\]</div>
+<p>Let</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\mathbf{u}=\begin{bmatrix}
+u_{2}\\u_{3}\\\vdots\\u_{N-2}\\u_{N-1}
+\end{bmatrix}\end{split}\]</div>
+<p>then</p>
+<div class="math notranslate nohighlight">
+\[\mathbf{A}\mathbf{u}=\mathbf{f}\]</div>
+<p>where</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\mathbf{f}=\begin{bmatrix}
+\hat{f}_{2}\\f_{3}\\\vdots\\f_{N-2}\\\hat{f}_{N-1}
+\end{bmatrix}=\begin{bmatrix}
+-1\\-1\\\vdots\\-1\\-3/2
+\end{bmatrix}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\mathbf{A}\mathbf{u}=\begin{bmatrix}
+\cfrac{-2u_{2}+u_{3}}{\Delta x^{2}}\\
+\cfrac{u_{2}-2u_{3}+u_{4}}{\Delta x^{2}}\\
+\vdots\\
+\cfrac{u_{N-3}-2u_{N-2}+u_{N-1}}{\Delta x^{2}}\\
+\cfrac{u_{N-2}-u_{N-1}}{\Delta x^{2}}
+\end{bmatrix}\end{split}\]</div>
+<p>using the Method of Steepest Descent</p>
+<p>Let <span class="math notranslate nohighlight">\(\mathbf{b}=\mathbf{f}\)</span>, then</p>
+<div class="math notranslate nohighlight">
+\[g(\mathbf{u})=\cfrac{1}{2} \mathbf{u}^{\text{T}}\mathbf{A}\mathbf{u}-\mathbf{b}^{\text{T}}\mathbf{u}\]</div>
+<ol class="arabic simple">
+<li><p>Given any initial value <span class="math notranslate nohighlight">\(\mathbf{u}_{0}\)</span> calculate the residual <span class="math notranslate nohighlight">\(-\nabla g(\mathbf{u}_{0})=\mathbf{r}_{0}=\mathbf{b}-\mathbf{A}\mathbf{u}_{0}\)</span>.</p></li>
+<li><p>Go along the selected direction <span class="math notranslate nohighlight">\(\mathbf{p}_{0}=\mathbf{r}_{0}=-\nabla g(\mathbf{u}_{0})\)</span>, calculate</p></li>
+</ol>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+\alpha_{0} =\cfrac{(\mathbf{r}_{0},\mathbf{p}_{0})}{(\mathbf{A}\mathbf{p}_{0},\mathbf{p}_{0})} \\
+\mathbf{u}_{1}= \mathbf{u}_{0}+\alpha_{0} \ast \mathbf{p}_{0}\\
+\end{array}\end{split}\]</div>
+<p>where</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\mathbf{A}\mathbf{p}_{0}=\begin{bmatrix}
+\cfrac{-2p_{2}^{(0)}+p_{3}^{(0)}}{\Delta x^{2}}\\
+\cfrac{p_{2}^{(0)}-2p_{3}^{(0)}+p_{4}^{(0)}}{\Delta x^{2}}\\
+\vdots\\
+\cfrac{p_{N-3}^{(0)}-2p_{N-2}^{(0)}+p_{N-1}^{(0)}}{\Delta x^{2}}\\
+\cfrac{p_{N-2}^{(0)}-p_{N-1}^{(0)}}{\Delta x^{2}}
+\end{bmatrix}\end{split}\]</div>
+<ol class="arabic simple" start="3">
+<li><p>Go along the selected direction <span class="math notranslate nohighlight">\(\mathbf{p}_{1}=\mathbf{r}_{1}=-\nabla g(\mathbf{u}_{1})=\mathbf{b}-\mathbf{A}\mathbf{u}_{1}\)</span>, calculate</p></li>
+</ol>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+\alpha_{1} =\cfrac{(\mathbf{r}_{1},\mathbf{p}_{1})}{(\mathbf{A}\mathbf{p}_{1},\mathbf{p}_{1})} \\
+\mathbf{u}_{2}= \mathbf{u}_{1}+\alpha_{1} \ast \mathbf{p}_{1}\\
+\end{array}\end{split}\]</div>
+<p>where</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\mathbf{A}\mathbf{p}_{1}=\begin{bmatrix}
+\cfrac{-2p_{2}^{(1)}+p_{3}^{(1)}}{\Delta x^{2}}\\
+\cfrac{p_{2}^{(1)}-2p_{3}^{(1)}+p_{4}^{(1)}}{\Delta x^{2}}\\
+\vdots\\
+\cfrac{p_{N-3}^{(1)}-2p_{N-2}^{(1)}+p_{N-1}^{(1)}}{\Delta x^{2}}\\
+\cfrac{p_{N-2}^{(1)}-p_{N-1}^{(1)}}{\Delta x^{2}}
+\end{bmatrix}\end{split}\]</div>
+<ol class="arabic simple" start="4">
+<li><p>Go along the selected direction <span class="math notranslate nohighlight">\(\mathbf{p}_{k}=\mathbf{r}_{k}=-\nabla g(\mathbf{u}_{k})=\mathbf{b}-\mathbf{A}\mathbf{u}_{k}\)</span>, calculate</p></li>
+</ol>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+\alpha_{k} =\cfrac{(\mathbf{r}_{k},\mathbf{p}_{k})}{(\mathbf{A}\mathbf{p}_{k},\mathbf{p}_{k})} \\
+\mathbf{u}_{k+1}= \mathbf{u}_{k}+\alpha_{k} \ast \mathbf{p}_{k}\\
+\end{array}\end{split}\]</div>
+<p>where</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\mathbf{A}\mathbf{p}_{k}=\begin{bmatrix}
+\cfrac{-2p_{2}^{(k)}+p_{3}^{(k)}}{\Delta x^{2}}\\
+\cfrac{p_{2}^{(k)}-2p_{3}^{(k)}+p_{4}^{(k)}}{\Delta x^{2}}\\
+\vdots\\
+\cfrac{p_{N-3}^{(k)}-2p_{N-2}^{(k)}+p_{N-1}^{(k)}}{\Delta x^{2}}\\
+\cfrac{p_{N-2}^{(k)}-p_{N-1}^{(k)}}{\Delta x^{2}}
+\end{bmatrix}\end{split}\]</div>
+</section>
+<section id="the-conjugate-gradient-method-from-code">
+<h2>The conjugate gradient method from code<a class="headerlink" href="#the-conjugate-gradient-method-from-code" title="Link to this heading"></a></h2>
+<ol class="arabic simple">
+<li><p>Given any initial value <span class="math notranslate nohighlight">\(\mathbf{x}_{0}\)</span> calculate the residual <span class="math notranslate nohighlight">\(-\nabla f(\mathbf{x}_{0})=\mathbf{r}_{0}=\mathbf{b}-\mathbf{A}\mathbf{x}_{0}\)</span>.</p></li>
+<li><p>Go along the selected direction <span class="math notranslate nohighlight">\(\mathbf{p}_{0}=\mathbf{r}_{0}=-\nabla f(\mathbf{x}_{0})\)</span>, calculate</p></li>
+</ol>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+\mathbf{r}_{0}=\mathbf{b}-\mathbf{A}\mathbf{x}_{0}\\
+\mathbf{p}_{0}=\mathbf{r}_{0}\\
+\delta_{new}=(\mathbf{r}_{0},\mathbf{r}_{0})\\
+\text{while_loop:}\\
+\alpha_{k} =\cfrac{(\mathbf{r}_{k},\mathbf{r}_{k})}{(\mathbf{A}\mathbf{p}_{k},\mathbf{p}_{k})} \\
+\mathbf{x}_{k+1}= \mathbf{x}_{k}+\alpha_{k} \ast \mathbf{p}_{k}\\
+\mathbf{r}_{k+1}=\mathbf{b}-\mathbf{A}\mathbf{x}_{k+1}\\
+\delta_{old}=\delta_{new}\\
+\delta_{new}=(\mathbf{r}_{k+1},\mathbf{r}_{k+1})\\
+\beta_{k}=\cfrac{\delta_{new}}{\delta_{old}}=\cfrac{(\mathbf{r}_{k+1},\mathbf{r}_{k+1})}{(\mathbf{r}_{k},\mathbf{r}_{k})}\\
+\mathbf{p}_{k+1}=\mathbf{r}_{k+1}+\beta_{k}\mathbf{p}_{k}
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+\mathbf{r}_{k}=\mathbf{b}-\mathbf{A}\mathbf{x}_{k}\\
+\mathbf{r}_{k+1}=\mathbf{b}-\mathbf{A}\mathbf{x}_{k+1}\\
+\mathbf{r}_{k+1}-\mathbf{r}_{k}=-\mathbf{A}(\mathbf{x}_{k+1}-\mathbf{x}_{k})\\
+\mathbf{x}_{k+1}= \mathbf{x}_{k}+\alpha_{k} \ast \mathbf{p}_{k}\\
+\mathbf{r}_{k+1}-\mathbf{r}_{k}=-\mathbf{A}(\mathbf{x}_{k+1}-\mathbf{x}_{k})=-\alpha_{k} \mathbf{A} \mathbf{p}_{k}\\
+\mathbf{r}_{k+1}-\mathbf{r}_{k}=-\alpha_{k} \mathbf{A} \mathbf{p}_{k}\\
+\mathbf{r}_{k+1}=\mathbf{r}_{k}-\alpha_{k} \mathbf{A} \mathbf{p}_{k}\\
+\end{array}\end{split}\]</div>
+</section>
+<section id="solving-the-2d-poisson-equation">
+<h2>Solving the 2D Poisson equation<a class="headerlink" href="#solving-the-2d-poisson-equation" title="Link to this heading"></a></h2>
+<p>Consider the 2D Poisson equation</p>
+<div class="math notranslate nohighlight">
+\[\cfrac{\partial^{2}u}{\partial x^{2}}+\cfrac{\partial^{2}u}{\partial x^{2}} =f(x,y)=-1\]</div>
+<p>on <span class="math notranslate nohighlight">\(\Omega=[0,1]\times[0,1]\)</span> with boundary conditions</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+u(0,j)=0\\
+u'(1,j)=\cfrac{\partial u}{\partial x}\bigg|_{x=1}=0
+\end{array}\end{split}\]</div>
+<p>which has analytical solution</p>
+<div class="math notranslate nohighlight">
+\[u(x,y)=x-\cfrac{1}{2}x^{2}\]</div>
+<p>We we will use this specific example to investigate various approaches to solving partial differential equations with finite differences, in which we discretize the domain by defining <span class="math notranslate nohighlight">\(N\)</span> equally
+spaced points</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+\cfrac{u_{i+1,j}-2u_{i,j}+u_{i-1,j}}{\Delta x^{2}}
++ \cfrac{u_{i,j+1}-2u_{i,j}+u_{i,j-1}}{\Delta y^{2}} =f_{i,j}\\
+\cfrac{u_{i-1,j}-2u_{i,j}+u_{i+1,j}}{\Delta x^{2}}
++ \cfrac{u_{i,j-1}-2u_{i,j}+u_{i,j+1}}{\Delta y^{2}} =f_{i,j}\\
+\end{array}\end{split}\]</div>
+<p>The boundary conditions require special care. For <span class="math notranslate nohighlight">\(x = 0\)</span> we have a Dirichlet boundary condition
+which allows us to fix the value <span class="math notranslate nohighlight">\(u_{1} = 0\)</span>. For <span class="math notranslate nohighlight">\(x = 1\)</span> we have a Neumann boundary condition
+<span class="math notranslate nohighlight">\(du/dx = 0\)</span>. This is a symmetry boundary condition, so that in this case we can imagine a ’ghost’
+point <span class="math notranslate nohighlight">\(u_{M+1,j}\)</span> which is always equal to <span class="math notranslate nohighlight">\(u_{M-1,j}\)</span>. This leads to the expression for point <span class="math notranslate nohighlight">\(x_{M,j}\)</span></p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+u_{M,j}=u_{M-1,j}+\cfrac{1}{2}\Delta x^{2}\\
+\end{array}\end{split}\]</div>
+<p>then</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+j=2\\
+\cfrac{u_{i-1,2}-2u_{i,2}+u_{i+1,2}}{\Delta x^{2}}
++ \cfrac{u_{i,2-1}-2u_{i,2}+u_{i,2+1}}{\Delta y^{2}} =f_{i,2}\\
+\cfrac{u_{i-1,2}-2u_{i,2}+u_{i+1,2}}{\Delta x^{2}}
++ \cfrac{u_{i,1}-2u_{i,2}+u_{i,3}}{\Delta y^{2}} =f_{i,2}\\
+\cfrac{u_{i-1,2}-2u_{i,2}+u_{i+1,2}}{\Delta x^{2}}
++ \cfrac{-u_{i,2}+u_{i,3}}{\Delta y^{2}} =f_{i,2}\\
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+j=N-1\\
+\cfrac{u_{i-1,N-1}-2u_{i,N-1}+u_{i+1,N-1}}{\Delta x^{2}}
++ \cfrac{u_{i,N-1-1}-2u_{i,N-1}+u_{i,N-1+1}}{\Delta y^{2}} =f_{N-1,2}\\
+\cfrac{u_{i-1,N-1}-2u_{i,N-1}+u_{i+1,N-1}}{\Delta x^{2}}
++ \cfrac{u_{i,N-2}-2u_{i,N-1}+u_{i,N}}{\Delta y^{2}} =f_{N-1,2}\\
+\cfrac{u_{i-1,N-1}-2u_{i,N-1}+u_{i+1,N-1}}{\Delta x^{2}}
++ \cfrac{u_{i,N-2}-u_{i,N-1}}{\Delta y^{2}} =f_{N-1,2}\\
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+i=2\\
+\cfrac{u_{2-1,j}-2u_{2,j}+u_{2+1,j}}{\Delta x^{2}}
++ \cfrac{u_{2,j-1}-2u_{2,j}+u_{2,j+1}}{\Delta y^{2}} =f_{2,j}\\
+\cfrac{u_{1,j}-2u_{2,j}+u_{3,j}}{\Delta x^{2}}
++ \cfrac{u_{2,j-1}-2u_{2,j}+u_{2,j+1}}{\Delta y^{2}} =f_{2,j}\\
+\cfrac{-2u_{2,j}+u_{3,j}}{\Delta x^{2}}
++ \cfrac{u_{2,j-1}-2u_{2,j}+u_{2,j+1}}{\Delta y^{2}} =f_{2,j}\\
+\end{array}\end{split}\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{l}
+i=M-1\\
+\cfrac{u_{M-1-1,j}-2u_{M-1,j}+u_{M-1+1,j}}{\Delta x^{2}}
++ \cfrac{u_{M-1,j-1}-2u_{M-1,j}+u_{M-1,j+1}}{\Delta y^{2}} =f_{M-1,j}\\
+\cfrac{u_{M-2,j}-2u_{M-1,j}+u_{M,j}}{\Delta x^{2}}
++ \cfrac{u_{M-1,j-1}-2u_{M-1,j}+u_{M-1,j+1}}{\Delta y^{2}} =f_{M-1,j}\\
+\cfrac{u_{M-2,j}-2u_{M-1,j}+u_{M-1,j}+\cfrac{1}{2}\Delta x^{2}}{\Delta x^{2}}
++ \cfrac{u_{M-1,j-1}-2u_{M-1,j}+u_{M-1,j+1}}{\Delta y^{2}} =f_{M-1,j}\\
+\cfrac{u_{M-2,j}-u_{M-1,j}}{\Delta x^{2}}
++ \cfrac{u_{M-1,j-1}-2u_{M-1,j}+u_{M-1,j+1}}{\Delta y^{2}} =f_{M-1,j}-\cfrac{1}{2}\\
+\end{array}\end{split}\]</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="fourier.html" class="btn btn-neutral float-left" title="Fourier Series" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="multigrid.html" class="btn btn-neutral float-right" title="MULTIGRID" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2017~2024, eric.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cmd &mdash; Scientific Computing 1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js?v=5d32c60e"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="_static/documentation_options.js?v=f2a433a1"></script>
+        <script src="_static/doctools.js?v=888ff710"></script>
+        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="CUDA" href="cuda.html" />
+    <link rel="prev" title="CMake" href="cmake.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Scientific Computing
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Get started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="info.html">OneFLOW</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="user.html">THEORY</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="bash.html">Bash</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cfd/index.html">CFD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cgns.html">CGNS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="chatgpt.html">CHATGPT</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cpp/index.html">CPP</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cmake.html">CMake</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Cmd</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#id1">Cmd</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#code">Code</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#for">FOR</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="cuda.html">CUDA</a></li>
+<li class="toctree-l1"><a class="reference internal" href="design_patterns.html">Design Patterns</a></li>
+<li class="toctree-l1"><a class="reference internal" href="eigen.html">Eigen3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="git.html">Git</a></li>
+<li class="toctree-l1"><a class="reference internal" href="git.html#contexts">Contexts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fortran.html">Fortran</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hdf5.html">HDF5</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hpc.html">HPC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="install/index.html">Install</a></li>
+<li class="toctree-l1"><a class="reference internal" href="julia.html">Julia</a></li>
+<li class="toctree-l1"><a class="reference internal" href="jupyter.html">Jupyter Notebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="latex.html">LaTeX</a></li>
+<li class="toctree-l1"><a class="reference internal" href="makefile.html">Makefile</a></li>
+<li class="toctree-l1"><a class="reference internal" href="metis.html">METIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mkdocs.html">MkDocs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modules.html">Environment Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mpi.html">MPI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="numerical/index.html">Numerical analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="oneapi.html">oneAPI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="oneflow.html">OneFLOW-CFD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="openacc.html">OpenACC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="opencl.html">OpenCL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="opengl.html">OpenGL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="openmp.html">OpenMP</a></li>
+<li class="toctree-l1"><a class="reference internal" href="powershell.html">PowerShell</a></li>
+<li class="toctree-l1"><a class="reference internal" href="python/index.html">Python</a></li>
+<li class="toctree-l1"><a class="reference internal" href="qt.html">Qt</a></li>
+<li class="toctree-l1"><a class="reference internal" href="regex.html">Regular Expressions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="science.html">Science</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sphinx.html">Sphinx</a></li>
+<li class="toctree-l1"><a class="reference internal" href="system/index.html">System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="taichi.html">Taichi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tcltk.html">Tcl/tk</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tecplot.html">Tecplot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="test.html">Test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="unreal_engine.html">Unreal Engine</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vcpkg.html">vcpkg</a></li>
+<li class="toctree-l1"><a class="reference internal" href="yaml.html">yaml</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Scientific Computing</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Cmd</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/cmd.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="cmd">
+<h1>Cmd<a class="headerlink" href="#cmd" title="Link to this heading"></a></h1>
+<section id="id1">
+<h2>Cmd<a class="headerlink" href="#id1" title="Link to this heading"></a></h2>
+<ol class="arabic simple">
+<li><p><a class="reference external" href="https://zhuanlan.zhihu.com/p/662224432/">CMD相关链接</a></p></li>
+<li><p><a class="reference external" href="https://zhuanlan.zhihu.com/p/509954303/">Windows batch script系列链接（不定期更新）</a></p></li>
+<li><p><a class="reference external" href="https://ss64.com/nt/">An A-Z Index of Windows CMD commands</a></p></li>
+<li><p><a class="reference external" href="https://github.com/eric2003/ModernCmd/">ModernCmd</a></p></li>
+<li><p><a class="reference external" href="https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/windows-commands/">Windows Commands</a></p></li>
+<li><p><a class="reference external" href="https://github.com/Espionage724/Windows/">Various batch files for Windows</a></p></li>
+<li><p><a class="reference external" href="https://github.com/happy05dz/Batch-Script-Collection/">Collection of Batch scripts, examples</a></p></li>
+<li><p><a class="reference external" href="https://en.wikibooks.org/wiki/Windows_Batch_Scripting">Windows Batch Scripting</a></p></li>
+<li><p><a class="reference external" href="https://www.tutorialspoint.com/batch_script/index.htm">Batch Script Tutorial</a></p></li>
+</ol>
+</section>
+<section id="code">
+<h2>Code<a class="headerlink" href="#code" title="Link to this heading"></a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">clone</span> <span class="n">git</span><span class="nd">@github</span><span class="o">.</span><span class="n">com</span><span class="p">:</span><span class="n">eric2003</span><span class="o">/</span><span class="n">ModernCmd</span><span class="o">.</span><span class="n">git</span>
+<span class="ow">or</span>
+<span class="n">git</span> <span class="n">clone</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">eric2003</span><span class="o">/</span><span class="n">ModernCmd</span><span class="o">.</span><span class="n">git</span>
+</pre></div>
+</div>
+<p>You can edit your Microsoft.VSCode_profile.ps1 file (full path can be found when you type $profile in the editor and remove all code referring to anaconda. To open the profile file, type notepad $profile in the terminal.</p>
+<p>Display all environment variables</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">SET</span>
+</pre></div>
+</div>
+<p>Display ProgramData variable</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">echo</span> <span class="o">%</span><span class="n">ProgramData</span><span class="o">%</span>
+</pre></div>
+</div>
+<p>Display ProgramFiles(x86) variable</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">echo</span> <span class="o">%</span><span class="n">ProgramFiles</span><span class="p">(</span><span class="n">x86</span><span class="p">)</span><span class="o">%</span>
+</pre></div>
+</div>
+<p>Display ProgramFiles(x86) variable</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">echo</span> <span class="o">%</span><span class="n">ProgramFiles</span><span class="p">(</span><span class="n">x86</span><span class="p">)</span><span class="o">%</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">echo</span> <span class="o">%</span><span class="n">comspec</span><span class="o">%</span>
+<span class="n">results</span><span class="p">:</span>
+<span class="n">C</span><span class="p">:</span>\<span class="n">Users</span>\<span class="n">eric</span><span class="o">&gt;</span><span class="n">echo</span> <span class="o">%</span><span class="n">comspec</span><span class="o">%</span>
+<span class="n">C</span><span class="p">:</span>\<span class="n">WINDOWS</span>\<span class="n">system32</span>\<span class="n">cmd</span><span class="o">.</span><span class="n">exe</span>
+</pre></div>
+</div>
+<p>set (environment variable)</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nb">set</span> <span class="n">testVar</span><span class="o">=</span><span class="n">TEST</span><span class="o">^&amp;</span><span class="mi">1</span>
+<span class="nb">set</span> <span class="n">testVar</span>
+</pre></div>
+</div>
+<p>delete environment variable</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nb">set</span> <span class="n">testVar</span><span class="o">=</span>
+</pre></div>
+</div>
+<p>Run Vs2022 bat</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">C</span><span class="p">:</span>\<span class="n">Users</span>\<span class="n">eric</span><span class="o">&gt;</span><span class="s2">&quot;c:\Program Files\Microsoft Visual Studio</span><span class="se">\202</span><span class="s2">2\Community\Common7\Tools</span><span class="se">\&quot;</span><span class="s2">VsDevCmd</span>
+<span class="o">**********************************************************************</span>
+<span class="o">**</span> <span class="n">Visual</span> <span class="n">Studio</span> <span class="mi">2022</span> <span class="n">Developer</span> <span class="n">Command</span> <span class="n">Prompt</span> <span class="n">v17</span><span class="mf">.7.5</span>
+<span class="o">**</span> <span class="n">Copyright</span> <span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="mi">2022</span> <span class="n">Microsoft</span> <span class="n">Corporation</span>
+<span class="o">**********************************************************************</span>
+
+<span class="n">C</span><span class="p">:</span>\<span class="n">Users</span>\<span class="n">eric</span><span class="o">&gt;</span><span class="n">echo</span> <span class="o">%</span><span class="n">LIB</span><span class="o">%</span>
+<span class="n">c</span><span class="p">:</span>\<span class="n">Program</span> <span class="n">Files</span>\<span class="n">Microsoft</span> <span class="n">Visual</span> <span class="n">Studio</span>\<span class="mi">2022</span>\<span class="n">Community</span>\<span class="n">VC</span>\<span class="n">Tools</span>\<span class="n">MSVC</span>\<span class="mf">14.37.32822</span>\<span class="n">ATLMFC</span>\<span class="n">lib</span>\<span class="n">x86</span><span class="p">;</span><span class="n">c</span><span class="p">:</span>\<span class="n">Program</span> <span class="n">Files</span>\<span class="n">Microsoft</span> <span class="n">Visual</span> <span class="n">Studio</span>\<span class="mi">2022</span>\<span class="n">Community</span>\<span class="n">VC</span>\<span class="n">Tools</span>\<span class="n">MSVC</span>\<span class="mf">14.37.32822</span>\<span class="n">lib</span>\<span class="n">x86</span><span class="p">;</span><span class="n">C</span><span class="p">:</span>\<span class="n">Program</span> <span class="n">Files</span> <span class="p">(</span><span class="n">x86</span><span class="p">)</span>\<span class="n">Windows</span> <span class="n">Kits</span>\<span class="n">NETFXSDK</span>\<span class="mf">4.8</span>\<span class="n">lib</span>\<span class="n">um</span>\<span class="n">x86</span><span class="p">;</span><span class="n">C</span><span class="p">:</span>\<span class="n">Program</span> <span class="n">Files</span> <span class="p">(</span><span class="n">x86</span><span class="p">)</span>\<span class="n">Windows</span> <span class="n">Kits</span>\<span class="mi">10</span>\<span class="n">lib</span>\<span class="mf">10.0.19041.0</span>\<span class="n">ucrt</span>\<span class="n">x86</span><span class="p">;</span><span class="n">C</span><span class="p">:</span>\<span class="n">Program</span> <span class="n">Files</span> <span class="p">(</span><span class="n">x86</span><span class="p">)</span>\<span class="n">Windows</span> <span class="n">Kits</span>\<span class="mi">10</span>\\<span class="n">lib</span>\<span class="mf">10.0.19041.0</span>\\<span class="n">um</span>\<span class="n">x86</span>
+</pre></div>
+</div>
+</section>
+<section id="for">
+<h2>FOR<a class="headerlink" href="#for" title="Link to this heading"></a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nd">@echo</span> <span class="n">off</span>
+<span class="k">for</span> <span class="o">%%</span><span class="n">i</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">)</span> <span class="n">do</span> <span class="n">echo</span> <span class="o">%%</span><span class="n">i</span>
+<span class="n">pause</span>
+<span class="n">results</span><span class="p">:</span>
+<span class="mi">1</span>
+<span class="mi">2</span>
+<span class="mi">3</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nd">@echo</span> <span class="n">off</span>
+
+<span class="k">for</span> <span class="o">%%</span><span class="n">i</span> <span class="ow">in</span> <span class="p">(</span><span class="n">a</span> <span class="n">b</span> <span class="n">c</span> <span class="n">d</span><span class="p">)</span> <span class="n">do</span> <span class="p">(</span>
+  <span class="n">echo</span> <span class="o">%%</span><span class="n">i</span>
+<span class="p">)</span>
+<span class="n">pause</span>
+<span class="n">results</span><span class="p">:</span>
+<span class="n">a</span>
+<span class="n">b</span>
+<span class="n">c</span>
+<span class="n">d</span>
+</pre></div>
+</div>
+<p>使用for /f命令从文件中读取每一行内容并进行处理：</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nd">@echo</span> <span class="n">off</span>
+
+<span class="k">for</span> <span class="o">/</span><span class="n">f</span> <span class="s2">&quot;tokens=*&quot;</span> <span class="o">%%</span><span class="n">i</span> <span class="ow">in</span> <span class="p">(</span><span class="n">myfile</span><span class="o">.</span><span class="n">txt</span><span class="p">)</span> <span class="n">do</span> <span class="p">(</span>
+  <span class="n">echo</span> <span class="o">%%</span><span class="n">i</span>
+<span class="p">)</span>
+<span class="n">pause</span>
+<span class="n">results</span><span class="p">:</span>
+<span class="mi">1</span>
+<span class="mi">2</span> <span class="mi">3</span> <span class="mi">4</span>
+<span class="mi">5</span> <span class="n">a</span>
+</pre></div>
+</div>
+<p>myfile.txt</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mi">1</span>
+<span class="mi">2</span> <span class="mi">3</span> <span class="mi">4</span>
+<span class="mi">5</span> <span class="n">a</span>
+</pre></div>
+</div>
+<p>使用for /f命令遍历文件夹中的所有文件：</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nd">@echo</span> <span class="n">off</span>
+
+<span class="k">for</span> <span class="o">/</span><span class="n">f</span> <span class="s2">&quot;tokens=*&quot;</span> <span class="o">%%</span><span class="n">i</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;dir /b&#39;</span><span class="p">)</span> <span class="n">do</span> <span class="p">(</span>
+  <span class="n">echo</span> <span class="o">%%</span><span class="n">i</span>
+<span class="p">)</span>
+<span class="n">pause</span>
+<span class="n">results</span><span class="p">:</span>
+<span class="n">d</span><span class="p">:</span>\<span class="n">work</span>\<span class="n">batch_work</span>\<span class="n">ModernBatchFiles</span>\<span class="n">codes</span>\<span class="k">for</span>\<span class="mi">05</span><span class="o">&gt;</span><span class="n">testprj</span><span class="o">.</span><span class="n">bat</span>
+<span class="mf">1.</span><span class="n">txt</span>
+<span class="mf">2.</span><span class="n">txt</span>
+<span class="mf">3.</span><span class="n">txt</span>
+<span class="n">testprj</span><span class="o">.</span><span class="n">bat</span>
+<span class="n">请按任意键继续</span><span class="o">.</span> <span class="o">.</span> <span class="o">.</span>
+</pre></div>
+</div>
+<p>vswhere -property installationPath</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nd">@echo</span> <span class="n">off</span>
+
+<span class="k">for</span> <span class="o">/</span><span class="n">f</span> <span class="s2">&quot;delims=&quot;</span> <span class="o">%%</span><span class="n">a</span> <span class="ow">in</span> <span class="p">(</span>
+<span class="s1">&#39;&quot;%ProgramFiles(x86)%\Microsoft Visual Studio\Installer</span><span class="se">\v</span><span class="s1">swhere.exe&quot; -property installationPath&#39;</span>
+<span class="p">)</span> <span class="n">do</span> <span class="p">(</span>
+    <span class="n">echo</span> <span class="o">%%</span><span class="n">a</span>
+<span class="p">)</span>
+<span class="n">pause</span>
+<span class="n">results</span><span class="p">:</span>
+<span class="n">d</span><span class="p">:</span>\<span class="n">work</span>\<span class="n">batch_work</span>\<span class="n">ModernBatchFiles</span>\<span class="n">codes</span>\<span class="k">for</span>\<span class="mi">07</span><span class="o">&gt;</span><span class="n">testprj</span><span class="o">.</span><span class="n">bat</span>
+<span class="n">C</span><span class="p">:</span>\<span class="n">Program</span> <span class="n">Files</span>\<span class="n">Microsoft</span> <span class="n">Visual</span> <span class="n">Studio</span>\<span class="mi">2022</span>\<span class="n">Community</span>
+<span class="n">请按任意键继续</span><span class="o">.</span> <span class="o">.</span> <span class="o">.</span>
+</pre></div>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="cmake.html" class="btn btn-neutral float-left" title="CMake" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="cuda.html" class="btn btn-neutral float-right" title="CUDA" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2017~2024, eric.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
