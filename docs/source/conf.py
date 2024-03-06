@@ -7,7 +7,7 @@
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
 project = 'Scientific Computing'
-copyright = '2017~2023, eric'
+copyright = '2017~2024, eric'
 author = 'eric'
 release = '1.0'
 

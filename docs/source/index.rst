@@ -28,6 +28,7 @@ OneFLOW is a general-purpose, unstructured Computational Fluid Dynamics (CFD) so
    :maxdepth: 2
    :caption: Reference
    
+   /bash
    /cfd/index
    /cgns
    /chatgpt
@@ -47,6 +48,7 @@ OneFLOW is a general-purpose, unstructured Computational Fluid Dynamics (CFD) so
    /latex
    /makefile
    /metis
+   /mkdocs
    /modules
    /mpi
    /numerical/index   

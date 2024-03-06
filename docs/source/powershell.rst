@@ -5,6 +5,7 @@ PowerShell
 ---------------------------------
 #. `PowerShell相关链接 <https://zhuanlan.zhihu.com/p/481907978/>`_
 #. `Manage GitHub with PowerShell <https://www.youtube.com/watch?v=w8tFyophdBA/>`_
+#. `PowerShell For Beginners Full Course | PowerShell Beginner tutorial Full Course <https://www.youtube.com/watch?v=UVUd9_k9C6A/>`_
 
 
 You can edit your Microsoft.VSCode_profile.ps1 file (full path can be found when you type $profile in the editor and remove all code referring to anaconda. To open the profile file, type notepad $profile in the terminal. 
@@ -220,3 +221,67 @@ Find PowerShell 7 (x64)
   ----                 -------------         ------ ----
   -a----        2023/11/11      1:59         280000 pwsh.exe
 
+Write-Output
+-----------------------------------
+::
+
+  $array=@(1,2,3,5,6,7,8);
+  Write-Output "array.Length=$($array.Length)"
+  typical results:
+  array.Length=7
+  
+Write-Output
+-----------------------------------
+::
+
+  $pets = @{Cat = 'Frisky'; Dog = 'Spot'; Fish = 'Nimo'; Hamster = 'Whiskers'}
+  Write-Output "`$pets=$pets"
+  $pets
+  Write-Output "`$pets.Cat=$($pets.Cat)"
+  Write-Output "`$pets.Dog=$($pets.Dog)"
+  Write-Output "`$pets.Fish=$($pets.Fish)"
+  Write-Output "`$pets.Hamster=$($pets.Hamster)"
+  $pets=System.Collections.Hashtable
+  
+  Name                           Value
+  ----                           -----
+  Fish                           Nimo
+  Cat                            Frisky
+  Hamster                        Whiskers
+  Dog                            Spot
+  $pets.Cat=Frisky
+  $pets.Dog=Spot
+  $pets.Fish=Nimo
+  $pets.Hamster=Whiskers  
+
+
+Get-Command -Name
+--------------------------------
+::
+  
+  Get-Command -Name "sort.exe"  
+  CommandType     Name        Version    Source
+  -----------     ----        -------    ------
+  Application     sort.exe    10.0.22... C:\Windows\system32\sort.exe  
+  
+  
+msiexec.exe
+--------------------------------
+::
+
+   msiexec.exe /i D:\work\batch_work\ModernBatchFiles\codes\download\03\msmpisdk.msi
+   
+How to install MSI file to the custom directory using PowerShell?
+----------------------------------------------------------------------   
+#. `How to install MSI file to the custom directory using PowerShell? <https://www.youtube.com/watch?v=dnZcZCHdx0k/>`_
+
+To install the MSI file to the custom directory using PowerShell, we can use the TARGETDIR, INSTALLDIR, INSTALLPATH, etc arguments for the custom path, depending upon the MSI file that it supports.
+::
+
+  msiexec /i "C:\temp\7z1900-x64.msi" INSTALLDIR="D:\ProgramFiles\7zip" /quiet
+  
+The above command can be run into PowerShell and cmd both but you can’t control the process that to wait until the installation finishes. To control the above command, we can use the Start-Process cmdlet in PowerShell.
+::
+
+  Start-Process -FilePath "C:\windows\system32\msiexec.exe" -ArgumentList "/i
+  C:\temp\7z1900-x64.msi INSTALLDIR='D:\ProgramFiles\7zip' /quiet" -Wait

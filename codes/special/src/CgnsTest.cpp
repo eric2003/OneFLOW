@@ -724,7 +724,7 @@ int CgnsTest::write_grid_unst()
     nelem_end=ielem_no;
     if (nelem_end > maxelemi)
     {
-        printf("\nError, must increase maxelemi to at least %d\n",nelem_end);
+        printf("\nError, must increase maxelemi to at least %lld\n",nelem_end);
         return 1;
     }
     /* unsorted boundary elements */

@@ -256,6 +256,10 @@ GitHub Actions
 #. `Using GitHub Actions with C++ and CMake <https://cristianadam.eu/20191222/using-github-actions-with-c-plus-plus-and-cmake/>`_
 #. `GitHub Actions Step by Step DEMO for Beginners <https://www.youtube.com/watch?v=ylEy4eLdhFs/>`_
 #. `GitHub Actions Tutorial | From Zero to Hero in 90 minutes (Environments, Secrets, Runners, etc) <https://www.youtube.com/watch?v=TLB5MY9BBa4/>`_
+#. `GitHub Actions: Approvals, Environments and Visualization DEEP DIVE <https://www.youtube.com/watch?v=w_37LDOy4sI/>`_
+#. `GitHub Actions Secrets: Security Best Practices <https://www.youtube.com/watch?v=2yHRq7aWDKM/>`_
+#. `使用 GitHub Actions 实现持续集成与持续部署 <https://www.bilibili.com/video/BV1pf4y1776s/>`_
+
 
 Contexts
 ============
@@ -782,3 +786,15 @@ Run echo "$MATRIX_CONTEXT"
 How To Pass Data Between Workflows in GitHub Actions?
 --------------------------------------------------------
 #. `How To Pass Data Between Workflows in GitHub Actions? <https://codersee.com/how-to-pass-data-between-workflows-in-github-actions/>`_  
+
+
+REST API
+-----------
+#. `GitHub Actions Secrets <https://docs.github.com/en/rest/actions/secrets?apiVersion=2022-11-28/>`_  
+
+
+GitHub Actions Windows MSYS2 MS-MPI
+------------------------------------
+#. `GitHub Actions Windows MSYS2 MS-MPI <https://www.scivision.dev/github-actions-windows-mpi-msys/>`_  
+
+

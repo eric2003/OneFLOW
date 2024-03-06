@@ -70,7 +70,7 @@
 template <class number>
 number***** ArrayUtils<number>::fivetensor(int n1, int n2, int n3, int n4, int n5) {
     number***** u;
-    register int s, i, j, k, l;
+    int s, i, j, k, l;
 
     u = new number * ***[n1];
 
@@ -136,7 +136,7 @@ number***** ArrayUtils<number>::fivetensor(int n1, int n2, int n3, int n4, int n
 template <class number>
 number**** ArrayUtils<number>::fourtensor(int n1, int n2, int n3, int n4) {
     number**** u;
-    register int s, i, j, k;
+    int s, i, j, k;
 
     u = new number * **[n1];
 
@@ -191,7 +191,7 @@ number**** ArrayUtils<number>::fourtensor(int n1, int n2, int n3, int n4) {
 template <class number>
 number*** ArrayUtils<number>::threetensor(int n1, int n2, int n3) {
     number*** u;
-    register int s, i, j;
+    int s, i, j;
 
     u = new number * *[n1];
 
@@ -237,7 +237,7 @@ number*** ArrayUtils<number>::threetensor(int n1, int n2, int n3) {
 template <class number>
 number** ArrayUtils<number>::twotensor(int n1, int n2) {
     number** u;
-    register int s, i;
+    int s, i;
 
     //u = new number*[n1];
     u = (double**)malloc(n1 * sizeof(double*));
@@ -287,7 +287,7 @@ number** ArrayUtils<number>::twotensor(int n1, int n2) {
 template <class number>
 number* ArrayUtils<number>::onetensor(int n1) {
     number* u;
-    register int i;
+    int i;
 
     //u = new number[n1];
     u = (number*)malloc(n1 * sizeof(number));
