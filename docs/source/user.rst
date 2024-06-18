@@ -45,10 +45,3 @@ THEORY
 #. `一维CFD求解器构建+初步在求解器中引入OPENMP <https://zhuanlan.zhihu.com/p/557557266/>`_
 #. `一维CFD求解器构建+400万网格+250万迭代步MPI+OPENMP+CUDA标量方程初步测试 <https://zhuanlan.zhihu.com/p/558347173/>`_
 #. `一维CFD求解器构建图形界面引擎初步构建 <https://zhuanlan.zhihu.com/p/566355119/>`_
-
-
-
-
-
-
-

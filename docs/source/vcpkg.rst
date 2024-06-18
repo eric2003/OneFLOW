@@ -1,6 +1,8 @@
 vcpkg
 ==================================
 
+vcpkg is a cross-platform C/C++ package manager. Get access to thousands of high quality open-source libraries to empower your application and internally share collections of private components.
+
 vcpkg 
 ---------------------------------
 #. `vcpkg documentation <https://learn.microsoft.com/en-us/vcpkg/>`_
