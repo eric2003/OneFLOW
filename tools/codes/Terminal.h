@@ -12,29 +12,12 @@ class Terminal;
 }
 QT_END_NAMESPACE
 
-class MyEventFilter : public QObject
-{
-    Q_OBJECT
+class QProcess;
+class QTextEdit;
 
-protected:
-    bool eventFilter(QObject *obj, QEvent *event) override
-    {
-        //qDebug() << "MyEventFilter::eventFilter";
-        if (event->type() == QEvent::KeyPress)
-        {
-            QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
-            if (keyEvent->key() == Qt::Key_Return)
-            {
-                qDebug() << "MyEventFilter Enter key pressed!";
-                // 执行回车键按下后的操作
-                return true;
-            }
-        }
+class QTextEdit;
 
-        return QObject::eventFilter(obj, event);
-    }
-};
-
+extern QTextEdit *textEdit;
 
 class Terminal : public QWidget
 {
@@ -46,29 +29,32 @@ protected:
     void resizeEvent(QResizeEvent *event) override;
 signals:
 private:
-    void ReadOutput();
-    void ReadStandardOutput();
-    void FinishedProcess();
-    void ErrorProcess();
+    Ui::Terminal *ui;
+    QProcess * procCmd = nullptr;
+private:
     void OnReturnKeyPressed();
-    void OnStateChanged();
     void OnKeyBackPressed();
+    void OnKeyUpPressed();
     void ProcessTabKey();
+
+    void Analysis( const QString & cmdString );
     QString GetCommandString();
     void CommandCompletion( const QString &str );
-private:
     QString FindCommonString(const QString &stra, const QString &strb);
     QString FindCommonString(const QStringList &strlist);
     bool InStringList(QChar a, int ipos, const QStringList &strlist);
 private:
-    void Analysis( QString & cmdString );
-private:
-    Ui::Terminal *ui;
-    QProcess * procCmd = nullptr;
-    QString currentPath;
+    QString cmdStr;
     QString lastCommand;
-    QStringList wordList;
+    QStringList historyCmdList;
     int word_index=0;
+private:
+    void OnStarted();
+    void ReadOutput();
+    void ReadStandardOutput();
+    void FinishedProcess();
+    void ErrorProcess();
+    void OnStateChanged();
 };
 
 #endif // TERMINAL_H

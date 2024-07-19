@@ -3,7 +3,8 @@
 #include <QFileDialog>
 #include <QProcess>
 #include <QKeyEvent>
-#include <thread>
+#include <QSplitter>
+#include <QTextEdit>
 #include <iostream>
 #include "CfdThread.h"
 #include "Terminal.h"
@@ -30,19 +31,45 @@ MainWindow::MainWindow(QWidget *parent)
     QObject::connect( this->actTerminal, &QAction::triggered, this, &MainWindow::runTerminal);
     this->cfdThread = new CfdThread();
     //this->terminal = new Terminal(this);
-    this->terminal = new Terminal();
-    //this->terminal->setWindowTitle("Terminal");
-    //this->terminal->setGeometry( QRect(10, 50, 600, 400) );
-    this->terminal->show();
-    //this->terminal->setFocus();
+    this->terminal = new Terminal(this);
+
+    //this->ui->statusbar->setStyleSheet("background-color: rgb(0, 255, 0);");
+    this->ui->statusbar->setStyleSheet("background-color: rgb(0, 122, 204);");
     qDebug() << "MainWindow::MainWindow";
+
+    this->splitterH = new QSplitter(Qt::Horizontal, this);
+    this->splitterH->setGeometry( QRect(0, 25, this->width(), this->height()) );
+    int myWidth = this->width();
+    double ratioL = 1.0/5.0;
+    double ratioR = 1 - ratioL;
+    int leftWidth = myWidth * ratioL;
+    int rightWidth = myWidth * ratioR;
+    QList<int> list;
+    list.append(leftWidth);
+    list.append(rightWidth);
+    this->splitterH->setSizes(list);
+    qDebug() << "list="<<list;
+    this->splitterH->setStretchFactor(0, 1);
+    this->splitterH->setStretchFactor(1, 4);
+
+    QTextEdit* pLeftEdt = new QTextEdit();
+    pLeftEdt->setText(QObject::tr("LeftWindow1"));
+
+    this->splitterV = new QSplitter(Qt::Vertical, this->splitterH);
+
+    QTextEdit* pRightTopEdt = new QTextEdit(this->splitterV);
+    pRightTopEdt->setText(QObject::tr("Right Top Window"));
+    this->splitterV->addWidget(this->terminal);
+
+    this->splitterH->addWidget(pLeftEdt);
+    this->splitterH->addWidget(this->splitterV);
+
 }
 
 MainWindow::~MainWindow()
 {
     delete ui;
     delete this->cfdThread;
-    delete this->terminalProcess;
 }
 
 void MainWindow::closeEvent( QCloseEvent * ev )
@@ -76,9 +103,36 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
     qDebug() << "MainWindow::keyPressEvent";
 }
 
+void MainWindow::resizeEvent(QResizeEvent *event)
+{
+    qDebug() << "MainWindow::resizeEvent event->size() = " << event->size();
+    qDebug() << "MainWindow::resizeEvent this->ui->statusbar->size()=" << this->ui->statusbar->size();
+    qDebug() << "MainWindow::resizeEvent this->ui->statusbar->pos()=" << this->ui->statusbar->pos();
+    int ypos = this->ui->statusbar->pos().y();
+    int width = event->size().width()-500;
+    int height = ypos - 700;
+
+
+    int splitterTop = 25;
+    int splitterHeight = ypos - splitterTop;
+
+    this->splitterH->setGeometry( QRect(0, splitterTop, this->width(), splitterHeight) );
+    qDebug() << "ypos=" << ypos;
+    this->splitterH->setStretchFactor(0, 1);
+    this->splitterH->setStretchFactor(1, 4);
+    this->splitterH->setHandleWidth(0);
+}
+
 void MainWindow::triggerNew()
 {
-    QFileDialog::getOpenFileName(this,"haha",".","*.txt");
+    //QFileDialog::getOpenFileName(this,"haha",".","*.txt");
+    int width = this->size().width();
+    int height = this->size().height();
+    qDebug() << "MainWindow::triggerNew() this->size()=" << this->size();
+    this->ui->statusbar->showMessage("hello",5000);
+    qDebug() << "MainWindow::triggerNew() this->ui->statusbar->size()=" << this->ui->statusbar->size();
+    qDebug() << "MainWindow::triggerNew() this->ui->statusbar->pos()=" << this->ui->statusbar->pos();
+
 }
 
 void MainWindow::runCFD()
@@ -113,10 +167,6 @@ void MainWindow::runMPI()
 
 void MainWindow::runTerminal()
 {
-    if ( !terminalProcess )
-    {
-        this->terminalProcess = new QProcess( this );
-    }
 }
 
 

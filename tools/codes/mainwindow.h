@@ -8,6 +8,7 @@ class QAction;
 class CfdThread;
 class QProcess;
 class Terminal;
+class QSplitter;
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -28,6 +29,7 @@ private:
 protected:
     bool eventFilter(QObject *obj, QEvent *event) override;
     void keyPressEvent(QKeyEvent *event) override;
+    void resizeEvent(QResizeEvent *event) override;
 private:
     void triggerNew();
     void runCFD();
@@ -42,7 +44,11 @@ private:
     QAction * actTerminal;
 private:
     CfdThread *cfdThread;
-    QProcess * terminalProcess = nullptr;
     Terminal * terminal = nullptr;
+private:
+    int terminal_x0;
+    int terminal_y0;
+    QSplitter *splitterH;
+    QSplitter *splitterV;
 };
 #endif // MAINWINDOW_H
