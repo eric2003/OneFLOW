@@ -1,0 +1,16 @@
+<RCC>
+    <qresource prefix="/">
+        <file>folder.png</file>
+        <file>file.jpg</file>
+        <file>cmake.jpg</file>
+        <file>project.png</file>
+        <file>proj.png</file>
+        <file>search.png</file>
+        <file>grid.png</file>
+        <file>add.png</file>
+        <file>minus.png</file>
+        <file>minus1.png</file>
+        <file>plus.png</file>
+        <file>minus2.png</file>
+    </qresource>
+</RCC>

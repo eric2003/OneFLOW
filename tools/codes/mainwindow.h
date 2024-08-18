@@ -7,8 +7,9 @@ class QMenu;
 class QAction;
 class CfdThread;
 class QProcess;
-class Terminal;
 class QSplitter;
+class Terminal;
+class Panel;
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -45,10 +46,6 @@ private:
 private:
     CfdThread *cfdThread;
     Terminal * terminal = nullptr;
-private:
-    int terminal_x0;
-    int terminal_y0;
-    QSplitter *splitterH;
-    QSplitter *splitterV;
+    Panel * panel = nullptr;
 };
 #endif // MAINWINDOW_H
