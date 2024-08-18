@@ -16,6 +16,28 @@ find_package(Qt6 REQUIRED COMPONENTS Widgets)
 list ( APPEND PRJ_LIBRARIES Qt6::Widgets )
 list ( APPEND PRJ_COMPILE_FEATURES cxx_std_23 )
 
+set ( CGNS_INCLUDE_DIRS $ENV{CGNS_INC} )
+set ( CGNS_LIBRARIES $ENV{CGNS_LIB_SHARED_NAME} )
+
+if ( ${CMAKE_SYSTEM_NAME} MATCHES "Windows" )
+    set ( CGNS_ROOT "C:/dev/cgns/4.4.0" )
+    set ( CGNS_LIBNAME "cgnsdll.lib" )
+
+    set ( CGNS_INCLUDE_DIRS "${CGNS_ROOT}/include" CACHE PATH "path to CGNS headers" )
+    set ( CGNS_LIBRARIES "${CGNS_ROOT}/lib/${CGNS_LIBNAME}" CACHE PATH "path to CGNS library" )
+endif()
+
+list ( APPEND PRJ_LIBRARIES ${CGNS_LIBRARIES} )
+list ( APPEND PRJ_INCLUDE_DIRS ${CGNS_INCLUDE_DIRS} )
+list ( APPEND PRJ_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/codes )
+list ( APPEND PRJ_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/codes/cgns )
+
+if ( WIN32 )
+    list ( APPEND PRJ_COMPILE_DEFINITIONS USE_DLL )
+endif ()
+
+message( STATUS "PRJ_INCLUDE_DIRS = ${PRJ_INCLUDE_DIRS}")
+
 if ( MSVC )
     set_property( DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT ${PROJECT_NAME} )
 endif()
@@ -28,6 +50,16 @@ set( PROJECT_SOURCES
     CfdThread.h CfdThread.cpp
     Terminal.h Terminal.cpp
     terminal.ui
+    leftpanel.h leftpanel.cpp leftpanel.ui
+    rightpanel.h rightpanel.cpp rightpanel.ui
+    explorer.h explorer.cpp
+    cgnsview.h cgnsview.cpp
+    panel.h panel.cpp
+    cgnspanel.h cgnspanel.cpp
+    cgns/CgnsHeader.h
+    cgns/CgnsBase.h cgns/CgnsBase.cpp
+    cgns/CgnsBc.h cgns/CgnsBc.cpp
+    cgns/Plot.h cgns/Plot.cpp
 )
 
 set( PRJ_SOURCES )
@@ -40,6 +72,7 @@ foreach(source ${PRJ_SOURCES})
 endforeach()
 
 add_executable( ${PROJECT_NAME}
+    images/res.qrc
 )
 
 target_sources( ${PROJECT_NAME}
