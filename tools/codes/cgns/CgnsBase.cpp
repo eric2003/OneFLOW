@@ -77,7 +77,6 @@ void BBase::ReadFile(const std::string &fileName)
 {
     //namespace fs = std::filesystem;
     //std::cout << "Current path is " << fs::current_path() << '\n';
-
     int openStatus = cg_open( fileName.c_str(), CG_MODE_READ, & this->fileId );
     std::string stars( "**************************************************************" );
     std::cout << stars << "\n";
@@ -157,9 +156,12 @@ void Base::ReadBaseUnits( int fileId, int baseId )
 {
     DataClass_t dclass;
     cg_goto(fileId, 1, "end");
-    cg_dataclass_read(&dclass);
+    int ierr = cg_dataclass_read(&dclass);
 
-    std::cout << "dclass = " << dclass << " dclass name = " << DataClassName[dclass] << "\n";
+    if ( ierr == CG_OK )
+    {
+        std::cout << "dclass = " << dclass << " dclass name = " << DataClassName[ dclass ] << "\n";
+    }
 
     CGNS_ENUMT(MassUnits_t) mass;
     CGNS_ENUMT(LengthUnits_t) length;
@@ -176,30 +178,41 @@ void Base::ReadBaseUnits( int fileId, int baseId )
     CGNS_ENUMT(TemperatureUnits_t) ix;
     CGNS_ENUMT(AngleUnits_t) ia;
 
-    cg_units_read(&im,&il,&it,&ix,&ia);
+    ierr = cg_units_read(&im,&il,&it,&ix,&ia);
 
-    std::printf("\nUnits=\n    %s\n    %s\n    %s\n    %s\n    %s\n",
-                MassUnitsName[im],LengthUnitsName[il],TimeUnitsName[it],
-                TemperatureUnitsName[ix],AngleUnitsName[ia]);
+    if ( ierr == CG_OK )
+    {
+        std::printf( "\nUnits=\n    %s\n    %s\n    %s\n    %s\n    %s\n",
+            MassUnitsName[ im ], LengthUnitsName[ il ], TimeUnitsName[ it ],
+            TemperatureUnitsName[ ix ], AngleUnitsName[ ia ] );
+    }
 
     int nunits = -1;
-    cg_nunits(&nunits);
+    ierr = cg_nunits(&nunits);
+    if ( ierr == CG_OK )
+    {
+        std::cout << "   CGNS nunits = " << nunits << "\n";
+    }
 
-    std::cout << "   CGNS nunits = " << nunits << "\n";
-
-    cg_unitsfull_read(&mass, &length, &time, &temp, &angle, &current, &amount, &intensity);
-    std::cout << "mass = " << mass << " MassUnitsName[mass] = " << MassUnitsName[mass]<<"\n";
-    std::cout << "length = " << length << " LengthUnitsName[length] = " << LengthUnitsName[length]<<"\n";
-    std::cout << "time = " << time << " TimeUnitsName[time] = " << TimeUnitsName[time]<<"\n";
-    std::cout << "temp = " << temp << " TemperatureUnitsName[temp] = " << TemperatureUnitsName[temp]<<"\n";
-    std::cout << "angle = " << angle<< " AngleUnitsName[angle] = " << AngleUnitsName[angle]<<"\n";
-    std::cout << "current = " << current<< " ElectricCurrentUnitsName[current] = " << ElectricCurrentUnitsName[current]<<"\n";
-    std::cout << "amount = " << amount<< " SubstanceAmountUnitsName[amount] = " << SubstanceAmountUnitsName[amount]<<"\n";
-    std::cout << "intensity = " << intensity << " LuminousIntensityUnitsName[intensity] = " << LuminousIntensityUnitsName[intensity]<<"\n";
+    ierr = cg_unitsfull_read(&mass, &length, &time, &temp, &angle, &current, &amount, &intensity);
+    if ( ierr == CG_OK )
+    {
+        std::cout << "mass = " << mass << " MassUnitsName[mass] = " << MassUnitsName[ mass ] << "\n";
+        std::cout << "length = " << length << " LengthUnitsName[length] = " << LengthUnitsName[ length ] << "\n";
+        std::cout << "time = " << time << " TimeUnitsName[time] = " << TimeUnitsName[ time ] << "\n";
+        std::cout << "temp = " << temp << " TemperatureUnitsName[temp] = " << TemperatureUnitsName[ temp ] << "\n";
+        std::cout << "angle = " << angle << " AngleUnitsName[angle] = " << AngleUnitsName[ angle ] << "\n";
+        std::cout << "current = " << current << " ElectricCurrentUnitsName[current] = " << ElectricCurrentUnitsName[ current ] << "\n";
+        std::cout << "amount = " << amount << " SubstanceAmountUnitsName[amount] = " << SubstanceAmountUnitsName[ amount ] << "\n";
+        std::cout << "intensity = " << intensity << " LuminousIntensityUnitsName[intensity] = " << LuminousIntensityUnitsName[ intensity ] << "\n";
+    }
 
     int nexps = -1;
-    cg_nexponents (&nexps);
-    std::cout << "nexps = " << nexps << "\n";
+    ierr = cg_nexponents (&nexps);
+    if ( ierr == CG_OK )
+    {
+        std::cout << "nexps = " << nexps << "\n";
+    }
 }
 
 void Base::ReadBase( int fileId, int baseId )
@@ -323,7 +336,7 @@ void Zone::DumpZone()
     }
     std::cout << "total faces of zone : " <<  this->nFaces << "\n";
     std::cout << "total number face nodes of zone : " <<  this->totalNumFaceNodes << "\n";
-    this->DrawZone();
+    //this->DrawZone();
 }
 
 void Zone::DrawZone()
@@ -497,6 +510,47 @@ void Zone::SetDimensions()
         this->nNodes = this->irmax[ 0 ];
         this->nCells = this->cellSize[ 0 ];
     }
+    else
+    {
+        // lower range index
+        this->irmin[ 0 ] = 1;
+        this->irmin[ 1 ] = 1;
+        this->irmin[ 2 ] = 1;
+
+        // upper range index of vertices
+        this->irmax[ 0 ] = 1;
+        this->irmax[ 1 ] = 1;
+        this->irmax[ 2 ] = 1;
+
+        this->cellSize[ 0 ] = 1;
+        this->cellSize[ 1 ] = 1;
+        this->cellSize[ 2 ] = 1;
+
+        // upper range index of vertices
+        // vertex size
+        int j = 0;
+        this->irmax[ 0 ] = this->isize[ j ++ ];
+        this->irmax[ 1 ] = this->isize[ j ++ ];
+
+        int celldim = THREE_D;
+        if ( celldim == THREE_D )
+        {
+            this->irmax[ 2 ] = this->isize[ j ++ ];
+        }
+        // cell size
+        this->cellSize[ 0 ] = this->isize[ j ++ ];
+        this->cellSize[ 1 ] = this->isize[ j ++ ];
+        if ( celldim == THREE_D )
+        {
+            cellSize[ 2 ] = this->isize[ j ++ ];
+        }
+        std::cout << "   The Dimension Of Grid is : \n";
+        std::cout << "   I Direction " << std::setw( 10 ) << irmin[ 0 ] << std::setw( 10 ) << irmax[ 0 ] << "\n";
+        std::cout << "   J Direction " << std::setw( 10 ) << irmin[ 1 ] << std::setw( 10 ) << irmax[ 1 ] << "\n";
+        std::cout << "   K Direction " << std::setw( 10 ) << irmin[ 2 ] << std::setw( 10 ) << irmax[ 2 ] << "\n";
+        this->nNodes = irmax[ 0 ] * irmax[ 1 ] * irmax[ 2 ];
+        this->nCells = cellSize[ 0 ] * cellSize[ 1 ] * cellSize[ 2 ];
+    }
     std::cout << "   numberOfNodes = " << this->nNodes << " numberOfCells = " << this->nCells << "\n";
 }
 
@@ -651,12 +705,12 @@ void Coor::DumpCoor()
 
 Field::Field()
 {
-    this->data = 0;
+    //this->data = 0;
 }
 
 Field::~Field()
 {
-    this->DeAllocateData();
+    //this->DeAllocateData();
 }
 
 void Field::ReadField( int fileId, int baseId, int zoneId, int solutionId, int fieldId, Zone * zone )
@@ -679,7 +733,7 @@ void Field::ReadField( int fileId, int baseId, int zoneId, int solutionId, int f
     this->AllocateData( zone->nNodes );
 
     std::cout << "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++" << std::endl;
-    int ierr = cg_field_read( fileId, baseId, zoneId, solutionId, this->fieldName, this->dataType, zone->irmin, zone->irmax, this->data);
+    int ierr = cg_field_read( fileId, baseId, zoneId, solutionId, this->fieldName, this->dataType, zone->irmin, zone->irmax, this->data.data());
     if ( ierr == CG_OK )
     {
         std::cout << "cg_field_read ierr = " << ierr << "\n";
@@ -737,26 +791,36 @@ void Field::AllocateData( int nNodes )
     this->nNodes = nNodes;
     if ( this->dataType == RealSingle )
     {
-        this->data = new float [ nNodes ];
+        //this->data = new float [ nNodes ];
+        this->data.resize(nNodes * sizeof(float) );
     }
-    else
+    else if ( this->dataType == RealDouble )
     {
-        this->data = new double [ nNodes ];
+        //this->data = new double [ nNodes ];
+        this->data.resize(nNodes * sizeof(double) );
+    }
+    else if ( this->dataType == ComplexSingle )
+    {
+        this->data.resize(nNodes * 2 * sizeof(float) );
+    }
+    else if ( this->dataType == ComplexDouble )
+    {
+        this->data.resize(nNodes * 2 * sizeof(double) );
     }
 }
 
 void Field::DeAllocateData()
 {
-    if ( this->dataType == RealSingle )
-    {
-        float * f_data  = static_cast< float * >( this->data );
-        delete [] f_data;
-    }
-    else
-    {
-        double * d_data  = static_cast< double * >( this->data );
-        delete [] d_data;
-    }
+    //if ( this->dataType == RealSingle )
+    //{
+    //    float * f_data  = static_cast< float * >( this->data );
+    //    delete [] f_data;
+    //}
+    //else
+    //{
+    //    double * d_data  = static_cast< double * >( this->data );
+    //    delete [] d_data;
+    //}
 }
 
 Solution::Solution()

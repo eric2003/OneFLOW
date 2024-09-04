@@ -14,66 +14,116 @@
 #include <QResizeEvent>
 #include <QPushButton>
 
-QList<QWidget*> widgetsL;
-QList<QWidget*> widgetsR;
-
-bool initWidgetListFlagL = false;
-void InitWidgetListL();
-bool initWidgetListFlagR = false;
-void InitWidgetListR();
-
-QList<QWidget*> &GetWidgetListL()
+QList<WidgetPair*> widgetPairList;
+bool initWidgetPairListFlag = false;
+void InitWidgetPairList()
 {
-    if( !initWidgetListFlagL )
-    {
-        InitWidgetListL();
-    }
-    return widgetsL;
+     if ( initWidgetPairListFlag ) return;
+     initWidgetPairListFlag = true;
+     widgetPairList.append( new ExplorePair() );
+     widgetPairList.append( new ProjectPair() );
+     widgetPairList.append( new CgnsPair() );
 }
 
-void InitWidgetListL()
+QList<WidgetPair*> &GetWidgetPairList()
 {
-    if ( initWidgetListFlagL ) return;
-    initWidgetListFlagL = true;
-    widgetsL.append( new Explorer() );
-    widgetsL.append( new QPushButton("Project") );
-    widgetsL.append( new CgnsView() );
+    InitWidgetPairList();
+
+    return widgetPairList;
 }
 
-QList<QWidget*> &GetWidgetListR()
+WidgetPair::WidgetPair()
 {
-    if( !initWidgetListFlagR )
-    {
-        InitWidgetListR();
-    }
-    return widgetsR;
 }
 
-void InitWidgetListR()
+WidgetPair::~WidgetPair()
 {
-    if ( initWidgetListFlagR ) return;
-    initWidgetListFlagR = true;
+}
 
-    QSplitter *splitterV = new QSplitter(Qt::Vertical);
+QWidget *WidgetPair::GetLeft()
+{
+    return nullptr;
+}
+
+QWidget *WidgetPair::GetRight()
+{
+    return nullptr;
+}
+
+ExplorePair::ExplorePair()
+{
+    this->explorer = new Explorer();
+    this->splitterV = new QSplitter(Qt::Vertical);
 
     QTextEdit* pRightTopEdt = new QTextEdit();
     pRightTopEdt->setText(QObject::tr("Right Top Window"));
-    splitterV->addWidget(pRightTopEdt);
-    splitterV->addWidget( new Terminal() );
+    this->splitterV->addWidget(pRightTopEdt);
+    this->splitterV->addWidget( new Terminal() );
 
-    widgetsR.append( splitterV );
-    widgetsR.append( new QPushButton("btn2") );
-    widgetsR.append( new CgnsPanel() );
 }
 
-// class tmpInitWidgets
-// {
-// public:
-//     tmpInitWidgets()
-//     {
-//         ::InitWidgetList();
-//     }
-// };
+ExplorePair::~ExplorePair()
+{
+    delete this->explorer;
+    delete this->splitterV;
+}
+
+QWidget *ExplorePair::GetLeft()
+{
+    return this->explorer;
+}
+
+QWidget *ExplorePair::GetRight()
+{
+    return this->splitterV;
+}
+
+ProjectPair::ProjectPair()
+{
+    this->leftButton = new QPushButton("Project");
+    this->rightButton = new QPushButton("btn2");
+
+}
+
+ProjectPair::~ProjectPair()
+{
+    delete this->leftButton;
+    delete this->rightButton;
+}
+
+QWidget *ProjectPair::GetLeft()
+{
+    return this->leftButton;
+}
+
+QWidget *ProjectPair::GetRight()
+{
+    return this->rightButton;
+}
+
+
+CgnsPair::CgnsPair()
+{
+    this->cgnsView = new CgnsView();
+    this->cgnsPanel = new CgnsPanel();
+    this->cgnsView->SetCgnsPanel(this->cgnsPanel);
+}
+
+CgnsPair::~CgnsPair()
+{
+    delete this->cgnsView;
+    delete this->cgnsPanel;
+}
+
+QWidget *CgnsPair::GetLeft()
+{
+    return this->cgnsView;
+}
+
+QWidget *CgnsPair::GetRight()
+{
+    return this->cgnsPanel;
+}
 
 // tmpInitWidgets _tmpInitWidgets;
 
@@ -199,3 +249,4 @@ void Panel::onGridToolButtonClicked()
     this->leftPanel->stack->setCurrentIndex(2);
     this->rightPanel->stack->setCurrentIndex(2);
 }
+

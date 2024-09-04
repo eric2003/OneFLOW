@@ -12,5 +12,6 @@
         <file>minus1.png</file>
         <file>plus.png</file>
         <file>minus2.png</file>
+		<file>forward.png</file>
     </qresource>
 </RCC>

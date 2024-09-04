@@ -8,6 +8,8 @@ class QGridLayout;
 class QLabel;
 class QLineEdit;
 
+class CgnsNode;
+
 class CgnsPanel : public QWidget
 {
     Q_OBJECT
@@ -17,6 +19,9 @@ protected:
     void resizeEvent(QResizeEvent *event) override;
 
 signals:
+public:
+    void Display(const QString &text);
+    void DisplayNode(CgnsNode *node);
 private:
     QGroupBox *nodeDescGroupBox;
     QGroupBox *linkDescGroupBox;

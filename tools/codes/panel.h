@@ -9,8 +9,64 @@ class RightPanel;
 class QVBoxLayout;
 class QSpacerItem;
 
-QList<QWidget*> &GetWidgetListL();
-QList<QWidget*> &GetWidgetListR();
+class WidgetPair;
+QList<WidgetPair*> &GetWidgetPairList();
+
+class WidgetPair
+{
+public:
+    WidgetPair();
+    ~WidgetPair();
+public:
+    virtual QWidget *GetLeft();
+    virtual QWidget *GetRight();
+};
+
+class Explorer;
+
+class ExplorePair : public WidgetPair
+{
+public:
+    ExplorePair();
+    ~ExplorePair();
+public:
+    QWidget *GetLeft();
+    QWidget *GetRight();
+public:
+    QSplitter *splitterV = nullptr;
+    Explorer *explorer = nullptr;
+};
+
+class QPushButton;
+
+class ProjectPair : public WidgetPair
+{
+public:
+    ProjectPair();
+    ~ProjectPair();
+public:
+    QWidget *GetLeft();
+    QWidget *GetRight();
+public:
+    QPushButton *leftButton = nullptr;
+    QPushButton *rightButton = nullptr;
+};
+
+class CgnsView;
+class CgnsPanel;
+class CgnsPair : public WidgetPair
+{
+public:
+    CgnsPair();
+    ~CgnsPair();
+public:
+    QWidget *GetLeft();
+    QWidget *GetRight();
+public:
+    CgnsView *cgnsView = nullptr;
+    CgnsPanel *cgnsPanel = nullptr;
+};
+
 
 class Panel : public QWidget
 {
