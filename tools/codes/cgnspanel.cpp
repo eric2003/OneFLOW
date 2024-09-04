@@ -1,4 +1,5 @@
 #include "cgnspanel.h"
+#include "cgnsview.h"
 #include <QGroupBox>
 #include <QGridLayout>
 #include <QResizeEvent>
@@ -109,4 +110,24 @@ void CgnsPanel::resizeEvent(QResizeEvent *event)
     this->dataDescGroupBox->resize(event->size().width(),this->h3);
 
     this->nodeDataGroupBox->resize(event->size().width(),event->size().height()-this->h1-this->h2-this->h3);
+}
+
+void CgnsPanel::Display(const QString &text)
+{
+    this->nodeDataTextEdit->setPlainText(text);
+}
+
+void CgnsPanel::DisplayNode(CgnsNode *node)
+{
+    this->parentNodeLineEdit->setText(QString::fromStdString(node->parent_name));
+    this->nodeNameLineEdit->setText(QString::fromStdString(node->name));
+    this->nodeLabelLineEdit->setText(QString::fromStdString(node->label));
+    this->dataTypeLineEdit->setText(QString::fromStdString(node->data_type));
+    this->dimLineEdit->setText(QString::fromStdString(node->dimstr));
+    this->bytesLineEdit->setText(QString::number(node->data_size));
+    this->nodeDataTextEdit->setPlainText(QString::fromStdString(node->valuestr));
+
+    this->linkFileLineEdit->setText(QString::fromStdString(node->link_file));
+    this->linkNodeLineEdit->setText(QString::fromStdString(node->link_node));
+
 }

@@ -345,8 +345,8 @@ void CgnsCoor::SetDimensionStr()
         irmax[ 2 ] = isize[ j ++ ];
     }
     // cell size
-    cellSize[ 0 ] = isize[ j ++ ];
-    cellSize[ 1 ] = isize[ j ++ ];
+    this->cellSize[ 0 ] = isize[ j ++ ];
+    this->cellSize[ 1 ] = isize[ j ++ ];
     if ( this->cgnsZone->cgnsBase->celldim == THREE_D )
     {
         cellSize[ 2 ] = isize[ j ++ ];

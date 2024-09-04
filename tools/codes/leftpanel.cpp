@@ -15,11 +15,11 @@ LeftPanel::LeftPanel(QWidget *parent)
     this->stack = new QStackedWidget(this);
     //this->stack->setStyleSheet("background-color: rgb(243,243,243);");
 
-    QList<QWidget*> ws = ::GetWidgetListL();
+    QList<WidgetPair*> wp = ::GetWidgetPairList();
 
-    for( int i = 0; i < ws.count(); ++ i )
+    for( int i = 0; i < wp.count(); ++ i )
     {
-        this->stack->addWidget( ws[i] );
+        this->stack->addWidget( wp[i]->GetLeft() );
     }
 
     qDebug() << "this->stack->count()="<< this->stack->count();

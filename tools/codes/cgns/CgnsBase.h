@@ -139,7 +139,8 @@ public:
     char33 fieldName;
     int fieldId = -1;
     double doubleFieldId = -1;
-    void * data;
+    //void * data;
+    std::vector<char> data;
     cgsize_t nNodes;
     DataClass_t dataclass;
     int dimflag=-1; //0: nondimensional 1: dimensional
