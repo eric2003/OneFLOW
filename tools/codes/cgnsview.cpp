@@ -245,6 +245,7 @@ void CgnsView::SetUpCgnsInfo()
     QString fileName = "D:/work/cgns_work/cgnsgrid_example/yf17_hdf5.cgns";
     //QString fileName = "D:/work/cgns_work/ModernCGNS/codes/UserGuideCode/read_complex/complex_data.cgns";
     //QString fileName = "D:/work/cgns_work/ModernCGNS/codes/UserGuideCode/cg_link_write/grid/links.cgns";
+    //QString fileName = "D:/work/cgns_work/ModernCGNS/codes/UserGuideCode/cg_base_read/example.cgns";
 
     ::ReadCgnsFile( fileName.toLatin1().data() );
 
