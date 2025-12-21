@@ -1,3 +1,4 @@
 **/build/*
 oneflow_bin/*
 **/project_tmp/*
+**/__pycache__/*
