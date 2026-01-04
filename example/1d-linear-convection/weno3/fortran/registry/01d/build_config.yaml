@@ -1,0 +1,29 @@
+# 构建配置文件
+project:
+  name: "FortranCFD"
+  version: "1.0.0"
+  language: "Fortran"
+
+intel:
+  setvars_path: "C:/Program Files (x86)/Intel/oneAPI/setvars.bat"
+  compiler: "ifx"
+  
+cmake:
+  generator: "Visual Studio 17 2022"
+  platform: "x64"
+  toolset: "fortran=ifx"
+  build_type: "Debug"
+  source_dir: ".."
+
+build:
+  clean_before_build: true
+  run_tests: true
+  
+tests:
+  - name: "test_simple"
+    executable: "Debug/test_simple.exe"
+    description: "Simple functionality test"
+    
+  - name: "test_factory"
+    executable: "Debug/test_factory.exe"
+    description: "Factory pattern test"
