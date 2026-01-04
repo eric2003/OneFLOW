@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
 OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-Copyright (C) 2017-2025 He Xin and the OneFLOW contributors.
+Copyright (C) 2017-2026 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
 This file is part of OneFLOW.
@@ -119,7 +119,7 @@ void MainWindow::initMenu()
     this->treeWidget->setGeometry(QRect(100, 50, 600, 300));
     this->treeWidget->setColumnCount( 1 );
     QStringList labels;
-    labels << QString::fromLocal8Bit("CFD²ÎÊý");
+    labels << QString::fromLocal8Bit("CFDå‚æ•°");
     this->treeWidget->setHeaderLabels( labels );
     this->treeWidget->header()->setSectionResizeMode(QHeaderView::Stretch);
     this->treeWidget->setContextMenuPolicy(Qt::CustomContextMenu);
