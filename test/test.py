@@ -59,7 +59,13 @@ def CmpFile(fileName1, fileName2):
     while True:
         str1 = f1.readline()
         str2 = f2.readline()
-        if not str1:
+        if not str1 and not str2:
+            break
+        if not str1 or not str2:
+            print(fileName1)
+            print(fileName2)
+            print("Line", line_id, "has different end-of-file position")
+            cmpflag = False
             break
         # aa = str1.split()
         # print(aa)
@@ -139,7 +145,7 @@ def RunTest(testprjdir):
         current = datetime.datetime.now()
         time.sleep(0.5)
     returnCode = process.poll()
-    totalPass = True
+    totalPass = returnCode == 0
     for i in range(0, len(testFileListPath)):
         #print("i=", i)
         #print(" file1=", testFileListPath[i])
@@ -183,7 +189,11 @@ def main():
     print( " location = ", location )
     my_dir_cmd( location )
     errorCode = 0
-    passFlag = RunAllTest("test.txt")
+    suiteFile = "test.txt"
+    if len(sys.argv) >= 4:
+        suiteFile = sys.argv[3]
+    print("suiteFile=", suiteFile)
+    passFlag = RunAllTest(suiteFile)
     numTest = len(passFlag)
     npass = 0
     nfail = 0
@@ -197,6 +207,7 @@ def main():
     else:
         print("ERROR: Some tests failed")
     print(npass, " tests passed! ", nfail, " tests failed!")
+    return 0 if nfail == 0 else 1
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

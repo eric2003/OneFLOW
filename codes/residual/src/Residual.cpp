@@ -60,11 +60,18 @@ void ResAver::CalcAver( HXVector< ResData > & dataList )
 
     int nEqu = this->res.size();
     RealField resSum( nEqu );
-    int nCellSum = 0;
+    resSum = this->res;
+    int nCellSum = this->nCells;
     HXReduceInt( & this->nCells, & nCellSum, 1, PL_SUM );
     HXReduceReal( & this->res[ 0 ], & resSum[ 0 ], nEqu, PL_SUM );
 
     this->nCells = nCellSum;
+    if ( nCellSum <= 0 )
+    {
+        this->res = 0;
+        return;
+    }
+
     for ( int iEqu = 0; iEqu < nEqu; ++ iEqu )
     {
         this->res[ iEqu ] = sqrt( resSum[ iEqu ] / nCellSum );
@@ -126,13 +133,62 @@ void ResMax::SwapMax( ResMax & rhs )
 
 void ResMax::CalcMax( HXVector< ResData > & dataList )
 {
-    ResData & t = dataList[ 0 ];
-    * this = t.resmax;
+    const bool hasLocalData = ! dataList.empty();
+    const int nEqu = resmax.size();
 
-    for ( int i = 0; i < dataList.size(); ++ i )
+    if ( hasLocalData )
     {
-        ResData & t = dataList[ i ];
-        this->SwapMax( t.resmax );
+        * this = dataList[ 0 ].resmax;
+        for ( int i = 1; i < dataList.size(); ++ i )
+        {
+            this->SwapMax( dataList[ i ].resmax );
+        }
+    }
+    else
+    {
+        resmax = 0;
+        index = -1;
+        zid = -1;
+        xcc = 0;
+        ycc = 0;
+        zcc = 0;
+        vol = 0;
+    }
+
+    RealField globalMax( nEqu );
+    globalMax = resmax;
+    HXReduceReal( & resmax[ 0 ], & globalMax[ 0 ], nEqu, PL_MAX );
+
+    for ( int iEqu = 0; iEqu < nEqu; ++ iEqu )
+    {
+        const Real localMax = resmax[ iEqu ];
+        int ownerCandidate = Parallel::nProc;
+        if ( hasLocalData && localMax == globalMax[ iEqu ] )
+        {
+            ownerCandidate = Parallel::pid;
+        }
+
+        int owner = ownerCandidate;
+        HXReduceInt( & ownerCandidate, & owner, 1, PL_MIN );
+        resmax[ iEqu ] = globalMax[ iEqu ];
+
+        if ( owner >= Parallel::nProc )
+        {
+            index[ iEqu ] = -1;
+            zid[ iEqu ] = -1;
+            xcc[ iEqu ] = 0;
+            ycc[ iEqu ] = 0;
+            zcc[ iEqu ] = 0;
+            vol[ iEqu ] = 0;
+            continue;
+        }
+
+        HXBcast( & index[ iEqu ], 1, owner );
+        HXBcast( & zid[ iEqu ], 1, owner );
+        HXBcast( & xcc[ iEqu ], 1, owner );
+        HXBcast( & ycc[ iEqu ], 1, owner );
+        HXBcast( & zcc[ iEqu ], 1, owner );
+        HXBcast( & vol[ iEqu ], 1, owner );
     }
 }
 
