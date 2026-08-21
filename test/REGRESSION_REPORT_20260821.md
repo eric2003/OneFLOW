@@ -1,5 +1,8 @@
 # OneFLOW 回归测试与代码改动报告
 
+> 本文件保留首轮测试记录。完整的架构、验证、CI、风险和后续实施报告
+> 见 [`GPU_BACKEND_DELIVERY_REPORT_20260821.md`](GPU_BACKEND_DELIVERY_REPORT_20260821.md)。
+
 **报告日期：2026-08-21**
 **验证平台：昆山 SCNet，CPU 分区 `kshcnormal`，GCC 7.3.1 + HPC-X MPI**
 **远端隔离目录：** `<kunshan-dedicated-ci-root>/OneFLOW_backend_smoke_20260821`
