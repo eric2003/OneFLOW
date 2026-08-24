@@ -1,0 +1,202 @@
+name: OneFLOW Kunshan Regression
+
+on:
+  workflow_dispatch:
+    inputs:
+      suite:
+        description: Regression suite to run on the Kunshan cluster
+        required: true
+        default: all
+        type: choice
+        options:
+          - all
+          - cpu-serial
+          - mpi4
+
+permissions:
+  contents: read
+
+concurrency:
+  group: kunshan-regression-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  regression:
+    name: Kunshan CPU/MPI regression
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      KUNSHAN_SSH_HOST: ${{ secrets.KUNSHAN_SSH_HOST }}
+      KUNSHAN_SSH_PORT: ${{ secrets.KUNSHAN_SSH_PORT }}
+      KUNSHAN_SSH_USER: ${{ secrets.KUNSHAN_SSH_USER }}
+      KUNSHAN_SSH_PRIVATE_KEY: ${{ secrets.KUNSHAN_SSH_PRIVATE_KEY }}
+      KUNSHAN_SSH_KNOWN_HOSTS: ${{ secrets.KUNSHAN_SSH_KNOWN_HOSTS }}
+      KUNSHAN_REMOTE_ROOT: ${{ secrets.KUNSHAN_REMOTE_ROOT }}
+      KUNSHAN_CI_CONFIG: ${{ secrets.KUNSHAN_CI_CONFIG }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check trusted branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          case "${GITHUB_REF}" in
+            refs/heads/master|refs/heads/main|refs/heads/hexin)
+              echo "Trusted branch: ${GITHUB_REF}"
+              ;;
+            *)
+              echo "::error::Kunshan regression is restricted to the trusted master, main, or hexin branches."
+              echo "::error::No SSH preflight or Slurm submission was attempted."
+              exit 2
+              ;;
+          esac
+
+      - name: Check Kunshan SSH authorization
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          missing=0
+          for name in \
+            KUNSHAN_SSH_HOST \
+            KUNSHAN_SSH_PORT \
+            KUNSHAN_SSH_USER \
+            KUNSHAN_SSH_PRIVATE_KEY \
+            KUNSHAN_SSH_KNOWN_HOSTS \
+            KUNSHAN_REMOTE_ROOT \
+            KUNSHAN_CI_CONFIG
+          do
+            if [ -z "${!name:-}" ]; then
+              echo "::error::Missing required GitHub Actions secret: ${name}"
+              missing=1
+            fi
+          done
+
+          if [ "$missing" -ne 0 ]; then
+            echo "::error::Kunshan regression was stopped before submission. Configure the required repository or environment secrets, then run the workflow again."
+            exit 2
+          fi
+
+          if ! [[ "$KUNSHAN_SSH_PORT" =~ ^[0-9]+$ ]]; then
+            echo "::error::KUNSHAN_SSH_PORT must be numeric."
+            exit 2
+          fi
+
+          case "$KUNSHAN_REMOTE_ROOT" in
+            /*) ;;
+            *)
+              echo "::error::KUNSHAN_REMOTE_ROOT must be an absolute path to a dedicated CI directory."
+              exit 2
+              ;;
+          esac
+
+          if [ "$KUNSHAN_REMOTE_ROOT" = "/" ]; then
+            echo "::error::KUNSHAN_REMOTE_ROOT must not be the filesystem root."
+            exit 2
+          fi
+
+          install -d -m 700 "$HOME/.ssh"
+          printf '%s\n' "$KUNSHAN_SSH_PRIVATE_KEY" > "$HOME/.ssh/kunshan_ci"
+          chmod 600 "$HOME/.ssh/kunshan_ci"
+          printf '%s\n' "$KUNSHAN_SSH_KNOWN_HOSTS" > "$HOME/.ssh/known_hosts"
+          chmod 600 "$HOME/.ssh/known_hosts"
+
+          if ! ssh-keygen -y -f "$HOME/.ssh/kunshan_ci" >/dev/null 2>&1; then
+            echo "::error::KUNSHAN_SSH_PRIVATE_KEY is not a readable SSH private key."
+            exit 2
+          fi
+
+          {
+            echo "Host kunshan-ci"
+            echo "  HostName $KUNSHAN_SSH_HOST"
+            echo "  Port $KUNSHAN_SSH_PORT"
+            echo "  User $KUNSHAN_SSH_USER"
+            echo "  IdentityFile $HOME/.ssh/kunshan_ci"
+            echo "  UserKnownHostsFile $HOME/.ssh/known_hosts"
+            echo "  StrictHostKeyChecking yes"
+            echo "  BatchMode yes"
+            echo "  ConnectTimeout 15"
+            echo "  ServerAliveInterval 30"
+            echo "  ServerAliveCountMax 4"
+          } > "$HOME/.ssh/config"
+          chmod 600 "$HOME/.ssh/config"
+
+          if ! ssh kunshan-ci bash -s -- "$KUNSHAN_CI_CONFIG" <<'REMOTE'
+          set -e
+          config_file=$1
+          command -v sbatch >/dev/null
+          command -v sacct >/dev/null
+          test -r "$config_file"
+          REMOTE
+          then
+            echo "::error::Kunshan SSH authorization or remote CI configuration check failed. Verify the SSH secrets, host key, Slurm access, and KUNSHAN_CI_CONFIG."
+            exit 3
+          fi
+
+          echo "Kunshan SSH authorization and Slurm preflight passed."
+
+      - name: Stage source in an isolated remote directory
+        shell: bash
+        run: |
+          set -euo pipefail
+          run_dir="${KUNSHAN_REMOTE_ROOT%/}/runs/${GITHUB_RUN_ID}_${GITHUB_RUN_ATTEMPT}"
+
+          ssh kunshan-ci bash -s -- "$run_dir" <<'REMOTE'
+          set -e
+          run_dir=$1
+          mkdir -p "$run_dir/source" "$run_dir/artifacts"
+          REMOTE
+
+          rsync -az --delete \
+            --exclude '.git/' \
+            --exclude 'build/' \
+            --exclude '__pycache__/' \
+            ./ "kunshan-ci:${run_dir}/source/"
+
+          echo "KUNSHAN_RUN_DIR=$run_dir" >> "$GITHUB_ENV"
+          echo "Remote run directory prepared."
+
+      - name: Submit Slurm regression and wait
+        shell: bash
+        run: |
+          set -euo pipefail
+          ssh kunshan-ci bash -s -- \
+            "$KUNSHAN_RUN_DIR/source" \
+            "$KUNSHAN_RUN_DIR" \
+            "$KUNSHAN_CI_CONFIG" \
+            "${{ inputs.suite }}" <<'REMOTE'
+          set -e
+          source_dir=$1
+          run_dir=$2
+          config_file=$3
+          suite=$4
+          exec bash "$source_dir/ci/kunshan/submit-regression.sh" \
+            "$source_dir" "$run_dir" "$config_file" "$suite"
+          REMOTE
+
+      - name: Download regression artifacts
+        if: ${{ always() }}
+        shell: bash
+        run: |
+          set +e
+          mkdir -p artifacts/kunshan
+          if [ -n "${KUNSHAN_RUN_DIR:-}" ]; then
+            rsync -az \
+              "kunshan-ci:${KUNSHAN_RUN_DIR}/artifacts/" \
+              artifacts/kunshan/
+            echo "Remote run directory: ${KUNSHAN_RUN_DIR}" \
+              > artifacts/kunshan/remote-run-directory.txt
+          else
+            echo "The workflow stopped during SSH authorization preflight." \
+              > artifacts/kunshan/preflight-error.txt
+          fi
+
+      - name: Upload regression report
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: kunshan-regression-${{ github.run_id }}-${{ github.run_attempt }}
+          path: artifacts/kunshan
+          if-no-files-found: warn
+          retention-days: 14

@@ -32,6 +32,8 @@ License
 #include "Test.h"
 #include "Theory.h"
 #include "PostProcess.h"
+#include "AccelRuntime.h"
+#include "Parallel.h"
 #include <iostream>
 
 
@@ -66,6 +68,7 @@ void SimuImp::MainProcess()
 
 void SimuImp::PostProcess()
 {
+    ONEFLOW::FinalizeAccelRuntime();
     HXFinalize();
 }
 
@@ -123,6 +126,9 @@ void SimuImp::InitSimu()
     std::cout << " OneFLOW is running\n";
     ONEFLOW::SetUpParallelEnvironment();
     ONEFLOW::ReadControlInfo();
+    ONEFLOW::InitializeAccelRuntime(
+        Parallel::GetPid(),
+        Parallel::GetNProc() );
 }
 
 

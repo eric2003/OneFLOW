@@ -20,7 +20,9 @@ License
 
 \*---------------------------------------------------------------------------*/
 
+#ifdef HX_PARALLEL
 #include <mpi.h>
+#endif
 
 #ifdef ENABLE_CUDA
 #include "PrintDevice.h"
@@ -37,6 +39,7 @@ License
 
 #include "HybridParallel.h"
 #include "jacobi.h"
+#include "AccelRuntime.h"
 #include <stdio.h>
 #include <iostream>
 
@@ -62,12 +65,19 @@ void HybridParallel::Run()
 
 void HybridParallel::HybridRun( int argc, char ** argv )
 {
-	char processor_name[MPI_MAX_PROCESSOR_NAME];
+	char processor_name[256];
 	int numprocs,namelen,rank;
+#ifdef HX_PARALLEL
 	MPI_Init(&argc,&argv);
 	MPI_Comm_size(MPI_COMM_WORLD, &numprocs);
 	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 	MPI_Get_processor_name(processor_name, &namelen);
+#else
+	numprocs = 1;
+	rank = 0;
+	std::snprintf( processor_name, sizeof( processor_name ), "%s", "localhost" );
+#endif
+	ONEFLOW::InitializeAccelRuntime( rank, numprocs );
 	printf("Hello from %d on %s out of %d\n",(rank+1),processor_name,numprocs);
 
 #ifdef ENABLE_CUDA
@@ -90,7 +100,10 @@ void HybridParallel::HybridRun( int argc, char ** argv )
 	}
 #endif
 
+	ONEFLOW::FinalizeAccelRuntime();
+#ifdef HX_PARALLEL
 	MPI_Finalize();
+#endif
 }
 
 EndNameSpace

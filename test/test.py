@@ -31,6 +31,8 @@ import subprocess
 import time
 import filecmp
 
+from residual_db import compare_case
+
 def my_dir_cmd(file_dir):
     dirs = os.listdir(file_dir)
     for file in dirs:
@@ -59,7 +61,13 @@ def CmpFile(fileName1, fileName2):
     while True:
         str1 = f1.readline()
         str2 = f2.readline()
-        if not str1:
+        if not str1 and not str2:
+            break
+        if not str1 or not str2:
+            print(fileName1)
+            print(fileName2)
+            print("Line", line_id, "has different end-of-file position")
+            cmpflag = False
             break
         # aa = str1.split()
         # print(aa)
@@ -84,7 +92,7 @@ def GetFileNameList(filename, filename_list):
             fname = line.strip()
             filename_list.append(fname)
     f.close()
-def RunTest(testprjdir):
+def RunTest(testprjdir, residual_db_path=None):
     print("testprjdir=",testprjdir)
     testScript = testprjdir + "/autotest/test.txt"
     absTestScript = os.path.normpath(os.path.abspath(testScript))
@@ -139,7 +147,7 @@ def RunTest(testprjdir):
         current = datetime.datetime.now()
         time.sleep(0.5)
     returnCode = process.poll()
-    totalPass = True
+    totalPass = returnCode == 0
     for i in range(0, len(testFileListPath)):
         #print("i=", i)
         #print(" file1=", testFileListPath[i])
@@ -151,11 +159,16 @@ def RunTest(testprjdir):
         if not cmpflag:
             totalPass = False
             break;
+    if residual_db_path:
+        residual_result = compare_case(testprjdir, residual_db_path)
+        print("residual_baseline=", residual_result)
+        if not residual_result["ok"]:
+            totalPass = False
     print("returnCode=",returnCode)
     print("totalPass=", totalPass)
     return totalPass
 
-def RunAllTest(filename):
+def RunAllTest(filename, residual_db_path=None):
     passFlag =[]
     with open(filename, 'r', encoding='utf-8-sig') as f:
         for line in f.readlines():
@@ -164,7 +177,7 @@ def RunAllTest(filename):
             print('prjname=', prjname)
             prjdir = prjname
             print("prjdir=",prjdir)
-            flag = RunTest(prjdir)
+            flag = RunTest(prjdir, residual_db_path)
             passFlag.append( flag )
     f.close()
     return passFlag
@@ -183,7 +196,15 @@ def main():
     print( " location = ", location )
     my_dir_cmd( location )
     errorCode = 0
-    passFlag = RunAllTest("test.txt")
+    suiteFile = "test.txt"
+    if len(sys.argv) >= 4:
+        suiteFile = sys.argv[3]
+    residualDb = os.environ.get("ONEFLOW_RESIDUAL_DB")
+    if len(sys.argv) >= 5:
+        residualDb = sys.argv[4]
+    print("suiteFile=", suiteFile)
+    print("residualDb=", residualDb)
+    passFlag = RunAllTest(suiteFile, residualDb)
     numTest = len(passFlag)
     npass = 0
     nfail = 0
@@ -197,6 +218,7 @@ def main():
     else:
         print("ERROR: Some tests failed")
     print(npass, " tests passed! ", nfail, " tests failed!")
+    return 0 if nfail == 0 else 1
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

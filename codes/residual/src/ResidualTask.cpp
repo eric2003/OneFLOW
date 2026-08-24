@@ -34,13 +34,33 @@ License
 #include "CellMesh.h"
 #include "Iteration.h"
 #include "FileIO.h"
+#include "FileUtil.h"
 #include "StrUtil.h"
 #include "UNsCom.h"
+#include <cstdlib>
+#include <limits>
 #include <sstream>
 #include <iomanip>
 
 
 BeginNameSpace( ONEFLOW )
+
+namespace
+{
+
+bool HighPrecisionResidualOutputEnabled()
+{
+    const char * value = std::getenv( "ONEFLOW_RESIDUAL_TEST_OUTPUT" );
+    if ( value == nullptr )
+    {
+        return false;
+    }
+
+    const std::string setting( value );
+    return setting == "1" || setting == "true" || setting == "on";
+}
+
+}
 
 ResidualTask::ResidualTask()
 {
@@ -135,6 +155,10 @@ void ResidualTask::PostDumpResiduals()
 
     this->DumpScreen();
     this->DumpFile();
+    if ( HighPrecisionResidualOutputEnabled() )
+    {
+        this->DumpTestFile();
+    }
 }
 
 void ResidualTask::DumpFile()
@@ -185,6 +209,54 @@ void ResidualTask::DumpFile()
 
     PIO::CloseFile( file );
 
+}
+
+void ResidualTask::DumpTestFile()
+{
+    std::ostringstream oss;
+
+    std::fstream file;
+    SolverInfo * solverInfo = SolverInfoFactory::GetSolverInfo( SolverState::tid );
+    const std::string fileName =
+        AddSymbolToFileName( solverInfo->resFileName, ".full" );
+    PIO::OpenPrjFile( file, fileName, std::ios_base::out | std::ios_base::app );
+
+    if ( IsEmpty( file ) )
+    {
+        StringField title;
+        title.push_back( "Title=\"THE RESIDUAL OF ONEFLOW\"" );
+        title.push_back( "Variables=" );
+        title.push_back( "\"iter\"" );
+        title.push_back( "\"sub-iter\"" );
+        size_t nVar = this->data.resave.res.size();
+        for ( int iVar = 0; iVar < nVar; ++ iVar )
+        {
+            title.push_back( AddString( "\"res",  iVar + 1, "\"" ) );
+        }
+
+        for ( HXSize_t iTitle = 0; iTitle < title.size(); ++ iTitle )
+        {
+            oss << title[ iTitle ] << std::endl;
+        }
+    }
+
+    oss << std::setiosflags( std::ios::left );
+    oss << std::setprecision( std::numeric_limits< Real >::max_digits10 );
+    oss << std::setiosflags( std::ios::scientific );
+    oss << std::setiosflags( std::ios::showpoint );
+
+    oss << Iteration::outerSteps << " ";
+    oss << Iteration::innerSteps << " ";
+
+    size_t nVar = this->data.resave.res.size();
+    for ( int iVar = 0; iVar < nVar; ++ iVar )
+    {
+        oss << std::setw( 24 ) << this->data.resave.res[ iVar ] << " ";
+    }
+
+    oss << std::endl;
+    file << oss.str();
+    PIO::CloseFile( file );
 }
 
 void ResidualTask::DumpScreen()
