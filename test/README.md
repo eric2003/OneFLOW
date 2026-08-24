@@ -11,6 +11,11 @@ test/
 ├── README.md
 ├── suites/
 │   └── cpu-serial.txt
+├── baselines/
+│   ├── README.md
+│   ├── build_residual_db.py
+│   ├── verify_residual_db.py
+│   └── residual-baseline.json
 ├── test.py
 ├── test.txt
 └── <case directories>/
@@ -21,6 +26,8 @@ test/
 
 - Add reusable suite lists under `test/suites/` with stable names.
 - Keep accepted numerical references under each case's `autotest/` directory.
+- Keep structured residual baselines under `test/baselines/`; regenerate them
+  only when the accepted numerical result changes.
 - Write generated logs, results, reports, and temporary files outside
   `test/`.
 - Maintain project reports under `docs/reports/` using stable filenames.
@@ -46,8 +53,16 @@ are considered.
 Run only this baseline suite from the `test` directory:
 
 ```bash
-python3 test.py "mpirun -np 1" "/path/to/OneFLOW" suites/cpu-serial.txt
+python3 test.py \
+  "mpirun -np 1" \
+  "/path/to/OneFLOW" \
+  suites/cpu-serial.txt \
+  baselines/residual-baseline.json
 ```
+
+The fourth argument is optional for legacy suites. When supplied, the runner
+compares every generated `res.dat` and `turbres.dat` row against the versioned
+database. `ONEFLOW_RESIDUAL_DB` provides the same explicit override.
 
 The repository also contains a manual-only Kunshan workflow:
 

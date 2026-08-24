@@ -510,9 +510,56 @@ REGRESSION_RC=0 TOTAL_ELAPSED_SECONDS=152
 <li>文件一方提前 EOF 时不再误判为通过。</li>
 <li>求解进程非零退出码会导致测试失败。</li>
 <li>支持第三个命令行参数指定 suite 文件。</li>
+<li>可选读取 <code>test/baselines/residual-baseline.json</code>，逐行比较
+  <code>res.dat</code>/<code>turbres.dat</code> 残差曲线。</li>
 <li>使用 <code>sys.exit()</code> 将最终状态传递给 shell、Slurm 和 CI。</li>
 </ul>
-<h3 id="62-workflow">6.2 昆山 workflow</h3>
+<h3 id="62">6.2 残差基线数据库</h3>
+<p>残差数据库位于
+<a href="../../test/baselines/residual-baseline.json"><code>test/baselines/residual-baseline.json</code></a>。
+它保存三个 CPU 串行算例的完整残差曲线，而不是只保存最后一个残差。</p>
+<table>
+<thead>
+<tr>
+<th>内容</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>schema/version</td>
+<td><code>oneflow.residual-baseline</code> / v1</td>
+</tr>
+<tr>
+<td>baseline id</td>
+<td><code>cpu-serial-v1</code></td>
+</tr>
+<tr>
+<td>算例</td>
+<td>3 个</td>
+</tr>
+<tr>
+<td>残差文件</td>
+<td>5 个 <code>res.dat</code>/<code>turbres.dat</code></td>
+</tr>
+<tr>
+<td>每个文件</td>
+<td>变量名、完整迭代行、首值、末值、最大幅值、SHA256</td>
+</tr>
+<tr>
+<td>比较规则</td>
+<td><code>iter/sub-iter</code> 必须一致，残差绝对容差 <code>1e-8</code>，拒绝 NaN</td>
+</tr>
+</tbody>
+</table>
+<p>原始 <code>autotest/*.dat</code> 仍然保留，作为可读参考输出；JSON 是统一索引和
+比较入口。只有接受新的数值基线时才重新生成 JSON：</p>
+<pre><code class="language-bash">python3 test/baselines/build_residual_db.py \
+  --validated-commit &lt;commit-that-passed-the-baseline&gt;
+</code></pre>
+<p>普通 CI 运行只读取数据库，不生成新基线文件。每次 CI 的日志、作业号和
+环境信息保存在 workflow artifact 或昆山隔离目录中。</p>
+<h3 id="63-workflow">6.3 昆山 workflow</h3>
 <p>新增
 <a href="../../.github/workflows/kunshan-regression.yml"><code>kunshan-regression.yml</code></a>，
 支持手动选择：</p>
@@ -538,7 +585,7 @@ REGRESSION_RC=0 TOTAL_ELAPSED_SECONDS=152
 <pre><code class="language-text">KUNSHAN_REMOTE_ROOT/runs/&lt;github-run-id&gt;_&lt;attempt&gt;/
 </code></pre>
 <p>源码、构建、运行输出、Slurm 日志和 artifacts 均在该目录下隔离。</p>
-<h3 id="63-ci">6.3 CI 验证状态</h3>
+<h3 id="64-ci">6.4 CI 验证状态</h3>
 <table>
 <thead>
 <tr>
@@ -556,6 +603,18 @@ REGRESSION_RC=0 TOTAL_ELAPSED_SECONDS=152
 <td>通过</td>
 </tr>
 <tr>
+<td>残差数据库结构与源文件校验</td>
+<td>2026-08-24 昆山通过</td>
+</tr>
+<tr>
+<td>三算例残差数据库正向比较</td>
+<td>2026-08-24 昆山通过，最大差值 0</td>
+</tr>
+<tr>
+<td>超容差残差负向测试</td>
+<td>2026-08-24 昆山正确拦截</td>
+</tr>
+<tr>
 <td>Git diff whitespace 检查</td>
 <td>通过</td>
 </tr>
@@ -569,6 +628,8 @@ REGRESSION_RC=0 TOTAL_ELAPSED_SECONDS=152
 </tr>
 </tbody>
 </table>
+<p>2026-08-24 的昆山验证只覆盖新增数据库机制，没有重新运行求解器。数据库
+中的数值来源仍是已通过 CPU 回归的提交 <code>5f54fc15</code>。</p>
 <h2 id="7">7. 风险与限制</h2>
 <ul>
 <li>当前 backend 不包含实际 GPU kernel。</li>

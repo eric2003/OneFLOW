@@ -69,6 +69,9 @@ test -x "$binary" || {
     exit 127
 }
 
+python3 "$source_dir/test/baselines/verify_residual_db.py" \
+    "$source_dir/test/baselines/residual-baseline.json"
+
 rm -rf "$build_dir/bin/system"
 cp -a "$source_dir/system" "$build_dir/bin/system"
 
@@ -95,7 +98,10 @@ run_cpu_serial()
         cd "$cpu_work"
         timeout --signal=TERM --kill-after=10s "$serial_timeout" \
             python3 "$source_dir/test/test.py" \
-            "mpirun -np 1" "$binary" "$source_dir/test/suites/cpu-serial.txt"
+            "mpirun -np 1" \
+            "$binary" \
+            "$source_dir/test/suites/cpu-serial.txt" \
+            "$source_dir/test/baselines/residual-baseline.json"
     )
 }
 

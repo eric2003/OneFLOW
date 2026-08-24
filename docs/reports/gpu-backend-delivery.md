@@ -254,9 +254,37 @@ REGRESSION_RC=0 TOTAL_ELAPSED_SECONDS=152
 - 文件一方提前 EOF 时不再误判为通过。
 - 求解进程非零退出码会导致测试失败。
 - 支持第三个命令行参数指定 suite 文件。
+- 可选读取 `test/baselines/residual-baseline.json`，逐行比较
+  `res.dat`/`turbres.dat` 残差曲线。
 - 使用 `sys.exit()` 将最终状态传递给 shell、Slurm 和 CI。
 
-### 6.2 昆山 workflow
+### 6.2 残差基线数据库
+
+残差数据库位于
+[`test/baselines/residual-baseline.json`](../../test/baselines/residual-baseline.json)。
+它保存三个 CPU 串行算例的完整残差曲线，而不是只保存最后一个残差。
+
+| 内容 | 说明 |
+|---|---|
+| schema/version | `oneflow.residual-baseline` / v1 |
+| baseline id | `cpu-serial-v1` |
+| 算例 | 3 个 |
+| 残差文件 | 5 个 `res.dat`/`turbres.dat` |
+| 每个文件 | 变量名、完整迭代行、首值、末值、最大幅值、SHA256 |
+| 比较规则 | `iter/sub-iter` 必须一致，残差绝对容差 `1e-8`，拒绝 NaN |
+
+原始 `autotest/*.dat` 仍然保留，作为可读参考输出；JSON 是统一索引和
+比较入口。只有接受新的数值基线时才重新生成 JSON：
+
+```bash
+python3 test/baselines/build_residual_db.py \
+  --validated-commit <commit-that-passed-the-baseline>
+```
+
+普通 CI 运行只读取数据库，不生成新基线文件。每次 CI 的日志、作业号和
+环境信息保存在 workflow artifact 或昆山隔离目录中。
+
+### 6.3 昆山 workflow
 
 新增
 [`kunshan-regression.yml`](../../.github/workflows/kunshan-regression.yml)，
@@ -291,15 +319,21 @@ KUNSHAN_REMOTE_ROOT/runs/<github-run-id>_<attempt>/
 
 源码、构建、运行输出、Slurm 日志和 artifacts 均在该目录下隔离。
 
-### 6.3 CI 验证状态
+### 6.4 CI 验证状态
 
 | 项目 | 状态 |
 |---|---|
 | Shell 脚本语法检查 | 通过 |
 | `test.py` Python 编译检查 | 通过 |
+| 残差数据库结构与源文件校验 | 2026-08-24 昆山通过 |
+| 三算例残差数据库正向比较 | 2026-08-24 昆山通过，最大差值 0 |
+| 超容差残差负向测试 | 2026-08-24 昆山正确拦截 |
 | Git diff whitespace 检查 | 通过 |
 | 昆山独立手工作业 | 通过 |
 | GitHub Actions + 真实 secrets 端到端运行 | 尚未执行 |
+
+2026-08-24 的昆山验证只覆盖新增数据库机制，没有重新运行求解器。数据库
+中的数值来源仍是已通过 CPU 回归的提交 `5f54fc15`。
 
 ## 7. 风险与限制
 

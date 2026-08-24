@@ -13,3 +13,6 @@ Current maintained report:
 
 - `gpu-backend-delivery.md`
 - `gpu-backend-delivery.html`
+
+The residual baseline database is maintained with the test definitions under
+`test/baselines/`; it is not a per-run report.
