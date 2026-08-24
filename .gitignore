@@ -8,4 +8,4 @@ test/**/results/*
 test/**/restart/*
 test/**/log/*
 test/**/run/*
-docs/reports/_drafts/*
+doc/reports/_drafts/*

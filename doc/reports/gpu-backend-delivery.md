@@ -368,8 +368,8 @@ KUNSHAN_REMOTE_ROOT/runs/<github-run-id>_<attempt>/
 
 | 内容 | 路径 |
 |---|---|
-| 完整交付报告 | `docs/reports/gpu-backend-delivery.md` |
-| HTML 报告 | `docs/reports/gpu-backend-delivery.html` |
+| 完整交付报告 | `doc/reports/gpu-backend-delivery.md` |
+| HTML 报告 | `doc/reports/gpu-backend-delivery.html` |
 | 测试规范 | `test/README.md` |
 | CPU suite | `test/suites/cpu-serial.txt` |
 | Backend 框架 | `codes/accel/` |
