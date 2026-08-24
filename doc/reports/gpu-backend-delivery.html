@@ -1,0 +1,725 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="OneFLOW GPU Backend 框架与昆山回归测试交付报告">
+<title>OneFLOW GPU Backend 框架与昆山回归测试交付报告</title>
+<style>
+:root {
+  color-scheme: light;
+  --ink: #172033;
+  --muted: #667085;
+  --line: #d9e0ea;
+  --soft: #f5f7fa;
+  --accent: #b42318;
+  --accent-soft: #fff1f0;
+  --code: #111827;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  color: var(--ink);
+  background: #eef2f6;
+  font: 16px/1.75 -apple-system, BlinkMacSystemFont, "Segoe UI",
+    "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+}
+.layout {
+  display: grid;
+  grid-template-columns: 240px minmax(0, 920px);
+  gap: 28px;
+  justify-content: center;
+  padding: 28px;
+}
+.toc {
+  position: sticky;
+  top: 24px;
+  align-self: start;
+  max-height: calc(100vh - 48px);
+  overflow: auto;
+  padding: 18px;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+}
+.toc strong { display: block; margin-bottom: 8px; }
+.toc a {
+  display: block;
+  padding: 4px 0;
+  color: var(--muted);
+  text-decoration: none;
+  font-size: 14px;
+}
+.toc a:hover { color: var(--accent); }
+article {
+  min-width: 0;
+  padding: 48px 56px 64px;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  box-shadow: 0 10px 32px rgba(16, 24, 40, .06);
+}
+h1 {
+  margin: 0 0 26px;
+  font-size: 34px;
+  line-height: 1.3;
+  letter-spacing: -.02em;
+}
+h2 {
+  margin: 48px 0 16px;
+  padding-bottom: 9px;
+  border-bottom: 2px solid var(--accent);
+  font-size: 24px;
+  line-height: 1.4;
+}
+h3 { margin: 30px 0 12px; font-size: 19px; }
+p, ul, ol { margin: 12px 0; }
+a { color: var(--accent); }
+table {
+  width: 100%;
+  margin: 18px 0 24px;
+  border-collapse: collapse;
+  overflow-wrap: anywhere;
+  font-size: 14px;
+}
+th, td {
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  text-align: left;
+  vertical-align: top;
+}
+th { background: var(--soft); font-weight: 650; }
+tr:nth-child(even) td { background: #fafbfc; }
+code {
+  padding: .15em .35em;
+  color: #9f1239;
+  background: var(--accent-soft);
+  border-radius: 4px;
+  font: .9em/1.5 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+pre {
+  overflow: auto;
+  margin: 18px 0 24px;
+  padding: 16px 18px;
+  color: #e5e7eb;
+  background: var(--code);
+  border-radius: 8px;
+  line-height: 1.55;
+}
+pre code { padding: 0; color: inherit; background: none; }
+blockquote {
+  margin: 20px 0;
+  padding: 10px 18px;
+  color: var(--muted);
+  background: var(--soft);
+  border-left: 4px solid var(--accent);
+}
+@media (max-width: 900px) {
+  .layout { display: block; padding: 12px; }
+  .toc { position: static; max-height: none; margin-bottom: 12px; }
+  article { padding: 30px 22px 44px; }
+  h1 { font-size: 28px; }
+  table { display: block; overflow-x: auto; }
+}
+@media print {
+  body { background: #fff; font-size: 11pt; }
+  .layout { display: block; padding: 0; }
+  .toc { display: none; }
+  article { padding: 0; border: 0; box-shadow: none; }
+  h2 { break-after: avoid; }
+  table, pre { break-inside: avoid; }
+  a { color: inherit; text-decoration: none; }
+}
+</style>
+</head>
+<body>
+<main class="layout">
+<nav class="toc" aria-label="报告目录">
+<strong>目录</strong>
+<a href="#1">1. 执行摘要</a>
+<a href="#2">2. 工作范围</a>
+<a href="#3-backend">3. Backend 架构</a>
+<a href="#4">4. 回归测试标准</a>
+<a href="#5">5. 昆山实测结果</a>
+<a href="#6-ci">6. 测试程序与 CI</a>
+<a href="#7">7. 风险与限制</a>
+<a href="#8">8. 后续实施方案</a>
+<a href="#9">9. 交付物</a>
+<a href="#10">10. 最终结论</a>
+</nav>
+<article>
+<h1 id="oneflow-gpu-backend">OneFLOW GPU Backend 框架与昆山回归测试交付报告</h1>
+<p><strong>首次报告：2026-08-21</strong></p>
+<p><strong>最近更新：2026-08-24</strong></p>
+<p><strong>代码分支：<code>master</code></strong></p>
+<p><strong>首轮交付提交：<code>5f54fc15</code></strong></p>
+<p><strong>验证平台：昆山 SCNet CPU 分区，GCC 7.3.1 + HPC-X MPI</strong></p>
+<h2 id="1">1. 执行摘要</h2>
+<p>本阶段完成了两项工作：</p>
+<ol>
+<li>建立可重复的 CPU 回归基线，验证单进程、空 MPI rank 和真实
+   4 进程域分解。</li>
+<li>在不改变默认 CPU 数值路径的前提下，搭建统一 accelerator
+   backend 框架，为后续 HIP/Z100、CUDA 和 Kokkos 适配预留接口。</li>
+</ol>
+<p>验证结论：</p>
+<ul>
+<li>3 个 CPU 串行算例全部通过，总耗时 152 秒。</li>
+<li>单 zone 网格使用 4 个 MPI rank 时的空 rank 越界已经修复，修复后
+  50 步运行正常结束。</li>
+<li>M6 四 zone / 四 rank 算例连续运行两次均通过，关键输出逐文件一致。</li>
+<li>GPU backend 目前仅为框架接入，尚未替换 CFD 数值 kernel，不能据此
+  宣称 GPU 加速已经生效。</li>
+<li>昆山 workflow 已加入仓库并完成脚本静态检查，但尚未在配置真实
+  GitHub secrets 后触发端到端运行。</li>
+</ul>
+<h2 id="2">2. 工作范围</h2>
+<h3 id="21">2.1 已完成</h3>
+<ul>
+<li>定义 3 个短时 CPU 回归算例。</li>
+<li>修复测试程序的退出码传播和文件 EOF 判断。</li>
+<li>修复空 rank 下的残差最大值与平均值处理。</li>
+<li>验证真实四 zone / 四 rank MPI 求解。</li>
+<li>新增 backend 抽象、runtime、CPU backend 和设备内存封装。</li>
+<li>为 HIP、CUDA、Kokkos 和多设备映射保留扩展入口。</li>
+<li>新增昆山 Slurm 回归脚本和 GitHub Actions workflow。</li>
+<li>增加 SSH 授权、远端路径和 Slurm 命令前置检查。</li>
+</ul>
+<h3 id="22">2.2 本阶段未完成</h3>
+<ul>
+<li>未实现 HIP/Z100 数值 kernel。</li>
+<li>未实现 CUDA 或 Kokkos adapter。</li>
+<li>未将 <code>FluxBackend</code> 接入现有 inviscid flux/residual 主计算循环。</li>
+<li>未进行 GPU 性能测试或 CPU/GPU 性能对比。</li>
+<li>未使用真实 GitHub secrets 执行新 workflow 的端到端验证。</li>
+</ul>
+<h2 id="3-backend">3. Backend 架构</h2>
+<p>新增目录 <a href="../../codes/accel/"><code>codes/accel/</code></a>。</p>
+<table>
+<thead>
+<tr>
+<th>层次</th>
+<th>组件</th>
+<th>当前职责</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Backend 抽象</td>
+<td><code>AccelBackend</code></td>
+<td>初始化、内存、拷贝、同步及能力查询</td>
+</tr>
+<tr>
+<td>Backend 注册</td>
+<td><code>AccelBackendRegistry</code></td>
+<td>按 backend 类型创建实现</td>
+</tr>
+<tr>
+<td>Runtime</td>
+<td><code>AccelRuntime</code></td>
+<td>backend 选择、MPI/local rank 和设备上下文</td>
+</tr>
+<tr>
+<td>CPU 实现</td>
+<td><code>CpuBackend</code></td>
+<td>当前默认的 host 内存和同步实现</td>
+</tr>
+<tr>
+<td>内存封装</td>
+<td><code>DeviceBuffer&lt;T&gt;</code></td>
+<td>为后续设备内存提供 RAII 接口</td>
+</tr>
+<tr>
+<td>数据视图</td>
+<td><code>AccelViews</code></td>
+<td>face state、flux、connectivity、residual 视图</td>
+</tr>
+<tr>
+<td>数值接口</td>
+<td><code>FluxBackend</code></td>
+<td>未来 inviscid flux 和 residual kernel 接口</td>
+</tr>
+</tbody>
+</table>
+<p>当前执行关系：</p>
+<pre><code class="language-text">OneFLOW solver
+    |
+    +-- AccelRuntime
+    |      |
+    |      +-- CPU backend（当前可用）
+    |      +-- HIP adapter（预留）
+    |      +-- CUDA adapter（预留）
+    |      +-- Kokkos adapter（预留）
+    |
+    +-- 现有 CPU 数值 kernel（当前实际计算路径）
+</code></pre>
+<p>默认 backend 为 CPU。请求尚未编译的 HIP、CUDA 或 Kokkos backend 时，
+程序会明确报错，不会静默回退到 CPU。</p>
+<h3 id="31">3.1 配置入口</h3>
+<p><a href="../../codes/CMakeLists.txt"><code>codes/CMakeLists.txt</code></a> 新增：</p>
+<ul>
+<li><code>ONEFLOW_ACCEL_BACKEND=CPU|HIP|CUDA|KOKKOS</code></li>
+<li><code>ONEFLOW_ENABLE_MULTI_DEVICE</code></li>
+<li>backend 名称校验和默认 backend 编译宏</li>
+<li><code>CGNS_ENABLE=OFF</code> 时排除 CGNS 源码</li>
+<li>MPI 关闭时不再无条件注入 MPI/CGNS 并行宏</li>
+</ul>
+<p>运行时可通过以下环境变量选择 backend：</p>
+<pre><code class="language-bash">export ONEFLOW_ACCEL_BACKEND=CPU
+</code></pre>
+<p>多设备上下文已包含：</p>
+<ul>
+<li>world rank / world size</li>
+<li>local rank / local size</li>
+<li>requested device / selected device</li>
+<li>device count</li>
+</ul>
+<p>目前这些字段用于建立接口，尚未执行真实 GPU 绑定。</p>
+<h3 id="32">3.2 生命周期</h3>
+<p><a href="../../codes/main/src/SimuImp.cpp"><code>codes/main/src/SimuImp.cpp</code></a> 在并行环境和
+控制参数初始化后启动 backend runtime，并在程序结束前 finalize。</p>
+<p><a href="../../codes/cuda/src/HybridParallel.cpp"><code>codes/cuda/src/HybridParallel.cpp</code></a>
+增加了非 MPI 编译保护，并使用同一个 backend runtime 入口。</p>
+<h2 id="4">4. 回归测试标准</h2>
+<h3 id="41-cpu">4.1 CPU 基准算例</h3>
+<p>测试清单由 <a href="../../test/suites/cpu-serial.txt"><code>test/suites/cpu-serial.txt</code></a> 定义。参考结果使用
+各算例已有的 <code>autotest/</code> 输出。</p>
+<table>
+<thead>
+<tr>
+<th>算例</th>
+<th>覆盖范围</th>
+<th style="text-align: right;">实测耗时</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>plateuns2dslau2</code></td>
+<td>2D 层流平板、SLAU2、黏性通量</td>
+<td style="text-align: right;">3 秒</td>
+</tr>
+<tr>
+<td><code>rae2822_roe_sa</code></td>
+<td>2D 跨声速翼型、Roe、SA 湍流</td>
+<td style="text-align: right;">10 秒</td>
+</tr>
+<tr>
+<td><code>m6wingroe_sa</code></td>
+<td>3D 翼型、Roe、SA 湍流</td>
+<td style="text-align: right;">139 秒</td>
+</tr>
+<tr>
+<td><strong>合计</strong></td>
+<td></td>
+<td style="text-align: right;"><strong>152 秒</strong></td>
+</tr>
+</tbody>
+</table>
+<p>单个算例均满足约 1–3 分钟的目标，完整串行套件约 2.5 分钟。</p>
+<h3 id="42">4.2 通过判据</h3>
+<ul>
+<li>求解进程退出码为 0。</li>
+<li>实际输出通过现有数值容差比较。</li>
+<li>文件长度不一致或一方提前 EOF 判为失败。</li>
+<li>每次运行前清理 <code>results/</code>、<code>restart/</code> 和 <code>log/</code>。</li>
+<li>Slurm 作业同时检查调度器状态和工作负载退出码。</li>
+<li>MPI 基准使用独立的四 zone 参考输出，不直接复用单 zone 基准。</li>
+</ul>
+<h3 id="43">4.3 执行入口</h3>
+<pre><code class="language-bash">python3 test/test.py \
+  &quot;mpirun -np 1&quot; \
+  &quot;/path/to/OneFLOW&quot; \
+  test/suites/cpu-serial.txt
+</code></pre>
+<h2 id="5">5. 昆山实测结果</h2>
+<h3 id="51">5.1 环境与边界</h3>
+<table>
+<thead>
+<tr>
+<th>项目</th>
+<th>配置</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>集群</td>
+<td>昆山 SCNet</td>
+</tr>
+<tr>
+<td>分区</td>
+<td><code>kshcnormal</code> CPU 分区</td>
+</tr>
+<tr>
+<td>编译器</td>
+<td>GCC 7.3.1</td>
+</tr>
+<tr>
+<td>MPI</td>
+<td>HPC-X MPI</td>
+</tr>
+<tr>
+<td>Accelerator</td>
+<td>本阶段未提交 GPU 作业</td>
+</tr>
+<tr>
+<td>运行目录</td>
+<td>昆山专用隔离目录</td>
+</tr>
+</tbody>
+</table>
+<p>以下结果均是 CPU/MPI 验证，不包含 Z100/HIP 功能或性能结论。</p>
+<h3 id="52">5.2 三算例串行回归</h3>
+<table>
+<thead>
+<tr>
+<th>指标</th>
+<th>结果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>算例数</td>
+<td>3</td>
+</tr>
+<tr>
+<td>通过数</td>
+<td>3</td>
+</tr>
+<tr>
+<td>总耗时</td>
+<td>152 秒</td>
+</tr>
+<tr>
+<td>Slurm 状态</td>
+<td><code>COMPLETED</code></td>
+</tr>
+<tr>
+<td>退出码</td>
+<td><code>0:0</code></td>
+</tr>
+</tbody>
+</table>
+<p>日志摘要：</p>
+<pre><code class="language-text">CASE_RESULT=plateuns2dslau2 RC=0 ELAPSED_SECONDS=3
+CASE_RESULT=rae2822_roe_sa RC=0 ELAPSED_SECONDS=10
+CASE_RESULT=m6wingroe_sa RC=0 ELAPSED_SECONDS=139
+REGRESSION_RC=0 TOTAL_ELAPSED_SECONDS=152
+</code></pre>
+<h3 id="53-rank">5.3 空 rank 问题</h3>
+<p>原有 CFD 测试网格为单 zone。使用 4 个 MPI rank 时，只有一个 rank
+持有本地 zone，其余 rank 的 <code>dataList</code> 为空。旧实现无条件访问
+<code>dataList[0]</code>，导致 <code>ResMax::CalcMax()</code> 越界。</p>
+<p><a href="../../codes/residual/src/Residual.cpp"><code>codes/residual/src/Residual.cpp</code></a> 的
+修复包括：</p>
+<ul>
+<li>空 <code>dataList</code> 使用安全哨兵值。</li>
+<li>本地最大残差执行全局 <code>MPI_MAX</code> 归约。</li>
+<li>最大值对应的 zone、cell、坐标和体积由 owner rank 广播。</li>
+<li>无全局 cell 时返回安全元数据。</li>
+<li>平均残差对全局 cell 数为 0 的情况进行保护。</li>
+</ul>
+<p>修复后，原始单 zone M6 使用 <code>mpirun -np 4</code> 完成 50 步，求解器退出码
+为 0。</p>
+<p>早期测试脚本曾因复用旧目录而报告失败：输出文件采用追加方式，导致
+<code>aero.dat</code> 行数与基准不同。这不是求解器失败。新的昆山 CI 脚本会在
+运行前重新建立输出目录，避免旧结果污染。</p>
+<h3 id="54-zone-rank-mpi">5.4 四 zone / 四 rank MPI 回归</h3>
+<p>原始 M6 网格：</p>
+<ul>
+<li>294,912 cells</li>
+<li>1 zone</li>
+</ul>
+<p>使用仓库已有 METIS 工具拆分后：</p>
+<ul>
+<li>4 zones</li>
+<li>每个 zone 73,728 cells</li>
+<li>分区网格 SHA256：
+  <code>0feacacb3ee49443d5aeb86210dfc156eedff85ec1ccbbb1ae09061e3e90a84f</code></li>
+</ul>
+<p>运行配置：</p>
+<ul>
+<li><code>mpirun -np 4</code></li>
+<li>每个 rank 1 个 OpenMP thread</li>
+<li>50 steps</li>
+<li><code>ireadwdst=0</code></li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>运行</th>
+<th>状态</th>
+<th style="text-align: right;">退出码</th>
+<th style="text-align: right;">耗时</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>MPI run 1</td>
+<td><code>COMPLETED</code></td>
+<td style="text-align: right;"><code>0:0</code></td>
+<td style="text-align: right;">138 秒</td>
+</tr>
+<tr>
+<td>MPI run 2</td>
+<td><code>COMPLETED</code></td>
+<td style="text-align: right;"><code>0:0</code></td>
+<td style="text-align: right;">138 秒</td>
+</tr>
+</tbody>
+</table>
+<p>两次运行的以下文件逐文件一致：</p>
+<table>
+<thead>
+<tr>
+<th>文件</th>
+<th style="text-align: right;">行数</th>
+<th>SHA256</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>aero.dat</code></td>
+<td style="text-align: right;">67</td>
+<td><code>ed2dddf615cea3cf3439350fccd20ccb9dab340e2a76c3d89cb0e0c14dcdc548</code></td>
+</tr>
+<tr>
+<td><code>res.dat</code></td>
+<td style="text-align: right;">59</td>
+<td><code>8744bded027c1a3026005cfbfe6151f8d76dfac84835c4be0a590415aa416a99</code></td>
+</tr>
+<tr>
+<td><code>turbres.dat</code></td>
+<td style="text-align: right;">55</td>
+<td><code>65c9cc103624cefcc78fbea3c8bfd74d0a31c944b5ea4711a8d9064547f30566</code></td>
+</tr>
+<tr>
+<td><code>wallaero.dat</code></td>
+<td style="text-align: right;">7743</td>
+<td><code>77794a02c4ae715cab945130b65c06c30722c6770644cedd6d640769872c8a9</code></td>
+</tr>
+</tbody>
+</table>
+<p>这说明当前四 zone / 四 rank CPU MPI 路径具有可重复性。由于域分解会
+改变接口通信和浮点归约顺序，四 zone 结果不应要求与原始单 zone 输出
+逐字节一致。</p>
+<h2 id="6-ci">6. 测试程序与 CI 标准化</h2>
+<h3 id="61-testpy">6.1 <code>test.py</code></h3>
+<p><a href="../../test/test.py"><code>test/test.py</code></a> 已修复：</p>
+<ul>
+<li>文件一方提前 EOF 时不再误判为通过。</li>
+<li>求解进程非零退出码会导致测试失败。</li>
+<li>支持第三个命令行参数指定 suite 文件。</li>
+<li>可选读取 <code>test/baselines/residual-baseline-e15.json</code>，逐行比较
+  <code>res.full.dat</code>/<code>turbres.full.dat</code> 残差曲线。</li>
+<li>使用 <code>sys.exit()</code> 将最终状态传递给 shell、Slurm 和 CI。</li>
+</ul>
+<h3 id="62">6.2 残差基线数据库</h3>
+<p>高精度残差数据库位于
+<a href="../../test/baselines/residual-baseline-e15.json"><code>test/baselines/residual-baseline-e15.json</code></a>。
+它保存三个 CPU 串行算例 50 步中的全部残差分量，而不是只保存最后一个残差。
+旧的 <code>residual-baseline.json</code> 仍保留作兼容性参考。</p>
+<table>
+<thead>
+<tr>
+<th>内容</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>schema/version</td>
+<td><code>oneflow.residual-baseline</code> / v2</td>
+</tr>
+<tr>
+<td>baseline id</td>
+<td><code>cpu-serial-e15-v1</code></td>
+</tr>
+<tr>
+<td>算例</td>
+<td>3 个</td>
+</tr>
+<tr>
+<td>残差文件</td>
+<td>5 个 <code>res.full.dat</code>/<code>turbres.full.dat</code></td>
+</tr>
+<tr>
+<td>每个文件</td>
+<td>50 步、所有残差分量、变量名、首值、末值、最大幅值、SHA256</td>
+</tr>
+<tr>
+<td>比较规则</td>
+<td><code>iter/sub-iter</code> 和行数必须一致，绝对容差 <code>1e-15</code>，拒绝 NaN/Inf</td>
+</tr>
+</tbody>
+</table>
+<p>普通算例默认不生成 <code>.full.dat</code>，现有 <code>res.dat</code>/<code>turbres.dat</code>
+行为不变。回归作业显式设置 <code>ONEFLOW_RESIDUAL_TEST_OUTPUT=1</code> 后，使用
+<code>double</code> 的 <code>max_digits10</code>（17 位有效数字）输出机器比较文件。
+只有接受新的数值基线时才重新生成 JSON：</p>
+<pre><code class="language-bash">export ONEFLOW_RESIDUAL_TEST_OUTPUT=1
+python3 test/baselines/build_residual_db.py \
+  --high-precision \
+  --validated-commit &lt;commit-that-passed-the-baseline&gt; \
+  --output test/baselines/residual-baseline-e15.json
+</code></pre>
+<p>普通 CI 运行只读取数据库，不生成新基线文件。每次 CI 的日志、作业号和
+环境信息保存在 workflow artifact 或昆山隔离目录中。</p>
+<h3 id="63-workflow">6.3 昆山 workflow</h3>
+<p>新增
+<a href="../../.github/workflows/kunshan-regression.yml"><code>kunshan-regression.yml</code></a>，
+支持手动选择：</p>
+<ul>
+<li><code>cpu-serial</code></li>
+<li><code>mpi4</code></li>
+<li><code>all</code></li>
+</ul>
+<p>工作流顺序：</p>
+<pre><code class="language-text">trusted branch 检查
+    -&gt; GitHub secrets 完整性检查
+    -&gt; SSH key / known_hosts 检查
+    -&gt; 昆山 SSH + Slurm preflight
+    -&gt; 创建隔离运行目录
+    -&gt; 同步源码
+    -&gt; Slurm 构建和回归
+    -&gt; 检查 State + ExitCode
+    -&gt; 下载并上传 artifacts
+</code></pre>
+<p>如果没有昆山 SSH 授权、固定 host key 或私有集群配置，workflow 会在
+创建远端运行目录和提交作业之前中止，并给出明确错误信息。</p>
+<p>每次运行使用：</p>
+<pre><code class="language-text">KUNSHAN_REMOTE_ROOT/runs/&lt;github-run-id&gt;_&lt;attempt&gt;/
+</code></pre>
+<p>源码、构建、运行输出、Slurm 日志和 artifacts 均在该目录下隔离。</p>
+<h3 id="64-ci">6.4 CI 验证状态</h3>
+<table>
+<thead>
+<tr>
+<th>项目</th>
+<th>状态</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Shell 脚本语法检查</td>
+<td>通过</td>
+</tr>
+<tr>
+<td><code>test.py</code> Python 编译检查</td>
+<td>通过</td>
+</tr>
+<tr>
+<td>残差数据库结构与源文件校验</td>
+<td>2026-08-24 昆山通过</td>
+</tr>
+<tr>
+<td>三算例残差数据库正向比较</td>
+<td>2026-08-24 昆山通过，最大差值 0</td>
+</tr>
+<tr>
+<td>超容差残差负向测试</td>
+<td>2026-08-24 昆山正确拦截</td>
+</tr>
+<tr>
+<td>Git diff whitespace 检查</td>
+<td>通过</td>
+</tr>
+<tr>
+<td>昆山独立手工作业</td>
+<td>通过</td>
+</tr>
+<tr>
+<td>GitHub Actions + 真实 secrets 端到端运行</td>
+<td>尚未执行</td>
+</tr>
+</tbody>
+</table>
+<p>2026-08-24 的昆山验证只覆盖新增数据库机制，没有重新运行求解器。数据库
+中的数值来源仍是已通过 CPU 回归的提交 <code>5f54fc15</code>。</p>
+<h2 id="7">7. 风险与限制</h2>
+<ul>
+<li>当前 backend 不包含实际 GPU kernel。</li>
+<li><code>FluxBackend</code> 尚未连接到生产数值路径。</li>
+<li>四 rank fixture 约 33 MB，保存在昆山私有目录，未提交 Git。</li>
+<li>GitHub workflow 依赖仓库 secrets 和昆山私有配置。</li>
+<li>CPU 单 zone 与 MPI 四 zone 应分别维护数值基准。</li>
+<li>当前测试主要覆盖结果一致性，尚未建立性能基线和性能退化阈值。</li>
+</ul>
+<h2 id="8">8. 后续实施方案</h2>
+<p>建议继续采用“CPU 主路径 + 原生 HIP backend + 可扩展接口”的方案：</p>
+<ol>
+<li>先实现 CPU <code>FluxBackend</code> reference adapter，使新接口与现有 CPU
+   kernel 产生一致结果。</li>
+<li>整理 face state、normal、area、connectivity 和 residual 的连续
+   数据视图，减少 GPU 侧零散拷贝。</li>
+<li>以 HIP/Z100 为第一生产 backend，实现 inviscid face flux。</li>
+<li>使用本报告中的 3 个串行算例和四 rank 算例进行数值回归。</li>
+<li>加入 rank-to-device 映射，再验证单节点多 GPU。</li>
+<li>扩展 MPI halo/边界同步，进行多节点多 GPU 验证。</li>
+<li>CUDA 通过相同 backend 接口实现；Kokkos 是否引入，在 HIP 路径
+   稳定后根据跨平台维护成本再决定。</li>
+</ol>
+<h2 id="9">9. 交付物</h2>
+<table>
+<thead>
+<tr>
+<th>内容</th>
+<th>路径</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>完整交付报告</td>
+<td><code>doc/reports/gpu-backend-delivery.md</code></td>
+</tr>
+<tr>
+<td>HTML 报告</td>
+<td><code>doc/reports/gpu-backend-delivery.html</code></td>
+</tr>
+<tr>
+<td>测试规范</td>
+<td><code>test/README.md</code></td>
+</tr>
+<tr>
+<td>CPU suite</td>
+<td><code>test/suites/cpu-serial.txt</code></td>
+</tr>
+<tr>
+<td>Backend 框架</td>
+<td><code>codes/accel/</code></td>
+</tr>
+<tr>
+<td>昆山 workflow</td>
+<td><code>.github/workflows/kunshan-regression.yml</code></td>
+</tr>
+<tr>
+<td>昆山 CI 说明</td>
+<td><code>ci/kunshan/README.md</code></td>
+</tr>
+<tr>
+<td>私有配置模板</td>
+<td><code>ci/kunshan/config.example.sh</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="10">10. 最终结论</h2>
+<p>本阶段已建立可在昆山复现的 CPU/MPI 正确性基线，并完成不侵入现有
+CPU 数值路径的 GPU backend 框架。现有代码可以作为 HIP/Z100 移植的
+起点，但当前交付的含义是“基础设施与回归基线就绪”，不是“GPU 数值
+移植完成”。</p>
+<h2 id="a">附录 A：首轮测试证据</h2>
+<p>首轮验证记录如下：</p>
+<ul>
+<li>三个串行算例耗时分别为 3、10、139 秒，总计 152 秒。</li>
+<li>空 rank 修复后，单 zone M6 使用 4 个 MPI rank 完成 50 步，退出码为 0。</li>
+<li>四 zone / 四 rank M6 连续运行两次，均耗时 138 秒，Slurm 状态均为
+  <code>COMPLETED</code>，退出码均为 <code>0:0</code>。</li>
+<li>两次 MPI 运行的 <code>aero.dat</code>、<code>res.dat</code>、<code>turbres.dat</code> 和
+  <code>wallaero.dat</code> 逐文件一致。</li>
+</ul>
+<p>后续单次 CI 运行的日志、作业号和环境快照应保存在 GitHub Actions
+artifact 或昆山隔离运行目录中，不再新增日期型仓库报告。</p>
+</article>
+</main>
+</body>
+</html>
