@@ -154,7 +154,11 @@ def compare_case(
                 max_abs_diff = max(max_abs_diff, difference)
                 if scale:
                     max_rel_diff = max(max_rel_diff, difference / scale)
-                if not math.isfinite(actual) or difference > tolerance:
+                if (
+                    not math.isfinite(actual)
+                    or not math.isfinite(reference)
+                    or difference > tolerance
+                ):
                     errors.append(
                         f"{actual_path}: row {row_index}, "
                         f"{names[column_index]} differs: actual={actual}, "

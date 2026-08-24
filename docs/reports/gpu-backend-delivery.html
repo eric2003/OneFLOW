@@ -510,14 +510,15 @@ REGRESSION_RC=0 TOTAL_ELAPSED_SECONDS=152
 <li>文件一方提前 EOF 时不再误判为通过。</li>
 <li>求解进程非零退出码会导致测试失败。</li>
 <li>支持第三个命令行参数指定 suite 文件。</li>
-<li>可选读取 <code>test/baselines/residual-baseline.json</code>，逐行比较
-  <code>res.dat</code>/<code>turbres.dat</code> 残差曲线。</li>
+<li>可选读取 <code>test/baselines/residual-baseline-e15.json</code>，逐行比较
+  <code>res.full.dat</code>/<code>turbres.full.dat</code> 残差曲线。</li>
 <li>使用 <code>sys.exit()</code> 将最终状态传递给 shell、Slurm 和 CI。</li>
 </ul>
 <h3 id="62">6.2 残差基线数据库</h3>
-<p>残差数据库位于
-<a href="../../test/baselines/residual-baseline.json"><code>test/baselines/residual-baseline.json</code></a>。
-它保存三个 CPU 串行算例的完整残差曲线，而不是只保存最后一个残差。</p>
+<p>高精度残差数据库位于
+<a href="../../test/baselines/residual-baseline-e15.json"><code>test/baselines/residual-baseline-e15.json</code></a>。
+它保存三个 CPU 串行算例 50 步中的全部残差分量，而不是只保存最后一个残差。
+旧的 <code>residual-baseline.json</code> 仍保留作兼容性参考。</p>
 <table>
 <thead>
 <tr>
@@ -528,11 +529,11 @@ REGRESSION_RC=0 TOTAL_ELAPSED_SECONDS=152
 <tbody>
 <tr>
 <td>schema/version</td>
-<td><code>oneflow.residual-baseline</code> / v1</td>
+<td><code>oneflow.residual-baseline</code> / v2</td>
 </tr>
 <tr>
 <td>baseline id</td>
-<td><code>cpu-serial-v1</code></td>
+<td><code>cpu-serial-e15-v1</code></td>
 </tr>
 <tr>
 <td>算例</td>
@@ -540,22 +541,27 @@ REGRESSION_RC=0 TOTAL_ELAPSED_SECONDS=152
 </tr>
 <tr>
 <td>残差文件</td>
-<td>5 个 <code>res.dat</code>/<code>turbres.dat</code></td>
+<td>5 个 <code>res.full.dat</code>/<code>turbres.full.dat</code></td>
 </tr>
 <tr>
 <td>每个文件</td>
-<td>变量名、完整迭代行、首值、末值、最大幅值、SHA256</td>
+<td>50 步、所有残差分量、变量名、首值、末值、最大幅值、SHA256</td>
 </tr>
 <tr>
 <td>比较规则</td>
-<td><code>iter/sub-iter</code> 必须一致，残差绝对容差 <code>1e-8</code>，拒绝 NaN</td>
+<td><code>iter/sub-iter</code> 和行数必须一致，绝对容差 <code>1e-15</code>，拒绝 NaN/Inf</td>
 </tr>
 </tbody>
 </table>
-<p>原始 <code>autotest/*.dat</code> 仍然保留，作为可读参考输出；JSON 是统一索引和
-比较入口。只有接受新的数值基线时才重新生成 JSON：</p>
-<pre><code class="language-bash">python3 test/baselines/build_residual_db.py \
-  --validated-commit &lt;commit-that-passed-the-baseline&gt;
+<p>普通算例默认不生成 <code>.full.dat</code>，现有 <code>res.dat</code>/<code>turbres.dat</code>
+行为不变。回归作业显式设置 <code>ONEFLOW_RESIDUAL_TEST_OUTPUT=1</code> 后，使用
+<code>double</code> 的 <code>max_digits10</code>（17 位有效数字）输出机器比较文件。
+只有接受新的数值基线时才重新生成 JSON：</p>
+<pre><code class="language-bash">export ONEFLOW_RESIDUAL_TEST_OUTPUT=1
+python3 test/baselines/build_residual_db.py \
+  --high-precision \
+  --validated-commit &lt;commit-that-passed-the-baseline&gt; \
+  --output test/baselines/residual-baseline-e15.json
 </code></pre>
 <p>普通 CI 运行只读取数据库，不生成新基线文件。每次 CI 的日志、作业号和
 环境信息保存在 workflow artifact 或昆山隔离目录中。</p>

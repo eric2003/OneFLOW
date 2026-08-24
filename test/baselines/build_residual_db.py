@@ -7,7 +7,7 @@ import argparse
 import json
 import sys
 from pathlib import Path
-from typing import Any, Dict
+from typing import Any, Dict, Optional
 
 
 TEST_ROOT = Path(__file__).resolve().parents[1]
@@ -16,7 +16,13 @@ sys.path.insert(0, str(TEST_ROOT))
 from residual_db import parse_residual_file, sha256_file, summarize  # noqa: E402
 
 
-def build_database(suite_file: Path, validated_commit: str) -> Dict[str, Any]:
+def build_database(
+    suite_file: Path,
+    validated_commit: str,
+    high_precision: bool = False,
+    baseline_id: Optional[str] = None,
+    absolute_tolerance: Optional[float] = None,
+) -> Dict[str, Any]:
     cases: Dict[str, Any] = {}
     case_names = [
         line.strip()
@@ -26,8 +32,13 @@ def build_database(suite_file: Path, validated_commit: str) -> Dict[str, Any]:
     for case_name in case_names:
         autotest_dir = TEST_ROOT / case_name / "autotest"
         files: Dict[str, Any] = {}
+        reference_names = (
+            {"res.full.dat", "turbres.full.dat"}
+            if high_precision
+            else {"res.dat", "turbres.dat"}
+        )
         for source in sorted(autotest_dir.glob("*.dat")):
-            if source.name not in {"res.dat", "turbres.dat"}:
+            if source.name not in reference_names:
                 continue
             variables, rows = parse_residual_file(source)
             files[f"results/{source.name}"] = {
@@ -43,18 +54,29 @@ def build_database(suite_file: Path, validated_commit: str) -> Dict[str, Any]:
 
     return {
         "schema": "oneflow.residual-baseline",
-        "schema_version": 1,
-        "baseline_id": "cpu-serial-v1",
+        "schema_version": 2 if high_precision else 1,
+        "baseline_id": baseline_id
+        or ("cpu-serial-e15-v1" if high_precision else "cpu-serial-v1"),
         "suite": str(suite_file.relative_to(TEST_ROOT)),
         "validated_commit": validated_commit,
         "platform": {
             "execution": "CPU serial",
             "launcher": "mpirun -np 1",
-            "reference_outputs": "case/autotest/*.dat",
+            "reference_outputs": (
+                "case/autotest/res.full.dat and turbres.full.dat"
+                if high_precision
+                else "case/autotest/*.dat"
+            ),
+            "output_format": "full-precision-text" if high_precision else "legacy-text",
+            "precision": "max_digits10" if high_precision else "setprecision(5)",
         },
         "comparison": {
             "index_columns": ["iter", "sub-iter"],
-            "absolute_tolerance": 1.0e-8,
+            "absolute_tolerance": (
+                absolute_tolerance
+                if absolute_tolerance is not None
+                else (1.0e-15 if high_precision else 1.0e-8)
+            ),
             "relative_tolerance": 0.0,
             "nan_policy": "reject",
         },
@@ -69,12 +91,25 @@ def main() -> int:
     )
     parser.add_argument("--validated-commit", default="working-tree")
     parser.add_argument(
+        "--high-precision",
+        action="store_true",
+        help="use res.full.dat/turbres.full.dat and e-15 metadata",
+    )
+    parser.add_argument("--baseline-id")
+    parser.add_argument("--absolute-tolerance", type=float)
+    parser.add_argument(
         "--output",
         type=Path,
         default=Path(__file__).resolve().parent / "residual-baseline.json",
     )
     args = parser.parse_args()
-    database = build_database(args.suite.resolve(), args.validated_commit)
+    database = build_database(
+        args.suite.resolve(),
+        args.validated_commit,
+        high_precision=args.high_precision,
+        baseline_id=args.baseline_id,
+        absolute_tolerance=args.absolute_tolerance,
+    )
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(
         json.dumps(database, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"

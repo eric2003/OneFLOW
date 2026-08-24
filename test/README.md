@@ -15,7 +15,8 @@ test/
 │   ├── README.md
 │   ├── build_residual_db.py
 │   ├── verify_residual_db.py
-│   └── residual-baseline.json
+│   ├── residual-baseline.json
+│   └── residual-baseline-e15.json
 ├── test.py
 ├── test.txt
 └── <case directories>/
@@ -57,12 +58,19 @@ python3 test.py \
   "mpirun -np 1" \
   "/path/to/OneFLOW" \
   suites/cpu-serial.txt \
-  baselines/residual-baseline.json
+  baselines/residual-baseline-e15.json
 ```
 
 The fourth argument is optional for legacy suites. When supplied, the runner
-compares every generated `res.dat` and `turbres.dat` row against the versioned
-database. `ONEFLOW_RESIDUAL_DB` provides the same explicit override.
+compares every generated `res.full.dat` and `turbres.full.dat` row against the
+versioned database. Enable those machine-regression files explicitly with
+`ONEFLOW_RESIDUAL_TEST_OUTPUT=1`; normal solver runs leave them disabled and
+continue writing the existing `res.dat`/`turbres.dat` files unchanged.
+`ONEFLOW_RESIDUAL_DB` provides the same explicit database override.
+
+The e-15 database covers all residual channels for every one of the 50 steps.
+Iteration columns and row counts must match exactly; each residual value must
+satisfy `abs(actual - reference) <= 1e-15`.
 
 The repository also contains a manual-only Kunshan workflow:
 
