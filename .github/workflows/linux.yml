@@ -65,6 +65,7 @@ jobs:
           MPICH_NO_UCX: 1
           MPICH_CH3_NO_UCX: 1
           MPICH_DEVICE: ch3:sock
+          UCX_TLS: tcp,self          
         run: |
           #echo "env.prefix= ${{env.prefix}}"
           #echo "ls ${{env.prefix}}"
