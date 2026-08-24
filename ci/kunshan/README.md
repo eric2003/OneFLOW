@@ -43,7 +43,7 @@ Serial and MPI baselines are deliberately separate.
 
 Run **OneFLOW Kunshan Regression** from the Actions page and select:
 
-- `cpu-serial`: the three cases in `test/regression_cpu.txt`;
+- `cpu-serial`: the three cases in `test/suites/cpu-serial.txt`;
 - `mpi4`: the private four-zone/four-rank M6 fixture;
 - `all`: serial first, then MPI.
 

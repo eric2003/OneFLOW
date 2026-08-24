@@ -150,7 +150,8 @@ blockquote {
 </nav>
 <article>
 <h1 id="oneflow-gpu-backend">OneFLOW GPU Backend 框架与昆山回归测试交付报告</h1>
-<p><strong>报告日期：2026-08-21</strong></p>
+<p><strong>首次报告：2026-08-21</strong></p>
+<p><strong>最近更新：2026-08-24</strong></p>
 <p><strong>代码分支：<code>master</code></strong></p>
 <p><strong>首轮交付提交：<code>5f54fc15</code></strong></p>
 <p><strong>验证平台：昆山 SCNet CPU 分区，GCC 7.3.1 + HPC-X MPI</strong></p>
@@ -194,7 +195,7 @@ blockquote {
 <li>未使用真实 GitHub secrets 执行新 workflow 的端到端验证。</li>
 </ul>
 <h2 id="3-backend">3. Backend 架构</h2>
-<p>新增目录 <a href="../codes/accel/"><code>codes/accel/</code></a>。</p>
+<p>新增目录 <a href="../../codes/accel/"><code>codes/accel/</code></a>。</p>
 <table>
 <thead>
 <tr>
@@ -256,7 +257,7 @@ blockquote {
 <p>默认 backend 为 CPU。请求尚未编译的 HIP、CUDA 或 Kokkos backend 时，
 程序会明确报错，不会静默回退到 CPU。</p>
 <h3 id="31">3.1 配置入口</h3>
-<p><a href="../codes/CMakeLists.txt"><code>codes/CMakeLists.txt</code></a> 新增：</p>
+<p><a href="../../codes/CMakeLists.txt"><code>codes/CMakeLists.txt</code></a> 新增：</p>
 <ul>
 <li><code>ONEFLOW_ACCEL_BACKEND=CPU|HIP|CUDA|KOKKOS</code></li>
 <li><code>ONEFLOW_ENABLE_MULTI_DEVICE</code></li>
@@ -276,13 +277,13 @@ blockquote {
 </ul>
 <p>目前这些字段用于建立接口，尚未执行真实 GPU 绑定。</p>
 <h3 id="32">3.2 生命周期</h3>
-<p><a href="../codes/main/src/SimuImp.cpp"><code>codes/main/src/SimuImp.cpp</code></a> 在并行环境和
+<p><a href="../../codes/main/src/SimuImp.cpp"><code>codes/main/src/SimuImp.cpp</code></a> 在并行环境和
 控制参数初始化后启动 backend runtime，并在程序结束前 finalize。</p>
-<p><a href="../codes/cuda/src/HybridParallel.cpp"><code>codes/cuda/src/HybridParallel.cpp</code></a>
+<p><a href="../../codes/cuda/src/HybridParallel.cpp"><code>codes/cuda/src/HybridParallel.cpp</code></a>
 增加了非 MPI 编译保护，并使用同一个 backend runtime 入口。</p>
 <h2 id="4">4. 回归测试标准</h2>
 <h3 id="41-cpu">4.1 CPU 基准算例</h3>
-<p>测试清单由 <a href="regression_cpu.txt"><code>regression_cpu.txt</code></a> 定义。参考结果使用
+<p>测试清单由 <a href="../../test/suites/cpu-serial.txt"><code>test/suites/cpu-serial.txt</code></a> 定义。参考结果使用
 各算例已有的 <code>autotest/</code> 输出。</p>
 <table>
 <thead>
@@ -329,7 +330,7 @@ blockquote {
 <pre><code class="language-bash">python3 test/test.py \
   &quot;mpirun -np 1&quot; \
   &quot;/path/to/OneFLOW&quot; \
-  test/regression_cpu.txt
+  test/suites/cpu-serial.txt
 </code></pre>
 <h2 id="5">5. 昆山实测结果</h2>
 <h3 id="51">5.1 环境与边界</h3>
@@ -409,7 +410,7 @@ REGRESSION_RC=0 TOTAL_ELAPSED_SECONDS=152
 <p>原有 CFD 测试网格为单 zone。使用 4 个 MPI rank 时，只有一个 rank
 持有本地 zone，其余 rank 的 <code>dataList</code> 为空。旧实现无条件访问
 <code>dataList[0]</code>，导致 <code>ResMax::CalcMax()</code> 越界。</p>
-<p><a href="../codes/residual/src/Residual.cpp"><code>codes/residual/src/Residual.cpp</code></a> 的
+<p><a href="../../codes/residual/src/Residual.cpp"><code>codes/residual/src/Residual.cpp</code></a> 的
 修复包括：</p>
 <ul>
 <li>空 <code>dataList</code> 使用安全哨兵值。</li>
@@ -504,7 +505,7 @@ REGRESSION_RC=0 TOTAL_ELAPSED_SECONDS=152
 逐字节一致。</p>
 <h2 id="6-ci">6. 测试程序与 CI 标准化</h2>
 <h3 id="61-testpy">6.1 <code>test.py</code></h3>
-<p><a href="test.py"><code>test/test.py</code></a> 已修复：</p>
+<p><a href="../../test/test.py"><code>test/test.py</code></a> 已修复：</p>
 <ul>
 <li>文件一方提前 EOF 时不再误判为通过。</li>
 <li>求解进程非零退出码会导致测试失败。</li>
@@ -513,7 +514,7 @@ REGRESSION_RC=0 TOTAL_ELAPSED_SECONDS=152
 </ul>
 <h3 id="62-workflow">6.2 昆山 workflow</h3>
 <p>新增
-<a href="../.github/workflows/kunshan-regression.yml"><code>kunshan-regression.yml</code></a>，
+<a href="../../.github/workflows/kunshan-regression.yml"><code>kunshan-regression.yml</code></a>，
 支持手动选择：</p>
 <ul>
 <li><code>cpu-serial</code></li>
@@ -602,19 +603,19 @@ REGRESSION_RC=0 TOTAL_ELAPSED_SECONDS=152
 <tbody>
 <tr>
 <td>完整交付报告</td>
-<td><code>test/GPU_BACKEND_DELIVERY_REPORT_20260821.md</code></td>
+<td><code>docs/reports/gpu-backend-delivery.md</code></td>
 </tr>
 <tr>
-<td>原始测试记录</td>
-<td><code>test/REGRESSION_REPORT_20260821.md</code></td>
+<td>HTML 报告</td>
+<td><code>docs/reports/gpu-backend-delivery.html</code></td>
 </tr>
 <tr>
-<td>回归标准</td>
-<td><code>test/REGRESSION.md</code></td>
+<td>测试规范</td>
+<td><code>test/README.md</code></td>
 </tr>
 <tr>
 <td>CPU suite</td>
-<td><code>test/regression_cpu.txt</code></td>
+<td><code>test/suites/cpu-serial.txt</code></td>
 </tr>
 <tr>
 <td>Backend 框架</td>
@@ -639,6 +640,18 @@ REGRESSION_RC=0 TOTAL_ELAPSED_SECONDS=152
 CPU 数值路径的 GPU backend 框架。现有代码可以作为 HIP/Z100 移植的
 起点，但当前交付的含义是“基础设施与回归基线就绪”，不是“GPU 数值
 移植完成”。</p>
+<h2 id="a">附录 A：首轮测试证据</h2>
+<p>首轮验证记录如下：</p>
+<ul>
+<li>三个串行算例耗时分别为 3、10、139 秒，总计 152 秒。</li>
+<li>空 rank 修复后，单 zone M6 使用 4 个 MPI rank 完成 50 步，退出码为 0。</li>
+<li>四 zone / 四 rank M6 连续运行两次，均耗时 138 秒，Slurm 状态均为
+  <code>COMPLETED</code>，退出码均为 <code>0:0</code>。</li>
+<li>两次 MPI 运行的 <code>aero.dat</code>、<code>res.dat</code>、<code>turbres.dat</code> 和
+  <code>wallaero.dat</code> 逐文件一致。</li>
+</ul>
+<p>后续单次 CI 运行的日志、作业号和环境快照应保存在 GitHub Actions
+artifact 或昆山隔离运行目录中，不再新增日期型仓库报告。</p>
 </article>
 </main>
 </body>

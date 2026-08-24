@@ -89,13 +89,13 @@ run_cpu_serial()
             "$cpu_work/$case_name/results" \
             "$cpu_work/$case_name/restart" \
             "$cpu_work/$case_name/log"
-    done < "$source_dir/test/regression_cpu.txt"
+    done < "$source_dir/test/suites/cpu-serial.txt"
 
     (
         cd "$cpu_work"
         timeout --signal=TERM --kill-after=10s "$serial_timeout" \
             python3 "$source_dir/test/test.py" \
-            "mpirun -np 1" "$binary" "$source_dir/test/regression_cpu.txt"
+            "mpirun -np 1" "$binary" "$source_dir/test/suites/cpu-serial.txt"
     )
 }
 

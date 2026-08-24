@@ -1,4 +1,33 @@
-# CPU regression baseline
+# OneFLOW tests
+
+The `test/` directory contains test runners, suite definitions, test cases,
+and checked-in numerical baselines. Generated reports and run artifacts do
+not belong here.
+
+## Directory policy
+
+```text
+test/
+├── README.md
+├── suites/
+│   └── cpu-serial.txt
+├── test.py
+├── test.txt
+└── <case directories>/
+    ├── autotest/
+    ├── grid/
+    └── script/
+```
+
+- Add reusable suite lists under `test/suites/` with stable names.
+- Keep accepted numerical references under each case's `autotest/` directory.
+- Write generated logs, results, reports, and temporary files outside
+  `test/`.
+- Maintain project reports under `docs/reports/` using stable filenames.
+- Do not create a new dated report for every regression run. CI run evidence
+  belongs in workflow artifacts; durable conclusions update the stable report.
+
+## CPU regression baseline
 
 The initial accelerator-development baseline contains three existing OneFLOW
 cases:
@@ -17,7 +46,7 @@ are considered.
 Run only this baseline suite from the `test` directory:
 
 ```bash
-python3 test.py "mpirun -np 1" "/path/to/OneFLOW" regression_cpu.txt
+python3 test.py "mpirun -np 1" "/path/to/OneFLOW" suites/cpu-serial.txt
 ```
 
 The repository also contains a manual-only Kunshan workflow:
@@ -38,3 +67,9 @@ operators yet. Runtime selection can be requested with
 with a clear error rather than silently falling back to CPU. The CMake cache
 also accepts `HIP`, `CUDA`, and `KOKKOS` as reserved backend names so future
 adapters can be added without changing the solver-facing interface.
+
+The maintained delivery report is:
+
+```text
+docs/reports/gpu-backend-delivery.md
+```
