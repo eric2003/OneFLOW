@@ -1,4 +1,4 @@
-if ( NOT ONEFLOW_ENABLE_HIP )
+if ( NOT ONEFLOW_BUILD_HIP )
     return()
 endif()
 

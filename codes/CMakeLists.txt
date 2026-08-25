@@ -30,20 +30,34 @@ endif()
 set ( BIT64_FLAG TRUE CACHE BOOL "64bit or 32bit code" )
 set ( AUTO_ACC TRUE CACHE BOOL "auto acc or not")
 
-set ( ONEFLOW_ACCEL_BACKEND "CPU" CACHE STRING
-      "Default OneFLOW compute backend (CPU, HIP, CUDA, or KOKKOS)" )
-set_property ( CACHE ONEFLOW_ACCEL_BACKEND PROPERTY STRINGS CPU HIP CUDA KOKKOS )
+set ( ONEFLOW_ACCEL_BACKEND "AUTO" CACHE STRING
+      "Default OneFLOW compute backend (AUTO, CPU, HIP, CUDA, or KOKKOS)" )
+set_property ( CACHE ONEFLOW_ACCEL_BACKEND PROPERTY STRINGS AUTO CPU HIP CUDA KOKKOS )
 option ( ONEFLOW_ENABLE_MULTI_DEVICE
          "Keep rank/device mapping information in the backend runtime" ON )
 option ( ONEFLOW_ENABLE_HIP
-         "Build the native HIP backend (validated on Kunshan Z100/DCU)" OFF )
+         "Explicitly build the native HIP backend" OFF )
+option ( ONEFLOW_AUTO_ENABLE_HIP
+         "Build HIP automatically when compiler, package, and device architecture are detected" ON )
+option ( ONEFLOW_ENABLE_CUDA
+         "Build the legacy CUDA sources explicitly" OFF )
 
 string ( TOUPPER "${ONEFLOW_ACCEL_BACKEND}" ONEFLOW_ACCEL_BACKEND_UPPER )
-set ( ONEFLOW_ACCEL_BACKEND_VALUES CPU HIP CUDA KOKKOS )
+set ( ONEFLOW_ACCEL_BACKEND_VALUES AUTO CPU HIP CUDA KOKKOS )
 if ( NOT ONEFLOW_ACCEL_BACKEND_UPPER IN_LIST ONEFLOW_ACCEL_BACKEND_VALUES )
     message ( FATAL_ERROR
         "Unsupported ONEFLOW_ACCEL_BACKEND=${ONEFLOW_ACCEL_BACKEND}. "
-        "Expected one of: CPU, HIP, CUDA, KOKKOS." )
+        "Expected one of: AUTO, CPU, HIP, CUDA, KOKKOS." )
+endif()
+if ( ONEFLOW_ACCEL_BACKEND_UPPER STREQUAL "CUDA"
+     AND NOT ONEFLOW_ENABLE_CUDA )
+    message ( FATAL_ERROR
+        "CUDA is a reserved extension point. Set ONEFLOW_ENABLE_CUDA=ON "
+        "only when the legacy CUDA source path is intentionally enabled." )
+endif()
+if ( ONEFLOW_ACCEL_BACKEND_UPPER STREQUAL "KOKKOS" )
+    message ( FATAL_ERROR
+        "KOKKOS is reserved but is not enabled in the current OneFLOW port." )
 endif()
 
 list ( APPEND PRJ_COMPILE_DEF
@@ -52,23 +66,44 @@ if ( ONEFLOW_ENABLE_MULTI_DEVICE )
     list ( APPEND PRJ_COMPILE_DEF ONEFLOW_ENABLE_MULTI_DEVICE )
 endif()
 
+set ( ONEFLOW_BUILD_HIP OFF )
+set ( ONEFLOW_HIP_EXPLICIT OFF )
+if ( ONEFLOW_ENABLE_HIP OR ONEFLOW_ACCEL_BACKEND_UPPER STREQUAL "HIP" )
+    set ( ONEFLOW_HIP_EXPLICIT ON )
+endif()
+
+if ( ONEFLOW_HIP_EXPLICIT
+     OR ( ONEFLOW_AUTO_ENABLE_HIP
+          AND ONEFLOW_ACCEL_BACKEND_UPPER STREQUAL "AUTO" ) )
+    DetectHIPArchitectures ( ONEFLOW_DETECTED_HIP_ARCHITECTURES )
+    if ( ONEFLOW_DETECTED_HIP_ARCHITECTURES )
+        set ( CMAKE_HIP_ARCHITECTURES "${ONEFLOW_DETECTED_HIP_ARCHITECTURES}"
+              CACHE STRING "HIP/DCU architecture list" FORCE )
+    endif()
+
+    find_package ( hip CONFIG QUIET )
+    include ( CheckLanguage )
+    check_language ( HIP )
+    if ( hip_FOUND AND CMAKE_HIP_COMPILER
+         AND CMAKE_HIP_ARCHITECTURES )
+        set ( ONEFLOW_BUILD_HIP ON )
+    elseif ( ONEFLOW_HIP_EXPLICIT )
+        message ( FATAL_ERROR
+            "HIP was explicitly requested, but the HIP package, compiler, or "
+            "device architecture was not detected. Set CMAKE_HIP_COMPILER and "
+            "CMAKE_HIP_ARCHITECTURES explicitly when cross-compiling." )
+    endif()
+endif()
+
 message ( STATUS "ONEFLOW_ACCEL_BACKEND=${ONEFLOW_ACCEL_BACKEND_UPPER}" )
 message ( STATUS "ONEFLOW_ENABLE_MULTI_DEVICE=${ONEFLOW_ENABLE_MULTI_DEVICE}" )
 message ( STATUS "ONEFLOW_ENABLE_HIP=${ONEFLOW_ENABLE_HIP}" )
-
-if ( ONEFLOW_ENABLE_HIP )
-    if ( NOT ONEFLOW_ACCEL_BACKEND_UPPER STREQUAL "HIP" )
-        message ( FATAL_ERROR
-            "ONEFLOW_ENABLE_HIP requires ONEFLOW_ACCEL_BACKEND=HIP." )
-    endif()
-
-    if ( NOT DEFINED CMAKE_HIP_ARCHITECTURES )
-        set ( CMAKE_HIP_ARCHITECTURES gfx906 CACHE STRING
-              "HIP/DCU architecture list" )
-    endif()
-
+message ( STATUS "ONEFLOW_AUTO_ENABLE_HIP=${ONEFLOW_AUTO_ENABLE_HIP}" )
+message ( STATUS "ONEFLOW_BUILD_HIP=${ONEFLOW_BUILD_HIP}" )
+message ( STATUS "ONEFLOW_ENABLE_CUDA=${ONEFLOW_ENABLE_CUDA}" )
+if ( ONEFLOW_BUILD_HIP )
+    message ( STATUS "CMAKE_HIP_ARCHITECTURES=${CMAKE_HIP_ARCHITECTURES}" )
     enable_language ( HIP )
-    find_package ( hip CONFIG REQUIRED )
     list ( APPEND PRJ_COMPILE_DEF ONEFLOW_ENABLE_HIP )
     list ( APPEND PRJ_INCLUDE_DIRS ${hip_INCLUDE_DIRS} )
     list ( APPEND PRJ_LIBRARIES hip::host )
@@ -82,7 +117,11 @@ if ( ONEFLOW_ENABLE_HIP )
     add_subdirectory ( accel )
 endif()
 
-find_package ( CUDAToolkit )
+if ( ONEFLOW_ENABLE_CUDA )
+    find_package ( CUDAToolkit REQUIRED )
+else()
+    set ( CUDAToolkit_FOUND OFF )
+endif()
 find_package ( OpenACC )
 
 message ( STATUS "OpenACC_FOUND      = ${OpenACC_FOUND}" )
@@ -240,8 +279,8 @@ set ( JsonPrjDir "${PRJ_ROOT_DIR}/${THIRD_PARTY_DIR}/jsoncpp" )
 set ( JsonHeaderDir ${JsonPrjDir} )
 
 ConstructSolutionDirTree( ${CMAKE_CURRENT_SOURCE_DIR} PRJ_HEADER_LIST PRJ_SRC_LIST PRJ_LOCAL_INCLUDE_DIRS )
-if ( ONEFLOW_ENABLE_HIP )
-    list ( FILTER PRJ_SRC_LIST EXCLUDE REGEX "/codes/accel/src/HipSmoke\\.cpp$" )
+list ( FILTER PRJ_SRC_LIST EXCLUDE REGEX "/codes/accel/src/HipSmoke\\.cpp$" )
+if ( ONEFLOW_BUILD_HIP )
     list ( APPEND PRJ_HEADER_LIST ${HIP_HEADER_LIST} )
     list ( APPEND PRJ_SRC_LIST ${HIP_SRC_LIST} )
     list ( APPEND PRJ_INCLUDE_DIRS ${HIP_LOCAL_INCLUDE_DIRS} )

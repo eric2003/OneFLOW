@@ -15,6 +15,8 @@ License
 #include <cerrno>
 #include <climits>
 #include <cstdlib>
+#include <algorithm>
+#include <cctype>
 #include <iostream>
 #include <stdexcept>
 #include <string>
@@ -92,6 +94,17 @@ std::string RequestedBackendName()
     return ONEFLOW_DEFAULT_ACCEL_BACKEND;
 }
 
+
+std::string NormalizeBackendName( std::string name )
+{
+    std::transform(
+        name.begin(), name.end(), name.begin(),
+        []( unsigned char value ) {
+            return static_cast<char>( std::toupper( value ) );
+        } );
+    return name;
+}
+
 }
 
 AccelRuntime & AccelRuntime::Instance()
@@ -115,20 +128,59 @@ void AccelRuntime::Initialize( int worldRank, int worldSize )
     context.multiDeviceEnabled = false;
 #endif
 
-    const AccelBackendKind requestedKind =
-        ParseAccelBackendKind( RequestedBackendName() );
-
+    const std::string requestedName =
+        NormalizeBackendName( RequestedBackendName() );
     AccelBackendRegistry & registry = AccelBackendRegistry::Instance();
-    if ( ! registry.Contains( requestedKind ) )
+    if ( requestedName == "AUTO" )
     {
-        throw std::runtime_error(
-            std::string( "OneFLOW backend '" )
-            + AccelBackendKindName( requestedKind )
-            + "' is reserved but is not built in this configuration." );
+        const AccelBackendKind candidates[] = {
+            AccelBackendKind::HIP,
+            AccelBackendKind::CUDA,
+            AccelBackendKind::KOKKOS
+        };
+        for ( AccelBackendKind candidate : candidates )
+        {
+            if ( !registry.Contains( candidate ) ) continue;
+            try
+            {
+                backend = registry.Create( candidate );
+                backend->Initialize( context );
+                break;
+            }
+            catch ( const std::exception & error )
+            {
+                if ( context.worldRank == 0 )
+                {
+                    std::cerr << "OneFLOW AUTO backend skipped "
+                              << AccelBackendKindName( candidate ) << ": "
+                              << error.what() << "\n";
+                }
+                backend.reset();
+                context.selectedDevice = -1;
+                context.deviceCount = 0;
+            }
+        }
+        if ( !backend )
+        {
+            if ( !registry.Contains( AccelBackendKind::CPU ) )
+                throw std::runtime_error( "OneFLOW CPU backend is not registered." );
+            backend = registry.Create( AccelBackendKind::CPU );
+            backend->Initialize( context );
+        }
     }
-
-    backend = registry.Create( requestedKind );
-    backend->Initialize( context );
+    else
+    {
+        const AccelBackendKind requestedKind = ParseAccelBackendKind( requestedName );
+        if ( ! registry.Contains( requestedKind ) )
+        {
+            throw std::runtime_error(
+                std::string( "OneFLOW backend '" )
+                + AccelBackendKindName( requestedKind )
+                + "' is reserved but is not built in this configuration." );
+        }
+        backend = registry.Create( requestedKind );
+        backend->Initialize( context );
+    }
     initialized = true;
 
     if ( context.worldRank == 0 )
