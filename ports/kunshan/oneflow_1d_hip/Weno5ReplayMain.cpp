@@ -10,6 +10,7 @@
 #include <iomanip>
 #include <iostream>
 #include <limits>
+#include <memory>
 #include <stdexcept>
 #include <string>
 #include <vector>
@@ -97,6 +98,7 @@ struct CaseMetrics
     std::array<Metrics, 3> residual;
     std::array<Metrics, 3> state;
     std::array<Metrics, 3> primitive;
+    std::array<Metrics, 3> productionState;
     int excludedResidual = 0;
     bool physical = true;
 };
@@ -140,15 +142,21 @@ bool RunCase( std::istream & input, const oneflow_1d::Weno5CaseHeader & header )
     const int cv = oneflow_1d::EulerComponents * nx;
     std::vector<double> state( cv );
     oneflow_1d::ReadValues( input, state );
+    const std::vector<double> initialState = state;
     oneflow_1d::Weno5Trace reference;
+    using HipStatePtr = std::unique_ptr<oneflow_1d::Weno5HipState,
+        decltype( &oneflow_1d::DestroyWeno5HipState )>;
+    HipStatePtr hipState( oneflow_1d::CreateWeno5HipState(
+        state.data(), nx, header.gamma, header.dx,
+        static_cast<oneflow_1d::EulerBoundary>( header.boundary ) ),
+        &oneflow_1d::DestroyWeno5HipState );
     bool pass = true;
     CaseMetrics metrics;
     for ( int step = 0; step < header.steps; ++ step )
     {
         oneflow_1d::ReadTrace( input, nx, reference );
         oneflow_1d::Weno5Trace candidate;
-        oneflow_1d::OneDHipLaxWeno5Step( state.data(), nx, header.gamma,
-            header.dt, header.dx, static_cast<oneflow_1d::EulerBoundary>( header.boundary ), candidate );
+        oneflow_1d::StepWeno5HipState( *hipState, header.dt, &candidate );
         for ( int stage = 0; stage < oneflow_1d::EulerRkStages; ++ stage )
         {
             const int po = stage * pv;
@@ -192,18 +200,34 @@ bool RunCase( std::istream & input, const oneflow_1d::Weno5CaseHeader & header )
         metrics.physical = metrics.physical
             && Physical( reference.state, nx, header.gamma )
             && Physical( candidate.state, nx, header.gamma );
-        std::copy( candidate.state.end() - cv, candidate.state.end(), state.begin() );
     }
+    HipStatePtr productionState( oneflow_1d::CreateWeno5HipState(
+        initialState.data(), nx, header.gamma, header.dx,
+        static_cast<oneflow_1d::EulerBoundary>( header.boundary ) ),
+        &oneflow_1d::DestroyWeno5HipState );
+    for ( int step = 0; step < header.steps; ++ step )
+        oneflow_1d::StepWeno5HipState( *productionState, header.dt );
+    std::vector<double> productionFinal( cv );
+    oneflow_1d::DownloadWeno5HipState( *productionState, productionFinal.data() );
+    for ( int component = 0; component < oneflow_1d::EulerComponents; ++ component )
+        for ( int cell = 0; cell < nx; ++ cell )
+            Compare( metrics.productionState[component],
+                reference.state[oneflow_1d::EulerRkStages * cv + component * nx + cell],
+                productionFinal[component * nx + cell] );
+
     auto all = [&]( const auto & values ) { for ( const auto & value : values ) pass = pass && value.ok; };
     all( metrics.splitPositive ); all( metrics.splitNegative ); all( metrics.reconstructedPositive ); all( metrics.reconstructedNegative );
     all( metrics.numericalFlux ); all( metrics.residual ); all( metrics.state ); all( metrics.primitive );
+    all( metrics.productionState );
     pass = pass && metrics.physical;
     std::cout << header.name.data() << " steps=" << header.steps
-              << " residual_smooth_excluded=" << metrics.excludedResidual << "\n";
+              << " hip_state=persistent residual_smooth_excluded="
+              << metrics.excludedResidual << "\n";
     Report( "split+", metrics.splitPositive ); Report( "split-", metrics.splitNegative );
     Report( "recon+", metrics.reconstructedPositive ); Report( "recon-", metrics.reconstructedNegative );
     Report( "flux", metrics.numericalFlux ); Report( "residual", metrics.residual );
     Report( "state", metrics.state ); Report( "primitive", metrics.primitive );
+    Report( "production-final", metrics.productionState );
     std::cout << "  physical_state=" << ( metrics.physical ? "PASS" : "FAIL" )
               << " result=" << ( pass ? "PASS" : "FAIL" ) << "\n";
     return pass;

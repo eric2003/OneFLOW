@@ -28,7 +28,11 @@ fluxes, reconstructed fluxes, numerical flux, residual, and state.
 `oneflow_1d_weno5_replay` reads that artifact and advances HIP independently;
 it compares all three conserved variables at every recorded intermediate, and
 reports absolute error, scaled relative error, ULP distance, finite/physical
-checks, and the residual smooth-region mask for the Sod case.
+checks, and the residual smooth-region mask for the Sod case. The HIP path uses
+a persistent per-case device state: allocation and the initial H2D transfer
+happen once, RK stages reuse device buffers, and a production-style no-trace
+run performs only one final D2H state transfer. The one-step API remains as a
+compatibility wrapper around this persistent state.
 
 This is a one-dimensional numerical replay validation, not a complete
 compressible-CFD GPU implementation.

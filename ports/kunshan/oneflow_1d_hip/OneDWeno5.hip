@@ -155,13 +155,112 @@ __global__ void Update( const double * base, const double * current,
 
 } // namespace
 
-void OneDHipLaxWeno5Step( const double * input, int nx, double gamma, double dt,
-                          double dx, EulerBoundary boundary, Weno5Trace & trace )
+struct Weno5HipState
 {
-    if ( input == nullptr || nx < WenoGhostCells || gamma <= 1.0
-        || dt <= 0.0 || dx <= 0.0 )
-        throw std::invalid_argument( "invalid HIP Lax-WENO5 input" );
-    ResizeWeno5Trace( trace, nx );
+    int nx = 0;
+    double gamma = 0.0;
+    double dx = 0.0;
+    EulerBoundary boundary = EulerBoundary::Transmissive;
+    double * base = nullptr;
+    double * current = nullptr;
+    double * next = nullptr;
+    double * padded = nullptr;
+    double * positive = nullptr;
+    double * negative = nullptr;
+    double * left = nullptr;
+    double * right = nullptr;
+    double * flux = nullptr;
+    double * residual = nullptr;
+};
+
+namespace
+{
+void FreeDevice( double * pointer ) noexcept
+{
+    if ( pointer != nullptr ) static_cast<void>( hipFree( pointer ) );
+}
+
+void FreeStateBuffers( Weno5HipState & state ) noexcept
+{
+    FreeDevice( state.residual );
+    FreeDevice( state.flux );
+    FreeDevice( state.right );
+    FreeDevice( state.left );
+    FreeDevice( state.negative );
+    FreeDevice( state.positive );
+    FreeDevice( state.padded );
+    FreeDevice( state.next );
+    FreeDevice( state.current );
+    FreeDevice( state.base );
+}
+} // namespace
+
+Weno5HipState * CreateWeno5HipState(
+    const double * values, int nx, double gamma, double dx,
+    EulerBoundary boundary )
+{
+    if ( values == nullptr || nx < WenoGhostCells || gamma <= 1.0 || dx <= 0.0 )
+        throw std::invalid_argument( "invalid persistent HIP Lax-WENO5 input" );
+    Weno5HipState * state = new Weno5HipState;
+    state->nx = nx;
+    state->gamma = gamma;
+    state->dx = dx;
+    state->boundary = boundary;
+    const size_t paddedBytes = EulerComponents
+        * ( nx + 2 * WenoGhostCells ) * sizeof( double );
+    const size_t faceBytes = EulerComponents * ( nx + 1 ) * sizeof( double );
+    const size_t cellBytes = EulerComponents * nx * sizeof( double );
+    try
+    {
+        Check( hipMalloc( &state->base, cellBytes ), "malloc base" );
+        Check( hipMalloc( &state->current, cellBytes ), "malloc current" );
+        Check( hipMalloc( &state->next, cellBytes ), "malloc next" );
+        Check( hipMalloc( &state->padded, paddedBytes ), "malloc padded" );
+        Check( hipMalloc( &state->positive, paddedBytes ), "malloc split positive" );
+        Check( hipMalloc( &state->negative, paddedBytes ), "malloc split negative" );
+        Check( hipMalloc( &state->left, faceBytes ), "malloc reconstructed positive" );
+        Check( hipMalloc( &state->right, faceBytes ), "malloc reconstructed negative" );
+        Check( hipMalloc( &state->flux, faceBytes ), "malloc numerical flux" );
+        Check( hipMalloc( &state->residual, cellBytes ), "malloc residual" );
+        Check( hipMemcpy( state->current, values, cellBytes, hipMemcpyHostToDevice ),
+               "copy initial state" );
+    }
+    catch ( ... )
+    {
+        FreeStateBuffers( *state );
+        delete state;
+        throw;
+    }
+    return state;
+}
+
+void DestroyWeno5HipState( Weno5HipState * state ) noexcept
+{
+    if ( state == nullptr ) return;
+    FreeStateBuffers( *state );
+    delete state;
+}
+
+void ResetWeno5HipState( Weno5HipState & state, const double * values )
+{
+    if ( values == nullptr ) throw std::invalid_argument( "null WENO5 reset state" );
+    const size_t cellBytes = EulerComponents * state.nx * sizeof( double );
+    Check( hipMemcpy( state.current, values, cellBytes, hipMemcpyHostToDevice ),
+           "reset current state" );
+}
+
+void DownloadWeno5HipState( const Weno5HipState & state, double * values )
+{
+    if ( values == nullptr ) throw std::invalid_argument( "null WENO5 download state" );
+    const size_t cellBytes = EulerComponents * state.nx * sizeof( double );
+    Check( hipMemcpy( values, state.current, cellBytes, hipMemcpyDeviceToHost ),
+           "download current state" );
+}
+
+void StepWeno5HipState( Weno5HipState & state, double dt, Weno5Trace * trace )
+{
+    if ( dt <= 0.0 ) throw std::invalid_argument( "invalid persistent WENO5 time step" );
+    const int nx = state.nx;
     const int paddedValues = EulerComponents * ( nx + 2 * WenoGhostCells );
     const int faceValues = EulerComponents * ( nx + 1 );
     const int cellValues = EulerComponents * nx;
@@ -172,74 +271,82 @@ void OneDHipLaxWeno5Step( const double * input, int nx, double gamma, double dt,
     const size_t paddedBytes = paddedValues * sizeof( double );
     const size_t faceBytes = faceValues * sizeof( double );
     const size_t cellBytes = cellValues * sizeof( double );
-    double * base = nullptr, * current = nullptr, * next = nullptr;
-    double * padded = nullptr, * positive = nullptr, * negative = nullptr;
-    double * left = nullptr, * right = nullptr, * flux = nullptr, * residual = nullptr;
-    auto cleanup = [&]() {
-        hipFree( residual ); hipFree( flux ); hipFree( right ); hipFree( left );
-        hipFree( negative ); hipFree( positive ); hipFree( padded );
-        hipFree( next ); hipFree( current ); hipFree( base );
-    };
-    try
+    if ( trace != nullptr )
     {
-        Check( hipMalloc( &base, cellBytes ), "malloc base" );
-        Check( hipMalloc( &current, cellBytes ), "malloc current" );
-        Check( hipMalloc( &next, cellBytes ), "malloc next" );
-        Check( hipMalloc( &padded, paddedBytes ), "malloc padded" );
-        Check( hipMalloc( &positive, paddedBytes ), "malloc split positive" );
-        Check( hipMalloc( &negative, paddedBytes ), "malloc split negative" );
-        Check( hipMalloc( &left, faceBytes ), "malloc reconstructed positive" );
-        Check( hipMalloc( &right, faceBytes ), "malloc reconstructed negative" );
-        Check( hipMalloc( &flux, faceBytes ), "malloc numerical flux" );
-        Check( hipMalloc( &residual, cellBytes ), "malloc residual" );
-        Check( hipMemcpy( base, input, cellBytes, hipMemcpyHostToDevice ), "copy base" );
-        Check( hipMemcpy( current, input, cellBytes, hipMemcpyHostToDevice ), "copy current" );
-        std::copy( input, input + cellValues, trace.state.begin() );
-        for ( int stage = 0; stage < EulerRkStages; ++ stage )
+        ResizeWeno5Trace( *trace, nx );
+        Check( hipMemcpy( trace->state.data(), state.current, cellBytes,
+                          hipMemcpyDeviceToHost ), "copy input state" );
+    }
+    Check( hipMemcpy( state.base, state.current, cellBytes, hipMemcpyDeviceToDevice ),
+           "save RK base state" );
+    for ( int stage = 0; stage < EulerRkStages; ++ stage )
+    {
+        hipLaunchKernelGGL( FillPadded, dim3( paddedBlocks ), dim3( threads ),
+            0, 0, state.current, nx, static_cast<int>( state.boundary ), state.padded );
+        Check( hipGetLastError(), "fill padded launch" );
+        hipLaunchKernelGGL( SplitFlux, dim3( paddedBlocks ), dim3( threads ),
+            0, 0, state.padded, nx, state.gamma, state.positive, state.negative );
+        Check( hipGetLastError(), "split flux launch" );
+        hipLaunchKernelGGL( Reconstruct, dim3( faceBlocks ), dim3( threads ),
+            0, 0, state.positive, state.negative, nx,
+            state.left, state.right, state.flux );
+        Check( hipGetLastError(), "reconstruct launch" );
+        hipLaunchKernelGGL( AssembleResidual, dim3( cellBlocks ), dim3( threads ),
+            0, 0, state.left, state.right, nx, state.dx, state.residual );
+        Check( hipGetLastError(), "residual launch" );
+        const double baseWeight = stage == 1 ? 0.75
+            : ( stage == 2 ? 1.0 / 3.0 : 0.0 );
+        const double updateWeight = stage == 0 ? 1.0
+            : ( stage == 1 ? 0.25 : 2.0 / 3.0 );
+        hipLaunchKernelGGL( Update, dim3( cellBlocks ), dim3( threads ),
+            0, 0, state.base, state.current, state.residual, cellValues, dt,
+            baseWeight, updateWeight, state.next );
+        Check( hipGetLastError(), "update launch" );
+        if ( trace != nullptr )
         {
-            hipLaunchKernelGGL( FillPadded, dim3( paddedBlocks ), dim3( threads ),
-                0, 0, current, nx, static_cast<int>( boundary ), padded );
-            Check( hipGetLastError(), "fill padded launch" );
-            hipLaunchKernelGGL( SplitFlux, dim3( paddedBlocks ), dim3( threads ),
-                0, 0, padded, nx, gamma, positive, negative );
-            Check( hipGetLastError(), "split flux launch" );
-            hipLaunchKernelGGL( Reconstruct, dim3( faceBlocks ), dim3( threads ),
-                0, 0, positive, negative, nx, left, right, flux );
-            Check( hipGetLastError(), "reconstruct launch" );
-            hipLaunchKernelGGL( AssembleResidual, dim3( cellBlocks ), dim3( threads ),
-                0, 0, left, right, nx, dx, residual );
-            Check( hipGetLastError(), "residual launch" );
-            const double baseWeight = stage == 1 ? 0.75
-                : ( stage == 2 ? 1.0 / 3.0 : 0.0 );
-            const double updateWeight = stage == 0 ? 1.0
-                : ( stage == 1 ? 0.25 : 2.0 / 3.0 );
-            hipLaunchKernelGGL( Update, dim3( cellBlocks ), dim3( threads ),
-                0, 0, base, current, residual, cellValues, dt,
-                baseWeight, updateWeight, next );
-            Check( hipGetLastError(), "update launch" );
-            Check( hipDeviceSynchronize(), "stage synchronize" );
             const int paddedOffset = stage * paddedValues;
             const int faceOffset = stage * faceValues;
             const int cellOffset = stage * cellValues;
-            Check( hipMemcpy( trace.splitPositive.data() + paddedOffset, positive,
-                paddedBytes, hipMemcpyDeviceToHost ), "copy split positive" );
-            Check( hipMemcpy( trace.splitNegative.data() + paddedOffset, negative,
-                paddedBytes, hipMemcpyDeviceToHost ), "copy split negative" );
-            Check( hipMemcpy( trace.reconstructedPositive.data() + faceOffset, left,
-                faceBytes, hipMemcpyDeviceToHost ), "copy reconstructed positive" );
-            Check( hipMemcpy( trace.reconstructedNegative.data() + faceOffset, right,
-                faceBytes, hipMemcpyDeviceToHost ), "copy reconstructed negative" );
-            Check( hipMemcpy( trace.numericalFlux.data() + faceOffset, flux,
-                faceBytes, hipMemcpyDeviceToHost ), "copy numerical flux" );
-            Check( hipMemcpy( trace.residual.data() + cellOffset, residual,
-                cellBytes, hipMemcpyDeviceToHost ), "copy residual" );
-            Check( hipMemcpy( trace.state.data() + ( stage + 1 ) * cellValues, next,
-                cellBytes, hipMemcpyDeviceToHost ), "copy state" );
-            std::swap( current, next );
+            Check( hipMemcpy( trace->splitPositive.data() + paddedOffset,
+                state.positive, paddedBytes, hipMemcpyDeviceToHost ),
+                "copy split positive" );
+            Check( hipMemcpy( trace->splitNegative.data() + paddedOffset,
+                state.negative, paddedBytes, hipMemcpyDeviceToHost ),
+                "copy split negative" );
+            Check( hipMemcpy( trace->reconstructedPositive.data() + faceOffset,
+                state.left, faceBytes, hipMemcpyDeviceToHost ),
+                "copy reconstructed positive" );
+            Check( hipMemcpy( trace->reconstructedNegative.data() + faceOffset,
+                state.right, faceBytes, hipMemcpyDeviceToHost ),
+                "copy reconstructed negative" );
+            Check( hipMemcpy( trace->numericalFlux.data() + faceOffset,
+                state.flux, faceBytes, hipMemcpyDeviceToHost ),
+                "copy numerical flux" );
+            Check( hipMemcpy( trace->residual.data() + cellOffset,
+                state.residual, cellBytes, hipMemcpyDeviceToHost ),
+                "copy residual" );
+            Check( hipMemcpy( trace->state.data() + ( stage + 1 ) * cellValues,
+                state.next, cellBytes, hipMemcpyDeviceToHost ), "copy stage state" );
         }
+        std::swap( state.current, state.next );
     }
-    catch ( ... ) { cleanup(); throw; }
-    cleanup();
+    Check( hipDeviceSynchronize(), "WENO5 step synchronize" );
+}
+
+void OneDHipLaxWeno5Step( const double * input, int nx, double gamma, double dt,
+                          double dx, EulerBoundary boundary, Weno5Trace & trace )
+{
+    Weno5HipState * state = CreateWeno5HipState( input, nx, gamma, dx, boundary );
+    try
+    {
+        StepWeno5HipState( *state, dt, &trace );
+    }
+    catch ( ... )
+    {
+        DestroyWeno5HipState( state );
+        throw;
+    }
+    DestroyWeno5HipState( state );
 }
 
 } // namespace oneflow_1d

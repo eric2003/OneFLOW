@@ -27,6 +27,21 @@ void OneDCpuLaxWeno5Step(
     const double * state, int nx, double gamma, double dt, double dx,
     EulerBoundary boundary, Weno5Trace & trace );
 
+struct Weno5HipState;
+
+Weno5HipState * CreateWeno5HipState(
+    const double * state, int nx, double gamma, double dx,
+    EulerBoundary boundary );
+
+void DestroyWeno5HipState( Weno5HipState * state ) noexcept;
+
+void ResetWeno5HipState( Weno5HipState & state, const double * values );
+
+void StepWeno5HipState(
+    Weno5HipState & state, double dt, Weno5Trace * trace = nullptr );
+
+void DownloadWeno5HipState( const Weno5HipState & state, double * values );
+
 void OneDHipLaxWeno5Step(
     const double * state, int nx, double gamma, double dt, double dx,
     EulerBoundary boundary, Weno5Trace & trace );
