@@ -6,12 +6,15 @@ name: OneFLOW_Linux_CI
 on:
   # Triggers the workflow on push or pull request events but only for the main branch
   push:
-    branches: [ main, hexin ]
+    branches: [ master, hexin ]
   pull_request:
-    branches: [ main, hexin ]
+    branches: [ master, hexin ]
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
+  
+permissions:
+  contents: read  
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
