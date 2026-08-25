@@ -5,6 +5,8 @@ set( CMAKE_CXX_STANDARD 17 )
 set( CMAKE_CXX_STANDARD_REQUIRED ON )
 
 add_executable( oneflow_1d_cpu CpuMain.cpp OneDUpwind.cpp )
+add_executable( oneflow_1d_euler_cpu EulerMain.cpp OneDEuler.cpp )
+target_compile_options( oneflow_1d_euler_cpu PRIVATE -ffp-contract=off )
 
 option( ONEFLOW_1D_ENABLE_HIP "Build the native HIP validation executable" OFF )
 if ( ONEFLOW_1D_ENABLE_HIP )
@@ -20,4 +22,9 @@ if ( ONEFLOW_1D_ENABLE_HIP )
         OneDUpwind.cpp
         OneDUpwind.hip )
     target_link_libraries( oneflow_1d_hip PRIVATE hip::host )
+    set_source_files_properties( OneDEuler.hip PROPERTIES LANGUAGE HIP )
+    add_executable( oneflow_1d_euler_hip EulerMain.cpp OneDEuler.cpp OneDEuler.hip )
+    target_compile_definitions( oneflow_1d_euler_hip PRIVATE ONEFLOW_1D_USE_HIP=1 )
+    target_compile_options( oneflow_1d_euler_hip PRIVATE -ffp-contract=off )
+    target_link_libraries( oneflow_1d_euler_hip PRIVATE hip::host )
 endif()
