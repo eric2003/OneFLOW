@@ -1,0 +1,60 @@
+# This is a basic workflow to help you get started with Actions
+
+name: OneFLOW_Linux_Build_CI
+
+# Controls when the workflow will run
+on:
+  # Triggers the workflow on push or pull request events but only for the main branch
+  push:
+    branches: [ master, hexin ]
+  pull_request:
+    branches: [ master, hexin ]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  build:
+    name: "Linux OneFLOW Build Actions"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - name: Install GCC-10
+        run: |
+          sudo apt-get update
+          sudo apt install gcc-10 g++-10 -y
+          gcc --version
+          g++ --version
+          ls /usr/bin/gcc*
+        shell: bash
+      - name: Install Third party library
+        run: |
+          echo cd ${{ github.workspace }}
+          cd ${{ github.workspace }}
+          echo ls
+          ls
+          sudo apt-get update
+          sudo apt-get install libhdf5-dev libcgns-dev libmetis-dev libmpich-dev -y
+        shell: bash
+      - name: CMake Build and Install
+        #env:
+        #   CC:   gcc-10
+        #   CXX:  g++-10
+        run: |
+          cd ${{ github.workspace }}
+          ls
+          mkdir build
+          cd build
+          echo MPI_HOME_INC
+          echo MPI_HOME_LIB
+          export MPI_HOME_INC="/usr/include/x86_64-linux-gnu/mpich"
+          export MPI_HOME_LIB="/usr/lib/x86_64-linux-gnu/libmpich.so"
+          export CGNS_HOME_INC="/usr/include"
+          export CGNS_HOME_LIB="/usr/lib/x86_64-linux-gnu/libcgns.so"
+          export METIS_HOME_INC="/usr/include"
+          export METIS_HOME_LIB="/usr/lib/x86_64-linux-gnu/libmetis.so"
+          cmake --version
+          cmake -DCMAKE_INSTALL_PREFIX=${{ github.workspace }}/Run ../
+          make -j 4
+        shell: bash
