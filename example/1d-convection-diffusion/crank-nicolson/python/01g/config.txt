@@ -1,0 +1,30 @@
+# 对流扩散方程参数配置
+# 可以设置多组参数进行比较
+
+# 第一组：纯扩散
+[Case1]
+a = 0.0
+nu = 0.1
+label = Pure Diffusion
+
+# 第二组：纯对流
+[Case2]
+a = 1.0
+nu = 0.01
+label = Pure Convection
+
+# 第三组：对流+扩散
+[Case3]
+a = 1.0
+nu = 0.001
+label = Convection+Diffusion
+
+
+# 计算参数（全局）
+[Global]
+xmin = -5.0
+xmax = 10.0
+total_time = 1.0
+Nx = 200
+Nt = 1000
+t0 = 0.1
