@@ -1,6 +1,6 @@
 # This is a basic workflow to help you get started with Actions
 
-name: OneFLOW_Linux_Build_CI
+name: Linux Build
 
 # Controls when the workflow will run
 on:
