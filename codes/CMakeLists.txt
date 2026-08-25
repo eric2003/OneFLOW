@@ -35,6 +35,8 @@ set ( ONEFLOW_ACCEL_BACKEND "CPU" CACHE STRING
 set_property ( CACHE ONEFLOW_ACCEL_BACKEND PROPERTY STRINGS CPU HIP CUDA KOKKOS )
 option ( ONEFLOW_ENABLE_MULTI_DEVICE
          "Keep rank/device mapping information in the backend runtime" ON )
+option ( ONEFLOW_ENABLE_HIP
+         "Build the native HIP backend (validated on Kunshan Z100/DCU)" OFF )
 
 string ( TOUPPER "${ONEFLOW_ACCEL_BACKEND}" ONEFLOW_ACCEL_BACKEND_UPPER )
 set ( ONEFLOW_ACCEL_BACKEND_VALUES CPU HIP CUDA KOKKOS )
@@ -52,6 +54,33 @@ endif()
 
 message ( STATUS "ONEFLOW_ACCEL_BACKEND=${ONEFLOW_ACCEL_BACKEND_UPPER}" )
 message ( STATUS "ONEFLOW_ENABLE_MULTI_DEVICE=${ONEFLOW_ENABLE_MULTI_DEVICE}" )
+message ( STATUS "ONEFLOW_ENABLE_HIP=${ONEFLOW_ENABLE_HIP}" )
+
+if ( ONEFLOW_ENABLE_HIP )
+    if ( NOT ONEFLOW_ACCEL_BACKEND_UPPER STREQUAL "HIP" )
+        message ( FATAL_ERROR
+            "ONEFLOW_ENABLE_HIP requires ONEFLOW_ACCEL_BACKEND=HIP." )
+    endif()
+
+    if ( NOT DEFINED CMAKE_HIP_ARCHITECTURES )
+        set ( CMAKE_HIP_ARCHITECTURES gfx906 CACHE STRING
+              "HIP/DCU architecture list" )
+    endif()
+
+    enable_language ( HIP )
+    find_package ( hip CONFIG REQUIRED )
+    list ( APPEND PRJ_COMPILE_DEF ONEFLOW_ENABLE_HIP )
+    list ( APPEND PRJ_INCLUDE_DIRS ${hip_INCLUDE_DIRS} )
+    list ( APPEND PRJ_LIBRARIES hip::host )
+
+    GetHIPFiles(
+        ${CMAKE_CURRENT_SOURCE_DIR}
+        HIP_HEADER_LIST
+        HIP_SRC_LIST
+        HIP_LOCAL_INCLUDE_DIRS )
+
+    add_subdirectory ( accel )
+endif()
 
 find_package ( CUDAToolkit )
 find_package ( OpenACC )
@@ -211,6 +240,12 @@ set ( JsonPrjDir "${PRJ_ROOT_DIR}/${THIRD_PARTY_DIR}/jsoncpp" )
 set ( JsonHeaderDir ${JsonPrjDir} )
 
 ConstructSolutionDirTree( ${CMAKE_CURRENT_SOURCE_DIR} PRJ_HEADER_LIST PRJ_SRC_LIST PRJ_LOCAL_INCLUDE_DIRS )
+if ( ONEFLOW_ENABLE_HIP )
+    list ( FILTER PRJ_SRC_LIST EXCLUDE REGEX "/codes/accel/src/HipSmoke\\.cpp$" )
+    list ( APPEND PRJ_HEADER_LIST ${HIP_HEADER_LIST} )
+    list ( APPEND PRJ_SRC_LIST ${HIP_SRC_LIST} )
+    list ( APPEND PRJ_INCLUDE_DIRS ${HIP_LOCAL_INCLUDE_DIRS} )
+endif()
 list ( APPEND PRJ_INCLUDE_DIRS ${PRJ_LOCAL_INCLUDE_DIRS} )
 
 if ( NOT CGNS_ENABLE )

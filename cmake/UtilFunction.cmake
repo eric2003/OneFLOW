@@ -79,6 +79,38 @@ function ( GetCUDAFiles currdir my_head_list my_src_list my_include_dirs )
 	set ( ${my_include_dirs} ${tmp_include_dirs} PARENT_SCOPE )	
 endfunction()
 
+function ( GetHIPFiles currdir my_head_list my_src_list my_include_dirs )
+    set ( tmp_header_list  "" )
+    set ( tmp_src_list     "" )
+    set ( tmp_include_dirs "" )
+
+    file ( GLOB_RECURSE FOUND_FILES LIST_DIRECTORIES true RELATIVE ${currdir} * )
+
+    foreach ( child ${FOUND_FILES} )
+        set( candidate_dir ${currdir}/${child} )
+        if ( IS_DIRECTORY ${candidate_dir} )
+            file ( GLOB header_files "${candidate_dir}/*.h" )
+            file ( GLOB hip_src_files "${candidate_dir}/*.hip" )
+
+            list ( LENGTH header_files n_header_files )
+            if ( NOT ( ${n_header_files} EQUAL 0 ) )
+                list ( APPEND tmp_header_list ${header_files} )
+                list ( APPEND tmp_include_dirs ${candidate_dir} )
+            endif()
+
+            list ( LENGTH hip_src_files n_hip_files )
+            if ( NOT ( ${n_hip_files} EQUAL 0 ) )
+                source_group ( "${child}" FILES ${hip_src_files} )
+                list ( APPEND tmp_src_list ${hip_src_files} )
+            endif()
+        endif()
+    endforeach()
+
+    set ( ${my_head_list} ${tmp_header_list} PARENT_SCOPE )
+    set ( ${my_src_list} ${tmp_src_list} PARENT_SCOPE )
+    set ( ${my_include_dirs} ${tmp_include_dirs} PARENT_SCOPE )
+endfunction()
+
 function ( AppendGlobalValue global_property value )
 	#message ( STATUS "global_property = ${global_property}" )
 	#message ( STATUS "value = ${value}" )
