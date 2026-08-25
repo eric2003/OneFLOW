@@ -13,3 +13,22 @@ finite and positive-state checks. Acceptance is
 `abs(error) <= 1e-15 + 1e-15*max(1, abs(reference))`; the relative-error
 scale is also reported with `max(1, abs(reference))`. This is a numerical
 tolerance, not “15 decimal places” or “15 significant digits”.
+
+
+## Isolated Lax-WENO5 replay
+
+`OneDWeno5.cpp` is an independent Linux adapter that follows the existing
+Windows-oriented `EulerField::LaxFriedrichs` path: local Lax wave speed,
+WENO5 positive/negative flux reconstruction, and SSP-RK3. The original
+`example/1d-linear-convection/weno3/cpp/01` tree is not modified.
+
+`oneflow_1d_weno5_dump` writes a versioned binary CPU reference containing the
+initial state and, for every time step and RK stage, split positive/negative
+fluxes, reconstructed fluxes, numerical flux, residual, and state.
+`oneflow_1d_weno5_replay` reads that artifact and advances HIP independently;
+it compares all three conserved variables at every recorded intermediate, and
+reports absolute error, scaled relative error, ULP distance, finite/physical
+checks, and the residual smooth-region mask for the Sod case.
+
+This is a one-dimensional numerical replay validation, not a complete
+compressible-CFD GPU implementation.
