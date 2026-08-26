@@ -140,14 +140,14 @@ ports/kunshan/oneflow_1d_hip/OneDWeno5.hip
 
 ## 6. 本地提交证据
 
-当前本地仓库状态：
+merge 前的本地仓库状态：
 
 ```text
 branch: master
 HEAD:   f51a184aad4f83a89e7d3328e18189155da0cef8
 origin/master: c97a8c9579fb47747606aea4b9d8c78742dda38d
 关系：本地 master 比 origin/master 超前 8 个提交
-工作区：保留 2 个 tracked 文档修改和 1 个 untracked 报告
+说明：该状态对应本地 merge commit `f51a184a`
 ```
 
 一维与加速相关提交（均已在本地 HEAD）：
@@ -162,6 +162,7 @@ origin/master: c97a8c9579fb47747606aea4b9d8c78742dda38d
 | 2026-08-25 13:39:54 | `a3d72b814da3cc3c036aa2c44ed5ee027556a471` | 跨平台 backend 自动探测 |
 | 2026-08-25 16:27:01 | `157cb193b85defc1a8d2e5f385b51b4f2cc4da28` | 一维验证自动 HIP 架构探测 |
 | 2026-08-25 17:54:37 | `f51a184aad4f83a89e7d3328e18189155da0cef8` | 合并上游 `origin/master`，无冲突 |
+| 2026-08-26 16:22:10 | `71e86282492d1b1967da81d3dc305886d355e56a` | 昆山 Z100/gfx906 自动探测 Euler 回归和 warning 修复 |
 
 Windows 原始 WENO3 示例目录未被这些提交覆盖或替换；一维验证放在
 `ports/kunshan/oneflow_1d_hip/` 隔离目录中。
@@ -197,6 +198,7 @@ CMAKE_HIP_ARCHITECTURES=gfx906;gfx936
 - [x] 未提交新的 Slurm 作业，未取消已有作业，未 push；
 - [x] 昆山 Z100/gfx906 设备探针、显式架构和自动架构一维 Euler 回归均通过；
 - [x] 修复一维 Euler 编译 warning，并在昆山自动探测路径重新回归；
+- [x] 本地验证 commit `71e86282` 已创建，工作区随后保持干净；
 - [ ] 不修改 Windows 原始 WENO3 路线，不改动 `codes/ns`。
 
 ## 9. 恢复昆山主线时的最小待办
