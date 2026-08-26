@@ -36,3 +36,29 @@ compatibility wrapper around this persistent state.
 
 This is a one-dimensional numerical replay validation, not a complete
 compressible-CFD GPU implementation.
+
+## Current status and architecture policy
+
+The isolated directory is the current one-dimensional validation path. CPU remains
+the default reference and execution path; the HIP targets are validation adapters
+and reserved integration points, not a claim that the full Navier–Stokes solver is
+GPU-ported. CUDA, Kokkos, and multi-GPU remain extension interfaces only, and
+Kokkos is not introduced here.
+
+HIP architecture selection is intentionally not hard-coded:
+
+1. `CMAKE_HIP_ARCHITECTURES`, when supplied explicitly;
+2. `ONEFLOW_HIP_ARCHITECTURES`, accepting a comma- or semicolon-separated list;
+3. the architecture reported by `rocminfo` on the target compute node;
+4. `rocm_agent_enumerator` only when it yields a unique candidate;
+5. an explicit configuration error when no safe architecture can be determined.
+
+This leaves room for multiple targets such as `gfx906;gfx936` without assuming
+that Kunshan Z100 and Zhengzhou BW1000 are interchangeable. The current evidence
+is recorded in `doc/reports/one-dimensional-euler-hip-validation.md`: Zhengzhou
+`gfx936` is an archived reference only; the Kunshan Z100 `gfx906` automatic-detection
+Euler closure passed on August 26, 2026. This remains an isolated one-dimensional
+validation path, not a complete production Navier–Stokes backend.
+
+The original Windows-oriented WENO3 example remains outside this isolated adapter
+and is not overwritten.

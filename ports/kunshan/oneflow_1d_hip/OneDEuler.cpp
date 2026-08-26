@@ -49,6 +49,7 @@ void PhysicalFlux(
     flux[ 1 ] = momentum * velocity + pressure;
     flux[ 2 ] = ( energy + pressure ) * velocity;
     waveSpeed = std::abs( velocity ) + soundSpeed;
+    return;
 }
 
 void CalculateRhs(
@@ -101,6 +102,7 @@ void CalculateRhs(
                 - flux[ FaceIndex( component, cell, nx ) ] ) * inverseDx;
         }
     }
+    return;
 }
 
 } // namespace
@@ -115,6 +117,7 @@ void ResizeEulerTrace( EulerTrace & trace, int nx )
     trace.numericalFlux.resize( EulerRkStages * faceValues );
     trace.residual.resize( EulerRkStages * cellValues );
     trace.state.resize( ( EulerRkStages + 1 ) * cellValues );
+    return;
 }
 
 void OneDCpuEulerStep(
@@ -161,6 +164,7 @@ void OneDCpuEulerStep(
                    trace.state.begin() + ( stage + 1 ) * cellValues );
         current.swap( next );
     }
+    return;
 }
 
 } // namespace oneflow_1d

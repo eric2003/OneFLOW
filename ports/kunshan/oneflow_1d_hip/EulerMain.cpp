@@ -15,7 +15,7 @@ constexpr double SmoothJumpTolerance=0.02;
 struct M{double a=0,r=0;std::uint64_t u=0;bool ok=true;};
 std::uint64_t bits(double x){std::uint64_t b;std::memcpy(&b,&x,8);return b>>63?~b:(b|(std::uint64_t(1)<<63));}
 void add(M&m,double x,double y){if(!std::isfinite(x)||!std::isfinite(y)){m.ok=false;return;}double a=std::abs(y-x);m.a=std::max(m.a,a);m.r=std::max(m.r,a/std::max(1.0,std::abs(x)));auto p=bits(x),q=bits(y);m.u=std::max(m.u,p>q?p-q:q-p);if(a>AT+RT*std::max(1.0,std::abs(x)))m.ok=false;}
-void merge(M&a,const M&b){a.a=std::max(a.a,b.a);a.r=std::max(a.r,b.r);a.u=std::max(a.u,b.u);a.ok=a.ok&&b.ok;}
+void merge(M&a,const M&b){a.a=std::max(a.a,b.a);a.r=std::max(a.r,b.r);a.u=std::max(a.u,b.u);a.ok=a.ok&&b.ok;return;}
 std::vector<double> smooth(int n){std::vector<double>q(3*n);for(int i=0;i<n;++i){double x=(i+.5)/n,r=1+.1*sin(2*M_PI*x),u=.2+.05*cos(2*M_PI*x),p=1+.08*sin(4*M_PI*x);q[i]=r;q[n+i]=r*u;q[2*n+i]=p/(G-1)+.5*r*u*u;}return q;}
 std::vector<double> sod(int n){std::vector<double>q(3*n);for(int i=0;i<n;++i){double x=(i+.5)/n,r=x<=.5?1:.125,p=x<=.5?1:.1;q[i]=r;q[n+i]=0;q[2*n+i]=p/(G-1);}return q;}
 double primitive(const std::vector<double>&q,int off,int c,int n,int k){double r=q[off+c],m=q[off+n+c],e=q[off+2*n+c];return k==0?r:k==1?m/r:(G-1)*(e-.5*m*m/r);}
