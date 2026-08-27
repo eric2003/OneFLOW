@@ -1,53 +1,49 @@
-# This is a basic workflow to help you get started with Actions
 name: Linux Build
-# Controls when the workflow will run
+
 on:
-  # Triggers the workflow on push or pull request events but only for the main branch
   push:
     branches: [ master, hexin ]
   pull_request:
     branches: [ master, hexin ]
-  # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
 permissions:
   contents: read
 
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+env:
+  GCC_VERSION: 12   # 这里修改 10 /11 /12 /13 切换编译器版本
+
 jobs:
   build:
     name: "Linux OneFLOW Build Actions"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
-      - name: Install GCC-10
+
+      - name: Install GCC ${{ env.GCC_VERSION }}
         run: |
           sudo apt-get update
-          sudo apt install gcc-10 g++-10 -y
-          gcc --version
-          g++ --version
+          sudo apt install gcc-${{ env.GCC_VERSION }} g++-${{ env.GCC_VERSION }} -y
+          gcc-${{ env.GCC_VERSION }} --version
+          g++-${{ env.GCC_VERSION }} --version
           ls /usr/bin/gcc*
         shell: bash
+
       - name: Install Third party library
         run: |
-          echo cd ${{ github.workspace }}
           cd ${{ github.workspace }}
-          echo ls
-          ls
           sudo apt-get update
           sudo apt-get install libhdf5-dev libcgns-dev libmetis-dev libmpich-dev -y
         shell: bash
+
       - name: CMake Build and Install
-        #env:
-        #   CC:   gcc-10
-        #   CXX:  g++-10
+        env:
+          CC: gcc-${{ env.GCC_VERSION }}
+          CXX: g++-${{ env.GCC_VERSION }}
         run: |
           cd ${{ github.workspace }}
-          ls
           mkdir build
           cd build
-          echo MPI_HOME_INC
-          echo MPI_HOME_LIB
           export MPI_HOME_INC="/usr/include/x86_64-linux-gnu/mpich"
           export MPI_HOME_LIB="/usr/lib/x86_64-linux-gnu/libmpich.so"
           export CGNS_HOME_INC="/usr/include"

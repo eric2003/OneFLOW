@@ -33,7 +33,6 @@ License
 #include "Theory.h"
 #include "PostProcess.h"
 #include "AccelRuntime.h"
-#include "Parallel.h"
 #include <iostream>
 
 

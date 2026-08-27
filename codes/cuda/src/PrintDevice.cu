@@ -1,9 +1,10 @@
 #ifdef ENABLE_CUDA
 
+#include <cuda.h>
 #include <cuda_runtime.h>
 #include <iostream>
 
-void printDeviceProp(const cudaDeviceProp& prop)
+void printDeviceProp(const cudaDeviceProp& prop, int device_idx)
 {
     std::cout << "Device Name : " << prop.name << "\n";
     std::cout << "totalGlobalMem : " << prop.totalGlobalMem << "\n";
@@ -16,9 +17,24 @@ void printDeviceProp(const cudaDeviceProp& prop)
     std::cout << "maxGridSize[0 - 2] " << prop.maxGridSize[0] << " " << prop.maxGridSize[1] << " " << prop.maxGridSize[2] << "\n";
     std::cout << "totalConstMem : " << prop.totalConstMem << "\n";
     std::cout << "major.minor : " << prop.major << "." << prop.minor << "\n";
-    std::cout << "clockRate : " << prop.clockRate << "\n";
+
+    int clock_rate_val = 0;
+#if CUDA_VERSION >= 13000
+    cudaDeviceGetAttribute(&clock_rate_val, cudaDevAttrClockRate, device_idx);
+#else
+    clock_rate_val = prop.clockRate;
+#endif
+    std::cout << "clockRate : " << clock_rate_val << "\n";
+
+    int device_overlap_val = 0;
+#if CUDA_VERSION >= 13000
+    device_overlap_val = (prop.asyncEngineCount > 0) ? 1 : 0;
+#else
+    device_overlap_val = prop.deviceOverlap;
+#endif
+    std::cout << "deviceOverlap : " << device_overlap_val << "\n";
+
     std::cout << "textureAlignment :" << prop.textureAlignment << "\n";
-    std::cout << "deviceOverlap : " << prop.deviceOverlap << "\n";
     std::cout << "multiProcessorCount : " << prop.multiProcessorCount << "\n";
 }
 
@@ -39,7 +55,8 @@ bool InitCUDA()
         cudaDeviceProp prop;
         if (cudaGetDeviceProperties(&prop, i) == cudaSuccess) {
             if (prop.major >= 1) {
-                printDeviceProp(prop);
+                // 传入i作为device_idx
+                printDeviceProp(prop, i);
                 break;
             }
         }
