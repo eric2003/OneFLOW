@@ -1,0 +1,49 @@
+// codeOfViscousModel:    Viscous model 
+//                         0 - Euler 
+//                         1 - Lamilar
+//                         2 - Algebraic
+//                         3 - 1eq turbulent
+//                         4 - 2eq turbulent
+// nameOfViscousModel :           Laminar or tubulent model
+//                         - "0eq-bl"
+//                         - "1eq-sa"
+//                         - "2eq-kw-menter-sst"
+//                         - "2eq-kw-menter-bsl"
+//                         - "2eq-kw-wilcox-1988"
+//                         - "2eq-kw-wilcox-1998"
+//                         - "2eq-kw-kok-tnt"
+//                         - "2eq-kw-wilcox-2006"
+//                         - "easm-kw-2003"
+//                         - "easm-kw-2005"
+int    transition_model      =  0 
+Real inflow_intensity   =  0.5; //turbulence intensity of inflow, if less or equal zero, no effect.
+Real inflow_viscosity   =  0.01 //turbulence eddy viscosity of inflow
+int    des_model                =  0; //1 DES ; 2 DDES; 3 IDDES
+Real coefficientOfSaDes          =  0.65;
+Real coefficientOfSstDesKe       =  0.61;
+Real coefficientOfSstDesKw       =  0.78;
+
+int easm_model   =  -3   // the variation of kw turbulent model
+int numberOfAnisotropicStress = 5;
+int modifyTurbulentResidualStrategy =  0;
+int turbulentResidualSmoothOrNot   =  0;    // Residual smooth for turb or not.
+int turbulentSourceModel                 =  0; //turbulentSourceModel  =  0:original 1:edwards 2:new
+int ft2_flag  =  0;   //for SA original model
+int turb_ilim = -1; // -1: zero order 0: 2nd 1: barth 2: vencat
+int tns_ilim   = -1; // -1: zero order 0: 2nd 1: barth 2: vencat
+Real turbulentRelaxationCoefficient                =  1.0;
+Real coefficientOfMinimumTurbulentQuantity         =  1.0e-5; 
+Real ref_sa   =  0.1;
+Real ref_sst  =  0.001;
+int iturb_visflux =  2; //0 VIS_STD, 1 VIS_AVER, 2 VIS_TEST 3 VIS_NEW1 4 VIS_NEW2
+int iprod_sa   =  2; //for SA model
+int iprod_sst  =  1; // for SST model
+Real max_vis_ratio  =  1.0e6; //maximum eddy viscosity ( myt/my )max
+Real rprod    =  1.0e0; //turbulent production source ratio
+int monitorMaximumTurbulentViscosityCoefficient  =  0;
+int numberOfAbnormalTurbulentCellsLimit          =  1;
+
+Real  turb_cfl_ratio = 1.0;
+
+string turbresFile    =  "results/turbres.dat";
+string turbflowFile   =  "restart/turbflow.dat";

@@ -1,0 +1,12 @@
+int nmg                    =  1;
+int nmgSmoothingSteps      =  1;
+int nmgPreSmoothingSteps   =  1;
+int nmgPostSmoothingSteps  =  1;
+int mgCycleType            =  1;
+int mgIterMode             =  1;
+int mgLaminarViscosity     =  1;
+int mgTurbulentViscosity   =  0;
+int mgProlongationMethod   =  2;
+Real mgFactor      = 0.5;
+Real mgTurbFactor  = 0.5;
+
