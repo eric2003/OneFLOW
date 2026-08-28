@@ -5,7 +5,7 @@ oneflow_bin/*
 
 # Generated test outputs and local report drafts.
 test/**/results/*
-test/**/restart/*
+#test/**/restart/*
 test/**/log/*
 test/**/run/*
 doc/reports/_drafts/*
