@@ -1,3 +1,0 @@
-string walldist_file   =  "grid/rae2822wdst.dat";
-int ireadwdst = 0;
-
