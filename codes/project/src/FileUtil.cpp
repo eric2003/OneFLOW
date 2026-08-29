@@ -49,25 +49,6 @@ bool DirExist(const std::string& dirName)
     return std::filesystem::is_directory(dirName, ec) && !ec;
 }
 
-//void MakeDir( const std::string & dirName )
-//{
-//    int flag;
-//#ifdef _WINDOWS
-//    flag = _mkdir( dirName.c_str() );
-//#else
-//    #ifdef WIN_GNU
-//        flag = _mkdir( dirName.c_str() );
-//    #else
-//        flag = mkdir( dirName.c_str(), S_IRWXU );
-//    #endif
-//#endif
-//
-//    if ( flag == 0 )
-//    {
-//        std::cout << dirName << " directory has been created successfully !\n";
-//    }
-//}
-
 bool MakeDir(const std::string& dirName)
 {
     try {
@@ -108,16 +89,25 @@ std::string HX_GetExePath()
 }
 
 
+//std::string HX_GetCurrentDir()
+//{
+//#ifdef _WINDOWS
+//    char * cwd = _getcwd( 0, 0 );
+//#else
+//    char * cwd = getcwd( 0, 0 ); 
+//#endif
+//    std::string working_dir( cwd ) ;
+//    std::free( cwd ) ;
+//    return working_dir ;
+//}
+
 std::string HX_GetCurrentDir()
 {
-#ifdef _WINDOWS
-    char * cwd = _getcwd( 0, 0 );
-#else
-    char * cwd = getcwd( 0, 0 ); 
-#endif
-    std::string working_dir( cwd ) ;
-    std::free( cwd ) ;
-    return working_dir ;
+    try {
+        return std::filesystem::current_path().string();
+    } catch (const std::filesystem::filesystem_error&) {
+        return {};  // or rethrow / log the error
+    }
 }
 
 bool EndWithSlash( const std::string & fileName )
