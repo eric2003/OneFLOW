@@ -78,8 +78,8 @@ public:
 public:
     int GetSize() { return fvp.size(); }
 public:
-    void AddFacePoint( int nSolidCell, FaceJoint::PointLink & ptLink );
-    void AddFaceCenterValue( int nSolidCell, RealField & fcvIn );
+    void AddFacePoint( int nSolidCells, FaceJoint::PointLink & ptLink );
+    void AddFaceCenterValue( int nSolidCells, RealField & fcvIn );
     void Visual( std::fstream & file );
 };
 

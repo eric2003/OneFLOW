@@ -161,7 +161,7 @@ void AerodynamicForceTask::CalcForce()
     CalcAeroForce( idump_pres );
 }
 
-int GetNSolidCell( UnsGrid * grid )
+int GetNumberOfSolidCells( UnsGrid * grid )
 {
     BcRecord * bcRecord = grid->faceTopo->bcManager->bcRecord;
     bcRecord->CreateBcTypeRegion();
@@ -170,17 +170,17 @@ int GetNSolidCell( UnsGrid * grid )
 
     int nRegion = bcInfo->bcType.size();
 
-    int nSolidCell = 0;
+    int nSolidCells = 0;
     for ( int ir = 0; ir < nRegion; ++ ir )
     {
         int bcType = bcInfo->bcType[ ir ];
         if ( bcType != BC::SOLID_SURFACE ) continue;
 
         int nBCFace = bcInfo->bcFace[ ir ].size();
-        nSolidCell += nBCFace;
+		nSolidCells += nBCFace;
     }
 
-    return nSolidCell;
+    return nSolidCells;
 }
 
 void CalcAeroForce(int idump_pres)
@@ -236,8 +236,8 @@ void CalcAeroForce(int idump_pres)
 	stress.rey = GetDataValue< Real >("reynolds");
 	stress.orey = 1.0 / stress.rey;
 
-	int nSolidCell = GetNSolidCell(grid);
-	if (nSolidCell == 0) return;
+	int nSolidCells = GetNumberOfSolidCells(grid);
+	if (nSolidCells == 0) return;
 
 	if (idump_pres == 1)
 	{
@@ -256,7 +256,7 @@ void CalcAeroForce(int idump_pres)
 			StrIO << title[i] << "\n";
 		}
 
-		StrIO << "Zone  i = " << nSolidCell << " \n";
+		StrIO << "Zone  i = " << nSolidCells << " \n";
 	}
 
 	for (int ir = 0; ir < nRegion; ++ir)

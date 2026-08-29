@@ -149,13 +149,13 @@ void CollectWallFaceNode()
     Grid * gridIn = Zone::GetGrid();
     UnsGrid * grid = UnsGridCast( gridIn );
 
-    int nSolidCell = GetNSolidCell( grid );
+    int nSolidCells = GetNumberOfSolidCells( grid );
 
     ActionState::dataBook->MoveToBegin();
 
-    HXWrite( ActionState::dataBook, nSolidCell );
+    HXWrite( ActionState::dataBook, nSolidCells );
 
-    if ( nSolidCell <= 0 ) return;
+    if ( nSolidCells <= 0 ) return;
 
     WallStructure::PointLink ptLink;
 
@@ -196,43 +196,43 @@ void CollectWallFaceNode()
 void AddWallFaceNode( FaceJointManager * walldata, int iZone )
 {
     ActionState::dataBook->MoveToBegin();
-    int nSolidCell;
-    HXRead( ActionState::dataBook, nSolidCell );
+    int nSolidCells;
+    HXRead( ActionState::dataBook, nSolidCells );
     
     WallStructure::PointLink ptLink;
 
-    ptLink.resize( nSolidCell );
+    ptLink.resize( nSolidCells );
     HXRead( ActionState::dataBook, ptLink );
 
-    if ( nSolidCell > 0 )
+    if ( nSolidCells > 0 )
     {
         FaceJoint * global = walldata->global;
         FaceJoint * local = walldata->patch[ iZone ];
         local->isValid = true;
         global->isValid = true;
-        local->AddFacePoint( nSolidCell, ptLink );
-        global->AddFacePoint( nSolidCell, ptLink );
+        local->AddFacePoint( nSolidCells, ptLink );
+        global->AddFacePoint( nSolidCells, ptLink );
     }
 }
 
 void AddWallFaceValue( FaceJointManager * walldata, int iZone )
 {
     ActionState::dataBook->MoveToBegin();
-    int nSolidCell;
-    HXRead( ActionState::dataBook, nSolidCell );
+    int nSolidCells;
+    HXRead( ActionState::dataBook, nSolidCells );
 
     RealField fcv;
 
-    fcv.resize( nSolidCell );
+    fcv.resize( nSolidCells );
     HXRead( ActionState::dataBook, fcv );
 
-    if ( nSolidCell > 0 )
+    if ( nSolidCells > 0 )
     {
         FaceJoint * global = walldata->global;
         FaceJoint * local  = walldata->patch[ iZone ];
 
-        global->AddFaceCenterValue( nSolidCell, fcv );
-        local->AddFaceCenterValue( nSolidCell, fcv );
+        global->AddFaceCenterValue( nSolidCells, fcv );
+        local->AddFaceCenterValue( nSolidCells, fcv );
     }
 }
 
@@ -244,11 +244,11 @@ void CollectWallFaceValue()
     Grid * gridIn = Zone::GetGrid();
     UnsGrid * grid = UnsGridCast( gridIn );
 
-    int nSolidCell = GetNSolidCell( grid );
+    int nSolidCells = GetNumberOfSolidCells( grid );
 
-    HXWrite( ActionState::dataBook, nSolidCell );
+    HXWrite( ActionState::dataBook, nSolidCells );
 
-    if ( nSolidCell == 0 ) return;
+    if ( nSolidCells == 0 ) return;
 
     int zId = ZoneState::zid;
 
