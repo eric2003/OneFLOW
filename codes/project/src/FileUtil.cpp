@@ -39,18 +39,25 @@ License
 #endif
 
 #include <iostream>
+#include <filesystem>
 
 BeginNameSpace( ONEFLOW )
 
-bool DirExist( const std::string & dirName )
-{
-#ifdef _WINDOWS
-    bool flag = ( _access( dirName.c_str(), 0 ) == 0 );
-    return flag;
-#else
-    bool flag = ( access( dirName.c_str(), 0 ) == 0 );
-    return flag;
-#endif
+//bool DirExist( const std::string & dirName )
+//{
+//#ifdef _WINDOWS
+//    bool flag = ( _access( dirName.c_str(), 0 ) == 0 );
+//    return flag;
+//#else
+//    bool flag = ( access( dirName.c_str(), 0 ) == 0 );
+//    return flag;
+//#endif
+//}
+
+
+bool DirExist(const std::string& dirName) {
+    std::error_code ec;
+    return std::filesystem::is_directory(dirName, ec) && !ec;
 }
 
 void MakeDir( const std::string & dirName )
