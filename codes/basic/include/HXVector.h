@@ -62,6 +62,15 @@ public:
         return *this;
     }
 
+    // ´Ó HXVector ¿½±´¸³Öµ
+    HXVector<T>& operator=(const HXVector<T>& other)
+    {
+        if (this != &other) {
+            this->assign(other.begin(), other.end());
+        }
+        return *this;
+    }
+
     HXVector< T >& operator =( const std::vector<T>& values )
     {
         ( *this ).resize( values.size() );

@@ -4,8 +4,8 @@ oneflow_bin/*
 **/__pycache__/*
 
 # Generated test outputs and local report drafts.
-test/**/results/*
-test/**/restart/*
+#test/**/results/*
+#test/**/restart/*
 test/**/log/*
 test/**/run/*
 doc/reports/_drafts/*

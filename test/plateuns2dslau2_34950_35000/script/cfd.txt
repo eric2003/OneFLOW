@@ -1,22 +1,22 @@
 int    startStrategy  = 1;
 int    iexitflag  = 0; //0 maxstep 1 maxtime;
-int    maxSteps   =  35000; //总模拟步数
+int    maxSteps   =  35000; //总模拟步数 Proceed with the calculation from step 34,950 up to step 35,000.
 Real   maxTime    =  0.2;    //总模拟时间
 
 //输出相关										      
-int    nFieldSave       =  50;   //流场保存
-int    nForceSave      =  1;
-int    nResSave          =  1;    //残差及气动力输出
-int    nVisualSave      =  50;    //流场显示
-int    addVisualizationSteps               =  0;     //1: 文件名+外迭代步，0不加
+int    nFieldSave            =  50;   //流场保存
+int    nForceSave            =  1;
+int    nResSave              =  1;    //残差及气动力输出
+int    nVisualSave           =  50;    //流场显示
+int    addVisualizationSteps =  0;     //1: 文件名+外迭代步，0不加
 
-string gridFileName = "grid/plate20182d.ofl";
-string aeroFile   =  "results/aero.dat";
-string resFile    =  "results/res.dat";
-string wallaeroFile=  "results/wallaero.dat";
-string heatfluxFile=  "results/heatflux.dat";
-string visualFile =  "visual/visual.dat";
-string flowFile   =  "restart/flow.dat";
+string gridFileName =  "grid/plate20182d.ofl";
+string aeroFile     =  "results/aero.dat";
+string resFile      =  "results/res.dat";
+string wallaeroFile =  "results/wallaero.dat";
+string heatfluxFile =  "results/heatflux.dat";
+string visualFile   =  "visual/visual.dat";
+string flowFile     =  "restart/flow.dat";
 
 int showfield = 0; //0 no 1 show
 
