@@ -32,7 +32,8 @@ License
 BeginNameSpace( ONEFLOW )
 
 bool DirExist( const std::string & dirName );
-void MakeDir( const std::string & dirName );
+//void MakeDir( const std::string & dirName );
+bool MakeDir( const std::string & dirName );
 
 std::string HX_GetExePath();
 std::string HX_GetCurrentDir();

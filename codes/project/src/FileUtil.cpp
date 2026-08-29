@@ -43,27 +43,55 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-bool DirExist(const std::string& dirName) {
+bool DirExist(const std::string& dirName)
+{
     std::error_code ec;
     return std::filesystem::is_directory(dirName, ec) && !ec;
 }
 
-void MakeDir( const std::string & dirName )
-{
-    int flag;
-#ifdef _WINDOWS
-    flag = _mkdir( dirName.c_str() );
-#else
-    #ifdef WIN_GNU
-        flag = _mkdir( dirName.c_str() );
-    #else
-        flag = mkdir( dirName.c_str(), S_IRWXU );
-    #endif
-#endif
+//void MakeDir( const std::string & dirName )
+//{
+//    int flag;
+//#ifdef _WINDOWS
+//    flag = _mkdir( dirName.c_str() );
+//#else
+//    #ifdef WIN_GNU
+//        flag = _mkdir( dirName.c_str() );
+//    #else
+//        flag = mkdir( dirName.c_str(), S_IRWXU );
+//    #endif
+//#endif
+//
+//    if ( flag == 0 )
+//    {
+//        std::cout << dirName << " directory has been created successfully !\n";
+//    }
+//}
 
-    if ( flag == 0 )
-    {
-        std::cout << dirName << " directory has been created successfully !\n";
+bool MakeDir(const std::string& dirName)
+{
+    try {
+        if (std::filesystem::exists(dirName)) {
+            if (std::filesystem::is_directory(dirName)) {
+                std::cout << "Directory already exists: " << dirName << std::endl;
+                return true;
+            } else {
+                std::cerr << "Path exists but is not a directory: " << dirName << std::endl;
+                return false;
+            }
+        }
+
+        // 创建目录（默认权限，支持递归）
+        if (std::filesystem::create_directories(dirName)) {
+            std::cout << "Directory created successfully: " << dirName << std::endl;
+            return true;
+        } else {
+            std::cerr << "Failed to create directory: " << dirName << std::endl;
+            return false;
+        }
+    } catch (const std::filesystem::filesystem_error& e) {
+        std::cerr << "Filesystem error: " << e.what() << std::endl;
+        return false;
     }
 }
 
