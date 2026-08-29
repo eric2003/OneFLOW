@@ -38,6 +38,8 @@ License
     #endif
 #endif
 
+#include <vector>
+#include <climits>
 #include <iostream>
 #include <filesystem>
 
@@ -114,18 +116,6 @@ std::filesystem::path HX_GetExeDirectory()
 #endif
 }
 
-
-//std::string HX_GetCurrentDir()
-//{
-//#ifdef _WINDOWS
-//    char * cwd = _getcwd( 0, 0 );
-//#else
-//    char * cwd = getcwd( 0, 0 ); 
-//#endif
-//    std::string working_dir( cwd ) ;
-//    std::free( cwd ) ;
-//    return working_dir ;
-//}
 
 std::string HX_GetCurrentDir()
 {
