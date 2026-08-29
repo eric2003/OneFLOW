@@ -78,18 +78,6 @@ bool MakeDir(const std::string& dirName)
     }
 }
 
-//std::string HX_GetExeDirectory()
-//{
-//    char buffer[ FILENAME_MAX ] = { 0 };
-//#ifdef _WIN32
-//    GetModuleFileName( NULL, buffer, FILENAME_MAX );
-//#else
-//    std::size_t count = readlink( "/proc/self/exe", buffer, FILENAME_MAX );
-//#endif
-//    std::string::size_type pos = std::string( buffer ).find_last_of( "\\/" );
-//    return std::string( buffer ).substr( 0, pos);
-//}
-
 std::filesystem::path HX_GetExeDirectory()
 {
 #ifdef _WIN32
