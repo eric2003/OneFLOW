@@ -26,11 +26,11 @@ License
 #include "HXArray.h"
 BeginNameSpace( ONEFLOW )
 
-MRField * AllocNodeVar( int nEqu = 1 );
-MRField * CreateNodeVar( const std::string & name );
-MRField * CreateNodeVar( RealField & qc );
-void CalcNodeVar( RealField & qNodeField, RealField & qField );
-void FixBcNodeVar( RealField & qNodeField, RealField & qField, RealField & nCount, int bcType, bool twoSide );
+MRField * AllocateNodeField( int nEqu = 1 );
+MRField * InterpolateCellToNode( const std::string & name );
+MRField * InterpolateCellToNode( RealField & qc );
+void InterpolateCellToNodeForComponent( RealField & qNodeField, RealField & qField );
+void ApplyBoundaryConditionToNodeField( RealField & qNodeField, RealField & qField, RealField & nCount, int bcType, bool twoSide );
 
 template < typename T >
 void ReorderList( HXVector< T > & x, IntField & indexList )

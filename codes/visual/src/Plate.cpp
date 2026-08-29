@@ -337,7 +337,7 @@ void CuttingClass::Slice()
 
     for ( int i = 0; i < nField; ++ i )
     {
-        fields[ i ] = CreateNodeVar( nameList[ i ] );
+        fields[ i ] = InterpolateCellToNode( nameList[ i ] );
     }
 
     int nSlice = sliceData.size();
