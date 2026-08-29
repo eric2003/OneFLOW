@@ -45,13 +45,13 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-bool DirExist(const std::string& dirName)
+bool HX_IsDirectory(const std::string& dirName)
 {
     std::error_code ec;
     return std::filesystem::is_directory(dirName, ec) && !ec;
 }
 
-bool MakeDir(const std::string& dirName)
+bool HX_CreateDirectory(const std::string& dirName)
 {
     try {
         if (std::filesystem::exists(dirName)) {
@@ -78,7 +78,7 @@ bool MakeDir(const std::string& dirName)
     }
 }
 
-std::filesystem::path HX_GetExeDirectory()
+std::string HX_GetExeDirectory()
 {
 #ifdef _WIN32
     std::wstring wbuf(MAX_PATH, L'\0');
@@ -89,7 +89,7 @@ std::filesystem::path HX_GetExeDirectory()
         if (len < wbuf.size()) break;
         wbuf.resize(wbuf.size() * 2);
     }
-    return std::filesystem::path(wbuf.substr(0, len)).parent_path();
+    return std::filesystem::path(wbuf.substr(0, len)).parent_path().string();
 #else
     std::vector<char> buf(PATH_MAX);
     ssize_t count = -1;
@@ -100,12 +100,12 @@ std::filesystem::path HX_GetExeDirectory()
         buf.resize(buf.size() * 2);
     }
     buf[count] = '\0';
-    return std::filesystem::path(std::string(buf.data(), count)).parent_path();
+    return std::filesystem::path(std::string(buf.data(), count)).parent_path().string();
 #endif
 }
 
 
-std::string HX_GetCurrentDir()
+std::string HX_GetCurrentDirectory()
 {
     try {
         return std::filesystem::current_path().string();
