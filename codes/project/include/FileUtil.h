@@ -28,13 +28,15 @@ License
 #include <set>
 #include <vector>
 #include <algorithm>
+#include <filesystem>
 
 BeginNameSpace( ONEFLOW )
 
 bool DirExist( const std::string & dirName );
-void MakeDir( const std::string & dirName );
+bool MakeDir( const std::string & dirName );
 
-std::string HX_GetExePath();
+//std::string HX_GetExeDirectory();
+std::filesystem::path HX_GetExeDirectory();
 std::string HX_GetCurrentDir();
 
 bool EndWithSlash( const std::string & fileName );
