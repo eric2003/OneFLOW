@@ -24,7 +24,7 @@ License
 #include "Register.h"
 #include "SolverDef.h"
 #include "Category.h"
-#include "RegisterUtil.h"
+#include "RegisterUtils.h"
 #include "SolverInfo.h"
 #include "SolverName.h"
 

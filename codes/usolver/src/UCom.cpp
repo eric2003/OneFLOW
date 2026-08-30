@@ -33,7 +33,7 @@ License
 #include "DataBase.h"
 #include "OStream.h"
 #include "HXMath.h"
-#include "FileUtil.h"
+#include "FileUtils.h"
 #include <iostream>
 
 BeginNameSpace( ONEFLOW )

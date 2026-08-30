@@ -20,7 +20,7 @@ along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 
 \*---------------------------------------------------------------------------*/
 #include "Test.h"
-#include "FileIO.h"
+#include "TextFileParser.h"
 
 #include "Prj.h"
 #include <iostream>

@@ -27,7 +27,7 @@ License
 #include "CgnsFile.h"
 #include "CgnsBase.h"
 #include "Boundary.h"
-#include "StrUtil.h"
+#include "StringUtils.h"
 #include "Dimension.h"
 #include "HXMath.h"
 #include "HXStd.h"

@@ -20,7 +20,7 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "FileIO.h"
+#include "TextFileParser.h"
 
 #include "Word.h"
 #include "CommentLine.h"
@@ -51,7 +51,7 @@ std::string * GetDefaultSeparatorOfWord()
     return separatorOfWord;
 }
 
-FileIO::FileIO()
+TextFileParser::TextFileParser()
 {
     line        = new std::string();
     separator   = new std::string();
@@ -66,48 +66,48 @@ FileIO::FileIO()
     this->commentLine->AddString("//");
 }
 
-FileIO::~FileIO()
+TextFileParser::~TextFileParser()
 {
     delete line;
     delete separator;
     delete this->commentLine;
 }
 
-void FileIO::ResetCommentString(StringField& commentStringList)
+void TextFileParser::ResetCommentString(StringField& commentStringList)
 {
     this->commentLine->ResetCommentString(commentStringList);
 }
 
-void FileIO::OpenFile( const std::string & fileName, const std::ios_base::openmode & fileOpenMode )
+void TextFileParser::OpenFile( const std::string & fileName, const std::ios_base::openmode & fileOpenMode )
 {
     this->fileName     = fileName;
     this->fileOpenMode = fileOpenMode;
     Prj::OpenFile( this->file, fileName, fileOpenMode );
 }
 
-void FileIO::OpenPrjFile( const std::string & fileName, const std::ios_base::openmode & fileOpenMode )
+void TextFileParser::OpenPrjFile( const std::string & fileName, const std::ios_base::openmode & fileOpenMode )
 {
     this->fileName     = fileName;
     this->fileOpenMode = fileOpenMode;
     Prj::OpenPrjFile( this->file, fileName, fileOpenMode );
 }
 
-void FileIO::CloseFile()
+void TextFileParser::CloseFile()
 {
     Prj::CloseFile( this->file );
 }
 
-void FileIO::MarkCurrentFilePosition()
+void TextFileParser::MarkCurrentFilePosition()
 {
     filePosition = this->file.tellp();
 }
 
-void FileIO::MoveToPreviousFilePosition()
+void TextFileParser::MoveToPreviousFilePosition()
 {
     this->file.seekp( filePosition );
 }
 
-bool FileIO::ReadNextMeaningfulLine()
+bool TextFileParser::ReadNextMeaningfulLine()
 {
     while ( ! this->ReachTheEndOfFile() )
     {
@@ -123,7 +123,7 @@ bool FileIO::ReadNextMeaningfulLine()
     return false;
 }
 
-bool FileIO::ReachTheEndOfFile()
+bool TextFileParser::ReachTheEndOfFile()
 {
     if ( this->file.eof() )
     {
@@ -132,22 +132,22 @@ bool FileIO::ReachTheEndOfFile()
     return false;
 }
 
-void FileIO::SkipLines( int numberOfLinesToSkip )
+void TextFileParser::SkipLines( int numberOfLinesToSkip )
 {
      Word::SkipLines( this->file, numberOfLinesToSkip );
 }
 
-bool FileIO::ReadNextNonEmptyLine()
+bool TextFileParser::ReadNextNonEmptyLine()
 {
     return Word::ReadNextNonEmptyLine( this->file, * this->line );
 }
 
-void FileIO::DumpLineContentToScreen()
+void TextFileParser::DumpLineContentToScreen()
 {
     std::cout << * line << std::endl;
 }
 
-void FileIO::SkipReadSymbol( const std::string & stringSymbol )
+void TextFileParser::SkipReadSymbol( const std::string & stringSymbol )
 {
     while ( ! this->ReachTheEndOfFile() )
     {
@@ -163,7 +163,7 @@ void FileIO::SkipReadSymbol( const std::string & stringSymbol )
     }
 }
 
-void FileIO::SkipReadWholeBlock()
+void TextFileParser::SkipReadWholeBlock()
 {
     int countOfLeftBrackets  = 0;
     int countOfRightBrackets = 0;
@@ -191,14 +191,14 @@ void FileIO::SkipReadWholeBlock()
     }
 }
 
-bool FileIO::NextWordIsEmpty()
+bool TextFileParser::NextWordIsEmpty()
 {
     std::string lineLeft = * this->line;
     std::string word = Word::FindNextWord( lineLeft, * this->separator );
     return word == "";
 }
 
-std::string FileIO::ReadNextTrueWord()
+std::string TextFileParser::ReadNextTrueWord()
 {
     std::string word = Word::FindNextWord( * this->line, * this->separator );
 
@@ -211,27 +211,27 @@ std::string FileIO::ReadNextTrueWord()
     return word;
 }
 
-std::string FileIO::ReadNextWord()
+std::string TextFileParser::ReadNextWord()
 {
     std::string word = Word::FindNextWord( * this->line, * this->separator );
 
     return word;
 }
 
-std::string FileIO::ReadNextWord( const std::string & separator )
+std::string TextFileParser::ReadNextWord( const std::string & separator )
 {
     std::string word = Word::FindNextWord( * this->line, separator );
     return word;
 }
 
-std::string FileIO::ReadNextWordToLowerCase()
+std::string TextFileParser::ReadNextWordToLowerCase()
 {
     std::string word = Word::FindNextWord( * this->line, * this->separator );
     Word::ToLowerCase( word );
     return word;
 }
 
-std::string FileIO::ReadNextWordToLowerCase( const std::string & separator )
+std::string TextFileParser::ReadNextWordToLowerCase( const std::string & separator )
 {
     std::string word = Word::FindNextWord( * this->line, separator );
     Word::ToLowerCase( word );

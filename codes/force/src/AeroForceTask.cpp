@@ -42,7 +42,7 @@ License
 #include "NsCom.h"
 #include "Parallel.h"
 #include "Iteration.h"
-#include "FileIO.h"
+#include "TextFileParser.h"
 #include "UNsCom.h"
 
 #include "Ctrl.h"

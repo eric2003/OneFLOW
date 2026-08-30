@@ -24,7 +24,7 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-class FileIO;
+class TextFileParser;
 class DataBook;
 
 class Stoichiometric
@@ -40,7 +40,7 @@ public:
     RealField2D mt;
 public:
     void Init( int nSpecies, int nReaction );
-    void Read( FileIO * ioFile );
+    void Read( TextFileParser * textFileParser );
     void Read ( DataBook * dataBook );
     void Write( DataBook * dataBook );
 };

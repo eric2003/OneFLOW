@@ -44,7 +44,7 @@ License
 #include "Grid.h"
 #include "UnsGrid.h"
 #include "InterFace.h"
-#include "RegisterUtil.h"
+#include "RegisterUtils.h"
 #include "FieldRecord.h"
 #include "UVisualize.h"
 #include "UResidual.h"

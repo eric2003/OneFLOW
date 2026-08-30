@@ -28,7 +28,7 @@ License
 #include "SolverState.h"
 #include "InterFace.h"
 #include "FieldRecord.h"
-#include "RegisterUtil.h"
+#include "RegisterUtils.h"
 #include "DataBase.h"
 #include "DataStorage.h"
 #include "ActionState.h"

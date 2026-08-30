@@ -33,7 +33,7 @@ BeginNameSpace( ONEFLOW )
 const int ASCII  = 0;
 const int BINARY = 1;
 class GridMediator;
-class FileIO;
+class TextFileParser;
 class ZgridMediator;
 
 class Plot3D
@@ -46,8 +46,8 @@ public:
     static void ReadCoor( GridMediator * gridMediator );
     static void ReadCoorBinary( GridMediator * gridMediator );
     static void ReadCoorAscii ( GridMediator * gridMediator );
-    static void ReadCoor( FileIO * ioFile, RealField & coordinate );
-    static void ReadCoor( FileIO * ioFile, RealField & coor, int total_size );
+    static void ReadCoor( TextFileParser * textFileParser, RealField & coordinate );
+    static void ReadCoor( TextFileParser * textFileParser, RealField & coor, int total_size );
     static void ReadBc( GridMediator * gridMediator );
 public:
     static void DumpCoor( GridMediator * gridMediator );

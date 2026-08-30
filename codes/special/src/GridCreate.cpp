@@ -33,7 +33,7 @@ License
 #include "Boundary.h"
 #include "HXMath.h"
 #include "DataBase.h"
-#include "FileIO.h"
+#include "TextFileParser.h"
 
 #include <iostream>
 

@@ -25,7 +25,7 @@ License
 BeginNameSpace( ONEFLOW )
 
 class SchmidtNumber;
-class FileIO;
+class TextFileParser;
 class DataBook;
 
 class MolecularProperty
@@ -50,7 +50,7 @@ public:
 public:
     void CalcProperty();
     void Init( int nSpecies );
-    void Read( FileIO * ioFile );
+    void Read( TextFileParser * textFileParser );
     void Read( DataBook * dataBook );
     void Write( DataBook * dataBook );
 };

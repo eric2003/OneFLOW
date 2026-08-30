@@ -20,7 +20,7 @@ License
 
 \*---------------------------------------------------------------------------*/
 #include "Thermodynamic.h"
-#include "FileIO.h"
+#include "TextFileParser.h"
 #include "DataBook.h"
 #include "DataBaseIO.h"
 
@@ -43,22 +43,22 @@ void ThermodynamicFunction::Init( int nTSpan, int nPolyCoef )
     AllocateVector( polyCoef, nTSpan, nPolyCoef );
 }
 
-void ThermodynamicFunction::ReadPolynomialCoefficient( FileIO * ioFile )
+void ThermodynamicFunction::ReadPolynomialCoefficient( TextFileParser * textFileParser )
 {
     std::string word;
     std::string separator = " =\r\n#$,;\"'";
 
-    ioFile->SetDefaultSeparator( separator );
+    textFileParser->SetDefaultSeparator( separator );
 
     for ( int iInterval = 0; iInterval < nTSpan; ++ iInterval )
     {
-        ioFile->ReadNextNonEmptyLine();
+        textFileParser->ReadNextNonEmptyLine();
 
         RealField & coef = polyCoef[ iInterval ];
 
         for ( int icoef = 0; icoef < nPolyCoef; ++ icoef )
         {
-            coef[ icoef ] = ioFile->ReadNextDigit< Real >();
+            coef[ icoef ] = textFileParser->ReadNextDigit< Real >();
         }
     }
 }
@@ -108,19 +108,19 @@ void Thermodynamic::Init( int nSpecies )
     }
 }
 
-void Thermodynamic::Read( FileIO * ioFile )
+void Thermodynamic::Read( TextFileParser * textFileParser )
 {
     std::string word;
     std::string separator = " =\r\n#$,;\"'";
 
-    ioFile->SetDefaultSeparator( separator );
+    textFileParser->SetDefaultSeparator( separator );
 
-    ioFile->SkipLines( 3 );
-    ioFile->ReadNextNonEmptyLine();
+    textFileParser->SkipLines( 3 );
+    textFileParser->ReadNextNonEmptyLine();
 
     //read number of polynomial coefficient.( a1-a7, or a1-a6 )
-    nTSpan = ioFile->ReadNextDigit< int >();
-    nPolyCoef = ioFile->ReadNextDigit< int >();
+    nTSpan = textFileParser->ReadNextDigit< int >();
+    nPolyCoef = textFileParser->ReadNextDigit< int >();
 
     for ( int iSpecies = 0; iSpecies < nSpecies; ++ iSpecies )
     {
@@ -129,20 +129,20 @@ void Thermodynamic::Read( FileIO * ioFile )
 
     trange.resize( nTSpan + 1 );
 
-    ioFile->SkipLines( 4 );
-    ioFile->ReadNextNonEmptyLine();
+    textFileParser->SkipLines( 4 );
+    textFileParser->ReadNextNonEmptyLine();
 
     for ( int m = 0; m < nTSpan + 1; ++ m )
     {
-        trange[ m ] = ioFile->ReadNextDigit< Real >();
+        trange[ m ] = textFileParser->ReadNextDigit< Real >();
     }
 
-    ioFile->SkipLines( 2 );
+    textFileParser->SkipLines( 2 );
 
     for ( int iSpecies = 0; iSpecies < nSpecies; ++ iSpecies )
     {
-        ioFile->SkipLines( 3 );
-        tfunction[ iSpecies ]->ReadPolynomialCoefficient( ioFile );
+        textFileParser->SkipLines( 3 );
+        tfunction[ iSpecies ]->ReadPolynomialCoefficient( textFileParser );
     }
 }
 

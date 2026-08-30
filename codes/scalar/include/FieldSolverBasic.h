@@ -22,7 +22,7 @@ License
 
 
 #pragma once
-#include "Configure.h"
+#include "NamespaceMacros.h"
 #include "HXType.h"
 #include "ScalarGrid.h"
 #include "HXArray.h"

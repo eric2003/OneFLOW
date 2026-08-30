@@ -21,7 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #pragma once
-#include "Configure.h"
+#include "NamespaceMacros.h"
 #include "Word.h"
 #include "DataBook.h"
 #include "DataBaseIO.h"

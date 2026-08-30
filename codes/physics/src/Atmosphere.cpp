@@ -23,7 +23,7 @@ License
 #include "Atmosphere.h"
 #include "Prj.h"
 #include "HXMath.h"
-#include "FileIO.h"
+#include "TextFileParser.h"
 #include <cmath>
 #include <iostream>
 
@@ -46,29 +46,29 @@ void Atmosphere::Init()
 {
     if ( flag ) return;
     flag = true;
-    FileIO ioFile;
+    TextFileParser textFileParser;
     std::string fileName = Prj::system_root +"physics/atmosphere.txt";
-    ioFile.OpenFile( fileName, std::ios_base::in );
+    textFileParser.OpenFile( fileName, std::ios_base::in );
 
     //\t is the tab key
     std::string keyWordSeparator = " ()\r\n\t#$,;\"";
-    ioFile.SetDefaultSeparator( keyWordSeparator );
+    textFileParser.SetDefaultSeparator( keyWordSeparator );
 
-    while ( ! ioFile.ReachTheEndOfFile() )
+    while ( ! textFileParser.ReachTheEndOfFile() )
     {
-        bool flag = ioFile.ReadNextNonEmptyLine();
+        bool flag = textFileParser.ReadNextNonEmptyLine();
         if ( ! flag ) break;
-        Real hm = ioFile.ReadNextDigit< Real >();
-        Real pm = ioFile.ReadNextDigit< Real >();
-        Real rm = ioFile.ReadNextDigit< Real >();
-        Real tm = ioFile.ReadNextDigit< Real >();
+        Real hm = textFileParser.ReadNextDigit< Real >();
+        Real pm = textFileParser.ReadNextDigit< Real >();
+        Real rm = textFileParser.ReadNextDigit< Real >();
+        Real tm = textFileParser.ReadNextDigit< Real >();
         hList.push_back( hm );
         pList.push_back( pm );
         rList.push_back( rm );
         tList.push_back( tm );
     }
 
-    ioFile.CloseFile();
+    textFileParser.CloseFile();
 }
 
 void Atmosphere::GetAirPara( const Real & hKm )

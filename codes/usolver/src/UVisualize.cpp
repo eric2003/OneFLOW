@@ -34,7 +34,7 @@ License
 #include "NsIdx.h"
 #include "Zone.h"
 #include "ZoneState.h"
-#include "StrUtil.h"
+#include "StringUtils.h"
 #include "Prj.h"
 #include "HXMid.h"
 #include "NodeMesh.h"

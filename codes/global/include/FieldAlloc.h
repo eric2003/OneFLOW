@@ -113,7 +113,7 @@ public:
 };
 
 
-class FileIO;
+class TextFileParser;
 class BoolIO
 {
 public:
@@ -123,13 +123,13 @@ public:
     StringField boolNameList;
     BoolField boolValueList;
     int valueFlag;
-    FileIO * ioFile;
+    TextFileParser * textFileParser;
     NameValuePair nameValuePair;
     ParaNameDimData * paraNameDimData;
 public:
     void Add( const std::string & name, bool value );
-    void ReadBool( FileIO * ioFile );
-    void ReadSuperBool( FileIO * ioFile );
+    void ReadBool( TextFileParser * textFileParser );
+    void ReadSuperBool( TextFileParser * textFileParser );
     bool CalcVarValue( const std::string & varName );
     void Read();
     void ReadFile( const std::string & fileName, int valueFlag = 0 );

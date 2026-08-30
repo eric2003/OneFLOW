@@ -20,7 +20,7 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "StrUtil.h"
+#include "StringUtils.h"
 BeginNameSpace( ONEFLOW )
 
 EndNameSpace

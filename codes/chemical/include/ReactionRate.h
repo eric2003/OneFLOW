@@ -24,7 +24,7 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-class FileIO;
+class TextFileParser;
 class DataBook;
 
 class ReactionRate
@@ -40,7 +40,7 @@ public:
     RealField b1, b2, b3;
 public:
     void Init( int nReaction );
-    void Read( FileIO * ioFile );
+    void Read( TextFileParser * textFileParser );
     void Read ( DataBook * dataBook );
     void Write( DataBook * dataBook );
 };
