@@ -54,9 +54,10 @@ void FieldAlloc::AllocateAllFields( int sTid, const std::string & basicString )
 
 void FieldAlloc::InitField( int sTid, const std::string & basicString )
 {
-    ONEFLOW::StrIO.ClearAll();
-    ONEFLOW::StrIO << Prj::system_root << basicString << "/alloc/" << "init.txt";
-    std::string fileName = ONEFLOW::StrIO.str();
+    OStream &logger = OStream::Instance();
+    logger.ClearAll();
+    logger << Prj::system_root << basicString << "/alloc/" << "init.txt";
+    std::string fileName = logger.str();
 
     BoolIO boolIO;
     boolIO.ReadFile( fileName, 1 );
@@ -142,16 +143,17 @@ void FieldAlloc::CalcInnerFieldFileName( const std::string & basicString, String
     basicNameList.push_back( "face"     );
     basicNameList.push_back( "bc"       );
 
-    ONEFLOW::StrIO.ClearAll();
-    ONEFLOW::StrIO << Prj::system_root << basicString << "/alloc/";
-    std::string rootString = ONEFLOW::StrIO.str();
+    OStream &logger = OStream::Instance();
+    logger.ClearAll();
+    logger << Prj::system_root << basicString << "/alloc/";
+    std::string rootString = logger.str();
 
     for ( int i = 0; i < basicNameList.size(); ++ i )
     {
-        ONEFLOW::StrIO.ClearAll();
-        ONEFLOW::StrIO << rootString << basicNameList[ i ] << ".txt";
+        logger.ClearAll();
+        logger << rootString << basicNameList[ i ] << ".txt";
 
-        std::string name = ONEFLOW::StrIO.str();
+        std::string name = logger.str();
 
         fileNameList.push_back( name );
     }
@@ -165,16 +167,17 @@ void FieldAlloc::CalcInterfaceFileName( const std::string & basicString, StringF
     basicNameList.push_back( "interGrad"    );
     basicNameList.push_back( "interOverset" );
 
-    ONEFLOW::StrIO.ClearAll();
-    ONEFLOW::StrIO << Prj::system_root << basicString << "/alloc/";
-    std::string rootString = ONEFLOW::StrIO.str();
+    OStream &logger = OStream::Instance();
+    logger.ClearAll();
+    logger << Prj::system_root << basicString << "/alloc/";
+    std::string rootString = logger.str();
 
     for ( int i = 0; i < basicNameList.size(); ++ i )
     {
-        ONEFLOW::StrIO.ClearAll();
-        ONEFLOW::StrIO << rootString << basicNameList[ i ] << ".txt";
+        logger.ClearAll();
+        logger << rootString << basicNameList[ i ] << ".txt";
 
-        std::string name = ONEFLOW::StrIO.str();
+        std::string name = logger.str();
 
         fileNameList.push_back( name );
     }

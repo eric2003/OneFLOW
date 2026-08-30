@@ -34,10 +34,10 @@ LogFile logFile;
 void OpenLogFile( int logFileIndex, std::fstream & file )
 {
     static int ifReWrite = 0;
-
-    ONEFLOW::StrIO.ClearAll();
-    ONEFLOW::StrIO << "log/log" << logFileIndex << ".log";
-    std::string fileName = ONEFLOW::StrIO.str();
+    OStream &logger = OStream::Instance();
+    logger.ClearAll();
+    logger << "log/log" << logFileIndex << ".log";
+    std::string fileName = logger.str();
 
     if ( ifReWrite == 0 )
     {

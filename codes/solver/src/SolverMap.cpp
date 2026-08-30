@@ -188,13 +188,14 @@ void SolverNameClass::ReadSolverNames()
     {
         std::string solverName = solverNameList[ isol ];
 
-        ONEFLOW::StrIO.ClearAll();
-        ONEFLOW::StrIO << "U" << solverName;
-        std::string uSolverName = ONEFLOW::StrIO.str();
+        OStream &logger = OStream::Instance();
+        logger.ClearAll();
+        logger << "U" << solverName;
+        std::string uSolverName = logger.str();
 
-        ONEFLOW::StrIO.ClearAll();
-        ONEFLOW::StrIO << "S" << solverName;
-        std::string sSolverName = ONEFLOW::StrIO.str();
+        logger.ClearAll();
+        logger << "S" << solverName;
+        std::string sSolverName = logger.str();
 
         SolverNameClass::unsSolverNameList.push_back( uSolverName );
         SolverNameClass::strSolverNameList.push_back( sSolverName );

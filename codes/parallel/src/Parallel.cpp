@@ -102,9 +102,10 @@ int Parallel::GetDefaultTag()
 void Parallel::TestSayHelloFromEveryProcess()
 {
     int serverid = Parallel::GetServerid();
-    ONEFLOW::StrIO.ClearAll();
-    ONEFLOW::StrIO << "Hello from process " << pid << " name = " << ONEFLOW::HXGetProcessorName();
-    std::string cs = ONEFLOW::StrIO.str();
+    OStream &logger = OStream::Instance();
+    logger.ClearAll();
+    logger << "Hello from process " << pid << " name = " << ONEFLOW::HXGetProcessorName();
+    std::string cs = logger.str();
     //std::cout << cs << "\n";
 
     Parallel::CollectString( cs, serverid, Parallel::GetDefaultTag() );
