@@ -28,7 +28,7 @@ License
 BeginNameSpace( ONEFLOW )
 
 class SegmentCopy;
-class FileIO;
+class TextFileParser;
 
 class SegmentCtrl
 {
@@ -50,7 +50,7 @@ public:
     RealField factorList;
     IntField pidxList;
 public:
-    void Read( FileIO * ioFile );
+    void Read( TextFileParser * textFileParser );
     void CalcFactor();
     Real CalcFactor( Real compCoor );
     Real CalcDFactor( Real compCoor );
@@ -75,7 +75,7 @@ public:
     IntField lineList;
     IntField lowerIdList, upperIdList;
 public:
-    void Read( FileIO * ioFile );
+    void Read( TextFileParser * textFileParser );
     int GetNSegment() { return lineList.size(); }
     int GetNPoint();
     PointType & GetPoint( int id, int signFlag = 1 );

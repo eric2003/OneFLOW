@@ -21,7 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #pragma once
-#include "FileIO.h"
+#include "TextFileParser.h"
 #include "DataBase.h"
 #include "DataBook.h"
 #include <vector>
@@ -31,15 +31,15 @@ License
 BeginNameSpace( ONEFLOW )
 
 bool IsArrayParameter( const std::string & lineOfName );
-void ReadOneFLOWScriptFile( FileIO & fileIO );
+void ReadOneFLOWScriptFile( TextFileParser & textFileParser );
 void ReadOneFLOWScriptFile( const std::string & fileName );
 std::string GetJsonFileName( const std::string & fileName );
-void GetParaInfo( FileIO & fileIO, std::string & varName, std::vector< std::string > & varArray );
-void GetParaInfoArray( FileIO & fileIO, std::string & varName, std::vector< std::string > & varArray );
-void GetParaInfoScalar( FileIO & fileIO, std::string & varName, std::vector< std::string > & varArray );
+void GetParaInfo( TextFileParser & textFileParser, std::string & varName, std::vector< std::string > & varArray );
+void GetParaInfoArray( TextFileParser & textFileParser, std::string & varName, std::vector< std::string > & varArray );
+void GetParaInfoScalar( TextFileParser & textFileParser, std::string & varName, std::vector< std::string > & varArray );
 
-void AnalysisArrayParameter( FileIO & fileIO, int keyWordIndex );
-int AnalysisScalarParameter( FileIO & fileIO, int keyWordIndex );
+void AnalysisArrayParameter( TextFileParser & textFileParser, int keyWordIndex );
+int AnalysisScalarParameter( TextFileParser & textFileParser, int keyWordIndex );
 int GetParameterArraySize( const std::string & word );
 
 void ReadControlInfo();

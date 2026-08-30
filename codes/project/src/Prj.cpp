@@ -23,7 +23,7 @@ License
 #include "Prj.h"
 #include "Stop.h"
 #include "OStream.h"
-#include "FileUtil.h"
+#include "FileUtils.h"
 #include <iostream>
 
 BeginNameSpace( ONEFLOW )

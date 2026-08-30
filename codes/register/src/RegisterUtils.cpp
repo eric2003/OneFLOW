@@ -20,7 +20,7 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "RegisterUtil.h"
+#include "RegisterUtils.h"
 
 BeginNameSpace( ONEFLOW )
 

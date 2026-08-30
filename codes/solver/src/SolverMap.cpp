@@ -203,23 +203,23 @@ void SolverNameClass::ReadSolverNames()
 
 void SolverNameClass::ReadSolverNames( StringField & solverNameList )
 {
-    FileIO ioFile;
+    TextFileParser textFileParser;
 
-    ioFile.OpenPrjFile( "script/solver.txt", std::ios_base::in );
+    textFileParser.OpenPrjFile( "script/solver.txt", std::ios_base::in );
 
     //\t is the tab key
     std::string keyWordSeparator = " ()\r\n\t#$,;\"";
-    ioFile.SetDefaultSeparator( keyWordSeparator );
+    textFileParser.SetDefaultSeparator( keyWordSeparator );
 
-    while ( ! ioFile.ReachTheEndOfFile()  )
+    while ( ! textFileParser.ReachTheEndOfFile()  )
     {
-        bool flag = ioFile.ReadNextNonEmptyLine();
+        bool flag = textFileParser.ReadNextNonEmptyLine();
         if ( ! flag ) break;
-        std::string solverName = ioFile.ReadNextWord();
+        std::string solverName = textFileParser.ReadNextWord();
         solverNameList.push_back( solverName );
     }
 
-    ioFile.CloseFile();
+    textFileParser.CloseFile();
 }
 
 StringField & SolverNameClass::GetSolverNames( int gridType )

@@ -27,7 +27,7 @@ License
 #include "OStream.h"
 #include "Stop.h"
 #include "Prj.h"
-#include "FileUtil.h"
+#include "FileUtils.h"
 #include "PIO.h"
 #include "json/json.h"
 #include <iostream>
@@ -55,46 +55,46 @@ bool IsArrayParameter( const std::string & lineOfName )
     return true;
 }
 
-void ReadOneFLOWScriptFile( FileIO & fileIO )
+void ReadOneFLOWScriptFile( TextFileParser & textFileParser )
 {
     //string name, word;
 
     //\t is the tab key
     std::string keyWordSeparator = " =\r\n\t#$,;\"";
 
-    fileIO.SetDefaultSeparator( keyWordSeparator );
+    textFileParser.SetDefaultSeparator( keyWordSeparator );
 
     DataBaseType::Init();
 
-    while ( ! fileIO.ReachTheEndOfFile() )
+    while ( ! textFileParser.ReachTheEndOfFile() )
     {
-        bool resultFlag = fileIO.ReadNextMeaningfulLine();
+        bool resultFlag = textFileParser.ReadNextMeaningfulLine();
         if ( ! resultFlag ) break;
 
-        std::string keyWord = fileIO.ReadNextWord();
+        std::string keyWord = textFileParser.ReadNextWord();
 
         if ( keyWord == "" ) continue;
 
         //int keyWordIndex = keyWordMap[ keyWord ];
         int keyWordIndex = DataBaseType::GetIndex( keyWord );
 
-        if ( ONEFLOW::IsArrayParameter( fileIO.GetCurrentLine() ) )
+        if ( ONEFLOW::IsArrayParameter( textFileParser.GetCurrentLine() ) )
         {
-            ONEFLOW::AnalysisArrayParameter( fileIO, keyWordIndex );
+            ONEFLOW::AnalysisArrayParameter( textFileParser, keyWordIndex );
         }
         else
         {
-            ONEFLOW::AnalysisScalarParameter( fileIO, keyWordIndex );
+            ONEFLOW::AnalysisScalarParameter( textFileParser, keyWordIndex );
         }
     }
 }
 
-void AnalysisArrayParameter( FileIO & fileIO, int keyWordIndex )
+void AnalysisArrayParameter( TextFileParser & textFileParser, int keyWordIndex )
 {
     std::string errorMessage = "error in parameter file";
     std::string commSeparator = "=\r\n\t#$,;\"";
 
-    std::string ayrrayInfo = fileIO.ReadNextWord( commSeparator );
+    std::string ayrrayInfo = textFileParser.ReadNextWord( commSeparator );
 
     //Array pattern
     std::string arraySeparator = " =\r\n\t#$,;\"[]";
@@ -109,12 +109,12 @@ void AnalysisArrayParameter( FileIO & fileIO, int keyWordIndex )
 
     for ( int i = 0; i < arraySize; ++ i )
     {
-        valueContainer[ i ] = fileIO.ReadNextWord( arraySeparator );
+        valueContainer[ i ] = textFileParser.ReadNextWord( arraySeparator );
         //It shows that these contents can't be written within 1 lines
         if ( valueContainer[ i ] == "" )
         {
-            fileIO.ReadNextNonEmptyLine();
-            valueContainer[ i ] = fileIO.ReadNextWord( arraySeparator );
+            textFileParser.ReadNextNonEmptyLine();
+            valueContainer[ i ] = textFileParser.ReadNextWord( arraySeparator );
             if ( valueContainer[ i ] == "" )
             {
                 Stop( errorMessage );
@@ -126,17 +126,17 @@ void AnalysisArrayParameter( FileIO & fileIO, int keyWordIndex )
     delete[] valueContainer;
 }
 
-int AnalysisScalarParameter( FileIO & fileIO, int keyWordIndex )
+int AnalysisScalarParameter( TextFileParser & textFileParser, int keyWordIndex )
 {
     std::string errorMessage = "error in parameter file";
     std::string separator = " =\r\n\t#$,;\"";  //\t is tab key
 
-    std::string name = fileIO.ReadNextWord( separator );
+    std::string name = textFileParser.ReadNextWord( separator );
 
     int arraySize = 1;
     std::string * value = new std::string[ arraySize ];
 
-    value[ 0 ] = fileIO.ReadNextWord( separator );
+    value[ 0 ] = textFileParser.ReadNextWord( separator );
 
     ONEFLOW::ProcessData( name, value, keyWordIndex, arraySize );
 
@@ -161,13 +161,13 @@ int GetParameterArraySize( const std::string & word )
 
 void ReadOneFLOWScriptFile( const std::string & fileName )
 {
-    FileIO fileIO;
+    TextFileParser textFileParser;
 
-    fileIO.OpenFile( fileName, std::ios_base::in );
+    textFileParser.OpenFile( fileName, std::ios_base::in );
 
-    ONEFLOW::ReadOneFLOWScriptFile( fileIO );
+    ONEFLOW::ReadOneFLOWScriptFile( textFileParser );
 
-    fileIO.CloseFile();
+    textFileParser.CloseFile();
 }
 
 void mytestjson();
@@ -189,26 +189,26 @@ std::string GetJsonFileName( const std::string & fileName )
 //{
 //    std::string jsonFileName = GetJsonFileName( fileName );
 //
-//    FileIO fileIO;
-//    fileIO.OpenFile( fileName, std::ios_base::in );
+//    TextFileParser textFileParser;
+//    textFileParser.OpenFile( fileName, std::ios_base::in );
 //
 //    //string name, word;
 //
 //    //\t is the tab key
 //    std::string keyWordSeparator = " =\r\n\t#$,;\"";
 //
-//    fileIO.SetDefaultSeparator( keyWordSeparator );
+//    textFileParser.SetDefaultSeparator( keyWordSeparator );
 
 //    DataBaseType::Init();
 //
 //    Json::Value jsonRoot;
 //
-//    while ( ! fileIO.ReachTheEndOfFile() )
+//    while ( ! textFileParser.ReachTheEndOfFile() )
 //    {
-//        bool resultFlag = fileIO.ReadNextMeaningfulLine();
+//        bool resultFlag = textFileParser.ReadNextMeaningfulLine();
 //        if ( ! resultFlag ) break;
 //
-//        std::string keyWord = fileIO.ReadNextWord();
+//        std::string keyWord = textFileParser.ReadNextWord();
 //
 //        if ( keyWord == "" ) continue;
 //
@@ -217,7 +217,7 @@ std::string GetJsonFileName( const std::string & fileName )
 //        Json::Value jsonItem;
 //        std::string varName;
 //        std::vector< std::string > varArray;
-//        GetParaInfo( fileIO, varName, varArray );
+//        GetParaInfo( textFileParser, varName, varArray );
 //        jsonItem[ "type" ] = keyWord;
 //        jsonItem[ "value" ] = varArray[0];
 //        
@@ -233,40 +233,40 @@ std::string GetJsonFileName( const std::string & fileName )
 //    //ofs << jsonRoot.toStyledString();
 //    //ofs.close();
 //
-//    fileIO.CloseFile();
+//    textFileParser.CloseFile();
 //}
 
-void GetParaInfo( FileIO & fileIO, std::string & varName, std::vector< std::string > & varArray )
+void GetParaInfo( TextFileParser & textFileParser, std::string & varName, std::vector< std::string > & varArray )
 {
-    if ( ONEFLOW::IsArrayParameter( fileIO.GetCurrentLine() ) )
+    if ( ONEFLOW::IsArrayParameter( textFileParser.GetCurrentLine() ) )
     {
-        ONEFLOW::GetParaInfoArray( fileIO, varName, varArray );
+        ONEFLOW::GetParaInfoArray( textFileParser, varName, varArray );
     }
     else
     {
-        ONEFLOW::GetParaInfoScalar( fileIO, varName, varArray );
+        ONEFLOW::GetParaInfoScalar( textFileParser, varName, varArray );
     }
 }
 
-void GetParaInfoScalar( FileIO & fileIO, std::string & varName, std::vector< std::string > & varArray )
+void GetParaInfoScalar( TextFileParser & textFileParser, std::string & varName, std::vector< std::string > & varArray )
 {
     std::string errorMessage = "error in parameter file";
     std::string separator = " =\r\n\t#$,;\"";  //\t is tab key
 
-    varName = fileIO.ReadNextWord( separator );
+    varName = textFileParser.ReadNextWord( separator );
 
     int arraySize = 1;
     varArray.resize( arraySize );
 
-    varArray[ 0 ] = fileIO.ReadNextWord( separator );
+    varArray[ 0 ] = textFileParser.ReadNextWord( separator );
 }
 
-void GetParaInfoArray( FileIO & fileIO, std::string & varName, std::vector< std::string > & varArray )
+void GetParaInfoArray( TextFileParser & textFileParser, std::string & varName, std::vector< std::string > & varArray )
 {
     std::string errorMessage = "error in parameter file";
     std::string commSeparator = "=\r\n\t#$,;\"";
 
-    std::string ayrrayInfo = fileIO.ReadNextWord( commSeparator );
+    std::string ayrrayInfo = textFileParser.ReadNextWord( commSeparator );
 
     //Array pattern
     std::string arraySeparator = " =\r\n\t#$,;\"[]";
@@ -281,12 +281,12 @@ void GetParaInfoArray( FileIO & fileIO, std::string & varName, std::vector< std:
 
     for ( int i = 0; i < arraySize; ++ i )
     {
-        varArray[ i ] = fileIO.ReadNextWord( arraySeparator );
+        varArray[ i ] = textFileParser.ReadNextWord( arraySeparator );
         //It shows that these contents can't be written within 1 lines
         if ( varArray[ i ] == "" )
         {
-            fileIO.ReadNextNonEmptyLine();
-            varArray[ i ] = fileIO.ReadNextWord( arraySeparator );
+            textFileParser.ReadNextNonEmptyLine();
+            varArray[ i ] = textFileParser.ReadNextWord( arraySeparator );
             if ( varArray[ i ] == "" )
             {
                 Stop( errorMessage );
@@ -332,26 +332,26 @@ void ReadPrjScript()
 
 void ReadScriptFileNameList( std::vector< std::string > & scriptFileNameList )
 {
-    FileIO ioFile;
+    TextFileParser textFileParser;
 
-    ioFile.OpenPrjFile( "script/control.txt", std::ios_base::in );
+    textFileParser.OpenPrjFile( "script/control.txt", std::ios_base::in );
 
     //\t is Tab Key
     std::string keyWordSeparator = " ()\r\n\t#$,;\"";
-    ioFile.SetDefaultSeparator( keyWordSeparator );
+    textFileParser.SetDefaultSeparator( keyWordSeparator );
 
-    while ( ! ioFile.ReachTheEndOfFile()  )
+    while ( ! textFileParser.ReachTheEndOfFile()  )
     {
-        bool flag = ioFile.ReadNextNonEmptyLine();
+        bool flag = textFileParser.ReadNextNonEmptyLine();
         if ( ! flag ) break;
-        std::string scriptFileName = ioFile.ReadNextWord();
+        std::string scriptFileName = textFileParser.ReadNextWord();
         ONEFLOW::StrIO.ClearAll();
         ONEFLOW::StrIO << Prj::prjBaseDir << "script/" << scriptFileName;
         std::string fullScriptFileName = ONEFLOW::StrIO.str();
         scriptFileNameList.push_back( fullScriptFileName );
     }
 
-    ioFile.CloseFile();
+    textFileParser.CloseFile();
 
 }
 

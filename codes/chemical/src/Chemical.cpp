@@ -28,7 +28,7 @@ License
 #include "Sutherland.h"
 #include "NsCom.h"
 #include "Parallel.h"
-#include "FileIO.h"
+#include "TextFileParser.h"
 #include "DataBook.h"
 #include "Atmosphere.h"
 #include "HXMath.h"
@@ -114,22 +114,22 @@ void Chemical::AllocWorkingSpace()
 
 void Chemical::ReadGasModel()
 {
-    FileIO ioFile;
+    TextFileParser textFileParser;
 
-    ioFile.OpenPrjFile( nscom.gasModelFile, std::ios_base::in );
+    textFileParser.OpenPrjFile( nscom.gasModelFile, std::ios_base::in );
     std::string separator = " =\r\n#$,;\"'";
-    ioFile.SetDefaultSeparator( separator );
+    textFileParser.SetDefaultSeparator( separator );
 
-    ioFile.SkipLines( 2 );
+    textFileParser.SkipLines( 2 );
 
-    ioFile.ReadNextNonEmptyLine();
+    textFileParser.ReadNextNonEmptyLine();
 
-    nSpecies  = ioFile.ReadNextDigit< int >();
-    nReaction = ioFile.ReadNextDigit< int >();
+    nSpecies  = textFileParser.ReadNextDigit< int >();
+    nReaction = textFileParser.ReadNextDigit< int >();
     Init( nSpecies, nReaction );
-    ReadChemical( & ioFile );
+    ReadChemical( & textFileParser );
 
-    ioFile.CloseFile();
+    textFileParser.CloseFile();
 }
 
 void Chemical::Init( int nSpecies, int nReaction )
@@ -141,13 +141,13 @@ void Chemical::Init( int nSpecies, int nReaction )
     thermodynamic->Init( nSpecies );
 }
 
-void Chemical::ReadChemical( FileIO * ioFile )
+void Chemical::ReadChemical( TextFileParser * textFileParser )
 {
-    moleProp->Read( ioFile );
-    reactionRate->Read( ioFile );
-    thermodynamic->Read( ioFile );
-    blotterCurve->Read( ioFile );
-    stoichiometric->Read( ioFile );
+    moleProp->Read( textFileParser );
+    reactionRate->Read( textFileParser );
+    thermodynamic->Read( textFileParser );
+    blotterCurve->Read( textFileParser );
+    stoichiometric->Read( textFileParser );
 }
 
 void Chemical::Read( DataBook * dataBook )

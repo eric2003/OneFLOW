@@ -33,7 +33,7 @@ License
 #include "Boundary.h"
 #include "HXMath.h"
 #include "DataBase.h"
-#include "FileIO.h"
+#include "TextFileParser.h"
 #include <iostream>
 #include <iomanip>
 
@@ -289,43 +289,43 @@ void Cylinder::SetBoundaryGrid()
     std::string fileName = GetDataValue< std::string >( "gridLayoutFileName" );
     std::string separator = " =\r\n\t#$,;\"";
 
-    FileIO ioFile;
+    TextFileParser textFileParser;
 
-    ioFile.OpenPrjFile( fileName, std::ios_base::in );
-    ioFile.SetDefaultSeparator( separator );
+    textFileParser.OpenPrjFile( fileName, std::ios_base::in );
+    textFileParser.SetDefaultSeparator( separator );
 
-    ioFile.ReadNextNonEmptyLine();
+    textFileParser.ReadNextNonEmptyLine();
 
-    Real x0 = ioFile.ReadNextDigit< Real >();
-    Real y0 = ioFile.ReadNextDigit< Real >();
-    Real z0 = ioFile.ReadNextDigit< Real >();
+    Real x0 = textFileParser.ReadNextDigit< Real >();
+    Real y0 = textFileParser.ReadNextDigit< Real >();
+    Real z0 = textFileParser.ReadNextDigit< Real >();
 
-    ioFile.ReadNextNonEmptyLine();
-    Real x1 = ioFile.ReadNextDigit< Real >();
-    Real y1 = ioFile.ReadNextDigit< Real >();
-    Real z1 = ioFile.ReadNextDigit< Real >();
+    textFileParser.ReadNextNonEmptyLine();
+    Real x1 = textFileParser.ReadNextDigit< Real >();
+    Real y1 = textFileParser.ReadNextDigit< Real >();
+    Real z1 = textFileParser.ReadNextDigit< Real >();
 
-    ioFile.ReadNextNonEmptyLine();
-    Real x2 = ioFile.ReadNextDigit< Real >();
-    Real y2 = ioFile.ReadNextDigit< Real >();
-    Real z2 = ioFile.ReadNextDigit< Real >();
+    textFileParser.ReadNextNonEmptyLine();
+    Real x2 = textFileParser.ReadNextDigit< Real >();
+    Real y2 = textFileParser.ReadNextDigit< Real >();
+    Real z2 = textFileParser.ReadNextDigit< Real >();
 
-    ioFile.ReadNextNonEmptyLine();
-    Real x3 = ioFile.ReadNextDigit< Real >();
-    Real y3 = ioFile.ReadNextDigit< Real >();
-    Real z3 = ioFile.ReadNextDigit< Real >();
+    textFileParser.ReadNextNonEmptyLine();
+    Real x3 = textFileParser.ReadNextDigit< Real >();
+    Real y3 = textFileParser.ReadNextDigit< Real >();
+    Real z3 = textFileParser.ReadNextDigit< Real >();
 
-    ioFile.ReadNextNonEmptyLine();
-    Real x4 = ioFile.ReadNextDigit< Real >();
-    Real y4 = ioFile.ReadNextDigit< Real >();
-    Real z4 = ioFile.ReadNextDigit< Real >();
+    textFileParser.ReadNextNonEmptyLine();
+    Real x4 = textFileParser.ReadNextDigit< Real >();
+    Real y4 = textFileParser.ReadNextDigit< Real >();
+    Real z4 = textFileParser.ReadNextDigit< Real >();
 
-    ioFile.ReadNextNonEmptyLine();
-    Real ds_start = ioFile.ReadNextDigit< Real >();
-    Real ds_end   = ioFile.ReadNextDigit< Real >();
-    this->beta = ioFile.ReadNextDigit< Real >();
+    textFileParser.ReadNextNonEmptyLine();
+    Real ds_start = textFileParser.ReadNextDigit< Real >();
+    Real ds_end   = textFileParser.ReadNextDigit< Real >();
+    this->beta = textFileParser.ReadNextDigit< Real >();
 
-    ioFile.CloseFile();
+    textFileParser.CloseFile();
 
     point_Machine.AddPoint( x1, y1, z1 );
     point_Machine.AddPoint( x2, y2, z2 );

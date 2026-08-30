@@ -20,7 +20,7 @@ License
 
 \*---------------------------------------------------------------------------*/
 #include "BlotterCurve.h"
-#include "FileIO.h"
+#include "TextFileParser.h"
 #include "DataBook.h"
 #include "DataBaseIO.h"
 
@@ -47,25 +47,25 @@ void BlotterCurve::Init( int nSpecies )
     e.resize( nSpecies );
 }
 
-void BlotterCurve::Read( FileIO * ioFile )
+void BlotterCurve::Read( TextFileParser * textFileParser )
 {
     std::string word;
     std::string separator = " =\r\n#$,;\"'";
 
-    ioFile->SetDefaultSeparator( separator );
+    textFileParser->SetDefaultSeparator( separator );
 
-    ioFile->SkipLines( 2 );
+    textFileParser->SkipLines( 2 );
 
     for ( int iSpecies = 0; iSpecies < nSpecies; ++ iSpecies )
     {
-        ioFile->SkipLines( 3 );
-        ioFile->ReadNextNonEmptyLine();
+        textFileParser->SkipLines( 3 );
+        textFileParser->ReadNextNonEmptyLine();
 
-        a[ iSpecies ] = ioFile->ReadNextDigit< Real >();
-        b[ iSpecies ] = ioFile->ReadNextDigit< Real >();
-        c[ iSpecies ] = ioFile->ReadNextDigit< Real >();
-        d[ iSpecies ] = ioFile->ReadNextDigit< Real >();
-        e[ iSpecies ] = ioFile->ReadNextDigit< Real >();
+        a[ iSpecies ] = textFileParser->ReadNextDigit< Real >();
+        b[ iSpecies ] = textFileParser->ReadNextDigit< Real >();
+        c[ iSpecies ] = textFileParser->ReadNextDigit< Real >();
+        d[ iSpecies ] = textFileParser->ReadNextDigit< Real >();
+        e[ iSpecies ] = textFileParser->ReadNextDigit< Real >();
     }
 }
 

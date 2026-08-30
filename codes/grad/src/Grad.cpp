@@ -33,7 +33,7 @@ License
 #include "Zone.h"
 #include "Iteration.h"
 #include "DataBase.h"
-#include "StrUtil.h"
+#include "StringUtils.h"
 #include <iostream>
 #include <iomanip>
 

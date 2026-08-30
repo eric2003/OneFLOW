@@ -21,11 +21,11 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "Register.h"
-#include "RegisterUtil.h"
+#include "RegisterUtils.h"
 #include "Category.h"
 #include "SolverInfo.h"
 #include "HXClone.h"
-#include "FileIO.h"
+#include "TextFileParser.h"
 #include <iostream>
 
 
@@ -128,29 +128,29 @@ void MRegister::Register( const std::string & fileName, HXRegister * fRegister )
     //\t is the tab key
     std::string separator  = " =\r\n\t#$,;\"()";
 
-    FileIO ioFile;
-    ioFile.OpenFile( fileName, std::ios_base::in );
-    ioFile.SetDefaultSeparator( separator );
+    TextFileParser textFileParser;
+    textFileParser.OpenFile( fileName, std::ios_base::in );
+    textFileParser.SetDefaultSeparator( separator );
 
-    while ( ! ioFile.ReachTheEndOfFile()  )
+    while ( ! textFileParser.ReachTheEndOfFile()  )
     {
-        bool flag = ioFile.ReadNextNonEmptyLine();
+        bool flag = textFileParser.ReadNextNonEmptyLine();
         if ( ! flag ) break;
-        std::string actionName = ioFile.ReadNextWord();
-        std::string className  = ioFile.ReadNextWord();
+        std::string actionName = textFileParser.ReadNextWord();
+        std::string className  = textFileParser.ReadNextWord();
         //std::cout << "actionName = " << actionName << " className= " << className << std::endl;
 
         fRegister->Register( actionName, className );
 
         HXClone * cloneClass = fRegister->GetClass( actionName );
-        int nParameters = ioFile.ReadNextDigit< int >();
+        int nParameters = textFileParser.ReadNextDigit< int >();
         for ( int iParameter = 0; iParameter < nParameters; ++ iParameter )
         {
-            cloneClass->data.push_back( ioFile.ReadNextWord() );
+            cloneClass->data.push_back( textFileParser.ReadNextWord() );
         }
     }
 
-    ioFile.CloseFile();
+    textFileParser.CloseFile();
 }
 
 std::map< int, MRegister * > * RegisterFactory::data = 0;

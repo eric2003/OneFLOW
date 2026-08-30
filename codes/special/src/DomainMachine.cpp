@@ -21,7 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "DomainMachine.h"
-#include "FileIO.h"
+#include "TextFileParser.h"
 #include "HXMath.h"
 #include <iostream>
 
@@ -38,10 +38,10 @@ DomainMachine::~DomainMachine()
 {
 }
 
-void DomainMachine::AddBcType( FileIO * ioFile )
+void DomainMachine::AddBcType( TextFileParser * textFileParser )
 {
-    int id = ioFile->ReadNextDigit< int >();
-    int bctype = ioFile->ReadNextDigit< int >();
+    int id = textFileParser->ReadNextDigit< int >();
+    int bctype = textFileParser->ReadNextDigit< int >();
     bctypeList.push_back( bctype );
 }
 

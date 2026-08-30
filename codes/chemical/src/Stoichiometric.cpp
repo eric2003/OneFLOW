@@ -20,7 +20,7 @@ License
 
 \*---------------------------------------------------------------------------*/
 #include "Stoichiometric.h"
-#include "FileIO.h"
+#include "TextFileParser.h"
 #include "DataBook.h"
 #include "DataBaseIO.h"
 
@@ -46,54 +46,54 @@ void Stoichiometric::Init( int nSpecies, int nReaction )
     AllocateVector( mt, nReaction, nSpecies );
 }
 
-void Stoichiometric::Read( FileIO * ioFile )
+void Stoichiometric::Read( TextFileParser * textFileParser )
 {
     std::string word;
     std::string separator = " =\r\n#$,;\"'";
 
-    ioFile->SetDefaultSeparator( separator );
+    textFileParser->SetDefaultSeparator( separator );
 
     if ( nReaction <= 0 ) return;
 
-    ioFile->SkipLines( 4 );
+    textFileParser->SkipLines( 4 );
     //forward reaction stoichiometric coefficient matrix
     for ( int iReaction = 0; iReaction < nReaction; ++ iReaction )
     {
-        ioFile->ReadNextNonEmptyLine();
+        textFileParser->ReadNextNonEmptyLine();
         //Read irtmp
-        word = ioFile->ReadNextWord();
+        word = textFileParser->ReadNextWord();
 
         for ( int iSpecies = 0; iSpecies < nSpecies; ++ iSpecies )
         {
-            mf[ iReaction ][ iSpecies ] = ioFile->ReadNextDigit< int >();
+            mf[ iReaction ][ iSpecies ] = textFileParser->ReadNextDigit< int >();
         }
     }
 
-    ioFile->SkipLines( 4 );
+    textFileParser->SkipLines( 4 );
     //bakward reaction stoichiometric coefficient matrix
     for ( int iReaction = 0; iReaction < nReaction; ++ iReaction )
     {
-        ioFile->ReadNextNonEmptyLine();
+        textFileParser->ReadNextNonEmptyLine();
         //irtmp
-        word = ioFile->ReadNextWord();
+        word = textFileParser->ReadNextWord();
 
         for ( int iSpecies = 0; iSpecies < nSpecies; ++ iSpecies )
         {
-            mb[ iReaction ][ iSpecies ] = ioFile->ReadNextDigit< int >();
+            mb[ iReaction ][ iSpecies ] = textFileParser->ReadNextDigit< int >();
         }
     }
 
-    ioFile->SkipLines( 4 );
+    textFileParser->SkipLines( 4 );
     //third body reaction stoichiometric coefficient matrix
     for ( int iReaction = 0; iReaction < nReaction; ++ iReaction )
     {
-        ioFile->ReadNextNonEmptyLine();
+        textFileParser->ReadNextNonEmptyLine();
         //irtmp
-        word = ioFile->ReadNextWord();
+        word = textFileParser->ReadNextWord();
 
         for ( int iSpecies = 0; iSpecies < nSpecies; ++ iSpecies )
         {
-            mt[ iReaction ][ iSpecies ] = ioFile->ReadNextDigit< Real >();
+            mt[ iReaction ][ iSpecies ] = textFileParser->ReadNextDigit< Real >();
         }
     }
 }

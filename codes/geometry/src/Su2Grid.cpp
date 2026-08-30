@@ -44,7 +44,7 @@ License
 #include "NodeMesh.h"
 #include "BgGrid.h"
 #include "GridState.h"
-#include "FileIO.h"
+#include "TextFileParser.h"
 #include "Dimension.h"
 #include "HXMath.h"
 #include "Zone.h"
@@ -355,43 +355,43 @@ void Su2Grid::ReadSu2Grid( GridMediator * gridMediator )
 
 void Su2Grid::ReadSu2GridAscii( std::string & fileName )
 {
-    FileIO ioFile;
+    TextFileParser textFileParser;
     std::string separator  = " =\r\n\t#$,;";
-    ioFile.OpenPrjFile( fileName, std::ios_base::in );
-    ioFile.SetDefaultSeparator( separator );
+    textFileParser.OpenPrjFile( fileName, std::ios_base::in );
+    textFileParser.SetDefaultSeparator( separator );
 
     this->nZone = 1;
 
     for ( int iZone = 0; iZone < this->nZone; ++ iZone )
     {
-        while ( ! ioFile.ReachTheEndOfFile() )
+        while ( ! textFileParser.ReachTheEndOfFile() )
         {
-            ioFile.ReadNextNonEmptyLine();
-            std::string word = ioFile.ReadNextWord();
+            textFileParser.ReadNextNonEmptyLine();
+            std::string word = textFileParser.ReadNextWord();
 
             if ( word == "NDIME" )
             {
-                this->ndim = ioFile.ReadNextDigit< int >();
+                this->ndim = textFileParser.ReadNextDigit< int >();
                 continue;
             }
             else if ( word == "NELEM" )
             {
-                this->nElem = ioFile.ReadNextDigit< int >();
+                this->nElem = textFileParser.ReadNextDigit< int >();
 
                 for ( int iElem = 0; iElem < this->nElem; ++ iElem )
                 {
-                    ioFile.ReadNextNonEmptyLine();
-                    int vtk_type = ioFile.ReadNextDigit< int >();
+                    textFileParser.ReadNextNonEmptyLine();
+                    int vtk_type = textFileParser.ReadNextDigit< int >();
                     int nVertex = vtkmap[ vtk_type ];
                     elemVTKType.push_back( vtk_type );
                     IntField elem;
                     for ( int iV = 0; iV < nVertex; ++ iV )
                     {
-                        int ip = ioFile.ReadNextDigit< int >();
+                        int ip = textFileParser.ReadNextDigit< int >();
                         elem.push_back( ip );
                     }
                     this->elems.push_back( elem );
-                    //int id = ioFile.ReadNextDigit< int >();
+                    //int id = textFileParser.ReadNextDigit< int >();
                     int id = iElem + 1;
                     elemId.push_back( id );
                 }
@@ -399,14 +399,14 @@ void Su2Grid::ReadSu2GridAscii( std::string & fileName )
             }
             else if ( word == "NPOIN" )
             {
-                this->nPoin = ioFile.ReadNextDigit< int >();
+                this->nPoin = textFileParser.ReadNextDigit< int >();
                 for ( int ip = 0; ip < this->nPoin; ++ ip )
                 {
-                    ioFile.ReadNextNonEmptyLine();
-                    Real xx = ioFile.ReadNextDigit< Real >();
-                    Real yy = ioFile.ReadNextDigit< Real >();
+                    textFileParser.ReadNextNonEmptyLine();
+                    Real xx = textFileParser.ReadNextDigit< Real >();
+                    Real yy = textFileParser.ReadNextDigit< Real >();
                     Real zz = 0;
-                    int id = ioFile.ReadNextDigit< int >();
+                    int id = textFileParser.ReadNextDigit< int >();
                     this->xN.push_back( xx );
                     this->yN.push_back( yy );
                     this->zN.push_back( zz );
@@ -415,27 +415,27 @@ void Su2Grid::ReadSu2GridAscii( std::string & fileName )
             }
             else if ( word == "NMARK" )
             {
-                mmark.nMarker = ioFile.ReadNextDigit< int >();
+                mmark.nMarker = textFileParser.ReadNextDigit< int >();
                 mmark.CreateMarkerList( mmark.nMarker );
 
                 for ( int im = 0; im < this->mmark.nMarker; ++ im )
                 {
-                    ioFile.ReadNextNonEmptyLine();
-                    std::string tag = ioFile.ReadNextWord();
-                    std::string name = ioFile.ReadNextWord();
+                    textFileParser.ReadNextNonEmptyLine();
+                    std::string tag = textFileParser.ReadNextWord();
+                    std::string name = textFileParser.ReadNextWord();
                     Marker * marker = mmark.markerList[ im ];
                     marker->name = name;
                     marker->bcName = su2Bc.GetBcName( name );
                     marker->cgns_bcType = su2Bc.GetCgnsBcType(name);
-                    ioFile.ReadNextNonEmptyLine();
-                    std::string marker_elems = ioFile.ReadNextWord();
-                    marker->nElem = ioFile.ReadNextDigit< int >();
+                    textFileParser.ReadNextNonEmptyLine();
+                    std::string marker_elems = textFileParser.ReadNextWord();
+                    marker->nElem = textFileParser.ReadNextDigit< int >();
 
                     for ( int ielem = 0; ielem < marker->nElem; ++ ielem )
                     {
-                        ioFile.ReadNextNonEmptyLine();
+                        textFileParser.ReadNextNonEmptyLine();
 
-                        int eVtkType = ioFile.ReadNextDigit< int >();
+                        int eVtkType = textFileParser.ReadNextDigit< int >();
 
                         marker->eTypes.push_back( eVtkType );
                         
@@ -445,7 +445,7 @@ void Su2Grid::ReadSu2GridAscii( std::string & fileName )
                         IntField elem;
                         for ( int i = 0; i < nFENode; ++ i )
                         {
-                            int ip = ioFile.ReadNextDigit< int >();
+                            int ip = textFileParser.ReadNextDigit< int >();
                             elem.push_back( ip );
                         }
                         marker->elems.push_back( elem );
@@ -458,39 +458,39 @@ void Su2Grid::ReadSu2GridAscii( std::string & fileName )
         }
     }
 
-    ioFile.CloseFile();
+    textFileParser.CloseFile();
 }
 
 void Su2Grid::MarkBoundary( std::string & su2cfgFile)
 {
-    FileIO ioFile;
+    TextFileParser textFileParser;
     std::string separator = " =\r\n\t#$,;()";
-    ioFile.OpenPrjFile(su2cfgFile, std::ios_base::in);
-    ioFile.SetDefaultSeparator(separator);
+    textFileParser.OpenPrjFile(su2cfgFile, std::ios_base::in);
+    textFileParser.SetDefaultSeparator(separator);
 
     StringField su2Comment;
     su2Comment.push_back("%");
-    ioFile.ResetCommentString( su2Comment );
+    textFileParser.ResetCommentString( su2Comment );
 
     StringField markerBCNameList;
     StringField markerNameList;
 
-    while (!ioFile.ReachTheEndOfFile())
+    while (!textFileParser.ReachTheEndOfFile())
     {
-        ioFile.ReadNextNonEmptyLine();
-        std::string word = ioFile.ReadNextWord();
+        textFileParser.ReadNextNonEmptyLine();
+        std::string word = textFileParser.ReadNextWord();
 
         if (word.substr(0, 7) != "MARKER_") continue;
         std::string bcName = word.substr(7);
         markerBCNameList.push_back(bcName);
-        word = ioFile.ReadNextWord();
+        word = textFileParser.ReadNextWord();
         markerNameList.push_back(word);
         int kkk = 1;
     }
 
     su2Bc.Process( markerBCNameList, markerNameList );
 
-    ioFile.CloseFile();
+    textFileParser.CloseFile();
 }
 
 void Su2Grid::Su2ToOneFlowGrid()

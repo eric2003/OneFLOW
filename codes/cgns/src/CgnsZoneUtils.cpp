@@ -21,7 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "CgnsZone.h"
-#include "CgnsZoneUtil.h"
+#include "CgnsZoneUtils.h"
 #include "CgnsBase.h"
 #include "CgnsCoor.h"
 #include "CgnsFile.h"
@@ -33,7 +33,7 @@ License
 #include "BcRecord.h"
 #include "Boundary.h"
 #include "NodeMesh.h"
-#include "StrUtil.h"
+#include "StringUtils.h"
 #include "Grid.h"
 #include "BgGrid.h"
 #include "StrGrid.h"

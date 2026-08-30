@@ -29,7 +29,7 @@ License
 #include "NodeMesh.h"
 #include "BgGrid.h"
 #include "GridState.h"
-#include "FileIO.h"
+#include "TextFileParser.h"
 #include "FileO.h"
 
 #include "Dimension.h"
@@ -224,12 +224,12 @@ void Plot3D::ReadCoorAscii( GridMediator * gridMediator )
 {
     std::string & fileName = gridMediator->gridFile;
 
-    FileIO ioFile;
+    TextFileParser textFileParser;
     std::string separator  = " =\r\n\t#$,;";
-    ioFile.OpenPrjFile( fileName, std::ios_base::in );
-    ioFile.SetDefaultSeparator( separator );
+    textFileParser.OpenPrjFile( fileName, std::ios_base::in );
+    textFileParser.SetDefaultSeparator( separator );
 
-    gridMediator->numberOfZones = ioFile.ReadNextDigit< int >();
+    gridMediator->numberOfZones = textFileParser.ReadNextDigit< int >();
     gridMediator->gridVector.resize( gridMediator->numberOfZones );
 
     bool nkflag = GetPlot3D_NKFlag();
@@ -238,12 +238,12 @@ void Plot3D::ReadCoorAscii( GridMediator * gridMediator )
     while ( zCount < gridMediator->numberOfZones )
     {
         int ni, nj, nk = 1;
-        ni = ioFile.ReadNextDigit< int >();
-        nj = ioFile.ReadNextDigit< int >();
+        ni = textFileParser.ReadNextDigit< int >();
+        nj = textFileParser.ReadNextDigit< int >();
 
         if ( nkflag )
         {
-            nk = ioFile.ReadNextDigit< int >();
+            nk = textFileParser.ReadNextDigit< int >();
         }
 
         Grid * gridstr = ONEFLOW::CreateGrid( ONEFLOW::SMESH );
@@ -289,7 +289,7 @@ void Plot3D::ReadCoorAscii( GridMediator * gridMediator )
 
         RealField coor;
 
-        Plot3D::ReadCoor( & ioFile, coor, total_size );
+        Plot3D::ReadCoor( & textFileParser, coor, total_size );
         int pos = 0;
         for ( int i = 0; i < numberOfNodes; ++ i )
         {
@@ -317,7 +317,7 @@ void Plot3D::ReadCoorAscii( GridMediator * gridMediator )
         }
     }
 
-    ioFile.CloseFile();
+    textFileParser.CloseFile();
 }
 
 void Plot3D::DumpCoorAscii( GridMediator * gridMediator )
@@ -402,16 +402,16 @@ void Plot3D::ReadBc( GridMediator * gridMediator )
     //\t is the tab key
     std::string separator = " =\r\n#$,;";
 
-    FileIO ioFile;
-    ioFile.OpenPrjFile( bcName, std::ios_base::in );
-    ioFile.SetDefaultSeparator( separator );
+    TextFileParser textFileParser;
+    textFileParser.OpenPrjFile( bcName, std::ios_base::in );
+    textFileParser.SetDefaultSeparator( separator );
 
-    ioFile.ReadNextNonEmptyLine();
-    int flowSolverIndex = ioFile.ReadNextDigit< int >();
+    textFileParser.ReadNextNonEmptyLine();
+    int flowSolverIndex = textFileParser.ReadNextDigit< int >();
     std::cout << " flowSolverIndex = " << flowSolverIndex << std::endl;
 
-    ioFile.ReadNextNonEmptyLine();
-    int numberOfZones = ioFile.ReadNextDigit< int >();
+    textFileParser.ReadNextNonEmptyLine();
+    int numberOfZones = textFileParser.ReadNextDigit< int >();
     std::cout << " numberOfZones = " << numberOfZones << std::endl;
 
     if ( numberOfZones != gridMediator->numberOfZones )
@@ -428,14 +428,14 @@ void Plot3D::ReadBc( GridMediator * gridMediator )
     for ( int iZone = 0; iZone < numberOfZones; ++ iZone )
     {
         StrGrid * grid = ONEFLOW::StrGridCast( gridMediator->gridVector[ iZone ] );
-        ioFile.ReadNextNonEmptyLine();
+        textFileParser.ReadNextNonEmptyLine();
 
-        int ni = ioFile.ReadNextDigit< int >();
-        int nj = ioFile.ReadNextDigit< int >();
+        int ni = textFileParser.ReadNextDigit< int >();
+        int nj = textFileParser.ReadNextDigit< int >();
         int nk = 1;
         if ( ONEFLOW::IsThreeD() )
         {
-            nk = ioFile.ReadNextDigit< int >();
+            nk = textFileParser.ReadNextDigit< int >();
         }
 
         std::cout << " ni, nj, nk = " << ni << " " << nj << " " << nk << std::endl;
@@ -447,20 +447,20 @@ void Plot3D::ReadBc( GridMediator * gridMediator )
             std::cout << "The dimension in " << iZone + 1 << "block boundary file is not consistent with the dimension in grid!\n";
         }
 
-        std::string word = ioFile.ReadNextWord();
+        std::string word = textFileParser.ReadNextWord();
 
         if ( word == "proc" )
         {
             readPid = true;
-            int pid = ioFile.ReadNextDigit< int >();
+            int pid = textFileParser.ReadNextDigit< int >();
             ZoneState::pid[ iZone ] = pid;
         }
 
-        ioFile.ReadNextNonEmptyLine();
-        std::string blockName = ioFile.ReadNextWord();
-        ioFile.ReadNextNonEmptyLine();
+        textFileParser.ReadNextNonEmptyLine();
+        std::string blockName = textFileParser.ReadNextWord();
+        textFileParser.ReadNextNonEmptyLine();
 
-        int nBcRegions = ioFile.ReadNextDigit< int >();
+        int nBcRegions = textFileParser.ReadNextDigit< int >();
 
         grid->bcRegionGroup->Create( nBcRegions );
         BcRegionGroup * bcRegionGroup = grid->bcRegionGroup;
@@ -468,17 +468,17 @@ void Plot3D::ReadBc( GridMediator * gridMediator )
         {
             int imin, imax, jmin, jmax, kmin, kmax;
 
-            ioFile.ReadNextNonEmptyLine();
-            imin = ioFile.ReadNextDigit< int >();
-            imax = ioFile.ReadNextDigit< int >();
+            textFileParser.ReadNextNonEmptyLine();
+            imin = textFileParser.ReadNextDigit< int >();
+            imax = textFileParser.ReadNextDigit< int >();
 
-            jmin = ioFile.ReadNextDigit< int >();
-            jmax = ioFile.ReadNextDigit< int >();
+            jmin = textFileParser.ReadNextDigit< int >();
+            jmax = textFileParser.ReadNextDigit< int >();
 
             if ( ONEFLOW::IsThreeD() )
             {
-                kmin = ioFile.ReadNextDigit< int >();
-                kmax = ioFile.ReadNextDigit< int >();
+                kmin = textFileParser.ReadNextDigit< int >();
+                kmax = textFileParser.ReadNextDigit< int >();
             }
             else
             {
@@ -486,7 +486,7 @@ void Plot3D::ReadBc( GridMediator * gridMediator )
                 kmax = 1;
             }
 
-            int bcType = ioFile.ReadNextDigit< int >();
+            int bcType = textFileParser.ReadNextDigit< int >();
             BcRegion * bcRegion = new BcRegion( iZone, ir );
             bcRegion->s->SetRegion( imin, imax, jmin, jmax, kmin, kmax );
             bcRegion->s->zid = iZone;
@@ -500,18 +500,18 @@ void Plot3D::ReadBc( GridMediator * gridMediator )
 
             if ( bcType < 0 )
             {
-                ioFile.ReadNextNonEmptyLine();
+                textFileParser.ReadNextNonEmptyLine();
 
-                imin = ioFile.ReadNextDigit< int >();
-                imax = ioFile.ReadNextDigit< int >();
+                imin = textFileParser.ReadNextDigit< int >();
+                imax = textFileParser.ReadNextDigit< int >();
 
-                jmin = ioFile.ReadNextDigit< int >();
-                jmax = ioFile.ReadNextDigit< int >();
+                jmin = textFileParser.ReadNextDigit< int >();
+                jmax = textFileParser.ReadNextDigit< int >();
 
                 if ( ONEFLOW::IsThreeD() )
                 {
-                    kmin = ioFile.ReadNextDigit< int >();
-                    kmax = ioFile.ReadNextDigit< int >();
+                    kmin = textFileParser.ReadNextDigit< int >();
+                    kmax = textFileParser.ReadNextDigit< int >();
                 }
                 else
                 {
@@ -520,7 +520,7 @@ void Plot3D::ReadBc( GridMediator * gridMediator )
                 }
 
                 bcRegion->t->SetRegion( imin, imax, jmin, jmax, kmin, kmax );
-                bcRegion->t->zid = ioFile.ReadNextDigit< int >();
+                bcRegion->t->zid = textFileParser.ReadNextDigit< int >();
 
             }
         }
@@ -528,7 +528,7 @@ void Plot3D::ReadBc( GridMediator * gridMediator )
 
     int kkk = 1;
 
-    ioFile.CloseFile();
+    textFileParser.CloseFile();
 }
 
 void Plot3D::DumpBc( GridMediator * gridMediator )
@@ -632,14 +632,14 @@ void Plot3D::DumpBc( GridMediator * gridMediator )
     Prj::CloseFile( file );
 }
 
-void Plot3D::ReadCoor( FileIO * ioFile, RealField & coordinate )
+void Plot3D::ReadCoor( TextFileParser * textFileParser, RealField & coordinate )
 {
     HXSize_t numberOfNodes = coordinate.size();
     HXSize_t i = 0;
     while ( i < numberOfNodes )
     {
         int num = 1;
-        Real tmp = ioFile->ReadNextDigit< Real >( num );
+        Real tmp = textFileParser->ReadNextDigit< Real >( num );
         for ( HXSize_t j = 0; j < num; ++ j )
         {
             coordinate[ i ] = tmp;
@@ -654,12 +654,12 @@ void Plot3D::ReadCoor( FileIO * ioFile, RealField & coordinate )
     }
 }
 
-void Plot3D::ReadCoor( FileIO * ioFile, RealField & coor, int total_size )
+void Plot3D::ReadCoor( TextFileParser * textFileParser, RealField & coor, int total_size )
 {
     while ( coor.size() < total_size )
     {
         int num = 1;
-        Real tmp = ioFile->ReadNextDigit< Real >( num );
+        Real tmp = textFileParser->ReadNextDigit< Real >( num );
 
         for ( int i = 0; i < num; ++ i )
         {

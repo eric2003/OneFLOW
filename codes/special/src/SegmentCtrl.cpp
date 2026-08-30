@@ -23,7 +23,7 @@ License
 #include "SegmentCtrl.h"
 #include "LineMachine.h"
 #include "LineMesh.h"
-#include "FileIO.h"
+#include "TextFileParser.h"
 #include "HXMath.h"
 #include <iostream>
 
@@ -42,33 +42,33 @@ SegmentCtrl::~SegmentCtrl()
     delete segmentCopy;
 }
 
-void SegmentCtrl::Read( FileIO * ioFile )
+void SegmentCtrl::Read( TextFileParser * textFileParser )
 {
-    std::string distributionString = ioFile->ReadNextWord();
+    std::string distributionString = textFileParser->ReadNextWord();
 
     if ( distributionString == "r" )
     {
         this->distribution = 0;
-        this->ratio1 = ioFile->ReadNextDigit< Real >();
-        this->ratio2 = ioFile->ReadNextDigit< Real >();
+        this->ratio1 = textFileParser->ReadNextDigit< Real >();
+        this->ratio2 = textFileParser->ReadNextDigit< Real >();
     }
     else if ( distributionString == "d" )
     {
         this->distribution = 1;
-        this->ds1 = ioFile->ReadNextDigit< Real >();
-        this->ds2 = ioFile->ReadNextDigit< Real >();
+        this->ds1 = textFileParser->ReadNextDigit< Real >();
+        this->ds2 = textFileParser->ReadNextDigit< Real >();
     }
     else if ( distributionString == "tanh" )
     {
         this->distribution = 4;
-        this->ds1 = ioFile->ReadNextDigit< Real >();
-        this->ds2 = ioFile->ReadNextDigit< Real >();
+        this->ds1 = textFileParser->ReadNextDigit< Real >();
+        this->ds2 = textFileParser->ReadNextDigit< Real >();
     }
     else if ( distributionString.substr( 0, 1 ) == "c" )
     {
         this->distribution = 2;
         this->segmentCopy = new SegmentCopy();
-        this->segmentCopy->Read( ioFile );
+        this->segmentCopy->Read( textFileParser );
     }
     else if ( distributionString.substr( 0, 1 ) == "e" )
     {
@@ -355,11 +355,11 @@ SegmentCopy::~SegmentCopy()
     ;
 }
 
-void SegmentCopy::Read( FileIO * ioFile )
+void SegmentCopy::Read( TextFileParser * textFileParser )
 {
     while ( true )
     {
-        std::string word = ioFile->ReadNextWord();
+        std::string word = textFileParser->ReadNextWord();
         if ( word == "" ) break;
         int line_id = StringToDigit< int >( word );
         lineList.push_back( line_id );

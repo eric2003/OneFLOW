@@ -23,7 +23,7 @@ License
 #include "BlockMachine.h"
 #include "LineMachine.h"
 #include "CurveInfo.h"
-#include "FileIO.h"
+#include "TextFileParser.h"
 
 #include "BgGrid.h"
 #include "StrGrid.h"
@@ -53,14 +53,14 @@ BlockMachine::~BlockMachine()
 {
 }
 
-void BlockMachine::AddFaceToBlock( FileIO * ioFile )
+void BlockMachine::AddFaceToBlock( TextFileParser * textFileParser )
 {
-    std::string word = ioFile->ReadNextWord();
+    std::string word = textFileParser->ReadNextWord();
     if ( word == "L2F" )
     {
-        int faceid = ioFile->ReadNextDigit< int >();
-        int pos = ioFile->ReadNextDigit< int >();
-        int lineid = ioFile->ReadNextDigit< int >();
+        int faceid = textFileParser->ReadNextDigit< int >();
+        int pos = textFileParser->ReadNextDigit< int >();
+        int lineid = textFileParser->ReadNextDigit< int >();
         
         if ( Dim::dimension == ONEFLOW::THREE_D )
         {
@@ -73,9 +73,9 @@ void BlockMachine::AddFaceToBlock( FileIO * ioFile )
     }
     else if ( word == "F2B" )
     {
-        int blockid = ioFile->ReadNextDigit< int >();
-        int pos = ioFile->ReadNextDigit< int >();
-        int faceid = ioFile->ReadNextDigit< int >();
+        int blockid = textFileParser->ReadNextDigit< int >();
+        int pos = textFileParser->ReadNextDigit< int >();
+        int faceid = textFileParser->ReadNextDigit< int >();
 
         if ( Dim::dimension == ONEFLOW::THREE_D )
         {

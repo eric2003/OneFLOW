@@ -22,9 +22,9 @@ License
 
 #include "PostProcess.h"
 #include "PIO.h"
-#include "FileIO.h"
+#include "TextFileParser.h"
 #include "HXMath.h"
-#include "StrUtil.h"
+#include "StringUtils.h"
 #include <iostream>
 #include <fstream>
 #include <vector>
@@ -52,37 +52,37 @@ void Post::Run()
     //\t is the tab key
     std::string separator = " =\r\n\t#$,;\"";
 
-    FileIO ioFile;
-    ioFile.OpenPrjFile( fileName, std::ios_base::in );
-    ioFile.SetDefaultSeparator( separator );
+    TextFileParser textFileParser;
+    textFileParser.OpenPrjFile( fileName, std::ios_base::in );
+    textFileParser.SetDefaultSeparator( separator );
     int count = 0;
     //std::vector< Real > xList, yList, zList;
     MakeCurveClass makeCurve;
-    while ( ! ioFile.ReachTheEndOfFile() )
+    while ( ! textFileParser.ReachTheEndOfFile() )
     {
-        bool flag = ioFile.ReadNextNonEmptyLine();
+        bool flag = textFileParser.ReadNextNonEmptyLine();
         if ( ! flag ) break;
         count ++;
-        //ioFile.DumpLineContentToScreen();
+        //textFileParser.DumpLineContentToScreen();
 
         if ( count <= 8 )
         {
             std::cout << "header = ";
-            ioFile.DumpLineContentToScreen();
+            textFileParser.DumpLineContentToScreen();
             continue;
         }
 
-        Real x = ioFile.ReadNextDigit< Real >();
-        Real y = ioFile.ReadNextDigit< Real >();
-        Real z = ioFile.ReadNextDigit< Real >();
-        Real cp = ioFile.ReadNextDigit< Real >();
-        Real cf = ioFile.ReadNextDigit< Real >();
+        Real x = textFileParser.ReadNextDigit< Real >();
+        Real y = textFileParser.ReadNextDigit< Real >();
+        Real z = textFileParser.ReadNextDigit< Real >();
+        Real cp = textFileParser.ReadNextDigit< Real >();
+        Real cf = textFileParser.ReadNextDigit< Real >();
         //std::cout << x << " " << y << " " << z << "\n";
         //makeCurve.AddPoint( x, y, z );
         makeCurve.AddPointValue( x, y, z, cp, cf );
     }
     makeCurve.Run();
-    ioFile.CloseFile();
+    textFileParser.CloseFile();
 }
 
 void PostSimu()

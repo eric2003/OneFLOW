@@ -22,8 +22,8 @@ License
 #include "SolverName.h"
 #include "Prj.h"
 #include "OStream.h"
-#include "FileIO.h"
-#include "StrUtil.h"
+#include "TextFileParser.h"
+#include "StringUtils.h"
 
 BeginNameSpace( ONEFLOW )
 
@@ -40,22 +40,22 @@ void GetSolverFileNames( const std::string & solverName, StringField & fileNameL
     ostr << "fileList.txt";
     std::string keyFileName = ostr.str();
 
-    FileIO ioFile;
-    ioFile.OpenFile( keyFileName, std::ios_base::in );
-    ioFile.SetDefaultSeparator( separator );
+    TextFileParser textFileParser;
+    textFileParser.OpenFile( keyFileName, std::ios_base::in );
+    textFileParser.SetDefaultSeparator( separator );
 
-    while ( ! ioFile.ReachTheEndOfFile()  )
+    while ( ! textFileParser.ReachTheEndOfFile()  )
     {
-        bool flag = ioFile.ReadNextNonEmptyLine();
+        bool flag = textFileParser.ReadNextNonEmptyLine();
         if ( ! flag ) break;
-        std::string fileName = ioFile.ReadNextWord();
+        std::string fileName = textFileParser.ReadNextWord();
 
         fileName = AddString( baseDir, fileName );
 
         fileNameList.push_back( fileName );
     }
 
-    ioFile.CloseFile();
+    textFileParser.CloseFile();
 }
 
 

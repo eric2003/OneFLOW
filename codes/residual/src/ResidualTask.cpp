@@ -33,9 +33,9 @@ License
 #include "HXMath.h"
 #include "CellMesh.h"
 #include "Iteration.h"
-#include "FileIO.h"
-#include "FileUtil.h"
-#include "StrUtil.h"
+#include "TextFileParser.h"
+#include "FileUtils.h"
+#include "StringUtils.h"
 #include "UNsCom.h"
 #include <cstdlib>
 #include <limits>

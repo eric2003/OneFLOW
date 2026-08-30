@@ -25,10 +25,10 @@ License
 #include "UsdPara.h"
 #include "SolverInfo.h"
 #include "SolverDef.h"
-#include "FileIO.h"
+#include "TextFileParser.h"
 #include "OStream.h"
 #include "DataBase.h"
-#include "RegisterUtil.h"
+#include "RegisterUtils.h"
 #include "Zone.h"
 #include "Grid.h"
 #include "InterFace.h"
@@ -291,26 +291,26 @@ void BoolIO::Add( const std::string & name, bool value )
     this->boolValueList.push_back( value );
 }
 
-void BoolIO::ReadBool( FileIO * ioFile )
+void BoolIO::ReadBool( TextFileParser * textFileParser )
 {
-    std::string varName = ioFile->ReadNextWord();
-    std::string word    = ioFile->ReadNextWord(); //"="
-    std::string var1    = ioFile->ReadNextWord();
-    std::string opName  = ioFile->ReadNextWord();
-    std::string var2    = ioFile->ReadNextWord();
+    std::string varName = textFileParser->ReadNextWord();
+    std::string word    = textFileParser->ReadNextWord(); //"="
+    std::string var1    = textFileParser->ReadNextWord();
+    std::string opName  = textFileParser->ReadNextWord();
+    std::string var2    = textFileParser->ReadNextWord();
 
     bool boolValue = ONEFLOW::CalcBoolExp( var1, opName, var2 );
 
     this->Add( varName, boolValue );
 }
 
-void BoolIO::ReadSuperBool( FileIO * ioFile )
+void BoolIO::ReadSuperBool( TextFileParser * textFileParser )
 {
-    std::string varName = ioFile->ReadNextWord();
-    std::string word    = ioFile->ReadNextWord(); //"="
-    std::string var1    = ioFile->ReadNextWord();
-    std::string opName  = ioFile->ReadNextWord();
-    std::string var2    = ioFile->ReadNextWord();
+    std::string varName = textFileParser->ReadNextWord();
+    std::string word    = textFileParser->ReadNextWord(); //"="
+    std::string var1    = textFileParser->ReadNextWord();
+    std::string opName  = textFileParser->ReadNextWord();
+    std::string var2    = textFileParser->ReadNextWord();
 
     bool varVaule1 = ONEFLOW::CalcVarValue( var1, this->boolNameList, this->boolValueList );
     bool varVaule2 = ONEFLOW::CalcVarValue( var2, this->boolNameList, this->boolValueList );
@@ -330,22 +330,22 @@ void BoolIO::Read()
 {
     if ( valueFlag == 0 )
     {
-        std::string varName = ioFile->ReadNextWord();
+        std::string varName = textFileParser->ReadNextWord();
         nameValuePair.nameList.push_back( varName );
     }
     else if ( valueFlag == 1 )
     {
-        std::string varName = ioFile->ReadNextWord();
+        std::string varName = textFileParser->ReadNextWord();
         nameValuePair.nameList.push_back( varName );
 
-        Real varValue = ioFile->ReadNextDigit< Real >();
+        Real varValue = textFileParser->ReadNextDigit< Real >();
         nameValuePair.valueList.push_back( varValue );
     }
     else if ( valueFlag == 2 )
     {
-        std::string varName      = ioFile->ReadNextWord();
-        std::string varDimension = ioFile->ReadNextWord();
-        std::string typeName     = ioFile->ReadNextWord();
+        std::string varName      = textFileParser->ReadNextWord();
+        std::string varDimension = textFileParser->ReadNextWord();
+        std::string typeName     = textFileParser->ReadNextWord();
 
         int dimension = ONEFLOW::GetVarDimension( varDimension );
 
@@ -362,17 +362,17 @@ void BoolIO::ReadFile( const std::string & fileName, int valueFlag )
     //string separator  = " =\r\n\t#$,;\"()";
     std::string separator  = " \r\n\t#$,;\"()";
 
-    FileIO ioFile;
-    ioFile.OpenFile( fileName, std::ios_base::in );
-    ioFile.SetDefaultSeparator( separator );
+    TextFileParser textFileParser;
+    textFileParser.OpenFile( fileName, std::ios_base::in );
+    textFileParser.SetDefaultSeparator( separator );
 
-    this->ioFile = & ioFile;
+    this->textFileParser = & textFileParser;
     this->valueFlag = valueFlag;
-    while ( ! ioFile.ReachTheEndOfFile()  )
+    while ( ! textFileParser.ReachTheEndOfFile()  )
     {
-        bool flag = ioFile.ReadNextNonEmptyLine();
+        bool flag = textFileParser.ReadNextNonEmptyLine();
         if ( ! flag ) break;
-        std::string keyWord = ioFile.ReadNextWord();
+        std::string keyWord = textFileParser.ReadNextWord();
 
         if ( keyWord == "true" )
         {
@@ -380,11 +380,11 @@ void BoolIO::ReadFile( const std::string & fileName, int valueFlag )
         }
         else if ( keyWord == "bool" )
         {
-            this->ReadBool( & ioFile );
+            this->ReadBool( & textFileParser );
         }
         else if ( keyWord == "superbool" )
         {
-            this->ReadSuperBool( & ioFile );
+            this->ReadSuperBool( & textFileParser );
         }
         else
         {
@@ -398,7 +398,7 @@ void BoolIO::ReadFile( const std::string & fileName, int valueFlag )
         }
     }
 
-    ioFile.CloseFile();
+    textFileParser.CloseFile();
 }
 
 ReadInterfaceVar::ReadInterfaceVar()

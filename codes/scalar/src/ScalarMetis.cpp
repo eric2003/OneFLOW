@@ -29,7 +29,7 @@ License
 #include "Zone.h"
 #include "PIO.h"
 #include "DataBase.h"
-#include "StrUtil.h"
+#include "StringUtils.h"
 #include "ScalarDataIO.h"
 #include "ScalarGrid.h"
 #include "MetisGrid.h"

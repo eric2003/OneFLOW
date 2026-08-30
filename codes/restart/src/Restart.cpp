@@ -38,7 +38,7 @@ License
 #include "FieldWrap.h"
 #include "FieldAlloc.h"
 #include "UsdPara.h"
-#include "RegisterUtil.h"
+#include "RegisterUtils.h"
 #include "INsRestart.h"
 
 BeginNameSpace( ONEFLOW )
