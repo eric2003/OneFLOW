@@ -22,25 +22,11 @@ License
 
 
 #pragma once
-#include "HXDefine.h"
-#include "HXArray.h"
+#include "Configure.h"
+
 BeginNameSpace( ONEFLOW )
 
-MRField * AllocateNodeField( int nEqu = 1 );
-MRField * InterpolateCellToNode( const std::string & name );
-MRField * InterpolateCellToNode( RealField & qc );
-void InterpolateCellToNodeForComponent( RealField & qNodeField, RealField & qField );
-void ApplyBoundaryConditionToNodeField( RealField & qNodeField, RealField & qField, RealField & nCount, int bcType, bool twoSide );
-
-template < typename T >
-void ReorderList( HXVector< T > & x, IntField & indexList )
-{
-    HXVector< T > tmp = x;
-
-    for ( HXSize_t i = 0; i < indexList.size(); ++ i )
-    {
-        x[ i ] = tmp[ indexList[ i ] ];
-    }
-}
+class UnsGrid;
+int GetNumberOfSolidCells( UnsGrid * grid );
 
 EndNameSpace

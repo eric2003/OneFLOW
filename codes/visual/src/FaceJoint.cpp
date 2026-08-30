@@ -243,21 +243,21 @@ void FaceJoint::RemapNodeValue( FaceJoint * globalBasicWall )
     }
 }
 
-void FaceJoint::AddFacePoint( int nSolidCell, FaceJoint::PointLink & ptLink )
+void FaceJoint::AddFacePoint( int nSolidCells, FaceJoint::PointLink & ptLink )
 {
     FaceJoint::PointLink & fvp = this->fvp;
 
-    for ( int iElement = 0; iElement < nSolidCell; ++ iElement )
+    for ( int iElement = 0; iElement < nSolidCells; ++ iElement )
     {
         fvp.push_back( ptLink[ iElement ] );
     }
 }
 
-void FaceJoint::AddFaceCenterValue( int nSolidCell, RealField & fcvIn )
+void FaceJoint::AddFaceCenterValue( int nSolidCells, RealField & fcvIn )
 {
     RealField & fcv = this->fcv;
 
-    for ( int iElement = 0; iElement < nSolidCell; ++ iElement )
+    for ( int iElement = 0; iElement < nSolidCells; ++ iElement )
     {
         fcv.push_back( fcvIn[ iElement ] );
     }

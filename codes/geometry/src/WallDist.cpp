@@ -237,19 +237,19 @@ void CFillWallStructTaskImp::Create()
 void CFillWallStructTaskImp::FillWall()
 {
     ActionState::dataBook->MoveToBegin();
-    int nSolidCell;
-    HXRead( ActionState::dataBook, nSolidCell );
+    int nSolidCells;
+    HXRead( ActionState::dataBook, nSolidCells );
 
     WallStructure::PointField fcTmp;
     WallStructure::PointLink  fvTmp;
 
-    fvTmp.resize( nSolidCell );
+    fvTmp.resize( nSolidCells );
     HXRead( ActionState::dataBook, fvTmp );
 
-    fcTmp.resize( nSolidCell );
+    fcTmp.resize( nSolidCells );
     HXRead( ActionState::dataBook, fcTmp );
 
-    for ( int cId = 0; cId < nSolidCell; ++ cId )
+    for ( int cId = 0; cId < nSolidCells; ++ cId )
     {
         wallstruct->fc.push_back( fcTmp[ cId ] );
         wallstruct->fv.push_back( fvTmp[ cId ] );

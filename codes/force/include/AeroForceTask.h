@@ -41,6 +41,5 @@ public:
 
 class UnsGrid;
 void CalcAeroForce( int idump_pres );
-int GetNSolidCell( UnsGrid * grid );
 
 EndNameSpace

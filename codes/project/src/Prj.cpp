@@ -60,8 +60,8 @@ void Prj::ProcessCmdLineArgs( std::vector<std::string> &args )
 
 void Prj::Init()
 {
-    Prj::execute_dir = HX_GetExeDirectory().string();
-    Prj::current_dir = HX_GetCurrentDir();
+    Prj::execute_dir = HX_GetExeDirectory();
+    Prj::current_dir = HX_GetCurrentDirectory();
 
     std::cout << " Prj::execute_dir = " << Prj::execute_dir << "\n";
     std::cout << " Prj::current_dir = " << Prj::current_dir << "\n";
@@ -129,7 +129,7 @@ void Prj::MakePrjDir( const std::string & dirName )
     std::string prjDirName = ONEFLOW::StrIO.str();
     //std::cout << " prjDirName = " << prjDirName << "\n";
 
-    MakeDir( prjDirName );
+    HX_CreateDirectory( prjDirName );
 }
 
 std::string Prj::GetPrjDirName( const std::string & fileName )
@@ -150,9 +150,9 @@ void Prj::CreateDirIfNeeded( std::string & prjFileName )
 {
     std::string prj_dir = Prj::GetPrjDirName( prjFileName );
 
-    if ( ! DirExist( prj_dir ) )
+    if ( ! HX_IsDirectory( prj_dir ) )
     {
-        MakeDir( prj_dir );
+        HX_CreateDirectory( prj_dir );
     }
 }
 

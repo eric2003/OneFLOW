@@ -32,12 +32,11 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-bool DirExist( const std::string & dirName );
-bool MakeDir( const std::string & dirName );
+bool HX_IsDirectory( const std::string & dirName );
+bool HX_CreateDirectory( const std::string & dirName );
 
-//std::string HX_GetExeDirectory();
-std::filesystem::path HX_GetExeDirectory();
-std::string HX_GetCurrentDir();
+std::string HX_GetExeDirectory();
+std::string HX_GetCurrentDirectory();
 
 bool EndWithSlash( const std::string & fileName );
 bool EndWithBackwardSlash( const std::string & fileName );

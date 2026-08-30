@@ -22,25 +22,36 @@ License
 
 
 #pragma once
-#include "HXDefine.h"
-#include "HXArray.h"
+
+#include "GridUtils.h"
+#include "BcRecord.h"
+#include "Boundary.h"
+#include "UnsGrid.h"
+#include "FaceTopo.h"
+
+
 BeginNameSpace( ONEFLOW )
 
-MRField * AllocateNodeField( int nEqu = 1 );
-MRField * InterpolateCellToNode( const std::string & name );
-MRField * InterpolateCellToNode( RealField & qc );
-void InterpolateCellToNodeForComponent( RealField & qNodeField, RealField & qField );
-void ApplyBoundaryConditionToNodeField( RealField & qNodeField, RealField & qField, RealField & nCount, int bcType, bool twoSide );
-
-template < typename T >
-void ReorderList( HXVector< T > & x, IntField & indexList )
+int GetNumberOfSolidCells( UnsGrid * grid )
 {
-    HXVector< T > tmp = x;
+    BcRecord * bcRecord = grid->faceTopo->bcManager->bcRecord;
+    bcRecord->CreateBcTypeRegion();
 
-    for ( HXSize_t i = 0; i < indexList.size(); ++ i )
+    BcInfo * bcInfo = bcRecord->bcInfo;
+
+    int nRegion = bcInfo->bcType.size();
+
+    int nSolidCells = 0;
+    for ( int ir = 0; ir < nRegion; ++ ir )
     {
-        x[ i ] = tmp[ indexList[ i ] ];
+        int bcType = bcInfo->bcType[ ir ];
+        if ( bcType != BC::SOLID_SURFACE ) continue;
+
+        int nBCFace = bcInfo->bcFace[ ir ].size();
+		nSolidCells += nBCFace;
     }
+
+    return nSolidCells;
 }
 
 EndNameSpace
