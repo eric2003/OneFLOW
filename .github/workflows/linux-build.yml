@@ -1,0 +1,56 @@
+name: Linux Build
+
+on:
+  push:
+    branches: [ master, hexin ]
+  pull_request:
+    branches: [ master, hexin ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  GCC_VERSION: 12   # 这里修改 10 /11 /12 /13 切换编译器版本
+
+jobs:
+  build:
+    name: "Linux OneFLOW Build Actions"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Install GCC ${{ env.GCC_VERSION }}
+        run: |
+          sudo apt-get update
+          sudo apt install gcc-${{ env.GCC_VERSION }} g++-${{ env.GCC_VERSION }} -y
+          gcc-${{ env.GCC_VERSION }} --version
+          g++-${{ env.GCC_VERSION }} --version
+          ls /usr/bin/gcc*
+        shell: bash
+
+      - name: Install Third party library
+        run: |
+          cd ${{ github.workspace }}
+          sudo apt-get update
+          sudo apt-get install libhdf5-dev libcgns-dev libmetis-dev libmpich-dev -y
+        shell: bash
+
+      - name: CMake Build and Install
+        env:
+          CC: gcc-${{ env.GCC_VERSION }}
+          CXX: g++-${{ env.GCC_VERSION }}
+        run: |
+          cd ${{ github.workspace }}
+          mkdir build
+          cd build
+          export MPI_HOME_INC="/usr/include/x86_64-linux-gnu/mpich"
+          export MPI_HOME_LIB="/usr/lib/x86_64-linux-gnu/libmpich.so"
+          export CGNS_HOME_INC="/usr/include"
+          export CGNS_HOME_LIB="/usr/lib/x86_64-linux-gnu/libcgns.so"
+          export METIS_HOME_INC="/usr/include"
+          export METIS_HOME_LIB="/usr/lib/x86_64-linux-gnu/libmetis.so"
+          cmake --version
+          cmake -DCMAKE_INSTALL_PREFIX=${{ github.workspace }}/Run ../
+          make -j 4
+        shell: bash

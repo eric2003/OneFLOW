@@ -1,4 +1,4 @@
-/// Json-cpp amalgamated source (http://jsoncpp.sourceforge.net/).
+/// Json-cpp amalgamated source (https://github.com/open-source-parsers/jsoncpp/).
 /// It is intended to be used with #include "json/json.h"
 
 // //////////////////////////////////////////////////////////////////////
@@ -6,28 +6,28 @@
 // //////////////////////////////////////////////////////////////////////
 
 /*
-The JsonCpp library's source code, including accompanying documentation, 
+The JsonCpp library's source code, including accompanying documentation,
 tests and demonstration applications, are licensed under the following
 conditions...
 
-Baptiste Lepilleur and The JsonCpp Authors explicitly disclaim copyright in all 
-jurisdictions which recognize such a disclaimer. In such jurisdictions, 
+Baptiste Lepilleur and The JsonCpp Authors explicitly disclaim copyright in all
+jurisdictions which recognize such a disclaimer. In such jurisdictions,
 this software is released into the Public Domain.
 
 In jurisdictions which do not recognize Public Domain property (e.g. Germany as of
 2010), this software is Copyright (c) 2007-2010 by Baptiste Lepilleur and
 The JsonCpp Authors, and is released under the terms of the MIT License (see below).
 
-In jurisdictions which recognize Public Domain property, the user of this 
-software may choose to accept it either as 1) Public Domain, 2) under the 
-conditions of the MIT License (see below), or 3) under the terms of dual 
+In jurisdictions which recognize Public Domain property, the user of this
+software may choose to accept it either as 1) Public Domain, 2) under the
+conditions of the MIT License (see below), or 3) under the terms of dual
 Public Domain/MIT License conditions described here, as they choose.
 
 The MIT License is about as close to Public Domain as a license can get, and is
 described in clear, concise terms at:
 
    http://en.wikipedia.org/wiki/MIT_License
-   
+
 The full text of the MIT License follows:
 
 ========================================================================
@@ -202,14 +202,18 @@ template <typename Iter> void fixNumericLocaleInput(Iter begin, Iter end) {
  * Return iterator that would be the new end of the range [begin,end), if we
  * were to delete zeros in the end of string, but not the last zero before '.'.
  */
-template <typename Iter> Iter fixZerosInTheEnd(Iter begin, Iter end) {
+template <typename Iter>
+Iter fixZerosInTheEnd(Iter begin, Iter end, unsigned int precision) {
   for (; begin != end; --end) {
     if (*(end - 1) != '0') {
       return end;
     }
     // Don't delete the last zero before the decimal point.
-    if (begin != (end - 1) && *(end - 2) == '.') {
-      return end;
+    if (begin != (end - 1) && begin != (end - 2) && *(end - 2) == '.') {
+      if (precision) {
+        return end;
+      }
+      return end - 2;
     }
   }
   return end;
@@ -244,10 +248,13 @@ template <typename Iter> Iter fixZerosInTheEnd(Iter begin, Iter end) {
 #include <json/reader.h>
 #include <json/value.h>
 #endif // if !defined(JSON_IS_AMALGAMATION)
+#include <algorithm>
 #include <cassert>
+#include <cmath>
 #include <cstring>
 #include <iostream>
 #include <istream>
+#include <iterator>
 #include <limits>
 #include <memory>
 #include <set>
@@ -255,13 +262,6 @@ template <typename Iter> Iter fixZerosInTheEnd(Iter begin, Iter end) {
 #include <utility>
 
 #include <cstdio>
-#if __cplusplus >= 201103L
-
-#if !defined(sscanf)
-#define sscanf std::sscanf
-#endif
-
-#endif //__cplusplus
 
 #if defined(_MSC_VER)
 #if !defined(_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES)
@@ -277,7 +277,7 @@ template <typename Iter> Iter fixZerosInTheEnd(Iter begin, Iter end) {
 // Define JSONCPP_DEPRECATED_STACK_LIMIT as an appropriate integer at compile
 // time to change the stack limit
 #if !defined(JSONCPP_DEPRECATED_STACK_LIMIT)
-#define JSONCPP_DEPRECATED_STACK_LIMIT 1000
+#define JSONCPP_DEPRECATED_STACK_LIMIT 256
 #endif
 
 static size_t const stackLimit_g =
@@ -285,11 +285,7 @@ static size_t const stackLimit_g =
 
 namespace Json {
 
-#if __cplusplus >= 201103L || (defined(_CPPLIB_VER) && _CPPLIB_VER >= 520)
 using CharReaderPtr = std::unique_ptr<CharReader>;
-#else
-using CharReaderPtr = std::auto_ptr<CharReader>;
-#endif
 
 // Implementation of class Features
 // ////////////////////////////////
@@ -311,10 +307,7 @@ Features Features::strictMode() {
 // ////////////////////////////////
 
 bool Reader::containsNewLine(Reader::Location begin, Reader::Location end) {
-  for (; begin < end; ++begin)
-    if (*begin == '\n' || *begin == '\r')
-      return true;
-  return false;
+  return std::any_of(begin, end, [](char b) { return b == '\n' || b == '\r'; });
 }
 
 // Class Reader
@@ -333,16 +326,10 @@ bool Reader::parse(const std::string& document, Value& root,
 }
 
 bool Reader::parse(std::istream& is, Value& root, bool collectComments) {
-  // std::istream_iterator<char> begin(is);
-  // std::istream_iterator<char> end;
-  // Those would allow streamed input from a file, if parse() were a
-  // template function.
-
-  // Since String is reference-counted, this at least does not
-  // create an extra copy.
-  String doc;
-  std::getline(is, doc, static_cast<char> EOF);
-  return parse(doc.data(), doc.data() + doc.size(), root, collectComments);
+  document_.assign(std::istreambuf_iterator<char>(is),
+                   std::istreambuf_iterator<char>());
+  return parse(document_.data(), document_.data() + document_.size(), root,
+               collectComments);
 }
 
 bool Reader::parse(const char* beginDoc, const char* endDoc, Value& root,
@@ -365,7 +352,7 @@ bool Reader::parse(const char* beginDoc, const char* endDoc, Value& root,
 
   bool successful = readValue();
   Token token;
-  skipCommentTokens(token);
+  readTokenSkippingComments(token);
   if (collectComments_ && !commentsBefore_.empty())
     root.setComment(commentsBefore_, commentAfter);
   if (features_.strictRoot_) {
@@ -390,10 +377,15 @@ bool Reader::readValue() {
   // after calling readValue(). parse() executes one nodes_.push(), so > instead
   // of >=.
   if (nodes_.size() > stackLimit_g)
+#if JSON_USE_EXCEPTION
     throwRuntimeError("Exceeded stackLimit in readValue().");
+#else
+    // throwRuntimeError aborts. Don't abort here.
+    return false;
+#endif
 
   Token token;
-  skipCommentTokens(token);
+  readTokenSkippingComments(token);
   bool successful = true;
 
   if (collectComments_ && !commentsBefore_.empty()) {
@@ -461,14 +453,14 @@ bool Reader::readValue() {
   return successful;
 }
 
-void Reader::skipCommentTokens(Token& token) {
+bool Reader::readTokenSkippingComments(Token& token) {
+  bool success = readToken(token);
   if (features_.allowComments_) {
-    do {
-      readToken(token);
-    } while (token.type_ == tokenComment);
-  } else {
-    readToken(token);
+    while (success && token.type_ == tokenComment) {
+      success = readToken(token);
+    }
   }
+  return success;
 }
 
 bool Reader::readToken(Token& token) {
@@ -682,12 +674,7 @@ bool Reader::readObject(Token& token) {
   Value init(objectValue);
   currentValue().swapPayload(init);
   currentValue().setOffsetStart(token.start_ - begin_);
-  while (readToken(tokenName)) {
-    bool initialTokenOk = true;
-    while (tokenName.type_ == tokenComment && initialTokenOk)
-      initialTokenOk = readToken(tokenName);
-    if (!initialTokenOk)
-      break;
+  while (readTokenSkippingComments(tokenName)) {
     if (tokenName.type_ == tokenObjectEnd && name.empty()) // empty object
       return true;
     name.clear();
@@ -716,15 +703,11 @@ bool Reader::readObject(Token& token) {
       return recoverFromError(tokenObjectEnd);
 
     Token comma;
-    if (!readToken(comma) ||
-        (comma.type_ != tokenObjectEnd && comma.type_ != tokenArraySeparator &&
-         comma.type_ != tokenComment)) {
+    if (!readTokenSkippingComments(comma) ||
+        (comma.type_ != tokenObjectEnd && comma.type_ != tokenArraySeparator)) {
       return addErrorAndRecover("Missing ',' or '}' in object declaration",
                                 comma, tokenObjectEnd);
     }
-    bool finalizeTokenOk = true;
-    while (comma.type_ == tokenComment && finalizeTokenOk)
-      finalizeTokenOk = readToken(comma);
     if (comma.type_ == tokenObjectEnd)
       return true;
   }
@@ -754,10 +737,7 @@ bool Reader::readArray(Token& token) {
 
     Token currentToken;
     // Accept Comment after last item in the array.
-    ok = readToken(currentToken);
-    while (currentToken.type_ == tokenComment && ok) {
-      ok = readToken(currentToken);
-    }
+    ok = readTokenSkippingComments(currentToken);
     bool badTokenType = (currentToken.type_ != tokenArraySeparator &&
                          currentToken.type_ != tokenArrayEnd);
     if (!ok || badTokenType) {
@@ -835,11 +815,23 @@ bool Reader::decodeDouble(Token& token) {
 
 bool Reader::decodeDouble(Token& token, Value& decoded) {
   double value = 0;
-  String buffer(token.start_, token.end_);
-  IStringStream is(buffer);
-  if (!(is >> value))
-    return addError(
-        "'" + String(token.start_, token.end_) + "' is not a number.", token);
+  IStringStream is(String(token.start_, token.end_));
+  is.imbue(std::locale::classic());
+  if (!(is >> value)) {
+    if (value == std::numeric_limits<double>::max())
+      value = std::numeric_limits<double>::infinity();
+    else if (value == std::numeric_limits<double>::lowest())
+      value = -std::numeric_limits<double>::infinity();
+    // operator>> sets failbit for a subnormal result (underflow) even though
+    // it produced the correctly-rounded value, which made such numbers fail to
+    // parse back after jsoncpp serialized them. Keep a subnormal value instead
+    // of rejecting it. See issue #1427. Other failures -- malformed numbers
+    // like "0e" or "0e+", or non-numbers -- leave the value at zero/non-finite
+    // and are still rejected.
+    else if (!std::isinf(value) && std::fpclassify(value) != FP_SUBNORMAL)
+      return addError(
+          "'" + String(token.start_, token.end_) + "' is not a number.", token);
+  }
   decoded = value;
   return true;
 }
@@ -902,6 +894,8 @@ bool Reader::decodeString(Token& token, String& decoded) {
         return addError("Bad escape sequence in string", token, current);
       }
     } else {
+      if (static_cast<unsigned char>(c) < 0x20)
+        return addError("Control character in string", token, current - 1);
       decoded += c;
     }
   }
@@ -1003,7 +997,7 @@ void Reader::getLocationLineAndColumn(Location location, int& line,
   while (current < location && current != end_) {
     Char c = *current++;
     if (c == '\r') {
-      if (*current == '\n')
+      if (current != end_ && *current == '\n')
         ++current;
       lastLineStart = current;
       ++line;
@@ -1105,6 +1099,7 @@ public:
   bool failIfExtra_;
   bool rejectDupKeys_;
   bool allowSpecialFloats_;
+  bool skipBom_;
   size_t stackLimit_;
 }; // OurFeatures
 
@@ -1119,17 +1114,12 @@ class OurReader {
 public:
   using Char = char;
   using Location = const Char*;
-  struct StructuredError {
-    ptrdiff_t offset_start;
-    ptrdiff_t offset_limit;
-    String message;
-  };
 
   explicit OurReader(OurFeatures const& features);
   bool parse(const char* beginDoc, const char* endDoc, Value& root,
              bool collectComments = true);
   String getFormattedErrorMessages() const;
-  std::vector<StructuredError> getStructuredErrors() const;
+  std::vector<CharReader::StructuredError> getStructuredErrors() const;
 
 private:
   OurReader(OurReader const&);      // no impl
@@ -1172,7 +1162,10 @@ private:
   using Errors = std::deque<ErrorInfo>;
 
   bool readToken(Token& token);
+  bool readTokenSkippingComments(Token& token);
   void skipSpaces();
+  void skipCommentTokens();
+  void skipBom(bool skipBom);
   bool match(const Char* pattern, int patternLength);
   bool readComment();
   bool readCStyleComment(bool* containsNewLineResult);
@@ -1204,7 +1197,6 @@ private:
                                 int& column) const;
   String getLocationLineAndColumn(Location location) const;
   void addComment(Location begin, Location end, CommentPlacement placement);
-  void skipCommentTokens(Token& token);
 
   static String normalizeEOL(Location begin, Location end);
   static bool containsNewLine(Location begin, Location end);
@@ -1228,12 +1220,21 @@ private:
 
 // complete copy of Read impl, for OurReader
 
+// Test-only instrumentation: total bytes examined by
+// OurReader::containsNewLine, so unit tests can assert that comment handling
+// stays linear in the input rather than quadratic in the comment count (see
+// CharReaderTest/parseCommentsAfterValueScansLinearly). thread_local so it
+// never races during concurrent parsing; the increment is negligible and only
+// runs while parsing comments. Not part of the supported public API.
+JSON_API size_t& newlineScanByteCountForTesting() {
+  static thread_local size_t count = 0;
+  return count;
+}
+
 bool OurReader::containsNewLine(OurReader::Location begin,
                                 OurReader::Location end) {
-  for (; begin < end; ++begin)
-    if (*begin == '\n' || *begin == '\r')
-      return true;
-  return false;
+  newlineScanByteCountForTesting() += static_cast<size_t>(end - begin);
+  return std::any_of(begin, end, [](char b) { return b == '\n' || b == '\r'; });
 }
 
 OurReader::OurReader(OurFeatures const& features) : features_(features) {}
@@ -1256,10 +1257,12 @@ bool OurReader::parse(const char* beginDoc, const char* endDoc, Value& root,
     nodes_.pop();
   nodes_.push(&root);
 
+  // skip byte order mark if it exists at the beginning of the UTF-8 text.
+  skipBom(features_.skipBom_);
   bool successful = readValue();
   nodes_.pop();
   Token token;
-  skipCommentTokens(token);
+  readTokenSkippingComments(token);
   if (features_.failIfExtra_ && (token.type_ != tokenEndOfStream)) {
     addError("Extra non-whitespace after JSON value.", token);
     return false;
@@ -1283,11 +1286,20 @@ bool OurReader::parse(const char* beginDoc, const char* endDoc, Value& root,
 }
 
 bool OurReader::readValue() {
-  //  To preserve the old behaviour we cast size_t to int.
-  if (nodes_.size() > features_.stackLimit_)
-    throwRuntimeError("Exceeded stackLimit in readValue().");
   Token token;
-  skipCommentTokens(token);
+  if (nodes_.size() > features_.stackLimit_) {
+#if JSON_USE_EXCEPTION
+    throwRuntimeError("Exceeded stackLimit in readValue().");
+#else
+    // throwRuntimeError aborts. Don't abort here.
+    token.start_ = current_;
+    token.end_ = current_;
+    token.type_ = tokenError;
+    return addError(
+        "Exceeded stackLimit for nested object and/or array values.", token);
+#endif
+  }
+  readTokenSkippingComments(token);
   bool successful = true;
 
   if (collectComments_ && !commentsBefore_.empty()) {
@@ -1374,14 +1386,14 @@ bool OurReader::readValue() {
   return successful;
 }
 
-void OurReader::skipCommentTokens(Token& token) {
+bool OurReader::readTokenSkippingComments(Token& token) {
+  bool success = readToken(token);
   if (features_.allowComments_) {
-    do {
-      readToken(token);
-    } while (token.type_ == tokenComment);
-  } else {
-    readToken(token);
+    while (success && token.type_ == tokenComment) {
+      success = readToken(token);
+    }
   }
+  return success;
 }
 
 bool OurReader::readToken(Token& token) {
@@ -1410,8 +1422,11 @@ bool OurReader::readToken(Token& token) {
     if (features_.allowSingleQuotes_) {
       token.type_ = tokenString;
       ok = readStringSingleQuote();
-      break;
-    } // else fall through
+    } else {
+      // If we don't allow single quotes, this is a failure case.
+      ok = false;
+    }
+    break;
   case '/':
     token.type_ = tokenComment;
     ok = readComment();
@@ -1502,6 +1517,34 @@ void OurReader::skipSpaces() {
   }
 }
 
+// Skip whitespace and any comments, leaving current_ at the next significant
+// character. Consumed comments are recorded (commentsBefore_) so the next value
+// still receives them; if none follows they are simply not attached. This lets
+// callers peek for a delimiter that is preceded by comments (e.g. a ']' after a
+// trailing comma -- see readArray and issue #1500).
+void OurReader::skipCommentTokens() {
+  skipSpaces();
+  if (!features_.allowComments_)
+    return;
+  while (current_ != end_ && *current_ == '/' && (current_ + 1) != end_ &&
+         (current_[1] == '/' || current_[1] == '*')) {
+    Token comment;
+    if (!readToken(comment))
+      return;
+    skipSpaces();
+  }
+}
+
+void OurReader::skipBom(bool skipBom) {
+  // The default behavior is to skip BOM.
+  if (skipBom) {
+    if ((end_ - begin_) >= 3 && strncmp(begin_, "\xEF\xBB\xBF", 3) == 0) {
+      begin_ += 3;
+      current_ = begin_;
+    }
+  }
+}
+
 bool OurReader::match(const Char* pattern, int patternLength) {
   if (end_ - current_ < patternLength)
     return false;
@@ -1537,9 +1580,13 @@ bool OurReader::readComment() {
       if (lastValueEnd_ && !containsNewLine(lastValueEnd_, commentBegin)) {
         if (isCppStyleComment || !cStyleWithEmbeddedNewline) {
           placement = commentAfterOnSameLine;
-          lastValueHasAComment_ = true;
         }
       }
+      // The gap between the last value and this comment only grows as more
+      // comments are consumed, so a later comment can never be on the same
+      // line as that value. Mark it handled to avoid re-scanning the same
+      // growing prefix for every following comment (quadratic behavior).
+      lastValueHasAComment_ = true;
     }
 
     addComment(commentBegin, current_, placement);
@@ -1665,12 +1712,7 @@ bool OurReader::readObject(Token& token) {
   Value init(objectValue);
   currentValue().swapPayload(init);
   currentValue().setOffsetStart(token.start_ - begin_);
-  while (readToken(tokenName)) {
-    bool initialTokenOk = true;
-    while (tokenName.type_ == tokenComment && initialTokenOk)
-      initialTokenOk = readToken(tokenName);
-    if (!initialTokenOk)
-      break;
+  while (readTokenSkippingComments(tokenName)) {
     if (tokenName.type_ == tokenObjectEnd &&
         (name.empty() ||
          features_.allowTrailingCommas_)) // empty object or trailing comma
@@ -1707,15 +1749,11 @@ bool OurReader::readObject(Token& token) {
       return recoverFromError(tokenObjectEnd);
 
     Token comma;
-    if (!readToken(comma) ||
-        (comma.type_ != tokenObjectEnd && comma.type_ != tokenArraySeparator &&
-         comma.type_ != tokenComment)) {
+    if (!readTokenSkippingComments(comma) ||
+        (comma.type_ != tokenObjectEnd && comma.type_ != tokenArraySeparator)) {
       return addErrorAndRecover("Missing ',' or '}' in object declaration",
                                 comma, tokenObjectEnd);
     }
-    bool finalizeTokenOk = true;
-    while (comma.type_ == tokenComment && finalizeTokenOk)
-      finalizeTokenOk = readToken(comma);
     if (comma.type_ == tokenObjectEnd)
       return true;
   }
@@ -1729,7 +1767,10 @@ bool OurReader::readArray(Token& token) {
   currentValue().setOffsetStart(token.start_ - begin_);
   int index = 0;
   for (;;) {
-    skipSpaces();
+    // Skip comments too, so a ']' that follows a trailing comma (or comments in
+    // an otherwise empty array) is recognized rather than mistaken for the
+    // start of another value. See issue #1500.
+    skipCommentTokens();
     if (current_ != end_ && *current_ == ']' &&
         (index == 0 ||
          (features_.allowTrailingCommas_ &&
@@ -1749,10 +1790,7 @@ bool OurReader::readArray(Token& token) {
 
     Token currentToken;
     // Accept Comment after last item in the array.
-    ok = readToken(currentToken);
-    while (currentToken.type_ == tokenComment && ok) {
-      ok = readToken(currentToken);
-    }
+    ok = readTokenSkippingComments(currentToken);
     bool badTokenType = (currentToken.type_ != tokenArraySeparator &&
                          currentToken.type_ != tokenArrayEnd);
     if (!ok || badTokenType) {
@@ -1830,7 +1868,7 @@ bool OurReader::decodeNumber(Token& token, Value& decoded) {
     const auto digit(static_cast<Value::UInt>(c - '0'));
     if (value >= threshold) {
       // We've hit or exceeded the max value divided by 10 (rounded down). If
-      // a) we've only just touched the limit, meaing value == threshold,
+      // a) we've only just touched the limit, meaning value == threshold,
       // b) this is the last digit, or
       // c) it's small enough to fit in that rounding delta, we're okay.
       // Otherwise treat this number as a double to avoid overflow.
@@ -1867,11 +1905,22 @@ bool OurReader::decodeDouble(Token& token) {
 
 bool OurReader::decodeDouble(Token& token, Value& decoded) {
   double value = 0;
-  const String buffer(token.start_, token.end_);
-  IStringStream is(buffer);
+  IStringStream is(String(token.start_, token.end_));
+  is.imbue(std::locale::classic());
   if (!(is >> value)) {
-    return addError(
-        "'" + String(token.start_, token.end_) + "' is not a number.", token);
+    if (value == std::numeric_limits<double>::max())
+      value = std::numeric_limits<double>::infinity();
+    else if (value == std::numeric_limits<double>::lowest())
+      value = -std::numeric_limits<double>::infinity();
+    // operator>> sets failbit for a subnormal result (underflow) even though
+    // it produced the correctly-rounded value, which made such numbers fail to
+    // parse back after jsoncpp serialized them. Keep a subnormal value instead
+    // of rejecting it. See issue #1427. Other failures -- malformed numbers
+    // like "0e" or "0e+", or non-numbers -- leave the value at zero/non-finite
+    // and are still rejected.
+    else if (!std::isinf(value) && std::fpclassify(value) != FP_SUBNORMAL)
+      return addError(
+          "'" + String(token.start_, token.end_) + "' is not a number.", token);
   }
   decoded = value;
   return true;
@@ -1935,6 +1984,8 @@ bool OurReader::decodeString(Token& token, String& decoded) {
         return addError("Bad escape sequence in string", token, current);
       }
     } else {
+      if (static_cast<unsigned char>(c) < 0x20)
+        return addError("Control character in string", token, current - 1);
       decoded += c;
     }
   }
@@ -2036,7 +2087,7 @@ void OurReader::getLocationLineAndColumn(Location location, int& line,
   while (current < location && current != end_) {
     Char c = *current++;
     if (c == '\r') {
-      if (*current == '\n')
+      if (current != end_ && *current == '\n')
         ++current;
       lastLineStart = current;
       ++line;
@@ -2071,10 +2122,11 @@ String OurReader::getFormattedErrorMessages() const {
   return formattedMessage;
 }
 
-std::vector<OurReader::StructuredError> OurReader::getStructuredErrors() const {
-  std::vector<OurReader::StructuredError> allErrors;
+std::vector<CharReader::StructuredError>
+OurReader::getStructuredErrors() const {
+  std::vector<CharReader::StructuredError> allErrors;
   for (const auto& error : errors_) {
-    OurReader::StructuredError structured;
+    CharReader::StructuredError structured;
     structured.offset_start = error.token_.start_ - begin_;
     structured.offset_limit = error.token_.end_ - begin_;
     structured.message = error.message_;
@@ -2084,20 +2136,36 @@ std::vector<OurReader::StructuredError> OurReader::getStructuredErrors() const {
 }
 
 class OurCharReader : public CharReader {
-  bool const collectComments_;
-  OurReader reader_;
 
 public:
   OurCharReader(bool collectComments, OurFeatures const& features)
-      : collectComments_(collectComments), reader_(features) {}
-  bool parse(char const* beginDoc, char const* endDoc, Value* root,
-             String* errs) override {
-    bool ok = reader_.parse(beginDoc, endDoc, *root, collectComments_);
-    if (errs) {
-      *errs = reader_.getFormattedErrorMessages();
+      : CharReader(
+            std::unique_ptr<OurImpl>(new OurImpl(collectComments, features))) {}
+
+protected:
+  class OurImpl : public Impl {
+  public:
+    OurImpl(bool collectComments, OurFeatures const& features)
+        : collectComments_(collectComments), reader_(features) {}
+
+    bool parse(char const* beginDoc, char const* endDoc, Value* root,
+               String* errs) override {
+      bool ok = reader_.parse(beginDoc, endDoc, *root, collectComments_);
+      if (errs) {
+        *errs = reader_.getFormattedErrorMessages();
+      }
+      return ok;
     }
-    return ok;
-  }
+
+    std::vector<CharReader::StructuredError>
+    getStructuredErrors() const override {
+      return reader_.getStructuredErrors();
+    }
+
+  private:
+    bool const collectComments_;
+    OurReader reader_;
+  };
 };
 
 CharReaderBuilder::CharReaderBuilder() { setDefaults(&settings_); }
@@ -2119,39 +2187,37 @@ CharReader* CharReaderBuilder::newCharReader() const {
   features.failIfExtra_ = settings_["failIfExtra"].asBool();
   features.rejectDupKeys_ = settings_["rejectDupKeys"].asBool();
   features.allowSpecialFloats_ = settings_["allowSpecialFloats"].asBool();
+  features.skipBom_ = settings_["skipBom"].asBool();
   return new OurCharReader(collectComments, features);
 }
-static void getValidReaderKeys(std::set<String>* valid_keys) {
-  valid_keys->clear();
-  valid_keys->insert("collectComments");
-  valid_keys->insert("allowComments");
-  valid_keys->insert("allowTrailingCommas");
-  valid_keys->insert("strictRoot");
-  valid_keys->insert("allowDroppedNullPlaceholders");
-  valid_keys->insert("allowNumericKeys");
-  valid_keys->insert("allowSingleQuotes");
-  valid_keys->insert("stackLimit");
-  valid_keys->insert("failIfExtra");
-  valid_keys->insert("rejectDupKeys");
-  valid_keys->insert("allowSpecialFloats");
-}
+
 bool CharReaderBuilder::validate(Json::Value* invalid) const {
-  Json::Value my_invalid;
-  if (!invalid)
-    invalid = &my_invalid; // so we do not need to test for NULL
-  Json::Value& inv = *invalid;
-  std::set<String> valid_keys;
-  getValidReaderKeys(&valid_keys);
-  Value::Members keys = settings_.getMemberNames();
-  size_t n = keys.size();
-  for (size_t i = 0; i < n; ++i) {
-    String const& key = keys[i];
-    if (valid_keys.find(key) == valid_keys.end()) {
-      inv[key] = settings_[key];
-    }
+  static const auto& valid_keys = *new std::set<String>{
+      "collectComments",
+      "allowComments",
+      "allowTrailingCommas",
+      "strictRoot",
+      "allowDroppedNullPlaceholders",
+      "allowNumericKeys",
+      "allowSingleQuotes",
+      "stackLimit",
+      "failIfExtra",
+      "rejectDupKeys",
+      "allowSpecialFloats",
+      "skipBom",
+  };
+  for (auto si = settings_.begin(); si != settings_.end(); ++si) {
+    auto key = si.name();
+    if (valid_keys.count(key))
+      continue;
+    if (invalid)
+      (*invalid)[key] = *si;
+    else
+      return false;
   }
-  return inv.empty();
+  return invalid ? invalid->empty() : true;
 }
+
 Value& CharReaderBuilder::operator[](const String& key) {
   return settings_[key];
 }
@@ -2164,10 +2230,11 @@ void CharReaderBuilder::strictMode(Json::Value* settings) {
   (*settings)["allowDroppedNullPlaceholders"] = false;
   (*settings)["allowNumericKeys"] = false;
   (*settings)["allowSingleQuotes"] = false;
-  (*settings)["stackLimit"] = 1000;
+  (*settings)["stackLimit"] = 256;
   (*settings)["failIfExtra"] = true;
   (*settings)["rejectDupKeys"] = true;
   (*settings)["allowSpecialFloats"] = false;
+  (*settings)["skipBom"] = true;
   //! [CharReaderBuilderStrictMode]
 }
 // static
@@ -2180,11 +2247,38 @@ void CharReaderBuilder::setDefaults(Json::Value* settings) {
   (*settings)["allowDroppedNullPlaceholders"] = false;
   (*settings)["allowNumericKeys"] = false;
   (*settings)["allowSingleQuotes"] = false;
-  (*settings)["stackLimit"] = 1000;
+  (*settings)["stackLimit"] = 256;
   (*settings)["failIfExtra"] = false;
   (*settings)["rejectDupKeys"] = false;
   (*settings)["allowSpecialFloats"] = false;
+  (*settings)["skipBom"] = true;
   //! [CharReaderBuilderDefaults]
+}
+// static
+void CharReaderBuilder::ecma404Mode(Json::Value* settings) {
+  //! [CharReaderBuilderECMA404Mode]
+  (*settings)["allowComments"] = false;
+  (*settings)["allowTrailingCommas"] = false;
+  (*settings)["strictRoot"] = false;
+  (*settings)["allowDroppedNullPlaceholders"] = false;
+  (*settings)["allowNumericKeys"] = false;
+  (*settings)["allowSingleQuotes"] = false;
+  (*settings)["stackLimit"] = 256;
+  (*settings)["failIfExtra"] = true;
+  (*settings)["rejectDupKeys"] = false;
+  (*settings)["allowSpecialFloats"] = false;
+  (*settings)["skipBom"] = false;
+  //! [CharReaderBuilderECMA404Mode]
+}
+
+std::vector<CharReader::StructuredError>
+CharReader::getStructuredErrors() const {
+  return _impl->getStructuredErrors();
+}
+
+bool CharReader::parse(char const* beginDoc, char const* endDoc, Value* root,
+                       String* errs) {
+  return _impl->parse(beginDoc, endDoc, root, errs);
 }
 
 //////////////////////////////////
@@ -2194,7 +2288,7 @@ bool parseFromStream(CharReader::Factory const& fact, IStream& sin, Value* root,
                      String* errs) {
   OStringStream ssin;
   ssin << sin.rdbuf();
-  String doc = ssin.str();
+  String doc = std::move(ssin).str();
   char const* begin = doc.data();
   char const* end = begin + doc.size();
   // Note that we do not actually need a null-terminator.
@@ -2351,8 +2445,8 @@ ValueConstIterator::ValueConstIterator(
 ValueConstIterator::ValueConstIterator(ValueIterator const& other)
     : ValueIteratorBase(other) {}
 
-ValueConstIterator& ValueConstIterator::
-operator=(const ValueIteratorBase& other) {
+ValueConstIterator&
+ValueConstIterator::operator=(const ValueIteratorBase& other) {
   copy(other);
   return *this;
 }
@@ -2412,6 +2506,7 @@ ValueIterator& ValueIterator::operator=(const SelfType& other) {
 #include <cmath>
 #include <cstddef>
 #include <cstring>
+#include <iostream>
 #include <sstream>
 #include <utility>
 
@@ -2485,7 +2580,8 @@ template <typename T, typename U>
 static inline bool InRange(double d, T min, U max) {
   // The casts can lose precision, but we are looking only for
   // an approximate range. Might fail on edge cases though. ~cdunn
-  return d >= static_cast<double>(min) && d <= static_cast<double>(max);
+  return d >= static_cast<double>(min) && d <= static_cast<double>(max) &&
+         !(static_cast<U>(d) == min && d != static_cast<double>(min));
 }
 #else  // if !defined(JSON_USE_INT64_DOUBLE_CONVERSION)
 static inline double integerToDouble(Json::UInt64 value) {
@@ -2499,7 +2595,8 @@ template <typename T> static inline double integerToDouble(T value) {
 
 template <typename T, typename U>
 static inline bool InRange(double d, T min, U max) {
-  return d >= integerToDouble(min) && d <= integerToDouble(max);
+  return d >= integerToDouble(min) && d <= integerToDouble(max) &&
+         !(static_cast<U>(d) == min && d != integerToDouble(min));
 }
 #endif // if !defined(JSON_USE_INT64_DOUBLE_CONVERSION)
 
@@ -2561,7 +2658,7 @@ inline static void decodePrefixedString(bool isPrefixed, char const* prefixed,
 /** Free the string duplicated by
  * duplicateStringValue()/duplicateAndPrefixStringValue().
  */
-#if JSONCPP_USING_SECURE_MEMORY
+#if JSONCPP_USE_SECURE_MEMORY
 static inline void releasePrefixedStringValue(char* value) {
   unsigned length = 0;
   char const* valueDecoded;
@@ -2576,10 +2673,10 @@ static inline void releaseStringValue(char* value, unsigned length) {
   memset(value, 0, size);
   free(value);
 }
-#else  // !JSONCPP_USING_SECURE_MEMORY
+#else  // !JSONCPP_USE_SECURE_MEMORY
 static inline void releasePrefixedStringValue(char* value) { free(value); }
 static inline void releaseStringValue(char* value, unsigned) { free(value); }
-#endif // JSONCPP_USING_SECURE_MEMORY
+#endif // JSONCPP_USE_SECURE_MEMORY
 
 } // namespace Json
 
@@ -2589,6 +2686,32 @@ static inline void releaseStringValue(char* value, unsigned) { free(value); }
 // ValueInternals...
 // //////////////////////////////////////////////////////////////////
 // //////////////////////////////////////////////////////////////////
+
+namespace Json {
+
+static const char* valueTypeToString(ValueType type) {
+  switch (type) {
+  case nullValue:
+    return "nullValue";
+  case intValue:
+    return "intValue";
+  case uintValue:
+    return "uintValue";
+  case realValue:
+    return "realValue";
+  case stringValue:
+    return "stringValue";
+  case booleanValue:
+    return "booleanValue";
+  case arrayValue:
+    return "arrayValue";
+  case objectValue:
+    return "objectValue";
+  }
+  return "unknown";
+}
+
+} // namespace Json
 // //////////////////////////////////////////////////////////////////
 #if !defined(JSON_IS_AMALGAMATION)
 
@@ -2599,8 +2722,8 @@ namespace Json {
 
 #if JSON_USE_EXCEPTION
 Exception::Exception(String msg) : msg_(std::move(msg)) {}
-Exception::~Exception() JSONCPP_NOEXCEPT = default;
-char const* Exception::what() const JSONCPP_NOEXCEPT { return msg_.c_str(); }
+Exception::~Exception() noexcept = default;
+char const* Exception::what() const noexcept { return msg_.c_str(); }
 RuntimeError::RuntimeError(String const& msg) : Exception(msg) {}
 LogicError::LogicError(String const& msg) : Exception(msg) {}
 JSONCPP_NORETURN void throwRuntimeError(String const& msg) {
@@ -2610,8 +2733,14 @@ JSONCPP_NORETURN void throwLogicError(String const& msg) {
   throw LogicError(msg);
 }
 #else // !JSON_USE_EXCEPTION
-JSONCPP_NORETURN void throwRuntimeError(String const& msg) { abort(); }
-JSONCPP_NORETURN void throwLogicError(String const& msg) { abort(); }
+JSONCPP_NORETURN void throwRuntimeError(String const& msg) {
+  std::cerr << msg << std::endl;
+  abort();
+}
+JSONCPP_NORETURN void throwLogicError(String const& msg) {
+  std::cerr << msg << std::endl;
+  abort();
+}
 #endif
 
 // //////////////////////////////////////////////////////////////////
@@ -2621,6 +2750,9 @@ JSONCPP_NORETURN void throwLogicError(String const& msg) { abort(); }
 // //////////////////////////////////////////////////////////////////
 // //////////////////////////////////////////////////////////////////
 // //////////////////////////////////////////////////////////////////
+
+/// \cond
+// CZString is a private implementation detail of Value; hide it from doxygen.
 
 // Notes: policy_ indicates if the string was allocated when
 // a string is stored.
@@ -2639,20 +2771,29 @@ Value::CZString::CZString(const CZString& other) {
   cstr_ = (other.storage_.policy_ != noDuplication && other.cstr_ != nullptr
                ? duplicateStringValue(other.cstr_, other.storage_.length_)
                : other.cstr_);
-  storage_.policy_ =
-      static_cast<unsigned>(
-          other.cstr_
-              ? (static_cast<DuplicationPolicy>(other.storage_.policy_) ==
-                         noDuplication
-                     ? noDuplication
-                     : duplicate)
-              : static_cast<DuplicationPolicy>(other.storage_.policy_)) &
-      3U;
-  storage_.length_ = other.storage_.length_;
+  if (other.cstr_) {
+    storage_.policy_ =
+        static_cast<unsigned>(
+            other.cstr_
+                ? (static_cast<DuplicationPolicy>(other.storage_.policy_) ==
+                           noDuplication
+                       ? noDuplication
+                       : duplicate)
+                : static_cast<DuplicationPolicy>(other.storage_.policy_)) &
+        3U;
+    storage_.length_ = other.storage_.length_;
+  } else {
+    index_ = other.index_;
+  }
 }
 
-Value::CZString::CZString(CZString&& other)
-    : cstr_(other.cstr_), index_(other.index_) {
+Value::CZString::CZString(CZString&& other) noexcept : cstr_(other.cstr_) {
+  if (other.cstr_) {
+    storage_.policy_ = other.storage_.policy_;
+    storage_.length_ = other.storage_.length_;
+  } else {
+    index_ = other.index_;
+  }
   other.cstr_ = nullptr;
 }
 
@@ -2677,9 +2818,19 @@ Value::CZString& Value::CZString::operator=(const CZString& other) {
   return *this;
 }
 
-Value::CZString& Value::CZString::operator=(CZString&& other) {
+Value::CZString& Value::CZString::operator=(CZString&& other) noexcept {
+  if (cstr_ && storage_.policy_ == duplicate) {
+    // CZString keys come from duplicateStringValue (no length prefix), so
+    // release with the matching non-prefixed variant, as the destructor does.
+    releaseStringValue(const_cast<char*>(cstr_), storage_.length_ + 1U);
+  }
   cstr_ = other.cstr_;
-  index_ = other.index_;
+  if (other.cstr_) {
+    storage_.policy_ = other.storage_.policy_;
+    storage_.length_ = other.storage_.length_;
+  } else {
+    index_ = other.index_;
+  }
   other.cstr_ = nullptr;
   return *this;
 }
@@ -2723,6 +2874,7 @@ unsigned Value::CZString::length() const { return storage_.length_; }
 bool Value::CZString::isStaticString() const {
   return storage_.policy_ == noDuplication;
 }
+/// \endcond
 
 // //////////////////////////////////////////////////////////////////
 // //////////////////////////////////////////////////////////////////
@@ -2825,7 +2977,7 @@ Value::Value(const Value& other) {
   dupMeta(other);
 }
 
-Value::Value(Value&& other) {
+Value::Value(Value&& other) noexcept {
   initBasic(nullValue);
   swap(other);
 }
@@ -2840,7 +2992,7 @@ Value& Value::operator=(const Value& other) {
   return *this;
 }
 
-Value& Value::operator=(Value&& other) {
+Value& Value::operator=(Value&& other) noexcept {
   other.swap(*this);
   return *this;
 }
@@ -2991,7 +3143,7 @@ const char* Value::asCString() const {
   return this_str;
 }
 
-#if JSONCPP_USING_SECURE_MEMORY
+#if JSONCPP_USE_SECURE_MEMORY
 unsigned Value::getCStringLength() const {
   JSON_ASSERT_MESSAGE(type() == stringValue,
                       "in Json::Value::asCString(): requires stringValue");
@@ -3074,7 +3226,7 @@ Value::UInt Value::asUInt() const {
     JSON_ASSERT_MESSAGE(isUInt(), "LargestUInt out of UInt range");
     return UInt(value_.uint_);
   case realValue:
-    JSON_ASSERT_MESSAGE(InRange(value_.real_, 0, maxUInt),
+    JSON_ASSERT_MESSAGE(InRange(value_.real_, 0u, maxUInt),
                         "double out of UInt range");
     return UInt(value_.real_);
   case nullValue:
@@ -3097,6 +3249,11 @@ Value::Int64 Value::asInt64() const {
     JSON_ASSERT_MESSAGE(isInt64(), "LargestUInt out of Int64 range");
     return Int64(value_.uint_);
   case realValue:
+    // If the double value is in proximity to minInt64, it will be rounded to
+    // minInt64. The correct value in this scenario is indeterminable
+    JSON_ASSERT_MESSAGE(
+        value_.real_ != minInt64,
+        "Double value is minInt64, precise value cannot be determined");
     JSON_ASSERT_MESSAGE(InRange(value_.real_, minInt64, maxInt64),
                         "double out of Int64 range");
     return Int64(value_.real_);
@@ -3118,7 +3275,7 @@ Value::UInt64 Value::asUInt64() const {
   case uintValue:
     return UInt64(value_.uint_);
   case realValue:
-    JSON_ASSERT_MESSAGE(InRange(value_.real_, 0, maxUInt64),
+    JSON_ASSERT_MESSAGE(InRange(value_.real_, 0u, maxUInt64),
                         "double out of UInt64 range");
     return UInt64(value_.real_);
   case nullValue:
@@ -3229,7 +3386,7 @@ bool Value::isConvertibleTo(ValueType other) const {
            type() == booleanValue || type() == nullValue;
   case uintValue:
     return isUInt() ||
-           (type() == realValue && InRange(value_.real_, 0, maxUInt)) ||
+           (type() == realValue && InRange(value_.real_, 0u, maxUInt)) ||
            type() == booleanValue || type() == nullValue;
   case realValue:
     return isNumeric() || type() == booleanValue || type() == nullValue;
@@ -3296,15 +3453,18 @@ void Value::clear() {
 }
 
 void Value::resize(ArrayIndex newSize) {
-  JSON_ASSERT_MESSAGE(type() == nullValue || type() == arrayValue,
-                      "in Json::Value::resize(): requires arrayValue");
+  JSON_ASSERT_MESSAGE(
+      type() == nullValue || type() == arrayValue,
+      "in Json::Value::resize(): requires arrayValue, but found "
+          << valueTypeToString(type()));
   if (type() == nullValue)
     *this = Value(arrayValue);
   ArrayIndex oldSize = size();
   if (newSize == 0)
     clear();
   else if (newSize > oldSize)
-    this->operator[](newSize - 1);
+    for (ArrayIndex i = oldSize; i < newSize; ++i)
+      (*this)[i];
   else {
     for (ArrayIndex index = newSize; index < oldSize; ++index) {
       value_.map_->erase(index);
@@ -3323,6 +3483,15 @@ Value& Value::operator[](ArrayIndex index) {
   auto it = value_.map_->lower_bound(key);
   if (it != value_.map_->end() && (*it).first == key)
     return (*it).second;
+
+  // JSON arrays are dense: materialize any gap between the current size and
+  // `index` with null so that size(), iteration, and serialization stay
+  // consistent. Without this, `arr[5] = x` on an empty array would store a
+  // single element while size() reported 6 and serialization emitted six
+  // (see issue #1611). resize() already grows arrays this same way.
+  for (ArrayIndex i = size(); i < index; ++i)
+    value_.map_->insert(value_.map_->end(),
+                        ObjectValues::value_type(CZString(i), nullSingleton()));
 
   ObjectValues::value_type defaultValue(key, nullSingleton());
   it = value_.map_->insert(it, defaultValue);
@@ -3429,7 +3598,8 @@ void Value::dupMeta(const Value& other) {
 Value& Value::resolveReference(const char* key) {
   JSON_ASSERT_MESSAGE(
       type() == nullValue || type() == objectValue,
-      "in Json::Value::resolveReference(): requires objectValue");
+      "in Json::Value::resolveReference(): requires objectValue, but found "
+          << valueTypeToString(type()));
   if (type() == nullValue)
     *this = Value(objectValue);
   CZString actualKey(key, static_cast<unsigned>(strlen(key)),
@@ -3446,9 +3616,10 @@ Value& Value::resolveReference(const char* key) {
 
 // @param key is not null-terminated.
 Value& Value::resolveReference(char const* key, char const* end) {
-  JSON_ASSERT_MESSAGE(
-      type() == nullValue || type() == objectValue,
-      "in Json::Value::resolveReference(key, end): requires objectValue");
+  JSON_ASSERT_MESSAGE(type() == nullValue || type() == objectValue,
+                      "in Json::Value::resolveReference(key, end): requires "
+                      "objectValue, but found "
+                          << valueTypeToString(type()));
   if (type() == nullValue)
     *this = Value(objectValue);
   CZString actualKey(key, static_cast<unsigned>(end - key),
@@ -3483,6 +3654,47 @@ Value const* Value::find(char const* begin, char const* end) const {
     return nullptr;
   return &(*it).second;
 }
+Value const* Value::find(const String& key) const {
+  return find(key.data(), key.data() + key.length());
+}
+
+Value const* Value::findNull(const String& key) const {
+  return findValue<Value, &Value::isNull>(key);
+}
+Value const* Value::findBool(const String& key) const {
+  return findValue<Value, &Value::isBool>(key);
+}
+Value const* Value::findInt(const String& key) const {
+  return findValue<Value, &Value::isInt>(key);
+}
+Value const* Value::findInt64(const String& key) const {
+  return findValue<Value, &Value::isInt64>(key);
+}
+Value const* Value::findUInt(const String& key) const {
+  return findValue<Value, &Value::isUInt>(key);
+}
+Value const* Value::findUInt64(const String& key) const {
+  return findValue<Value, &Value::isUInt64>(key);
+}
+Value const* Value::findIntegral(const String& key) const {
+  return findValue<Value, &Value::isIntegral>(key);
+}
+Value const* Value::findDouble(const String& key) const {
+  return findValue<Value, &Value::isDouble>(key);
+}
+Value const* Value::findNumeric(const String& key) const {
+  return findValue<Value, &Value::isNumeric>(key);
+}
+Value const* Value::findString(const String& key) const {
+  return findValue<Value, &Value::isString>(key);
+}
+Value const* Value::findArray(const String& key) const {
+  return findValue<Value, &Value::isArray>(key);
+}
+Value const* Value::findObject(const String& key) const {
+  return findValue<Value, &Value::isObject>(key);
+}
+
 Value* Value::demand(char const* begin, char const* end) {
   JSON_ASSERT_MESSAGE(type() == nullValue || type() == objectValue,
                       "in Json::Value::demand(begin, end): requires "
@@ -3496,7 +3708,7 @@ const Value& Value::operator[](const char* key) const {
   return *found;
 }
 Value const& Value::operator[](const String& key) const {
-  Value const* found = find(key.data(), key.data() + key.length());
+  Value const* found = find(key);
   if (!found)
     return nullSingleton();
   return *found;
@@ -3518,7 +3730,8 @@ Value& Value::append(const Value& value) { return append(Value(value)); }
 
 Value& Value::append(Value&& value) {
   JSON_ASSERT_MESSAGE(type() == nullValue || type() == arrayValue,
-                      "in Json::Value::append: requires arrayValue");
+                      "in Json::Value::append: requires arrayValue, but found "
+                          << valueTypeToString(type()));
   if (type() == nullValue) {
     *this = Value(arrayValue);
   }
@@ -3575,9 +3788,12 @@ bool Value::removeMember(const char* key, Value* removed) {
 bool Value::removeMember(String const& key, Value* removed) {
   return removeMember(key.data(), key.data() + key.length(), removed);
 }
+
 void Value::removeMember(const char* key) {
-  JSON_ASSERT_MESSAGE(type() == nullValue || type() == objectValue,
-                      "in Json::Value::removeMember(): requires objectValue");
+  JSON_ASSERT_MESSAGE(
+      type() == nullValue || type() == objectValue,
+      "in Json::Value::removeMember(): requires objectValue, but found "
+          << valueTypeToString(type()));
   if (type() == nullValue)
     return;
 
@@ -3596,7 +3812,7 @@ bool Value::removeIndex(ArrayIndex index, Value* removed) {
     return false;
   }
   if (removed)
-    *removed = it->second;
+    *removed = std::move(it->second);
   ArrayIndex oldSize = size();
   // shift left all items left, into the place of the "removed"
   for (ArrayIndex i = index; i < (oldSize - 1); ++i) {
@@ -3699,8 +3915,12 @@ bool Value::isInt64() const {
     // Note that maxInt64 (= 2^63 - 1) is not exactly representable as a
     // double, so double(maxInt64) will be rounded up to 2^63. Therefore we
     // require the value to be strictly less than the limit.
-    return value_.real_ >= double(minInt64) &&
-           value_.real_ < double(maxInt64) && IsIntegral(value_.real_);
+    // minInt64 is -2^63 which can be represented as a double, but since double
+    // values in its proximity are also rounded to -2^63, we require the value
+    // to be strictly greater than the limit to avoid returning 'true' for
+    // values that are not in the range
+    return value_.real_ > double(minInt64) && value_.real_ < double(maxInt64) &&
+           IsIntegral(value_.real_);
   default:
     break;
   }
@@ -3738,7 +3958,11 @@ bool Value::isIntegral() const {
     // Note that maxUInt64 (= 2^64 - 1) is not exactly representable as a
     // double, so double(maxUInt64) will be rounded up to 2^64. Therefore we
     // require the value to be strictly less than the limit.
-    return value_.real_ >= double(minInt64) &&
+    // minInt64 is -2^63 which can be represented as a double, but since double
+    // values in its proximity are also rounded to -2^63, we require the value
+    // to be strictly greater than the limit to avoid returning 'true' for
+    // values that are not in the range
+    return value_.real_ > double(minInt64) &&
            value_.real_ < maxUInt64AsDouble && IsIntegral(value_.real_);
 #else
     return value_.real_ >= minInt && value_.real_ <= maxUInt &&
@@ -3765,14 +3989,15 @@ bool Value::isObject() const { return type() == objectValue; }
 Value::Comments::Comments(const Comments& that)
     : ptr_{cloneUnique(that.ptr_)} {}
 
-Value::Comments::Comments(Comments&& that) : ptr_{std::move(that.ptr_)} {}
+Value::Comments::Comments(Comments&& that) noexcept
+    : ptr_{std::move(that.ptr_)} {}
 
 Value::Comments& Value::Comments::operator=(const Comments& that) {
   ptr_ = cloneUnique(that.ptr_);
   return *this;
 }
 
-Value::Comments& Value::Comments::operator=(Comments&& that) {
+Value::Comments& Value::Comments::operator=(Comments&& that) noexcept {
   ptr_ = std::move(that.ptr_);
   return *this;
 }
@@ -3788,13 +4013,11 @@ String Value::Comments::get(CommentPlacement slot) const {
 }
 
 void Value::Comments::set(CommentPlacement slot, String comment) {
-  if (!ptr_) {
+  if (slot >= CommentPlacement::numberOfCommentPlacement)
+    return;
+  if (!ptr_)
     ptr_ = std::unique_ptr<Array>(new Array());
-  }
-  // check comments array boundry.
-  if (slot < CommentPlacement::numberOfCommentPlacement) {
-    (*ptr_)[slot] = std::move(comment);
-  }
+  (*ptr_)[slot] = std::move(comment);
 }
 
 void Value::setComment(String comment, CommentPlacement placement) {
@@ -3802,9 +4025,8 @@ void Value::setComment(String comment, CommentPlacement placement) {
     // Always discard trailing newline, to aid indentation.
     comment.pop_back();
   }
-  JSON_ASSERT(!comment.empty());
   JSON_ASSERT_MESSAGE(
-      comment[0] == '\0' || comment[0] == '/',
+      comment.empty() || comment[0] == '/',
       "in Json::Value::setComment(): Comments must start with /");
   comments_.set(placement, std::move(comment));
 }
@@ -4023,6 +4245,8 @@ Value& Path::make(Value& root) const {
   return *node;
 }
 
+const char* version() { return JSONCPP_VERSION_STRING; }
+
 } // namespace Json
 
 // //////////////////////////////////////////////////////////////////////
@@ -4047,74 +4271,17 @@ Value& Path::make(Value& root) const {
 #include "json_tool.h"
 #include <json/writer.h>
 #endif // if !defined(JSON_IS_AMALGAMATION)
+#include <algorithm>
 #include <cassert>
+#include <cctype>
+#include <cmath>
+#include <cstdio>
 #include <cstring>
 #include <iomanip>
 #include <memory>
 #include <set>
 #include <sstream>
 #include <utility>
-
-#if __cplusplus >= 201103L
-#include <cmath>
-#include <cstdio>
-
-#if !defined(isnan)
-#define isnan std::isnan
-#endif
-
-#if !defined(isfinite)
-#define isfinite std::isfinite
-#endif
-
-#else
-#include <cmath>
-#include <cstdio>
-
-#if defined(_MSC_VER)
-#if !defined(isnan)
-#include <float.h>
-#define isnan _isnan
-#endif
-
-#if !defined(isfinite)
-#include <float.h>
-#define isfinite _finite
-#endif
-
-#if !defined(_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES)
-#define _CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES 1
-#endif //_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES
-
-#endif //_MSC_VER
-
-#if defined(__sun) && defined(__SVR4) // Solaris
-#if !defined(isfinite)
-#include <ieeefp.h>
-#define isfinite finite
-#endif
-#endif
-
-#if defined(__hpux)
-#if !defined(isfinite)
-#if defined(__ia64) && !defined(finite)
-#define isfinite(x)                                                            \
-  ((sizeof(x) == sizeof(float) ? _Isfinitef(x) : _IsFinite(x)))
-#endif
-#endif
-#endif
-
-#if !defined(isnan)
-// IEEE standard states that NaN values will not compare to themselves
-#define isnan(x) (x != x)
-#endif
-
-#if !defined(__APPLE__)
-#if !defined(isfinite)
-#define isfinite finite
-#endif
-#endif
-#endif
 
 #if defined(_MSC_VER)
 // Disable warning about strdup being deprecated.
@@ -4123,11 +4290,7 @@ Value& Path::make(Value& root) const {
 
 namespace Json {
 
-#if __cplusplus >= 201103L || (defined(_CPPLIB_VER) && _CPPLIB_VER >= 520)
 using StreamWriterPtr = std::unique_ptr<StreamWriter>;
-#else
-using StreamWriterPtr = std::auto_ptr<StreamWriter>;
-#endif
 
 String valueToString(LargestInt value) {
   UIntToStringBuffer buffer;
@@ -4167,11 +4330,12 @@ String valueToString(double value, bool useSpecialFloats,
   // Print into the buffer. We need not request the alternative representation
   // that always has a decimal point because JSON doesn't distinguish the
   // concepts of reals and integers.
-  if (!isfinite(value)) {
-    static const char* const reps[2][3] = {{"NaN", "-Infinity", "Infinity"},
-                                           {"null", "-1e+9999", "1e+9999"}};
-    return reps[useSpecialFloats ? 0 : 1]
-               [isnan(value) ? 0 : (value < 0) ? 1 : 2];
+  if (!std::isfinite(value)) {
+    if (std::isnan(value))
+      return useSpecialFloats ? "NaN" : "null";
+    if (value < 0)
+      return useSpecialFloats ? "-Infinity" : "-1e+9999";
+    return useSpecialFloats ? "Infinity" : "1e+9999";
   }
 
   String buffer(size_t(36), '\0');
@@ -4192,16 +4356,18 @@ String valueToString(double value, bool useSpecialFloats,
 
   buffer.erase(fixNumericLocale(buffer.begin(), buffer.end()), buffer.end());
 
-  // strip the zero padding from the right
-  if (precisionType == PrecisionType::decimalPlaces) {
-    buffer.erase(fixZerosInTheEnd(buffer.begin(), buffer.end()), buffer.end());
-  }
-
   // try to ensure we preserve the fact that this was given to us as a double on
   // input
   if (buffer.find('.') == buffer.npos && buffer.find('e') == buffer.npos) {
     buffer += ".0";
   }
+
+  // strip the zero padding from the right
+  if (precisionType == PrecisionType::decimalPlaces) {
+    buffer.erase(fixZerosInTheEnd(buffer.begin(), buffer.end(), precision),
+                 buffer.end());
+  }
+
   return buffer;
 }
 } // namespace
@@ -4213,17 +4379,12 @@ String valueToString(double value, unsigned int precision,
 
 String valueToString(bool value) { return value ? "true" : "false"; }
 
-static bool isAnyCharRequiredQuoting(char const* s, size_t n) {
+static bool doesAnyCharRequireEscaping(char const* s, size_t n) {
   assert(s || !n);
 
-  char const* const end = s + n;
-  for (char const* cur = s; cur < end; ++cur) {
-    if (*cur == '\\' || *cur == '\"' ||
-        static_cast<unsigned char>(*cur) < ' ' ||
-        static_cast<unsigned char>(*cur) >= 0x80)
-      return true;
-  }
-  return false;
+  return std::any_of(s, s + n, [](unsigned char c) {
+    return c == '\\' || c == '"' || c < 0x20 || c > 0x7F;
+  });
 }
 
 static unsigned int utf8ToCodepoint(const char*& s, const char* e) {
@@ -4305,13 +4466,21 @@ static String toHex16Bit(unsigned int x) {
   return result;
 }
 
-static String valueToQuotedStringN(const char* value, unsigned length,
+static void appendRaw(String& result, unsigned ch) {
+  result += static_cast<char>(ch);
+}
+
+static void appendHex(String& result, unsigned ch) {
+  result.append("\\u").append(toHex16Bit(ch));
+}
+
+static String valueToQuotedStringN(const char* value, size_t length,
                                    bool emitUTF8 = false) {
   if (value == nullptr)
     return "";
 
-  if (!isAnyCharRequiredQuoting(value, length))
-    return String("\"") + value + "\"";
+  if (!doesAnyCharRequireEscaping(value, length))
+    return String("\"") + String(value, length) + "\"";
   // We have to walk value and escape any special characters.
   // Appending to String is not efficient, but this should be rare.
   // (Note: forward slashes are *not* rare, but I am not escaping them.)
@@ -4353,29 +4522,26 @@ static String valueToQuotedStringN(const char* value, unsigned length,
     // sequence from occurring.
     default: {
       if (emitUTF8) {
-        result += *c;
+        unsigned codepoint = static_cast<unsigned char>(*c);
+        if (codepoint < 0x20) {
+          appendHex(result, codepoint);
+        } else {
+          appendRaw(result, codepoint);
+        }
       } else {
-        unsigned int codepoint = utf8ToCodepoint(c, end);
-        const unsigned int FIRST_NON_CONTROL_CODEPOINT = 0x20;
-        const unsigned int LAST_NON_CONTROL_CODEPOINT = 0x7F;
-        const unsigned int FIRST_SURROGATE_PAIR_CODEPOINT = 0x10000;
-        // don't escape non-control characters
-        // (short escape sequence are applied above)
-        if (FIRST_NON_CONTROL_CODEPOINT <= codepoint &&
-            codepoint <= LAST_NON_CONTROL_CODEPOINT) {
-          result += static_cast<char>(codepoint);
-        } else if (codepoint <
-                   FIRST_SURROGATE_PAIR_CODEPOINT) { // codepoint is in Basic
-                                                     // Multilingual Plane
-          result += "\\u";
-          result += toHex16Bit(codepoint);
-        } else { // codepoint is not in Basic Multilingual Plane
-                 // convert to surrogate pair first
-          codepoint -= FIRST_SURROGATE_PAIR_CODEPOINT;
-          result += "\\u";
-          result += toHex16Bit((codepoint >> 10) + 0xD800);
-          result += "\\u";
-          result += toHex16Bit((codepoint & 0x3FF) + 0xDC00);
+        unsigned codepoint = utf8ToCodepoint(c, end); // modifies `c`
+        if (codepoint < 0x20) {
+          appendHex(result, codepoint);
+        } else if (codepoint < 0x80) {
+          appendRaw(result, codepoint);
+        } else if (codepoint < 0x10000) {
+          // Basic Multilingual Plane
+          appendHex(result, codepoint);
+        } else {
+          // Extended Unicode. Encode 20 bits as a surrogate pair.
+          codepoint -= 0x10000;
+          appendHex(result, 0xd800 + ((codepoint >> 10) & 0x3ff));
+          appendHex(result, 0xdc00 + (codepoint & 0x3ff));
         }
       }
     } break;
@@ -4386,7 +4552,11 @@ static String valueToQuotedStringN(const char* value, unsigned length,
 }
 
 String valueToQuotedString(const char* value) {
-  return valueToQuotedStringN(value, static_cast<unsigned int>(strlen(value)));
+  return valueToQuotedStringN(value, strlen(value));
+}
+
+String valueToQuotedString(const char* value, size_t length) {
+  return valueToQuotedStringN(value, length);
 }
 
 // Class Writer
@@ -4435,7 +4605,7 @@ void FastWriter::writeValue(const Value& value) {
     char const* end;
     bool ok = value.getString(&str, &end);
     if (ok)
-      document_ += valueToQuotedStringN(str, static_cast<unsigned>(end - str));
+      document_ += valueToQuotedStringN(str, static_cast<size_t>(end - str));
     break;
   }
   case booleanValue:
@@ -4458,8 +4628,7 @@ void FastWriter::writeValue(const Value& value) {
       const String& name = *it;
       if (it != members.begin())
         document_ += ',';
-      document_ += valueToQuotedStringN(name.data(),
-                                        static_cast<unsigned>(name.length()));
+      document_ += valueToQuotedStringN(name.data(), name.length());
       document_ += yamlCompatibilityEnabled_ ? ": " : ":";
       writeValue(value[name]);
     }
@@ -4504,7 +4673,7 @@ void StyledWriter::writeValue(const Value& value) {
     char const* end;
     bool ok = value.getString(&str, &end);
     if (ok)
-      pushValue(valueToQuotedStringN(str, static_cast<unsigned>(end - str)));
+      pushValue(valueToQuotedStringN(str, static_cast<size_t>(end - str)));
     else
       pushValue("");
     break;
@@ -4527,7 +4696,7 @@ void StyledWriter::writeValue(const Value& value) {
         const String& name = *it;
         const Value& childValue = value[name];
         writeCommentBeforeValue(childValue);
-        writeWithIndent(valueToQuotedString(name.c_str()));
+        writeWithIndent(valueToQuotedString(name.c_str(), name.size()));
         document_ += " : ";
         writeValue(childValue);
         if (++it == members.end()) {
@@ -4545,7 +4714,7 @@ void StyledWriter::writeValue(const Value& value) {
 }
 
 void StyledWriter::writeArrayValue(const Value& value) {
-  unsigned size = value.size();
+  size_t size = value.size();
   if (size == 0)
     pushValue("[]");
   else {
@@ -4554,7 +4723,7 @@ void StyledWriter::writeArrayValue(const Value& value) {
       writeWithIndent("[");
       indent();
       bool hasChildValue = !childValues_.empty();
-      unsigned index = 0;
+      ArrayIndex index = 0;
       for (;;) {
         const Value& childValue = value[index];
         writeCommentBeforeValue(childValue);
@@ -4577,7 +4746,7 @@ void StyledWriter::writeArrayValue(const Value& value) {
     {
       assert(childValues_.size() == size);
       document_ += "[ ";
-      for (unsigned index = 0; index < size; ++index) {
+      for (size_t index = 0; index < size; ++index) {
         if (index > 0)
           document_ += ", ";
         document_ += childValues_[index];
@@ -4722,7 +4891,7 @@ void StyledStreamWriter::writeValue(const Value& value) {
     char const* end;
     bool ok = value.getString(&str, &end);
     if (ok)
-      pushValue(valueToQuotedStringN(str, static_cast<unsigned>(end - str)));
+      pushValue(valueToQuotedStringN(str, static_cast<size_t>(end - str)));
     else
       pushValue("");
     break;
@@ -4745,7 +4914,7 @@ void StyledStreamWriter::writeValue(const Value& value) {
         const String& name = *it;
         const Value& childValue = value[name];
         writeCommentBeforeValue(childValue);
-        writeWithIndent(valueToQuotedString(name.c_str()));
+        writeWithIndent(valueToQuotedString(name.c_str(), name.size()));
         *document_ << " : ";
         writeValue(childValue);
         if (++it == members.end()) {
@@ -4996,8 +5165,8 @@ void BuiltStyledStreamWriter::writeValue(Value const& value) {
     char const* end;
     bool ok = value.getString(&str, &end);
     if (ok)
-      pushValue(valueToQuotedStringN(str, static_cast<unsigned>(end - str),
-                                     emitUTF8_));
+      pushValue(
+          valueToQuotedStringN(str, static_cast<size_t>(end - str), emitUTF8_));
     else
       pushValue("");
     break;
@@ -5020,8 +5189,8 @@ void BuiltStyledStreamWriter::writeValue(Value const& value) {
         String const& name = *it;
         Value const& childValue = value[name];
         writeCommentBeforeValue(childValue);
-        writeWithIndent(valueToQuotedStringN(
-            name.data(), static_cast<unsigned>(name.length()), emitUTF8_));
+        writeWithIndent(
+            valueToQuotedStringN(name.data(), name.length(), emitUTF8_));
         *sout_ << colonSymbol_;
         writeValue(childValue);
         if (++it == members.end()) {
@@ -5238,34 +5407,30 @@ StreamWriter* StreamWriterBuilder::newStreamWriter() const {
                                      endingLineFeedSymbol, usf, emitUTF8, pre,
                                      precisionType);
 }
-static void getValidWriterKeys(std::set<String>* valid_keys) {
-  valid_keys->clear();
-  valid_keys->insert("indentation");
-  valid_keys->insert("commentStyle");
-  valid_keys->insert("enableYAMLCompatibility");
-  valid_keys->insert("dropNullPlaceholders");
-  valid_keys->insert("useSpecialFloats");
-  valid_keys->insert("emitUTF8");
-  valid_keys->insert("precision");
-  valid_keys->insert("precisionType");
-}
+
 bool StreamWriterBuilder::validate(Json::Value* invalid) const {
-  Json::Value my_invalid;
-  if (!invalid)
-    invalid = &my_invalid; // so we do not need to test for NULL
-  Json::Value& inv = *invalid;
-  std::set<String> valid_keys;
-  getValidWriterKeys(&valid_keys);
-  Value::Members keys = settings_.getMemberNames();
-  size_t n = keys.size();
-  for (size_t i = 0; i < n; ++i) {
-    String const& key = keys[i];
-    if (valid_keys.find(key) == valid_keys.end()) {
-      inv[key] = settings_[key];
-    }
+  static const auto& valid_keys = *new std::set<String>{
+      "indentation",
+      "commentStyle",
+      "enableYAMLCompatibility",
+      "dropNullPlaceholders",
+      "useSpecialFloats",
+      "emitUTF8",
+      "precision",
+      "precisionType",
+  };
+  for (auto si = settings_.begin(); si != settings_.end(); ++si) {
+    auto key = si.name();
+    if (valid_keys.count(key))
+      continue;
+    if (invalid)
+      (*invalid)[key] = *si;
+    else
+      return false;
   }
-  return inv.empty();
+  return invalid ? invalid->empty() : true;
 }
+
 Value& StreamWriterBuilder::operator[](const String& key) {
   return settings_[key];
 }
@@ -5287,7 +5452,7 @@ String writeString(StreamWriter::Factory const& factory, Value const& root) {
   OStringStream sout;
   StreamWriterPtr const writer(factory.newStreamWriter());
   writer->write(root, &sout);
-  return sout.str();
+  return std::move(sout).str();
 }
 
 OStream& operator<<(OStream& sout, Value const& root) {

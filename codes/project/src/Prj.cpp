@@ -60,7 +60,7 @@ void Prj::ProcessCmdLineArgs( std::vector<std::string> &args )
 
 void Prj::Init()
 {
-    Prj::execute_dir = HX_GetExePath();
+    Prj::execute_dir = HX_GetExeDirectory().string();
     Prj::current_dir = HX_GetCurrentDir();
 
     std::cout << " Prj::execute_dir = " << Prj::execute_dir << "\n";

@@ -6,12 +6,18 @@ name: OneFLOW_Linux_CI
 on:
   # Triggers the workflow on push or pull request events but only for the main branch
   push:
-    branches: [ main, hexin ]
+    branches: [ master, hexin ]
   pull_request:
-    branches: [ main, hexin ]
+    branches: [ master, hexin ]
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
+  
+permissions:
+  contents: read
+  
+env:
+  GCC_VERSION: 12   # 这里修改 10 /11 /12 /13 切换编译器版本
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -19,13 +25,13 @@ jobs:
     name: "Linux OneFLOW Actions"
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - name: Install GCC-10
+      - uses: actions/checkout@v5
+      - name: Install GCC ${{ env.GCC_VERSION }}
         run: |
           sudo apt-get update
-          sudo apt install gcc-10 g++-10 -y
-          gcc --version
-          g++ --version
+          sudo apt install gcc-${{ env.GCC_VERSION }} g++-${{ env.GCC_VERSION }} -y
+          gcc-${{ env.GCC_VERSION }} --version
+          g++-${{ env.GCC_VERSION }} --version
           ls /usr/bin/gcc*
         shell: bash
       - name: Install Third party library
@@ -38,9 +44,9 @@ jobs:
           sudo apt-get install libhdf5-dev libcgns-dev libmetis-dev libmpich-dev -y
         shell: bash
       - name: CMake Build and Install
-        #env:
-        #   CC:   gcc-10
-        #   CXX:  g++-10
+        env:
+          CC: gcc-${{ env.GCC_VERSION }}
+          CXX: g++-${{ env.GCC_VERSION }}
         run: |
           cd ${{ github.workspace }}
           ls
@@ -62,6 +68,10 @@ jobs:
       - name: Run OneFLOW CFD Tests
         env:
           prefix: ${{ github.workspace }}/Run
+          MPICH_NO_UCX: 1
+          MPICH_CH3_NO_UCX: 1
+          MPICH_DEVICE: ch3:sock
+          UCX_TLS: tcp,self          
         run: |
           #echo "env.prefix= ${{env.prefix}}"
           #echo "ls ${{env.prefix}}"

@@ -1,0 +1,10 @@
+OneFLOW-CFD C++ Simulation Summary
+==================================================
+Date: 2026-07-28 09:44:54
+Build Type: Release
+Platform: win32
+
+Files Generated:
+  - analytical_results.txt    5.2 KB
+  - crank_nicolson_results.txt    5.2 KB
+  - simulation_summary.txt    0.0 KB

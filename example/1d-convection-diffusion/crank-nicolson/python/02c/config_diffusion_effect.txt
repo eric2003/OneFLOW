@@ -1,0 +1,22 @@
+# 扩散效应研究参数配置
+
+[Domain]
+xmin = -1.5
+xmax = 1.5
+
+[Time]
+total_time = 1.0
+
+[Mesh]
+Nx = 300
+Nt = 2000
+
+[Physics]
+a = 1.0
+nu_list = 0, 1e-6, 1e-5, 1e-4, 1e-3, 1e-2
+
+[Case]
+type = combined_wave  # 可选: gaussian, combined_wave, square_wave
+
+[Options]
+include_zero_diffusion = True

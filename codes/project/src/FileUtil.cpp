@@ -38,63 +38,80 @@ License
     #endif
 #endif
 
+#include <vector>
+#include <climits>
 #include <iostream>
+#include <filesystem>
 
 BeginNameSpace( ONEFLOW )
 
-bool DirExist( const std::string & dirName )
+bool DirExist(const std::string& dirName)
 {
-#ifdef _WINDOWS
-    bool flag = ( _access( dirName.c_str(), 0 ) == 0 );
-    return flag;
-#else
-    bool flag = ( access( dirName.c_str(), 0 ) == 0 );
-    return flag;
-#endif
+    std::error_code ec;
+    return std::filesystem::is_directory(dirName, ec) && !ec;
 }
 
-void MakeDir( const std::string & dirName )
+bool MakeDir(const std::string& dirName)
 {
-    int flag;
-#ifdef _WINDOWS
-    flag = _mkdir( dirName.c_str() );
-#else
-    #ifdef WIN_GNU
-        flag = _mkdir( dirName.c_str() );
-    #else
-        flag = mkdir( dirName.c_str(), S_IRWXU );
-    #endif
-#endif
+    try {
+        if (std::filesystem::exists(dirName)) {
+            if (std::filesystem::is_directory(dirName)) {
+                std::cout << "Directory already exists: " << dirName << std::endl;
+                return true;
+            } else {
+                std::cerr << "Path exists but is not a directory: " << dirName << std::endl;
+                return false;
+            }
+        }
 
-    if ( flag == 0 )
-    {
-        std::cout << dirName << " directory has been created successfully !\n";
+        // 创建目录（默认权限，支持递归）
+        if (std::filesystem::create_directories(dirName)) {
+            std::cout << "Directory created successfully: " << dirName << std::endl;
+            return true;
+        } else {
+            std::cerr << "Failed to create directory: " << dirName << std::endl;
+            return false;
+        }
+    } catch (const std::filesystem::filesystem_error& e) {
+        std::cerr << "Filesystem error: " << e.what() << std::endl;
+        return false;
     }
 }
 
-std::string HX_GetExePath()
+std::filesystem::path HX_GetExeDirectory()
 {
-    char buffer[ FILENAME_MAX ] = { 0 };
 #ifdef _WIN32
-    GetModuleFileName( NULL, buffer, FILENAME_MAX );
+    std::wstring wbuf(MAX_PATH, L'\0');
+    DWORD len = 0;
+    while (true) {
+        len = GetModuleFileNameW(nullptr, wbuf.data(), static_cast<DWORD>(wbuf.size()));
+        if (len == 0) return {};
+        if (len < wbuf.size()) break;
+        wbuf.resize(wbuf.size() * 2);
+    }
+    return std::filesystem::path(wbuf.substr(0, len)).parent_path();
 #else
-    std::size_t count = readlink( "/proc/self/exe", buffer, FILENAME_MAX );
+    std::vector<char> buf(PATH_MAX);
+    ssize_t count = -1;
+    while (true) {
+        count = readlink("/proc/self/exe", buf.data(), buf.size());
+        if (count < 0) return {};
+        if (static_cast<size_t>(count) < buf.size()) break;
+        buf.resize(buf.size() * 2);
+    }
+    buf[count] = '\0';
+    return std::filesystem::path(std::string(buf.data(), count)).parent_path();
 #endif
-    std::string::size_type pos = std::string( buffer ).find_last_of( "\\/" );
-    return std::string( buffer ).substr( 0, pos);
 }
 
 
 std::string HX_GetCurrentDir()
 {
-#ifdef _WINDOWS
-    char * cwd = _getcwd( 0, 0 );
-#else
-    char * cwd = getcwd( 0, 0 ); 
-#endif
-    std::string working_dir( cwd ) ;
-    std::free( cwd ) ;
-    return working_dir ;
+    try {
+        return std::filesystem::current_path().string();
+    } catch (const std::filesystem::filesystem_error&) {
+        return {};  // or rethrow / log the error
+    }
 }
 
 bool EndWithSlash( const std::string & fileName )
