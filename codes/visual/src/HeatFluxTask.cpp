@@ -41,6 +41,7 @@ License
 #include "ActionState.h"
 #include "DataBook.h"
 #include "Grid.h"
+#include "GridUtils.h"
 #include "UnsGrid.h"
 #include "FaceTopo.h"
 #include "NodeMesh.h"

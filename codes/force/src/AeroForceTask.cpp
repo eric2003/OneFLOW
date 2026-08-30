@@ -27,6 +27,7 @@ License
 #include "Prj.h"
 #include "OStream.h"
 #include "UnsGrid.h"
+#include "GridUtils.h"
 #include "BcRecord.h"
 #include "FaceTopo.h"
 #include "Boundary.h"
@@ -159,28 +160,6 @@ void AerodynamicForceTask::CalcForce()
 {
     int idump_pres = 0;
     CalcAeroForce( idump_pres );
-}
-
-int GetNumberOfSolidCells( UnsGrid * grid )
-{
-    BcRecord * bcRecord = grid->faceTopo->bcManager->bcRecord;
-    bcRecord->CreateBcTypeRegion();
-
-    BcInfo * bcInfo = bcRecord->bcInfo;
-
-    int nRegion = bcInfo->bcType.size();
-
-    int nSolidCells = 0;
-    for ( int ir = 0; ir < nRegion; ++ ir )
-    {
-        int bcType = bcInfo->bcType[ ir ];
-        if ( bcType != BC::SOLID_SURFACE ) continue;
-
-        int nBCFace = bcInfo->bcFace[ ir ].size();
-		nSolidCells += nBCFace;
-    }
-
-    return nSolidCells;
 }
 
 void CalcAeroForce(int idump_pres)

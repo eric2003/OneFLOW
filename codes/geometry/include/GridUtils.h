@@ -20,26 +20,13 @@ License
 
 \*---------------------------------------------------------------------------*/
 
+
 #pragma once
-#include "Task.h"
+#include "Configure.h"
 
 BeginNameSpace( ONEFLOW )
 
-class AerodynamicForceTask : public Task
-{
-public:
-    AerodynamicForceTask ();
-    ~AerodynamicForceTask() override;
-public:
-    void Run() override;
-    void Init();
-    void CalcForce();
-    void Dump();
-public:
-    std::string fileName;
-};
-
 class UnsGrid;
-void CalcAeroForce( int idump_pres );
+int GetNumberOfSolidCells( UnsGrid * grid );
 
 EndNameSpace

@@ -20,26 +20,38 @@ License
 
 \*---------------------------------------------------------------------------*/
 
+
 #pragma once
-#include "Task.h"
+
+#include "GridUtils.h"
+#include "BcRecord.h"
+#include "Boundary.h"
+#include "UnsGrid.h"
+#include "FaceTopo.h"
+
 
 BeginNameSpace( ONEFLOW )
 
-class AerodynamicForceTask : public Task
+int GetNumberOfSolidCells( UnsGrid * grid )
 {
-public:
-    AerodynamicForceTask ();
-    ~AerodynamicForceTask() override;
-public:
-    void Run() override;
-    void Init();
-    void CalcForce();
-    void Dump();
-public:
-    std::string fileName;
-};
+    BcRecord * bcRecord = grid->faceTopo->bcManager->bcRecord;
+    bcRecord->CreateBcTypeRegion();
 
-class UnsGrid;
-void CalcAeroForce( int idump_pres );
+    BcInfo * bcInfo = bcRecord->bcInfo;
+
+    int nRegion = bcInfo->bcType.size();
+
+    int nSolidCells = 0;
+    for ( int ir = 0; ir < nRegion; ++ ir )
+    {
+        int bcType = bcInfo->bcType[ ir ];
+        if ( bcType != BC::SOLID_SURFACE ) continue;
+
+        int nBCFace = bcInfo->bcFace[ ir ].size();
+		nSolidCells += nBCFace;
+    }
+
+    return nSolidCells;
+}
 
 EndNameSpace
