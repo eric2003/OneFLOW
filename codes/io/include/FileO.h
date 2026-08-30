@@ -21,7 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #pragma once
-#include "Configure.h"
+#include "NamespaceMacros.h"
 #include "HXDefine.h"
 #include <fstream>
 #include <iomanip>

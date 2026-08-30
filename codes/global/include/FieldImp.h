@@ -20,7 +20,7 @@ License
 
 \*---------------------------------------------------------------------------*/
 #pragma once
-#include "Configure.h"
+#include "NamespaceMacros.h"
 #include "HXArray.h"
 #include <map>
 

@@ -13,7 +13,7 @@ License
 
 #pragma once
 
-#include "Configure.h"
+#include "NamespaceMacros.h"
 #include <cstddef>
 #include <functional>
 #include <memory>

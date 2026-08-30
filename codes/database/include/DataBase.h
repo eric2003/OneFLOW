@@ -21,7 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #pragma once
-#include "Configure.h"
+#include "NamespaceMacros.h"
 #include "DataBook.h"
 #include "DataPara.h"
 #include "DataField.h"

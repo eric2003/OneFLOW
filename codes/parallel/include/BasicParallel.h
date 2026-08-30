@@ -26,7 +26,7 @@ License
 #include "mpi.h"
 #endif
 
-#include "Configure.h"
+#include "NamespaceMacros.h"
 #include <string>
 #include <vector>
 
