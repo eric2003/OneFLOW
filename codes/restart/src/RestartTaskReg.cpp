@@ -38,7 +38,6 @@ License
 #include "Lusgs.h"
 #include "Lhs.h"
 #include "FieldImp.h"
-#include "FieldWrap.h"
 #include "SolverState.h"
 #include "Zone.h"
 #include "Grid.h"
@@ -74,64 +73,64 @@ void RegisterRestartTask()
 
 void InitFirst( StringField & data )
 {
-    int sTid = SolverState::tid;
+    int solverType = SolverState::solverType;
 
     const std::string & basicString = data[ 0 ];
 
-    FieldAlloc::AllocateAllFields( sTid, basicString );
+    FieldAlloc::AllocateAllFields( solverType, basicString );
 }
 
 void ReadRestart( StringField & data )
 {
-    int sTid = SolverState::tid;
+    int solverType = SolverState::solverType;
 
-    Restart * restart = CreateRestart( sTid );
-    restart->Read( sTid );
+    Restart * restart = CreateRestart( solverType );
+    restart->Read( solverType );
     delete restart;
 }
 
 void DumpRestart( StringField & data )
 {
-    int sTid = SolverState::tid;
+    int solverType = SolverState::solverType;
 
-    Restart * restart = CreateRestart( sTid );
-    restart->Dump( sTid );
+    Restart * restart = CreateRestart( solverType );
+    restart->Dump( solverType );
     delete restart;
 }
 
 void DumpinsRestart(StringField & data)
 {
-	int sTid = SolverState::tid;
+	int solverType = SolverState::solverType;
 
-	Restart * restart = CreateRestart(sTid);
-	restart->Dump(sTid);
+	Restart * restart = CreateRestart(solverType);
+	restart->Dump(solverType);
 	delete restart;
 }
 
 void InitRestart( StringField & data )
 {
-    int sTid = SolverState::tid;
+    int solverType = SolverState::solverType;
 
-    Restart * restart = CreateRestart( sTid );
-    restart->InitRestart( sTid );
+    Restart * restart = CreateRestart( solverType );
+    restart->InitRestart( solverType );
     delete restart;
 }
 
 void InitinsRestart( StringField & data )
 {
-	int sTid = SolverState::tid;
+	int solverType = SolverState::solverType;
 
-	Restart * restart = CreateRestart( sTid );
-	restart->InitinsRestart( sTid );
+	Restart * restart = CreateRestart( solverType );
+	restart->InitinsRestart( solverType );
 	delete restart;
 }
 
 void ReadinsRestart(StringField & data)
 {
-	int sTid = SolverState::tid;
+	int solverType = SolverState::solverType;
 
-	Restart * restart = CreateRestart(sTid);
-	restart->Read( sTid );
+	Restart * restart = CreateRestart(solverType);
+	restart->Read( solverType );
 	delete restart;
 }
 

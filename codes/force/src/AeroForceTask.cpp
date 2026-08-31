@@ -220,7 +220,8 @@ void CalcAeroForce(int idump_pres)
 
 	if (idump_pres == 1)
 	{
-		StrIO.ClearAll();
+		OStream &logger = OStream::Instance();
+		logger.ClearAll();
 
 		StringField title;
 		title.push_back("title=\"THE FLOW FIELD OF ONEFLOW\"");
@@ -232,10 +233,10 @@ void CalcAeroForce(int idump_pres)
 		title.push_back("\"cf\"");
 		for (HXSize_t i = 0; i < title.size(); ++i)
 		{
-			StrIO << title[i] << "\n";
+			logger << title[i] << "\n";
 		}
 
-		StrIO << "Zone  i = " << nSolidCells << " \n";
+		logger << "Zone  i = " << nSolidCells << " \n";
 	}
 
 	for (int ir = 0; ir < nRegion; ++ir)
@@ -330,15 +331,16 @@ void CalcAeroForce(int idump_pres)
 					Real cf = aeroCom.CalcCF(&aeroForce.vis, area[fId]);
 
 					int wordWidth = 20;
-					StrIO << std::setiosflags(std::ios::left);
-					StrIO << std::setiosflags(std::ios::scientific);
-					StrIO << std::setprecision(10);
-					StrIO << std::setw(wordWidth) << xc;
-					StrIO << std::setw(wordWidth) << yc;
-					StrIO << std::setw(wordWidth) << zc;
-					StrIO << std::setw(wordWidth) << -cp;
-					StrIO << std::setw(wordWidth) << cf;
-					StrIO << std::endl;
+					OStream &logger = OStream::Instance();
+					logger << std::setiosflags(std::ios::left);
+					logger << std::setiosflags(std::ios::scientific);
+					logger << std::setprecision(10);
+					logger << std::setw(wordWidth) << xc;
+					logger << std::setw(wordWidth) << yc;
+					logger << std::setw(wordWidth) << zc;
+					logger << std::setw(wordWidth) << -cp;
+					logger << std::setw(wordWidth) << cf;
+					logger << std::endl;
 				}
 			}
 			else
@@ -408,21 +410,23 @@ void CalcAeroForce(int idump_pres)
 					Real cf = aeroCom.CalcCF(&aeroForce.vis, area[fId]);
 
 					int wordWidth = 20;
-					StrIO << std::setiosflags(std::ios::left);
-					StrIO << std::setiosflags(std::ios::scientific);
-					StrIO << std::setprecision(10);
-					StrIO << std::setw(wordWidth) << xc;
-					StrIO << std::setw(wordWidth) << yc;
-					StrIO << std::setw(wordWidth) << zc;
-					StrIO << std::setw(wordWidth) << -cp;
-					StrIO << std::setw(wordWidth) << cf;
-					StrIO << std::endl;
+					OStream &logger = OStream::Instance();
+					logger << std::setiosflags(std::ios::left);
+					logger << std::setiosflags(std::ios::scientific);
+					logger << std::setprecision(10);
+					logger << std::setw(wordWidth) << xc;
+					logger << std::setw(wordWidth) << yc;
+					logger << std::setw(wordWidth) << zc;
+					logger << std::setw(wordWidth) << -cp;
+					logger << std::setw(wordWidth) << cf;
+					logger << std::endl;
 				}
 			}
 		}
 		if (idump_pres == 1)
 		{
-			ToDataBook(ActionState::dataBook, StrIO);
+			OStream &logger = OStream::Instance();
+			ToDataBook(ActionState::dataBook, logger);
 		}
 	}
 }

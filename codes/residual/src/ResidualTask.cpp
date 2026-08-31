@@ -75,7 +75,7 @@ ResidualTask::~ResidualTask()
 void ResidualTask::Run()
 {
     ActionState::dataBook = this->dataBook;
-    SolverInfo * solverInfo = SolverInfoFactory::GetSolverInfo( SolverState::tid );
+    SolverInfo * solverInfo = SolverInfoFactory::GetSolverInfo( SolverState::solverType );
     data.Init( solverInfo->nEqu );
 
     dataList.resize( ZoneState::nLocal );
@@ -85,17 +85,17 @@ void ResidualTask::Run()
         if (  ! ZoneState::IsValidZone( zId ) ) continue;
         ZoneState::zid = zId;
         dataList[ iCount ].Init( solverInfo->nEqu );
-        this->CalcRes( SolverState::tid, dataList[ iCount ] );
+        this->CalcRes( SolverState::solverType, dataList[ iCount ] );
         ++ iCount;
     }
 
     PostDumpResiduals();
 }
 
-void ResidualTask::CalcRes( int sTid, ResData & data )
+void ResidualTask::CalcRes( int solverType, ResData & data )
 {
     UnsGrid * grid = Zone::GetUnsGrid();
-    SolverInfo * solverInfo = SolverInfoFactory::GetSolverInfo( sTid );
+    SolverInfo * solverInfo = SolverInfoFactory::GetSolverInfo( solverType );
 
     int nEqu = solverInfo->nEqu;
 
@@ -166,7 +166,7 @@ void ResidualTask::DumpFile()
     std::ostringstream oss;
 
     std::fstream file;
-    SolverInfo * solverInfo = SolverInfoFactory::GetSolverInfo( SolverState::tid );
+    SolverInfo * solverInfo = SolverInfoFactory::GetSolverInfo( SolverState::solverType );
     std::string & fileName = solverInfo->resFileName;
     PIO::OpenPrjFile( file, fileName, std::ios_base::out | std::ios_base::app );
 
@@ -216,7 +216,7 @@ void ResidualTask::DumpTestFile()
     std::ostringstream oss;
 
     std::fstream file;
-    SolverInfo * solverInfo = SolverInfoFactory::GetSolverInfo( SolverState::tid );
+    SolverInfo * solverInfo = SolverInfoFactory::GetSolverInfo( SolverState::solverType );
     const std::string fileName =
         AddSymbolToFileName( solverInfo->resFileName, ".full" );
     PIO::OpenPrjFile( file, fileName, std::ios_base::out | std::ios_base::app );

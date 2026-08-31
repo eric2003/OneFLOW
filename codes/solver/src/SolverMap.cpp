@@ -31,9 +31,9 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-IntField SolverMap::tid;
-std::map< int, int > SolverMap::tid2Id;
-std::map< int, int > SolverMap::id2Tid;
+IntField SolverMap::solverTypes;
+std::map< int, int > SolverMap::solverTypeToIndex;
+std::map< int, int > SolverMap::solverIndexToType;
 HXVector< Solver * > SolverMap::strSolver;
 HXVector< Solver * > SolverMap::unsSolver;
 
@@ -67,14 +67,14 @@ void SolverMap::CreateSolvers( int gridType )
     int nSolver = solverNameList.size();
 
     LusgsState::Init( nSolver );
-    for ( int sid = 0; sid < nSolver; ++ sid )
+    for ( int solverIndex = 0; solverIndex < nSolver; ++ solverIndex )
     {
-        Solver * solver = Solver::SafeClone( solverNameList[ sid ] );
-        solver->sid = sid;
+        Solver * solver = Solver::SafeClone( solverNameList[ solverIndex ] );
+        solver->solverIndex = solverIndex;
         solver->gridType = gridType;
         solver->StaticInit();
         
-        SolverMap::AddSolverInfo( solver->sTid, solver->sid );
+        SolverMap::AddSolverInfo( solver->solverType, solver->solverIndex );
         solvers->push_back( solver );
     }
 
@@ -93,9 +93,9 @@ void SolverMap::FreeSolverMap( int gridType )
         solvers = & SolverMap::strSolver;
     }
 
-    for ( int sid = 0; sid < solvers->size(); ++ sid )
+    for ( int solverIndex = 0; solverIndex < solvers->size(); ++ solverIndex )
     {
-        Solver * solver = ( * solvers )[ sid ];
+        Solver * solver = ( * solvers )[ solverIndex ];
         delete solver;
     }
     solvers->resize( 0 );
@@ -107,55 +107,55 @@ void SolverMap::FreeSolverMap()
     SolverMap::FreeSolverMap( ONEFLOW::SMESH );
 }
 
-int SolverMap::GetId( int sTid )
+int SolverMap::GetSolverIndexBySolverType( int solverType )
 {
     std::map< int, int >::iterator iter;
-    iter = SolverMap::tid2Id.find( sTid );
+    iter = SolverMap::solverTypeToIndex.find( solverType );
     return iter->second;
 }
 
-int SolverMap::GetTid( int sid )
+int SolverMap::GetSolverTypeBySolverIndex( int solverIndex )
 {
     std::map< int, int >::iterator iter;
-    iter = SolverMap::id2Tid.find( sid );
+    iter = SolverMap::solverIndexToType.find( solverIndex );
     return iter->second;
 }
 
-void SolverMap::AddSolverInfo( int sTid, int sid )
+void SolverMap::AddSolverInfo( int solverType, int solverIndex )
 {
-    SolverMap::AddTid2Id( sTid, sid );
-    SolverMap::AddId2Tid( sid, sTid );
+    SolverMap::AddSolverTypeToIndex( solverType, solverIndex );
+    SolverMap::AddSolverIndexToType( solverIndex, solverType );
 }
 
-void SolverMap::AddTid2Id( int sTid, int sid )
+void SolverMap::AddSolverTypeToIndex( int solverType, int solverIndex )
 {
     std::map< int, int >::iterator iter;
-    iter = SolverMap::tid2Id.find( sTid );
-    if ( iter == SolverMap::tid2Id.end() )
+    iter = SolverMap::solverTypeToIndex.find( solverType );
+    if ( iter == SolverMap::solverTypeToIndex.end() )
     {
-        SolverMap::tid2Id[ sTid ] = sid;
-        SolverMap::tid.push_back( sTid );
+        SolverMap::solverTypeToIndex[ solverType ] = solverIndex;
+        SolverMap::solverTypes.push_back( solverType );
     }
 }
 
-void SolverMap::AddId2Tid( int sid, int sTid )
+void SolverMap::AddSolverIndexToType( int solverIndex, int solverType )
 {
-    std::map< int, int >::iterator iter = SolverMap::id2Tid.find( sid );
-    if ( iter == SolverMap::id2Tid.end() )
+    std::map< int, int >::iterator iter = SolverMap::solverIndexToType.find( solverIndex );
+    if ( iter == SolverMap::solverIndexToType.end() )
     {
-        SolverMap::id2Tid[ sid ] = sTid;
+        SolverMap::solverIndexToType[ solverIndex ] = solverType;
     }
 }
 
-Solver * SolverMap::GetSolver( int id, int gridType )
+Solver * SolverMap::GetSolver( int solverIndex, int gridType )
 {
     if ( gridType == ONEFLOW::UMESH )
     {
-        return unsSolver[ id ];
+        return unsSolver[ solverIndex ];
     }
     else
     {
-        return strSolver[ id ];
+        return strSolver[ solverIndex ];
     }
 }
 
@@ -188,13 +188,14 @@ void SolverNameClass::ReadSolverNames()
     {
         std::string solverName = solverNameList[ isol ];
 
-        ONEFLOW::StrIO.ClearAll();
-        ONEFLOW::StrIO << "U" << solverName;
-        std::string uSolverName = ONEFLOW::StrIO.str();
+        OStream &logger = OStream::Instance();
+        logger.ClearAll();
+        logger << "U" << solverName;
+        std::string uSolverName = logger.str();
 
-        ONEFLOW::StrIO.ClearAll();
-        ONEFLOW::StrIO << "S" << solverName;
-        std::string sSolverName = ONEFLOW::StrIO.str();
+        logger.ClearAll();
+        logger << "S" << solverName;
+        std::string sSolverName = logger.str();
 
         SolverNameClass::unsSolverNameList.push_back( uSolverName );
         SolverNameClass::strSolverNameList.push_back( sSolverName );

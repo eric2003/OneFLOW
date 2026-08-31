@@ -55,24 +55,24 @@ void SolverInfoFactory::Init()
     }
 }
 
-void SolverInfoFactory::AddSolverInfo( int sTid )
+void SolverInfoFactory::AddSolverInfo( int solverType )
 {
     SolverInfoFactory::Init();
 
     std::map< int, SolverInfo * >::iterator iter;
 
-    iter = SolverInfoFactory::data->find( sTid );
+    iter = SolverInfoFactory::data->find( solverType );
     if ( iter == SolverInfoFactory::data->end() )
     {
         SolverInfo * solverInfo = new SolverInfo();
-        ( * SolverInfoFactory::data )[ sTid ] = solverInfo;
+        ( * SolverInfoFactory::data )[ solverType ] = solverInfo;
     }
 }
 
-SolverInfo * SolverInfoFactory::GetSolverInfo( int sTid )
+SolverInfo * SolverInfoFactory::GetSolverInfo( int solverType )
 {
     std::map< int, SolverInfo * >::iterator iter;
-    iter = SolverInfoFactory::data->find( sTid );
+    iter = SolverInfoFactory::data->find( solverType );
     return iter->second;
 }
 

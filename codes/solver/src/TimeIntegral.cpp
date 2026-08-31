@@ -82,59 +82,59 @@ void TimeIntegral::RungeKutta()
 {
     if ( GridState::gridLevel == 0 )
     {
-        ONEFLOW::SsSgTask( "LOAD_Q"        );
-        ONEFLOW::SsSgTask( "CALC_TIME_STEP" );
+        ONEFLOW::SingleSolverSingleGridTask( "LOAD_Q"        );
+        ONEFLOW::SingleSolverSingleGridTask( "CALC_TIME_STEP" );
 
         int nStages = ctrl.rk_coef.size();
         for ( int iStage = 0; iStage < nStages; ++ iStage )
         {
             ctrl.lhscoef = ctrl.rk_coef[ iStage ];
 
-            ONEFLOW::SsSgTask( "LOAD_RESIDUALS"   );
-            ONEFLOW::SsSgTask( "UPDATE_RESIDUALS" );
-            ONEFLOW::SsSgTask( "CALC_LHS"          );
-            ONEFLOW::SsSgTask( "UPDATE_FLOWFIELD" );
-            ONEFLOW::SsSgTask( "CALC_BOUNDARY"     );
+            ONEFLOW::SingleSolverSingleGridTask( "LOAD_RESIDUALS"   );
+            ONEFLOW::SingleSolverSingleGridTask( "UPDATE_RESIDUALS" );
+            ONEFLOW::SingleSolverSingleGridTask( "CALC_LHS"          );
+            ONEFLOW::SingleSolverSingleGridTask( "UPDATE_FLOWFIELD" );
+            ONEFLOW::SingleSolverSingleGridTask( "CALC_BOUNDARY"     );
         }
     }
     else
     {
         ctrl.lhscoef = 1.0;
-        ONEFLOW::SsSgTask( "LOAD_Q"           );
-        ONEFLOW::SsSgTask( "CALC_TIME_STEP"    );
-        ONEFLOW::SsSgTask( "LOAD_RESIDUALS"   );
-        ONEFLOW::SsSgTask( "UPDATE_RESIDUALS" );
-        ONEFLOW::SsSgTask( "CALC_LHS"          );
-        ONEFLOW::SsSgTask( "UPDATE_FLOWFIELD" );
-        ONEFLOW::SsSgTask( "CALC_BOUNDARY"     );
+        ONEFLOW::SingleSolverSingleGridTask( "LOAD_Q"           );
+        ONEFLOW::SingleSolverSingleGridTask( "CALC_TIME_STEP"    );
+        ONEFLOW::SingleSolverSingleGridTask( "LOAD_RESIDUALS"   );
+        ONEFLOW::SingleSolverSingleGridTask( "UPDATE_RESIDUALS" );
+        ONEFLOW::SingleSolverSingleGridTask( "CALC_LHS"          );
+        ONEFLOW::SingleSolverSingleGridTask( "UPDATE_FLOWFIELD" );
+        ONEFLOW::SingleSolverSingleGridTask( "CALC_BOUNDARY"     );
     }
 }
 
 void TimeIntegral::Lusgs()
 {
-    ONEFLOW::SsSgTask( "ZERO_DQ_FIELD"    );
-    ONEFLOW::SsSgTask( "CALC_TIME_STEP"    );
-    ONEFLOW::SsSgTask( "LOAD_RESIDUALS"   );
-    ONEFLOW::SsSgTask( "UPDATE_RESIDUALS" );
-    ONEFLOW::SsSgTask( "INIT_LUSGS"       );
+    ONEFLOW::SingleSolverSingleGridTask( "ZERO_DQ_FIELD"    );
+    ONEFLOW::SingleSolverSingleGridTask( "CALC_TIME_STEP"    );
+    ONEFLOW::SingleSolverSingleGridTask( "LOAD_RESIDUALS"   );
+    ONEFLOW::SingleSolverSingleGridTask( "UPDATE_RESIDUALS" );
+    ONEFLOW::SingleSolverSingleGridTask( "INIT_LUSGS"       );
 
     for ( int iSweep = 0; iSweep < SweepState::nSweeps; ++ iSweep )
     {
-        ONEFLOW::SsSgTask( "LUSGS_LOWER_SWEEP"     );
-        ONEFLOW::SsSgTask( "EXCHANGE_INTERFACE_DQ" );
-        ONEFLOW::SsSgTask( "LUSGS_UPPER_SWEEP"     );
+        ONEFLOW::SingleSolverSingleGridTask( "LUSGS_LOWER_SWEEP"     );
+        ONEFLOW::SingleSolverSingleGridTask( "EXCHANGE_INTERFACE_DQ" );
+        ONEFLOW::SingleSolverSingleGridTask( "LUSGS_UPPER_SWEEP"     );
     }
 
-    ONEFLOW::SsSgTask( "UPDATE_FLOWFIELD_LUSGS" );
-    ONEFLOW::SsSgTask( "CALC_BOUNDARY"           );
+    ONEFLOW::SingleSolverSingleGridTask( "UPDATE_FLOWFIELD_LUSGS" );
+    ONEFLOW::SingleSolverSingleGridTask( "CALC_BOUNDARY"           );
 }
 
 void TimeIntegral::Simple()
 {
-	ONEFLOW::SsSgTask("UPDATE_RESIDUALS");
+	ONEFLOW::SingleSolverSingleGridTask("UPDATE_RESIDUALS");
 
-	ONEFLOW::SsSgTask("SOL_TURB");
-	ONEFLOW::SsSgTask("SOL_HEAT");
+	ONEFLOW::SingleSolverSingleGridTask("SOL_TURB");
+	ONEFLOW::SingleSolverSingleGridTask("SOL_HEAT");
 }
 
 EndNameSpace

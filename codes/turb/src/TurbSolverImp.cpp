@@ -101,7 +101,7 @@ void TurbInitSolver( StringField & data )
 SolverRegData turbReg;
 SolverRegData * GetTurbReg()
 {
-    turbReg.sTid = TURB_SOLVER;
+    turbReg.solverType = TURB_SOLVER;
     turbReg.func = & SetTurbFunc;
     turbReg.solverName = "turb";
     turbReg.baseKind = SOLVER_BASED;

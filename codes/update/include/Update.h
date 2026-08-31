@@ -36,15 +36,15 @@ public:
     FieldWrap *q;
     FieldWrap *dq;
 public:
-    virtual void UpdateFlowField( int sTid ){};
-	virtual void UpdateINsFlowField(int sTid) {};
+    virtual void UpdateFlowField( int solverType ){};
+	virtual void UpdateINsFlowField(int solverType) {};
     virtual void DumpProbeInfo() {};
     virtual void SolutionFix() {};
 };
 
-Update * CreateUpdate( int sTid );
+Update * CreateUpdate( int solverType );
 
 
-void GetUpdateField( int sTid, FieldWrap *q, FieldWrap *dq );
+void GetUpdateField( int solverType, FieldWrap *q, FieldWrap *dq );
 
 EndNameSpace

@@ -45,30 +45,31 @@ FieldAlloc::~FieldAlloc()
     ;
 }
 
-void FieldAlloc::AllocateAllFields( int sTid, const std::string & basicString )
+void FieldAlloc::AllocateAllFields( int solverType, const std::string & basicString )
 {
-    FieldAlloc::RegisterInterfaceVar( sTid, basicString );
-    FieldAlloc::AllocateGlobalField( sTid, basicString );
-    FieldAlloc::InitField( sTid, basicString );
+    FieldAlloc::RegisterInterfaceVar( solverType, basicString );
+    FieldAlloc::AllocateGlobalField( solverType, basicString );
+    FieldAlloc::InitField( solverType, basicString );
 }
 
-void FieldAlloc::InitField( int sTid, const std::string & basicString )
+void FieldAlloc::InitField( int solverType, const std::string & basicString )
 {
-    ONEFLOW::StrIO.ClearAll();
-    ONEFLOW::StrIO << Prj::system_root << basicString << "/alloc/" << "init.txt";
-    std::string fileName = ONEFLOW::StrIO.str();
+    OStream &logger = OStream::Instance();
+    logger.ClearAll();
+    logger << Prj::system_root << basicString << "/alloc/" << "init.txt";
+    std::string fileName = logger.str();
 
     BoolIO boolIO;
     boolIO.ReadFile( fileName, 1 );
 
     //FieldNamePair::Read( fileName, nameValuePair );
-    FieldNamePair::SetField( sTid, boolIO.nameValuePair );
+    FieldNamePair::SetField( solverType, boolIO.nameValuePair );
 }
 
 
-void FieldAlloc::RegisterInterfaceVar( int sTid, const std::string & basicString )
+void FieldAlloc::RegisterInterfaceVar( int solverType, const std::string & basicString )
 {
-    SolverInfo * solverInfo = SolverInfoFactory::GetSolverInfo( sTid );
+    SolverInfo * solverInfo = SolverInfoFactory::GetSolverInfo( solverType );
     if ( solverInfo->registerInterface ) return;
     solverInfo->registerInterface = 1;
 
@@ -84,13 +85,13 @@ void FieldAlloc::RegisterInterfaceVar( int sTid, const std::string & basicString
         boolIO.ReadFile( fileNameList[ iFile ] );
         int fieldType = fieldTypeList[ iFile ];
 
-        ReadInterfaceVar::AddFieldName( sTid, fieldType, boolIO.nameValuePair.nameList );
+        ReadInterfaceVar::AddFieldName( solverType, fieldType, boolIO.nameValuePair.nameList );
     }
 }
 
-void FieldAlloc::AllocateGlobalField( int sTid, const std::string & basicString )
+void FieldAlloc::AllocateGlobalField( int solverType, const std::string & basicString )
 {
-    FieldFactory::AddFieldManager( sTid );
+    FieldFactory::AddFieldManager( solverType );
     StringField fileNameList;
     FieldAlloc::CalcInnerFieldFileName( basicString, fileNameList );
 
@@ -98,17 +99,17 @@ void FieldAlloc::AllocateGlobalField( int sTid, const std::string & basicString 
     {
         ReadSuperPara * readSuperPara = new ReadSuperPara();
 
-        readSuperPara->sTid = sTid;
+        readSuperPara->solverType = solverType;
         readSuperPara->Register( fileNameList[ iFile ], iFile );
         delete readSuperPara;
     }
 
-    FieldAlloc::AllocateAllKindsOfInterfaceField( sTid );
+    FieldAlloc::AllocateAllKindsOfInterfaceField( solverType );
 }
 
-void FieldAlloc::AllocateAllKindsOfInterfaceField( int sTid )
+void FieldAlloc::AllocateAllKindsOfInterfaceField( int solverType )
 {
-    FieldManager * fieldManager = FieldFactory::GetFieldManager( sTid );
+    FieldManager * fieldManager = FieldFactory::GetFieldManager( solverType );
     fieldManager->AllocateInnerAndBcField();
     FieldAlloc::AllocateInterfaceField( fieldManager->iFieldProperty );
     FieldAlloc::AllocateOversetInterfaceField( fieldManager->iFieldProperty );
@@ -142,16 +143,17 @@ void FieldAlloc::CalcInnerFieldFileName( const std::string & basicString, String
     basicNameList.push_back( "face"     );
     basicNameList.push_back( "bc"       );
 
-    ONEFLOW::StrIO.ClearAll();
-    ONEFLOW::StrIO << Prj::system_root << basicString << "/alloc/";
-    std::string rootString = ONEFLOW::StrIO.str();
+    OStream &logger = OStream::Instance();
+    logger.ClearAll();
+    logger << Prj::system_root << basicString << "/alloc/";
+    std::string rootString = logger.str();
 
     for ( int i = 0; i < basicNameList.size(); ++ i )
     {
-        ONEFLOW::StrIO.ClearAll();
-        ONEFLOW::StrIO << rootString << basicNameList[ i ] << ".txt";
+        logger.ClearAll();
+        logger << rootString << basicNameList[ i ] << ".txt";
 
-        std::string name = ONEFLOW::StrIO.str();
+        std::string name = logger.str();
 
         fileNameList.push_back( name );
     }
@@ -165,16 +167,17 @@ void FieldAlloc::CalcInterfaceFileName( const std::string & basicString, StringF
     basicNameList.push_back( "interGrad"    );
     basicNameList.push_back( "interOverset" );
 
-    ONEFLOW::StrIO.ClearAll();
-    ONEFLOW::StrIO << Prj::system_root << basicString << "/alloc/";
-    std::string rootString = ONEFLOW::StrIO.str();
+    OStream &logger = OStream::Instance();
+    logger.ClearAll();
+    logger << Prj::system_root << basicString << "/alloc/";
+    std::string rootString = logger.str();
 
     for ( int i = 0; i < basicNameList.size(); ++ i )
     {
-        ONEFLOW::StrIO.ClearAll();
-        ONEFLOW::StrIO << rootString << basicNameList[ i ] << ".txt";
+        logger.ClearAll();
+        logger << rootString << basicNameList[ i ] << ".txt";
 
-        std::string name = ONEFLOW::StrIO.str();
+        std::string name = logger.str();
 
         fileNameList.push_back( name );
     }
@@ -196,9 +199,9 @@ FieldNamePair::~FieldNamePair()
 {
 }
 
-void FieldNamePair::SetField( int sTid, NameValuePair & valuePair )
+void FieldNamePair::SetField( int solverType, NameValuePair & valuePair )
 {
-    FieldManager * fieldManager = FieldFactory::GetFieldManager( sTid );
+    FieldManager * fieldManager = FieldFactory::GetFieldManager( solverType );
     int nVar = valuePair.nameList.size();
     for ( int iVar = 0; iVar < nVar; ++ iVar )
     {
@@ -411,9 +414,9 @@ ReadInterfaceVar::~ReadInterfaceVar()
     ;
 }
 
-void ReadInterfaceVar::AddFieldName( int sTid, int fieldType, StringField & nameList )
+void ReadInterfaceVar::AddFieldName( int solverType, int fieldType, StringField & nameList )
 {
-    VarNameSolver * varNameSolver = VarNameFactory::GetVarNameSolver( sTid, fieldType );
+    VarNameSolver * varNameSolver = VarNameFactory::GetVarNameSolver( solverType, fieldType );
     int numberOfVariables = nameList.size();
     for ( int iVariable = 0; iVariable < numberOfVariables; ++ iVariable )
     {
@@ -483,7 +486,7 @@ void ReadSuperPara::AddInnerFieldProperty()
 void ReadSuperPara::AddUnsteadyInnerFieldProperty()
 {
     this->AddInnerFieldProperty();
-    FieldManager * fieldManager = FieldFactory::GetFieldManager( this->sTid );
+    FieldManager * fieldManager = FieldFactory::GetFieldManager( this->solverType );
 
     UsdPara * usdPara = fieldManager->usdPara;
     int nEqu = this->paraNameDimData->comPara->dimList[ 0 ];
@@ -506,7 +509,7 @@ void ReadSuperPara::AddBoundaryFieldProperty()
 
 void ReadSuperPara::AddBasicFieldProperty( ParaNameDim * paraNameDim, int fieldType, int type )
 {
-    FieldManager * fieldManager = FieldFactory::GetFieldManager( this->sTid );
+    FieldManager * fieldManager = FieldFactory::GetFieldManager( this->solverType );
 
     int nVar = paraNameDim->nameList.size();
     for ( int iVar = 0; iVar < nVar; ++ iVar )

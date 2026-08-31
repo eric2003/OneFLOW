@@ -35,9 +35,9 @@ public:
     SolverMap();
     ~SolverMap();
 public:
-    static IntField tid;
-    static std::map< int, int > tid2Id;
-    static std::map< int, int > id2Tid;
+    static IntField solverTypes;
+    static std::map< int, int > solverTypeToIndex;
+    static std::map< int, int > solverIndexToType;
     static HXVector< Solver * > strSolver;
     static HXVector< Solver * > unsSolver;
 public:
@@ -45,13 +45,13 @@ public:
     static void CreateSolvers( int gridType );
     static void FreeSolverMap();
     static void FreeSolverMap( int gridType );
-    static int GetId( int sTid );
-    static int GetTid( int sid );
-    static void AddSolverInfo( int sTid, int sid );
-    static Solver * GetSolver( int id, int gridType );
+    static int GetSolverIndexBySolverType( int solverType );
+    static int GetSolverTypeBySolverIndex( int solverIndex );
+    static void AddSolverInfo( int solverType, int solverIndex );
+    static Solver * GetSolver( int solverIndex, int gridType );
 protected:
-    static void AddTid2Id( int sTid, int sid );
-    static void AddId2Tid( int sid, int sTid );
+    static void AddSolverTypeToIndex( int solverType, int solverIndex );
+    static void AddSolverIndexToType( int solverIndex, int solverType );
 };
 
 class SolverNameClass

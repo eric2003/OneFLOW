@@ -44,7 +44,7 @@ BeginNameSpace( ONEFLOW )
 void CmdBasicAction( int funcType )
 {
     SolverState::msgId = TaskState::task->taskId;
-    HXClone * cloneClass = ONEFLOW::GetClass( SolverState::msgId, SolverState::tid, funcType );
+    HXClone * cloneClass = ONEFLOW::GetClass( SolverState::msgId, SolverState::solverType, funcType );
     if ( cloneClass )
     {
         cloneClass->Solve();
@@ -63,9 +63,9 @@ void CmdActionNext()
 
 void GenerateCmdList( int msgId )
 {
-    int sTid = SolverState::tid;
+    int solverType = SolverState::solverType;
 
-    HXRegister * hxRegister = RegisterFactory::GetRegister( sTid, MESG_FUNC );
+    HXRegister * hxRegister = RegisterFactory::GetRegister( solverType, MESG_FUNC );
 
     std::string msgName = MessageMap::GetMsgName( msgId );
 
@@ -85,14 +85,14 @@ void AddCmdToList( const std::string & msgName )
 {
     int msgId = MessageMap::GetMsgId( msgName );
 
-    ONEFLOW::AddCmdToList( msgId, SolverState::tid );
+    ONEFLOW::AddCmdToList( msgId, SolverState::solverType );
 }
 
-void AddCmdToList( int msgId, int sTid )
+void AddCmdToList( int msgId, int solverType )
 {
-    ONEFLOW::CreateTask( msgId, sTid );
+    ONEFLOW::CreateTask( msgId, solverType );
 
-    ONEFLOW::SetFile( msgId, sTid );
+    ONEFLOW::SetFile( msgId, solverType );
 
     SimpleCmd * cmd = new SimpleCmd();
 
@@ -108,9 +108,9 @@ void SetTaskAction()
     TaskState::task->recvAction = & ONEFLOW::CmdActionNext;
 }
 
-void CreateTask( int msgId, int sTid )
+void CreateTask( int msgId, int solverType )
 {
-    HXClone * cloneClass = ONEFLOW::GetClass( msgId, sTid, TASK_FUNC );
+    HXClone * cloneClass = ONEFLOW::GetClass( msgId, solverType, TASK_FUNC );
 
     if ( cloneClass )
     {
@@ -124,13 +124,13 @@ void CreateTask( int msgId, int sTid )
     TaskState::task->taskId = msgId;
     TaskState::task->taskName = MessageMap::GetMsgName( msgId );
 
-    SolverState::tid = sTid;
+    SolverState::solverType = solverType;
     SetTaskAction();
 }
 
-void SetFile( int msgId, int sTid )
+void SetFile( int msgId, int solverType )
 {
-    HXClone * cloneClass = ONEFLOW::GetClass( msgId, sTid, FILE_FUNC );
+    HXClone * cloneClass = ONEFLOW::GetClass( msgId, solverType, FILE_FUNC );
 
     if ( cloneClass )
     {
@@ -138,9 +138,9 @@ void SetFile( int msgId, int sTid )
     }
 }
 
-HXClone * GetClass( int msgId, int sTid, int msgType )
+HXClone * GetClass( int msgId, int solverType, int msgType )
 {
-    HXRegister * hxRegister = RegisterFactory::GetRegister( sTid, msgType );
+    HXRegister * hxRegister = RegisterFactory::GetRegister( solverType, msgType );
 
     std::string msgName = MessageMap::GetMsgName( msgId );
 
@@ -149,7 +149,7 @@ HXClone * GetClass( int msgId, int sTid, int msgType )
     return cloneClass;
 }
 
-void SsSgTask( const std::string & taskName )
+void SingleSolverSingleGridTask( const std::string & taskName )
 {
     int taskCode = MessageMap::GetMsgId( taskName );
 
@@ -158,16 +158,16 @@ void SsSgTask( const std::string & taskName )
     CMD::ExecuteCmd();
 }
 
-void MsMgTask( const std::string & taskname )
+void MultiSolverMultiGridTask( const std::string & taskname )
 {
-    for ( int sid = 0; sid < SolverState::nSolver; ++ sid )
+    for ( int solverIndex = 0; solverIndex < SolverState::nSolver; ++ solverIndex )
     {
-        SolverState::SetTidById( sid );
+        SolverState::SetSolverTypeBySolverIndex( solverIndex );
 
         for ( int gl = 0; gl < GridState::nGrids; ++ gl )
         {
             GridState::SetGridLevel( gl );
-            ONEFLOW::SsSgTask( taskname );
+            ONEFLOW::SingleSolverSingleGridTask( taskname );
         }
     }
 }

@@ -51,7 +51,7 @@ UNsSolver::~UNsSolver()
 void UNsSolver::StaticInit()
 {
     NsSolver::StaticInit();
-    LusgsState::AddSolver( this->sid, this->gridType, new UNsLusgs() );
+    LusgsState::AddSolver( this->solverIndex, this->gridType, new UNsLusgs() );
 }
 
 void UNsSolver::Init()

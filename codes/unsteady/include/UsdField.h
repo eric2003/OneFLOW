@@ -34,7 +34,7 @@ public:
     ~UsdField();
 public:
     virtual void Init();
-    void InitBasic( int sTid );
+    void InitBasic( int solverType );
 public:
     MRField * q, * q1, * q2;
     MRField * res, * res1, * res2;

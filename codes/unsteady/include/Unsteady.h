@@ -42,10 +42,10 @@ public:
     UsdField * field;
     USDFunc srcFun;
     USDFunc criFun;
-    int sTid;
+    int solverType;
 public:
     virtual void CalcUnsteadyCriterion() {};
-    void UpdateUnsteady( int sTid );
+    void UpdateUnsteady( int solverType );
 };
 
 EndNameSpace

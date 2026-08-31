@@ -211,7 +211,7 @@ void INsCalcHeat(StringField & data)
 SolverRegData insReg;
 SolverRegData * GetINsReg()
 {
-    insReg.sTid = INC_NS_SOLVER;
+    insReg.solverType = INC_NS_SOLVER;
     insReg.func = & RegisterINsFunc;
     insReg.solverName = "ins";
     insReg.baseKind = SOLVER_BASED;

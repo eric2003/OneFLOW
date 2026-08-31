@@ -38,7 +38,6 @@ License
 #include "Lusgs.h"
 #include "Lhs.h"
 #include "FieldImp.h"
-#include "FieldWrap.h"
 #include "SolverState.h"
 #include "Zone.h"
 #include "Grid.h"
@@ -69,12 +68,12 @@ void RegisterFieldTask()
 
 void LoadResiduals( StringField & data )
 {
-    int sTid = SolverState::tid;
+    int solverType = SolverState::solverType;
     int fieldId = ( * fieldIdMap )[ data[ 0 ] ];
 
     UnsGrid * grid = Zone::GetUnsGrid();
 
-    SolverInfo * solverInfo = SolverInfoFactory::GetSolverInfo( sTid );
+    SolverInfo * solverInfo = SolverInfoFactory::GetSolverInfo( solverType );
     std::string & residualName = solverInfo->residualName;
 
     MRField * resField = ONEFLOW::GetFieldPointer< MRField >( grid, residualName );
@@ -86,9 +85,9 @@ void LoadResiduals( StringField & data )
 
 void ZeroResiduals( StringField & data )
 {
-    int sTid = SolverState::tid;
+    int solverType = SolverState::solverType;
 
-    SolverInfo * solverInfo = SolverInfoFactory::GetSolverInfo( sTid );
+    SolverInfo * solverInfo = SolverInfoFactory::GetSolverInfo( solverType );
     std::string & fieldName = solverInfo->residualName;
 
     FieldHome::SetField( fieldName, zero );
@@ -98,10 +97,10 @@ void LoadQ( StringField & data )
 {
     std::string & fName = data[ 0 ];
 
-    int sTid = SolverState::tid;
+    int solverType = SolverState::solverType;
     int fieldId = ( * fieldIdMap )[ fName ];
 
-    SolverInfo * solverInfo = SolverInfoFactory::GetSolverInfo( sTid );
+    SolverInfo * solverInfo = SolverInfoFactory::GetSolverInfo( solverType );
 
     std::string & fieldName = solverInfo->gradString[ 0 ];
 
@@ -110,12 +109,12 @@ void LoadQ( StringField & data )
 
 void SetField( StringField & data )
 {
-    int sTid = SolverState::tid;
+    int solverType = SolverState::solverType;
     std::string & fieldName   = data[ 0 ];
     std::string & valueString = data[ 1 ];
 
     Real value = StringToDigit< Real >( valueString );
-    SolverInfo * solverInfo = SolverInfoFactory::GetSolverInfo( sTid );
+    SolverInfo * solverInfo = SolverInfoFactory::GetSolverInfo( solverType );
 
     FieldHome::SetField( fieldName, value );
 }
@@ -124,10 +123,10 @@ void StoreRHS( StringField & data )
 {
     std::string & fName = data[ 0 ];
 
-    int sTid = SolverState::tid;
+    int solverType = SolverState::solverType;
     int fieldId = ( * fieldIdMap )[ fName ];
 
-    SolverInfo * solverInfo = SolverInfoFactory::GetSolverInfo( sTid );
+    SolverInfo * solverInfo = SolverInfoFactory::GetSolverInfo( solverType );
     std::string & residualName = solverInfo->residualName;
 
     FieldHome::SetField( fieldId, residualName, FLOW_RHS_ORDER );

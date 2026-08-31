@@ -84,21 +84,23 @@ void Prj::SetPrjBaseDir( const std::string & prjName )
 {
     std::string current_dir_now = RemoveEndSlash( Prj::current_dir );
     std::string prj_name_now = RemoveFirstSlash( prjName );
-    ONEFLOW::StrIO << current_dir_now << "/" << prj_name_now;
+    OStream &logger = OStream::Instance();
+    logger << current_dir_now << "/" << prj_name_now;
     if ( ! EndWithSlash( prj_name_now ) )
     {
-        ONEFLOW::StrIO << "/";
+        logger << "/";
     }
-    Prj::prjBaseDir = ONEFLOW::StrIO.str();
+    Prj::prjBaseDir = logger.str();
     std::cout << " Prj::prjBaseDir = " << Prj::prjBaseDir << "\n";
 }
 
 void Prj::OpenPrjFile( std::fstream & file, const std::string & fileName, const std::ios_base::openmode & openMode )
 {
-    ONEFLOW::StrIO.ClearAll();
-    ONEFLOW::StrIO << Prj::prjBaseDir << fileName;
+    OStream &logger = OStream::Instance();
+    logger.ClearAll();
+    logger << Prj::prjBaseDir << fileName;
 
-    std::string prjFileName = ONEFLOW::StrIO.str();
+    std::string prjFileName = logger.str();
 
     CreateDirIfNeeded( prjFileName );
 
@@ -123,10 +125,11 @@ void Prj::CloseFile( std::fstream & file )
 
 void Prj::MakePrjDir( const std::string & dirName )
 {
-    ONEFLOW::StrIO.ClearAll();
-    ONEFLOW::StrIO << Prj::prjBaseDir << dirName;
+    OStream &logger = OStream::Instance();
+    logger.ClearAll();
+    logger << Prj::prjBaseDir << dirName;
 
-    std::string prjDirName = ONEFLOW::StrIO.str();
+    std::string prjDirName = logger.str();
     //std::cout << " prjDirName = " << prjDirName << "\n";
 
     HX_CreateDirectory( prjDirName );
@@ -158,13 +161,14 @@ void Prj::CreateDirIfNeeded( std::string & prjFileName )
 
 std::string Prj::GetPrjFileName( const std::string & fileName )
 {
-    ONEFLOW::StrIO.ClearAll();
+    OStream &logger = OStream::Instance();
+    logger.ClearAll();
 
     std::string fileNameNew = RemoveFirstSlash( fileName );
 
-    ONEFLOW::StrIO << Prj::prjBaseDir << fileNameNew;
+    logger << Prj::prjBaseDir << fileNameNew;
 
-    std::string prjFileName = ONEFLOW::StrIO.str();
+    std::string prjFileName = logger.str();
 
     return prjFileName;
 }

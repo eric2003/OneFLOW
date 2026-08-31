@@ -178,10 +178,11 @@ std::string GetJsonFileName( const std::string & fileName )
     ONEFLOW::GetFileNameExtension( fileName, mainName, extensionName, "." );
     std::string newExtensionName = "json";
 
-    ONEFLOW::StrIO.ClearAll();
-    ONEFLOW::StrIO << mainName << "." << newExtensionName;
+    OStream &logger = OStream::Instance();
+    logger.ClearAll();
+    logger << mainName << "." << newExtensionName;
 
-    std::string newFileName = ONEFLOW::StrIO.str();
+    std::string newFileName = logger.str();
     return newFileName;
 }
 
@@ -345,9 +346,10 @@ void ReadScriptFileNameList( std::vector< std::string > & scriptFileNameList )
         bool flag = textFileParser.ReadNextNonEmptyLine();
         if ( ! flag ) break;
         std::string scriptFileName = textFileParser.ReadNextWord();
-        ONEFLOW::StrIO.ClearAll();
-        ONEFLOW::StrIO << Prj::prjBaseDir << "script/" << scriptFileName;
-        std::string fullScriptFileName = ONEFLOW::StrIO.str();
+        OStream &logger = OStream::Instance();
+        logger.ClearAll();
+        logger << Prj::prjBaseDir << "script/" << scriptFileName;
+        std::string fullScriptFileName = logger.str();
         scriptFileNameList.push_back( fullScriptFileName );
     }
 

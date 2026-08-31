@@ -43,7 +43,7 @@ public:
     static HXVector< LusgsSolver * > uns;
 public:
     static void Init( int nSolver );
-    static void AddSolver( int sid, int gridType, LusgsSolver * solver );
+    static void AddSolver( int solverIndex, int gridType, LusgsSolver * solver );
     static LusgsSolver * GetLusgsSolver();
 };
 
@@ -53,15 +53,15 @@ public:
     SolverState();
     ~SolverState();
 public:
-    static int id;
-    static int tid;
+    static int solverIndex; // 求解器在容器中的实例索引，取决于加载顺序
+    static int solverType;   // 求解器的类型标识（来自 SolverType 枚举），如 NS_SOLVER
     static int nSolver;
     static int msgId;
     static IntField convergeFlag;
 public:
     static void Init( int nSolver );
-    static void SetTid( int tid );
-    static void SetTidById( int id );
+    static void SetSolverType( int solverType );
+    static void SetSolverTypeBySolverIndex( int solverIndex );
     static Solver * GetSolver();
 public:
     static bool Converge();

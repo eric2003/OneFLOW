@@ -28,13 +28,13 @@ License
 BeginNameSpace( ONEFLOW )
 
 
-Unsteady * CreateUnsteady( int sTid )
+Unsteady * CreateUnsteady( int solverType )
 {
-    if ( sTid == NS_SOLVER )
+    if ( solverType == NS_SOLVER )
     {
         return CreateNsUnsteady();
     }
-    else if ( sTid == TURB_SOLVER )
+    else if ( solverType == TURB_SOLVER )
     {
         return CreateTurbUnsteady();
     }

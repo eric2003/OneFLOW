@@ -32,7 +32,7 @@ BeginNameSpace( ONEFLOW )
 
 Unsteady::Unsteady()
 {
-    sTid = -1;
+    solverType = -1;
     data = 0;
     field = 0;
 }
@@ -41,9 +41,9 @@ Unsteady::~Unsteady()
 {
 }
 
-void Unsteady::UpdateUnsteady( int sTid )
+void Unsteady::UpdateUnsteady( int solverType )
 {
-    FieldManager * fieldManager = FieldFactory::GetFieldManager( sTid );
+    FieldManager * fieldManager = FieldFactory::GetFieldManager( solverType );
 
     UsdPara * usdPara = fieldManager->usdPara;
 

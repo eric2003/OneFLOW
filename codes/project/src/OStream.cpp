@@ -25,12 +25,4 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-OStream StrIO;
-
-void OStream::ClearAll()
-{
-    this->clear();
-    this->str("");
-}
-
 EndNameSpace

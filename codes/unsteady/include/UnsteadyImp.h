@@ -26,6 +26,6 @@ License
 
 BeginNameSpace( ONEFLOW )
 class Unsteady;
-Unsteady * CreateUnsteady( int sTid );
+Unsteady * CreateUnsteady( int solverType );
 
 EndNameSpace

@@ -44,26 +44,26 @@ Update::~Update()
     delete dq;
 }
 
-Update * CreateUpdate( int sTid )
+Update * CreateUpdate( int solverType )
 {
-    if ( sTid == NS_SOLVER )
+    if ( solverType == NS_SOLVER )
     {
         return CreateNsUpdate();
     }
-    else if ( sTid == INC_NS_SOLVER )
+    else if ( solverType == INC_NS_SOLVER )
     {
         return CreateINsUpdate();
     }
-    else if ( sTid == TURB_SOLVER )
+    else if ( solverType == TURB_SOLVER )
     {
         return CreateTurbUpdate();
     }
     return 0;
 }
 
-void GetUpdateField( int sTid, FieldWrap *q, FieldWrap *dq )
+void GetUpdateField( int solverType, FieldWrap *q, FieldWrap *dq )
 {
-    SolverInfo * solverInfo = SolverInfoFactory::GetSolverInfo( sTid );
+    SolverInfo * solverInfo = SolverInfoFactory::GetSolverInfo( solverType );
 
     if ( TaskState::task->taskName == "UPDATE_FLOWFIELD_LUSGS" )
     {

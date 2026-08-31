@@ -50,19 +50,19 @@ void Category::Free()
     Category::data = 0;
 }
 
-void Category::AddCategory( int sTid, int category )
+void Category::AddCategory( int solverType, int category )
 {
     Category::Init();
-    std::map< int, int >::iterator iter = Category::data->find( sTid );
+    std::map< int, int >::iterator iter = Category::data->find( solverType );
     if ( iter == Category::data->end() )
     {
-        ( * Category::data )[ sTid ] = category;
+        ( * Category::data )[ solverType ] = category;
     }
 }
 
-int Category::GetCategory( int sTid )
+int Category::GetCategory( int solverType )
 {
-    std::map< int, int >::iterator iter = Category::data->find( sTid );
+    std::map< int, int >::iterator iter = Category::data->find( solverType );
     return iter->second;
 }
 
