@@ -44,9 +44,9 @@ UINsUpdate::~UINsUpdate()
 {
 }
 
-void UINsUpdate::UpdateINsFlowField( int sTid )
+void UINsUpdate::UpdateINsFlowField( int solverType )
 {
-    GetUpdateField( sTid, this->q, this->dq );
+    GetUpdateField( solverType, this->q, this->dq );
 
     ug.Init();
     uinsf.Init();

@@ -67,17 +67,17 @@ void RegisterUnsteadyTask()
 
 void UpdateUnsteadyFlow( StringField & data )
 {
-    int sTid = SolverState::tid;
+    int solverType = SolverState::tid;
 
-    Unsteady * unsteady = CreateUnsteady( sTid );
-    unsteady->UpdateUnsteady( sTid );
+    Unsteady * unsteady = CreateUnsteady( solverType );
+    unsteady->UpdateUnsteady( solverType );
     delete unsteady;
 }
 
 void CalcUnsteadyCriterion( StringField & data )
 {
-    int sTid = SolverState::tid;
-    Unsteady * unsteady = CreateUnsteady( sTid );
+    int solverType = SolverState::tid;
+    Unsteady * unsteady = CreateUnsteady( solverType );
     unsteady->CalcUnsteadyCriterion();
     delete unsteady;
 }

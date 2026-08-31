@@ -165,7 +165,7 @@ SolverRegData gridReg;
 
 SolverRegData * GetGridReg()
 {
-    gridReg.sTid = GRID_SOLVER;
+    gridReg.solverType = GRID_SOLVER;
     gridReg.func = & SetGridFunc;
     gridReg.solverName = "grid";
     gridReg.baseKind = GRID_BASED;

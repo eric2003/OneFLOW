@@ -45,13 +45,13 @@ public:
     static void CreateSolvers( int gridType );
     static void FreeSolverMap();
     static void FreeSolverMap( int gridType );
-    static int GetId( int sTid );
+    static int GetId( int solverType );
     static int GetTid( int sid );
-    static void AddSolverInfo( int sTid, int sid );
+    static void AddSolverInfo( int solverType, int sid );
     static Solver * GetSolver( int id, int gridType );
 protected:
-    static void AddTid2Id( int sTid, int sid );
-    static void AddId2Tid( int sid, int sTid );
+    static void AddTid2Id( int solverType, int sid );
+    static void AddId2Tid( int sid, int solverType );
 };
 
 class SolverNameClass

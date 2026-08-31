@@ -32,27 +32,27 @@ public:
     Restart();
     virtual ~Restart();
 public:
-    int sTid;
+    int solverType;
 public:
-    void ReadUnsteady( int sTid );
-    void DumpUnsteady( int sTid );
-    void InitUnsteady( int sTid );
-    void Read( int sTid );
-	//void Readins(int sTid);
-    void Dump( int sTid );
+    void ReadUnsteady( int solverType );
+    void DumpUnsteady( int solverType );
+    void InitUnsteady( int solverType );
+    void Read( int solverType );
+	//void Readins(int solverType);
+    void Dump( int solverType );
 public:
-    virtual void InitRestart( int sTid );
-	virtual void InitinsRestart( int sTid );
+    virtual void InitRestart( int solverType );
+	virtual void InitinsRestart( int solverType );
 };
 
-Restart * CreateRestart( int sTid );
+Restart * CreateRestart( int solverType );
 
 class DataStorage;
 
 void ReadRestartHeader();
 void ReadinsRestartHeader();
 void DumpRestartHeader();
-void RwInterface( int sTid, int readOrWrite );
+void RwInterface( int solverType, int readOrWrite );
 void RwInterfaceRecord( DataStorage * storage, StringField & fieldNameList, int readOrWrite );
 void ReadFieldRecord( DataStorage * storage, StringField & fieldNameList );
 void WriteFieldRecord( DataStorage * storage, StringField & fieldNameList );

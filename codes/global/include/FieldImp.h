@@ -119,8 +119,8 @@ public:
     static std::map< int, FieldManager * > * data;
 public:
     static void Init();
-    static void AddFieldManager( int sTid );
-    static FieldManager * GetFieldManager( int sTid );
+    static void AddFieldManager( int solverType );
+    static FieldManager * GetFieldManager( int solverType );
     static void FreeFieldManager();
 };
 

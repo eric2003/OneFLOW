@@ -46,9 +46,9 @@ UTurbUpdate::~UTurbUpdate()
 {
 }
 
-void UTurbUpdate::UpdateFlowField( int sTid )
+void UTurbUpdate::UpdateFlowField( int solverType )
 {
-    GetUpdateField( sTid, this->q, this->dq );
+    GetUpdateField( solverType, this->q, this->dq );
 
     ug.Init();
     uturbf.Init();

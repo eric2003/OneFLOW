@@ -44,11 +44,11 @@ void UsdField::Init()
     ;
 }
 
-void UsdField::InitBasic( int sTid )
+void UsdField::InitBasic( int solverType )
 {
     UnsGrid * grid = Zone::GetUnsGrid();
 
-    FieldManager * fieldManager = FieldFactory::GetFieldManager( sTid );
+    FieldManager * fieldManager = FieldFactory::GetFieldManager( solverType );
     UsdPara * usdPara = fieldManager->usdPara;
     q  = GetFieldPointer< MRField > ( grid, usdPara->flow[ 0 ] );
     q1 = GetFieldPointer< MRField > ( grid, usdPara->flow[ 1 ] );

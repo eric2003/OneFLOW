@@ -45,7 +45,7 @@ UNsRestart::~UNsRestart()
     ;
 }
 
-void UNsRestart::InitRestart( int sTid )
+void UNsRestart::InitRestart( int solverType )
 {
     Iteration::outerSteps = 0;
     ctrl.currTime = 0.0;
@@ -60,9 +60,9 @@ void UNsRestart::InitRestart( int sTid )
     {
         SetField( ( * q )[ iEqu ], nscom.inflow[ iEqu ] );
     }
-    this->InitUnsteady( sTid );
+    this->InitUnsteady( solverType );
 
-    RwInterface( sTid, GREAT_ZERO );
+    RwInterface( solverType, GREAT_ZERO );
 
     if ( ctrl.inflowType == 3 )
     {

@@ -80,16 +80,16 @@ FieldWrap * FieldHome::CreateField()
     return FieldHome::CreateField( SolverState::tid, GridState::gridLevel );
 }
 
-FieldWrap * FieldHome::CreateField( int sTid )
+FieldWrap * FieldHome::CreateField( int solverType )
 {
-    return FieldHome::CreateField( sTid, GridState::gridLevel );
+    return FieldHome::CreateField( solverType, GridState::gridLevel );
 }
 
-FieldWrap * FieldHome::CreateField( int sTid, int level )
+FieldWrap * FieldHome::CreateField( int solverType, int level )
 {
     //Solver * solver = SolverMap::GetSolver( id, level );
 
-    SolverInfo * info = SolverInfoFactory::GetSolverInfo( sTid );
+    SolverInfo * info = SolverInfoFactory::GetSolverInfo( solverType );
     //SolverInfo * info = solver->info;
 
     Grid * grid = Zone::GetGrid();

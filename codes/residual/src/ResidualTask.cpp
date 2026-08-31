@@ -92,10 +92,10 @@ void ResidualTask::Run()
     PostDumpResiduals();
 }
 
-void ResidualTask::CalcRes( int sTid, ResData & data )
+void ResidualTask::CalcRes( int solverType, ResData & data )
 {
     UnsGrid * grid = Zone::GetUnsGrid();
-    SolverInfo * solverInfo = SolverInfoFactory::GetSolverInfo( sTid );
+    SolverInfo * solverInfo = SolverInfoFactory::GetSolverInfo( solverType );
 
     int nEqu = solverInfo->nEqu;
 

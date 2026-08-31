@@ -27,8 +27,8 @@ BeginNameSpace( ONEFLOW )
 class SolverRegData;
 
 void RegisterSolverTask( SolverRegData * regData );
-void RegisterSolverVarMap( int sTid );
-void RegisterSolverFunc( int sTid, const std::string & solverName, VoidFunc func );
+void RegisterSolverVarMap( int solverType );
+void RegisterSolverFunc( int solverType, const std::string & solverName, VoidFunc func );
 
 void FreeSolverTask();
 

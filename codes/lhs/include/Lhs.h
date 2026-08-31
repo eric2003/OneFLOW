@@ -33,9 +33,9 @@ public:
     Lhs();
     virtual ~Lhs();
 public:
-    virtual void CalcLHS( int sTid ){};
+    virtual void CalcLHS( int solverType ){};
 };
 
-Lhs * CreateLhs( int sTid );
+Lhs * CreateLhs( int solverType );
 
 EndNameSpace

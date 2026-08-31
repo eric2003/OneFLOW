@@ -63,9 +63,9 @@ void CmdActionNext()
 
 void GenerateCmdList( int msgId )
 {
-    int sTid = SolverState::tid;
+    int solverType = SolverState::tid;
 
-    HXRegister * hxRegister = RegisterFactory::GetRegister( sTid, MESG_FUNC );
+    HXRegister * hxRegister = RegisterFactory::GetRegister( solverType, MESG_FUNC );
 
     std::string msgName = MessageMap::GetMsgName( msgId );
 
@@ -88,11 +88,11 @@ void AddCmdToList( const std::string & msgName )
     ONEFLOW::AddCmdToList( msgId, SolverState::tid );
 }
 
-void AddCmdToList( int msgId, int sTid )
+void AddCmdToList( int msgId, int solverType )
 {
-    ONEFLOW::CreateTask( msgId, sTid );
+    ONEFLOW::CreateTask( msgId, solverType );
 
-    ONEFLOW::SetFile( msgId, sTid );
+    ONEFLOW::SetFile( msgId, solverType );
 
     SimpleCmd * cmd = new SimpleCmd();
 
@@ -108,9 +108,9 @@ void SetTaskAction()
     TaskState::task->recvAction = & ONEFLOW::CmdActionNext;
 }
 
-void CreateTask( int msgId, int sTid )
+void CreateTask( int msgId, int solverType )
 {
-    HXClone * cloneClass = ONEFLOW::GetClass( msgId, sTid, TASK_FUNC );
+    HXClone * cloneClass = ONEFLOW::GetClass( msgId, solverType, TASK_FUNC );
 
     if ( cloneClass )
     {
@@ -124,13 +124,13 @@ void CreateTask( int msgId, int sTid )
     TaskState::task->taskId = msgId;
     TaskState::task->taskName = MessageMap::GetMsgName( msgId );
 
-    SolverState::tid = sTid;
+    SolverState::tid = solverType;
     SetTaskAction();
 }
 
-void SetFile( int msgId, int sTid )
+void SetFile( int msgId, int solverType )
 {
-    HXClone * cloneClass = ONEFLOW::GetClass( msgId, sTid, FILE_FUNC );
+    HXClone * cloneClass = ONEFLOW::GetClass( msgId, solverType, FILE_FUNC );
 
     if ( cloneClass )
     {
@@ -138,9 +138,9 @@ void SetFile( int msgId, int sTid )
     }
 }
 
-HXClone * GetClass( int msgId, int sTid, int msgType )
+HXClone * GetClass( int msgId, int solverType, int msgType )
 {
-    HXRegister * hxRegister = RegisterFactory::GetRegister( sTid, msgType );
+    HXRegister * hxRegister = RegisterFactory::GetRegister( solverType, msgType );
 
     std::string msgName = MessageMap::GetMsgName( msgId );
 

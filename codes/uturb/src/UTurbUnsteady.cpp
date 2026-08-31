@@ -49,7 +49,7 @@ void UTurbUsdField::Init()
 
 UTurbUnsteady::UTurbUnsteady()
 {
-    this->sTid = TURB_SOLVER;
+    this->solverType = TURB_SOLVER;
     data = new TurbUsdData();
     field = new UTurbUsdField();
     data->Init();

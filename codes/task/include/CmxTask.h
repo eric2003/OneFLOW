@@ -44,10 +44,10 @@ void AddCmdToList( const std::string & msgName );
 void AddCmdToList( int taskCode, int solverCode );
 
 class HXClone;
-HXClone * GetClass( int msgId, int sTid, int msgType );
+HXClone * GetClass( int msgId, int solverType, int msgType );
 
-void CreateTask( int msgId, int sTid );
-void SetFile( int msgId, int sTid );
+void CreateTask( int msgId, int solverType );
+void SetFile( int msgId, int solverType );
 
 void SsSgTask( const std::string & taskName );
 void MsMgTask( const std::string & taskName );

@@ -31,7 +31,7 @@ public:
     ULhs();
     ~ULhs() override;
 public:
-    void CalcLHS( int sTid ) override;
+    void CalcLHS( int solverType ) override;
 };
 
 EndNameSpace

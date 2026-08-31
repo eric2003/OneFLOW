@@ -31,7 +31,7 @@ public:
     UTurbUpdate ();
     ~UTurbUpdate();
 public:
-    void UpdateFlowField( int sTid ) override;
+    void UpdateFlowField( int solverType ) override;
     void UpdateFlowField1Equ();
     void UpdateFlowField2Equ();
     void UpdateFlowField1EquStd();

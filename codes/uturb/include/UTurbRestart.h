@@ -31,7 +31,7 @@ public:
     UTurbRestart();
     ~UTurbRestart();
 public:
-    void InitRestart( int sTid ) override;
+    void InitRestart( int solverType ) override;
 };
 
 EndNameSpace

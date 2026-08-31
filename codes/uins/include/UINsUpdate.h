@@ -31,7 +31,7 @@ public:
     UINsUpdate ();
     ~UINsUpdate();
 public:
-    void UpdateINsFlowField( int sTid ) override;
+    void UpdateINsFlowField( int solverType ) override;
     void DumpProbeInfo() override;
     void SolutionFix() override;
 public:
