@@ -49,8 +49,8 @@ HXClone * GetClass( int msgId, int solverType, int msgType );
 void CreateTask( int msgId, int solverType );
 void SetFile( int msgId, int solverType );
 
-void SsSgTask( const std::string & taskName );
-void MsMgTask( const std::string & taskName );
+void SingleSolverSingleGridTask( const std::string & taskName );
+void MultiSolverMultiGridTask( const std::string & taskName );
 
 
 EndNameSpace

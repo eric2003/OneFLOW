@@ -149,7 +149,7 @@ HXClone * GetClass( int msgId, int solverType, int msgType )
     return cloneClass;
 }
 
-void SsSgTask( const std::string & taskName )
+void SingleSolverSingleGridTask( const std::string & taskName )
 {
     int taskCode = MessageMap::GetMsgId( taskName );
 
@@ -158,7 +158,7 @@ void SsSgTask( const std::string & taskName )
     CMD::ExecuteCmd();
 }
 
-void MsMgTask( const std::string & taskname )
+void MultiSolverMultiGridTask( const std::string & taskname )
 {
     for ( int solverIndex = 0; solverIndex < SolverState::nSolver; ++ solverIndex )
     {
@@ -167,7 +167,7 @@ void MsMgTask( const std::string & taskname )
         for ( int gl = 0; gl < GridState::nGrids; ++ gl )
         {
             GridState::SetGridLevel( gl );
-            ONEFLOW::SsSgTask( taskname );
+            ONEFLOW::SingleSolverSingleGridTask( taskname );
         }
     }
 }
