@@ -46,12 +46,12 @@ public:
     static void FreeSolverMap();
     static void FreeSolverMap( int gridType );
     static int GetId( int solverType );
-    static int GetTid( int sid );
-    static void AddSolverInfo( int solverType, int sid );
+    static int GetTid( int solverIndex );
+    static void AddSolverInfo( int solverType, int solverIndex );
     static Solver * GetSolver( int id, int gridType );
 protected:
-    static void AddTid2Id( int solverType, int sid );
-    static void AddId2Tid( int sid, int solverType );
+    static void AddTid2Id( int solverType, int solverIndex );
+    static void AddId2Tid( int solverIndex, int solverType );
 };
 
 class SolverNameClass

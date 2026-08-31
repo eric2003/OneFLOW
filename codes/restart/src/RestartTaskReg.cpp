@@ -38,7 +38,6 @@ License
 #include "Lusgs.h"
 #include "Lhs.h"
 #include "FieldImp.h"
-#include "FieldWrap.h"
 #include "SolverState.h"
 #include "Zone.h"
 #include "Grid.h"

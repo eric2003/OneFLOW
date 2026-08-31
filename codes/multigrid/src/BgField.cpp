@@ -45,23 +45,23 @@ void BasicBgField::Init()
     int numberOfFields  = 2; //FIELD_FLOW = 0, FIELD_RHS = 1
     this->data.resize( SolverState::nSolver );
 
-    for ( int sid = 0; sid < SolverState::nSolver; ++ sid )
+    for ( int solverIndex = 0; solverIndex < SolverState::nSolver; ++ solverIndex )
     {
-        this->data[ sid ].resize( numberOfFields );
+        this->data[ solverIndex ].resize( numberOfFields );
 
-        SolverState::id = sid;
-        SolverState::SetTidById( sid );
+        SolverState::id = solverIndex;
+        SolverState::SetSolverTypeBySolverIndex( solverIndex );
 
         for ( int fid = 0; fid < numberOfFields; ++ fid )
         {
-            this->data[ sid ][ fid ].resize( MG::nMulti );
+            this->data[ solverIndex ][ fid ].resize( MG::nMulti );
         
             for ( int gl = 0; gl < MG::nMulti; ++ gl )
             {
                 GridState::gridLevel = gl;
                 
                 FieldWrap * fieldWrap = FieldHome::CreateField();
-                this->data[ sid ][ fid ][ gl ] = fieldWrap;
+                this->data[ solverIndex ][ fid ][ gl ] = fieldWrap;
             }
         }
     }
@@ -72,17 +72,17 @@ void BasicBgField::Free()
 {
     int numberOfSolvers = this->data.size();
 
-    for ( int sid = 0; sid < numberOfSolvers; ++ sid )
+    for ( int solverIndex = 0; solverIndex < numberOfSolvers; ++ solverIndex )
     {
-        int nFields = this->data[ sid ].size();
+        int nFields = this->data[ solverIndex ].size();
 
         for ( int fid = 0; fid < nFields; ++ fid )
         {
-            int nGrids = this->data[ sid ][ fid ].size();
+            int nGrids = this->data[ solverIndex ][ fid ].size();
 
             for ( int gl = 0; gl < nGrids; ++ gl )
             {
-                delete this->data[ sid ][ fid ][ gl ];
+                delete this->data[ solverIndex ][ fid ][ gl ];
             }
         }
     }
@@ -125,9 +125,9 @@ void BgField::Free()
     }
 }
 
-FieldWrap * BgField::GetFieldWrap( int zid, int sid, int fid, int gl )
+FieldWrap * BgField::GetFieldWrap( int zid, int solverIndex, int fid, int gl )
 {
-    return BgField::data[ zid ]->data[ sid ][ fid ][ gl ];
+    return BgField::data[ zid ]->data[ solverIndex ][ fid ][ gl ];
 }
 
 EndNameSpace

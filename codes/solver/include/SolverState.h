@@ -43,7 +43,7 @@ public:
     static HXVector< LusgsSolver * > uns;
 public:
     static void Init( int nSolver );
-    static void AddSolver( int sid, int gridType, LusgsSolver * solver );
+    static void AddSolver( int solverIndex, int gridType, LusgsSolver * solver );
     static LusgsSolver * GetLusgsSolver();
 };
 
@@ -61,7 +61,7 @@ public:
 public:
     static void Init( int nSolver );
     static void SetTid( int tid );
-    static void SetTidById( int id );
+    static void SetSolverTypeBySolverIndex( int id );
     static Solver * GetSolver();
 public:
     static bool Converge();

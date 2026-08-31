@@ -160,9 +160,9 @@ void SsSgTask( const std::string & taskName )
 
 void MsMgTask( const std::string & taskname )
 {
-    for ( int sid = 0; sid < SolverState::nSolver; ++ sid )
+    for ( int solverIndex = 0; solverIndex < SolverState::nSolver; ++ solverIndex )
     {
-        SolverState::SetTidById( sid );
+        SolverState::SetSolverTypeBySolverIndex( solverIndex );
 
         for ( int gl = 0; gl < GridState::nGrids; ++ gl )
         {

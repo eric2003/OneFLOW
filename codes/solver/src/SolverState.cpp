@@ -50,17 +50,17 @@ void LusgsState::Init( int nSolver )
     LusgsState::uns.resize( nSolver );
 }
 
-void LusgsState::AddSolver( int sid, int gridType, LusgsSolver * solver )
+void LusgsState::AddSolver( int solverIndex, int gridType, LusgsSolver * solver )
 {
     if ( gridType == ONEFLOW::UMESH )
     {
-        if ( LusgsState::uns[ sid ] ) return;
-        LusgsState::uns[ sid ] = solver;
+        if ( LusgsState::uns[ solverIndex ] ) return;
+        LusgsState::uns[ solverIndex ] = solver;
     }
     else
     {
-        if ( LusgsState::str[ sid ] ) return;
-        LusgsState::str[ sid ] = solver;
+        if ( LusgsState::str[ solverIndex ] ) return;
+        LusgsState::str[ solverIndex ] = solver;
     }
 }
 
@@ -104,7 +104,7 @@ void SolverState::SetTid( int tid )
     SolverState::tid = tid;
 }
 
-void SolverState::SetTidById( int id )
+void SolverState::SetSolverTypeBySolverIndex( int id )
 {
     SolverState::id  = id;
     SolverState::tid = SolverMap::GetTid( id );

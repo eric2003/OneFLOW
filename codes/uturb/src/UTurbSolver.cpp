@@ -51,7 +51,7 @@ UTurbSolver::~UTurbSolver()
 void UTurbSolver::StaticInit()
 {
     TurbSolver::StaticInit();
-    LusgsState::AddSolver( this->sid, this->gridType, new UTurbLusgs() );
+    LusgsState::AddSolver( this->solverIndex, this->gridType, new UTurbLusgs() );
 }
 
 void UTurbSolver::Init()

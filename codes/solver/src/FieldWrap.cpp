@@ -76,7 +76,7 @@ FieldHome::~FieldHome()
 
 FieldWrap * FieldHome::CreateField()
 {
-    SolverState::SetTidById( SolverState::id );
+    SolverState::SetSolverTypeBySolverIndex( SolverState::id );
     return FieldHome::CreateField( SolverState::tid, GridState::gridLevel );
 }
 

@@ -67,14 +67,14 @@ void SolverMap::CreateSolvers( int gridType )
     int nSolver = solverNameList.size();
 
     LusgsState::Init( nSolver );
-    for ( int sid = 0; sid < nSolver; ++ sid )
+    for ( int solverIndex = 0; solverIndex < nSolver; ++ solverIndex )
     {
-        Solver * solver = Solver::SafeClone( solverNameList[ sid ] );
-        solver->sid = sid;
+        Solver * solver = Solver::SafeClone( solverNameList[ solverIndex ] );
+        solver->solverIndex = solverIndex;
         solver->gridType = gridType;
         solver->StaticInit();
         
-        SolverMap::AddSolverInfo( solver->solverType, solver->sid );
+        SolverMap::AddSolverInfo( solver->solverType, solver->solverIndex );
         solvers->push_back( solver );
     }
 
@@ -93,9 +93,9 @@ void SolverMap::FreeSolverMap( int gridType )
         solvers = & SolverMap::strSolver;
     }
 
-    for ( int sid = 0; sid < solvers->size(); ++ sid )
+    for ( int solverIndex = 0; solverIndex < solvers->size(); ++ solverIndex )
     {
-        Solver * solver = ( * solvers )[ sid ];
+        Solver * solver = ( * solvers )[ solverIndex ];
         delete solver;
     }
     solvers->resize( 0 );
@@ -114,36 +114,36 @@ int SolverMap::GetId( int solverType )
     return iter->second;
 }
 
-int SolverMap::GetTid( int sid )
+int SolverMap::GetTid( int solverIndex )
 {
     std::map< int, int >::iterator iter;
-    iter = SolverMap::id2Tid.find( sid );
+    iter = SolverMap::id2Tid.find( solverIndex );
     return iter->second;
 }
 
-void SolverMap::AddSolverInfo( int solverType, int sid )
+void SolverMap::AddSolverInfo( int solverType, int solverIndex )
 {
-    SolverMap::AddTid2Id( solverType, sid );
-    SolverMap::AddId2Tid( sid, solverType );
+    SolverMap::AddTid2Id( solverType, solverIndex );
+    SolverMap::AddId2Tid( solverIndex, solverType );
 }
 
-void SolverMap::AddTid2Id( int solverType, int sid )
+void SolverMap::AddTid2Id( int solverType, int solverIndex )
 {
     std::map< int, int >::iterator iter;
     iter = SolverMap::tid2Id.find( solverType );
     if ( iter == SolverMap::tid2Id.end() )
     {
-        SolverMap::tid2Id[ solverType ] = sid;
+        SolverMap::tid2Id[ solverType ] = solverIndex;
         SolverMap::tid.push_back( solverType );
     }
 }
 
-void SolverMap::AddId2Tid( int sid, int solverType )
+void SolverMap::AddId2Tid( int solverIndex, int solverType )
 {
-    std::map< int, int >::iterator iter = SolverMap::id2Tid.find( sid );
+    std::map< int, int >::iterator iter = SolverMap::id2Tid.find( solverIndex );
     if ( iter == SolverMap::id2Tid.end() )
     {
-        SolverMap::id2Tid[ sid ] = solverType;
+        SolverMap::id2Tid[ solverIndex ] = solverType;
     }
 }
 

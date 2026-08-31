@@ -93,9 +93,9 @@ void MG::MWrap( FunctionPointer multigridPointer, int gridLevel )
     }
     else
     {
-        for ( int sid = 0; sid < SolverState::nSolver; ++ sid )
+        for ( int solverIndex = 0; solverIndex < SolverState::nSolver; ++ solverIndex )
         {
-            SolverState::SetTidById( sid );
+            SolverState::SetSolverTypeBySolverIndex( solverIndex );
             ( this->*multigridPointer )( gridLevel );
         }
     }
@@ -354,7 +354,7 @@ void MG::ZeroResidualsForAllSolvers()
 {
     for ( int sId = 0; sId < SolverState::nSolver; ++ sId )
     {
-        SolverState::SetTidById( sId );
+        SolverState::SetSolverTypeBySolverIndex( sId );
         ONEFLOW::SsSgTask( "ZERO_RESIDUALS" );
     }
 }
@@ -363,9 +363,9 @@ void MG::WeakIter()
 {
     this->ZeroResidualsForAllSolvers();
 
-    for ( int sid = 0; sid < SolverState::nSolver; ++ sid )
+    for ( int solverIndex = 0; solverIndex < SolverState::nSolver; ++ solverIndex )
     {
-        SolverState::SetTidById( sid );
+        SolverState::SetSolverTypeBySolverIndex( solverIndex );
         this->SolveMultigridFlowField( 0 );
     }
 }
