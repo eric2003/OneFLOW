@@ -69,16 +69,16 @@ LusgsSolver * LusgsState::GetLusgsSolver()
     int gridType = ZoneState::zoneType[ ZoneState::zid ];
     if ( gridType == ONEFLOW::UMESH )
     {
-        return LusgsState::uns[ SolverState::id ];
+        return LusgsState::uns[ SolverState::solverIndex ];
     }
     else
     {
-        return LusgsState::str[ SolverState::id ];
+        return LusgsState::str[ SolverState::solverIndex ];
     }
 }
 
-int SolverState::id = 0;
-int SolverState::tid = 0;
+int SolverState::solverIndex = 0;
+int SolverState::solverType = 0;
 int SolverState::nSolver = 0;
 int SolverState::msgId = -1;
 IntField SolverState::convergeFlag;
@@ -99,21 +99,21 @@ void SolverState::Init( int nSolver )
     SolverState::convergeFlag.resize( nSolver );
 }
 
-void SolverState::SetTid( int tid )
+void SolverState::SetSolverType( int solverType )
 {
-    SolverState::tid = tid;
+    SolverState::solverType = solverType;
 }
 
-void SolverState::SetSolverTypeBySolverIndex( int id )
+void SolverState::SetSolverTypeBySolverIndex( int solverIndex )
 {
-    SolverState::id  = id;
-    SolverState::tid = SolverMap::GetTid( id );
+    SolverState::solverIndex  = solverIndex;
+    SolverState::solverType = SolverMap::GetSolverTypeBySolverIndex( solverIndex );
 }
 
 Solver * SolverState::GetSolver()
 {
     int gridType = ZoneState::zoneType[ ZoneState::zid ];
-    return SolverMap::GetSolver( SolverState::id, gridType );
+    return SolverMap::GetSolver( SolverState::solverIndex, gridType );
 }
 
 bool SolverState::Converge()
@@ -123,7 +123,7 @@ bool SolverState::Converge()
     bool flag = true;
     for ( int iSolver = 0; iSolver < SolverState::nSolver; ++ iSolver )
     {
-        SolverState::id = iSolver;
+        SolverState::solverIndex = iSolver;
         ONEFLOW::SsSgTask( "CALC_UNSTEADY_CRITERION" );
     }
     

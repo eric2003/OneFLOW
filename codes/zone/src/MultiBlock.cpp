@@ -58,7 +58,7 @@ void MultiBlock::ReadMultiBlockGrid()
 
 void MultiBlock::SetUpMultigrid()
 {
-    SolverState::tid = GRID_SOLVER;
+    SolverState::solverType = GRID_SOLVER;
     SsSgTask( "CALC_METRICS" );
 }
 
@@ -102,7 +102,7 @@ void MultiBlock::ProcessWallDist()
 
 void CreateWallDist()
 {
-    SolverState::tid = GRID_SOLVER;
+    SolverState::solverType = GRID_SOLVER;
     SsSgTask( "FILL_WALL_STRUCT" );
     SsSgTask( "CALC_WALL_DIST" );
     FreeWallStruct();
@@ -111,13 +111,13 @@ void CreateWallDist()
 
 void LoadWallDist()
 {
-    SolverState::tid = GRID_SOLVER;
+    SolverState::solverType = GRID_SOLVER;
     SsSgTask( "READ_WALL_DIST" );
 }
 
 void MultiBlock::AllocWallDist()
 {
-    SolverState::tid = GRID_SOLVER;
+    SolverState::solverType = GRID_SOLVER;
     SsSgTask( "ALLOCATE_WALL_DIST" );
 }
 

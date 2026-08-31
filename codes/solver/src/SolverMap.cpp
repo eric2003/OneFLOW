@@ -31,9 +31,9 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-IntField SolverMap::tid;
-std::map< int, int > SolverMap::tid2Id;
-std::map< int, int > SolverMap::id2Tid;
+IntField SolverMap::solverTypes;
+std::map< int, int > SolverMap::solverTypeToIndex;
+std::map< int, int > SolverMap::solverIndexToType;
 HXVector< Solver * > SolverMap::strSolver;
 HXVector< Solver * > SolverMap::unsSolver;
 
@@ -107,55 +107,55 @@ void SolverMap::FreeSolverMap()
     SolverMap::FreeSolverMap( ONEFLOW::SMESH );
 }
 
-int SolverMap::GetId( int solverType )
+int SolverMap::GetSolverIndexBySolverType( int solverType )
 {
     std::map< int, int >::iterator iter;
-    iter = SolverMap::tid2Id.find( solverType );
+    iter = SolverMap::solverTypeToIndex.find( solverType );
     return iter->second;
 }
 
-int SolverMap::GetTid( int solverIndex )
+int SolverMap::GetSolverTypeBySolverIndex( int solverIndex )
 {
     std::map< int, int >::iterator iter;
-    iter = SolverMap::id2Tid.find( solverIndex );
+    iter = SolverMap::solverIndexToType.find( solverIndex );
     return iter->second;
 }
 
 void SolverMap::AddSolverInfo( int solverType, int solverIndex )
 {
-    SolverMap::AddTid2Id( solverType, solverIndex );
-    SolverMap::AddId2Tid( solverIndex, solverType );
+    SolverMap::AddSolverTypeToIndex( solverType, solverIndex );
+    SolverMap::AddSolverIndexToType( solverIndex, solverType );
 }
 
-void SolverMap::AddTid2Id( int solverType, int solverIndex )
+void SolverMap::AddSolverTypeToIndex( int solverType, int solverIndex )
 {
     std::map< int, int >::iterator iter;
-    iter = SolverMap::tid2Id.find( solverType );
-    if ( iter == SolverMap::tid2Id.end() )
+    iter = SolverMap::solverTypeToIndex.find( solverType );
+    if ( iter == SolverMap::solverTypeToIndex.end() )
     {
-        SolverMap::tid2Id[ solverType ] = solverIndex;
-        SolverMap::tid.push_back( solverType );
+        SolverMap::solverTypeToIndex[ solverType ] = solverIndex;
+        SolverMap::solverTypes.push_back( solverType );
     }
 }
 
-void SolverMap::AddId2Tid( int solverIndex, int solverType )
+void SolverMap::AddSolverIndexToType( int solverIndex, int solverType )
 {
-    std::map< int, int >::iterator iter = SolverMap::id2Tid.find( solverIndex );
-    if ( iter == SolverMap::id2Tid.end() )
+    std::map< int, int >::iterator iter = SolverMap::solverIndexToType.find( solverIndex );
+    if ( iter == SolverMap::solverIndexToType.end() )
     {
-        SolverMap::id2Tid[ solverIndex ] = solverType;
+        SolverMap::solverIndexToType[ solverIndex ] = solverType;
     }
 }
 
-Solver * SolverMap::GetSolver( int id, int gridType )
+Solver * SolverMap::GetSolver( int solverIndex, int gridType )
 {
     if ( gridType == ONEFLOW::UMESH )
     {
-        return unsSolver[ id ];
+        return unsSolver[ solverIndex ];
     }
     else
     {
-        return strSolver[ id ];
+        return strSolver[ solverIndex ];
     }
 }
 

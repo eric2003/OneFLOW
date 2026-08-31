@@ -73,7 +73,7 @@ void RegisterRestartTask()
 
 void InitFirst( StringField & data )
 {
-    int solverType = SolverState::tid;
+    int solverType = SolverState::solverType;
 
     const std::string & basicString = data[ 0 ];
 
@@ -82,7 +82,7 @@ void InitFirst( StringField & data )
 
 void ReadRestart( StringField & data )
 {
-    int solverType = SolverState::tid;
+    int solverType = SolverState::solverType;
 
     Restart * restart = CreateRestart( solverType );
     restart->Read( solverType );
@@ -91,7 +91,7 @@ void ReadRestart( StringField & data )
 
 void DumpRestart( StringField & data )
 {
-    int solverType = SolverState::tid;
+    int solverType = SolverState::solverType;
 
     Restart * restart = CreateRestart( solverType );
     restart->Dump( solverType );
@@ -100,7 +100,7 @@ void DumpRestart( StringField & data )
 
 void DumpinsRestart(StringField & data)
 {
-	int solverType = SolverState::tid;
+	int solverType = SolverState::solverType;
 
 	Restart * restart = CreateRestart(solverType);
 	restart->Dump(solverType);
@@ -109,7 +109,7 @@ void DumpinsRestart(StringField & data)
 
 void InitRestart( StringField & data )
 {
-    int solverType = SolverState::tid;
+    int solverType = SolverState::solverType;
 
     Restart * restart = CreateRestart( solverType );
     restart->InitRestart( solverType );
@@ -118,7 +118,7 @@ void InitRestart( StringField & data )
 
 void InitinsRestart( StringField & data )
 {
-	int solverType = SolverState::tid;
+	int solverType = SolverState::solverType;
 
 	Restart * restart = CreateRestart( solverType );
 	restart->InitinsRestart( solverType );
@@ -127,7 +127,7 @@ void InitinsRestart( StringField & data )
 
 void ReadinsRestart(StringField & data)
 {
-	int solverType = SolverState::tid;
+	int solverType = SolverState::solverType;
 
 	Restart * restart = CreateRestart(solverType);
 	restart->Read( solverType );

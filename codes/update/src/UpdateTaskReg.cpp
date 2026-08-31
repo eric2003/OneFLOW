@@ -34,7 +34,7 @@ REGISTER_TASK(RegisterINsUpdateTask)
 
 void UpdateFlowField( StringField & data )
 {
-    int solverType = SolverState::tid;
+    int solverType = SolverState::solverType;
     Update * update = CreateUpdate( solverType );
     update->UpdateFlowField( solverType );
     delete update;
@@ -42,7 +42,7 @@ void UpdateFlowField( StringField & data )
 
 void UpdateINsFlowField(StringField & data)
 {
-	int solverType = SolverState::tid;
+	int solverType = SolverState::solverType;
 	Update * update = CreateUpdate(solverType);
 	update->UpdateINsFlowField(solverType);
 	delete update;

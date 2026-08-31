@@ -44,7 +44,7 @@ void CreateResidualTask( StringField & data )
 
 void DumpResidual( StringField & data )
 {
-    int solverType = SolverState::tid;
+    int solverType = SolverState::solverType;
 
     Residual * residual = new UResidual();
     residual->Dump( solverType );

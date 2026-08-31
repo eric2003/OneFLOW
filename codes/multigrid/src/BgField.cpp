@@ -49,7 +49,7 @@ void BasicBgField::Init()
     {
         this->data[ solverIndex ].resize( numberOfFields );
 
-        SolverState::id = solverIndex;
+        SolverState::solverIndex = solverIndex;
         SolverState::SetSolverTypeBySolverIndex( solverIndex );
 
         for ( int fid = 0; fid < numberOfFields; ++ fid )

@@ -76,8 +76,8 @@ FieldHome::~FieldHome()
 
 FieldWrap * FieldHome::CreateField()
 {
-    SolverState::SetSolverTypeBySolverIndex( SolverState::id );
-    return FieldHome::CreateField( SolverState::tid, GridState::gridLevel );
+    SolverState::SetSolverTypeBySolverIndex( SolverState::solverIndex );
+    return FieldHome::CreateField( SolverState::solverType, GridState::gridLevel );
 }
 
 FieldWrap * FieldHome::CreateField( int solverType )
@@ -87,10 +87,7 @@ FieldWrap * FieldHome::CreateField( int solverType )
 
 FieldWrap * FieldHome::CreateField( int solverType, int level )
 {
-    //Solver * solver = SolverMap::GetSolver( id, level );
-
     SolverInfo * info = SolverInfoFactory::GetSolverInfo( solverType );
-    //SolverInfo * info = solver->info;
 
     Grid * grid = Zone::GetGrid();
 
@@ -147,7 +144,7 @@ void FieldHome::SetUnsField( int fieldId, const std::string & fieldName, int ord
 
 FieldWrap * FieldHome::GetFieldWrap( int fieldId )
 {
-    FieldWrap * fieldWrap = BgField::GetFieldWrap( ZoneState::zid, SolverState::id, fieldId, GridState::gridLevel );
+    FieldWrap * fieldWrap = BgField::GetFieldWrap( ZoneState::zid, SolverState::solverIndex, fieldId, GridState::gridLevel );
     return fieldWrap;
 }
 

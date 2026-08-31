@@ -44,7 +44,7 @@ BeginNameSpace( ONEFLOW )
 void CmdBasicAction( int funcType )
 {
     SolverState::msgId = TaskState::task->taskId;
-    HXClone * cloneClass = ONEFLOW::GetClass( SolverState::msgId, SolverState::tid, funcType );
+    HXClone * cloneClass = ONEFLOW::GetClass( SolverState::msgId, SolverState::solverType, funcType );
     if ( cloneClass )
     {
         cloneClass->Solve();
@@ -63,7 +63,7 @@ void CmdActionNext()
 
 void GenerateCmdList( int msgId )
 {
-    int solverType = SolverState::tid;
+    int solverType = SolverState::solverType;
 
     HXRegister * hxRegister = RegisterFactory::GetRegister( solverType, MESG_FUNC );
 
@@ -85,7 +85,7 @@ void AddCmdToList( const std::string & msgName )
 {
     int msgId = MessageMap::GetMsgId( msgName );
 
-    ONEFLOW::AddCmdToList( msgId, SolverState::tid );
+    ONEFLOW::AddCmdToList( msgId, SolverState::solverType );
 }
 
 void AddCmdToList( int msgId, int solverType )
@@ -124,7 +124,7 @@ void CreateTask( int msgId, int solverType )
     TaskState::task->taskId = msgId;
     TaskState::task->taskName = MessageMap::GetMsgName( msgId );
 
-    SolverState::tid = solverType;
+    SolverState::solverType = solverType;
     SetTaskAction();
 }
 

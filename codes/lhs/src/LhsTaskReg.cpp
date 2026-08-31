@@ -37,7 +37,7 @@ void RegisterLhsTask()
 
 void CalcLHS( StringField & data )
 {
-    int solverType = SolverState::tid;
+    int solverType = SolverState::solverType;
     Lhs * lhs = CreateLhs( solverType );
     lhs->CalcLHS( solverType );
     delete lhs;

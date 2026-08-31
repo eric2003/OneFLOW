@@ -68,7 +68,7 @@ void RegisterFieldTask()
 
 void LoadResiduals( StringField & data )
 {
-    int solverType = SolverState::tid;
+    int solverType = SolverState::solverType;
     int fieldId = ( * fieldIdMap )[ data[ 0 ] ];
 
     UnsGrid * grid = Zone::GetUnsGrid();
@@ -85,7 +85,7 @@ void LoadResiduals( StringField & data )
 
 void ZeroResiduals( StringField & data )
 {
-    int solverType = SolverState::tid;
+    int solverType = SolverState::solverType;
 
     SolverInfo * solverInfo = SolverInfoFactory::GetSolverInfo( solverType );
     std::string & fieldName = solverInfo->residualName;
@@ -97,7 +97,7 @@ void LoadQ( StringField & data )
 {
     std::string & fName = data[ 0 ];
 
-    int solverType = SolverState::tid;
+    int solverType = SolverState::solverType;
     int fieldId = ( * fieldIdMap )[ fName ];
 
     SolverInfo * solverInfo = SolverInfoFactory::GetSolverInfo( solverType );
@@ -109,7 +109,7 @@ void LoadQ( StringField & data )
 
 void SetField( StringField & data )
 {
-    int solverType = SolverState::tid;
+    int solverType = SolverState::solverType;
     std::string & fieldName   = data[ 0 ];
     std::string & valueString = data[ 1 ];
 
@@ -123,7 +123,7 @@ void StoreRHS( StringField & data )
 {
     std::string & fName = data[ 0 ];
 
-    int solverType = SolverState::tid;
+    int solverType = SolverState::solverType;
     int fieldId = ( * fieldIdMap )[ fName ];
 
     SolverInfo * solverInfo = SolverInfoFactory::GetSolverInfo( solverType );

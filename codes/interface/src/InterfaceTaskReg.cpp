@@ -72,7 +72,7 @@ void CalcInterfaceGrad( StringField & data )
 
 void UploadInterfaceData( StringField & data )
 {
-    int solverType = SolverState::tid;
+    int solverType = SolverState::solverType;
 
     FieldManager * fieldManager = FieldFactory::GetFieldManager( solverType );
 
@@ -82,7 +82,7 @@ void UploadInterfaceData( StringField & data )
 
 void DownloadInterfaceData( StringField & data )
 {
-    int solverType = SolverState::tid;
+    int solverType = SolverState::solverType;
 
     FieldManager * fieldManager = FieldFactory::GetFieldManager( solverType );
     fieldManager->iFieldProperty->DownloadInterfaceValue();
@@ -94,7 +94,7 @@ void PrepareInterfaceField( StringField & data )
     InterFace * interFace = grid->interFace;
     if ( ! ONEFLOW::IsValid( interFace ) ) return;
 
-    int solverType = SolverState::tid;
+    int solverType = SolverState::solverType;
     int iFk  = ( * interfaceMap )[ data[ 0 ] ];
     int iSr  = ( * sendRecvMap )[ data[ 1 ] ];
 
