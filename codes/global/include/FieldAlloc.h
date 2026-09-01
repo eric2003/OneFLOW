@@ -41,7 +41,7 @@ public:
     FieldNamePair();
     ~FieldNamePair();
 public:
-    static void SetField( int sTid, NameValuePair & valuePair );
+    static void SetField( int solverType, NameValuePair & valuePair );
 };
 
 class FieldAlloc
@@ -50,14 +50,14 @@ public:
     FieldAlloc();
     ~FieldAlloc();
 public:
-    static void AllocateAllFields( int sTid, const std::string & basicString );
-    static void InitField( int sTid, const std::string & basicString );
-    static void RegisterInterfaceVar( int sTid, const std::string & basicString );
-    static void AllocateGlobalField( int sTid, const std::string & basicString );
+    static void AllocateAllFields( int solverType, const std::string & basicString );
+    static void InitField( int solverType, const std::string & basicString );
+    static void RegisterInterfaceVar( int solverType, const std::string & basicString );
+    static void AllocateGlobalField( int solverType, const std::string & basicString );
     static void CalcInnerFieldFileName( const std::string & basicString, StringField & fileNameList );
     static void CalcInterfaceFileName( const std::string & basicString, StringField & fileNameList );
     static void CalcInterfaceFileType( IntField & fieldTypeList );
-    static void AllocateAllKindsOfInterfaceField( int sTid );
+    static void AllocateAllKindsOfInterfaceField( int solverType );
     static void AllocateInterfaceField( IFieldProperty * iFieldProperty );
     static void AllocateOversetInterfaceField( IFieldProperty * iFieldProperty );
 };
@@ -68,7 +68,7 @@ public:
     ReadInterfaceVar();
     ~ReadInterfaceVar();
 public:
-    static void AddFieldName( int sTid, int fieldType, StringField & nameList );
+    static void AddFieldName( int solverType, int fieldType, StringField & nameList );
 };
 
 class ParaNameDim
@@ -101,7 +101,7 @@ public:
     ~ReadSuperPara();
 public:
     ParaNameDimData * paraNameDimData;
-    int sTid;
+    int solverType;
 public:
     void Register( const std::string & fileName, int index );
     void AddUnsteadyInnerFieldProperty();
@@ -113,7 +113,7 @@ public:
 };
 
 
-class FileIO;
+class TextFileParser;
 class BoolIO
 {
 public:
@@ -123,13 +123,13 @@ public:
     StringField boolNameList;
     BoolField boolValueList;
     int valueFlag;
-    FileIO * ioFile;
+    TextFileParser * textFileParser;
     NameValuePair nameValuePair;
     ParaNameDimData * paraNameDimData;
 public:
     void Add( const std::string & name, bool value );
-    void ReadBool( FileIO * ioFile );
-    void ReadSuperBool( FileIO * ioFile );
+    void ReadBool( TextFileParser * textFileParser );
+    void ReadSuperBool( TextFileParser * textFileParser );
     bool CalcVarValue( const std::string & varName );
     void Read();
     void ReadFile( const std::string & fileName, int valueFlag = 0 );

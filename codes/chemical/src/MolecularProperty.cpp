@@ -21,7 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 #include "MolecularProperty.h"
 #include "SchmidtNumber.h"
-#include "FileIO.h"
+#include "TextFileParser.h"
 #include "DataBook.h"
 #include "DataBaseIO.h"
 
@@ -57,57 +57,57 @@ void MolecularProperty::Init( int nSpecies )
     schmidtNumber->Init( nSpecies );
 }
 
-void MolecularProperty::Read( FileIO * ioFile )
+void MolecularProperty::Read( TextFileParser * textFileParser )
 {
     //string word;
     std::string separator = " =\r\n#$,;\"'";
-    ioFile->SetDefaultSeparator( separator );
+    textFileParser->SetDefaultSeparator( separator );
 
-    ioFile->SkipLines( 3 );
+    textFileParser->SkipLines( 3 );
     //Read the names of each species
-    ioFile->ReadNextNonEmptyLine();
+    textFileParser->ReadNextNonEmptyLine();
     for ( int iSpecies = 0; iSpecies < nSpecies; ++ iSpecies )
     {
-        species_name[ iSpecies ] = ioFile->ReadNextWord();
+        species_name[ iSpecies ] = textFileParser->ReadNextWord();
     }
 
-    ioFile->SkipLines( 3 );
+    textFileParser->SkipLines( 3 );
     //read ion type
     for ( int iSpecies = 0; iSpecies < nSpecies; ++ iSpecies )
     {
-        ion_type[ iSpecies ] = ioFile->ReadNextDigit< int >();
+        ion_type[ iSpecies ] = textFileParser->ReadNextDigit< int >();
     }
 
-    ioFile->SkipLines( 3 );
+    textFileParser->SkipLines( 3 );
     //!Read the molecular weight of each species
-    ioFile->ReadNextNonEmptyLine();
+    textFileParser->ReadNextNonEmptyLine();
     for ( int iSpecies = 0; iSpecies < nSpecies; ++ iSpecies )
     {
-        dim_mw[ iSpecies ] = ioFile->ReadNextDigit< Real >();
+        dim_mw[ iSpecies ] = textFileParser->ReadNextDigit< Real >();
     }
 
-    ioFile->SkipLines( 3 );
+    textFileParser->SkipLines( 3 );
     //read species mass fraction
-    ioFile->ReadNextNonEmptyLine();
+    textFileParser->ReadNextNonEmptyLine();
     for ( int iSpecies = 0; iSpecies < nSpecies; ++ iSpecies )
     {
-        mfrac[ iSpecies ] = ioFile->ReadNextDigit< Real >();
+        mfrac[ iSpecies ] = textFileParser->ReadNextDigit< Real >();
     }
 
-    ioFile->SkipLines( 3 );
+    textFileParser->SkipLines( 3 );
     //read collision cross section
-    ioFile->ReadNextNonEmptyLine();
+    textFileParser->ReadNextNonEmptyLine();
     for ( int iSpecies = 0; iSpecies < nSpecies; ++ iSpecies )
     {
-        cs[ iSpecies ] = ioFile->ReadNextDigit< Real >();
+        cs[ iSpecies ] = textFileParser->ReadNextDigit< Real >();
     }
 
-    ioFile->SkipLines( 3 );
+    textFileParser->SkipLines( 3 );
     //!Read the characteristic temperature of each species
-    ioFile->ReadNextNonEmptyLine();
+    textFileParser->ReadNextNonEmptyLine();
     for ( int iSpecies = 0; iSpecies < nSpecies; ++ iSpecies )
     {
-        ct[ iSpecies ] = ioFile->ReadNextDigit< Real >();
+        ct[ iSpecies ] = textFileParser->ReadNextDigit< Real >();
     }
 
     schmidtNumber->CalcSchmidtNumber( ion_type );

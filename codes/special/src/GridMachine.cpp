@@ -28,7 +28,7 @@ License
 #include "Dimension.h"
 #include "DataBase.h"
 #include "GridPara.h"
-#include "FileIO.h"
+#include "TextFileParser.h"
 #include "HXMath.h"
 #include <iostream>
 
@@ -56,66 +56,66 @@ void GridMachine::ReadScript( const std::string & fileName )
 {
     std::string separator = " =\r\n\t#$,;\"(){}";
 
-    FileIO ioFile;
+    TextFileParser textFileParser;
 
-    ioFile.OpenPrjFile( fileName, std::ios_base::in );
-    ioFile.SetDefaultSeparator( separator );
+    textFileParser.OpenPrjFile( fileName, std::ios_base::in );
+    textFileParser.SetDefaultSeparator( separator );
 
-    while ( ! ioFile.ReachTheEndOfFile() )
+    while ( ! textFileParser.ReachTheEndOfFile() )
     {
-        bool resultFlag = ioFile.ReadNextMeaningfulLine();
+        bool resultFlag = textFileParser.ReadNextMeaningfulLine();
         if ( ! resultFlag ) break;
 
-        std::string keyWord = ioFile.ReadNextWord();
+        std::string keyWord = textFileParser.ReadNextWord();
         std::string word;
 
         if ( keyWord == "Point" )
         {
-            int id = ioFile.ReadNextDigit< int >();
+            int id = textFileParser.ReadNextDigit< int >();
 
-            Real x = ioFile.ReadNextDigit< Real >();
-            Real y = ioFile.ReadNextDigit< Real >();
-            Real z = ioFile.ReadNextDigit< Real >();
+            Real x = textFileParser.ReadNextDigit< Real >();
+            Real y = textFileParser.ReadNextDigit< Real >();
+            Real z = textFileParser.ReadNextDigit< Real >();
 
             point_Machine.AddPoint( x, y, z, id );
         }
         else if ( keyWord == "Line" )
         {
-            int id = ioFile.ReadNextDigit< int >();
-            int p1 = ioFile.ReadNextDigit< int >();
-            int p2 = ioFile.ReadNextDigit< int >();
+            int id = textFileParser.ReadNextDigit< int >();
+            int p1 = textFileParser.ReadNextDigit< int >();
+            int p2 = textFileParser.ReadNextDigit< int >();
 
             line_Machine.AddLine( p1, p2, id );
         }
         else if ( keyWord == "Circle" )
         {
-            int id = ioFile.ReadNextDigit< int >();
-            int p1 = ioFile.ReadNextDigit< int >();
-            int pc = ioFile.ReadNextDigit< int >();
-            int p2 = ioFile.ReadNextDigit< int >();
+            int id = textFileParser.ReadNextDigit< int >();
+            int p1 = textFileParser.ReadNextDigit< int >();
+            int pc = textFileParser.ReadNextDigit< int >();
+            int p2 = textFileParser.ReadNextDigit< int >();
 
             line_Machine.AddCircle( p1, pc, p2, id );
         }
         else if ( keyWord == "Dim" )
         {
-            line_Machine.AddDimension( & ioFile );
+            line_Machine.AddDimension( & textFileParser );
         }
         else if ( keyWord == "Ds" )
         {
-            line_Machine.AddDs( & ioFile );
+            line_Machine.AddDs( & textFileParser );
         }
         else if ( keyWord == "Boundary" )
         {
-            domain_Machine.AddBcType( & ioFile );
+            domain_Machine.AddBcType( & textFileParser );
         }
         else if ( keyWord == "Add" )
         {
-            block_Machine.AddFaceToBlock( & ioFile );
+            block_Machine.AddFaceToBlock( & textFileParser );
         }
         
     };
 
-    ioFile.CloseFile();
+    textFileParser.CloseFile();
 }
 
 void GridMachine::GeneGrid()

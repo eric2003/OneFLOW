@@ -24,7 +24,7 @@ License
 #include "CgnsBase.h"
 #include "CgnsFactory.h"
 #include "Prj.h"
-#include "StrUtil.h"
+#include "StringUtils.h"
 #include "CgnsZone.h"
 #include "Stop.h"
 #include <iostream>

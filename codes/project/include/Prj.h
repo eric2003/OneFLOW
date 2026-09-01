@@ -20,7 +20,7 @@ License
 
 \*---------------------------------------------------------------------------*/
 #pragma once
-#include "Configure.h"
+#include "NamespaceMacros.h"
 #include <fstream>
 #include <string>
 #include <vector>

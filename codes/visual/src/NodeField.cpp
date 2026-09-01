@@ -30,7 +30,7 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-MRField * AllocNodeVar( int nEqu )
+MRField * AllocateNodeField( int nEqu )
 {
     UnsGrid * grid = Zone::GetUnsGrid();
     int nNodes = grid->nNodes;
@@ -38,30 +38,30 @@ MRField * AllocNodeVar( int nEqu )
     return nf;
 }
 
-MRField * CreateNodeVar( const std::string & name )
+MRField * InterpolateCellToNode( const std::string & name )
 {
     UnsGrid * grid = Zone::GetUnsGrid();
     MRField * cf = GetFieldPointer< MRField > ( grid, name );
     int nNodes = grid->nNodes;
     int nEqu = cf->GetNEqu();
 
-    MRField * nf = AllocNodeVar( nEqu );
+    MRField * nf = AllocateNodeField( nEqu );
     for ( int iEqu = 0; iEqu < nEqu; ++ iEqu )
     {
-        CalcNodeVar( ( * nf )[ iEqu ], ( * cf )[ iEqu ] );
+        InterpolateCellToNodeForComponent( ( * nf )[ iEqu ], ( * cf )[ iEqu ] );
     }
     return nf;
 }
 
-MRField * CreateNodeVar( RealField & qc )
+MRField * InterpolateCellToNode( RealField & qc )
 {
     UnsGrid * grid = Zone::GetUnsGrid();
-    MRField * fn = AllocNodeVar( 1 );
-    CalcNodeVar( ( * fn )[ 0 ], qc );
+    MRField * fn = AllocateNodeField( 1 );
+    InterpolateCellToNodeForComponent( ( * fn )[ 0 ], qc );
     return fn;
 }
 
-void CalcNodeVar( RealField & qNodeField, RealField & qField )
+void InterpolateCellToNodeForComponent( RealField & qNodeField, RealField & qField )
 {
     UnsGrid * grid = Zone::GetUnsGrid();
     FaceTopo * faceTopo = grid->faceTopo;
@@ -91,10 +91,10 @@ void CalcNodeVar( RealField & qNodeField, RealField & qField )
         }
     }  
 
-    FixBcNodeVar( qNodeField, qField, nCount, BC::SYMMETRY     , true );
-    FixBcNodeVar( qNodeField, qField, nCount, BC::SOLID_SURFACE, true );
-    FixBcNodeVar( qNodeField, qField, nCount, BC::INTERFACE    , true );
-    FixBcNodeVar( qNodeField, qField, nCount, BC::FARFIELD     , true );
+    ApplyBoundaryConditionToNodeField( qNodeField, qField, nCount, BC::SYMMETRY     , true );
+    ApplyBoundaryConditionToNodeField( qNodeField, qField, nCount, BC::SOLID_SURFACE, true );
+    ApplyBoundaryConditionToNodeField( qNodeField, qField, nCount, BC::INTERFACE    , true );
+    ApplyBoundaryConditionToNodeField( qNodeField, qField, nCount, BC::FARFIELD     , true );
 
     for ( int iNode = 0; iNode < nNodes; ++ iNode )
     {
@@ -102,7 +102,7 @@ void CalcNodeVar( RealField & qNodeField, RealField & qField )
     }
 }
 
-void FixBcNodeVar( RealField & qNodeField, RealField & qField, RealField & nCount, int bcType, bool twoSide )
+void ApplyBoundaryConditionToNodeField( RealField & qNodeField, RealField & qField, RealField & nCount, int bcType, bool twoSide )
 {
     UnsGrid * grid = Zone::GetUnsGrid();
     FaceTopo * faceTopo = grid->faceTopo;

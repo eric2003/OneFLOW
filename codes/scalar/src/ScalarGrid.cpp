@@ -38,7 +38,7 @@ License
 #include "CgnsFile.h"
 #include "Constant.h"
 #include "HXCgns.h"
-#include "StrUtil.h"
+#include "StringUtils.h"
 #include "Dimension.h"
 #include "ElementHome.h"
 #include "HXSort.h"

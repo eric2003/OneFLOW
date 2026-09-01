@@ -21,38 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "MultigridTaskReg.h"
-#include "InterField.h"
-#include "ActionState.h"
-#include "HXMath.h"
-#include "SolverDef.h"
-#include "SolverInfo.h"
-#include "Restart.h"
-#include "Unsteady.h"
-#include "UnsteadyImp.h"
-#include "Update.h"
-#include "FieldWrap.h"
-#include "FieldAlloc.h"
-#include "CmxTask.h"
-#include "DataBase.h"
-#include "DataBook.h"
-#include "Lusgs.h"
-#include "Lhs.h"
-#include "FieldImp.h"
-#include "FieldWrap.h"
-#include "SolverState.h"
-#include "Zone.h"
-#include "Grid.h"
-#include "UnsGrid.h"
-#include "InterFace.h"
-#include "RegisterUtil.h"
-#include "FieldRecord.h"
-#include "UVisualize.h"
-#include "UResidual.h"
-#include "UNsCom.h"
 #include "TaskRegister.h"
-#include <map>
-#include <iostream>
-
 
 BeginNameSpace( ONEFLOW )
 

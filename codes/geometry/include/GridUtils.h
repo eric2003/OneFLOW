@@ -20,7 +20,13 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "StrUtil.h"
+
+#pragma once
+#include "NamespaceMacros.h"
+
 BeginNameSpace( ONEFLOW )
+
+class UnsGrid;
+int GetNumberOfSolidCells( UnsGrid * grid );
 
 EndNameSpace

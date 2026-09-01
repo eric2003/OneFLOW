@@ -38,7 +38,7 @@ Lhs::~Lhs()
     ;
 }
 
-Lhs * CreateLhs( int sTid )
+Lhs * CreateLhs( int solverType )
 {
     Grid * grid = Zone::GetGrid();
     if ( grid->type == UMESH )

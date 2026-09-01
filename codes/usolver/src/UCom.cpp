@@ -33,7 +33,7 @@ License
 #include "DataBase.h"
 #include "OStream.h"
 #include "HXMath.h"
-#include "FileUtil.h"
+#include "FileUtils.h"
 #include <iostream>
 
 BeginNameSpace( ONEFLOW )
@@ -256,10 +256,11 @@ std::string HXDebug::GetFullFileName( const std::string & fileName, int startStr
         newFileName = AddSymbolToFileName( fileName, "Continue" );
     }
 
-    ONEFLOW::StrIO.ClearAll();
-    ONEFLOW::StrIO << "debug/" << newFileName;
+    OStream &logger = OStream::Instance();
+    logger.ClearAll();
+    logger << "debug/" << newFileName;
 
-    std::string fullFileName = ONEFLOW::StrIO.str();
+    std::string fullFileName = logger.str();
     return fullFileName;
 }
 

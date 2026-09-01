@@ -20,7 +20,7 @@ License
 
 \*---------------------------------------------------------------------------*/
 #include "ReactionRate.h"
-#include "FileIO.h"
+#include "TextFileParser.h"
 #include "DataBook.h"
 #include "DataBaseIO.h"
 
@@ -49,28 +49,28 @@ void ReactionRate::Init( int nReaction )
     b3.resize( nReaction );
 }
 
-void ReactionRate::Read( FileIO * ioFile )
+void ReactionRate::Read( TextFileParser * textFileParser )
 {
     std::string separator = " =\r\n#$,;\"'";
 
-    ioFile->SetDefaultSeparator( separator );
+    textFileParser->SetDefaultSeparator( separator );
 
     if ( nReaction <= 0 ) return;
 
-    ioFile->SkipLines( 3 );
+    textFileParser->SkipLines( 3 );
     for ( int iReaction = 0; iReaction < nReaction; ++ iReaction )
     {
-        ioFile->ReadNextNonEmptyLine();
+        textFileParser->ReadNextNonEmptyLine();
         //Read irtmp
-        std::string word = ioFile->ReadNextWord();
+        std::string word = textFileParser->ReadNextWord();
 
-        f1[ iReaction ] = ioFile->ReadNextDigit< Real >();
-        f2[ iReaction ] = ioFile->ReadNextDigit< Real >();
-        f3[ iReaction ] = ioFile->ReadNextDigit< Real >();
+        f1[ iReaction ] = textFileParser->ReadNextDigit< Real >();
+        f2[ iReaction ] = textFileParser->ReadNextDigit< Real >();
+        f3[ iReaction ] = textFileParser->ReadNextDigit< Real >();
 
-        b1[ iReaction ] = ioFile->ReadNextDigit< Real >();
-        b2[ iReaction ] = ioFile->ReadNextDigit< Real >();
-        b3[ iReaction ] = ioFile->ReadNextDigit< Real >();
+        b1[ iReaction ] = textFileParser->ReadNextDigit< Real >();
+        b2[ iReaction ] = textFileParser->ReadNextDigit< Real >();
+        b3[ iReaction ] = textFileParser->ReadNextDigit< Real >();
     }
 }
 

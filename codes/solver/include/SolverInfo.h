@@ -62,8 +62,8 @@ public:
     static void Init();
     static void Free();
 public:
-    static void AddSolverInfo( int sTid );
-    static SolverInfo * GetSolverInfo( int sTid );
+    static void AddSolverInfo( int solverType );
+    static SolverInfo * GetSolverInfo( int solverType );
 };
 
 EndNameSpace

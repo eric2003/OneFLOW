@@ -22,7 +22,7 @@ License
 
 
 #pragma once
-#include "Configure.h"
+#include "NamespaceMacros.h"
 #include "HXCgns.h"
 #include <string>
 #include <map>

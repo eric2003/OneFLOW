@@ -25,10 +25,10 @@ License
 #include "UsdPara.h"
 #include "SolverInfo.h"
 #include "SolverDef.h"
-#include "FileIO.h"
+#include "TextFileParser.h"
 #include "OStream.h"
 #include "DataBase.h"
-#include "RegisterUtil.h"
+#include "RegisterUtils.h"
 #include "Zone.h"
 #include "Grid.h"
 #include "InterFace.h"
@@ -45,30 +45,31 @@ FieldAlloc::~FieldAlloc()
     ;
 }
 
-void FieldAlloc::AllocateAllFields( int sTid, const std::string & basicString )
+void FieldAlloc::AllocateAllFields( int solverType, const std::string & basicString )
 {
-    FieldAlloc::RegisterInterfaceVar( sTid, basicString );
-    FieldAlloc::AllocateGlobalField( sTid, basicString );
-    FieldAlloc::InitField( sTid, basicString );
+    FieldAlloc::RegisterInterfaceVar( solverType, basicString );
+    FieldAlloc::AllocateGlobalField( solverType, basicString );
+    FieldAlloc::InitField( solverType, basicString );
 }
 
-void FieldAlloc::InitField( int sTid, const std::string & basicString )
+void FieldAlloc::InitField( int solverType, const std::string & basicString )
 {
-    ONEFLOW::StrIO.ClearAll();
-    ONEFLOW::StrIO << Prj::system_root << basicString << "/alloc/" << "init.txt";
-    std::string fileName = ONEFLOW::StrIO.str();
+    OStream &logger = OStream::Instance();
+    logger.ClearAll();
+    logger << Prj::system_root << basicString << "/alloc/" << "init.txt";
+    std::string fileName = logger.str();
 
     BoolIO boolIO;
     boolIO.ReadFile( fileName, 1 );
 
     //FieldNamePair::Read( fileName, nameValuePair );
-    FieldNamePair::SetField( sTid, boolIO.nameValuePair );
+    FieldNamePair::SetField( solverType, boolIO.nameValuePair );
 }
 
 
-void FieldAlloc::RegisterInterfaceVar( int sTid, const std::string & basicString )
+void FieldAlloc::RegisterInterfaceVar( int solverType, const std::string & basicString )
 {
-    SolverInfo * solverInfo = SolverInfoFactory::GetSolverInfo( sTid );
+    SolverInfo * solverInfo = SolverInfoFactory::GetSolverInfo( solverType );
     if ( solverInfo->registerInterface ) return;
     solverInfo->registerInterface = 1;
 
@@ -84,13 +85,13 @@ void FieldAlloc::RegisterInterfaceVar( int sTid, const std::string & basicString
         boolIO.ReadFile( fileNameList[ iFile ] );
         int fieldType = fieldTypeList[ iFile ];
 
-        ReadInterfaceVar::AddFieldName( sTid, fieldType, boolIO.nameValuePair.nameList );
+        ReadInterfaceVar::AddFieldName( solverType, fieldType, boolIO.nameValuePair.nameList );
     }
 }
 
-void FieldAlloc::AllocateGlobalField( int sTid, const std::string & basicString )
+void FieldAlloc::AllocateGlobalField( int solverType, const std::string & basicString )
 {
-    FieldFactory::AddFieldManager( sTid );
+    FieldFactory::AddFieldManager( solverType );
     StringField fileNameList;
     FieldAlloc::CalcInnerFieldFileName( basicString, fileNameList );
 
@@ -98,17 +99,17 @@ void FieldAlloc::AllocateGlobalField( int sTid, const std::string & basicString 
     {
         ReadSuperPara * readSuperPara = new ReadSuperPara();
 
-        readSuperPara->sTid = sTid;
+        readSuperPara->solverType = solverType;
         readSuperPara->Register( fileNameList[ iFile ], iFile );
         delete readSuperPara;
     }
 
-    FieldAlloc::AllocateAllKindsOfInterfaceField( sTid );
+    FieldAlloc::AllocateAllKindsOfInterfaceField( solverType );
 }
 
-void FieldAlloc::AllocateAllKindsOfInterfaceField( int sTid )
+void FieldAlloc::AllocateAllKindsOfInterfaceField( int solverType )
 {
-    FieldManager * fieldManager = FieldFactory::GetFieldManager( sTid );
+    FieldManager * fieldManager = FieldFactory::GetFieldManager( solverType );
     fieldManager->AllocateInnerAndBcField();
     FieldAlloc::AllocateInterfaceField( fieldManager->iFieldProperty );
     FieldAlloc::AllocateOversetInterfaceField( fieldManager->iFieldProperty );
@@ -142,16 +143,17 @@ void FieldAlloc::CalcInnerFieldFileName( const std::string & basicString, String
     basicNameList.push_back( "face"     );
     basicNameList.push_back( "bc"       );
 
-    ONEFLOW::StrIO.ClearAll();
-    ONEFLOW::StrIO << Prj::system_root << basicString << "/alloc/";
-    std::string rootString = ONEFLOW::StrIO.str();
+    OStream &logger = OStream::Instance();
+    logger.ClearAll();
+    logger << Prj::system_root << basicString << "/alloc/";
+    std::string rootString = logger.str();
 
     for ( int i = 0; i < basicNameList.size(); ++ i )
     {
-        ONEFLOW::StrIO.ClearAll();
-        ONEFLOW::StrIO << rootString << basicNameList[ i ] << ".txt";
+        logger.ClearAll();
+        logger << rootString << basicNameList[ i ] << ".txt";
 
-        std::string name = ONEFLOW::StrIO.str();
+        std::string name = logger.str();
 
         fileNameList.push_back( name );
     }
@@ -165,16 +167,17 @@ void FieldAlloc::CalcInterfaceFileName( const std::string & basicString, StringF
     basicNameList.push_back( "interGrad"    );
     basicNameList.push_back( "interOverset" );
 
-    ONEFLOW::StrIO.ClearAll();
-    ONEFLOW::StrIO << Prj::system_root << basicString << "/alloc/";
-    std::string rootString = ONEFLOW::StrIO.str();
+    OStream &logger = OStream::Instance();
+    logger.ClearAll();
+    logger << Prj::system_root << basicString << "/alloc/";
+    std::string rootString = logger.str();
 
     for ( int i = 0; i < basicNameList.size(); ++ i )
     {
-        ONEFLOW::StrIO.ClearAll();
-        ONEFLOW::StrIO << rootString << basicNameList[ i ] << ".txt";
+        logger.ClearAll();
+        logger << rootString << basicNameList[ i ] << ".txt";
 
-        std::string name = ONEFLOW::StrIO.str();
+        std::string name = logger.str();
 
         fileNameList.push_back( name );
     }
@@ -196,9 +199,9 @@ FieldNamePair::~FieldNamePair()
 {
 }
 
-void FieldNamePair::SetField( int sTid, NameValuePair & valuePair )
+void FieldNamePair::SetField( int solverType, NameValuePair & valuePair )
 {
-    FieldManager * fieldManager = FieldFactory::GetFieldManager( sTid );
+    FieldManager * fieldManager = FieldFactory::GetFieldManager( solverType );
     int nVar = valuePair.nameList.size();
     for ( int iVar = 0; iVar < nVar; ++ iVar )
     {
@@ -291,26 +294,26 @@ void BoolIO::Add( const std::string & name, bool value )
     this->boolValueList.push_back( value );
 }
 
-void BoolIO::ReadBool( FileIO * ioFile )
+void BoolIO::ReadBool( TextFileParser * textFileParser )
 {
-    std::string varName = ioFile->ReadNextWord();
-    std::string word    = ioFile->ReadNextWord(); //"="
-    std::string var1    = ioFile->ReadNextWord();
-    std::string opName  = ioFile->ReadNextWord();
-    std::string var2    = ioFile->ReadNextWord();
+    std::string varName = textFileParser->ReadNextWord();
+    std::string word    = textFileParser->ReadNextWord(); //"="
+    std::string var1    = textFileParser->ReadNextWord();
+    std::string opName  = textFileParser->ReadNextWord();
+    std::string var2    = textFileParser->ReadNextWord();
 
     bool boolValue = ONEFLOW::CalcBoolExp( var1, opName, var2 );
 
     this->Add( varName, boolValue );
 }
 
-void BoolIO::ReadSuperBool( FileIO * ioFile )
+void BoolIO::ReadSuperBool( TextFileParser * textFileParser )
 {
-    std::string varName = ioFile->ReadNextWord();
-    std::string word    = ioFile->ReadNextWord(); //"="
-    std::string var1    = ioFile->ReadNextWord();
-    std::string opName  = ioFile->ReadNextWord();
-    std::string var2    = ioFile->ReadNextWord();
+    std::string varName = textFileParser->ReadNextWord();
+    std::string word    = textFileParser->ReadNextWord(); //"="
+    std::string var1    = textFileParser->ReadNextWord();
+    std::string opName  = textFileParser->ReadNextWord();
+    std::string var2    = textFileParser->ReadNextWord();
 
     bool varVaule1 = ONEFLOW::CalcVarValue( var1, this->boolNameList, this->boolValueList );
     bool varVaule2 = ONEFLOW::CalcVarValue( var2, this->boolNameList, this->boolValueList );
@@ -330,22 +333,22 @@ void BoolIO::Read()
 {
     if ( valueFlag == 0 )
     {
-        std::string varName = ioFile->ReadNextWord();
+        std::string varName = textFileParser->ReadNextWord();
         nameValuePair.nameList.push_back( varName );
     }
     else if ( valueFlag == 1 )
     {
-        std::string varName = ioFile->ReadNextWord();
+        std::string varName = textFileParser->ReadNextWord();
         nameValuePair.nameList.push_back( varName );
 
-        Real varValue = ioFile->ReadNextDigit< Real >();
+        Real varValue = textFileParser->ReadNextDigit< Real >();
         nameValuePair.valueList.push_back( varValue );
     }
     else if ( valueFlag == 2 )
     {
-        std::string varName      = ioFile->ReadNextWord();
-        std::string varDimension = ioFile->ReadNextWord();
-        std::string typeName     = ioFile->ReadNextWord();
+        std::string varName      = textFileParser->ReadNextWord();
+        std::string varDimension = textFileParser->ReadNextWord();
+        std::string typeName     = textFileParser->ReadNextWord();
 
         int dimension = ONEFLOW::GetVarDimension( varDimension );
 
@@ -362,17 +365,17 @@ void BoolIO::ReadFile( const std::string & fileName, int valueFlag )
     //string separator  = " =\r\n\t#$,;\"()";
     std::string separator  = " \r\n\t#$,;\"()";
 
-    FileIO ioFile;
-    ioFile.OpenFile( fileName, std::ios_base::in );
-    ioFile.SetDefaultSeparator( separator );
+    TextFileParser textFileParser;
+    textFileParser.OpenFile( fileName, std::ios_base::in );
+    textFileParser.SetDefaultSeparator( separator );
 
-    this->ioFile = & ioFile;
+    this->textFileParser = & textFileParser;
     this->valueFlag = valueFlag;
-    while ( ! ioFile.ReachTheEndOfFile()  )
+    while ( ! textFileParser.ReachTheEndOfFile()  )
     {
-        bool flag = ioFile.ReadNextNonEmptyLine();
+        bool flag = textFileParser.ReadNextNonEmptyLine();
         if ( ! flag ) break;
-        std::string keyWord = ioFile.ReadNextWord();
+        std::string keyWord = textFileParser.ReadNextWord();
 
         if ( keyWord == "true" )
         {
@@ -380,11 +383,11 @@ void BoolIO::ReadFile( const std::string & fileName, int valueFlag )
         }
         else if ( keyWord == "bool" )
         {
-            this->ReadBool( & ioFile );
+            this->ReadBool( & textFileParser );
         }
         else if ( keyWord == "superbool" )
         {
-            this->ReadSuperBool( & ioFile );
+            this->ReadSuperBool( & textFileParser );
         }
         else
         {
@@ -398,7 +401,7 @@ void BoolIO::ReadFile( const std::string & fileName, int valueFlag )
         }
     }
 
-    ioFile.CloseFile();
+    textFileParser.CloseFile();
 }
 
 ReadInterfaceVar::ReadInterfaceVar()
@@ -411,9 +414,9 @@ ReadInterfaceVar::~ReadInterfaceVar()
     ;
 }
 
-void ReadInterfaceVar::AddFieldName( int sTid, int fieldType, StringField & nameList )
+void ReadInterfaceVar::AddFieldName( int solverType, int fieldType, StringField & nameList )
 {
-    VarNameSolver * varNameSolver = VarNameFactory::GetVarNameSolver( sTid, fieldType );
+    VarNameSolver * varNameSolver = VarNameFactory::GetVarNameSolver( solverType, fieldType );
     int numberOfVariables = nameList.size();
     for ( int iVariable = 0; iVariable < numberOfVariables; ++ iVariable )
     {
@@ -483,7 +486,7 @@ void ReadSuperPara::AddInnerFieldProperty()
 void ReadSuperPara::AddUnsteadyInnerFieldProperty()
 {
     this->AddInnerFieldProperty();
-    FieldManager * fieldManager = FieldFactory::GetFieldManager( this->sTid );
+    FieldManager * fieldManager = FieldFactory::GetFieldManager( this->solverType );
 
     UsdPara * usdPara = fieldManager->usdPara;
     int nEqu = this->paraNameDimData->comPara->dimList[ 0 ];
@@ -506,7 +509,7 @@ void ReadSuperPara::AddBoundaryFieldProperty()
 
 void ReadSuperPara::AddBasicFieldProperty( ParaNameDim * paraNameDim, int fieldType, int type )
 {
-    FieldManager * fieldManager = FieldFactory::GetFieldManager( this->sTid );
+    FieldManager * fieldManager = FieldFactory::GetFieldManager( this->solverType );
 
     int nVar = paraNameDim->nameList.size();
     for ( int iVar = 0; iVar < nVar; ++ iVar )

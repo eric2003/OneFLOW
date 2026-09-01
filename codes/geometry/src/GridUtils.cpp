@@ -20,56 +20,38 @@ License
 
 \*---------------------------------------------------------------------------*/
 
+
 #pragma once
-#include "NamespaceMacros.h"
-#include "HXDefine.h"
-#include <fstream>
-#include <iomanip>
+
+#include "GridUtils.h"
+#include "BcRecord.h"
+#include "Boundary.h"
+#include "UnsGrid.h"
+#include "FaceTopo.h"
 
 
 BeginNameSpace( ONEFLOW )
 
-class FileO
+int GetNumberOfSolidCells( UnsGrid * grid )
 {
-public:
-    FileO();
-    ~FileO();
-public:
-    int nWord;
-    int nWidth;
-    int nCount;
-    std::string fileName;
-    std::ios_base::openmode fileOpenMode;
-    std::fstream * file;
-    std::string sep;
-public:
-    void OpenPrjFile( const std::string & fileName, const std::ios_base::openmode & fileOpenMode );
-    void CloseFile();
+    BcRecord * bcRecord = grid->faceTopo->bcManager->bcRecord;
+    bcRecord->CreateBcTypeRegion();
 
-    void WriteEndLine()
+    BcInfo * bcInfo = bcRecord->bcInfo;
+
+    int nRegion = bcInfo->bcType.size();
+
+    int nSolidCells = 0;
+    for ( int ir = 0; ir < nRegion; ++ ir )
     {
-        ( * file ) << "\n";
+        int bcType = bcInfo->bcType[ ir ];
+        if ( bcType != BC::SOLID_SURFACE ) continue;
+
+        int nBCFace = bcInfo->bcFace[ ir ].size();
+		nSolidCells += nBCFace;
     }
 
-    template< typename T >
-    void Write( const T & value )
-    {
-        ( * file ) << value << sep;
-    }
-
-    template< typename T >
-    void WriteFormat( const T & value )
-    {
-        ( * file ) << std::setw( nWidth ) << value;
-    }
-
-    template< typename T >
-    void WriteLine( const T & value )
-    {
-        ( * file ) << value << "\n";
-    }
-
-    void DumpCoorAscii( RealField & coor );
-};
+    return nSolidCells;
+}
 
 EndNameSpace

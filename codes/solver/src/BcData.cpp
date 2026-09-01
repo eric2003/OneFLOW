@@ -21,7 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "BcData.h"
-#include "FileIO.h"
+#include "TextFileParser.h"
 
 #include "Prj.h"
 
@@ -63,27 +63,27 @@ void BcData::ReadList( const std::string & fileName )
     //\t is the tab key
     std::string separator = " =\r\n\t#$,;\"";
 
-    FileIO ioFile;
-    ioFile.OpenPrjFile( fileName, std::ios_base::in );
-    ioFile.SetDefaultSeparator( separator );
+    TextFileParser textFileParser;
+    textFileParser.OpenPrjFile( fileName, std::ios_base::in );
+    textFileParser.SetDefaultSeparator( separator );
 
-    while ( ! ioFile.ReachTheEndOfFile() )
+    while ( ! textFileParser.ReachTheEndOfFile() )
     {
-        bool flag = ioFile.ReadNextNonEmptyLine();
+        bool flag = textFileParser.ReadNextNonEmptyLine();
         if ( ! flag ) break;
-        int regionId = ioFile.ReadNextDigit< int >();
-        int num = ioFile.ReadNextDigit< int >();
+        int regionId = textFileParser.ReadNextDigit< int >();
+        int num = textFileParser.ReadNextDigit< int >();
         RealField f;
         this->irList.push_back( regionId );
         for ( int i = 0; i < num; ++ i )
         {
-            Real value = ioFile.ReadNextDigit< Real >();
+            Real value = textFileParser.ReadNextDigit< Real >();
             f.push_back( value );
         }
         this->dataList.push_back( f );
     }
 
-    ioFile.CloseFile();
+    textFileParser.CloseFile();
 }
 
 EndNameSpace

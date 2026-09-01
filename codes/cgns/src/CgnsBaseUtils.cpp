@@ -21,10 +21,10 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "CgnsBase.h"
-#include "CgnsBaseUtil.h"
+#include "CgnsBaseUtils.h"
 #include "CgnsZone.h"
-#include "CgnsZoneUtil.h"
-#include "StrUtil.h"
+#include "CgnsZoneUtils.h"
+#include "StringUtils.h"
 #include "Dimension.h"
 #include "CgnsFamilyBc.h"
 #include "GridMediator.h"

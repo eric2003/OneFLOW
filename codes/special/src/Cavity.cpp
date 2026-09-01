@@ -33,7 +33,7 @@ License
 #include "GridMediator.h"
 #include "BgGrid.h"
 #include "StrGrid.h"
-#include "StrUtil.h"
+#include "StringUtils.h"
 #include "NodeMesh.h"
 #include "BcRecord.h"
 #include "Dimension.h"

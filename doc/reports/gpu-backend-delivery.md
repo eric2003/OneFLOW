@@ -262,28 +262,27 @@ REGRESSION_RC=0 TOTAL_ELAPSED_SECONDS=152
 
 残差数据库位于
 [`test/baselines/residual-baseline.json`](../../test/baselines/residual-baseline.json)。
-它保存三个 CPU 串行算例的完整残差曲线，而不是只保存最后一个残差。
+它保存五个 CPU 串行算例的完整残差曲线，而不是只保存最后一个残差。
 
 | 内容 | 说明 |
 |---|---|
-| schema/version | `oneflow.residual-baseline` / v2 |
-| baseline id | `cpu-serial-e15-v1` |
-| 算例 | 3 个 |
-| 残差文件 | 5 个 `res.full.dat`/`turbres.full.dat` |
+| schema/version | `oneflow.residual-baseline` / v3 |
+| baseline id | `cpu-serial-canonical-v2` |
+| 算例 | 5 个 |
+| 残差文件 | 8 个 `res.dat`/`turbres.dat` |
 | 每个文件 | 50 步、所有残差分量、变量名、首值、末值、最大幅值、SHA256 |
 | 比较规则 | `iter/sub-iter` 和行数必须一致，残差绝对容差 `1e-15`，拒绝 NaN/Inf |
 | 输出开关 | `ONEFLOW_RESIDUAL_TEST_OUTPUT=1`；默认关闭 |
 | 数值格式 | `double` 的 `max_digits10`（17 位有效数字） |
 
-旧的 `res.dat`/`turbres.dat` 和低精度数据库仍然保留，作为兼容性参考；高精度
-`.full.dat` 只在显式开启环境变量时生成，JSON 是统一索引和比较入口。只有接受
-新的数值基线时才重新生成 JSON：
+普通和严格回归共用 `res.dat`/`turbres.dat` 路径及同一个 JSON 数据库。
+严格模式只通过环境变量启用 `max_digits10` 序列化，不创建第二套残差文件。
+只有接受新的数值基线时才重新生成 JSON：
 
 ```bash
 python3 test/baselines/build_residual_db.py \
-  --high-precision \
   --validated-commit <commit-that-passed-the-baseline> \
-  --output test/baselines/residual-baseline-e15.json
+  --output test/baselines/residual-baseline.json
 ```
 
 普通 CI 运行只读取数据库，不生成新基线文件。每次 CI 的日志、作业号和

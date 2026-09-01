@@ -20,56 +20,25 @@ License
 
 \*---------------------------------------------------------------------------*/
 
+
 #pragma once
 #include "NamespaceMacros.h"
-#include "HXDefine.h"
-#include <fstream>
-#include <iomanip>
-
 
 BeginNameSpace( ONEFLOW )
 
-class FileO
-{
-public:
-    FileO();
-    ~FileO();
-public:
-    int nWord;
-    int nWidth;
-    int nCount;
-    std::string fileName;
-    std::ios_base::openmode fileOpenMode;
-    std::fstream * file;
-    std::string sep;
-public:
-    void OpenPrjFile( const std::string & fileName, const std::ios_base::openmode & fileOpenMode );
-    void CloseFile();
+#ifdef ENABLE_CGNS
 
-    void WriteEndLine()
-    {
-        ( * file ) << "\n";
-    }
+class CgnsZone;
+class CgnsBase;
+class CgnsFamilyBc;
+class GridMediator;
 
-    template< typename T >
-    void Write( const T & value )
-    {
-        ( * file ) << value << sep;
-    }
+void ReadAllCgnsZones( CgnsBase * myCgnsBase, CgnsBase * cgnsBaseIn );
+void ReadNumberOfCgnsZones( CgnsBase * myCgnsBase, CgnsBase * cgnsBaseIn );
+void ReadCgnsBaseBasicInfo( CgnsBase * myCgnsBase, CgnsBase * cgnsBaseIn );
+void DumpBase( CgnsBase * myCgnsBase, GridMediator * gridMediator );
+void PrepareCgnsZone( CgnsBase * myCgnsBase, GridMediator * gridMediator );
 
-    template< typename T >
-    void WriteFormat( const T & value )
-    {
-        ( * file ) << std::setw( nWidth ) << value;
-    }
-
-    template< typename T >
-    void WriteLine( const T & value )
-    {
-        ( * file ) << value << "\n";
-    }
-
-    void DumpCoorAscii( RealField & coor );
-};
+#endif
 
 EndNameSpace

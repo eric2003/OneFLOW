@@ -34,7 +34,7 @@ License
 #include "NsIdx.h"
 #include "Zone.h"
 #include "ZoneState.h"
-#include "StrUtil.h"
+#include "StringUtils.h"
 #include "Prj.h"
 #include "HXMid.h"
 #include "NodeMesh.h"
@@ -79,7 +79,7 @@ void VisualTool::AddTitle( const std::string & varName )
 MRField * VisualTool::AddField( const std::string & varName )
 {
     this->AddTitle( varName );
-    MRField * fn = CreateNodeVar( varName );
+    MRField * fn = InterpolateCellToNode( varName );
     qNodeField.push_back( fn );
     return fn;
 }
@@ -87,7 +87,7 @@ MRField * VisualTool::AddField( const std::string & varName )
 MRField * VisualTool::AddField( RealField & qc, const std::string & varName )
 {
     this->AddTitle( varName );
-    MRField * fn = CreateNodeVar( qc );
+    MRField * fn = InterpolateCellToNode( qc );
     qNodeField.push_back( fn );
     return fn;
 }
@@ -95,7 +95,7 @@ MRField * VisualTool::AddField( RealField & qc, const std::string & varName )
 MRField * VisualTool::CreateField( const std::string & varName, int nEqu )
 {
     this->AddTitle( varName );
-    MRField * fn = AllocNodeVar( nEqu );
+    MRField * fn = AllocateNodeField( nEqu );
     qNodeField.push_back( fn );
     return fn;
 }
@@ -623,7 +623,7 @@ void UVisualize::CalcNodeField( VisualTool * visualTool )
     MRField * wn = visualTool->AddField( ( * q )[ IDX::IW ], "w" );
     MRField * pn = visualTool->AddField( ( * q )[ IDX::IP ], "p" );
 
-    MRField * gaman = CreateNodeVar( "gama" );
+    MRField * gaman = InterpolateCellToNode( "gama" );
     MRField * machn = visualTool->CreateField( "mach" );
     CalcMach( rn, un, vn, wn, pn, gaman, machn );
     delete gaman;

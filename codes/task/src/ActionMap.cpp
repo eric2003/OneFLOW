@@ -21,7 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 #include "ActionMap.h"
 #include "DataBase.h"
-#include "FileIO.h"
+#include "TextFileParser.h"
 
 BeginNameSpace( ONEFLOW )
 
@@ -121,18 +121,18 @@ void ActionMapImp::ReadFile( const std::string & fileName )
     //\t is the tab key
     std::string separator = " =\r\n\t#$,;\"";
 
-    FileIO ioFile;
-    ioFile.OpenFile( fileName, std::ios_base::in );
-    ioFile.SetDefaultSeparator( separator );
+    TextFileParser textFileParser;
+    textFileParser.OpenFile( fileName, std::ios_base::in );
+    textFileParser.SetDefaultSeparator( separator );
 
-    while ( ! ioFile.ReachTheEndOfFile() )
+    while ( ! textFileParser.ReachTheEndOfFile() )
     {
-        ioFile.ReadNextNonEmptyLine();
-        std::string actionName = ioFile.ReadNextWord();
+        textFileParser.ReadNextNonEmptyLine();
+        std::string actionName = textFileParser.ReadNextWord();
         this->Register( actionName );
     }
 
-    ioFile.CloseFile();
+    textFileParser.CloseFile();
 }
 
 

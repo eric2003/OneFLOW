@@ -23,7 +23,7 @@ License
 #include "Prj.h"
 #include "Stop.h"
 #include "OStream.h"
-#include "FileUtil.h"
+#include "FileUtils.h"
 #include <iostream>
 
 BeginNameSpace( ONEFLOW )
@@ -60,8 +60,8 @@ void Prj::ProcessCmdLineArgs( std::vector<std::string> &args )
 
 void Prj::Init()
 {
-    Prj::execute_dir = HX_GetExeDirectory().string();
-    Prj::current_dir = HX_GetCurrentDir();
+    Prj::execute_dir = HX_GetExeDirectory();
+    Prj::current_dir = HX_GetCurrentDirectory();
 
     std::cout << " Prj::execute_dir = " << Prj::execute_dir << "\n";
     std::cout << " Prj::current_dir = " << Prj::current_dir << "\n";
@@ -84,21 +84,23 @@ void Prj::SetPrjBaseDir( const std::string & prjName )
 {
     std::string current_dir_now = RemoveEndSlash( Prj::current_dir );
     std::string prj_name_now = RemoveFirstSlash( prjName );
-    ONEFLOW::StrIO << current_dir_now << "/" << prj_name_now;
+    OStream &logger = OStream::Instance();
+    logger << current_dir_now << "/" << prj_name_now;
     if ( ! EndWithSlash( prj_name_now ) )
     {
-        ONEFLOW::StrIO << "/";
+        logger << "/";
     }
-    Prj::prjBaseDir = ONEFLOW::StrIO.str();
+    Prj::prjBaseDir = logger.str();
     std::cout << " Prj::prjBaseDir = " << Prj::prjBaseDir << "\n";
 }
 
 void Prj::OpenPrjFile( std::fstream & file, const std::string & fileName, const std::ios_base::openmode & openMode )
 {
-    ONEFLOW::StrIO.ClearAll();
-    ONEFLOW::StrIO << Prj::prjBaseDir << fileName;
+    OStream &logger = OStream::Instance();
+    logger.ClearAll();
+    logger << Prj::prjBaseDir << fileName;
 
-    std::string prjFileName = ONEFLOW::StrIO.str();
+    std::string prjFileName = logger.str();
 
     CreateDirIfNeeded( prjFileName );
 
@@ -123,13 +125,14 @@ void Prj::CloseFile( std::fstream & file )
 
 void Prj::MakePrjDir( const std::string & dirName )
 {
-    ONEFLOW::StrIO.ClearAll();
-    ONEFLOW::StrIO << Prj::prjBaseDir << dirName;
+    OStream &logger = OStream::Instance();
+    logger.ClearAll();
+    logger << Prj::prjBaseDir << dirName;
 
-    std::string prjDirName = ONEFLOW::StrIO.str();
+    std::string prjDirName = logger.str();
     //std::cout << " prjDirName = " << prjDirName << "\n";
 
-    MakeDir( prjDirName );
+    HX_CreateDirectory( prjDirName );
 }
 
 std::string Prj::GetPrjDirName( const std::string & fileName )
@@ -150,21 +153,22 @@ void Prj::CreateDirIfNeeded( std::string & prjFileName )
 {
     std::string prj_dir = Prj::GetPrjDirName( prjFileName );
 
-    if ( ! DirExist( prj_dir ) )
+    if ( ! HX_IsDirectory( prj_dir ) )
     {
-        MakeDir( prj_dir );
+        HX_CreateDirectory( prj_dir );
     }
 }
 
 std::string Prj::GetPrjFileName( const std::string & fileName )
 {
-    ONEFLOW::StrIO.ClearAll();
+    OStream &logger = OStream::Instance();
+    logger.ClearAll();
 
     std::string fileNameNew = RemoveFirstSlash( fileName );
 
-    ONEFLOW::StrIO << Prj::prjBaseDir << fileNameNew;
+    logger << Prj::prjBaseDir << fileNameNew;
 
-    std::string prjFileName = ONEFLOW::StrIO.str();
+    std::string prjFileName = logger.str();
 
     return prjFileName;
 }

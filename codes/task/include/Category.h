@@ -22,7 +22,7 @@ License
 
 
 #pragma once
-#include "Configure.h"
+#include "NamespaceMacros.h"
 #include "HXDefine.h"
 #include <map>
 
@@ -37,8 +37,8 @@ public:
 public:
     static std::map< int, int > * data;
     static void Init();
-    static void AddCategory( int sTid, int category );
-    static int  GetCategory( int sTid );
+    static void AddCategory( int solverType, int category );
+    static int  GetCategory( int solverType );
     static void Free();
 };
 

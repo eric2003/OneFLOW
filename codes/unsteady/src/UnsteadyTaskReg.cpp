@@ -38,13 +38,12 @@ License
 #include "Lusgs.h"
 #include "Lhs.h"
 #include "FieldImp.h"
-#include "FieldWrap.h"
 #include "SolverState.h"
 #include "Zone.h"
 #include "Grid.h"
 #include "UnsGrid.h"
 #include "InterFace.h"
-#include "RegisterUtil.h"
+#include "RegisterUtils.h"
 #include "FieldRecord.h"
 #include "UVisualize.h"
 #include "UResidual.h"
@@ -67,17 +66,17 @@ void RegisterUnsteadyTask()
 
 void UpdateUnsteadyFlow( StringField & data )
 {
-    int sTid = SolverState::tid;
+    int solverType = SolverState::solverType;
 
-    Unsteady * unsteady = CreateUnsteady( sTid );
-    unsteady->UpdateUnsteady( sTid );
+    Unsteady * unsteady = CreateUnsteady( solverType );
+    unsteady->UpdateUnsteady( solverType );
     delete unsteady;
 }
 
 void CalcUnsteadyCriterion( StringField & data )
 {
-    int sTid = SolverState::tid;
-    Unsteady * unsteady = CreateUnsteady( sTid );
+    int solverType = SolverState::solverType;
+    Unsteady * unsteady = CreateUnsteady( solverType );
     unsteady->CalcUnsteadyCriterion();
     delete unsteady;
 }

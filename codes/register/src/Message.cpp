@@ -21,7 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "Message.h"
-#include "FileIO.h"
+#include "TextFileParser.h"
 
 BeginNameSpace( ONEFLOW )
 std::map< std::string, int > * MessageMap::nameMap = 0;
@@ -96,18 +96,18 @@ void MessageMap::ReadFile( const std::string & fileName )
     //\t is the tab key
     std::string separator = " =\r\n\t#$,;\"";
 
-    FileIO ioFile;
-    ioFile.OpenFile( fileName, std::ios_base::in );
-    ioFile.SetDefaultSeparator( separator );
+    TextFileParser textFileParser;
+    textFileParser.OpenFile( fileName, std::ios_base::in );
+    textFileParser.SetDefaultSeparator( separator );
 
-    while ( ! ioFile.ReachTheEndOfFile() )
+    while ( ! textFileParser.ReachTheEndOfFile() )
     {
-        ioFile.ReadNextNonEmptyLine();
-        std::string msgName = ioFile.ReadNextWord();
+        textFileParser.ReadNextNonEmptyLine();
+        std::string msgName = textFileParser.ReadNextWord();
         MessageMap::Register( msgName );
     }
 
-    ioFile.CloseFile();
+    textFileParser.CloseFile();
 }
 
 EndNameSpace

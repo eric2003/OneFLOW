@@ -24,7 +24,7 @@ License
 #include "Plot3D.h"
 #include "Su2Grid.h"
 #include "StrGrid.h"
-#include "StrUtil.h"
+#include "StringUtils.h"
 #include "BcRecord.h"
 #include "GridPara.h"
 

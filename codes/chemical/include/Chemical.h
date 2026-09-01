@@ -30,7 +30,7 @@ class Stoichiometric;
 class BlotterCurve;
 class Thermodynamic;
 
-class FileIO;
+class TextFileParser;
 class DataBook;
 
 //General gas constant in J / (mol * k)
@@ -91,7 +91,7 @@ public:
     void InitGasModel();
     void ReadGasModel();
     void Init( int nSpecies, int nReaction );
-    void ReadChemical( FileIO * ioFile );
+    void ReadChemical( TextFileParser * textFileParser );
     void InitWorkingSpace();
     void AllocWorkingSpace();
 public:

@@ -24,7 +24,7 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-class FileIO;
+class TextFileParser;
 class DataBook;
 
 class BlotterCurve
@@ -37,7 +37,7 @@ public:
     RealField a, b, c, d, e;
 public:
     void Init( int nSpecies );
-    void Read( FileIO * ioFile );
+    void Read( TextFileParser * textFileParser );
     void Read( DataBook * dataBook );
     void Write( DataBook * dataBook );
 };

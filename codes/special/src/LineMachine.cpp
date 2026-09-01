@@ -27,7 +27,7 @@ License
 #include "CircleInfo.h"
 #include "LineMesh.h"
 #include "LineMeshImp.h"
-#include "FileIO.h"
+#include "TextFileParser.h"
 #include "HXMath.h"
 #include <iostream>
 #include <algorithm>
@@ -120,20 +120,20 @@ void LineMachine::AddCircle( int p1, int pc, int p2, int id )
     this->segmentCtrlList.push_back( segmentCtrl );
 }
 
-void LineMachine::AddDimension( FileIO * ioFile )
+void LineMachine::AddDimension( TextFileParser * textFileParser )
 {
-    int id = ioFile->ReadNextDigit< int >();
-    int dim = ioFile->ReadNextDigit< int >();
+    int id = textFileParser->ReadNextDigit< int >();
+    int dim = textFileParser->ReadNextDigit< int >();
     this->dimList.push_back( dim );
     SegmentCtrl * segmentCtrl = this->GetSegmentCtrl( id );
     segmentCtrl->nPoint = dim;
 }
 
-void LineMachine::AddDs( FileIO * ioFile )
+void LineMachine::AddDs( TextFileParser * textFileParser )
 {
-    int id = ioFile->ReadNextDigit< int >();
+    int id = textFileParser->ReadNextDigit< int >();
     SegmentCtrl * segmentCtrl = this->GetSegmentCtrl( id );
-    segmentCtrl->Read( ioFile );
+    segmentCtrl->Read( textFileParser );
 }
 
 void LineMachine::CreateAllLineMesh()

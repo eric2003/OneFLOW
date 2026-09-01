@@ -28,7 +28,7 @@ License
 #include "SolverState.h"
 #include "InterFace.h"
 #include "FieldRecord.h"
-#include "RegisterUtil.h"
+#include "RegisterUtils.h"
 #include "DataBase.h"
 #include "DataStorage.h"
 #include "ActionState.h"
@@ -36,7 +36,7 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-void PrepareInterfaceFieldRecord( int sTid, int iFk, int iSr, FieldRecord * fieldRecord )
+void PrepareInterfaceFieldRecord( int solverType, int iFk, int iSr, FieldRecord * fieldRecord )
 {
     Grid * grid = Zone::GetGrid();
     InterFace * interFace = grid->interFace;
@@ -47,7 +47,7 @@ void PrepareInterfaceFieldRecord( int sTid, int iFk, int iSr, FieldRecord * fiel
 
     GetInterfaceDataStorageList( iDataStorageList, iSr );
 
-    VarNameSolver * varNameSolver = VarNameFactory::GetVarNameSolver( sTid, iFk );
+    VarNameSolver * varNameSolver = VarNameFactory::GetVarNameSolver( solverType, iFk );
 
     for ( int dataId = 0; dataId < iDataStorageList->size(); ++ dataId )
     {

@@ -56,8 +56,8 @@ void TurbSolver::StaticInit()
     turb_ctrl.Init();
     turbcom.Init();
 
-    this->sTid = ONEFLOW::TURB_SOLVER;
-    SolverInfo * solverInfo = SolverInfoFactory::GetSolverInfo( this->sTid );
+    this->solverType = ONEFLOW::TURB_SOLVER;
+    SolverInfo * solverInfo = SolverInfoFactory::GetSolverInfo( this->solverType );
 
     solverInfo->nEqu  = turbcom.nEqu;
     solverInfo->nTEqu = turbcom.nTEqu;

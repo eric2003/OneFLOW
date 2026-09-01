@@ -23,7 +23,7 @@ License
 
 #pragma once
 
-#include "Configure.h"
+#include "NamespaceMacros.h"
 #include "HXType.h"
 
 BeginNameSpace( ONEFLOW )

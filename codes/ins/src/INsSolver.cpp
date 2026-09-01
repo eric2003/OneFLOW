@@ -51,14 +51,14 @@ void INsSolver::StaticInit()
 {
     if ( INsSolver::initFlag ) return;
     INsSolver::initFlag = true;
-    this->sTid = ONEFLOW::INC_NS_SOLVER;
+    this->solverType = ONEFLOW::INC_NS_SOLVER;
 
     ins_ctrl.Init();
     nscom.Init();
     std::string fileName = "grid/ins_bc.txt";
     ins_bc_data.Init( fileName );
 
-    SolverInfo * solverInfo = SolverInfoFactory::GetSolverInfo( this->sTid );
+    SolverInfo * solverInfo = SolverInfoFactory::GetSolverInfo( this->solverType );
     solverInfo->nEqu  = nscom.nEqu;
     solverInfo->nTEqu = nscom.nTEqu;
 

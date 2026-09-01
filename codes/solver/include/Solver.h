@@ -49,7 +49,8 @@ public:
     static Solver * Register( const std::string & type, Solver * clone );
     static std::map < std::string, Solver * > * classMap;
 public:
-    int sid, sTid;
+    int solverType;   // SolverType identifier, for example NS_SOLVER.
+    int solverIndex;  // Position of this solver instance in the solver list.
     int gridType;
 public:
     virtual void StaticInit(){};

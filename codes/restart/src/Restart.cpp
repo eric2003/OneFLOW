@@ -38,22 +38,22 @@ License
 #include "FieldWrap.h"
 #include "FieldAlloc.h"
 #include "UsdPara.h"
-#include "RegisterUtil.h"
+#include "RegisterUtils.h"
 #include "INsRestart.h"
 
 BeginNameSpace( ONEFLOW )
 
-Restart * CreateRestart( int sTid )
+Restart * CreateRestart( int solverType )
 {
-    if ( sTid == NS_SOLVER )
+    if ( solverType == NS_SOLVER )
     {
         return CreateNsRestart();
     }
-    else if ( sTid == INC_NS_SOLVER )
+    else if ( solverType == INC_NS_SOLVER )
     {
         return CreateINsRestart();
     }
-    else if ( sTid == TURB_SOLVER )
+    else if ( solverType == TURB_SOLVER )
     {
         return CreateTurbRestart();
     }
@@ -71,9 +71,9 @@ Restart::~Restart()
     ;
 }
 
-void Restart::ReadUnsteady( int sTid )
+void Restart::ReadUnsteady( int solverType )
 {
-    FieldManager * fieldManager = FieldFactory::GetFieldManager( sTid );
+    FieldManager * fieldManager = FieldFactory::GetFieldManager( solverType );
 
     UsdPara * usdPara = fieldManager->usdPara;
 
@@ -96,9 +96,9 @@ void Restart::ReadUnsteady( int sTid )
     SetField( res, res1 );
 }
 
-void Restart::DumpUnsteady( int sTid )
+void Restart::DumpUnsteady( int solverType )
 {
-    FieldManager * fieldManager = FieldFactory::GetFieldManager( sTid );
+    FieldManager * fieldManager = FieldFactory::GetFieldManager( solverType );
 
     UsdPara * usdPara = fieldManager->usdPara;
 
@@ -119,9 +119,9 @@ void Restart::DumpUnsteady( int sTid )
     HXWrite( ActionState::dataBook, res2 );
 }
 
-void Restart::InitUnsteady( int sTid )
+void Restart::InitUnsteady( int solverType )
 {
-    FieldManager * fieldManager = FieldFactory::GetFieldManager( sTid );
+    FieldManager * fieldManager = FieldFactory::GetFieldManager( solverType );
     UsdPara * usdPara = fieldManager->usdPara;
     Grid * grid = Zone::GetGrid();
 
@@ -141,35 +141,35 @@ void Restart::InitUnsteady( int sTid )
     SetField( res2, res );
 }
 
-void Restart::Read( int sTid )
+void Restart::Read( int solverType )
 {
     ActionState::dataBook->MoveToBegin();
 
     ReadRestartHeader();
 
-    this->ReadUnsteady( sTid );
+    this->ReadUnsteady( solverType );
 
-    RwInterface( sTid, GREAT_READ );
+    RwInterface( solverType, GREAT_READ );
 }
 
-void Restart::Dump( int sTid )
+void Restart::Dump( int solverType )
 {
     ActionState::dataBook->MoveToBegin();
 
     DumpRestartHeader();
 
-    this->DumpUnsteady( sTid );
+    this->DumpUnsteady( solverType );
 
-    RwInterface( sTid, GREAT_WRITE );
+    RwInterface( solverType, GREAT_WRITE );
 }
 
-void Restart::InitRestart( int sTid )
+void Restart::InitRestart( int solverType )
 {
     Iteration::outerSteps = 0;
     ctrl.currTime = 0.0;
 }
 
-void Restart::InitinsRestart( int sTid )
+void Restart::InitinsRestart( int solverType )
 {
 	Iteration::outerSteps = 0;
 	ctrl.currTime = 0.0;
@@ -193,14 +193,14 @@ void DumpRestartHeader()
     HXWrite( ActionState::dataBook, ctrl.currTime );
 }
 
-void RwInterface( int sTid, int readOrWrite )
+void RwInterface( int solverType, int readOrWrite )
 {
     Grid * grid = Zone::GetGrid();
     InterFace * interFace = grid->interFace;
 
     if ( ! IsValid( interFace ) ) return;
 
-    VarNameSolver * varNameSolver = VarNameFactory::GetVarNameSolver( sTid, INTERFACE_GRADIENT_DATA );
+    VarNameSolver * varNameSolver = VarNameFactory::GetVarNameSolver( solverType, INTERFACE_GRADIENT_DATA );
     StringField fieldNameList = varNameSolver->data;
 
     for ( int ghostId = MAX_GHOST_LEVELS - 1; ghostId >= 0; -- ghostId )

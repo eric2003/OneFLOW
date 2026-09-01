@@ -395,22 +395,22 @@ void FieldFactory::Init()
     }
 }
 
-void FieldFactory::AddFieldManager( int sTid )
+void FieldFactory::AddFieldManager( int solverType )
 {
     std::map< int, FieldManager * >::iterator iter;
     FieldFactory::Init();
-    iter = FieldFactory::data->find( sTid );
+    iter = FieldFactory::data->find( solverType );
     if ( iter == FieldFactory::data->end() )
     {
         FieldManager * fieldManager = new FieldManager();
-        ( * FieldFactory::data )[ sTid ] = fieldManager;
+        ( * FieldFactory::data )[ solverType ] = fieldManager;
     }
 }
 
-FieldManager * FieldFactory::GetFieldManager( int sTid )
+FieldManager * FieldFactory::GetFieldManager( int solverType )
 {
     std::map< int, FieldManager * >::iterator iter;
-    iter = FieldFactory::data->find( sTid );
+    iter = FieldFactory::data->find( solverType );
     return iter->second;
 }
 

@@ -22,8 +22,8 @@ License
 #include "SolverName.h"
 #include "Prj.h"
 #include "OStream.h"
-#include "FileIO.h"
-#include "StrUtil.h"
+#include "TextFileParser.h"
+#include "StringUtils.h"
 
 BeginNameSpace( ONEFLOW )
 
@@ -33,29 +33,29 @@ void GetSolverFileNames( const std::string & solverName, StringField & fileNameL
     //\t is the tab key
     std::string separator = " =\r\n\t#$,;\"()";
 
-    OStream ostr;
-    ostr.ClearAll();
-    ostr << Prj::system_root << solverName << "/function/";
-    std::string baseDir = ostr.str();
-    ostr << "fileList.txt";
-    std::string keyFileName = ostr.str();
+    //OStream ostr;
+    OStream &logger = OStream::Instance();
+    logger.ClearAll();
+    logger << Prj::system_root << solverName << "/function/";
+    std::string baseDir = logger.str();
+    logger << "fileList.txt";
+    std::string keyFileName = logger.str();
+    TextFileParser textFileParser;
+    textFileParser.OpenFile( keyFileName, std::ios_base::in );
+    textFileParser.SetDefaultSeparator( separator );
 
-    FileIO ioFile;
-    ioFile.OpenFile( keyFileName, std::ios_base::in );
-    ioFile.SetDefaultSeparator( separator );
-
-    while ( ! ioFile.ReachTheEndOfFile()  )
+    while ( ! textFileParser.ReachTheEndOfFile()  )
     {
-        bool flag = ioFile.ReadNextNonEmptyLine();
+        bool flag = textFileParser.ReadNextNonEmptyLine();
         if ( ! flag ) break;
-        std::string fileName = ioFile.ReadNextWord();
+        std::string fileName = textFileParser.ReadNextWord();
 
         fileName = AddString( baseDir, fileName );
 
         fileNameList.push_back( fileName );
     }
 
-    ioFile.CloseFile();
+    textFileParser.CloseFile();
 }
 
 

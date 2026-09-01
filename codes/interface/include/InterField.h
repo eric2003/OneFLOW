@@ -35,7 +35,7 @@ class FieldRecord;
 DataStorage * GetInterfaceDataStorage( InterFace * interFace, int srFlag, int ghostId );
 void GetInterfaceDataStorageList( HXVector< DataStorage * > * iDataStorageList, int srFlag );
 void AddFieldRecord( FieldRecord * fieldRecord, DataStorage * dataStorage, StringField & fieldNameList );
-void PrepareInterfaceFieldRecord( int sTid, int iFk, int iSr, FieldRecord * fieldRecord );
+void PrepareInterfaceFieldRecord( int solverType, int iFk, int iSr, FieldRecord * fieldRecord );
 void SetInterfaceFieldData( int iSr, FieldRecord * fieldRecord );
 
 void HXWriteSubData( DataBook * dataBook, MRField * field2D, IntField & idMap );

@@ -22,7 +22,7 @@ License
 
 #include "Numpy.h"
 #include "Prj.h"
-#include "StrUtil.h"
+#include "StringUtils.h"
 
 #include <iostream>
 #include <fstream>

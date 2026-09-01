@@ -49,7 +49,7 @@ void UNsUsdField::Init()
 
 UNsUnsteady::UNsUnsteady()
 {
-    this->sTid = NS_SOLVER;
+    this->solverType = NS_SOLVER;
     data = new NsUsdData();
     field = new UNsUsdField();
     data->Init();

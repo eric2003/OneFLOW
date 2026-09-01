@@ -20,22 +20,30 @@ License
 
 \*---------------------------------------------------------------------------*/
 #pragma once
-#include "Configure.h"
+#include "NamespaceMacros.h"
 #include <iomanip>
 #include <sstream>
 
 
 BeginNameSpace( ONEFLOW )
 
-class OStream;
-extern OStream StrIO;
-class OStream : public std::ostringstream
-{
+class OStream : public std::ostringstream {
+private:
+    OStream() = default;
+    ~OStream() = default;
+    OStream(const OStream&) = delete;
+    OStream& operator=(const OStream&) = delete;
+
 public:
-    OStream() {}
-    ~OStream() {}
-public:
-    void ClearAll();
+    static OStream& Instance() {
+        static OStream instance;
+        return instance;
+    }
+
+    void ClearAll() {
+        this->clear();
+        this->str("");
+    }
 };
 
 

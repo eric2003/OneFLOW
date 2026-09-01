@@ -22,7 +22,7 @@ License
 
 #include "MsgMapImp.h"
 #include "Message.h"
-#include "FileIO.h"
+#include "TextFileParser.h"
 #include "Prj.h"
 #include <iostream>
 
@@ -48,20 +48,20 @@ void GetMsgFileNameList( StringField & fileNameList )
     std::string separator  = " =\r\n\t#$,;\"()";
     std::string msgFileName = Prj::system_root + "action/" + "actionFileList.txt";
 
-    FileIO ioFile;
-    ioFile.OpenFile( msgFileName, std::ios_base::in );
-    ioFile.SetDefaultSeparator( separator );
+    TextFileParser textFileParser;
+    textFileParser.OpenFile( msgFileName, std::ios_base::in );
+    textFileParser.SetDefaultSeparator( separator );
 
-    while ( ! ioFile.ReachTheEndOfFile()  )
+    while ( ! textFileParser.ReachTheEndOfFile()  )
     {
-        bool flag = ioFile.ReadNextNonEmptyLine();
+        bool flag = textFileParser.ReadNextNonEmptyLine();
         if ( ! flag ) break;
-        std::string fileName = ioFile.ReadNextWord();
+        std::string fileName = textFileParser.ReadNextWord();
         std::string fullPathFileName = Prj::system_root + "action/" + fileName;
         fileNameList.push_back( fullPathFileName );
     }
 
-    ioFile.CloseFile();
+    textFileParser.CloseFile();
 }
 
 

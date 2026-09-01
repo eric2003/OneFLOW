@@ -38,13 +38,12 @@ License
 #include "Lusgs.h"
 #include "Lhs.h"
 #include "FieldImp.h"
-#include "FieldWrap.h"
 #include "SolverState.h"
 #include "Zone.h"
 #include "Grid.h"
 #include "UnsGrid.h"
 #include "InterFace.h"
-#include "RegisterUtil.h"
+#include "RegisterUtils.h"
 #include "FieldRecord.h"
 #include "UVisualize.h"
 #include "UResidual.h"
@@ -73,9 +72,9 @@ void CalcInterfaceGrad( StringField & data )
 
 void UploadInterfaceData( StringField & data )
 {
-    int sTid = SolverState::tid;
+    int solverType = SolverState::solverType;
 
-    FieldManager * fieldManager = FieldFactory::GetFieldManager( sTid );
+    FieldManager * fieldManager = FieldFactory::GetFieldManager( solverType );
 
     fieldManager->iFieldProperty->UploadInterfaceValue();
 
@@ -83,9 +82,9 @@ void UploadInterfaceData( StringField & data )
 
 void DownloadInterfaceData( StringField & data )
 {
-    int sTid = SolverState::tid;
+    int solverType = SolverState::solverType;
 
-    FieldManager * fieldManager = FieldFactory::GetFieldManager( sTid );
+    FieldManager * fieldManager = FieldFactory::GetFieldManager( solverType );
     fieldManager->iFieldProperty->DownloadInterfaceValue();
 }
 
@@ -95,13 +94,13 @@ void PrepareInterfaceField( StringField & data )
     InterFace * interFace = grid->interFace;
     if ( ! ONEFLOW::IsValid( interFace ) ) return;
 
-    int sTid = SolverState::tid;
+    int solverType = SolverState::solverType;
     int iFk  = ( * interfaceMap )[ data[ 0 ] ];
     int iSr  = ( * sendRecvMap )[ data[ 1 ] ];
 
     FieldRecord * fieldRecord = new FieldRecord();
 
-    PrepareInterfaceFieldRecord( sTid, iFk, iSr, fieldRecord );
+    PrepareInterfaceFieldRecord( solverType, iFk, iSr, fieldRecord );
 
     SetInterfaceFieldData( iSr, fieldRecord );
 

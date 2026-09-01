@@ -77,7 +77,7 @@ public:
     Residual();
     ~Residual();
 public:
-    virtual void Dump( int sTid ){};
+    virtual void Dump( int solverType ){};
 };
 
 

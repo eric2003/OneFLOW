@@ -30,7 +30,7 @@ BeginNameSpace( ONEFLOW )
 class SegmentCtrl;
 class CurveInfo;
 class CurveMesh;
-class FileIO;
+class TextFileParser;
 
 class LineMachine
 {
@@ -50,8 +50,8 @@ public:
     int AddLine( int p1, int p2 );
     void AddLine( int p1, int p2, int id );
     void AddCircle( int p1, int pc, int p2, int id );
-    void AddDimension( FileIO * ioFile );
-    void AddDs( FileIO * ioFile );
+    void AddDimension( TextFileParser * textFileParser );
+    void AddDs( TextFileParser * textFileParser );
     void GenerateAllLineMesh();
     void CreateAllLineMesh();
 public:

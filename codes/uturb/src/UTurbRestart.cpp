@@ -45,7 +45,7 @@ UTurbRestart::~UTurbRestart()
     ;
 }
 
-void UTurbRestart::InitRestart( int sTid )
+void UTurbRestart::InitRestart( int solverType )
 {
     Iteration::outerSteps = 0;
     ctrl.currTime = 0.0;
@@ -60,9 +60,9 @@ void UTurbRestart::InitRestart( int sTid )
     {
         SetField( ( * q )[ iEqu ], turbcom.inflow[ iEqu ] );
     }
-    this->InitUnsteady( sTid );
+    this->InitUnsteady( solverType );
 
-    RwInterface( sTid, GREAT_ZERO );
+    RwInterface( solverType, GREAT_ZERO );
 }
 
 

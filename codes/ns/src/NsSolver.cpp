@@ -56,8 +56,8 @@ void NsSolver::StaticInit()
     std::string fileName = "grid/ns_bc.txt";
     ns_bc_data.Init( fileName );
 
-    this->sTid = ONEFLOW::NS_SOLVER;
-    SolverInfo * solverInfo = SolverInfoFactory::GetSolverInfo( this->sTid );
+    this->solverType = ONEFLOW::NS_SOLVER;
+    SolverInfo * solverInfo = SolverInfoFactory::GetSolverInfo( this->solverType );
     solverInfo->nEqu  = nscom.nEqu;
     solverInfo->nTEqu = nscom.nTEqu;
     solverInfo->registerInterface = 0;

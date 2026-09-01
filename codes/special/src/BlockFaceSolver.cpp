@@ -32,7 +32,6 @@ License
 #include "MDomain.h"
 #include "SimpleDomain.h"
 #include "LineMachine.h"
-#include "DomainMachine.h"
 #include "BlkMesh.h"
 #include "Block3D.h"
 #include "Block2D.h"

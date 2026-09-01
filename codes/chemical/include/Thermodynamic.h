@@ -24,7 +24,7 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-class FileIO;
+class TextFileParser;
 class DataBook;
 
 class ThermodynamicFunction
@@ -37,7 +37,7 @@ public:
     RealField2D polyCoef;
 public:
     void Init( int nTSpan, int nPolyCoef );
-    void ReadPolynomialCoefficient( FileIO * ioFile );
+    void ReadPolynomialCoefficient( TextFileParser * textFileParser );
     void ReadPolynomialCoefficient( DataBook * dataBook );
     void WritePolynomialCoefficient( DataBook * dataBook );
 };
@@ -54,7 +54,7 @@ public:
     RealField trange;
 public:
     void Init( int nSpecies );
-    void Read( FileIO * ioFile );
+    void Read( TextFileParser * textFileParser );
 public:
     void Read( DataBook * dataBook );
     void Write( DataBook * dataBook );

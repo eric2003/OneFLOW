@@ -58,8 +58,8 @@ void MultiBlock::ReadMultiBlockGrid()
 
 void MultiBlock::SetUpMultigrid()
 {
-    SolverState::tid = GRID_SOLVER;
-    SsSgTask( "CALC_METRICS" );
+    SolverState::solverType = GRID_SOLVER;
+    SingleSolverSingleGridTask( "CALC_METRICS" );
 }
 
 void MultiBlock::LoadGridAndBuildLink()
@@ -102,23 +102,23 @@ void MultiBlock::ProcessWallDist()
 
 void CreateWallDist()
 {
-    SolverState::tid = GRID_SOLVER;
-    SsSgTask( "FILL_WALL_STRUCT" );
-    SsSgTask( "CALC_WALL_DIST" );
+    SolverState::solverType = GRID_SOLVER;
+    SingleSolverSingleGridTask( "FILL_WALL_STRUCT" );
+    SingleSolverSingleGridTask( "CALC_WALL_DIST" );
     FreeWallStruct();
-    SsSgTask( "WRITE_WALL_DIST" );
+    SingleSolverSingleGridTask( "WRITE_WALL_DIST" );
 }
 
 void LoadWallDist()
 {
-    SolverState::tid = GRID_SOLVER;
-    SsSgTask( "READ_WALL_DIST" );
+    SolverState::solverType = GRID_SOLVER;
+    SingleSolverSingleGridTask( "READ_WALL_DIST" );
 }
 
 void MultiBlock::AllocWallDist()
 {
-    SolverState::tid = GRID_SOLVER;
-    SsSgTask( "ALLOCATE_WALL_DIST" );
+    SolverState::solverType = GRID_SOLVER;
+    SingleSolverSingleGridTask( "ALLOCATE_WALL_DIST" );
 }
 
 void MultiBlock::InitMultiZoneTopo()

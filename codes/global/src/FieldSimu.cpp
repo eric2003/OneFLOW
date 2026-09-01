@@ -54,7 +54,7 @@ void InitFlowSimuGlobal()
 
 void InitializeSolver()
 {
-    ONEFLOW::MsMgTask( "INIT_FLOWFIELD" );
+    ONEFLOW::MultiSolverMultiGridTask( "INIT_FLOWFIELD" );
 }
 
 EndNameSpace

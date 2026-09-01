@@ -51,7 +51,7 @@ public:
     static bool flag;
     static void Init();
     static void Free();
-    static FieldWrap * GetFieldWrap( int zid, int sid, int fid, int gl );
+    static FieldWrap * GetFieldWrap( int zid, int solverIndex, int fid, int gl );
 };
 
 

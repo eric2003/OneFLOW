@@ -24,44 +24,44 @@ License
 #include "Register.h"
 #include "SolverDef.h"
 #include "Category.h"
-#include "RegisterUtil.h"
+#include "RegisterUtils.h"
 #include "SolverInfo.h"
 #include "SolverName.h"
 
 BeginNameSpace( ONEFLOW )
 
-void RegisterSolverVarMap( int sTid )
+void RegisterSolverVarMap( int solverType )
 {
-    VarNameFactory::AddVarNameSolver( sTid, ONEFLOW::INTERFACE_DATA );
-    VarNameFactory::AddVarNameSolver( sTid, ONEFLOW::INTERFACE_DQ_DATA );
-    VarNameFactory::AddVarNameSolver( sTid, ONEFLOW::INTERFACE_GRADIENT_DATA );
-    VarNameFactory::AddVarNameSolver( sTid, ONEFLOW::INTERFACE_OVERSET_DATA );
-    SolverInfoFactory::AddSolverInfo( sTid );
+    VarNameFactory::AddVarNameSolver( solverType, ONEFLOW::INTERFACE_DATA );
+    VarNameFactory::AddVarNameSolver( solverType, ONEFLOW::INTERFACE_DQ_DATA );
+    VarNameFactory::AddVarNameSolver( solverType, ONEFLOW::INTERFACE_GRADIENT_DATA );
+    VarNameFactory::AddVarNameSolver( solverType, ONEFLOW::INTERFACE_OVERSET_DATA );
+    SolverInfoFactory::AddSolverInfo( solverType );
 }
 
 void RegisterSolverTask( SolverRegData * regData )
 {
-    int sTid = regData->sTid;
+    int solverType = regData->solverType;
     std::string &solverName = regData->solverName;
     VoidFunc func = regData->func;
     int baseKind = regData->baseKind;
     int dataFlag = regData->dataFlag;
 
-    RegisterFactory::AddMRegister( sTid );
-    Category::AddCategory( sTid, baseKind );
+    RegisterFactory::AddMRegister( solverType );
+    Category::AddCategory( solverType, baseKind );
 
     if ( dataFlag == ONEFLOW::WITH_DATA )
     {
-        RegisterSolverVarMap( sTid );
+        RegisterSolverVarMap( solverType );
     }
 
-    RegisterSolverFunc( sTid, solverName, func );
+    RegisterSolverFunc( solverType, solverName, func );
 }
 
-void RegisterSolverFunc( int sTid, const std::string & solverName, VoidFunc func )
+void RegisterSolverFunc( int solverType, const std::string & solverName, VoidFunc func )
 {
     func();
-    MRegister * mRegister = RegisterFactory::GetMRegister( sTid );
+    MRegister * mRegister = RegisterFactory::GetMRegister( solverType );
     SetSolverFileNames( mRegister, solverName );
     mRegister->RegisterAll();
 }

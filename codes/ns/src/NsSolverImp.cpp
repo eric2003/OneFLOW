@@ -180,7 +180,7 @@ void NsInitSolver( StringField & data )
 SolverRegData nsReg;
 SolverRegData * GetNsReg()
 {
-    nsReg.sTid = NS_SOLVER;
+    nsReg.solverType = NS_SOLVER;
     nsReg.func = & RegisterNsFunc;
     nsReg.solverName = "ns";
     nsReg.baseKind = SOLVER_BASED;

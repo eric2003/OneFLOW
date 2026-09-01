@@ -21,12 +21,12 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "CgnsZbase.h"
-#include "CgnsZbaseUtil.h"
+#include "CgnsZbaseUtils.h"
 #include "CgnsBase.h"
-#include "CgnsBaseUtil.h"
+#include "CgnsBaseUtils.h"
 #include "CgnsFile.h"
 #include "CgnsZone.h"
-#include "StrUtil.h"
+#include "StringUtils.h"
 #include "Stop.h"
 #include "Prj.h"
 #include "Dimension.h"
