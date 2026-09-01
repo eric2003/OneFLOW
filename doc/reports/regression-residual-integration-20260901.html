@@ -78,11 +78,52 @@
     </tbody>
   </table>
 
-  <h2>5. 云端同步与下一阶段</h2>
+
+  <h2>5. 实施记录与故障闭环</h2>
+  <table>
+    <thead><tr><th>阶段</th><th>现象</th><th>判断与处理</th><th>结果</th></tr></thead>
+    <tbody>
+      <tr><td>资源请求</td><td>初次 DCU 请求被拒绝</td><td>误用了 1 task × 16 CPU、48G；按 skill 和仓库模板改为 kshdnormal、8 × 1 CPU、27G、dcu:1</td><td class="ok">资源请求通过</td></tr>
+      <tr><td>GRES 传递</td><td>QOSMinGRES，实际 GRES 为 0</td><td><code>submit-regression.sh</code> 原先没有把配置传给 <code>sbatch</code>；新增可选 <code>KUNSHAN_GRES</code></td><td class="ok">修复并推送</td></tr>
+      <tr><td>HIP headers</td><td>重复定义 malloc、free、数学函数</td><td>DTK HIP 与 <code>/opt/rocm</code> 混用；固定 <code>HSA_HEADER</code>，清理 module 注入的 include path</td><td class="ok">HIP smoke 编译通过</td></tr>
+      <tr><td>主工程依赖</td><td><code>cgnslib.h</code> 或 <code>filesystem</code> 缺失</td><td>补齐 MPI/CGNS/METIS；host 使用 GCC 12.2.0，并设置 C++17</td><td class="ok">主工程编译通过</td></tr>
+      <tr><td>运行时</td><td><code>python3</code> 找不到</td><td>加载 <code>apps/python/3.8.13</code>，并修正 PATH 覆盖顺序</td><td class="ok">runner 启动</td></tr>
+      <tr><td>最终验证</td><td>作业 120596901</td><td>保存 Slurm accounting、两份 backend report 和 residual 输出</td><td class="ok">COMPLETED 0:0，双模式 5/5</td></tr>
+    </tbody>
+  </table>
+  <p>前述失败均发生在最终 residual 比较之前；只有作业 120596901 作为 HIP/DCU residual 有效证据。DCU 节点证据不外推到 CUDA 或 KOKKOS。</p>
+
+  <h2>6. 文件级变更清单</h2>
+  <table>
+    <thead><tr><th>文件/目录</th><th>作用</th></tr></thead>
+    <tbody>
+      <tr><td><code>test/test.py</code>、<code>test/residual_db.py</code></td><td>统一 suite 执行、baseline 参数和逐值比较入口。</td></tr>
+      <tr><td><code>test/baselines/residual-baseline.json</code></td><td>唯一 canonical CPU residual 标准，含 5 cases、8 files、摘要、策略和哈希。</td></tr>
+      <tr><td><code>test/baselines/build_residual_db.py</code>、<code>verify_residual_db.py</code></td><td>标准生成与自洽性校验。</td></tr>
+      <tr><td><code>test/suites/cpu-serial.txt</code>、各案例 <code>autotest/</code></td><td>五案例集合和统一的 <code>res.dat</code>/<code>turbres.dat</code> 参考输出。</td></tr>
+      <tr><td><code>codes/residual/</code></td><td>普通/严格共用 residual 路径，严格模式提高文本有效数字。</td></tr>
+      <tr><td><code>ci/kunshan/slurm-regression.sh</code></td><td>同一 runner 顺序执行 normal 与 strict，并生成 backend report。</td></tr>
+      <tr><td><code>ci/kunshan/submit-regression.sh</code></td><td>按 profile 传递 partition、CPU、内存、时间和可选 GRES。</td></tr>
+      <tr><td><code>.github/workflows/linux.yml</code>、文档</td><td>GitHub 保留普通快速回归；记录严格模式、backend 边界和运行方式。</td></tr>
+    </tbody>
+  </table>
+
+  <h2>7. 提交、远端与可复现性</h2>
+  <table>
+    <thead><tr><th>提交</th><th>内容</th><th>远端状态</th></tr></thead>
+    <tbody>
+      <tr><td><code>5b696d0c</code></td><td>回归测试、canonical residual baseline、GitHub/Kunshan runner、初版报告</td><td class="ok">已推送 origin/master</td></tr>
+      <tr><td><code>1c307af2</code></td><td>GRES 参数传递修复</td><td class="ok">已推送 origin/master</td></tr>
+      <tr><td><code>bc8ab40e</code></td><td>HIP/DCU 最终证据和报告更新</td><td class="ok">已推送 origin/master</td></tr>
+    </tbody>
+  </table>
+  <p>推送前已 fetch 并检查 <code>origin/master</code> 差异；远端 master 无需合并的代码差异。<code>eric2003</code> upstream 未合并、未创建 PR、未推送分支。</p>
+
+  <h2>8. 云端同步与下一阶段</h2>
   <p>目标远端为 <code>lql341/OneFLOW</code> 的 <code>origin</code>。本阶段提交只同步回归测试、残差标准和相关文档，不向 <code>eric2003</code> upstream 发起 PR。推送前已检查远端 master 差异；只有确认无冲突后才执行推送。</p>
   <p>下一阶段将保留 HIP 的节点证据，并把相同 runner/report 契约扩展到 CUDA/KOKKOS；后两者在获得各自目标节点实测前仍不宣称已验证。</p>
 
-  <h2>6. 运行方式</h2>
+  <h2>9. 运行方式</h2>
   <pre>普通快速回归（GitHub CI / 本地）：
 python3 test/test.py "mpirun -np 1" "/path/to/OneFLOW" \
   suites/cpu-serial.txt baselines/residual-baseline.json 1e-8
@@ -91,6 +132,14 @@ python3 test/test.py "mpirun -np 1" "/path/to/OneFLOW" \
 ONEFLOW_RESIDUAL_TEST_OUTPUT=1 python3 test/test.py "mpirun -np 1" "/path/to/OneFLOW" \
   suites/cpu-serial.txt baselines/residual-baseline.json 1e-15</pre>
 
+
+  <h2>10. 剩余风险</h2>
+  <ul>
+    <li>HIP residual 已在一个 Kunshan DCU 节点完成验证，仍需后续作业确认跨节点稳定性。</li>
+    <li>CUDA、KOKKOS 只有接口注册和报告契约，尚无目标节点执行证据。</li>
+    <li>strict baseline 是 CPU canonical；GPU 通过表示满足该标准，不表示硬件路径相同。</li>
+    <li>工作树仍有未提交的 Euler backend/性能实验改动，未包含在三个阶段提交内。</li>
+  </ul>
   <footer>报告仅记录截至本阶段已获得的证据；队列资源、节点可用性和 backend 状态以实际 Slurm 作业为准。</footer>
 </main>
 </body>
