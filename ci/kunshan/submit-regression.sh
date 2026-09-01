@@ -41,15 +41,22 @@ else
     cpus_per_task=${KUNSHAN_MPI_CPUS_PER_TASK:-4}
 fi
 
+sbatch_resources=(
+    --partition="$KUNSHAN_CPU_PARTITION"
+    --ntasks="$ntasks"
+    --cpus-per-task="$cpus_per_task"
+    --mem="$KUNSHAN_REGRESSION_MEM"
+    --time="$KUNSHAN_REGRESSION_TIME"
+)
+if [ -n "${KUNSHAN_GRES:-}" ]; then
+    sbatch_resources+=(--gres="$KUNSHAN_GRES")
+fi
+
 mkdir -p "$run_dir/artifacts"
 
 job_id=$(sbatch --parsable \
     --job-name=oneflow-regression \
-    --partition="$KUNSHAN_CPU_PARTITION" \
-    --ntasks="$ntasks" \
-    --cpus-per-task="$cpus_per_task" \
-    --mem="$KUNSHAN_REGRESSION_MEM" \
-    --time="$KUNSHAN_REGRESSION_TIME" \
+    "${sbatch_resources[@]}" \
     --output="$run_dir/artifacts/slurm-%j.out" \
     --error="$run_dir/artifacts/slurm-%j.err" \
     --export=NONE \

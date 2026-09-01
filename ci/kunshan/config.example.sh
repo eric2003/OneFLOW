@@ -5,6 +5,7 @@
 # account paths are cluster-specific.
 
 KUNSHAN_CPU_PARTITION="replace-with-cpu-partition"
+KUNSHAN_GRES=""
 KUNSHAN_REGRESSION_MEM="replace-with-valid-memory-request"
 KUNSHAN_REGRESSION_TIME="00:15:00"
 
