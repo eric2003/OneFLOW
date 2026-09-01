@@ -92,7 +92,7 @@ def GetFileNameList(filename, filename_list):
             fname = line.strip()
             filename_list.append(fname)
     f.close()
-def RunTest(testprjdir, residual_db_path=None):
+def RunTest(testprjdir, residual_db_path=None, residual_tolerance=None):
     print("testprjdir=",testprjdir)
     testScript = testprjdir + "/autotest/test.txt"
     absTestScript = os.path.normpath(os.path.abspath(testScript))
@@ -160,7 +160,9 @@ def RunTest(testprjdir, residual_db_path=None):
             totalPass = False
             break;
     if residual_db_path:
-        residual_result = compare_case(testprjdir, residual_db_path)
+        residual_result = compare_case(
+            testprjdir, residual_db_path, absolute_tolerance=residual_tolerance
+        )
         print("residual_baseline=", residual_result)
         if not residual_result["ok"]:
             totalPass = False
@@ -168,7 +170,7 @@ def RunTest(testprjdir, residual_db_path=None):
     print("totalPass=", totalPass)
     return totalPass
 
-def RunAllTest(filename, residual_db_path=None):
+def RunAllTest(filename, residual_db_path=None, residual_tolerance=None):
     passFlag =[]
     with open(filename, 'r', encoding='utf-8-sig') as f:
         for line in f.readlines():
@@ -177,7 +179,7 @@ def RunAllTest(filename, residual_db_path=None):
             print('prjname=', prjname)
             prjdir = prjname
             print("prjdir=",prjdir)
-            flag = RunTest(prjdir, residual_db_path)
+            flag = RunTest(prjdir, residual_db_path, residual_tolerance)
             passFlag.append( flag )
     f.close()
     return passFlag
@@ -196,15 +198,23 @@ def main():
     print( " location = ", location )
     my_dir_cmd( location )
     errorCode = 0
-    suiteFile = "test.txt"
+    suiteFile = "suites/cpu-serial.txt"
     if len(sys.argv) >= 4:
         suiteFile = sys.argv[3]
     residualDb = os.environ.get("ONEFLOW_RESIDUAL_DB")
     if len(sys.argv) >= 5:
         residualDb = sys.argv[4]
+    residualTolerance = os.environ.get("ONEFLOW_RESIDUAL_TOLERANCE")
+    if len(sys.argv) >= 6:
+        residualTolerance = sys.argv[5]
+    if residualTolerance is not None:
+        residualTolerance = float(residualTolerance)
     print("suiteFile=", suiteFile)
     print("residualDb=", residualDb)
-    passFlag = RunAllTest(suiteFile, residualDb)
+    print("residualTolerance=", residualTolerance)
+    print("backend=", os.environ.get("ONEFLOW_ACCEL_BACKEND", "CPU"))
+    print("residual_profile=", "strict" if os.environ.get("ONEFLOW_RESIDUAL_TEST_OUTPUT", "").lower() in {"1", "true", "on"} else "normal")
+    passFlag = RunAllTest(suiteFile, residualDb, residualTolerance)
     numTest = len(passFlag)
     npass = 0
     nfail = 0

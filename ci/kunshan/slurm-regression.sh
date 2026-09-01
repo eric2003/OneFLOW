@@ -29,6 +29,7 @@ binary="$build_dir/bin/OneFLOW"
 
 mkdir -p "$build_dir" "$work_dir" "$artifact_dir"
 
+backend=${KUNSHAN_ACCEL_BACKEND:-CPU}
 build_jobs=${KUNSHAN_BUILD_JOBS:-16}
 serial_timeout=${KUNSHAN_SERIAL_TIMEOUT_SECONDS:-180}
 mpi_timeout=${KUNSHAN_MPI_TIMEOUT_SECONDS:-180}
@@ -44,11 +45,14 @@ fi
     echo "source_dir=$source_dir"
     echo "run_dir=$run_dir"
     echo "build_jobs=$build_jobs"
+    echo "requested_backend=${backend}"
+    echo "residual_output_modes=normal,strict"
+    echo "residual_baseline=test/baselines/residual-baseline.json"
 } > "$artifact_dir/environment.txt"
 
 cmake -S "$source_dir" -B "$build_dir" \
     -DCMAKE_BUILD_TYPE=Release \
-    -DONEFLOW_ACCEL_BACKEND=CPU \
+    -DONEFLOW_ACCEL_BACKEND="${backend}" \
     -DONEFLOW_ENABLE_MULTI_DEVICE=ON \
     "${KUNSHAN_CMAKE_ARGS[@]}"
 config_rc=$?
@@ -70,40 +74,84 @@ test -x "$binary" || {
 }
 
 python3 "$source_dir/test/baselines/verify_residual_db.py" \
-    "$source_dir/test/baselines/residual-baseline-e15.json"
+    "$source_dir/test/baselines/residual-baseline.json"
 
 rm -rf "$build_dir/bin/system"
 cp -a "$source_dir/system" "$build_dir/bin/system"
 
-run_cpu_serial()
+run_cpu_suite()
 {
-    local cpu_work="$work_dir/cpu-serial"
+    local mode=$1
+    local cpu_work="$work_dir/cpu-$mode"
     local case_name
+    local residual_tolerance
+    local rc
+
+    case "$mode" in
+        normal)
+            residual_tolerance=1e-8
+            ;;
+        strict)
+            residual_tolerance=1e-15
+            ;;
+        *)
+            echo "Unsupported CPU regression mode: $mode" >&2
+            return 64
+            ;;
+    esac
 
     mkdir -p "$cpu_work"
     while IFS= read -r case_name; do
+        # Normalize a possible UTF-8 BOM or CRLF record from the suite file.
+        case_name=${case_name#$'\ufeff'}
+        case_name=${case_name%$'\r'}
         [ -n "$case_name" ] || continue
         cp -a "$source_dir/test/$case_name" "$cpu_work/$case_name"
         rm -rf \
             "$cpu_work/$case_name/results" \
-            "$cpu_work/$case_name/restart" \
             "$cpu_work/$case_name/log"
+        if [ "$case_name" != "plateuns2dslau2_34950_35000" ]; then
+            rm -rf "$cpu_work/$case_name/restart"
+        fi
         mkdir -p \
             "$cpu_work/$case_name/results" \
-            "$cpu_work/$case_name/restart" \
             "$cpu_work/$case_name/log"
     done < "$source_dir/test/suites/cpu-serial.txt"
 
     (
         cd "$cpu_work"
-        export ONEFLOW_RESIDUAL_TEST_OUTPUT=1
+        export ONEFLOW_ACCEL_BACKEND="${backend}"
+        if [ "$mode" = "strict" ]; then
+            export ONEFLOW_RESIDUAL_TEST_OUTPUT=1
+        else
+            unset ONEFLOW_RESIDUAL_TEST_OUTPUT || true
+        fi
         timeout --signal=TERM --kill-after=10s "$serial_timeout" \
             python3 "$source_dir/test/test.py" \
             "mpirun -np 1" \
             "$binary" \
             "$source_dir/test/suites/cpu-serial.txt" \
-            "$source_dir/test/baselines/residual-baseline-e15.json"
+            "$source_dir/test/baselines/residual-baseline.json" \
+            "$residual_tolerance"
     )
+    rc=$?
+    {
+        echo "backend=${backend}"
+        echo "mode=${mode}"
+        echo "residual_tolerance=${residual_tolerance}"
+        echo "result=${rc}"
+    } > "$artifact_dir/backend-${mode}.txt"
+    return "$rc"
+}
+
+run_cpu_serial()
+{
+    local rc=0
+    run_cpu_suite normal || rc=$?
+    if [ "$rc" -eq 0 ]; then
+        run_cpu_suite strict || rc=$?
+    fi
+    return "$rc"
 }
 
 run_mpi4()

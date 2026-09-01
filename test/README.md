@@ -15,8 +15,7 @@ test/
 │   ├── README.md
 │   ├── build_residual_db.py
 │   ├── verify_residual_db.py
-│   ├── residual-baseline.json
-│   └── residual-baseline-e15.json
+│   └── residual-baseline.json
 ├── test.py
 ├── test.txt
 └── <case directories>/
@@ -37,7 +36,7 @@ test/
 
 ## CPU regression baseline
 
-The initial accelerator-development baseline contains three existing OneFLOW
+The canonical CPU baseline contains the five existing OneFLOW
 cases:
 
 | Case | Coverage | Reference outputs |
@@ -45,6 +44,8 @@ cases:
 | `plateuns2dslau2` | 2-D laminar flat plate, SLAU2, viscous flux and wall boundary handling | `aero.dat`, `res.dat`, `flatplate_cf.dat`, `flatplateflow.dat`, `wallaero.dat` |
 | `rae2822_roe_sa` | 2-D transonic airfoil, Roe flux and Spalart-Allmaras turbulence | `aero.dat`, `wallaero.dat`, `res.dat`, `turbres.dat` |
 | `m6wingroe_sa` | 3-D wing, Roe flux and Spalart-Allmaras turbulence | `aero.dat`, `wallaero.dat`, `res.dat`, `turbres.dat` |
+| `plateuns2dslau2_34950_35000` | continuation flat-plate case from the accepted restart | `aero.dat`, `res.dat`, `flatplate_cf.dat`, `flatplateflow.dat`, `wallaero.dat` |
+| `turbplateuns2droe_sa` | turbulent flat plate, Roe flux and turbulence model | `aero.dat`, `wallaero.dat`, `res.dat`, `turbres.dat`, `turbplate_cf.dat`, `turbplateflow.dat` |
 
 The checked-in files under each case's `autotest/` directory are the CPU
 reference results. Accelerator implementations must first match these results
@@ -58,19 +59,18 @@ python3 test.py \
   "mpirun -np 1" \
   "/path/to/OneFLOW" \
   suites/cpu-serial.txt \
-  baselines/residual-baseline-e15.json
+  baselines/residual-baseline.json \
+  1e-15
 ```
 
-The fourth argument is optional for legacy suites. When supplied, the runner
-compares every generated `res.full.dat` and `turbres.full.dat` row against the
-versioned database. Enable those machine-regression files explicitly with
-`ONEFLOW_RESIDUAL_TEST_OUTPUT=1`; normal solver runs leave them disabled and
-continue writing the existing `res.dat`/`turbres.dat` files unchanged.
-`ONEFLOW_RESIDUAL_DB` provides the same explicit database override.
-
-The e-15 database covers all residual channels for every one of the 50 steps.
-Iteration columns and row counts must match exactly; each residual value must
-satisfy `abs(actual - reference) <= 1e-15`.
+The fifth argument is an optional residual absolute tolerance override. The
+canonical database covers all residual channels for every one of the 50 steps.
+Iteration columns and row counts must match exactly; strict residual validation
+uses `abs(actual - reference) <= 1e-15`.
+`ONEFLOW_RESIDUAL_DB` and `ONEFLOW_RESIDUAL_TOLERANCE` provide environment
+variable equivalents. Set `ONEFLOW_RESIDUAL_TEST_OUTPUT=1` for the strict run;
+the solver then writes max-digits10 values to the same `res.dat` and
+`turbres.dat` paths used by the normal run.
 
 The repository also contains a manual-only Kunshan workflow:
 

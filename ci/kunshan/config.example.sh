@@ -14,6 +14,9 @@ KUNSHAN_MPI_NTASKS=4
 KUNSHAN_MPI_CPUS_PER_TASK=4
 KUNSHAN_MPI_OMP_THREADS=1
 
+# CPU is the current scheduled profile. External accelerator profiles may set
+# HIP, CUDA, or KOKKOS after providing the matching modules and Slurm resources.
+KUNSHAN_ACCEL_BACKEND="CPU"
 KUNSHAN_BUILD_JOBS=16
 KUNSHAN_SERIAL_TIMEOUT_SECONDS=180
 KUNSHAN_MPI_TIMEOUT_SECONDS=180

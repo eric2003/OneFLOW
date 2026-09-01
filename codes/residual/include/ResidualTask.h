@@ -37,7 +37,6 @@ public:
     void PostDumpResiduals();
     void DumpScreen();
     void DumpFile();
-    void DumpTestFile();
 public:
     ResData data;
     HXVector< ResData > dataList;

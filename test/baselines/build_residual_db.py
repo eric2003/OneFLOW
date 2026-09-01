@@ -32,11 +32,7 @@ def build_database(
     for case_name in case_names:
         autotest_dir = TEST_ROOT / case_name / "autotest"
         files: Dict[str, Any] = {}
-        reference_names = (
-            {"res.full.dat", "turbres.full.dat"}
-            if high_precision
-            else {"res.dat", "turbres.dat"}
-        )
+        reference_names = {"res.dat", "turbres.dat"}
         for source in sorted(autotest_dir.glob("*.dat")):
             if source.name not in reference_names:
                 continue
@@ -54,28 +50,24 @@ def build_database(
 
     return {
         "schema": "oneflow.residual-baseline",
-        "schema_version": 2 if high_precision else 1,
+        "schema_version": 3,
         "baseline_id": baseline_id
-        or ("cpu-serial-e15-v1" if high_precision else "cpu-serial-v1"),
+        or ("cpu-serial-canonical-v2"),
         "suite": str(suite_file.relative_to(TEST_ROOT)),
         "validated_commit": validated_commit,
         "platform": {
             "execution": "CPU serial",
             "launcher": "mpirun -np 1",
-            "reference_outputs": (
-                "case/autotest/res.full.dat and turbres.full.dat"
-                if high_precision
-                else "case/autotest/*.dat"
-            ),
-            "output_format": "full-precision-text" if high_precision else "legacy-text",
-            "precision": "max_digits10" if high_precision else "setprecision(5)",
+            "reference_outputs": "case/autotest/res.dat and turbres.dat",
+            "output_format": "canonical-text",
+            "precision": "max_digits10",
         },
         "comparison": {
             "index_columns": ["iter", "sub-iter"],
             "absolute_tolerance": (
                 absolute_tolerance
                 if absolute_tolerance is not None
-                else (1.0e-15 if high_precision else 1.0e-8)
+                else 1.0e-15
             ),
             "relative_tolerance": 0.0,
             "nan_policy": "reject",
@@ -93,7 +85,7 @@ def main() -> int:
     parser.add_argument(
         "--high-precision",
         action="store_true",
-        help="use res.full.dat/turbres.full.dat and e-15 metadata",
+        help="deprecated compatibility flag; canonical references use res.dat/turbres.dat",
     )
     parser.add_argument("--baseline-id")
     parser.add_argument("--absolute-tolerance", type=float)

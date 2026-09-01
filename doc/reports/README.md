@@ -14,11 +14,20 @@ Current maintained report:
 - `gpu-backend-delivery.md`
 - `gpu-backend-delivery.html`
 - `one-dimensional-euler-hip-validation.md`
+- `one-dimensional-euler-backend-optimization-plan.md`
+- `one-dimensional-euler-performance-comparison-20260828.md`
+- `one-dimensional-euler-performance-comparison-20260828.html`
 
-The one-dimensional Euler report is currently maintained as Markdown only. Its
-cluster evidence is intentionally recorded without submitting new jobs during
-the 2026-08-25 documentation pass; an HTML rendering can be added in a later
-documentation-only update if needed.
+The validation and optimization-plan reports are maintained as Markdown sources;
+the dated performance comparison is maintained as both Markdown and standalone
+HTML.
+The validation report records the Kunshan correctness and performance evidence;
+the optimization plan makes the stateful, persistent-device Euler backend the
+current priority. WENO5, two-dimensional, and three-dimensional expansion are
+deferred until the Euler acceptance gates pass.
+The dated performance comparison report records the old trace and new stateful
+benchmark methodology, normalized results, MPI resource comparisons, code changes,
+build commands, and current claim boundaries.
 
 The residual baseline database is maintained with the test definitions under
 `test/baselines/`; it is not a per-run report.

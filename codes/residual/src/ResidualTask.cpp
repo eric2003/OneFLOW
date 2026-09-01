@@ -34,7 +34,6 @@ License
 #include "CellMesh.h"
 #include "Iteration.h"
 #include "FileIO.h"
-#include "FileUtil.h"
 #include "StrUtil.h"
 #include "UNsCom.h"
 #include <cstdlib>
@@ -48,6 +47,9 @@ BeginNameSpace( ONEFLOW )
 namespace
 {
 
+// The CI-only switch selects canonical max_digits10 serialization for the
+// existing residual file. It does not change solver arithmetic or backend
+// selection.
 bool HighPrecisionResidualOutputEnabled()
 {
     const char * value = std::getenv( "ONEFLOW_RESIDUAL_TEST_OUTPUT" );
@@ -147,7 +149,6 @@ void ResidualTask::CalcRes( int sTid, ResData & data )
 
 void ResidualTask::PostDumpResiduals()
 {
-    size_t nEqu = this->data.resave.res.size();
     this->data.resave.CalcAver( dataList );
     this->data.resmax.CalcMax( dataList );
 
@@ -155,10 +156,6 @@ void ResidualTask::PostDumpResiduals()
 
     this->DumpScreen();
     this->DumpFile();
-    if ( HighPrecisionResidualOutputEnabled() )
-    {
-        this->DumpTestFile();
-    }
 }
 
 void ResidualTask::DumpFile()
@@ -169,6 +166,7 @@ void ResidualTask::DumpFile()
     SolverInfo * solverInfo = SolverInfoFactory::GetSolverInfo( SolverState::tid );
     std::string & fileName = solverInfo->resFileName;
     PIO::OpenPrjFile( file, fileName, std::ios_base::out | std::ios_base::app );
+    const bool highPrecision = HighPrecisionResidualOutputEnabled();
 
     if ( IsEmpty( file ) )
     {
@@ -190,7 +188,8 @@ void ResidualTask::DumpFile()
     }
 
     oss << std::setiosflags( std::ios::left );
-    oss << std::setprecision( 5 );
+    oss << std::setprecision(
+        highPrecision ? std::numeric_limits< Real >::max_digits10 : 5 );
     oss << std::setiosflags( std::ios::scientific );
     oss << std::setiosflags( std::ios::showpoint );
 
@@ -200,7 +199,8 @@ void ResidualTask::DumpFile()
     size_t nVar = this->data.resave.res.size();
     for ( int iVar = 0; iVar < nVar; ++ iVar )
     {
-        oss << std::setw( 13 ) << this->data.resave.res[ iVar ] << " ";
+        oss << std::setw( highPrecision ? 24 : 13 )
+            << this->data.resave.res[ iVar ] << " ";
     }
 
     oss << std::endl;
@@ -209,54 +209,6 @@ void ResidualTask::DumpFile()
 
     PIO::CloseFile( file );
 
-}
-
-void ResidualTask::DumpTestFile()
-{
-    std::ostringstream oss;
-
-    std::fstream file;
-    SolverInfo * solverInfo = SolverInfoFactory::GetSolverInfo( SolverState::tid );
-    const std::string fileName =
-        AddSymbolToFileName( solverInfo->resFileName, ".full" );
-    PIO::OpenPrjFile( file, fileName, std::ios_base::out | std::ios_base::app );
-
-    if ( IsEmpty( file ) )
-    {
-        StringField title;
-        title.push_back( "Title=\"THE RESIDUAL OF ONEFLOW\"" );
-        title.push_back( "Variables=" );
-        title.push_back( "\"iter\"" );
-        title.push_back( "\"sub-iter\"" );
-        size_t nVar = this->data.resave.res.size();
-        for ( int iVar = 0; iVar < nVar; ++ iVar )
-        {
-            title.push_back( AddString( "\"res",  iVar + 1, "\"" ) );
-        }
-
-        for ( HXSize_t iTitle = 0; iTitle < title.size(); ++ iTitle )
-        {
-            oss << title[ iTitle ] << std::endl;
-        }
-    }
-
-    oss << std::setiosflags( std::ios::left );
-    oss << std::setprecision( std::numeric_limits< Real >::max_digits10 );
-    oss << std::setiosflags( std::ios::scientific );
-    oss << std::setiosflags( std::ios::showpoint );
-
-    oss << Iteration::outerSteps << " ";
-    oss << Iteration::innerSteps << " ";
-
-    size_t nVar = this->data.resave.res.size();
-    for ( int iVar = 0; iVar < nVar; ++ iVar )
-    {
-        oss << std::setw( 24 ) << this->data.resave.res[ iVar ] << " ";
-    }
-
-    oss << std::endl;
-    file << oss.str();
-    PIO::CloseFile( file );
 }
 
 void ResidualTask::DumpScreen()
