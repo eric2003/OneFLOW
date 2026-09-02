@@ -63,6 +63,9 @@ set_property ( GLOBAL PROPERTY THIRD_PROPERTY::STATIC_LIBS )
 set_property ( GLOBAL PROPERTY THIRD_PROPERTY::SHARED_LIBS )
 set_property ( GLOBAL PROPERTY THIRD_PROPERTY::DEFINE_SYMBOL )
 
+enable_testing()
+
 add_subdirectory ( ThirdParty ${THIRD_PARTY_DIR} )
 add_subdirectory ( codes      ${CMAKE_PROJECT_NAME} )
+add_subdirectory ( tests )
 add_subdirectory ( gui  )
