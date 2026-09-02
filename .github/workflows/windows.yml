@@ -23,12 +23,17 @@ jobs:
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v5
-      - name: Download and Install MPI HDF5 CGNS METIS
+      - name: Download and install MPI, HDF5, CGNS, METIS, then build OneFLOW
         run: |
           cd ${{ github.workspace }}
           ls
           $psfile = "${{ github.workspace }}/.github/workflows/oneflow_windows_actions.ps1"
           & $psfile
+        shell: pwsh
+      - name: Unit Test
+        run: |
+          cd "${{ github.workspace }}/build"
+          ctest --output-on-failure -C Release
         shell: pwsh
       - name: Run OneFLOW CFD Tests
         env:

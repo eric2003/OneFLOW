@@ -6,4 +6,7 @@ message ( STATUS "CMAKE_CURRENT_BINARY_DIR = ${CMAKE_CURRENT_BINARY_DIR}" )
 message ( STATUS "CMAKE_CURRENT_SOURCE_DIR = ${CMAKE_CURRENT_SOURCE_DIR}" )
 
 add_subdirectory ( jsoncpp )
+
+# ====================== GoogleTest ======================
+add_subdirectory(googletest)
  
