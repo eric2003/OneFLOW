@@ -29,9 +29,62 @@ License
 #include "ZoneState.h"
 #include "ScalarZone.h"
 #include "HXMath.h"
+#include "AccelRuntime.h"
+#include "CpuFluxBackend.h"
+#ifdef ONEFLOW_ENABLE_HIP
+#include "HipFluxBackend.h"
+#endif
+#include <algorithm>
+#include <cmath>
+#include <cstdlib>
+#include <stdexcept>
+#include <string>
+#include <vector>
 
 
 BeginNameSpace( ONEFLOW )
+
+namespace
+{
+
+FluxBackend & GetScalarFluxBackend()
+{
+    static CpuFluxBackend cpuBackend;
+#ifdef ONEFLOW_ENABLE_HIP
+    static HipFluxBackend hipBackend;
+    if ( AccelRuntime::Instance().IsAccelerator() ) return hipBackend;
+#endif
+    return cpuBackend;
+}
+
+bool IsScalarAccelValidationEnabled()
+{
+    const char * value = std::getenv( "ONEFLOW_ACCEL_VALIDATE" );
+    return value != nullptr && std::string( value ) == "1";
+}
+
+void CheckScalarAccelError(
+    const char * operation,
+    const std::vector< Real > & reference,
+    const Real * accelerated )
+{
+    Real maxError = 0.0;
+    for ( std::size_t i = 0; i < reference.size(); ++ i )
+    {
+        maxError = std::max(
+            maxError,
+            std::abs( reference[ i ] - accelerated[ i ] ) );
+    }
+    if ( maxError > 1.0e-15 )
+    {
+        throw std::runtime_error(
+            std::string( "OneFLOW scalar accelerator validation failed in " )
+            + operation + ": max absolute error = "
+            + std::to_string( maxError ) );
+    }
+}
+
+}
 
 FieldSolver::FieldSolver()
 {
@@ -208,34 +261,34 @@ void FieldSolver::ZoneCalcInvFlux()
     RealField & qf1 = GetFieldReference< MRField > ( grid, "qf1" ).AsOneD();
     RealField & qf2 = GetFieldReference< MRField > ( grid, "qf2" ).AsOneD();
 
-    int nFaces = grid->GetNFaces();
-    Real vxl = 1.0;
-    Real vyl = 0.0;
-    Real vzl = 0.0;
+    const int nFaces = grid->GetNFaces();
+    FaceStateView state;
+    state.nFaces = nFaces;
+    state.nEquations = 1;
+    state.qLeft = &qf1[ 0 ];
+    state.qRight = &qf2[ 0 ];
+    state.xNormal = &grid->xfn[ 0 ];
+    state.yNormal = &grid->yfn[ 0 ];
+    state.zNormal = &grid->zfn[ 0 ];
+    state.faceArea = &grid->area[ 0 ];
 
-    Real vxr = 1.0;
-    Real vyr = 0.0;
-    Real vzr = 0.0;
-    for ( int iFace = 0; iFace < nFaces; ++ iFace )
+    FaceFluxView flux;
+    flux.nFaces = nFaces;
+    flux.nEquations = 1;
+    flux.values = &invflux[ 0 ];
+    GetScalarFluxBackend().CalcInvFlux( state, flux, 0 );
+
+    if ( AccelRuntime::Instance().IsAccelerator()
+         && IsScalarAccelValidationEnabled() )
     {
-        Real q_L = qf1[ iFace ];
-        Real q_R = qf2[ iFace ];
-
-        Real vnl  = grid->xfn[ iFace ] * vxl + grid->yfn[ iFace ] * vyl + grid->zfn[ iFace ] * vzl;
-        Real vnr  = grid->xfn[ iFace ] * vxr + grid->yfn[ iFace ] * vyr + grid->zfn[ iFace ] * vzr;
-
-        Real eigenL = vnl;
-        Real eigenR = vnr;
-
-        eigenL = half * ( eigenL + ABS( eigenL ) );
-        eigenR = half * ( eigenR - ABS( eigenR ) );
-
-        Real fL = q_L * eigenL;
-        Real fR = q_R * eigenR;
-        Real fM = fL + fR;
-
-        Real area = grid->area[ iFace ];
-        invflux[ iFace ] = fM * area;
+        std::vector< Real > referenceValues( nFaces, 0.0 );
+        FaceFluxView referenceFlux;
+        referenceFlux.nFaces = nFaces;
+        referenceFlux.nEquations = 1;
+        referenceFlux.values = referenceValues.data();
+        CpuFluxBackend cpuBackend;
+        cpuBackend.CalcInvFlux( state, referenceFlux, 0 );
+        CheckScalarAccelError( "CalcInvFlux", referenceValues, &invflux[ 0 ] );
     }
 }
 
@@ -257,7 +310,37 @@ void FieldSolver::ZoneUpdateResidual()
     RealField & invflux = GetFieldReference< MRField > ( grid, "invflux" ).AsOneD();
 
     res = 0;
-    this->AddF2CField( grid, res, invflux );
+    const int nFaces = grid->GetNFaces();
+    FaceFluxView flux;
+    flux.nFaces = nFaces;
+    flux.nEquations = 1;
+    flux.values = &invflux[ 0 ];
+
+    FaceConnectivityView connectivity;
+    connectivity.nFaces = nFaces;
+    connectivity.nBoundaryFaces = grid->GetNBFaces();
+    connectivity.leftCell = &grid->lc[ 0 ];
+    connectivity.rightCell = &grid->rc[ 0 ];
+
+    ResidualView residual;
+    residual.nCells = grid->GetNCells();
+    residual.nEquations = 1;
+    residual.values = &res[ 0 ];
+    GetScalarFluxBackend().AddFaceFlux( flux, connectivity, residual );
+
+    if ( AccelRuntime::Instance().IsAccelerator()
+         && IsScalarAccelValidationEnabled() )
+    {
+        std::vector< Real > referenceValues( residual.nCells, 0.0 );
+        ResidualView referenceResidual;
+        referenceResidual.nCells = residual.nCells;
+        referenceResidual.nEquations = 1;
+        referenceResidual.values = referenceValues.data();
+        CpuFluxBackend cpuBackend;
+        cpuBackend.AddFaceFlux( flux, connectivity, referenceResidual );
+        CheckScalarAccelError(
+            "AddFaceFlux", referenceValues, residual.values );
+    }
 }
 
 void FieldSolver::AddF2CField( ScalarGrid * grid, RealField & cField, RealField & fField )

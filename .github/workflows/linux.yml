@@ -103,5 +103,5 @@ jobs:
           ls
           python --version
           #python test.py " " " " linux
-          python test.py "mpirun -np 1" "OneFLOW"
+          python test.py "mpirun -np 1" "OneFLOW" "suites/cpu-serial.txt" "baselines/residual-baseline.json" "1e-8"
         shell: bash

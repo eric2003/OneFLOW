@@ -1,8 +1,10 @@
 # OneFLOW GPU Backend 框架与昆山回归测试交付报告
 
+
+> 历史边界：本文记录 2026-08-31 前的 accelerator 框架与 CPU/MPI 基线交付。当前一维 Euler HIP 数值实现、4 卡 MPI 验收和最新性能数据以 ../performance/oneflow-euler-performance-current.md 为准。
 **首次报告：2026-08-21**
 
-**最近更新：2026-08-24**
+**最近更新：2026-08-31**
 
 **代码分支：`master`**
 
@@ -21,7 +23,7 @@
 
 验证结论：
 
-- 3 个 CPU 串行算例全部通过，总耗时 152 秒。
+- 5 个 CPU 串行算例已纳入统一 canonical residual 回归；本地严格模式五案例运行通过，耗时约 85 秒（硬件和构建配置不同，昆山结果以作业 artifact 为准）。
 - 单 zone 网格使用 4 个 MPI rank 时的空 rank 越界已经修复，修复后
   50 步运行正常结束。
 - M6 四 zone / 四 rank 算例连续运行两次均通过，关键输出逐文件一致。
@@ -34,7 +36,7 @@
 
 ### 2.1 已完成
 
-- 定义 3 个短时 CPU 回归算例。
+- 定义 5 个 CPU 串行回归算例，并统一普通/严格 residual 输出。
 - 修复测试程序的退出码传播和文件 EOF 判断。
 - 修复空 rank 下的残差最大值与平均值处理。
 - 验证真实四 zone / 四 rank MPI 求解。
@@ -262,32 +264,30 @@ REGRESSION_RC=0 TOTAL_ELAPSED_SECONDS=152
 
 残差数据库位于
 [`test/baselines/residual-baseline.json`](../../test/baselines/residual-baseline.json)。
-它保存三个 CPU 串行算例的完整残差曲线，而不是只保存最后一个残差。
+它保存五个 CPU 串行算例的完整残差曲线，而不是只保存最后一个残差。
 
 | 内容 | 说明 |
 |---|---|
-| schema/version | `oneflow.residual-baseline` / v2 |
-| baseline id | `cpu-serial-e15-v1` |
-| 算例 | 3 个 |
-| 残差文件 | 5 个 `res.full.dat`/`turbres.full.dat` |
+| schema/version | `oneflow.residual-baseline` / v3 |
+| baseline id | `cpu-serial-canonical-v2` |
+| 算例 | 5 个 |
+| 残差文件 | 8 个 `res.dat`/`turbres.dat` |
 | 每个文件 | 50 步、所有残差分量、变量名、首值、末值、最大幅值、SHA256 |
 | 比较规则 | `iter/sub-iter` 和行数必须一致，残差绝对容差 `1e-15`，拒绝 NaN/Inf |
 | 输出开关 | `ONEFLOW_RESIDUAL_TEST_OUTPUT=1`；默认关闭 |
 | 数值格式 | `double` 的 `max_digits10`（17 位有效数字） |
 
-旧的 `res.dat`/`turbres.dat` 和低精度数据库仍然保留，作为兼容性参考；高精度
-`.full.dat` 只在显式开启环境变量时生成，JSON 是统一索引和比较入口。只有接受
-新的数值基线时才重新生成 JSON：
+普通和严格模式共享同一组 `res.dat`/`turbres.dat` 文件名与 canonical JSON 索引。`ONEFLOW_RESIDUAL_TEST_OUTPUT=1` 只切换文本序列化精度，不改变 solver 算法、数值类型或 backend；普通模式覆盖容差为 `1e-8`，严格模式为 `1e-15`。只有接受新的数值基线时才重新生成 JSON：
 
 ```bash
 python3 test/baselines/build_residual_db.py \
-  --high-precision \
+  --suite test/suites/cpu-serial.txt \
+  --absolute-tolerance 1e-15 \
   --validated-commit <commit-that-passed-the-baseline> \
-  --output test/baselines/residual-baseline-e15.json
+  --output test/baselines/residual-baseline.json
 ```
 
-普通 CI 运行只读取数据库，不生成新基线文件。每次 CI 的日志、作业号和
-环境信息保存在 workflow artifact 或昆山隔离目录中。
+普通快速 CPU 回归运行在 GitHub Actions；严格 CPU 回归在昆山 CPU 分区执行。GPU/DCU 回归沿用同一个 runner 和 residual 文件接口，在 artifact/report 中记录 `ONEFLOW_ACCEL_BACKEND=HIP|CUDA|KOKKOS`、构建/运行结果和 residual 比较；当前严格 residual 数值证据来自 CPU 路径；HIP、CUDA、Kokkos 共用报告接口，但仍需各自在目标计算节点完成构建、kernel 和 residual 验证后才能形成兼容性结论。
 
 ### 6.3 昆山 workflow
 
@@ -368,8 +368,8 @@ KUNSHAN_REMOTE_ROOT/runs/<github-run-id>_<attempt>/
 
 | 内容 | 路径 |
 |---|---|
-| 完整交付报告 | `doc/reports/gpu-backend-delivery.md` |
-| HTML 报告 | `doc/reports/gpu-backend-delivery.html` |
+| 完整交付报告 | `doc/reports/architecture/oneflow-gpu-backend-delivery.md` |
+| HTML 报告 | `doc/reports/architecture/oneflow-gpu-backend-delivery.html` |
 | 测试规范 | `test/README.md` |
 | CPU suite | `test/suites/cpu-serial.txt` |
 | Backend 框架 | `codes/accel/` |

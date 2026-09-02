@@ -49,8 +49,8 @@ public:
     static Solver * Register( const std::string & type, Solver * clone );
     static std::map < std::string, Solver * > * classMap;
 public:
-    int solverType;   // 求解器的类型标识（来自 SolverType 枚举），如 NS_SOLVER
-    int solverIndex;  // 求解器在容器中的实例索引，取决于加载顺序
+    int solverType;   // SolverType identifier, for example NS_SOLVER.
+    int solverIndex;  // Position of this solver instance in the solver list.
     int gridType;
 public:
     virtual void StaticInit(){};

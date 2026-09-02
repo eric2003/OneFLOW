@@ -20,7 +20,7 @@ def verify(database_path: Path) -> list[str]:
     database = json.loads(database_path.read_text(encoding="utf-8"))
     if database.get("schema") != "oneflow.residual-baseline":
         errors.append("unsupported or missing database schema")
-    if database.get("schema_version") not in {1, 2}:
+    if database.get("schema_version") not in {1, 2, 3}:
         errors.append("unsupported or missing schema_version")
 
     suite_path = TEST_ROOT / database.get("suite", "")

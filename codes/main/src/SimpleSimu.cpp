@@ -24,6 +24,7 @@ License
 #include "FieldSolver.h"
 #include "FieldSolverOpenMP.h"
 #include "FieldSolverCuda.h"
+#include "AccelRuntime.h"
 #include <iostream>
 
 
@@ -32,17 +33,19 @@ BeginNameSpace( ONEFLOW )
 void ToyModelSimu()
 {
     std::cout << "ToyModelSimu\n";
-    //FieldSolver * fieldSolver = new FieldSolver();
-    //fieldSolver->Run();
-    //delete fieldSolver;
+    if ( AccelRuntime::Instance().IsAccelerator() )
+    {
+        FieldSolver fieldSolver;
+        fieldSolver.Run();
+        return;
+    }
 
     //FieldSolverOpenMP * fieldSolverOpenMP = new FieldSolverOpenMP();
     //fieldSolverOpenMP->Run();
     //delete fieldSolverOpenMP;
 
-    FieldSolverCuda * fieldSolverCuda = new FieldSolverCuda();
-    fieldSolverCuda->Run();
-    delete fieldSolverCuda;
+    FieldSolver fieldSolver;
+    fieldSolver.Run();
 
 }
 

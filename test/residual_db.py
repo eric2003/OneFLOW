@@ -90,6 +90,8 @@ def load_database(path: Path | str = DEFAULT_DATABASE) -> Dict[str, Any]:
 def compare_case(
     case_directory: Path | str,
     database: Dict[str, Any] | Path | str = DEFAULT_DATABASE,
+    absolute_tolerance: float | None = None,
+    relative_tolerance: float | None = None,
 ) -> Dict[str, Any]:
     """Compare generated residual files with the case's JSON baseline."""
 
@@ -103,8 +105,16 @@ def compare_case(
         ]}
 
     comparison = db.get("comparison", {})
-    abs_tol = float(comparison.get("absolute_tolerance", 1.0e-8))
-    rel_tol = float(comparison.get("relative_tolerance", 0.0))
+    abs_tol = float(
+        absolute_tolerance
+        if absolute_tolerance is not None
+        else comparison.get("absolute_tolerance", 1.0e-8)
+    )
+    rel_tol = float(
+        relative_tolerance
+        if relative_tolerance is not None
+        else comparison.get("relative_tolerance", 0.0)
+    )
     errors: List[str] = []
     files_checked = 0
     max_abs_diff = 0.0

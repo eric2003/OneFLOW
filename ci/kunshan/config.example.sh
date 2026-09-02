@@ -5,6 +5,7 @@
 # account paths are cluster-specific.
 
 KUNSHAN_CPU_PARTITION="replace-with-cpu-partition"
+KUNSHAN_GRES=""
 KUNSHAN_REGRESSION_MEM="replace-with-valid-memory-request"
 KUNSHAN_REGRESSION_TIME="00:15:00"
 
@@ -14,6 +15,9 @@ KUNSHAN_MPI_NTASKS=4
 KUNSHAN_MPI_CPUS_PER_TASK=4
 KUNSHAN_MPI_OMP_THREADS=1
 
+# CPU is the current scheduled profile. External accelerator profiles may set
+# HIP, CUDA, or KOKKOS after providing the matching modules and Slurm resources.
+KUNSHAN_ACCEL_BACKEND="CPU"
 KUNSHAN_BUILD_JOBS=16
 KUNSHAN_SERIAL_TIMEOUT_SECONDS=180
 KUNSHAN_MPI_TIMEOUT_SECONDS=180
