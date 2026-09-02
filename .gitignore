@@ -8,4 +8,5 @@ oneflow_bin/*
 #test/**/restart/*
 test/**/log/*
 test/**/run/*
-doc/reports/_drafts/*
+# Local handoff notes and unfinished report drafts; never commit.
+doc/reports/_drafts/

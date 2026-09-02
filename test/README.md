@@ -94,5 +94,5 @@ adapters can be added without changing the solver-facing interface.
 The maintained delivery report is:
 
 ```text
-doc/reports/gpu-backend-delivery.md
+doc/reports/architecture/oneflow-gpu-backend-delivery.md
 ```

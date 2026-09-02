@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="OneFLOW 一维 Euler 回归、残差标准与 CPU/DCU 性能阶段报告">
+<title>OneFLOW 一维 Euler 回归与 CPU/DCU 性能阶段报告</title>
+<style>
+:root{--ink:#172033;--muted:#667085;--line:#d9e0ea;--soft:#f5f7fa;--accent:#b42318;--accent-soft:#fff1f0;--code:#111827}
+*{box-sizing:border-box}body{margin:0;color:var(--ink);background:#eef2f6;font:16px/1.75 -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif}.layout{display:grid;grid-template-columns:250px minmax(0,1040px);gap:24px;justify-content:center;padding:24px}.toc{position:sticky;top:20px;align-self:start;max-height:calc(100vh - 40px);overflow:auto;padding:16px;background:#fff;border:1px solid var(--line);border-radius:12px}.toc strong{display:block;margin-bottom:8px}.toc a{display:block;color:var(--muted);text-decoration:none;font-size:13px;line-height:1.5;padding:3px 0}.toc a:hover{color:var(--accent)}article{min-width:0;padding:44px 52px 60px;background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:0 8px 28px #10182812}h1{margin:0 0 24px;font-size:34px;line-height:1.3}h2{margin:44px 0 14px;padding-bottom:8px;border-bottom:2px solid var(--accent);font-size:24px;scroll-margin-top:16px}h3{margin:28px 0 10px;font-size:19px;scroll-margin-top:16px}p,ul,ol{margin:10px 0}li+li{margin-top:4px}.table-wrap{width:100%;margin:16px 0 22px;overflow-x:auto;border:1px solid var(--line);border-radius:8px}table{width:100%;min-width:650px;border-collapse:collapse;font-size:13px}th,td{padding:8px 10px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);text-align:left;vertical-align:top}th:last-child,td:last-child{border-right:0}tr:last-child td{border-bottom:0}th{background:var(--soft)}tr:nth-child(even) td{background:#fafbfc}code{padding:.12em .32em;color:#9f1239;background:var(--accent-soft);border-radius:4px;font:.9em ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}pre{overflow:auto;margin:16px 0 22px;padding:14px 16px;color:#e5e7eb;background:var(--code);border-radius:8px;line-height:1.55}pre code{padding:0;color:inherit;background:none}blockquote{margin:18px 0 26px;padding:10px 16px;color:var(--muted);background:var(--soft);border-left:4px solid var(--accent)}.ok{color:#087443;font-weight:650}.warn{color:#9a3412;font-weight:650}.report-footer{margin-top:46px;padding-top:14px;color:var(--muted);border-top:1px solid var(--line);font-size:13px}@media(max-width:900px){.layout{display:block;padding:10px}.toc{position:static;max-height:none;margin-bottom:10px}article{padding:28px 20px 42px}h1{font-size:28px}}@media print{@page{margin:15mm 12mm}body{background:#fff;font-size:10.5pt}.layout{display:block;padding:0}.toc{display:none}article{padding:0;border:0;box-shadow:none}h1{font-size:23pt}h2{break-after:avoid}.table-wrap,pre,blockquote{break-inside:avoid}.table-wrap{overflow:visible;border:0}table{min-width:0;font-size:8.5pt}}
+</style>
+</head>
+<body>
+<main class="layout">
+<nav class="toc" aria-label="报告目录">
+<strong>目录</strong>
+<a href="#summary">1. 执行摘要</a>
+<a href="#scope">2. 回归与残差标准</a>
+<a href="#resources">3. 资源与测试口径</a>
+<a href="#architecture">4. 架构整合</a>
+<a href="#precision">5. 精度门槛</a>
+<a href="#performance">6. 性能对比</a>
+<a href="#evidence">7. DCU 证据与限制</a>
+<a href="#plan">8. 与优化计划对照</a>
+<a href="#next">9. 下一步与交付状态</a>
+</nav>
+<article>
+<h1>OneFLOW 一维 Euler 回归与 CPU/DCU 性能阶段报告</h1>
+<blockquote>
+<p>报告日期：2026-09-02（修订版）；测试平台：昆山 Z100 / native HIP / <code>gfx906</code>。本报告只记录当前工作树和本轮实际作业证据；不把 CUDA、Kokkos、4 卡 MPI 或完整 Navier–Stokes 求解器描述为已验证。</p>
+</blockquote>
+
+<h2 id="summary">1. 执行摘要</h2>
+<p>本轮先完成高精度 correctness，再进行性能比较。单卡 HIP 端口、32 核 CPU MPI 和 4-rank/4-DCU HIP MPI 均在昆山实际计算节点完成。</p>
+<ul>
+<li class="ok">CPU/HIP FullTrace：smooth-periodic、Sod-transmissive 均通过；逐项误差和 ULP 为 0。</li>
+<li class="ok">单卡 NoTrace 四规模：最终状态误差为 0，CPU/HIP checksum 一致。</li>
+<li class="ok">Stateful HIP 四规模：单卡 DCU 完整生命周期相对 32 核 CPU MPI 为 3.85–9.70×。</li>
+<li class="ok">GPU-only 持续测试：4M 网格、100 steps、20 repeats，12,000 次 kernel launch，HIP kernel 占 87.7% 左右。</li>
+<li class="ok">32-rank CPU MPI：4 个规模的 1-rank/32-rank global hash 全部一致。</li>
+<li class="ok">4-rank/4-DCU HIP MPI：严格 CPU/HIP 对比通过，4 个规模均通过，程序报告 <code>visible_devices=4</code>。</li>
+<li class="warn">Trace 路径仍受 D2H 主导，端到端相对串行 CPU 只有 2.04–2.55×；它是诊断路径，不是生产性能路径。</li>
+</ul>
+<p>按行业常用口径，应用级 GPU 加速应优先使用同等精度、同一算例和同一迭代量下的端到端 wall-clock；kernel-only 或相对单 CPU 核的结果只能作为辅助诊断。以此标准看，当前 1-DCU stateful 相对 32 核 CPU 为 3.85–9.70×，4-DCU/4-rank MPI 在 4M 规模达到 13.10×；小规模 4 卡结果受 MPI/设备启动和 halo 固定开销影响，不能单独代表吞吐。</p>
+
+<h2 id="scope">2. 回归与残差标准</h2>
+<h3>2.1 统一回归对象</h3>
+<p>一维 Euler 推进三个守恒量 <code>[rho, rho*u, rho*E]</code>，使用一阶 Rusanov 数值通量和 SSP-RK3。CPU 是 reference backend，HIP 通过同一套 backend-neutral 接口执行。</p>
+<p>回归同时检查 face state、numerical flux、residual、RK state 和 primitive <code>rho/u/p</code>，并记录 absolute error、scaled-relative error、ULP、有限值和正状态。</p>
+<h3>2.2 残差标准</h3>
+<pre><code>abs(error) &lt;= 1e-15 + 1e-15 * max(1, abs(reference))</code></pre>
+<p>该规则适用于普通高精度路径，表示数值误差阈值，不等同于“保留 15 位小数”。Sod 激波附近若 CPU 的 <code>rho</code> 或 <code>p</code> 相邻跳变超过 2%，该点从逐点 smooth-residual 比较中屏蔽并单独计数；守恒量、物理状态和最终状态仍然检查。</p>
+<h3>2.3 普通与严格模式的统一方式</h3>
+<p>普通和严格回归共用现有测试架构、同一 residual 输出路径和同一 backend 接口；差异只在序列化精度及 tolerance 配置。当前昆山验证使用严格的 <code>1e-15</code> 判据，未维护第二套回归体系。</p>
+
+<h2 id="resources">3. 资源与测试口径</h2>
+<div class="table-wrap"><table><thead><tr><th>测试</th><th>分区</th><th>资源</th><th>用途</th></tr></thead><tbody>
+<tr><td>HIP correctness / trace / stateful</td><td><code>kshdnormal</code></td><td>1 node, 1 task, 8 CPU, <code>dcu:1</code>, 27G</td><td>单卡 HIP/DCU 实际验证</td></tr>
+<tr><td>GPU-only + dmon</td><td><code>kshdnormal</code></td><td>1 node, 1 task, 8 CPU, <code>dcu:1</code>, 27G</td><td>只运行 HIP stateful backend，并独立采样设备</td></tr>
+<tr><td>CPU MPI reference/regression</td><td><code>kshcnormal</code></td><td>1 node, 32 ranks, 32 CPU, <code>3569 MB/CPU</code></td><td>1-rank/32-rank hash 一致性与性能对照</td></tr>
+<tr><td>HIP MPI regression/benchmark</td><td><code>kshdnormal</code></td><td>1 node, 4 ranks × 8 CPU, <code>dcu:4</code>, <code>3569 MB/CPU</code></td><td>4-rank/4-DCU，一卡一进程映射</td></tr>
+</tbody></table></div>
+<p>DCU 队列按昆山 profile 的固定配比申请 <code>dcu:4</code>；4 个 rank 共 32 个 CPU，内存按 <code>3569 MB/CPU</code> 请求。CPU 对照使用 HPC-X 2.4.1 GCC 7.3.1，HIP 使用 DTK 26.04 Clang 17 和 CMake 3.25.0。</p>
+
+<h2 id="architecture">4. 架构整合</h2>
+<h3>4.1 统一生命周期</h3>
+<pre><code>CreateState(problem)
+Upload(state, hostState)
+Advance(state, steps, options)
+Download(state, hostState)</code></pre>
+<ul>
+<li>CPU state 持有主存状态；HIP state 持有 device buffers、stream 和 event。</li>
+<li><code>FullTrace</code> 用于逐 RK stage 诊断；<code>NoTrace</code> 用于多步生产式推进。</li>
+<li>HIP state 创建时分配一次，初始状态 H2D 一次，最终结果 D2H 一次。</li>
+<li>旧 <code>Step(..., EulerTrace&amp;)</code> 保留为 compatibility/correctness wrapper，不作为性能主路径。</li>
+</ul>
+<h3>4.2 本轮新增项目文件</h3>
+<ul>
+<li><code>ports/kunshan/oneflow_1d_hip/EulerGpuOnlyBenchmark.cpp</code>：独立 GPU-only 持续测试。</li>
+<li><code>ci/kunshan/euler-dcu-smoke.slurm</code>：单卡编译与 FullTrace correctness。</li>
+<li><code>ci/kunshan/euler-dcu-matrix.slurm</code>：四规模 trace/stateful 矩阵。</li>
+<li><code>ci/kunshan/euler-dcu-gpu-only.slurm</code>：GPU-only 与 DTK dmon 采样。</li>
+<li><code>ci/kunshan/euler-cpu-mpi-matrix.slurm</code>：32 核 CPU MPI 对照。</li>
+<li><code>ports/kunshan/oneflow_1d_hip/OneDEulerMpi.{h,cpp,hip}</code>：CPU/HIP MPI 生命周期与节点内设备映射。</li>
+<li><code>ports/kunshan/oneflow_1d_hip/EulerMpiRegression.cpp</code>：同一 MPI 分解下 CPU/HIP 严格结果回归。</li>
+<li><code>ci/kunshan/euler-cpu-mpi-regression.slurm</code>：1-rank/32-rank hash 回归。</li>
+<li><code>ci/kunshan/euler-dcu-mpi4-regression.slurm</code>：4-rank/4-DCU 严格回归与性能矩阵。</li>
+</ul>
+<p>首次 DCU 构建失败是 DTK HSA 依赖回退到系统 <code>system ROCm fallback path</code>，与 DTK HIP 头文件混用导致的重复定义；脚本已显式指定 DTK 的 HSA CMake 配置、头文件和运行库路径后通过。本轮 MPI 构建还显式加载 CMake 3.25.0、HPC-X MPI，并通过 DTK <code>dcc/comgr</code> package 路径完成 HIP ABI 配置。Euler 数值代码未因这些环境问题改写。</p>
+
+<h2 id="precision">5. 精度门槛</h2>
+<div class="table-wrap"><table><thead><tr><th>层次</th><th>案例/规模</th><th>结果</th><th>误差证据</th></tr></thead><tbody>
+<tr><td>FullTrace</td><td>smooth-periodic</td><td class="ok">PASS</td><td>face、flux、residual、state、primitive 均为 0</td></tr>
+<tr><td>FullTrace</td><td>Sod-transmissive</td><td class="ok">PASS</td><td>smooth residual 通过；激波 mask 202 点</td></tr>
+<tr><td>NoTrace</td><td>65,536 / 262,144 / 1,048,576 / 4,194,304</td><td class="ok">PASS</td><td>四规模 final max abs error = 0，checksum 一致</td></tr>
+<tr><td>GPU-only</td><td>4,194,304，100 steps，20 repeats</td><td class="ok">PASS</td><td>独立 HIP stateful 运行；设备为 Device 66a1/gfx906</td></tr>
+</tbody></table></div>
+<p>所有性能数据均在上述精度门槛通过后才纳入本报告。</p>
+
+<h2 id="performance">6. 性能对比</h2>
+<h3>6.0 行业口径与本报告的指标分层</h3>
+<p>行业 benchmark 通常不采用单一“GPU 加速平均值”，而是先固定比较边界：相同算例、网格规模、精度、时间步/迭代数和收敛条件，再报告端到端执行的 wall-clock。对于 CPU 多核，wall-clock 比累计 CPU time 更适合作为跨设备主指标；累计 CPU time 会随 CPU 并行度增加，不能直接与 GPU 时间等价。</p>
+<div class="table-wrap"><table><thead><tr><th>端到端加速区间</th><th>工程上通常意味着</th><th>本报告中的对应关系</th></tr></thead><tbody>
+<tr><td>1–3×</td><td>小规模、CPU 基线较强、双精度、频繁 CPU/GPU 数据搬运或仅部分 offload。</td><td>当前 HIP Trace 的 2.04–2.55×；属于诊断路径结果。</td></tr>
+<tr><td>3–10×</td><td>较成熟且有工程价值的单 GPU/单加速器应用级结果，通常要求主要计算驻留设备侧。</td><td>当前 1 张 DCU 相对 32 核 CPU MPI 的 3.85–9.70×；属于主指标。</td></tr>
+<tr><td>10–30×</td><td>通常需要更高计算强度、更大问题规模、GPU-native 数据流和较少同步/搬运。</td><td>是阶段 D 优化后的合理进取目标，不是当前已达成结果。</td></tr>
+<tr><td>&gt;30×</td><td>常见于 kernel-only、GPU 对单 CPU 核、或 CPU/GPU 资源口径不对等；不能自动解释为整体应用加速。</td><td>当前 157.7–293.5× 仅属于 Stateful compute-path 微基准。</td></tr>
+</tbody></table></div>
+<p>公开可比案例也说明了口径的重要性：MFC 报告单张 A100 相对完整 CPU socket 约 7×，但相对单个 CPU 核约 300×；Euler 求解器研究则报告了局部/求解过程约 10×以上的加速。LAMMPS 官方文档也明确指出，实际倍数受问题规模、算法、精度和数据传输影响。因此这些公开数字用于建立经验边界，不构成 OneFLOW 的直接横向排名。</p>
+<p><a href="https://arxiv.org/abs/2305.09163">MFC GPU benchmark</a> · <a href="https://onlinelibrary.wiley.com/doi/10.1155/2017/4610138">Euler solver wall-clock example</a> · <a href="https://docs.lammps.org/Speed_gpu.html">LAMMPS GPU performance guidance</a></p>
+<h3>6.1 32 核 CPU MPI 与单卡 HIP Stateful</h3>
+<p><strong>主性能指标：端到端 wall-clock。</strong>两边均为 100 steps、2 repeats、1 warmup。HIP 数值为完整生命周期 <code>create + upload + advance + download</code>；CPU 数值为 32-rank MPI 作业生命周期。该表是当前最适合做资源级比较和对外沟通的口径，结果为 3.85–9.70×，落在上述 3–10× 工程区间内。</p>
+<div class="table-wrap"><table><thead><tr><th style="text-align:right">nx</th><th style="text-align:right">32-rank CPU lifecycle (ms)</th><th style="text-align:right">1-DCU HIP lifecycle (ms)</th><th style="text-align:right">CPU/HIP</th></tr></thead><tbody>
+<tr><td style="text-align:right">65,536</td><td style="text-align:right">71.366</td><td style="text-align:right">18.547</td><td style="text-align:right">3.85×</td></tr>
+<tr><td style="text-align:right">262,144</td><td style="text-align:right">281.295</td><td style="text-align:right">52.716</td><td style="text-align:right">5.34×</td></tr>
+<tr><td style="text-align:right">1,048,576</td><td style="text-align:right">1,284.895</td><td style="text-align:right">188.891</td><td style="text-align:right">6.80×</td></tr>
+<tr><td style="text-align:right">4,194,304</td><td style="text-align:right">7,082.042</td><td style="text-align:right">730.417</td><td style="text-align:right">9.70×</td></tr>
+</tbody></table></div>
+<h3>6.2 串行 CPU 与 HIP Trace</h3>
+<p><strong>辅助端到端指标：诊断路径。</strong>Trace benchmark 使用 50 steps、2 repeats、1 warmup；CPU 是串行 reference。该表用于定位诊断路径开销，不与 32 核 CPU 表混用，也不能替代 6.1 的应用级资源对比。HIP copy ratio 随规模升高至 93.2%，解释了为什么 trace 路径不能代表生产式 GPU-resident 性能。</p>
+<div class="table-wrap"><table><thead><tr><th style="text-align:right">nx</th><th style="text-align:right">串行 CPU (ms)</th><th style="text-align:right">HIP Trace (ms)</th><th style="text-align:right">speedup</th><th style="text-align:right">HIP copy ratio</th></tr></thead><tbody>
+<tr><td style="text-align:right">65,536</td><td style="text-align:right">1,156.722</td><td style="text-align:right">568.178</td><td style="text-align:right">2.04×</td><td style="text-align:right">75.8%</td></tr>
+<tr><td style="text-align:right">262,144</td><td style="text-align:right">4,924.655</td><td style="text-align:right">1,931.599</td><td style="text-align:right">2.55×</td><td style="text-align:right">84.0%</td></tr>
+<tr><td style="text-align:right">1,048,576</td><td style="text-align:right">20,190.864</td><td style="text-align:right">8,933.606</td><td style="text-align:right">2.26×</td><td style="text-align:right">91.5%</td></tr>
+<tr><td style="text-align:right">4,194,304</td><td style="text-align:right">93,809.070</td><td style="text-align:right">38,792.485</td><td style="text-align:right">2.42×</td><td style="text-align:right">93.2%</td></tr>
+</tbody></table></div>
+<h3>6.3 Stateful 相对串行 CPU</h3>
+<p><strong>辅助微基准：纯求解阶段。</strong>这里的 Stateful HIP 是完整的设备驻留执行路径中的 <code>Advance</code> 段，即多步 HIP kernel 连续推进；它不是单独测一个 kernel，但排除了 create、H2D 和最终 D2H。该结果用于判断 GPU 计算内核潜力，不能写成整体应用加速。</p>
+<div class="table-wrap"><table><thead><tr><th style="text-align:right">nx</th><th style="text-align:right">HIP Advance / serial CPU Advance</th><th style="text-align:right">HIP syncs</th><th style="text-align:right">final error</th></tr></thead><tbody>
+<tr><td style="text-align:right">65,536</td><td style="text-align:right">157.7×</td><td style="text-align:right">2</td><td style="text-align:right">0</td></tr>
+<tr><td style="text-align:right">262,144</td><td style="text-align:right">209.1×</td><td style="text-align:right">2</td><td style="text-align:right">0</td></tr>
+<tr><td style="text-align:right">1,048,576</td><td style="text-align:right">226.5×</td><td style="text-align:right">2</td><td style="text-align:right">0</td></tr>
+<tr><td style="text-align:right">4,194,304</td><td style="text-align:right">293.5×</td><td style="text-align:right">2</td><td style="text-align:right">0</td></tr>
+</tbody></table></div>
+<h3>6.4 GPU-only 持续测试</h3>
+<div class="table-wrap"><table><thead><tr><th>指标</th><th>实测值</th></tr></thead><tbody>
+<tr><td>规模 / steps / repeats / warmup</td><td>4,194,304 / 100 / 20 / 2</td></tr>
+<tr><td>GPU-only total</td><td>约 7,457 ms</td></tr>
+<tr><td>GPU-only kernel time</td><td>约 6,542 ms，占 87.7%</td></tr>
+<tr><td>kernel launches / syncs</td><td>12,000 / 20</td></tr>
+<tr><td>设备</td><td>Device 66a1，<code>gfx906:sramecc-:xnack-</code></td></tr>
+</tbody></table></div>
+
+<h3>6.5 32-rank CPU MPI 与 4-rank/4-DCU HIP MPI</h3>
+<p>两组数据都使用 100 steps、1 warmup、2 repeats 的 benchmark lifecycle。CPU 组同时执行 1-rank 和 32-rank，回归脚本要求两者 <code>final_hash</code> 完全一致；DCU 组使用 4 个 MPI rank 和 4 张可见 DCU，脚本要求 <code>visible_devices=4</code>，并在 65,536 网格上用 <code>EulerMpiRegression</code> 做 CPU/HIP 严格结果比较。</p>
+<div class="table-wrap"><table><thead><tr><th style="text-align:right">nx</th><th style="text-align:right">32-rank CPU lifecycle (ms)</th><th style="text-align:right">4-DCU HIP MPI lifecycle (ms)</th><th style="text-align:right">CPU/HIP wall-clock</th></tr></thead><tbody>
+<tr><td style="text-align:right">65,536</td><td style="text-align:right">40.209</td><td style="text-align:right">70.214</td><td style="text-align:right">0.57×</td></tr>
+<tr><td style="text-align:right">262,144</td><td style="text-align:right">130.277</td><td style="text-align:right">82.219</td><td style="text-align:right">1.58×</td></tr>
+<tr><td style="text-align:right">1,048,576</td><td style="text-align:right">653.098</td><td style="text-align:right">121.239</td><td style="text-align:right">5.39×</td></tr>
+<tr><td style="text-align:right">4,194,304</td><td style="text-align:right">3,629.603</td><td style="text-align:right">277.217</td><td style="text-align:right">13.10×</td></tr>
+</tbody></table></div>
+<p>这一表是同一节点的资源级端到端 wall-clock 对比，不是单卡结果的线性外推。4 卡路径的 fixed MPI halo、rank/device 初始化和小问题规模固定成本在 65,536 上超过计算收益；当局部问题规模扩大后，4 卡结果显示出明显吞吐优势。4 卡结果已通过功能回归，但尚未覆盖跨节点 MPI 或其他 accelerator backend。</p>
+
+<h2 id="evidence">7. DCU 证据与限制</h2>
+<ul>
+<li>配置、编译和运行均在实际昆山 DCU 计算节点完成，不使用登录节点结果冒充设备证据。</li>
+<li>程序通过 HIP device properties 报告 <code>Device 66a1/gfx906</code>，HIP event 记录 kernel 时间。</li>
+<li>4-rank/4-DCU 作业在计算节点报告 <code>local_ranks=4</code>、<code>device_index=0</code>（rank 0 日志）和 <code>visible_devices=4</code>；代码按节点内 local rank 映射可见设备，并在严格模式拒绝 rank 数超过可见设备数。</li>
+<li>GPU-only 作业单独启动 DTK dmon；采样输出显示 HCU VRAM 使用情况。该 DTK 版本的 dmon 输出不是 HCU compute utilization，因此不能把它写成完整利用率结论。</li>
+<li>CPU benchmark、HIP benchmark 和 GPU-only 采样窗口已分离；GPU-only 可执行程序本身不创建 CPU backend，但 host 仍负责初始化和最终结果回传。</li>
+</ul>
+<h3>未验证边界</h3>
+<ul>
+<li>当前证据覆盖单节点 4 卡/4 rank；跨节点 MPI、跨节点 GPU 通信和多节点拓扑仍未验证。</li>
+<li>CUDA、Kokkos 和其他未在目标节点实测的 accelerator backend 均只保留接口，不宣称通过。</li>
+<li>当前 benchmark 是隔离的一维 Euler 适配器，不等同于完整 OneFLOW NS 主求解链。</li>
+</ul>
+
+<h2 id="plan">8. 与 Euler backend 优化计划对照</h2>
+<div class="table-wrap"><table><thead><tr><th>阶段</th><th>状态</th><th>本轮证据/剩余项</th></tr></thead><tbody>
+<tr><td>A：状态化统一接口</td><td class="ok">完成</td><td>CPU/HIP 共用 Create/Upload/Advance/Download；FullTrace 兼容保留。</td></tr>
+<tr><td>B：持久 HIP state</td><td class="ok">完成</td><td>四规模 NoTrace 通过；stateful 生命周期 D2H 低于 10%，allocation 与 steps 解耦。</td></tr>
+<tr><td>C：验证与诊断解耦</td><td>部分完成</td><td>GPU-only 和独立 dmon 窗口完成；GPU reduction 仍未实现，dmon 当前主要给出 VRAM 采样。</td></tr>
+<tr><td>D：kernel/dataflow 优化</td><td>未开始</td><td>仍有 9 launches/step；trace 路径 D2H 最高约 93.2%，下一阶段需逐项优化并回归。</td></tr>
+<tr><td>E：昆山验收</td><td class="ok">当前单节点范围完成</td><td>高精度 correctness、四规模 HIP 矩阵、32 核 CPU MPI hash 回归和 4-rank/4-DCU HIP MPI 均已完成；跨节点和其他 backend 未验证。</td></tr>
+</tbody></table></div>
+<p>阶段 D 的性能目标不能用本轮 trace 的 2.04–2.55× 代替；当前主指标是 stateful 完整生命周期相对 32 核 CPU 的 3.85–9.70×，这与单卡 GPU 应用常见的 3–10× 工程区间一致。157.7–293.5× 仅用于定位设备侧计算潜力，仍不代表多节点或完整生产 NS 性能。</p>
+
+<h2 id="next">9. 下一步与交付状态</h2>
+<ol>
+<li>将本轮 MPI 代码、统一回归脚本和报告作为一个阶段性变更块审查并 commit。</li>
+<li>后续补阶段 C 的 GPU reduction：将 checksum、最大误差、finite/positive-state 检查优先收敛为 GPU scalar reduction。</li>
+<li>再进入阶段 D：移除 NoTrace 不需要的 trace buffers，评估 Face/Residual/Update 融合、launch 数和访存效率；每个优化块统一重跑 FullTrace、NoTrace 四规模、32-rank CPU 和 4-DCU MPI 回归。</li>
+<li>当前证据尚未覆盖 CUDA、Kokkos、跨节点 MPI；这些边界继续保持未宣称验证。</li>
+</ol>
+<p>可复现实验入口：</p>
+<pre><code>ci/kunshan/euler-dcu-smoke.slurm
+ci/kunshan/euler-dcu-matrix.slurm
+ci/kunshan/euler-dcu-gpu-only.slurm
+ci/kunshan/euler-cpu-mpi-matrix.slurm
+ci/kunshan/euler-cpu-mpi-regression.slurm
+ci/kunshan/euler-dcu-mpi4-regression.slurm</code></pre>
+<footer class="report-footer">本报告依据当前 OneFLOW 工作树和昆山实际 Slurm 作业输出整理；旧日期报告保留为历史记录，不覆盖本报告的当前结论。</footer>
+</article>
+</main>
+</body>
+</html>

@@ -41,7 +41,7 @@
 
   <h2>1. 阶段结论</h2>
   <p>本阶段将普通回归和高精度回归统一到同一个测试 runner、同一个五案例 suite 和同一个结构化 residual baseline。普通模式继续服务 GitHub CI；严格模式使用同一套入口，将绝对容差收紧到 <code>1e-15</code>，并启用 max-digits10 残差文本输出。</p>
-  <div class="note">CPU 证据来自昆山 <code>kshcnormal</code> 当前源码作业 120592398：normal 与 strict 两种模式均完成 5/5。DCU/HIP 当前 residual suite 已在固定配比的昆山 DCU 节点完成；本报告只把 HIP 标记为已验证，不外推到 CUDA/KOKKOS。</div>
+  <div class="note">CPU 证据来自昆山 <code>kshcnormal</code> 当前源码作业 JOB_ID_OMITTED：normal 与 strict 两种模式均完成 5/5。DCU/HIP 当前 residual suite 已在固定配比的昆山 DCU 节点完成；本报告只把 HIP 标记为已验证，不外推到 CUDA/KOKKOS。</div>
 
   <h2>2. 测试架构整合</h2>
   <table>
@@ -70,10 +70,10 @@
     <thead><tr><th>项目</th><th>状态</th><th>证据/边界</th></tr></thead>
     <tbody>
       <tr><td>本地 standalone CPU port</td><td class="ok">通过</td><td>CMake build 与 CPU self-test PASS</td></tr>
-      <tr><td>昆山 CPU normal</td><td class="ok">通过</td><td>作业 120592398，5 tests passed，容差 1e-8</td></tr>
+      <tr><td>昆山 CPU normal</td><td class="ok">通过</td><td>作业 JOB_ID_OMITTED，5 tests passed，容差 1e-8</td></tr>
       <tr><td>昆山 CPU strict</td><td class="ok">通过</td><td>同一作业，5 tests passed，容差 1e-15</td></tr>
       <tr><td>HIP/DCU Euler benchmark</td><td class="ok">已有历史证据</td><td>历史 DCU 节点 HIP MPI benchmark 成功；不等同于当前五案例 residual strict</td></tr>
-      <tr><td>当前 HIP/DCU residual</td><td class="ok">通过</td><td>作业 120596901：kshdnormal、8 tasks × 1 CPU、27G、dcu:1；normal/strict 均 5/5，Slurm COMPLETED 0:0</td></tr>
+      <tr><td>当前 HIP/DCU residual</td><td class="ok">通过</td><td>作业 JOB_ID_OMITTED：kshdnormal、8 tasks × 1 CPU、27G、dcu:1；normal/strict 均 5/5，Slurm COMPLETED 0:0</td></tr>
       <tr><td>CUDA/KOKKOS</td><td class="pending">未宣称验证</td><td>当前没有目标节点实测证据</td></tr>
     </tbody>
   </table>
@@ -85,13 +85,13 @@
     <tbody>
       <tr><td>资源请求</td><td>初次 DCU 请求被拒绝</td><td>误用了 1 task × 16 CPU、48G；按 skill 和仓库模板改为 kshdnormal、8 × 1 CPU、27G、dcu:1</td><td class="ok">资源请求通过</td></tr>
       <tr><td>GRES 传递</td><td>QOSMinGRES，实际 GRES 为 0</td><td><code>submit-regression.sh</code> 原先没有把配置传给 <code>sbatch</code>；新增可选 <code>KUNSHAN_GRES</code></td><td class="ok">修复并推送</td></tr>
-      <tr><td>HIP headers</td><td>重复定义 malloc、free、数学函数</td><td>DTK HIP 与 <code>/opt/rocm</code> 混用；固定 <code>HSA_HEADER</code>，清理 module 注入的 include path</td><td class="ok">HIP smoke 编译通过</td></tr>
+      <tr><td>HIP headers</td><td>重复定义 malloc、free、数学函数</td><td>DTK HIP 与 <code>system ROCm fallback path</code> 混用；固定 <code>HSA_HEADER</code>，清理 module 注入的 include path</td><td class="ok">HIP smoke 编译通过</td></tr>
       <tr><td>主工程依赖</td><td><code>cgnslib.h</code> 或 <code>filesystem</code> 缺失</td><td>补齐 MPI/CGNS/METIS；host 使用 GCC 12.2.0，并设置 C++17</td><td class="ok">主工程编译通过</td></tr>
       <tr><td>运行时</td><td><code>python3</code> 找不到</td><td>加载 <code>apps/python/3.8.13</code>，并修正 PATH 覆盖顺序</td><td class="ok">runner 启动</td></tr>
-      <tr><td>最终验证</td><td>作业 120596901</td><td>保存 Slurm accounting、两份 backend report 和 residual 输出</td><td class="ok">COMPLETED 0:0，双模式 5/5</td></tr>
+      <tr><td>最终验证</td><td>作业 JOB_ID_OMITTED</td><td>保存 Slurm accounting、两份 backend report 和 residual 输出</td><td class="ok">COMPLETED 0:0，双模式 5/5</td></tr>
     </tbody>
   </table>
-  <p>前述失败均发生在最终 residual 比较之前；只有作业 120596901 作为 HIP/DCU residual 有效证据。DCU 节点证据不外推到 CUDA 或 KOKKOS。</p>
+  <p>前述失败均发生在最终 residual 比较之前；只有作业 JOB_ID_OMITTED 作为 HIP/DCU residual 有效证据。DCU 节点证据不外推到 CUDA 或 KOKKOS。</p>
 
   <h2>6. 文件级变更清单</h2>
   <table>
@@ -117,10 +117,10 @@
       <tr><td><code>bc8ab40e</code></td><td>HIP/DCU 最终证据和报告更新</td><td class="ok">已推送 origin/master</td></tr>
     </tbody>
   </table>
-  <p>推送前已 fetch 并检查 <code>origin/master</code> 差异；远端 master 无需合并的代码差异。<code>eric2003</code> upstream 未合并、未创建 PR、未推送分支。</p>
+  <p>推送前已 fetch 并检查 <code>origin/master</code> 差异；远端 master 无需合并的代码差异。<code>the upstream repository</code> upstream 未合并、未创建 PR、未推送分支。</p>
 
   <h2>8. 云端同步与下一阶段</h2>
-  <p>目标远端为 <code>lql341/OneFLOW</code> 的 <code>origin</code>。本阶段提交只同步回归测试、残差标准和相关文档，不向 <code>eric2003</code> upstream 发起 PR。推送前已检查远端 master 差异；只有确认无冲突后才执行推送。</p>
+  <p>目标远端为 <code>the forked OneFLOW repository</code> 的 <code>origin</code>。本阶段提交只同步回归测试、残差标准和相关文档，不向 <code>the upstream repository</code> upstream 发起 PR。推送前已检查远端 master 差异；只有确认无冲突后才执行推送。</p>
   <p>下一阶段将保留 HIP 的节点证据，并把相同 runner/report 契约扩展到 CUDA/KOKKOS；后两者在获得各自目标节点实测前仍不宣称已验证。</p>
 
   <h2>9. 运行方式</h2>

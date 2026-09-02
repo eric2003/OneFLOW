@@ -151,7 +151,7 @@ blockquote {
 <article>
 <h1 id="oneflow-gpu-backend">OneFLOW GPU Backend 框架与昆山回归测试交付报告</h1>
 <p><strong>首次报告：2026-08-21</strong></p>
-<p><strong>最近更新：2026-08-24</strong></p>
+<p><strong>最近更新：2026-08-31</strong></p>
 <p><strong>代码分支：<code>master</code></strong></p>
 <p><strong>首轮交付提交：<code>5f54fc15</code></strong></p>
 <p><strong>验证平台：昆山 SCNet CPU 分区，GCC 7.3.1 + HPC-X MPI</strong></p>
@@ -165,7 +165,7 @@ blockquote {
 </ol>
 <p>验证结论：</p>
 <ul>
-<li>3 个 CPU 串行算例全部通过，总耗时 152 秒。</li>
+<li>5 个 CPU 串行算例已纳入统一 canonical residual 回归；本地严格模式五案例运行通过，耗时约 85 秒（硬件和构建配置不同，昆山结果以作业 artifact 为准）。</li>
 <li>单 zone 网格使用 4 个 MPI rank 时的空 rank 越界已经修复，修复后
   50 步运行正常结束。</li>
 <li>M6 四 zone / 四 rank 算例连续运行两次均通过，关键输出逐文件一致。</li>
@@ -177,7 +177,7 @@ blockquote {
 <h2 id="2">2. 工作范围</h2>
 <h3 id="21">2.1 已完成</h3>
 <ul>
-<li>定义 3 个短时 CPU 回归算例。</li>
+<li>定义 5 个 CPU 串行回归算例，并统一普通/严格 residual 输出。</li>
 <li>修复测试程序的退出码传播和文件 EOF 判断。</li>
 <li>修复空 rank 下的残差最大值与平均值处理。</li>
 <li>验证真实四 zone / 四 rank MPI 求解。</li>
@@ -552,18 +552,14 @@ REGRESSION_RC=0 TOTAL_ELAPSED_SECONDS=152
 </tr>
 </tbody>
 </table>
-<p>普通和严格回归共用 <code>res.dat</code>/<code>turbres.dat</code> 路径及同一个 JSON 数据库。
-回归作业显式设置 <code>ONEFLOW_RESIDUAL_TEST_OUTPUT=1</code> 后，在相同残差文件中使用
-<code>double</code> 的 <code>max_digits10</code>（17 位有效数字）输出。
-严格模式不创建第二套残差文件。
-只有接受新的数值基线时才重新生成 JSON：</p>
-<pre><code class="language-bash">export ONEFLOW_RESIDUAL_TEST_OUTPUT=1
-python3 test/baselines/build_residual_db.py \
+<p>普通和严格模式共享同一组 <code>res.dat</code>/<code>turbres.dat</code> 文件名与 canonical JSON 索引。<code>ONEFLOW_RESIDUAL_TEST_OUTPUT=1</code> 只切换文本序列化精度，不改变 solver 算法、数值类型或 backend；普通模式覆盖容差为 <code>1e-8</code>，严格模式为 <code>1e-15</code>。只有接受新的数值基线时才重新生成 JSON：</p>
+<pre><code class="language-bash">python3 test/baselines/build_residual_db.py \
+  --suite test/suites/cpu-serial.txt \
+  --absolute-tolerance 1e-15 \
   --validated-commit &lt;commit-that-passed-the-baseline&gt; \
   --output test/baselines/residual-baseline.json
 </code></pre>
-<p>普通 CI 运行只读取数据库，不生成新基线文件。每次 CI 的日志、作业号和
-环境信息保存在 workflow artifact 或昆山隔离目录中。</p>
+<p>普通快速 CPU 回归运行在 GitHub Actions；严格 CPU 回归在昆山 CPU 分区执行。GPU/DCU 回归沿用同一个 runner 和 residual 文件接口，在 artifact/report 中记录 <code>ONEFLOW_ACCEL_BACKEND=HIP|CUDA|KOKKOS</code>、构建/运行结果和 residual 比较；当前严格 residual 数值证据来自 CPU 路径；HIP、CUDA、Kokkos 共用报告接口，但仍需各自在目标计算节点完成构建、kernel 和 residual 验证后才能形成兼容性结论。</p>
 <h3 id="63-workflow">6.3 昆山 workflow</h3>
 <p>新增
 <a href="../../.github/workflows/kunshan-regression.yml"><code>kunshan-regression.yml</code></a>，
@@ -669,11 +665,11 @@ python3 test/baselines/build_residual_db.py \
 <tbody>
 <tr>
 <td>完整交付报告</td>
-<td><code>doc/reports/gpu-backend-delivery.md</code></td>
+<td><code>doc/reports/architecture/oneflow-gpu-backend-delivery.md</code></td>
 </tr>
 <tr>
 <td>HTML 报告</td>
-<td><code>doc/reports/gpu-backend-delivery.html</code></td>
+<td><code>doc/reports/architecture/oneflow-gpu-backend-delivery.html</code></td>
 </tr>
 <tr>
 <td>测试规范</td>

@@ -7,10 +7,27 @@ set( CMAKE_CXX_STANDARD_REQUIRED ON )
 include( ${CMAKE_CURRENT_LIST_DIR}/../../../cmake/UtilFunction.cmake )
 
 add_executable( oneflow_1d_cpu CpuMain.cpp OneDUpwind.cpp )
-add_executable( oneflow_1d_euler_cpu EulerMain.cpp OneDEuler.cpp )
+add_executable(
+    oneflow_1d_euler_cpu
+    EulerMain.cpp
+    OneDEuler.cpp
+    OneDEulerBackend.cpp )
 target_compile_options( oneflow_1d_euler_cpu PRIVATE -ffp-contract=off )
 add_executable( oneflow_1d_weno5_dump Weno5DumpMain.cpp OneDWeno5.cpp )
 target_compile_options( oneflow_1d_weno5_dump PRIVATE -ffp-contract=off )
+
+option( ONEFLOW_1D_ENABLE_MPI_BENCHMARK "Build MPI Euler benchmarks" OFF )
+if ( ONEFLOW_1D_ENABLE_MPI_BENCHMARK )
+    find_package( MPI REQUIRED COMPONENTS CXX )
+    add_executable(
+        oneflow_1d_euler_mpi_cpu_benchmark
+        EulerMpiBenchmark.cpp
+        OneDEulerMpi.cpp )
+    target_compile_options(
+        oneflow_1d_euler_mpi_cpu_benchmark PRIVATE -ffp-contract=off )
+    target_link_libraries(
+        oneflow_1d_euler_mpi_cpu_benchmark PRIVATE MPI::MPI_CXX )
+endif()
 
 option( ONEFLOW_1D_ENABLE_HIP "Build the native HIP validation executable" OFF )
 if ( ONEFLOW_1D_ENABLE_HIP )
@@ -36,10 +53,67 @@ if ( ONEFLOW_1D_ENABLE_HIP )
         OneDUpwind.hip )
     target_link_libraries( oneflow_1d_hip PRIVATE hip::host )
     set_source_files_properties( OneDEuler.hip PROPERTIES LANGUAGE HIP )
-    add_executable( oneflow_1d_euler_hip EulerMain.cpp OneDEuler.cpp OneDEuler.hip )
+    set_source_files_properties( OneDEulerPersistent.hip PROPERTIES LANGUAGE HIP )
+    add_executable(
+        oneflow_1d_euler_hip
+        EulerMain.cpp
+        OneDEuler.cpp
+        OneDEuler.hip
+        OneDEulerBackend.cpp
+        OneDEulerPersistent.hip )
     target_compile_definitions( oneflow_1d_euler_hip PRIVATE ONEFLOW_1D_USE_HIP=1 )
     target_compile_options( oneflow_1d_euler_hip PRIVATE -ffp-contract=off )
     target_link_libraries( oneflow_1d_euler_hip PRIVATE hip::host )
+
+    set_source_files_properties( OneDEulerProfile.hip PROPERTIES LANGUAGE HIP )
+    add_executable(
+        oneflow_1d_euler_benchmark
+        EulerBenchmark.cpp
+        OneDEuler.cpp
+        OneDEulerBackend.cpp
+        OneDEulerProfile.hip )
+    target_compile_options( oneflow_1d_euler_benchmark PRIVATE -ffp-contract=off )
+    target_link_libraries( oneflow_1d_euler_benchmark PRIVATE hip::host )
+
+    add_executable( oneflow_1d_euler_stateful_benchmark EulerStatefulBenchmark.cpp OneDEuler.cpp OneDEulerBackend.cpp OneDEulerPersistent.hip )
+    target_compile_definitions( oneflow_1d_euler_stateful_benchmark PRIVATE ONEFLOW_1D_USE_HIP=1 )
+    target_compile_options( oneflow_1d_euler_stateful_benchmark PRIVATE -ffp-contract=off )
+    target_link_libraries( oneflow_1d_euler_stateful_benchmark PRIVATE hip::host )
+    add_executable( oneflow_1d_euler_gpu_only_benchmark EulerGpuOnlyBenchmark.cpp OneDEuler.cpp OneDEulerBackend.cpp OneDEulerPersistent.hip )
+    target_compile_definitions( oneflow_1d_euler_gpu_only_benchmark PRIVATE ONEFLOW_1D_USE_HIP=1 )
+    target_compile_options( oneflow_1d_euler_gpu_only_benchmark PRIVATE -ffp-contract=off )
+    target_link_libraries( oneflow_1d_euler_gpu_only_benchmark PRIVATE hip::host )
+
+    if ( ONEFLOW_1D_ENABLE_MPI_BENCHMARK )
+        set_source_files_properties( OneDEulerMpi.hip PROPERTIES LANGUAGE HIP )
+        add_executable(
+            oneflow_1d_euler_mpi_hip_benchmark
+            EulerMpiBenchmark.cpp
+            OneDEulerMpi.cpp
+            OneDEulerMpi.hip )
+        target_compile_definitions(
+            oneflow_1d_euler_mpi_hip_benchmark
+            PRIVATE ONEFLOW_1D_MPI_USE_HIP=1 )
+        target_compile_options(
+            oneflow_1d_euler_mpi_hip_benchmark PRIVATE -ffp-contract=off )
+        target_link_libraries(
+            oneflow_1d_euler_mpi_hip_benchmark
+            PRIVATE MPI::MPI_CXX hip::host )
+
+        add_executable(
+            oneflow_1d_euler_mpi_regression
+            EulerMpiRegression.cpp
+            OneDEulerMpi.cpp
+            OneDEulerMpi.hip )
+        target_compile_definitions(
+            oneflow_1d_euler_mpi_regression
+            PRIVATE ONEFLOW_1D_MPI_USE_HIP=1 )
+        target_compile_options(
+            oneflow_1d_euler_mpi_regression PRIVATE -ffp-contract=off )
+        target_link_libraries(
+            oneflow_1d_euler_mpi_regression
+            PRIVATE MPI::MPI_CXX hip::host )
+    endif()
 
     set_source_files_properties( OneDWeno5.hip PROPERTIES LANGUAGE HIP )
     add_executable( oneflow_1d_weno5_replay Weno5ReplayMain.cpp OneDWeno5.cpp OneDWeno5.hip )
