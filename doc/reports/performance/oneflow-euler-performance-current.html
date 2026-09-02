@@ -151,6 +151,16 @@ Download(state, hostState)</code></pre>
 </tbody></table></div>
 <p>这一表是同一节点的资源级端到端 wall-clock 对比，不是单卡结果的线性外推。4 卡路径的 fixed MPI halo、rank/device 初始化和小问题规模固定成本在 65,536 上超过计算收益；当局部问题规模扩大后，4 卡结果显示出明显吞吐优势。4 卡结果已通过功能回归，但尚未覆盖跨节点 MPI 或其他 accelerator backend。</p>
 
+<h3>6.6 单卡与四卡对照</h3>
+<p>下表把单卡和四卡结果放到同一端到端 wall-clock 口径下。两组均使用 32-rank CPU lifecycle 作为分母，HIP 侧均包含 create、upload、advance 和 download；四卡额外包含 4-rank MPI halo 通信。</p>
+<div class="table-wrap"><table><thead><tr><th style="text-align:right">nx</th><th style="text-align:right">32-rank CPU (ms)</th><th style="text-align:right">1-DCU HIP (ms)</th><th style="text-align:right">1-DCU 加速</th><th style="text-align:right">4-DCU HIP MPI (ms)</th><th style="text-align:right">4-DCU 加速</th></tr></thead><tbody>
+<tr><td style="text-align:right">65,536</td><td style="text-align:right">71.366</td><td style="text-align:right">18.547</td><td style="text-align:right">3.85×</td><td style="text-align:right">70.214</td><td style="text-align:right">0.57×</td></tr>
+<tr><td style="text-align:right">262,144</td><td style="text-align:right">281.295</td><td style="text-align:right">52.716</td><td style="text-align:right">5.34×</td><td style="text-align:right">82.219</td><td style="text-align:right">1.58×</td></tr>
+<tr><td style="text-align:right">1,048,576</td><td style="text-align:right">1,284.895</td><td style="text-align:right">188.891</td><td style="text-align:right">6.80×</td><td style="text-align:right">121.239</td><td style="text-align:right">5.39×</td></tr>
+<tr><td style="text-align:right">4,194,304</td><td style="text-align:right">7,082.042</td><td style="text-align:right">730.417</td><td style="text-align:right">9.70×</td><td style="text-align:right">277.217</td><td style="text-align:right">13.10×</td></tr>
+</tbody></table></div>
+<p><strong>结论：</strong>单卡在完整生命周期口径下从 3.85×提升到 9.70×；四卡在 65,536 上为 0.57×，主要受 MPI、rank/device 初始化和 halo 固定开销影响；从 1M 开始四卡超过单卡，4M 达到 13.10×。四卡数据证明的是单节点 4-rank/4-DCU HIP MPI 整体 wall-clock，不是单卡结果的线性外推，也不代表跨节点扩展。</p>
+
 <h2 id="evidence">7. DCU 证据与限制</h2>
 <ul>
 <li>配置、编译和运行均在实际昆山 DCU 计算节点完成，不使用登录节点结果冒充设备证据。</li>
