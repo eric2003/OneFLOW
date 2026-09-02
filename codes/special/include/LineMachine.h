@@ -23,7 +23,8 @@ License
 
 #pragma once
 #include "HXDefine.h"
-#include "HXMid.h"
+#include "HXKey.h"
+#include <map>
 
 BeginNameSpace( ONEFLOW )
 
@@ -44,7 +45,8 @@ public:
     IntField dimList;
     RealField ds1List, ds2List;
 public:
-    std::set< HXMid<int> > refLines;
+    //std::set< HXKey<int> > refLines;
+    std::map<HXKey<int>, int> refLines;
     LinkField lineList; 
 public:
     int AddLine( int p1, int p2 );

@@ -72,30 +72,55 @@ CurveInfo * LineMachine::GetCurveInfo( int id )
     return this->curveInfoList[ idx ];
 }
 
-int LineMachine::AddLine( int p1, int p2 )
+//int LineMachine::AddLine( int p1, int p2 )
+//{
+//    IntField line;
+//    line.push_back( p1 );
+//    line.push_back( p2 );
+//
+//    int n = this->refLines.size();
+//
+//    HXKey<int> fMid( 2, n + 1 );
+//    fMid.data = line;
+//    std::sort( fMid.data.begin(), fMid.data.end() );
+//
+//    std::set< HXKey<int> >::iterator iter = this->refLines.find( fMid );
+//    if ( iter == this->refLines.end() )
+//    {
+//        this->refLines.insert( fMid );
+//        this->lineList.push_back( line );
+//        return n + 1;
+//    }
+//    else
+//    {
+//        return iter->id;
+//    }
+//
+//}
+
+int LineMachine::AddLine(int p1, int p2)
 {
     IntField line;
-    line.push_back( p1 );
-    line.push_back( p2 );
+    line.push_back(p1);
+    line.push_back(p2);
 
-    int n = this->refLines.size();
+    HXKey<int> key(line);          // 自动排序
 
-    HXMid<int> fMid( 2, n + 1 );
-    fMid.data = line;
-    std::sort( fMid.data.begin(), fMid.data.end() );
-
-    std::set< HXMid<int> >::iterator iter = this->refLines.find( fMid );
-    if ( iter == this->refLines.end() )
+    auto iter = this->refLines.find(key);
+    if (iter == this->refLines.end())
     {
-        this->refLines.insert( fMid );
-        this->lineList.push_back( line );
-        return n + 1;
+        // 新线，id 从 1 开始（与原来 n+1 的逻辑保持一致）
+        int newId = static_cast<int>(this->refLines.size()) + 1;
+
+        this->refLines.insert({key, newId});
+        this->lineList.push_back(line);     // 保留原始顺序
+
+        return newId;
     }
     else
     {
-        return iter->id;
+        return iter->second;                // 返回已有 id
     }
-
 }
 
 void LineMachine::AddLine( int p1, int p2, int id )

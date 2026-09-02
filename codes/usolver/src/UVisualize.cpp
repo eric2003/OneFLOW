@@ -36,7 +36,7 @@ License
 #include "ZoneState.h"
 #include "StringUtils.h"
 #include "Prj.h"
-#include "HXMid.h"
+#include "HXKey.h"
 #include "NodeMesh.h"
 #include "NsCtrl.h"
 #include <sstream>
@@ -124,12 +124,80 @@ void BcVisual::Calc( int bcType )
     ResolveElementEdge();
 }
 
+//void BcVisual::ResolveElementEdge()
+//{
+//    int nFaces = this->f2n.size();
+//    int nSize = 2;
+//
+//    std::set< HXKey<int> > edgeSet;
+//
+//    for ( int fId = 0; fId < nFaces; ++ fId )
+//    {
+//        int nNodes = this->f2n[ fId ].size();
+//        for ( int iNode = 0; iNode < nNodes; ++ iNode )
+//        {
+//            int iNode0 = iNode;
+//            int iNode1 = ( iNode + 1 ) % nNodes;
+//
+//            int ip1 = this->f2n[ fId ][ iNode0 ];
+//            int ip2 = this->f2n[ fId ][ iNode1 ];
+//
+//            if ( ip1 == ip2 ) continue;
+//
+//            IntField eNodeId;
+//            eNodeId.push_back( ip1 );
+//            eNodeId.push_back( ip2 );
+//
+//            IntField sortedNodeId = eNodeId;
+//            sort( sortedNodeId.begin(), sortedNodeId.end() );
+//            
+//            int eIdddd = this->e2n.size();
+//            HXKey<int> edge( nSize, eIdddd );
+//            edge.data = sortedNodeId;
+//
+//            int  edgeIndex;
+//            std::set< HXKey<int> >::iterator iter = edgeSet.find( edge );
+//            if ( iter == edgeSet.end() )
+//            {
+//                edgeIndex = -1;
+//            }
+//            else
+//            {
+//                edgeIndex = iter->id;
+//            }
+//
+//            if ( edgeIndex == -1 )
+//            {
+//                edgeSet.insert( edge );
+//                this->lcell.push_back( fId );
+//                this->rcell.push_back( -1 );      
+//                this->e2n.push_back( eNodeId );
+//            }
+//            else
+//            {
+//                int ip = this->rcell[ edgeIndex ];
+//                if ( ip != -1 )
+//                {
+//                    std::cout << "Fatal Error\n";
+//                    std::cout << " edgeIndex = " << edgeIndex << "\n";
+//                    for ( int i = 0; i < this->e2n[ edgeIndex ].size(); ++ i )
+//                    {
+//                        std::cout << this->e2n[ edgeIndex ][ i ] << " ";
+//                    }
+//                }
+//
+//                this->rcell[ edgeIndex ] = fId;
+//            }
+//        }
+//    }
+//}
+
 void BcVisual::ResolveElementEdge()
 {
     int nFaces = this->f2n.size();
     int nSize = 2;
 
-    std::set< HXMid<int> > edgeSet;
+    std::map< HXKey<int>, int > edgeMap;                       // set -> map，value 存边索引
 
     for ( int fId = 0; fId < nFaces; ++ fId )
     {
@@ -148,27 +216,29 @@ void BcVisual::ResolveElementEdge()
             eNodeId.push_back( ip1 );
             eNodeId.push_back( ip2 );
 
-            IntField sortedNodeId = eNodeId;
-            sort( sortedNodeId.begin(), sortedNodeId.end() );
-            
-            int eIdddd = this->e2n.size();
-            HXMid<int> edge( nSize, eIdddd );
-            edge.data = sortedNodeId;
+            //IntField sortedNodeId = eNodeId;
+            //sort( sortedNodeId.begin(), sortedNodeId.end() );
+
+            //int eIdddd = this->e2n.size();
+            //HXKey<int> edge( nSize, eIdddd );
+            //edge.data = sortedNodeId;
+
+            HXKey<int> key(eNodeId);  
 
             int  edgeIndex;
-            std::set< HXMid<int> >::iterator iter = edgeSet.find( edge );
-            if ( iter == edgeSet.end() )
+            auto iter = edgeMap.find( key );
+            if ( iter == edgeMap.end() )
             {
-                edgeIndex = -1;
+                edgeIndex = ONEFLOW::INVALID_INDEX;
             }
             else
             {
-                edgeIndex = iter->id;
+                edgeIndex = iter->second;                 // 原 iter->id -> iter->second
             }
 
-            if ( edgeIndex == -1 )
+            if ( edgeIndex == ONEFLOW::INVALID_INDEX )
             {
-                edgeSet.insert( edge );
+                edgeMap.insert( { key, this->e2n.size() } );  // 记下新边索引
                 this->lcell.push_back( fId );
                 this->rcell.push_back( -1 );      
                 this->e2n.push_back( eNodeId );
