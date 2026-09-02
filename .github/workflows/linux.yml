@@ -65,6 +65,22 @@ jobs:
           make -j 4
           make install
         shell: bash 
+      - name: Unit Test
+        env:
+          CC: gcc-${{ env.GCC_VERSION }}
+          CXX: g++-${{ env.GCC_VERSION }}
+          # 如果 ctest 需要和后面测试一样的环境，也可以把 MPI 相关变量放这里
+          MPICH_NO_UCX: 1
+          MPICH_CH3_NO_UCX: 1
+          MPICH_DEVICE: ch3:sock
+          UCX_TLS: tcp,self
+        run: |
+          cd ${{ github.workspace }}/build
+          # 如果之前 cmake 没有开启测试，可以在这里重新配置一次（可选）
+          # cmake -DCMAKE_INSTALL_PREFIX=${{ github.workspace }}/Run -DBUILD_TESTING=ON ../
+          # make -j 4
+          ctest --output-on-failure
+        shell: bash        
       - name: Run OneFLOW CFD Tests
         env:
           prefix: ${{ github.workspace }}/Run
