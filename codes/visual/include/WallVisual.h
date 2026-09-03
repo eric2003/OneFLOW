@@ -23,7 +23,6 @@ License
 
 #pragma once
 #include "HXDefine.h"
-#include "HXSort.h"
 
 BeginNameSpace( ONEFLOW )
 
@@ -69,7 +68,6 @@ public:
 
     IntField faceType;
     IntField elementType;
-    std::set< HXSort< IntField > > * faceSet;
 public:
     RealField xN, yN, zN;
 public:

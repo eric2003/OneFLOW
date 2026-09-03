@@ -26,7 +26,6 @@ License
 #include "Constant.h"
 #include "HXCgns.h"
 #include "ElementHome.h"
-#include "HXSort.h"
 #include "HXMath.h"
 #include "Boundary.h"
 #include <iostream>
