@@ -27,7 +27,6 @@ License
 #include "DomainMachine.h"
 #include "MDomain.h"
 #include "SDomain.h"
-#include "HXPointer.h"
 #include "CurveInfo.h"
 #include "SegmentCtrl.h"
 #include "BlockElem.h"

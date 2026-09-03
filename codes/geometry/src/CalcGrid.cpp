@@ -39,7 +39,6 @@ License
 
 #include "Stop.h"
 #include "Prj.h"
-#include "HXPointer.h"
 #include <iostream>
 
 

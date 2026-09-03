@@ -45,7 +45,6 @@ public:
     IntField dimList;
     RealField ds1List, ds2List;
 public:
-    //std::set< HXKey<int> > refLines;
     std::map<HXKey<int>, int> refLines;
     LinkField lineList; 
 public:

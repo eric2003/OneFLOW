@@ -42,7 +42,6 @@ public:
     FaceSolver();
     ~FaceSolver();
 public:
-    //std::set< HXKey<int> > * refFaces;
     std::map< HXKey<int>, int > * refFaces;   // key ¡ú id
     IntField * faceBcKey;
     IntField * faceBcType;

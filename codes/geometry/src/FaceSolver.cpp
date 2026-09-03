@@ -37,7 +37,6 @@ FaceSolver::FaceSolver()
     this->faceBcType = new IntField();
     this->childFid = new LinkField();
 
-    //this->refFaces = new std::set< HXKey<int> >();
     this->refFaces = new std::map< HXKey<int>, int >;
     this->faceTopo = new FaceTopo();
 }
@@ -51,17 +50,6 @@ FaceSolver::~FaceSolver()
     delete this->refFaces;
     delete this->faceTopo;
 }
-
-//int FaceSolver::FindFace( HXKey<int> & face )
-//{
-//    std::set< HXKey<int> >::iterator iter = this->refFaces->find( face );
-//    if ( iter == this->refFaces->end() )
-//    {
-//        return ONEFLOW::INVALID_INDEX;
-//    }
-//    return iter->id;
-//}
-
 int FaceSolver::FindFace( HXKey<int> & face )
 {
     auto iter = this->refFaces->find( face );
@@ -100,19 +88,15 @@ void FaceSolver::ScanPolygonFace( CgnsSection * cgnsSection )
             int node = cgnsSection->connList[ i ];
             faceNodes.push_back( node );
         }
-        //HXKey<int> key( nNode, this->refFaces->size() );
+
         HXKey<int> key( faceNodes );
-        //key.data = faceNodes;
-        //std::sort( key.data.begin(), key.data.end() );
         int gFid = this->FindFace( key );
         if ( gFid == ONEFLOW::INVALID_INDEX )
         {
-            // 新面，id 取当前 faces 的数量
+            // New face: ID is set to the current number of faces. 
             int newId = static_cast<int>(this->faceTopo->faces.size());
-            //this->refFaces->insert( key );
-            //this->faceTopo->faces.push_back( faceNodes );
-            this->refFaces->insert({key, newId});                 // 存 key → id
-            this->faceTopo->faces.push_back(faceNodes);           // 保留原始顺序
+            this->refFaces->insert({key, newId});                 // Store key → id 
+            this->faceTopo->faces.push_back(faceNodes);           // Preserve original order
             this->faceTopo->fTypes.push_back(cgnsSection->eType);
             this->faceTopo->faceFlags.push_back(0);
         }
@@ -186,12 +170,7 @@ void FaceSolver::ScanElementFace( CgIntField & eNodeId, int eType, int eId )
             aNodeId.push_back( eNodeId[ rNodeId[ iNode ] ] );
         }                                                              
 
-        //HXKey<int> fMid( nNodes, this->faceTopo->faces.size() );
-        //fMid.data = aNodeId;
-        //std::sort( fMid.data.begin(), fMid.data.end() );
-        //int gFid = this->FindFace( fMid );
-
-        // 创建排序后的 key
+        // Create a sorted key
         HXKey<int> key(aNodeId);
 
         int gFid = this->FindFace(key);
@@ -205,9 +184,8 @@ void FaceSolver::ScanElementFace( CgIntField & eNodeId, int eType, int eId )
                 std::cout << "totalfn != faceNumber " << totalfn << " " << faceNumber << std::endl;
                 Stop("");
             }
-            //this->refFaces->insert( fMid );
 
-            int newId = faceNumber;   // 新 id = 当前面数量
+            int newId = faceNumber;   // New ID = current number of faces
 
             this->refFaces->insert({key, newId});                 // key → id
 

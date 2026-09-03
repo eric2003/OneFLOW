@@ -29,7 +29,6 @@ License
 #include "StrGrid.h"
 #include "GridState.h"
 #include "NodeMesh.h"
-#include "HXPointer.h"
 #include "DataBaseIO.h"
 #include "Prj.h"
 #include "BcRecord.h"

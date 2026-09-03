@@ -76,8 +76,7 @@ public:
     void MyFaceAlloc();
     void CreateFaceList();
     int  FindLineId( IntField & line );
-    //int  FindId( IntField & varlist, std::set< HXKey<int> > &refSets );
-    int FindId( IntField & varlist, std::map<HXKey<int>, int> & refMaps );
+    int  FindId( IntField & varlist, std::map<HXKey<int>, int> & refMaps );
     int  FindFace( HXKey<int> & face );
     int  FindFaceId( IntField & face );
     IntField & GetLine( int line_id );

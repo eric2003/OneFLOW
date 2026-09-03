@@ -35,7 +35,6 @@ License
 #include "BlkMesh.h"
 #include "Block3D.h"
 #include "Block2D.h"
-#include "HXPointer.h"
 #include "CurveInfo.h"
 #include "SegmentCtrl.h"
 #include "BlockElem.h"
@@ -97,17 +96,6 @@ Face2D * BlkFaceSolver::GetBlkFace2D( int blk, int face_id )
     return 0;
 }
 
-
-//int BlkFaceSolver::FindFace( HXKey<int> & face )
-//{
-//    std::set< HXKey<int> >::iterator iter = this->refFaces.find( face );
-//    if ( iter == this->refFaces.end() )
-//    {
-//        return ONEFLOW::INVALID_INDEX;
-//    }
-//    return iter->id;
-//}
-
 int BlkFaceSolver::FindFace( HXKey<int> & face )
 {
     auto iter = this->refFaces.find( face );
@@ -118,28 +106,13 @@ int BlkFaceSolver::FindFace( HXKey<int> & face )
     return iter->second;
 }
 
-//int BlkFaceSolver::FindFaceId( IntField & face )
-//{
-//    HXKey<int> fMid( face.size(), 0 );
-//    fMid.data = face;
-//    std::sort( fMid.data.begin(), fMid.data.end() );
-//
-//    std::set< HXKey<int> >::iterator iter = this->refFaces.find( fMid );
-//    if ( iter == this->refFaces.end() )
-//    {
-//        return ONEFLOW::INVALID_INDEX;
-//    }
-//    return iter->id;
-//}
-
 int BlkFaceSolver::FindFaceId( IntField & face )
 {
-    // 创建排序后的 key
+    // Create a sorted key
     HXKey<int> key(face);
 
     return this->FindFace(key);
 }
-
 
 void BlkFaceSolver::MyFaceBuildSDomainList()
 {
@@ -204,40 +177,6 @@ void BlkFaceSolver::Alloc()
     this->CreateFaceList();
 }
 
-//void BlkFaceSolver::CreateFaceList()
-//{
-//    //All cell faces have been built in faceset
-//    int nFaces = faceset.size();
-//    this->faceList.resize( nFaces );
-//    this->faceLinePosList.resize( nFaces );
-//
-//    int nLine = this->line2Face.size();
-//    for ( int iLine = 0; iLine < nLine; ++ iLine )
-//    {
-//        BlkF2C & line_struct = this->line2Face[ iLine ];
-//        int n = line_struct.cellList.size();
-//        for ( int i = 0; i < n; ++ i )
-//        {
-//            int face_id = line_struct.cellList[ i ] - 1;
-//            //line position in face
-//            int face_line_pos = line_struct.posList[ i ];
-//            faceList[ face_id ].push_back( line_struct.id );
-//            this->faceLinePosList[ face_id ].push_back( face_line_pos );
-//        }
-//    }
-//
-//    this->face2Block.resize( nFaces );
-//    for ( int iFace = 0; iFace < nFaces; ++ iFace )
-//    {
-//        IntField & face = this->faceList[ iFace ];
-//        HXKey<int> fMid( face.size(), iFace );
-//        fMid.id = iFace;
-//        fMid.data = face;
-//        std::sort( fMid.data.begin(), fMid.data.end() );
-//        this->refFaces.insert( fMid );
-//    }
-//}
-
 void BlkFaceSolver::CreateFaceList()
 {
     //All cell faces have been built in faceset
@@ -261,13 +200,13 @@ void BlkFaceSolver::CreateFaceList()
     }
 
     this->face2Block.resize( nFaces );
-    // 把已有的面注册到 refFaces（key → id）
+    // Register existing faces to refFaces (key → id).
     for ( int iFace = 0; iFace < nFaces; ++ iFace )
     {
         IntField & face = this->faceList[ iFace ];
 
-        HXKey<int> key(face);                 // 自动排序
-        this->refFaces.insert({key, iFace});  // 存 key → id
+        HXKey<int> key(face);                 // Auto-sort
+        this->refFaces.insert({key, iFace});  // Store key → id
     }
 }
 
@@ -282,58 +221,18 @@ int BlkFaceSolver::FindLineId( IntField & line )
     return this->FindId( line, this->refLines );
 }
 
-//int BlkFaceSolver::FindId( IntField & varlist, std::set< HXKey<int> > &refSets )
-//{
-//    HXKey<int> fMid( varlist.size(), 0 );
-//    fMid.data = varlist;
-//    std::sort( fMid.data.begin(), fMid.data.end() );
-//
-//    std::set< HXKey<int> >::iterator iter = refSets.find( fMid );
-//    if ( iter == refSets.end() )
-//    {
-//        return ONEFLOW::INVALID_INDEX;
-//    }
-//    return iter->id;
-//}
 
 int BlkFaceSolver::FindId(IntField& varlist, std::map<HXKey<int>, int>& refMaps)
 {
-    HXKey<int> key(varlist);          // 内部自动排序
+    HXKey<int> key(varlist); 
 
     auto iter = refMaps.find(key);
     if (iter == refMaps.end())
     {
         return ONEFLOW::INVALID_INDEX;
     }
-    return iter->second;              // 返回 id
+    return iter->second;
 }
-
-//void BlkFaceSolver::MyFaceAlloc()
-//{
-//    if ( init_flag ) return;
-//    init_flag = true;
-//    int nLine = line_Machine.curveInfoList.size();
-//    for ( int i = 0; i < nLine; ++ i )
-//    {
-//        CurveInfo * curveInfo = line_Machine.GetCurveInfo( i + 1 );
-//        IntField line;
-//        line.push_back( curveInfo->p1 );
-//        line.push_back( curveInfo->p2 );
-//        this->lineList.push_back( line );
-//    }
-//    this->line2Face.resize( nLine );
-//
-//    //The reference line segment std::set is std::set up to facilitate the search
-//    for ( int i = 0; i < nLine; ++ i )
-//    {
-//        IntField & line = this->lineList[ i ];
-//        HXKey<int> lMid( line.size(), i );
-//        lMid.id = i;
-//        lMid.data = line;
-//        std::sort( lMid.data.begin(), lMid.data.end() );
-//        this->refLines.insert( lMid );
-//    }
-//}
 
 void BlkFaceSolver::MyFaceAlloc()
 {
@@ -350,12 +249,12 @@ void BlkFaceSolver::MyFaceAlloc()
     }
     this->line2Face.resize( nLine );
 
-    // 建立参考线段 map，方便后续查找
+    // Build a reference segment map for easy subsequent lookup. 
     for (int i = 0; i < nLine; ++i)
     {
         IntField& line = this->lineList[i];
 
-        HXKey<int> key(line);                 // 自动排序
+        HXKey<int> key(line);                 // Auto sort
         this->refLines.insert({key, i});      // key → id
     }
 }

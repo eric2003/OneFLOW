@@ -50,7 +50,7 @@ License
 #include "Dimension.h"
 #include "CgnsBcBoco.h"
 #include "ElementHome.h"
-#include "HXPointer.h"
+#include "GridDef.h"
 #include "CalcGrid.h"
 #include "GridElem.h"
 #include "BgGrid.h"
