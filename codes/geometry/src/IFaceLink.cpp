@@ -64,33 +64,41 @@ void IFaceLink::AddFace( const IntField & facePointIndexes )
 
 void IFaceLink::CreateLink( IntField & faceNode, int zid, int lCount )
 {
-    int nTIFace = this->gI2Zid.size();
+    // Add face to the face list
+    this->AddFace(faceNode);
 
-    this->AddFace( faceNode );
+    // Build sorted face key for unique identification
+    IntField faceKey = faceNode;
+    std::sort(faceKey.begin(), faceKey.end());
 
-    std::sort( faceNode.begin(), faceNode.end() );
-    HXSort< IntField > face( faceNode, nTIFace );
-    std::set < HXSort< IntField > >::iterator iter = this->inFaceList.find( face );
+    // Check if face already exists
+    auto it = this->faceToIndex.find(faceKey);
 
-    if ( iter == this->inFaceList.end() )
+    if (it == this->faceToIndex.end())
     {
-        this->inFaceList.insert( face );
-        this->l2g[ zid ][ lCount ] = nTIFace;
+        // New face: assign a new global face ID
+        int gIid = this->faceToIndex.size();
+        this->faceToIndex[std::move(faceKey)] = gIid;
+
+        // Update local-to-global mapping
+        this->l2g[zid][lCount] = gIid;
+
+        // Initialize face connectivity data
         IntField zids;
         IntField lIid;
-        zids.push_back( zid );
-        lIid.push_back( lCount );
+        zids.push_back(zid);
+        lIid.push_back(lCount);
 
-        this->gI2Zid.push_back( zids );
-        this->g2l.push_back( lIid );
+        this->gI2Zid.push_back(std::move(zids));
+        this->g2l.push_back(std::move(lIid));
     }
     else
     {
-        int gIid = iter->index;
-        this->l2g[ zid ][ lCount ] = gIid;
-        this->gI2Zid[ gIid ].push_back( zid );
-        this->g2l[ gIid ].push_back( lCount );
-        //this->inFaceList.erase( iter ); //??
+        // Existing face: use the existing global face ID
+        int gIid = it->second;
+        this->l2g[zid][lCount] = gIid;
+        this->gI2Zid[gIid].push_back(zid);
+        this->g2l[gIid].push_back(lCount);
     }
 }
 

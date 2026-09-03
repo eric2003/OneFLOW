@@ -21,7 +21,6 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "Mesh.h"
-#include "HXSort.h"
 #include "CellMesh.h"
 #include "CellTopo.h"
 #include "NodeMesh.h"
@@ -377,61 +376,67 @@ void Mesh::ConstructTopology()
 {
     HXSize_t numberOfNodes = this->nodeMesh->GetNumberOfNodes();
     HXSize_t numberOfCells = this->cellMesh->GetNumberOfCells();
-    std::set< HXSort< IntField > > faceSet;
-    HXSort< IntField > faceForSorting;
+
+    // Use map to store: sorted node array -> face index
+    std::map<IntField, HXSize_t> faceToIndex;
 
     CellTopo * cellTopo = this->cellMesh->cellTopo;
     FaceTopo * faceTopo = this->faceMesh->faceTopo;
 
-    for ( HXSize_t iCell = 0; iCell < numberOfCells; ++ iCell )
+    // Estimate the number of faces and reserve space
+    HXSize_t estimatedFaces = numberOfCells * 2;  // Rough estimate
+    faceTopo->lCells.reserve(estimatedFaces);
+    faceTopo->rCells.reserve(estimatedFaces);
+    faceTopo->lPosition.reserve(estimatedFaces);
+    faceTopo->rPosition.reserve(estimatedFaces);
+    faceTopo->fTypes.reserve(estimatedFaces);
+    faceTopo->faces.reserve(estimatedFaces);
+
+    for (HXSize_t iCell = 0; iCell < numberOfCells; ++iCell)
     {
-        IntField & element = cellTopo->elements[ iCell ];
-
-        int elementType = cellTopo->eTypes[ iCell ];
-
-        UnitElement * unitElement = ONEFLOW::ElementHome::GetUnitElement( elementType );
+        const IntField& element = cellTopo->elements[iCell];
+        int elementType = cellTopo->eTypes[iCell];
+        UnitElement* unitElement = ONEFLOW::ElementHome::GetUnitElement(elementType);
         int numberOfFaceInElement = unitElement->GetElementFaceNumber();
 
-        for ( int iLocalFace = 0; iLocalFace < numberOfFaceInElement; ++ iLocalFace )
+        for (int iLocalFace = 0; iLocalFace < numberOfFaceInElement; ++iLocalFace)
         {
-            IntField & localFaceNodeIndexArray = unitElement->GetElementFace( iLocalFace );
-            int faceType = unitElement->GetFaceType( iLocalFace );
-            int numberOfFacePoints = localFaceNodeIndexArray.size();
+            const IntField& localFaceNodeIndexArray = unitElement->GetElementFace(iLocalFace);
+            int faceType = unitElement->GetFaceType(iLocalFace);
+
+            // Build the global node array for the current face
             IntField faceNodeIndexArray;
-            for ( int iFacePoint = 0; iFacePoint < numberOfFacePoints; ++ iFacePoint )
+            faceNodeIndexArray.reserve(localFaceNodeIndexArray.size());
+            for (int nodeIndex : localFaceNodeIndexArray)
             {
-                faceNodeIndexArray.push_back( element[ localFaceNodeIndexArray[ iFacePoint ] ] );
+                faceNodeIndexArray.push_back(element[nodeIndex]);
             }
 
-            IntField faceNodeIndexArraySort = faceNodeIndexArray;
-            std::sort( faceNodeIndexArraySort.begin(), faceNodeIndexArraySort.end() );
-            faceForSorting.value = faceNodeIndexArraySort;
+            // Sort the node array for unique face identification
+            IntField sortedNodes = faceNodeIndexArray;
+            std::sort(sortedNodes.begin(), sortedNodes.end());
 
-            std::set< HXSort< IntField > >::iterator iter = faceSet.find( faceForSorting );
-            if ( iter == faceSet.end() )
+            auto it = faceToIndex.find(sortedNodes);
+            if (it == faceToIndex.end())
             {
-                faceForSorting.index = faceSet.size();
-                faceSet.insert( faceForSorting );
-                int faceIndex = faceForSorting.index;
-                int newSize = faceIndex + 1;
-                faceTopo->lCells.resize( newSize );
-                faceTopo->rCells.resize( newSize );
-                faceTopo->lPosition.resize( newSize );
-                faceTopo->rPosition.resize( newSize );
-                faceTopo->fTypes.resize( newSize );
+                // New face: assign a new index
+                HXSize_t faceIndex = faceToIndex.size();
+                faceToIndex[std::move(sortedNodes)] = faceIndex;
 
-                faceTopo->fTypes[ faceIndex ] = faceType;
-                faceTopo->lCells[ faceIndex ] = iCell;
-                faceTopo->rCells[ faceIndex ] = ONEFLOW::INVALID_INDEX;
-                faceTopo->lPosition[ faceIndex ] = iLocalFace;
-                faceTopo->rPosition[ faceIndex ] = ONEFLOW::INVALID_INDEX;
-                faceTopo->faces.push_back( faceNodeIndexArray );
+                // Add face data
+                faceTopo->lCells.push_back(iCell);
+                faceTopo->rCells.push_back(ONEFLOW::INVALID_INDEX);
+                faceTopo->lPosition.push_back(iLocalFace);
+                faceTopo->rPosition.push_back(ONEFLOW::INVALID_INDEX);
+                faceTopo->fTypes.push_back(faceType);
+                faceTopo->faces.push_back(std::move(faceNodeIndexArray));
             }
             else
             {
-                int faceIndex = iter->index;
-                faceTopo->rCells[ faceIndex ] = iCell;
-                faceTopo->rPosition[ faceIndex ] = iLocalFace;
+                // Existing face: update the right cell information
+                HXSize_t faceIndex = it->second;
+                faceTopo->rCells[faceIndex] = iCell;
+                faceTopo->rPosition[faceIndex] = iLocalFace;
             }
         }
     }

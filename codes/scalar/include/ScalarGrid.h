@@ -88,6 +88,8 @@ public:
 
     void Resize( int new_size );
 
+    void Reserve( int new_size );
+
     void ReOrder( IntList & orderMap );
 };
 
@@ -109,6 +111,8 @@ public:
     }
 
     void ReOrder( IntList & orderMap );
+
+    void Reserve( int new_size );
 
     void Resize( int new_size );
 };

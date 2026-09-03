@@ -23,6 +23,7 @@ License
 #include "Boundary.h"
 #include "HXCgns.h"
 #include "Dimension.h"
+#include "Constant.h"
 
 #include "Prj.h"
 #include "BcRecord.h"
@@ -181,45 +182,26 @@ int BcTypeMap::Cgns2OneFlow( int cgns_bctype )
     return oneflow_bctype;
 }
 
-CommonNameMap::CommonNameMap()
+void CommonNameMap::AddName(const std::string& name)
 {
-}
-
-CommonNameMap::~CommonNameMap()
-{
-}
-
-void CommonNameMap::AddName( const std::string & name )
-{
-    HXSort< std::string > data;
-    data.value = name;
-    data.index = 0;
-
-    std::set< HXSort< std::string > >::iterator iter = this->stringMap.find( data );
-
-    if ( iter == this->stringMap.end() )
+    // Check if name already exists
+    auto it = this->stringMap.find(name);
+    if (it == this->stringMap.end())
     {
-        data.index = this->stringMap.size();
-        stringMap.insert( data );
+        // New name: assign a new ID
+        int newId = this->stringMap.size();
+        this->stringMap[name] = newId;
     }
 }
 
-int CommonNameMap::FindNameId( const std::string & name )
+int CommonNameMap::FindNameId(const std::string& name) const
 {
-    HXSort< std::string > data;
-    data.value = name;
-    data.index = 0;
-
-    std::set< HXSort< std::string > >::iterator iter = this->stringMap.find( data );
-
-    if ( iter == this->stringMap.end() )
+    auto it = this->stringMap.find(name);
+    if (it == stringMap.end())
     {
-        return - 1;
+        return  ONEFLOW::INVALID_INDEX;  // Not found
     }
-    else
-    {
-        return iter->index;
-    }
+    return it->second;
 }
 
 void DumpRegion( const std::string & fileName, CommonNameMap & nameMap )
@@ -227,15 +209,16 @@ void DumpRegion( const std::string & fileName, CommonNameMap & nameMap )
     std::fstream file;
     Prj::OpenPrjFile( file, fileName, std::ios_base::out );
 
-    std::set< HXSort< std::string > > & stringMap = nameMap.GetNameMap();
+    const auto& stringMap = nameMap.GetNameMap();
 
     file << stringMap.size() << std::endl;
 
-    for ( std::set< HXSort< std::string > >::iterator iter = stringMap.begin(); iter != stringMap.end(); ++ iter )
+    for (const auto& pair : stringMap)
     {
-        file << iter->index << " " << iter->value << std::endl;
+        file << pair.second << " " << pair.first << std::endl;
     }
-    Prj::CloseFile( file );
+
+    Prj::CloseFile(file);
 }
 
 CommonNameMap RegionNameMap::nameMap;

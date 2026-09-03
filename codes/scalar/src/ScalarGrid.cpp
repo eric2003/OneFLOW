@@ -34,14 +34,12 @@ License
 #include "CgnsZbase.h"
 #include "CgnsBase.h"
 #include "CgnsZone.h"
-#include "CgnsCoor.h"
 #include "CgnsFile.h"
 #include "Constant.h"
 #include "HXCgns.h"
 #include "StringUtils.h"
 #include "Dimension.h"
 #include "ElementHome.h"
-#include "HXSort.h"
 #include "HXMath.h"
 #include "HXMathExt.h"
 #include "Boundary.h"
@@ -113,6 +111,11 @@ void IntList::Resize( int new_size )
 	data.resize( new_size );
 }
 
+void IntList::Reserve( int new_size )
+{
+	data.reserve( new_size );
+}
+
 void IntList::ReOrder( IntList & orderMap )
 {
 	IntList dataSwap = * this;
@@ -165,6 +168,11 @@ void EList::ReOrder( IntList & orderMap )
 void EList::Resize( int new_size )
 {
 	data.resize( new_size );
+}
+
+void EList::Reserve( int new_size )
+{
+	data.reserve( new_size );
 }
 
 ScalarBcco::ScalarBcco()
@@ -864,65 +872,69 @@ void ScalarGrid::CalcGhostCellCenterVol1D()
 void ScalarGrid::CalcTopology()
 {
 	this->nNodes = this->GetNNodes();
-
 	this->nCells = this->GetNCells();
 
-	std::set< HXSort< IntField > > faceSet;
-	HXSort< IntField > faceForSorting;
+	// Use map to store: sorted node array -> face index
+	std::map<IntField, int> faceToIndex;
+
+	// Estimate the number of faces and reserve space
+	int estimatedFaces = this->nCells * 2;  // Rough estimate
+	this->lc.Reserve(estimatedFaces);
+	this->rc.Reserve(estimatedFaces);
+	this->lpos.Reserve(estimatedFaces);
+	this->rpos.Reserve(estimatedFaces);
+	this->fTypes.Reserve(estimatedFaces);
+	this->fBcTypes.Reserve(estimatedFaces);
+	this->faces.Reserve(estimatedFaces);
 
 	for ( int iCell = 0; iCell < nCells; ++ iCell )
 	{
-		std::vector< int > & element = elements[ iCell ];
-
-		int eType = eTypes[ iCell ];
-
-		UnitElement * unitElement = ElementHome::GetUnitElement( eType );
-
+		const std::vector<int>& element = elements[iCell];
+		int eType = eTypes[iCell];
+		UnitElement* unitElement = ElementHome::GetUnitElement(eType);
 		int numberOfFaceInElement = unitElement->GetElementFaceNumber();
 
 		for ( int iLocalFace = 0; iLocalFace < numberOfFaceInElement; ++ iLocalFace )
 		{
-			IntField & localFaceNodeIndexArray = unitElement->GetElementFace( iLocalFace );
-			int faceType = unitElement->GetFaceType( iLocalFace );
-			int numberOfFacePoints = localFaceNodeIndexArray.size();
-			IntList faceNodeIndexArray;
-			for ( int iFacePoint = 0; iFacePoint < numberOfFacePoints; ++ iFacePoint )
+			const IntField& localFaceNodeIndexArray = unitElement->GetElementFace(iLocalFace);
+			int faceType = unitElement->GetFaceType(iLocalFace);
+
+			// Build the global node array for the current face
+			IntField faceNodeIndexArray;
+			faceNodeIndexArray.reserve(localFaceNodeIndexArray.size());
+			for (int nodeIndex : localFaceNodeIndexArray)
 			{
-				faceNodeIndexArray.AddData( element[ localFaceNodeIndexArray[ iFacePoint ] ] );
+				faceNodeIndexArray.push_back(element[nodeIndex]);
 			}
 
-			IntField faceNodeIndexArraySort = faceNodeIndexArray.data;
-			std::sort( faceNodeIndexArraySort.begin(), faceNodeIndexArraySort.end() );
-			faceForSorting.value = faceNodeIndexArraySort;
+			// Sort the node array for unique face identification
+			IntField sortedNodes = faceNodeIndexArray;
+			std::sort(sortedNodes.begin(), sortedNodes.end());
 
-			std::set< HXSort< IntField > >::iterator iter = faceSet.find( faceForSorting );
-			if ( iter == faceSet.end() )
+			auto it = faceToIndex.find(sortedNodes);
+
+			if (it == faceToIndex.end())
 			{
-				faceForSorting.index = faceSet.size();
-				faceSet.insert( faceForSorting );
-				int faceIndex = faceForSorting.index;
-				int newSize = faceIndex + 1;
-				this->lc.Resize( newSize );
-				this->rc.Resize( newSize );
-				this->lpos.Resize( newSize );
-				this->rpos.Resize( newSize );
-				this->fTypes.Resize( newSize );
-				this->fBcTypes.Resize( newSize );
+				// New face: assign a new index
+				int faceIndex = faceToIndex.size();
+				faceToIndex[std::move(sortedNodes)] = faceIndex;
 
-				this->fTypes[ faceIndex ] = faceType;
-				this->fBcTypes[ faceIndex ] = ONEFLOW::INVALID_INDEX;
-				this->lc[ faceIndex ] = iCell;
-				this->rc[ faceIndex ] = ONEFLOW::INVALID_INDEX;
-				this->lpos[ faceIndex ] = iLocalFace;
-				this->rpos[ faceIndex ] = ONEFLOW::INVALID_INDEX;
-				this->faces.AddElem( faceNodeIndexArray );
+				// Add face data
+				this->lc.data.push_back(iCell);
+				this->rc.data.push_back(ONEFLOW::INVALID_INDEX);
+				this->lpos.data.push_back(iLocalFace);
+				this->rpos.data.push_back(ONEFLOW::INVALID_INDEX);
+				this->fTypes.data.push_back(faceType);
+				this->fBcTypes.data.push_back(ONEFLOW::INVALID_INDEX);
+				this->faces.data.push_back(std::move(faceNodeIndexArray));
 			}
 			else
 			{
-				int faceIndex = iter->index;
-				this->fBcTypes[ faceIndex ] = ONEFLOW::BCTypeNull; //inner bc
-				this->rc[ faceIndex ] = iCell;
-				this->rpos[ faceIndex ] = iLocalFace;
+				// Existing face: update the right cell information
+				int faceIndex = it->second;
+				this->fBcTypes[faceIndex] = ONEFLOW::BCTypeNull;  // Internal face
+				this->rc[faceIndex] = iCell;
+				this->rpos[faceIndex] = iLocalFace;
 			}
 		}
 	}
@@ -1509,8 +1521,5 @@ void ScalarGrid::ReconstructNode( ScalarGrid * ggrid )
 		this->zn.AddData( zm );
 	}
 }
-
-
-
 
 EndNameSpace

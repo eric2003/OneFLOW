@@ -25,9 +25,9 @@ License
 #include "NamespaceMacros.h"
 #include "HXType.h"
 #include "HXDefine.h"
-#include "HXSort.h"
 #include <vector>
 #include <set>
+#include <map>
 
 BeginNameSpace( ONEFLOW )
 
@@ -79,14 +79,13 @@ public:
     std::vector< Real > cpList, cfList;
     std::vector< int > extremeList;
     std::vector< int > idList;
-    std::vector< HXSort< Real > > xsList;
     std::vector< Real > dsList;
     std::vector< VectDir > vectDirList;
     std::set< int > idset;
     std::vector< int > newidlist;
     std::vector< std::set< int > > p2p;
     std::vector< IntField > extremeEdgeList;
-    std::set< HXSort< IntField > > searchEdgeList;
+    std::map<IntField, int> edgeToIndex;  // Edge nodes -> edge ID
     PointEdgeClass pec;
     std::string file_prestr;
 public:

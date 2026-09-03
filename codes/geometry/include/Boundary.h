@@ -22,7 +22,7 @@ License
 
 
 #pragma once
-#include "HXSort.h"
+#include "NamespaceMacros.h"
 #include <string>
 #include <map>
 #include <set>
@@ -81,14 +81,15 @@ public:
 class CommonNameMap
 {
 public:
-    CommonNameMap();
-    ~CommonNameMap();
-protected:
-    std::set< HXSort< std::string > > stringMap;
-public:
-    void AddName( const std::string & name );
-    int  FindNameId( const std::string & name );
-    std::set< HXSort< std::string > > & GetNameMap() { return stringMap; }
+    CommonNameMap() = default;
+    ~CommonNameMap() = default;
+
+    void AddName(const std::string& name);
+    int FindNameId(const std::string& name) const;
+    const std::map<std::string, int>& GetNameMap() const { return stringMap; }
+
+private:
+    std::map<std::string, int> stringMap;  // String -> ID mapping
 };
 
 void DumpRegion( const std::string & fileName, CommonNameMap & nameMap );
