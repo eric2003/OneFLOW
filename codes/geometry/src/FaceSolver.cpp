@@ -37,7 +37,7 @@ FaceSolver::FaceSolver()
     this->faceBcType = new IntField();
     this->childFid = new LinkField();
 
-    this->refFaces = new std::map< HXKey<int>, int >;
+    //this->refFaces = new std::map< HXKey<int>, int >;
     this->faceTopo = new FaceTopo();
 }
 
@@ -47,19 +47,20 @@ FaceSolver::~FaceSolver()
     delete this->faceBcType;
     delete this->childFid;
 
-    delete this->refFaces;
+    //delete this->refFaces;
     delete this->faceTopo;
 }
 
-int FaceSolver::FindFace( HXKey<int> & face )
-{
-    auto iter = this->refFaces->find( face );
-    if ( iter == this->refFaces->end() )
-    {
-        return ONEFLOW::INVALID_INDEX;
-    }
-    return iter->second;
-}
+//int FaceSolver::FindFace( HXKey<int> & face )
+//{
+//    auto iter = this->refFaces->find( face );
+//    if ( iter == this->refFaces->end() )
+//    {
+//        return ONEFLOW::INVALID_INDEX;
+//    }
+//    return iter->second;
+//}
+
 
 bool FaceSolver::CheckBcFace( IntSet & bcVertex, IntField & nodeId )
 {
@@ -91,12 +92,11 @@ void FaceSolver::ScanPolygonFace( CgnsSection * cgnsSection )
         }
 
         HXKey<int> key( faceNodes );
-        int gFid = this->FindFace( key );
+        int gFid = this->faceLookup.FindOrAdd( key.data );
         if ( gFid == ONEFLOW::INVALID_INDEX )
         {
             // New face: ID is set to the current number of faces. 
             int newId = static_cast<int>(this->faceTopo->faces.size());
-            this->refFaces->insert({key, newId});                 // Store key ¡ú id 
             this->faceTopo->faces.push_back(faceNodes);           // Preserve original order
             this->faceTopo->fTypes.push_back(cgnsSection->eType);
             this->faceTopo->faceFlags.push_back(0);
@@ -174,21 +174,11 @@ void FaceSolver::ScanElementFace( CgIntField & eNodeId, int eType, int eId )
         // Create a sorted key
         HXKey<int> key(aNodeId);
 
-        int gFid = this->FindFace(key);
+        int gFid = this->faceLookup.FindOrAdd( key.data );
 
         if ( gFid == ONEFLOW::INVALID_INDEX )
         {
-            int totalfn    = this->refFaces->size();
-            int faceNumber = this->faceTopo->lCells.size();
-            if ( totalfn != faceNumber )
-            {
-                std::cout << "totalfn != faceNumber " << totalfn << " " << faceNumber << std::endl;
-                Stop("");
-            }
-
-            int newId = faceNumber;   // New ID = current number of faces
-
-            this->refFaces->insert({key, newId});                 // key ¡ú id
+            int totalfn = this->faceLookup.Size();
 
             this->faceTopo->lCells.push_back( eId );
             this->faceTopo->rCells.push_back( ONEFLOW::INVALID_INDEX );
@@ -198,7 +188,7 @@ void FaceSolver::ScanElementFace( CgIntField & eNodeId, int eType, int eId )
             this->faceTopo->fTypes.push_back( fType );
 
             this->faceTopo->faces.push_back( aNodeId );
-            this->childFid->resize( totalfn + 1 );
+            this->childFid->resize( totalfn );
         }
         else
         {

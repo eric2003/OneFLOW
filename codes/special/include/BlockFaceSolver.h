@@ -23,7 +23,7 @@ License
 
 #pragma once
 #include "HXDefine.h"
-#include "HXKey.h"
+#include "HXLookup.h"
 #include "CalcCoor.h"
 #include "SimpleDomain.h"
 #include "GridDef.h"
@@ -59,8 +59,8 @@ public:
     LinkField lineList; 
     LinkField faceList;
     LinkField faceLinePosList;
-    std::map<HXKey<int>, int> refLines;
-    std::map<HXKey<int>, int> refFaces;   // key ¡ú id
+    HXLookup<int> lineLookup;
+    HXLookup<int> faceLookup;
     IntSet faceset;
     HXVector< BlkF2C > line2Face;
     HXVector< BlkF2C > face2Block;
@@ -74,7 +74,6 @@ public:
     void MyFaceAlloc();
     void CreateFaceList();
     int  FindLineId( IntField & line );
-    int  FindId( IntField & varlist, std::map<HXKey<int>, int> & refMaps );
     IntField & GetLine( int line_id );
     void MyFaceBuildSDomainList();
     void MyFaceGenerateFaceMesh();

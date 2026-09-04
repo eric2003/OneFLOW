@@ -96,24 +96,6 @@ Face2D * BlkFaceSolver::GetBlkFace2D( int blk, int face_id )
     return 0;
 }
 
-//int BlkFaceSolver::FindFace( HXKey<int> & face )
-//{
-//    auto iter = this->refFaces.find( face );
-//    if ( iter == this->refFaces.end() )
-//    {
-//        return ONEFLOW::INVALID_INDEX;
-//    }
-//    return iter->second;
-//}
-
-//int BlkFaceSolver::FindFaceId( IntField & face )
-//{
-//    // Create a sorted key
-//    HXKey<int> key(face);
-//
-//    return this->FindFace(key);
-//}
-
 void BlkFaceSolver::MyFaceBuildSDomainList()
 {
     int nFaces = this->face2Block.size();
@@ -200,15 +182,16 @@ void BlkFaceSolver::CreateFaceList()
     }
 
     this->face2Block.resize( nFaces );
-    // Register existing faces to refFaces (key ¡ú id).
+    // Register existing faces to faceLookup (key ¡ú id).
     for ( int iFace = 0; iFace < nFaces; ++ iFace )
     {
         IntField & face = this->faceList[ iFace ];
 
         HXKey<int> key(face);                 // Auto-sort
-        this->refFaces.insert({key, iFace});  // Store key ¡ú id
+        this->faceLookup.FindOrAdd( key.data );
     }
 }
+
 
 IntField & BlkFaceSolver::GetLine( int line_id )
 {
@@ -218,20 +201,7 @@ IntField & BlkFaceSolver::GetLine( int line_id )
 
 int BlkFaceSolver::FindLineId( IntField & line )
 {
-    return this->FindId( line, this->refLines );
-}
-
-
-int BlkFaceSolver::FindId(IntField& varlist, std::map<HXKey<int>, int>& refMaps)
-{
-    HXKey<int> key(varlist); 
-
-    auto iter = refMaps.find(key);
-    if (iter == refMaps.end())
-    {
-        return ONEFLOW::INVALID_INDEX;
-    }
-    return iter->second;
+    return this->lineLookup.Find(line);
 }
 
 void BlkFaceSolver::MyFaceAlloc()
@@ -253,9 +223,7 @@ void BlkFaceSolver::MyFaceAlloc()
     for (int i = 0; i < nLine; ++i)
     {
         IntField& line = this->lineList[i];
-
-        HXKey<int> key(line);                 // Auto sort
-        this->refLines.insert({key, i});      // key ¡ú id
+        this->lineLookup.FindOrAdd( line );
     }
 }
 

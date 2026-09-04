@@ -26,12 +26,8 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-typedef double Real;
-typedef std::size_t HXSize_t;
-typedef std::streamsize HXLongLong_t;
-
-const double LARGE = 1.0e40;
-const double SMALL = 1.0e-40;
-const double TINY  = 1.0e-40;
+using Real        = double;
+using HXSize_t    = std::size_t;
+using HXLongLong_t = std::streamsize;
 
 EndNameSpace

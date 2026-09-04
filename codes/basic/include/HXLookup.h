@@ -24,6 +24,7 @@ License
 
 #include "HXKey.h"
 #include "HXVector.h"
+#include "Constant.h"
 #include <set>
 #include <map>
 #include <vector>
@@ -32,7 +33,7 @@ License
 BeginNameSpace(ONEFLOW)
 
 template<typename T = int>
-class HXKeyLookup
+class HXLookup
 {
 public:
     using key_type       = HXKey<T>;
@@ -65,8 +66,6 @@ public:
     std::size_t Size()  const { return map_.size(); }
     void        Clear()       { map_.clear(); }
 
-    static constexpr int INVALID_ID = -1;
-
 private:
     std::map<key_type, int> map_;
 
@@ -78,20 +77,21 @@ private:
 
         int newId = static_cast<int>(map_.size());
         map_.emplace(key, newId);
-        return newId;
+        //return newId;
+        return INVALID_INDEX;
     }
 
     int FindImpl(const key_type& key) const
     {
         auto it = map_.find(key);
-        return (it == map_.end()) ? INVALID_ID : it->second;
+        return (it == map_.end()) ? INVALID_INDEX : it->second;
     }
 };
 
 // Convenient aliases
-using IntKeyLookup  = HXKeyLookup<int>;
-using IntFaceLookup = HXKeyLookup<int>;   // keep old name if needed
-using IntCellLookup = HXKeyLookup<int>;
-using IntLineLookup = HXKeyLookup<int>;
+using IntKeyLookup  = HXLookup<int>;
+using IntFaceLookup = HXLookup<int>;   // keep old name if needed
+using IntCellLookup = HXLookup<int>;
+using IntLineLookup = HXLookup<int>;
 
 EndNameSpace
