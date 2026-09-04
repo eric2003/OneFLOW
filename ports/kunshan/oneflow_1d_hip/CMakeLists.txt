@@ -29,6 +29,40 @@ if ( ONEFLOW_1D_ENABLE_MPI_BENCHMARK )
         oneflow_1d_euler_mpi_cpu_benchmark PRIVATE MPI::MPI_CXX )
 endif()
 
+
+option(
+    ONEFLOW_1D_ENABLE_GTEST
+    "Build Euler backend GoogleTest targets"
+    OFF )
+
+if ( ONEFLOW_1D_ENABLE_GTEST )
+    enable_testing()
+    if ( NOT TARGET GTest::gtest_main )
+        add_subdirectory(
+            ${CMAKE_CURRENT_LIST_DIR}/../../../ThirdParty/googletest
+            ${CMAKE_CURRENT_BINARY_DIR}/googletest
+            EXCLUDE_FROM_ALL )
+    endif()
+    include( GoogleTest )
+
+    set( ONEFLOW_EULER_CONTRACT_TEST
+         ${CMAKE_CURRENT_LIST_DIR}/../../../tests/euler_backend_contract_test.cpp )
+    add_executable(
+        oneflow_1d_euler_cpu_backend_test
+        ${ONEFLOW_EULER_CONTRACT_TEST}
+        OneDEuler.cpp
+        OneDEulerBackend.cpp )
+    target_include_directories(
+        oneflow_1d_euler_cpu_backend_test
+        PRIVATE ${CMAKE_CURRENT_LIST_DIR} )
+    target_compile_options(
+        oneflow_1d_euler_cpu_backend_test PRIVATE -ffp-contract=off )
+    target_link_libraries(
+        oneflow_1d_euler_cpu_backend_test PRIVATE GTest::gtest_main )
+    gtest_discover_tests(
+        oneflow_1d_euler_cpu_backend_test DISCOVERY_MODE PRE_TEST )
+endif()
+
 option( ONEFLOW_1D_ENABLE_HIP "Build the native HIP validation executable" OFF )
 if ( ONEFLOW_1D_ENABLE_HIP )
     if ( NOT CMAKE_HIP_ARCHITECTURES )
@@ -64,6 +98,28 @@ if ( ONEFLOW_1D_ENABLE_HIP )
     target_compile_definitions( oneflow_1d_euler_hip PRIVATE ONEFLOW_1D_USE_HIP=1 )
     target_compile_options( oneflow_1d_euler_hip PRIVATE -ffp-contract=off )
     target_link_libraries( oneflow_1d_euler_hip PRIVATE hip::host )
+
+    if ( ONEFLOW_1D_ENABLE_GTEST )
+        add_executable(
+            oneflow_1d_euler_hip_backend_test
+            ${ONEFLOW_EULER_CONTRACT_TEST}
+            OneDEuler.cpp
+            OneDEulerBackend.cpp
+            OneDEulerPersistent.hip )
+        target_compile_definitions(
+            oneflow_1d_euler_hip_backend_test PRIVATE ONEFLOW_1D_USE_HIP=1 )
+        target_compile_options(
+            oneflow_1d_euler_hip_backend_test PRIVATE -ffp-contract=off )
+        target_include_directories(
+            oneflow_1d_euler_hip_backend_test
+            PRIVATE ${CMAKE_CURRENT_LIST_DIR} )
+        target_link_libraries(
+            oneflow_1d_euler_hip_backend_test
+            PRIVATE GTest::gtest_main hip::host )
+        gtest_discover_tests(
+            oneflow_1d_euler_hip_backend_test DISCOVERY_MODE PRE_TEST )
+    endif()
+
 
     set_source_files_properties( OneDEulerProfile.hip PROPERTIES LANGUAGE HIP )
     add_executable(
