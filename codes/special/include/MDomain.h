@@ -23,7 +23,6 @@ License
 
 #pragma once
 #include "HXDefine.h"
-#include "HXKey.h"
 #include "CalcCoor.h"
 #include "SimpleDomain.h"
 #include <set>

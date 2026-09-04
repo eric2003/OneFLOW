@@ -36,8 +36,6 @@ FaceSolver::FaceSolver()
     this->faceBcKey = new IntField();
     this->faceBcType = new IntField();
     this->childFid = new LinkField();
-
-    //this->refFaces = new std::map< HXKey<int>, int >;
     this->faceTopo = new FaceTopo();
 }
 
@@ -50,17 +48,6 @@ FaceSolver::~FaceSolver()
     //delete this->refFaces;
     delete this->faceTopo;
 }
-
-//int FaceSolver::FindFace( HXKey<int> & face )
-//{
-//    auto iter = this->refFaces->find( face );
-//    if ( iter == this->refFaces->end() )
-//    {
-//        return ONEFLOW::INVALID_INDEX;
-//    }
-//    return iter->second;
-//}
-
 
 bool FaceSolver::CheckBcFace( IntSet & bcVertex, IntField & nodeId )
 {
@@ -91,8 +78,7 @@ void FaceSolver::ScanPolygonFace( CgnsSection * cgnsSection )
             faceNodes.push_back( node );
         }
 
-        HXKey<int> key( faceNodes );
-        int gFid = this->faceLookup.FindOrAdd( key.data );
+        int gFid = this->faceLookup.FindOrAdd( faceNodes );
         if ( gFid == ONEFLOW::INVALID_INDEX )
         {
             // New face: ID is set to the current number of faces. 
@@ -171,10 +157,7 @@ void FaceSolver::ScanElementFace( CgIntField & eNodeId, int eType, int eId )
             aNodeId.push_back( eNodeId[ rNodeId[ iNode ] ] );
         }                                                              
 
-        // Create a sorted key
-        HXKey<int> key(aNodeId);
-
-        int gFid = this->faceLookup.FindOrAdd( key.data );
+        int gFid = this->faceLookup.FindOrAdd( aNodeId );
 
         if ( gFid == ONEFLOW::INVALID_INDEX )
         {

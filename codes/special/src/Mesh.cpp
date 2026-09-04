@@ -33,7 +33,7 @@ License
 #include "Visual.h"
 #include "Dimension.h"
 #include "DataBase.h"
-#include "HXKey.h"
+#include "HXLookup.h"
 #include <algorithm>
 #include <iostream>
 #include <ctime>
@@ -378,9 +378,6 @@ void Mesh::ConstructTopology()
     HXSize_t numberOfNodes = this->nodeMesh->GetNumberOfNodes();
     HXSize_t numberOfCells = this->cellMesh->GetNumberOfCells();
 
-    // Use HXKey as sorted node array -> face index
-    std::map<HXKey<int>, int> faceToIndex;
-
     CellTopo * cellTopo = this->cellMesh->cellTopo;
     FaceTopo * faceTopo = this->faceMesh->faceTopo;
 
@@ -392,6 +389,8 @@ void Mesh::ConstructTopology()
     faceTopo->rPosition.reserve(estimatedFaces);
     faceTopo->fTypes.reserve(estimatedFaces);
     faceTopo->faces.reserve(estimatedFaces);
+
+    HXLookup<int> faceLookup;
 
     for (HXSize_t iCell = 0; iCell < numberOfCells; ++iCell)
     {
@@ -413,15 +412,9 @@ void Mesh::ConstructTopology()
                 faceNodeIndexArray.push_back(element[nodeIndex]);
             }
 
-            HXKey<int> key( faceNodeIndexArray );
-
-            auto it = faceToIndex.find(key);
-            if (it == faceToIndex.end())
+            int faceIndex = faceLookup.FindOrAdd( faceNodeIndexArray );  // Ensure the face is registered in the lookup
+            if ( faceIndex == ONEFLOW::INVALID_INDEX )
             {
-                // New face: assign a new index
-                HXSize_t faceIndex = faceToIndex.size();
-                faceToIndex[std::move(key)] = faceIndex;
-
                 // Add face data
                 faceTopo->lCells.push_back(iCell);
                 faceTopo->rCells.push_back(ONEFLOW::INVALID_INDEX);
@@ -432,8 +425,6 @@ void Mesh::ConstructTopology()
             }
             else
             {
-                // Existing face: update the right cell information
-                HXSize_t faceIndex = it->second;
                 faceTopo->rCells[faceIndex] = iCell;
                 faceTopo->rPosition[faceIndex] = iLocalFace;
             }

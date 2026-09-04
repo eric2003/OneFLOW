@@ -24,7 +24,6 @@ License
 #pragma once
 #include "HXDefine.h"
 #include "HXCgns.h"
-#include "HXKey.h"
 #include "HXLookup.h"
 #include <vector>
 #include <set>
@@ -44,14 +43,12 @@ public:
     ~FaceSolver();
 public:
     HXLookup<int> faceLookup;
-    //std::map< HXKey<int>, int > * refFaces;   // key ¡ú id
     IntField * faceBcKey;
     IntField * faceBcType;
     LinkField * childFid;
 public:
     FaceTopo * faceTopo;
 public:
-    //int FindFace( HXKey<int> & face );
     bool CheckBcFace( IntSet & bcVertex, IntField & nodeId );
     void ScanElementFace( CgIntField & eNodeId, int eType, int eId );
     void ScanBcFace( IntSet & bcVertex, int bcType, int bcNameId );

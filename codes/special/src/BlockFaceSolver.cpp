@@ -186,9 +186,7 @@ void BlkFaceSolver::CreateFaceList()
     for ( int iFace = 0; iFace < nFaces; ++ iFace )
     {
         IntField & face = this->faceList[ iFace ];
-
-        HXKey<int> key(face);                 // Auto-sort
-        this->faceLookup.FindOrAdd( key.data );
+        this->faceLookup.FindOrAdd( face );
     }
 }
 

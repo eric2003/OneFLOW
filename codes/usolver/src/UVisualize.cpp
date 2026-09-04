@@ -36,7 +36,7 @@ License
 #include "ZoneState.h"
 #include "StringUtils.h"
 #include "Prj.h"
-#include "HXKey.h"
+#include "HXLookup.h"
 #include "NodeMesh.h"
 #include "NsCtrl.h"
 #include <sstream>
@@ -127,8 +127,7 @@ void BcVisual::ResolveElementEdge()
 {
     int nFaces = this->f2n.size();
     int nSize = 2;
-
-    std::map< HXKey<int>, int > edgeMap;
+    HXLookup<int> faceLookup;
 
     for ( int fId = 0; fId < nFaces; ++ fId )
     {
@@ -143,29 +142,17 @@ void BcVisual::ResolveElementEdge()
 
             if ( ip1 == ip2 ) continue;
 
-            IntField eNodeId;
-            eNodeId.push_back( ip1 );
-            eNodeId.push_back( ip2 );
+            IntField edgeNodeId;
+            edgeNodeId.push_back( ip1 );
+            edgeNodeId.push_back( ip2 );
 
-            HXKey<int> key(eNodeId);  
-
-            int  edgeIndex;
-            auto iter = edgeMap.find( key );
-            if ( iter == edgeMap.end() )
-            {
-                edgeIndex = ONEFLOW::INVALID_INDEX;
-            }
-            else
-            {
-                edgeIndex = iter->second;                 // Original: iter->id ¡ú iter->second 
-            }
+            int edgeIndex = faceLookup.FindOrAdd( edgeNodeId );
 
             if ( edgeIndex == ONEFLOW::INVALID_INDEX )
             {
-                edgeMap.insert( { key, this->e2n.size() } );  // Record the new edge index
                 this->lcell.push_back( fId );
                 this->rcell.push_back( -1 );      
-                this->e2n.push_back( eNodeId );
+                this->e2n.push_back( edgeNodeId );
             }
             else
             {

@@ -78,23 +78,12 @@ int LineMachine::AddLine(int p1, int p2)
     line.push_back(p1);
     line.push_back(p2);
 
-    HXKey<int> key(line);          // Auto-sort
-
-    auto iter = this->refLines.find(key);
-    if (iter == this->refLines.end())
+    int lineIndex = this->lineLookup.FindOrAdd( line ); // Ensure the line is registered in the lookup
+    if ( lineIndex == ONEFLOW::INVALID_INDEX )
     {
-        // New lines, IDs start from 1 (consistent with the original n+1 logic).
-        int newId = static_cast<int>(this->refLines.size()) + 1;
-
-        this->refLines.insert({key, newId});
         this->lineList.push_back(line);     // Preserve original order
-
-        return newId;
     }
-    else
-    {
-        return iter->second;                // Return existing ID
-    }
+    return lineIndex;
 }
 
 void LineMachine::AddLine( int p1, int p2, int id )

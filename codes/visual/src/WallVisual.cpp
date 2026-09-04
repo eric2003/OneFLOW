@@ -26,7 +26,7 @@ License
 #include "ElementHome.h"
 #include "HXMath.h"
 #include "HXCgns.h"
-#include "HXKey.h"
+#include "HXLookup.h"
 #include "Dimension.h"
 #include <algorithm>
 #include <fstream>
@@ -114,18 +114,12 @@ void WallVisual::PushElement( int p1, int p2, int p3, int p4, int elementType )
 
 void WallVisual::BuildFaceTopo( IntField & faceNodeIndexArray, int loc_Face, int iCell, int face_type )
 {
-    static std::map<HXKey<int>, int> faceToIndex;
-    HXKey<int> key(faceNodeIndexArray); 
+    static HXLookup<int> faceLookup;
 
-    auto it = faceToIndex.find(key);
+    int it = faceLookup.FindOrAdd( faceNodeIndexArray );
 
-    if (it == faceToIndex.end())
+    if ( it == ONEFLOW::INVALID_INDEX )
     {
-        // New face
-        HXSize_t fId = this->fLink.size();
-        faceToIndex[key] = fId;
-
-        // Expand array
         this->fLink.push_back(faceNodeIndexArray);
         this->lCell.push_back(iCell);
         this->rCell.push_back(INVALID_INDEX);
@@ -135,7 +129,7 @@ void WallVisual::BuildFaceTopo( IntField & faceNodeIndexArray, int loc_Face, int
     }
     else
     {
-        HXSize_t fId = it->second;
+        HXSize_t fId = it;
         this->rCell[fId] = iCell;
         this->rPos[fId] = loc_Face;
     }
@@ -197,7 +191,7 @@ void WallVisual::ConstructTopology3D()
                 fn.push_back( element[ local_fn[ iFacePoint ] ] );
             }
 
-            BuildFaceTopo( fn, loc_Face, iCell, face_type );
+            this->BuildFaceTopo( fn, loc_Face, iCell, face_type );
         }
     }
 
