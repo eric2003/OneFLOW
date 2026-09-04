@@ -96,23 +96,23 @@ Face2D * BlkFaceSolver::GetBlkFace2D( int blk, int face_id )
     return 0;
 }
 
-int BlkFaceSolver::FindFace( HXKey<int> & face )
-{
-    auto iter = this->refFaces.find( face );
-    if ( iter == this->refFaces.end() )
-    {
-        return ONEFLOW::INVALID_INDEX;
-    }
-    return iter->second;
-}
+//int BlkFaceSolver::FindFace( HXKey<int> & face )
+//{
+//    auto iter = this->refFaces.find( face );
+//    if ( iter == this->refFaces.end() )
+//    {
+//        return ONEFLOW::INVALID_INDEX;
+//    }
+//    return iter->second;
+//}
 
-int BlkFaceSolver::FindFaceId( IntField & face )
-{
-    // Create a sorted key
-    HXKey<int> key(face);
-
-    return this->FindFace(key);
-}
+//int BlkFaceSolver::FindFaceId( IntField & face )
+//{
+//    // Create a sorted key
+//    HXKey<int> key(face);
+//
+//    return this->FindFace(key);
+//}
 
 void BlkFaceSolver::MyFaceBuildSDomainList()
 {

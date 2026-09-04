@@ -59,10 +59,8 @@ public:
     LinkField lineList; 
     LinkField faceList;
     LinkField faceLinePosList;
-    //std::set< HXKey< int > > refLines;
-    //std::set< HXKey< int > > refFaces;
     std::map<HXKey<int>, int> refLines;
-    std::map< HXKey<int>, int > refFaces;   // key ¡ú id
+    std::map<HXKey<int>, int> refFaces;   // key ¡ú id
     IntSet faceset;
     HXVector< BlkF2C > line2Face;
     HXVector< BlkF2C > face2Block;
@@ -77,8 +75,6 @@ public:
     void CreateFaceList();
     int  FindLineId( IntField & line );
     int  FindId( IntField & varlist, std::map<HXKey<int>, int> & refMaps );
-    int  FindFace( HXKey<int> & face );
-    int  FindFaceId( IntField & face );
     IntField & GetLine( int line_id );
     void MyFaceBuildSDomainList();
     void MyFaceGenerateFaceMesh();

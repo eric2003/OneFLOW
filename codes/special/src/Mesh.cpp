@@ -33,6 +33,7 @@ License
 #include "Visual.h"
 #include "Dimension.h"
 #include "DataBase.h"
+#include "HXKey.h"
 #include <algorithm>
 #include <iostream>
 #include <ctime>
@@ -377,8 +378,8 @@ void Mesh::ConstructTopology()
     HXSize_t numberOfNodes = this->nodeMesh->GetNumberOfNodes();
     HXSize_t numberOfCells = this->cellMesh->GetNumberOfCells();
 
-    // Use map to store: sorted node array -> face index
-    std::map<IntField, HXSize_t> faceToIndex;
+    // Use HXKey as sorted node array -> face index
+    std::map<HXKey<int>, int> faceToIndex;
 
     CellTopo * cellTopo = this->cellMesh->cellTopo;
     FaceTopo * faceTopo = this->faceMesh->faceTopo;
@@ -412,16 +413,14 @@ void Mesh::ConstructTopology()
                 faceNodeIndexArray.push_back(element[nodeIndex]);
             }
 
-            // Sort the node array for unique face identification
-            IntField sortedNodes = faceNodeIndexArray;
-            std::sort(sortedNodes.begin(), sortedNodes.end());
+            HXKey<int> key( faceNodeIndexArray );
 
-            auto it = faceToIndex.find(sortedNodes);
+            auto it = faceToIndex.find(key);
             if (it == faceToIndex.end())
             {
                 // New face: assign a new index
                 HXSize_t faceIndex = faceToIndex.size();
-                faceToIndex[std::move(sortedNodes)] = faceIndex;
+                faceToIndex[std::move(key)] = faceIndex;
 
                 // Add face data
                 faceTopo->lCells.push_back(iCell);

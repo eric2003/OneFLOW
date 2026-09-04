@@ -26,6 +26,7 @@ License
 #include "ElementHome.h"
 #include "HXMath.h"
 #include "HXCgns.h"
+#include "HXKey.h"
 #include "Dimension.h"
 #include <algorithm>
 #include <fstream>
@@ -113,20 +114,16 @@ void WallVisual::PushElement( int p1, int p2, int p3, int p4, int elementType )
 
 void WallVisual::BuildFaceTopo( IntField & faceNodeIndexArray, int loc_Face, int iCell, int face_type )
 {
-    // Sorted nodes, used to uniquely identify faces. 
-    IntField faceNodeIndexArraySort = faceNodeIndexArray;
-    std::sort(faceNodeIndexArraySort.begin(), faceNodeIndexArraySort.end());
+    static std::map<HXKey<int>, int> faceToIndex;
+    HXKey<int> key(faceNodeIndexArray); 
 
-    // Store in std::map: node array ¡ú face ID 
-    static std::map<IntField, HXSize_t> faceToIndex;
-
-    auto it = faceToIndex.find(faceNodeIndexArraySort);
+    auto it = faceToIndex.find(key);
 
     if (it == faceToIndex.end())
     {
         // New face
         HXSize_t fId = this->fLink.size();
-        faceToIndex[faceNodeIndexArraySort] = fId;
+        faceToIndex[key] = fId;
 
         // Expand array
         this->fLink.push_back(faceNodeIndexArray);

@@ -50,6 +50,7 @@ FaceSolver::~FaceSolver()
     delete this->refFaces;
     delete this->faceTopo;
 }
+
 int FaceSolver::FindFace( HXKey<int> & face )
 {
     auto iter = this->refFaces->find( face );
