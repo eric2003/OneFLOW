@@ -30,8 +30,8 @@ BeginNameSpace( ONEFLOW )
 
 class Grid;
 
-typedef HXAdtTree< int, Real > AdtTree;
-typedef HXAdtNode< int, Real > AdtNode;
+using AdtTree = HXAdtTree<int, Real>;
+using AdtNode = HXAdtNode<int, Real>;
 
 class PointSearch
 {

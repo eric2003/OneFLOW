@@ -34,7 +34,7 @@ License
 #include "FaceSolver.h"
 #include "BcRecord.h"
 #include "Boundary.h"
-#include "PointFactory.h"
+#include "PointManager.h"
 #include "NodeMesh.h"
 #include "GridState.h"
 #include "BgGrid.h"
@@ -252,7 +252,7 @@ void GridElem::GenerateCalcElement()
         }
     }
 
-    this->point_factory->InitC2g();
+    this->point_factory->InitLocalToGlobal();
 
 }
 
@@ -261,30 +261,31 @@ void GridElem::GenerateCalcGrid()
     this->GenerateCalcGrid( this->grid );
 }
 
-void GridElem::GenerateCalcGrid( Grid * gridIn )
+void GridElem::GenerateCalcGrid(Grid * gridIn)
 {
-    UnsGrid * grid = UnsGridCast ( gridIn );
-
+    UnsGrid * grid = UnsGridCast(gridIn);
     grid->nCells = this->elem_feature->eTypes->size();
-    grid->cellMesh->cellTopo->eTypes = * this->elem_feature->eTypes;
+    grid->cellMesh->cellTopo->eTypes = *this->elem_feature->eTypes;
     std::cout << "   nCells = " << grid->nCells << std::endl;
 
-    int nNodes = this->point_factory->c2g.size();
-    grid->nodeMesh->CreateNodes( nNodes );
+    int nNodes = this->point_factory->localToGlobal.size();
+    grid->nodeMesh->CreateNodes(nNodes);
     grid->nNodes = nNodes;
 
-    for ( int iNode = 0; iNode < nNodes; ++ iNode )
+    for (int iNode = 0; iNode < nNodes; ++iNode)
     {
-        int nodeIndex = this->point_factory->c2g[ iNode ];
+        int globalId = this->point_factory->localToGlobal[iNode];
 
-        grid->nodeMesh->xN[ iNode ] = this->point_factory->pointList[ nodeIndex ].x;
-        grid->nodeMesh->yN[ iNode ] = this->point_factory->pointList[ nodeIndex ].y;
-        grid->nodeMesh->zN[ iNode ] = this->point_factory->pointList[ nodeIndex ].z;
+        Real x, y, z;
+        this->point_factory->GetPoint(globalId, x, y, z);
+
+        grid->nodeMesh->xN[iNode] = x;
+        grid->nodeMesh->yN[iNode] = y;
+        grid->nodeMesh->zN[iNode] = z;
     }
 
-    this->CalcBoundaryType( grid );
-    this->ReorderLink( grid );
-
+    this->CalcBoundaryType(grid);
+    this->ReorderLink(grid);
     std::cout << "\n-->All the computing information is ready\n";
 }
 

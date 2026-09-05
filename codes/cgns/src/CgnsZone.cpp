@@ -38,7 +38,7 @@ License
 #include "GridElem.h"
 #include "ElemFeature.h"
 #include "ElementHome.h"
-#include "PointFactory.h"
+#include "PointManager.h"
 #include "PointSearch.h"
 #include "FaceSolver.h"
 #include "Stop.h"

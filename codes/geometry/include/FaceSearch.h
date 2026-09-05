@@ -28,18 +28,6 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-//class FaceSort
-//{
-//public:
-//    FaceSort();
-//    FaceSort( const IntField & nodeId, int fId = 0 );
-//    ~FaceSort();
-//public:
-//    int fId;
-//    IntField nodeId;
-//    IntField sortedNodeId;
-//};
-
 class FaceSearchBasic
 {
 public:
@@ -48,7 +36,6 @@ public:
 public:
     // Store original node order of each face (index == faceId)
     HXVector< IntField > faceArray;
-    //HXVector< FaceSort * > faceArray;
 public:
     // Add a face. Returns the unique face ID (always >= 0).
     int AddFace( const IntField & faceNode );
@@ -79,14 +66,10 @@ public:
     int gFid;
 public:
     void CalcNewFaceId( IFaceLink * iFaceLink );
-    //void SplitQuad2Tri( FaceSort * pFaceSort );
     void SplitQuad2Tri( int faceId );
-    //void SplitLine( FaceSort * pFaceSort );
     void SplitLine( int faceId );
     void GetLocalTri( LinkField & localTriId, LinkField & localTriFlag );
-    //void GetTriId( FaceSort * pFaceSort, LinkField & localTriId, LinkField & triId );
     void GetTriId( const IntField & nodeId, LinkField & localTriId, LinkField & triId );
-    //bool GetLine( FaceSort * pFaceSort, LinkField & localLineId, LinkField & localLineFlag, LinkField & lineId );
     bool GetLine( const IntField & nodeId, LinkField & localLineId, LinkField & localLineFlag, LinkField & lineId );
 };
 
