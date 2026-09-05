@@ -32,57 +32,56 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-FaceSort::FaceSort()
-{
-    ;
-}
-FaceSort::FaceSort( const IntField & nodeId, int fId )
-{
-    this->fId         = fId;
-    this->nodeId       = nodeId;
-    this->sortedNodeId = nodeId;
-    std::sort( sortedNodeId.begin(), sortedNodeId.end() );
-}
-
-FaceSort::~FaceSort()
-{
-    ;
-}
+//FaceSort::FaceSort()
+//{
+//    ;
+//}
+//FaceSort::FaceSort( const IntField & nodeId, int fId )
+//{
+//    this->fId         = fId;
+//    this->nodeId       = nodeId;
+//    this->sortedNodeId = nodeId;
+//    std::sort( sortedNodeId.begin(), sortedNodeId.end() );
+//}
+//
+//FaceSort::~FaceSort()
+//{
+//    ;
+//}
 
 
 FaceSearchBasic::FaceSearchBasic()
 {
-    ;
 }
 
 FaceSearchBasic::~FaceSearchBasic()
 {
-    for ( std::size_t i = 0; i < faceArray.size(); ++ i )
-    {
-        delete faceArray[ i ];
-    }
-    faceArray.clear();
+    // No raw pointers to delete anymore
 }
-
 
 int FaceSearchBasic::AddFace( const IntField & faceNode )
 {
-    // 使用 HXLookup 进行唯一性判断（内部自动排序）
+    // HXLookup automatically sorts the nodes for uniqueness
     auto [faceId, isNew] = lookup_.FindOrAdd( faceNode );
 
     if ( isNew )
     {
-        // 新面：创建 FaceSort 并加入 faceArray（兼容旧代码）
-        FaceSort * faceSort = new FaceSort( faceNode, faceId );
-        faceArray.push_back( faceSort );
+        // New face: store the original node order
+        faceArray.push_back( faceNode );
     }
 
-    return faceId;   // 永远返回有效 ID
+    return faceId;   // always return a valid ID
 }
 
 int FaceSearchBasic::FindFace( const IntField & faceNode ) const
 {
-    return lookup_.Find( faceNode );   // 不存在时返回 INVALID_INDEX（-1）
+    return lookup_.Find( faceNode );   // returns INVALID_INDEX if not found
+}
+
+void FaceSearchBasic::Clear()
+{
+    faceArray.clear();
+    lookup_.Clear();
 }
 
 FaceSearch::FaceSearch()
@@ -109,8 +108,8 @@ void FaceSearch::CalcNewFaceId( IFaceLink * iFaceLink )
         for ( int iFace = 0; iFace < nFaces; ++ iFace )
         {
             this->gFid = iFace;
-            FaceSort * faceSort = this->faceArray[ iFace ];
-            this->SplitQuad2Tri( faceSort );
+            //FaceSort * faceSort = this->faceArray[ iFace ];
+            this->SplitQuad2Tri( iFace );
         }
     }
     else if ( Dim::dimension == ONEFLOW::TWO_D )
@@ -118,67 +117,117 @@ void FaceSearch::CalcNewFaceId( IFaceLink * iFaceLink )
         for ( int iFace = 0; iFace < nFaces; ++ iFace )
         {
             this->gFid = iFace;
-            FaceSort * faceSort = this->faceArray[ iFace ];
-            this->SplitLine( faceSort );
+           // FaceSort * faceSort = this->faceArray[ iFace ];
+            //this->SplitLine( faceSort );
+            this->SplitLine( iFace );
         }
     }
 }
 
-void FaceSearch::SplitQuad2Tri( FaceSort * pFaceSort )
+//void FaceSearch::SplitQuad2Tri( FaceSort * pFaceSort )
+//{
+//    int nNodes = pFaceSort->nodeId.size();
+//    if ( nNodes <= 3 ) return;
+//
+//    LinkField localTriId, localTriFlag;
+//    this->GetLocalTri( localTriId, localTriFlag );
+//
+//    LinkField triId;
+//    this->GetTriId( pFaceSort, localTriId, triId );
+//
+//    for ( int iTri = 0; iTri < triId.size(); ++ iTri )
+//    {
+//        IntField & tri = triId[ iTri ];
+//
+//        int fId = this->FindFace( tri );
+//
+//        if ( fId != ONEFLOW::INVALID_INDEX )
+//        {
+//            int pFid = pFaceSort->fId;
+//            this->cFaceId[ pFid ].push_back( fId );
+//            this->rCNodeId  [ fId ] = localTriId  [ iTri ];
+//            this->rCNodeFlag[ fId ] = localTriFlag[ iTri ];
+//        }
+//    }
+//}
+
+void FaceSearch::SplitQuad2Tri( int faceId )
 {
-    int nNodes = pFaceSort->nodeId.size();
+    const IntField & nodeId = this->faceArray[ faceId ];
+    int nNodes = nodeId.size();
     if ( nNodes <= 3 ) return;
 
     LinkField localTriId, localTriFlag;
     this->GetLocalTri( localTriId, localTriFlag );
 
     LinkField triId;
-    this->GetTriId( pFaceSort, localTriId, triId );
+    this->GetTriId( nodeId, localTriId, triId );
 
     for ( int iTri = 0; iTri < triId.size(); ++ iTri )
     {
         IntField & tri = triId[ iTri ];
-
         int fId = this->FindFace( tri );
-
         if ( fId != ONEFLOW::INVALID_INDEX )
         {
-            int pFid = pFaceSort->fId;
-            this->cFaceId[ pFid ].push_back( fId );
+            this->cFaceId[ faceId ].push_back( fId );
             this->rCNodeId  [ fId ] = localTriId  [ iTri ];
             this->rCNodeFlag[ fId ] = localTriFlag[ iTri ];
         }
     }
 }
 
-void FaceSearch::SplitLine( FaceSort * pFaceSort )
+//void FaceSearch::SplitLine( FaceSort * pFaceSort )
+//{
+//    int nNodes = pFaceSort->nodeId.size();
+//    if ( nNodes >= 3 ) return;
+//
+//    LinkField localLineId, localLineFlag;
+//    LinkField lineId;
+//
+//    if ( ! this->GetLine( pFaceSort, localLineId, localLineFlag, lineId ) ) return;
+//
+//    for ( int iLi = 0; iLi < lineId.size(); ++ iLi )
+//    {
+//        IntField & lId = lineId[ iLi ];
+//
+//
+//        // Use the new FindFace provided by FaceSearchBasic (backed by HXLookup)
+//        int fId = this->FindFace( lId );
+//
+//        if ( fId != ONEFLOW::INVALID_INDEX )
+//        {
+//            int pFid = pFaceSort->fId;
+//            this->cFaceId[ pFid ].push_back( fId );
+//            this->rCNodeId  [ fId ] = localLineId  [ iLi ];
+//            this->rCNodeFlag[ fId ] = localLineFlag[ iLi ];
+//        }
+//
+//    }
+//}
+
+void FaceSearch::SplitLine( int faceId )
 {
-    int nNodes = pFaceSort->nodeId.size();
+    const IntField & nodeId = this->faceArray[ faceId ];
+    int nNodes = nodeId.size();
     if ( nNodes >= 3 ) return;
 
     LinkField localLineId, localLineFlag;
     LinkField lineId;
-
-    if ( ! this->GetLine( pFaceSort, localLineId, localLineFlag, lineId ) ) return;
+    if ( ! this->GetLine( nodeId, localLineId, localLineFlag, lineId ) ) return;
 
     for ( int iLi = 0; iLi < lineId.size(); ++ iLi )
     {
         IntField & lId = lineId[ iLi ];
-
-
-        // Use the new FindFace provided by FaceSearchBasic (backed by HXLookup)
         int fId = this->FindFace( lId );
-
         if ( fId != ONEFLOW::INVALID_INDEX )
         {
-            int pFid = pFaceSort->fId;
-            this->cFaceId[ pFid ].push_back( fId );
+            this->cFaceId[ faceId ].push_back( fId );
             this->rCNodeId  [ fId ] = localLineId  [ iLi ];
             this->rCNodeFlag[ fId ] = localLineFlag[ iLi ];
         }
-
     }
 }
+
 
 void FaceSearch::GetLocalTri( LinkField & localTriId, LinkField & localTriFlag )
 {
@@ -232,53 +281,124 @@ void FaceSearch::GetLocalTri( LinkField & localTriId, LinkField & localTriFlag )
 
 }
 
-void FaceSearch::GetTriId( FaceSort * pFaceSort, LinkField & localTriId, LinkField & triId )
+//void FaceSearch::GetTriId( FaceSort * pFaceSort, LinkField & localTriId, LinkField & triId )
+//{
+//    triId.resize( localTriId.size() );
+//
+//    for ( int iTri = 0; iTri < localTriId.size(); ++ iTri )
+//    {
+//        for ( int iNode = 0; iNode < 3; ++ iNode )
+//        {
+//            triId[ iTri ].push_back( pFaceSort->nodeId[ localTriId[ iTri ][ iNode ] ] );
+//        }
+//    }
+//}
+
+void FaceSearch::GetTriId( const IntField & nodeId, LinkField & localTriId, LinkField & triId )
 {
     triId.resize( localTriId.size() );
-
     for ( int iTri = 0; iTri < localTriId.size(); ++ iTri )
     {
         for ( int iNode = 0; iNode < 3; ++ iNode )
         {
-            triId[ iTri ].push_back( pFaceSort->nodeId[ localTriId[ iTri ][ iNode ] ] );
+            triId[ iTri ].push_back( nodeId[ localTriId[ iTri ][ iNode ] ] );
         }
     }
 }
 
-bool FaceSearch::GetLine( FaceSort * pFaceSort, LinkField & localLineId, LinkField & localLineFlag, LinkField & lineId )
+//bool FaceSearch::GetLine( FaceSort * pFaceSort, LinkField & localLineId, LinkField & localLineFlag, LinkField & lineId )
+//{
+//    PointSearch * point_search = this->iFaceLink->point_search;
+//
+//    int p0 = pFaceSort->nodeId[ 0 ];
+//    int p1 = pFaceSort->nodeId[ 1 ];
+//
+//    RealField coor0( 3 ), coor1( 3 ), coor2( 3 );
+//
+//    point_search->GetPoint( p0, coor0[ 0 ], coor0[ 1 ], coor0[ 2 ] );
+//    point_search->GetPoint( p1, coor1[ 0 ], coor1[ 1 ], coor1[ 2 ] );
+//
+//    for ( int m = 0; m < 3; ++ m )
+//    {
+//        coor2[ m ] = half * ( coor0[ m ] + coor1[ m ] );
+//    }
+//
+//    if ( point_search->FindPoint( coor2[ 0 ], coor2[ 1 ], coor2[ 2 ] ) == -1 ) return false;
+//
+//    int nNZone = this->iFaceLink->gI2Zid[ this->gFid ].size();
+//
+//    if ( nNZone > 1 )
+//    {
+//        Stop( "impossible" );
+//    }
+//
+//    int zoneIndex = this->iFaceLink->gI2Zid[ this->gFid ][ 0 ];
+//    Grid * grid = ( this->iFaceLink->grids )[ zoneIndex ];
+//
+//    int nNodes = grid->nodeMesh->GetNumberOfNodes();
+//    int pId = nNodes;
+//
+//    grid->nodeMesh->AddPoint( coor2[ 0 ], coor2[ 1 ], coor2[ 2 ] );
+//
+//    int p2 = point_search->AddPoint( coor2[ 0 ], coor2[ 1 ], coor2[ 2 ] );
+//
+//    IntField id1( 2 ), id2( 2 );
+//    IntField localId1( 2 ), localId2( 2 );
+//    IntField localFlag1( 2 ), localFlag2( 2 );
+//
+//    localId1[ 0 ] = 0;
+//    localId1[ 1 ] = pId;
+//
+//    localId2[ 0 ] = pId;
+//    localId2[ 1 ] = 1;
+//
+//    localLineId.push_back( localId1 );
+//    localLineId.push_back( localId2 );
+//
+//    localFlag1[ 0 ] =   1;
+//    localFlag1[ 1 ] = - 1;
+//
+//    localFlag2[ 0 ] = - 1;
+//    localFlag2[ 1 ] =   1;
+//
+//    localLineFlag.push_back( localFlag1 );
+//    localLineFlag.push_back( localFlag2 );
+//
+//    id1[ 0 ] = p0;
+//    id1[ 1 ] = p2;
+//
+//    id2[ 0 ] = p2;
+//    id2[ 1 ] = p1;
+//
+//    lineId.push_back( id1 );
+//    lineId.push_back( id2 );
+//    return true;
+//}
+
+bool FaceSearch::GetLine( const IntField & nodeId, LinkField & localLineId, LinkField & localLineFlag, LinkField & lineId )
 {
     PointSearch * point_search = this->iFaceLink->point_search;
-
-    int p0 = pFaceSort->nodeId[ 0 ];
-    int p1 = pFaceSort->nodeId[ 1 ];
-
+    int p0 = nodeId[ 0 ];
+    int p1 = nodeId[ 1 ];
     RealField coor0( 3 ), coor1( 3 ), coor2( 3 );
-
     point_search->GetPoint( p0, coor0[ 0 ], coor0[ 1 ], coor0[ 2 ] );
     point_search->GetPoint( p1, coor1[ 0 ], coor1[ 1 ], coor1[ 2 ] );
-
     for ( int m = 0; m < 3; ++ m )
     {
         coor2[ m ] = half * ( coor0[ m ] + coor1[ m ] );
     }
-
     if ( point_search->FindPoint( coor2[ 0 ], coor2[ 1 ], coor2[ 2 ] ) == -1 ) return false;
 
     int nNZone = this->iFaceLink->gI2Zid[ this->gFid ].size();
-
     if ( nNZone > 1 )
     {
         Stop( "impossible" );
     }
-
     int zoneIndex = this->iFaceLink->gI2Zid[ this->gFid ][ 0 ];
     Grid * grid = ( this->iFaceLink->grids )[ zoneIndex ];
-
     int nNodes = grid->nodeMesh->GetNumberOfNodes();
     int pId = nNodes;
-
     grid->nodeMesh->AddPoint( coor2[ 0 ], coor2[ 1 ], coor2[ 2 ] );
-
     int p2 = point_search->AddPoint( coor2[ 0 ], coor2[ 1 ], coor2[ 2 ] );
 
     IntField id1( 2 ), id2( 2 );
@@ -287,7 +407,6 @@ bool FaceSearch::GetLine( FaceSort * pFaceSort, LinkField & localLineId, LinkFie
 
     localId1[ 0 ] = 0;
     localId1[ 1 ] = pId;
-
     localId2[ 0 ] = pId;
     localId2[ 1 ] = 1;
 
@@ -296,7 +415,6 @@ bool FaceSearch::GetLine( FaceSort * pFaceSort, LinkField & localLineId, LinkFie
 
     localFlag1[ 0 ] =   1;
     localFlag1[ 1 ] = - 1;
-
     localFlag2[ 0 ] = - 1;
     localFlag2[ 1 ] =   1;
 
@@ -305,12 +423,12 @@ bool FaceSearch::GetLine( FaceSort * pFaceSort, LinkField & localLineId, LinkFie
 
     id1[ 0 ] = p0;
     id1[ 1 ] = p2;
-
     id2[ 0 ] = p2;
     id2[ 1 ] = p1;
 
     lineId.push_back( id1 );
     lineId.push_back( id2 );
+
     return true;
 }
 

@@ -189,8 +189,11 @@ void IFaceLink::MatchPeoridicInterface( Grid * grid )
         int nZid = this->gI2Zid [ gIFace ][ iIZone ];
         int lId  = this->g2l[ gIFace ][ iIZone ];
 
-        FaceSort * faceSort = this->face_search->faceArray[ gIFace ];
-        IntField & nodeId = faceSort->nodeId;
+        //FaceSort * faceSort = this->face_search->faceArray[ gIFace ];
+        //IntField & nodeId = faceSort->nodeId;
+
+        // faceArray now stores IntField directly
+        const IntField & nodeId = this->face_search->faceArray[ gIFace ];
 
         RealField xList, yList, zList;
         this->point_search->GetFaceCoorList( nodeId, xList, yList, zList );

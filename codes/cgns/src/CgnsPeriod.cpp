@@ -108,8 +108,12 @@ void F2FMap::FindFace( RealField &xList, RealField &yList, RealField &zList, Rea
     int face_id = this->faceSearchBasic->FindFace( face );
     int face_period = this->FindPeriodFace( face_id );
     //if ( face_period == -1 )
-    FaceSort * faceSort = this->faceSearchBasic->faceArray[ face_period ];
-    IntField & node_period = faceSort->nodeId;
+
+    // faceArray now stores IntField directly
+    const IntField & node_period = this->faceSearchBasic->faceArray[ face_period ];
+
+    //FaceSort * faceSort = this->faceSearchBasic->faceArray[ face_period ];
+    //IntField & node_period = faceSort->nodeId;
 
     for ( int i = 0; i < node_period.size(); ++ i )
     {

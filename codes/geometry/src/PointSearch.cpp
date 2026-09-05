@@ -169,7 +169,7 @@ int PointSearch::FindPoint( RealField & coordinate )
     }
 }
 
-void PointSearch::GetFaceCoorList( IntField & nodeId, RealField &xList, RealField &yList, RealField &zList )
+void PointSearch::GetFaceCoorList( const IntField & nodeId, RealField &xList, RealField &yList, RealField &zList )
 {
     for ( int i = 0; i < nodeId.size(); ++ i )
     {
