@@ -57,43 +57,32 @@ FaceSearchBasic::FaceSearchBasic()
 
 FaceSearchBasic::~FaceSearchBasic()
 {
-    ;
+    for ( std::size_t i = 0; i < faceArray.size(); ++ i )
+    {
+        delete faceArray[ i ];
+    }
+    faceArray.clear();
 }
+
 
 int FaceSearchBasic::AddFace( const IntField & faceNode )
 {
-    int fId = faceArray.size();
-    FaceSort * faceSort = new FaceSort( faceNode, fId );
+    // 使用 HXLookup 进行唯一性判断（内部自动排序）
+    auto [faceId, isNew] = lookup_.FindOrAdd( faceNode );
 
-    std::set< FaceSort *, CompareFace >::iterator iter = faceSet.find( faceSort );
-
-    if ( iter == faceSet.end() )
+    if ( isNew )
     {
-        faceSet.insert( faceSort );
+        // 新面：创建 FaceSort 并加入 faceArray（兼容旧代码）
+        FaceSort * faceSort = new FaceSort( faceNode, faceId );
         faceArray.push_back( faceSort );
-        return fId;
     }
-    else
-    {
-        delete faceSort;
-        return ( * iter )->fId;
-    }
+
+    return faceId;   // 永远返回有效 ID
 }
 
-int FaceSearchBasic::FindFace( const IntField & faceNode )
+int FaceSearchBasic::FindFace( const IntField & faceNode ) const
 {
-    int fId = faceArray.size();
-    FaceSort * faceSort = new FaceSort( faceNode, fId );
-
-    std::set< FaceSort *, CompareFace >::iterator iter = faceSet.find( faceSort );
-    int face_id = -1;
-    if ( iter != faceSet.end() )
-    {
-        face_id = ( * iter )->fId;
-
-    }
-    delete faceSort;
-    return face_id;
+    return lookup_.Find( faceNode );   // 不存在时返回 INVALID_INDEX（-1）
 }
 
 FaceSearch::FaceSearch()
@@ -150,21 +139,15 @@ void FaceSearch::SplitQuad2Tri( FaceSort * pFaceSort )
     {
         IntField & tri = triId[ iTri ];
 
-        FaceSort * faceSort = new FaceSort( tri );
-        std::set< FaceSort *, CompareFace >::iterator iter = this->faceSet.find( faceSort );
+        int fId = this->FindFace( tri );
 
-        if ( iter != this->faceSet.end() )
+        if ( fId != ONEFLOW::INVALID_INDEX )
         {
-            int fId = ( * iter )->fId;
             int pFid = pFaceSort->fId;
-
             this->cFaceId[ pFid ].push_back( fId );
-
             this->rCNodeId  [ fId ] = localTriId  [ iTri ];
             this->rCNodeFlag[ fId ] = localTriFlag[ iTri ];
         }
-
-        delete faceSort;
     }
 }
 
@@ -182,21 +165,18 @@ void FaceSearch::SplitLine( FaceSort * pFaceSort )
     {
         IntField & lId = lineId[ iLi ];
 
-        FaceSort * faceSort = new FaceSort( lId );
-        std::set< FaceSort *, CompareFace >::iterator iter = this->faceSet.find( faceSort );
 
-        if ( iter != this->faceSet.end() )
+        // Use the new FindFace provided by FaceSearchBasic (backed by HXLookup)
+        int fId = this->FindFace( lId );
+
+        if ( fId != ONEFLOW::INVALID_INDEX )
         {
-            int fId = ( * iter )->fId;
             int pFid = pFaceSort->fId;
-
             this->cFaceId[ pFid ].push_back( fId );
-
             this->rCNodeId  [ fId ] = localLineId  [ iLi ];
             this->rCNodeFlag[ fId ] = localLineFlag[ iLi ];
         }
 
-        delete faceSort;
     }
 }
 

@@ -291,33 +291,32 @@ void CurveData::AddExtremeEdge( int p, int q )
     IntField edgeKey;
     edgeKey.push_back(p);
     edgeKey.push_back(q);
-    std::sort(edgeKey.begin(), edgeKey.end());
 
     // Update point-to-point connectivity
     this->p2p[ p ].insert( q );
     this->p2p[ q ].insert( p );
 
-    // Check if edge already exists
-    auto it = edgeToIndex.find(edgeKey);
-    if (it == edgeToIndex.end())
+    // Find or add the edge (HXLookup automatically sorts the nodes)
+    auto [edgeId, isNew] = this->edgeLookup.FindOrAdd(edgeKey);
+
+    if ( isNew )
     {
-        // New edge: assign ID and store
-        int newId = edgeToIndex.size();
-        edgeToIndex[edgeKey] = newId;
+        // New edge: store the sorted key
+        // Note: HXKey already sorted the nodes internally, but we keep a sorted version here
+        std::sort(edgeKey.begin(), edgeKey.end());
         extremeEdgeList.push_back(std::move(edgeKey));
     }
 }
 
 bool CurveData::FindEdge( int p, int q )
 {
-    // Build sorted edge key
+    // Build edge key (two nodes)
     IntField edgeKey;
     edgeKey.push_back(p);
     edgeKey.push_back(q);
-    std::sort(edgeKey.begin(), edgeKey.end());
 
-    // Use map for O(log n) lookup
-    return this->edgeToIndex.find(edgeKey) != this->edgeToIndex.end();
+    // Use HXLookup for O(log n) lookup (nodes are automatically sorted)
+    return this->edgeLookup.Find(edgeKey) != INVALID_INDEX;
 }
 
 void CurveData::InitP2p()

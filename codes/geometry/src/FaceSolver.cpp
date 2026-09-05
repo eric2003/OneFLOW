@@ -78,7 +78,6 @@ void FaceSolver::ScanPolygonFace( CgnsSection * cgnsSection )
             faceNodes.push_back( node );
         }
 
-        //int gFid = this->faceLookup.FindOrAdd( faceNodes );
         auto [faceIndex, isNew] = faceLookup.FindOrAdd(faceNodes);
         if ( isNew )
         {
@@ -158,7 +157,6 @@ void FaceSolver::ScanElementFace( CgIntField & eNodeId, int eType, int eId )
             aNodeId.push_back( eNodeId[ rNodeId[ iNode ] ] );
         }                                                              
 
-        //int gFid = this->faceLookup.FindOrAdd( aNodeId );
         auto [gFid, isNew]  = this->faceLookup.FindOrAdd( aNodeId );
 
         if ( isNew )

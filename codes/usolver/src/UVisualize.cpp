@@ -146,7 +146,6 @@ void BcVisual::ResolveElementEdge()
             edgeNodeId.push_back( ip1 );
             edgeNodeId.push_back( ip2 );
 
-            //int edgeIndex = faceLookup.FindOrAdd( edgeNodeId );
             auto [ edgeIndex, isNew ] = faceLookup.FindOrAdd( edgeNodeId );
 
             if ( isNew )

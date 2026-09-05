@@ -412,7 +412,6 @@ void Mesh::ConstructTopology()
                 faceNodeIndexArray.push_back(element[nodeIndex]);
             }
 
-            //int faceIndex = faceLookup.FindOrAdd( faceNodeIndexArray );  // Ensure the face is registered in the lookup
             auto [ faceIndex, isNew] = faceLookup.FindOrAdd( faceNodeIndexArray );  // Ensure the face is registered in the lookup
             if ( isNew )
             {

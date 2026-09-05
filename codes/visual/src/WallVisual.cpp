@@ -116,7 +116,6 @@ void WallVisual::BuildFaceTopo( IntField & faceNodeIndexArray, int loc_Face, int
 {
     static HXLookup<int> faceLookup;
 
-    //int it = faceLookup.FindOrAdd( faceNodeIndexArray );
     auto [it, isNew] = faceLookup.FindOrAdd( faceNodeIndexArray );
 
     if ( isNew )

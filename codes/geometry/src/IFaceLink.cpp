@@ -30,7 +30,6 @@ License
 #include <algorithm>
 #include <iostream>
 
-
 BeginNameSpace( ONEFLOW )
 IFaceLink::IFaceLink( Grids & grids )
 {
@@ -67,20 +66,12 @@ void IFaceLink::CreateLink( IntField & faceNode, int zid, int lCount )
     // Add face to the face list
     this->AddFace(faceNode);
 
-    // Build sorted face key for unique identification
-    IntField faceKey = faceNode;
-    std::sort(faceKey.begin(), faceKey.end());
+    // Find or add the face (HXLookup automatically sorts the nodes)
+    auto [gIid, isNew] = this->faceLookup.FindOrAdd(faceNode);
 
-    // Check if face already exists
-    auto it = this->faceToIndex.find(faceKey);
-
-    if (it == this->faceToIndex.end())
+    if ( isNew )
     {
-        // New face: assign a new global face ID
-        int gIid = this->faceToIndex.size();
-        this->faceToIndex[std::move(faceKey)] = gIid;
-
-        // Update local-to-global mapping
+        // New face: update local-to-global mapping
         this->l2g[zid][lCount] = gIid;
 
         // Initialize face connectivity data
@@ -88,19 +79,18 @@ void IFaceLink::CreateLink( IntField & faceNode, int zid, int lCount )
         IntField lIid;
         zids.push_back(zid);
         lIid.push_back(lCount);
-
         this->gI2Zid.push_back(std::move(zids));
         this->g2l.push_back(std::move(lIid));
     }
     else
     {
         // Existing face: use the existing global face ID
-        int gIid = it->second;
         this->l2g[zid][lCount] = gIid;
         this->gI2Zid[gIid].push_back(zid);
         this->g2l[gIid].push_back(lCount);
     }
 }
+
 
 void IFaceLink::ReconstructInterFace()
 {

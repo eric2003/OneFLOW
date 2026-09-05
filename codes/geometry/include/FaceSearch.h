@@ -22,6 +22,7 @@ License
 
 #pragma once
 #include "HXDefine.h"
+#include "HXLookup.h"
 #include <set>
 
 
@@ -39,15 +40,6 @@ public:
     IntField sortedNodeId;
 };
 
-class CompareFace
-{
-public:
-    bool operator() ( const FaceSort * lhs, const FaceSort * rhs ) const
-    {
-        return lhs->sortedNodeId < rhs->sortedNodeId;
-    }
-};
-
 class FaceSearchBasic
 {
 public:
@@ -55,10 +47,15 @@ public:
     ~FaceSearchBasic();
 public:
     HXVector< FaceSort * > faceArray;
-    std::set< FaceSort * , CompareFace > faceSet;
 public:
     int AddFace( const IntField & faceNode );
-    int FindFace( const IntField & faceNode );
+    int FindFace( const IntField & faceNode ) const;
+
+    std::size_t Size() const { return lookup_.Size(); }
+    void Clear();
+
+private:
+    HXLookup<int> lookup_;   // 真正负责唯一性判断和 ID 分配
 };
 
 class IFaceLink;
