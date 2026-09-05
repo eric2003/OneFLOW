@@ -36,15 +36,14 @@ License
 #include "ZoneState.h"
 #include "StringUtils.h"
 #include "Prj.h"
-#include "HXMid.h"
+#include "HXLookup.h"
 #include "NodeMesh.h"
 #include "NsCtrl.h"
 #include <sstream>
 #include <iostream>
 #include <algorithm>
 #include <iomanip>
-
-
+#include <unordered_map>
 
 BeginNameSpace( ONEFLOW )
 
@@ -128,8 +127,7 @@ void BcVisual::ResolveElementEdge()
 {
     int nFaces = this->f2n.size();
     int nSize = 2;
-
-    std::set< HXMid<int> > edgeSet;
+    HXLookup<int> faceLookup;
 
     for ( int fId = 0; fId < nFaces; ++ fId )
     {
@@ -144,34 +142,18 @@ void BcVisual::ResolveElementEdge()
 
             if ( ip1 == ip2 ) continue;
 
-            IntField eNodeId;
-            eNodeId.push_back( ip1 );
-            eNodeId.push_back( ip2 );
+            IntField edgeNodeId;
+            edgeNodeId.push_back( ip1 );
+            edgeNodeId.push_back( ip2 );
 
-            IntField sortedNodeId = eNodeId;
-            sort( sortedNodeId.begin(), sortedNodeId.end() );
-            
-            int eIdddd = this->e2n.size();
-            HXMid<int> edge( nSize, eIdddd );
-            edge.data = sortedNodeId;
+            //int edgeIndex = faceLookup.FindOrAdd( edgeNodeId );
+            auto [ edgeIndex, isNew ] = faceLookup.FindOrAdd( edgeNodeId );
 
-            int  edgeIndex;
-            std::set< HXMid<int> >::iterator iter = edgeSet.find( edge );
-            if ( iter == edgeSet.end() )
+            if ( isNew )
             {
-                edgeIndex = -1;
-            }
-            else
-            {
-                edgeIndex = iter->id;
-            }
-
-            if ( edgeIndex == -1 )
-            {
-                edgeSet.insert( edge );
                 this->lcell.push_back( fId );
                 this->rcell.push_back( -1 );      
-                this->e2n.push_back( eNodeId );
+                this->e2n.push_back( edgeNodeId );
             }
             else
             {
@@ -196,15 +178,17 @@ void BcVisual::Calcf2n( int bcType )
 {
     UnsGrid * grid = Zone::GetUnsGrid();
     FaceTopo * faceTopo = grid->faceTopo;
-    LinkField & f2n = faceTopo->faces;
+    LinkField & total_f2n = faceTopo->faces;
     BcRecord * bcRecord = faceTopo->bcManager->bcRecord;
 
-    IntField localf2n( 4 );
-    std::set< HXSort< int > > sets;
-    HXSort< int > data;
+    // 清空数据
+    this->f2n.clear();
+    this->l2g.clear();
 
-    this->f2n.resize( 0 );
-    this->l2g.resize( 0 );
+    HXLookup<int> nodeLookup;
+
+    std::unordered_map<int, int> globalNodeToIndex;  // 全局节点编号 -> 局部索引
+    globalNodeToIndex.reserve(grid->nBFaces * 4);     // 预分配空间
 
     int nBFaces = grid->nBFaces;
 
@@ -212,55 +196,32 @@ void BcVisual::Calcf2n( int bcType )
     {
         if ( bcType != bcRecord->bcType[ iFace ] ) continue;
 
-        int nNodes = f2n[ iFace ].size();
+        const auto& faceNodes = total_f2n[iFace];
+        int nNodes = faceNodes.size();
 
-        localf2n.resize( 0 );
-        for ( int iNode = 0; iNode < nNodes; ++ iNode )
+        IntField localf2n;
+        localf2n.reserve(nNodes);
+
+        for (int globalNodeId : faceNodes)
         {
-            int gId = f2n[ iFace ][ iNode ];
-
-            data.value = gId;
-            std::set< HXSort< int > >::iterator iter = sets.find( data );
-
-            if ( iter == sets.end() )
+            auto it = globalNodeToIndex.find(globalNodeId);
+            if (it == globalNodeToIndex.end())
             {
-                this->l2g.push_back( gId );
-                data.index = this->l2g.size() - 1;
-
-                sets.insert( data );
-                localf2n.push_back( data.index );
+                // 新节点：添加到全局池
+                int localIndex = this->l2g.size();
+                globalNodeToIndex[globalNodeId] = localIndex;
+                this->l2g.push_back(globalNodeId);
+                localf2n.push_back(localIndex);
             }
             else
             {
-                localf2n.push_back( iter->index );
+                // 已存在的节点：使用已有索引
+                localf2n.push_back(it->second);
             }
-
         }
-        this->f2n.push_back( localf2n );
+
+        this->f2n.push_back(std::move(localf2n));
     }
-
-    //if ( bcType == 3 && false )
-    //{
-    //    int le = 1360;
-    //    int re = 1361;
-
-    //    std::cout << "Elem id = " << le << " " << re << "\n";
-    //    std::cout << " this->f2n.size() = " << this->f2n.size() << "\n";
-    //    int nle = this->f2n[ le ].size();
-    //    int nre = this->f2n[ re ].size();
-    //    std::cout << "left elem node size =  " << nle << "\n";
-    //    std::cout << "right elem node size =  " << nre << "\n";
-    //    for ( int i = 0; i < nle; ++ i )
-    //    {
-    //        std::cout << this->f2n[ le ][ i ] << " ";
-    //    }
-    //    std::cout << "\n";
-    //    for ( int i = 0; i < nre; ++ i )
-    //    {
-    //        std::cout << this->f2n[ re ][ i ] << " ";
-    //    }
-    //    std::cout << "\n";
-    //}
 }
 
 void BcVisual::Dump( std::ostringstream & oss, VisualTool * visualTool, std::string & bcTitle )
@@ -373,75 +334,70 @@ void BcVisual::DumpSeveralElement()
     file << " \"z\" ";
     file << "\n";
 
-    IntField eList;
-    eList.push_back( 1360 );
-    eList.push_back( 1361 );
+    IntField eList = {1360, 1361};
     IntField nList, nList1, nList2;
 
-    IntField localf2n( 4 );
-    std::set< HXSort< int > > sList;
-    HXSort< int > data;
+    // 使用 unordered_map 做节点去重和索引映射
+    std::unordered_map<int, int> nodeToIndex;  // 节点编号 -> 去重后的索引
+    IntField uniqueNodes;                      // 去重后的节点列表（按索引顺序）
+    IntField nodeIndices;                      // 每个原始节点的去重索引
+    IntField localNodeIds;                     // 原始节点编号列表
+
     int iCount = 0;
-    for ( int e = 0; e < eList.size(); ++ e )
+    for ( int e : eList )
     {
-        int ee = eList[ e ];
-        int nsize = this->f2n[ ee ].size();
-        for ( int in = 0; in < nsize; ++ in )
+        const auto & faceNodes = this->f2n[ e ];
+        for ( int nodeId : faceNodes )
         {
-            int ip = this->f2n[ ee ][ in ];
-            nList1.push_back( ip );
-            data.value = ip;
-            std::set< HXSort< int > >::iterator iter = sList.find( data );
-
-            if ( iter == sList.end() )
+            localNodeIds.push_back( nodeId );
+            auto it = nodeToIndex.find( nodeId );
+            if ( it == nodeToIndex.end() )
             {
-                data.index = iCount;
-                sList.insert( data );
-                nList2.push_back( ip );
-
-                nList.push_back( iCount );
-                ++ iCount;
+                // 新节点：分配索引
+                int newIndex = uniqueNodes.size();
+                nodeToIndex[ nodeId ] = newIndex;
+                uniqueNodes.push_back( nodeId );
+                nodeIndices.push_back( newIndex );
             }
             else
             {
-                nList.push_back( iter->index );
+                // 已存在的节点：使用已有索引
+                nodeIndices.push_back( it->second );
             }
         }
     }
-
+ 
     file << " ZONE N = " << iCount << " E = " << eList.size() << " F = FEPOINT, ET = QUADRILATERAL \n";
     int width = 20;
     int pre = 20;
-    for ( int iNode = 0; iNode < iCount; ++ iNode )
+
+    for (int nodeId : uniqueNodes)
     {
-        int id = l2g[ nList2[ iNode ] ];
-        file << std::setw( width ) << std::setprecision( pre ) << grid->nodeMesh->xN[ id ] << " ";
-        file << std::setw( width ) << std::setprecision( pre ) << grid->nodeMesh->yN[ id ] << " ";
-        file << std::setw( width ) << std::setprecision( pre ) << grid->nodeMesh->zN[ id ] << " ";
+        int globalId = l2g[nodeId];
+        file << std::setw(width) << std::setprecision(pre) << grid->nodeMesh->xN[globalId] << " ";
+        file << std::setw(width) << std::setprecision(pre) << grid->nodeMesh->yN[globalId] << " ";
+        file << std::setw(width) << std::setprecision(pre) << grid->nodeMesh->zN[globalId] << " ";
         file << "\n";
     }
 
-    for ( int iNode = 0; iNode < nList1.size(); ++ iNode )
+    // 输出节点编号（调试信息）
+    for (int nodeId : localNodeIds)
     {
-        int id = l2g[ nList1[ iNode ] ];
-        file << id << "\n";
+        int globalId = l2g[nodeId];
+        file << globalId << "\n";
     }
 
-
+    // 输出单元连接
     int pos = 0;
-    for ( int e = 0; e < eList.size(); ++ e )
+    int nodesPerFace = 4;  // QUADRILATERAL
+    for (int e = 0; e < eList.size(); ++e)
     {
-        int p1 = nList[ pos + 0 ] + 1;
-        int p2 = nList[ pos + 1 ] + 1;
-        int p3 = nList[ pos + 2 ] + 1;
-        int p4 = nList[ pos + 3 ] + 1;
-        pos += 4;
-
-        file << p1 << " ";
-        file << p2 << " ";
-        file << p3 << " ";
-        file << p4 << " ";
+        for (int i = 0; i < nodesPerFace; ++i)
+        {
+            file << nodeIndices[pos + i] + 1 << " ";
+        }
         file << "\n";
+        pos += nodesPerFace;
     }
 }
 

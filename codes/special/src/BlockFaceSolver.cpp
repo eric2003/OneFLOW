@@ -35,7 +35,6 @@ License
 #include "BlkMesh.h"
 #include "Block3D.h"
 #include "Block2D.h"
-#include "HXPointer.h"
 #include "CurveInfo.h"
 #include "SegmentCtrl.h"
 #include "BlockElem.h"
@@ -95,31 +94,6 @@ Face2D * BlkFaceSolver::GetBlkFace2D( int blk, int face_id )
         }
     }
     return 0;
-}
-
-
-int BlkFaceSolver::FindFace( HXMid<int> & face )
-{
-    std::set< HXMid<int> >::iterator iter = this->refFaces.find( face );
-    if ( iter == this->refFaces.end() )
-    {
-        return ONEFLOW::INVALID_INDEX;
-    }
-    return iter->id;
-}
-
-int BlkFaceSolver::FindFaceId( IntField & face )
-{
-    HXMid<int> fMid( face.size(), 0 );
-    fMid.data = face;
-    std::sort( fMid.data.begin(), fMid.data.end() );
-
-    std::set< HXMid<int> >::iterator iter = this->refFaces.find( fMid );
-    if ( iter == this->refFaces.end() )
-    {
-        return ONEFLOW::INVALID_INDEX;
-    }
-    return iter->id;
 }
 
 void BlkFaceSolver::MyFaceBuildSDomainList()
@@ -208,16 +182,14 @@ void BlkFaceSolver::CreateFaceList()
     }
 
     this->face2Block.resize( nFaces );
+    // Register existing faces to faceLookup (key ¡ú id).
     for ( int iFace = 0; iFace < nFaces; ++ iFace )
     {
         IntField & face = this->faceList[ iFace ];
-        HXMid<int> fMid( face.size(), iFace );
-        fMid.id = iFace;
-        fMid.data = face;
-        std::sort( fMid.data.begin(), fMid.data.end() );
-        this->refFaces.insert( fMid );
+        this->faceLookup.FindOrAdd( face );
     }
 }
+
 
 IntField & BlkFaceSolver::GetLine( int line_id )
 {
@@ -227,21 +199,7 @@ IntField & BlkFaceSolver::GetLine( int line_id )
 
 int BlkFaceSolver::FindLineId( IntField & line )
 {
-    return this->FindId( line, this->refLines );
-}
-
-int BlkFaceSolver::FindId( IntField & varlist, std::set< HXMid<int> > &refSets )
-{
-    HXMid<int> fMid( varlist.size(), 0 );
-    fMid.data = varlist;
-    std::sort( fMid.data.begin(), fMid.data.end() );
-
-    std::set< HXMid<int> >::iterator iter = refSets.find( fMid );
-    if ( iter == refSets.end() )
-    {
-        return ONEFLOW::INVALID_INDEX;
-    }
-    return iter->id;
+    return this->lineLookup.Find(line);
 }
 
 void BlkFaceSolver::MyFaceAlloc()
@@ -259,15 +217,11 @@ void BlkFaceSolver::MyFaceAlloc()
     }
     this->line2Face.resize( nLine );
 
-    //The reference line segment std::set is std::set up to facilitate the search
-    for ( int i = 0; i < nLine; ++ i )
+    // Build a reference segment map for easy subsequent lookup. 
+    for (int i = 0; i < nLine; ++i)
     {
-        IntField & line = this->lineList[ i ];
-        HXMid<int> lMid( line.size(), i );
-        lMid.id = i;
-        lMid.data = line;
-        std::sort( lMid.data.begin(), lMid.data.end() );
-        this->refLines.insert( lMid );
+        IntField& line = this->lineList[i];
+        this->lineLookup.FindOrAdd( line );
     }
 }
 

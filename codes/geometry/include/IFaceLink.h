@@ -22,7 +22,6 @@ License
 
 #pragma once
 #include "HXDefine.h"
-#include "HXSort.h"
 #include "GridDef.h"
 #include <set>
 
@@ -40,7 +39,7 @@ public:
     ~IFaceLink();
 public:
     //faceListis used primarily as a search list for global face
-    std::set< HXSort< IntField > > inFaceList;
+    std::map<IntField, int> faceToIndex; 
     //In general, each interface is made up of two different blocks of surface.
     //This requires each surface to have a block number and the serial number of the surface in this block
     LinkField gI2Zid;

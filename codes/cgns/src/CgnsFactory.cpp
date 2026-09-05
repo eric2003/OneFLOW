@@ -50,7 +50,7 @@ License
 #include "Dimension.h"
 #include "CgnsBcBoco.h"
 #include "ElementHome.h"
-#include "HXPointer.h"
+#include "GridDef.h"
 #include "CalcGrid.h"
 #include "GridElem.h"
 #include "BgGrid.h"
@@ -114,11 +114,13 @@ void CgnsFactory::ConvertStrCgns2UnsCgnsGrid()
 {
     CgnsZbase * unsCgnsZbase = new CgnsZbase();
 
-    ONEFLOW::ReadCgnsMultiBase( unsCgnsZbase, cgnsZbase );
+    ONEFLOW::ReadCgnsMultiBase( unsCgnsZbase, this->cgnsZbase );
 
-    delete cgnsZbase;
+    delete this->cgnsZbase;
 
-    cgnsZbase = unsCgnsZbase;
+    this->cgnsZbase = unsCgnsZbase;
+
+    this->zgridElem->cgnsZbase = this->cgnsZbase;
 }
 
 void CgnsFactory::CommonToOneFlowGrid()
@@ -200,7 +202,7 @@ void CgnsFactory::CgnsToOneFlowGrid()
 
     Grids grids;
 
-    zgridElem->GenerateLocalOneFlowGrid( grids );
+    this->zgridElem->GenerateLocalOneFlowGrid( grids );
 
     //The grid is processed and the grid file used for calculation is output
     ONEFLOW::GenerateMultiZoneCalcGrids( grids );

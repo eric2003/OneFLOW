@@ -26,10 +26,12 @@ License
 #include "ElementHome.h"
 #include "HXMath.h"
 #include "HXCgns.h"
+#include "HXLookup.h"
 #include "Dimension.h"
 #include <algorithm>
 #include <fstream>
 #include <iostream>
+#include <map>
 
 
 BeginNameSpace( ONEFLOW )
@@ -50,12 +52,10 @@ void PointDebug::GetPoint( int index, Real & x, Real & y, Real & z )
 
 WallVisual::WallVisual()
 {
-    faceSet = new std::set< HXSort< IntField > >();
 }
 
 WallVisual::~WallVisual()
 {
-    delete faceSet;
 }
 
 void WallVisual::PushElement( int p1, int p2, int elementType )
@@ -114,41 +114,27 @@ void WallVisual::PushElement( int p1, int p2, int p3, int p4, int elementType )
 
 void WallVisual::BuildFaceTopo( IntField & faceNodeIndexArray, int loc_Face, int iCell, int face_type )
 {
-    IntField faceNodeIndexArraySort = faceNodeIndexArray;
-    std::sort( faceNodeIndexArraySort.begin(), faceNodeIndexArraySort.end() );
+    static HXLookup<int> faceLookup;
 
-    HXSort< IntField > faceForSorting;
-    faceForSorting.value = faceNodeIndexArraySort;
+    //int it = faceLookup.FindOrAdd( faceNodeIndexArray );
+    auto [it, isNew] = faceLookup.FindOrAdd( faceNodeIndexArray );
 
-    std::set< HXSort< IntField > >::iterator iter = faceSet->find( faceForSorting );
-    if ( iter == faceSet->end() )
+    if ( isNew )
     {
-        HXSize_t oldFaceNumber = faceSet->size();
-        faceForSorting.index = oldFaceNumber;
-
-        faceSet->insert( faceForSorting );
-
-        HXSize_t fId = oldFaceNumber;
-        HXSize_t newFaceNumber = fId + 1;
-        lCell.resize( newFaceNumber );
-        rCell.resize( newFaceNumber );
-        lPos.resize( newFaceNumber );
-        rPos.resize( newFaceNumber );
-        faceType.resize( newFaceNumber );
-        faceType[ fId ] = face_type;
-        lCell[ fId ] = iCell;
-        rCell[ fId ] = INVALID_INDEX;
-        lPos[ fId ] = loc_Face;
-        rPos[ fId ] = INVALID_INDEX;
-
-        this->fLink.push_back( faceNodeIndexArray );
+        this->fLink.push_back(faceNodeIndexArray);
+        this->lCell.push_back(iCell);
+        this->rCell.push_back(INVALID_INDEX);
+        this->lPos.push_back(loc_Face);
+        this->rPos.push_back(INVALID_INDEX);
+        this->faceType.push_back(face_type);
     }
     else
     {
-        int fId = iter->index;
-        rCell[ fId ] = iCell;
-        rPos[ fId ] = loc_Face;
+        HXSize_t fId = it;
+        this->rCell[fId] = iCell;
+        this->rPos[fId] = loc_Face;
     }
+
 }
 
 void WallVisual::CalcOrderMap( int & nBFaces, IntField & orderMapping )
@@ -185,8 +171,6 @@ void WallVisual::ConstructTopology3D()
 {
     HXSize_t nCells = this->eLink.size();
 
-    HXSort< IntField > faceForSorting;
-
     for ( HXSize_t iCell = 0; iCell < nCells; ++ iCell )
     {
         IntField & element = this->eLink[ iCell ];
@@ -208,7 +192,7 @@ void WallVisual::ConstructTopology3D()
                 fn.push_back( element[ local_fn[ iFacePoint ] ] );
             }
 
-            BuildFaceTopo( fn, loc_Face, iCell, face_type );
+            this->BuildFaceTopo( fn, loc_Face, iCell, face_type );
         }
     }
 

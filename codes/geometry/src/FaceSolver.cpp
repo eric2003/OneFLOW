@@ -36,8 +36,6 @@ FaceSolver::FaceSolver()
     this->faceBcKey = new IntField();
     this->faceBcType = new IntField();
     this->childFid = new LinkField();
-
-    this->refFaces = new std::set< HXMid<int> >();
     this->faceTopo = new FaceTopo();
 }
 
@@ -47,18 +45,8 @@ FaceSolver::~FaceSolver()
     delete this->faceBcType;
     delete this->childFid;
 
-    delete this->refFaces;
+    //delete this->refFaces;
     delete this->faceTopo;
-}
-
-int FaceSolver::FindFace( HXMid<int> & face )
-{
-    std::set< HXMid<int> >::iterator iter = this->refFaces->find( face );
-    if ( iter == this->refFaces->end() )
-    {
-        return ONEFLOW::INVALID_INDEX;
-    }
-    return iter->id;
 }
 
 bool FaceSolver::CheckBcFace( IntSet & bcVertex, IntField & nodeId )
@@ -89,14 +77,14 @@ void FaceSolver::ScanPolygonFace( CgnsSection * cgnsSection )
             int node = cgnsSection->connList[ i ];
             faceNodes.push_back( node );
         }
-        HXMid<int> fMid( nNode, this->refFaces->size() );
-        fMid.data = faceNodes;
-        std::sort( fMid.data.begin(), fMid.data.end() );
-        int gFid = this->FindFace( fMid );
-        if ( gFid == ONEFLOW::INVALID_INDEX )
+
+        //int gFid = this->faceLookup.FindOrAdd( faceNodes );
+        auto [faceIndex, isNew] = faceLookup.FindOrAdd(faceNodes);
+        if ( isNew )
         {
-            this->refFaces->insert( fMid );
-            this->faceTopo->faces.push_back( faceNodes );
+            // New face: ID is set to the current number of faces. 
+            int newId = static_cast<int>(this->faceTopo->faces.size());
+            this->faceTopo->faces.push_back(faceNodes);           // Preserve original order
             this->faceTopo->fTypes.push_back(cgnsSection->eType);
             this->faceTopo->faceFlags.push_back(0);
         }
@@ -170,21 +158,12 @@ void FaceSolver::ScanElementFace( CgIntField & eNodeId, int eType, int eId )
             aNodeId.push_back( eNodeId[ rNodeId[ iNode ] ] );
         }                                                              
 
-        HXMid<int> fMid( nNodes, this->faceTopo->faces.size() );
-        fMid.data = aNodeId;
-        std::sort( fMid.data.begin(), fMid.data.end() );
-        int gFid = this->FindFace( fMid );
+        //int gFid = this->faceLookup.FindOrAdd( aNodeId );
+        auto [gFid, isNew]  = this->faceLookup.FindOrAdd( aNodeId );
 
-        if ( gFid == ONEFLOW::INVALID_INDEX )
+        if ( isNew )
         {
-            int totalfn    = this->refFaces->size();
-            int faceNumber = this->faceTopo->lCells.size();
-            if ( totalfn != faceNumber )
-            {
-                std::cout << "totalfn != faceNumber " << totalfn << " " << faceNumber << std::endl;
-                Stop("");
-            }
-            this->refFaces->insert( fMid );
+            int totalfn = this->faceLookup.Size();
 
             this->faceTopo->lCells.push_back( eId );
             this->faceTopo->rCells.push_back( ONEFLOW::INVALID_INDEX );
@@ -194,7 +173,7 @@ void FaceSolver::ScanElementFace( CgIntField & eNodeId, int eType, int eId )
             this->faceTopo->fTypes.push_back( fType );
 
             this->faceTopo->faces.push_back( aNodeId );
-            this->childFid->resize( totalfn + 1 );
+            this->childFid->resize( totalfn );
         }
         else
         {

@@ -72,30 +72,19 @@ CurveInfo * LineMachine::GetCurveInfo( int id )
     return this->curveInfoList[ idx ];
 }
 
-int LineMachine::AddLine( int p1, int p2 )
+int LineMachine::AddLine(int p1, int p2)
 {
     IntField line;
-    line.push_back( p1 );
-    line.push_back( p2 );
+    line.push_back(p1);
+    line.push_back(p2);
 
-    int n = this->refLines.size();
-
-    HXMid<int> fMid( 2, n + 1 );
-    fMid.data = line;
-    std::sort( fMid.data.begin(), fMid.data.end() );
-
-    std::set< HXMid<int> >::iterator iter = this->refLines.find( fMid );
-    if ( iter == this->refLines.end() )
+    //int lineIndex = this->lineLookup.FindOrAdd( line ); // Ensure the line is registered in the lookup
+    auto [lineIndex, isNew] = this->lineLookup.FindOrAdd( line ); // Ensure the line is registered in the lookup
+    if ( isNew )
     {
-        this->refLines.insert( fMid );
-        this->lineList.push_back( line );
-        return n + 1;
+        this->lineList.push_back(line);     // Preserve original order
     }
-    else
-    {
-        return iter->id;
-    }
-
+    return lineIndex;
 }
 
 void LineMachine::AddLine( int p1, int p2, int id )

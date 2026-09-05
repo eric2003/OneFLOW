@@ -56,7 +56,6 @@ void Post::Run()
     textFileParser.OpenPrjFile( fileName, std::ios_base::in );
     textFileParser.SetDefaultSeparator( separator );
     int count = 0;
-    //std::vector< Real > xList, yList, zList;
     MakeCurveClass makeCurve;
     while ( ! textFileParser.ReachTheEndOfFile() )
     {
@@ -288,43 +287,37 @@ bool CurveData::CheckEdge( int p, int q )
 
 void CurveData::AddExtremeEdge( int p, int q )
 {
-    IntField pq;
-    pq.push_back( p );
-    pq.push_back( q );
+    // Build sorted edge key
+    IntField edgeKey;
+    edgeKey.push_back(p);
+    edgeKey.push_back(q);
+    std::sort(edgeKey.begin(), edgeKey.end());
 
-    std::sort( pq.begin(), pq.end() );
+    // Update point-to-point connectivity
+    this->p2p[ p ].insert( q );
+    this->p2p[ q ].insert( p );
 
-    p2p[ p ].insert( q );
-    p2p[ q ].insert( p );
-
-    int id = searchEdgeList.size();
-
-    HXSort< IntField > edge( pq, id );
-
-    std::set < HXSort< IntField > >::iterator iter = this->searchEdgeList.find( edge );
-
-    if ( iter == this->searchEdgeList.end() )
+    // Check if edge already exists
+    auto it = edgeToIndex.find(edgeKey);
+    if (it == edgeToIndex.end())
     {
-        this->extremeEdgeList.push_back( pq );
-        this->searchEdgeList.insert( edge );
+        // New edge: assign ID and store
+        int newId = edgeToIndex.size();
+        edgeToIndex[edgeKey] = newId;
+        extremeEdgeList.push_back(std::move(edgeKey));
     }
 }
 
 bool CurveData::FindEdge( int p, int q )
 {
-    IntField pq;
-    pq.push_back( p );
-    pq.push_back( q );
+    // Build sorted edge key
+    IntField edgeKey;
+    edgeKey.push_back(p);
+    edgeKey.push_back(q);
+    std::sort(edgeKey.begin(), edgeKey.end());
 
-    std::sort( pq.begin(), pq.end() );
-
-    int id = searchEdgeList.size();
-
-    HXSort< IntField > edge( pq, id );
-
-    std::set < HXSort< IntField > >::iterator iter = this->searchEdgeList.find( edge );
-
-    return iter != this->searchEdgeList.end();
+    // Use map for O(log n) lookup
+    return this->edgeToIndex.find(edgeKey) != this->edgeToIndex.end();
 }
 
 void CurveData::InitP2p()

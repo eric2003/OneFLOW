@@ -38,6 +38,7 @@ CgnsCoor::CgnsCoor( CgnsZone * cgnsZone )
     this->ndim = 3;
     this->typeList.resize( this->ndim );
     this->coor.resize( this->ndim );
+    this->nCoor = this->coor.size();
     this->nNodeList.resize( this->ndim );
     this->coorNameList.resize( this->ndim );
     this->nodeMesh = new NodeMesh();

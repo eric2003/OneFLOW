@@ -46,7 +46,6 @@ License
 #include "InterFace.h"
 #include "RegisterUtils.h"
 #include "FieldRecord.h"
-#include "UVisualize.h"
 #include "UResidual.h"
 #include "UNsCom.h"
 #include "TaskRegister.h"

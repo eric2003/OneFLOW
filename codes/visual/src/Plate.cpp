@@ -36,6 +36,7 @@ License
 #include "Boundary.h"
 #include <algorithm>
 #include <iomanip>
+#include <numeric>
 
 
 BeginNameSpace( ONEFLOW )
@@ -158,35 +159,31 @@ void PlaneData::Read( DataBook * dataBook )
 
 void PlaneData::SortData( RealField & varList )
 {
-    HXVector< HXSort< Real > > sortList;
-    HXSort< Real > svar;
-
     int nNodes = this->x.size();
-    if ( nNodes <= 0 ) return;
+    if (nNodes <= 0) return;
 
-    for ( int iNode = 0; iNode < nNodes; ++ iNode )
-    {
-        svar.value = varList[ iNode ];
-        svar.index = iNode;
-        sortList.push_back( svar );
-    }
-    sort( sortList.begin(), sortList.end() );
+    // 1. 创建索引列表 [0, 1, 2, ..., nNodes-1]
+    IntField indexList(nNodes);
+    std::iota(indexList.begin(), indexList.end(), 0);
 
-    IntField indexList;
-    for ( int iNode = 0; iNode < nNodes; ++ iNode )
-    {
-        indexList.push_back( sortList[ iNode ].index );
-    }
+    // 2. 按 varList 的值对索引进行排序
+    std::sort(indexList.begin(), indexList.end(),
+        [&](int i, int j) { 
+            return varList[i] < varList[j];
+        });
 
-    ReorderList( x, indexList );
-    ReorderList( y, indexList );
-    ReorderList( z, indexList );
+    // 现在 indexList 包含的是排序后的位置索引
+    // 例如：varList = [5, 2, 8, 1, 3]
+    // indexList = [3, 1, 4, 0, 2]
+    // 意思是：最小的在位置3，第二小的在位置1，依此类推
 
-    int nEqu = slicedata.size();
+    // 3. 用排序后的索引重排所有数据
+    ReorderList(x, indexList);
+    ReorderList(y, indexList);
+    ReorderList(z, indexList);
 
-    for ( int iEqu = 0; iEqu < nEqu; ++ iEqu )
-    {
-        ReorderList( slicedata[ iEqu ], indexList );
+    for (auto& data : slicedata) {
+        ReorderList(data, indexList);
     }
 }
 

@@ -19,33 +19,9 @@ License
     along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 
 \*---------------------------------------------------------------------------*/
-#pragma once
-#include "HXType.h"
+
+#include "HXKey.h"
 
 BeginNameSpace( ONEFLOW )
-
-template < typename T >
-class HXSort
-{
-public:
-    T value;
-    HXSize_t index;
-public:
-    HXSort() {}
-    HXSort( const T & value, HXSize_t index )
-    {
-        this->value = value;
-        this->index = index;
-    }
-public:
-    bool operator < ( const HXSort & rhs ) const
-    {
-        return value < rhs.value;
-    }
-    bool operator > ( const HXSort & rhs ) const
-    {
-        return value > rhs.value;
-    }
-};
 
 EndNameSpace

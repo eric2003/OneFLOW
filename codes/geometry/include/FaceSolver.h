@@ -24,9 +24,10 @@ License
 #pragma once
 #include "HXDefine.h"
 #include "HXCgns.h"
-#include "HXMid.h"
+#include "HXLookup.h"
 #include <vector>
 #include <set>
+#include <map>
 
 
 BeginNameSpace( ONEFLOW )
@@ -41,14 +42,13 @@ public:
     FaceSolver();
     ~FaceSolver();
 public:
-    std::set< HXMid<int> > * refFaces;
+    HXLookup<int> faceLookup;
     IntField * faceBcKey;
     IntField * faceBcType;
     LinkField * childFid;
 public:
     FaceTopo * faceTopo;
 public:
-    int FindFace( HXMid<int> & face );
     bool CheckBcFace( IntSet & bcVertex, IntField & nodeId );
     void ScanElementFace( CgIntField & eNodeId, int eType, int eId );
     void ScanBcFace( IntSet & bcVertex, int bcType, int bcNameId );
