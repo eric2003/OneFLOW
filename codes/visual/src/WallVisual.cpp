@@ -116,9 +116,10 @@ void WallVisual::BuildFaceTopo( IntField & faceNodeIndexArray, int loc_Face, int
 {
     static HXLookup<int> faceLookup;
 
-    int it = faceLookup.FindOrAdd( faceNodeIndexArray );
+    //int it = faceLookup.FindOrAdd( faceNodeIndexArray );
+    auto [it, isNew] = faceLookup.FindOrAdd( faceNodeIndexArray );
 
-    if ( it == ONEFLOW::INVALID_INDEX )
+    if ( isNew )
     {
         this->fLink.push_back(faceNodeIndexArray);
         this->lCell.push_back(iCell);

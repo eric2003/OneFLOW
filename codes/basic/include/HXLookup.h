@@ -41,12 +41,12 @@ public:
 
     //---------------------- Core interface ----------------------
     // Find or insert, return unique id (starts from 0)
-    int FindOrAdd(const container_type& nodes)
+    std::pair<int, bool> FindOrAdd(const container_type& nodes)
     {
         return FindOrAddImpl(key_type(nodes));
     }
 
-    int FindOrAdd(const std::vector<T>& nodes)
+    std::pair<int, bool> FindOrAdd(const std::vector<T>& nodes)
     {
         return FindOrAddImpl(key_type(nodes));
     }
@@ -69,16 +69,15 @@ public:
 private:
     std::map<key_type, int> map_;
 
-    int FindOrAddImpl(const key_type& key)
+    std::pair<int, bool> FindOrAddImpl(const key_type& key)
     {
         auto it = map_.find(key);
         if (it != map_.end())
-            return it->second;
+            return {it->second, false};          // already existed
 
         int newId = static_cast<int>(map_.size());
-        map_.emplace(key, newId);
-        //return newId;
-        return INVALID_INDEX;
+        map_.emplace(std::move(key), newId);
+        return {newId, true};                    // newly inserted
     }
 
     int FindImpl(const key_type& key) const

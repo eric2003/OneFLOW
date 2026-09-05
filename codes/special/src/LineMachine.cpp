@@ -78,8 +78,9 @@ int LineMachine::AddLine(int p1, int p2)
     line.push_back(p1);
     line.push_back(p2);
 
-    int lineIndex = this->lineLookup.FindOrAdd( line ); // Ensure the line is registered in the lookup
-    if ( lineIndex == ONEFLOW::INVALID_INDEX )
+    //int lineIndex = this->lineLookup.FindOrAdd( line ); // Ensure the line is registered in the lookup
+    auto [lineIndex, isNew] = this->lineLookup.FindOrAdd( line ); // Ensure the line is registered in the lookup
+    if ( isNew )
     {
         this->lineList.push_back(line);     // Preserve original order
     }

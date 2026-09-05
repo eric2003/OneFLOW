@@ -146,9 +146,10 @@ void BcVisual::ResolveElementEdge()
             edgeNodeId.push_back( ip1 );
             edgeNodeId.push_back( ip2 );
 
-            int edgeIndex = faceLookup.FindOrAdd( edgeNodeId );
+            //int edgeIndex = faceLookup.FindOrAdd( edgeNodeId );
+            auto [ edgeIndex, isNew ] = faceLookup.FindOrAdd( edgeNodeId );
 
-            if ( edgeIndex == ONEFLOW::INVALID_INDEX )
+            if ( isNew )
             {
                 this->lcell.push_back( fId );
                 this->rcell.push_back( -1 );      
@@ -184,7 +185,8 @@ void BcVisual::Calcf2n( int bcType )
     this->f2n.clear();
     this->l2g.clear();
 
-    // 使用 unordered_map 做全局节点去重
+    HXLookup<int> nodeLookup;
+
     std::unordered_map<int, int> globalNodeToIndex;  // 全局节点编号 -> 局部索引
     globalNodeToIndex.reserve(grid->nBFaces * 4);     // 预分配空间
 

@@ -78,8 +78,9 @@ void FaceSolver::ScanPolygonFace( CgnsSection * cgnsSection )
             faceNodes.push_back( node );
         }
 
-        int gFid = this->faceLookup.FindOrAdd( faceNodes );
-        if ( gFid == ONEFLOW::INVALID_INDEX )
+        //int gFid = this->faceLookup.FindOrAdd( faceNodes );
+        auto [faceIndex, isNew] = faceLookup.FindOrAdd(faceNodes);
+        if ( isNew )
         {
             // New face: ID is set to the current number of faces. 
             int newId = static_cast<int>(this->faceTopo->faces.size());
@@ -157,9 +158,10 @@ void FaceSolver::ScanElementFace( CgIntField & eNodeId, int eType, int eId )
             aNodeId.push_back( eNodeId[ rNodeId[ iNode ] ] );
         }                                                              
 
-        int gFid = this->faceLookup.FindOrAdd( aNodeId );
+        //int gFid = this->faceLookup.FindOrAdd( aNodeId );
+        auto [gFid, isNew]  = this->faceLookup.FindOrAdd( aNodeId );
 
-        if ( gFid == ONEFLOW::INVALID_INDEX )
+        if ( isNew )
         {
             int totalfn = this->faceLookup.Size();
 
