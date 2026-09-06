@@ -42,6 +42,7 @@ License
 #include "ElementHome.h"
 #include "HXMath.h"
 #include "HXMathExt.h"
+#include "HXLookup.h"
 #include "Boundary.h"
 #include "MetisGrid.h"
 #include "ScalarIFace.h"
@@ -874,8 +875,8 @@ void ScalarGrid::CalcTopology()
 	this->nNodes = this->GetNNodes();
 	this->nCells = this->GetNCells();
 
-	// Use map to store: sorted node array -> face index
-	std::map<IntField, int> faceToIndex;
+	// Use HXLookup to manage unique faces (key is automatically sorted)
+	HXLookup<int> faceLookup;
 
 	// Estimate the number of faces and reserve space
 	int estimatedFaces = this->nCells * 2;  // Rough estimate
@@ -911,15 +912,12 @@ void ScalarGrid::CalcTopology()
 			IntField sortedNodes = faceNodeIndexArray;
 			std::sort(sortedNodes.begin(), sortedNodes.end());
 
-			auto it = faceToIndex.find(sortedNodes);
+			// Find or add the face (HXLookup automatically sorts the nodes)
+			auto [faceIndex, isNew] = faceLookup.FindOrAdd(faceNodeIndexArray);
 
-			if (it == faceToIndex.end())
+			if ( isNew )
 			{
-				// New face: assign a new index
-				int faceIndex = faceToIndex.size();
-				faceToIndex[std::move(sortedNodes)] = faceIndex;
-
-				// Add face data
+				// New face: add face data
 				this->lc.data.push_back(iCell);
 				this->rc.data.push_back(ONEFLOW::INVALID_INDEX);
 				this->lpos.data.push_back(iLocalFace);
@@ -931,7 +929,6 @@ void ScalarGrid::CalcTopology()
 			else
 			{
 				// Existing face: update the right cell information
-				int faceIndex = it->second;
 				this->fBcTypes[faceIndex] = ONEFLOW::BCTypeNull;  // Internal face
 				this->rc[faceIndex] = iCell;
 				this->rpos[faceIndex] = iLocalFace;
@@ -943,7 +940,6 @@ void ScalarGrid::CalcTopology()
 	this->ScanBcFace();
 	this->SetBcGhostCell();
 }
-
 
 void ScalarGrid::ScanBcFace()
 {

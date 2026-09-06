@@ -25,6 +25,7 @@ License
 #include "NamespaceMacros.h"
 #include "HXType.h"
 #include "HXDefine.h"
+#include "HXLookup.h"
 #include <vector>
 #include <set>
 #include <map>
@@ -85,7 +86,8 @@ public:
     std::vector< int > newidlist;
     std::vector< std::set< int > > p2p;
     std::vector< IntField > extremeEdgeList;
-    std::map<IntField, int> edgeToIndex;  // Edge nodes -> edge ID
+    // Edge nodes -> edge ID (HXLookup automatically sorts the two nodes)
+    HXLookup<int> edgeLookup;
     PointEdgeClass pec;
     std::string file_prestr;
 public:

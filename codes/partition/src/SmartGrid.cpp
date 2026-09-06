@@ -54,7 +54,7 @@ int PointAction::FindPoint( Real xm, Real ym, Real zm )
     return this->FindPointId( pt );
 }
 
-int PointAction::FindPointId( PointBasic::PointType & point )
+int PointAction::FindPointId( PointManager::PointType & point )
 {
     PointAction::PointMap::iterator iter = this->pointMap.find( point );
     if ( iter == this->pointMap.end() )

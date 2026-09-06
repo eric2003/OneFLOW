@@ -41,8 +41,8 @@ void Reorder( T & field, IntField & order_map )
 class PointDebug
 {
 public:
-    PointDebug() {}
-    ~PointDebug() {}
+    PointDebug() = default;
+    ~PointDebug() = default;
 public:
     RealField xArray, yArray, zArray;
     Real tolerance;

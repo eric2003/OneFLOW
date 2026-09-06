@@ -33,7 +33,7 @@ F2FMap f2fmap;
 
 F2FMap::F2FMap()
 {
-    pointBasic = new PointBasic();
+    pointBasic = new PointManager();
     faceSearchBasic = new FaceSearchBasic();
 }
 
@@ -91,34 +91,45 @@ int F2FMap::AddFacePoint( CgIntField & fNodeId, NodeMesh *nodeMesh, IntField & n
     return fId;
 }
 
-void F2FMap::FindFace( RealField &xList, RealField &yList, RealField &zList, RealField &xxList, RealField &yyList, RealField &zzList )
+void F2FMap::FindFace(RealField &xList, RealField &yList, RealField &zList,
+    RealField &xxList, RealField &yyList, RealField &zzList)
 {
     int nNodes = xList.size();
     IntField face;
-    for ( int i = 0; i < nNodes; ++ i )
-    {
-        Real xm = xList[ i ];
-        Real ym = yList[ i ];
-        Real zm = zList[ i ];
+    face.reserve(nNodes);
 
-        int pid = this->pointBasic->FindPoint( xm, ym, zm );
-        face.push_back( pid );
+    for (int i = 0; i < nNodes; ++i)
+    {
+        Real xm = xList[i];
+        Real ym = yList[i];
+        Real zm = zList[i];
+        int pid = this->pointBasic->FindPoint(xm, ym, zm);
+        face.push_back(pid);
     }
 
-    int face_id = this->faceSearchBasic->FindFace( face );
-    int face_period = this->FindPeriodFace( face_id );
-    //if ( face_period == -1 )
-    FaceSort * faceSort = this->faceSearchBasic->faceArray[ face_period ];
-    IntField & node_period = faceSort->nodeId;
+    int face_id = this->faceSearchBasic->FindFace(face);
+    int face_period = this->FindPeriodFace(face_id);
 
-    for ( int i = 0; i < node_period.size(); ++ i )
+    // faceArray now stores IntField directly
+    const IntField & node_period = this->faceSearchBasic->faceArray[face_period];
+
+    xxList.clear();
+    yyList.clear();
+    zzList.clear();
+    xxList.reserve(node_period.size());
+    yyList.reserve(node_period.size());
+    zzList.reserve(node_period.size());
+
+    for (int i = 0; i < node_period.size(); ++i)
     {
-        int  ip = node_period[ i ];
-        PointBasic::PointType & pt = this->pointBasic->pointList[ ip ];
+        int ip = node_period[i];
 
-        xxList.push_back( pt.x );
-        yyList.push_back( pt.y );
-        zzList.push_back( pt.z );
+        Real x, y, z;
+        this->pointBasic->GetPoint(ip, x, y, z);   // 使用公共接口
+
+        xxList.push_back(x);
+        yyList.push_back(y);
+        zzList.push_back(z);
     }
 }
 

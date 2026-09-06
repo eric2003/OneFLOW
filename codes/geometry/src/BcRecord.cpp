@@ -25,7 +25,6 @@ License
 #include "Dimension.h"
 #include "InterFace.h"
 #include "IFaceLink.h"
-#include "FaceSearch.h"
 #include "HXMath.h"
 #include "HXStd.h"
 #include <iostream>

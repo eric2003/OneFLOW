@@ -22,7 +22,7 @@ License
 
 
 #pragma once
-#include "PointFactory.h"
+#include "PointManager.h"
 #include "HXCgns.h"
 #include <map>
 
@@ -30,7 +30,7 @@ BeginNameSpace(ONEFLOW)
 
 #ifdef ENABLE_CGNS
 
-class PointBasic;
+class PointManager;
 class FaceSearchBasic;
 class NodeMesh;
 
@@ -40,7 +40,7 @@ public:
     F2FMap();
     ~F2FMap();
 public:
-    PointBasic * pointBasic;
+    PointManager * pointBasic;
     FaceSearchBasic * faceSearchBasic;
     LinkField faceList1, faceList2;
     std::map< int, int > face_pair;

@@ -22,6 +22,7 @@ License
 
 #pragma once
 #include "HXDefine.h"
+#include "HXLookup.h"
 #include "GridDef.h"
 #include <set>
 
@@ -38,8 +39,8 @@ public:
     IFaceLink( Grids & grids );
     ~IFaceLink();
 public:
-    //faceListis used primarily as a search list for global face
-    std::map<IntField, int> faceToIndex; 
+    // HXLookup automatically sorts the node list as key
+    HXLookup<int> faceLookup;
     //In general, each interface is made up of two different blocks of surface.
     //This requires each surface to have a block number and the serial number of the surface in this block
     LinkField gI2Zid;

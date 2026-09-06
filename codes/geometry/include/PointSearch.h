@@ -30,8 +30,8 @@ BeginNameSpace( ONEFLOW )
 
 class Grid;
 
-typedef HXAdtTree< int, Real > AdtTree;
-typedef HXAdtNode< int, Real > AdtNode;
+using AdtTree = HXAdtTree<int, Real>;
+using AdtNode = HXAdtNode<int, Real>;
 
 class PointSearch
 {
@@ -58,7 +58,7 @@ protected:
     int AddPoint( RealField & coordinate );
     int FindPoint( RealField & coordinate );
 public:
-    void GetFaceCoorList( IntField & nodeId, RealField &xList, RealField &yList, RealField &zList );
+    void GetFaceCoorList( const IntField & nodeId, RealField &xList, RealField &yList, RealField &zList );
 };
 
 void CreateStandardADT( RealField & ptmin, RealField & ptmax, AdtTree *& adtTree, Real & tolerance );

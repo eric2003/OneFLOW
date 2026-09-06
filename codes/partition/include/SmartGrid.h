@@ -23,7 +23,7 @@ License
 
 #pragma once
 #include "HXDefine.h"
-#include "PointFactory.h"
+#include "PointManager.h"
 #include <map>
 
 
@@ -138,27 +138,6 @@ public:
 public:
     TopoSort * topo_sort;
 };
-
-//class MyBcRegion
-//{
-//public:
-//    MyBcRegion();
-//    ~MyBcRegion();
-//public:
-//    std::string name;
-//
-//};
-//
-//
-//class BcAction
-//{
-//public:
-//    BcAction();
-//    ~BcAction();
-//public:
-//    void CreatBCRegion( const std::string "LeftOutFlow", ONEFLOW::BCOutflow );
-//};
-
 
 class SmartGrid
 {

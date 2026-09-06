@@ -22,31 +22,11 @@ License
 
 #pragma once
 #include "HXDefine.h"
+#include "HXLookup.h"
 #include <set>
 
 
 BeginNameSpace( ONEFLOW )
-
-class FaceSort
-{
-public:
-    FaceSort();
-    FaceSort( const IntField & nodeId, int fId = 0 );
-    ~FaceSort();
-public:
-    int fId;
-    IntField nodeId;
-    IntField sortedNodeId;
-};
-
-class CompareFace
-{
-public:
-    bool operator() ( const FaceSort * lhs, const FaceSort * rhs ) const
-    {
-        return lhs->sortedNodeId < rhs->sortedNodeId;
-    }
-};
 
 class FaceSearchBasic
 {
@@ -54,11 +34,20 @@ public:
     FaceSearchBasic();
     ~FaceSearchBasic();
 public:
-    HXVector< FaceSort * > faceArray;
-    std::set< FaceSort * , CompareFace > faceSet;
+    // Store original node order of each face (index == faceId)
+    HXVector< IntField > faceArray;
 public:
+    // Add a face. Returns the unique face ID (always >= 0).
     int AddFace( const IntField & faceNode );
-    int FindFace( const IntField & faceNode );
+
+    // Only find. Returns INVALID_INDEX if not found.
+    int FindFace( const IntField & faceNode ) const;
+
+    std::size_t Size() const { return lookup_.Size(); }
+    void Clear();
+
+private:
+    HXLookup<int> lookup_;   // responsible for uniqueness and ID assignment
 };
 
 class IFaceLink;
@@ -77,11 +66,11 @@ public:
     int gFid;
 public:
     void CalcNewFaceId( IFaceLink * iFaceLink );
-    void SplitQuad2Tri( FaceSort * pFaceSort );
-    void SplitLine( FaceSort * pFaceSort );
+    void SplitQuad2Tri( int faceId );
+    void SplitLine( int faceId );
     void GetLocalTri( LinkField & localTriId, LinkField & localTriFlag );
-    void GetTriId( FaceSort * pFaceSort, LinkField & localTriId, LinkField & triId );
-    bool GetLine( FaceSort * pFaceSort, LinkField & localLineId, LinkField & localLineFlag, LinkField & lineId );
+    void GetTriId( const IntField & nodeId, LinkField & localTriId, LinkField & triId );
+    bool GetLine( const IntField & nodeId, LinkField & localLineId, LinkField & localLineFlag, LinkField & lineId );
 };
 
 EndNameSpace
