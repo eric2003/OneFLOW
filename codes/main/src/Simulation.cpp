@@ -28,6 +28,10 @@ License
 #include "HybridParallel.h"
 #include <iostream>
 #include <algorithm>
+#include <cstdlib>
+#include <cstring>
+#include <memory>
+#include <string>
 
 
 BeginNameSpace( ONEFLOW )
@@ -59,13 +63,6 @@ void Simulation::ProcessCmdLineArgs( int argc, char ** argv )
         std::cout << "argv[" << i << "] = " << args[ i ] << std::endl;
     }
 }
-
-#include <algorithm>
-#include <cstdlib>
-#include <cstring>
-#include <iostream>
-#include <memory>
-#include <string>
 
 std::unique_ptr<SimuBase> Simulation::MakeDefaultSimulation()
 {
