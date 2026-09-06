@@ -105,20 +105,6 @@ void HybridParallel::HybridRun( int argc, char ** argv )
 #endif
 }
 
-//namespace {
-//
-//	class HybridParallelWrapper : public SimuBase
-//	{
-//	public:
-//		void Run() override
-//		{
-//			ONEFLOW::HybridParallel hp;
-//			hp.Run();
-//		}
-//	};
-//
-//}
-
 EndNameSpace
 
 WRAP_TEST_CLASS(HybridParallel, "hybrid_parallel");

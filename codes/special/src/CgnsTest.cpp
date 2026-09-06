@@ -1011,20 +1011,6 @@ void CgnsTest::mytest_write()
     delete cgnsFile;
 }
 
-
-//namespace {
-//
-//    class CgnsTestWrapper : public SimuBase
-//    {
-//    public:
-//        void Run() override
-//        {
-//            ONEFLOW::CgnsTest ct;
-//            ct.Run();
-//        }
-//    };
-//}
-
 EndNameSpace
 WRAP_TEST_CLASS(CgnsTest, "cgns_test");
 

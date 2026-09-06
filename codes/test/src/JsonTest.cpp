@@ -156,18 +156,6 @@ void JsonTest::Run()
     readFileJson();
 }
 
-//namespace {
-//    class JsonTestWrapper : public SimuBase
-//    {
-//    public:
-//        void Run() override
-//        {
-//            ONEFLOW::JsonTest jt;
-//            jt.Run();
-//        }
-//    };
-//}
-
 EndNameSpace
 
 WRAP_TEST_CLASS(JsonTest, "json_test");

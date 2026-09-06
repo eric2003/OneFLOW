@@ -88,18 +88,6 @@ void MpiTest::Test()
     }
 }
 
-//namespace {
-//    class MpiTestWrapper : public SimuBase
-//    {
-//    public:
-//        void Run() override
-//        {
-//            MpiTest t;
-//            t.Run();
-//        }
-//    };
-//}
-
 EndNameSpace
 
 WRAP_TEST_CLASS(MpiTest, "mpi_test");
