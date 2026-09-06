@@ -1,3 +1,4 @@
+set(CMAKE_FOLDER ${CMAKE_FOLDER}/euler)
 
 set(ONEFLOW_EULER_BACKEND_DIR
   ${CMAKE_SOURCE_DIR}/ports/kunshan/oneflow_1d_hip
