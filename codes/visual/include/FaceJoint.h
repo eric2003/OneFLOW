@@ -28,7 +28,7 @@ BeginNameSpace( ONEFLOW )
 
 class FaceJointManager;
 
-class PointSearch;
+class PointLocator;
 class FaceJoint;
 
 class FaceJointManager
@@ -67,7 +67,7 @@ public:
 public:
     RealField pmin, pmax;
     Real dismin, dismax;
-    PointSearch * ps;
+    PointLocator * ps;
     WallVisual * wallVisual;
 public:
     void CalcBoundBox();

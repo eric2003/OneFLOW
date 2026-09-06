@@ -36,7 +36,7 @@ class NodeMesh;
 class CgnsZsection;
 class CgnsZbc;
 class GridElem;
-class PointFactory;
+class MeshPointManager;
 class ElemFeature;
 class FaceSolver;
 class CgnsBase;
@@ -70,7 +70,7 @@ public:
 public:
     void Create();
     void SetPeriodicBc();
-    void ConstructCgnsGridPoints( PointFactory * point_factory );
+    void ConstructCgnsGridPoints( MeshPointManager * point_factory );
     void SetElementTypeAndNode( ElemFeature  * elem_feature );
     void InitLgMapping();
     void ConvertToInnerDataStandard();

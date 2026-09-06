@@ -29,7 +29,7 @@ License
 #include "DataBase.h"
 #include "ClassicGrid.h"
 #include "StrGrid.h"
-#include "PointSearch.h"
+#include "PointLocator.h"
 #include "BcRecord.h"
 #include "Plot3D.h"
 #include "HXMath.h"

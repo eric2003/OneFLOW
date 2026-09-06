@@ -28,7 +28,7 @@ License
 #include "DataBase.h"
 #include "ClassicGrid.h"
 #include "StrGrid.h"
-#include "PointSearch.h"
+#include "PointLocator.h"
 #include "BcRecord.h"
 #include "HXMath.h"
 #include "Prj.h"
@@ -668,7 +668,7 @@ void DomainInp::GeneInp()
     delete cgnsFactory;
 }
 
-void DomainInp::GetId( int zid, int i, int j, int k, int & id, GridMediator * gridMediator, PointSearch * pointSearch )
+void DomainInp::GetId( int zid, int i, int j, int k, int & id, GridMediator * gridMediator, PointLocator * pointSearch )
 {
     StrGrid * grid = ONEFLOW::StrGridCast( gridMediator->gridVector[ zid ] );
     Field3D & xs = * grid->strx;
@@ -732,7 +732,7 @@ void DomainInp::FindPhysicalPatch( StrGrid * grid, MultiDomain * md, int zid, Ij
     int kkk = 1;
 }
 
-void DomainInp::Dump( MultiDomain * md, GridMediator * gridMediator, PointSearch * pointSearch )
+void DomainInp::Dump( MultiDomain * md, GridMediator * gridMediator, PointLocator * pointSearch )
 {
     std::fstream file;
     std::string fileName = "test.inp";
@@ -857,7 +857,7 @@ void DomainInp::OutputInp( GridMediator * gridMediator )
 {
     Grids grids = gridMediator->gridVector;
 
-    PointSearch pointSearch;
+    PointLocator pointSearch;
     pointSearch.Initialize( grids );
     PBlkSet pblkSet;
 
@@ -915,7 +915,7 @@ void DomainInp::CalcDomainPatch( int iZone, int jZone, GridMediator * gridMediat
     }
 }
 
-void DomainInp::CalcFacePoint( StrGrid * grid, PointSearch * pointSearch, IjkBox * ijkBox, int zId, PBlkSet * pblkSet )
+void DomainInp::CalcFacePoint( StrGrid * grid, PointLocator * pointSearch, IjkBox * ijkBox, int zId, PBlkSet * pblkSet )
 {
     Field3D & xs = * grid->strx;
     Field3D & ys = * grid->stry;

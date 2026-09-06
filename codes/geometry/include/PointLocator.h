@@ -33,11 +33,11 @@ class Grid;
 using AdtTree = HXAdtTree<int, Real>;
 using AdtNode = HXAdtNode<int, Real>;
 
-class PointSearch
+class PointLocator
 {
 public:
-    PointSearch();
-    ~PointSearch();
+    PointLocator();
+    ~PointLocator();
 protected:
     int id;
     AdtTree * coorTree;

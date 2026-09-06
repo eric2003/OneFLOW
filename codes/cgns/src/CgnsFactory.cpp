@@ -43,7 +43,7 @@ License
 #include "CgnsSection.h"
 #include "CgnsZsection.h"
 #include "NodeMesh.h"
-#include "PointSearch.h"
+#include "PointLocator.h"
 #include "BcRecord.h"
 #include "Boundary.h"
 #include "HXMath.h"

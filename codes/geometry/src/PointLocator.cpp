@@ -20,7 +20,7 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "PointSearch.h"
+#include "PointLocator.h"
 #include "Grid.h"
 #include "NodeMesh.h"
 #include "HXMath.h"
@@ -30,39 +30,39 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-PointSearch::PointSearch()
+PointLocator::PointLocator()
 {
     this->coorTree = 0;
 }
 
-PointSearch::~PointSearch()
+PointLocator::~PointLocator()
 {
     delete this->coorTree;
 }
 
-void PointSearch::Initialize( RealField & pmin, RealField & pmax, Real toleranceIn )
+void PointLocator::Initialize( RealField & pmin, RealField & pmax, Real toleranceIn )
 {
     this->tolerance = toleranceIn;
     ONEFLOW::CreateStandardADT( pmin, pmax, this->coorTree, this->tolerance );
 }
 
-void PointSearch::Initialize( Grid * grid )
+void PointLocator::Initialize( Grid * grid )
 {
     ONEFLOW::CreateStandardADT( grid, this->coorTree, this->tolerance );
 }
 
-void PointSearch::InitializeSpecial( Grid * grid, Real toleranceIn )
+void PointLocator::InitializeSpecial( Grid * grid, Real toleranceIn )
 {
     this->Initialize( grid );
     this->tolerance = toleranceIn;
 }
 
-void PointSearch::Initialize( Grids & grids )
+void PointLocator::Initialize( Grids & grids )
 {
     ONEFLOW::CreateStandardADT( grids, this->coorTree, tolerance );
 }
 
-int PointSearch::AddPoint( RealField & coor )
+int PointLocator::AddPoint( RealField & coor )
 {
     Real minWindow[ 3 ];
     Real maxWindow[ 3 ];
@@ -106,14 +106,14 @@ int PointSearch::AddPoint( RealField & coor )
     }
 }
 
-void PointSearch::GetPoint( int id, Real & xm, Real & ym, Real & zm )
+void PointLocator::GetPoint( int id, Real & xm, Real & ym, Real & zm )
 {
     xm = this->xCoor[ id ];
     ym = this->yCoor[ id ];
     zm = this->zCoor[ id ];
 }
 
-int PointSearch::AddPoint( Real xm, Real ym, Real zm )
+int PointLocator::AddPoint( Real xm, Real ym, Real zm )
 {
     RealField coor( 3 );
     coor[ 0 ] = xm;
@@ -122,7 +122,7 @@ int PointSearch::AddPoint( Real xm, Real ym, Real zm )
     return this->AddPoint( coor );
 }
 
-int PointSearch::FindPoint( Real xm, Real ym, Real zm )
+int PointLocator::FindPoint( Real xm, Real ym, Real zm )
 {
     RealField coor( 3 );
     coor[ 0 ] = xm;
@@ -131,7 +131,7 @@ int PointSearch::FindPoint( Real xm, Real ym, Real zm )
     return this->FindPoint( coor );
 }
 
-int PointSearch::FindPoint( RealField & coordinate )
+int PointLocator::FindPoint( RealField & coordinate )
 {
     AdtTree::AdtNodeList nodeList;
 
@@ -169,7 +169,7 @@ int PointSearch::FindPoint( RealField & coordinate )
     }
 }
 
-void PointSearch::GetFaceCoorList( const IntField & nodeId, RealField &xList, RealField &yList, RealField &zList )
+void PointLocator::GetFaceCoorList( const IntField & nodeId, RealField &xList, RealField &yList, RealField &zList )
 {
     for ( int i = 0; i < nodeId.size(); ++ i )
     {

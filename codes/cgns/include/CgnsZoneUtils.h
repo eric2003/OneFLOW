@@ -41,12 +41,12 @@ void DecodeIJK( int index, int & i, int & j, int & k, int ni, int nj, int nk );
 void GetRange( int ni, int nj, int nk, int startShift, int endShift, Range & I, Range & J, Range & K );
 void GetIJKRegion( Range & I, Range & J, Range & K, int & ist, int & ied, int & jst, int & jed, int & kst, int & ked );
 
-class PointSearch;
+class PointLocator;
 class BcRegion;
 void PrepareCgnsZoneSub( Grids & grids, CgnsZone * cgnsZone );
 void MergeToSingleZone( Grids & grids, HXVector< Int3D * > & unsIdList, NodeMesh * nodeMesh, int & nNodes, int & nCells );
 void FillSection( Grids & grids, HXVector< Int3D * > & unsIdList, CgnsZone * cgnsZone );
-void CalcUnsId( StrGrid * grid, PointSearch * pointSearch, Int3D * unsId );
+void CalcUnsId( StrGrid * grid, PointLocator * pointSearch, Int3D * unsId );
 void SetUnsBcConn( BcRegion * bcRegion, CgIntField& conn, int & pos, Int3D & unsId );
 
 void GenerateUnsBcElemConn( CgnsZone * myZone, CgnsZone * cgnsZoneIn );

@@ -47,7 +47,7 @@ public:
     void CalcNodeValue();
 };
 
-class PointSearch;
+class PointLocator;
 class FaceJoint;
 
 class Grid;

@@ -107,15 +107,18 @@ protected:
     PointType MakeKey(Real x, Real y, Real z) const;
 };
 
-class PointFactory : public PointManager
+// Extended point manager used in mesh generation.
+// Adds local-to-global index mapping for multi-block or hierarchical meshes.
+class MeshPointManager : public PointManager
 {
 public:
-    PointFactory();
-    ~PointFactory();
+    MeshPointManager();
+    ~MeshPointManager();
 
 public:
-    IntField localToGlobal;   // local node id -> global node id in PointManager
+    IntField localToGlobal;     // local point id -> global point id
 
     void InitLocalToGlobal();
 };
+
 EndNameSpace

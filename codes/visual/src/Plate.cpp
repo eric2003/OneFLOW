@@ -27,7 +27,7 @@ License
 #include "NodeMesh.h"
 #include "FaceTopo.h"
 #include "BcRecord.h"
-#include "PointSearch.h"
+#include "PointLocator.h"
 #include "HXMath.h"
 #include "Parallel.h"
 #include "DataBook.h"
@@ -444,7 +444,7 @@ void CuttingClass::CutPlane( Real cutPosition, int cutAxis, LamData * lamData )
     RealField & y = grid->nodeMesh->yN;
     RealField & z = grid->nodeMesh->zN;
 
-    PointSearch * point_search = new PointSearch();
+    PointLocator * point_search = new PointLocator();
     point_search->InitializeSpecial( grid, 1.0e-8 );
 
     Real eps = half * point_search->GetTol();

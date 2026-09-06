@@ -30,7 +30,7 @@ BeginNameSpace( ONEFLOW )
 
 class Grid;
 class FaceSearch;
-class PointSearch;
+class PointLocator;
 class NodeMesh;
 
 class IFaceLink
@@ -55,7 +55,7 @@ public:
 
     FaceSearch * face_search;
 
-    PointSearch * point_search;
+    PointLocator * point_search;
 
     Grids grids;
 public:

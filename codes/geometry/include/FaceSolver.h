@@ -31,7 +31,7 @@ License
 
 
 BeginNameSpace( ONEFLOW )
-class PointFactory;
+class MeshPointManager;
 class ElemFeature;
 class FaceTopo;
 class CgnsSection;
