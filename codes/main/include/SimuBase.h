@@ -22,17 +22,14 @@ License
 
 #pragma once
 #include "NamespaceMacros.h"
+#include <memory>
+#include <functional>
+#include <unordered_map>
 #include <vector>
 #include <string>
-#include <memory>
-#include <unordered_map>
-#include <functional>
 
 BeginNameSpace(ONEFLOW)
 
-/**
-* @brief unified abstract interface for both full simulation and lightweight test cases
-*/
 class SimuBase
 {
 public:
@@ -42,17 +39,13 @@ public:
 
 using TestCreator = std::function<std::unique_ptr<SimuBase>()>;
 
-/**
-* @brief global registry for lightweight quick-run test cases
-*/
 class TestRegistry
 {
 public:
     static TestRegistry& Instance();
 
-    void Register(const std::string& name, TestCreator creator);
-    std::unique_ptr<SimuBase> Create(const std::string& name);
-    // ===== 新增：获取全部已注册测试名字列表 =====
+    void Register(const std::string& caseName, TestCreator creator);
+    std::unique_ptr<SimuBase> Create(const std::string& caseName);
     std::vector<std::string> GetAllRegisteredNames() const;
 
 private:
@@ -62,17 +55,31 @@ private:
 
 EndNameSpace
 
-/**
-* @brief macro for register test case, place in *.cpp, NOT in header
-* @param ClassName test case class name derived from ONEFLOW::SimuBase
-* @param CaseName unique string identifier
-*/
-#define REGISTER_TEST_CASE(ClassName, CaseName) \
-namespace { \
-bool ClassName##_registered = [](){ \
-    ONEFLOW::TestRegistry::Instance().Register(CaseName, [](){ \
-        return std::make_unique<ONEFLOW::ClassName>(); \
-    }); \
-    return true; \
-}(); \
+// Register test case, ClassName is local class in current translation-unit (anonymous namespace)
+#define REGISTER_TEST_CASE(ClassName, CaseName)                          \
+namespace {                                                             \
+bool ClassName##_registered = [](){                                     \
+    ONEFLOW::TestRegistry::Instance().Register(CaseName, [](){          \
+        return std::make_unique<ClassName>();                           \
+    });                                                                 \
+    return true;                                                        \
+}();                                                                    \
 }
+
+// Macro to generate local wrapper class for existing test type T
+// T: original test class name inside ONEFLOW namespace
+// case_id: string identifier used for environment variable / registry
+// NOTE: invoke this macro at the END of xxxTest.cpp, AFTER EndNameSpace (outside ONEFLOW namespace)
+#define WRAP_TEST_CLASS(T, case_id)                                       \
+namespace {                                                                \
+class T##Wrapper : public ONEFLOW::SimuBase                                \
+{                                                                         \
+public:                                                                   \
+    void Run() override                                                   \
+    {                                                                     \
+        ONEFLOW::T obj;                                                   \
+        obj.Run();                                                        \
+    }                                                                     \
+};                                                                        \
+}                                                                         \
+REGISTER_TEST_CASE(T##Wrapper, case_id)

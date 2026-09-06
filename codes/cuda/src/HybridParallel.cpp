@@ -43,8 +43,6 @@ License
 #include "SimuBase.h"
 #include <stdio.h>
 #include <iostream>
-
-#include <iostream>
 #include <algorithm>
 
 BeginNameSpace( ONEFLOW )
@@ -107,20 +105,21 @@ void HybridParallel::HybridRun( int argc, char ** argv )
 #endif
 }
 
-namespace {
-
-	class HybridParallelWrapper : public SimuBase
-	{
-	public:
-		void Run() override
-		{
-			ONEFLOW::HybridParallel hp;
-			hp.Run();
-		}
-	};
-
-}
+//namespace {
+//
+//	class HybridParallelWrapper : public SimuBase
+//	{
+//	public:
+//		void Run() override
+//		{
+//			ONEFLOW::HybridParallel hp;
+//			hp.Run();
+//		}
+//	};
+//
+//}
 
 EndNameSpace
 
-REGISTER_TEST_CASE(HybridParallelWrapper, "hybrid_parallel");
+WRAP_TEST_CLASS(HybridParallel, "hybrid_parallel");
+

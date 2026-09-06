@@ -1012,19 +1012,19 @@ void CgnsTest::mytest_write()
 }
 
 
-namespace {
-
-    class CgnsTestWrapper : public SimuBase
-    {
-    public:
-        void Run() override
-        {
-            ONEFLOW::CgnsTest ct;
-            ct.Run();
-        }
-    };
-}
+//namespace {
+//
+//    class CgnsTestWrapper : public SimuBase
+//    {
+//    public:
+//        void Run() override
+//        {
+//            ONEFLOW::CgnsTest ct;
+//            ct.Run();
+//        }
+//    };
+//}
 
 EndNameSpace
+WRAP_TEST_CLASS(CgnsTest, "cgns_test");
 
-REGISTER_TEST_CASE(CgnsTestWrapper, "cgns_test");

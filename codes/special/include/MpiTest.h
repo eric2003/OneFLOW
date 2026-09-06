@@ -46,16 +46,4 @@ public:
     int myrank, nprocs;
 };
 
-namespace {
-    class MpiTestWrapper : public SimuBase
-    {
-    public:
-        void Run() override
-        {
-            MpiTest t;
-            t.Run();
-        }
-    };
-}
-
 EndNameSpace

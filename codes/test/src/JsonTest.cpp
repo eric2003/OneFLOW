@@ -156,18 +156,18 @@ void JsonTest::Run()
     readFileJson();
 }
 
-namespace {
-    class JsonTestWrapper : public SimuBase
-    {
-    public:
-        void Run() override
-        {
-            ONEFLOW::JsonTest jt;
-            jt.Run();
-        }
-    };
-}
+//namespace {
+//    class JsonTestWrapper : public SimuBase
+//    {
+//    public:
+//        void Run() override
+//        {
+//            ONEFLOW::JsonTest jt;
+//            jt.Run();
+//        }
+//    };
+//}
 
 EndNameSpace
 
-REGISTER_TEST_CASE(JsonTestWrapper, "json_test");
+WRAP_TEST_CLASS(JsonTest, "json_test");

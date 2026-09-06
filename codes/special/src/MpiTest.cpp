@@ -88,7 +88,19 @@ void MpiTest::Test()
     }
 }
 
+//namespace {
+//    class MpiTestWrapper : public SimuBase
+//    {
+//    public:
+//        void Run() override
+//        {
+//            MpiTest t;
+//            t.Run();
+//        }
+//    };
+//}
+
 EndNameSpace
 
-// 注册这个Wrapper，不是注册原始MpiTest
-REGISTER_TEST_CASE(MpiTestWrapper, "mpi_test");
+WRAP_TEST_CLASS(MpiTest, "mpi_test");
+
