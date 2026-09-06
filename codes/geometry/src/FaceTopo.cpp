@@ -248,7 +248,8 @@ void FaceTopo::ModifyBoundaryInformation( IFaceLink * iFaceLink )
 
     int nIFaceNew = nIFaces;
 
-    iFaceLink->nChild.resize( nIFaces, 0 );
+    //iFaceLink->nChild.resize( nIFaces, 0 );
+    iFaceLink->nChild.resize( nIFaces );
 
     for ( int iFid = 0; iFid < nIFaces; ++ iFid )
     {
@@ -261,14 +262,19 @@ void FaceTopo::ModifyBoundaryInformation( IFaceLink * iFaceLink )
             for ( int iCFace = 0; iCFace < nCFace; ++ iCFace )
             {
                 int cFid = iFaceLink->face_search->cFaceId[ gFid ][ iCFace ];
-                iFaceLink->l2gNew.push_back( cFid );
+                //iFaceLink->l2gNew.push_back( cFid );
+                // Correctly push back a 1D IntField containing the single element 'cFid'
+                iFaceLink->l2gNew.push_back( ONEFLOW::IntField{ cFid } );
+
                 iFaceLink->nChild[ this->grid->id ].push_back( 0 );
             }
             ++ nIFaceNew;
         }
         else
         {
-            iFaceLink->l2gNew.push_back( gFid );
+            //iFaceLink->l2gNew.push_back( gFid );
+            // Correctly push back a 1D IntField containing the single element 'gFid'
+            iFaceLink->l2gNew.push_back( ONEFLOW::IntField{ gFid } );
         }
     }
     std::cout << "original number of interfaces = " << nIFaces << " new number of interfaces = " << nIFaceNew << std::endl;

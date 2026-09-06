@@ -20,12 +20,34 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-
-#include "HXMath.h"
-#include <vector>
-
+#pragma once
+#include "HXDefine.h"
 
 BeginNameSpace( ONEFLOW )
+template<typename TField>
+inline void Alloc(TField& field, int n1)
+{
+    field.resize(n1);
+}
 
+template<typename TField>
+inline void Alloc(TField& field, int n1, int n2)
+{
+    field.resize(n1);
+    for(auto& sub : field)
+    {
+        Alloc(sub, n2);
+    }
+}
+
+template<typename TField>
+inline void Alloc(TField& field, int n1, int n2, int n3)
+{
+    field.resize(n1);
+    for(auto& sub : field)
+    {
+        Alloc(sub, n2, n3);
+    }
+}
 
 EndNameSpace

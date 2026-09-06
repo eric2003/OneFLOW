@@ -43,7 +43,7 @@ License
 #include "ElemFeature.h"
 #include "ElementHome.h"
 #include "PointManager.h"
-#include "PointSearch.h"
+#include "PointLocator.h"
 #include "FaceSolver.h"
 #include "Stop.h"
 #include <iostream>
@@ -108,7 +108,7 @@ void PrepareCgnsZoneSub( Grids & grids, CgnsZone * cgnsZone )
 
 void MergeToSingleZone( Grids & grids, HXVector< Int3D * > & unsIdList, NodeMesh * nodeMesh, int & nNodes, int & nCells )
 {
-    PointSearch * point_search = new PointSearch();
+    PointLocator * point_search = new PointLocator();
     point_search->Initialize( grids );
 
     size_t nZone = grids.size();
@@ -308,7 +308,7 @@ void FillSection( Grids & grids, HXVector< Int3D * > & unsIdList, CgnsZone * cgn
     delete bcTypeMap;
 }
 
-void CalcUnsId( StrGrid * grid, PointSearch * pointSearch, Int3D * unsId )
+void CalcUnsId( StrGrid * grid, PointLocator * pointSearch, Int3D * unsId )
 {
     int ni = grid->ni;
     int nj = grid->nj;

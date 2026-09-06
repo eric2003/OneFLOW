@@ -40,9 +40,8 @@ License
 #include "HybridParallel.h"
 #include "jacobi.h"
 #include "AccelRuntime.h"
+#include "SimuBase.h"
 #include <stdio.h>
-#include <iostream>
-
 #include <iostream>
 #include <algorithm>
 
@@ -107,3 +106,6 @@ void HybridParallel::HybridRun( int argc, char ** argv )
 }
 
 EndNameSpace
+
+WRAP_TEST_CLASS(HybridParallel, "hybrid_parallel");
+

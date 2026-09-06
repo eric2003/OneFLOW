@@ -31,7 +31,7 @@ BeginNameSpace( ONEFLOW )
 
 PointManager::PointManager()
 {
-    // 使用 PointCompare 的静态 tolerance，或在这里再包一层
+    // Use PointCompare's static tolerance, or wrap another layer here
 }
 
 PointManager::~PointManager()
@@ -45,7 +45,7 @@ void PointManager::SetTolerance(Real tol)
 
 PointManager::PointType PointManager::MakeKey(Real x, Real y, Real z) const
 {
-    // 故意把 id 设为 0，我们完全不使用 Point 自带的 id
+    // Deliberately set id to 0; we do not use Point's built-in id at all
     return PointType(x, y, z, 0);
 }
 
@@ -61,7 +61,7 @@ int PointManager::AddPoint(Real x, Real y, Real z)
 
     // new point
     int newId = static_cast<int>(points_.size());
-    points_.push_back(key);         // 这里存的 Point 的 id 成员仍是 0，我们不关心
+    points_.push_back(key);         // The stored Point's id member is still 0; we don't care
     pointToId_[key] = newId;
 
     return newId;
@@ -80,7 +80,7 @@ int PointManager::FindPoint(Real x, Real y, Real z) const
 
 void PointManager::GetPoint(int id, Real& x, Real& y, Real& z) const
 {
-    const PointType& pt = points_.at(id);   // at() 带边界检查
+    const PointType& pt = points_.at(id);   // at() performs bounds checking
     x = pt.x;
     y = pt.y;
     z = pt.z;
@@ -109,9 +109,10 @@ bool PointManager::DeletePoint(Real x, Real y, Real z)
     int id = it->second;
     pointToId_.erase(it);
 
-    // 简单策略：不压缩 points_，只是把该位置标记为无效（或直接留下空洞）
-    // 这里选择最简单的做法：把坐标设成一个明显无效值，或保持原样（由上层决定是否复用 id）
-    // 更严谨的做法是维护一个 free-list，这里先保持简单。
+    // Simple strategy: do not compact points_, just mark the slot as invalid (or leave a hole)
+    // Choose the simplest approach here: set coordinates to an obviously invalid value, or keep as-is
+    // (let the upper layer decide whether to reuse the id)
+    // A more rigorous approach would be to maintain a free-list; keep it simple for now.
     return true;
 }
 
@@ -129,7 +130,7 @@ bool PointManager::DeletePoint(int id)
     if (it != pointToId_.end() && it->second == id)
     {
         pointToId_.erase(it);
-        // 同样不压缩 vector，留下空洞
+        // Also do not compact the vector, leave a hole
         return true;
     }
     return false;
@@ -146,7 +147,7 @@ void PointManager::GetFaceCoorList( IntField & nodeIds, RealField &xList, RealFi
 
     for (int ip : nodeIds)
     {
-        const PointType& pt = points_[ip];   // 注意用你现在的成员名
+        const PointType& pt = points_[ip];
         xList.push_back(pt.x);
         yList.push_back(pt.y);
         zList.push_back(pt.z);
@@ -154,26 +155,15 @@ void PointManager::GetFaceCoorList( IntField & nodeIds, RealField &xList, RealFi
 }
 
 
-PointFactory::PointFactory()
+MeshPointManager::MeshPointManager()
 {
 }
 
-PointFactory::~PointFactory()
+MeshPointManager::~MeshPointManager()
 {
 }
 
-//void PointFactory::InitC2g()
-//{
-//    int nPoint = this->GetNPoint();   // use public interface instead of pointList.size()
-//    this->c2g.resize(nPoint);
-//
-//    for (int iNode = 0; iNode < nPoint; ++iNode)
-//    {
-//        this->c2g[iNode] = iNode;
-//    }
-//}
-
-void PointFactory::InitLocalToGlobal()
+void MeshPointManager::InitLocalToGlobal()
 {
     int nPoint = this->GetNPoint();
     this->localToGlobal.resize(nPoint);

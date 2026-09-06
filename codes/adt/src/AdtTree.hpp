@@ -19,55 +19,53 @@ License
     along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 
 \*---------------------------------------------------------------------------*/
-#include <memory>
-#ifndef _WINDOWS
-   #include <string.h>
-#endif
-
 
 BeginNameSpace( ONEFLOW )
+
+// ============================================================================
+// Template Implementations: HXAdtNode
+// ============================================================================
 
 template < typename T, typename U >
 HXAdtNode<T,U>::HXAdtNode( int dim )
 {
     this->dim = dim;
-    point = new U[ dim ];
+    point.resize(dim, static_cast<U>(0));
     level = 0;
-    left  = 0;
-    right = 0;
+    left  = nullptr;
+    right = nullptr;
 }
-  
+
 template < typename T, typename U >
 HXAdtNode<T,U>::HXAdtNode( int dim, U * coordinate, T data )
 {
     this->dim = dim;
-    point = new U [ dim ];
-    memcpy( point, coordinate, dim * sizeof( U ) );
+    point.resize(dim);
+    std::memcpy( point.data(), coordinate, dim * sizeof( U ) );
 
-    level = 0   ;
-    left  = 0   ;
-    right = 0   ;
+    level = 0;
+    left  = nullptr;
+    right = nullptr;
     item  = data;
 }
 
 template < typename T, typename U >
 HXAdtNode<T,U>::~HXAdtNode()
 {
-    delete [] point;
-    delete left;
-    delete right;
+    // Do NOT delete left or right here. 
+    // HXAdtTree centrally manages memory via std::unique_ptr to avoid deep recursion stack overflow.
+    // HXVector 'point' cleans up its own memory automatically.
 }
 
 template < typename T, typename U >
-int HXAdtNode<T,U>::nCount()
+int HXAdtNode<T,U>::nCount() const
 {
-    int iCount = 0;
-    iCount += 1;
-    if ( this->left )
+    int iCount = 1;
+    if ( this->left != nullptr )
     {
         iCount += left->nCount();
     }
-    if ( this->right )
+    if ( this->right != nullptr )
     {
         iCount += right->nCount();
     }
@@ -78,40 +76,44 @@ int HXAdtNode<T,U>::nCount()
 template < typename T, typename U >
 void HXAdtNode<T,U>::AddNode( AdtNode * node, U * nwmin, U * nwmax, const int & dim )
 {
-    int axis  = level % dim;
-    U mid = 0.5 * ( nwmin[ axis ] + nwmax[ axis ] );
-      
+    int axis = level % dim;
+    U mid = static_cast<U>(0.5) * ( nwmin[ axis ] + nwmax[ axis ] );
+
     if ( node->point[ axis ] <= mid )
     {
-        if ( left )
+        if ( left != nullptr )
         {
+            U originalMax = nwmax[ axis ];
             nwmax[ axis ] = mid;
             left->AddNode( node, nwmin, nwmax, dim );
+            nwmax[ axis ] = originalMax; // Backtrack
         }
         else
         {
-            left        = node     ;
+            left        = node;
             node->level = level + 1;
         }
     }
     else
     {
-        if ( right )
+        if ( right != nullptr )
         {
+            U originalMin = nwmin[ axis ];
             nwmin[ axis ] = mid;
             right->AddNode( node, nwmin, nwmax, dim );
+            nwmin[ axis ] = originalMin; // Backtrack
         }
         else
         {
-            right       = node     ;
+            right       = node;
             node->level = level + 1;
         }
     }
 }
 
-// is the current node inside region ( pmin, pmax )?
+// Is the current node inside region ( pmin, pmax )?
 template < typename T, typename U >
-bool HXAdtNode<T,U>::IsInRegion( U * pmin, U * pmax, const int & dim )
+bool HXAdtNode<T,U>::IsInRegion( U * pmin, U * pmax, const int & dim ) const
 {
     for ( int i = 0; i < dim; ++ i )
     {
@@ -120,153 +122,148 @@ bool HXAdtNode<T,U>::IsInRegion( U * pmin, U * pmax, const int & dim )
             return false;
         }
     }
-
     return true;
 }
 
 // ld carries all the nodes inside region ( pmin, pmax )
 template < typename T, typename U >
-void HXAdtNode<T,U>::FindNodesInRegion( U * pmin, U * pmax, U * nwmin, U * nwmax, const int & dim, AdtNodeList & ld )
+void HXAdtNode<T,U>::FindNodesInRegion( U * pmin, U * pmax, U * nwmin, U * nwmax, const int & dim, AdtNodeList & ld ) const
 {
-    int     axis;
-    U       mid, temp;
-
     if ( IsInRegion( pmin, pmax, dim ) )
     {
-        ld.push_back( this );
+        // Cast to non-const pointer to match the original AdtNodeList type requirement
+        ld.push_back( const_cast<AdtNode*>(this) );
     }
 
-    axis = level%dim;
-    mid = 0.5 * ( nwmin[ axis ] + nwmax[ axis ] );
-      
-    if ( left )
+    int axis = level % dim;
+    U mid = static_cast<U>(0.5) * ( nwmin[ axis ] + nwmax[ axis ] );
+
+    if ( left != nullptr )
     {
         if ( pmin[ axis ] <= mid && pmax[ axis ] >= nwmin[ axis ] )
         {
-            temp        = nwmax[ axis ];
+            U temp = nwmax[ axis ];
             nwmax[ axis ] = mid;
             left->FindNodesInRegion( pmin, pmax, nwmin, nwmax, dim, ld );
-            nwmax[ axis ] = temp;
+            nwmax[ axis ] = temp; // Backtrack
         }
     }
 
-    if ( right )
+    if ( right != nullptr )
     {
         if ( pmax[ axis ] >= mid && pmin[ axis ] <= nwmax[ axis ] )
         {
-            temp        = nwmin[ axis ];
+            U temp = nwmin[ axis ];
             nwmin[ axis ] = mid;
             right->FindNodesInRegion( pmin, pmax, nwmin, nwmax, dim, ld );
-            nwmin[ axis ] = temp;
+            nwmin[ axis ] = temp; // Backtrack
         }
     }
-
-    return;
 }
 
+// ============================================================================
+// Template Implementations: HXAdtTree
+// ============================================================================
 
 template < typename T, typename U >
 HXAdtTree<T,U>::HXAdtTree( int dim )
 {
     this->dim = dim;
-    pmin = new U[ dim ];
-    pmax = new U[ dim ];
-    for ( int i = 0; i < dim; ++ i )
-    { 
-        pmin[ i ] = 0.0;
-        pmax[ i ] = 1.0;
-    }
-    root = 0;
+    pmin.resize(dim, static_cast<U>(0.0));
+    pmax.resize(dim, static_cast<U>(1.0));
+    root = nullptr;
 }
 
 template < typename T, typename U >
-HXAdtTree<T,U>::HXAdtTree( int dim, U * pmin, U * pmax )
+HXAdtTree<T,U>::HXAdtTree( int dim, U * pmin_in, U * pmax_in )
 {
     this->dim = dim;
-    this->pmin = new U[ dim ];
-    this->pmax = new U[ dim ];
+    pmin.resize(dim);
+    pmax.resize(dim);
     for ( int i = 0; i < dim; ++ i )
     { 
-        this->pmin[ i ] = pmin[ i ];
-        this->pmax[ i ] = pmax[ i ];
+        this->pmin[ i ] = pmin_in[ i ];
+        this->pmax[ i ] = pmax_in[ i ];
     }
-    root = 0;
+    root = nullptr;
 }
 
 template < typename T, typename U >
-HXAdtTree<T,U>::HXAdtTree( int dim, HXVector< U > & pmin, HXVector< U > & pmax )
+HXAdtTree<T,U>::HXAdtTree( int dim, HXVector< U > & pmin_in, HXVector< U > & pmax_in )
 {
     this->dim = dim;
-    this->pmin = new U[ dim ];
-    this->pmax = new U[ dim ];
-    for ( int i = 0; i < dim; ++ i )
-    { 
-        this->pmin[ i ] = pmin[ i ];
-        this->pmax[ i ] = pmax[ i ];
-    }
-    root = 0;
+    pmin = pmin_in;
+    pmax = pmax_in;
+    root = nullptr;
 }
 
 template < typename T, typename U >
 HXAdtTree<T,U>::~HXAdtTree()
 {  
-    delete [] pmin;
-    delete [] pmax;
-    delete root;
+    // std::vector of unique_ptr automatically cleans up all owned nodes safely.
+    // No manual delete[] or recursive delete is needed, preventing stack overflow.
 }
 
 // Add an Adt node to the AdtTree 
 template < typename T, typename U >
 void HXAdtTree<T,U>::AddNode( AdtNode * node )
 {
-    U * nwmin = new U [ dim ];
-    U * nwmax = new U [ dim ];
-    memcpy( nwmin, this->pmin, dim * sizeof( U ) );
-    memcpy( nwmax, this->pmax, dim * sizeof( U ) );
-      
-    if ( root == 0 )
+    // Take ownership of the raw pointer immediately to prevent memory leaks
+    ownedNodes.emplace_back( node );
+
+    if ( root == nullptr )
     {
         root = node;
+        return;
     }
-    else
-    {
-        root->AddNode( node, nwmin, nwmax, dim );
-    }
-        
-    delete [] nwmin;
-    delete [] nwmax;
+
+    // Use local HXVector to avoid heap allocation (new/delete) during recursion
+    HXVector<U> localNwmin = this->pmin;
+    HXVector<U> localNwmax = this->pmax;
+
+    root->AddNode( node, localNwmin.data(), localNwmax.data(), dim );
 }
 
-// Find All nodes inside the region ( pmin, pmax ) from the tree
+// Find all nodes inside the region ( pmin, pmax ) from the tree
 template < typename T, typename U >
-void HXAdtTree<T,U>::FindNodesInRegion( U * pmin, U * pmax, AdtNodeList & ld )
+void HXAdtTree<T,U>::FindNodesInRegion( U * pmin_in, U * pmax_in, AdtNodeList & ld ) const
 {
-    U * nwmin = new U [ dim ];
-    U * nwmax = new U [ dim ];
-    memcpy( nwmin, this->pmin, dim * sizeof( U ) );
-    memcpy( nwmax, this->pmax, dim * sizeof( U ) );
-
-    if ( root )
+    if ( root == nullptr )
     {
-        root->FindNodesInRegion( pmin, pmax, nwmin, nwmax, dim, ld );
+        return;
     }
-    delete [] nwmin;
-    delete [] nwmax;
+
+    // Use local HXVector to avoid heap allocation (new/delete) during recursion
+    HXVector<U> localNwmin = this->pmin;
+    HXVector<U> localNwmax = this->pmax;
+
+    root->FindNodesInRegion( pmin_in, pmax_in, localNwmin.data(), localNwmax.data(), dim, ld );
 }
 
+template < typename T, typename U >
+int HXAdtTree<T,U>::nCount() const
+{ 
+    if ( root != nullptr )
+    {
+        return root->nCount();
+    }
+    return 0;
+}
 
-// Get the min coordinates of the tree
 template < typename T, typename U >
 U * HXAdtTree<T,U>::GetMin() const
 {
-    return pmin;
+    // Return pointer to internal data. 
+    // Note: Caller should not modify this data, but signature is kept for backward compatibility.
+    return const_cast<U*>(pmin.data());
 }
 
-// Get the max coordinates of the tree
 template < typename T, typename U >
 U * HXAdtTree<T,U>::GetMax() const
 {
-    return pmax;
+    // Return pointer to internal data.
+    return const_cast<U*>(pmax.data());
 }
+
 
 EndNameSpace

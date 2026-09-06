@@ -21,7 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "FaceJoint.h"
-#include "PointSearch.h"
+#include "PointLocator.h"
 #include "WallVisual.h"
 #include "HXCgns.h"
 #include "HXMath.h"
@@ -73,7 +73,7 @@ FaceJoint::FaceJoint()
 {
     pmin.resize( 3 );
     pmax.resize( 3 );
-    ps = new PointSearch();
+    ps = new PointLocator();
     wallVisual = new WallVisual();
     isValid = false;
 }

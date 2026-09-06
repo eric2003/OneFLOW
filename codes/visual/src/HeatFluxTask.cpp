@@ -31,7 +31,7 @@ License
 #include "Boundary.h"
 #include "BcRecord.h"
 #include "NsCtrl.h"
-#include "PointSearch.h"
+#include "PointLocator.h"
 #include "Zone.h"
 #include "ZoneState.h"
 #include "HXMath.h"

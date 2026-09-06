@@ -603,8 +603,11 @@ void UINsVisterm::CalcINsSrc()
 		int fn = (*ug.c2f)[ug.cId].size();
 		if (ctrl.currTime == 0.001 && Iteration::innerSteps == 1)
 		{
-			iinv.sj.resize(ug.nTCell, fn);
-			iinv.sd.resize(ug.nTCell, fn);
+			//iinv.sj.resize(ug.nTCell, fn);
+			//iinv.sd.resize(ug.nTCell, fn);
+			ONEFLOW::Resize2D( iinv.sj, ug.nTCell, fn );
+			ONEFLOW::Resize2D( iinv.sd, ug.nTCell, fn );
+			
 		}
 		for (int iFace = 0; iFace < fn; ++iFace)
 		{

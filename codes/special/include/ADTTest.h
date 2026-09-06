@@ -21,11 +21,23 @@ License
 \*---------------------------------------------------------------------------*/
 
 
-#include "HXMathExt.h"
+#pragma once
+#include "HXDefine.h"
+#include <string>
 #include <vector>
 
 
 BeginNameSpace( ONEFLOW )
+
+
+class ADTTest
+{
+public:
+    ADTTest();
+    ~ADTTest();
+public:
+    void Run();
+};
 
 
 EndNameSpace

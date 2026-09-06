@@ -89,3 +89,6 @@ void MpiTest::Test()
 }
 
 EndNameSpace
+
+WRAP_TEST_CLASS(MpiTest, "mpi_test");
+

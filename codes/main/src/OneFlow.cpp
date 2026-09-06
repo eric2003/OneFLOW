@@ -19,13 +19,13 @@ License
     along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 
 \*---------------------------------------------------------------------------*/
-#include "Simulation.h"
 
+#include "Simulation.h"
+#include <memory>
 
 int main( int argc, char ** argv )
 {
-    ONEFLOW::Simulation *simulation = new ONEFLOW::Simulation( argc, argv );
+    auto simulation = std::make_unique<ONEFLOW::Simulation>(argc, argv);
     simulation->Run();
-    delete simulation;
     return 0;
 }

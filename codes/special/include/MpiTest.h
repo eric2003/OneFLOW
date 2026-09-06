@@ -23,6 +23,7 @@ License
 
 #pragma once
 #include "NamespaceMacros.h"
+#include "SimuBase.h"
 
 #include <string>
 
@@ -44,6 +45,5 @@ public:
 public:
     int myrank, nprocs;
 };
-
 
 EndNameSpace

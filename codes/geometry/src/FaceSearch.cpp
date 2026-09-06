@@ -21,7 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "FaceSearch.h"
-#include "PointSearch.h"
+#include "PointLocator.h"
 #include "Grid.h"
 #include "NodeMesh.h"
 #include "IFaceLink.h"
@@ -220,7 +220,7 @@ void FaceSearch::GetTriId( const IntField & nodeId, LinkField & localTriId, Link
 
 bool FaceSearch::GetLine( const IntField & nodeId, LinkField & localLineId, LinkField & localLineFlag, LinkField & lineId )
 {
-    PointSearch * point_search = this->iFaceLink->point_search;
+    PointLocator * point_search = this->iFaceLink->point_search;
     int p0 = nodeId[ 0 ];
     int p1 = nodeId[ 1 ];
     RealField coor0( 3 ), coor1( 3 ), coor2( 3 );

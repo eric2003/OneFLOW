@@ -21,6 +21,7 @@ along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 \*---------------------------------------------------------------------------*/
 #include "JsonTest.h"
 #include "json/json.h"
+#include "SimuBase.h"
 #include <iostream>
 #include <fstream>
 
@@ -156,3 +157,5 @@ void JsonTest::Run()
 }
 
 EndNameSpace
+
+WRAP_TEST_CLASS(JsonTest, "json_test");

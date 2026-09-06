@@ -23,7 +23,7 @@ License
 #include "IFaceLink.h"
 #include "InterFace.h"
 #include "Grid.h"
-#include "PointSearch.h"
+#include "PointLocator.h"
 #include "FaceSearch.h"
 #include "CgnsPeriod.h"
 #include "NodeMesh.h"
@@ -39,7 +39,7 @@ IFaceLink::IFaceLink( Grids & grids )
     this->l2g.resize( nZone );
 
     this->face_search = new FaceSearch();
-    this->point_search = new PointSearch();
+    this->point_search = new PointLocator();
     this->point_search->Initialize( grids );
 }
 

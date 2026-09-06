@@ -27,6 +27,11 @@ License
 #include "CgnsTest.h"
 #include "HybridParallel.h"
 #include <iostream>
+#include <algorithm>
+#include <cstdlib>
+#include <cstring>
+#include <memory>
+#include <string>
 
 
 BeginNameSpace( ONEFLOW )
@@ -57,53 +62,87 @@ void Simulation::ProcessCmdLineArgs( int argc, char ** argv )
         //std::cout << "arguments[ " << i << " ] = " << args[ i ] << std::endl;
         std::cout << "argv[" << i << "] = " << args[ i ] << std::endl;
     }
-
-    //if ( args.size() <= 2 )
-    //{
-    //    std::cout << " argument number should be 3\n";
-    //    exit( 0 );
-    //}
 }
+
+std::unique_ptr<SimuBase> Simulation::MakeDefaultSimulation()
+{
+    const char* envName = std::getenv("ONEFLOW_DEFAULT_TEST");
+    auto& reg = TestRegistry::Instance();
+
+    auto nameList = reg.GetAllRegisteredNames();
+    std::sort(nameList.begin(), nameList.end());
+
+    std::cerr << "\n===== OneFLOW lightweight test selector =====\n";
+    std::cerr << "Available test case values:\n";
+    for (const auto& name : nameList)
+    {
+        std::cerr << "    - " << name << "\n";
+    }
+
+    const std::string defaultCase = "hybrid_parallel";
+    std::string selectedCase;
+    std::unique_ptr<SimuBase> ptr;
+
+    if (envName != nullptr && std::strlen(envName) > 0)
+    {
+        selectedCase = envName;
+        ptr = reg.Create(selectedCase);
+        if (!ptr)
+        {
+            std::cerr << "\n[WARNING] Test case \"" << selectedCase << "\" is not registered.\n";
+            std::cerr << "Fallback to built-in default test case.\n";
+            selectedCase = defaultCase;
+            ptr = reg.Create(selectedCase);
+        }
+    }
+    else
+    {
+        // environment variable is not set, use built-in default
+        std::cerr << "\n[INFO] Environment variable ONEFLOW_DEFAULT_TEST is NOT set.\n";
+        selectedCase = defaultCase;
+        ptr = reg.Create(selectedCase);
+
+        std::cerr << "\nHow to set ONEFLOW_DEFAULT_TEST:\n";
+        std::cerr << "  Linux / macOS (bash/zsh):\n";
+        std::cerr << "      export ONEFLOW_DEFAULT_TEST=\"mpi_test\"\n";
+        std::cerr << "  Windows Command Prompt (cmd):\n";
+        std::cerr << "      set ONEFLOW_DEFAULT_TEST=mpi_test\n";
+        std::cerr << "  Windows PowerShell:\n";
+        std::cerr << "      $env:ONEFLOW_DEFAULT_TEST=\"mpi_test\"\n";
+    }
+
+    std::cerr << "\n[INFO] Currently using test case: \"" << selectedCase << "\"\n";
+    std::cerr << "============================================\n\n";
+
+    return ptr;
+}
+
 
 void Simulation::Run()
 {
-    int nPara = args.size();
-    if ( nPara == 1 )
+    int nPara = static_cast<int>(args.size());
+    if (nPara == 1)
     {
-        this->RunDefaultSimu();
-    }
-    else if (  nPara == 2 )
-    {
-        std::cout << " wrong argument number !\n";
-        exit( 0 );
-    }
-    else // nPara >= 3
-    { 
-        SimuImp * simu = new SimuImp( args );
+        std::cout << "\n===== ONEFLOW Light-eight Test Mode =====\n";
+        auto simu = MakeDefaultSimulation();
+        if (!simu)
+        {
+            std::cerr << "[Error] No available default test case!\n";
+            return;
+        }
         simu->Run();
-        delete simu;
+    }
+    else if (nPara == 2)
+    {
+        std::cerr << "wrong argument number !\n";
+        exit(EXIT_FAILURE);
+    }
+    else // nPara >=3: enter full heavy-weight simulation
+    {
+        std::cout << "\n===== ONEFLOW Full Simulation Mode =====\n";
+        auto simu = std::make_unique<SimuImp>(args);
+        simu->Run();
     }
 }
-
-void Simulation::RunDefaultSimu()
-{
-    //MpiTest * mpiTest = new MpiTest();
-    //mpiTest->Run();
-    //delete mpiTest;
-
-    //JsonTest * jsonTest = new JsonTest();
-    //jsonTest->Run();
-    //delete jsonTest;
-
-    //CgnsTest * cgnsTest = new CgnsTest();
-    //cgnsTest->Run();
-    //delete cgnsTest;
-
-    // CUDA, OpenMP, and MPI parallel
-    HybridParallel * hybridParallel = new HybridParallel();
-    hybridParallel->Run();
-    delete hybridParallel;
-}
-
 
 EndNameSpace

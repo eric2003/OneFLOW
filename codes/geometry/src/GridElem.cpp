@@ -80,7 +80,7 @@ GridElem::GridElem( HXVector< CgnsZone * > & cgnsZones, int iZone )
 
     this->delFlag = false;
 
-    this->point_factory = new PointFactory();
+    this->point_factory = new MeshPointManager();
     this->elem_feature = new ElemFeature();
     this->face_solver = new FaceSolver();
     this->elem_feature->face_solver = face_solver;

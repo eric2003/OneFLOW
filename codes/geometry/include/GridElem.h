@@ -27,7 +27,7 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-class PointFactory;
+class MeshPointManager;
 class CgnsZone;
 class CgnsZbase;
 class ElemFeature;
@@ -46,7 +46,7 @@ public:
     ~GridElem();
 public:
     ElemFeature  * elem_feature;
-    PointFactory * point_factory;
+    MeshPointManager * point_factory;
     FaceSolver   * face_solver;
     HXVector< CgnsZone * > cgnsZones;
     Grid * grid;
