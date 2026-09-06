@@ -23,7 +23,6 @@ along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 #include "HXDefine.h"
 #include <string>
 
-
 BeginNameSpace( ONEFLOW )
 
 void demo_write_array();

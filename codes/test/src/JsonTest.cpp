@@ -21,6 +21,7 @@ along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 \*---------------------------------------------------------------------------*/
 #include "JsonTest.h"
 #include "json/json.h"
+#include "SimuBase.h"
 #include <iostream>
 #include <fstream>
 
@@ -155,4 +156,18 @@ void JsonTest::Run()
     readFileJson();
 }
 
+namespace {
+    class JsonTestWrapper : public SimuBase
+    {
+    public:
+        void Run() override
+        {
+            ONEFLOW::JsonTest jt;
+            jt.Run();
+        }
+    };
+}
+
 EndNameSpace
+
+REGISTER_TEST_CASE(JsonTestWrapper, "json_test");

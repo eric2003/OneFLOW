@@ -40,6 +40,7 @@ License
 #include "HybridParallel.h"
 #include "jacobi.h"
 #include "AccelRuntime.h"
+#include "SimuBase.h"
 #include <stdio.h>
 #include <iostream>
 
@@ -106,4 +107,20 @@ void HybridParallel::HybridRun( int argc, char ** argv )
 #endif
 }
 
+namespace {
+
+	class HybridParallelWrapper : public SimuBase
+	{
+	public:
+		void Run() override
+		{
+			ONEFLOW::HybridParallel hp;
+			hp.Run();
+		}
+	};
+
+}
+
 EndNameSpace
+
+REGISTER_TEST_CASE(HybridParallelWrapper, "hybrid_parallel");

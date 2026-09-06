@@ -31,6 +31,7 @@ License
 #include "CgnsZbc.h"
 #include "CgnsZbcBoco.h"
 #include "CgnsBcBoco.h"
+#include "SimuBase.h"
 #include <cstring>
 #include <iostream>
 #include <iomanip>
@@ -1011,4 +1012,19 @@ void CgnsTest::mytest_write()
 }
 
 
+namespace {
+
+    class CgnsTestWrapper : public SimuBase
+    {
+    public:
+        void Run() override
+        {
+            ONEFLOW::CgnsTest ct;
+            ct.Run();
+        }
+    };
+}
+
 EndNameSpace
+
+REGISTER_TEST_CASE(CgnsTestWrapper, "cgns_test");

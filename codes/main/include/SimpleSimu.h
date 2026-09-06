@@ -19,11 +19,32 @@ License
     along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 
 \*---------------------------------------------------------------------------*/
+
 #pragma once
 #include "NamespaceMacros.h"
+#include "SimuBase.h"
 
-BeginNameSpace( ONEFLOW )
+BeginNameSpace(ONEFLOW)
 
 void ToyModelSimu();
+
+// lightweight quick-validation test cases
+//class HybridParallel : public SimuBase
+//{
+//public:
+//    void Run() override;
+//};
+
+//class CgnsTest : public SimuBase
+//{
+//public:
+//    void Run() override;
+//};
+
+//class JsonTest : public SimuBase
+//{
+//public:
+//    void Run() override;
+//};
 
 EndNameSpace

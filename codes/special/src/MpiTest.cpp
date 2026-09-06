@@ -89,3 +89,6 @@ void MpiTest::Test()
 }
 
 EndNameSpace
+
+// 注册这个Wrapper，不是注册原始MpiTest
+REGISTER_TEST_CASE(MpiTestWrapper, "mpi_test");
