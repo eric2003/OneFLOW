@@ -65,7 +65,8 @@ bool FaceSolver::CheckBcFace( IntSet & bcVertex, IntField & nodeId )
 
 void FaceSolver::ScanPolygonFace( CgnsSection * cgnsSection )
 {
-    std::vector<int> faceNodes;
+    //std::vector<int> faceNodes;
+    IntField faceNodes;
     for ( int iElem = 0; iElem < cgnsSection->nElement; ++ iElem )
     {
         int st = cgnsSection->ePosList[ iElem ];

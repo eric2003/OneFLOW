@@ -31,27 +31,35 @@ template < typename T >
 class HXVector : public std::vector< T >
 {
 public:
-    HXVector(){};
-    ~HXVector(){};
-    HXVector( const std::size_t count )
-        : std::vector< T >( count )
-    {
-        ;
-    }
-    HXVector( const std::size_t count, const T& value )
-        : std::vector< T >( count, value )
-    {
-        ;
-    }
-    HXVector( T * first, T * last ) :
-        std::vector< T >( first, last )
-    {
-        ;
-    }
-    HXVector( const std::vector<T>& values )
-    {
-        *this = values;
-    }
+    // Inherit all constructors from std::vector (including initializer_list, default constructor, etc.)
+    using std::vector<T>::vector; 
+
+    // Default destructor
+    ~HXVector() = default;
+
+    // CRITICAL: This constructor is required to allow implicit conversion 
+    // from std::vector<T> to HXVector<T>, which is heavily used in the legacy codebase.
+    HXVector( const std::vector<T>& values ) : std::vector<T>( values ) {}
+
+    //HXVector( const std::size_t count )
+    //    : std::vector< T >( count )
+    //{
+    //    ;
+    //}
+    //HXVector( const std::size_t count, const T& value )
+    //    : std::vector< T >( count, value )
+    //{
+    //    ;
+    //}
+    //HXVector( T * first, T * last ) :
+    //    std::vector< T >( first, last )
+    //{
+    //    ;
+    //}
+    //HXVector( const std::vector<T>& values )
+    //{
+    //    *this = values;
+    //}
 public:
     HXVector< T >& operator =( const T& value )
     {
@@ -105,6 +113,12 @@ void AllocateVector( HXVector< HXVector< HXVector< T > > > & data, int ni, int n
             data[ i ][ j ].resize( nk );
         }
     }
+}
+
+template < typename T >
+void Resize2D( HXVector< HXVector< T > > & data, int ni, int nj )
+{
+    AllocateVector( data, ni, nj );
 }
 
 EndNameSpace

@@ -30,9 +30,19 @@ License
 
 BeginNameSpace( ONEFLOW )
 
+// Helper function to calculate squared distance (avoids expensive sqrt operation)
+static inline Real CalcSquaredDistance(Real x1, Real y1, Real z1, Real x2, Real y2, Real z2) {
+    Real dx = x1 - x2;
+    Real dy = y1 - y2;
+    Real dz = z1 - z2;
+    return dx * dx + dy * dy + dz * dz;
+}
+
+
 PointLocator::PointLocator()
 {
-    this->coorTree = 0;
+    this->coorTree = nullptr;
+    this->tolerance = 1.0e-6; // Provide a safe default tolerance
 }
 
 PointLocator::~PointLocator()
@@ -62,49 +72,6 @@ void PointLocator::Initialize( Grids & grids )
     ONEFLOW::CreateStandardADT( grids, this->coorTree, tolerance );
 }
 
-int PointLocator::AddPoint( RealField & coor )
-{
-    Real minWindow[ 3 ];
-    Real maxWindow[ 3 ];
-
-    minWindow[ 0 ] = coor[ 0 ] - tolerance;
-    minWindow[ 1 ] = coor[ 1 ] - tolerance;
-    minWindow[ 2 ] = coor[ 2 ] - tolerance;
-
-    maxWindow[ 0 ] = coor[ 0 ] + tolerance;
-    maxWindow[ 1 ] = coor[ 1 ] + tolerance;
-    maxWindow[ 2 ] = coor[ 2 ] + tolerance;
-
-    AdtTree::AdtNodeList nodeList;
-    this->coorTree->FindNodesInRegion( minWindow, maxWindow, nodeList );
-
-    if ( nodeList.size() == 0 )
-    {
-        int count = this->xCoor.size();
-        AdtNode * node = new AdtNode( 3, & coor[ 0 ], count );
-        this->coorTree->AddNode( node );
-        this->id = this->xCoor.size();
-
-        xCoor.push_back( coor[ 0 ] );
-        yCoor.push_back( coor[ 1 ] );
-        zCoor.push_back( coor[ 2 ] );
-        
-        return this->id;
-    }
-    else
-    {
-        if ( nodeList.size() > 1 )
-        {
-            std::cout << "FATAL ERROR : nodeList.size() = " << nodeList.size() << std::endl;
-            Stop("");
-        }
-        AdtNode * node =  nodeList[ 0 ];
-
-        this->id = node->GetData();
-
-        return this->id;
-    }
-}
 
 void PointLocator::GetPoint( int id, Real & xm, Real & ym, Real & zm )
 {
@@ -135,38 +102,71 @@ int PointLocator::FindPoint( RealField & coordinate )
 {
     AdtTree::AdtNodeList nodeList;
 
-    Real minWindow[ 3 ];
-    Real maxWindow[ 3 ];
+    // 1. Broad Phase: Define the tolerance bounding box
+    Real minWindow[3] = {
+        coordinate[0] - this->tolerance,
+        coordinate[1] - this->tolerance,
+        coordinate[2] - this->tolerance
+    };
+    Real maxWindow[3] = {
+        coordinate[0] + this->tolerance,
+        coordinate[1] + this->tolerance,
+        coordinate[2] + this->tolerance
+    };
 
-    minWindow[ 0 ] = coordinate[ 0 ] - this->tolerance;
-    minWindow[ 1 ] = coordinate[ 1 ] - this->tolerance;
-    minWindow[ 2 ] = coordinate[ 2 ] - this->tolerance;
-
-    maxWindow[ 0 ] = coordinate[ 0 ] + this->tolerance;
-    maxWindow[ 1 ] = coordinate[ 1 ] + this->tolerance;
-    maxWindow[ 2 ] = coordinate[ 2 ] + this->tolerance;
-
-    nodeList.resize( 0 );
+    // Find all candidate nodes within the bounding box
     this->coorTree->FindNodesInRegion( minWindow, maxWindow, nodeList );
 
-    if ( nodeList.size() == 0 )
+    if ( nodeList.empty() )
     {
         return INVALID_INDEX;
     }
-    else
+
+    // 2. Narrow Phase: Find the closest point among candidates
+    Real minSquaredDist = this->tolerance * this->tolerance;
+    int bestId = INVALID_INDEX;
+
+    for ( auto* node : nodeList )
     {
-        if ( nodeList.size() > 1 )
+        Real nx = node->point[0];
+        Real ny = node->point[1];
+        Real nz = node->point[2];
+
+        Real distSq = CalcSquaredDistance(coordinate[0], coordinate[1], coordinate[2], nx, ny, nz);
+
+        if ( distSq < minSquaredDist )
         {
-            int numberOfSize = nodeList.size();
-            std::cout << " impossible nodeList.size() = " << nodeList.size() << std::endl;
-            
-            int kkk = 1;
-            Stop( "" );
+            minSquaredDist = distSq;
+            bestId = node->GetData();
         }
-        AdtNode * node = nodeList[ 0 ];
-        this->id = node->GetData();
-        return this->id;
     }
+
+    this->id = bestId;
+    return this->id; // Returns INVALID_INDEX if no point is within exact tolerance
+}
+
+int PointLocator::AddPoint( RealField & coor )
+{
+    // Reuse FindPoint logic to check for existing points within tolerance
+    int existingId = this->FindPoint( coor );
+    if ( existingId != INVALID_INDEX )
+    {
+        return existingId; // Point already exists, return its ID (Deduplication)
+    }
+
+    // Narrow Phase failed, add as a new unique point
+    int newId = static_cast<int>( this->xCoor.size() );
+
+    // The tree now safely manages the memory of this node (as verified in Step 1)
+    AdtNode * node = new AdtNode( 3, &coor[0], newId );
+    this->coorTree->AddNode( node );
+
+    this->xCoor.push_back( coor[0] );
+    this->yCoor.push_back( coor[1] );
+    this->zCoor.push_back( coor[2] );
+
+    this->id = newId;
+    return this->id;
 }
 
 void PointLocator::GetFaceCoorList( const IntField & nodeId, RealField &xList, RealField &yList, RealField &zList )
