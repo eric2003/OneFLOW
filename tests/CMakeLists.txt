@@ -21,4 +21,7 @@ add_subdirectory(adt)
 # 3. Euler 模块测试 
 add_subdirectory(euler)
 
+# 4. database 模块测试 
+#add_subdirectory(database)
+
 
