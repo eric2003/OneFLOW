@@ -63,64 +63,64 @@ DataBase::~DataBase()
     delete dataField;
 }
 
-void HXWriteVoid( DataBook * dataBook, DataV * datav )
+void HXWriteVoid( DataBook * dataBook, DataEntry * dataEntry )
 {
-    datav->data->Write( dataBook );
+    dataEntry->data->Write( dataBook );
 }
 
-void HXWriteDataV( DataBook * dataBook, DataV * datav )
+void HXWriteDataEntry( DataBook * dataBook, DataEntry * dataEntry )
 {
-    ONEFLOW::HXWrite( dataBook, datav->name );
-    ONEFLOW::HXWrite( dataBook, datav->type );
-    ONEFLOW::HXWrite( dataBook, datav->size );
-    ONEFLOW::HXWriteVoid( dataBook, datav );
+    ONEFLOW::HXWrite( dataBook, dataEntry->name );
+    ONEFLOW::HXWrite( dataBook, dataEntry->type );
+    ONEFLOW::HXWrite( dataBook, dataEntry->size );
+    ONEFLOW::HXWriteVoid( dataBook, dataEntry );
 }
 
-void HXReadDataV( DataBook * dataBook, DataV * datav )
+void HXReadDataEntry( DataBook * dataBook, DataEntry * dataEntry )
 {
-    ONEFLOW::HXRead( dataBook, datav->name );
-    ONEFLOW::HXRead( dataBook, datav->type );
-    ONEFLOW::HXRead( dataBook, datav->size );
-    ONEFLOW::HXReadVoid( dataBook, datav );
+    ONEFLOW::HXRead( dataBook, dataEntry->name );
+    ONEFLOW::HXRead( dataBook, dataEntry->type );
+    ONEFLOW::HXRead( dataBook, dataEntry->size );
+    ONEFLOW::HXReadVoid( dataBook, dataEntry );
 }
 
-void HXReadVoid( DataBook * dataBook, DataV * datav )
+void HXReadVoid( DataBook * dataBook, DataEntry * dataEntry )
 {
-    DataObject * o = CreateDataObject( datav->type, datav->size );
-    datav->data = o;
-    datav->data->Read( dataBook, datav->size );
+    DataObject * o = CreateDataObject( dataEntry->type, dataEntry->size );
+    dataEntry->data = o;
+    dataEntry->data->Read( dataBook, dataEntry->size );
 }
 
 void ProcessData( const std::string & name, std::string * value, int type, int size )
 {
-    DataV * datav = new DataV();
-    datav->name = name;
-    datav->type = type;
-    datav->size = size;
+    DataEntry * dataEntry = new DataEntry();
+    dataEntry->name = name;
+    dataEntry->type = type;
+    dataEntry->size = size;
     if ( type == ONEFLOW::HX_STRING )
     {
         TDataObject< std::string > * stringObject = new TDataObject< std::string >( size );
         stringObject->CopyValue( value );
-        datav->data = stringObject;
+        dataEntry->data = stringObject;
     }
     else if ( type == HX_INT )
     {
         TDataObject< int > * intObject = new TDataObject< int >( size );
         intObject->CopyValue( value );
-        datav->data = intObject;
+        dataEntry->data = intObject;
     }
     else if ( type == HX_REAL )
     {
         TDataObject< Real > * realObject = new TDataObject< Real >( size );
         realObject->CopyValue( value );
-        datav->data = realObject;
+        dataEntry->data = realObject;
     }
     else
     {
         Fatal( " Parameter Type Error \n" );
     }
     DataBase * dataBase = ONEFLOW::GetGlobalDataBase();
-    dataBase->dataPara->UpdateDataPointer( datav );
+    dataBase->dataPara->UpdateDataPointer( dataEntry );
 }
 
 DataObject * CreateDataObject( int type, int size )
@@ -169,18 +169,18 @@ void SetDataString( const std::string & varName, const std::string & value )
 
 PointerWrap * GetPointerWrap( DataField * dataField, const std::string & dataObjectName )
 {
-    DataF * dataf = dataField->GetDataF( dataObjectName );
-    if ( dataf == nullptr )
+    FieldEntry * fieldEntry = dataField->GetFieldEntry( dataObjectName );
+    if ( fieldEntry == nullptr )
     {
         return nullptr;
     }
-    return dataf->GetPointerWrap();
+    return fieldEntry->GetPointerWrap();
 }
 
 void CreateFieldPointer( DataBase * database, PointerWrap * pointerWrap, const std::string & dataObjectName )
 {
-    DataF * dataf = new DataF( dataObjectName, pointerWrap );
-    database->dataField->UpdateDataF( dataf );
+    FieldEntry * fieldEntry = new FieldEntry( dataObjectName, pointerWrap );
+    database->dataField->UpdateFieldEntry( fieldEntry );
 }
 
 void * GetFieldPointerVoid( DataBase * database, const std::string & dataObjectName )

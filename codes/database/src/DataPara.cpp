@@ -27,13 +27,13 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-DataV::DataV()
+DataEntry::DataEntry()
 {
     this->name = "";
     this->data = nullptr;
 }
 
-DataV::DataV( const std::string & name, int type, int size, DataObject * data )
+DataEntry::DataEntry( const std::string & name, int type, int size, DataObject * data )
 {
     this->name = name;
     this->type = type;
@@ -41,17 +41,17 @@ DataV::DataV( const std::string & name, int type, int size, DataObject * data )
     this->data = data;
 }
 
-DataV::~DataV()
+DataEntry::~DataEntry()
 {
     delete data;
 }
 
-void DataV::Copy( DataV * inputData )
+void DataEntry::Copy( DataEntry * inputData )
 {
     this->data->Copy( inputData->data );
 }
 
-void DataV::Dump( std::fstream & file )
+void DataEntry::Dump( std::fstream & file )
 {
     file << name << " , " << DataBaseType::GetName( type ) << " : ";
     this->data->Dump( file );
@@ -73,7 +73,7 @@ DataPara::~DataPara()
     delete dataMap;
 }
 
-void DataPara::UpdateDataPointer( DataV * data )
+void DataPara::UpdateDataPointer( DataEntry * data )
 {
     auto it = dataMap->find( data->name );
     if ( it != dataMap->end() )
@@ -87,7 +87,7 @@ void DataPara::UpdateDataPointer( DataV * data )
     ( *dataMap )[ data->name ] = data;
 }
 
-DataV * DataPara::GetDataPointer( const std::string & name )
+DataEntry * DataPara::GetDataPointer( const std::string & name )
 {
     auto it = dataMap->find( name );
     if ( it != dataMap->end() )

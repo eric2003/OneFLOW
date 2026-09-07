@@ -400,8 +400,8 @@ void CompressData( DataBase * dataBase, DataBook *& dataBook )
     // Range-based for is cleaner with unordered_map
     for ( const auto & pair : *dataMap )
     {
-        DataV * datav = pair.second;          // pair.first is the key (name), pair.second is DataV*
-        ONEFLOW::HXWriteDataV( dataBook, datav );
+        DataEntry * dataEntry = pair.second;          // pair.first is the key (name), pair.second is DataV*
+        ONEFLOW::HXWriteDataEntry( dataBook, dataEntry );
     }
 }
 
@@ -415,9 +415,9 @@ void DecompressData( DataBase * dataBase, DataBook * dataBook )
 
     for ( int i = 0; i < ndata; ++ i )
     {
-        DataV * datav = new DataV();
-        ONEFLOW::HXReadDataV( dataBook, datav );
-        dataBase->dataPara->UpdateDataPointer( datav );
+        DataEntry * dataEntry = new DataEntry();
+        ONEFLOW::HXReadDataEntry( dataBook, dataEntry );
+        dataBase->dataPara->UpdateDataPointer( dataEntry );
     }
 }
 

@@ -25,19 +25,19 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-DataF::DataF()
+FieldEntry::FieldEntry()
 {
     this->name = "";
     this->data = nullptr;
 }
 
-DataF::DataF( const std::string & name, PointerWrap * data )
+FieldEntry::FieldEntry( const std::string & name, PointerWrap * data )
 {
     this->name = name;
     this->data = data;
 }
 
-DataF::~DataF()
+FieldEntry::~FieldEntry()
 {
     // data is owned and deleted by DataField
 }
@@ -58,25 +58,25 @@ DataField::~DataField()
     delete dataMap;
 }
 
-void DataField::UpdateDataF( DataF * dataf )
+void DataField::UpdateFieldEntry( FieldEntry * fieldEntry )
 {
-    auto it = dataMap->find( dataf->name );
+    auto it = dataMap->find( fieldEntry->name );
     if ( it == dataMap->end() )
     {
         // Not exist ¡ú take ownership
-        ( *dataMap )[ dataf->name ] = dataf;
+        ( *dataMap )[ fieldEntry->name ] = fieldEntry;
     }
     else
     {
         // Already exist ¡ú discard the new one
-        if ( it->second != dataf )
+        if ( it->second != fieldEntry )
         {
-            delete dataf;
+            delete fieldEntry;
         }
     }
 }
 
-DataF * DataField::GetDataF( const std::string & name )
+FieldEntry * DataField::GetFieldEntry( const std::string & name )
 {
     auto it = dataMap->find( name );
     if ( it != dataMap->end() )
@@ -86,7 +86,7 @@ DataF * DataField::GetDataF( const std::string & name )
     return nullptr;
 }
 
-void DataField::DeleteDataF( const std::string & name )
+void DataField::DeleteFieldEntry( const std::string & name )
 {
     auto it = dataMap->find( name );
     if ( it != dataMap->end() )

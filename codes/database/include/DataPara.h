@@ -30,19 +30,19 @@ BeginNameSpace( ONEFLOW )
 
 class DataObject;
 
-class DataV
+class DataEntry
 {
 public:
-    DataV();
-    DataV( const std::string & name, int type, int size, DataObject * data );
-    ~DataV();
+    DataEntry();
+    DataEntry( const std::string & name, int type, int size, DataObject * data );
+    ~DataEntry();
 public:
     std::string  name;
     int          type;
     int          size;
     DataObject * data;
 public:
-    void Copy( DataV * inputData );
+    void Copy( DataEntry * inputData );
     void Dump( std::fstream & file );
 };
 
@@ -50,15 +50,15 @@ class DataPara
 {
 public:
     // Use unordered_map for O(1) average lookup
-    typedef std::unordered_map< std::string, DataV * > DataMap;
+    typedef std::unordered_map< std::string, DataEntry * > DataMap;
 public:
     DataPara();
     ~DataPara();
 protected:
     DataMap * dataMap;
 public:
-    void UpdateDataPointer( DataV * data );
-    DataV * GetDataPointer( const std::string & name );
+    void UpdateDataPointer( DataEntry * data );
+    DataEntry * GetDataPointer( const std::string & name );
     void DeleteDataPointer( const std::string & name );
 
     DataMap * GetDataMap() { return dataMap; }

@@ -102,7 +102,7 @@ TEST_F(DataFieldTest, DeleteField)
     ASSERT_NE( GetFieldPointer<DummyField>( db_, "to_delete_field" ), nullptr );
 
     // Delete
-    db_->dataField->DeleteDataF( "to_delete_field" );
+    db_->dataField->DeleteFieldEntry( "to_delete_field" );
 
     // Should now be gone
     EXPECT_EQ( GetFieldPointer<DummyField>( db_, "to_delete_field" ), nullptr );
