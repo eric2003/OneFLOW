@@ -22,7 +22,7 @@ License
 
 #pragma once
 #include "NamespaceMacros.h"
-#include <set>
+#include <unordered_map>
 #include <string>
 #include <fstream>
 
@@ -38,39 +38,33 @@ public:
     ~DataV();
 public:
     std::string  name;
-    int     type;
-    int     size;
+    int          type;
+    int          size;
     DataObject * data;
 public:
     void Copy( DataV * inputData );
     void Dump( std::fstream & file );
 };
 
-class CompareDataV
-{
-public:
-    bool operator()( const DataV * lhs, const DataV * rhs ) const
-    {
-        return lhs->name < rhs->name;
-    }
-};
-
 class DataPara
 {
 public:
+    // Use unordered_map for O(1) average lookup
+    typedef std::unordered_map< std::string, DataV * > DataMap;
+public:
     DataPara();
     ~DataPara();
-public:
-    typedef std::set< DataV *, CompareDataV > DataSET;
 protected:
-    DataSET * dataSet;
+    DataMap * dataMap;
 public:
     void UpdateDataPointer( DataV * data );
     DataV * GetDataPointer( const std::string & name );
     void DeleteDataPointer( const std::string & name );
 
-    DataSET * GetDataSet() { return dataSet; }
-public:
+    // Keep old name as alias for compatibility
+    DataMap * GetDataSet() { return dataMap; }
+    DataMap * GetDataMap() { return dataMap; }
+
     void DumpData( std::fstream & file );
 };
 

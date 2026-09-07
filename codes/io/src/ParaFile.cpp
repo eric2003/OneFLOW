@@ -391,25 +391,23 @@ void DecompressData( DataBook * dataBook )
 
 void CompressData( DataBase * dataBase, DataBook *& dataBook )
 {
-    DataPara::DataSET * dataSet = dataBase->dataPara->GetDataSet();
-    DataPara::DataSET::iterator iter;
+    // Use the new type alias
+    DataPara::DataMap * dataMap = dataBase->dataPara->GetDataMap();  // or GetDataSet() if you kept the alias
 
-    int ndata = static_cast<int> (dataSet->size());
-
+    int ndata = static_cast<int>( dataMap->size() );
     ONEFLOW::HXWrite( dataBook, ndata );
 
-    for ( iter = dataSet->begin(); iter != dataSet->end(); ++ iter )
+    // Range-based for is cleaner with unordered_map
+    for ( const auto & pair : *dataMap )
     {
-        DataV * datav = ( * iter );
+        DataV * datav = pair.second;          // pair.first is the key (name), pair.second is DataV*
         ONEFLOW::HXWriteDataV( dataBook, datav );
     }
 }
 
 void DecompressData( DataBase * dataBase, DataBook * dataBook )
 {
-    DataPara::DataSET * dataSet = dataBase->dataPara->GetDataSet();
-    DataPara::DataSET::iterator iter;
-
+    // No longer need to touch the internal map directly for reading
     dataBook->MoveToBegin();
 
     int ndata = 0;
