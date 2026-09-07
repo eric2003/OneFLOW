@@ -20,9 +20,7 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-
 #include "DataField.h"
-#include "DataObject.h"
 #include "DataPointer.h"
 
 BeginNameSpace( ONEFLOW )
@@ -30,7 +28,7 @@ BeginNameSpace( ONEFLOW )
 DataF::DataF()
 {
     this->name = "";
-    this->data = 0;
+    this->data = nullptr;
 }
 
 DataF::DataF( const std::string & name, PointerWrap * data )
@@ -41,38 +39,37 @@ DataF::DataF( const std::string & name, PointerWrap * data )
 
 DataF::~DataF()
 {
-    delete data;
+    // data is owned and deleted by DataField
 }
 
 DataField::DataField()
 {
-    dataSet = new DataSET;
+    dataMap = new DataMap;
 }
 
 DataField::~DataField()
 {
-    DataSET::iterator iter;
-    for ( iter = dataSet->begin(); iter != dataSet->end(); ++ iter )
+    for ( auto & pair : *dataMap )
     {
-        DataObject * dataObject = reinterpret_cast< DataObject * > ( ( * iter )->data );
-        delete dataObject;
+        delete pair.second->data;   // delete PointerWrap
+        delete pair.second;         // delete DataF
     }
-
-    dataSet->clear();
-
-    delete dataSet;
+    dataMap->clear();
+    delete dataMap;
 }
 
 void DataField::UpdateDataF( DataF * dataf )
 {
-    DataF * findData = this->GetDataF( dataf->name );
-    if ( ! findData )
+    auto it = dataMap->find( dataf->name );
+    if ( it == dataMap->end() )
     {
-        dataSet->insert( dataf );
+        // Not exist ¡ú take ownership
+        ( *dataMap )[ dataf->name ] = dataf;
     }
     else
     {
-        if ( findData != dataf )
+        // Already exist ¡ú discard the new one
+        if ( it->second != dataf )
         {
             delete dataf;
         }
@@ -81,29 +78,23 @@ void DataField::UpdateDataF( DataF * dataf )
 
 DataF * DataField::GetDataF( const std::string & name )
 {
-    DataF * data = new DataF( name, 0 );
-    DataSET::iterator iter = dataSet->find( data );
-    delete data;
-    if ( iter != dataSet->end() )
+    auto it = dataMap->find( name );
+    if ( it != dataMap->end() )
     {
-        return ( * iter );
+        return it->second;
     }
-    else
-    {
-        return 0;
-    }
+    return nullptr;
 }
 
 void DataField::DeleteDataF( const std::string & name )
 {
-    DataF * data = new DataF( name, 0 );
-    DataSET::iterator iter = dataSet->find( data );
-    if ( iter != dataSet->end() )
+    auto it = dataMap->find( name );
+    if ( it != dataMap->end() )
     {
-        delete ( * iter );
-        dataSet->erase( iter );
+        delete it->second->data;
+        delete it->second;
+        dataMap->erase( it );
     }
-    delete data;
 }
 
 EndNameSpace

@@ -168,12 +168,6 @@ void SetDataString( const std::string & varName, const std::string & value )
     SetData( varName, & tmp, HX_STRING, 1 );
 }
 
-//PointerWrap * GetPointerWrap( DataField * dataField, const std::string & dataObjectName )
-//{
-//    DataF * dataf = dataField->GetDataF( dataObjectName );
-//    return dataf->GetPointerWrap();
-//}
-
 PointerWrap * GetPointerWrap( DataField * dataField, const std::string & dataObjectName )
 {
     DataF * dataf = dataField->GetDataF( dataObjectName );
@@ -189,17 +183,6 @@ void CreateFieldPointer( DataBase * database, PointerWrap * pointerWrap, const s
     DataF * dataf = new DataF( dataObjectName, pointerWrap );
     database->dataField->UpdateDataF( dataf );
 }
-
-//void * GetFieldPointerVoid( DataBase * database, const std::string & dataObjectName )
-//{
-//    PointerWrap * pointerWrap = GetPointerWrap( database->dataField, dataObjectName );
-//    if ( pointerWrap )
-//    {
-//        void * p = pointerWrap->GetPointer();
-//        return p;
-//    }
-//    return 0;
-//}
 
 void * GetFieldPointerVoid( DataBase * database, const std::string & dataObjectName )
 {
