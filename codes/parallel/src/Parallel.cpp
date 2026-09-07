@@ -21,11 +21,9 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "Parallel.h"
-#include "LogFile.h"
 #include "BasicParallel.h"
 #include "DataBook.h"
 #include "OStream.h"
-#include "Zone.h"
 #include "ZoneState.h"
 #include <iostream>
 
@@ -126,7 +124,7 @@ void Parallel::CollectString( std::string & cs, int rootId, int tag )
             {
                 ONEFLOW::HXRecvString( cs, pid, tag );
             }
-            ONEFLOW::logFile << cs << "\n";
+            //ONEFLOW::logFile << cs << "\n";
         }
     }
 }

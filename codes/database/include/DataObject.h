@@ -25,7 +25,6 @@ License
 #include "Word.h"
 #include "DataBook.h"
 #include "DataBaseIO.h"
-#include "LogFile.h"
 #include <string>
 #include <set>
 

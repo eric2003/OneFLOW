@@ -26,7 +26,6 @@ License
 #include "BasicParallel.h"
 #include "Parallel.h"
 #include <sstream>
-#include "LogFile.h"
 
 BeginNameSpace( ONEFLOW )
 

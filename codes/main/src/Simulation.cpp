@@ -117,31 +117,53 @@ std::unique_ptr<SimuBase> Simulation::MakeDefaultSimulation()
     return ptr;
 }
 
-
-void Simulation::Run()
+void Simulation::RunImpl()
 {
-    int nPara = static_cast<int>(args.size());
-    if (nPara == 1)
+    int nPara = static_cast<int>( args.size() );
+
+    if ( nPara == 1 )
     {
-        std::cout << "\n===== ONEFLOW Light-eight Test Mode =====\n";
+        std::cout << "\n===== ONEFLOW Light-weight Test Mode =====\n";
         auto simu = MakeDefaultSimulation();
-        if (!simu)
+        if ( ! simu )
         {
-            std::cerr << "[Error] No available default test case!\n";
-            return;
+            // Prefer throwing so it is handled uniformly
+            throw std::runtime_error( "[Error] No available default test case!" );
         }
         simu->Run();
     }
-    else if (nPara == 2)
+    else if ( nPara == 2 )
     {
-        std::cerr << "wrong argument number !\n";
-        exit(EXIT_FAILURE);
+        // Unified error handling
+        throw std::runtime_error( "wrong argument number !" );
     }
-    else // nPara >=3: enter full heavy-weight simulation
+    else // nPara >= 3
     {
         std::cout << "\n===== ONEFLOW Full Simulation Mode =====\n";
-        auto simu = std::make_unique<SimuImp>(args);
+        auto simu = std::make_unique<SimuImp>( args );
         simu->Run();
+    }
+}
+
+
+int Simulation::Run()
+{
+    try
+    {
+        RunImpl();
+        return 0;
+    }
+    catch ( const std::exception & e )
+    {
+        std::cerr << "\n========== Fatal Error ==========\n"
+            << e.what() << "\n"
+            << "=================================\n";
+        return EXIT_FAILURE;
+    }
+    catch ( ... )
+    {
+        std::cerr << "\n========== Unknown Fatal Error ==========\n";
+        return EXIT_FAILURE;
     }
 }
 

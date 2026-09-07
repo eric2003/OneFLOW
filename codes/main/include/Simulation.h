@@ -34,12 +34,15 @@ public:
     virtual ~Simulation();
 
 public:
-    void Run();
+    // Public entry point: never throws, returns 0 or EXIT_FAILURE
+    int Run();
 
 private:
     void ProcessCmdLineArgs(int argc, char** argv);
     // create lightweight test instance for no-argument(default) mode
     std::unique_ptr<SimuBase> MakeDefaultSimulation();
+    // Real work, may throw
+    void RunImpl();
 
 private:
     std::vector<std::string> args;
