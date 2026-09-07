@@ -25,7 +25,6 @@ License
 
 int main( int argc, char ** argv )
 {
-    auto simulation = std::make_unique<ONEFLOW::Simulation>(argc, argv);
-    simulation->Run();
-    return 0;
+    auto simulation = std::make_unique<ONEFLOW::Simulation>( argc, argv );
+    return simulation->Run();
 }

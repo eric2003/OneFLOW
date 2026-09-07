@@ -22,7 +22,7 @@ License
 
 #pragma once
 #include "NamespaceMacros.h"
-#include <set>
+#include <unordered_map>
 #include <string>
 
 BeginNameSpace( ONEFLOW )
@@ -36,37 +36,31 @@ public:
     DataF( const std::string & name, PointerWrap * data );
     ~DataF();
 public:
-    std::string  name;
+    std::string   name;
     PointerWrap * data;
 public:
-    std::string & GetName() { return name;  }
-    PointerWrap * GetPointerWrap() { return data;  }
-};
-
-class CompareDataF
-{
-public:
-    bool operator()( const DataF * lhs, const DataF * rhs ) const
-    {
-        return lhs->name < rhs->name;
-    }
+    std::string & GetName() { return name; }
+    PointerWrap * GetPointerWrap() { return data; }
 };
 
 class DataField
 {
 public:
-    typedef std::set< DataF *, CompareDataF > DataSET;
+    // Use unordered_map for O(1) average lookup
+    typedef std::unordered_map< std::string, DataF * > DataMap;
 public:
     DataField();
     ~DataField();
 protected:
-    DataSET * dataSet;
+    DataMap * dataMap;
 public:
     void UpdateDataF( DataF * dataf );
     DataF * GetDataF( const std::string & name );
     void DeleteDataF( const std::string & name );
 
-    DataSET * GetDataSet() { return dataSet; }
+    // Keep old name as alias for compatibility during transition
+    DataMap * GetDataSet() { return dataMap; }
+    DataMap * GetDataMap() { return dataMap; }
 };
 
 EndNameSpace

@@ -147,24 +147,34 @@ DataObject * CreateDataObject( int type, int size )
     }
 }
 
-void SetDataInt( const std::string & varName, int & value )
+void SetDataInt( const std::string & varName, const int & value )
 {
-    SetData( varName, & value, HX_INT, 1 );
+    // Make a local copy so we can take its address safely
+    int tmp = value;
+    SetData( varName, & tmp, HX_INT, 1 );
 }
 
-void SetDataReal( const std::string & varName, Real & value )
+void SetDataReal( const std::string & varName, const Real & value )
 {
-    SetData( varName, & value, HX_REAL, 1 );
+    // Make a local copy so we can take its address safely
+    Real tmp = value;
+    SetData( varName, & tmp, HX_REAL, 1 );
 }
 
-void SetDataString( const std::string & varName, Real & value )
+void SetDataString( const std::string & varName, const std::string & value )
 {
-    SetData( varName, & value, HX_STRING, 1 );
+    // Make a local copy so we can take its address safely
+    std::string tmp = value;
+    SetData( varName, & tmp, HX_STRING, 1 );
 }
 
 PointerWrap * GetPointerWrap( DataField * dataField, const std::string & dataObjectName )
 {
     DataF * dataf = dataField->GetDataF( dataObjectName );
+    if ( dataf == nullptr )
+    {
+        return nullptr;
+    }
     return dataf->GetPointerWrap();
 }
 
@@ -179,10 +189,9 @@ void * GetFieldPointerVoid( DataBase * database, const std::string & dataObjectN
     PointerWrap * pointerWrap = GetPointerWrap( database->dataField, dataObjectName );
     if ( pointerWrap )
     {
-        void * p = pointerWrap->GetPointer();
-        return p;
+        return pointerWrap->GetPointer();
     }
-    return 0;
+    return nullptr;
 }
 
 void DumpDataBase( std::fstream & file )

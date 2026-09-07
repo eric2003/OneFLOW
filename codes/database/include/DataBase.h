@@ -78,8 +78,10 @@ T GetDataValue( const std::string & varName, DataBase * database )
     }
     else
     {
-        std::cerr << "can't find:" << varName << " in database!!" << std::endl;
-        exit(EXIT_FAILURE);
+        //std::cerr << "can't find:" << varName << " in database!!" << std::endl;
+        //exit(EXIT_FAILURE);
+        // Short-term: throw instead of exit, so unit tests can catch it
+        throw std::runtime_error( "DataBase: cannot find variable \"" + varName + "\"" );
     }   
 }
 
@@ -98,9 +100,9 @@ void SetData( const std::string & name, T * value, int type, int size )
     dataBase->dataPara->UpdateDataPointer( datav );
 }
 
-void SetDataInt( const std::string & varName, int & value );
-void SetDataReal( const std::string & varName, Real & value );
-void SetDataString( const std::string & varName, Real & value );
+void SetDataInt( const std::string & varName, const int & value );
+void SetDataReal( const std::string & varName, const Real & value );
+void SetDataString( const std::string & varName, const std::string & value );
 
 template < typename T >
 T * GetDataPointer( const std::string & varName )
