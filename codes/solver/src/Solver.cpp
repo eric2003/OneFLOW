@@ -22,6 +22,7 @@ License
 
 #include "Solver.h"
 #include "SolverInfo.h"
+#include "Fatal.h"
 #include <map>
 #include <string>
 #include <iostream>
@@ -40,11 +41,10 @@ Solver::~Solver()
 
 Solver * Solver::SafeClone( const std::string & type )
 {
-    std::map < std::string, Solver * >::iterator iter = Solver::classMap->find( type );
+    auto iter = Solver::classMap->find( type );
     if ( iter == Solver::classMap->end() )
     {
-        std::cout << type << " class not found \n";
-        exit( 0 );
+        Fatal( type + " class not found" );
     }
 
     return iter->second->Clone();

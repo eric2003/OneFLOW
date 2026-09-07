@@ -26,7 +26,7 @@ License
 #include "NodeMesh.h"
 #include "IFaceLink.h"
 #include "Dimension.h"
-#include "Stop.h"
+#include "Fatal.h"
 #include <algorithm>
 
 
@@ -235,7 +235,7 @@ bool FaceSearch::GetLine( const IntField & nodeId, LinkField & localLineId, Link
     int nNZone = this->iFaceLink->gI2Zid[ this->gFid ].size();
     if ( nNZone > 1 )
     {
-        Stop( "impossible" );
+        Fatal( "impossible" );
     }
     int zoneIndex = this->iFaceLink->gI2Zid[ this->gFid ][ 0 ];
     Grid * grid = ( this->iFaceLink->grids )[ zoneIndex ];

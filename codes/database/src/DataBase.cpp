@@ -21,7 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "DataBase.h"
-#include "Stop.h"
+#include "Fatal.h"
 #include "DataPara.h"
 #include "DataObject.h"
 #include "DataField.h"
@@ -117,7 +117,7 @@ void ProcessData( const std::string & name, std::string * value, int type, int s
     }
     else
     {
-        Stop( " Parameter Type Error \n" );
+        Fatal( " Parameter Type Error \n" );
     }
     DataBase * dataBase = ONEFLOW::GetGlobalDataBase();
     dataBase->dataPara->UpdateDataPointer( datav );
@@ -142,8 +142,7 @@ DataObject * CreateDataObject( int type, int size )
     }
     else
     {
-        Stop( " Parameter Type Error In CreateDataObject\n" );
-        return 0;
+        Fatal( "Parameter Type Error In CreateDataObject" );
     }
 }
 

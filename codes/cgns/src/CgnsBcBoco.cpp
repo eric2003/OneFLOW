@@ -28,11 +28,10 @@ License
 #include "CgnsBase.h"
 #include "Boundary.h"
 #include "StringUtils.h"
-#include "Stop.h"
+#include "Fatal.h"
 #include "Dimension.h"
 #include "HXMath.h"
 #include "FaceSolver.h"
-#include "HXMath.h"
 #include <iostream>
 #include <iomanip>
 
@@ -709,7 +708,7 @@ void SetBcConn( CgnsZone * cgnsZone, IntField & ijkMin, IntField & ijkMax, CgInt
         return;
     }
 
-    Stop( " error : ist != ied, jst != jed, kst != ked \n" );
+    Fatal( " error : ist != ied, jst != jed, kst != ked \n" );
 }
 
 #endif

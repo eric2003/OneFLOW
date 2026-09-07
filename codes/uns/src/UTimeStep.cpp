@@ -34,6 +34,7 @@ License
 #include "FaceMesh.h"
 #include "CellMesh.h"
 #include "HXMath.h"
+#include "Fatal.h"
 #include "DataBase.h"
 #include "FieldBase.h"
 #include "Iteration.h"
@@ -126,7 +127,10 @@ void UTimeStep::ReadTmp()
     iii = 1;
     std::fstream file;
     file.open( "nsflow.dat", std::ios_base::in | std::ios_base::binary );
-    if ( ! file ) exit( 0 );
+    if ( ! file )
+    {
+        Fatal( "Failed to open file: nsflow.dat" );
+    }
 
     unsf.Init();
 

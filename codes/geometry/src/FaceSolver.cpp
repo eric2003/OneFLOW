@@ -22,7 +22,7 @@ License
 
 #include "FaceSolver.h"
 #include "ElementHome.h"
-#include "Stop.h"
+#include "Fatal.h"
 #include "FaceTopo.h"
 #include "CgnsSection.h"
 #include <iostream>

@@ -78,8 +78,6 @@ T GetDataValue( const std::string & varName, DataBase * database )
     }
     else
     {
-        //std::cerr << "can't find:" << varName << " in database!!" << std::endl;
-        //exit(EXIT_FAILURE);
         // Short-term: throw instead of exit, so unit tests can catch it
         throw std::runtime_error( "DataBase: cannot find variable \"" + varName + "\"" );
     }   

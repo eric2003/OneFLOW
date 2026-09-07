@@ -23,7 +23,7 @@ License
 #include "Plot3D.h"
 #include "CgnsFactory.h"
 #include "GridMediator.h"
-#include "Stop.h"
+#include "Fatal.h"
 #include "Prj.h"
 #include "StrGrid.h"
 #include "NodeMesh.h"
@@ -416,7 +416,7 @@ void Plot3D::ReadBc( GridMediator * gridMediator )
 
     if ( numberOfZones != gridMediator->numberOfZones )
     {
-        Stop( "nzone in boundary is not consistent with nzone in grid!\n" );
+        Fatal( "nzone in boundary is not consistent with nzone in grid!\n" );
     }
 
     bool readPid = false;

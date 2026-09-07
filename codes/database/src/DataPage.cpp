@@ -23,7 +23,7 @@ License
 #include "DataPage.h"
 #include "BasicParallel.h"
 #include "Parallel.h"
-#include "Stop.h"
+#include "Fatal.h"
 
 #ifndef _WINDOWS
    #include <string.h>
@@ -55,7 +55,7 @@ void DataPage::MoveToPosition( HXSize_t position )
     }
     else
     {
-        Stop( "Out of Range: position \n" );
+        Fatal( "Out of Range: position \n" );
     }
 }
 

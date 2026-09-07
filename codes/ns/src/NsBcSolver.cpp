@@ -28,7 +28,7 @@ License
 #include "NsCtrl.h"
 #include "NsIdx.h"
 #include "HXMath.h"
-#include "Stop.h"
+#include "Fatal.h"
 #include "Boundary.h"
 #include "Iteration.h"
 #include <iostream>
@@ -103,8 +103,7 @@ void NsBcSolver::SetBc()
     }
     else
     {
-        std::cout << "Error : Illegal BCtype ID " << ug.bctype << std::endl;
-        Stop("");
+        Fatal( "Error : Illegal BCtype ID " + std::to_string( ug.bctype ) );
     }
 }
 

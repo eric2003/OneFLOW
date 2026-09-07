@@ -30,6 +30,7 @@ License
 #include "Parallel.h"
 #include "GridFactory.h"
 #include "Test.h"
+#include "Fatal.h"
 #include "Theory.h"
 #include "PostProcess.h"
 #include "AccelRuntime.h"
@@ -73,50 +74,48 @@ void SimuImp::PostProcess()
 
 void SimuImp::RunSimu()
 {
-    //Set the type of operation that ONEFLOW needs to perform
+    // Set the type of operation that ONEFLOW needs to perform
     simu_state.Init();
 
-    //Call different solving modules according to the task type
+    // Call different solving modules according to the task type
     const TaskEnum task = simu_state.Task();
-
     if ( task == TaskEnum::SOLVE_FIELD ||
-         task == TaskEnum::CREATE_GRID ||
-         task == TaskEnum::CREATE_WALL_DIST
-       )
+        task == TaskEnum::CREATE_GRID ||
+        task == TaskEnum::CREATE_WALL_DIST )
     {
         ConstructSystemMap();
     }
 
-    //According to different simutask values, different solving processes are executed
+    // According to different simutask values, different solving processes are executed
     switch ( task )
     {
-        case TaskEnum::SOLVE_FIELD:
-            FieldSimu();
-            break;
-        case TaskEnum::CREATE_GRID:
-            GenerateGrid();
-            break;
-        case TaskEnum::CREATE_WALL_DIST:
-            WalldistSimu();
-            break;
-        case TaskEnum::FUNCTION_TEST:
-            FunctionTest();
-            break;
-        case TaskEnum::SOLVE_THEORY:
-            TheorySimu();
-            break;
-        case TaskEnum::TOY_MODEL:
-            ToyModelSimu();
-            break;
-        case TaskEnum::POST_TASK:
-            PostSimu();
-            break;
-        default:
-        {
-            std::cerr << "unknown simutask value!!" << std::endl;
-            exit(EXIT_FAILURE);
-        }
+    case TaskEnum::SOLVE_FIELD:
+        FieldSimu();
         break;
+    case TaskEnum::CREATE_GRID:
+        GenerateGrid();
+        break;
+    case TaskEnum::CREATE_WALL_DIST:
+        WalldistSimu();
+        break;
+    case TaskEnum::FUNCTION_TEST:
+        FunctionTest();
+        break;
+    case TaskEnum::SOLVE_THEORY:
+        TheorySimu();
+        break;
+    case TaskEnum::TOY_MODEL:
+        ToyModelSimu();
+        break;
+    case TaskEnum::POST_TASK:
+        PostSimu();
+        break;
+    default:
+    {
+        // Use the new Fatal macro (keeps file/line info and throws)
+        Fatal( "unknown simutask value!!" );
+    }
+    break;
     }
 }
 

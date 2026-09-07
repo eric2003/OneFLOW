@@ -37,7 +37,7 @@ License
 #include "CellMesh.h"
 #include "BcRecord.h"
 #include "Boundary.h"
-#include "Stop.h"
+#include "Fatal.h"
 #include <iostream>
 
 
@@ -149,9 +149,13 @@ void UTurbSrcFlux::ReadTmp()
     static int iii = 0;
     if ( iii ) return;
     iii = 1;
+
     std::fstream file;
     file.open( "turbflowsrc.dat", std::ios_base::in | std::ios_base::binary );
-    if ( ! file ) exit( 0 );
+    if ( ! file )
+    {
+        Fatal( "Failed to open file: turbflowsrc.dat" );
+    }
 
        for ( int cId = 0; cId < ug.nTCell; ++ cId )
     {
@@ -227,7 +231,7 @@ void UTurbSrcFlux::CalcVist1Equ()
         if ( turbcom.rho < 0 || NotANumber( turbcom.rho ) )
         {
             std::cout << " zone = " << ZoneState::zid << " cId = " << cId << " rho = " << turbcom.rho << "\n";
-            Stop( "NotANumber( turbcom.rho )" );
+            Fatal( "NotANumber( turbcom.rho )" );
             //cin.get();
         }
         turbcom.rho  = ( * uturbf.q_ns  )[ IDX::IR  ][ ug.cId ];

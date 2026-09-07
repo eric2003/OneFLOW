@@ -26,7 +26,7 @@ License
 #include "Prj.h"
 #include "StringUtils.h"
 #include "CgnsZone.h"
-#include "Stop.h"
+#include "Fatal.h"
 #include <iostream>
 #include <iomanip>
 
@@ -85,7 +85,7 @@ void CgnsFile::OpenCgnsFile( const std::string & fileName, int cgnsOpenMode )
     if ( this->openStatus != CG_OK )
     {
         //cg_error_exit();
-        Stop( cg_get_error() );
+        Fatal( cg_get_error() );
     }
 
     float fileVersion = -1;

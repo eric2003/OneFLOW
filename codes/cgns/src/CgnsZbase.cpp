@@ -24,7 +24,7 @@ License
 #include "CgnsBase.h"
 #include "CgnsZone.h"
 #include "CgnsFile.h"
-#include "Stop.h"
+#include "Fatal.h"
 #include <iostream>
 
 BeginNameSpace( ONEFLOW )

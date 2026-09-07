@@ -42,7 +42,7 @@ std::unique_ptr<SimuBase> TestRegistry::Create(const std::string& name)
     return it->second();
 }
 
-// ===== 实现列出所有注册名称 =====
+// ===== Implementation: list all registered names =====
 std::vector<std::string> TestRegistry::GetAllRegisteredNames() const
 {
     std::vector<std::string> names;

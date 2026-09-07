@@ -20,32 +20,6 @@ protected:
     ONEFLOW::Real tolerance_;
 };
 
-//// Test the critical scenario: Multiple points within tolerance bounding box
-//// This previously caused a FATAL ERROR and Stop()
-//TEST_F(PointLocatorTest, MultipleNodesInToleranceBox) {
-//    ONEFLOW::PointLocator locator;
-//
-//    // Initialize by passing RealField by reference (perfect match)
-//    locator.Initialize(pmin_, pmax_, tolerance_);
-//
-//    // Add a base point (ID 0)
-//    locator.AddPoint(5.0, 5.0, 5.0); 
-//
-//    // Add another point VERY close to the base point, but still within tolerance
-//    // Distance is 0.5e-5, which is < 1.0e-4 tolerance
-//    locator.AddPoint(5.0 + 0.5e-5, 5.0, 5.0); // ID 1
-//
-//    // Add a third point also within tolerance of the base point
-//    locator.AddPoint(5.0, 5.0 + 0.8e-5, 5.0); // ID 2
-//
-//    // Now, query for a point exactly at the base location
-//    // It should safely return the ID of the closest point (ID 0) without crashing
-//    int foundId = locator.FindPoint(5.0, 5.0, 5.0);
-//
-//    EXPECT_EQ(foundId, 0);
-//    EXPECT_EQ(locator.GetNPoint(), 3); // Ensure all 3 were added as unique points
-//}
-
 // Test the critical scenario: Multiple nodes in tolerance bounding box
 // This previously caused a FATAL ERROR and Stop()
 TEST_F(PointLocatorTest, MultipleNodesInToleranceBox) {

@@ -58,8 +58,6 @@ public:
     DataF * GetDataF( const std::string & name );
     void DeleteDataF( const std::string & name );
 
-    // Keep old name as alias for compatibility during transition
-    DataMap * GetDataSet() { return dataMap; }
     DataMap * GetDataMap() { return dataMap; }
 };
 

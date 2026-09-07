@@ -61,8 +61,6 @@ public:
     DataV * GetDataPointer( const std::string & name );
     void DeleteDataPointer( const std::string & name );
 
-    // Keep old name as alias for compatibility
-    DataMap * GetDataSet() { return dataMap; }
     DataMap * GetDataMap() { return dataMap; }
 
     void DumpData( std::fstream & file );

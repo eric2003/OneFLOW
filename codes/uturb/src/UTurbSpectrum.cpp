@@ -29,6 +29,7 @@ License
 #include "UCom.h"
 #include "Zone.h"
 #include "Grid.h"
+#include "Fatal.h"
 #include "UnsGrid.h"
 #include "FaceTopo.h"
 #include "FaceMesh.h"
@@ -61,7 +62,10 @@ void UTurbSpectrum::ReadTmp()
     iii = 1;
     std::fstream file;
     file.open( "turbflowsrc.dat", std::ios_base::in | std::ios_base::binary );
-    if ( ! file ) exit( 0 );
+    if ( ! file )
+    {
+        Fatal( "Failed to open file: turbflowsrc.dat" );
+    }
 
     uturbf.Init();
 

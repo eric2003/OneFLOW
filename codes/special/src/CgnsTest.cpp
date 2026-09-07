@@ -21,7 +21,6 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "CgnsTest.h"
-#include "CgnsTestTmp.h"
 #include "CgnsFile.h"
 #include "CgnsBase.h"
 #include "CgnsFactory.h"

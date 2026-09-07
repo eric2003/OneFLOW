@@ -25,7 +25,7 @@ License
 #include "Parallel.h"
 #include "LogFile.h"
 #include "OStream.h"
-#include "Stop.h"
+#include "Fatal.h"
 #include "Prj.h"
 #include "FileUtils.h"
 #include "PIO.h"
@@ -117,7 +117,7 @@ void AnalysisArrayParameter( TextFileParser & textFileParser, int keyWordIndex )
             valueContainer[ i ] = textFileParser.ReadNextWord( arraySeparator );
             if ( valueContainer[ i ] == "" )
             {
-                Stop( errorMessage );
+                Fatal( errorMessage );
             }
         }
     }
@@ -290,7 +290,7 @@ void GetParaInfoArray( TextFileParser & textFileParser, std::string & varName, s
             varArray[ i ] = textFileParser.ReadNextWord( arraySeparator );
             if ( varArray[ i ] == "" )
             {
-                Stop( errorMessage );
+                Fatal( errorMessage );
             }
         }
     }
@@ -392,7 +392,7 @@ void DecompressData( DataBook * dataBook )
 void CompressData( DataBase * dataBase, DataBook *& dataBook )
 {
     // Use the new type alias
-    DataPara::DataMap * dataMap = dataBase->dataPara->GetDataMap();  // or GetDataSet() if you kept the alias
+    DataPara::DataMap * dataMap = dataBase->dataPara->GetDataMap();
 
     int ndata = static_cast<int>( dataMap->size() );
     ONEFLOW::HXWrite( dataBook, ndata );

@@ -31,6 +31,7 @@ License
 #include "NsCom.h"
 #include "NsIdx.h"
 #include "HXMath.h"
+#include "Fatal.h"
 #include "Boundary.h"
 #include "BcRecord.h"
 #include "UNsLimiter.h"
@@ -231,7 +232,10 @@ void UNsInvFlux::ReadTmp()
     iii = 1;
     std::fstream file;
     file.open( "nsflow.dat", std::ios_base::in | std::ios_base::binary );
-    if ( ! file ) exit( 0 );
+    if ( ! file )
+    {
+        Fatal( "Failed to open file: nsflow.dat" );
+    }
 
     unsf.Init();
 

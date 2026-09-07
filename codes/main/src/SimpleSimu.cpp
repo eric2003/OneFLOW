@@ -49,27 +49,5 @@ void ToyModelSimu()
 
 }
 
-
-//void HybridParallel::Run()
-//{
-//    std::cout << "Run HybridParallel test\n";
-//    // your original test logic
-//}
-
-//void CgnsTest::Run()
-//{
-//    std::cout << "Run CgnsTest\n";
-//}
-
-//void JsonTest::Run()
-//{
-//    std::cout << "Run JsonTest\n";
-//}
-
 EndNameSpace
 
-// register test cases, outside namespace
-//REGISTER_TEST_CASE(HybridParallel, "hybrid_parallel");
-//REGISTER_TEST_CASE(MpiTest, "mpi_test");
-//REGISTER_TEST_CASE(CgnsTest, "cgns_test");
-//REGISTER_TEST_CASE(JsonTest, "json_test");

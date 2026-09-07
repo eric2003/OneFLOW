@@ -22,7 +22,7 @@ set(DATABASE_TEST_SOURCES
 	${DATABASE_SRC_DIR}/DataBaseType.cpp
 	${DATABASE_SRC_DIR}/DataPage.cpp
 	${DATABASE_SRC_DIR}/DataBaseIO.cpp
-	${BASIC_SRC_DIR}/Stop.cpp
+	${BASIC_SRC_DIR}/Fatal.cpp
 	${PARALLEL_SRC_DIR}/BasicParallel.cpp
 	${PARALLEL_SRC_DIR}/Parallel.cpp
 	${ZONE_SRC_DIR}/ZoneState.cpp
