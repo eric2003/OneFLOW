@@ -26,7 +26,7 @@ License
 #include "ZoneState.h"
 #include "UnsGrid.h"
 #include "HXMath.h"
-#include "Stop.h"
+#include "Fatal.h"
 #include "BcRecord.h"
 #include "FaceTopo.h"
 #include "CellTopo.h"
@@ -132,7 +132,7 @@ void G2LMapping::GenerateGC2Z()
 {
     if ( npartproc < 2 )
     {
-        Stop( "The number of partitions should be greater than 1!\n" );
+        Fatal( "The number of partitions should be greater than 1!\n" );
     }
 
     int nCells  = ggrid->nCells;

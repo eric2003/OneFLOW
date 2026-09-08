@@ -27,7 +27,7 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-typedef void ( * TaskFunction )();
+using TaskFunction = void ( * )( void );
 
 class DataBook;
 class FileInfo;

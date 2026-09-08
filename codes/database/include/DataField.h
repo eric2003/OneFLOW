@@ -29,12 +29,12 @@ BeginNameSpace( ONEFLOW )
 
 class PointerWrap;
 
-class DataF
+class FieldEntry
 {
 public:
-    DataF();
-    DataF( const std::string & name, PointerWrap * data );
-    ~DataF();
+    FieldEntry();
+    FieldEntry( const std::string & name, PointerWrap * data );
+    ~FieldEntry();
 public:
     std::string   name;
     PointerWrap * data;
@@ -47,19 +47,17 @@ class DataField
 {
 public:
     // Use unordered_map for O(1) average lookup
-    typedef std::unordered_map< std::string, DataF * > DataMap;
+    using DataMap = std::unordered_map<std::string, FieldEntry*>;
 public:
     DataField();
     ~DataField();
 protected:
     DataMap * dataMap;
 public:
-    void UpdateDataF( DataF * dataf );
-    DataF * GetDataF( const std::string & name );
-    void DeleteDataF( const std::string & name );
+    void UpdateFieldEntry( FieldEntry * fieldEntry );
+    FieldEntry * GetFieldEntry( const std::string & name );
+    void DeleteFieldEntry( const std::string & name );
 
-    // Keep old name as alias for compatibility during transition
-    DataMap * GetDataSet() { return dataMap; }
     DataMap * GetDataMap() { return dataMap; }
 };
 

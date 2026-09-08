@@ -25,7 +25,7 @@ License
 #include "Parallel.h"
 #include "LogFile.h"
 #include "OStream.h"
-#include "Stop.h"
+#include "Fatal.h"
 #include "Prj.h"
 #include "FileUtils.h"
 #include "PIO.h"
@@ -117,7 +117,7 @@ void AnalysisArrayParameter( TextFileParser & textFileParser, int keyWordIndex )
             valueContainer[ i ] = textFileParser.ReadNextWord( arraySeparator );
             if ( valueContainer[ i ] == "" )
             {
-                Stop( errorMessage );
+                Fatal( errorMessage );
             }
         }
     }
@@ -186,57 +186,6 @@ std::string GetJsonFileName( const std::string & fileName )
     return newFileName;
 }
 
-//void ReadOneFLOWScriptFile( const std::string & fileName )
-//{
-//    std::string jsonFileName = GetJsonFileName( fileName );
-//
-//    TextFileParser textFileParser;
-//    textFileParser.OpenFile( fileName, std::ios_base::in );
-//
-//    //string name, word;
-//
-//    //\t is the tab key
-//    std::string keyWordSeparator = " =\r\n\t#$,;\"";
-//
-//    textFileParser.SetDefaultSeparator( keyWordSeparator );
-
-//    DataBaseType::Init();
-//
-//    Json::Value jsonRoot;
-//
-//    while ( ! textFileParser.ReachTheEndOfFile() )
-//    {
-//        bool resultFlag = textFileParser.ReadNextMeaningfulLine();
-//        if ( ! resultFlag ) break;
-//
-//        std::string keyWord = textFileParser.ReadNextWord();
-//
-//        if ( keyWord == "" ) continue;
-//
-//        int keyWordIndex = DataBaseType::GetIndex( keyWord );
-//
-//        Json::Value jsonItem;
-//        std::string varName;
-//        std::vector< std::string > varArray;
-//        GetParaInfo( textFileParser, varName, varArray );
-//        jsonItem[ "type" ] = keyWord;
-//        jsonItem[ "value" ] = varArray[0];
-//        
-//        jsonRoot[ varName ] = jsonItem;
-//
-//        ONEFLOW::ProcessData( varName, &varArray[0], keyWordIndex, varArray.size() );
-//    }
-//
-//    //std::cout << jsonRoot.toStyledString() << std::endl;
-//
-//    //std::ofstream ofs;
-//    //ofs.open( jsonFileName.c_str() );
-//    //ofs << jsonRoot.toStyledString();
-//    //ofs.close();
-//
-//    textFileParser.CloseFile();
-//}
-
 void GetParaInfo( TextFileParser & textFileParser, std::string & varName, std::vector< std::string > & varArray )
 {
     if ( ONEFLOW::IsArrayParameter( textFileParser.GetCurrentLine() ) )
@@ -290,7 +239,7 @@ void GetParaInfoArray( TextFileParser & textFileParser, std::string & varName, s
             varArray[ i ] = textFileParser.ReadNextWord( arraySeparator );
             if ( varArray[ i ] == "" )
             {
-                Stop( errorMessage );
+                Fatal( errorMessage );
             }
         }
     }
@@ -391,25 +340,23 @@ void DecompressData( DataBook * dataBook )
 
 void CompressData( DataBase * dataBase, DataBook *& dataBook )
 {
-    DataPara::DataSET * dataSet = dataBase->dataPara->GetDataSet();
-    DataPara::DataSET::iterator iter;
+    // Use the new type alias
+    DataPara::DataMap * dataMap = dataBase->dataPara->GetDataMap();
 
-    int ndata = static_cast<int> (dataSet->size());
-
+    int ndata = static_cast<int>( dataMap->size() );
     ONEFLOW::HXWrite( dataBook, ndata );
 
-    for ( iter = dataSet->begin(); iter != dataSet->end(); ++ iter )
+    // Range-based for is cleaner with unordered_map
+    for ( const auto & pair : *dataMap )
     {
-        DataV * datav = ( * iter );
-        ONEFLOW::HXWriteDataV( dataBook, datav );
+        DataEntry * dataEntry = pair.second;          // pair.first is the key (name), pair.second is DataV*
+        ONEFLOW::HXWriteDataEntry( dataBook, dataEntry );
     }
 }
 
 void DecompressData( DataBase * dataBase, DataBook * dataBook )
 {
-    DataPara::DataSET * dataSet = dataBase->dataPara->GetDataSet();
-    DataPara::DataSET::iterator iter;
-
+    // No longer need to touch the internal map directly for reading
     dataBook->MoveToBegin();
 
     int ndata = 0;
@@ -417,9 +364,9 @@ void DecompressData( DataBase * dataBase, DataBook * dataBook )
 
     for ( int i = 0; i < ndata; ++ i )
     {
-        DataV * datav = new DataV();
-        ONEFLOW::HXReadDataV( dataBook, datav );
-        dataBase->dataPara->UpdateDataPointer( datav );
+        DataEntry * dataEntry = new DataEntry();
+        ONEFLOW::HXReadDataEntry( dataBook, dataEntry );
+        dataBase->dataPara->UpdateDataPointer( dataEntry );
     }
 }
 

@@ -27,6 +27,7 @@ License
 #include "BcData.h"
 #include "INsBcSolver.h"
 #include "Zone.h"
+#include "Fatal.h"
 #include "Atmosphere.h"
 #include "UnsGrid.h"
 #include "DataBase.h"
@@ -2081,8 +2082,11 @@ void UINsInvterm::ReadTmp()
 	if (iii) return;
 	iii = 1;
 	std::fstream file;
-	file.open("nsflow.dat", std::ios_base::in | std::ios_base::binary);
-	if (!file) exit(0);
+	file.open( "nsflow.dat", std::ios_base::in | std::ios_base::binary );
+	if ( ! file )
+	{
+		Fatal( "Failed to open file: nsflow.dat" );
+	}
 
 	uinsf.Init();
 

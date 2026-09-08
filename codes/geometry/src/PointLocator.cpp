@@ -24,7 +24,7 @@ License
 #include "Grid.h"
 #include "NodeMesh.h"
 #include "HXMath.h"
-#include "Stop.h"
+#include "Fatal.h"
 #include <iostream>
 
 

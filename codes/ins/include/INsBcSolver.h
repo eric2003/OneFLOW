@@ -32,7 +32,7 @@ public:
     INsBcSolver();
     ~INsBcSolver();
 public:
-    typedef void ( INsBcSolver:: * BcPointer )();
+    using BcPointer = void ( INsBcSolver:: * )();
 public:
     void SetBc();
     void SetSolidSurfaceBc();

@@ -34,9 +34,9 @@ License
 BeginNameSpace( ONEFLOW )
 
 #ifdef HX_PARALLEL
-    typedef  MPI_Request  PL_HXRequest;
-    typedef  MPI_Op       PL_Op;
-    typedef  MPI_Datatype PL_Datatype;
+    using PL_HXRequest = MPI_Request;
+    using PL_Op = MPI_Op;
+    using PL_Datatype = MPI_Datatype;
 
     #define PL_REQUEST_NULL    MPI_REQUEST_NULL
     #define PL_MAX             MPI_MAX
@@ -46,9 +46,9 @@ BeginNameSpace( ONEFLOW )
     #define PL_INT             MPI_INT
     #define PL_LONG_LONG_INT   MPI_LONG_LONG_INT
 #else
-    typedef  int  PL_HXRequest;
-    typedef  int  PL_Op;
-    typedef  int  PL_Datatype;
+    using PL_HXRequest = int;
+    using PL_Op = int;
+    using PL_Datatype = int;
 
     #define PL_REQUEST_NULL    0
     #define PL_MAX             0

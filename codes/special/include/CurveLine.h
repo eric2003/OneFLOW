@@ -27,7 +27,7 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-typedef Point< Real > PointType;
+using PointType = Point< Real >;
 
 class CurveLine;
 

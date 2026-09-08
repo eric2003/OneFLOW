@@ -30,14 +30,14 @@ BeginNameSpace( ONEFLOW )
 #ifdef ENABLE_CGNS
 #include "cgnslib.h"
 
-typedef cgsize_t CgInt;
-typedef HXVector< CgInt > CgIntField;
-typedef HXVector< CgIntField > CgLinkField;
+using CgInt = cgsize_t;
+using CgIntField = HXVector< CgInt >;
+using CgLinkField = HXVector< CgIntField >;
 
 class CgnsTraits
 {
 public:
-    typedef char char33[ 33 ];
+    using char33 = char[ 33 ];
 };
 
 std::string GetCgnsPointSetName         ( int cgnsPointSetType );

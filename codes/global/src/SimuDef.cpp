@@ -21,7 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 #include "SimuDef.h"
 #include "DataBase.h"
-#include "Stop.h"
+#include "Fatal.h"
 #include <iostream>
 
 BeginNameSpace( ONEFLOW )
@@ -47,7 +47,7 @@ void SimuState::Init()
     }
     else
     {
-        Stop("Bad simutask type\n");
+        Fatal("Bad simutask type\n");
     }    
 }
 

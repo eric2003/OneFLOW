@@ -45,7 +45,7 @@ License
 #include "PointManager.h"
 #include "PointLocator.h"
 #include "FaceSolver.h"
-#include "Stop.h"
+#include "Fatal.h"
 #include <iostream>
 #include <iomanip>
 
@@ -479,7 +479,7 @@ void SetUnsBcConn( BcRegion * bcRegion, CgIntField& conn, int & pos, Int3D & uns
         return;
     }
 
-    Stop( " error : ist != ied, jst != jed, kst != ked \n" );
+    Fatal( " error : ist != ied, jst != jed, kst != ked \n" );
 }
 
 void GenerateUnsBcElemConn( CgnsZone * myZone, CgnsZone * cgnsZoneIn )

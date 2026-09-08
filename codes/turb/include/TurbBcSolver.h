@@ -29,10 +29,10 @@ BeginNameSpace( ONEFLOW )
 class TurbBcSolver
 {
 public:
+    using BcPointer = void ( TurbBcSolver:: * )();
+public:
     TurbBcSolver();
     ~TurbBcSolver();
-public:
-    typedef void ( TurbBcSolver:: * BcPointer )();
 public:
     void SetBc();
     BcPointer bcPointer;

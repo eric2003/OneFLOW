@@ -23,7 +23,7 @@ License
 #include "DataPage.h"
 #include "BasicParallel.h"
 #include "Parallel.h"
-#include "Stop.h"
+#include "Fatal.h"
 
 #ifndef _WINDOWS
    #include <string.h>
@@ -34,28 +34,23 @@ License
 BeginNameSpace( ONEFLOW )
 DataPage::DataPage()
 {
-    this->dataMemory = new CharMemory();
     this->currPos = 0;
 }
 
 DataPage::~DataPage()
 {
-    delete this->dataMemory;
 }
 
 void DataPage::MoveToPosition( HXSize_t position )
 {
-    if ( ( 0 < position ) && ( position < GetSize() ) )
-    {
-        this->currPos = position;
-    }
-    else if ( 0 == position )
+    // position == GetSize() is a valid "end/append" position.
+    if ( position <= GetSize() )
     {
         this->currPos = position;
     }
     else
     {
-        Stop( "Out of Range: position \n" );
+        Fatal( "Out of Range: position \n" );
     }
 }
 
@@ -66,25 +61,31 @@ void DataPage::MoveForwardPosition( HXSize_t dataSize )
 
 HXSize_t DataPage::GetSize()
 {
-    return dataMemory->size();
+    return dataMemory.size();
 }
 
 char * DataPage::GetBeginDataPointer()
 {
     if ( this->GetSize() == 0 )
     {
-        return 0;
+        return nullptr;
     }
-    return &( ( * dataMemory )[ 0 ] );
+    // Use data() instead of operator[] to avoid UB.
+    return dataMemory.data();
 }
 
 char * DataPage::GetCurrentDataPointer()
 {
-    if ( this->GetSize() == 0 )
-    {
-        return 0;
-    }
-    return &( ( * dataMemory )[ currPos ] );
+    // currPos may legitimately equal GetSize() (the "append/end" position).
+    // vector::data() + size() is well-defined as long as it is never dereferenced,
+    // unlike operator[](size()) which is UB even just to take its address.
+    return dataMemory.data() + currPos;
+}
+
+char * DataPage::GetDataPointer( int begin )
+{
+    // Same reasoning as above; begin == size() must be safe to compute.
+    return dataMemory.data() + begin;
 }
 
 void DataPage::ToString( std::string & str )
@@ -124,7 +125,7 @@ void DataPage::Read( void * data, HXSize_t dataSize, HXSize_t position )
 
 void DataPage::ReSize( HXSize_t newSize )
 {
-    this->dataMemory->resize( newSize );
+    this->dataMemory.resize( newSize );
 }
 
 void DataPage::Send( int pId, int tag )

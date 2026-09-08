@@ -54,7 +54,7 @@ public:
     Real qmin, qmax;
 };
 
-typedef bool ( * CheckFun )( RealField & );
+using CheckFun = bool ( * )( RealField & );
 
 class LimField
 {

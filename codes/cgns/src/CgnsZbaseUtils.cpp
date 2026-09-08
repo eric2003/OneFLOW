@@ -27,7 +27,7 @@ License
 #include "CgnsFile.h"
 #include "CgnsZone.h"
 #include "StringUtils.h"
-#include "Stop.h"
+#include "Fatal.h"
 #include "Prj.h"
 #include "Dimension.h"
 #include "GridPara.h"

@@ -21,7 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "Prj.h"
-#include "Stop.h"
+#include "Fatal.h"
 #include "OStream.h"
 #include "FileUtils.h"
 #include <iostream>
@@ -112,8 +112,7 @@ void Prj::OpenFile( std::fstream & file, const std::string & fileName, const std
     file.open( fileName.c_str(), openMode );
     if ( ! file )
     {
-        std::cout << "could not open " << fileName << std::endl;
-        Stop( "" );
+        Fatal( "could not open " + fileName );
     }
 }
 

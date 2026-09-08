@@ -37,7 +37,7 @@ License
 #include "DataBaseIO.h"
 #include "Boundary.h"
 
-#include "Stop.h"
+#include "Fatal.h"
 #include "Prj.h"
 #include <iostream>
 
@@ -185,7 +185,7 @@ void CalcGrid::ReconstructLink( int iZone )
             }
             else
             {
-                Stop("");
+                Fatal("");
             }
         }
     }

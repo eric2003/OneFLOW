@@ -22,12 +22,31 @@ License
 #pragma once
 #include "NamespaceMacros.h"
 #include <string>
+#include <stdexcept>
+#include <sstream>
 
 BeginNameSpace( ONEFLOW )
 
-#define Stop( _Expression ) ( ONEFLOW::StopProgramFunction( _Expression, __FILE__, __LINE__, __DATE__, __TIME__ ) )
+// ---------------------------------------------------------------------
+// Recommended modern name
+// ---------------------------------------------------------------------
+#define Fatal( _Expression ) \
+    do { \
+        std::ostringstream _oss; \
+        _oss << "\n++++++++++++++++++ Fatal Error +++++++++++++++++++++++++++++\n" \
+             << (_Expression) << "\n" \
+             << " File   : " << __FILE__ << "\n" \
+             << " Line   : " << __LINE__ << "\n" \
+             << " Compiled on " << __DATE__ << " at " << __TIME__ << "\n" \
+             << "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n"; \
+        throw std::runtime_error( _oss.str() ); \
+    } while (0)
 
-void StopProgramFunction( const std::string & stopInformation, const std::string & fileName, const int & fileLine, const std::string & dateName, const std::string & timeName );
-
+// Optional: keep the old function declaration if other places call it directly
+void StopProgramFunction( const std::string & stopInformation,
+                          const std::string & fileName,
+                          const int & fileLine,
+                          const std::string & dateName,
+                          const std::string & timeName );
 
 EndNameSpace

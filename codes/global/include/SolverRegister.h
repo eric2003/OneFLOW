@@ -26,7 +26,6 @@ License
 BeginNameSpace( ONEFLOW )
 
 class SolverRegData;
-//typedef SolverRegData * ( * SolverRegFun )( void );
 using SolverRegFun = SolverRegData* (*)(void);
 
 #define REGISTER_REG_DATA( FUN ) \

@@ -34,7 +34,7 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-typedef std::vector<idx_t> MetisIntList;
+using MetisIntList = std::vector<idx_t>;
 class ScalarGrid;
 
 class MetisSplit

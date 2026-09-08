@@ -19,22 +19,28 @@ License
     along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 
 \*---------------------------------------------------------------------------*/
-#include "Stop.h"
+#include "Fatal.h"
 #include <iostream>
+#include <string>
+#include <stdexcept>
 
 BeginNameSpace( ONEFLOW )
 
-void StopProgramFunction( const std::string & stopInformation, const std::string & fileName, const int & fileLine, const std::string & dateName, const std::string & timeName )
+void StopProgramFunction( const std::string & stopInformation,
+                          const std::string & fileName,
+                          const int & fileLine,
+                          const std::string & dateName,
+                          const std::string & timeName )
 {
-    std::cout << std::endl;
-    std::cout << "++++++++++++++++++Stop Information  +++++++++++++++++++++++++++++\n";
-    std::cout <<  stopInformation << std::endl;
-    std::cout << " The stop filename is : " << fileName << std::endl;
-    std::cout << " at line " << fileLine << std::endl;
-    std::cout << " compiled on " << dateName << " at " << timeName << std::endl;
-    std::cout << "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n";
-    exit( 0 );
-}
+    std::ostringstream oss;
+    oss << "\n++++++++++++++++++ Fatal Error +++++++++++++++++++++++++++++\n"
+        << stopInformation << "\n"
+        << " File   : " << fileName << "\n"
+        << " Line   : " << fileLine << "\n"
+        << " Compiled on " << dateName << " at " << timeName << "\n"
+        << "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n";
 
+    throw std::runtime_error( oss.str() );
+}
 
 EndNameSpace

@@ -25,7 +25,7 @@ License
 #include "OStream.h"
 
 #include "FileInfo.h"
-#include "Stop.h"
+#include "Fatal.h"
 #include "Prj.h"
 #include "ActionState.h"
 #include "Task.h"

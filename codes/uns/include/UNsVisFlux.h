@@ -33,7 +33,7 @@ public:
     UNsVisFlux ();
     ~UNsVisFlux();
 public:
-    typedef void ( UNsVisFlux:: * VisPointer )();
+    using VisPointer = void ( UNsVisFlux:: * )();
     VisPointer visPointer;
     MRField * visflux;
 public:

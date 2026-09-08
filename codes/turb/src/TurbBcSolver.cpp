@@ -28,7 +28,7 @@ License
 #include "Ctrl.h"
 #include "NsIdx.h"
 #include "HXMath.h"
-#include "Stop.h"
+#include "Fatal.h"
 #include "Boundary.h"
 #include <iostream>
 
@@ -102,8 +102,7 @@ void TurbBcSolver::SetBc()
     }
     else
     {
-        std::cout << "Error : Illegal BCtype ID " << ug.bctype << std::endl;
-        Stop("");
+        Fatal( "Error : Illegal BCtype ID " + std::to_string( ug.bctype ) );
     }
 }
 

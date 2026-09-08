@@ -29,7 +29,7 @@ BeginNameSpace( ONEFLOW )
 
 class CurveLine;
 
-typedef Point< Real > PointType;
+using PointType = Point< Real >;
 
 class DomainData
 {

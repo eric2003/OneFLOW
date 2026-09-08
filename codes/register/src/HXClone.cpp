@@ -21,6 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "HXClone.h"
+#include "Fatal.h"
 #include <iostream>
 
 
@@ -30,13 +31,11 @@ std::map< std::string, HXClone * > * HXClone::classMap = 0;
 
 HXClone * HXClone::SafeClone( const std::string & type )
 {
-    std::map < std::string, HXClone * >::iterator iter = HXClone::classMap->find( type );
+    auto iter = HXClone::classMap->find( type );
     if ( iter == HXClone::classMap->end() )
     {
-        std::cout << type << " class not found" << std::endl;
-        exit( 0 );
+        Fatal( type + " class not found" ); 
     }
-
     return iter->second->Clone();
 }
 

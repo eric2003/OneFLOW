@@ -37,7 +37,7 @@ License
 BeginNameSpace( ONEFLOW )
 
 class DataObject;
-class DataV;
+class DataEntry;
 class DataField;
 
 class DataBase
@@ -49,10 +49,10 @@ public:
     DataPara *dataPara;
     DataField *dataField;
 };
-void HXReadDataV( DataBook * dataBook, DataV * datav );
-void HXWriteDataV( DataBook * dataBook, DataV * datav );
-void HXWriteVoid( DataBook * dataBook, DataV * datav );
-void HXReadVoid( DataBook * dataBook, DataV * datav );
+void HXReadDataEntry( DataBook * dataBook, DataEntry * dataEntry );
+void HXWriteDataEntry( DataBook * dataBook, DataEntry * dataEntry );
+void HXWriteVoid( DataBook * dataBook, DataEntry * dataEntry );
+void HXReadVoid( DataBook * dataBook, DataEntry * dataEntry );
 
 DataBase * GetGlobalDataBase();
 void ProcessData( const std::string & name, std::string * value, int type, int size );
@@ -69,17 +69,15 @@ T GetDataValue( const std::string & varName, DataBase * database = ONEFLOW::GetG
 template < typename T >
 T GetDataValue( const std::string & varName, DataBase * database )
 {
-    DataV * datav = database->dataPara->GetDataPointer( varName );
+    DataEntry * dataEntry = database->dataPara->GetDataPointer( varName );
 
-    if (datav != NULL)
+    if (dataEntry != nullptr )
     {
-        DataObject * data = datav->data;
+        DataObject * data = dataEntry->data;
         return GetDataValue< T >(data);
     }
     else
     {
-        //std::cerr << "can't find:" << varName << " in database!!" << std::endl;
-        //exit(EXIT_FAILURE);
         // Short-term: throw instead of exit, so unit tests can catch it
         throw std::runtime_error( "DataBase: cannot find variable \"" + varName + "\"" );
     }   
@@ -88,16 +86,16 @@ T GetDataValue( const std::string & varName, DataBase * database )
 template < typename T >
 void SetData( const std::string & name, T * value, int type, int size )
 {
-    DataV * datav = new DataV();
-    datav->name = name;
-    datav->type = type;
-    datav->size = size;
+    DataEntry * dataEntry = new DataEntry();
+    dataEntry->name = name;
+    dataEntry->type = type;
+    dataEntry->size = size;
     TDataObject< T > * o = new TDataObject< T >( size );
     o->CopyValue( value );
-    datav->data = o;
+    dataEntry->data = o;
 
     DataBase * dataBase = ONEFLOW::GetGlobalDataBase();
-    dataBase->dataPara->UpdateDataPointer( datav );
+    dataBase->dataPara->UpdateDataPointer( dataEntry );
 }
 
 void SetDataInt( const std::string & varName, const int & value );
@@ -108,8 +106,8 @@ template < typename T >
 T * GetDataPointer( const std::string & varName )
 {
     DataBase * database = ONEFLOW::GetGlobalDataBase();
-    DataV * datav = database->dataPara->GetDataPointer( varName );
-    DataObject * data = datav->data;
+    DataEntry * dataEntry = database->dataPara->GetDataPointer( varName );
+    DataObject * data = dataEntry->data;
     return static_cast< T * >( data->GetVoidPointer() );
 }
 

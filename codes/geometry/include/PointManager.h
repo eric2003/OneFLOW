@@ -33,7 +33,7 @@ template < typename T >
 class PointCompare
 {
 public:
-    typedef Point< T > point_type;
+    using point_type = Point< T >;
     static T tolerance;
     static void ResetTolerance( const T & toleranceIn );
 public:

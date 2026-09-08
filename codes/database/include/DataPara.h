@@ -22,7 +22,7 @@ License
 
 #pragma once
 #include "NamespaceMacros.h"
-#include <set>
+#include <unordered_map>
 #include <string>
 #include <fstream>
 
@@ -30,47 +30,39 @@ BeginNameSpace( ONEFLOW )
 
 class DataObject;
 
-class DataV
+class DataEntry
 {
 public:
-    DataV();
-    DataV( const std::string & name, int type, int size, DataObject * data );
-    ~DataV();
+    DataEntry();
+    DataEntry( const std::string & name, int type, int size, DataObject * data );
+    ~DataEntry();
 public:
     std::string  name;
-    int     type;
-    int     size;
+    int          type;
+    int          size;
     DataObject * data;
 public:
-    void Copy( DataV * inputData );
+    void Copy( DataEntry * inputData );
     void Dump( std::fstream & file );
-};
-
-class CompareDataV
-{
-public:
-    bool operator()( const DataV * lhs, const DataV * rhs ) const
-    {
-        return lhs->name < rhs->name;
-    }
 };
 
 class DataPara
 {
 public:
+    // Use unordered_map for O(1) average lookup
+    using DataMap = std::unordered_map< std::string, DataEntry * >;
+public:
     DataPara();
     ~DataPara();
-public:
-    typedef std::set< DataV *, CompareDataV > DataSET;
 protected:
-    DataSET * dataSet;
+    DataMap * dataMap;
 public:
-    void UpdateDataPointer( DataV * data );
-    DataV * GetDataPointer( const std::string & name );
+    void UpdateDataPointer( DataEntry * data );
+    DataEntry * GetDataPointer( const std::string & name );
     void DeleteDataPointer( const std::string & name );
 
-    DataSET * GetDataSet() { return dataSet; }
-public:
+    DataMap * GetDataMap() { return dataMap; }
+
     void DumpData( std::fstream & file );
 };
 

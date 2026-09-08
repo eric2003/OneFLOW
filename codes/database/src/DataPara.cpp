@@ -25,16 +25,15 @@ License
 #include "DataBaseType.h"
 #include <iostream>
 
-
 BeginNameSpace( ONEFLOW )
 
-DataV::DataV()
+DataEntry::DataEntry()
 {
     this->name = "";
-    this->data = 0;
+    this->data = nullptr;
 }
 
-DataV::DataV( const std::string & name, int type, int size, DataObject * data )
+DataEntry::DataEntry( const std::string & name, int type, int size, DataObject * data )
 {
     this->name = name;
     this->type = type;
@@ -42,17 +41,45 @@ DataV::DataV( const std::string & name, int type, int size, DataObject * data )
     this->data = data;
 }
 
-DataV::~DataV()
+DataEntry::~DataEntry()
 {
     delete data;
 }
 
-void DataV::Copy( DataV * inputData )
+void DataEntry::Copy( DataEntry * inputData )
 {
+    if ( inputData == nullptr )
+    {
+        throw std::invalid_argument(
+            "DataEntry::Copy: inputData is null" );
+    }
+
+    if ( this->data == nullptr || inputData->data == nullptr )
+    {
+        throw std::runtime_error(
+            "DataEntry::Copy: data pointer is null" );
+    }
+
+    if ( this->type != inputData->type )
+    {
+        throw std::runtime_error(
+            "DataEntry::Copy: data type mismatch for entry '" +
+            this->name + "'" );
+    }
+
+    if ( this->size != inputData->size )
+    {
+        throw std::runtime_error(
+            "DataEntry::Copy: data size mismatch for entry '" +
+            this->name + "'" );
+    }
+
+    // Copy only the data value.
+    // Name, type, and size belong to the existing DataEntry.
     this->data->Copy( inputData->data );
 }
 
-void DataV::Dump( std::fstream & file )
+void DataEntry::Dump( std::fstream & file )
 {
     file << name << " , " << DataBaseType::GetName( type ) << " : ";
     this->data->Dump( file );
@@ -61,71 +88,80 @@ void DataV::Dump( std::fstream & file )
 
 DataPara::DataPara()
 {
-    dataSet = new DataSET;
+    dataMap = new DataMap;
 }
 
 DataPara::~DataPara()
 {
-    DataSET::iterator iter;
-    for ( iter = dataSet->begin(); iter != dataSet->end(); ++ iter )
+    for ( auto & pair : *dataMap )
     {
-        DataObject * dataObject = reinterpret_cast< DataObject * > ( ( * iter )->data );
-        delete dataObject;
+        delete pair.second;     // DataV destructor deletes the DataObject
     }
-
-    dataSet->clear();
-
-    delete dataSet;
+    dataMap->clear();
+    delete dataMap;
 }
 
-void DataPara::UpdateDataPointer( DataV * data )
+void DataPara::UpdateDataPointer( DataEntry * data )
 {
-    DataV * findData = this->GetDataPointer( data->name );
-    if ( findData )
+    if ( data == nullptr )
     {
-        findData->Copy( data );
-        delete data;
         return;
     }
 
-    dataSet->insert( data );
+    auto it = dataMap->find( data->name );
+
+    if ( it == dataMap->end() )
+    {
+        // No entry with the same name exists.
+        // DataPara takes ownership of the new DataEntry.
+        ( *dataMap )[ data->name ] = data;
+        return;
+    }
+
+    try
+    {
+        // Copy() validates type and size before updating the value.
+        it->second->Copy( data );
+    }
+    catch ( ... )
+    {
+        // Release the temporary DataEntry on failure.
+        delete data;
+        throw;
+    }
+
+    // The temporary DataEntry is no longer needed.
+    delete data;
 }
 
-DataV * DataPara::GetDataPointer( const std::string & name )
+DataEntry * DataPara::GetDataPointer( const std::string & name )
 {
-    DataV * data = new DataV( name, 0, 0, 0 );
-    DataSET::iterator iter = dataSet->find( data );
-    delete data;
-    if ( iter != dataSet->end() )
+    auto it = dataMap->find( name );
+    if ( it != dataMap->end() )
     {
-        return ( * iter );
+        return it->second;
     }
-    else
-    {
-        return 0;
-    }
+    return nullptr;
 }
 
 void DataPara::DeleteDataPointer( const std::string & name )
 {
-    DataV * data = new DataV( name, 0, 0, 0 );
-    DataSET::iterator iter = dataSet->find( data );
-    if ( iter != dataSet->end() )
+    auto it = dataMap->find( name );
+    if ( it != dataMap->end() )
     {
-        delete ( * iter );
-        dataSet->erase( iter );
+        delete it->second;
+        dataMap->erase( it );
     }
-    delete data;
 }
 
 void DataPara::DumpData( std::fstream & file )
 {
     std::cout << " Dumping database:\n";
     int count = 0;
-    for ( DataSET::iterator iter = this->dataSet->begin(); iter != this->dataSet->end(); ++ iter )
+    for ( auto & pair : *dataMap )
     {
-        file << ++ count << ": ";
-        ( *iter )->Dump( file );
+        file << ++count << ": ";
+        pair.second->Dump( file );
     }
 }
 

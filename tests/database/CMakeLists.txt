@@ -15,6 +15,7 @@ set(GLOBAL_INCLUDE_DIR ${OneFLOW_Root}/global/include)
 set(DATABASE_TEST_SOURCES
     database_para_test.cpp
 	database_field_test.cpp
+	data_page_book_test.cpp
 	${DATABASE_SRC_DIR}/DataBase.cpp
 	${DATABASE_SRC_DIR}/DataPara.cpp
 	${DATABASE_SRC_DIR}/DataBook.cpp
@@ -22,7 +23,7 @@ set(DATABASE_TEST_SOURCES
 	${DATABASE_SRC_DIR}/DataBaseType.cpp
 	${DATABASE_SRC_DIR}/DataPage.cpp
 	${DATABASE_SRC_DIR}/DataBaseIO.cpp
-	${BASIC_SRC_DIR}/Stop.cpp
+	${BASIC_SRC_DIR}/Fatal.cpp
 	${PARALLEL_SRC_DIR}/BasicParallel.cpp
 	${PARALLEL_SRC_DIR}/Parallel.cpp
 	${ZONE_SRC_DIR}/ZoneState.cpp

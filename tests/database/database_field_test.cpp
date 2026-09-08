@@ -102,7 +102,7 @@ TEST_F(DataFieldTest, DeleteField)
     ASSERT_NE( GetFieldPointer<DummyField>( db_, "to_delete_field" ), nullptr );
 
     // Delete
-    db_->dataField->DeleteDataF( "to_delete_field" );
+    db_->dataField->DeleteFieldEntry( "to_delete_field" );
 
     // Should now be gone
     EXPECT_EQ( GetFieldPointer<DummyField>( db_, "to_delete_field" ), nullptr );
@@ -127,7 +127,7 @@ TEST_F(DataFieldTest, DestructorSafety)
         DummyField* p = GetFieldPointer<DummyField>( &localDb, "temp_field" );
         ASSERT_NE( p, nullptr );
         EXPECT_EQ( p->id, 1 );
-    } // wrap and DataF are owned by localDb.dataField
+    } // wrap and FieldEntry are owned by localDb.dataField
 
       // When localDb goes out of scope, DataField destructor runs.
       // This test passes if and only if there is no crash / double-free /
@@ -155,3 +155,4 @@ TEST_F(DataFieldTest, MultipleFieldsCoexist)
     EXPECT_EQ( p2->id, 20 );
     EXPECT_NE( p1, p2 );
 }
+

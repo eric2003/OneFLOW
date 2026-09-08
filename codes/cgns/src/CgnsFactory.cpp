@@ -28,7 +28,7 @@ License
 #include "GridPara.h"
 #include "LogFile.h"
 #include "Prj.h"
-#include "Stop.h"
+#include "Fatal.h"
 #include "StringUtils.h"
 #include "Su2Grid.h"
 #include "GridState.h"

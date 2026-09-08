@@ -31,7 +31,7 @@ template < typename T >
 class Point
 {
 public:
-    typedef Point< T > point_type;
+    using point_type = Point< T >;
 public:
     T x, y, z;
     int id;

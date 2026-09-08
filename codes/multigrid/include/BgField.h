@@ -32,7 +32,7 @@ public:
     BasicBgField ();
     ~BasicBgField();
 public:
-    typedef HXVector< HXVector< HXVector< FieldWrap * > > > Field3DType;
+    using Field3DType = HXVector< HXVector< HXVector< FieldWrap * > > >;
 public:
     Field3DType data;
 public:

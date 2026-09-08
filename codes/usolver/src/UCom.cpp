@@ -29,7 +29,7 @@ License
 #include "CellTopo.h"
 #include "Zone.h"
 #include "PIO.h"
-#include "Stop.h"
+#include "Fatal.h"
 #include "DataBase.h"
 #include "OStream.h"
 #include "HXMath.h"
@@ -392,7 +392,7 @@ void HXDebug::CheckNANField( MRField * field )
             if ( NotANumber( value ) )
             {
                 std::cout << " iEqu = " << iEqu << " iElem = " << iElem << " nElems = " << nElems << " value = " << value << "\n";
-                Stop( "NotANumber" );
+                Fatal( "NotANumber" );
             }
         }
     }

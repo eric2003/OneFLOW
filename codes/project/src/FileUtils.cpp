@@ -21,7 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "FileUtils.h"
-#include "Stop.h"
+#include "Fatal.h"
 
 #ifdef _WINDOWS
 #include <windows.h>

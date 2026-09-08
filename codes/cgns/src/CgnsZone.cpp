@@ -41,7 +41,7 @@ License
 #include "PointManager.h"
 #include "PointLocator.h"
 #include "FaceSolver.h"
-#include "Stop.h"
+#include "Fatal.h"
 #include <iostream>
 #include <iomanip>
 

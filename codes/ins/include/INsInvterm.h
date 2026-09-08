@@ -89,7 +89,7 @@ public:
 	INsInvterm();
     ~INsInvterm();
 public:
-    //typedef void (INsInvterm:: * InvtermPointer )();
+    //using InvtermPointer = void (INsInvterm:: * )();
 public:
     void Solve();
 public:

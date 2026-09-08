@@ -84,7 +84,7 @@ public:
     NsInvFlux ();
     ~NsInvFlux();
 public:
-    typedef void ( NsInvFlux:: * InvFluxPointer )();
+    using InvFluxPointer = void ( NsInvFlux:: * )();
 public:
     void Solve();
 public:

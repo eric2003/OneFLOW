@@ -26,7 +26,7 @@ License
 #include "HXDefine.h"
 BeginNameSpace( ONEFLOW )
 
-typedef void ( * TIME_INTEGRAL )( void );
+using TIME_INTEGRAL = void ( * )( void );
 
 const int MULTI_STAGE = 1;
 const int LUSGS = 2;
