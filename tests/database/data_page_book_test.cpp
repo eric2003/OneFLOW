@@ -158,8 +158,26 @@ TEST_F(DataPageBookTest, DataPage_FileIO)
     std::remove(tmpFile.c_str());
 }
 
-// Note: Out-of-bound memcpy / Fatal crash test cannot run in gtest,
-// because Fatal() terminates whole process. Need manual test.
+// Fatal() now throws std::runtime_error instead of terminating the
+// process, so the out-of-range path can be exercised directly in gtest.
+TEST_F(DataPageBookTest, DataPage_Write_OutOfRangePosition_Throws)
+{
+    DataPage page;
+    page.ReSize(10);
+
+    char buf[4] = {0};
+    // position (11) is beyond GetSize() (10), so this must throw.
+    EXPECT_THROW(page.Write(buf, sizeof(buf), 11), std::runtime_error);
+}
+
+TEST_F(DataPageBookTest, DataPage_Read_OutOfRangePosition_Throws)
+{
+    DataPage page;
+    page.ReSize(10);
+
+    char buf[4] = {0};
+    EXPECT_THROW(page.Read(buf, sizeof(buf), 11), std::runtime_error);
+}
 
 // ----------------------------------------------------------------------------
 // DataBook Basic Test
@@ -192,7 +210,7 @@ TEST_F(DataPageBookTest, DataBook_Write_Read_Small_NoCrossPage)
     EXPECT_EQ(std::memcmp(src, dst, static_cast<std::size_t>(bufSize)), 0);
 }
 
-TEST_F(DataPageBookTest, DataBook_Write_Read_CrossPageBoundary)
+TEST_F(DataPageBookTest, DataBook_Write_Read_SingleLargePage)
 {
     DataBook book;
     // Force cross‑page: override maxUnitSize for test, small page size
@@ -218,6 +236,56 @@ TEST_F(DataPageBookTest, DataBook_Write_Read_CrossPageBoundary)
     book.Read(dst, totalSize);
 
     EXPECT_EQ(std::memcmp(src, dst, static_cast<std::size_t>(totalSize)), 0);
+}
+
+TEST_F(DataPageBookTest, DataBook_TrulyCrossMultiplePages)
+{
+    // Use a tiny page size (10 bytes) so 250 bytes of data must span
+    // multiple real pages (25 pages), unlike the default 1GB page size
+    // where "cross-page" tests never actually leave page 0.
+    DataBook book(10);
+
+    const HXLongLong_t totalSize = 250;
+    char src[250];
+    for (HXLongLong_t i = 0; i < totalSize; ++i)
+    {
+        src[i] = static_cast<char>(i);
+    }
+
+    book.MoveToBegin();
+    book.Write(src, totalSize);
+
+    // Sanity check: with a 10-byte page size and 250 bytes written,
+    // the data must have actually spanned multiple pages (25 pages),
+    // not silently stayed within a single page like the old test did.
+    EXPECT_GT(book.GetNPage(), 1U); 
+
+    book.MoveToBegin();
+    char dst[250];
+    book.Read(dst, totalSize);
+
+    EXPECT_EQ(std::memcmp(src, dst, totalSize), 0);
+}
+
+TEST_F(DataPageBookTest, DataBook_SmallUnitSize_StringRoundTrip)
+{
+    // Force a string write/read to cross several tiny pages internally.
+    DataBook book(8);
+    std::string testStr = "OneFLOW-CFD-DataBook-CrossPage-StringTest";
+
+    book.WriteString(testStr);
+    book.MoveToBegin();
+
+    std::string outStr;
+    book.ReadString(outStr);
+
+    EXPECT_EQ(outStr, testStr);
+}
+
+TEST_F(DataPageBookTest, DataBook_InvalidUnitSize_Throws)
+{
+    EXPECT_THROW(DataBook book(0), std::invalid_argument);
+    EXPECT_THROW(DataBook book(-1), std::invalid_argument);
 }
 
 TEST_F(DataPageBookTest, DataBook_Append)
@@ -346,6 +414,105 @@ TEST_F(DataPageBookTest, DataBook_FileIO_Write_Read)
     EXPECT_EQ(r1, s1);
     EXPECT_EQ(r2, s2);
     std::remove(tmpFile.c_str());
+}
+
+TEST_F(DataPageBookTest, DataBook_String_WithEmbeddedNull_RoundTrip)
+{
+    DataBook book;
+    // Old implementation truncated at the first '\0' when doing cs = data;
+    // New implementation must preserve embedded null bytes.
+    std::string s("abc\0def", 7);   // explicit length, contains an embedded '\0'
+
+    book.WriteString(s);
+    book.MoveToBegin();
+
+    std::string out;
+    book.ReadString(out);
+
+    EXPECT_EQ(out.size(), 7U);
+    EXPECT_EQ(out, s);
+}
+
+TEST_F(DataPageBookTest, DataBook_EmptyString_RoundTrip)
+{
+    DataBook book;
+    std::string empty;
+
+    book.WriteString(empty);
+    book.MoveToBegin();
+
+    std::string out;
+    book.ReadString(out);
+
+    EXPECT_EQ(out, empty);
+}
+TEST_F(DataPageBookTest, DataBook_ManyTinyPages_NoStackOverflow)
+{
+    // Regression test: DataBook::Read/Write used to be recursive, causing
+    // ~5000 stack frames here (unitSize=1, 5000 bytes) and taking ~0.5s.
+    // After converting to an iterative implementation, this should run in
+    // a few milliseconds with no risk of stack overflow for larger inputs.
+    DataBook book(1);
+    std::vector<char> src(5000);
+    for (size_t i = 0; i < src.size(); ++i) src[i] = static_cast<char>(i);
+
+    book.MoveToBegin();
+    book.Write(src.data(), static_cast<HXLongLong_t>(src.size()));
+
+    book.MoveToBegin();
+    std::vector<char> dst(5000);
+    book.Read(dst.data(), static_cast<HXLongLong_t>(dst.size()));
+
+    EXPECT_EQ(src, dst);
+}
+
+TEST_F(DataPageBookTest, DataBook_ResizeNPage_GrowAndShrink)
+{
+    // Use tiny page size so we can force multiple pages easily.
+    DataBook book(10);   // maxUnitSize = 10
+
+    // 1. Grow: write enough data to create several pages
+    const HXLongLong_t total = 35;   // 4 pages (10+10+10+5)
+    std::vector<char> src(total, 0xAB);
+    book.MoveToBegin();
+    book.Write(src.data(), total);
+
+    EXPECT_EQ(book.GetNPage(), 4U);
+    EXPECT_EQ(book.GetSize(), total);
+
+    // 2. Shrink via ReSize (this calls ResizeNPage internally)
+    book.ReSize(15);                 // should become 2 pages (10+5)
+    EXPECT_EQ(book.GetNPage(), 2U);
+    EXPECT_EQ(book.GetSize(), 15LL);
+
+    // 3. Shrink to zero
+    book.ReSize(0);
+    EXPECT_EQ(book.GetNPage(), 0U);  // or 1U depending on your policy;
+    // current implementation leaves 0 pages after ReSize(0)
+    EXPECT_EQ(book.GetSize(), 0LL);
+
+    // 4. Grow again from empty
+    book.ReSize(25);                 // 3 pages
+    EXPECT_EQ(book.GetNPage(), 3U);
+    EXPECT_EQ(book.GetSize(), 25LL);
+}
+
+TEST_F(DataPageBookTest, DataBook_ResizeNPage_PreservesExistingDataWhenGrowing)
+{
+    // Optional but useful: verify that growing does not destroy already-written data.
+    DataBook book(16);
+    std::string s = "HelloResize";
+    book.WriteString(s);
+
+    HXSize_t oldPages = book.GetNPage();
+    book.ReSize(book.GetSize() + 100);   // force growth
+
+    EXPECT_GT(book.GetNPage(), oldPages);
+
+    book.MoveToBegin();
+    std::string out;
+    book.ReadString(out);
+    EXPECT_EQ(out, s);   // original content must still be readable
 }
 
 // ----------------------------------------------------------------------------

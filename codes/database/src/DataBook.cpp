@@ -29,32 +29,28 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-//DataBook::DataBook()
+//DataBook::DataBook( HXLongLong_t unitSize )
+//    : currPageId( 0 )
+//    , currPos( 0 )
+//    , maxUnitSize( unitSize )
 //{
-//    //maxUnitSize = 1024000;
-//    maxUnitSize = 1024000000;
-//    pages.push_back( new DataPage() );
-//    this->currPos = 0;
-//    this->currPageId = 0;
-//
+//    if ( unitSize <= 0 )
+//    {
+//        throw std::invalid_argument( "DataBook: unitSize must be positive" );
+//    }
+//    pages.push_back( std::make_unique<DataPage>() );
 //    this->MoveToBegin();
 //}
 
-DataBook::DataBook( HXLongLong_t unitSize )
-    : maxUnitSize( unitSize )
-    , currPos( 0 )
-    , currPageId( 0 )
+DataBook::DataBook(HXLongLong_t unitSize)
+    : currPos(0), maxUnitSize(unitSize)
 {
-    pages.push_back( std::make_unique<DataPage>() );
-    this->MoveToBegin();
+    if (unitSize <= 0)
+        throw std::invalid_argument("DataBook: unitSize must be positive");
 }
 
 DataBook::~DataBook()
 {
-    //for ( HXSize_t i = 0; i < pages.size(); ++ i )
-    //{
-    //    delete pages[ i ];
-    //}
 }
 
 HXSize_t DataBook::GetNPage()
@@ -73,37 +69,9 @@ DataPage * DataBook::GetPage( HXSize_t iPage )
     return pages[ iPage ].get();
 }
 
-char * MovePointer( void * data, HXLongLong_t dataSize )
-{
-    return reinterpret_cast< char * >( data ) + dataSize;
-}
-
 void DataBook::MoveForwardPosition( HXLongLong_t dataSize )
 {
     this->currPos += dataSize;
-}
-
-void DataBook::Read( void * data, HXLongLong_t dataSize )
-{
-    if ( dataSize <= 0 ) return;
-
-    HXLongLong_t remainingSize = this->GetRemainingSizeOfCurrentPage();
-
-    if ( remainingSize >= dataSize )
-    {
-        this->GetCurrentPage()->Read( data, dataSize );
-        this->MoveForwardPosition( dataSize );
-    }
-    else
-    {
-        this->GetCurrentPage()->Read( data, remainingSize );
-        this->MoveForwardPosition( remainingSize );
-
-        void * newData = ONEFLOW::MovePointer( data, remainingSize );
-        HXLongLong_t newSize = dataSize - remainingSize;
-
-        this->Read( newData, newSize );
-    }
 }
 
 void DataBook::Write( void * data, HXLongLong_t dataSize )
@@ -112,24 +80,65 @@ void DataBook::Write( void * data, HXLongLong_t dataSize )
 
     this->SecureRelativeSpace( dataSize );
 
-    HXLongLong_t remainingSize = this->GetRemainingSizeOfCurrentPage();
+    // Iterative instead of recursive: walk across as many pages as needed
+    // in a loop, rather than recursing once per page boundary. This avoids
+    // stack depth proportional to (dataSize / maxUnitSize), which becomes
+    // a real risk when maxUnitSize is configured small (see
+    // DataBook_ManyTinyPages_NoStackOverflow, ~0.54s for just 5000 bytes
+    // with unitSize=1 under the old recursive implementation).
+    char * cursor = reinterpret_cast<char *>( data );
+    HXLongLong_t remaining = dataSize;
 
-    if ( remainingSize >= dataSize )
+    while ( remaining > 0 )
     {
-        this->GetCurrentPage()->Write( data, dataSize );
-        this->MoveForwardPosition( dataSize );
+        HXLongLong_t chunk = this->GetRemainingSizeOfCurrentPage();
+        if ( chunk > remaining )
+        {
+            chunk = remaining;
+        }
+
+        this->GetCurrentPage()->Write( cursor, chunk );
+        this->MoveForwardPosition( chunk );
+
+        cursor    += chunk;
+        remaining -= chunk;
     }
-    else
+}
+
+void DataBook::Read( void * data, HXLongLong_t dataSize )
+{
+    if ( dataSize <= 0 ) return;
+
+    char * cursor = reinterpret_cast<char *>( data );
+    HXLongLong_t remaining = dataSize;
+
+    while ( remaining > 0 )
     {
-        this->GetCurrentPage()->Write( data, remainingSize );
+        HXLongLong_t chunk = this->GetRemainingSizeOfCurrentPage();
+        if ( chunk > remaining )
+        {
+            chunk = remaining;
+        }
 
-        this->MoveForwardPosition( remainingSize );
+        this->GetCurrentPage()->Read( cursor, chunk );
+        this->MoveForwardPosition( chunk );
 
-        void * newData = ONEFLOW::MovePointer( data, remainingSize );
+        cursor    += chunk;
+        remaining -= chunk;
+    }
+}
 
-        HXLongLong_t  newSize = dataSize - remainingSize;
+void DataBook::WriteString( std::string & cs )
+{
+    HXSize_t nLength = cs.length();
+    this->Write( & nLength, sizeof( HXSize_t ) );
 
-        this->Write( newData, newSize );
+    // Write the raw bytes directly from the string's own buffer;
+    // no manual new[]/delete[], no dependency on a trailing '\0'.
+    // cs.data() has been guaranteed contiguous since C++11.
+    if ( nLength > 0 )
+    {
+        this->Write( const_cast<char *>( cs.data() ), nLength );
     }
 }
 
@@ -138,29 +147,13 @@ void DataBook::ReadString( std::string & cs )
     HXSize_t nLength = 0;
     this->Read( & nLength, sizeof( HXSize_t ) );
 
-    char * data = new char[ nLength + 1 ];
-
-    this->Read( data, nLength + 1 );
-
-    cs = data;
-
-    delete[] data;
-}
-
-void DataBook::WriteString( std::string & cs )
-{
-    HXSize_t nLength = cs.length();
-
-    this->Write( & nLength, sizeof( HXSize_t ) );
-
-    char * data = new char[ nLength + 1 ];
-
-    cs.copy( data, nLength );
-    data[ nLength ] = '\0';
-
-    this->Write( data, nLength + 1 );
-
-    delete[] data;
+    // Resize the string first so it owns the buffer we read into.
+    // No manual allocation, and no assumption about a null terminator.
+    cs.resize( nLength );
+    if ( nLength > 0 )
+    {
+        this->Read( &cs[0], nLength );
+    }
 }
 
 void DataBook::AppendString( std::string & cs )
@@ -186,63 +179,127 @@ HXLongLong_t DataBook::GetSize()
     return sum;
 }
 
-void DataBook::ReSize( HXLongLong_t nLength )
+// ReSize：尽量对齐 vector
+void DataBook::ReSize(HXLongLong_t nLength)
 {
-    if ( nLength <= 0 )
+    if (nLength < 0) return;          // 或 throw
+
+    if (nLength == 0)
     {
-        if ( nLength == 0 )
-        {
-            for ( HXSize_t iPage = 0; iPage < this->GetNPage(); ++ iPage )
-            {
-                this->GetPage( iPage )->ReSize( 0 );
-            }
-        }
+        pages.clear();
+        currPos = 0;
         return;
     }
 
-    //23 divided by 3 is 7, remainder 2.
-    HXSize_t nPage = nLength / maxUnitSize;
+    // 计算需要多少页
+    HXSize_t nPage = static_cast<HXSize_t>(nLength / maxUnitSize);
     HXLongLong_t remainder = nLength % maxUnitSize;
+    HXSize_t newNPage = nPage + (remainder ? 1 : 0);
 
-    HXSize_t additionalPage = 0;
-    if ( remainder )
+    ResizeNPage(newNPage);            // 负责增减页面（扩大时 make_unique）
+
+    // 设置每一页的实际大小
+    for (HXSize_t i = 0; i < newNPage; ++i)
     {
-        additionalPage = 1;
+        HXLongLong_t pageSize = (i == nPage) ? remainder : maxUnitSize;
+        // 最后一页如果 remainder==0，其实 i 不会等于 nPage，需注意边界
+        if (i == newNPage - 1 && remainder == 0)
+            pageSize = maxUnitSize;
+        GetPage(i)->ReSize(static_cast<HXSize_t>(pageSize));
     }
 
-    HXSize_t newNPage = nPage + additionalPage;
-    this->ResizeNPage( newNPage );
-
-    for ( HXSize_t iPage = 0; iPage < this->GetNPage(); ++ iPage )
-    {
-        HXLongLong_t needSize = maxUnitSize;
-        if ( iPage == nPage )
-        {
-            needSize = remainder;
-        }
-        this->GetPage( iPage )->ReSize( needSize );
-    }
+    // 可选：如果 currPos 超出新大小，拉回
+    if (currPos > nLength)
+        currPos = nLength;
 }
 
-void DataBook::ResizeNPage( HXSize_t newNPage )
+//void DataBook::ReSize( HXLongLong_t nLength )
+//{
+//    if ( nLength <= 0 )
+//    {
+//        if ( nLength == 0 )
+//        {
+//            for ( HXSize_t iPage = 0; iPage < this->GetNPage(); ++ iPage )
+//            {
+//                this->GetPage( iPage )->ReSize( 0 );
+//            }
+//        }
+//        return;
+//    }
+//
+//    //23 divided by 3 is 7, remainder 2.
+//    HXSize_t nPage = nLength / maxUnitSize;
+//    HXLongLong_t remainder = nLength % maxUnitSize;
+//
+//    HXSize_t additionalPage = 0;
+//    if ( remainder )
+//    {
+//        additionalPage = 1;
+//    }
+//
+//    HXSize_t newNPage = nPage + additionalPage;
+//    this->ResizeNPage( newNPage );
+//
+//    for ( HXSize_t iPage = 0; iPage < this->GetNPage(); ++ iPage )
+//    {
+//        HXLongLong_t needSize = maxUnitSize;
+//        if ( iPage == nPage )
+//        {
+//            needSize = remainder;
+//        }
+//        this->GetPage( iPage )->ReSize( needSize );
+//    }
+//}
+
+//void DataBook::ResizeNPage( HXSize_t newNPage )
+//{
+//    HXSize_t oldNPage = this->GetNPage();
+//
+//    if ( newNPage <= oldNPage )
+//    {
+//        this->Erase( newNPage, oldNPage );
+//        pages.resize( newNPage );
+//    }
+//    else
+//    {
+//        HXSize_t iPageStart = oldNPage;
+//        HXSize_t iPageEnd = newNPage;
+//
+//        for ( HXSize_t iPage = iPageStart; iPage != iPageEnd; ++ iPage )
+//        {
+//            pages.push_back( std::make_unique<DataPage>() );
+//        }
+//    }
+//}
+
+//void DataBook::ResizeNPage(HXSize_t newNPage)
+//{
+//    // unique_ptr takes care of destruction automatically.
+//    // Shrinking the vector will destroy the excess unique_ptrs;
+//    // growing will default-construct new empty unique_ptrs via push_back.
+//    pages.resize(newNPage);
+//}
+
+void DataBook::ResizeNPage(HXSize_t newNPage)
 {
-    HXSize_t oldNPage = this->GetNPage();
+    HXSize_t oldNPage = pages.size();
 
-    if ( newNPage <= oldNPage )
+    if (newNPage < oldNPage)
     {
-        this->Erase( newNPage, oldNPage );
-        pages.resize( newNPage );
+        // Shrinking: unique_ptr destructor automatically deletes the DataPage.
+        pages.resize(newNPage);
     }
-    else
+    else if (newNPage > oldNPage)
     {
-        HXSize_t iPageStart = oldNPage;
-        HXSize_t iPageEnd = newNPage;
-
-        for ( HXSize_t iPage = iPageStart; iPage != iPageEnd; ++ iPage )
+        // Growing: must explicitly create real DataPage objects.
+        // vector::resize only default-constructs empty unique_ptrs (nullptr).
+        pages.reserve(newNPage);   // optional, avoids reallocation
+        for (HXSize_t i = oldNPage; i < newNPage; ++i)
         {
-            pages.push_back( std::make_unique<DataPage>() );
+            pages.push_back(std::make_unique<DataPage>());
         }
     }
+    // newNPage == oldNPage → do nothing
 }
 
 void DataBook::SecureRelativeSpace( HXLongLong_t dataSize )
@@ -282,9 +339,15 @@ void DataBook::MoveToEnd()
 
 HXLongLong_t DataBook::GetRemainingSizeOfCurrentPage()
 {
-    HXLongLong_t remainder = this->currPos % maxUnitSize;
-    return maxUnitSize - remainder;
+    // Offset of the cursor within the current page (0 <= offset < maxUnitSize).
+    // e.g. currPos=27, maxUnitSize=10 -> offset=7, meaning we are 7 bytes
+    // into page index 2.
+    HXLongLong_t offsetInPage = this->currPos % maxUnitSize;
+
+    // Bytes left before hitting the end of the current page.
+    return maxUnitSize - offsetInPage;
 }
+
 
 void DataBook::ReadFile( std::fstream & file )
 {

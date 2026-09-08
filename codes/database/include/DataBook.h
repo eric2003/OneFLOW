@@ -38,7 +38,10 @@ using DATA_DECOMPRESS = void( * )( DataBook *  dataBook );
 class DataBook
 {
 public:
-    DataBook( HXLongLong_t unitSize = 1024000000 );
+    // unitSize controls how many bytes each internal DataPage holds before
+    // data spills into the next page. Defaults to ~1GB for production use;
+    // tests can pass a small value to exercise cross-page logic directly.
+    explicit DataBook( HXLongLong_t unitSize = 1024000000 );
     ~DataBook();
 public:
     std::vector< std::unique_ptr<DataPage> > pages;   // renamed from dataBook
@@ -46,12 +49,13 @@ public:
     HXLongLong_t currPos;
     HXLongLong_t maxUnitSize;
 public:
+    HXSize_t GetNPage();   // moved from protected to public,
+    // so tests can assert on page count directly
     DataPage * GetCurrentPage();
     DataPage * GetPage( HXSize_t iPage );
     void Destroy( DataPage * dataPage );
     void Erase( HXSize_t startPage, HXSize_t endPage );
 protected:
-    HXSize_t  GetNPage();
     void ResizeNPage( HXSize_t newNPage );
     HXLongLong_t  GetRemainingSizeOfCurrentPage();
     void MoveForwardPosition( HXLongLong_t dataSize );
