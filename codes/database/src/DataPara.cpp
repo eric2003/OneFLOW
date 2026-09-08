@@ -48,6 +48,34 @@ DataEntry::~DataEntry()
 
 void DataEntry::Copy( DataEntry * inputData )
 {
+    if ( inputData == nullptr )
+    {
+        throw std::invalid_argument(
+            "DataEntry::Copy: inputData is null" );
+    }
+
+    if ( this->data == nullptr || inputData->data == nullptr )
+    {
+        throw std::runtime_error(
+            "DataEntry::Copy: data pointer is null" );
+    }
+
+    if ( this->type != inputData->type )
+    {
+        throw std::runtime_error(
+            "DataEntry::Copy: data type mismatch for entry '" +
+            this->name + "'" );
+    }
+
+    if ( this->size != inputData->size )
+    {
+        throw std::runtime_error(
+            "DataEntry::Copy: data size mismatch for entry '" +
+            this->name + "'" );
+    }
+
+    // Copy only the data value.
+    // Name, type, and size belong to the existing DataEntry.
     this->data->Copy( inputData->data );
 }
 
@@ -75,16 +103,35 @@ DataPara::~DataPara()
 
 void DataPara::UpdateDataPointer( DataEntry * data )
 {
-    auto it = dataMap->find( data->name );
-    if ( it != dataMap->end() )
+    if ( data == nullptr )
     {
-        // Already exists ¡ú copy content and discard the new object
-        it->second->Copy( data );
-        delete data;
         return;
     }
-    // New key ¡ú take ownership
-    ( *dataMap )[ data->name ] = data;
+
+    auto it = dataMap->find( data->name );
+
+    if ( it == dataMap->end() )
+    {
+        // No entry with the same name exists.
+        // DataPara takes ownership of the new DataEntry.
+        ( *dataMap )[ data->name ] = data;
+        return;
+    }
+
+    try
+    {
+        // Copy() validates type and size before updating the value.
+        it->second->Copy( data );
+    }
+    catch ( ... )
+    {
+        // Release the temporary DataEntry on failure.
+        delete data;
+        throw;
+    }
+
+    // The temporary DataEntry is no longer needed.
+    delete data;
 }
 
 DataEntry * DataPara::GetDataPointer( const std::string & name )

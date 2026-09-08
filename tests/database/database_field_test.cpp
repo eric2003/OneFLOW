@@ -127,7 +127,7 @@ TEST_F(DataFieldTest, DestructorSafety)
         DummyField* p = GetFieldPointer<DummyField>( &localDb, "temp_field" );
         ASSERT_NE( p, nullptr );
         EXPECT_EQ( p->id, 1 );
-    } // wrap and DataF are owned by localDb.dataField
+    } // wrap and FieldEntry are owned by localDb.dataField
 
       // When localDb goes out of scope, DataField destructor runs.
       // This test passes if and only if there is no crash / double-free /
@@ -155,3 +155,4 @@ TEST_F(DataFieldTest, MultipleFieldsCoexist)
     EXPECT_EQ( p2->id, 20 );
     EXPECT_NE( p1, p2 );
 }
+

@@ -31,10 +31,10 @@ BeginNameSpace( ONEFLOW )
 class DataPage
 {
 public:
+    using CharMemory = std::vector<char>;
+public:
     DataPage();
     ~DataPage();
-public:
-    typedef std::vector< char > CharMemory;
 public:
     HXSize_t GetSize();
     void Read ( void * data, HXSize_t dataSize );
@@ -61,7 +61,7 @@ protected:
     HXSize_t currPos;
     CharMemory * dataMemory;
 public:
-    char * GetDataPointer( int begin ) { return &( ( * dataMemory )[ begin ] ); }
+    char * GetDataPointer( int begin );
 };
 
 EndNameSpace

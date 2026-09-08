@@ -51,8 +51,8 @@ DataField::~DataField()
 {
     for ( auto & pair : *dataMap )
     {
-        delete pair.second->data;   // delete PointerWrap
-        delete pair.second;         // delete DataF
+        delete pair.second->data;   // Delete the owned PointerWrap.
+        delete pair.second;         // Delete the owned FieldEntry.
     }
     dataMap->clear();
     delete dataMap;
@@ -60,6 +60,8 @@ DataField::~DataField()
 
 void DataField::UpdateFieldEntry( FieldEntry * fieldEntry )
 {
+    if ( fieldEntry == nullptr ) return;
+
     auto it = dataMap->find( fieldEntry->name );
     if ( it == dataMap->end() )
     {
@@ -71,6 +73,7 @@ void DataField::UpdateFieldEntry( FieldEntry * fieldEntry )
         // Already exist ¡ú discard the new one
         if ( it->second != fieldEntry )
         {
+            delete fieldEntry->data;
             delete fieldEntry;
         }
     }

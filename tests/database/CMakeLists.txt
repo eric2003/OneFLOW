@@ -15,6 +15,7 @@ set(GLOBAL_INCLUDE_DIR ${OneFLOW_Root}/global/include)
 set(DATABASE_TEST_SOURCES
     database_para_test.cpp
 	database_field_test.cpp
+	data_page_book_test.cpp
 	${DATABASE_SRC_DIR}/DataBase.cpp
 	${DATABASE_SRC_DIR}/DataPara.cpp
 	${DATABASE_SRC_DIR}/DataBook.cpp

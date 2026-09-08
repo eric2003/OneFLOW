@@ -186,57 +186,6 @@ std::string GetJsonFileName( const std::string & fileName )
     return newFileName;
 }
 
-//void ReadOneFLOWScriptFile( const std::string & fileName )
-//{
-//    std::string jsonFileName = GetJsonFileName( fileName );
-//
-//    TextFileParser textFileParser;
-//    textFileParser.OpenFile( fileName, std::ios_base::in );
-//
-//    //string name, word;
-//
-//    //\t is the tab key
-//    std::string keyWordSeparator = " =\r\n\t#$,;\"";
-//
-//    textFileParser.SetDefaultSeparator( keyWordSeparator );
-
-//    DataBaseType::Init();
-//
-//    Json::Value jsonRoot;
-//
-//    while ( ! textFileParser.ReachTheEndOfFile() )
-//    {
-//        bool resultFlag = textFileParser.ReadNextMeaningfulLine();
-//        if ( ! resultFlag ) break;
-//
-//        std::string keyWord = textFileParser.ReadNextWord();
-//
-//        if ( keyWord == "" ) continue;
-//
-//        int keyWordIndex = DataBaseType::GetIndex( keyWord );
-//
-//        Json::Value jsonItem;
-//        std::string varName;
-//        std::vector< std::string > varArray;
-//        GetParaInfo( textFileParser, varName, varArray );
-//        jsonItem[ "type" ] = keyWord;
-//        jsonItem[ "value" ] = varArray[0];
-//        
-//        jsonRoot[ varName ] = jsonItem;
-//
-//        ONEFLOW::ProcessData( varName, &varArray[0], keyWordIndex, varArray.size() );
-//    }
-//
-//    //std::cout << jsonRoot.toStyledString() << std::endl;
-//
-//    //std::ofstream ofs;
-//    //ofs.open( jsonFileName.c_str() );
-//    //ofs << jsonRoot.toStyledString();
-//    //ofs.close();
-//
-//    textFileParser.CloseFile();
-//}
-
 void GetParaInfo( TextFileParser & textFileParser, std::string & varName, std::vector< std::string > & varArray )
 {
     if ( ONEFLOW::IsArrayParameter( textFileParser.GetCurrentLine() ) )
