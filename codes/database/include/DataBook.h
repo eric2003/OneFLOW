@@ -26,6 +26,7 @@ License
 #include <vector>
 #include <string>
 #include <fstream>
+#include <memory>
 
 BeginNameSpace( ONEFLOW )
 
