@@ -33,7 +33,7 @@ public:
 	UINsVisterm();
     ~UINsVisterm();
 public:
-    typedef void ( UINsVisterm:: * VisPointer )();
+    using VisPointer = void ( UINsVisterm:: * )();
     VisPointer visPointer;
     MRField * visflux;
 

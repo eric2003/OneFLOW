@@ -283,7 +283,7 @@ Real CalcPoint2FaceDist( WallStructure::PointType node, WallStructure::PointFiel
 
         Segment< 3, Real > segment( point1, point2 );
 
-        typedef DCPQuery<Real, Vector< 3, Real >, Segment< 3, Real > > SuperLine;
+        using SuperLine = DCPQuery<Real, Vector< 3, Real >, Segment< 3, Real > >;
 
         SuperLine b;
 

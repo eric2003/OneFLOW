@@ -31,7 +31,7 @@ class Task;
 class Command
 {
 public:
-    typedef HXVector< Task * > TList;
+    using TList = HXVector< Task * >;
 public:
     Command();
     virtual ~Command();

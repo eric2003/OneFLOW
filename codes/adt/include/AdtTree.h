@@ -36,9 +36,9 @@ template < typename T, typename U >
 class HXAdtNode 
 {
 public:
-    typedef HXAdtNode< T, U >   AdtNode;
-    typedef HXVector< AdtNode * > AdtNodeList;
-    typedef typename AdtNodeList::iterator AdtNodeListIter;
+    using AdtNode       = HXAdtNode<T, U>;
+    using AdtNodeList   = HXVector<AdtNode*>;
+    using AdtNodeListIter = typename AdtNodeList::iterator;
 
 public:
     HXVector<U>  point;            // Replaced raw pointer with HXVector for automatic memory management
@@ -73,10 +73,10 @@ template < typename T, typename U >
 class HXAdtTree
 {
 public:
-    typedef typename HXAdtNode<T, U>::AdtNode          AdtNode;
-    typedef typename HXAdtNode<T, U>::AdtNodeList      AdtNodeList;
-    typedef typename HXAdtNode<T, U>::AdtNodeListIter  AdtNodeListIter;
-    typedef HXAdtTree<T, U>                            AdtTree;
+    using AdtNode         = typename HXAdtNode<T, U>::AdtNode;
+    using AdtNodeList     = typename HXAdtNode<T, U>::AdtNodeList;
+    using AdtNodeListIter = typename HXAdtNode<T, U>::AdtNodeListIter;
+    using AdtTree         = HXAdtTree<T, U>;
 
 public:
     HXAdtTree( int dim = 3 );

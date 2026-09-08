@@ -26,7 +26,7 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-typedef double VEC_DATA;
+using VEC_DATA = double;
 
 class CgnsVector
 {

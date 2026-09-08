@@ -33,7 +33,7 @@ public:
     UTurbVisFlux ();
     ~UTurbVisFlux();
 public:
-    typedef void ( UTurbVisFlux:: * VisPointer )();
+    using VisPointer = void ( UTurbVisFlux:: * )();
     VisPointer visPointer;
     MRField * visflux;
 public:

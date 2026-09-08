@@ -29,41 +29,48 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-DataBook::DataBook()
-{
-    //maxUnitSize = 1024000;
-    maxUnitSize = 1024000000;
-    dataBook = new std::vector< DataPage * >;
-    dataBook->push_back( new DataPage() );
-    this->currPos = 0;
-    this->currPageId = 0;
+//DataBook::DataBook()
+//{
+//    //maxUnitSize = 1024000;
+//    maxUnitSize = 1024000000;
+//    pages.push_back( new DataPage() );
+//    this->currPos = 0;
+//    this->currPageId = 0;
+//
+//    this->MoveToBegin();
+//}
 
+DataBook::DataBook( HXLongLong_t unitSize )
+    : maxUnitSize( unitSize )
+    , currPos( 0 )
+    , currPageId( 0 )
+{
+    pages.push_back( std::make_unique<DataPage>() );
     this->MoveToBegin();
 }
 
 DataBook::~DataBook()
 {
-    for ( HXSize_t i = 0; i < dataBook->size(); ++ i )
-    {
-        delete ( * dataBook )[ i ];
-    }
-    delete dataBook;
+    //for ( HXSize_t i = 0; i < pages.size(); ++ i )
+    //{
+    //    delete pages[ i ];
+    //}
 }
 
 HXSize_t DataBook::GetNPage()
 {
-    return dataBook->size();
+    return pages.size();
 }
 
 DataPage * DataBook::GetCurrentPage()
 {
     currPageId = this->currPos / maxUnitSize;
-    return ( * dataBook )[ currPageId ];
+    return pages[ currPageId ].get();
 }
 
 DataPage * DataBook::GetPage( HXSize_t iPage )
 {
-    return ( * dataBook )[ iPage ];
+    return pages[ iPage ].get();
 }
 
 char * MovePointer( void * data, HXLongLong_t dataSize )
@@ -224,7 +231,7 @@ void DataBook::ResizeNPage( HXSize_t newNPage )
     if ( newNPage <= oldNPage )
     {
         this->Erase( newNPage, oldNPage );
-        dataBook->resize( newNPage );
+        pages.resize( newNPage );
     }
     else
     {
@@ -233,7 +240,7 @@ void DataBook::ResizeNPage( HXSize_t newNPage )
 
         for ( HXSize_t iPage = iPageStart; iPage != iPageEnd; ++ iPage )
         {
-            dataBook->push_back( new DataPage() );
+            pages.push_back( std::make_unique<DataPage>() );
         }
     }
 }

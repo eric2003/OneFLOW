@@ -40,7 +40,7 @@ public:
     void SetCoor( int i, int j, int k );
 };
 
-typedef std::map< int, CalcCoor > CoorMap;
+using CoorMap = std::map< int, CalcCoor >;
 
 
 EndNameSpace

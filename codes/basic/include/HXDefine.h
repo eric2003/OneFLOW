@@ -28,16 +28,16 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-typedef HXVector< Real > RealField;
-typedef HXVector< RealField > RealField2D;
-typedef HXVector< RealField2D > RealField3D;
-typedef HXVector< int > IntField;
-typedef HXVector< IntField > LinkField;
-typedef HXVector< std::string > StringField;
-typedef HXVector< bool > BoolField;
+using RealField = HXVector< Real >;
+using RealField2D = HXVector< RealField >;
+using RealField3D = HXVector< RealField2D >;
+using IntField = HXVector< int >;
+using LinkField = HXVector< IntField >;
+using StringField = HXVector< std::string >;
+using BoolField = HXVector< bool >;
 
-typedef std::set< int > IntSet;
+using IntSet = std::set< int >;
 
-typedef void( * VoidFunc )();
+using VoidFunc = void( * )();
 
 EndNameSpace

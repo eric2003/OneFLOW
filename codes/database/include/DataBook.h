@@ -31,16 +31,16 @@ BeginNameSpace( ONEFLOW )
 
 class DataBook;
 
-typedef void ( * DATA_COMPRESS )( DataBook *& dataBook );
-typedef void ( * DATA_DECOMPRESS )( DataBook *  dataBook );
+using DATA_COMPRESS = void( * )( DataBook *& dataBook );
+using DATA_DECOMPRESS = void( * )( DataBook *  dataBook );
 
 class DataBook
 {
 public:
-    DataBook();
+    DataBook( HXLongLong_t unitSize = 1024000000 );
     ~DataBook();
 public:
-    std::vector< DataPage * > * dataBook;
+    std::vector< std::unique_ptr<DataPage> > pages;   // renamed from dataBook
     HXSize_t currPageId;
     HXLongLong_t currPos;
     HXLongLong_t maxUnitSize;

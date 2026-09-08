@@ -26,10 +26,8 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-typedef Marray< Real > MRField;
-
-typedef Multiarray< Real, 3 > Field3D;
-typedef Multiarray< int, 3 > Int3D;
-
+using MRField = Marray< Real >;
+using Field3D = Multiarray< Real, 3 >;
+using Int3D = Multiarray< int, 3 >;
 
 EndNameSpace

@@ -45,9 +45,9 @@ public:
 class WallStructure
 {
 public:
-    typedef Point< Real > PointType;
-    typedef HXVector< PointType > PointField;
-    typedef HXVector< PointField  > PointLink;
+    using PointType = Point< Real >;
+    using PointField = HXVector< PointType >;
+    using PointLink = HXVector< PointField  >;
 public:
     PointField fc;
     PointLink  fv;

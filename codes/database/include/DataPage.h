@@ -59,7 +59,7 @@ protected:
     void MoveForwardPosition( HXSize_t dataSize );
 protected:
     HXSize_t currPos;
-    CharMemory * dataMemory;
+    CharMemory dataMemory;     // value member, automatically managed
 public:
     char * GetDataPointer( int begin );
 };

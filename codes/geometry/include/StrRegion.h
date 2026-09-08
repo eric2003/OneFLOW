@@ -38,7 +38,7 @@ public:
     int GetDirection();
 };
 
-typedef HXPointer< MyRegion > MyRegions;
+using MyRegions = HXPointer< MyRegion >;
 
 class MyRRegion
 {

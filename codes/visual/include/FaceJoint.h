@@ -49,9 +49,9 @@ class WallVisual;
 class FaceJoint
 {
 public:
-    typedef Point< Real > PointType;
-    typedef HXVector< PointType > PointField;
-    typedef HXVector< PointField > PointLink;
+    using PointType = Point< Real >;
+    using PointField = HXVector< PointType >;
+    using PointLink = HXVector< PointField >;
 public:
     FaceJoint();
     ~FaceJoint();

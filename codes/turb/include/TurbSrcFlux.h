@@ -27,9 +27,11 @@ BeginNameSpace( ONEFLOW )
 class TurbSrcFlux
 {
 public:
+    using SrcPointer = void ( TurbSrcFlux:: * )();
+public:
     TurbSrcFlux();
     ~TurbSrcFlux();
-    typedef void ( TurbSrcFlux:: * SrcPointer )();
+public:
     SrcPointer srcFlux;
     SrcPointer calcBeta;
     SrcPointer calcProd;

@@ -27,8 +27,7 @@ License
 BeginNameSpace( ONEFLOW )
 
 class Unsteady;
-typedef void( * USDFunc )( Unsteady * unst ); 
-
+using USDFunc = void( * )( Unsteady * unst ); 
 class UsdData;
 class UsdField;
 

@@ -50,7 +50,7 @@ class DataPara
 {
 public:
     // Use unordered_map for O(1) average lookup
-    typedef std::unordered_map< std::string, DataEntry * > DataMap;
+    using DataMap = std::unordered_map< std::string, DataEntry * >;
 public:
     DataPara();
     ~DataPara();

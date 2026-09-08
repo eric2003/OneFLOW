@@ -27,6 +27,6 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-typedef HXPointer< Grid > Grids;
+using Grids = HXPointer< Grid >;
 
 EndNameSpace

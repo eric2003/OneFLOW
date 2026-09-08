@@ -30,7 +30,7 @@ class TimeSpan;
 class MG
 {
 public:
-    typedef void ( MG::* FunctionPointer )( int );
+    using FunctionPointer = void ( MG::* )( int );
 public:
     MG();
     ~MG();

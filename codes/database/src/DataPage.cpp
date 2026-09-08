@@ -34,13 +34,11 @@ License
 BeginNameSpace( ONEFLOW )
 DataPage::DataPage()
 {
-    this->dataMemory = new CharMemory();
     this->currPos = 0;
 }
 
 DataPage::~DataPage()
 {
-    delete this->dataMemory;
 }
 
 void DataPage::MoveToPosition( HXSize_t position )
@@ -63,7 +61,7 @@ void DataPage::MoveForwardPosition( HXSize_t dataSize )
 
 HXSize_t DataPage::GetSize()
 {
-    return dataMemory->size();
+    return dataMemory.size();
 }
 
 char * DataPage::GetBeginDataPointer()
@@ -73,7 +71,7 @@ char * DataPage::GetBeginDataPointer()
         return nullptr;
     }
     // Use data() instead of operator[] to avoid UB.
-    return dataMemory->data();
+    return dataMemory.data();
 }
 
 char * DataPage::GetCurrentDataPointer()
@@ -81,13 +79,13 @@ char * DataPage::GetCurrentDataPointer()
     // currPos may legitimately equal GetSize() (the "append/end" position).
     // vector::data() + size() is well-defined as long as it is never dereferenced,
     // unlike operator[](size()) which is UB even just to take its address.
-    return dataMemory->data() + currPos;
+    return dataMemory.data() + currPos;
 }
 
 char * DataPage::GetDataPointer( int begin )
 {
     // Same reasoning as above; begin == size() must be safe to compute.
-    return dataMemory->data() + begin;
+    return dataMemory.data() + begin;
 }
 
 void DataPage::ToString( std::string & str )
@@ -127,7 +125,7 @@ void DataPage::Read( void * data, HXSize_t dataSize, HXSize_t position )
 
 void DataPage::ReSize( HXSize_t newSize )
 {
-    this->dataMemory->resize( newSize );
+    this->dataMemory.resize( newSize );
 }
 
 void DataPage::Send( int pId, int tag )

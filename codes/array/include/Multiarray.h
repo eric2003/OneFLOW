@@ -33,7 +33,7 @@ template < typename T, int N >
 class Multiarray
 {
 public:
-    typedef Multiarray< T, N > TArray;
+    using TArray = Multiarray< T, N >;
 public:
     ArrayPointer< T > arrayPointer;
 public:
