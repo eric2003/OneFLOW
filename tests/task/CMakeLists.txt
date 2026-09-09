@@ -16,7 +16,7 @@ set(DATABASE_TEST_SOURCES
 	${IO_SRC_DIR}/CommentLine.cpp
 	${IO_SRC_DIR}/Prj.cpp
 	${IO_SRC_DIR}/FileUtils.cpp
-	${BASIC_SRC_DIR}/word.cpp
+	${BASIC_SRC_DIR}/Word.cpp
 )
 
 add_executable(task_test
