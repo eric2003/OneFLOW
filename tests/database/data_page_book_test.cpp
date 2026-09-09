@@ -515,6 +515,66 @@ TEST_F(DataPageBookTest, DataBook_ResizeNPage_PreservesExistingDataWhenGrowing)
     EXPECT_EQ(out, s);   // original content must still be readable
 }
 
+#include <type_traits>
+
+TEST(DataBookDesign, MoveSemantics_RuleOfZero)
+{
+    // After removing the vestigial empty destructor, DataBook should get
+    // move ctor/assignment for free (cheap pointer-swap of unique_ptrs),
+    // while copy remains implicitly deleted because of the unique_ptr member.
+    EXPECT_TRUE ( std::is_move_constructible<DataBook>::value );
+    EXPECT_TRUE ( std::is_move_assignable<DataBook>::value );
+    EXPECT_FALSE( std::is_copy_constructible<DataBook>::value );
+    EXPECT_FALSE( std::is_copy_assignable<DataBook>::value );
+}
+
+TEST(DataBookDesign, Move_IsCheapPointerTransfer_NotDeepCopy)
+{
+    // Behavioral proof that moving does NOT reallocate/copy page buffers:
+    // the underlying DataPage address should stay identical after the move.
+    DataBook src;
+    std::string s = "MoveShouldNotCopyBuffer";
+    src.WriteString(s);
+
+    char * originalPageAddr = src.GetPage(0)->GetBeginDataPointer();
+
+    DataBook dst( std::move(src) );
+
+    EXPECT_EQ( dst.GetPage(0)->GetBeginDataPointer(), originalPageAddr );
+
+    dst.MoveToBegin();
+    std::string out;
+    dst.ReadString(out);
+    EXPECT_EQ(out, s);
+}
+
+TEST(DataPageDesign, CopyDisabled_MoveEnabled)
+{
+    EXPECT_FALSE( std::is_copy_constructible<DataPage>::value );
+    EXPECT_FALSE( std::is_copy_assignable<DataPage>::value );
+    EXPECT_TRUE ( std::is_move_constructible<DataPage>::value );
+    EXPECT_TRUE ( std::is_move_assignable<DataPage>::value );
+}
+
+TEST(DataPageDesign, Move_IsCheap_BufferAddressUnchanged)
+{
+    // Proves the move is a real O(1) pointer transfer, not a hidden deep
+    // copy: the underlying heap buffer address must survive the move.
+    DataPage src;
+    src.ReSize(4096);
+    src.MoveToBegin();
+    char fill[4096];
+    memset(fill, 0x42, sizeof(fill));
+    src.Write(fill, sizeof(fill));
+
+    char * originalAddr = src.GetBeginDataPointer();
+
+    DataPage dst( std::move(src) );
+
+    EXPECT_EQ( dst.GetBeginDataPointer(), originalAddr );
+    EXPECT_EQ( dst.GetSize(), 4096U );
+}
+
 // ----------------------------------------------------------------------------
 // MPI related test, only compiled when ONEFLOW_TEST_MPI defined
 // Must launch with mpirun -np N ./test_binary

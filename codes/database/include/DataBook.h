@@ -42,10 +42,26 @@ public:
     // data spills into the next page. Defaults to ~1GB for production use;
     // tests can pass a small value to exercise cross-page logic directly.
     explicit DataBook( HXLongLong_t unitSize = 1024000000 );
-    ~DataBook();
+    // Do NOT rely on implicit deletion via the vector<unique_ptr<DataPage>>
+    // member: std::vector<T>'s copy constructor is unconditionally declared
+    // regardless of whether T is copyable, so std::is_copy_constructible
+    // (and naive "try to copy it" code) will NOT reliably reflect the true
+    // deletion status -- the actual failure only surfaces deep inside
+    // vector's copy-ctor body when unique_ptr's deleted copy ctor is
+    // odr-used, which type traits do not detect. Explicit deletion here
+    // makes the intent unambiguous and correctly reported by type traits.
+    DataBook( const DataBook & )             = delete;
+    DataBook & operator=( const DataBook & ) = delete;
+
+    // Declaring the copy ops above suppresses implicit move-op generation,
+    // so restore them explicitly. This is cheap: unique_ptr elements are
+    // moved via pointer transfer, O(1) regardless of how much data each
+    // DataPage holds.
+    DataBook( DataBook && )            = default;
+    DataBook & operator=( DataBook && ) = default;
+
 public:
     std::vector< std::unique_ptr<DataPage> > pages;   // renamed from dataBook
-    HXSize_t currPageId;
     HXLongLong_t currPos;
     HXLongLong_t maxUnitSize;
 public:
@@ -53,8 +69,6 @@ public:
     // so tests can assert on page count directly
     DataPage * GetCurrentPage();
     DataPage * GetPage( HXSize_t iPage );
-    void Destroy( DataPage * dataPage );
-    void Erase( HXSize_t startPage, HXSize_t endPage );
 protected:
     void ResizeNPage( HXSize_t newNPage );
     HXLongLong_t  GetRemainingSizeOfCurrentPage();

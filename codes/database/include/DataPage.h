@@ -35,6 +35,21 @@ public:
 public:
     DataPage();
     ~DataPage();
+    // A DataPage can hold up to `maxUnitSize` bytes (default ~1GB).
+    // Implicit copy would silently deep-copy that buffer on any accidental
+    // pass-by-value, assignment, or vector<DataPage> reallocation -- a
+    // severe, invisible performance trap. Disable copy explicitly to force
+    // callers to be deliberate (e.g. wrap in unique_ptr, as DataBook does).
+    DataPage( const DataPage & )            = delete;
+    DataPage & operator=( const DataPage & ) = delete;
+
+    // Move is cheap: it's just a pointer/size swap inside std::vector<char>,
+    // O(1) regardless of buffer size. Must be explicitly defaulted here,
+    // because declaring the deleted copy ctor above already counts as a
+    // "user-declared copy constructor", which suppresses implicit move
+    // generation just like a user-declared destructor would.
+    DataPage( DataPage && )            = default;
+    DataPage & operator=( DataPage && ) = default;
 public:
     HXSize_t GetSize();
     void Read ( void * data, HXSize_t dataSize );

@@ -29,19 +29,6 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-//DataBook::DataBook( HXLongLong_t unitSize )
-//    : currPageId( 0 )
-//    , currPos( 0 )
-//    , maxUnitSize( unitSize )
-//{
-//    if ( unitSize <= 0 )
-//    {
-//        throw std::invalid_argument( "DataBook: unitSize must be positive" );
-//    }
-//    pages.push_back( std::make_unique<DataPage>() );
-//    this->MoveToBegin();
-//}
-
 DataBook::DataBook(HXLongLong_t unitSize)
     : currPos(0), maxUnitSize(unitSize)
 {
@@ -49,19 +36,16 @@ DataBook::DataBook(HXLongLong_t unitSize)
         throw std::invalid_argument("DataBook: unitSize must be positive");
 }
 
-DataBook::~DataBook()
-{
-}
-
 HXSize_t DataBook::GetNPage()
 {
     return pages.size();
 }
 
-DataPage * DataBook::GetCurrentPage()
+DataPage* DataBook::GetCurrentPage()
 {
-    currPageId = this->currPos / maxUnitSize;
-    return pages[ currPageId ].get();
+    // Compute on the fly; no need to store currPageId as a member.
+    HXSize_t pageId = static_cast<HXSize_t>(this->currPos / maxUnitSize);
+    return pages[pageId].get();
 }
 
 DataPage * DataBook::GetPage( HXSize_t iPage )
@@ -179,7 +163,7 @@ HXLongLong_t DataBook::GetSize()
     return sum;
 }
 
-// ReSize：尽量对齐 vector
+// ReSize: align the internal structure with the vector of pages
 void DataBook::ReSize(HXLongLong_t nLength)
 {
     if (nLength < 0) return;          // 或 throw
@@ -191,94 +175,28 @@ void DataBook::ReSize(HXLongLong_t nLength)
         return;
     }
 
-    // 计算需要多少页
+    // Compute how many pages are needed
+    // 23 divided by 3 is 7, remainder 2.
     HXSize_t nPage = static_cast<HXSize_t>(nLength / maxUnitSize);
     HXLongLong_t remainder = nLength % maxUnitSize;
     HXSize_t newNPage = nPage + (remainder ? 1 : 0);
 
-    ResizeNPage(newNPage);            // 负责增减页面（扩大时 make_unique）
+    ResizeNPage(newNPage);       // grows/shrinks the page vector (make_unique when growing)
 
-    // 设置每一页的实际大小
+    // Set the actual size of each page
     for (HXSize_t i = 0; i < newNPage; ++i)
     {
         HXLongLong_t pageSize = (i == nPage) ? remainder : maxUnitSize;
-        // 最后一页如果 remainder==0，其实 i 不会等于 nPage，需注意边界
+        // Edge case: when remainder == 0, the last page is full-sized
         if (i == newNPage - 1 && remainder == 0)
             pageSize = maxUnitSize;
         GetPage(i)->ReSize(static_cast<HXSize_t>(pageSize));
     }
 
-    // 可选：如果 currPos 超出新大小，拉回
+    // Optional: clamp currPos if it exceeds the new size
     if (currPos > nLength)
         currPos = nLength;
 }
-
-//void DataBook::ReSize( HXLongLong_t nLength )
-//{
-//    if ( nLength <= 0 )
-//    {
-//        if ( nLength == 0 )
-//        {
-//            for ( HXSize_t iPage = 0; iPage < this->GetNPage(); ++ iPage )
-//            {
-//                this->GetPage( iPage )->ReSize( 0 );
-//            }
-//        }
-//        return;
-//    }
-//
-//    //23 divided by 3 is 7, remainder 2.
-//    HXSize_t nPage = nLength / maxUnitSize;
-//    HXLongLong_t remainder = nLength % maxUnitSize;
-//
-//    HXSize_t additionalPage = 0;
-//    if ( remainder )
-//    {
-//        additionalPage = 1;
-//    }
-//
-//    HXSize_t newNPage = nPage + additionalPage;
-//    this->ResizeNPage( newNPage );
-//
-//    for ( HXSize_t iPage = 0; iPage < this->GetNPage(); ++ iPage )
-//    {
-//        HXLongLong_t needSize = maxUnitSize;
-//        if ( iPage == nPage )
-//        {
-//            needSize = remainder;
-//        }
-//        this->GetPage( iPage )->ReSize( needSize );
-//    }
-//}
-
-//void DataBook::ResizeNPage( HXSize_t newNPage )
-//{
-//    HXSize_t oldNPage = this->GetNPage();
-//
-//    if ( newNPage <= oldNPage )
-//    {
-//        this->Erase( newNPage, oldNPage );
-//        pages.resize( newNPage );
-//    }
-//    else
-//    {
-//        HXSize_t iPageStart = oldNPage;
-//        HXSize_t iPageEnd = newNPage;
-//
-//        for ( HXSize_t iPage = iPageStart; iPage != iPageEnd; ++ iPage )
-//        {
-//            pages.push_back( std::make_unique<DataPage>() );
-//        }
-//    }
-//}
-
-//void DataBook::ResizeNPage(HXSize_t newNPage)
-//{
-//    // unique_ptr takes care of destruction automatically.
-//    // Shrinking the vector will destroy the excess unique_ptrs;
-//    // growing will default-construct new empty unique_ptrs via push_back.
-//    pages.resize(newNPage);
-//}
 
 void DataBook::ResizeNPage(HXSize_t newNPage)
 {
@@ -399,19 +317,6 @@ void DataBook::Append( void * data, HXLongLong_t dataSize )
     this->SecureAbsoluteSpace( needSize );
 
     this->GetCurrentPage()->Write( data, dataSize );
-}
-
-void DataBook::Destroy( DataPage * dataPage )
-{
-    delete dataPage;
-}
-
-void DataBook::Erase( HXSize_t startPage, HXSize_t endPage )
-{
-    for ( HXSize_t iPage = startPage; iPage != endPage; ++ iPage )
-    {
-        this->Destroy( GetPage( iPage ) );
-    }
 }
 
 void DataBook::Send( int pid, int tag )
