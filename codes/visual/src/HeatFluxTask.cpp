@@ -240,7 +240,7 @@ void AddWallFaceValue( FaceJointManager * walldata, int iZone )
 void CollectWallFaceValue()
 {
     ActionState::dataBook->MoveToBegin();
-    ActionState::dataBook->ReSize( 0 );
+    ActionState::dataBook->Resize( 0 );
 
     Grid * gridIn = Zone::GetGrid();
     UnsGrid * grid = UnsGridCast( gridIn );

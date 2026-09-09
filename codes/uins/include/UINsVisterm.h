@@ -44,7 +44,7 @@ public:
     
 	void CalcVisterm();
 	void CalcFaceVisterm();
-	void CalcBcFaceVisterm();
+	//void CalcBcFaceVisterm();
 
     void Alloc();
     void DeAlloc();
@@ -61,7 +61,7 @@ public:
     void PrepareCellGeom();
 };
 
-void ICalcLaminarViscosity( int flag );
+//void ICalcLaminarViscosity( int flag );
 
 
 

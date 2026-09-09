@@ -35,33 +35,49 @@ public:
 public:
     DataPage();
     ~DataPage();
-public:
-    HXSize_t GetSize();
-    void Read ( void * data, HXSize_t dataSize );
-    void Read ( void * data, HXSize_t dataSize, HXSize_t position );
-    void Write( void * data, HXSize_t dataSize );
-    void Write( void * data, HXSize_t dataSize, HXSize_t position );
-    void ReadFile ( std::fstream & file );
-    void WriteFile( std::fstream & file );
-    void ToString( std::string & str );
+    // A DataPage can hold up to `maxUnitSize` bytes (default ~1GB).
+    // Implicit copy would silently deep-copy that buffer on any accidental
+    // pass-by-value, assignment, or vector<DataPage> reallocation -- a
+    // severe, invisible performance trap. Disable copy explicitly to force
+    // callers to be deliberate (e.g. wrap in unique_ptr, as DataBook does).
+    DataPage( const DataPage & )            = delete;
+    DataPage & operator=( const DataPage & ) = delete;
 
-    char * GetBeginDataPointer();
-    char * GetCurrentDataPointer();
+    // Move is cheap: it's just a pointer/size swap inside std::vector<char>,
+    // O(1) regardless of buffer size. Must be explicitly defaulted here,
+    // because declaring the deleted copy ctor above already counts as a
+    // "user-declared copy constructor", which suppresses implicit move
+    // generation just like a user-declared destructor would.
+    DataPage( DataPage && )            = default;
+    DataPage & operator=( DataPage && ) = default;
+public:
+    HXSize_t size() const;
+    void Read ( void * data, HXSize_t dataSize );
+    void Read( void * data, HXSize_t position, HXSize_t dataSize ) const;
+    void Write( const void * data, HXSize_t dataSize );
+    void Write( const void * data, HXSize_t position, HXSize_t dataSize );
+    void ReadFile ( std::fstream & file );
+    void WriteFile( std::fstream & file ) const;
+    void ToString( std::string & str ) const;
+
+    char * data();
+    const char * data() const;
+    char * CurrentPtr();
 
     void MoveToBegin() { MoveToPosition( 0 ); };
-    void MoveToEnd  () { currPos = GetSize(); };
+    void MoveToEnd  () { currPos = size(); };
     void ReSize( HXSize_t newSize );
-    void Send( int pId, int tag );
+    void Send( int pId, int tag ) const;
     void Recv( int pId, int tag );
     void Bcast( int rootid );
 protected:
     void MoveToPosition( HXSize_t position );
-    void MoveForwardPosition( HXSize_t dataSize );
+    void Advance( HXOffset_t offset );
 protected:
     HXSize_t currPos;
     CharMemory dataMemory;     // value member, automatically managed
 public:
-    char * GetDataPointer( int begin );
+    char * PtrAt( int offset );
 };
 
 EndNameSpace

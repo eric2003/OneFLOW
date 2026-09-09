@@ -68,10 +68,10 @@ int HXSize();
 
 std::string HXGetProcessorName();
 
-void HXSend( void * data, int size, PL_Datatype dataType, int pid, int tag = 0 );
+void HXSend( const void * data, int size, PL_Datatype dataType, int pid, int tag = 0 );
 void HXRecv( void * data, int size, PL_Datatype dataType, int pid, int tag = 0 );
 
-void HXSendChar( void * data, int size, int pid, int tag = 0 );
+void HXSendChar( const void * data, int size, int pid, int tag = 0 );
 void HXRecvChar( void * data, int size, int pid, int tag = 0 );
 
 int HXWait( PL_HXRequest * request );
@@ -81,7 +81,7 @@ void HXSendString( std::string & cs, int pid, int tag );
 void HXRecvString( std::string & cs, int pid, int tag );
 
 template< typename T >
-void HXSmartSend( T * field, int nElement, int pid, int tag )
+void HXSmartSend( const T * field, int nElement, int pid, int tag )
 {
     int bufferSize = nElement * sizeof( T );
     HXSendChar( field, bufferSize, pid, tag );
@@ -95,8 +95,8 @@ void HXSmartRecv( T * field, int nElement, int pid, int tag )
 }
 
 
-void HXReduceInt( void * s, void * t, int nElem, PL_Op op );
-void HXReduceReal( void * s, void * t, int nElem, PL_Op op );
+void HXReduceInt( const void * s, void * t, int nElem, PL_Op op );
+void HXReduceReal( const void * s, void * t, int nElem, PL_Op op );
 
 
 EndNameSpace
