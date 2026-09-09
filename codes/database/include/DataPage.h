@@ -57,8 +57,8 @@ public:
     void Write( const void * data, HXSize_t dataSize );
     void Write( const void * data, HXSize_t position, HXSize_t dataSize );
     void ReadFile ( std::fstream & file );
-    void WriteFile( std::fstream & file );
-    void ToString( std::string & str );
+    void WriteFile( std::fstream & file ) const;
+    void ToString( std::string & str ) const;
 
     char * data();
     const char * data() const;
@@ -67,7 +67,7 @@ public:
     void MoveToBegin() { MoveToPosition( 0 ); };
     void MoveToEnd  () { currPos = size(); };
     void ReSize( HXSize_t newSize );
-    void Send( int pId, int tag );
+    void Send( int pId, int tag ) const;
     void Recv( int pId, int tag );
     void Bcast( int rootid );
 protected:

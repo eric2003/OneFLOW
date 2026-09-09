@@ -97,7 +97,7 @@ TEST_F(DataPageBookTest, DataPage_Write_Read_RandomPosition)
 
 TEST_F(DataPageBookTest, DataPage_MoveToEnd_PositionEqualSize)
 {
-    // Important boundary: position == GetSize() should be valid for append
+    // Important boundary: position == size() should be valid for append
     DataPage page;
     page.ReSize(128);
     page.MoveToEnd();
@@ -185,14 +185,14 @@ TEST_F(DataPageBookTest, DataPage_Read_OutOfRangePosition_Throws)
 TEST_F(DataPageBookTest, DataBook_Create_Empty)
 {
     DataBook book;
-    EXPECT_EQ(book.GetSize(), 0LL);
+    EXPECT_EQ(book.size(), 0LL);
 }
 
 TEST_F(DataPageBookTest, DataBook_Write_Read_Small_NoCrossPage)
 {
     DataBook book;
     const HXOffset_t bufSize = 1024;
-    book.SecureAbsoluteSpace(bufSize);
+    book.Reserve(bufSize);
 
     char src[bufSize];
     for (HXOffset_t i = 0; i < bufSize; ++i)
@@ -222,7 +222,7 @@ TEST_F(DataPageBookTest, DataBook_Write_Read_SingleLargePage)
 
     // Test data cross page boundary, e.g total size 250, page size=100 -> 3 pages
     const HXOffset_t totalSize = 250;
-    book.SecureAbsoluteSpace(totalSize);
+    book.Reserve(totalSize);
 
     char src[250];
     for (HXOffset_t i = 0; i < totalSize; ++i)
@@ -299,7 +299,7 @@ TEST_F(DataPageBookTest, DataBook_Append)
     book.Append(block1, 3);
     book.Append(block2, 2);
 
-    EXPECT_EQ(book.GetSize(), 5LL);
+    EXPECT_EQ(book.size(), 5LL);
 
     char out[5];
     book.MoveToBegin();
@@ -347,7 +347,7 @@ TEST_F(DataPageBookTest, DataBook_MoveBegin_MoveEnd)
 {
     DataBook book;
     // NOTE: do NOT pre-allocate space here. MoveToEnd() moves the cursor to
-    // GetSize(); if we pre-size the book, "end" is no longer position 0, so
+    // size(); if we pre-size the book, "end" is no longer position 0, so
     // writing at the end and reading from the begin would compare different
     // offsets. This test is only meaningful starting from an empty book.
     int val = 0xABCD;
@@ -378,10 +378,10 @@ TEST_F(DataPageBookTest, DataBook_ReSize_Zero)
     DataBook book;
     char buf[16] = {0};
     book.Append(buf,16);
-    EXPECT_GT(book.GetSize(), 0LL);
+    EXPECT_GT(book.size(), 0LL);
 
-    book.ReSize(0);
-    EXPECT_EQ(book.GetSize(), 0LL);
+    book.Resize(0);
+    EXPECT_EQ(book.size(), 0LL);
 }
 
 TEST_F(DataPageBookTest, DataBook_FileIO_Write_Read)
@@ -480,23 +480,23 @@ TEST_F(DataPageBookTest, DataBook_SetPageCount_GrowAndShrink)
     book.Write(src.data(), total);
 
     EXPECT_EQ(book.GetPageCount(), 4U);
-    EXPECT_EQ(book.GetSize(), total);
+    EXPECT_EQ(book.size(), total);
 
-    // 2. Shrink via ReSize (this calls SetPageCount internally)
-    book.ReSize(15);                 // should become 2 pages (10+5)
+    // 2. Shrink via Resize (this calls SetPageCount internally)
+    book.Resize(15);                 // should become 2 pages (10+5)
     EXPECT_EQ(book.GetPageCount(), 2U);
-    EXPECT_EQ(book.GetSize(), 15LL);
+    EXPECT_EQ(book.size(), 15LL);
 
     // 3. Shrink to zero
-    book.ReSize(0);
+    book.Resize(0);
     EXPECT_EQ(book.GetPageCount(), 0U);  // or 1U depending on your policy;
-    // current implementation leaves 0 pages after ReSize(0)
-    EXPECT_EQ(book.GetSize(), 0LL);
+    // current implementation leaves 0 pages after Resize(0)
+    EXPECT_EQ(book.size(), 0LL);
 
     // 4. Grow again from empty
-    book.ReSize(25);                 // 3 pages
+    book.Resize(25);                 // 3 pages
     EXPECT_EQ(book.GetPageCount(), 3U);
-    EXPECT_EQ(book.GetSize(), 25LL);
+    EXPECT_EQ(book.size(), 25LL);
 }
 
 TEST_F(DataPageBookTest, DataBook_SetPageCount_PreservesExistingDataWhenGrowing)
@@ -507,7 +507,7 @@ TEST_F(DataPageBookTest, DataBook_SetPageCount_PreservesExistingDataWhenGrowing)
     book.WriteString(s);
 
     HXSize_t oldPages = book.GetPageCount();
-    book.ReSize(book.GetSize() + 100);   // force growth
+    book.Resize(book.size() + 100);   // force growth
 
     EXPECT_GT(book.GetPageCount(), oldPages);
 
@@ -575,6 +575,34 @@ TEST(DataPageDesign, Move_IsCheap_BufferAddressUnchanged)
 
     EXPECT_EQ( dst.data(), originalAddr );
     EXPECT_EQ( dst.size(), 4096U );
+}
+
+// Test case to verify that Append() correctly handles data that crosses DataPage boundaries.
+TEST( DataBookTest, Append_CrossPageBoundary_Success )
+{
+    // 1. Initialize DataBook with a tiny unitSize (10 bytes per page) to force multiple pages easily.
+    constexpr HXOffset_t tinyUnitSize = 10;
+    DataBook book( tinyUnitSize );
+
+    // 2. Prepare string data that exceeds tinyUnitSize (25 bytes).
+    std::string appendData = "1234567890123456789012345"; // 25 bytes
+    ASSERT_EQ( appendData.size(), 25 );
+
+    // 3. Perform Append. Under the old bug, this would call GetCurrentPage()->Write() directly 
+    // and throw std::out_of_range or crash. With the fix, it delegates to DataBook::Write().
+    EXPECT_NO_THROW( book.Append( appendData.data(), static_cast<HXOffset_t>( appendData.size() ) ) );
+
+    // 4. Verify total size and allocated page count.
+    EXPECT_EQ( book.size(), 25 );
+    // 25 bytes with unitSize=10 should allocate 3 pages (10 + 10 + 5).
+    EXPECT_EQ( book.GetPageCount(), 3 );
+
+    // 5. Read back the data from the beginning to verify memory integrity across page boundaries.
+    book.MoveToBegin();
+    std::string readBuffer( 25, '\0' );
+    book.Read( readBuffer.data(), 25 );
+
+    EXPECT_EQ( readBuffer, appendData );
 }
 
 // ----------------------------------------------------------------------------

@@ -25,135 +25,26 @@ License
 #include "DataBaseIO.h"
 #include "BasicParallel.h"
 #include "Parallel.h"
-#include <sstream>
+#include <stdexcept>
+#include <algorithm>
 
 BeginNameSpace( ONEFLOW )
 
-DataBook::DataBook(HXOffset_t unitSize)
-    : currPos(0), maxUnitSize(unitSize)
+DataBook::DataBook( HXOffset_t unitSize )
+    : currPos( 0 ), maxUnitSize( unitSize )
 {
-    if (unitSize <= 0)
-        throw std::invalid_argument("DataBook: unitSize must be positive");
+    if ( unitSize <= 0 )
+    {
+        throw std::invalid_argument( "DataBook: unitSize must be positive" );
+    }
 }
 
-HXSize_t DataBook::GetPageCount()
+HXSize_t DataBook::GetPageCount() const
 {
     return pages.size();
 }
 
-DataPage* DataBook::GetCurrentPage()
-{
-    // Compute on the fly; no need to store currPageId as a member.
-    HXSize_t pageId = static_cast<HXSize_t>(this->currPos / maxUnitSize);
-    return pages[pageId].get();
-}
-
-DataPage * DataBook::GetPage( HXSize_t iPage )
-{
-    return pages[ iPage ].get();
-}
-
-void DataBook::Advance( HXOffset_t offset )
-{
-    this->currPos += offset;
-}
-
-void DataBook::Write( void * data, HXOffset_t dataSize )
-{
-    if ( dataSize <= 0 ) return;
-
-    this->SecureRelativeSpace( dataSize );
-
-    // Iterative instead of recursive: walk across as many pages as needed
-    // in a loop, rather than recursing once per page boundary. This avoids
-    // stack depth proportional to (dataSize / maxUnitSize), which becomes
-    // a real risk when maxUnitSize is configured small (see
-    // DataBook_ManyTinyPages_NoStackOverflow, ~0.54s for just 5000 bytes
-    // with unitSize=1 under the old recursive implementation).
-    char * cursor = reinterpret_cast<char *>( data );
-    HXOffset_t remaining = dataSize;
-
-    while ( remaining > 0 )
-    {
-        HXOffset_t chunk = this->GetRemainingSizeOfCurrentPage();
-        if ( chunk > remaining )
-        {
-            chunk = remaining;
-        }
-
-        this->GetCurrentPage()->Write( cursor, chunk );
-        this->Advance( chunk );
-
-        cursor    += chunk;
-        remaining -= chunk;
-    }
-}
-
-void DataBook::Read( void * data, HXOffset_t dataSize )
-{
-    if ( dataSize <= 0 ) return;
-
-    char * cursor = reinterpret_cast<char *>( data );
-    HXOffset_t remaining = dataSize;
-
-    while ( remaining > 0 )
-    {
-        HXOffset_t chunk = this->GetRemainingSizeOfCurrentPage();
-        if ( chunk > remaining )
-        {
-            chunk = remaining;
-        }
-
-        this->GetCurrentPage()->Read( cursor, chunk );
-        this->Advance( chunk );
-
-        cursor    += chunk;
-        remaining -= chunk;
-    }
-}
-
-void DataBook::WriteString( std::string & cs )
-{
-    HXSize_t nLength = cs.length();
-    this->Write( & nLength, sizeof( HXSize_t ) );
-
-    // Write the raw bytes directly from the string's own buffer;
-    // no manual new[]/delete[], no dependency on a trailing '\0'.
-    // cs.data() has been guaranteed contiguous since C++11.
-    if ( nLength > 0 )
-    {
-        this->Write( const_cast<char *>( cs.data() ), nLength );
-    }
-}
-
-void DataBook::ReadString( std::string & cs )
-{
-    HXSize_t nLength = 0;
-    this->Read( & nLength, sizeof( HXSize_t ) );
-
-    // Resize the string first so it owns the buffer we read into.
-    // No manual allocation, and no assumption about a null terminator.
-    cs.resize( nLength );
-    if ( nLength > 0 )
-    {
-        this->Read( &cs[0], nLength );
-    }
-}
-
-void DataBook::AppendString( std::string & cs )
-{
-    this->MoveToEnd();
-    this->WriteString( cs );
-}
-
-void DataBook::Write( std::ostringstream * oss )
-{
-    std::string str = oss->str();
-    HXSize_t stringSize = str.size();
-    this->Write( const_cast< char * >( str.c_str() ), stringSize * sizeof( char ) );
-}
-
-HXOffset_t DataBook::GetSize()
+HXOffset_t DataBook::size() const
 {
     HXOffset_t sum = 0;
     for ( int iPage = 0; iPage < this->GetPageCount(); ++ iPage )
@@ -163,120 +54,314 @@ HXOffset_t DataBook::GetSize()
     return sum;
 }
 
-// ReSize: align the internal structure with the vector of pages
-void DataBook::ReSize(HXOffset_t nLength)
+DataPage * DataBook::GetCurrentPage()
 {
-    if (nLength < 0) return;          // »ò throw
+    if ( pages.empty() )
+    {
+        return nullptr;
+    }
 
-    if (nLength == 0)
+    HXSize_t pageId = static_cast<HXSize_t>( this->currPos / maxUnitSize );
+
+    // Guard against out-of-bounds access when currPos reaches the very end.
+    if ( pageId >= pages.size() )
+    {
+        pageId = pages.size() - 1;
+    }
+    return pages[pageId].get();
+}
+
+const DataPage * DataBook::GetCurrentPage() const
+{
+    return const_cast<DataBook *>( this )->GetCurrentPage();
+}
+
+DataPage * DataBook::GetPage( HXSize_t iPage )
+{
+    if ( iPage >= pages.size() )
+    {
+        return nullptr;
+    }
+    return pages[iPage].get();
+}
+
+const DataPage * DataBook::GetPage( HXSize_t iPage ) const
+{
+    if ( iPage >= pages.size() )
+    {
+        return nullptr;
+    }
+    return pages[iPage].get();
+}
+
+void DataBook::Advance( HXOffset_t offset )
+{
+    this->currPos += offset;
+}
+
+void DataBook::Write( const void * data, HXOffset_t dataSize )
+{
+    if ( dataSize <= 0 || data == nullptr )
+    {
+        return;
+    }
+
+    this->Reserve( this->currPos + dataSize );
+
+    const char * cursor = static_cast<const char *>( data );
+    HXOffset_t remaining = dataSize;
+
+    // Iterative chunk writing across multiple pages.
+    while ( remaining > 0 )
+    {
+        HXOffset_t chunk = std::min( remaining, this->GetRemainingSizeOfCurrentPage() );
+
+        this->GetCurrentPage()->Write( cursor, chunk );
+        this->Advance( chunk );
+
+        cursor    += chunk;
+        remaining -= chunk;
+    }
+}
+
+//void DataBook::Read( void * data, HXOffset_t dataSize )
+//{
+//    if ( dataSize <= 0 ) return;
+//
+//    char * cursor = reinterpret_cast<char *>( data );
+//    HXOffset_t remaining = dataSize;
+//
+//    while ( remaining > 0 )
+//    {
+//        HXOffset_t chunk = this->GetRemainingSizeOfCurrentPage();
+//        if ( chunk > remaining )
+//        {
+//            chunk = remaining;
+//        }
+//
+//        this->GetCurrentPage()->Read( cursor, chunk );
+//        this->Advance( chunk );
+//
+//        cursor    += chunk;
+//        remaining -= chunk;
+//    }
+//}
+
+void DataBook::Read( void * data, HXOffset_t dataSize )
+{
+    if ( dataSize <= 0 || data == nullptr )
+    {
+        return;
+    }
+
+    char * cursor = static_cast<char *>( data );
+    HXOffset_t remaining = dataSize;
+
+    // Iterative chunk reading across multiple pages.
+    while ( remaining > 0 )
+    {
+        HXOffset_t chunk = std::min( remaining, this->GetRemainingSizeOfCurrentPage() );
+
+        this->GetCurrentPage()->Read( cursor, chunk );
+        this->Advance( chunk );
+
+        cursor    += chunk;
+        remaining -= chunk;
+    }
+}
+
+//void DataBook::WriteString( std::string & cs )
+//{
+//    HXSize_t nLength = cs.length();
+//    this->Write( & nLength, sizeof( HXSize_t ) );
+//
+//    // Write the raw bytes directly from the string's own buffer;
+//    // no manual new[]/delete[], no dependency on a trailing '\0'.
+//    // cs.data() has been guaranteed contiguous since C++11.
+//    if ( nLength > 0 )
+//    {
+//        this->Write( const_cast<char *>( cs.data() ), nLength );
+//    }
+//}
+
+void DataBook::WriteString( std::string_view str )
+{
+    HXSize_t nLength = str.length();
+    this->Write( &nLength, sizeof( HXSize_t ) );
+
+    if ( nLength > 0 )
+    {
+        this->Write( str.data(), static_cast<HXOffset_t>( nLength ) );
+    }
+}
+
+//void DataBook::ReadString( std::string & cs )
+//{
+//    HXSize_t nLength = 0;
+//    this->Read( & nLength, sizeof( HXSize_t ) );
+//
+//    // Resize the string first so it owns the buffer we read into.
+//    // No manual allocation, and no assumption about a null terminator.
+//    cs.resize( nLength );
+//    if ( nLength > 0 )
+//    {
+//        this->Read( &cs[0], nLength );
+//    }
+//}
+
+void DataBook::ReadString( std::string & str )
+{
+    HXSize_t nLength = 0;
+    this->Read( &nLength, sizeof( HXSize_t ) );
+
+    str.resize( nLength );
+    if ( nLength > 0 )
+    {
+        this->Read( str.data(), static_cast<HXOffset_t>( nLength ) );
+    }
+}
+
+//void DataBook::AppendString( std::string & cs )
+//{
+//    this->MoveToEnd();
+//    this->WriteString( cs );
+//}
+
+void DataBook::AppendString( std::string_view str )
+{
+    this->MoveToEnd();
+    this->WriteString( str );
+}
+
+//void DataBook::Write( std::ostringstream * oss )
+//{
+//    std::string str = oss->str();
+//    HXSize_t stringSize = str.size();
+//    this->Write( const_cast< char * >( str.c_str() ), stringSize * sizeof( char ) );
+//}
+
+void DataBook::Write( const std::ostringstream * oss )
+{
+    if ( !oss ) return;
+
+    std::string str = oss->str();
+    HXSize_t stringSize = str.size();
+    this->Write( str.data(), static_cast<HXOffset_t>( stringSize * sizeof( char ) ) );
+}
+
+//// Resize: align the internal structure with the vector of pages
+//void DataBook::Resize(HXOffset_t nLength)
+//{
+//    if (nLength < 0) return;          // »ò throw
+//
+//    if (nLength == 0)
+//    {
+//        pages.clear();
+//        currPos = 0;
+//        return;
+//    }
+//
+//    // Compute how many pages are needed
+//    // 23 divided by 3 is 7, remainder 2.
+//    HXSize_t nPage = static_cast<HXSize_t>(nLength / maxUnitSize);
+//    HXOffset_t remainder = nLength % maxUnitSize;
+//    HXSize_t newNPage = nPage + (remainder ? 1 : 0);
+//
+//    SetPageCount(newNPage);       // grows/shrinks the page vector (make_unique when growing)
+//
+//    // Set the actual size of each page
+//    for (HXSize_t i = 0; i < newNPage; ++i)
+//    {
+//        HXOffset_t pageSize = (i == nPage) ? remainder : maxUnitSize;
+//        // Edge case: when remainder == 0, the last page is full-sized
+//        if (i == newNPage - 1 && remainder == 0)
+//            pageSize = maxUnitSize;
+//        GetPage(i)->Resize(static_cast<HXSize_t>(pageSize));
+//    }
+//
+//    // Optional: clamp currPos if it exceeds the new size
+//    if (currPos > nLength)
+//        currPos = nLength;
+//}
+
+void DataBook::Resize( HXOffset_t nLength )
+{
+    if ( nLength < 0 )
+    {
+        throw std::invalid_argument( "DataBook::Resize - Length cannot be negative" );
+    }
+
+    if ( nLength == 0 )
     {
         pages.clear();
         currPos = 0;
         return;
     }
 
-    // Compute how many pages are needed
-    // 23 divided by 3 is 7, remainder 2.
-    HXSize_t nPage = static_cast<HXSize_t>(nLength / maxUnitSize);
+    // Compute required page counts and remainder.
+    HXSize_t nPage = static_cast<HXSize_t>( nLength / maxUnitSize );
     HXOffset_t remainder = nLength % maxUnitSize;
-    HXSize_t newNPage = nPage + (remainder ? 1 : 0);
+    HXSize_t newNPage = nPage + ( remainder ? 1 : 0 );
 
-    SetPageCount(newNPage);       // grows/shrinks the page vector (make_unique when growing)
+    SetPageCount( newNPage );
 
-    // Set the actual size of each page
-    for (HXSize_t i = 0; i < newNPage; ++i)
+    // Set page boundary sizes accurately.
+    for ( HXSize_t i = 0; i < newNPage; ++i )
     {
-        HXOffset_t pageSize = (i == nPage) ? remainder : maxUnitSize;
-        // Edge case: when remainder == 0, the last page is full-sized
-        if (i == newNPage - 1 && remainder == 0)
+        HXOffset_t pageSize = ( i == nPage ) ? remainder : maxUnitSize;
+        if ( i == newNPage - 1 && remainder == 0 )
+        {
             pageSize = maxUnitSize;
-        GetPage(i)->ReSize(static_cast<HXSize_t>(pageSize));
+        }
+        GetPage( i )->ReSize( static_cast<HXSize_t>( pageSize ) );
     }
 
-    // Optional: clamp currPos if it exceeds the new size
-    if (currPos > nLength)
+    if ( currPos > nLength )
+    {
         currPos = nLength;
+    }
 }
 
-//void DataBook::SetPageCount(HXSize_t newNPage)
-//{
-//    HXSize_t oldNPage = pages.size();
-//
-//    if (newNPage < oldNPage)
-//    {
-//        // Shrinking: unique_ptr destructor automatically deletes the DataPage.
-//        pages.resize(newNPage);
-//    }
-//    else if (newNPage > oldNPage)
-//    {
-//        // Growing: must explicitly create real DataPage objects.
-//        // vector::resize only default-constructs empty unique_ptrs (nullptr).
-//        pages.reserve(newNPage);   // optional, avoids reallocation
-//        for (HXSize_t i = oldNPage; i < newNPage; ++i)
-//        {
-//            pages.push_back(std::make_unique<DataPage>());
-//        }
-//    }
-//    // newNPage == oldNPage ¡ú do nothing
-//}
-
-// Sets the number of DataPage objects to exactly newPageCount, growing
-// or shrinking as needed. Existing pages below the new count are left
-// untouched; existing pages above it are destroyed. Newly created pages
-// (when growing) start out empty (size 0) -- callers are responsible for
-// sizing their content afterward (see DataBook::ReSize, which calls this
-// then sets each page's byte size separately).
 void DataBook::SetPageCount( HXSize_t newPageCount )
 {
     HXSize_t oldPageCount = pages.size();
 
     if ( newPageCount < oldPageCount )
     {
-        // Shrinking: unique_ptr's destructor automatically deletes the
-        // DataPage objects being dropped.
         pages.resize( newPageCount );
     }
     else if ( newPageCount > oldPageCount )
     {
-        // Growing: vector::resize() alone only default-constructs empty
-        // (nullptr) unique_ptrs, so real DataPage objects must be created
-        // explicitly here.
-        //
-        // Not merely a micro-optimization: without this reserve, growing
-        // via repeated emplace_back() could trigger multiple reallocations
-        // as capacity doubles, each one moving every existing unique_ptr
-        // element to new storage. A single reserve() upfront avoids that
-        // entirely, since the target size is already known.
         pages.reserve( newPageCount );
-        for ( HXSize_t i = oldPageCount; i < newPageCount; ++ i )
+        for ( HXSize_t i = oldPageCount; i < newPageCount; ++i )
         {
             pages.emplace_back( std::make_unique<DataPage>() );
         }
     }
-    // newPageCount == oldPageCount -> nothing to do
+    //newPageCount == oldPageCount -> nothing to do
 }
 
 void DataBook::SecureRelativeSpace( HXOffset_t dataSize )
 {
     HXOffset_t needSize = this->currPos + dataSize;
 
-    this->SecureAbsoluteSpace( needSize );
+    this->Reserve( needSize );
 }
 
-void DataBook::SecureAbsoluteSpace( HXOffset_t needSize )
+void DataBook::Reserve( HXOffset_t needSize )
 {
     //If there is enough space, there is no need to allocate
-    //This can cause some std::string problems, and if not ReSize, there may be superfluous characters
+    //This can cause some std::string problems, and if not Resize, there may be superfluous characters
     //in the memory that are not cleared
-    //if ( needSize <= GetSize() ) return;
+    //if ( needSize <= size() ) return;
 
-    this->ReSize( needSize );
+    this->Resize( needSize );
 }
 
 void DataBook::MoveToBegin()
 {
     this->currPos = 0;
-    for ( int iPage = 0; iPage < this->GetPageCount(); ++ iPage )
+    for ( HXSize_t iPage = 0; iPage < this->GetPageCount(); ++iPage )
     {
         this->GetPage( iPage )->MoveToBegin();
     }
@@ -284,14 +369,15 @@ void DataBook::MoveToBegin()
 
 void DataBook::MoveToEnd()
 {
-    this->currPos = this->GetSize();
-    for ( HXSize_t iPage = 0; iPage < this->GetPageCount(); ++ iPage )
+    this->currPos = this->size();
+    for ( HXSize_t iPage = 0; iPage < this->GetPageCount(); ++iPage )
     {
         this->GetPage( iPage )->MoveToEnd();
     }
 }
 
-HXOffset_t DataBook::GetRemainingSizeOfCurrentPage()
+
+HXOffset_t DataBook::GetRemainingSizeOfCurrentPage()  const
 {
     // Offset of the cursor within the current page (0 <= offset < maxUnitSize).
     // e.g. currPos=27, maxUnitSize=10 -> offset=7, meaning we are 7 bytes
@@ -301,7 +387,6 @@ HXOffset_t DataBook::GetRemainingSizeOfCurrentPage()
     // Bytes left before hitting the end of the current page.
     return maxUnitSize - offsetInPage;
 }
-
 
 void DataBook::ReadFile( std::fstream & file )
 {
@@ -313,7 +398,7 @@ void DataBook::ReadFile( std::fstream & file )
 
     if ( nLength <= 0 ) return;
 
-    this->SecureAbsoluteSpace( nLength );
+    this->Reserve( nLength );
 
     for ( std::streamsize iPage = 0; iPage < this->GetPageCount(); ++ iPage )
     {
@@ -321,9 +406,9 @@ void DataBook::ReadFile( std::fstream & file )
     }
 }
 
-void DataBook::WriteFile( std::fstream & file )
+void DataBook::WriteFile( std::fstream & file ) const
 {
-    HXOffset_t nLength = this->GetSize();
+    HXOffset_t nLength = this->size();
 
     //Whether or not nLength is less than zero, you need to write the file
     ONEFLOW::HXWrite( & file, nLength );
@@ -338,26 +423,33 @@ void DataBook::WriteFile( std::fstream & file )
     }
 }
 
-void DataBook::ToString( std::string & str )
+void DataBook::ToString( std::string & str ) const
 {
-    for ( HXSize_t iPage = 0; iPage < this->GetPageCount(); ++ iPage )
+    for ( HXSize_t iPage = 0; iPage < this->GetPageCount(); ++iPage )
     {
         this->GetPage( iPage )->ToString( str );
     }
 }
 
-void DataBook::Append( void * data, HXOffset_t dataSize )
+//void DataBook::Append( const void * data, HXOffset_t dataSize )
+//{
+//    this->MoveToEnd();
+//    HXOffset_t needSize = this->size() + dataSize;
+//    this->Reserve( needSize );
+//
+//    this->GetCurrentPage()->Write( data, dataSize );
+//}
+
+void DataBook::Append( const void * data, HXOffset_t dataSize )
 {
     this->MoveToEnd();
-    HXOffset_t needSize = this->GetSize() + dataSize;
-    this->SecureAbsoluteSpace( needSize );
-
-    this->GetCurrentPage()->Write( data, dataSize );
+    // Fixed: Call DataBook::Write instead of DataPage::Write to safely handle cross-page boundaries.
+    this->Write( data, dataSize );
 }
 
-void DataBook::Send( int pid, int tag )
+void DataBook::Send( int pid, int tag ) const
 {
-    HXOffset_t nLength = this->GetSize();
+    HXOffset_t nLength = this->size();
 
     ONEFLOW::HXSend( & nLength, 1, PL_LONG_LONG_INT, pid, tag );
 
@@ -370,24 +462,53 @@ void DataBook::Send( int pid, int tag )
     }
 }
 
+//void DataBook::Recv( int pid, int tag )
+//{
+//    HXOffset_t nLength = 0;
+//
+//    ONEFLOW::HXRecv( & nLength, 1, PL_LONG_LONG_INT, pid, tag );
+//
+//    if ( nLength <= 0 )
+//    {
+//        return;
+//    }
+//
+//    this->Reserve( nLength );
+//
+//    for ( HXSize_t iPage = 0; iPage < this->GetPageCount(); ++ iPage )
+//    {
+//        this->GetPage( iPage )->Recv( pid, tag );
+//    }
+//}
+
 void DataBook::Recv( int pid, int tag )
 {
     HXOffset_t nLength = 0;
 
-    ONEFLOW::HXRecv( & nLength, 1, PL_LONG_LONG_INT, pid, tag );
+    ONEFLOW::HXRecv( &nLength, 1, PL_LONG_LONG_INT, pid, tag );
+    if ( nLength <= 0 ) return;
 
-    if ( nLength <= 0 )
-    {
-        return;
-    }
+    this->Reserve( nLength );
 
-    this->SecureAbsoluteSpace( nLength );
-
-    for ( HXSize_t iPage = 0; iPage < this->GetPageCount(); ++ iPage )
+    for ( HXSize_t iPage = 0; iPage < this->GetPageCount(); ++iPage )
     {
         this->GetPage( iPage )->Recv( pid, tag );
     }
 }
+
+//void DataBook::SendRecv( int sendpid, int recvpid, int tag )
+//{
+//    if ( sendpid == recvpid ) return;
+//
+//    if ( Parallel::pid == sendpid )
+//    {
+//        this->Send( recvpid, tag );
+//    }
+//    else if ( Parallel::pid == recvpid )
+//    {
+//        this->Recv( sendpid, tag );
+//    }
+//}
 
 void DataBook::SendRecv( int sendpid, int recvpid, int tag )
 {
@@ -403,23 +524,41 @@ void DataBook::SendRecv( int sendpid, int recvpid, int tag )
     }
 }
 
+//void DataBook::Bcast( int rootid )
+//{
+//    HXOffset_t nLength = this->size();
+//
+//    HXBcast( & nLength, 1, rootid );
+//
+//    if ( nLength <= 0 )
+//    {
+//        return;
+//    }
+//
+//    if ( Parallel::pid != rootid )
+//    {
+//        this->Reserve( nLength );
+//    }
+//
+//    for ( HXSize_t iPage = 0; iPage < this->GetPageCount(); ++ iPage )
+//    {
+//        this->GetPage( iPage )->Bcast( rootid );
+//    }
+//}
+
 void DataBook::Bcast( int rootid )
 {
-    HXOffset_t nLength = this->GetSize();
+    HXOffset_t nLength = this->size();
 
-    HXBcast( & nLength, 1, rootid );
-
-    if ( nLength <= 0 )
-    {
-        return;
-    }
+    HXBcast( &nLength, 1, rootid );
+    if ( nLength <= 0 ) return;
 
     if ( Parallel::pid != rootid )
     {
-        this->SecureAbsoluteSpace( nLength );
+        this->Reserve( nLength );
     }
 
-    for ( HXSize_t iPage = 0; iPage < this->GetPageCount(); ++ iPage )
+    for ( HXSize_t iPage = 0; iPage < this->GetPageCount(); ++iPage )
     {
         this->GetPage( iPage )->Bcast( rootid );
     }
@@ -430,7 +569,7 @@ void ToDataBook( DataBook * dataBook, std::ostringstream & oss )
     if ( ! dataBook ) return;
 
     dataBook->MoveToBegin();
-    dataBook->ReSize( 0 );
+    dataBook->Resize( 0 );
     dataBook->Write( & oss );
 }
 

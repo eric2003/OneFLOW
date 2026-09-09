@@ -44,7 +44,7 @@ DataPage::~DataPage()
 
 void DataPage::MoveToPosition( HXSize_t position )
 {
-    // position == GetSize() is a valid "end/append" position.
+    // position == size() is a valid "end/append" position.
     if ( position <= size() )
     {
         this->currPos = position;
@@ -79,7 +79,7 @@ const char * DataPage::data() const
 
 char * DataPage::CurrentPtr()
 {
-    // currPos may legitimately equal GetSize() (the "append/end" position).
+    // currPos may legitimately equal size() (the "append/end" position).
     // vector::data() + size() is well-defined as long as it is never dereferenced,
     // unlike operator[](size()) which is UB even just to take its address.
     //return dataMemory.data() + currPos;
@@ -92,7 +92,7 @@ char * DataPage::PtrAt( int offset )
     return dataMemory.data() + offset;
 }
 
-void DataPage::ToString( std::string & str )
+void DataPage::ToString( std::string & str ) const
 {
     if ( this->size() )
     {
@@ -171,7 +171,7 @@ void DataPage::ReSize( HXSize_t newSize )
     this->dataMemory.resize( newSize );
 }
 
-void DataPage::Send( int pId, int tag )
+void DataPage::Send( int pId, int tag ) const
 {
     HXSize_t nLength = this->size();
 
@@ -207,7 +207,7 @@ void DataPage::ReadFile( std::fstream & file )
     file.read( data, nLength );
 }
 
-void DataPage::WriteFile( std::fstream & file )
+void DataPage::WriteFile( std::fstream & file ) const
 {
     HXSize_t nLength = this->size();
 
@@ -216,7 +216,7 @@ void DataPage::WriteFile( std::fstream & file )
         return;
     }
 
-    char * data = this->data();
+    const char * data = this->data();
 
     file.write( data, nLength );
 }

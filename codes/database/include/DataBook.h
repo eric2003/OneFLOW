@@ -25,8 +25,11 @@ License
 #include "HXType.h"
 #include <vector>
 #include <string>
+#include <string_view>
 #include <fstream>
 #include <memory>
+#include <sstream>
+
 
 BeginNameSpace( ONEFLOW )
 
@@ -38,70 +41,67 @@ using DATA_DECOMPRESS = void( * )( DataBook *  dataBook );
 class DataBook
 {
 public:
-    // unitSize controls how many bytes each internal DataPage holds before
-    // data spills into the next page. Defaults to ~1GB for production use;
-    // tests can pass a small value to exercise cross-page logic directly.
     explicit DataBook( HXOffset_t unitSize = 1024000000 );
-    // Do NOT rely on implicit deletion via the vector<unique_ptr<DataPage>>
-    // member: std::vector<T>'s copy constructor is unconditionally declared
-    // regardless of whether T is copyable, so std::is_copy_constructible
-    // (and naive "try to copy it" code) will NOT reliably reflect the true
-    // deletion status -- the actual failure only surfaces deep inside
-    // vector's copy-ctor body when unique_ptr's deleted copy ctor is
-    // odr-used, which type traits do not detect. Explicit deletion here
-    // makes the intent unambiguous and correctly reported by type traits.
+
+    // Explicitly delete copy semantics to match type traits expectations.
     DataBook( const DataBook & )             = delete;
     DataBook & operator=( const DataBook & ) = delete;
 
-    // Declaring the copy ops above suppresses implicit move-op generation,
-    // so restore them explicitly. This is cheap: unique_ptr elements are
-    // moved via pointer transfer, O(1) regardless of how much data each
-    // DataPage holds.
-    DataBook( DataBook && )            = default;
-    DataBook & operator=( DataBook && ) = default;
+    // Default move semantics for O(1) performance.
+    DataBook( DataBook && )                  = default;
+    DataBook & operator=( DataBook && )       = default;
+    ~DataBook()                              = default;
+public:
+    // Read-only state queries (marked const)
+    HXSize_t GetPageCount() const;
+    HXOffset_t size() const;
 
-public:
-    std::vector< std::unique_ptr<DataPage> > pages;   // renamed from dataBook
-    HXOffset_t currPos;
-    HXOffset_t maxUnitSize;
-public:
-    HXSize_t GetPageCount();   // moved from protected to public,
-    // so tests can assert on page count directly
     DataPage * GetCurrentPage();
+    const DataPage * GetCurrentPage() const;
+
     DataPage * GetPage( HXSize_t iPage );
-protected:
-    void SetPageCount( HXSize_t newPageCount );
-    HXOffset_t  GetRemainingSizeOfCurrentPage();
-    void Advance( HXOffset_t offset );
+    const DataPage * GetPage( HXSize_t iPage ) const;
 public:
+    // Data Read/Write interfaces with const-safety
     void Read ( void * data, HXOffset_t dataSize );
-    void Write( void * data, HXOffset_t dataSize );
-    void ReadFile ( std::fstream & file );
-    void WriteFile( std::fstream & file );
+    void Write( const void * data, HXOffset_t dataSize );
 
-    void ReadString ( std::string & cs );
-    void WriteString( std::string & cs );
+    void ReadString ( std::string & str );
+    void WriteString( std::string_view str );
+    void AppendString( std::string_view str );
 
-    void Write( std::ostringstream * oss );
+    void Write( const std::ostringstream * oss );
+    void Append( const void * data, HXOffset_t dataSize );
 
-    HXOffset_t GetSize();
-    void ReSize( HXOffset_t nLength );
-
-    void Send( int pid, int tag );
-    void Recv( int pid, int tag );
-
-    void Bcast( int rootid );
-
-    void SendRecv( int sendpid, int recvpid, int tag );
-
-    void ToString( std::string & str );
-    void Append( void * data, HXOffset_t dataSize );
-    void AppendString( std::string & cs );
-
-    void SecureRelativeSpace( HXOffset_t dataSize );
-    void SecureAbsoluteSpace( HXOffset_t needSize );
+    // Memory management and seek operations
+    void Resize( HXOffset_t nLength );
+    void Reserve( HXOffset_t needSize );
     void MoveToBegin();
     void MoveToEnd();
+
+    // I/O Operations
+    void ReadFile ( std::fstream & file );
+    void WriteFile( std::fstream & file ) const;
+    void ToString ( std::string & str ) const;
+
+    // MPI / Parallel Communication interfaces
+    void Send( int pid, int tag ) const;
+    void Recv( int pid, int tag );
+    void Bcast( int rootid );
+    void SendRecv( int sendpid, int recvpid, int tag );
+
+protected:
+    void SetPageCount( HXSize_t newPageCount );
+    HXOffset_t  GetRemainingSizeOfCurrentPage() const;
+    void Advance( HXOffset_t offset );
+
+private:
+    std::vector< std::unique_ptr<DataPage> > pages;
+    HXOffset_t currPos{0};
+    HXOffset_t maxUnitSize{1024000000};
+
+    void SecureRelativeSpace( HXOffset_t dataSize );
+
 };
 
 void ToDataBook( DataBook * dataBook, std::ostringstream & oss );
