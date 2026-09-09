@@ -44,17 +44,6 @@ HXSize_t DataBook::GetPageCount() const
     return pages.size();
 }
 
-//HXOffset_t DataBook::size() const
-//{
-//    HXOffset_t sum = 0;
-//    for ( int iPage = 0; iPage < this->GetPageCount(); ++ iPage )
-//    {
-//        sum += this->GetPage( iPage )->size();
-//    }
-//    return sum;
-//}
-
-
 HXOffset_t DataBook::size() const
 {
     HXOffset_t sum = 0;
@@ -279,16 +268,6 @@ void DataBook::MoveToBegin()
     }
 }
 
-//void DataBook::MoveToEnd()
-//{
-//    this->currPos = this->size();
-//    for ( HXSize_t iPage = 0; iPage < this->GetPageCount(); ++iPage )
-//    {
-//        this->GetPage( iPage )->MoveToEnd();
-//    }
-//}
-
-
 void DataBook::MoveToEnd()
 {
     this->currPos = this->size();
@@ -296,7 +275,6 @@ void DataBook::MoveToEnd()
     {
         pagePtr->MoveToEnd();
     }
-
 }
 
 HXOffset_t DataBook::GetRemainingSizeOfCurrentPage()  const
@@ -343,14 +321,6 @@ void DataBook::WriteFile( std::fstream & file ) const
     }
 }
 
-//void DataBook::ToString( std::string & str ) const
-//{
-//    for ( HXSize_t iPage = 0; iPage < this->GetPageCount(); ++iPage )
-//    {
-//        this->GetPage( iPage )->ToString( str );
-//    }
-//}
-
 void DataBook::ToString( std::string & str ) const
 {
     for ( const auto & pagePtr : this->pages )
@@ -365,21 +335,6 @@ void DataBook::Append( const void * data, HXOffset_t dataSize )
     // Fixed: Call DataBook::Write instead of DataPage::Write to safely handle cross-page boundaries.
     this->Write( data, dataSize );
 }
-
-//void DataBook::Send( int pid, int tag ) const
-//{
-//    HXOffset_t nLength = this->size();
-//
-//    ONEFLOW::HXSend( & nLength, 1, PL_LONG_LONG_INT, pid, tag );
-//
-//    //It is necessary to judge the zero of data length
-//    if ( nLength <= 0 ) return;
-//
-//    for ( HXSize_t iPage = 0; iPage < this->GetPageCount(); ++ iPage )
-//    {
-//        this->GetPage( iPage )->Send( pid, tag );
-//    }
-//}
 
 void DataBook::Send( int pid, int tag ) const
 {
@@ -396,21 +351,6 @@ void DataBook::Send( int pid, int tag ) const
     }
 }
 
-//void DataBook::Recv( int pid, int tag )
-//{
-//    HXOffset_t nLength = 0;
-//
-//    ONEFLOW::HXRecv( &nLength, 1, PL_LONG_LONG_INT, pid, tag );
-//    if ( nLength <= 0 ) return;
-//
-//    this->Reserve( nLength );
-//
-//    for ( HXSize_t iPage = 0; iPage < this->GetPageCount(); ++iPage )
-//    {
-//        this->GetPage( iPage )->Recv( pid, tag );
-//    }
-//}
-
 void DataBook::Recv( int pid, int tag )
 {
     HXOffset_t nLength = 0;
@@ -426,7 +366,6 @@ void DataBook::Recv( int pid, int tag )
     }
 }
 
-
 void DataBook::SendRecv( int sendpid, int recvpid, int tag )
 {
     if ( sendpid == recvpid ) return;
@@ -440,25 +379,6 @@ void DataBook::SendRecv( int sendpid, int recvpid, int tag )
         this->Recv( sendpid, tag );
     }
 }
-
-//void DataBook::Bcast( int rootid )
-//{
-//    HXOffset_t nLength = this->size();
-//
-//    HXBcast( &nLength, 1, rootid );
-//    if ( nLength <= 0 ) return;
-//
-//    if ( Parallel::pid != rootid )
-//    {
-//        this->Reserve( nLength );
-//    }
-//
-//    for ( HXSize_t iPage = 0; iPage < this->GetPageCount(); ++iPage )
-//    {
-//        this->GetPage( iPage )->Bcast( rootid );
-//    }
-//
-//}
 
 void DataBook::Bcast( int rootid )
 {

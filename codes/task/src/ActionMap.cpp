@@ -20,7 +20,6 @@ License
 
 \*---------------------------------------------------------------------------*/
 #include "ActionMap.h"
-#include "DataBase.h"
 #include "TextFileParser.h"
 
 BeginNameSpace( ONEFLOW )
