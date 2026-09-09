@@ -51,17 +51,18 @@ public:
     DataPage( DataPage && )            = default;
     DataPage & operator=( DataPage && ) = default;
 public:
-    HXSize_t GetSize();
+    HXSize_t GetSize() const;
     void Read ( void * data, HXSize_t dataSize );
-    void Read ( void * data, HXSize_t dataSize, HXSize_t position );
-    void Write( void * data, HXSize_t dataSize );
-    void Write( void * data, HXSize_t dataSize, HXSize_t position );
+    void Read( void * data, HXSize_t position, HXSize_t dataSize ) const;
+    void Write( const void * data, HXSize_t dataSize );
+    void Write( const void * data, HXSize_t position, HXSize_t dataSize );
     void ReadFile ( std::fstream & file );
     void WriteFile( std::fstream & file );
     void ToString( std::string & str );
 
-    char * GetBeginDataPointer();
-    char * GetCurrentDataPointer();
+    char * data();
+    const char * data() const;
+    char * CurrentPtr();
 
     void MoveToBegin() { MoveToPosition( 0 ); };
     void MoveToEnd  () { currPos = GetSize(); };
@@ -71,12 +72,12 @@ public:
     void Bcast( int rootid );
 protected:
     void MoveToPosition( HXSize_t position );
-    void MoveForwardPosition( HXSize_t dataSize );
+    void Advance( HXLongLong_t offset );
 protected:
     HXSize_t currPos;
     CharMemory dataMemory;     // value member, automatically managed
 public:
-    char * GetDataPointer( int begin );
+    char * PtrAt( int offset );
 };
 
 EndNameSpace

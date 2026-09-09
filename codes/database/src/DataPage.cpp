@@ -54,73 +54,131 @@ void DataPage::MoveToPosition( HXSize_t position )
     }
 }
 
-void DataPage::MoveForwardPosition( HXSize_t dataSize )
+void DataPage::Advance( HXLongLong_t offset )
 {
-    this->currPos += dataSize;
+    this->currPos += offset;
 }
 
-HXSize_t DataPage::GetSize()
+HXSize_t DataPage::GetSize() const
 {
     return dataMemory.size();
 }
 
-char * DataPage::GetBeginDataPointer()
+char * DataPage::data()
 {
-    if ( this->GetSize() == 0 )
-    {
-        return nullptr;
-    }
     // Use data() instead of operator[] to avoid UB.
     return dataMemory.data();
 }
 
-char * DataPage::GetCurrentDataPointer()
+const char * DataPage::data() const
+{
+    // Provide a const overload for read-only access.
+    return dataMemory.data();
+}
+
+char * DataPage::CurrentPtr()
 {
     // currPos may legitimately equal GetSize() (the "append/end" position).
     // vector::data() + size() is well-defined as long as it is never dereferenced,
     // unlike operator[](size()) which is UB even just to take its address.
-    return dataMemory.data() + currPos;
+    //return dataMemory.data() + currPos;
+    return this->PtrAt( currPos );
 }
 
-char * DataPage::GetDataPointer( int begin )
+char * DataPage::PtrAt( int offset )
 {
-    // Same reasoning as above; begin == size() must be safe to compute.
-    return dataMemory.data() + begin;
+    // Same reasoning as above; offset == size() must be safe to compute.
+    return dataMemory.data() + offset;
 }
 
 void DataPage::ToString( std::string & str )
 {
     if ( this->GetSize() )
     {
-        str.append( this->GetBeginDataPointer(), this->GetSize() );
+        str.append( this->data(), this->GetSize() );
     }
 }
 
-void DataPage::Write( void * data, HXSize_t dataSize )
+void DataPage::Write( const void * data, HXSize_t dataSize )
 {
-    if ( dataSize <= 0 ) return;
+    if ( dataSize == 0 || data == nullptr )
+    {
+        return;
+    }
 
-    memcpy( this->GetCurrentDataPointer(), data, dataSize );
-    this->MoveForwardPosition( dataSize );
+    // Check for buffer overflow before writing.
+    if ( this->currPos + dataSize > this->GetSize() )
+    {
+        throw std::out_of_range("DataPage::Write - Buffer overflow");
+    }
+
+    std::memcpy( this->CurrentPtr(), data, dataSize );
+    this->Advance( dataSize );
 }
 
 void DataPage::Read( void * data, HXSize_t dataSize )
 {
-    if ( dataSize <= 0 ) return;
-    memcpy( data, this->GetCurrentDataPointer(), dataSize );
-    this->MoveForwardPosition( dataSize );
+    if ( dataSize == 0 || data == nullptr )
+    {
+        return;
+    }
+
+    // Prevent potential integer overflow and check bound.
+    if ( dataSize > this->GetSize() - this->currPos )
+    {
+        throw std::out_of_range("DataPage::Read - Attempted to read past end of buffer");
+    }
+
+    std::memcpy( data, this->CurrentPtr(), dataSize );
+    this->Advance( dataSize );
 }
 
-void DataPage::Write( void * data, HXSize_t dataSize, HXSize_t position )
+//void DataPage::Write( void * data, HXSize_t position, HXSize_t dataSize )
+//{
+//    if ( dataSize <= 0 ) return;
+//    this->MoveToPosition( position );
+//    this->Write( data, dataSize );
+//    this->Advance( dataSize );
+//}
+
+void DataPage::Write( const void * data, HXSize_t position, HXSize_t dataSize )
 {
-    this->MoveToPosition( position );
-    this->Write( data, dataSize );
+    if ( dataSize == 0 || data == nullptr )
+    {
+        return;
+    }
+
+    // Check bounds for the specific window without changing internal state.
+    if ( position > this->GetSize() || dataSize > this->GetSize() - position )
+    {
+        throw std::out_of_range("DataPage::Write - Buffer overflow at specified position");
+    }
+
+    std::memcpy( this->data() + position, data, dataSize );
 }
 
-void DataPage::Read( void * data, HXSize_t dataSize, HXSize_t position )
+//void DataPage::Read( void * data, HXSize_t position, HXSize_t dataSize )
+//{
+//    if ( dataSize <= 0 ) return;
+//    this->MoveToPosition( position );
+//    this->Read( data, dataSize );
+//    this->Advance( dataSize );
+//}
+
+void DataPage::Read( void * data, HXSize_t position, HXSize_t dataSize ) const
 {
-    this->MoveToPosition( position );
-    this->Read( data, dataSize );
+    if ( dataSize == 0 || data == nullptr )
+    {
+        return;
+    }
+
+    // Check bounds for the specific window without changing internal state.
+    if ( position > this->GetSize() || dataSize > this->GetSize() - position )
+    {
+        throw std::out_of_range("DataPage::Read - Attempted to read past end of buffer");
+    }
+
+    std::memcpy( data, this->data() + position, dataSize );
 }
 
 void DataPage::ReSize( HXSize_t newSize )
@@ -133,7 +191,7 @@ void DataPage::Send( int pId, int tag )
     HXSize_t nLength = this->GetSize();
 
     if ( nLength <= 0 ) return;
-    ONEFLOW::HXSend( this->GetBeginDataPointer(), nLength, PL_CHAR, pId, tag );
+    ONEFLOW::HXSend( this->data(), nLength, PL_CHAR, pId, tag );
 }
 
 void DataPage::Recv( int pId, int tag )
@@ -142,7 +200,7 @@ void DataPage::Recv( int pId, int tag )
 
     if ( nLength <= 0 ) return;
 
-    ONEFLOW::HXRecv( this->GetBeginDataPointer(), nLength, PL_CHAR, pId, tag );
+    ONEFLOW::HXRecv( this->data(), nLength, PL_CHAR, pId, tag );
 }
 
 void DataPage::Bcast( int rootid )
@@ -150,7 +208,7 @@ void DataPage::Bcast( int rootid )
     HXSize_t nLength = this->GetSize();
 
     if ( nLength <= 0 ) return;
-    HXBcast( this->GetBeginDataPointer(), nLength, rootid );
+    HXBcast( this->data(), nLength, rootid );
 }
 
 void DataPage::ReadFile( std::fstream & file )
@@ -159,7 +217,7 @@ void DataPage::ReadFile( std::fstream & file )
 
     if ( nLength <= 0 ) return;
 
-    char * data = this->GetBeginDataPointer();
+    char * data = this->data();
 
     file.read( data, nLength );
 }
@@ -173,7 +231,7 @@ void DataPage::WriteFile( std::fstream & file )
         return;
     }
 
-    char * data = this->GetBeginDataPointer();
+    char * data = this->data();
 
     file.write( data, nLength );
 }

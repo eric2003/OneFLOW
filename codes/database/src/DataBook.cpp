@@ -36,7 +36,7 @@ DataBook::DataBook(HXLongLong_t unitSize)
         throw std::invalid_argument("DataBook: unitSize must be positive");
 }
 
-HXSize_t DataBook::GetNPage()
+HXSize_t DataBook::GetPageCount()
 {
     return pages.size();
 }
@@ -53,9 +53,9 @@ DataPage * DataBook::GetPage( HXSize_t iPage )
     return pages[ iPage ].get();
 }
 
-void DataBook::MoveForwardPosition( HXLongLong_t dataSize )
+void DataBook::Advance( HXLongLong_t offset )
 {
-    this->currPos += dataSize;
+    this->currPos += offset;
 }
 
 void DataBook::Write( void * data, HXLongLong_t dataSize )
@@ -82,7 +82,7 @@ void DataBook::Write( void * data, HXLongLong_t dataSize )
         }
 
         this->GetCurrentPage()->Write( cursor, chunk );
-        this->MoveForwardPosition( chunk );
+        this->Advance( chunk );
 
         cursor    += chunk;
         remaining -= chunk;
@@ -105,7 +105,7 @@ void DataBook::Read( void * data, HXLongLong_t dataSize )
         }
 
         this->GetCurrentPage()->Read( cursor, chunk );
-        this->MoveForwardPosition( chunk );
+        this->Advance( chunk );
 
         cursor    += chunk;
         remaining -= chunk;
@@ -156,7 +156,7 @@ void DataBook::Write( std::ostringstream * oss )
 HXLongLong_t DataBook::GetSize()
 {
     HXLongLong_t sum = 0;
-    for ( int iPage = 0; iPage < this->GetNPage(); ++ iPage )
+    for ( int iPage = 0; iPage < this->GetPageCount(); ++ iPage )
     {
         sum += this->GetPage( iPage )->GetSize();
     }
@@ -181,7 +181,7 @@ void DataBook::ReSize(HXLongLong_t nLength)
     HXLongLong_t remainder = nLength % maxUnitSize;
     HXSize_t newNPage = nPage + (remainder ? 1 : 0);
 
-    ResizeNPage(newNPage);       // grows/shrinks the page vector (make_unique when growing)
+    SetPageCount(newNPage);       // grows/shrinks the page vector (make_unique when growing)
 
     // Set the actual size of each page
     for (HXSize_t i = 0; i < newNPage; ++i)
@@ -198,26 +198,62 @@ void DataBook::ReSize(HXLongLong_t nLength)
         currPos = nLength;
 }
 
-void DataBook::ResizeNPage(HXSize_t newNPage)
-{
-    HXSize_t oldNPage = pages.size();
+//void DataBook::SetPageCount(HXSize_t newNPage)
+//{
+//    HXSize_t oldNPage = pages.size();
+//
+//    if (newNPage < oldNPage)
+//    {
+//        // Shrinking: unique_ptr destructor automatically deletes the DataPage.
+//        pages.resize(newNPage);
+//    }
+//    else if (newNPage > oldNPage)
+//    {
+//        // Growing: must explicitly create real DataPage objects.
+//        // vector::resize only default-constructs empty unique_ptrs (nullptr).
+//        pages.reserve(newNPage);   // optional, avoids reallocation
+//        for (HXSize_t i = oldNPage; i < newNPage; ++i)
+//        {
+//            pages.push_back(std::make_unique<DataPage>());
+//        }
+//    }
+//    // newNPage == oldNPage ¡ú do nothing
+//}
 
-    if (newNPage < oldNPage)
+// Sets the number of DataPage objects to exactly newPageCount, growing
+// or shrinking as needed. Existing pages below the new count are left
+// untouched; existing pages above it are destroyed. Newly created pages
+// (when growing) start out empty (size 0) -- callers are responsible for
+// sizing their content afterward (see DataBook::ReSize, which calls this
+// then sets each page's byte size separately).
+void DataBook::SetPageCount( HXSize_t newPageCount )
+{
+    HXSize_t oldPageCount = pages.size();
+
+    if ( newPageCount < oldPageCount )
     {
-        // Shrinking: unique_ptr destructor automatically deletes the DataPage.
-        pages.resize(newNPage);
+        // Shrinking: unique_ptr's destructor automatically deletes the
+        // DataPage objects being dropped.
+        pages.resize( newPageCount );
     }
-    else if (newNPage > oldNPage)
+    else if ( newPageCount > oldPageCount )
     {
-        // Growing: must explicitly create real DataPage objects.
-        // vector::resize only default-constructs empty unique_ptrs (nullptr).
-        pages.reserve(newNPage);   // optional, avoids reallocation
-        for (HXSize_t i = oldNPage; i < newNPage; ++i)
+        // Growing: vector::resize() alone only default-constructs empty
+        // (nullptr) unique_ptrs, so real DataPage objects must be created
+        // explicitly here.
+        //
+        // Not merely a micro-optimization: without this reserve, growing
+        // via repeated emplace_back() could trigger multiple reallocations
+        // as capacity doubles, each one moving every existing unique_ptr
+        // element to new storage. A single reserve() upfront avoids that
+        // entirely, since the target size is already known.
+        pages.reserve( newPageCount );
+        for ( HXSize_t i = oldPageCount; i < newPageCount; ++ i )
         {
-            pages.push_back(std::make_unique<DataPage>());
+            pages.emplace_back( std::make_unique<DataPage>() );
         }
     }
-    // newNPage == oldNPage ¡ú do nothing
+    // newPageCount == oldPageCount -> nothing to do
 }
 
 void DataBook::SecureRelativeSpace( HXLongLong_t dataSize )
@@ -240,7 +276,7 @@ void DataBook::SecureAbsoluteSpace( HXLongLong_t needSize )
 void DataBook::MoveToBegin()
 {
     this->currPos = 0;
-    for ( int iPage = 0; iPage < this->GetNPage(); ++ iPage )
+    for ( int iPage = 0; iPage < this->GetPageCount(); ++ iPage )
     {
         this->GetPage( iPage )->MoveToBegin();
     }
@@ -249,7 +285,7 @@ void DataBook::MoveToBegin()
 void DataBook::MoveToEnd()
 {
     this->currPos = this->GetSize();
-    for ( HXSize_t iPage = 0; iPage < this->GetNPage(); ++ iPage )
+    for ( HXSize_t iPage = 0; iPage < this->GetPageCount(); ++ iPage )
     {
         this->GetPage( iPage )->MoveToEnd();
     }
@@ -279,7 +315,7 @@ void DataBook::ReadFile( std::fstream & file )
 
     this->SecureAbsoluteSpace( nLength );
 
-    for ( std::streamsize iPage = 0; iPage < this->GetNPage(); ++ iPage )
+    for ( std::streamsize iPage = 0; iPage < this->GetPageCount(); ++ iPage )
     {
         this->GetPage( iPage )->ReadFile( file );
     }
@@ -296,7 +332,7 @@ void DataBook::WriteFile( std::fstream & file )
         return;
     }
 
-    for ( HXSize_t iPage = 0; iPage < this->GetNPage(); ++ iPage )
+    for ( HXSize_t iPage = 0; iPage < this->GetPageCount(); ++ iPage )
     {
         this->GetPage( iPage )->WriteFile( file );
     }
@@ -304,7 +340,7 @@ void DataBook::WriteFile( std::fstream & file )
 
 void DataBook::ToString( std::string & str )
 {
-    for ( HXSize_t iPage = 0; iPage < this->GetNPage(); ++ iPage )
+    for ( HXSize_t iPage = 0; iPage < this->GetPageCount(); ++ iPage )
     {
         this->GetPage( iPage )->ToString( str );
     }
@@ -328,7 +364,7 @@ void DataBook::Send( int pid, int tag )
     //It is necessary to judge the zero of data length
     if ( nLength <= 0 ) return;
 
-    for ( HXSize_t iPage = 0; iPage < this->GetNPage(); ++ iPage )
+    for ( HXSize_t iPage = 0; iPage < this->GetPageCount(); ++ iPage )
     {
         this->GetPage( iPage )->Send( pid, tag );
     }
@@ -347,7 +383,7 @@ void DataBook::Recv( int pid, int tag )
 
     this->SecureAbsoluteSpace( nLength );
 
-    for ( HXSize_t iPage = 0; iPage < this->GetNPage(); ++ iPage )
+    for ( HXSize_t iPage = 0; iPage < this->GetPageCount(); ++ iPage )
     {
         this->GetPage( iPage )->Recv( pid, tag );
     }
@@ -383,7 +419,7 @@ void DataBook::Bcast( int rootid )
         this->SecureAbsoluteSpace( nLength );
     }
 
-    for ( HXSize_t iPage = 0; iPage < this->GetNPage(); ++ iPage )
+    for ( HXSize_t iPage = 0; iPage < this->GetPageCount(); ++ iPage )
     {
         this->GetPage( iPage )->Bcast( rootid );
     }

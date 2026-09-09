@@ -65,14 +65,14 @@ public:
     HXLongLong_t currPos;
     HXLongLong_t maxUnitSize;
 public:
-    HXSize_t GetNPage();   // moved from protected to public,
+    HXSize_t GetPageCount();   // moved from protected to public,
     // so tests can assert on page count directly
     DataPage * GetCurrentPage();
     DataPage * GetPage( HXSize_t iPage );
 protected:
-    void ResizeNPage( HXSize_t newNPage );
+    void SetPageCount( HXSize_t newPageCount );
     HXLongLong_t  GetRemainingSizeOfCurrentPage();
-    void MoveForwardPosition( HXLongLong_t dataSize );
+    void Advance( HXLongLong_t offset );
 public:
     void Read ( void * data, HXLongLong_t dataSize );
     void Write( void * data, HXLongLong_t dataSize );

@@ -47,8 +47,8 @@ TEST_F(DataPageBookTest, DataPage_Create_Destroy_Empty)
 {
     DataPage page;
     EXPECT_EQ(page.GetSize(), 0U);
-    EXPECT_EQ(page.GetBeginDataPointer(), nullptr);
-    EXPECT_EQ(page.GetCurrentDataPointer(), nullptr);
+    EXPECT_EQ(page.data(), nullptr);
+    EXPECT_EQ(page.CurrentPtr(), nullptr);
 }
 
 TEST_F(DataPageBookTest, DataPage_Resize_Basic)
@@ -56,8 +56,8 @@ TEST_F(DataPageBookTest, DataPage_Resize_Basic)
     DataPage page;
     page.ReSize(1024);
     EXPECT_EQ(page.GetSize(), 1024U);
-    EXPECT_NE(page.GetBeginDataPointer(), nullptr);
-    EXPECT_NE(page.GetCurrentDataPointer(), nullptr);
+    EXPECT_NE(page.data(), nullptr);
+    EXPECT_NE(page.CurrentPtr(), nullptr);
 }
 
 TEST_F(DataPageBookTest, DataPage_Write_Read_SmallBuffer)
@@ -88,10 +88,10 @@ TEST_F(DataPageBookTest, DataPage_Write_Read_RandomPosition)
     page.ReSize(256);
 
     int srcVal = 0x12345678;
-    page.Write(&srcVal, sizeof(int), 100);
+    page.Write(&srcVal, 100, sizeof(int));
 
     int dstVal = 0;
-    page.Read(&dstVal, sizeof(int), 100);
+    page.Read(&dstVal, 100, sizeof(int));
     EXPECT_EQ(srcVal, dstVal);
 }
 
@@ -102,7 +102,7 @@ TEST_F(DataPageBookTest, DataPage_MoveToEnd_PositionEqualSize)
     page.ReSize(128);
     page.MoveToEnd();
     // currPos equals size, should not trigger fatal error
-    EXPECT_EQ(page.GetCurrentDataPointer(), page.GetDataPointer(128));
+    EXPECT_EQ( page.CurrentPtr(), page.PtrAt( 128 ) );
 }
 
 TEST_F(DataPageBookTest, DataPage_ToString)
@@ -166,8 +166,8 @@ TEST_F(DataPageBookTest, DataPage_Write_OutOfRangePosition_Throws)
     page.ReSize(10);
 
     char buf[4] = {0};
-    // position (11) is beyond GetSize() (10), so this must throw.
-    EXPECT_THROW(page.Write(buf, sizeof(buf), 11), std::runtime_error);
+    // Update expected exception type to std::out_of_range.
+    EXPECT_THROW(page.Write(buf, 11, sizeof(buf)), std::out_of_range);
 }
 
 TEST_F(DataPageBookTest, DataPage_Read_OutOfRangePosition_Throws)
@@ -176,9 +176,9 @@ TEST_F(DataPageBookTest, DataPage_Read_OutOfRangePosition_Throws)
     page.ReSize(10);
 
     char buf[4] = {0};
-    EXPECT_THROW(page.Read(buf, sizeof(buf), 11), std::runtime_error);
+    // Update expected exception type to std::out_of_range.
+    EXPECT_THROW(page.Read(buf, 11, sizeof(buf)), std::out_of_range);
 }
-
 // ----------------------------------------------------------------------------
 // DataBook Basic Test
 // ----------------------------------------------------------------------------
@@ -209,6 +209,8 @@ TEST_F(DataPageBookTest, DataBook_Write_Read_Small_NoCrossPage)
 
     EXPECT_EQ(std::memcmp(src, dst, static_cast<std::size_t>(bufSize)), 0);
 }
+
+
 
 TEST_F(DataPageBookTest, DataBook_Write_Read_SingleLargePage)
 {
@@ -258,7 +260,7 @@ TEST_F(DataPageBookTest, DataBook_TrulyCrossMultiplePages)
     // Sanity check: with a 10-byte page size and 250 bytes written,
     // the data must have actually spanned multiple pages (25 pages),
     // not silently stayed within a single page like the old test did.
-    EXPECT_GT(book.GetNPage(), 1U); 
+    EXPECT_GT(book.GetPageCount(), 1U); 
 
     book.MoveToBegin();
     char dst[250];
@@ -466,7 +468,7 @@ TEST_F(DataPageBookTest, DataBook_ManyTinyPages_NoStackOverflow)
     EXPECT_EQ(src, dst);
 }
 
-TEST_F(DataPageBookTest, DataBook_ResizeNPage_GrowAndShrink)
+TEST_F(DataPageBookTest, DataBook_SetPageCount_GrowAndShrink)
 {
     // Use tiny page size so we can force multiple pages easily.
     DataBook book(10);   // maxUnitSize = 10
@@ -477,37 +479,37 @@ TEST_F(DataPageBookTest, DataBook_ResizeNPage_GrowAndShrink)
     book.MoveToBegin();
     book.Write(src.data(), total);
 
-    EXPECT_EQ(book.GetNPage(), 4U);
+    EXPECT_EQ(book.GetPageCount(), 4U);
     EXPECT_EQ(book.GetSize(), total);
 
-    // 2. Shrink via ReSize (this calls ResizeNPage internally)
+    // 2. Shrink via ReSize (this calls SetPageCount internally)
     book.ReSize(15);                 // should become 2 pages (10+5)
-    EXPECT_EQ(book.GetNPage(), 2U);
+    EXPECT_EQ(book.GetPageCount(), 2U);
     EXPECT_EQ(book.GetSize(), 15LL);
 
     // 3. Shrink to zero
     book.ReSize(0);
-    EXPECT_EQ(book.GetNPage(), 0U);  // or 1U depending on your policy;
+    EXPECT_EQ(book.GetPageCount(), 0U);  // or 1U depending on your policy;
     // current implementation leaves 0 pages after ReSize(0)
     EXPECT_EQ(book.GetSize(), 0LL);
 
     // 4. Grow again from empty
     book.ReSize(25);                 // 3 pages
-    EXPECT_EQ(book.GetNPage(), 3U);
+    EXPECT_EQ(book.GetPageCount(), 3U);
     EXPECT_EQ(book.GetSize(), 25LL);
 }
 
-TEST_F(DataPageBookTest, DataBook_ResizeNPage_PreservesExistingDataWhenGrowing)
+TEST_F(DataPageBookTest, DataBook_SetPageCount_PreservesExistingDataWhenGrowing)
 {
     // Optional but useful: verify that growing does not destroy already-written data.
     DataBook book(16);
     std::string s = "HelloResize";
     book.WriteString(s);
 
-    HXSize_t oldPages = book.GetNPage();
+    HXSize_t oldPages = book.GetPageCount();
     book.ReSize(book.GetSize() + 100);   // force growth
 
-    EXPECT_GT(book.GetNPage(), oldPages);
+    EXPECT_GT(book.GetPageCount(), oldPages);
 
     book.MoveToBegin();
     std::string out;
@@ -536,11 +538,11 @@ TEST(DataBookDesign, Move_IsCheapPointerTransfer_NotDeepCopy)
     std::string s = "MoveShouldNotCopyBuffer";
     src.WriteString(s);
 
-    char * originalPageAddr = src.GetPage(0)->GetBeginDataPointer();
+    char * originalPageAddr = src.GetPage(0)->data();
 
     DataBook dst( std::move(src) );
 
-    EXPECT_EQ( dst.GetPage(0)->GetBeginDataPointer(), originalPageAddr );
+    EXPECT_EQ( dst.GetPage(0)->data(), originalPageAddr );
 
     dst.MoveToBegin();
     std::string out;
@@ -567,11 +569,11 @@ TEST(DataPageDesign, Move_IsCheap_BufferAddressUnchanged)
     memset(fill, 0x42, sizeof(fill));
     src.Write(fill, sizeof(fill));
 
-    char * originalAddr = src.GetBeginDataPointer();
+    char * originalAddr = src.data();
 
     DataPage dst( std::move(src) );
 
-    EXPECT_EQ( dst.GetBeginDataPointer(), originalAddr );
+    EXPECT_EQ( dst.data(), originalAddr );
     EXPECT_EQ( dst.GetSize(), 4096U );
 }
 
