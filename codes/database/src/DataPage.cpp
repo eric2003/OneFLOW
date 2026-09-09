@@ -24,10 +24,11 @@ License
 #include "BasicParallel.h"
 #include "Parallel.h"
 #include "Fatal.h"
+#include <cstring>
 
-#ifndef _WINDOWS
-   #include <string.h>
-#endif
+//#ifndef _WINDOWS
+//   #include <string.h>
+//#endif
 #include <fstream>
 
 
@@ -44,7 +45,7 @@ DataPage::~DataPage()
 void DataPage::MoveToPosition( HXSize_t position )
 {
     // position == GetSize() is a valid "end/append" position.
-    if ( position <= GetSize() )
+    if ( position <= size() )
     {
         this->currPos = position;
     }
@@ -54,12 +55,12 @@ void DataPage::MoveToPosition( HXSize_t position )
     }
 }
 
-void DataPage::Advance( HXLongLong_t offset )
+void DataPage::Advance( HXOffset_t offset )
 {
     this->currPos += offset;
 }
 
-HXSize_t DataPage::GetSize() const
+HXSize_t DataPage::size() const
 {
     return dataMemory.size();
 }
@@ -93,9 +94,9 @@ char * DataPage::PtrAt( int offset )
 
 void DataPage::ToString( std::string & str )
 {
-    if ( this->GetSize() )
+    if ( this->size() )
     {
-        str.append( this->data(), this->GetSize() );
+        str.append( this->data(), this->size() );
     }
 }
 
@@ -107,7 +108,7 @@ void DataPage::Write( const void * data, HXSize_t dataSize )
     }
 
     // Check for buffer overflow before writing.
-    if ( this->currPos + dataSize > this->GetSize() )
+    if ( this->currPos + dataSize > this->size() )
     {
         throw std::out_of_range("DataPage::Write - Buffer overflow");
     }
@@ -124,7 +125,7 @@ void DataPage::Read( void * data, HXSize_t dataSize )
     }
 
     // Prevent potential integer overflow and check bound.
-    if ( dataSize > this->GetSize() - this->currPos )
+    if ( dataSize > this->size() - this->currPos )
     {
         throw std::out_of_range("DataPage::Read - Attempted to read past end of buffer");
     }
@@ -132,14 +133,6 @@ void DataPage::Read( void * data, HXSize_t dataSize )
     std::memcpy( data, this->CurrentPtr(), dataSize );
     this->Advance( dataSize );
 }
-
-//void DataPage::Write( void * data, HXSize_t position, HXSize_t dataSize )
-//{
-//    if ( dataSize <= 0 ) return;
-//    this->MoveToPosition( position );
-//    this->Write( data, dataSize );
-//    this->Advance( dataSize );
-//}
 
 void DataPage::Write( const void * data, HXSize_t position, HXSize_t dataSize )
 {
@@ -149,21 +142,13 @@ void DataPage::Write( const void * data, HXSize_t position, HXSize_t dataSize )
     }
 
     // Check bounds for the specific window without changing internal state.
-    if ( position > this->GetSize() || dataSize > this->GetSize() - position )
+    if ( position > this->size() || dataSize > this->size() - position )
     {
         throw std::out_of_range("DataPage::Write - Buffer overflow at specified position");
     }
 
     std::memcpy( this->data() + position, data, dataSize );
 }
-
-//void DataPage::Read( void * data, HXSize_t position, HXSize_t dataSize )
-//{
-//    if ( dataSize <= 0 ) return;
-//    this->MoveToPosition( position );
-//    this->Read( data, dataSize );
-//    this->Advance( dataSize );
-//}
 
 void DataPage::Read( void * data, HXSize_t position, HXSize_t dataSize ) const
 {
@@ -173,7 +158,7 @@ void DataPage::Read( void * data, HXSize_t position, HXSize_t dataSize ) const
     }
 
     // Check bounds for the specific window without changing internal state.
-    if ( position > this->GetSize() || dataSize > this->GetSize() - position )
+    if ( position > this->size() || dataSize > this->size() - position )
     {
         throw std::out_of_range("DataPage::Read - Attempted to read past end of buffer");
     }
@@ -188,7 +173,7 @@ void DataPage::ReSize( HXSize_t newSize )
 
 void DataPage::Send( int pId, int tag )
 {
-    HXSize_t nLength = this->GetSize();
+    HXSize_t nLength = this->size();
 
     if ( nLength <= 0 ) return;
     ONEFLOW::HXSend( this->data(), nLength, PL_CHAR, pId, tag );
@@ -196,7 +181,7 @@ void DataPage::Send( int pId, int tag )
 
 void DataPage::Recv( int pId, int tag )
 {
-    HXSize_t nLength = this->GetSize();
+    HXSize_t nLength = this->size();
 
     if ( nLength <= 0 ) return;
 
@@ -205,7 +190,7 @@ void DataPage::Recv( int pId, int tag )
 
 void DataPage::Bcast( int rootid )
 {
-    HXSize_t nLength = this->GetSize();
+    HXSize_t nLength = this->size();
 
     if ( nLength <= 0 ) return;
     HXBcast( this->data(), nLength, rootid );
@@ -213,7 +198,7 @@ void DataPage::Bcast( int rootid )
 
 void DataPage::ReadFile( std::fstream & file )
 {
-    HXSize_t nLength = this->GetSize();
+    HXSize_t nLength = this->size();
 
     if ( nLength <= 0 ) return;
 
@@ -224,7 +209,7 @@ void DataPage::ReadFile( std::fstream & file )
 
 void DataPage::WriteFile( std::fstream & file )
 {
-    HXSize_t nLength = this->GetSize();
+    HXSize_t nLength = this->size();
 
     if ( nLength <= 0 )
     {

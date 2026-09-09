@@ -29,7 +29,7 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-DataBook::DataBook(HXLongLong_t unitSize)
+DataBook::DataBook(HXOffset_t unitSize)
     : currPos(0), maxUnitSize(unitSize)
 {
     if (unitSize <= 0)
@@ -53,12 +53,12 @@ DataPage * DataBook::GetPage( HXSize_t iPage )
     return pages[ iPage ].get();
 }
 
-void DataBook::Advance( HXLongLong_t offset )
+void DataBook::Advance( HXOffset_t offset )
 {
     this->currPos += offset;
 }
 
-void DataBook::Write( void * data, HXLongLong_t dataSize )
+void DataBook::Write( void * data, HXOffset_t dataSize )
 {
     if ( dataSize <= 0 ) return;
 
@@ -71,11 +71,11 @@ void DataBook::Write( void * data, HXLongLong_t dataSize )
     // DataBook_ManyTinyPages_NoStackOverflow, ~0.54s for just 5000 bytes
     // with unitSize=1 under the old recursive implementation).
     char * cursor = reinterpret_cast<char *>( data );
-    HXLongLong_t remaining = dataSize;
+    HXOffset_t remaining = dataSize;
 
     while ( remaining > 0 )
     {
-        HXLongLong_t chunk = this->GetRemainingSizeOfCurrentPage();
+        HXOffset_t chunk = this->GetRemainingSizeOfCurrentPage();
         if ( chunk > remaining )
         {
             chunk = remaining;
@@ -89,16 +89,16 @@ void DataBook::Write( void * data, HXLongLong_t dataSize )
     }
 }
 
-void DataBook::Read( void * data, HXLongLong_t dataSize )
+void DataBook::Read( void * data, HXOffset_t dataSize )
 {
     if ( dataSize <= 0 ) return;
 
     char * cursor = reinterpret_cast<char *>( data );
-    HXLongLong_t remaining = dataSize;
+    HXOffset_t remaining = dataSize;
 
     while ( remaining > 0 )
     {
-        HXLongLong_t chunk = this->GetRemainingSizeOfCurrentPage();
+        HXOffset_t chunk = this->GetRemainingSizeOfCurrentPage();
         if ( chunk > remaining )
         {
             chunk = remaining;
@@ -153,18 +153,18 @@ void DataBook::Write( std::ostringstream * oss )
     this->Write( const_cast< char * >( str.c_str() ), stringSize * sizeof( char ) );
 }
 
-HXLongLong_t DataBook::GetSize()
+HXOffset_t DataBook::GetSize()
 {
-    HXLongLong_t sum = 0;
+    HXOffset_t sum = 0;
     for ( int iPage = 0; iPage < this->GetPageCount(); ++ iPage )
     {
-        sum += this->GetPage( iPage )->GetSize();
+        sum += this->GetPage( iPage )->size();
     }
     return sum;
 }
 
 // ReSize: align the internal structure with the vector of pages
-void DataBook::ReSize(HXLongLong_t nLength)
+void DataBook::ReSize(HXOffset_t nLength)
 {
     if (nLength < 0) return;          // »ò throw
 
@@ -178,7 +178,7 @@ void DataBook::ReSize(HXLongLong_t nLength)
     // Compute how many pages are needed
     // 23 divided by 3 is 7, remainder 2.
     HXSize_t nPage = static_cast<HXSize_t>(nLength / maxUnitSize);
-    HXLongLong_t remainder = nLength % maxUnitSize;
+    HXOffset_t remainder = nLength % maxUnitSize;
     HXSize_t newNPage = nPage + (remainder ? 1 : 0);
 
     SetPageCount(newNPage);       // grows/shrinks the page vector (make_unique when growing)
@@ -186,7 +186,7 @@ void DataBook::ReSize(HXLongLong_t nLength)
     // Set the actual size of each page
     for (HXSize_t i = 0; i < newNPage; ++i)
     {
-        HXLongLong_t pageSize = (i == nPage) ? remainder : maxUnitSize;
+        HXOffset_t pageSize = (i == nPage) ? remainder : maxUnitSize;
         // Edge case: when remainder == 0, the last page is full-sized
         if (i == newNPage - 1 && remainder == 0)
             pageSize = maxUnitSize;
@@ -256,14 +256,14 @@ void DataBook::SetPageCount( HXSize_t newPageCount )
     // newPageCount == oldPageCount -> nothing to do
 }
 
-void DataBook::SecureRelativeSpace( HXLongLong_t dataSize )
+void DataBook::SecureRelativeSpace( HXOffset_t dataSize )
 {
-    HXLongLong_t needSize = this->currPos + dataSize;
+    HXOffset_t needSize = this->currPos + dataSize;
 
     this->SecureAbsoluteSpace( needSize );
 }
 
-void DataBook::SecureAbsoluteSpace( HXLongLong_t needSize )
+void DataBook::SecureAbsoluteSpace( HXOffset_t needSize )
 {
     //If there is enough space, there is no need to allocate
     //This can cause some std::string problems, and if not ReSize, there may be superfluous characters
@@ -291,12 +291,12 @@ void DataBook::MoveToEnd()
     }
 }
 
-HXLongLong_t DataBook::GetRemainingSizeOfCurrentPage()
+HXOffset_t DataBook::GetRemainingSizeOfCurrentPage()
 {
     // Offset of the cursor within the current page (0 <= offset < maxUnitSize).
     // e.g. currPos=27, maxUnitSize=10 -> offset=7, meaning we are 7 bytes
     // into page index 2.
-    HXLongLong_t offsetInPage = this->currPos % maxUnitSize;
+    HXOffset_t offsetInPage = this->currPos % maxUnitSize;
 
     // Bytes left before hitting the end of the current page.
     return maxUnitSize - offsetInPage;
@@ -308,7 +308,7 @@ void DataBook::ReadFile( std::fstream & file )
     //Read the contents of file into DataBook
     //And for DataBook, the process is counter, equivalent to writing
 
-    HXLongLong_t nLength = 0;
+    HXOffset_t nLength = 0;
     ONEFLOW::HXRead( & file, nLength );
 
     if ( nLength <= 0 ) return;
@@ -323,7 +323,7 @@ void DataBook::ReadFile( std::fstream & file )
 
 void DataBook::WriteFile( std::fstream & file )
 {
-    HXLongLong_t nLength = this->GetSize();
+    HXOffset_t nLength = this->GetSize();
 
     //Whether or not nLength is less than zero, you need to write the file
     ONEFLOW::HXWrite( & file, nLength );
@@ -346,10 +346,10 @@ void DataBook::ToString( std::string & str )
     }
 }
 
-void DataBook::Append( void * data, HXLongLong_t dataSize )
+void DataBook::Append( void * data, HXOffset_t dataSize )
 {
     this->MoveToEnd();
-    HXLongLong_t needSize = this->GetSize() + dataSize;
+    HXOffset_t needSize = this->GetSize() + dataSize;
     this->SecureAbsoluteSpace( needSize );
 
     this->GetCurrentPage()->Write( data, dataSize );
@@ -357,7 +357,7 @@ void DataBook::Append( void * data, HXLongLong_t dataSize )
 
 void DataBook::Send( int pid, int tag )
 {
-    HXLongLong_t nLength = this->GetSize();
+    HXOffset_t nLength = this->GetSize();
 
     ONEFLOW::HXSend( & nLength, 1, PL_LONG_LONG_INT, pid, tag );
 
@@ -372,7 +372,7 @@ void DataBook::Send( int pid, int tag )
 
 void DataBook::Recv( int pid, int tag )
 {
-    HXLongLong_t nLength = 0;
+    HXOffset_t nLength = 0;
 
     ONEFLOW::HXRecv( & nLength, 1, PL_LONG_LONG_INT, pid, tag );
 
@@ -405,7 +405,7 @@ void DataBook::SendRecv( int sendpid, int recvpid, int tag )
 
 void DataBook::Bcast( int rootid )
 {
-    HXLongLong_t nLength = this->GetSize();
+    HXOffset_t nLength = this->GetSize();
 
     HXBcast( & nLength, 1, rootid );
 

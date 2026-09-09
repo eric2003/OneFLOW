@@ -41,7 +41,7 @@ public:
     // unitSize controls how many bytes each internal DataPage holds before
     // data spills into the next page. Defaults to ~1GB for production use;
     // tests can pass a small value to exercise cross-page logic directly.
-    explicit DataBook( HXLongLong_t unitSize = 1024000000 );
+    explicit DataBook( HXOffset_t unitSize = 1024000000 );
     // Do NOT rely on implicit deletion via the vector<unique_ptr<DataPage>>
     // member: std::vector<T>'s copy constructor is unconditionally declared
     // regardless of whether T is copyable, so std::is_copy_constructible
@@ -62,8 +62,8 @@ public:
 
 public:
     std::vector< std::unique_ptr<DataPage> > pages;   // renamed from dataBook
-    HXLongLong_t currPos;
-    HXLongLong_t maxUnitSize;
+    HXOffset_t currPos;
+    HXOffset_t maxUnitSize;
 public:
     HXSize_t GetPageCount();   // moved from protected to public,
     // so tests can assert on page count directly
@@ -71,11 +71,11 @@ public:
     DataPage * GetPage( HXSize_t iPage );
 protected:
     void SetPageCount( HXSize_t newPageCount );
-    HXLongLong_t  GetRemainingSizeOfCurrentPage();
-    void Advance( HXLongLong_t offset );
+    HXOffset_t  GetRemainingSizeOfCurrentPage();
+    void Advance( HXOffset_t offset );
 public:
-    void Read ( void * data, HXLongLong_t dataSize );
-    void Write( void * data, HXLongLong_t dataSize );
+    void Read ( void * data, HXOffset_t dataSize );
+    void Write( void * data, HXOffset_t dataSize );
     void ReadFile ( std::fstream & file );
     void WriteFile( std::fstream & file );
 
@@ -84,8 +84,8 @@ public:
 
     void Write( std::ostringstream * oss );
 
-    HXLongLong_t GetSize();
-    void ReSize( HXLongLong_t nLength );
+    HXOffset_t GetSize();
+    void ReSize( HXOffset_t nLength );
 
     void Send( int pid, int tag );
     void Recv( int pid, int tag );
@@ -95,11 +95,11 @@ public:
     void SendRecv( int sendpid, int recvpid, int tag );
 
     void ToString( std::string & str );
-    void Append( void * data, HXLongLong_t dataSize );
+    void Append( void * data, HXOffset_t dataSize );
     void AppendString( std::string & cs );
 
-    void SecureRelativeSpace( HXLongLong_t dataSize );
-    void SecureAbsoluteSpace( HXLongLong_t needSize );
+    void SecureRelativeSpace( HXOffset_t dataSize );
+    void SecureAbsoluteSpace( HXOffset_t needSize );
     void MoveToBegin();
     void MoveToEnd();
 };

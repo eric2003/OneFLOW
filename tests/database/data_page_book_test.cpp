@@ -46,7 +46,7 @@ protected:
 TEST_F(DataPageBookTest, DataPage_Create_Destroy_Empty)
 {
     DataPage page;
-    EXPECT_EQ(page.GetSize(), 0U);
+    EXPECT_EQ(page.size(), 0U);
     EXPECT_EQ(page.data(), nullptr);
     EXPECT_EQ(page.CurrentPtr(), nullptr);
 }
@@ -55,7 +55,7 @@ TEST_F(DataPageBookTest, DataPage_Resize_Basic)
 {
     DataPage page;
     page.ReSize(1024);
-    EXPECT_EQ(page.GetSize(), 1024U);
+    EXPECT_EQ(page.size(), 1024U);
     EXPECT_NE(page.data(), nullptr);
     EXPECT_NE(page.CurrentPtr(), nullptr);
 }
@@ -191,11 +191,11 @@ TEST_F(DataPageBookTest, DataBook_Create_Empty)
 TEST_F(DataPageBookTest, DataBook_Write_Read_Small_NoCrossPage)
 {
     DataBook book;
-    const HXLongLong_t bufSize = 1024;
+    const HXOffset_t bufSize = 1024;
     book.SecureAbsoluteSpace(bufSize);
 
     char src[bufSize];
-    for (HXLongLong_t i = 0; i < bufSize; ++i)
+    for (HXOffset_t i = 0; i < bufSize; ++i)
     {
         src[i] = static_cast<char>(i & 0xff);
     }
@@ -217,15 +217,15 @@ TEST_F(DataPageBookTest, DataBook_Write_Read_SingleLargePage)
     DataBook book;
     // Force cross‑page: override maxUnitSize for test, small page size
     // Note: original member maxUnitSize is not public,
-    // If you add setter void SetMaxUnitSize(HXLongLong_t s), enable below.
+    // If you add setter void SetMaxUnitSize(HXOffset_t s), enable below.
     // book.maxUnitSize = 100;
 
     // Test data cross page boundary, e.g total size 250, page size=100 -> 3 pages
-    const HXLongLong_t totalSize = 250;
+    const HXOffset_t totalSize = 250;
     book.SecureAbsoluteSpace(totalSize);
 
     char src[250];
-    for (HXLongLong_t i = 0; i < totalSize; ++i)
+    for (HXOffset_t i = 0; i < totalSize; ++i)
     {
         src[i] = static_cast<char>(i);
     }
@@ -247,9 +247,9 @@ TEST_F(DataPageBookTest, DataBook_TrulyCrossMultiplePages)
     // where "cross-page" tests never actually leave page 0.
     DataBook book(10);
 
-    const HXLongLong_t totalSize = 250;
+    const HXOffset_t totalSize = 250;
     char src[250];
-    for (HXLongLong_t i = 0; i < totalSize; ++i)
+    for (HXOffset_t i = 0; i < totalSize; ++i)
     {
         src[i] = static_cast<char>(i);
     }
@@ -459,11 +459,11 @@ TEST_F(DataPageBookTest, DataBook_ManyTinyPages_NoStackOverflow)
     for (size_t i = 0; i < src.size(); ++i) src[i] = static_cast<char>(i);
 
     book.MoveToBegin();
-    book.Write(src.data(), static_cast<HXLongLong_t>(src.size()));
+    book.Write(src.data(), static_cast<HXOffset_t>(src.size()));
 
     book.MoveToBegin();
     std::vector<char> dst(5000);
-    book.Read(dst.data(), static_cast<HXLongLong_t>(dst.size()));
+    book.Read(dst.data(), static_cast<HXOffset_t>(dst.size()));
 
     EXPECT_EQ(src, dst);
 }
@@ -474,7 +474,7 @@ TEST_F(DataPageBookTest, DataBook_SetPageCount_GrowAndShrink)
     DataBook book(10);   // maxUnitSize = 10
 
     // 1. Grow: write enough data to create several pages
-    const HXLongLong_t total = 35;   // 4 pages (10+10+10+5)
+    const HXOffset_t total = 35;   // 4 pages (10+10+10+5)
     std::vector<char> src(total, 0xAB);
     book.MoveToBegin();
     book.Write(src.data(), total);
@@ -574,7 +574,7 @@ TEST(DataPageDesign, Move_IsCheap_BufferAddressUnchanged)
     DataPage dst( std::move(src) );
 
     EXPECT_EQ( dst.data(), originalAddr );
-    EXPECT_EQ( dst.GetSize(), 4096U );
+    EXPECT_EQ( dst.size(), 4096U );
 }
 
 // ----------------------------------------------------------------------------

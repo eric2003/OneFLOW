@@ -51,7 +51,7 @@ public:
     DataPage( DataPage && )            = default;
     DataPage & operator=( DataPage && ) = default;
 public:
-    HXSize_t GetSize() const;
+    HXSize_t size() const;
     void Read ( void * data, HXSize_t dataSize );
     void Read( void * data, HXSize_t position, HXSize_t dataSize ) const;
     void Write( const void * data, HXSize_t dataSize );
@@ -65,14 +65,14 @@ public:
     char * CurrentPtr();
 
     void MoveToBegin() { MoveToPosition( 0 ); };
-    void MoveToEnd  () { currPos = GetSize(); };
+    void MoveToEnd  () { currPos = size(); };
     void ReSize( HXSize_t newSize );
     void Send( int pId, int tag );
     void Recv( int pId, int tag );
     void Bcast( int rootid );
 protected:
     void MoveToPosition( HXSize_t position );
-    void Advance( HXLongLong_t offset );
+    void Advance( HXOffset_t offset );
 protected:
     HXSize_t currPos;
     CharMemory dataMemory;     // value member, automatically managed
