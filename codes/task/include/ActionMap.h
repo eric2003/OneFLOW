@@ -25,44 +25,7 @@ along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 #include <vector>
 #include <string>
 
-
-
 BeginNameSpace( ONEFLOW )
-
-//class ActionMapImp;
-//
-//class ActionMap
-//{
-//public:
-//    ActionMap();
-//    ~ActionMap();
-//public:
-//    static ActionMapImp * imp;
-//public:
-//    static int    GetActionId( const std::string & name );
-//    static std::string GetActionName( int id );
-//    static void ReadFile( const std::string & fileName );
-//public:
-//    static void Init();
-//    static void Free();
-//};
-//
-//class ActionMapImp
-//{
-//public:
-//    ActionMapImp();
-//    ~ActionMapImp();
-//public:
-//    std::map< std::string, int > * nameMap;
-//    std::map< int, std::string > * idMap;
-//public:
-//    void Register( const std::string & name );
-//    void Unregister( const std::string & name );
-//    int    GetActionId( const std::string & name );
-//    std::string GetActionName( int id );
-//    void ReadFile( const std::string & fileName );
-//};
-
 
 class ActionMapImp
 {

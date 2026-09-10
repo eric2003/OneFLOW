@@ -44,7 +44,7 @@ CWriteFile::~CWriteFile()
 
 void CWriteFile::Run()
 {
-	ActionState::dataBook = this->dataBook;
+	ActionState::dataBook = this->dataBook.get();
 	if ( Parallel::mode == 0 )
 	{
 		this->ServerWrite();

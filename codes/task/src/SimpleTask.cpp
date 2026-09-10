@@ -32,7 +32,7 @@ BeginNameSpace( ONEFLOW )
 
 void SimpleTask::Run()
 {
-    ActionState::dataBook = this->dataBook;
+    ActionState::dataBook = this->dataBook.get();
     for ( int zId = 0; zId < ZoneState::nZones; ++ zId )
     {
         if ( ! ZoneState::IsValidZone( zId ) ) continue;

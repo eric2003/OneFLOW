@@ -21,27 +21,22 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "Task.h"
-#include "FileInfo.h"
-//#include "Register.h"
-//#include "Message.h"
-//#include "Zone.h"
-//#include "ZoneState.h"
-//#include "HXClone.h"
-//#include "ActionState.h"
+
 #include "DataBook.h"
+#include "FileInfo.h"
 
 BeginNameSpace( ONEFLOW )
 
 Task::Task()
+    : dataBook( std::make_unique< DataBook >() ),
+    fileInfo( std::make_unique< FileInfo >() )
 {
-    dataBook = new DataBook();
-    fileInfo = new FileInfo();
 }
 
-Task::~Task()
-{
-    delete dataBook;
-    delete fileInfo;
-}
+Task::~Task() = default;
+
+Task::Task( Task && ) noexcept = default;
+
+Task & Task::operator=( Task && ) noexcept = default;
 
 EndNameSpace

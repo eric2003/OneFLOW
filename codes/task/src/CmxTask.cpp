@@ -34,7 +34,6 @@ License
 #include "Solver.h"
 #include "Category.h"
 #include "SolverMap.h"
-//#include "BgGrid.h"
 #include "Zone.h"
 #include "Grid.h"
 #include "LogFile.h"

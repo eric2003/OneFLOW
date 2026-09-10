@@ -210,7 +210,7 @@ CFillWallStructTaskImp::~CFillWallStructTaskImp()
 
 void CFillWallStructTaskImp::Run()
 {
-    ActionState::dataBook = this->dataBook;
+    ActionState::dataBook = this->dataBook.get();
     this->Create();
 
 

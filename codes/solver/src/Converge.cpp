@@ -42,7 +42,7 @@ ConvergeTask::~ConvergeTask()
 
 void ConvergeTask::Run()
 {
-    ActionState::dataBook = this->dataBook;
+    ActionState::dataBook = this->dataBook.get();
 
     boolField.resize( ZoneState::nLocal, false );
 
