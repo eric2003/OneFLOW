@@ -283,6 +283,19 @@ void MRegister::AllocateData()
     }
 }
 
+void MRegister::SetRegister( int index, std::unique_ptr< HXRegister > reg )
+{
+    if ( index < 0 )
+    {
+        return;
+    }
+    if ( static_cast< int >( this->data.size() ) <= index )
+    {
+        this->data.resize( index + 1 );
+    }
+    this->data[ index ] = std::move( reg );
+}
+
 void MRegister::SetSolverFileNames( StringField & fileNames )
 {
     this->fileNames = fileNames;

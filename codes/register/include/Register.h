@@ -127,6 +127,13 @@ public:
 public:
     std::vector< std::unique_ptr< HXRegister > > data;
     StringField fileNames;
+public:
+    // Directly installs a fully-constructed HXRegister at the given
+    // index, growing `data` as needed. Bypasses RegisterAll()'s
+    // file-based loading entirely. Useful both for programmatically
+    // wiring up fixed/built-in registrations and for tests that need
+    // to inject a stub class without real config files on disk.
+    void SetRegister( int index, std::unique_ptr< HXRegister > reg );
 
 public:
     void SetSolverFileNames( StringField & fileNames );
