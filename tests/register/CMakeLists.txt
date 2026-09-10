@@ -7,15 +7,27 @@ set(REGISTER_INCLUDE_DIR ${OneFLOW_Root}/register/include)
 set(REGISTER_SRC_DIR ${OneFLOW_Root}/register/src)
 set(IO_INCLUDE_DIR ${OneFLOW_Root}/io/include)
 set(IO_SRC_DIR ${OneFLOW_Root}/io/src)
+set(TASK_INCLUDE_DIR ${OneFLOW_Root}/task/include)
+set(TASK_SRC_DIR ${OneFLOW_Root}/task/src)
+set(SOLVER_INCLUDE_DIR ${OneFLOW_Root}/solver/include)
+set(SOLVER_SRC_DIR ${OneFLOW_Root}/solver/src)
 
 set(TEST_SOURCES
     MessageMapTest.cpp
+	#MessageMapLoaderTest.cpp
+	RegisterFactoryTest.cpp
+	HXCloneTest.cpp
+	SolverTest.cpp
 	${REGISTER_SRC_DIR}/Message.cpp
+	${REGISTER_SRC_DIR}/HXClone.cpp
+	${REGISTER_SRC_DIR}/Register.cpp
 	${IO_SRC_DIR}/TextFileParser.cpp
 	${IO_SRC_DIR}/CommentLine.cpp
 	${IO_SRC_DIR}/Prj.cpp
 	${IO_SRC_DIR}/FileUtils.cpp
 	${BASIC_SRC_DIR}/Word.cpp
+	${SOLVER_SRC_DIR}/Solver.cpp
+	
 	
 )
 
@@ -28,7 +40,8 @@ target_include_directories(register_test
     ${REGISTER_INCLUDE_DIR}
 	${BASIC_INCLUDE_DIR}
 	${IO_INCLUDE_DIR}
-	
+	${TASK_INCLUDE_DIR}
+	${SOLVER_INCLUDE_DIR}
 )
 
 target_link_libraries(register_test

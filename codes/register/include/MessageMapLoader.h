@@ -21,14 +21,32 @@ License
 \*---------------------------------------------------------------------------*/
 
 
+//#pragma once
+//#include "NamespaceMacros.h"
+//#include "HXDefine.h"
+//
+//BeginNameSpace( ONEFLOW )
+//
+//void CreateMsgMap();
+//
+//void GetMsgFileNameList( StringField & fileNameList );
+//
+//EndNameSpace
+
 #pragma once
 #include "NamespaceMacros.h"
 #include "HXDefine.h"
 
 BeginNameSpace( ONEFLOW )
 
+// Bootstraps the global MessageMap singleton by reading the list of
+// message-definition files from disk and loading each of them in turn.
+// This is loading/assembly logic, distinct from MessageMap itself (which
+// is a pure name<->id registry with no knowledge of files or paths).
 void CreateMsgMap();
 
+// Reads the manifest file (actionFileList.txt) and expands each listed
+// file name into a full path under Prj::system_root + "action/".
 void GetMsgFileNameList( StringField & fileNameList );
 
 EndNameSpace
