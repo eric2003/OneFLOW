@@ -19,11 +19,14 @@ License
     along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 
 \*---------------------------------------------------------------------------*/
-
+#pragma once
 
 #pragma once
+
 #include "HXDefine.h"
 
+#include <memory>
+#include <string>
 
 BeginNameSpace( ONEFLOW )
 
@@ -36,15 +39,28 @@ class Task
 {
 public:
     Task();
+
     virtual ~Task();
+
+    Task( const Task & ) = delete;
+    Task & operator=( const Task & ) = delete;
+
+    Task( Task && ) noexcept;
+    Task & operator=( Task && ) noexcept;
+
 public:
-    virtual void Run(){};
+    virtual void Run() {}
+
 public:
-    int taskId;
+    int taskId = -1;
     std::string taskName;
-    TaskFunction action, sendAction, recvAction;
-    DataBook * dataBook;
-    FileInfo * fileInfo;
+
+    TaskFunction action = nullptr;
+    TaskFunction sendAction = nullptr;
+    TaskFunction recvAction = nullptr;
+
+    std::unique_ptr< DataBook > dataBook;
+    std::unique_ptr< FileInfo > fileInfo;
 };
 
 EndNameSpace

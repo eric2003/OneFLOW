@@ -83,7 +83,7 @@ void HeatFluxTask::AllocVariable()
 
 void HeatFluxTask::CollectWallFaceNode()
 {
-    ActionState::dataBook = this->dataBook;
+    ActionState::dataBook = this->dataBook.get();
 
     for ( int zId = 0; zId < ZoneState::nZones; ++ zId )
     {
@@ -102,7 +102,7 @@ void HeatFluxTask::CollectWallFaceNode()
 
 void HeatFluxTask::CollectWallFaceValue()
 {
-    ActionState::dataBook = this->dataBook;
+    ActionState::dataBook = this->dataBook.get();
 
     for ( int zId = 0; zId < ZoneState::nZones; ++ zId )
     {

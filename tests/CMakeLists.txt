@@ -24,4 +24,9 @@ add_subdirectory(euler)
 # 4. database 模块测试 
 add_subdirectory(database)
 
+# 5. task 模块测试 
+add_subdirectory(task)
+
+# 6. register 模块测试 
+add_subdirectory(register)
 

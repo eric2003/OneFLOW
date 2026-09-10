@@ -76,7 +76,7 @@ ResidualTask::~ResidualTask()
 
 void ResidualTask::Run()
 {
-    ActionState::dataBook = this->dataBook;
+    ActionState::dataBook = this->dataBook.get();
     SolverInfo * solverInfo = SolverInfoFactory::GetSolverInfo( SolverState::solverType );
     data.Init( solverInfo->nEqu );
 

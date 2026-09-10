@@ -24,7 +24,7 @@ License
 #include "SolverRegister.h"
 #include "SolverDef.h"
 #include "TaskRegister.h"
-#include "MsgMapImp.h"
+#include "MessageMapLoader.h"
 
 BeginNameSpace( ONEFLOW )
 

@@ -44,7 +44,7 @@ CUpdateInterface::~CUpdateInterface()
 
 void CUpdateInterface::Run()
 {
-    ActionState::dataBook = this->dataBook;
+    ActionState::dataBook = this->dataBook.get();
     for ( int zId = 0; zId < ZoneState::nZones; ++ zId )
     {
         ZoneState::zid = zId;
