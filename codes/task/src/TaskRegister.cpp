@@ -37,10 +37,29 @@ TaskRegister::~TaskRegister()
 {
 }
 
+//void TaskRegister::Free()
+//{
+//    delete TaskRegister::taskList;
+//    delete TaskRegister::taskNameList;
+//}
+
 void TaskRegister::Free()
 {
     delete TaskRegister::taskList;
     delete TaskRegister::taskNameList;
+
+    // FIX: null out pointers after delete. Without this, Free() leaves
+    // dangling pointers, which causes two separate hazards:
+    //   1. A subsequent Register() call would push_back into freed
+    //      memory (use-after-free), since the null-check in Register()
+    //      only guards against a NULL pointer, not a dangling one.
+    //   2. Free() itself was not idempotent: calling it twice (e.g. once
+    //      manually, then again via Tmp_Free_TaskRegister's destructor
+    //      at program exit) would double-free the same memory.
+    // Nulling the pointers makes Free() safe to call multiple times and
+    // makes the class safely re-usable after being freed.
+    TaskRegister::taskList = 0;
+    TaskRegister::taskNameList = 0;
 }
 
 void TaskRegister::Register( VoidFunc taskfun, std::string const & taskname )
@@ -55,8 +74,25 @@ void TaskRegister::Register( VoidFunc taskfun, std::string const & taskname )
     //std::cout << "TaskRegister::Register " << taskname << "\n";
 }
 
+//void TaskRegister::Run()
+//{
+//    int n = TaskRegister::taskList->size();
+//    for ( int i = 0; i < n; ++ i )
+//    {
+//        VoidFunc & fun = ( * TaskRegister::taskList )[ i ];
+//        ( fun )( );
+//    }
+//}
+
 void TaskRegister::Run()
 {
+    // FIX: guard against Run() being called before any Register() call
+    // has happened (taskList would still be null in that case).
+    if ( ! TaskRegister::taskList )
+    {
+        return;
+    }
+
     int n = TaskRegister::taskList->size();
     for ( int i = 0; i < n; ++ i )
     {

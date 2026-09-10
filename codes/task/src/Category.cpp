@@ -60,9 +60,31 @@ void Category::AddCategory( int solverType, int category )
     }
 }
 
+//int Category::GetCategory( int solverType )
+//{
+//    std::map< int, int >::iterator iter = Category::data->find( solverType );
+//    return iter->second;
+//}
+
 int Category::GetCategory( int solverType )
 {
+    // Guard 1: data may be null if Init() was never called.
+    // Guard 2: solverType may never have been registered via AddCategory.
+    // Both cases previously caused undefined behavior (dereferencing
+    // end() or a null pointer). Return a clear sentinel value instead.
+    const int UNREGISTERED_CATEGORY = -1;
+
+    if ( ! Category::data )
+    {
+        return UNREGISTERED_CATEGORY;
+    }
+
     std::map< int, int >::iterator iter = Category::data->find( solverType );
+    if ( iter == Category::data->end() )
+    {
+        return UNREGISTERED_CATEGORY;
+    }
+
     return iter->second;
 }
 

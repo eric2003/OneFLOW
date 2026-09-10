@@ -10,8 +10,13 @@ set(IO_SRC_DIR ${OneFLOW_Root}/io/src)
 
 
 set(DATABASE_TEST_SOURCES
-    test_action_map.cpp
+    action_map_test.cpp
+	ActionMapReadFileTest.cpp
+	TaskRegisterTest.cpp
+	category_test.cpp
 	${TASK_SRC_DIR}/ActionMap.cpp
+	${TASK_SRC_DIR}/Category.cpp
+	${TASK_SRC_DIR}/TaskRegister.cpp
 	${IO_SRC_DIR}/TextFileParser.cpp
 	${IO_SRC_DIR}/CommentLine.cpp
 	${IO_SRC_DIR}/Prj.cpp

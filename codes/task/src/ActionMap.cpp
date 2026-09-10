@@ -115,18 +115,39 @@ std::string ActionMapImp::GetActionName( int actionIndex )
     return actionName;
 }
 
+//void ActionMapImp::ReadFile( const std::string & fileName )
+//{
+//    //\t is the tab key
+//    std::string separator = " =\r\n\t#$,;\"";
+//
+//    TextFileParser textFileParser;
+//    textFileParser.OpenFile( fileName, std::ios_base::in );
+//    textFileParser.SetDefaultSeparator( separator );
+//
+//    while ( ! textFileParser.ReachTheEndOfFile() )
+//    {
+//        textFileParser.ReadNextMeaningfulLine();
+//        std::string actionName = textFileParser.ReadNextWord();
+//        this->Register( actionName );
+//    }
+//
+//    textFileParser.CloseFile();
+//}
+
 void ActionMapImp::ReadFile( const std::string & fileName )
 {
-    //\t is the tab key
     std::string separator = " =\r\n\t#$,;\"";
 
     TextFileParser textFileParser;
     textFileParser.OpenFile( fileName, std::ios_base::in );
     textFileParser.SetDefaultSeparator( separator );
 
-    while ( ! textFileParser.ReachTheEndOfFile() )
+    // ReadNextMeaningfulLine() skips blank lines AND comment lines, and
+    // returns false when no more valid line was found (including at EOF).
+    // Checking the return value avoids registering a stale/empty token
+    // from the trailing iteration.
+    while ( textFileParser.ReadNextMeaningfulLine() )
     {
-        textFileParser.ReadNextNonEmptyLine();
         std::string actionName = textFileParser.ReadNextWord();
         this->Register( actionName );
     }
