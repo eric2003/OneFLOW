@@ -23,6 +23,7 @@ License
 #pragma once
 
 #include "HXDefine.h"
+
 #include <memory>
 
 BeginNameSpace( ONEFLOW )
@@ -42,7 +43,7 @@ public:
     Command( const Command & ) = delete;
     Command & operator=( const Command & ) = delete;
 
-    // Moving is disabled because 'tasks' points to taskList_.
+    // Moving is disabled because task ownership and task order are maintained separately.
     Command( Command && ) = delete;
     Command & operator=( Command && ) = delete;
 
@@ -50,8 +51,11 @@ public:
     virtual void Execute() = 0;
 
 public:
-    TList * GetTaskList() { return tasks; }
-    const TList * GetTaskList() const { return tasks; }
+    // Return a read-only view of the task list.
+    const TList * GetTaskList() const
+    {
+        return & taskList_;
+    }
 
     // Takes ownership of the raw Task pointer.
     // This overload preserves compatibility with existing code.
@@ -60,12 +64,11 @@ public:
     // Preferred RAII interface for new code.
     void AddTask( std::unique_ptr< Task > task );
 
-public:
-    // Non-owning compatibility view.
-    TList * tasks;
-
 private:
+    // Non-owning task references used to preserve execution order.
     TList taskList_;
+
+    // Actual owner of all Tasks stored by this Command.
     TaskOwnerList ownedTasks_;
 };
 
@@ -99,7 +102,7 @@ public:
 
 public:
     // Takes ownership of the raw Command pointer.
-    // This overload preserves the existing API.
+    // This overload preserves compatibility with existing code.
     static void AddCmd( Command * cmd );
 
     // Preferred RAII interface for new code.
@@ -116,13 +119,15 @@ public:
 
     static void ShowCmdInfo( Command * cmd, int iCmd );
 
-public:
-    // Non-owning compatibility view of the owned command queue.
-    static HXVector< Command * > * cmdList;
+    // Return a read-only view of the current command queue.
+    static const HXVector< Command * > * GetCmdList();
 
 private:
     using CommandOwnerList =
         HXVector< std::unique_ptr< Command > >;
+
+    // Non-owning view used to preserve command execution order.
+    static HXVector< Command * > * cmdList_;
 
     // Actual owner of all commands currently in the queue.
     static CommandOwnerList * commandOwners;

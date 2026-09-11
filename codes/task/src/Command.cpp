@@ -37,11 +37,7 @@ BeginNameSpace( ONEFLOW )
 * taskList_ only provides a non-owning compatibility view.
 */
 
-Command::Command()
-    : tasks( & taskList_ )
-{
-}
-
+Command::Command() = default;
 Command::~Command() = default;
 
 void Command::AddTask( Task * task )
@@ -74,9 +70,11 @@ SimpleCmd::~SimpleCmd() = default;
 
 void SimpleCmd::Execute()
 {
-    for ( HXSize_t iTask = 0; iTask < tasks->size(); ++ iTask )
+    const TList & taskList = * GetTaskList();
+
+    for ( HXSize_t iTask = 0; iTask < taskList.size(); ++ iTask )
     {
-        Task * task = ( * tasks )[ iTask ];
+        Task * task = taskList[ iTask ];
 
         if ( task == nullptr )
         {
@@ -95,8 +93,8 @@ void SimpleCmd::Execute()
 * commandOwners is the actual owner of every Command in the queue.
 * cmdList is only a non-owning compatibility view.
 */
-HXVector< Command * > * CMD::cmdList = 0;
 
+HXVector< Command * > * CMD::cmdList_ = 0;
 CMD::CommandOwnerList * CMD::commandOwners = 0;
 
 CMD::CMD()
@@ -109,12 +107,12 @@ CMD::~CMD()
 
 void CMD::Init()
 {
-    if ( CMD::cmdList != 0 )
+    if ( CMD::cmdList_ != 0 )
     {
         return;
     }
 
-    CMD::cmdList = new HXVector< Command * >;
+    CMD::cmdList_ = new HXVector< Command * >;
     CMD::commandOwners = new CommandOwnerList;
 }
 
@@ -123,7 +121,7 @@ void CMD::Free()
     /*
     * Clear() releases every owned Command first.
     *
-    * This is important because simply deleting cmdList would only
+    * This is important because simply deleting cmdList_ would only
     * destroy the non-owning pointer container.
     */
     CMD::Clear();
@@ -131,8 +129,8 @@ void CMD::Free()
     delete CMD::commandOwners;
     CMD::commandOwners = 0;
 
-    delete CMD::cmdList;
-    CMD::cmdList = 0;
+    delete CMD::cmdList_;
+    CMD::cmdList_ = 0;
 
     TaskState::task = 0;
 }
@@ -150,7 +148,7 @@ void CMD::AddCmd( Command * cmd )
     * The raw pointer API is retained for compatibility.
     * Ownership is transferred immediately to commandOwners.
     */
-    CMD::cmdList->push_back( cmd );
+    CMD::cmdList_->push_back( cmd );
     CMD::commandOwners->emplace_back( cmd );
 }
 
@@ -171,9 +169,14 @@ void CMD::AddCmd( std::unique_ptr< Command > cmd )
     CMD::commandOwners->push_back( std::move( cmd ) );
 
     /*
-    * Keep the compatibility view synchronized with the owner list.
+    * Keep the non-owning execution view synchronized.
     */
-    CMD::cmdList->push_back( rawCmd );
+    CMD::cmdList_->push_back( rawCmd );
+}
+
+const HXVector< Command * > * CMD::GetCmdList()
+{
+    return CMD::cmdList_;
 }
 
 void CMD::RunCmd( Command * cmd )
@@ -188,7 +191,7 @@ void CMD::RunCmd( Command * cmd )
 
 void CMD::Clear()
 {
-    if ( CMD::cmdList == 0 )
+    if ( CMD::cmdList_ == 0 )
     {
         return;
     }
@@ -204,18 +207,18 @@ void CMD::Clear()
     }
 
     /*
-    * cmdList contains only non-owning pointers.
+    * cmdList_ contains only non-owning pointers.
     * Clear it after destroying the actual objects so that no stale
-    * pointers remain visible through the compatibility API.
+    * pointers remain visible through the read-only compatibility view.
     */
-    CMD::cmdList->clear();
+    CMD::cmdList_->clear();
 
     TaskState::task = 0;
 }
 
 void CMD::ExecuteCmd()
 {
-    if ( CMD::cmdList == 0 )
+    if ( CMD::cmdList_ == 0 )
     {
         return;
     }
@@ -230,11 +233,11 @@ void CMD::ExecuteCmd()
     * Commands added while a Command is executing are not executed
     * in the current batch. Clear() subsequently releases them.
     */
-    const HXSize_t nCmd = CMD::cmdList->size();
+    const HXSize_t nCmd = CMD::cmdList_->size();
 
     for ( HXSize_t iCmd = 0; iCmd < nCmd; ++ iCmd )
     {
-        Command * cmd = ( * CMD::cmdList )[ iCmd ];
+        Command * cmd = ( * CMD::cmdList_ )[ iCmd ];
 
         if ( cmd == 0 )
         {
@@ -262,23 +265,19 @@ void CMD::ShowCmdInfo( Command * cmd, int iCmd )
         return;
     }
 
-    HXVector< Task * > * tasks = cmd->GetTaskList();
+    const Command::TList & tasks = * cmd->GetTaskList();
 
-    if ( tasks == 0 )
+    for ( HXSize_t i = 0; i < tasks.size(); ++ i )
     {
-        return;
-    }
-
-    for ( HXSize_t i = 0; i < tasks->size(); ++ i )
-    {
-        Task * task = ( * tasks )[ i ];
+        Task * task = tasks[ i ];
 
         if ( task == 0 )
         {
             continue;
         }
 
-        int iTaskGlobal = iCmd + static_cast< int >( i );
+        int iTaskGlobal =
+            iCmd + static_cast< int >( i );
 
         std::cout
             << " iTaskGlobal = " << iTaskGlobal

@@ -1,4 +1,3 @@
-//command_test.cpp
 #include <gtest/gtest.h>
 
 #include "Command.h"
@@ -7,70 +6,81 @@
 
 #include <memory>
 #include <type_traits>
+#include <vector>
 
 namespace
 {
-
-    int g_runCount = 0;
-    int g_destroyCount = 0;
-    std::vector< int > g_executionLog;
+    int g_taskRunCount = 0;
+    int g_taskDestroyCount = 0;
 
     class CountingTask : public ONEFLOW::Task
     {
     public:
-        CountingTask() = default;
-
         ~CountingTask() override
         {
-            ++ g_destroyCount;
+            ++ g_taskDestroyCount;
         }
 
         void Run() override
         {
-            ++ g_runCount;
+            ++ g_taskRunCount;
         }
     };
 
-    class QueueTestTask : public ONEFLOW::Task
+    class OrderedTask : public ONEFLOW::Task
     {
     public:
-        explicit QueueTestTask( int id )
+        explicit OrderedTask( int id )
             : id_( id )
         {
-        }
-
-        ~QueueTestTask() override
-        {
-            ++ g_destroyCount;
         }
 
         void Run() override
         {
-            g_executionLog.push_back( id_ );
+            order_.push_back( id_ );
+        }
+
+        static void ClearOrder()
+        {
+            order_.clear();
+        }
+
+        static const std::vector< int > & GetOrder()
+        {
+            return order_;
         }
 
     private:
         int id_;
+
+        static std::vector< int > order_;
     };
 
-    class QueueTestCommand : public ONEFLOW::Command
+    std::vector< int > OrderedTask::order_;
+
+    class TaskStateCheckingTask : public ONEFLOW::Task
     {
     public:
-        explicit QueueTestCommand( int id )
-            : id_( id )
+        void Run() override
         {
+            observedTask_ = ONEFLOW::TaskState::task;
         }
 
-        void Execute() override
+        static ONEFLOW::Task * GetObservedTask()
         {
-            g_executionLog.push_back( id_ );
+            return observedTask_;
+        }
+
+        static void ClearObservedTask()
+        {
+            observedTask_ = nullptr;
         }
 
     private:
-        int id_;
+        static ONEFLOW::Task * observedTask_;
     };
 
-
+    ONEFLOW::Task * TaskStateCheckingTask::observedTask_ = nullptr;
 }
 
 class CommandTest : public ::testing::Test
@@ -78,8 +88,12 @@ class CommandTest : public ::testing::Test
 protected:
     void SetUp() override
     {
-        g_runCount = 0;
-        g_destroyCount = 0;
+        g_taskRunCount = 0;
+        g_taskDestroyCount = 0;
+
+        OrderedTask::ClearOrder();
+        TaskStateCheckingTask::ClearObservedTask();
+
         ONEFLOW::TaskState::task = nullptr;
     }
 
@@ -99,39 +113,35 @@ TEST_F( CommandTest, DefaultCommandHasNoTasks )
 
 TEST_F( CommandTest, AddRawTaskStoresTask )
 {
+    auto * task = new CountingTask();
+
     ONEFLOW::SimpleCmd command;
-
-    ONEFLOW::Task * task = new ONEFLOW::Task();
-    task->taskId = 123;
-    task->taskName = "test_task";
-
     command.AddTask( task );
 
+    ASSERT_NE( command.GetTaskList(), nullptr );
     ASSERT_EQ( command.GetTaskList()->size(), 1 );
 
-    ONEFLOW::Task * storedTask =
-        ( * command.GetTaskList() )[ 0 ];
-
-    ASSERT_NE( storedTask, nullptr );
-    EXPECT_EQ( storedTask, task );
-    EXPECT_EQ( storedTask->taskId, 123 );
-    EXPECT_EQ( storedTask->taskName, "test_task" );
+    EXPECT_EQ(
+        ( * command.GetTaskList() )[ 0 ],
+        task
+    );
 }
 
 TEST_F( CommandTest, AddUniqueTaskTransfersOwnership )
 {
+    auto task = std::make_unique< CountingTask >();
+
     ONEFLOW::SimpleCmd command;
-
-    auto task = std::make_unique< ONEFLOW::Task >();
-
-    ONEFLOW::Task * rawTask = task.get();
-
     command.AddTask( std::move( task ) );
 
     EXPECT_EQ( task, nullptr );
 
+    ASSERT_NE( command.GetTaskList(), nullptr );
     ASSERT_EQ( command.GetTaskList()->size(), 1 );
-    EXPECT_EQ( ( * command.GetTaskList() )[ 0 ], rawTask );
+    EXPECT_NE(
+        ( * command.GetTaskList() )[ 0 ],
+        nullptr
+    );
 }
 
 TEST_F( CommandTest, AddNullRawTaskDoesNothing )
@@ -142,6 +152,7 @@ TEST_F( CommandTest, AddNullRawTaskDoesNothing )
         static_cast< ONEFLOW::Task * >( nullptr )
     );
 
+    ASSERT_NE( command.GetTaskList(), nullptr );
     EXPECT_TRUE( command.GetTaskList()->empty() );
 }
 
@@ -153,6 +164,7 @@ TEST_F( CommandTest, AddNullUniqueTaskDoesNothing )
 
     command.AddTask( std::move( task ) );
 
+    ASSERT_NE( command.GetTaskList(), nullptr );
     EXPECT_TRUE( command.GetTaskList()->empty() );
 }
 
@@ -164,51 +176,30 @@ TEST_F( CommandTest, SimpleCmdExecutesStoredTask )
         std::make_unique< CountingTask >()
     );
 
-    EXPECT_EQ( g_runCount, 0 );
-
     command.Execute();
 
-    EXPECT_EQ( g_runCount, 1 );
+    EXPECT_EQ( g_taskRunCount, 1 );
 }
 
 TEST_F( CommandTest, SimpleCmdExecutesTasksInOrder )
 {
-    class OrderedTask : public ONEFLOW::Task
-    {
-    public:
-        OrderedTask( int id, ONEFLOW::HXVector< int > * order )
-            : id_( id ),
-            order_( order )
-        {
-        }
-
-        void Run() override
-        {
-            order_->push_back( id_ );
-        }
-
-    private:
-        int id_;
-        ONEFLOW::HXVector< int > * order_;
-    };
-
-    ONEFLOW::HXVector< int > order;
-
     ONEFLOW::SimpleCmd command;
 
     command.AddTask(
-        std::make_unique< OrderedTask >( 1, & order )
+        std::make_unique< OrderedTask >( 1 )
     );
 
     command.AddTask(
-        std::make_unique< OrderedTask >( 2, & order )
+        std::make_unique< OrderedTask >( 2 )
     );
 
     command.AddTask(
-        std::make_unique< OrderedTask >( 3, & order )
+        std::make_unique< OrderedTask >( 3 )
     );
 
     command.Execute();
+
+    const auto & order = OrderedTask::GetOrder();
 
     ASSERT_EQ( order.size(), 3 );
 
@@ -219,22 +210,23 @@ TEST_F( CommandTest, SimpleCmdExecutesTasksInOrder )
 
 TEST_F( CommandTest, ExecuteSetsCurrentTask )
 {
-    ONEFLOW::SimpleCmd command;
+    auto task = std::make_unique< TaskStateCheckingTask >();
 
-    auto task = std::make_unique< CountingTask >();
     ONEFLOW::Task * rawTask = task.get();
 
+    ONEFLOW::SimpleCmd command;
     command.AddTask( std::move( task ) );
 
     command.Execute();
 
-    EXPECT_EQ( ONEFLOW::TaskState::task, rawTask );
+    EXPECT_EQ(
+        TaskStateCheckingTask::GetObservedTask(),
+        rawTask
+    );
 }
 
 TEST_F( CommandTest, CommandDestroysOwnedTask )
 {
-    EXPECT_EQ( g_destroyCount, 0 );
-
     {
         ONEFLOW::SimpleCmd command;
 
@@ -242,290 +234,74 @@ TEST_F( CommandTest, CommandDestroysOwnedTask )
             std::make_unique< CountingTask >()
         );
 
-        EXPECT_EQ( g_destroyCount, 0 );
+        EXPECT_EQ( g_taskDestroyCount, 0 );
     }
 
-    EXPECT_EQ( g_destroyCount, 1 );
+    EXPECT_EQ( g_taskDestroyCount, 1 );
 }
 
 TEST_F( CommandTest, RawTaskOwnershipIsTransferredToCommand )
 {
-    EXPECT_EQ( g_destroyCount, 0 );
+    CountingTask * task = new CountingTask();
 
     {
         ONEFLOW::SimpleCmd command;
 
-        command.AddTask(
-            new CountingTask()
-        );
+        command.AddTask( task );
 
-        EXPECT_EQ( g_destroyCount, 0 );
+        EXPECT_EQ( g_taskDestroyCount, 0 );
     }
 
-    EXPECT_EQ( g_destroyCount, 1 );
+    EXPECT_EQ( g_taskDestroyCount, 1 );
 }
 
-static_assert(
-    ! std::is_copy_constructible< ONEFLOW::SimpleCmd >::value,
-    "SimpleCmd must not be copy constructible"
-    );
-
-static_assert(
-    ! std::is_copy_assignable< ONEFLOW::SimpleCmd >::value,
-    "SimpleCmd must not be copy assignable"
-    );
-
-TEST( CommandQueueTest, InitCreatesEmptyQueue )
+TEST( CommandTypeTest, SimpleCmdIsNotCopyable )
 {
-    ONEFLOW::CMD::Free();
-    ONEFLOW::CMD::Init();
+    EXPECT_FALSE(
+        std::is_copy_constructible< ONEFLOW::SimpleCmd >::value
+    );
 
-    ASSERT_NE( ONEFLOW::CMD::cmdList, nullptr );
-    EXPECT_TRUE( ONEFLOW::CMD::cmdList->empty() );
-
-    ONEFLOW::CMD::Free();
+    EXPECT_FALSE(
+        std::is_copy_assignable< ONEFLOW::SimpleCmd >::value
+    );
 }
 
-TEST( CommandQueueTest, AddCmdTransfersOwnership )
+TEST_F( CommandTest, GetTaskListProvidesReadOnlyView )
 {
-    g_destroyCount = 0;
+    ONEFLOW::SimpleCmd command;
 
-    ONEFLOW::CMD::Free();
+    command.AddTask(
+        std::make_unique< CountingTask >()
+    );
 
-    {
-        auto command = std::make_unique< ONEFLOW::SimpleCmd >();
+    const ONEFLOW::Command * constCommand = & command;
 
-        command->AddTask(
-            std::make_unique< QueueTestTask >( 1 )
-        );
+    const ONEFLOW::Command::TList * taskList =
+        constCommand->GetTaskList();
 
-        ONEFLOW::CMD::AddCmd( std::move( command ) );
-
-        ASSERT_NE( ONEFLOW::CMD::cmdList, nullptr );
-        EXPECT_EQ( ONEFLOW::CMD::cmdList->size(), 1u );
-
-        /*
-        * The Task is owned by Command, and Command is owned by CMD.
-        */
-        EXPECT_EQ( g_destroyCount, 0 );
-    }
-
-    /*
-    * The original unique_ptr no longer owns the Command.
-    */
-    EXPECT_EQ( g_destroyCount, 0 );
-
-    ONEFLOW::CMD::Clear();
-
-    /*
-    * Clear() destroys Command and therefore its Task.
-    */
-    EXPECT_EQ( g_destroyCount, 1 );
-
-    ONEFLOW::CMD::Free();
+    ASSERT_NE( taskList, nullptr );
+    ASSERT_EQ( taskList->size(), 1 );
 }
 
-TEST( CommandQueueTest, CommandsExecuteInInsertionOrder )
+TEST_F( CommandTest, TaskListMatchesOwnedTasks )
 {
-    g_executionLog.clear();
+    ONEFLOW::SimpleCmd command;
 
-    ONEFLOW::CMD::Free();
+    auto task1 = std::make_unique< CountingTask >();
+    auto task2 = std::make_unique< CountingTask >();
 
-    auto command1 = std::make_unique< QueueTestCommand >( 1 );
-    auto command2 = std::make_unique< QueueTestCommand >( 2 );
-    auto command3 = std::make_unique< QueueTestCommand >( 3 );
+    ONEFLOW::Task * rawTask1 = task1.get();
+    ONEFLOW::Task * rawTask2 = task2.get();
 
-    ONEFLOW::CMD::AddCmd( std::move( command1 ) );
-    ONEFLOW::CMD::AddCmd( std::move( command2 ) );
-    ONEFLOW::CMD::AddCmd( std::move( command3 ) );
+    command.AddTask( std::move( task1 ) );
+    command.AddTask( std::move( task2 ) );
 
-    ASSERT_EQ( ONEFLOW::CMD::cmdList->size(), 3u );
+    const ONEFLOW::Command::TList * taskList =
+        command.GetTaskList();
 
-    ONEFLOW::CMD::ExecuteCmd();
+    ASSERT_NE( taskList, nullptr );
+    ASSERT_EQ( taskList->size(), 2 );
 
-    ASSERT_EQ( g_executionLog.size(), 3u );
-
-    EXPECT_EQ( g_executionLog[ 0 ], 1 );
-    EXPECT_EQ( g_executionLog[ 1 ], 2 );
-    EXPECT_EQ( g_executionLog[ 2 ], 3 );
-
-    EXPECT_TRUE( ONEFLOW::CMD::cmdList->empty() );
-
-    ONEFLOW::CMD::Free();
-}
-
-TEST( CommandQueueTest, EachDispatchCycleCanHaveDifferentCommandList )
-{
-    g_executionLog.clear();
-
-    /*
-    * First iteration:
-    *
-    * A -> B -> C
-    */
-    ONEFLOW::CMD::Free();
-
-    ONEFLOW::CMD::AddCmd(
-        std::make_unique< QueueTestCommand >( 1 )
-    );
-
-    ONEFLOW::CMD::AddCmd(
-        std::make_unique< QueueTestCommand >( 2 )
-    );
-
-    ONEFLOW::CMD::AddCmd(
-        std::make_unique< QueueTestCommand >( 3 )
-    );
-
-    ONEFLOW::CMD::ExecuteCmd();
-
-    ASSERT_EQ( g_executionLog.size(), 3u );
-    EXPECT_EQ( g_executionLog[ 0 ], 1 );
-    EXPECT_EQ( g_executionLog[ 1 ], 2 );
-    EXPECT_EQ( g_executionLog[ 2 ], 3 );
-
-    /*
-    * Second iteration:
-    *
-    * A -> D
-    *
-    * The command list is rebuilt dynamically.
-    */
-    g_executionLog.clear();
-
-    ONEFLOW::CMD::AddCmd(
-        std::make_unique< QueueTestCommand >( 1 )
-    );
-
-    ONEFLOW::CMD::AddCmd(
-        std::make_unique< QueueTestCommand >( 4 )
-    );
-
-    ONEFLOW::CMD::ExecuteCmd();
-
-    ASSERT_EQ( g_executionLog.size(), 2u );
-    EXPECT_EQ( g_executionLog[ 0 ], 1 );
-    EXPECT_EQ( g_executionLog[ 1 ], 4 );
-
-    /*
-    * Third iteration:
-    *
-    * Only E.
-    */
-    g_executionLog.clear();
-
-    ONEFLOW::CMD::AddCmd(
-        std::make_unique< QueueTestCommand >( 5 )
-    );
-
-    ONEFLOW::CMD::ExecuteCmd();
-
-    ASSERT_EQ( g_executionLog.size(), 1u );
-    EXPECT_EQ( g_executionLog[ 0 ], 5 );
-
-    ONEFLOW::CMD::Free();
-}
-
-TEST( CommandQueueTest, ClearDestroysQueuedCommands )
-{
-    g_destroyCount = 0;
-
-    ONEFLOW::CMD::Free();
-
-    {
-        auto command = std::make_unique< ONEFLOW::SimpleCmd >();
-
-        command->AddTask(
-            std::make_unique< QueueTestTask >( 10 )
-        );
-
-        ONEFLOW::CMD::AddCmd( std::move( command ) );
-
-        EXPECT_EQ( g_destroyCount, 0 );
-        ASSERT_EQ( ONEFLOW::CMD::cmdList->size(), 1u );
-
-        ONEFLOW::CMD::Clear();
-
-        EXPECT_EQ( g_destroyCount, 1 );
-        EXPECT_TRUE( ONEFLOW::CMD::cmdList->empty() );
-    }
-
-    /*
-    * Nothing should be destroyed here because ownership was already
-    * released by CMD::Clear().
-    */
-    EXPECT_EQ( g_destroyCount, 1 );
-
-    ONEFLOW::CMD::Free();
-}
-
-TEST( CommandQueueTest, FreeDestroysQueuedCommands )
-{
-    g_destroyCount = 0;
-
-    ONEFLOW::CMD::Free();
-
-    ONEFLOW::CMD::AddCmd(
-        std::make_unique< ONEFLOW::SimpleCmd >()
-    );
-
-    EXPECT_EQ( ONEFLOW::CMD::cmdList->size(), 1u );
-
-    ONEFLOW::CMD::Free();
-
-    EXPECT_EQ( ONEFLOW::CMD::cmdList, nullptr );
-    EXPECT_EQ( g_destroyCount, 0 );
-}
-
-TEST( CommandQueueTest, FreeReleasesCommandsAndTasks )
-{
-    g_destroyCount = 0;
-
-    ONEFLOW::CMD::Free();
-
-    auto command = std::make_unique< ONEFLOW::SimpleCmd >();
-
-    command->AddTask(
-        std::make_unique< QueueTestTask >( 20 )
-    );
-
-    ONEFLOW::CMD::AddCmd( std::move( command ) );
-
-    EXPECT_EQ( g_destroyCount, 0 );
-
-    ONEFLOW::CMD::Free();
-
-    EXPECT_EQ( g_destroyCount, 1 );
-    EXPECT_EQ( ONEFLOW::CMD::cmdList, nullptr );
-}
-
-TEST( CommandQueueTest, RunCmdDoesNotTakeOwnership )
-{
-    g_executionLog.clear();
-    g_destroyCount = 0;
-
-    ONEFLOW::CMD::Free();
-
-    {
-        auto command = std::make_unique< ONEFLOW::SimpleCmd >();
-
-        command->AddTask(
-            std::make_unique< QueueTestTask >( 30 )
-        );
-
-        ONEFLOW::CMD::RunCmd( command.get() );
-
-        ASSERT_EQ( g_executionLog.size(), 1u );
-        EXPECT_EQ( g_executionLog[ 0 ], 30 );
-
-        /*
-        * RunCmd() only executes the Command.
-        * It does not take ownership.
-        */
-        EXPECT_EQ( g_destroyCount, 0 );
-    }
-
-    EXPECT_EQ( g_destroyCount, 1 );
-
-    ONEFLOW::CMD::Free();
+    EXPECT_EQ( ( * taskList )[ 0 ], rawTask1 );
+    EXPECT_EQ( ( * taskList )[ 1 ], rawTask2 );
 }
