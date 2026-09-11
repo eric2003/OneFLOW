@@ -29,6 +29,8 @@ set(DATABASE_TEST_SOURCES
 	category_test.cpp
 	CmxTaskDispatchTest.cpp
 	TaskTest.cpp
+	command_test.cpp
+	cmd_test.cpp
 	${TASK_SRC_DIR}/ActionMap.cpp
 	${TASK_SRC_DIR}/Category.cpp
 	${TASK_SRC_DIR}/TaskRegister.cpp
