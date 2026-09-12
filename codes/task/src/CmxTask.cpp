@@ -194,7 +194,7 @@ Task * CreateTask( int operationId, int solverType )
     }
 
     task->taskId = operationId;
-    TaskState::task->taskName =
+    task->taskName =
         MessageMap::GetMsgName( operationId );
 
     SolverState::solverType = solverType;
@@ -203,7 +203,6 @@ Task * CreateTask( int operationId, int solverType )
 
     return task;
 }
-
 
 // ============================================================
 // Resource preparation
