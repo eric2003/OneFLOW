@@ -20,19 +20,6 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-
-//#pragma once
-//#include "NamespaceMacros.h"
-//#include "HXDefine.h"
-//
-//BeginNameSpace( ONEFLOW )
-//
-//void CreateMsgMap();
-//
-//void GetMsgFileNameList( StringField & fileNameList );
-//
-//EndNameSpace
-
 #pragma once
 #include "NamespaceMacros.h"
 #include "HXDefine.h"
