@@ -126,15 +126,20 @@ void AddCmdToList(
         operationId,
         solverType );
 
+    // Take temporary ownership of the newly created Task.
+    std::unique_ptr< Task > ownedTask( task );
+
     // Build the command with RAII ownership.
     std::unique_ptr< SimpleCmd > cmd(
         new SimpleCmd() );
 
-    cmd->AddTask( task );
+    // Transfer Task ownership to the Command.
+    cmd->AddTask( std::move( ownedTask ) );
 
-    // Transfer command ownership to CMD.
+    // Transfer Command ownership to CMD.
     CMD::AddCmd( std::move( cmd ) );
 }
+
 
 // ============================================================
 // Task construction

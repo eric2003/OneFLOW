@@ -47,8 +47,9 @@ void Command::AddTask( Task * task )
         return;
     }
 
-    taskList_.push_back( task );
-    ownedTasks_.emplace_back( task );
+    // Preserve the legacy raw-pointer interface while transferring
+    // ownership to the RAII implementation.
+    AddTask( std::unique_ptr< Task >( task ) );
 }
 
 void Command::AddTask( std::unique_ptr< Task > task )
@@ -60,7 +61,10 @@ void Command::AddTask( std::unique_ptr< Task > task )
 
     Task * rawTask = task.get();
 
+    // Transfer ownership to the Command.
     ownedTasks_.push_back( std::move( task ) );
+
+    // Keep the execution-order view non-owning.
     taskList_.push_back( rawTask );
 }
 
@@ -129,13 +133,30 @@ void CMD::Free()
     CMD::Clear();
 
     delete CMD::commandOwners;
-    CMD::commandOwners = 0;
+    CMD::commandOwners = nullptr;
 
     delete CMD::cmdList_;
     CMD::cmdList_ = nullptr;
 
     TaskState::task = nullptr;
 }
+
+//void CMD::AddCmd( Command * cmd )
+//{
+//    if ( cmd == nullptr )
+//    {
+//        return;
+//    }
+//
+//    CMD::Init();
+//
+//    /*
+//    * The raw pointer API is retained for compatibility.
+//    * Ownership is transferred immediately to commandOwners.
+//    */
+//    CMD::cmdList_->push_back( cmd );
+//    CMD::commandOwners->emplace_back( cmd );
+//}
 
 void CMD::AddCmd( Command * cmd )
 {
@@ -144,19 +165,19 @@ void CMD::AddCmd( Command * cmd )
         return;
     }
 
-    CMD::Init();
-
-    /*
-    * The raw pointer API is retained for compatibility.
-    * Ownership is transferred immediately to commandOwners.
-    */
-    CMD::cmdList_->push_back( cmd );
-    CMD::commandOwners->emplace_back( cmd );
+    // Preserve the legacy raw-pointer interface while transferring
+    // ownership to the RAII implementation.
+    CMD::AddCmd( std::unique_ptr< Command >( cmd ) );
 }
 
 void CMD::AddCmd( std::unique_ptr< Command > cmd )
 {
-    if ( ! cmd )
+    //if ( ! cmd )
+    //{
+    //    return;
+    //}
+
+    if ( cmd == nullptr )
     {
         return;
     }
