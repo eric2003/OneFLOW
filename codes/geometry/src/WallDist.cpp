@@ -69,7 +69,7 @@ void SetWallTask()
 void FillWallStructTask( StringField & data )
 {
     CFillWallStructTaskImp * task = new CFillWallStructTaskImp();
-    TaskState::task = task;
+    TaskState::createdTask = task;
 }
 
 void FillWallStruct( StringField & data )

@@ -32,10 +32,11 @@ class Task;
 class TaskState
 {
 public:
-    TaskState();
-    ~TaskState();
-public:
+    // The Task currently being executed.
     static Task * task;
+
+    // Temporary result produced by a TASK_FUNC callback.
+    static Task * createdTask;
 };
 
 EndNameSpace

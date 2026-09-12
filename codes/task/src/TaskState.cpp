@@ -25,14 +25,8 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-Task * TaskState::task = 0;
+Task * TaskState::task = nullptr;
+Task * TaskState::createdTask = nullptr;
 
-TaskState::TaskState()
-{
-}
-
-TaskState::~TaskState()
-{
-}
-    
+  
 EndNameSpace

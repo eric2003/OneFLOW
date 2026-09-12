@@ -36,7 +36,7 @@ void RegisterHeatFluxTask()
 void CreateHeatFluxTask( StringField & data )
 {
     HeatFluxTask * task = new HeatFluxTask();
-    TaskState::task = task;
+    TaskState::createdTask = task;
 }
 
 EndNameSpace

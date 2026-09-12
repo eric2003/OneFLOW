@@ -52,7 +52,7 @@ void SetTurbPlateTask()
 void CreateTurbPlateTask( StringField & data )
 {
     TurbFlatPlateTask * task = new TurbFlatPlateTask();
-    TaskState::task = task;
+    TaskState::createdTask = task;
 }
 
 TurbVelCut::TurbVelCut()

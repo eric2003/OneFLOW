@@ -20,53 +20,6 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-//#include "MsgMapImp.h"
-//#include "Message.h"
-//#include "TextFileParser.h"
-//#include "Prj.h"
-//#include <iostream>
-//
-//
-//BeginNameSpace( ONEFLOW )
-//
-//void CreateMsgMap()
-//{
-//    StringField fileNameList;
-//    GetMsgFileNameList( fileNameList );
-//
-//    MessageMap::Init();
-//
-//    for ( int iFile = 0; iFile < fileNameList.size(); ++ iFile )
-//    {
-//        MessageMap::ReadFile( fileNameList[ iFile ] );
-//    }
-//}
-//
-//void GetMsgFileNameList( StringField & fileNameList )
-//{
-//    //\t is the tab key
-//    std::string separator  = " =\r\n\t#$,;\"()";
-//    std::string msgFileName = Prj::system_root + "action/" + "actionFileList.txt";
-//
-//    TextFileParser textFileParser;
-//    textFileParser.OpenFile( msgFileName, std::ios_base::in );
-//    textFileParser.SetDefaultSeparator( separator );
-//
-//    while ( ! textFileParser.ReachTheEndOfFile()  )
-//    {
-//        bool flag = textFileParser.ReadNextNonEmptyLine();
-//        if ( ! flag ) break;
-//        std::string fileName = textFileParser.ReadNextWord();
-//        std::string fullPathFileName = Prj::system_root + "action/" + fileName;
-//        fileNameList.push_back( fullPathFileName );
-//    }
-//
-//    textFileParser.CloseFile();
-//}
-//
-//
-//EndNameSpace
-
 #include "MessageMapLoader.h"
 #include "Message.h"
 #include "TextFileParser.h"

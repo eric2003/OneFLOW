@@ -37,15 +37,228 @@ License
 #include "Zone.h"
 #include "Grid.h"
 #include "LogFile.h"
+#include "FileMap.h"
+#include <memory>
+#include <utility>
 
 BeginNameSpace( ONEFLOW )
 
-void CmdBasicAction( int funcType )
+HXClone * GetClass(
+    int operationId,
+    int solverType,
+    int funcType )
 {
-    SolverState::msgId = TaskState::task->taskId;
-    HXClone * cloneClass = ONEFLOW::GetClass( SolverState::msgId, SolverState::solverType, funcType );
+    HXRegister * hxRegister =
+        RegisterFactory::GetRegister(
+            solverType,
+            funcType );
+
+    const std::string operationName =
+        MessageMap::GetMsgName( operationId );
+
+    HXClone * cloneClass =
+        hxRegister->GetClass( operationName );
+
+    return cloneClass;
+}
+
+// ============================================================
+// Operation planning
+// ============================================================
+
+void GenerateCmdList( int operationId )
+{
+    const int solverType = SolverState::solverType;
+
+    HXRegister * hxRegister =
+        RegisterFactory::GetRegister( solverType, MESG_FUNC );
+
+    const std::string operationName =
+        MessageMap::GetMsgName( operationId );
+
+    HXClone * cloneClass =
+        hxRegister->GetClass( operationName );
+
     if ( cloneClass )
     {
+        // Expand the operation into runtime commands.
+        cloneClass->Solve();
+    }
+    else
+    {
+        // Treat the operation as a single runtime command.
+        ONEFLOW::AddCmdToList( operationName );
+    }
+}
+
+// ============================================================
+// Command construction
+// ============================================================
+
+void AddCmdToList( const std::string & operationName )
+{
+    const int operationId =
+        MessageMap::GetMsgId( operationName );
+
+    ONEFLOW::AddCmdToList(
+        operationId,
+        SolverState::solverType );
+}
+
+void AddCmdToList(
+    int operationId,
+    int solverType )
+{
+    // Build the task associated with the operation.
+    Task * task =
+        ONEFLOW::CreateTask(
+            operationId,
+            solverType );
+
+    if ( task == nullptr )
+    {
+        return;
+    }
+
+    // Prepare files/resources required by the operation.
+    ONEFLOW::ConfigureTaskFile(
+        task,
+        operationId,
+        solverType );
+
+    // Take temporary ownership of the newly created Task.
+    std::unique_ptr< Task > ownedTask( task );
+
+    // Build the command with RAII ownership.
+    std::unique_ptr< SimpleCmd > cmd(
+        new SimpleCmd() );
+
+    // Transfer Task ownership to the Command.
+    cmd->AddTask( std::move( ownedTask ) );
+
+    // Transfer Command ownership to CMD.
+    CMD::AddCmd( std::move( cmd ) );
+}
+
+
+// ============================================================
+// Task construction
+// ============================================================
+
+namespace
+{
+
+    Task * CreateTaskByRegisteredFunction(
+        HXClone * cloneClass )
+    {
+        if ( cloneClass == nullptr )
+        {
+            return nullptr;
+        }
+
+        // TASK_FUNC callbacks return their construction result here.
+        TaskState::createdTask = nullptr;
+
+        cloneClass->Solve();
+
+        Task * task = TaskState::createdTask;
+
+        // Do not keep a stale construction result.
+        TaskState::createdTask = nullptr;
+
+        return task;
+    }
+
+}
+
+Task * CreateTask( int operationId, int solverType )
+{
+    Task * task = nullptr;
+
+    HXClone * cloneClass =
+        ONEFLOW::GetClass(
+            operationId,
+            solverType,
+            TASK_FUNC );
+
+    if ( cloneClass )
+    {
+        task =
+            CreateTaskByRegisteredFunction(
+                cloneClass );
+    }
+    else
+    {
+        // Use the default task implementation.
+        task = new SimpleTask();
+    }
+
+    if ( task == nullptr )
+    {
+        return nullptr;
+    }
+
+    task->taskId = operationId;
+    task->taskName =
+        MessageMap::GetMsgName( operationId );
+
+    SolverState::solverType = solverType;
+
+    SetTaskAction( task );
+
+    return task;
+}
+
+// ============================================================
+// Resource preparation
+// ============================================================
+
+void ConfigureTaskFile( Task * task, int operationId, int solverType )
+{
+    HXClone * cloneClass =
+        ONEFLOW::GetClass(
+            operationId,
+            solverType,
+            FILE_FUNC );
+
+    if ( cloneClass )
+    {
+        ONEFLOW::ConfigureTaskFile(
+            task,
+            cloneClass->data );
+    }
+}
+
+// ============================================================
+// Action dispatch
+// ============================================================
+
+void SetTaskAction(Task * task)
+{
+    if (task == nullptr)
+    {
+        return;
+    }
+
+    task->action = CmdAction;
+    task->sendAction = CmdAction;
+    task->recvAction = CmdActionNext;
+}
+
+void CmdBasicAction( int funcType )
+{
+    SolverState::msgId =
+        TaskState::task->taskId;
+
+    HXClone * cloneClass =
+        ONEFLOW::GetClass(
+            SolverState::msgId,
+            SolverState::solverType,
+            funcType );
+
+    if ( cloneClass )
+    {
+        // Execute the concrete registered implementation.
         cloneClass->Solve();
     }
 }
@@ -55,118 +268,52 @@ void CmdAction()
     CmdBasicAction( COMM_FUNC );
 }
 
+
 void CmdActionNext()
 {
     CmdBasicAction( RECV_FUNC );
 }
 
-void GenerateCmdList( int msgId )
-{
-    int solverType = SolverState::solverType;
 
-    HXRegister * hxRegister = RegisterFactory::GetRegister( solverType, MESG_FUNC );
 
-    std::string msgName = MessageMap::GetMsgName( msgId );
-
-    HXClone * cloneClass = hxRegister->GetClass( msgName );
-
-    if ( cloneClass )
-    {
-        cloneClass->Solve();
-    }
-    else
-    {
-        ONEFLOW::AddCmdToList( msgName );
-    }
-}
-
-void AddCmdToList( const std::string & msgName )
-{
-    int msgId = MessageMap::GetMsgId( msgName );
-
-    ONEFLOW::AddCmdToList( msgId, SolverState::solverType );
-}
-
-void AddCmdToList( int msgId, int solverType )
-{
-    ONEFLOW::CreateTask( msgId, solverType );
-
-    ONEFLOW::SetFile( msgId, solverType );
-
-    SimpleCmd * cmd = new SimpleCmd();
-
-    cmd->AddTask( TaskState::task );
-
-    CMD::AddCmd( cmd );
-}
-
-void SetTaskAction()
-{
-    TaskState::task->action     = & ONEFLOW::CmdAction;
-    TaskState::task->sendAction = & ONEFLOW::CmdAction;
-    TaskState::task->recvAction = & ONEFLOW::CmdActionNext;
-}
-
-void CreateTask( int msgId, int solverType )
-{
-    HXClone * cloneClass = ONEFLOW::GetClass( msgId, solverType, TASK_FUNC );
-
-    if ( cloneClass )
-    {
-        cloneClass->Solve();
-    }
-    else
-    {
-        TaskState::task = new SimpleTask();
-    }
-
-    TaskState::task->taskId = msgId;
-    TaskState::task->taskName = MessageMap::GetMsgName( msgId );
-
-    SolverState::solverType = solverType;
-    SetTaskAction();
-}
-
-void SetFile( int msgId, int solverType )
-{
-    HXClone * cloneClass = ONEFLOW::GetClass( msgId, solverType, FILE_FUNC );
-
-    if ( cloneClass )
-    {
-        cloneClass->Solve();
-    }
-}
-
-HXClone * GetClass( int msgId, int solverType, int msgType )
-{
-    HXRegister * hxRegister = RegisterFactory::GetRegister( solverType, msgType );
-
-    std::string msgName = MessageMap::GetMsgName( msgId );
-
-    HXClone * cloneClass = hxRegister->GetClass( msgName );
-
-    return cloneClass;
-}
+// ============================================================
+// Operation execution entry
+// ============================================================
 
 void SingleSolverSingleGridTask( const std::string & taskName )
 {
-    int taskCode = MessageMap::GetMsgId( taskName );
+    // Resolve the operation name.
+    const int operationId =
+        MessageMap::GetMsgId( taskName );
 
-    ONEFLOW::GenerateCmdList( taskCode );
+    // Build the execution plan for the operation.
+    GenerateCmdList( operationId );
 
+    // Execute the generated plan.
     CMD::ExecuteCmd();
 }
 
-void MultiSolverMultiGridTask( const std::string & taskname )
+
+// ============================================================
+// Multi-solver / multi-grid execution
+// ============================================================
+
+void MultiSolverMultiGridTask( const std::string & taskName )
 {
-    for ( int solverIndex = 0; solverIndex < SolverState::nSolver; ++ solverIndex )
+    for ( int solverIndex = 0;
+        solverIndex < SolverState::nSolver;
+        ++ solverIndex )
     {
         SolverState::SetSolverTypeBySolverIndex( solverIndex );
 
-        for ( int gl = 0; gl < GridState::nGrids; ++ gl )
+        for ( int gl = 0;
+            gl < GridState::nGrids;
+            ++ gl )
         {
             GridState::SetGridLevel( gl );
-            ONEFLOW::SingleSolverSingleGridTask( taskname );
+
+            ONEFLOW::SingleSolverSingleGridTask(
+                taskName );
         }
     }
 }

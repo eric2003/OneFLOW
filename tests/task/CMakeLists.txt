@@ -63,6 +63,7 @@ set(DATABASE_TEST_SOURCES
 	${ZONE_SRC_DIR}/ZoneState.cpp
 	${GLOBAL_SRC_DIR}/Iteration.cpp
 	${GLOBAL_SRC_DIR}/Ctrl.cpp
+	${GLOBAL_SRC_DIR}/FileMap.cpp
 	${PARALLEL_SRC_DIR}/BasicParallel.cpp
 	${PARALLEL_SRC_DIR}/Parallel.cpp
 	
