@@ -81,7 +81,9 @@ void SimpleCmd::Execute()
             continue;
         }
 
+        // Set the currently executing Task.
         TaskState::task = task;
+
         task->Run();
     }
 }
@@ -94,8 +96,8 @@ void SimpleCmd::Execute()
 * cmdList is only a non-owning compatibility view.
 */
 
-HXVector< Command * > * CMD::cmdList_ = 0;
-CMD::CommandOwnerList * CMD::commandOwners = 0;
+HXVector< Command * > * CMD::cmdList_ = nullptr;
+CMD::CommandOwnerList * CMD::commandOwners = nullptr;
 
 CMD::CMD()
 {
@@ -130,14 +132,14 @@ void CMD::Free()
     CMD::commandOwners = 0;
 
     delete CMD::cmdList_;
-    CMD::cmdList_ = 0;
+    CMD::cmdList_ = nullptr;
 
-    TaskState::task = 0;
+    TaskState::task = nullptr;
 }
 
 void CMD::AddCmd( Command * cmd )
 {
-    if ( cmd == 0 )
+    if ( cmd == nullptr )
     {
         return;
     }
@@ -181,7 +183,7 @@ const HXVector< Command * > * CMD::GetCmdList()
 
 void CMD::RunCmd( Command * cmd )
 {
-    if ( cmd == 0 )
+    if ( cmd == nullptr )
     {
         return;
     }
@@ -191,7 +193,7 @@ void CMD::RunCmd( Command * cmd )
 
 void CMD::Clear()
 {
-    if ( CMD::cmdList_ == 0 )
+    if ( CMD::cmdList_ == nullptr )
     {
         return;
     }
@@ -201,7 +203,7 @@ void CMD::Clear()
     *
     * Command destruction also destroys all Tasks owned by the Command.
     */
-    if ( CMD::commandOwners != 0 )
+    if ( CMD::commandOwners != nullptr )
     {
         CMD::commandOwners->clear();
     }
@@ -213,12 +215,12 @@ void CMD::Clear()
     */
     CMD::cmdList_->clear();
 
-    TaskState::task = 0;
+    TaskState::task = nullptr;
 }
 
 void CMD::ExecuteCmd()
 {
-    if ( CMD::cmdList_ == 0 )
+    if ( CMD::cmdList_ == nullptr )
     {
         return;
     }
@@ -239,7 +241,7 @@ void CMD::ExecuteCmd()
     {
         Command * cmd = ( * CMD::cmdList_ )[ iCmd ];
 
-        if ( cmd == 0 )
+        if ( cmd == nullptr )
         {
             continue;
         }
@@ -260,7 +262,7 @@ void CMD::ExecuteCmd()
 
 void CMD::ShowCmdInfo( Command * cmd, int iCmd )
 {
-    if ( cmd == 0 )
+    if ( cmd == nullptr )
     {
         return;
     }
@@ -271,7 +273,7 @@ void CMD::ShowCmdInfo( Command * cmd, int iCmd )
     {
         Task * task = tasks[ i ];
 
-        if ( task == 0 )
+        if ( task == nullptr )
         {
             continue;
         }

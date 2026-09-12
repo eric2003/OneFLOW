@@ -46,33 +46,33 @@ void ReadBinaryFileTask( StringField & data )
 {
     CReadFile * task = new CReadFile();
     task->mainAction = & ReadBinaryFile;
-    TaskState::task = task;
+    TaskState::createdTask = task;
 }
 
 void WriteBinaryFileTask( StringField & data )
 {
     CWriteFile * task = new CWriteFile();
     task->mainAction = & WriteBinaryFile;
-    TaskState::task = task;
+    TaskState::createdTask = task;
 }
 
 void WriteAsciiFileTask( StringField & data )
 {
     CWriteFile * task = new CWriteFile();
     task->mainAction = & WriteAsciiFile;
-    TaskState::task = task;
+    TaskState::createdTask = task;
 }
 
 void ServerUpdateInterfaceTask( StringField & data )
 {
     CUpdateInterface * task = new CUpdateInterface();
-    TaskState::task = task;
+    TaskState::createdTask = task;
 }
 
 void ServerUpdateOversetInterfaceTask( StringField & data )
 {
     OversetTask * task = new OversetTask();
-    TaskState::task = task;
+    TaskState::createdTask = task;
 }
 
 EndNameSpace

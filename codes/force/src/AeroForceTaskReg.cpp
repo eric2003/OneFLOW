@@ -38,7 +38,7 @@ void RegisterForceTask()
 void DumpAerodynamicForceTask( StringField & data )
 {
     AerodynamicForceTask * task = new AerodynamicForceTask();
-    TaskState::task = task;
+    TaskState::createdTask = task;
 }
 
 void DumpPressureCoeff( StringField & data )

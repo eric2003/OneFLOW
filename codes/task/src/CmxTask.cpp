@@ -121,7 +121,7 @@ void AddCmdToList(
     }
 
     // Prepare files/resources required by the operation.
-    ONEFLOW::SetFile(
+    ONEFLOW::ConfigureTaskFile(
         task,
         operationId,
         solverType );
@@ -151,15 +151,15 @@ namespace
             return nullptr;
         }
 
-        // TASK_FUNC currently returns the created Task through TaskState.
-        TaskState::task = nullptr;
+        // TASK_FUNC callbacks return their construction result here.
+        TaskState::createdTask = nullptr;
 
         cloneClass->Solve();
 
-        Task * task = TaskState::task;
+        Task * task = TaskState::createdTask;
 
-        // Clear the construction-time bridge immediately.
-        TaskState::task = nullptr;
+        // Do not keep a stale construction result.
+        TaskState::createdTask = nullptr;
 
         return task;
     }
@@ -208,7 +208,7 @@ Task * CreateTask( int operationId, int solverType )
 // Resource preparation
 // ============================================================
 
-void SetFile( Task * task, int operationId, int solverType )
+void ConfigureTaskFile( Task * task, int operationId, int solverType )
 {
     HXClone * cloneClass =
         ONEFLOW::GetClass(
@@ -218,7 +218,7 @@ void SetFile( Task * task, int operationId, int solverType )
 
     if ( cloneClass )
     {
-        ONEFLOW::SetFile(
+        ONEFLOW::ConfigureTaskFile(
             task,
             cloneClass->data );
     }

@@ -57,10 +57,10 @@ void SetFile( StringField & data )
 {
     // Legacy registration entry point.
     // Keep it for compatibility with CSetFile::Solve().
-    SetFile( TaskState::task, data );
+    ConfigureTaskFile( TaskState::task, data );
 }
 
-void SetFile( Task * task, StringField & data )
+void ConfigureTaskFile( Task * task, StringField & data )
 {
     if ( task == nullptr )
     {

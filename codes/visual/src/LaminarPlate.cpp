@@ -51,7 +51,7 @@ void SetPlateTask()
 void CreateLaminarPlateTask( StringField & data )
 {
     LaminarFlatPlateTask * task = new LaminarFlatPlateTask();
-    TaskState::task = task;
+    TaskState::createdTask = task;
 }
 
 LamVelCut::LamVelCut()

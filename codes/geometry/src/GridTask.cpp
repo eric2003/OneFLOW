@@ -75,7 +75,7 @@ void DumpWallDist( StringField & data )
 void CreateCalcMetricsTask( StringField & data )
 {
     CalcMetricsTask * task = new CalcMetricsTask();
-    TaskState::task = task;
+    TaskState::createdTask = task;
 }
 
 void CalcMetrics( StringField & data )

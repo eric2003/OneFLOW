@@ -39,7 +39,7 @@ void RegisterRedisualTask()
 void CreateResidualTask( StringField & data )
 {
     ResidualTask * task = new ResidualTask();
-    TaskState::task = task;
+    TaskState::createdTask = task;
 }
 
 void DumpResidual( StringField & data )

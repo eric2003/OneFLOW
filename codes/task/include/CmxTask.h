@@ -75,7 +75,7 @@ Task * CreateTask( int operationId, int solverType );
 // Resource preparation
 // ============================================================
 
-void SetFile( Task * task, int operationId, int solverType );
+void ConfigureTaskFile( Task * task, int operationId, int solverType );
 
 // ============================================================
 // Action dispatch
