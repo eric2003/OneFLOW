@@ -140,8 +140,36 @@ void AddCmdToList(
 // Task construction
 // ============================================================
 
+namespace
+{
+
+    Task * CreateTaskByRegisteredFunction(
+        HXClone * cloneClass )
+    {
+        if ( cloneClass == nullptr )
+        {
+            return nullptr;
+        }
+
+        // TASK_FUNC currently returns the created Task through TaskState.
+        TaskState::task = nullptr;
+
+        cloneClass->Solve();
+
+        Task * task = TaskState::task;
+
+        // Clear the construction-time bridge immediately.
+        TaskState::task = nullptr;
+
+        return task;
+    }
+
+}
+
 Task * CreateTask( int operationId, int solverType )
 {
+    Task * task = nullptr;
+
     HXClone * cloneClass =
         ONEFLOW::GetClass(
             operationId,
@@ -150,15 +178,20 @@ Task * CreateTask( int operationId, int solverType )
 
     if ( cloneClass )
     {
-        cloneClass->Solve();
+        task =
+            CreateTaskByRegisteredFunction(
+                cloneClass );
     }
     else
     {
         // Use the default task implementation.
-        TaskState::task = new SimpleTask();
+        task = new SimpleTask();
     }
 
-    Task * task = TaskState::task;
+    if ( task == nullptr )
+    {
+        return nullptr;
+    }
 
     task->taskId = operationId;
     TaskState::task->taskName =
