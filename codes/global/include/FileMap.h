@@ -27,9 +27,14 @@ License
 
 BeginNameSpace( ONEFLOW )
 
+class Task;
+
 DEFINE_DATA_CLASS( SetFile );
 
 void RegisterFileTask();
+
+// Explicit task-targeted implementation.
+void SetFile( Task * task, StringField & data );
 
 std::string GetParallelFileName( const std::string & fileNameVar );
 

@@ -55,19 +55,33 @@ std::string GetParallelFileName( const std::string & fileNameVar )
 
 void SetFile( StringField & data )
 {
+    // Legacy registration entry point.
+    // Keep it for compatibility with CSetFile::Solve().
+    SetFile( TaskState::task, data );
+}
+
+void SetFile( Task * task, StringField & data )
+{
+    if ( task == nullptr )
+    {
+        return;
+    }
+
     std::string & fileNameVar = data[ 0 ];
 
-    std::string fileName = GetParallelFileName( fileNameVar );
-    
-    std::ios_base::openmode openMode = GetOpenMode( data[ 1 ] );
+    std::string fileName =
+        GetParallelFileName( fileNameVar );
+
+    std::ios_base::openmode openMode =
+        GetOpenMode( data[ 1 ] );
 
     for ( int i = 2; i < data.size(); ++ i )
     {
         openMode |= GetOpenMode( data[ i ] );
     }
 
-    TaskState::task->fileInfo->fileName = fileName;
-    TaskState::task->fileInfo->openMode = openMode;
+    task->fileInfo->fileName = fileName;
+    task->fileInfo->openMode = openMode;
 }
 
 std::ios_base::openmode GetOpenMode( const std::string & openModeName )

@@ -37,6 +37,7 @@ License
 #include "Zone.h"
 #include "Grid.h"
 #include "LogFile.h"
+#include "FileMap.h"
 #include <memory>
 #include <utility>
 
@@ -185,8 +186,9 @@ void SetFile( Task * task, int operationId, int solverType )
 
     if ( cloneClass )
     {
-        // Keep the current TaskState mechanism temporarily.
-        cloneClass->Solve();
+        ONEFLOW::SetFile(
+            task,
+            cloneClass->data );
     }
 }
 
