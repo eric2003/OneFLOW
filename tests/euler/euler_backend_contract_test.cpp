@@ -5,6 +5,13 @@
 
 #ifdef ONEFLOW_1D_USE_HIP
 #include <hip/hip_runtime.h>
+#include "AccelRuntime.h"
+namespace {
+struct HipRuntimeInit {
+    HipRuntimeInit() { ONEFLOW::InitializeAccelRuntime( 0, 1 ); }
+};
+static HipRuntimeInit s_hipInit;
+} // namespace
 #endif
 
 #include <algorithm>
