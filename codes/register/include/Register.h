@@ -20,67 +20,6 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-//
-//#pragma once
-//#include "HXDefine.h"
-//#include <map>
-//#include <string>
-//
-//
-//BeginNameSpace( ONEFLOW )
-//class HXClone;
-//
-//class HXRegister
-//{
-//public:
-//    HXRegister();
-//    ~HXRegister();
-//public:
-//    std::map< std::string, HXClone * > data;
-//public:
-//    void FreeAll();
-//    void Register( const std::string & cmdName, const std::string & className );
-//    HXClone * GetClass( const std::string & cmdName );
-//};
-//
-//class MRegister
-//{
-//public:
-//    MRegister();
-//    ~MRegister();
-//public:
-//    std::vector< HXRegister * > data;
-//    StringField fileNames;
-//public:
-//    void SetSolverFileNames( StringField & fileNames );
-//public:
-//    HXRegister * GetRegister( int index );
-//    HXRegister * GetRegister();
-//    void RegisterAll();
-//private:
-//    void AllocateData();
-//    void Register( const std::string & fileName, HXRegister * fRegister );
-//};
-//
-//
-//class RegisterFactory
-//{
-//public:
-//    RegisterFactory();
-//    ~RegisterFactory();
-//public:
-//    static std::map< int, MRegister * > * data;
-//public:
-//    static void Init();
-//    static void AddMRegister( int registerId );
-//    static MRegister * GetMRegister( int registerId );
-//    static void FreeMRegister();
-//public:
-//    static HXRegister * GetRegister( int mRegisterId, int registerId );
-//};
-//
-//EndNameSpace
-
 #pragma once
 #include "HXDefine.h"
 #include <map>

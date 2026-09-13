@@ -20,29 +20,19 @@ License
 
 \*---------------------------------------------------------------------------*/
 #include "SimuImp.h"
-#include "SimuDef.h"
-#include "SimpleSimu.h"
+#include "SimuTask.h"
 #include "System.h"
-#include "FieldSimu.h"
-#include "MultiBlock.h"
-#include "Prj.h"
-#include "ParaFile.h"
-#include "Parallel.h"
-#include "GridFactory.h"
-#include "Test.h"
 #include "Fatal.h"
-#include "Theory.h"
-#include "PostProcess.h"
-#include "AccelRuntime.h"
 #include <iostream>
 
 
 BeginNameSpace( ONEFLOW )
 
-SimuImp::SimuImp( std::vector<std::string> &args )
+SimuImp::SimuImp( std::vector<std::string>& args )
+    : ctx_( std::make_unique<SimuContext>( args ) )
+    , args( args )
 {
-    this->args = args;
-    Prj::ProcessCmdLineArgs( args );
+    ctx_->ProcessCommandLine();
 }
 
 SimuImp::~SimuImp()
@@ -68,65 +58,30 @@ void SimuImp::MainProcess()
 
 void SimuImp::PostProcess()
 {
-    ONEFLOW::FinalizeAccelRuntime();
-    HXFinalize();
-}
-
-void SimuImp::RunSimu()
-{
-    // Set the type of operation that ONEFLOW needs to perform
-    simu_state.Init();
-
-    // Call different solving modules according to the task type
-    const TaskEnum task = simu_state.Task();
-    if ( task == TaskEnum::SOLVE_FIELD ||
-        task == TaskEnum::CREATE_GRID ||
-        task == TaskEnum::CREATE_WALL_DIST )
-    {
-        ConstructSystemMap();
-    }
-
-    // According to different simutask values, different solving processes are executed
-    switch ( task )
-    {
-    case TaskEnum::SOLVE_FIELD:
-        FieldSimu();
-        break;
-    case TaskEnum::CREATE_GRID:
-        GenerateGrid();
-        break;
-    case TaskEnum::CREATE_WALL_DIST:
-        WalldistSimu();
-        break;
-    case TaskEnum::FUNCTION_TEST:
-        FunctionTest();
-        break;
-    case TaskEnum::SOLVE_THEORY:
-        TheorySimu();
-        break;
-    case TaskEnum::TOY_MODEL:
-        ToyModelSimu();
-        break;
-    case TaskEnum::POST_TASK:
-        PostSimu();
-        break;
-    default:
-    {
-        // Use the new Fatal macro (keeps file/line info and throws)
-        Fatal( "unknown simutask value!!" );
-    }
-    break;
-    }
+    ctx_->TeardownEnvironment();
 }
 
 void SimuImp::InitSimu()
 {
-    std::cout << " OneFLOW is running\n";
-    ONEFLOW::SetUpParallelEnvironment();
-    ONEFLOW::ReadControlInfo();
-    ONEFLOW::InitializeAccelRuntime(
-        Parallel::GetPid(),
-        Parallel::GetNProc() );
+    ctx_->SetupEnvironment();
+}
+
+void SimuImp::RunSimu()
+{
+    ctx_->ResolveTaskFromControl();
+
+    auto task = TaskRegistry::Instance().Create( ctx_->TaskName() );
+    if ( ! task )
+    {
+        Fatal( "unknown or unregistered simutask value!!" );
+    }
+
+    if ( task->NeedsSystemMap() )
+    {
+        ConstructSystemMap();
+    }
+
+    task->Execute( *ctx_ );
 }
 
 

@@ -19,46 +19,50 @@ License
     along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 
 \*---------------------------------------------------------------------------*/
-#pragma once
-#include "NamespaceMacros.h"
-#include "SimuBase.h"
+// Production environment bootstrap for SimuContext.
+// Delegates to existing globals (compatibility layer for phase 2).
+
 #include "SimuContext.h"
-#include <memory>
-#include <vector>
-#include <string>
+#include "SimuTask.h"
+#include "Prj.h"
+#include "ParaFile.h"
+#include "Parallel.h"
+#include "AccelRuntime.h"
+#include <iostream>
 
 BeginNameSpace( ONEFLOW )
 
-// Full simulation path. Owns a SimuContext (phase 2) and dispatches
-// work through TaskRegistry (phase 1).
-class SimuImp : public SimuBase
+void SimuContext::ProcessCommandLine()
 {
-public:
-    explicit SimuImp( std::vector<std::string>& args );
-    ~SimuImp() override;
+    Prj::ProcessCmdLineArgs( args_ );
+}
 
-    void Run() override;
+void SimuContext::SetupEnvironment()
+{
+    std::cout << " OneFLOW is running\n";
+    ONEFLOW::SetUpParallelEnvironment();
+    ONEFLOW::ReadControlInfo();
 
-    // Exposed for tests that inject a pre-built context path later.
-    SimuContext& Context() { return *ctx_; }
-    const SimuContext& Context() const { return *ctx_; }
+    rank_ = Parallel::GetPid();
+    size_ = Parallel::GetNProc();
 
-public:
-    void PreProcess();
-    void MainProcess();
-    void PostProcess();
+    ONEFLOW::InitializeAccelRuntime( rank_, size_ );
+    envReady_ = true;
+}
 
-protected:
-    void InitSimu();
-    void RunSimu();
+void SimuContext::TeardownEnvironment()
+{
+    ONEFLOW::FinalizeAccelRuntime();
+    HXFinalize();
+    envReady_ = false;
+}
 
-private:
-    std::unique_ptr<SimuContext> ctx_;
-
-public:
-    // Kept for source compatibility with any code reading simu.args.
-    // Prefer Context().Args().
-    std::vector<std::string> args;
-};
+void SimuContext::ResolveTaskFromControl()
+{
+    simu_state.Init();
+    task_ = simu_state.Task();
+    taskName_ = TaskEnumToString( task_ );
+    taskResolved_ = true;
+}
 
 EndNameSpace
