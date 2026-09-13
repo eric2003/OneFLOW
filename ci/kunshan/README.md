@@ -147,3 +147,50 @@ Resource temporarily unavailable` and no HIP device, while a later allocation
 on another node ran normally. A device probe (see `rocminfo` artefacts) is
 therefore worth recording before blaming the build; if a node reports no
 `gfx906` agent, exclude it and resubmit.
+
+## Standard workspace layout and test suites
+
+The cluster workspace follows one root with fixed sub-directories so that
+source, builds and run artifacts never mix. Concrete absolute paths stay in
+the cluster-side `README.md`; the structure is:
+
+```text
+<workspace root>/
+├── src/OneFLOW/              source archive for the revision under test
+├── deps/metis-install/       self-built METIS 5.0.1
+├── builds/<variant>/         solver-cpu | port-cpu | port-dcu | port-cpu-mpi | port-dcu-mpi
+├── runs/<YYYYMMDD>/<suite>/  append-only run artifacts
+├── work/                     run working directories
+├── tmp/<jobid>/              job TMPDIR
+├── probes/                   device/environment probes
+└── archive/                  historical workspaces and failed builds
+```
+
+### Standard suites
+
+| Suite | Partition | Resources | Content | Pass criteria |
+|---|---|---|---|---|
+| `cpu-regression` | `kshcnormal` | 16 CPU, 54G | five-case normal+strict; port CPU contract test | 5/5 normal, 5/5 strict, 5/5 contract |
+| `dcu-single` | `kshdnormal` | 8 CPU, 27G, `dcu:1` | HIP contract test; stateful benchmark, four sizes | 6/6; max abs error 0 and matching checksums |
+| `cpu-mpi` | `kshcnormal` | 32 ranks × 1 CPU | 32-rank CPU MPI benchmark, four sizes | exit 0, hashes valid |
+| `dcu-mpi` | `kshdnormal` | 4 ranks × 8 CPU, `dcu:4` | 1-rank and 4-rank DCU MPI benchmark, four sizes | exit 0, hashes match `cpu-mpi`, `visible_devices=4` |
+
+Common scale: `nx = 65536 / 262144 / 1048576 / 4194304`, `steps=100 repeats=2 warmup=1`.
+
+`lifecycle_*_ms` sums over `repeats`; only datasets recorded with the same
+`repeats` value are comparable (see the erratum in
+`doc/reports/performance/oneflow-euler-performance-20260913.md`).
+
+### Run artifacts
+
+Every run writes `environment.txt`, per-stage logs and `result.txt` under
+`runs/<YYYYMMDD>/<suite>/`. Historical runs are never overwritten. Slurm
+scripts and scheduler logs stay separate from the workspace root, under the
+submitter's `scripts/` and `scripts/logs/` directories.
+
+### Reusable job scripts
+
+The four job scripts used for the 2026-09-13 runs are kept cluster-side. They
+assume a single `ROOT` variable; when the workspace is reorganized, update
+`ROOT` and the `builds/` and `runs/` sub-paths only — the module setup and
+benchmark invocations stay unchanged.
