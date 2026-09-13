@@ -409,3 +409,29 @@ ci/kunshan/euler-mpi-gpu8-1.slurm
 
 - ci/kunshan/euler-cpu-mpi-regression.slurm
 - ci/kunshan/euler-dcu-mpi4-regression.slurm
+
+
+## 14. 2026-09-03 HIP GoogleTest/CTest 实机复验
+
+为闭合低层 backend contract 与测试框架两层证据，修复 CTest discovery 后在
+Kunshan `kshdnormal` 提交单卡作业：
+
+| 项目 | 结果 |
+|---|---|
+| 资源 | 1 节点、1 task、8 CPU、`dcu:1`、27G |
+| 工具链 | DTK 26.04、Clang 17、CMake 3.22.0-rc1 |
+| 目标架构 | Hygon HCU `gfx906` |
+| 配置/编译 | PASS |
+| HIP GoogleTest 二进制 | 6/6 PASS |
+| CTest discovery | 发现并执行 6 个 `HIP.*` 测试，6/6 PASS |
+| Slurm | `COMPLETED`，退出码 `0:0` |
+| CTest 时间 | 约 1.05 秒 |
+
+本次修复点：CPU/HIP 测试分别使用 `CPU.`/`HIP.` 前缀，避免同名测试互相覆盖；
+作业在 PRE_TEST discovery 前清理陈旧的 `*_tests.cmake`；CTest 使用 HIP 前缀过滤，
+并强制检查 `100% tests passed, 0 tests failed out of 6`。此前的 `No tests were found!`
+误报已消除。
+
+该记录证明一维 Euler HIP backend contract 已达到“目标节点编译 + 直接测试 + CTest
+发现并执行 + Slurm 成功”闭环；它仍不等于完整 Navier–Stokes GPU 主线或 CUDA/Kokkos
+兼容性验证。

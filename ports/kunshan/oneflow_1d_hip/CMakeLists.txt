@@ -60,7 +60,9 @@ if ( ONEFLOW_1D_ENABLE_GTEST )
     target_link_libraries(
         oneflow_1d_euler_cpu_backend_test PRIVATE GTest::gtest_main )
     gtest_discover_tests(
-        oneflow_1d_euler_cpu_backend_test DISCOVERY_MODE PRE_TEST )
+            oneflow_1d_euler_cpu_backend_test
+            DISCOVERY_MODE PRE_TEST
+            TEST_PREFIX "CPU." )
 endif()
 
 option( ONEFLOW_1D_ENABLE_HIP "Build the native HIP validation executable" OFF )
@@ -117,7 +119,9 @@ if ( ONEFLOW_1D_ENABLE_HIP )
             oneflow_1d_euler_hip_backend_test
             PRIVATE GTest::gtest_main hip::host )
         gtest_discover_tests(
-            oneflow_1d_euler_hip_backend_test DISCOVERY_MODE PRE_TEST )
+            oneflow_1d_euler_hip_backend_test
+            DISCOVERY_MODE PRE_TEST
+            TEST_PREFIX "HIP." )
     endif()
 
 

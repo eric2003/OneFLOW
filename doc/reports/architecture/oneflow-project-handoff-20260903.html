@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="OneFLOW project handoff">
+<title>OneFLOW project handoff</title>
+<style>
+:root{--ink:#172033;--muted:#667085;--line:#d9e0ea;--soft:#f5f7fa;--accent:#b42318;--accent-soft:#fff1f0;--code:#111827}
+*{box-sizing:border-box}body{margin:0;color:var(--ink);background:#eef2f6;font:16px/1.75 -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif}.layout{display:grid;grid-template-columns:250px minmax(0,1040px);gap:24px;justify-content:center;padding:24px}.toc{position:sticky;top:20px;align-self:start;max-height:calc(100vh - 40px);overflow:auto;padding:16px;background:#fff;border:1px solid var(--line);border-radius:12px}.toc strong{display:block;margin-bottom:8px}.toc a{display:block;color:var(--muted);text-decoration:none;font-size:13px;line-height:1.5;padding:3px 0}.toc a:hover{color:var(--accent)}article{min-width:0;padding:44px 52px 60px;background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:0 8px 28px #10182812}h1{margin:0 0 10px;font-size:34px;line-height:1.3}h2{margin:44px 0 14px;padding-bottom:8px;border-bottom:2px solid var(--accent);font-size:24px;scroll-margin-top:16px}h3{margin:28px 0 10px;font-size:19px;scroll-margin-top:16px}p,ul,ol{margin:10px 0}li+li{margin-top:4px}.table-wrap{width:100%;margin:16px 0 22px;overflow-x:auto;border:1px solid var(--line);border-radius:8px}table{width:100%;min-width:650px;border-collapse:collapse;font-size:13px}th,td{padding:8px 10px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);text-align:left;vertical-align:top}th:last-child,td:last-child{border-right:0}tr:last-child td{border-bottom:0}th{background:var(--soft)}tr:nth-child(even) td{background:#fafbfc}code{padding:.12em .32em;color:#9f1239;background:var(--accent-soft);border-radius:4px;font:.9em ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}pre{overflow:auto;margin:16px 0 22px;padding:14px 16px;color:#e5e7eb;background:var(--code);border-radius:8px;line-height:1.55}pre code{padding:0;color:inherit;background:none}blockquote{margin:18px 0 26px;padding:10px 16px;color:var(--muted);background:var(--soft);border-left:4px solid var(--accent)}.ok{color:#087443;font-weight:650}.warn{color:#9a3412;font-weight:650}.report-footer{margin-top:46px;padding-top:14px;color:var(--muted);border-top:1px solid var(--line);font-size:13px}@media(max-width:900px){.layout{display:block;padding:10px}.toc{position:static;max-height:none;margin-bottom:10px}article{padding:28px 20px 42px}h1{font-size:28px}}@media print{@page{margin:15mm 12mm}body{background:#fff;font-size:10.5pt}.layout{display:block;padding:0}.toc{display:none}article{padding:0;border:0;box-shadow:none}h1{font-size:23pt}h2{break-after:avoid}.table-wrap,pre,blockquote{break-inside:avoid}.table-wrap{overflow:visible;border:0}table{min-width:0;font-size:8.5pt}}
+</style>
+</head>
+<body>
+<main class="layout">
+<nav class="toc" aria-label="报告目录"><strong>目录</strong><a href="#section-1-current-conclusion">1. Current conclusion</a><a href="#section-2-git-and-remote-state">2. Git and remote state</a><a href="#section-3-residual-regression-architecture">3. Residual regression architecture</a><a href="#section-4-existing-gpu-mpi-evidence">4. Existing GPU/MPI evidence</a><a href="#section-5-googletest-change">5. GoogleTest change</a><a href="#section-6-kunshan-dcu-execution-boundary">6. Kunshan/DCU execution boundary</a><a href="#section-7-next-actions">7. Next actions</a><a href="#section-8-first-files-to-inspect">8. First files to inspect</a><a href="#section-9-post-handoff-dcu-validation">9. Post-handoff DCU validation</a></nav>
+<article>
+<h1 id="section-oneflow-project-handoff">OneFLOW project handoff</h1>
+<p><strong>Date:</strong> 2026-09-03
+<strong>Repository state:</strong> source commit <code>60681aaa</code> was clean and synchronized with <code>origin/master</code>; this handoff document is pending
+<strong>Latest commit:</strong> <code>60681aaa</code> — <code>Add Euler backend GoogleTest coverage</code></p>
+<h2 id="section-1-current-conclusion">1. Current conclusion</h2>
+<p>The project work covers one-dimensional Euler performance, CPU/GPU
+correctness, unified residual regression, and a maintainable Git workflow.</p>
+<p>The previous GPU/MPI implementation is merged upstream. The latest commit adds
+GoogleTest coverage for the Euler backend without changing the production
+solver or residual path. CPU tests are validated locally, and the optional HIP
+target has now been compiled and run on a real Kunshan DCU node with 6/6 tests
+passing.</p>
+<p>Do not confuse these states:</p>
+<ul>
+<li>existing Euler CPU/HIP functionality was not changed by the GoogleTest commit;</li>
+<li>the new CPU test executable passed;</li>
+<li>the new HIP test executable has target-node evidence: 6/6 tests passed on Kunshan DCU;</li>
+<li>CUDA and KOKKOS remain unverified.</li>
+</ul>
+<h2 id="section-2-git-and-remote-state">2. Git and remote state</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Item</th>
+<th>State</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Local branch</td>
+<td><code>master</code></td>
+</tr>
+<tr>
+<td>Local HEAD</td>
+<td><code>60681aaa</code></td>
+</tr>
+<tr>
+<td>Fork <code>origin/master</code></td>
+<td><code>60681aaa</code></td>
+</tr>
+<tr>
+<td><code>upstream/master</code> at handoff</td>
+<td><code>02899807</code></td>
+</tr>
+<tr>
+<td>Working tree</td>
+<td>clean before adding this handoff document</td>
+</tr>
+<tr>
+<td>Latest GoogleTest change on upstream</td>
+<td>no PR opened</td>
+</tr>
+</tbody>
+</table></div>
+<p>The latest commit is pushed to the fork. For future upstream work, fetch
+first, inspect the graph and changed files, then merge only after checking
+ownership of <code>full.dat</code>, <code>solverstate</code>, residual outputs, and test infrastructure.</p>
+<p>Recommended workflow:</p>
+<pre><code class="language-text">sync master
+  -&gt; create a feature branch
+  -&gt; make one logical change
+  -&gt; run the cheapest relevant tests
+  -&gt; commit and push to the fork
+  -&gt; open a PR to upstream master
+  -&gt; after merge, fetch and fast-forward local master
+</code></pre>
+<h2 id="section-3-residual-regression-architecture">3. Residual regression architecture</h2>
+<p>Normal and strict residual regression use one architecture:</p>
+<ul>
+<li>one suite definition and runner;</li>
+<li>one canonical <code>test/baselines/residual-baseline.json</code>;</li>
+<li>one residual output path;</li>
+<li>one comparison implementation with mode-dependent tolerance and output precision.</li>
+</ul>
+<p>The canonical database contains five cases and eight residual files. Normal mode
+is intended for fast GitHub CI. Strict mode is intended for high-precision
+validation on the Kunshan CPU queue. Strict mode uses an approximately
+<code>1e-15</code> criterion and higher-precision residual output; it does not create
+a second baseline system.</p>
+<p>GoogleTest does not replace or duplicate this suite. It validates the lower-level
+backend interface with small deterministic vectors. Full residual and MPI
+regression remain integration-level checks.</p>
+<h2 id="section-4-existing-gpu-mpi-evidence">4. Existing GPU/MPI evidence</h2>
+<p>The previous implementation has evidence for:</p>
+<ul>
+<li>CPU MPI: one-rank and 32-rank final hashes matched at tested sizes;</li>
+<li>HIP/DCU MPI: four ranks on four DCUs passed strict CPU/HIP comparison, with
+  physical-state checks passing and four visible devices;</li>
+<li>one-card end-to-end speedups versus 32-rank CPU of approximately
+  <code>3.85x</code>, <code>5.34x</code>, <code>6.80x</code>, and <code>9.70x</code>;</li>
+<li>four-card end-to-end speedups of approximately <code>0.57x</code>, <code>1.58x</code>,
+  <code>5.39x</code>, and <code>13.10x</code>.</li>
+</ul>
+<p>These are whole-process wall-clock comparisons. They do not establish CUDA or
+KOKKOS compatibility.</p>
+<h2 id="section-5-googletest-change">5. GoogleTest change</h2>
+<p>The original <code>hello_test</code> remains as a GoogleTest smoke test. The new
+contract test is
+<a href="../../../tests/euler_backend_contract_test.cpp">tests/euler_backend_contract_test.cpp</a>.</p>
+<p>It tests the backend directly through the existing interface:</p>
+<ul>
+<li>backend identity and accelerator metadata;</li>
+<li><code>CreateState</code>, <code>Upload</code>, <code>Advance</code>, and <code>Download</code>;</li>
+<li><code>FullTrace</code> and <code>NoTrace</code>;</li>
+<li>state reuse;</li>
+<li>finite and positive physical state;</li>
+<li>invalid problem, upload, step, and trace options;</li>
+<li>HIP device visibility when compiled with HIP.</li>
+</ul>
+<p>The root CMake adds <code>oneflow_euler_backend_cpu_test</code>. The Kunshan port adds
+<code>oneflow_1d_euler_hip_backend_test</code> only when both options are enabled:</p>
+<pre><code class="language-bash">-DONEFLOW_1D_ENABLE_GTEST=ON
+-DONEFLOW_1D_ENABLE_HIP=ON
+</code></pre>
+<p>Both options are off by default in the Kunshan port. Developers without HIP or
+DCU therefore do not need to build or run the GPU test.</p>
+<p>Validated results:</p>
+<ul>
+<li>root-engine CPU backend contract: 5/5;</li>
+<li>standalone Kunshan-port CPU backend contract: 5/5;</li>
+<li>original <code>HelloTest</code>: 2/2.</li>
+</ul>
+<p>The HIP target has now been compiled and run on a Kunshan DCU compute node.
+The direct GoogleTest binary passed 6/6, and CTest now discovers and executes
+all 6 <code>HIP.*</code> tests successfully after the backend-specific prefix and stale
+discovery fixes.</p>
+<h2 id="section-6-kunshan-dcu-execution-boundary">6. Kunshan/DCU execution boundary</h2>
+<p>The <code>scnet-hpc</code> Kunshan profile identifies <code>kshdnormal</code> as the DCU
+queue, requires at least <code>dcu:1</code>, and targets <code>gfx906</code>. Resource
+requests must be generated from the profile and preserve its fixed
+CPU/memory/GPU relationship. Do not invent a resource tuple.</p>
+<p>HIP GoogleTest is a low-cost one-card compute-node test. Four cards remain for
+MPI rank/device mapping and end-to-end integration regression.</p>
+<p>A missing device or failed HIP runtime initialization must produce a nonzero
+job status. A skipped test must not be reported as successful DCU validation.
+Login-node package visibility is not compute-node compatibility evidence.</p>
+<p>Earlier SCNet HTTP 503 and old-session API 400 failures were infrastructure or
+session-context failures, not OneFLOW test results.</p>
+<h2 id="section-7-next-actions">7. Next actions</h2>
+<ol>
+<li>Completed on 2026-09-03: submitted a profile-aligned one-card Kunshan DCU job.</li>
+<li>Completed: built and ran <code>oneflow_1d_euler_hip_backend_test</code> on the compute-node
+   HIP/DTK toolchain; direct GoogleTest passed 6/6.</li>
+<li>Completed: recorded toolchain, architecture, visible-device evidence, exit
+   status, and test summary in the maintained porting playbook.</li>
+<li>Completed: added the reusable job script and sanitized validation notes.</li>
+<li>Keep CPU GoogleTest in GitHub CI; run HIP GoogleTest only for HIP-related
+   changes, scheduled validation, or an explicit release check.</li>
+<li>Keep the <code>CPU.</code>/<code>HIP.</code> CTest prefixes and discovery-file refresh logic when
+   extending the contract suite.</li>
+<li>Split the contract test into lifecycle, numerical, and error-handling files
+   only if it grows materially; the current test remains a coherent unit.</li>
+</ol>
+<h2 id="section-8-first-files-to-inspect">8. First files to inspect</h2>
+<ul>
+<li><a href="../../../tests/euler_backend_contract_test.cpp">backend contract test</a></li>
+<li><a href="../../../tests/CMakeLists.txt">root test CMake</a></li>
+<li><a href="../../../ports/kunshan/oneflow_1d_hip/CMakeLists.txt">Kunshan port CMake</a></li>
+<li><a href="../../../ports/kunshan/oneflow_1d_hip/OneDEulerBackend.h">Euler backend interface</a></li>
+<li><a href="../regression/oneflow-residual-integration-20260901.html">residual integration report</a></li>
+<li><a href="../performance/oneflow-euler-performance-current.md">current performance report</a></li>
+<li><a href="../README.md">report directory rules</a></li>
+</ul>
+<h2 id="section-9-post-handoff-dcu-validation">9. Post-handoff DCU validation</h2>
+<p>The one-card HIP contract validation was completed on 2026-09-03 using the
+profile-aligned <code>kshdnormal</code> request (1 node, 1 task, 8 CPU, <code>dcu:1</code>, 27G).
+DTK 26.04 / Clang 17 compiled the HIP GoogleTest target for <code>gfx906</code>; the
+compute-node binary passed 6/6 tests and the Slurm job completed with exit code
+<code>0:0</code>. The reusable job is
+<a href="../../../ci/kunshan/euler-dcu-gtest.slurm"><code>ci/kunshan/euler-dcu-gtest.slurm</code></a>.</p>
+<p>The run also captured two reusable rules: resolve CMake before <code>module purge</code>,
+and never treat CTest's <code>No tests were found!</code> with exit code 0 as validation
+success. The CTest harness is now fixed with backend-specific prefixes and a
+fresh PRE_TEST discovery list; the broader migration guidance is maintained in
+<a href="oneflow-dcu-porting-playbook-20260903.md"><code>oneflow-dcu-porting-playbook-20260903.md</code></a>.</p>
+<div class="report-footer">HTML 由对应 Markdown 报告生成；Markdown 是本报告的源文件。报告仅记录已获得的证据，未验证边界保持不变。</div>
+</article>
+</main>
+</body>
+</html>

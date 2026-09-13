@@ -39,6 +39,16 @@ The MPI fixture is kept outside Git because its partitioned grid is large.
 
 Serial and MPI baselines are deliberately separate. The serial job uses one canonical residual database and exercises both legacy and max-digits10 output modes. The current checked-in profile submits this suite to the CPU partition with `KUNSHAN_ACCEL_BACKEND=CPU`. Accelerator profiles reuse the same runner by selecting `HIP`, `CUDA`, or `KOKKOS` in their private configuration and must provide matching modules, partition/GRES requests, and target-node validation.
 
+## One-card HIP contract validation
+
+For the isolated Kunshan Euler backend contract, use
+[`euler-dcu-gtest.slurm`](euler-dcu-gtest.slurm). It requests one DCU and
+explicitly enables `ONEFLOW_1D_ENABLE_HIP` and `ONEFLOW_1D_ENABLE_GTEST`. The
+job executes the GoogleTest binary and CTest, and records CMake, compiler, HIP
+architecture, `rocminfo`, and Slurm evidence. CPU/HIP tests use `CPU.`/`HIP.`
+CTest prefixes; an empty discovery result or a zero exit code without the expected
+summary is not successful validation.
+
 ## Execution
 
 Run **OneFLOW Kunshan Regression** from the Actions page and select:
