@@ -46,7 +46,7 @@ if ( ONEFLOW_1D_ENABLE_GTEST )
     include( GoogleTest )
 
     set( ONEFLOW_EULER_CONTRACT_TEST
-         ${CMAKE_CURRENT_LIST_DIR}/../../../tests/euler_backend_contract_test.cpp )
+         ${CMAKE_CURRENT_LIST_DIR}/../../../tests/euler/euler_backend_contract_test.cpp )
     add_executable(
         oneflow_1d_euler_cpu_backend_test
         ${ONEFLOW_EULER_CONTRACT_TEST}
