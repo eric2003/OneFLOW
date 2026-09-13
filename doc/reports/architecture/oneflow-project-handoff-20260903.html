@@ -104,8 +104,9 @@ regression remain integration-level checks.</p>
   physical-state checks passing and four visible devices;</li>
 <li>one-card end-to-end speedups versus 32-rank CPU of approximately
   <code>3.85x</code>, <code>5.34x</code>, <code>6.80x</code>, and <code>9.70x</code>;</li>
-<li>four-card end-to-end speedups of approximately <code>0.57x</code>, <code>1.58x</code>,
-  <code>5.39x</code>, and <code>13.10x</code>.</li>
+<li>four-card end-to-end speedups of approximately <code>1.02x</code>, <code>3.42x</code>,
+  <code>10.60x</code>, and <code>25.55x</code> (corrected 2026-09-13; the earlier figures
+  divided a <code>repeats=1</code> CPU baseline by <code>repeats=2</code> DCU data).</li>
 </ul>
 <p>These are whole-process wall-clock comparisons. They do not establish CUDA or
 KOKKOS compatibility.</p>

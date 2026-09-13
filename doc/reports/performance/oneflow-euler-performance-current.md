@@ -17,7 +17,7 @@
 - 4-rank/4-DCU HIP MPI：严格 CPU/HIP 对比通过，4 个规模均通过，程序报告 visible_devices=4。
 - Trace 路径仍受 D2H 主导，端到端相对串行 CPU 只有 2.04–2.55×；它是诊断路径，不是生产性能路径。
 
-按行业常用口径，应用级 GPU 加速应优先使用同等精度、同一算例和同一迭代量下的端到端 wall-clock；kernel-only 或相对单 CPU 核的结果只能作为辅助诊断。以此标准看，当前 1-DCU stateful 相对 32 核 CPU 为 3.85–9.70×，4-DCU/4-rank MPI 在 4M 规模达到 13.10×；小规模 4 卡结果受 MPI/设备启动和 halo 固定开销影响，不能单独代表吞吐。
+按行业常用口径，应用级 GPU 加速应优先使用同等精度、同一算例和同一迭代量下的端到端 wall-clock；kernel-only 或相对单 CPU 核的结果只能作为辅助诊断。以此标准看，当前 1-DCU stateful 相对 32 核 CPU 为 3.85–9.70×，4-DCU/4-rank MPI 在 4M 规模达到 25.55×；小规模 4 卡结果受 MPI/设备启动和 halo 固定开销影响，不能单独代表吞吐。此前版本中的 13.10× 系 CPU 基线 `repeats` 口径错配，勘误见第 6.5 节。
 
 ## 2. 回归与残差标准
 
@@ -165,20 +165,29 @@ Euler 数值代码未因该问题改写。
 
 ### 6.5 32-rank CPU MPI 与 4-rank/4-DCU HIP MPI
 
-两组数据都使用 100 steps、1 warmup、2 repeats 的 benchmark lifecycle。CPU 组同时执行
-1-rank 和 32-rank，回归脚本要求两者 final_hash 完全一致；DCU 组使用 4 个 MPI rank
-和 4 张可见 DCU，脚本要求 visible_devices=4，并在 65,536 网格上用
-EulerMpiRegression 做 CPU/HIP 严格结果比较。
+> **勘误（2026-09-13）**：本节初版把 `euler-cpu-mpi-regression.slurm`
+> （`100 1 1`，`repeats=1`）产生的 CPU 数值除以 `euler-dcu-mpi4-regression.slurm`
+> （`100 2 1`，`repeats=2`）产生的 DCU 数值。`lifecycle_max_ms` 是 `repeats`
+> 次运行的总和，两种口径不可混用。下表已改用同一 `repeats=2` 口径的 CPU 基线
+> （作业 `120612185`）重算；2026-09-13 的复测报告
+> [oneflow-euler-performance-20260913.md](oneflow-euler-performance-20260913.md)
+> 记录了本次审计与复现数据。
+
+两组数据都使用 100 steps、1 warmup、2 repeats 的 benchmark lifecycle。CPU 列取自
+`euler-cpu-mpi-matrix.slurm`（`100 2 1`）的 32-rank 结果；哈希回归脚本
+`euler-cpu-mpi-regression.slurm` 使用 `100 1 1`（`repeats=1`），其数值与本表
+DCU 列不同口径。DCU 组使用 4 个 MPI rank 和 4 张可见 DCU，脚本要求
+visible_devices=4，并在 65,536 网格上用 EulerMpiRegression 做 CPU/HIP 严格结果比较。
 
 | nx | 32-rank CPU lifecycle (ms) | 4-DCU HIP MPI lifecycle (ms) | CPU/HIP wall-clock |
 | ---: | ---: | ---: | ---: |
-| 65,536 | 40.209 | 70.214 | 0.57× |
-| 262,144 | 130.277 | 82.219 | 1.58× |
-| 1,048,576 | 653.098 | 121.239 | 5.39× |
-| 4,194,304 | 3,629.603 | 277.217 | 13.10× |
+| 65,536 | 71.366 | 70.214 | 1.02× |
+| 262,144 | 281.295 | 82.219 | 3.42× |
+| 1,048,576 | 1,284.895 | 121.239 | 10.60× |
+| 4,194,304 | 7,082.042 | 277.217 | 25.55× |
 
 这一表是同一节点的资源级端到端 wall-clock 对比，不是单卡结果的线性外推。4 卡路径的
-fixed MPI halo、rank/device 初始化和小问题规模固定成本在 65,536 上超过计算收益；
+fixed MPI halo、rank/device 初始化和小问题规模固定成本在 65,536 上使收益基本抵消（1.02×）；
 当局部问题规模扩大后，4 卡结果显示出明显吞吐优势。4 卡结果已通过功能回归，但尚未
 覆盖跨节点 MPI 或其他 accelerator backend。
 
@@ -190,16 +199,19 @@ lifecycle 作为分母，HIP 侧均包含 create、upload、advance 和 download
 
 | nx | 32-rank CPU (ms) | 1-DCU HIP (ms) | 1-DCU 加速 | 4-DCU HIP MPI (ms) | 4-DCU 加速 |
 | ---: | ---: | ---: | ---: | ---: | ---: |
-| 65,536 | 71.366 | 18.547 | 3.85× | 70.214 | 0.57× |
-| 262,144 | 281.295 | 52.716 | 5.34× | 82.219 | 1.58× |
-| 1,048,576 | 1,284.895 | 188.891 | 6.80× | 121.239 | 5.39× |
-| 4,194,304 | 7,082.042 | 730.417 | 9.70× | 277.217 | 13.10× |
+| 65,536 | 71.366 | 18.547 | 3.85× | 70.214 | 1.02× |
+| 262,144 | 281.295 | 52.716 | 5.34× | 82.219 | 3.42× |
+| 1,048,576 | 1,284.895 | 188.891 | 6.80× | 121.239 | 10.60× |
+| 4,194,304 | 7,082.042 | 730.417 | 9.70× | 277.217 | 25.55× |
+
+4-DCU 加速列已按第 6.5 节的勘误修正（原值把 `repeats=1` 的 CPU 基线用于
+`repeats=2` 的对比）。
 
 结论：
 
 - 单卡已经在完整生命周期口径下稳定优于 32-rank CPU，规模增大时从 3.85×提升到 9.70×；
-- 四卡在 65,536 上为 0.57×，主要受 MPI、rank/device 初始化和 halo 固定开销影响；
-- 从 1M 开始四卡超过单卡，4M 达到 13.10×，说明多卡域分解在较大问题规模上开始摊薄固定成本；
+- 四卡在 65,536 上为 1.02×（基本持平），主要受 MPI、rank/device 初始化和 halo 固定开销影响；
+- 从 1M 开始四卡超过单卡，4M 达到 25.55×，说明多卡域分解在较大问题规模上开始摊薄固定成本；
 - 四卡数据证明的是单节点 4-rank/4-DCU HIP MPI 整体 wall-clock，不是单卡结果的线性外推，也不代表跨节点扩展。
 
 ## 7. DCU 证据与限制
