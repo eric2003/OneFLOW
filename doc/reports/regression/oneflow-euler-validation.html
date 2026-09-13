@@ -1,0 +1,701 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="OneFLOW 一维 Euler 原生 HIP 验证记录">
+<title>OneFLOW 一维 Euler 原生 HIP 验证记录</title>
+<style>
+:root{--ink:#172033;--muted:#667085;--line:#d9e0ea;--soft:#f5f7fa;--accent:#b42318;--accent-soft:#fff1f0;--code:#111827}
+*{box-sizing:border-box}body{margin:0;color:var(--ink);background:#eef2f6;font:16px/1.75 -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif}.layout{display:grid;grid-template-columns:250px minmax(0,1040px);gap:24px;justify-content:center;padding:24px}.toc{position:sticky;top:20px;align-self:start;max-height:calc(100vh - 40px);overflow:auto;padding:16px;background:#fff;border:1px solid var(--line);border-radius:12px}.toc strong{display:block;margin-bottom:8px}.toc a{display:block;color:var(--muted);text-decoration:none;font-size:13px;line-height:1.5;padding:3px 0}.toc a:hover{color:var(--accent)}article{min-width:0;padding:44px 52px 60px;background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:0 8px 28px #10182812}h1{margin:0 0 10px;font-size:34px;line-height:1.3}h2{margin:44px 0 14px;padding-bottom:8px;border-bottom:2px solid var(--accent);font-size:24px;scroll-margin-top:16px}h3{margin:28px 0 10px;font-size:19px;scroll-margin-top:16px}p,ul,ol{margin:10px 0}li+li{margin-top:4px}.table-wrap{width:100%;margin:16px 0 22px;overflow-x:auto;border:1px solid var(--line);border-radius:8px}table{width:100%;min-width:650px;border-collapse:collapse;font-size:13px}th,td{padding:8px 10px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);text-align:left;vertical-align:top}th:last-child,td:last-child{border-right:0}tr:last-child td{border-bottom:0}th{background:var(--soft)}tr:nth-child(even) td{background:#fafbfc}code{padding:.12em .32em;color:#9f1239;background:var(--accent-soft);border-radius:4px;font:.9em ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}pre{overflow:auto;margin:16px 0 22px;padding:14px 16px;color:#e5e7eb;background:var(--code);border-radius:8px;line-height:1.55}pre code{padding:0;color:inherit;background:none}blockquote{margin:18px 0 26px;padding:10px 16px;color:var(--muted);background:var(--soft);border-left:4px solid var(--accent)}.ok{color:#087443;font-weight:650}.warn{color:#9a3412;font-weight:650}.report-footer{margin-top:46px;padding-top:14px;color:var(--muted);border-top:1px solid var(--line);font-size:13px}@media(max-width:900px){.layout{display:block;padding:10px}.toc{position:static;max-height:none;margin-bottom:10px}article{padding:28px 20px 42px}h1{font-size:28px}}@media print{@page{margin:15mm 12mm}body{background:#fff;font-size:10.5pt}.layout{display:block;padding:0}.toc{display:none}article{padding:0;border:0;box-shadow:none}h1{font-size:23pt}h2{break-after:avoid}.table-wrap,pre,blockquote{break-inside:avoid}.table-wrap{overflow:visible;border:0}table{min-width:0;font-size:8.5pt}}
+</style>
+</head>
+<body>
+<main class="layout">
+<nav class="toc" aria-label="报告目录"><strong>目录</strong><a href="#section-1">1. 当前结论</a><a href="#section-2">2. 主线范围与数值判据</a><a href="#section-3">3. 集群边界</a><a href="#section-4-bw1000">4. 郑州 BW1000 归档参考（不进入当前代码测试）</a><a href="#section-5-z100">5. 昆山 Z100 当前证据</a><a href="#section-6">6. 本地提交证据</a><a href="#section-7-hip-backend">7. HIP backend 与多架构预留</a><a href="#section-8-2026-08-25">8. 2026-08-25 历史收尾状态</a><a href="#section-9-10">9. 历史恢复清单（性能基线见第 10 节）</a><a href="#section-10-2026-08-28">10. 2026-08-28 昆山性能基线</a><a href="#section-11">11. 当前优先级</a><a href="#section-12-32-cpu-8-rank-mpi">12. 历史：32 核 CPU 与 8 rank 共享一张卡的 MPI 对比</a><a href="#section-13-32-rank-cpu-4-rank-4-dcu-hip-mpi">13. 当前：32-rank CPU 与 4-rank/4-DCU HIP MPI</a><a href="#section-14-2026-09-03-hip-googletest-ctest">14. 2026-09-03 HIP GoogleTest/CTest 实机复验</a></nav>
+<article>
+<h1 id="section-oneflow-euler-hip">OneFLOW 一维 Euler 原生 HIP 验证记录</h1>
+<blockquote>
+<p>记录日期：2026-08-28
+本文是当前一维主线的结果记录，不代表完整 Navier–Stokes GPU 化，也不替代
+<code>doc/reports/architecture/oneflow-gpu-backend-delivery.md</code> 中较早的 GPU backend 框架交付报告。</p>
+</blockquote>
+<h2 id="section-1">1. 当前结论</h2>
+<ul>
+<li>一维验证程序已经进入本地 <code>master</code> 的当前 HEAD。</li>
+<li>CPU 主路径保留，HIP 只作为隔离的一维验证后端；当前不把它描述为完整生产 CFD
+  GPU backend。</li>
+<li>郑州 BW1000 的 <code>gfx936</code> 结果已归档，仅作为历史参考，不再进入后续代码测试。</li>
+<li>昆山 Z100 的目标架构是 <code>gfx906</code>，自动探测、编译、运行和逐步比对闭环已在真实计算节点通过。</li>
+<li>正确性是硬门槛：CPU/HIP stage-by-stage 回归和多规模 benchmark 最终状态误差均为 0。</li>
+<li>已建立 kernel、H2D、D2H、allocation 分项计时；高性能 backend 的下一步重点是数据常驻显存和减少同步/D2H。</li>
+<li>已完成两类并行验收：32-rank CPU MPI 四规模 hash 回归，以及单节点 4-rank/4-DCU HIP MPI 严格回归与四规模 benchmark；后者在 4M 达到 13.10x（相对 32-rank CPU lifecycle）。</li>
+</ul>
+<h2 id="section-2">2. 主线范围与数值判据</h2>
+<p>一维 Euler 验证推进三个守恒量：</p>
+<pre><code class="language-text">[rho, rho*u, rho*E]
+</code></pre>
+<p>实现为一阶 Rusanov 数值通量和 SSP-RK3 时间推进。HIP 与 CPU 在每个 RK stage
+比较：</p>
+<ul>
+<li>face state；</li>
+<li>numerical flux；</li>
+<li>residual；</li>
+<li>三个守恒量 <code>rho</code>、<code>rho*u</code>、<code>rho*E</code>；</li>
+<li>派生原始量 <code>rho</code>、<code>u</code>、<code>p</code>。</li>
+</ul>
+<p>每个比较项同时记录：</p>
+<ul>
+<li>absolute error；</li>
+<li>scaled-relative error，尺度为 <code>max(1, abs(reference))</code>；</li>
+<li>ULP distance；</li>
+<li>finite/physical-state 检查。</li>
+</ul>
+<p>接受条件为：</p>
+<pre><code class="language-text">abs(error) &lt;= 1e-15 + 1e-15 * max(1, abs(reference))
+</code></pre>
+<p>这表示数值误差阈值，不等同于“小数点后 15 位”或“15 位有效数字”。
+Sod 激波附近不把逐点残差当作平滑区参考：CPU 的 <code>rho</code> 或 <code>p</code> 相邻跳变超过
+2% 的比较点进入 residual mask，并单独报告；其它平滑区域仍按同一误差判据比较。</p>
+<h2 id="section-3">3. 集群边界</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>集群</th>
+<th>入口/分区</th>
+<th>硬件与目标架构</th>
+<th>本记录中的角色</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>郑州 BW1000</td>
+<td><code>zzeshell</code></td>
+<td>BW1000，实测 <code>gfx936</code></td>
+<td>已归档参考</td>
+</tr>
+<tr>
+<td>昆山 Z100</td>
+<td><code>kseshell</code> / <code>kshdnormal</code></td>
+<td>Z100，目标 <code>gfx906</code></td>
+<td>当前主线，已完成一维闭环</td>
+</tr>
+</tbody>
+</table></div>
+<p>两者不能互换。郑州作业号不能证明昆山 Z100/HIP 通过。</p>
+<h2 id="section-4-bw1000">4. 郑州 BW1000 归档参考（不进入当前代码测试）</h2>
+<p>原始运行目录（已归档前路径）：</p>
+<pre><code class="language-text">CLUSTER_PROJECT_ROOT/OneFLOW_1d_euler_20260825
+CLUSTER_PROJECT_ROOT/OneFLOW_1d_euler_auto_20260825
+</code></pre>
+<p>本节结果已从郑州远端实验目录移动到以下归档位置，仅保留作历史参考；后续代码测试、回归矩阵和主线结论不再使用郑州结果：</p>
+<pre><code class="language-text">CLUSTER_PROJECT_ROOT/archive/OneFLOW_1d_euler_zhengzhou_bw1000_20260825
+CLUSTER_PROJECT_ROOT/archive/OneFLOW_1d_euler_zhengzhou_bw1000_auto_20260825
+</code></pre>
+<p>相关作业：</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>作业</th>
+<th>结果</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>JOB_ID_OMITTED</code></td>
+<td>PASS</td>
+<td>CPU-only 一维验证</td>
+</tr>
+<tr>
+<td><code>JOB_ID_OMITTED</code></td>
+<td>FAIL</td>
+<td>按错误的 <code>gfx906</code> 编译，运行时报 <code>invalid device function</code></td>
+</tr>
+<tr>
+<td><code>JOB_ID_OMITTED</code></td>
+<td>PASS（探针）</td>
+<td>节点报告 <code>gfx936</code></td>
+</tr>
+<tr>
+<td><code>JOB_ID_OMITTED</code></td>
+<td>PASS</td>
+<td>显式 <code>gfx936</code> 编译运行</td>
+</tr>
+<tr>
+<td><code>JOB_ID_OMITTED</code></td>
+<td>PASS</td>
+<td>未显式传架构，自动探测 <code>gfx936</code> 后 Euler 回归通过</td>
+</tr>
+<tr>
+<td><code>JOB_ID_OMITTED</code></td>
+<td>PASS（探针）</td>
+<td>另一节点同样报告 <code>gfx936</code></td>
+</tr>
+<tr>
+<td><code>JOB_ID_OMITTED</code></td>
+<td>待排队记录</td>
+<td>郑州作业，不纳入昆山主线；今天不再处理</td>
+</tr>
+</tbody>
+</table></div>
+<p>通过内容：</p>
+<ul>
+<li>平滑周期案例：PASS；</li>
+<li>Sod 可传递边界案例：PASS；</li>
+<li>三个守恒量和派生量均通过；</li>
+<li>absolute error、scaled-relative error、ULP 均为 0；</li>
+<li>Sod 激波附近 mask 排除 202 个逐点 residual 比较点。</li>
+</ul>
+<p>这些结果只证明 BW1000/<code>gfx936</code> 路径，不证明 Z100/<code>gfx906</code>。</p>
+<h2 id="section-5-z100">5. 昆山 Z100 当前证据</h2>
+<p>独立运行目录：</p>
+<pre><code class="language-text">CLUSTER_PROJECT_ROOT/OneFLOW_1d_euler_kunshan_auto_20260825
+</code></pre>
+<p>相关作业：</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>作业</th>
+<th>结果</th>
+<th>失败/限制</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>JOB_ID_OMITTED</code></td>
+<td>FAIL</td>
+<td><code>CXX</code> 残留指向不存在的 <code>CLUSTER_TOOLCHAIN_ROOT/gcc-11.2.0-install/bin/g++</code></td>
+</tr>
+<tr>
+<td><code>JOB_ID_OMITTED</code></td>
+<td>FAIL</td>
+<td>清除 <code>CC/CXX</code> 后，CMake 在自动架构探测阶段失败；<code>rocminfo</code> 未得到架构</td>
+</tr>
+<tr>
+<td><code>JOB_ID_OMITTED</code></td>
+<td>FAIL（探针）</td>
+<td>节点 <code>compute-node-omitted</code> 输出 <code>C-3000 module is NOT loaded, possibly no HCU devices</code></td>
+</tr>
+<tr>
+<td><code>JOB_ID_OMITTED</code></td>
+<td>PASS（设备探针）</td>
+<td>节点 <code>compute-node-omitted</code>，DTK 26.04/HIP 6.3.26113，<code>rocminfo=gfx906</code>，HCU/KFD 正常</td>
+</tr>
+<tr>
+<td><code>JOB_ID_OMITTED</code></td>
+<td>PASS</td>
+<td>显式 <code>gfx906</code> 构建；CPU self-test 和 HIP Euler 回归通过</td>
+</tr>
+<tr>
+<td><code>JOB_ID_OMITTED</code></td>
+<td>PASS</td>
+<td>不传架构，自动探测得到 <code>CMAKE_HIP_ARCHITECTURES=gfx906</code>；Euler 回归通过</td>
+</tr>
+<tr>
+<td><code>JOB_ID_OMITTED</code></td>
+<td>PASS</td>
+<td>修复编译器 warning 后重新自动探测和回归；节点 <code>compute-node-omitted</code></td>
+</tr>
+</tbody>
+</table></div>
+<p><code>JOB_ID_OMITTED</code> 的最终验证内容：</p>
+<ul>
+<li>CMake 自动得到 <code>CMAKE_HIP_ARCHITECTURES=gfx906</code>；</li>
+<li>C++/HIP 配置和构建退出码均为 0；</li>
+<li>CPU Euler self-test：PASS；</li>
+<li>HIP Euler：平滑周期和 Sod 可传递边界均 PASS；</li>
+<li>三个守恒量、face state、flux、smooth residual、最终 state 和 primitive
+  <code>rho/u/p</code> 的 absolute、scaled-relative 和 ULP 均为 0；</li>
+<li>Sod 激波附近 residual mask 排除 202 个比较点；</li>
+<li>构建日志不再出现此前的 <code>void function is missing a return statement</code> 和
+  <code>hipFree</code> 返回值未使用警告。</li>
+</ul>
+<p>昆山远端项目是源码快照，没有 <code>.git</code>，因此不能提供远端 commit hash。作为替代，
+已对照本地 HEAD 和远端快照的关键文件 SHA-256，以下文件完全一致：</p>
+<pre><code class="language-text">cmake/UtilFunction.cmake
+ports/kunshan/oneflow_1d_hip/CMakeLists.txt
+ports/kunshan/oneflow_1d_hip/OneDEuler.cpp
+ports/kunshan/oneflow_1d_hip/OneDEuler.hip
+ports/kunshan/oneflow_1d_hip/OneDWeno5.hip
+</code></pre>
+<h2 id="section-6">6. 本地提交证据</h2>
+<p>merge 前的本地仓库状态：</p>
+<pre><code class="language-text">branch: master
+HEAD:   f51a184aad4f83a89e7d3328e18189155da0cef8
+origin/master: c97a8c9579fb47747606aea4b9d8c78742dda38d
+关系：本地 master 比 origin/master 超前 8 个提交
+说明：该状态对应本地 merge commit `f51a184a`
+</code></pre>
+<p>一维与加速相关提交（均已在本地 HEAD）：</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>时间（Asia/Shanghai）</th>
+<th>commit</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>2026-08-25 09:11:45</td>
+<td><code>7462558300a40405299c136f25635c5a74d8a03c</code></td>
+<td>原生 HIP 标量 backend</td>
+</tr>
+<tr>
+<td>2026-08-25 10:32:47</td>
+<td><code>5e0895c82b5a56bf7af1966f2f562a1cf5eceffa</code></td>
+<td>隔离一维 HIP upwind port</td>
+</tr>
+<tr>
+<td>2026-08-25 11:36:15</td>
+<td><code>58ef394bc4ba18b33a638d2894fab62b6b0c6f44</code></td>
+<td>一维可压 Euler HIP 验证</td>
+</tr>
+<tr>
+<td>2026-08-25 12:31:25</td>
+<td><code>aa083377798ab32d010d808c58bffd1cfbfa55b7</code></td>
+<td>一维 Lax-WENO5 HIP replay</td>
+</tr>
+<tr>
+<td>2026-08-25 12:45:07</td>
+<td><code>ca3f312050db5cb6cba39055dc3cf6cf3e7b4766</code></td>
+<td>WENO5 持久 device state</td>
+</tr>
+<tr>
+<td>2026-08-25 13:39:54</td>
+<td><code>a3d72b814da3cc3c036aa2c44ed5ee027556a471</code></td>
+<td>跨平台 backend 自动探测</td>
+</tr>
+<tr>
+<td>2026-08-25 16:27:01</td>
+<td><code>157cb193b85defc1a8d2e5f385b51b4f2cc4da28</code></td>
+<td>一维验证自动 HIP 架构探测</td>
+</tr>
+<tr>
+<td>2026-08-25 17:54:37</td>
+<td><code>f51a184aad4f83a89e7d3328e18189155da0cef8</code></td>
+<td>合并上游 <code>origin/master</code>，无冲突</td>
+</tr>
+<tr>
+<td>2026-08-26 16:22:10</td>
+<td><code>71e86282492d1b1967da81d3dc305886d355e56a</code></td>
+<td>昆山 Z100/gfx906 自动探测 Euler 回归和 warning 修复</td>
+</tr>
+</tbody>
+</table></div>
+<p>Windows 原始 WENO3 示例目录未被这些提交覆盖或替换；一维验证放在
+<code>ports/kunshan/oneflow_1d_hip/</code> 隔离目录中。</p>
+<h2 id="section-7-hip-backend">7. HIP backend 与多架构预留</h2>
+<p>当前保持以下边界：</p>
+<ul>
+<li>CPU backend 是默认、完整保留的主路径；</li>
+<li>HIP backend 代码保留为一维验证和后续移植的接口位置，不宣称已完成完整
+  Navier–Stokes；</li>
+<li>CUDA、Kokkos、多 GPU 只保留扩展入口，当前不引入 Kokkos；</li>
+<li>不写死 <code>gfx906</code> 或 <code>gfx936</code>。</li>
+</ul>
+<p>架构选择顺序由 <code>cmake/UtilFunction.cmake</code> 提供：</p>
+<ol>
+<li>显式 <code>CMAKE_HIP_ARCHITECTURES</code>；</li>
+<li>环境变量 <code>ONEFLOW_HIP_ARCHITECTURES</code>（逗号或分号列表）；</li>
+<li>目标节点 <code>rocminfo</code> 报告的可见架构；</li>
+<li><code>rocm_agent_enumerator</code> 只有唯一候选时的保守 fallback；</li>
+<li>无法探测时显式失败，不猜默认架构。</li>
+</ol>
+<p>因此未来可以直接传入多架构列表，例如：</p>
+<pre><code class="language-text">CMAKE_HIP_ARCHITECTURES=gfx906;gfx936
+</code></pre>
+<h2 id="section-8-2026-08-25">8. 2026-08-25 历史收尾状态</h2>
+<ul>
+<li>[x] 郑州 BW1000 实验目录已移动到 archive，原始内容保留；</li>
+<li>[x] 郑州结果降级为历史参考，不进入后续代码测试和回归矩阵；</li>
+<li>[x] 本地 <code>master</code> 已 merge 上游 <code>origin/master</code>，检查无冲突；</li>
+<li>[x] 未提交新的 Slurm 作业，未取消已有作业，未 push；</li>
+<li>[x] 昆山 Z100/gfx906 设备探针、显式架构和自动架构一维 Euler 回归均通过；</li>
+<li>[x] 修复一维 Euler 编译 warning，并在昆山自动探测路径重新回归；</li>
+<li>[x] 本地验证 commit <code>71e86282</code> 已创建，工作区随后保持干净；</li>
+<li>[ ] 不修改 Windows 原始 WENO3 路线，不改动 <code>codes/ns</code>。</li>
+</ul>
+<h2 id="section-9-10">9. 历史恢复清单（性能基线见第 10 节）</h2>
+<ul>
+<li>[ ] 在 <code>kseshell</code> 对应的 Z100 节点确认 C-3000/HCU 模块已加载；</li>
+<li>[ ] 在独立项目目录记录远端副本 <code>HEAD</code>、分支和工作区状态；</li>
+<li>[ ] 让自动探测得到 <code>gfx906</code>，或显式传入 <code>CMAKE_HIP_ARCHITECTURES=gfx906</code>；</li>
+<li>[ ] 先运行 CPU 一维 Euler 基准；</li>
+<li>[ ] 再运行 HIP 一维 Euler，逐 stage 比较三守恒量、primitive、flux、residual；</li>
+<li>[ ] 保存作业脚本、日志、退出码和架构探针输出；</li>
+<li>[ ] 只有昆山回归通过后，才讨论下一次 commit。</li>
+</ul>
+<h2 id="section-10-2026-08-28">10. 2026-08-28 昆山性能基线</h2>
+<p>在昆山 Z100 <code>gfx906</code> 真实计算节点上，使用与 CPU 相同的一维 Euler 周期边界
+workload（50 steps，2 repeats，1 warmup）完成四个规模测试。benchmark 同时
+记录 HIP event kernel 时间、H2D/D2H、显存 allocation、kernel launch/allocation
+次数、最终状态误差和 checksum：</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th style="text-align: right;">nx</th>
+<th style="text-align: right;">CPU total (ms)</th>
+<th style="text-align: right;">HIP total (ms)</th>
+<th style="text-align: right;">speedup</th>
+<th style="text-align: right;">kernel (ms / ratio)</th>
+<th style="text-align: right;">H2D (ms)</th>
+<th style="text-align: right;">D2H (ms)</th>
+<th style="text-align: right;">alloc (ms)</th>
+<th style="text-align: right;">final max abs error</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: right;">65536</td>
+<td style="text-align: right;">1130.592</td>
+<td style="text-align: right;">572.878</td>
+<td style="text-align: right;">1.974x</td>
+<td style="text-align: right;">14.369 / 2.51%</td>
+<td style="text-align: right;">38.063</td>
+<td style="text-align: right;">394.595</td>
+<td style="text-align: right;">72.728</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr>
+<td style="text-align: right;">262144</td>
+<td style="text-align: right;">4668.764</td>
+<td style="text-align: right;">1889.750</td>
+<td style="text-align: right;">2.471x</td>
+<td style="text-align: right;">37.438 / 1.98%</td>
+<td style="text-align: right;">134.687</td>
+<td style="text-align: right;">1489.551</td>
+<td style="text-align: right;">91.599</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr>
+<td style="text-align: right;">1048576</td>
+<td style="text-align: right;">18967.298</td>
+<td style="text-align: right;">9038.656</td>
+<td style="text-align: right;">2.098x</td>
+<td style="text-align: right;">142.828 / 1.58%</td>
+<td style="text-align: right;">611.474</td>
+<td style="text-align: right;">7671.997</td>
+<td style="text-align: right;">121.409</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr>
+<td style="text-align: right;">4194304</td>
+<td style="text-align: right;">88670.222</td>
+<td style="text-align: right;">37329.346</td>
+<td style="text-align: right;">2.375x</td>
+<td style="text-align: right;">583.860 / 1.56%</td>
+<td style="text-align: right;">2533.934</td>
+<td style="text-align: right;">32077.289</td>
+<td style="text-align: right;">237.917</td>
+<td style="text-align: right;">0</td>
+</tr>
+</tbody>
+</table></div>
+<p>四个规模 CPU/HIP checksum 均一致。设备属性报告为 <code>Device 66a1</code>、<code>gfx906</code>，
+每个 benchmark 都执行 900 次 kernel launch 和 700 次 allocation。<code>rocm-smi</code>
+采样在目标 HCU index 0 看到作业进程及其显存占用；HCU 采样平均约 0.10--2.33%，
+峰值 1--55%，显存利用率峰值 0--5%。由于采样周期约 1 秒而 kernel 很短，利用率
+采样用于确认设备活动，kernel event 才是 kernel 时间依据；低平均利用率不能单独
+推出 CPU fallback。</p>
+<p>当前性能结论不是“GPU 没有工作”，而是：GPU kernel 已实际执行，端到端已有约
+1.97--2.47x 加速，但 D2H 主导总时间（大规模约 86--88%），算力利用率因此偏低。
+下一步按“正确性回归 → per-zone 持久 device state → 减少 D2H/分配 → 重新验证
+正确性 → 重新测性能”推进；二维、三维暂缓。</p>
+<h2 id="section-11">11. 当前优先级</h2>
+<p>当前不先推进 WENO5。先以一维 Euler 为唯一场景完成：</p>
+<ol>
+<li>stateful CPU/HIP backend 生命周期；</li>
+<li>per-zone 持久 device state；</li>
+<li><code>NoTrace</code> 性能模式和 <code>FullTrace</code> 验证模式解耦；</li>
+<li>昆山 correctness 复测；</li>
+<li>四规模端到端、kernel、传输、allocation 和利用率复测；</li>
+<li>根据新 profile 再做 Euler kernel/dataflow 优化。</li>
+</ol>
+<p>完整阶段、接口建议和验收指标见
+<code>doc/reports/architecture/oneflow-euler-optimization-plan.md</code>。Euler 达到验收
+条件后再恢复 WENO5；二维、三维继续后移。</p>
+<h2 id="section-12-32-cpu-8-rank-mpi">12. 历史：32 核 CPU 与 8 rank 共享一张卡的 MPI 对比</h2>
+<p>本节保留早期共享单卡实验，作为历史性能对照；当前生产式多卡验收见第 13 节。</p>
+<h3 id="section-12-1">12.1 测试口径</h3>
+<p>为避免把前面的单线程 stateful 结果误认为生产级多核加速，本轮新增两个独立
+Slurm 任务，两个任务都运行同一个 MPI Euler benchmark：</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>任务</th>
+<th>MPI 进程与资源</th>
+<th>分区</th>
+<th>设备</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>CPU MPI</td>
+<td>32 ranks × 1 CPU core</td>
+<td><code>kshcnormal</code></td>
+<td>32 核 Hygon C86 7185</td>
+</tr>
+<tr>
+<td>GPU MPI</td>
+<td>8 ranks × 1 CPU core</td>
+<td><code>kshdnormal</code></td>
+<td>8 个 MPI rank 共享 1 张 Z100，<code>gfx906</code></td>
+</tr>
+</tbody>
+</table></div>
+<p>两个任务使用相同的全局网格、周期边界、100 steps、2 repeats 和 1 warmup。全局
+网格按 rank 做一维块划分，每个 RK stage 交换左右 3 个守恒量 halo。GPU 任务中
+每个 rank 将 device 0 设为可见设备，因此这是“8 个 MPI rank 共享一张卡”的指定
+对比，不是“一 rank 一卡”的生产配置。</p>
+<p>这组测试与第 10 节旧 trace/stateful benchmark 的区别是：</p>
+<ul>
+<li>第 10 节旧路径是单进程、逐 stage trace 路径；</li>
+<li>第 10 节 stateful 路径是单进程、一张卡一个进程、不含 MPI halo；</li>
+<li>本节是两个独立 MPI 任务，重点观察多进程域分解、halo 通信和共享 GPU 的综合成本。</li>
+</ul>
+<h3 id="section-12-2">12.2 实测结果</h3>
+<p>表中时间是每个 repeat 的最大 rank wall time 累加；每步耗时按 200 个计时步归一化。
+<code>CPU/GPU</code> 定义为 32-rank CPU lifecycle 除以 8-rank/1-DCU GPU lifecycle，大于 1
+表示 GPU 任务更快。</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th style="text-align: right;">global nx</th>
+<th style="text-align: right;">CPU MPI total (ms)</th>
+<th style="text-align: right;">CPU ms/step</th>
+<th style="text-align: right;">GPU MPI total (ms)</th>
+<th style="text-align: right;">GPU ms/step</th>
+<th style="text-align: right;">CPU/GPU</th>
+<th style="text-align: right;">GPU kernel (ms)</th>
+<th style="text-align: right;">GPU MPI (ms)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: right;">65,536</td>
+<td style="text-align: right;">71.729</td>
+<td style="text-align: right;">0.358646</td>
+<td style="text-align: right;">451.152</td>
+<td style="text-align: right;">2.255759</td>
+<td style="text-align: right;">0.159x</td>
+<td style="text-align: right;">97.067</td>
+<td style="text-align: right;">170.866</td>
+</tr>
+<tr>
+<td style="text-align: right;">262,144</td>
+<td style="text-align: right;">357.378</td>
+<td style="text-align: right;">1.786888</td>
+<td style="text-align: right;">456.412</td>
+<td style="text-align: right;">2.282060</td>
+<td style="text-align: right;">0.783x</td>
+<td style="text-align: right;">99.054</td>
+<td style="text-align: right;">168.879</td>
+</tr>
+<tr>
+<td style="text-align: right;">1,048,576</td>
+<td style="text-align: right;">1,293.912</td>
+<td style="text-align: right;">6.469560</td>
+<td style="text-align: right;">501.767</td>
+<td style="text-align: right;">2.508834</td>
+<td style="text-align: right;">2.579x</td>
+<td style="text-align: right;">130.438</td>
+<td style="text-align: right;">161.298</td>
+</tr>
+<tr>
+<td style="text-align: right;">4,194,304</td>
+<td style="text-align: right;">7,083.452</td>
+<td style="text-align: right;">35.417262</td>
+<td style="text-align: right;">976.969</td>
+<td style="text-align: right;">4.884843</td>
+<td style="text-align: right;">7.250x</td>
+<td style="text-align: right;">288.790</td>
+<td style="text-align: right;">419.965</td>
+</tr>
+</tbody>
+</table></div>
+<p>正确性和设备证据：</p>
+<ul>
+<li>四个规模 CPU/GPU <code>final_hash</code> 完全一致；</li>
+<li><code>min_rho</code> 约为 <code>0.899978/0.899995/0.899999/0.900000</code>；</li>
+<li><code>min_pressure</code> 约为 <code>0.919978/0.919995/0.919999/0.920000</code>；</li>
+<li>两个任务构建、运行和退出码均为 0；</li>
+<li>GPU 输出设备为 <code>Device 66a1</code>，架构为 <code>gfx906:sramecc-:xnack-</code>。</li>
+</ul>
+<h3 id="section-12-3">12.3 结果分析</h3>
+<h4>小规模：GPU 计算量不足以摊平 MPI 和共享卡固定成本</h4>
+<p><code>nx=65,536</code> 时，32-rank CPU 只需 71.7 ms，而 GPU 任务需 451.2 ms；
+<code>nx=262,144</code> 时，GPU 仍略慢。此时每个 rank 的本地网格较小，GPU kernel 本身
+只有约 97--99 ms，但 GPU 任务还包含：</p>
+<ul>
+<li>8 个 MPI rank 各自创建 HIP context 和 device buffers；</li>
+<li>每个 RK stage 通过 host buffer 完成边界 D2H、MPI Sendrecv 和 halo H2D；</li>
+<li>每个 stage 需要 device synchronization，避免 host MPI 读取未完成的数据；</li>
+<li>8 个进程在同一张卡上竞争 kernel launch 和执行资源。</li>
+</ul>
+<p>因此这些规模测到的是固定通信/同步成本，而不是 GPU 的吞吐能力。</p>
+<h4>中等规模：出现交叉点</h4>
+<p><code>nx=1,048,576</code> 时 GPU 任务为 501.8 ms，CPU 任务为 1,293.9 ms，达到 2.58x。
+此时每个 rank 的本地计算量足以摊平共享单卡的固定成本，GPU kernel 约 130.4 ms，
+MPI/halo 路径约 161.3 ms，GPU 仍有明显收益。</p>
+<h4>大规模：GPU 胜出，但 MPI/halo 已成为重要瓶颈</h4>
+<p><code>nx=4,194,304</code> 时 GPU 任务达到 7.25x，但 GPU MPI 路径仍不是纯 kernel 性能：</p>
+<ul>
+<li>kernel event 约 288.8 ms；</li>
+<li>MPI/halo 相关 host 路径约 420.0 ms；</li>
+<li>每个 rank 每个 RK stage 执行 <code>PackBoundary + Face + Residual + Update</code>；</li>
+<li>两个 repeat 合计 19,200 次 kernel launch、4,800 次 halo exchange、9,632 次
+  device synchronization。</li>
+</ul>
+<p>因此当前 4M 加速比已经受到共享卡和 host-device halo 往返限制。若未来改成一张卡
+一个 MPI rank，并把 halo 交换改成 device-aware MPI 或 GPU-aware communication，
+理论上可以减少这部分开销；这是待验证方向，不能直接把本节数据外推为该配置收益。</p>
+<h3 id="section-12-4-stateful">12.4 与单进程 stateful 结果的关系</h3>
+<p>本节 8-rank/1-DCU 结果低于第 10 节单进程 stateful 结果是预期现象，二者不是同一
+资源口径：</p>
+<ul>
+<li>单进程 stateful <code>Advance</code> 在 4M 上约为 1.15 s / 200 steps 的纯推进累计，
+  kernel event 占 <code>99.99%</code>；</li>
+<li>8-rank MPI 共享卡在 4M 上约为 0.98 s / 200 steps，但其每个 rank 只负责
+  1/8 网格，且包含 8 个 context、MPI halo 和大量同步；</li>
+<li>MPI 版本的总 wall time 更短，说明域分解确实提高了可处理吞吐，但单位资源成本
+  和通信效率仍需单独评估；不能简单将两个数字相除当作线性扩展效率。</li>
+</ul>
+<p>更准确的判断是：</p>
+<pre><code class="language-text">单进程 stateful：验证 GPU 连续推进和 kernel 吞吐
+MPI 8-rank/1-DCU：验证共享卡域分解下的综合 wall time
+32-rank CPU：提供多进程 CPU 参考
+</code></pre>
+<h3 id="section-12-5">12.5 当前结论和下一步</h3>
+<p>本节结果把之前“单线程 CPU 对 GPU”的结论修正为更接近并行运行的资源对比：</p>
+<ul>
+<li>不能再用 <code>102--155x</code> 作为 CPU/GPU 生产性能结论；它只对应串行 CPU reference；</li>
+<li>在 32-rank CPU vs 8-rank/1-DCU 共享卡口径下，GPU 的有效领先区间是从约 1M
+  网格开始，4M 为 7.25x；</li>
+<li>小规模不适合直接上 8 个 MPI rank 共享一张卡；应考虑更少 GPU rank 或一 rank
+  一卡的进程映射；</li>
+<li>当前 MPI GPU 路径的首要优化对象不是继续堆 kernel，而是减少 host-device halo
+  往返、device synchronization 和共享卡多 context 争用；</li>
+<li>任何后续优化仍需同时通过 CPU/HIP correctness、最终 hash/物理状态检查和四规模
+  wall-time 复测。</li>
+</ul>
+<p>完整原始输出、运行参数和可复现脚本见：</p>
+<pre><code class="language-text">doc/reports/performance/oneflow-euler-performance-20260828.md
+ci/kunshan/euler-mpi-cpu-32.slurm
+ci/kunshan/euler-mpi-gpu8-1.slurm
+</code></pre>
+<h2 id="section-13-32-rank-cpu-4-rank-4-dcu-hip-mpi">13. 当前：32-rank CPU 与 4-rank/4-DCU HIP MPI</h2>
+<p>本轮统一 MPI 验收使用单节点、32-rank CPU 和 4-rank/4-DCU HIP 两个资源口径。CPU
+脚本要求 1-rank 与 32-rank 的 final hash 一致；HIP 脚本在 4 个可见 DCU 上运行
+4 个 rank，并先执行严格 CPU/HIP 结果比较。</p>
+<p>严格回归（global nx=65,536，20 steps）：</p>
+<ul>
+<li>max_scaled_error=0；</li>
+<li>violations=0；</li>
+<li>physical=1；</li>
+<li>CPU/HIP global hash 一致；</li>
+<li>作业报告 visible_devices=4，rank/device 映射按节点内 local rank 选择设备。</li>
+</ul>
+<p>端到端 benchmark（100 steps、2 repeats、1 warmup）：</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th style="text-align: right;">global nx</th>
+<th style="text-align: right;">32-rank CPU lifecycle (ms)</th>
+<th style="text-align: right;">4-DCU HIP MPI lifecycle (ms)</th>
+<th style="text-align: right;">CPU/HIP wall-clock</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: right;">65,536</td>
+<td style="text-align: right;">40.209</td>
+<td style="text-align: right;">70.214</td>
+<td style="text-align: right;">0.57x</td>
+</tr>
+<tr>
+<td style="text-align: right;">262,144</td>
+<td style="text-align: right;">130.277</td>
+<td style="text-align: right;">82.219</td>
+<td style="text-align: right;">1.58x</td>
+</tr>
+<tr>
+<td style="text-align: right;">1,048,576</td>
+<td style="text-align: right;">653.098</td>
+<td style="text-align: right;">121.239</td>
+<td style="text-align: right;">5.39x</td>
+</tr>
+<tr>
+<td style="text-align: right;">4,194,304</td>
+<td style="text-align: right;">3,629.603</td>
+<td style="text-align: right;">277.217</td>
+<td style="text-align: right;">13.10x</td>
+</tr>
+</tbody>
+</table></div>
+<p>4 卡结果是单节点资源级端到端比较，不是单卡线性外推。小规模受 MPI、设备初始化
+和 halo 固定开销影响；大规模才显示出明显吞吐优势。跨节点 MPI、CUDA、Kokkos
+和完整 Navier–Stokes 主线仍未验证。</p>
+<p>可复现入口：</p>
+<ul>
+<li>ci/kunshan/euler-cpu-mpi-regression.slurm</li>
+<li>ci/kunshan/euler-dcu-mpi4-regression.slurm</li>
+</ul>
+<h2 id="section-14-2026-09-03-hip-googletest-ctest">14. 2026-09-03 HIP GoogleTest/CTest 实机复验</h2>
+<p>为闭合低层 backend contract 与测试框架两层证据，修复 CTest discovery 后在
+Kunshan <code>kshdnormal</code> 提交单卡作业：</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>项目</th>
+<th>结果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>资源</td>
+<td>1 节点、1 task、8 CPU、<code>dcu:1</code>、27G</td>
+</tr>
+<tr>
+<td>工具链</td>
+<td>DTK 26.04、Clang 17、CMake 3.22.0-rc1</td>
+</tr>
+<tr>
+<td>目标架构</td>
+<td>Hygon HCU <code>gfx906</code></td>
+</tr>
+<tr>
+<td>配置/编译</td>
+<td>PASS</td>
+</tr>
+<tr>
+<td>HIP GoogleTest 二进制</td>
+<td>6/6 PASS</td>
+</tr>
+<tr>
+<td>CTest discovery</td>
+<td>发现并执行 6 个 <code>HIP.*</code> 测试，6/6 PASS</td>
+</tr>
+<tr>
+<td>Slurm</td>
+<td><code>COMPLETED</code>，退出码 <code>0:0</code></td>
+</tr>
+<tr>
+<td>CTest 时间</td>
+<td>约 1.05 秒</td>
+</tr>
+</tbody>
+</table></div>
+<p>本次修复点：CPU/HIP 测试分别使用 <code>CPU.</code>/<code>HIP.</code> 前缀，避免同名测试互相覆盖；
+作业在 PRE_TEST discovery 前清理陈旧的 <code>*_tests.cmake</code>；CTest 使用 HIP 前缀过滤，
+并强制检查 <code>100% tests passed, 0 tests failed out of 6</code>。此前的 <code>No tests were found!</code>
+误报已消除。</p>
+<p>该记录证明一维 Euler HIP backend contract 已达到“目标节点编译 + 直接测试 + CTest
+发现并执行 + Slurm 成功”闭环；它仍不等于完整 Navier–Stokes GPU 主线或 CUDA/Kokkos
+兼容性验证。</p>
+<div class="report-footer">HTML 由对应 Markdown 报告生成；Markdown 是本报告的源文件。报告仅记录已获得的证据，未验证边界保持不变。</div>
+</article>
+</main>
+</body>
+</html>

@@ -8,6 +8,7 @@ the isolated cluster run directories, not in this directory.
 
 - [Regression and residual integration (HTML)](regression/oneflow-residual-integration-20260901.html)
 - [One-dimensional Euler validation](regression/oneflow-euler-validation.md)
+- [One-dimensional Euler validation (HTML)](regression/oneflow-euler-validation.html)
 
 ## Performance
 
@@ -21,6 +22,10 @@ the isolated cluster run directories, not in this directory.
 - [GPU backend delivery report (Markdown)](architecture/oneflow-gpu-backend-delivery.md)
 - [GPU backend delivery report (HTML)](architecture/oneflow-gpu-backend-delivery.html)
 - [One-dimensional Euler backend optimization plan](architecture/oneflow-euler-optimization-plan.md)
+- [Project handoff (2026-09-03)](architecture/oneflow-project-handoff-20260903.md)
+- [Project handoff (2026-09-03, HTML)](architecture/oneflow-project-handoff-20260903.html)
+- [OneFLOW DCU porting playbook (2026-09-03)](architecture/oneflow-dcu-porting-playbook-20260903.md)
+- [OneFLOW DCU porting playbook (2026-09-03, HTML)](architecture/oneflow-dcu-porting-playbook-20260903.html)
 
 ## Drafts
 
