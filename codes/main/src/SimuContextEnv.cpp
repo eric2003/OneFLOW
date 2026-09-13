@@ -19,70 +19,50 @@ License
     along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 
 \*---------------------------------------------------------------------------*/
-#include "SimuImp.h"
-#include "SimuTask.h"
-#include "System.h"
-#include "Fatal.h"
-#include <iostream>
+// Production environment bootstrap for SimuContext.
+// Delegates to existing globals (compatibility layer for phase 2).
 
+#include "SimuContext.h"
+#include "SimuTask.h"
+#include "Prj.h"
+#include "ParaFile.h"
+#include "Parallel.h"
+#include "AccelRuntime.h"
+#include <iostream>
 
 BeginNameSpace( ONEFLOW )
 
-SimuImp::SimuImp( std::vector<std::string>& args )
-    : ctx_( std::make_unique<SimuContext>( args ) )
-    , args( args )
+void SimuContext::ProcessCommandLine()
 {
-    ctx_->ProcessCommandLine();
+    Prj::ProcessCmdLineArgs( args_ );
 }
 
-SimuImp::~SimuImp()
+void SimuContext::SetupEnvironment()
 {
+    std::cout << " OneFLOW is running\n";
+    ONEFLOW::SetUpParallelEnvironment();
+    ONEFLOW::ReadControlInfo();
+
+    rank_ = Parallel::GetPid();
+    size_ = Parallel::GetNProc();
+
+    ONEFLOW::InitializeAccelRuntime( rank_, size_ );
+    envReady_ = true;
 }
 
-void SimuImp::Run()
+void SimuContext::TeardownEnvironment()
 {
-    this->PreProcess();
-    this->MainProcess();
-    this->PostProcess();
+    ONEFLOW::FinalizeAccelRuntime();
+    HXFinalize();
+    envReady_ = false;
 }
 
-void SimuImp::PreProcess()
+void SimuContext::ResolveTaskFromControl()
 {
-    InitSimu();
+    simu_state.Init();
+    task_ = simu_state.Task();
+    taskName_ = TaskEnumToString( task_ );
+    taskResolved_ = true;
 }
-
-void SimuImp::MainProcess()
-{
-    RunSimu();
-}
-
-void SimuImp::PostProcess()
-{
-    ctx_->TeardownEnvironment();
-}
-
-void SimuImp::InitSimu()
-{
-    ctx_->SetupEnvironment();
-}
-
-void SimuImp::RunSimu()
-{
-    ctx_->ResolveTaskFromControl();
-
-    auto task = TaskRegistry::Instance().Create( ctx_->TaskName() );
-    if ( ! task )
-    {
-        Fatal( "unknown or unregistered simutask value!!" );
-    }
-
-    if ( task->NeedsSystemMap() )
-    {
-        ConstructSystemMap();
-    }
-
-    task->Execute();
-}
-
 
 EndNameSpace

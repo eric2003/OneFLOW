@@ -22,13 +22,15 @@ License
 #pragma once
 #include "NamespaceMacros.h"
 #include "SimuBase.h"
+#include "SimuContext.h"
+#include <memory>
 #include <vector>
 #include <string>
 
 BeginNameSpace( ONEFLOW )
 
-// Full simulation path. Now inherits SimuBase so light-weight tests and
-// production runs share the same entry interface (phase 0).
+// Full simulation path. Owns a SimuContext (phase 2) and dispatches
+// work through TaskRegistry (phase 1).
 class SimuImp : public SimuBase
 {
 public:
@@ -36,6 +38,10 @@ public:
     ~SimuImp() override;
 
     void Run() override;
+
+    // Exposed for tests that inject a pre-built context path later.
+    SimuContext& Context() { return *ctx_; }
+    const SimuContext& Context() const { return *ctx_; }
 
 public:
     void PreProcess();
@@ -46,7 +52,12 @@ protected:
     void InitSimu();
     void RunSimu();
 
+private:
+    std::unique_ptr<SimuContext> ctx_;
+
 public:
+    // Kept for source compatibility with any code reading simu.args.
+    // Prefer Context().Args().
     std::vector<std::string> args;
 };
 
