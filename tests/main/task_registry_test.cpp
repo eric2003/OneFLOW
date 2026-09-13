@@ -4,6 +4,8 @@
 #include <algorithm>
 #include <string>
 #include <vector>
+#include <stdexcept>
+#include <memory>
 
 using namespace ONEFLOW;
 
@@ -88,4 +90,110 @@ TEST( TaskRegistryTest, CreateByTaskEnumUsesSameKeys )
     auto task = reg.Create( TaskEnum::SOLVE_FIELD );
     ASSERT_NE( task, nullptr );
     EXPECT_TRUE( task->NeedsSystemMap() );
+}
+
+// ---------------------------------------------------------------------------
+// Contract for the production Solve path (mirrored by SolveFieldTask).
+// Does NOT link SimuTaskReg / FieldSimu ¡ª only the registry + context contract.
+// ---------------------------------------------------------------------------
+
+namespace {
+
+    // Same shape as production SolveFieldTask, without calling FieldSimu().
+    class SolveFieldContractTask : public ISimuTask
+    {
+    public:
+        bool NeedsSystemMap() const override { return true; }
+
+        void Execute( const SimuContext& ctx ) override
+        {
+            if ( ! ctx.IsEnvironmentReady() )
+            {
+                throw std::runtime_error(
+                    "SolveFieldTask: environment not ready (SetupEnvironment required)" );
+            }
+            if ( ctx.TaskName() != "Solve" )
+            {
+                throw std::runtime_error(
+                    "SolveFieldTask: unexpected task name \"" + ctx.TaskName() + "\"" );
+            }
+            executed_ = true;
+        }
+
+        bool executed_ = false;
+    };
+
+} // namespace
+
+TEST( TaskRegistryTest, SolveContract_NeedsSystemMapAndAcceptsReadyCtx )
+{
+    auto& reg = TaskRegistry::Instance();
+    const std::string name = "UnitTest_SolveContract";
+    reg.Register( name, []() {
+        return std::make_unique<SolveFieldContractTask>();
+        } );
+
+    auto task = reg.Create( name );
+    ASSERT_NE( task, nullptr );
+    EXPECT_TRUE( task->NeedsSystemMap() );
+
+    SimuContext ctx( std::vector<std::string>{ "OneFLOW", "d", "test/plateuns2dslau2" } );
+    ctx.MarkEnvironmentReady( true );
+    ctx.SetTaskByName( "Solve" );
+
+    EXPECT_NO_THROW( task->Execute( ctx ) );
+}
+
+TEST( TaskRegistryTest, SolveContract_RejectsEnvironmentNotReady )
+{
+    auto& reg = TaskRegistry::Instance();
+    const std::string name = "UnitTest_SolveNotReady";
+    reg.Register( name, []() {
+        return std::make_unique<SolveFieldContractTask>();
+        } );
+
+    auto task = reg.Create( name );
+    ASSERT_NE( task, nullptr );
+
+    SimuContext ctx( std::vector<std::string>{} );
+    // envReady_ default false
+    ctx.SetTaskByName( "Solve" );
+
+    EXPECT_THROW( task->Execute( ctx ), std::runtime_error );
+}
+
+TEST( TaskRegistryTest, SolveContract_RejectsWrongTaskName )
+{
+    auto& reg = TaskRegistry::Instance();
+    const std::string name = "UnitTest_SolveWrongName";
+    reg.Register( name, []() {
+        return std::make_unique<SolveFieldContractTask>();
+        } );
+
+    auto task = reg.Create( name );
+    ASSERT_NE( task, nullptr );
+
+    SimuContext ctx( std::vector<std::string>{} );
+    ctx.MarkEnvironmentReady( true );
+    ctx.SetTaskByName( "Grid" );  // not Solve
+
+    EXPECT_THROW( task->Execute( ctx ), std::runtime_error );
+}
+
+TEST( TaskRegistryTest, SolveEnumMapsToSolveString )
+{
+    // Documents the control-file key used by plateuns2dslau2 (simutask = "Solve").
+    EXPECT_EQ( TaskEnumToString( TaskEnum::SOLVE_FIELD ), "Solve" );
+
+    auto& reg = TaskRegistry::Instance();
+    reg.Register( "Solve", []() {
+        return std::make_unique<SolveFieldContractTask>();
+        } );
+
+    auto byEnum = reg.Create( TaskEnum::SOLVE_FIELD );
+    auto byName = reg.Create( "Solve" );
+    ASSERT_NE( byEnum, nullptr );
+    ASSERT_NE( byName, nullptr );
+    EXPECT_TRUE( byEnum->NeedsSystemMap() );
+    EXPECT_TRUE( byName->NeedsSystemMap() );
 }

@@ -24,6 +24,15 @@ License
 
 BeginNameSpace( ONEFLOW )
 
+// CFD field-solve pipeline stages (order fixed; no numerical changes).
+void FieldSimuSetupGlobals();
+void FieldSimuLoadGrid();
+void FieldSimuPrepareWallDist();
+void FieldSimuCreateSolvers();
+void FieldSimuInitFlowField();
+void FieldSimuRun();
+
+// Convenience: run all stages in order (same as SolveFieldTask path).
 void FieldSimu();
 
 void InitFlowSimuGlobal();

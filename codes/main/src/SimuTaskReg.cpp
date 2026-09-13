@@ -42,10 +42,28 @@ class SolveFieldTask : public ISimuTask
 {
 public:
     bool NeedsSystemMap() const override { return true; }
+
     void Execute( const SimuContext& ctx ) override
     {
-        (void)ctx;
-        FieldSimu();
+        // Precondition: environment + control already resolved by SimuImp.
+        if ( ! ctx.IsEnvironmentReady() )
+        {
+            throw std::runtime_error(
+                "SolveFieldTask: environment not ready (SetupEnvironment required)" );
+        }
+        if ( ctx.TaskName() != "Solve" )
+        {
+            throw std::runtime_error(
+                "SolveFieldTask: unexpected task name \"" + ctx.TaskName() + "\"" );
+        }
+
+        // Same six stages as FieldSimu(); order must stay identical.
+        FieldSimuSetupGlobals();
+        FieldSimuLoadGrid();
+        FieldSimuPrepareWallDist();
+        FieldSimuCreateSolvers();
+        FieldSimuInitFlowField();
+        FieldSimuRun();
     }
 };
 
