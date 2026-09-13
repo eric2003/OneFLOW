@@ -13,6 +13,7 @@ struct EulerProblem
     double dt = 0.0;
     double dx = 0.0;
     EulerBoundary boundary = EulerBoundary::Periodic;
+    EulerMethod method = EulerMethod::Rusanov;
 };
 
 enum class EulerRunMode { NoTrace, FullTrace };

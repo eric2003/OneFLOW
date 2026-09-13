@@ -349,4 +349,56 @@ void OneDHipLaxWeno5Step( const double * input, int nx, double gamma, double dt,
     DestroyWeno5HipState( state );
 }
 
+void HipWeno5StepRaw(
+    double * basePtr, double * currentPtr, double * nextPtr,
+    double * padded, double * positive, double * negative,
+    double * left, double * right, double * flux, double * residual,
+    int nx, double gamma, double dx, int boundaryVal, double dt,
+    hipStream_t stream )
+{
+    const int paddedValues = EulerComponents
+        * ( nx + 2 * WenoGhostCells );
+    const int faceValues = EulerComponents * ( nx + 1 );
+    const int cellValues = EulerComponents * nx;
+    constexpr int threads = 256;
+    const int paddedBlocks = ( paddedValues + threads - 1 ) / threads;
+    const int faceBlocks = ( faceValues + threads - 1 ) / threads;
+    const int cellBlocks = ( cellValues + threads - 1 ) / threads;
+
+    Check( hipMemcpyAsync( basePtr, currentPtr,
+        (size_t)cellValues * sizeof( double ),
+        hipMemcpyDeviceToDevice, stream ), "weno save base" );
+
+    for ( int stage = 0; stage < EulerRkStages; ++ stage )
+    {
+        hipLaunchKernelGGL( FillPadded, dim3( paddedBlocks ), dim3( threads ),
+            0, stream, currentPtr, nx, boundaryVal, padded );
+        Check( hipGetLastError(), "weno fill padded launch" );
+
+        hipLaunchKernelGGL( SplitFlux, dim3( paddedBlocks ), dim3( threads ),
+            0, stream, padded, nx, gamma, positive, negative );
+        Check( hipGetLastError(), "weno split flux launch" );
+
+        hipLaunchKernelGGL( Reconstruct, dim3( faceBlocks ), dim3( threads ),
+            0, stream, positive, negative, nx, left, right, flux );
+        Check( hipGetLastError(), "weno reconstruct launch" );
+
+        hipLaunchKernelGGL( AssembleResidual, dim3( cellBlocks ), dim3( threads ),
+            0, stream, left, right, nx, dx, residual );
+        Check( hipGetLastError(), "weno residual launch" );
+
+        const double baseWeight = stage == 1 ? 0.75
+            : ( stage == 2 ? 1.0 / 3.0 : 0.0 );
+        const double updateWeight = stage == 0 ? 1.0
+            : ( stage == 1 ? 0.25 : 2.0 / 3.0 );
+
+        hipLaunchKernelGGL( Update, dim3( cellBlocks ), dim3( threads ),
+            0, stream, basePtr, currentPtr, residual, cellValues, dt,
+            baseWeight, updateWeight, nextPtr );
+        Check( hipGetLastError(), "weno update launch" );
+
+        std::swap( currentPtr, nextPtr );
+    }
+}
+
 } // namespace oneflow_1d

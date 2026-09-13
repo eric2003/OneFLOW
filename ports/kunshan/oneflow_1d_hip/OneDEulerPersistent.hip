@@ -1,4 +1,5 @@
 #include "OneDEulerBackend.h"
+#include "OneDWeno5.h"
 #include <hip/hip_runtime.h>
 #include <algorithm>
 #include <stdexcept>
@@ -18,13 +19,13 @@ __global__ void ResidualUpdate(const double*f,int nx,double id,const double*base
 
 struct HipState final: EulerState {
   explicit HipState(const EulerProblem&p):problem(p){
-    CheckProblem(problem); int cv=3*p.nx,fv=3*(p.nx+1); size_t cb=(size_t)cv*sizeof(double),fb=(size_t)fv*sizeof(double);
-    try{Check(hipStreamCreate(&stream),"stream");Check(hipEventCreate(&kernelBegin),"kernel begin event");Check(hipEventCreate(&kernelEnd),"kernel end event");Check(hipMalloc(&base,cb),"base");Check(hipMalloc(&work,cb),"work");Check(hipMalloc(&scratch,cb),"scratch");Check(hipMalloc(&flux,fb),"flux");}catch(...){Release();throw;}
+    CheckProblem(problem); int cv=3*p.nx,fv=3*(p.nx+1); size_t cb=(size_t)cv*sizeof(double),fb=(size_t)fv*sizeof(double); bool weno=(problem.method==EulerMethod::Weno5); int pv=3*(p.nx+2*WenoGhostCells);size_t pb=(size_t)pv*sizeof(double);
+    try{Check(hipStreamCreate(&stream),"stream");Check(hipEventCreate(&kernelBegin),"kernel begin event");Check(hipEventCreate(&kernelEnd),"kernel end event");Check(hipMalloc(&base,cb),"base");Check(hipMalloc(&work,cb),"work");Check(hipMalloc(&scratch,cb),"scratch");Check(hipMalloc(&flux,fb),"flux");if(weno){Check(hipMalloc(&padded,pb),"weno padded");Check(hipMalloc(&positive,pb),"weno positive");Check(hipMalloc(&negative,pb),"weno negative");}}catch(...){Release();throw;}
   }
   ~HipState() override{Release();}
-  void Release() noexcept{if(stream)static_cast<void>(hipStreamSynchronize(stream));for(double*p:{residual,flux,right,left,scratch,work,base})if(p)static_cast<void>(hipFree(p));if(kernelEnd)static_cast<void>(hipEventDestroy(kernelEnd));if(kernelBegin)static_cast<void>(hipEventDestroy(kernelBegin));if(stream)static_cast<void>(hipStreamDestroy(stream));stream=nullptr;kernelBegin=kernelEnd=nullptr;base=work=scratch=left=right=flux=residual=nullptr; return;}
+  void Release() noexcept{if(stream)static_cast<void>(hipStreamSynchronize(stream));for(double*p:{negative,positive,padded,residual,flux,right,left,scratch,work,base})if(p)static_cast<void>(hipFree(p));if(kernelEnd)static_cast<void>(hipEventDestroy(kernelEnd));if(kernelBegin)static_cast<void>(hipEventDestroy(kernelBegin));if(stream)static_cast<void>(hipStreamDestroy(stream));stream=nullptr;kernelBegin=kernelEnd=nullptr;base=work=scratch=left=right=flux=residual=padded=positive=negative=nullptr; return;}
   void EnsureTraceBuffers(){int fv=3*(problem.nx+1),cv=3*problem.nx;size_t fb=(size_t)fv*sizeof(double),cb=(size_t)cv*sizeof(double);try{if(left==nullptr)Check(hipMalloc(&left,fb),"left");if(right==nullptr)Check(hipMalloc(&right,fb),"right");if(residual==nullptr)Check(hipMalloc(&residual,cb),"residual");}catch(...){if(residual){static_cast<void>(hipFree(residual));residual=nullptr;}if(right){static_cast<void>(hipFree(right));right=nullptr;}if(left){static_cast<void>(hipFree(left));left=nullptr;}throw;}}
-  EulerProblem problem; hipStream_t stream=nullptr; hipEvent_t kernelBegin=nullptr; hipEvent_t kernelEnd=nullptr; double*base=nullptr;double*work=nullptr;double*scratch=nullptr;double*left=nullptr;double*right=nullptr;double*flux=nullptr;double*residual=nullptr;bool uploaded=false;
+  EulerProblem problem; hipStream_t stream=nullptr; hipEvent_t kernelBegin=nullptr; hipEvent_t kernelEnd=nullptr; double*base=nullptr;double*work=nullptr;double*scratch=nullptr;double*left=nullptr;double*right=nullptr;double*flux=nullptr;double*residual=nullptr;double*padded=nullptr;double*positive=nullptr;double*negative=nullptr;bool uploaded=false;
 };
 HipState& HS(EulerState&s){auto*p=dynamic_cast<HipState*>(&s);if(!p)throw std::invalid_argument("not HIP Euler state");return *p;}
 const HipState& HS(const EulerState&s){auto*p=dynamic_cast<const HipState*>(&s);if(!p)throw std::invalid_argument("not HIP Euler state");return *p;}
@@ -36,7 +37,32 @@ std::unique_ptr<EulerState>HipEulerBackend::CreateState(const EulerProblem&p)con
 void HipEulerBackend::Upload(EulerState&s,const double*h)const{auto&x=HS(s);if(!h)throw std::invalid_argument("null Euler host state");size_t b=(size_t)(3*x.problem.nx)*sizeof(double);Check(hipMemcpyAsync(x.base,h,b,hipMemcpyHostToDevice,x.stream),"H2D");Check(hipStreamSynchronize(x.stream),"upload sync");x.uploaded=true;}
 
 void HipEulerBackend::Advance(EulerState&s,int steps,const EulerRunOptions&o)const{
-  CheckOptions(steps,o);auto&x=HS(s);if(!x.uploaded)throw std::logic_error("HIP Euler state was not uploaded");int nx=x.problem.nx,cv=3*nx,fv=3*(nx+1),th=256,fb=(fv+th-1)/th,cb=(cv+th-1)/th;size_t cbytes=(size_t)cv*sizeof(double),fbytes=(size_t)fv*sizeof(double);EulerTrace*t=o.trace;if(t){ResizeEulerTrace(*t,nx);x.EnsureTraceBuffers();}
+  CheckOptions(steps,o);auto&x=HS(s);if(!x.uploaded)throw std::logic_error("HIP Euler state was not uploaded");
+  const bool weno=x.problem.method==EulerMethod::Weno5;
+  int nx=x.problem.nx,cv=3*nx,fv=3*(nx+1),th=256,fb=(fv+th-1)/th,cb=(cv+th-1)/th;
+  size_t cbytes=(size_t)cv*sizeof(double),fbytes=(size_t)fv*sizeof(double);
+
+  if(weno){
+    /* WENO5 path: delegate to HipWeno5StepRaw for each step.
+       FullTrace and per-step stats not yet supported in the unified path. */
+    if(o.trace)throw std::invalid_argument("WENO5 FullTrace not yet supported via EulerBackend");
+    if(o.stats)Check(hipEventRecord(x.kernelBegin,x.stream),"weno kernel begin");
+    for(int step=0;step<steps;++step){
+      HipWeno5StepRaw(x.base,x.base,x.work,
+        x.padded,x.positive,x.negative,
+        x.left,x.right,x.flux,x.residual,
+        nx,x.problem.gamma,x.problem.dx,
+        (int)x.problem.boundary,x.problem.dt,
+        x.stream);
+      std::swap(x.base,x.work);
+    }
+    if(o.stats){Check(hipEventRecord(x.kernelEnd,x.stream),"weno kernel end");Check(hipEventSynchronize(x.kernelEnd),"weno kernel sync");float ms=0.0F;Check(hipEventElapsedTime(&ms,x.kernelBegin,x.kernelEnd),"weno kernel elapsed");o.stats->kernelMilliseconds=ms;o.stats->kernelLaunches=steps*EulerRkStages*5;o.stats->synchronizationCount=1;}
+    else Check(hipStreamSynchronize(x.stream),"weno advance sync");
+    return;
+  }
+
+  /* Rusanov path (original) */
+  EulerTrace*t=o.trace;if(t){ResizeEulerTrace(*t,nx);x.EnsureTraceBuffers();}
   if(t){Check(hipMemcpyAsync(t->state.data(),x.base,cbytes,hipMemcpyDeviceToHost,x.stream),"initial D2H");Check(hipStreamSynchronize(x.stream),"initial trace sync");}
   if(o.stats && !t) Check(hipEventRecord(x.kernelBegin,x.stream),"kernel begin");
   for(int step=0;step<steps;++step){
