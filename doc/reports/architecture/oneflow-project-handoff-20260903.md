@@ -87,7 +87,7 @@ KOKKOS compatibility.
 
 The original `hello_test` remains as a GoogleTest smoke test. The new
 contract test is
-[tests/euler_backend_contract_test.cpp](../../../tests/euler_backend_contract_test.cpp).
+[tests/euler/euler_backend_contract_test.cpp](../../../tests/euler/euler_backend_contract_test.cpp).
 
 It tests the backend directly through the existing interface:
 
@@ -155,7 +155,7 @@ session-context failures, not OneFLOW test results.
 
 ## 8. First files to inspect
 
-- [backend contract test](../../../tests/euler_backend_contract_test.cpp)
+- [backend contract test](../../../tests/euler/euler_backend_contract_test.cpp)
 - [root test CMake](../../../tests/CMakeLists.txt)
 - [Kunshan port CMake](../../../ports/kunshan/oneflow_1d_hip/CMakeLists.txt)
 - [Euler backend interface](../../../ports/kunshan/oneflow_1d_hip/OneDEulerBackend.h)

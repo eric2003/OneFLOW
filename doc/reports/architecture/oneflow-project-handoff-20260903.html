@@ -112,7 +112,7 @@ KOKKOS compatibility.</p>
 <h2 id="section-5-googletest-change">5. GoogleTest change</h2>
 <p>The original <code>hello_test</code> remains as a GoogleTest smoke test. The new
 contract test is
-<a href="../../../tests/euler_backend_contract_test.cpp">tests/euler_backend_contract_test.cpp</a>.</p>
+<a href="../../../tests/euler/euler_backend_contract_test.cpp">tests/euler/euler_backend_contract_test.cpp</a>.</p>
 <p>It tests the backend directly through the existing interface:</p>
 <ul>
 <li>backend identity and accelerator metadata;</li>
@@ -169,7 +169,7 @@ session-context failures, not OneFLOW test results.</p>
 </ol>
 <h2 id="section-8-first-files-to-inspect">8. First files to inspect</h2>
 <ul>
-<li><a href="../../../tests/euler_backend_contract_test.cpp">backend contract test</a></li>
+<li><a href="../../../tests/euler/euler_backend_contract_test.cpp">backend contract test</a></li>
 <li><a href="../../../tests/CMakeLists.txt">root test CMake</a></li>
 <li><a href="../../../ports/kunshan/oneflow_1d_hip/CMakeLists.txt">Kunshan port CMake</a></li>
 <li><a href="../../../ports/kunshan/oneflow_1d_hip/OneDEulerBackend.h">Euler backend interface</a></li>
