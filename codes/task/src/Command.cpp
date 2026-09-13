@@ -113,7 +113,7 @@ CMD::~CMD()
 
 void CMD::Init()
 {
-    if ( CMD::cmdList_ != 0 )
+    if ( CMD::cmdList_ != nullptr )
     {
         return;
     }
@@ -141,23 +141,6 @@ void CMD::Free()
     TaskState::task = nullptr;
 }
 
-//void CMD::AddCmd( Command * cmd )
-//{
-//    if ( cmd == nullptr )
-//    {
-//        return;
-//    }
-//
-//    CMD::Init();
-//
-//    /*
-//    * The raw pointer API is retained for compatibility.
-//    * Ownership is transferred immediately to commandOwners.
-//    */
-//    CMD::cmdList_->push_back( cmd );
-//    CMD::commandOwners->emplace_back( cmd );
-//}
-
 void CMD::AddCmd( Command * cmd )
 {
     if ( cmd == nullptr )
@@ -172,11 +155,6 @@ void CMD::AddCmd( Command * cmd )
 
 void CMD::AddCmd( std::unique_ptr< Command > cmd )
 {
-    //if ( ! cmd )
-    //{
-    //    return;
-    //}
-
     if ( cmd == nullptr )
     {
         return;
