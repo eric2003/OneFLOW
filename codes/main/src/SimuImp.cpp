@@ -81,7 +81,7 @@ void SimuImp::RunSimu()
         ConstructSystemMap();
     }
 
-    task->Execute();
+    task->Execute( *ctx_ );
 }
 
 

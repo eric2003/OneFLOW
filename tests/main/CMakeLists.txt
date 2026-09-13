@@ -1,11 +1,12 @@
 set(CMAKE_FOLDER ${CMAKE_FOLDER}/main)
 
 # ---------------------------------------------------------------------------
-# TaskRegistry unit test (no CFD kernel dependencies)
+# TaskRegistry unit test
 # ---------------------------------------------------------------------------
 add_executable(task_registry_test
   task_registry_test.cpp
   ${CMAKE_SOURCE_DIR}/codes/main/src/SimuTask.cpp
+  ${CMAKE_SOURCE_DIR}/codes/main/src/SimuContext.cpp
 )
 
 target_include_directories(task_registry_test
@@ -52,8 +53,7 @@ gtest_discover_tests(simu_base_interface_test
 )
 
 # ---------------------------------------------------------------------------
-# SimuContext pure logic (no MPI / control-file / accel)
-# Links SimuContext.cpp + SimuTask.cpp only (not SimuContextEnv.cpp).
+# SimuContext + context-aware Task
 # ---------------------------------------------------------------------------
 add_executable(simu_context_test
   simu_context_test.cpp

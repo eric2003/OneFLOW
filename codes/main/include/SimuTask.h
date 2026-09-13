@@ -30,13 +30,19 @@ License
 
 BeginNameSpace( ONEFLOW )
 
+class SimuContext; // phase 2+ : tasks receive explicit runtime context
+
 // Strategy / Command interface for a single simulation task.
 // Concrete tasks wrap existing free functions so behaviour stays unchanged.
 class ISimuTask
 {
 public:
     virtual ~ISimuTask() = default;
-    virtual void Execute() = 0;
+
+    // Execute with the current run context (rank, args, task name, ...).
+    // Production tasks may ignore ctx until they need it; tests can assert on it.
+    virtual void Execute( const SimuContext& ctx ) = 0;
+
     // Optional: whether ConstructSystemMap() must run before Execute().
     virtual bool NeedsSystemMap() const { return false; }
 };

@@ -1,5 +1,6 @@
 #include <gtest/gtest.h>
 #include "SimuTask.h"
+#include "SimuContext.h"
 #include <algorithm>
 #include <string>
 #include <vector>
@@ -8,7 +9,6 @@ using namespace ONEFLOW;
 
 namespace {
 
-// Minimal mock task for registry tests.
 class MockTask : public ISimuTask
 {
 public:
@@ -17,14 +17,13 @@ public:
     {
     }
 
-    void Execute() override { executed_ = true; }
+    void Execute( const SimuContext& /*ctx*/ ) override { executed_ = true; }
     bool NeedsSystemMap() const override { return needsMap_; }
-
     bool Executed() const { return executed_; }
 
 private:
-    bool needsMap_  = false;
-    bool executed_  = false;
+    bool needsMap_ = false;
+    bool executed_ = false;
 };
 
 } // namespace
@@ -44,9 +43,8 @@ TEST( TaskRegistryTest, RegisterAndCreate )
     ASSERT_NE( task, nullptr );
     EXPECT_TRUE( task->NeedsSystemMap() );
 
-    task->Execute();
-    // Execute ran without throw; mock has no public side-channel after move,
-    // so just assert Create returned a valid object that can Execute.
+    SimuContext ctx( std::vector<std::string>{} );
+    task->Execute( ctx );
 }
 
 TEST( TaskRegistryTest, CreateUnknownReturnsNull )
@@ -83,10 +81,6 @@ TEST( TaskRegistryTest, TaskEnumToStringMapping )
 TEST( TaskRegistryTest, CreateByTaskEnumUsesSameKeys )
 {
     auto& reg = TaskRegistry::Instance();
-    const std::string name = "Solve"; // may already exist if full binary linked;
-                                      // for this test binary only mock registrations exist.
-
-    // Ensure a known key is present for the enum path.
     reg.Register( "Solve", []() {
         return std::make_unique<MockTask>( true );
     } );

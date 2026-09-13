@@ -15,7 +15,27 @@ int g_noop_executions = 0;
 class NoOpTask : public ISimuTask
 {
 public:
-    void Execute() override { ++g_noop_executions; }
+    void Execute( const SimuContext& /*ctx*/ ) override { ++g_noop_executions; }
+};
+
+// Task that *uses* the context - proves Execute(const SimuContext&) plumbing.
+class ContextAwareTask : public ISimuTask
+{
+public:
+    void Execute( const SimuContext& ctx ) override
+    {
+        saw_rank_ = ctx.Rank();
+        saw_size_ = ctx.Size();
+        saw_task_name_ = ctx.TaskName();
+        saw_args_count_ = static_cast<int>( ctx.Args().size() );
+        executed_ = true;
+    }
+
+    bool executed_ = false;
+    int saw_rank_ = -1;
+    int saw_size_ = -1;
+    std::string saw_task_name_;
+    int saw_args_count_ = -1;
 };
 
 } // namespace
@@ -109,6 +129,36 @@ TEST( SimuContextTest, InjectedTaskNameWorksWithRegistry )
 
     auto task = TaskRegistry::Instance().Create( ctx.TaskName() );
     ASSERT_NE( task, nullptr );
-    task->Execute();
+    task->Execute( ctx );
     EXPECT_EQ( g_noop_executions, 1 );
+}
+
+// ---- phase 2.1: Execute receives const SimuContext& ----
+
+TEST( SimuContextTest, ContextAwareTaskSeesInjectedState )
+{
+    auto& reg = TaskRegistry::Instance();
+    reg.Register( "UnitTest_ContextAware", []() {
+        return std::make_unique<ContextAwareTask>();
+    } );
+
+    std::vector<std::string> args = { "OneFLOW", "a.grd", "b.ctr" };
+    SimuContext ctx( args );
+    ctx.SetParallelInfo( 3, 8 );
+    ctx.SetTaskByName( "Theory" );
+
+    auto task = reg.Create( "UnitTest_ContextAware" );
+    ASSERT_NE( task, nullptr );
+
+    // Same call shape as SimuImp::RunSimu: task->Execute( *ctx_ )
+    task->Execute( ctx );
+
+    // Downcast only to read test observations (production code uses interface only).
+    auto* aware = dynamic_cast<ContextAwareTask*>( task.get() );
+    ASSERT_NE( aware, nullptr );
+    EXPECT_TRUE( aware->executed_ );
+    EXPECT_EQ( aware->saw_rank_, 3 );
+    EXPECT_EQ( aware->saw_size_, 8 );
+    EXPECT_EQ( aware->saw_task_name_, "Theory" );
+    EXPECT_EQ( aware->saw_args_count_, 3 );
 }

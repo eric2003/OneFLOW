@@ -20,9 +20,11 @@ License
 
 \*---------------------------------------------------------------------------*/
 // Concrete ISimuTask wrappers around existing free functions.
-// Behaviour is intentionally identical to the previous switch in SimuImp::RunSimu().
+// Execute(const SimuContext&) receives context; production bodies still call
+// the original free functions (ctx unused until a task needs rank/args).
 
 #include "SimuTask.h"
+#include "SimuContext.h"
 #include "FieldSimu.h"
 #include "GridFactory.h"
 #include "MultiBlock.h"
@@ -40,60 +42,57 @@ class SolveFieldTask : public ISimuTask
 {
 public:
     bool NeedsSystemMap() const override { return true; }
-    void Execute() override { FieldSimu(); }
+    void Execute( const SimuContext& /*ctx*/ ) override { FieldSimu(); }
 };
 
 class CreateGridTask : public ISimuTask
 {
 public:
     bool NeedsSystemMap() const override { return true; }
-    void Execute() override { GenerateGrid(); }
+    void Execute( const SimuContext& /*ctx*/ ) override { GenerateGrid(); }
 };
 
 class WallDistTask : public ISimuTask
 {
 public:
     bool NeedsSystemMap() const override { return true; }
-    void Execute() override { WalldistSimu(); }
+    void Execute( const SimuContext& /*ctx*/ ) override { WalldistSimu(); }
 };
 
 class FunctionTestTask : public ISimuTask
 {
 public:
-    void Execute() override { FunctionTest(); }
+    void Execute( const SimuContext& /*ctx*/ ) override { FunctionTest(); }
 };
 
 class TheoryTask : public ISimuTask
 {
 public:
-    void Execute() override { TheorySimu(); }
+    void Execute( const SimuContext& /*ctx*/ ) override { TheorySimu(); }
 };
 
 class ToyModelTask : public ISimuTask
 {
 public:
-    void Execute() override { ToyModelSimu(); }
+    void Execute( const SimuContext& /*ctx*/ ) override { ToyModelSimu(); }
 };
 
 class PostTask : public ISimuTask
 {
 public:
-    void Execute() override { PostSimu(); }
+    void Execute( const SimuContext& /*ctx*/ ) override { PostSimu(); }
 };
 
-// PARTITION_GRID is present in TaskEnum / TaskFilter but was never handled
-// by the old switch. Register a stub that fails clearly if selected.
 class PartitionGridTask : public ISimuTask
 {
 public:
-    void Execute() override
+    void Execute( const SimuContext& /*ctx*/ ) override
     {
         throw std::runtime_error(
             "Task \"Partition\" is registered but not implemented in this build." );
     }
 };
 
-// Static registration - same translation unit as the concrete classes.
 const bool kTasksRegistered = []() {
     auto& reg = TaskRegistry::Instance();
     reg.Register( "Solve",        []() { return std::make_unique<SolveFieldTask>(); } );
