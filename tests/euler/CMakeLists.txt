@@ -30,6 +30,29 @@ gtest_discover_tests(oneflow_euler_backend_cpu_test
   DISCOVERY_MODE PRE_TEST
 )
 
+# Numerical bridge: FluxBackend vs the port EulerBackend.
+# Standalone main(), not a gtest — run manually: ./bin/oneflow_flux_backend_bridge_test
+add_executable(oneflow_flux_backend_bridge_test
+  flux_backend_bridge_test.cpp
+  ${ONEFLOW_EULER_BACKEND_DIR}/OneDEuler.cpp
+  ${ONEFLOW_EULER_BACKEND_DIR}/OneDEulerBackend.cpp
+  ${ONEFLOW_EULER_BACKEND_DIR}/OneDWeno5.cpp
+  ${CMAKE_SOURCE_DIR}/codes/accel/src/CpuFluxBackend.cpp
+)
+
+target_include_directories(oneflow_flux_backend_bridge_test
+  PRIVATE
+    ${ONEFLOW_EULER_BACKEND_DIR}
+    ${CMAKE_SOURCE_DIR}/codes/accel/include
+    ${CMAKE_SOURCE_DIR}/codes/project/include
+    ${CMAKE_SOURCE_DIR}/codes/basic/include
+)
+
+target_compile_options(oneflow_flux_backend_bridge_test
+  PRIVATE
+    -ffp-contract=off
+)
+
 # Hardware-dependent HIP/DCU contract. This is opt-in so ordinary CPU builds
 # keep the root CTest suite reproducible on machines without a DCU. On a target
 # node, configure with CMAKE_HIP_COMPILER and CMAKE_HIP_ARCHITECTURES, then the
