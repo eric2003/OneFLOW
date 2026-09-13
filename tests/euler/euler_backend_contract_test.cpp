@@ -22,9 +22,12 @@ using oneflow_1d::EulerBackend;
 using oneflow_1d::EulerBoundary;
 using oneflow_1d::EulerComponents;
 using oneflow_1d::EulerProblem;
+using oneflow_1d::EulerMethod;
 using oneflow_1d::EulerRunMode;
 using oneflow_1d::EulerRunOptions;
 using oneflow_1d::EulerTrace;
+using oneflow_1d::EulerRkStages;
+using oneflow_1d::Weno5Trace;
 
 constexpr double kGamma = 1.4;
 constexpr int kNx = 32;
