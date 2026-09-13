@@ -20,6 +20,14 @@ BeginNameSpace( ONEFLOW )
 // These views are deliberately backend-neutral. The owning solver remains
 // responsible for lifetime and layout; a future HIP/CUDA/Kokkos adapter only
 // receives pointers and extents, not MRField internals.
+//
+// Data layout convention (multi-equation):
+//   Equation-major: data[eq * nFaces + face]  (or data[eq * nCells + cell])
+//   This matches the main solver's MRField and the port's CI(c,i,nx) convention.
+//
+// For nEquations == 1 (scalar convection), qLeft[face] is the scalar at that face.
+// For nEquations >= 3 (Euler/NS), qLeft stores conserved variables
+//   [rho, rho*u, rho*v, rho*w, rho*E] for each face, equation-major.
 struct FaceStateView
 {
     int nFaces = 0;
@@ -31,6 +39,7 @@ struct FaceStateView
     const Real * zNormal = nullptr;
     const Real * meshVelocityNormal = nullptr;
     const Real * faceArea = nullptr;
+    Real gamma = 1.4;  // ratio of specific heats (used when nEquations >= 3)
 };
 
 struct FaceFluxView
