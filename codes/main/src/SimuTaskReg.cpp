@@ -42,7 +42,11 @@ class SolveFieldTask : public ISimuTask
 {
 public:
     bool NeedsSystemMap() const override { return true; }
-    void Execute( const SimuContext& /*ctx*/ ) override { FieldSimu(); }
+    void Execute( const SimuContext& ctx ) override
+    {
+        (void)ctx;
+        FieldSimu();
+    }
 };
 
 class CreateGridTask : public ISimuTask

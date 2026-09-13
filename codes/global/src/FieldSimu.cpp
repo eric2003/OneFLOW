@@ -34,14 +34,44 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-void FieldSimu()
+void FieldSimuSetupGlobals()
 {
     InitFlowSimuGlobal();
+}
+
+void FieldSimuLoadGrid()
+{
     MultiBlock::LoadGridAndBuildLink();
+}
+
+void FieldSimuPrepareWallDist()
+{
     MultiBlock::ProcessFlowWallDist();
+}
+
+void FieldSimuCreateSolvers()
+{
     SolverMap::CreateSolvers();
+}
+
+void FieldSimuInitFlowField()
+{
     InitializeSolver();
+}
+
+void FieldSimuRun()
+{
     MultigridSolve();
+}
+
+void FieldSimu()
+{
+    FieldSimuSetupGlobals();
+    FieldSimuLoadGrid();
+    FieldSimuPrepareWallDist();
+    FieldSimuCreateSolvers();
+    FieldSimuInitFlowField();
+    FieldSimuRun();
 }
 
 void InitFlowSimuGlobal()
