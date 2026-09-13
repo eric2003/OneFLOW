@@ -41,7 +41,7 @@
 <li class="ok">4-rank/4-DCU HIP MPI：严格 CPU/HIP 对比通过，4 个规模均通过，程序报告 <code>visible_devices=4</code>。</li>
 <li class="warn">Trace 路径仍受 D2H 主导，端到端相对串行 CPU 只有 2.04–2.55×；它是诊断路径，不是生产性能路径。</li>
 </ul>
-<p>按行业常用口径，应用级 GPU 加速应优先使用同等精度、同一算例和同一迭代量下的端到端 wall-clock；kernel-only 或相对单 CPU 核的结果只能作为辅助诊断。以此标准看，当前 1-DCU stateful 相对 32 核 CPU 为 3.85–9.70×，4-DCU/4-rank MPI 在 4M 规模达到 13.10×；小规模 4 卡结果受 MPI/设备启动和 halo 固定开销影响，不能单独代表吞吐。</p>
+<p>按行业常用口径，应用级 GPU 加速应优先使用同等精度、同一算例和同一迭代量下的端到端 wall-clock；kernel-only 或相对单 CPU 核的结果只能作为辅助诊断。以此标准看，当前 1-DCU stateful 相对 32 核 CPU 为 3.85–9.70×，4-DCU/4-rank MPI 在 4M 规模达到 25.55×；小规模 4 卡结果受 MPI/设备启动和 halo 固定开销影响，不能单独代表吞吐。此前版本中的 13.10× 系 CPU 基线 <code>repeats</code> 口径错配，勘误见第 6.5 节。</p>
 
 <h2 id="scope">2. 回归与残差标准</h2>
 <h3>2.1 统一回归对象</h3>
@@ -142,24 +142,25 @@ Download(state, hostState)</code></pre>
 </tbody></table></div>
 
 <h3>6.5 32-rank CPU MPI 与 4-rank/4-DCU HIP MPI</h3>
-<p>两组数据都使用 100 steps、1 warmup、2 repeats 的 benchmark lifecycle。CPU 组同时执行 1-rank 和 32-rank，回归脚本要求两者 <code>final_hash</code> 完全一致；DCU 组使用 4 个 MPI rank 和 4 张可见 DCU，脚本要求 <code>visible_devices=4</code>，并在 65,536 网格上用 <code>EulerMpiRegression</code> 做 CPU/HIP 严格结果比较。</p>
+<blockquote><p><strong>勘误（2026-09-13）：</strong>本节初版把 <code>euler-cpu-mpi-regression.slurm</code>（<code>100 1 1</code>，<code>repeats=1</code>）产生的 CPU 数值除以 <code>euler-dcu-mpi4-regression.slurm</code>（<code>100 2 1</code>，<code>repeats=2</code>）产生的 DCU 数值。<code>lifecycle_max_ms</code> 是 <code>repeats</code> 次运行的总和，两种口径不可混用。下表已改用同一 <code>repeats=2</code> 口径的 CPU 基线（作业 <code>120612185</code>）重算；2026-09-13 的复测报告记录了本次审计与复现数据。</p></blockquote>
+<p>两组数据都使用 100 steps、1 warmup、2 repeats 的 benchmark lifecycle。CPU 列取自 <code>euler-cpu-mpi-matrix.slurm</code>（<code>100 2 1</code>）的 32-rank 结果；哈希回归脚本 <code>euler-cpu-mpi-regression.slurm</code> 使用 <code>100 1 1</code>（<code>repeats=1</code>），其数值与本表 DCU 列不同口径。DCU 组使用 4 个 MPI rank 和 4 张可见 DCU，脚本要求 <code>visible_devices=4</code>，并在 65,536 网格上用 <code>EulerMpiRegression</code> 做 CPU/HIP 严格结果比较。</p>
 <div class="table-wrap"><table><thead><tr><th style="text-align:right">nx</th><th style="text-align:right">32-rank CPU lifecycle (ms)</th><th style="text-align:right">4-DCU HIP MPI lifecycle (ms)</th><th style="text-align:right">CPU/HIP wall-clock</th></tr></thead><tbody>
-<tr><td style="text-align:right">65,536</td><td style="text-align:right">40.209</td><td style="text-align:right">70.214</td><td style="text-align:right">0.57×</td></tr>
-<tr><td style="text-align:right">262,144</td><td style="text-align:right">130.277</td><td style="text-align:right">82.219</td><td style="text-align:right">1.58×</td></tr>
-<tr><td style="text-align:right">1,048,576</td><td style="text-align:right">653.098</td><td style="text-align:right">121.239</td><td style="text-align:right">5.39×</td></tr>
-<tr><td style="text-align:right">4,194,304</td><td style="text-align:right">3,629.603</td><td style="text-align:right">277.217</td><td style="text-align:right">13.10×</td></tr>
+<tr><td style="text-align:right">65,536</td><td style="text-align:right">71.366</td><td style="text-align:right">70.214</td><td style="text-align:right">1.02×</td></tr>
+<tr><td style="text-align:right">262,144</td><td style="text-align:right">281.295</td><td style="text-align:right">82.219</td><td style="text-align:right">3.42×</td></tr>
+<tr><td style="text-align:right">1,048,576</td><td style="text-align:right">1,284.895</td><td style="text-align:right">121.239</td><td style="text-align:right">10.60×</td></tr>
+<tr><td style="text-align:right">4,194,304</td><td style="text-align:right">7,082.042</td><td style="text-align:right">277.217</td><td style="text-align:right">25.55×</td></tr>
 </tbody></table></div>
-<p>这一表是同一节点的资源级端到端 wall-clock 对比，不是单卡结果的线性外推。4 卡路径的 fixed MPI halo、rank/device 初始化和小问题规模固定成本在 65,536 上超过计算收益；当局部问题规模扩大后，4 卡结果显示出明显吞吐优势。4 卡结果已通过功能回归，但尚未覆盖跨节点 MPI 或其他 accelerator backend。</p>
+<p>这一表是同一节点的资源级端到端 wall-clock 对比，不是单卡结果的线性外推。4 卡路径的 fixed MPI halo、rank/device 初始化和小问题规模固定成本在 65,536 上使收益基本抵消（1.02×）；当局部问题规模扩大后，4 卡结果显示出明显吞吐优势。4 卡结果已通过功能回归，但尚未覆盖跨节点 MPI 或其他 accelerator backend。</p>
 
 <h3>6.6 单卡与四卡对照</h3>
 <p>下表把单卡和四卡结果放到同一端到端 wall-clock 口径下。两组均使用 32-rank CPU lifecycle 作为分母，HIP 侧均包含 create、upload、advance 和 download；四卡额外包含 4-rank MPI halo 通信。</p>
 <div class="table-wrap"><table><thead><tr><th style="text-align:right">nx</th><th style="text-align:right">32-rank CPU (ms)</th><th style="text-align:right">1-DCU HIP (ms)</th><th style="text-align:right">1-DCU 加速</th><th style="text-align:right">4-DCU HIP MPI (ms)</th><th style="text-align:right">4-DCU 加速</th></tr></thead><tbody>
-<tr><td style="text-align:right">65,536</td><td style="text-align:right">71.366</td><td style="text-align:right">18.547</td><td style="text-align:right">3.85×</td><td style="text-align:right">70.214</td><td style="text-align:right">0.57×</td></tr>
-<tr><td style="text-align:right">262,144</td><td style="text-align:right">281.295</td><td style="text-align:right">52.716</td><td style="text-align:right">5.34×</td><td style="text-align:right">82.219</td><td style="text-align:right">1.58×</td></tr>
-<tr><td style="text-align:right">1,048,576</td><td style="text-align:right">1,284.895</td><td style="text-align:right">188.891</td><td style="text-align:right">6.80×</td><td style="text-align:right">121.239</td><td style="text-align:right">5.39×</td></tr>
-<tr><td style="text-align:right">4,194,304</td><td style="text-align:right">7,082.042</td><td style="text-align:right">730.417</td><td style="text-align:right">9.70×</td><td style="text-align:right">277.217</td><td style="text-align:right">13.10×</td></tr>
+<tr><td style="text-align:right">65,536</td><td style="text-align:right">71.366</td><td style="text-align:right">18.547</td><td style="text-align:right">3.85×</td><td style="text-align:right">70.214</td><td style="text-align:right">1.02×</td></tr>
+<tr><td style="text-align:right">262,144</td><td style="text-align:right">281.295</td><td style="text-align:right">52.716</td><td style="text-align:right">5.34×</td><td style="text-align:right">82.219</td><td style="text-align:right">3.42×</td></tr>
+<tr><td style="text-align:right">1,048,576</td><td style="text-align:right">1,284.895</td><td style="text-align:right">188.891</td><td style="text-align:right">6.80×</td><td style="text-align:right">121.239</td><td style="text-align:right">10.60×</td></tr>
+<tr><td style="text-align:right">4,194,304</td><td style="text-align:right">7,082.042</td><td style="text-align:right">730.417</td><td style="text-align:right">9.70×</td><td style="text-align:right">277.217</td><td style="text-align:right">25.55×</td></tr>
 </tbody></table></div>
-<p><strong>结论：</strong>单卡在完整生命周期口径下从 3.85×提升到 9.70×；四卡在 65,536 上为 0.57×，主要受 MPI、rank/device 初始化和 halo 固定开销影响；从 1M 开始四卡超过单卡，4M 达到 13.10×。四卡数据证明的是单节点 4-rank/4-DCU HIP MPI 整体 wall-clock，不是单卡结果的线性外推，也不代表跨节点扩展。</p>
+<p><strong>结论：</strong>单卡在完整生命周期口径下从 3.85×提升到 9.70×；四卡在 65,536 上为 1.02×（基本持平），主要受 MPI、rank/device 初始化和 halo 固定开销影响；从 1M 开始四卡超过单卡，4M 达到 25.55×。4-DCU 加速列已按第 6.5 节的勘误修正（原值把 <code>repeats=1</code> 的 CPU 基线用于 <code>repeats=2</code> 的对比）。四卡数据证明的是单节点 4-rank/4-DCU HIP MPI 整体 wall-clock，不是单卡结果的线性外推，也不代表跨节点扩展。</p>
 
 <h2 id="evidence">7. DCU 证据与限制</h2>
 <ul>

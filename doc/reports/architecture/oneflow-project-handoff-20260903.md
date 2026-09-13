@@ -77,8 +77,9 @@ The previous implementation has evidence for:
   physical-state checks passing and four visible devices;
 - one-card end-to-end speedups versus 32-rank CPU of approximately
   `3.85x`, `5.34x`, `6.80x`, and `9.70x`;
-- four-card end-to-end speedups of approximately `0.57x`, `1.58x`,
-  `5.39x`, and `13.10x`.
+- four-card end-to-end speedups of approximately `1.02x`, `3.42x`,
+  `10.60x`, and `25.55x` (corrected 2026-09-13; the earlier figures
+  divided a `repeats=1` CPU baseline by `repeats=2` DCU data).
 
 These are whole-process wall-clock comparisons. They do not establish CUDA or
 KOKKOS compatibility.
@@ -87,7 +88,7 @@ KOKKOS compatibility.
 
 The original `hello_test` remains as a GoogleTest smoke test. The new
 contract test is
-[tests/euler_backend_contract_test.cpp](../../../tests/euler_backend_contract_test.cpp).
+[tests/euler/euler_backend_contract_test.cpp](../../../tests/euler/euler_backend_contract_test.cpp).
 
 It tests the backend directly through the existing interface:
 
@@ -155,7 +156,7 @@ session-context failures, not OneFLOW test results.
 
 ## 8. First files to inspect
 
-- [backend contract test](../../../tests/euler_backend_contract_test.cpp)
+- [backend contract test](../../../tests/euler/euler_backend_contract_test.cpp)
 - [root test CMake](../../../tests/CMakeLists.txt)
 - [Kunshan port CMake](../../../ports/kunshan/oneflow_1d_hip/CMakeLists.txt)
 - [Euler backend interface](../../../ports/kunshan/oneflow_1d_hip/OneDEulerBackend.h)

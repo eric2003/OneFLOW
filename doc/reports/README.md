@@ -12,6 +12,7 @@ the isolated cluster run directories, not in this directory.
 
 ## Performance
 
+- [2026-09-13 CPU/DCU performance comparison (Markdown)](performance/oneflow-euler-performance-20260913.md)
 - [Current one-dimensional Euler performance report (Markdown)](performance/oneflow-euler-performance-current.md)
 - [Current one-dimensional Euler performance report (HTML)](performance/oneflow-euler-performance-current.html)
 - [2026-08-28 historical performance report (Markdown)](performance/oneflow-euler-performance-20260828.md)

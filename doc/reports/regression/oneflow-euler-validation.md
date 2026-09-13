@@ -13,7 +13,7 @@
 - 昆山 Z100 的目标架构是 `gfx906`，自动探测、编译、运行和逐步比对闭环已在真实计算节点通过。
 - 正确性是硬门槛：CPU/HIP stage-by-stage 回归和多规模 benchmark 最终状态误差均为 0。
 - 已建立 kernel、H2D、D2H、allocation 分项计时；高性能 backend 的下一步重点是数据常驻显存和减少同步/D2H。
-- 已完成两类并行验收：32-rank CPU MPI 四规模 hash 回归，以及单节点 4-rank/4-DCU HIP MPI 严格回归与四规模 benchmark；后者在 4M 达到 13.10x（相对 32-rank CPU lifecycle）。
+- 已完成两类并行验收：32-rank CPU MPI 四规模 hash 回归，以及单节点 4-rank/4-DCU HIP MPI 严格回归与四规模 benchmark；后者在 4M 达到 25.55x（相对同口径 32-rank CPU lifecycle；2026-09-13 勘误：旧值 13.10x 源于 CPU 基线 `repeats` 口径错配）。
 
 ## 2. 主线范围与数值判据
 
@@ -394,12 +394,15 @@ ci/kunshan/euler-mpi-gpu8-1.slurm
 
 端到端 benchmark（100 steps、2 repeats、1 warmup）：
 
+> **勘误（2026-09-13）**：下表 CPU 列初版误用了 `repeats=1` 的哈希回归数值，
+> 与 `repeats=2` 的 DCU 数值不可直接相比。已改用同口径的 CPU matrix 数据重算。
+
 | global nx | 32-rank CPU lifecycle (ms) | 4-DCU HIP MPI lifecycle (ms) | CPU/HIP wall-clock |
 | ---: | ---: | ---: | ---: |
-| 65,536 | 40.209 | 70.214 | 0.57x |
-| 262,144 | 130.277 | 82.219 | 1.58x |
-| 1,048,576 | 653.098 | 121.239 | 5.39x |
-| 4,194,304 | 3,629.603 | 277.217 | 13.10x |
+| 65,536 | 71.366 | 70.214 | 1.02x |
+| 262,144 | 281.295 | 82.219 | 3.42x |
+| 1,048,576 | 1,284.895 | 121.239 | 10.60x |
+| 4,194,304 | 7,082.042 | 277.217 | 25.55x |
 
 4 卡结果是单节点资源级端到端比较，不是单卡线性外推。小规模受 MPI、设备初始化
 和 halo 固定开销影响；大规模才显示出明显吞吐优势。跨节点 MPI、CUDA、Kokkos

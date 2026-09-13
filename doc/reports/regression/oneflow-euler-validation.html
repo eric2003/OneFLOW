@@ -29,7 +29,7 @@
 <li>昆山 Z100 的目标架构是 <code>gfx906</code>，自动探测、编译、运行和逐步比对闭环已在真实计算节点通过。</li>
 <li>正确性是硬门槛：CPU/HIP stage-by-stage 回归和多规模 benchmark 最终状态误差均为 0。</li>
 <li>已建立 kernel、H2D、D2H、allocation 分项计时；高性能 backend 的下一步重点是数据常驻显存和减少同步/D2H。</li>
-<li>已完成两类并行验收：32-rank CPU MPI 四规模 hash 回归，以及单节点 4-rank/4-DCU HIP MPI 严格回归与四规模 benchmark；后者在 4M 达到 13.10x（相对 32-rank CPU lifecycle）。</li>
+<li>已完成两类并行验收：32-rank CPU MPI 四规模 hash 回归，以及单节点 4-rank/4-DCU HIP MPI 严格回归与四规模 benchmark；后者在 4M 达到 25.55x（相对同口径 32-rank CPU lifecycle；2026-09-13 勘误：旧值 13.10x 源于 CPU 基线 <code>repeats</code> 口径错配）。</li>
 </ul>
 <h2 id="section-2">2. 主线范围与数值判据</h2>
 <p>一维 Euler 验证推进三个守恒量：</p>
@@ -610,27 +610,27 @@ ci/kunshan/euler-mpi-gpu8-1.slurm
 <tbody>
 <tr>
 <td style="text-align: right;">65,536</td>
-<td style="text-align: right;">40.209</td>
+<td style="text-align: right;">71.366</td>
 <td style="text-align: right;">70.214</td>
-<td style="text-align: right;">0.57x</td>
+<td style="text-align: right;">1.02x</td>
 </tr>
 <tr>
 <td style="text-align: right;">262,144</td>
-<td style="text-align: right;">130.277</td>
+<td style="text-align: right;">281.295</td>
 <td style="text-align: right;">82.219</td>
-<td style="text-align: right;">1.58x</td>
+<td style="text-align: right;">3.42x</td>
 </tr>
 <tr>
 <td style="text-align: right;">1,048,576</td>
-<td style="text-align: right;">653.098</td>
+<td style="text-align: right;">1,284.895</td>
 <td style="text-align: right;">121.239</td>
-<td style="text-align: right;">5.39x</td>
+<td style="text-align: right;">10.60x</td>
 </tr>
 <tr>
 <td style="text-align: right;">4,194,304</td>
-<td style="text-align: right;">3,629.603</td>
+<td style="text-align: right;">7,082.042</td>
 <td style="text-align: right;">277.217</td>
-<td style="text-align: right;">13.10x</td>
+<td style="text-align: right;">25.55x</td>
 </tr>
 </tbody>
 </table></div>
