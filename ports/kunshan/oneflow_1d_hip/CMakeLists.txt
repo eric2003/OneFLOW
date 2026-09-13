@@ -51,7 +51,8 @@ if ( ONEFLOW_1D_ENABLE_GTEST )
         oneflow_1d_euler_cpu_backend_test
         ${ONEFLOW_EULER_CONTRACT_TEST}
         OneDEuler.cpp
-        OneDEulerBackend.cpp )
+        OneDEulerBackend.cpp
+        OneDWeno5.cpp )
     target_include_directories(
         oneflow_1d_euler_cpu_backend_test
         PRIVATE ${CMAKE_CURRENT_LIST_DIR} )
