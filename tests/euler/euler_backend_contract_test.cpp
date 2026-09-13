@@ -1,4 +1,5 @@
 #include "OneDEulerBackend.h"
+#include "OneDWeno5.h"
 
 #include <gtest/gtest.h>
 
@@ -34,6 +35,13 @@ constexpr double kPi = 3.14159265358979323846;
 EulerProblem Problem()
 {
     return { kNx, kGamma, kDt, kDx, EulerBoundary::Periodic };
+}
+
+EulerProblem ProblemWeno5()
+{
+    EulerProblem p{ kNx, kGamma, kDt, kDx, EulerBoundary::Periodic };
+    p.method = EulerMethod::Weno5;
+    return p;
 }
 
 std::vector< double > InitialState()
@@ -208,6 +216,81 @@ TEST( EulerBackendContract, RejectsInvalidRequests )
     EulerRunOptions noTrace = { EulerRunMode::NoTrace, &trace, nullptr };
     EXPECT_THROW(
         backend->Advance( *state, 1, noTrace ), std::invalid_argument );
+}
+
+TEST( EulerBackendContract, Weno5NoTraceMatchesCpuReference )
+{
+    const auto backend = MakeBackend();
+    const std::vector< double > initial = InitialState();
+
+    /* Run through EulerBackend with WENO5 method */
+    auto problem = ProblemWeno5();
+    auto state = backend->CreateState( problem );
+    backend->Upload( *state, initial.data() );
+    backend->Advance( *state, 3, {} );
+    std::vector< double > actual( initial.size() );
+    backend->Download( *state, actual.data() );
+
+    /* Reference: old OneDCpuLaxWeno5Step */
+    Weno5Trace trace;
+    std::vector< double > current = initial;
+    for ( int step = 0; step < 3; ++ step )
+    {
+        OneDCpuLaxWeno5Step(
+            current.data(), kNx, kGamma, kDt, kDx,
+            EulerBoundary::Periodic, trace );
+        std::copy(
+            trace.state.begin() + EulerRkStages * current.size(),
+            trace.state.end(), current.begin() );
+    }
+    ExpectClose( current, actual, "WENO5 final state" );
+    ExpectPhysical( actual );
+}
+
+TEST( EulerBackendContract, Weno5DiffersFromRusanov )
+{
+    /* WENO5 and Rusanov should give different results on the same
+       initial condition (WENO5 is higher order). */
+    const std::vector< double > initial = InitialState();
+
+    auto rusanov = MakeBackend();
+    auto stateR = rusanov->CreateState( Problem() );
+    rusanov->Upload( *stateR, initial.data() );
+    rusanov->Advance( *stateR, 3, {} );
+    std::vector< double > resultR( initial.size() );
+    rusanov->Download( *stateR, resultR.data() );
+
+    auto weno5 = MakeBackend();
+    auto stateW = weno5->CreateState( ProblemWeno5() );
+    weno5->Upload( *stateW, initial.data() );
+    weno5->Advance( *stateW, 3, {} );
+    std::vector< double > resultW( initial.size() );
+    weno5->Download( *stateW, resultW.data() );
+
+    /* They should differ in at least one cell */
+    bool differs = false;
+    for ( std::size_t i = 0; i < resultR.size(); ++ i )
+    {
+        if ( std::abs( resultR[ i ] - resultW[ i ] ) > 1.0e-15 )
+        {
+            differs = true;
+            break;
+        }
+    }
+    EXPECT_TRUE( differs ) << "WENO5 and Rusanov should produce different results";
+}
+
+TEST( EulerBackendContract, Weno5RejectsFullTrace )
+{
+    auto backend = MakeBackend();
+    auto state = backend->CreateState( ProblemWeno5() );
+    const std::vector< double > initial = InitialState();
+    backend->Upload( *state, initial.data() );
+    EulerTrace trace;
+    EulerRunOptions fullTrace = { EulerRunMode::FullTrace, &trace, nullptr };
+    EXPECT_THROW(
+        backend->Advance( *state, 1, fullTrace ),
+        std::invalid_argument );
 }
 
 } // namespace

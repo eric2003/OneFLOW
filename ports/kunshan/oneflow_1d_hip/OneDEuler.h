@@ -14,6 +14,12 @@ enum class EulerBoundary
     Transmissive = 1
 };
 
+enum class EulerMethod
+{
+    Rusanov = 0,
+    Weno5 = 1
+};
+
 struct EulerTrace
 {
     int nx = 0;
