@@ -21,25 +21,20 @@ License
 \*---------------------------------------------------------------------------*/
 #include "SimuImp.h"
 #include "SimuDef.h"
-#include "SimpleSimu.h"
+#include "SimuTask.h"
 #include "System.h"
-#include "FieldSimu.h"
-#include "MultiBlock.h"
 #include "Prj.h"
 #include "ParaFile.h"
 #include "Parallel.h"
-#include "GridFactory.h"
-#include "Test.h"
 #include "Fatal.h"
-#include "Theory.h"
-#include "PostProcess.h"
 #include "AccelRuntime.h"
 #include <iostream>
+#include <stdexcept>
 
 
 BeginNameSpace( ONEFLOW )
 
-SimuImp::SimuImp( std::vector<std::string> &args )
+SimuImp::SimuImp( std::vector<std::string>& args )
 {
     this->args = args;
     Prj::ProcessCmdLineArgs( args );
@@ -74,49 +69,25 @@ void SimuImp::PostProcess()
 
 void SimuImp::RunSimu()
 {
-    // Set the type of operation that ONEFLOW needs to perform
+    // Resolve task type from control database (unchanged behaviour).
     simu_state.Init();
 
-    // Call different solving modules according to the task type
-    const TaskEnum task = simu_state.Task();
-    if ( task == TaskEnum::SOLVE_FIELD ||
-        task == TaskEnum::CREATE_GRID ||
-        task == TaskEnum::CREATE_WALL_DIST )
+    const TaskEnum taskEnum = simu_state.Task();
+    const std::string& taskName = TaskEnumToString( taskEnum );
+
+    auto task = TaskRegistry::Instance().Create( taskName );
+    if ( ! task )
+    {
+        Fatal( "unknown or unregistered simutask value!!" );
+    }
+
+    // Preserve the previous ConstructSystemMap gate.
+    if ( task->NeedsSystemMap() )
     {
         ConstructSystemMap();
     }
 
-    // According to different simutask values, different solving processes are executed
-    switch ( task )
-    {
-    case TaskEnum::SOLVE_FIELD:
-        FieldSimu();
-        break;
-    case TaskEnum::CREATE_GRID:
-        GenerateGrid();
-        break;
-    case TaskEnum::CREATE_WALL_DIST:
-        WalldistSimu();
-        break;
-    case TaskEnum::FUNCTION_TEST:
-        FunctionTest();
-        break;
-    case TaskEnum::SOLVE_THEORY:
-        TheorySimu();
-        break;
-    case TaskEnum::TOY_MODEL:
-        ToyModelSimu();
-        break;
-    case TaskEnum::POST_TASK:
-        PostSimu();
-        break;
-    default:
-    {
-        // Use the new Fatal macro (keeps file/line info and throws)
-        Fatal( "unknown simutask value!!" );
-    }
-    break;
-    }
+    task->Execute();
 }
 
 void SimuImp::InitSimu()

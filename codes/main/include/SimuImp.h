@@ -21,25 +21,31 @@ License
 \*---------------------------------------------------------------------------*/
 #pragma once
 #include "NamespaceMacros.h"
+#include "SimuBase.h"
 #include <vector>
 #include <string>
 
 BeginNameSpace( ONEFLOW )
 
-class SimuImp
+// Full simulation path. Now inherits SimuBase so light-weight tests and
+// production runs share the same entry interface (phase 0).
+class SimuImp : public SimuBase
 {
 public:
-    SimuImp( std::vector<std::string> &args );
-    ~SimuImp();
-public:
-    void Run();
+    explicit SimuImp( std::vector<std::string>& args );
+    ~SimuImp() override;
+
+    void Run() override;
+
 public:
     void PreProcess();
     void MainProcess();
     void PostProcess();
+
 protected:
     void InitSimu();
     void RunSimu();
+
 public:
     std::vector<std::string> args;
 };

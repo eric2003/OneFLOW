@@ -29,3 +29,6 @@ add_subdirectory(task)
 
 # 6. register 模块测试 
 add_subdirectory(register)
+
+# 7. main / simulation entry & TaskRegistry (phase 0+1)
+add_subdirectory(main)
