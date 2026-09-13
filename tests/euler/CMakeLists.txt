@@ -8,6 +8,7 @@ add_executable(oneflow_euler_backend_cpu_test
   euler_backend_contract_test.cpp
   ${ONEFLOW_EULER_BACKEND_DIR}/OneDEuler.cpp
   ${ONEFLOW_EULER_BACKEND_DIR}/OneDEulerBackend.cpp
+  ${ONEFLOW_EULER_BACKEND_DIR}/OneDWeno5.cpp
 )
 
 target_include_directories(oneflow_euler_backend_cpu_test
