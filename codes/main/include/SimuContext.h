@@ -47,7 +47,7 @@ public:
     SimuContext( SimuContext&& ) = default;
     SimuContext& operator=( SimuContext&& ) = default;
 
-    // ---- read-only view used by SimuImp / (later) tasks ----
+    // ---- read-only accessors; tasks receive the mutable owner explicitly ----
     const std::vector<std::string>& Args() const { return args_; }
     int Rank() const { return rank_; }
     int Size() const { return size_; }

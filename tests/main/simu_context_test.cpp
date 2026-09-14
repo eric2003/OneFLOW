@@ -15,19 +15,20 @@ int g_noop_executions = 0;
 class NoOpTask : public ISimuTask
 {
 public:
-    void Execute( const SimuContext& /*ctx*/ ) override { ++g_noop_executions; }
+    void Execute( SimuContext& /*ctx*/ ) override { ++g_noop_executions; }
 };
 
-// Task that *uses* the context - proves Execute(const SimuContext&) plumbing.
+// Task that *uses* the context - proves Execute(SimuContext&) plumbing.
 class ContextAwareTask : public ISimuTask
 {
 public:
-    void Execute( const SimuContext& ctx ) override
+    void Execute( SimuContext& ctx ) override
     {
         saw_rank_ = ctx.Rank();
         saw_size_ = ctx.Size();
         saw_task_name_ = ctx.TaskName();
         saw_args_count_ = static_cast<int>( ctx.Args().size() );
+        ctx.SetTaskByName( "ToyModel" );
         executed_ = true;
     }
 
@@ -150,7 +151,7 @@ TEST( SimuContextTest, InjectedTaskNameWorksWithRegistry )
     EXPECT_EQ( g_noop_executions, 1 );
 }
 
-// ---- phase 2.1: Execute receives const SimuContext& ----
+// ---- phase 2.1: Execute receives SimuContext& ----
 
 TEST( SimuContextTest, ContextAwareTaskSeesInjectedState )
 {
@@ -178,6 +179,7 @@ TEST( SimuContextTest, ContextAwareTaskSeesInjectedState )
     EXPECT_EQ( aware->saw_size_, 8 );
     EXPECT_EQ( aware->saw_task_name_, "Theory" );
     EXPECT_EQ( aware->saw_args_count_, 3 );
+    EXPECT_EQ( ctx.TaskName(), "ToyModel" );
 }
 
 TEST( SimuContextSolverNames, DefaultHasNoInjectedNames )

@@ -94,7 +94,7 @@ void FieldPipeline::Run()
     FieldSimuRun();
 }
 
-void FieldPipeline::Run( const SimuContext & ctx )
+void FieldPipeline::Run( SimuContext & ctx )
 {
     FieldSimuSetupGlobals();
     FieldSimuLoadGrid();
@@ -109,7 +109,7 @@ void FieldSimuRunPipeline()
     FieldPipeline::Run();
 }
 
-void FieldSimuRunPipeline( const SimuContext & ctx )
+void FieldSimuRunPipeline( SimuContext & ctx )
 {
     FieldPipeline::Run( ctx );
 }
