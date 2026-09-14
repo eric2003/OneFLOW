@@ -7,6 +7,8 @@ add_executable(task_registry_test
   task_registry_test.cpp
   ${CMAKE_SOURCE_DIR}/codes/main/src/SimuTask.cpp
   ${CMAKE_SOURCE_DIR}/codes/main/src/SimuContext.cpp
+  ${CMAKE_SOURCE_DIR}/codes/accel/src/EulerDomainStateRegistry.cpp
+  ${CMAKE_SOURCE_DIR}/codes/accel/src/EulerDomainStateLifecycle.cpp
 )
 
 target_include_directories(task_registry_test
@@ -61,6 +63,7 @@ add_executable(simu_context_test
   ${CMAKE_SOURCE_DIR}/codes/main/src/SimuContext.cpp
   ${CMAKE_SOURCE_DIR}/codes/main/src/SimuTask.cpp
   ${CMAKE_SOURCE_DIR}/codes/accel/src/EulerDomainStateRegistry.cpp
+  ${CMAKE_SOURCE_DIR}/codes/accel/src/EulerDomainStateLifecycle.cpp
 )
 
 target_include_directories(simu_context_test

@@ -93,7 +93,8 @@ struct EulerDomainStateKey
 inline void ValidateEulerDomainProblem( const EulerDomainProblem & problem )
 {
     if ( problem.nCells <= 0 || problem.nGhostCells < 0
-         || problem.nEquations != 3 || problem.gamma <= 1.0
+         || ( problem.nEquations != 3 && problem.nEquations != 5 )
+         || problem.gamma <= 1.0
          || problem.dt <= 0.0 || problem.dx <= 0.0 )
     {
         throw std::invalid_argument( "invalid OneFLOW Euler domain problem" );

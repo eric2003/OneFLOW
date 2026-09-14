@@ -25,6 +25,7 @@ License
 
 #include "SimuContext.h"
 #include "SimuTask.h"
+#include "EulerDomainStateLifecycle.h"
 #include <stdexcept>
 
 BeginNameSpace( ONEFLOW )
@@ -90,6 +91,26 @@ void SimuContext::EnsureExpandedSolverNames( const StringField& names )
         return;
     }
     expandedSolverNames_ = names;
+}
+
+EulerDomainState& SimuContext::InitializeAccelState(
+    const EulerDomainBackend& backend,
+    const EulerDomainProblem& problem,
+    const EulerDomainStateKey& key,
+    const EulerDomainConstFieldView& field )
+{
+    return EulerDomainStateLifecycle::Initialize(
+        accelStates_, backend, problem, key, field );
+}
+
+EulerDomainState& SimuContext::RestartAccelState(
+    const EulerDomainBackend& backend,
+    const EulerDomainProblem& problem,
+    const EulerDomainStateKey& key,
+    const EulerDomainConstFieldView& field )
+{
+    return EulerDomainStateLifecycle::Restart(
+        accelStates_, backend, problem, key, field );
 }
 
 EndNameSpace

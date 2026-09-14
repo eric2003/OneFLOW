@@ -19,6 +19,13 @@ EulerDomainProblem Problem()
     return result;
 }
 
+EulerDomainProblem FiveEquationProblem()
+{
+    EulerDomainProblem result = Problem();
+    result.nEquations = 5;
+    return result;
+}
+
 TEST( EulerDomainContract, ValidatesBackendNeutralProblemAndViews )
 {
     const EulerDomainProblem problem = Problem();
@@ -29,6 +36,16 @@ TEST( EulerDomainContract, ValidatesBackendNeutralProblemAndViews )
     EXPECT_NO_THROW( ValidateEulerDomainProblem( problem ) );
     EXPECT_NO_THROW( ValidateEulerDomainField( problem, input ) );
     EXPECT_NO_THROW( ValidateEulerDomainField( problem, output ) );
+}
+
+TEST( EulerDomainContract, ValidatesFiveEquationProblem )
+{
+    const EulerDomainProblem problem = FiveEquationProblem();
+    Real values[ 5 * 32 ] = {};
+    EulerDomainConstFieldView input{ 32, 5, values };
+
+    EXPECT_NO_THROW( ValidateEulerDomainProblem( problem ) );
+    EXPECT_NO_THROW( ValidateEulerDomainField( problem, input ) );
 }
 
 TEST( EulerDomainContract, RejectsInternalFieldShapeMismatch )

@@ -62,6 +62,17 @@ public:
     const EulerDomainStateRegistry& AccelStates() const { return accelStates_; }
     void ClearAccelStates() { accelStates_.Clear(); }
 
+    EulerDomainState& InitializeAccelState(
+        const EulerDomainBackend& backend,
+        const EulerDomainProblem& problem,
+        const EulerDomainStateKey& key,
+        const EulerDomainConstFieldView& field );
+    EulerDomainState& RestartAccelState(
+        const EulerDomainBackend& backend,
+        const EulerDomainProblem& problem,
+        const EulerDomainStateKey& key,
+        const EulerDomainConstFieldView& field );
+
     // Process command line into project globals (existing Prj path).
     void ProcessCommandLine();
 
