@@ -59,6 +59,36 @@ TEST( EulerCpuAdapter, RejectsNonPhysicalOrUnsupportedState )
         std::invalid_argument );
 }
 
+TEST( EulerCpuAdapter, MapsResidualUsingExplicitBoundaryMask )
+{
+    constexpr int nFaces = 3;
+    constexpr int nCells = 5;
+    Real faceValues[] = { 1.0, 2.0, 3.0, 10.0, 20.0, 30.0, 100.0, 200.0, 300.0 };
+    int left[] = { 0, 1, 2 };
+    int right[] = { 2, 3, 4 };
+    unsigned char boundaryMask[] = { 0, 1, 0 };
+    Real residualValues[ 3 * nCells ] = {};
+
+    FaceFluxView flux{ nFaces, 3, faceValues };
+    FaceConnectivityView connectivity;
+    connectivity.nFaces = nFaces;
+    connectivity.nBoundaryFaces = 1;
+    connectivity.leftCell = left;
+    connectivity.rightCell = right;
+    connectivity.boundaryMask = boundaryMask;
+    ResidualView residual{ nCells, 3, residualValues };
+
+    EulerCpuAdapter adapter;
+    EXPECT_NO_THROW( adapter.AddFaceFlux( flux, connectivity, residual ) );
+    EXPECT_DOUBLE_EQ( residualValues[ 0 ], -1.0 );
+    EXPECT_DOUBLE_EQ( residualValues[ 1 ], -2.0 );
+    EXPECT_DOUBLE_EQ( residualValues[ 2 ], -2.0 );
+    EXPECT_DOUBLE_EQ( residualValues[ 4 ], 3.0 );
+    EXPECT_DOUBLE_EQ( residualValues[ 5 ], -10.0 );
+    EXPECT_DOUBLE_EQ( residualValues[ 7 ], -20.0 );
+    EXPECT_DOUBLE_EQ( residualValues[ 9 ], 30.0 );
+}
+
 TEST( EulerCpuAdapter, ComputesBatchFluxAfterConversion )
 {
     constexpr int nFaces = 2;

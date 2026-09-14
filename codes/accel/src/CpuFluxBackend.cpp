@@ -31,19 +31,26 @@ void CalcScalarInvFlux( const FaceStateView & state, FaceFluxView & flux )
     }
 }
 
+bool IsBoundaryFace( const FaceConnectivityView & connectivity, int face )
+{
+    return connectivity.boundaryMask != nullptr
+        ? connectivity.boundaryMask[ face ] != 0
+        : face < connectivity.nBoundaryFaces;
+}
+
 void AddScalarFaceFlux(
     const FaceFluxView & flux,
     const FaceConnectivityView & connectivity,
     ResidualView & residual )
 {
-    for ( int face = 0; face < connectivity.nBoundaryFaces; ++ face )
+    for ( int face = 0; face < connectivity.nFaces; ++ face )
     {
-        residual.values[ connectivity.leftCell[ face ] ] -= flux.values[ face ];
-    }
-    for ( int face = connectivity.nBoundaryFaces; face < connectivity.nFaces; ++ face )
-    {
-        residual.values[ connectivity.leftCell[ face ] ] -= flux.values[ face ];
-        residual.values[ connectivity.rightCell[ face ] ] += flux.values[ face ];
+        const int left = connectivity.leftCell[ face ];
+        residual.values[ left ] -= flux.values[ face ];
+        if ( ! IsBoundaryFace( connectivity, face ) )
+        {
+            residual.values[ connectivity.rightCell[ face ] ] += flux.values[ face ];
+        }
     }
 }
 
@@ -187,26 +194,18 @@ void AddEulerFaceFlux(
     const int nEq = flux.nEquations;
     const int nFaces = flux.nFaces;
 
-    // Boundary faces: contribute only from left cell
-    for ( int face = 0; face < connectivity.nBoundaryFaces; ++ face )
+    for ( int face = 0; face < nFaces; ++ face )
     {
         const int left = connectivity.leftCell[ face ];
-        for ( int eq = 0; eq < nEq; ++ eq )
-        {
-            residual.values[ eq * residual.nCells + left ]
-                -= flux.values[ eq * nFaces + face ];
-        }
-    }
-    // Interior faces: left cell gets -flux, right cell gets +flux
-    for ( int face = connectivity.nBoundaryFaces; face < nFaces; ++ face )
-    {
-        const int left = connectivity.leftCell[ face ];
-        const int right = connectivity.rightCell[ face ];
         for ( int eq = 0; eq < nEq; ++ eq )
         {
             const Real value = flux.values[ eq * nFaces + face ];
             residual.values[ eq * residual.nCells + left ] -= value;
-            residual.values[ eq * residual.nCells + right ] += value;
+            if ( ! IsBoundaryFace( connectivity, face ) )
+            {
+                const int right = connectivity.rightCell[ face ];
+                residual.values[ eq * residual.nCells + right ] += value;
+            }
         }
     }
 }

@@ -142,4 +142,13 @@ void EulerCpuAdapter::CalcInvFlux(
     backend.CalcInvFlux( conservedState, flux, scheme );
 }
 
+void EulerCpuAdapter::AddFaceFlux(
+    const FaceFluxView & flux,
+    const FaceConnectivityView & connectivity,
+    ResidualView & residual ) const
+{
+    CpuFluxBackend backend;
+    backend.AddFaceFlux( flux, connectivity, residual );
+}
+
 EndNameSpace

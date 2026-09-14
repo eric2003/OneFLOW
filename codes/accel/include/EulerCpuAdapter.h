@@ -40,6 +40,11 @@ public:
         const PrimitiveFaceStateView & state,
         FaceFluxView & flux,
         int scheme = 0 ) const;
+
+    void AddFaceFlux(
+        const FaceFluxView & flux,
+        const FaceConnectivityView & connectivity,
+        ResidualView & residual ) const;
 };
 
 EndNameSpace
