@@ -8,11 +8,28 @@ include( ${CMAKE_CURRENT_LIST_DIR}/../../../cmake/UtilFunction.cmake )
 include( ${CMAKE_CURRENT_LIST_DIR}/../../../cmake/OneFLOWEulerContract.cmake )
 
 add_executable( oneflow_1d_cpu CpuMain.cpp OneDUpwind.cpp )
+
+# EulerMain initializes the shared accelerator runtime even for the CPU
+# reference executable. Keep the CPU target linked to the CPU-only runtime;
+# the HIP targets below attach the full runtime/backend set separately.
+set( ONEFLOW_ACCEL_DIR ${CMAKE_CURRENT_LIST_DIR}/../../../codes/accel )
+set( ONEFLOW_PROJECT_INC ${CMAKE_CURRENT_LIST_DIR}/../../../codes/project/include )
+set( ONEFLOW_BASIC_INC   ${CMAKE_CURRENT_LIST_DIR}/../../../codes/basic/include )
 add_executable(
     oneflow_1d_euler_cpu
     EulerMain.cpp
     OneDEuler.cpp
-    OneDEulerBackend.cpp )
+    OneDEulerBackend.cpp
+    OneDWeno5.cpp
+    ${ONEFLOW_ACCEL_DIR}/src/AccelBackend.cpp
+    ${ONEFLOW_ACCEL_DIR}/src/AccelRuntime.cpp
+    ${ONEFLOW_ACCEL_DIR}/src/CpuBackend.cpp )
+target_include_directories(
+    oneflow_1d_euler_cpu
+    PRIVATE
+        ${ONEFLOW_ACCEL_DIR}/include
+        ${ONEFLOW_PROJECT_INC}
+        ${ONEFLOW_BASIC_INC} )
 target_compile_options( oneflow_1d_euler_cpu PRIVATE -ffp-contract=off )
 add_executable( oneflow_1d_weno5_dump Weno5DumpMain.cpp OneDWeno5.cpp )
 target_compile_options( oneflow_1d_weno5_dump PRIVATE -ffp-contract=off )
