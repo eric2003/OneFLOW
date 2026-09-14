@@ -48,6 +48,7 @@ set(DATABASE_TEST_SOURCES
 	${IO_SRC_DIR}/TextFileParser.cpp
 	${IO_SRC_DIR}/CommentLine.cpp
 	${IO_SRC_DIR}/Prj.cpp
+	${CMAKE_SOURCE_DIR}/codes/io/src/PrjCmdLineArgs.cpp
 	${IO_SRC_DIR}/FileUtils.cpp
 	${BASIC_SRC_DIR}/Word.cpp
 	${SOLVER_SRC_DIR}/SolverState.cpp

@@ -28,6 +28,8 @@ License
 
 BeginNameSpace( ONEFLOW )
 
+
+
 bool Prj::hx_debug = false;
 bool Prj::run_from_ide = false;
 std::string Prj::system_root = "";
@@ -45,17 +47,41 @@ Prj::~Prj()
     ;
 }
 
+//CmdLineOptions Prj::ParseCmdLineArgs( const std::vector<std::string> & args )
+//{
+//    if ( args.size() < 3 )
+//    {
+//        Fatal( "Prj::ParseCmdLineArgs: expected at least 3 arguments (exe, mode, prjName)" );
+//    }
+//    CmdLineOptions opt;
+//    opt.debug   = ( args[1] == "d" );
+//    opt.prjName = args[2];
+//    return opt;
+//}
+
+//void Prj::ProcessCmdLineArgs( std::vector<std::string> &args )
+//{
+//    std::string choise = args[ 1 ];
+//    std::string prjName = args[ 2 ];
+//    if ( choise == "d" )
+//    {
+//        Prj::hx_debug = true;
+//        Prj::run_from_ide = true;
+//    }
+//    Prj::Init();
+//    Prj::SetPrjBaseDir( prjName );
+//}
+
 void Prj::ProcessCmdLineArgs( std::vector<std::string> &args )
 {
-    std::string choise = args[ 1 ];
-    std::string prjName = args[ 2 ];
-    if ( choise == "d" )
+    CmdLineOptions opt = Prj::ParseCmdLineArgs( args );
+    if ( opt.debug )
     {
         Prj::hx_debug = true;
         Prj::run_from_ide = true;
     }
     Prj::Init();
-    Prj::SetPrjBaseDir( prjName );
+    Prj::SetPrjBaseDir( opt.prjName );
 }
 
 void Prj::Init()

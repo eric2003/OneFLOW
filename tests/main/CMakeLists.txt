@@ -78,3 +78,29 @@ target_compile_features(simu_context_test PRIVATE cxx_std_17)
 gtest_discover_tests(simu_context_test
   DISCOVERY_MODE PRE_TEST
 )
+
+
+# ---------------------------------------------------------------------------
+# Prj::ParseCmdLineArgs pure-parsing unit test (phase 3, no Fatal/OStream/FileUtils deps)
+# ---------------------------------------------------------------------------
+add_executable(prj_cmdline_test
+  prj_cmdline_test.cpp
+  ${CMAKE_SOURCE_DIR}/codes/io/src/PrjCmdLineArgs.cpp
+)
+
+target_include_directories(prj_cmdline_test
+  PRIVATE
+    ${CMAKE_SOURCE_DIR}/codes/io/include
+    ${CMAKE_SOURCE_DIR}/codes/basic/include
+)
+
+target_link_libraries(prj_cmdline_test
+  PRIVATE
+    GTest::gtest_main
+)
+
+target_compile_features(prj_cmdline_test PRIVATE cxx_std_17)
+
+gtest_discover_tests(prj_cmdline_test
+  DISCOVERY_MODE PRE_TEST
+)
