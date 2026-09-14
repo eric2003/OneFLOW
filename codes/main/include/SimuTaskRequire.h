@@ -19,23 +19,27 @@ License
     along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 
 \*---------------------------------------------------------------------------*/
+
 #pragma once
-#include "HXDefine.h"
+#include "SimuContext.h"
+#include <stdexcept>
+#include <string>
 
 BeginNameSpace( ONEFLOW )
 
-// CFD field-solve pipeline stages (order fixed; no numerical changes).
-void FieldSimuSetupGlobals();
-void FieldSimuLoadGrid();
-void FieldSimuPrepareWallDist();
-void FieldSimuCreateSolvers();
-void FieldSimuInitFlowField();
-void FieldSimuRun();
-
-// Convenience: run all stages in order (same as SolveFieldTask path).
-void FieldSimu();
-
-void InitFlowSimuGlobal();
-void InitializeSolver();
+// Preconditions for the production SolveFieldTask path.
+inline void RequireSolveFieldContext( const SimuContext& ctx )
+{
+    if ( ! ctx.IsEnvironmentReady() )
+    {
+        throw std::runtime_error(
+            "SolveFieldTask: environment not ready (SetupEnvironment required)" );
+    }
+    if ( ctx.TaskName() != "Solve" )
+    {
+        throw std::runtime_error(
+            "SolveFieldTask: unexpected task name \"" + ctx.TaskName() + "\"" );
+    }
+}
 
 EndNameSpace

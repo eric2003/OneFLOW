@@ -19,23 +19,39 @@ License
     along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 
 \*---------------------------------------------------------------------------*/
+
+
 #pragma once
-#include "HXDefine.h"
+#include "NamespaceMacros.h"
 
 BeginNameSpace( ONEFLOW )
 
-// CFD field-solve pipeline stages (order fixed; no numerical changes).
-void FieldSimuSetupGlobals();
-void FieldSimuLoadGrid();
-void FieldSimuPrepareWallDist();
-void FieldSimuCreateSolvers();
-void FieldSimuInitFlowField();
-void FieldSimuRun();
+enum class FlowWallDistAction
+{
+    SkipAfterAlloc,  // inviscid / laminar NS: allocate only
+    Load,            // read existing wall distance
+    Create           // compute and write wall distance
+};
 
-// Convenience: run all stages in order (same as SolveFieldTask path).
-void FieldSimu();
-
-void InitFlowSimuGlobal();
-void InitializeSolver();
+// Pure decision ¡ª no I/O, no tasks. Safe for unit tests.
+inline FlowWallDistAction DecideFlowWallDistAction(
+    int vismodel,
+    int startStrategy,
+    int ireadwdst )
+{
+    if ( vismodel <= 1 )
+    {
+        return FlowWallDistAction::SkipAfterAlloc;
+    }
+    if ( startStrategy > 0 )
+    {
+        return FlowWallDistAction::Load;
+    }
+    if ( ireadwdst == 0 )
+    {
+        return FlowWallDistAction::Create;
+    }
+    return FlowWallDistAction::Load;
+}
 
 EndNameSpace

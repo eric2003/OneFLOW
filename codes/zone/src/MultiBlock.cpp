@@ -27,6 +27,7 @@ along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 #include "SolverDef.h"
 #include "SimuDef.h"
 #include "WallDist.h"
+#include "WallDistPolicy.h"
 #include "CmxTask.h"
 #include "InterFace.h"
 #include "SlipFace.h"
@@ -49,10 +50,11 @@ void MultiBlock::ReadMultiBlockGrid()
 {
     StringField gridFileList;
 
+    // From control database (e.g. cfd.txt: gridFileName = "grid/....ofl")
     std::string gridFileName = ONEFLOW::GetGridFileName();
-
     gridFileList.push_back( gridFileName );
 
+    // InitLayout (nZones) ¡ú per-file GridGroup::ReadGrid ¡ú NormalizeLayout (localZid)
     Zone::ReadGrid( gridFileList );
 }
 
@@ -64,8 +66,13 @@ void MultiBlock::SetUpMultigrid()
 
 void MultiBlock::LoadGridAndBuildLink()
 {
+    // Stage L1: control DB ¡ú grid path ¡ú Zone layout + binary grid read
     MultiBlock::ReadMultiBlockGrid();
+
+    // Stage L2: geometric metrics (GRID_SOLVER / CALC_METRICS task)
     MultiBlock::SetUpMultigrid();
+
+    // Stage L3: multi-zone topology (interface / slip / overset)
     MultiBlock::InitMultiZoneTopo();
 }
 
@@ -78,19 +85,21 @@ void MultiBlock::ProcessFlowWallDist()
 {
     AllocWallDist();
 
-    if ( vis_model.vismodel <= 1 ) return;
+    const FlowWallDistAction action = DecideFlowWallDistAction(
+        vis_model.vismodel,
+        ctrl.startStrategy,
+        ctrl.ireadwdst );
 
-    if ( ctrl.startStrategy > 0 )
+    switch ( action )
     {
+    case FlowWallDistAction::SkipAfterAlloc:
+        return;
+    case FlowWallDistAction::Load:
         LoadWallDist();
-    }
-    else if ( ctrl.ireadwdst == 0 )
-    {
+        break;
+    case FlowWallDistAction::Create:
         CreateWallDist();
-    }
-    else
-    {
-        LoadWallDist();
+        break;
     }
 }
 
@@ -125,7 +134,7 @@ void MultiBlock::InitMultiZoneTopo()
 {
     ONEFLOW::InitInterfaceTopo();
     ONEFLOW::InitSlipFaceTopo();
-    MultiBlock::InitOversetTopo();
+    MultiBlock::InitOversetTopo();  // currently empty
 }
 
 void MultiBlock::InitOversetTopo()
