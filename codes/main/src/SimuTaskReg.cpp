@@ -48,18 +48,6 @@ public:
     {
         RequireSolveFieldContext( ctx );
 
-        // Precondition: environment + control already resolved by SimuImp.
-        if ( ! ctx.IsEnvironmentReady() )
-        {
-            throw std::runtime_error(
-                "SolveFieldTask: environment not ready (SetupEnvironment required)" );
-        }
-        if ( ctx.TaskName() != "Solve" )
-        {
-            throw std::runtime_error(
-                "SolveFieldTask: unexpected task name \"" + ctx.TaskName() + "\"" );
-        }
-
         // Same six stages as FieldSimu(); order must stay identical.
         FieldSimuSetupGlobals();
         FieldSimuLoadGrid();

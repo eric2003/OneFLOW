@@ -34,6 +34,7 @@ public:
 public:
     static void ReadMultiBlockGrid();
     static void SetUpMultigrid();
+    // Load grid from control "gridFileName", compute metrics, build zone topology.
     static void LoadGridAndBuildLink();
     static void InitMultiZoneTopo();
     static void InitOversetTopo();

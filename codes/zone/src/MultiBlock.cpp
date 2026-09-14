@@ -49,10 +49,11 @@ void MultiBlock::ReadMultiBlockGrid()
 {
     StringField gridFileList;
 
+    // From control database (e.g. cfd.txt: gridFileName = "grid/....ofl")
     std::string gridFileName = ONEFLOW::GetGridFileName();
-
     gridFileList.push_back( gridFileName );
 
+    // InitLayout (nZones) ¡ú per-file GridGroup::ReadGrid ¡ú NormalizeLayout (localZid)
     Zone::ReadGrid( gridFileList );
 }
 
@@ -64,8 +65,13 @@ void MultiBlock::SetUpMultigrid()
 
 void MultiBlock::LoadGridAndBuildLink()
 {
+    // Stage L1: control DB ¡ú grid path ¡ú Zone layout + binary grid read
     MultiBlock::ReadMultiBlockGrid();
+
+    // Stage L2: geometric metrics (GRID_SOLVER / CALC_METRICS task)
     MultiBlock::SetUpMultigrid();
+
+    // Stage L3: multi-zone topology (interface / slip / overset)
     MultiBlock::InitMultiZoneTopo();
 }
 
@@ -125,7 +131,7 @@ void MultiBlock::InitMultiZoneTopo()
 {
     ONEFLOW::InitInterfaceTopo();
     ONEFLOW::InitSlipFaceTopo();
-    MultiBlock::InitOversetTopo();
+    MultiBlock::InitOversetTopo();  // currently empty
 }
 
 void MultiBlock::InitOversetTopo()
