@@ -21,6 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 #include "FieldSimu.h"
 #include "SimuContext.h"
+#include "EulerDomainStateSync.h"
 #include "CmxTaskNames.h"
 #include "Iteration.h"
 #include "Ctrl.h"
@@ -34,6 +35,7 @@ License
 #include "BcData.h"
 #include "GridState.h"
 #include <iostream>
+#include <stdexcept>
 
 BeginNameSpace( ONEFLOW )
 
@@ -84,6 +86,11 @@ void FieldSimuRun()
     MultigridSolve();
 }
 
+void FieldSimuRun( SimuContext & context )
+{
+    MultigridSolve( context );
+}
+
 void FieldPipeline::Run()
 {
     FieldSimuSetupGlobals();
@@ -99,9 +106,10 @@ void FieldPipeline::Run( SimuContext & ctx )
     FieldSimuSetupGlobals();
     FieldSimuLoadGrid();
     FieldSimuPrepareWallDist();
-    FieldSimuCreateSolvers( ctx );  // only stage that reads ctx for now
+    FieldSimuCreateSolvers( ctx );
     FieldSimuInitFlowField();
-    FieldSimuRun();
+    SyncAllEulerDomainStates( ctx );
+    FieldSimuRun( ctx );
 }
 
 void FieldSimuRunPipeline()
@@ -117,6 +125,11 @@ void FieldSimuRunPipeline( SimuContext & ctx )
 void FieldSimu()
 {
     FieldPipeline::Run();
+}
+
+void FieldSimu( SimuContext & context )
+{
+    FieldSimuRunPipeline( context );
 }
 
 void InitFlowSimuGlobal()

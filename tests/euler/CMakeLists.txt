@@ -98,6 +98,18 @@ target_include_directories(oneflow_euler_cpu_domain_backend_test PRIVATE
 target_link_libraries(oneflow_euler_cpu_domain_backend_test PRIVATE GTest::gtest_main)
 gtest_discover_tests(oneflow_euler_cpu_domain_backend_test DISCOVERY_MODE PRE_TEST)
 
+add_executable(oneflow_euler_domain_mrfield_adapter_test
+  ${CMAKE_SOURCE_DIR}/tests/euler_domain_mrfield_adapter_test.cpp
+  ${CMAKE_SOURCE_DIR}/codes/main/src/EulerDomainMrFieldAdapter.cpp)
+target_include_directories(oneflow_euler_domain_mrfield_adapter_test PRIVATE
+  ${CMAKE_SOURCE_DIR}/codes/main/include
+  ${CMAKE_SOURCE_DIR}/codes/array/include
+  ${CMAKE_SOURCE_DIR}/codes/accel/include
+  ${CMAKE_SOURCE_DIR}/codes/basic/include
+  ${CMAKE_SOURCE_DIR}/codes/project/include)
+target_link_libraries(oneflow_euler_domain_mrfield_adapter_test PRIVATE GTest::gtest_main)
+gtest_discover_tests(oneflow_euler_domain_mrfield_adapter_test DISCOVERY_MODE PRE_TEST)
+
 add_executable(oneflow_euler_cpu_adapter_test
   ${CMAKE_SOURCE_DIR}/tests/euler_cpu_adapter_test.cpp
   ${CMAKE_SOURCE_DIR}/codes/accel/src/EulerCpuAdapter.cpp
