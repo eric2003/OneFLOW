@@ -72,44 +72,44 @@ bool Iteration::InnerOk()
 
 bool Iteration::ResOk()
 {
-	int startStrategy = ONEFLOW::GetDataValue< int >("startStrategy");
-	if (startStrategy == 2)
-	{
-		if (Iteration::innerSteps % nResSave == 0)
-		{
-			return true;
-		}
-		return false;
-	}
-	else
-	{
-		if (Iteration::outerSteps % nResSave == 0)
-		{
-			return Iteration::innerSteps == 1;
-		}
-		return false;
-	}
+    if ( ctrl.startStrategy == 2 )
+    {
+        if ( Iteration::innerSteps % nResSave == 0 )
+        {
+            return true;
+        }
+        return false;
+    }
+    else
+    {
+        if ( Iteration::outerSteps % nResSave == 0 )
+        {
+            return Iteration::innerSteps == 1;
+        }
+        return false;
+    }
 }
+
+
 
 bool Iteration::ForceOk()
 {
-	int startStrategy = ONEFLOW::GetDataValue< int >("startStrategy");
-	if (startStrategy == 2)
-	{
-		if (Iteration::innerSteps % nForceSave == 0)
-		{
-			return true;
-		}
-		return false;
-	}
-	else
-	{
-		if (Iteration::outerSteps % nForceSave == 0)
-		{
-			return Iteration::innerSteps == 1;
-		}
-		return false;
-	}
+    if ( ctrl.startStrategy == 2 )
+    {
+        if ( Iteration::innerSteps % nForceSave == 0 )
+        {
+            return true;
+        }
+        return false;
+    }
+    else
+    {
+        if ( Iteration::outerSteps % nForceSave == 0 )
+        {
+            return Iteration::innerSteps == 1;
+        }
+        return false;
+    }
 }
 
 SimuIterState::SimuIterState()
