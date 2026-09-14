@@ -44,6 +44,28 @@ bool EulerDomainStateRegistry::Contains( const EulerDomainStateKey & key ) const
     return states.find( key ) != states.end();
 }
 
+EulerDomainState & EulerDomainStateRegistry::GetOrCreate(
+    const EulerDomainStateKey & key, const StateFactory & factory )
+{
+    const auto iter = states.find( key );
+    if ( iter != states.end() )
+    {
+        return *iter->second;
+    }
+    if ( ! factory )
+    {
+        throw std::invalid_argument(
+            "cannot create Euler domain state without a factory" );
+    }
+    Insert( key, factory() );
+    return Get( key );
+}
+
+bool EulerDomainStateRegistry::Invalidate( const EulerDomainStateKey & key )
+{
+    return states.erase( key ) != 0;
+}
+
 void EulerDomainStateRegistry::Insert(
     const EulerDomainStateKey & key,
     std::unique_ptr< EulerDomainState > state )

@@ -49,6 +49,28 @@ TEST( EulerDomainStateRegistry, RejectsNullAndMissingStates )
     EXPECT_NO_THROW( registry.Erase( key ) );
 }
 
+TEST( EulerDomainStateRegistry, GetOrCreateReusesAndInvalidateReleases )
+{
+    EulerDomainStateRegistry registry;
+    const EulerDomainStateKey key = Key( 3, 2, 1, AccelBackendKind::CPU );
+    int creations = 0;
+
+    EulerDomainState& first = registry.GetOrCreate( key, [&]() {
+        ++creations;
+        return std::make_unique<TestState>();
+    } );
+    EulerDomainState& second = registry.GetOrCreate( key, [&]() {
+        ++creations;
+        return std::make_unique<TestState>();
+    } );
+
+    EXPECT_EQ( &first, &second );
+    EXPECT_EQ( creations, 1 );
+    EXPECT_TRUE( registry.Invalidate( key ) );
+    EXPECT_FALSE( registry.Contains( key ) );
+    EXPECT_FALSE( registry.Invalidate( key ) );
+}
+
 TEST( EulerDomainStateRegistry, EraseAndClearReleaseOwnership )
 {
     EulerDomainStateRegistry registry;

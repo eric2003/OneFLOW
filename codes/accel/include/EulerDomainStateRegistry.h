@@ -16,6 +16,7 @@ License
 #include "EulerDomain.h"
 
 #include <cstddef>
+#include <functional>
 #include <memory>
 #include <unordered_map>
 
@@ -41,7 +42,12 @@ public:
     EulerDomainStateRegistry & operator=( EulerDomainStateRegistry && ) = default;
     EulerDomainStateRegistry & operator=( const EulerDomainStateRegistry & ) = delete;
 
+    using StateFactory = std::function< std::unique_ptr< EulerDomainState >() >;
+
     bool Contains( const EulerDomainStateKey & key ) const;
+    EulerDomainState & GetOrCreate(
+        const EulerDomainStateKey & key, const StateFactory & factory );
+    bool Invalidate( const EulerDomainStateKey & key );
     void Insert(
         const EulerDomainStateKey & key,
         std::unique_ptr< EulerDomainState > state );
