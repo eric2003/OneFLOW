@@ -32,3 +32,6 @@ add_subdirectory(register)
 
 # 7. main / simulation entry & TaskRegistry (phase 0+1)
 add_subdirectory(main)
+
+# 8. zone
+add_subdirectory(zone)

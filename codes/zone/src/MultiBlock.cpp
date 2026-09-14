@@ -27,6 +27,7 @@ along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 #include "SolverDef.h"
 #include "SimuDef.h"
 #include "WallDist.h"
+#include "WallDistPolicy.h"
 #include "CmxTask.h"
 #include "InterFace.h"
 #include "SlipFace.h"
@@ -84,19 +85,21 @@ void MultiBlock::ProcessFlowWallDist()
 {
     AllocWallDist();
 
-    if ( vis_model.vismodel <= 1 ) return;
+    const FlowWallDistAction action = DecideFlowWallDistAction(
+        vis_model.vismodel,
+        ctrl.startStrategy,
+        ctrl.ireadwdst );
 
-    if ( ctrl.startStrategy > 0 )
+    switch ( action )
     {
+    case FlowWallDistAction::SkipAfterAlloc:
+        return;
+    case FlowWallDistAction::Load:
         LoadWallDist();
-    }
-    else if ( ctrl.ireadwdst == 0 )
-    {
+        break;
+    case FlowWallDistAction::Create:
         CreateWallDist();
-    }
-    else
-    {
-        LoadWallDist();
+        break;
     }
 }
 
