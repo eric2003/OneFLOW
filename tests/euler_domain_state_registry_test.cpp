@@ -11,6 +11,8 @@ using namespace ONEFLOW;
 
 class TestState final : public EulerDomainState
 {
+public:
+    int generation = 0;
 };
 
 EulerDomainStateKey Key(
@@ -84,6 +86,27 @@ TEST( EulerDomainStateRegistry, EraseAndClearReleaseOwnership )
     EXPECT_EQ( registry.Size(), 1u );
     registry.Clear();
     EXPECT_EQ( registry.Size(), 0u );
+}
+
+
+TEST( EulerDomainStateRegistry, RestartInvalidateCreatesFreshState )
+{
+    EulerDomainStateRegistry registry;
+    const EulerDomainStateKey key = Key( 4, 1, 0, AccelBackendKind::CPU );
+    int creations = 0;
+    const auto factory = [&]() {
+        auto state = std::make_unique< TestState >();
+        state->generation = ++creations;
+        return state;
+    };
+
+    EulerDomainState & first = registry.GetOrCreate( key, factory );
+    EXPECT_EQ( static_cast< TestState & >( first ).generation, 1 );
+    EXPECT_TRUE( registry.Invalidate( key ) );
+
+    EulerDomainState & afterRestart = registry.GetOrCreate( key, factory );
+    EXPECT_EQ( static_cast< TestState & >( afterRestart ).generation, 2 );
+    EXPECT_EQ( creations, 2 );
 }
 
 } // namespace
