@@ -116,6 +116,23 @@ TEST( SimuContextTest, MarkEnvironmentReady )
     EXPECT_FALSE( ctx.IsEnvironmentReady() );
 }
 
+TEST( SimuContextTest, OwnsAndClearsAcceleratorStates )
+{
+    class TestState final : public EulerDomainState
+    {
+    };
+
+    SimuContext ctx( std::vector<std::string>{} );
+    const EulerDomainStateKey key{ 2, 4, 0, AccelBackendKind::CPU };
+    ctx.AccelStates().Insert( key, std::make_unique<TestState>() );
+
+    EXPECT_EQ( ctx.AccelStates().Size(), 1u );
+    EXPECT_TRUE( ctx.AccelStates().Contains( key ) );
+
+    ctx.ClearAccelStates();
+    EXPECT_EQ( ctx.AccelStates().Size(), 0u );
+}
+
 TEST( SimuContextTest, InjectedTaskNameWorksWithRegistry )
 {
     g_noop_executions = 0;

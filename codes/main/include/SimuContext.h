@@ -23,6 +23,7 @@ License
 #include "NamespaceMacros.h"
 #include "SimuDef.h"
 #include "HXDefine.h"
+#include "EulerDomainStateRegistry.h"
 #include <string>
 #include <vector>
 
@@ -54,6 +55,12 @@ public:
     bool IsTaskResolved() const { return taskResolved_; }
     TaskEnum Task() const { return task_; }
     const std::string& TaskName() const { return taskName_; }
+
+    // Backend state is an execution cache owned by this run context. It is
+    // cleared before the accelerator runtime is finalized.
+    EulerDomainStateRegistry& AccelStates() { return accelStates_; }
+    const EulerDomainStateRegistry& AccelStates() const { return accelStates_; }
+    void ClearAccelStates() { accelStates_.Clear(); }
 
     // Process command line into project globals (existing Prj path).
     void ProcessCommandLine();
@@ -96,8 +103,8 @@ private:
     std::string taskName_ = "Solve";
     bool envReady_ = false;
     bool taskResolved_ = false;
-    // ...
     StringField expandedSolverNames_;
+    EulerDomainStateRegistry accelStates_;
 };
 
 EndNameSpace
