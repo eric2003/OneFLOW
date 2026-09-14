@@ -110,15 +110,13 @@ void MG::MultigridSolve()
 
 void MG::Run()
 {
-	int startStrategy = ONEFLOW::GetDataValue< int >("startStrategy");
+    int startStrategy = ctrl.startStrategy;
 	if (startStrategy == 2|| startStrategy == 3)
 	{
 		double rhs_V = 1e-8;
 		double rhs_u = 1e-8;
 		double rhs_v = 1e-8;
 		double rhs_w = 1e-8;
-
-		int maxIterSteps = GetDataValue< int >("maxIterSteps");
 
 		iinv.remax_V = 1;
 		iinv.remax_up = 1;
@@ -132,7 +130,7 @@ void MG::Run()
 			while (iinv.remax_up > rhs_u || iinv.remax_vp > rhs_v || iinv.remax_wp > rhs_w)
 			{
 
-				if (Iteration::innerSteps >= maxIterSteps) break;
+                if ( Iteration::innerSteps >= Iteration::maxIterSteps ) break;
 
 				ctrl.currTime += ctrl.pdt;
 
@@ -317,8 +315,8 @@ void MG::FastSolveFlowFieldByMultigridMethod( int gl )
 
 void MG::SolveMultigridFlowField( int gl )
 {
-	int startStrategy = ONEFLOW::GetDataValue< int >("startStrategy");
-	if (startStrategy == 2|| startStrategy == 3)
+    int startStrategy = ctrl.startStrategy;
+    if (startStrategy == 2|| startStrategy == 3)
 	{
 		//this->MWrap(&MG::PreprocessMultigridFlowField, gl);
 		this->MWrap(&MG::PreRelaxationCycle, gl);
@@ -372,8 +370,8 @@ void MG::WeakIter()
 
 void MG::StrongIter()
 {
-	int startStrategy = ONEFLOW::GetDataValue< int >("startStrategy");
-	if (startStrategy == 2|| startStrategy == 3)
+    int startStrategy = ctrl.startStrategy;
+    if (startStrategy == 2|| startStrategy == 3)
 	{
 		//this->ZeroResidualsForAllSolvers();
 		this->SolveMultigridFlowField(0);

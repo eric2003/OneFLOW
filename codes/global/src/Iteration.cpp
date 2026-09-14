@@ -28,6 +28,7 @@ BeginNameSpace( ONEFLOW )
 int Iteration::innerSteps = 0;
 int Iteration::outerSteps = 0;
 int Iteration::maxSteps = 1000;
+int Iteration::maxIterSteps = 1000;
 int Iteration::dualtime = 0;
 int Iteration::nFieldSave = 100;
 int Iteration::nVisualSave = 100;
@@ -59,6 +60,7 @@ void Iteration::Init()
     Iteration::ncfl  = GetDataValue< int >( "ncfl" );
 
     Iteration::maxSteps    = GetDataValue< int >( "maxSteps" );
+    Iteration::maxIterSteps = Iteration::maxSteps;
     Iteration::nForceSave  = GetDataValue< int >( "nForceSave" );
     Iteration::nFieldSave  = GetDataValue< int >( "nFieldSave" );
     Iteration::nVisualSave = GetDataValue< int >( "nVisualSave" );

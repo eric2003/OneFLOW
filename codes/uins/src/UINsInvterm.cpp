@@ -114,7 +114,7 @@ void UINsInvterm::CalcInvcoff()
 
 void UINsInvterm::CalcINsTimeStep()
 {
-	iinv.timestep = GetDataValue< Real >("global_dt");
+	iinv.timestep = ctrl.pdt;
 }
 
 void UINsInvterm::CalcINsPreflux()
