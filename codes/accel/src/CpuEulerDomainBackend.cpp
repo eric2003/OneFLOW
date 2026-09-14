@@ -15,6 +15,7 @@ struct CpuEulerDomainState final : EulerDomainState
     EulerDomainProblem problem;
     EulerDomainStateKey key;
     std::vector< Real > values;
+    bool uploaded = false;
 };
 
 void ValidateKey( const EulerDomainStateKey & key )
@@ -91,23 +92,43 @@ void CpuEulerDomainBackend::Upload(
         field.values,
         field.values + cpuState.values.size(),
         cpuState.values.begin() );
+    cpuState.uploaded = true;
 }
 
 void CpuEulerDomainBackend::Advance(
     EulerDomainState & state,
     int steps,
-    const EulerDomainRunOptions & ) const
+    const EulerDomainRunOptions & options ) const
 {
-    AsCpuState( state );
+    CpuEulerDomainState & cpuState = AsCpuState( state );
     if ( steps < 0 )
     {
         throw std::invalid_argument(
             "CPU Euler domain advance steps cannot be negative" );
     }
-    if ( steps > 0 )
+    if ( options.stageCount <= 0 )
+    {
+        throw std::invalid_argument(
+            "CPU Euler domain stage count must be positive" );
+    }
+    if ( steps == 0 ) return;
+    if ( ! cpuState.uploaded )
     {
         throw std::logic_error(
-            "CPU Euler domain state advancement is reserved for E5" );
+            "CPU Euler domain state must be uploaded before advancement" );
+    }
+    if ( options.stageCallback == nullptr )
+    {
+        throw std::logic_error(
+            "CPU Euler domain advancement requires a stage callback" );
+    }
+
+    for ( int step = 0; step < steps; ++ step )
+    {
+        for ( int stage = 0; stage < options.stageCount; ++ stage )
+        {
+            options.stageCallback( step, stage, options.stageContext );
+        }
     }
 }
 

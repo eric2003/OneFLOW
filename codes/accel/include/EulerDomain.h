@@ -39,6 +39,8 @@ enum class EulerDomainRunMode
     FullTrace
 };
 
+using EulerDomainStageCallback = void ( * )( int step, int stage, void * userData );
+
 struct EulerDomainProblem
 {
     int nCells = 0;
@@ -69,6 +71,9 @@ struct EulerDomainRunOptions
     EulerDomainRunMode mode = EulerDomainRunMode::NoTrace;
     void * trace = nullptr;
     void * stats = nullptr;
+    int stageCount = 1;
+    EulerDomainStageCallback stageCallback = nullptr;
+    void * stageContext = nullptr;
 };
 
 // One state per solver/zone/grid/backend. A solver index alone is not enough

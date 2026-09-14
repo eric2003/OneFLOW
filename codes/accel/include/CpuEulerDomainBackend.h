@@ -4,8 +4,9 @@
 
 BeginNameSpace( ONEFLOW )
 
-// Host-resident Euler domain state backend. It owns the lifecycle storage
-// needed by E4; numerical stage advancement remains an explicit E5 seam.
+// Host-resident Euler domain state backend. Positive Advance is a host-side
+// stage scheduler: the main solver remains authoritative for its MRField and
+// supplies the numerical stage callback.
 class CpuEulerDomainBackend final : public EulerDomainBackend
 {
 public:
