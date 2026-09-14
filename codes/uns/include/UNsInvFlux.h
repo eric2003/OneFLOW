@@ -40,6 +40,8 @@ public:
     void DeAlloc();
     void CalcFlux();
     void CalcInvFlux();
+    void CalcInvFluxCpuBatch();
+    bool UseCpuBatchAdapter() const;
     void CalcInvFace();
     void CalcLimiter();
     void AddInvFlux();

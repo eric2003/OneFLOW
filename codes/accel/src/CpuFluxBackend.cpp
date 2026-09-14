@@ -210,12 +210,106 @@ void AddEulerFaceFlux(
     }
 }
 
+void CalcEulerLaxFriedrichsFlux(
+    const FaceStateView & state, FaceFluxView & flux )
+{
+    const int nEq = state.nEquations;
+    const int nFaces = state.nFaces;
+    const Real gamma = state.gamma;
+    const Real gamm1 = gamma - 1.0;
+
+    for ( int face = 0; face < nFaces; ++ face )
+    {
+        const Real rhoL = state.qLeft[ face ];
+        const Real rhouL = state.qLeft[ nFaces + face ];
+        const Real rhoEL = state.qLeft[ ( nEq - 1 ) * nFaces + face ];
+        const Real rhoR = state.qRight[ face ];
+        const Real rhouR = state.qRight[ nFaces + face ];
+        const Real rhoER = state.qRight[ ( nEq - 1 ) * nFaces + face ];
+
+        Real uL = rhouL / rhoL;
+        Real vL = 0.0;
+        Real wL = 0.0;
+        Real keL = 0.5 * Square( uL );
+        Real uR = rhouR / rhoR;
+        Real vR = 0.0;
+        Real wR = 0.0;
+        Real keR = 0.5 * Square( uR );
+        if ( nEq >= 4 )
+        {
+            vL = state.qLeft[ 2 * nFaces + face ] / rhoL;
+            wL = state.qLeft[ 3 * nFaces + face ] / rhoL;
+            keL = 0.5 * ( Square( uL ) + Square( vL ) + Square( wL ) );
+            vR = state.qRight[ 2 * nFaces + face ] / rhoR;
+            wR = state.qRight[ 3 * nFaces + face ] / rhoR;
+            keR = 0.5 * ( Square( uR ) + Square( vR ) + Square( wR ) );
+        }
+
+        const Real pL = gamm1 * ( rhoEL - keL * rhoL );
+        const Real pR = gamm1 * ( rhoER - keR * rhoR );
+        const Real hL = ( rhoEL + pL ) / rhoL;
+        const Real hR = ( rhoER + pR ) / rhoR;
+        const Real nx = state.xNormal ? state.xNormal[ face ] : 1.0;
+        const Real ny = state.yNormal ? state.yNormal[ face ] : 0.0;
+        const Real nz = state.zNormal ? state.zNormal[ face ] : 0.0;
+        const Real vfn = state.meshVelocityNormal
+            ? state.meshVelocityNormal[ face ] : 0.0;
+
+        const Real ratio = std::sqrt( rhoR / rhoL );
+        const Real coef = 1.0 / ( 1.0 + ratio );
+        const Real rhoM = std::sqrt( rhoL * rhoR );
+        const Real uM = ( uL + uR * ratio ) * coef;
+        const Real vM = ( vL + vR * ratio ) * coef;
+        const Real wM = ( wL + wR * ratio ) * coef;
+        const Real pM = ( pL + pR * ratio ) * coef;
+        const Real vnRel = nx * uM + ny * vM + nz * wM - vfn;
+        const Real soundSpeed =
+            std::sqrt( std::abs( gamma * pM / rhoM ) );
+        const Real maxEigenvalue = std::abs( vnRel ) + soundSpeed;
+
+        const Real vnL = nx * uL + ny * vL + nz * wL - vfn;
+        const Real vnR = nx * uR + ny * vR + nz * wR - vfn;
+        const Real rvnL = rhoL * vnL;
+        const Real rvnR = rhoR * vnR;
+        Real fL[ 5 ] = {};
+        Real fR[ 5 ] = {};
+        fL[ 0 ] = rvnL;
+        fL[ 1 ] = rvnL * uL + nx * pL;
+        fR[ 0 ] = rvnR;
+        fR[ 1 ] = rvnR * uR + nx * pR;
+        if ( nEq >= 4 )
+        {
+            fL[ 2 ] = rvnL * vL + ny * pL;
+            fL[ 3 ] = rvnL * wL + nz * pL;
+            fL[ 4 ] = rvnL * hL + vfn * pL;
+            fR[ 2 ] = rvnR * vR + ny * pR;
+            fR[ 3 ] = rvnR * wR + nz * pR;
+            fR[ 4 ] = rvnR * hR + vfn * pR;
+        }
+        else
+        {
+            fL[ 2 ] = rvnL * hL + vfn * pL;
+            fR[ 2 ] = rvnR * hR + vfn * pR;
+        }
+
+        const Real area = state.faceArea ? state.faceArea[ face ] : 1.0;
+        for ( int eq = 0; eq < nEq; ++ eq )
+        {
+            const int index = eq * nFaces + face;
+            flux.values[ index ] = area * (
+                0.5 * ( fL[ eq ] + fR[ eq ] )
+                - 0.5 * maxEigenvalue
+                    * ( state.qRight[ index ] - state.qLeft[ index ] ) );
+        }
+    }
+}
+
 } // namespace
 
 void CpuFluxBackend::CalcInvFlux(
     const FaceStateView & state,
     FaceFluxView & flux,
-    int )
+    int scheme )
 {
     if ( state.nFaces != flux.nFaces || state.nEquations != flux.nEquations )
     {
@@ -229,7 +323,14 @@ void CpuFluxBackend::CalcInvFlux(
     }
     else if ( state.nEquations >= 3 )
     {
-        CalcEulerRusanovFlux( state, flux );
+        if ( scheme == 1 )
+        {
+            CalcEulerLaxFriedrichsFlux( state, flux );
+        }
+        else
+        {
+            CalcEulerRusanovFlux( state, flux );
+        }
     }
     else
     {

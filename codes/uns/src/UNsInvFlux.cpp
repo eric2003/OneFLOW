@@ -39,8 +39,12 @@ License
 #include "Iteration.h"
 #include "TurbCom.h"
 #include "UTurbCom.h"
+#include "AccelRuntime.h"
+#include "EulerCpuAdapter.h"
+#include <cstdlib>
 #include <iostream>
 #include <iomanip>
+#include <vector>
 
 
 BeginNameSpace( ONEFLOW )
@@ -141,6 +145,12 @@ void UNsInvFlux::CalcFlux()
 
 void UNsInvFlux::CalcInvFlux()
 {
+    if ( this->UseCpuBatchAdapter() )
+    {
+        this->CalcInvFluxCpuBatch();
+        return;
+    }
+
     for ( int fId = 0; fId < ug.nFaces; ++ fId )
     {
         ug.fId = fId;
@@ -158,6 +168,73 @@ void UNsInvFlux::CalcInvFlux()
         ( this->*invFluxPointer )();
 
         this->UpdateFaceInvFlux();
+    }
+}
+
+bool UNsInvFlux::UseCpuBatchAdapter() const
+{
+    const char * enabled = std::getenv( "ONEFLOW_ENABLE_UNS_CPU_BATCH" );
+    if ( enabled == nullptr || enabled[ 0 ] != '1' ) return false;
+    if ( AccelRuntime::Instance().IsAccelerator() ) return false;
+    return nscom.ischeme == ISCHEME_LAX_FRIEDRICHS
+        && nscom.nEqu == 5 && limf != nullptr && limf->nEqu == 5;
+}
+
+void UNsInvFlux::CalcInvFluxCpuBatch()
+{
+    const int nFaces = ug.nFaces;
+    const int nEquations = limf->nEqu;
+    std::vector< Real > primitiveLeft( nEquations * nFaces );
+    std::vector< Real > primitiveRight( nEquations * nFaces );
+    std::vector< Real > xNormal( nFaces );
+    std::vector< Real > yNormal( nFaces );
+    std::vector< Real > zNormal( nFaces );
+    std::vector< Real > meshVelocityNormal( nFaces );
+    std::vector< Real > faceArea( nFaces );
+    std::vector< Real > faceFlux( nEquations * nFaces );
+
+    for ( int face = 0; face < nFaces; ++ face )
+    {
+        xNormal[ face ] = ( * ug.xfn )[ face ];
+        yNormal[ face ] = ( * ug.yfn )[ face ];
+        zNormal[ face ] = ( * ug.zfn )[ face ];
+        meshVelocityNormal[ face ] = ( * ug.vfn )[ face ];
+        faceArea[ face ] = ( * ug.farea )[ face ];
+        for ( int equation = 0; equation < nEquations; ++ equation )
+        {
+            primitiveLeft[ equation * nFaces + face ] =
+                ( * limf->qf1 )[ equation ][ face ];
+            primitiveRight[ equation * nFaces + face ] =
+                ( * limf->qf2 )[ equation ][ face ];
+        }
+    }
+
+    PrimitiveFaceStateView primitiveState;
+    primitiveState.nFaces = nFaces;
+    primitiveState.nEquations = nEquations;
+    primitiveState.primitiveLeft = primitiveLeft.data();
+    primitiveState.primitiveRight = primitiveRight.data();
+    primitiveState.xNormal = xNormal.data();
+    primitiveState.yNormal = yNormal.data();
+    primitiveState.zNormal = zNormal.data();
+    primitiveState.meshVelocityNormal = meshVelocityNormal.data();
+    primitiveState.faceArea = faceArea.data();
+    primitiveState.gamma = nscom.gama_ref;
+
+    FaceFluxView flux;
+    flux.nFaces = nFaces;
+    flux.nEquations = nEquations;
+    flux.values = faceFlux.data();
+
+    EulerCpuAdapter adapter;
+    adapter.CalcInvFlux( primitiveState, flux, 1 );
+    for ( int equation = 0; equation < nEquations; ++ equation )
+    {
+        for ( int face = 0; face < nFaces; ++ face )
+        {
+            ( * invflux )[ equation ][ face ] =
+                faceFlux[ equation * nFaces + face ];
+        }
     }
 }
 

@@ -114,4 +114,45 @@ TEST( EulerCpuAdapter, ComputesBatchFluxAfterConversion )
     EXPECT_GT( values[ 1 ], values[ 0 ] );
 }
 
+
+TEST( EulerCpuAdapter, MatchesOneflowLaxFriedrichsReference )
+{
+    const Real primitiveLeft[] = { 1.0, 2.0, 0.3, -0.2, 1.0 };
+    const Real primitiveRight[] = { 0.8, 1.0, -0.1, 0.4, 0.7 };
+    const Real normal[] = { 0.6 };
+    const Real tangent[] = { 0.8 };
+    const Real zero[] = { 0.0 };
+    const Real meshVelocity[] = { 0.05 };
+    const Real area[] = { 2.0 };
+    Real values[ 5 ] = {};
+
+    PrimitiveFaceStateView state;
+    state.nFaces = 1;
+    state.nEquations = 5;
+    state.primitiveLeft = primitiveLeft;
+    state.primitiveRight = primitiveRight;
+    state.xNormal = normal;
+    state.yNormal = tangent;
+    state.zNormal = zero;
+    state.meshVelocityNormal = meshVelocity;
+    state.faceArea = area;
+    state.gamma = 1.4;
+
+    FaceFluxView flux{ 1, 5, values };
+    EulerCpuAdapter adapter;
+    ASSERT_NO_THROW( adapter.CalcInvFlux( state, flux, 1 ) );
+
+    const Real expected[] = {
+        2.1889497342723656,
+        6.713698405634195,
+        2.5430044951174953,
+        -1.227269309108151,
+        14.155125131686214
+    };
+    for ( int equation = 0; equation < 5; ++ equation )
+    {
+        EXPECT_NEAR( values[ equation ], expected[ equation ], 1.0e-12 );
+    }
+}
+
 } // namespace
