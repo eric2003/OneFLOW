@@ -222,6 +222,7 @@ void CpuFluxBackend::CalcInvFlux(
     {
         throw std::invalid_argument( "CPU flux view dimensions are inconsistent." );
     }
+    ValidateFaceStateView( state );
 
     if ( state.nEquations == 1 )
     {
@@ -248,6 +249,7 @@ void CpuFluxBackend::AddFaceFlux(
     {
         throw std::invalid_argument( "CPU residual view dimensions are inconsistent." );
     }
+    ValidateFaceConnectivityView( connectivity );
 
     if ( flux.nEquations == 1 )
     {

@@ -1,4 +1,5 @@
 #include "EulerDomain.h"
+#include "AccelViews.h"
 
 #include <gtest/gtest.h>
 
@@ -56,6 +57,57 @@ TEST( EulerDomainContract, StateKeySeparatesExecutionOwnership )
     EXPECT_TRUE( cpu == same );
     EXPECT_FALSE( cpu == otherBackend );
     EXPECT_FALSE( cpu == otherZone );
+}
+
+TEST( AccelViewsContract, DescribesLayoutsAreaPolicyAndCapabilities )
+{
+    const SolverDomainCapabilities threeEq{
+        3, 2, 1, true, true, true, true };
+    const SolverDomainCapabilities fiveEq{
+        5, 4, 2, true, true, true, true };
+    const SolverDomainCapabilities fourEq{
+        4, 0, 0, true, true, false, false };
+
+    EXPECT_TRUE( threeEq.SupportsEulerState() );
+    EXPECT_TRUE( fiveEq.SupportsEulerState() );
+    EXPECT_FALSE( fourEq.SupportsEulerState() );
+
+    Real values[ 3 * 4 ] = {};
+    const SolverConstFieldView field{
+        4, 3, values, FieldLayout::EquationMajor,
+        FieldRepresentation::Primitive };
+    EXPECT_NO_THROW( ValidateSolverFieldView( field ) );
+
+    FaceGeometryView geometry;
+    geometry.nFaces = 4;
+    geometry.faceArea = values;
+    geometry.areaPolicy = FaceAreaPolicy::BackendMultiplies;
+    EXPECT_NO_THROW( ValidateFaceGeometryView( geometry ) );
+}
+
+TEST( AccelViewsContract, RejectsUnsupportedStateAndGeometryContracts )
+{
+    Real values[ 4 ] = {};
+    int cells[ 4 ] = {};
+    FaceStateView state;
+    state.nFaces = 4;
+    state.nEquations = 3;
+    state.qLeft = values;
+    state.qRight = values;
+    state.layout = FieldLayout::EntityMajor;
+    EXPECT_THROW( ValidateFaceStateView( state ), std::invalid_argument );
+
+    FaceConnectivityView connectivity;
+    connectivity.nFaces = 4;
+    connectivity.nBoundaryFaces = 5;
+    connectivity.leftCell = nullptr;
+    connectivity.rightCell = cells;
+    EXPECT_THROW( ValidateFaceConnectivityView( connectivity ),
+        std::invalid_argument );
+
+    FaceGeometryView geometry;
+    geometry.nFaces = 4;
+    EXPECT_THROW( ValidateFaceGeometryView( geometry ), std::invalid_argument );
 }
 
 } // namespace

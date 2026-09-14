@@ -15,7 +15,75 @@ License
 
 #include "HXTypeBasic.h"
 
+#include <stdexcept>
+
 BeginNameSpace( ONEFLOW )
+
+enum class FieldLayout
+{
+    EquationMajor,
+    EntityMajor
+};
+
+enum class FieldRepresentation
+{
+    Primitive,
+    Conserved,
+    Residual
+};
+
+enum class FaceAreaPolicy
+{
+    BackendMultiplies,
+    CallerMultiplies
+};
+
+// Solver-side capability metadata. Ownership remains with the solver; halo
+// exchange remains outside the numerical kernel.
+struct SolverDomainCapabilities
+{
+    int nEquations = 0;
+    int nGhostCells = 0;
+    int nHaloLayers = 0;
+    bool hasFaceGeometry = false;
+    bool hasFaceConnectivity = false;
+    bool supportsStateUpload = false;
+    bool supportsResidualAdd = false;
+
+    bool SupportsEulerState() const
+    {
+        return nEquations == 3 || nEquations == 5;
+    }
+};
+
+struct SolverFieldView
+{
+    int nEntities = 0;
+    int nComponents = 0;
+    Real * values = nullptr;
+    FieldLayout layout = FieldLayout::EquationMajor;
+    FieldRepresentation representation = FieldRepresentation::Conserved;
+};
+
+struct SolverConstFieldView
+{
+    int nEntities = 0;
+    int nComponents = 0;
+    const Real * values = nullptr;
+    FieldLayout layout = FieldLayout::EquationMajor;
+    FieldRepresentation representation = FieldRepresentation::Conserved;
+};
+
+struct FaceGeometryView
+{
+    int nFaces = 0;
+    const Real * xNormal = nullptr;
+    const Real * yNormal = nullptr;
+    const Real * zNormal = nullptr;
+    const Real * meshVelocityNormal = nullptr;
+    const Real * faceArea = nullptr;
+    FaceAreaPolicy areaPolicy = FaceAreaPolicy::BackendMultiplies;
+};
 
 // These views are deliberately backend-neutral. The owning solver remains
 // responsible for lifetime and layout; a future HIP/CUDA/Kokkos adapter only
@@ -40,7 +108,27 @@ struct FaceStateView
     const Real * meshVelocityNormal = nullptr;
     const Real * faceArea = nullptr;
     Real gamma = 1.4;  // ratio of specific heats (used when nEquations >= 3)
+    FieldLayout layout = FieldLayout::EquationMajor;
+    FieldRepresentation representation = FieldRepresentation::Conserved;
+    FaceAreaPolicy areaPolicy = FaceAreaPolicy::BackendMultiplies;
 };
+
+inline void ValidateFaceStateView( const FaceStateView & state )
+{
+    if ( state.nFaces <= 0 || state.nEquations <= 0
+         || state.qLeft == nullptr || state.qRight == nullptr
+         || state.gamma <= 1.0 )
+    {
+        throw std::invalid_argument( "invalid solver face state view" );
+    }
+    if ( state.layout != FieldLayout::EquationMajor
+         || state.representation != FieldRepresentation::Conserved
+         || state.areaPolicy != FaceAreaPolicy::BackendMultiplies )
+    {
+        throw std::invalid_argument(
+            "unsupported solver face state contract" );
+    }
+}
 
 struct FaceFluxView
 {
@@ -55,7 +143,24 @@ struct FaceConnectivityView
     int nBoundaryFaces = 0;
     const int * leftCell = nullptr;
     const int * rightCell = nullptr;
+    // Optional explicit boundary mask. Without it, boundary faces occupy
+    // [0, nBoundaryFaces) for backward compatibility.
+    const unsigned char * boundaryMask = nullptr;
 };
+
+inline void ValidateFaceConnectivityView(
+    const FaceConnectivityView & connectivity )
+{
+    if ( connectivity.nFaces <= 0
+         || connectivity.nBoundaryFaces < 0
+         || connectivity.nBoundaryFaces > connectivity.nFaces
+         || connectivity.leftCell == nullptr
+         || connectivity.rightCell == nullptr )
+    {
+        throw std::invalid_argument(
+            "invalid solver face connectivity view" );
+    }
+}
 
 struct ResidualView
 {
@@ -63,5 +168,22 @@ struct ResidualView
     int nEquations = 0;
     Real * values = nullptr;
 };
+
+inline void ValidateSolverFieldView( const SolverConstFieldView & field )
+{
+    if ( field.nEntities <= 0 || field.nComponents <= 0
+         || field.values == nullptr )
+    {
+        throw std::invalid_argument( "invalid solver field view" );
+    }
+}
+
+inline void ValidateFaceGeometryView( const FaceGeometryView & geometry )
+{
+    if ( geometry.nFaces <= 0 || geometry.faceArea == nullptr )
+    {
+        throw std::invalid_argument( "invalid solver face geometry view" );
+    }
+}
 
 EndNameSpace

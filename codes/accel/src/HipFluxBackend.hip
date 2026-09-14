@@ -241,6 +241,7 @@ void HipFluxBackend::CalcInvFlux(
     {
         throw std::invalid_argument( "HIP flux view dimensions are inconsistent." );
     }
+    ValidateFaceStateView( state );
 
     const int nFaces = state.nFaces;
     const int nEq = state.nEquations;
@@ -337,6 +338,7 @@ void HipFluxBackend::AddFaceFlux(
     {
         throw std::invalid_argument( "HIP residual view dimensions are inconsistent." );
     }
+    ValidateFaceConnectivityView( connectivity );
 
     const int nFaces = flux.nFaces;
     const int nCells = residual.nCells;
