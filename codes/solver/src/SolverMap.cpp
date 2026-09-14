@@ -22,6 +22,7 @@ License
 
 #include "SolverMap.h"
 #include "Solver.h"
+#include "SolverNamePolicy.h"
 #include "GridState.h"
 #include "SolverState.h"
 #include "OStream.h"
@@ -47,6 +48,11 @@ SolverMap::~SolverMap()
 
 void SolverMap::CreateSolvers()
 {
+    // S1: select side (uns vs str)
+    // S2: names from script/solver.txt + U/S prefix
+    // S3: SafeClone + StaticInit + index maps
+    // S4: SolverState::Init
+    // ... existing body unchanged ...
     SolverMap::CreateSolvers( ONEFLOW::UMESH );
     //SolverMap::CreateSolvers( ONEFLOW::SMESH );
 }
@@ -184,23 +190,38 @@ void SolverNameClass::ReadSolverNames()
 {
     StringField solverNameList;
     SolverNameClass::ReadSolverNames( solverNameList );
-    for ( int isol = 0; isol < solverNameList.size(); ++ isol )
-    {
-        std::string solverName = solverNameList[ isol ];
 
-        OStream &logger = OStream::Instance();
-        logger.ClearAll();
-        logger << "U" << solverName;
-        std::string uSolverName = logger.str();
+    auto uns = ExpandSolverNamesForUnstructured(
+        std::vector<std::string>( solverNameList.begin(), solverNameList.end() ) );
+    auto str = ExpandSolverNamesForStructured(
+        std::vector<std::string>( solverNameList.begin(), solverNameList.end() ) );
 
-        logger.ClearAll();
-        logger << "S" << solverName;
-        std::string sSolverName = logger.str();
-
-        SolverNameClass::unsSolverNameList.push_back( uSolverName );
-        SolverNameClass::strSolverNameList.push_back( sSolverName );
-    }
+    // 若 StringField 就是 vector<string>，可直接赋值；否则逐个 push_back
+    for ( const auto& n : uns ) SolverNameClass::unsSolverNameList.push_back( n );
+    for ( const auto& n : str ) SolverNameClass::strSolverNameList.push_back( n );
 }
+
+//void SolverNameClass::ReadSolverNames()
+//{
+//    StringField solverNameList;
+//    SolverNameClass::ReadSolverNames( solverNameList );
+//    for ( int isol = 0; isol < solverNameList.size(); ++ isol )
+//    {
+//        std::string solverName = solverNameList[ isol ];
+//
+//        OStream &logger = OStream::Instance();
+//        logger.ClearAll();
+//        logger << "U" << solverName;
+//        std::string uSolverName = logger.str();
+//
+//        logger.ClearAll();
+//        logger << "S" << solverName;
+//        std::string sSolverName = logger.str();
+//
+//        SolverNameClass::unsSolverNameList.push_back( uSolverName );
+//        SolverNameClass::strSolverNameList.push_back( sSolverName );
+//    }
+//}
 
 void SolverNameClass::ReadSolverNames( StringField & solverNameList )
 {

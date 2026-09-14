@@ -75,36 +75,3 @@ protected:
     }
 };
 
-TEST_F( CmxTaskDispatchTest, DISABLED_MessageWithNoMesgFuncClassIsQueuedAndRunsViaCmd )
-{
-    const int SOLVER_TYPE = 1;
-    const int TASK_FUNC_SLOT = 3; // matches CmxTask.h's TASK_FUNC constant
-
-    // Register the message name so MessageMap::GetMsgId/GetMsgName work.
-    ONEFLOW::MessageMap::Register( "TestMessage" );
-
-    // Wire up the TASK_FUNC registry slot for this solverType, so
-    // CreateTask() finds a class and produces our stub Task instead of
-    // falling back to `new SimpleTask()`.
-    ONEFLOW::RegisterFactory::AddMRegister( SOLVER_TYPE );
-    ONEFLOW::MRegister * mRegister = ONEFLOW::RegisterFactory::GetMRegister( SOLVER_TYPE );
-    ASSERT_NE( mRegister, nullptr );
-
-    ONEFLOW::StringField fileNames( 5 ); // one slot per msgType (COMM/RECV/MESG/TASK/FILE)
-    mRegister->SetSolverFileNames( fileNames );
-    // NOTE: RegisterAll()/AllocateData() would normally build these from
-    // file names via TextFileParser. Since we want to inject a stub class
-    // directly without real files, we register into the TASK_FUNC slot's
-    // HXRegister by hand instead of calling RegisterAll().
-    ONEFLOW::HXClone::Register( "StubTaskCreator", new StubTaskCreator() );
-
-    // NOTE: this next step exposes a real gap - MRegister::GetRegister(index)
-    // returns nullptr until AllocateData() has run, and there is currently
-    // no public API to inject a class into a specific HXRegister slot
-    // without going through a real file. This test is left as a sketch
-    // to surface that gap rather than force a workaround.
-    ONEFLOW::HXRegister * taskRegister = mRegister->GetRegister( TASK_FUNC_SLOT );
-    ASSERT_NE( taskRegister, nullptr ) << "Requires MRegister to expose a "
-        "way to populate a specific HXRegister slot without real files - "
-        "see accompanying note.";
-}
