@@ -25,6 +25,7 @@ License
 
 #include "SimuTask.h"
 #include "SimuContext.h"
+#include "SimuTaskRequire.h"
 #include "FieldSimu.h"
 #include "GridFactory.h"
 #include "MultiBlock.h"
@@ -45,6 +46,8 @@ public:
 
     void Execute( const SimuContext& ctx ) override
     {
+        RequireSolveFieldContext( ctx );
+
         // Precondition: environment + control already resolved by SimuImp.
         if ( ! ctx.IsEnvironmentReady() )
         {

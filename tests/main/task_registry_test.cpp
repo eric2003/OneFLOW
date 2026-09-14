@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 #include "SimuTask.h"
 #include "SimuContext.h"
+#include "SimuTaskRequire.h"
 #include <algorithm>
 #include <string>
 #include <vector>
@@ -107,17 +108,8 @@ namespace {
 
         void Execute( const SimuContext& ctx ) override
         {
-            if ( ! ctx.IsEnvironmentReady() )
-            {
-                throw std::runtime_error(
-                    "SolveFieldTask: environment not ready (SetupEnvironment required)" );
-            }
-            if ( ctx.TaskName() != "Solve" )
-            {
-                throw std::runtime_error(
-                    "SolveFieldTask: unexpected task name \"" + ctx.TaskName() + "\"" );
-            }
-            executed_ = true;
+            RequireSolveFieldContext( ctx );
+            executed_ = true;  // ²»µ÷ÓÃ FieldSimu
         }
 
         bool executed_ = false;
