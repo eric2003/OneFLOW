@@ -53,6 +53,28 @@ target_compile_options(oneflow_flux_backend_bridge_test
     -ffp-contract=off
 )
 
+# Bridge test is a standalone main(), not a gtest
+# Run manually: ./bin/oneflow_flux_backend_bridge_test
+
+add_executable(oneflow_euler_domain_contract_test
+  ${CMAKE_SOURCE_DIR}/tests/euler_domain_contract_test.cpp)
+target_include_directories(oneflow_euler_domain_contract_test PRIVATE
+  ${CMAKE_SOURCE_DIR}/codes/accel/include
+  ${CMAKE_SOURCE_DIR}/codes/basic/include
+  ${CMAKE_SOURCE_DIR}/codes/project/include)
+target_link_libraries(oneflow_euler_domain_contract_test PRIVATE GTest::gtest_main)
+gtest_discover_tests(oneflow_euler_domain_contract_test DISCOVERY_MODE PRE_TEST)
+
+add_executable(oneflow_euler_domain_state_registry_test
+  ${CMAKE_SOURCE_DIR}/tests/euler_domain_state_registry_test.cpp
+  ${CMAKE_SOURCE_DIR}/codes/accel/src/EulerDomainStateRegistry.cpp)
+target_include_directories(oneflow_euler_domain_state_registry_test PRIVATE
+  ${CMAKE_SOURCE_DIR}/codes/accel/include
+  ${CMAKE_SOURCE_DIR}/codes/basic/include
+  ${CMAKE_SOURCE_DIR}/codes/project/include)
+target_link_libraries(oneflow_euler_domain_state_registry_test PRIVATE GTest::gtest_main)
+gtest_discover_tests(oneflow_euler_domain_state_registry_test DISCOVERY_MODE PRE_TEST)
+
 # Hardware-dependent HIP/DCU contract. This is opt-in so ordinary CPU builds
 # keep the root CTest suite reproducible on machines without a DCU. On a target
 # node, configure with CMAKE_HIP_COMPILER and CMAKE_HIP_ARCHITECTURES, then the
