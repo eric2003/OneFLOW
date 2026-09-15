@@ -130,7 +130,7 @@ void INsPostprocess( StringField & data )
         ONEFLOW::AddCmdToList( "DUMP_AERODYNAMIC" );
     }
 
-	int startStrategy = ONEFLOW::GetDataValue< int >("startStrategy");
+    int startStrategy = ctrl.startStrategy;
 	if (startStrategy == 2)
 	{
 		;
