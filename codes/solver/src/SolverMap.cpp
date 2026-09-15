@@ -73,24 +73,6 @@ void SolverMap::BuildSolversInBucket(
     }
 }
 
-void SolverMap::CreateSolvers( int gridType )
-{
-    // S1: select side (uns vs str)
-    HXVector< Solver * > * solvers = SolverMap::SolverBucket( gridType );
-
-    // S2: names from script/solver.txt + U/S prefix (SolverNamePolicy)
-    StringField & solverNameList = SolverNameClass::GetSolverNames( gridType );
-    const int nSolver = static_cast< int >( solverNameList.size() );
-
-    LusgsState::Init( nSolver );
-
-    // S3: SafeClone + StaticInit + index maps
-    SolverMap::BuildSolversInBucket( gridType, solverNameList, solvers );
-
-    // S4: solver-state side table
-    SolverState::Init( nSolver );
-}
-
 void SolverMap::FreeSolverMap( int gridType )
 {
     HXVector< Solver * > * solvers = SolverMap::SolverBucket( gridType );
@@ -116,6 +98,47 @@ void SolverMap::CreateSolvers()
     // ... existing body unchanged ...
     SolverMap::CreateSolvers( ONEFLOW::UMESH );
     //SolverMap::CreateSolvers( ONEFLOW::SMESH );
+}
+
+void SolverMap::CreateSolvers( int gridType )
+{
+    SolverMap::CreateSolvers( gridType, nullptr );
+    //// S1: select side (uns vs str)
+    //HXVector< Solver * > * solvers = SolverMap::SolverBucket( gridType );
+
+    //// S2: names from script/solver.txt + U/S prefix (SolverNamePolicy)
+    //StringField & solverNameList = SolverNameClass::GetSolverNames( gridType );
+    //const int nSolver = static_cast< int >( solverNameList.size() );
+
+    //LusgsState::Init( nSolver );
+
+    //// S3: SafeClone + StaticInit + index maps
+    //SolverMap::BuildSolversInBucket( gridType, solverNameList, solvers );
+
+    //// S4: solver-state side table
+    //SolverState::Init( nSolver );
+}
+
+void SolverMap::CreateSolvers( int gridType, const StringField * solverNameList )
+{
+    // S1: select side (uns vs str)
+    HXVector< Solver * > * solvers = SolverMap::SolverBucket( gridType );
+
+    // S2: names ¡ª injected list, or script/solver.txt + policy
+    const StringField & names =
+        ( solverNameList != nullptr )
+        ? *solverNameList
+        : SolverNameClass::GetSolverNames( gridType );
+
+    const int nSolver = static_cast< int >( names.size() );
+
+    LusgsState::Init( nSolver );
+
+    // S3: SafeClone + StaticInit + index maps
+    SolverMap::BuildSolversInBucket( gridType, names, solvers );
+
+    // S4: solver-state side table
+    SolverState::Init( nSolver );
 }
 
 void SolverMap::FreeSolverMap()
@@ -163,97 +186,5 @@ void SolverMap::AddSolverIndexToType( int solverIndex, int solverType )
         SolverMap::solverIndexToType[ solverIndex ] = solverType;
     }
 }
-
-//StringField SolverNameClass::unsSolverNameList;
-//StringField SolverNameClass::strSolverNameList;
-//bool SolverNameClass::flag = false;
-//
-//SolverNameClass::SolverNameClass()
-//{
-//    ;
-//}
-//
-//SolverNameClass::~SolverNameClass()
-//{
-//    ;
-//}
-//
-//void SolverNameClass::Init()
-//{
-//    if ( flag ) return;
-//    flag = true;
-//    SolverNameClass::ReadSolverNames();
-//}
-//
-//void SolverNameClass::ReadSolverNames()
-//{
-//    StringField solverNameList;
-//    SolverNameClass::ReadSolverNames( solverNameList );
-//
-//    FillExpandedSolverNames(
-//        solverNameList,
-//        SolverNameClass::unsSolverNameList,
-//        SolverNameClass::strSolverNameList );
-//}
-//
-//void SolverNameClass::ReadSolverNames( StringField & solverNameList )
-//{
-//    TextFileParser textFileParser;
-//
-//    textFileParser.OpenPrjFile( "script/solver.txt", std::ios_base::in );
-//
-//    // \t is the tab key
-//    const std::string keyWordSeparator = " ()\r\n\t#$,;\"";
-//    textFileParser.SetDefaultSeparator( keyWordSeparator );
-//
-//    // Same pattern as MessageMapImp::ReadFile:
-//    // skip blank/comment lines; no spurious empty token at EOF.
-//    while ( textFileParser.ReadNextMeaningfulLine() )
-//    {
-//        std::string solverName = textFileParser.ReadNextWord();
-//        if ( solverName.empty() )
-//        {
-//            continue;
-//        }
-//        solverNameList.push_back( solverName );
-//    }
-//
-//    textFileParser.CloseFile();
-//}
-//
-//StringField & SolverNameClass::GetSolverNames( int gridType )
-//{
-//    SolverNameClass::Init();
-//
-//    if ( gridType == ONEFLOW::UMESH )
-//    {
-//        return SolverNameClass::unsSolverNameList;
-//    }
-//    else
-//    {
-//        return SolverNameClass::strSolverNameList;
-//    }
-//}
-//
-//void SolverNameClass::LoadFromBaseNames( const StringField & baseNames )
-//{
-//    SolverNameClass::unsSolverNameList.clear();
-//    SolverNameClass::strSolverNameList.clear();
-//
-//    FillExpandedSolverNames(
-//        baseNames,
-//        SolverNameClass::unsSolverNameList,
-//        SolverNameClass::strSolverNameList );
-//
-//    flag = true; // skip file path on later Init()
-//}
-//
-//void SolverNameClass::Reset()
-//{
-//    unsSolverNameList.clear();
-//    strSolverNameList.clear();
-//    flag = false;
-//}
-
 
 EndNameSpace
