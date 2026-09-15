@@ -54,14 +54,12 @@ HXVector< Solver * > * SolverMap::SolverBucket( int gridType )
     return & SolverMap::strSolver;
 }
 
-void SolverMap::CreateSolvers( int gridType )
+void SolverMap::BuildSolversInBucket(
+    int gridType,
+    const StringField & solverNameList,
+    HXVector< Solver * > * solvers )
 {
-    HXVector< Solver * > * solvers = SolverMap::SolverBucket( gridType );
-
-    StringField & solverNameList = SolverNameClass::GetSolverNames( gridType );
-    int nSolver = static_cast< int >( solverNameList.size() );
-
-    LusgsState::Init( nSolver );
+    const int nSolver = static_cast< int >( solverNameList.size() );
     for ( int solverIndex = 0; solverIndex < nSolver; ++ solverIndex )
     {
         Solver * solver = Solver::SafeClone( solverNameList[ solverIndex ] );
@@ -72,9 +70,47 @@ void SolverMap::CreateSolvers( int gridType )
         SolverMap::AddSolverInfo( solver->solverType, solver->solverIndex );
         solvers->push_back( solver );
     }
+}
 
+void SolverMap::CreateSolvers( int gridType )
+{
+    // S1: select side (uns vs str)
+    HXVector< Solver * > * solvers = SolverMap::SolverBucket( gridType );
+
+    // S2: names from script/solver.txt + U/S prefix (SolverNamePolicy)
+    StringField & solverNameList = SolverNameClass::GetSolverNames( gridType );
+    const int nSolver = static_cast< int >( solverNameList.size() );
+
+    LusgsState::Init( nSolver );
+
+    // S3: SafeClone + StaticInit + index maps
+    SolverMap::BuildSolversInBucket( gridType, solverNameList, solvers );
+
+    // S4: solver-state side table
     SolverState::Init( nSolver );
 }
+
+//void SolverMap::CreateSolvers( int gridType )
+//{
+//    HXVector< Solver * > * solvers = SolverMap::SolverBucket( gridType );
+//
+//    StringField & solverNameList = SolverNameClass::GetSolverNames( gridType );
+//    int nSolver = static_cast< int >( solverNameList.size() );
+//
+//    LusgsState::Init( nSolver );
+//    for ( int solverIndex = 0; solverIndex < nSolver; ++ solverIndex )
+//    {
+//        Solver * solver = Solver::SafeClone( solverNameList[ solverIndex ] );
+//        solver->solverIndex = solverIndex;
+//        solver->gridType = gridType;
+//        solver->StaticInit();
+//
+//        SolverMap::AddSolverInfo( solver->solverType, solver->solverIndex );
+//        solvers->push_back( solver );
+//    }
+//
+//    SolverState::Init( nSolver );
+//}
 
 void SolverMap::FreeSolverMap( int gridType )
 {

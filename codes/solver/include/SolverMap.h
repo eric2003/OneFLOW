@@ -52,9 +52,14 @@ public:
 protected:
     static void AddSolverTypeToIndex( int solverType, int solverIndex );
     static void AddSolverIndexToType( int solverIndex, int solverType );
-
-    // Select unsSolver / strSolver bucket by grid type (UMESH vs SMESH).
     static HXVector< Solver * > * SolverBucket( int gridType );
+
+    // S3: clone + StaticInit + index maps into the chosen bucket.
+    // Does not touch SolverState / LusgsState (those stay in CreateSolvers).
+    static void BuildSolversInBucket(
+        int gridType,
+        const StringField & solverNameList,
+        HXVector< Solver * > * solvers );
 };
 
 class SolverNameClass
