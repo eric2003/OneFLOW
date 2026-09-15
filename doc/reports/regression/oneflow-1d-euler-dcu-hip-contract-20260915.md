@@ -11,7 +11,8 @@
 - CMake 配置通过：`config=0`。
 - HIP/C++ 编译与链接通过：`build=0`。
 - GoogleTest：9/9 通过。
-- CTest：9/9 通过，`HIP.` 前缀测试全部通过。
+- CTest：9/9 通过；统一 helper 生成 `hardware;hip;dcu` 元数据，Kunshan 的旧版 CTest
+  兼容路径使用 `hardware` label 加 `HIP` 前缀筛选，9 个测试全部通过。
 - contract 包含 Rusanov、生命周期、设备可见性、非法请求，以及 WENO5 与 CPU oracle 对照。
 - 运行时实际识别 Hygon DCU `Device 66a1`，架构为 `gfx906`。
 
@@ -27,6 +28,8 @@ Kunshan login 环境的系统 CMake 过旧，runner 在 module 初始化后使�
 4. WENO5 `HipState` 补齐 `left`、`right`、`residual` 设备 buffer。
 5. WENO5 RK3 使用独立 `scratch` 保存原始 base，避免 current/next 与 RK base alias。
 6. runner 的测试数量 gate 改为检查完整通过摘要，不再硬编码过时的 6 tests。
+7. standalone 与根工程共用 HIP contract CMake 注册 helper；根工程通过
+   `ONEFLOW_ENABLE_HIP_TESTS=ON` 显式开启，普通 CPU CTest 默认不依赖 DCU。
 
 ## 阶段边界
 

@@ -72,6 +72,11 @@ set_property ( GLOBAL PROPERTY THIRD_PROPERTY::DEFINE_SYMBOL )
 
 enable_testing()
 
+option(
+    ONEFLOW_ENABLE_HIP_TESTS
+    "Register hardware-dependent HIP/DCU tests in the root CTest tree"
+    OFF )
+
 add_subdirectory ( ThirdParty ${THIRD_PARTY_DIR} )
 add_subdirectory ( codes      ${CMAKE_PROJECT_NAME} )
 add_subdirectory ( tests )

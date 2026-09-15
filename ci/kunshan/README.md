@@ -46,8 +46,18 @@ For the isolated Kunshan Euler backend contract, use
 explicitly enables `ONEFLOW_1D_ENABLE_HIP` and `ONEFLOW_1D_ENABLE_GTEST`. The
 job executes the GoogleTest binary and CTest, and records CMake, compiler, HIP
 architecture, `rocminfo`, and Slurm evidence. CPU/HIP tests use `CPU.`/`HIP.`
-CTest prefixes; an empty discovery result or a zero exit code without the expected
-summary is not successful validation.
+CTest prefixes and the shared helper attaches
+`hardware;hip;dcu` metadata. The cluster CTest 2.8 compatibility path exposes
+`hardware` as the selectable label, so the DCU runner uses `-L hardware -R HIP`;
+an empty discovery result or a zero exit code without the expected summary is
+not successful validation.
+
+The root project exposes the same HIP contract through
+`-DONEFLOW_ENABLE_HIP_TESTS=ON`. It is deliberately opt-in: a normal CPU build
+keeps the root CTest suite hardware-independent, while a target-node build must
+also provide `CMAKE_HIP_COMPILER` and `CMAKE_HIP_ARCHITECTURES` (currently
+`gfx906` on Kunshan Z100). The standalone project and the root project share the
+same CMake registration helper.
 
 ## Execution
 

@@ -5,6 +5,7 @@ set( CMAKE_CXX_STANDARD 17 )
 set( CMAKE_CXX_STANDARD_REQUIRED ON )
 
 include( ${CMAKE_CURRENT_LIST_DIR}/../../../cmake/UtilFunction.cmake )
+include( ${CMAKE_CURRENT_LIST_DIR}/../../../cmake/OneFLOWEulerContract.cmake )
 
 add_executable( oneflow_1d_cpu CpuMain.cpp OneDUpwind.cpp )
 add_executable(
@@ -149,29 +150,13 @@ if ( ONEFLOW_1D_ENABLE_HIP )
     oneflow_accel_attach( oneflow_1d_euler_hip )
 
     if ( ONEFLOW_1D_ENABLE_GTEST )
-        add_executable(
+        oneflow_add_euler_hip_contract_test(
             oneflow_1d_euler_hip_backend_test
-            ${ONEFLOW_EULER_CONTRACT_TEST}
-            OneDEuler.cpp
-            OneDEulerBackend.cpp
-            OneDWeno5.cpp
-            OneDWeno5.hip
-            OneDEulerPersistent.hip )
-        target_compile_definitions(
-            oneflow_1d_euler_hip_backend_test PRIVATE ONEFLOW_1D_USE_HIP=1 )
-        target_compile_options(
-            oneflow_1d_euler_hip_backend_test PRIVATE -ffp-contract=off )
-        target_include_directories(
-            oneflow_1d_euler_hip_backend_test
-            PRIVATE ${CMAKE_CURRENT_LIST_DIR} )
-        oneflow_accel_attach( oneflow_1d_euler_hip_backend_test )
-        target_link_libraries(
-            oneflow_1d_euler_hip_backend_test
-            PRIVATE GTest::gtest_main )
-        gtest_discover_tests(
-            oneflow_1d_euler_hip_backend_test
-            DISCOVERY_MODE PRE_TEST
-            TEST_PREFIX "HIP." )
+            PORT_DIR ${CMAKE_CURRENT_LIST_DIR}
+            ACCEL_DIR ${ONEFLOW_ACCEL_DIR}
+            PROJECT_INC ${ONEFLOW_PROJECT_INC}
+            BASIC_INC ${ONEFLOW_BASIC_INC}
+            TEST_SOURCE ${ONEFLOW_EULER_CONTRACT_TEST} )
     endif()
 
 
