@@ -31,8 +31,15 @@ License
 #include "BcData.h"
 #include <iostream>
 
-
 BeginNameSpace( ONEFLOW )
+
+namespace {
+
+    // CmxTask / MessageMap operation name; must match registration tables
+    constexpr const char* kInitFlowFieldTaskName = "INIT_FLOWFIELD";
+
+} // namespace
+
 
 void FieldSimuSetupGlobals()
 {
@@ -56,7 +63,8 @@ void FieldSimuCreateSolvers()
 
 void FieldSimuInitFlowField()
 {
-    InitializeSolver();
+    // Stage entry: task name enters CmxTask here (no numerical change)
+    ONEFLOW::MultiSolverMultiGridTask( kInitFlowFieldTaskName );
 }
 
 void FieldSimuRun()
@@ -84,7 +92,8 @@ void InitFlowSimuGlobal()
 
 void InitializeSolver()
 {
-    ONEFLOW::MultiSolverMultiGridTask( "INIT_FLOWFIELD" );
+    // Compatibility alias for older call sites
+    FieldSimuInitFlowField();
 }
 
 EndNameSpace

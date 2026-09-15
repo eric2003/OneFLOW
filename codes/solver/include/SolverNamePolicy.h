@@ -23,33 +23,15 @@ License
 
 #pragma once
 #include "NamespaceMacros.h"
-#include "HXDefine.h"
+#include "HXDefine.h"   // if StringField is used
 #include <string>
 #include <vector>
 
 BeginNameSpace( ONEFLOW )
 
-// Optional overloads when call site already holds StringField-like ranges.
-// Keep vector-based API as the canonical, dependency-light surface.
-template< typename StringRange >
-inline void FillExpandedSolverNames(
-    const StringRange& baseNames,
-    StringField& outUns,
-    StringField& outStr )
-{
-    outUns.clear();
-    outStr.clear();
-    outUns.reserve( baseNames.size() );
-    outStr.reserve( baseNames.size() );
-    for ( const auto& base : baseNames )
-    {
-        outUns.push_back( MakeUnstructuredSolverName( base ) );
-        outStr.push_back( MakeStructuredSolverName( base ) );
-    }
-}
+// script/solver.txt base name (e.g. "NsSolver");
+// prefix by grid type, then Solver::SafeClone
 
-// script/solver.txt contains a base name (e.g. "NsSolver");
-//at runtime, a prefix is added based on the grid type, then it's handed to Solver::SafeClone 
 inline std::string MakeUnstructuredSolverName( const std::string& baseName )
 {
     return "U" + baseName;
@@ -82,6 +64,25 @@ inline std::vector<std::string> ExpandSolverNamesForStructured(
         out.push_back( MakeStructuredSolverName( base ) );
     }
     return out;
+}
+
+// Must come AFTER Make* ¡ª GCC two-phase lookup requires visible declarations
+// at the point of the template definition (MSVC is more permissive).
+template< typename StringRange >
+inline void FillExpandedSolverNames(
+    const StringRange& baseNames,
+    StringField& outUns,
+    StringField& outStr )
+{
+    outUns.clear();
+    outStr.clear();
+    outUns.reserve( baseNames.size() );
+    outStr.reserve( baseNames.size() );
+    for ( const auto& base : baseNames )
+    {
+        outUns.push_back( MakeUnstructuredSolverName( base ) );
+        outStr.push_back( MakeStructuredSolverName( base ) );
+    }
 }
 
 EndNameSpace
