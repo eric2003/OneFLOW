@@ -21,6 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "Multigrid.h"
+#include "CmxTaskNames.h"
 #include "INsInvterm.h"
 #include "Mesh.h"
 #include "Ctrl.h"
@@ -41,13 +42,6 @@ License
 
 
 BeginNameSpace( ONEFLOW )
-
-namespace {
-
-    // CmxTask / MessageMap operation name; must match action registration tables
-    constexpr const char* kPostProcessTaskName = "POST_PROCESS";
-
-} // namespace
 
 int MG::nPre;
 int MG::nPost;
@@ -195,7 +189,7 @@ void MG::PreprocessMultigridFlowField( int gl )
 {
     GridState::SetGridLevel( gl );
 
-    ONEFLOW::SingleSolverSingleGridTask( "STORE_RHS" );
+    ONEFLOW::SingleSolverSingleGridTask( kStoreRhsTaskName );
 }
 
 void MG::InitializeCoarseGridFlowFieldByRestrictFineGridFlowField( int fgl )
@@ -235,7 +229,7 @@ void MG::PrepareFineGridResiduals( int fgl )
     //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     //+After updateresiduals, generalresidualfield = Rl (W) - F
     //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-    ONEFLOW::SingleSolverSingleGridTask( "UPDATE_RESIDUALS" );
+    ONEFLOW::SingleSolverSingleGridTask( kUpdateResidualsTaskName );
 }
 
 void MG::PrepareCoarseGridResiduals( int fgl )
@@ -247,7 +241,7 @@ void MG::PrepareCoarseGridResiduals( int fgl )
     //After updateresiduals, residualincoarsegrid = RL-1 (wsav) - restr (RL (W) - F)
     int cgl = GridState::GetCGridLevel( fgl );
     GridState::SetGridLevel( cgl );
-    ONEFLOW::SingleSolverSingleGridTask( "UPDATE_RESIDUALS" );
+    ONEFLOW::SingleSolverSingleGridTask( kUpdateResidualsTaskName );
 }
 
 void MG::SolveCoarseGridFlowField( int fgl )
@@ -271,17 +265,17 @@ void MG::CorrectFineGridFlowFieldByInterplateCoarseGridFlowField( int fgl )
     //w0 - wsav
     GridState::SetGridLevel( cgl );
 
-    ONEFLOW::SingleSolverSingleGridTask( "MODIFY_COARSEGRID" );
+    ONEFLOW::SingleSolverSingleGridTask( kModifyCoarseGridTaskName );
 
     //w = w + prol( w0 - wsav )
     GridState::SetGridLevel( fgl );
 
-    ONEFLOW::SingleSolverSingleGridTask( "MODIFY_FINEGRID" );
+    ONEFLOW::SingleSolverSingleGridTask( kModifyFineGridTaskName );
 
     //The following is actually to restore the Q value on the sparse grid.
     GridState::SetGridLevel( cgl );
 
-    ONEFLOW::SingleSolverSingleGridTask( "RECOVER_COARSEGRID" );
+    ONEFLOW::SingleSolverSingleGridTask( kRecoverCoarseGridTaskName );
 }
 
 void MG::PreRelaxationCycle( int gl )
@@ -303,7 +297,7 @@ void MG::PostprocessMultigridFlowField( int gl )
     // This is only to restore the initial value of the general residual field. As for the usefulness of this, let's say something else.
     GridState::SetGridLevel( gl );
 
-    ONEFLOW::SingleSolverSingleGridTask( "RECOVER_RESIDUALS" );
+    ONEFLOW::SingleSolverSingleGridTask( kRecoverResidualsTaskName );
 }
 
 void MG::FastSolveFlowFieldByMultigridMethod( int gl )
@@ -360,7 +354,7 @@ void MG::ZeroResidualsForAllSolvers()
     for ( int sId = 0; sId < SolverState::nSolver; ++ sId )
     {
         SolverState::SetSolverTypeBySolverIndex( sId );
-        ONEFLOW::SingleSolverSingleGridTask( "ZERO_RESIDUALS" );
+        ONEFLOW::SingleSolverSingleGridTask( kZeroResidualsTaskName );
     }
 }
 
