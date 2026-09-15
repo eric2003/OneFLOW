@@ -27,6 +27,13 @@ License
 
 BeginNameSpace( ONEFLOW )
 
+struct CmdLineOptions
+{
+    bool debug = false;
+    std::string prjName;
+};
+
+
 class Prj
 {
 public:
@@ -42,6 +49,7 @@ public:
 public:
     static void Init();
     static void SetPrjBaseDir( const std::string & prjName );
+    static CmdLineOptions ParseCmdLineArgs( const std::vector<std::string> & args );
     static void ProcessCmdLineArgs( std::vector<std::string> &args );
 public:
     static void OpenPrjFile( std::fstream & file, const std::string & fileName, const std::ios_base::openmode & openMode );

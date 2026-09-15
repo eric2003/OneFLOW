@@ -33,6 +33,7 @@ public:
     static int innerSteps;
     static int outerSteps;
     static int maxSteps;
+    static int maxIterSteps;
     static int dualtime;
     static int nFieldSave;
     static int nVisualSave;

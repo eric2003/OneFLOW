@@ -28,6 +28,7 @@ BeginNameSpace( ONEFLOW )
 int Iteration::innerSteps = 0;
 int Iteration::outerSteps = 0;
 int Iteration::maxSteps = 1000;
+int Iteration::maxIterSteps = 1000;
 int Iteration::dualtime = 0;
 int Iteration::nFieldSave = 100;
 int Iteration::nVisualSave = 100;
@@ -59,6 +60,7 @@ void Iteration::Init()
     Iteration::ncfl  = GetDataValue< int >( "ncfl" );
 
     Iteration::maxSteps    = GetDataValue< int >( "maxSteps" );
+    Iteration::maxIterSteps = Iteration::maxSteps;
     Iteration::nForceSave  = GetDataValue< int >( "nForceSave" );
     Iteration::nFieldSave  = GetDataValue< int >( "nFieldSave" );
     Iteration::nVisualSave = GetDataValue< int >( "nVisualSave" );
@@ -72,44 +74,44 @@ bool Iteration::InnerOk()
 
 bool Iteration::ResOk()
 {
-	int startStrategy = ONEFLOW::GetDataValue< int >("startStrategy");
-	if (startStrategy == 2)
-	{
-		if (Iteration::innerSteps % nResSave == 0)
-		{
-			return true;
-		}
-		return false;
-	}
-	else
-	{
-		if (Iteration::outerSteps % nResSave == 0)
-		{
-			return Iteration::innerSteps == 1;
-		}
-		return false;
-	}
+    if ( ctrl.startStrategy == 2 )
+    {
+        if ( Iteration::innerSteps % nResSave == 0 )
+        {
+            return true;
+        }
+        return false;
+    }
+    else
+    {
+        if ( Iteration::outerSteps % nResSave == 0 )
+        {
+            return Iteration::innerSteps == 1;
+        }
+        return false;
+    }
 }
+
+
 
 bool Iteration::ForceOk()
 {
-	int startStrategy = ONEFLOW::GetDataValue< int >("startStrategy");
-	if (startStrategy == 2)
-	{
-		if (Iteration::innerSteps % nForceSave == 0)
-		{
-			return true;
-		}
-		return false;
-	}
-	else
-	{
-		if (Iteration::outerSteps % nForceSave == 0)
-		{
-			return Iteration::innerSteps == 1;
-		}
-		return false;
-	}
+    if ( ctrl.startStrategy == 2 )
+    {
+        if ( Iteration::innerSteps % nForceSave == 0 )
+        {
+            return true;
+        }
+        return false;
+    }
+    else
+    {
+        if ( Iteration::outerSteps % nForceSave == 0 )
+        {
+            return Iteration::innerSteps == 1;
+        }
+        return false;
+    }
 }
 
 SimuIterState::SimuIterState()
