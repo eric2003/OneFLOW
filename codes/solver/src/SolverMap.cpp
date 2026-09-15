@@ -191,37 +191,11 @@ void SolverNameClass::ReadSolverNames()
     StringField solverNameList;
     SolverNameClass::ReadSolverNames( solverNameList );
 
-    auto uns = ExpandSolverNamesForUnstructured(
-        std::vector<std::string>( solverNameList.begin(), solverNameList.end() ) );
-    auto str = ExpandSolverNamesForStructured(
-        std::vector<std::string>( solverNameList.begin(), solverNameList.end() ) );
-
-    // 若 StringField 就是 vector<string>，可直接赋值；否则逐个 push_back
-    for ( const auto& n : uns ) SolverNameClass::unsSolverNameList.push_back( n );
-    for ( const auto& n : str ) SolverNameClass::strSolverNameList.push_back( n );
+    FillExpandedSolverNames(
+        solverNameList,
+        SolverNameClass::unsSolverNameList,
+        SolverNameClass::strSolverNameList );
 }
-
-//void SolverNameClass::ReadSolverNames()
-//{
-//    StringField solverNameList;
-//    SolverNameClass::ReadSolverNames( solverNameList );
-//    for ( int isol = 0; isol < solverNameList.size(); ++ isol )
-//    {
-//        std::string solverName = solverNameList[ isol ];
-//
-//        OStream &logger = OStream::Instance();
-//        logger.ClearAll();
-//        logger << "U" << solverName;
-//        std::string uSolverName = logger.str();
-//
-//        logger.ClearAll();
-//        logger << "S" << solverName;
-//        std::string sSolverName = logger.str();
-//
-//        SolverNameClass::unsSolverNameList.push_back( uSolverName );
-//        SolverNameClass::strSolverNameList.push_back( sSolverName );
-//    }
-//}
 
 void SolverNameClass::ReadSolverNames( StringField & solverNameList )
 {

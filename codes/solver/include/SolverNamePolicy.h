@@ -23,10 +23,30 @@ License
 
 #pragma once
 #include "NamespaceMacros.h"
+#include "HXDefine.h"
 #include <string>
 #include <vector>
 
 BeginNameSpace( ONEFLOW )
+
+// Optional overloads when call site already holds StringField-like ranges.
+// Keep vector-based API as the canonical, dependency-light surface.
+template< typename StringRange >
+inline void FillExpandedSolverNames(
+    const StringRange& baseNames,
+    StringField& outUns,
+    StringField& outStr )
+{
+    outUns.clear();
+    outStr.clear();
+    outUns.reserve( baseNames.size() );
+    outStr.reserve( baseNames.size() );
+    for ( const auto& base : baseNames )
+    {
+        outUns.push_back( MakeUnstructuredSolverName( base ) );
+        outStr.push_back( MakeStructuredSolverName( base ) );
+    }
+}
 
 // script/solver.txt contains a base name (e.g. "NsSolver");
 //at runtime, a prefix is added based on the grid type, then it's handed to Solver::SafeClone 
