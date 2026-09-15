@@ -24,11 +24,11 @@ License
 #include "Solver.h"
 #include "TextFileParser.h"
 #include "SolverNamePolicy.h"
+#include "SolverNameList.h"
 #include "GridState.h"
 #include "SolverState.h"
 #include <map>
 #include <iostream>
-
 
 BeginNameSpace( ONEFLOW )
 
@@ -164,96 +164,96 @@ void SolverMap::AddSolverIndexToType( int solverIndex, int solverType )
     }
 }
 
-StringField SolverNameClass::unsSolverNameList;
-StringField SolverNameClass::strSolverNameList;
-bool SolverNameClass::flag = false;
-
-SolverNameClass::SolverNameClass()
-{
-    ;
-}
-
-SolverNameClass::~SolverNameClass()
-{
-    ;
-}
-
-void SolverNameClass::Init()
-{
-    if ( flag ) return;
-    flag = true;
-    SolverNameClass::ReadSolverNames();
-}
-
-void SolverNameClass::ReadSolverNames()
-{
-    StringField solverNameList;
-    SolverNameClass::ReadSolverNames( solverNameList );
-
-    FillExpandedSolverNames(
-        solverNameList,
-        SolverNameClass::unsSolverNameList,
-        SolverNameClass::strSolverNameList );
-}
-
-void SolverNameClass::ReadSolverNames( StringField & solverNameList )
-{
-    TextFileParser textFileParser;
-
-    textFileParser.OpenPrjFile( "script/solver.txt", std::ios_base::in );
-
-    // \t is the tab key
-    const std::string keyWordSeparator = " ()\r\n\t#$,;\"";
-    textFileParser.SetDefaultSeparator( keyWordSeparator );
-
-    // Same pattern as MessageMapImp::ReadFile:
-    // skip blank/comment lines; no spurious empty token at EOF.
-    while ( textFileParser.ReadNextMeaningfulLine() )
-    {
-        std::string solverName = textFileParser.ReadNextWord();
-        if ( solverName.empty() )
-        {
-            continue;
-        }
-        solverNameList.push_back( solverName );
-    }
-
-    textFileParser.CloseFile();
-}
-
-StringField & SolverNameClass::GetSolverNames( int gridType )
-{
-    SolverNameClass::Init();
-
-    if ( gridType == ONEFLOW::UMESH )
-    {
-        return SolverNameClass::unsSolverNameList;
-    }
-    else
-    {
-        return SolverNameClass::strSolverNameList;
-    }
-}
-
-void SolverNameClass::LoadFromBaseNames( const StringField & baseNames )
-{
-    SolverNameClass::unsSolverNameList.clear();
-    SolverNameClass::strSolverNameList.clear();
-
-    FillExpandedSolverNames(
-        baseNames,
-        SolverNameClass::unsSolverNameList,
-        SolverNameClass::strSolverNameList );
-
-    flag = true; // skip file path on later Init()
-}
-
-void SolverNameClass::Reset()
-{
-    unsSolverNameList.clear();
-    strSolverNameList.clear();
-    flag = false;
-}
+//StringField SolverNameClass::unsSolverNameList;
+//StringField SolverNameClass::strSolverNameList;
+//bool SolverNameClass::flag = false;
+//
+//SolverNameClass::SolverNameClass()
+//{
+//    ;
+//}
+//
+//SolverNameClass::~SolverNameClass()
+//{
+//    ;
+//}
+//
+//void SolverNameClass::Init()
+//{
+//    if ( flag ) return;
+//    flag = true;
+//    SolverNameClass::ReadSolverNames();
+//}
+//
+//void SolverNameClass::ReadSolverNames()
+//{
+//    StringField solverNameList;
+//    SolverNameClass::ReadSolverNames( solverNameList );
+//
+//    FillExpandedSolverNames(
+//        solverNameList,
+//        SolverNameClass::unsSolverNameList,
+//        SolverNameClass::strSolverNameList );
+//}
+//
+//void SolverNameClass::ReadSolverNames( StringField & solverNameList )
+//{
+//    TextFileParser textFileParser;
+//
+//    textFileParser.OpenPrjFile( "script/solver.txt", std::ios_base::in );
+//
+//    // \t is the tab key
+//    const std::string keyWordSeparator = " ()\r\n\t#$,;\"";
+//    textFileParser.SetDefaultSeparator( keyWordSeparator );
+//
+//    // Same pattern as MessageMapImp::ReadFile:
+//    // skip blank/comment lines; no spurious empty token at EOF.
+//    while ( textFileParser.ReadNextMeaningfulLine() )
+//    {
+//        std::string solverName = textFileParser.ReadNextWord();
+//        if ( solverName.empty() )
+//        {
+//            continue;
+//        }
+//        solverNameList.push_back( solverName );
+//    }
+//
+//    textFileParser.CloseFile();
+//}
+//
+//StringField & SolverNameClass::GetSolverNames( int gridType )
+//{
+//    SolverNameClass::Init();
+//
+//    if ( gridType == ONEFLOW::UMESH )
+//    {
+//        return SolverNameClass::unsSolverNameList;
+//    }
+//    else
+//    {
+//        return SolverNameClass::strSolverNameList;
+//    }
+//}
+//
+//void SolverNameClass::LoadFromBaseNames( const StringField & baseNames )
+//{
+//    SolverNameClass::unsSolverNameList.clear();
+//    SolverNameClass::strSolverNameList.clear();
+//
+//    FillExpandedSolverNames(
+//        baseNames,
+//        SolverNameClass::unsSolverNameList,
+//        SolverNameClass::strSolverNameList );
+//
+//    flag = true; // skip file path on later Init()
+//}
+//
+//void SolverNameClass::Reset()
+//{
+//    unsSolverNameList.clear();
+//    strSolverNameList.clear();
+//    flag = false;
+//}
 
 
 EndNameSpace

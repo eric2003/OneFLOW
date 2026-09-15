@@ -53,6 +53,7 @@ set(DATABASE_TEST_SOURCES
 	${BASIC_SRC_DIR}/Word.cpp
 	${SOLVER_SRC_DIR}/SolverState.cpp
 	${SOLVER_SRC_DIR}/SolverMap.cpp
+	${SOLVER_SRC_DIR}/SolverNameList.cpp
 	${SOLVER_SRC_DIR}/Solver.cpp
 	${DATABASE_SRC_DIR}/DataPage.cpp
 	${DATABASE_SRC_DIR}/DataBook.cpp
