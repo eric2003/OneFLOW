@@ -42,6 +42,8 @@ License
 #include "AccelRuntime.h"
 #include "EulerCpuAdapter.h"
 #include <cstdlib>
+#include <cstdint>
+#include <fstream>
 #include <iostream>
 #include <iomanip>
 #include <vector>
@@ -138,6 +140,7 @@ void UNsInvFlux::CalcFlux()
     //ReadTmp();
     this->CalcInvFace();
     this->CalcInvFlux();
+    this->DumpInvFluxTrace();
     this->AddInvFlux();
 
     DeAlloc();
@@ -266,6 +269,63 @@ void UNsInvFlux::UpdateFaceInvFlux()
     for ( int iEqu = 0; iEqu < nscom.nTEqu; ++ iEqu )
     {
         ( * invflux )[ iEqu ][ ug.fId ] = gcom.farea * inv.flux[ iEqu ];
+    }
+}
+
+void UNsInvFlux::DumpInvFluxTrace()
+{
+    const char * traceFile = std::getenv( "ONEFLOW_UNS_TRACE_FILE" );
+    if ( traceFile == nullptr || traceFile[ 0 ] == '\0' ) return;
+    if ( limf == nullptr || limf->qf1 == nullptr || limf->qf2 == nullptr
+         || invflux == nullptr )
+    {
+        throw std::runtime_error(
+            "UNsInvFlux trace requested before face fields are available" );
+    }
+
+    std::ofstream output( traceFile, std::ios::binary | std::ios::trunc );
+    if ( ! output )
+    {
+        throw std::runtime_error( "cannot open UNsInvFlux trace file" );
+    }
+
+    const char magic[ 8 ] = { 'O', 'F', 'T', 'R', 'C', '0', '1', '\0' };
+    const std::uint64_t nFaces = static_cast< std::uint64_t >( ug.nFaces );
+    const std::uint32_t nEquations =
+        static_cast< std::uint32_t >( limf->nEqu );
+    const std::uint32_t nArrays = 3;
+    output.write( magic, sizeof( magic ) );
+    output.write(
+        reinterpret_cast< const char * >( & nFaces ), sizeof( nFaces ) );
+    output.write(
+        reinterpret_cast< const char * >( & nEquations ),
+        sizeof( nEquations ) );
+    output.write(
+        reinterpret_cast< const char * >( & nArrays ), sizeof( nArrays ) );
+
+    auto writeField = [&]( const MRField & field )
+    {
+        for ( std::uint32_t equation = 0; equation < nEquations; ++ equation )
+        {
+            const auto & values = field[ equation ];
+            if ( values.size() < nFaces )
+            {
+                throw std::runtime_error(
+                    "UNsInvFlux trace field has an invalid face extent" );
+            }
+            output.write(
+                reinterpret_cast< const char * >( values.data() ),
+                static_cast< std::streamsize >(
+                    nFaces * sizeof( Real ) ) );
+        }
+    };
+
+    writeField( *limf->qf1 );
+    writeField( *limf->qf2 );
+    writeField( *invflux );
+    if ( ! output )
+    {
+        throw std::runtime_error( "failed while writing UNsInvFlux trace" );
     }
 }
 

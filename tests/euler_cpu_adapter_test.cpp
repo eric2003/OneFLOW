@@ -4,6 +4,7 @@
 
 #include <cmath>
 #include <stdexcept>
+#include <vector>
 
 namespace
 {
@@ -114,6 +115,62 @@ TEST( EulerCpuAdapter, ComputesBatchFluxAfterConversion )
     EXPECT_GT( values[ 1 ], values[ 0 ] );
 }
 
+
+TEST( EulerCpuAdapter, ChecksPhysicalityAndInternalFaceConservation )
+{
+    constexpr int nFaces = 2;
+    constexpr int nCells = 3;
+    constexpr int nEquations = 5;
+    const Real primitiveLeft[] = {
+        1.0, 1.1, 0.2, -0.1, 1.0,
+        0.9, 0.8, -0.3, 0.4, 0.7 };
+    const Real primitiveRight[] = {
+        0.95, 1.0, 0.1, -0.2, 0.9,
+        1.05, 0.7, -0.1, 0.3, 0.8 };
+    const Real normalX[] = { 1.0, 1.0 };
+    const Real normalY[] = { 0.0, 0.0 };
+    const Real normalZ[] = { 0.0, 0.0 };
+    const Real area[] = { 1.0, 2.0 };
+    Real fluxValues[ nFaces * nEquations ] = {};
+
+    PrimitiveFaceStateView state;
+    state.nFaces = nFaces;
+    state.nEquations = nEquations;
+    state.primitiveLeft = primitiveLeft;
+    state.primitiveRight = primitiveRight;
+    state.xNormal = normalX;
+    state.yNormal = normalY;
+    state.zNormal = normalZ;
+    state.faceArea = area;
+    state.gamma = 1.4;
+
+    FaceFluxView flux{ nFaces, nEquations, fluxValues };
+    EulerCpuAdapter adapter;
+    ASSERT_NO_THROW( adapter.CalcInvFlux( state, flux, 1 ) );
+    for ( Real value : fluxValues )
+    {
+        EXPECT_TRUE( std::isfinite( value ) );
+    }
+
+    int left[] = { 0, 1 };
+    int right[] = { 1, 2 };
+    unsigned char boundaryMask[] = { 0, 0 };
+    Real residualValues[ nCells * nEquations ] = {};
+    FaceConnectivityView connectivity{
+        nFaces, 0, left, right, boundaryMask };
+    ResidualView residual{ nCells, nEquations, residualValues };
+    ASSERT_NO_THROW( adapter.AddFaceFlux( flux, connectivity, residual ) );
+
+    for ( int equation = 0; equation < nEquations; ++ equation )
+    {
+        Real sum = 0.0;
+        for ( int cell = 0; cell < nCells; ++ cell )
+        {
+            sum += residualValues[ equation * nCells + cell ];
+        }
+        EXPECT_NEAR( sum, 0.0, 1.0e-14 );
+    }
+}
 
 TEST( EulerCpuAdapter, MatchesOneflowLaxFriedrichsReference )
 {

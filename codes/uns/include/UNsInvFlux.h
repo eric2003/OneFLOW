@@ -48,6 +48,7 @@ public:
     void PrepareFaceValue();
     void UpdateFaceInvFlux();
     void ReadTmp();
+    void DumpInvFluxTrace();
 public:
     void GetQlQrField();
     void ReconstructFaceValueField();
