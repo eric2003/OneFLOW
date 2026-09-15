@@ -22,6 +22,7 @@ License
 
 #include "SolverMap.h"
 #include "Solver.h"
+#include "TextFileParser.h"
 #include "SolverNamePolicy.h"
 #include "GridState.h"
 #include "SolverState.h"
@@ -89,28 +90,6 @@ void SolverMap::CreateSolvers( int gridType )
     // S4: solver-state side table
     SolverState::Init( nSolver );
 }
-
-//void SolverMap::CreateSolvers( int gridType )
-//{
-//    HXVector< Solver * > * solvers = SolverMap::SolverBucket( gridType );
-//
-//    StringField & solverNameList = SolverNameClass::GetSolverNames( gridType );
-//    int nSolver = static_cast< int >( solverNameList.size() );
-//
-//    LusgsState::Init( nSolver );
-//    for ( int solverIndex = 0; solverIndex < nSolver; ++ solverIndex )
-//    {
-//        Solver * solver = Solver::SafeClone( solverNameList[ solverIndex ] );
-//        solver->solverIndex = solverIndex;
-//        solver->gridType = gridType;
-//        solver->StaticInit();
-//
-//        SolverMap::AddSolverInfo( solver->solverType, solver->solverIndex );
-//        solvers->push_back( solver );
-//    }
-//
-//    SolverState::Init( nSolver );
-//}
 
 void SolverMap::FreeSolverMap( int gridType )
 {
@@ -254,6 +233,26 @@ StringField & SolverNameClass::GetSolverNames( int gridType )
     {
         return SolverNameClass::strSolverNameList;
     }
+}
+
+void SolverNameClass::LoadFromBaseNames( const StringField & baseNames )
+{
+    SolverNameClass::unsSolverNameList.clear();
+    SolverNameClass::strSolverNameList.clear();
+
+    FillExpandedSolverNames(
+        baseNames,
+        SolverNameClass::unsSolverNameList,
+        SolverNameClass::strSolverNameList );
+
+    flag = true; // skip file path on later Init()
+}
+
+void SolverNameClass::Reset()
+{
+    unsSolverNameList.clear();
+    strSolverNameList.clear();
+    flag = false;
 }
 
 

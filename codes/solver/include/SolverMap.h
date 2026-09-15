@@ -23,7 +23,7 @@ License
 
 #pragma once
 #include "HXDefine.h"
-#include "TextFileParser.h"
+//#include "TextFileParser.h"
 #include <map>
 
 BeginNameSpace( ONEFLOW )
@@ -76,6 +76,12 @@ public:
     static void ReadSolverNames();
     static void ReadSolverNames( StringField & solverNameList );
     static StringField & GetSolverNames( int gridType );
-};
 
+    // Test / injection seam: expand base names via SolverNamePolicy (no file I/O).
+    // Sets flag so subsequent Init() will not re-read script/solver.txt.
+    static void LoadFromBaseNames( const StringField & baseNames );
+
+    // Clear lists and allow Init()/LoadFromBaseNames to run again.
+    static void Reset();
+};
 EndNameSpace
