@@ -37,12 +37,6 @@ TaskRegister::~TaskRegister()
 {
 }
 
-//void TaskRegister::Free()
-//{
-//    delete TaskRegister::taskList;
-//    delete TaskRegister::taskNameList;
-//}
-
 void TaskRegister::Free()
 {
     delete TaskRegister::taskList;
@@ -73,16 +67,6 @@ void TaskRegister::Register( VoidFunc taskfun, std::string const & taskname )
     TaskRegister::taskNameList->push_back( taskname );
     //std::cout << "TaskRegister::Register " << taskname << "\n";
 }
-
-//void TaskRegister::Run()
-//{
-//    int n = TaskRegister::taskList->size();
-//    for ( int i = 0; i < n; ++ i )
-//    {
-//        VoidFunc & fun = ( * TaskRegister::taskList )[ i ];
-//        ( fun )( );
-//    }
-//}
 
 void TaskRegister::Run()
 {

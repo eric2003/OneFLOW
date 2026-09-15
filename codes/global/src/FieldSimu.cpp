@@ -20,6 +20,7 @@ License
 
 \*---------------------------------------------------------------------------*/
 #include "FieldSimu.h"
+#include "CmxTaskNames.h"
 #include "Iteration.h"
 #include "Ctrl.h"
 #include "NsCom.h"
@@ -32,14 +33,6 @@ License
 #include <iostream>
 
 BeginNameSpace( ONEFLOW )
-
-namespace {
-
-    // CmxTask / MessageMap operation name; must match registration tables
-    constexpr const char* kInitFlowFieldTaskName = "INIT_FLOWFIELD";
-
-} // namespace
-
 
 void FieldSimuSetupGlobals()
 {
@@ -72,14 +65,19 @@ void FieldSimuRun()
     MultigridSolve();
 }
 
-void FieldSimu()
+void FieldSimuRunPipeline()
 {
     FieldSimuSetupGlobals();
     FieldSimuLoadGrid();
     FieldSimuPrepareWallDist();
     FieldSimuCreateSolvers();
-    FieldSimuInitFlowField();
+    FieldSimuInitFlowField();  // -> MultiSolverMultiGridTask(kInitFlowFieldTaskName)
     FieldSimuRun();
+}
+
+void FieldSimu()
+{
+    FieldSimuRunPipeline();
 }
 
 void InitFlowSimuGlobal()

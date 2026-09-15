@@ -32,7 +32,11 @@ void FieldSimuCreateSolvers();
 void FieldSimuInitFlowField();
 void FieldSimuRun();
 
-// Convenience: run all stages in order (same as SolveFieldTask path).
+// Single orchestration of the six stages (same order as above).
+// Used by FieldSimu() and SolveFieldTask.
+void FieldSimuRunPipeline();
+
+// Convenience: RunPipeline only (legacy / non-registry callers).
 void FieldSimu();
 
 void InitFlowSimuGlobal();

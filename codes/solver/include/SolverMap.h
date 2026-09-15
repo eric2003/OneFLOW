@@ -23,7 +23,7 @@ License
 
 #pragma once
 #include "HXDefine.h"
-#include "TextFileParser.h"
+//#include "TextFileParser.h"
 #include <map>
 
 BeginNameSpace( ONEFLOW )
@@ -52,6 +52,14 @@ public:
 protected:
     static void AddSolverTypeToIndex( int solverType, int solverIndex );
     static void AddSolverIndexToType( int solverIndex, int solverType );
+    static HXVector< Solver * > * SolverBucket( int gridType );
+
+    // S3: clone + StaticInit + index maps into the chosen bucket.
+    // Does not touch SolverState / LusgsState (those stay in CreateSolvers).
+    static void BuildSolversInBucket(
+        int gridType,
+        const StringField & solverNameList,
+        HXVector< Solver * > * solvers );
 };
 
 class SolverNameClass
@@ -68,6 +76,12 @@ public:
     static void ReadSolverNames();
     static void ReadSolverNames( StringField & solverNameList );
     static StringField & GetSolverNames( int gridType );
-};
 
+    // Test / injection seam: expand base names via SolverNamePolicy (no file I/O).
+    // Sets flag so subsequent Init() will not re-read script/solver.txt.
+    static void LoadFromBaseNames( const StringField & baseNames );
+
+    // Clear lists and allow Init()/LoadFromBaseNames to run again.
+    static void Reset();
+};
 EndNameSpace

@@ -48,13 +48,8 @@ public:
     {
         RequireSolveFieldContext( ctx );
 
-        // Same six stages as FieldSimu(); order must stay identical.
-        FieldSimuSetupGlobals();
-        FieldSimuLoadGrid();
-        FieldSimuPrepareWallDist();
-        FieldSimuCreateSolvers();
-        FieldSimuInitFlowField();
-        FieldSimuRun();
+        // Same pipeline as FieldSimu(); order owned by FieldSimuRunPipeline().
+        FieldSimuRunPipeline();
     }
 };
 
