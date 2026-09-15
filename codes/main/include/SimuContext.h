@@ -22,6 +22,7 @@ License
 #pragma once
 #include "NamespaceMacros.h"
 #include "SimuDef.h"
+#include "HXDefine.h"
 #include <string>
 #include <vector>
 
@@ -74,6 +75,14 @@ public:
     void SetTaskByName( const std::string& taskName );
     void MarkEnvironmentReady( bool ready = true );
 
+    // Optional: already-expanded solver registration names (e.g. "UNsSolver").
+    // Empty means "not injected; production uses SolverNameClass::GetSolverNames".
+    bool HasExpandedSolverNames() const { return !expandedSolverNames_.empty(); }
+    const StringField& ExpandedSolverNames() const { return expandedSolverNames_; }
+
+    // Test / future control-file path: set expanded names (clears previous).
+    void SetExpandedSolverNames( const StringField& names );
+    void ClearExpandedSolverNames();
 private:
     std::vector<std::string> args_;
     int rank_ = 0;
@@ -82,6 +91,8 @@ private:
     std::string taskName_ = "Solve";
     bool envReady_ = false;
     bool taskResolved_ = false;
+    // ...
+    StringField expandedSolverNames_;
 };
 
 EndNameSpace

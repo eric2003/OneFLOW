@@ -29,6 +29,7 @@ along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 #include "WallDist.h"
 #include "WallDistPolicy.h"
 #include "CmxTask.h"
+#include "CmxTaskNames.h"
 #include "InterFace.h"
 #include "SlipFace.h"
 #include <iostream>
@@ -61,7 +62,7 @@ void MultiBlock::ReadMultiBlockGrid()
 void MultiBlock::SetUpMultigrid()
 {
     SolverState::solverType = GRID_SOLVER;
-    SingleSolverSingleGridTask( "CALC_METRICS" );
+    SingleSolverSingleGridTask( kCalcMetricsTaskName );
 }
 
 void MultiBlock::LoadGridAndBuildLink()
@@ -112,22 +113,22 @@ void MultiBlock::ProcessWallDist()
 void CreateWallDist()
 {
     SolverState::solverType = GRID_SOLVER;
-    SingleSolverSingleGridTask( "FILL_WALL_STRUCT" );
-    SingleSolverSingleGridTask( "CALC_WALL_DIST" );
+    SingleSolverSingleGridTask( kFillWallStructTaskName );
+    SingleSolverSingleGridTask( kCalcWallDistTaskName );
     FreeWallStruct();
-    SingleSolverSingleGridTask( "WRITE_WALL_DIST" );
+    SingleSolverSingleGridTask( kWriteWallDistTaskName );
 }
 
 void LoadWallDist()
 {
     SolverState::solverType = GRID_SOLVER;
-    SingleSolverSingleGridTask( "READ_WALL_DIST" );
+    SingleSolverSingleGridTask( kReadWallDistTaskName );
 }
 
 void MultiBlock::AllocWallDist()
 {
     SolverState::solverType = GRID_SOLVER;
-    SingleSolverSingleGridTask( "ALLOCATE_WALL_DIST" );
+    SingleSolverSingleGridTask( kAllocateWallDistTaskName );
 }
 
 void MultiBlock::InitMultiZoneTopo()

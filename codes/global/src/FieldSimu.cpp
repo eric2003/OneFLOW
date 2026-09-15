@@ -20,6 +20,7 @@ License
 
 \*---------------------------------------------------------------------------*/
 #include "FieldSimu.h"
+#include "SimuContext.h"
 #include "CmxTaskNames.h"
 #include "Iteration.h"
 #include "Ctrl.h"
@@ -30,6 +31,7 @@ License
 #include "CmxTask.h"
 #include "Multigrid.h"
 #include "BcData.h"
+#include "GridState.h"
 #include <iostream>
 
 BeginNameSpace( ONEFLOW )
@@ -54,6 +56,20 @@ void FieldSimuCreateSolvers()
     SolverMap::CreateSolvers();
 }
 
+void FieldSimuCreateSolvers( const SimuContext& ctx )
+{
+    if ( ctx.HasExpandedSolverNames() )
+    {
+        SolverMap::CreateSolvers(
+            ONEFLOW::UMESH,
+            &ctx.ExpandedSolverNames() );
+    }
+    else
+    {
+        SolverMap::CreateSolvers();
+    }
+}
+
 void FieldSimuInitFlowField()
 {
     // Stage entry: task name enters CmxTask here (no numerical change)
@@ -72,6 +88,16 @@ void FieldSimuRunPipeline()
     FieldSimuPrepareWallDist();
     FieldSimuCreateSolvers();
     FieldSimuInitFlowField();  // -> MultiSolverMultiGridTask(kInitFlowFieldTaskName)
+    FieldSimuRun();
+}
+
+void FieldSimuRunPipeline( const SimuContext& ctx )
+{
+    FieldSimuSetupGlobals();
+    FieldSimuLoadGrid();
+    FieldSimuPrepareWallDist();
+    FieldSimuCreateSolvers( ctx );  // only stage that reads ctx for now
+    FieldSimuInitFlowField();
     FieldSimuRun();
 }
 

@@ -29,6 +29,14 @@ BeginNameSpace( ONEFLOW )
 // Must match action registration tables (script under system action/).
 // Single source for FieldSimu, Multigrid, and contract tests.
 
+// --- already present (keep) ---
+// kInitFlowFieldTaskName, kPostProcessTaskName, kStoreRhsTaskName,
+// kRestrictAllQTaskName, kLoadQTaskName, kLoadResidualsTaskName,
+// kUpdateResidualsTaskName, kRestrictDefectTaskName,
+// kModifyCoarseGridTaskName, kModifyFineGridTaskName,
+// kRecoverCoarseGridTaskName, kRecoverResidualsTaskName,
+// kZeroResidualsTaskName,
+
 inline constexpr const char* kInitFlowFieldTaskName   = "INIT_FLOWFIELD";
 inline constexpr const char* kPostProcessTaskName     = "POST_PROCESS";
 inline constexpr const char* kStoreRhsTaskName        = "STORE_RHS";
@@ -42,5 +50,30 @@ inline constexpr const char* kModifyFineGridTaskName    = "MODIFY_FINEGRID";
 inline constexpr const char* kRecoverCoarseGridTaskName = "RECOVER_COARSEGRID";
 inline constexpr const char* kRecoverResidualsTaskName  = "RECOVER_RESIDUALS";
 inline constexpr const char* kZeroResidualsTaskName     = "ZERO_RESIDUALS";
+
+// TimeIntegral / LUSGS
+inline constexpr const char* kCalcTimeStepTaskName         = "CALC_TIME_STEP";
+inline constexpr const char* kCalcLhsTaskName              = "CALC_LHS";
+inline constexpr const char* kUpdateFlowFieldTaskName      = "UPDATE_FLOWFIELD";
+inline constexpr const char* kCalcBoundaryTaskName         = "CALC_BOUNDARY";
+inline constexpr const char* kZeroDqFieldTaskName          = "ZERO_DQ_FIELD";
+inline constexpr const char* kInitLusgsTaskName            = "INIT_LUSGS";
+inline constexpr const char* kLusgsLowerSweepTaskName      = "LUSGS_LOWER_SWEEP";
+inline constexpr const char* kExchangeInterfaceDqTaskName  = "EXCHANGE_INTERFACE_DQ";
+inline constexpr const char* kLusgsUpperSweepTaskName      = "LUSGS_UPPER_SWEEP";
+inline constexpr const char* kUpdateFlowFieldLusgsTaskName = "UPDATE_FLOWFIELD_LUSGS";
+inline constexpr const char* kSolTurbTaskName              = "SOL_TURB";
+inline constexpr const char* kSolHeatTaskName              = "SOL_HEAT";
+
+// SolverState
+inline constexpr const char* kCalcUnsteadyCriterionTaskName = "CALC_UNSTEADY_CRITERION";
+
+// MultiBlock / wall distance
+inline constexpr const char* kCalcMetricsTaskName       = "CALC_METRICS";
+inline constexpr const char* kFillWallStructTaskName    = "FILL_WALL_STRUCT";
+inline constexpr const char* kCalcWallDistTaskName      = "CALC_WALL_DIST";
+inline constexpr const char* kWriteWallDistTaskName     = "WRITE_WALL_DIST";
+inline constexpr const char* kReadWallDistTaskName      = "READ_WALL_DIST";
+inline constexpr const char* kAllocateWallDistTaskName  = "ALLOCATE_WALL_DIST";
 
 EndNameSpace

@@ -73,4 +73,14 @@ void SimuContext::MarkEnvironmentReady( bool ready )
     envReady_ = ready;
 }
 
+void SimuContext::SetExpandedSolverNames( const StringField& names )
+{
+    expandedSolverNames_ = names;
+}
+
+void SimuContext::ClearExpandedSolverNames()
+{
+    expandedSolverNames_.clear();
+}
+
 EndNameSpace

@@ -42,4 +42,12 @@ void FieldSimu();
 void InitFlowSimuGlobal();
 void InitializeSolver();
 
+class SimuContext;
+
+void FieldSimuCreateSolvers();
+void FieldSimuCreateSolvers( const SimuContext& ctx );
+
+void FieldSimuRunPipeline();
+void FieldSimuRunPipeline( const SimuContext& ctx );
+
 EndNameSpace

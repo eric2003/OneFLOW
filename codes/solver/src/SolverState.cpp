@@ -23,6 +23,7 @@ License
 #include "SolverState.h"
 #include "SolverMap.h"
 #include "CmxTask.h"
+#include "CmxTaskNames.h"
 #include "Iteration.h"
 #include "Zone.h"
 #include "ZoneState.h"
@@ -124,7 +125,7 @@ bool SolverState::Converge()
     for ( int iSolver = 0; iSolver < SolverState::nSolver; ++ iSolver )
     {
         SolverState::solverIndex = iSolver;
-        ONEFLOW::SingleSolverSingleGridTask( "CALC_UNSTEADY_CRITERION" );
+        ONEFLOW::SingleSolverSingleGridTask( kCalcUnsteadyCriterionTaskName );
     }
     
     return flag;
