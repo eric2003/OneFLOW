@@ -130,3 +130,37 @@ TEST_F( MessageMapFacadeTest, FreeThenInitAgainStartsFromCleanState )
     ONEFLOW::MessageMap::Register( "restart" );
     EXPECT_EQ( ONEFLOW::MessageMap::GetMsgId( "restart" ), 0 );
 }
+
+// ---------------------------------------------------------------------------
+// Contract: name used by FieldSimuInitFlowField -> MultiSolverMultiGridTask.
+// CmxTask resolves the string via MessageMap::GetMsgId before GenerateCmdList.
+// No CFD; pure name<->id mapping (same as production lookup shape).
+// ---------------------------------------------------------------------------
+TEST( MessageMapImpTest, InitFlowFieldNameRoundTripsLikeCmxTaskLookup )
+{
+    // Must stay identical to kInitFlowFieldTaskName in FieldSimu.cpp
+    const std::string kInitFlowFieldTaskName = "INIT_FLOWFIELD";
+
+    ONEFLOW::MessageMapImp imp;
+    imp.Register( kInitFlowFieldTaskName );
+
+    const int id = imp.GetMsgId( kInitFlowFieldTaskName );
+    EXPECT_GE( id, 0 );
+    EXPECT_EQ( imp.GetMsgName( id ), kInitFlowFieldTaskName );
+
+    // Same shape as CmxTask: unknown name must not look like a valid op
+    EXPECT_EQ( imp.GetMsgId( "INIT_FLOWFIELD_TYPO" ), -1 );
+}
+
+TEST( MessageMapImpTest, PostProcessNameRoundTripsLikeCmxTaskLookup )
+{
+    // Must stay identical to kPostProcessTaskName in Multigrid.cpp
+    const std::string kPostProcessTaskName = "POST_PROCESS";
+
+    ONEFLOW::MessageMapImp imp;
+    imp.Register( kPostProcessTaskName );
+
+    const int id = imp.GetMsgId( kPostProcessTaskName );
+    EXPECT_GE( id, 0 );
+    EXPECT_EQ( imp.GetMsgName( id ), kPostProcessTaskName );
+}

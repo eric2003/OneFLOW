@@ -42,6 +42,13 @@ License
 
 BeginNameSpace( ONEFLOW )
 
+namespace {
+
+    // CmxTask / MessageMap operation name; must match action registration tables
+    constexpr const char* kPostProcessTaskName = "POST_PROCESS";
+
+} // namespace
+
 int MG::nPre;
 int MG::nPost;
 int MG::nMulti;
@@ -168,7 +175,7 @@ void MG::Run()
 
 void MG::InnerProcess()
 {
-    ONEFLOW::MultiSolverMultiGridTask( "POST_PROCESS" );
+    ONEFLOW::MultiSolverMultiGridTask( kPostProcessTaskName );
 }
 
 void MG::OuterProcess( TimeSpan * timeSpan )

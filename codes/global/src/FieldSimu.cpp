@@ -72,14 +72,19 @@ void FieldSimuRun()
     MultigridSolve();
 }
 
-void FieldSimu()
+void FieldSimuRunPipeline()
 {
     FieldSimuSetupGlobals();
     FieldSimuLoadGrid();
     FieldSimuPrepareWallDist();
     FieldSimuCreateSolvers();
-    FieldSimuInitFlowField();
+    FieldSimuInitFlowField();  // -> MultiSolverMultiGridTask(kInitFlowFieldTaskName)
     FieldSimuRun();
+}
+
+void FieldSimu()
+{
+    FieldSimuRunPipeline();
 }
 
 void InitFlowSimuGlobal()
