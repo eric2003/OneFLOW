@@ -52,6 +52,9 @@ public:
 protected:
     static void AddSolverTypeToIndex( int solverType, int solverIndex );
     static void AddSolverIndexToType( int solverIndex, int solverType );
+
+    // Select unsSolver / strSolver bucket by grid type (UMESH vs SMESH).
+    static HXVector< Solver * > * SolverBucket( int gridType );
 };
 
 class SolverNameClass

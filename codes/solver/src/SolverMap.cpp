@@ -25,7 +25,6 @@ License
 #include "SolverNamePolicy.h"
 #include "GridState.h"
 #include "SolverState.h"
-#include "OStream.h"
 #include <map>
 #include <iostream>
 
@@ -46,31 +45,21 @@ SolverMap::~SolverMap()
 {
 }
 
-void SolverMap::CreateSolvers()
+HXVector< Solver * > * SolverMap::SolverBucket( int gridType )
 {
-    // S1: select side (uns vs str)
-    // S2: names from script/solver.txt + U/S prefix
-    // S3: SafeClone + StaticInit + index maps
-    // S4: SolverState::Init
-    // ... existing body unchanged ...
-    SolverMap::CreateSolvers( ONEFLOW::UMESH );
-    //SolverMap::CreateSolvers( ONEFLOW::SMESH );
+    if ( gridType == ONEFLOW::UMESH )
+    {
+        return & SolverMap::unsSolver;
+    }
+    return & SolverMap::strSolver;
 }
 
 void SolverMap::CreateSolvers( int gridType )
 {
-    HXVector< Solver * > * solvers = 0;
-    if ( gridType == ONEFLOW::UMESH )
-    {
-        solvers = & SolverMap::unsSolver;
-    }
-    else
-    {
-        solvers = & SolverMap::strSolver;
-    }
+    HXVector< Solver * > * solvers = SolverMap::SolverBucket( gridType );
 
     StringField & solverNameList = SolverNameClass::GetSolverNames( gridType );
-    int nSolver = solverNameList.size();
+    int nSolver = static_cast< int >( solverNameList.size() );
 
     LusgsState::Init( nSolver );
     for ( int solverIndex = 0; solverIndex < nSolver; ++ solverIndex )
@@ -79,7 +68,7 @@ void SolverMap::CreateSolvers( int gridType )
         solver->solverIndex = solverIndex;
         solver->gridType = gridType;
         solver->StaticInit();
-        
+
         SolverMap::AddSolverInfo( solver->solverType, solver->solverIndex );
         solvers->push_back( solver );
     }
@@ -89,22 +78,29 @@ void SolverMap::CreateSolvers( int gridType )
 
 void SolverMap::FreeSolverMap( int gridType )
 {
-    HXVector< Solver * > * solvers = 0;
-    if ( gridType == ONEFLOW::UMESH )
-    {
-        solvers = & SolverMap::unsSolver;
-    }
-    else
-    {
-        solvers = & SolverMap::strSolver;
-    }
+    HXVector< Solver * > * solvers = SolverMap::SolverBucket( gridType );
 
-    for ( int solverIndex = 0; solverIndex < solvers->size(); ++ solverIndex )
+    for ( int solverIndex = 0; solverIndex < static_cast< int >( solvers->size() ); ++ solverIndex )
     {
-        Solver * solver = ( * solvers )[ solverIndex ];
-        delete solver;
+        delete ( * solvers )[ solverIndex ];
     }
     solvers->resize( 0 );
+}
+
+Solver * SolverMap::GetSolver( int solverIndex, int gridType )
+{
+    return ( * SolverMap::SolverBucket( gridType ) )[ solverIndex ];
+}
+
+void SolverMap::CreateSolvers()
+{
+    // S1: select side (uns vs str)
+    // S2: names from script/solver.txt + U/S prefix
+    // S3: SafeClone + StaticInit + index maps
+    // S4: SolverState::Init
+    // ... existing body unchanged ...
+    SolverMap::CreateSolvers( ONEFLOW::UMESH );
+    //SolverMap::CreateSolvers( ONEFLOW::SMESH );
 }
 
 void SolverMap::FreeSolverMap()
@@ -153,18 +149,6 @@ void SolverMap::AddSolverIndexToType( int solverIndex, int solverType )
     }
 }
 
-Solver * SolverMap::GetSolver( int solverIndex, int gridType )
-{
-    if ( gridType == ONEFLOW::UMESH )
-    {
-        return unsSolver[ solverIndex ];
-    }
-    else
-    {
-        return strSolver[ solverIndex ];
-    }
-}
-
 StringField SolverNameClass::unsSolverNameList;
 StringField SolverNameClass::strSolverNameList;
 bool SolverNameClass::flag = false;
@@ -203,15 +187,19 @@ void SolverNameClass::ReadSolverNames( StringField & solverNameList )
 
     textFileParser.OpenPrjFile( "script/solver.txt", std::ios_base::in );
 
-    //\t is the tab key
-    std::string keyWordSeparator = " ()\r\n\t#$,;\"";
+    // \t is the tab key
+    const std::string keyWordSeparator = " ()\r\n\t#$,;\"";
     textFileParser.SetDefaultSeparator( keyWordSeparator );
 
-    while ( ! textFileParser.ReachTheEndOfFile()  )
+    // Same pattern as MessageMapImp::ReadFile:
+    // skip blank/comment lines; no spurious empty token at EOF.
+    while ( textFileParser.ReadNextMeaningfulLine() )
     {
-        bool flag = textFileParser.ReadNextNonEmptyLine();
-        if ( ! flag ) break;
         std::string solverName = textFileParser.ReadNextWord();
+        if ( solverName.empty() )
+        {
+            continue;
+        }
         solverNameList.push_back( solverName );
     }
 

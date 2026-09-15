@@ -164,3 +164,4 @@ TEST( MessageMapImpTest, PostProcessNameRoundTripsLikeCmxTaskLookup )
     EXPECT_GE( id, 0 );
     EXPECT_EQ( imp.GetMsgName( id ), kPostProcessTaskName );
 }
+
