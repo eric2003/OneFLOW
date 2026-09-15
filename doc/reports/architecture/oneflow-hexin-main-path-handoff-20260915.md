@@ -153,3 +153,22 @@ doc/reports/architecture/oneflow-hexin-main-path-handoff-20260915.md
 ```
 
 若仓库已有 `doc/reports/README.md` 的索引表，请在同一变更中追加本文件条目。
+
+## 9. 续：2026-09-16
+
+### 测试边界
+- `SolverNameList` 从 `SolverMap` 物理拆出；`solver_name_policy_test` 仅依赖 Policy 头。
+- `solver_name_list_test` 测 `LoadFromBaseNames` / `Reset`（轻依赖）。
+
+### SolverMap
+- `SolverBucket` / `BuildSolversInBucket`。
+- `CreateSolvers(gridType, const StringField*)`：非空=已展开注册名；`nullptr`=默认 `GetSolverNames`。
+
+### SimuContext
+- `SetExpandedSolverNames` / `HasExpandedSolverNames` / `ClearExpandedSolverNames`。
+- `FieldSimuRunPipeline(ctx)` / `FieldSimuCreateSolvers(ctx)`；`SolveFieldTask` 走带 ctx 管线。
+- 生产默认仍不注入 → 行为与改前一致。
+
+### CmxTaskNames
+- 覆盖 FieldSimu、Multigrid、TimeIntegral、SolverState、MultiBlock。
+- 生产 `Single/MultiSolver*Task("...")` 字面量已清扫。
