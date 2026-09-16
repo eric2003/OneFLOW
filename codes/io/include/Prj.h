@@ -23,14 +23,25 @@ License
 #include "NamespaceMacros.h"
 #include <fstream>
 #include <string>
+#include <iomanip>
+#include <sstream>
+#include <set>
 #include <vector>
+#include <algorithm>
+#include <filesystem>
 
 BeginNameSpace( ONEFLOW )
+
+//struct CmdLineOptions
+//{
+//    bool debug = false;
+//    std::string prjName;
+//};
 
 struct CmdLineOptions
 {
     bool debug = false;
-    std::string prjName;
+    std::string caseDir;
 };
 
 
@@ -39,6 +50,7 @@ class Prj
 public:
     Prj();
     ~Prj();
+
 public:
     static bool hx_debug;
     static bool run_from_ide;
@@ -46,11 +58,13 @@ public:
     static std::string current_dir;
     static std::string execute_dir;
     static std::string prjBaseDir;
+
 public:
     static void Init();
     static void SetPrjBaseDir( const std::string & prjName );
     static CmdLineOptions ParseCmdLineArgs( const std::vector<std::string> & args );
     static void ProcessCmdLineArgs( std::vector<std::string> &args );
+
 public:
     static void OpenPrjFile( std::fstream & file, const std::string & fileName, const std::ios_base::openmode & openMode );
     static void OpenFile( std::fstream & file, const std::string & fileName, const std::ios_base::openmode & openMode );
@@ -59,8 +73,10 @@ public:
     static std::string GetPrjFileName( const std::string & fileName );
     static std::string GetPrjDirName( const std::string & fileName );
     static void MakePrjDir( const std::string & dirName );
+
+private:
+    static std::string FindSystemRoot();
+    static bool IsSystemRoot( const std::filesystem::path & path );
 };
-
-
 
 EndNameSpace

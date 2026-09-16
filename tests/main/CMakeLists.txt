@@ -86,6 +86,8 @@ gtest_discover_tests(simu_context_test
 add_executable(prj_cmdline_test
   prj_cmdline_test.cpp
   ${CMAKE_SOURCE_DIR}/codes/io/src/PrjCmdLineArgs.cpp
+  ${CMAKE_SOURCE_DIR}/codes/io/src/Prj.cpp
+  ${CMAKE_SOURCE_DIR}/codes/io/src/FileUtils.cpp
 )
 
 target_include_directories(prj_cmdline_test

@@ -29,18 +29,21 @@ along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 
 BeginNameSpace( ONEFLOW )
 
-CmdLineOptions Prj::ParseCmdLineArgs( const std::vector<std::string> & args )
+CmdLineOptions Prj::ParseCmdLineArgs(
+    const std::vector<std::string> & args )
 {
     if ( args.size() < 3 )
     {
         throw std::invalid_argument(
             "Prj::ParseCmdLineArgs: expected at least 3 arguments "
-            "(exe, mode, prjName), got " + std::to_string( args.size() ) );
+            "(exe, mode, caseDir), got " + std::to_string( args.size() ) );
     }
 
     CmdLineOptions opt;
-    opt.debug   = ( args[ 1 ] == "d" );
-    opt.prjName = args[ 2 ];
+
+    opt.debug = ( args[ 1 ] == "d" );
+    opt.caseDir = args[ 2 ];
+
     return opt;
 }
 
