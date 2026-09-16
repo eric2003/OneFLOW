@@ -42,3 +42,61 @@ TEST( PrjParseCmdLineArgs, ExtraArgsBeyondThirdAreIgnored )
     EXPECT_TRUE( opt.debug );
     EXPECT_EQ( opt.prjName, "test/plateuns2dslau2/" );
 }
+
+TEST( PrjSetPrjBaseDir, RelativePath )
+{
+    Prj::current_dir = "D:/OneFLOW/build/OneFLOW";
+
+    Prj::SetPrjBaseDir( "plate" );
+
+    EXPECT_EQ(
+        Prj::prjBaseDir,
+        "D:\\OneFLOW\\build\\OneFLOW\\plate/"
+    );
+}
+
+TEST( PrjSetPrjBaseDir, NestedRelativePath )
+{
+    Prj::current_dir = "D:/OneFLOW/build/OneFLOW";
+
+    Prj::SetPrjBaseDir( "cases/plate" );
+
+    EXPECT_EQ(
+        Prj::prjBaseDir,
+        "D:\\OneFLOW\\build\\OneFLOW\\cases\\plate/"
+    );
+}
+
+TEST( PrjSetPrjBaseDir, AbsolutePath )
+{
+    Prj::current_dir = "D:/OneFLOW/build/OneFLOW";
+
+    Prj::SetPrjBaseDir(
+        "D:/OneFLOWWorkspace/2026/plate"
+    );
+
+    EXPECT_EQ(
+        Prj::prjBaseDir,
+        "D:\\OneFLOWWorkspace\\2026\\plate/"
+    );
+}
+
+TEST( PrjSetPrjBaseDir, AbsolutePathIsNotPrefixedByCurrentDirectory )
+{
+    Prj::current_dir = "D:/OneFLOW/build/OneFLOW";
+
+    Prj::SetPrjBaseDir(
+        "D:/OneFLOWWorkspace/2026/plate"
+    );
+
+    EXPECT_EQ(
+        Prj::prjBaseDir,
+        "D:\\OneFLOWWorkspace\\2026\\plate/"
+    );
+
+    EXPECT_EQ(
+        Prj::prjBaseDir.find( "build\\OneFLOW" ),
+        std::string::npos
+    );
+}
+
