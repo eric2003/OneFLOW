@@ -43,60 +43,113 @@ TEST( PrjParseCmdLineArgs, ExtraArgsBeyondThirdAreIgnored )
     EXPECT_EQ( opt.prjName, "test/plateuns2dslau2/" );
 }
 
+namespace
+{
+
+    std::filesystem::path RemoveTrailingSeparator(
+        const std::filesystem::path & path )
+    {
+        std::string value = path.string();
+
+        while ( value.size() > 1 &&
+            ( value.back() == '/' || value.back() == '\\' ) )
+        {
+            value.pop_back();
+        }
+
+        return std::filesystem::path( value );
+    }
+
+}
+
 TEST( PrjSetPrjBaseDir, RelativePath )
 {
-    Prj::current_dir = "D:/OneFLOW/build/OneFLOW";
+    Prj::current_dir = std::filesystem::current_path().string();
 
     Prj::SetPrjBaseDir( "plate" );
 
+    const std::filesystem::path actual =
+        RemoveTrailingSeparator( Prj::prjBaseDir );
+
+    const std::filesystem::path expected =
+        std::filesystem::current_path() / "plate";
+
     EXPECT_EQ(
-        Prj::prjBaseDir,
-        "D:\\OneFLOW\\build\\OneFLOW\\plate/"
-    );
+        actual.lexically_normal(),
+        expected.lexically_normal() );
+
+    EXPECT_TRUE(
+        !Prj::prjBaseDir.empty() &&
+        ( Prj::prjBaseDir.back() == '/' ||
+            Prj::prjBaseDir.back() == '\\' ) );
 }
+
 
 TEST( PrjSetPrjBaseDir, NestedRelativePath )
 {
-    Prj::current_dir = "D:/OneFLOW/build/OneFLOW";
+    Prj::current_dir = std::filesystem::current_path().string();
 
     Prj::SetPrjBaseDir( "cases/plate" );
 
+    const std::filesystem::path actual =
+        RemoveTrailingSeparator( Prj::prjBaseDir );
+
+    const std::filesystem::path expected =
+        std::filesystem::current_path() / "cases" / "plate";
+
     EXPECT_EQ(
-        Prj::prjBaseDir,
-        "D:\\OneFLOW\\build\\OneFLOW\\cases\\plate/"
-    );
+        actual.lexically_normal(),
+        expected.lexically_normal() );
+
+    EXPECT_TRUE(
+        !Prj::prjBaseDir.empty() &&
+        ( Prj::prjBaseDir.back() == '/' ||
+            Prj::prjBaseDir.back() == '\\' ) );
 }
+
 
 TEST( PrjSetPrjBaseDir, AbsolutePath )
 {
-    Prj::current_dir = "D:/OneFLOW/build/OneFLOW";
+    Prj::current_dir = std::filesystem::current_path().string();
 
-    Prj::SetPrjBaseDir(
-        "D:/OneFLOWWorkspace/2026/plate"
-    );
+    const std::filesystem::path absoluteCase =
+        std::filesystem::temp_directory_path()
+        / "OneFLOW"
+        / "2026"
+        / "plate";
+
+    Prj::SetPrjBaseDir( absoluteCase.string() );
+
+    const std::filesystem::path actual =
+        RemoveTrailingSeparator( Prj::prjBaseDir );
 
     EXPECT_EQ(
-        Prj::prjBaseDir,
-        "D:\\OneFLOWWorkspace\\2026\\plate/"
-    );
+        actual.lexically_normal(),
+        absoluteCase.lexically_normal() );
+
+    EXPECT_TRUE(
+        !Prj::prjBaseDir.empty() &&
+        ( Prj::prjBaseDir.back() == '/' ||
+            Prj::prjBaseDir.back() == '\\' ) );
 }
+
 
 TEST( PrjSetPrjBaseDir, AbsolutePathIsNotPrefixedByCurrentDirectory )
 {
-    Prj::current_dir = "D:/OneFLOW/build/OneFLOW";
+    Prj::current_dir = std::filesystem::current_path().string();
 
-    Prj::SetPrjBaseDir(
-        "D:/OneFLOWWorkspace/2026/plate"
-    );
+    const std::filesystem::path absoluteCase =
+        std::filesystem::temp_directory_path()
+        / "OneFLOW"
+        / "2026"
+        / "plate";
+
+    Prj::SetPrjBaseDir( absoluteCase.string() );
+
+    const std::filesystem::path actual =
+        RemoveTrailingSeparator( Prj::prjBaseDir );
 
     EXPECT_EQ(
-        Prj::prjBaseDir,
-        "D:\\OneFLOWWorkspace\\2026\\plate/"
-    );
-
-    EXPECT_EQ(
-        Prj::prjBaseDir.find( "build\\OneFLOW" ),
-        std::string::npos
-    );
+        actual.lexically_normal(),
+        absoluteCase.lexically_normal() );
 }
-
