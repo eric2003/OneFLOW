@@ -23,6 +23,7 @@ License
 #include "TimeIntegral.h"
 #include "Multigrid.h"
 #include "CmxTask.h"
+#include "CmxTaskNames.h"
 #include "GridState.h"
 #include "Ctrl.h"
 
@@ -82,59 +83,60 @@ void TimeIntegral::RungeKutta()
 {
     if ( GridState::gridLevel == 0 )
     {
-        ONEFLOW::SingleSolverSingleGridTask( "LOAD_Q"        );
-        ONEFLOW::SingleSolverSingleGridTask( "CALC_TIME_STEP" );
+        ONEFLOW::SingleSolverSingleGridTask( kLoadQTaskName );
+        
+        ONEFLOW::SingleSolverSingleGridTask( kCalcTimeStepTaskName );
 
         int nStages = ctrl.rk_coef.size();
         for ( int iStage = 0; iStage < nStages; ++ iStage )
         {
             ctrl.lhscoef = ctrl.rk_coef[ iStage ];
 
-            ONEFLOW::SingleSolverSingleGridTask( "LOAD_RESIDUALS"   );
-            ONEFLOW::SingleSolverSingleGridTask( "UPDATE_RESIDUALS" );
-            ONEFLOW::SingleSolverSingleGridTask( "CALC_LHS"          );
-            ONEFLOW::SingleSolverSingleGridTask( "UPDATE_FLOWFIELD" );
-            ONEFLOW::SingleSolverSingleGridTask( "CALC_BOUNDARY"     );
+            ONEFLOW::SingleSolverSingleGridTask( kLoadResidualsTaskName   );
+            ONEFLOW::SingleSolverSingleGridTask( kUpdateResidualsTaskName );
+            ONEFLOW::SingleSolverSingleGridTask( kCalcLhsTaskName          );
+            ONEFLOW::SingleSolverSingleGridTask( kUpdateFlowFieldTaskName );
+            ONEFLOW::SingleSolverSingleGridTask( kCalcBoundaryTaskName     );
         }
     }
     else
     {
         ctrl.lhscoef = 1.0;
-        ONEFLOW::SingleSolverSingleGridTask( "LOAD_Q"           );
-        ONEFLOW::SingleSolverSingleGridTask( "CALC_TIME_STEP"    );
-        ONEFLOW::SingleSolverSingleGridTask( "LOAD_RESIDUALS"   );
-        ONEFLOW::SingleSolverSingleGridTask( "UPDATE_RESIDUALS" );
-        ONEFLOW::SingleSolverSingleGridTask( "CALC_LHS"          );
-        ONEFLOW::SingleSolverSingleGridTask( "UPDATE_FLOWFIELD" );
-        ONEFLOW::SingleSolverSingleGridTask( "CALC_BOUNDARY"     );
+        ONEFLOW::SingleSolverSingleGridTask( kLoadQTaskName );
+        ONEFLOW::SingleSolverSingleGridTask( kCalcTimeStepTaskName );
+        ONEFLOW::SingleSolverSingleGridTask( kLoadResidualsTaskName   );
+        ONEFLOW::SingleSolverSingleGridTask( kUpdateResidualsTaskName );
+        ONEFLOW::SingleSolverSingleGridTask( kCalcLhsTaskName          );
+        ONEFLOW::SingleSolverSingleGridTask( kUpdateFlowFieldTaskName );
+        ONEFLOW::SingleSolverSingleGridTask( kCalcBoundaryTaskName     );
     }
 }
 
 void TimeIntegral::Lusgs()
 {
-    ONEFLOW::SingleSolverSingleGridTask( "ZERO_DQ_FIELD"    );
-    ONEFLOW::SingleSolverSingleGridTask( "CALC_TIME_STEP"    );
-    ONEFLOW::SingleSolverSingleGridTask( "LOAD_RESIDUALS"   );
-    ONEFLOW::SingleSolverSingleGridTask( "UPDATE_RESIDUALS" );
-    ONEFLOW::SingleSolverSingleGridTask( "INIT_LUSGS"       );
+    ONEFLOW::SingleSolverSingleGridTask( kZeroDqFieldTaskName  );
+    ONEFLOW::SingleSolverSingleGridTask( kCalcTimeStepTaskName );
+    ONEFLOW::SingleSolverSingleGridTask( kLoadResidualsTaskName   );
+    ONEFLOW::SingleSolverSingleGridTask( kUpdateResidualsTaskName );
+    ONEFLOW::SingleSolverSingleGridTask( kInitLusgsTaskName       );
 
     for ( int iSweep = 0; iSweep < SweepState::nSweeps; ++ iSweep )
     {
-        ONEFLOW::SingleSolverSingleGridTask( "LUSGS_LOWER_SWEEP"     );
-        ONEFLOW::SingleSolverSingleGridTask( "EXCHANGE_INTERFACE_DQ" );
-        ONEFLOW::SingleSolverSingleGridTask( "LUSGS_UPPER_SWEEP"     );
+        ONEFLOW::SingleSolverSingleGridTask( kLusgsLowerSweepTaskName     );
+        ONEFLOW::SingleSolverSingleGridTask( kExchangeInterfaceDqTaskName );
+        ONEFLOW::SingleSolverSingleGridTask( kLusgsUpperSweepTaskName     );
     }
 
-    ONEFLOW::SingleSolverSingleGridTask( "UPDATE_FLOWFIELD_LUSGS" );
-    ONEFLOW::SingleSolverSingleGridTask( "CALC_BOUNDARY"           );
+    ONEFLOW::SingleSolverSingleGridTask( kUpdateFlowFieldLusgsTaskName );
+    ONEFLOW::SingleSolverSingleGridTask( kCalcBoundaryTaskName           );
 }
 
 void TimeIntegral::Simple()
 {
-	ONEFLOW::SingleSolverSingleGridTask("UPDATE_RESIDUALS");
+	ONEFLOW::SingleSolverSingleGridTask( kUpdateResidualsTaskName );
 
-	ONEFLOW::SingleSolverSingleGridTask("SOL_TURB");
-	ONEFLOW::SingleSolverSingleGridTask("SOL_HEAT");
+	ONEFLOW::SingleSolverSingleGridTask( kSolTurbTaskName );
+	ONEFLOW::SingleSolverSingleGridTask( kSolHeatTaskName );
 }
 
 EndNameSpace

@@ -47,9 +47,7 @@ public:
     void Execute( const SimuContext& ctx ) override
     {
         RequireSolveFieldContext( ctx );
-
-        // Same pipeline as FieldSimu(); order owned by FieldSimuRunPipeline().
-        FieldSimuRunPipeline();
+        FieldSimuRunPipeline( ctx );
     }
 };
 

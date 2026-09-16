@@ -199,7 +199,7 @@ void MG::InitializeCoarseGridFlowFieldByRestrictFineGridFlowField( int fgl )
     //Call the following statement to update the Q value (CQ) on the thin grid
     GridState::SetGridLevel( fgl );
 
-    ONEFLOW::SingleSolverSingleGridTask( "RESTRICT_ALL_Q" );
+    ONEFLOW::SingleSolverSingleGridTask( kRestrictAllQTaskName );
 }
 
 void MG::StoreCoarseGridFlowFieldToTemporaryStorage( int fgl )
@@ -209,7 +209,7 @@ void MG::StoreCoarseGridFlowFieldToTemporaryStorage( int fgl )
     //Loadq takes the Q value (CQ) from the sparse grid and assigns it to cqsav
     GridState::SetGridLevel( cgl );
 
-    ONEFLOW::SingleSolverSingleGridTask( "LOAD_Q" );
+    ONEFLOW::SingleSolverSingleGridTask( kLoadQTaskName );
 }
 
 void MG::PrepareFineGridResiduals( int fgl )
@@ -224,7 +224,7 @@ void MG::PrepareFineGridResiduals( int fgl )
     //Residual = ( - f ) == ( - rhs );
     GridState::SetGridLevel( fgl );
 
-    ONEFLOW::SingleSolverSingleGridTask( "LOAD_RESIDUALS" );
+    ONEFLOW::SingleSolverSingleGridTask( kLoadResidualsTaskName );
 
     //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     //+After updateresiduals, generalresidualfield = Rl (W) - F
@@ -236,7 +236,7 @@ void MG::PrepareCoarseGridResiduals( int fgl )
 {
     //+Residual incoarsegrid = - restr (RL (W) - F) after restrict defect
     GridState::SetGridLevel( fgl );
-    ONEFLOW::SingleSolverSingleGridTask( "RESTRICT_DEFECT" );
+    ONEFLOW::SingleSolverSingleGridTask( kRestrictDefectTaskName );
 
     //After updateresiduals, residualincoarsegrid = RL-1 (wsav) - restr (RL (W) - F)
     int cgl = GridState::GetCGridLevel( fgl );

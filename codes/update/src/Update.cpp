@@ -24,6 +24,7 @@ License
 #include "NsUpdate.h"
 #include "INsUpdate.h"
 #include "TurbUpdate.h"
+#include "CmxTaskNames.h"
 #include "SolverDef.h"
 #include "SolverInfo.h"
 #include "Task.h"
@@ -65,19 +66,12 @@ void GetUpdateField( int solverType, FieldWrap *q, FieldWrap *dq )
 {
     SolverInfo * solverInfo = SolverInfoFactory::GetSolverInfo( solverType );
 
-    if ( TaskState::task->taskName == "UPDATE_FLOWFIELD_LUSGS" )
+    if ( TaskState::task->taskName == kUpdateFlowFieldLusgsTaskName )
     {
         std::string & qFieldString  = solverInfo->implicitString[ 0 ];
         std::string & dQFieldString = solverInfo->implicitString[ 1 ];
         q  = FieldHome::GetFieldWrap( qFieldString  );
         dq = FieldHome::GetFieldWrap( dQFieldString );
-    }
-    else if (TaskState::task->taskName == "UPDATE_FLOWFIELD_SIMPLE")
-    {
-        std::string & qFieldString = solverInfo->implicitString[0];
-        std::string & dQFieldString = solverInfo->implicitString[1];
-        q = FieldHome::GetFieldWrap(qFieldString);
-        dq = FieldHome::GetFieldWrap(dQFieldString);
     }
     else
     {

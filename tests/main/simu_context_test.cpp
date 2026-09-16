@@ -162,3 +162,27 @@ TEST( SimuContextTest, ContextAwareTaskSeesInjectedState )
     EXPECT_EQ( aware->saw_task_name_, "Theory" );
     EXPECT_EQ( aware->saw_args_count_, 3 );
 }
+
+TEST( SimuContextSolverNames, DefaultHasNoInjectedNames )
+{
+    std::vector<std::string> args;
+    ONEFLOW::SimuContext ctx( args );
+    EXPECT_FALSE( ctx.HasExpandedSolverNames() );
+}
+
+TEST( SimuContextSolverNames, SetAndClearExpandedNames )
+{
+    std::vector<std::string> args;
+    ONEFLOW::SimuContext ctx( args );
+
+    ONEFLOW::StringField names;
+    names.push_back( "UNsSolver" );
+    ctx.SetExpandedSolverNames( names );
+
+    ASSERT_TRUE( ctx.HasExpandedSolverNames() );
+    EXPECT_EQ( ctx.ExpandedSolverNames().size(), 1u );
+    EXPECT_EQ( ctx.ExpandedSolverNames()[ 0 ], "UNsSolver" );
+
+    ctx.ClearExpandedSolverNames();
+    EXPECT_FALSE( ctx.HasExpandedSolverNames() );
+}

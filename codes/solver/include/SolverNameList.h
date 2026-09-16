@@ -19,35 +19,34 @@ License
     along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 
 \*---------------------------------------------------------------------------*/
+
+
 #pragma once
 #include "HXDefine.h"
 
+
 BeginNameSpace( ONEFLOW )
 
-// CFD field-solve pipeline stages (order fixed; no numerical changes).
-void FieldSimuSetupGlobals();
-void FieldSimuLoadGrid();
-void FieldSimuPrepareWallDist();
-void FieldSimuCreateSolvers();
-void FieldSimuInitFlowField();
-void FieldSimuRun();
+// Holds expanded solver registration names (U*/S*) for UMESH / SMESH.
+// File I/O + SolverNamePolicy expansion; no Solver* / SafeClone.
+class SolverNameClass
+{
+public:
+    SolverNameClass();
+    ~SolverNameClass();
 
-// Single orchestration of the six stages (same order as above).
-// Used by FieldSimu() and SolveFieldTask.
-void FieldSimuRunPipeline();
+    static StringField unsSolverNameList;
+    static StringField strSolverNameList;
+    static bool flag;
 
-// Convenience: RunPipeline only (legacy / non-registry callers).
-void FieldSimu();
+    static void Init();
+    static void ReadSolverNames();
+    static void ReadSolverNames( StringField & solverNameList );
+    static StringField & GetSolverNames( int gridType );
 
-void InitFlowSimuGlobal();
-void InitializeSolver();
-
-class SimuContext;
-
-void FieldSimuCreateSolvers();
-void FieldSimuCreateSolvers( const SimuContext& ctx );
-
-void FieldSimuRunPipeline();
-void FieldSimuRunPipeline( const SimuContext& ctx );
+    // Test / injection: expand base names, no script/solver.txt
+    static void LoadFromBaseNames( const StringField & baseNames );
+    static void Reset();
+};
 
 EndNameSpace
