@@ -32,10 +32,16 @@ License
 
 BeginNameSpace( ONEFLOW )
 
+//struct CmdLineOptions
+//{
+//    bool debug = false;
+//    std::string prjName;
+//};
+
 struct CmdLineOptions
 {
     bool debug = false;
-    std::string prjName;
+    std::string caseDir;
 };
 
 

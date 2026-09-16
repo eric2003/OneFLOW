@@ -46,7 +46,7 @@ Prj::~Prj()
     ;
 }
 
-void Prj::ProcessCmdLineArgs( std::vector<std::string> &args )
+void Prj::ProcessCmdLineArgs( std::vector<std::string> & args )
 {
     CmdLineOptions opt = Prj::ParseCmdLineArgs( args );
 
@@ -57,7 +57,7 @@ void Prj::ProcessCmdLineArgs( std::vector<std::string> &args )
     }
 
     Prj::Init();
-    Prj::SetPrjBaseDir( opt.prjName );
+    Prj::SetPrjBaseDir( opt.caseDir );
 }
 
 bool Prj::IsSystemRoot( const std::filesystem::path & path )
