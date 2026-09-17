@@ -83,4 +83,13 @@ void SimuContext::ClearExpandedSolverNames()
     expandedSolverNames_.clear();
 }
 
+void SimuContext::EnsureExpandedSolverNames( const StringField& names )
+{
+    if ( !expandedSolverNames_.empty() )
+    {
+        return;
+    }
+    expandedSolverNames_ = names;
+}
+
 EndNameSpace

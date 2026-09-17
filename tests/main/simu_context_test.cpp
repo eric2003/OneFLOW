@@ -186,3 +186,25 @@ TEST( SimuContextSolverNames, SetAndClearExpandedNames )
     ctx.ClearExpandedSolverNames();
     EXPECT_FALSE( ctx.HasExpandedSolverNames() );
 }
+
+
+TEST( SimuContextSolverNames, EnsureFillsOnlyWhenEmpty )
+{
+    std::vector<std::string> args;
+    ONEFLOW::SimuContext ctx( args );
+
+    ONEFLOW::StringField first;
+    first.push_back( "UNsSolver" );
+    ctx.EnsureExpandedSolverNames( first );
+
+    ASSERT_TRUE( ctx.HasExpandedSolverNames() );
+    EXPECT_EQ( ctx.ExpandedSolverNames()[ 0 ], "UNsSolver" );
+
+    // Second ensure must not overwrite (production preload vs test injection).
+    ONEFLOW::StringField second;
+    second.push_back( "UTurbSolver" );
+    ctx.EnsureExpandedSolverNames( second );
+
+    ASSERT_EQ( ctx.ExpandedSolverNames().size(), 1u );
+    EXPECT_EQ( ctx.ExpandedSolverNames()[ 0 ], "UNsSolver" );
+}
