@@ -25,6 +25,7 @@ License
 #include "SolverDef.h"
 #include "TurbRhs.h"
 #include "CmxTask.h"
+#include "CmxTaskNames.h"
 #include "Iteration.h"
 #include "SolverRegister.h"
 
@@ -74,22 +75,22 @@ void TurbPostprocess( StringField & data )
     //The solution and output of residuals need logical judgment
     if ( Iteration::ResOk() )
     {
-        ONEFLOW::AddCmdToList( "DUMP_RESIDUAL" );
+        ONEFLOW::AddCmdToList( kDumpResidualTaskName );
     }
 
     if ( ! Iteration::InnerOk() ) return;
 
-    ONEFLOW::AddCmdToList( "UPDATE_UNSTEADY_FLOW" );
+    ONEFLOW::AddCmdToList( kUpdateUnsteadyFlowTaskName );
 
     if ( Iteration::outerSteps % Iteration::nFieldSave == 0 )
     {
-        ONEFLOW::AddCmdToList( "DUMP_RESTART" );
+        ONEFLOW::AddCmdToList( kDumpRestartTaskName );
     }
 }
 
 void TurbFinalPostprocess( StringField & data )
 {
-    ONEFLOW::AddCmdToList( "DUMP_RESTART" );
+    ONEFLOW::AddCmdToList( kDumpRestartTaskName );
 }
 
 void TurbInitSolver( StringField & data )

@@ -1,0 +1,352 @@
+diff --git a/codes/ins/src/INsSolverImp.cpp b/codes/ins/src/INsSolverImp.cpp
+index 2d25a2d..599f765 100644
+--- a/codes/ins/src/INsSolverImp.cpp
++++ b/codes/ins/src/INsSolverImp.cpp
+@@ -29,6 +29,7 @@ License
+ #include "INsRhs.h"
+ #include "UCom.h"
+ #include "CmxTask.h"
++#include "CmxTaskNames.h"
+ #include "Iteration.h"
+ #include "SolverDef.h"
+ #include "Ctrl.h"
+@@ -120,14 +121,14 @@ void INsPostprocess( StringField & data )
+     //The solution and output of residuals need to be judged logically.
+     if ( Iteration::ResOk() )
+     {
+-        ONEFLOW::AddCmdToList( "DUMP_RESIDUAL" );
++        ONEFLOW::AddCmdToList( kDumpResidualTaskName );
+     }
+ 
+     //The solution and output of aerodynamic force need to be judged logically.
+ 
+     if ( Iteration::ForceOk() )
+     {
+-        ONEFLOW::AddCmdToList( "DUMP_AERODYNAMIC" );
++        ONEFLOW::AddCmdToList( kDumpAerodynamicTaskName );
+     }
+ 
+     int startStrategy = ctrl.startStrategy;
+@@ -139,7 +140,7 @@ void INsPostprocess( StringField & data )
+ 	{
+ 		if (!Iteration::InnerOk()) return;
+ 
+-		ONEFLOW::AddCmdToList("UPDATE_UNSTEADY_FLOW");
++		ONEFLOW::AddCmdToList( kUpdateUnsteadyFlowTaskName );
+ 	}
+ 
+ 	
+@@ -147,18 +148,18 @@ void INsPostprocess( StringField & data )
+ 	{
+ 		if (Iteration::innerSteps % Iteration::nVisualSave == 0)
+ 		{
+-			ONEFLOW::AddCmdToList("VISUALIZATION");
+-			ONEFLOW::AddCmdToList("DUMP_PRESSURE_COEFF");
+-			ONEFLOW::AddCmdToList("DUMP_HEATFLUX_COEFF");
++			ONEFLOW::AddCmdToList( kVisualizationTaskName     );
++			ONEFLOW::AddCmdToList( kDumpPressureCoeffTaskName );
++			ONEFLOW::AddCmdToList( kDumpHeatfluxCoeffTaskName );
+ 		}
+ 	}
+ 	else
+ 	{
+ 		if (Iteration::outerSteps % Iteration::nVisualSave == 0)
+ 		{
+-			ONEFLOW::AddCmdToList("VISUALIZATION");
+-			ONEFLOW::AddCmdToList("DUMP_PRESSURE_COEFF");
+-			ONEFLOW::AddCmdToList("DUMP_HEATFLUX_COEFF");
++			ONEFLOW::AddCmdToList( kVisualizationTaskName     );
++			ONEFLOW::AddCmdToList( kDumpPressureCoeffTaskName );
++			ONEFLOW::AddCmdToList( kDumpHeatfluxCoeffTaskName );
+ 		}
+ 	}
+ 
+@@ -166,14 +167,14 @@ void INsPostprocess( StringField & data )
+ 	{
+ 		if (Iteration::innerSteps % Iteration::nFieldSave == 0)
+ 		{
+-			ONEFLOW::AddCmdToList("DUMP_RESTART");
++			ONEFLOW::AddCmdToList( kDumpRestartTaskName );
+ 		}
+ 	}
+ 	else
+ 	{
+ 		if (Iteration::outerSteps % Iteration::nFieldSave == 0)
+ 		{
+-			ONEFLOW::AddCmdToList("DUMP_RESTART");
++			ONEFLOW::AddCmdToList( kDumpRestartTaskName );
+ 		}
+ 	}
+ 
+@@ -181,11 +182,11 @@ void INsPostprocess( StringField & data )
+ 
+ void INsFinalPostprocess( StringField & data )
+ {
+-    ONEFLOW::AddCmdToList( "DUMP_RESTART"        );
+-    ONEFLOW::AddCmdToList( "DUMP_AERODYNAMIC"    );
+-    ONEFLOW::AddCmdToList( "DUMP_PRESSURE_COEFF" );
+-    ONEFLOW::AddCmdToList( "DUMP_HEATFLUX_COEFF" );
+-    ONEFLOW::AddCmdToList( "VISUALIZATION"       );
++    ONEFLOW::AddCmdToList( kDumpRestartTaskName       );
++    ONEFLOW::AddCmdToList( kDumpAerodynamicTaskName   );
++    ONEFLOW::AddCmdToList( kDumpPressureCoeffTaskName );
++    ONEFLOW::AddCmdToList( kDumpHeatfluxCoeffTaskName );
++    ONEFLOW::AddCmdToList( kVisualizationTaskName     );
+ }
+ 
+ void INsInitSolver( StringField & data )
+diff --git a/codes/ns/src/NsSolverImp.cpp b/codes/ns/src/NsSolverImp.cpp
+index 8052dff..b746e20 100644
+--- a/codes/ns/src/NsSolverImp.cpp
++++ b/codes/ns/src/NsSolverImp.cpp
+@@ -30,6 +30,7 @@ License
+ #include "NsRhs.h"
+ #include "UCom.h"
+ #include "CmxTask.h"
++#include "CmxTaskNames.h"
+ #include "Iteration.h"
+ #include "SolverDef.h"
+ #include "Ctrl.h"
+@@ -123,37 +124,37 @@ void NsPostprocess( StringField & data )
+     //The solution and output of residuals need to be judged logically.
+     if ( Iteration::ResOk() )
+     {
+-        ONEFLOW::AddCmdToList( "DUMP_RESIDUAL" );
++        ONEFLOW::AddCmdToList( kDumpResidualTaskName );
+     }
+ 
+     //The solution and output of aerodynamic force need to be judged logically.
+     if ( Iteration::ForceOk() )
+     {
+-        ONEFLOW::AddCmdToList( "DUMP_AERODYNAMIC" );
++        ONEFLOW::AddCmdToList( kDumpAerodynamicTaskName );
+     }
+ 
+     if ( ! Iteration::InnerOk() ) return;
+ 
+-    ONEFLOW::AddCmdToList( "UPDATE_UNSTEADY_FLOW" );
++    ONEFLOW::AddCmdToList( kUpdateUnsteadyFlowTaskName );
+ 
+     if ( Iteration::outerSteps % Iteration::nVisualSave == 0 )
+     {
+-        ONEFLOW::AddCmdToList( "VISUALIZATION"       );
+-        ONEFLOW::AddCmdToList( "DUMP_PRESSURE_COEFF" );
+-        ONEFLOW::AddCmdToList( "DUMP_HEATFLUX_COEFF" );
++        ONEFLOW::AddCmdToList( kVisualizationTaskName      );
++        ONEFLOW::AddCmdToList( kDumpPressureCoeffTaskName  );
++        ONEFLOW::AddCmdToList( kDumpHeatfluxCoeffTaskName  );
+         if ( ctrl.idump == 1 )
+         {
+-            ONEFLOW::AddCmdToList( "DUMP_LAMINAR_PLATE" );
++            ONEFLOW::AddCmdToList( kDumpLaminarPlateTaskName );
+         }
+         else if ( ctrl.idump == 2 )
+         {
+-            ONEFLOW::AddCmdToList( "DUMP_TURB_PLATE" );
++            ONEFLOW::AddCmdToList( kDumpTurbPlateTaskName );
+         }
+     }
+ 
+     if ( Iteration::outerSteps % Iteration::nFieldSave == 0 )
+     {
+-        ONEFLOW::AddCmdToList( "DUMP_RESTART" );
++        ONEFLOW::AddCmdToList( kDumpRestartTaskName );
+     }
+ 
+ }
+@@ -165,11 +166,11 @@ void DumpHeatFluxCoeff( StringField & data )
+ 
+ void NsFinalPostprocess( StringField & data )
+ {
+-    ONEFLOW::AddCmdToList( "DUMP_RESTART"        );
+-    ONEFLOW::AddCmdToList( "DUMP_AERODYNAMIC"    );
+-    ONEFLOW::AddCmdToList( "DUMP_PRESSURE_COEFF" );
+-    ONEFLOW::AddCmdToList( "DUMP_HEATFLUX_COEFF" );
+-    ONEFLOW::AddCmdToList( "VISUALIZATION"       );
++    ONEFLOW::AddCmdToList( kDumpRestartTaskName       );
++    ONEFLOW::AddCmdToList( kDumpAerodynamicTaskName   );
++    ONEFLOW::AddCmdToList( kDumpPressureCoeffTaskName );
++    ONEFLOW::AddCmdToList( kDumpHeatfluxCoeffTaskName );
++    ONEFLOW::AddCmdToList( kVisualizationTaskName     );
+ }
+ 
+ void NsInitSolver( StringField & data )
+diff --git a/codes/restart/src/RestartTaskReg.cpp b/codes/restart/src/RestartTaskReg.cpp
+index f418aef..b61ea6c 100644
+--- a/codes/restart/src/RestartTaskReg.cpp
++++ b/codes/restart/src/RestartTaskReg.cpp
+@@ -33,6 +33,7 @@ License
+ #include "FieldWrap.h"
+ #include "FieldAlloc.h"
+ #include "CmxTask.h"
++#include "CmxTaskNames.h"
+ #include "DataBase.h"
+ #include "DataBook.h"
+ #include "Lusgs.h"
+@@ -136,28 +137,28 @@ void ReadinsRestart(StringField & data)
+ 
+ void InitFlowField( StringField & data )
+ {
+-    ONEFLOW::AddCmdToList( "INIT_FIRST" );
++    ONEFLOW::AddCmdToList( kInitFirstTaskName );
+ 
+     int startStrategy = ONEFLOW::GetDataValue< int >( "startStrategy" );
+ 
+     if ( startStrategy == 0 )
+     {
+-        ONEFLOW::AddCmdToList( "INIT_RESTART" );
++        ONEFLOW::AddCmdToList( kInitRestartTaskName );
+     }
+ 	else if ( startStrategy == 1 )
+ 	{
+-		ONEFLOW::AddCmdToList( "READ_RESTART" );
++		ONEFLOW::AddCmdToList( kReadRestartTaskName );
+ 	}
+ 	else if ( startStrategy == 2 )
+ 	{
+-		ONEFLOW::AddCmdToList( "INIT_INSRESTART" );
++		ONEFLOW::AddCmdToList( kInitInsRestartTaskName );
+ 	}
+ 	else if ( startStrategy == 3 )
+     {
+-        ONEFLOW::AddCmdToList( "READ_INSRESTART" );
++        ONEFLOW::AddCmdToList( kReadInsRestartTaskName );
+     }
+ 
+-    ONEFLOW::AddCmdToList( "INIT_FINAL" );
++    ONEFLOW::AddCmdToList( kInitFinalTaskName );
+ }
+ 
+ 
+diff --git a/codes/solver/src/SolverImp.cpp b/codes/solver/src/SolverImp.cpp
+index 1b7b9d6..66eb2c0 100644
+--- a/codes/solver/src/SolverImp.cpp
++++ b/codes/solver/src/SolverImp.cpp
+@@ -22,14 +22,15 @@ License
+ 
+ #include "SolverImp.h"
+ #include "CmxTask.h"
++#include "CmxTaskNames.h"
+ 
+ BeginNameSpace( ONEFLOW )
+ 
+ void CommInterfaceData()
+ {
+-    ONEFLOW::AddCmdToList( "UPLOAD_INTERFACE_DATA"  );
+-    ONEFLOW::AddCmdToList( "UPDATE_INTERFACE_DATA"  );
+-    ONEFLOW::AddCmdToList( "DOWNLOAD_INTERFACE_DATA");
++    ONEFLOW::AddCmdToList( kUploadInterfaceDataTaskName   );
++    ONEFLOW::AddCmdToList( kUpdateInterfaceDataTaskName   );
++    ONEFLOW::AddCmdToList( kDownloadInterfaceDataTaskName );
+ }
+ 
+ EndNameSpace
+diff --git a/codes/task/include/CmxTaskNames.h b/codes/task/include/CmxTaskNames.h
+index 243370e..090c3c6 100644
+--- a/codes/task/include/CmxTaskNames.h
++++ b/codes/task/include/CmxTaskNames.h
+@@ -76,4 +76,28 @@ inline constexpr const char* kWriteWallDistTaskName     = "WRITE_WALL_DIST";
+ inline constexpr const char* kReadWallDistTaskName      = "READ_WALL_DIST";
+ inline constexpr const char* kAllocateWallDistTaskName  = "ALLOCATE_WALL_DIST";
+ 
++// Restart / init-flowfield command list (AddCmdToList path)
++inline constexpr const char* kInitFirstTaskName      = "INIT_FIRST";
++inline constexpr const char* kInitRestartTaskName    = "INIT_RESTART";
++inline constexpr const char* kReadRestartTaskName    = "READ_RESTART";
++inline constexpr const char* kInitInsRestartTaskName = "INIT_INSRESTART";
++inline constexpr const char* kReadInsRestartTaskName = "READ_INSRESTART";
++inline constexpr const char* kInitFinalTaskName      = "INIT_FINAL";
++
++// Interface exchange
++inline constexpr const char* kUploadInterfaceDataTaskName   = "UPLOAD_INTERFACE_DATA";
++inline constexpr const char* kUpdateInterfaceDataTaskName   = "UPDATE_INTERFACE_DATA";
++inline constexpr const char* kDownloadInterfaceDataTaskName = "DOWNLOAD_INTERFACE_DATA";
++
++// Dump / visualization / unsteady (Ns / INs / Turb SolverImp)
++inline constexpr const char* kDumpResidualTaskName       = "DUMP_RESIDUAL";
++inline constexpr const char* kDumpAerodynamicTaskName    = "DUMP_AERODYNAMIC";
++inline constexpr const char* kDumpPressureCoeffTaskName  = "DUMP_PRESSURE_COEFF";
++inline constexpr const char* kDumpHeatfluxCoeffTaskName  = "DUMP_HEATFLUX_COEFF";
++inline constexpr const char* kDumpRestartTaskName        = "DUMP_RESTART";
++inline constexpr const char* kDumpLaminarPlateTaskName   = "DUMP_LAMINAR_PLATE";
++inline constexpr const char* kDumpTurbPlateTaskName      = "DUMP_TURB_PLATE";
++inline constexpr const char* kVisualizationTaskName      = "VISUALIZATION";
++inline constexpr const char* kUpdateUnsteadyFlowTaskName = "UPDATE_UNSTEADY_FLOW";
++
+ EndNameSpace
+\ No newline at end of file
+diff --git a/codes/turb/src/TurbSolverImp.cpp b/codes/turb/src/TurbSolverImp.cpp
+index 8a03cdb..16d3d16 100644
+--- a/codes/turb/src/TurbSolverImp.cpp
++++ b/codes/turb/src/TurbSolverImp.cpp
+@@ -25,6 +25,7 @@ License
+ #include "SolverDef.h"
+ #include "TurbRhs.h"
+ #include "CmxTask.h"
++#include "CmxTaskNames.h"
+ #include "Iteration.h"
+ #include "SolverRegister.h"
+ 
+@@ -74,22 +75,22 @@ void TurbPostprocess( StringField & data )
+     //The solution and output of residuals need logical judgment
+     if ( Iteration::ResOk() )
+     {
+-        ONEFLOW::AddCmdToList( "DUMP_RESIDUAL" );
++        ONEFLOW::AddCmdToList( kDumpResidualTaskName );
+     }
+ 
+     if ( ! Iteration::InnerOk() ) return;
+ 
+-    ONEFLOW::AddCmdToList( "UPDATE_UNSTEADY_FLOW" );
++    ONEFLOW::AddCmdToList( kUpdateUnsteadyFlowTaskName );
+ 
+     if ( Iteration::outerSteps % Iteration::nFieldSave == 0 )
+     {
+-        ONEFLOW::AddCmdToList( "DUMP_RESTART" );
++        ONEFLOW::AddCmdToList( kDumpRestartTaskName );
+     }
+ }
+ 
+ void TurbFinalPostprocess( StringField & data )
+ {
+-    ONEFLOW::AddCmdToList( "DUMP_RESTART" );
++    ONEFLOW::AddCmdToList( kDumpRestartTaskName );
+ }
+ 
+ void TurbInitSolver( StringField & data )
+diff --git a/doc/reports/architecture/oneflow-hexin-main-path-handoff-20260915.md b/doc/reports/architecture/oneflow-hexin-main-path-handoff-20260915.md
+index 58fbdbc..0e729c1 100644
+--- a/doc/reports/architecture/oneflow-hexin-main-path-handoff-20260915.md
++++ b/doc/reports/architecture/oneflow-hexin-main-path-handoff-20260915.md
+@@ -172,3 +172,31 @@ doc/reports/architecture/oneflow-hexin-main-path-handoff-20260915.md
+ ### CmxTaskNames
+ - 覆盖 FieldSimu、Multigrid、TimeIntegral、SolverState、MultiBlock。
+ - 生产 `Single/MultiSolver*Task("...")` 字面量已清扫。
++
++## 10. 续：2026-09-18 — AddCmdToList 字面量收编
++
++### 目标
++将仍散落在 Restart / SolverImp / Ns / INs / Turb 中的 `AddCmdToList("...")` 字面量统一到 `CmxTaskNames.h`，与既有 Multi/SingleSolver 路径同一来源。
++
++### 变更
++| 文件 | 说明 |
++|---|---|
++| `codes/task/include/CmxTaskNames.h` | 新增 Restart 初始化、Interface 交换、Dump/Visual/Unsteady 常量 |
++| `codes/restart/src/RestartTaskReg.cpp` | `InitFlowField` 使用 `kInitFirst*` / `kReadRestart*` 等 |
++| `codes/solver/src/SolverImp.cpp` | `CommInterfaceData` 使用 upload/update/download 常量 |
++| `codes/ns/src/NsSolverImp.cpp` | `NsPostprocess` / `NsFinalPostprocess` |
++| `codes/ins/src/INsSolverImp.cpp` | `INsPostprocess` / `INsFinalPostprocess` |
++| `codes/turb/src/TurbSolverImp.cpp` | `TurbPostprocess` / `TurbFinalPostprocess` |
++
++### 新增常量（节选）
++- Restart: `kInitFirstTaskName`, `kInitRestartTaskName`, `kReadRestartTaskName`, `kInitInsRestartTaskName`, `kReadInsRestartTaskName`, `kInitFinalTaskName`
++- Interface: `kUploadInterfaceDataTaskName`, `kUpdateInterfaceDataTaskName`, `kDownloadInterfaceDataTaskName`
++- Dump/Visual: `kDumpResidualTaskName`, `kDumpAerodynamicTaskName`, `kDumpPressureCoeffTaskName`, `kDumpHeatfluxCoeffTaskName`, `kDumpRestartTaskName`, `kDumpLaminarPlateTaskName`, `kDumpTurbPlateTaskName`, `kVisualizationTaskName`, `kUpdateUnsteadyFlowTaskName`
++
++### 语义
++纯字符串替换 → 注册表 / MessageMap 行为不变；无数值路径改动。
++
++### 建议后续
++1. 全库再扫一次 `AddCmdToList("` 确认无遗漏（当前生产路径已清）。
++2. MessageMap 契约测试可按需追加新名 ↔ id 往返（与现有 INIT_FLOWFIELD 同模式）。
++3. 中/重项仍按原 backlog：CreateSolvers 可测边界深化、solver 列表正式进 SimuContext 生产路径。

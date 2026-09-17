@@ -76,4 +76,28 @@ inline constexpr const char* kWriteWallDistTaskName     = "WRITE_WALL_DIST";
 inline constexpr const char* kReadWallDistTaskName      = "READ_WALL_DIST";
 inline constexpr const char* kAllocateWallDistTaskName  = "ALLOCATE_WALL_DIST";
 
+// Restart / init-flowfield command list (AddCmdToList path)
+inline constexpr const char* kInitFirstTaskName      = "INIT_FIRST";
+inline constexpr const char* kInitRestartTaskName    = "INIT_RESTART";
+inline constexpr const char* kReadRestartTaskName    = "READ_RESTART";
+inline constexpr const char* kInitInsRestartTaskName = "INIT_INSRESTART";
+inline constexpr const char* kReadInsRestartTaskName = "READ_INSRESTART";
+inline constexpr const char* kInitFinalTaskName      = "INIT_FINAL";
+
+// Interface exchange
+inline constexpr const char* kUploadInterfaceDataTaskName   = "UPLOAD_INTERFACE_DATA";
+inline constexpr const char* kUpdateInterfaceDataTaskName   = "UPDATE_INTERFACE_DATA";
+inline constexpr const char* kDownloadInterfaceDataTaskName = "DOWNLOAD_INTERFACE_DATA";
+
+// Dump / visualization / unsteady (Ns / INs / Turb SolverImp)
+inline constexpr const char* kDumpResidualTaskName       = "DUMP_RESIDUAL";
+inline constexpr const char* kDumpAerodynamicTaskName    = "DUMP_AERODYNAMIC";
+inline constexpr const char* kDumpPressureCoeffTaskName  = "DUMP_PRESSURE_COEFF";
+inline constexpr const char* kDumpHeatfluxCoeffTaskName  = "DUMP_HEATFLUX_COEFF";
+inline constexpr const char* kDumpRestartTaskName        = "DUMP_RESTART";
+inline constexpr const char* kDumpLaminarPlateTaskName   = "DUMP_LAMINAR_PLATE";
+inline constexpr const char* kDumpTurbPlateTaskName      = "DUMP_TURB_PLATE";
+inline constexpr const char* kVisualizationTaskName      = "VISUALIZATION";
+inline constexpr const char* kUpdateUnsteadyFlowTaskName = "UPDATE_UNSTEADY_FLOW";
+
 EndNameSpace

@@ -139,9 +139,6 @@ void FieldAlloc::CalcInnerFieldFileName( const std::string & basicString, String
     basicNameList.push_back( "face"     );
     basicNameList.push_back( "bc"       );
 
-    //OStream &logger = OStream::Instance();
-    //logger.ClearAll();
-    //logger << Prj::system_root << basicString << "/alloc/";
     //std::string rootString = logger.str();
 
     std::string rootString = Prj::GetSystemFileName( basicString + "/alloc/" );

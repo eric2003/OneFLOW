@@ -22,14 +22,15 @@ License
 
 #include "SolverImp.h"
 #include "CmxTask.h"
+#include "CmxTaskNames.h"
 
 BeginNameSpace( ONEFLOW )
 
 void CommInterfaceData()
 {
-    ONEFLOW::AddCmdToList( "UPLOAD_INTERFACE_DATA"  );
-    ONEFLOW::AddCmdToList( "UPDATE_INTERFACE_DATA"  );
-    ONEFLOW::AddCmdToList( "DOWNLOAD_INTERFACE_DATA");
+    ONEFLOW::AddCmdToList( kUploadInterfaceDataTaskName   );
+    ONEFLOW::AddCmdToList( kUpdateInterfaceDataTaskName   );
+    ONEFLOW::AddCmdToList( kDownloadInterfaceDataTaskName );
 }
 
 EndNameSpace

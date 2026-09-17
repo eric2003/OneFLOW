@@ -33,6 +33,7 @@ License
 #include "FieldWrap.h"
 #include "FieldAlloc.h"
 #include "CmxTask.h"
+#include "CmxTaskNames.h"
 #include "DataBase.h"
 #include "DataBook.h"
 #include "Lusgs.h"
@@ -136,28 +137,28 @@ void ReadinsRestart(StringField & data)
 
 void InitFlowField( StringField & data )
 {
-    ONEFLOW::AddCmdToList( "INIT_FIRST" );
+    ONEFLOW::AddCmdToList( kInitFirstTaskName );
 
     int startStrategy = ONEFLOW::GetDataValue< int >( "startStrategy" );
 
     if ( startStrategy == 0 )
     {
-        ONEFLOW::AddCmdToList( "INIT_RESTART" );
+        ONEFLOW::AddCmdToList( kInitRestartTaskName );
     }
 	else if ( startStrategy == 1 )
 	{
-		ONEFLOW::AddCmdToList( "READ_RESTART" );
+		ONEFLOW::AddCmdToList( kReadRestartTaskName );
 	}
 	else if ( startStrategy == 2 )
 	{
-		ONEFLOW::AddCmdToList( "INIT_INSRESTART" );
+		ONEFLOW::AddCmdToList( kInitInsRestartTaskName );
 	}
 	else if ( startStrategy == 3 )
     {
-        ONEFLOW::AddCmdToList( "READ_INSRESTART" );
+        ONEFLOW::AddCmdToList( kReadInsRestartTaskName );
     }
 
-    ONEFLOW::AddCmdToList( "INIT_FINAL" );
+    ONEFLOW::AddCmdToList( kInitFinalTaskName );
 }
 
 
