@@ -46,8 +46,20 @@ public:
     // Injectable names (already U*/S* expanded). If null, uses SolverNameClass::GetSolverNames.
     // No numerical change: same BuildSolversInBucket path as the default overload.
     static void CreateSolvers( int gridType, const StringField * solverNameList );
+
+    // S2 pure seam: injected non-null list wins; otherwise SolverNameClass for gridType.
+    // No I/O, no SafeClone - unit-testable without full solver registry.
+    static const StringField & SelectSolverNames(
+        int gridType,
+        const StringField * injected );
+
     static void FreeSolverMap();
     static void FreeSolverMap( int gridType );
+
+    // Clear type↔index maps (and solverTypes). Called by FreeSolverMap;
+    // also available for unit tests that exercise AddSolverInfo in isolation.
+    static void ClearIndexMaps();
+
     static int GetSolverIndexBySolverType( int solverType );
     static int GetSolverTypeBySolverIndex( int solverIndex );
     static void AddSolverInfo( int solverType, int solverIndex );

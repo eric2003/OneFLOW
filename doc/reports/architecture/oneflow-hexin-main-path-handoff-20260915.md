@@ -200,3 +200,23 @@ doc/reports/architecture/oneflow-hexin-main-path-handoff-20260915.md
 1. 全库再扫一次 `AddCmdToList("` 确认无遗漏（当前生产路径已清）。
 2. MessageMap 契约测试可按需追加新名 ↔ id 往返（与现有 INIT_FLOWFIELD 同模式）。
 3. 中/重项仍按原 backlog：CreateSolvers 可测边界深化、solver 列表正式进 SimuContext 生产路径。
+
+## 11. 续：2026-09-18 — CreateSolvers 可测边界（中）
+
+### 目标
+把「选名」与「type↔index 表」从 SafeClone 路径拆出，形成不依赖完整 solver 注册表的可测缝。
+
+### 变更
+| 文件 | 说明 |
+|---|---|
+| `codes/solver/include/SolverMap.h` | 新增 `SelectSolverNames` / `ClearIndexMaps` API |
+| `codes/solver/src/SolverMapIndex.cpp` | **新**：索引表 + SelectSolverNames 实现 |
+| `codes/solver/src/SolverMap.cpp` | CreateSolvers 走 SelectSolverNames；FreeSolverMap 清索引表 |
+| `tests/solver/solver_map_index_test.cpp` | **新**：5 个契约测试 |
+| `tests/solver/CMakeLists.txt` | 注册 solver_map_index_test |
+| `tests/task/CMakeLists.txt` | 显式链入 SolverMapIndex.cpp |
+
+### 语义
+- 生产路径：`CreateSolvers(grid, nullptr)` 仍读 `SolverNameClass`；注入非空则用注入列表 — 与改前一致。
+- `FreeSolverMap()` 额外 `ClearIndexMaps()`，避免二次 Create 时旧 type 映射残留。
+- 无数值内核改动。
