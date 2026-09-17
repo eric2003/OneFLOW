@@ -17,9 +17,11 @@ set(TEST_SOURCES
 	RegisterFactoryTest.cpp
 	HXCloneTest.cpp
 	SolverTest.cpp
+	MessageMapLoaderTest.cpp
 	${REGISTER_SRC_DIR}/Message.cpp
 	${REGISTER_SRC_DIR}/HXClone.cpp
 	${REGISTER_SRC_DIR}/Register.cpp
+	${REGISTER_SRC_DIR}/MessageMapLoader.cpp
 	${IO_SRC_DIR}/TextFileParser.cpp
 	${IO_SRC_DIR}/CommentLine.cpp
 	${IO_SRC_DIR}/Prj.cpp

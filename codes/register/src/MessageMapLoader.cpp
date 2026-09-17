@@ -45,7 +45,7 @@ void GetMsgFileNameList( StringField & fileNameList )
 {
     //\t is the tab key
     std::string separator = " =\r\n\t#$,;\"()";
-    std::string msgFileName = Prj::system_root + "action/" + "actionFileList.txt";
+    std::string msgFileName = Prj::GetSystemFileName( "action/actionFileList.txt" );
 
     TextFileParser textFileParser;
     textFileParser.OpenFile( msgFileName, std::ios_base::in );
@@ -66,7 +66,7 @@ void GetMsgFileNameList( StringField & fileNameList )
         {
             continue; // defensive: skip malformed/empty lines
         }
-        std::string fullPathFileName = Prj::system_root + "action/" + fileName;
+        std::string fullPathFileName = Prj::GetSystemFileName( "action/" + fileName );
         fileNameList.push_back( fullPathFileName );
     }
 

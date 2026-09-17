@@ -37,6 +37,6 @@ target_include_directories(solver_name_list_test
 )
 
 target_link_libraries(solver_name_list_test PRIVATE GTest::gtest_main)
-target_compile_features(solver_name_list_test PRIVATE cxx_std_17)
+target_compile_features(solver_name_list_test PRIVATE cxx_std_20)
 gtest_discover_tests(solver_name_list_test DISCOVERY_MODE PRE_TEST)
 

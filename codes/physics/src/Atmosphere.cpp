@@ -47,7 +47,7 @@ void Atmosphere::Init()
     if ( flag ) return;
     flag = true;
     TextFileParser textFileParser;
-    std::string fileName = Prj::system_root +"physics/atmosphere.txt";
+    std::string fileName = Prj::GetSystemFileName( "physics/atmosphere.txt" );
     textFileParser.OpenFile( fileName, std::ios_base::in );
 
     //\t is the tab key

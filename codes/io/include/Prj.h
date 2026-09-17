@@ -65,6 +65,7 @@ public:
     static void CloseFile( std::fstream & file );
     static void CreateDirIfNeeded( std::string & prjFileName );
     static std::string GetPrjFileName( const std::string & fileName );
+    static std::string GetSystemFileName( const std::string & fileName );
     static std::string GetDirName( const std::string & fileName );
     static void MakePrjDir( const std::string & dirName );
 

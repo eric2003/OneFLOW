@@ -245,6 +245,34 @@ TEST( PrjCasePath, MakePrjDirUsesCaseRelativePath )
     std::filesystem::remove_all( caseDir );
 }
 
+TEST( PrjSystemPath, GetSystemFileNameJoinsWithSystemRoot )
+{
+    const std::string savedRoot = Prj::system_root;
+
+    const std::filesystem::path systemRoot =
+        std::filesystem::temp_directory_path()
+        / "OneFLOW_PrjSystemPathTest"
+        / "system";
+
+    Prj::system_root = systemRoot.string() + "/";
+
+    const std::filesystem::path expected = systemRoot / "action" / "actionFileList.txt";
+
+    EXPECT_EQ(
+        std::filesystem::path( Prj::GetSystemFileName( "action/actionFileList.txt" ) )
+        .lexically_normal(),
+        expected.lexically_normal() );
+
+    // A leading slash should behave the same as a system-root-relative path,
+    // matching the equivalent leading-slash handling in GetPrjFileName.
+    EXPECT_EQ(
+        std::filesystem::path( Prj::GetSystemFileName( "/action/actionFileList.txt" ) )
+        .lexically_normal(),
+        expected.lexically_normal() );
+
+    Prj::system_root = savedRoot;
+}
+
 TEST( PrjPath, GetDirName )
 {
     EXPECT_EQ( Prj::GetDirName( "grid/test.dat" ), "grid" );
