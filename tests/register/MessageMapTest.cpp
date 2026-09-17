@@ -1,7 +1,10 @@
 #include <gtest/gtest.h>
 #include <fstream>
 #include <cstdio>
+#include <vector>
+#include <string>
 #include "Message.h"
+#include "CmxTaskNames.h"
 
 // MessageMapImp mirrors ActionMapImp's structure and past bug history,
 // so these tests mirror ActionMapImpTest/ActionMapReadFileTest directly.
@@ -132,14 +135,13 @@ TEST_F( MessageMapFacadeTest, FreeThenInitAgainStartsFromCleanState )
 }
 
 // ---------------------------------------------------------------------------
-// Contract: name used by FieldSimuInitFlowField -> MultiSolverMultiGridTask.
-// CmxTask resolves the string via MessageMap::GetMsgId before GenerateCmdList.
-// No CFD; pure name<->id mapping (same as production lookup shape).
+// Contract: CmxTaskNames constants <-> MessageMap name/id (same lookup shape
+// as MultiSolverMultiGridTask / AddCmdToList production path).
+// No CFD; pure mapping. Constants come from CmxTaskNames.h (single source).
 // ---------------------------------------------------------------------------
 TEST( MessageMapImpTest, InitFlowFieldNameRoundTripsLikeCmxTaskLookup )
 {
-    // Must stay identical to kInitFlowFieldTaskName in FieldSimu.cpp
-    const std::string kInitFlowFieldTaskName = "INIT_FLOWFIELD";
+    using ONEFLOW::kInitFlowFieldTaskName;
 
     ONEFLOW::MessageMapImp imp;
     imp.Register( kInitFlowFieldTaskName );
@@ -154,8 +156,7 @@ TEST( MessageMapImpTest, InitFlowFieldNameRoundTripsLikeCmxTaskLookup )
 
 TEST( MessageMapImpTest, PostProcessNameRoundTripsLikeCmxTaskLookup )
 {
-    // Must stay identical to kPostProcessTaskName in Multigrid.cpp
-    const std::string kPostProcessTaskName = "POST_PROCESS";
+    using ONEFLOW::kPostProcessTaskName;
 
     ONEFLOW::MessageMapImp imp;
     imp.Register( kPostProcessTaskName );
@@ -165,3 +166,69 @@ TEST( MessageMapImpTest, PostProcessNameRoundTripsLikeCmxTaskLookup )
     EXPECT_EQ( imp.GetMsgName( id ), kPostProcessTaskName );
 }
 
+TEST( MessageMapImpTest, CmxTaskNames_AddCmdPathRoundTrips )
+{
+    // Names used by RestartTaskReg / SolverImp / Ns / INs / Turb AddCmdToList.
+    const std::vector<const char*> names = {
+        ONEFLOW::kInitFirstTaskName,
+        ONEFLOW::kInitRestartTaskName,
+        ONEFLOW::kReadRestartTaskName,
+        ONEFLOW::kInitInsRestartTaskName,
+        ONEFLOW::kReadInsRestartTaskName,
+        ONEFLOW::kInitFinalTaskName,
+        ONEFLOW::kUploadInterfaceDataTaskName,
+        ONEFLOW::kUpdateInterfaceDataTaskName,
+        ONEFLOW::kDownloadInterfaceDataTaskName,
+        ONEFLOW::kDumpResidualTaskName,
+        ONEFLOW::kDumpAerodynamicTaskName,
+        ONEFLOW::kDumpPressureCoeffTaskName,
+        ONEFLOW::kDumpHeatfluxCoeffTaskName,
+        ONEFLOW::kDumpRestartTaskName,
+        ONEFLOW::kDumpLaminarPlateTaskName,
+        ONEFLOW::kDumpTurbPlateTaskName,
+        ONEFLOW::kVisualizationTaskName,
+        ONEFLOW::kUpdateUnsteadyFlowTaskName,
+    };
+
+    ONEFLOW::MessageMapImp imp;
+    for ( const char* name : names )
+    {
+        imp.Register( name );
+    }
+
+    for ( const char* name : names )
+    {
+        const int id = imp.GetMsgId( name );
+        EXPECT_GE( id, 0 ) << name;
+        EXPECT_EQ( imp.GetMsgName( id ), name ) << name;
+    }
+}
+
+TEST( MessageMapImpTest, CmxTaskNames_TimeIntegralPathRoundTrips )
+{
+    const std::vector<const char*> names = {
+        ONEFLOW::kCalcTimeStepTaskName,
+        ONEFLOW::kCalcLhsTaskName,
+        ONEFLOW::kUpdateFlowFieldTaskName,
+        ONEFLOW::kCalcBoundaryTaskName,
+        ONEFLOW::kZeroDqFieldTaskName,
+        ONEFLOW::kInitLusgsTaskName,
+        ONEFLOW::kLusgsLowerSweepTaskName,
+        ONEFLOW::kExchangeInterfaceDqTaskName,
+        ONEFLOW::kLusgsUpperSweepTaskName,
+        ONEFLOW::kUpdateFlowFieldLusgsTaskName,
+    };
+
+    ONEFLOW::MessageMapImp imp;
+    for ( const char* name : names )
+    {
+        imp.Register( name );
+    }
+
+    for ( const char* name : names )
+    {
+        const int id = imp.GetMsgId( name );
+        EXPECT_GE( id, 0 ) << name;
+        EXPECT_EQ( imp.GetMsgName( id ), name ) << name;
+    }
+}

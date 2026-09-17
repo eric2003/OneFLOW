@@ -280,17 +280,57 @@ void CmdActionNext()
 // Operation execution entry
 // ============================================================
 
+//void SingleSolverSingleGridTask( const std::string & taskName )
+//{
+//    // Resolve the operation name.
+//    const int operationId =
+//        MessageMap::GetMsgId( taskName );
+//
+//    // Build the execution plan for the operation.
+//    GenerateCmdList( operationId );
+//
+//    // Execute the generated plan.
+//    CMD::ExecuteCmd();
+//}
+//
+//
+//// ============================================================
+//// Multi-solver / multi-grid execution
+//// ============================================================
+//
+//void MultiSolverMultiGridTask( const std::string & taskName )
+//{
+//    for ( int solverIndex = 0;
+//        solverIndex < SolverState::nSolver;
+//        ++ solverIndex )
+//    {
+//        SolverState::SetSolverTypeBySolverIndex( solverIndex );
+//
+//        for ( int gl = 0;
+//            gl < GridState::nGrids;
+//            ++ gl )
+//        {
+//            GridState::SetGridLevel( gl );
+//
+//            ONEFLOW::SingleSolverSingleGridTask(
+//                taskName );
+//        }
+//    }
+//}
+
+
+void SingleSolverSingleGridTask( int operationId )
+{
+    // Runtime form: plan + execute by id (no string lookup here).
+    GenerateCmdList( operationId );
+    CMD::ExecuteCmd();
+}
+
 void SingleSolverSingleGridTask( const std::string & taskName )
 {
-    // Resolve the operation name.
-    const int operationId =
-        MessageMap::GetMsgId( taskName );
-
-    // Build the execution plan for the operation.
-    GenerateCmdList( operationId );
-
-    // Execute the generated plan.
-    CMD::ExecuteCmd();
+    // Source form: resolve name once, then use id path.
+    const int operationId = MessageMap::GetMsgId( taskName );
+    SingleSolverSingleGridTask( operationId );
 }
 
 
@@ -298,7 +338,7 @@ void SingleSolverSingleGridTask( const std::string & taskName )
 // Multi-solver / multi-grid execution
 // ============================================================
 
-void MultiSolverMultiGridTask( const std::string & taskName )
+void MultiSolverMultiGridTask( int operationId )
 {
     for ( int solverIndex = 0;
         solverIndex < SolverState::nSolver;
@@ -312,11 +352,19 @@ void MultiSolverMultiGridTask( const std::string & taskName )
         {
             GridState::SetGridLevel( gl );
 
-            ONEFLOW::SingleSolverSingleGridTask(
-                taskName );
+            // Id path: no per-level MessageMap::GetMsgId.
+            ONEFLOW::SingleSolverSingleGridTask( operationId );
         }
     }
 }
+
+void MultiSolverMultiGridTask( const std::string & taskName )
+{
+    // Resolve once outside solver x grid loops.
+    const int operationId = MessageMap::GetMsgId( taskName );
+    MultiSolverMultiGridTask( operationId );
+}
+
 
 
 EndNameSpace

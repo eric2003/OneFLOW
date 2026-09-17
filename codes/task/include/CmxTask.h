@@ -91,8 +91,15 @@ void CmdActionNext();
 // Operation execution entry
 // ============================================================
 
-void SingleSolverSingleGridTask( const std::string & taskName );
-void MultiSolverMultiGridTask( const std::string & taskName );
+// Source form:  string names (config / CmxTaskNames / callers).
+// Runtime form: MessageMap id (int). String overloads resolve once
+// via MessageMap::GetMsgId then forward to the id overloads so hot
+// loops (TimeIntegral, MultiSolver x Grid) never re-parse strings.
 
+void SingleSolverSingleGridTask( int operationId );
+void SingleSolverSingleGridTask( const std::string & taskName );
+
+void MultiSolverMultiGridTask( int operationId );
+void MultiSolverMultiGridTask( const std::string & taskName );
 
 EndNameSpace
