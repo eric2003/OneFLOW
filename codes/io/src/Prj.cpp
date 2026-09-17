@@ -177,12 +177,7 @@ void Prj::OpenPrjFile(
     const std::string & fileName,
     const std::ios_base::openmode & openMode )
 {
-    OStream &logger = OStream::Instance();
-
-    logger.ClearAll();
-    logger << Prj::prjBaseDir << fileName;
-
-    std::string prjFileName = logger.str();
+    std::string prjFileName = Prj::GetPrjFileName( fileName );
 
     CreateDirIfNeeded( prjFileName );
 
@@ -210,12 +205,7 @@ void Prj::CloseFile( std::fstream & file )
 
 void Prj::MakePrjDir( const std::string & dirName )
 {
-    OStream &logger = OStream::Instance();
-
-    logger.ClearAll();
-    logger << Prj::prjBaseDir << dirName;
-
-    std::string prjDirName = logger.str();
+    std::string prjDirName = Prj::GetPrjFileName( dirName );
 
     HX_CreateDirectory( prjDirName );
 }
