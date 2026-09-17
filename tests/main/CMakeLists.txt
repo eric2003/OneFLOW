@@ -101,7 +101,7 @@ target_link_libraries(prj_cmdline_test
     GTest::gtest_main
 )
 
-target_compile_features(prj_cmdline_test PRIVATE cxx_std_17)
+target_compile_features(prj_cmdline_test PRIVATE cxx_std_20)
 
 gtest_discover_tests(prj_cmdline_test
   DISCOVERY_MODE PRE_TEST

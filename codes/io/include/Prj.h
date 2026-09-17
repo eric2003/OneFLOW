@@ -32,12 +32,6 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-//struct CmdLineOptions
-//{
-//    bool debug = false;
-//    std::string prjName;
-//};
-
 struct CmdLineOptions
 {
     bool debug = false;
@@ -71,7 +65,8 @@ public:
     static void CloseFile( std::fstream & file );
     static void CreateDirIfNeeded( std::string & prjFileName );
     static std::string GetPrjFileName( const std::string & fileName );
-    static std::string GetPrjDirName( const std::string & fileName );
+    static std::string GetSystemFileName( const std::string & fileName );
+    static std::string GetDirName( const std::string & fileName );
     static void MakePrjDir( const std::string & dirName );
 
 private:

@@ -177,12 +177,7 @@ void Prj::OpenPrjFile(
     const std::string & fileName,
     const std::ios_base::openmode & openMode )
 {
-    OStream &logger = OStream::Instance();
-
-    logger.ClearAll();
-    logger << Prj::prjBaseDir << fileName;
-
-    std::string prjFileName = logger.str();
+    std::string prjFileName = Prj::GetPrjFileName( fileName );
 
     CreateDirIfNeeded( prjFileName );
 
@@ -210,17 +205,31 @@ void Prj::CloseFile( std::fstream & file )
 
 void Prj::MakePrjDir( const std::string & dirName )
 {
-    OStream &logger = OStream::Instance();
-
-    logger.ClearAll();
-    logger << Prj::prjBaseDir << dirName;
-
-    std::string prjDirName = logger.str();
+    std::string prjDirName = Prj::GetPrjFileName( dirName );
 
     HX_CreateDirectory( prjDirName );
 }
 
-std::string Prj::GetPrjDirName( const std::string & fileName )
+// Same pattern as GetPrjFileName, but rooted at the OneFLOW installation's
+// system directory (Prj::system_root) instead of the current case directory.
+// Centralizing this here removes the scattered "Prj::system_root + ..."
+// string concatenation that used to live in individual business-logic files.
+std::string Prj::GetSystemFileName( const std::string & fileName )
+{
+    OStream &logger = OStream::Instance();
+
+    logger.ClearAll();
+
+    std::string fileNameNew = RemoveFirstSlash( fileName );
+
+    logger << Prj::system_root << fileNameNew;
+
+    std::string systemFileName = logger.str();
+
+    return systemFileName;
+}
+
+std::string Prj::GetDirName( const std::string & fileName )
 {
     size_t pos = fileName.find_last_of( "\\/" );
 
@@ -236,11 +245,11 @@ std::string Prj::GetPrjDirName( const std::string & fileName )
 
 void Prj::CreateDirIfNeeded( std::string & prjFileName )
 {
-    std::string prj_dir = Prj::GetPrjDirName( prjFileName );
+    std::string dirName = Prj::GetDirName( prjFileName );
 
-    if ( ! HX_IsDirectory( prj_dir ) )
+    if ( ! HX_IsDirectory( dirName ) )
     {
-        HX_CreateDirectory( prj_dir );
+        HX_CreateDirectory( dirName );
     }
 }
 

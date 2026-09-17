@@ -33,13 +33,9 @@ void GetSolverFileNames( const std::string & solverName, StringField & fileNameL
     //\t is the tab key
     std::string separator = " =\r\n\t#$,;\"()";
 
-    //OStream ostr;
-    OStream &logger = OStream::Instance();
-    logger.ClearAll();
-    logger << Prj::system_root << solverName << "/function/";
-    std::string baseDir = logger.str();
-    logger << "fileList.txt";
-    std::string keyFileName = logger.str();
+    std::string baseDir = Prj::GetSystemFileName( solverName + "/function/" );
+    std::string keyFileName = baseDir + "fileList.txt";
+
     TextFileParser textFileParser;
     textFileParser.OpenFile( keyFileName, std::ios_base::in );
     textFileParser.SetDefaultSeparator( separator );

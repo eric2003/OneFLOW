@@ -30,6 +30,7 @@ License
 #include "NsRhs.h"
 #include "UCom.h"
 #include "CmxTask.h"
+#include "CmxTaskNames.h"
 #include "Iteration.h"
 #include "SolverDef.h"
 #include "Ctrl.h"
@@ -123,37 +124,37 @@ void NsPostprocess( StringField & data )
     //The solution and output of residuals need to be judged logically.
     if ( Iteration::ResOk() )
     {
-        ONEFLOW::AddCmdToList( "DUMP_RESIDUAL" );
+        ONEFLOW::AddCmdToList( kDumpResidualTaskName );
     }
 
     //The solution and output of aerodynamic force need to be judged logically.
     if ( Iteration::ForceOk() )
     {
-        ONEFLOW::AddCmdToList( "DUMP_AERODYNAMIC" );
+        ONEFLOW::AddCmdToList( kDumpAerodynamicTaskName );
     }
 
     if ( ! Iteration::InnerOk() ) return;
 
-    ONEFLOW::AddCmdToList( "UPDATE_UNSTEADY_FLOW" );
+    ONEFLOW::AddCmdToList( kUpdateUnsteadyFlowTaskName );
 
     if ( Iteration::outerSteps % Iteration::nVisualSave == 0 )
     {
-        ONEFLOW::AddCmdToList( "VISUALIZATION"       );
-        ONEFLOW::AddCmdToList( "DUMP_PRESSURE_COEFF" );
-        ONEFLOW::AddCmdToList( "DUMP_HEATFLUX_COEFF" );
+        ONEFLOW::AddCmdToList( kVisualizationTaskName      );
+        ONEFLOW::AddCmdToList( kDumpPressureCoeffTaskName  );
+        ONEFLOW::AddCmdToList( kDumpHeatfluxCoeffTaskName  );
         if ( ctrl.idump == 1 )
         {
-            ONEFLOW::AddCmdToList( "DUMP_LAMINAR_PLATE" );
+            ONEFLOW::AddCmdToList( kDumpLaminarPlateTaskName );
         }
         else if ( ctrl.idump == 2 )
         {
-            ONEFLOW::AddCmdToList( "DUMP_TURB_PLATE" );
+            ONEFLOW::AddCmdToList( kDumpTurbPlateTaskName );
         }
     }
 
     if ( Iteration::outerSteps % Iteration::nFieldSave == 0 )
     {
-        ONEFLOW::AddCmdToList( "DUMP_RESTART" );
+        ONEFLOW::AddCmdToList( kDumpRestartTaskName );
     }
 
 }
@@ -165,11 +166,11 @@ void DumpHeatFluxCoeff( StringField & data )
 
 void NsFinalPostprocess( StringField & data )
 {
-    ONEFLOW::AddCmdToList( "DUMP_RESTART"        );
-    ONEFLOW::AddCmdToList( "DUMP_AERODYNAMIC"    );
-    ONEFLOW::AddCmdToList( "DUMP_PRESSURE_COEFF" );
-    ONEFLOW::AddCmdToList( "DUMP_HEATFLUX_COEFF" );
-    ONEFLOW::AddCmdToList( "VISUALIZATION"       );
+    ONEFLOW::AddCmdToList( kDumpRestartTaskName       );
+    ONEFLOW::AddCmdToList( kDumpAerodynamicTaskName   );
+    ONEFLOW::AddCmdToList( kDumpPressureCoeffTaskName );
+    ONEFLOW::AddCmdToList( kDumpHeatfluxCoeffTaskName );
+    ONEFLOW::AddCmdToList( kVisualizationTaskName     );
 }
 
 void NsInitSolver( StringField & data )

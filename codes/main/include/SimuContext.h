@@ -75,14 +75,19 @@ public:
     void SetTaskByName( const std::string& taskName );
     void MarkEnvironmentReady( bool ready = true );
 
-    // Optional: already-expanded solver registration names (e.g. "UNsSolver").
-    // Empty means "not injected; production uses SolverNameClass::GetSolverNames".
+    // Expanded solver registration names (e.g. "UNsSolver").
+    // Production Solve path fills these via EnsureExpandedSolverNames before
+    // FieldSimuCreateSolvers(ctx); tests may SetExpandedSolverNames directly.
+    // Empty means "not yet set" (CreateSolvers falls back to SolverNameClass).
     bool HasExpandedSolverNames() const { return !expandedSolverNames_.empty(); }
     const StringField& ExpandedSolverNames() const { return expandedSolverNames_; }
 
-    // Test / future control-file path: set expanded names (clears previous).
+    // Set expanded names (overwrites). Used by tests and explicit injection.
     void SetExpandedSolverNames( const StringField& names );
     void ClearExpandedSolverNames();
+
+    // Fill only if empty - production preload; does not clobber test injection.
+    void EnsureExpandedSolverNames( const StringField& names );
 private:
     std::vector<std::string> args_;
     int rank_ = 0;

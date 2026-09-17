@@ -23,6 +23,8 @@ License
 #include "SimuTask.h"
 #include "System.h"
 #include "Fatal.h"
+#include "SolverNameList.h"
+#include "GridState.h"
 #include <iostream>
 
 
@@ -69,6 +71,15 @@ void SimuImp::InitSimu()
 void SimuImp::RunSimu()
 {
     ctx_->ResolveTaskFromControl();
+
+    // Production Solve path: same expanded U* names CreateSolvers would have
+    // read from SolverNameClass; placed on context so FieldSimuCreateSolvers(ctx)
+    // uses the injectable seam. No-op if tests already injected names.
+    if ( ctx_->TaskName() == "Solve" )
+    {
+        ctx_->EnsureExpandedSolverNames(
+            SolverNameClass::GetSolverNames( ONEFLOW::UMESH ) );
+    }
 
     auto task = TaskRegistry::Instance().Create( ctx_->TaskName() );
     if ( ! task )

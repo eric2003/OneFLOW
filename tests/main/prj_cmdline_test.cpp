@@ -168,3 +168,114 @@ TEST( PrjSetPrjBaseDir, AbsolutePathIsNotPrefixedByCurrentDirectory )
         actual.lexically_normal(),
         absoluteCase.lexically_normal() );
 }
+
+
+TEST( PrjCasePath, LeadingSlashIsCaseRelative )
+{
+    const std::filesystem::path caseDir =
+        std::filesystem::temp_directory_path()
+        / "OneFLOW_PrjCasePathTest"
+        / "case";
+
+    Prj::current_dir = std::filesystem::current_path().string();
+    Prj::SetPrjBaseDir( caseDir.string() );
+
+    const std::filesystem::path relative =
+        Prj::GetPrjFileName( "grid/test.dat" );
+
+    const std::filesystem::path leadingSlash =
+        Prj::GetPrjFileName( "/grid/test.dat" );
+
+    EXPECT_EQ(
+        relative.lexically_normal(),
+        leadingSlash.lexically_normal() );
+}
+
+TEST( PrjCasePath, OpenPrjFileUsesCaseRelativePath )
+{
+    const std::filesystem::path caseDir =
+        std::filesystem::temp_directory_path()
+        / "OneFLOW_PrjOpenFileTest"
+        / "case";
+
+    std::filesystem::remove_all( caseDir );
+
+    Prj::current_dir = std::filesystem::current_path().string();
+    Prj::SetPrjBaseDir( caseDir.string() );
+
+    std::fstream file;
+
+    Prj::OpenPrjFile(
+        file,
+        "/grid/test.dat",
+        std::ios_base::out );
+
+    ASSERT_TRUE( file.is_open() );
+
+    file << "OneFLOW";
+    Prj::CloseFile( file );
+
+    const std::filesystem::path expected =
+        caseDir / "grid" / "test.dat";
+
+    EXPECT_TRUE( std::filesystem::is_regular_file( expected ) );
+
+    std::filesystem::remove_all( caseDir );
+}
+
+TEST( PrjCasePath, MakePrjDirUsesCaseRelativePath )
+{
+    const std::filesystem::path caseDir =
+        std::filesystem::temp_directory_path()
+        / "OneFLOW_PrjMakeDirTest"
+        / "case";
+
+    std::filesystem::remove_all( caseDir );
+
+    Prj::current_dir = std::filesystem::current_path().string();
+    Prj::SetPrjBaseDir( caseDir.string() );
+
+    Prj::MakePrjDir( "/output/data" );
+
+    const std::filesystem::path expected =
+        caseDir / "output" / "data";
+
+    EXPECT_TRUE( std::filesystem::is_directory( expected ) );
+
+    std::filesystem::remove_all( caseDir );
+}
+
+TEST( PrjSystemPath, GetSystemFileNameJoinsWithSystemRoot )
+{
+    const std::string savedRoot = Prj::system_root;
+
+    const std::filesystem::path systemRoot =
+        std::filesystem::temp_directory_path()
+        / "OneFLOW_PrjSystemPathTest"
+        / "system";
+
+    Prj::system_root = systemRoot.string() + "/";
+
+    const std::filesystem::path expected = systemRoot / "action" / "actionFileList.txt";
+
+    EXPECT_EQ(
+        std::filesystem::path( Prj::GetSystemFileName( "action/actionFileList.txt" ) )
+        .lexically_normal(),
+        expected.lexically_normal() );
+
+    // A leading slash should behave the same as a system-root-relative path,
+    // matching the equivalent leading-slash handling in GetPrjFileName.
+    EXPECT_EQ(
+        std::filesystem::path( Prj::GetSystemFileName( "/action/actionFileList.txt" ) )
+        .lexically_normal(),
+        expected.lexically_normal() );
+
+    Prj::system_root = savedRoot;
+}
+
+TEST( PrjPath, GetDirName )
+{
+    EXPECT_EQ( Prj::GetDirName( "grid/test.dat" ), "grid" );
+    EXPECT_EQ( Prj::GetDirName( "/grid/test.dat" ), "/grid" );
+    EXPECT_EQ( Prj::GetDirName( "test.dat" ), "" );
+}

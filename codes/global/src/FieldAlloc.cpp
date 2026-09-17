@@ -54,11 +54,7 @@ void FieldAlloc::AllocateAllFields( int solverType, const std::string & basicStr
 
 void FieldAlloc::InitField( int solverType, const std::string & basicString )
 {
-    OStream &logger = OStream::Instance();
-    logger.ClearAll();
-    logger << Prj::system_root << basicString << "/alloc/" << "init.txt";
-    std::string fileName = logger.str();
-
+    std::string fileName = Prj::GetSystemFileName( basicString + "/alloc/init.txt" );
     BoolIO boolIO;
     boolIO.ReadFile( fileName, 1 );
 
@@ -143,10 +139,11 @@ void FieldAlloc::CalcInnerFieldFileName( const std::string & basicString, String
     basicNameList.push_back( "face"     );
     basicNameList.push_back( "bc"       );
 
+    //std::string rootString = logger.str();
+
+    std::string rootString = Prj::GetSystemFileName( basicString + "/alloc/" );
+
     OStream &logger = OStream::Instance();
-    logger.ClearAll();
-    logger << Prj::system_root << basicString << "/alloc/";
-    std::string rootString = logger.str();
 
     for ( int i = 0; i < basicNameList.size(); ++ i )
     {
@@ -167,10 +164,8 @@ void FieldAlloc::CalcInterfaceFileName( const std::string & basicString, StringF
     basicNameList.push_back( "interGrad"    );
     basicNameList.push_back( "interOverset" );
 
+    std::string rootString = Prj::GetSystemFileName( basicString + "/alloc/" );
     OStream &logger = OStream::Instance();
-    logger.ClearAll();
-    logger << Prj::system_root << basicString << "/alloc/";
-    std::string rootString = logger.str();
 
     for ( int i = 0; i < basicNameList.size(); ++ i )
     {

@@ -32,9 +32,7 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-IntField SolverMap::solverTypes;
-std::map< int, int > SolverMap::solverTypeToIndex;
-std::map< int, int > SolverMap::solverIndexToType;
+// Index maps live in SolverMapIndex.cpp (testable without SafeClone).
 HXVector< Solver * > SolverMap::strSolver;
 HXVector< Solver * > SolverMap::unsSolver;
 
@@ -124,11 +122,9 @@ void SolverMap::CreateSolvers( int gridType, const StringField * solverNameList 
     // S1: select side (uns vs str)
     HXVector< Solver * > * solvers = SolverMap::SolverBucket( gridType );
 
-    // S2: names ¡ª injected list, or script/solver.txt + policy
+    // S2: injected list, or script/solver.txt + policy (SelectSolverNames seam)
     const StringField & names =
-        ( solverNameList != nullptr )
-        ? *solverNameList
-        : SolverNameClass::GetSolverNames( gridType );
+        SolverMap::SelectSolverNames( gridType, solverNameList );
 
     const int nSolver = static_cast< int >( names.size() );
 
@@ -145,46 +141,9 @@ void SolverMap::FreeSolverMap()
 {
     SolverMap::FreeSolverMap( ONEFLOW::UMESH );
     SolverMap::FreeSolverMap( ONEFLOW::SMESH );
+    SolverMap::ClearIndexMaps();
 }
 
-int SolverMap::GetSolverIndexBySolverType( int solverType )
-{
-    std::map< int, int >::iterator iter;
-    iter = SolverMap::solverTypeToIndex.find( solverType );
-    return iter->second;
-}
-
-int SolverMap::GetSolverTypeBySolverIndex( int solverIndex )
-{
-    std::map< int, int >::iterator iter;
-    iter = SolverMap::solverIndexToType.find( solverIndex );
-    return iter->second;
-}
-
-void SolverMap::AddSolverInfo( int solverType, int solverIndex )
-{
-    SolverMap::AddSolverTypeToIndex( solverType, solverIndex );
-    SolverMap::AddSolverIndexToType( solverIndex, solverType );
-}
-
-void SolverMap::AddSolverTypeToIndex( int solverType, int solverIndex )
-{
-    std::map< int, int >::iterator iter;
-    iter = SolverMap::solverTypeToIndex.find( solverType );
-    if ( iter == SolverMap::solverTypeToIndex.end() )
-    {
-        SolverMap::solverTypeToIndex[ solverType ] = solverIndex;
-        SolverMap::solverTypes.push_back( solverType );
-    }
-}
-
-void SolverMap::AddSolverIndexToType( int solverIndex, int solverType )
-{
-    std::map< int, int >::iterator iter = SolverMap::solverIndexToType.find( solverIndex );
-    if ( iter == SolverMap::solverIndexToType.end() )
-    {
-        SolverMap::solverIndexToType[ solverIndex ] = solverType;
-    }
-}
+// Index-map / SelectSolverNames implementations: SolverMapIndex.cpp
 
 EndNameSpace

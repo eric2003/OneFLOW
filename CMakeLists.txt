@@ -10,6 +10,13 @@ project ( OneFLOW
           LANGUAGES CXX
          )
 
+# Project-wide default C++ standard. Individual targets can still opt out
+# via target_compile_features(), but this covers every target (including
+# gtest-based unit tests) that doesn't set one explicitly.
+set ( CMAKE_CXX_STANDARD 20 )
+set ( CMAKE_CXX_STANDARD_REQUIRED ON )
+set ( CMAKE_CXX_EXTENSIONS OFF )
+
 message ( STATUS "CMAKE_PROJECT_NAME    = ${CMAKE_PROJECT_NAME}" )
 message ( STATUS "PROJECT_VERSION_MAJOR = ${PROJECT_VERSION_MAJOR}" )
 message ( STATUS "PROJECT_VERSION_MINOR = ${PROJECT_VERSION_MINOR}" )

@@ -284,26 +284,30 @@ void ReadScriptFileNameList( std::vector< std::string > & scriptFileNameList )
 {
     TextFileParser textFileParser;
 
-    textFileParser.OpenPrjFile( "script/control.txt", std::ios_base::in );
+    textFileParser.OpenPrjFile(
+        "script/control.txt",
+        std::ios_base::in );
 
-    //\t is Tab Key
+    // Tab is a separator.
     std::string keyWordSeparator = " ()\r\n\t#$,;\"";
     textFileParser.SetDefaultSeparator( keyWordSeparator );
 
-    while ( ! textFileParser.ReachTheEndOfFile()  )
+    while ( ! textFileParser.ReachTheEndOfFile() )
     {
         bool flag = textFileParser.ReadNextNonEmptyLine();
         if ( ! flag ) break;
-        std::string scriptFileName = textFileParser.ReadNextWord();
-        OStream &logger = OStream::Instance();
-        logger.ClearAll();
-        logger << Prj::prjBaseDir << "script/" << scriptFileName;
-        std::string fullScriptFileName = logger.str();
+
+        std::string scriptFileName =
+            textFileParser.ReadNextWord();
+
+        std::string fullScriptFileName =
+            Prj::GetPrjFileName(
+                "script/" + scriptFileName );
+
         scriptFileNameList.push_back( fullScriptFileName );
     }
 
     textFileParser.CloseFile();
-
 }
 
 void ReadMultiScriptFiles( std::vector< std::string > & scriptFileNameList )
