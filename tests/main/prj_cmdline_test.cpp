@@ -244,3 +244,10 @@ TEST( PrjCasePath, MakePrjDirUsesCaseRelativePath )
 
     std::filesystem::remove_all( caseDir );
 }
+
+TEST( PrjPath, GetDirName )
+{
+    EXPECT_EQ( Prj::GetDirName( "grid/test.dat" ), "grid" );
+    EXPECT_EQ( Prj::GetDirName( "/grid/test.dat" ), "/grid" );
+    EXPECT_EQ( Prj::GetDirName( "test.dat" ), "" );
+}

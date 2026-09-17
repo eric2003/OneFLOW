@@ -210,7 +210,7 @@ void Prj::MakePrjDir( const std::string & dirName )
     HX_CreateDirectory( prjDirName );
 }
 
-std::string Prj::GetPrjDirName( const std::string & fileName )
+std::string Prj::GetDirName( const std::string & fileName )
 {
     size_t pos = fileName.find_last_of( "\\/" );
 
@@ -226,11 +226,11 @@ std::string Prj::GetPrjDirName( const std::string & fileName )
 
 void Prj::CreateDirIfNeeded( std::string & prjFileName )
 {
-    std::string prj_dir = Prj::GetPrjDirName( prjFileName );
+    std::string dirName = Prj::GetDirName( prjFileName );
 
-    if ( ! HX_IsDirectory( prj_dir ) )
+    if ( ! HX_IsDirectory( dirName ) )
     {
-        HX_CreateDirectory( prj_dir );
+        HX_CreateDirectory( dirName );
     }
 }
 
