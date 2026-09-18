@@ -278,4 +278,5 @@ TEST( PrjPath, GetDirName )
     EXPECT_EQ( Prj::GetDirName( "grid/test.dat" ), "grid" );
     EXPECT_EQ( Prj::GetDirName( "/grid/test.dat" ), "/grid" );
     EXPECT_EQ( Prj::GetDirName( "test.dat" ), "" );
+    EXPECT_EQ( Prj::GetDirName( "grid\\test.dat" ), "grid" );
 }
