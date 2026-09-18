@@ -25,6 +25,7 @@ License
 #include "HXDefine.h"
 //#include "TextFileParser.h"
 #include <map>
+#include <memory>
 
 BeginNameSpace( ONEFLOW )
 
@@ -38,8 +39,9 @@ public:
     static IntField solverTypes;
     static std::map< int, int > solverTypeToIndex;
     static std::map< int, int > solverIndexToType;
-    static HXVector< Solver * > strSolver;
-    static HXVector< Solver * > unsSolver;
+    // Owning storage; GetSolver() returns non-owning Solver*.
+    static HXVector< std::unique_ptr< Solver > > strSolver;
+    static HXVector< std::unique_ptr< Solver > > unsSolver;
 public:
     static void CreateSolvers();
     static void CreateSolvers( int gridType );
@@ -67,14 +69,14 @@ public:
 protected:
     static void AddSolverTypeToIndex( int solverType, int solverIndex );
     static void AddSolverIndexToType( int solverIndex, int solverType );
-    static HXVector< Solver * > * SolverBucket( int gridType );
+    static HXVector< std::unique_ptr< Solver > > * SolverBucket( int gridType );
 
     // S3: clone + StaticInit + index maps into the chosen bucket.
     // Does not touch SolverState / LusgsState (those stay in CreateSolvers).
     static void BuildSolversInBucket(
         int gridType,
         const StringField & solverNameList,
-        HXVector< Solver * > * solvers );
+        HXVector< std::unique_ptr< Solver > > * solvers );
 };
 
 EndNameSpace

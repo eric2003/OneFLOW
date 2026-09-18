@@ -81,7 +81,7 @@ void FieldSimuRun()
     MultigridSolve();
 }
 
-void FieldSimuRunPipeline()
+void FieldPipeline::Run()
 {
     FieldSimuSetupGlobals();
     FieldSimuLoadGrid();
@@ -91,7 +91,7 @@ void FieldSimuRunPipeline()
     FieldSimuRun();
 }
 
-void FieldSimuRunPipeline( const SimuContext& ctx )
+void FieldPipeline::Run( const SimuContext & ctx )
 {
     FieldSimuSetupGlobals();
     FieldSimuLoadGrid();
@@ -101,9 +101,19 @@ void FieldSimuRunPipeline( const SimuContext& ctx )
     FieldSimuRun();
 }
 
+void FieldSimuRunPipeline()
+{
+    FieldPipeline::Run();
+}
+
+void FieldSimuRunPipeline( const SimuContext & ctx )
+{
+    FieldPipeline::Run( ctx );
+}
+
 void FieldSimu()
 {
-    FieldSimuRunPipeline();
+    FieldPipeline::Run();
 }
 
 void InitFlowSimuGlobal()
