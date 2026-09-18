@@ -4,10 +4,10 @@
 #include <vector>
 #include <string>
 #include "Message.h"
+#include "MessageMapLoader.h"
 #include "CmxTaskNames.h"
 
 // MessageMapImp mirrors ActionMapImp's structure and past bug history,
-// so these tests mirror ActionMapImpTest/ActionMapReadFileTest directly.
 
 TEST( MessageMapImpTest, RegisterAssignsSequentialIds )
 {
@@ -232,3 +232,37 @@ TEST( MessageMapImpTest, CmxTaskNames_TimeIntegralPathRoundTrips )
         EXPECT_EQ( imp.GetMsgName( id ), name ) << name;
     }
 }
+
+TEST( MessageMapFacade, ContainsReflectsRegister )
+{
+    ONEFLOW::MessageMap::Init();
+    EXPECT_FALSE( ONEFLOW::MessageMap::Contains( "UNITTEST_NO_SUCH_MSG" ) );
+    ONEFLOW::MessageMap::Register( "UNITTEST_NO_SUCH_MSG" );
+    EXPECT_TRUE( ONEFLOW::MessageMap::Contains( "UNITTEST_NO_SUCH_MSG" ) );
+    ONEFLOW::MessageMap::Free();
+}
+
+TEST( CmxTaskNameValidation, CollectMissingWhenMapEmpty )
+{
+    ONEFLOW::MessageMap::Init();
+    const ONEFLOW::StringField missing = ONEFLOW::CollectMissingCmxTaskNames();
+    EXPECT_FALSE( missing.empty() );
+    ONEFLOW::MessageMap::Free();
+}
+
+TEST( CmxTaskNameValidation, CollectMissingEmptyAfterRegisteringAll )
+{
+    ONEFLOW::MessageMap::Init();
+    // Register whatever is missing until the set is complete.
+    for ( int pass = 0; pass < 2; ++ pass )
+    {
+        const ONEFLOW::StringField missing = ONEFLOW::CollectMissingCmxTaskNames();
+        for ( std::size_t i = 0; i < missing.size(); ++ i )
+        {
+            ONEFLOW::MessageMap::Register( missing[ i ] );
+        }
+    }
+    EXPECT_TRUE( ONEFLOW::CollectMissingCmxTaskNames().empty() );
+    ONEFLOW::MessageMap::Free();
+}
+

@@ -22,11 +22,107 @@ License
 
 #include "MessageMapLoader.h"
 #include "Message.h"
+#include "CmxTaskNames.h"
 #include "TextFileParser.h"
 #include "Prj.h"
+#include "Fatal.h"
 #include <iostream>
+#include <sstream>
 
 BeginNameSpace( ONEFLOW )
+
+namespace {
+
+const char * const kCmxTaskNameTable[] = {
+    kInitFlowFieldTaskName,
+    kPostProcessTaskName,
+    kStoreRhsTaskName,
+    kRestrictAllQTaskName,
+    kLoadQTaskName,
+    kLoadResidualsTaskName,
+    kUpdateResidualsTaskName,
+    kRestrictDefectTaskName,
+    kModifyCoarseGridTaskName,
+    kModifyFineGridTaskName,
+    kRecoverCoarseGridTaskName,
+    kRecoverResidualsTaskName,
+    kZeroResidualsTaskName,
+    kCalcTimeStepTaskName,
+    kCalcLhsTaskName,
+    kUpdateFlowFieldTaskName,
+    kCalcBoundaryTaskName,
+    kZeroDqFieldTaskName,
+    kInitLusgsTaskName,
+    kLusgsLowerSweepTaskName,
+    kExchangeInterfaceDqTaskName,
+    kLusgsUpperSweepTaskName,
+    kUpdateFlowFieldLusgsTaskName,
+    kSolTurbTaskName,
+    kSolHeatTaskName,
+    kCalcUnsteadyCriterionTaskName,
+    kCalcMetricsTaskName,
+    kFillWallStructTaskName,
+    kCalcWallDistTaskName,
+    kWriteWallDistTaskName,
+    kReadWallDistTaskName,
+    kAllocateWallDistTaskName,
+    kInitFirstTaskName,
+    kInitRestartTaskName,
+    kReadRestartTaskName,
+    kInitInsRestartTaskName,
+    kReadInsRestartTaskName,
+    kInitFinalTaskName,
+    kUploadInterfaceDataTaskName,
+    kUpdateInterfaceDataTaskName,
+    kDownloadInterfaceDataTaskName,
+    kDumpResidualTaskName,
+    kDumpAerodynamicTaskName,
+    kDumpPressureCoeffTaskName,
+    kDumpHeatfluxCoeffTaskName,
+    kDumpRestartTaskName,
+    kDumpLaminarPlateTaskName,
+    kDumpTurbPlateTaskName,
+    kVisualizationTaskName,
+    kUpdateUnsteadyFlowTaskName,
+};
+
+} // namespace
+
+StringField CollectMissingCmxTaskNames()
+{
+    StringField missing;
+    const int n = static_cast< int >( sizeof( kCmxTaskNameTable ) / sizeof( kCmxTaskNameTable[ 0 ] ) );
+    for ( int i = 0; i < n; ++ i )
+    {
+        const char * name = kCmxTaskNameTable[ i ];
+        if ( ! MessageMap::Contains( name ) )
+        {
+            missing.push_back( name );
+        }
+    }
+    return missing;
+}
+
+void RequireCmxTaskNamesRegistered()
+{
+    const StringField missing = CollectMissingCmxTaskNames();
+    if ( missing.empty() )
+    {
+        return;
+    }
+
+    std::ostringstream oss;
+    oss << "MessageMap is missing "
+        << missing.size()
+        << " name(s) required by CmxTaskNames.h (source string table):\n";
+    for ( std::size_t i = 0; i < missing.size(); ++ i )
+    {
+        oss << "  - " << missing[ i ] << "\n";
+    }
+    oss << "Add them to system action message files, or fix CmxTaskNames.h.";
+    Fatal( oss.str() );
+}
+
 
 void CreateMsgMap()
 {
@@ -39,6 +135,9 @@ void CreateMsgMap()
     {
         MessageMap::ReadFile( fileNameList[ iFile ] );
     }
+    
+    // Source (CmxTaskNames) must be covered by runtime MessageMap after load.
+    RequireCmxTaskNamesRegistered();
 }
 
 void GetMsgFileNameList( StringField & fileNameList )

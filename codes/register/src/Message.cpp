@@ -148,6 +148,11 @@ void MessageMap::Register( const std::string & msgName )
     MessageMap::GetImp().Register( msgName );
 }
 
+bool MessageMap::Contains( const std::string & msgName )
+{
+    return MessageMap::GetMsgId( msgName ) >= 0;
+}
+
 void MessageMap::ReadFile( const std::string & fileName )
 {
     MessageMap::GetImp().ReadFile( fileName );

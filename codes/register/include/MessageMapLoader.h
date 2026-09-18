@@ -36,4 +36,10 @@ void CreateMsgMap();
 // file name into a full path under Prj::system_root + "action/".
 void GetMsgFileNameList( StringField & fileNameList );
 
+// CmxTaskNames.h constants not present in MessageMap (empty = all ok).
+StringField CollectMissingCmxTaskNames();
+
+// Fatal if any production CmxTaskNames constant is unregistered.
+void RequireCmxTaskNamesRegistered();
+
 EndNameSpace

@@ -20,38 +20,6 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-
-//#pragma once
-//#include "NamespaceMacros.h"
-//#include "HXDefine.h"
-//#include <map>
-//#include <string>
-//
-//
-//BeginNameSpace( ONEFLOW )
-//
-//class MessageMap
-//{
-//public:
-//    MessageMap();
-//    ~MessageMap();
-//public:
-//    static std::map< std::string, int > * nameMap;
-//    static std::map< int, std::string > * idMap;
-//public:
-//    static void Register( const std::string & msgName );
-//    static void Unregister( const std::string & msgName );
-//    static int    GetMsgId( const std::string & msgName );
-//    static std::string GetMsgName( int msgId );
-//    static void ReadFile( const std::string & fileName );
-//public:
-//    static void Init();
-//    static void Free();
-//};
-//
-//EndNameSpace
-
-
 #pragma once
 #include "NamespaceMacros.h"
 #include "HXDefine.h"
@@ -97,6 +65,9 @@ public:
     static const std::string & GetMsgName( int msgId );
     static void Register( const std::string & msgName );
     static void ReadFile( const std::string & fileName );
+
+    // True if name is registered (GetMsgId >= 0).
+    static bool Contains( const std::string & msgName );
 
     // Kept for source compatibility. No manual new/delete underneath any
     // more (see GetImp()), so these just reset state to empty and are
