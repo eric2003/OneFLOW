@@ -28,6 +28,7 @@ License
 #include "UsdData.h"
 #include "MultiBlock.h"
 #include "SolverMap.h"
+#include "SolverCatalog.h"
 #include "CmxTask.h"
 #include "Multigrid.h"
 #include "BcData.h"
@@ -51,22 +52,24 @@ void FieldSimuPrepareWallDist()
     MultiBlock::ProcessFlowWallDist();
 }
 
+
 void FieldSimuCreateSolvers()
 {
-    SolverMap::CreateSolvers();
+    // Prefer SolverCatalog name at the pipeline boundary (owns via SolverMap today).
+    SolverCatalog::CreateDefault();
 }
 
-void FieldSimuCreateSolvers( const SimuContext& ctx )
+void FieldSimuCreateSolvers( const SimuContext & ctx )
 {
     if ( ctx.HasExpandedSolverNames() )
     {
-        SolverMap::CreateSolvers(
+        SolverCatalog::CreateDefault(
             ONEFLOW::UMESH,
             &ctx.ExpandedSolverNames() );
     }
     else
     {
-        SolverMap::CreateSolvers();
+        SolverCatalog::CreateDefault();
     }
 }
 
