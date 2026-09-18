@@ -239,7 +239,7 @@ std::string Prj::GetDirName( const std::string & fileName )
     }
 }
 
-void Prj::CreateDirIfNeeded( std::string & prjFileName )
+void Prj::CreateDirIfNeeded( const std::string & prjFileName )
 {
     std::string dirName = Prj::GetDirName( prjFileName );
 

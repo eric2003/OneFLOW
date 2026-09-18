@@ -63,7 +63,7 @@ public:
     static void OpenPrjFile( std::fstream & file, const std::string & fileName, const std::ios_base::openmode & openMode );
     static void OpenFile( std::fstream & file, const std::string & fileName, const std::ios_base::openmode & openMode );
     static void CloseFile( std::fstream & file );
-    static void CreateDirIfNeeded( std::string & prjFileName );
+    static void CreateDirIfNeeded( const std::string & prjFileName );
     static std::string GetPrjFileName( const std::string & fileName );
     static std::string GetSystemFileName( const std::string & fileName );
     static std::string GetDirName( const std::string & fileName );

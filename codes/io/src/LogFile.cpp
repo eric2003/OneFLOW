@@ -25,7 +25,6 @@ License
 #include "Prj.h"
 #include <iostream>
 
-
 BeginNameSpace( ONEFLOW )
 
 LogFile logFile;
@@ -39,8 +38,6 @@ void OpenLogFile( int logFileIndex, std::fstream & file )
 
     if ( ifReWrite == 0 )
     {
-        Prj::MakePrjDir( "log" );
-
         Prj::OpenPrjFile(
             file,
             fileName,
