@@ -64,11 +64,12 @@ int MessageMapImp::GetMsgId( const std::string & msgName ) const
     return iter->second;
 }
 
-std::string MessageMapImp::GetMsgName( int msgId ) const
+const std::string & MessageMapImp::GetMsgName( int msgId ) const
 {
+    static const std::string empty;
     if ( msgId < 0 || msgId >= static_cast< int >( this->idToName.size() ) )
     {
-        return "";
+        return empty;
     }
     return this->idToName[ msgId ];
 }
@@ -105,6 +106,7 @@ void MessageMapImp::Clear()
 {
     this->nameToId.clear();
     this->idToName.clear();
+    ++ this->epoch_;
 }
 
 MessageMapImp & MessageMap::GetImp()
@@ -131,14 +133,24 @@ int MessageMap::GetMsgId( const std::string & msgName )
     return MessageMap::GetImp().GetMsgId( msgName );
 }
 
-std::string MessageMap::GetMsgName( int msgId )
+const std::string & MessageMap::GetMsgName( int msgId )
 {
     return MessageMap::GetImp().GetMsgName( msgId );
+}
+
+int MessageMap::Epoch()
+{
+    return MessageMap::GetImp().Epoch();
 }
 
 void MessageMap::Register( const std::string & msgName )
 {
     MessageMap::GetImp().Register( msgName );
+}
+
+bool MessageMap::Contains( const std::string & msgName )
+{
+    return MessageMap::GetMsgId( msgName ) >= 0;
 }
 
 void MessageMap::ReadFile( const std::string & fileName )

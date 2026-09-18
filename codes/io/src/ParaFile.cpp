@@ -251,8 +251,6 @@ void mytestjson()
 
 void ReadControlInfo()
 {
-    HXBcastString( Prj::prjBaseDir, Parallel::serverid );
-
     if ( Parallel::IsServer() )
     {
         ONEFLOW::ReadPrjScript();

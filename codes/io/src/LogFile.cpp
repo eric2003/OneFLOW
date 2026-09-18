@@ -21,11 +21,9 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "LogFile.h"
-#include "OStream.h"
 #include "Parallel.h"
 #include "Prj.h"
 #include <iostream>
-
 
 BeginNameSpace( ONEFLOW )
 
@@ -34,22 +32,25 @@ LogFile logFile;
 void OpenLogFile( int logFileIndex, std::fstream & file )
 {
     static int ifReWrite = 0;
-    OStream &logger = OStream::Instance();
-    logger.ClearAll();
-    logger << "log/log" << logFileIndex << ".log";
-    std::string fileName = logger.str();
+
+    std::string fileName =
+        "log/log" + std::to_string( logFileIndex ) + ".log";
 
     if ( ifReWrite == 0 )
     {
-        Prj::MakePrjDir( "log" );
-
-        Prj::OpenPrjFile( file, fileName, std::ios_base::out | std::ios_base::trunc );
+        Prj::OpenPrjFile(
+            file,
+            fileName,
+            std::ios_base::out | std::ios_base::trunc );
 
         ifReWrite = 1;
     }
     else
     {
-        Prj::OpenPrjFile( file, fileName, std::ios_base::out | std::ios_base::app );
+        Prj::OpenPrjFile(
+            file,
+            fileName,
+            std::ios_base::out | std::ios_base::app );
     }
 }
 

@@ -19,27 +19,40 @@ License
     along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 
 \*---------------------------------------------------------------------------*/
-
 #pragma once
-#include "NamespaceMacros.h"
-#include "HXDefine.h"
+#include "SolverMap.h"
 
 BeginNameSpace( ONEFLOW )
 
-// Bootstraps the global MessageMap singleton by reading the list of
-// message-definition files from disk and loading each of them in turn.
-// This is loading/assembly logic, distinct from MessageMap itself (which
-// is a pure name<->id registry with no knowledge of files or paths).
-void CreateMsgMap();
+// Semantic facade over the process-default solver directory.
+//
+// Today ownership still lives in SolverMap (unique_ptr buckets + index maps).
+// Call sites that mean "the simulation's solver catalog" should prefer this
+// name so a later move to Session/SimuContext-owned storage is a type rename
+// rather than a hunt for SolverMap:: statics.
+//
+// GetSolver returns a non-owning view (same as SolverMap::GetSolver).
+struct SolverCatalog
+{
+    static void CreateDefault()
+    {
+        SolverMap::CreateSolvers();
+    }
 
-// Reads the manifest file (actionFileList.txt) and expands each listed
-// file name into a full path under Prj::system_root + "action/".
-void GetMsgFileNameList( StringField & fileNameList );
-
-// CmxTaskNames.h constants not present in MessageMap (empty = all ok).
-StringField CollectMissingCmxTaskNames();
-
-// Fatal if any production CmxTaskNames constant is unregistered.
-void RequireCmxTaskNamesRegistered();
+    static void CreateDefault( int gridType, const StringField * names )
+    {
+            SolverMap::CreateSolvers( gridType, names );
+    }
+    
+    static void FreeDefault()
+    {
+        SolverMap::FreeSolverMap();
+    }
+    
+    static Solver * GetSolver( int solverIndex, int gridType )
+    {
+        return SolverMap::GetSolver( solverIndex, gridType );
+    }
+};
 
 EndNameSpace

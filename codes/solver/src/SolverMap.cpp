@@ -29,12 +29,14 @@ License
 #include "SolverState.h"
 #include <map>
 #include <iostream>
+#include <memory>
+#include <utility>
 
 BeginNameSpace( ONEFLOW )
 
 // Index maps live in SolverMapIndex.cpp (testable without SafeClone).
-HXVector< Solver * > SolverMap::strSolver;
-HXVector< Solver * > SolverMap::unsSolver;
+HXVector< std::unique_ptr< Solver > > SolverMap::strSolver;
+HXVector< std::unique_ptr< Solver > > SolverMap::unsSolver;
 
 SolverMap::SolverMap()
 {
@@ -44,7 +46,7 @@ SolverMap::~SolverMap()
 {
 }
 
-HXVector< Solver * > * SolverMap::SolverBucket( int gridType )
+HXVector< std::unique_ptr< Solver > > * SolverMap::SolverBucket( int gridType )
 {
     if ( gridType == ONEFLOW::UMESH )
     {
@@ -56,35 +58,31 @@ HXVector< Solver * > * SolverMap::SolverBucket( int gridType )
 void SolverMap::BuildSolversInBucket(
     int gridType,
     const StringField & solverNameList,
-    HXVector< Solver * > * solvers )
+    HXVector< std::unique_ptr< Solver > > * solvers )
 {
     const int nSolver = static_cast< int >( solverNameList.size() );
     for ( int solverIndex = 0; solverIndex < nSolver; ++ solverIndex )
     {
-        Solver * solver = Solver::SafeClone( solverNameList[ solverIndex ] );
+        // SafeClone returns a raw owning pointer; take ownership immediately.
+        std::unique_ptr< Solver > solver( Solver::SafeClone( solverNameList[ solverIndex ] ) );
         solver->solverIndex = solverIndex;
         solver->gridType = gridType;
         solver->StaticInit();
 
         SolverMap::AddSolverInfo( solver->solverType, solver->solverIndex );
-        solvers->push_back( solver );
+        solvers->push_back( std::move( solver ) );
     }
 }
 
 void SolverMap::FreeSolverMap( int gridType )
 {
-    HXVector< Solver * > * solvers = SolverMap::SolverBucket( gridType );
-
-    for ( int solverIndex = 0; solverIndex < static_cast< int >( solvers->size() ); ++ solverIndex )
-    {
-        delete ( * solvers )[ solverIndex ];
-    }
-    solvers->resize( 0 );
+    // unique_ptr elements destroy solvers on clear; no manual delete loop.
+    SolverMap::SolverBucket( gridType )->clear();
 }
 
 Solver * SolverMap::GetSolver( int solverIndex, int gridType )
 {
-    return ( * SolverMap::SolverBucket( gridType ) )[ solverIndex ];
+    return ( * SolverMap::SolverBucket( gridType ) )[ solverIndex ].get();
 }
 
 void SolverMap::CreateSolvers()
@@ -120,7 +118,7 @@ void SolverMap::CreateSolvers( int gridType )
 void SolverMap::CreateSolvers( int gridType, const StringField * solverNameList )
 {
     // S1: select side (uns vs str)
-    HXVector< Solver * > * solvers = SolverMap::SolverBucket( gridType );
+    HXVector< std::unique_ptr< Solver > > * solvers = SolverMap::SolverBucket( gridType );
 
     // S2: injected list, or script/solver.txt + policy (SelectSolverNames seam)
     const StringField & names =

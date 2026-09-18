@@ -28,6 +28,7 @@ License
 #include "UsdData.h"
 #include "MultiBlock.h"
 #include "SolverMap.h"
+#include "SolverCatalog.h"
 #include "CmxTask.h"
 #include "Multigrid.h"
 #include "BcData.h"
@@ -51,22 +52,24 @@ void FieldSimuPrepareWallDist()
     MultiBlock::ProcessFlowWallDist();
 }
 
+
 void FieldSimuCreateSolvers()
 {
-    SolverMap::CreateSolvers();
+    // Prefer SolverCatalog name at the pipeline boundary (owns via SolverMap today).
+    SolverCatalog::CreateDefault();
 }
 
-void FieldSimuCreateSolvers( const SimuContext& ctx )
+void FieldSimuCreateSolvers( const SimuContext & ctx )
 {
     if ( ctx.HasExpandedSolverNames() )
     {
-        SolverMap::CreateSolvers(
+        SolverCatalog::CreateDefault(
             ONEFLOW::UMESH,
             &ctx.ExpandedSolverNames() );
     }
     else
     {
-        SolverMap::CreateSolvers();
+        SolverCatalog::CreateDefault();
     }
 }
 
@@ -81,7 +84,7 @@ void FieldSimuRun()
     MultigridSolve();
 }
 
-void FieldSimuRunPipeline()
+void FieldPipeline::Run()
 {
     FieldSimuSetupGlobals();
     FieldSimuLoadGrid();
@@ -91,7 +94,7 @@ void FieldSimuRunPipeline()
     FieldSimuRun();
 }
 
-void FieldSimuRunPipeline( const SimuContext& ctx )
+void FieldPipeline::Run( const SimuContext & ctx )
 {
     FieldSimuSetupGlobals();
     FieldSimuLoadGrid();
@@ -101,9 +104,19 @@ void FieldSimuRunPipeline( const SimuContext& ctx )
     FieldSimuRun();
 }
 
+void FieldSimuRunPipeline()
+{
+    FieldPipeline::Run();
+}
+
+void FieldSimuRunPipeline( const SimuContext & ctx )
+{
+    FieldPipeline::Run( ctx );
+}
+
 void FieldSimu()
 {
-    FieldSimuRunPipeline();
+    FieldPipeline::Run();
 }
 
 void InitFlowSimuGlobal()

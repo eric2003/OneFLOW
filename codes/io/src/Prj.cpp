@@ -179,7 +179,11 @@ void Prj::OpenPrjFile(
 {
     std::string prjFileName = Prj::GetPrjFileName( fileName );
 
-    CreateDirIfNeeded( prjFileName );
+    // Create parent directories only for write operations.
+    if ( ( openMode & std::ios_base::out ) != 0 )
+    {
+        CreateDirIfNeeded( prjFileName );
+    }
 
     Prj::OpenFile( file, prjFileName, openMode );
 }
@@ -216,17 +220,9 @@ void Prj::MakePrjDir( const std::string & dirName )
 // string concatenation that used to live in individual business-logic files.
 std::string Prj::GetSystemFileName( const std::string & fileName )
 {
-    OStream &logger = OStream::Instance();
-
-    logger.ClearAll();
-
     std::string fileNameNew = RemoveFirstSlash( fileName );
 
-    logger << Prj::system_root << fileNameNew;
-
-    std::string systemFileName = logger.str();
-
-    return systemFileName;
+    return Prj::system_root + fileNameNew;
 }
 
 std::string Prj::GetDirName( const std::string & fileName )
@@ -243,7 +239,7 @@ std::string Prj::GetDirName( const std::string & fileName )
     }
 }
 
-void Prj::CreateDirIfNeeded( std::string & prjFileName )
+void Prj::CreateDirIfNeeded( const std::string & prjFileName )
 {
     std::string dirName = Prj::GetDirName( prjFileName );
 
@@ -255,17 +251,9 @@ void Prj::CreateDirIfNeeded( std::string & prjFileName )
 
 std::string Prj::GetPrjFileName( const std::string & fileName )
 {
-    OStream &logger = OStream::Instance();
-
-    logger.ClearAll();
-
     std::string fileNameNew = RemoveFirstSlash( fileName );
 
-    logger << Prj::prjBaseDir << fileNameNew;
-
-    std::string prjFileName = logger.str();
-
-    return prjFileName;
+    return Prj::prjBaseDir + fileNameNew;
 }
 
 EndNameSpace
