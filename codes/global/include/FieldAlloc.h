@@ -21,6 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 #pragma once
 #include "HXDefine.h"
+#include <memory>
 #include <string>
 
 
@@ -87,9 +88,9 @@ public:
     ParaNameDimData();
     ~ParaNameDimData();
 public:
-    ParaNameDim * comPara;
-    ParaNameDim * strPara;
-    ParaNameDim * unsPara;
+    std::unique_ptr<ParaNameDim> comPara;
+    std::unique_ptr<ParaNameDim> strPara;
+    std::unique_ptr<ParaNameDim> unsPara;
 public:
     ParaNameDim * GetParaNameDim( const std::string & typeName );
 };

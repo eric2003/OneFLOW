@@ -93,11 +93,10 @@ void FieldAlloc::AllocateGlobalField( int solverType, const std::string & basicS
 
     for ( int iFile = 0; iFile < fileNameList.size(); ++ iFile )
     {
-        ReadSuperPara * readSuperPara = new ReadSuperPara();
+        ReadSuperPara readSuperPara;
 
-        readSuperPara->solverType = solverType;
-        readSuperPara->Register( fileNameList[ iFile ], iFile );
-        delete readSuperPara;
+        readSuperPara.solverType = solverType;
+        readSuperPara.Register( fileNameList[ iFile ], iFile );
     }
 
     FieldAlloc::AllocateAllKindsOfInterfaceField( solverType );
@@ -432,31 +431,27 @@ ParaNameDim::~ParaNameDim()
 
 ParaNameDimData::ParaNameDimData()
 {
-    this->comPara = new ParaNameDim();
-    this->strPara = new ParaNameDim();
-    this->unsPara = new ParaNameDim();
+    this->comPara = std::make_unique<ParaNameDim>();
+    this->strPara = std::make_unique<ParaNameDim>();
+    this->unsPara = std::make_unique<ParaNameDim>();
 }
 
-ParaNameDimData::~ParaNameDimData()
-{
-    delete this->comPara;
-    delete this->strPara;
-    delete this->unsPara;
-}
+ParaNameDimData::~ParaNameDimData() = default;
 
-ParaNameDim * ParaNameDimData::GetParaNameDim( const std::string & typeName )
+ParaNameDim * ParaNameDimData::GetParaNameDim(
+    const std::string & typeName )
 {
     if ( typeName == "all" )
     {
-        return this->comPara;
+        return this->comPara.get();
     }
     else if ( typeName == "str" )
     {
-        return this->strPara;
+        return this->strPara.get();
     }
     else
     {
-        return this->unsPara;
+        return this->unsPara.get();
     }
 }
 
@@ -473,9 +468,9 @@ ReadSuperPara::~ReadSuperPara()
 
 void ReadSuperPara::AddInnerFieldProperty()
 {
-    this->AddBasicFieldProperty( this->paraNameDimData->unsPara, 0, 0 );
-    this->AddBasicFieldProperty( this->paraNameDimData->strPara, 0, 1 );
-    this->AddBasicFieldProperty( this->paraNameDimData->comPara, 0, 2 );
+    this->AddBasicFieldProperty( this->paraNameDimData->unsPara.get(), 0, 0);
+    this->AddBasicFieldProperty( this->paraNameDimData->strPara.get(), 0, 1 );
+    this->AddBasicFieldProperty( this->paraNameDimData->comPara.get(), 0, 2 );
 }
 
 void ReadSuperPara::AddUnsteadyInnerFieldProperty()
@@ -490,16 +485,16 @@ void ReadSuperPara::AddUnsteadyInnerFieldProperty()
 
 void ReadSuperPara::AddFaceFieldProperty()
 {
-    this->AddBasicFieldProperty( this->paraNameDimData->unsPara, 1, 0 );
-    this->AddBasicFieldProperty( this->paraNameDimData->strPara, 1, 1 );
-    this->AddBasicFieldProperty( this->paraNameDimData->comPara, 1, 2 );
+    this->AddBasicFieldProperty( this->paraNameDimData->unsPara.get(), 1, 0 );
+    this->AddBasicFieldProperty( this->paraNameDimData->strPara.get(), 1, 1 );
+    this->AddBasicFieldProperty( this->paraNameDimData->comPara.get(), 1, 2 );
 }
 
 void ReadSuperPara::AddBoundaryFieldProperty()
 {
-    this->AddBasicFieldProperty( this->paraNameDimData->unsPara, 2, 0 );
-    this->AddBasicFieldProperty( this->paraNameDimData->strPara, 2, 1 );
-    this->AddBasicFieldProperty( this->paraNameDimData->comPara, 2, 2 );
+    this->AddBasicFieldProperty( this->paraNameDimData->unsPara.get(), 2, 0 );
+    this->AddBasicFieldProperty( this->paraNameDimData->strPara.get(), 2, 1 );
+    this->AddBasicFieldProperty( this->paraNameDimData->comPara.get(), 2, 2 );
 }
 
 void ReadSuperPara::AddBasicFieldProperty( ParaNameDim * paraNameDim, int fieldType, int type )

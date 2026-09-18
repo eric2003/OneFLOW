@@ -33,7 +33,7 @@ BeginNameSpace( ONEFLOW )
 void CreateMsgMap();
 
 // Reads the manifest file (actionFileList.txt) and expands each listed
-// file name into a full path under Prj::system_root + "action/".
+// Resolve the file name relative to the OneFLOW system directory.
 void GetMsgFileNameList( StringField & fileNameList );
 
 // CmxTaskNames.h constants not present in MessageMap (empty = all ok).
