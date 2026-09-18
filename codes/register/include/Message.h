@@ -74,9 +74,11 @@ public:
     void Register( const std::string & msgName );
     void Unregister( const std::string & msgName );
     int GetMsgId( const std::string & msgName ) const;
-    std::string GetMsgName( int msgId ) const;
+    // Reference into idToName (or static empty). Avoids copy on hot path.
+    const std::string & GetMsgName( int msgId ) const;
     void ReadFile( const std::string & fileName );
     void Clear();
+    int Epoch() const { return epoch_; }
 
 private:
     std::map< std::string, int > nameToId;
@@ -85,13 +87,14 @@ private:
     // so a vector gives O(1) lookup instead of paying for a red-black
     // tree lookup on keys that are never actually sparse.
     std::vector< std::string > idToName;
+    int epoch_ = 0;
 };
 
 class MessageMap
 {
 public:
     static int GetMsgId( const std::string & msgName );
-    static std::string GetMsgName( int msgId );
+    static const std::string & GetMsgName( int msgId );
     static void Register( const std::string & msgName );
     static void ReadFile( const std::string & fileName );
 
@@ -100,6 +103,9 @@ public:
     // safe to call any number of times, in any order.
     static void Init();
     static void Free();
+
+    // Increments when Init/Free clears the table (GetClass cache uses this).
+    static int Epoch();
 
 private:
     static MessageMapImp & GetImp();

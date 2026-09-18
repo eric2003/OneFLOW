@@ -40,25 +40,75 @@ License
 #include "FileMap.h"
 #include <memory>
 #include <utility>
+#include <map>
+#include <cstdint>
 
 BeginNameSpace( ONEFLOW )
+
+namespace {
+
+// Cache HXClone* by (operationId, solverType, funcType). Invalidated when
+// MessageMap::Epoch() changes (Init/Free). Hot path: CmdAction / GenerateCmdList.
+struct GetClassCache
+{
+    int epoch = -1;
+    std::map< std::uint64_t, HXClone * > table;
+
+    static std::uint64_t MakeKey( int operationId, int solverType, int funcType )
+    {
+        return ( static_cast< std::uint64_t >( static_cast< std::uint32_t >( operationId ) ) )
+             | ( static_cast< std::uint64_t >( static_cast< std::uint32_t >( solverType ) ) << 20 )
+             | ( static_cast< std::uint64_t >( static_cast< std::uint32_t >( funcType ) ) << 40 );
+    }
+
+    void SyncEpoch()
+    {
+        const int ep = MessageMap::Epoch();
+        if ( ep != epoch )
+        {
+            table.clear();
+            epoch = ep;
+        }
+    }
+};
+
+GetClassCache & ClassCache()
+{
+    static GetClassCache cache;
+    return cache;
+}
+
+} // namespace
 
 HXClone * GetClass(
     int operationId,
     int solverType,
     int funcType )
 {
+    GetClassCache & cache = ClassCache();
+    cache.SyncEpoch();
+
+    const std::uint64_t key =
+        GetClassCache::MakeKey( operationId, solverType, funcType );
+
+    auto it = cache.table.find( key );
+    if ( it != cache.table.end() )
+    {
+        return it->second; // may be nullptr (negative cache)
+    }
+
     HXRegister * hxRegister =
         RegisterFactory::GetRegister(
             solverType,
             funcType );
 
-    const std::string operationName =
+    const std::string & operationName =
         MessageMap::GetMsgName( operationId );
 
     HXClone * cloneClass =
         hxRegister->GetClass( operationName );
 
+    cache.table[ key ] = cloneClass;
     return cloneClass;
 }
 
@@ -73,7 +123,7 @@ void GenerateCmdList( int operationId )
     HXRegister * hxRegister =
         RegisterFactory::GetRegister( solverType, MESG_FUNC );
 
-    const std::string operationName =
+    const std::string & operationName =
         MessageMap::GetMsgName( operationId );
 
     HXClone * cloneClass =
@@ -274,50 +324,9 @@ void CmdActionNext()
     CmdBasicAction( RECV_FUNC );
 }
 
-
-
 // ============================================================
 // Operation execution entry
 // ============================================================
-
-//void SingleSolverSingleGridTask( const std::string & taskName )
-//{
-//    // Resolve the operation name.
-//    const int operationId =
-//        MessageMap::GetMsgId( taskName );
-//
-//    // Build the execution plan for the operation.
-//    GenerateCmdList( operationId );
-//
-//    // Execute the generated plan.
-//    CMD::ExecuteCmd();
-//}
-//
-//
-//// ============================================================
-//// Multi-solver / multi-grid execution
-//// ============================================================
-//
-//void MultiSolverMultiGridTask( const std::string & taskName )
-//{
-//    for ( int solverIndex = 0;
-//        solverIndex < SolverState::nSolver;
-//        ++ solverIndex )
-//    {
-//        SolverState::SetSolverTypeBySolverIndex( solverIndex );
-//
-//        for ( int gl = 0;
-//            gl < GridState::nGrids;
-//            ++ gl )
-//        {
-//            GridState::SetGridLevel( gl );
-//
-//            ONEFLOW::SingleSolverSingleGridTask(
-//                taskName );
-//        }
-//    }
-//}
-
 
 void SingleSolverSingleGridTask( int operationId )
 {
