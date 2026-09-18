@@ -114,80 +114,47 @@ std::string HX_GetCurrentDirectory()
     }
 }
 
-bool EndWithSlash( const std::string & fileName )
-{
-    if ( EndWithForwardSlash( fileName ) ||
-        EndWithBackwardSlash( fileName ) )
-    {
-        return true;
-    }
-    return false;
-}
-
 bool EndWithBackwardSlash( const std::string & fileName )
 {
-    size_t pos = fileName.find_last_of("\\");
-    size_t ss = fileName.size();
-    if ( ss == 0 )
-    {
-        return false;
-    }
-    else
-    {
-        bool flag = fileName.substr( ss - 1, 1 ) == "\\";
-        return flag;
-    }
+    return !fileName.empty() && fileName.back() == '\\';
 }
 
 bool EndWithForwardSlash( const std::string & fileName )
 {
-    size_t pos = fileName.find_last_of("/");
-    size_t ss = fileName.size();
-    if ( ss == 0 )
-    {
-        return false;
-    }
-    else
-    {
-        bool flag = fileName.substr( ss - 1, 1 ) == "/";
-        return flag;
-    }
+    return !fileName.empty() && fileName.back() == '/';
+}
+
+bool EndWithSlash( const std::string & fileName )
+{
+    return EndWithForwardSlash( fileName ) ||
+        EndWithBackwardSlash( fileName );
 }
 
 bool StartWithForwardSlash( const std::string & fileName )
 {
-    size_t pos = fileName.find_first_of("/");
-    if ( fileName.size() == 0 )
-    {
-        return false;
-    }
-
-    if ( fileName.substr( 0,1 ) == "/" )
-    {
-        return true;
-    }
-    return false;
+    return !fileName.empty() && fileName.front() == '/';
 }
 
 std::string RemoveFirstSlash( const std::string & fileName )
 {
-    if ( StartWithForwardSlash( fileName ) )
+    if ( !fileName.empty() &&
+        ( fileName.front() == '/' || fileName.front() == '\\' ) )
     {
-        int len = fileName.size();
-        return fileName.substr( 1, len - 1 );
+        return fileName.substr( 1 );
     }
+
     return fileName;
 }
 
 std::string RemoveEndSlash( const std::string & fileName )
 {
-    if ( EndWithSlash( fileName ) )
+    if ( !fileName.empty() &&
+        ( fileName.back() == '/' || fileName.back() == '\\' ) )
     {
-        int len = fileName.size();
-        return fileName.substr( 0, len - 1 );
+        return fileName.substr( 0, fileName.size() - 1 );
     }
-    return fileName;
 
+    return fileName;
 }
 
 void GetFileNameExtension( const std::string & fullName, std::string & mainName, std::string & extensionName, const std::string & fileNameSeparator )
