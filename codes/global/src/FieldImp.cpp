@@ -50,14 +50,16 @@ void FieldProperty::AddField( const std::string & fieldName, int nEqu )
     this->data[ fieldName ] = nEqu;
 }
 
-int FieldProperty::GetNEqu( const std::string & fileName )
+int FieldProperty::GetNEqu( const std::string & fieldName )
 {
     std::map< std::string, int >::iterator iter;
-    iter = this->data.find( fileName );
+    iter = this->data.find( fieldName );
+
     if ( iter != this->data.end() )
     {
         return iter->second;
     }
+
     return -1;
 }
 
@@ -181,15 +183,15 @@ GFieldProperty::~GFieldProperty()
 {
 }
 
-void GFieldProperty::AddField( const std::string & fileName, int nEqu )
+void GFieldProperty::AddField( const std::string & fieldName, int nEqu )
 {
-    GFieldProperty::data[ fileName ] = nEqu;
+    GFieldProperty::data[ fieldName ] = nEqu;
 }
 
-int GFieldProperty::GetNEqu( const std::string & fileName )
+int GFieldProperty::GetNEqu( const std::string & fieldName )
 {
     std::map< std::string, int >::iterator iter;
-    iter = GFieldProperty::data.find( fileName );
+    iter = GFieldProperty::data.find( fieldName );
     if ( iter != GFieldProperty::data.end() )
     {
         return iter->second;
@@ -220,8 +222,6 @@ FieldManager::~FieldManager() = default;
 
 void FieldManager::SetField( const std::string & fieldName, Real value )
 {
-    int nTEqu = this->commManager->innerField->GetNEqu( fieldName );
-
     FieldHome::SetField( fieldName, value );
 }
 

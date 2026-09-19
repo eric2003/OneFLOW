@@ -36,7 +36,7 @@ public:
     std::map< std::string, int > data;
 public:
     void AddField( const std::string & fieldName, int nEqu );
-    int GetNEqu( const std::string & fileName );
+    int GetNEqu( const std::string & fieldName );
 };
 
 class DataStorage;
