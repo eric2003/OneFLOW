@@ -30,13 +30,19 @@ BeginNameSpace( ONEFLOW )
 class FieldProperty
 {
 public:
+    using Data = std::map< std::string, int >;
+
+public:
     FieldProperty();
     ~FieldProperty();
-public:
-    std::map< std::string, int > data;
-public:
+
     void AddField( const std::string & fieldName, int nEqu );
-    int GetNEqu( const std::string & fieldName );
+    int GetNEqu( const std::string & fieldName ) const;
+
+    const Data & GetData() const;
+
+private:
+    Data data;
 };
 
 class DataStorage;
