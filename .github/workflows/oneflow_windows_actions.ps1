@@ -67,13 +67,31 @@ function InstallMSMPI() {
     
     AddMachinePath( $msmpi_bin_path )
     
+    # Update the current PowerShell process environment.
+    $Env:Path = "$msmpi_bin_path;$Env:Path"
+    
+    if ( Test-Path "$msmpi_bin_path/mpiexec.exe" ) {
+        Write-Host "MPI executable: FOUND"
+    }
+    else {
+        Write-Error "MPI executable: NOT FOUND"
+        exit 1
+    }
+    
+    # Persist MPI path for subsequent GitHub Actions steps.
+    $msmpi_bin_path | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+    
     Write-Host "ls $msmpi_sdk_path"
     ls $msmpi_sdk_path
-    Write-Host "ls $msmpi_sdk_path"
+    
+    Write-Host "ls $msmpi_bin_path"
     ls $msmpi_bin_path
     
-    Write-Host "mpiexec"
-    mpiexec 
+    Write-Host "Resolved mpiexec:"
+    Get-Command mpiexec
+    
+    Write-Host "Testing mpiexec:"
+    mpiexec -help
 }
 
 function DownloadHDF5() {
@@ -134,36 +152,45 @@ function InstallHDF5() {
 
 function InstallCGNS() {
     $global:cgns_version = "4.4.0"
-    DownloadCGNS    
+    DownloadCGNS
+
     Write-Host "Installing CGNS..."
-    $zipexe = "C:/Program Files/7-zip/7z.exe" 
+
+    $zipexe = "C:/Program Files/7-zip/7z.exe"
     $arg = "x ./CGNS-$cgns_version.zip"
+
     Start-Process $zipexe -Wait -ArgumentList $arg
-    ls
+
     cd CGNS-$cgns_version
-    ls
-    Write-Host "mkdir build..."
+
     mkdir build
-    Write-Host "ls..."
-    ls
     cd build
+
     $tmp = GetMachineEnvironmentVariable("HDF5_DIR")
-    Write-Host "Machine Environment HDF5_DIR = $tmp"
-    Write-Host "local Env:HDF5_DIR = $Env:HDF5_DIR"
-    $Env:HDF5_DIR = $tmp;
-    Write-Host "now Env:HDF5_DIR = $Env:HDF5_DIR"
-    $cgns_prefix = "C:/dev/cgns/$cgns_version"
-    $cgns_bin = $cgns_prefix + "/bin"
-    cmake -DCGNS_ENABLE_64BIT="ON" `
-          -DCGNS_ENABLE_HDF5="ON" `
-          -DCGNS_BUILD_SHARED="ON" `
-          ../
-    #      -DCMAKE_INSTALL_PREFIX="C:/dev/cgns" ../
+    $Env:HDF5_DIR = $tmp
+
+    $global:cgns_prefix =
+        "$env:GITHUB_WORKSPACE/_deps/cgns/$cgns_version"
+
+    cmake `
+        -DCGNS_ENABLE_64BIT="ON" `
+        -DCGNS_ENABLE_HDF5="ON" `
+        -DCGNS_BUILD_SHARED="ON" `
+        ../
+
     cmake --build . --parallel 4 --config release
     cmake --install . --prefix $cgns_prefix
-    AddMachinePath( $cgns_bin )
+
+    Write-Host "CGNS installation directory:"
+    Write-Host "$cgns_prefix"
+
+    Write-Host "CGNS include directory:"
+    Write-Host "$cgns_prefix/include"
+
+    ls "$cgns_prefix/include"
+
     cd ../../
-    pwd
+
     Write-Host "CGNS-$cgns_version installation complete..."
 }
 
@@ -189,13 +216,31 @@ function InstallMETIS() {
     Write-Host "ls..."
     ls
     cd build
-    $metis_prefix = "C:/dev/METIS/METIS-VS2022-STATIC/"
+	
+	$global:metis_prefix =
+		"$env:GITHUB_WORKSPACE/_deps/metis/METIS-VS2022-STATIC"
+	
     cmake ../
     cmake --build . --parallel 4 --config release
     cmake --install . --prefix $metis_prefix
     cd ../../
     pwd
     Write-Host "METIS-5.1.0 installation complete..."
+	if ( Test-Path "$metis_prefix/include/metis.h" ) {
+		Write-Host "METIS header: FOUND"
+	}
+	else {
+		Write-Error "METIS header: NOT FOUND"
+		exit 1
+	}
+	
+	if ( Test-Path "$metis_prefix/lib/metis.lib" ) {
+		Write-Host "METIS library: FOUND"
+	}
+	else {
+		Write-Error "METIS library: NOT FOUND"
+		exit 1
+	}	
 }
 
 function DownloadCGNS() {
@@ -227,14 +272,56 @@ function ExitDownload() {
 
 function CompileOneFLOW() {
     Write-Host "Compile OneFLOW ..."
+
     mkdir build
     cd build
-    cmake ../
-    $oneflow_prefix = "C:/OneFLOW"
-    $oneflow_bin = $oneflow_prefix + "/bin"
+
+    $oneflow_prefix =
+        "$env:GITHUB_WORKSPACE/install"
+
+    $metis_root =
+        "$env:GITHUB_WORKSPACE/_deps/metis/METIS-VS2022-STATIC"
+
+    $cgns_root =
+        "$env:GITHUB_WORKSPACE/_deps/cgns/$cgns_version"
+
+    Write-Host "METIS_ROOT = $metis_root"
+    Write-Host "CGNS_ROOT  = $cgns_root"
+
+    Write-Host "Checking CGNS header:"
+    ls "$cgns_root/include"
+    ls "$cgns_root/include/cgnslib.h"
+	
+	Write-Host "===== Dependency Check ====="
+
+	Write-Host "CGNS_ROOT = $cgns_root"
+	Write-Host "CGNS include = $cgns_root/include"
+	Write-Host "CGNS library = $cgns_root/lib/cgnsdll.lib"
+
+	if ( Test-Path "$cgns_root/include/cgnslib.h" ) {
+		Write-Host "CGNS header: FOUND"
+	}
+	else {
+		Write-Error "CGNS header: NOT FOUND"
+		exit 1
+	}
+
+	if ( Test-Path "$cgns_root/lib/cgnsdll.lib" ) {
+		Write-Host "CGNS library: FOUND"
+	}
+	else {
+		Write-Error "CGNS library: NOT FOUND"
+		exit 1
+	}	
+
+    cmake `
+        -DMETIS_ROOT="$metis_root" `
+        -DCGNS_ROOT="$cgns_root" `
+        ../
+
     cmake --build . --parallel 4 --config release
     cmake --install . --prefix $oneflow_prefix
-    AddMachinePath( $oneflow_bin )
+
     Write-Host "Compile OneFLOW complete..."
 }
 

@@ -229,36 +229,61 @@ else()
     set ( ARCH "x86" )
 endif()
 
-#MPI library settings
+# MPI library settings
 option ( MPI_ENABLE "ON for using MPI library" ON )
 
 if ( MPI_ENABLE )
     list ( APPEND PRJ_COMPILE_DEF ENABLE_MPI )
+
     if ( ${CMAKE_SYSTEM_NAME} MATCHES "Windows" )
-        set ( MPI_INCLUDE_DIRS "C:/Program Files (x86)/Microsoft SDKs/MPI/include" CACHE PATH "path to mpi headers" )
-        set ( MPI_LIBRARIES "C:/Program Files (x86)/Microsoft SDKs/MPI/Lib/${ARCH}/msmpi.lib" CACHE PATH "path to mpi library" )
+        if ( NOT MPI_INCLUDE_DIRS )
+            set ( MPI_INCLUDE_DIRS
+                  "C:/Program Files (x86)/Microsoft SDKs/MPI/include"
+                  CACHE PATH "path to mpi headers" )
+        endif()
+
+        if ( NOT MPI_LIBRARIES )
+            set ( MPI_LIBRARIES
+                  "C:/Program Files (x86)/Microsoft SDKs/MPI/Lib/${ARCH}/msmpi.lib"
+                  CACHE PATH "path to mpi library" )
+        endif()
     else()
-        set ( MPI_INCLUDE_DIRS "$ENV{MPI_HOME_INC}" CACHE PATH "path to mpi headers" )
-        set ( MPI_LIBRARIES "$ENV{MPI_HOME_LIB}" CACHE PATH "path to mpi library" )
+        set ( MPI_INCLUDE_DIRS "$ENV{MPI_HOME_INC}"
+              CACHE PATH "path to mpi headers" )
+        set ( MPI_LIBRARIES "$ENV{MPI_HOME_LIB}"
+              CACHE PATH "path to mpi library" )
     endif()
-    
+
     message ( STATUS "The MPI_LIBRARIES is ${MPI_LIBRARIES}" )
-    
+
     list ( APPEND PRJ_LIBRARIES ${MPI_LIBRARIES} )
     list ( APPEND PRJ_INCLUDE_DIRS ${MPI_INCLUDE_DIRS} )
 endif()
 
 
-#METIS library settings
+# METIS library settings
 option ( METIS_ENABLE "ON for using METIS partitioning library" ON )
 
 if ( METIS_ENABLE )
     list ( APPEND PRJ_COMPILE_DEF ENABLE_METIS )
-    
-    if ( ${CMAKE_SYSTEM_NAME} MATCHES "Windows")
-        set ( METIS_ROOT "C:/dev/METIS/METIS-${LIB_COMPILER_TYPE}-STATIC" )
-        set ( METIS_INCLUDE_DIRS "${METIS_ROOT}/include"  CACHE PATH "path to METIS headers" )
-        set ( METIS_LIBRARIES "${METIS_ROOT}/lib/metis.lib" CACHE PATH "path to METIS library" )
+
+    if ( ${CMAKE_SYSTEM_NAME} MATCHES "Windows" )
+        if ( NOT METIS_ROOT )
+            set ( METIS_ROOT
+                  "C:/dev/METIS/METIS-${LIB_COMPILER_TYPE}-STATIC" )
+        endif()
+
+        if ( NOT METIS_INCLUDE_DIRS )
+            set ( METIS_INCLUDE_DIRS
+                  "${METIS_ROOT}/include"
+                  CACHE PATH "path to METIS headers" )
+        endif()
+
+        if ( NOT METIS_LIBRARIES )
+            set ( METIS_LIBRARIES
+                  "${METIS_ROOT}/lib/metis.lib"
+                  CACHE PATH "path to METIS library" )
+        endif()
     else()
         set ( METIS_INCLUDE_DIRS $ENV{METIS_HOME_INC} )
         set ( METIS_LIBRARIES $ENV{METIS_HOME_LIB} )
@@ -268,23 +293,41 @@ if ( METIS_ENABLE )
     list ( APPEND PRJ_INCLUDE_DIRS ${METIS_INCLUDE_DIRS} )
 endif()
 
-#CGNS library settings
+
+# CGNS library settings
 option ( CGNS_ENABLE "ON for using CGNS library" ON )
 
 if ( CGNS_ENABLE )
     list ( APPEND PRJ_COMPILE_DEF ENABLE_CGNS )
+
     if ( ${CMAKE_SYSTEM_NAME} MATCHES "Windows" )
-        set ( CGNS_ROOT "C:/dev/cgns/4.4.0" )
-		#set ( CGNS_ROOT "C:/dev/cgns/4.5.2" )
+        if ( NOT CGNS_ROOT )
+            set ( CGNS_ROOT "C:/dev/cgns/4.4.0" )
+            # set ( CGNS_ROOT "C:/dev/cgns/4.5.2" )
+        endif()
+
         set ( CGNS_LIBNAME "cgnsdll.lib" )
-        set ( CGNS_INCLUDE_DIRS "${CGNS_ROOT}/include" CACHE PATH "path to CGNS headers" )
-        set ( CGNS_LIBRARIES "${CGNS_ROOT}/lib/${CGNS_LIBNAME}" CACHE PATH "path to CGNS library" )	
+
+        if ( NOT CGNS_INCLUDE_DIRS )
+            set ( CGNS_INCLUDE_DIRS
+                  "${CGNS_ROOT}/include"
+                  CACHE PATH "path to CGNS headers" )
+        endif()
+
+        if ( NOT CGNS_LIBRARIES )
+            set ( CGNS_LIBRARIES
+                  "${CGNS_ROOT}/lib/${CGNS_LIBNAME}"
+                  CACHE PATH "path to CGNS library" )
+        endif()
     else()
-        set ( CGNS_INCLUDE_DIRS $ENV{CGNS_HOME_INC} CACHE PATH "path to CGNS headers" )
-        set ( CGNS_LIBRARIES $ENV{CGNS_HOME_LIB} CACHE PATH "path to CGNS library" )
+        set ( CGNS_INCLUDE_DIRS $ENV{CGNS_HOME_INC}
+              CACHE PATH "path to CGNS headers" )
+        set ( CGNS_LIBRARIES $ENV{CGNS_HOME_LIB}
+              CACHE PATH "path to CGNS library" )
     endif()
-    message(STATUS "The CGNS_INCLUDE_DIRS is ${CGNS_INCLUDE_DIRS}")
-    
+
+    message ( STATUS "The CGNS_INCLUDE_DIRS is ${CGNS_INCLUDE_DIRS}" )
+
     list ( APPEND PRJ_LIBRARIES ${CGNS_LIBRARIES} )
     list ( APPEND PRJ_INCLUDE_DIRS ${CGNS_INCLUDE_DIRS} )
 endif()

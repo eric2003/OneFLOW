@@ -418,7 +418,7 @@ void ReadInterfaceVar::AddFieldName( int solverType, int fieldType, StringField 
     int numberOfVariables = nameList.size();
     for ( int iVariable = 0; iVariable < numberOfVariables; ++ iVariable )
     {
-        std::string & varName = nameList[ iVariable ];
+        const std::string & varName = nameList[ iVariable ];
         varNameSolver->AddFieldName( varName );
     }
 }
@@ -494,7 +494,7 @@ void ReadSuperPara::AddBasicFieldProperty( ParaNameDim * paraNameDim, int fieldT
     int nVar = paraNameDim->nameList.size();
     for ( int iVar = 0; iVar < nVar; ++ iVar )
     {
-        std::string & varName = paraNameDim->nameList[ iVar ];
+        const std::string & varName = paraNameDim->nameList[ iVar ];
         int nEqu = paraNameDim->dimList[ iVar ];
         if ( fieldType == 0 )
         {

@@ -88,9 +88,9 @@ void AddFieldRecord( FieldRecord * fieldRecord, DataStorage * dataStorage, Strin
 {
     for ( int iField = 0; iField < fieldNameList.size(); ++ iField )
     {
-        std::string & filedName = fieldNameList[ iField ];
-        MRField * field = ONEFLOW::GetFieldPointer< MRField >( dataStorage, filedName );
-        int nEqu = GFieldProperty::GetNEqu( filedName );
+        std::string & fieldName = fieldNameList[ iField ];
+        MRField * field = ONEFLOW::GetFieldPointer< MRField >( dataStorage, fieldName );
+        int nEqu = GFieldProperty::GetNEqu( fieldName );
         fieldRecord->AddField( field , nEqu );
     }
 }
