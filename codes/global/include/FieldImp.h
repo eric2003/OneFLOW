@@ -61,10 +61,10 @@ public:
     GFieldProperty();
     ~GFieldProperty();
 public:
-    static std::map< std::string, int > data;
-public:
     static void AddField( const std::string & fieldName, int nEqu );
     static int GetNEqu( const std::string & fieldName );
+private:
+    static std::map< std::string, int > data;
 };
 
 class FieldPropertyData
