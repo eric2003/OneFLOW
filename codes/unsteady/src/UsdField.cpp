@@ -49,7 +49,7 @@ void UsdField::InitBasic( int solverType )
     UnsGrid * grid = Zone::GetUnsGrid();
 
     FieldManager * fieldManager = FieldFactory::GetFieldManager( solverType );
-    UsdPara * usdPara = fieldManager->usdPara;
+    UsdPara * usdPara = fieldManager->usdPara.get();
     q  = GetFieldPointer< MRField > ( grid, usdPara->flow[ 0 ] );
     q1 = GetFieldPointer< MRField > ( grid, usdPara->flow[ 1 ] );
     q2 = GetFieldPointer< MRField > ( grid, usdPara->flow[ 2 ] );

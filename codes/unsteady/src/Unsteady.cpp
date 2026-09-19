@@ -45,7 +45,7 @@ void Unsteady::UpdateUnsteady( int solverType )
 {
     FieldManager * fieldManager = FieldFactory::GetFieldManager( solverType );
 
-    UsdPara * usdPara = fieldManager->usdPara;
+    UsdPara * usdPara = fieldManager->usdPara.get();
 
     Grid * grid = Zone::GetGrid();
 

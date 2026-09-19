@@ -23,6 +23,7 @@ License
 #include "NamespaceMacros.h"
 #include "HXArray.h"
 #include <map>
+#include <memory>
 
 BeginNameSpace( ONEFLOW )
 
@@ -72,9 +73,9 @@ public:
     FieldPropertyData();
     ~FieldPropertyData();
 public:
-    FieldProperty * bcField;
-    FieldProperty * faceField;
-    FieldProperty * innerField;
+    std::unique_ptr< FieldProperty > bcField;
+    std::unique_ptr< FieldProperty > faceField;
+    std::unique_ptr< FieldProperty > innerField;
 };
 
 class FieldManager;
@@ -87,12 +88,12 @@ public:
     FieldManager();
     ~FieldManager();
 public:
-    IFieldProperty * iFieldProperty;
-    UsdPara  * usdPara;
+    std::unique_ptr< IFieldProperty > iFieldProperty;
+    std::unique_ptr< UsdPara > usdPara;
 
-    FieldPropertyData * commManager;
-    FieldPropertyData * strManager;
-    FieldPropertyData * unsManager;
+    std::unique_ptr< FieldPropertyData > commManager;
+    std::unique_ptr< FieldPropertyData > strManager;
+    std::unique_ptr< FieldPropertyData > unsManager;
 public:
     void AddFaceField( const std::string & fieldName, int nEqu );
     void AddInnerField( const std::string & fieldName, int nEqu );
@@ -113,15 +114,12 @@ public:
 class FieldFactory
 {
 public:
-    FieldFactory();
-    ~FieldFactory();
-public:
-    static std::map< int, FieldManager * > * data;
-public:
-    static void Init();
     static void AddFieldManager( int solverType );
     static FieldManager * GetFieldManager( int solverType );
     static void FreeFieldManager();
+
+private:
+    static std::map< int, std::unique_ptr< FieldManager > > data;
 };
 
 class UnsGrid;

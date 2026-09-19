@@ -21,6 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 #include "FieldAlloc.h"
 #include "Prj.h"
+#include "Fatal.h"
 #include "FieldImp.h"
 #include "UsdPara.h"
 #include "SolverInfo.h"
@@ -34,16 +35,6 @@ License
 #include "InterFace.h"
 
 BeginNameSpace( ONEFLOW )
-
-FieldAlloc::FieldAlloc()
-{
-    ;
-}
-
-FieldAlloc::~FieldAlloc()
-{
-    ;
-}
 
 void FieldAlloc::AllocateAllFields( int solverType, const std::string & basicString )
 {
@@ -93,11 +84,10 @@ void FieldAlloc::AllocateGlobalField( int solverType, const std::string & basicS
 
     for ( int iFile = 0; iFile < fileNameList.size(); ++ iFile )
     {
-        ReadSuperPara * readSuperPara = new ReadSuperPara();
+        ReadSuperPara readSuperPara;
 
-        readSuperPara->solverType = solverType;
-        readSuperPara->Register( fileNameList[ iFile ], iFile );
-        delete readSuperPara;
+        readSuperPara.solverType = solverType;
+        readSuperPara.Register( fileNameList[ iFile ], iFile );
     }
 
     FieldAlloc::AllocateAllKindsOfInterfaceField( solverType );
@@ -107,8 +97,8 @@ void FieldAlloc::AllocateAllKindsOfInterfaceField( int solverType )
 {
     FieldManager * fieldManager = FieldFactory::GetFieldManager( solverType );
     fieldManager->AllocateInnerAndBcField();
-    FieldAlloc::AllocateInterfaceField( fieldManager->iFieldProperty );
-    FieldAlloc::AllocateOversetInterfaceField( fieldManager->iFieldProperty );
+    FieldAlloc::AllocateInterfaceField( fieldManager->iFieldProperty.get() );
+    FieldAlloc::AllocateOversetInterfaceField( fieldManager->iFieldProperty.get() );
 }
 
 void FieldAlloc::AllocateInterfaceField( IFieldProperty * iFieldProperty )
@@ -184,14 +174,6 @@ void FieldAlloc::CalcInterfaceFileType( IntField & fieldTypeList )
     fieldTypeList.push_back( ONEFLOW::INTERFACE_DQ_DATA       );
     fieldTypeList.push_back( ONEFLOW::INTERFACE_GRADIENT_DATA );
     fieldTypeList.push_back( ONEFLOW::INTERFACE_OVERSET_DATA  );
-}
-
-FieldNamePair::FieldNamePair()
-{
-}
-
-FieldNamePair::~FieldNamePair()
-{
 }
 
 void FieldNamePair::SetField( int solverType, NameValuePair & valuePair )
@@ -276,11 +258,12 @@ int GetVarDimension( const std::string & dimName )
 
 BoolIO::BoolIO()
 {
-    this->valueFlag = 0;
+    ;
 }
 
 BoolIO::~BoolIO()
 {
+    ;
 }
 
 void BoolIO::Add( const std::string & name, bool value )
@@ -289,31 +272,45 @@ void BoolIO::Add( const std::string & name, bool value )
     this->boolValueList.push_back( value );
 }
 
-void BoolIO::ReadBool( TextFileParser * textFileParser )
+void BoolIO::ReadBool( TextFileParser & textFileParser )
 {
-    std::string varName = textFileParser->ReadNextWord();
-    std::string word    = textFileParser->ReadNextWord(); //"="
-    std::string var1    = textFileParser->ReadNextWord();
-    std::string opName  = textFileParser->ReadNextWord();
-    std::string var2    = textFileParser->ReadNextWord();
+    std::string varName = textFileParser.ReadNextWord();
+    std::string word    = textFileParser.ReadNextWord();
+    std::string var1    = textFileParser.ReadNextWord();
+    std::string opName  = textFileParser.ReadNextWord();
+    std::string var2    = textFileParser.ReadNextWord();
 
     bool boolValue = ONEFLOW::CalcBoolExp( var1, opName, var2 );
 
     this->Add( varName, boolValue );
 }
 
-void BoolIO::ReadSuperBool( TextFileParser * textFileParser )
+
+void BoolIO::ReadSuperBool( TextFileParser & textFileParser )
 {
-    std::string varName = textFileParser->ReadNextWord();
-    std::string word    = textFileParser->ReadNextWord(); //"="
-    std::string var1    = textFileParser->ReadNextWord();
-    std::string opName  = textFileParser->ReadNextWord();
-    std::string var2    = textFileParser->ReadNextWord();
+    std::string varName = textFileParser.ReadNextWord();
+    std::string word    = textFileParser.ReadNextWord();
+    std::string var1    = textFileParser.ReadNextWord();
+    std::string opName  = textFileParser.ReadNextWord();
+    std::string var2    = textFileParser.ReadNextWord();
 
-    bool varVaule1 = ONEFLOW::CalcVarValue( var1, this->boolNameList, this->boolValueList );
-    bool varVaule2 = ONEFLOW::CalcVarValue( var2, this->boolNameList, this->boolValueList );
+    bool varVaule1 =
+        ONEFLOW::CalcVarValue(
+            var1,
+            this->boolNameList,
+            this->boolValueList );
 
-    bool boolValue = ONEFLOW::CalcBoolExp( varVaule1, opName, varVaule2 );
+    bool varVaule2 =
+        ONEFLOW::CalcVarValue(
+            var2,
+            this->boolNameList,
+            this->boolValueList );
+
+    bool boolValue =
+        ONEFLOW::CalcBoolExp(
+            varVaule1,
+            opName,
+            varVaule2 );
 
     this->Add( varName, boolValue );
 }
@@ -324,65 +321,78 @@ bool BoolIO::CalcVarValue( const std::string & varName )
     return result;
 }
 
-void BoolIO::Read()
+void BoolIO::Read(
+    TextFileParser & textFileParser,
+    int valueFlag,
+    ParaNameDimData * paraNameDimData )
 {
     if ( valueFlag == 0 )
     {
-        std::string varName = textFileParser->ReadNextWord();
+        std::string varName = textFileParser.ReadNextWord();
         nameValuePair.nameList.push_back( varName );
     }
     else if ( valueFlag == 1 )
     {
-        std::string varName = textFileParser->ReadNextWord();
+        std::string varName = textFileParser.ReadNextWord();
         nameValuePair.nameList.push_back( varName );
 
-        Real varValue = textFileParser->ReadNextDigit< Real >();
+        Real varValue = textFileParser.ReadNextDigit< Real >();
         nameValuePair.valueList.push_back( varValue );
     }
     else if ( valueFlag == 2 )
     {
-        std::string varName      = textFileParser->ReadNextWord();
-        std::string varDimension = textFileParser->ReadNextWord();
-        std::string typeName     = textFileParser->ReadNextWord();
+        if ( paraNameDimData == nullptr )
+        {
+            Fatal( "ParaNameDimData is required when BoolIO valueFlag is 2." );
+        }
+
+        std::string varName      = textFileParser.ReadNextWord();
+        std::string varDimension = textFileParser.ReadNextWord();
+        std::string typeName     = textFileParser.ReadNextWord();
 
         int dimension = ONEFLOW::GetVarDimension( varDimension );
 
-        ParaNameDim * paraNameDim = paraNameDimData->GetParaNameDim( typeName );
+        ParaNameDim * paraNameDim =
+            paraNameDimData->GetParaNameDim( typeName );
+
         paraNameDim->nameList.push_back( varName );
         paraNameDim->dimList.push_back( dimension );
     }
-
 }
 
-void BoolIO::ReadFile( const std::string & fileName, int valueFlag )
+void BoolIO::ReadFile(
+    const std::string & fileName,
+    int valueFlag,
+    ParaNameDimData * paraNameDimData )
 {
-   //\t is the tab key
-    //string separator  = " =\r\n\t#$,;\"()";
-    std::string separator  = " \r\n\t#$,;\"()";
+    // \t is the tab key
+    std::string separator = " \r\n\t#$,;\"()";
 
     TextFileParser textFileParser;
     textFileParser.OpenFile( fileName, std::ios_base::in );
     textFileParser.SetDefaultSeparator( separator );
 
-    this->textFileParser = & textFileParser;
-    this->valueFlag = valueFlag;
-    while ( ! textFileParser.ReachTheEndOfFile()  )
+    while ( ! textFileParser.ReachTheEndOfFile() )
     {
         bool flag = textFileParser.ReadNextNonEmptyLine();
         if ( ! flag ) break;
+
         std::string keyWord = textFileParser.ReadNextWord();
 
         if ( keyWord == "true" )
         {
-            this->Read();
+            this->Read(
+                textFileParser,
+                valueFlag,
+                paraNameDimData );
         }
         else if ( keyWord == "bool" )
         {
-            this->ReadBool( & textFileParser );
+            this->ReadBool( textFileParser );
         }
         else if ( keyWord == "superbool" )
         {
-            this->ReadSuperBool( & textFileParser );
+            this->ReadSuperBool( textFileParser );
         }
         else
         {
@@ -391,22 +401,15 @@ void BoolIO::ReadFile( const std::string & fileName, int valueFlag )
 
             if ( flag )
             {
-                this->Read();
+                this->Read(
+                    textFileParser,
+                    valueFlag,
+                    paraNameDimData );
             }
         }
     }
 
     textFileParser.CloseFile();
-}
-
-ReadInterfaceVar::ReadInterfaceVar()
-{
-    ;
-}
-
-ReadInterfaceVar::~ReadInterfaceVar()
-{
-    ;
 }
 
 void ReadInterfaceVar::AddFieldName( int solverType, int fieldType, StringField & nameList )
@@ -420,62 +423,44 @@ void ReadInterfaceVar::AddFieldName( int solverType, int fieldType, StringField 
     }
 }
 
-ParaNameDim::ParaNameDim()
-{
-    ;
-}
-
-ParaNameDim::~ParaNameDim()
-{
-    ;
-}
-
 ParaNameDimData::ParaNameDimData()
 {
-    this->comPara = new ParaNameDim();
-    this->strPara = new ParaNameDim();
-    this->unsPara = new ParaNameDim();
+    this->comPara = std::make_unique<ParaNameDim>();
+    this->strPara = std::make_unique<ParaNameDim>();
+    this->unsPara = std::make_unique<ParaNameDim>();
 }
 
-ParaNameDimData::~ParaNameDimData()
-{
-    delete this->comPara;
-    delete this->strPara;
-    delete this->unsPara;
-}
+ParaNameDimData::~ParaNameDimData() = default;
 
-ParaNameDim * ParaNameDimData::GetParaNameDim( const std::string & typeName )
+ParaNameDim * ParaNameDimData::GetParaNameDim(
+    const std::string & typeName )
 {
     if ( typeName == "all" )
     {
-        return this->comPara;
+        return this->comPara.get();
     }
     else if ( typeName == "str" )
     {
-        return this->strPara;
+        return this->strPara.get();
     }
     else
     {
-        return this->unsPara;
+        return this->unsPara.get();
     }
 }
 
 ReadSuperPara::ReadSuperPara()
+    : paraNameDimData( std::make_unique<ParaNameDimData>() )
 {
-    this->paraNameDimData = new ParaNameDimData();
 }
 
-ReadSuperPara::~ReadSuperPara()
-{
-    delete this->paraNameDimData;
-}
-
+ReadSuperPara::~ReadSuperPara() = default;
 
 void ReadSuperPara::AddInnerFieldProperty()
 {
-    this->AddBasicFieldProperty( this->paraNameDimData->unsPara, 0, 0 );
-    this->AddBasicFieldProperty( this->paraNameDimData->strPara, 0, 1 );
-    this->AddBasicFieldProperty( this->paraNameDimData->comPara, 0, 2 );
+    this->AddBasicFieldProperty( this->paraNameDimData->unsPara.get(), 0, 0);
+    this->AddBasicFieldProperty( this->paraNameDimData->strPara.get(), 0, 1 );
+    this->AddBasicFieldProperty( this->paraNameDimData->comPara.get(), 0, 2 );
 }
 
 void ReadSuperPara::AddUnsteadyInnerFieldProperty()
@@ -483,23 +468,23 @@ void ReadSuperPara::AddUnsteadyInnerFieldProperty()
     this->AddInnerFieldProperty();
     FieldManager * fieldManager = FieldFactory::GetFieldManager( this->solverType );
 
-    UsdPara * usdPara = fieldManager->usdPara;
+    UsdPara * usdPara = fieldManager->usdPara.get();
     int nEqu = this->paraNameDimData->comPara->dimList[ 0 ];
     usdPara->Init( this->paraNameDimData->comPara->nameList, nEqu );
 }
 
 void ReadSuperPara::AddFaceFieldProperty()
 {
-    this->AddBasicFieldProperty( this->paraNameDimData->unsPara, 1, 0 );
-    this->AddBasicFieldProperty( this->paraNameDimData->strPara, 1, 1 );
-    this->AddBasicFieldProperty( this->paraNameDimData->comPara, 1, 2 );
+    this->AddBasicFieldProperty( this->paraNameDimData->unsPara.get(), 1, 0 );
+    this->AddBasicFieldProperty( this->paraNameDimData->strPara.get(), 1, 1 );
+    this->AddBasicFieldProperty( this->paraNameDimData->comPara.get(), 1, 2 );
 }
 
 void ReadSuperPara::AddBoundaryFieldProperty()
 {
-    this->AddBasicFieldProperty( this->paraNameDimData->unsPara, 2, 0 );
-    this->AddBasicFieldProperty( this->paraNameDimData->strPara, 2, 1 );
-    this->AddBasicFieldProperty( this->paraNameDimData->comPara, 2, 2 );
+    this->AddBasicFieldProperty( this->paraNameDimData->unsPara.get(), 2, 0 );
+    this->AddBasicFieldProperty( this->paraNameDimData->strPara.get(), 2, 1 );
+    this->AddBasicFieldProperty( this->paraNameDimData->comPara.get(), 2, 2 );
 }
 
 void ReadSuperPara::AddBasicFieldProperty( ParaNameDim * paraNameDim, int fieldType, int type )
@@ -529,8 +514,11 @@ void ReadSuperPara::AddBasicFieldProperty( ParaNameDim * paraNameDim, int fieldT
 void ReadSuperPara::Register( const std::string & fileName, int index )
 {
     BoolIO boolIO;
-    boolIO.paraNameDimData = this->paraNameDimData;
-    boolIO.ReadFile( fileName, 2 );
+
+    boolIO.ReadFile(
+        fileName,
+        2,
+        this->paraNameDimData.get() );
 
     if ( index == 0 )
     {

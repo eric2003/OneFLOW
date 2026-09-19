@@ -199,37 +199,24 @@ int GFieldProperty::GetNEqu( const std::string & fileName )
 
 FieldPropertyData::FieldPropertyData()
 {
-    this->bcField    = new FieldProperty();
-    this->faceField  = new FieldProperty();
-    this->innerField = new FieldProperty();
+    this->bcField    = std::make_unique< FieldProperty >();
+    this->faceField  = std::make_unique< FieldProperty >();
+    this->innerField = std::make_unique< FieldProperty >();
 }
 
-FieldPropertyData::~FieldPropertyData()
-{
-    delete this->bcField;
-    delete this->faceField;
-    delete this->innerField;
-}
+FieldPropertyData::~FieldPropertyData() = default;
 
 FieldManager::FieldManager()
 {
-    iFieldProperty = new IFieldProperty();
-    usdPara   = new UsdPara();
+    iFieldProperty = std::make_unique< IFieldProperty >();
+    usdPara        = std::make_unique< UsdPara >();
 
-    strManager  = new FieldPropertyData();
-    unsManager  = new FieldPropertyData();
-    commManager = new FieldPropertyData();
+    strManager  = std::make_unique< FieldPropertyData >();
+    unsManager  = std::make_unique< FieldPropertyData >();
+    commManager = std::make_unique< FieldPropertyData >();
 }
 
-FieldManager::~FieldManager()
-{
-    delete iFieldProperty;
-    delete usdPara;
-
-    delete strManager;
-    delete unsManager;
-    delete commManager;
-}
+FieldManager::~FieldManager() = default;
 
 void FieldManager::SetField( const std::string & fieldName, Real value )
 {
@@ -313,8 +300,8 @@ void FieldManager::AllocateInnerAndBcField()
     {
         UnsGrid * grid = ONEFLOW::UnsGridCast( gridIn );
 
-        this->AllocateInnerAndBcField( grid, this->commManager );
-        this->AllocateInnerAndBcField( grid, this->unsManager );
+        this->AllocateInnerAndBcField( grid, this->commManager.get() );
+        this->AllocateInnerAndBcField( grid, this->unsManager.get() );
     }
 }
 
@@ -377,52 +364,36 @@ void FieldManager::AllocateBcField( UnsGrid * grid, FieldPropertyData * fieldPro
     }
 }
 
-std::map< int, FieldManager * > * FieldFactory::data = 0;
-
-FieldFactory::FieldFactory()
-{
-}
-
-FieldFactory::~FieldFactory()
-{
-}
-
-void FieldFactory::Init()
-{
-    if ( ! FieldFactory::data )
-    {
-        FieldFactory::data = new std::map< int, FieldManager * >();
-    }
-}
+std::map< int, std::unique_ptr< FieldManager > > FieldFactory::data;
 
 void FieldFactory::AddFieldManager( int solverType )
 {
-    std::map< int, FieldManager * >::iterator iter;
-    FieldFactory::Init();
-    iter = FieldFactory::data->find( solverType );
-    if ( iter == FieldFactory::data->end() )
+    std::map< int, std::unique_ptr< FieldManager > >::iterator iter =
+        FieldFactory::data.find( solverType );
+
+    if ( iter == FieldFactory::data.end() )
     {
-        FieldManager * fieldManager = new FieldManager();
-        ( * FieldFactory::data )[ solverType ] = fieldManager;
+        FieldFactory::data[ solverType ] =
+            std::make_unique< FieldManager >();
     }
 }
 
 FieldManager * FieldFactory::GetFieldManager( int solverType )
 {
-    std::map< int, FieldManager * >::iterator iter;
-    iter = FieldFactory::data->find( solverType );
-    return iter->second;
+    std::map< int, std::unique_ptr< FieldManager > >::iterator iter =
+        FieldFactory::data.find( solverType );
+
+    if ( iter == FieldFactory::data.end() )
+    {
+        return nullptr;
+    }
+
+    return iter->second.get();
 }
 
 void FieldFactory::FreeFieldManager()
 {
-    std::map< int, FieldManager * >::iterator iter;
-    for ( iter = FieldFactory::data->begin(); iter != FieldFactory::data->end(); ++ iter )
-    {
-        delete iter->second;
-    }
-
-    FieldFactory::data->clear();
+    FieldFactory::data.clear();
 }
 
 void UploadInterfaceValue( UnsGrid * grid, MRField * field2D, const std::string & name, int nEqu )

@@ -51,29 +51,44 @@ bool HX_IsDirectory(const std::string& dirName)
     return std::filesystem::is_directory(dirName, ec) && !ec;
 }
 
-bool HX_CreateDirectory(const std::string& dirName)
+bool HX_CreateDirectory( const std::string & dirName )
 {
-    try {
-        if (std::filesystem::exists(dirName)) {
-            if (std::filesystem::is_directory(dirName)) {
-                std::cout << "Directory already exists: " << dirName << std::endl;
+    try
+    {
+        if ( std::filesystem::exists( dirName ) )
+        {
+            if ( std::filesystem::is_directory( dirName ) )
+            {
+                std::cout << "Directory already exists: "
+                    << dirName << std::endl;
                 return true;
-            } else {
-                std::cerr << "Path exists but is not a directory: " << dirName << std::endl;
+            }
+            else
+            {
+                std::cerr << "Path exists but is not a directory: "
+                    << dirName << std::endl;
                 return false;
             }
         }
 
-        // 创建目录（默认权限，支持递归）
-        if (std::filesystem::create_directories(dirName)) {
-            std::cout << "Directory created successfully: " << dirName << std::endl;
+        // Create the directory recursively with default permissions.
+        if ( std::filesystem::create_directories( dirName ) )
+        {
+            std::cout << "Directory created successfully: "
+                << dirName << std::endl;
             return true;
-        } else {
-            std::cerr << "Failed to create directory: " << dirName << std::endl;
+        }
+        else
+        {
+            std::cerr << "Failed to create directory: "
+                << dirName << std::endl;
             return false;
         }
-    } catch (const std::filesystem::filesystem_error& e) {
-        std::cerr << "Filesystem error: " << e.what() << std::endl;
+    }
+    catch ( const std::filesystem::filesystem_error & e )
+    {
+        std::cerr << "Filesystem error: "
+            << e.what() << std::endl;
         return false;
     }
 }
@@ -114,80 +129,47 @@ std::string HX_GetCurrentDirectory()
     }
 }
 
-bool EndWithSlash( const std::string & fileName )
-{
-    if ( EndWithForwardSlash( fileName ) ||
-        EndWithBackwardSlash( fileName ) )
-    {
-        return true;
-    }
-    return false;
-}
-
 bool EndWithBackwardSlash( const std::string & fileName )
 {
-    size_t pos = fileName.find_last_of("\\");
-    size_t ss = fileName.size();
-    if ( ss == 0 )
-    {
-        return false;
-    }
-    else
-    {
-        bool flag = fileName.substr( ss - 1, 1 ) == "\\";
-        return flag;
-    }
+    return !fileName.empty() && fileName.back() == '\\';
 }
 
 bool EndWithForwardSlash( const std::string & fileName )
 {
-    size_t pos = fileName.find_last_of("/");
-    size_t ss = fileName.size();
-    if ( ss == 0 )
-    {
-        return false;
-    }
-    else
-    {
-        bool flag = fileName.substr( ss - 1, 1 ) == "/";
-        return flag;
-    }
+    return !fileName.empty() && fileName.back() == '/';
+}
+
+bool EndWithSlash( const std::string & fileName )
+{
+    return EndWithForwardSlash( fileName ) ||
+        EndWithBackwardSlash( fileName );
 }
 
 bool StartWithForwardSlash( const std::string & fileName )
 {
-    size_t pos = fileName.find_first_of("/");
-    if ( fileName.size() == 0 )
-    {
-        return false;
-    }
-
-    if ( fileName.substr( 0,1 ) == "/" )
-    {
-        return true;
-    }
-    return false;
+    return !fileName.empty() && fileName.front() == '/';
 }
 
 std::string RemoveFirstSlash( const std::string & fileName )
 {
-    if ( StartWithForwardSlash( fileName ) )
+    if ( !fileName.empty() &&
+        ( fileName.front() == '/' || fileName.front() == '\\' ) )
     {
-        int len = fileName.size();
-        return fileName.substr( 1, len - 1 );
+        return fileName.substr( 1 );
     }
+
     return fileName;
 }
 
 std::string RemoveEndSlash( const std::string & fileName )
 {
-    if ( EndWithSlash( fileName ) )
+    if ( !fileName.empty() &&
+        ( fileName.back() == '/' || fileName.back() == '\\' ) )
     {
-        int len = fileName.size();
-        return fileName.substr( 0, len - 1 );
+        return fileName.substr( 0, fileName.size() - 1 );
     }
-    return fileName;
 
+    return fileName;
 }
 
 void GetFileNameExtension( const std::string & fullName, std::string & mainName, std::string & extensionName, const std::string & fileNameSeparator )

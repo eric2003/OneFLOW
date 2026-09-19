@@ -1,4 +1,5 @@
 #include "Prj.h"
+#include "FileUtils.h"
 #include <gtest/gtest.h>
 #include <stdexcept>
 
@@ -278,4 +279,37 @@ TEST( PrjPath, GetDirName )
     EXPECT_EQ( Prj::GetDirName( "grid/test.dat" ), "grid" );
     EXPECT_EQ( Prj::GetDirName( "/grid/test.dat" ), "/grid" );
     EXPECT_EQ( Prj::GetDirName( "test.dat" ), "" );
+    EXPECT_EQ( Prj::GetDirName( "grid\\test.dat" ), "grid" );
+}
+
+TEST( PrjPathUtils, SlashDetection )
+{
+    EXPECT_FALSE( ONEFLOW::EndWithSlash( "" ) );
+
+    EXPECT_TRUE( ONEFLOW::EndWithSlash( "/" ) );
+    EXPECT_TRUE( ONEFLOW::EndWithSlash( "\\" ) );
+
+    EXPECT_TRUE( ONEFLOW::EndWithForwardSlash( "grid/" ) );
+    EXPECT_TRUE( ONEFLOW::EndWithBackwardSlash( "grid\\" ) );
+    EXPECT_TRUE( ONEFLOW::StartWithForwardSlash( "/grid" ) );
+    EXPECT_FALSE( ONEFLOW::StartWithForwardSlash( "\\grid" ) );
+}
+
+TEST( PrjPathUtils, SlashRemoval )
+{
+    EXPECT_EQ( ONEFLOW::RemoveFirstSlash( "/grid/test.dat" ),
+        "grid/test.dat" );
+
+    EXPECT_EQ( ONEFLOW::RemoveFirstSlash( "\\grid\\test.dat" ),
+        "grid\\test.dat" );
+
+    EXPECT_EQ( ONEFLOW::RemoveFirstSlash( "grid/test.dat" ),
+        "grid/test.dat" );
+
+    EXPECT_EQ( ONEFLOW::RemoveFirstSlash( "" ), "" );
+
+    EXPECT_EQ( ONEFLOW::RemoveEndSlash( "grid/" ), "grid" );
+    EXPECT_EQ( ONEFLOW::RemoveEndSlash( "grid\\" ), "grid" );
+    EXPECT_EQ( ONEFLOW::RemoveEndSlash( "grid" ), "grid" );
+    EXPECT_EQ( ONEFLOW::RemoveEndSlash( "" ), "" );
 }
