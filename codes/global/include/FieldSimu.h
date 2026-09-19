@@ -63,12 +63,12 @@ struct FieldPipeline
     static void Run();
 
     // Context-aware entry: CreateSolvers uses expanded solver names when set.
-    static void Run( const SimuContext & ctx );
+    static void Run( SimuContext & ctx );
 };
 
 // Thin wrappers (same order as FieldPipeline::Run).
 void FieldSimuRunPipeline();
-void FieldSimuRunPipeline( const SimuContext & ctx );
+void FieldSimuRunPipeline( SimuContext & ctx );
 
 // Convenience: RunPipeline only (legacy / non-registry callers).
 void FieldSimu();

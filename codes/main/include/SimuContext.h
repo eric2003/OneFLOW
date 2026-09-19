@@ -23,6 +23,7 @@ License
 #include "NamespaceMacros.h"
 #include "SimuDef.h"
 #include "HXDefine.h"
+#include "EulerDomainStateRegistry.h"
 #include <string>
 #include <vector>
 
@@ -46,7 +47,7 @@ public:
     SimuContext( SimuContext&& ) = default;
     SimuContext& operator=( SimuContext&& ) = default;
 
-    // ---- read-only view used by SimuImp / (later) tasks ----
+    // ---- read-only accessors; tasks receive the mutable owner explicitly ----
     const std::vector<std::string>& Args() const { return args_; }
     int Rank() const { return rank_; }
     int Size() const { return size_; }
@@ -54,6 +55,23 @@ public:
     bool IsTaskResolved() const { return taskResolved_; }
     TaskEnum Task() const { return task_; }
     const std::string& TaskName() const { return taskName_; }
+
+    // Backend state is an execution cache owned by this run context. It is
+    // cleared before the accelerator runtime is finalized.
+    EulerDomainStateRegistry& AccelStates() { return accelStates_; }
+    const EulerDomainStateRegistry& AccelStates() const { return accelStates_; }
+    void ClearAccelStates() { accelStates_.Clear(); }
+
+    EulerDomainState& InitializeAccelState(
+        const EulerDomainBackend& backend,
+        const EulerDomainProblem& problem,
+        const EulerDomainStateKey& key,
+        const EulerDomainConstFieldView& field );
+    EulerDomainState& RestartAccelState(
+        const EulerDomainBackend& backend,
+        const EulerDomainProblem& problem,
+        const EulerDomainStateKey& key,
+        const EulerDomainConstFieldView& field );
 
     // Process command line into project globals (existing Prj path).
     void ProcessCommandLine();
@@ -96,8 +114,8 @@ private:
     std::string taskName_ = "Solve";
     bool envReady_ = false;
     bool taskResolved_ = false;
-    // ...
     StringField expandedSolverNames_;
+    EulerDomainStateRegistry accelStates_;
 };
 
 EndNameSpace

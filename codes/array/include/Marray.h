@@ -49,7 +49,14 @@ protected:
 public:
     HXSize_t GetNEqu() { return data.size(); }
 
+    HXSize_t GetNEqu() const { return data.size(); }
+
     HXVector< T > & operator[]( int iEqu )
+    {
+        return data[ iEqu ];
+    }
+
+    const HXVector< T > & operator[]( int iEqu ) const
     {
         return data[ iEqu ];
     }

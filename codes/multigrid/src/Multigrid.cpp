@@ -37,6 +37,7 @@ License
 #include "CmxTask.h"
 #include "BgField.h"
 #include "TimeSpan.h"
+#include "SimuContext.h"
 #include <iostream>
 
 
@@ -107,6 +108,15 @@ void MG::MultigridSolve()
     this->Allocate();
     this->Run();
     this->Deallocate();
+}
+
+void MG::MultigridSolve( SimuContext & context )
+{
+    this->context_ = & context;
+    this->Allocate();
+    this->Run();
+    this->Deallocate();
+    this->context_ = nullptr;
 }
 
 void MG::Run()
@@ -282,14 +292,28 @@ void MG::PreRelaxationCycle( int gl )
 {
     GridState::SetGridLevel( gl );
 
-    TimeIntegral::Relaxation( MG::nPre );
+    if ( this->context_ != nullptr )
+    {
+        TimeIntegral::Relaxation( MG::nPre, *this->context_ );
+    }
+    else
+    {
+        TimeIntegral::Relaxation( MG::nPre );
+    }
 }
 
 void MG::PostRelaxationCycle( int gl )
 {
     GridState::SetGridLevel( gl );
 
-    TimeIntegral::Relaxation( MG::nPost );
+    if ( this->context_ != nullptr )
+    {
+        TimeIntegral::Relaxation( MG::nPost, *this->context_ );
+    }
+    else
+    {
+        TimeIntegral::Relaxation( MG::nPost );
+    }
 }
 
 void MG::PostprocessMultigridFlowField( int gl )
@@ -395,6 +419,13 @@ void MultigridSolve()
 {
     MG * mg = new MG();
     mg->MultigridSolve();
+    delete mg;
+}
+
+void MultigridSolve( SimuContext & context )
+{
+    MG * mg = new MG();
+    mg->MultigridSolve( context );
     delete mg;
 }
 

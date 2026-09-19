@@ -1,4 +1,5 @@
 #include "OneDEulerBackend.h"
+#include "AccelRuntime.h"
 
 #include <hip/hip_runtime.h>
 
@@ -67,6 +68,7 @@ double MaxAbs( const std::vector< double > & values )
 
 int main( int argc, char ** argv )
 {
+    ONEFLOW::InitializeAccelRuntime( 0, 1 );
     try
     {
         const int nx = argc > 1 ? ParsePositive( argv[ 1 ], "nx" ) : 1048576;

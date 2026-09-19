@@ -4,6 +4,10 @@
 
 #include <vector>
 
+#ifdef ONEFLOW_1D_USE_HIP
+#include <hip/hip_runtime.h>
+#endif
+
 namespace oneflow_1d
 {
 
@@ -45,5 +49,15 @@ void DownloadWeno5HipState( const Weno5HipState & state, double * values );
 void OneDHipLaxWeno5Step(
     const double * state, int nx, double gamma, double dt, double dx,
     EulerBoundary boundary, Weno5Trace & trace );
+
+#ifdef ONEFLOW_1D_USE_HIP
+void HipWeno5StepRaw(
+    double * base, double * current, double * next,
+    double * padded, double * positive, double * negative,
+    double * left, double * right, double * flux, double * residual,
+    int nx, double gamma, double dx, int boundary, double dt,
+    hipStream_t stream );
+
+#endif
 
 } // namespace oneflow_1d

@@ -46,8 +46,18 @@ For the isolated Kunshan Euler backend contract, use
 explicitly enables `ONEFLOW_1D_ENABLE_HIP` and `ONEFLOW_1D_ENABLE_GTEST`. The
 job executes the GoogleTest binary and CTest, and records CMake, compiler, HIP
 architecture, `rocminfo`, and Slurm evidence. CPU/HIP tests use `CPU.`/`HIP.`
-CTest prefixes; an empty discovery result or a zero exit code without the expected
-summary is not successful validation.
+CTest prefixes and the shared helper attaches
+`hardware;hip;dcu` metadata. The cluster CTest 2.8 compatibility path exposes
+`hardware` as the selectable label, so the DCU runner uses `-L hardware -R HIP`;
+an empty discovery result or a zero exit code without the expected summary is
+not successful validation.
+
+The root project exposes the same HIP contract through
+`-DONEFLOW_ENABLE_HIP_TESTS=ON`. It is deliberately opt-in: a normal CPU build
+keeps the root CTest suite hardware-independent, while a target-node build must
+also provide `CMAKE_HIP_COMPILER` and `CMAKE_HIP_ARCHITECTURES` (currently
+`gfx906` on Kunshan Z100). The standalone project and the root project share the
+same CMake registration helper.
 
 ## Execution
 
@@ -109,6 +119,7 @@ Dependency wiring uses the variables the top-level CMake reads:
 - `strict` profile (`1e-15`, `ONEFLOW_RESIDUAL_TEST_OUTPUT=1`): 5/5 cases
   passed, max absolute difference 1.1e-17.
 - Kunshan port CPU contract test (`-DONEFLOW_1D_ENABLE_GTEST=ON`): 5/5 passed.
+- Kunshan standalone HIP contract (`dcu:1`, `gfx906`): 9/9 GoogleTest and 9/9 CTest passed on DTK 26.04.
 
 ## Verified DCU/HIP environment (kshdnormal)
 
@@ -123,7 +134,7 @@ CPU solver with the DTK toolchain:
 
 ### Correctness
 
-- HIP contract test: 6/6 passed (GoogleTest and CTest, `HIP.` prefix).
+- HIP contract test: 9/9 passed (GoogleTest and CTest, `HIP.` prefix), including WENO5 CPU-oracle comparison.
 - Stateful benchmark, all four sizes: `final_max_abs_error = 0.000000` and
   identical CPU/HIP checksums.
 
@@ -171,7 +182,7 @@ the cluster-side `README.md`; the structure is:
 | Suite | Partition | Resources | Content | Pass criteria |
 |---|---|---|---|---|
 | `cpu-regression` | `kshcnormal` | 16 CPU, 54G | five-case normal+strict; port CPU contract test | 5/5 normal, 5/5 strict, 5/5 contract |
-| `dcu-single` | `kshdnormal` | 8 CPU, 27G, `dcu:1` | HIP contract test; stateful benchmark, four sizes | 6/6; max abs error 0 and matching checksums |
+| `dcu-single` | `kshdnormal` | 8 CPU, 27G, `dcu:1` | HIP contract test; stateful benchmark, four sizes | 9/9 contract; max abs error 0 and matching checksums for benchmark |
 | `cpu-mpi` | `kshcnormal` | 32 ranks × 1 CPU | 32-rank CPU MPI benchmark, four sizes | exit 0, hashes valid |
 | `dcu-mpi` | `kshdnormal` | 4 ranks × 8 CPU, `dcu:4` | 1-rank and 4-rank DCU MPI benchmark, four sizes | exit 0, hashes match `cpu-mpi`, `visible_devices=4` |
 

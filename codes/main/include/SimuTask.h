@@ -41,7 +41,7 @@ public:
 
     // Execute with the current run context (rank, args, task name, ...).
     // Production tasks may ignore ctx until they need it; tests can assert on it.
-    virtual void Execute( const SimuContext& ctx ) = 0;
+    virtual void Execute( SimuContext& ctx ) = 0;
 
     // Optional: whether ConstructSystemMap() must run before Execute().
     virtual bool NeedsSystemMap() const { return false; }

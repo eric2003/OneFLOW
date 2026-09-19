@@ -27,6 +27,16 @@ License
 #include "Message.h"
 #include "GridState.h"
 #include "Ctrl.h"
+#include "CpuEulerDomainBackend.h"
+#include "EulerDomainStateSync.h"
+#include "EulerRungeKuttaCapability.h"
+#include "EulerDomainStateRegistry.h"
+#include "SimuContext.h"
+#include "SolverDef.h"
+#include "SolverState.h"
+#include "ZoneState.h"
+#include "NsCom.h"
+#include <stdexcept>
 
 BeginNameSpace( ONEFLOW )
 
@@ -44,6 +54,58 @@ SweepState::~SweepState()
 
 TIME_INTEGRAL TimeIntegral::timeIntegral;
 
+namespace
+{
+
+struct EulerRungeKuttaStageContext
+{
+    int stageCount = 0;
+};
+
+void RunEulerRungeKuttaStage( int, int stage, void * userData )
+{
+    auto * context =
+        static_cast< EulerRungeKuttaStageContext * >( userData );
+    if ( context == nullptr || stage < 0 || stage >= context->stageCount )
+    {
+        throw std::invalid_argument( "invalid Euler RungeKutta stage callback" );
+    }
+
+    ctrl.lhscoef = ctrl.rk_coef[ stage ];
+    ONEFLOW::SingleSolverSingleGridTask( "LOAD_RESIDUALS"   );
+    ONEFLOW::SingleSolverSingleGridTask( "UPDATE_RESIDUALS" );
+    ONEFLOW::SingleSolverSingleGridTask( "CALC_LHS"          );
+    ONEFLOW::SingleSolverSingleGridTask( "UPDATE_FLOWFIELD" );
+    ONEFLOW::SingleSolverSingleGridTask( "CALC_BOUNDARY"    );
+}
+
+EulerRungeKuttaCapabilityRequest CurrentEulerRungeKuttaCapabilityRequest(
+    const SimuContext & context )
+{
+    EulerRungeKuttaCapabilityRequest request;
+    request.solverType = SolverState::solverType;
+    request.localZoneCount = ZoneState::nLocal;
+    request.gridLevel = GridState::gridLevel;
+    request.gridCount = GridState::nGrids;
+    request.nEquations = nscom.nEqu;
+    request.inviscidScheme = nscom.ischeme;
+    request.timeIntegral =
+        static_cast< EulerRungeKuttaTimeIntegral >( ctrl.time_integral );
+    request.hasViscousTerms = nscom.nTModel != 0;
+    request.hasSourceTerms = nscom.chemModel != 0;
+    request.hasLimiter = ctrl.ilim != 0;
+    request.hasInterfaceExchange = ZoneState::nLocal > 1;
+    const EulerDomainStateKey key{
+        SolverState::solverIndex,
+        ZoneState::zid,
+        GridState::gridLevel,
+        AccelBackendKind::CPU };
+    request.backendSupportsAdvance = context.AccelStates().Contains( key );
+    return request;
+}
+
+}
+
 TimeIntegral::TimeIntegral()
 {
     ;
@@ -58,7 +120,8 @@ void TimeIntegral::Init()
 {
     if ( ctrl.time_integral == MULTI_STAGE )
     {
-        TimeIntegral::timeIntegral = & TimeIntegral::RungeKutta;
+        TimeIntegral::timeIntegral =
+            static_cast< TIME_INTEGRAL >( & TimeIntegral::RungeKutta );
     }
 	else if ( ctrl.time_integral == SIMPLE )
 	{
@@ -77,6 +140,25 @@ void TimeIntegral::Relaxation( int nCycles )
     for ( int iCycle = 0; iCycle < nCycles; ++ iCycle )
     {
         TimeIntegral::timeIntegral();
+    }
+}
+
+void TimeIntegral::Relaxation( int nCycles, SimuContext & context )
+{
+    for ( int iCycle = 0; iCycle < nCycles; ++ iCycle )
+    {
+        if ( ctrl.time_integral == MULTI_STAGE )
+        {
+            TimeIntegral::RungeKutta( context );
+        }
+        else if ( ctrl.time_integral == SIMPLE )
+        {
+            TimeIntegral::Simple();
+        }
+        else
+        {
+            TimeIntegral::Lusgs();
+        }
     }
 }
 
@@ -120,6 +202,56 @@ void TimeIntegral::RungeKutta()
         ONEFLOW::SingleSolverSingleGridTask( idUpdateFlow );
         ONEFLOW::SingleSolverSingleGridTask( idCalcBoundary );
     }
+}
+
+void TimeIntegral::RungeKutta( SimuContext & context )
+{
+    if ( GridState::gridLevel != 0 )
+    {
+        TimeIntegral::RungeKutta();
+        return;
+    }
+
+    const EulerRungeKuttaCapabilityDecision decision =
+        EvaluateEulerRungeKuttaCapability(
+            CurrentEulerRungeKuttaCapabilityRequest( context ) );
+    if ( ! decision.enabled || ctrl.rk_coef.size() == 0 )
+    {
+        // The legacy task sequence remains the numerical fallback until a
+        // backend can own conserved-state stages and halo/boundary exchange.
+        TimeIntegral::RungeKutta();
+        return;
+    }
+
+    const EulerDomainStateKey key{
+        SolverState::solverIndex,
+        ZoneState::zid,
+        GridState::gridLevel,
+        AccelBackendKind::CPU };
+    if ( ! context.AccelStates().Contains( key ) )
+    {
+        TimeIntegral::RungeKutta();
+        return;
+    }
+
+    CpuEulerDomainBackend backend;
+    EulerDomainState & state = context.AccelStates().Get( key );
+
+    ONEFLOW::SingleSolverSingleGridTask( "LOAD_Q"        );
+    ONEFLOW::SingleSolverSingleGridTask( "CALC_TIME_STEP" );
+
+    EulerRungeKuttaStageContext stageContext;
+    stageContext.stageCount = static_cast< int >( ctrl.rk_coef.size() );
+
+    EulerDomainRunOptions options;
+    options.stageCount = stageContext.stageCount;
+    options.stageCallback = & RunEulerRungeKuttaStage;
+    options.stageContext = & stageContext;
+    backend.Advance( state, 1, options );
+
+    // The existing MRField/task path is authoritative for this first CPU
+    // vertical slice; keep the lifecycle cache synchronized at macro-step end.
+    UploadCurrentEulerDomainState( context, backend );
 }
 
 void TimeIntegral::Lusgs()

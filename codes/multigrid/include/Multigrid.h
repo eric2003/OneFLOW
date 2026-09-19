@@ -26,6 +26,7 @@ License
 BeginNameSpace( ONEFLOW )
 
 class TimeSpan;
+class SimuContext;
 
 class MG
 {
@@ -45,6 +46,7 @@ public:
     static void Init();
 public:
     void MultigridSolve();
+    void MultigridSolve( SimuContext & context );
     void Run();
     void Allocate();
     void Deallocate();
@@ -72,10 +74,14 @@ protected:
 protected:
     void InnerProcess();
     void OuterProcess( TimeSpan * timeSpan );
+
+private:
+    SimuContext * context_ = nullptr;
 };
 
 bool DoNotNeedMultigridMethod( int gl );
 
 void MultigridSolve();
+void MultigridSolve( SimuContext & context );
 
 EndNameSpace
