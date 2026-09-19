@@ -364,49 +364,36 @@ void FieldManager::AllocateBcField( UnsGrid * grid, FieldPropertyData * fieldPro
     }
 }
 
-std::map< int, std::unique_ptr< FieldManager > > * FieldFactory::data = nullptr;
-
-FieldFactory::FieldFactory()
-{
-}
-
-FieldFactory::~FieldFactory()
-{
-}
-
-void FieldFactory::Init()
-{
-    if ( ! FieldFactory::data )
-    {
-        FieldFactory::data =
-            new std::map< int, std::unique_ptr< FieldManager > >();
-    }
-}
+std::map< int, std::unique_ptr< FieldManager > > FieldFactory::data;
 
 void FieldFactory::AddFieldManager( int solverType )
 {
-    FieldFactory::Init();
-    std::map< int, std::unique_ptr< FieldManager > >::iterator iter = FieldFactory::data->find( solverType );
-    if ( iter == FieldFactory::data->end() )
+    std::map< int, std::unique_ptr< FieldManager > >::iterator iter =
+        FieldFactory::data.find( solverType );
+
+    if ( iter == FieldFactory::data.end() )
     {
-        ( * FieldFactory::data )[ solverType ] = std::make_unique< FieldManager >();;
+        FieldFactory::data[ solverType ] =
+            std::make_unique< FieldManager >();
     }
 }
 
 FieldManager * FieldFactory::GetFieldManager( int solverType )
 {
-    std::map< int, std::unique_ptr< FieldManager > >::iterator iter = FieldFactory::data->find( solverType );
+    std::map< int, std::unique_ptr< FieldManager > >::iterator iter =
+        FieldFactory::data.find( solverType );
+
+    if ( iter == FieldFactory::data.end() )
+    {
+        return nullptr;
+    }
+
     return iter->second.get();
 }
 
 void FieldFactory::FreeFieldManager()
 {
-    if ( ! FieldFactory::data )
-    {
-        return;
-    }
-
-    FieldFactory::data->clear();
+    FieldFactory::data.clear();
 }
 
 void UploadInterfaceValue( UnsGrid * grid, MRField * field2D, const std::string & name, int nEqu )

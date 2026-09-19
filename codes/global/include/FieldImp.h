@@ -114,15 +114,12 @@ public:
 class FieldFactory
 {
 public:
-    FieldFactory();
-    ~FieldFactory();
-public:
-    static std::map< int, std::unique_ptr< FieldManager > > * data;
-public:
-    static void Init();
     static void AddFieldManager( int solverType );
     static FieldManager * GetFieldManager( int solverType );
     static void FreeFieldManager();
+
+private:
+    static std::map< int, std::unique_ptr< FieldManager > > data;
 };
 
 class UnsGrid;
