@@ -39,9 +39,6 @@ public:
 class FieldNamePair
 {
 public:
-    FieldNamePair();
-    ~FieldNamePair();
-public:
     static void SetField( int solverType, NameValuePair & valuePair );
 };
 
@@ -66,17 +63,14 @@ public:
 class ReadInterfaceVar
 {
 public:
-    ReadInterfaceVar();
-    ~ReadInterfaceVar();
-public:
-    static void AddFieldName( int solverType, int fieldType, StringField & nameList );
+    static void AddFieldName(
+        int solverType,
+        int fieldType,
+        StringField & nameList );
 };
 
 class ParaNameDim
 {
-public:
-    ParaNameDim();
-    ~ParaNameDim();
 public:
     StringField nameList;
     IntField dimList;
@@ -101,7 +95,7 @@ public:
     ReadSuperPara();
     ~ReadSuperPara();
 public:
-    ParaNameDimData * paraNameDimData;
+    std::unique_ptr<ParaNameDimData> paraNameDimData;
     int solverType;
 public:
     void Register( const std::string & fileName, int index );
@@ -115,26 +109,28 @@ public:
 
 
 class TextFileParser;
+
 class BoolIO
 {
 public:
-    BoolIO();
-    ~BoolIO();
-public:
     StringField boolNameList;
     BoolField boolValueList;
-    int valueFlag;
-    TextFileParser * textFileParser;
     NameValuePair nameValuePair;
     ParaNameDimData * paraNameDimData;
+
 public:
     void Add( const std::string & name, bool value );
-    void ReadBool( TextFileParser * textFileParser );
-    void ReadSuperBool( TextFileParser * textFileParser );
+    void ReadBool( TextFileParser & textFileParser );
+    void ReadSuperBool( TextFileParser & textFileParser );
     bool CalcVarValue( const std::string & varName );
-    void Read();
-    void ReadFile( const std::string & fileName, int valueFlag = 0 );
 
+    void Read(
+        TextFileParser & textFileParser,
+        int valueFlag );
+
+    void ReadFile(
+        const std::string & fileName,
+        int valueFlag = 0 );
 };
 
 bool CalcBoolExp( bool var1, const std::string & opName, bool var2 );
