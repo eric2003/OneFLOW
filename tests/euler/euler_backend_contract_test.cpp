@@ -6,12 +6,6 @@
 #ifdef ONEFLOW_1D_USE_HIP
 #include <hip/hip_runtime.h>
 #include "AccelRuntime.h"
-namespace {
-struct HipRuntimeInit {
-    HipRuntimeInit() { ONEFLOW::InitializeAccelRuntime( 0, 1 ); }
-};
-static HipRuntimeInit s_hipInit;
-} // namespace
 #endif
 
 #include <algorithm>
@@ -74,6 +68,11 @@ std::vector< double > InitialState()
 std::unique_ptr< EulerBackend > MakeBackend()
 {
 #ifdef ONEFLOW_1D_USE_HIP
+    static const bool runtimeInitialized = []() {
+        ONEFLOW::InitializeAccelRuntime( 0, 1 );
+        return true;
+    }();
+    static_cast< void >( runtimeInitialized );
     return std::make_unique< oneflow_1d::HipEulerBackend >();
 #else
     return std::make_unique< CpuEulerBackend >();

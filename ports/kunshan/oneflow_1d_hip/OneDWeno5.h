@@ -4,6 +4,10 @@
 
 #include <vector>
 
+#ifdef ONEFLOW_1D_USE_HIP
+#include <hip/hip_runtime.h>
+#endif
+
 namespace oneflow_1d
 {
 
@@ -47,8 +51,6 @@ void OneDHipLaxWeno5Step(
     EulerBoundary boundary, Weno5Trace & trace );
 
 #ifdef ONEFLOW_1D_USE_HIP
-#include <hip/hip_runtime.h>
-
 void HipWeno5StepRaw(
     double * base, double * current, double * next,
     double * padded, double * positive, double * negative,

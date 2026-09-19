@@ -102,6 +102,9 @@ struct HipState final: EulerState {
                 padded.Resize(pv);
                 positive.Resize(pv);
                 negative.Resize(pv);
+                left.Resize(fv);
+                right.Resize(fv);
+                residual.Resize(cv);
             }
         }catch(...){Release();throw;}
     }
@@ -208,7 +211,7 @@ void HipEulerBackend::Advance(EulerState&s,int steps,const EulerRunOptions&o)con
 
         for(int step=0;step<steps;++step){
             HipWeno5StepRaw(
-                x.base.Data(), x.base.Data(), x.work.Data(),
+                x.scratch.Data(), x.base.Data(), x.work.Data(),
                 x.padded.Data(), x.positive.Data(), x.negative.Data(),
                 x.left.Data(), x.right.Data(), x.flux.Data(), x.residual.Data(),
                 nx, x.problem.gamma, x.problem.dx,

@@ -136,6 +136,7 @@ if ( ONEFLOW_1D_ENABLE_HIP )
     oneflow_accel_attach( oneflow_1d_hip )
     set_source_files_properties( OneDEuler.hip PROPERTIES LANGUAGE HIP )
     set_source_files_properties( OneDEulerPersistent.hip PROPERTIES LANGUAGE HIP )
+    set_source_files_properties( OneDWeno5.hip PROPERTIES LANGUAGE HIP )
     add_executable(
         oneflow_1d_euler_hip
         EulerMain.cpp
@@ -153,6 +154,8 @@ if ( ONEFLOW_1D_ENABLE_HIP )
             ${ONEFLOW_EULER_CONTRACT_TEST}
             OneDEuler.cpp
             OneDEulerBackend.cpp
+            OneDWeno5.cpp
+            OneDWeno5.hip
             OneDEulerPersistent.hip )
         target_compile_definitions(
             oneflow_1d_euler_hip_backend_test PRIVATE ONEFLOW_1D_USE_HIP=1 )

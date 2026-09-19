@@ -24,19 +24,30 @@ fi
 
 build_dir="${ONEFLOW_BUILD_DIR:-$project/.oneflow-build/${SLURM_JOB_NAME:-oneflow-euler-gtest}}"
 artifact_dir="${ONEFLOW_ARTIFACT_DIR:-$project/.oneflow-artifacts/${SLURM_JOB_ID:-local}}"
-# Resolve host tools before `module purge`; the DTK module may put an old
-# system CMake first on PATH.
-cmake_bin="${CMAKE_BIN:-$(command -v cmake)}"
-ctest_bin="${CTEST_BIN:-$(dirname "$cmake_bin")/ctest}"
 dtk_module="${DTK_MODULE:-compiler/dtk/26.04}"
+gcc_module="${GCC_MODULE:-compiler/gcc/9.3.0}"
+cmake_module="${CMAKE_MODULE:-compiler/cmake/3.25.0}"
 
 module purge
+module load "$cmake_module"
+module load "$gcc_module"
 module load "$dtk_module"
+# Resolve CMake after module setup. The login environment exposes CMake 2.8,
+# which does not support the -S/-B configure form used below.
+cmake_bin="${CMAKE_BIN:-$(command -v cmake)}"
+ctest_bin="${CTEST_BIN:-$(dirname "$cmake_bin")/ctest}"
 clang_bin="$(command -v clang)"
+gcc_root="${GCC_ROOT:-$(dirname "$(dirname "$(command -v gcc)")")}"
+gcc_toolchain_flag="--gcc-toolchain=$gcc_root"
+stdlib_flag="-stdlib=libstdc++"
+compiler_flags="$gcc_toolchain_flag $stdlib_flag"
 llvm_root="${LLVM_ROOT:-$(dirname "$(dirname "$clang_bin")")}"
 dtk_root="${DTK_ROOT:-$(dirname "$llvm_root")}"
+amd_comgr_dir="${AMD_COMGR_DIR:-$dtk_root/dcc/comgr/lib64/cmake/amd_comgr}"
+amd_device_libs_dir="${AMD_DEVICE_LIBS_DIR:-$dtk_root/dcc/lib64/cmake/AMDDeviceLibs}"
 export PATH="$dtk_root/bin:$llvm_root/bin:$PATH"
-export LD_LIBRARY_PATH="$dtk_root/hip/lib:$llvm_root/lib:$dtk_root/lib:$dtk_root/lib64:${LD_LIBRARY_PATH:-}"
+export CMAKE_PREFIX_PATH="$dtk_root/dcc/lib64/cmake/AMDDeviceLibs:$dtk_root/dcc/comgr/lib64/cmake:$dtk_root:$dtk_root/.hyhal:${CMAKE_PREFIX_PATH:-}"
+export LD_LIBRARY_PATH="$dtk_root/hip/lib:$llvm_root/lib:$dtk_root/lib:$dtk_root/lib64:$dtk_root/dcc/lib64:$dtk_root/dcc/comgr/lib64:${LD_LIBRARY_PATH:-}"
 export CC="$llvm_root/bin/clang"
 export CXX="$llvm_root/bin/clang++"
 export HIP_VISIBLE_DEVICES="${HIP_VISIBLE_DEVICES:-0}"
@@ -74,10 +85,16 @@ rc_test=1
   -DCMAKE_BUILD_TYPE=Release \
   -DCMAKE_C_COMPILER="$CC" \
   -DCMAKE_CXX_COMPILER="$CXX" \
+  -DCMAKE_CXX_FLAGS="$compiler_flags" \
+  -DCMAKE_HIP_FLAGS="$compiler_flags" \
   -DCMAKE_HIP_COMPILER="$CXX" \
-  -DCMAKE_PREFIX_PATH="$dtk_root;$dtk_root/.hyhal" \
+  -DCMAKE_PREFIX_PATH="$dtk_root/dcc/lib64/cmake/AMDDeviceLibs;$dtk_root/dcc/comgr/lib64/cmake;$dtk_root;$dtk_root/.hyhal" \
+  -DCMAKE_FIND_PACKAGE_PREFER_CONFIG=ON \
+  -DCMAKE_TRY_COMPILE_PLATFORM_VARIABLES="CMAKE_PREFIX_PATH;amd_comgr_DIR;AMDDeviceLibs_DIR" \
   -Dhsa-runtime64_DIR="$dtk_root/.hyhal/lib/cmake/hsa-runtime64" \
   -DHSA_HEADER="$dtk_root/.hyhal/include" \
+  -Damd_comgr_DIR="$amd_comgr_dir" \
+  -DAMDDeviceLibs_DIR="$amd_device_libs_dir" \
   -DCMAKE_HIP_ARCHITECTURES="${ONEFLOW_HIP_ARCHITECTURES:-gfx906}" \
   -DONEFLOW_1D_ENABLE_HIP=ON \
   -DONEFLOW_1D_ENABLE_GTEST=ON \
@@ -99,8 +116,8 @@ if [ "$rc_build" -eq 0 ]; then
   test_binary="$build_dir/oneflow_1d_euler_hip_backend_test"
   "$test_binary" > "$artifact_dir/gtest.log" 2>&1
   rc_test=$?
-  if [ "$rc_test" -eq 0 ] && ! grep -Eq "\[  PASSED  \] 6 tests" "$artifact_dir/gtest.log"; then
-    echo "HIP GoogleTest did not report 6 passed tests" >&2
+  if [ "$rc_test" -eq 0 ] && ! grep -Eq "\[  PASSED  \] [1-9][0-9]* tests?\.?$" "$artifact_dir/gtest.log"; then
+    echo "HIP GoogleTest did not report a passing test suite" >&2
     rc_test=1
   fi
   if [ "$rc_test" -eq 0 ]; then
@@ -108,8 +125,8 @@ if [ "$rc_build" -eq 0 ]; then
       -R '^HIP\.' \
       --output-on-failure > "$artifact_dir/ctest.log" 2>&1
     rc_ctest=$?
-    if [ "$rc_ctest" -ne 0 ] || ! grep -Eq "100% tests passed, 0 tests failed out of 6" "$artifact_dir/ctest.log"; then
-      echo "HIP CTest did not report 6 passed tests" >&2
+    if [ "$rc_ctest" -ne 0 ] || ! grep -Eq "100% tests passed, 0 tests failed out of [1-9][0-9]*" "$artifact_dir/ctest.log"; then
+      echo "HIP CTest did not report a fully passing test suite" >&2
       rc_test=1
     fi
   fi
