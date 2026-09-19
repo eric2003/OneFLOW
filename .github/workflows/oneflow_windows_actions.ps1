@@ -313,14 +313,24 @@ function CompileOneFLOW() {
 		Write-Error "CGNS library: NOT FOUND"
 		exit 1
 	}	
-
+	
+	$start = Get-Date
+	# Configure
     cmake `
         -DMETIS_ROOT="$metis_root" `
         -DCGNS_ROOT="$cgns_root" `
         ../
-
-    cmake --build . --parallel 4 --config release
-    cmake --install . --prefix $oneflow_prefix
+	Write-Host "===== CMake Configure: $((Get-Date) - $start) ====="
+	
+	$start = Get-Date
+	# Build
+	cmake --build . --parallel 4 --config release
+	Write-Host "===== CMake Build: $((Get-Date) - $start) ====="	
+	
+	$start = Get-Date
+	# Install
+	cmake --install . --prefix $oneflow_prefix
+	Write-Host "===== CMake Install: $((Get-Date) - $start) ====="	
 
     Write-Host "Compile OneFLOW complete..."
 }
