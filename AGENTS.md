@@ -17,6 +17,29 @@ results.
 | GoogleTest contract tests | [`tests/README.md`](tests/README.md) |
 | Project state and handoff notes | [`doc/reports/architecture/oneflow-project-handoff-20260903.md`](doc/reports/architecture/oneflow-project-handoff-20260903.md) |
 
+## Branch model
+
+Contributions normally arrive from a fork, so a checkout can have two remotes:
+`origin` (the fork) and `upstream` (this repository). Keep three kinds of
+branches separate:
+
+- **Baseline branch** (`master` in the usual layout) — kept identical to the
+  upstream default branch and treated as a read-only PR baseline. Do not
+  develop on it. Sync it with
+  `git fetch upstream && git merge --ff-only upstream/master`.
+- **Working branch** (`dev`, when the checkout has one) — the long-lived branch
+  for daily work, in-progress features and notes. Pushing it to the fork is the
+  backup step. Keep it current by **merging** the upstream default branch into
+  it (`git merge upstream/master`); do not rebase it once it has been pushed,
+  since that rewrites public history.
+- **Topic branches** — short-lived, created from the upstream default branch
+  only when a PR is explicitly authorized, by cherry-picking the function
+  commits and excluding notes and unpublished docs. Delete them once the PR is
+  done.
+
+When working on a `dev` branch, read `doc/plans/oneflow-development-todo.md`
+on that branch for the current working state — it lives on `dev` only.
+
 ## Working rules
 
 1. **Regression before pull request.** Numerical-kernel or backend changes
