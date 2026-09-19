@@ -106,7 +106,7 @@ namespace {
     public:
         bool NeedsSystemMap() const override { return true; }
 
-        void Execute( const SimuContext& ctx ) override
+        void Execute( SimuContext& ctx ) override
         {
             RequireSolveFieldContext( ctx );
             executed_ = true;  // ²»µ÷ÓÃ FieldSimu
