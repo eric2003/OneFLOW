@@ -227,14 +227,27 @@ function ExitDownload() {
 
 function CompileOneFLOW() {
     Write-Host "Compile OneFLOW ..."
+
     mkdir build
     cd build
-    cmake ../
-    $oneflow_prefix = "C:/OneFLOW"
-    $oneflow_bin = $oneflow_prefix + "/bin"
+
+    $oneflow_prefix = "$env:GITHUB_WORKSPACE/install"
+    $metis_root = "$env:GITHUB_WORKSPACE/_deps/metis/METIS-VS2022-STATIC"
+    $cgns_root = "$env:GITHUB_WORKSPACE/_deps/cgns/$cgns_version"
+
+    cmake `
+        -DMETIS_ROOT="$metis_root" `
+        -DCGNS_ROOT="$cgns_root" `
+        ../
+
     cmake --build . --parallel 4 --config release
     cmake --install . --prefix $oneflow_prefix
-    AddMachinePath( $oneflow_bin )
+
+    $oneflow_bin = "$oneflow_prefix/bin"
+    $Env:Path = "$oneflow_bin;$Env:Path"
+
+    Write-Host "OneFLOW install directory: $oneflow_prefix"
+    Write-Host "OneFLOW binary directory: $oneflow_bin"
     Write-Host "Compile OneFLOW complete..."
 }
 
