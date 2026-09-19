@@ -46,6 +46,17 @@ jobs:
           $oneflow_root = "${{ github.workspace }}/install"
           $oneflow_bin = "$oneflow_root/bin"
           $oneflow_system = "$oneflow_bin/system"
+          
+          Write-Host "===== Runtime DLL diagnostics ====="
+
+          Write-Host "----- CGNS bin -----"
+          Get-ChildItem "${{ github.workspace }}/_deps/cgns/4.4.0/bin" -ErrorAction SilentlyContinue
+
+          Write-Host "----- HDF5 bin -----"
+          Get-ChildItem "C:/Program Files/HDF_Group/HDF5/1.14.3/bin" -ErrorAction SilentlyContinue
+
+          Write-Host "----- OneFLOW install/bin -----"
+          Get-ChildItem "$oneflow_bin"          
 
           Write-Host "OneFLOW root:"
           Write-Host "$oneflow_root"
