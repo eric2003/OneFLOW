@@ -1,4 +1,5 @@
 #include "OneDEulerBackend.h"
+#include "OneDWeno5.h"
 
 #include <algorithm>
 #include <stdexcept>
@@ -103,17 +104,37 @@ void CpuEulerBackend::Advance(
     CheckSteps( steps, options );
     auto & cpu = CpuState( state );
     if ( ! cpu.uploaded ) throw std::logic_error( "CPU Euler state was not uploaded" );
-    EulerTrace localTrace;
-    EulerTrace * trace = options.mode == EulerRunMode::FullTrace
-        ? options.trace : &localTrace;
+
+    const bool isWeno5 = cpu.problem.method == EulerMethod::Weno5;
+
+    if ( isWeno5 && options.mode == EulerRunMode::FullTrace )
+        throw std::invalid_argument( "WENO5 FullTrace not yet supported via EulerBackend" );
+
     for ( int step = 0; step < steps; ++ step )
     {
-        OneDCpuEulerStep(
-            cpu.values.data(), cpu.problem.nx, cpu.problem.gamma,
-            cpu.problem.dt, cpu.problem.dx, cpu.problem.boundary, *trace );
-        std::copy(
-            trace->state.begin() + EulerRkStages * cpu.values.size(),
-            trace->state.end(), cpu.values.begin() );
+        if ( isWeno5 )
+        {
+            Weno5Trace weno5Trace;
+            OneDCpuLaxWeno5Step(
+                cpu.values.data(), cpu.problem.nx, cpu.problem.gamma,
+                cpu.problem.dt, cpu.problem.dx, cpu.problem.boundary,
+                weno5Trace );
+            std::copy(
+                weno5Trace.state.begin() + EulerRkStages * cpu.values.size(),
+                weno5Trace.state.end(), cpu.values.begin() );
+        }
+        else
+        {
+            EulerTrace localTrace;
+            EulerTrace * trace = options.mode == EulerRunMode::FullTrace
+                ? options.trace : &localTrace;
+            OneDCpuEulerStep(
+                cpu.values.data(), cpu.problem.nx, cpu.problem.gamma,
+                cpu.problem.dt, cpu.problem.dx, cpu.problem.boundary, *trace );
+            std::copy(
+                trace->state.begin() + EulerRkStages * cpu.values.size(),
+                trace->state.end(), cpu.values.begin() );
+        }
     }
 }
 

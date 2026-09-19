@@ -20,7 +20,7 @@ public:
     {
     }
 
-    void Execute( const SimuContext& /*ctx*/ ) override { executed_ = true; }
+    void Execute( SimuContext& /*ctx*/ ) override { executed_ = true; }
     bool NeedsSystemMap() const override { return needsMap_; }
     bool Executed() const { return executed_; }
 
@@ -106,7 +106,7 @@ namespace {
     public:
         bool NeedsSystemMap() const override { return true; }
 
-        void Execute( const SimuContext& ctx ) override
+        void Execute( SimuContext& ctx ) override
         {
             RequireSolveFieldContext( ctx );
             executed_ = true;  // ²»µ÷ÓÃ FieldSimu

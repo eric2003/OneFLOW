@@ -26,6 +26,8 @@ License
 #include "HXDefine.h"
 BeginNameSpace( ONEFLOW )
 
+class SimuContext;
+
 using TIME_INTEGRAL = void ( * )( void );
 
 const int MULTI_STAGE = 1;
@@ -52,8 +54,10 @@ public:
 public:
     static void Init();
     static void Relaxation( int nCycles );
+    static void Relaxation( int nCycles, SimuContext & context );
 public:
     static void RungeKutta();
+    static void RungeKutta( SimuContext & context );
     static void Lusgs();
 	static void Simple();
 };

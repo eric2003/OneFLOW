@@ -1,4 +1,5 @@
 #include "OneDEulerBackend.h"
+#include "AccelRuntime.h"
 #include <algorithm>
 #include <array>
 #include <cmath>
@@ -28,7 +29,8 @@ std::cout<<name<<" steps="<<steps<<" criterion abs <= 1e-15 + 1e-15*max(1,abs(re
 bool cpu_self_test(const oneflow_1d::EulerBackend&backend){constexpr int n=31;std::vector<double>q(3*n);for(int i=0;i<n;++i){q[i]=1.25;q[n+i]=.375;q[2*n+i]=.9/(G-1.0)+.5*1.25*.09;}oneflow_1d::EulerTrace t;backend.Step(q.data(),n,G,.05/n,1.0/n,oneflow_1d::EulerBoundary::Periodic,t);return physical(t.state,n);}
 #endif
 }
-int main(){std::cout<<std::setprecision(17)<<std::scientific;
+int main(){
+    ONEFLOW::InitializeAccelRuntime( 0, 1 );std::cout<<std::setprecision(17)<<std::scientific;
 #ifdef ONEFLOW_1D_USE_HIP
 oneflow_1d::CpuEulerBackend cpuBackend;oneflow_1d::HipEulerBackend hipBackend;int n=257;bool a=run("smooth-periodic",cpuBackend,hipBackend,smooth(n),smooth(n),n,10,oneflow_1d::EulerBoundary::Periodic);bool b=run("sod-transmissive",cpuBackend,hipBackend,sod(n),sod(n),n,10,oneflow_1d::EulerBoundary::Transmissive);std::cout<<"OneFLOW 1D compressible Euler CPU/HIP validation: "<<((a&&b)?"PASS":"FAIL")<<"\n";return a&&b?0:1;
 #else

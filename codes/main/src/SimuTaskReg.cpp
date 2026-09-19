@@ -44,7 +44,7 @@ class SolveFieldTask : public ISimuTask
 public:
     bool NeedsSystemMap() const override { return true; }
 
-    void Execute( const SimuContext& ctx ) override
+    void Execute( SimuContext& ctx ) override
     {
         RequireSolveFieldContext( ctx );
         FieldSimuRunPipeline( ctx );
@@ -55,44 +55,44 @@ class CreateGridTask : public ISimuTask
 {
 public:
     bool NeedsSystemMap() const override { return true; }
-    void Execute( const SimuContext& /*ctx*/ ) override { GenerateGrid(); }
+    void Execute( SimuContext& /*ctx*/ ) override { GenerateGrid(); }
 };
 
 class WallDistTask : public ISimuTask
 {
 public:
     bool NeedsSystemMap() const override { return true; }
-    void Execute( const SimuContext& /*ctx*/ ) override { WalldistSimu(); }
+    void Execute( SimuContext& /*ctx*/ ) override { WalldistSimu(); }
 };
 
 class FunctionTestTask : public ISimuTask
 {
 public:
-    void Execute( const SimuContext& /*ctx*/ ) override { FunctionTest(); }
+    void Execute( SimuContext& /*ctx*/ ) override { FunctionTest(); }
 };
 
 class TheoryTask : public ISimuTask
 {
 public:
-    void Execute( const SimuContext& /*ctx*/ ) override { TheorySimu(); }
+    void Execute( SimuContext& /*ctx*/ ) override { TheorySimu(); }
 };
 
 class ToyModelTask : public ISimuTask
 {
 public:
-    void Execute( const SimuContext& /*ctx*/ ) override { ToyModelSimu(); }
+    void Execute( SimuContext& /*ctx*/ ) override { ToyModelSimu(); }
 };
 
 class PostTask : public ISimuTask
 {
 public:
-    void Execute( const SimuContext& /*ctx*/ ) override { PostSimu(); }
+    void Execute( SimuContext& /*ctx*/ ) override { PostSimu(); }
 };
 
 class PartitionGridTask : public ISimuTask
 {
 public:
-    void Execute( const SimuContext& /*ctx*/ ) override
+    void Execute( SimuContext& /*ctx*/ ) override
     {
         throw std::runtime_error(
             "Task \"Partition\" is registered but not implemented in this build." );
