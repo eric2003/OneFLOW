@@ -327,12 +327,28 @@ function CompileOneFLOW() {
 
 function main() {
     InitDownload
+
+    $start = Get-Date
     InstallMSMPI
+    Write-Host "===== InstallMSMPI: $((Get-Date) - $start) ====="
+
+    $start = Get-Date
     InstallHDF5
+    Write-Host "===== InstallHDF5: $((Get-Date) - $start) ====="
+
+    $start = Get-Date
     InstallCGNS
+    Write-Host "===== InstallCGNS: $((Get-Date) - $start) ====="
+
+    $start = Get-Date
     InstallMETIS
+    Write-Host "===== InstallMETIS: $((Get-Date) - $start) ====="
+
     ExitDownload
+
+    $start = Get-Date
     CompileOneFLOW
+    Write-Host "===== CompileOneFLOW: $((Get-Date) - $start) ====="
 }
 
 main
