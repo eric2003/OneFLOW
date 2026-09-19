@@ -108,6 +108,18 @@ jobs:
           }
 
           $Env:Path = "$oneflow_bin;$Env:Path"
+          
+          $Env:Path = "${{ github.workspace }}/_deps/cgns/4.4.0/bin;$Env:Path"
+          $Env:Path = "C:/Program Files/HDF_Group/HDF5/1.14.3/bin;$Env:Path"
+          
+          Write-Host "===== Runtime DLL PATH ====="
+          Write-Host "$Env:Path"
+          
+          Write-Host "Resolved CGNS DLL:"
+          Get-Command cgnsdll.dll -ErrorAction SilentlyContinue
+          
+          Write-Host "Resolved HDF5 DLL:"
+          Get-Command hdf5.dll -ErrorAction SilentlyContinue          
 
           Write-Host "PATH:"
           $Env:Path
