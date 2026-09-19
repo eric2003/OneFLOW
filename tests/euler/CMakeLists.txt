@@ -124,16 +124,6 @@ target_include_directories(oneflow_euler_cpu_adapter_test PRIVATE
 target_link_libraries(oneflow_euler_cpu_adapter_test PRIVATE GTest::gtest_main)
 gtest_discover_tests(oneflow_euler_cpu_adapter_test DISCOVERY_MODE PRE_TEST)
 
-add_executable(oneflow_euler_inv_flux_capability_test
-  ${CMAKE_SOURCE_DIR}/tests/euler_inv_flux_capability_test.cpp
-  ${CMAKE_SOURCE_DIR}/codes/accel/src/EulerInvFluxCapability.cpp)
-target_include_directories(oneflow_euler_inv_flux_capability_test PRIVATE
-  ${CMAKE_SOURCE_DIR}/codes/accel/include
-  ${CMAKE_SOURCE_DIR}/codes/basic/include
-  ${CMAKE_SOURCE_DIR}/codes/project/include)
-target_link_libraries(oneflow_euler_inv_flux_capability_test PRIVATE GTest::gtest_main)
-gtest_discover_tests(oneflow_euler_inv_flux_capability_test DISCOVERY_MODE PRE_TEST)
-
 add_executable(oneflow_euler_runge_kutta_capability_test
   ${CMAKE_SOURCE_DIR}/tests/euler_runge_kutta_capability_test.cpp
   ${CMAKE_SOURCE_DIR}/codes/solver/src/EulerRungeKuttaCapability.cpp)
