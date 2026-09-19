@@ -40,6 +40,43 @@ jobs:
           prefix: ${{ github.workspace }}
         run: |
           cd ${{ github.workspace }}
+          
+          Write-Host "===== OneFLOW installation ====="
+
+          $oneflow_root = "${{ github.workspace }}/install"
+          $oneflow_bin = "$oneflow_root/bin"
+          $oneflow_system = "$oneflow_bin/system"
+
+          Write-Host "OneFLOW root:"
+          Write-Host "$oneflow_root"
+
+          Write-Host "OneFLOW executable:"
+          Write-Host "$oneflow_bin/OneFLOW.exe"
+
+          Write-Host "OneFLOW system:"
+          Write-Host "$oneflow_system"
+
+          if ( Test-Path "$oneflow_bin/OneFLOW.exe" ) {
+              Write-Host "OneFLOW.exe: FOUND"
+          }
+          else {
+              Write-Error "OneFLOW.exe: NOT FOUND"
+              exit 1
+          }
+
+          if ( Test-Path "$oneflow_system" ) {
+              Write-Host "system directory: FOUND"
+          }
+          else {
+              Write-Error "system directory: NOT FOUND"
+              exit 1
+          }
+
+          Write-Host "===== install/bin contents ====="
+          Get-ChildItem "$oneflow_bin"
+
+          Write-Host "===== install/bin/system contents ====="
+          Get-ChildItem "$oneflow_system"          
 
           python --version
           ls "${{ env.prefix }}"
@@ -74,5 +111,6 @@ jobs:
 
           python --version
 
-          python test.py "mpiexec -n 1" "OneFLOW"
+          #python test.py "mpiexec -n 1" "OneFLOW"
+          python test.py "mpiexec -n 1" "$oneflow_bin/OneFLOW.exe"
         shell: pwsh
