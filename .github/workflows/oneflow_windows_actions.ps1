@@ -324,8 +324,8 @@ function CompileOneFLOW() {
 	
 	$start = Get-Date
 	# Build
-	cmake --build . --parallel 4 --config release
-	Write-Host "===== CMake Build: $((Get-Date) - $start) ====="	
+	cmake --build . --parallel 8 --config release
+	Write-Host "===== CMake Build: $((Get-Date) - $start) ====="
 	
 	$start = Get-Date
 	# Install
