@@ -199,22 +199,17 @@ int GFieldProperty::GetNEqu( const std::string & fileName )
 
 FieldPropertyData::FieldPropertyData()
 {
-    this->bcField    = new FieldProperty();
-    this->faceField  = new FieldProperty();
-    this->innerField = new FieldProperty();
+    this->bcField    = std::make_unique< FieldProperty >();
+    this->faceField  = std::make_unique< FieldProperty >();
+    this->innerField = std::make_unique< FieldProperty >();
 }
 
-FieldPropertyData::~FieldPropertyData()
-{
-    delete this->bcField;
-    delete this->faceField;
-    delete this->innerField;
-}
+FieldPropertyData::~FieldPropertyData() = default;
 
 FieldManager::FieldManager()
 {
-    iFieldProperty = new IFieldProperty();
-    usdPara   = new UsdPara();
+    iFieldProperty = std::make_unique< IFieldProperty >();
+    usdPara = std::make_unique< UsdPara >();
 
     strManager  = new FieldPropertyData();
     unsManager  = new FieldPropertyData();
@@ -223,9 +218,6 @@ FieldManager::FieldManager()
 
 FieldManager::~FieldManager()
 {
-    delete iFieldProperty;
-    delete usdPara;
-
     delete strManager;
     delete unsManager;
     delete commManager;

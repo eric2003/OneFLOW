@@ -21,6 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 #include "FieldAlloc.h"
 #include "Prj.h"
+#include "Fatal.h"
 #include "FieldImp.h"
 #include "UsdPara.h"
 #include "SolverInfo.h"
@@ -34,16 +35,6 @@ License
 #include "InterFace.h"
 
 BeginNameSpace( ONEFLOW )
-
-FieldAlloc::FieldAlloc()
-{
-    ;
-}
-
-FieldAlloc::~FieldAlloc()
-{
-    ;
-}
 
 void FieldAlloc::AllocateAllFields( int solverType, const std::string & basicString )
 {
@@ -106,8 +97,8 @@ void FieldAlloc::AllocateAllKindsOfInterfaceField( int solverType )
 {
     FieldManager * fieldManager = FieldFactory::GetFieldManager( solverType );
     fieldManager->AllocateInnerAndBcField();
-    FieldAlloc::AllocateInterfaceField( fieldManager->iFieldProperty );
-    FieldAlloc::AllocateOversetInterfaceField( fieldManager->iFieldProperty );
+    FieldAlloc::AllocateInterfaceField( fieldManager->iFieldProperty.get() );
+    FieldAlloc::AllocateOversetInterfaceField( fieldManager->iFieldProperty.get() );
 }
 
 void FieldAlloc::AllocateInterfaceField( IFieldProperty * iFieldProperty )
@@ -265,6 +256,16 @@ int GetVarDimension( const std::string & dimName )
     }
 }
 
+BoolIO::BoolIO()
+{
+    ;
+}
+
+BoolIO::~BoolIO()
+{
+    ;
+}
+
 void BoolIO::Add( const std::string & name, bool value )
 {
     this->boolNameList.push_back( name );
@@ -322,7 +323,8 @@ bool BoolIO::CalcVarValue( const std::string & varName )
 
 void BoolIO::Read(
     TextFileParser & textFileParser,
-    int valueFlag )
+    int valueFlag,
+    ParaNameDimData * paraNameDimData )
 {
     if ( valueFlag == 0 )
     {
@@ -334,19 +336,21 @@ void BoolIO::Read(
         std::string varName = textFileParser.ReadNextWord();
         nameValuePair.nameList.push_back( varName );
 
-        Real varValue =
-            textFileParser.ReadNextDigit< Real >();
-
+        Real varValue = textFileParser.ReadNextDigit< Real >();
         nameValuePair.valueList.push_back( varValue );
     }
     else if ( valueFlag == 2 )
     {
+        if ( paraNameDimData == nullptr )
+        {
+            Fatal( "ParaNameDimData is required when BoolIO valueFlag is 2." );
+        }
+
         std::string varName      = textFileParser.ReadNextWord();
         std::string varDimension = textFileParser.ReadNextWord();
         std::string typeName     = textFileParser.ReadNextWord();
 
-        int dimension =
-            ONEFLOW::GetVarDimension( varDimension );
+        int dimension = ONEFLOW::GetVarDimension( varDimension );
 
         ParaNameDim * paraNameDim =
             paraNameDimData->GetParaNameDim( typeName );
@@ -356,8 +360,12 @@ void BoolIO::Read(
     }
 }
 
-void BoolIO::ReadFile( const std::string & fileName, int valueFlag )
+void BoolIO::ReadFile(
+    const std::string & fileName,
+    int valueFlag,
+    ParaNameDimData * paraNameDimData )
 {
+    // \t is the tab key
     std::string separator = " \r\n\t#$,;\"()";
 
     TextFileParser textFileParser;
@@ -373,7 +381,10 @@ void BoolIO::ReadFile( const std::string & fileName, int valueFlag )
 
         if ( keyWord == "true" )
         {
-            this->Read( textFileParser, valueFlag );
+            this->Read(
+                textFileParser,
+                valueFlag,
+                paraNameDimData );
         }
         else if ( keyWord == "bool" )
         {
@@ -390,7 +401,10 @@ void BoolIO::ReadFile( const std::string & fileName, int valueFlag )
 
             if ( flag )
             {
-                this->Read( textFileParser, valueFlag );
+                this->Read(
+                    textFileParser,
+                    valueFlag,
+                    paraNameDimData );
             }
         }
     }
@@ -454,7 +468,7 @@ void ReadSuperPara::AddUnsteadyInnerFieldProperty()
     this->AddInnerFieldProperty();
     FieldManager * fieldManager = FieldFactory::GetFieldManager( this->solverType );
 
-    UsdPara * usdPara = fieldManager->usdPara;
+    UsdPara * usdPara = fieldManager->usdPara.get();
     int nEqu = this->paraNameDimData->comPara->dimList[ 0 ];
     usdPara->Init( this->paraNameDimData->comPara->nameList, nEqu );
 }
@@ -500,8 +514,11 @@ void ReadSuperPara::AddBasicFieldProperty( ParaNameDim * paraNameDim, int fieldT
 void ReadSuperPara::Register( const std::string & fileName, int index )
 {
     BoolIO boolIO;
-    boolIO.paraNameDimData = this->paraNameDimData.get();
-    boolIO.ReadFile( fileName, 2 );
+
+    boolIO.ReadFile(
+        fileName,
+        2,
+        this->paraNameDimData.get() );
 
     if ( index == 0 )
     {

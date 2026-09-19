@@ -23,6 +23,7 @@ License
 #include "NamespaceMacros.h"
 #include "HXArray.h"
 #include <map>
+#include <memory>
 
 BeginNameSpace( ONEFLOW )
 
@@ -72,9 +73,9 @@ public:
     FieldPropertyData();
     ~FieldPropertyData();
 public:
-    FieldProperty * bcField;
-    FieldProperty * faceField;
-    FieldProperty * innerField;
+    std::unique_ptr< FieldProperty > bcField;
+    std::unique_ptr< FieldProperty > faceField;
+    std::unique_ptr< FieldProperty > innerField;
 };
 
 class FieldManager;
@@ -87,8 +88,8 @@ public:
     FieldManager();
     ~FieldManager();
 public:
-    IFieldProperty * iFieldProperty;
-    UsdPara  * usdPara;
+    std::unique_ptr< IFieldProperty > iFieldProperty;
+    std::unique_ptr< UsdPara > usdPara;
 
     FieldPropertyData * commManager;
     FieldPropertyData * strManager;

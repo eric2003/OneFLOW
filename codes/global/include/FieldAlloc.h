@@ -45,9 +45,6 @@ public:
 class FieldAlloc
 {
 public:
-    FieldAlloc();
-    ~FieldAlloc();
-public:
     static void AllocateAllFields( int solverType, const std::string & basicString );
     static void InitField( int solverType, const std::string & basicString );
     static void RegisterInterfaceVar( int solverType, const std::string & basicString );
@@ -113,24 +110,25 @@ class TextFileParser;
 class BoolIO
 {
 public:
+    BoolIO();
+    ~BoolIO();
+public:
     StringField boolNameList;
     BoolField boolValueList;
     NameValuePair nameValuePair;
-    ParaNameDimData * paraNameDimData;
-
 public:
     void Add( const std::string & name, bool value );
     void ReadBool( TextFileParser & textFileParser );
     void ReadSuperBool( TextFileParser & textFileParser );
     bool CalcVarValue( const std::string & varName );
-
     void Read(
         TextFileParser & textFileParser,
-        int valueFlag );
-
+        int valueFlag,
+        ParaNameDimData * paraNameDimData = nullptr );
     void ReadFile(
         const std::string & fileName,
-        int valueFlag = 0 );
+        int valueFlag = 0,
+        ParaNameDimData * paraNameDimData = nullptr );
 };
 
 bool CalcBoolExp( bool var1, const std::string & opName, bool var2 );
