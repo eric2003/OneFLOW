@@ -91,9 +91,9 @@ public:
     std::unique_ptr< IFieldProperty > iFieldProperty;
     std::unique_ptr< UsdPara > usdPara;
 
-    FieldPropertyData * commManager;
-    FieldPropertyData * strManager;
-    FieldPropertyData * unsManager;
+    std::unique_ptr< FieldPropertyData > commManager;
+    std::unique_ptr< FieldPropertyData > strManager;
+    std::unique_ptr< FieldPropertyData > unsManager;
 public:
     void AddFaceField( const std::string & fieldName, int nEqu );
     void AddInnerField( const std::string & fieldName, int nEqu );
@@ -117,7 +117,7 @@ public:
     FieldFactory();
     ~FieldFactory();
 public:
-    static std::map< int, FieldManager * > * data;
+    static std::map< int, std::unique_ptr< FieldManager > > * data;
 public:
     static void Init();
     static void AddFieldManager( int solverType );
