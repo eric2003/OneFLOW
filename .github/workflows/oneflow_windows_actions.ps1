@@ -67,13 +67,31 @@ function InstallMSMPI() {
     
     AddMachinePath( $msmpi_bin_path )
     
+    # Update the current PowerShell process environment.
+    $Env:Path = "$msmpi_bin_path;$Env:Path"
+    
+    if ( Test-Path "$msmpi_bin_path/mpiexec.exe" ) {
+        Write-Host "MPI executable: FOUND"
+    }
+    else {
+        Write-Error "MPI executable: NOT FOUND"
+        exit 1
+    }
+    
+    # Persist MPI path for subsequent GitHub Actions steps.
+    $msmpi_bin_path | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+    
     Write-Host "ls $msmpi_sdk_path"
     ls $msmpi_sdk_path
-    Write-Host "ls $msmpi_sdk_path"
+    
+    Write-Host "ls $msmpi_bin_path"
     ls $msmpi_bin_path
     
-    Write-Host "mpiexec"
-    mpiexec 
+    Write-Host "Resolved mpiexec:"
+    Get-Command mpiexec
+    
+    Write-Host "Testing mpiexec:"
+    mpiexec -help
 }
 
 function DownloadHDF5() {
