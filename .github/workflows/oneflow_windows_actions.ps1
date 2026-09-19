@@ -198,13 +198,31 @@ function InstallMETIS() {
     Write-Host "ls..."
     ls
     cd build
-    $metis_prefix = "C:/dev/METIS/METIS-VS2022-STATIC/"
+	
+	$global:metis_prefix =
+		"$env:GITHUB_WORKSPACE/_deps/metis/METIS-VS2022-STATIC"
+	
     cmake ../
     cmake --build . --parallel 4 --config release
     cmake --install . --prefix $metis_prefix
     cd ../../
     pwd
     Write-Host "METIS-5.1.0 installation complete..."
+	if ( Test-Path "$metis_prefix/include/metis.h" ) {
+		Write-Host "METIS header: FOUND"
+	}
+	else {
+		Write-Error "METIS header: NOT FOUND"
+		exit 1
+	}
+	
+	if ( Test-Path "$metis_prefix/lib/metis.lib" ) {
+		Write-Host "METIS library: FOUND"
+	}
+	else {
+		Write-Error "METIS library: NOT FOUND"
+		exit 1
+	}	
 }
 
 function DownloadCGNS() {
