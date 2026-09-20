@@ -56,12 +56,6 @@ public:
     static void AllocateOversetInterfaceField( IFieldProperty * iFieldProperty );
 };
 
-void AddInterfaceFieldNames(
-    int solverType,
-    int fieldType,
-    const StringField & nameList );
-FieldCategory ParseFieldCategory( const std::string & typeName );
-
 struct ParaNameDim
 {
 public:
@@ -103,8 +97,18 @@ public:
         FieldCategory category );
 };
 
-
 class TextFileParser;
+
+void AddInterfaceFieldNames(
+    int solverType,
+    int fieldType,
+    const StringField & nameList );
+FieldCategory ParseFieldCategory( const std::string & typeName );
+
+void ReadFieldDefinition(
+    TextFileParser & textFileParser,
+    ParaNameDimData & paraNameDimData );
+
 
 class BoolIO
 {
@@ -122,8 +126,7 @@ public:
     bool CalcVarValue( const std::string & varName );
     void Read(
         TextFileParser & textFileParser,
-        int valueFlag,
-        ParaNameDimData * paraNameDimData = nullptr );
+        int valueFlag );
     void ReadFile(
         const std::string & fileName,
         int valueFlag = 0,

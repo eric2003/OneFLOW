@@ -269,6 +269,64 @@ int GetVarDimension( const std::string & dimName )
     }
 }
 
+void AddInterfaceFieldNames(
+    int solverType,
+    int fieldType,
+    const StringField & nameList )
+{
+    VarNameSolver * varNameSolver =
+        VarNameFactory::GetVarNameSolver(
+            solverType,
+            fieldType );
+
+    int numberOfVariables = nameList.size();
+
+    for ( int iVariable = 0;
+        iVariable < numberOfVariables;
+        ++ iVariable )
+    {
+        const std::string & varName =
+            nameList[ iVariable ];
+
+        varNameSolver->AddFieldName( varName );
+    }
+}
+
+FieldCategory ParseFieldCategory( const std::string & typeName )
+{
+    if ( typeName == "all" )
+    {
+        return FieldCategory::Common;
+    }
+
+    if ( typeName == "str" )
+    {
+        return FieldCategory::Structured;
+    }
+
+    return FieldCategory::Unstructured;
+}
+
+void ReadFieldDefinition(
+    TextFileParser & textFileParser,
+    ParaNameDimData & paraNameDimData )
+{
+    std::string varName      = textFileParser.ReadNextWord();
+    std::string varDimension = textFileParser.ReadNextWord();
+    std::string typeName     = textFileParser.ReadNextWord();
+
+    int nEqu = ONEFLOW::GetVarDimension( varDimension );
+
+    FieldCategory category = ParseFieldCategory( typeName );
+
+    ParaNameDim * paraNameDim =
+        paraNameDimData.GetParaNameDim( category );
+
+    paraNameDim->nameList.push_back( varName );
+    paraNameDim->nEquList.push_back( nEqu );
+}
+
+
 BoolIO::BoolIO()
 {
     ;
@@ -336,8 +394,7 @@ bool BoolIO::CalcVarValue( const std::string & varName )
 
 void BoolIO::Read(
     TextFileParser & textFileParser,
-    int valueFlag,
-    ParaNameDimData * paraNameDimData )
+    int valueFlag )
 {
     if ( valueFlag == 0 )
     {
@@ -351,27 +408,6 @@ void BoolIO::Read(
 
         Real varValue = textFileParser.ReadNextDigit< Real >();
         nameValuePair.valueList.push_back( varValue );
-    }
-    else if ( valueFlag == 2 )
-    {
-        if ( paraNameDimData == nullptr )
-        {
-            Fatal( "ParaNameDimData is required when BoolIO valueFlag is 2." );
-        }
-
-        std::string varName      = textFileParser.ReadNextWord();
-        std::string varDimension = textFileParser.ReadNextWord();
-        std::string typeName     = textFileParser.ReadNextWord();
-
-        int dimension = ONEFLOW::GetVarDimension( varDimension );
-
-        FieldCategory category = ParseFieldCategory( typeName );
-
-        ParaNameDim * paraNameDim =
-            paraNameDimData->GetParaNameDim( category );
-
-        paraNameDim->nameList.push_back( varName );
-        paraNameDim->nEquList.push_back( dimension );
     }
 }
 
@@ -396,10 +432,18 @@ void BoolIO::ReadFile(
 
         if ( keyWord == "true" )
         {
-            this->Read(
-                textFileParser,
-                valueFlag,
-                paraNameDimData );
+            if ( valueFlag == 2 )
+            {
+                ReadFieldDefinition(
+                    textFileParser,
+                    *paraNameDimData );
+            }
+            else
+            {
+                this->Read(
+                    textFileParser,
+                    valueFlag );
+            }
         }
         else if ( keyWord == "bool" )
         {
@@ -416,53 +460,23 @@ void BoolIO::ReadFile(
 
             if ( flag )
             {
-                this->Read(
-                    textFileParser,
-                    valueFlag,
-                    paraNameDimData );
+                if ( valueFlag == 2 )
+                {
+                    ReadFieldDefinition(
+                        textFileParser,
+                        *paraNameDimData );
+                }
+                else
+                {
+                    this->Read(
+                        textFileParser,
+                        valueFlag );
+                }
             }
         }
     }
 
     textFileParser.CloseFile();
-}
-
-void AddInterfaceFieldNames(
-    int solverType,
-    int fieldType,
-    const StringField & nameList )
-{
-    VarNameSolver * varNameSolver =
-        VarNameFactory::GetVarNameSolver(
-            solverType,
-            fieldType );
-
-    int numberOfVariables = nameList.size();
-
-    for ( int iVariable = 0;
-        iVariable < numberOfVariables;
-        ++ iVariable )
-    {
-        const std::string & varName =
-            nameList[ iVariable ];
-
-        varNameSolver->AddFieldName( varName );
-    }
-}
-
-FieldCategory ParseFieldCategory( const std::string & typeName )
-{
-    if ( typeName == "all" )
-    {
-        return FieldCategory::Common;
-    }
-
-    if ( typeName == "str" )
-    {
-        return FieldCategory::Structured;
-    }
-
-    return FieldCategory::Unstructured;
 }
 
 ParaNameDim * ParaNameDimData::GetParaNameDim( FieldCategory category )
