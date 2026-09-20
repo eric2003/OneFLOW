@@ -21,7 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #pragma once
-#include "UsdBasic.h"
+#include "HXDefine.h"
 
 BeginNameSpace( ONEFLOW )
 
