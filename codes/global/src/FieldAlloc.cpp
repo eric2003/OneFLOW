@@ -371,7 +371,7 @@ void BoolIO::Read(
             paraNameDimData->GetParaNameDim( category );
 
         paraNameDim->nameList.push_back( varName );
-        paraNameDim->dimList.push_back( dimension );
+        paraNameDim->nEquList.push_back( dimension );
     }
 }
 
@@ -495,7 +495,7 @@ void ReadSuperPara::AddUnsteadyInnerFieldProperty()
     FieldManager * fieldManager = FieldFactory::GetFieldManager( this->solverType );
 
     UsdPara * usdPara = fieldManager->usdPara.get();
-    int nEqu = this->paraNameDimData->comPara.dimList[ 0 ];
+    int nEqu = this->paraNameDimData->comPara.nEquList[ 0 ];
     usdPara->Init( this->paraNameDimData->comPara.nameList, nEqu );
 }
 
@@ -534,7 +534,7 @@ void ReadSuperPara::AddBasicFieldProperty(
             paraNameDim->nameList[ iVar ];
 
         int nEqu =
-            paraNameDim->dimList[ iVar ];
+            paraNameDim->nEquList[ iVar ];
 
         fieldManager->AddField(
             varName,

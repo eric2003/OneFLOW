@@ -66,10 +66,8 @@ struct ParaNameDim
 {
 public:
     StringField nameList;
-    IntField dimList;
+    IntField nEquList;
 };
-
-
 
 class ParaNameDimData
 {
