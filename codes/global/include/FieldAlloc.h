@@ -60,6 +60,7 @@ void AddInterfaceFieldNames(
     int solverType,
     int fieldType,
     const StringField & nameList );
+FieldCategory ParseFieldCategory( const std::string & typeName );
 
 struct ParaNameDim
 {
@@ -68,6 +69,8 @@ public:
     IntField dimList;
 };
 
+
+
 class ParaNameDimData
 {
 public:
@@ -75,8 +78,8 @@ public:
     ParaNameDim strPara;
     ParaNameDim unsPara;
 
-    ParaNameDim * GetParaNameDim(
-        const std::string & typeName );
+public:
+    ParaNameDim * GetParaNameDim( FieldCategory category );
 };
 
 class ReadSuperPara

@@ -365,8 +365,10 @@ void BoolIO::Read(
 
         int dimension = ONEFLOW::GetVarDimension( varDimension );
 
+        FieldCategory category = ParseFieldCategory( typeName );
+
         ParaNameDim * paraNameDim =
-            paraNameDimData->GetParaNameDim( typeName );
+            paraNameDimData->GetParaNameDim( category );
 
         paraNameDim->nameList.push_back( varName );
         paraNameDim->dimList.push_back( dimension );
@@ -448,22 +450,36 @@ void AddInterfaceFieldNames(
     }
 }
 
-
-ParaNameDim * ParaNameDimData::GetParaNameDim(
-    const std::string & typeName )
+FieldCategory ParseFieldCategory( const std::string & typeName )
 {
     if ( typeName == "all" )
     {
-        return &this->comPara;
+        return FieldCategory::Common;
     }
-    else if ( typeName == "str" )
+
+    if ( typeName == "str" )
     {
-        return &this->strPara;
+        return FieldCategory::Structured;
     }
-    else
+
+    return FieldCategory::Unstructured;
+}
+
+ParaNameDim * ParaNameDimData::GetParaNameDim( FieldCategory category )
+{
+    switch ( category )
     {
-        return &this->unsPara;
+    case FieldCategory::Common:
+        return &comPara;
+
+    case FieldCategory::Structured:
+        return &strPara;
+
+    case FieldCategory::Unstructured:
+        return &unsPara;
     }
+
+    return nullptr;
 }
 
 ReadSuperPara::ReadSuperPara()
