@@ -71,14 +71,12 @@ public:
 class ParaNameDimData
 {
 public:
-    ParaNameDimData();
-    ~ParaNameDimData();
-public:
-    std::unique_ptr<ParaNameDim> comPara;
-    std::unique_ptr<ParaNameDim> strPara;
-    std::unique_ptr<ParaNameDim> unsPara;
-public:
-    ParaNameDim * GetParaNameDim( const std::string & typeName );
+    ParaNameDim comPara;
+    ParaNameDim strPara;
+    ParaNameDim unsPara;
+
+    ParaNameDim * GetParaNameDim(
+        const std::string & typeName );
 };
 
 class ReadSuperPara

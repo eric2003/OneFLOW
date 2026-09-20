@@ -448,29 +448,21 @@ void AddInterfaceFieldNames(
     }
 }
 
-ParaNameDimData::ParaNameDimData()
-{
-    this->comPara = std::make_unique<ParaNameDim>();
-    this->strPara = std::make_unique<ParaNameDim>();
-    this->unsPara = std::make_unique<ParaNameDim>();
-}
-
-ParaNameDimData::~ParaNameDimData() = default;
 
 ParaNameDim * ParaNameDimData::GetParaNameDim(
     const std::string & typeName )
 {
     if ( typeName == "all" )
     {
-        return this->comPara.get();
+        return &this->comPara;
     }
     else if ( typeName == "str" )
     {
-        return this->strPara.get();
+        return &this->strPara;
     }
     else
     {
-        return this->unsPara.get();
+        return &this->unsPara;
     }
 }
 
@@ -487,25 +479,25 @@ void ReadSuperPara::AddUnsteadyInnerFieldProperty()
     FieldManager * fieldManager = FieldFactory::GetFieldManager( this->solverType );
 
     UsdPara * usdPara = fieldManager->usdPara.get();
-    int nEqu = this->paraNameDimData->comPara->dimList[ 0 ];
-    usdPara->Init( this->paraNameDimData->comPara->nameList, nEqu );
+    int nEqu = this->paraNameDimData->comPara.dimList[ 0 ];
+    usdPara->Init( this->paraNameDimData->comPara.nameList, nEqu );
 }
 
 void ReadSuperPara::AddFieldProperties(
     FieldLocation location )
 {
     this->AddBasicFieldProperty(
-        this->paraNameDimData->unsPara.get(),
+        &this->paraNameDimData->unsPara,
         location,
         FieldCategory::Unstructured );
 
     this->AddBasicFieldProperty(
-        this->paraNameDimData->strPara.get(),
+        &this->paraNameDimData->strPara,
         location,
         FieldCategory::Structured );
 
     this->AddBasicFieldProperty(
-        this->paraNameDimData->comPara.get(),
+        &this->paraNameDimData->comPara,
         location,
         FieldCategory::Common );
 }
