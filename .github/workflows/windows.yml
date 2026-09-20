@@ -58,6 +58,89 @@ jobs:
         env:
           prefix: ${{ github.workspace }}
         run: |
+          Write-Host ""
+          Write-Host "=== OneFLOW runtime dependency diagnostics ==="
+          
+          $oneflow_bin = "$env:GITHUB_WORKSPACE/build/bin/Release"
+          $oneflow_exe = "$oneflow_bin/OneFLOW.exe"
+          
+          Write-Host "OneFLOW executable:"
+          if ( Test-Path $oneflow_exe ) {
+              Get-Item $oneflow_exe |
+                  Format-List FullName, Length
+          }
+          else {
+              Write-Error "OneFLOW.exe not found: $oneflow_exe"
+              exit 1
+          }
+          
+          Write-Host ""
+          Write-Host "=== PATH entries related to runtime dependencies ==="
+          
+          $Env:Path -split ';' | ForEach-Object {
+              if ( $_ -and (
+                  $_ -match 'MPI' -or
+                  $_ -match 'HDF5' -or
+                  $_ -match 'CGNS' -or
+                  $_ -match 'METIS'
+              ) ) {
+                  Write-Host "  $_"
+              }
+          }
+          
+          Write-Host ""
+          Write-Host "=== MPI ==="
+          
+          where.exe mpiexec.exe
+          
+          $msmpi_dll = "C:\Program Files\Microsoft MPI\Bin\msmpi.dll"
+          
+          if ( Test-Path $msmpi_dll ) {
+              Get-Item $msmpi_dll |
+                  Format-List FullName, Length
+          }
+          else {
+              Write-Host "msmpi.dll NOT FOUND: $msmpi_dll"
+          }
+          
+          Write-Host ""
+          Write-Host "=== HDF5 DLLs ==="
+          
+          $hdf5_bin = "$global:HDF5_PREFIX/bin"
+          
+          if ( Test-Path $hdf5_bin ) {
+              Get-ChildItem "$hdf5_bin/*.dll" |
+                  Select-Object FullName
+          }
+          
+          Write-Host ""
+          Write-Host "=== CGNS DLLs ==="
+          
+          $cgns_bin = "$global:CGNS_PREFIX/bin"
+          
+          if ( Test-Path $cgns_bin ) {
+              Get-ChildItem "$cgns_bin/*.dll" |
+                  Select-Object FullName
+          }
+          
+          Write-Host ""
+          Write-Host "=== Direct OneFLOW startup test ==="
+          
+          & $oneflow_exe
+          $oneflow_exit_code = $LASTEXITCODE
+          
+          Write-Host "OneFLOW direct exit code = $oneflow_exit_code"
+          Write-Host ("OneFLOW direct exit code hex = 0x{0:X8}" -f $oneflow_exit_code)
+          
+          if ( $oneflow_exit_code -eq 3221225781 ) {
+              Write-Error "OneFLOW.exe cannot load a required DLL."
+              exit 1
+          }
+          
+          Write-Host "=== Runtime dependency diagnostics completed ==="
+          Write-Host ""
+        
+        
           cd ${{ github.workspace }}
 
           Write-Host "===== OneFLOW installation ====="
