@@ -16,7 +16,9 @@ $global:CGNS_PREFIX =
 $global:METIS_PREFIX =
     "$env:GITHUB_WORKSPACE/_deps/metis/METIS-VS2022-STATIC"
 
-
+$global:HDF5_PREFIX =
+    "$env:GITHUB_WORKSPACE/_deps/hdf5/$global:HDF5_VERSION"
+	
 # ============================================================
 # Environment variable helpers
 # ============================================================
