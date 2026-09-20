@@ -34,9 +34,6 @@ public:
     using Data = std::map< std::string, int >;
 
 public:
-    FieldProperty();
-    ~FieldProperty();
-
     void AddField( const std::string & fieldName, int nEqu );
     int GetNEqu( const std::string & fieldName ) const;
 

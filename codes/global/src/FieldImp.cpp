@@ -37,14 +37,6 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-FieldProperty::FieldProperty()
-{
-}
-
-FieldProperty::~FieldProperty()
-{
-}
-
 void FieldProperty::AddField( const std::string & fieldName, int nEqu )
 {
     this->data[ fieldName ] = nEqu;
