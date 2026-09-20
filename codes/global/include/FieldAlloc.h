@@ -97,10 +97,8 @@ public:
     int solverType;
 public:
     void Register( const std::string & fileName, int index );
+    void AddFieldProperties( FieldLocation location );
     void AddUnsteadyInnerFieldProperty();
-    void AddInnerFieldProperty();
-    void AddFaceFieldProperty();
-    void AddBoundaryFieldProperty();
 public:
     void AddBasicFieldProperty(
         ParaNameDim * paraNameDim,

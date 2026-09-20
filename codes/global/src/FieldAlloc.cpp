@@ -458,7 +458,7 @@ ReadSuperPara::~ReadSuperPara() = default;
 
 void ReadSuperPara::AddUnsteadyInnerFieldProperty()
 {
-    this->AddInnerFieldProperty();
+    this->AddFieldProperties( FieldLocation::Inner );
     FieldManager * fieldManager = FieldFactory::GetFieldManager( this->solverType );
 
     UsdPara * usdPara = fieldManager->usdPara.get();
@@ -466,57 +466,22 @@ void ReadSuperPara::AddUnsteadyInnerFieldProperty()
     usdPara->Init( this->paraNameDimData->comPara->nameList, nEqu );
 }
 
-void ReadSuperPara::AddInnerFieldProperty()
+void ReadSuperPara::AddFieldProperties(
+    FieldLocation location )
 {
     this->AddBasicFieldProperty(
         this->paraNameDimData->unsPara.get(),
-        FieldLocation::Inner,
+        location,
         FieldCategory::Unstructured );
 
     this->AddBasicFieldProperty(
         this->paraNameDimData->strPara.get(),
-        FieldLocation::Inner,
+        location,
         FieldCategory::Structured );
 
     this->AddBasicFieldProperty(
         this->paraNameDimData->comPara.get(),
-        FieldLocation::Inner,
-        FieldCategory::Common );
-}
-
-void ReadSuperPara::AddFaceFieldProperty()
-{
-    this->AddBasicFieldProperty(
-        this->paraNameDimData->unsPara.get(),
-        FieldLocation::Face,
-        FieldCategory::Unstructured );
-
-    this->AddBasicFieldProperty(
-        this->paraNameDimData->strPara.get(),
-        FieldLocation::Face,
-        FieldCategory::Structured );
-
-    this->AddBasicFieldProperty(
-        this->paraNameDimData->comPara.get(),
-        FieldLocation::Face,
-        FieldCategory::Common );
-}
-
-void ReadSuperPara::AddBoundaryFieldProperty()
-{
-    this->AddBasicFieldProperty(
-        this->paraNameDimData->unsPara.get(),
-        FieldLocation::Boundary,
-        FieldCategory::Unstructured );
-
-    this->AddBasicFieldProperty(
-        this->paraNameDimData->strPara.get(),
-        FieldLocation::Boundary,
-        FieldCategory::Structured );
-
-    this->AddBasicFieldProperty(
-        this->paraNameDimData->comPara.get(),
-        FieldLocation::Boundary,
+        location,
         FieldCategory::Common );
 }
 
@@ -555,21 +520,24 @@ void ReadSuperPara::Register( const std::string & fileName, int index )
         2,
         this->paraNameDimData.get() );
 
-    if ( index == 0 )
+    switch ( index )
     {
+    case 0:
+        // Unsteady fields have separate semantics.
         this->AddUnsteadyInnerFieldProperty();
-    }
-    else if ( index == 1 )
-    {
-        this->AddInnerFieldProperty();
-    }
-    else if ( index == 2 )
-    {
-        this->AddFaceFieldProperty();
-    }
-    else if ( index == 3 )
-    {
-        this->AddBoundaryFieldProperty();
+        break;
+
+    case 1:
+        this->AddFieldProperties( FieldLocation::Inner );
+        break;
+
+    case 2:
+        this->AddFieldProperties( FieldLocation::Face );
+        break;
+
+    case 3:
+        this->AddFieldProperties( FieldLocation::Boundary );
+        break;
     }
 }
 
