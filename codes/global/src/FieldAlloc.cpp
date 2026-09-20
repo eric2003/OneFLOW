@@ -49,8 +49,9 @@ void FieldAlloc::InitField( int solverType, const std::string & basicString )
     BoolIO boolIO;
     boolIO.ReadFile( fileName, 1 );
 
-    //FieldNamePair::Read( fileName, nameValuePair );
-    FieldNamePair::SetField( solverType, boolIO.nameValuePair );
+    SetFieldValues(
+        solverType,
+        boolIO.nameValuePair );
 }
 
 
@@ -72,7 +73,10 @@ void FieldAlloc::RegisterInterfaceVar( int solverType, const std::string & basic
         boolIO.ReadFile( fileNameList[ iFile ] );
         int fieldType = fieldTypeList[ iFile ];
 
-        ReadInterfaceVar::AddFieldName( solverType, fieldType, boolIO.nameValuePair.nameList );
+        AddInterfaceFieldNames(
+            solverType,
+            fieldType,
+            boolIO.nameValuePair.nameList );
     }
 }
 
@@ -176,15 +180,24 @@ void FieldAlloc::CalcInterfaceFileType( IntField & fieldTypeList )
     fieldTypeList.push_back( ONEFLOW::INTERFACE_OVERSET_DATA  );
 }
 
-void FieldNamePair::SetField( int solverType, NameValuePair & valuePair )
+
+void SetFieldValues(
+    int solverType,
+    const NameValuePair & valuePair )
 {
-    FieldManager * fieldManager = FieldFactory::GetFieldManager( solverType );
+    FieldManager * fieldManager =
+        FieldFactory::GetFieldManager( solverType );
+
     int nVar = valuePair.nameList.size();
+
     for ( int iVar = 0; iVar < nVar; ++ iVar )
     {
-        fieldManager->SetField( valuePair.nameList[ iVar ], valuePair.valueList[ iVar ] );
+        fieldManager->SetField(
+            valuePair.nameList[ iVar ],
+            valuePair.valueList[ iVar ] );
     }
 }
+
 
 bool CalcBoolExp( bool var1, const std::string & opName, bool var2 )
 {
@@ -412,13 +425,25 @@ void BoolIO::ReadFile(
     textFileParser.CloseFile();
 }
 
-void ReadInterfaceVar::AddFieldName( int solverType, int fieldType, StringField & nameList )
+void AddInterfaceFieldNames(
+    int solverType,
+    int fieldType,
+    const StringField & nameList )
 {
-    VarNameSolver * varNameSolver = VarNameFactory::GetVarNameSolver( solverType, fieldType );
+    VarNameSolver * varNameSolver =
+        VarNameFactory::GetVarNameSolver(
+            solverType,
+            fieldType );
+
     int numberOfVariables = nameList.size();
-    for ( int iVariable = 0; iVariable < numberOfVariables; ++ iVariable )
+
+    for ( int iVariable = 0;
+        iVariable < numberOfVariables;
+        ++ iVariable )
     {
-        const std::string & varName = nameList[ iVariable ];
+        const std::string & varName =
+            nameList[ iVariable ];
+
         varNameSolver->AddFieldName( varName );
     }
 }

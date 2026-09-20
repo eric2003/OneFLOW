@@ -30,18 +30,16 @@ BeginNameSpace( ONEFLOW )
 
 class IFieldProperty;
 
-class NameValuePair
+struct NameValuePair
 {
 public:
     StringField nameList;
     RealField valueList;
 };
 
-class FieldNamePair
-{
-public:
-    static void SetField( int solverType, NameValuePair & valuePair );
-};
+void SetFieldValues(
+    int solverType,
+    const NameValuePair & valuePair );
 
 class FieldAlloc
 {
@@ -58,16 +56,12 @@ public:
     static void AllocateOversetInterfaceField( IFieldProperty * iFieldProperty );
 };
 
-class ReadInterfaceVar
-{
-public:
-    static void AddFieldName(
-        int solverType,
-        int fieldType,
-        StringField & nameList );
-};
+void AddInterfaceFieldNames(
+    int solverType,
+    int fieldType,
+    const StringField & nameList );
 
-class ParaNameDim
+struct ParaNameDim
 {
 public:
     StringField nameList;
