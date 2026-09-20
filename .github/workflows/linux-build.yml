@@ -18,7 +18,7 @@ jobs:
     name: "Linux OneFLOW Build Actions"
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
 
       - name: Install GCC ${{ env.GCC_VERSION }}
         run: |
