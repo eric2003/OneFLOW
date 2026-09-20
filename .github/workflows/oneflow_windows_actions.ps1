@@ -726,19 +726,28 @@ function CompileOneFLOW() {
     cmake `
         --build . `
         --config Release
-
+    
+    if ( $LASTEXITCODE -ne 0 ) {
+        throw "CMake build failed with exit code $LASTEXITCODE."
+    }
+    
     Write-Host "===== CMake Build: $((Get-Date) - $start) ====="
-
+    
     $start = Get-Date
-
+    
     # Install
     cmake `
         --install . `
         --prefix $oneflow_prefix
+    
+    if ( $LASTEXITCODE -ne 0 ) {
+        throw "CMake install failed with exit code $LASTEXITCODE."
+    }
 
     Write-Host "===== CMake Install: $((Get-Date) - $start) ====="
 
     Write-Host "Compile OneFLOW complete..."
+
 }
 
 
