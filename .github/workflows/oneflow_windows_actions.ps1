@@ -125,59 +125,108 @@ function MyDownloadFile2( $fullFilePath, $my_filename ) {
 # ============================================================
 
 function InstallMSMPI() {
-    # Install MPI SDK and Runtime.
-    Write-Host "Installing Microsoft MPI SDK..."
-
-    $download_url =
-        "https://download.microsoft.com/download/A/E/0/AE002626-9D9D-448D-8197-1EA510E297CE/"
-
-    $msmpisdk_filename = "msmpisdk.msi"
-    $msmpisdk_webfilename =
-        $download_url + $msmpisdk_filename
-
-    MyDownloadFile( $msmpisdk_webfilename )
-
-    Start-Process `
-        -FilePath msiexec.exe `
-        -ArgumentList "/quiet /qn /i msmpisdk.msi" `
-        -Wait
-
-    Write-Host "Microsoft MPI SDK installation complete"
-
-    Write-Host "Installing Microsoft MPI Runtime..."
-
-    $msmpisetup_filename = "msmpisetup.exe"
-    $msmpisetup_webfilename =
-        $download_url + $msmpisetup_filename
-
-    MyDownloadFile( $msmpisetup_webfilename )
-
-    Start-Process `
-        -FilePath MSMpiSetup.exe `
-        -ArgumentList -unattend `
-        -Wait
-
-    Write-Host "Microsoft MPI Runtime installation complete..."
-    
+    # Microsoft MPI installation paths.
     $msmpi_bin_path =
         "C:/Program Files/Microsoft MPI/Bin"
 
     $msmpi_sdk_path =
         "C:/Program Files (x86)/Microsoft SDKs/MPI"
 
-    AddMachinePath( $msmpi_bin_path )
+    $msmpi_exe =
+        "$msmpi_bin_path/mpiexec.exe"
 
-    # Update the current PowerShell process environment.
-    $Env:Path =
-        "$msmpi_bin_path;$Env:Path"
+    $msmpi_sdk_include =
+        "$msmpi_sdk_path/Include"
 
-    if ( Test-Path "$msmpi_bin_path/mpiexec.exe" ) {
-        Write-Host "MPI executable: FOUND"
+    $msmpi_sdk_lib =
+        "$msmpi_sdk_path/Lib"
+
+    Write-Host "===== Microsoft MPI ====="
+    Write-Host "MPI runtime path: $msmpi_bin_path"
+    Write-Host "MPI SDK path:     $msmpi_sdk_path"
+
+    # Check whether the complete MPI installation already exists.
+    $runtime_ready =
+        Test-Path $msmpi_exe
+
+    $sdk_ready =
+        ( Test-Path $msmpi_sdk_include ) -and
+        ( Test-Path $msmpi_sdk_lib )
+
+    if ( $runtime_ready -and $sdk_ready ) {
+        Write-Host "===== Microsoft MPI already installed ====="
     }
     else {
+        Write-Host "===== Microsoft MPI installation required ====="
+
+        if ( -not $sdk_ready ) {
+            Write-Host "MPI SDK is not available."
+            Write-Host "Installing Microsoft MPI SDK..."
+
+            $download_url =
+                "https://download.microsoft.com/download/A/E/0/AE002626-9D9D-448D-8197-1EA510E297CE/"
+
+            $msmpisdk_filename = "msmpisdk.msi"
+
+            $msmpisdk_webfilename =
+                $download_url + $msmpisdk_filename
+
+            MyDownloadFile( $msmpisdk_webfilename )
+
+            Start-Process `
+                -FilePath msiexec.exe `
+                -ArgumentList "/quiet /qn /i msmpisdk.msi" `
+                -Wait
+
+            Write-Host "Microsoft MPI SDK installation complete."
+        }
+
+        if ( -not $runtime_ready ) {
+            Write-Host "MPI Runtime is not available."
+            Write-Host "Installing Microsoft MPI Runtime..."
+
+            $download_url =
+                "https://download.microsoft.com/download/A/E/0/AE002626-9D9D-448D-8197-1EA510E297CE/"
+
+            $msmpisetup_filename = "msmpisetup.exe"
+
+            $msmpisetup_webfilename =
+                $download_url + $msmpisetup_filename
+
+            MyDownloadFile( $msmpisetup_webfilename )
+
+            Start-Process `
+                -FilePath MSMpiSetup.exe `
+                -ArgumentList -unattend `
+                -Wait
+
+            Write-Host "Microsoft MPI Runtime installation complete."
+        }
+    }
+
+    # Validate the final installation.
+    if ( -not ( Test-Path $msmpi_exe ) ) {
         Write-Error "MPI executable: NOT FOUND"
         exit 1
     }
+
+    if ( -not ( Test-Path $msmpi_sdk_include ) ) {
+        Write-Error "MPI SDK include directory: NOT FOUND"
+        exit 1
+    }
+
+    if ( -not ( Test-Path $msmpi_sdk_lib ) ) {
+        Write-Error "MPI SDK library directory: NOT FOUND"
+        exit 1
+    }
+
+    Write-Host "MPI executable: FOUND"
+    Write-Host "MPI SDK include: FOUND"
+    Write-Host "MPI SDK library: FOUND"
+
+    # Configure the current PowerShell process.
+    $Env:Path =
+        "$msmpi_bin_path;$Env:Path"
 
     # Persist MPI path for subsequent GitHub Actions steps.
     $msmpi_bin_path |
@@ -186,17 +235,16 @@ function InstallMSMPI() {
             -Encoding utf8 `
             -Append
 
-    Write-Host "ls $msmpi_sdk_path"
-    ls $msmpi_sdk_path
+    # Keep the final verification lightweight.
+    $mpiexec_command =
+        Get-Command mpiexec.exe -ErrorAction SilentlyContinue
 
-    Write-Host "ls $msmpi_bin_path"
-    ls $msmpi_bin_path
+    if ( $null -eq $mpiexec_command ) {
+        Write-Error "mpiexec.exe cannot be resolved from PATH."
+        exit 1
+    }
 
-    Write-Host "Resolved mpiexec:"
-    Get-Command mpiexec
-
-    Write-Host "Testing mpiexec:"
-    mpiexec -help
+    Write-Host "Resolved mpiexec: $($mpiexec_command.Source)"
 }
 
 
