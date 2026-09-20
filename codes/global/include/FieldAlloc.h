@@ -72,12 +72,13 @@ public:
 class ParaNameDimData
 {
 public:
+    ParaNameDim * GetParaNameDim( FieldCategory category );
+    const ParaNameDim * GetParaNameDim( FieldCategory category ) const;
+
+public:
     ParaNameDim comPara;
     ParaNameDim strPara;
     ParaNameDim unsPara;
-
-public:
-    ParaNameDim * GetParaNameDim( FieldCategory category );
 };
 
 class ReadSuperPara

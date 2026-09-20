@@ -482,6 +482,24 @@ ParaNameDim * ParaNameDimData::GetParaNameDim( FieldCategory category )
     return nullptr;
 }
 
+const ParaNameDim *
+ParaNameDimData::GetParaNameDim( FieldCategory category ) const
+{
+    switch ( category )
+    {
+    case FieldCategory::Common:
+        return &comPara;
+
+    case FieldCategory::Structured:
+        return &strPara;
+
+    case FieldCategory::Unstructured:
+        return &unsPara;
+    }
+
+    return nullptr;
+}
+
 ReadSuperPara::ReadSuperPara()
     : paraNameDimData( std::make_unique<ParaNameDimData>() )
 {
