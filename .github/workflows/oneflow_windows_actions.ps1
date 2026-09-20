@@ -381,14 +381,21 @@ function InstallCGNS() {
     mkdir build
 
     cd build
+	
+    # Pass the workspace-local HDF5 package explicitly to CGNS.
+    # Do not depend on a machine-wide HDF5_DIR.
+    $hdf5_cmake_dir =
+        "$global:HDF5_PREFIX/cmake"
 
-    $tmp =
-        GetMachineEnvironmentVariable("HDF5_DIR")
-
-    $Env:HDF5_DIR =
-        $tmp
-
+    if ( -not (Test-Path "$hdf5_cmake_dir/hdf5-config.cmake") ) {
+        Write-Error "HDF5 CMake config: NOT FOUND at $hdf5_cmake_dir"
+        exit 1
+    }
+    
+    Write-Host "HDF5_DIR for CGNS = $hdf5_cmake_dir"
+    
     cmake `
+        -DHDF5_DIR="$hdf5_cmake_dir" `
         -DCGNS_ENABLE_64BIT="ON" `
         -DCGNS_ENABLE_HDF5="ON" `
         -DCGNS_BUILD_SHARED="ON" `
