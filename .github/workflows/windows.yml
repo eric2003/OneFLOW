@@ -1,52 +1,71 @@
 # This is a basic workflow to help you get started with Actions
 name: ONEFLOW_Windows_CI
+
 # Controls when the workflow will run
 on:
-  # Triggers the workflow on push or pull request events but only for the main branch
+  # Triggers the workflow on push or pull request events but only for the
+  # master and hexin branches.
   push:
     branches: [ master, hexin ]
+
   pull_request:
     branches: [ master, hexin ]
-  # Allows you to run this workflow manually from the Actions tab
+
+  # Allows the workflow to be started manually from the Actions tab.
   workflow_dispatch:
 
 permissions:
   contents: read
 
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  # This workflow contains a single job called "build"
   build:
     name: "Windows OneFLOW Actions"
     runs-on: windows-latest
-    # Steps represent a sequence of tasks that will be executed as part of the job
+
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      # Checkout the repository.
       - uses: actions/checkout@v5
+
+      # Cache the final CGNS and METIS installation trees.
+      #
+      # MPI and HDF5 are intentionally not cached in this first step.
+      # They will be optimized separately after this cache mechanism
+      # has been verified.
+      - name: Cache Windows dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ${{ github.workspace }}/_deps/cgns/4.4.0
+            ${{ github.workspace }}/_deps/metis/METIS-VS2022-STATIC
+          key: oneflow-windows-deps-v1-hdf5-1.14.3-cgns-4.4.0-metis-5.1.0
+
       - name: Download and install MPI, HDF5, CGNS, METIS, then build OneFLOW
         run: |
           cd ${{ github.workspace }}
           ls
+
           $psfile = "${{ github.workspace }}/.github/workflows/oneflow_windows_actions.ps1"
           & $psfile
         shell: pwsh
+
       - name: Unit Test
         run: |
           cd "${{ github.workspace }}/build"
           ctest --output-on-failure -C Release
         shell: pwsh
+
       - name: Run OneFLOW CFD Tests
         env:
           prefix: ${{ github.workspace }}
         run: |
           cd ${{ github.workspace }}
-          
+
           Write-Host "===== OneFLOW installation ====="
 
           $oneflow_root = "${{ github.workspace }}/install"
           $oneflow_bin = "$oneflow_root/bin"
           $oneflow_system = "$oneflow_bin/system"
-          
+
           Write-Host "===== Runtime DLL diagnostics ====="
 
           Write-Host "----- CGNS bin -----"
@@ -56,7 +75,7 @@ jobs:
           Get-ChildItem "C:/Program Files/HDF_Group/HDF5/1.14.3/bin" -ErrorAction SilentlyContinue
 
           Write-Host "----- OneFLOW install/bin -----"
-          Get-ChildItem "$oneflow_bin"          
+          Get-ChildItem "$oneflow_bin"
 
           Write-Host "OneFLOW root:"
           Write-Host "$oneflow_root"
@@ -87,7 +106,7 @@ jobs:
           Get-ChildItem "$oneflow_bin"
 
           Write-Host "===== install/bin/system contents ====="
-          Get-ChildItem "$oneflow_system"          
+          Get-ChildItem "$oneflow_system"
 
           python --version
           ls "${{ env.prefix }}"
@@ -108,18 +127,18 @@ jobs:
           }
 
           $Env:Path = "$oneflow_bin;$Env:Path"
-          
+
           $Env:Path = "${{ github.workspace }}/_deps/cgns/4.4.0/bin;$Env:Path"
           $Env:Path = "C:/Program Files/HDF_Group/HDF5/1.14.3/bin;$Env:Path"
-          
+
           Write-Host "===== Runtime DLL PATH ====="
           Write-Host "$Env:Path"
-          
+
           Write-Host "Resolved CGNS DLL:"
           Get-Command cgnsdll.dll -ErrorAction SilentlyContinue
-          
+
           Write-Host "Resolved HDF5 DLL:"
-          Get-Command hdf5.dll -ErrorAction SilentlyContinue          
+          Get-Command hdf5.dll -ErrorAction SilentlyContinue
 
           Write-Host "PATH:"
           $Env:Path
