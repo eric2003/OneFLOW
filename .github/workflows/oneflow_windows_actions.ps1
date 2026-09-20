@@ -671,53 +671,49 @@ function CompileOneFLOW() {
     Write-Host "METIS_ROOT = $metis_root"
     Write-Host "CGNS_ROOT  = $cgns_root"
 
-    Write-Host "Checking CGNS header:"
-
-    ls "$cgns_root/include"
-    ls "$cgns_root/include/cgnslib.h"
-
-    Write-Host "===== Dependency Check ====="
-
-    Write-Host "CGNS_ROOT = $cgns_root"
-    Write-Host "CGNS include = $cgns_root/include"
-    Write-Host "CGNS library = $cgns_root/lib/cgnsdll.lib"
-
-    if ( Test-Path "$cgns_root/include/cgnslib.h" ) {
-        Write-Host "CGNS header: FOUND"
-    }
-    else {
+    if ( -not (Test-Path "$cgns_root/include/cgnslib.h") ) {
         Write-Error "CGNS header: NOT FOUND"
         exit 1
     }
 
-    if ( Test-Path "$cgns_root/lib/cgnsdll.lib" ) {
-        Write-Host "CGNS library: FOUND"
-    }
-    else {
+    if ( -not (Test-Path "$cgns_root/lib/cgnsdll.lib") ) {
         Write-Error "CGNS library: NOT FOUND"
         exit 1
     }
 
-    if ( Test-Path "$metis_root/include/metis.h" ) {
-        Write-Host "METIS header: FOUND"
-    }
-    else {
+    if ( -not (Test-Path "$metis_root/include/metis.h") ) {
         Write-Error "METIS header: NOT FOUND"
         exit 1
     }
 
-    if ( Test-Path "$metis_root/lib/metis.lib" ) {
-        Write-Host "METIS library: FOUND"
-    }
-    else {
+    if ( -not (Test-Path "$metis_root/lib/metis.lib") ) {
         Write-Error "METIS library: NOT FOUND"
         exit 1
     }
+
+    # Read build configuration from the workflow environment.
+    $cmake_generator =
+        $env:CMAKE_GENERATOR
+
+    $cmake_parallel_level =
+        $env:CMAKE_BUILD_PARALLEL_LEVEL
+
+    if ( [string]::IsNullOrWhiteSpace( $cmake_generator ) ) {
+        $cmake_generator = "Ninja"
+    }
+
+    if ( [string]::IsNullOrWhiteSpace( $cmake_parallel_level ) ) {
+        $cmake_parallel_level = "4"
+    }
+
+    Write-Host "CMAKE_GENERATOR = $cmake_generator"
+    Write-Host "CMAKE_BUILD_PARALLEL_LEVEL = $cmake_parallel_level"
 
     $start = Get-Date
 
     # Configure
     cmake `
+        -G "$cmake_generator" `
         -DMETIS_ROOT="$metis_root" `
         -DCGNS_ROOT="$cgns_root" `
         ../
@@ -727,14 +723,18 @@ function CompileOneFLOW() {
     $start = Get-Date
 
     # Build
-    cmake --build . --parallel 8 --config release
+    cmake `
+        --build . `
+        --config Release
 
     Write-Host "===== CMake Build: $((Get-Date) - $start) ====="
 
     $start = Get-Date
 
     # Install
-    cmake --install . --prefix $oneflow_prefix
+    cmake `
+        --install . `
+        --prefix $oneflow_prefix
 
     Write-Host "===== CMake Install: $((Get-Date) - $start) ====="
 
