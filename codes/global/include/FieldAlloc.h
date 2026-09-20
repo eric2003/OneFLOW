@@ -84,15 +84,18 @@ public:
 class ReadSuperPara
 {
 public:
-    ReadSuperPara();
-    ~ReadSuperPara();
+    ReadSuperPara() = default;
+    ~ReadSuperPara() = default;
+
 public:
-    std::unique_ptr<ParaNameDimData> paraNameDimData;
+    ParaNameDimData paraNameDimData;
     int solverType;
+
 public:
     void Register( const std::string & fileName, int index );
     void AddFieldProperties( FieldLocation location );
     void AddUnsteadyInnerFieldProperty();
+
 public:
     void AddBasicFieldProperty(
         ParaNameDim * paraNameDim,

@@ -500,38 +500,31 @@ ParaNameDimData::GetParaNameDim( FieldCategory category ) const
     return nullptr;
 }
 
-ReadSuperPara::ReadSuperPara()
-    : paraNameDimData( std::make_unique<ParaNameDimData>() )
-{
-}
-
-ReadSuperPara::~ReadSuperPara() = default;
-
 void ReadSuperPara::AddUnsteadyInnerFieldProperty()
 {
     this->AddFieldProperties( FieldLocation::Inner );
     FieldManager * fieldManager = FieldFactory::GetFieldManager( this->solverType );
 
     UsdPara * usdPara = fieldManager->usdPara.get();
-    int nEqu = this->paraNameDimData->comPara.nEquList[ 0 ];
-    usdPara->Init( this->paraNameDimData->comPara.nameList, nEqu );
+    int nEqu = this->paraNameDimData.comPara.nEquList[ 0 ];
+    usdPara->Init( this->paraNameDimData.comPara.nameList, nEqu );
 }
 
 void ReadSuperPara::AddFieldProperties(
     FieldLocation location )
 {
     this->AddBasicFieldProperty(
-        &this->paraNameDimData->unsPara,
+        &this->paraNameDimData.unsPara,
         location,
         FieldCategory::Unstructured );
 
     this->AddBasicFieldProperty(
-        &this->paraNameDimData->strPara,
+        &this->paraNameDimData.strPara,
         location,
         FieldCategory::Structured );
 
     this->AddBasicFieldProperty(
-        &this->paraNameDimData->comPara,
+        &this->paraNameDimData.comPara,
         location,
         FieldCategory::Common );
 }
@@ -569,7 +562,7 @@ void ReadSuperPara::Register( const std::string & fileName, int index )
     boolIO.ReadFile(
         fileName,
         2,
-        this->paraNameDimData.get() );
+        &this->paraNameDimData );
 
     switch ( index )
     {
