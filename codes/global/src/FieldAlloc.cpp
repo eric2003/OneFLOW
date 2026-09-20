@@ -101,8 +101,8 @@ void FieldAlloc::AllocateAllKindsOfInterfaceField( int solverType )
 {
     FieldManager * fieldManager = FieldFactory::GetFieldManager( solverType );
     fieldManager->AllocateInnerAndBcField();
-    FieldAlloc::AllocateInterfaceField( fieldManager->iFieldProperty.get() );
-    FieldAlloc::AllocateOversetInterfaceField( fieldManager->iFieldProperty.get() );
+    FieldAlloc::AllocateInterfaceField( &fieldManager->iFieldProperty );
+    FieldAlloc::AllocateOversetInterfaceField( &fieldManager->iFieldProperty );
 }
 
 void FieldAlloc::AllocateInterfaceField( IFieldProperty * iFieldProperty )

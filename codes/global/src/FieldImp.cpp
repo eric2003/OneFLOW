@@ -188,7 +188,6 @@ int GFieldProperty::GetNEqu( const std::string & fieldName )
 
 FieldManager::FieldManager()
 {
-    iFieldProperty = std::make_unique< IFieldProperty >();
     usdPara        = std::make_unique< UsdPara >();
 }
 
@@ -211,7 +210,7 @@ void FieldManager::AddField(
 
         if ( location == FieldLocation::Inner )
         {
-            this->iFieldProperty->AddField( fieldName, nEqu );
+            this->iFieldProperty.AddField( fieldName, nEqu );
             this->commManager.innerField.AddField( fieldName, nEqu );
         }
         else if ( location == FieldLocation::Face )

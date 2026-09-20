@@ -84,7 +84,7 @@ public:
     ~FieldManager();
 
 public:
-    std::unique_ptr< IFieldProperty > iFieldProperty;
+    IFieldProperty iFieldProperty;
     std::unique_ptr< UsdPara > usdPara;
 
     FieldPropertyData commManager;
