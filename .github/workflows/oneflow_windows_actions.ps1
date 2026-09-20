@@ -740,7 +740,19 @@ function CompileOneFLOW() {
     Write-Host "CMAKE_BUILD_PARALLEL_LEVEL = $cmake_parallel_level"
     
     $start = Get-Date
+    	
+    $cmake_config = "Release"
     
+    $cmake_config_args = @()
+    
+    # Ninja is a single-config generator.
+    # Its build type must be selected during configure.
+    if ( $cmake_generator -like "Ninja*" ) {
+        $cmake_config_args += "-DCMAKE_BUILD_TYPE=$cmake_config"
+    }
+    
+    Write-Host "CMAKE_CONFIG = $cmake_config"
+	
     # Configure
     cmake `
         -G "$cmake_generator" `
@@ -748,24 +760,24 @@ function CompileOneFLOW() {
         -DCMAKE_CXX_COMPILER=cl `
         -DMETIS_ROOT="$metis_root" `
         -DCGNS_ROOT="$cgns_root" `
+        @cmake_config_args `
         ../
     
     if ( $LASTEXITCODE -ne 0 ) {
         throw "CMake configure failed with exit code $LASTEXITCODE."
     }
     
-    Write-Host "===== CMake Configure: $((Get-Date) - $start) ====="
-    
+  
     $start = Get-Date
     
     # Build
     cmake `
         --build . `
-        --config Release
+        --config $cmake_config
     
     if ( $LASTEXITCODE -ne 0 ) {
         throw "CMake build failed with exit code $LASTEXITCODE."
-    }
+    }	
     
     Write-Host "===== CMake Build: $((Get-Date) - $start) ====="
     
