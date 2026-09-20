@@ -24,7 +24,7 @@ jobs:
 
     steps:
       # Checkout the repository.
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
 
       # Cache the final CGNS and METIS installation trees.
       #
@@ -32,7 +32,7 @@ jobs:
       # They will be optimized separately after this cache mechanism
       # has been verified.
       - name: Cache Windows dependencies
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             ${{ github.workspace }}/_deps/cgns/4.4.0
