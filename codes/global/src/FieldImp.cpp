@@ -210,15 +210,6 @@ int GFieldProperty::GetNEqu( const std::string & fieldName )
     return -1;
 }
 
-FieldPropertyData::FieldPropertyData()
-{
-    this->bcField    = std::make_unique< FieldProperty >();
-    this->faceField  = std::make_unique< FieldProperty >();
-    this->innerField = std::make_unique< FieldProperty >();
-}
-
-FieldPropertyData::~FieldPropertyData() = default;
-
 FieldManager::FieldManager()
 {
     iFieldProperty = std::make_unique< IFieldProperty >();
@@ -249,45 +240,45 @@ void FieldManager::AddField(
         if ( location == FieldLocation::Inner )
         {
             this->iFieldProperty->AddField( fieldName, nEqu );
-            this->commManager->innerField->AddField( fieldName, nEqu );
+            this->commManager->innerField.AddField( fieldName, nEqu );
         }
         else if ( location == FieldLocation::Face )
         {
-            this->commManager->faceField->AddField( fieldName, nEqu );
+            this->commManager->faceField.AddField( fieldName, nEqu );
         }
         else if ( location == FieldLocation::Boundary )
         {
-            this->commManager->bcField->AddField( fieldName, nEqu );
+            this->commManager->bcField.AddField( fieldName, nEqu );
         }
     }
     else if ( category == FieldCategory::Unstructured )
     {
         if ( location == FieldLocation::Inner )
         {
-            this->unsManager->innerField->AddField( fieldName, nEqu );
+            this->unsManager->innerField.AddField( fieldName, nEqu );
         }
         else if ( location == FieldLocation::Face )
         {
-            this->unsManager->faceField->AddField( fieldName, nEqu );
+            this->unsManager->faceField.AddField( fieldName, nEqu );
         }
         else if ( location == FieldLocation::Boundary )
         {
-            this->unsManager->bcField->AddField( fieldName, nEqu );
+            this->unsManager->bcField.AddField( fieldName, nEqu );
         }
     }
     else if ( category == FieldCategory::Structured )
     {
         if ( location == FieldLocation::Inner )
         {
-            this->strManager->innerField->AddField( fieldName, nEqu );
+            this->strManager->innerField.AddField( fieldName, nEqu );
         }
         else if ( location == FieldLocation::Face )
         {
-            this->strManager->faceField->AddField( fieldName, nEqu );
+            this->strManager->faceField.AddField( fieldName, nEqu );
         }
         else if ( location == FieldLocation::Boundary )
         {
-            this->strManager->bcField->AddField( fieldName, nEqu );
+            this->strManager->bcField.AddField( fieldName, nEqu );
         }
     }
 }
@@ -384,7 +375,7 @@ void FieldManager::AllocateInnerField( UnsGrid * grid, FieldPropertyData * field
 {
     int nTCell = grid->nCells + grid->nBFaces;
 
-    const FieldProperty::Data & data = fieldPropertyData->innerField->GetData();
+    const FieldProperty::Data & data = fieldPropertyData->innerField.GetData();
 
     for ( FieldProperty::Data::const_iterator iter = data.begin(); iter != data.end(); ++ iter )
     {
@@ -401,7 +392,7 @@ void FieldManager::AllocateFaceField( UnsGrid * grid, FieldPropertyData * fieldP
 {
     int nFaces = grid->nFaces;
 
-    const FieldProperty::Data & data = fieldPropertyData->faceField->GetData();
+    const FieldProperty::Data & data = fieldPropertyData->faceField.GetData();
 
     for ( FieldProperty::Data::const_iterator iter = data.begin(); iter != data.end(); ++ iter )
     {
@@ -419,7 +410,7 @@ void FieldManager::AllocateBcField( UnsGrid * grid, FieldPropertyData * fieldPro
 {
     int nBFaces = grid->nBFaces;
 
-    const FieldProperty::Data & data = fieldPropertyData->bcField->GetData();
+    const FieldProperty::Data & data = fieldPropertyData->bcField.GetData();
 
     for ( FieldProperty::Data::const_iterator iter = data.begin(); iter != data.end(); ++ iter )
     {

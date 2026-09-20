@@ -77,12 +77,9 @@ private:
 class FieldPropertyData
 {
 public:
-    FieldPropertyData();
-    ~FieldPropertyData();
-public:
-    std::unique_ptr< FieldProperty > bcField;
-    std::unique_ptr< FieldProperty > faceField;
-    std::unique_ptr< FieldProperty > innerField;
+    FieldProperty bcField;
+    FieldProperty faceField;
+    FieldProperty innerField;
 };
 
 class FieldManager;
