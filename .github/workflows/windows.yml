@@ -64,27 +64,21 @@ jobs:
         run: |
           $ErrorActionPreference = "Stop"
 
-          Write-Host "===== OneFLOW CFD Test ====="
+          $oneflow_exe = "$env:ONEFLOW_ROOT/bin/OneFLOW.exe"
 
-          $oneflow_root = $env:ONEFLOW_ROOT
-          $oneflow_bin  = "$oneflow_root/bin"
-          $oneflow_exe  = "$oneflow_bin/OneFLOW.exe"
-
-          Write-Host "OneFLOW root : $oneflow_root"
-          Write-Host "OneFLOW bin  : $oneflow_bin"
-          Write-Host "OneFLOW exe  : $oneflow_exe"
+          Write-Host "OneFLOW executable: $oneflow_exe"
 
           if ( -not ( Test-Path $oneflow_exe ) ) {
               throw "OneFLOW.exe not found: $oneflow_exe"
           }
 
-          if ( -not ( Test-Path "$oneflow_root/bin/system" ) ) {
-              throw "OneFLOW system directory not found: $oneflow_root/bin/system"
+          if ( -not ( Test-Path "$env:ONEFLOW_ROOT/bin/system" ) ) {
+              throw "OneFLOW system directory not found: $env:ONEFLOW_ROOT/bin/system"
           }
 
-          # Add all runtime dependency directories to the current process.
+          # Add runtime dependency directories to the current process.
           $runtime_paths = @(
-              $oneflow_bin
+              "$env:ONEFLOW_ROOT/bin"
               "$env:HDF5_ROOT/bin"
               "$env:CGNS_ROOT/bin"
               "$env:MSMPI_ROOT/Bin"
@@ -100,51 +94,9 @@ jobs:
               }
           }
 
-          Write-Host ""
-          Write-Host "===== Runtime DLL candidates ====="
-
-          foreach ( $runtime_path in $runtime_paths ) {
-              if ( Test-Path $runtime_path ) {
-                  Write-Host "--- $runtime_path ---"
-
-                  Get-ChildItem `
-                      $runtime_path `
-                      -Filter "*.dll" `
-                      -ErrorAction SilentlyContinue |
-                      Select-Object Name, FullName, Length
-              }
-          }
-
-          Write-Host ""
-          Write-Host "===== MPI ====="
-
-          $mpiexec = Get-Command mpiexec.exe -ErrorAction SilentlyContinue
-
-          if ( $mpiexec ) {
-              Write-Host "mpiexec = $($mpiexec.Source)"
-          }
-          else {
+          if ( -not ( Get-Command mpiexec.exe -ErrorAction SilentlyContinue ) ) {
               throw "mpiexec.exe not found"
           }
-
-          Write-Host ""
-          Write-Host "===== OneFLOW direct startup ====="
-
-          & $oneflow_exe
-
-          $oneflow_exit_code = $LASTEXITCODE
-
-          Write-Host "OneFLOW exit code = $oneflow_exit_code"
-          Write-Host (
-              "OneFLOW exit code hex = 0x{0:X8}" -f $oneflow_exit_code
-          )
-
-          if ( $oneflow_exit_code -eq 3221225781 ) {
-              throw "OneFLOW.exe failed to load a required DLL."
-          }
-
-          Write-Host ""
-          Write-Host "===== Run CFD tests ====="
 
           cd "${{ github.workspace }}/test"
 
