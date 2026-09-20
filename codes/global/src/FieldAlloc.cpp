@@ -456,13 +456,6 @@ ReadSuperPara::ReadSuperPara()
 
 ReadSuperPara::~ReadSuperPara() = default;
 
-void ReadSuperPara::AddInnerFieldProperty()
-{
-    this->AddBasicFieldProperty( this->paraNameDimData->unsPara.get(), 0, 0);
-    this->AddBasicFieldProperty( this->paraNameDimData->strPara.get(), 0, 1 );
-    this->AddBasicFieldProperty( this->paraNameDimData->comPara.get(), 0, 2 );
-}
-
 void ReadSuperPara::AddUnsteadyInnerFieldProperty()
 {
     this->AddInnerFieldProperty();
@@ -473,44 +466,95 @@ void ReadSuperPara::AddUnsteadyInnerFieldProperty()
     usdPara->Init( this->paraNameDimData->comPara->nameList, nEqu );
 }
 
+void ReadSuperPara::AddInnerFieldProperty()
+{
+    this->AddBasicFieldProperty(
+        this->paraNameDimData->unsPara.get(),
+        0,
+        FieldCategory::Unstructured );
+
+    this->AddBasicFieldProperty(
+        this->paraNameDimData->strPara.get(),
+        0,
+        FieldCategory::Structured );
+
+    this->AddBasicFieldProperty(
+        this->paraNameDimData->comPara.get(),
+        0,
+        FieldCategory::Common );
+}
+
 void ReadSuperPara::AddFaceFieldProperty()
 {
-    this->AddBasicFieldProperty( this->paraNameDimData->unsPara.get(), 1, 0 );
-    this->AddBasicFieldProperty( this->paraNameDimData->strPara.get(), 1, 1 );
-    this->AddBasicFieldProperty( this->paraNameDimData->comPara.get(), 1, 2 );
+    this->AddBasicFieldProperty(
+        this->paraNameDimData->unsPara.get(),
+        1,
+        FieldCategory::Unstructured );
+
+    this->AddBasicFieldProperty(
+        this->paraNameDimData->strPara.get(),
+        1,
+        FieldCategory::Structured );
+
+    this->AddBasicFieldProperty(
+        this->paraNameDimData->comPara.get(),
+        1,
+        FieldCategory::Common );
 }
 
 void ReadSuperPara::AddBoundaryFieldProperty()
 {
-    this->AddBasicFieldProperty( this->paraNameDimData->unsPara.get(), 2, 0 );
-    this->AddBasicFieldProperty( this->paraNameDimData->strPara.get(), 2, 1 );
-    this->AddBasicFieldProperty( this->paraNameDimData->comPara.get(), 2, 2 );
+    this->AddBasicFieldProperty(
+        this->paraNameDimData->unsPara.get(),
+        2,
+        FieldCategory::Unstructured );
+
+    this->AddBasicFieldProperty(
+        this->paraNameDimData->strPara.get(),
+        2,
+        FieldCategory::Structured );
+
+    this->AddBasicFieldProperty(
+        this->paraNameDimData->comPara.get(),
+        2,
+        FieldCategory::Common );
 }
 
-void ReadSuperPara::AddBasicFieldProperty( ParaNameDim * paraNameDim, int fieldType, int type )
+void ReadSuperPara::AddBasicFieldProperty(
+    ParaNameDim * paraNameDim,
+    int fieldType,
+    FieldCategory category )
 {
-    FieldManager * fieldManager = FieldFactory::GetFieldManager( this->solverType );
+    FieldManager * fieldManager =
+        FieldFactory::GetFieldManager( this->solverType );
 
     int nVar = paraNameDim->nameList.size();
+
     for ( int iVar = 0; iVar < nVar; ++ iVar )
     {
-        const std::string & varName = paraNameDim->nameList[ iVar ];
-        int nEqu = paraNameDim->dimList[ iVar ];
+        const std::string & varName =
+            paraNameDim->nameList[ iVar ];
+
+        int nEqu =
+            paraNameDim->dimList[ iVar ];
+
         if ( fieldType == 0 )
         {
-            fieldManager->AddInnerField( varName, nEqu, type );
+            fieldManager->AddInnerField(
+                varName, nEqu, category );
         }
         else if ( fieldType == 1 )
         {
-            fieldManager->AddFaceField( varName, nEqu, type );
+            fieldManager->AddFaceField(
+                varName, nEqu, category );
         }
         else
         {
-            fieldManager->AddBcField( varName, nEqu, type );
+            fieldManager->AddBcField(
+                varName, nEqu, category );
         }
     }
 }
-
 void ReadSuperPara::Register( const std::string & fileName, int index )
 {
     BoolIO boolIO;

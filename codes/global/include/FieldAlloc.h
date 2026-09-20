@@ -21,6 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 #pragma once
 #include "HXDefine.h"
+#include "FieldCategory.h"
 #include <memory>
 #include <string>
 
@@ -101,7 +102,7 @@ public:
     void AddFaceFieldProperty();
     void AddBoundaryFieldProperty();
 public:
-    void AddBasicFieldProperty( ParaNameDim * paraNameDim, int fieldType, int type );
+    void AddBasicFieldProperty( ParaNameDim * paraNameDim, int fieldType, FieldCategory category );
 };
 
 

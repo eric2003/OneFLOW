@@ -255,51 +255,60 @@ void FieldManager::AddBcField( const std::string & fieldName, int nEqu )
     this->commManager->bcField->AddField( fieldName, nEqu );
 }
 
-void FieldManager::AddInnerField( const std::string & fieldName, int nEqu, int type )
+void FieldManager::AddInnerField(
+    const std::string & fieldName,
+    int nEqu,
+    FieldCategory category )
 {
-    if ( type == 2 )
+    if ( category == FieldCategory::Common )
     {
         this->AddInnerField( fieldName, nEqu );
     }
-    else if ( type == 0 )
+    else if ( category == FieldCategory::Unstructured )
     {
-        unsManager->innerField->AddField( fieldName, nEqu );
+        this->unsManager->innerField->AddField( fieldName, nEqu );
     }
-    else
+    else if ( category == FieldCategory::Structured )
     {
-        strManager->innerField->AddField( fieldName, nEqu );
+        this->strManager->innerField->AddField( fieldName, nEqu );
     }
 }
 
-void FieldManager::AddFaceField( const std::string & fieldName, int nEqu, int type )
+void FieldManager::AddFaceField(
+    const std::string & fieldName,
+    int nEqu,
+    FieldCategory category )
 {
-    if ( type == 2 )
+    if ( category == FieldCategory::Common )
     {
         this->AddFaceField( fieldName, nEqu );
     }
-    else if ( type == 0 )
+    else if ( category == FieldCategory::Unstructured )
     {
-        unsManager->faceField->AddField( fieldName, nEqu );
+        this->unsManager->faceField->AddField( fieldName, nEqu );
     }
-    else
+    else if ( category == FieldCategory::Structured )
     {
-        strManager->faceField->AddField( fieldName, nEqu );
+        this->strManager->faceField->AddField( fieldName, nEqu );
     }
 }
 
-void FieldManager::AddBcField( const std::string & fieldName, int nEqu, int type )
+void FieldManager::AddBcField(
+    const std::string & fieldName,
+    int nEqu,
+    FieldCategory category )
 {
-    if ( type == 2 )
+    if ( category == FieldCategory::Common )
     {
         this->AddBcField( fieldName, nEqu );
     }
-    else if ( type == 0 )
+    else if ( category == FieldCategory::Unstructured )
     {
-        unsManager->bcField->AddField( fieldName, nEqu );
+        this->unsManager->bcField->AddField( fieldName, nEqu );
     }
-    else
+    else if ( category == FieldCategory::Structured )
     {
-        strManager->bcField->AddField( fieldName, nEqu );
+        this->strManager->bcField->AddField( fieldName, nEqu );
     }
 }
 

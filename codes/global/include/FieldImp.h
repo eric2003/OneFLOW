@@ -22,6 +22,7 @@ License
 #pragma once
 #include "NamespaceMacros.h"
 #include "HXArray.h"
+#include "FieldCategory.h"
 #include <map>
 #include <memory>
 
@@ -104,9 +105,20 @@ public:
     void AddFaceField( const std::string & fieldName, int nEqu );
     void AddInnerField( const std::string & fieldName, int nEqu );
     void AddBcField( const std::string & fieldName, int nEqu );
-    void AddInnerField( const std::string & fieldName, int nEqu, int type );
-    void AddFaceField( const std::string & fieldName, int nEqu, int type );
-    void AddBcField( const std::string & fieldName, int nEqu, int type );
+    void AddInnerField(
+        const std::string & fieldName,
+        int nEqu,
+        FieldCategory category );
+
+    void AddFaceField(
+        const std::string & fieldName,
+        int nEqu,
+        FieldCategory category );
+
+    void AddBcField(
+        const std::string & fieldName,
+        int nEqu,
+        FieldCategory category );
 public:
     void SetField( const std::string & fieldName, Real value );
     void AllocateInnerAndBcField();
