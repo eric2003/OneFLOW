@@ -2,9 +2,25 @@
 # OneFLOW Windows dependency versions
 # ============================================================
 
-$global:HDF5_VERSION = "1.14.3"
-$global:CGNS_VERSION = "4.4.0"
-$global:METIS_VERSION = "5.1.0"
+$global:HDF5_VERSION = $env:HDF5_VERSION
+$global:CGNS_VERSION = $env:CGNS_VERSION
+$global:METIS_VERSION = $env:METIS_VERSION
+
+if ( [string]::IsNullOrWhiteSpace( $global:HDF5_VERSION ) ) {
+    throw "HDF5_VERSION is not defined."
+}
+
+if ( [string]::IsNullOrWhiteSpace( $global:CGNS_VERSION ) ) {
+    throw "CGNS_VERSION is not defined."
+}
+
+if ( [string]::IsNullOrWhiteSpace( $global:METIS_VERSION ) ) {
+    throw "METIS_VERSION is not defined."
+}
+
+Write-Host "HDF5_VERSION  = $global:HDF5_VERSION"
+Write-Host "CGNS_VERSION  = $global:CGNS_VERSION"
+Write-Host "METIS_VERSION = $global:METIS_VERSION"
 
 # ============================================================
 # OneFLOW dependency installation prefixes
@@ -14,7 +30,7 @@ $global:CGNS_PREFIX =
     "$env:GITHUB_WORKSPACE/_deps/cgns/$global:CGNS_VERSION"
 
 $global:METIS_PREFIX =
-    "$env:GITHUB_WORKSPACE/_deps/metis/METIS-VS2022-STATIC"
+    "$env:GITHUB_WORKSPACE/_deps/metis/METIS-VS2022-STATIC/$global:METIS_VERSION"
 
 $global:HDF5_PREFIX =
     "$env:GITHUB_WORKSPACE/_deps/hdf5/$global:HDF5_VERSION"
@@ -189,9 +205,12 @@ function InstallMSMPI() {
 # ============================================================
 
 function DownloadHDF5() {
-    $global:hdf5_major = 1
-    $global:hdf5_minor = 14
-    $global:hdf5_patch = 3
+	$hdf5_version =
+		[System.Version]::Parse( $global:HDF5_VERSION )
+
+	$global:hdf5_major = $hdf5_version.Major
+	$global:hdf5_minor = $hdf5_version.Minor
+	$global:hdf5_patch = $hdf5_version.Build
 
     $hdf5_main_name = "hdf5"
 

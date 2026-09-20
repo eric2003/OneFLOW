@@ -16,7 +16,12 @@ on:
 
 permissions:
   contents: read
-
+  
+env:
+  HDF5_VERSION: "1.14.3"
+  CGNS_VERSION: "4.4.0"
+  METIS_VERSION: "5.1.0"
+  
 jobs:
   build:
     name: "Windows OneFLOW Actions"
@@ -34,10 +39,10 @@ jobs:
         uses: actions/cache@v5
         with:
           path: |
-            ${{ github.workspace }}/_deps/hdf5/1.14.3
-            ${{ github.workspace }}/_deps/cgns/4.4.0
-            ${{ github.workspace }}/_deps/metis/METIS-VS2022-STATIC
-          key: oneflow-windows-deps-v2-hdf5-1.14.3-cgns-4.4.0-metis-5.1.0          
+            ${{ github.workspace }}/_deps/hdf5/${{ env.HDF5_VERSION }}
+            ${{ github.workspace }}/_deps/cgns/${{ env.CGNS_VERSION }}
+            ${{ github.workspace }}/_deps/metis/METIS-VS2022-STATIC/${{ env.METIS_VERSION }}
+          key: oneflow-windows-deps-v3-hdf5-${{ env.HDF5_VERSION }}-cgns-${{ env.CGNS_VERSION }}-metis-${{ env.METIS_VERSION }}            
 
       - name: Download and install MPI, HDF5, CGNS, METIS, then build OneFLOW
         run: |
@@ -57,10 +62,10 @@ jobs:
       - name: Run OneFLOW CFD Tests
         env:
           ONEFLOW_ROOT: ${{ github.workspace }}/install
-          HDF5_ROOT: ${{ github.workspace }}/_deps/hdf5/1.14.3
-          CGNS_ROOT: ${{ github.workspace }}/_deps/cgns/4.4.0
-          METIS_ROOT: ${{ github.workspace }}/_deps/metis/METIS-VS2022-STATIC
-          MSMPI_ROOT: C:/Program Files/Microsoft MPI
+          HDF5_ROOT: ${{ github.workspace }}/_deps/hdf5/${{ env.HDF5_VERSION }}
+          CGNS_ROOT: ${{ github.workspace }}/_deps/cgns/${{ env.CGNS_VERSION }}
+          METIS_ROOT: ${{ github.workspace }}/_deps/metis/METIS-VS2022-STATIC/${{ env.METIS_VERSION }}          
+          MSMPI_ROOT: C:/Program Files/Microsoft MPI          
         run: |
           $ErrorActionPreference = "Stop"
 
