@@ -21,6 +21,9 @@ env:
   HDF5_VERSION: "1.14.3"
   CGNS_VERSION: "4.4.0"
   METIS_VERSION: "5.1.0"
+
+  CMAKE_GENERATOR: "Ninja"
+  CMAKE_BUILD_PARALLEL_LEVEL: "4"  
   
 jobs:
   build:
