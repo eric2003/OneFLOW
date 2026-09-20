@@ -214,10 +214,6 @@ FieldManager::FieldManager()
 {
     iFieldProperty = std::make_unique< IFieldProperty >();
     usdPara        = std::make_unique< UsdPara >();
-
-    strManager  = std::make_unique< FieldPropertyData >();
-    unsManager  = std::make_unique< FieldPropertyData >();
-    commManager = std::make_unique< FieldPropertyData >();
 }
 
 FieldManager::~FieldManager() = default;
@@ -240,45 +236,45 @@ void FieldManager::AddField(
         if ( location == FieldLocation::Inner )
         {
             this->iFieldProperty->AddField( fieldName, nEqu );
-            this->commManager->innerField.AddField( fieldName, nEqu );
+            this->commManager.innerField.AddField( fieldName, nEqu );
         }
         else if ( location == FieldLocation::Face )
         {
-            this->commManager->faceField.AddField( fieldName, nEqu );
+            this->commManager.faceField.AddField( fieldName, nEqu );
         }
         else if ( location == FieldLocation::Boundary )
         {
-            this->commManager->bcField.AddField( fieldName, nEqu );
+            this->commManager.bcField.AddField( fieldName, nEqu );
         }
     }
     else if ( category == FieldCategory::Unstructured )
     {
         if ( location == FieldLocation::Inner )
         {
-            this->unsManager->innerField.AddField( fieldName, nEqu );
+            this->unsManager.innerField.AddField( fieldName, nEqu );
         }
         else if ( location == FieldLocation::Face )
         {
-            this->unsManager->faceField.AddField( fieldName, nEqu );
+            this->unsManager.faceField.AddField( fieldName, nEqu );
         }
         else if ( location == FieldLocation::Boundary )
         {
-            this->unsManager->bcField.AddField( fieldName, nEqu );
+            this->unsManager.bcField.AddField( fieldName, nEqu );
         }
     }
     else if ( category == FieldCategory::Structured )
     {
         if ( location == FieldLocation::Inner )
         {
-            this->strManager->innerField.AddField( fieldName, nEqu );
+            this->strManager.innerField.AddField( fieldName, nEqu );
         }
         else if ( location == FieldLocation::Face )
         {
-            this->strManager->faceField.AddField( fieldName, nEqu );
+            this->strManager.faceField.AddField( fieldName, nEqu );
         }
         else if ( location == FieldLocation::Boundary )
         {
-            this->strManager->bcField.AddField( fieldName, nEqu );
+            this->strManager.bcField.AddField( fieldName, nEqu );
         }
     }
 }
@@ -359,8 +355,8 @@ void FieldManager::AllocateInnerAndBcField()
     {
         UnsGrid * grid = ONEFLOW::UnsGridCast( gridIn );
 
-        this->AllocateInnerAndBcField( grid, this->commManager.get() );
-        this->AllocateInnerAndBcField( grid, this->unsManager.get() );
+        this->AllocateInnerAndBcField( grid, &this->commManager );
+        this->AllocateInnerAndBcField( grid, &this->unsManager );
     }
 }
 

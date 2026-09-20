@@ -96,9 +96,9 @@ public:
     std::unique_ptr< IFieldProperty > iFieldProperty;
     std::unique_ptr< UsdPara > usdPara;
 
-    std::unique_ptr< FieldPropertyData > commManager;
-    std::unique_ptr< FieldPropertyData > strManager;
-    std::unique_ptr< FieldPropertyData > unsManager;
+    FieldPropertyData commManager;
+    FieldPropertyData strManager;
+    FieldPropertyData unsManager;
 
 public:
     void AddField(
