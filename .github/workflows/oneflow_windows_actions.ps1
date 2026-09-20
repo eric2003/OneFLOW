@@ -227,6 +227,26 @@ function DownloadHDF5() {
 
 
 function InstallHDF5() {
+    $hdf5_prefix = $global:HDF5_PREFIX
+
+    # Check whether the final HDF5 installation already exists.
+    if ( (Test-Path "$hdf5_prefix/include/hdf5.h") -and
+         (Test-Path "$hdf5_prefix/cmake/hdf5-config.cmake") ) {
+
+        Write-Host "===== HDF5 cache hit ====="
+        Write-Host "HDF5 installation already exists:"
+        Write-Host "$hdf5_prefix"
+
+        $Env:HDF5_DIR = "$hdf5_prefix/cmake"
+
+        Write-Host "HDF5_DIR = $Env:HDF5_DIR"
+
+        return
+    }
+
+    Write-Host "===== HDF5 cache miss ====="
+    Write-Host "Installing HDF5-$global:HDF5_VERSION..."
+
     DownloadHDF5
 
     $hdf5_version_name_upper =
@@ -243,11 +263,7 @@ function InstallHDF5() {
         -Wait `
         -ArgumentList $arg
 
-    ls
-
     cd hdf
-
-    ls
 
     Write-Host "Installing $hdf5_version_name_upper..."
 
@@ -259,44 +275,56 @@ function InstallHDF5() {
         -ArgumentList $arg1 `
         -Wait
 
-    Write-Host "$hdf5_version_name_upper installation complete"
-
     $HDF5_InstallDir =
         "C:/Program Files/HDF_Group/HDF5/$hdf5_major.$hdf5_minor.$hdf5_patch"
 
-    Write-Host "ls $HDF5_InstallDir"
+    Write-Host "HDF5 MSI installation directory:"
+    Write-Host "$HDF5_InstallDir"
 
-    ls $HDF5_InstallDir
+    if ( -not (Test-Path "$HDF5_InstallDir/cmake/hdf5-config.cmake") ) {
+        Write-Error "HDF5 MSI installation is incomplete."
+        exit 1
+    }
 
-    $hdf5_dir_varName =
-        "HDF5_DIR"
+    # Copy the MSI installation into the workspace-local dependency prefix.
+    # The workspace copy is what GitHub Actions caches and what OneFLOW uses.
+    if ( Test-Path $hdf5_prefix ) {
+        Remove-Item $hdf5_prefix -Recurse -Force
+    }
 
-    $hdf5_dir_varValue =
-        "$HDF5_InstallDir/cmake"
+    New-Item -ItemType Directory -Force -Path $hdf5_prefix | Out-Null
 
-    Write-Host "hdf5_dir_varName = $hdf5_dir_varName"
-    Write-Host "hdf5_dir_varValue = $hdf5_dir_varValue"
+    Copy-Item `
+        "$HDF5_InstallDir/*" `
+        $hdf5_prefix `
+        -Recurse `
+        -Force
 
-    ModifyMachineEnvironmentVariable `
-        $hdf5_dir_varName `
-        $hdf5_dir_varValue
+    Write-Host "HDF5 workspace installation directory:"
+    Write-Host "$hdf5_prefix"
 
-    Write-Host "Checking Env:HDF5_DIR..."
-    Write-Host "Env:HDF5_DIR = $Env:HDF5_DIR"
+    # Use the workspace-local HDF5 installation for subsequent CMake steps.
+    $Env:HDF5_DIR = "$hdf5_prefix/cmake"
 
-    $tmp =
-        GetMachineEnvironmentVariable("HDF5_DIR")
+    Write-Host "HDF5_DIR = $Env:HDF5_DIR"
 
-    Write-Host "tmp = $tmp"
+    if ( Test-Path "$hdf5_prefix/include/hdf5.h" ) {
+        Write-Host "HDF5 header: FOUND"
+    }
+    else {
+        Write-Error "HDF5 header: NOT FOUND"
+        exit 1
+    }
 
-    $tmp1 =
-        GetMachineEnvironmentVariable("$hdf5_dir_varName")
-
-    Write-Host "tmp1 = $tmp1"
+    if ( Test-Path "$hdf5_prefix/cmake/hdf5-config.cmake" ) {
+        Write-Host "HDF5 CMake config: FOUND"
+    }
+    else {
+        Write-Error "HDF5 CMake config: NOT FOUND"
+        exit 1
+    }
 
     cd ..
-
-    pwd
 
     Write-Host "$hdf5_version_name_upper installation complete..."
 }

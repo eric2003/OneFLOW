@@ -26,18 +26,18 @@ jobs:
       # Checkout the repository.
       - uses: actions/checkout@v7
 
-      # Cache the final CGNS and METIS installation trees.
+      # Cache the final HDF5, CGNS, and METIS installation trees.
       #
-      # MPI and HDF5 are intentionally not cached in this first step.
-      # They will be optimized separately after this cache mechanism
-      # has been verified.
+      # MPI is still installed as a system dependency and will be optimized
+      # separately after the local dependency cache is verified.
       - name: Cache Windows dependencies
         uses: actions/cache@v5
         with:
           path: |
+            ${{ github.workspace }}/_deps/hdf5/1.14.3
             ${{ github.workspace }}/_deps/cgns/4.4.0
             ${{ github.workspace }}/_deps/metis/METIS-VS2022-STATIC
-          key: oneflow-windows-deps-v1-hdf5-1.14.3-cgns-4.4.0-metis-5.1.0
+          key: oneflow-windows-deps-v2-hdf5-1.14.3-cgns-4.4.0-metis-5.1.0          
 
       - name: Download and install MPI, HDF5, CGNS, METIS, then build OneFLOW
         run: |
