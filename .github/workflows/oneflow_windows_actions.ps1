@@ -143,37 +143,6 @@ function InstallMSMPI() {
 
     Write-Host "Microsoft MPI Runtime installation complete..."
     
-    Write-Host ""
-    Write-Host "===== Microsoft MPI runtime DLL search ====="
-    
-    $msmpi_dlls = Get-ChildItem `
-        "C:/Program Files/Microsoft MPI" `
-        -Filter "*.dll" `
-        -Recurse `
-        -ErrorAction SilentlyContinue
-    
-    if ( $msmpi_dlls ) {
-        $msmpi_dlls | Select-Object FullName, Length
-    }
-    else {
-        Write-Host "No DLL found under Microsoft MPI installation directory."
-    }
-    
-    Write-Host ""
-    Write-Host "===== System MPI runtime DLL search ====="
-    
-    $system_mpi_dlls = Get-ChildItem `
-        "C:/Windows/System32" `
-        -Filter "*mpi*.dll" `
-        -ErrorAction SilentlyContinue
-    
-    if ( $system_mpi_dlls ) {
-        $system_mpi_dlls | Select-Object FullName, Length
-    }
-    else {
-        Write-Host "No MPI DLL found in System32."
-    }
-    
     $msmpi_bin_path =
         "C:/Program Files/Microsoft MPI/Bin"
 
