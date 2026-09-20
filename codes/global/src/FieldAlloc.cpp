@@ -538,23 +538,14 @@ void ReadSuperPara::AddBasicFieldProperty(
         int nEqu =
             paraNameDim->dimList[ iVar ];
 
-        if ( location == FieldLocation::Inner )
-        {
-            fieldManager->AddInnerField(
-                varName, nEqu, category );
-        }
-        else if ( location == FieldLocation::Face )
-        {
-            fieldManager->AddFaceField(
-                varName, nEqu, category );
-        }
-        else if ( location == FieldLocation::Boundary )
-        {
-            fieldManager->AddBcField(
-                varName, nEqu, category );
-        }
+        fieldManager->AddField(
+            varName,
+            nEqu,
+            category,
+            location );
     }
 }
+
 void ReadSuperPara::Register( const std::string & fileName, int index )
 {
     BoolIO boolIO;

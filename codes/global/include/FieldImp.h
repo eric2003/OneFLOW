@@ -94,6 +94,7 @@ class FieldManager
 public:
     FieldManager();
     ~FieldManager();
+
 public:
     std::unique_ptr< IFieldProperty > iFieldProperty;
     std::unique_ptr< UsdPara > usdPara;
@@ -101,10 +102,18 @@ public:
     std::unique_ptr< FieldPropertyData > commManager;
     std::unique_ptr< FieldPropertyData > strManager;
     std::unique_ptr< FieldPropertyData > unsManager;
+
 public:
+    void AddField(
+        const std::string & fieldName,
+        int nEqu,
+        FieldCategory category,
+        FieldLocation location );
+
     void AddFaceField( const std::string & fieldName, int nEqu );
     void AddInnerField( const std::string & fieldName, int nEqu );
     void AddBcField( const std::string & fieldName, int nEqu );
+
     void AddInnerField(
         const std::string & fieldName,
         int nEqu,

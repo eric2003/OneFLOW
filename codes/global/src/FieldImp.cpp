@@ -236,23 +236,93 @@ void FieldManager::SetField( const std::string & fieldName, Real value )
     FieldHome::SetField( fieldName, value );
 }
 
-void FieldManager::AddFaceField( const std::string & fieldName, int nEqu )
+void FieldManager::AddField(
+    const std::string & fieldName,
+    int nEqu,
+    FieldCategory category,
+    FieldLocation location )
 {
-    GFieldProperty::AddField( fieldName, nEqu );
-    this->commManager->faceField->AddField( fieldName, nEqu );
+    if ( category == FieldCategory::Common )
+    {
+        GFieldProperty::AddField( fieldName, nEqu );
+
+        if ( location == FieldLocation::Inner )
+        {
+            this->iFieldProperty->AddField( fieldName, nEqu );
+            this->commManager->innerField->AddField( fieldName, nEqu );
+        }
+        else if ( location == FieldLocation::Face )
+        {
+            this->commManager->faceField->AddField( fieldName, nEqu );
+        }
+        else if ( location == FieldLocation::Boundary )
+        {
+            this->commManager->bcField->AddField( fieldName, nEqu );
+        }
+    }
+    else if ( category == FieldCategory::Unstructured )
+    {
+        if ( location == FieldLocation::Inner )
+        {
+            this->unsManager->innerField->AddField( fieldName, nEqu );
+        }
+        else if ( location == FieldLocation::Face )
+        {
+            this->unsManager->faceField->AddField( fieldName, nEqu );
+        }
+        else if ( location == FieldLocation::Boundary )
+        {
+            this->unsManager->bcField->AddField( fieldName, nEqu );
+        }
+    }
+    else if ( category == FieldCategory::Structured )
+    {
+        if ( location == FieldLocation::Inner )
+        {
+            this->strManager->innerField->AddField( fieldName, nEqu );
+        }
+        else if ( location == FieldLocation::Face )
+        {
+            this->strManager->faceField->AddField( fieldName, nEqu );
+        }
+        else if ( location == FieldLocation::Boundary )
+        {
+            this->strManager->bcField->AddField( fieldName, nEqu );
+        }
+    }
 }
 
-void FieldManager::AddInnerField( const std::string & fieldName, int nEqu )
+void FieldManager::AddFaceField(
+    const std::string & fieldName,
+    int nEqu )
 {
-    GFieldProperty::AddField( fieldName, nEqu );
-    this->iFieldProperty->AddField( fieldName, nEqu );
-    this->commManager->innerField->AddField( fieldName, nEqu );
+    this->AddField(
+        fieldName,
+        nEqu,
+        FieldCategory::Common,
+        FieldLocation::Face );
 }
 
-void FieldManager::AddBcField( const std::string & fieldName, int nEqu )
+void FieldManager::AddInnerField(
+    const std::string & fieldName,
+    int nEqu )
 {
-    GFieldProperty::AddField( fieldName, nEqu );
-    this->commManager->bcField->AddField( fieldName, nEqu );
+    this->AddField(
+        fieldName,
+        nEqu,
+        FieldCategory::Common,
+        FieldLocation::Inner );
+}
+
+void FieldManager::AddBcField(
+    const std::string & fieldName,
+    int nEqu )
+{
+    this->AddField(
+        fieldName,
+        nEqu,
+        FieldCategory::Common,
+        FieldLocation::Boundary );
 }
 
 void FieldManager::AddInnerField(
@@ -260,18 +330,11 @@ void FieldManager::AddInnerField(
     int nEqu,
     FieldCategory category )
 {
-    if ( category == FieldCategory::Common )
-    {
-        this->AddInnerField( fieldName, nEqu );
-    }
-    else if ( category == FieldCategory::Unstructured )
-    {
-        this->unsManager->innerField->AddField( fieldName, nEqu );
-    }
-    else if ( category == FieldCategory::Structured )
-    {
-        this->strManager->innerField->AddField( fieldName, nEqu );
-    }
+    this->AddField(
+        fieldName,
+        nEqu,
+        category,
+        FieldLocation::Inner );
 }
 
 void FieldManager::AddFaceField(
@@ -279,18 +342,11 @@ void FieldManager::AddFaceField(
     int nEqu,
     FieldCategory category )
 {
-    if ( category == FieldCategory::Common )
-    {
-        this->AddFaceField( fieldName, nEqu );
-    }
-    else if ( category == FieldCategory::Unstructured )
-    {
-        this->unsManager->faceField->AddField( fieldName, nEqu );
-    }
-    else if ( category == FieldCategory::Structured )
-    {
-        this->strManager->faceField->AddField( fieldName, nEqu );
-    }
+    this->AddField(
+        fieldName,
+        nEqu,
+        category,
+        FieldLocation::Face );
 }
 
 void FieldManager::AddBcField(
@@ -298,20 +354,12 @@ void FieldManager::AddBcField(
     int nEqu,
     FieldCategory category )
 {
-    if ( category == FieldCategory::Common )
-    {
-        this->AddBcField( fieldName, nEqu );
-    }
-    else if ( category == FieldCategory::Unstructured )
-    {
-        this->unsManager->bcField->AddField( fieldName, nEqu );
-    }
-    else if ( category == FieldCategory::Structured )
-    {
-        this->strManager->bcField->AddField( fieldName, nEqu );
-    }
+    this->AddField(
+        fieldName,
+        nEqu,
+        category,
+        FieldLocation::Boundary );
 }
-
 void FieldManager::AllocateInnerAndBcField()
 {
     Grid * gridIn = Zone::GetGrid();
