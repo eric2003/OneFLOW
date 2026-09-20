@@ -102,7 +102,10 @@ public:
     void AddFaceFieldProperty();
     void AddBoundaryFieldProperty();
 public:
-    void AddBasicFieldProperty( ParaNameDim * paraNameDim, int fieldType, FieldCategory category );
+    void AddBasicFieldProperty(
+        ParaNameDim * paraNameDim,
+        FieldLocation location,
+        FieldCategory category );
 };
 
 

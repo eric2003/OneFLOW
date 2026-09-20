@@ -32,4 +32,11 @@ enum class FieldCategory
     Common
 };
 
+enum class FieldLocation
+{
+    Inner,
+    Face,
+    Boundary
+};
+
 EndNameSpace

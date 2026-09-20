@@ -470,17 +470,17 @@ void ReadSuperPara::AddInnerFieldProperty()
 {
     this->AddBasicFieldProperty(
         this->paraNameDimData->unsPara.get(),
-        0,
+        FieldLocation::Inner,
         FieldCategory::Unstructured );
 
     this->AddBasicFieldProperty(
         this->paraNameDimData->strPara.get(),
-        0,
+        FieldLocation::Inner,
         FieldCategory::Structured );
 
     this->AddBasicFieldProperty(
         this->paraNameDimData->comPara.get(),
-        0,
+        FieldLocation::Inner,
         FieldCategory::Common );
 }
 
@@ -488,17 +488,17 @@ void ReadSuperPara::AddFaceFieldProperty()
 {
     this->AddBasicFieldProperty(
         this->paraNameDimData->unsPara.get(),
-        1,
+        FieldLocation::Face,
         FieldCategory::Unstructured );
 
     this->AddBasicFieldProperty(
         this->paraNameDimData->strPara.get(),
-        1,
+        FieldLocation::Face,
         FieldCategory::Structured );
 
     this->AddBasicFieldProperty(
         this->paraNameDimData->comPara.get(),
-        1,
+        FieldLocation::Face,
         FieldCategory::Common );
 }
 
@@ -506,23 +506,23 @@ void ReadSuperPara::AddBoundaryFieldProperty()
 {
     this->AddBasicFieldProperty(
         this->paraNameDimData->unsPara.get(),
-        2,
+        FieldLocation::Boundary,
         FieldCategory::Unstructured );
 
     this->AddBasicFieldProperty(
         this->paraNameDimData->strPara.get(),
-        2,
+        FieldLocation::Boundary,
         FieldCategory::Structured );
 
     this->AddBasicFieldProperty(
         this->paraNameDimData->comPara.get(),
-        2,
+        FieldLocation::Boundary,
         FieldCategory::Common );
 }
 
 void ReadSuperPara::AddBasicFieldProperty(
     ParaNameDim * paraNameDim,
-    int fieldType,
+    FieldLocation location,
     FieldCategory category )
 {
     FieldManager * fieldManager =
@@ -538,17 +538,17 @@ void ReadSuperPara::AddBasicFieldProperty(
         int nEqu =
             paraNameDim->dimList[ iVar ];
 
-        if ( fieldType == 0 )
+        if ( location == FieldLocation::Inner )
         {
             fieldManager->AddInnerField(
                 varName, nEqu, category );
         }
-        else if ( fieldType == 1 )
+        else if ( location == FieldLocation::Face )
         {
             fieldManager->AddFaceField(
                 varName, nEqu, category );
         }
-        else
+        else if ( location == FieldLocation::Boundary )
         {
             fieldManager->AddBcField(
                 varName, nEqu, category );
