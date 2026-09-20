@@ -60,14 +60,6 @@ const FieldProperty::Data & FieldProperty::GetData() const
     return this->data;
 }
 
-IFieldProperty::IFieldProperty()
-{
-}
-
-IFieldProperty::~IFieldProperty()
-{
-}
-
 void IFieldProperty::AllocateInterfaceField( int nIFaces, DataStorage * dataStorage )
 {
     if ( nIFaces <= 0 ) return;
@@ -177,14 +169,6 @@ void IFieldProperty::DeAllocateInterfaceField( DataStorage * dataStorage )
 }
 
 std::map< std::string, int > GFieldProperty::data;
-
-GFieldProperty::GFieldProperty()
-{
-}
-
-GFieldProperty::~GFieldProperty()
-{
-}
 
 void GFieldProperty::AddField( const std::string & fieldName, int nEqu )
 {

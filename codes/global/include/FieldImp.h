@@ -48,9 +48,6 @@ class DataStorage;
 class IFieldProperty : public FieldProperty
 {
 public:
-    IFieldProperty();
-    ~IFieldProperty();
-public:
     void AllocateInterfaceField( int nIFaces, DataStorage * dataStorage );
     void DeAllocateInterfaceField( DataStorage * dataStorage );
     void UploadInterfaceValue();
@@ -61,9 +58,6 @@ public:
 
 class GFieldProperty
 {
-public:
-    GFieldProperty();
-    ~GFieldProperty();
 public:
     static void AddField( const std::string & fieldName, int nEqu );
     static int GetNEqu( const std::string & fieldName );
