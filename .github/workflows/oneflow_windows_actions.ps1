@@ -313,26 +313,52 @@ function CompileOneFLOW() {
 		Write-Error "CGNS library: NOT FOUND"
 		exit 1
 	}	
-
+	
+	$start = Get-Date
+	# Configure
     cmake `
         -DMETIS_ROOT="$metis_root" `
         -DCGNS_ROOT="$cgns_root" `
         ../
-
-    cmake --build . --parallel 4 --config release
-    cmake --install . --prefix $oneflow_prefix
+	Write-Host "===== CMake Configure: $((Get-Date) - $start) ====="
+	
+	$start = Get-Date
+	# Build
+	cmake --build . --parallel 8 --config release
+	Write-Host "===== CMake Build: $((Get-Date) - $start) ====="
+	
+	$start = Get-Date
+	# Install
+	cmake --install . --prefix $oneflow_prefix
+	Write-Host "===== CMake Install: $((Get-Date) - $start) ====="	
 
     Write-Host "Compile OneFLOW complete..."
 }
 
 function main() {
     InitDownload
+
+    $start = Get-Date
     InstallMSMPI
+    Write-Host "===== InstallMSMPI: $((Get-Date) - $start) ====="
+
+    $start = Get-Date
     InstallHDF5
+    Write-Host "===== InstallHDF5: $((Get-Date) - $start) ====="
+
+    $start = Get-Date
     InstallCGNS
+    Write-Host "===== InstallCGNS: $((Get-Date) - $start) ====="
+
+    $start = Get-Date
     InstallMETIS
+    Write-Host "===== InstallMETIS: $((Get-Date) - $start) ====="
+
     ExitDownload
+
+    $start = Get-Date
     CompileOneFLOW
+    Write-Host "===== CompileOneFLOW: $((Get-Date) - $start) ====="
 }
 
 main

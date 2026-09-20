@@ -22,6 +22,7 @@ License
 #pragma once
 #include "NamespaceMacros.h"
 #include "HXArray.h"
+#include "FieldCategory.h"
 #include <map>
 #include <memory>
 
@@ -30,13 +31,19 @@ BeginNameSpace( ONEFLOW )
 class FieldProperty
 {
 public:
+    using Data = std::map< std::string, int >;
+
+public:
     FieldProperty();
     ~FieldProperty();
-public:
-    std::map< std::string, int > data;
-public:
+
     void AddField( const std::string & fieldName, int nEqu );
-    int GetNEqu( const std::string & fieldName );
+    int GetNEqu( const std::string & fieldName ) const;
+
+    const Data & GetData() const;
+
+private:
+    Data data;
 };
 
 class DataStorage;
@@ -70,12 +77,9 @@ private:
 class FieldPropertyData
 {
 public:
-    FieldPropertyData();
-    ~FieldPropertyData();
-public:
-    std::unique_ptr< FieldProperty > bcField;
-    std::unique_ptr< FieldProperty > faceField;
-    std::unique_ptr< FieldProperty > innerField;
+    FieldProperty bcField;
+    FieldProperty faceField;
+    FieldProperty innerField;
 };
 
 class FieldManager;
@@ -87,20 +91,40 @@ class FieldManager
 public:
     FieldManager();
     ~FieldManager();
+
 public:
     std::unique_ptr< IFieldProperty > iFieldProperty;
     std::unique_ptr< UsdPara > usdPara;
 
-    std::unique_ptr< FieldPropertyData > commManager;
-    std::unique_ptr< FieldPropertyData > strManager;
-    std::unique_ptr< FieldPropertyData > unsManager;
+    FieldPropertyData commManager;
+    FieldPropertyData strManager;
+    FieldPropertyData unsManager;
+
 public:
+    void AddField(
+        const std::string & fieldName,
+        int nEqu,
+        FieldCategory category,
+        FieldLocation location );
+
     void AddFaceField( const std::string & fieldName, int nEqu );
     void AddInnerField( const std::string & fieldName, int nEqu );
     void AddBcField( const std::string & fieldName, int nEqu );
-    void AddInnerField( const std::string & fieldName, int nEqu, int type );
-    void AddFaceField( const std::string & fieldName, int nEqu, int type );
-    void AddBcField( const std::string & fieldName, int nEqu, int type );
+
+    void AddInnerField(
+        const std::string & fieldName,
+        int nEqu,
+        FieldCategory category );
+
+    void AddFaceField(
+        const std::string & fieldName,
+        int nEqu,
+        FieldCategory category );
+
+    void AddBcField(
+        const std::string & fieldName,
+        int nEqu,
+        FieldCategory category );
 public:
     void SetField( const std::string & fieldName, Real value );
     void AllocateInnerAndBcField();

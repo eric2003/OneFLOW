@@ -1,6 +1,6 @@
 #pragma once
 
-#include "EulerDomain.h"
+#include "NamespaceMacros.h"
 
 BeginNameSpace( ONEFLOW )
 

@@ -21,6 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 #pragma once
 #include "HXDefine.h"
+#include "FieldCategory.h"
 #include <memory>
 #include <string>
 
@@ -29,18 +30,16 @@ BeginNameSpace( ONEFLOW )
 
 class IFieldProperty;
 
-class NameValuePair
+struct NameValuePair
 {
 public:
     StringField nameList;
     RealField valueList;
 };
 
-class FieldNamePair
-{
-public:
-    static void SetField( int solverType, NameValuePair & valuePair );
-};
+void SetFieldValues(
+    int solverType,
+    const NameValuePair & valuePair );
 
 class FieldAlloc
 {
@@ -57,55 +56,59 @@ public:
     static void AllocateOversetInterfaceField( IFieldProperty * iFieldProperty );
 };
 
-class ReadInterfaceVar
-{
-public:
-    static void AddFieldName(
-        int solverType,
-        int fieldType,
-        StringField & nameList );
-};
-
-class ParaNameDim
+struct ParaNameDim
 {
 public:
     StringField nameList;
-    IntField dimList;
+    IntField nEquList;
 };
 
 class ParaNameDimData
 {
 public:
-    ParaNameDimData();
-    ~ParaNameDimData();
+    ParaNameDim * GetParaNameDim( FieldCategory category );
+    const ParaNameDim * GetParaNameDim( FieldCategory category ) const;
+
 public:
-    std::unique_ptr<ParaNameDim> comPara;
-    std::unique_ptr<ParaNameDim> strPara;
-    std::unique_ptr<ParaNameDim> unsPara;
-public:
-    ParaNameDim * GetParaNameDim( const std::string & typeName );
+    ParaNameDim comPara;
+    ParaNameDim strPara;
+    ParaNameDim unsPara;
 };
 
 class ReadSuperPara
 {
 public:
-    ReadSuperPara();
-    ~ReadSuperPara();
+    ReadSuperPara() = default;
+    ~ReadSuperPara() = default;
+
 public:
-    std::unique_ptr<ParaNameDimData> paraNameDimData;
+    ParaNameDimData paraNameDimData;
     int solverType;
+
 public:
     void Register( const std::string & fileName, int index );
+    void AddFieldProperties( FieldLocation location );
     void AddUnsteadyInnerFieldProperty();
-    void AddInnerFieldProperty();
-    void AddFaceFieldProperty();
-    void AddBoundaryFieldProperty();
+
 public:
-    void AddBasicFieldProperty( ParaNameDim * paraNameDim, int fieldType, int type );
+    void AddBasicFieldProperty(
+        ParaNameDim * paraNameDim,
+        FieldLocation location,
+        FieldCategory category );
 };
 
-
 class TextFileParser;
+
+void AddInterfaceFieldNames(
+    int solverType,
+    int fieldType,
+    const StringField & nameList );
+FieldCategory ParseFieldCategory( const std::string & typeName );
+
+void ReadFieldDefinition(
+    TextFileParser & textFileParser,
+    ParaNameDimData & paraNameDimData );
+
 
 class BoolIO
 {
@@ -123,8 +126,7 @@ public:
     bool CalcVarValue( const std::string & varName );
     void Read(
         TextFileParser & textFileParser,
-        int valueFlag,
-        ParaNameDimData * paraNameDimData = nullptr );
+        int valueFlag );
     void ReadFile(
         const std::string & fileName,
         int valueFlag = 0,
