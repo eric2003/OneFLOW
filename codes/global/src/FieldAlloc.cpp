@@ -36,6 +36,125 @@ License
 
 BeginNameSpace( ONEFLOW )
 
+namespace
+{
+    struct FieldFileSpec
+    {
+        const char * name;
+        FieldLocation location;
+        bool isUnsteady;
+    };
+
+    struct InterfaceFileSpec
+    {
+        const char * name;
+        int fieldType;
+    };
+
+    FieldCategory ParseFieldCategory(
+        const std::string & typeName )
+    {
+        if ( typeName == "all" )
+        {
+            return FieldCategory::Common;
+        }
+
+        if ( typeName == "str" )
+        {
+            return FieldCategory::Structured;
+        }
+
+        return FieldCategory::Unstructured;
+    }
+
+    void ReadFieldDefinition(
+        TextFileParser & textFileParser,
+        ParaNameDimData & paraNameDimData )
+    {
+        std::string varName =
+            textFileParser.ReadNextWord();
+
+        std::string varDimension =
+            textFileParser.ReadNextWord();
+
+        std::string typeName =
+            textFileParser.ReadNextWord();
+
+        int nEqu =
+            ONEFLOW::GetVarDimension( varDimension );
+
+        FieldCategory category =
+            ParseFieldCategory( typeName );
+
+        ParaNameDim * paraNameDim =
+            paraNameDimData.GetParaNameDim( category );
+
+        paraNameDim->nameList.push_back( varName );
+        paraNameDim->nEquList.push_back( nEqu );
+    }
+
+    using BoolLineReader =
+        void ( BoolIO::* )( TextFileParser & );
+
+    void ReadBoolFile(
+        BoolIO & boolIO,
+        const std::string & fileName,
+        BoolLineReader trueReader )
+    {
+        // \t is the tab key
+        std::string separator = " \r\n\t#$,;\"()";
+
+        TextFileParser textFileParser;
+
+        textFileParser.OpenFile(
+            fileName,
+            std::ios_base::in );
+
+        textFileParser.SetDefaultSeparator(
+            separator );
+
+        while ( ! textFileParser.ReachTheEndOfFile() )
+        {
+            bool flag =
+                textFileParser.ReadNextNonEmptyLine();
+
+            if ( ! flag ) break;
+
+            std::string keyWord =
+                textFileParser.ReadNextWord();
+
+            if ( keyWord == "true" )
+            {
+                ( boolIO.*trueReader )(
+                    textFileParser );
+            }
+            else if ( keyWord == "bool" )
+            {
+                boolIO.ReadBool(
+                    textFileParser );
+            }
+            else if ( keyWord == "superbool" )
+            {
+                boolIO.ReadSuperBool(
+                    textFileParser );
+            }
+            else
+            {
+                bool flag =
+                    boolIO.CalcVarValue( keyWord );
+
+                if ( flag )
+                {
+                    ( boolIO.*trueReader )(
+                        textFileParser );
+                }
+            }
+        }
+
+        textFileParser.CloseFile();
+    }
+}
+
 void FieldAlloc::AllocateAllFields( int solverType, const std::string & basicString )
 {
     FieldAlloc::RegisterInterfaceVar( solverType, basicString );
@@ -53,6 +172,7 @@ void FieldAlloc::InitField( int solverType, const std::string & basicString )
         solverType,
         boolIO.nameValuePair );
 }
+
 void FieldAlloc::RegisterInterfaceVar(
     int solverType,
     const std::string & basicString )
@@ -276,111 +396,6 @@ void AddInterfaceFieldNames(
     }
 }
 
-namespace
-{
-    FieldCategory ParseFieldCategory(
-        const std::string & typeName )
-    {
-        if ( typeName == "all" )
-        {
-            return FieldCategory::Common;
-        }
-
-        if ( typeName == "str" )
-        {
-            return FieldCategory::Structured;
-        }
-
-        return FieldCategory::Unstructured;
-    }
-
-    void ReadFieldDefinition(
-        TextFileParser & textFileParser,
-        ParaNameDimData & paraNameDimData )
-    {
-        std::string varName =
-            textFileParser.ReadNextWord();
-
-        std::string varDimension =
-            textFileParser.ReadNextWord();
-
-        std::string typeName =
-            textFileParser.ReadNextWord();
-
-        int nEqu =
-            ONEFLOW::GetVarDimension( varDimension );
-
-        FieldCategory category =
-            ParseFieldCategory( typeName );
-
-        ParaNameDim * paraNameDim =
-            paraNameDimData.GetParaNameDim( category );
-
-        paraNameDim->nameList.push_back( varName );
-        paraNameDim->nEquList.push_back( nEqu );
-    }
-
-    using BoolLineReader =
-        void ( BoolIO::* )( TextFileParser & );
-
-    void ReadBoolFile(
-        BoolIO & boolIO,
-        const std::string & fileName,
-        BoolLineReader trueReader )
-    {
-        // \t is the tab key
-        std::string separator = " \r\n\t#$,;\"()";
-
-        TextFileParser textFileParser;
-
-        textFileParser.OpenFile(
-            fileName,
-            std::ios_base::in );
-
-        textFileParser.SetDefaultSeparator(
-            separator );
-
-        while ( ! textFileParser.ReachTheEndOfFile() )
-        {
-            bool flag =
-                textFileParser.ReadNextNonEmptyLine();
-
-            if ( ! flag ) break;
-
-            std::string keyWord =
-                textFileParser.ReadNextWord();
-
-            if ( keyWord == "true" )
-            {
-                ( boolIO.*trueReader )(
-                    textFileParser );
-            }
-            else if ( keyWord == "bool" )
-            {
-                boolIO.ReadBool(
-                    textFileParser );
-            }
-            else if ( keyWord == "superbool" )
-            {
-                boolIO.ReadSuperBool(
-                    textFileParser );
-            }
-            else
-            {
-                bool flag =
-                    boolIO.CalcVarValue( keyWord );
-
-                if ( flag )
-                {
-                    ( boolIO.*trueReader )(
-                        textFileParser );
-                }
-            }
-        }
-
-        textFileParser.CloseFile();
-    }
-}
 
 void BoolIO::Add( const std::string & name, bool value )
 {

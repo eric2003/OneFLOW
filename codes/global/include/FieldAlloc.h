@@ -72,19 +72,6 @@ public:
     ParaNameDim unsPara;
 };
 
-struct FieldFileSpec
-{
-    const char * name;
-    FieldLocation location;
-    bool isUnsteady;
-};
-
-struct InterfaceFileSpec
-{
-    const char * name;
-    int fieldType;
-};
-
 class ReadSuperPara
 {
 public:
