@@ -223,18 +223,22 @@ bool CalcBoolExp( const std::string & varName1, const std::string & opName, cons
     return false;
 }
 
-bool CalcVarValue( const std::string & varName, StringField & boolName, BoolField & boolVar )
+bool CalcVarValue(
+    const std::string & varName,
+    StringField & boolName,
+    BoolField & boolVar )
 {
-    int index = -1;
     for ( int i = 0; i < boolName.size(); ++ i )
     {
         if ( varName == boolName[ i ] )
         {
-            index = i;
-            break;
+            return boolVar[ i ];
         }
     }
-    return boolVar[ index ];
+
+    Fatal( "Unknown boolean variable: " + varName );
+
+    return false;
 }
 
 int GetVarDimension( const std::string & dimName )
