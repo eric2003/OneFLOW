@@ -22,7 +22,6 @@ License
 #pragma once
 #include "HXDefine.h"
 #include "FieldCategory.h"
-#include <memory>
 #include <string>
 
 
