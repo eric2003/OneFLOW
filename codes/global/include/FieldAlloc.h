@@ -129,9 +129,6 @@ void ReadFieldDefinition(
 class BoolIO
 {
 public:
-    BoolIO();
-    ~BoolIO();
-public:
     StringField boolNameList;
     BoolField boolValueList;
     NameValuePair nameValuePair;

@@ -375,17 +375,6 @@ namespace
 
 }
 
-
-BoolIO::BoolIO()
-{
-    ;
-}
-
-BoolIO::~BoolIO()
-{
-    ;
-}
-
 void BoolIO::Add( const std::string & name, bool value )
 {
     this->boolNameList.push_back( name );
