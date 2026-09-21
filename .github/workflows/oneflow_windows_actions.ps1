@@ -158,10 +158,29 @@ function MyDownloadFile2( $fullFilePath, $my_filename ) {
     )
 }
 
-
 # ============================================================
 # Microsoft MPI
 # ============================================================
+
+function GetMSMPIBaseUrl() {
+    switch ( $global:MSMPI_VERSION ) {
+        "10.1.3" {
+            return "https://download.microsoft.com/download/7/2/7/72731ebb-b63c-4170-ade7-836966263a8f/"
+        }
+
+        "10.1.2" {
+            return "https://download.microsoft.com/download/a/5/2/a5207ca5-1203-491a-8fb8-906fd68ae623/"
+        }
+
+        "10.1.1" {
+            return "https://download.microsoft.com/download/2/9/e/29efe9b1-16d7-4912-a229-6734b0c4e235/"
+        }
+
+        default {
+            throw "Unsupported MS-MPI version: $global:MSMPI_VERSION"
+        }
+    }
+}
 
 function InstallMSMPI() {
     # Microsoft MPI installation paths.
@@ -180,7 +199,12 @@ function InstallMSMPI() {
     $msmpi_sdk_lib =
         "$msmpi_sdk_path/Lib"
 
+    # Resolve the download location from the selected MPI version.
+    $download_url = GetMSMPIBaseUrl
+
     Write-Host "===== Microsoft MPI ====="
+    Write-Host "MPI version:      $global:MSMPI_VERSION"
+    Write-Host "MPI download URL: $download_url"
     Write-Host "MPI runtime path: $msmpi_bin_path"
     Write-Host "MPI SDK path:     $msmpi_sdk_path"
 
@@ -202,9 +226,6 @@ function InstallMSMPI() {
             Write-Host "MPI SDK is not available."
             Write-Host "Installing Microsoft MPI SDK..."
 
-            $download_url =
-                "https://download.microsoft.com/download/A/E/0/AE002626-9D9D-448D-8197-1EA510E297CE/"
-
             $msmpisdk_filename = "msmpisdk.msi"
 
             $msmpisdk_webfilename =
@@ -223,9 +244,6 @@ function InstallMSMPI() {
         if ( -not $runtime_ready ) {
             Write-Host "MPI Runtime is not available."
             Write-Host "Installing Microsoft MPI Runtime..."
-
-            $download_url =
-                "https://download.microsoft.com/download/A/E/0/AE002626-9D9D-448D-8197-1EA510E297CE/"
 
             $msmpisetup_filename = "msmpisetup.exe"
 
