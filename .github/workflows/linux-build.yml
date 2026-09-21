@@ -1,10 +1,10 @@
 name: Linux Build
 
 on:
-  push:
-    branches: [ master, hexin ]
-  pull_request:
-    branches: [ master, hexin ]
+  #push:
+  #  branches: [ master, hexin ]
+  #pull_request:
+  #  branches: [ master, hexin ]
   workflow_dispatch:
 
 permissions:
