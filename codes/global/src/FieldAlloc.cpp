@@ -310,6 +310,71 @@ void ReadFieldDefinition(
     paraNameDim->nEquList.push_back( nEqu );
 }
 
+namespace
+{
+    using BoolLineReader =
+        void ( BoolIO::* )( TextFileParser & );
+
+    void ReadBoolFile(
+        BoolIO & boolIO,
+        const std::string & fileName,
+        BoolLineReader trueReader )
+    {
+        // \t is the tab key
+        std::string separator = " \r\n\t#$,;\"()";
+
+        TextFileParser textFileParser;
+
+        textFileParser.OpenFile(
+            fileName,
+            std::ios_base::in );
+
+        textFileParser.SetDefaultSeparator(
+            separator );
+
+        while ( ! textFileParser.ReachTheEndOfFile() )
+        {
+            bool flag =
+                textFileParser.ReadNextNonEmptyLine();
+
+            if ( ! flag ) break;
+
+            std::string keyWord =
+                textFileParser.ReadNextWord();
+
+            if ( keyWord == "true" )
+            {
+                ( boolIO.*trueReader )(
+                    textFileParser );
+            }
+            else if ( keyWord == "bool" )
+            {
+                boolIO.ReadBool(
+                    textFileParser );
+            }
+            else if ( keyWord == "superbool" )
+            {
+                boolIO.ReadSuperBool(
+                    textFileParser );
+            }
+            else
+            {
+                bool flag =
+                    boolIO.CalcVarValue( keyWord );
+
+                if ( flag )
+                {
+                    ( boolIO.*trueReader )(
+                        textFileParser );
+                }
+            }
+        }
+
+        textFileParser.CloseFile();
+    }
+
+}
+
 
 BoolIO::BoolIO()
 {
@@ -402,111 +467,19 @@ void BoolIO::ReadNameValue(
 void BoolIO::ReadFile(
     const std::string & fileName )
 {
-    // \t is the tab key
-    std::string separator = " \r\n\t#$,;\"()";
-
-    TextFileParser textFileParser;
-    textFileParser.OpenFile(
+    ReadBoolFile(
+        *this,
         fileName,
-        std::ios_base::in );
-
-    textFileParser.SetDefaultSeparator(
-        separator );
-
-    while ( ! textFileParser.ReachTheEndOfFile() )
-    {
-        bool flag =
-            textFileParser.ReadNextNonEmptyLine();
-
-        if ( ! flag ) break;
-
-        std::string keyWord =
-            textFileParser.ReadNextWord();
-
-        if ( keyWord == "true" )
-        {
-            this->ReadName(
-                textFileParser );
-        }
-        else if ( keyWord == "bool" )
-        {
-            this->ReadBool(
-                textFileParser );
-        }
-        else if ( keyWord == "superbool" )
-        {
-            this->ReadSuperBool(
-                textFileParser );
-        }
-        else
-        {
-            bool flag =
-                this->CalcVarValue( keyWord );
-
-            if ( flag )
-            {
-                this->ReadName(
-                    textFileParser );
-            }
-        }
-    }
-
-    textFileParser.CloseFile();
+        &BoolIO::ReadName );
 }
 
 void BoolIO::ReadValueFile(
     const std::string & fileName )
 {
-    // \t is the tab key
-    std::string separator = " \r\n\t#$,;\"()";
-
-    TextFileParser textFileParser;
-    textFileParser.OpenFile(
+    ReadBoolFile(
+        *this,
         fileName,
-        std::ios_base::in );
-
-    textFileParser.SetDefaultSeparator(
-        separator );
-
-    while ( ! textFileParser.ReachTheEndOfFile() )
-    {
-        bool flag =
-            textFileParser.ReadNextNonEmptyLine();
-
-        if ( ! flag ) break;
-
-        std::string keyWord =
-            textFileParser.ReadNextWord();
-
-        if ( keyWord == "true" )
-        {
-            this->ReadNameValue(
-                textFileParser );
-        }
-        else if ( keyWord == "bool" )
-        {
-            this->ReadBool(
-                textFileParser );
-        }
-        else if ( keyWord == "superbool" )
-        {
-            this->ReadSuperBool(
-                textFileParser );
-        }
-        else
-        {
-            bool flag =
-                this->CalcVarValue( keyWord );
-
-            if ( flag )
-            {
-                this->ReadNameValue(
-                    textFileParser );
-            }
-        }
-    }
-
-    textFileParser.CloseFile();
+        &BoolIO::ReadNameValue );
 }
 
 ParaNameDim * ParaNameDimData::GetParaNameDim( FieldCategory category )
