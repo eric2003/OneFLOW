@@ -93,7 +93,7 @@ namespace
             textFileParser.ReadNextWord();
 
         int nEqu =
-            ONEFLOW::GetVarDimension( varDimension );
+            GetVarDimension( varDimension );
 
         FieldCategory category =
             ParseFieldCategory( typeName );
@@ -202,8 +202,8 @@ namespace
     
     bool CalcBoolExp( const std::string & varName1, const std::string & opName, const std::string & varName2 )
     {
-        int var1 = ONEFLOW::GetVarDimension( varName1 );
-        int var2 = ONEFLOW::GetVarDimension( varName2 );
+        int var1 =  GetVarDimension( varName1 );
+        int var2 =  GetVarDimension( varName2 );
         if ( opName == ">" )
         {
             return var1 > var2;
