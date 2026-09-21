@@ -845,6 +845,25 @@ function InitializeMSVCEnvironment() {
 function CompileOneFLOW() {
     Write-Host "Compile OneFLOW ..."
 
+    Write-Host "===== Build environment ====="
+
+    Write-Host "Processor count: $([Environment]::ProcessorCount)"
+
+    Write-Host "CMake version:"
+    cmake --version
+
+    Write-Host "Ninja version:"
+    ninja --version
+
+    Write-Host "MSVC compiler:"
+    where.exe cl
+    cl 2>&1 | Select-Object -First 1
+
+    Write-Host "Linker:"
+    where.exe link
+
+    Write-Host "============================"
+
     mkdir build
 
     cd build
@@ -881,50 +900,51 @@ function CompileOneFLOW() {
         exit 1
     }
 
-    # Use the script-level build configuration shared by all build stages.
     $cmake_generator =
         $global:CMAKE_GENERATOR
-    
+
     $cmake_compiler =
         $global:CMAKE_COMPILER
-    
+
     $cmake_parallel_level =
         $global:CMAKE_BUILD_PARALLEL_LEVEL
-    
+
     Write-Host "CMAKE_GENERATOR = $cmake_generator"
     Write-Host "CMAKE_COMPILER = $cmake_compiler"
     Write-Host "CMAKE_BUILD_PARALLEL_LEVEL = $cmake_parallel_level"
-    
-    $start = Get-Date
-    	
+
     $cmake_config = "Release"
 
     $cmake_c_compiler = $null
     $cmake_cxx_compiler = $null
-    
+
     switch ( $cmake_compiler ) {
         "MSVC" {
             $cmake_c_compiler = "cl"
             $cmake_cxx_compiler = "cl"
         }
-    
+
         default {
             throw "Unsupported CMAKE_COMPILER: $cmake_compiler"
         }
     }
 
     $cmake_config_args = @()
-    
+
     # Ninja is a single-config generator.
     # Its build type must be selected during configure.
     if ( $cmake_generator -like "Ninja*" ) {
-        $cmake_config_args += "-DCMAKE_BUILD_TYPE=$cmake_config"
+        $cmake_config_args +=
+            "-DCMAKE_BUILD_TYPE=$cmake_config"
     }
 
-    
     Write-Host "CMAKE_CONFIG = $cmake_config"
-	
+
     # Configure
+    Write-Host "===== CMake Configure ====="
+
+    $configure_start = Get-Date
+
     cmake `
         -G "$cmake_generator" `
         -DCMAKE_C_COMPILER="$cmake_c_compiler" `
@@ -933,42 +953,48 @@ function CompileOneFLOW() {
         -DCGNS_ROOT="$cgns_root" `
         @cmake_config_args `
         ../
-    
+
     if ( $LASTEXITCODE -ne 0 ) {
         throw "CMake configure failed with exit code $LASTEXITCODE."
     }
-    
-  
-    $start = Get-Date
-    
+
+    Write-Host `
+        "===== CMake Configure: $((Get-Date) - $configure_start) ====="
+
     # Build
+    Write-Host "===== CMake Build ====="
+
+    $build_start = Get-Date
+
     cmake `
         --build . `
         --config $cmake_config `
         --parallel $cmake_parallel_level
-    
+
     if ( $LASTEXITCODE -ne 0 ) {
         throw "CMake build failed with exit code $LASTEXITCODE."
-    }	
-    
-    Write-Host "===== CMake Build: $((Get-Date) - $start) ====="
-    
-    $start = Get-Date
-    
+    }
+
+    Write-Host `
+        "===== CMake Build: $((Get-Date) - $build_start) ====="
+
     # Install
+    Write-Host "===== CMake Install ====="
+
+    $install_start = Get-Date
+
     cmake `
         --install . `
         --prefix $oneflow_prefix
-    
+
     if ( $LASTEXITCODE -ne 0 ) {
         throw "CMake install failed with exit code $LASTEXITCODE."
     }
-    
-    Write-Host "===== CMake Install: $((Get-Date) - $start) ====="
-    
+
+    Write-Host `
+        "===== CMake Install: $((Get-Date) - $install_start) ====="
+
     Write-Host "Compile OneFLOW complete..."
-
-
 }
 
 
