@@ -48,6 +48,31 @@ jobs:
           CC: gcc-${{ env.GCC_VERSION }}
           CXX: g++-${{ env.GCC_VERSION }}
         run: |
+          echo "===== Build environment ====="
+          
+          echo "Processor count:"
+          nproc
+          
+          echo "Memory:"
+          free -h
+          
+          echo "CMake:"
+          cmake --version
+          
+          echo "Make:"
+          make --version | head -n 1
+          
+          echo "GCC:"
+          gcc --version | head -n 1
+          
+          echo "G++:"
+          g++ --version | head -n 1
+          
+          echo "Linker:"
+          ld --version | head -n 1
+          
+          echo "============================"
+          
           cd ${{ github.workspace }}
           ls
           mkdir build
@@ -61,9 +86,37 @@ jobs:
           export METIS_HOME_INC="/usr/include"
           export METIS_HOME_LIB="/usr/lib/x86_64-linux-gnu/libmetis.so"
           cmake --version
+          
+          echo "===== CMake Configure ====="
+          
+          configure_start=$(date +%s)
+          
           cmake -DCMAKE_INSTALL_PREFIX=${{ github.workspace }}/Run ../
+          
+          configure_end=$(date +%s)
+          
+          echo "CMake Configure: $((configure_end - configure_start)) s"     
+          
+          echo "===== CMake Build ====="
+          
+          build_start=$(date +%s)
+          
           make -j 4
+          
+          build_end=$(date +%s)
+          
+          echo "CMake Build: $((build_end - build_start)) s"
+
+          echo "===== CMake Install ====="
+          
+          install_start=$(date +%s)
+          
           make install
+          
+          install_end=$(date +%s)
+          
+          echo "CMake Install: $((install_end - install_start)) s"
+          
         shell: bash 
       - name: Unit Test
         env:
