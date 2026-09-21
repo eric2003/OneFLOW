@@ -609,11 +609,31 @@ function InstallMETIS() {
 
     cd build
 
-    cmake ../
+    cmake `
+        -DCMAKE_C_COMPILER="cl" `
+        -DCMAKE_CXX_COMPILER="cl" `
+        ../
 
-    cmake --build . --parallel $global:CMAKE_BUILD_PARALLEL_LEVEL --config release
+    if ( $LASTEXITCODE -ne 0 ) {
+        throw "METIS CMake configure failed with exit code $LASTEXITCODE."
+    }
 
-    cmake --install . --prefix $metis_prefix
+    cmake `
+        --build . `
+        --parallel $global:CMAKE_BUILD_PARALLEL_LEVEL `
+        --config release
+
+    if ( $LASTEXITCODE -ne 0 ) {
+        throw "METIS CMake build failed with exit code $LASTEXITCODE."
+    }
+
+    cmake `
+        --install . `
+        --prefix $metis_prefix
+
+    if ( $LASTEXITCODE -ne 0 ) {
+        throw "METIS CMake install failed with exit code $LASTEXITCODE."
+    }
 
     cd ../../
 
@@ -783,9 +803,6 @@ function CompileOneFLOW() {
         Write-Error "METIS library: NOT FOUND"
         exit 1
     }
-
-    # Initialize the MSVC build environment.
-    InitializeMSVCEnvironment
 
     # Use the script-level build configuration shared by all build stages.
     $cmake_generator =
