@@ -26,8 +26,15 @@ Write-Host "METIS_VERSION = $global:METIS_VERSION"
 # OneFLOW build configuration
 # ============================================================
 
+# ============================================================
+# OneFLOW build configuration
+# ============================================================
+
 $global:CMAKE_GENERATOR =
     $env:CMAKE_GENERATOR
+
+$global:CMAKE_COMPILER =
+    $env:CMAKE_COMPILER
 
 $global:CMAKE_BUILD_PARALLEL_LEVEL =
     $env:CMAKE_BUILD_PARALLEL_LEVEL
@@ -36,11 +43,16 @@ if ( [string]::IsNullOrWhiteSpace( $global:CMAKE_GENERATOR ) ) {
     $global:CMAKE_GENERATOR = "Ninja"
 }
 
+if ( [string]::IsNullOrWhiteSpace( $global:CMAKE_COMPILER ) ) {
+    $global:CMAKE_COMPILER = "MSVC"
+}
+
 if ( [string]::IsNullOrWhiteSpace( $global:CMAKE_BUILD_PARALLEL_LEVEL ) ) {
     $global:CMAKE_BUILD_PARALLEL_LEVEL = "4"
 }
 
 Write-Host "CMAKE_GENERATOR = $global:CMAKE_GENERATOR"
+Write-Host "CMAKE_COMPILER = $global:CMAKE_COMPILER"
 Write-Host "CMAKE_BUILD_PARALLEL_LEVEL = $global:CMAKE_BUILD_PARALLEL_LEVEL"
 
 # ============================================================
@@ -742,21 +754,39 @@ function CompileOneFLOW() {
     
     where.exe cl
     where.exe link
-	
+
     # Use the script-level build configuration shared by all build stages.
     $cmake_generator =
         $global:CMAKE_GENERATOR
-
+    
+    $cmake_compiler =
+        $global:CMAKE_COMPILER
+    
     $cmake_parallel_level =
         $global:CMAKE_BUILD_PARALLEL_LEVEL
-
+    
     Write-Host "CMAKE_GENERATOR = $cmake_generator"
+    Write-Host "CMAKE_COMPILER = $cmake_compiler"
     Write-Host "CMAKE_BUILD_PARALLEL_LEVEL = $cmake_parallel_level"
     
     $start = Get-Date
     	
     $cmake_config = "Release"
+
+    $cmake_c_compiler = $null
+    $cmake_cxx_compiler = $null
     
+    switch ( $cmake_compiler ) {
+        "MSVC" {
+            $cmake_c_compiler = "cl"
+            $cmake_cxx_compiler = "cl"
+        }
+    
+        default {
+            throw "Unsupported CMAKE_COMPILER: $cmake_compiler"
+        }
+    }
+
     $cmake_config_args = @()
     
     # Ninja is a single-config generator.
@@ -764,14 +794,15 @@ function CompileOneFLOW() {
     if ( $cmake_generator -like "Ninja*" ) {
         $cmake_config_args += "-DCMAKE_BUILD_TYPE=$cmake_config"
     }
+
     
     Write-Host "CMAKE_CONFIG = $cmake_config"
 	
     # Configure
     cmake `
         -G "$cmake_generator" `
-        -DCMAKE_C_COMPILER=cl `
-        -DCMAKE_CXX_COMPILER=cl `
+        -DCMAKE_C_COMPILER="$cmake_c_compiler" `
+        -DCMAKE_CXX_COMPILER="$cmake_cxx_compiler" `
         -DMETIS_ROOT="$metis_root" `
         -DCGNS_ROOT="$cgns_root" `
         @cmake_config_args `
