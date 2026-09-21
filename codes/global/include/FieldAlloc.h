@@ -89,10 +89,6 @@ public:
 
     void AddFieldProperties( FieldLocation location );
     void AddUnsteadyInnerFieldProperty();
-
-public:
-    void ReadFieldDefinitions(
-        const std::string & fileName );
 };
 
 class TextFileParser;

@@ -117,6 +117,41 @@ namespace
         }
     }
 
+    void ReadFieldDefinitions(
+        const std::string & fileName,
+        ParaNameDimData & paraNameDimData )
+    {
+        TextFileParser textFileParser;
+
+        // \t is the tab key
+        std::string separator = " \r\n\t#$,;\"()";
+
+        textFileParser.OpenFile(
+            fileName,
+            std::ios_base::in );
+
+        textFileParser.SetDefaultSeparator(
+            separator );
+
+        while ( ! textFileParser.ReachTheEndOfFile() )
+        {
+            bool flag = textFileParser.ReadNextNonEmptyLine();
+            if ( ! flag ) break;
+
+            std::string keyWord =
+                textFileParser.ReadNextWord();
+
+            if ( keyWord == "true" )
+            {
+                ReadFieldDefinition(
+                    textFileParser,
+                    paraNameDimData );
+            }
+        }
+
+        textFileParser.CloseFile();
+    }
+
     using BoolLineReader =
         void ( BoolIO::* )( TextFileParser & );
 
@@ -587,45 +622,14 @@ void ReadSuperPara::AddFieldProperties(
         FieldCategory::Common );
 }
 
-void ReadSuperPara::ReadFieldDefinitions(
-    const std::string & fileName )
-{
-    TextFileParser textFileParser;
-
-    // \t is the tab key
-    std::string separator = " \r\n\t#$,;\"()";
-
-    textFileParser.OpenFile(
-        fileName,
-        std::ios_base::in );
-
-    textFileParser.SetDefaultSeparator( separator );
-
-    while ( ! textFileParser.ReachTheEndOfFile() )
-    {
-        bool flag = textFileParser.ReadNextNonEmptyLine();
-        if ( ! flag ) break;
-
-        std::string keyWord =
-            textFileParser.ReadNextWord();
-
-        if ( keyWord == "true" )
-        {
-            ReadFieldDefinition(
-                textFileParser,
-                this->paraNameDimData );
-        }
-    }
-
-    textFileParser.CloseFile();
-}
-
 void ReadSuperPara::Register(
     const std::string & fileName,
     FieldLocation location,
     bool isUnsteady )
 {
-    this->ReadFieldDefinitions( fileName );
+    ReadFieldDefinitions(
+        fileName,
+        this->paraNameDimData );
 
     if ( isUnsteady )
     {
