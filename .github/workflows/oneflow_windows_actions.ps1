@@ -23,6 +23,27 @@ Write-Host "CGNS_VERSION  = $global:CGNS_VERSION"
 Write-Host "METIS_VERSION = $global:METIS_VERSION"
 
 # ============================================================
+# OneFLOW build configuration
+# ============================================================
+
+$global:CMAKE_GENERATOR =
+    $env:CMAKE_GENERATOR
+
+$global:CMAKE_BUILD_PARALLEL_LEVEL =
+    $env:CMAKE_BUILD_PARALLEL_LEVEL
+
+if ( [string]::IsNullOrWhiteSpace( $global:CMAKE_GENERATOR ) ) {
+    $global:CMAKE_GENERATOR = "Ninja"
+}
+
+if ( [string]::IsNullOrWhiteSpace( $global:CMAKE_BUILD_PARALLEL_LEVEL ) ) {
+    $global:CMAKE_BUILD_PARALLEL_LEVEL = "4"
+}
+
+Write-Host "CMAKE_GENERATOR = $global:CMAKE_GENERATOR"
+Write-Host "CMAKE_BUILD_PARALLEL_LEVEL = $global:CMAKE_BUILD_PARALLEL_LEVEL"
+
+# ============================================================
 # OneFLOW dependency installation prefixes
 # ============================================================
 
@@ -468,7 +489,7 @@ function InstallCGNS() {
         -DCGNS_BUILD_SHARED="ON" `
         ../
 
-    cmake --build . --parallel 4 --config release
+    cmake --build . --parallel $cmake_parallel_level --config release
 
     cmake --install . --prefix $cgns_prefix
 
@@ -568,7 +589,7 @@ function InstallMETIS() {
 
     cmake ../
 
-    cmake --build . --parallel 4 --config release
+    cmake --build . --parallel $cmake_parallel_level --config release
 
     cmake --install . --prefix $metis_prefix
 
