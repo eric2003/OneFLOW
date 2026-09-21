@@ -314,7 +314,10 @@ namespace
             else
             {
                 bool flag =
-                    boolIO.CalcVarValue( keyWord );
+                    CalcVarValue(
+                        keyWord,
+                        boolIO.boolNameList,
+                        boolIO.boolValueList );
 
                 if ( flag )
                 {
@@ -501,12 +504,6 @@ void BoolIO::ReadSuperBool( TextFileParser & textFileParser )
             varVaule2 );
 
     this->Add( varName, boolValue );
-}
-
-bool BoolIO::CalcVarValue( const std::string & varName )
-{
-    bool result = ONEFLOW::CalcVarValue( varName, this->boolNameList, this->boolValueList );
-    return result;
 }
 
 void BoolIO::ReadName(

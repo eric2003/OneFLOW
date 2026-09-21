@@ -99,7 +99,6 @@ public:
     void Add( const std::string & name, bool value );
     void ReadBool( TextFileParser & textFileParser );
     void ReadSuperBool( TextFileParser & textFileParser );
-    bool CalcVarValue( const std::string & varName );
     void ReadName(
         TextFileParser & textFileParser );
 
