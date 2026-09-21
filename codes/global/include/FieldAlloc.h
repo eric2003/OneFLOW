@@ -140,13 +140,17 @@ public:
     void ReadBool( TextFileParser & textFileParser );
     void ReadSuperBool( TextFileParser & textFileParser );
     bool CalcVarValue( const std::string & varName );
-    void Read(
-        TextFileParser & textFileParser,
-        int valueFlag );
+    void ReadName(
+        TextFileParser & textFileParser );
+
+    void ReadNameValue(
+        TextFileParser & textFileParser );
+
     void ReadFile(
-        const std::string & fileName,
-        int valueFlag = 0,
-        ParaNameDimData * paraNameDimData = nullptr );
+        const std::string & fileName );
+
+    void ReadValueFile(
+        const std::string & fileName );
 };
 
 bool CalcBoolExp( bool var1, const std::string & opName, bool var2 );

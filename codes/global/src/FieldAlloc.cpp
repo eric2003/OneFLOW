@@ -47,7 +47,7 @@ void FieldAlloc::InitField( int solverType, const std::string & basicString )
 {
     std::string fileName = Prj::GetSystemFileName( basicString + "/alloc/init.txt" );
     BoolIO boolIO;
-    boolIO.ReadFile( fileName, 1 );
+    boolIO.ReadValueFile( fileName );
 
     SetFieldValues(
         solverType,
@@ -376,86 +376,132 @@ bool BoolIO::CalcVarValue( const std::string & varName )
     return result;
 }
 
-void BoolIO::Read(
-    TextFileParser & textFileParser,
-    int valueFlag )
+void BoolIO::ReadName(
+    TextFileParser & textFileParser )
 {
-    if ( valueFlag == 0 )
-    {
-        std::string varName = textFileParser.ReadNextWord();
-        nameValuePair.nameList.push_back( varName );
-    }
-    else if ( valueFlag == 1 )
-    {
-        std::string varName = textFileParser.ReadNextWord();
-        nameValuePair.nameList.push_back( varName );
+    std::string varName =
+        textFileParser.ReadNextWord();
 
-        Real varValue = textFileParser.ReadNextDigit< Real >();
-        nameValuePair.valueList.push_back( varValue );
-    }
+    nameValuePair.nameList.push_back( varName );
+}
+
+void BoolIO::ReadNameValue(
+    TextFileParser & textFileParser )
+{
+    std::string varName =
+        textFileParser.ReadNextWord();
+
+    nameValuePair.nameList.push_back( varName );
+
+    Real varValue =
+        textFileParser.ReadNextDigit< Real >();
+
+    nameValuePair.valueList.push_back( varValue );
 }
 
 void BoolIO::ReadFile(
-    const std::string & fileName,
-    int valueFlag,
-    ParaNameDimData * paraNameDimData )
+    const std::string & fileName )
 {
     // \t is the tab key
     std::string separator = " \r\n\t#$,;\"()";
 
     TextFileParser textFileParser;
-    textFileParser.OpenFile( fileName, std::ios_base::in );
-    textFileParser.SetDefaultSeparator( separator );
+    textFileParser.OpenFile(
+        fileName,
+        std::ios_base::in );
+
+    textFileParser.SetDefaultSeparator(
+        separator );
 
     while ( ! textFileParser.ReachTheEndOfFile() )
     {
-        bool flag = textFileParser.ReadNextNonEmptyLine();
+        bool flag =
+            textFileParser.ReadNextNonEmptyLine();
+
         if ( ! flag ) break;
 
-        std::string keyWord = textFileParser.ReadNextWord();
+        std::string keyWord =
+            textFileParser.ReadNextWord();
 
         if ( keyWord == "true" )
         {
-            if ( valueFlag == 2 )
-            {
-                ReadFieldDefinition(
-                    textFileParser,
-                    *paraNameDimData );
-            }
-            else
-            {
-                this->Read(
-                    textFileParser,
-                    valueFlag );
-            }
+            this->ReadName(
+                textFileParser );
         }
         else if ( keyWord == "bool" )
         {
-            this->ReadBool( textFileParser );
+            this->ReadBool(
+                textFileParser );
         }
         else if ( keyWord == "superbool" )
         {
-            this->ReadSuperBool( textFileParser );
+            this->ReadSuperBool(
+                textFileParser );
         }
         else
         {
-            std::string expression = keyWord;
-            bool flag = this->CalcVarValue( expression );
+            bool flag =
+                this->CalcVarValue( keyWord );
 
             if ( flag )
             {
-                if ( valueFlag == 2 )
-                {
-                    ReadFieldDefinition(
-                        textFileParser,
-                        *paraNameDimData );
-                }
-                else
-                {
-                    this->Read(
-                        textFileParser,
-                        valueFlag );
-                }
+                this->ReadName(
+                    textFileParser );
+            }
+        }
+    }
+
+    textFileParser.CloseFile();
+}
+
+void BoolIO::ReadValueFile(
+    const std::string & fileName )
+{
+    // \t is the tab key
+    std::string separator = " \r\n\t#$,;\"()";
+
+    TextFileParser textFileParser;
+    textFileParser.OpenFile(
+        fileName,
+        std::ios_base::in );
+
+    textFileParser.SetDefaultSeparator(
+        separator );
+
+    while ( ! textFileParser.ReachTheEndOfFile() )
+    {
+        bool flag =
+            textFileParser.ReadNextNonEmptyLine();
+
+        if ( ! flag ) break;
+
+        std::string keyWord =
+            textFileParser.ReadNextWord();
+
+        if ( keyWord == "true" )
+        {
+            this->ReadNameValue(
+                textFileParser );
+        }
+        else if ( keyWord == "bool" )
+        {
+            this->ReadBool(
+                textFileParser );
+        }
+        else if ( keyWord == "superbool" )
+        {
+            this->ReadSuperBool(
+                textFileParser );
+        }
+        else
+        {
+            bool flag =
+                this->CalcVarValue( keyWord );
+
+            if ( flag )
+            {
+                this->ReadNameValue(
+                    textFileParser );
             }
         }
     }
