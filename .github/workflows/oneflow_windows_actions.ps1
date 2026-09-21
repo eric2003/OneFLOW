@@ -5,6 +5,7 @@
 $global:HDF5_VERSION = $env:HDF5_VERSION
 $global:CGNS_VERSION = $env:CGNS_VERSION
 $global:METIS_VERSION = $env:METIS_VERSION
+$global:MSMPI_VERSION = $env:MSMPI_VERSION
 
 if ( [string]::IsNullOrWhiteSpace( $global:HDF5_VERSION ) ) {
     throw "HDF5_VERSION is not defined."
@@ -18,9 +19,14 @@ if ( [string]::IsNullOrWhiteSpace( $global:METIS_VERSION ) ) {
     throw "METIS_VERSION is not defined."
 }
 
+if ( [string]::IsNullOrWhiteSpace( $global:MSMPI_VERSION ) ) {
+    throw "MSMPI_VERSION is not defined."
+}
+
 Write-Host "HDF5_VERSION  = $global:HDF5_VERSION"
 Write-Host "CGNS_VERSION  = $global:CGNS_VERSION"
 Write-Host "METIS_VERSION = $global:METIS_VERSION"
+Write-Host "MSMPI_VERSION = $global:MSMPI_VERSION"
 
 # ============================================================
 # OneFLOW build configuration
