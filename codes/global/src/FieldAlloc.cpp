@@ -157,6 +157,23 @@ namespace
         }
     }
 
+    bool CalcVarValue(
+        const std::string & varName,
+        StringField & boolName,
+        BoolField & boolVar )
+    {
+        for ( int i = 0; i < boolName.size(); ++ i )
+        {
+            if ( varName == boolName[ i ] )
+            {
+                return boolVar[ i ];
+            }
+        }
+
+        Fatal( "Unknown boolean variable: " + varName );
+
+        return false;
+    }
 
     void ReadFieldDefinitions(
         const std::string & fileName,
@@ -422,24 +439,6 @@ bool CalcBoolExp( const std::string & varName1, const std::string & opName, cons
     {
         return var1 != var2;
     }
-    return false;
-}
-
-bool CalcVarValue(
-    const std::string & varName,
-    StringField & boolName,
-    BoolField & boolVar )
-{
-    for ( int i = 0; i < boolName.size(); ++ i )
-    {
-        if ( varName == boolName[ i ] )
-        {
-            return boolVar[ i ];
-        }
-    }
-
-    Fatal( "Unknown boolean variable: " + varName );
-
     return false;
 }
 
