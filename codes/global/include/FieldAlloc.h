@@ -89,11 +89,6 @@ public:
 
 class TextFileParser;
 
-void AddInterfaceFieldNames(
-    int solverType,
-    int fieldType,
-    const StringField & nameList );
-
 class BoolIO
 {
 public:

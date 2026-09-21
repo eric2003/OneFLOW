@@ -134,6 +134,30 @@ namespace
         }
     }
 
+    void AddInterfaceFieldNames(
+        int solverType,
+        int fieldType,
+        const StringField & nameList )
+    {
+        VarNameSolver * varNameSolver =
+            VarNameFactory::GetVarNameSolver(
+                solverType,
+                fieldType );
+
+        int numberOfVariables = nameList.size();
+
+        for ( int iVariable = 0;
+            iVariable < numberOfVariables;
+            ++ iVariable )
+        {
+            const std::string & varName =
+                nameList[ iVariable ];
+
+            varNameSolver->AddFieldName( varName );
+        }
+    }
+
+
     void ReadFieldDefinitions(
         const std::string & fileName,
         ParaNameDimData & paraNameDimData )
@@ -430,30 +454,6 @@ int GetVarDimension( const std::string & dimName )
         return GetDataValue< int >( dimName );
     }
 }
-
-void AddInterfaceFieldNames(
-    int solverType,
-    int fieldType,
-    const StringField & nameList )
-{
-    VarNameSolver * varNameSolver =
-        VarNameFactory::GetVarNameSolver(
-            solverType,
-            fieldType );
-
-    int numberOfVariables = nameList.size();
-
-    for ( int iVariable = 0;
-        iVariable < numberOfVariables;
-        ++ iVariable )
-    {
-        const std::string & varName =
-            nameList[ iVariable ];
-
-        varNameSolver->AddFieldName( varName );
-    }
-}
-
 
 void BoolIO::Add( const std::string & name, bool value )
 {
