@@ -37,14 +37,6 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-FieldProperty::FieldProperty()
-{
-}
-
-FieldProperty::~FieldProperty()
-{
-}
-
 void FieldProperty::AddField( const std::string & fieldName, int nEqu )
 {
     this->data[ fieldName ] = nEqu;
@@ -66,14 +58,6 @@ int FieldProperty::GetNEqu( const std::string & fieldName ) const
 const FieldProperty::Data & FieldProperty::GetData() const
 {
     return this->data;
-}
-
-IFieldProperty::IFieldProperty()
-{
-}
-
-IFieldProperty::~IFieldProperty()
-{
 }
 
 void IFieldProperty::AllocateInterfaceField( int nIFaces, DataStorage * dataStorage )
@@ -186,14 +170,6 @@ void IFieldProperty::DeAllocateInterfaceField( DataStorage * dataStorage )
 
 std::map< std::string, int > GFieldProperty::data;
 
-GFieldProperty::GFieldProperty()
-{
-}
-
-GFieldProperty::~GFieldProperty()
-{
-}
-
 void GFieldProperty::AddField( const std::string & fieldName, int nEqu )
 {
     GFieldProperty::data[ fieldName ] = nEqu;
@@ -212,7 +188,6 @@ int GFieldProperty::GetNEqu( const std::string & fieldName )
 
 FieldManager::FieldManager()
 {
-    iFieldProperty = std::make_unique< IFieldProperty >();
     usdPara        = std::make_unique< UsdPara >();
 }
 
@@ -235,7 +210,7 @@ void FieldManager::AddField(
 
         if ( location == FieldLocation::Inner )
         {
-            this->iFieldProperty->AddField( fieldName, nEqu );
+            this->iFieldProperty.AddField( fieldName, nEqu );
             this->commManager.innerField.AddField( fieldName, nEqu );
         }
         else if ( location == FieldLocation::Face )

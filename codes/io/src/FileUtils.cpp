@@ -23,19 +23,13 @@ License
 #include "FileUtils.h"
 #include "Fatal.h"
 
-#ifdef _WINDOWS
+#ifdef _WIN32
 #include <windows.h>
 #include <direct.h>
 #include <io.h>
 #else
-    #ifdef WIN_GNU
-        #include <windows.h>
-        #include <direct.h>
-        #include <io.h>
-    #else
-        #include <sys/stat.h>
-        #include <unistd.h>
-    #endif
+#include <sys/stat.h>
+#include <unistd.h>
 #endif
 
 #include <vector>

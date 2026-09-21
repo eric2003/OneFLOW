@@ -34,9 +34,6 @@ public:
     using Data = std::map< std::string, int >;
 
 public:
-    FieldProperty();
-    ~FieldProperty();
-
     void AddField( const std::string & fieldName, int nEqu );
     int GetNEqu( const std::string & fieldName ) const;
 
@@ -51,9 +48,6 @@ class DataStorage;
 class IFieldProperty : public FieldProperty
 {
 public:
-    IFieldProperty();
-    ~IFieldProperty();
-public:
     void AllocateInterfaceField( int nIFaces, DataStorage * dataStorage );
     void DeAllocateInterfaceField( DataStorage * dataStorage );
     void UploadInterfaceValue();
@@ -64,9 +58,6 @@ public:
 
 class GFieldProperty
 {
-public:
-    GFieldProperty();
-    ~GFieldProperty();
 public:
     static void AddField( const std::string & fieldName, int nEqu );
     static int GetNEqu( const std::string & fieldName );
@@ -93,7 +84,7 @@ public:
     ~FieldManager();
 
 public:
-    std::unique_ptr< IFieldProperty > iFieldProperty;
+    IFieldProperty iFieldProperty;
     std::unique_ptr< UsdPara > usdPara;
 
     FieldPropertyData commManager;

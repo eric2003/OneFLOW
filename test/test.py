@@ -27,6 +27,7 @@ import json
 import os
 import sys
 import logging
+import time
 import shutil
 import subprocess
 import tempfile
@@ -264,6 +265,7 @@ def run_test(
     that records *why* a case failed, not just that it did.
     """
     case_name = os.path.basename(os.path.normpath(test_project_dir))
+    start_time = time.perf_counter()
     logger.debug("test_project_dir=%s", test_project_dir)
 
     test_script = test_project_dir + "/autotest/test.txt"
@@ -294,10 +296,18 @@ def run_test(
         residual_ok=residual_ok,
         failure_reasons=failure_reasons,
     )
+    elapsed_time = time.perf_counter() - start_time
+
     logger.info(
-        "case=%s return_code=%s files_ok=%s residual_ok=%s passed=%s",
-        case_name, return_code, files_ok, residual_ok, result.passed,
-    )
+        "case=%s return_code=%s files_ok=%s residual_ok=%s "
+        "passed=%s elapsed=%.2f s",
+        case_name,
+        return_code,
+        files_ok,
+        residual_ok,
+        result.passed,
+        elapsed_time,
+    )    
     return result
 
 
