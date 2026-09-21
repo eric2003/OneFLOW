@@ -162,6 +162,26 @@ function MyDownloadFile2( $fullFilePath, $my_filename ) {
 # Microsoft MPI
 # ============================================================
 
+function GetMSMPIProductVersion() {
+    switch ( $global:MSMPI_VERSION ) {
+        "10.1.3" {
+            return "10.1.12498.52"
+        }
+
+        "10.1.2" {
+            return "10.1.12498.18"
+        }
+
+        "10.1.1" {
+            return "10.1.12498.16"
+        }
+
+        default {
+            throw "Unsupported MS-MPI version: $global:MSMPI_VERSION"
+        }
+    }
+}
+
 function GetMSMPIBaseUrl() {
     switch ( $global:MSMPI_VERSION ) {
         "10.1.3" {
@@ -201,22 +221,40 @@ function InstallMSMPI() {
 
     # Resolve the download location from the selected MPI version.
     $download_url = GetMSMPIBaseUrl
+    $expected_product_version = GetMSMPIProductVersion
 
     Write-Host "===== Microsoft MPI ====="
-    Write-Host "MPI version:      $global:MSMPI_VERSION"
-    Write-Host "MPI download URL: $download_url"
-    Write-Host "MPI runtime path: $msmpi_bin_path"
-    Write-Host "MPI SDK path:     $msmpi_sdk_path"
+    Write-Host "MPI version:           $global:MSMPI_VERSION"
+    Write-Host "MPI product version:   $expected_product_version"
+    Write-Host "MPI download URL:      $download_url"
+    Write-Host "MPI runtime path:      $msmpi_bin_path"
+    Write-Host "MPI SDK path:          $msmpi_sdk_path"
 
     # Check whether the complete MPI installation already exists.
-    $runtime_ready =
+    $runtime_exists =
         Test-Path $msmpi_exe
-
+    
     $sdk_ready =
         ( Test-Path $msmpi_sdk_include ) -and
         ( Test-Path $msmpi_sdk_lib )
+    
+    $runtime_version = $null
+    $runtime_version_match = $false
+    
+    if ( $runtime_exists ) {
+        $runtime_version =
+            ( Get-Item $msmpi_exe ).VersionInfo.ProductVersion
+    
+        $runtime_version_match =
+            ( $runtime_version -eq $expected_product_version )
+    }
 
-    if ( $runtime_ready -and $sdk_ready ) {
+    Write-Host "MPI runtime exists:       $runtime_exists"
+    Write-Host "MPI runtime version:      $runtime_version"
+    Write-Host "MPI runtime version match: $runtime_version_match"
+    Write-Host "MPI SDK ready:            $sdk_ready"
+
+    if ( $runtime_version_match -and $sdk_ready ) {
         Write-Host "===== Microsoft MPI already installed ====="
     }
     else {
