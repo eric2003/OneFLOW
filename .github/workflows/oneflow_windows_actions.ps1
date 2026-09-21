@@ -489,7 +489,7 @@ function InstallCGNS() {
         -DCGNS_BUILD_SHARED="ON" `
         ../
 
-    cmake --build . --parallel $cmake_parallel_level --config release
+    cmake --build . --parallel $global:CMAKE_BUILD_PARALLEL_LEVEL --config release	
 
     cmake --install . --prefix $cgns_prefix
 
@@ -589,7 +589,7 @@ function InstallMETIS() {
 
     cmake ../
 
-    cmake --build . --parallel $cmake_parallel_level --config release
+    cmake --build . --parallel $global:CMAKE_BUILD_PARALLEL_LEVEL --config release
 
     cmake --install . --prefix $metis_prefix
 
@@ -742,21 +742,14 @@ function CompileOneFLOW() {
     
     where.exe cl
     where.exe link
-    
+	
+    # Use the script-level build configuration shared by all build stages.
     $cmake_generator =
-        $env:CMAKE_GENERATOR
-    
+        $global:CMAKE_GENERATOR
+
     $cmake_parallel_level =
-        $env:CMAKE_BUILD_PARALLEL_LEVEL
-    
-    if ( [string]::IsNullOrWhiteSpace( $cmake_generator ) ) {
-        $cmake_generator = "Ninja"
-    }
-    
-    if ( [string]::IsNullOrWhiteSpace( $cmake_parallel_level ) ) {
-        $cmake_parallel_level = "4"
-    }
-    
+        $global:CMAKE_BUILD_PARALLEL_LEVEL
+
     Write-Host "CMAKE_GENERATOR = $cmake_generator"
     Write-Host "CMAKE_BUILD_PARALLEL_LEVEL = $cmake_parallel_level"
     
@@ -794,7 +787,8 @@ function CompileOneFLOW() {
     # Build
     cmake `
         --build . `
-        --config $cmake_config
+        --config $cmake_config `
+        --parallel $cmake_parallel_level
     
     if ( $LASTEXITCODE -ne 0 ) {
         throw "CMake build failed with exit code $LASTEXITCODE."
