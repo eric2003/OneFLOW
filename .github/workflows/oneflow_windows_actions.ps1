@@ -279,7 +279,7 @@ function InstallMSMPI() {
             Write-Host "Microsoft MPI SDK installation complete."
         }
 
-        if ( -not $runtime_ready ) {
+        if ( -not $runtime_exists ) {
             Write-Host "MPI Runtime is not available."
             Write-Host "Installing Microsoft MPI Runtime..."
 
@@ -302,6 +302,21 @@ function InstallMSMPI() {
     # Validate the final installation.
     if ( -not ( Test-Path $msmpi_exe ) ) {
         Write-Error "MPI executable: NOT FOUND"
+        exit 1
+    }
+
+    $installed_runtime_version =
+        ( Get-Item $msmpi_exe ).VersionInfo.ProductVersion
+    
+    Write-Host "MPI installed product version: $installed_runtime_version"
+    Write-Host "MPI expected product version:   $expected_product_version"
+    
+    if ( $installed_runtime_version -ne $expected_product_version ) {
+        Write-Error `
+            "MPI runtime version mismatch. " +
+            "Expected $expected_product_version, " +
+            "but found $installed_runtime_version."
+    
         exit 1
     }
 
