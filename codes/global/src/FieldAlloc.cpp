@@ -117,6 +117,23 @@ namespace
         }
     }
 
+    void SetFieldValues(
+        int solverType,
+        const NameValuePair & valuePair )
+    {
+        FieldManager * fieldManager =
+            FieldFactory::GetFieldManager( solverType );
+
+        int nVar = valuePair.nameList.size();
+
+        for ( int iVar = 0; iVar < nVar; ++ iVar )
+        {
+            fieldManager->SetField(
+                valuePair.nameList[ iVar ],
+                valuePair.valueList[ iVar ] );
+        }
+    }
+
     void ReadFieldDefinitions(
         const std::string & fileName,
         ParaNameDimData & paraNameDimData )
@@ -339,24 +356,6 @@ void FieldAlloc::AllocateInterfaceField( IFieldProperty * iFieldProperty )
 void FieldAlloc::AllocateOversetInterfaceField( IFieldProperty * iFieldProperty )
 {
 }
-
-void SetFieldValues(
-    int solverType,
-    const NameValuePair & valuePair )
-{
-    FieldManager * fieldManager =
-        FieldFactory::GetFieldManager( solverType );
-
-    int nVar = valuePair.nameList.size();
-
-    for ( int iVar = 0; iVar < nVar; ++ iVar )
-    {
-        fieldManager->SetField(
-            valuePair.nameList[ iVar ],
-            valuePair.valueList[ iVar ] );
-    }
-}
-
 
 bool CalcBoolExp( bool var1, const std::string & opName, bool var2 )
 {

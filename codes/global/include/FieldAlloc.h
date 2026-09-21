@@ -36,10 +36,6 @@ public:
     RealField valueList;
 };
 
-void SetFieldValues(
-    int solverType,
-    const NameValuePair & valuePair );
-
 class FieldAlloc
 {
 public:
