@@ -17,7 +17,8 @@ permissions:
   contents: read
   
 env:
-  GCC_VERSION: 12   # 这里修改 10 /11 /12 /13 切换编译器版本
+  GCC_VERSION: 12
+  BUILD_PARALLEL_LEVEL: 4
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -49,75 +50,74 @@ jobs:
           CXX: g++-${{ env.GCC_VERSION }}
         run: |
           echo "===== Build environment ====="
-          
+
           echo "Processor count:"
           nproc
-          
+
           echo "Memory:"
           free -h
-          
+
+          echo "GCC:"
+          gcc-${{ env.GCC_VERSION }} --version | head -n 1
+
+          echo "G++:"
+          g++-${{ env.GCC_VERSION }} --version | head -n 1
+
           echo "CMake:"
-          cmake --version
-          
+          cmake --version | head -n 1
+
           echo "Make:"
           make --version | head -n 1
-          
-          echo "GCC:"
-          gcc --version | head -n 1
-          
-          echo "G++:"
-          g++ --version | head -n 1
-          
-          echo "Linker:"
-          ld --version | head -n 1
-          
+
+          echo "Build parallel level:"
+          echo "${{ env.BUILD_PARALLEL_LEVEL }}"
+
           echo "============================"
-          
+
           cd ${{ github.workspace }}
-          ls
           mkdir build
           cd build
-          echo MPI_HOME_INC
-          echo MPI_HOME_LIB
+
           export MPI_HOME_INC="/usr/include/x86_64-linux-gnu/mpich"
           export MPI_HOME_LIB="/usr/lib/x86_64-linux-gnu/libmpich.so"
+
           export CGNS_HOME_INC="/usr/include"
           export CGNS_HOME_LIB="/usr/lib/x86_64-linux-gnu/libcgns.so"
+
           export METIS_HOME_INC="/usr/include"
           export METIS_HOME_LIB="/usr/lib/x86_64-linux-gnu/libmetis.so"
-          cmake --version
-          
+
           echo "===== CMake Configure ====="
-          
+
           configure_start=$(date +%s)
-          
+
           cmake -DCMAKE_INSTALL_PREFIX=${{ github.workspace }}/Run ../
-          
+
           configure_end=$(date +%s)
-          
-          echo "CMake Configure: $((configure_end - configure_start)) s"     
-          
+
+          echo "CMake Configure: $((configure_end - configure_start)) s"
+
           echo "===== CMake Build ====="
-          
+
           build_start=$(date +%s)
-          
-          make -j 4
-          
+
+          make -j ${{ env.BUILD_PARALLEL_LEVEL }}
+
           build_end=$(date +%s)
-          
+
           echo "CMake Build: $((build_end - build_start)) s"
 
           echo "===== CMake Install ====="
-          
+
           install_start=$(date +%s)
-          
+
           make install
-          
+
           install_end=$(date +%s)
-          
+
           echo "CMake Install: $((install_end - install_start)) s"
-          
-        shell: bash 
+
+        shell: bash
       - name: Unit Test
         env:
           CC: gcc-${{ env.GCC_VERSION }}
