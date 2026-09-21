@@ -553,17 +553,45 @@ void ReadSuperPara::AddBasicFieldProperty(
     }
 }
 
+void ReadSuperPara::ReadFieldDefinitions(
+    const std::string & fileName )
+{
+    TextFileParser textFileParser;
+
+    // \t is the tab key
+    std::string separator = " \r\n\t#$,;\"()";
+
+    textFileParser.OpenFile(
+        fileName,
+        std::ios_base::in );
+
+    textFileParser.SetDefaultSeparator( separator );
+
+    while ( ! textFileParser.ReachTheEndOfFile() )
+    {
+        bool flag = textFileParser.ReadNextNonEmptyLine();
+        if ( ! flag ) break;
+
+        std::string keyWord =
+            textFileParser.ReadNextWord();
+
+        if ( keyWord == "true" )
+        {
+            ReadFieldDefinition(
+                textFileParser,
+                this->paraNameDimData );
+        }
+    }
+
+    textFileParser.CloseFile();
+}
+
 void ReadSuperPara::Register(
     const std::string & fileName,
     FieldLocation location,
     bool isUnsteady )
 {
-    BoolIO boolIO;
-
-    boolIO.ReadFile(
-        fileName,
-        2,
-        &this->paraNameDimData );
+    this->ReadFieldDefinitions( fileName );
 
     if ( isUnsteady )
     {
