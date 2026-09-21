@@ -113,6 +113,4 @@ public:
         const std::string & fileName );
 };
 
-int GetVarDimension( const std::string & dimName );
-
 EndNameSpace
