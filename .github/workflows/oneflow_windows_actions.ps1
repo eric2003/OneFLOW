@@ -495,12 +495,22 @@ function InstallCGNS() {
     Write-Host "HDF5_DIR for CGNS = $hdf5_cmake_dir"
     
     cmake `
+        -DCMAKE_C_COMPILER="cl" `
+        -DCMAKE_CXX_COMPILER="cl" `
         -DHDF5_DIR="$hdf5_cmake_dir" `
         -DCGNS_ENABLE_64BIT="ON" `
         -DCGNS_ENABLE_HDF5="ON" `
         -DCGNS_BUILD_SHARED="ON" `
         ../
-
+		
+    if ( Test-Path "CMakeCache.txt" ) {
+        Write-Host "===== CGNS compiler configuration ====="
+    
+        Select-String `
+            -Path "CMakeCache.txt" `
+            -Pattern "CMAKE_C_COMPILER:FILEPATH|CMAKE_CXX_COMPILER:FILEPATH|CMAKE_C_COMPILER_ID|CMAKE_C_COMPILER_VERSION"
+    }
+	
     cmake --build . --parallel $global:CMAKE_BUILD_PARALLEL_LEVEL --config release	
 
     cmake --install . --prefix $cgns_prefix
@@ -680,6 +690,56 @@ function ExitDownload() {
     cd ..
 }
 
+# ============================================================
+# C/C++ compiler environment
+# ============================================================
+
+function InitializeMSVCEnvironment() {
+    if ( $global:CMAKE_COMPILER -ne "MSVC" ) {
+        throw "Unsupported CMAKE_COMPILER: $global:CMAKE_COMPILER"
+    }
+
+    $vswhere =
+        "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe"
+
+    if ( -not (Test-Path $vswhere) ) {
+        throw "vswhere.exe not found: $vswhere"
+    }
+
+    $vsPath = & $vswhere `
+        -latest `
+        -products * `
+        -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 `
+        -property installationPath
+
+    if ( [string]::IsNullOrWhiteSpace($vsPath) ) {
+        throw "Visual Studio with MSVC C++ tools was not found."
+    }
+
+    $vsDevCmd =
+        Join-Path $vsPath "Common7\Tools\VsDevCmd.bat"
+
+    if ( -not (Test-Path $vsDevCmd) ) {
+        throw "VsDevCmd.bat not found: $vsDevCmd"
+    }
+
+    cmd /c "`"$vsDevCmd`" -arch=x64 && set" |
+    ForEach-Object {
+        if ( $_ -match "^(.*?)=(.*)$" ) {
+            Set-Item `
+                -Path "Env:$($matches[1])" `
+                -Value $matches[2]
+        }
+    }
+
+    Write-Host "===== MSVC environment ====="
+
+    where.exe cl
+    where.exe link
+
+    Write-Host "MSVC environment initialized."
+}
+
 
 # ============================================================
 # OneFLOW build
@@ -725,35 +785,7 @@ function CompileOneFLOW() {
     }
 
     # Initialize the MSVC build environment.
-    $vswhere = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe"
-    
-    $vsPath = & $vswhere `
-        -latest `
-        -products * `
-        -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 `
-        -property installationPath
-    
-    if ( [string]::IsNullOrWhiteSpace($vsPath) ) {
-        throw "Visual Studio with MSVC C++ tools was not found."
-    }
-    
-    $vsDevCmd = Join-Path $vsPath "Common7\Tools\VsDevCmd.bat"
-    
-    if ( -not (Test-Path $vsDevCmd) ) {
-        throw "VsDevCmd.bat not found: $vsDevCmd"
-    }
-    
-    cmd /c "`"$vsDevCmd`" -arch=x64 && set" |
-    ForEach-Object {
-        if ( $_ -match "^(.*?)=(.*)$" ) {
-            Set-Item -Path "Env:$($matches[1])" -Value $matches[2]
-        }
-    }
-    
-    Write-Host "===== MSVC environment ====="
-    
-    where.exe cl
-    where.exe link
+    InitializeMSVCEnvironment
 
     # Use the script-level build configuration shared by all build stages.
     $cmake_generator =
@@ -852,6 +884,8 @@ function CompileOneFLOW() {
 
 function main() {
     InitDownload
+	
+	InitializeMSVCEnvironment
 
     $start = Get-Date
 
