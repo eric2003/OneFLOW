@@ -5,6 +5,7 @@
 $global:HDF5_VERSION = $env:HDF5_VERSION
 $global:CGNS_VERSION = $env:CGNS_VERSION
 $global:METIS_VERSION = $env:METIS_VERSION
+$global:MSMPI_VERSION = $env:MSMPI_VERSION
 
 if ( [string]::IsNullOrWhiteSpace( $global:HDF5_VERSION ) ) {
     throw "HDF5_VERSION is not defined."
@@ -18,9 +19,14 @@ if ( [string]::IsNullOrWhiteSpace( $global:METIS_VERSION ) ) {
     throw "METIS_VERSION is not defined."
 }
 
+if ( [string]::IsNullOrWhiteSpace( $global:MSMPI_VERSION ) ) {
+    throw "MSMPI_VERSION is not defined."
+}
+
 Write-Host "HDF5_VERSION  = $global:HDF5_VERSION"
 Write-Host "CGNS_VERSION  = $global:CGNS_VERSION"
 Write-Host "METIS_VERSION = $global:METIS_VERSION"
+Write-Host "MSMPI_VERSION = $global:MSMPI_VERSION"
 
 # ============================================================
 # OneFLOW build configuration
@@ -152,10 +158,49 @@ function MyDownloadFile2( $fullFilePath, $my_filename ) {
     )
 }
 
-
 # ============================================================
 # Microsoft MPI
 # ============================================================
+
+function GetMSMPIProductVersion() {
+    switch ( $global:MSMPI_VERSION ) {
+        "10.1.3" {
+            return "10.1.12498.52"
+        }
+
+        "10.1.2" {
+            return "10.1.12498.18"
+        }
+
+        "10.1.1" {
+            return "10.1.12498.16"
+        }
+
+        default {
+            throw "Unsupported MS-MPI version: $global:MSMPI_VERSION"
+        }
+    }
+}
+
+function GetMSMPIBaseUrl() {
+    switch ( $global:MSMPI_VERSION ) {
+        "10.1.3" {
+            return "https://download.microsoft.com/download/7/2/7/72731ebb-b63c-4170-ade7-836966263a8f/"
+        }
+
+        "10.1.2" {
+            return "https://download.microsoft.com/download/a/5/2/a5207ca5-1203-491a-8fb8-906fd68ae623/"
+        }
+
+        "10.1.1" {
+            return "https://download.microsoft.com/download/2/9/e/29efe9b1-16d7-4912-a229-6734b0c4e235/"
+        }
+
+        default {
+            throw "Unsupported MS-MPI version: $global:MSMPI_VERSION"
+        }
+    }
+}
 
 function InstallMSMPI() {
     # Microsoft MPI installation paths.
@@ -174,19 +219,42 @@ function InstallMSMPI() {
     $msmpi_sdk_lib =
         "$msmpi_sdk_path/Lib"
 
+    # Resolve the download location from the selected MPI version.
+    $download_url = GetMSMPIBaseUrl
+    $expected_product_version = GetMSMPIProductVersion
+
     Write-Host "===== Microsoft MPI ====="
-    Write-Host "MPI runtime path: $msmpi_bin_path"
-    Write-Host "MPI SDK path:     $msmpi_sdk_path"
+    Write-Host "MPI version:           $global:MSMPI_VERSION"
+    Write-Host "MPI product version:   $expected_product_version"
+    Write-Host "MPI download URL:      $download_url"
+    Write-Host "MPI runtime path:      $msmpi_bin_path"
+    Write-Host "MPI SDK path:          $msmpi_sdk_path"
 
     # Check whether the complete MPI installation already exists.
-    $runtime_ready =
+    $runtime_exists =
         Test-Path $msmpi_exe
-
+    
     $sdk_ready =
         ( Test-Path $msmpi_sdk_include ) -and
         ( Test-Path $msmpi_sdk_lib )
+    
+    $runtime_version = $null
+    $runtime_version_match = $false
+    
+    if ( $runtime_exists ) {
+        $runtime_version =
+            ( Get-Item $msmpi_exe ).VersionInfo.ProductVersion
+    
+        $runtime_version_match =
+            ( $runtime_version -eq $expected_product_version )
+    }
 
-    if ( $runtime_ready -and $sdk_ready ) {
+    Write-Host "MPI runtime exists:       $runtime_exists"
+    Write-Host "MPI runtime version:      $runtime_version"
+    Write-Host "MPI runtime version match: $runtime_version_match"
+    Write-Host "MPI SDK ready:            $sdk_ready"
+
+    if ( $runtime_version_match -and $sdk_ready ) {
         Write-Host "===== Microsoft MPI already installed ====="
     }
     else {
@@ -195,9 +263,6 @@ function InstallMSMPI() {
         if ( -not $sdk_ready ) {
             Write-Host "MPI SDK is not available."
             Write-Host "Installing Microsoft MPI SDK..."
-
-            $download_url =
-                "https://download.microsoft.com/download/A/E/0/AE002626-9D9D-448D-8197-1EA510E297CE/"
 
             $msmpisdk_filename = "msmpisdk.msi"
 
@@ -214,12 +279,9 @@ function InstallMSMPI() {
             Write-Host "Microsoft MPI SDK installation complete."
         }
 
-        if ( -not $runtime_ready ) {
+        if ( -not $runtime_exists ) {
             Write-Host "MPI Runtime is not available."
             Write-Host "Installing Microsoft MPI Runtime..."
-
-            $download_url =
-                "https://download.microsoft.com/download/A/E/0/AE002626-9D9D-448D-8197-1EA510E297CE/"
 
             $msmpisetup_filename = "msmpisetup.exe"
 
@@ -240,6 +302,21 @@ function InstallMSMPI() {
     # Validate the final installation.
     if ( -not ( Test-Path $msmpi_exe ) ) {
         Write-Error "MPI executable: NOT FOUND"
+        exit 1
+    }
+
+    $installed_runtime_version =
+        ( Get-Item $msmpi_exe ).VersionInfo.ProductVersion
+    
+    Write-Host "MPI installed product version: $installed_runtime_version"
+    Write-Host "MPI expected product version:   $expected_product_version"
+    
+    if ( $installed_runtime_version -ne $expected_product_version ) {
+        Write-Error `
+            "MPI runtime version mismatch. " +
+            "Expected $expected_product_version, " +
+            "but found $installed_runtime_version."
+    
         exit 1
     }
 
@@ -609,11 +686,31 @@ function InstallMETIS() {
 
     cd build
 
-    cmake ../
+    cmake `
+        -DCMAKE_C_COMPILER="cl" `
+        -DCMAKE_CXX_COMPILER="cl" `
+        ../
 
-    cmake --build . --parallel $global:CMAKE_BUILD_PARALLEL_LEVEL --config release
+    if ( $LASTEXITCODE -ne 0 ) {
+        throw "METIS CMake configure failed with exit code $LASTEXITCODE."
+    }
 
-    cmake --install . --prefix $metis_prefix
+    cmake `
+        --build . `
+        --parallel $global:CMAKE_BUILD_PARALLEL_LEVEL `
+        --config release
+
+    if ( $LASTEXITCODE -ne 0 ) {
+        throw "METIS CMake build failed with exit code $LASTEXITCODE."
+    }
+
+    cmake `
+        --install . `
+        --prefix $metis_prefix
+
+    if ( $LASTEXITCODE -ne 0 ) {
+        throw "METIS CMake install failed with exit code $LASTEXITCODE."
+    }
 
     cd ../../
 
@@ -748,6 +845,25 @@ function InitializeMSVCEnvironment() {
 function CompileOneFLOW() {
     Write-Host "Compile OneFLOW ..."
 
+    Write-Host "===== Build environment ====="
+
+    Write-Host "Processor count: $([Environment]::ProcessorCount)"
+
+    Write-Host "CMake version:"
+    cmake --version
+
+    Write-Host "Ninja version:"
+    ninja --version
+
+    Write-Host "MSVC compiler:"
+    where.exe cl
+    cl 2>&1 | Select-Object -First 1
+
+    Write-Host "Linker:"
+    where.exe link
+
+    Write-Host "============================"
+
     mkdir build
 
     cd build
@@ -784,53 +900,51 @@ function CompileOneFLOW() {
         exit 1
     }
 
-    # Initialize the MSVC build environment.
-    InitializeMSVCEnvironment
-
-    # Use the script-level build configuration shared by all build stages.
     $cmake_generator =
         $global:CMAKE_GENERATOR
-    
+
     $cmake_compiler =
         $global:CMAKE_COMPILER
-    
+
     $cmake_parallel_level =
         $global:CMAKE_BUILD_PARALLEL_LEVEL
-    
+
     Write-Host "CMAKE_GENERATOR = $cmake_generator"
     Write-Host "CMAKE_COMPILER = $cmake_compiler"
     Write-Host "CMAKE_BUILD_PARALLEL_LEVEL = $cmake_parallel_level"
-    
-    $start = Get-Date
-    	
+
     $cmake_config = "Release"
 
     $cmake_c_compiler = $null
     $cmake_cxx_compiler = $null
-    
+
     switch ( $cmake_compiler ) {
         "MSVC" {
             $cmake_c_compiler = "cl"
             $cmake_cxx_compiler = "cl"
         }
-    
+
         default {
             throw "Unsupported CMAKE_COMPILER: $cmake_compiler"
         }
     }
 
     $cmake_config_args = @()
-    
+
     # Ninja is a single-config generator.
     # Its build type must be selected during configure.
     if ( $cmake_generator -like "Ninja*" ) {
-        $cmake_config_args += "-DCMAKE_BUILD_TYPE=$cmake_config"
+        $cmake_config_args +=
+            "-DCMAKE_BUILD_TYPE=$cmake_config"
     }
 
-    
     Write-Host "CMAKE_CONFIG = $cmake_config"
-	
+
     # Configure
+    Write-Host "===== CMake Configure ====="
+
+    $configure_start = Get-Date
+
     cmake `
         -G "$cmake_generator" `
         -DCMAKE_C_COMPILER="$cmake_c_compiler" `
@@ -839,42 +953,48 @@ function CompileOneFLOW() {
         -DCGNS_ROOT="$cgns_root" `
         @cmake_config_args `
         ../
-    
+
     if ( $LASTEXITCODE -ne 0 ) {
         throw "CMake configure failed with exit code $LASTEXITCODE."
     }
-    
-  
-    $start = Get-Date
-    
+
+    Write-Host `
+        "===== CMake Configure: $((Get-Date) - $configure_start) ====="
+
     # Build
+    Write-Host "===== CMake Build ====="
+
+    $build_start = Get-Date
+
     cmake `
         --build . `
         --config $cmake_config `
         --parallel $cmake_parallel_level
-    
+
     if ( $LASTEXITCODE -ne 0 ) {
         throw "CMake build failed with exit code $LASTEXITCODE."
-    }	
-    
-    Write-Host "===== CMake Build: $((Get-Date) - $start) ====="
-    
-    $start = Get-Date
-    
+    }
+
+    Write-Host `
+        "===== CMake Build: $((Get-Date) - $build_start) ====="
+
     # Install
+    Write-Host "===== CMake Install ====="
+
+    $install_start = Get-Date
+
     cmake `
         --install . `
         --prefix $oneflow_prefix
-    
+
     if ( $LASTEXITCODE -ne 0 ) {
         throw "CMake install failed with exit code $LASTEXITCODE."
     }
-    
-    Write-Host "===== CMake Install: $((Get-Date) - $start) ====="
-    
+
+    Write-Host `
+        "===== CMake Install: $((Get-Date) - $install_start) ====="
+
     Write-Host "Compile OneFLOW complete..."
-
-
 }
 
 

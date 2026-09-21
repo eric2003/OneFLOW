@@ -1,5 +1,5 @@
 # This is a basic workflow to help you get started with Actions
-name: ONEFLOW_Windows_CI
+name: OneFLOW_Windows_CI
 
 # Controls when the workflow will run
 on:
@@ -19,14 +19,14 @@ permissions:
 
 env:
   CMAKE_GENERATOR: "Ninja"
-
   CMAKE_COMPILER: "MSVC"
-
   CMAKE_BUILD_PARALLEL_LEVEL: "8"
-
+  
+  # Dependency versions
   HDF5_VERSION: "1.14.3"
   CGNS_VERSION: "4.4.0"
-  METIS_VERSION: "5.1.0"  
+  METIS_VERSION: "5.1.0"
+  MSMPI_VERSION: "10.1.3"
   
 jobs:
   build:

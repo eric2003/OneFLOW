@@ -80,21 +80,42 @@ void FieldAlloc::RegisterInterfaceVar( int solverType, const std::string & basic
     }
 }
 
-void FieldAlloc::AllocateGlobalField( int solverType, const std::string & basicString )
+void FieldAlloc::AllocateGlobalField(
+    int solverType,
+    const std::string & basicString )
 {
     FieldFactory::AddFieldManager( solverType );
-    StringField fileNameList;
-    FieldAlloc::CalcInnerFieldFileName( basicString, fileNameList );
 
-    for ( int iFile = 0; iFile < fileNameList.size(); ++ iFile )
+    const FieldFileSpec fieldFileSpecs[] =
     {
-        ReadSuperPara readSuperPara;
+        { "unsteady", FieldLocation::Inner,    true  },
+        { "inner",    FieldLocation::Inner,    false },
+        { "face",     FieldLocation::Face,     false },
+        { "bc",       FieldLocation::Boundary, false }
+    };
 
+    std::string rootString =
+        Prj::GetSystemFileName(
+            basicString + "/alloc/" );
+
+    OStream & logger = OStream::Instance();
+
+    for ( const FieldFileSpec & spec : fieldFileSpecs )
+    {
+        logger.ClearAll();
+        logger << rootString << spec.name << ".txt";
+
+        ReadSuperPara readSuperPara;
         readSuperPara.solverType = solverType;
-        readSuperPara.Register( fileNameList[ iFile ], iFile );
+
+        readSuperPara.Register(
+            logger.str(),
+            spec.location,
+            spec.isUnsteady );
     }
 
-    FieldAlloc::AllocateAllKindsOfInterfaceField( solverType );
+    FieldAlloc::AllocateAllKindsOfInterfaceField(
+        solverType );
 }
 
 void FieldAlloc::AllocateAllKindsOfInterfaceField( int solverType )
@@ -123,31 +144,6 @@ void FieldAlloc::AllocateInterfaceField( IFieldProperty * iFieldProperty )
 
 void FieldAlloc::AllocateOversetInterfaceField( IFieldProperty * iFieldProperty )
 {
-}
-
-void FieldAlloc::CalcInnerFieldFileName( const std::string & basicString, StringField & fileNameList )
-{
-    StringField basicNameList;
-    basicNameList.push_back( "unsteady" );
-    basicNameList.push_back( "inner"    );
-    basicNameList.push_back( "face"     );
-    basicNameList.push_back( "bc"       );
-
-    //std::string rootString = logger.str();
-
-    std::string rootString = Prj::GetSystemFileName( basicString + "/alloc/" );
-
-    OStream &logger = OStream::Instance();
-
-    for ( int i = 0; i < basicNameList.size(); ++ i )
-    {
-        logger.ClearAll();
-        logger << rootString << basicNameList[ i ] << ".txt";
-
-        std::string name = logger.str();
-
-        fileNameList.push_back( name );
-    }
 }
 
 void FieldAlloc::CalcInterfaceFileName( const std::string & basicString, StringField & fileNameList )
@@ -569,7 +565,10 @@ void ReadSuperPara::AddBasicFieldProperty(
     }
 }
 
-void ReadSuperPara::Register( const std::string & fileName, int index )
+void ReadSuperPara::Register(
+    const std::string & fileName,
+    FieldLocation location,
+    bool isUnsteady )
 {
     BoolIO boolIO;
 
@@ -578,24 +577,13 @@ void ReadSuperPara::Register( const std::string & fileName, int index )
         2,
         &this->paraNameDimData );
 
-    switch ( index )
+    if ( isUnsteady )
     {
-    case 0:
-        // Unsteady fields have separate semantics.
         this->AddUnsteadyInnerFieldProperty();
-        break;
-
-    case 1:
-        this->AddFieldProperties( FieldLocation::Inner );
-        break;
-
-    case 2:
-        this->AddFieldProperties( FieldLocation::Face );
-        break;
-
-    case 3:
-        this->AddFieldProperties( FieldLocation::Boundary );
-        break;
+    }
+    else
+    {
+        this->AddFieldProperties( location );
     }
 }
 
