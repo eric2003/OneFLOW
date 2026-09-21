@@ -276,42 +276,50 @@ void AddInterfaceFieldNames(
     }
 }
 
-FieldCategory ParseFieldCategory( const std::string & typeName )
-{
-    if ( typeName == "all" )
-    {
-        return FieldCategory::Common;
-    }
-
-    if ( typeName == "str" )
-    {
-        return FieldCategory::Structured;
-    }
-
-    return FieldCategory::Unstructured;
-}
-
-void ReadFieldDefinition(
-    TextFileParser & textFileParser,
-    ParaNameDimData & paraNameDimData )
-{
-    std::string varName      = textFileParser.ReadNextWord();
-    std::string varDimension = textFileParser.ReadNextWord();
-    std::string typeName     = textFileParser.ReadNextWord();
-
-    int nEqu = ONEFLOW::GetVarDimension( varDimension );
-
-    FieldCategory category = ParseFieldCategory( typeName );
-
-    ParaNameDim * paraNameDim =
-        paraNameDimData.GetParaNameDim( category );
-
-    paraNameDim->nameList.push_back( varName );
-    paraNameDim->nEquList.push_back( nEqu );
-}
-
 namespace
 {
+    FieldCategory ParseFieldCategory(
+        const std::string & typeName )
+    {
+        if ( typeName == "all" )
+        {
+            return FieldCategory::Common;
+        }
+
+        if ( typeName == "str" )
+        {
+            return FieldCategory::Structured;
+        }
+
+        return FieldCategory::Unstructured;
+    }
+
+    void ReadFieldDefinition(
+        TextFileParser & textFileParser,
+        ParaNameDimData & paraNameDimData )
+    {
+        std::string varName =
+            textFileParser.ReadNextWord();
+
+        std::string varDimension =
+            textFileParser.ReadNextWord();
+
+        std::string typeName =
+            textFileParser.ReadNextWord();
+
+        int nEqu =
+            ONEFLOW::GetVarDimension( varDimension );
+
+        FieldCategory category =
+            ParseFieldCategory( typeName );
+
+        ParaNameDim * paraNameDim =
+            paraNameDimData.GetParaNameDim( category );
+
+        paraNameDim->nameList.push_back( varName );
+        paraNameDim->nEquList.push_back( nEqu );
+    }
+
     using BoolLineReader =
         void ( BoolIO::* )( TextFileParser & );
 
@@ -372,7 +380,6 @@ namespace
 
         textFileParser.CloseFile();
     }
-
 }
 
 void BoolIO::Add( const std::string & name, bool value )

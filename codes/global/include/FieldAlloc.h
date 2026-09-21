@@ -119,12 +119,6 @@ void AddInterfaceFieldNames(
     int solverType,
     int fieldType,
     const StringField & nameList );
-FieldCategory ParseFieldCategory( const std::string & typeName );
-
-void ReadFieldDefinition(
-    TextFileParser & textFileParser,
-    ParaNameDimData & paraNameDimData );
-
 
 class BoolIO
 {
