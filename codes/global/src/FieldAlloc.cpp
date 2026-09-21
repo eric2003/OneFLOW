@@ -38,7 +38,18 @@ BeginNameSpace( ONEFLOW )
 
 namespace
 {
-    int GetVarDimension( const std::string & dimName );
+    int GetVarDimension( const std::string & dimName )
+    {
+        if ( Word::IsDigit( dimName ) )
+        {
+            return StringToDigit< int >( dimName );
+        }
+        else
+        {
+            return GetDataValue< int >( dimName );
+        }
+    }
+
     struct FieldFileSpec
     {
         const char * name;
@@ -220,17 +231,6 @@ namespace
         return false;
     }
 
-    int GetVarDimension( const std::string & dimName )
-    {
-        if ( Word::IsDigit( dimName ) )
-        {
-            return StringToDigit< int >( dimName );
-        }
-        else
-        {
-            return GetDataValue< int >( dimName );
-        }
-    }
     void ReadFieldDefinitions(
         const std::string & fileName,
         ParaNameDimData & paraNameDimData )
