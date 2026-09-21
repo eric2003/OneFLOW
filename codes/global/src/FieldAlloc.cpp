@@ -486,13 +486,13 @@ void BoolIO::ReadSuperBool( TextFileParser & textFileParser )
     std::string var2    = textFileParser.ReadNextWord();
 
     bool varVaule1 =
-        ONEFLOW::CalcVarValue(
+        CalcVarValue(
             var1,
             this->boolNameList,
             this->boolValueList );
 
     bool varVaule2 =
-        ONEFLOW::CalcVarValue(
+        CalcVarValue(
             var2,
             this->boolNameList,
             this->boolValueList );
