@@ -175,6 +175,51 @@ namespace
         return false;
     }
 
+    bool CalcBoolExp( bool var1, const std::string & opName, bool var2 )
+    {
+        if ( opName == "&&" )
+        {
+            return var1 && var2;
+        }
+        else if ( opName == "||" )
+        {
+            return var1 || var2;
+        }
+        return false;
+    }
+    
+    bool CalcBoolExp( const std::string & varName1, const std::string & opName, const std::string & varName2 )
+    {
+        int var1 = ONEFLOW::GetVarDimension( varName1 );
+        int var2 = ONEFLOW::GetVarDimension( varName2 );
+        if ( opName == ">" )
+        {
+            return var1 > var2;
+        }
+        else if ( opName == ">=" )
+        {
+            return var1 >= var2;
+        }
+        else if ( opName == "==" )
+        {
+            return var1 == var2;
+        }
+        else if ( opName == "<" )
+        {
+            return var1 < var2;
+        }
+        else if ( opName == "<=" )
+        {
+            return var1 <= var2;
+        }
+        else if ( opName == "!=" )
+        {
+            return var1 != var2;
+        }
+        return false;
+    }
+
+
     void ReadFieldDefinitions(
         const std::string & fileName,
         ParaNameDimData & paraNameDimData )
@@ -396,50 +441,6 @@ void FieldAlloc::AllocateInterfaceField( IFieldProperty * iFieldProperty )
 
 void FieldAlloc::AllocateOversetInterfaceField( IFieldProperty * iFieldProperty )
 {
-}
-
-bool CalcBoolExp( bool var1, const std::string & opName, bool var2 )
-{
-    if ( opName == "&&" )
-    {
-        return var1 && var2;
-    }
-    else if ( opName == "||" )
-    {
-        return var1 || var2;
-    }
-    return false;
-}
-
-bool CalcBoolExp( const std::string & varName1, const std::string & opName, const std::string & varName2 )
-{
-    int var1 = ONEFLOW::GetVarDimension( varName1 );
-    int var2 = ONEFLOW::GetVarDimension( varName2 );
-    if ( opName == ">" )
-    {
-        return var1 > var2;
-    }
-    else if ( opName == ">=" )
-    {
-        return var1 >= var2;
-    }
-    else if ( opName == "==" )
-    {
-        return var1 == var2;
-    }
-    else if ( opName == "<" )
-    {
-        return var1 < var2;
-    }
-    else if ( opName == "<=" )
-    {
-        return var1 <= var2;
-    }
-    else if ( opName == "!=" )
-    {
-        return var1 != var2;
-    }
-    return false;
 }
 
 int GetVarDimension( const std::string & dimName )

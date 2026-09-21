@@ -113,8 +113,6 @@ public:
         const std::string & fileName );
 };
 
-bool CalcBoolExp( bool var1, const std::string & opName, bool var2 );
-bool CalcBoolExp( const std::string & varName1, const std::string & opName, const std::string & varName2 );
 int GetVarDimension( const std::string & dimName );
 
 EndNameSpace
