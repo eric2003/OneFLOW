@@ -53,29 +53,44 @@ void FieldAlloc::InitField( int solverType, const std::string & basicString )
         solverType,
         boolIO.nameValuePair );
 }
-
-
-void FieldAlloc::RegisterInterfaceVar( int solverType, const std::string & basicString )
+void FieldAlloc::RegisterInterfaceVar(
+    int solverType,
+    const std::string & basicString )
 {
-    SolverInfo * solverInfo = SolverInfoFactory::GetSolverInfo( solverType );
+    SolverInfo * solverInfo =
+        SolverInfoFactory::GetSolverInfo( solverType );
+
     if ( solverInfo->registerInterface ) return;
+
     solverInfo->registerInterface = 1;
 
-    StringField fileNameList;
-    IntField fieldTypeList;
-
-    FieldAlloc::CalcInterfaceFileName( basicString, fileNameList );
-    FieldAlloc::CalcInterfaceFileType( fieldTypeList );
-    
-    for ( int iFile = 0; iFile < fileNameList.size(); ++ iFile )
+    const InterfaceFileSpec interfaceFileSpecs[] =
     {
+        { "inter",        ONEFLOW::INTERFACE_DATA          },
+        { "interDq",      ONEFLOW::INTERFACE_DQ_DATA       },
+        { "interGrad",    ONEFLOW::INTERFACE_GRADIENT_DATA },
+        { "interOverset", ONEFLOW::INTERFACE_OVERSET_DATA  }
+    };
+
+    std::string rootString =
+        Prj::GetSystemFileName(
+            basicString + "/alloc/" );
+
+    OStream & logger = OStream::Instance();
+
+    for ( const InterfaceFileSpec & spec : interfaceFileSpecs )
+    {
+        logger.ClearAll();
+        logger << rootString << spec.name << ".txt";
+
         BoolIO boolIO;
-        boolIO.ReadFile( fileNameList[ iFile ] );
-        int fieldType = fieldTypeList[ iFile ];
+
+        boolIO.ReadFile(
+            logger.str() );
 
         AddInterfaceFieldNames(
             solverType,
-            fieldType,
+            spec.fieldType,
             boolIO.nameValuePair.nameList );
     }
 }
@@ -145,37 +160,6 @@ void FieldAlloc::AllocateInterfaceField( IFieldProperty * iFieldProperty )
 void FieldAlloc::AllocateOversetInterfaceField( IFieldProperty * iFieldProperty )
 {
 }
-
-void FieldAlloc::CalcInterfaceFileName( const std::string & basicString, StringField & fileNameList )
-{
-    StringField basicNameList;
-    basicNameList.push_back( "inter"        );
-    basicNameList.push_back( "interDq"      );
-    basicNameList.push_back( "interGrad"    );
-    basicNameList.push_back( "interOverset" );
-
-    std::string rootString = Prj::GetSystemFileName( basicString + "/alloc/" );
-    OStream &logger = OStream::Instance();
-
-    for ( int i = 0; i < basicNameList.size(); ++ i )
-    {
-        logger.ClearAll();
-        logger << rootString << basicNameList[ i ] << ".txt";
-
-        std::string name = logger.str();
-
-        fileNameList.push_back( name );
-    }
-}
-
-void FieldAlloc::CalcInterfaceFileType( IntField & fieldTypeList )
-{
-    fieldTypeList.push_back( ONEFLOW::INTERFACE_DATA          );
-    fieldTypeList.push_back( ONEFLOW::INTERFACE_DQ_DATA       );
-    fieldTypeList.push_back( ONEFLOW::INTERFACE_GRADIENT_DATA );
-    fieldTypeList.push_back( ONEFLOW::INTERFACE_OVERSET_DATA  );
-}
-
 
 void SetFieldValues(
     int solverType,

@@ -48,8 +48,6 @@ public:
     static void InitField( int solverType, const std::string & basicString );
     static void RegisterInterfaceVar( int solverType, const std::string & basicString );
     static void AllocateGlobalField( int solverType, const std::string & basicString );
-    static void CalcInterfaceFileName( const std::string & basicString, StringField & fileNameList );
-    static void CalcInterfaceFileType( IntField & fieldTypeList );
     static void AllocateAllKindsOfInterfaceField( int solverType );
     static void AllocateInterfaceField( IFieldProperty * iFieldProperty );
     static void AllocateOversetInterfaceField( IFieldProperty * iFieldProperty );
@@ -79,6 +77,12 @@ struct FieldFileSpec
     const char * name;
     FieldLocation location;
     bool isUnsteady;
+};
+
+struct InterfaceFileSpec
+{
+    const char * name;
+    int fieldType;
 };
 
 class ReadSuperPara
