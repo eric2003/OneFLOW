@@ -468,7 +468,7 @@ void BoolIO::ReadBool( TextFileParser & textFileParser )
     std::string opName  = textFileParser.ReadNextWord();
     std::string var2    = textFileParser.ReadNextWord();
 
-    bool boolValue = ONEFLOW::CalcBoolExp( var1, opName, var2 );
+    bool boolValue = CalcBoolExp( var1, opName, var2 );
 
     this->Add( varName, boolValue );
 }
@@ -495,7 +495,7 @@ void BoolIO::ReadSuperBool( TextFileParser & textFileParser )
             this->boolValueList );
 
     bool boolValue =
-        ONEFLOW::CalcBoolExp(
+        CalcBoolExp(
             varVaule1,
             opName,
             varVaule2 );
