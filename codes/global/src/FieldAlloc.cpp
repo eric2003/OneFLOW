@@ -93,6 +93,30 @@ namespace
         paraNameDim->nEquList.push_back( nEqu );
     }
 
+    void AddBasicFieldProperty(
+        FieldManager * fieldManager,
+        ParaNameDim * paraNameDim,
+        FieldLocation location,
+        FieldCategory category )
+    {
+        int nVar = paraNameDim->nameList.size();
+
+        for ( int iVar = 0; iVar < nVar; ++ iVar )
+        {
+            const std::string & varName =
+                paraNameDim->nameList[ iVar ];
+
+            int nEqu =
+                paraNameDim->nEquList[ iVar ];
+
+            fieldManager->AddField(
+                varName,
+                nEqu,
+                category,
+                location );
+        }
+    }
+
     using BoolLineReader =
         void ( BoolIO::* )( TextFileParser & );
 
@@ -541,46 +565,26 @@ void ReadSuperPara::AddUnsteadyInnerFieldProperty()
 void ReadSuperPara::AddFieldProperties(
     FieldLocation location )
 {
-    this->AddBasicFieldProperty(
+    FieldManager * fieldManager =
+        FieldFactory::GetFieldManager( this->solverType );
+
+    AddBasicFieldProperty(
+        fieldManager,
         &this->paraNameDimData.unsPara,
         location,
         FieldCategory::Unstructured );
 
-    this->AddBasicFieldProperty(
+    AddBasicFieldProperty(
+        fieldManager,
         &this->paraNameDimData.strPara,
         location,
         FieldCategory::Structured );
 
-    this->AddBasicFieldProperty(
+    AddBasicFieldProperty(
+        fieldManager,
         &this->paraNameDimData.comPara,
         location,
         FieldCategory::Common );
-}
-
-void ReadSuperPara::AddBasicFieldProperty(
-    ParaNameDim * paraNameDim,
-    FieldLocation location,
-    FieldCategory category )
-{
-    FieldManager * fieldManager =
-        FieldFactory::GetFieldManager( this->solverType );
-
-    int nVar = paraNameDim->nameList.size();
-
-    for ( int iVar = 0; iVar < nVar; ++ iVar )
-    {
-        const std::string & varName =
-            paraNameDim->nameList[ iVar ];
-
-        int nEqu =
-            paraNameDim->nEquList[ iVar ];
-
-        fieldManager->AddField(
-            varName,
-            nEqu,
-            category,
-            location );
-    }
 }
 
 void ReadSuperPara::ReadFieldDefinitions(

@@ -91,10 +91,6 @@ public:
     void AddUnsteadyInnerFieldProperty();
 
 public:
-    void AddBasicFieldProperty(
-        ParaNameDim * paraNameDim,
-        FieldLocation location,
-        FieldCategory category );
     void ReadFieldDefinitions(
         const std::string & fileName );
 };
