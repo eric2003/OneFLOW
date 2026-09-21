@@ -20,7 +20,7 @@ permissions:
 env:
   CMAKE_GENERATOR: "Ninja"
   CMAKE_COMPILER: "MSVC"
-  CMAKE_BUILD_PARALLEL_LEVEL: "8"
+  CMAKE_BUILD_PARALLEL_LEVEL: "4"
   
   # Dependency versions
   HDF5_VERSION: "1.14.3"
