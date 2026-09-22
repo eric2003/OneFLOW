@@ -420,6 +420,8 @@ void FieldAlloc::AllocateGlobalField(
     const std::string & basicString )
 {
     FieldFactory::AddFieldManager( solverType );
+    FieldManager * fieldManager =
+        FieldFactory::GetFieldManager( solverType );
 
     const FieldFileSpec fieldFileSpecs[] =
     {
@@ -440,7 +442,8 @@ void FieldAlloc::AllocateGlobalField(
         logger.ClearAll();
         logger << rootString << spec.name << ".txt";
 
-        ReadSuperPara readSuperPara( solverType );
+        ReadSuperPara readSuperPara(
+            fieldManager );
 
         readSuperPara.Register(
             logger.str(),
@@ -669,14 +672,9 @@ ParaNameDimData::GetParaNameDim( FieldCategory category ) const
     return nullptr;
 }
 
-FieldManager * ReadSuperPara::GetFieldManager() const
-{
-    return FieldFactory::GetFieldManager(
-        this->solverType );
-}
-
-ReadSuperPara::ReadSuperPara( int solverType )
-    : solverType( solverType )
+ReadSuperPara::ReadSuperPara(
+    FieldManager * fieldManager )
+    : fieldManager( fieldManager )
 {
 }
 
@@ -684,11 +682,8 @@ void ReadSuperPara::AddUnsteadyInnerFieldProperty()
 {
     this->AddFieldProperties( FieldLocation::Inner );
 
-    FieldManager * fieldManager =
-        this->GetFieldManager();
-
     UsdPara * usdPara =
-        fieldManager->usdPara.get();
+        this->fieldManager->usdPara.get();
 
     const ParaNameDim * comPara =
         this->paraNameDimData.GetParaNameDim(
@@ -706,7 +701,7 @@ void ReadSuperPara::AddFieldProperties(
     FieldLocation location )
 {
     FieldManager * fieldManager =
-        this->GetFieldManager();
+        this->fieldManager;
 
     AddBasicFieldProperty(
         fieldManager,

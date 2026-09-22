@@ -99,9 +99,7 @@ class ReadSuperPara
 {
 private:
     ParaNameDimData paraNameDimData;
-    int solverType;
-
-    FieldManager * GetFieldManager() const;
+    FieldManager * fieldManager;
 
     void AddFieldProperties(
         FieldLocation location );
@@ -109,7 +107,7 @@ private:
     void AddUnsteadyInnerFieldProperty();
 
 public:
-    explicit ReadSuperPara( int solverType );
+    explicit ReadSuperPara( FieldManager * fieldManager );
     ~ReadSuperPara() = default;
 
     void Register(
