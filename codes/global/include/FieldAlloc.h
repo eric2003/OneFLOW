@@ -83,8 +83,6 @@ public:
 
     const std::string & GetName( int index ) const;
     int GetNEqu( int index ) const;
-
-    const StringField & GetNameList() const;
 };
 
 class ParaNameDimData

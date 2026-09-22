@@ -44,16 +44,17 @@ namespace
         int nEqu;
     };
 
-    int ResolveFieldEquationCount(
-        const std::string & equationCountToken )
+    int ResolveIntegerValue(
+        const std::string & valueToken )
     {
-        if ( Word::IsDigit( equationCountToken ) )
+        if ( Word::IsDigit( valueToken ) )
         {
-            return StringToDigit< int >( equationCountToken );
+            return StringToDigit< int >( valueToken );
         }
 
-        return GetDataValue< int >( equationCountToken );
+        return GetDataValue< int >( valueToken );
     }
+
 
     UsdFieldNames BuildUsdFieldNames(
         const ParaNameDim & paraNameDim )
@@ -137,7 +138,7 @@ namespace
             textFileParser.ReadNextWord();
 
         definition.nEqu =
-            ResolveFieldEquationCount( equationCountToken );
+            ResolveIntegerValue( equationCountToken );
 
         FieldCategory category =
             ParseFieldCategory( categoryToken );
@@ -178,13 +179,16 @@ namespace
         FieldManager * fieldManager,
         const NameValuePair & valuePair )
     {
-        int nVar = valuePair.Size();
+        const int fieldCount =
+            valuePair.Size();
 
-        for ( int iVar = 0; iVar < nVar; ++ iVar )
+        for ( int fieldIndex = 0;
+            fieldIndex < fieldCount;
+            ++ fieldIndex )
         {
             fieldManager->SetField(
-                valuePair.GetName( iVar ),
-                valuePair.GetValue( iVar ) );
+                valuePair.GetName( fieldIndex ),
+                valuePair.GetValue( fieldIndex ) );
         }
     }
 
@@ -213,57 +217,71 @@ namespace
     }
 
     bool CalcBoolLogic(
-        bool var1,
-        const std::string & opName,
-        bool var2 )
+        bool leftValue,
+        const std::string & operatorName,
+        bool rightValue )
     {
-        if ( opName == "&&" )
+        if ( operatorName == "&&" )
         {
-            return var1 && var2;
+            return leftValue && rightValue;
         }
-        else if ( opName == "||" )
+
+        if ( operatorName == "||" )
         {
-            return var1 || var2;
+            return leftValue || rightValue;
         }
+
+        Fatal(
+            "Unknown boolean operator: "
+            + operatorName );
 
         return false;
     }
     
-    bool CompareVar(
-        const std::string & varName1,
-        const std::string & opName,
-        const std::string & varName2 )
+    bool CompareValues(
+        const std::string & leftToken,
+        const std::string & operatorName,
+        const std::string & rightToken )
     {
-        int var1 =
-            ResolveFieldEquationCount( varName1 );
+        int leftValue =
+            ResolveIntegerValue( leftToken );
 
-        int var2 =
-            ResolveFieldEquationCount( varName2 );
+        int rightValue =
+            ResolveIntegerValue( rightToken );
 
-        if ( opName == ">" )
+        if ( operatorName == ">" )
         {
-            return var1 > var2;
+            return leftValue > rightValue;
         }
-        else if ( opName == ">=" )
+
+        if ( operatorName == ">=" )
         {
-            return var1 >= var2;
+            return leftValue >= rightValue;
         }
-        else if ( opName == "==" )
+
+        if ( operatorName == "==" )
         {
-            return var1 == var2;
+            return leftValue == rightValue;
         }
-        else if ( opName == "<" )
+
+        if ( operatorName == "<" )
         {
-            return var1 < var2;
+            return leftValue < rightValue;
         }
-        else if ( opName == "<=" )
+
+        if ( operatorName == "<=" )
         {
-            return var1 <= var2;
+            return leftValue <= rightValue;
         }
-        else if ( opName == "!=" )
+
+        if ( operatorName == "!=" )
         {
-            return var1 != var2;
+            return leftValue != rightValue;
         }
+
+        Fatal(
+            "Unknown comparison operator: "
+            + operatorName );
 
         return false;
     }
@@ -587,7 +605,7 @@ void BoolIO::ReadBool( TextFileParser & textFileParser )
         textFileParser.ReadNextWord();
 
     bool boolValue =
-        CompareVar(
+        CompareValues(
             var1,
             opName,
             var2 );
@@ -690,11 +708,6 @@ const std::string & ParaNameDim::GetName( int index ) const
 int ParaNameDim::GetNEqu( int index ) const
 {
     return nEquList[ index ];
-}
-
-const StringField & ParaNameDim::GetNameList() const
-{
-    return nameList;
 }
 
 ParaNameDim * ParaNameDimData::GetParaNameDim( FieldCategory category )
