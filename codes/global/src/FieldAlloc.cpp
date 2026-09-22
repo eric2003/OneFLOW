@@ -38,6 +38,12 @@ BeginNameSpace( ONEFLOW )
 
 namespace
 {
+    struct FieldDefinition
+    {
+        std::string name;
+        int nEqu;
+    };
+
     int ResolveFieldDimension(
         const std::string & dimensionToken )
     {
@@ -82,7 +88,9 @@ namespace
         TextFileParser & textFileParser,
         ParaNameDimData & paraNameDimData )
     {
-        std::string varName =
+        FieldDefinition definition;
+
+        definition.name =
             textFileParser.ReadNextWord();
 
         std::string dimensionToken =
@@ -91,7 +99,7 @@ namespace
         std::string typeName =
             textFileParser.ReadNextWord();
 
-        int nEqu =
+        definition.nEqu =
             ResolveFieldDimension( dimensionToken );
 
         FieldCategory category =
@@ -101,8 +109,8 @@ namespace
             paraNameDimData.GetParaNameDim( category );
 
         paraNameDim->Add(
-            varName,
-            nEqu );
+            definition.name,
+            definition.nEqu );
     }
 
     void AddBasicFieldProperty(
