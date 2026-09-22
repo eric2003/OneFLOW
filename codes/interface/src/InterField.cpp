@@ -84,14 +84,29 @@ DataStorage * GetInterfaceDataStorage( InterFace * interFace, int srFlag, int gh
     }
 }
 
-void AddFieldRecord( FieldRecord * fieldRecord, DataStorage * dataStorage, StringField & fieldNameList )
+void AddFieldRecord(
+    FieldRecord * fieldRecord,
+    DataStorage * dataStorage,
+    StringField & fieldNameList )
 {
-    for ( int iField = 0; iField < fieldNameList.size(); ++ iField )
+    for ( int iField = 0;
+        iField < fieldNameList.size();
+        ++ iField )
     {
-        std::string & fieldName = fieldNameList[ iField ];
-        MRField * field = ONEFLOW::GetFieldPointer< MRField >( dataStorage, fieldName );
-        int nEqu = GFieldProperty::GetNEqu( fieldName );
-        fieldRecord->AddField( field , nEqu );
+        std::string & fieldName =
+            fieldNameList[ iField ];
+
+        MRField * field =
+            ONEFLOW::GetFieldPointer< MRField >(
+                dataStorage,
+                fieldName );
+
+        int nEqu =
+            field->GetNEqu();
+
+        fieldRecord->AddField(
+            field,
+            nEqu );
     }
 }
 
