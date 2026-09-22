@@ -44,15 +44,15 @@ namespace
         int nEqu;
     };
 
-    int ResolveFieldDimension(
-        const std::string & dimensionToken )
+    int ResolveFieldEquationCount(
+        const std::string & equationCountToken )
     {
-        if ( Word::IsDigit( dimensionToken ) )
+        if ( Word::IsDigit( equationCountToken ) )
         {
-            return StringToDigit< int >( dimensionToken );
+            return StringToDigit< int >( equationCountToken );
         }
 
-        return GetDataValue< int >( dimensionToken );
+        return GetDataValue< int >( equationCountToken );
     }
 
     UsdFieldNames BuildUsdFieldNames(
@@ -110,6 +110,14 @@ namespace
             return FieldCategory::Structured;
         }
 
+        if ( typeName == "uns" )
+        {
+            return FieldCategory::Unstructured;
+        }
+
+        Fatal(
+            "Unknown field category: " + typeName );
+
         return FieldCategory::Unstructured;
     }
 
@@ -122,17 +130,17 @@ namespace
         definition.name =
             textFileParser.ReadNextWord();
 
-        std::string dimensionToken =
+        std::string equationCountToken =
             textFileParser.ReadNextWord();
 
-        std::string typeName =
+        std::string categoryToken =
             textFileParser.ReadNextWord();
 
         definition.nEqu =
-            ResolveFieldDimension( dimensionToken );
+            ResolveFieldEquationCount( equationCountToken );
 
         FieldCategory category =
-            ParseFieldCategory( typeName );
+            ParseFieldCategory( categoryToken );
 
         ParaNameDim * paraNameDim =
             paraNameDimData.GetParaNameDim( category );
@@ -148,18 +156,18 @@ namespace
         FieldLocation location,
         FieldCategory category )
     {
-        int nVar = paraNameDim->Size();
+        int fieldCount = paraNameDim->Size();
 
-        for ( int iVar = 0; iVar < nVar; ++ iVar )
+        for ( int fieldIndex = 0; fieldIndex < fieldCount; ++ fieldIndex )
         {
-            const std::string & varName =
-                paraNameDim->GetName( iVar );
+            const std::string & fieldName =
+                paraNameDim->GetName( fieldIndex );
 
             int nEqu =
-                paraNameDim->GetNEqu( iVar );
+                paraNameDim->GetNEqu( fieldIndex );
 
             fieldManager->AddField(
-                varName,
+                fieldName,
                 nEqu,
                 category,
                 location );
@@ -190,17 +198,17 @@ namespace
                 solverType,
                 fieldType );
 
-        int numberOfVariables =
+        int fieldCount =
             nameValuePair.Size();
 
-        for ( int iVariable = 0;
-            iVariable < numberOfVariables;
-            ++ iVariable )
+        for ( int fieldIndex = 0;
+            fieldIndex < fieldCount;
+            ++ fieldIndex )
         {
-            const std::string & varName =
-                nameValuePair.GetName( iVariable );
+            const std::string & fieldName =
+                nameValuePair.GetName( fieldIndex );
 
-            varNameSolver->AddFieldName( varName );
+            varNameSolver->AddFieldName( fieldName );
         }
     }
 
@@ -227,10 +235,10 @@ namespace
         const std::string & varName2 )
     {
         int var1 =
-            ResolveFieldDimension( varName1 );
+            ResolveFieldEquationCount( varName1 );
 
         int var2 =
-            ResolveFieldDimension( varName2 );
+            ResolveFieldEquationCount( varName2 );
 
         if ( opName == ">" )
         {
