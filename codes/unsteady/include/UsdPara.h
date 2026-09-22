@@ -25,17 +25,13 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-struct UsdFieldNames
+struct UsdFieldDefinitions
 {
-    std::string q;
-    std::string q1;
-    std::string q2;
-
-    std::string res;
-    std::string res1;
-    std::string res2;
-
-    std::string dq;
+    // Field counts are configuration-driven; the runtime model does not
+    // assume a fixed number of time levels.
+    StringField flow;
+    StringField residual;
+    StringField dq;
 };
 
 class UsdPara
@@ -43,15 +39,18 @@ class UsdPara
 public:
     UsdPara();
     ~UsdPara();
+
 public:
     bool flag;
     int  nEqu;
+
     StringField residual;
     StringField flow;
     StringField dq;
+
 public:
     void Init(
-        const UsdFieldNames & fieldNames,
+        const UsdFieldDefinitions & fieldDefinitions,
         int nEqu );
 };
 
