@@ -716,7 +716,8 @@ int ParaNameDim::GetNEqu(
     return this->fields[ index ].nEqu;
 }
 
-ParaNameDim * ParaNameDimData::GetParaNameDim( FieldCategory category )
+ParaNameDim * ParaNameDimData::GetParaNameDim(
+    FieldCategory category )
 {
     switch ( category )
     {
@@ -729,12 +730,15 @@ ParaNameDim * ParaNameDimData::GetParaNameDim( FieldCategory category )
     case FieldCategory::Unstructured:
         return &unsPara;
     }
+
+    Fatal( "Unknown field category." );
 
     return nullptr;
 }
 
 const ParaNameDim *
-ParaNameDimData::GetParaNameDim( FieldCategory category ) const
+ParaNameDimData::GetParaNameDim(
+    FieldCategory category ) const
 {
     switch ( category )
     {
@@ -747,6 +751,8 @@ ParaNameDimData::GetParaNameDim( FieldCategory category ) const
     case FieldCategory::Unstructured:
         return &unsPara;
     }
+
+    Fatal( "Unknown field category." );
 
     return nullptr;
 }
