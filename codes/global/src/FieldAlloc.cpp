@@ -464,15 +464,19 @@ void FieldAlloc::AllocateGlobalField(
     }
 
     FieldAlloc::AllocateAllKindsOfInterfaceField(
-        solverType );
+        fieldManager );
 }
 
-void FieldAlloc::AllocateAllKindsOfInterfaceField( int solverType )
+void FieldAlloc::AllocateAllKindsOfInterfaceField(
+    FieldManager * fieldManager )
 {
-    FieldManager * fieldManager = FieldFactory::GetFieldManager( solverType );
     fieldManager->AllocateInnerAndBcField();
-    FieldAlloc::AllocateInterfaceField( &fieldManager->iFieldProperty );
-    FieldAlloc::AllocateOversetInterfaceField( &fieldManager->iFieldProperty );
+
+    FieldAlloc::AllocateInterfaceField(
+        &fieldManager->iFieldProperty );
+
+    FieldAlloc::AllocateOversetInterfaceField(
+        &fieldManager->iFieldProperty );
 }
 
 void FieldAlloc::AllocateInterfaceField( IFieldProperty * iFieldProperty )

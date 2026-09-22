@@ -60,7 +60,8 @@ public:
         const std::string & basicString );
     static void RegisterInterfaceVar( int solverType, const std::string & basicString );
     static void AllocateGlobalField( int solverType, const std::string & basicString );
-    static void AllocateAllKindsOfInterfaceField( int solverType );
+    static void AllocateAllKindsOfInterfaceField(
+        FieldManager * fieldManager );
     static void AllocateInterfaceField( IFieldProperty * iFieldProperty );
     static void AllocateOversetInterfaceField( IFieldProperty * iFieldProperty );
 };
