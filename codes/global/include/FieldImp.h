@@ -68,6 +68,13 @@ private:
 class FieldPropertyData
 {
 public:
+    FieldProperty & GetFieldProperty(
+        FieldLocation location );
+
+    const FieldProperty & GetFieldProperty(
+        FieldLocation location ) const;
+
+private:
     FieldProperty bcField;
     FieldProperty faceField;
     FieldProperty innerField;

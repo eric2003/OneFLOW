@@ -23,6 +23,7 @@ License
 #include "FieldAlloc.h"
 #include "FieldBase.h"
 #include "FieldWrap.h"
+#include "Fatal.h"
 #include "UsdPara.h"
 #include "Grid.h"
 #include "GridState.h"
@@ -48,45 +49,45 @@ namespace
         {
             if ( location == FieldLocation::Inner )
             {
-                return &fieldManager->commManager.innerField;
+                return &fieldManager->commManager.GetFieldProperty( location );
             }
             else if ( location == FieldLocation::Face )
             {
-                return &fieldManager->commManager.faceField;
+                return &fieldManager->commManager.GetFieldProperty( location );
             }
             else if ( location == FieldLocation::Boundary )
             {
-                return &fieldManager->commManager.bcField;
+                return &fieldManager->commManager.GetFieldProperty( location );
             }
         }
         else if ( category == FieldCategory::Structured )
         {
             if ( location == FieldLocation::Inner )
             {
-                return &fieldManager->strManager.innerField;
+                return &fieldManager->strManager.GetFieldProperty( location );
             }
             else if ( location == FieldLocation::Face )
             {
-                return &fieldManager->strManager.faceField;
+                return &fieldManager->strManager.GetFieldProperty( location );
             }
             else if ( location == FieldLocation::Boundary )
             {
-                return &fieldManager->strManager.bcField;
+                return &fieldManager->strManager.GetFieldProperty( location );
             }
         }
         else if ( category == FieldCategory::Unstructured )
         {
             if ( location == FieldLocation::Inner )
             {
-                return &fieldManager->unsManager.innerField;
+                return &fieldManager->unsManager.GetFieldProperty( location );
             }
             else if ( location == FieldLocation::Face )
             {
-                return &fieldManager->unsManager.faceField;
+                return &fieldManager->unsManager.GetFieldProperty( location );
             }
             else if ( location == FieldLocation::Boundary )
             {
-                return &fieldManager->unsManager.bcField;
+                return &fieldManager->unsManager.GetFieldProperty( location );
             }
         }
 
@@ -243,6 +244,44 @@ int GFieldProperty::GetNEqu( const std::string & fieldName )
     return -1;
 }
 
+FieldProperty & FieldPropertyData::GetFieldProperty(
+    FieldLocation location )
+{
+    switch ( location )
+    {
+    case FieldLocation::Inner:
+        return innerField;
+
+    case FieldLocation::Face:
+        return faceField;
+
+    case FieldLocation::Boundary:
+        return bcField;
+    }
+
+    Fatal( "Invalid field location" );
+    return innerField;
+}
+
+const FieldProperty & FieldPropertyData::GetFieldProperty(
+    FieldLocation location ) const
+{
+    switch ( location )
+    {
+    case FieldLocation::Inner:
+        return innerField;
+
+    case FieldLocation::Face:
+        return faceField;
+
+    case FieldLocation::Boundary:
+        return bcField;
+    }
+
+    Fatal( "Invalid field location" );
+    return innerField;
+}
+
 FieldManager::FieldManager()
 {
     usdPara        = std::make_unique< UsdPara >();
@@ -307,20 +346,37 @@ void FieldManager::AllocateInnerAndBcField( UnsGrid * grid, FieldPropertyData * 
     this->AllocateBcField( grid,fieldPropertyData );
 }
 
-void FieldManager::AllocateInnerField( UnsGrid * grid, FieldPropertyData * fieldPropertyData )
+void FieldManager::AllocateInnerField(
+    UnsGrid * grid,
+    FieldPropertyData * fieldPropertyData )
 {
     int nTCell = grid->nCells + grid->nBFaces;
 
-    const FieldProperty::Data & data = fieldPropertyData->innerField.GetData();
+    const FieldProperty::Data & data =
+        fieldPropertyData->GetFieldProperty(
+            FieldLocation::Inner ).GetData();
 
-    for ( FieldProperty::Data::const_iterator iter = data.begin(); iter != data.end(); ++ iter )
+    for ( FieldProperty::Data::const_iterator iter = data.begin();
+        iter != data.end();
+        ++ iter )
     {
         int nTEqu = iter->second;
 
-        ONEFLOW::CreateMRField( grid, nTEqu, nTCell, iter->first );
+        ONEFLOW::CreateMRField(
+            grid,
+            nTEqu,
+            nTCell,
+            iter->first );
 
-        MRField * field = ONEFLOW::GetFieldPointer< MRField >( grid, iter->first );
-        ONEFLOW::ZeroField( field, nTEqu, nTCell );
+        MRField * field =
+            ONEFLOW::GetFieldPointer< MRField >(
+                grid,
+                iter->first );
+
+        ONEFLOW::ZeroField(
+            field,
+            nTEqu,
+            nTCell );
     }
 }
 
@@ -328,7 +384,9 @@ void FieldManager::AllocateFaceField( UnsGrid * grid, FieldPropertyData * fieldP
 {
     int nFaces = grid->nFaces;
 
-    const FieldProperty::Data & data = fieldPropertyData->faceField.GetData();
+    const FieldProperty::Data & data =
+        fieldPropertyData->GetFieldProperty(
+            FieldLocation::Face ).GetData();
 
     for ( FieldProperty::Data::const_iterator iter = data.begin(); iter != data.end(); ++ iter )
     {
@@ -346,7 +404,9 @@ void FieldManager::AllocateBcField( UnsGrid * grid, FieldPropertyData * fieldPro
 {
     int nBFaces = grid->nBFaces;
 
-    const FieldProperty::Data & data = fieldPropertyData->bcField.GetData();
+    const FieldProperty::Data & data =
+        fieldPropertyData->GetFieldProperty(
+            FieldLocation::Boundary ).GetData();
 
     for ( FieldProperty::Data::const_iterator iter = data.begin(); iter != data.end(); ++ iter )
     {
