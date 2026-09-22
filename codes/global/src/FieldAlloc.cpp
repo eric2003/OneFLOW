@@ -532,7 +532,7 @@ FieldManager * FieldAlloc::AllocateGlobalField(
 void FieldAlloc::AllocateAllKindsOfInterfaceField(
     FieldManager * fieldManager )
 {
-    fieldManager->AllocateInnerAndBcField();
+    fieldManager->AllocateGridFields();
 
     FieldAlloc::AllocateInterfaceField(
         &fieldManager->GetInterfaceFieldProperty() );

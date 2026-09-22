@@ -105,9 +105,9 @@ public:
         const std::string & fieldName,
         Real value );
 
-    void AllocateInnerAndBcField();
+    void AllocateGridFields();
 
-    void AllocateInnerAndBcField(
+    void AllocateGridFields(
         UnsGrid * grid,
         FieldPropertyData * fieldPropertyData );
 

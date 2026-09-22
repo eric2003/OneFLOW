@@ -90,11 +90,6 @@ void IFieldProperty::UploadInterfaceValue()
         {
             int nEqu = iter->second;
 
-            if ( ZoneState::zid == 0 && iter->first == "gama" )
-            {
-                int kkk = 1;
-            }
-
             MRField * targetField = ONEFLOW::GetFieldPointer< MRField >( grid, iter->first );
             ONEFLOW::UploadInterfaceValue( grid, targetField, iter->first,  nEqu );
         }
@@ -304,7 +299,7 @@ void FieldManager::AddField(
         nEqu );
 }
 
-void FieldManager::AllocateInnerAndBcField()
+void FieldManager::AllocateGridFields()
 {
     Grid * gridIn = Zone::GetGrid();
 
@@ -312,23 +307,25 @@ void FieldManager::AllocateInnerAndBcField()
     {
         UnsGrid * grid = ONEFLOW::UnsGridCast( gridIn );
 
-        this->AllocateInnerAndBcField(
+        this->AllocateGridFields(
             grid,
             &this->GetFieldPropertyData(
                 FieldCategory::Common ) );
 
-        this->AllocateInnerAndBcField(
+        this->AllocateGridFields(
             grid,
             &this->GetFieldPropertyData(
                 FieldCategory::Unstructured ) );
     }
 }
 
-void FieldManager::AllocateInnerAndBcField( UnsGrid * grid, FieldPropertyData * fieldPropertyData )
+void FieldManager::AllocateGridFields(
+    UnsGrid * grid,
+    FieldPropertyData * fieldPropertyData )
 {
     this->AllocateInnerField( grid, fieldPropertyData );
     this->AllocateFaceField( grid, fieldPropertyData );
-    this->AllocateBcField( grid,fieldPropertyData );
+    this->AllocateBcField( grid, fieldPropertyData );
 }
 
 void FieldManager::AllocateInnerField(
