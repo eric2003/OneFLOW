@@ -245,6 +245,16 @@ FieldManager::FieldManager()
 
 FieldManager::~FieldManager() = default;
 
+IFieldProperty & FieldManager::GetInterfaceFieldProperty()
+{
+    return this->iFieldProperty;
+}
+
+const IFieldProperty & FieldManager::GetInterfaceFieldProperty() const
+{
+    return this->iFieldProperty;
+}
+
 FieldPropertyData & FieldManager::GetFieldPropertyData(
     FieldCategory category )
 {

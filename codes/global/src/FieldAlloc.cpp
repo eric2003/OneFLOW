@@ -473,10 +473,10 @@ void FieldAlloc::AllocateAllKindsOfInterfaceField(
     fieldManager->AllocateInnerAndBcField();
 
     FieldAlloc::AllocateInterfaceField(
-        &fieldManager->iFieldProperty );
+        &fieldManager->GetInterfaceFieldProperty() );
 
     FieldAlloc::AllocateOversetInterfaceField(
-        &fieldManager->iFieldProperty );
+        &fieldManager->GetInterfaceFieldProperty() );
 }
 
 void FieldAlloc::AllocateInterfaceField( IFieldProperty * iFieldProperty )

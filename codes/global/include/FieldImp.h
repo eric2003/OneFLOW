@@ -92,10 +92,10 @@ public:
     ~FieldManager();
 
 public:
-    IFieldProperty iFieldProperty;
-    std::unique_ptr< UsdPara > usdPara;
+    IFieldProperty & GetInterfaceFieldProperty();
 
-public:
+    const IFieldProperty & GetInterfaceFieldProperty() const;
+
     FieldPropertyData & GetFieldPropertyData(
         FieldCategory category );
 
@@ -129,11 +129,13 @@ public:
     void AllocateBcField(
         UnsGrid * grid,
         FieldPropertyData * fieldPropertyData );
-
+public:
+    std::unique_ptr< UsdPara > usdPara;
 private:
     FieldPropertyData commManager;
     FieldPropertyData strManager;
     FieldPropertyData unsManager;
+    IFieldProperty iFieldProperty;
 };
 
 class FieldFactory

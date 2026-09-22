@@ -75,7 +75,7 @@ void UploadInterfaceData( StringField & data )
 
     FieldManager * fieldManager = FieldFactory::GetFieldManager( solverType );
 
-    fieldManager->iFieldProperty.UploadInterfaceValue();
+    fieldManager->GetInterfaceFieldProperty().UploadInterfaceValue();
 
 }
 
@@ -84,7 +84,7 @@ void DownloadInterfaceData( StringField & data )
     int solverType = SolverState::solverType;
 
     FieldManager * fieldManager = FieldFactory::GetFieldManager( solverType );
-    fieldManager->iFieldProperty.DownloadInterfaceValue();
+    fieldManager->GetInterfaceFieldProperty().DownloadInterfaceValue();
 }
 
 void PrepareInterfaceField( StringField & data )
