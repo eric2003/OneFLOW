@@ -108,7 +108,7 @@ namespace
 
     void AddBasicFieldProperty(
         FieldManager * fieldManager,
-        ParaNameDim * paraNameDim,
+        const ParaNameDim * paraNameDim,
         FieldLocation location,
         FieldCategory category )
     {
