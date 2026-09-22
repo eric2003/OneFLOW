@@ -278,16 +278,6 @@ void FieldManager::AddField(
     FieldCategory category,
     FieldLocation location )
 {
-    if ( category == FieldCategory::Common )
-    {
-        if ( location == FieldLocation::Inner )
-        {
-            this->iFieldProperty.AddField(
-                fieldName,
-                nEqu );
-        }
-    }
-
     FieldProperty & fieldProperty =
         GetFieldProperty(
             this,
@@ -297,6 +287,14 @@ void FieldManager::AddField(
     fieldProperty.AddField(
         fieldName,
         nEqu );
+
+    if ( category == FieldCategory::Common &&
+        location == FieldLocation::Inner )
+    {
+        this->iFieldProperty.AddField(
+            fieldName,
+            nEqu );
+    }
 }
 
 void FieldManager::AllocateGridFields()
