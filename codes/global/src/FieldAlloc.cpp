@@ -36,6 +36,301 @@ License
 
 BeginNameSpace( ONEFLOW )
 
+namespace
+{
+    int GetVarDimension( const std::string & dimName )
+    {
+        if ( Word::IsDigit( dimName ) )
+        {
+            return StringToDigit< int >( dimName );
+        }
+        else
+        {
+            return GetDataValue< int >( dimName );
+        }
+    }
+
+    struct FieldFileSpec
+    {
+        const char * name;
+        FieldLocation location;
+        bool isUnsteady;
+    };
+
+    struct InterfaceFileSpec
+    {
+        const char * name;
+        int fieldType;
+    };
+
+    FieldCategory ParseFieldCategory(
+        const std::string & typeName )
+    {
+        if ( typeName == "all" )
+        {
+            return FieldCategory::Common;
+        }
+
+        if ( typeName == "str" )
+        {
+            return FieldCategory::Structured;
+        }
+
+        return FieldCategory::Unstructured;
+    }
+
+    void ReadFieldDefinition(
+        TextFileParser & textFileParser,
+        ParaNameDimData & paraNameDimData )
+    {
+        std::string varName =
+            textFileParser.ReadNextWord();
+
+        std::string varDimension =
+            textFileParser.ReadNextWord();
+
+        std::string typeName =
+            textFileParser.ReadNextWord();
+
+        int nEqu =
+            GetVarDimension( varDimension );
+
+        FieldCategory category =
+            ParseFieldCategory( typeName );
+
+        ParaNameDim * paraNameDim =
+            paraNameDimData.GetParaNameDim( category );
+
+        paraNameDim->nameList.push_back( varName );
+        paraNameDim->nEquList.push_back( nEqu );
+    }
+
+    void AddBasicFieldProperty(
+        FieldManager * fieldManager,
+        ParaNameDim * paraNameDim,
+        FieldLocation location,
+        FieldCategory category )
+    {
+        int nVar = paraNameDim->nameList.size();
+
+        for ( int iVar = 0; iVar < nVar; ++ iVar )
+        {
+            const std::string & varName =
+                paraNameDim->nameList[ iVar ];
+
+            int nEqu =
+                paraNameDim->nEquList[ iVar ];
+
+            fieldManager->AddField(
+                varName,
+                nEqu,
+                category,
+                location );
+        }
+    }
+
+    void SetFieldValues(
+        int solverType,
+        const NameValuePair & valuePair )
+    {
+        FieldManager * fieldManager =
+            FieldFactory::GetFieldManager( solverType );
+
+        int nVar = valuePair.nameList.size();
+
+        for ( int iVar = 0; iVar < nVar; ++ iVar )
+        {
+            fieldManager->SetField(
+                valuePair.nameList[ iVar ],
+                valuePair.valueList[ iVar ] );
+        }
+    }
+
+    void AddInterfaceFieldNames(
+        int solverType,
+        int fieldType,
+        const StringField & nameList )
+    {
+        VarNameSolver * varNameSolver =
+            VarNameFactory::GetVarNameSolver(
+                solverType,
+                fieldType );
+
+        int numberOfVariables = nameList.size();
+
+        for ( int iVariable = 0;
+            iVariable < numberOfVariables;
+            ++ iVariable )
+        {
+            const std::string & varName =
+                nameList[ iVariable ];
+
+            varNameSolver->AddFieldName( varName );
+        }
+    }
+
+    bool CalcVarValue(
+        const std::string & varName,
+        StringField & boolName,
+        BoolField & boolVar )
+    {
+        for ( int i = 0; i < boolName.size(); ++ i )
+        {
+            if ( varName == boolName[ i ] )
+            {
+                return boolVar[ i ];
+            }
+        }
+
+        Fatal( "Unknown boolean variable: " + varName );
+
+        return false;
+    }
+
+    bool CalcBoolExp( bool var1, const std::string & opName, bool var2 )
+    {
+        if ( opName == "&&" )
+        {
+            return var1 && var2;
+        }
+        else if ( opName == "||" )
+        {
+            return var1 || var2;
+        }
+        return false;
+    }
+    
+    bool CalcBoolExp( const std::string & varName1, const std::string & opName, const std::string & varName2 )
+    {
+        int var1 =  GetVarDimension( varName1 );
+        int var2 =  GetVarDimension( varName2 );
+        if ( opName == ">" )
+        {
+            return var1 > var2;
+        }
+        else if ( opName == ">=" )
+        {
+            return var1 >= var2;
+        }
+        else if ( opName == "==" )
+        {
+            return var1 == var2;
+        }
+        else if ( opName == "<" )
+        {
+            return var1 < var2;
+        }
+        else if ( opName == "<=" )
+        {
+            return var1 <= var2;
+        }
+        else if ( opName == "!=" )
+        {
+            return var1 != var2;
+        }
+        return false;
+    }
+
+    void ReadFieldDefinitions(
+        const std::string & fileName,
+        ParaNameDimData & paraNameDimData )
+    {
+        TextFileParser textFileParser;
+
+        // \t is the tab key
+        std::string separator = " \r\n\t#$,;\"()";
+
+        textFileParser.OpenFile(
+            fileName,
+            std::ios_base::in );
+
+        textFileParser.SetDefaultSeparator(
+            separator );
+
+        while ( ! textFileParser.ReachTheEndOfFile() )
+        {
+            bool flag = textFileParser.ReadNextNonEmptyLine();
+            if ( ! flag ) break;
+
+            std::string keyWord =
+                textFileParser.ReadNextWord();
+
+            if ( keyWord == "true" )
+            {
+                ReadFieldDefinition(
+                    textFileParser,
+                    paraNameDimData );
+            }
+        }
+
+        textFileParser.CloseFile();
+    }
+
+    using BoolLineReader =
+        void ( BoolIO::* )( TextFileParser & );
+
+    void ReadBoolFile(
+        BoolIO & boolIO,
+        const std::string & fileName,
+        BoolLineReader trueReader )
+    {
+        // \t is the tab key
+        std::string separator = " \r\n\t#$,;\"()";
+
+        TextFileParser textFileParser;
+
+        textFileParser.OpenFile(
+            fileName,
+            std::ios_base::in );
+
+        textFileParser.SetDefaultSeparator(
+            separator );
+
+        while ( ! textFileParser.ReachTheEndOfFile() )
+        {
+            bool flag =
+                textFileParser.ReadNextNonEmptyLine();
+
+            if ( ! flag ) break;
+
+            std::string keyWord =
+                textFileParser.ReadNextWord();
+
+            if ( keyWord == "true" )
+            {
+                ( boolIO.*trueReader )(
+                    textFileParser );
+            }
+            else if ( keyWord == "bool" )
+            {
+                boolIO.ReadBool(
+                    textFileParser );
+            }
+            else if ( keyWord == "superbool" )
+            {
+                boolIO.ReadSuperBool(
+                    textFileParser );
+            }
+            else
+            {
+                bool flag =
+                    CalcVarValue(
+                        keyWord,
+                        boolIO.boolNameList,
+                        boolIO.boolValueList );
+
+                if ( flag )
+                {
+                    ( boolIO.*trueReader )(
+                        textFileParser );
+                }
+            }
+        }
+
+        textFileParser.CloseFile();
+    }
+}
+
 void FieldAlloc::AllocateAllFields( int solverType, const std::string & basicString )
 {
     FieldAlloc::RegisterInterfaceVar( solverType, basicString );
@@ -47,35 +342,51 @@ void FieldAlloc::InitField( int solverType, const std::string & basicString )
 {
     std::string fileName = Prj::GetSystemFileName( basicString + "/alloc/init.txt" );
     BoolIO boolIO;
-    boolIO.ReadFile( fileName, 1 );
+    boolIO.ReadValueFile( fileName );
 
     SetFieldValues(
         solverType,
         boolIO.nameValuePair );
 }
 
-
-void FieldAlloc::RegisterInterfaceVar( int solverType, const std::string & basicString )
+void FieldAlloc::RegisterInterfaceVar(
+    int solverType,
+    const std::string & basicString )
 {
-    SolverInfo * solverInfo = SolverInfoFactory::GetSolverInfo( solverType );
+    SolverInfo * solverInfo =
+        SolverInfoFactory::GetSolverInfo( solverType );
+
     if ( solverInfo->registerInterface ) return;
+
     solverInfo->registerInterface = 1;
 
-    StringField fileNameList;
-    IntField fieldTypeList;
-
-    FieldAlloc::CalcInterfaceFileName( basicString, fileNameList );
-    FieldAlloc::CalcInterfaceFileType( fieldTypeList );
-    
-    for ( int iFile = 0; iFile < fileNameList.size(); ++ iFile )
+    const InterfaceFileSpec interfaceFileSpecs[] =
     {
+        { "inter",        ONEFLOW::INTERFACE_DATA          },
+        { "interDq",      ONEFLOW::INTERFACE_DQ_DATA       },
+        { "interGrad",    ONEFLOW::INTERFACE_GRADIENT_DATA },
+        { "interOverset", ONEFLOW::INTERFACE_OVERSET_DATA  }
+    };
+
+    std::string rootString =
+        Prj::GetSystemFileName(
+            basicString + "/alloc/" );
+
+    OStream & logger = OStream::Instance();
+
+    for ( const InterfaceFileSpec & spec : interfaceFileSpecs )
+    {
+        logger.ClearAll();
+        logger << rootString << spec.name << ".txt";
+
         BoolIO boolIO;
-        boolIO.ReadFile( fileNameList[ iFile ] );
-        int fieldType = fieldTypeList[ iFile ];
+
+        boolIO.ReadFile(
+            logger.str() );
 
         AddInterfaceFieldNames(
             solverType,
-            fieldType,
+            spec.fieldType,
             boolIO.nameValuePair.nameList );
     }
 }
@@ -146,193 +457,6 @@ void FieldAlloc::AllocateOversetInterfaceField( IFieldProperty * iFieldProperty 
 {
 }
 
-void FieldAlloc::CalcInterfaceFileName( const std::string & basicString, StringField & fileNameList )
-{
-    StringField basicNameList;
-    basicNameList.push_back( "inter"        );
-    basicNameList.push_back( "interDq"      );
-    basicNameList.push_back( "interGrad"    );
-    basicNameList.push_back( "interOverset" );
-
-    std::string rootString = Prj::GetSystemFileName( basicString + "/alloc/" );
-    OStream &logger = OStream::Instance();
-
-    for ( int i = 0; i < basicNameList.size(); ++ i )
-    {
-        logger.ClearAll();
-        logger << rootString << basicNameList[ i ] << ".txt";
-
-        std::string name = logger.str();
-
-        fileNameList.push_back( name );
-    }
-}
-
-void FieldAlloc::CalcInterfaceFileType( IntField & fieldTypeList )
-{
-    fieldTypeList.push_back( ONEFLOW::INTERFACE_DATA          );
-    fieldTypeList.push_back( ONEFLOW::INTERFACE_DQ_DATA       );
-    fieldTypeList.push_back( ONEFLOW::INTERFACE_GRADIENT_DATA );
-    fieldTypeList.push_back( ONEFLOW::INTERFACE_OVERSET_DATA  );
-}
-
-
-void SetFieldValues(
-    int solverType,
-    const NameValuePair & valuePair )
-{
-    FieldManager * fieldManager =
-        FieldFactory::GetFieldManager( solverType );
-
-    int nVar = valuePair.nameList.size();
-
-    for ( int iVar = 0; iVar < nVar; ++ iVar )
-    {
-        fieldManager->SetField(
-            valuePair.nameList[ iVar ],
-            valuePair.valueList[ iVar ] );
-    }
-}
-
-
-bool CalcBoolExp( bool var1, const std::string & opName, bool var2 )
-{
-    if ( opName == "&&" )
-    {
-        return var1 && var2;
-    }
-    else if ( opName == "||" )
-    {
-        return var1 || var2;
-    }
-    return false;
-}
-
-bool CalcBoolExp( const std::string & varName1, const std::string & opName, const std::string & varName2 )
-{
-    int var1 = ONEFLOW::GetVarDimension( varName1 );
-    int var2 = ONEFLOW::GetVarDimension( varName2 );
-    if ( opName == ">" )
-    {
-        return var1 > var2;
-    }
-    else if ( opName == ">=" )
-    {
-        return var1 >= var2;
-    }
-    else if ( opName == "==" )
-    {
-        return var1 == var2;
-    }
-    else if ( opName == "<" )
-    {
-        return var1 < var2;
-    }
-    else if ( opName == "<=" )
-    {
-        return var1 <= var2;
-    }
-    else if ( opName == "!=" )
-    {
-        return var1 != var2;
-    }
-    return false;
-}
-
-bool CalcVarValue( const std::string & varName, StringField & boolName, BoolField & boolVar )
-{
-    int index = -1;
-    for ( int i = 0; i < boolName.size(); ++ i )
-    {
-        if ( varName == boolName[ i ] )
-        {
-            index = i;
-            break;
-        }
-    }
-    return boolVar[ index ];
-}
-
-int GetVarDimension( const std::string & dimName )
-{
-    if ( Word::IsDigit( dimName ) )
-    {
-        return StringToDigit< int >( dimName );
-    }
-    else
-    {
-        return GetDataValue< int >( dimName );
-    }
-}
-
-void AddInterfaceFieldNames(
-    int solverType,
-    int fieldType,
-    const StringField & nameList )
-{
-    VarNameSolver * varNameSolver =
-        VarNameFactory::GetVarNameSolver(
-            solverType,
-            fieldType );
-
-    int numberOfVariables = nameList.size();
-
-    for ( int iVariable = 0;
-        iVariable < numberOfVariables;
-        ++ iVariable )
-    {
-        const std::string & varName =
-            nameList[ iVariable ];
-
-        varNameSolver->AddFieldName( varName );
-    }
-}
-
-FieldCategory ParseFieldCategory( const std::string & typeName )
-{
-    if ( typeName == "all" )
-    {
-        return FieldCategory::Common;
-    }
-
-    if ( typeName == "str" )
-    {
-        return FieldCategory::Structured;
-    }
-
-    return FieldCategory::Unstructured;
-}
-
-void ReadFieldDefinition(
-    TextFileParser & textFileParser,
-    ParaNameDimData & paraNameDimData )
-{
-    std::string varName      = textFileParser.ReadNextWord();
-    std::string varDimension = textFileParser.ReadNextWord();
-    std::string typeName     = textFileParser.ReadNextWord();
-
-    int nEqu = ONEFLOW::GetVarDimension( varDimension );
-
-    FieldCategory category = ParseFieldCategory( typeName );
-
-    ParaNameDim * paraNameDim =
-        paraNameDimData.GetParaNameDim( category );
-
-    paraNameDim->nameList.push_back( varName );
-    paraNameDim->nEquList.push_back( nEqu );
-}
-
-
-BoolIO::BoolIO()
-{
-    ;
-}
-
-BoolIO::~BoolIO()
-{
-    ;
-}
-
 void BoolIO::Add( const std::string & name, bool value )
 {
     this->boolNameList.push_back( name );
@@ -341,13 +465,25 @@ void BoolIO::Add( const std::string & name, bool value )
 
 void BoolIO::ReadBool( TextFileParser & textFileParser )
 {
-    std::string varName = textFileParser.ReadNextWord();
-    std::string word    = textFileParser.ReadNextWord();
-    std::string var1    = textFileParser.ReadNextWord();
-    std::string opName  = textFileParser.ReadNextWord();
-    std::string var2    = textFileParser.ReadNextWord();
+    std::string varName =
+        textFileParser.ReadNextWord();
 
-    bool boolValue = ONEFLOW::CalcBoolExp( var1, opName, var2 );
+    textFileParser.ReadNextWord();
+
+    std::string var1 =
+        textFileParser.ReadNextWord();
+
+    std::string opName =
+        textFileParser.ReadNextWord();
+
+    std::string var2 =
+        textFileParser.ReadNextWord();
+
+    bool boolValue =
+        CalcBoolExp(
+            var1,
+            opName,
+            var2 );
 
     this->Add( varName, boolValue );
 }
@@ -362,19 +498,19 @@ void BoolIO::ReadSuperBool( TextFileParser & textFileParser )
     std::string var2    = textFileParser.ReadNextWord();
 
     bool varVaule1 =
-        ONEFLOW::CalcVarValue(
+        CalcVarValue(
             var1,
             this->boolNameList,
             this->boolValueList );
 
     bool varVaule2 =
-        ONEFLOW::CalcVarValue(
+        CalcVarValue(
             var2,
             this->boolNameList,
             this->boolValueList );
 
     bool boolValue =
-        ONEFLOW::CalcBoolExp(
+        CalcBoolExp(
             varVaule1,
             opName,
             varVaule2 );
@@ -382,97 +518,45 @@ void BoolIO::ReadSuperBool( TextFileParser & textFileParser )
     this->Add( varName, boolValue );
 }
 
-bool BoolIO::CalcVarValue( const std::string & varName )
+void BoolIO::ReadName(
+    TextFileParser & textFileParser )
 {
-    bool result = ONEFLOW::CalcVarValue( varName, this->boolNameList, this->boolValueList );
-    return result;
+    std::string varName =
+        textFileParser.ReadNextWord();
+
+    nameValuePair.nameList.push_back( varName );
 }
 
-void BoolIO::Read(
-    TextFileParser & textFileParser,
-    int valueFlag )
+void BoolIO::ReadNameValue(
+    TextFileParser & textFileParser )
 {
-    if ( valueFlag == 0 )
-    {
-        std::string varName = textFileParser.ReadNextWord();
-        nameValuePair.nameList.push_back( varName );
-    }
-    else if ( valueFlag == 1 )
-    {
-        std::string varName = textFileParser.ReadNextWord();
-        nameValuePair.nameList.push_back( varName );
+    std::string varName =
+        textFileParser.ReadNextWord();
 
-        Real varValue = textFileParser.ReadNextDigit< Real >();
-        nameValuePair.valueList.push_back( varValue );
-    }
+    nameValuePair.nameList.push_back( varName );
+
+    Real varValue =
+        textFileParser.ReadNextDigit< Real >();
+
+    nameValuePair.valueList.push_back( varValue );
 }
 
 void BoolIO::ReadFile(
-    const std::string & fileName,
-    int valueFlag,
-    ParaNameDimData * paraNameDimData )
+    const std::string & fileName )
 {
-    // \t is the tab key
-    std::string separator = " \r\n\t#$,;\"()";
+    ReadBoolFile(
+        *this,
+        fileName,
+        &BoolIO::ReadName );
+}
 
-    TextFileParser textFileParser;
-    textFileParser.OpenFile( fileName, std::ios_base::in );
-    textFileParser.SetDefaultSeparator( separator );
-
-    while ( ! textFileParser.ReachTheEndOfFile() )
-    {
-        bool flag = textFileParser.ReadNextNonEmptyLine();
-        if ( ! flag ) break;
-
-        std::string keyWord = textFileParser.ReadNextWord();
-
-        if ( keyWord == "true" )
-        {
-            if ( valueFlag == 2 )
-            {
-                ReadFieldDefinition(
-                    textFileParser,
-                    *paraNameDimData );
-            }
-            else
-            {
-                this->Read(
-                    textFileParser,
-                    valueFlag );
-            }
-        }
-        else if ( keyWord == "bool" )
-        {
-            this->ReadBool( textFileParser );
-        }
-        else if ( keyWord == "superbool" )
-        {
-            this->ReadSuperBool( textFileParser );
-        }
-        else
-        {
-            std::string expression = keyWord;
-            bool flag = this->CalcVarValue( expression );
-
-            if ( flag )
-            {
-                if ( valueFlag == 2 )
-                {
-                    ReadFieldDefinition(
-                        textFileParser,
-                        *paraNameDimData );
-                }
-                else
-                {
-                    this->Read(
-                        textFileParser,
-                        valueFlag );
-                }
-            }
-        }
-    }
-
-    textFileParser.CloseFile();
+void BoolIO::ReadValueFile(
+    const std::string & fileName )
+{
+    ReadBoolFile(
+        *this,
+        fileName,
+        &BoolIO::ReadNameValue );
 }
 
 ParaNameDim * ParaNameDimData::GetParaNameDim( FieldCategory category )
@@ -523,46 +607,26 @@ void ReadSuperPara::AddUnsteadyInnerFieldProperty()
 void ReadSuperPara::AddFieldProperties(
     FieldLocation location )
 {
-    this->AddBasicFieldProperty(
+    FieldManager * fieldManager =
+        FieldFactory::GetFieldManager( this->solverType );
+
+    AddBasicFieldProperty(
+        fieldManager,
         &this->paraNameDimData.unsPara,
         location,
         FieldCategory::Unstructured );
 
-    this->AddBasicFieldProperty(
+    AddBasicFieldProperty(
+        fieldManager,
         &this->paraNameDimData.strPara,
         location,
         FieldCategory::Structured );
 
-    this->AddBasicFieldProperty(
+    AddBasicFieldProperty(
+        fieldManager,
         &this->paraNameDimData.comPara,
         location,
         FieldCategory::Common );
-}
-
-void ReadSuperPara::AddBasicFieldProperty(
-    ParaNameDim * paraNameDim,
-    FieldLocation location,
-    FieldCategory category )
-{
-    FieldManager * fieldManager =
-        FieldFactory::GetFieldManager( this->solverType );
-
-    int nVar = paraNameDim->nameList.size();
-
-    for ( int iVar = 0; iVar < nVar; ++ iVar )
-    {
-        const std::string & varName =
-            paraNameDim->nameList[ iVar ];
-
-        int nEqu =
-            paraNameDim->nEquList[ iVar ];
-
-        fieldManager->AddField(
-            varName,
-            nEqu,
-            category,
-            location );
-    }
 }
 
 void ReadSuperPara::Register(
@@ -570,12 +634,9 @@ void ReadSuperPara::Register(
     FieldLocation location,
     bool isUnsteady )
 {
-    BoolIO boolIO;
-
-    boolIO.ReadFile(
+    ReadFieldDefinitions(
         fileName,
-        2,
-        &this->paraNameDimData );
+        this->paraNameDimData );
 
     if ( isUnsteady )
     {

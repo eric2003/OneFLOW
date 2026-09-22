@@ -22,7 +22,6 @@ License
 #pragma once
 #include "HXDefine.h"
 #include "FieldCategory.h"
-#include <memory>
 #include <string>
 
 
@@ -37,10 +36,6 @@ public:
     RealField valueList;
 };
 
-void SetFieldValues(
-    int solverType,
-    const NameValuePair & valuePair );
-
 class FieldAlloc
 {
 public:
@@ -48,8 +43,6 @@ public:
     static void InitField( int solverType, const std::string & basicString );
     static void RegisterInterfaceVar( int solverType, const std::string & basicString );
     static void AllocateGlobalField( int solverType, const std::string & basicString );
-    static void CalcInterfaceFileName( const std::string & basicString, StringField & fileNameList );
-    static void CalcInterfaceFileType( IntField & fieldTypeList );
     static void AllocateAllKindsOfInterfaceField( int solverType );
     static void AllocateInterfaceField( IFieldProperty * iFieldProperty );
     static void AllocateOversetInterfaceField( IFieldProperty * iFieldProperty );
@@ -74,13 +67,6 @@ public:
     ParaNameDim unsPara;
 };
 
-struct FieldFileSpec
-{
-    const char * name;
-    FieldLocation location;
-    bool isUnsteady;
-};
-
 class ReadSuperPara
 {
 public:
@@ -99,32 +85,12 @@ public:
 
     void AddFieldProperties( FieldLocation location );
     void AddUnsteadyInnerFieldProperty();
-
-public:
-    void AddBasicFieldProperty(
-        ParaNameDim * paraNameDim,
-        FieldLocation location,
-        FieldCategory category );
 };
 
 class TextFileParser;
 
-void AddInterfaceFieldNames(
-    int solverType,
-    int fieldType,
-    const StringField & nameList );
-FieldCategory ParseFieldCategory( const std::string & typeName );
-
-void ReadFieldDefinition(
-    TextFileParser & textFileParser,
-    ParaNameDimData & paraNameDimData );
-
-
 class BoolIO
 {
-public:
-    BoolIO();
-    ~BoolIO();
 public:
     StringField boolNameList;
     BoolField boolValueList;
@@ -133,19 +99,17 @@ public:
     void Add( const std::string & name, bool value );
     void ReadBool( TextFileParser & textFileParser );
     void ReadSuperBool( TextFileParser & textFileParser );
-    bool CalcVarValue( const std::string & varName );
-    void Read(
-        TextFileParser & textFileParser,
-        int valueFlag );
-    void ReadFile(
-        const std::string & fileName,
-        int valueFlag = 0,
-        ParaNameDimData * paraNameDimData = nullptr );
-};
+    void ReadName(
+        TextFileParser & textFileParser );
 
-bool CalcBoolExp( bool var1, const std::string & opName, bool var2 );
-bool CalcBoolExp( const std::string & varName1, const std::string & opName, const std::string & varName2 );
-bool CalcVarValue( const std::string & varName, StringField & boolName, BoolField & boolVar );
-int GetVarDimension( const std::string & dimName );
+    void ReadNameValue(
+        TextFileParser & textFileParser );
+
+    void ReadFile(
+        const std::string & fileName );
+
+    void ReadValueFile(
+        const std::string & fileName );
+};
 
 EndNameSpace
