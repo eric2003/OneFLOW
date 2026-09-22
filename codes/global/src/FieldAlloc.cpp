@@ -465,13 +465,25 @@ void BoolIO::Add( const std::string & name, bool value )
 
 void BoolIO::ReadBool( TextFileParser & textFileParser )
 {
-    std::string varName = textFileParser.ReadNextWord();
-    std::string word    = textFileParser.ReadNextWord();
-    std::string var1    = textFileParser.ReadNextWord();
-    std::string opName  = textFileParser.ReadNextWord();
-    std::string var2    = textFileParser.ReadNextWord();
+    std::string varName =
+        textFileParser.ReadNextWord();
 
-    bool boolValue = CalcBoolExp( var1, opName, var2 );
+    textFileParser.ReadNextWord();
+
+    std::string var1 =
+        textFileParser.ReadNextWord();
+
+    std::string opName =
+        textFileParser.ReadNextWord();
+
+    std::string var2 =
+        textFileParser.ReadNextWord();
+
+    bool boolValue =
+        CalcBoolExp(
+            var1,
+            opName,
+            var2 );
 
     this->Add( varName, boolValue );
 }
