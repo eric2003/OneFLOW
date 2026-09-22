@@ -23,8 +23,8 @@ License
 #pragma once
 
 #include "HXDefine.h"
-
 #include <memory>
+#include <ostream>
 
 BeginNameSpace( ONEFLOW )
 
@@ -118,6 +118,9 @@ public:
     static void ExecuteCmd();
 
     static void ShowCmdInfo( Command * cmd, int iCmd );
+
+    static void DumpCommandQueue(
+        std::ostream & output );
 
     // Return a read-only view of the current command queue.
     static const HXVector< Command * > * GetCmdList();

@@ -23,12 +23,89 @@ License
 #include "Task.h"
 #include "TaskState.h"
 
+#include "DataBook.h"
+#include "FileInfo.h"
+
 #include <iostream>
 #include <memory>
 #include <string>
 #include <utility>
 
 BeginNameSpace( ONEFLOW )
+
+namespace
+{
+
+    void DumpTaskInfo(
+        std::ostream & output,
+        Task * task,
+        int iTask )
+    {
+        output
+            << "  Task "
+            << iTask
+            << ":\n";
+
+        if ( task == nullptr )
+        {
+            output
+                << "    <null>\n";
+            return;
+        }
+
+        output
+            << "    id       : "
+            << task->taskId
+            << "\n"
+            << "    name     : "
+            << task->taskName
+            << "\n";
+
+        output
+            << "    action:\n"
+            << "      normal  : "
+            << ( task->action != nullptr ? "set" : "null" )
+            << "\n"
+            << "      send    : "
+            << ( task->sendAction != nullptr ? "set" : "null" )
+            << "\n"
+            << "      receive : "
+            << ( task->recvAction != nullptr ? "set" : "null" )
+            << "\n";
+
+        if ( task->dataBook != nullptr )
+        {
+            output
+                << "    DataBook:\n"
+                << "      size      : "
+                << task->dataBook->size()
+                << "\n"
+                << "      pageCount : "
+                << task->dataBook->GetPageCount()
+                << "\n";
+        }
+        else
+        {
+            output
+                << "    DataBook: <null>\n";
+        }
+
+        if ( task->fileInfo != nullptr )
+        {
+            output
+                << "    FileInfo:\n"
+                << "      fileName : "
+                << task->fileInfo->fileName
+                << "\n";
+        }
+        else
+        {
+            output
+                << "    FileInfo: <null>\n";
+        }
+    }
+
+}
 
 /*
 * Command implementation
@@ -288,5 +365,63 @@ void CMD::ShowCmdInfo( Command * cmd, int iCmd )
             << std::endl;
     }
 }
+
+void CMD::DumpCommandQueue(
+    std::ostream & output )
+{
+    output
+        << "========== Command Environment ==========\n";
+
+    if ( CMD::cmdList_ == nullptr ||
+        CMD::cmdList_->empty() )
+    {
+        output
+            << "  <empty>\n"
+            << "==========================================\n";
+        return;
+    }
+
+    for ( HXSize_t iCmd = 0;
+        iCmd < CMD::cmdList_->size();
+        ++ iCmd )
+    {
+        Command * cmd =
+            ( * CMD::cmdList_ )[ iCmd ];
+
+        output
+            << "\n[Command "
+            << iCmd
+            << "]\n";
+
+        if ( cmd == nullptr )
+        {
+            output
+                << "  <null>\n";
+            continue;
+        }
+
+        const Command::TList & tasks =
+            * cmd->GetTaskList();
+
+        output
+            << "  Tasks: "
+            << tasks.size()
+            << "\n";
+
+        for ( HXSize_t iTask = 0;
+            iTask < tasks.size();
+            ++ iTask )
+        {
+            DumpTaskInfo(
+                output,
+                tasks[ iTask ],
+                static_cast< int >( iTask ) );
+        }
+    }
+
+    output
+        << "\n==========================================\n";
+}
+
 
 EndNameSpace
