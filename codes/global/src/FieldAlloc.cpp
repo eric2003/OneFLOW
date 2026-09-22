@@ -204,10 +204,17 @@ namespace
         return false;
     }
     
-    bool CalcBoolExp( const std::string & varName1, const std::string & opName, const std::string & varName2 )
+    bool CompareVar(
+        const std::string & varName1,
+        const std::string & opName,
+        const std::string & varName2 )
     {
-        int var1 =  GetVarDimension( varName1 );
-        int var2 =  GetVarDimension( varName2 );
+        int var1 =
+            GetVarDimension( varName1 );
+
+        int var2 =
+            GetVarDimension( varName2 );
+
         if ( opName == ">" )
         {
             return var1 > var2;
@@ -232,6 +239,7 @@ namespace
         {
             return var1 != var2;
         }
+
         return false;
     }
 
@@ -484,7 +492,7 @@ void BoolIO::ReadBool( TextFileParser & textFileParser )
         textFileParser.ReadNextWord();
 
     bool boolValue =
-        CalcBoolExp(
+        CompareVar(
             var1,
             opName,
             var2 );
