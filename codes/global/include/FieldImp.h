@@ -35,7 +35,6 @@ public:
 
 public:
     void AddField( const std::string & fieldName, int nEqu );
-    int GetNEqu( const std::string & fieldName ) const;
 
     const Data & GetData() const;
 

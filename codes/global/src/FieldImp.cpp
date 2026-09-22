@@ -56,19 +56,6 @@ void FieldProperty::AddField( const std::string & fieldName, int nEqu )
     this->data[ fieldName ] = nEqu;
 }
 
-int FieldProperty::GetNEqu( const std::string & fieldName ) const
-{
-    FieldProperty::Data::const_iterator iter;
-    iter = this->data.find( fieldName );
-
-    if ( iter != this->data.end() )
-    {
-        return iter->second;
-    }
-
-    return -1;
-}
-
 const FieldProperty::Data & FieldProperty::GetData() const
 {
     return this->data;
