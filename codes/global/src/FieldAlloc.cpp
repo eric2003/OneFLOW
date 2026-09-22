@@ -618,8 +618,6 @@ void ReadSuperPara::AddUnsteadyInnerFieldProperty()
     FieldManager * fieldManager = FieldFactory::GetFieldManager( this->solverType );
 
     UsdPara * usdPara = fieldManager->usdPara.get();
-    //int nEqu = this->paraNameDimData.comPara.nEquList[ 0 ];
-    //usdPara->Init( this->paraNameDimData.comPara.nameList, nEqu );
 
     const ParaNameDim * comPara =
         this->paraNameDimData.GetParaNameDim(
