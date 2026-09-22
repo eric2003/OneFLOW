@@ -137,13 +137,13 @@ namespace
         FieldManager * fieldManager =
             FieldFactory::GetFieldManager( solverType );
 
-        int nVar = valuePair.nameList.size();
+        int nVar = valuePair.Size();
 
         for ( int iVar = 0; iVar < nVar; ++ iVar )
         {
             fieldManager->SetField(
-                valuePair.nameList[ iVar ],
-                valuePair.valueList[ iVar ] );
+                valuePair.GetName( iVar ),
+                valuePair.GetValue( iVar ) );
         }
     }
 
@@ -323,6 +323,42 @@ namespace
     }
 }
 
+void NameValuePair::Add(
+    const std::string & name,
+    Real value )
+{
+    nameList.push_back( name );
+    valueList.push_back( value );
+}
+
+void NameValuePair::AddName(
+    const std::string & name )
+{
+    nameList.push_back( name );
+}
+
+int NameValuePair::Size() const
+{
+    return nameList.size();
+}
+
+const std::string & NameValuePair::GetName(
+    int index ) const
+{
+    return nameList[ index ];
+}
+
+Real NameValuePair::GetValue(
+    int index ) const
+{
+    return valueList[ index ];
+}
+
+const StringField & NameValuePair::GetNameList() const
+{
+    return nameList;
+}
+
 void FieldAlloc::AllocateAllFields( int solverType, const std::string & basicString )
 {
     FieldAlloc::RegisterInterfaceVar( solverType, basicString );
@@ -379,7 +415,7 @@ void FieldAlloc::RegisterInterfaceVar(
         AddInterfaceFieldNames(
             solverType,
             spec.fieldType,
-            boolIO.GetNameValuePair().nameList );
+            boolIO.GetNameValuePair().GetNameList() );
     }
 }
 
@@ -538,7 +574,7 @@ void BoolIO::ReadName(
     std::string varName =
         textFileParser.ReadNextWord();
 
-    nameValuePair.nameList.push_back( varName );
+    nameValuePair.AddName( varName );
 }
 
 void BoolIO::ReadNameValue(
@@ -547,12 +583,13 @@ void BoolIO::ReadNameValue(
     std::string varName =
         textFileParser.ReadNextWord();
 
-    nameValuePair.nameList.push_back( varName );
 
     Real varValue =
         textFileParser.ReadNextDigit< Real >();
 
-    nameValuePair.valueList.push_back( varValue );
+    nameValuePair.Add(
+        varName,
+        varValue );
 }
 
 void BoolIO::ReadFile(

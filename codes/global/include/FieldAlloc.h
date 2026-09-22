@@ -29,11 +29,26 @@ BeginNameSpace( ONEFLOW )
 
 class IFieldProperty;
 
-struct NameValuePair
+class NameValuePair
 {
-public:
+private:
     StringField nameList;
     RealField valueList;
+
+public:
+    void Add(
+        const std::string & name,
+        Real value );
+
+    void AddName(
+        const std::string & name );
+
+    int Size() const;
+
+    const std::string & GetName( int index ) const;
+    Real GetValue( int index ) const;
+
+    const StringField & GetNameList() const;
 };
 
 class FieldAlloc
