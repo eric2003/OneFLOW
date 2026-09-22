@@ -56,15 +56,6 @@ public:
     void DownloadOversetInterfaceValue();
 };
 
-class GFieldProperty
-{
-public:
-    static void AddField( const std::string & fieldName, int nEqu );
-    static int GetNEqu( const std::string & fieldName );
-private:
-    static std::map< std::string, int > data;
-};
-
 class FieldPropertyData
 {
 public:

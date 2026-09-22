@@ -182,24 +182,6 @@ void IFieldProperty::DeAllocateInterfaceField( DataStorage * dataStorage )
     }
 }
 
-std::map< std::string, int > GFieldProperty::data;
-
-void GFieldProperty::AddField( const std::string & fieldName, int nEqu )
-{
-    GFieldProperty::data[ fieldName ] = nEqu;
-}
-
-int GFieldProperty::GetNEqu( const std::string & fieldName )
-{
-    std::map< std::string, int >::iterator iter;
-    iter = GFieldProperty::data.find( fieldName );
-    if ( iter != GFieldProperty::data.end() )
-    {
-        return iter->second;
-    }
-    return -1;
-}
-
 FieldProperty & FieldPropertyData::GetFieldProperty(
     FieldLocation location )
 {
@@ -316,8 +298,6 @@ void FieldManager::AddField(
 {
     if ( category == FieldCategory::Common )
     {
-        GFieldProperty::AddField( fieldName, nEqu );
-
         if ( location == FieldLocation::Inner )
         {
             this->iFieldProperty.AddField(
