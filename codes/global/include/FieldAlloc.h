@@ -49,11 +49,15 @@ public:
     Real GetValue( int index ) const;
 };
 
+class FieldManager;
+
 class FieldAlloc
 {
 public:
     static void AllocateAllFields( int solverType, const std::string & basicString );
-    static void InitField( int solverType, const std::string & basicString );
+    static void InitField(
+        FieldManager * fieldManager,
+        const std::string & basicString );
     static void RegisterInterfaceVar( int solverType, const std::string & basicString );
     static void AllocateGlobalField( int solverType, const std::string & basicString );
     static void AllocateAllKindsOfInterfaceField( int solverType );
@@ -92,8 +96,6 @@ public:
     const ParaNameDim * GetParaNameDim( FieldCategory category ) const;
 };
 
-
-class FieldManager;
 
 class ReadSuperPara
 {

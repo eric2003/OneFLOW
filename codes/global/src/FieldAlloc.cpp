@@ -131,12 +131,9 @@ namespace
     }
 
     void SetFieldValues(
-        int solverType,
+        FieldManager * fieldManager,
         const NameValuePair & valuePair )
     {
-        FieldManager * fieldManager =
-            FieldFactory::GetFieldManager( solverType );
-
         int nVar = valuePair.Size();
 
         for ( int iVar = 0; iVar < nVar; ++ iVar )
@@ -355,21 +352,36 @@ Real NameValuePair::GetValue(
     return valueList[ index ];
 }
 
-void FieldAlloc::AllocateAllFields( int solverType, const std::string & basicString )
+void FieldAlloc::AllocateAllFields(
+    int solverType,
+    const std::string & basicString )
 {
-    FieldAlloc::RegisterInterfaceVar( solverType, basicString );
-    FieldAlloc::AllocateGlobalField( solverType, basicString );
-    FieldAlloc::InitField( solverType, basicString );
+    FieldAlloc::RegisterInterfaceVar(
+        solverType,
+        basicString );
+
+    FieldAlloc::AllocateGlobalField(
+        solverType,
+        basicString );
+
+    FieldManager * fieldManager =
+        FieldFactory::GetFieldManager( solverType );
+
+    FieldAlloc::InitField(
+        fieldManager,
+        basicString );
 }
 
-void FieldAlloc::InitField( int solverType, const std::string & basicString )
+void FieldAlloc::InitField(
+    FieldManager * fieldManager,
+    const std::string & basicString )
 {
     std::string fileName = Prj::GetSystemFileName( basicString + "/alloc/init.txt" );
     BoolIO boolIO;
     boolIO.ReadValueFile( fileName );
 
     SetFieldValues(
-        solverType,
+        fieldManager,
         boolIO.GetNameValuePair() );
 }
 
