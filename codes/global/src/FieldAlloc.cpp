@@ -636,6 +636,12 @@ ParaNameDimData::GetParaNameDim( FieldCategory category ) const
     return nullptr;
 }
 
+FieldManager * ReadSuperPara::GetFieldManager() const
+{
+    return FieldFactory::GetFieldManager(
+        this->solverType );
+}
+
 ReadSuperPara::ReadSuperPara( int solverType )
     : solverType( solverType )
 {
@@ -646,7 +652,7 @@ void ReadSuperPara::AddUnsteadyInnerFieldProperty()
     this->AddFieldProperties( FieldLocation::Inner );
 
     FieldManager * fieldManager =
-        FieldFactory::GetFieldManager( this->solverType );
+        this->GetFieldManager();
 
     UsdPara * usdPara =
         fieldManager->usdPara.get();
@@ -667,7 +673,7 @@ void ReadSuperPara::AddFieldProperties(
     FieldLocation location )
 {
     FieldManager * fieldManager =
-        FieldFactory::GetFieldManager( this->solverType );
+        this->GetFieldManager();
 
     AddBasicFieldProperty(
         fieldManager,

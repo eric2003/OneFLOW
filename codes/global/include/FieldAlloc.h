@@ -79,11 +79,16 @@ public:
     const ParaNameDim * GetParaNameDim( FieldCategory category ) const;
 };
 
+
+class FieldManager;
+
 class ReadSuperPara
 {
 private:
     ParaNameDimData paraNameDimData;
     int solverType;
+
+    FieldManager * GetFieldManager() const;
 
 public:
     explicit ReadSuperPara( int solverType );
