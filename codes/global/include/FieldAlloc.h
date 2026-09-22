@@ -103,18 +103,19 @@ private:
 
     FieldManager * GetFieldManager() const;
 
+    void AddFieldProperties(
+        FieldLocation location );
+
+    void AddUnsteadyInnerFieldProperty();
+
 public:
     explicit ReadSuperPara( int solverType );
     ~ReadSuperPara() = default;
 
-public:
     void Register(
         const std::string & fileName,
         FieldLocation location,
         bool isUnsteady );
-
-    void AddFieldProperties( FieldLocation location );
-    void AddUnsteadyInnerFieldProperty();
 };
 
 class TextFileParser;
