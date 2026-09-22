@@ -45,54 +45,10 @@ namespace
         FieldCategory category,
         FieldLocation location )
     {
-        if ( category == FieldCategory::Common )
-        {
-            if ( location == FieldLocation::Inner )
-            {
-                return &fieldManager->commManager.GetFieldProperty( location );
-            }
-            else if ( location == FieldLocation::Face )
-            {
-                return &fieldManager->commManager.GetFieldProperty( location );
-            }
-            else if ( location == FieldLocation::Boundary )
-            {
-                return &fieldManager->commManager.GetFieldProperty( location );
-            }
-        }
-        else if ( category == FieldCategory::Structured )
-        {
-            if ( location == FieldLocation::Inner )
-            {
-                return &fieldManager->strManager.GetFieldProperty( location );
-            }
-            else if ( location == FieldLocation::Face )
-            {
-                return &fieldManager->strManager.GetFieldProperty( location );
-            }
-            else if ( location == FieldLocation::Boundary )
-            {
-                return &fieldManager->strManager.GetFieldProperty( location );
-            }
-        }
-        else if ( category == FieldCategory::Unstructured )
-        {
-            if ( location == FieldLocation::Inner )
-            {
-                return &fieldManager->unsManager.GetFieldProperty( location );
-            }
-            else if ( location == FieldLocation::Face )
-            {
-                return &fieldManager->unsManager.GetFieldProperty( location );
-            }
-            else if ( location == FieldLocation::Boundary )
-            {
-                return &fieldManager->unsManager.GetFieldProperty( location );
-            }
-        }
-
-        return nullptr;
+        return &fieldManager->GetFieldPropertyData(
+            category ).GetFieldProperty( location );
     }
+
 }
 
 void FieldProperty::AddField( const std::string & fieldName, int nEqu )
@@ -289,6 +245,44 @@ FieldManager::FieldManager()
 
 FieldManager::~FieldManager() = default;
 
+FieldPropertyData & FieldManager::GetFieldPropertyData(
+    FieldCategory category )
+{
+    switch ( category )
+    {
+    case FieldCategory::Common:
+        return commManager;
+
+    case FieldCategory::Structured:
+        return strManager;
+
+    case FieldCategory::Unstructured:
+        return unsManager;
+    }
+
+    Fatal( "Invalid field category" );
+    return commManager;
+}
+
+const FieldPropertyData & FieldManager::GetFieldPropertyData(
+    FieldCategory category ) const
+{
+    switch ( category )
+    {
+    case FieldCategory::Common:
+        return commManager;
+
+    case FieldCategory::Structured:
+        return strManager;
+
+    case FieldCategory::Unstructured:
+        return unsManager;
+    }
+
+    Fatal( "Invalid field category" );
+    return commManager;
+}
+
 void FieldManager::SetField( const std::string & fieldName, Real value )
 {
     FieldHome::SetField( fieldName, value );
@@ -334,8 +328,15 @@ void FieldManager::AllocateInnerAndBcField()
     {
         UnsGrid * grid = ONEFLOW::UnsGridCast( gridIn );
 
-        this->AllocateInnerAndBcField( grid, &this->commManager );
-        this->AllocateInnerAndBcField( grid, &this->unsManager );
+        this->AllocateInnerAndBcField(
+            grid,
+            &this->GetFieldPropertyData(
+                FieldCategory::Common ) );
+
+        this->AllocateInnerAndBcField(
+            grid,
+            &this->GetFieldPropertyData(
+                FieldCategory::Unstructured ) );
     }
 }
 
