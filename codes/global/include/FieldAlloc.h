@@ -22,7 +22,6 @@ License
 #pragma once
 #include "HXDefine.h"
 #include "FieldCategory.h"
-#include "UsdPara.h"
 #include <string>
 
 
@@ -105,7 +104,6 @@ class ReadSuperPara
 {
 private:
     ParaNameDimData paraNameDimData;
-    UsdFieldDefinitions usdFieldDefinitions;
     FieldManager * fieldManager;
 
     void AddFieldProperties(

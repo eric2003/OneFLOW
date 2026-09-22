@@ -55,6 +55,35 @@ namespace
         return GetDataValue< int >( dimensionToken );
     }
 
+    UsdFieldNames BuildUsdFieldNames(
+        const ParaNameDim & paraNameDim )
+    {
+        UsdFieldNames fieldNames;
+
+        fieldNames.q =
+            paraNameDim.GetName( 0 );
+
+        fieldNames.q1 =
+            paraNameDim.GetName( 1 );
+
+        fieldNames.q2 =
+            paraNameDim.GetName( 2 );
+
+        fieldNames.res =
+            paraNameDim.GetName( 3 );
+
+        fieldNames.res1 =
+            paraNameDim.GetName( 4 );
+
+        fieldNames.res2 =
+            paraNameDim.GetName( 5 );
+
+        fieldNames.dq =
+            paraNameDim.GetName( 6 );
+
+        return fieldNames;
+    }
+
     struct FieldFileSpec
     {
         const char * name;
@@ -84,13 +113,9 @@ namespace
         return FieldCategory::Unstructured;
     }
 
-    // The unsteady configuration declares the algorithmic role
-    // explicitly, so the number of time levels is not encoded
-    // in the C++ data model.
     void ReadFieldDefinition(
         TextFileParser & textFileParser,
-        ParaNameDimData & paraNameDimData,
-        UsdFieldDefinitions * usdFieldDefinitions )
+        ParaNameDimData & paraNameDimData )
     {
         FieldDefinition definition;
 
@@ -115,33 +140,6 @@ namespace
         paraNameDim->Add(
             definition.name,
             definition.nEqu );
-
-        if ( usdFieldDefinitions != nullptr )
-        {
-            std::string role =
-                textFileParser.ReadNextWord();
-
-            if ( role == "flow" )
-            {
-                usdFieldDefinitions->flow.push_back(
-                    definition.name );
-            }
-            else if ( role == "residual" )
-            {
-                usdFieldDefinitions->residual.push_back(
-                    definition.name );
-            }
-            else if ( role == "dq" )
-            {
-                usdFieldDefinitions->dq.push_back(
-                    definition.name );
-            }
-            else
-            {
-                Fatal(
-                    "Unknown unsteady field role: " + role );
-            }
-        }
     }
 
     void AddBasicFieldProperty(
@@ -264,8 +262,7 @@ namespace
 
     void ReadFieldDefinitions(
         const std::string & fileName,
-        ParaNameDimData & paraNameDimData,
-        UsdFieldDefinitions * usdFieldDefinitions = nullptr )
+        ParaNameDimData & paraNameDimData )
     {
         TextFileParser textFileParser;
 
@@ -291,8 +288,7 @@ namespace
             {
                 ReadFieldDefinition(
                     textFileParser,
-                    paraNameDimData,
-                    usdFieldDefinitions );
+                    paraNameDimData );
             }
         }
 
@@ -748,8 +744,11 @@ void ReadSuperPara::AddUnsteadyInnerFieldProperty()
     int nEqu =
         comPara->GetNEqu( 0 );
 
+    UsdFieldNames fieldNames =
+        BuildUsdFieldNames( *comPara );
+
     usdPara->Init(
-        this->usdFieldDefinitions,
+        fieldNames,
         nEqu );
 }
 

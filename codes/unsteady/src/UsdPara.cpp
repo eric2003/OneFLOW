@@ -38,16 +38,22 @@ UsdPara::~UsdPara()
 }
 
 void UsdPara::Init(
-    const UsdFieldDefinitions & fieldDefinitions,
+    const UsdFieldNames & fieldNames,
     int nEqu )
 {
     if ( this->flag ) return;
 
     this->flag = true;
 
-    this->flow = fieldDefinitions.flow;
-    this->residual = fieldDefinitions.residual;
-    this->dq = fieldDefinitions.dq;
+    this->flow.push_back( fieldNames.q );
+    this->flow.push_back( fieldNames.q1 );
+    this->flow.push_back( fieldNames.q2 );
+
+    this->residual.push_back( fieldNames.res );
+    this->residual.push_back( fieldNames.res1 );
+    this->residual.push_back( fieldNames.res2 );
+
+    this->dq.push_back( fieldNames.dq );
 
     this->nEqu = nEqu;
 }
