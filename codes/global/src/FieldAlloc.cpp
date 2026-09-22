@@ -171,8 +171,8 @@ namespace
 
     bool CalcVarValue(
         const std::string & varName,
-        StringField & boolName,
-        BoolField & boolVar )
+        const StringField & boolName,
+        const BoolField & boolVar )
     {
         for ( int i = 0; i < boolName.size(); ++ i )
         {
