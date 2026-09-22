@@ -40,12 +40,12 @@ BeginNameSpace( ONEFLOW )
 
 namespace
 {
-    FieldProperty * GetFieldProperty(
+    FieldProperty & GetFieldProperty(
         FieldManager * fieldManager,
         FieldCategory category,
         FieldLocation location )
     {
-        return &fieldManager->GetFieldPropertyData(
+        return fieldManager->GetFieldPropertyData(
             category ).GetFieldProperty( location );
     }
 
@@ -54,19 +54,6 @@ namespace
 void FieldProperty::AddField( const std::string & fieldName, int nEqu )
 {
     this->data[ fieldName ] = nEqu;
-}
-
-int FieldProperty::GetNEqu( const std::string & fieldName ) const
-{
-    FieldProperty::Data::const_iterator iter;
-    iter = this->data.find( fieldName );
-
-    if ( iter != this->data.end() )
-    {
-        return iter->second;
-    }
-
-    return -1;
 }
 
 const FieldProperty::Data & FieldProperty::GetData() const
@@ -102,11 +89,6 @@ void IFieldProperty::UploadInterfaceValue()
         for ( FieldProperty::Data::const_iterator iter = data.begin(); iter != data.end(); ++ iter )
         {
             int nEqu = iter->second;
-
-            if ( ZoneState::zid == 0 && iter->first == "gama" )
-            {
-                int kkk = 1;
-            }
 
             MRField * targetField = ONEFLOW::GetFieldPointer< MRField >( grid, iter->first );
             ONEFLOW::UploadInterfaceValue( grid, targetField, iter->first,  nEqu );
@@ -180,24 +162,6 @@ void IFieldProperty::DeAllocateInterfaceField( DataStorage * dataStorage )
     for ( FieldProperty::Data::const_iterator iter = data.begin(); iter != data.end(); ++ iter )
     {
     }
-}
-
-std::map< std::string, int > GFieldProperty::data;
-
-void GFieldProperty::AddField( const std::string & fieldName, int nEqu )
-{
-    GFieldProperty::data[ fieldName ] = nEqu;
-}
-
-int GFieldProperty::GetNEqu( const std::string & fieldName )
-{
-    std::map< std::string, int >::iterator iter;
-    iter = GFieldProperty::data.find( fieldName );
-    if ( iter != GFieldProperty::data.end() )
-    {
-        return iter->second;
-    }
-    return -1;
 }
 
 FieldProperty & FieldPropertyData::GetFieldProperty(
@@ -316,8 +280,6 @@ void FieldManager::AddField(
 {
     if ( category == FieldCategory::Common )
     {
-        GFieldProperty::AddField( fieldName, nEqu );
-
         if ( location == FieldLocation::Inner )
         {
             this->iFieldProperty.AddField(
@@ -326,21 +288,18 @@ void FieldManager::AddField(
         }
     }
 
-    FieldProperty * fieldProperty =
+    FieldProperty & fieldProperty =
         GetFieldProperty(
             this,
             category,
             location );
 
-    if ( fieldProperty != nullptr )
-    {
-        fieldProperty->AddField(
-            fieldName,
-            nEqu );
-    }
+    fieldProperty.AddField(
+        fieldName,
+        nEqu );
 }
 
-void FieldManager::AllocateInnerAndBcField()
+void FieldManager::AllocateGridFields()
 {
     Grid * gridIn = Zone::GetGrid();
 
@@ -348,23 +307,25 @@ void FieldManager::AllocateInnerAndBcField()
     {
         UnsGrid * grid = ONEFLOW::UnsGridCast( gridIn );
 
-        this->AllocateInnerAndBcField(
+        this->AllocateGridFields(
             grid,
             &this->GetFieldPropertyData(
                 FieldCategory::Common ) );
 
-        this->AllocateInnerAndBcField(
+        this->AllocateGridFields(
             grid,
             &this->GetFieldPropertyData(
                 FieldCategory::Unstructured ) );
     }
 }
 
-void FieldManager::AllocateInnerAndBcField( UnsGrid * grid, FieldPropertyData * fieldPropertyData )
+void FieldManager::AllocateGridFields(
+    UnsGrid * grid,
+    FieldPropertyData * fieldPropertyData )
 {
     this->AllocateInnerField( grid, fieldPropertyData );
     this->AllocateFaceField( grid, fieldPropertyData );
-    this->AllocateBcField( grid,fieldPropertyData );
+    this->AllocateBcField( grid, fieldPropertyData );
 }
 
 void FieldManager::AllocateInnerField(

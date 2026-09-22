@@ -71,8 +71,13 @@ public:
 class ParaNameDim
 {
 private:
-    StringField nameList;
-    IntField nEquList;
+    struct FieldEntry
+    {
+        std::string name;
+        int nEqu;
+    };
+
+    HXVector< FieldEntry > fields;
 
 public:
     void Add(
@@ -83,8 +88,6 @@ public:
 
     const std::string & GetName( int index ) const;
     int GetNEqu( int index ) const;
-
-    const StringField & GetNameList() const;
 };
 
 class ParaNameDimData
@@ -118,7 +121,7 @@ public:
     void Register(
         const std::string & fileName,
         FieldLocation location,
-        bool isUnsteady );
+        bool initializeUsdPara );
 };
 
 class TextFileParser;

@@ -35,7 +35,6 @@ public:
 
 public:
     void AddField( const std::string & fieldName, int nEqu );
-    int GetNEqu( const std::string & fieldName ) const;
 
     const Data & GetData() const;
 
@@ -54,15 +53,6 @@ public:
     void DownloadInterfaceValue();
     void UploadOversetInterfaceValue();
     void DownloadOversetInterfaceValue();
-};
-
-class GFieldProperty
-{
-public:
-    static void AddField( const std::string & fieldName, int nEqu );
-    static int GetNEqu( const std::string & fieldName );
-private:
-    static std::map< std::string, int > data;
 };
 
 class FieldPropertyData
@@ -115,9 +105,9 @@ public:
         const std::string & fieldName,
         Real value );
 
-    void AllocateInnerAndBcField();
+    void AllocateGridFields();
 
-    void AllocateInnerAndBcField(
+    void AllocateGridFields(
         UnsGrid * grid,
         FieldPropertyData * fieldPropertyData );
 

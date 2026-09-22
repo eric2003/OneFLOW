@@ -84,14 +84,25 @@ DataStorage * GetInterfaceDataStorage( InterFace * interFace, int srFlag, int gh
     }
 }
 
-void AddFieldRecord( FieldRecord * fieldRecord, DataStorage * dataStorage, StringField & fieldNameList )
+void AddFieldRecord(
+    FieldRecord * fieldRecord,
+    DataStorage * dataStorage,
+    StringField & fieldNameList )
 {
-    for ( int iField = 0; iField < fieldNameList.size(); ++ iField )
+    for ( int iField = 0;
+        iField < fieldNameList.size();
+        ++ iField )
     {
-        std::string & fieldName = fieldNameList[ iField ];
-        MRField * field = ONEFLOW::GetFieldPointer< MRField >( dataStorage, fieldName );
-        int nEqu = GFieldProperty::GetNEqu( fieldName );
-        fieldRecord->AddField( field , nEqu );
+        std::string & fieldName =
+            fieldNameList[ iField ];
+
+        MRField * field =
+            ONEFLOW::GetFieldPointer< MRField >(
+                dataStorage,
+                fieldName );
+
+        fieldRecord->AddField(
+            field );
     }
 }
 
@@ -112,23 +123,28 @@ void SetInterfaceFieldData( int iSr, FieldRecord * fieldRecord )
     
     ActionState::dataBook->MoveToBegin();
 
-    int nRecords = fieldRecord->nEquList.size();
+    int nRecords = fieldRecord->fields.size();
 
     for ( int fieldId = 0; fieldId < nRecords; ++ fieldId )
     {
-        int nEqu = fieldRecord->nEquList[ fieldId ];
-        MRField * field  = fieldRecord->GetField( fieldId );
+        MRField * field =
+            fieldRecord->GetField( fieldId );
+
         if ( iSr == GREAT_SEND )
         {
-            HXWriteSubData( ActionState::dataBook, field, interfaceId );
+            HXWriteSubData(
+                ActionState::dataBook,
+                field,
+                interfaceId );
         }
         else
         {
-            HXReadSubData( ActionState::dataBook, field, interfaceId );
+            HXReadSubData(
+                ActionState::dataBook,
+                field,
+                interfaceId );
         }
-        
-    }
-}
+    }}
 
 void HXWriteSubData( DataBook * dataBook, MRField * field2D, IntField & idMap )
 {
