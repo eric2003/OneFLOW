@@ -742,7 +742,7 @@ void ReadSuperPara::AddUnsteadyInnerFieldProperty()
             FieldCategory::Common );
 
     int nEqu =
-        comPara->GetNEqu( 0 );
+        GetDataValue< int >( "nEqu" );
 
     UsdFieldNames fieldNames =
         BuildUsdFieldNames( *comPara );
