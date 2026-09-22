@@ -101,8 +101,9 @@ namespace
         ParaNameDim * paraNameDim =
             paraNameDimData.GetParaNameDim( category );
 
-        paraNameDim->nameList.push_back( varName );
-        paraNameDim->nEquList.push_back( nEqu );
+        paraNameDim->Add(
+            varName,
+            nEqu );
     }
 
     void AddBasicFieldProperty(
@@ -111,15 +112,15 @@ namespace
         FieldLocation location,
         FieldCategory category )
     {
-        int nVar = paraNameDim->nameList.size();
+        int nVar = paraNameDim->Size();
 
         for ( int iVar = 0; iVar < nVar; ++ iVar )
         {
             const std::string & varName =
-                paraNameDim->nameList[ iVar ];
+                paraNameDim->GetName( iVar );
 
             int nEqu =
-                paraNameDim->nEquList[ iVar ];
+                paraNameDim->GetNEqu( iVar );
 
             fieldManager->AddField(
                 varName,
@@ -572,6 +573,34 @@ void BoolIO::ReadValueFile(
         &BoolIO::ReadNameValue );
 }
 
+void ParaNameDim::Add(
+    const std::string & name,
+    int nEqu )
+{
+    nameList.push_back( name );
+    nEquList.push_back( nEqu );
+}
+
+int ParaNameDim::Size() const
+{
+    return nameList.size();
+}
+
+const std::string & ParaNameDim::GetName( int index ) const
+{
+    return nameList[ index ];
+}
+
+int ParaNameDim::GetNEqu( int index ) const
+{
+    return nEquList[ index ];
+}
+
+const StringField & ParaNameDim::GetNameList() const
+{
+    return nameList;
+}
+
 ParaNameDim * ParaNameDimData::GetParaNameDim( FieldCategory category )
 {
     switch ( category )
@@ -615,18 +644,22 @@ ReadSuperPara::ReadSuperPara( int solverType )
 void ReadSuperPara::AddUnsteadyInnerFieldProperty()
 {
     this->AddFieldProperties( FieldLocation::Inner );
-    FieldManager * fieldManager = FieldFactory::GetFieldManager( this->solverType );
 
-    UsdPara * usdPara = fieldManager->usdPara.get();
+    FieldManager * fieldManager =
+        FieldFactory::GetFieldManager( this->solverType );
+
+    UsdPara * usdPara =
+        fieldManager->usdPara.get();
 
     const ParaNameDim * comPara =
         this->paraNameDimData.GetParaNameDim(
             FieldCategory::Common );
 
-    int nEqu = comPara->nEquList[ 0 ];
+    int nEqu =
+        comPara->GetNEqu( 0 );
 
     usdPara->Init(
-        comPara->nameList,
+        comPara->GetNameList(),
         nEqu );
 }
 

@@ -48,11 +48,23 @@ public:
     static void AllocateOversetInterfaceField( IFieldProperty * iFieldProperty );
 };
 
-struct ParaNameDim
+class ParaNameDim
 {
-public:
+private:
     StringField nameList;
     IntField nEquList;
+
+public:
+    void Add(
+        const std::string & name,
+        int nEqu );
+
+    int Size() const;
+
+    const std::string & GetName( int index ) const;
+    int GetNEqu( int index ) const;
+
+    const StringField & GetNameList() const;
 };
 
 class ParaNameDimData
