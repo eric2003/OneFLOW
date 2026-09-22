@@ -91,14 +91,27 @@ class TextFileParser;
 
 class BoolIO
 {
-public:
+private:
     StringField boolNameList;
     BoolField boolValueList;
-    NameValuePair nameValuePair;
+
 public:
-    void Add( const std::string & name, bool value );
-    void ReadBool( TextFileParser & textFileParser );
-    void ReadSuperBool( TextFileParser & textFileParser );
+    NameValuePair nameValuePair;
+
+public:
+    bool GetBoolValue(
+        const std::string & varName ) const;
+
+    void Add(
+        const std::string & name,
+        bool value );
+
+    void ReadBool(
+        TextFileParser & textFileParser );
+
+    void ReadSuperBool(
+        TextFileParser & textFileParser );
+
     void ReadName(
         TextFileParser & textFileParser );
 
@@ -111,5 +124,4 @@ public:
     void ReadValueFile(
         const std::string & fileName );
 };
-
 EndNameSpace

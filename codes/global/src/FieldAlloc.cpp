@@ -169,24 +169,6 @@ namespace
         }
     }
 
-    bool CalcVarValue(
-        const std::string & varName,
-        const StringField & boolName,
-        const BoolField & boolVar )
-    {
-        for ( int i = 0; i < boolName.size(); ++ i )
-        {
-            if ( varName == boolName[ i ] )
-            {
-                return boolVar[ i ];
-            }
-        }
-
-        Fatal( "Unknown boolean variable: " + varName );
-
-        return false;
-    }
-
     bool CalcBoolLogic(
         bool var1,
         const std::string & opName,
@@ -326,10 +308,7 @@ namespace
             else
             {
                 bool flag =
-                    CalcVarValue(
-                        keyWord,
-                        boolIO.boolNameList,
-                        boolIO.boolValueList );
+                    boolIO.GetBoolValue( keyWord );
 
                 if ( flag )
                 {
@@ -475,6 +454,22 @@ void BoolIO::Add( const std::string & name, bool value )
     boolValueList.push_back( value );
 }
 
+bool BoolIO::GetBoolValue(
+    const std::string & varName ) const
+{
+    for ( int i = 0; i < boolNameList.size(); ++ i )
+    {
+        if ( varName == boolNameList[ i ] )
+        {
+            return boolValueList[ i ];
+        }
+    }
+
+    Fatal( "Unknown boolean variable: " + varName );
+
+    return false;
+}
+
 void BoolIO::ReadBool( TextFileParser & textFileParser )
 {
     std::string varName =
@@ -518,16 +513,10 @@ void BoolIO::ReadSuperBool( TextFileParser & textFileParser )
         textFileParser.ReadNextWord();
 
     bool varValue1 =
-        CalcVarValue(
-            var1,
-            this->boolNameList,
-            this->boolValueList );
+        this->GetBoolValue( var1 );
 
     bool varValue2 =
-        CalcVarValue(
-            var2,
-            this->boolNameList,
-            this->boolValueList );
+        this->GetBoolValue( var2 );
 
     bool boolValue =
         CalcBoolLogic(
