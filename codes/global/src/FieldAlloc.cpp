@@ -407,8 +407,7 @@ void FieldAlloc::AllocateGlobalField(
         logger.ClearAll();
         logger << rootString << spec.name << ".txt";
 
-        ReadSuperPara readSuperPara;
-        readSuperPara.solverType = solverType;
+        ReadSuperPara readSuperPara( solverType );
 
         readSuperPara.Register(
             logger.str(),
@@ -606,6 +605,11 @@ ParaNameDimData::GetParaNameDim( FieldCategory category ) const
     }
 
     return nullptr;
+}
+
+ReadSuperPara::ReadSuperPara( int solverType )
+    : solverType( solverType )
+{
 }
 
 void ReadSuperPara::AddUnsteadyInnerFieldProperty()

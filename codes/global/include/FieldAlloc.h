@@ -69,13 +69,13 @@ public:
 
 class ReadSuperPara
 {
-public:
-    ReadSuperPara() = default;
-    ~ReadSuperPara() = default;
-
-public:
+private:
     ParaNameDimData paraNameDimData;
     int solverType;
+
+public:
+    explicit ReadSuperPara( int solverType );
+    ~ReadSuperPara() = default;
 
 public:
     void Register(
