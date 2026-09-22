@@ -47,8 +47,6 @@ public:
 
     const std::string & GetName( int index ) const;
     Real GetValue( int index ) const;
-
-    const StringField & GetNameList() const;
 };
 
 class FieldAlloc

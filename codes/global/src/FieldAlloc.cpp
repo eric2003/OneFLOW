@@ -150,21 +150,22 @@ namespace
     void AddInterfaceFieldNames(
         int solverType,
         int fieldType,
-        const StringField & nameList )
+        const NameValuePair & nameValuePair )
     {
         VarNameSolver * varNameSolver =
             VarNameFactory::GetVarNameSolver(
                 solverType,
                 fieldType );
 
-        int numberOfVariables = nameList.size();
+        int numberOfVariables =
+            nameValuePair.Size();
 
         for ( int iVariable = 0;
             iVariable < numberOfVariables;
             ++ iVariable )
         {
             const std::string & varName =
-                nameList[ iVariable ];
+                nameValuePair.GetName( iVariable );
 
             varNameSolver->AddFieldName( varName );
         }
@@ -354,11 +355,6 @@ Real NameValuePair::GetValue(
     return valueList[ index ];
 }
 
-const StringField & NameValuePair::GetNameList() const
-{
-    return nameList;
-}
-
 void FieldAlloc::AllocateAllFields( int solverType, const std::string & basicString )
 {
     FieldAlloc::RegisterInterfaceVar( solverType, basicString );
@@ -415,7 +411,7 @@ void FieldAlloc::RegisterInterfaceVar(
         AddInterfaceFieldNames(
             solverType,
             spec.fieldType,
-            boolIO.GetNameValuePair().GetNameList() );
+            boolIO.GetNameValuePair() );
     }
 }
 
