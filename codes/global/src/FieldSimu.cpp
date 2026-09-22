@@ -34,6 +34,9 @@ License
 #include "Multigrid.h"
 #include "BcData.h"
 #include "GridState.h"
+#include "FieldImp.h"
+#include "SolverState.h"
+#include "Parallel.h"
 #include <iostream>
 #include <stdexcept>
 
@@ -81,6 +84,70 @@ void FieldSimuInitFlowField()
     ONEFLOW::MultiSolverMultiGridTask( kInitFlowFieldTaskName );
 }
 
+void DumpFieldEnvironments()
+{
+    if ( Parallel::GetPid() != Parallel::GetServerid() )
+    {
+        return;
+    }
+
+    const int savedSolverIndex =
+        SolverState::solverIndex;
+
+    const int savedSolverType =
+        SolverState::solverType;
+
+    std::cout
+        << "\n"
+        << "========================================\n"
+        << "       Field Environment Summary\n"
+        << "========================================\n";
+
+    for ( int solverIndex = 0;
+        solverIndex < SolverState::nSolver;
+        ++ solverIndex )
+    {
+        SolverState::SetSolverTypeBySolverIndex(
+            solverIndex );
+
+        const int solverType =
+            SolverState::solverType;
+
+        FieldManager * fieldManager =
+            FieldFactory::GetFieldManager(
+                solverType );
+
+        std::cout
+            << "\n"
+            << "[Solver "
+            << solverIndex
+            << ", type "
+            << solverType
+            << "]\n";
+
+        if ( fieldManager == nullptr )
+        {
+            std::cout
+                << "  <FieldManager not found>\n";
+            continue;
+        }
+
+        fieldManager->DumpFieldEnvironment(
+            std::cout );
+    }
+
+    SolverState::solverIndex =
+        savedSolverIndex;
+
+    SolverState::solverType =
+        savedSolverType;
+
+    //std::cout
+    //    << "========================================\n"
+    //    << std::endl;
+}
+
+
 void FieldSimuRun()
 {
     MultigridSolve();
@@ -97,7 +164,8 @@ void FieldPipeline::Run()
     FieldSimuLoadGrid();
     FieldSimuPrepareWallDist();
     FieldSimuCreateSolvers();
-    FieldSimuInitFlowField();  // -> MultiSolverMultiGridTask(kInitFlowFieldTaskName)
+    FieldSimuInitFlowField();
+    DumpFieldEnvironments();
     FieldSimuRun();
 }
 
@@ -108,6 +176,7 @@ void FieldPipeline::Run( SimuContext & ctx )
     FieldSimuPrepareWallDist();
     FieldSimuCreateSolvers( ctx );
     FieldSimuInitFlowField();
+    DumpFieldEnvironments();
     SyncAllEulerDomainStates( ctx );
     FieldSimuRun( ctx );
 }

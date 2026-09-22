@@ -430,6 +430,16 @@ void FieldAlloc::AllocateAllFields(
     FieldAlloc::InitField(
         fieldManager,
         basicString );
+
+    ////tmp---------------------
+
+    //fieldManager->DumpFieldEnvironment(
+    //    std::cout );
+
+    //VarNameFactory::Dump(
+    //    std::cout,
+    //    solverType );
+    ////tmp---------------------
 }
 
 void FieldAlloc::InitField(
