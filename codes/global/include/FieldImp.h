@@ -102,6 +102,9 @@ public:
     const FieldPropertyData & GetFieldPropertyData(
         FieldCategory category ) const;
 
+    UsdPara & GetUsdPara();
+    const UsdPara & GetUsdPara() const;
+
     void AddField(
         const std::string & fieldName,
         int nEqu,
@@ -129,13 +132,12 @@ public:
     void AllocateBcField(
         UnsGrid * grid,
         FieldPropertyData * fieldPropertyData );
-public:
-    std::unique_ptr< UsdPara > usdPara;
 private:
     FieldPropertyData commManager;
     FieldPropertyData strManager;
     FieldPropertyData unsManager;
     IFieldProperty iFieldProperty;
+    std::unique_ptr< UsdPara > usdPara;
 };
 
 class FieldFactory

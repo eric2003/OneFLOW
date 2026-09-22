@@ -293,6 +293,16 @@ const FieldPropertyData & FieldManager::GetFieldPropertyData(
     return commManager;
 }
 
+UsdPara & FieldManager::GetUsdPara()
+{
+    return *this->usdPara;
+}
+
+const UsdPara & FieldManager::GetUsdPara() const
+{
+    return *this->usdPara;
+}
+
 void FieldManager::SetField( const std::string & fieldName, Real value )
 {
     FieldHome::SetField( fieldName, value );

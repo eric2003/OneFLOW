@@ -75,7 +75,7 @@ void Restart::ReadUnsteady( int solverType )
 {
     FieldManager * fieldManager = FieldFactory::GetFieldManager( solverType );
 
-    UsdPara * usdPara = fieldManager->usdPara.get();
+    UsdPara * usdPara = &fieldManager->GetUsdPara();
 
     Grid * grid = Zone::GetGrid();
 
@@ -100,7 +100,7 @@ void Restart::DumpUnsteady( int solverType )
 {
     FieldManager * fieldManager = FieldFactory::GetFieldManager( solverType );
 
-    UsdPara * usdPara = fieldManager->usdPara.get();
+    UsdPara * usdPara = &fieldManager->GetUsdPara();
 
     Grid * grid = Zone::GetGrid();
 
@@ -122,7 +122,7 @@ void Restart::DumpUnsteady( int solverType )
 void Restart::InitUnsteady( int solverType )
 {
     FieldManager * fieldManager = FieldFactory::GetFieldManager( solverType );
-    UsdPara * usdPara = fieldManager->usdPara.get();
+    UsdPara * usdPara = &fieldManager->GetUsdPara();
     Grid * grid = Zone::GetGrid();
 
     MRField * q  = GetFieldPointer< MRField > ( grid, usdPara->flow[ 0 ] );

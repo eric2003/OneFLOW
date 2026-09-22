@@ -699,7 +699,7 @@ void ReadSuperPara::AddUnsteadyInnerFieldProperty()
     this->AddFieldProperties( FieldLocation::Inner );
 
     UsdPara * usdPara =
-        this->fieldManager->usdPara.get();
+        &this->fieldManager->GetUsdPara();
 
     const ParaNameDim * comPara =
         this->paraNameDimData.GetParaNameDim(
