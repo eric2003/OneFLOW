@@ -31,9 +31,8 @@ FieldRecord::~FieldRecord()
 {
 }
 
-void FieldRecord::AddField( MRField * field, int nEqu )
+void FieldRecord::AddField( MRField * field )
 {
-    this->nEquList.push_back( nEqu );
     this->fields.push_back( field );
 }
 

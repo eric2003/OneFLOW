@@ -101,12 +101,8 @@ void AddFieldRecord(
                 dataStorage,
                 fieldName );
 
-        int nEqu =
-            field->GetNEqu();
-
         fieldRecord->AddField(
-            field,
-            nEqu );
+            field );
     }
 }
 
@@ -127,23 +123,28 @@ void SetInterfaceFieldData( int iSr, FieldRecord * fieldRecord )
     
     ActionState::dataBook->MoveToBegin();
 
-    int nRecords = fieldRecord->nEquList.size();
+    int nRecords = fieldRecord->fields.size();
 
     for ( int fieldId = 0; fieldId < nRecords; ++ fieldId )
     {
-        int nEqu = fieldRecord->nEquList[ fieldId ];
-        MRField * field  = fieldRecord->GetField( fieldId );
+        MRField * field =
+            fieldRecord->GetField( fieldId );
+
         if ( iSr == GREAT_SEND )
         {
-            HXWriteSubData( ActionState::dataBook, field, interfaceId );
+            HXWriteSubData(
+                ActionState::dataBook,
+                field,
+                interfaceId );
         }
         else
         {
-            HXReadSubData( ActionState::dataBook, field, interfaceId );
+            HXReadSubData(
+                ActionState::dataBook,
+                field,
+                interfaceId );
         }
-        
-    }
-}
+    }}
 
 void HXWriteSubData( DataBook * dataBook, MRField * field2D, IntField & idMap )
 {
