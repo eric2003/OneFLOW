@@ -71,8 +71,13 @@ public:
 class ParaNameDim
 {
 private:
-    StringField nameList;
-    IntField nEquList;
+    struct FieldEntry
+    {
+        std::string name;
+        int nEqu;
+    };
+
+    HXVector< FieldEntry > fields;
 
 public:
     void Add(

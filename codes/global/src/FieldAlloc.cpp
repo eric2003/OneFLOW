@@ -691,23 +691,29 @@ void ParaNameDim::Add(
     const std::string & name,
     int nEqu )
 {
-    nameList.push_back( name );
-    nEquList.push_back( nEqu );
+    FieldEntry entry;
+
+    entry.name = name;
+    entry.nEqu = nEqu;
+
+    this->fields.push_back( entry );
 }
 
 int ParaNameDim::Size() const
 {
-    return nameList.size();
+    return this->fields.size();
 }
 
-const std::string & ParaNameDim::GetName( int index ) const
+const std::string & ParaNameDim::GetName(
+    int index ) const
 {
-    return nameList[ index ];
+    return this->fields[ index ].name;
 }
 
-int ParaNameDim::GetNEqu( int index ) const
+int ParaNameDim::GetNEqu(
+    int index ) const
 {
-    return nEquList[ index ];
+    return this->fields[ index ].nEqu;
 }
 
 ParaNameDim * ParaNameDimData::GetParaNameDim( FieldCategory category )
