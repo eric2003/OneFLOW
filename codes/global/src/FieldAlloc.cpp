@@ -505,13 +505,13 @@ void BoolIO::ReadSuperBool( TextFileParser & textFileParser )
     std::string var2 =
         textFileParser.ReadNextWord();
 
-    bool varVaule1 =
+    bool varValue1 =
         CalcVarValue(
             var1,
             this->boolNameList,
             this->boolValueList );
 
-    bool varVaule2 =
+    bool varValue2 =
         CalcVarValue(
             var2,
             this->boolNameList,
@@ -519,9 +519,9 @@ void BoolIO::ReadSuperBool( TextFileParser & textFileParser )
 
     bool boolValue =
         CalcBoolExp(
-            varVaule1,
+            varValue1,
             opName,
-            varVaule2 );
+            varValue2 );
 
     this->Add( varName, boolValue );
 }
