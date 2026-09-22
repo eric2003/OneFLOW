@@ -94,11 +94,11 @@ class BoolIO
 private:
     StringField boolNameList;
     BoolField boolValueList;
-
-public:
     NameValuePair nameValuePair;
 
 public:
+    const NameValuePair & GetNameValuePair() const;
+
     bool GetBoolValue(
         const std::string & varName ) const;
 
@@ -124,4 +124,5 @@ public:
     void ReadValueFile(
         const std::string & fileName );
 };
+
 EndNameSpace

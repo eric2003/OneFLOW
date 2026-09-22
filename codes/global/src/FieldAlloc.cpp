@@ -337,7 +337,7 @@ void FieldAlloc::InitField( int solverType, const std::string & basicString )
 
     SetFieldValues(
         solverType,
-        boolIO.nameValuePair );
+        boolIO.GetNameValuePair() );
 }
 
 void FieldAlloc::RegisterInterfaceVar(
@@ -378,7 +378,7 @@ void FieldAlloc::RegisterInterfaceVar(
         AddInterfaceFieldNames(
             solverType,
             spec.fieldType,
-            boolIO.nameValuePair.nameList );
+            boolIO.GetNameValuePair().nameList );
     }
 }
 
@@ -452,6 +452,11 @@ void BoolIO::Add( const std::string & name, bool value )
 {
     boolNameList.push_back( name );
     boolValueList.push_back( value );
+}
+
+const NameValuePair & BoolIO::GetNameValuePair() const
+{
+    return nameValuePair;
 }
 
 bool BoolIO::GetBoolValue(
