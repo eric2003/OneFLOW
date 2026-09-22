@@ -524,12 +524,12 @@ FieldManager * FieldAlloc::AllocateGlobalField(
             spec.initializeUsdPara );
     }
 
-    FieldAlloc::AllocateAllKindsOfInterfaceField(
+    FieldAlloc::AllocateRuntimeFields(
         fieldManager );
     return fieldManager;
 }
 
-void FieldAlloc::AllocateAllKindsOfInterfaceField(
+void FieldAlloc::AllocateRuntimeFields(
     FieldManager * fieldManager )
 {
     fieldManager->AllocateGridFields();

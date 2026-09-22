@@ -62,7 +62,7 @@ public:
     static FieldManager * AllocateGlobalField(
         int solverType,
         const std::string & basicString );
-    static void AllocateAllKindsOfInterfaceField(
+    static void AllocateRuntimeFields(
         FieldManager * fieldManager );
     static void AllocateInterfaceField( IFieldProperty * iFieldProperty );
     static void AllocateOversetInterfaceField( IFieldProperty * iFieldProperty );
