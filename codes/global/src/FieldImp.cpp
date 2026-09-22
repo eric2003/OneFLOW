@@ -37,6 +37,63 @@ License
 
 BeginNameSpace( ONEFLOW )
 
+namespace
+{
+    FieldProperty * GetFieldProperty(
+        FieldManager * fieldManager,
+        FieldCategory category,
+        FieldLocation location )
+    {
+        if ( category == FieldCategory::Common )
+        {
+            if ( location == FieldLocation::Inner )
+            {
+                return &fieldManager->commManager.innerField;
+            }
+            else if ( location == FieldLocation::Face )
+            {
+                return &fieldManager->commManager.faceField;
+            }
+            else if ( location == FieldLocation::Boundary )
+            {
+                return &fieldManager->commManager.bcField;
+            }
+        }
+        else if ( category == FieldCategory::Structured )
+        {
+            if ( location == FieldLocation::Inner )
+            {
+                return &fieldManager->strManager.innerField;
+            }
+            else if ( location == FieldLocation::Face )
+            {
+                return &fieldManager->strManager.faceField;
+            }
+            else if ( location == FieldLocation::Boundary )
+            {
+                return &fieldManager->strManager.bcField;
+            }
+        }
+        else if ( category == FieldCategory::Unstructured )
+        {
+            if ( location == FieldLocation::Inner )
+            {
+                return &fieldManager->unsManager.innerField;
+            }
+            else if ( location == FieldLocation::Face )
+            {
+                return &fieldManager->unsManager.faceField;
+            }
+            else if ( location == FieldLocation::Boundary )
+            {
+                return &fieldManager->unsManager.bcField;
+            }
+        }
+
+        return nullptr;
+    }
+}
+
 void FieldProperty::AddField( const std::string & fieldName, int nEqu )
 {
     this->data[ fieldName ] = nEqu;
@@ -210,47 +267,23 @@ void FieldManager::AddField(
 
         if ( location == FieldLocation::Inner )
         {
-            this->iFieldProperty.AddField( fieldName, nEqu );
-            this->commManager.innerField.AddField( fieldName, nEqu );
-        }
-        else if ( location == FieldLocation::Face )
-        {
-            this->commManager.faceField.AddField( fieldName, nEqu );
-        }
-        else if ( location == FieldLocation::Boundary )
-        {
-            this->commManager.bcField.AddField( fieldName, nEqu );
+            this->iFieldProperty.AddField(
+                fieldName,
+                nEqu );
         }
     }
-    else if ( category == FieldCategory::Unstructured )
+
+    FieldProperty * fieldProperty =
+        GetFieldProperty(
+            this,
+            category,
+            location );
+
+    if ( fieldProperty != nullptr )
     {
-        if ( location == FieldLocation::Inner )
-        {
-            this->unsManager.innerField.AddField( fieldName, nEqu );
-        }
-        else if ( location == FieldLocation::Face )
-        {
-            this->unsManager.faceField.AddField( fieldName, nEqu );
-        }
-        else if ( location == FieldLocation::Boundary )
-        {
-            this->unsManager.bcField.AddField( fieldName, nEqu );
-        }
-    }
-    else if ( category == FieldCategory::Structured )
-    {
-        if ( location == FieldLocation::Inner )
-        {
-            this->strManager.innerField.AddField( fieldName, nEqu );
-        }
-        else if ( location == FieldLocation::Face )
-        {
-            this->strManager.faceField.AddField( fieldName, nEqu );
-        }
-        else if ( location == FieldLocation::Boundary )
-        {
-            this->strManager.bcField.AddField( fieldName, nEqu );
-        }
+        fieldProperty->AddField(
+            fieldName,
+            nEqu );
     }
 }
 
