@@ -491,11 +491,19 @@ void BoolIO::ReadBool( TextFileParser & textFileParser )
 
 void BoolIO::ReadSuperBool( TextFileParser & textFileParser )
 {
-    std::string varName = textFileParser.ReadNextWord();
-    std::string word    = textFileParser.ReadNextWord();
-    std::string var1    = textFileParser.ReadNextWord();
-    std::string opName  = textFileParser.ReadNextWord();
-    std::string var2    = textFileParser.ReadNextWord();
+    std::string varName =
+        textFileParser.ReadNextWord();
+
+    textFileParser.ReadNextWord();
+
+    std::string var1 =
+        textFileParser.ReadNextWord();
+
+    std::string opName =
+        textFileParser.ReadNextWord();
+
+    std::string var2 =
+        textFileParser.ReadNextWord();
 
     bool varVaule1 =
         CalcVarValue(
