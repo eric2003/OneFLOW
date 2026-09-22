@@ -716,25 +716,22 @@ void ReadSuperPara::AddUnsteadyInnerFieldProperty()
 void ReadSuperPara::AddFieldProperties(
     FieldLocation location )
 {
-    FieldManager * fieldManager =
-        this->fieldManager;
-
     AddBasicFieldProperty(
-        fieldManager,
+        this->fieldManager,
         this->paraNameDimData.GetParaNameDim(
             FieldCategory::Unstructured ),
         location,
         FieldCategory::Unstructured );
 
     AddBasicFieldProperty(
-        fieldManager,
+        this->fieldManager,
         this->paraNameDimData.GetParaNameDim(
             FieldCategory::Structured ),
         location,
         FieldCategory::Structured );
 
     AddBasicFieldProperty(
-        fieldManager,
+        this->fieldManager,
         this->paraNameDimData.GetParaNameDim(
             FieldCategory::Common ),
         location,
