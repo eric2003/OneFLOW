@@ -37,6 +37,7 @@ License
 #include "FieldImp.h"
 #include "SolverState.h"
 #include "Parallel.h"
+#include "RegisterUtils.h"
 #include <iostream>
 #include <stdexcept>
 
@@ -147,6 +148,54 @@ void DumpFieldEnvironments()
     //    << std::endl;
 }
 
+void DumpCommunicationEnvironments()
+{
+    if ( Parallel::GetPid() != Parallel::GetServerid() )
+    {
+        return;
+    }
+
+    const int savedSolverIndex =
+        SolverState::solverIndex;
+
+    const int savedSolverType =
+        SolverState::solverType;
+
+    std::cout
+        << "\n"
+        << "========================================\n"
+        << "    Communication Environment Summary\n"
+        << "========================================\n";
+
+    for ( int solverIndex = 0;
+        solverIndex < SolverState::nSolver;
+        ++ solverIndex )
+    {
+        SolverState::SetSolverTypeBySolverIndex(
+            solverIndex );
+
+        const int solverType =
+            SolverState::solverType;
+
+        std::cout
+            << "\n"
+            << "[Solver "
+            << solverIndex
+            << ", type "
+            << solverType
+            << "]\n";
+
+        VarNameFactory::Dump(
+            std::cout,
+            solverType );
+    }
+
+    SolverState::solverIndex =
+        savedSolverIndex;
+
+    SolverState::solverType =
+        savedSolverType;
+}
 
 void FieldSimuRun()
 {
@@ -166,6 +215,7 @@ void FieldPipeline::Run()
     FieldSimuCreateSolvers();
     FieldSimuInitFlowField();
     DumpFieldEnvironments();
+    DumpCommunicationEnvironments();
     FieldSimuRun();
 }
 
@@ -177,6 +227,7 @@ void FieldPipeline::Run( SimuContext & ctx )
     FieldSimuCreateSolvers( ctx );
     FieldSimuInitFlowField();
     DumpFieldEnvironments();
+    DumpCommunicationEnvironments();
     SyncAllEulerDomainStates( ctx );
     FieldSimuRun( ctx );
 }

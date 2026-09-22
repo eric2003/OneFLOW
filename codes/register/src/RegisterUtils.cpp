@@ -172,6 +172,13 @@ void VarNameFactory::Dump(
             << interfaceNames[ iType ]
             << ":\n";
 
+        if ( varNameSolver == nullptr )
+        {
+            output
+                << "    <not registered>\n";
+            continue;
+        }
+
         if ( varNameSolver->data.empty() )
         {
             output
