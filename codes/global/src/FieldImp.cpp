@@ -156,14 +156,6 @@ void IFieldProperty::DownloadOversetInterfaceValue()
     }
 }
 
-void IFieldProperty::DeAllocateInterfaceField( DataStorage * dataStorage )
-{
-    const FieldProperty::Data & data = this->GetData();
-    for ( FieldProperty::Data::const_iterator iter = data.begin(); iter != data.end(); ++ iter )
-    {
-    }
-}
-
 FieldProperty & FieldPropertyData::GetFieldProperty(
     FieldLocation location )
 {

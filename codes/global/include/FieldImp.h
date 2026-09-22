@@ -48,7 +48,6 @@ class IFieldProperty : public FieldProperty
 {
 public:
     void AllocateInterfaceField( int nIFaces, DataStorage * dataStorage );
-    void DeAllocateInterfaceField( DataStorage * dataStorage );
     void UploadInterfaceValue();
     void DownloadInterfaceValue();
     void UploadOversetInterfaceValue();
