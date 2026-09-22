@@ -119,6 +119,7 @@ public:
 
     static void ShowCmdInfo( Command * cmd, int iCmd );
 
+    // Dump the current command queue without changing execution state.
     static void DumpCommandQueue(
         std::ostream & output );
 

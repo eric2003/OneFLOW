@@ -332,6 +332,9 @@ void SingleSolverSingleGridTask( int operationId )
 {
     // Runtime form: plan + execute by id (no string lookup here).
     GenerateCmdList( operationId );
+
+    //CMD::DumpCommandQueue( std::cout );
+
     CMD::ExecuteCmd();
 }
 
