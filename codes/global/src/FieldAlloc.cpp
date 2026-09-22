@@ -187,7 +187,10 @@ namespace
         return false;
     }
 
-    bool CalcBoolExp( bool var1, const std::string & opName, bool var2 )
+    bool CalcBoolLogic(
+        bool var1,
+        const std::string & opName,
+        bool var2 )
     {
         if ( opName == "&&" )
         {
@@ -197,6 +200,7 @@ namespace
         {
             return var1 || var2;
         }
+
         return false;
     }
     
@@ -518,7 +522,7 @@ void BoolIO::ReadSuperBool( TextFileParser & textFileParser )
             this->boolValueList );
 
     bool boolValue =
-        CalcBoolExp(
+        CalcBoolLogic(
             varValue1,
             opName,
             varValue2 );
