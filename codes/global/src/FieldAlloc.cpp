@@ -38,16 +38,15 @@ BeginNameSpace( ONEFLOW )
 
 namespace
 {
-    int GetVarDimension( const std::string & dimName )
+    int ResolveFieldDimension(
+        const std::string & dimensionToken )
     {
-        if ( Word::IsDigit( dimName ) )
+        if ( Word::IsDigit( dimensionToken ) )
         {
-            return StringToDigit< int >( dimName );
+            return StringToDigit< int >( dimensionToken );
         }
-        else
-        {
-            return GetDataValue< int >( dimName );
-        }
+
+        return GetDataValue< int >( dimensionToken );
     }
 
     struct FieldFileSpec
@@ -86,14 +85,14 @@ namespace
         std::string varName =
             textFileParser.ReadNextWord();
 
-        std::string varDimension =
+        std::string dimensionToken =
             textFileParser.ReadNextWord();
 
         std::string typeName =
             textFileParser.ReadNextWord();
 
         int nEqu =
-            GetVarDimension( varDimension );
+            ResolveFieldDimension( dimensionToken );
 
         FieldCategory category =
             ParseFieldCategory( typeName );
@@ -191,10 +190,10 @@ namespace
         const std::string & varName2 )
     {
         int var1 =
-            GetVarDimension( varName1 );
+            ResolveFieldDimension( varName1 );
 
         int var2 =
-            GetVarDimension( varName2 );
+            ResolveFieldDimension( varName2 );
 
         if ( opName == ">" )
         {
