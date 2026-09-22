@@ -90,9 +90,6 @@ public:
     int nIFaces;
     IntField idrecv; // using in receiving, interface number in the current zone
     IntField idsend; // using in sending,   interface number in the tagret  zone
-protected:
-    DataStorage * dataSend;
-    DataStorage * dataRecv;
 };
 
 class InterFaceTopo
