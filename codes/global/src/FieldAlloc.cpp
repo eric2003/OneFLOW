@@ -89,7 +89,7 @@ namespace
     {
         const char * name;
         FieldLocation location;
-        bool isUnsteady;
+        bool initializeUsdPara;
     };
 
     struct InterfaceFileSpec
@@ -521,7 +521,7 @@ FieldManager * FieldAlloc::AllocateGlobalField(
         readSuperPara.Register(
             logger.str(),
             spec.location,
-            spec.isUnsteady );
+            spec.initializeUsdPara );
     }
 
     FieldAlloc::AllocateAllKindsOfInterfaceField(
@@ -813,13 +813,13 @@ void ReadSuperPara::AddFieldProperties(
 void ReadSuperPara::Register(
     const std::string & fileName,
     FieldLocation location,
-    bool isUnsteady )
+    bool initializeUsdPara )
 {
     ReadFieldDefinitions(
         fileName,
         this->paraNameDimData );
 
-    if ( isUnsteady )
+    if ( initializeUsdPara )
     {
         this->AddUnsteadyInnerFieldProperty();
     }

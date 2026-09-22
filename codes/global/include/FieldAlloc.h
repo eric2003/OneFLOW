@@ -121,7 +121,7 @@ public:
     void Register(
         const std::string & fileName,
         FieldLocation location,
-        bool isUnsteady );
+        bool initializeUsdPara );
 };
 
 class TextFileParser;
