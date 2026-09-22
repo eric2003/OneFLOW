@@ -59,7 +59,9 @@ public:
         FieldManager * fieldManager,
         const std::string & basicString );
     static void RegisterInterfaceVar( int solverType, const std::string & basicString );
-    static void AllocateGlobalField( int solverType, const std::string & basicString );
+    static FieldManager * AllocateGlobalField(
+        int solverType,
+        const std::string & basicString );
     static void AllocateAllKindsOfInterfaceField(
         FieldManager * fieldManager );
     static void AllocateInterfaceField( IFieldProperty * iFieldProperty );

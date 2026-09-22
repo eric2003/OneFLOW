@@ -360,12 +360,10 @@ void FieldAlloc::AllocateAllFields(
         solverType,
         basicString );
 
-    FieldAlloc::AllocateGlobalField(
-        solverType,
-        basicString );
-
     FieldManager * fieldManager =
-        FieldFactory::GetFieldManager( solverType );
+        FieldAlloc::AllocateGlobalField(
+            solverType,
+            basicString );
 
     FieldAlloc::InitField(
         fieldManager,
@@ -427,11 +425,12 @@ void FieldAlloc::RegisterInterfaceVar(
     }
 }
 
-void FieldAlloc::AllocateGlobalField(
+FieldManager * FieldAlloc::AllocateGlobalField(
     int solverType,
     const std::string & basicString )
 {
     FieldFactory::AddFieldManager( solverType );
+
     FieldManager * fieldManager =
         FieldFactory::GetFieldManager( solverType );
 
@@ -465,6 +464,7 @@ void FieldAlloc::AllocateGlobalField(
 
     FieldAlloc::AllocateAllKindsOfInterfaceField(
         fieldManager );
+    return fieldManager;
 }
 
 void FieldAlloc::AllocateAllKindsOfInterfaceField(
