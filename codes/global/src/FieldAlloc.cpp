@@ -55,6 +55,35 @@ namespace
         return GetDataValue< int >( dimensionToken );
     }
 
+    UsdFieldNames BuildUsdFieldNames(
+        const ParaNameDim & paraNameDim )
+    {
+        UsdFieldNames fieldNames;
+
+        fieldNames.q =
+            paraNameDim.GetName( 0 );
+
+        fieldNames.q1 =
+            paraNameDim.GetName( 1 );
+
+        fieldNames.q2 =
+            paraNameDim.GetName( 2 );
+
+        fieldNames.res =
+            paraNameDim.GetName( 3 );
+
+        fieldNames.res1 =
+            paraNameDim.GetName( 4 );
+
+        fieldNames.res2 =
+            paraNameDim.GetName( 5 );
+
+        fieldNames.dq =
+            paraNameDim.GetName( 6 );
+
+        return fieldNames;
+    }
+
     struct FieldFileSpec
     {
         const char * name;
@@ -715,8 +744,11 @@ void ReadSuperPara::AddUnsteadyInnerFieldProperty()
     int nEqu =
         comPara->GetNEqu( 0 );
 
+    UsdFieldNames fieldNames =
+        BuildUsdFieldNames( *comPara );
+
     usdPara->Init(
-        comPara->GetNameList(),
+        fieldNames,
         nEqu );
 }
 

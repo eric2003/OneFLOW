@@ -25,6 +25,19 @@ License
 
 BeginNameSpace( ONEFLOW )
 
+struct UsdFieldNames
+{
+    std::string q;
+    std::string q1;
+    std::string q2;
+
+    std::string res;
+    std::string res1;
+    std::string res2;
+
+    std::string dq;
+};
+
 class UsdPara
 {
 public:
@@ -37,7 +50,9 @@ public:
     StringField flow;
     StringField dq;
 public:
-    void Init( const StringField & fieldNameList, int nEqu );
+    void Init(
+        const UsdFieldNames & fieldNames,
+        int nEqu );
 };
 
 EndNameSpace
