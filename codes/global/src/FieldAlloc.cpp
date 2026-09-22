@@ -471,8 +471,8 @@ void FieldAlloc::AllocateOversetInterfaceField( IFieldProperty * iFieldProperty 
 
 void BoolIO::Add( const std::string & name, bool value )
 {
-    this->boolNameList.push_back( name );
-    this->boolValueList.push_back( value );
+    boolNameList.push_back( name );
+    boolValueList.push_back( value );
 }
 
 void BoolIO::ReadBool( TextFileParser & textFileParser )
