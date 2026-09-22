@@ -40,12 +40,12 @@ BeginNameSpace( ONEFLOW )
 
 namespace
 {
-    FieldProperty * GetFieldProperty(
+    FieldProperty & GetFieldProperty(
         FieldManager * fieldManager,
         FieldCategory category,
         FieldLocation location )
     {
-        return &fieldManager->GetFieldPropertyData(
+        return fieldManager->GetFieldPropertyData(
             category ).GetFieldProperty( location );
     }
 
@@ -293,18 +293,15 @@ void FieldManager::AddField(
         }
     }
 
-    FieldProperty * fieldProperty =
+    FieldProperty & fieldProperty =
         GetFieldProperty(
             this,
             category,
             location );
 
-    if ( fieldProperty != nullptr )
-    {
-        fieldProperty->AddField(
-            fieldName,
-            nEqu );
-    }
+    fieldProperty.AddField(
+        fieldName,
+        nEqu );
 }
 
 void FieldManager::AllocateInnerAndBcField()
