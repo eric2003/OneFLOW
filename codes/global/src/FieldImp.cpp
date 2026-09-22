@@ -23,6 +23,7 @@ License
 #include "FieldAlloc.h"
 #include "FieldBase.h"
 #include "FieldWrap.h"
+#include "Fatal.h"
 #include "UsdPara.h"
 #include "Grid.h"
 #include "GridState.h"
@@ -36,6 +37,19 @@ License
 #include "UNsCom.h"
 
 BeginNameSpace( ONEFLOW )
+
+namespace
+{
+    FieldProperty * GetFieldProperty(
+        FieldManager * fieldManager,
+        FieldCategory category,
+        FieldLocation location )
+    {
+        return &fieldManager->GetFieldPropertyData(
+            category ).GetFieldProperty( location );
+    }
+
+}
 
 void FieldProperty::AddField( const std::string & fieldName, int nEqu )
 {
@@ -186,12 +200,108 @@ int GFieldProperty::GetNEqu( const std::string & fieldName )
     return -1;
 }
 
+FieldProperty & FieldPropertyData::GetFieldProperty(
+    FieldLocation location )
+{
+    switch ( location )
+    {
+    case FieldLocation::Inner:
+        return innerField;
+
+    case FieldLocation::Face:
+        return faceField;
+
+    case FieldLocation::Boundary:
+        return bcField;
+    }
+
+    Fatal( "Invalid field location" );
+    return innerField;
+}
+
+const FieldProperty & FieldPropertyData::GetFieldProperty(
+    FieldLocation location ) const
+{
+    switch ( location )
+    {
+    case FieldLocation::Inner:
+        return innerField;
+
+    case FieldLocation::Face:
+        return faceField;
+
+    case FieldLocation::Boundary:
+        return bcField;
+    }
+
+    Fatal( "Invalid field location" );
+    return innerField;
+}
+
 FieldManager::FieldManager()
 {
     usdPara        = std::make_unique< UsdPara >();
 }
 
 FieldManager::~FieldManager() = default;
+
+IFieldProperty & FieldManager::GetInterfaceFieldProperty()
+{
+    return this->iFieldProperty;
+}
+
+const IFieldProperty & FieldManager::GetInterfaceFieldProperty() const
+{
+    return this->iFieldProperty;
+}
+
+FieldPropertyData & FieldManager::GetFieldPropertyData(
+    FieldCategory category )
+{
+    switch ( category )
+    {
+    case FieldCategory::Common:
+        return commManager;
+
+    case FieldCategory::Structured:
+        return strManager;
+
+    case FieldCategory::Unstructured:
+        return unsManager;
+    }
+
+    Fatal( "Invalid field category" );
+    return commManager;
+}
+
+const FieldPropertyData & FieldManager::GetFieldPropertyData(
+    FieldCategory category ) const
+{
+    switch ( category )
+    {
+    case FieldCategory::Common:
+        return commManager;
+
+    case FieldCategory::Structured:
+        return strManager;
+
+    case FieldCategory::Unstructured:
+        return unsManager;
+    }
+
+    Fatal( "Invalid field category" );
+    return commManager;
+}
+
+UsdPara & FieldManager::GetUsdPara()
+{
+    return *this->usdPara;
+}
+
+const UsdPara & FieldManager::GetUsdPara() const
+{
+    return *this->usdPara;
+}
 
 void FieldManager::SetField( const std::string & fieldName, Real value )
 {
@@ -210,118 +320,26 @@ void FieldManager::AddField(
 
         if ( location == FieldLocation::Inner )
         {
-            this->iFieldProperty.AddField( fieldName, nEqu );
-            this->commManager.innerField.AddField( fieldName, nEqu );
-        }
-        else if ( location == FieldLocation::Face )
-        {
-            this->commManager.faceField.AddField( fieldName, nEqu );
-        }
-        else if ( location == FieldLocation::Boundary )
-        {
-            this->commManager.bcField.AddField( fieldName, nEqu );
+            this->iFieldProperty.AddField(
+                fieldName,
+                nEqu );
         }
     }
-    else if ( category == FieldCategory::Unstructured )
+
+    FieldProperty * fieldProperty =
+        GetFieldProperty(
+            this,
+            category,
+            location );
+
+    if ( fieldProperty != nullptr )
     {
-        if ( location == FieldLocation::Inner )
-        {
-            this->unsManager.innerField.AddField( fieldName, nEqu );
-        }
-        else if ( location == FieldLocation::Face )
-        {
-            this->unsManager.faceField.AddField( fieldName, nEqu );
-        }
-        else if ( location == FieldLocation::Boundary )
-        {
-            this->unsManager.bcField.AddField( fieldName, nEqu );
-        }
-    }
-    else if ( category == FieldCategory::Structured )
-    {
-        if ( location == FieldLocation::Inner )
-        {
-            this->strManager.innerField.AddField( fieldName, nEqu );
-        }
-        else if ( location == FieldLocation::Face )
-        {
-            this->strManager.faceField.AddField( fieldName, nEqu );
-        }
-        else if ( location == FieldLocation::Boundary )
-        {
-            this->strManager.bcField.AddField( fieldName, nEqu );
-        }
+        fieldProperty->AddField(
+            fieldName,
+            nEqu );
     }
 }
 
-void FieldManager::AddFaceField(
-    const std::string & fieldName,
-    int nEqu )
-{
-    this->AddField(
-        fieldName,
-        nEqu,
-        FieldCategory::Common,
-        FieldLocation::Face );
-}
-
-void FieldManager::AddInnerField(
-    const std::string & fieldName,
-    int nEqu )
-{
-    this->AddField(
-        fieldName,
-        nEqu,
-        FieldCategory::Common,
-        FieldLocation::Inner );
-}
-
-void FieldManager::AddBcField(
-    const std::string & fieldName,
-    int nEqu )
-{
-    this->AddField(
-        fieldName,
-        nEqu,
-        FieldCategory::Common,
-        FieldLocation::Boundary );
-}
-
-void FieldManager::AddInnerField(
-    const std::string & fieldName,
-    int nEqu,
-    FieldCategory category )
-{
-    this->AddField(
-        fieldName,
-        nEqu,
-        category,
-        FieldLocation::Inner );
-}
-
-void FieldManager::AddFaceField(
-    const std::string & fieldName,
-    int nEqu,
-    FieldCategory category )
-{
-    this->AddField(
-        fieldName,
-        nEqu,
-        category,
-        FieldLocation::Face );
-}
-
-void FieldManager::AddBcField(
-    const std::string & fieldName,
-    int nEqu,
-    FieldCategory category )
-{
-    this->AddField(
-        fieldName,
-        nEqu,
-        category,
-        FieldLocation::Boundary );
-}
 void FieldManager::AllocateInnerAndBcField()
 {
     Grid * gridIn = Zone::GetGrid();
@@ -330,8 +348,15 @@ void FieldManager::AllocateInnerAndBcField()
     {
         UnsGrid * grid = ONEFLOW::UnsGridCast( gridIn );
 
-        this->AllocateInnerAndBcField( grid, &this->commManager );
-        this->AllocateInnerAndBcField( grid, &this->unsManager );
+        this->AllocateInnerAndBcField(
+            grid,
+            &this->GetFieldPropertyData(
+                FieldCategory::Common ) );
+
+        this->AllocateInnerAndBcField(
+            grid,
+            &this->GetFieldPropertyData(
+                FieldCategory::Unstructured ) );
     }
 }
 
@@ -342,20 +367,37 @@ void FieldManager::AllocateInnerAndBcField( UnsGrid * grid, FieldPropertyData * 
     this->AllocateBcField( grid,fieldPropertyData );
 }
 
-void FieldManager::AllocateInnerField( UnsGrid * grid, FieldPropertyData * fieldPropertyData )
+void FieldManager::AllocateInnerField(
+    UnsGrid * grid,
+    FieldPropertyData * fieldPropertyData )
 {
     int nTCell = grid->nCells + grid->nBFaces;
 
-    const FieldProperty::Data & data = fieldPropertyData->innerField.GetData();
+    const FieldProperty::Data & data =
+        fieldPropertyData->GetFieldProperty(
+            FieldLocation::Inner ).GetData();
 
-    for ( FieldProperty::Data::const_iterator iter = data.begin(); iter != data.end(); ++ iter )
+    for ( FieldProperty::Data::const_iterator iter = data.begin();
+        iter != data.end();
+        ++ iter )
     {
         int nTEqu = iter->second;
 
-        ONEFLOW::CreateMRField( grid, nTEqu, nTCell, iter->first );
+        ONEFLOW::CreateMRField(
+            grid,
+            nTEqu,
+            nTCell,
+            iter->first );
 
-        MRField * field = ONEFLOW::GetFieldPointer< MRField >( grid, iter->first );
-        ONEFLOW::ZeroField( field, nTEqu, nTCell );
+        MRField * field =
+            ONEFLOW::GetFieldPointer< MRField >(
+                grid,
+                iter->first );
+
+        ONEFLOW::ZeroField(
+            field,
+            nTEqu,
+            nTCell );
     }
 }
 
@@ -363,7 +405,9 @@ void FieldManager::AllocateFaceField( UnsGrid * grid, FieldPropertyData * fieldP
 {
     int nFaces = grid->nFaces;
 
-    const FieldProperty::Data & data = fieldPropertyData->faceField.GetData();
+    const FieldProperty::Data & data =
+        fieldPropertyData->GetFieldProperty(
+            FieldLocation::Face ).GetData();
 
     for ( FieldProperty::Data::const_iterator iter = data.begin(); iter != data.end(); ++ iter )
     {
@@ -381,7 +425,9 @@ void FieldManager::AllocateBcField( UnsGrid * grid, FieldPropertyData * fieldPro
 {
     int nBFaces = grid->nBFaces;
 
-    const FieldProperty::Data & data = fieldPropertyData->bcField.GetData();
+    const FieldProperty::Data & data =
+        fieldPropertyData->GetFieldProperty(
+            FieldLocation::Boundary ).GetData();
 
     for ( FieldProperty::Data::const_iterator iter = data.begin(); iter != data.end(); ++ iter )
     {

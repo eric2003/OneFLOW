@@ -68,6 +68,13 @@ private:
 class FieldPropertyData
 {
 public:
+    FieldProperty & GetFieldProperty(
+        FieldLocation location );
+
+    const FieldProperty & GetFieldProperty(
+        FieldLocation location ) const;
+
+private:
     FieldProperty bcField;
     FieldProperty faceField;
     FieldProperty innerField;
@@ -77,6 +84,7 @@ class FieldManager;
 class UsdPara;
 class FieldPropertyData;
 class UnsGrid;
+
 class FieldManager
 {
 public:
@@ -84,46 +92,52 @@ public:
     ~FieldManager();
 
 public:
-    IFieldProperty iFieldProperty;
-    std::unique_ptr< UsdPara > usdPara;
+    IFieldProperty & GetInterfaceFieldProperty();
 
-    FieldPropertyData commManager;
-    FieldPropertyData strManager;
-    FieldPropertyData unsManager;
+    const IFieldProperty & GetInterfaceFieldProperty() const;
 
-public:
+    FieldPropertyData & GetFieldPropertyData(
+        FieldCategory category );
+
+    const FieldPropertyData & GetFieldPropertyData(
+        FieldCategory category ) const;
+
+    UsdPara & GetUsdPara();
+    const UsdPara & GetUsdPara() const;
+
     void AddField(
         const std::string & fieldName,
         int nEqu,
         FieldCategory category,
         FieldLocation location );
 
-    void AddFaceField( const std::string & fieldName, int nEqu );
-    void AddInnerField( const std::string & fieldName, int nEqu );
-    void AddBcField( const std::string & fieldName, int nEqu );
-
-    void AddInnerField(
+    void SetField(
         const std::string & fieldName,
-        int nEqu,
-        FieldCategory category );
+        Real value );
 
-    void AddFaceField(
-        const std::string & fieldName,
-        int nEqu,
-        FieldCategory category );
-
-    void AddBcField(
-        const std::string & fieldName,
-        int nEqu,
-        FieldCategory category );
-public:
-    void SetField( const std::string & fieldName, Real value );
     void AllocateInnerAndBcField();
-    void AllocateInnerAndBcField( UnsGrid * grid, FieldPropertyData * fieldPropertyData );
-    void AllocateInnerField( UnsGrid * grid, FieldPropertyData * fieldPropertyData );
-    void AllocateFaceField( UnsGrid * grid, FieldPropertyData * fieldPropertyData );
-    void AllocateBcField( UnsGrid * grid, FieldPropertyData * fieldPropertyData );
 
+    void AllocateInnerAndBcField(
+        UnsGrid * grid,
+        FieldPropertyData * fieldPropertyData );
+
+    void AllocateInnerField(
+        UnsGrid * grid,
+        FieldPropertyData * fieldPropertyData );
+
+    void AllocateFaceField(
+        UnsGrid * grid,
+        FieldPropertyData * fieldPropertyData );
+
+    void AllocateBcField(
+        UnsGrid * grid,
+        FieldPropertyData * fieldPropertyData );
+private:
+    FieldPropertyData commManager;
+    FieldPropertyData strManager;
+    FieldPropertyData unsManager;
+    IFieldProperty iFieldProperty;
+    std::unique_ptr< UsdPara > usdPara;
 };
 
 class FieldFactory

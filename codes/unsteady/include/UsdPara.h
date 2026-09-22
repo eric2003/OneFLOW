@@ -37,7 +37,7 @@ public:
     StringField flow;
     StringField dq;
 public:
-    void Init( StringField & fieldNameList, int nEqu );
+    void Init( const StringField & fieldNameList, int nEqu );
 };
 
 EndNameSpace

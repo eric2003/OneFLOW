@@ -29,76 +29,123 @@ BeginNameSpace( ONEFLOW )
 
 class IFieldProperty;
 
-struct NameValuePair
+class NameValuePair
 {
-public:
+private:
     StringField nameList;
     RealField valueList;
+
+public:
+    void Add(
+        const std::string & name,
+        Real value );
+
+    void AddName(
+        const std::string & name );
+
+    int Size() const;
+
+    const std::string & GetName( int index ) const;
+    Real GetValue( int index ) const;
 };
+
+class FieldManager;
 
 class FieldAlloc
 {
 public:
     static void AllocateAllFields( int solverType, const std::string & basicString );
-    static void InitField( int solverType, const std::string & basicString );
+    static void InitField(
+        FieldManager * fieldManager,
+        const std::string & basicString );
     static void RegisterInterfaceVar( int solverType, const std::string & basicString );
-    static void AllocateGlobalField( int solverType, const std::string & basicString );
-    static void AllocateAllKindsOfInterfaceField( int solverType );
+    static FieldManager * AllocateGlobalField(
+        int solverType,
+        const std::string & basicString );
+    static void AllocateAllKindsOfInterfaceField(
+        FieldManager * fieldManager );
     static void AllocateInterfaceField( IFieldProperty * iFieldProperty );
     static void AllocateOversetInterfaceField( IFieldProperty * iFieldProperty );
 };
 
-struct ParaNameDim
+class ParaNameDim
 {
-public:
+private:
     StringField nameList;
     IntField nEquList;
+
+public:
+    void Add(
+        const std::string & name,
+        int nEqu );
+
+    int Size() const;
+
+    const std::string & GetName( int index ) const;
+    int GetNEqu( int index ) const;
+
+    const StringField & GetNameList() const;
 };
 
 class ParaNameDimData
 {
-public:
-    ParaNameDim * GetParaNameDim( FieldCategory category );
-    const ParaNameDim * GetParaNameDim( FieldCategory category ) const;
-
-public:
+private:
     ParaNameDim comPara;
     ParaNameDim strPara;
     ParaNameDim unsPara;
+
+public:
+    ParaNameDim * GetParaNameDim( FieldCategory category );
+    const ParaNameDim * GetParaNameDim( FieldCategory category ) const;
 };
+
 
 class ReadSuperPara
 {
+private:
+    ParaNameDimData paraNameDimData;
+    FieldManager * fieldManager;
+
+    void AddFieldProperties(
+        FieldLocation location );
+
+    void AddUnsteadyInnerFieldProperty();
+
 public:
-    ReadSuperPara() = default;
+    explicit ReadSuperPara( FieldManager * fieldManager );
     ~ReadSuperPara() = default;
 
-public:
-    ParaNameDimData paraNameDimData;
-    int solverType;
-
-public:
     void Register(
         const std::string & fileName,
         FieldLocation location,
         bool isUnsteady );
-
-    void AddFieldProperties( FieldLocation location );
-    void AddUnsteadyInnerFieldProperty();
 };
 
 class TextFileParser;
 
 class BoolIO
 {
-public:
+private:
     StringField boolNameList;
     BoolField boolValueList;
     NameValuePair nameValuePair;
+
 public:
-    void Add( const std::string & name, bool value );
-    void ReadBool( TextFileParser & textFileParser );
-    void ReadSuperBool( TextFileParser & textFileParser );
+    const NameValuePair & GetNameValuePair() const;
+
+    bool GetBoolValue(
+        const std::string & varName ) const;
+
+    void Add(
+        const std::string & name,
+        bool value );
+
+    void ReadBool(
+        TextFileParser & textFileParser );
+
+    void ReadSuperBool(
+        TextFileParser & textFileParser );
+
     void ReadName(
         TextFileParser & textFileParser );
 

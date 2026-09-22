@@ -37,7 +37,7 @@ UsdPara::~UsdPara()
     ;
 }
 
-void UsdPara::Init( StringField & fieldNameList, int nEqu )
+void UsdPara::Init( const StringField & fieldNameList, int nEqu )
 {
     if ( this->flag ) return;
     this->flag = true;
