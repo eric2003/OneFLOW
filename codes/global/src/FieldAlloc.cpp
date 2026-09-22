@@ -618,8 +618,18 @@ void ReadSuperPara::AddUnsteadyInnerFieldProperty()
     FieldManager * fieldManager = FieldFactory::GetFieldManager( this->solverType );
 
     UsdPara * usdPara = fieldManager->usdPara.get();
-    int nEqu = this->paraNameDimData.comPara.nEquList[ 0 ];
-    usdPara->Init( this->paraNameDimData.comPara.nameList, nEqu );
+    //int nEqu = this->paraNameDimData.comPara.nEquList[ 0 ];
+    //usdPara->Init( this->paraNameDimData.comPara.nameList, nEqu );
+
+    const ParaNameDim * comPara =
+        this->paraNameDimData.GetParaNameDim(
+            FieldCategory::Common );
+
+    int nEqu = comPara->nEquList[ 0 ];
+
+    usdPara->Init(
+        comPara->nameList,
+        nEqu );
 }
 
 void ReadSuperPara::AddFieldProperties(
@@ -630,19 +640,22 @@ void ReadSuperPara::AddFieldProperties(
 
     AddBasicFieldProperty(
         fieldManager,
-        &this->paraNameDimData.unsPara,
+        this->paraNameDimData.GetParaNameDim(
+            FieldCategory::Unstructured ),
         location,
         FieldCategory::Unstructured );
 
     AddBasicFieldProperty(
         fieldManager,
-        &this->paraNameDimData.strPara,
+        this->paraNameDimData.GetParaNameDim(
+            FieldCategory::Structured ),
         location,
         FieldCategory::Structured );
 
     AddBasicFieldProperty(
         fieldManager,
-        &this->paraNameDimData.comPara,
+        this->paraNameDimData.GetParaNameDim(
+            FieldCategory::Common ),
         location,
         FieldCategory::Common );
 }
