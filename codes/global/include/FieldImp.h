@@ -25,6 +25,7 @@ License
 #include "FieldCategory.h"
 #include <map>
 #include <memory>
+#include <ostream>
 
 BeginNameSpace( ONEFLOW )
 
@@ -37,6 +38,8 @@ public:
     void AddField( const std::string & fieldName, int nEqu );
 
     const Data & GetData() const;
+
+    void Dump( std::ostream & output ) const;
 
 private:
     Data data;

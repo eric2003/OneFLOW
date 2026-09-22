@@ -61,6 +61,23 @@ const FieldProperty::Data & FieldProperty::GetData() const
     return this->data;
 }
 
+void FieldProperty::Dump(
+    std::ostream & output ) const
+{
+    for ( FieldProperty::Data::const_iterator iter =
+        this->data.begin();
+        iter != this->data.end();
+        ++ iter )
+    {
+        output
+            << "    "
+            << iter->first
+            << "  nEqu="
+            << iter->second
+            << '\n';
+    }
+}
+
 void IFieldProperty::AllocateInterfaceField( int nIFaces, DataStorage * dataStorage )
 {
     if ( nIFaces <= 0 ) return;
