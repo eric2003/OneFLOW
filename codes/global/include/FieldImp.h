@@ -97,6 +97,9 @@ public:
     UsdPara & GetUsdPara();
     const UsdPara & GetUsdPara() const;
 
+    void DumpFieldEnvironment(
+        std::ostream & output ) const;
+
     void AddField(
         const std::string & fieldName,
         int nEqu,

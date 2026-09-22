@@ -49,6 +49,24 @@ namespace
             category ).GetFieldProperty( location );
     }
 
+    void DumpFieldProperty(
+        std::ostream & output,
+        const char * name,
+        const FieldProperty & fieldProperty )
+    {
+        output
+            << "  "
+            << name
+            << ":\n";
+
+        if ( fieldProperty.GetData().empty() )
+        {
+            output << "    <empty>\n";
+            return;
+        }
+
+        fieldProperty.Dump( output );
+    }
 }
 
 void FieldProperty::AddField( const std::string & fieldName, int nEqu )
@@ -274,6 +292,91 @@ UsdPara & FieldManager::GetUsdPara()
 const UsdPara & FieldManager::GetUsdPara() const
 {
     return *this->usdPara;
+}
+
+void FieldManager::DumpFieldEnvironment(
+    std::ostream & output ) const
+{
+    output
+        << "========== Field Environment ==========\n\n";
+
+    output
+        << "[Common]\n";
+
+    DumpFieldProperty(
+        output,
+        "Inner",
+        this->commManager.GetFieldProperty(
+            FieldLocation::Inner ) );
+
+    DumpFieldProperty(
+        output,
+        "Face",
+        this->commManager.GetFieldProperty(
+            FieldLocation::Face ) );
+
+    DumpFieldProperty(
+        output,
+        "Boundary",
+        this->commManager.GetFieldProperty(
+            FieldLocation::Boundary ) );
+
+    output
+        << "\n[Structured]\n";
+
+    DumpFieldProperty(
+        output,
+        "Inner",
+        this->strManager.GetFieldProperty(
+            FieldLocation::Inner ) );
+
+    DumpFieldProperty(
+        output,
+        "Face",
+        this->strManager.GetFieldProperty(
+            FieldLocation::Face ) );
+
+    DumpFieldProperty(
+        output,
+        "Boundary",
+        this->strManager.GetFieldProperty(
+            FieldLocation::Boundary ) );
+
+    output
+        << "\n[Unstructured]\n";
+
+    DumpFieldProperty(
+        output,
+        "Inner",
+        this->unsManager.GetFieldProperty(
+            FieldLocation::Inner ) );
+
+    DumpFieldProperty(
+        output,
+        "Face",
+        this->unsManager.GetFieldProperty(
+            FieldLocation::Face ) );
+
+    DumpFieldProperty(
+        output,
+        "Boundary",
+        this->unsManager.GetFieldProperty(
+            FieldLocation::Boundary ) );
+
+    output
+        << "\n[Interface Storage]\n";
+
+    if ( this->iFieldProperty.GetData().empty() )
+    {
+        output << "    <empty>\n";
+    }
+    else
+    {
+        this->iFieldProperty.Dump( output );
+    }
+
+    output
+        << "\n========================================\n";
 }
 
 void FieldManager::SetField( const std::string & fieldName, Real value )
