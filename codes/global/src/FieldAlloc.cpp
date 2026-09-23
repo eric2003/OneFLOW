@@ -23,6 +23,7 @@ License
 #include "Prj.h"
 #include "Fatal.h"
 #include "FieldImp.h"
+#include "FieldBase.h"
 #include "UsdPara.h"
 #include "SolverInfo.h"
 #include "SolverDef.h"
@@ -32,6 +33,8 @@ License
 #include "RegisterUtils.h"
 #include "Zone.h"
 #include "Grid.h"
+#include "UnsGrid.h"
+#include "GridState.h"
 #include "InterFace.h"
 
 BeginNameSpace( ONEFLOW )
@@ -538,13 +541,157 @@ void FieldAlloc::RegisterFieldDefinitions(
 void FieldAlloc::AllocateRuntimeFields(
     FieldManager * fieldManager )
 {
-    fieldManager->AllocateGridFields();
+    FieldAlloc::AllocateGridFields(
+        fieldManager );
 
     FieldAlloc::AllocateInterfaceField(
         &fieldManager->GetInterfaceFieldProperty() );
 
     FieldAlloc::AllocateOversetInterfaceField(
         &fieldManager->GetInterfaceFieldProperty() );
+}
+
+void FieldAlloc::AllocateGridFields(
+    FieldManager * fieldManager )
+{
+    Grid * gridIn = Zone::GetGrid();
+
+    if ( ONEFLOW::IsUnsGrid( gridIn->type ) )
+    {
+        UnsGrid * grid =
+            ONEFLOW::UnsGridCast( gridIn );
+
+        FieldAlloc::AllocateGridFields(
+            grid,
+            &fieldManager->GetFieldPropertyData(
+                FieldCategory::Common ) );
+
+        FieldAlloc::AllocateGridFields(
+            grid,
+            &fieldManager->GetFieldPropertyData(
+                FieldCategory::Unstructured ) );
+    }
+}
+
+void FieldAlloc::AllocateGridFields(
+    UnsGrid * grid,
+    FieldPropertyData * fieldPropertyData )
+{
+    FieldAlloc::AllocateInnerField(
+        grid,
+        fieldPropertyData );
+
+    FieldAlloc::AllocateFaceField(
+        grid,
+        fieldPropertyData );
+
+    FieldAlloc::AllocateBcField(
+        grid,
+        fieldPropertyData );
+}
+
+void FieldAlloc::AllocateInnerField(
+    UnsGrid * grid,
+    FieldPropertyData * fieldPropertyData )
+{
+    int nTCell = grid->nCells + grid->nBFaces;
+
+    const FieldProperty::Data & data =
+        fieldPropertyData->GetFieldProperty(
+            FieldLocation::Inner ).GetData();
+
+    for ( FieldProperty::Data::const_iterator iter = data.begin();
+        iter != data.end();
+        ++ iter )
+    {
+        int nTEqu = iter->second;
+
+        ONEFLOW::CreateMRField(
+            grid,
+            nTEqu,
+            nTCell,
+            iter->first );
+
+        MRField * field =
+            ONEFLOW::GetFieldPointer< MRField >(
+                grid,
+                iter->first );
+
+        ONEFLOW::ZeroField(
+            field,
+            nTEqu,
+            nTCell );
+    }
+}
+
+void FieldAlloc::AllocateFaceField(
+    UnsGrid * grid,
+    FieldPropertyData * fieldPropertyData )
+{
+    int nFaces = grid->nFaces;
+
+    const FieldProperty::Data & data =
+        fieldPropertyData->GetFieldProperty(
+            FieldLocation::Face ).GetData();
+
+    for ( FieldProperty::Data::const_iterator iter =
+        data.begin();
+        iter != data.end();
+        ++ iter )
+    {
+        int nTEqu = iter->second;
+
+        ONEFLOW::CreateMRField(
+            grid,
+            nTEqu,
+            nFaces,
+            iter->first );
+
+        MRField * field =
+            ONEFLOW::GetFieldPointer< MRField >(
+                grid,
+                iter->first );
+
+        ONEFLOW::ZeroField(
+            field,
+            nTEqu,
+            nFaces );
+    }
+}
+
+void FieldAlloc::AllocateBcField(
+    UnsGrid * grid,
+    FieldPropertyData * fieldPropertyData )
+{
+    int nBFaces = grid->nBFaces;
+
+    const FieldProperty::Data & data =
+        fieldPropertyData->GetFieldProperty(
+            FieldLocation::Boundary ).GetData();
+
+    for ( FieldProperty::Data::const_iterator iter =
+        data.begin();
+        iter != data.end();
+        ++ iter )
+    {
+        int nTEqu = iter->second;
+
+        ONEFLOW::CreateMRField(
+            grid,
+            nTEqu,
+            nBFaces,
+            iter->first );
+
+        MRField * field =
+            ONEFLOW::GetFieldPointer< MRField >(
+                grid,
+                iter->first );
+
+        ONEFLOW::ZeroField(
+            field,
+            nTEqu,
+            nBFaces );
+    }
 }
 
 void FieldAlloc::AllocateInterfaceField( IFieldProperty * iFieldProperty )

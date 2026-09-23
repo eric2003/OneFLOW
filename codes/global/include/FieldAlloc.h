@@ -50,22 +50,55 @@ public:
 };
 
 class FieldManager;
+class UnsGrid;
+class FieldPropertyData;
 
 class FieldAlloc
 {
 public:
-    static void AllocateAllFields( int solverType, const std::string & basicString );
+    static void AllocateAllFields(
+        int solverType,
+        const std::string & basicString );
+
     static void InitField(
         FieldManager * fieldManager,
         const std::string & basicString );
-    static void RegisterInterfaceVar( int solverType, const std::string & basicString );
+
+    static void RegisterInterfaceVar(
+        int solverType,
+        const std::string & basicString );
+
     static void RegisterFieldDefinitions(
         FieldManager * fieldManager,
         const std::string & basicString );
+
     static void AllocateRuntimeFields(
         FieldManager * fieldManager );
-    static void AllocateInterfaceField( IFieldProperty * iFieldProperty );
-    static void AllocateOversetInterfaceField( IFieldProperty * iFieldProperty );
+
+    static void AllocateGridFields(
+        FieldManager * fieldManager );
+
+    static void AllocateGridFields(
+        UnsGrid * grid,
+        FieldPropertyData * fieldPropertyData );
+
+    static void AllocateInnerField(
+        UnsGrid * grid,
+        FieldPropertyData * fieldPropertyData );
+
+    static void AllocateFaceField(
+        UnsGrid * grid,
+        FieldPropertyData * fieldPropertyData );
+
+    static void AllocateBcField(
+        UnsGrid * grid,
+        FieldPropertyData * fieldPropertyData );
+
+    static void AllocateInterfaceField(
+        IFieldProperty * iFieldProperty );
+
+    static void AllocateOversetInterfaceField(
+        IFieldProperty * iFieldProperty );
 };
 
 class ParaNameDim
