@@ -434,10 +434,6 @@ void FieldAlloc::AllocateAllFields(
         fieldManager,
         basicString );
 
-    FieldAlloc::InitField(
-        fieldManager,
-        basicString );
-
     ////tmp---------------------
 
     //fieldManager->DumpFieldEnvironment(
