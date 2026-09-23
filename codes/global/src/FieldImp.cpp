@@ -49,6 +49,24 @@ namespace
             category ).GetFieldProperty( location );
     }
 
+    void DumpFieldProperty(
+        std::ostream & output,
+        const char * name,
+        const FieldProperty & fieldProperty )
+    {
+        output
+            << "  "
+            << name
+            << ":\n";
+
+        if ( fieldProperty.GetData().empty() )
+        {
+            output << "    <empty>\n";
+            return;
+        }
+
+        fieldProperty.Dump( output );
+    }
 }
 
 void FieldProperty::AddField( const std::string & fieldName, int nEqu )
@@ -59,6 +77,23 @@ void FieldProperty::AddField( const std::string & fieldName, int nEqu )
 const FieldProperty::Data & FieldProperty::GetData() const
 {
     return this->data;
+}
+
+void FieldProperty::Dump(
+    std::ostream & output ) const
+{
+    for ( FieldProperty::Data::const_iterator iter =
+        this->data.begin();
+        iter != this->data.end();
+        ++ iter )
+    {
+        output
+            << "    "
+            << iter->first
+            << "  nEqu="
+            << iter->second
+            << '\n';
+    }
 }
 
 void IFieldProperty::AllocateInterfaceField( int nIFaces, DataStorage * dataStorage )
@@ -153,14 +188,6 @@ void IFieldProperty::DownloadOversetInterfaceValue()
 
             ONEFLOW::DownloadOversetValue( grid, targetField, iter->first, nEqu );
         }
-    }
-}
-
-void IFieldProperty::DeAllocateInterfaceField( DataStorage * dataStorage )
-{
-    const FieldProperty::Data & data = this->GetData();
-    for ( FieldProperty::Data::const_iterator iter = data.begin(); iter != data.end(); ++ iter )
-    {
     }
 }
 
@@ -267,6 +294,91 @@ const UsdPara & FieldManager::GetUsdPara() const
     return *this->usdPara;
 }
 
+void FieldManager::DumpFieldEnvironment(
+    std::ostream & output ) const
+{
+    output
+        << "========== Field Environment ==========\n\n";
+
+    output
+        << "[Common]\n";
+
+    DumpFieldProperty(
+        output,
+        "Inner",
+        this->commManager.GetFieldProperty(
+            FieldLocation::Inner ) );
+
+    DumpFieldProperty(
+        output,
+        "Face",
+        this->commManager.GetFieldProperty(
+            FieldLocation::Face ) );
+
+    DumpFieldProperty(
+        output,
+        "Boundary",
+        this->commManager.GetFieldProperty(
+            FieldLocation::Boundary ) );
+
+    output
+        << "\n[Structured]\n";
+
+    DumpFieldProperty(
+        output,
+        "Inner",
+        this->strManager.GetFieldProperty(
+            FieldLocation::Inner ) );
+
+    DumpFieldProperty(
+        output,
+        "Face",
+        this->strManager.GetFieldProperty(
+            FieldLocation::Face ) );
+
+    DumpFieldProperty(
+        output,
+        "Boundary",
+        this->strManager.GetFieldProperty(
+            FieldLocation::Boundary ) );
+
+    output
+        << "\n[Unstructured]\n";
+
+    DumpFieldProperty(
+        output,
+        "Inner",
+        this->unsManager.GetFieldProperty(
+            FieldLocation::Inner ) );
+
+    DumpFieldProperty(
+        output,
+        "Face",
+        this->unsManager.GetFieldProperty(
+            FieldLocation::Face ) );
+
+    DumpFieldProperty(
+        output,
+        "Boundary",
+        this->unsManager.GetFieldProperty(
+            FieldLocation::Boundary ) );
+
+    output
+        << "\n[Interface Storage]\n";
+
+    if ( this->iFieldProperty.GetData().empty() )
+    {
+        output << "    <empty>\n";
+    }
+    else
+    {
+        this->iFieldProperty.Dump( output );
+    }
+
+    output
+        << "\n========================================\n";
+}
+
 void FieldManager::SetField( const std::string & fieldName, Real value )
 {
     FieldHome::SetField( fieldName, value );
@@ -278,16 +390,6 @@ void FieldManager::AddField(
     FieldCategory category,
     FieldLocation location )
 {
-    if ( category == FieldCategory::Common )
-    {
-        if ( location == FieldLocation::Inner )
-        {
-            this->iFieldProperty.AddField(
-                fieldName,
-                nEqu );
-        }
-    }
-
     FieldProperty & fieldProperty =
         GetFieldProperty(
             this,
@@ -297,6 +399,14 @@ void FieldManager::AddField(
     fieldProperty.AddField(
         fieldName,
         nEqu );
+
+    if ( category == FieldCategory::Common &&
+        location == FieldLocation::Inner )
+    {
+        this->iFieldProperty.AddField(
+            fieldName,
+            nEqu );
+    }
 }
 
 void FieldManager::AllocateGridFields()

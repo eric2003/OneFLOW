@@ -25,6 +25,7 @@ License
 #include "FieldCategory.h"
 #include <map>
 #include <memory>
+#include <ostream>
 
 BeginNameSpace( ONEFLOW )
 
@@ -38,6 +39,8 @@ public:
 
     const Data & GetData() const;
 
+    void Dump( std::ostream & output ) const;
+
 private:
     Data data;
 };
@@ -48,7 +51,6 @@ class IFieldProperty : public FieldProperty
 {
 public:
     void AllocateInterfaceField( int nIFaces, DataStorage * dataStorage );
-    void DeAllocateInterfaceField( DataStorage * dataStorage );
     void UploadInterfaceValue();
     void DownloadInterfaceValue();
     void UploadOversetInterfaceValue();
@@ -94,6 +96,9 @@ public:
 
     UsdPara & GetUsdPara();
     const UsdPara & GetUsdPara() const;
+
+    void DumpFieldEnvironment(
+        std::ostream & output ) const;
 
     void AddField(
         const std::string & fieldName,

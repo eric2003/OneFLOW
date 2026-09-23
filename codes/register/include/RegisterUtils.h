@@ -25,6 +25,7 @@ License
 #include "HXDefine.h"
 #include <map>
 #include <string>
+#include <ostream>
 
 
 BeginNameSpace( ONEFLOW )
@@ -47,14 +48,24 @@ class VarNameFactory
 public:
     VarNameFactory();
     ~VarNameFactory();
+
 public:
     static std::map< int, VarNameSolver * > * data;
     static MapIntInt * mapData;
+
 public:
     static void Init();
     static void AddVarNameSolver( int a, int b );
     static VarNameSolver * GetVarNameSolver( int a, int b );
     static void FreeVarNameSolver();
+
+    static VarNameSolver * FindVarNameSolver(
+        int a,
+        int b );
+
+    static void Dump(
+        std::ostream & output,
+        int solverType );
 };
 
 class DataAB

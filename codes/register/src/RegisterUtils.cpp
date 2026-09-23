@@ -21,6 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "RegisterUtils.h"
+#include "SolverDef.h"
 
 BeginNameSpace( ONEFLOW )
 
@@ -101,6 +102,107 @@ void VarNameFactory::FreeVarNameSolver()
 
     delete VarNameFactory::mapData;
     VarNameFactory::mapData = 0;
+}
+
+VarNameSolver * VarNameFactory::FindVarNameSolver(
+    int a,
+    int b )
+{
+    if ( ! VarNameFactory::data ||
+        ! VarNameFactory::mapData )
+    {
+        return nullptr;
+    }
+
+    DataAB key;
+    key.a = a;
+    key.b = b;
+
+    std::map< DataAB, int, CmpDataAB >::iterator iter =
+        VarNameFactory::mapData->data.find( key );
+
+    if ( iter == VarNameFactory::mapData->data.end() )
+    {
+        return nullptr;
+    }
+
+    std::map< int, VarNameSolver * >::iterator solverIter =
+        VarNameFactory::data->find( iter->second );
+
+    if ( solverIter == VarNameFactory::data->end() )
+    {
+        return nullptr;
+    }
+
+    return solverIter->second;
+}
+
+void VarNameFactory::Dump(
+    std::ostream & output,
+    int solverType )
+{
+    const int interfaceTypes[] =
+    {
+        INTERFACE_DATA,
+        INTERFACE_DQ_DATA,
+        INTERFACE_GRADIENT_DATA,
+        INTERFACE_OVERSET_DATA
+    };
+
+    const char * interfaceNames[] =
+    {
+        "INTERFACE_DATA",
+        "INTERFACE_DQ",
+        "INTERFACE_GRADIENT",
+        "INTERFACE_OVERSET"
+    };
+
+    output
+        << "[Communication Groups]\n";
+
+    for ( int iType = 0; iType < 4; ++ iType )
+    {
+        VarNameSolver * varNameSolver =
+            VarNameFactory::FindVarNameSolver(
+                solverType,
+                interfaceTypes[ iType ] );
+
+        output
+            << "  "
+            << interfaceNames[ iType ]
+            << ":\n";
+
+        if ( varNameSolver == nullptr )
+        {
+            output
+                << "    <not registered>\n";
+            continue;
+        }
+
+        if ( varNameSolver->data.empty() )
+        {
+            output
+                << "    <empty>\n";
+            continue;
+        }
+
+        for ( int iField = 0;
+            iField < varNameSolver->data.size();
+            ++ iField )
+        {
+            output
+                << "    "
+                << varNameSolver->data[ iField ]
+                << '\n';
+        }
+
+        if ( interfaceTypes[ iType ] ==
+            INTERFACE_OVERSET_DATA )
+        {
+            output
+                << "    Status: Reserved / Not Implemented\n";
+        }
+    }
 }
 
 bool CmpDataAB::operator()( const DataAB & k1, const DataAB & k2 ) const

@@ -23,6 +23,7 @@ License
 
 #pragma once
 #include "HXDefine.h"
+#include <ostream>
 
 BeginNameSpace( ONEFLOW )
 
@@ -86,6 +87,9 @@ void SetTaskAction( Task * task );
 void CmdBasicAction( int funcType );
 void CmdAction();
 void CmdActionNext();
+
+void DumpTaskDispatch(
+    std::ostream & output );
 
 // ============================================================
 // Operation execution entry

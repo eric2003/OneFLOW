@@ -78,6 +78,74 @@ GetClassCache & ClassCache()
     return cache;
 }
 
+Task * CreateTaskByRegisteredFunction(
+    HXClone * cloneClass )
+{
+    if ( cloneClass == nullptr )
+    {
+        return nullptr;
+    }
+
+    // TASK_FUNC callbacks return their construction result here.
+    TaskState::createdTask = nullptr;
+
+    cloneClass->Solve();
+
+    Task * task = TaskState::createdTask;
+
+    // Do not keep a stale construction result.
+    TaskState::createdTask = nullptr;
+
+    return task;
+}
+
+const char * GetFunctionTypeName(
+    int funcType )
+{
+    switch ( funcType )
+    {
+    case COMM_FUNC:
+        return "COMM_FUNC";
+
+    case RECV_FUNC:
+        return "RECV_FUNC";
+
+    case MESG_FUNC:
+        return "MESG_FUNC";
+
+    case TASK_FUNC:
+        return "TASK_FUNC";
+
+    case FILE_FUNC:
+        return "FILE_FUNC";
+
+    default:
+        return "UNKNOWN";
+    }
+}
+
+bool HasRegisteredFunction(
+    int operationId,
+    int solverType,
+    int funcType )
+{
+    HXRegister * hxRegister =
+        RegisterFactory::GetRegister(
+            solverType,
+            funcType );
+
+    if ( hxRegister == nullptr )
+    {
+        return false;
+    }
+
+    const std::string & operationName =
+        MessageMap::GetMsgName( operationId );
+
+    return hxRegister->GetClass(
+        operationName ) != nullptr;
+}
+
 } // namespace
 
 HXClone * GetClass(
@@ -195,32 +263,6 @@ void AddCmdToList(
 // Task construction
 // ============================================================
 
-namespace
-{
-
-    Task * CreateTaskByRegisteredFunction(
-        HXClone * cloneClass )
-    {
-        if ( cloneClass == nullptr )
-        {
-            return nullptr;
-        }
-
-        // TASK_FUNC callbacks return their construction result here.
-        TaskState::createdTask = nullptr;
-
-        cloneClass->Solve();
-
-        Task * task = TaskState::createdTask;
-
-        // Do not keep a stale construction result.
-        TaskState::createdTask = nullptr;
-
-        return task;
-    }
-
-}
-
 Task * CreateTask( int operationId, int solverType )
 {
     Task * task = nullptr;
@@ -300,6 +342,17 @@ void CmdBasicAction( int funcType )
     SolverState::msgId =
         TaskState::task->taskId;
 
+    //if ( funcType == COMM_FUNC &&
+    //    (
+    //    TaskState::task->taskName == "INIT_FIRST" ||
+    //    TaskState::task->taskName == "INIT_RESTART" ||
+    //    TaskState::task->taskName == "INIT_FINAL" ) 
+    //    )
+    //{
+    //    DumpTaskDispatch( std::cout );
+    //}
+
+
     HXClone * cloneClass =
         ONEFLOW::GetClass(
             SolverState::msgId,
@@ -324,6 +377,70 @@ void CmdActionNext()
     CmdBasicAction( RECV_FUNC );
 }
 
+void DumpTaskDispatch(
+    std::ostream & output )
+{
+    if ( TaskState::task == nullptr )
+    {
+        output
+            << "Task Dispatch: <no current task>\n";
+        return;
+    }
+
+    const int operationId =
+        TaskState::task->taskId;
+
+    const int solverType =
+        SolverState::solverType;
+
+    output
+        << "========== Task Dispatch Environment ==========\n\n";
+
+    output
+        << "Task:\n"
+        << "  operation : "
+        << TaskState::task->taskName
+        << '\n'
+        << "  taskId    : "
+        << operationId
+        << '\n'
+        << "  solverType: "
+        << solverType
+        << "\n\n";
+
+    const int functionTypes[] =
+    {
+        MESG_FUNC,
+        TASK_FUNC,
+        FILE_FUNC,
+        COMM_FUNC,
+        RECV_FUNC
+    };
+
+    for ( int i = 0; i < 5; ++ i )
+    {
+        const int funcType =
+            functionTypes[ i ];
+
+        output
+            << "  "
+            << GetFunctionTypeName( funcType )
+            << " : "
+            << (
+                HasRegisteredFunction(
+                    operationId,
+                    solverType,
+                    funcType )
+                ? "registered"
+                : "none"
+                )
+            << '\n';
+    }
+
+    output
+        << "\n===============================================\n";
+}
+
 // ============================================================
 // Operation execution entry
 // ============================================================
@@ -332,6 +449,9 @@ void SingleSolverSingleGridTask( int operationId )
 {
     // Runtime form: plan + execute by id (no string lookup here).
     GenerateCmdList( operationId );
+
+    //CMD::DumpCommandQueue( std::cout );
+
     CMD::ExecuteCmd();
 }
 
