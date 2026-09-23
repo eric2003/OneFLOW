@@ -36,6 +36,7 @@ License
 #include "GridState.h"
 #include "FieldImp.h"
 #include "SolverState.h"
+#include "SolverDef.h"
 #include "Parallel.h"
 #include "RegisterUtils.h"
 #include <iostream>
@@ -197,6 +198,158 @@ void DumpCommunicationEnvironments()
         savedSolverType;
 }
 
+namespace
+{
+    bool CheckInterfaceStorageContainsCommunicationField(
+        std::ostream & output,
+        const IFieldProperty & interfaceFieldProperty,
+        VarNameSolver * varNameSolver )
+    {
+        if ( varNameSolver == nullptr )
+        {
+            return true;
+        }
+
+        const FieldProperty::Data & interfaceFields =
+            interfaceFieldProperty.GetData();
+
+        bool consistent = true;
+
+        for ( int fieldId = 0;
+            fieldId < varNameSolver->data.size();
+            ++ fieldId )
+        {
+            const std::string & fieldName =
+                varNameSolver->data[ fieldId ];
+
+            if ( interfaceFields.find( fieldName ) ==
+                interfaceFields.end() )
+            {
+                consistent = false;
+
+                output
+                    << "    ERROR: communication field \""
+                    << fieldName
+                    << "\" is not registered in Interface Storage\n";
+            }
+        }
+
+        return consistent;
+    }
+}
+
+void CheckCommunicationInterfaceConsistency()
+{
+    if ( Parallel::GetPid() != Parallel::GetServerid() )
+    {
+        return;
+    }
+
+    const int savedSolverIndex =
+        SolverState::solverIndex;
+
+    const int savedSolverType =
+        SolverState::solverType;
+
+    std::cout
+        << "\n"
+        << "========================================\n"
+        << " Communication / Interface Consistency\n"
+        << "========================================\n";
+
+    const int interfaceTypes[] =
+    {
+        ONEFLOW::INTERFACE_DATA,
+        ONEFLOW::INTERFACE_DQ_DATA,
+        ONEFLOW::INTERFACE_GRADIENT_DATA,
+        ONEFLOW::INTERFACE_OVERSET_DATA
+    };
+
+    const char * interfaceNames[] =
+    {
+        "INTERFACE_DATA",
+        "INTERFACE_DQ",
+        "INTERFACE_GRADIENT",
+        "INTERFACE_OVERSET"
+    };
+
+    for ( int solverIndex = 0;
+        solverIndex < SolverState::nSolver;
+        ++ solverIndex )
+    {
+        SolverState::SetSolverTypeBySolverIndex(
+            solverIndex );
+
+        const int solverType =
+            SolverState::solverType;
+
+        FieldManager * fieldManager =
+            FieldFactory::GetFieldManager(
+                solverType );
+
+        std::cout
+            << "\n"
+            << "[Solver "
+            << solverIndex
+            << ", type "
+            << solverType
+            << "]\n";
+
+        if ( fieldManager == nullptr )
+        {
+            std::cout
+                << "  <FieldManager not found>\n";
+            continue;
+        }
+
+        const IFieldProperty & interfaceFieldProperty =
+            fieldManager->GetInterfaceFieldProperty();
+
+        bool consistent = true;
+
+        for ( int iType = 0; iType < 4; ++ iType )
+        {
+            VarNameSolver * varNameSolver =
+                VarNameFactory::GetVarNameSolver(
+                    solverType,
+                    interfaceTypes[ iType ] );
+
+            bool groupConsistent =
+                CheckInterfaceStorageContainsCommunicationField(
+                    std::cout,
+                    interfaceFieldProperty,
+                    varNameSolver );
+
+            if ( ! groupConsistent )
+            {
+                consistent = false;
+
+                std::cout
+                    << "  "
+                    << interfaceNames[ iType ]
+                    << ": INCONSISTENT\n";
+            }
+        }
+
+        if ( consistent )
+        {
+            std::cout
+                << "  Result: OK\n";
+        }
+        else
+        {
+            std::cout
+                << "  Result: INCONSISTENT\n";
+        }
+    }
+
+    SolverState::solverIndex =
+        savedSolverIndex;
+
+    SolverState::solverType =
+        savedSolverType;
+}
+
 void FieldSimuRun()
 {
     MultigridSolve();
@@ -214,8 +367,9 @@ void FieldPipeline::Run()
     FieldSimuPrepareWallDist();
     FieldSimuCreateSolvers();
     FieldSimuInitFlowField();
-    DumpFieldEnvironments();
-    DumpCommunicationEnvironments();
+    //DumpFieldEnvironments();
+    //DumpCommunicationEnvironments();
+    //CheckCommunicationInterfaceConsistency();
     FieldSimuRun();
 }
 
@@ -226,8 +380,9 @@ void FieldPipeline::Run( SimuContext & ctx )
     FieldSimuPrepareWallDist();
     FieldSimuCreateSolvers( ctx );
     FieldSimuInitFlowField();
-    DumpFieldEnvironments();
-    DumpCommunicationEnvironments();
+    //DumpFieldEnvironments();
+    //DumpCommunicationEnvironments();
+    //CheckCommunicationInterfaceConsistency();
     SyncAllEulerDomainStates( ctx );
     FieldSimuRun( ctx );
 }

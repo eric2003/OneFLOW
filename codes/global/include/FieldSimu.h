@@ -37,6 +37,7 @@ void FieldSimuCreateSolvers( const SimuContext & ctx );
 void FieldSimuInitFlowField();
 void DumpFieldEnvironments();
 void DumpCommunicationEnvironments();
+void CheckCommunicationInterfaceConsistency();
 void FieldSimuRun();
 
 // Explicit pipeline: one place documents stage order and runs them.
