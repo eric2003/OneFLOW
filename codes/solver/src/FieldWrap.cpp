@@ -117,13 +117,14 @@ FieldWrap * FieldHome::GetFieldWrap( const std::string & fieldName )
 
 void FieldHome::SetField( const std::string & fieldName, Real value )
 {
-    Grid * gridIn = Zone::GetGrid();
+    FieldWrap * fieldWrap =
+        FieldHome::GetFieldWrap( fieldName );
 
-    UnsGrid * grid = ONEFLOW::UnsGridCast( gridIn );
+    ONEFLOW::SetField(
+        fieldWrap,
+        value );
 
-    FieldWrap * fieldWrap = FieldHome::GetFieldWrap( fieldName );
-
-    ONEFLOW::SetField( fieldWrap, value );
+    delete fieldWrap;
 }
 
 void FieldHome::SetField( int fieldId, const std::string & fieldName, int orderFlag )
