@@ -45,6 +45,9 @@ public:
 Update * CreateUpdate( int solverType );
 
 
-void GetUpdateField( int solverType, FieldWrap *q, FieldWrap *dq );
+void GetUpdateField(
+    int solverType,
+    FieldWrap *& q,
+    FieldWrap *& dq );
 
 EndNameSpace

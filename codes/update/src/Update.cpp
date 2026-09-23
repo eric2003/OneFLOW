@@ -62,7 +62,10 @@ Update * CreateUpdate( int solverType )
     return 0;
 }
 
-void GetUpdateField( int solverType, FieldWrap *q, FieldWrap *dq )
+void GetUpdateField(
+    int solverType,
+    FieldWrap *& q,
+    FieldWrap *& dq )
 {
     SolverInfo * solverInfo = SolverInfoFactory::GetSolverInfo( solverType );
 
