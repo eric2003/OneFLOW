@@ -69,9 +69,25 @@ namespace
     }
 }
 
-void FieldProperty::AddField( const std::string & fieldName, int nEqu )
+void FieldProperty::AddField(
+    const std::string & fieldName,
+    int nEqu )
 {
-    this->data[ fieldName ] = nEqu;
+    FieldProperty::Data::iterator iter =
+        this->data.find( fieldName );
+
+    if ( iter == this->data.end() )
+    {
+        this->data[ fieldName ] = nEqu;
+        return;
+    }
+
+    if ( iter->second != nEqu )
+    {
+        Fatal(
+            "Conflicting field definition: "
+            + fieldName );
+    }
 }
 
 const FieldProperty::Data & FieldProperty::GetData() const
