@@ -1,7 +1,7 @@
-true, turbq   , nTurbEqu, all
-true, turbq1  , nTurbEqu, all
-true, turbq2  , nTurbEqu, all
-true, turbres , nTurbEqu, all
-true, turbres1, nTurbEqu, all
-true, turbres2, nTurbEqu, all
-true, turbdq  , nTurbEqu, all
+true, turbq   , nTurbEqu, all, flow
+true, turbq1  , nTurbEqu, all, flow
+true, turbq2  , nTurbEqu, all, flow
+true, turbres , nTurbEqu, all, residual
+true, turbres1, nTurbEqu, all, residual
+true, turbres2, nTurbEqu, all, residual
+true, turbdq  , nTurbEqu, all, runtime

@@ -59,33 +59,6 @@ namespace
     }
 
 
-     UsdFieldNames BuildUsdFieldNames(
-        const ParaNameDim & paraNameDim )
-    {
-        UsdFieldNames fieldNames;
-
-        fieldNames.flow.push_back(
-            paraNameDim.GetName( 0 ) );
-
-        fieldNames.flow.push_back(
-            paraNameDim.GetName( 1 ) );
-
-        fieldNames.flow.push_back(
-            paraNameDim.GetName( 2 ) );
-
-        fieldNames.residual.push_back(
-            paraNameDim.GetName( 3 ) );
-
-        fieldNames.residual.push_back(
-            paraNameDim.GetName( 4 ) );
-
-        fieldNames.residual.push_back(
-            paraNameDim.GetName( 5 ) );
-
-
-        return fieldNames;
-    }
-
     struct FieldFileSpec
     {
         const char * name;
@@ -166,6 +139,11 @@ namespace
         if ( role == "residual" )
         {
             fieldNames.residual.push_back( fieldName );
+            return;
+        }
+
+        if ( role == "runtime" )
+        {
             return;
         }
 
@@ -337,6 +315,88 @@ namespace
                 ReadFieldDefinition(
                     textFileParser,
                     paraNameDimData );
+            }
+        }
+
+        textFileParser.CloseFile();
+    }
+
+    void ReadUsdFieldDefinition(
+        TextFileParser & textFileParser,
+        ParaNameDimData & paraNameDimData,
+        UsdFieldNames & fieldNames )
+    {
+        FieldDefinition definition;
+
+        definition.name =
+            textFileParser.ReadNextWord();
+
+        std::string equationCountToken =
+            textFileParser.ReadNextWord();
+
+        std::string categoryToken =
+            textFileParser.ReadNextWord();
+
+        definition.nEqu =
+            ResolveIntegerValue( equationCountToken );
+
+        FieldCategory category =
+            ParseFieldCategory( categoryToken );
+
+        ParaNameDim * paraNameDim =
+            paraNameDimData.GetParaNameDim( category );
+
+        paraNameDim->Add(
+            definition.name,
+            definition.nEqu );
+
+        if ( textFileParser.NextWordIsEmpty() )
+        {
+            return;
+        }
+
+        std::string role =
+            textFileParser.ReadNextWord();
+
+        AddUsdFieldName(
+            fieldNames,
+            definition.name,
+            role );
+    }
+
+    void ReadUsdFieldDefinitions(
+        const std::string & fileName,
+        ParaNameDimData & paraNameDimData,
+        UsdFieldNames & fieldNames )
+    {
+        TextFileParser textFileParser;
+
+        // \t is the tab key
+        std::string separator = " \r\n\t#$,;\"()";
+
+        textFileParser.OpenFile(
+            fileName,
+            std::ios_base::in );
+
+        textFileParser.SetDefaultSeparator(
+            separator );
+
+        while ( ! textFileParser.ReachTheEndOfFile() )
+        {
+            bool flag =
+                textFileParser.ReadNextNonEmptyLine();
+
+            if ( ! flag ) break;
+
+            std::string keyWord =
+                textFileParser.ReadNextWord();
+
+            if ( keyWord == "true" )
+            {
+                ReadUsdFieldDefinition(
+                    textFileParser,
+                    paraNameDimData,
+                    fieldNames );
             }
         }
 
@@ -1000,22 +1060,17 @@ ReadSuperPara::ReadSuperPara(
 {
 }
 
-void ReadSuperPara::AddUnsteadyInnerFieldProperty()
+void ReadSuperPara::AddUnsteadyInnerFieldProperty(
+    const UsdFieldNames & fieldNames )
 {
-    this->AddFieldProperties( FieldLocation::Inner );
+    this->AddFieldProperties(
+        FieldLocation::Inner );
 
     UsdPara * usdPara =
         &this->fieldManager->GetUsdPara();
 
-    const ParaNameDim * comPara =
-        this->paraNameDimData.GetParaNameDim(
-            FieldCategory::Common );
-
     int nEqu =
         GetDataValue< int >( "nEqu" );
-
-    UsdFieldNames fieldNames =
-        BuildUsdFieldNames( *comPara );
 
     usdPara->Init(
         fieldNames.flow,
@@ -1053,18 +1108,27 @@ void ReadSuperPara::Register(
     FieldLocation location,
     bool initializeUsdPara )
 {
+    if ( initializeUsdPara )
+    {
+        UsdFieldNames fieldNames;
+
+        ReadUsdFieldDefinitions(
+            fileName,
+            this->paraNameDimData,
+            fieldNames );
+
+        this->AddUnsteadyInnerFieldProperty(
+            fieldNames );
+
+        return;
+    }
+
     ReadFieldDefinitions(
         fileName,
         this->paraNameDimData );
 
-    if ( initializeUsdPara )
-    {
-        this->AddUnsteadyInnerFieldProperty();
-    }
-    else
-    {
-        this->AddFieldProperties( location );
-    }
+    this->AddFieldProperties(
+        location );
 }
 
 

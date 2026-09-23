@@ -1,7 +1,7 @@
-true, q   , nTEqu, all
-true, q1  , nTEqu, all
-true, q2  , nTEqu, all
-true, res , nTEqu, all
-true, res1, nTEqu, all
-true, res2, nTEqu, all
-true, dq  , nTEqu, all
+true, q   , nTEqu, all, flow
+true, q1  , nTEqu, all, flow
+true, q2  , nTEqu, all, flow
+true, res , nTEqu, all, residual
+true, res1, nTEqu, all, residual
+true, res2, nTEqu, all, residual
+true, dq  , nTEqu, all, runtime

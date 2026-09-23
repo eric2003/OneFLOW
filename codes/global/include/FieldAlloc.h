@@ -28,6 +28,7 @@ License
 BeginNameSpace( ONEFLOW )
 
 class IFieldProperty;
+struct UsdFieldNames;
 
 class FieldNameList
 {
@@ -164,7 +165,8 @@ private:
     void AddFieldProperties(
         FieldLocation location );
 
-    void AddUnsteadyInnerFieldProperty();
+    void AddUnsteadyInnerFieldProperty(
+        const UsdFieldNames & fieldNames );
 
 public:
     explicit ReadSuperPara( FieldManager * fieldManager );
