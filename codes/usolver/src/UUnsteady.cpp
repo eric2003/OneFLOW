@@ -42,15 +42,19 @@ void UUnsteady::UpdateDualTimeStepResidual()
 {
     for ( int iEqu = 0; iEqu < data->nEqu; ++ iEqu )
     {
-        ( * field->res )[ iEqu ][ ug.cId ] = data->dualtimeRes[ iEqu ];
+        ( * field->residual[ 0 ] )[ iEqu ][ ug.cId ] =
+            data->dualtimeRes[ iEqu ];
+
     }
 }
+
 
 void UUnsteady::UpdateDualTimeStepSource()
 {
     for ( int iEqu = 0; iEqu < data->nEqu; ++ iEqu )
     {
-        ( * field->res )[ iEqu ][ ug.cId ] -= data->dualtimeSrc[ iEqu ];
+        ( * field->residual[ 0 ] )[ iEqu ][ ug.cId ] -=
+            data->dualtimeSrc[ iEqu ];
     }
 }
 
@@ -64,8 +68,11 @@ void UUnsteady::StoreOldResidual()
     {
         for ( int iEqu = 0; iEqu < data->nEqu; ++ iEqu )
         {
-            ( * field->res2 )[ iEqu ][ cId ] = ( * field->res1 )[ iEqu ][ cId ];
-            ( * field->res1 )[ iEqu ][ cId ] = ( * field->res  )[ iEqu ][ cId ];
+            ( * field->residual[ 2 ] )[ iEqu ][ cId ] =
+                ( * field->residual[ 1 ] )[ iEqu ][ cId ];
+
+            ( * field->residual[ 1 ] )[ iEqu ][ cId ] =
+                ( * field->residual[ 0 ] )[ iEqu ][ cId ];
         }
     }
 }
@@ -74,9 +81,14 @@ void UUnsteady::PrepareResidual()
 {
     for ( int iEqu = 0; iEqu < data->nEqu; ++ iEqu )
     {
-        data->res [ iEqu ] = ( * field->res  )[ iEqu ][ ug.cId ];
-        data->res1[ iEqu ] = ( * field->res1 )[ iEqu ][ ug.cId ];
-        data->res2[ iEqu ] = ( * field->res2 )[ iEqu ][ ug.cId ];
+        data->res[ iEqu ] =
+            ( * field->residual[ 0 ] )[ iEqu ][ ug.cId ];
+
+        data->res1[ iEqu ] =
+            ( * field->residual[ 1 ] )[ iEqu ][ ug.cId ];
+
+        data->res2[ iEqu ] =
+            ( * field->residual[ 2 ] )[ iEqu ][ ug.cId ];
     }
 }
 
