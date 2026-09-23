@@ -112,23 +112,6 @@ public:
         const std::string & fieldName,
         Real value );
 
-    //void AllocateGridFields();
-
-    //void AllocateGridFields(
-    //    UnsGrid * grid,
-    //    FieldPropertyData * fieldPropertyData );
-
-    //void AllocateInnerField(
-    //    UnsGrid * grid,
-    //    FieldPropertyData * fieldPropertyData );
-
-    //void AllocateFaceField(
-    //    UnsGrid * grid,
-    //    FieldPropertyData * fieldPropertyData );
-
-    //void AllocateBcField(
-    //    UnsGrid * grid,
-    //    FieldPropertyData * fieldPropertyData );
 private:
     FieldPropertyData commManager;
     FieldPropertyData strManager;
