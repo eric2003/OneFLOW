@@ -26,6 +26,7 @@ License
 #include "FieldWrap.h"
 #include "DataBase.h"
 #include "Zone.h"
+#include "Fatal.h"
 #include "UnsGrid.h"
 
 BeginNameSpace( ONEFLOW )
@@ -65,6 +66,16 @@ void UsdField::InitBasic( int solverType )
     }
 
     this->residual.resize( usdPara->residual.size() );
+
+    if ( this->flow.size() < 3 )
+    {
+        Fatal( "Unsteady flow fields require at least 3 time levels." );
+    }
+
+    if ( this->residual.size() < 3 )
+    {
+        Fatal( "Unsteady residual fields require at least 3 time levels." );
+    }
 
     for ( std::size_t i = 0; i < usdPara->residual.size(); ++ i )
     {
