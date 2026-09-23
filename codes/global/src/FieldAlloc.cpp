@@ -142,11 +142,6 @@ namespace
             return;
         }
 
-        if ( role == "runtime" )
-        {
-            return;
-        }
-
         Fatal(
             "Unknown unsteady field role: " + role );
     }

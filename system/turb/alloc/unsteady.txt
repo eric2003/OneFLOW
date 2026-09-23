@@ -4,4 +4,4 @@ true, turbq2  , nTurbEqu, all, flow
 true, turbres , nTurbEqu, all, residual
 true, turbres1, nTurbEqu, all, residual
 true, turbres2, nTurbEqu, all, residual
-true, turbdq  , nTurbEqu, all, runtime
+true, turbdq  , nTurbEqu, all

@@ -4,4 +4,4 @@ true, q2  , nTEqu, all, flow
 true, res , nTEqu, all, residual
 true, res1, nTEqu, all, residual
 true, res2, nTEqu, all, residual
-true, dq  , nTEqu, all, runtime
+true, dq  , nTEqu, all
