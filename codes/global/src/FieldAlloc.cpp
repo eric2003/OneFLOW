@@ -999,7 +999,9 @@ void ReadSuperPara::AddUnsteadyInnerFieldProperty()
         BuildUsdFieldNames( *comPara );
 
     usdPara->Init(
-        fieldNames,
+        fieldNames.flow,
+        fieldNames.residual,
+        fieldNames.dq,
         nEqu );
 }
 

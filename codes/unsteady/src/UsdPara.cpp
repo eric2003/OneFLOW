@@ -38,16 +38,18 @@ UsdPara::~UsdPara()
 }
 
 void UsdPara::Init(
-    const UsdFieldNames & fieldNames,
+    const StringField & flow,
+    const StringField & residual,
+    const StringField & dq,
     int nEqu )
 {
     if ( this->flag ) return;
 
     this->flag = true;
 
-    this->flow = fieldNames.flow;
-    this->residual = fieldNames.residual;
-    this->dq = fieldNames.dq;
+    this->flow = flow;
+    this->residual = residual;
+    this->dq = dq;
 
     this->nEqu = nEqu;
 }

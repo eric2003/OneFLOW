@@ -45,8 +45,11 @@ public:
     StringField dq;
 public:
     void Init(
-        const UsdFieldNames & fieldNames,
+        const StringField & flow,
+        const StringField & residual,
+        const StringField & dq,
         int nEqu );
 };
+
 
 EndNameSpace
