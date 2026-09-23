@@ -109,9 +109,14 @@ void UTurbUnstPrepareCriData( Unsteady * unst )
     UsdField * field = unst->field;
     for ( int iEqu = 0; iEqu < data->nEqu; ++ iEqu )
     {
-        data->prim [ iEqu ] = ( * field->q  )[ iEqu ][ ug.cId ];
-        data->prim1[ iEqu ] = ( * field->q1 )[ iEqu ][ ug.cId ];
-        data->prim2[ iEqu ] = ( * field->q2 )[ iEqu ][ ug.cId ];
+        data->prim [ iEqu ] =
+            ( * field->flow[ 0 ] )[ iEqu ][ ug.cId ];
+
+        data->prim1[ iEqu ] =
+            ( * field->flow[ 1 ] )[ iEqu ][ ug.cId ];
+
+        data->prim2[ iEqu ] =
+            ( * field->flow[ 2 ] )[ iEqu ][ ug.cId ];
     }
 
     gcom.cvol  = ( * ug.cvol  )[ ug.cId ];
@@ -134,7 +139,8 @@ void UTurbUnstPrepareCriData( Unsteady * unst )
 
     for ( int iEqu = 0; iEqu < data->nEqu; ++ iEqu )
     {
-        data->res [ iEqu ] = ( * field->res  )[ iEqu ][ ug.cId ];
+        data->res[ iEqu ] =
+            ( * field->residual[ 0 ] )[ iEqu ][ ug.cId ];
     }
 
 }

@@ -100,16 +100,22 @@ void UNsUnstPrepareCriData( Unsteady * unst )
     UsdField * field = unst->field;
     for ( int iEqu = 0; iEqu < data->nEqu; ++ iEqu )
     {
-        data->prim [ iEqu ] = ( * field->q  )[ iEqu ][ ug.cId ];
-        data->prim1[ iEqu ] = ( * field->q1 )[ iEqu ][ ug.cId ];
-        data->prim2[ iEqu ] = ( * field->q2 )[ iEqu ][ ug.cId ];
+        data->prim [ iEqu ] =
+            ( * field->flow[ 0 ] )[ iEqu ][ ug.cId ];
+
+        data->prim1[ iEqu ] =
+            ( * field->flow[ 1 ] )[ iEqu ][ ug.cId ];
+
+        data->prim2[ iEqu ] =
+            ( * field->flow[ 2 ] )[ iEqu ][ ug.cId ];
     }
 
     nscom.gama = ( * unsf.gama  )[ 0 ][ ug.cId ];
 
     for ( int iEqu = 0; iEqu < data->nEqu; ++ iEqu )
     {
-        data->res [ iEqu ] = ( * field->res  )[ iEqu ][ ug.cId ];
+        data->res[ iEqu ] =
+            ( * field->residual[ 0 ] )[ iEqu ][ ug.cId ];
     }
 
     PrimToQ( data->prim , nscom.gama, data->q  );
