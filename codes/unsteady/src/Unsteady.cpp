@@ -21,7 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "Unsteady.h"
-#include "UsdPara.h"
+#include "UsdField.h"
 #include "FieldImp.h"
 #include "FieldWrap.h"
 #include "DataBase.h"
@@ -43,19 +43,21 @@ Unsteady::~Unsteady()
 
 void Unsteady::UpdateUnsteady( int solverType )
 {
-    FieldManager * fieldManager = FieldFactory::GetFieldManager( solverType );
+    UsdField usdField;
+    usdField.InitBasic( solverType );
 
-    UsdPara * usdPara = &fieldManager->GetUsdPara();
+    MRField * q =
+        usdField.GetFlow( UsdField::HistoryLevel::Current );
 
-    Grid * grid = Zone::GetGrid();
+    MRField * q1 =
+        usdField.GetFlow( UsdField::HistoryLevel::Previous );
 
-    MRField * q  = GetFieldPointer< MRField > ( grid, usdPara->flow[ 0 ] );
-    MRField * q1 = GetFieldPointer< MRField > ( grid, usdPara->flow[ 1 ] );
-    MRField * q2 = GetFieldPointer< MRField > ( grid, usdPara->flow[ 2 ] );
+    MRField * q2 =
+        usdField.GetFlow( UsdField::HistoryLevel::Old );
 
     SetField( q2, q1 );
     SetField( q1, q  );
-}
 
+}
 
 EndNameSpace

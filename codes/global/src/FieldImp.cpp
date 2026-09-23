@@ -69,9 +69,25 @@ namespace
     }
 }
 
-void FieldProperty::AddField( const std::string & fieldName, int nEqu )
+void FieldProperty::AddField(
+    const std::string & fieldName,
+    int nEqu )
 {
-    this->data[ fieldName ] = nEqu;
+    FieldProperty::Data::iterator iter =
+        this->data.find( fieldName );
+
+    if ( iter == this->data.end() )
+    {
+        this->data[ fieldName ] = nEqu;
+        return;
+    }
+
+    if ( iter->second != nEqu )
+    {
+        Fatal(
+            "Conflicting field definition: "
+            + fieldName );
+    }
 }
 
 const FieldProperty::Data & FieldProperty::GetData() const
@@ -230,11 +246,23 @@ const FieldProperty & FieldPropertyData::GetFieldProperty(
 }
 
 FieldManager::FieldManager()
+    : fieldDefinitionsReady( false )
 {
-    usdPara        = std::make_unique< UsdPara >();
+    usdPara =
+        std::make_unique< UsdPara >();
 }
 
 FieldManager::~FieldManager() = default;
+
+bool FieldManager::HasFieldDefinitions() const
+{
+    return this->fieldDefinitionsReady;
+}
+
+void FieldManager::MarkFieldDefinitionsReady()
+{
+    this->fieldDefinitionsReady = true;
+}
 
 IFieldProperty & FieldManager::GetInterfaceFieldProperty()
 {
@@ -406,108 +434,6 @@ void FieldManager::AddField(
         this->iFieldProperty.AddField(
             fieldName,
             nEqu );
-    }
-}
-
-void FieldManager::AllocateGridFields()
-{
-    Grid * gridIn = Zone::GetGrid();
-
-    if ( ONEFLOW::IsUnsGrid( gridIn->type ) )
-    {
-        UnsGrid * grid = ONEFLOW::UnsGridCast( gridIn );
-
-        this->AllocateGridFields(
-            grid,
-            &this->GetFieldPropertyData(
-                FieldCategory::Common ) );
-
-        this->AllocateGridFields(
-            grid,
-            &this->GetFieldPropertyData(
-                FieldCategory::Unstructured ) );
-    }
-}
-
-void FieldManager::AllocateGridFields(
-    UnsGrid * grid,
-    FieldPropertyData * fieldPropertyData )
-{
-    this->AllocateInnerField( grid, fieldPropertyData );
-    this->AllocateFaceField( grid, fieldPropertyData );
-    this->AllocateBcField( grid, fieldPropertyData );
-}
-
-void FieldManager::AllocateInnerField(
-    UnsGrid * grid,
-    FieldPropertyData * fieldPropertyData )
-{
-    int nTCell = grid->nCells + grid->nBFaces;
-
-    const FieldProperty::Data & data =
-        fieldPropertyData->GetFieldProperty(
-            FieldLocation::Inner ).GetData();
-
-    for ( FieldProperty::Data::const_iterator iter = data.begin();
-        iter != data.end();
-        ++ iter )
-    {
-        int nTEqu = iter->second;
-
-        ONEFLOW::CreateMRField(
-            grid,
-            nTEqu,
-            nTCell,
-            iter->first );
-
-        MRField * field =
-            ONEFLOW::GetFieldPointer< MRField >(
-                grid,
-                iter->first );
-
-        ONEFLOW::ZeroField(
-            field,
-            nTEqu,
-            nTCell );
-    }
-}
-
-void FieldManager::AllocateFaceField( UnsGrid * grid, FieldPropertyData * fieldPropertyData )
-{
-    int nFaces = grid->nFaces;
-
-    const FieldProperty::Data & data =
-        fieldPropertyData->GetFieldProperty(
-            FieldLocation::Face ).GetData();
-
-    for ( FieldProperty::Data::const_iterator iter = data.begin(); iter != data.end(); ++ iter )
-    {
-        int nTEqu = iter->second;
-
-        ONEFLOW::CreateMRField( grid, nTEqu, nFaces, iter->first );
-
-        MRField * field = ONEFLOW::GetFieldPointer< MRField >( grid, iter->first );
-
-        ONEFLOW::ZeroField( field, nTEqu, nFaces );
-    }
-}
-
-void FieldManager::AllocateBcField( UnsGrid * grid, FieldPropertyData * fieldPropertyData )
-{
-    int nBFaces = grid->nBFaces;
-
-    const FieldProperty::Data & data =
-        fieldPropertyData->GetFieldProperty(
-            FieldLocation::Boundary ).GetData();
-
-    for ( FieldProperty::Data::const_iterator iter = data.begin(); iter != data.end(); ++ iter )
-    {
-        int nTEqu = iter->second;
-        ONEFLOW::CreateMRField( grid, nTEqu, nBFaces, iter->first );
-
-        MRField * field = ONEFLOW::GetFieldPointer< MRField >( grid, iter->first );
-
-        ONEFLOW::ZeroField( field, nTEqu, nBFaces );
     }
 }
 

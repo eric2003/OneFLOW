@@ -40,17 +40,26 @@ UUnsteady::~UUnsteady()
 
 void UUnsteady::UpdateDualTimeStepResidual()
 {
+    MRField * res =
+        field->GetResidual( UsdField::HistoryLevel::Current );
+
     for ( int iEqu = 0; iEqu < data->nEqu; ++ iEqu )
     {
-        ( * field->res )[ iEqu ][ ug.cId ] = data->dualtimeRes[ iEqu ];
+        ( * res )[ iEqu ][ ug.cId ] =
+            data->dualtimeRes[ iEqu ];
     }
 }
 
+
 void UUnsteady::UpdateDualTimeStepSource()
 {
+    MRField * res =
+        field->GetResidual( UsdField::HistoryLevel::Current );
+
     for ( int iEqu = 0; iEqu < data->nEqu; ++ iEqu )
     {
-        ( * field->res )[ iEqu ][ ug.cId ] -= data->dualtimeSrc[ iEqu ];
+        ( * res )[ iEqu ][ ug.cId ] -=
+            data->dualtimeSrc[ iEqu ];
     }
 }
 
@@ -60,23 +69,49 @@ void UUnsteady::StoreOldResidual()
     //The first step residuals of iteration in two time steps are stored as n-time residuals
     if ( Iteration::innerSteps != 1 ) return;
 
+    MRField * current =
+        field->GetResidual( UsdField::HistoryLevel::Current );
+
+    MRField * previous =
+        field->GetResidual( UsdField::HistoryLevel::Previous );
+
+    MRField * old =
+        field->GetResidual( UsdField::HistoryLevel::Old );
+
     for ( int cId = 0; cId < ug.nCells; ++ cId )
     {
         for ( int iEqu = 0; iEqu < data->nEqu; ++ iEqu )
         {
-            ( * field->res2 )[ iEqu ][ cId ] = ( * field->res1 )[ iEqu ][ cId ];
-            ( * field->res1 )[ iEqu ][ cId ] = ( * field->res  )[ iEqu ][ cId ];
+            ( * old )[ iEqu ][ cId ] =
+                ( * previous )[ iEqu ][ cId ];
+
+            ( * previous )[ iEqu ][ cId ] =
+                ( * current )[ iEqu ][ cId ];
         }
     }
 }
 
 void UUnsteady::PrepareResidual()
 {
+    MRField * res =
+        field->GetResidual( UsdField::HistoryLevel::Current );
+
+    MRField * res1 =
+        field->GetResidual( UsdField::HistoryLevel::Previous );
+
+    MRField * res2 =
+        field->GetResidual( UsdField::HistoryLevel::Old );
+
     for ( int iEqu = 0; iEqu < data->nEqu; ++ iEqu )
     {
-        data->res [ iEqu ] = ( * field->res  )[ iEqu ][ ug.cId ];
-        data->res1[ iEqu ] = ( * field->res1 )[ iEqu ][ ug.cId ];
-        data->res2[ iEqu ] = ( * field->res2 )[ iEqu ][ ug.cId ];
+        data->res[ iEqu ] =
+            ( * res )[ iEqu ][ ug.cId ];
+
+        data->res1[ iEqu ] =
+            ( * res1 )[ iEqu ][ ug.cId ];
+
+        data->res2[ iEqu ] =
+            ( * res2 )[ iEqu ][ ug.cId ];
     }
 }
 

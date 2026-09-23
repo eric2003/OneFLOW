@@ -23,6 +23,7 @@ License
 #include "Prj.h"
 #include "Fatal.h"
 #include "FieldImp.h"
+#include "FieldBase.h"
 #include "UsdPara.h"
 #include "SolverInfo.h"
 #include "SolverDef.h"
@@ -32,6 +33,8 @@ License
 #include "RegisterUtils.h"
 #include "Zone.h"
 #include "Grid.h"
+#include "UnsGrid.h"
+#include "GridState.h"
 #include "InterFace.h"
 
 BeginNameSpace( ONEFLOW )
@@ -42,6 +45,7 @@ namespace
     {
         std::string name;
         int nEqu;
+        FieldCategory category;
     };
 
     int ResolveIntegerValue(
@@ -55,35 +59,6 @@ namespace
         return GetDataValue< int >( valueToken );
     }
 
-
-    UsdFieldNames BuildUsdFieldNames(
-        const ParaNameDim & paraNameDim )
-    {
-        UsdFieldNames fieldNames;
-
-        fieldNames.q =
-            paraNameDim.GetName( 0 );
-
-        fieldNames.q1 =
-            paraNameDim.GetName( 1 );
-
-        fieldNames.q2 =
-            paraNameDim.GetName( 2 );
-
-        fieldNames.res =
-            paraNameDim.GetName( 3 );
-
-        fieldNames.res1 =
-            paraNameDim.GetName( 4 );
-
-        fieldNames.res2 =
-            paraNameDim.GetName( 5 );
-
-        fieldNames.dq =
-            paraNameDim.GetName( 6 );
-
-        return fieldNames;
-    }
 
     struct FieldFileSpec
     {
@@ -122,9 +97,8 @@ namespace
         return FieldCategory::Unstructured;
     }
 
-    void ReadFieldDefinition(
-        TextFileParser & textFileParser,
-        ParaNameDimData & paraNameDimData )
+    FieldDefinition ReadFieldDefinition(
+        TextFileParser & textFileParser )
     {
         FieldDefinition definition;
 
@@ -140,15 +114,44 @@ namespace
         definition.nEqu =
             ResolveIntegerValue( equationCountToken );
 
-        FieldCategory category =
+        definition.category =
             ParseFieldCategory( categoryToken );
 
+        return definition;
+    }
+
+    void RegisterFieldDefinition(
+        ParaNameDimData & paraNameDimData,
+        const FieldDefinition & definition )
+    {
         ParaNameDim * paraNameDim =
-            paraNameDimData.GetParaNameDim( category );
+            paraNameDimData.GetParaNameDim(
+                definition.category );
 
         paraNameDim->Add(
             definition.name,
             definition.nEqu );
+    }
+
+    void AddUsdFieldName(
+        UsdFieldNames & fieldNames,
+        const std::string & fieldName,
+        const std::string & role )
+    {
+        if ( role == "flow" )
+        {
+            fieldNames.flow.push_back( fieldName );
+            return;
+        }
+
+        if ( role == "residual" )
+        {
+            fieldNames.residual.push_back( fieldName );
+            return;
+        }
+
+        Fatal(
+            "Unknown unsteady field role: " + role );
     }
 
     void AddBasicFieldProperty(
@@ -195,7 +198,7 @@ namespace
     void AddInterfaceFieldNames(
         int solverType,
         int fieldType,
-        const NameValuePair & nameValuePair )
+        const FieldNameList & fieldNameList )
     {
         VarNameSolver * varNameSolver =
             VarNameFactory::GetVarNameSolver(
@@ -203,14 +206,14 @@ namespace
                 fieldType );
 
         int fieldCount =
-            nameValuePair.Size();
+            fieldNameList.Size();
 
         for ( int fieldIndex = 0;
             fieldIndex < fieldCount;
             ++ fieldIndex )
         {
             const std::string & fieldName =
-                nameValuePair.GetName( fieldIndex );
+                fieldNameList.GetName( fieldIndex );
 
             varNameSolver->AddFieldName( fieldName );
         }
@@ -312,9 +315,79 @@ namespace
 
             if ( keyWord == "true" )
             {
-                ReadFieldDefinition(
+                FieldDefinition definition =
+                    ReadFieldDefinition(
+                        textFileParser );
+
+                RegisterFieldDefinition(
+                    paraNameDimData,
+                    definition );
+            }
+        }
+
+        textFileParser.CloseFile();
+    }
+
+    void ReadUsdFieldDefinition(
+        TextFileParser & textFileParser,
+        ParaNameDimData & paraNameDimData,
+        UsdFieldNames & fieldNames )
+    {
+        FieldDefinition definition =
+            ReadFieldDefinition(
+                textFileParser );
+
+        RegisterFieldDefinition(
+            paraNameDimData,
+            definition );
+
+        if ( textFileParser.NextWordIsEmpty() )
+        {
+            return;
+        }
+
+        std::string role =
+            textFileParser.ReadNextWord();
+
+        AddUsdFieldName(
+            fieldNames,
+            definition.name,
+            role );
+    }
+
+    void ReadUsdFieldDefinitions(
+        const std::string & fileName,
+        ParaNameDimData & paraNameDimData,
+        UsdFieldNames & fieldNames )
+    {
+        TextFileParser textFileParser;
+
+        // \t is the tab key
+        std::string separator = " \r\n\t#$,;\"()";
+
+        textFileParser.OpenFile(
+            fileName,
+            std::ios_base::in );
+
+        textFileParser.SetDefaultSeparator(
+            separator );
+
+        while ( ! textFileParser.ReachTheEndOfFile() )
+        {
+            bool flag =
+                textFileParser.ReadNextNonEmptyLine();
+
+            if ( ! flag ) break;
+
+            std::string keyWord =
+                textFileParser.ReadNextWord();
+
+            if ( keyWord == "true" )
+            {
+                ReadUsdFieldDefinition(
                     textFileParser,
-                    paraNameDimData );
+                    paraNameDimData,
+                    fieldNames );
             }
         }
 
@@ -383,18 +456,29 @@ namespace
     }
 }
 
+void FieldNameList::Add(
+    const std::string & name )
+{
+    nameList.push_back( name );
+}
+
+int FieldNameList::Size() const
+{
+    return nameList.size();
+}
+
+const std::string & FieldNameList::GetName(
+    int index ) const
+{
+    return nameList[ index ];
+}
+
 void NameValuePair::Add(
     const std::string & name,
     Real value )
 {
     nameList.push_back( name );
     valueList.push_back( value );
-}
-
-void NameValuePair::AddName(
-    const std::string & name )
-{
-    nameList.push_back( name );
 }
 
 int NameValuePair::Size() const
@@ -422,10 +506,25 @@ void FieldAlloc::AllocateAllFields(
         solverType,
         basicString );
 
+    FieldFactory::AddFieldManager(
+        solverType );
+
     FieldManager * fieldManager =
+        FieldFactory::GetFieldManager(
+            solverType );
+
+    if ( ! fieldManager->HasFieldDefinitions() )
+    {
         FieldAlloc::RegisterFieldDefinitions(
-            solverType,
+            fieldManager,
             basicString );
+
+        fieldManager->MarkFieldDefinitionsReady();
+    }
+
+    FieldAlloc::ValidateInterfaceVar(
+        solverType,
+        fieldManager );
 
     FieldAlloc::AllocateRuntimeFields(
         fieldManager );
@@ -433,16 +532,6 @@ void FieldAlloc::AllocateAllFields(
     FieldAlloc::InitField(
         fieldManager,
         basicString );
-
-    ////tmp---------------------
-
-    //fieldManager->DumpFieldEnvironment(
-    //    std::cout );
-
-    //VarNameFactory::Dump(
-    //    std::cout,
-    //    solverType );
-    ////tmp---------------------
 }
 
 void FieldAlloc::InitField(
@@ -496,19 +585,59 @@ void FieldAlloc::RegisterInterfaceVar(
         AddInterfaceFieldNames(
             solverType,
             spec.fieldType,
-            boolIO.GetNameValuePair() );
+            boolIO.GetFieldNameList() );
     }
 }
 
-FieldManager * FieldAlloc::RegisterFieldDefinitions(
+void FieldAlloc::ValidateInterfaceVar(
     int solverType,
+    FieldManager * fieldManager )
+{
+    const FieldProperty::Data & interfaceData =
+        fieldManager->GetInterfaceFieldProperty().GetData();
+
+    const int interfaceTypes[] =
+    {
+        ONEFLOW::INTERFACE_DATA,
+        ONEFLOW::INTERFACE_DQ_DATA,
+        ONEFLOW::INTERFACE_GRADIENT_DATA,
+        ONEFLOW::INTERFACE_OVERSET_DATA
+    };
+
+    for ( int iType = 0; iType < 4; ++ iType )
+    {
+        VarNameSolver * varNameSolver =
+            VarNameFactory::FindVarNameSolver(
+                solverType,
+                interfaceTypes[ iType ] );
+
+        if ( varNameSolver == nullptr )
+        {
+            continue;
+        }
+
+        for ( int iField = 0;
+            iField < varNameSolver->data.size();
+            ++ iField )
+        {
+            const std::string & fieldName =
+                varNameSolver->data[ iField ];
+
+            if ( interfaceData.find( fieldName ) ==
+                interfaceData.end() )
+            {
+                Fatal(
+                    "Interface field is not allocated: "
+                    + fieldName );
+            }
+        }
+    }
+}
+
+void FieldAlloc::RegisterFieldDefinitions(
+    FieldManager * fieldManager,
     const std::string & basicString )
 {
-    FieldFactory::AddFieldManager( solverType );
-
-    FieldManager * fieldManager =
-        FieldFactory::GetFieldManager( solverType );
-
     const FieldFileSpec fieldFileSpecs[] =
     {
         { "unsteady", FieldLocation::Inner,    true  },
@@ -537,19 +666,162 @@ FieldManager * FieldAlloc::RegisterFieldDefinitions(
             spec.initializeUsdPara );
     }
 
-    return fieldManager;
 }
 
 void FieldAlloc::AllocateRuntimeFields(
     FieldManager * fieldManager )
 {
-    fieldManager->AllocateGridFields();
+    FieldAlloc::AllocateGridFields(
+        fieldManager );
 
     FieldAlloc::AllocateInterfaceField(
         &fieldManager->GetInterfaceFieldProperty() );
 
     FieldAlloc::AllocateOversetInterfaceField(
         &fieldManager->GetInterfaceFieldProperty() );
+}
+
+void FieldAlloc::AllocateGridFields(
+    FieldManager * fieldManager )
+{
+    Grid * gridIn = Zone::GetGrid();
+
+    if ( ONEFLOW::IsUnsGrid( gridIn->type ) )
+    {
+        UnsGrid * grid =
+            ONEFLOW::UnsGridCast( gridIn );
+
+        FieldAlloc::AllocateGridFields(
+            grid,
+            &fieldManager->GetFieldPropertyData(
+                FieldCategory::Common ) );
+
+        FieldAlloc::AllocateGridFields(
+            grid,
+            &fieldManager->GetFieldPropertyData(
+                FieldCategory::Unstructured ) );
+    }
+}
+
+void FieldAlloc::AllocateGridFields(
+    UnsGrid * grid,
+    FieldPropertyData * fieldPropertyData )
+{
+    FieldAlloc::AllocateInnerField(
+        grid,
+        fieldPropertyData );
+
+    FieldAlloc::AllocateFaceField(
+        grid,
+        fieldPropertyData );
+
+    FieldAlloc::AllocateBcField(
+        grid,
+        fieldPropertyData );
+}
+
+void FieldAlloc::AllocateInnerField(
+    UnsGrid * grid,
+    FieldPropertyData * fieldPropertyData )
+{
+    int nTCell = grid->nCells + grid->nBFaces;
+
+    const FieldProperty::Data & data =
+        fieldPropertyData->GetFieldProperty(
+            FieldLocation::Inner ).GetData();
+
+    for ( FieldProperty::Data::const_iterator iter = data.begin();
+        iter != data.end();
+        ++ iter )
+    {
+        int nTEqu = iter->second;
+
+        ONEFLOW::CreateMRField(
+            grid,
+            nTEqu,
+            nTCell,
+            iter->first );
+
+        MRField * field =
+            ONEFLOW::GetFieldPointer< MRField >(
+                grid,
+                iter->first );
+
+        ONEFLOW::ZeroField(
+            field,
+            nTEqu,
+            nTCell );
+    }
+}
+
+void FieldAlloc::AllocateFaceField(
+    UnsGrid * grid,
+    FieldPropertyData * fieldPropertyData )
+{
+    int nFaces = grid->nFaces;
+
+    const FieldProperty::Data & data =
+        fieldPropertyData->GetFieldProperty(
+            FieldLocation::Face ).GetData();
+
+    for ( FieldProperty::Data::const_iterator iter =
+        data.begin();
+        iter != data.end();
+        ++ iter )
+    {
+        int nTEqu = iter->second;
+
+        ONEFLOW::CreateMRField(
+            grid,
+            nTEqu,
+            nFaces,
+            iter->first );
+
+        MRField * field =
+            ONEFLOW::GetFieldPointer< MRField >(
+                grid,
+                iter->first );
+
+        ONEFLOW::ZeroField(
+            field,
+            nTEqu,
+            nFaces );
+    }
+}
+
+void FieldAlloc::AllocateBcField(
+    UnsGrid * grid,
+    FieldPropertyData * fieldPropertyData )
+{
+    int nBFaces = grid->nBFaces;
+
+    const FieldProperty::Data & data =
+        fieldPropertyData->GetFieldProperty(
+            FieldLocation::Boundary ).GetData();
+
+    for ( FieldProperty::Data::const_iterator iter =
+        data.begin();
+        iter != data.end();
+        ++ iter )
+    {
+        int nTEqu = iter->second;
+
+        ONEFLOW::CreateMRField(
+            grid,
+            nTEqu,
+            nBFaces,
+            iter->first );
+
+        MRField * field =
+            ONEFLOW::GetFieldPointer< MRField >(
+                grid,
+                iter->first );
+
+        ONEFLOW::ZeroField(
+            field,
+            nTEqu,
+            nBFaces );
+    }
 }
 
 void FieldAlloc::AllocateInterfaceField( IFieldProperty * iFieldProperty )
@@ -576,11 +848,6 @@ void BoolIO::Add( const std::string & name, bool value )
 {
     boolNameList.push_back( name );
     boolValueList.push_back( value );
-}
-
-const NameValuePair & BoolIO::GetNameValuePair() const
-{
-    return nameValuePair;
 }
 
 bool BoolIO::GetBoolValue(
@@ -662,7 +929,17 @@ void BoolIO::ReadName(
     std::string varName =
         textFileParser.ReadNextWord();
 
-    nameValuePair.AddName( varName );
+    fieldNameList.Add( varName );
+}
+
+const FieldNameList & BoolIO::GetFieldNameList() const
+{
+    return fieldNameList;
+}
+
+const NameValuePair & BoolIO::GetNameValuePair() const
+{
+    return nameValuePair;
 }
 
 void BoolIO::ReadNameValue(
@@ -774,48 +1051,47 @@ ReadSuperPara::ReadSuperPara(
 {
 }
 
-void ReadSuperPara::AddUnsteadyInnerFieldProperty()
+void ReadSuperPara::AddUnsteadyInnerFieldProperty(
+    const UsdFieldNames & fieldNames,
+    const ParaNameDimData & paraNameDimData )
 {
-    this->AddFieldProperties( FieldLocation::Inner );
+    this->AddFieldProperties(
+        FieldLocation::Inner,
+        paraNameDimData );
 
     UsdPara * usdPara =
         &this->fieldManager->GetUsdPara();
 
-    const ParaNameDim * comPara =
-        this->paraNameDimData.GetParaNameDim(
-            FieldCategory::Common );
-
     int nEqu =
         GetDataValue< int >( "nEqu" );
 
-    UsdFieldNames fieldNames =
-        BuildUsdFieldNames( *comPara );
-
     usdPara->Init(
-        fieldNames,
+        fieldNames.flow,
+        fieldNames.residual,
         nEqu );
 }
 
 void ReadSuperPara::AddFieldProperties(
-    FieldLocation location )
+    FieldLocation location,
+    const ParaNameDimData & paraNameDimData )
 {
     AddBasicFieldProperty(
         this->fieldManager,
-        this->paraNameDimData.GetParaNameDim(
+        paraNameDimData.GetParaNameDim(
             FieldCategory::Unstructured ),
         location,
         FieldCategory::Unstructured );
 
     AddBasicFieldProperty(
         this->fieldManager,
-        this->paraNameDimData.GetParaNameDim(
+        paraNameDimData.GetParaNameDim(
             FieldCategory::Structured ),
         location,
         FieldCategory::Structured );
 
     AddBasicFieldProperty(
         this->fieldManager,
-        this->paraNameDimData.GetParaNameDim(
+        paraNameDimData.GetParaNameDim(
             FieldCategory::Common ),
         location,
         FieldCategory::Common );
@@ -826,19 +1102,31 @@ void ReadSuperPara::Register(
     FieldLocation location,
     bool initializeUsdPara )
 {
-    ReadFieldDefinitions(
-        fileName,
-        this->paraNameDimData );
+    ParaNameDimData paraNameDimData;
 
     if ( initializeUsdPara )
     {
-        this->AddUnsteadyInnerFieldProperty();
-    }
-    else
-    {
-        this->AddFieldProperties( location );
-    }
-}
+        UsdFieldNames fieldNames;
 
+        ReadUsdFieldDefinitions(
+            fileName,
+            paraNameDimData,
+            fieldNames );
+
+        this->AddUnsteadyInnerFieldProperty(
+            fieldNames,
+            paraNameDimData );
+
+        return;
+    }
+
+    ReadFieldDefinitions(
+        fileName,
+        paraNameDimData );
+
+    this->AddFieldProperties(
+        location,
+        paraNameDimData );
+}
 
 EndNameSpace

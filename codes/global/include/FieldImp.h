@@ -82,6 +82,8 @@ class FieldManager
 public:
     FieldManager();
     ~FieldManager();
+    bool HasFieldDefinitions() const;
+    void MarkFieldDefinitionsReady();
 
 public:
     IFieldProperty & GetInterfaceFieldProperty();
@@ -110,29 +112,13 @@ public:
         const std::string & fieldName,
         Real value );
 
-    void AllocateGridFields();
-
-    void AllocateGridFields(
-        UnsGrid * grid,
-        FieldPropertyData * fieldPropertyData );
-
-    void AllocateInnerField(
-        UnsGrid * grid,
-        FieldPropertyData * fieldPropertyData );
-
-    void AllocateFaceField(
-        UnsGrid * grid,
-        FieldPropertyData * fieldPropertyData );
-
-    void AllocateBcField(
-        UnsGrid * grid,
-        FieldPropertyData * fieldPropertyData );
 private:
     FieldPropertyData commManager;
     FieldPropertyData strManager;
     FieldPropertyData unsManager;
     IFieldProperty iFieldProperty;
     std::unique_ptr< UsdPara > usdPara;
+    bool fieldDefinitionsReady;
 };
 
 class FieldFactory

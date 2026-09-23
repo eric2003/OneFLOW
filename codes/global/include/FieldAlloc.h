@@ -28,6 +28,22 @@ License
 BeginNameSpace( ONEFLOW )
 
 class IFieldProperty;
+struct UsdFieldNames;
+
+class FieldNameList
+{
+private:
+    StringField nameList;
+
+public:
+    void Add(
+        const std::string & name );
+
+    int Size() const;
+
+    const std::string & GetName(
+        int index ) const;
+};
 
 class NameValuePair
 {
@@ -40,32 +56,69 @@ public:
         const std::string & name,
         Real value );
 
-    void AddName(
-        const std::string & name );
-
     int Size() const;
 
-    const std::string & GetName( int index ) const;
-    Real GetValue( int index ) const;
+    const std::string & GetName(
+        int index ) const;
+
+    Real GetValue(
+        int index ) const;
 };
 
 class FieldManager;
+class UnsGrid;
+class FieldPropertyData;
 
 class FieldAlloc
 {
 public:
-    static void AllocateAllFields( int solverType, const std::string & basicString );
+    static void AllocateAllFields(
+        int solverType,
+        const std::string & basicString );
+
     static void InitField(
         FieldManager * fieldManager,
         const std::string & basicString );
-    static void RegisterInterfaceVar( int solverType, const std::string & basicString );
-    static FieldManager * RegisterFieldDefinitions(
+
+    static void RegisterInterfaceVar(
         int solverType,
         const std::string & basicString );
+
+    static void ValidateInterfaceVar(
+        int solverType,
+        FieldManager * fieldManager );
+
+    static void RegisterFieldDefinitions(
+        FieldManager * fieldManager,
+        const std::string & basicString );
+
     static void AllocateRuntimeFields(
         FieldManager * fieldManager );
-    static void AllocateInterfaceField( IFieldProperty * iFieldProperty );
-    static void AllocateOversetInterfaceField( IFieldProperty * iFieldProperty );
+
+    static void AllocateGridFields(
+        FieldManager * fieldManager );
+
+    static void AllocateGridFields(
+        UnsGrid * grid,
+        FieldPropertyData * fieldPropertyData );
+
+    static void AllocateInnerField(
+        UnsGrid * grid,
+        FieldPropertyData * fieldPropertyData );
+
+    static void AllocateFaceField(
+        UnsGrid * grid,
+        FieldPropertyData * fieldPropertyData );
+
+    static void AllocateBcField(
+        UnsGrid * grid,
+        FieldPropertyData * fieldPropertyData );
+
+    static void AllocateInterfaceField(
+        IFieldProperty * iFieldProperty );
+
+    static void AllocateOversetInterfaceField(
+        IFieldProperty * iFieldProperty );
 };
 
 class ParaNameDim
@@ -106,13 +159,15 @@ public:
 class ReadSuperPara
 {
 private:
-    ParaNameDimData paraNameDimData;
     FieldManager * fieldManager;
 
     void AddFieldProperties(
-        FieldLocation location );
+        FieldLocation location,
+        const ParaNameDimData & paraNameDimData );
 
-    void AddUnsteadyInnerFieldProperty();
+    void AddUnsteadyInnerFieldProperty(
+        const UsdFieldNames & fieldNames,
+        const ParaNameDimData & paraNameDimData );
 
 public:
     explicit ReadSuperPara( FieldManager * fieldManager );
@@ -131,9 +186,13 @@ class BoolIO
 private:
     StringField boolNameList;
     BoolField boolValueList;
+
+    FieldNameList fieldNameList;
     NameValuePair nameValuePair;
 
 public:
+    const FieldNameList & GetFieldNameList() const;
+
     const NameValuePair & GetNameValuePair() const;
 
     bool GetBoolValue(

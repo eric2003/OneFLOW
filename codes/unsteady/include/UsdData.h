@@ -35,7 +35,7 @@ public:
     int nEqu;
 
     Real vol, vol1, vol2;
-    RealField res, res0, res1, res2;
+    RealField res, res1, res2;
     RealField prim, prim1, prim2;
     RealField q, q1, q2;
     RealField dualtimeRes;
@@ -45,7 +45,6 @@ public:
 public:
     Real sum1, sum2, norm0, totalNorm;
     Real conv;
-    int  iConv;
 public:
     void CalcCellDualTimeResidual();
     void CalcCellDualTimeSrc();

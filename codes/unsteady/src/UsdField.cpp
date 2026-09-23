@@ -26,6 +26,7 @@ License
 #include "FieldWrap.h"
 #include "DataBase.h"
 #include "Zone.h"
+#include "Fatal.h"
 #include "UnsGrid.h"
 
 BeginNameSpace( ONEFLOW )
@@ -48,15 +49,51 @@ void UsdField::InitBasic( int solverType )
 {
     UnsGrid * grid = Zone::GetUnsGrid();
 
-    FieldManager * fieldManager = FieldFactory::GetFieldManager( solverType );
-    UsdPara * usdPara = &fieldManager->GetUsdPara();
-    q  = GetFieldPointer< MRField > ( grid, usdPara->flow[ 0 ] );
-    q1 = GetFieldPointer< MRField > ( grid, usdPara->flow[ 1 ] );
-    q2 = GetFieldPointer< MRField > ( grid, usdPara->flow[ 2 ] );
+    FieldManager * fieldManager =
+        FieldFactory::GetFieldManager( solverType );
 
-    res  = GetFieldPointer< MRField > ( grid, usdPara->residual[ 0 ] );
-    res1 = GetFieldPointer< MRField > ( grid, usdPara->residual[ 1 ] );
-    res2 = GetFieldPointer< MRField > ( grid, usdPara->residual[ 2 ] );
+    UsdPara * usdPara =
+        &fieldManager->GetUsdPara();
+
+    this->flow.resize( usdPara->flow.size() );
+
+    for ( std::size_t i = 0; i < usdPara->flow.size(); ++ i )
+    {
+        this->flow[ i ] =
+            GetFieldPointer< MRField >(
+                grid,
+                usdPara->flow[ i ] );
+    }
+
+    this->residual.resize( usdPara->residual.size() );
+
+    if ( this->flow.size() < 3 )
+    {
+        Fatal( "Unsteady flow fields require at least 3 time levels." );
+    }
+
+    if ( this->residual.size() < 3 )
+    {
+        Fatal( "Unsteady residual fields require at least 3 time levels." );
+    }
+
+    for ( std::size_t i = 0; i < usdPara->residual.size(); ++ i )
+    {
+        this->residual[ i ] =
+            GetFieldPointer< MRField >(
+                grid,
+                usdPara->residual[ i ] );
+    }
+}
+
+MRField * UsdField::GetFlow( HistoryLevel level )
+{
+    return this->flow[ static_cast< std::size_t >( level ) ];
+}
+
+MRField * UsdField::GetResidual( HistoryLevel level )
+{
+    return this->residual[ static_cast< std::size_t >( level ) ];
 }
 
 

@@ -72,11 +72,26 @@ void UTurbUnstPrepareSrcData( Unsteady * unst )
 {
     UsdData * data = unst->data;
     UsdField * field = unst->field;
+
+    MRField * q =
+        field->GetFlow( UsdField::HistoryLevel::Current );
+
+    MRField * q1 =
+        field->GetFlow( UsdField::HistoryLevel::Previous );
+
+    MRField * q2 =
+        field->GetFlow( UsdField::HistoryLevel::Old );
+
     for ( int iEqu = 0; iEqu < data->nEqu; ++ iEqu )
     {
-        data->prim [ iEqu ] = ( * field->q  )[ iEqu ][ ug.cId ];
-        data->prim1[ iEqu ] = ( * field->q1 )[ iEqu ][ ug.cId ];
-        data->prim2[ iEqu ] = ( * field->q2 )[ iEqu ][ ug.cId ];
+        data->prim[ iEqu ] =
+            ( * q )[ iEqu ][ ug.cId ];
+
+        data->prim1[ iEqu ] =
+            ( * q1 )[ iEqu ][ ug.cId ];
+
+        data->prim2[ iEqu ] =
+            ( * q2 )[ iEqu ][ ug.cId ];
     }
 
     gcom.cvol  = ( * ug.cvol  )[ ug.cId ];
@@ -102,11 +117,28 @@ void UTurbUnstPrepareCriData( Unsteady * unst )
 {
     UsdData * data = unst->data;
     UsdField * field = unst->field;
+
+    MRField * q =
+        field->GetFlow( UsdField::HistoryLevel::Current );
+
+    MRField * q1 =
+        field->GetFlow( UsdField::HistoryLevel::Previous );
+
+    MRField * q2 =
+        field->GetFlow( UsdField::HistoryLevel::Old );
+
+    MRField * res =
+        field->GetResidual( UsdField::HistoryLevel::Current );
     for ( int iEqu = 0; iEqu < data->nEqu; ++ iEqu )
     {
-        data->prim [ iEqu ] = ( * field->q  )[ iEqu ][ ug.cId ];
-        data->prim1[ iEqu ] = ( * field->q1 )[ iEqu ][ ug.cId ];
-        data->prim2[ iEqu ] = ( * field->q2 )[ iEqu ][ ug.cId ];
+        data->prim [ iEqu ] =
+            ( * q )[ iEqu ][ ug.cId ];
+
+        data->prim1[ iEqu ] =
+            ( * q1 )[ iEqu ][ ug.cId ];
+
+        data->prim2[ iEqu ] =
+            ( * q2 )[ iEqu ][ ug.cId ];
     }
 
     gcom.cvol  = ( * ug.cvol  )[ ug.cId ];
@@ -129,7 +161,8 @@ void UTurbUnstPrepareCriData( Unsteady * unst )
 
     for ( int iEqu = 0; iEqu < data->nEqu; ++ iEqu )
     {
-        data->res [ iEqu ] = ( * field->res  )[ iEqu ][ ug.cId ];
+        data->res[ iEqu ] =
+            ( * res )[ iEqu ][ ug.cId ];
     }
 
 }

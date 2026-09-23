@@ -37,7 +37,7 @@ License
 #include "FieldImp.h"
 #include "FieldWrap.h"
 #include "FieldAlloc.h"
-#include "UsdPara.h"
+#include "UsdField.h"
 #include "RegisterUtils.h"
 #include "INsRestart.h"
 
@@ -73,23 +73,30 @@ Restart::~Restart()
 
 void Restart::ReadUnsteady( int solverType )
 {
-    FieldManager * fieldManager = FieldFactory::GetFieldManager( solverType );
+    UsdField usdField;
+    usdField.InitBasic( solverType );
 
-    UsdPara * usdPara = &fieldManager->GetUsdPara();
+    MRField * q =
+        usdField.GetFlow( UsdField::HistoryLevel::Current );
 
-    Grid * grid = Zone::GetGrid();
+    MRField * q1 =
+        usdField.GetFlow( UsdField::HistoryLevel::Previous );
 
-    MRField * q  = GetFieldPointer< MRField > ( grid, usdPara->flow[ 0 ] );
-    MRField * q1 = GetFieldPointer< MRField > ( grid, usdPara->flow[ 1 ] );
-    MRField * q2 = GetFieldPointer< MRField > ( grid, usdPara->flow[ 2 ] );
+    MRField * q2 =
+        usdField.GetFlow( UsdField::HistoryLevel::Old );
 
     HXRead( ActionState::dataBook, q1 );
     HXRead( ActionState::dataBook, q2 );
     SetField( q, q1 );
 
-    MRField * res  = GetFieldPointer< MRField > ( grid, usdPara->residual[ 0 ] );
-    MRField * res1 = GetFieldPointer< MRField > ( grid, usdPara->residual[ 1 ] );
-    MRField * res2 = GetFieldPointer< MRField > ( grid, usdPara->residual[ 2 ] );
+    MRField * res =
+        usdField.GetResidual( UsdField::HistoryLevel::Current );
+
+    MRField * res1 =
+        usdField.GetResidual( UsdField::HistoryLevel::Previous );
+
+    MRField * res2 =
+        usdField.GetResidual( UsdField::HistoryLevel::Old );
 
     HXRead( ActionState::dataBook, res1 );
     HXRead( ActionState::dataBook, res2 );
@@ -98,22 +105,29 @@ void Restart::ReadUnsteady( int solverType )
 
 void Restart::DumpUnsteady( int solverType )
 {
-    FieldManager * fieldManager = FieldFactory::GetFieldManager( solverType );
+    UsdField usdField;
+    usdField.InitBasic( solverType );
 
-    UsdPara * usdPara = &fieldManager->GetUsdPara();
+    MRField * q =
+        usdField.GetFlow( UsdField::HistoryLevel::Current );
 
-    Grid * grid = Zone::GetGrid();
+    MRField * q1 =
+        usdField.GetFlow( UsdField::HistoryLevel::Previous );
 
-    MRField * q  = GetFieldPointer< MRField > ( grid, usdPara->flow[ 0 ] );
-    MRField * q1 = GetFieldPointer< MRField > ( grid, usdPara->flow[ 1 ] );
-    MRField * q2 = GetFieldPointer< MRField > ( grid, usdPara->flow[ 2 ] );
+    MRField * q2 =
+        usdField.GetFlow( UsdField::HistoryLevel::Old );
 
     HXWrite( ActionState::dataBook, q1 );
     HXWrite( ActionState::dataBook, q2 );
 
-    MRField * res  = GetFieldPointer< MRField > ( grid, usdPara->residual[ 0 ] );
-    MRField * res1 = GetFieldPointer< MRField > ( grid, usdPara->residual[ 1 ] );
-    MRField * res2 = GetFieldPointer< MRField > ( grid, usdPara->residual[ 2 ] );
+    MRField * res =
+        usdField.GetResidual( UsdField::HistoryLevel::Current );
+
+    MRField * res1 =
+        usdField.GetResidual( UsdField::HistoryLevel::Previous );
+
+    MRField * res2 =
+        usdField.GetResidual( UsdField::HistoryLevel::Old );
 
     HXWrite( ActionState::dataBook, res1 );
     HXWrite( ActionState::dataBook, res2 );
@@ -121,20 +135,29 @@ void Restart::DumpUnsteady( int solverType )
 
 void Restart::InitUnsteady( int solverType )
 {
-    FieldManager * fieldManager = FieldFactory::GetFieldManager( solverType );
-    UsdPara * usdPara = &fieldManager->GetUsdPara();
-    Grid * grid = Zone::GetGrid();
+    UsdField usdField;
+    usdField.InitBasic( solverType );
 
-    MRField * q  = GetFieldPointer< MRField > ( grid, usdPara->flow[ 0 ] );
-    MRField * q1 = GetFieldPointer< MRField > ( grid, usdPara->flow[ 1 ] );
-    MRField * q2 = GetFieldPointer< MRField > ( grid, usdPara->flow[ 2 ] );
+    MRField * q =
+        usdField.GetFlow( UsdField::HistoryLevel::Current );
+
+    MRField * q1 =
+        usdField.GetFlow( UsdField::HistoryLevel::Previous );
+
+    MRField * q2 =
+        usdField.GetFlow( UsdField::HistoryLevel::Old );
 
     SetField( q1, q );
     SetField( q2, q );
 
-    MRField * res  = GetFieldPointer< MRField > ( grid, usdPara->residual[ 0 ] );
-    MRField * res1 = GetFieldPointer< MRField > ( grid, usdPara->residual[ 1 ] );
-    MRField * res2 = GetFieldPointer< MRField > ( grid, usdPara->residual[ 2 ] );
+    MRField * res =
+        usdField.GetResidual( UsdField::HistoryLevel::Current );
+
+    MRField * res1 =
+        usdField.GetResidual( UsdField::HistoryLevel::Previous );
+
+    MRField * res2 =
+        usdField.GetResidual( UsdField::HistoryLevel::Old );
 
     SetField( res , 0.0 );
     SetField( res1, res );

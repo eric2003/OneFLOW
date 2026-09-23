@@ -27,15 +27,8 @@ BeginNameSpace( ONEFLOW )
 
 struct UsdFieldNames
 {
-    std::string q;
-    std::string q1;
-    std::string q2;
-
-    std::string res;
-    std::string res1;
-    std::string res2;
-
-    std::string dq;
+    StringField flow;
+    StringField residual;
 };
 
 class UsdPara
@@ -48,11 +41,12 @@ public:
     int  nEqu;
     StringField residual;
     StringField flow;
-    StringField dq;
 public:
     void Init(
-        const UsdFieldNames & fieldNames,
+        const StringField & flow,
+        const StringField & residual,
         int nEqu );
 };
+
 
 EndNameSpace
