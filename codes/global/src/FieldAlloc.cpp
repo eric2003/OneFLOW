@@ -198,7 +198,7 @@ namespace
     void AddInterfaceFieldNames(
         int solverType,
         int fieldType,
-        const NameValuePair & nameValuePair )
+        const FieldNameList & fieldNameList )
     {
         VarNameSolver * varNameSolver =
             VarNameFactory::GetVarNameSolver(
@@ -206,14 +206,14 @@ namespace
                 fieldType );
 
         int fieldCount =
-            nameValuePair.Size();
+            fieldNameList.Size();
 
         for ( int fieldIndex = 0;
             fieldIndex < fieldCount;
             ++ fieldIndex )
         {
             const std::string & fieldName =
-                nameValuePair.GetName( fieldIndex );
+                fieldNameList.GetName( fieldIndex );
 
             varNameSolver->AddFieldName( fieldName );
         }
@@ -386,18 +386,29 @@ namespace
     }
 }
 
+void FieldNameList::Add(
+    const std::string & name )
+{
+    nameList.push_back( name );
+}
+
+int FieldNameList::Size() const
+{
+    return nameList.size();
+}
+
+const std::string & FieldNameList::GetName(
+    int index ) const
+{
+    return nameList[ index ];
+}
+
 void NameValuePair::Add(
     const std::string & name,
     Real value )
 {
     nameList.push_back( name );
     valueList.push_back( value );
-}
-
-void NameValuePair::AddName(
-    const std::string & name )
-{
-    nameList.push_back( name );
 }
 
 int NameValuePair::Size() const
@@ -500,7 +511,7 @@ void FieldAlloc::RegisterInterfaceVar(
         AddInterfaceFieldNames(
             solverType,
             spec.fieldType,
-            boolIO.GetNameValuePair() );
+            boolIO.GetFieldNameList() );
     }
 }
 
@@ -720,11 +731,6 @@ void BoolIO::Add( const std::string & name, bool value )
     boolValueList.push_back( value );
 }
 
-const NameValuePair & BoolIO::GetNameValuePair() const
-{
-    return nameValuePair;
-}
-
 bool BoolIO::GetBoolValue(
     const std::string & varName ) const
 {
@@ -804,7 +810,17 @@ void BoolIO::ReadName(
     std::string varName =
         textFileParser.ReadNextWord();
 
-    nameValuePair.AddName( varName );
+    fieldNameList.Add( varName );
+}
+
+const FieldNameList & BoolIO::GetFieldNameList() const
+{
+    return fieldNameList;
+}
+
+const NameValuePair & BoolIO::GetNameValuePair() const
+{
+    return nameValuePair;
 }
 
 void BoolIO::ReadNameValue(

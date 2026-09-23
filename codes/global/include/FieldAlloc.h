@@ -29,6 +29,21 @@ BeginNameSpace( ONEFLOW )
 
 class IFieldProperty;
 
+class FieldNameList
+{
+private:
+    StringField nameList;
+
+public:
+    void Add(
+        const std::string & name );
+
+    int Size() const;
+
+    const std::string & GetName(
+        int index ) const;
+};
+
 class NameValuePair
 {
 private:
@@ -40,13 +55,13 @@ public:
         const std::string & name,
         Real value );
 
-    void AddName(
-        const std::string & name );
-
     int Size() const;
 
-    const std::string & GetName( int index ) const;
-    Real GetValue( int index ) const;
+    const std::string & GetName(
+        int index ) const;
+
+    Real GetValue(
+        int index ) const;
 };
 
 class FieldManager;
@@ -164,9 +179,13 @@ class BoolIO
 private:
     StringField boolNameList;
     BoolField boolValueList;
+
+    FieldNameList fieldNameList;
     NameValuePair nameValuePair;
 
 public:
+    const FieldNameList & GetFieldNameList() const;
+
     const NameValuePair & GetNameValuePair() const;
 
     bool GetBoolValue(
