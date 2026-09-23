@@ -88,7 +88,8 @@ void UUnsteady::StoreOldResidual()
             ( * previous )[ iEqu ][ cId ] =
                 ( * current )[ iEqu ][ cId ];
         }
-    }}
+    }
+}
 
 void UUnsteady::PrepareResidual()
 {
