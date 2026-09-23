@@ -45,7 +45,6 @@ public:
 public:
     Real sum1, sum2, norm0, totalNorm;
     Real conv;
-    int  iConv;
 public:
     void CalcCellDualTimeResidual();
     void CalcCellDualTimeSrc();
